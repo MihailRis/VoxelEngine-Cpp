@@ -26,6 +26,27 @@ void Shader::uniformMatrix(std::string name, glm::mat4 matrix){
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
+void Shader::uniform1i(std::string name, int x){
+	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
+	glUniform1i(transformLoc, x);
+}
+
+void Shader::uniform1f(std::string name, float x){
+	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
+	glUniform1f(transformLoc, x);
+}
+
+void Shader::uniform2f(std::string name, float x, float y){
+	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
+	glUniform2f(transformLoc, x, y);
+}
+
+void Shader::uniform3f(std::string name, float x, float y, float z){
+	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
+	glUniform3f(transformLoc, x,y,z);
+}
+
+
 
 Shader* load_shader(std::string vertexFile, std::string fragmentFile) {
 	// Reading Files

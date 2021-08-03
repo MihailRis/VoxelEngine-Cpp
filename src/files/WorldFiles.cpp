@@ -14,6 +14,8 @@ union {
 #include <fstream>
 #include <iostream>
 
+unsigned long WorldFiles::totalCompressed = 0;
+
 int bytes2Int(const unsigned char* src, unsigned int offset){
 	return (src[offset] << 24) | (src[offset+1] << 16) | (src[offset+2] << 8) | (src[offset+3]);
 }
@@ -26,11 +28,13 @@ void int2Bytes(int value, char* dest, unsigned int offset){
 }
 
 WorldFiles::WorldFiles(const char* directory, size_t mainBufferCapacity) : directory(directory){
-	mainBuffer = new char[mainBufferCapacity];
+	mainBufferIn = new char[CHUNK_VOL*2];
+	mainBufferOut = new char[mainBufferCapacity];
 }
 
 WorldFiles::~WorldFiles(){
-	delete[] mainBuffer;
+	delete[] mainBufferIn;
+	delete[] mainBufferOut;
 	std::unordered_map<long, char**>::iterator it;
 	for (it = regions.begin(); it != regions.end(); it++){
 	    char** region = it->second;
@@ -66,9 +70,11 @@ void WorldFiles::put(const char* chunkData, int x, int y){
 	if (targetChunk == nullptr){
 		targetChunk = new char[CHUNK_VOL];
 		region[localY * REGION_SIZE + localX] = targetChunk;
+		totalCompressed += CHUNK_VOL;
 	}
 	for (unsigned int i = 0; i < CHUNK_VOL; i++)
 		targetChunk[i] = chunkData[i];
+
 }
 
 std::string WorldFiles::getRegionFile(int x, int y) {
@@ -123,19 +129,19 @@ bool WorldFiles::readChunk(int x, int y, char* out){
 	input.read((char*)(&offset), 4);
 	// Ordering bytes from big-endian to machine order (any, just reading)
 	offset = bytes2Int((const unsigned char*)(&offset), 0);
+	assert (offset < 1000000);
 	if (offset == 0){
 		input.close();
 		return false;
 	}
-
 	input.seekg(offset);
 	input.read((char*)(&offset), 4);
 	size_t compressedSize = bytes2Int((const unsigned char*)(&offset), 0);
 
-	input.read(mainBuffer, compressedSize);
+	input.read(mainBufferIn, compressedSize);
 	input.close();
 
-	decompressRLE(mainBuffer, compressedSize, out, CHUNK_VOL);
+	decompressRLE(mainBufferIn, compressedSize, out, CHUNK_VOL);
 
 	return true;
 }
@@ -150,8 +156,8 @@ void WorldFiles::write(){
 		int y;
 		longToCoords(x,y, it->first);
 
-		unsigned int size = writeRegion(mainBuffer, x,y, it->second);
-		write_binary_file(getRegionFile(x,y), mainBuffer, size);
+		unsigned int size = writeRegion(mainBufferOut, x,y, it->second);
+		write_binary_file(getRegionFile(x,y), mainBufferOut, size);
 	}
 }
 
@@ -165,8 +171,11 @@ unsigned int WorldFiles::writeRegion(char* out, int x, int y, char** region){
 		char* chunk = region[i];
 		if (chunk == nullptr){
 			chunk = new char[CHUNK_VOL];
+			assert((((i % REGION_SIZE) + x * REGION_SIZE) >> REGION_SIZE_BIT) == x);
+			assert((((i / REGION_SIZE) + y * REGION_SIZE) >> REGION_SIZE_BIT) == y);
 			if (readChunk((i % REGION_SIZE) + x * REGION_SIZE, (i / REGION_SIZE) + y * REGION_SIZE, chunk)){
 				region[i] = chunk;
+				totalCompressed += CHUNK_VOL;
 			} else {
 				delete[] chunk;
 				chunk = nullptr;

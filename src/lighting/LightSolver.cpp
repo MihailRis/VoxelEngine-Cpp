@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "LightSolver.h"
 #include "Lightmap.h"
 #include "../voxels/Chunks.h"
@@ -24,6 +25,7 @@ void LightSolver::add(int x, int y, int z, int emission) {
 }
 
 void LightSolver::add(int x, int y, int z) {
+	assert (chunks != nullptr);
 	add(x,y,z, chunks->getLight(x,y,z, channel));
 }
 

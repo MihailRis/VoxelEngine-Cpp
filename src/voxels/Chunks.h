@@ -33,8 +33,10 @@ public:
 	void set(int x, int y, int z, int id);
 	voxel* rayCast(vec3 start, vec3 dir, float maxLength, vec3& end, vec3& norm, vec3& iend);
 
-	void setCenter(int x, int y, int z);
-	void translate(int x, int y, int z);
+	bool isObstacle(int x, int y, int z);
+
+	void setCenter(WorldFiles* worldFiles, int x, int y, int z);
+	void translate(WorldFiles* worldFiles, int x, int y, int z);
 
 	bool loadVisible(WorldFiles* worldFiles);
 	bool _buildMeshes(VoxelRenderer* renderer);

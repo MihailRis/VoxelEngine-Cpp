@@ -15,9 +15,11 @@
  * */
 class WorldFiles {
 public:
+	static unsigned long totalCompressed;
 	std::unordered_map<long, char**> regions;
 	std::string directory;
-	char* mainBuffer;
+	char* mainBufferIn;
+	char* mainBufferOut;
 
 	WorldFiles(const char* directory, size_t mainBufferCapacity);
 	~WorldFiles();

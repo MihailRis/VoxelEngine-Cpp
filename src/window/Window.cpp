@@ -30,6 +30,12 @@ int Window::initialize(int width, int height, const char* title){
 	}
 	glViewport(0,0, width, height);
 
+	glClearColor(0.0f,0.0f,0.0f,1);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	Window::width = width;
 	Window::height = height;
 	return 0;

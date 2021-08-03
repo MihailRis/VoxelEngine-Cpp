@@ -1,16 +1,14 @@
-/*
- * png_loading.cpp
- *
- *  Created on: Feb 10, 2020
- *      Author: MihailRis
- */
-
 #include "png_loading.h"
 
 #include <iostream>
 #include <GL/glew.h>
-#include <png.h>
 #include "../graphics/Texture.h"
+
+// comment line below for use spng instead of libpng
+#define LIBPNG
+
+#ifdef LIBPNG
+#include <png.h>
 
 int _png_load(const char* file, int* width, int* height){
     FILE *f;
@@ -113,6 +111,116 @@ int _png_load(const char* file, int* width, int* height){
     fclose( f );
     return texture;
 }
+#else
+#include <spng.h>
+#include <stdio.h>
+#include <inttypes.h>
+
+int _png_load(const char* file, int* pwidth, int* pheight){
+	int r = 0;
+	FILE *png;
+	char *pngbuf = nullptr;
+	spng_ctx *ctx = nullptr;
+	unsigned char *out = nullptr;
+
+	png = fopen(file, "rb");
+	if (png == nullptr){
+		std::cerr << "could not to open file " << file << std::endl;
+		return 0;
+	}
+
+	fseek(png, 0, SEEK_END);
+	long siz_pngbuf = ftell(png);
+	rewind(png);
+	if(siz_pngbuf < 1) {
+		std::cerr << "could not to read file " << file << std::endl;
+		return 0;
+	}
+	pngbuf = new char[siz_pngbuf];
+	if(fread(pngbuf, siz_pngbuf, 1, png) != 1){
+		std::cerr << "fread() failed" << std::endl;
+		return 0;
+	}
+	ctx = spng_ctx_new(0);
+	if (ctx == nullptr){
+		std::cerr << "spng_ctx_new() failed" << std::endl;
+		return 0;
+	}
+	r = spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
+	if (r){
+		std::cerr << "spng_set_crc_action() error: " << spng_strerror(r) << std::endl;
+		return 0;
+	}
+	r = spng_set_png_buffer(ctx, pngbuf, siz_pngbuf);
+	if (r){
+		std::cerr << "spng_set_png_buffer() error: " << spng_strerror(r) << std::endl;
+		return 0;
+	}
+
+	spng_ihdr ihdr;
+	r = spng_get_ihdr(ctx, &ihdr);
+	if (r){
+		std::cerr << "spng_get_ihdr() error: " << spng_strerror(r) << std::endl;
+		return 0;
+	}
+
+	char *clr_type_str;
+	if(ihdr.color_type == SPNG_COLOR_TYPE_GRAYSCALE)
+		clr_type_str = "grayscale";
+	else if(ihdr.color_type == SPNG_COLOR_TYPE_TRUECOLOR)
+		clr_type_str = "truecolor";
+	else if(ihdr.color_type == SPNG_COLOR_TYPE_INDEXED)
+		clr_type_str = "indexed color";
+	else if(ihdr.color_type == SPNG_COLOR_TYPE_GRAYSCALE_ALPHA)
+		clr_type_str = "grayscale with alpha";
+	else
+		clr_type_str = "truecolor with alpha";
+
+	size_t out_size;
+	r = spng_decoded_image_size(ctx, SPNG_FMT_RGBA8, &out_size);
+	if (r){
+		std::cerr << "spng_decoded_image_size() error: " << spng_strerror(r) << std::endl;
+		return 0;
+	}
+	out = new unsigned char[out_size];
+	r = spng_decode_image(ctx, out, out_size, SPNG_FMT_RGBA8, 0);
+	if (r){
+		std::cerr << "spng_decode_image() error: " << spng_strerror(r) << std::endl;
+		return 0;
+	}
+
+	unsigned char* flipped = new unsigned char[out_size];
+
+	for (size_t i = 0; i < ihdr.height; i+=1){
+		size_t rowsize = ihdr.width*4;
+		for (size_t j = 0; j < rowsize; j++){
+			flipped[(ihdr.height-i-1)*rowsize+j] = out[i*rowsize+j];
+		}
+	}
+	delete[] out;
+
+    unsigned int texture;
+    int alpha = GL_RGBA;
+
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ihdr.width, ihdr.height, 0,
+        alpha, GL_UNSIGNED_BYTE, (GLvoid *) flipped);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    pwidth[0] = ihdr.width;
+    pheight[0] = ihdr.height;
+
+	spng_ctx_free(ctx);
+	delete[] pngbuf;
+
+    return texture;
+}
+
+#endif
 
 Texture* load_texture(std::string filename){
 	int width, height;

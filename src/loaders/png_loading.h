@@ -1,10 +1,3 @@
-/*
- * png_loading.h
- *
- *  Created on: Feb 10, 2020
- *      Author: MihailRis
- */
-
 #ifndef LOADERS_PNG_LOADING_H_
 #define LOADERS_PNG_LOADING_H_
 

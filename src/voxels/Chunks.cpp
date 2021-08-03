@@ -1,6 +1,7 @@
 #include "Chunks.h"
 #include "Chunk.h"
 #include "voxel.h"
+#include "Block.h"
 #include "WorldGenerator.h"
 #include "../lighting/Lightmap.h"
 #include "../files/WorldFiles.h"
@@ -127,6 +128,13 @@ voxel* Chunks::get(int x, int y, int z){
 	int ly = y - cy * CHUNK_H;
 	int lz = z - cz * CHUNK_D;
 	return &chunk->voxels[(ly * CHUNK_D + lz) * CHUNK_W + lx];
+}
+
+bool Chunks::isObstacle(int x, int y, int z){
+	voxel* v = get(x,y,z);
+	if (v == nullptr)
+		return true; // void - is obstacle
+	return Block::blocks[v->id]->obstacle;
 }
 
 unsigned char Chunks::getLight(int x, int y, int z, int channel){
@@ -292,7 +300,7 @@ voxel* Chunks::rayCast(vec3 a, vec3 dir, float maxDist, vec3& end, vec3& norm, v
 	return nullptr;
 }
 
-void Chunks::setCenter(int x, int y, int z) {
+void Chunks::setCenter(WorldFiles* worldFiles, int x, int y, int z) {
 	int cx = x / CHUNK_W;
 	int cy = y / CHUNK_H;
 	int cz = z / CHUNK_D;
@@ -306,7 +314,7 @@ void Chunks::setCenter(int x, int y, int z) {
 	cy -= h/2;
 	cz -= d/2;
 	if (cx != 0 || cy != 0 || cz != 0)
-		translate(cx,cy,cz);
+		translate(worldFiles, cx,cy,cz);
 }
 
 bool Chunks::loadVisible(WorldFiles* worldFiles){
@@ -349,7 +357,7 @@ bool Chunks::loadVisible(WorldFiles* worldFiles){
 	return true;
 }
 
-void Chunks::translate(int dx, int dy, int dz){
+void Chunks::translate(WorldFiles* worldFiles, int dx, int dy, int dz){
 	for (unsigned int i = 0; i < volume; i++){
 		chunksSecond[i] = nullptr;
 		meshesSecond[i] = nullptr;
@@ -365,6 +373,7 @@ void Chunks::translate(int dx, int dy, int dz){
 					continue;
 				Mesh* mesh = meshes[(y * d + z) * w + x];
 				if (nx < 0 || ny < 0 || nz < 0 || nx >= w || ny >= h || nz >= d){
+					worldFiles->put((const char*)chunk->voxels, chunk->x, chunk->z);
 					delete chunk;
 					delete mesh;
 					continue;
