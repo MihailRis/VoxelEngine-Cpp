@@ -3,7 +3,7 @@
 
 #include <map>
 #include <unordered_map>
-
+#include <string>
 #define REGION_SIZE_BIT 5
 #define REGION_SIZE (1 << (REGION_SIZE_BIT))
 #define REGION_VOL ((REGION_SIZE) * (REGION_SIZE))
