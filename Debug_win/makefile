@@ -65,7 +65,7 @@ main-build: VOXEL_ENGINE.exe
 VOXEL_ENGINE.exe: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MinGW C++ Linker'
-	g++  -o "VOXEL_ENGINE.exe" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++  -o "VOXEL_ENGINE.exe" $(OBJS) $(USER_OBJS) $(LIBS) -static-libgcc -static-libstdc++
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lglfw3 -lglew32 -lopengl32 -lspng -lgdi32 -lz
+LIBS := -lglfw3 -lglew32 -lopengl32 -lspng -lgdi32 -Wl,-Bstatic -lz
 
