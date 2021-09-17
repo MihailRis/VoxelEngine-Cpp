@@ -59,6 +59,8 @@ LineBatch *lineBatch;
 Chunks* chunks;
 WorldFiles* wfile;
 
+bool occlusion = false;
+
 // All in-game definitions (blocks, items, etc..)
 void setup_definitions() {
 	// AIR
@@ -130,15 +132,24 @@ int initialize_assets() {
 }
 
 void draw_world(Camera* camera){
+	glClearColor(0.7f,0.85f,1.0f,1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Draw VAO
 	shader->use();
-	shader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
+	shader->uniformMatrix("u_proj", camera->getProjection());
+	shader->uniformMatrix("u_view", camera->getView());
 	shader->uniform1f("u_gamma", 1.6f);
-	shader->uniform3f("u_skyLightColor", 0.1*2,0.15*2,0.2*2);
+	shader->uniform3f("u_skyLightColor", 1.8f,1.8f,1.8f);
+	shader->uniform3f("u_fogColor", 0.7f,0.85f,1.0f);
 	texture->bind();
 	mat4 model(1.0f);
+
+	const float cameraX = camera->position.x;
+	const float cameraZ = camera->position.z;
+	const float camDirX = camera->dir.x;
+	const float camDirZ = camera->dir.z;
+
 	for (size_t i = 0; i < chunks->volume; i++){
 		Chunk* chunk = chunks->chunks[i];
 		if (chunk == nullptr)
@@ -146,6 +157,28 @@ void draw_world(Camera* camera){
 		Mesh* mesh = chunks->meshes[i];
 		if (mesh == nullptr)
 			continue;
+
+		// Simple frustum culling (culling chunks behind the camera in 2D - XZ)
+		if (occlusion){
+			bool unoccluded = false;
+			do {
+				if ((chunk->x*CHUNK_W-cameraX)*camDirX + (chunk->z*CHUNK_D-cameraZ)*camDirZ >= 0.0){
+					unoccluded = true; break;
+				}
+				if (((chunk->x+1)*CHUNK_W-cameraX)*camDirX + (chunk->z*CHUNK_D-cameraZ)*camDirZ >= 0.0){
+					unoccluded = true; break;
+				}
+				if (((chunk->x+1)*CHUNK_W-cameraX)*camDirX + ((chunk->z+1)*CHUNK_D-cameraZ)*camDirZ >= 0.0){
+					unoccluded = true; break;
+				}
+				if ((chunk->x*CHUNK_W-cameraX)*camDirX + ((chunk->z+1)*CHUNK_D-cameraZ)*camDirZ >= 0.0){
+					unoccluded = true; break;
+				}
+			} while (false);
+			if (!unoccluded)
+				continue;
+		}
+
 		model = glm::translate(mat4(1.0f), vec3(chunk->x*CHUNK_W+0.5f, chunk->y*CHUNK_H+0.5f, chunk->z*CHUNK_D+0.5f));
 		shader->uniformMatrix("u_model", model);
 		mesh->draw(GL_TRIANGLES);
@@ -210,7 +243,7 @@ int main() {
 
 	crosshair = new Mesh(vertices, 4, attrs);
 	Camera* camera = new Camera(vec3(32,32,32), radians(90.0f));
-	Hitbox* hitbox = new Hitbox(vec3(32,32,32), vec3(0.2f,0.9f,0.2f));
+	Hitbox* hitbox = new Hitbox(vec3(32,120,32), vec3(0.2f,0.9f,0.2f));
 
 	float lastTime = glfwGetTime();
 	float delta = 0.0f;
@@ -223,13 +256,20 @@ int main() {
 	int choosenBlock = 1;
 	long frame = 0;
 
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 
 	while (!Window::isShouldClose()){
 		frame++;
 		float currentTime = glfwGetTime();
 		delta = currentTime - lastTime;
 		lastTime = currentTime;
+
+		//if (frame % 240 == 0)
+		//	std::cout << delta << std::endl;
+
+		if (Events::jpressed(GLFW_KEY_O)){
+			occlusion = !occlusion;
+		}
 
 		if (Events::jpressed(GLFW_KEY_ESCAPE)){
 			Window::setShouldClose(true);

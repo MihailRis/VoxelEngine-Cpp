@@ -133,7 +133,7 @@ void Lighting::onChunkLoaded(int cx, int cy, int cz){
 						break;
 					current->lightmap->setS(x,y,z, 15);
 					current->modified = true;
-					solverS->add(gx,y+ncy*CHUNK_H,gz);
+					//solverS->add(gx,y+ncy*CHUNK_H,gz);
 				}
 			}
 		}

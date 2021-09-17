@@ -321,7 +321,7 @@ bool Chunks::loadVisible(WorldFiles* worldFiles){
 	int nearX = 0;
 	int nearY = 0;
 	int nearZ = 0;
-	int minDistance = 1000000000;
+	int minDistance = (w/2)*(w/2);
 	for (unsigned int y = 0; y < h; y++){
 		for (unsigned int z = 1; z < d-1; z++){
 			for (unsigned int x = 1; x < w-1; x++){
