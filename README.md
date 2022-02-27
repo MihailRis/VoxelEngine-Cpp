@@ -8,7 +8,7 @@
 
 `$ cd VoxelEngine-Cpp/Debug`
 
-`$ sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev`
+`$ sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev`
 
 `$ make `
 
