@@ -1,3 +1,4 @@
+#include <iostream>
 #include <assert.h>
 #include "LightSolver.h"
 #include "Lightmap.h"
@@ -60,7 +61,7 @@ void LightSolver::solve(){
 	};
 
 	while (!remqueue.empty()){
-		lightentry entry = remqueue.front();
+		const lightentry entry = remqueue.front();
 		remqueue.pop();
 
 		for (size_t i = 0; i < 6; i++) {

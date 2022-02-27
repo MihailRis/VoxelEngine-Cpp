@@ -6,13 +6,7 @@
 #include "../lighting/Lightmap.h"
 #include "../files/WorldFiles.h"
 
-#include "../lighting/Lighting.h"
-#include "../graphics/VoxelRenderer.h"
 #include "../graphics/Mesh.h"
-
-#include <glm/glm.hpp>
-
-using namespace glm;
 
 #include <math.h>
 #include <limits.h>
@@ -36,77 +30,6 @@ Chunks::~Chunks(){
 		delete chunks[i];
 	}
 	delete[] chunks;
-}
-
-bool Chunks::_buildMeshes(VoxelRenderer* renderer) {
-	int nearX = 0;
-	int nearY = 0;
-	int nearZ = 0;
-	int minDistance = 1000000000;
-	for (unsigned int y = 0; y < h; y++){
-		for (unsigned int z = 1; z < d-1; z++){
-			for (unsigned int x = 1; x < w-1; x++){
-				int index = (y * d + z) * w + x;
-				Chunk* chunk = chunks[index];
-				if (chunk == nullptr)
-					continue;
-				Mesh* mesh = meshes[index];
-				if (mesh != nullptr && !chunk->modified)
-					continue;
-				int lx = x - w / 2;
-				int ly = y - h / 2;
-				int lz = z - d / 2;
-				int distance = (lx * lx + ly * ly + lz * lz);
-				if (distance < minDistance){
-					minDistance = distance;
-					nearX = x;
-					nearY = y;
-					nearZ = z;
-				}
-			}
-		}
-	}
-
-	int index = (nearY * d + nearZ) * w + nearX;
-
-	Chunk* closes[27];
-
-	Chunk* chunk = chunks[index];
-	if (chunk == nullptr)
-		return false;
-	Mesh* mesh = meshes[index];
-	if (mesh == nullptr || chunk->modified){
-		if (mesh != nullptr)
-			delete mesh;
-		if (chunk->isEmpty()){
-			meshes[index] = nullptr;
-			return false;
-		}
-		chunk->modified = false;
-		for (int i = 0; i < 27; i++)
-			closes[i] = nullptr;
-		for (size_t j = 0; j < volume; j++){
-			Chunk* other = chunks[j];
-			if (other == nullptr)
-				continue;
-
-			int ox = other->x - chunk->x;
-			int oy = other->y - chunk->y;
-			int oz = other->z - chunk->z;
-
-			if (abs(ox) > 1 || abs(oy) > 1 || abs(oz) > 1)
-				continue;
-
-			ox += 1;
-			oy += 1;
-			oz += 1;
-			closes[(oy * 3 + oz) * 3 + ox] = other;
-		}
-		mesh = renderer->render(chunk, (const Chunk**)closes);
-		meshes[index] = mesh;
-		return true;
-	}
-	return false;
 }
 
 voxel* Chunks::get(int x, int y, int z){
@@ -156,6 +79,27 @@ unsigned char Chunks::getLight(int x, int y, int z, int channel){
 	int ly = y - cy * CHUNK_H;
 	int lz = z - cz * CHUNK_D;
 	return chunk->lightmap->get(lx,ly,lz, channel);
+}
+
+unsigned short Chunks::getLight(int x, int y, int z){
+	x -= ox * CHUNK_W;
+	y -= oy * CHUNK_H;
+	z -= oz * CHUNK_D;
+	int cx = x / CHUNK_W;
+	int cy = y / CHUNK_H;
+	int cz = z / CHUNK_D;
+	if (x < 0) cx--;
+	if (y < 0) cy--;
+	if (z < 0) cz--;
+	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= h || cz >= d)
+		return 0;
+	Chunk* chunk = chunks[(cy * d + cz) * w + cx];
+	if (chunk == nullptr)
+		return 0;
+	int lx = x - cx * CHUNK_W;
+	int ly = y - cy * CHUNK_H;
+	int lz = z - cz * CHUNK_D;
+	return chunk->lightmap->get(lx,ly,lz);
 }
 
 Chunk* Chunks::getChunkByVoxel(int x, int y, int z){
@@ -317,46 +261,6 @@ void Chunks::setCenter(WorldFiles* worldFiles, int x, int y, int z) {
 		translate(worldFiles, cx,cy,cz);
 }
 
-bool Chunks::loadVisible(WorldFiles* worldFiles){
-	int nearX = 0;
-	int nearY = 0;
-	int nearZ = 0;
-	int minDistance = (w/2)*(w/2);
-	for (unsigned int y = 0; y < h; y++){
-		for (unsigned int z = 1; z < d-1; z++){
-			for (unsigned int x = 1; x < w-1; x++){
-				int index = (y * d + z) * w + x;
-				Chunk* chunk = chunks[index];
-				if (chunk != nullptr)
-					continue;
-				int lx = x - w / 2;
-				int ly = y - h / 2;
-				int lz = z - d / 2;
-				int distance = (lx * lx + ly * ly + lz * lz);
-				if (distance < minDistance){
-					minDistance = distance;
-					nearX = x;
-					nearY = y;
-					nearZ = z;
-				}
-			}
-		}
-	}
-
-	int index = (nearY * d + nearZ) * w + nearX;
-	Chunk* chunk = chunks[index];
-	if (chunk != nullptr)
-		return false;
-	chunk = new Chunk(nearX+ox,nearY+oy,nearZ+oz);
-	if (!worldFiles->getChunk(chunk->x, chunk->z, (char*)chunk->voxels)){
-		WorldGenerator::generate(chunk->voxels, chunk->x, chunk->y, chunk->z);
-	}
-
-	chunks[index] = chunk;
-	Lighting::onChunkLoaded(ox+nearX, oy+nearY, oz+nearZ);
-	return true;
-}
-
 void Chunks::translate(WorldFiles* worldFiles, int dx, int dy, int dz){
 	for (unsigned int i = 0; i < volume; i++){
 		chunksSecond[i] = nullptr;
@@ -394,4 +298,34 @@ void Chunks::translate(WorldFiles* worldFiles, int dx, int dy, int dz){
 	ox += dx;
 	oy += dy;
 	oz += dz;
+}
+
+void Chunks::_setOffset(int x, int y, int z){
+	ox = x;
+	oy = y;
+	oz = z;
+}
+
+bool Chunks::putChunk(Chunk* chunk) {
+	int x = chunk->x;
+	int y = chunk->y;
+	int z = chunk->z;
+	x -= ox;
+	y -= oy;
+	z -= oz;
+	if (x < 0 || y < 0 || z < 0 || x >= w || y >= h || z >= d)
+		return false;
+	chunks[(y * d + z) * w + x] = chunk;
+	return true;
+}
+
+void Chunks::clear(bool freeMemory){
+	for (size_t i = 0; i < volume; i++){
+		if (freeMemory){
+			delete chunks[i];
+			delete meshes[i];
+		}
+		chunks[i] = nullptr;
+		meshes[i] = nullptr;
+	}
 }

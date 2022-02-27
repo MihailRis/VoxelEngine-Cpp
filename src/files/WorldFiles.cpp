@@ -14,6 +14,9 @@ union {
 #include <fstream>
 #include <iostream>
 
+#define SECTION_POSITION 1
+#define SECTION_ROTATION 2
+
 unsigned long WorldFiles::totalCompressed = 0;
 
 int bytes2Int(const unsigned char* src, unsigned int offset){
@@ -25,6 +28,23 @@ void int2Bytes(int value, char* dest, unsigned int offset){
 	dest[offset+1] = (char) (value >> 16 & 255);
 	dest[offset+2] = (char) (value >> 8 & 255);
 	dest[offset+3] = (char) (value >> 0 & 255);
+}
+
+void float2Bytes(float fvalue, char* dest, unsigned int offset){
+	uint32_t value = *((uint32_t*)&fvalue);
+	dest[offset] = (char) (value >> 24 & 255);
+	dest[offset+1] = (char) (value >> 16 & 255);
+	dest[offset+2] = (char) (value >> 8 & 255);
+	dest[offset+3] = (char) (value >> 0 & 255);
+}
+
+float bytes2Float(char* srcs, unsigned int offset){
+	unsigned char* src = (unsigned char*) srcs;
+	uint32_t value = ((src[offset] << 24) |
+					  (src[offset+1] << 16) |
+					  (src[offset+2] << 8) |
+					  (src[offset+3]));
+	return *(float*)(&value);
 }
 
 WorldFiles::WorldFiles(const char* directory, size_t mainBufferCapacity) : directory(directory){
@@ -81,6 +101,10 @@ std::string WorldFiles::getRegionFile(int x, int y) {
 	return directory + std::to_string(x) + "_" + std::to_string(y) + ".bin";
 }
 
+std::string WorldFiles::getPlayerFile() {
+	return directory + "/player.bin";
+}
+
 bool WorldFiles::getChunk(int x, int y, char* out){
 	assert(out != nullptr);
 
@@ -129,7 +153,7 @@ bool WorldFiles::readChunk(int x, int y, char* out){
 	input.read((char*)(&offset), 4);
 	// Ordering bytes from big-endian to machine order (any, just reading)
 	offset = bytes2Int((const unsigned char*)(&offset), 0);
-	assert (offset < 1000000);
+	//assert (offset < 1000000);
 	if (offset == 0){
 		input.close();
 		return false;
@@ -159,6 +183,48 @@ void WorldFiles::write(){
 		unsigned int size = writeRegion(mainBufferOut, x,y, it->second);
 		write_binary_file(getRegionFile(x,y), mainBufferOut, size);
 	}
+}
+
+void WorldFiles::writePlayer(glm::vec3 position, float camX, float camY){
+	char dst[1+3*4 + 1+2*4];
+
+	size_t offset = 0;
+	dst[offset++] = SECTION_POSITION;
+	float2Bytes(position.x, dst, offset); offset += 4;
+	float2Bytes(position.y, dst, offset); offset += 4;
+	float2Bytes(position.z, dst, offset); offset += 4;
+
+	dst[offset++] = SECTION_ROTATION;
+	float2Bytes(camX, dst, offset); offset += 4;
+	float2Bytes(camY, dst, offset); offset += 4;
+
+	write_binary_file(getPlayerFile(), (const char*)dst, sizeof(dst));
+}
+
+bool WorldFiles::readPlayer(glm::vec3& position, float& camX, float& camY) {
+	size_t length = 0;
+	char* data = read_binary_file(getPlayerFile(), length);
+	if (data == nullptr){
+		std::cerr << "could not to read player.bin" << std::endl;
+		return false;
+	}
+	size_t offset = 0;
+	while (offset < length){
+		char section = data[offset++];
+		switch (section){
+		case SECTION_POSITION:
+			position.x = bytes2Float(data, offset); offset += 4;
+			position.y = bytes2Float(data, offset); offset += 4;
+			position.z = bytes2Float(data, offset); offset += 4;
+			break;
+		case SECTION_ROTATION:
+			camX = bytes2Float(data, offset); offset += 4;
+			camY = bytes2Float(data, offset); offset += 4;
+			break;
+		}
+	}
+	std::cout << position.x << " " << position.y << " " << position.z << std::endl;
+	return true;
 }
 
 unsigned int WorldFiles::writeRegion(char* out, int x, int y, char** region){

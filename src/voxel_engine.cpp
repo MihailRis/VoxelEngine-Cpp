@@ -4,6 +4,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <algorithm>
+#include <vector>
 #include <ctime>
 
 // GLM
@@ -27,6 +29,7 @@ using namespace glm;
 #include "voxels/Chunks.h"
 #include "voxels/Block.h"
 #include "voxels/WorldGenerator.h"
+#include "voxels/ChunksController.h"
 #include "files/files.h"
 #include "files/WorldFiles.h"
 #include "lighting/LightSolver.h"
@@ -67,6 +70,7 @@ void setup_definitions() {
 	Block* block = new Block(0,0);
 	block->drawGroup = 1;
 	block->lightPassing = true;
+	block->skyLightPassing = true;
 	block->obstacle = false;
 	Block::blocks[block->id] = block;
 
@@ -95,6 +99,28 @@ void setup_definitions() {
 
 	// PLANKS
 	block = new Block(5,6);
+	Block::blocks[block->id] = block;
+
+	// WOOD
+	block = new Block(6,7);
+	block->textureFaces[2] = 8;
+	block->textureFaces[3] = 8;
+	Block::blocks[block->id] = block;
+
+	// LEAVES
+	block = new Block(7,9);
+	Block::blocks[block->id] = block;
+
+	// ACTUAL STONE
+	block = new Block(8,10);
+	Block::blocks[block->id] = block;
+
+	// WATER
+	block = new Block(9,11);
+	block->drawGroup = 4;
+	block->lightPassing = true;
+	block->skyLightPassing = false;
+	block->obstacle = false;
 	Block::blocks[block->id] = block;
 }
 
@@ -131,8 +157,70 @@ int initialize_assets() {
 	return 0;
 }
 
+void draw_chunk(size_t index, Camera* camera){
+	Chunk* chunk = chunks->chunks[index];
+	Mesh* mesh = chunks->meshes[index];
+	if (mesh == nullptr)
+		return;
+
+	// Simple frustum culling (culling chunks behind the camera in 2D - XZ)
+	if (occlusion){
+		const float cameraX = camera->position.x;
+		const float cameraZ = camera->position.z;
+		const float camDirX = camera->dir.x;
+		const float camDirZ = camera->dir.z;
+
+		bool unoccluded = false;
+		do {
+			if ((chunk->x*CHUNK_W-cameraX)*camDirX + (chunk->z*CHUNK_D-cameraZ)*camDirZ >= 0.0){
+				unoccluded = true; break;
+			}
+			if (((chunk->x+1)*CHUNK_W-cameraX)*camDirX + (chunk->z*CHUNK_D-cameraZ)*camDirZ >= 0.0){
+				unoccluded = true; break;
+			}
+			if (((chunk->x+1)*CHUNK_W-cameraX)*camDirX + ((chunk->z+1)*CHUNK_D-cameraZ)*camDirZ >= 0.0){
+				unoccluded = true; break;
+			}
+			if ((chunk->x*CHUNK_W-cameraX)*camDirX + ((chunk->z+1)*CHUNK_D-cameraZ)*camDirZ >= 0.0){
+				unoccluded = true; break;
+			}
+		} while (false);
+		if (!unoccluded)
+			return;
+	}
+
+	mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x*CHUNK_W+0.5f, chunk->y*CHUNK_H+0.5f, chunk->z*CHUNK_D+0.5f));
+	shader->uniformMatrix("u_model", model);
+	mesh->draw(GL_TRIANGLES);
+}
+
+float find_most_distant_sqr(float px, float pz, float distance_limit2){
+	float max_dist2 = -1.0f;
+	for (size_t i = 0; i < chunks->volume; i++){
+		Chunk* chunk = chunks->chunks[i];
+		if (chunk == nullptr)
+			continue;
+		float dist2 = (chunk->x - px) * (chunk->z - pz);
+		if (dist2 > max_dist2 && dist2 < distance_limit2){
+			max_dist2 = dist2;
+		}
+	}
+	return max_dist2;
+}
+
+float _camera_cx;
+float _camera_cz;
+
+bool chunks_comparator(size_t i, size_t j) {
+	Chunk* a = chunks->chunks[i];
+	Chunk* b = chunks->chunks[j];
+	return ((a->x + 0.5f - _camera_cx)*(a->x + 0.5f - _camera_cx) + (a->z + 0.5f - _camera_cz)*(a->z + 0.5f - _camera_cz)
+			>
+			(b->x + 0.5f - _camera_cx)*(b->x + 0.5f - _camera_cx) + (b->z + 0.5f - _camera_cz)*(b->z + 0.5f - _camera_cz));
+}
+
 void draw_world(Camera* camera){
-	glClearColor(0.7f,0.85f,1.0f,1);
+	glClearColor(0.7f,0.71f,0.73f,1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Draw VAO
@@ -141,50 +229,37 @@ void draw_world(Camera* camera){
 	shader->uniformMatrix("u_view", camera->getView());
 	shader->uniform1f("u_gamma", 1.6f);
 	shader->uniform3f("u_skyLightColor", 1.8f,1.8f,1.8f);
-	shader->uniform3f("u_fogColor", 0.7f,0.85f,1.0f);
+	shader->uniform3f("u_fogColor", 0.7f,0.71f,0.73f);
+	shader->uniform3f("u_cameraPos", camera->position.x,camera->position.y,camera->position.z);
 	texture->bind();
-	mat4 model(1.0f);
 
-	const float cameraX = camera->position.x;
-	const float cameraZ = camera->position.z;
-	const float camDirX = camera->dir.x;
-	const float camDirZ = camera->dir.z;
+	std::vector<size_t> indices;
 
 	for (size_t i = 0; i < chunks->volume; i++){
 		Chunk* chunk = chunks->chunks[i];
 		if (chunk == nullptr)
 			continue;
-		Mesh* mesh = chunks->meshes[i];
-		if (mesh == nullptr)
-			continue;
+		if (chunks->meshes[i] != nullptr)
+			indices.push_back(i);
+	}
 
-		// Simple frustum culling (culling chunks behind the camera in 2D - XZ)
-		if (occlusion){
-			bool unoccluded = false;
-			do {
-				if ((chunk->x*CHUNK_W-cameraX)*camDirX + (chunk->z*CHUNK_D-cameraZ)*camDirZ >= 0.0){
-					unoccluded = true; break;
-				}
-				if (((chunk->x+1)*CHUNK_W-cameraX)*camDirX + (chunk->z*CHUNK_D-cameraZ)*camDirZ >= 0.0){
-					unoccluded = true; break;
-				}
-				if (((chunk->x+1)*CHUNK_W-cameraX)*camDirX + ((chunk->z+1)*CHUNK_D-cameraZ)*camDirZ >= 0.0){
-					unoccluded = true; break;
-				}
-				if ((chunk->x*CHUNK_W-cameraX)*camDirX + ((chunk->z+1)*CHUNK_D-cameraZ)*camDirZ >= 0.0){
-					unoccluded = true; break;
-				}
-			} while (false);
-			if (!unoccluded)
-				continue;
-		}
+	std::sort(indices.begin(), indices.end(), chunks_comparator);
 
-		model = glm::translate(mat4(1.0f), vec3(chunk->x*CHUNK_W+0.5f, chunk->y*CHUNK_H+0.5f, chunk->z*CHUNK_D+0.5f));
-		shader->uniformMatrix("u_model", model);
-		mesh->draw(GL_TRIANGLES);
+
+	float px = camera->position.x / (float)CHUNK_W;
+	float pz = camera->position.z / (float)CHUNK_D;
+
+	_camera_cx = px;
+	_camera_cz = pz;
+
+
+	for (size_t i = 0; i < indices.size(); i++){
+		draw_chunk(indices[i], camera);
 	}
 
 	crosshairShader->use();
+	crosshairShader->uniform1f("u_ar", (float)Window::height / (float)Window::width);
+	crosshairShader->uniform1f("u_scale", 1.0f / ((float)Window::height / 1000.0f));
 	crosshair->draw(GL_LINES);
 
 	linesShader->use();
@@ -233,30 +308,39 @@ int main() {
 		return result;
 	}
 
+	Camera* camera = new Camera(vec3(-320,255,32), radians(90.0f));
+
 	wfile = new WorldFiles("world/", REGION_VOL * (CHUNK_VOL * 2 + 8));
-	chunks = new Chunks(32,1,32, 0,0,0);
-	VoxelRenderer renderer(1024*1024);
-	lineBatch = new LineBatch(4096);
-	PhysicsSolver physics(vec3(0,-16.0f,0));
-
-	Lighting::initialize(chunks);
-
-	crosshair = new Mesh(vertices, 4, attrs);
-	Camera* camera = new Camera(vec3(32,32,32), radians(90.0f));
-	Hitbox* hitbox = new Hitbox(vec3(32,120,32), vec3(0.2f,0.9f,0.2f));
-
-	float lastTime = glfwGetTime();
-	float delta = 0.0f;
+	chunks = new Chunks(34,1,34, 0,0,0);
 
 	float camX = 0.0f;
 	float camY = 0.0f;
 
-	float playerSpeed = 4.0f;
+	wfile->readPlayer(camera->position, camX, camY);
+	camera->rotation = mat4(1.0f);
+	camera->rotate(camY, camX, 0);
+
+	Hitbox* hitbox = new Hitbox(vec3(camera->position.x,camera->position.y+1,camera->position.z), vec3(0.2f,0.9f,0.2f));
+
+	VoxelRenderer renderer(1024*1024);
+	lineBatch = new LineBatch(4096);
+	PhysicsSolver physics(vec3(0,-16.0f,0));
+
+	Lighting lighting(chunks);
+
+	crosshair = new Mesh(vertices, 4, attrs);
+
+	ChunksController chunksController(chunks, &lighting);
+
+	float lastTime = glfwGetTime();
+	float delta = 0.0f;
+
+	float playerSpeed = 5.0f;
 
 	int choosenBlock = 1;
 	long frame = 0;
 
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 
 	while (!Window::isShouldClose()){
 		frame++;
@@ -264,8 +348,8 @@ int main() {
 		delta = currentTime - lastTime;
 		lastTime = currentTime;
 
-		//if (frame % 240 == 0)
-		//	std::cout << delta << std::endl;
+		if (frame % 240 == 0)
+			std::cout << 1.0/delta << std::endl;
 
 		if (Events::jpressed(GLFW_KEY_O)){
 			occlusion = !occlusion;
@@ -278,7 +362,7 @@ int main() {
 			Events::toogleCursor();
 		}
 
-		for (int i = 1; i < 6; i++){
+		for (int i = 1; i < 10; i++){
 			if (Events::jpressed(GLFW_KEY_0+i)){
 				choosenBlock = i;
 			}
@@ -334,8 +418,8 @@ int main() {
 		hitbox->velocity.z = dir.z * speed;
 
 		chunks->setCenter(wfile, camera->position.x,0,camera->position.z);
-		chunks->_buildMeshes(&renderer);
-		chunks->loadVisible(wfile);
+		chunksController._buildMeshes(&renderer, frame);
+		chunksController.loadVisible(wfile);
 
 		if (Events::_cursor_locked){
 			camY += -Events::deltaY / Window::height * 2;
@@ -365,7 +449,7 @@ int main() {
 					int y = (int)iend.y;
 					int z = (int)iend.z;
 					chunks->set(x,y,z, 0);
-					Lighting::onBlockSet(x,y,z,0);
+					lighting.onBlockSet(x,y,z,0);
 				}
 				if (Events::jclicked(GLFW_MOUSE_BUTTON_2)){
 					int x = (int)(iend.x)+(int)(norm.x);
@@ -373,7 +457,7 @@ int main() {
 					int z = (int)(iend.z)+(int)(norm.z);
 					if (!physics.isBlockInside(x,y,z, hitbox)){
 						chunks->set(x, y, z, choosenBlock);
-						Lighting::onBlockSet(x,y,z, choosenBlock);
+						lighting.onBlockSet(x,y,z, choosenBlock);
 					}
 				}
 			}
@@ -384,10 +468,10 @@ int main() {
 		Events::pullEvents();
 	}
 
+	wfile->writePlayer(hitbox->position, camX, camY);
 	write_world();
 	close_world();
 
-	Lighting::finalize();
 	finalize_assets();
 	Window::terminate();
 	return 0;

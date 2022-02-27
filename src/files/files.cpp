@@ -40,14 +40,18 @@ bool read_binary_file(std::string filename, char* data, size_t size) {
 	return true;
 }
 
-bool read_binary_file(std::string filename, char* data, size_t offset, size_t size) {
+char* read_binary_file(std::string filename, size_t& length) {
 	std::ifstream input(filename, std::ios::binary);
 	if (!input.is_open())
-		return false;
-	input.seekg(offset);
-	input.read(data, size);
+		return nullptr;
+	input.seekg(0, std::ios_base::end);
+	length = input.tellg();
+	input.seekg(0, std::ios_base::beg);
+
+	char* data = new char[length];
+	input.read(data, length);
 	input.close();
-	return true;
+	return data;
 }
 
 // returns decompressed length

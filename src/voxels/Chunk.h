@@ -15,10 +15,15 @@ public:
 	voxel* voxels;
 	Lightmap* lightmap;
 	bool modified = true;
+	bool ready = false;
+	bool accepted = false;
+	bool generated = false;
 	Chunk(int x, int y, int z);
 	~Chunk();
 
 	bool isEmpty();
+
+	Chunk* clone() const;
 };
 
 #endif /* VOXELS_CHUNK_H_ */
