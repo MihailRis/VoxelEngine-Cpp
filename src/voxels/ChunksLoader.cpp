@@ -18,6 +18,13 @@ void ChunksLoader::_thread(){
 		}
 		Chunk* chunk = current;
 		chunk->incref();
+		for (size_t i = 0; i < 27; i++){
+			Chunk* other = closes[i];
+			if (other){
+				other->incref();
+				chunks.putChunk(other);
+			}
+		}
 
 		chunks._setOffset(chunk->x-1, chunk->y-1, chunk->z-1);
 
@@ -30,7 +37,8 @@ void ChunksLoader::_thread(){
 		chunks.clear(false);
 		for (int i = 0; i < 27; i++){
 			Chunk* other = closes[i];
-			//delete other;
+			if (other)
+				other->decref();
 		}
 		chunk->ready = true;
 		current = nullptr;
