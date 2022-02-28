@@ -278,7 +278,7 @@ void Chunks::translate(WorldFiles* worldFiles, int dx, int dy, int dz){
 				Mesh* mesh = meshes[(y * d + z) * w + x];
 				if (nx < 0 || ny < 0 || nz < 0 || nx >= w || ny >= h || nz >= d){
 					worldFiles->put((const char*)chunk->voxels, chunk->x, chunk->z);
-					delete chunk;
+					chunk->decref();
 					delete mesh;
 					continue;
 				}
@@ -322,7 +322,7 @@ bool Chunks::putChunk(Chunk* chunk) {
 void Chunks::clear(bool freeMemory){
 	for (size_t i = 0; i < volume; i++){
 		if (freeMemory){
-			delete chunks[i];
+			chunks[i]->decref();
 			delete meshes[i];
 		}
 		chunks[i] = nullptr;

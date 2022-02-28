@@ -18,12 +18,15 @@ public:
 	bool ready = false;
 	bool accepted = false;
 	bool generated = false;
+	int references = 1;
 	Chunk(int x, int y, int z);
 	~Chunk();
 
 	bool isEmpty();
 
 	Chunk* clone() const;
+	void incref();
+	void decref();
 };
 
 #endif /* VOXELS_CHUNK_H_ */

@@ -35,3 +35,12 @@ Chunk* Chunk::clone() const {
 	other->lightmap->set(lightmap);
 	return other;
 }
+
+void Chunk::incref(){
+	references++;
+}
+
+void Chunk::decref(){
+	if (--references <= 0)
+		delete this;
+}
