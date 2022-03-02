@@ -3,7 +3,8 @@
 
 #include <map>
 #include <unordered_map>
-#include <glm/glm.hpp>
+
+class Player;
 
 #define REGION_SIZE_BIT 5
 #define REGION_SIZE (1 << (REGION_SIZE_BIT))
@@ -27,12 +28,12 @@ public:
 
 	void put(const char* chunkData, int x, int y);
 
-	bool readPlayer(glm::vec3& position, float& camX, float& camY);
+	bool readPlayer(Player* player);
 	bool readChunk(int x, int y, char* out);
 	bool getChunk(int x, int y, char* out);
 	void readRegion(char* fileContent);
 	unsigned int writeRegion(char* out, int x, int y, char** region);
-	void writePlayer(glm::vec3 position, float camX, float camY);
+	void writePlayer(Player* player);
 	void write();
 
 	std::string getRegionFile(int x, int y);

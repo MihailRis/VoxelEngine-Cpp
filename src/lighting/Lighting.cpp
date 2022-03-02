@@ -15,7 +15,10 @@ Lighting::Lighting(Chunks* chunks){
 }
 
 Lighting::~Lighting(){
-	delete solverR, solverG, solverB, solverS;
+	delete solverR;
+	delete solverG;
+	delete solverB;
+	delete solverS;
 }
 
 void Lighting::clear(){
@@ -38,7 +41,6 @@ void Lighting::onChunkLoaded(int cx, int cy, int cz, bool sky){
 		for (int z = 0; z < CHUNK_D; z++){
 			for (int x = 0; x < CHUNK_W; x++){
 				int gx = x + cx * CHUNK_W;
-				int gy = cy * CHUNK_H;
 				int gz = z + cz * CHUNK_D;
 
 				int light = chunk->lightmap->getS(x,0,z);
@@ -195,7 +197,7 @@ void Lighting::onBlockSet(int x, int y, int z, int id){
 		if (chunks->getLight(x,y+1,z, 3) == 0xF){
 			for (int i = y; i >= 0; i--){
 				voxel* vox = chunks->get(x,i,z);
-				if (vox == nullptr || vox->id != 0 && Block::blocks[id]->skyLightPassing)
+				if ((vox == nullptr || vox->id != 0) && Block::blocks[id]->skyLightPassing)
 					break;
 				solverS->add(x,i,z, 0xF);
 			}

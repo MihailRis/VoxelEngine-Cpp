@@ -1,6 +1,9 @@
 #include "WorldFiles.h"
 
 #include "files.h"
+#include "../window/Camera.h"
+#include "../objects/Player.h"
+#include "../physics/Hitbox.h"
 #include "../voxels/Chunk.h"
 
 union {
@@ -185,8 +188,10 @@ void WorldFiles::write(){
 	}
 }
 
-void WorldFiles::writePlayer(glm::vec3 position, float camX, float camY){
+void WorldFiles::writePlayer(Player* player){
 	char dst[1+3*4 + 1+2*4];
+
+	glm::vec3 position = player->hitbox->position;
 
 	size_t offset = 0;
 	dst[offset++] = SECTION_POSITION;
@@ -195,19 +200,20 @@ void WorldFiles::writePlayer(glm::vec3 position, float camX, float camY){
 	float2Bytes(position.z, dst, offset); offset += 4;
 
 	dst[offset++] = SECTION_ROTATION;
-	float2Bytes(camX, dst, offset); offset += 4;
-	float2Bytes(camY, dst, offset); offset += 4;
+	float2Bytes(player->camX, dst, offset); offset += 4;
+	float2Bytes(player->camY, dst, offset); offset += 4;
 
 	write_binary_file(getPlayerFile(), (const char*)dst, sizeof(dst));
 }
 
-bool WorldFiles::readPlayer(glm::vec3& position, float& camX, float& camY) {
+bool WorldFiles::readPlayer(Player* player) {
 	size_t length = 0;
 	char* data = read_binary_file(getPlayerFile(), length);
 	if (data == nullptr){
 		std::cerr << "could not to read player.bin" << std::endl;
 		return false;
 	}
+	glm::vec3 position = player->hitbox->position;
 	size_t offset = 0;
 	while (offset < length){
 		char section = data[offset++];
@@ -218,12 +224,13 @@ bool WorldFiles::readPlayer(glm::vec3& position, float& camX, float& camY) {
 			position.z = bytes2Float(data, offset); offset += 4;
 			break;
 		case SECTION_ROTATION:
-			camX = bytes2Float(data, offset); offset += 4;
-			camY = bytes2Float(data, offset); offset += 4;
+			player->camX = bytes2Float(data, offset); offset += 4;
+			player->camY = bytes2Float(data, offset); offset += 4;
 			break;
 		}
 	}
-	std::cout << position.x << " " << position.y << " " << position.z << std::endl;
+	player->hitbox->position = position;
+	player->camera->position = position + vec3(0, 1, 0);
 	return true;
 }
 

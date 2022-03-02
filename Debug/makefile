@@ -11,6 +11,7 @@ RM := rm -rf
 -include src/window/subdir.mk
 -include src/voxels/subdir.mk
 -include src/physics/subdir.mk
+-include src/objects/subdir.mk
 -include src/loaders/subdir.mk
 -include src/lighting/subdir.mk
 -include src/graphics/subdir.mk
