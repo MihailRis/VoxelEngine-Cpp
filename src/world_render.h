@@ -96,8 +96,7 @@ bool chunks_comparator(size_t i, size_t j) {
 }
 
 
-void draw_world(Camera* camera, Shader* shader, Texture* texture,
-				Shader* crosshairShader, Shader* linesShader,
+void draw_world(Camera* camera, Assets* assets,
 				Chunks* chunks, bool occlusion){
 	glClearColor(0.7f,0.71f,0.73f,1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -105,6 +104,10 @@ void draw_world(Camera* camera, Shader* shader, Texture* texture,
 	_chunks = chunks;
 
 	// Draw VAO
+	Texture* texture = assets->getTexture("block");
+	Shader* shader = assets->getShader("main");
+	Shader* crosshairShader = assets->getShader("crosshair");
+	Shader* linesShader = assets->getShader("lines");
 	shader->use();
 	shader->uniformMatrix("u_proj", camera->getProjection());
 	shader->uniformMatrix("u_view", camera->getView());

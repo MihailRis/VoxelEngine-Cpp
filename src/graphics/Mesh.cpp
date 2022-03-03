@@ -12,7 +12,12 @@ Mesh::Mesh(const float* buffer, size_t vertices, const int* attrs) : vertices(ve
 
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertexSize * vertices, buffer, GL_STATIC_DRAW);
+	if (buffer){
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertexSize * vertices, buffer, GL_STATIC_DRAW);
+	} else {
+		glBufferData(GL_ARRAY_BUFFER, 0, {}, GL_STATIC_DRAW);
+	}
+
 
 	// attributes
 	int offset = 0;

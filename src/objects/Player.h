@@ -11,6 +11,7 @@ public:
 	float speed;
 	Camera* camera;
 	Hitbox* hitbox;
+	int choosenBlock;
 	float camX, camY;
 	Player(glm::vec3 position, float speed, Camera* camera);
 	~Player();

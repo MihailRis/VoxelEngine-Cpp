@@ -4,13 +4,16 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../src/voxel_engine.cpp 
+../src/voxel_engine.cpp \
+../src/Assets.cpp 
 
 OBJS += \
-./src/voxel_engine.o 
+./src/voxel_engine.o \
+./src/Assets.o 
 
 CPP_DEPS += \
-./src/voxel_engine.d 
+./src/voxel_engine.d \
+./src/Assets.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

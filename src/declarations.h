@@ -1,8 +1,8 @@
-#ifndef DECLARATIONS_CPP
-#define DECLARATIONS_CPP
+#ifndef DECLARATIONS_H
+#define DECLARATIONS_H
 
 #include <iostream>
-
+#include "Assets.h"
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
 #include "window/Window.h"
@@ -10,49 +10,42 @@
 #include "voxels/Block.h"
 
 
-Shader *shader, *linesShader, *crosshairShader;
-Texture *texture;
-
-
 // Shaders, textures, renderers
-int initialize_assets() {
-	shader = load_shader("res/main.glslv", "res/main.glslf");
+
+bool _load_shader(Assets* assets, std::string vertex_file, std::string fragment_file, std::string name){
+	Shader* shader = load_shader(vertex_file, fragment_file);
 	if (shader == nullptr){
-		std::cerr << "failed to load shader" << std::endl;
-		Window::terminate();
-		return 1;
+		std::cerr << "failed to load shader '" << name << "'" << std::endl;
+		return false;
 	}
-
-	crosshairShader = load_shader("res/crosshair.glslv", "res/crosshair.glslf");
-	if (crosshairShader == nullptr){
-		std::cerr << "failed to load crosshair shader" << std::endl;
-		Window::terminate();
-		return 1;
-	}
-
-	linesShader = load_shader("res/lines.glslv", "res/lines.glslf");
-	if (linesShader == nullptr){
-		std::cerr << "failed to load lines shader" << std::endl;
-		Window::terminate();
-		return 1;
-	}
-
-	texture = load_texture("res/block.png");
-	if (texture == nullptr){
-		std::cerr << "failed to load texture" << std::endl;
-		delete shader;
-		Window::terminate();
-		return 1;
-	}
-	return 0;
+	assets->store(shader, name);
+	return true;
 }
 
-// Deleting GL objects like shaders, textures
-void finalize_assets(){
-	delete shader;
-	delete texture;
-	delete crosshairShader;
-	delete linesShader;
+bool _load_texture(Assets* assets, std::string filename, std::string name){
+	Texture* texture = load_texture(filename);
+	if (texture == nullptr){
+		std::cerr << "failed to load texture '" << name << "'" << std::endl;
+		return false;
+	}
+	assets->store(texture, name);
+	return true;
+}
+
+int initialize_assets(Assets* assets) {
+#define LOAD_SHADER(VERTEX, FRAGMENT, NAME) \
+	if (!_load_shader(assets, VERTEX, FRAGMENT, NAME))\
+		return 1;
+#define LOAD_TEXTURE(FILENAME, NAME) \
+	if (!_load_texture(assets, FILENAME, NAME))\
+		return 1;
+
+	LOAD_SHADER("res/main.glslv", "res/main.glslf", "main");
+	LOAD_SHADER("res/crosshair.glslv", "res/crosshair.glslf", "crosshair");
+	LOAD_SHADER("res/lines.glslv", "res/lines.glslf", "lines");
+
+	LOAD_TEXTURE("res/block.png", "block");
+	return 0;
 }
 
 
@@ -115,5 +108,5 @@ void setup_definitions() {
 	block->obstacle = false;
 	Block::blocks[block->id] = block;
 }
-#endif // DECLARATIONS_CPP
+#endif // DECLARATIONS_H
 

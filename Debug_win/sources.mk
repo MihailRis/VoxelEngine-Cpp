@@ -30,5 +30,6 @@ src/lighting \
 src/loaders \
 src/physics \
 src/voxels \
+src/objects \
 src/window \
 
