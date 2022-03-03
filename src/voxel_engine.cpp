@@ -1,6 +1,7 @@
 // Install dependencies:
 // sudo apt install libgl-dev libglew-dev libglfw3-dev libpng-dev libglm-dev
 #include <iostream>
+#include <cmath>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -73,11 +74,27 @@ void close_world(WorldFiles* wfile, Chunks* chunks){
 #define ZOOM_SPEED 16.0f
 #define DEFAULT_AIR_DAMPING 0.1f
 #define PLAYER_NOT_ONGROUND_DAMPING 18.0f
+#define CAMERA_SHAKING_OFFSET 0.027f
+#define CAMERA_SHAKING_SPEED 1.8f
+#define CAMERA_SHAKING_DELTA_K 3.0f
 
 void update_controls(PhysicsSolver* physics,
 		Chunks* chunks,
 		Player* player,
 		float delta){
+
+	if (Events::jpressed(GLFW_KEY_ESCAPE)){
+		Window::setShouldClose(true);
+	}
+	if (Events::jpressed(GLFW_KEY_TAB)){
+		Events::toogleCursor();
+	}
+
+	for (int i = 1; i < 10; i++){
+		if (Events::jpressed(GLFW_KEY_0+i)){
+			player->choosenBlock = i;
+		}
+	}
 
 	// Controls
 	Camera* camera = player->camera;
@@ -94,6 +111,15 @@ void update_controls(PhysicsSolver* physics,
 	camera->position.y = hitbox->position.y + 0.5f;
 	camera->position.z = hitbox->position.z;
 
+	// Camera shaking
+	float factor = hitbox->grounded ? length(vec2(hitbox->velocity.x, hitbox->velocity.z)) : 0.0f;
+	player->cameraShakingTimer += delta * factor * CAMERA_SHAKING_SPEED;
+	float shakeTimer = player->cameraShakingTimer;
+	player->cameraShaking = player->cameraShaking * (1.0f - delta * CAMERA_SHAKING_DELTA_K) + factor * delta * CAMERA_SHAKING_DELTA_K;
+	camera->position += camera->right * sin(shakeTimer) * CAMERA_SHAKING_OFFSET * player->cameraShaking;
+	camera->position += camera->up * abs(cos(shakeTimer)) * CAMERA_SHAKING_OFFSET * player->cameraShaking;
+
+	// Field of view manipulations
 	float dt = min(1.0f, delta * ZOOM_SPEED);
 	if (shift){
 		speed *= CROUCH_SPEED_MUL;
@@ -188,6 +214,7 @@ void update_interaction(Chunks* chunks, PhysicsSolver* physics, Player* player, 
 int WIDTH = 1280;
 int HEIGHT = 720;
 
+
 int main() {
 	setup_definitions();
 
@@ -243,19 +270,6 @@ int main() {
 
 		if (Events::jpressed(GLFW_KEY_O)){
 			occlusion = !occlusion;
-		}
-
-		if (Events::jpressed(GLFW_KEY_ESCAPE)){
-			Window::setShouldClose(true);
-		}
-		if (Events::jpressed(GLFW_KEY_TAB)){
-			Events::toogleCursor();
-		}
-
-		for (int i = 1; i < 10; i++){
-			if (Events::jpressed(GLFW_KEY_0+i)){
-				player->choosenBlock = i;
-			}
 		}
 
 		update_controls(&physics, chunks, player, delta);

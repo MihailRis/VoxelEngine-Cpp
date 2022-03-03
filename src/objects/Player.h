@@ -13,6 +13,8 @@ public:
 	Hitbox* hitbox;
 	int choosenBlock;
 	float camX, camY;
+	float cameraShaking = 0.0f;
+	float cameraShakingTimer = 0.0f;
 	Player(glm::vec3 position, float speed, Camera* camera);
 	~Player();
 };
