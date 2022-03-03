@@ -23,13 +23,13 @@ CPP_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+src \
 src/files \
 src/graphics \
 src/lighting \
 src/loaders \
 src/objects \
 src/physics \
-src \
 src/voxels \
 src/window \
 

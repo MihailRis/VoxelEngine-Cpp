@@ -64,15 +64,27 @@ void close_world(WorldFiles* wfile, Chunks* chunks){
 	delete wfile;
 }
 
+#define CROUCH_SPEED_MUL 0.25f
+#define CROUCH_SHIFT_Y -0.2f
+#define RUN_SPEED_MUL 1.5f
+#define CROUCH_ZOOM 0.9f
+#define RUN_ZOOM 1.1f
+#define C_ZOOM 0.5f
+#define ZOOM_SPEED 16.0f
+#define DEFAULT_AIR_DAMPING 0.1f
+#define PLAYER_NOT_ONGROUND_DAMPING 18.0f
+
 void update_controls(PhysicsSolver* physics,
 		Chunks* chunks,
 		Player* player,
 		float delta){
+
 	// Controls
 	Camera* camera = player->camera;
 	Hitbox* hitbox = player->hitbox;
 	bool sprint = Events::pressed(GLFW_KEY_LEFT_CONTROL);
 	bool shift = Events::pressed(GLFW_KEY_LEFT_SHIFT) && hitbox->grounded && !sprint;
+	bool zoom = Events::pressed(GLFW_KEY_C);
 
 	float speed = player->speed;
 	int substeps = (int)(delta * 1000);
@@ -82,17 +94,20 @@ void update_controls(PhysicsSolver* physics,
 	camera->position.y = hitbox->position.y + 0.5f;
 	camera->position.z = hitbox->position.z;
 
-	float dt = min(1.0f, delta * 16);
+	float dt = min(1.0f, delta * ZOOM_SPEED);
 	if (shift){
-		speed *= 0.25f;
-		camera->position.y -= 0.2f;
-		camera->zoom = 0.9f * dt + camera->zoom * (1.0f - dt);
+		speed *= CROUCH_SPEED_MUL;
+		camera->position.y += CROUCH_SHIFT_Y;
+		camera->zoom = CROUCH_ZOOM * dt + camera->zoom * (1.0f - dt);
 	} else if (sprint){
-		speed *= 1.5f;
-		camera->zoom = 1.1f * dt + camera->zoom * (1.0f - dt);
+		speed *= RUN_SPEED_MUL;
+		camera->zoom = RUN_ZOOM * dt + camera->zoom * (1.0f - dt);
 	} else {
 		camera->zoom = dt + camera->zoom * (1.0f - dt);
 	}
+	if (zoom)
+		camera->zoom = C_ZOOM * dt + camera->zoom * (1.0f - dt);
+
 	if (Events::pressed(GLFW_KEY_SPACE) && hitbox->grounded){
 		hitbox->velocity.y = 6.0f;
 	}
@@ -114,10 +129,17 @@ void update_controls(PhysicsSolver* physics,
 		dir.x -= camera->right.x;
 		dir.z -= camera->right.z;
 	}
-	if (length(dir) > 0.0f)
+
+	hitbox->linear_damping = DEFAULT_AIR_DAMPING;
+	if (length(dir) > 0.0f){
 		dir = normalize(dir);
-	hitbox->velocity.x = dir.x * speed;
-	hitbox->velocity.z = dir.z * speed;
+
+		if (!hitbox->grounded)
+			hitbox->linear_damping = PLAYER_NOT_ONGROUND_DAMPING;
+
+		hitbox->velocity.x += dir.x * speed * delta * 16;
+		hitbox->velocity.z += dir.z * speed * delta * 16;
+	}
 
 	if (Events::_cursor_locked){
 		player->camY += -Events::deltaY / Window::height * 2;
@@ -137,29 +159,27 @@ void update_controls(PhysicsSolver* physics,
 
 void update_interaction(Chunks* chunks, PhysicsSolver* physics, Player* player, Lighting* lighting){
 	Camera* camera = player->camera;
-	{
-		vec3 end;
-		vec3 norm;
-		vec3 iend;
-		voxel* vox = chunks->rayCast(camera->position, camera->front, 10.0f, end, norm, iend);
-		if (vox != nullptr){
-			lineBatch->box(iend.x+0.5f, iend.y+0.5f, iend.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
+	vec3 end;
+	vec3 norm;
+	vec3 iend;
+	voxel* vox = chunks->rayCast(camera->position, camera->front, 10.0f, end, norm, iend);
+	if (vox != nullptr){
+		lineBatch->box(iend.x+0.5f, iend.y+0.5f, iend.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
 
-			if (Events::jclicked(GLFW_MOUSE_BUTTON_1)){
-				int x = (int)iend.x;
-				int y = (int)iend.y;
-				int z = (int)iend.z;
-				chunks->set(x,y,z, 0);
-				lighting->onBlockSet(x,y,z,0);
-			}
-			if (Events::jclicked(GLFW_MOUSE_BUTTON_2)){
-				int x = (int)(iend.x)+(int)(norm.x);
-				int y = (int)(iend.y)+(int)(norm.y);
-				int z = (int)(iend.z)+(int)(norm.z);
-				if (!physics->isBlockInside(x,y,z, player->hitbox)){
-					chunks->set(x, y, z, player->choosenBlock);
-					lighting->onBlockSet(x,y,z, player->choosenBlock);
-				}
+		if (Events::jclicked(GLFW_MOUSE_BUTTON_1)){
+			int x = (int)iend.x;
+			int y = (int)iend.y;
+			int z = (int)iend.z;
+			chunks->set(x,y,z, 0);
+			lighting->onBlockSet(x,y,z,0);
+		}
+		if (Events::jclicked(GLFW_MOUSE_BUTTON_2)){
+			int x = (int)(iend.x)+(int)(norm.x);
+			int y = (int)(iend.y)+(int)(norm.y);
+			int z = (int)(iend.z)+(int)(norm.z);
+			if (!physics->isBlockInside(x,y,z, player->hitbox)){
+				chunks->set(x, y, z, player->choosenBlock);
+				lighting->onBlockSet(x,y,z, player->choosenBlock);
 			}
 		}
 	}

@@ -12,6 +12,7 @@ public:
 	vec3 position;
 	vec3 halfsize;
 	vec3 velocity;
+	float linear_damping;
 	bool grounded = false;
 
 	Hitbox(vec3 position, vec3 halfsize);
