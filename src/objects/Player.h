@@ -15,6 +15,7 @@ public:
 	float camX, camY;
 	float cameraShaking = 0.0f;
 	float cameraShakingTimer = 0.0f;
+	glm::vec3 interpVel {0.0f, 0.0f, 0.0f};
 	Player(glm::vec3 position, float speed, Camera* camera);
 	~Player();
 };

@@ -70,13 +70,14 @@ void close_world(WorldFiles* wfile, Chunks* chunks){
 #define RUN_SPEED_MUL 1.5f
 #define CROUCH_ZOOM 0.9f
 #define RUN_ZOOM 1.1f
-#define C_ZOOM 0.5f
+#define C_ZOOM 0.1f
 #define ZOOM_SPEED 16.0f
 #define DEFAULT_AIR_DAMPING 0.1f
-#define PLAYER_NOT_ONGROUND_DAMPING 18.0f
-#define CAMERA_SHAKING_OFFSET 0.027f
-#define CAMERA_SHAKING_SPEED 1.8f
-#define CAMERA_SHAKING_DELTA_K 3.0f
+#define PLAYER_NOT_ONGROUND_DAMPING 10.0f
+#define CAMERA_SHAKING_OFFSET 0.025f
+#define CAMERA_SHAKING_OFFSET_Y 0.031f
+#define CAMERA_SHAKING_SPEED 1.6f
+#define CAMERA_SHAKING_DELTA_K 10.0f
 
 void update_controls(PhysicsSolver* physics,
 		Chunks* chunks,
@@ -112,27 +113,35 @@ void update_controls(PhysicsSolver* physics,
 	camera->position.z = hitbox->position.z;
 
 	// Camera shaking
+	player->interpVel = player->interpVel * (1.0f - delta * 5) + hitbox->velocity * delta * 0.1f;
+	if (hitbox->grounded && player->interpVel.y < 0.0f){
+		player->interpVel.y *= -30.0f;
+	}
 	float factor = hitbox->grounded ? length(vec2(hitbox->velocity.x, hitbox->velocity.z)) : 0.0f;
 	player->cameraShakingTimer += delta * factor * CAMERA_SHAKING_SPEED;
 	float shakeTimer = player->cameraShakingTimer;
 	player->cameraShaking = player->cameraShaking * (1.0f - delta * CAMERA_SHAKING_DELTA_K) + factor * delta * CAMERA_SHAKING_DELTA_K;
 	camera->position += camera->right * sin(shakeTimer) * CAMERA_SHAKING_OFFSET * player->cameraShaking;
-	camera->position += camera->up * abs(cos(shakeTimer)) * CAMERA_SHAKING_OFFSET * player->cameraShaking;
+	camera->position += camera->up * abs(cos(shakeTimer)) * CAMERA_SHAKING_OFFSET_Y * player->cameraShaking;
+	camera->position -= player->interpVel * 0.05f;
 
 	// Field of view manipulations
 	float dt = min(1.0f, delta * ZOOM_SPEED);
+	if (dt > 1.0f)
+		dt = 1.0f;
+	float zoomValue = 1.0f;
 	if (shift){
 		speed *= CROUCH_SPEED_MUL;
 		camera->position.y += CROUCH_SHIFT_Y;
-		camera->zoom = CROUCH_ZOOM * dt + camera->zoom * (1.0f - dt);
+		zoomValue = CROUCH_ZOOM;
 	} else if (sprint){
 		speed *= RUN_SPEED_MUL;
-		camera->zoom = RUN_ZOOM * dt + camera->zoom * (1.0f - dt);
-	} else {
-		camera->zoom = dt + camera->zoom * (1.0f - dt);
+		zoomValue = RUN_ZOOM;
 	}
 	if (zoom)
-		camera->zoom = C_ZOOM * dt + camera->zoom * (1.0f - dt);
+		zoomValue *= C_ZOOM;
+
+	camera->zoom = zoomValue * dt + camera->zoom * (1.0f - dt);
 
 	if (Events::pressed(GLFW_KEY_SPACE) && hitbox->grounded){
 		hitbox->velocity.y = 6.0f;
@@ -163,8 +172,8 @@ void update_controls(PhysicsSolver* physics,
 		if (!hitbox->grounded)
 			hitbox->linear_damping = PLAYER_NOT_ONGROUND_DAMPING;
 
-		hitbox->velocity.x += dir.x * speed * delta * 16;
-		hitbox->velocity.z += dir.z * speed * delta * 16;
+		hitbox->velocity.x += dir.x * speed * delta * 9;
+		hitbox->velocity.z += dir.z * speed * delta * 9;
 	}
 
 	if (Events::_cursor_locked){
@@ -236,7 +245,7 @@ int main() {
 	Chunks *chunks = new Chunks(34,1,34, 0,0,0);
 
 
-	Player* player = new Player(vec3(camera->position), 5.0f, camera);
+	Player* player = new Player(vec3(camera->position), 4.0f, camera);
 	wfile->readPlayer(player);
 	camera->rotation = mat4(1.0f);
 	camera->rotate(player->camY, player->camX, 0);

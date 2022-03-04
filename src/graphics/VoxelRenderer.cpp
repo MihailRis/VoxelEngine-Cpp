@@ -295,7 +295,7 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks){
 		for (int z = 0; z < CHUNK_D; z++){
 			for (int x = 0; x < CHUNK_W; x++){
 				voxel vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
-				if (vox.id == 9)
+				if (vox.id == 9 || vox.id == 4)
 					continue;
 				_renderBlock(buffer, x, y, z, chunks, vox, index);
 			}
@@ -307,6 +307,17 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks){
 			for (int x = 0; x < CHUNK_W; x++){
 				voxel vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
 				if (vox.id != 9)
+					continue;
+				_renderBlock(buffer, x, y, z, chunks, vox, index);
+			}
+		}
+	}
+
+	for (int y = 0; y < CHUNK_H; y++){
+		for (int z = 0; z < CHUNK_D; z++){
+			for (int x = 0; x < CHUNK_W; x++){
+				voxel vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
+				if (vox.id != 4)
 					continue;
 				_renderBlock(buffer, x, y, z, chunks, vox, index);
 			}

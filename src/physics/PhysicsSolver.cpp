@@ -5,6 +5,7 @@
 #include <iostream>
 
 #define E 0.03
+#define DEFAULT_FRICTION 10.0
 
 PhysicsSolver::PhysicsSolver(vec3 gravity) : gravity(gravity) {
 }
@@ -83,7 +84,7 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 					if (chunks->isObstacle(x,y,z)){
 						vel.y *= 0.0;
 						pos.y = y + 1 + half.y;
-						int f = 18.0;
+						int f = DEFAULT_FRICTION;
 						vel.x *= max(0.0, 1.0 - dt * f);
 						vel.z *= max(0.0, 1.0 - dt * f);
 						hitbox->grounded = true;
