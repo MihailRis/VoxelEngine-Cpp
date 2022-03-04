@@ -192,7 +192,7 @@ voxel* Chunks::rayCast(vec3 a, vec3 dir, float maxDist, vec3& end, vec3& norm, v
 
 	while (t <= maxDist){
 		voxel* voxel = get(ix, iy, iz);
-		if (voxel == nullptr || voxel->id){
+		if (voxel == nullptr || Block::blocks[voxel->id]->selectable){
 			end.x = px + t * dx;
 			end.y = py + t * dy;
 			end.z = pz + t * dz;

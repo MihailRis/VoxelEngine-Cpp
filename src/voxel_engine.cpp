@@ -78,6 +78,7 @@ void close_world(WorldFiles* wfile, Chunks* chunks){
 #define CAMERA_SHAKING_OFFSET_Y 0.031f
 #define CAMERA_SHAKING_SPEED 1.6f
 #define CAMERA_SHAKING_DELTA_K 10.0f
+#define FLIGHT_SPEED_MUL 5.0f
 
 void update_controls(PhysicsSolver* physics,
 		Chunks* chunks,
@@ -105,9 +106,12 @@ void update_controls(PhysicsSolver* physics,
 	bool zoom = Events::pressed(GLFW_KEY_C);
 
 	float speed = player->speed;
+	if (player->flight){
+		speed *= FLIGHT_SPEED_MUL;
+	}
 	int substeps = (int)(delta * 1000);
 	substeps = (substeps <= 0 ? 1 : (substeps > 100 ? 100 : substeps));
-	physics->step(chunks, hitbox, delta, substeps, shift);
+	physics->step(chunks, hitbox, delta, substeps, shift, player->flight ? 0.0f : 1.0f);
 	camera->position.x = hitbox->position.x;
 	camera->position.y = hitbox->position.y + 0.5f;
 	camera->position.z = hitbox->position.z;
@@ -123,7 +127,11 @@ void update_controls(PhysicsSolver* physics,
 	player->cameraShaking = player->cameraShaking * (1.0f - delta * CAMERA_SHAKING_DELTA_K) + factor * delta * CAMERA_SHAKING_DELTA_K;
 	camera->position += camera->right * sin(shakeTimer) * CAMERA_SHAKING_OFFSET * player->cameraShaking;
 	camera->position += camera->up * abs(cos(shakeTimer)) * CAMERA_SHAKING_OFFSET_Y * player->cameraShaking;
-	camera->position -= player->interpVel * 0.05f;
+	camera->position -= min(player->interpVel * 0.05f, 1.0f);
+
+	if (Events::jpressed(GLFW_KEY_F)){
+		player->flight = !player->flight;
+	}
 
 	// Field of view manipulations
 	float dt = min(1.0f, delta * ZOOM_SPEED);
@@ -140,7 +148,6 @@ void update_controls(PhysicsSolver* physics,
 	}
 	if (zoom)
 		zoomValue *= C_ZOOM;
-
 	camera->zoom = zoomValue * dt + camera->zoom * (1.0f - dt);
 
 	if (Events::pressed(GLFW_KEY_SPACE) && hitbox->grounded){
@@ -166,6 +173,16 @@ void update_controls(PhysicsSolver* physics,
 	}
 
 	hitbox->linear_damping = DEFAULT_AIR_DAMPING;
+	if (player->flight){
+		hitbox->linear_damping = PLAYER_NOT_ONGROUND_DAMPING;
+		hitbox->velocity.y *= 1.0f - delta * 9;
+		if (Events::pressed(GLFW_KEY_SPACE)){
+			hitbox->velocity.y += speed * delta * 9;
+		}
+		if (Events::pressed(GLFW_KEY_LEFT_SHIFT)){
+			hitbox->velocity.y -= speed * delta * 9;
+		}
+	}
 	if (length(dir) > 0.0f){
 		dir = normalize(dir);
 

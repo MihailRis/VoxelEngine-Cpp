@@ -10,16 +10,16 @@
 PhysicsSolver::PhysicsSolver(vec3 gravity) : gravity(gravity) {
 }
 
-void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned substeps, bool shifting) {
+void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned substeps, bool shifting, float gravityScale) {
 	for (unsigned i = 0; i < substeps; i++){
 		float dt = delta / (float)substeps;
 		float linear_damping = hitbox->linear_damping;
 		vec3& pos = hitbox->position;
 		vec3& half = hitbox->halfsize;
 		vec3& vel = hitbox->velocity;
-		vel.x += gravity.x*dt;
-		vel.y += gravity.y*dt;
-		vel.z += gravity.z*dt;
+		vel.x += gravity.x*dt * gravityScale;
+		vel.y += gravity.y*dt * gravityScale;
+		vel.z += gravity.z*dt * gravityScale;
 
 		float px = pos.x;
 		float pz = pos.z;

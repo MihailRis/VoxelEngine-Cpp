@@ -57,6 +57,7 @@ void setup_definitions() {
 	block->lightPassing = true;
 	block->skyLightPassing = true;
 	block->obstacle = false;
+	block->selectable = false;
 	Block::blocks[block->id] = block;
 
 	// STONE
@@ -106,6 +107,7 @@ void setup_definitions() {
 	block->lightPassing = true;
 	block->skyLightPassing = false;
 	block->obstacle = false;
+	block->selectable = false;
 	Block::blocks[block->id] = block;
 }
 #endif // DECLARATIONS_H

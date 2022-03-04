@@ -11,6 +11,7 @@ public:
 	float speed;
 	Camera* camera;
 	Hitbox* hitbox;
+	bool flight = false;
 	int choosenBlock;
 	float camX, camY;
 	float cameraShaking = 0.0f;
