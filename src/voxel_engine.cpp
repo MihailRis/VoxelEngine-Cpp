@@ -79,6 +79,7 @@ void close_world(WorldFiles* wfile, Chunks* chunks){
 #define CAMERA_SHAKING_SPEED 1.6f
 #define CAMERA_SHAKING_DELTA_K 10.0f
 #define FLIGHT_SPEED_MUL 5.0f
+#define JUMP_FORCE 7.0f
 
 void update_controls(PhysicsSolver* physics,
 		Chunks* chunks,
@@ -151,7 +152,7 @@ void update_controls(PhysicsSolver* physics,
 	camera->zoom = zoomValue * dt + camera->zoom * (1.0f - dt);
 
 	if (Events::pressed(GLFW_KEY_SPACE) && hitbox->grounded){
-		hitbox->velocity.y = 6.0f;
+		hitbox->velocity.y = JUMP_FORCE;
 	}
 
 	vec3 dir(0,0,0);
@@ -270,7 +271,7 @@ int main() {
 	std::cout << "-- preparing systems" << std::endl;
 
 	VoxelRenderer renderer(1024*1024);
-	PhysicsSolver physics(vec3(0,-16.0f,0));
+	PhysicsSolver physics(vec3(0,-9.8f*2.0f,0));
 	Lighting lighting(chunks);
 
 	init_renderer();
