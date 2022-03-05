@@ -1,9 +1,13 @@
+// Install dependencies:
+// sudo apt install libgl-dev libglew-dev libglfw3-dev libpng-dev libglm-dev
 #include <iostream>
+#include <cmath>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <vector>
 #include <ctime>
 
 // GLM
@@ -27,6 +31,7 @@ using namespace glm;
 #include "voxels/Chunks.h"
 #include "voxels/Block.h"
 #include "voxels/WorldGenerator.h"
+#include "voxels/ChunksController.h"
 #include "files/files.h"
 #include "files/WorldFiles.h"
 #include "lighting/LightSolver.h"
@@ -35,176 +40,15 @@ using namespace glm;
 #include "physics/Hitbox.h"
 #include "physics/PhysicsSolver.h"
 
-int WIDTH = 1280;
-int HEIGHT = 720;
+#include "Assets.h"
+#include "objects/Player.h"
 
-float vertices[] = {
-		// x    y
-	   -0.01f,-0.01f,
-	    0.01f, 0.01f,
+#include "declarations.h"
+#include "world_render.h"
 
-	   -0.01f, 0.01f,
-	    0.01f,-0.01f,
-};
-
-int attrs[] = {
-		2,  0 //null terminator
-};
-
-Mesh *crosshair;
-Shader *shader, *linesShader, *crosshairShader;
-Texture *texture;
-LineBatch *lineBatch;
-
-Chunks* chunks;
-WorldFiles* wfile;
-
-bool occlusion = false;
-
-// All in-game definitions (blocks, items, etc..)
-void setup_definitions() {
-	// AIR
-	Block* block = new Block(0,0);
-	block->drawGroup = 1;
-	block->lightPassing = true;
-	block->obstacle = false;
-	Block::blocks[block->id] = block;
-
-	// STONE
-	block = new Block(1,2);
-	Block::blocks[block->id] = block;
-
-	// GRASS
-	block = new Block(2,4);
-	block->textureFaces[2] = 2;
-	block->textureFaces[3] = 1;
-	Block::blocks[block->id] = block;
-
-	// LAMP
-	block = new Block(3,3);
-	block->emission[0] = 15;
-	block->emission[1] = 14;
-	block->emission[2] = 13;
-	Block::blocks[block->id] = block;
-
-	// GLASS
-	block = new Block(4,5);
-	block->drawGroup = 2;
-	block->lightPassing = true;
-	Block::blocks[block->id] = block;
-
-	// PLANKS
-	block = new Block(5,6);
-	Block::blocks[block->id] = block;
-}
-
-// Shaders, textures, renderers
-int initialize_assets() {
-	shader = load_shader("res/main.glslv", "res/main.glslf");
-	if (shader == nullptr){
-		std::cerr << "failed to load shader" << std::endl;
-		Window::terminate();
-		return 1;
-	}
-
-	crosshairShader = load_shader("res/crosshair.glslv", "res/crosshair.glslf");
-	if (crosshairShader == nullptr){
-		std::cerr << "failed to load crosshair shader" << std::endl;
-		Window::terminate();
-		return 1;
-	}
-
-	linesShader = load_shader("res/lines.glslv", "res/lines.glslf");
-	if (linesShader == nullptr){
-		std::cerr << "failed to load lines shader" << std::endl;
-		Window::terminate();
-		return 1;
-	}
-
-	texture = load_texture("res/block.png");
-	if (texture == nullptr){
-		std::cerr << "failed to load texture" << std::endl;
-		delete shader;
-		Window::terminate();
-		return 1;
-	}
-	return 0;
-}
-
-void draw_world(Camera* camera){
-	glClearColor(0.7f,0.85f,1.0f,1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Draw VAO
-	shader->use();
-	shader->uniformMatrix("u_proj", camera->getProjection());
-	shader->uniformMatrix("u_view", camera->getView());
-	shader->uniform1f("u_gamma", 1.6f);
-	shader->uniform3f("u_skyLightColor", 1.8f,1.8f,1.8f);
-	shader->uniform3f("u_fogColor", 0.7f,0.85f,1.0f);
-	texture->bind();
-	mat4 model(1.0f);
-
-	const float cameraX = camera->position.x;
-	const float cameraZ = camera->position.z;
-	const float camDirX = camera->dir.x;
-	const float camDirZ = camera->dir.z;
-
-	for (size_t i = 0; i < chunks->volume; i++){
-		Chunk* chunk = chunks->chunks[i];
-		if (chunk == nullptr)
-			continue;
-		Mesh* mesh = chunks->meshes[i];
-		if (mesh == nullptr)
-			continue;
-
-		// Simple frustum culling (culling chunks behind the camera in 2D - XZ)
-		if (occlusion){
-			bool unoccluded = false;
-			do {
-				if ((chunk->x*CHUNK_W-cameraX)*camDirX + (chunk->z*CHUNK_D-cameraZ)*camDirZ >= 0.0){
-					unoccluded = true; break;
-				}
-				if (((chunk->x+1)*CHUNK_W-cameraX)*camDirX + (chunk->z*CHUNK_D-cameraZ)*camDirZ >= 0.0){
-					unoccluded = true; break;
-				}
-				if (((chunk->x+1)*CHUNK_W-cameraX)*camDirX + ((chunk->z+1)*CHUNK_D-cameraZ)*camDirZ >= 0.0){
-					unoccluded = true; break;
-				}
-				if ((chunk->x*CHUNK_W-cameraX)*camDirX + ((chunk->z+1)*CHUNK_D-cameraZ)*camDirZ >= 0.0){
-					unoccluded = true; break;
-				}
-			} while (false);
-			if (!unoccluded)
-				continue;
-		}
-
-		model = glm::translate(mat4(1.0f), vec3(chunk->x*CHUNK_W+0.5f, chunk->y*CHUNK_H+0.5f, chunk->z*CHUNK_D+0.5f));
-		shader->uniformMatrix("u_model", model);
-		mesh->draw(GL_TRIANGLES);
-	}
-
-	crosshairShader->use();
-	crosshair->draw(GL_LINES);
-
-	linesShader->use();
-	linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
-	glLineWidth(2.0f);
-	lineBatch->render();
-}
-
-// Deleting GL objects like shaders, textures
-void finalize_assets(){
-	delete shader;
-	delete texture;
-	delete crosshair;
-	delete crosshairShader;
-	delete linesShader;
-	delete lineBatch;
-}
 
 // Save all world data to files
-void write_world(){
+void write_world(WorldFiles* wfile, Chunks* chunks){
 	for (unsigned int i = 0; i < chunks->volume; i++){
 		Chunk* chunk = chunks->chunks[i];
 		if (chunk == nullptr)
@@ -216,10 +60,193 @@ void write_world(){
 }
 
 // Deleting world data from memory
-void close_world(){
+void close_world(WorldFiles* wfile, Chunks* chunks){
 	delete chunks;
 	delete wfile;
 }
+
+#define CROUCH_SPEED_MUL 0.25f
+#define CROUCH_SHIFT_Y -0.2f
+#define RUN_SPEED_MUL 1.5f
+#define CROUCH_ZOOM 0.9f
+#define RUN_ZOOM 1.1f
+#define C_ZOOM 0.1f
+#define ZOOM_SPEED 16.0f
+#define DEFAULT_AIR_DAMPING 0.1f
+#define PLAYER_NOT_ONGROUND_DAMPING 10.0f
+#define CAMERA_SHAKING_OFFSET 0.025f
+#define CAMERA_SHAKING_OFFSET_Y 0.031f
+#define CAMERA_SHAKING_SPEED 1.6f
+#define CAMERA_SHAKING_DELTA_K 10.0f
+#define FLIGHT_SPEED_MUL 5.0f
+#define JUMP_FORCE 7.0f
+
+void update_controls(PhysicsSolver* physics,
+		Chunks* chunks,
+		Player* player,
+		float delta){
+
+	if (Events::jpressed(GLFW_KEY_ESCAPE)){
+		Window::setShouldClose(true);
+	}
+	if (Events::jpressed(GLFW_KEY_TAB)){
+		Events::toogleCursor();
+	}
+
+	for (int i = 1; i < 10; i++){
+		if (Events::jpressed(GLFW_KEY_0+i)){
+			player->choosenBlock = i;
+		}
+	}
+
+	// Controls
+	Camera* camera = player->camera;
+	Hitbox* hitbox = player->hitbox;
+	bool sprint = Events::pressed(GLFW_KEY_LEFT_CONTROL);
+	bool shift = Events::pressed(GLFW_KEY_LEFT_SHIFT) && hitbox->grounded && !sprint;
+	bool zoom = Events::pressed(GLFW_KEY_C);
+
+	float speed = player->speed;
+	if (player->flight){
+		speed *= FLIGHT_SPEED_MUL;
+	}
+	int substeps = (int)(delta * 1000);
+	substeps = (substeps <= 0 ? 1 : (substeps > 100 ? 100 : substeps));
+	physics->step(chunks, hitbox, delta, substeps, shift, player->flight ? 0.0f : 1.0f);
+	camera->position.x = hitbox->position.x;
+	camera->position.y = hitbox->position.y + 0.5f;
+	camera->position.z = hitbox->position.z;
+
+	if (player->flight && hitbox->grounded)
+		player->flight = false;
+	// Camera shaking
+	player->interpVel = player->interpVel * (1.0f - delta * 5) + hitbox->velocity * delta * 0.1f;
+	if (hitbox->grounded && player->interpVel.y < 0.0f){
+		player->interpVel.y *= -30.0f;
+	}
+	float factor = hitbox->grounded ? length(vec2(hitbox->velocity.x, hitbox->velocity.z)) : 0.0f;
+	player->cameraShakingTimer += delta * factor * CAMERA_SHAKING_SPEED;
+	float shakeTimer = player->cameraShakingTimer;
+	player->cameraShaking = player->cameraShaking * (1.0f - delta * CAMERA_SHAKING_DELTA_K) + factor * delta * CAMERA_SHAKING_DELTA_K;
+	camera->position += camera->right * sin(shakeTimer) * CAMERA_SHAKING_OFFSET * player->cameraShaking;
+	camera->position += camera->up * abs(cos(shakeTimer)) * CAMERA_SHAKING_OFFSET_Y * player->cameraShaking;
+	camera->position -= min(player->interpVel * 0.05f, 1.0f);
+
+	if (Events::jpressed(GLFW_KEY_F)){
+		player->flight = !player->flight;
+		if (player->flight){
+			hitbox->velocity.y += 1;
+			hitbox->grounded = false;
+		}
+	}
+
+	// Field of view manipulations
+	float dt = min(1.0f, delta * ZOOM_SPEED);
+	if (dt > 1.0f)
+		dt = 1.0f;
+	float zoomValue = 1.0f;
+	if (shift){
+		speed *= CROUCH_SPEED_MUL;
+		camera->position.y += CROUCH_SHIFT_Y;
+		zoomValue = CROUCH_ZOOM;
+	} else if (sprint){
+		speed *= RUN_SPEED_MUL;
+		zoomValue = RUN_ZOOM;
+	}
+	if (zoom)
+		zoomValue *= C_ZOOM;
+	camera->zoom = zoomValue * dt + camera->zoom * (1.0f - dt);
+
+	if (Events::pressed(GLFW_KEY_SPACE) && hitbox->grounded){
+		hitbox->velocity.y = JUMP_FORCE;
+	}
+
+	vec3 dir(0,0,0);
+	if (Events::pressed(GLFW_KEY_W)){
+		dir.x += camera->dir.x;
+		dir.z += camera->dir.z;
+	}
+	if (Events::pressed(GLFW_KEY_S)){
+		dir.x -= camera->dir.x;
+		dir.z -= camera->dir.z;
+	}
+	if (Events::pressed(GLFW_KEY_D)){
+		dir.x += camera->right.x;
+		dir.z += camera->right.z;
+	}
+	if (Events::pressed(GLFW_KEY_A)){
+		dir.x -= camera->right.x;
+		dir.z -= camera->right.z;
+	}
+
+	hitbox->linear_damping = DEFAULT_AIR_DAMPING;
+	if (player->flight){
+		hitbox->linear_damping = PLAYER_NOT_ONGROUND_DAMPING;
+		hitbox->velocity.y *= 1.0f - delta * 9;
+		if (Events::pressed(GLFW_KEY_SPACE)){
+			hitbox->velocity.y += speed * delta * 9;
+		}
+		if (Events::pressed(GLFW_KEY_LEFT_SHIFT)){
+			hitbox->velocity.y -= speed * delta * 9;
+		}
+	}
+	if (length(dir) > 0.0f){
+		dir = normalize(dir);
+
+		if (!hitbox->grounded)
+			hitbox->linear_damping = PLAYER_NOT_ONGROUND_DAMPING;
+
+		hitbox->velocity.x += dir.x * speed * delta * 9;
+		hitbox->velocity.z += dir.z * speed * delta * 9;
+	}
+
+	if (Events::_cursor_locked){
+		player->camY += -Events::deltaY / Window::height * 2;
+		player->camX += -Events::deltaX / Window::height * 2;
+
+		if (player->camY < -radians(89.0f)){
+			player->camY = -radians(89.0f);
+		}
+		if (player->camY > radians(89.0f)){
+			player->camY = radians(89.0f);
+		}
+
+		camera->rotation = mat4(1.0f);
+		camera->rotate(player->camY, player->camX, 0);
+	}
+}
+
+void update_interaction(Chunks* chunks, PhysicsSolver* physics, Player* player, Lighting* lighting){
+	Camera* camera = player->camera;
+	vec3 end;
+	vec3 norm;
+	vec3 iend;
+	voxel* vox = chunks->rayCast(camera->position, camera->front, 10.0f, end, norm, iend);
+	if (vox != nullptr){
+		lineBatch->box(iend.x+0.5f, iend.y+0.5f, iend.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
+
+		if (Events::jclicked(GLFW_MOUSE_BUTTON_1)){
+			int x = (int)iend.x;
+			int y = (int)iend.y;
+			int z = (int)iend.z;
+			chunks->set(x,y,z, 0);
+			lighting->onBlockSet(x,y,z,0);
+		}
+		if (Events::jclicked(GLFW_MOUSE_BUTTON_2)){
+			int x = (int)(iend.x)+(int)(norm.x);
+			int y = (int)(iend.y)+(int)(norm.y);
+			int z = (int)(iend.z)+(int)(norm.z);
+			if (!physics->isBlockInside(x,y,z, player->hitbox)){
+				chunks->set(x, y, z, player->choosenBlock);
+				lighting->onBlockSet(x,y,z, player->choosenBlock);
+			}
+		}
+	}
+}
+
+int WIDTH = 1280;
+int HEIGHT = 720;
+
 
 int main() {
 	setup_definitions();
@@ -227,36 +254,46 @@ int main() {
 	Window::initialize(WIDTH, HEIGHT, "Window 2.0");
 	Events::initialize();
 
-	int result = initialize_assets();
+	std::cout << "-- loading assets" << std::endl;
+	Assets* assets = new Assets();
+	int result = initialize_assets(assets);
 	if (result){
+		delete assets;
 		Window::terminate();
 		return result;
 	}
+	std::cout << "-- loading world" << std::endl;
 
-	wfile = new WorldFiles("world/", REGION_VOL * (CHUNK_VOL * 2 + 8));
-	chunks = new Chunks(32,1,32, 0,0,0);
+	Camera *camera = new Camera(vec3(-320,255,32), radians(90.0f));
+	WorldFiles *wfile = new WorldFiles("world/", REGION_VOL * (CHUNK_VOL * 2 + 8));
+	Chunks *chunks = new Chunks(34,1,34, 0,0,0);
+
+
+	Player* player = new Player(vec3(camera->position), 4.0f, camera);
+	wfile->readPlayer(player);
+	camera->rotation = mat4(1.0f);
+	camera->rotate(player->camY, player->camX, 0);
+
+	std::cout << "-- preparing systems" << std::endl;
+
 	VoxelRenderer renderer(1024*1024);
-	lineBatch = new LineBatch(4096);
-	PhysicsSolver physics(vec3(0,-16.0f,0));
+	PhysicsSolver physics(vec3(0,-9.8f*2.0f,0));
+	Lighting lighting(chunks);
 
-	Lighting::initialize(chunks);
+	init_renderer();
 
-	crosshair = new Mesh(vertices, 4, attrs);
-	Camera* camera = new Camera(vec3(32,32,32), radians(90.0f));
-	Hitbox* hitbox = new Hitbox(vec3(32,120,32), vec3(0.2f,0.9f,0.2f));
+	ChunksController chunksController(chunks, &lighting);
 
 	float lastTime = glfwGetTime();
 	float delta = 0.0f;
 
-	float camX = 0.0f;
-	float camY = 0.0f;
-
-	float playerSpeed = 4.0f;
-
-	int choosenBlock = 1;
 	long frame = 0;
 
-	glfwSwapInterval(0);
+	bool occlusion = false;
+
+	glfwSwapInterval(1);
+
+	std::cout << "-- initializing finished" << std::endl;
 
 	while (!Window::isShouldClose()){
 		frame++;
@@ -264,131 +301,32 @@ int main() {
 		delta = currentTime - lastTime;
 		lastTime = currentTime;
 
-		//if (frame % 240 == 0)
-		//	std::cout << delta << std::endl;
-
 		if (Events::jpressed(GLFW_KEY_O)){
 			occlusion = !occlusion;
 		}
 
-		if (Events::jpressed(GLFW_KEY_ESCAPE)){
-			Window::setShouldClose(true);
-		}
-		if (Events::jpressed(GLFW_KEY_TAB)){
-			Events::toogleCursor();
-		}
-
-		for (int i = 1; i < 6; i++){
-			if (Events::jpressed(GLFW_KEY_0+i)){
-				choosenBlock = i;
-			}
-		}
-
-		// Controls
-		bool sprint = Events::pressed(GLFW_KEY_LEFT_CONTROL);
-		bool shift = Events::pressed(GLFW_KEY_LEFT_SHIFT) && hitbox->grounded && !sprint;
-
-		float speed = playerSpeed;
-		int substeps = (int)(delta * 1000);
-		substeps = (substeps <= 0 ? 1 : (substeps > 100 ? 100 : substeps));
-		physics.step(chunks, hitbox, delta, substeps, shift);
-		camera->position.x = hitbox->position.x;
-		camera->position.y = hitbox->position.y + 0.5f;
-		camera->position.z = hitbox->position.z;
-
-		float dt = min(1.0f, delta * 16);
-		if (shift){
-			speed *= 0.25f;
-			camera->position.y -= 0.2f;
-			camera->zoom = 0.9f * dt + camera->zoom * (1.0f - dt);
-		} else if (sprint){
-			speed *= 1.5f;
-			camera->zoom = 1.1f * dt + camera->zoom * (1.0f - dt);
-		} else {
-			camera->zoom = dt + camera->zoom * (1.0f - dt);
-		}
-		if (Events::pressed(GLFW_KEY_SPACE) && hitbox->grounded){
-			hitbox->velocity.y = 6.0f;
-		}
-
-		vec3 dir(0,0,0);
-		if (Events::pressed(GLFW_KEY_W)){
-			dir.x += camera->dir.x;
-			dir.z += camera->dir.z;
-		}
-		if (Events::pressed(GLFW_KEY_S)){
-			dir.x -= camera->dir.x;
-			dir.z -= camera->dir.z;
-		}
-		if (Events::pressed(GLFW_KEY_D)){
-			dir.x += camera->right.x;
-			dir.z += camera->right.z;
-		}
-		if (Events::pressed(GLFW_KEY_A)){
-			dir.x -= camera->right.x;
-			dir.z -= camera->right.z;
-		}
-		if (length(dir) > 0.0f)
-			dir = normalize(dir);
-		hitbox->velocity.x = dir.x * speed;
-		hitbox->velocity.z = dir.z * speed;
+		update_controls(&physics, chunks, player, delta);
+		update_interaction(chunks, &physics, player, &lighting);
 
 		chunks->setCenter(wfile, camera->position.x,0,camera->position.z);
-		chunks->_buildMeshes(&renderer);
-		chunks->loadVisible(wfile);
+		chunksController._buildMeshes(&renderer, frame);
+		chunksController.loadVisible(wfile);
 
-		if (Events::_cursor_locked){
-			camY += -Events::deltaY / Window::height * 2;
-			camX += -Events::deltaX / Window::height * 2;
-
-			if (camY < -radians(89.0f)){
-				camY = -radians(89.0f);
-			}
-			if (camY > radians(89.0f)){
-				camY = radians(89.0f);
-			}
-
-			camera->rotation = mat4(1.0f);
-			camera->rotate(camY, camX, 0);
-		}
-
-		{
-			vec3 end;
-			vec3 norm;
-			vec3 iend;
-			voxel* vox = chunks->rayCast(camera->position, camera->front, 10.0f, end, norm, iend);
-			if (vox != nullptr){
-				lineBatch->box(iend.x+0.5f, iend.y+0.5f, iend.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
-
-				if (Events::jclicked(GLFW_MOUSE_BUTTON_1)){
-					int x = (int)iend.x;
-					int y = (int)iend.y;
-					int z = (int)iend.z;
-					chunks->set(x,y,z, 0);
-					Lighting::onBlockSet(x,y,z,0);
-				}
-				if (Events::jclicked(GLFW_MOUSE_BUTTON_2)){
-					int x = (int)(iend.x)+(int)(norm.x);
-					int y = (int)(iend.y)+(int)(norm.y);
-					int z = (int)(iend.z)+(int)(norm.z);
-					if (!physics.isBlockInside(x,y,z, hitbox)){
-						chunks->set(x, y, z, choosenBlock);
-						Lighting::onBlockSet(x,y,z, choosenBlock);
-					}
-				}
-			}
-		}
-		draw_world(camera);
+		draw_world(camera, assets, chunks, occlusion);
 
 		Window::swapBuffers();
 		Events::pullEvents();
 	}
+	std::cout << "-- saving world" << std::endl;
 
-	write_world();
-	close_world();
+	wfile->writePlayer(player);
+	write_world(wfile, chunks);
+	close_world(wfile, chunks);
 
-	Lighting::finalize();
-	finalize_assets();
+	std::cout << "-- shutting down" << std::endl;
+
+	delete assets;
+	finalize_renderer();
 	Window::terminate();
 	return 0;
 }
