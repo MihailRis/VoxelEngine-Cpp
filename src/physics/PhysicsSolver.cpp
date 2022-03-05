@@ -4,23 +4,20 @@
 
 #include <iostream>
 
-#define E 0.03
-#define DEFAULT_FRICTION 10.0
+#define E 0.01
 
 PhysicsSolver::PhysicsSolver(vec3 gravity) : gravity(gravity) {
 }
 
-void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned substeps, bool shifting, float gravityScale) {
-	hitbox->grounded = false;
+void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned substeps, bool shifting) {
 	for (unsigned i = 0; i < substeps; i++){
 		float dt = delta / (float)substeps;
-		float linear_damping = hitbox->linear_damping;
 		vec3& pos = hitbox->position;
 		vec3& half = hitbox->halfsize;
 		vec3& vel = hitbox->velocity;
-		vel.x += gravity.x*dt * gravityScale;
-		vel.y += gravity.y*dt * gravityScale;
-		vel.z += gravity.z*dt * gravityScale;
+		vel.x += gravity.x*dt;
+		vel.y += gravity.y*dt;
+		vel.z += gravity.z*dt;
 
 		float px = pos.x;
 		float pz = pos.z;
@@ -76,24 +73,21 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 			}
 		}
 
+		hitbox->grounded = false;
 		if (vel.y < 0.0){
 			for (int x = floor(pos.x-half.x+E); x <= floor(pos.x+half.x-E); x++){
-				bool broken = false;
 				for (int z = floor(pos.z-half.z+E); z <= floor(pos.z+half.z-E); z++){
 					int y = floor(pos.y-half.y-E);
 					if (chunks->isObstacle(x,y,z)){
 						vel.y *= 0.0;
 						pos.y = y + 1 + half.y;
-						int f = DEFAULT_FRICTION;
+						int f = 18.0;
 						vel.x *= max(0.0, 1.0 - dt * f);
 						vel.z *= max(0.0, 1.0 - dt * f);
 						hitbox->grounded = true;
-						broken = true;
 						break;
 					}
 				}
-				if (broken)
-					break;
 			}
 		}
 		if (vel.y > 0.0){
@@ -108,9 +102,6 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 				}
 			}
 		}
-
-		vel.x *= max(0.0, 1.0 - dt * linear_damping);
-		vel.z *= max(0.0, 1.0 - dt * linear_damping);
 
 		pos.x += vel.x * dt;
 		pos.y += vel.y * dt;
@@ -155,3 +146,4 @@ bool PhysicsSolver::isBlockInside(int x, int y, int z, Hitbox* hitbox) {
 			z >= floor(pos.z-half.z) && z <= floor(pos.z+half.z) &&
 			y >= floor(pos.y-half.y) && y <= floor(pos.y+half.y);
 }
+
