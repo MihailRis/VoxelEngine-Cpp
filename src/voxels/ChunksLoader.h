@@ -26,7 +26,7 @@ public:
 		return current != nullptr;
 	}
 
-	void perform(Chunk* chunk, const Chunk** closes);
+	void perform(Chunk* chunk, Chunk** closes_passed);
 
 	void stop(){
 		working = false;

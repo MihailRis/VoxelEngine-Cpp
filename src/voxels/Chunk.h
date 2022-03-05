@@ -16,8 +16,7 @@ public:
 	Lightmap* lightmap;
 	bool modified = true;
 	bool ready = false;
-	bool accepted = false;
-	bool generated = false;
+	bool loaded = false;
 	int references = 1;
 	Chunk(int x, int y, int z);
 	~Chunk();

@@ -73,7 +73,7 @@ bool ChunksController::loadVisible(WorldFiles* worldFiles){
 		return false;
 	chunk = new Chunk(nearX+ox,nearY+oy,nearZ+oz);
 	if (worldFiles->getChunk(chunk->x, chunk->z, (char*)chunk->voxels))
-		chunk->generated = true;
+		chunk->loaded = true;
 
 	chunks->chunks[index] = chunk;
 
@@ -99,7 +99,7 @@ bool ChunksController::loadVisible(WorldFiles* worldFiles){
 		oz += 1;
 		closes[(oy * 3 + oz) * 3 + ox] = other;
 	}
-	freeLoader->perform(chunk, (const Chunk**)closes);
+	freeLoader->perform(chunk, (Chunk**)closes);
 	return true;
 }
 
@@ -144,29 +144,6 @@ bool ChunksController::_buildMeshes(VoxelRenderer* renderer, int tick) {
 
 	Chunk* chunk = chunks->chunks[index];
 	if (chunk == nullptr){
-		for (int y = 0; y < h; y++){
-			for (int z = 1; z < d-1; z++){
-				for (int x = 1; x < w-1; x++){
-					int index = (y * d + z) * w + x;
-					chunk = chunks->chunks[index];
-					if (chunk != nullptr && chunk->ready && !chunk->accepted){
-						int lx = x - w / 2;
-						int ly = y - h / 2;
-						int lz = z - d / 2;
-						int distance = (lx * lx + ly * ly + lz * lz);
-						lighting->onChunkLoaded(chunk->x, chunk->y, chunk->z, false);
-						for (int i = 0; i < chunks->volume; i++){
-							Chunk* other = chunks->chunks[i];
-							if (other)
-								other->modified = true;
-						}
-						chunk->accepted = true;
-						std::cout << "1: built mesh for " << chunk << std::endl;
-						return true;
-					}
-				}
-			}
-		}
 		return false;
 	}
 	Mesh* mesh = chunks->meshes[index];

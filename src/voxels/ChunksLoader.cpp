@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#define CLOSES_C 27
+
 void ChunksLoader::_thread(){
 	Chunks chunks(3,3,3, -1,-1,-1);
 	Lighting lighting(&chunks);
@@ -17,25 +19,22 @@ void ChunksLoader::_thread(){
 			continue;
 		}
 		Chunk* chunk = current;
-		chunk->incref();
-		for (size_t i = 0; i < 27; i++){
+		chunks._setOffset(chunk->x-1, chunk->y-1, chunk->z-1);
+		for (size_t i = 0; i < CLOSES_C; i++){
 			Chunk* other = closes[i];
 			if (other){
-				other->incref();
 				chunks.putChunk(other);
 			}
 		}
 
-		chunks._setOffset(chunk->x-1, chunk->y-1, chunk->z-1);
-
-		if (!chunk->generated){
+		if (!chunk->loaded){
 			WorldGenerator::generate(chunk->voxels, chunk->x, chunk->y, chunk->z);
 		}
 
 		chunks.putChunk(chunk);
 		lighting.onChunkLoaded(chunk->x, chunk->y, chunk->z, true);
 		chunks.clear(false);
-		for (int i = 0; i < 27; i++){
+		for (int i = 0; i < CLOSES_C; i++){
 			Chunk* other = closes[i];
 			if (other)
 				other->decref();
@@ -43,24 +42,26 @@ void ChunksLoader::_thread(){
 		chunk->ready = true;
 		current = nullptr;
 		chunk->decref();
-		//std::cout << "LOADER: success" << std::endl;
 	}
 }
 
-void ChunksLoader::perform(Chunk* chunk, const Chunk** cs){
+void ChunksLoader::perform(Chunk* chunk, Chunk** closes_passed){
 	if (isBusy()){
 		std::cerr << "performing while busy" << std::endl;
 		return;
 	}
+	chunk->incref();
 	if (closes == nullptr){
-		closes = new Chunk*[27];
+		closes = new Chunk*[CLOSES_C];
 	}
-	for (int i = 0; i < 27; i++){
-		const Chunk* other = cs[i];
+	for (int i = 0; i < CLOSES_C; i++){
+		Chunk* other = closes_passed[i];
 		if (other == nullptr)
 			closes[i] = nullptr;
-		else
-			closes[i] = (Chunk*)other;//->clone();
+		else {
+			other->incref();
+			closes[i] = other;
+		}
 	}
 	current = chunk;
 }
