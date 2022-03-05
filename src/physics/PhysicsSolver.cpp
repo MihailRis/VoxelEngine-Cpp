@@ -11,6 +11,7 @@ PhysicsSolver::PhysicsSolver(vec3 gravity) : gravity(gravity) {
 }
 
 void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned substeps, bool shifting, float gravityScale) {
+	hitbox->grounded = false;
 	for (unsigned i = 0; i < substeps; i++){
 		float dt = delta / (float)substeps;
 		float linear_damping = hitbox->linear_damping;
@@ -75,7 +76,6 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 			}
 		}
 
-		hitbox->grounded = false;
 		if (vel.y < 0.0){
 			for (int x = floor(pos.x-half.x+E); x <= floor(pos.x+half.x-E); x++){
 				bool broken = false;

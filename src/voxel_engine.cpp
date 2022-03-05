@@ -117,6 +117,8 @@ void update_controls(PhysicsSolver* physics,
 	camera->position.y = hitbox->position.y + 0.5f;
 	camera->position.z = hitbox->position.z;
 
+	if (player->flight && hitbox->grounded)
+		player->flight = false;
 	// Camera shaking
 	player->interpVel = player->interpVel * (1.0f - delta * 5) + hitbox->velocity * delta * 0.1f;
 	if (hitbox->grounded && player->interpVel.y < 0.0f){
@@ -132,6 +134,10 @@ void update_controls(PhysicsSolver* physics,
 
 	if (Events::jpressed(GLFW_KEY_F)){
 		player->flight = !player->flight;
+		if (player->flight){
+			hitbox->velocity.y += 1;
+			hitbox->grounded = false;
+		}
 	}
 
 	// Field of view manipulations
