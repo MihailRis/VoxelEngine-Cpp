@@ -310,7 +310,10 @@ int main() {
 
 		chunks->setCenter(wfile, camera->position.x,0,camera->position.z);
 		chunksController._buildMeshes(&renderer, frame);
-		chunksController.loadVisible(wfile);
+
+		int freeLoaders = chunksController.countFreeLoaders();
+		for (int i = 0; i < freeLoaders; i++)
+			chunksController.loadVisible(wfile);
 
 		draw_world(camera, assets, chunks, occlusion);
 

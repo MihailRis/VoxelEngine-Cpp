@@ -24,6 +24,18 @@ ChunksController::~ChunksController(){
 	delete[] loaders;
 }
 
+int ChunksController::countFreeLoaders(){
+	if (_totalLoaded < 4)
+		return loaders[0]->isBusy() ? 0 : 1;
+
+	int count = 0;
+	for (int i = 0; i < LOADERS_COUNT; i++){
+		if (!loaders[i]->isBusy())
+			count++;
+	}
+	return count;
+}
+
 bool ChunksController::loadVisible(WorldFiles* worldFiles){
 	const int w = chunks->w;
 	const int h = chunks->h;
@@ -61,16 +73,10 @@ bool ChunksController::loadVisible(WorldFiles* worldFiles){
 	if (chunk != nullptr)
 		return false;
 
-	static int _totalLoaded = 0;
-
 	ChunksLoader* freeLoader = nullptr;
 	for (int i = 0; i < LOADERS_COUNT; i++){
 		ChunksLoader* loader = loaders[i];
 		if (loader->isBusy()){
-			// Use only one loader at start to prevent near chunks lighting artifacts
-			if (_totalLoaded < 4){
-				break;
-			}
 			continue;
 		}
 		freeLoader = loader;
@@ -187,7 +193,6 @@ bool ChunksController::_buildMeshes(VoxelRenderer* renderer, int tick) {
 		}
 		mesh = renderer->render(chunk, (const Chunk**)closes);
 		chunks->meshes[index] = mesh;
-		//std::cout << "2: built mesh for " << chunk << std::endl;
 		return true;
 	}
 	return false;
