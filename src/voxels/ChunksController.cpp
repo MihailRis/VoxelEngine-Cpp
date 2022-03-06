@@ -61,16 +61,24 @@ bool ChunksController::loadVisible(WorldFiles* worldFiles){
 	if (chunk != nullptr)
 		return false;
 
+	static int _totalLoaded = 0;
+
 	ChunksLoader* freeLoader = nullptr;
 	for (int i = 0; i < LOADERS_COUNT; i++){
 		ChunksLoader* loader = loaders[i];
-		if (loader->isBusy())
+		if (loader->isBusy()){
+			// Use only one loader at start to prevent near chunks lighting artifacts
+			if (_totalLoaded < 4){
+				break;
+			}
 			continue;
+		}
 		freeLoader = loader;
 		break;
 	}
 	if (freeLoader == nullptr)
 		return false;
+	_totalLoaded++;
 	chunk = new Chunk(nearX+ox,nearY+oy,nearZ+oz);
 	if (worldFiles->getChunk(chunk->x, chunk->z, (char*)chunk->voxels))
 		chunk->loaded = true;
