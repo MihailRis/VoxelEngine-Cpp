@@ -8,18 +8,20 @@
 #include "../files/WorldFiles.h"
 #include "ChunksLoader.h"
 #include <iostream>
+#include <thread>
 
-#define LOADERS_COUNT 3
 
 ChunksController::ChunksController(Chunks* chunks, Lighting* lighting) : chunks(chunks), lighting(lighting){
-	loaders = new ChunksLoader*[LOADERS_COUNT];
-	for (int i = 0; i < LOADERS_COUNT; i++){
+	loadersCount = std::thread::hardware_concurrency() - 1;
+	loaders = new ChunksLoader*[loadersCount];
+	for (int i = 0; i < loadersCount; i++){
 		loaders[i] = new ChunksLoader();
 	}
+	std::cout << "created " << loadersCount << " loaders" << std::endl;
 }
 
 ChunksController::~ChunksController(){
-	for (int i = 0; i < LOADERS_COUNT; i++)
+	for (int i = 0; i < loadersCount; i++)
 		delete loaders[i];
 	delete[] loaders;
 }
@@ -29,7 +31,7 @@ int ChunksController::countFreeLoaders(){
 		return loaders[0]->isBusy() ? 0 : 1;
 
 	int count = 0;
-	for (int i = 0; i < LOADERS_COUNT; i++){
+	for (int i = 0; i < loadersCount; i++){
 		if (!loaders[i]->isBusy())
 			count++;
 	}
@@ -74,7 +76,7 @@ bool ChunksController::loadVisible(WorldFiles* worldFiles){
 		return false;
 
 	ChunksLoader* freeLoader = nullptr;
-	for (int i = 0; i < LOADERS_COUNT; i++){
+	for (int i = 0; i < loadersCount; i++){
 		ChunksLoader* loader = loaders[i];
 		if (loader->isBusy()){
 			continue;
