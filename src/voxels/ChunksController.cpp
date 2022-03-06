@@ -13,6 +13,8 @@
 
 ChunksController::ChunksController(Chunks* chunks, Lighting* lighting) : chunks(chunks), lighting(lighting){
 	loadersCount = std::thread::hardware_concurrency() - 1;
+	if (loadersCount <= 0)
+		loadersCount = 1;
 	loaders = new ChunksLoader*[loadersCount];
 	for (int i = 0; i < loadersCount; i++){
 		loaders[i] = new ChunksLoader();
@@ -54,8 +56,17 @@ bool ChunksController::loadVisible(WorldFiles* worldFiles){
 			for (int x = 2; x < w-2; x++){
 				int index = (y * d + z) * w + x;
 				Chunk* chunk = chunks->chunks[index];
-				if (chunk != nullptr)
+				if (chunk != nullptr){
+					int surrounding = 0;
+					for (int oz = -1; oz <= 1; oz++){
+						for (int ox = -1; ox <= 1; ox++){
+							Chunk* other = chunks->getChunk(chunk->x+ox, chunk->y, chunk->z+oz);
+							if (other != nullptr) surrounding++;
+						}
+					}
+					chunk->surrounding = surrounding;
 					continue;
+				}
 				int lx = x - w / 2;
 				int ly = y - h / 2;
 				int lz = z - d / 2;
@@ -138,7 +149,7 @@ bool ChunksController::_buildMeshes(VoxelRenderer* renderer, int tick) {
 				Mesh* mesh = chunks->meshes[index];
 				if (mesh != nullptr && !chunk->modified)
 					continue;
-				if (!chunk->ready){
+				if (!chunk->ready || chunk->surrounding < 9){
 					continue;
 				}
 				int lx = x - w / 2;

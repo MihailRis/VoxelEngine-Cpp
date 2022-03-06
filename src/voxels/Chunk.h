@@ -17,6 +17,7 @@ public:
 	bool modified = true;
 	bool ready = false;
 	bool loaded = false;
+	int surrounding = 0;
 	int references = 1;
 	Chunk(int x, int y, int z);
 	~Chunk();
