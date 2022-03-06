@@ -12,10 +12,12 @@ private:
 	Chunks* chunks;
 	Lighting* lighting;
 	ChunksLoader** loaders;
+	int _totalLoaded = 0;
 public:
 	ChunksController(Chunks* chunks, Lighting* lighting);
 	~ChunksController();
 
+	int countFreeLoaders();
 	bool loadVisible(WorldFiles* worldFiles);
 	bool _buildMeshes(VoxelRenderer* renderer, int tick);
 };
