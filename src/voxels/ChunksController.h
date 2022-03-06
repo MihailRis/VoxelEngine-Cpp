@@ -13,7 +13,6 @@ private:
 	Lighting* lighting;
 	ChunksLoader** loaders;
 	int loadersCount;
-	int _totalLoaded = 0;
 public:
 	ChunksController(Chunks* chunks, Lighting* lighting);
 	~ChunksController();

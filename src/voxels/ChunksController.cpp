@@ -10,6 +10,8 @@
 #include <iostream>
 #include <thread>
 
+#define MIN_SURROUNDING 9
+
 
 ChunksController::ChunksController(Chunks* chunks, Lighting* lighting) : chunks(chunks), lighting(lighting){
 	loadersCount = std::thread::hardware_concurrency() - 1;
@@ -29,9 +31,6 @@ ChunksController::~ChunksController(){
 }
 
 int ChunksController::countFreeLoaders(){
-	if (_totalLoaded < 4)
-		return loaders[0]->isBusy() ? 0 : 1;
-
 	int count = 0;
 	for (int i = 0; i < loadersCount; i++){
 		if (!loaders[i]->isBusy())
@@ -97,7 +96,6 @@ bool ChunksController::loadVisible(WorldFiles* worldFiles){
 	}
 	if (freeLoader == nullptr)
 		return false;
-	_totalLoaded++;
 	chunk = new Chunk(nearX+ox,nearY+oy,nearZ+oz);
 	if (worldFiles->getChunk(chunk->x, chunk->z, (char*)chunk->voxels))
 		chunk->loaded = true;
@@ -149,7 +147,7 @@ bool ChunksController::_buildMeshes(VoxelRenderer* renderer, int tick) {
 				Mesh* mesh = chunks->meshes[index];
 				if (mesh != nullptr && !chunk->modified)
 					continue;
-				if (!chunk->ready || chunk->surrounding < 9){
+				if (!chunk->ready || chunk->surrounding < MIN_SURROUNDING){
 					continue;
 				}
 				int lx = x - w / 2;
