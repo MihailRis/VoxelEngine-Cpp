@@ -330,6 +330,7 @@ int main() {
 
 	delete assets;
 	finalize_renderer();
+	Events::finalize();
 	Window::terminate();
 	return 0;
 }

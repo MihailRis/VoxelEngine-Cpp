@@ -18,6 +18,7 @@ public:
 	static bool _cursor_started;
 
 	static int initialize();
+	static void finalize();
 	static void pullEvents();
 
 	static bool pressed(int keycode);
