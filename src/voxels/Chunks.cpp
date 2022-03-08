@@ -27,7 +27,8 @@ Chunks::Chunks(int w, int h, int d, int ox, int oy, int oz) : w(w), h(h), d(d), 
 
 Chunks::~Chunks(){
 	for (size_t i = 0; i < volume; i++){
-		delete chunks[i];
+		if (chunks[i])
+			chunks[i]->decref();
 	}
 	delete[] chunks;
 }
