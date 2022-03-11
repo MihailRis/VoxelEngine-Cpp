@@ -127,14 +127,13 @@ void draw_world(Camera* camera, Assets* assets,
 			indices.push_back(i);
 	}
 
-	std::sort(indices.begin(), indices.end(), chunks_comparator);
-
-
 	float px = camera->position.x / (float)CHUNK_W;
 	float pz = camera->position.z / (float)CHUNK_D;
 
 	_camera_cx = px;
 	_camera_cz = pz;
+
+	std::sort(indices.begin(), indices.end(), chunks_comparator);
 
 
 	for (size_t i = 0; i < indices.size(); i++){
@@ -149,6 +148,8 @@ void draw_world(Camera* camera, Assets* assets,
 	linesShader->use();
 	linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
 	glLineWidth(2.0f);
+	lineBatch->line(camera->position.x, camera->position.y-0.5f, camera->position.z, camera->position.x+0.1f, camera->position.y-0.5f, camera->position.z, 1, 0, 0, 1);
+	lineBatch->line(camera->position.x, camera->position.y-0.5f, camera->position.z, camera->position.x, camera->position.y-0.5f, camera->position.z+0.1f, 0, 0, 1, 1);
 	lineBatch->render();
 }
 

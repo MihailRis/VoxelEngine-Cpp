@@ -60,7 +60,7 @@ bool ChunksController::loadVisible(WorldFiles* worldFiles){
 					for (int oz = -1; oz <= 1; oz++){
 						for (int ox = -1; ox <= 1; ox++){
 							Chunk* other = chunks->getChunk(chunk->x+ox, chunk->y, chunk->z+oz);
-							if (other != nullptr) surrounding++;
+							if (other != nullptr && other->ready) surrounding++;
 						}
 					}
 					chunk->surrounding = surrounding;
