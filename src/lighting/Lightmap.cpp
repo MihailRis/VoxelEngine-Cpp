@@ -10,3 +10,9 @@ Lightmap::Lightmap(){
 Lightmap::~Lightmap(){
 	delete[] map;
 }
+
+void Lightmap::set(const Lightmap* lightmap) {
+	for (unsigned int i = 0; i < CHUNK_VOL; i++){
+		map[i] = lightmap->map[i];
+	}
+}

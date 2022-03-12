@@ -15,10 +15,18 @@ public:
 	voxel* voxels;
 	Lightmap* lightmap;
 	bool modified = true;
+	bool ready = false;
+	bool loaded = false;
+	int surrounding = 0;
+	int references = 1;
 	Chunk(int x, int y, int z);
 	~Chunk();
 
 	bool isEmpty();
+
+	Chunk* clone() const;
+	void incref();
+	void decref();
 };
 
 #endif /* VOXELS_CHUNK_H_ */

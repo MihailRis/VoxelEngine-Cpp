@@ -4,20 +4,17 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../src/physics/Hitbox.cpp \
-../src/physics/PhysicsSolver.cpp 
+../src/objects/Player.cpp 
 
 OBJS += \
-./src/physics/Hitbox.o \
-./src/physics/PhysicsSolver.o 
+./src/objects/Player.o 
 
 CPP_DEPS += \
-./src/physics/Hitbox.d \
-./src/physics/PhysicsSolver.d 
+./src/objects/Player.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
-src/physics/%.o: ../src/physics/%.cpp src/physics/subdir.mk
+src/objects/%.o: ../src/objects/%.cpp src/objects/subdir.mk
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross G++ Compiler'
 	g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"

@@ -9,6 +9,12 @@ public:
 	Lightmap();
 	~Lightmap();
 
+	void set(const Lightmap* lightmap);
+
+	inline unsigned short get(int x, int y, int z){
+		return (map[y*CHUNK_D*CHUNK_W+z*CHUNK_W+x]);
+	}
+
 	inline unsigned char get(int x, int y, int z, int channel){
 		return (map[y*CHUNK_D*CHUNK_W+z*CHUNK_W+x] >> (channel << 2)) & 0xF;
 	}

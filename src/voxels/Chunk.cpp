@@ -27,3 +27,20 @@ bool Chunk::isEmpty(){
 	}
 	return true;
 }
+
+Chunk* Chunk::clone() const {
+	Chunk* other = new Chunk(x,y,z);
+	for (int i = 0; i < CHUNK_VOL; i++)
+		other->voxels[i] = voxels[i];
+	other->lightmap->set(lightmap);
+	return other;
+}
+
+void Chunk::incref(){
+	references++;
+}
+
+void Chunk::decref(){
+	if (--references <= 0)
+		delete this;
+}

@@ -11,7 +11,9 @@ public:
 	unsigned char emission[3];
 	unsigned char drawGroup = 0;
 	bool lightPassing = false;
+	bool skyLightPassing = false;
 	bool obstacle = true;
+	bool selectable = true;
 
 	Block(unsigned int id, int texture);
 };

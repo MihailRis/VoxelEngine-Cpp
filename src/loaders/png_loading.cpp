@@ -4,8 +4,9 @@
 #include <GL/glew.h>
 #include "../graphics/Texture.h"
 
-// comment line below for use spng instead of libpng
+#ifndef _WIN32
 #define LIBPNG
+#endif
 
 #ifdef LIBPNG
 #include <png.h>
@@ -101,7 +102,7 @@ int _png_load(const char* file, int* width, int* height){
         alpha, GL_UNSIGNED_BYTE, (GLvoid *) image_data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 4);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3);
     glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
 

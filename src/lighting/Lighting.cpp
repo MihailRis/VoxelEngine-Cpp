@@ -6,23 +6,19 @@
 #include "../voxels/voxel.h"
 #include "../voxels/Block.h"
 
-Chunks* Lighting::chunks = nullptr;
-LightSolver* Lighting::solverR = nullptr;
-LightSolver* Lighting::solverG = nullptr;
-LightSolver* Lighting::solverB = nullptr;
-LightSolver* Lighting::solverS = nullptr;
-
-int Lighting::initialize(Chunks* chunks){
-	Lighting::chunks = chunks;
+Lighting::Lighting(Chunks* chunks){
+	this->chunks = chunks;
 	solverR = new LightSolver(chunks, 0);
 	solverG = new LightSolver(chunks, 1);
 	solverB = new LightSolver(chunks, 2);
 	solverS = new LightSolver(chunks, 3);
-	return 0;
 }
 
-void Lighting::finalize(){
-	delete solverR, solverG, solverB, solverS;
+Lighting::~Lighting(){
+	delete solverR;
+	delete solverG;
+	delete solverB;
+	delete solverS;
 }
 
 void Lighting::clear(){
@@ -37,15 +33,14 @@ void Lighting::clear(){
 	}
 }
 
-void Lighting::onChunkLoaded(int cx, int cy, int cz){
+void Lighting::onChunkLoaded(int cx, int cy, int cz, bool sky){
 	Chunk* chunk = chunks->getChunk(cx, cy, cz);
 	Chunk* chunkUpper = chunks->getChunk(cx, cy+1, cz);
 	Chunk* chunkLower = chunks->getChunk(cx, cy-1, cz);
-	if (chunkLower){
+	if (chunkLower && sky){
 		for (int z = 0; z < CHUNK_D; z++){
 			for (int x = 0; x < CHUNK_W; x++){
 				int gx = x + cx * CHUNK_W;
-				int gy = cy * CHUNK_H;
 				int gz = z + cz * CHUNK_D;
 
 				int light = chunk->lightmap->getS(x,0,z);
@@ -65,7 +60,7 @@ void Lighting::onChunkLoaded(int cx, int cy, int cz){
 							break;
 						voxel* vox = &(current->voxels[(y * CHUNK_D + z) * CHUNK_W + x]);//chunks->get(gx,gy+y,gz);
 						Block* block = Block::blocks[vox->id];
-						if (!block->lightPassing)
+						if (!block->skyLightPassing)
 							break;
 						//current->lightmap->setS(x,y,z, 0);
 						current->modified = true;
@@ -76,7 +71,7 @@ void Lighting::onChunkLoaded(int cx, int cy, int cz){
 			}
 		}
 	}
-	if (chunkUpper){
+	if (chunkUpper && sky){
 		for (int z = 0; z < CHUNK_D; z++){
 			for (int x = 0; x < CHUNK_W; x++){
 				int gx = x + cx * CHUNK_W;
@@ -99,7 +94,7 @@ void Lighting::onChunkLoaded(int cx, int cy, int cz){
 							break;
 						voxel* vox = &(current->voxels[(y * CHUNK_D + z) * CHUNK_W + x]);//chunks->get(gx,gy+y,gz);
 						Block* block = Block::blocks[vox->id];
-						if (!block->lightPassing)
+						if (!block->skyLightPassing)
 							break;
 						current->lightmap->setS(x,y,z, 15);
 						current->modified = true;
@@ -110,7 +105,7 @@ void Lighting::onChunkLoaded(int cx, int cy, int cz){
 				}
 			}
 		}
-	} else {
+	} else if (sky){
 		for (int z = 0; z < CHUNK_D; z++){
 			for (int x = 0; x < CHUNK_W; x++){
 				int gx = x + cx * CHUNK_W;
@@ -129,11 +124,11 @@ void Lighting::onChunkLoaded(int cx, int cy, int cz){
 						break;
 					voxel* vox = &(current->voxels[(y * CHUNK_D + z) * CHUNK_W + x]);//chunks->get(gx,gy+y,gz);
 					Block* block = Block::blocks[vox->id];
-					if (!block->lightPassing)
+					if (!block->skyLightPassing)
 						break;
 					current->lightmap->setS(x,y,z, 15);
 					current->modified = true;
-					//solverS->add(gx,y+ncy*CHUNK_H,gz);
+					solverS->add(gx,y+ncy*CHUNK_H,gz);
 				}
 			}
 		}
@@ -163,10 +158,13 @@ void Lighting::onChunkLoaded(int cx, int cy, int cz){
 				int gx = x + cx * CHUNK_W;
 				int gy = y + cy * CHUNK_H;
 				int gz = z + cz * CHUNK_D;
-				solverR->add(gx,gy,gz);
-				solverG->add(gx,gy,gz);
-				solverB->add(gx,gy,gz);
-				solverS->add(gx,gy,gz);
+				if (chunks->getLight(x,y,z)){
+					solverR->add(gx,gy,gz);
+					solverG->add(gx,gy,gz);
+					solverB->add(gx,gy,gz);
+					if (sky)
+						solverS->add(gx,gy,gz);
+				}
 			}
 		}
 	}
@@ -199,7 +197,7 @@ void Lighting::onBlockSet(int x, int y, int z, int id){
 		if (chunks->getLight(x,y+1,z, 3) == 0xF){
 			for (int i = y; i >= 0; i--){
 				voxel* vox = chunks->get(x,i,z);
-				if (vox == nullptr || vox->id != 0)
+				if ((vox == nullptr || vox->id != 0) && Block::blocks[id]->skyLightPassing)
 					break;
 				solverS->add(x,i,z, 0xF);
 			}
@@ -220,7 +218,7 @@ void Lighting::onBlockSet(int x, int y, int z, int id){
 		solverR->remove(x,y,z);
 		solverG->remove(x,y,z);
 		solverB->remove(x,y,z);
-		if (!block->lightPassing){
+		if (!block->skyLightPassing){
 			solverS->remove(x,y,z);
 			for (int i = y-1; i >= 0; i--){
 				solverS->remove(x,i,z);

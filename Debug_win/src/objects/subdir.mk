@@ -1,19 +1,16 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../src/voxel_engine.cpp \
-../src/Assets.cpp 
+../src/objects/Player.cpp 
 
 OBJS += \
-./src/voxel_engine.o \
-./src/Assets.o 
+./src/objects/Player.o 
 
 CPP_DEPS += \
-./src/voxel_engine.d \
-./src/Assets.d 
+./src/objects/Player.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
-src/%.o: ../src/%.cpp src/subdir.mk
+src/objects/%.o: ../src/objects/%.cpp src/objects/subdir.mk
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
 	g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"

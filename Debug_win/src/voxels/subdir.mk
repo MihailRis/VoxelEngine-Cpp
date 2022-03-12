@@ -7,6 +7,8 @@ CPP_SRCS += \
 ../src/voxels/Block.cpp \
 ../src/voxels/Chunk.cpp \
 ../src/voxels/Chunks.cpp \
+../src/voxels/ChunksController.cpp \
+../src/voxels/ChunksLoader.cpp \
 ../src/voxels/WorldGenerator.cpp \
 ../src/voxels/voxel.cpp 
 
@@ -14,6 +16,8 @@ OBJS += \
 ./src/voxels/Block.o \
 ./src/voxels/Chunk.o \
 ./src/voxels/Chunks.o \
+./src/voxels/ChunksController.o \
+./src/voxels/ChunksLoader.o \
 ./src/voxels/WorldGenerator.o \
 ./src/voxels/voxel.o 
 
@@ -21,6 +25,8 @@ CPP_DEPS += \
 ./src/voxels/Block.d \
 ./src/voxels/Chunk.d \
 ./src/voxels/Chunks.d \
+./src/voxels/ChunksController.d \
+./src/voxels/ChunksLoader.d \
 ./src/voxels/WorldGenerator.d \
 ./src/voxels/voxel.d 
 
@@ -29,7 +35,7 @@ CPP_DEPS += \
 src/voxels/%.o: ../src/voxels/%.cpp src/voxels/subdir.mk
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	g++ -D _WIN32_WINNT=0501 -pthread -std=c++0x -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
