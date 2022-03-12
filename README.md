@@ -18,6 +18,5 @@
 
 # Note for MinGW compiling
 
-If you have problems with `#include <mingw.thread.h>`
-Get headers `mingw.thread.h` and `mingw.invoke.h` from: 
+To fix problem with `#include <mingw.thread.h>` get headers `mingw.thread.h` and `mingw.invoke.h` from: 
 https://github.com/meganz/mingw-std-threads
