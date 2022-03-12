@@ -86,9 +86,6 @@ void update_controls(PhysicsSolver* physics,
 		Player* player,
 		float delta){
 
-	if (Events::jpressed(GLFW_KEY_ESCAPE)){
-		Window::setShouldClose(true);
-	}
 	if (Events::jpressed(GLFW_KEY_TAB)){
 		Events::toogleCursor();
 	}
@@ -305,6 +302,10 @@ int main() {
 		float currentTime = glfwGetTime();
 		delta = currentTime - lastTime;
 		lastTime = currentTime;
+
+		if (Events::jpressed(GLFW_KEY_ESCAPE)){
+			Window::setShouldClose(true);
+		}
 
 		if (Events::jpressed(GLFW_KEY_O)){
 			occlusion = !occlusion;
