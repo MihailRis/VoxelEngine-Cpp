@@ -4,8 +4,9 @@
 #include <GL/glew.h>
 #include "../graphics/Texture.h"
 
-// comment line below for use spng instead of libpng
+#ifndef _WIN32
 #define LIBPNG
+#endif
 
 #ifdef LIBPNG
 #include <png.h>

@@ -8,7 +8,13 @@
 #include "../files/WorldFiles.h"
 #include "ChunksLoader.h"
 #include <iostream>
+
+#ifdef _WIN32
+#define _WIN32_WINNT 0x0501
+#include "../_mingw_threads/mingw.thread.h"
+#else
 #include <thread>
+#endif
 
 #define MIN_SURROUNDING 9
 

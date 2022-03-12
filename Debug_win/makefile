@@ -11,6 +11,7 @@ RM := rm -rf
 -include src/window/subdir.mk
 -include src/voxels/subdir.mk
 -include src/physics/subdir.mk
+-include src/objects/subdir.mk
 -include src/loaders/subdir.mk
 -include src/lighting/subdir.mk
 -include src/graphics/subdir.mk
@@ -58,14 +59,14 @@ BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ART
 # All Target
 all: main-build
 
-# Main-build Target
+# Main-build Target -std=c++0x
 main-build: VOXEL_ENGINE.exe
 
 # Tool invocations
 VOXEL_ENGINE.exe: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MinGW C++ Linker'
-	g++  -o "VOXEL_ENGINE.exe" $(OBJS) $(USER_OBJS) $(LIBS) -static-libgcc -static-libstdc++
+	g++ -lpthread -o "VOXEL_ENGINE.exe" $(OBJS) $(USER_OBJS) $(LIBS) -static-libgcc -static-libstdc++
 	@echo 'Finished building target: $@'
 	@echo ' '
 

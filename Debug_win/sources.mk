@@ -29,6 +29,7 @@ src/graphics \
 src/lighting \
 src/loaders \
 src/physics \
+src/objects \
 src/voxels \
 src/objects \
 src/window \

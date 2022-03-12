@@ -1,7 +1,13 @@
 #ifndef VOXELS_CHUNKSLOADER_H_
 #define VOXELS_CHUNKSLOADER_H_
 
+#ifdef _WIN32
+#define _WIN32_WINNT 0x0501
+#include "../_mingw_threads/mingw.thread.h"
+#else
 #include <thread>
+#endif
+
 #include <atomic>
 
 class Chunk;
