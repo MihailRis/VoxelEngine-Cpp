@@ -15,3 +15,9 @@
 `$ cd ..`
 
 `$ ./Debug/voxel_engine`
+
+# Note for MinGW compiling
+
+If you have problems with `#include <mingw.thread.h>`
+Get headers `mingw.thread.h` and `mingw.invoke.h` from: 
+https://github.com/meganz/mingw-std-threads
