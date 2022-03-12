@@ -247,11 +247,16 @@ void update_interaction(Chunks* chunks, PhysicsSolver* physics, Player* player, 
 int WIDTH = 1280;
 int HEIGHT = 720;
 
+#define GRAVITY 19.6f
+#define DEFAULT_PLAYER_SPEED 4.0f
+
+vec3 spawnpoint(-320, 255, 32);
+
 
 int main() {
 	setup_definitions();
 
-	Window::initialize(WIDTH, HEIGHT, "Window 2.0");
+	Window::initialize(WIDTH, HEIGHT, "VoxelEngine Part-11");
 	Events::initialize();
 
 	std::cout << "-- loading assets" << std::endl;
@@ -264,12 +269,12 @@ int main() {
 	}
 	std::cout << "-- loading world" << std::endl;
 
-	Camera *camera = new Camera(vec3(-320,255,32), radians(90.0f));
+	Camera *camera = new Camera(spawnpoint, radians(90.0f));
 	WorldFiles *wfile = new WorldFiles("world/", REGION_VOL * (CHUNK_VOL * 2 + 8));
 	Chunks *chunks = new Chunks(34,1,34, 0,0,0);
 
 
-	Player* player = new Player(vec3(camera->position), 4.0f, camera);
+	Player* player = new Player(vec3(camera->position), DEFAULT_PLAYER_SPEED, camera);
 	wfile->readPlayer(player);
 	camera->rotation = mat4(1.0f);
 	camera->rotate(player->camY, player->camX, 0);
@@ -277,7 +282,7 @@ int main() {
 	std::cout << "-- preparing systems" << std::endl;
 
 	VoxelRenderer renderer(1024*1024);
-	PhysicsSolver physics(vec3(0,-9.8f*2.0f,0));
+	PhysicsSolver physics(vec3(0,-GRAVITY,0));
 	Lighting lighting(chunks);
 
 	init_renderer();
