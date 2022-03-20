@@ -5,6 +5,7 @@
 #include "Assets.h"
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
+#include "graphics/Font.h"
 #include "window/Window.h"
 
 #include "voxels/Block.h"
@@ -32,6 +33,17 @@ bool _load_texture(Assets* assets, std::string filename, std::string name){
 	return true;
 }
 
+bool _load_font(Assets* assets, std::string filename, std::string name){
+	Texture* texture = load_texture(filename);
+	if (texture == nullptr){
+		std::cerr << "failed to load bitmap font '" << name << "'" << std::endl;
+		return false;
+	}
+	Font* font = new Font(texture);
+	assets->store(font, name);
+	return true;
+}
+
 int initialize_assets(Assets* assets) {
 #define LOAD_SHADER(VERTEX, FRAGMENT, NAME) \
 	if (!_load_shader(assets, VERTEX, FRAGMENT, NAME))\
@@ -39,12 +51,19 @@ int initialize_assets(Assets* assets) {
 #define LOAD_TEXTURE(FILENAME, NAME) \
 	if (!_load_texture(assets, FILENAME, NAME))\
 		return 1;
+#define LOAD_FONT(FILENAME, NAME) \
+	if (!_load_font(assets, FILENAME, NAME))\
+		return 1;
 
 	LOAD_SHADER("res/main.glslv", "res/main.glslf", "main");
 	LOAD_SHADER("res/crosshair.glslv", "res/crosshair.glslf", "crosshair");
 	LOAD_SHADER("res/lines.glslv", "res/lines.glslf", "lines");
+	LOAD_SHADER("res/ui.glslv", "res/ui.glslf", "ui");
 
 	LOAD_TEXTURE("res/block.png", "block");
+	//LOAD_TEXTURE("res/font.png", "font");
+
+	LOAD_FONT("res/font.png", "normal");
 	return 0;
 }
 

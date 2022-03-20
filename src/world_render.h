@@ -37,17 +37,26 @@ int attrs[] = {
 		2,  0 //null terminator
 };
 
+int uiscale = 2;
+
 LineBatch *lineBatch;
+Batch2D *batch;
+Camera *uicamera;
 
 void init_renderer(){
 	crosshair = new Mesh(vertices, 4, attrs);
 	lineBatch = new LineBatch(4096);
+
+	batch = new Batch2D(1024);
+	uicamera = new Camera(glm::vec3(), Window::height / uiscale);
+	uicamera->perspective = false;
 }
 
 
 void finalize_renderer(){
 	delete crosshair;
 	delete lineBatch;
+	delete batch;
 }
 
 void draw_chunk(size_t index, Camera* camera, Shader* shader, bool occlusion){
@@ -100,6 +109,7 @@ void draw_world(Camera* camera, Assets* assets,
 				Chunks* chunks, bool occlusion){
 	glClearColor(0.7f,0.71f,0.73f,1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
 
 	_chunks = chunks;
 
@@ -151,6 +161,19 @@ void draw_world(Camera* camera, Assets* assets,
 	lineBatch->line(camera->position.x, camera->position.y-0.5f, camera->position.z, camera->position.x+0.1f, camera->position.y-0.5f, camera->position.z, 1, 0, 0, 1);
 	lineBatch->line(camera->position.x, camera->position.y-0.5f, camera->position.z, camera->position.x, camera->position.y-0.5f, camera->position.z+0.1f, 0, 0, 1, 1);
 	lineBatch->render();
+
+
+	glDisable(GL_DEPTH_TEST);
+	Shader* uishader = assets->getShader("ui");
+	uishader->use();
+	uishader->uniformMatrix("u_projview", uicamera->getProjection());
+
+	Font* font = assets->getFont("normal");
+	batch->begin();
+	batch->texture(font->texture);
+	font->draw(batch, "void Font::draw(Batch2D* batch, std::string text, int x, int y) {", 10, 10);
+	//batch->rect(0, 0, 256, 256);
+	batch->render();
 }
 
 #endif // WORLD_RENDERER_CPP

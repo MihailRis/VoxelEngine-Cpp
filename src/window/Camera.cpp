@@ -37,7 +37,10 @@ void Camera::rotate(float x, float y, float z){
 
 mat4 Camera::getProjection(){
 	float aspect = (float)Window::width / (float)Window::height;
-	return glm::perspective(fov*zoom, aspect, 0.05f, 1500.0f);
+	if (perspective)
+		return glm::perspective(fov*zoom, aspect, 0.05f, 1500.0f);
+	else
+		return glm::ortho(0.0f, fov*aspect, 0.0f, fov);
 }
 
 mat4 Camera::getView(){

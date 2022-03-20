@@ -2,6 +2,7 @@
 
 #include "graphics/Texture.h"
 #include "graphics/Shader.h"
+#include "graphics/Font.h"
 
 Assets::~Assets() {
 	for (auto& iter : shaders){
@@ -9,6 +10,10 @@ Assets::~Assets() {
 	}
 
 	for (auto& iter : textures){
+		delete iter.second;
+	}
+
+	for (auto& iter : fonts){
 		delete iter.second;
 	}
 }
@@ -28,4 +33,13 @@ Shader* Assets::getShader(std::string name){
 
 void Assets::store(Shader* shader, std::string name){
 	shaders[name] = shader;
+}
+
+
+Font* Assets::getFont(std::string name){
+	return fonts[name];
+}
+
+void Assets::store(Font* font, std::string name){
+	fonts[name] = font;
 }
