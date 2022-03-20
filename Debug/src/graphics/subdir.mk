@@ -5,6 +5,7 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/graphics/Batch2D.cpp \
+../src/graphics/Font.cpp \
 ../src/graphics/LineBatch.cpp \
 ../src/graphics/Mesh.cpp \
 ../src/graphics/Shader.cpp \
@@ -13,6 +14,7 @@ CPP_SRCS += \
 
 OBJS += \
 ./src/graphics/Batch2D.o \
+./src/graphics/Font.o \
 ./src/graphics/LineBatch.o \
 ./src/graphics/Mesh.o \
 ./src/graphics/Shader.o \
@@ -21,6 +23,7 @@ OBJS += \
 
 CPP_DEPS += \
 ./src/graphics/Batch2D.d \
+./src/graphics/Font.d \
 ./src/graphics/LineBatch.d \
 ./src/graphics/Mesh.d \
 ./src/graphics/Shader.d \

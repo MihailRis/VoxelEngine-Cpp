@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lglfw -lpng -lGL -lGLEW -lstdc++fs
+LIBS := -lglfw -lpng -lopenal -lGL -lGLEW -lstdc++fs
 

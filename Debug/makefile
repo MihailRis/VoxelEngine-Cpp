@@ -16,6 +16,7 @@ RM := rm -rf
 -include src/lighting/subdir.mk
 -include src/graphics/subdir.mk
 -include src/files/subdir.mk
+-include src/audio/subdir.mk
 -include src/subdir.mk
 -include subdir.mk
 -include objects.mk
