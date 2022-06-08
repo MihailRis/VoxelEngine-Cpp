@@ -105,8 +105,8 @@ bool chunks_comparator(size_t i, size_t j) {
 }
 
 
-void draw_world(Camera* camera, Assets* assets,
-				Chunks* chunks, bool occlusion){
+void draw_world(Camera* camera, Assets* assets,	Chunks* chunks,
+				bool occlusion, bool devdata){
 	glClearColor(0.7f,0.71f,0.73f,1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
@@ -158,8 +158,9 @@ void draw_world(Camera* camera, Assets* assets,
 	linesShader->use();
 	linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
 	glLineWidth(2.0f);
-	lineBatch->line(camera->position.x, camera->position.y-0.5f, camera->position.z, camera->position.x+0.1f, camera->position.y-0.5f, camera->position.z, 1, 0, 0, 1);
-	lineBatch->line(camera->position.x, camera->position.y-0.5f, camera->position.z, camera->position.x, camera->position.y-0.5f, camera->position.z+0.1f, 0, 0, 1, 1);
+	lineBatch->line(camera->position.x, camera->position.y-0.1f, camera->position.z, camera->position.x+0.01f, camera->position.y-0.1f, camera->position.z, 1, 0, 0, 1);
+	lineBatch->line(camera->position.x, camera->position.y-0.1f, camera->position.z, camera->position.x, camera->position.y-0.1f, camera->position.z+0.01f, 0, 0, 1, 1);
+	lineBatch->line(camera->position.x, camera->position.y-0.1f, camera->position.z, camera->position.x, camera->position.y-0.1f+0.01f, camera->position.z, 0, 1, 0, 1);
 	lineBatch->render();
 
 
@@ -171,7 +172,10 @@ void draw_world(Camera* camera, Assets* assets,
 	Font* font = assets->getFont("normal");
 	batch->begin();
 	batch->texture(font->texture);
-	font->draw(batch, "void Font::draw(Batch2D* batch, std::string text, int x, int y) {", 10, 10);
+	// font->draw(batch, "void Font::draw(Batch2D* batch, std::string text, int x, int y) {", 10, 10);
+	if (devdata){
+		font->draw(batch, "devdata does not exist", 10, 10);
+	}
 	//batch->rect(0, 0, 256, 256);
 	batch->render();
 }

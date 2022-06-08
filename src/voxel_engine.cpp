@@ -296,6 +296,7 @@ int main() {
 	long frame = 0;
 
 	bool occlusion = false;
+	bool devdata = false;
 
 	glfwSwapInterval(1);
 
@@ -311,6 +312,9 @@ int main() {
 		if (Events::jpressed(GLFW_KEY_O)){
 			occlusion = !occlusion;
 		}
+		if (Events::jpressed(GLFW_KEY_F3)){
+			devdata = !devdata;
+		}
 
 		update_controls(&physics, chunks, player, delta);
 		update_interaction(chunks, &physics, player, &lighting);
@@ -322,7 +326,7 @@ int main() {
 		for (int i = 0; i < freeLoaders; i++)
 			chunksController.loadVisible(wfile);
 
-		draw_world(camera, assets, chunks, occlusion);
+		draw_world(camera, assets, chunks, occlusion, devdata);
 
 		Window::swapBuffers();
 		Events::pullEvents();
