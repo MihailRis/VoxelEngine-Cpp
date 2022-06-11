@@ -29,53 +29,63 @@ public:
 	}
 };
 
-float calc_height(PerlinNoise noise, int real_x, int real_z){
+float calc_height(fnl_state *noise, fnl_state *noiseb, fnl_state *noiser, int real_x, int real_y, int real_z){
 	const float s = 0.2f;
-	const float j = 40.0f;
-	const float h = -0.2f;
-	// float a = abs(fnlGetNoise3D(noiser, real_x*0.005f*s*32,real_z*0.005f*s*32, 0.0f));
+	const float j = 15.0f;
+	const float h = -0.3f;
+	float a = abs(fnlGetNoise3D(noiser, real_x*0.0125f*s*32,real_z*0.0125f*s*32, 0.0f) +
+				fnlGetNoise3D(noise, real_x*0.025f*s*32,real_z*0.025f*s*32, 0.0f)*0.5f +
+				fnlGetNoise3D(noise, real_x*0.05f*s*32,real_z*0.05f*s*32, 0.0f)*0.5f + 
+				fnlGetNoise3D(noise, real_x*0.1f*s*32,real_z*0.1f*s*32, 0.0f)*0.225f - 0.4);// * abs(fnlGetNoise3D(noiser, real_x*0.025f*s*32,real_z*0.025f*s*32, 0.0f)+0.5f) * abs(fnlGetNoise3D(noiser, real_x*0.05f*s*32,real_z*0.05f*s*32, 0.0f)+0.5f);
 
-	// double height = fnlGetNoise3D(noise, real_x*0.8f*s*32,real_z*0.8f*s*32, 0.0f)*0.04f*
-	// 				fnlGetNoise3D(noiseb, real_x*0.2f*s*32,real_z*0.2f*s*32, 0.0f);
+	double height = fnlGetNoise3D(noise, real_x*0.8f*s*32,real_z*0.8f*s*32, 0.0f)*0.04f*
+					fnlGetNoise3D(noiseb, real_x*0.2f*s*32,real_z*0.2f*s*32, 0.0f);
 					
-	// height += fnlGetNoise3D(noise, real_x*0.4f*s*32,real_z*0.4f*s*32, 0.0f)*0.08f*
-	// 		  fnlGetNoise3D(noiseb, real_x*0.1f*s*32,real_z*0.1f*s*32, 0.0f);
+	height += fnlGetNoise3D(noise, real_x*0.4f*s*32,real_z*0.4f*s*32, 0.0f)*0.08f*
+			  fnlGetNoise3D(noiseb, real_x*0.1f*s*32,real_z*0.1f*s*32, 0.0f);
 
-	// height += fnlGetNoise3D(noise, real_x*0.2f*s*32,real_z*0.2f*s*32, 0.0f)*0.15f*
-	// 		  fnlGetNoise3D(noiseb, real_x*0.05f*s*32,real_z*0.05f*s*32, 0.0f);
+	height += fnlGetNoise3D(noise, real_x*0.2f*s*32,real_z*0.2f*s*32, 0.0f)*0.15f*
+			  fnlGetNoise3D(noiseb, real_x*0.05f*s*32,real_z*0.05f*s*32, 0.0f);
 
-	// height += fnlGetNoise3D(noise, real_x*0.1f*s*32,real_z*0.1f*s*32, 0.0f)*0.225f*
-	// 		  fnlGetNoise3D(noiseb, real_x*0.025f*s*32,real_z*0.025f*s*32, 0.0f);
+	height += fnlGetNoise3D(noise, real_x*0.1f*s*32,real_z*0.1f*s*32, 0.0f)*0.225f*
+			  fnlGetNoise3D(noiseb, real_x*0.025f*s*32,real_z*0.025f*s*32, 0.0f);
 
-	// height += fnlGetNoise3D(noise, real_x*0.05f*s*32,real_z*0.05f*s*32, 0.0f)*0.5f*
-	// 		  fnlGetNoise3D(noiseb, real_x*0.0125f*s*32,real_z*0.0125f*s*32, 0.0f);
+	height += fnlGetNoise3D(noise, real_x*0.05f*s*32,real_z*0.05f*s*32, 0.0f)*0.5f*
+			  fnlGetNoise3D(noiseb, real_x*0.0125f*s*32,real_z*0.0125f*s*32, 0.0f);
 
-	// height += fnlGetNoise3D(noise, real_x*0.025f*s*32,real_z*0.025f*s*32, 0.0f)*0.5f*
-	// 		  fnlGetNoise3D(noiseb, real_x*0.00625f*s*32,real_z*0.00625f*s*32, 0.0f);
+	height += fnlGetNoise3D(noise, real_x*0.025f*s*32,real_z*0.025f*s*32, 0.0f)*0.5f*
+			  fnlGetNoise3D(noiseb, real_x*0.00625f*s*32,real_z*0.00625f*s*32, 0.0f);
 
-	// height += fnlGetNoise3D(noise, real_x*0.0125f*s*32,real_z*0.0125f*s*32, 0.0f)*
-	// 		  fnlGetNoise3D(noiseb, real_x*0.003f*s*32,real_z*0.003f*s*32, 0.0f);
-	// height = (height + h) * pow(a, 2);
+	height += fnlGetNoise3D(noise, real_x*0.0125f*s*32,real_z*0.0125f*s*32, 0.0f)*
+			  fnlGetNoise3D(noiseb, real_x*0.003f*s*32,real_z*0.003f*s*32, 0.0f);
 	// float a = abs(sin(real_x * 0.02));
-	// double zpre = -pow(pow(fmin(j / 8.0f * a, 1), 2) - 1, 4);
-	// height += fmax(height - h / 5.0f, 0) * zpre;
-	// double z = -pow(pow(fmin(j * a, 1), 2) - 1, 4);
-	// height += fmax(height - h, 0) * z;
+	// height = (height + h) * pow(a, 2);
+	double rpre = -pow(pow(fmin(j / 8.0f * a, 1), 2) - 1, 4);
+	// height += fmax(height - h / 5.0f, 0) * rpre;// + (height + 0.5)*2;
+	double r = -pow(pow(fmin(j * a, 1), 2) - 1, 4);
+	height += fmax(height - h, 0) * r * (sqrt(height + 0.5)*1.0);
 	// height = abs(fnlGetNoise3D(noise, real_x*0.05f*s*32,real_z*0.05f*s*32, 0.0f));
-	//height += std::fmin(sqrt(abs(fnlGetNoise3D(noise, real_x*0.05f*s*32,real_z*0.05f*s*32, 0.0f))) - height, 0.2);
-	// height = height * 1.0f + 1.0f;
+	// height += std::fmin(sqrt(abs(fnlGetNoise3D(noise, real_x*0.05f*s*32,real_z*0.05f*s*32, 0.0f))) - height, 0.2);
+	height = height * 1.0f + 0.6f;
 	// height *= height;
-	// height *= (140.0f)*0.12f/s;
-	// height += (42)*0.12f/s;
-	// height *= 256;
+	height *= (140.0f)*0.12f/s;
+	height += (42)*0.12f/s;
+	// height *= 8;
 
-	double height = noise.noise(real_x/256., real_z/256., 1);
+	// double height = noise.noise(real_x/256., real_z/256., 1);
 
 	height *= 1;
 
-	std::cout << height << std::endl;
+	// std::cout << "H: " << height << "\nY: " << real_y << std::endl;
 	// height *= 30;
-	return height;
+
+
+	int id = 0;
+	if (real_y < (int)height){
+		// std::cout << "OK" << std::endl;
+		id = 2;}
+	// else std::cout << "NO" << std::endl;
+	return id;
 }
 
 float calc_height_faster(fnl_state *noise, int real_x, int real_z){
@@ -122,61 +132,61 @@ int generate_tree(fnl_state *noise, PseudoRandom* random, const float* heights, 
 }
 
 void WorldGenerator::generate(voxel* voxels, int cx, int cy, int cz){
-	// fnl_state noise = fnlCreateState();
-	// fnl_state noiser = fnlCreateState();
-	// fnl_state noiseb = fnlCreateState();
-	// noise.seed = 1;
-	// noiser.seed = 2;
-	// noiseb.seed = 3;
+	fnl_state noise = fnlCreateState();
+	fnl_state noiser = fnlCreateState();
+	fnl_state noiseb = fnlCreateState();
+	noise.seed = 1;
+	noiser.seed = 1;
+	noiseb.seed = 3;
 	// noise.noise_type = FNL_NOISE_PERLIN;
 	// noise.noise_type = FNL_NOISE_CELLULAR;
-	// noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
-	// noiser.noise_type = FNL_NOISE_OPENSIMPLEX2S;
-	// noiseb.noise_type = FNL_NOISE_OPENSIMPLEX2;
+	noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
+	noiser.noise_type = FNL_NOISE_OPENSIMPLEX2S;
+	noiseb.noise_type = FNL_NOISE_OPENSIMPLEX2;
 
-	PerlinNoise noise = PerlinNoise(1); 
+	// PerlinNoise noise = PerlinNoise(1); 
 
-	PseudoRandom random;
+	// PseudoRandom random;
 
-	float heights[CHUNK_VOL];
+	// float heights[CHUNK_VOL];
+
+	// for (int z = 0; z < CHUNK_D; z++){
+	// 	for (int x = 0; x < CHUNK_W; x++){
+	// 		int real_x = x + cx * CHUNK_W;
+	// 		int real_z = z + cz * CHUNK_D;
+	// 		float height = calc_height(&noise, &noiseb, &noiser, real_x, real_z);
+	// 		heights[z*CHUNK_W+x] = height;
+	// 	}
+	// }
 
 	for (int z = 0; z < CHUNK_D; z++){
+		int real_z = z + cz * CHUNK_D;
 		for (int x = 0; x < CHUNK_W; x++){
 			int real_x = x + cx * CHUNK_W;
-			int real_z = z + cz * CHUNK_D;
-			float height = calc_height(noise, real_x, real_z);
-			heights[z*CHUNK_W+x] = height;
-		}
-	}
-
-	for (int z = 0; z < CHUNK_D; z++){
-		for (int x = 0; x < CHUNK_W; x++){
-			int real_x = x + cx * CHUNK_W;
-			int real_z = z + cz * CHUNK_D;
-			float height = heights[z*CHUNK_W+x];
+			// float height = 30;//heights[z*CHUNK_W+x];
 
 			for (int y = 0; y < CHUNK_H; y++){
 				int real_y = y + cy * CHUNK_H;
-				int id = real_y < 55 ? 0 : 0;
-				if (real_y == (int)height && height >= 56)
-					id = 2;
-				else if (real_y == (int)height && height >= 52)
-					id = 10;
-				else if (real_y < height) {
-					if (real_y < height-6 || height <= 53)
-						id = 8;
-					else
-						id = 1;
-				} else {
-					// int tree = generate_tree(&noise, &random, heights, real_x, real_y, real_z, 16);
-					// if (tree)
-					// 	id = tree;
-					// else if ((tree = generate_tree(&noise, &random, heights, real_x, real_y, real_z, 19))){
-					// 	id = tree;
-					// }else if ((tree = generate_tree(&noise, &random, heights, real_x, real_y, real_z, 23))){
-					// 	id = tree;
-					// }
-				}
+				int id = calc_height(&noise, &noiser, &noiseb, real_x, real_y, real_z);
+				// if (real_y == (int)height && height >= 56)
+				// 	id = 2;
+				// else if (real_y == (int)height && height >= 52)
+				// 	id = 10;
+				// else if (real_y < height) {
+				// 	if (real_y < height-6 || height <= 53)
+				// 		id = 8;
+				// 	else
+				// 		id = 1;
+				// } else {
+				// // 	int tree = generate_tree(&noise, &random, heights, real_x, real_y, real_z, 16);
+				// 	if (tree)
+				// 		id = tree;
+				// 	else if ((tree = generate_tree(&noise, &random, heights, real_x, real_y, real_z, 19))){
+				// 		id = tree;
+				// 	}else if ((tree = generate_tree(&noise, &random, heights, real_x, real_y, real_z, 23))){
+				// 		id = tree;
+				// 	}
+				// }
 
 				// if (real_y <= 2)
 				// 	id = 8;
