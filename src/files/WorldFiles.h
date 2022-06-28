@@ -3,8 +3,9 @@
 
 #include <map>
 #include <unordered_map>
-// #include <string>
-
+#ifndef std::string
+#include <string>
+#endif
 class Player;
 
 #define REGION_SIZE_BIT 5
