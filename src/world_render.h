@@ -122,7 +122,7 @@ void draw_world(Camera* camera, Assets* assets,	Chunks* chunks,
 	shader->uniformMatrix("u_proj", camera->getProjection());
 	shader->uniformMatrix("u_view", camera->getView());
 	shader->uniform1f("u_gamma", 1.6f);
-	shader->uniform3f("u_skyLightColor", 1.8f,1.8f,1.8f);
+	shader->uniform3f("u_skyLightColor", 2.2f,2.2f,2.2f);
 	shader->uniform3f("u_fogColor", 0.7f,0.71f,0.73f);
 	shader->uniform3f("u_cameraPos", camera->position.x,camera->position.y,camera->position.z);
 	texture->bind();
