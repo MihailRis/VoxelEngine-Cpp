@@ -107,7 +107,7 @@ bool chunks_comparator(size_t i, size_t j) {
 
 void draw_world(Camera* camera, Assets* assets,	Chunks* chunks,
 				bool occlusion, bool devdata){
-	glClearColor(0.7f,0.71f,0.73f,1);
+	glClearColor(0.7f,0.81f,1.0f,1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
