@@ -135,7 +135,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cy, int cz){
 				// 		id = 10;
 				// }
 				
-				if ( ((height - (1.5 - 0.2 * pow(height - 55, 4))) < real_y) && (real_y < height)){
+				if ( ((height - (1.5 - 0.2 * pow(height - 54, 4))) < real_y) && (real_y < height)){
 						id = 10;
 				}
 				if (real_y <= 2)

@@ -118,7 +118,7 @@ void update_controls(PhysicsSolver* physics,
 	substeps = (substeps <= 0 ? 1 : (substeps > 100 ? 100 : substeps));
 	physics->step(chunks, hitbox, delta, substeps, shift, player->flight ? 0.0f : 1.0f);
 	camera->position.x = hitbox->position.x;
-	camera->position.y = hitbox->position.y + 0.5f;
+	camera->position.y = hitbox->position.y + 0.7f;
 	camera->position.z = hitbox->position.z;
 
 	if (player->flight && hitbox->grounded)
@@ -244,6 +244,12 @@ void update_interaction(Chunks* chunks, PhysicsSolver* physics, Player* player, 
 				chunks->set(x, y, z, player->choosenBlock);
 				lighting->onBlockSet(x,y,z, player->choosenBlock);
 			}
+		}
+		if (Events::jclicked(GLFW_MOUSE_BUTTON_3)){
+			int x = (int)iend.x;
+			int y = (int)iend.y;
+			int z = (int)iend.z;
+			player->choosenBlock = chunks->get(x,y,z)->id;
 		}
 	}
 }
