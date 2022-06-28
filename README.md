@@ -20,10 +20,6 @@
 `$ sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel`
 
 
-# Note for fix string erorr:
-To fix problem, uncomment `#include <string>` in `src/files/WorldFiles.h`.
-
-
 # Note for MinGW compiling:
 To fix problem with `#include <mingw.thread.h>` get headers `mingw.thread.h` and `mingw.invoke.h` from: 
 https://github.com/meganz/mingw-std-threads
