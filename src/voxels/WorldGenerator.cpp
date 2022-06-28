@@ -34,7 +34,8 @@ float calc_height(fnl_state *noise, int real_x, int real_z){
 	height += fnlGetNoise3D(noise, real_x*0.05f*s*32,real_z*0.05f*s*32, 0.0f)*0.25f;
 	height += fnlGetNoise3D(noise, real_x*0.1f*s*32,real_z*0.1f*s*32, 0.0f)*0.225f;
 	height += fnlGetNoise3D(noise, real_x*0.2f*s*32,real_z*0.2f*s*32, 0.0f)*0.125f;
-	height += fnlGetNoise3D(noise, real_x*0.4f*s*32,real_z*0.4f*s*32, 0.0f)*0.125f*0.5F;
+	height += fnlGetNoise3D(noise, real_x*0.4f*s*32,real_z*0.4f*s*32, 0.0f)*0.0625f;
+	// height += fnlGetNoise3D(noise, real_x*s*32,real_z*s*32, 0.0f)*0.03f;
 	height = height * 0.5f + 0.5f;
 	height *= height;
 	height *= (140.0f)*0.12f/s;
@@ -71,7 +72,7 @@ int generate_tree(fnl_state *noise, PseudoRandom* random, const float* heights, 
 	int centerX = tileX * tileSize + tileSize/2 + randomX;
 	int centerY = tileY * tileSize + tileSize/2 + randomZ;
 	int height = (int)calc_height_faster(noise, centerX, centerY);
-	if (height < 55)
+	if ((height < 57) || (fnlGetNoise3D(noise, real_x*0.025f,real_z*0.025f, 0.0f)*0.5f > 0.5))
 		return 0;
 	int lx = real_x - centerX;
 	int radius = random->rand() % 4 + 3;
@@ -102,20 +103,19 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cy, int cz){
 	}
 
 	for (int z = 0; z < CHUNK_D; z++){
+			int real_z = z + cz * CHUNK_D;
 		for (int x = 0; x < CHUNK_W; x++){
 			int real_x = x + cx * CHUNK_W;
-			int real_z = z + cz * CHUNK_D;
 			float height = heights[z*CHUNK_W+x];
 
 			for (int y = 0; y < CHUNK_H; y++){
 				int real_y = y + cy * CHUNK_H;
 				int id = real_y < 55 ? 9 : 0;
-				if (real_y == (int)height)
+				if ((real_y == (int)height) && (54 < real_y))
 					id = 2;
-				else if (real_y < height){
-					if (real_y < height-6)
+				else if (real_y < (height - 6)){
 						id = 8;
-					else
+				} else if (real_y < height){
 						id = 1;
 				} else {
 					int tree = generate_tree(&noise, &random, heights, real_x, real_y, real_z, 16);
@@ -127,9 +127,19 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cy, int cz){
 						id = tree;
 					}
 				}
+				// if ((real_y < height) && (57 > height) && (height > 51) && ((int)height == real_y)){
+				// 		id = 10;
+				// }
 
+				// if ( ((height - (1 - 0.1 * pow(height - 55, 4))) < real_y) && (real_y < height)){
+				// 		id = 10;
+				// }
+				
+				if ( ((height - (1.5 - 0.2 * pow(height - 55, 4))) < real_y) && (real_y < height)){
+						id = 10;
+				}
 				if (real_y <= 2)
-					id = 2;
+					id = 11;
 				voxels[(y * CHUNK_D + z) * CHUNK_W + x].id = id;
 			}
 		}
