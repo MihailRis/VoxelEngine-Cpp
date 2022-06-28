@@ -5,6 +5,10 @@
 #include <algorithm>
 #include <GL/glew.h>
 
+#ifndef std::string
+#include <string>
+#endif
+
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -41,6 +45,7 @@ int uiscale = 2;
 
 LineBatch *lineBatch;
 Batch2D *batch;
+Batch2D *activeBlockBatch;
 Camera *uicamera;
 
 void init_renderer(){
@@ -48,6 +53,7 @@ void init_renderer(){
 	lineBatch = new LineBatch(4096);
 
 	batch = new Batch2D(1024);
+	activeBlockBatch = new Batch2D(1024);
 	uicamera = new Camera(glm::vec3(), Window::height / uiscale);
 	uicamera->perspective = false;
 }
@@ -57,6 +63,7 @@ void finalize_renderer(){
 	delete crosshair;
 	delete lineBatch;
 	delete batch;
+	delete activeBlockBatch;
 }
 
 void draw_chunk(size_t index, Camera* camera, Shader* shader, bool occlusion){
@@ -105,8 +112,8 @@ bool chunks_comparator(size_t i, size_t j) {
 }
 
 
-void draw_world(Camera* camera, Assets* assets,	Chunks* chunks,
-				bool occlusion, bool devdata){
+void draw_world(Player* player, Camera* camera, Assets* assets,	Chunks* chunks,
+				bool occlusion, bool devdata, int fps){
 	glClearColor(0.7f,0.81f,1.0f,1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
@@ -115,6 +122,7 @@ void draw_world(Camera* camera, Assets* assets,	Chunks* chunks,
 
 	// Draw VAO
 	Texture* texture = assets->getTexture("block");
+	Texture* blocks = assets->getTexture("block_select");
 	Shader* shader = assets->getShader("main");
 	Shader* crosshairShader = assets->getShader("crosshair");
 	Shader* linesShader = assets->getShader("lines");
@@ -126,6 +134,7 @@ void draw_world(Camera* camera, Assets* assets,	Chunks* chunks,
 	shader->uniform3f("u_fogColor", 0.7f,0.71f,0.73f);
 	shader->uniform3f("u_cameraPos", camera->position.x,camera->position.y,camera->position.z);
 	texture->bind();
+	// blocks->bind();
 
 	std::vector<size_t> indices;
 
@@ -170,14 +179,27 @@ void draw_world(Camera* camera, Assets* assets,	Chunks* chunks,
 	uishader->uniformMatrix("u_projview", uicamera->getProjection());
 
 	Font* font = assets->getFont("normal");
+	// Texture* blocks = assets->getTexture("blocks")
 	batch->begin();
 	batch->texture(font->texture);
 	// font->draw(batch, "void Font::draw(Batch2D* batch, std::string text, int x, int y) {", 10, 10);
 	if (devdata){
-		font->draw(batch, "devdata does not exist", 10, 10);
+		font->draw(batch, "devdata does not exist", 16, 16);
+		font->draw(batch, std::to_string((int)player->camera->position.x), 10, 30);
+		font->draw(batch, std::to_string((int)player->camera->position.y), 50, 30);
+		font->draw(batch, std::to_string((int)player->camera->position.z), 90, 30);
+		font->draw(batch, "fps:", 16, 42);
+		font->draw(batch, std::to_string(fps), 40, 42);
 	}
 	//batch->rect(0, 0, 256, 256);
 	batch->render();
+
+	activeBlockBatch->begin();
+	activeBlockBatch->texture(blocks);
+	float u = (player->choosenBlock % 16) / 16.0f;
+	float v = 1.0f - ((player->choosenBlock / 16) / 16.0f) - 1.0f/16.0f;
+	activeBlockBatch->rect(16, 280, 64, 64, u, v, 1.0f/16.0f, 1.0f/16.0f, 1,1,1,1);
+	activeBlockBatch->render();
 }
 
 #endif // WORLD_RENDERER_CPP

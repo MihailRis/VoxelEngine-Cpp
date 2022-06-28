@@ -304,7 +304,7 @@ int main() {
 	bool occlusion = false;
 	bool devdata = false;
 
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 
 	std::cout << "-- initializing finished" << std::endl;
 
@@ -314,6 +314,7 @@ int main() {
 		float currentTime = glfwGetTime();
 		delta = currentTime - lastTime;
 		lastTime = currentTime;
+		int fps = 1 / delta;
 
 		if (Events::jpressed(GLFW_KEY_O)){
 			occlusion = !occlusion;
@@ -332,7 +333,7 @@ int main() {
 		for (int i = 0; i < freeLoaders; i++)
 			chunksController.loadVisible(wfile);
 
-		draw_world(camera, assets, chunks, occlusion, devdata);
+		draw_world(player, camera, assets, chunks, occlusion, devdata, fps);
 
 		Window::swapBuffers();
 		Events::pullEvents();
