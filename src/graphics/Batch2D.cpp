@@ -74,13 +74,13 @@ void Batch2D::rect(float x, float y, float w, float h){
 void Batch2D::rect(float x, float y, float w, float h,
 					float u, float v, float tx, float ty,
 					float r, float g, float b, float a){
-	vertex(x, y, u, v, r,g,b,a);
-	vertex(x+w, y+h, u+tx, v+ty, r,g,b,a);
-	vertex(x, y+h, u, v+ty, r,g,b,a);
+	vertex(x, y, u, v+ty, r,g,b,a);
+	vertex(x+w, y+h, u+tx, v, r,g,b,a);
+	vertex(x, y+h, u, v, r,g,b,a);
 
-	vertex(x, y, u, v, r,g,b,a);
-	vertex(x+w, y, u+tx, v, r,g,b,a);
-	vertex(x+w, y+h, u+tx, v+ty, r,g,b,a);
+	vertex(x, y, u, v+ty, r,g,b,a);
+	vertex(x+w, y, u+tx, v+ty, r,g,b,a);
+	vertex(x+w, y+h, u+tx, v, r,g,b,a);
 }
 
 void Batch2D::render() {

@@ -24,6 +24,7 @@ public:
 	float zoom;
 	mat4 rotation;
 	bool perspective = true;
+	bool flipped = false;
 	Camera(vec3 position, float fov);
 
 	void rotate(float x, float y, float z);

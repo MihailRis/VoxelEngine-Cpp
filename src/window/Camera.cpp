@@ -40,9 +40,15 @@ mat4 Camera::getProjection(){
 	if (perspective)
 		return glm::perspective(fov*zoom, aspect, 0.05f, 1500.0f);
 	else
-		return glm::ortho(0.0f, fov*aspect, 0.0f, fov);
+		if (flipped)
+			return glm::ortho(0.0f, fov*aspect, fov, 0.0f);
+		else
+			return glm::ortho(0.0f, fov*aspect, 0.0f, fov);
 }
 
 mat4 Camera::getView(){
-	return glm::lookAt(position, position+front, up);
+	if (perspective)
+		return glm::lookAt(position, position+front, up);
+	else
+		return glm::mat4(1.0f);
 }

@@ -333,7 +333,8 @@ int main() {
 		for (int i = 0; i < freeLoaders; i++)
 			chunksController.loadVisible(wfile);
 
-		draw_world(player, camera, assets, chunks, occlusion, devdata, fps);
+		draw_world(player, camera, assets, chunks, occlusion);
+		draw_hud(player, assets, devdata, fps);
 
 		Window::swapBuffers();
 		Events::pullEvents();
