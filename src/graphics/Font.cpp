@@ -26,11 +26,34 @@ int Font::getGlyphWidth(char c) {
 }
 
 
+bool Font::isPrintableChar(char c) {
+	switch (c){
+	case ' ':
+	case '\t':
+	case '\n':
+	case '\f':
+	case '\r':
+		return false;
+	default:
+		return true;
+	}
+}
+
+
 void Font::draw(Batch2D* batch, std::string text, int x, int y) {
 	for (char c : text){
-		float u = (c % 16) / 16.0f;
-		float v = 1.0f - ((c / 16) / 16.0f) - 1.0f/16.0f;
-		batch->rect(x, y, 8, 8, u, v, 1.0f/16.0f, 1.0f/16.0f, 1,1,1,1);
+		if (isPrintableChar(c))
+			batch->sprite(x, y, 8, 8, 16, c, vec4(1.0f));
+		x += getGlyphWidth(c);
+	}
+}
+
+void Font::drawWithShadow(Batch2D* batch, std::string text, int x, int y) {
+	for (char c : text){
+		if (isPrintableChar(c)){
+			batch->sprite(x+1, y+1, 8, 8, 16, c, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+			batch->sprite(x, y, 8, 8, 16, c, vec4(1.0f));
+		}
 		x += getGlyphWidth(c);
 	}
 }

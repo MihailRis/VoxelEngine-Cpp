@@ -122,21 +122,20 @@ void draw_hud(Player* player, Assets* assets, bool devdata, int fps){
 	batch->begin();
 	batch->texture(font->texture);
 	if (devdata){
-		font->draw(batch, "devdata does not exist", 16, 16);
-		font->draw(batch, std::to_string((int)player->camera->position.x), 10, 30);
-		font->draw(batch, std::to_string((int)player->camera->position.y), 50, 30);
-		font->draw(batch, std::to_string((int)player->camera->position.z), 90, 30);
-		font->draw(batch, "fps:", 16, 42);
-		font->draw(batch, std::to_string(fps), 40, 42);
+		font->drawWithShadow(batch, "devdata does not exist", 16, 16);
+		font->drawWithShadow(batch, std::to_string((int)player->camera->position.x), 10, 30);
+		font->drawWithShadow(batch, std::to_string((int)player->camera->position.y), 50, 30);
+		font->drawWithShadow(batch, std::to_string((int)player->camera->position.z), 90, 30);
+		font->drawWithShadow(batch, "fps:", 16, 42);
+		font->drawWithShadow(batch, std::to_string(fps), 40, 42);
 	}
 	batch->render();
 
 	// choosen block preview
 	Texture* blocks = assets->getTexture("block_select");
 	batch->texture(blocks);
-	float u = (player->choosenBlock % 16) / 16.0f;
-	float v = 1.0f - ((player->choosenBlock / 16) / 16.0f) - 1.0f/16.0f;
-	batch->rect(16, 280, 64, 64, u, v, 1.0f/16.0f, 1.0f/16.0f, 1,1,1,1);
+	batch->sprite(14, 278, 68, 68, 16, player->choosenBlock, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	batch->sprite(16, 280, 64, 64, 16, player->choosenBlock, vec4(1.0f));
 	batch->render();
 }
 

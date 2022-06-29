@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <glm/glm.hpp>
 
+using namespace glm;
+
 class Mesh;
 class Texture;
 
@@ -27,6 +29,7 @@ public:
 
 	void begin();
 	void texture(Texture* texture);
+	void sprite(float x, float y, float w, float h, int atlasRes, int index, vec4 tint);
 	void rect(float x, float y, float w, float h);
 	void rect(float x, float y, float w, float h,
 						float u, float v, float tx, float ty,

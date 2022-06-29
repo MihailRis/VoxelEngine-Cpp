@@ -71,6 +71,13 @@ void Batch2D::rect(float x, float y, float w, float h){
 	vertex(x+w, y+h, 1, 1, r,g,b,a);
 }
 
+void Batch2D::sprite(float x, float y, float w, float h, int atlasRes, int index, vec4 tint){
+	float scale = 1.0f / (float)atlasRes;
+	float u = (index % atlasRes) * scale;
+	float v = 1.0f - ((index / atlasRes) * scale) - scale;
+	rect(x, y, w, h, u, v, scale, scale, tint.r, tint.g, tint.b, tint.a);
+}
+
 void Batch2D::rect(float x, float y, float w, float h,
 					float u, float v, float tx, float ty,
 					float r, float g, float b, float a){
