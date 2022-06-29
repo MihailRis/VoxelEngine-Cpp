@@ -334,7 +334,7 @@ int main() {
 			chunksController.loadVisible(wfile);
 
 		draw_world(player, camera, assets, chunks, occlusion);
-		draw_hud(player, assets, devdata, fps);
+		draw_hud(player, assets, chunks, devdata, fps);
 
 		Window::swapBuffers();
 		Events::pullEvents();

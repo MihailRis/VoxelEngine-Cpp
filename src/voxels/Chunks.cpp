@@ -23,6 +23,7 @@ Chunks::Chunks(int w, int h, int d, int ox, int oy, int oz) : w(w), h(h), d(d), 
 		chunks[i] = nullptr;
 		meshes[i] = nullptr;
 	}
+	chunksCount = 0;
 }
 
 Chunks::~Chunks(){
@@ -281,6 +282,7 @@ void Chunks::translate(WorldFiles* worldFiles, int dx, int dy, int dz){
 					worldFiles->put((const char*)chunk->voxels, chunk->x, chunk->z);
 					chunk->decref();
 					delete mesh;
+					chunksCount--;
 					continue;
 				}
 				meshesSecond[(ny * d + nz) * w + nx] = mesh;
@@ -317,6 +319,7 @@ bool Chunks::putChunk(Chunk* chunk) {
 	if (x < 0 || y < 0 || z < 0 || x >= w || y >= h || z >= d)
 		return false;
 	chunks[(y * d + z) * w + x] = chunk;
+	chunksCount++;
 	return true;
 }
 
@@ -329,4 +332,5 @@ void Chunks::clear(bool freeMemory){
 		chunks[i] = nullptr;
 		meshes[i] = nullptr;
 	}
+	chunksCount = 0;
 }

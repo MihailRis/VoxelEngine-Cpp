@@ -20,6 +20,7 @@ public:
 	Mesh** meshes;
 	Mesh** meshesSecond;
 	size_t volume;
+	size_t chunksCount;
 	unsigned int w,h,d;
 	int ox,oy,oz;
 

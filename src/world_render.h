@@ -110,7 +110,7 @@ bool chunks_comparator(size_t i, size_t j) {
 }
 
 
-void draw_hud(Player* player, Assets* assets, bool devdata, int fps){
+void draw_hud(Player* player, Assets* assets, Chunks* chunks, bool devdata, int fps){
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 	Shader* uishader = assets->getShader("ui");
@@ -122,11 +122,11 @@ void draw_hud(Player* player, Assets* assets, bool devdata, int fps){
 	batch->begin();
 	batch->texture(font->texture);
 	if (devdata){
-		font->drawWithShadow(batch, "devdata does not exist", 16, 16);
+		font->drawWithShadow(batch, "chunks: "+std::to_string(chunks->chunksCount), 16, 16);
 		font->drawWithShadow(batch, std::to_string((int)player->camera->position.x), 10, 30);
 		font->drawWithShadow(batch, std::to_string((int)player->camera->position.y), 50, 30);
 		font->drawWithShadow(batch, std::to_string((int)player->camera->position.z), 90, 30);
-		font->drawWithShadow(batch, "fps:", 16, 42);
+		font->drawWithShadow(batch, "fps: ", 16, 42);
 		font->drawWithShadow(batch, std::to_string(fps), 40, 42);
 	}
 	batch->render();

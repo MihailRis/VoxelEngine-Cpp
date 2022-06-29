@@ -106,7 +106,7 @@ bool ChunksController::loadVisible(WorldFiles* worldFiles){
 	if (worldFiles->getChunk(chunk->x, chunk->z, (char*)chunk->voxels))
 		chunk->loaded = true;
 
-	chunks->chunks[index] = chunk;
+	chunks->putChunk(chunk);
 
 	Chunk* closes[27];
 	for (int i = 0; i < 27; i++)
