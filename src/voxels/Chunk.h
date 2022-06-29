@@ -1,6 +1,8 @@
 #ifndef VOXELS_CHUNK_H_
 #define VOXELS_CHUNK_H_
 
+#include <stdlib.h>
+
 #define CHUNK_W 16
 #define CHUNK_H 256
 #define CHUNK_D 16
@@ -8,6 +10,11 @@
 
 class voxel;
 class Lightmap;
+
+struct RenderData {
+	float* vertices;
+	size_t size;
+};
 
 class Chunk {
 public:
@@ -19,6 +26,8 @@ public:
 	bool loaded = false;
 	int surrounding = 0;
 	int references = 1;
+	RenderData renderData;
+
 	Chunk(int x, int y, int z);
 	~Chunk();
 

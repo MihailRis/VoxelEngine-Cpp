@@ -57,6 +57,10 @@ void Window::setShouldClose(bool flag){
 	glfwSetWindowShouldClose(window, flag);
 }
 
+void Window::swapInterval(int interval){
+	glfwSwapInterval(interval);
+}
+
 void Window::swapBuffers(){
 	glfwSwapBuffers(window);
 }

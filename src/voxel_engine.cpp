@@ -81,10 +81,12 @@ void update_level(World* world, Level* level, vec3 position, float delta, long f
 	update_controls(level->physics, level->chunks, level->player, delta);
 	update_interaction(level, lineBatch);
 
-	level->chunks->setCenter(world->wfile, position.x,0,position.z);
-	level->chunksController->_buildMeshes(renderer, frame);
-
+	level->chunks->setCenter(world->wfile, position.x, 0, position.z);
 	int freeLoaders = level->chunksController->countFreeLoaders();
+		for (int i = 0; i < freeLoaders; i++)
+			level->chunksController->_buildMeshes(renderer, frame);
+
+	freeLoaders = level->chunksController->countFreeLoaders();
 	for (int i = 0; i < freeLoaders; i++)
 		level->chunksController->loadVisible(world->wfile);
 }
@@ -140,7 +142,7 @@ int main() {
 	bool occlusion = false;
 	bool devdata = false;
 
-	glfwSwapInterval(0);
+	Window::swapInterval(0);
 
 	std::cout << "-- initializing finished" << std::endl;
 	while (!Window::isShouldClose()){

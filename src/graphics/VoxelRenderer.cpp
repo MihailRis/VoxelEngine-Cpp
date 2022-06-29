@@ -1,11 +1,11 @@
 #include "VoxelRenderer.h"
+
+#include <iostream>
 #include "Mesh.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/voxel.h"
 #include "../voxels/Block.h"
 #include "../lighting/Lightmap.h"
-
-#define VERTEX_SIZE (3 + 2 + 4)
 
 #define CDIV(X,A) (((X) < 0) ? ((X) / (A) - 1) : ((X) / (A)))
 #define LOCAL_NEG(X, SIZE) (((X) < 0) ? ((SIZE)+(X)) : (X))
@@ -17,16 +17,16 @@
 #define VOXEL(X,Y,Z) (GET_CHUNK(X,Y,Z)->voxels[(LOCAL(Y, CHUNK_H) * CHUNK_D + LOCAL(Z, CHUNK_D)) * CHUNK_W + LOCAL(X, CHUNK_W)])
 #define IS_BLOCKED(X,Y,Z,GROUP) ((!IS_CHUNK(X, Y, Z)) || Block::blocks[VOXEL(X, Y, Z).id]->drawGroup == (GROUP))
 
-#define VERTEX(INDEX, X,Y,Z, U,V, R,G,B,S) buffer[INDEX+0] = (X);\
-								  buffer[INDEX+1] = (Y);\
-								  buffer[INDEX+2] = (Z);\
-								  buffer[INDEX+3] = (U);\
-								  buffer[INDEX+4] = (V);\
-								  buffer[INDEX+5] = (R);\
-								  buffer[INDEX+6] = (G);\
-								  buffer[INDEX+7] = (B);\
-								  buffer[INDEX+8] = (S);\
-								  INDEX += VERTEX_SIZE;
+#define VERTEX(INDEX, X,Y,Z, U,V, R,G,B,S) buffer.push_back(X);\
+								  buffer.push_back(Y);\
+								  buffer.push_back(Z);\
+								  buffer.push_back(U);\
+								  buffer.push_back(V);\
+								  buffer.push_back(R);\
+								  buffer.push_back(G);\
+								  buffer.push_back(B);\
+								  buffer.push_back(S);\
+								  INDEX += CHUNK_VERTEX_SIZE;
 
 
 #define SETUP_UV(INDEX) float u1 = ((INDEX) % 16) * uvsize;\
@@ -36,15 +36,13 @@
 
 int chunk_attrs[] = {3,2,4, 0};
 
-VoxelRenderer::VoxelRenderer(size_t capacity) : capacity(capacity) {
-	buffer = new float[capacity * VERTEX_SIZE * 6];
+VoxelRenderer::VoxelRenderer() {
 }
 
 VoxelRenderer::~VoxelRenderer(){
-	delete[] buffer;
 }
 
-inline void _renderBlock(float* buffer, int x, int y, int z, const Chunk** chunks, voxel vox, size_t& index){
+inline void _renderBlock(std::vector<float>& buffer, int x, int y, int z, const Chunk** chunks, voxel vox, size_t& index){
 	unsigned int id = vox.id;
 
 	if (!id){
@@ -289,7 +287,8 @@ inline void _renderBlock(float* buffer, int x, int y, int z, const Chunk** chunk
 	}
 }
 
-Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks){
+const float* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, size_t& size){
+	buffer.clear();
 	size_t index = 0;
 	for (int y = 0; y < CHUNK_H; y++){
 		for (int z = 0; z < CHUNK_D; z++){
@@ -323,5 +322,6 @@ Mesh* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks){
 			}
 		}
 	}
-	return new Mesh(buffer, index / VERTEX_SIZE, chunk_attrs);
+	size = buffer.size();
+	return &buffer[0];
 }

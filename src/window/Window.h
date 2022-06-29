@@ -15,6 +15,7 @@ public:
 	static bool isShouldClose();
 	static void setShouldClose(bool flag);
 	static void swapBuffers();
+	static void swapInterval(int interval);
 };
 
 #endif /* WINDOW_WINDOW_H_ */

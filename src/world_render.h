@@ -57,7 +57,7 @@ void init_renderer(){
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 
-	renderer = new VoxelRenderer(1024*1024);
+	renderer = new VoxelRenderer();
 }
 
 

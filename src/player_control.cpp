@@ -25,7 +25,7 @@
 #define CAMERA_SHAKING_OFFSET_Y 0.031f
 #define CAMERA_SHAKING_SPEED 1.6f
 #define CAMERA_SHAKING_DELTA_K 10.0f
-#define FLIGHT_SPEED_MUL 5.0f
+#define FLIGHT_SPEED_MUL 8.0f
 #define JUMP_FORCE 7.0f
 
 void update_controls(PhysicsSolver* physics,

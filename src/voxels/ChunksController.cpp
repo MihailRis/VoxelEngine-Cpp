@@ -20,7 +20,7 @@
 
 
 ChunksController::ChunksController(Chunks* chunks, Lighting* lighting) : chunks(chunks), lighting(lighting){
-	loadersCount = std::thread::hardware_concurrency() - 1;
+	loadersCount = std::thread::hardware_concurrency() * 2 - 1;
 	if (loadersCount <= 0)
 		loadersCount = 1;
 	loaders = new ChunksLoader*[loadersCount];
@@ -130,7 +130,7 @@ bool ChunksController::loadVisible(WorldFiles* worldFiles){
 		oz += 1;
 		closes[(oy * 3 + oz) * 3 + ox] = other;
 	}
-	freeLoader->perform(chunk, (Chunk**)closes);
+	freeLoader->load(chunk, (Chunk**)closes);
 	return true;
 }
 
@@ -138,6 +138,35 @@ bool ChunksController::_buildMeshes(VoxelRenderer* renderer, int tick) {
 	const int w = chunks->w;
 	const int h = chunks->h;
 	const int d = chunks->d;
+
+	for (int y = 0; y < h; y++){
+		for (int z = 1; z < d-1; z++){
+			for (int x = 1; x < w-1; x++){
+				int index = (y * d + z) * w + x;
+				Chunk* chunk = chunks->chunks[index];
+				if (chunk == nullptr)
+					continue;
+				if (chunk->renderData.vertices > (void*)1){
+					const int chunk_attrs[] = {3,2,4, 0};
+					Mesh* mesh = new Mesh(chunk->renderData.vertices, chunk->renderData.size / CHUNK_VERTEX_SIZE, chunk_attrs);
+					chunks->meshes[index] = mesh;
+					delete[] chunk->renderData.vertices;
+					chunk->renderData.vertices = nullptr;
+				}
+			}
+		}
+	}
+	ChunksLoader* freeLoader = nullptr;
+	for (int i = 0; i < loadersCount; i++){
+		ChunksLoader* loader = loaders[i];
+		if (loader->isBusy()){
+			continue;
+		}
+		freeLoader = loader;
+		break;
+	}
+	if (freeLoader == nullptr)
+		return false;
 
 	int nearX = 0;
 	int nearY = 0;
@@ -208,9 +237,15 @@ bool ChunksController::_buildMeshes(VoxelRenderer* renderer, int tick) {
 			oz += 1;
 			closes[(oy * 3 + oz) * 3 + ox] = other;
 		}
-		mesh = renderer->render(chunk, (const Chunk**)closes);
-		chunks->meshes[index] = mesh;
-		return true;
+		if (chunk->renderData.vertices == nullptr){
+			chunk->renderData.vertices = (float*)1;
+			freeLoader->render(chunk, (Chunk**)closes);
+
+			return true;
+		}
+		//mesh = renderer->render(chunk, (const Chunk**)closes);
+		//chunks->meshes[index] = mesh;
+
 	}
 	return false;
 }

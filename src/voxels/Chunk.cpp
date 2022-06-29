@@ -8,6 +8,7 @@ Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos){
 	for (unsigned int i = 0; i < CHUNK_VOL; i++)
 		voxels[i].id = 1;
 	lightmap = new Lightmap();
+	renderData.vertices = nullptr;
 }
 
 Chunk::~Chunk(){

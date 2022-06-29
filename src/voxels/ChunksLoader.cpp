@@ -5,6 +5,7 @@
 #include "Chunks.h"
 #include "WorldGenerator.h"
 #include "../lighting/Lighting.h"
+#include "../graphics/VoxelRenderer.h"
 
 #include <iostream>
 
@@ -13,7 +14,8 @@
 void ChunksLoader::_thread(){
 	Chunks chunks(3,3,3, -1,-1,-1);
 	Lighting lighting(&chunks);
-	while (working){
+	VoxelRenderer renderer;
+	while (state != OFF){
 		if (current == nullptr){
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			continue;
@@ -27,12 +29,24 @@ void ChunksLoader::_thread(){
 			}
 		}
 
-		if (!chunk->loaded){
-			WorldGenerator::generate(chunk->voxels, chunk->x, chunk->y, chunk->z);
+		if (state == LOAD){
+			chunks.putChunk(chunk);
+			if (!chunk->loaded){
+				WorldGenerator::generate(chunk->voxels, chunk->x, chunk->y, chunk->z);
+			}
+
+			lighting.onChunkLoaded(chunk->x, chunk->y, chunk->z, true);
+		}
+		else if (state == RENDER){
+			size_t size;
+			renderer.render(chunk, (const Chunk**)(closes.load()), size);
+			float* vertices = new float[size];
+			for (size_t i = 0; i < size; i++)
+				vertices[i] = renderer.buffer[i];
+			chunk->renderData.vertices = vertices;
+			chunk->renderData.size = size;
 		}
 
-		chunks.putChunk(chunk);
-		lighting.onChunkLoaded(chunk->x, chunk->y, chunk->z, true);
 		chunks.clear(false);
 		for (int i = 0; i < CLOSES_C; i++){
 			Chunk* other = closes[i];
@@ -45,7 +59,7 @@ void ChunksLoader::_thread(){
 	}
 }
 
-void ChunksLoader::perform(Chunk* chunk, Chunk** closes_passed){
+void ChunksLoader::perform(Chunk* chunk, Chunk** closes_passed, LoaderMode mode){
 	if (isBusy()){
 		std::cerr << "performing while busy" << std::endl;
 		return;
@@ -64,4 +78,13 @@ void ChunksLoader::perform(Chunk* chunk, Chunk** closes_passed){
 		}
 	}
 	current = chunk;
+	state = mode;
+}
+
+void ChunksLoader::load(Chunk* chunk, Chunk** closes_passed){
+	perform(chunk, closes_passed, LOAD);
+}
+
+void ChunksLoader::render(Chunk* chunk, Chunk** closes_passed){
+	perform(chunk, closes_passed, RENDER);
 }
