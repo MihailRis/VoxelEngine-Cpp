@@ -5,6 +5,7 @@
 #include "physics/PhysicsSolver.h"
 #include "physics/Hitbox.h"
 #include "lighting/Lighting.h"
+#include "world/Level.h"
 #include "voxels/voxel.h"
 #include "voxels/Chunks.h"
 #include "window/Camera.h"
@@ -162,8 +163,11 @@ void update_controls(PhysicsSolver* physics,
 	}
 }
 
-void update_interaction(Chunks* chunks, PhysicsSolver* physics, Player* player, Lighting* lighting, LineBatch* lineBatch){
+void update_interaction(Level* level, LineBatch* lineBatch){
+	Chunks* chunks = level->chunks;
+	Player* player = level->player;
 	Camera* camera = player->camera;
+	Lighting* lighting = level->lighting;
 	vec3 end;
 	vec3 norm;
 	vec3 iend;
@@ -182,7 +186,7 @@ void update_interaction(Chunks* chunks, PhysicsSolver* physics, Player* player, 
 			int x = (int)(iend.x)+(int)(norm.x);
 			int y = (int)(iend.y)+(int)(norm.y);
 			int z = (int)(iend.z)+(int)(norm.z);
-			if (!physics->isBlockInside(x,y,z, player->hitbox)){
+			if (!level->physics->isBlockInside(x,y,z, player->hitbox)){
 				chunks->set(x, y, z, player->choosenBlock);
 				lighting->onBlockSet(x,y,z, player->choosenBlock);
 			}

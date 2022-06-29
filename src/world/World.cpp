@@ -4,7 +4,7 @@
 #include "../voxels/Chunk.h"
 #include "../voxels/Chunks.h"
 
-World::World(std::string name, std::string directory, Chunks* chunks) : name(name), chunks(chunks) {
+World::World(std::string name, std::string directory) : name(name) {
 	wfile = new WorldFiles(directory, REGION_VOL * (CHUNK_VOL * 2 + 8));
 }
 

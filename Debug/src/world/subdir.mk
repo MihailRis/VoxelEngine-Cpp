@@ -4,12 +4,15 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../src/world/Level.cpp \
 ../src/world/World.cpp 
 
 OBJS += \
+./src/world/Level.o \
 ./src/world/World.o 
 
 CPP_DEPS += \
+./src/world/Level.d \
 ./src/world/World.d 
 
 

@@ -110,8 +110,9 @@ bool chunks_comparator(size_t i, size_t j) {
 }
 
 
-void draw_hud(Player* player, Assets* assets, World* world, bool devdata, int fps){
-	Chunks* chunks = world->chunks;
+void draw_hud(World* world, Level* level, Assets* assets, bool devdata, int fps){
+	Chunks* chunks = level->chunks;
+	Player* player = level->player;
 
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -143,8 +144,8 @@ void draw_hud(Player* player, Assets* assets, World* world, bool devdata, int fp
 	batch->render();
 }
 
-void draw_world(Player* player, Camera* camera, Assets* assets,	World* world, bool occlusion){
-	Chunks* chunks = world->chunks;
+void draw_world(World* world, Level* level, Camera* camera, Assets* assets, bool occlusion){
+	Chunks* chunks = level->chunks;
 
 	glClearColor(0.7f,0.81f,1.0f,1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

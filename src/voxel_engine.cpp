@@ -42,6 +42,7 @@ using namespace glm;
 #include "physics/Hitbox.h"
 #include "physics/PhysicsSolver.h"
 #include "world/World.h"
+#include "world/Level.h"
 
 #include "audio/Audio.h"
 #include "audio/audioutil.h"
@@ -58,9 +59,9 @@ int HEIGHT = 720;
 
 
 // Save all world data to files
-void write_world(World* world){
+void write_world(World* world, Level* level){
 	WorldFiles* wfile = world->wfile;
-	Chunks* chunks = world->chunks;
+	Chunks* chunks = level->chunks;
 
 	for (unsigned int i = 0; i < chunks->volume; i++){
 		Chunk* chunk = chunks->chunks[i];
@@ -70,6 +71,18 @@ void write_world(World* world){
 	}
 
 	wfile->write();
+}
+
+void update_level(World* world, Level* level, VoxelRenderer* renderer, vec3 position, float delta, long frame){
+	update_controls(level->physics, level->chunks, level->player, delta);
+	update_interaction(level, lineBatch);
+
+	level->chunks->setCenter(world->wfile, position.x,0,position.z);
+	level->chunksController->_buildMeshes(renderer, frame);
+
+	int freeLoaders = level->chunksController->countFreeLoaders();
+	for (int i = 0; i < freeLoaders; i++)
+		level->chunksController->loadVisible(world->wfile);
 }
 
 
@@ -91,12 +104,11 @@ int main() {
 	}
 	std::cout << "-- loading world" << std::endl;
 
-	Camera* camera = new Camera(vec3(-320,255,32), radians(90.0f));
-	World* world = new World("world-1", "world/", new Chunks(34,1,34, 0,0,0));
-	Chunks* chunks = world->chunks;
-
-
+	Camera* camera = new Camera(vec3(-320,200,32), radians(90.0f));
+	World* world = new World("world-1", "world/");
 	Player* player = new Player(vec3(camera->position), 4.0f, camera);
+	Level* level = new Level(player, new Chunks(34,1,34, 0,0,0), new PhysicsSolver(vec3(0, -9.8f*2.0f, 0)));
+
 	world->wfile->readPlayer(player);
 	camera->rotation = mat4(1.0f);
 	camera->rotate(player->camY, player->camX, 0);
@@ -104,12 +116,8 @@ int main() {
 	std::cout << "-- preparing systems" << std::endl;
 
 	VoxelRenderer renderer(1024*1024);
-	PhysicsSolver physics(vec3(0,-9.8f*2.0f,0));
-	Lighting lighting(chunks);
 
 	init_renderer();
-
-	ChunksController chunksController(chunks, &lighting);
 
 	float lastTime = glfwGetTime();
 	float delta = 0.0f;
@@ -137,18 +145,9 @@ int main() {
 			devdata = !devdata;
 		}
 
-		update_controls(&physics, chunks, player, delta);
-		update_interaction(chunks, &physics, player, &lighting, lineBatch);
-
-		chunks->setCenter(world->wfile, camera->position.x,0,camera->position.z);
-		chunksController._buildMeshes(&renderer, frame);
-
-		int freeLoaders = chunksController.countFreeLoaders();
-		for (int i = 0; i < freeLoaders; i++)
-			chunksController.loadVisible(world->wfile);
-
-		draw_world(player, camera, assets, world, occlusion);
-		draw_hud(player, assets, world, devdata, fps);
+		update_level(world, level, &renderer, camera->position, delta, frame);
+		draw_world(world, level, camera, assets, occlusion);
+		draw_hud(world, level, assets, devdata, fps);
 
 		Window::swapBuffers();
 		Events::pullEvents();
@@ -156,7 +155,7 @@ int main() {
 	std::cout << "-- saving world" << std::endl;
 
 	world->wfile->writePlayer(player);
-	write_world(world);
+	write_world(world, level);
 	delete world;
 
 	std::cout << "-- shutting down" << std::endl;

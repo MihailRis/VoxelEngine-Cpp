@@ -4,10 +4,10 @@
 class PhysicsSolver;
 class Chunks;
 class Player;
-class Lighting;
 class LineBatch;
+class Level;
 
 void update_controls(PhysicsSolver* physics, Chunks* chunks, Player* player, float delta);
-void update_interaction(Chunks* chunks, PhysicsSolver* physics, Player* player, Lighting* lighting, LineBatch* lineBatch);
+void update_interaction(Level* level, LineBatch* lineBatch);
 
 #endif /* PLAYER_CONTROL_H_ */
