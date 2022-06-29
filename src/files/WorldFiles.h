@@ -25,7 +25,7 @@ public:
 	char* mainBufferIn;
 	char* mainBufferOut;
 
-	WorldFiles(const char* directory, size_t mainBufferCapacity);
+	WorldFiles(std::string directory, size_t mainBufferCapacity);
 	~WorldFiles();
 
 	void put(const char* chunkData, int x, int y);

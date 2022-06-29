@@ -5,6 +5,8 @@
 
 class Camera;
 class Hitbox;
+class PhysicsSolver;
+class Chunks;
 
 class Player {
 public:

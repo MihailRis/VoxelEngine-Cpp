@@ -50,7 +50,7 @@ float bytes2Float(char* srcs, unsigned int offset){
 	return *(float*)(&value);
 }
 
-WorldFiles::WorldFiles(const char* directory, size_t mainBufferCapacity) : directory(directory){
+WorldFiles::WorldFiles(std::string directory, size_t mainBufferCapacity) : directory(directory){
 	mainBufferIn = new char[CHUNK_VOL*2];
 	mainBufferOut = new char[mainBufferCapacity];
 }

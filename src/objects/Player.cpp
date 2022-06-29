@@ -1,5 +1,8 @@
 #include "Player.h"
 #include "../physics/Hitbox.h"
+#include "../physics/PhysicsSolver.h"
+#include "../voxels/Chunks.h"
+#include "../window/Events.h"
 
 #include <glm/glm.hpp>
 
