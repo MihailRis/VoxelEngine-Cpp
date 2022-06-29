@@ -61,7 +61,6 @@ int initialize_assets(Assets* assets) {
 	LOAD_SHADER("res/ui.glslv", "res/ui.glslf", "ui");
 
 	LOAD_TEXTURE("res/block.png", "block");
-	LOAD_TEXTURE("res/block_select.png", "block_select");
 
 	LOAD_FONT("res/font.png", "normal");
 	return 0;
