@@ -126,7 +126,7 @@ void draw_hud(Player* player, Assets* assets, Chunks* chunks, bool devdata, int 
 		font->drawWithShadow(batch, std::to_string((int)player->camera->position.x), 10, 30);
 		font->drawWithShadow(batch, std::to_string((int)player->camera->position.y), 50, 30);
 		font->drawWithShadow(batch, std::to_string((int)player->camera->position.z), 90, 30);
-		font->drawWithShadow(batch, "fps: ", 16, 42);
+		font->drawWithShadow(batch, "fps:", 16, 42);
 		font->drawWithShadow(batch, std::to_string(fps), 40, 42);
 	}
 	batch->render();
