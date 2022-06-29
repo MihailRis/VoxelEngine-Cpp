@@ -5,14 +5,17 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/Assets.cpp \
+../src/player_control.cpp \
 ../src/voxel_engine.cpp 
 
 OBJS += \
 ./src/Assets.o \
+./src/player_control.o \
 ./src/voxel_engine.o 
 
 CPP_DEPS += \
 ./src/Assets.d \
+./src/player_control.d \
 ./src/voxel_engine.d 
 
 
