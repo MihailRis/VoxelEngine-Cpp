@@ -54,6 +54,8 @@ using namespace glm;
 #include "player_control.h"
 
 
+float gravity = 19.6f;
+
 int WIDTH = 1280;
 int HEIGHT = 720;
 
@@ -71,9 +73,11 @@ void write_world(World* world, Level* level){
 	}
 
 	wfile->write();
+
+	world->wfile->writePlayer(level->player);
 }
 
-void update_level(World* world, Level* level, VoxelRenderer* renderer, vec3 position, float delta, long frame){
+void update_level(World* world, Level* level, vec3 position, float delta, long frame){
 	update_controls(level->physics, level->chunks, level->player, delta);
 	update_interaction(level, lineBatch);
 
@@ -85,52 +89,60 @@ void update_level(World* world, Level* level, VoxelRenderer* renderer, vec3 posi
 		level->chunksController->loadVisible(world->wfile);
 }
 
+Level* load_level(World* world, Player* player) {
+	Level* level = new Level(player, new Chunks(34,1,34, 0,0,0), new PhysicsSolver(vec3(0, -gravity, 0)));
+	world->wfile->readPlayer(player);
 
-int main() {
-	setup_definitions();
+	Camera* camera = player->camera;
+	camera->rotation = mat4(1.0f);
+	camera->rotate(player->camY, player->camX, 0);
+	return level;
+}
 
+
+int initialize(Assets*& assets){
 	Audio::initialize();
-
 	Window::initialize(WIDTH, HEIGHT, "Window 2.0");
 	Events::initialize();
 
+	assets = new Assets();
 	std::cout << "-- loading assets" << std::endl;
-	Assets* assets = new Assets();
 	int result = initialize_assets(assets);
 	if (result){
 		delete assets;
 		Window::terminate();
 		return result;
 	}
+	return 0;
+}
+
+
+int main() {
+	setup_definitions();
+
+	Assets* assets;
+	int status = initialize(assets);
+	if (status) return status;
+
 	std::cout << "-- loading world" << std::endl;
-
-	Camera* camera = new Camera(vec3(-320,200,32), radians(90.0f));
+	vec3 playerPosition = vec3(-320,200,32);
+	Camera* camera = new Camera(playerPosition, radians(90.0f));
 	World* world = new World("world-1", "world/");
-	Player* player = new Player(vec3(camera->position), 4.0f, camera);
-	Level* level = new Level(player, new Chunks(34,1,34, 0,0,0), new PhysicsSolver(vec3(0, -9.8f*2.0f, 0)));
-
-	world->wfile->readPlayer(player);
-	camera->rotation = mat4(1.0f);
-	camera->rotate(player->camY, player->camX, 0);
+	Player* player = new Player(playerPosition, 4.0f, camera);
+	Level* level = load_level(world, player);
 
 	std::cout << "-- preparing systems" << std::endl;
-
-	VoxelRenderer renderer(1024*1024);
-
 	init_renderer();
 
 	float lastTime = glfwGetTime();
 	float delta = 0.0f;
-
 	long frame = 0;
-
 	bool occlusion = false;
 	bool devdata = false;
 
 	glfwSwapInterval(0);
 
 	std::cout << "-- initializing finished" << std::endl;
-
 	while (!Window::isShouldClose()){
 		frame++;
 		float currentTime = glfwGetTime();
@@ -145,7 +157,7 @@ int main() {
 			devdata = !devdata;
 		}
 
-		update_level(world, level, &renderer, camera->position, delta, frame);
+		update_level(world, level, camera->position, delta, frame);
 		draw_world(world, level, camera, assets, occlusion);
 		draw_hud(world, level, assets, devdata, fps);
 
@@ -153,13 +165,10 @@ int main() {
 		Events::pullEvents();
 	}
 	std::cout << "-- saving world" << std::endl;
-
-	world->wfile->writePlayer(player);
 	write_world(world, level);
 	delete world;
 
 	std::cout << "-- shutting down" << std::endl;
-
 	delete assets;
 	finalize_renderer();
 	Audio::finalize();

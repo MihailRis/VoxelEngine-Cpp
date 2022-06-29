@@ -46,6 +46,7 @@ int uiscale = 2;
 LineBatch *lineBatch;
 Batch2D *batch;
 Camera *uicamera;
+VoxelRenderer *renderer;
 
 void init_renderer(){
 	crosshair = new Mesh(vertices, 4, attrs);
@@ -55,6 +56,8 @@ void init_renderer(){
 	uicamera = new Camera(glm::vec3(), Window::height / uiscale);
 	uicamera->perspective = false;
 	uicamera->flipped = true;
+
+	renderer = new VoxelRenderer(1024*1024);
 }
 
 
@@ -62,6 +65,7 @@ void finalize_renderer(){
 	delete crosshair;
 	delete lineBatch;
 	delete batch;
+	delete renderer;
 }
 
 void draw_chunk(size_t index, Camera* camera, Shader* shader, bool occlusion){
