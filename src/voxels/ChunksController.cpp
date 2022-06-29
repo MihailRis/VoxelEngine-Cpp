@@ -149,6 +149,8 @@ bool ChunksController::_buildMeshes(VoxelRenderer* renderer, int tick) {
 				if (chunk->renderData.vertices > (void*)1){
 					const int chunk_attrs[] = {3,2,4, 0};
 					Mesh* mesh = new Mesh(chunk->renderData.vertices, chunk->renderData.size / CHUNK_VERTEX_SIZE, chunk_attrs);
+					if (chunks->meshes[index])
+						delete chunks->meshes[index];
 					chunks->meshes[index] = mesh;
 					delete[] chunk->renderData.vertices;
 					chunk->renderData.vertices = nullptr;
@@ -209,8 +211,6 @@ bool ChunksController::_buildMeshes(VoxelRenderer* renderer, int tick) {
 	Mesh* mesh = chunks->meshes[index];
 	if (mesh == nullptr || chunk->modified){
 		Chunk* closes[27];
-		if (mesh != nullptr)
-			delete mesh;
 		if (chunk->isEmpty()){
 			chunks->meshes[index] = nullptr;
 			return false;
