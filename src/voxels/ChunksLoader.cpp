@@ -3,6 +3,7 @@
 
 #include "Chunk.h"
 #include "Chunks.h"
+#include "../world/World.h"
 #include "WorldGenerator.h"
 #include "../lighting/Lighting.h"
 #include "../graphics/VoxelRenderer.h"
@@ -32,7 +33,7 @@ void ChunksLoader::_thread(){
 		if (state == LOAD){
 			chunks.putChunk(chunk);
 			if (!chunk->loaded){
-				WorldGenerator::generate(chunk->voxels, chunk->x, chunk->y, chunk->z);
+				WorldGenerator::generate(chunk->voxels, chunk->x, chunk->y, chunk->z, world.load()->seed);
 			}
 
 			lighting.onChunkLoaded(chunk->x, chunk->y, chunk->z, true);

@@ -10,8 +10,9 @@ class World {
 public:
 	std::string name;
 	WorldFiles* wfile;
+	int seed;
 
-	World(std::string name, std::string directory);
+	World(std::string name, std::string directory, int seed);
 	~World();
 };
 

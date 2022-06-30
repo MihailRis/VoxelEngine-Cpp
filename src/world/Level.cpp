@@ -2,12 +2,12 @@
 #include "../lighting/Lighting.h"
 #include "../voxels/ChunksController.h"
 
-Level::Level(Player* player, Chunks* chunks, PhysicsSolver* physics) :
+Level::Level(World* world, Player* player, Chunks* chunks, PhysicsSolver* physics) :
 	player(player),
 	chunks(chunks),
 	physics(physics) {
 	lighting = new Lighting(chunks);
-	chunksController = new ChunksController(chunks, lighting);
+	chunksController = new ChunksController(world, chunks, lighting);
 }
 
 Level::~Level(){

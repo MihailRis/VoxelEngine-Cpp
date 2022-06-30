@@ -92,7 +92,7 @@ void update_level(World* world, Level* level, vec3 position, float delta, long f
 }
 
 Level* load_level(World* world, Player* player) {
-	Level* level = new Level(player, new Chunks(34,1,34, 0,0,0), new PhysicsSolver(vec3(0, -gravity, 0)));
+	Level* level = new Level(world, player, new Chunks(32,1,32, 0,0,0), new PhysicsSolver(vec3(0, -gravity, 0)));
 	world->wfile->readPlayer(player);
 
 	Camera* camera = player->camera;
@@ -129,7 +129,7 @@ int main() {
 	std::cout << "-- loading world" << std::endl;
 	vec3 playerPosition = vec3(-320,200,32);
 	Camera* camera = new Camera(playerPosition, radians(90.0f));
-	World* world = new World("world-1", "world/");
+	World* world = new World("world-1", "world/", 42);
 	Player* player = new Player(playerPosition, 4.0f, camera);
 	Level* level = load_level(world, player);
 
@@ -142,7 +142,7 @@ int main() {
 	bool occlusion = false;
 	bool devdata = false;
 
-	Window::swapInterval(0);
+	Window::swapInterval(1);
 
 	std::cout << "-- initializing finished" << std::endl;
 	while (!Window::isShouldClose()){

@@ -85,9 +85,10 @@ int generate_tree(fnl_state *noise, PseudoRandom* random, const float* heights, 
 	return 0;
 }
 
-void WorldGenerator::generate(voxel* voxels, int cx, int cy, int cz){
+void WorldGenerator::generate(voxel* voxels, int cx, int cy, int cz, int seed){
 	fnl_state noise = fnlCreateState();
 	noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
+	noise.seed = seed * 60617077 % 25896307;
 
 	PseudoRandom random;
 

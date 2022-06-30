@@ -1,6 +1,7 @@
 #ifndef WORLD_LEVEL_H_
 #define WORLD_LEVEL_H_
 
+class World;
 class Player;
 class Chunks;
 class Lighting;
@@ -14,7 +15,7 @@ public:
 	PhysicsSolver* physics;
 	Lighting* lighting;
 	ChunksController* chunksController;
-	Level(Player* player, Chunks* chunks, PhysicsSolver* physics);
+	Level(World* world, Player* player, Chunks* chunks, PhysicsSolver* physics);
 	~Level();
 };
 

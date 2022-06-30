@@ -1,6 +1,7 @@
 #ifndef VOXELS_CHUNKSCONTROLLER_H_
 #define VOXELS_CHUNKSCONTROLLER_H_
 
+class World;
 class Chunks;
 class Lighting;
 class WorldFiles;
@@ -14,7 +15,7 @@ private:
 	ChunksLoader** loaders;
 	int loadersCount;
 public:
-	ChunksController(Chunks* chunks, Lighting* lighting);
+	ChunksController(World* world, Chunks* chunks, Lighting* lighting);
 	~ChunksController();
 
 	int countFreeLoaders();

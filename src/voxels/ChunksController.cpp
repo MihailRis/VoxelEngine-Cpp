@@ -8,6 +8,7 @@
 #include "../files/WorldFiles.h"
 #include "ChunksLoader.h"
 #include <iostream>
+#include <limits.h>
 
 #ifdef _WIN32
 #define _WIN32_WINNT 0x0501
@@ -19,13 +20,13 @@
 #define MIN_SURROUNDING 9
 
 
-ChunksController::ChunksController(Chunks* chunks, Lighting* lighting) : chunks(chunks), lighting(lighting){
+ChunksController::ChunksController(World* world, Chunks* chunks, Lighting* lighting) : chunks(chunks), lighting(lighting){
 	loadersCount = std::thread::hardware_concurrency() * 2 - 1;
 	if (loadersCount <= 0)
 		loadersCount = 1;
 	loaders = new ChunksLoader*[loadersCount];
 	for (int i = 0; i < loadersCount; i++){
-		loaders[i] = new ChunksLoader();
+		loaders[i] = new ChunksLoader(world);
 	}
 	std::cout << "created " << loadersCount << " loaders" << std::endl;
 }
@@ -173,7 +174,7 @@ bool ChunksController::_buildMeshes(VoxelRenderer* renderer, int tick) {
 	int nearX = 0;
 	int nearY = 0;
 	int nearZ = 0;
-	int minDistance = 1000000000;
+	int minDistance = INT_MAX;
 	for (int y = 0; y < h; y++){
 		for (int z = 1; z < d-1; z++){
 			for (int x = 1; x < w-1; x++){
