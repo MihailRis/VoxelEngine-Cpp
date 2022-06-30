@@ -23,8 +23,8 @@ private:
 	void _thread();
 	std::atomic<Chunk*> current {nullptr};
 	std::atomic<Chunk**> closes {nullptr};
-	std::atomic<World*> world {nullptr};
 	std::atomic<LoaderMode> state {IDLE};
+	World* world;
 
 	void perform(Chunk* chunk, Chunk** closes_passed, LoaderMode mode);
 public:

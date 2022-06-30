@@ -33,7 +33,7 @@ void ChunksLoader::_thread(){
 		if (state == LOAD){
 			chunks.putChunk(chunk);
 			if (!chunk->loaded){
-				WorldGenerator::generate(chunk->voxels, chunk->x, chunk->y, chunk->z, world.load()->seed);
+				WorldGenerator::generate(chunk->voxels, chunk->x, chunk->y, chunk->z, world->seed);
 			}
 
 			lighting.onChunkLoaded(chunk->x, chunk->y, chunk->z, true);

@@ -92,7 +92,7 @@ void update_level(World* world, Level* level, vec3 position, float delta, long f
 }
 
 Level* load_level(World* world, Player* player) {
-	Level* level = new Level(world, player, new Chunks(32,1,32, 0,0,0), new PhysicsSolver(vec3(0, -gravity, 0)));
+	Level* level = new Level(world, player, new Chunks(34,1,34, 0,0,0), new PhysicsSolver(vec3(0, -gravity, 0)));
 	world->wfile->readPlayer(player);
 
 	Camera* camera = player->camera;
