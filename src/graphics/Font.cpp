@@ -2,11 +2,12 @@
 #include "Texture.h"
 #include "Batch2D.h"
 
-Font::Font(Texture* texture) : texture(texture) {
+Font::Font(std::vector<Texture*> pages) : pages(pages) {
 }
 
 Font::~Font(){
-	delete texture;
+	for (Texture* texture : pages)
+		delete texture;
 }
 
 int Font::getGlyphWidth(char c) {
@@ -26,7 +27,7 @@ int Font::getGlyphWidth(char c) {
 }
 
 
-bool Font::isPrintableChar(char c) {
+bool Font::isPrintableChar(int c) {
 	switch (c){
 	case ' ':
 	case '\t':
@@ -39,20 +40,33 @@ bool Font::isPrintableChar(char c) {
 	}
 }
 
+#define RES 16
 
-void Font::draw(Batch2D* batch, std::string text, int x, int y) {
-	for (char c : text){
-		if (isPrintableChar(c))
-			batch->sprite(x, y, 8, 8, 16, c, vec4(1.0f));
+void Font::draw(Batch2D* batch, std::wstring text, int x, int y) {
+	for (unsigned c : text){
+		if (isPrintableChar(c)){
+			batch->texture(pages[c >> 8]);
+			batch->sprite(x, y, RES, RES, 16, c, vec4(1.0f));
+		}
 		x += getGlyphWidth(c);
 	}
 }
 
-void Font::drawWithShadow(Batch2D* batch, std::string text, int x, int y) {
-	for (char c : text){
+void Font::drawWithShadow(Batch2D* batch, std::wstring text, int x, int y) {
+	for (unsigned c : text){
 		if (isPrintableChar(c)){
-			batch->sprite(x+1, y+1, 8, 8, 16, c, vec4(0.0f, 0.0f, 0.0f, 1.0f));
-			batch->sprite(x, y, 8, 8, 16, c, vec4(1.0f));
+			batch->texture(pages[c >> 8]);
+			batch->sprite(x+1, y+1, RES, RES, 16, c, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+			batch->sprite(x+1, y-1, RES, RES, 16, c, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+			batch->sprite(x-1, y, RES, RES, 16, c, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+			batch->sprite(x+1, y, RES, RES, 16, c, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+			batch->sprite(x-1, y-1, RES, RES, 16, c, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+			batch->sprite(x+1, y-1, RES, RES, 16, c, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+			batch->sprite(x+1, y+1, RES, RES, 16, c, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+			batch->sprite(x-1, y+1, RES, RES, 16, c, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+			batch->sprite(x, y, RES, RES, 16, c, vec4(1.0f));
 		}
 		x += getGlyphWidth(c);
 	}

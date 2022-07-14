@@ -41,7 +41,7 @@ int attrs[] = {
 		2,  0 //null terminator
 };
 
-int uiscale = 2;
+int uiscale = 1;
 
 LineBatch *lineBatch;
 Batch2D *batch;
@@ -127,14 +127,13 @@ void draw_hud(World* world, Level* level, Assets* assets, bool devdata, int fps)
 	// draw debug info
 	Font* font = assets->getFont("normal");
 	batch->begin();
-	batch->texture(font->texture);
 	if (devdata){
-		font->drawWithShadow(batch, "chunks: "+std::to_string(chunks->chunksCount), 16, 16);
-		font->drawWithShadow(batch, std::to_string((int)player->camera->position.x), 10, 30);
-		font->drawWithShadow(batch, std::to_string((int)player->camera->position.y), 50, 30);
-		font->drawWithShadow(batch, std::to_string((int)player->camera->position.z), 90, 30);
-		font->drawWithShadow(batch, "fps:", 16, 42);
-		font->drawWithShadow(batch, std::to_string(fps), 40, 42);
+		font->drawWithShadow(batch, L"рандом chunks: "+std::to_wstring(chunks->chunksCount), 16, 16);
+		font->drawWithShadow(batch, std::to_wstring((int)player->camera->position.x), 10, 30);
+		font->drawWithShadow(batch, std::to_wstring((int)player->camera->position.y), 50, 30);
+		font->drawWithShadow(batch, std::to_wstring((int)player->camera->position.z), 90, 30);
+		font->drawWithShadow(batch, L"fps:", 16, 42);
+		font->drawWithShadow(batch, std::to_wstring(fps), 40, 42);
 	}
 	batch->render();
 
@@ -143,8 +142,8 @@ void draw_hud(World* world, Level* level, Assets* assets, bool devdata, int fps)
 	batch->texture(blocks);
 
 	int texid = Block::blocks[player->choosenBlock]->textureFaces[3]; // face-3 is top face of block
-	batch->sprite(14, 278, 68, 68, 16, texid, vec4(0.0f, 0.0f, 0.0f, 1.0f));
-	batch->sprite(16, 280, 64, 64, 16, texid, vec4(1.0f));
+	batch->sprite(14, Window::height-82, 68, 68, 16, texid, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	batch->sprite(16, Window::height-80, 64, 64, 16, texid, vec4(1.0f));
 	batch->render();
 }
 

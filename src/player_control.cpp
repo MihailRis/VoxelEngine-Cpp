@@ -6,6 +6,7 @@
 #include "physics/Hitbox.h"
 #include "lighting/Lighting.h"
 #include "world/Level.h"
+#include "voxels/Block.h"
 #include "voxels/voxel.h"
 #include "voxels/Chunks.h"
 #include "window/Camera.h"
@@ -175,7 +176,7 @@ void update_interaction(Level* level, LineBatch* lineBatch){
 	if (vox != nullptr){
 		lineBatch->box(iend.x+0.5f, iend.y+0.5f, iend.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
 
-		if (Events::jclicked(GLFW_MOUSE_BUTTON_1)){
+		if (Events::jclicked(GLFW_MOUSE_BUTTON_1) && Block::blocks[vox->id]->breakable){
 			int x = (int)iend.x;
 			int y = (int)iend.y;
 			int z = (int)iend.z;

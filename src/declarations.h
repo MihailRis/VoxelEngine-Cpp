@@ -34,12 +34,16 @@ bool _load_texture(Assets* assets, std::string filename, std::string name){
 }
 
 bool _load_font(Assets* assets, std::string filename, std::string name){
-	Texture* texture = load_texture(filename);
-	if (texture == nullptr){
-		std::cerr << "failed to load bitmap font '" << name << "'" << std::endl;
-		return false;
+	std::vector<Texture*> pages;
+	for (size_t i = 0; i <= 4; i++){
+		Texture* texture = load_texture(filename+"_"+std::to_string(i)+".png");
+		if (texture == nullptr){
+			std::cerr << "failed to load bitmap font '" << name << "' (missing page " << std::to_string(i) << ")" << std::endl;
+			return false;
+		}
+		pages.push_back(texture);
 	}
-	Font* font = new Font(texture);
+	Font* font = new Font(pages);
 	assets->store(font, name);
 	return true;
 }
@@ -62,13 +66,15 @@ int initialize_assets(Assets* assets) {
 
 	LOAD_TEXTURE("res/block.png", "block");
 
-	LOAD_FONT("res/font.png", "normal");
+	LOAD_FONT("res/font", "normal");
 	return 0;
 }
 
 
 // All in-game definitions (blocks, items, etc..)
 void setup_definitions() {
+	for (size_t i = 0; i < 256; i++)
+		Block::blocks[i] = nullptr;
 	// AIR 0
 	Block* block = new Block(0,0);
 	block->drawGroup = 1;
@@ -128,13 +134,13 @@ void setup_definitions() {
 	block->selectable = false;
 	Block::blocks[block->id] = block;
 
-	// SEND 10
+	// SAND 10
 	block = new Block(10,12);
 	Block::blocks[block->id] = block;
 
 	// BEDROCK 11
 	block = new Block(11,13);
-	block->selectable = false;
+	block->breakable = false;
 	Block::blocks[block->id] = block;
 }
 #endif // DECLARATIONS_H

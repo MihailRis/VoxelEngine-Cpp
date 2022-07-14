@@ -104,7 +104,7 @@ Level* load_level(World* world, Player* player) {
 
 int initialize(Assets*& assets){
 	Audio::initialize();
-	Window::initialize(WIDTH, HEIGHT, "Window 2.0");
+	Window::initialize(WIDTH, HEIGHT, "VoxelEngine-Cpp v.12");
 	Events::initialize();
 
 	assets = new Assets();
@@ -127,7 +127,7 @@ int main() {
 	if (status) return status;
 
 	std::cout << "-- loading world" << std::endl;
-	vec3 playerPosition = vec3(-320,200,32);
+	vec3 playerPosition = vec3(0,150,-10);
 	Camera* camera = new Camera(playerPosition, radians(90.0f));
 	World* world = new World("world-1", "world/", 42);
 	Player* player = new Player(playerPosition, 4.0f, camera);

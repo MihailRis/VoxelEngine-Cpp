@@ -4,6 +4,8 @@
 
 #include <GL/glew.h>
 
+#define VERTEX_SIZE 8
+
 Batch2D::Batch2D(size_t capacity) : capacity(capacity),
 									offset(0),
 									color(1.0f, 1.0f, 1.0f, 1.0f){
@@ -11,7 +13,7 @@ Batch2D::Batch2D(size_t capacity) : capacity(capacity),
 			2, 2, 4, 0 //null terminator
 	};
 
-	buffer = new float[capacity * 8];
+	buffer = new float[capacity * VERTEX_SIZE];
 	mesh = new Mesh(buffer, 0, attrs);
 	index = 0;
 
@@ -49,6 +51,7 @@ void Batch2D::vertex(float x, float y,
 void Batch2D::texture(Texture* new_texture){
 	if (_texture == new_texture)
 		return;
+	render();
 	_texture = new_texture;
 	if (new_texture == nullptr)
 		blank->bind();
@@ -61,6 +64,8 @@ void Batch2D::rect(float x, float y, float w, float h){
 	const float g = color.g;
 	const float b = color.b;
 	const float a = color.a;
+	if (index + 6*VERTEX_SIZE >= capacity)
+		render();
 
 	vertex(x, y, 0, 0, r,g,b,a);
 	vertex(x+w, y+h, 1, 1, r,g,b,a);
@@ -81,6 +86,8 @@ void Batch2D::sprite(float x, float y, float w, float h, int atlasRes, int index
 void Batch2D::rect(float x, float y, float w, float h,
 					float u, float v, float tx, float ty,
 					float r, float g, float b, float a){
+	if (index + 6*VERTEX_SIZE >= capacity)
+		render();
 	vertex(x, y, u, v+ty, r,g,b,a);
 	vertex(x+w, y+h, u+tx, v, r,g,b,a);
 	vertex(x, y+h, u, v, r,g,b,a);
@@ -91,7 +98,7 @@ void Batch2D::rect(float x, float y, float w, float h,
 }
 
 void Batch2D::render() {
-	mesh->reload(buffer, index / 8);
+	mesh->reload(buffer, index / VERTEX_SIZE);
 	mesh->draw(GL_TRIANGLES);
 	index = 0;
 }

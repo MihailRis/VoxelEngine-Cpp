@@ -28,12 +28,16 @@ public:
 };
 
 float calc_height(fnl_state *noise, int real_x, int real_z){
-	const float s = 0.2f;
+	const float s = 0.18f;
 	float height = fnlGetNoise3D(noise, real_x*0.0125f*s*32,real_z*0.0125f*s*32, 0.0f);
 	height += fnlGetNoise3D(noise, real_x*0.025f*s*32,real_z*0.025f*s*32, 0.0f)*0.5f;
 	height += fnlGetNoise3D(noise, real_x*0.05f*s*32,real_z*0.05f*s*32, 0.0f)*0.25f;
 	height += fnlGetNoise3D(noise, real_x*0.1f*s*32,real_z*0.1f*s*32, 0.0f)*0.225f;
 	height += fnlGetNoise3D(noise, real_x*0.2f*s*32,real_z*0.2f*s*32, 0.0f)*0.125f;
+	height += fnlGetNoise3D(noise,
+			real_x*0.2f*s*32 + fnlGetNoise3D(noise, real_x*0.1f*s*32,real_z*0.1f*s*32, 0.0f)*50,
+			real_z*0.2f*s*32 + fnlGetNoise3D(noise, real_x*0.1f*s*32+4363,real_z*0.1f*s*32, 0.0f)*50,
+			0.0f)*0.1f;
 	height += fnlGetNoise3D(noise, real_x*0.4f*s*32,real_z*0.4f*s*32, 0.0f)*0.0625f;
 	// height += fnlGetNoise3D(noise, real_x*s*32,real_z*s*32, 0.0f)*0.03f;
 	height = height * 0.5f + 0.5f;
@@ -44,13 +48,17 @@ float calc_height(fnl_state *noise, int real_x, int real_z){
 }
 
 float calc_height_faster(fnl_state *noise, int real_x, int real_z){
-	const float s = 0.2f;
+	const float s = 0.18f;
 	float height = fnlGetNoise3D(noise, real_x*0.0125f*s*32,real_z*0.0125f*s*32, 0.0f);
 	height += fnlGetNoise3D(noise, real_x*0.025f*s*32,real_z*0.025f*s*32, 0.0f)*0.5f;
 	height += fnlGetNoise3D(noise, real_x*0.05f*s*32,real_z*0.05f*s*32, 0.0f)*0.25f;
 	height += fnlGetNoise3D(noise, real_x*0.1f*s*32,real_z*0.1f*s*32, 0.0f)*0.225f;
 	height += fnlGetNoise3D(noise, real_x*0.2f*s*32,real_z*0.2f*s*32, 0.0f)*0.125f;
-	//height += fnlGetNoise3D(noise, real_x*0.4f*s*32,real_z*0.4f*s*32, 0.0f)*0.125f*0.5F;
+	height += fnlGetNoise3D(noise,
+			real_x*0.2f*s*32 + fnlGetNoise3D(noise, real_x*0.1f*s*32,real_z*0.1f*s*32, 0.0f)*50,
+			real_z*0.2f*s*32 + fnlGetNoise3D(noise, real_x*0.1f*s*32+4363,real_z*0.1f*s*32, 0.0f)*50,
+			0.0f)*0.1f;
+	//  height += fnlGetNoise3D(noise, real_x*0.4f*s*32,real_z*0.4f*s*32, 0.0f)*0.125f*0.5F;
 	height = height * 0.5f + 0.5f;
 	height *= height;
 	height *= (140.0f)*0.12f/s;

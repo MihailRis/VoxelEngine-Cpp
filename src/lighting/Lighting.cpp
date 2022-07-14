@@ -6,6 +6,8 @@
 #include "../voxels/voxel.h"
 #include "../voxels/Block.h"
 
+#include <iostream>
+
 Lighting::Lighting(Chunks* chunks){
 	this->chunks = chunks;
 	solverR = new LightSolver(chunks, 0);

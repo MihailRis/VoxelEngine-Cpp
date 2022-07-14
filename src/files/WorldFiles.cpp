@@ -210,7 +210,7 @@ bool WorldFiles::readPlayer(Player* player) {
 	size_t length = 0;
 	char* data = read_binary_file(getPlayerFile(), length);
 	if (data == nullptr){
-		std::cerr << "could not to read player.bin" << std::endl;
+		std::cerr << "could not to read player.bin (ignored)" << std::endl;
 		return false;
 	}
 	glm::vec3 position = player->hitbox->position;

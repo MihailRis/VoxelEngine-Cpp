@@ -14,6 +14,7 @@ public:
 	bool skyLightPassing = false;
 	bool obstacle = true;
 	bool selectable = true;
+	bool breakable = true;
 
 	Block(unsigned int id, int texture);
 };

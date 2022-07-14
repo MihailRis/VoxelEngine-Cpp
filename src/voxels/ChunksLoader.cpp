@@ -3,6 +3,8 @@
 
 #include "Chunk.h"
 #include "Chunks.h"
+#include "Block.h"
+#include "voxel.h"
 #include "../world/World.h"
 #include "WorldGenerator.h"
 #include "../lighting/Lighting.h"
@@ -36,6 +38,12 @@ void ChunksLoader::_thread(){
 				WorldGenerator::generate(chunk->voxels, chunk->x, chunk->y, chunk->z, world->seed);
 			}
 
+			for (size_t i = 0; i < CHUNK_VOL; i++){
+				if (Block::blocks[chunk->voxels[i].id] == nullptr){
+					std::cout << "corruped block detected at " << i << " of chunk " << chunk->x << "x" << chunk->z << std::endl;
+					chunk->voxels[i].id = 11;
+				}
+			}
 			lighting.onChunkLoaded(chunk->x, chunk->y, chunk->z, true);
 		}
 		else if (state == RENDER){
