@@ -55,7 +55,11 @@ void Font::draw(Batch2D* batch, std::wstring text, int x, int y) {
 void Font::drawWithShadow(Batch2D* batch, std::wstring text, int x, int y) {
 	for (unsigned c : text){
 		if (isPrintableChar(c)){
-			batch->texture(pages[c >> 8]);
+		    Texture* texture = pages[c >> 8];
+		    if (texture == nullptr){
+		        texture = pages[0];
+		    }
+			batch->texture(texture);
 			batch->sprite(x+1, y+1, RES, RES, 16, c, vec4(0.0f, 0.0f, 0.0f, 1.0f));
 			batch->sprite(x+1, y-1, RES, RES, 16, c, vec4(0.0f, 0.0f, 0.0f, 1.0f));
 			batch->sprite(x-1, y, RES, RES, 16, c, vec4(0.0f, 0.0f, 0.0f, 1.0f));
