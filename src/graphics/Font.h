@@ -16,7 +16,7 @@ public:
 	int getGlyphWidth(char c);
 	bool isPrintableChar(int c);
 	void draw(Batch2D* batch, std::wstring text, int x, int y);
-	void drawWithShadow(Batch2D* batch, std::wstring text, int x, int y);
+	void drawWithOutline(Batch2D* batch, std::wstring text, int x, int y);
 };
 
 #endif /* GRAPHICS_FONT_H_ */

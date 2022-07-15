@@ -128,12 +128,12 @@ void draw_hud(World* world, Level* level, Assets* assets, bool devdata, int fps)
 	Font* font = assets->getFont("normal");
 	batch->begin();
 	if (devdata){
-		font->drawWithShadow(batch, L"рандом chunks: "+std::to_wstring(chunks->chunksCount), 16, 16);
-		font->drawWithShadow(batch, std::to_wstring((int)player->camera->position.x), 10, 30);
-		font->drawWithShadow(batch, std::to_wstring((int)player->camera->position.y), 50, 30);
-		font->drawWithShadow(batch, std::to_wstring((int)player->camera->position.z), 90, 30);
-		font->drawWithShadow(batch, L"fps:", 16, 42);
-		font->drawWithShadow(batch, std::to_wstring(fps), 40, 42);
+		font->drawWithOutline(batch, L"chunks: "+std::to_wstring(chunks->chunksCount), 16, 16);
+		font->drawWithOutline(batch, std::to_wstring((int)player->camera->position.x), 10, 30);
+		font->drawWithOutline(batch, std::to_wstring((int)player->camera->position.y), 50, 30);
+		font->drawWithOutline(batch, std::to_wstring((int)player->camera->position.z), 90, 30);
+		font->drawWithOutline(batch, L"fps:", 16, 42);
+		font->drawWithOutline(batch, std::to_wstring(fps), 40, 42);
 	}
 	batch->render();
 
