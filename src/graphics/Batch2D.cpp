@@ -6,9 +6,7 @@
 
 #define VERTEX_SIZE 8
 
-Batch2D::Batch2D(size_t capacity) : capacity(capacity),
-									offset(0),
-									color(1.0f, 1.0f, 1.0f, 1.0f){
+Batch2D::Batch2D(size_t capacity) : capacity(capacity), offset(0), color(1.0f, 1.0f, 1.0f, 1.0f){
 	const int attrs[] = {
 			2, 2, 4, 0 //null terminator
 	};
@@ -26,7 +24,7 @@ Batch2D::Batch2D(size_t capacity) : capacity(capacity),
 
 Batch2D::~Batch2D(){
 	delete blank;
-	delete buffer;
+	delete[] buffer;
 	delete mesh;
 }
 
