@@ -17,17 +17,6 @@ public:
 	}
 
 	int rand(){
-		// seed = ((unsigned short)8253729 xor seed + (unsigned short)2396403 xor (unsigned short)time(0)) * (seed xor (unsigned short)2124678);
-	    // unsigned short a = seed xor 0xf1ad;
-		// unsigned short b = seed * 0x7fb7;
-		// unsigned short c = a * 0xa77c;
-		// unsigned short d = b xor c;
-		// unsigned short e = d * seed % 0x6a;
-		// unsigned short f = c < seed % 0x10;
-		
-		// seed = (f % e) - a;
-		// seed = ((a + d) * b - c) * e + f;
-		
 		seed = (seed + 0x7ed5 + (seed << 6));
 		seed = (seed ^ 0xc23c ^ (seed >> 9));
 		seed = (seed + 0x1656 + (seed << 3));
@@ -45,7 +34,6 @@ public:
 };
 
 float calc_height(fnl_state *noise, int real_x, int real_z){
-	// const float s = 0.18f;
 	float height = fnlGetNoise3D(noise, real_x*0.0125f*8,real_z*0.0125f*8, 0.0f);
 	height += fnlGetNoise3D(noise, real_x*0.025f*8,real_z*0.025f*8, 0.0f)*0.5f;
 	height += fnlGetNoise3D(noise, real_x*0.05f*8,real_z*0.05f*8, 0.0f)*0.25f;
@@ -63,7 +51,6 @@ float calc_height(fnl_state *noise, int real_x, int real_z){
 }
 
 float calc_height_faster(fnl_state *noise, int real_x, int real_z){
-	// const float s = 0.18f;
 	float height = fnlGetNoise3D(noise, real_x*0.0125f*8,real_z*0.0125f*8, 0.0f);
 	height += fnlGetNoise3D(noise, real_x*0.025f*8,real_z*0.025f*8, 0.0f)*0.5f;
 	height += fnlGetNoise3D(noise, real_x*0.05f*8,real_z*0.05f*8, 0.0f)*0.25f;
@@ -72,7 +59,6 @@ float calc_height_faster(fnl_state *noise, int real_x, int real_z){
 			real_z*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8+4363,real_z*0.1f*8, 0.0f)*50,
 			0.0f)*0.1f;
 	height += fnlGetNoise3D(noise, real_x*0.1f*8,real_z*0.1f*8, 0.0f)*0.125f;
-	//  height += fnlGetNoise3D(noise, real_x*0.4f*8,real_z*0.4f*8, 0.0f)*0.125f*0.5F;
 	height *= fnlGetNoise3D(noise, real_x*0.0125f*8+1000,real_z*0.0125f*8+1000, 0.0f)/2+0.5f;
 	height += 1.0f;
 	height *= 64.0f;
