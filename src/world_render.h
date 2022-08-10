@@ -139,11 +139,14 @@ void draw_hud(World* world, Level* level, Assets* assets, bool devdata, int fps)
 
 	// choosen block preview
 	Texture* blocks = assets->getTexture("block");
-	batch->texture(blocks);
+	Texture* sprite = assets->getTexture("sprite");
+	
+	batch->texture(sprite);
+	batch->sprite(16, 640, 64, 64, 16, 0, vec4(1.0f));
 
+	batch->texture(blocks);
 	int texid = Block::blocks[player->choosenBlock]->textureFaces[3]; // face-3 is top face of block
-	batch->sprite(14, Window::height-82, 68, 68, 16, texid, vec4(0.0f, 0.0f, 0.0f, 1.0f));
-	batch->sprite(16, Window::height-80, 64, 64, 16, texid, vec4(1.0f));
+	batch->sprite(24, 648, 48, 48, 16, texid, vec4(1.0f));
 	batch->render();
 }
 

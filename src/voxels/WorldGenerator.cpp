@@ -10,59 +10,72 @@
 #include <time.h>
 
 class PseudoRandom {
-	unsigned seed;
+	unsigned short seed;
 public:
 	PseudoRandom(){
-		seed = (unsigned)time(0);
+		seed = (unsigned short)time(0);
 	}
 
 	int rand(){
-		seed = (8253729 * seed + 2396403);
-	    return seed % 32768;
+		// seed = ((unsigned short)8253729 xor seed + (unsigned short)2396403 xor (unsigned short)time(0)) * (seed xor (unsigned short)2124678);
+	    // unsigned short a = seed xor 0xf1ad;
+		// unsigned short b = seed * 0x7fb7;
+		// unsigned short c = a * 0xa77c;
+		// unsigned short d = b xor c;
+		// unsigned short e = d * seed % 0x6a;
+		// unsigned short f = c < seed % 0x10;
+		
+		// seed = (f % e) - a;
+		// seed = ((a + d) * b - c) * e + f;
+		
+		seed = (seed + 0x7ed5 + (seed << 6));
+		seed = (seed ^ 0xc23c ^ (seed >> 9));
+		seed = (seed + 0x1656 + (seed << 3));
+		seed = ((seed + 0xa264) ^ (seed << 4));
+		seed = (seed + 0xfd70 - (seed << 3));
+		seed = (seed ^ 0xba49 ^ (seed >> 8));
+
+		return (int)seed;
 	}
 
 	void setSeed(int number){
-		seed = (unsigned)number+8253729;
+		seed = (unsigned short)number+23729 xor (unsigned short)number+16786;
 		rand();
 	}
 };
 
 float calc_height(fnl_state *noise, int real_x, int real_z){
-	const float s = 0.18f;
-	float height = fnlGetNoise3D(noise, real_x*0.0125f*s*32,real_z*0.0125f*s*32, 0.0f);
-	height += fnlGetNoise3D(noise, real_x*0.025f*s*32,real_z*0.025f*s*32, 0.0f)*0.5f;
-	height += fnlGetNoise3D(noise, real_x*0.05f*s*32,real_z*0.05f*s*32, 0.0f)*0.25f;
-	height += fnlGetNoise3D(noise, real_x*0.1f*s*32,real_z*0.1f*s*32, 0.0f)*0.225f;
-	height += fnlGetNoise3D(noise, real_x*0.2f*s*32,real_z*0.2f*s*32, 0.0f)*0.125f;
+	// const float s = 0.18f;
+	float height = fnlGetNoise3D(noise, real_x*0.0125f*8,real_z*0.0125f*8, 0.0f);
+	height += fnlGetNoise3D(noise, real_x*0.025f*8,real_z*0.025f*8, 0.0f)*0.5f;
+	height += fnlGetNoise3D(noise, real_x*0.05f*8,real_z*0.05f*8, 0.0f)*0.25f;
 	height += fnlGetNoise3D(noise,
-			real_x*0.2f*s*32 + fnlGetNoise3D(noise, real_x*0.1f*s*32,real_z*0.1f*s*32, 0.0f)*50,
-			real_z*0.2f*s*32 + fnlGetNoise3D(noise, real_x*0.1f*s*32+4363,real_z*0.1f*s*32, 0.0f)*50,
+			real_x*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8,real_z*0.1f*8, 0.0f)*50,
+			real_z*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8+4363,real_z*0.1f*8, 0.0f)*50,
 			0.0f)*0.1f;
-	height += fnlGetNoise3D(noise, real_x*0.4f*s*32,real_z*0.4f*s*32, 0.0f)*0.0625f;
-	// height += fnlGetNoise3D(noise, real_x*s*32,real_z*s*32, 0.0f)*0.03f;
-	height = height * 0.5f + 0.5f;
-	height *= height;
-	height *= (140.0f)*0.12f/s;
-	height += (42)*0.12f/s;
+	height += fnlGetNoise3D(noise, real_x*0.1f*8,real_z*0.1f*8, 0.0f)*0.125f;
+	height += fnlGetNoise3D(noise, real_x*0.4f*8,real_z*0.4f*8, 0.0f)*0.0625f;
+	height += fnlGetNoise3D(noise, real_x*8,real_z*8, 0.0f)*0.03f*(fnlGetNoise3D(noise, -real_x*0.0125f*8-1000,real_z*0.0125f*8+2000, 0.0f)/2+0.5f);
+	height *= fnlGetNoise3D(noise, real_x*0.0125f*8+1000,real_z*0.0125f*8+1000, 0.0f)/2+0.5f;
+	height += 1.0f;
+	height *= 64.0f;
 	return height;
 }
 
 float calc_height_faster(fnl_state *noise, int real_x, int real_z){
-	const float s = 0.18f;
-	float height = fnlGetNoise3D(noise, real_x*0.0125f*s*32,real_z*0.0125f*s*32, 0.0f);
-	height += fnlGetNoise3D(noise, real_x*0.025f*s*32,real_z*0.025f*s*32, 0.0f)*0.5f;
-	height += fnlGetNoise3D(noise, real_x*0.05f*s*32,real_z*0.05f*s*32, 0.0f)*0.25f;
-	height += fnlGetNoise3D(noise, real_x*0.1f*s*32,real_z*0.1f*s*32, 0.0f)*0.225f;
-	height += fnlGetNoise3D(noise, real_x*0.2f*s*32,real_z*0.2f*s*32, 0.0f)*0.125f;
+	// const float s = 0.18f;
+	float height = fnlGetNoise3D(noise, real_x*0.0125f*8,real_z*0.0125f*8, 0.0f);
+	height += fnlGetNoise3D(noise, real_x*0.025f*8,real_z*0.025f*8, 0.0f)*0.5f;
+	height += fnlGetNoise3D(noise, real_x*0.05f*8,real_z*0.05f*8, 0.0f)*0.25f;
 	height += fnlGetNoise3D(noise,
-			real_x*0.2f*s*32 + fnlGetNoise3D(noise, real_x*0.1f*s*32,real_z*0.1f*s*32, 0.0f)*50,
-			real_z*0.2f*s*32 + fnlGetNoise3D(noise, real_x*0.1f*s*32+4363,real_z*0.1f*s*32, 0.0f)*50,
+			real_x*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8,real_z*0.1f*8, 0.0f)*50,
+			real_z*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8+4363,real_z*0.1f*8, 0.0f)*50,
 			0.0f)*0.1f;
-	//  height += fnlGetNoise3D(noise, real_x*0.4f*s*32,real_z*0.4f*s*32, 0.0f)*0.125f*0.5F;
-	height = height * 0.5f + 0.5f;
-	height *= height;
-	height *= (140.0f)*0.12f/s;
-	height += (42)*0.12f/s;
+	height += fnlGetNoise3D(noise, real_x*0.1f*8,real_z*0.1f*8, 0.0f)*0.125f;
+	//  height += fnlGetNoise3D(noise, real_x*0.4f*8,real_z*0.4f*8, 0.0f)*0.125f*0.5F;
+	height *= fnlGetNoise3D(noise, real_x*0.0125f*8+1000,real_z*0.0125f*8+1000, 0.0f)/2+0.5f;
+	height += 1.0f;
+	height *= 64.0f;
 	return height;
 }
 #include <iostream>
@@ -98,9 +111,12 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cy, int cz, int seed){
 	noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
 	noise.seed = seed * 60617077 % 25896307;
 
-	PseudoRandom random;
+	PseudoRandom randomtree;
+	// PseudoRandom random;
 
 	float heights[CHUNK_VOL];
+
+	std::cout << calc_height(&noise, cx, cy) << "\n";
 
 	for (int z = 0; z < CHUNK_D; z++){
 		for (int x = 0; x < CHUNK_W; x++){
@@ -127,28 +143,26 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cy, int cz, int seed){
 				} else if (real_y < height){
 						id = 1;
 				} else {
-					int tree = generate_tree(&noise, &random, heights, real_x, real_y, real_z, 16);
+					int tree = generate_tree(&noise, &randomtree, heights, real_x, real_y, real_z, 16);
 					if (tree)
 						id = tree;
-					else if ((tree = generate_tree(&noise, &random, heights, real_x, real_y, real_z, 19))){
+					else if ((tree = generate_tree(&noise, &randomtree, heights, real_x, real_y, real_z, 19))){
 						id = tree;
-					}else if ((tree = generate_tree(&noise, &random, heights, real_x, real_y, real_z, 23))){
+					}else if ((tree = generate_tree(&noise, &randomtree, heights, real_x, real_y, real_z, 23))){
 						id = tree;
 					}
 				}
-				// if ((real_y < height) && (57 > height) && (height > 51) && ((int)height == real_y)){
-				// 		id = 10;
-				// }
-
-				// if ( ((height - (1 - 0.1 * pow(height - 55, 4))) < real_y) && (real_y < height)){
-				// 		id = 10;
-				// }
-				
 				if ( ((height - (1.5 - 0.2 * pow(height - 54, 4))) < real_y) && (real_y < height)){
 						id = 10;
 				}
 				if (real_y <= 2)
 					id = 11;
+				if ((real_y > 55) && ((int)height + 1 == real_y) && ((unsigned short)random() > 56000)){
+					id = 12;
+				}
+				if ((real_y > 55) && ((int)height + 1 == real_y) && ((unsigned short)random() > 64000)){
+					id = 13;
+				}
 				voxels[(y * CHUNK_D + z) * CHUNK_W + x].id = id;
 			}
 		}

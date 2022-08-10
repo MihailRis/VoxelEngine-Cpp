@@ -65,6 +65,7 @@ int initialize_assets(Assets* assets) {
 	LOAD_SHADER("res/ui.glslv", "res/ui.glslf", "ui");
 
 	LOAD_TEXTURE("res/block.png", "block");
+	LOAD_TEXTURE("res/sprite.png", "sprite");
 
 	LOAD_FONT("res/font", "normal");
 	return 0;
@@ -82,13 +83,14 @@ void setup_definitions() {
 	block->skyLightPassing = true;
 	block->obstacle = false;
 	block->selectable = false;
+	block->type = 0;
 	Block::blocks[block->id] = block;
 
 	// DIRT 1
 	block = new Block(1,2);
 	Block::blocks[block->id] = block;
 
-	// GRASS 2
+	// GRASS BLOCK2
 	block = new Block(2,4);
 	block->textureFaces[2] = 2;
 	block->textureFaces[3] = 1;
@@ -141,6 +143,22 @@ void setup_definitions() {
 	// BEDROCK 11
 	block = new Block(11,13);
 	block->breakable = false;
+	Block::blocks[block->id] = block;
+
+	// GRASS 12
+	block = new Block(12,14);
+	block->drawGroup = 5;
+	block->lightPassing = true;
+	block->obstacle = false;
+	block->type = 2;
+	Block::blocks[block->id] = block;
+
+	// FLOWER 13
+	block = new Block(13,16);
+	block->drawGroup = 5;
+	block->lightPassing = true;
+	block->obstacle = false;
+	block->type = 2;
 	Block::blocks[block->id] = block;
 }
 #endif // DECLARATIONS_H

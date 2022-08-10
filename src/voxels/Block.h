@@ -15,6 +15,7 @@ public:
 	bool obstacle = true;
 	bool selectable = true;
 	bool breakable = true;
+	unsigned char type = 1;
 
 	Block(unsigned int id, int texture);
 };

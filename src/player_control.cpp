@@ -27,6 +27,7 @@
 #define CAMERA_SHAKING_SPEED 1.6f
 #define CAMERA_SHAKING_DELTA_K 10.0f
 #define FLIGHT_SPEED_MUL 8.0f
+#define CHEAT_SPEED_MUL 5.0f
 #define JUMP_FORCE 7.0f
 
 void update_controls(PhysicsSolver* physics,
@@ -53,10 +54,14 @@ void update_controls(PhysicsSolver* physics,
 	bool sprint = Events::pressed(GLFW_KEY_LEFT_CONTROL);
 	bool shift = Events::pressed(GLFW_KEY_LEFT_SHIFT) && hitbox->grounded && !sprint;
 	bool zoom = Events::pressed(GLFW_KEY_C);
+	bool cheat = Events::pressed(GLFW_KEY_R);
 
 	float speed = player->speed;
 	if (player->flight){
 		speed *= FLIGHT_SPEED_MUL;
+	}
+	if (cheat){
+		speed *= CHEAT_SPEED_MUL;
 	}
 	int substeps = (int)(delta * 1000);
 	substeps = (substeps <= 0 ? 1 : (substeps > 100 ? 100 : substeps));
@@ -174,7 +179,12 @@ void update_interaction(Level* level, LineBatch* lineBatch){
 	vec3 iend;
 	voxel* vox = chunks->rayCast(camera->position, camera->front, 10.0f, end, norm, iend);
 	if (vox != nullptr){
-		lineBatch->box(iend.x+0.5f, iend.y+0.5f, iend.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
+		if (Block::blocks[vox->id]->type == 1){
+			lineBatch->box(iend.x+0.5f, iend.y+0.5f, iend.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
+		} else if (Block::blocks[vox->id]->type == 2){
+			lineBatch->box(iend.x+0.4f, iend.y+0.3f, iend.z+0.4f, 0.805f,0.805f,0.805f, 0,0,0,0.5f);
+		}
+		
 
 		if (Events::jclicked(GLFW_MOUSE_BUTTON_1) && Block::blocks[vox->id]->breakable){
 			int x = (int)iend.x;
