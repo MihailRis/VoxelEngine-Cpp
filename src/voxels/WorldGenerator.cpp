@@ -143,10 +143,10 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cy, int cz, int seed){
 				}
 				if (real_y <= 2)
 					id = 11;
-				if ((real_y > 55) && ((int)height + 1 == real_y) && ((unsigned short)random() > 56000)){
+				if ((id == 0) && (real_y > 55) && ((int)height + 1 == real_y) && ((unsigned short)random() > 56000)){
 					id = 12;
 				}
-				if ((real_y > 55) && ((int)height + 1 == real_y) && ((unsigned short)random() > 64000)){
+				if ((id == 0) && (real_y > 55) && ((int)height + 1 == real_y) && ((unsigned short)random() > 64000)){
 					id = 13;
 				}
 				voxels[(y * CHUNK_D + z) * CHUNK_W + x].id = id;

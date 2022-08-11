@@ -18,11 +18,15 @@ class Batch2D {
 	size_t index;
 
 	Texture* blank;
-	Texture* _texture;
+	Texture* _texture;	
 
 	void vertex(float x, float y,
 			float u, float v,
 			float r, float g, float b, float a);
+	void vertex(vec2 point,
+			vec2 uvpoint,
+			float r, float g, float b, float a);
+
 public:
 	Batch2D(size_t capacity);
 	~Batch2D();
@@ -30,6 +34,7 @@ public:
 	void begin();
 	void texture(Texture* texture);
 	void sprite(float x, float y, float w, float h, int atlasRes, int index, vec4 tint);
+	void blockSprite(float x, float y, float w, float h, int atlasRes, int index[6], vec4 tint);
 	void rect(float x, float y, float w, float h);
 	void rect(float x, float y, float w, float h,
 						float u, float v, float tx, float ty,

@@ -145,8 +145,15 @@ void draw_hud(World* world, Level* level, Assets* assets, bool devdata, int fps)
 	batch->sprite(16, 640, 64, 64, 16, 0, vec4(1.0f));
 
 	batch->texture(blocks);
-	int texid = Block::blocks[player->choosenBlock]->textureFaces[3]; // face-3 is top face of block
-	batch->sprite(24, 648, 48, 48, 16, texid, vec4(1.0f));
+	Block* cblock = Block::blocks[player->choosenBlock];
+	// int texid = Block::blocks[player->choosenBlock]->textureFaces[3]; // face-3 is top face of block
+	cblock->textureFaces;
+	if (cblock->type == 1){
+		batch->blockSprite(24, 648, 48, 48, 16, cblock->textureFaces, vec4(1.0f));
+	} else if (cblock->type == 2){
+		batch->sprite(24, 648, 48, 48, 16, cblock->textureFaces[3], vec4(1.0f));
+	}
+	
 	batch->render();
 }
 
