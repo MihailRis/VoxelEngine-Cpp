@@ -3,6 +3,8 @@ Debug/src/**/*.o
 
 Debug/voxel_engine
 
+world
+
 .vscode
 
 .settings
