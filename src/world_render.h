@@ -19,6 +19,7 @@
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
 #include "graphics/LineBatch.h"
+#include "graphics/Batch3D.h"
 #include "voxels/Chunks.h"
 #include "voxels/Chunk.h"
 
@@ -45,6 +46,7 @@ int uiscale = 1;
 
 LineBatch *lineBatch;
 Batch2D *batch;
+Batch3D *batch3d;
 Camera *uicamera;
 VoxelRenderer *renderer;
 
@@ -53,6 +55,7 @@ void init_renderer(){
 	lineBatch = new LineBatch(4096);
 
 	batch = new Batch2D(1024);
+	batch3d = new Batch3D(1024);
 	uicamera = new Camera(glm::vec3(), Window::height / uiscale);
 	uicamera->perspective = false;
 	uicamera->flipped = true;
@@ -146,8 +149,6 @@ void draw_hud(World* world, Level* level, Assets* assets, bool devdata, int fps)
 
 	batch->texture(blocks);
 	Block* cblock = Block::blocks[player->choosenBlock];
-	// int texid = Block::blocks[player->choosenBlock]->textureFaces[3]; // face-3 is top face of block
-	cblock->textureFaces;
 	if (cblock->type == 1){
 		batch->blockSprite(24, 648, 48, 48, 16, cblock->textureFaces, vec4(1.0f));
 	} else if (cblock->type == 2){
@@ -202,6 +203,11 @@ void draw_world(World* world, Level* level, Camera* camera, Assets* assets, bool
 	for (size_t i = 0; i < indices.size(); i++){
 		draw_chunk(indices[i], camera, shader, occlusion);
 	}
+
+	shader->uniformMatrix("u_model", mat4(1.0f));
+	batch3d->begin();
+	// draw 3D stuff here
+	batch3d->render();
 
 	crosshairShader->use();
 	crosshairShader->uniform1f("u_ar", (float)Window::height / (float)Window::width);
