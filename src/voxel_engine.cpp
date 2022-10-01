@@ -78,9 +78,9 @@ void write_world(World* world, Level* level){
 	world->wfile->writePlayer(level->player);
 }
 
-void update_level(World* world, Level* level, vec3 position, float delta, long frame, VoxelRenderer* renderer, LineBatch* lineBatch){
-	update_controls(level->physics, level->chunks, level->player, delta);
-	update_interaction(level, lineBatch);
+void update_level(World* world, Level* level, vec3 position, float delta, long frame, VoxelRenderer* renderer, PlayerController* playerController){
+	playerController->update_controls(delta);
+	playerController->update_interaction();
 
 	level->chunks->setCenter(world->wfile, position.x, 0, position.z);
 	int freeLoaders = level->chunksController->countFreeLoaders();
@@ -137,6 +137,7 @@ int main() {
 	std::cout << "-- preparing systems" << std::endl;
 	HudRenderer hud;
 	WorldRenderer worldRenderer(level);
+	PlayerController playerController(level);
 
 	float lastTime = glfwGetTime();
 	float delta = 0.0f;
@@ -161,8 +162,18 @@ int main() {
 			devdata = !devdata;
 		}
 
-		update_level(world, level, camera->position, delta, frame, worldRenderer.renderer, worldRenderer.lineBatch);
+		update_level(world, level, camera->position, delta, frame, worldRenderer.renderer, &playerController);
 		worldRenderer.draw(world, camera, assets, occlusion);
+		if (playerController.selectedBlockId != -1){
+			Block* selectedBlock = Block::blocks[playerController.selectedBlockId];
+			LineBatch* lineBatch = worldRenderer.lineBatch;
+			vec3 pos = playerController.selectedBlockPosition;
+			if (selectedBlock->model == 1){
+				lineBatch->box(pos.x+0.5f, pos.y+0.5f, pos.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
+			} else if (selectedBlock->model == 2){
+				lineBatch->box(pos.x+0.4f, pos.y+0.3f, pos.z+0.4f, 0.805f,0.805f,0.805f, 0,0,0,0.5f);
+			}
+		}
 		hud.draw(world, level, assets, devdata, fps);
 
 		Window::swapBuffers();
@@ -170,6 +181,8 @@ int main() {
 	}
 	std::cout << "-- saving world" << std::endl;
 	write_world(world, level);
+
+	delete level;
 	delete world;
 
 	std::cout << "-- shutting down" << std::endl;

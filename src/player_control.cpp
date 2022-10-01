@@ -1,6 +1,5 @@
 #include "player_control.h"
 
-#include "graphics/LineBatch.h"
 #include "objects/Player.h"
 #include "physics/PhysicsSolver.h"
 #include "physics/Hitbox.h"
@@ -30,10 +29,11 @@
 #define CHEAT_SPEED_MUL 5.0f
 #define JUMP_FORCE 7.0f
 
-void update_controls(PhysicsSolver* physics,
-		Chunks* chunks,
-		Player* player,
-		float delta){
+PlayerController::PlayerController(Level* level) : level(level) {
+}
+
+void PlayerController::update_controls(float delta){
+	Player* player = level->player;
 
 	if (Events::jpressed(GLFW_KEY_ESCAPE)){
 		Window::setShouldClose(true);
@@ -65,7 +65,7 @@ void update_controls(PhysicsSolver* physics,
 	}
 	int substeps = (int)(delta * 1000);
 	substeps = (substeps <= 0 ? 1 : (substeps > 100 ? 100 : substeps));
-	physics->step(chunks, hitbox, delta, substeps, shift, player->flight ? 0.0f : 1.0f);
+	level->physics->step(level->chunks, hitbox, delta, substeps, shift, player->flight ? 0.0f : 1.0f);
 	camera->position.x = hitbox->position.x;
 	camera->position.y = hitbox->position.y + 0.7f;
 	camera->position.z = hitbox->position.z;
@@ -169,23 +169,19 @@ void update_controls(PhysicsSolver* physics,
 	}
 }
 
-void update_interaction(Level* level, LineBatch* lineBatch){
+void PlayerController::update_interaction(){
 	Chunks* chunks = level->chunks;
 	Player* player = level->player;
-	Camera* camera = player->camera;
 	Lighting* lighting = level->lighting;
+	Camera* camera = player->camera;
 	vec3 end;
 	vec3 norm;
 	vec3 iend;
 	voxel* vox = chunks->rayCast(camera->position, camera->front, 10.0f, end, norm, iend);
 	if (vox != nullptr){
-		if (Block::blocks[vox->id]->model == 1){
-			lineBatch->box(iend.x+0.5f, iend.y+0.5f, iend.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
-		} else if (Block::blocks[vox->id]->model == 2){
-			lineBatch->box(iend.x+0.4f, iend.y+0.3f, iend.z+0.4f, 0.805f,0.805f,0.805f, 0,0,0,0.5f);
-		}
+		selectedBlockId = vox->id;
+		selectedBlockPosition = iend;
 		
-
 		if (Events::jclicked(GLFW_MOUSE_BUTTON_1) && Block::blocks[vox->id]->breakable){
 			int x = (int)iend.x;
 			int y = (int)iend.y;
@@ -208,5 +204,7 @@ void update_interaction(Level* level, LineBatch* lineBatch){
 			int z = (int)iend.z;
 			player->choosenBlock = chunks->get(x,y,z)->id;
 		}
+	} else {
+		selectedBlockId = -1;
 	}
 }

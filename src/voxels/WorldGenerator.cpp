@@ -28,7 +28,7 @@ public:
 	}
 
 	void setSeed(int number){
-		seed = (unsigned short)number+23729 xor (unsigned short)number+16786;
+		seed = ((unsigned short)number+23729 xor (unsigned short)number+16786);
 		rand();
 	}
 };
@@ -102,7 +102,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cy, int cz, int seed){
 
 	float heights[CHUNK_VOL];
 
-	std::cout << calc_height(&noise, cx, cy) << "\n";
+	// std::cout << calc_height(&noise, cx, cy) << "\n";
 
 	for (int z = 0; z < CHUNK_D; z++){
 		for (int x = 0; x < CHUNK_W; x++){
@@ -130,11 +130,11 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cy, int cz, int seed){
 						id = 1;
 				} else {
 					int tree = generate_tree(&noise, &randomtree, heights, real_x, real_y, real_z, 16);
-					if (tree)
+					if (tree) {
 						id = tree;
-					else if ((tree = generate_tree(&noise, &randomtree, heights, real_x, real_y, real_z, 19))){
+					} else if ((tree = generate_tree(&noise, &randomtree, heights, real_x, real_y, real_z, 19))){
 						id = tree;
-					}else if ((tree = generate_tree(&noise, &randomtree, heights, real_x, real_y, real_z, 23))){
+					} else if ((tree = generate_tree(&noise, &randomtree, heights, real_x, real_y, real_z, 23))){
 						id = tree;
 					}
 				}
