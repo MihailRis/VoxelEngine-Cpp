@@ -179,9 +179,9 @@ void update_interaction(Level* level, LineBatch* lineBatch){
 	vec3 iend;
 	voxel* vox = chunks->rayCast(camera->position, camera->front, 10.0f, end, norm, iend);
 	if (vox != nullptr){
-		if (Block::blocks[vox->id]->type == 1){
+		if (Block::blocks[vox->id]->model == 1){
 			lineBatch->box(iend.x+0.5f, iend.y+0.5f, iend.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
-		} else if (Block::blocks[vox->id]->type == 2){
+		} else if (Block::blocks[vox->id]->model == 2){
 			lineBatch->box(iend.x+0.4f, iend.y+0.3f, iend.z+0.4f, 0.805f,0.805f,0.805f, 0,0,0,0.5f);
 		}
 		

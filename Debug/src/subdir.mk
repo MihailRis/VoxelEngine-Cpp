@@ -6,16 +6,22 @@
 CPP_SRCS += \
 ../src/Assets.cpp \
 ../src/player_control.cpp \
+../src/hud_render.cpp \
+../src/world_render.cpp \
 ../src/voxel_engine.cpp 
 
 OBJS += \
 ./src/Assets.o \
 ./src/player_control.o \
+../src/hud_render.o \
+../src/world_render.o \
 ./src/voxel_engine.o 
 
 CPP_DEPS += \
 ./src/Assets.d \
 ./src/player_control.d \
+../src/hud_render.d \
+../src/world_render.d \
 ./src/voxel_engine.d 
 
 

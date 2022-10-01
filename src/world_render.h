@@ -13,214 +13,30 @@
 #include <glm/ext.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "window/Window.h"
-#include "window/Camera.h"
-#include "graphics/Mesh.h"
-#include "graphics/Shader.h"
-#include "graphics/Texture.h"
-#include "graphics/LineBatch.h"
-#include "graphics/Batch3D.h"
-#include "voxels/Chunks.h"
-#include "voxels/Chunk.h"
+class World;
+class Level;
+class Camera;
+class Assets;
+class LineBatch;
+class Batch3D;
+class VoxelRenderer;
+class Shader;
 
-float _camera_cx;
-float _camera_cz;
-Chunks* _chunks;
 
-Mesh *crosshair;
+class WorldRenderer {
+	Batch3D *batch3d;
+	Level* level;
 
-float vertices[] = {
-		// x    y
-	   -0.01f,-0.01f,
-	    0.01f, 0.01f,
+	void drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion);
+public:
+	VoxelRenderer *renderer;
+	LineBatch *lineBatch;
 
-	   -0.01f, 0.01f,
-	    0.01f,-0.01f,
+	WorldRenderer(Level* level);
+	~WorldRenderer();
+
+	void draw(World* world, Camera* camera, Assets* assets, bool occlusion);
 };
 
-int attrs[] = {
-		2,  0 //null terminator
-};
-
-int uiscale = 1;
-
-LineBatch *lineBatch;
-Batch2D *batch;
-Batch3D *batch3d;
-Camera *uicamera;
-VoxelRenderer *renderer;
-
-void init_renderer(){
-	crosshair = new Mesh(vertices, 4, attrs);
-	lineBatch = new LineBatch(4096);
-
-	batch = new Batch2D(1024);
-	batch3d = new Batch3D(1024);
-	uicamera = new Camera(glm::vec3(), Window::height / uiscale);
-	uicamera->perspective = false;
-	uicamera->flipped = true;
-
-	renderer = new VoxelRenderer();
-}
-
-
-void finalize_renderer(){
-	delete crosshair;
-	delete lineBatch;
-	delete batch;
-	delete renderer;
-}
-
-void draw_chunk(size_t index, Camera* camera, Shader* shader, bool occlusion){
-	Chunk* chunk = _chunks->chunks[index];
-	Mesh* mesh = _chunks->meshes[index];
-	if (mesh == nullptr)
-		return;
-
-	// Simple frustum culling (culling chunks behind the camera in 2D - XZ)
-	if (occlusion){
-		const float cameraX = camera->position.x;
-		const float cameraZ = camera->position.z;
-		const float camDirX = camera->dir.x;
-		const float camDirZ = camera->dir.z;
-
-		bool unoccluded = false;
-		do {
-			if ((chunk->x*CHUNK_W-cameraX)*camDirX + (chunk->z*CHUNK_D-cameraZ)*camDirZ >= 0.0){
-				unoccluded = true; break;
-			}
-			if (((chunk->x+1)*CHUNK_W-cameraX)*camDirX + (chunk->z*CHUNK_D-cameraZ)*camDirZ >= 0.0){
-				unoccluded = true; break;
-			}
-			if (((chunk->x+1)*CHUNK_W-cameraX)*camDirX + ((chunk->z+1)*CHUNK_D-cameraZ)*camDirZ >= 0.0){
-				unoccluded = true; break;
-			}
-			if ((chunk->x*CHUNK_W-cameraX)*camDirX + ((chunk->z+1)*CHUNK_D-cameraZ)*camDirZ >= 0.0){
-				unoccluded = true; break;
-			}
-		} while (false);
-		if (!unoccluded)
-			return;
-	}
-
-	mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x*CHUNK_W+0.5f, chunk->y*CHUNK_H+0.5f, chunk->z*CHUNK_D+0.5f));
-	shader->uniformMatrix("u_model", model);
-	mesh->draw(GL_TRIANGLES);
-}
-
-bool chunks_comparator(size_t i, size_t j) {
-	Chunk* a = _chunks->chunks[i];
-	Chunk* b = _chunks->chunks[j];
-	return ((a->x + 0.5f - _camera_cx)*(a->x + 0.5f - _camera_cx) + (a->z + 0.5f - _camera_cz)*(a->z + 0.5f - _camera_cz)
-			>
-			(b->x + 0.5f - _camera_cx)*(b->x + 0.5f - _camera_cx) + (b->z + 0.5f - _camera_cz)*(b->z + 0.5f - _camera_cz));
-}
-
-
-void draw_hud(World* world, Level* level, Assets* assets, bool devdata, int fps){
-	Chunks* chunks = level->chunks;
-	Player* player = level->player;
-
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-	Shader* uishader = assets->getShader("ui");
-	uishader->use();
-	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
-
-	// draw debug info
-	Font* font = assets->getFont("normal");
-	batch->begin();
-	if (devdata){
-		font->draw(batch, L"chunks: "+std::to_wstring(chunks->chunksCount), 16, 16, STYLE_OUTLINE);
-		font->draw(batch, std::to_wstring((int)player->camera->position.x), 10, 30, STYLE_OUTLINE);
-		font->draw(batch, std::to_wstring((int)player->camera->position.y), 50, 30, STYLE_OUTLINE);
-		font->draw(batch, std::to_wstring((int)player->camera->position.z), 90, 30, STYLE_OUTLINE);
-		font->draw(batch, L"fps:", 16, 42, STYLE_OUTLINE);
-		font->draw(batch, std::to_wstring(fps), 40, 42, STYLE_OUTLINE);
-	}
-	batch->render();
-
-	// choosen block preview
-	Texture* blocks = assets->getTexture("block");
-	Texture* sprite = assets->getTexture("sprite");
-	
-	batch->texture(sprite);
-	batch->sprite(16, 640, 64, 64, 16, 0, vec4(1.0f));
-
-	batch->texture(blocks);
-	Block* cblock = Block::blocks[player->choosenBlock];
-	if (cblock->type == 1){
-		batch->blockSprite(24, 648, 48, 48, 16, cblock->textureFaces, vec4(1.0f));
-	} else if (cblock->type == 2){
-		batch->sprite(24, 648, 48, 48, 16, cblock->textureFaces[3], vec4(1.0f));
-	}
-	
-	batch->render();
-}
-
-void draw_world(World* world, Level* level, Camera* camera, Assets* assets, bool occlusion){
-	Chunks* chunks = level->chunks;
-
-	glClearColor(0.7f,0.81f,1.0f,1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-
-	_chunks = chunks;
-
-	Texture* texture = assets->getTexture("block");
-	Shader* shader = assets->getShader("main");
-	Shader* crosshairShader = assets->getShader("crosshair");
-	Shader* linesShader = assets->getShader("lines");
-	shader->use();
-	shader->uniformMatrix("u_proj", camera->getProjection());
-	shader->uniformMatrix("u_view", camera->getView());
-	shader->uniform1f("u_gamma", 1.6f);
-	shader->uniform3f("u_skyLightColor", 2.2f,2.2f,2.2f);
-	shader->uniform3f("u_fogColor", 0.7f,0.71f,0.73f);
-	shader->uniform3f("u_cameraPos", camera->position.x,camera->position.y,camera->position.z);
-	texture->bind();
-
-	std::vector<size_t> indices;
-
-	for (size_t i = 0; i < chunks->volume; i++){
-		Chunk* chunk = chunks->chunks[i];
-		if (chunk == nullptr)
-			continue;
-		if (chunks->meshes[i] != nullptr)
-			indices.push_back(i);
-	}
-
-	float px = camera->position.x / (float)CHUNK_W;
-	float pz = camera->position.z / (float)CHUNK_D;
-
-	_camera_cx = px;
-	_camera_cz = pz;
-
-	std::sort(indices.begin(), indices.end(), chunks_comparator);
-
-
-	for (size_t i = 0; i < indices.size(); i++){
-		draw_chunk(indices[i], camera, shader, occlusion);
-	}
-
-	shader->uniformMatrix("u_model", mat4(1.0f));
-	batch3d->begin();
-	// draw 3D stuff here
-	batch3d->render();
-
-	crosshairShader->use();
-	crosshairShader->uniform1f("u_ar", (float)Window::height / (float)Window::width);
-	crosshairShader->uniform1f("u_scale", 1.0f / ((float)Window::height / 1000.0f));
-	crosshair->draw(GL_LINES);
-
-	linesShader->use();
-	linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
-	glLineWidth(2.0f);
-	lineBatch->line(camera->position.x, camera->position.y-0.1f, camera->position.z, camera->position.x+0.01f, camera->position.y-0.1f, camera->position.z, 1, 0, 0, 1);
-	lineBatch->line(camera->position.x, camera->position.y-0.1f, camera->position.z, camera->position.x, camera->position.y-0.1f, camera->position.z+0.01f, 0, 0, 1, 1);
-	lineBatch->line(camera->position.x, camera->position.y-0.1f, camera->position.z, camera->position.x, camera->position.y-0.1f+0.01f, camera->position.z, 0, 1, 0, 1);
-	lineBatch->render();
-}
 
 #endif // WORLD_RENDERER_CPP

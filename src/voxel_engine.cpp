@@ -51,6 +51,7 @@ using namespace glm;
 
 #include "declarations.h"
 #include "world_render.h"
+#include "hud_render.h"
 #include "player_control.h"
 
 
@@ -77,7 +78,7 @@ void write_world(World* world, Level* level){
 	world->wfile->writePlayer(level->player);
 }
 
-void update_level(World* world, Level* level, vec3 position, float delta, long frame){
+void update_level(World* world, Level* level, vec3 position, float delta, long frame, VoxelRenderer* renderer, LineBatch* lineBatch){
 	update_controls(level->physics, level->chunks, level->player, delta);
 	update_interaction(level, lineBatch);
 
@@ -134,7 +135,8 @@ int main() {
 	Level* level = load_level(world, player);
 
 	std::cout << "-- preparing systems" << std::endl;
-	init_renderer();
+	HudRenderer hud;
+	WorldRenderer worldRenderer(level);
 
 	float lastTime = glfwGetTime();
 	float delta = 0.0f;
@@ -159,9 +161,9 @@ int main() {
 			devdata = !devdata;
 		}
 
-		update_level(world, level, camera->position, delta, frame);
-		draw_world(world, level, camera, assets, occlusion);
-		draw_hud(world, level, assets, devdata, fps);
+		update_level(world, level, camera->position, delta, frame, worldRenderer.renderer, worldRenderer.lineBatch);
+		worldRenderer.draw(world, camera, assets, occlusion);
+		hud.draw(world, level, assets, devdata, fps);
 
 		Window::swapBuffers();
 		Events::pullEvents();
@@ -172,7 +174,6 @@ int main() {
 
 	std::cout << "-- shutting down" << std::endl;
 	delete assets;
-	finalize_renderer();
 	Audio::finalize();
 	Events::finalize();
 	Window::terminate();

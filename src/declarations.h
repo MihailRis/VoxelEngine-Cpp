@@ -83,7 +83,7 @@ void setup_definitions() {
 	block->skyLightPassing = true;
 	block->obstacle = false;
 	block->selectable = false;
-	block->type = 0;
+	block->model = 0;
 	Block::blocks[block->id] = block;
 
 	// DIRT 1
@@ -150,7 +150,7 @@ void setup_definitions() {
 	block->drawGroup = 5;
 	block->lightPassing = true;
 	block->obstacle = false;
-	block->type = 2;
+	block->model = 2;
 	Block::blocks[block->id] = block;
 
 	// FLOWER 13
@@ -158,7 +158,7 @@ void setup_definitions() {
 	block->drawGroup = 5;
 	block->lightPassing = true;
 	block->obstacle = false;
-	block->type = 2;
+	block->model = 2;
 	Block::blocks[block->id] = block;
 }
 #endif // DECLARATIONS_H

@@ -300,7 +300,7 @@ inline void _renderXBlock(std::vector<float>& buffer, int x, int y, int z, const
 	float xs = (float)(char)rand / 512;
 	float zs = (float)(char)(rand >> 8) / 512;
 
-	if (block->type != 2){
+	if (block->model != 2){
 		return;
 	}
 
