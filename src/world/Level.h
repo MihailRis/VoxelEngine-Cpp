@@ -7,6 +7,7 @@ class Chunks;
 class Lighting;
 class PhysicsSolver;
 class ChunksController;
+class PlayerController;
 
 class Level {
 public:
@@ -15,6 +16,7 @@ public:
 	PhysicsSolver* physics;
 	Lighting* lighting;
 	ChunksController* chunksController;
+	PlayerController* playerController;
 	Level(World* world, Player* player, Chunks* chunks, PhysicsSolver* physics);
 	~Level();
 };

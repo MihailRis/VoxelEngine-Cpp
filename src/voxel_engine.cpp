@@ -78,18 +78,12 @@ void write_world(World* world, Level* level){
 	world->wfile->writePlayer(level->player);
 }
 
-void update_level(World* world, Level* level, vec3 position, float delta, long frame, VoxelRenderer* renderer, PlayerController* playerController){
-	playerController->update_controls(delta);
-	playerController->update_interaction();
+void update_level(World* world, Level* level, float delta, long frame, VoxelRenderer* renderer){
+	level->playerController->update_controls(delta);
+	level->playerController->update_interaction();
 
+	vec3 position = level->player->hitbox->position;
 	level->chunks->setCenter(world->wfile, position.x, 0, position.z);
-	int freeLoaders = level->chunksController->countFreeLoaders();
-		for (int i = 0; i < freeLoaders; i++)
-			level->chunksController->_buildMeshes(renderer, frame);
-
-	freeLoaders = level->chunksController->countFreeLoaders();
-	for (int i = 0; i < freeLoaders; i++)
-		level->chunksController->loadVisible(world->wfile);
 }
 
 Level* load_level(World* world, Player* player) {
@@ -137,7 +131,6 @@ int main() {
 	std::cout << "-- preparing systems" << std::endl;
 	HudRenderer hud;
 	WorldRenderer worldRenderer(level);
-	PlayerController playerController(level);
 
 	float lastTime = glfwGetTime();
 	float delta = 0.0f;
@@ -162,12 +155,19 @@ int main() {
 			devdata = !devdata;
 		}
 
-		update_level(world, level, camera->position, delta, frame, worldRenderer.renderer, &playerController);
+		update_level(world, level, delta, frame, worldRenderer.renderer);
+		int freeLoaders = level->chunksController->countFreeLoaders();
+		for (int i = 0; i < freeLoaders; i++)
+			level->chunksController->_buildMeshes(worldRenderer.renderer, frame);
+		freeLoaders = level->chunksController->countFreeLoaders();
+		for (int i = 0; i < freeLoaders; i++)
+			level->chunksController->loadVisible(world->wfile);
+
 		worldRenderer.draw(world, camera, assets, occlusion);
-		if (playerController.selectedBlockId != -1){
-			Block* selectedBlock = Block::blocks[playerController.selectedBlockId];
+		if (level->playerController->selectedBlockId != -1){
+			Block* selectedBlock = Block::blocks[level->playerController->selectedBlockId];
 			LineBatch* lineBatch = worldRenderer.lineBatch;
-			vec3 pos = playerController.selectedBlockPosition;
+			vec3 pos = level->playerController->selectedBlockPosition;
 			if (selectedBlock->model == 1){
 				lineBatch->box(pos.x+0.5f, pos.y+0.5f, pos.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
 			} else if (selectedBlock->model == 2){

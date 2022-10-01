@@ -112,7 +112,8 @@ void WorldRenderer::draw(World* world, Camera* camera, Assets* assets, bool occl
 	shader->uniformMatrix("u_view", camera->getView());
 	shader->uniform1f("u_gamma", 1.6f);
 	shader->uniform3f("u_skyLightColor", 2.2f,2.2f,2.2f);
-	shader->uniform3f("u_fogColor", 0.7f,0.71f,0.73f);
+	shader->uniform3f("u_fogColor", 0.7f,0.81f,1.0f);
+	shader->uniform1f("u_fogFactor", 0.03f);
 	shader->uniform3f("u_cameraPos", camera->position.x,camera->position.y,camera->position.z);
 	texture->bind();
 
