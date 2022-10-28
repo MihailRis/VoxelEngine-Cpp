@@ -21,15 +21,15 @@ public:
 	Mesh** meshesSecond;
 	size_t volume;
 	size_t chunksCount;
-	unsigned int w,h,d;
-	int ox,oy,oz;
+	int w,d;
+	int ox,oz;
 
-	Chunks(int w, int h, int d, int ox, int oy, int oz);
+	Chunks(int w, int d, int ox, int oz);
 	~Chunks();
 
 	bool putChunk(Chunk* chunk);
 
-	Chunk* getChunk(int x, int y, int z);
+	Chunk* getChunk(int x, int z);
 	Chunk* getChunkByVoxel(int x, int y, int z);
 	voxel* get(int x, int y, int z);
 	unsigned short getLight(int x, int y, int z);
@@ -40,10 +40,10 @@ public:
 	bool isObstacle(int x, int y, int z);
 
 	// does not move chunks inside
-	void _setOffset(int x, int y, int z);
+	void _setOffset(int x, int z);
 
-	void setCenter(WorldFiles* worldFiles, int x, int y, int z);
-	void translate(WorldFiles* worldFiles, int x, int y, int z);
+	void setCenter(WorldFiles* worldFiles, int x, int z);
+	void translate(WorldFiles* worldFiles, int x, int z);
 
 	void clear(bool freeMemory);
 };

@@ -8,6 +8,7 @@ CPP_SRCS += \
 ../src/player_control.cpp \
 ../src/hud_render.cpp \
 ../src/world_render.cpp \
+../src/declarations.cpp \
 ../src/voxel_engine.cpp 
 
 OBJS += \
@@ -15,6 +16,7 @@ OBJS += \
 ./src/player_control.o \
 ./src/hud_render.o \
 ./src/world_render.o \
+./src/declarations.o \
 ./src/voxel_engine.o 
 
 CPP_DEPS += \
@@ -22,6 +24,7 @@ CPP_DEPS += \
 ./src/player_control.d \
 ./src/hud_render.d \
 ./src/world_render.d \
+./src/declarations.d \
 ./src/voxel_engine.d 
 
 

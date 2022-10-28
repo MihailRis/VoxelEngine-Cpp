@@ -69,16 +69,17 @@ unsigned int decompressRLE(const char* src, unsigned int length, char* dst, unsi
 
 unsigned int calcRLE(const char* src, unsigned int length) {
 	unsigned int offset = 0;
-	unsigned int counter = 1;
+	unsigned int counter = 0;
 	char c = src[0];
 	for (unsigned int i = 0; i < length; i++){
 		char cnext = src[i];
-		if (cnext != c || counter == 256){
+		if (cnext != c || counter == 255){
 			offset += 2;
 			c = cnext;
 			counter = 0;
+		} else {
+			counter++;
 		}
-		counter++;
 	}
 	return offset + 2;
 }
@@ -86,19 +87,20 @@ unsigned int calcRLE(const char* src, unsigned int length) {
 // max result size = length * 2; returns compressed length
 unsigned int compressRLE(const char* src, unsigned int length, char* dst) {
 	unsigned int offset = 0;
-	unsigned int counter = 1;
+	unsigned int counter = 0;
 	char c = src[0];
 	for (unsigned int i = 1; i < length; i++){
 		char cnext = src[i];
-		if (cnext != c || counter == 256){
-			dst[offset++] = counter-1;
+		if (cnext != c || counter == 255){
+			dst[offset++] = counter;
 			dst[offset++] = c;
 			c = cnext;
 			counter = 0;
+		} else {
+			counter++;
 		}
-		counter++;
 	}
-	dst[offset++] = counter-1;
+	dst[offset++] = counter;
 	dst[offset++] = c;
 	return offset;
 }

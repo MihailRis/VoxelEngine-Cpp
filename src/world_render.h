@@ -21,21 +21,23 @@ class LineBatch;
 class Batch3D;
 class VoxelRenderer;
 class Shader;
+class Texture;
+class Framebuffer;
 
 
 class WorldRenderer {
 	Batch3D *batch3d;
+	Assets* assets;
 	Level* level;
-
-	void drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion);
+	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion);
 public:
 	VoxelRenderer *renderer;
 	LineBatch *lineBatch;
 
-	WorldRenderer(Level* level);
+	WorldRenderer(Level* level, Assets* assets);
 	~WorldRenderer();
 
-	void draw(World* world, Camera* camera, Assets* assets, bool occlusion);
+	void draw(World* world, Camera* camera, bool occlusion);
 };
 
 

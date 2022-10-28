@@ -12,6 +12,7 @@ class Chunk;
 class VoxelRenderer {
 public:
 	std::vector<float> buffer;
+	unsigned char lights[27 * 4];
 	VoxelRenderer();
 	~VoxelRenderer();
 

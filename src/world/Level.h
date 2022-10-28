@@ -11,6 +11,7 @@ class PlayerController;
 
 class Level {
 public:
+	World* world;
 	Player* player;
 	Chunks* chunks;
 	PhysicsSolver* physics;

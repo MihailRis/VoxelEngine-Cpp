@@ -41,6 +41,10 @@ int Window::initialize(int width, int height, const char* title){
 	return 0;
 }
 
+void Window::viewport(int x, int y, int width, int height){
+	glViewport(x, y, width, height);
+}
+
 void Window::setCursorMode(int mode){
 	glfwSetInputMode(window, GLFW_CURSOR, mode);
 }

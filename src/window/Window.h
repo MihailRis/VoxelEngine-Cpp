@@ -11,6 +11,7 @@ public:
 	static int initialize(int width, int height, const char* title);
 	static void terminate();
 
+	static void viewport(int x, int y, int width, int height);
 	static void setCursorMode(int mode);
 	static bool isShouldClose();
 	static void setShouldClose(bool flag);

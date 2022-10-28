@@ -19,9 +19,9 @@ int Font::getGlyphWidth(char c) {
 		case '.':
 		case ',':
 		case ':':
-		case ';': return 3;
-		case 't': return 5;
-		case ' ': return 3;
+		case ';': return 7;
+		case 't': return 8;
+		case ' ': return 7;
 	}
 	return 7;
 }
@@ -75,7 +75,7 @@ void Font::draw(Batch2D* batch, std::wstring text, int x, int y, int style) {
 							break;
 					}
 
-					batch->sprite(x, y, RES, RES, 16, c, vec4(1.0f));
+					batch->sprite(x, y, RES, RES, 16, c, batch->color);
 				}
 				else if (charpage > page && charpage < next){
 					next = charpage;

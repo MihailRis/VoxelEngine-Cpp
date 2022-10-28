@@ -25,7 +25,7 @@
 #define CAMERA_SHAKING_OFFSET_Y 0.031f
 #define CAMERA_SHAKING_SPEED 1.6f
 #define CAMERA_SHAKING_DELTA_K 10.0f
-#define FLIGHT_SPEED_MUL 8.0f
+#define FLIGHT_SPEED_MUL 4.0f
 #define CHEAT_SPEED_MUL 5.0f
 #define JUMP_FORCE 7.0f
 
@@ -34,13 +34,6 @@ PlayerController::PlayerController(Level* level) : level(level) {
 
 void PlayerController::update_controls(float delta){
 	Player* player = level->player;
-
-	if (Events::jpressed(GLFW_KEY_ESCAPE)){
-		Window::setShouldClose(true);
-	}
-	if (Events::jpressed(GLFW_KEY_TAB)){
-		Events::toogleCursor();
-	}
 
 	for (int i = 1; i < 10; i++){
 		if (Events::jpressed(GLFW_KEY_0+i)){
@@ -65,7 +58,7 @@ void PlayerController::update_controls(float delta){
 	}
 	int substeps = (int)(delta * 1000);
 	substeps = (substeps <= 0 ? 1 : (substeps > 100 ? 100 : substeps));
-	level->physics->step(level->chunks, hitbox, delta, substeps, shift, player->flight ? 0.0f : 1.0f);
+	level->physics->step(level->chunks, hitbox, delta, substeps, shift, player->flight ? 0.0f : 1.0f, !player->noclip);
 	camera->position.x = hitbox->position.x;
 	camera->position.y = hitbox->position.y + 0.7f;
 	camera->position.z = hitbox->position.z;
@@ -85,18 +78,20 @@ void PlayerController::update_controls(float delta){
 	camera->position += camera->up * abs(cos(shakeTimer)) * CAMERA_SHAKING_OFFSET_Y * player->cameraShaking;
 	camera->position -= min(player->interpVel * 0.05f, 1.0f);
 
-	if (Events::jpressed(GLFW_KEY_F)){
+	if ((Events::jpressed(GLFW_KEY_F) && !player->noclip) ||
+		(Events::jpressed(GLFW_KEY_N) && player->flight == player->noclip)){
 		player->flight = !player->flight;
 		if (player->flight){
 			hitbox->velocity.y += 1;
 			hitbox->grounded = false;
 		}
 	}
+	if (Events::jpressed(GLFW_KEY_N)) {
+		player->noclip = !player->noclip;
+	}
 
 	// Field of view manipulations
 	float dt = min(1.0f, delta * ZOOM_SPEED);
-	if (dt > 1.0f)
-		dt = 1.0f;
 	float zoomValue = 1.0f;
 	if (shift){
 		speed *= CROUCH_SPEED_MUL;
@@ -182,7 +177,8 @@ void PlayerController::update_interaction(){
 		selectedBlockId = vox->id;
 		selectedBlockPosition = iend;
 		
-		if (Events::jclicked(GLFW_MOUSE_BUTTON_1) && Block::blocks[vox->id]->breakable){
+		Block* block = Block::blocks[vox->id];
+		if (Events::jclicked(GLFW_MOUSE_BUTTON_1) && block->breakable){
 			int x = (int)iend.x;
 			int y = (int)iend.y;
 			int z = (int)iend.z;
@@ -193,6 +189,11 @@ void PlayerController::update_interaction(){
 			int x = (int)(iend.x)+(int)(norm.x);
 			int y = (int)(iend.y)+(int)(norm.y);
 			int z = (int)(iend.z)+(int)(norm.z);
+			if (block->model == BLOCK_MODEL_GRASS){
+				x = (int)iend.x;
+				y = (int)iend.y;
+				z = (int)iend.z;
+			}
 			if (!level->physics->isBlockInside(x,y,z, player->hitbox)){
 				chunks->set(x, y, z, player->choosenBlock);
 				lighting->onBlockSet(x,y,z, player->choosenBlock);

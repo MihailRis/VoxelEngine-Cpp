@@ -16,6 +16,7 @@ struct ALSource {
 	ALuint id;
 	ALSource(ALuint id) : id(id) {}
 
+	bool isPlaying();
 	bool setPosition(glm::vec3 position);
 	bool setVelocity(glm::vec3 velocity);
 	bool setBuffer(ALBuffer* buffer);
@@ -54,7 +55,7 @@ public:
 	static void finalize();
 	static bool get_available_devices(std::vector<std::string>& devicesVec);
 
-	static void setOrientation(glm::vec3 position, glm::vec3 velocity, glm::vec3 at, glm::vec3 up);
+	static void setListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 at, glm::vec3 up);
 
 };
 

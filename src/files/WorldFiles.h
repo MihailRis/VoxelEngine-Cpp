@@ -12,15 +12,15 @@ class Player;
 #define REGION_SIZE (1 << (REGION_SIZE_BIT))
 #define REGION_VOL ((REGION_SIZE) * (REGION_SIZE))
 
-/* Требование:
- * - высота мира = 1 чанк (любых размеров)
- * Пример:
- * - CHUNK_W = 16, CHUNK_H = 128, CHUNK_D = 16
- * */
+struct WorldRegion {
+	char** chunksData;
+	bool unsaved;
+};
+
 class WorldFiles {
 public:
 	static unsigned long totalCompressed;
-	std::unordered_map<long, char**> regions;
+	std::unordered_map<long, WorldRegion> regions;
 	std::string directory;
 	char* mainBufferIn;
 	char* mainBufferOut;

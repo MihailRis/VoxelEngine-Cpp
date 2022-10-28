@@ -14,7 +14,7 @@ class Chunk;
 class World;
 
 enum LoaderMode {
-	OFF, IDLE, LOAD, RENDER,
+	OFF, IDLE, LOAD, LIGHTS, RENDER,
 };
 
 class ChunksLoader final {
@@ -22,7 +22,7 @@ private:
 	std::thread loaderThread;
 	void _thread();
 	std::atomic<Chunk*> current {nullptr};
-	std::atomic<Chunk**> closes {nullptr};
+	std::atomic<Chunk**> surroundings {nullptr};
 	std::atomic<LoaderMode> state {IDLE};
 	World* world;
 
@@ -41,6 +41,7 @@ public:
 	}
 
 	void load(Chunk* chunk, Chunk** closes_passed);
+	void lights(Chunk* chunk, Chunk** closes_passed);
 	void render(Chunk* chunk, Chunk** closes_passed);
 
 	void stop(){

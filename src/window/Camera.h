@@ -1,10 +1,3 @@
-/*
- * Camera.h
- *
- *  Created on: Feb 11, 2020
- *      Author: MihailRis
- */
-
 #ifndef WINDOW_CAMERA_H_
 #define WINDOW_CAMERA_H_
 
@@ -25,6 +18,7 @@ public:
 	mat4 rotation;
 	bool perspective = true;
 	bool flipped = false;
+	float aspect = 0.0f;
 	Camera(vec3 position, float fov);
 
 	void rotate(float x, float y, float z);

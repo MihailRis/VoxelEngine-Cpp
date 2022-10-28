@@ -15,7 +15,7 @@ std::vector<ALSource*> Audio::freesources;
 std::vector<ALBuffer*> Audio::allbuffers;
 std::vector<ALBuffer*> Audio::freebuffers;
 
-bool ALSource::setBuffer(ALBuffer* buffer){
+bool ALSource::setBuffer(ALBuffer* buffer) {
 	alSourcei(id, AL_BUFFER, buffer->id);
 	return alCheck();
 }
@@ -25,17 +25,23 @@ bool ALSource::play(){
 	return alCheck();
 }
 
-bool ALSource::setPosition(glm::vec3 position){
+bool ALSource::isPlaying() {
+	int state;
+	alGetSourcei(id, AL_SOURCE_STATE, &state);
+	return state == AL_PLAYING;
+}
+
+bool ALSource::setPosition(glm::vec3 position) {
 	alSource3f(id, AL_POSITION, position.x, position.y, position.z);
 	return alCheck();
 }
 
-bool ALSource::setVelocity(glm::vec3 velocity){
+bool ALSource::setVelocity(glm::vec3 velocity) {
 	alSource3f(id, AL_VELOCITY, velocity.x, velocity.y, velocity.z);
 	return alCheck();
 }
 
-bool ALSource::setLoop(bool loop){
+bool ALSource::setLoop(bool loop) {
 	alSourcei(id, AL_LOOPING, AL_TRUE ? loop : AL_FALSE);
 	return alCheck();
 }
@@ -51,13 +57,13 @@ bool ALSource::setPitch(float pitch) {
 	return alCheck();
 }
 
-bool ALBuffer::load(int format, const char* data, int size, int freq){
+bool ALBuffer::load(int format, const char* data, int size, int freq) {
 	alBufferData(id, format, data, size, freq);
 	return alCheck();
 }
 
 
-bool Audio::initialize(){
+bool Audio::initialize() {
 	device = alcOpenDevice(nullptr);
 	if (device == nullptr)
 		return false;
@@ -84,7 +90,9 @@ bool Audio::initialize(){
 
 void Audio::finalize(){
 	for (ALSource* source : allsources){
-		alSourceStop(source->id); alCheck();
+		if (source->isPlaying()){
+			alSourceStop(source->id); alCheck();
+		}
 		alDeleteSources(1, &source->id); alCheck();
 	}
 
@@ -168,7 +176,7 @@ bool Audio::get_available_devices(std::vector<std::string>& devicesVec){
     return true;
 }
 
-void Audio::setOrientation(glm::vec3 position, glm::vec3 velocity, glm::vec3 at, glm::vec3 up){
+void Audio::setListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 at, glm::vec3 up){
 	ALfloat listenerOri[] = { at.x, at.y, at.z, up.x, up.y, up.z };
 
 	alListener3f(AL_POSITION, position.x, position.y, position.z);

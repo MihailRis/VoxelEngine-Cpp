@@ -5,7 +5,7 @@ class voxel;
 
 class WorldGenerator {
 public:
-	static void generate(voxel* voxels, int x, int y, int z, int seed);
+	static void generate(voxel* voxels, int x, int z, int seed);
 };
 
 #endif /* VOXELS_WORLDGENERATOR_H_ */

@@ -18,8 +18,10 @@ public:
 	ChunksController(World* world, Chunks* chunks, Lighting* lighting);
 	~ChunksController();
 
+	ChunksLoader* getFreeLoader();
 	int countFreeLoaders();
 	bool loadVisible(WorldFiles* worldFiles);
+	void calculateLights();
 	bool _buildMeshes(VoxelRenderer* renderer, int tick);
 };
 

@@ -11,6 +11,9 @@ CPP_SRCS += \
 ../src/graphics/Mesh.cpp \
 ../src/graphics/Shader.cpp \
 ../src/graphics/Texture.cpp \
+../src/graphics/Sprite.cpp \
+../src/graphics/UVRegion.cpp \
+../src/graphics/Framebuffer.cpp \
 ../src/graphics/VoxelRenderer.cpp 
 
 OBJS += \
@@ -21,6 +24,9 @@ OBJS += \
 ./src/graphics/Mesh.o \
 ./src/graphics/Shader.o \
 ./src/graphics/Texture.o \
+./src/graphics/Sprite.o \
+./src/graphics/UVRegion.o \
+./src/graphics/Framebuffer.o \
 ./src/graphics/VoxelRenderer.o 
 
 CPP_DEPS += \
@@ -31,6 +37,9 @@ CPP_DEPS += \
 ./src/graphics/Mesh.d \
 ./src/graphics/Shader.d \
 ./src/graphics/Texture.d \
+./src/graphics/Sprite.d \
+./src/graphics/UVRegion.d \
+./src/graphics/Framebuffer.d \
 ./src/graphics/VoxelRenderer.d 
 
 

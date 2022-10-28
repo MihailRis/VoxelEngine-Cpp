@@ -14,6 +14,7 @@ public:
 	Camera* camera;
 	Hitbox* hitbox;
 	bool flight = false;
+	bool noclip = false;
 	int choosenBlock;
 	float camX, camY;
 	float cameraShaking = 0.0f;

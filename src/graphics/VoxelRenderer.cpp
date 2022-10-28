@@ -12,7 +12,7 @@
 #define LOCAL_NEG(X, SIZE) (((X) < 0) ? ((SIZE)+(X)) : (X))
 #define LOCAL(X, SIZE) ((X) >= (SIZE) ? ((X) - (SIZE)) : LOCAL_NEG(X, SIZE))
 #define IS_CHUNK(X,Y,Z) (GET_CHUNK(X,Y,Z) != nullptr)
-#define GET_CHUNK(X,Y,Z) (chunks[((CDIV(Y, CHUNK_H)+1) * 3 + CDIV(Z, CHUNK_D) + 1) * 3 + CDIV(X, CHUNK_W) + 1])
+#define GET_CHUNK(X,Y,Z) (chunks[(CDIV(Z, CHUNK_D) + 1) * 3 + CDIV(X, CHUNK_W) + 1])
 
 #define LIGHT(X,Y,Z, CHANNEL) (IS_CHUNK(X,Y,Z) ? GET_CHUNK(X,Y,Z)->lightmap->get(LOCAL(X, CHUNK_W), LOCAL(Y, CHUNK_H), LOCAL(Z, CHUNK_D), (CHANNEL)) : 0)
 #define VOXEL(X,Y,Z) (GET_CHUNK(X,Y,Z)->voxels[(LOCAL(Y, CHUNK_H) * CHUNK_D + LOCAL(Z, CHUNK_D)) * CHUNK_W + LOCAL(X, CHUNK_W)])
@@ -43,13 +43,7 @@ VoxelRenderer::VoxelRenderer() {
 VoxelRenderer::~VoxelRenderer(){
 }
 
-inline void _renderBlock(std::vector<float>& buffer, int x, int y, int z, const Chunk** chunks, voxel vox, size_t& index){
-	unsigned int id = vox.id;
-
-	if (!id){
-		return;
-	}
-
+inline void _renderBlock(std::vector<float>& buffer, int x, int y, int z, const Chunk** chunks, unsigned int id, size_t& index){
 	float l;
 	float uvsize = 1.0f/16.0f;
 
@@ -61,10 +55,10 @@ inline void _renderBlock(std::vector<float>& buffer, int x, int y, int z, const 
 
 		SETUP_UV(block->textureFaces[3]);
 
-		float lr = LIGHT(x,y+1,z, 0) / 15.0f;
-		float lg = LIGHT(x,y+1,z, 1) / 15.0f;
-		float lb = LIGHT(x,y+1,z, 2) / 15.0f;
-		float ls = LIGHT(x,y+1,z, 3) / 15.0f;
+		const float lr = LIGHT(x,y+1,z, 0) / 15.0f;
+		const float lg = LIGHT(x,y+1,z, 1) / 15.0f;
+		const float lb = LIGHT(x,y+1,z, 2) / 15.0f;
+		const float ls = LIGHT(x,y+1,z, 3) / 15.0f;
 
 		float lr0 = (LIGHT(x-1,y+1,z,0) + lr*30 + LIGHT(x-1,y+1,z-1,0) + LIGHT(x,y+1,z-1,0)) / 75.0f;
 		float lr1 = (LIGHT(x-1,y+1,z,0) + lr*30 + LIGHT(x-1,y+1,z+1,0) + LIGHT(x,y+1,z+1,0)) / 75.0f;
@@ -99,10 +93,10 @@ inline void _renderBlock(std::vector<float>& buffer, int x, int y, int z, const 
 
 		SETUP_UV(block->textureFaces[2]);
 
-		float lr = LIGHT(x,y-1,z, 0) / 15.0f;
-		float lg = LIGHT(x,y-1,z, 1) / 15.0f;
-		float lb = LIGHT(x,y-1,z, 2) / 15.0f;
-		float ls = LIGHT(x,y-1,z, 3) / 15.0f;
+		const float lr = LIGHT(x,y-1,z, 0) / 15.0f;
+		const float lg = LIGHT(x,y-1,z, 1) / 15.0f;
+		const float lb = LIGHT(x,y-1,z, 2) / 15.0f;
+		const float ls = LIGHT(x,y-1,z, 3) / 15.0f;
 
 		float lr0 = (LIGHT(x-1,y-1,z-1,0) + lr*30 + LIGHT(x-1,y-1,z,0) + LIGHT(x,y-1,z-1,0)) / 75.0f;
 		float lr1 = (LIGHT(x+1,y-1,z+1,0) + lr*30 + LIGHT(x+1,y-1,z,0) + LIGHT(x,y-1,z+1,0)) / 75.0f;
@@ -138,10 +132,10 @@ inline void _renderBlock(std::vector<float>& buffer, int x, int y, int z, const 
 
 		SETUP_UV(block->textureFaces[1]);
 
-		float lr = LIGHT(x+1,y,z, 0) / 15.0f;
-		float lg = LIGHT(x+1,y,z, 1) / 15.0f;
-		float lb = LIGHT(x+1,y,z, 2) / 15.0f;
-		float ls = LIGHT(x+1,y,z, 3) / 15.0f;
+		const float lr = LIGHT(x+1,y,z, 0) / 15.0f;
+		const float lg = LIGHT(x+1,y,z, 1) / 15.0f;
+		const float lb = LIGHT(x+1,y,z, 2) / 15.0f;
+		const float ls = LIGHT(x+1,y,z, 3) / 15.0f;
 
 		float lr0 = (LIGHT(x+1,y-1,z-1,0) + lr*30 + LIGHT(x+1,y,z-1,0) + LIGHT(x+1,y-1,z,0)) / 75.0f;
 		float lr1 = (LIGHT(x+1,y+1,z-1,0) + lr*30 + LIGHT(x+1,y,z-1,0) + LIGHT(x+1,y+1,z,0)) / 75.0f;
@@ -176,10 +170,10 @@ inline void _renderBlock(std::vector<float>& buffer, int x, int y, int z, const 
 
 		SETUP_UV(block->textureFaces[0]);
 
-		float lr = LIGHT(x-1,y,z, 0) / 15.0f;
-		float lg = LIGHT(x-1,y,z, 1) / 15.0f;
-		float lb = LIGHT(x-1,y,z, 2) / 15.0f;
-		float ls = LIGHT(x-1,y,z, 3) / 15.0f;
+		const float lr = LIGHT(x-1,y,z, 0) / 15.0f;
+		const float lg = LIGHT(x-1,y,z, 1) / 15.0f;
+		const float lb = LIGHT(x-1,y,z, 2) / 15.0f;
+		const float ls = LIGHT(x-1,y,z, 3) / 15.0f;
 
 		float lr0 = (LIGHT(x-1,y-1,z-1,0) + lr*30 + LIGHT(x-1,y,z-1,0) + LIGHT(x-1,y-1,z,0)) / 75.0f;
 		float lr1 = (LIGHT(x-1,y+1,z+1,0) + lr*30 + LIGHT(x-1,y,z+1,0) + LIGHT(x-1,y+1,z,0)) / 75.0f;
@@ -215,10 +209,10 @@ inline void _renderBlock(std::vector<float>& buffer, int x, int y, int z, const 
 
 		SETUP_UV(block->textureFaces[5]);
 
-		float lr = LIGHT(x,y,z+1, 0) / 15.0f;
-		float lg = LIGHT(x,y,z+1, 1) / 15.0f;
-		float lb = LIGHT(x,y,z+1, 2) / 15.0f;
-		float ls = LIGHT(x,y,z+1, 3) / 15.0f;
+		const float lr = LIGHT(x,y,z+1, 0) / 15.0f;
+		const float lg = LIGHT(x,y,z+1, 1) / 15.0f;
+		const float lb = LIGHT(x,y,z+1, 2) / 15.0f;
+		const float ls = LIGHT(x,y,z+1, 3) / 15.0f;
 
 		float lr0 = l*(LIGHT(x-1,y-1,z+1,0) + lr*30 + LIGHT(x,y-1,z+1,0) + LIGHT(x-1,y,z+1,0)) / 75.0f;
 		float lr1 = l*(LIGHT(x+1,y+1,z+1,0) + lr*30 + LIGHT(x,y+1,z+1,0) + LIGHT(x+1,y,z+1,0)) / 75.0f;
@@ -253,10 +247,10 @@ inline void _renderBlock(std::vector<float>& buffer, int x, int y, int z, const 
 
 		SETUP_UV(block->textureFaces[4]);
 
-		float lr = LIGHT(x,y,z-1, 0) / 15.0f;
-		float lg = LIGHT(x,y,z-1, 1) / 15.0f;
-		float lb = LIGHT(x,y,z-1, 2) / 15.0f;
-		float ls = LIGHT(x,y,z-1, 3) / 15.0f;
+		const float lr = LIGHT(x,y,z-1, 0) / 15.0f;
+		const float lg = LIGHT(x,y,z-1, 1) / 15.0f;
+		const float lb = LIGHT(x,y,z-1, 2) / 15.0f;
+		const float ls = LIGHT(x,y,z-1, 3) / 15.0f;
 
 		float lr0 = l*(LIGHT(x-1,y-1,z-1,0) + lr*30 + LIGHT(x,y-1,z-1,0) + LIGHT(x-1,y,z-1,0)) / 75.0f;
 		float lr1 = l*(LIGHT(x-1,y+1,z-1,0) + lr*30 + LIGHT(x,y+1,z-1,0) + LIGHT(x-1,y,z-1,0)) / 75.0f;
@@ -288,8 +282,82 @@ inline void _renderBlock(std::vector<float>& buffer, int x, int y, int z, const 
 	}
 }
 
+inline void _renderBlockShadeless(std::vector<float>& buffer, int x, int y, int z, const Chunk** chunks, unsigned int id, size_t& index){
+	float l;
+	float uvsize = 1.0f/16.0f;
 
+	Block* block = Block::blocks[id];
+	unsigned char group = block->drawGroup;
 
+	if (!IS_BLOCKED(x,y+1,z,group)){
+		SETUP_UV(block->textureFaces[3]);
+
+		VERTEX(index, x-0.5f, y+0.5f, z-0.5f, u2,v1, 1,1,1,0);
+		VERTEX(index, x-0.5f, y+0.5f, z+0.5f, u2,v2, 1,1,1,0);
+		VERTEX(index, x+0.5f, y+0.5f, z+0.5f, u1,v2, 1,1,1,0);
+
+		VERTEX(index, x-0.5f, y+0.5f, z-0.5f, u2,v1, 1,1,1,0);
+		VERTEX(index, x+0.5f, y+0.5f, z+0.5f, u1,v2, 1,1,1,0);
+		VERTEX(index, x+0.5f, y+0.5f, z-0.5f, u1,v1, 1,1,1,0);
+	}
+	if (!IS_BLOCKED(x,y-1,z,group)){
+		SETUP_UV(block->textureFaces[2]);
+
+		VERTEX(index, x-0.5f, y-0.5f, z-0.5f, u1,v1, 1,1,1,0);
+		VERTEX(index, x+0.5f, y-0.5f, z+0.5f, u2,v2, 1,1,1,0);
+		VERTEX(index, x-0.5f, y-0.5f, z+0.5f, u1,v2, 1,1,1,0);
+
+		VERTEX(index, x-0.5f, y-0.5f, z-0.5f, u1,v1, 1,1,1,0);
+		VERTEX(index, x+0.5f, y-0.5f, z-0.5f, u2,v1, 1,1,1,0);
+		VERTEX(index, x+0.5f, y-0.5f, z+0.5f, u2,v2, 1,1,1,0);
+	}
+
+	if (!IS_BLOCKED(x+1,y,z,group)){
+		SETUP_UV(block->textureFaces[1]);
+
+		VERTEX(index, x+0.5f, y-0.5f, z-0.5f, u2,v1, 1,1,1,0);
+		VERTEX(index, x+0.5f, y+0.5f, z-0.5f, u2,v2, 1,1,1,0);
+		VERTEX(index, x+0.5f, y+0.5f, z+0.5f, u1,v2, 1,1,1,0);
+
+		VERTEX(index, x+0.5f, y-0.5f, z-0.5f, u2,v1, 1,1,1,0);
+		VERTEX(index, x+0.5f, y+0.5f, z+0.5f, u1,v2, 1,1,1,0);
+		VERTEX(index, x+0.5f, y-0.5f, z+0.5f, u1,v1, 1,1,1,0);
+	}
+	if (!IS_BLOCKED(x-1,y,z,group)){
+		SETUP_UV(block->textureFaces[0]);
+
+		VERTEX(index, x-0.5f, y-0.5f, z-0.5f, u1,v1, 1,1,1,0);
+		VERTEX(index, x-0.5f, y+0.5f, z+0.5f, u2,v2, 1,1,1,0);
+		VERTEX(index, x-0.5f, y+0.5f, z-0.5f, u1,v2, 1,1,1,0);
+
+		VERTEX(index, x-0.5f, y-0.5f, z-0.5f, u1,v1, 1,1,1,0);
+		VERTEX(index, x-0.5f, y-0.5f, z+0.5f, u2,v1, 1,1,1,0);
+		VERTEX(index, x-0.5f, y+0.5f, z+0.5f, u2,v2, 1,1,1,0);
+	}
+
+	if (!IS_BLOCKED(x,y,z+1,group)){
+		SETUP_UV(block->textureFaces[5]);
+
+		VERTEX(index, x-0.5f, y-0.5f, z+0.5f, u1,v1, 1,1,1,0);
+		VERTEX(index, x+0.5f, y+0.5f, z+0.5f, u2,v2, 1,1,1,0);
+		VERTEX(index, x-0.5f, y+0.5f, z+0.5f, u1,v2, 1,1,1,0);
+
+		VERTEX(index, x-0.5f, y-0.5f, z+0.5f, u1,v1, 1,1,1,0);
+		VERTEX(index, x+0.5f, y-0.5f, z+0.5f, u2,v1, 1,1,1,0);
+		VERTEX(index, x+0.5f, y+0.5f, z+0.5f, u2,v2, 1,1,1,0);
+	}
+	if (!IS_BLOCKED(x,y,z-1,group)){
+		SETUP_UV(block->textureFaces[4]);
+
+		VERTEX(index, x-0.5f, y-0.5f, z-0.5f, u2,v1, 1,1,1,0);
+		VERTEX(index, x-0.5f, y+0.5f, z-0.5f, u2,v2, 1,1,1,0);
+		VERTEX(index, x+0.5f, y+0.5f, z-0.5f, u1,v2, 1,1,1,0);
+
+		VERTEX(index, x-0.5f, y-0.5f, z-0.5f, u2,v1, 1,1,1,0);
+		VERTEX(index, x+0.5f, y+0.5f, z-0.5f, u1,v2, 1,1,1,0);
+		VERTEX(index, x+0.5f, y-0.5f, z-0.5f, u1,v1, 1,1,1,0);
+	}
+}
 
 
 inline void _renderXBlock(std::vector<float>& buffer, int x, int y, int z, const Chunk** chunks, voxel vox, size_t& index){
@@ -304,101 +372,88 @@ inline void _renderXBlock(std::vector<float>& buffer, int x, int y, int z, const
 		return;
 	}
 
-	float l;
 	float uvsize = 1.0f/16.0f;
 
-		float lr = LIGHT(x,y,z, 0) / 15.0f;
-		float lg = LIGHT(x,y,z, 1) / 15.0f;
-		float lb = LIGHT(x,y,z, 2) / 15.0f;
-		float ls = LIGHT(x,y,z, 3) / 15.0f;
+	float lr = LIGHT(x,y,z, 0) / 15.0f;
+	float lg = LIGHT(x,y,z, 1) / 15.0f;
+	float lb = LIGHT(x,y,z, 2) / 15.0f;
+	float ls = LIGHT(x,y,z, 3) / 15.0f;
 
-		float lr0 = (LIGHT(x,y-1,z,0) + lr*30) / 45.0f;
-		float lr1 = (LIGHT(x,y+1,z,0) + lr*30) / 45.0f;
-		float lr2 = (LIGHT(x,y+1,z,0) + lr*30) / 45.0f;
-		float lr3 = (LIGHT(x,y-1,z,0) + lr*30) / 45.0f;
-		float lr4 = (LIGHT(x,y-1,z,0) + lr*30) / 45.0f;
-		float lr5 = (LIGHT(x,y+1,z,0) + lr*30) / 45.0f;
-		float lr6 = (LIGHT(x,y+1,z,0) + lr*30) / 45.0f;
-		float lr7 = (LIGHT(x,y-1,z,0) + lr*30) / 45.0f;
+	float lr0 = (LIGHT(x,y-1,z,0) + lr*30) / 45.0f;
+	float lr1 = (LIGHT(x,y+1,z,0) + lr*30) / 45.0f;
+	float lr2 = (LIGHT(x,y+1,z,0) + lr*30) / 45.0f;
+	float lr3 = (LIGHT(x,y-1,z,0) + lr*30) / 45.0f;
+	float lr4 = (LIGHT(x,y-1,z,0) + lr*30) / 45.0f;
+	float lr5 = (LIGHT(x,y+1,z,0) + lr*30) / 45.0f;
+	float lr6 = (LIGHT(x,y+1,z,0) + lr*30) / 45.0f;
+	float lr7 = (LIGHT(x,y-1,z,0) + lr*30) / 45.0f;
 
-		float lg0 = (LIGHT(x,y-1,z,1) + lg*30) / 45.0f;
-		float lg1 = (LIGHT(x,y+1,z,1) + lg*30) / 45.0f;
-		float lg2 = (LIGHT(x,y+1,z,1) + lg*30) / 45.0f;
-		float lg3 = (LIGHT(x,y-1,z,1) + lg*30) / 45.0f;
-		float lg4 = (LIGHT(x,y-1,z,1) + lg*30) / 45.0f;
-		float lg5 = (LIGHT(x,y+1,z,1) + lg*30) / 45.0f;
-		float lg6 = (LIGHT(x,y+1,z,1) + lg*30) / 45.0f;
-		float lg7 = (LIGHT(x,y-1,z,1) + lg*30) / 45.0f;
+	float lg0 = (LIGHT(x,y-1,z,1) + lg*30) / 45.0f;
+	float lg1 = (LIGHT(x,y+1,z,1) + lg*30) / 45.0f;
+	float lg2 = (LIGHT(x,y+1,z,1) + lg*30) / 45.0f;
+	float lg3 = (LIGHT(x,y-1,z,1) + lg*30) / 45.0f;
+	float lg4 = (LIGHT(x,y-1,z,1) + lg*30) / 45.0f;
+	float lg5 = (LIGHT(x,y+1,z,1) + lg*30) / 45.0f;
+	float lg6 = (LIGHT(x,y+1,z,1) + lg*30) / 45.0f;
+	float lg7 = (LIGHT(x,y-1,z,1) + lg*30) / 45.0f;
 
-		float lb0 = (LIGHT(x,y-1,z,2) + lb*30) / 45.0f;
-		float lb1 = (LIGHT(x,y+1,z,2) + lb*30) / 45.0f;
-		float lb2 = (LIGHT(x,y+1,z,2) + lb*30) / 45.0f;
-		float lb3 = (LIGHT(x,y-1,z,2) + lb*30) / 45.0f;
-		float lb4 = (LIGHT(x,y-1,z,2) + lb*30) / 45.0f;
-		float lb5 = (LIGHT(x,y+1,z,2) + lb*30) / 45.0f;
-		float lb6 = (LIGHT(x,y+1,z,2) + lb*30) / 45.0f;
-		float lb7 = (LIGHT(x,y-1,z,2) + lb*30) / 45.0f;
+	float lb0 = (LIGHT(x,y-1,z,2) + lb*30) / 45.0f;
+	float lb1 = (LIGHT(x,y+1,z,2) + lb*30) / 45.0f;
+	float lb2 = (LIGHT(x,y+1,z,2) + lb*30) / 45.0f;
+	float lb3 = (LIGHT(x,y-1,z,2) + lb*30) / 45.0f;
+	float lb4 = (LIGHT(x,y-1,z,2) + lb*30) / 45.0f;
+	float lb5 = (LIGHT(x,y+1,z,2) + lb*30) / 45.0f;
+	float lb6 = (LIGHT(x,y+1,z,2) + lb*30) / 45.0f;
+	float lb7 = (LIGHT(x,y-1,z,2) + lb*30) / 45.0f;
 
-		float ls0 = (LIGHT(x,y-1,z,3) + ls*30) / 45.0f;
-		float ls1 = (LIGHT(x,y+1,z,3) + ls*30) / 45.0f;
-		float ls2 = (LIGHT(x,y+1,z,3) + ls*30) / 45.0f;
-		float ls3 = (LIGHT(x,y-1,z,3) + ls*30) / 45.0f;
-		float ls4 = (LIGHT(x,y-1,z,3) + ls*30) / 45.0f;
-		float ls5 = (LIGHT(x,y+1,z,3) + ls*30) / 45.0f;
-		float ls6 = (LIGHT(x,y+1,z,3) + ls*30) / 45.0f;
-		float ls7 = (LIGHT(x,y-1,z,3) + ls*30) / 45.0f;
+	float ls0 = (LIGHT(x,y-1,z,3) + ls*30) / 45.0f;
+	float ls1 = (LIGHT(x,y+1,z,3) + ls*30) / 45.0f;
+	float ls2 = (LIGHT(x,y+1,z,3) + ls*30) / 45.0f;
+	float ls3 = (LIGHT(x,y-1,z,3) + ls*30) / 45.0f;
+	float ls4 = (LIGHT(x,y-1,z,3) + ls*30) / 45.0f;
+	float ls5 = (LIGHT(x,y+1,z,3) + ls*30) / 45.0f;
+	float ls6 = (LIGHT(x,y+1,z,3) + ls*30) / 45.0f;
+	float ls7 = (LIGHT(x,y-1,z,3) + ls*30) / 45.0f;
 
+	{SETUP_UV(block->textureFaces[1]);
 
-		l = 0.95f;
+	VERTEX(index, x-0.5f+xs, y-0.5f, z-0.5f+zs, u2,v1, lr0,lg0,lb0,ls0);
+	VERTEX(index, x-0.5f+xs, y+0.5f, z-0.5f+zs, u2,v2, lr1,lg1,lb1,ls1);
+	VERTEX(index, x+0.5f+xs, y+0.5f, z+0.5f+zs, u1,v2, lr2,lg2,lb2,ls2);
 
-		{SETUP_UV(block->textureFaces[1]);
+	VERTEX(index, x-0.5f+xs, y-0.5f, z-0.5f+zs, u2,v1, lr0,lg0,lb0,ls0);
+	VERTEX(index, x+0.5f+xs, y+0.5f, z+0.5f+zs, u1,v2, lr2,lg2,lb2,ls2);
+	VERTEX(index, x+0.5f+xs, y-0.5f, z+0.5f+zs, u1,v1, lr3,lg3,lb3,ls3);}
 
-		VERTEX(index, x-0.5f+xs, y-0.5f, z-0.5f+zs, u2,v1, lr0,lg0,lb0,ls0);
-		VERTEX(index, x-0.5f+xs, y+0.5f, z-0.5f+zs, u2,v2, lr1,lg1,lb1,ls1);
-		VERTEX(index, x+0.5f+xs, y+0.5f, z+0.5f+zs, u1,v2, lr2,lg2,lb2,ls2);
+	{SETUP_UV(block->textureFaces[0]);
 
-		VERTEX(index, x-0.5f+xs, y-0.5f, z-0.5f+zs, u2,v1, lr0,lg0,lb0,ls0);
-		VERTEX(index, x+0.5f+xs, y+0.5f, z+0.5f+zs, u1,v2, lr2,lg2,lb2,ls2);
-		VERTEX(index, x+0.5f+xs, y-0.5f, z+0.5f+zs, u1,v1, lr3,lg3,lb3,ls3);}
-	
-	
-		l = 0.85f;
+	VERTEX(index, x-0.5f+xs, y-0.5f, z-0.5f+zs, u1,v1, lr0,lg0,lb0,ls0);
+	VERTEX(index, x+0.5f+xs, y+0.5f, z+0.5f+zs, u2,v2, lr1,lg1,lb1,ls1);
+	VERTEX(index, x-0.5f+xs, y+0.5f, z-0.5f+zs, u1,v2, lr2,lg2,lb2,ls2);
 
-		{SETUP_UV(block->textureFaces[0]);
+	VERTEX(index, x-0.5f+xs, y-0.5f, z-0.5f+zs, u1,v1, lr0,lg0,lb0,ls0);
+	VERTEX(index, x+0.5f+xs, y-0.5f, z+0.5f+zs, u2,v1, lr3,lg3,lb3,ls3);
+	VERTEX(index, x+0.5f+xs, y+0.5f, z+0.5f+zs, u2,v2, lr1,lg1,lb1,ls1);}
 
-		VERTEX(index, x-0.5f+xs, y-0.5f, z-0.5f+zs, u1,v1, lr0,lg0,lb0,ls0);
-		VERTEX(index, x+0.5f+xs, y+0.5f, z+0.5f+zs, u2,v2, lr1,lg1,lb1,ls1);
-		VERTEX(index, x-0.5f+xs, y+0.5f, z-0.5f+zs, u1,v2, lr2,lg2,lb2,ls2);
+	{SETUP_UV(block->textureFaces[5]);
 
-		VERTEX(index, x-0.5f+xs, y-0.5f, z-0.5f+zs, u1,v1, lr0,lg0,lb0,ls0);
-		VERTEX(index, x+0.5f+xs, y-0.5f, z+0.5f+zs, u2,v1, lr3,lg3,lb3,ls3);
-		VERTEX(index, x+0.5f+xs, y+0.5f, z+0.5f+zs, u2,v2, lr1,lg1,lb1,ls1);}
-	
-	
-		l = 0.9f;
+	VERTEX(index, x-0.5f+xs, y-0.5f, z+0.5f+zs, u1,v1, lr4,lg4,lb4,ls4);
+	VERTEX(index, x+0.5f+xs, y+0.5f, z-0.5f+zs, u2,v2, lr5,lg5,lb5,ls5);
+	VERTEX(index, x-0.5f+xs, y+0.5f, z+0.5f+zs, u1,v2, lr6,lg6,lb6,ls6);
 
-		{SETUP_UV(block->textureFaces[5]);
+	VERTEX(index, x-0.5f+xs, y-0.5f, z+0.5f+zs, u1,v1, lr4,lg4,lb4,ls4);
+	VERTEX(index, x+0.5f+xs, y-0.5f, z-0.5f+zs, u2,v1, lr7,lg7,lb7,ls7);
+	VERTEX(index, x+0.5f+xs, y+0.5f, z-0.5f+zs, u2,v2, lr5,lg5,lb5,ls5);}
 
-		VERTEX(index, x-0.5f+xs, y-0.5f, z+0.5f+zs, u1,v1, lr4,lg4,lb4,ls4);
-		VERTEX(index, x+0.5f+xs, y+0.5f, z-0.5f+zs, u2,v2, lr5,lg5,lb5,ls5);
-		VERTEX(index, x-0.5f+xs, y+0.5f, z+0.5f+zs, u1,v2, lr6,lg6,lb6,ls6);
+	{SETUP_UV(block->textureFaces[4]);
 
-		VERTEX(index, x-0.5f+xs, y-0.5f, z+0.5f+zs, u1,v1, lr4,lg4,lb4,ls4);
-		VERTEX(index, x+0.5f+xs, y-0.5f, z-0.5f+zs, u2,v1, lr7,lg7,lb7,ls7);
-		VERTEX(index, x+0.5f+xs, y+0.5f, z-0.5f+zs, u2,v2, lr5,lg5,lb5,ls5);}
+	VERTEX(index, x-0.5f+xs, y-0.5f, z+0.5f+zs, u2,v1, lr4,lg4,lb4,ls4);
+	VERTEX(index, x-0.5f+xs, y+0.5f, z+0.5f+zs, u2,v2, lr5,lg5,lb5,ls5);
+	VERTEX(index, x+0.5f+xs, y+0.5f, z-0.5f+zs, u1,v2, lr6,lg6,lb6,ls6);
 
-
-		l = 0.8f;
-
-		{SETUP_UV(block->textureFaces[4]);
-
-		VERTEX(index, x-0.5f+xs, y-0.5f, z+0.5f+zs, u2,v1, lr4,lg4,lb4,ls4);
-		VERTEX(index, x-0.5f+xs, y+0.5f, z+0.5f+zs, u2,v2, lr5,lg5,lb5,ls5);
-		VERTEX(index, x+0.5f+xs, y+0.5f, z-0.5f+zs, u1,v2, lr6,lg6,lb6,ls6);
-
-		VERTEX(index, x-0.5f+xs, y-0.5f, z+0.5f+zs, u2,v1, lr4,lg4,lb4,ls4);
-		VERTEX(index, x+0.5f+xs, y+0.5f, z-0.5f+zs, u1,v2, lr6,lg6,lb6,ls6);
-		VERTEX(index, x+0.5f+xs, y-0.5f, z-0.5f+zs, u1,v1, lr7,lg7,lb7,ls7);}
+	VERTEX(index, x-0.5f+xs, y-0.5f, z+0.5f+zs, u2,v1, lr4,lg4,lb4,ls4);
+	VERTEX(index, x+0.5f+xs, y+0.5f, z-0.5f+zs, u1,v2, lr6,lg6,lb6,ls6);
+	VERTEX(index, x+0.5f+xs, y-0.5f, z-0.5f+zs, u1,v1, lr7,lg7,lb7,ls7);}
 }
 
 const float* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, size_t& size){
@@ -408,9 +463,15 @@ const float* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, size_t& s
 		for (int z = 0; z < CHUNK_D; z++){
 			for (int x = 0; x < CHUNK_W; x++){
 				voxel vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
+				if (vox.id == 0)
+					continue;
 				if (vox.id == 9 || vox.id == 4 || vox.id == 12 || vox.id == 13)
 					continue;
-				_renderBlock(buffer, x, y, z, chunks, vox, index);
+				Block* block = Block::blocks[vox.id];
+				if (block->emission[0] || block->emission[1] || block->emission[2]){
+					continue;
+				}
+				_renderBlock(buffer, x, y, z, chunks, vox.id, index);
 			}
 		}
 	}
@@ -419,9 +480,25 @@ const float* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, size_t& s
 		for (int z = 0; z < CHUNK_D; z++){
 			for (int x = 0; x < CHUNK_W; x++){
 				voxel vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
+				if (vox.id == 0)
+					continue;
+				Block* block = Block::blocks[vox.id];
+				if (block->emission[0] || block->emission[1] || block->emission[2]){
+					_renderBlockShadeless(buffer, x, y, z, chunks, vox.id, index);
+				}
+			}
+		}
+	}
+
+	for (int y = 0; y < CHUNK_H; y++){
+		for (int z = 0; z < CHUNK_D; z++){
+			for (int x = 0; x < CHUNK_W; x++){
+				voxel vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
+				if (vox.id == 0)
+					continue;
 				if (vox.id != 9)
 					continue;
-				_renderBlock(buffer, x, y, z, chunks, vox, index);
+				_renderBlock(buffer, x, y, z, chunks, vox.id, index);
 			}
 		}
 	}
@@ -430,7 +507,9 @@ const float* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, size_t& s
 		for (int z = 0; z < CHUNK_D; z++){
 			for (int x = 0; x < CHUNK_W; x++){
 				voxel vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
-				if (vox.id != 12 && vox.id != 13)
+				if (vox.id == 0)
+					continue;
+				if (Block::blocks[vox.id]->model != BLOCK_MODEL_GRASS)
 					continue;
 				_renderXBlock(buffer, x, y, z, chunks, vox, index);
 			}
@@ -441,9 +520,11 @@ const float* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, size_t& s
 		for (int z = 0; z < CHUNK_D; z++){
 			for (int x = 0; x < CHUNK_W; x++){
 				voxel vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
+				if (vox.id == 0)
+					continue;
 				if (vox.id != 4)
 					continue;
-				_renderBlock(buffer, x, y, z, chunks, vox, index);
+				_renderBlock(buffer, x, y, z, chunks, vox.id, index);
 			}
 		}
 	}

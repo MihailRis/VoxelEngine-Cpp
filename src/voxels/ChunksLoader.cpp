@@ -12,10 +12,10 @@
 
 #include <iostream>
 
-#define CLOSES_C 27
+#define SURROUNDINGS_C 9
 
 void ChunksLoader::_thread(){
-	Chunks chunks(3,3,3, -1,-1,-1);
+	Chunks chunks(3, 3, -1, -1);
 	Lighting lighting(&chunks);
 	VoxelRenderer renderer;
 	while (state != OFF){
@@ -24,9 +24,9 @@ void ChunksLoader::_thread(){
 			continue;
 		}
 		Chunk* chunk = current;
-		chunks._setOffset(chunk->x-1, chunk->y-1, chunk->z-1);
-		for (size_t i = 0; i < CLOSES_C; i++){
-			Chunk* other = closes[i];
+		chunks._setOffset(chunk->x-1, chunk->z-1);
+		for (size_t i = 0; i < SURROUNDINGS_C; i++){
+			Chunk* other = surroundings[i];
 			if (other){
 				chunks.putChunk(other);
 			}
@@ -34,8 +34,9 @@ void ChunksLoader::_thread(){
 
 		if (state == LOAD){
 			chunks.putChunk(chunk);
-			if (!chunk->loaded){
-				WorldGenerator::generate(chunk->voxels, chunk->x, chunk->y, chunk->z, world->seed);
+			if (!chunk->isLoaded()){
+				WorldGenerator::generate(chunk->voxels, chunk->x, chunk->z, world->seed);
+				chunk->setUnsaved(true);
 			}
 
 			for (size_t i = 0; i < CHUNK_VOL; i++){
@@ -44,11 +45,17 @@ void ChunksLoader::_thread(){
 					chunk->voxels[i].id = 11;
 				}
 			}
-			lighting.onChunkLoaded(chunk->x, chunk->y, chunk->z, true);
+			lighting.prebuildSkyLight(chunk->x, chunk->z);
+		}
+		else if (state == LIGHTS) {
+			lighting.buildSkyLight(chunk->x, chunk->z);
+			lighting.onChunkLoaded(chunk->x, chunk->z);
+			chunk->setLighted(true);
 		}
 		else if (state == RENDER){
+			chunk->setModified(false);
 			size_t size;
-			renderer.render(chunk, (const Chunk**)(closes.load()), size);
+			renderer.render(chunk, (const Chunk**)(surroundings.load()), size);
 			float* vertices = new float[size];
 			for (size_t i = 0; i < size; i++)
 				vertices[i] = renderer.buffer[i];
@@ -57,33 +64,33 @@ void ChunksLoader::_thread(){
 		}
 
 		chunks.clear(false);
-		for (int i = 0; i < CLOSES_C; i++){
-			Chunk* other = closes[i];
+		for (int i = 0; i < SURROUNDINGS_C; i++){
+			Chunk* other = surroundings[i];
 			if (other)
 				other->decref();
 		}
-		chunk->ready = true;
+		chunk->setReady(true);
 		current = nullptr;
 		chunk->decref();
 	}
 }
 
-void ChunksLoader::perform(Chunk* chunk, Chunk** closes_passed, LoaderMode mode){
+void ChunksLoader::perform(Chunk* chunk, Chunk** surroundings_passed, LoaderMode mode){
 	if (isBusy()){
 		std::cerr << "performing while busy" << std::endl;
 		return;
 	}
 	chunk->incref();
-	if (closes == nullptr){
-		closes = new Chunk*[CLOSES_C];
+	if (surroundings == nullptr){
+		surroundings = new Chunk*[SURROUNDINGS_C];
 	}
-	for (int i = 0; i < CLOSES_C; i++){
-		Chunk* other = closes_passed[i];
+	for (int i = 0; i < SURROUNDINGS_C; i++){
+		Chunk* other = surroundings_passed[i];
 		if (other == nullptr)
-			closes[i] = nullptr;
+			surroundings[i] = nullptr;
 		else {
 			other->incref();
-			closes[i] = other;
+			surroundings[i] = other;
 		}
 	}
 	current = chunk;
@@ -92,6 +99,10 @@ void ChunksLoader::perform(Chunk* chunk, Chunk** closes_passed, LoaderMode mode)
 
 void ChunksLoader::load(Chunk* chunk, Chunk** closes_passed){
 	perform(chunk, closes_passed, LOAD);
+}
+
+void ChunksLoader::lights(Chunk* chunk, Chunk** closes_passed){
+	perform(chunk, closes_passed, LIGHTS);
 }
 
 void ChunksLoader::render(Chunk* chunk, Chunk** closes_passed){

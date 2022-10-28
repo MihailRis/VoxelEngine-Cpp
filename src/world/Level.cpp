@@ -4,6 +4,7 @@
 #include "../player_control.h"
 
 Level::Level(World* world, Player* player, Chunks* chunks, PhysicsSolver* physics) :
+	world(world),
 	player(player),
 	chunks(chunks),
 	physics(physics) {
