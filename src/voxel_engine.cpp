@@ -120,7 +120,7 @@ void mainloop(Level* level, Assets* assets) {
 	float delta = 0.0f;
 	bool occlusion = true;
 	bool devdata = false;
-	Window::swapInterval(1);
+	Window::swapInterval(0);
 	while (!Window::isShouldClose()){
 		frame++;
 		float currentTime = glfwGetTime();
@@ -131,7 +131,7 @@ void mainloop(Level* level, Assets* assets) {
 			Window::setShouldClose(true);
 		}
 		if (Events::jpressed(GLFW_KEY_TAB)){
-			Events::toogleCursor();
+			Events::toggleCursor();
 		}
 		if (Events::jpressed(GLFW_KEY_O)){
 			occlusion = !occlusion;
