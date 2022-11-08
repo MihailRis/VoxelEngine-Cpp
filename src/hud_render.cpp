@@ -95,36 +95,42 @@ void HudRenderer::draw(Level* level, Assets* assets){
 		Block* cblock = Block::blocks[player->choosenBlock];
 		if (cblock->model == BLOCK_MODEL_CUBE){
 			batch->blockSprite(24, uicamera->fov - 72, 48, 48, 16, cblock->textureFaces, vec4(1.0f));
-		} else if (cblock->model == BLOCK_MODEL_GRASS){
+		} else if (cblock->model == BLOCK_MODEL_X_SPRITE){
 			batch->sprite(24, uicamera->fov - 72, 48, 48, 16, cblock->textureFaces[3], vec4(1.0f));
 		}
 	}
 
 	if (!Events::_cursor_locked) {
+		int size = 48;
+		int step = 70;
+		int y = uicamera->fov - 72 - 70;
+		int x = 0;
+		vec4 tint = vec4(1.0f);
+		int mx = Events::x;
+		int my = Events::y;
+
 		for (unsigned i = 1; i < 256; i++) {
 			Block* cblock = Block::blocks[i];
 			if (cblock == nullptr)
 				break;
-			int size = 48;
-			int step = 70;
-			int x = 24 + (i-1) * step;
-			int y = uicamera->fov - 72 - 70;
+			x = 24 + (i-1) * step;
 			y -= 72 * (x / (Window::width - step));
 			x %= (Window::width - step);
-			vec4 tint(1.0f);
-			int mx = Events::x;
-			int my = Events::y;
 			if (mx > x && mx < x + size && my > y && my < y + size) {
-				tint.r *= 2.0f;
-				tint.g *= 2.0f;
-				tint.b *= 2.0f;
+				tint.r *= 1.3f;
+				tint.g *= 1.3f;
+				tint.b *= 1.3f;
 				if (Events::jclicked(GLFW_MOUSE_BUTTON_LEFT)) {
 					player->choosenBlock = i;
 				}
+			} else
+			{
+				tint = vec4(1.0f);
 			}
+			
 			if (cblock->model == BLOCK_MODEL_CUBE){
 				batch->blockSprite(x, y, size, size, 16, cblock->textureFaces, tint);
-			} else if (cblock->model == BLOCK_MODEL_GRASS){
+			} else if (cblock->model == BLOCK_MODEL_X_SPRITE){
 				batch->sprite(x, y, size, size, 16, cblock->textureFaces[3], tint);
 			}
 		}

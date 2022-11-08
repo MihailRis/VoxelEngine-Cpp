@@ -189,7 +189,7 @@ void PlayerController::update_interaction(){
 			int x = (int)(iend.x)+(int)(norm.x);
 			int y = (int)(iend.y)+(int)(norm.y);
 			int z = (int)(iend.z)+(int)(norm.z);
-			if (block->model == BLOCK_MODEL_GRASS){
+			if (block->model == BLOCK_MODEL_X_SPRITE){
 				x = (int)iend.x;
 				y = (int)iend.y;
 				z = (int)iend.z;

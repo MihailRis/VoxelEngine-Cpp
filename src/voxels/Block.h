@@ -2,7 +2,7 @@
 #define VOXELS_BLOCK_H_
 
 #define BLOCK_MODEL_CUBE 1
-#define BLOCK_MODEL_GRASS 2
+#define BLOCK_MODEL_X_SPRITE 2
 
 class Block {
 public:

@@ -120,7 +120,7 @@ void mainloop(Level* level, Assets* assets) {
 	float delta = 0.0f;
 	bool occlusion = true;
 	bool devdata = false;
-	Window::swapInterval(0);
+	Window::swapInterval(1);
 	while (!Window::isShouldClose()){
 		frame++;
 		float currentTime = glfwGetTime();

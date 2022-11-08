@@ -417,43 +417,43 @@ inline void _renderXBlock(std::vector<float>& buffer, int x, int y, int z, const
 
 	{SETUP_UV(block->textureFaces[1]);
 
-	VERTEX(index, x-0.5f+xs, y-0.5f, z-0.5f+zs, u2,v1, lr0,lg0,lb0,ls0);
-	VERTEX(index, x-0.5f+xs, y+0.5f, z-0.5f+zs, u2,v2, lr1,lg1,lb1,ls1);
-	VERTEX(index, x+0.5f+xs, y+0.5f, z+0.5f+zs, u1,v2, lr2,lg2,lb2,ls2);
+	VERTEX(index, x-0.3535f+xs, y-0.5f, z-0.3535f+zs, u2,v1, lr0,lg0,lb0,ls0);
+	VERTEX(index, x-0.3535f+xs, y+0.5f, z-0.3535f+zs, u2,v2, lr1,lg1,lb1,ls1);
+	VERTEX(index, x+0.3535f+xs, y+0.5f, z+0.3535f+zs, u1,v2, lr2,lg2,lb2,ls2);
 
-	VERTEX(index, x-0.5f+xs, y-0.5f, z-0.5f+zs, u2,v1, lr0,lg0,lb0,ls0);
-	VERTEX(index, x+0.5f+xs, y+0.5f, z+0.5f+zs, u1,v2, lr2,lg2,lb2,ls2);
-	VERTEX(index, x+0.5f+xs, y-0.5f, z+0.5f+zs, u1,v1, lr3,lg3,lb3,ls3);}
+	VERTEX(index, x-0.3535f+xs, y-0.5f, z-0.3535f+zs, u2,v1, lr0,lg0,lb0,ls0);
+	VERTEX(index, x+0.3535f+xs, y+0.5f, z+0.3535f+zs, u1,v2, lr2,lg2,lb2,ls2);
+	VERTEX(index, x+0.3535f+xs, y-0.5f, z+0.3535f+zs, u1,v1, lr3,lg3,lb3,ls3);}
 
 	{SETUP_UV(block->textureFaces[0]);
 
-	VERTEX(index, x-0.5f+xs, y-0.5f, z-0.5f+zs, u1,v1, lr0,lg0,lb0,ls0);
-	VERTEX(index, x+0.5f+xs, y+0.5f, z+0.5f+zs, u2,v2, lr1,lg1,lb1,ls1);
-	VERTEX(index, x-0.5f+xs, y+0.5f, z-0.5f+zs, u1,v2, lr2,lg2,lb2,ls2);
+	VERTEX(index, x-0.3535f+xs, y-0.5f, z-0.3535f+zs, u1,v1, lr0,lg0,lb0,ls0);
+	VERTEX(index, x+0.3535f+xs, y+0.5f, z+0.3535f+zs, u2,v2, lr1,lg1,lb1,ls1);
+	VERTEX(index, x-0.3535f+xs, y+0.5f, z-0.3535f+zs, u1,v2, lr2,lg2,lb2,ls2);
 
-	VERTEX(index, x-0.5f+xs, y-0.5f, z-0.5f+zs, u1,v1, lr0,lg0,lb0,ls0);
-	VERTEX(index, x+0.5f+xs, y-0.5f, z+0.5f+zs, u2,v1, lr3,lg3,lb3,ls3);
-	VERTEX(index, x+0.5f+xs, y+0.5f, z+0.5f+zs, u2,v2, lr1,lg1,lb1,ls1);}
+	VERTEX(index, x-0.3535f+xs, y-0.5f, z-0.3535f+zs, u1,v1, lr0,lg0,lb0,ls0);
+	VERTEX(index, x+0.3535f+xs, y-0.5f, z+0.3535f+zs, u2,v1, lr3,lg3,lb3,ls3);
+	VERTEX(index, x+0.3535f+xs, y+0.5f, z+0.3535f+zs, u2,v2, lr1,lg1,lb1,ls1);}
 
 	{SETUP_UV(block->textureFaces[5]);
 
-	VERTEX(index, x-0.5f+xs, y-0.5f, z+0.5f+zs, u1,v1, lr4,lg4,lb4,ls4);
-	VERTEX(index, x+0.5f+xs, y+0.5f, z-0.5f+zs, u2,v2, lr5,lg5,lb5,ls5);
-	VERTEX(index, x-0.5f+xs, y+0.5f, z+0.5f+zs, u1,v2, lr6,lg6,lb6,ls6);
+	VERTEX(index, x-0.3535f+xs, y-0.5f, z+0.3535f+zs, u1,v1, lr4,lg4,lb4,ls4);
+	VERTEX(index, x+0.3535f+xs, y+0.5f, z-0.3535f+zs, u2,v2, lr5,lg5,lb5,ls5);
+	VERTEX(index, x-0.3535f+xs, y+0.5f, z+0.3535f+zs, u1,v2, lr6,lg6,lb6,ls6);
 
-	VERTEX(index, x-0.5f+xs, y-0.5f, z+0.5f+zs, u1,v1, lr4,lg4,lb4,ls4);
-	VERTEX(index, x+0.5f+xs, y-0.5f, z-0.5f+zs, u2,v1, lr7,lg7,lb7,ls7);
-	VERTEX(index, x+0.5f+xs, y+0.5f, z-0.5f+zs, u2,v2, lr5,lg5,lb5,ls5);}
+	VERTEX(index, x-0.3535f+xs, y-0.5f, z+0.3535f+zs, u1,v1, lr4,lg4,lb4,ls4);
+	VERTEX(index, x+0.3535f+xs, y-0.5f, z-0.3535f+zs, u2,v1, lr7,lg7,lb7,ls7);
+	VERTEX(index, x+0.3535f+xs, y+0.5f, z-0.3535f+zs, u2,v2, lr5,lg5,lb5,ls5);}
 
 	{SETUP_UV(block->textureFaces[4]);
 
-	VERTEX(index, x-0.5f+xs, y-0.5f, z+0.5f+zs, u2,v1, lr4,lg4,lb4,ls4);
-	VERTEX(index, x-0.5f+xs, y+0.5f, z+0.5f+zs, u2,v2, lr5,lg5,lb5,ls5);
-	VERTEX(index, x+0.5f+xs, y+0.5f, z-0.5f+zs, u1,v2, lr6,lg6,lb6,ls6);
+	VERTEX(index, x-0.3535f+xs, y-0.5f, z+0.3535f+zs, u2,v1, lr4,lg4,lb4,ls4);
+	VERTEX(index, x-0.3535f+xs, y+0.5f, z+0.3535f+zs, u2,v2, lr5,lg5,lb5,ls5);
+	VERTEX(index, x+0.3535f+xs, y+0.5f, z-0.3535f+zs, u1,v2, lr6,lg6,lb6,ls6);
 
-	VERTEX(index, x-0.5f+xs, y-0.5f, z+0.5f+zs, u2,v1, lr4,lg4,lb4,ls4);
-	VERTEX(index, x+0.5f+xs, y+0.5f, z-0.5f+zs, u1,v2, lr6,lg6,lb6,ls6);
-	VERTEX(index, x+0.5f+xs, y-0.5f, z-0.5f+zs, u1,v1, lr7,lg7,lb7,ls7);}
+	VERTEX(index, x-0.3535f+xs, y-0.5f, z+0.3535f+zs, u2,v1, lr4,lg4,lb4,ls4);
+	VERTEX(index, x+0.3535f+xs, y+0.5f, z-0.3535f+zs, u1,v2, lr6,lg6,lb6,ls6);
+	VERTEX(index, x+0.3535f+xs, y-0.5f, z-0.3535f+zs, u1,v1, lr7,lg7,lb7,ls7);}
 }
 
 const float* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, size_t& size){
@@ -509,7 +509,7 @@ const float* VoxelRenderer::render(Chunk* chunk, const Chunk** chunks, size_t& s
 				voxel vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
 				if (vox.id == 0)
 					continue;
-				if (Block::blocks[vox.id]->model != BLOCK_MODEL_GRASS)
+				if (Block::blocks[vox.id]->model != BLOCK_MODEL_X_SPRITE)
 					continue;
 				_renderXBlock(buffer, x, y, z, chunks, vox, index);
 			}

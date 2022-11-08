@@ -142,10 +142,10 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 				}
 				if (real_y <= 2)
 					id = BLOCK_BEDROCK;
-				if ((id == 0) && (real_y > 55) && ((int)height + 1 == real_y) && ((unsigned short)random() > 56000)){
+				if ((id == 0) && (real_y > 55) && ((int)(height + 0.5f) == real_y) && ((unsigned short)random() > 56000)){
 					id = BLOCK_GRASS;
 				}
-				if ((id == 0) && (real_y > 55) && ((int)height + 1 == real_y) && ((unsigned short)random() > 64000)){
+				if ((id == 0) && (real_y > 55) && ((int)(height + 0.5f) == real_y) && ((unsigned short)random() > 64000)){
 					id = BLOCK_FLOWER;
 				}
 				voxels[(y * CHUNK_D + z) * CHUNK_W + x].id = id;
