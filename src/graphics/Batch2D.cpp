@@ -261,8 +261,8 @@ void Batch2D::blockSprite(float x, float y, float w, float h, int atlasRes, int 
 }
 
 void Batch2D::rect(float x, float y, float w, float h,
-					float u, float v, float tx, float ty,
-					float r, float g, float b, float a){
+		float u, float v, float tx, float ty,
+		float r, float g, float b, float a){
 	if (index + 6*VERTEX_SIZE >= capacity)
 		render();
 	vertex(x, y, u, v+ty, r,g,b,a);
@@ -272,6 +272,66 @@ void Batch2D::rect(float x, float y, float w, float h,
 	vertex(x, y, u, v+ty, r,g,b,a);
 	vertex(x+w, y, u+tx, v+ty, r,g,b,a);
 	vertex(x+w, y+h, u+tx, v, r,g,b,a);
+}
+
+void Batch2D::rect(float x, float y, float w, float h,
+		float r0, float g0, float b0,
+		float r1, float g1, float b1,
+		float r2, float g2, float b2,
+		float r3, float g3, float b3,
+		float r4, float g4, float b4, int sh){
+	if (index + 30*VERTEX_SIZE >= capacity)
+		render();
+	vec2 v0 = vec2(x+h/2,y+h/2);
+	vec2 v1 = vec2(x+w-sh,y);
+	vec2 v2 = vec2(x+sh,y);
+	vec2 v3 = vec2(x,y+sh);
+	vec2 v4 = vec2(x,y+h-sh);
+	vec2 v5 = vec2(x+sh,y+h);
+	vec2 v6 = vec2(x+w-h/2,y+h/2);
+	vec2 v7 = vec2(x+w-sh,y+h);
+	vec2 v8 = vec2(x+w,y+h-sh);
+	vec2 v9 = vec2(x+w,y+sh);
+
+	vertex(v0, vec2(0, 0), r1,g1,b1,1.0f);
+	vertex(v6, vec2(0, 0), r1,g1,b1,1.0f);
+	vertex(v1, vec2(0, 0), r1,g1,b1,1.0f);
+
+	vertex(v0, vec2(0, 0), r1,g1,b1,1.0f);
+	vertex(v1, vec2(0, 0), r1,g1,b1,1.0f);
+	vertex(v2, vec2(0, 0), r1,g1,b1,1.0f);
+
+	vertex(v0, vec2(0, 0), r0,g0,b0,1.0f);
+	vertex(v2, vec2(0, 0), r0,g0,b0,1.0f);
+	vertex(v3, vec2(0, 0), r0,g0,b0,1.0f);
+
+	vertex(v0, vec2(0, 0), r1,g1,b1,1.0f);
+	vertex(v3, vec2(0, 0), r1,g1,b1,1.0f);
+	vertex(v4, vec2(0, 0), r1,g1,b1,1.0f);
+
+	vertex(v0, vec2(0, 0), r2,g2,b2,1.0f);
+	vertex(v4, vec2(0, 0), r2,g2,b2,1.0f);
+	vertex(v5, vec2(0, 0), r2,g2,b2,1.0f);
+
+	vertex(v0, vec2(0, 0), r3,g3,b3,1.0f);
+	vertex(v5, vec2(0, 0), r3,g3,b3,1.0f);
+	vertex(v6, vec2(0, 0), r3,g3,b3,1.0f);
+
+	vertex(v6, vec2(0, 0), r3,g3,b3,1.0f);
+	vertex(v5, vec2(0, 0), r3,g3,b3,1.0f);
+	vertex(v7, vec2(0, 0), r3,g3,b3,1.0f);
+
+	vertex(v6, vec2(0, 0), r4,g4,b4,1.0f);
+	vertex(v7, vec2(0, 0), r4,g4,b4,1.0f);
+	vertex(v8, vec2(0, 0), r4,g4,b4,1.0f);
+
+	vertex(v6, vec2(0, 0), r3,g3,b3,1.0f);
+	vertex(v8, vec2(0, 0), r3,g3,b3,1.0f);
+	vertex(v9, vec2(0, 0), r3,g3,b3,1.0f);
+
+	vertex(v6, vec2(0, 0), r2,g2,b2,1.0f);
+	vertex(v9, vec2(0, 0), r2,g2,b2,1.0f);
+	vertex(v1, vec2(0, 0), r2,g2,b2,1.0f);
 }
 
 void Batch2D::render() {

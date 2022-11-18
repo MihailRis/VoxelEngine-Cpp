@@ -49,8 +49,15 @@ public:
 
 	void rect(float x, float y, float w, float h);
 	void rect(float x, float y, float w, float h,
-						float u, float v, float tx, float ty,
-						float r, float g, float b, float a);
+			float u, float v, float tx, float ty,
+			float r, float g, float b, float a);
+
+	void rect(float x, float y, float w, float h,
+			float r0, float g0, float b0,
+			float r1, float g1, float b1,
+			float r2, float g2, float b2,
+			float r3, float g3, float b3,
+			float r4, float g4, float b4, int sh);
 	void render();
 };
 

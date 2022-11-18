@@ -37,15 +37,16 @@ public:
 };
 
 float calc_height(fnl_state *noise, int real_x, int real_z){
-	float height = fnlGetNoise3D(noise, real_x*0.0125f*8,real_z*0.0125f*8, 0.0f);
-	height += fnlGetNoise3D(noise, real_x*0.025f*8,real_z*0.025f*8, 0.0f)*0.5f;
-	height += fnlGetNoise3D(noise, real_x*0.05f*8,real_z*0.05f*8, 0.0f)*0.25f;
+	float height = 0;
+	height += fnlGetNoise3D(noise, real_x*0.0125f*8-125567,real_z*0.0125f*8+3546, 0.0f);
+	height += fnlGetNoise3D(noise, real_x*0.025f*8+4647,real_z*0.025f*8-3436, 0.0f)*0.5f;
+	height += fnlGetNoise3D(noise, real_x*0.05f*8-834176,real_z*0.05f*8+23678, 0.0f)*0.25f;
 	height += fnlGetNoise3D(noise,
-			real_x*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8,real_z*0.1f*8, 0.0f)*50,
-			real_z*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8+4363,real_z*0.1f*8, 0.0f)*50,
+			real_x*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8-23557,real_z*0.1f*8-6568, 0.0f)*50,
+			real_z*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8+4363,real_z*0.1f*8+4456, 0.0f)*50,
 			0.0f)*0.1f;
-	height += fnlGetNoise3D(noise, real_x*0.1f*8,real_z*0.1f*8, 0.0f)*0.125f;
-	height += fnlGetNoise3D(noise, real_x*0.4f*8,real_z*0.4f*8, 0.0f)*0.0625f;
+	height += fnlGetNoise3D(noise, real_x*0.1f*8-3465,real_z*0.1f*8+4534, 0.0f)*0.125f;
+	height += fnlGetNoise3D(noise, real_x*0.4f*8+4565,real_z*0.4f*8+46456, 0.0f)*0.0625f;
 	height += fnlGetNoise3D(noise, real_x*8,real_z*8, 0.0f)*0.03f*(fnlGetNoise3D(noise, -real_x*0.0125f*8-1000,real_z*0.0125f*8+2000, 0.0f)/2+0.5f);
 	height *= fnlGetNoise3D(noise, real_x*0.0125f*8+1000,real_z*0.0125f*8+1000, 0.0f)/2+0.5f;
 	height += 1.0f;
@@ -54,14 +55,15 @@ float calc_height(fnl_state *noise, int real_x, int real_z){
 }
 
 float calc_height_faster(fnl_state *noise, int real_x, int real_z){
-	float height = fnlGetNoise3D(noise, real_x*0.0125f*8,real_z*0.0125f*8, 0.0f);
-	height += fnlGetNoise3D(noise, real_x*0.025f*8,real_z*0.025f*8, 0.0f)*0.5f;
-	height += fnlGetNoise3D(noise, real_x*0.05f*8,real_z*0.05f*8, 0.0f)*0.25f;
+	float height = 0;
+	height += fnlGetNoise3D(noise, real_x*0.0125f*8-125567,real_z*0.0125f*8+3546, 0.0f);
+	height += fnlGetNoise3D(noise, real_x*0.025f*8+4647,real_z*0.025f*8-3436, 0.0f)*0.5f;
+	height += fnlGetNoise3D(noise, real_x*0.05f*8-834176,real_z*0.05f*8+23678, 0.0f)*0.25f;
 	height += fnlGetNoise3D(noise,
-			real_x*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8,real_z*0.1f*8, 0.0f)*50,
-			real_z*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8+4363,real_z*0.1f*8, 0.0f)*50,
+			real_x*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8-23557,real_z*0.1f*8-6568, 0.0f)*50,
+			real_z*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8+4363,real_z*0.1f*8+4456, 0.0f)*50,
 			0.0f)*0.1f;
-	height += fnlGetNoise3D(noise, real_x*0.1f*8,real_z*0.1f*8, 0.0f)*0.125f;
+	height += fnlGetNoise3D(noise, real_x*0.1f*8-3465,real_z*0.1f*8+4534, 0.0f)*0.125f;
 	height *= fnlGetNoise3D(noise, real_x*0.0125f*8+1000,real_z*0.0125f*8+1000, 0.0f)/2+0.5f;
 	height += 1.0f;
 	height *= 64.0f;
@@ -142,10 +144,10 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 				}
 				if (real_y <= 2)
 					id = BLOCK_BEDROCK;
-				if ((id == 0) && (real_y > 55) && ((int)(height + 0.5f) == real_y) && ((unsigned short)random() > 56000)){
+				if ((id == 0) && (height > 55.5) && ((int)(height + 1) == real_y) && ((unsigned short)random() > 56000)){
 					id = BLOCK_GRASS;
 				}
-				if ((id == 0) && (real_y > 55) && ((int)(height + 0.5f) == real_y) && ((unsigned short)random() > 64000)){
+				if ((id == 0) && (height > 55.5) && ((int)(height + 1) == real_y) && ((unsigned short)random() > 64000)){
 					id = BLOCK_FLOWER;
 				}
 				voxels[(y * CHUNK_D + z) * CHUNK_W + x].id = id;

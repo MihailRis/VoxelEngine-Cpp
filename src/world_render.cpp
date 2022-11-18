@@ -147,7 +147,7 @@ void WorldRenderer::draw(World* world, Camera* camera, bool occlusion){
 		if (selectedBlock->model == 1){
 			lineBatch->box(pos.x+0.5f, pos.y+0.5f, pos.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
 		} else if (selectedBlock->model == 2){
-			lineBatch->box(pos.x+0.4f, pos.y+0.3f, pos.z+0.4f, 0.805f,0.805f,0.805f, 0,0,0,0.5f);
+			lineBatch->box(pos.x+0.5f, pos.y+0.35f, pos.z+0.5f, 0.805f,0.705f,0.805f, 0,0,0,0.5f);
 		}
 	}
 }

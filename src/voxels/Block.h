@@ -13,12 +13,14 @@ public:
 	int textureFaces[6]; // -x,x, -y,y, -z,z
 	unsigned char emission[3];
 	unsigned char drawGroup = 0;
+	unsigned char model = 1; // 0:None 1:Block 2:XSprite
 	bool lightPassing = false;
 	bool skyLightPassing = false;
 	bool obstacle = true;
 	bool selectable = true;
 	bool breakable = true;
-	unsigned char model = 1;
+	float hitboxScale = 1;
+	float hitboxY = 1;
 
 	Block(unsigned int id, int texture);
 };

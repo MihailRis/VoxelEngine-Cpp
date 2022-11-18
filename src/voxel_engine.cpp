@@ -130,7 +130,7 @@ void mainloop(Level* level, Assets* assets) {
 		if (Events::jpressed(GLFW_KEY_ESCAPE)){
 			Window::setShouldClose(true);
 		}
-		if (Events::jpressed(GLFW_KEY_TAB)){
+		if (Events::jpressed(GLFW_KEY_TAB) || Events::jpressed(GLFW_KEY_E)){
 			Events::toggleCursor();
 		}
 		if (Events::jpressed(GLFW_KEY_O)){
@@ -178,7 +178,7 @@ int main() {
 	if (status) return status;
 
 	std::cout << "-- loading world" << std::endl;
-	vec3 playerPosition = vec3(0,150,-10);
+	vec3 playerPosition = vec3(0,150,0);
 	Camera* camera = new Camera(playerPosition, radians(90.0f));
 	World* world = new World("world-1", "world/", 42);
 	Player* player = new Player(playerPosition, 4.0f, camera);
