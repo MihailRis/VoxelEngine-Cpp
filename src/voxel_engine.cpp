@@ -178,7 +178,7 @@ int main() {
 	if (status) return status;
 
 	std::cout << "-- loading world" << std::endl;
-	vec3 playerPosition = vec3(0,150,0);
+	vec3 playerPosition = vec3(0,64,0);
 	Camera* camera = new Camera(playerPosition, radians(90.0f));
 	World* world = new World("world-1", "world/", 42);
 	Player* player = new Player(playerPosition, 4.0f, camera);

@@ -34,7 +34,7 @@ public:
 	voxel* get(int x, int y, int z);
 	unsigned short getLight(int x, int y, int z);
 	unsigned char getLight(int x, int y, int z, int channel);
-	void set(int x, int y, int z, int id);
+	void set(int x, int y, int z, int id, uint8_t states);
 	voxel* rayCast(vec3 start, vec3 dir, float maxLength, vec3& end, vec3& norm, vec3& iend);
 
 	bool isObstacle(int x, int y, int z);

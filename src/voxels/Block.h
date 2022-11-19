@@ -19,6 +19,7 @@ public:
 	bool obstacle = true;
 	bool selectable = true;
 	bool breakable = true;
+	bool rotatable = false;
 	float hitboxScale = 1;
 	float hitboxY = 1;
 

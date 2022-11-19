@@ -106,6 +106,7 @@ void setup_definitions() {
 	block = new Block(BLOCK_WOOD, 7);
 	block->textureFaces[2] = 8;
 	block->textureFaces[3] = 8;
+	block->rotatable = true;
 	Block::blocks[block->id] = block;
 
 	block = new Block(BLOCK_LEAVES, 9);

@@ -176,33 +176,48 @@ void PlayerController::update_interaction(){
 	if (vox != nullptr){
 		selectedBlockId = vox->id;
 		selectedBlockPosition = iend;
+		int x = (int)iend.x;
+		int y = (int)iend.y;
+		int z = (int)iend.z;
+		uint8_t states;
+
+		if (Block::blocks[player->choosenBlock]->rotatable){
+			states = states & 0b11111100;
+			// if (abs(norm.x) > abs(norm.z)){
+			// 	if (abs(norm.x) > abs(norm.y)) states = states | 0b00000001;
+			// 	if (abs(norm.x) < abs(norm.y)) states = states | 0b00000010;
+			// }
+			// if (abs(norm.x) < abs(norm.z)){
+			// 	if (abs(norm.z) > abs(norm.y)) states = states | 0b00000011;
+			// 	if (abs(norm.z) < abs(norm.y)) states = states | 0b00000010;
+			// }
+			if (abs(norm.x) > abs(norm.z)){
+				if (abs(norm.x) > abs(norm.y)) states = 0x31;
+				if (abs(norm.x) < abs(norm.y)) states = 0x32;
+			}
+			if (abs(norm.x) < abs(norm.z)){
+				if (abs(norm.z) > abs(norm.y)) states = 0x33;
+				if (abs(norm.z) < abs(norm.y)) states = 0x32;
+			}
+		}
 		
 		Block* block = Block::blocks[vox->id];
 		if (Events::jclicked(GLFW_MOUSE_BUTTON_1) && block->breakable){
-			int x = (int)iend.x;
-			int y = (int)iend.y;
-			int z = (int)iend.z;
-			chunks->set(x,y,z, 0);
+			chunks->set(x,y,z, 0, 0);
 			lighting->onBlockSet(x,y,z,0);
 		}
 		if (Events::jclicked(GLFW_MOUSE_BUTTON_2)){
-			int x = (int)(iend.x)+(int)(norm.x);
-			int y = (int)(iend.y)+(int)(norm.y);
-			int z = (int)(iend.z)+(int)(norm.z);
-			if (block->model == BLOCK_MODEL_X_SPRITE){
-				x = (int)iend.x;
-				y = (int)iend.y;
-				z = (int)iend.z;
+			if (block->model != BLOCK_MODEL_X_SPRITE){
+				x = (int)(iend.x)+(int)(norm.x);
+				y = (int)(iend.y)+(int)(norm.y);
+				z = (int)(iend.z)+(int)(norm.z);
 			}
 			if (!level->physics->isBlockInside(x,y,z, player->hitbox)){
-				chunks->set(x, y, z, player->choosenBlock);
+				chunks->set(x, y, z, player->choosenBlock, states);
 				lighting->onBlockSet(x,y,z, player->choosenBlock);
 			}
 		}
 		if (Events::jclicked(GLFW_MOUSE_BUTTON_3)){
-			int x = (int)iend.x;
-			int y = (int)iend.y;
-			int z = (int)iend.z;
 			player->choosenBlock = chunks->get(x,y,z)->id;
 		}
 	} else {

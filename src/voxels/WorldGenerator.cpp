@@ -151,6 +151,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 					id = BLOCK_FLOWER;
 				}
 				voxels[(y * CHUNK_D + z) * CHUNK_W + x].id = id;
+				voxels[(y * CHUNK_D + z) * CHUNK_W + x].states = 0x32;
 			}
 		}
 	}

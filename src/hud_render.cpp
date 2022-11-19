@@ -126,9 +126,17 @@ void HudRenderer::draw(Level* level, Assets* assets){
 		int inv_hm = step*8;
 		int inv_w = inv_wm - (step - size);
 		int inv_h = inv_hm - (step - size);
+		int inv_x = (Window::width - (inv_w)) / 2;
+		int inv_y = (Window::height - (inv_h)) / 2;
 		int xs = (Window::width - inv_w + step)/2;
-		int x = 0;
 		int ys = (Window::height - inv_h + step)/2;
+		if (Window::width > inv_wm*3){
+			inv_x = (Window::width + (inv_w)) / 2;
+			inv_y = (Window::height - (inv_h)) / 2;
+			xs = (Window::width + inv_w + step)/2;
+			ys = (Window::height - inv_h + step)/2;
+		}
+		int x = 0;
 		int y = 0;
 		vec4 tint = vec4(1.0f);
 		int mx = Events::x;
@@ -139,11 +147,11 @@ void HudRenderer::draw(Level* level, Assets* assets){
 		batch->texture(nullptr);
 		batch->color = vec4(0.0f, 0.0f, 0.0f, 0.3f);
 		batch->rect(0, 0, Window::width, Window::height);
-		batch->rect((Window::width - (inv_w)) / 2 - 4, (Window::height - (inv_h)) / 2 - 4, inv_w+8, inv_h+8,
+		batch->rect(inv_x - 4, inv_y - 4, inv_w+8, inv_h+8,
 						0.95f, 0.95f, 0.95f, 0.85f, 0.85f, 0.85f,
 						0.7f, 0.7f, 0.7f,
 						0.55f, 0.55f, 0.55f, 0.45f, 0.45f, 0.45f, 4);
-		batch->rect((Window::width - (inv_w)) / 2, (Window::height - (inv_h)) / 2, inv_w, inv_h,
+		batch->rect(inv_x, inv_y, inv_w, inv_h,
 						0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f,
 						0.75f, 0.75f, 0.75f,
 						0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 4);

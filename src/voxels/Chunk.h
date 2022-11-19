@@ -6,7 +6,7 @@
 #define CHUNK_W 16
 #define CHUNK_H 256
 #define CHUNK_D 16
-#define CHUNK_VOL (CHUNK_W * CHUNK_H * CHUNK_D)
+#define CHUNK_VOL (CHUNK_W * CHUNK_H * CHUNK_D * 2)
 
 #define CHUNK_MODIFIED 0x1
 #define CHUNK_READY 0x2
