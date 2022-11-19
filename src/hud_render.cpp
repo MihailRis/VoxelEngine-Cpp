@@ -130,7 +130,7 @@ void HudRenderer::draw(Level* level, Assets* assets){
 		int inv_y = (Window::height - (inv_h)) / 2;
 		int xs = (Window::width - inv_w + step)/2;
 		int ys = (Window::height - inv_h + step)/2;
-		if (Window::width > inv_wm*3){
+		if (Window::width > inv_w*3){
 			inv_x = (Window::width + (inv_w)) / 2;
 			inv_y = (Window::height - (inv_h)) / 2;
 			xs = (Window::width + inv_w + step)/2;
