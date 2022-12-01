@@ -210,7 +210,7 @@ void Batch2D::blockSprite(float x, float y, float w, float h, int atlasRes, int 
 	float vu = 1.0f - ((index[3] / atlasRes) * scale) - scale;
 	float uf = (index[0] % atlasRes) * scale;
 	float vf = 1.0f - ((index[0] / atlasRes) * scale) - scale;
-	if (this->index + 18*VERTEX_SIZE >= capacity)
+	// if (this->index + 18*VERTEX_SIZE >= capacity)
 		render();
 
 	float ar = 0.88f;
@@ -258,6 +258,10 @@ void Batch2D::blockSprite(float x, float y, float w, float h, int atlasRes, int 
 	vertex(points[0], uvpoints[6], tint.r, tint.g, tint.b, tint.a);
 	vertex(points[6], uvpoints[4], tint.r, tint.g, tint.b, tint.a);
 	vertex(points[1], uvpoints[7], tint.r, tint.g, tint.b, tint.a);
+	
+	glDisable(GL_MULTISAMPLE);
+	render();
+	glEnable(GL_MULTISAMPLE);
 }
 
 void Batch2D::rect(float x, float y, float w, float h,

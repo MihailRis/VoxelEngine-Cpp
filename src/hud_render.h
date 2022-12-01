@@ -14,7 +14,7 @@ class HudRenderer {
 public:
 	HudRenderer();
 	~HudRenderer();
-	void draw(Level* level, Assets* assets);
+	void draw(Level* level, Assets* assets, bool devdata);
 	void drawDebug(Level* level, Assets* assets, int fps, bool occlusion);
 };
 

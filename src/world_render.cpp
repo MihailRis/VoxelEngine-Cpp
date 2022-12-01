@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "graphics/VoxelRenderer.h"
+#include <GL/glew.h>
 
 #include "window/Window.h"
 #include "window/Camera.h"
@@ -63,15 +64,16 @@ bool WorldRenderer::drawChunk(size_t index, Camera* camera, Shader* shader, bool
 			}
 		}
 	}
-
 	mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x*CHUNK_W+0.5f, 0.5f, chunk->z*CHUNK_D+0.5f));
 	shader->uniformMatrix("u_model", model);
+	glDisable(GL_MULTISAMPLE);
 	mesh->draw(GL_TRIANGLES);
+	glEnable(GL_MULTISAMPLE);
 	return false;
 }
 
 
-void WorldRenderer::draw(World* world, Camera* camera, bool occlusion){
+void WorldRenderer::draw(World* world, Camera* camera, bool occlusion, bool devdata){
 	Chunks* chunks = level->chunks;
 
 	vec4 skyColor(0.7f, 0.81f, 1.0f, 1.0f);
@@ -133,21 +135,54 @@ void WorldRenderer::draw(World* world, Camera* camera, bool occlusion){
 	// draw 3D stuff here
 	batch3d->render();
 
-	linesShader->use();
-	linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
-	glLineWidth(2.0f);
-	lineBatch->line(camera->position.x, camera->position.y-0.1f, camera->position.z, camera->position.x+0.01f, camera->position.y-0.1f, camera->position.z, 1, 0, 0, 1);
-	lineBatch->line(camera->position.x, camera->position.y-0.1f, camera->position.z, camera->position.x, camera->position.y-0.1f, camera->position.z+0.01f, 0, 0, 1, 1);
-	lineBatch->line(camera->position.x, camera->position.y-0.1f, camera->position.z, camera->position.x, camera->position.y-0.1f+0.01f, camera->position.z, 0, 1, 0, 1);
-	lineBatch->render();
+	if (devdata) {
+		linesShader->use();
+		linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
+
+		vec3 point = vec3(camera->position.x+camera->front.x/1,
+						 camera->position.y+camera->front.y/1,
+						 camera->position.z+camera->front.z/1);
+
+		glDisable(GL_DEPTH_TEST);
+
+		glLineWidth(3.0f);
+		lineBatch->line(point.x, point.y, point.z,
+						point.x+0.1f, point.y, point.z,
+						0, 0, 0, 1);
+		lineBatch->line(point.x, point.y, point.z,
+						point.x, point.y, point.z+0.1f,
+						0, 0, 0, 1);
+		lineBatch->line(point.x, point.y, point.z,
+						point.x, point.y+0.1f, point.z,
+						0, 0, 0, 1);
+		lineBatch->render();
+
+		glLineWidth(1.0f);
+		lineBatch->line(point.x, point.y, point.z,
+						point.x+0.1f, point.y, point.z,
+						1, 0, 0, 1);
+		lineBatch->line(point.x, point.y, point.z,
+						point.x, point.y, point.z+0.1f,
+						0, 0, 1, 1);
+		lineBatch->line(point.x, point.y, point.z,
+						point.x, point.y+0.1f, point.z,
+						0, 1, 0, 1);
+		lineBatch->render();
+
+		glEnable(GL_DEPTH_TEST);
+	}
 
 	if (level->playerController->selectedBlockId != -1){
 		Block* selectedBlock = Block::blocks[level->playerController->selectedBlockId];
 		vec3 pos = level->playerController->selectedBlockPosition;
+		linesShader->use();
+		linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
+		glLineWidth(2.0f);
 		if (selectedBlock->model == 1){
 			lineBatch->box(pos.x+0.5f, pos.y+0.5f, pos.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
 		} else if (selectedBlock->model == 2){
 			lineBatch->box(pos.x+0.5f, pos.y+0.35f, pos.z+0.5f, 0.805f,0.705f,0.805f, 0,0,0,0.5f);
 		}
+		lineBatch->render();
 	}
 }

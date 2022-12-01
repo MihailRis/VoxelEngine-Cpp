@@ -13,7 +13,7 @@ int Window::initialize(int width, int height, const char* title){
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-	//glfwWindowHint(GLFW_SAMPLES, 2);
+	glfwWindowHint(GLFW_SAMPLES, 16);
 
 	window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 	if (window == nullptr){
@@ -34,6 +34,8 @@ int Window::initialize(int width, int height, const char* title){
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
+	glEnable(GL_MULTISAMPLE);
+	// glDisable(GL_MULTISAMPLE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Window::width = width;
