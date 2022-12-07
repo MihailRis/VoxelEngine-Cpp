@@ -135,43 +135,6 @@ void WorldRenderer::draw(World* world, Camera* camera, bool occlusion, bool devd
 	// draw 3D stuff here
 	batch3d->render();
 
-	if (devdata) {
-		linesShader->use();
-		linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
-
-		vec3 point = vec3(camera->position.x+camera->front.x/1,
-						 camera->position.y+camera->front.y/1,
-						 camera->position.z+camera->front.z/1);
-
-		glDisable(GL_DEPTH_TEST);
-
-		glLineWidth(3.0f);
-		lineBatch->line(point.x, point.y, point.z,
-						point.x+0.1f, point.y, point.z,
-						0, 0, 0, 1);
-		lineBatch->line(point.x, point.y, point.z,
-						point.x, point.y, point.z+0.1f,
-						0, 0, 0, 1);
-		lineBatch->line(point.x, point.y, point.z,
-						point.x, point.y+0.1f, point.z,
-						0, 0, 0, 1);
-		lineBatch->render();
-
-		glLineWidth(1.0f);
-		lineBatch->line(point.x, point.y, point.z,
-						point.x+0.1f, point.y, point.z,
-						1, 0, 0, 1);
-		lineBatch->line(point.x, point.y, point.z,
-						point.x, point.y, point.z+0.1f,
-						0, 0, 1, 1);
-		lineBatch->line(point.x, point.y, point.z,
-						point.x, point.y+0.1f, point.z,
-						0, 1, 0, 1);
-		lineBatch->render();
-
-		glEnable(GL_DEPTH_TEST);
-	}
-
 	if (level->playerController->selectedBlockId != -1){
 		Block* selectedBlock = Block::blocks[level->playerController->selectedBlockId];
 		vec3 pos = level->playerController->selectedBlockPosition;
@@ -184,5 +147,42 @@ void WorldRenderer::draw(World* world, Camera* camera, bool occlusion, bool devd
 			lineBatch->box(pos.x+0.5f, pos.y+0.35f, pos.z+0.5f, 0.805f,0.705f,0.805f, 0,0,0,0.5f);
 		}
 		lineBatch->render();
+	}
+
+	if (devdata) {
+		linesShader->use();
+		linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
+
+		vec3 point = vec3(camera->position.x+camera->front.x/1,
+						 camera->position.y+camera->front.y/1,
+						 camera->position.z+camera->front.z/1);
+
+		glDisable(GL_DEPTH_TEST);
+
+		glLineWidth(4.0f);
+		lineBatch->line(point.x, point.y, point.z,
+						point.x+0.1f, point.y, point.z,
+						0, 0, 0, 1);
+		lineBatch->line(point.x, point.y, point.z,
+						point.x, point.y, point.z+0.1f,
+						0, 0, 0, 1);
+		lineBatch->line(point.x, point.y, point.z,
+						point.x, point.y+0.1f, point.z,
+						0, 0, 0, 1);
+		lineBatch->render();
+
+		glLineWidth(2.0f);
+		lineBatch->line(point.x, point.y, point.z,
+						point.x+0.1f, point.y, point.z,
+						1, 0, 0, 1);
+		lineBatch->line(point.x, point.y, point.z,
+						point.x, point.y, point.z+0.1f,
+						0, 0, 1, 1);
+		lineBatch->line(point.x, point.y, point.z,
+						point.x, point.y+0.1f, point.z,
+						0, 1, 0, 1);
+		lineBatch->render();
+
+		glEnable(GL_DEPTH_TEST);
 	}
 }

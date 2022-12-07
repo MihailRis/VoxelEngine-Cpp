@@ -19,8 +19,8 @@
 #define RUN_ZOOM 1.1f
 #define C_ZOOM 0.1f
 #define ZOOM_SPEED 16.0f
-#define DEFAULT_AIR_DAMPING 0.1f
-#define PLAYER_NOT_ONGROUND_DAMPING 10.0f
+#define PLAYER_GROUNDED_DAMPING 1.0f
+#define PLAYER_NOT_GROUNDED_DAMPING 10.0f
 #define CAMERA_SHAKING_OFFSET 0.025f
 #define CAMERA_SHAKING_OFFSET_Y 0.031f
 #define CAMERA_SHAKING_SPEED 1.6f
@@ -82,7 +82,6 @@ void PlayerController::update_controls(float delta){
 		(Events::jpressed(GLFW_KEY_N) && player->flight == player->noclip)){
 		player->flight = !player->flight;
 		if (player->flight){
-			hitbox->velocity.y += 1;
 			hitbox->grounded = false;
 		}
 	}
@@ -127,9 +126,9 @@ void PlayerController::update_controls(float delta){
 		dir.z -= camera->right.z;
 	}
 
-	hitbox->linear_damping = DEFAULT_AIR_DAMPING;
+	hitbox->linear_damping = PLAYER_GROUNDED_DAMPING;
 	if (player->flight){
-		hitbox->linear_damping = PLAYER_NOT_ONGROUND_DAMPING;
+		hitbox->linear_damping = PLAYER_NOT_GROUNDED_DAMPING;
 		hitbox->velocity.y *= 1.0f - delta * 9;
 		if (Events::pressed(GLFW_KEY_SPACE)){
 			hitbox->velocity.y += speed * delta * 9;
@@ -142,27 +141,37 @@ void PlayerController::update_controls(float delta){
 		dir = normalize(dir);
 
 		if (!hitbox->grounded)
-			hitbox->linear_damping = PLAYER_NOT_ONGROUND_DAMPING;
+			hitbox->linear_damping = PLAYER_NOT_GROUNDED_DAMPING;
 
 		hitbox->velocity.x += dir.x * speed * delta * 9;
 		hitbox->velocity.z += dir.z * speed * delta * 9;
 	}
 
-	if (Events::_cursor_locked){
-		player->camY += -Events::deltaY / Window::height * 2;
-		player->camX += -Events::deltaX / Window::height * 2;
 
-		if (player->camY < -radians(89.0f)){
-			player->camY = -radians(89.0f);
+// camera rotate
+
+	if (Events::_cursor_locked){
+		float rotX = -Events::deltaX / Window::height * 2;
+		float rotY = -Events::deltaY / Window::height * 2;
+		if (zoom){
+			rotX /= 4;
+			rotY /= 4;
 		}
-		if (player->camY > radians(89.0f)){
-			player->camY = radians(89.0f);
+		player->camX += rotX;
+		player->camY += rotY;
+
+		if (player->camY < -radians(89.9f)){
+			player->camY = -radians(89.9f);
+		}
+		if (player->camY > radians(89.9f)){
+			player->camY = radians(89.9f);
 		}
 
 		camera->rotation = mat4(1.0f);
 		camera->rotate(player->camY, player->camX, 0);
 	}
 }
+// end camera rotate
 
 void PlayerController::update_interaction(){
 	Chunks* chunks = level->chunks;

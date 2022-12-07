@@ -51,7 +51,7 @@ float calc_height(fnl_state *noise, int real_x, int real_z){
 			0.0f)*0.1f;
 	height += fnlGetNoise3D(noise, real_x*0.1f*8-3465,real_z*0.1f*8+4534, 0.0f)*0.125f;
 	height += fnlGetNoise3D(noise, real_x*0.4f*8+4565,real_z*0.4f*8+46456, 0.0f)*0.0625f;
-	height += fnlGetNoise3D(noise, real_x*8,real_z*8, 0.0f)*0.03f*(fnlGetNoise3D(noise, -real_x*0.0125f*8-1000,real_z*0.0125f*8+2000, 0.0f)/2+0.5f);
+	// height += fnlGetNoise3D(noise, real_x*8,real_z*8, 0.0f)*0.03f*(fnlGetNoise3D(noise, -real_x*0.0125f*8-1000,real_z*0.0125f*8+2000, 0.0f)/2+0.5f);
 	height *= fnlGetNoise3D(noise, real_x*0.0125f*8+1000,real_z*0.0125f*8+1000, 0.0f)/2+0.5f;
 	height += 1.0f;
 	height *= 64.0f;

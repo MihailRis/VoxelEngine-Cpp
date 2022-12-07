@@ -18,18 +18,18 @@
 
 
 HudRenderer::HudRenderer() {
-	float vertices[] = {
-			// x    y
-		   -0.01f,-0.01f,
-		    0.01f, 0.01f,
+	// float vertices[] = {
+	// 		// x    y
+	// 	   -0.01f,-0.01f,
+	// 	    0.01f, 0.01f,
 
-		   -0.01f, 0.01f,
-		    0.01f,-0.01f,
-	};
-	int attrs[] = {
-			2,  0 //null terminator
-	};
-	crosshair = new Mesh(vertices, 4, attrs);
+	// 	   -0.01f, 0.01f,
+	// 	    0.01f,-0.01f,
+	// };
+	// int attrs[] = {
+	// 		2,  0 //null terminator
+	// };
+	// crosshair = new Mesh(vertices, 4, attrs);
 
 	batch = new Batch2D(1024);
 	uicamera = new Camera(glm::vec3(), Window::height / 1.0f);
@@ -38,7 +38,7 @@ HudRenderer::HudRenderer() {
 }
 
 HudRenderer::~HudRenderer() {
-	delete crosshair;
+	// delete crosshair;
 	delete batch;
 	delete uicamera;
 }
@@ -61,7 +61,7 @@ void HudRenderer::drawDebug(Level* level, Assets* assets, int fps, bool occlusio
 	font->draw(batch, L"fps:", 16, 42, STYLE_OUTLINE);
 	font->draw(batch, std::to_wstring(fps), 44, 42, STYLE_OUTLINE);
 	font->draw(batch, L"occlusion: "+std::to_wstring(occlusion), 16, 54, STYLE_OUTLINE);
-	batch->render();
+	// batch->render();
 }
 
 
@@ -79,12 +79,17 @@ void HudRenderer::draw(Level* level, Assets* assets, bool devdata){
 	Texture* blocks = assets->getTexture("block");
 	Texture* sprite = assets->getTexture("slot");
 
-	if (!Events::_cursor_locked) {
+	batch->texture(nullptr);
+	batch->color = vec4(1.0f);
+	if (Events::_cursor_locked && !devdata) {
+		glLineWidth(2);
+		batch->line(Window::width/2, Window::height/2-6, Window::width/2, Window::height/2+6, 0.2f, 0.2f, 0.2f, 1.0f);
+		batch->line(Window::width/2+6, Window::height/2, Window::width/2-6, Window::height/2, 0.2f, 0.2f, 0.2f, 1.0f);
+		batch->line(Window::width/2-5, Window::height/2-5, Window::width/2+5, Window::height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
+		batch->line(Window::width/2+5, Window::height/2-5, Window::width/2-5, Window::height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
 	}
 
-	batch->color = vec4(1.0f);
 	// batch->texture(sprite);
-	batch->texture(nullptr);
 	// batch->sprite(Window::width/2-32, uicamera->fov - 80, 64, 64, 16, 0, vec4(1.0f));
 	// batch->rect(Window::width/2-128-4, Window::height-80-4, 256+8, 64+8,
 	// 					0.85f, 0.85f, 0.85f, 0.95f, 0.95f, 0.95f,
@@ -208,14 +213,14 @@ void HudRenderer::draw(Level* level, Assets* assets, bool devdata){
 		}
 	}
 
-	batch->render();
+	// batch->render();
 
 	if (Events::_cursor_locked && !devdata){
-		Shader* crosshairShader = assets->getShader("crosshair");
-		crosshairShader->use();
-		crosshairShader->uniform1f("u_ar", (float)Window::height / (float)Window::width);
-		crosshairShader->uniform1f("u_scale", 1.0f / ((float)Window::height / 1000.0f));
-		glLineWidth(2.0f);
-		crosshair->draw(GL_LINES);
+		// Shader* crosshairShader = assets->getShader("crosshair");
+		// crosshairShader->use();
+		// crosshairShader->uniform1f("u_ar", (float)Window::height / (float)Window::width);
+		// crosshairShader->uniform1f("u_scale", 1.0f / ((float)Window::height / 1000.0f));
+		// glLineWidth(2.0f);
+		// crosshair->draw(GL_LINES);
 	}
 }
