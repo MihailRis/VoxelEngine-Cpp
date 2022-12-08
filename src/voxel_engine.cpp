@@ -77,9 +77,13 @@ void write_world(World* world, Level* level){
 
 void update_level(World* world, Level* level, float delta, long frame, VoxelRenderer* renderer) {
 	level->playerController->update_controls(delta);
-	if (Events::_cursor_locked)
+	if (Events::_cursor_locked){
 		level->playerController->update_interaction();
-
+	} else
+	{
+		level->playerController->selectedBlockId = -1;
+	}
+	
 	vec3 position = level->player->hitbox->position;
 	level->chunks->setCenter(world->wfile, position.x, position.z);
 }
@@ -119,7 +123,6 @@ void mainloop(Level* level, Assets* assets) {
 	float lastTime = glfwGetTime();
 	float delta = 0.0f;
 	bool occlusion = true;
-	bool devdata = false;
 	Window::swapInterval(1);
 	while (!Window::isShouldClose()){
 		frame++;
@@ -137,7 +140,7 @@ void mainloop(Level* level, Assets* assets) {
 			occlusion = !occlusion;
 		}
 		if (Events::jpressed(GLFW_KEY_F3)){
-			devdata = !devdata;
+			level->player->debug = !level->player->debug;
 		}
 		if (Events::jpressed(GLFW_KEY_F5)){
 			for (unsigned i = 0; i < level->chunks->volume; i++) {
@@ -159,9 +162,9 @@ void mainloop(Level* level, Assets* assets) {
 		for (int i = 0; i < freeLoaders; i++)
 			level->chunksController->loadVisible(world->wfile);
 
-		worldRenderer.draw(world, camera, occlusion, devdata);
-		hud.draw(level, assets, devdata);
-		if (devdata) {
+		worldRenderer.draw(world, camera, occlusion);
+		hud.draw(level, assets);
+		if (level->player->debug) {
 			hud.drawDebug(level, assets, fps, occlusion);
 		}
 

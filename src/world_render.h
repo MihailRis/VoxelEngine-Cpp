@@ -37,7 +37,7 @@ public:
 	WorldRenderer(Level* level, Assets* assets);
 	~WorldRenderer();
 
-	void draw(World* world, Camera* camera, bool occlusion, bool devdata);
+	void draw(World* world, Camera* camera, bool occlusion);
 };
 
 

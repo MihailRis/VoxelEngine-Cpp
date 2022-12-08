@@ -73,7 +73,7 @@ bool WorldRenderer::drawChunk(size_t index, Camera* camera, Shader* shader, bool
 }
 
 
-void WorldRenderer::draw(World* world, Camera* camera, bool occlusion, bool devdata){
+void WorldRenderer::draw(World* world, Camera* camera, bool occlusion){
 	Chunks* chunks = level->chunks;
 
 	vec4 skyColor(0.7f, 0.81f, 1.0f, 1.0f);
@@ -149,7 +149,7 @@ void WorldRenderer::draw(World* world, Camera* camera, bool occlusion, bool devd
 		lineBatch->render();
 	}
 
-	if (devdata) {
+	if (level->player->debug) {
 		linesShader->use();
 		linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
 

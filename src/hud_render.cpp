@@ -65,7 +65,7 @@ void HudRenderer::drawDebug(Level* level, Assets* assets, int fps, bool occlusio
 }
 
 
-void HudRenderer::draw(Level* level, Assets* assets, bool devdata){
+void HudRenderer::draw(Level* level, Assets* assets){
 	uicamera->fov = Window::height;
 
 	glDisable(GL_DEPTH_TEST);
@@ -81,7 +81,7 @@ void HudRenderer::draw(Level* level, Assets* assets, bool devdata){
 
 	batch->texture(nullptr);
 	batch->color = vec4(1.0f);
-	if (Events::_cursor_locked && !devdata) {
+	if (Events::_cursor_locked && !level->player->debug) {
 		glLineWidth(2);
 		batch->line(Window::width/2, Window::height/2-6, Window::width/2, Window::height/2+6, 0.2f, 0.2f, 0.2f, 1.0f);
 		batch->line(Window::width/2+6, Window::height/2, Window::width/2-6, Window::height/2, 0.2f, 0.2f, 0.2f, 1.0f);
@@ -215,7 +215,7 @@ void HudRenderer::draw(Level* level, Assets* assets, bool devdata){
 
 	// batch->render();
 
-	if (Events::_cursor_locked && !devdata){
+	if (Events::_cursor_locked && !level->player->debug){
 		// Shader* crosshairShader = assets->getShader("crosshair");
 		// crosshairShader->use();
 		// crosshairShader->uniform1f("u_ar", (float)Window::height / (float)Window::width);
