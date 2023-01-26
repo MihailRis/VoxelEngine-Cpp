@@ -10,7 +10,9 @@
 PhysicsSolver::PhysicsSolver(vec3 gravity) : gravity(gravity) {
 }
 
-void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned substeps, bool shifting, float gravityScale) {
+void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned substeps, bool shifting,
+		float gravityScale,
+		bool collisions) {
 	hitbox->grounded = false;
 	for (unsigned i = 0; i < substeps; i++){
 		float dt = delta / (float)substeps;
@@ -25,85 +27,87 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 		float px = pos.x;
 		float pz = pos.z;
 
-		if (vel.x < 0.0){
-			for (int y = floor(pos.y-half.y+E); y <= floor(pos.y+half.y-E); y++){
-				for (int z = floor(pos.z-half.z+E); z <= floor(pos.z+half.z-E); z++){
-					int x = floor(pos.x-half.x-E);
-					if (chunks->isObstacle(x,y,z)){
-						vel.x *= 0.0;
-						pos.x = x + 1 + half.x + E;
-						break;
+		if (collisions) {
+			if (vel.x < 0.0){
+				for (int y = floor(pos.y-half.y+E); y <= floor(pos.y+half.y-E); y++){
+					for (int z = floor(pos.z-half.z+E); z <= floor(pos.z+half.z-E); z++){
+						int x = floor(pos.x-half.x-E);
+						if (chunks->isObstacle(x,y,z)){
+							vel.x *= 0.0;
+							pos.x = x + 1 + half.x + E;
+							break;
+						}
 					}
 				}
 			}
-		}
-		if (vel.x > 0.0){
-			for (int y = floor(pos.y-half.y+E); y <= floor(pos.y+half.y-E); y++){
-				for (int z = floor(pos.z-half.z+E); z <= floor(pos.z+half.z-E); z++){
-					int x = floor(pos.x+half.x+E);
-					if (chunks->isObstacle(x,y,z)){
-						vel.x *= 0.0;
-						pos.x = x - half.x - E;
-						break;
+			if (vel.x > 0.0){
+				for (int y = floor(pos.y-half.y+E); y <= floor(pos.y+half.y-E); y++){
+					for (int z = floor(pos.z-half.z+E); z <= floor(pos.z+half.z-E); z++){
+						int x = floor(pos.x+half.x+E);
+						if (chunks->isObstacle(x,y,z)){
+							vel.x *= 0.0;
+							pos.x = x - half.x - E;
+							break;
+						}
 					}
 				}
 			}
-		}
 
-		if (vel.z < 0.0){
-			for (int y = floor(pos.y-half.y+E); y <= floor(pos.y+half.y-E); y++){
+			if (vel.z < 0.0){
+				for (int y = floor(pos.y-half.y+E); y <= floor(pos.y+half.y-E); y++){
+					for (int x = floor(pos.x-half.x+E); x <= floor(pos.x+half.x-E); x++){
+						int z = floor(pos.z-half.z-E);
+						if (chunks->isObstacle(x,y,z)){
+							vel.z *= 0.0;
+							pos.z = z + 1 + half.z + E;
+							break;
+						}
+					}
+				}
+			}
+
+			if (vel.z > 0.0){
+				for (int y = floor(pos.y-half.y+E); y <= floor(pos.y+half.y-E); y++){
+					for (int x = floor(pos.x-half.x+E); x <= floor(pos.x+half.x-E); x++){
+						int z = floor(pos.z+half.z+E);
+						if (chunks->isObstacle(x,y,z)){
+							vel.z *= 0.0;
+							pos.z = z - half.z - E;
+							break;
+						}
+					}
+				}
+			}
+
+			if (vel.y < 0.0){
 				for (int x = floor(pos.x-half.x+E); x <= floor(pos.x+half.x-E); x++){
-					int z = floor(pos.z-half.z-E);
-					if (chunks->isObstacle(x,y,z)){
-						vel.z *= 0.0;
-						pos.z = z + 1 + half.z + E;
-						break;
+					bool broken = false;
+					for (int z = floor(pos.z-half.z+E); z <= floor(pos.z+half.z-E); z++){
+						int y = floor(pos.y-half.y-E);
+						if (chunks->isObstacle(x,y,z)){
+							vel.y *= 0.0;
+							pos.y = y + 1 + half.y;
+							int f = DEFAULT_FRICTION;
+							vel.x *= max(0.0, 1.0 - dt * f);
+							vel.z *= max(0.0, 1.0 - dt * f);
+							hitbox->grounded = true;
+							broken = true;
+							break;
+						}
 					}
+					if (broken)
+						break;
 				}
 			}
-		}
-
-		if (vel.z > 0.0){
-			for (int y = floor(pos.y-half.y+E); y <= floor(pos.y+half.y-E); y++){
+			if (vel.y > 0.0){
 				for (int x = floor(pos.x-half.x+E); x <= floor(pos.x+half.x-E); x++){
-					int z = floor(pos.z+half.z+E);
-					if (chunks->isObstacle(x,y,z)){
-						vel.z *= 0.0;
-						pos.z = z - half.z - E;
-						break;
-					}
-				}
-			}
-		}
-
-		if (vel.y < 0.0){
-			for (int x = floor(pos.x-half.x+E); x <= floor(pos.x+half.x-E); x++){
-				bool broken = false;
-				for (int z = floor(pos.z-half.z+E); z <= floor(pos.z+half.z-E); z++){
-					int y = floor(pos.y-half.y-E);
-					if (chunks->isObstacle(x,y,z)){
-						vel.y *= 0.0;
-						pos.y = y + 1 + half.y;
-						int f = DEFAULT_FRICTION;
-						vel.x *= max(0.0, 1.0 - dt * f);
-						vel.z *= max(0.0, 1.0 - dt * f);
-						hitbox->grounded = true;
-						broken = true;
-						break;
-					}
-				}
-				if (broken)
-					break;
-			}
-		}
-		if (vel.y > 0.0){
-			for (int x = floor(pos.x-half.x+E); x <= floor(pos.x+half.x-E); x++){
-				for (int z = floor(pos.z-half.z+E); z <= floor(pos.z+half.z-E); z++){
-					int y = floor(pos.y+half.y+E);
-					if (chunks->isObstacle(x,y,z)){
-						vel.y *= 0.0;
-						pos.y = y - half.y - E;
-						break;
+					for (int z = floor(pos.z-half.z+E); z <= floor(pos.z+half.z-E); z++){
+						int y = floor(pos.y+half.y+E);
+						if (chunks->isObstacle(x,y,z)){
+							vel.y *= 0.0;
+							pos.y = y - half.y - E;
+							break;
+						}
 					}
 				}
 			}

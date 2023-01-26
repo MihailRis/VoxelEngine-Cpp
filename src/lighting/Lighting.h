@@ -15,7 +15,9 @@ public:
 	~Lighting();
 
 	void clear();
-	void onChunkLoaded(int cx, int cy, int cz, bool sky);
+	void prebuildSkyLight(int cx, int cz);
+	void buildSkyLight(int cx, int cz);
+	void onChunkLoaded(int cx, int cz);
 	void onBlockSet(int x, int y, int z, int id);
 };
 

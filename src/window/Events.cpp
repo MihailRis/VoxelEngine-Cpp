@@ -97,7 +97,7 @@ bool Events::jclicked(int button){
 	return _keys[index] && _frames[index] == _current;
 }
 
-void Events::toogleCursor(){
+void Events::toggleCursor(){
 	_cursor_locked = !_cursor_locked;
 	Window::setCursorMode(_cursor_locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }

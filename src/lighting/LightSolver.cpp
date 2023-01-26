@@ -21,8 +21,8 @@ void LightSolver::add(int x, int y, int z, int emission) {
 	addqueue.push(entry);
 
 	Chunk* chunk = chunks->getChunkByVoxel(entry.x, entry.y, entry.z);
-	chunk->modified = true;
-	chunk->lightmap->set(entry.x-chunk->x*CHUNK_W, entry.y-chunk->y*CHUNK_H, entry.z-chunk->z*CHUNK_D, channel, entry.light);
+	chunk->setModified(true);
+	chunk->lightmap->set(entry.x-chunk->x*CHUNK_W, entry.y, entry.z-chunk->z*CHUNK_D, channel, entry.light);
 }
 
 void LightSolver::add(int x, int y, int z) {
@@ -35,7 +35,7 @@ void LightSolver::remove(int x, int y, int z) {
 	if (chunk == nullptr)
 		return;
 
-	int light = chunk->lightmap->get(x-chunk->x*CHUNK_W, y-chunk->y*CHUNK_H, z-chunk->z*CHUNK_D, channel);
+	int light = chunk->lightmap->get(x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, channel);
 	if (light == 0){
 		return;
 	}
@@ -47,7 +47,7 @@ void LightSolver::remove(int x, int y, int z) {
 	entry.light = light;
 	remqueue.push(entry);
 
-	chunk->lightmap->set(entry.x-chunk->x*CHUNK_W, entry.y-chunk->y*CHUNK_H, entry.z-chunk->z*CHUNK_D, channel, 0);
+	chunk->lightmap->set(entry.x-chunk->x*CHUNK_W, entry.y, entry.z-chunk->z*CHUNK_D, channel, 0);
 }
 
 void LightSolver::solve(){
@@ -78,8 +78,8 @@ void LightSolver::solve(){
 					nentry.z = z;
 					nentry.light = light;
 					remqueue.push(nentry);
-					chunk->lightmap->set(x-chunk->x*CHUNK_W, y-chunk->y*CHUNK_H, z-chunk->z*CHUNK_D, channel, 0);
-					chunk->modified = true;
+					chunk->lightmap->set(x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, channel, 0);
+					chunk->setModified(true);
 				}
 				else if (light >= entry.light){
 					lightentry nentry;
@@ -94,7 +94,7 @@ void LightSolver::solve(){
 	}
 
 	while (!addqueue.empty()){
-		lightentry entry = addqueue.front();
+		const lightentry entry = addqueue.front();
 		addqueue.pop();
 
 		if (entry.light <= 1)
@@ -110,8 +110,8 @@ void LightSolver::solve(){
 				voxel* v = chunks->get(x,y,z);
 				Block* block = Block::blocks[v->id];
 				if (block->lightPassing && light+2 <= entry.light){
-					chunk->lightmap->set(x-chunk->x*CHUNK_W, y-chunk->y*CHUNK_H, z-chunk->z*CHUNK_D, channel, entry.light-1);
-					chunk->modified = true;
+					chunk->lightmap->set(x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, channel, entry.light-1);
+					chunk->setModified(true);
 					lightentry nentry;
 					nentry.x = x;
 					nentry.y = y;

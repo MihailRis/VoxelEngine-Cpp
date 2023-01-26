@@ -1,6 +1,7 @@
 #ifndef VOXELS_CHUNKSCONTROLLER_H_
 #define VOXELS_CHUNKSCONTROLLER_H_
 
+class World;
 class Chunks;
 class Lighting;
 class WorldFiles;
@@ -14,11 +15,13 @@ private:
 	ChunksLoader** loaders;
 	int loadersCount;
 public:
-	ChunksController(Chunks* chunks, Lighting* lighting);
+	ChunksController(World* world, Chunks* chunks, Lighting* lighting);
 	~ChunksController();
 
+	ChunksLoader* getFreeLoader();
 	int countFreeLoaders();
 	bool loadVisible(WorldFiles* worldFiles);
+	void calculateLights();
 	bool _buildMeshes(VoxelRenderer* renderer, int tick);
 };
 

@@ -11,8 +11,8 @@
 #include <math.h>
 #include <limits.h>
 
-Chunks::Chunks(int w, int h, int d, int ox, int oy, int oz) : w(w), h(h), d(d), ox(ox), oy(oy), oz(oz){
-	volume = w*h*d;
+Chunks::Chunks(int w, int d, int ox, int oz) : w(w), d(d), ox(ox), oz(oz){
+	volume = w*d;
 	chunks = new Chunk*[volume];
 	chunksSecond = new Chunk*[volume];
 
@@ -23,6 +23,7 @@ Chunks::Chunks(int w, int h, int d, int ox, int oy, int oz) : w(w), h(h), d(d), 
 		chunks[i] = nullptr;
 		meshes[i] = nullptr;
 	}
+	chunksCount = 0;
 }
 
 Chunks::~Chunks(){
@@ -35,7 +36,6 @@ Chunks::~Chunks(){
 
 voxel* Chunks::get(int x, int y, int z){
 	x -= ox * CHUNK_W;
-	y -= oy * CHUNK_H;
 	z -= oz * CHUNK_D;
 	int cx = x / CHUNK_W;
 	int cy = y / CHUNK_H;
@@ -43,7 +43,7 @@ voxel* Chunks::get(int x, int y, int z){
 	if (x < 0) cx--;
 	if (y < 0) cy--;
 	if (z < 0) cz--;
-	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= h || cz >= d)
+	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= 1 || cz >= d)
 		return nullptr;
 	Chunk* chunk = chunks[(cy * d + cz) * w + cx];
 	if (chunk == nullptr)
@@ -63,7 +63,6 @@ bool Chunks::isObstacle(int x, int y, int z){
 
 unsigned char Chunks::getLight(int x, int y, int z, int channel){
 	x -= ox * CHUNK_W;
-	y -= oy * CHUNK_H;
 	z -= oz * CHUNK_D;
 	int cx = x / CHUNK_W;
 	int cy = y / CHUNK_H;
@@ -71,7 +70,7 @@ unsigned char Chunks::getLight(int x, int y, int z, int channel){
 	if (x < 0) cx--;
 	if (y < 0) cy--;
 	if (z < 0) cz--;
-	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= h || cz >= d)
+	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= 1 || cz >= d)
 		return 0;
 	Chunk* chunk = chunks[(cy * d + cz) * w + cx];
 	if (chunk == nullptr)
@@ -84,7 +83,6 @@ unsigned char Chunks::getLight(int x, int y, int z, int channel){
 
 unsigned short Chunks::getLight(int x, int y, int z){
 	x -= ox * CHUNK_W;
-	y -= oy * CHUNK_H;
 	z -= oz * CHUNK_D;
 	int cx = x / CHUNK_W;
 	int cy = y / CHUNK_H;
@@ -92,7 +90,7 @@ unsigned short Chunks::getLight(int x, int y, int z){
 	if (x < 0) cx--;
 	if (y < 0) cy--;
 	if (z < 0) cz--;
-	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= h || cz >= d)
+	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= 1 || cz >= d)
 		return 0;
 	Chunk* chunk = chunks[(cy * d + cz) * w + cx];
 	if (chunk == nullptr)
@@ -105,7 +103,6 @@ unsigned short Chunks::getLight(int x, int y, int z){
 
 Chunk* Chunks::getChunkByVoxel(int x, int y, int z){
 	x -= ox * CHUNK_W;
-	y -= oy * CHUNK_H;
 	z -= oz * CHUNK_D;
 	int cx = x / CHUNK_W;
 	int cy = y / CHUNK_H;
@@ -113,48 +110,44 @@ Chunk* Chunks::getChunkByVoxel(int x, int y, int z){
 	if (x < 0) cx--;
 	if (y < 0) cy--;
 	if (z < 0) cz--;
-	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= h || cz >= d)
+	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= 1 || cz >= d)
 		return nullptr;
 	return chunks[(cy * d + cz) * w + cx];
 }
 
-Chunk* Chunks::getChunk(int x, int y, int z){
+Chunk* Chunks::getChunk(int x, int z){
 	x -= ox;
-	y -= oy;
 	z -= oz;
-	if (x < 0 || y < 0 || z < 0 || x >= w || y >= h || z >= d)
+	if (x < 0 || z < 0 || x >= w || z >= d)
 		return nullptr;
-	return chunks[(y * d + z) * w + x];
+	return chunks[z * w + x];
 }
 
 void Chunks::set(int x, int y, int z, int id){
 	x -= ox * CHUNK_W;
-	y -= oy * CHUNK_H;
 	z -= oz * CHUNK_D;
 	int cx = x / CHUNK_W;
-	int cy = y / CHUNK_H;
+	if (y < 0 || y >= CHUNK_H)
+		return;
 	int cz = z / CHUNK_D;
 	if (x < 0) cx--;
-	if (y < 0) cy--;
 	if (z < 0) cz--;
-	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= h || cz >= d)
+	if (cx < 0 || cz < 0 || cx >= w || cz >= d)
 		return;
-	Chunk* chunk = chunks[(cy * d + cz) * w + cx];
+	Chunk* chunk = chunks[cz * w + cx];
 	if (chunk == nullptr)
 		return;
 	int lx = x - cx * CHUNK_W;
-	int ly = y - cy * CHUNK_H;
 	int lz = z - cz * CHUNK_D;
-	chunk->voxels[(ly * CHUNK_D + lz) * CHUNK_W + lx].id = id;
-	chunk->modified = true;
+	chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx].id = id;
+	chunk->setUnsaved(true);
+	chunk->setModified(true);
 
-	if (lx == 0 && (chunk = getChunk(cx+ox-1, cy+oy, cz+oz))) chunk->modified = true;
-	if (ly == 0 && (chunk = getChunk(cx+ox, cy+oy-1, cz+oz))) chunk->modified = true;
-	if (lz == 0 && (chunk = getChunk(cx+ox, cy+oy, cz+oz-1))) chunk->modified = true;
+	if (lx == 0 && (chunk = getChunk(cx+ox-1, cz+oz))) chunk->setModified(true);
+	if (lz == 0 && (chunk = getChunk(cx+ox, cz+oz-1))) chunk->setModified(true);
 
-	if (lx == CHUNK_W-1 && (chunk = getChunk(cx+ox+1, cy+oy, cz+oz))) chunk->modified = true;
-	if (ly == CHUNK_H-1 && (chunk = getChunk(cx+ox, cy+oy+1, cz+oz))) chunk->modified = true;
-	if (lz == CHUNK_D-1 && (chunk = getChunk(cx+ox, cy+oy, cz+oz+1))) chunk->modified = true;
+	if (lx == CHUNK_W-1 && (chunk = getChunk(cx+ox+1, cz+oz))) chunk->setModified(true);
+	if (lz == CHUNK_D-1 && (chunk = getChunk(cx+ox, cz+oz+1))) chunk->setModified(true);
 }
 
 voxel* Chunks::rayCast(vec3 a, vec3 dir, float maxDist, vec3& end, vec3& norm, vec3& iend) {
@@ -245,47 +238,42 @@ voxel* Chunks::rayCast(vec3 a, vec3 dir, float maxDist, vec3& end, vec3& norm, v
 	return nullptr;
 }
 
-void Chunks::setCenter(WorldFiles* worldFiles, int x, int y, int z) {
+void Chunks::setCenter(WorldFiles* worldFiles, int x, int z) {
 	int cx = x / CHUNK_W;
-	int cy = y / CHUNK_H;
 	int cz = z / CHUNK_D;
 	cx -= ox;
-	cy -= oy;
 	cz -= oz;
 	if (x < 0) cx--;
-	if (y < 0) cy--;
 	if (z < 0) cz--;
 	cx -= w/2;
-	cy -= h/2;
 	cz -= d/2;
-	if (cx != 0 || cy != 0 || cz != 0)
-		translate(worldFiles, cx,cy,cz);
+	if (cx | cz) {
+		translate(worldFiles, cx,cz);
+	}
 }
 
-void Chunks::translate(WorldFiles* worldFiles, int dx, int dy, int dz){
+void Chunks::translate(WorldFiles* worldFiles, int dx, int dz){
 	for (unsigned int i = 0; i < volume; i++){
 		chunksSecond[i] = nullptr;
 		meshesSecond[i] = nullptr;
 	}
-	for (unsigned int y = 0; y < h; y++){
-		for (unsigned int z = 0; z < d; z++){
-			for (unsigned int x = 0; x < w; x++){
-				Chunk* chunk = chunks[(y * d + z) * w + x];
-				int nx = x - dx;
-				int ny = y - dy;
-				int nz = z - dz;
-				if (chunk == nullptr)
-					continue;
-				Mesh* mesh = meshes[(y * d + z) * w + x];
-				if (nx < 0 || ny < 0 || nz < 0 || nx >= w || ny >= h || nz >= d){
-					worldFiles->put((const char*)chunk->voxels, chunk->x, chunk->z);
-					chunk->decref();
-					delete mesh;
-					continue;
-				}
-				meshesSecond[(ny * d + nz) * w + nx] = mesh;
-				chunksSecond[(ny * d + nz) * w + nx] = chunk;
+	for (int z = 0; z < d; z++){
+		for (int x = 0; x < w; x++){
+			Chunk* chunk = chunks[z * w + x];
+			int nx = x - dx;
+			int nz = z - dz;
+			if (chunk == nullptr)
+				continue;
+			Mesh* mesh = meshes[z * w + x];
+			if (nx < 0 || nz < 0 || nx >= w || nz >= d){
+				worldFiles->put((const char*)chunk->voxels, chunk->x, chunk->z);
+				chunk->decref();
+				delete mesh;
+				chunksCount--;
+				continue;
 			}
+			meshesSecond[nz * w + nx] = mesh;
+			chunksSecond[nz * w + nx] = chunk;
 		}
 	}
 	Chunk** ctemp = chunks;
@@ -297,26 +285,23 @@ void Chunks::translate(WorldFiles* worldFiles, int dx, int dy, int dz){
 	meshesSecond = mtemp;
 
 	ox += dx;
-	oy += dy;
 	oz += dz;
 }
 
-void Chunks::_setOffset(int x, int y, int z){
+void Chunks::_setOffset(int x, int z){
 	ox = x;
-	oy = y;
 	oz = z;
 }
 
 bool Chunks::putChunk(Chunk* chunk) {
 	int x = chunk->x;
-	int y = chunk->y;
 	int z = chunk->z;
 	x -= ox;
-	y -= oy;
 	z -= oz;
-	if (x < 0 || y < 0 || z < 0 || x >= w || y >= h || z >= d)
+	if (x < 0 || z < 0 || x >= w || z >= d)
 		return false;
-	chunks[(y * d + z) * w + x] = chunk;
+	chunks[z * w + x] = chunk;
+	chunksCount++;
 	return true;
 }
 
@@ -329,4 +314,5 @@ void Chunks::clear(bool freeMemory){
 		chunks[i] = nullptr;
 		meshes[i] = nullptr;
 	}
+	chunksCount = 0;
 }

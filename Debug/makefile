@@ -8,6 +8,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include src/world/subdir.mk
 -include src/window/subdir.mk
 -include src/voxels/subdir.mk
 -include src/physics/subdir.mk
@@ -16,6 +17,7 @@ RM := rm -rf
 -include src/lighting/subdir.mk
 -include src/graphics/subdir.mk
 -include src/files/subdir.mk
+-include src/audio/subdir.mk
 -include src/subdir.mk
 -include subdir.mk
 -include objects.mk

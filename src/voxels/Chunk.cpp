@@ -2,12 +2,12 @@
 #include "voxel.h"
 #include "../lighting/Lightmap.h"
 
-
-Chunk::Chunk(int xpos, int ypos, int zpos) : x(xpos), y(ypos), z(zpos){
+Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos){
 	voxels = new voxel[CHUNK_VOL];
 	for (unsigned int i = 0; i < CHUNK_VOL; i++)
 		voxels[i].id = 1;
 	lightmap = new Lightmap();
+	renderData.vertices = nullptr;
 }
 
 Chunk::~Chunk(){
@@ -29,7 +29,7 @@ bool Chunk::isEmpty(){
 }
 
 Chunk* Chunk::clone() const {
-	Chunk* other = new Chunk(x,y,z);
+	Chunk* other = new Chunk(x,z);
 	for (int i = 0; i < CHUNK_VOL; i++)
 		other->voxels[i] = voxels[i];
 	other->lightmap->set(lightmap);

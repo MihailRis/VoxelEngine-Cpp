@@ -2,18 +2,21 @@
 #define GRAPHICS_VOXELRENDERER_H_
 
 #include <stdlib.h>
+#include <vector>
 
 class Mesh;
 class Chunk;
 
+#define CHUNK_VERTEX_SIZE (3 + 2 + 4)
+
 class VoxelRenderer {
-	float* buffer;
-	size_t capacity;
 public:
-	VoxelRenderer(size_t capacity);
+	std::vector<float> buffer;
+	unsigned char lights[27 * 4];
+	VoxelRenderer();
 	~VoxelRenderer();
 
-	Mesh* render(Chunk* chunk, const Chunk** chunks);
+	const float* render(Chunk* chunk, const Chunk** chunks, size_t& size);
 };
 
 #endif /* GRAPHICS_VOXELRENDERER_H_ */

@@ -1,6 +1,9 @@
 #ifndef VOXELS_BLOCK_H_
 #define VOXELS_BLOCK_H_
 
+#define BLOCK_MODEL_CUBE 1
+#define BLOCK_MODEL_GRASS 2
+
 class Block {
 public:
 	static Block* blocks[256];
@@ -14,6 +17,8 @@ public:
 	bool skyLightPassing = false;
 	bool obstacle = true;
 	bool selectable = true;
+	bool breakable = true;
+	unsigned char model = 1;
 
 	Block(unsigned int id, int texture);
 };

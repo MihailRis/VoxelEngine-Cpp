@@ -6,6 +6,7 @@
 class Lightmap {
 public:
 	unsigned short* map;
+	int highestPoint = 0;
 	Lightmap();
 	~Lightmap();
 

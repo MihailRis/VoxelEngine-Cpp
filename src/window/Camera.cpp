@@ -1,10 +1,3 @@
-/*
- * Camera.cpp
- *
- *  Created on: Feb 11, 2020
- *      Author: MihailRis
- */
-
 #include "Camera.h"
 #include "Window.h"
 
@@ -36,10 +29,22 @@ void Camera::rotate(float x, float y, float z){
 }
 
 mat4 Camera::getProjection(){
-	float aspect = (float)Window::width / (float)Window::height;
-	return glm::perspective(fov*zoom, aspect, 0.05f, 1500.0f);
+	float aspect = this->aspect;
+	if (aspect == 0.0f){
+		aspect = (float)Window::width / (float)Window::height;
+	}
+	if (perspective)
+		return glm::perspective(fov*zoom, aspect, 0.05f, 1500.0f);
+	else
+		if (flipped)
+			return glm::ortho(0.0f, fov*aspect, fov, 0.0f);
+		else
+			return glm::ortho(0.0f, fov*aspect, 0.0f, fov);
 }
 
 mat4 Camera::getView(){
-	return glm::lookAt(position, position+front, up);
+	if (perspective)
+		return glm::lookAt(position, position+front, up);
+	else
+		return glm::translate(glm::mat4(1.0f), position);
 }
