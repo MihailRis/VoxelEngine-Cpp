@@ -14,7 +14,7 @@
 
 #### Build with CMake
 ```sh
-git clone --revursive https://github.com/MihailRis/VoxelEngine-Cpp.git
+git clone --recursive https://github.com/MihailRis/VoxelEngine-Cpp.git
 cd VoxelEngine-Cpp
 mkdir build
 cd build
