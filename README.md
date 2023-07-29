@@ -32,6 +32,7 @@ cmake --build .
 #### Arch Linux
 If you use X11
 `$ sudo pacman -S glfw-x11 glew glm libpng openal`
+
 If you use Wayland
 `$ sudo pacman -S glfw-wayland glew glm libpng openal`
 
