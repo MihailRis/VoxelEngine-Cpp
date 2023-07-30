@@ -3,10 +3,13 @@ Debug/src/**/*.o
 
 Debug/voxel_engine
 
+build
+
 world
 
 .vscode
 
+.cache
 .settings
 .cproject
 .project
