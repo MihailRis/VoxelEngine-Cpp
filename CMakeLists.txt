@@ -22,6 +22,6 @@ else()
     find_package(glm REQUIRED)
 endif(NOT VE_USE_SYSTEM_LIBS)
 
-target_link_libraries(${PROJECT_NAME} glfw glm OpenGL::GL OpenAL::OpenAL GLEW::GLEW PNG::PNG)
+target_link_libraries(${PROJECT_NAME} glfw glm OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW PNG::PNG)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/build)

@@ -29,7 +29,7 @@ cmake --build .
 #### RHEL-based distro:
 `$ sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel openal-devel`
 
-#### Arch Linux
+#### Arch-based distro:
 If you use X11
 `$ sudo pacman -S glfw-x11 glew glm libpng openal`
 
