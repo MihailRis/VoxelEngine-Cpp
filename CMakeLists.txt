@@ -14,14 +14,22 @@ find_package(GLEW REQUIRED)
 find_package(OpenAL REQUIRED)
 find_package(PNG REQUIRED)
 
+set(LIBS "")
 if(NOT VE_USE_SYSTEM_LIBS)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glfw)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glm)
+    set(LIBS glm)
 else()
     find_package(glfw3 REQUIRED)
     find_package(glm REQUIRED)
 endif(NOT VE_USE_SYSTEM_LIBS)
 
-target_link_libraries(${PROJECT_NAME} glfw glm OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW PNG::PNG)
+if(UNIX)
+    find_package(Threads REQUIRED)
+    set(LIBS ${LIBS} Threads::Threads)
+endif(UNIX)
+
+
+target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW PNG::PNG)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/build)
