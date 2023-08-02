@@ -3,6 +3,15 @@
 [EXE for windows](https://drive.google.com/file/d/1lkFc5nyYOs0Yyu1wmOoAAwEp4r9jO1tE/view?usp=sharing)<br>
 [MinGW libraries (include & lib) + glew32.dll](https://drive.google.com/file/d/1k1Hnbz2Uhr4-03upt2yHxKws396HQDra/view?usp=sharing)
 
+# Controls:
+- **Tab** - toggle camera control
+- **W,A,S,D** - movement
+- **Space** - jump
+- **LMB** - remove block 
+- **RMB** - place block
+- **F** - toggle flight mode
+- **Esc** - exit
+
 # Run in linux:
 `$ git clone https://github.com/MihailRis/VoxelEngine-Cpp.git`
 
