@@ -3,6 +3,7 @@
 
 #include <string>
 #include <type_traits>
+#include <cstdint>
 
 #include <AL/al.h>
 
