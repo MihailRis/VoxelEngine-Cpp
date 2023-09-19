@@ -2,6 +2,8 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#include "typedefs.h"
 #include "Assets.h"
 #include "graphics/Shader.h"
 #include "graphics/Batch2D.h"
@@ -125,12 +127,12 @@ void HudRenderer::draw(Level* level, Assets* assets){
 	}
 
 	if (!Events::_cursor_locked) { //inventory
-		int size = 48;
-		int step = 64;
-		int inv_wm = step*10;
-		int inv_hm = step*8;
-		int inv_w = inv_wm - (step - size);
-		int inv_h = inv_hm - (step - size);
+		uint size = 48;
+		uint step = 64;
+		uint inv_wm = step*10;
+		uint inv_hm = step*8;
+		uint inv_w = inv_wm - (step - size);
+		uint inv_h = inv_hm - (step - size);
 		int inv_x = (Window::width - (inv_w)) / 2;
 		int inv_y = (Window::height - (inv_h)) / 2;
 		int xs = (Window::width - inv_w + step)/2;
@@ -146,7 +148,7 @@ void HudRenderer::draw(Level* level, Assets* assets){
 		vec4 tint = vec4(1.0f);
 		int mx = Events::x;
 		int my = Events::y;
-		int count = (inv_w / step) * (inv_h / step) + 1;
+		uint count = (inv_w / step) * (inv_h / step) + 1;
 
 		//back
 		batch->texture(nullptr);
@@ -162,7 +164,7 @@ void HudRenderer::draw(Level* level, Assets* assets){
 						0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 4);
 
 		batch->color = vec4(0.35f, 0.35f, 0.35f, 1.0f);
-		for (unsigned i = 1; i < count; i++) {
+		for (uint i = 1; i < count; i++) {
 			x = xs + step * ((i-1) % (inv_w / step));
 			y = ys + step * ((i-1) / (inv_w / step));
 			// batch->rect(x-2, y-2, size+4, size+4);
@@ -185,13 +187,13 @@ void HudRenderer::draw(Level* level, Assets* assets){
 
 		//front
 		batch->texture(blocks);
-		for (unsigned i = 1; i < count; i++) {
+		for (uint i = 1; i < count; i++) {
 			Block* cblock = Block::blocks[i];
 			if (cblock == nullptr)
 				break;
 			x = xs + step * ((i-1) % (inv_w / step));
 			y = ys + step * ((i-1) / (inv_w / step));
-			if (mx > x && mx < x + size && my > y && my < y + size) {
+			if (mx > x && mx < x + (int)size && my > y && my < y + (int)size) {
 				tint.r *= 1.2f;
 				tint.g *= 1.2f;
 				tint.b *= 1.2f;

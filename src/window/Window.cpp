@@ -4,10 +4,10 @@
 #include "Window.h"
 
 GLFWwindow* Window::window;
-int Window::width = 0;
-int Window::height = 0;
+uint Window::width = 0;
+uint Window::height = 0;
 
-int Window::initialize(int width, int height, const char* title){
+int Window::initialize(uint width, uint height, const char* title){
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);

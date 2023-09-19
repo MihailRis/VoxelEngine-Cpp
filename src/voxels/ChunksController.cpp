@@ -185,7 +185,7 @@ void ChunksController::calculateLights() {
 	freeLoader->lights(chunk, (Chunk**)closes);
 }
 
-bool ChunksController::_buildMeshes(VoxelRenderer* renderer, int tick) {
+bool ChunksController::_buildMeshes() {
 	const int w = chunks->w;
 	const int d = chunks->d;
 

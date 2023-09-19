@@ -75,7 +75,7 @@ void write_world(World* world, Level* level){
 	world->wfile->writePlayer(level->player);
 }
 
-void update_level(World* world, Level* level, float delta, long frame, VoxelRenderer* renderer) {
+void update_level(World* world, Level* level, float delta) {
 	level->playerController->update_controls(delta);
 	if (Events::_cursor_locked){
 		level->playerController->update_interaction();
@@ -151,10 +151,10 @@ void mainloop(Level* level, Assets* assets) {
 			}
 		}
 
-		update_level(world, level, delta, frame, worldRenderer.renderer);
+		update_level(world, level, delta);
 		int freeLoaders = level->chunksController->countFreeLoaders();
 		for (int i = 0; i < freeLoaders; i++)
-			level->chunksController->_buildMeshes(worldRenderer.renderer, frame);
+			level->chunksController->_buildMeshes();
 		freeLoaders = level->chunksController->countFreeLoaders();
 		for (int i = 0; i < freeLoaders; i++)
 			level->chunksController->calculateLights();

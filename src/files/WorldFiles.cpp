@@ -171,7 +171,7 @@ bool WorldFiles::readChunk(int x, int y, char* out){
 	input.read(mainBufferIn, compressedSize);
 	input.close();
 
-	decompressRLE(mainBufferIn, compressedSize, out, CHUNK_VOL);
+	decompressRLE((unsigned char*)mainBufferIn, compressedSize, (unsigned char*)out, CHUNK_VOL);
 
 	return true;
 }
@@ -274,7 +274,7 @@ unsigned int WorldFiles::writeRegion(char* out, int x, int y, char** region){
 		} else {
 			int2Bytes(offset, out, i*4);
 
-			unsigned int compressedSize = compressRLE(chunk, CHUNK_VOL, compressed);
+			unsigned int compressedSize = compressRLE((unsigned char*)chunk, CHUNK_VOL, (unsigned char*)compressed);
 
 			int2Bytes(compressedSize, out, offset);
 			offset += 4;

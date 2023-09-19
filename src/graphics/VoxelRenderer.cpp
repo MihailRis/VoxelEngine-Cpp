@@ -415,7 +415,6 @@ inline void _renderBlock(std::vector<float>& buffer, int x, int y, int z, const 
 }
 
 inline void _renderBlockShadeless(std::vector<float>& buffer, int x, int y, int z, const Chunk** chunks, voxel vox, size_t& index){
-	float l;
 	float uvsize = 1.0f/16.0f;
 
 	Block* block = Block::blocks[vox.id];
@@ -495,7 +494,7 @@ inline void _renderBlockShadeless(std::vector<float>& buffer, int x, int y, int 
 inline void _renderXBlock(std::vector<float>& buffer, int x, int y, int z, const Chunk** chunks, voxel vox, size_t& index){
 	Block* block = Block::blocks[vox.id];
 
-	int rand = ((x * z + y) xor (z * y - x)) * (z + y);
+	int rand = ((x * z + y) ^ (z * y - x)) * (z + y);
 
 	float xs = (float)(char)rand / 512;
 	float zs = (float)(char)(rand >> 8) / 512;

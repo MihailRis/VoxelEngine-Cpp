@@ -15,7 +15,7 @@ bool Events::_cursor_started = false;
 
 #define _MOUSE_BUTTONS 1024
 
-void cursor_position_callback(GLFWwindow* window, double xpos, double ypos){
+void cursor_position_callback(GLFWwindow*, double xpos, double ypos){
 	if (Events::_cursor_started){
 		Events::deltaX += xpos-Events::x;
 		Events::deltaY += ypos-Events::y;
@@ -27,7 +27,7 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos){
 	Events::y = ypos;
 }
 
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mode){
+void mouse_button_callback(GLFWwindow*, int button, int action, int){
 	if (action == GLFW_PRESS){
 		Events::_keys[_MOUSE_BUTTONS+button] = true;
 		Events::_frames[_MOUSE_BUTTONS+button] = Events::_current;
@@ -38,7 +38,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mode)
 	}
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
+void key_callback(GLFWwindow*, int key, int /*scancode*/, int action, int /*mode*/) {
 	if (action == GLFW_PRESS){
 		Events::_keys[key] = true;
 		Events::_frames[key] = Events::_current;
@@ -49,7 +49,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 }
 
-void window_size_callback(GLFWwindow* window, int width, int height){
+void window_size_callback(GLFWwindow*, int width, int height){
 	glViewport(0,0, width, height);
 	Window::width = width;
 	Window::height = height;

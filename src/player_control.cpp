@@ -188,10 +188,10 @@ void PlayerController::update_interaction(){
 		int x = (int)iend.x;
 		int y = (int)iend.y;
 		int z = (int)iend.z;
-		uint8_t states;
+		uint8_t states = 0;
 
 		if (Block::blocks[player->choosenBlock]->rotatable){
-			states = states & 0b11111100;
+			// states = states & 0b11111100;
 			// if (abs(norm.x) > abs(norm.z)){
 			// 	if (abs(norm.x) > abs(norm.y)) states = states | 0b00000001;
 			// 	if (abs(norm.x) < abs(norm.y)) states = states | 0b00000010;

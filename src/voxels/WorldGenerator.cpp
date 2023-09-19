@@ -31,11 +31,11 @@ public:
 	}
 
 	void setSeed(int number){
-		seed = ((unsigned short)(number*23729) xor (unsigned short)(number+16786));
+		seed = ((unsigned short)(number*23729) ^ (unsigned short)(number+16786));
 		rand();
 	}
 	void setSeed(int number1,int number2){
-		seed = (((unsigned short)(number1*23729) or (unsigned short)(number2%16786)) xor (unsigned short)(number2*number1));
+		seed = (((unsigned short)(number1*23729) | (unsigned short)(number2%16786)) ^ (unsigned short)(number2*number1));
 		rand();
 	}
 };

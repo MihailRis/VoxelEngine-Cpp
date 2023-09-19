@@ -22,7 +22,7 @@ public:
 	int countFreeLoaders();
 	bool loadVisible(WorldFiles* worldFiles);
 	void calculateLights();
-	bool _buildMeshes(VoxelRenderer* renderer, int tick);
+	bool _buildMeshes();
 };
 
 #endif /* VOXELS_CHUNKSCONTROLLER_H_ */
