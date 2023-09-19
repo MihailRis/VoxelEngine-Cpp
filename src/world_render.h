@@ -4,10 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <GL/glew.h>
-
-#ifndef std::string
 #include <string>
-#endif
 
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -37,7 +34,7 @@ public:
 	WorldRenderer(Level* level, Assets* assets);
 	~WorldRenderer();
 
-	void draw(World* world, Camera* camera, bool occlusion);
+	void draw(Camera* camera, bool occlusion);
 };
 
 

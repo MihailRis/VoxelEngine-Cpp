@@ -1,7 +1,10 @@
 #include "Level.h"
 #include "../lighting/Lighting.h"
+#include "../voxels/Chunks.h"
 #include "../voxels/ChunksController.h"
 #include "../player_control.h"
+#include "../physics/PhysicsSolver.h"
+#include "../objects/Player.h"
 
 Level::Level(World* world, Player* player, Chunks* chunks, PhysicsSolver* physics) :
 	world(world),

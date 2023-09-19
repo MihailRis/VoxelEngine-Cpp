@@ -7,6 +7,12 @@ file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
+if(MSVC)
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+else()
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+endif()
+
 option(VE_USE_SYSTEM_LIBS "Use system installed libraries" ON)
 
 find_package(OpenGL REQUIRED)

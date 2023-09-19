@@ -73,7 +73,7 @@ bool WorldRenderer::drawChunk(size_t index, Camera* camera, Shader* shader, bool
 }
 
 
-void WorldRenderer::draw(World* world, Camera* camera, bool occlusion){
+void WorldRenderer::draw(Camera* camera, bool occlusion){
 	Chunks* chunks = level->chunks;
 
 	vec4 skyColor(0.7f, 0.81f, 1.0f, 1.0f);

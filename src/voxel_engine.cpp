@@ -162,7 +162,7 @@ void mainloop(Level* level, Assets* assets) {
 		for (int i = 0; i < freeLoaders; i++)
 			level->chunksController->loadVisible(world->wfile);
 
-		worldRenderer.draw(world, camera, occlusion);
+		worldRenderer.draw(camera, occlusion);
 		hud.draw(level, assets);
 		if (level->player->debug) {
 			hud.drawDebug(level, assets, fps, occlusion);

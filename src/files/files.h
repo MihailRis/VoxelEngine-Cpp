@@ -1,9 +1,7 @@
 #ifndef FILES_FILES_H_
 #define FILES_FILES_H_
 
-#ifndef std::string
 #include <string>
-#endif
 
 extern bool write_binary_file(std::string filename, const char* data, size_t size);
 extern unsigned int append_binary_file(std::string filename, const char* data, size_t size);
