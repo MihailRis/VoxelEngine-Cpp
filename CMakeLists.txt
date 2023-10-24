@@ -9,8 +9,6 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 if(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /W4)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glfw)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glm)
 else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
 endif()
@@ -21,13 +19,13 @@ find_package(OpenAL REQUIRED)
 
 if (WIN32)
     set(PNGLIB spng)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glfw)
 else()
     find_package(PNG REQUIRED)
     set(PNGLIB PNG::PNG)
 endif(WIN32)
 
 set(LIBS "")
-set(LIBS glm)
 
 if(UNIX)
     find_package(Threads REQUIRED)

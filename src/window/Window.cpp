@@ -1,9 +1,9 @@
 #include <iostream>
+#include "Window.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include "Window.h"
 
-GLFWwindow* Window::window;
+GLFWwindow* Window::window = nullptr;
 uint Window::width = 0;
 uint Window::height = 0;
 

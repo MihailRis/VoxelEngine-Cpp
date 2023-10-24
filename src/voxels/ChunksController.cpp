@@ -10,7 +10,7 @@
 #include <iostream>
 #include <limits.h>
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(__MINGW32__)
 #define _WIN32_WINNT 0x0501
 #include <mingw.thread.h>
 #else
