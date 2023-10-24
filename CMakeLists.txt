@@ -9,11 +9,11 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 if(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /W4)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glfw)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glm)
 else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
 endif()
-
-option(VE_USE_SYSTEM_LIBS "Use system installed libraries" ON)
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
@@ -27,9 +27,6 @@ else()
 endif(WIN32)
 
 set(LIBS "")
-
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glfw)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glm)
 set(LIBS glm)
 
 if(UNIX)
@@ -38,6 +35,6 @@ if(UNIX)
 endif(UNIX)
 
 
-target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW spng)
+target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ${PNGLIB})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/build)
