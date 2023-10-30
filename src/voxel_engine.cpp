@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <ctime>
+#include <exception>
 
 // GLM
 #include <glm/glm.hpp>
@@ -18,140 +19,124 @@
 
 using namespace glm;
 
-#include "graphics/Shader.h"
-#include "graphics/Texture.h"
-#include "graphics/Mesh.h"
-#include "graphics/VoxelRenderer.h"
-#include "graphics/LineBatch.h"
-#include "graphics/Batch2D.h"
-#include "graphics/Framebuffer.h"
 #include "window/Window.h"
 #include "window/Events.h"
 #include "window/Camera.h"
-#include "loaders/png_loading.h"
-#include "voxels/voxel.h"
+#include "audio/Audio.h"
 #include "voxels/Chunk.h"
 #include "voxels/Chunks.h"
-#include "voxels/Block.h"
-#include "voxels/WorldGenerator.h"
 #include "voxels/ChunksController.h"
-#include "files/files.h"
-#include "files/WorldFiles.h"
-#include "lighting/LightSolver.h"
-#include "lighting/Lightmap.h"
-#include "lighting/Lighting.h"
-#include "physics/Hitbox.h"
-#include "physics/PhysicsSolver.h"
-#include "world/World.h"
-#include "world/Level.h"
-
-#include "audio/Audio.h"
-#include "audio/audioutil.h"
-#include "Assets.h"
+#include "voxels/ChunksLoader.h"
 #include "objects/Player.h"
-
+#include "world/Level.h"
+#include "world/World.h"
 #include "declarations.h"
+#include "Assets.h"
+#include "AssetsLoader.h"
 #include "world_render.h"
 #include "hud_render.h"
-#include "player_control.h"
 
-int WIDTH = 1280;
-int HEIGHT = 720;
 
-// Save all world data to files
-void write_world(World* world, Level* level){
-	WorldFiles* wfile = world->wfile;
-	Chunks* chunks = level->chunks;
+class initialize_error : public std::runtime_error {
+	initialize_error(const std::string& message) : std::runtime_error(message) {}
+};
 
-	for (unsigned int i = 0; i < chunks->volume; i++){
-		Chunk* chunk = chunks->chunks[i];
-		if (chunk == nullptr || !chunk->isUnsaved())
-			continue;
-		wfile->put((const char*)chunk->voxels, chunk->x, chunk->z);
-	}
+struct EngineSettings {
+	int displayWidth;
+	int displayHeight;
+	const char* title;
+};
 
-	wfile->write();
 
-	world->wfile->writePlayer(level->player);
-}
+class Engine {
+	Assets* assets;
+	Level* level;
 
-void update_level(World* world, Level* level, float delta) {
-	level->playerController->update_controls(delta);
-	if (Events::_cursor_locked){
-		level->playerController->update_interaction();
-	} else
-	{
-		level->playerController->selectedBlockId = -1;
-	}
-	
-	vec3 position = level->player->hitbox->position;
-	level->chunks->setCenter(world->wfile, position.x, position.z);
-}
+	uint64_t frame = 0;
+	float lastTime = 0.0f;
+	float delta = 0.0f;
+	bool occlusion = true;
+public:
+	Engine(const EngineSettings& settings);
+	~Engine();
 
-Level* load_level(World* world, Player* player) {
-	Level* level = new Level(world, player, new Chunks(56, 56, 0, 0), new PhysicsSolver(vec3(0, -19.6f, 0)));
-	world->wfile->readPlayer(player);
+	void updateTimers();
+	void updateHotkeys();
+	void mainloop();
+};
 
-	Camera* camera = player->camera;
-	camera->rotation = mat4(1.0f);
-	camera->rotate(player->camY, player->camX, 0);
-	return level;
-}
-
-int initialize(Assets*& assets) {
-	Window::initialize(WIDTH, HEIGHT, "VoxelEngine-Cpp v12");
+Engine::Engine(const EngineSettings& settings) {
+	Window::initialize(settings.displayWidth, settings.displayHeight, settings.title);
 	Events::initialize();
 
 	assets = new Assets();
 	std::cout << "-- loading assets" << std::endl;
-	int result = initialize_assets(assets);
-	if (result){
-		delete assets;
-		Window::terminate();
-		return result;
+	AssetsLoader loader(assets);
+	AssetsLoader::createDefaults(loader);
+	initialize_assets(&loader);
+	while (loader.hasNext()) {
+		if (!loader.loadNext()) {
+			delete assets;
+			Window::terminate();
+			throw std::runtime_error("could not to initialize assets");
+		}
 	}
-	return 0;
+	std::cout << "-- loading world" << std::endl;
+	vec3 playerPosition = vec3(0, 64, 0);
+	Camera* camera = new Camera(playerPosition, radians(90.0f));
+	World* world = new World("world-1", "world/", 42);
+	Player* player = new Player(playerPosition, 4.0f, camera);
+	level = world->loadLevel(player);
+
+	std::cout << "-- initializing finished" << std::endl;
+
+	Audio::initialize();
 }
 
-void mainloop(Level* level, Assets* assets) {
+void Engine::updateTimers() {
+	frame++;
+	float currentTime = glfwGetTime();
+	delta = currentTime - lastTime;
+	lastTime = currentTime;
+}
+
+void Engine::updateHotkeys() {
+	if (Events::jpressed(GLFW_KEY_ESCAPE)) {
+		Window::setShouldClose(true);
+	}
+	if (Events::jpressed(GLFW_KEY_TAB) || Events::jpressed(GLFW_KEY_E)) {
+		Events::toggleCursor();
+	}
+	if (Events::jpressed(GLFW_KEY_O)) {
+		occlusion = !occlusion;
+	}
+	if (Events::jpressed(GLFW_KEY_F3)) {
+		level->player->debug = !level->player->debug;
+	}
+	if (Events::jpressed(GLFW_KEY_F5)) {
+		for (unsigned i = 0; i < level->chunks->volume; i++) {
+			Chunk* chunk = level->chunks->chunks[i];
+			if (chunk != nullptr && chunk->isReady()) {
+				chunk->setModified(true);
+			}
+		}
+	}
+}
+
+void Engine::mainloop() {
 	Camera* camera = level->player->camera;
 	std::cout << "-- preparing systems" << std::endl;
 	World* world = level->world;
 	WorldRenderer worldRenderer(level, assets);
 	HudRenderer hud;
-	long frame = 0;
-	float lastTime = glfwGetTime();
-	float delta = 0.0f;
-	bool occlusion = true;
+	lastTime = glfwGetTime();
+
 	Window::swapInterval(1);
 	while (!Window::isShouldClose()){
-		frame++;
-		float currentTime = glfwGetTime();
-		delta = currentTime - lastTime;
-		lastTime = currentTime;
-		int fps = 1 / delta;
-		if (Events::jpressed(GLFW_KEY_ESCAPE)){
-			Window::setShouldClose(true);
-		}
-		if (Events::jpressed(GLFW_KEY_TAB) || Events::jpressed(GLFW_KEY_E)){
-			Events::toggleCursor();
-		}
-		if (Events::jpressed(GLFW_KEY_O)){
-			occlusion = !occlusion;
-		}
-		if (Events::jpressed(GLFW_KEY_F3)){
-			level->player->debug = !level->player->debug;
-		}
-		if (Events::jpressed(GLFW_KEY_F5)){
-			for (unsigned i = 0; i < level->chunks->volume; i++) {
-				Chunk* chunk = level->chunks->chunks[i];
-				if (chunk != nullptr && chunk->isReady()){
-					chunk->setModified(true);
-				}
-			}
-		}
+		updateTimers();
+		updateHotkeys();
 
-		update_level(world, level, delta);
+		level->update(delta, Events::_cursor_locked);
 		int freeLoaders = level->chunksController->countFreeLoaders();
 		for (int i = 0; i < freeLoaders; i++)
 			level->chunksController->_buildMeshes();
@@ -165,7 +150,7 @@ void mainloop(Level* level, Assets* assets) {
 		worldRenderer.draw(camera, occlusion);
 		hud.draw(level, assets);
 		if (level->player->debug) {
-			hud.drawDebug(level, assets, fps, occlusion);
+			hud.drawDebug(level, assets, 1 / delta, occlusion);
 		}
 
 		Window::swapBuffers();
@@ -173,28 +158,12 @@ void mainloop(Level* level, Assets* assets) {
 	}
 }
 
-int main() {
-	setup_definitions();
-
-	Assets* assets;
-	int status = initialize(assets);
-	if (status) return status;
-
-	std::cout << "-- loading world" << std::endl;
-	vec3 playerPosition = vec3(0,64,0);
-	Camera* camera = new Camera(playerPosition, radians(90.0f));
-	World* world = new World("world-1", "world/", 42);
-	Player* player = new Player(playerPosition, 4.0f, camera);
-	Level* level = load_level(world, player);
-
-	std::cout << "-- initializing finished" << std::endl;
-
-	Audio::initialize();
-	mainloop(level, assets);
+Engine::~Engine() {
 	Audio::finalize();
 
+	World* world = level->world;
 	std::cout << "-- saving world" << std::endl;
-	write_world(world, level);
+	world->write(level);
 
 	delete level;
 	delete world;
@@ -203,5 +172,19 @@ int main() {
 	delete assets;
 	Events::finalize();
 	Window::terminate();
+}
+
+int main() {
+	setup_definitions();
+
+	try {
+		Engine engine(EngineSettings{ 1280, 720, "VoxelEngine-Cpp v13" });
+		engine.mainloop();
+	}
+	catch (const initialize_error& err) {
+		std::cerr << "could not to initialize engine" << std::endl;
+		std::cerr << err.what() << std::endl;
+	}
+
 	return 0;
 }

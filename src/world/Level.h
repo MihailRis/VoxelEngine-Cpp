@@ -20,6 +20,9 @@ public:
 	PlayerController* playerController;
 	Level(World* world, Player* player, Chunks* chunks, PhysicsSolver* physics);
 	~Level();
+
+	void update(float delta, bool interactions);
+
 };
 
 #endif /* WORLD_LEVEL_H_ */

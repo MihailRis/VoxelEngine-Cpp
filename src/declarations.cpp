@@ -1,70 +1,21 @@
 #include "declarations.h"
 
-#include "Assets.h"
-#include "graphics/Shader.h"
-#include "graphics/Texture.h"
-#include "graphics/Font.h"
+#include "AssetsLoader.h"
 #include "window/Window.h"
 
 #include "voxels/Block.h"
 
-// Shaders, textures
-bool _load_shader(Assets* assets, std::string vertex_file, std::string fragment_file, std::string name){
-	Shader* shader = load_shader(vertex_file, fragment_file);
-	if (shader == nullptr){
-		std::cerr << "failed to load shader '" << name << "'" << std::endl;
-		return false;
-	}
-	assets->store(shader, name);
-	return true;
-}
 
-bool _load_texture(Assets* assets, std::string filename, std::string name){
-	Texture* texture = load_texture(filename);
-	if (texture == nullptr){
-		std::cerr << "failed to load texture '" << name << "'" << std::endl;
-		return false;
-	}
-	assets->store(texture, name);
-	return true;
-}
+void initialize_assets(AssetsLoader* loader) {
+	loader->add(ASSET_SHADER, "res/main", "main");
+	loader->add(ASSET_SHADER, "res/crosshair", "crosshair");
+	loader->add(ASSET_SHADER, "res/lines", "lines");
+	loader->add(ASSET_SHADER, "res/ui", "ui");
 
-bool _load_font(Assets* assets, std::string filename, std::string name){
-	std::vector<Texture*> pages;
-	for (size_t i = 0; i <= 4; i++){
-		Texture* texture = load_texture(filename+"_"+std::to_string(i)+".png");
-		if (texture == nullptr){
-			std::cerr << "failed to load bitmap font '" << name << "' (missing page " << std::to_string(i) << ")" << std::endl;
-			return false;
-		}
-		pages.push_back(texture);
-	}
-	Font* font = new Font(pages);
-	assets->store(font, name);
-	return true;
-}
+	loader->add(ASSET_TEXTURE, "res/block.png", "block");
+	loader->add(ASSET_TEXTURE, "res/slot.png", "slot");
 
-int initialize_assets(Assets* assets) {
-#define LOAD_SHADER(VERTEX, FRAGMENT, NAME) \
-	if (!_load_shader(assets, VERTEX, FRAGMENT, NAME))\
-		return 1;
-#define LOAD_TEXTURE(FILENAME, NAME) \
-	if (!_load_texture(assets, FILENAME, NAME))\
-		return 1;
-#define LOAD_FONT(FILENAME, NAME) \
-	if (!_load_font(assets, FILENAME, NAME))\
-		return 1;
-
-	LOAD_SHADER("res/main.glslv", "res/main.glslf", "main");
-	LOAD_SHADER("res/crosshair.glslv", "res/crosshair.glslf", "crosshair");
-	LOAD_SHADER("res/lines.glslv", "res/lines.glslf", "lines");
-	LOAD_SHADER("res/ui.glslv", "res/ui.glslf", "ui");
-
-	LOAD_TEXTURE("res/block.png", "block");
-	LOAD_TEXTURE("res/slot.png", "slot");
-
-	LOAD_FONT("res/font", "normal");
-	return 0;
+	loader->add(ASSET_FONT, "res/font", "normal");
 }
 
 // All in-game definitions (blocks, items, etc..)

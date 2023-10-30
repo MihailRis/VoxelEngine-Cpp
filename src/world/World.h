@@ -5,6 +5,8 @@
 
 class WorldFiles;
 class Chunks;
+class Level;
+class Player;
 
 class World {
 public:
@@ -14,6 +16,9 @@ public:
 
 	World(std::string name, std::string directory, int seed);
 	~World();
+
+	void write(Level* level);
+	Level* loadLevel(Player* player);
 };
 
 #endif /* WORLD_WORLD_H_ */
