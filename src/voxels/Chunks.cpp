@@ -123,7 +123,7 @@ Chunk* Chunks::getChunk(int x, int z){
 	return chunks[z * w + x];
 }
 
-void Chunks::set(int x, int y, int z, int id){
+void Chunks::set(int x, int y, int z, int id, uint8_t states){
 	x -= ox * CHUNK_W;
 	z -= oz * CHUNK_D;
 	int cx = x / CHUNK_W;
@@ -140,6 +140,7 @@ void Chunks::set(int x, int y, int z, int id){
 	int lx = x - cx * CHUNK_W;
 	int lz = z - cz * CHUNK_D;
 	chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx].id = id;
+	chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx].states = states;
 	chunk->setUnsaved(true);
 	chunk->setModified(true);
 

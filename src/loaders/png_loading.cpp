@@ -20,6 +20,7 @@ int _png_load(const char* file, int* width, int* height){
     png_bytepp row_pointers;
     png_structp png_ptr;
     GLuint texture;
+    GLuint texturems;
     int alpha;
 
     if ( !( f = fopen(file, "r" ) ) ) {
@@ -95,18 +96,53 @@ int _png_load(const char* file, int* width, int* height){
             png_destroy_read_struct( &png_ptr, &info_ptr, &end_info );
             return 0;
     }
+    // configure second post-processing framebuffer
+    unsigned int framebuffer;
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, t_width, t_height, 0,
         alpha, GL_UNSIGNED_BYTE, (GLvoid *) image_data);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3);
     glGenerateMipmap(GL_TEXTURE_2D);
+    // glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);	// we only need a color buffer
+    
     glBindTexture(GL_TEXTURE_2D, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    unsigned int framebufferms;
+    glGenFramebuffers(1, &framebufferms);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebufferms);
+    // create a multisampled color attachment texture
+    glGenTextures(1, &texturems);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texturems);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 16, GL_RGBA, t_width, t_height, GL_TRUE);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, texturems, 0);
+    glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAX_LEVEL, 3);
+    // glGenerateMipmap(GL_TEXTURE_2D_MULTISAMPLE);
+
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebufferms);
+    glBlitFramebuffer(0, 0, t_width, t_height, 0, 0, t_width, t_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    
+
+
 
     png_destroy_read_struct( &png_ptr, &info_ptr, &end_info );
     free( image_data );

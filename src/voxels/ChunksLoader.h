@@ -1,12 +1,12 @@
 #ifndef VOXELS_CHUNKSLOADER_H_
 #define VOXELS_CHUNKSLOADER_H_
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(__MINGW32__)
 #define _WIN32_WINNT 0x0501
 #include <mingw.thread.h>
 #else
 #include <thread>
-#endif
+#endif  // _WIN32 && __MINGW32__
 
 #include <atomic>
 

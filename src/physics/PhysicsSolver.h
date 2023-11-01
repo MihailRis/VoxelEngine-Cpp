@@ -21,6 +21,7 @@ public:
 			bool shifting,
 			float gravityScale,
 			bool collisions);
+	void colisionCalc(Chunks* chunks, Hitbox* hitbox, vec3* vel, vec3* pos, vec3 half);
 	bool isBlockInside(int x, int y, int z, Hitbox* hitbox);
 };
 

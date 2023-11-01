@@ -1,19 +1,19 @@
 #include <iostream>
+#include "Window.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include "Window.h"
 
-GLFWwindow* Window::window;
-int Window::width = 0;
-int Window::height = 0;
+GLFWwindow* Window::window = nullptr;
+uint Window::width = 0;
+uint Window::height = 0;
 
-int Window::initialize(int width, int height, const char* title){
+int Window::initialize(uint width, uint height, const char* title){
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-	//glfwWindowHint(GLFW_SAMPLES, 2);
+	glfwWindowHint(GLFW_SAMPLES, 16);
 
 	window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 	if (window == nullptr){
@@ -34,6 +34,8 @@ int Window::initialize(int width, int height, const char* title){
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
+	glEnable(GL_MULTISAMPLE);
+	// glDisable(GL_MULTISAMPLE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Window::width = width;

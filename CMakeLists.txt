@@ -7,29 +7,40 @@ file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
-option(VE_USE_SYSTEM_LIBS "Use system installed libraries" ON)
+if(MSVC)
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4)
+else()
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra 
+    # additional warnings
+    -Wformat-nonliteral -Wcast-align 
+    -Wpointer-arith -Winline -Wundef
+    -Wwrite-strings -Wno-unused-parameter)
+endif()
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenAL REQUIRED)
-find_package(PNG REQUIRED)
+
+if (WIN32)
+    set(PNGLIB spng)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glfw)
+else()
+    find_package(PNG REQUIRED)
+    set(PNGLIB PNG::PNG)
+endif(WIN32)
 
 set(LIBS "")
-if(NOT VE_USE_SYSTEM_LIBS)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glfw)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glm)
-    set(LIBS glm)
-else()
-    find_package(glfw3 REQUIRED)
-    find_package(glm REQUIRED)
-endif(NOT VE_USE_SYSTEM_LIBS)
 
 if(UNIX)
     find_package(Threads REQUIRED)
     set(LIBS ${LIBS} Threads::Threads)
 endif(UNIX)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie")
+endif()
 
-target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW PNG::PNG)
+
+target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ${PNGLIB})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/build)

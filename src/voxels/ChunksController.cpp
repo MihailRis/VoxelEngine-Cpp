@@ -10,7 +10,7 @@
 #include <iostream>
 #include <limits.h>
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(__MINGW32__)
 #define _WIN32_WINNT 0x0501
 #include <mingw.thread.h>
 #else
@@ -185,7 +185,7 @@ void ChunksController::calculateLights() {
 	freeLoader->lights(chunk, (Chunk**)closes);
 }
 
-bool ChunksController::_buildMeshes(VoxelRenderer* renderer, int tick) {
+bool ChunksController::_buildMeshes() {
 	const int w = chunks->w;
 	const int d = chunks->d;
 

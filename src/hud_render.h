@@ -10,7 +10,7 @@ class Mesh;
 class HudRenderer {
 	Batch2D* batch;
 	Camera* uicamera;
-	Mesh* crosshair;
+	// Mesh* crosshair;
 public:
 	HudRenderer();
 	~HudRenderer();

@@ -12,15 +12,6 @@
 - **F** - toggle flight mode
 - **Esc** - exit
 
-# Run in linux:
-`$ git clone https://github.com/MihailRis/VoxelEngine-Cpp.git`
-
-`$ cd VoxelEngine-Cpp/Debug`
-
-`$ make`
-
-`$ ./voxel_engine`
-
 #### Build with CMake
 ```sh
 git clone --recursive https://github.com/MihailRis/VoxelEngine-Cpp.git

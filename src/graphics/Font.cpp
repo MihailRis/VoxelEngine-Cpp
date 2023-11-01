@@ -10,21 +10,21 @@ Font::~Font(){
 		delete texture;
 }
 
-int Font::getGlyphWidth(char c) {
-	switch (c){
-		case 'l':
-		case 'i':
-		case 'j':
-		case '|':
-		case '.':
-		case ',':
-		case ':':
-		case ';': return 7;
-		case 't': return 8;
-		case ' ': return 7;
-	}
-	return 7;
-}
+// int Font::getGlyphWidth(char c) {
+// 	switch (c){
+// 		case 'l':
+// 		case 'i':
+// 		case 'j':
+// 		case '|':
+// 		case '.':
+// 		case ',':
+// 		case ':':
+// 		case ';': return 7;
+// 		case 't': return 8;
+// 		case ' ': return 7;
+// 	}
+// 	return 7;
+// }
 
 
 bool Font::isPrintableChar(int c) {
@@ -81,7 +81,7 @@ void Font::draw(Batch2D* batch, std::wstring text, int x, int y, int style) {
 					next = charpage;
 				}
 			}
-			x += getGlyphWidth(c);
+			x += 8;//getGlyphWidth(c);
 		}
 		page = next;
 		next = 10000;

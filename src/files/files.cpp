@@ -2,6 +2,8 @@
 
 #include <fstream>
 #include <iostream>
+#include <memory>
+#include <stdint.h>
 
 bool write_binary_file_part(std::string filename, const char* data, size_t offset, size_t size){
 	std::ofstream output(filename, std::ios::out | std::ios::binary | std::ios::in);
@@ -48,18 +50,18 @@ char* read_binary_file(std::string filename, size_t& length) {
 	length = input.tellg();
 	input.seekg(0, std::ios_base::beg);
 
-	char* data = new char[length];
-	input.read(data, length);
+	std::unique_ptr<char> data {new char[length]};
+	input.read(data.get(), length);
 	input.close();
-	return data;
+	return data.release();
 }
 
 // returns decompressed length
-unsigned int decompressRLE(const char* src, unsigned int length, char* dst, unsigned int targetLength){
-	unsigned int offset = 0;
-	for (unsigned int i = 0; i < length;){
+size_t decompressRLE(const ubyte* src, size_t length, ubyte* dst, size_t targetLength){
+	size_t offset = 0;
+	for (size_t i = 0; i < length;){
 		unsigned char counter = src[i++];
-		char c = src[i++];
+		unsigned char c = src[i++];
 		for (unsigned int j = 0; j <= counter; j++){
 			dst[offset++] = c;
 		}
@@ -67,12 +69,12 @@ unsigned int decompressRLE(const char* src, unsigned int length, char* dst, unsi
 	return offset;
 }
 
-unsigned int calcRLE(const char* src, unsigned int length) {
-	unsigned int offset = 0;
-	unsigned int counter = 0;
-	char c = src[0];
-	for (unsigned int i = 0; i < length; i++){
-		char cnext = src[i];
+size_t calcRLE(const ubyte* src, size_t length) {
+	size_t offset = 0;
+	size_t counter = 0;
+	ubyte c = src[0];
+	for (size_t i = 0; i < length; i++){
+		ubyte cnext = src[i];
 		if (cnext != c || counter == 255){
 			offset += 2;
 			c = cnext;
@@ -85,12 +87,14 @@ unsigned int calcRLE(const char* src, unsigned int length) {
 }
 
 // max result size = length * 2; returns compressed length
-unsigned int compressRLE(const char* src, unsigned int length, char* dst) {
-	unsigned int offset = 0;
-	unsigned int counter = 0;
-	char c = src[0];
-	for (unsigned int i = 1; i < length; i++){
-		char cnext = src[i];
+size_t compressRLE(const ubyte* src, size_t length, ubyte* dst) {
+	if (length == 0)
+		return 0;
+	size_t offset = 0;
+	uint counter = 0;
+	ubyte c = src[0];
+	for (size_t i = 1; i < length; i++){
+		ubyte cnext = src[i];
 		if (cnext != c || counter == 255){
 			dst[offset++] = counter;
 			dst[offset++] = c;
