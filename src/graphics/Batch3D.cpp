@@ -8,8 +8,8 @@
 #define VERTEX_SIZE 9
 
 Batch3D::Batch3D(size_t capacity) : capacity(capacity), offset(0), color(1.0f, 1.0f, 1.0f, 0.0f){
-	const int attrs[] = {
-			3, 2, 4, 0 //null terminator
+	const vattr attrs[] = {
+		{3}, {2}, {4}, {0}
 	};
 
 	buffer = new float[capacity * VERTEX_SIZE];

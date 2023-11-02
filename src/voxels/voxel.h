@@ -1,10 +1,10 @@
 #ifndef VOXELS_VOXEL_H_
 #define VOXELS_VOXEL_H_
 
-#include <stdint.h>
+#include "../typedefs.h"
 
 struct voxel {
-	uint8_t id;
+	blockid_t id;
 	uint8_t states;
 };
 

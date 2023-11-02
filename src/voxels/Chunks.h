@@ -2,11 +2,10 @@
 #define VOXELS_CHUNKS_H_
 
 #include <stdlib.h>
+#include <memory>
 #include <glm/glm.hpp>
+#include "../typedefs.h"
 
-using namespace glm;
-
-class Mesh;
 class VoxelRenderer;
 
 class Chunk;
@@ -15,10 +14,8 @@ class WorldFiles;
 
 class Chunks {
 public:
-	Chunk** chunks;
-	Chunk** chunksSecond;
-	Mesh** meshes;
-	Mesh** meshesSecond;
+	std::shared_ptr<Chunk>* chunks;
+	std::shared_ptr<Chunk>* chunksSecond;
 	size_t volume;
 	size_t chunksCount;
 	int w,d;
@@ -27,15 +24,15 @@ public:
 	Chunks(int w, int d, int ox, int oz);
 	~Chunks();
 
-	bool putChunk(Chunk* chunk);
+	bool putChunk(std::shared_ptr<Chunk> chunk);
 
 	Chunk* getChunk(int x, int z);
 	Chunk* getChunkByVoxel(int x, int y, int z);
 	voxel* get(int x, int y, int z);
-	unsigned short getLight(int x, int y, int z);
-	unsigned char getLight(int x, int y, int z, int channel);
+	light_t getLight(int x, int y, int z);
+	ubyte getLight(int x, int y, int z, int channel);
 	void set(int x, int y, int z, int id, uint8_t states);
-	voxel* rayCast(vec3 start, vec3 dir, float maxLength, vec3& end, vec3& norm, vec3& iend);
+	voxel* rayCast(glm::vec3 start, glm::vec3 dir, float maxLength, glm::vec3& end, glm::vec3& norm, glm::vec3& iend);
 
 	bool isObstacle(int x, int y, int z);
 
@@ -45,7 +42,7 @@ public:
 	void setCenter(WorldFiles* worldFiles, int x, int z);
 	void translate(WorldFiles* worldFiles, int x, int z);
 
-	void clear(bool freeMemory);
+	void clear();
 };
 
 #endif /* VOXELS_CHUNKS_H_ */

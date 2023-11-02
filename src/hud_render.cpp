@@ -1,5 +1,6 @@
 #include "hud_render.h"
 
+#include <sstream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -20,19 +21,6 @@
 
 
 HudRenderer::HudRenderer() {
-	// float vertices[] = {
-	// 		// x    y
-	// 	   -0.01f,-0.01f,
-	// 	    0.01f, 0.01f,
-
-	// 	   -0.01f, 0.01f,
-	// 	    0.01f,-0.01f,
-	// };
-	// int attrs[] = {
-	// 		2,  0 //null terminator
-	// };
-	// crosshair = new Mesh(vertices, 4, attrs);
-
 	batch = new Batch2D(1024);
 	uicamera = new Camera(glm::vec3(), Window::height / 1.0f);
 	uicamera->perspective = false;
@@ -63,6 +51,11 @@ void HudRenderer::drawDebug(Level* level, Assets* assets, int fps, bool occlusio
 	font->draw(batch, L"fps:", 16, 42, STYLE_OUTLINE);
 	font->draw(batch, std::to_wstring(fps), 44, 42, STYLE_OUTLINE);
 	font->draw(batch, L"occlusion: "+std::to_wstring(occlusion), 16, 54, STYLE_OUTLINE);
+
+	std::wstringstream stream;
+	stream << std::hex << player->selectedVoxel.states;
+	font->draw(batch, L"block-selected: "+std::to_wstring(player->selectedVoxel.id)+L" "+stream.str(), 16, 78, STYLE_OUTLINE);
+	font->draw(batch, L"meshes: " + std::to_wstring(Mesh::meshesCount), 16, 102, STYLE_OUTLINE);
 	// batch->render();
 }
 

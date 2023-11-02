@@ -6,7 +6,10 @@
 #include "../voxels/voxel.h"
 #include "../voxels/Block.h"
 
+#include <memory>
 #include <iostream>
+
+using std::shared_ptr;
 
 Lighting::Lighting(Chunks* chunks){
 	this->chunks = chunks;
@@ -25,7 +28,7 @@ Lighting::~Lighting(){
 
 void Lighting::clear(){
 	for (unsigned int index = 0; index < chunks->volume; index++){
-		Chunk* chunk = chunks->chunks[index];
+		shared_ptr<Chunk> chunk = chunks->chunks[index];
 		if (chunk == nullptr)
 			continue;
 		Lightmap* lightmap = chunk->lightmap;

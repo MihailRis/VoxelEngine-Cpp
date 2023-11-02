@@ -183,6 +183,7 @@ void PlayerController::update_interaction(){
 	vec3 iend;
 	voxel* vox = chunks->rayCast(camera->position, camera->front, 10.0f, end, norm, iend);
 	if (vox != nullptr){
+		player->selectedVoxel = *vox;
 		selectedBlockId = vox->id;
 		selectedBlockPosition = iend;
 		int x = (int)iend.x;

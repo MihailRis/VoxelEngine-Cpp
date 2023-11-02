@@ -1,11 +1,13 @@
 #ifndef LIGHTING_LIGHTMAP_H_
 #define LIGHTING_LIGHTMAP_H_
 
+#include "../constants.h"
 #include "../voxels/Chunk.h"
 
+// Lichtkarte
 class Lightmap {
 public:
-	unsigned short* map;
+	light_t* map;
 	int highestPoint = 0;
 	Lightmap();
 	~Lightmap();
@@ -59,6 +61,18 @@ public:
 	inline void set(int x, int y, int z, int channel, int value){
 		const int index = y*CHUNK_D*CHUNK_W+z*CHUNK_W+x;
 		map[index] = (map[index] & (0xFFFF & (~(0xF << (channel*4))))) | (value << (channel << 2));
+	}
+
+	inline const light_t* getLights() const {
+		return map;
+	}
+
+	inline light_t* getLightsWriteable() {
+		return map;
+	}
+
+	static inline light_t extract(light_t light, ubyte channel) {
+		return (light >> (channel << 2)) & 0xF;
 	}
 };
 

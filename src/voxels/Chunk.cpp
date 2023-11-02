@@ -36,11 +36,3 @@ Chunk* Chunk::clone() const {
 	return other;
 }
 
-void Chunk::incref(){
-	references++;
-}
-
-void Chunk::decref(){
-	if (--references <= 0)
-		delete this;
-}
