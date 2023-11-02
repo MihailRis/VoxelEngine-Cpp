@@ -4,6 +4,13 @@
 #define BLOCK_MODEL_CUBE 1
 #define BLOCK_MODEL_X_SPRITE 2
 
+#define FACE_MX 0
+#define FACE_PX 1
+#define FACE_MY 2
+#define FACE_PY 3
+#define FACE_MZ 4
+#define FACE_PZ 5
+
 class Block {
 public:
 	static Block* blocks[256];

@@ -6,11 +6,11 @@
 class GLFWwindow;
 
 class Window {
+	static GLFWwindow* window;
 public:
 	static uint width;
 	static uint height;
-	static GLFWwindow* window; // не лучшее решение делать window публичным
-	static int initialize(uint width, uint height, const char* title);
+	static int initialize(uint width, uint height, const char* title, int samples);
 	static void terminate();
 
 	static void viewport(int x, int y, int width, int height);

@@ -8,6 +8,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <memory>
 #include <vector>
 #include <ctime>
 #include <exception>
@@ -17,8 +18,6 @@
 #include <glm/ext.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-using namespace glm;
-
 #include "window/Window.h"
 #include "window/Events.h"
 #include "window/Camera.h"
@@ -26,7 +25,7 @@ using namespace glm;
 #include "voxels/Chunk.h"
 #include "voxels/Chunks.h"
 #include "voxels/ChunksController.h"
-#include "voxels/ChunksLoader.h"
+#include "voxels/ChunksStorage.h"
 #include "objects/Player.h"
 #include "world/Level.h"
 #include "world/World.h"
@@ -36,14 +35,19 @@ using namespace glm;
 #include "world_render.h"
 #include "hud_render.h"
 
+using std::shared_ptr;
+
 
 class initialize_error : public std::runtime_error {
+public:
 	initialize_error(const std::string& message) : std::runtime_error(message) {}
 };
+
 
 struct EngineSettings {
 	int displayWidth;
 	int displayHeight;
+	int displaySamples;
 	const char* title;
 };
 
@@ -66,8 +70,7 @@ public:
 };
 
 Engine::Engine(const EngineSettings& settings) {
-	Window::initialize(settings.displayWidth, settings.displayHeight, settings.title);
-	Events::initialize();
+	Window::initialize(settings.displayWidth, settings.displayHeight, settings.title, settings.displaySamples);
 
 	assets = new Assets();
 	std::cout << "-- loading assets" << std::endl;
@@ -78,7 +81,7 @@ Engine::Engine(const EngineSettings& settings) {
 		if (!loader.loadNext()) {
 			delete assets;
 			Window::terminate();
-			throw std::runtime_error("could not to initialize assets");
+			throw initialize_error("could not to initialize assets");
 		}
 	}
 	std::cout << "-- loading world" << std::endl;
@@ -115,7 +118,7 @@ void Engine::updateHotkeys() {
 	}
 	if (Events::jpressed(GLFW_KEY_F5)) {
 		for (unsigned i = 0; i < level->chunks->volume; i++) {
-			Chunk* chunk = level->chunks->chunks[i];
+			shared_ptr<Chunk> chunk = level->chunks->chunks[i];
 			if (chunk != nullptr && chunk->isReady()) {
 				chunk->setModified(true);
 			}
@@ -137,15 +140,7 @@ void Engine::mainloop() {
 		updateHotkeys();
 
 		level->update(delta, Events::_cursor_locked);
-		int freeLoaders = level->chunksController->countFreeLoaders();
-		for (int i = 0; i < freeLoaders; i++)
-			level->chunksController->_buildMeshes();
-		freeLoaders = level->chunksController->countFreeLoaders();
-		for (int i = 0; i < freeLoaders; i++)
-			level->chunksController->calculateLights();
-		freeLoaders = level->chunksController->countFreeLoaders();
-		for (int i = 0; i < freeLoaders; i++)
-			level->chunksController->loadVisible(world->wfile);
+		level->chunksController->loadVisible(world->wfile);
 
 		worldRenderer.draw(camera, occlusion);
 		hud.draw(level, assets);
@@ -176,15 +171,13 @@ Engine::~Engine() {
 
 int main() {
 	setup_definitions();
-
 	try {
-		Engine engine(EngineSettings{ 1280, 720, "VoxelEngine-Cpp v13" });
+		Engine engine(EngineSettings{ 1280, 720, 1, "VoxelEngine-Cpp v13" });
 		engine.mainloop();
 	}
 	catch (const initialize_error& err) {
 		std::cerr << "could not to initialize engine" << std::endl;
 		std::cerr << err.what() << std::endl;
 	}
-
 	return 0;
 }

@@ -14,13 +14,13 @@ class Assets {
 	std::unordered_map<std::string, Font*> fonts;
 public:
 	~Assets();
-	Texture* getTexture(std::string name);
+	Texture* getTexture(std::string name) const;
 	void store(Texture* texture, std::string name);
 
-	Shader* getShader(std::string name);
+	Shader* getShader(std::string name) const;
 	void store(Shader* shader, std::string name);
 
-	Font* getFont(std::string name);
+	Font* getFont(std::string name) const;
 	void store(Font* font, std::string name);
 };
 

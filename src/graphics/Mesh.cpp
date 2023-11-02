@@ -1,10 +1,13 @@
 #include "Mesh.h"
 #include <GL/glew.h>
 
-Mesh::Mesh(const float* buffer, size_t vertices, const int* attrs) : vertices(vertices){
+int Mesh::meshesCount = 0;
+
+Mesh::Mesh(const float* buffer, size_t vertices, const vattr* attrs) : vertices(vertices){
+	meshesCount++;
 	vertexSize = 0;
-	for (int i = 0; attrs[i]; i++){
-		vertexSize += attrs[i];
+	for (int i = 0; attrs[i].size; i++){
+		vertexSize += attrs[i].size;
 	}
 
 	glGenVertexArrays(1, &vao);
@@ -21,8 +24,8 @@ Mesh::Mesh(const float* buffer, size_t vertices, const int* attrs) : vertices(ve
 
 	// attributes
 	int offset = 0;
-	for (int i = 0; attrs[i]; i++){
-		int size = attrs[i];
+	for (int i = 0; attrs[i].size; i++){
+		int size = attrs[i].size;
 		glVertexAttribPointer(i, size, GL_FLOAT, GL_FALSE, vertexSize * sizeof(float), (GLvoid*)(offset * sizeof(float)));
 		glEnableVertexAttribArray(i);
 		offset += size;
@@ -32,6 +35,7 @@ Mesh::Mesh(const float* buffer, size_t vertices, const int* attrs) : vertices(ve
 }
 
 Mesh::~Mesh(){
+	meshesCount--;
 	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(1, &vbo);
 }
@@ -47,4 +51,8 @@ void Mesh::draw(unsigned int primitive){
 	glBindVertexArray(vao);
 	glDrawArrays(primitive, 0, vertices);
 	glBindVertexArray(0);
+}
+
+void Mesh::draw() {
+	draw(GL_TRIANGLES);
 }

@@ -30,4 +30,6 @@ public:
 	static void toggleCursor();
 };
 
+#define _MOUSE_BUTTONS 1024
+
 #endif /* WINDOW_EVENTS_H_ */

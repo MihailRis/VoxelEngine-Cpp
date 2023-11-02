@@ -4,6 +4,13 @@
 #include <map>
 #include <unordered_map>
 #include <string>
+
+#include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/hash.hpp"
+
+#include "../typedefs.h"
+
 class Player;
 
 #define REGION_SIZE_BIT 5
@@ -11,35 +18,32 @@ class Player;
 #define REGION_VOL ((REGION_SIZE) * (REGION_SIZE))
 
 struct WorldRegion {
-	char** chunksData;
+	ubyte** chunksData;
 	bool unsaved;
 };
 
 class WorldFiles {
 public:
-	static unsigned long totalCompressed;
-	std::unordered_map<long, WorldRegion> regions;
+	static int64_t totalCompressed;
+	std::unordered_map<glm::ivec2, WorldRegion> regions;
 	std::string directory;
-	char* mainBufferIn;
-	char* mainBufferOut;
+	ubyte* mainBufferIn;
+	ubyte* mainBufferOut;
 
 	WorldFiles(std::string directory, size_t mainBufferCapacity);
 	~WorldFiles();
 
-	void put(const char* chunkData, int x, int y);
+	void put(const ubyte* chunkData, int x, int y);
 
 	bool readPlayer(Player* player);
-	bool readChunk(int x, int y, char* out);
-	bool getChunk(int x, int y, char* out);
-	void readRegion(char* fileContent);
-	unsigned int writeRegion(char* out, int x, int y, char** region);
+	bool readChunk(int x, int y, ubyte* out);
+	bool getChunk(int x, int y, ubyte* out);
+	uint writeRegion(ubyte* out, int x, int y, ubyte** region);
 	void writePlayer(Player* player);
 	void write();
 
 	std::string getRegionFile(int x, int y);
 	std::string getPlayerFile();
 };
-
-extern void longToCoords(int& x, int& y, long key);
 
 #endif /* FILES_WORLDFILES_H_ */

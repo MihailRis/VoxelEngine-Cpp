@@ -1,9 +1,10 @@
 #include "world_render.h"
 
 #include <iostream>
-#include "graphics/VoxelRenderer.h"
 #include <GL/glew.h>
+#include <memory>
 
+#include "graphics/ChunksRenderer.h"
 #include "window/Window.h"
 #include "window/Camera.h"
 #include "graphics/Mesh.h"
@@ -20,13 +21,15 @@
 #include "Assets.h"
 #include "player_control.h"
 
+using std::shared_ptr;
+
 float _camera_cx;
 float _camera_cz;
 
 WorldRenderer::WorldRenderer(Level* level, Assets* assets) : assets(assets), level(level) {
 	lineBatch = new LineBatch(4096);
 	batch3d = new Batch3D(1024);
-	renderer = new VoxelRenderer();
+	renderer = new ChunksRenderer(level);
 }
 
 WorldRenderer::~WorldRenderer() {
@@ -38,15 +41,17 @@ WorldRenderer::~WorldRenderer() {
 Chunks* _chunks = nullptr;
 
 bool chunks_distance_compare(size_t i, size_t j) {
-	Chunk* a = _chunks->chunks[i];
-	Chunk* b = _chunks->chunks[j];
+	shared_ptr<Chunk> a = _chunks->chunks[i];
+	shared_ptr<Chunk> b = _chunks->chunks[j];
 	return ((a->x + 0.5f - _camera_cx)*(a->x + 0.5f - _camera_cx) + (a->z + 0.5f - _camera_cz)*(a->z + 0.5f - _camera_cz) >
 			(b->x + 0.5f - _camera_cx)*(b->x + 0.5f - _camera_cx) + (b->z + 0.5f - _camera_cz)*(b->z + 0.5f - _camera_cz));
 }
 
 bool WorldRenderer::drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion){
-	Chunk* chunk = level->chunks->chunks[index];
-	Mesh* mesh = level->chunks->meshes[index];
+	shared_ptr<Chunk> chunk = level->chunks->chunks[index];
+	if (!chunk->isLighted())
+		return false;
+	shared_ptr<Mesh> mesh = renderer->getOrRender(chunk.get());
 	if (mesh == nullptr)
 		return false;
 
@@ -64,7 +69,7 @@ bool WorldRenderer::drawChunk(size_t index, Camera* camera, Shader* shader, bool
 			}
 		}
 	}
-	mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x*CHUNK_W+0.5f, 0.5f, chunk->z*CHUNK_D+0.5f));
+	mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x*CHUNK_W, 0.0f, chunk->z*CHUNK_D+1));
 	shader->uniformMatrix("u_model", model);
 	glDisable(GL_MULTISAMPLE);
 	mesh->draw(GL_TRIANGLES);
@@ -109,11 +114,10 @@ void WorldRenderer::draw(Camera* camera, bool occlusion){
 	std::vector<size_t> indices;
 
 	for (size_t i = 0; i < chunks->volume; i++){
-		Chunk* chunk = chunks->chunks[i];
+		shared_ptr<Chunk> chunk = chunks->chunks[i];
 		if (chunk == nullptr)
 			continue;
-		if (chunks->meshes[i] != nullptr)
-			indices.push_back(i);
+		indices.push_back(i);
 	}
 
 	float px = camera->position.x / (float)CHUNK_W;

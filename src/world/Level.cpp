@@ -3,18 +3,20 @@
 #include "../lighting/Lighting.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/ChunksController.h"
+#include "../voxels/ChunksStorage.h"
 #include "../player_control.h"
 #include "../physics/Hitbox.h"
 #include "../physics/PhysicsSolver.h"
 #include "../objects/Player.h"
 
-Level::Level(World* world, Player* player, Chunks* chunks, PhysicsSolver* physics) :
+Level::Level(World* world, Player* player, Chunks* chunks, ChunksStorage* chunksStorage, PhysicsSolver* physics) :
 	world(world),
 	player(player),
 	chunks(chunks),
+	chunksStorage(chunksStorage),
 	physics(physics) {
 	lighting = new Lighting(chunks);
-	chunksController = new ChunksController(world, chunks, lighting);
+	chunksController = new ChunksController(this, chunks, lighting);
 	playerController = new PlayerController(this);
 }
 
@@ -24,6 +26,7 @@ Level::~Level(){
 	delete player;
 	delete lighting;
 	delete chunksController;
+	delete chunksStorage;
 	delete playerController;
 }
 

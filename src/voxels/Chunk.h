@@ -2,11 +2,7 @@
 #define VOXELS_CHUNK_H_
 
 #include <stdlib.h>
-
-#define CHUNK_W 16
-#define CHUNK_H 256
-#define CHUNK_D 16
-#define CHUNK_VOL (CHUNK_W * CHUNK_H * CHUNK_D * 2)
+#include "../constants.h"
 
 #define CHUNK_MODIFIED 0x1
 #define CHUNK_READY 0x2
@@ -14,7 +10,7 @@
 #define CHUNK_LIGHTED 0x8
 #define CHUNK_UNSAVED 0x10
 
-class voxel;
+struct voxel;
 class Lightmap;
 
 struct RenderData {
@@ -33,7 +29,6 @@ public:
 	Lightmap* lightmap;
 	int flags = 0;
 	int surrounding = 0;
-	int references = 1;
 	RenderData renderData;
 
 	Chunk(int x, int z);
@@ -42,8 +37,6 @@ public:
 	bool isEmpty();
 
 	Chunk* clone() const;
-	void incref();
-	void decref();
 
 	// flags getters/setters below
 

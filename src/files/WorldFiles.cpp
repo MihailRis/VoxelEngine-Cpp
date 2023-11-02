@@ -4,12 +4,10 @@
 #include "../window/Camera.h"
 #include "../objects/Player.h"
 #include "../physics/Hitbox.h"
+#include "../voxels/voxel.h"
 #include "../voxels/Chunk.h"
-
-union {
-	long _key;
-	int _coords[2];
-} _tempcoords;
+#include "../typedefs.h"
+#include "../voxmaths.h"
 
 #include <cassert>
 #include <iostream>
@@ -22,21 +20,25 @@ union {
 #define SECTION_FLAGS 3
 #define PLAYER_FLAG_FLIGHT 0x1
 #define PLAYER_FLAG_NOCLIP 0x2
+#define CHUNK_DATA_LEN (CHUNK_VOL*sizeof(voxel))
 
-unsigned long WorldFiles::totalCompressed = 0;
+using glm::ivec2;
+using glm::vec3;
 
-int bytes2Int(const unsigned char* src, unsigned int offset){
+int64_t WorldFiles::totalCompressed = 0;
+
+int bytes2Int(const ubyte* src, size_t offset){
 	return (src[offset] << 24) | (src[offset+1] << 16) | (src[offset+2] << 8) | (src[offset+3]);
 }
 
-void int2Bytes(int value, char* dest, unsigned int offset){
+void int2Bytes(int value, ubyte* dest, size_t offset){
 	dest[offset] = (char) (value >> 24 & 255);
 	dest[offset+1] = (char) (value >> 16 & 255);
 	dest[offset+2] = (char) (value >> 8 & 255);
 	dest[offset+3] = (char) (value >> 0 & 255);
 }
 
-void floatToBytes(float fvalue, char* dest, unsigned int offset){
+void floatToBytes(float fvalue, ubyte* dest, size_t offset){
 	uint32_t value = *((uint32_t*)&fvalue);
 	dest[offset] = (char) (value >> 24 & 255);
 	dest[offset+1] = (char) (value >> 16 & 255);
@@ -44,8 +46,7 @@ void floatToBytes(float fvalue, char* dest, unsigned int offset){
 	dest[offset+3] = (char) (value >> 0 & 255);
 }
 
-float bytes2Float(char* srcs, unsigned int offset){
-	unsigned char* src = (unsigned char*) srcs;
+float bytes2Float(ubyte* src, uint offset){
 	uint32_t value = ((src[offset] << 24) |
 					  (src[offset+1] << 16) |
 					  (src[offset+2] << 8) |
@@ -54,15 +55,14 @@ float bytes2Float(char* srcs, unsigned int offset){
 }
 
 WorldFiles::WorldFiles(std::string directory, size_t mainBufferCapacity) : directory(directory){
-	mainBufferIn = new char[CHUNK_VOL*2];
-	mainBufferOut = new char[mainBufferCapacity];
+	mainBufferIn = new ubyte[CHUNK_DATA_LEN];
+	mainBufferOut = new ubyte[mainBufferCapacity];
 }
 
 WorldFiles::~WorldFiles(){
 	delete[] mainBufferIn;
 	delete[] mainBufferOut;
-	std::unordered_map<long, WorldRegion>::iterator it;
-	for (it = regions.begin(); it != regions.end(); it++){
+	for (auto it = regions.begin(); it != regions.end(); it++){
 	    WorldRegion region = it->second;
 	    if (region.chunksData == nullptr)
 	    	continue;
@@ -74,31 +74,35 @@ WorldFiles::~WorldFiles(){
 	regions.clear();
 }
 
-void WorldFiles::put(const char* chunkData, int x, int y){
+void WorldFiles::put(const ubyte* chunkData, int x, int y){
 	assert(chunkData != nullptr);
 
-	int regionX = x >> REGION_SIZE_BIT;
-	int regionY = y >> REGION_SIZE_BIT;
+	int regionX = floordiv(x, REGION_SIZE);
+	int regionY = floordiv(y, REGION_SIZE);
 
-	int localX = x - (regionX << REGION_SIZE_BIT);
-	int localY = y - (regionY << REGION_SIZE_BIT);
+	int localX = x - (regionX * REGION_SIZE);
+	int localY = y - (regionY * REGION_SIZE);
 
-	_tempcoords._coords[0] = regionX;
-	_tempcoords._coords[1] = regionY;
-	WorldRegion& region = regions[_tempcoords._key];
+	ivec2 key(regionX, regionY);
+
+	auto found = regions.find(key);
+	if (found == regions.end()) {
+		ubyte** chunksData = new ubyte*[REGION_VOL];
+		for (uint i = 0; i < REGION_VOL; i++) {
+			chunksData[i] = nullptr;
+		}
+		regions[key] = { chunksData, true };
+	}
+
+	WorldRegion& region = regions[key];
 	region.unsaved = true;
-	if (region.chunksData == nullptr){
-		region.chunksData = new char*[REGION_VOL];
-		for (unsigned int i = 0; i < REGION_VOL; i++)
-			region.chunksData[i] = nullptr;
-	}
-	char* targetChunk = region.chunksData[localY * REGION_SIZE + localX];
+	ubyte* targetChunk = region.chunksData[localY * REGION_SIZE + localX];
 	if (targetChunk == nullptr){
-		targetChunk = new char[CHUNK_VOL];
+		targetChunk = new ubyte[CHUNK_DATA_LEN];
 		region.chunksData[localY * REGION_SIZE + localX] = targetChunk;
-		totalCompressed += CHUNK_VOL;
+		totalCompressed += CHUNK_DATA_LEN;
 	}
-	for (unsigned int i = 0; i < CHUNK_VOL; i++)
+	for (uint i = 0; i < CHUNK_DATA_LEN; i++)
 		targetChunk[i] = chunkData[i];
 
 }
@@ -111,44 +115,46 @@ std::string WorldFiles::getPlayerFile() {
 	return directory + "/player.bin";
 }
 
-bool WorldFiles::getChunk(int x, int y, char* out){
+bool WorldFiles::getChunk(int x, int y, ubyte* out){
 	assert(out != nullptr);
 
-	int regionX = x >> REGION_SIZE_BIT;
-	int regionY = y >> REGION_SIZE_BIT;
+	int regionX = floordiv(x, REGION_SIZE);
+	int regionY = floordiv(y, REGION_SIZE);
 
-	int localX = x - (regionX << REGION_SIZE_BIT);
-	int localY = y - (regionY << REGION_SIZE_BIT);
+	int localX = x - (regionX * REGION_SIZE);
+	int localY = y - (regionY * REGION_SIZE);
+
 	int chunkIndex = localY * REGION_SIZE + localX;
 	assert(chunkIndex >= 0 && chunkIndex < REGION_VOL);
 
-	_tempcoords._coords[0] = regionX;
-	_tempcoords._coords[1] = regionY;
+	ivec2 key(regionX, regionY);
 
-	WorldRegion& region = regions[_tempcoords._key];
-	if (region.chunksData == nullptr)
-		return readChunk(x,y,out);
+	auto found = regions.find(key);
+	if (found == regions.end()) {
+		return readChunk(x, y, out);
+	}
 
-	char* chunk = region.chunksData[chunkIndex];
+	WorldRegion& region = found->second;
+	ubyte* chunk = region.chunksData[chunkIndex];
 	if (chunk == nullptr)
 		return readChunk(x,y,out);
-	for (unsigned int i = 0; i < CHUNK_VOL; i++)
+	for (uint i = 0; i < CHUNK_DATA_LEN; i++)
 		out[i] = chunk[i];
 	return true;
 }
 
-bool WorldFiles::readChunk(int x, int y, char* out){
+bool WorldFiles::readChunk(int x, int y, ubyte* out){
 	assert(out != nullptr);
 
-	int regionX = x >> REGION_SIZE_BIT;
-	int regionY = y >> REGION_SIZE_BIT;
+	int regionX = floordiv(x, REGION_SIZE);
+	int regionY = floordiv(y, REGION_SIZE);
 
-	int localX = x - (regionX << REGION_SIZE_BIT);
-	int localY = y - (regionY << REGION_SIZE_BIT);
+	int localX = x - (regionX * REGION_SIZE);
+	int localY = y - (regionY * REGION_SIZE);
+
 	int chunkIndex = localY * REGION_SIZE + localX;
 
 	std::string filename = getRegionFile(regionX, regionY);
-
 	std::ifstream input(filename, std::ios::binary);
 	if (!input.is_open()){
 		return false;
@@ -166,35 +172,31 @@ bool WorldFiles::readChunk(int x, int y, char* out){
 	}
 	input.seekg(offset);
 	input.read((char*)(&offset), 4);
-	size_t compressedSize = bytes2Int((const unsigned char*)(&offset), 0);
-
-	input.read(mainBufferIn, compressedSize);
+	size_t compressedSize = bytes2Int((const ubyte*)(&offset), 0);
+	input.read((char*)mainBufferIn, compressedSize);
 	input.close();
 
-	decompressRLE((unsigned char*)mainBufferIn, compressedSize, (unsigned char*)out, CHUNK_VOL);
+	decompressRLE((ubyte*)mainBufferIn, compressedSize, (ubyte*)out, CHUNK_DATA_LEN);
 
 	return true;
 }
 
 void WorldFiles::write(){
-	std::unordered_map<long, WorldRegion>::iterator it;
-	for (it = regions.begin(); it != regions.end(); it++){
+	for (auto it = regions.begin(); it != regions.end(); it++){
 		if (it->second.chunksData == nullptr || !it->second.unsaved)
 			continue;
 
-		int x;
-		int y;
-		longToCoords(x,y, it->first);
+		ivec2 key = it->first;
 
-		unsigned int size = writeRegion(mainBufferOut, x,y, it->second.chunksData);
-		write_binary_file(getRegionFile(x,y), mainBufferOut, size);
+		unsigned int size = writeRegion(mainBufferOut, key.x, key.y, it->second.chunksData);
+		write_binary_file(getRegionFile(key.x, key.y), (const char*)mainBufferOut, size);
 	}
 }
 
 void WorldFiles::writePlayer(Player* player){
-	char dst[1+3*4 + 1+2*4 + 1+1];
+	ubyte dst[1+3*4 + 1+2*4 + 1+1];
 
-	glm::vec3 position = player->hitbox->position;
+	vec3 position = player->hitbox->position;
 
 	size_t offset = 0;
 	dst[offset++] = SECTION_POSITION;
@@ -215,12 +217,12 @@ void WorldFiles::writePlayer(Player* player){
 
 bool WorldFiles::readPlayer(Player* player) {
 	size_t length = 0;
-	char* data = read_binary_file(getPlayerFile(), length);
+	ubyte* data = (ubyte*)read_binary_file(getPlayerFile(), length);
 	if (data == nullptr){
 		std::cerr << "could not to read player.bin (ignored)" << std::endl;
 		return false;
 	}
-	glm::vec3 position = player->hitbox->position;
+	vec3 position = player->hitbox->position;
 	size_t offset = 0;
 	while (offset < length){
 		char section = data[offset++];
@@ -248,21 +250,19 @@ bool WorldFiles::readPlayer(Player* player) {
 	return true;
 }
 
-unsigned int WorldFiles::writeRegion(char* out, int x, int y, char** region){
-	unsigned int offset = REGION_VOL * 4;
-	for (unsigned int i = 0; i < offset; i++)
+uint WorldFiles::writeRegion(ubyte* out, int x, int y, ubyte** region){
+	uint offset = REGION_VOL * 4;
+	for (uint i = 0; i < offset; i++)
 		out[i] = 0;
 
-	char* compressed = new char[CHUNK_VOL*2];
+	ubyte* compressed = new ubyte[CHUNK_DATA_LEN];
 	for (int i = 0; i < REGION_VOL; i++){
-		char* chunk = region[i];
+		ubyte* chunk = region[i];
 		if (chunk == nullptr){
-			chunk = new char[CHUNK_VOL];
-			assert((((i % REGION_SIZE) + x * REGION_SIZE) >> REGION_SIZE_BIT) == x);
-			assert((((i / REGION_SIZE) + y * REGION_SIZE) >> REGION_SIZE_BIT) == y);
+			chunk = new ubyte[CHUNK_DATA_LEN];
 			if (readChunk((i % REGION_SIZE) + x * REGION_SIZE, (i / REGION_SIZE) + y * REGION_SIZE, chunk)){
 				region[i] = chunk;
-				totalCompressed += CHUNK_VOL;
+				totalCompressed += CHUNK_DATA_LEN;
 			} else {
 				delete[] chunk;
 				chunk = nullptr;
@@ -274,21 +274,15 @@ unsigned int WorldFiles::writeRegion(char* out, int x, int y, char** region){
 		} else {
 			int2Bytes(offset, out, i*4);
 
-			unsigned int compressedSize = compressRLE((unsigned char*)chunk, CHUNK_VOL, (unsigned char*)compressed);
+			uint compressedSize = compressRLE(chunk, CHUNK_DATA_LEN, compressed);
 
 			int2Bytes(compressedSize, out, offset);
 			offset += 4;
 
-			for (unsigned int j = 0; j < compressedSize; j++)
+			for (uint j = 0; j < compressedSize; j++)
 				out[offset++] = compressed[j];
 		}
 	}
 	delete[] compressed;
 	return offset;
-}
-
-void longToCoords(int& x, int& y, long key) {
-	_tempcoords._key = key;
-	x = _tempcoords._coords[0];
-	y = _tempcoords._coords[1];
 }

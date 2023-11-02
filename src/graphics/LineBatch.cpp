@@ -13,7 +13,7 @@
 #define LB_VERTEX_SIZE (3+4)
 
 LineBatch::LineBatch(size_t capacity) : capacity(capacity) {
-	int attrs[] = {3,4, 0};
+	const vattr attrs[] = { {3},{4}, {0} };
 	buffer = new float[capacity * LB_VERTEX_SIZE * 2];
 	mesh = new Mesh(buffer, 0, attrs);
 	index = 0;
