@@ -45,9 +45,10 @@ public:
 
 
 struct EngineSettings {
+    /* Window width (pixels) */
 	int displayWidth;
+	/* Window height (pixels) */
 	int displayHeight;
-	
 	/* Anti-aliasing samples */
 	int displaySamples;
 	/* Window title */
@@ -144,12 +145,11 @@ void Engine::updateHotkeys() {
 void Engine::mainloop() {
 	Camera* camera = level->player->camera;
 	std::cout << "-- preparing systems" << std::endl;
-	World* world = level->world;
 	WorldRenderer worldRenderer(level, assets);
-	HudRenderer hud;
+	HudRenderer hud(assets);
 	lastTime = glfwGetTime();
 
-	Window::swapInterval(1);
+	Window::swapInterval(0);
 	while (!Window::isShouldClose()){
 		updateTimers();
 		updateHotkeys();
@@ -158,9 +158,9 @@ void Engine::mainloop() {
 		level->chunksController->update(settings.chunksLoadSpeed);
 
 		worldRenderer.draw(camera, occlusion);
-		hud.draw(level, assets);
+		hud.draw(level);
 		if (level->player->debug) {
-			hud.drawDebug(level, assets, 1 / delta, occlusion);
+			hud.drawDebug(level, 1 / delta, occlusion);
 		}
 
 		Window::swapBuffers();

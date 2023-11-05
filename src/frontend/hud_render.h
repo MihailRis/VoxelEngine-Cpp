@@ -5,17 +5,18 @@ class Batch2D;
 class Camera;
 class Level;
 class Assets;
-class Mesh;
+class Player;
 
 class HudRenderer {
+    Assets* assets;
 	Batch2D* batch;
 	Camera* uicamera;
-	// Mesh* crosshair;
 public:
-	HudRenderer();
+	HudRenderer(Assets* assets);
 	~HudRenderer();
-	void draw(Level* level, Assets* assets);
-	void drawDebug(Level* level, Assets* assets, int fps, bool occlusion);
+	void drawInventory(Player* player);
+	void draw(Level* level);
+	void drawDebug(Level* level, int fps, bool occlusion);
 };
 
 #endif /* SRC_HUD_RENDER_H_ */
