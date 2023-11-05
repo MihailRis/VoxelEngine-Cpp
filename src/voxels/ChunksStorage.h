@@ -20,6 +20,7 @@ public:
 
 	std::shared_ptr<Chunk> get(int x, int y) const;
 	void store(std::shared_ptr<Chunk> chunk);
+	void remove(int x, int y);
 	void getVoxels(VoxelsVolume* volume) const;
 
 	light_t getLight(int x, int y, int z, ubyte channel) const;

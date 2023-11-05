@@ -11,6 +11,7 @@ class VoxelRenderer;
 class Chunk;
 class voxel;
 class WorldFiles;
+class LevelEvents;
 
 class Chunks {
 public:
@@ -20,8 +21,9 @@ public:
 	size_t chunksCount;
 	int w,d;
 	int ox,oz;
+	LevelEvents* events;
 
-	Chunks(int w, int d, int ox, int oz);
+	Chunks(int w, int d, int ox, int oz, LevelEvents* events);
 	~Chunks();
 
 	bool putChunk(std::shared_ptr<Chunk> chunk);

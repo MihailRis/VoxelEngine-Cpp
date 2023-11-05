@@ -79,9 +79,12 @@ bool ChunksController::loadVisible(WorldFiles* worldFiles){
 
 	chunk = shared_ptr<Chunk>(new Chunk(nearX+ox, nearZ+oz));
 	level->chunksStorage->store(chunk);
-	if (worldFiles->getChunk(chunk->x, chunk->z, (ubyte*)chunk->voxels))
+	ubyte* data = worldFiles->getChunk(chunk->x, chunk->z);
+	if (data) {
+		chunk->decode(data);
 		chunk->setLoaded(true);
-
+		delete[] data;
+	}
 	chunks->putChunk(chunk);
 
 	if (!chunk->isLoaded()) {
@@ -90,8 +93,9 @@ bool ChunksController::loadVisible(WorldFiles* worldFiles){
 	}
 
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
-		if (Block::blocks[chunk->voxels[i].id] == nullptr) {
-			std::cout << "corruped block detected at " << i << " of chunk " << chunk->x << "x" << chunk->z << std::endl;
+		blockid_t id = chunk->voxels[i].id;
+		if (Block::blocks[id] == nullptr) {
+			std::cout << "corruped block detected at " << i << " of chunk " << chunk->x << "x" << chunk->z << " -> " << (int)id << std::endl;
 			chunk->voxels[i].id = 11;
 		}
 	}

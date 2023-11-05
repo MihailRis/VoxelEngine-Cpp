@@ -11,34 +11,36 @@
 
 #include "../typedefs.h"
 
-class Player;
-
 #define REGION_SIZE_BIT 5
 #define REGION_SIZE (1 << (REGION_SIZE_BIT))
 #define REGION_VOL ((REGION_SIZE) * (REGION_SIZE))
+#define REGION_FORMAT_VERSION 1
+
+class Player;
+class Chunk;
 
 struct WorldRegion {
 	ubyte** chunksData;
+	uint32_t* compressedSizes;
 	bool unsaved;
 };
 
 class WorldFiles {
 public:
-	static int64_t totalCompressed;
 	std::unordered_map<glm::ivec2, WorldRegion> regions;
 	std::string directory;
 	ubyte* mainBufferIn;
-	ubyte* mainBufferOut;
+	ubyte* compressionBuffer;
 
 	WorldFiles(std::string directory, size_t mainBufferCapacity);
 	~WorldFiles();
 
-	void put(const ubyte* chunkData, int x, int y);
+	void put(Chunk* chunk);
 
 	bool readPlayer(Player* player);
-	bool readChunk(int x, int y, ubyte* out);
-	bool getChunk(int x, int y, ubyte* out);
-	uint writeRegion(ubyte* out, int x, int y, ubyte** region);
+	ubyte* readChunkData(int x, int y, uint32_t& length);
+	ubyte* getChunk(int x, int y);
+	void writeRegion(int x, int y, WorldRegion& entry);
 	void writePlayer(Player* player);
 	void write();
 

@@ -5,6 +5,7 @@
 #include "WorldGenerator.h"
 #include "../lighting/Lightmap.h"
 #include "../files/WorldFiles.h"
+#include "../world/LevelEvents.h"
 
 #include "../graphics/Mesh.h"
 #include "../voxmaths.h"
@@ -15,8 +16,8 @@
 using glm::vec3;
 using std::shared_ptr;
 
-Chunks::Chunks(int w, int d, int ox, int oz) : w(w), d(d), ox(ox), oz(oz){
-	volume = w*d;
+Chunks::Chunks(int w, int d, int ox, int oz, LevelEvents* events) : w(w), d(d), ox(ox), oz(oz), events(events) {
+	volume = (size_t)w*(size_t)d;
 	chunks = new shared_ptr<Chunk>[volume];
 	chunksSecond = new shared_ptr<Chunk>[volume];
 
@@ -258,7 +259,8 @@ void Chunks::translate(WorldFiles* worldFiles, int dx, int dz){
 			if (chunk == nullptr)
 				continue;
 			if (nx < 0 || nz < 0 || nx >= w || nz >= d){
-				worldFiles->put((const ubyte*)chunk->voxels, chunk->x, chunk->z);
+				events->trigger(EVT_CHUNK_HIDDEN, chunk.get());
+				worldFiles->put(chunk.get());
 				chunksCount--;
 				continue;
 			}
@@ -292,6 +294,10 @@ bool Chunks::putChunk(shared_ptr<Chunk> chunk) {
 
 void Chunks::clear(){
 	for (size_t i = 0; i < volume; i++){
+		Chunk* chunk = chunks[i].get();
+		if (chunk) {
+			events->trigger(EVT_CHUNK_HIDDEN, chunk);
+		}
 		chunks[i] = nullptr;
 	}
 	chunksCount = 0;

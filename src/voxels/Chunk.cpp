@@ -4,8 +4,10 @@
 
 Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos){
 	voxels = new voxel[CHUNK_VOL];
-	for (unsigned int i = 0; i < CHUNK_VOL; i++)
-		voxels[i].id = 1;
+	for (size_t i = 0; i < CHUNK_VOL; i++) {
+		voxels[i].id = 2;
+		voxels[i].states = 0;
+	}
 	lightmap = new Lightmap();
 	renderData.vertices = nullptr;
 }
@@ -36,3 +38,27 @@ Chunk* Chunk::clone() const {
 	return other;
 }
 
+/** 
+  Current chunk format:
+	[voxel_ids...][voxel_states...];
+*/
+ubyte* Chunk::encode() const {
+	ubyte* buffer = new ubyte[CHUNK_DATA_LEN];
+	for (size_t i = 0; i < CHUNK_VOL; i++) {
+		buffer[i] = voxels[i].id;
+		buffer[CHUNK_VOL + i] = voxels[i].states;
+	}
+	return buffer;
+}
+
+/**
+  @return true if all is fine
+*/
+bool Chunk::decode(ubyte* data) {
+	for (size_t i = 0; i < CHUNK_VOL; i++) {
+		voxel& vox = voxels[i];
+		vox.id = data[i];
+		vox.states = data[CHUNK_VOL + i];
+	}
+	return true;
+}

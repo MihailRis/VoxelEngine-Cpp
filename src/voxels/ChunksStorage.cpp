@@ -29,6 +29,13 @@ shared_ptr<Chunk> ChunksStorage::get(int x, int z) const {
 	return found->second;
 }
 
+void ChunksStorage::remove(int x, int z) {
+	auto found = chunksMap.find(ivec2(x, z));
+	if (found != chunksMap.end()) {
+		chunksMap.erase(found->first);
+	}
+}
+
 // some magic code
 void ChunksStorage::getVoxels(VoxelsVolume* volume) const {
 	voxel* voxels = volume->getVoxels();

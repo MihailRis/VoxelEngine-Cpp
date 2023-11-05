@@ -17,6 +17,7 @@
 #include "voxels/Block.h"
 #include "world/World.h"
 #include "world/Level.h"
+#include "world/LevelEvents.h"
 #include "objects/Player.h"
 #include "Assets.h"
 #include "player_control.h"
@@ -30,6 +31,9 @@ WorldRenderer::WorldRenderer(Level* level, Assets* assets) : assets(assets), lev
 	lineBatch = new LineBatch(4096);
 	batch3d = new Batch3D(1024);
 	renderer = new ChunksRenderer(level);
+	level->events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
+		renderer->unload(chunk);
+	});
 }
 
 WorldRenderer::~WorldRenderer() {

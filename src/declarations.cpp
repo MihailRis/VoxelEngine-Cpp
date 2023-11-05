@@ -20,8 +20,9 @@ void initialize_assets(AssetsLoader* loader) {
 
 // All in-game definitions (blocks, items, etc..)
 void setup_definitions() {
-	for (size_t i = 0; i < 256; i++)
+	for (size_t i = 0; i < 256; i++) {
 		Block::blocks[i] = nullptr;
+	}
 
 	Block* block = new Block(BLOCK_AIR, 0);
 	block->drawGroup = 1;

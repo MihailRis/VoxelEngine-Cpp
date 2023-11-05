@@ -9,6 +9,7 @@
 #define CHUNK_LOADED 0x4
 #define CHUNK_LIGHTED 0x8
 #define CHUNK_UNSAVED 0x10
+#define CHUNK_DATA_LEN (CHUNK_VOL*2)
 
 struct voxel;
 class Lightmap;
@@ -59,6 +60,9 @@ public:
 	inline void setLighted(bool flag) {BITSET(flags, CHUNK_LIGHTED, flag);}
 
 	inline void setReady(bool flag) {BITSET(flags, CHUNK_READY, flag);}
+
+	ubyte* encode() const;
+	bool decode(ubyte* data);
 };
 
 #endif /* VOXELS_CHUNK_H_ */
