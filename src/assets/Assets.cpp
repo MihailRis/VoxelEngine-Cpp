@@ -1,8 +1,8 @@
 #include "Assets.h"
 
-#include "graphics/Texture.h"
-#include "graphics/Shader.h"
-#include "graphics/Font.h"
+#include "../graphics/Texture.h"
+#include "../graphics/Shader.h"
+#include "../graphics/Font.h"
 
 Assets::~Assets() {
 	for (auto& iter : shaders){

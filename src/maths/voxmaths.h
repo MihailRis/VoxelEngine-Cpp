@@ -1,7 +1,7 @@
 #ifndef SRC_VOXNATHS_H_
 #define SRC_VOXNATHS_H_
 
-#include "typedefs.h"
+#include "../typedefs.h"
 
 inline int floordiv(int a, int b) {
 	if (a < 0 && a % b) {

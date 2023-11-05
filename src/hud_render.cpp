@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "typedefs.h"
-#include "Assets.h"
+#include "assets/Assets.h"
 #include "graphics/Shader.h"
 #include "graphics/Batch2D.h"
 #include "graphics/Font.h"

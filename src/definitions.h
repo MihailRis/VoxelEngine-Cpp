@@ -21,9 +21,6 @@
 #define BLOCK_METAL 15
 #define BLOCK_RUST 16
 
-class AssetsLoader;
-
-void initialize_assets(AssetsLoader* loader);
 void setup_definitions();
 
 #endif // DECLARATIONS_H

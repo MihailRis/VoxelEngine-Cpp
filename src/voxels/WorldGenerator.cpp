@@ -10,7 +10,7 @@
 #include "../maths/FastNoiseLite.h"
 #include <time.h>
 
-#include "../declarations.h"
+#include "../definitions.h"
 
 class PseudoRandom {
 	unsigned short seed;

@@ -1,5 +1,5 @@
-#ifndef SRC_ASSETS_H_
-#define SRC_ASSETS_H_
+#ifndef ASSETS_ASSETS_H_
+#define ASSETS_ASSETS_H_
 
 #include <string>
 #include <unordered_map>
@@ -24,4 +24,4 @@ public:
 	void store(Font* font, std::string name);
 };
 
-#endif /* SRC_ASSETS_H_ */
+#endif /* ASSETS_ASSETS_H_ */

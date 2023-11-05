@@ -29,9 +29,9 @@
 #include "objects/Player.h"
 #include "world/Level.h"
 #include "world/World.h"
-#include "declarations.h"
-#include "Assets.h"
-#include "AssetsLoader.h"
+#include "definitions.h"
+#include "assets/Assets.h"
+#include "assets/AssetsLoader.h"
 #include "world_render.h"
 #include "hud_render.h"
 
@@ -76,7 +76,7 @@ Engine::Engine(const EngineSettings& settings) {
 	std::cout << "-- loading assets" << std::endl;
 	AssetsLoader loader(assets);
 	AssetsLoader::createDefaults(loader);
-	initialize_assets(&loader);
+	AssetsLoader::addDefaults(loader);
 	while (loader.hasNext()) {
 		if (!loader.loadNext()) {
 			delete assets;

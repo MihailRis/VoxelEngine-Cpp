@@ -8,7 +8,7 @@
 #include "../world/LevelEvents.h"
 
 #include "../graphics/Mesh.h"
-#include "../voxmaths.h"
+#include "../maths/voxmaths.h"
 
 #include <math.h>
 #include <limits.h>

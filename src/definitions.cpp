@@ -1,22 +1,7 @@
-#include "declarations.h"
+#include "definitions.h"
 
-#include "AssetsLoader.h"
 #include "window/Window.h"
-
 #include "voxels/Block.h"
-
-
-void initialize_assets(AssetsLoader* loader) {
-	loader->add(ASSET_SHADER, "res/main", "main");
-	loader->add(ASSET_SHADER, "res/crosshair", "crosshair");
-	loader->add(ASSET_SHADER, "res/lines", "lines");
-	loader->add(ASSET_SHADER, "res/ui", "ui");
-
-	loader->add(ASSET_TEXTURE, "res/block.png", "block");
-	loader->add(ASSET_TEXTURE, "res/slot.png", "slot");
-
-	loader->add(ASSET_FONT, "res/font", "normal");
-}
 
 // All in-game definitions (blocks, items, etc..)
 void setup_definitions() {

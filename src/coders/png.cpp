@@ -1,4 +1,4 @@
-#include "png_loading.h"
+#include "png.h"
 
 #include <iostream>
 #include <GL/glew.h>
@@ -263,7 +263,7 @@ int _png_load(const char* file, int* pwidth, int* pheight){
 
 #endif
 
-Texture* load_texture(std::string filename){
+Texture* png::load_texture(std::string filename){
 	int width, height;
 	GLuint texture = _png_load(filename.c_str(), &width, &height);
 	if (texture == 0){

@@ -8,7 +8,7 @@
 #include "../voxels/voxel.h"
 #include "../voxels/Chunk.h"
 #include "../typedefs.h"
-#include "../voxmaths.h"
+#include "../maths/voxmaths.h"
 
 #include <cassert>
 #include <iostream>

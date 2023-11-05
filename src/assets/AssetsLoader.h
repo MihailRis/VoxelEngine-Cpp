@@ -1,5 +1,5 @@
-#ifndef SRC_ASSETS_LOADER_H
-#define SRC_ASSETS_LOADER_H
+#ifndef ASSETS_ASSETS_LOADER_H
+#define ASSETS_ASSETS_LOADER_H
 
 #include <string>
 #include <functional>
@@ -33,6 +33,7 @@ public:
 	bool loadNext();
 
 	static void createDefaults(AssetsLoader& loader);
+	static void addDefaults(AssetsLoader& loader);
 };
 
-#endif // SRC_ASSETS_LOADER_H
+#endif // ASSETS_ASSETS_LOADER_H

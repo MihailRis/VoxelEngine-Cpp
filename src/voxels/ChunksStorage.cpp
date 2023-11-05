@@ -4,7 +4,7 @@
 
 #include "VoxelsVolume.h"
 #include "Chunk.h"
-#include "../voxmaths.h"
+#include "../maths/voxmaths.h"
 #include "../lighting/Lightmap.h"
 
 
