@@ -252,7 +252,7 @@ bool BlocksRenderer::isOpen(int x, int y, int z, ubyte group) const {
 	if (id == BLOCK_VOID)
 		return false;
 	const Block& block = *Block::blocks[id];
-	if (block.drawGroup != group) {
+	if (block.drawGroup != group && block.lightPassing) {
 		return true;
 	}
 	return !id;

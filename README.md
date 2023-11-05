@@ -10,6 +10,7 @@
 - **LMB** - remove block 
 - **RMB** - place block
 - **F** - toggle flight mode
+- **N** - noclip mode
 - **Esc** - exit
 
 #### Build with CMake

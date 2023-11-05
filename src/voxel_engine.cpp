@@ -47,6 +47,7 @@ public:
 struct EngineSettings {
 	int displayWidth;
 	int displayHeight;
+	/* Anti-aliasing samples */
 	int displaySamples;
 	const char* title;
 	/* Max milliseconds that engine uses for chunks loading only */
@@ -177,7 +178,7 @@ Engine::~Engine() {
 int main() {
 	setup_definitions();
 	try {
-		Engine engine(EngineSettings{ 1280, 720, 1, "VoxelEngine-Cpp v13", 10 });
+		Engine engine(EngineSettings{ 1280, 720, 1, "VoxelEngine-Cpp v13", 15 });
 		engine.mainloop();
 	}
 	catch (const initialize_error& err) {
