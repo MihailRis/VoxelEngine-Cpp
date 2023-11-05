@@ -1,6 +1,7 @@
 #ifndef SRC_CONSTANTS_H_
 #define SRC_CONSTANTS_H_
 
+#include <limits.h>
 #include "typedefs.h"
 
 #define CHUNK_W 16
