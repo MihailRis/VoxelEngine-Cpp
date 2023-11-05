@@ -81,7 +81,6 @@ void AssetsLoader::createDefaults(AssetsLoader& loader) {
 
 void AssetsLoader::addDefaults(AssetsLoader& loader) {
 	loader.add(ASSET_SHADER, "res/main", "main");
-	loader.add(ASSET_SHADER, "res/crosshair", "crosshair");
 	loader.add(ASSET_SHADER, "res/lines", "lines");
 	loader.add(ASSET_SHADER, "res/ui", "ui");
 

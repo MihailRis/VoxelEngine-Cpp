@@ -6,10 +6,10 @@
 #include "../voxels/Chunks.h"
 #include "../voxels/ChunksController.h"
 #include "../voxels/ChunksStorage.h"
-#include "../player_control.h"
 #include "../physics/Hitbox.h"
 #include "../physics/PhysicsSolver.h"
 #include "../objects/Player.h"
+#include "../objects/player_control.h"
 
 Level::Level(World* world, Player* player, Chunks* chunks, ChunksStorage* chunksStorage, PhysicsSolver* physics, LevelEvents* events) :
 		world(world),

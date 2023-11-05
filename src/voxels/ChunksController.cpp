@@ -9,9 +9,11 @@
 #include "../files/WorldFiles.h"
 #include "../world/Level.h"
 #include "../world/World.h"
+#include "../maths/voxmaths.h"
 #include <iostream>
 #include <limits.h>
 #include <memory>
+#include <chrono>
 
 #if defined(_WIN32) && defined(__MINGW32__)
 #define _WIN32_WINNT 0x0501
@@ -20,15 +22,36 @@
 #include <thread>
 #endif
 
+#define MAX_WORK_PER_FRAME 16
 #define MIN_SURROUNDING 9
 
 using std::shared_ptr;
+using std::chrono::high_resolution_clock;
+using std::chrono::duration_cast;
+using std::chrono::microseconds;
 
 
 ChunksController::ChunksController(Level* level, Chunks* chunks, Lighting* lighting) : level(level), chunks(chunks), lighting(lighting){
 }
 
 ChunksController::~ChunksController(){
+}
+
+void ChunksController::update(int64_t maxDuration) {
+    int64_t mcstotal = 0;
+    for (uint i = 0; i < MAX_WORK_PER_FRAME; i++) {
+        auto start = high_resolution_clock::now();
+        if (loadVisible(level->world->wfile)) {
+            auto elapsed = high_resolution_clock::now() - start;
+            int64_t mcs = duration_cast<microseconds>(elapsed).count();
+            avgDurationMcs = mcs * 0.2 + avgDurationMcs * 0.8;
+            if (mcstotal + max(avgDurationMcs, mcs) * 2 < maxDuration * 1000) {
+                mcstotal += mcs;
+                continue;
+            }
+        }
+        break;
+    }
 }
 
 bool ChunksController::loadVisible(WorldFiles* worldFiles){

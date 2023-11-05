@@ -20,7 +20,7 @@
 #include "world/LevelEvents.h"
 #include "objects/Player.h"
 #include "assets/Assets.h"
-#include "player_control.h"
+#include "objects/player_control.h"
 
 using std::shared_ptr;
 

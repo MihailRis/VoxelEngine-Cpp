@@ -49,12 +49,15 @@ struct EngineSettings {
 	int displayHeight;
 	int displaySamples;
 	const char* title;
+	/* Max milliseconds that engine uses for chunks loading only */
+	uint chunksLoadSpeed;
 };
 
 
 class Engine {
 	Assets* assets;
 	Level* level;
+	EngineSettings settings;
 
 	uint64_t frame = 0;
 	float lastTime = 0.0f;
@@ -70,6 +73,8 @@ public:
 };
 
 Engine::Engine(const EngineSettings& settings) {
+    this->settings = settings;
+    
 	Window::initialize(settings.displayWidth, settings.displayHeight, settings.title, settings.displaySamples);
 
 	assets = new Assets();
@@ -117,7 +122,7 @@ void Engine::updateHotkeys() {
 		level->player->debug = !level->player->debug;
 	}
 	if (Events::jpressed(GLFW_KEY_F5)) {
-		for (unsigned i = 0; i < level->chunks->volume; i++) {
+		for (uint i = 0; i < level->chunks->volume; i++) {
 			shared_ptr<Chunk> chunk = level->chunks->chunks[i];
 			if (chunk != nullptr && chunk->isReady()) {
 				chunk->setModified(true);
@@ -140,7 +145,7 @@ void Engine::mainloop() {
 		updateHotkeys();
 
 		level->update(delta, Events::_cursor_locked);
-		level->chunksController->loadVisible(world->wfile);
+		level->chunksController->update(settings.chunksLoadSpeed);
 
 		worldRenderer.draw(camera, occlusion);
 		hud.draw(level, assets);
@@ -172,7 +177,7 @@ Engine::~Engine() {
 int main() {
 	setup_definitions();
 	try {
-		Engine engine(EngineSettings{ 1280, 720, 1, "VoxelEngine-Cpp v13" });
+		Engine engine(EngineSettings{ 1280, 720, 1, "VoxelEngine-Cpp v13", 10 });
 		engine.mainloop();
 	}
 	catch (const initialize_error& err) {

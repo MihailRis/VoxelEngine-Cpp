@@ -25,6 +25,14 @@ inline int min(int a, int b) {
 	return (a < b) ? a : b;
 }
 
+inline int64_t max(int64_t a, int64_t b) {
+	return (a > b) ? a : b;
+}
+
+inline int64_t min(int64_t a, int64_t b) {
+	return (a < b) ? a : b;
+}
+
 static unsigned int g_seed;
 
 inline void fast_srand(int seed) {

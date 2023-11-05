@@ -1,15 +1,15 @@
 #include "player_control.h"
 
-#include "objects/Player.h"
-#include "physics/PhysicsSolver.h"
-#include "physics/Hitbox.h"
-#include "lighting/Lighting.h"
-#include "world/Level.h"
-#include "voxels/Block.h"
-#include "voxels/voxel.h"
-#include "voxels/Chunks.h"
-#include "window/Camera.h"
-#include "window/Events.h"
+#include "Player.h"
+#include "../physics/PhysicsSolver.h"
+#include "../physics/Hitbox.h"
+#include "../lighting/Lighting.h"
+#include "../world/Level.h"
+#include "../voxels/Block.h"
+#include "../voxels/voxel.h"
+#include "../voxels/Chunks.h"
+#include "../window/Camera.h"
+#include "../window/Events.h"
 #include <GLFW/glfw3.h>
 
 #define CROUCH_SPEED_MUL 0.25f
