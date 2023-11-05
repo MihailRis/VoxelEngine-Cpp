@@ -31,7 +31,8 @@ using std::chrono::duration_cast;
 using std::chrono::microseconds;
 
 
-ChunksController::ChunksController(Level* level, Chunks* chunks, Lighting* lighting) : level(level), chunks(chunks), lighting(lighting){
+ChunksController::ChunksController(Level* level, Chunks* chunks, Lighting* lighting, uint padding) 
+    : level(level), chunks(chunks), lighting(lighting), padding(padding) {
 }
 
 ChunksController::~ChunksController(){
@@ -61,9 +62,9 @@ bool ChunksController::loadVisible(WorldFiles* worldFiles){
 	const int oz = chunks->oz;
 	int nearX = 0;
 	int nearZ = 0;
-	int minDistance = (w/2)*(w/2);
-	for (int z = 2; z < d-2; z++){
-		for (int x = 2; x < w-2; x++){
+	int minDistance = ((w-padding*2)/2)*((w-padding*2)/2);
+	for (int z = padding; z < d-padding; z++){
+		for (int x = padding; x < w-padding; x++){
 			int index = z * w + x;
 			shared_ptr<Chunk> chunk = chunks->chunks[index];
 			if (chunk != nullptr){

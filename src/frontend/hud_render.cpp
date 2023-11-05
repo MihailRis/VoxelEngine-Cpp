@@ -4,20 +4,20 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "typedefs.h"
-#include "assets/Assets.h"
-#include "graphics/Shader.h"
-#include "graphics/Batch2D.h"
-#include "graphics/Font.h"
-#include "graphics/Mesh.h"
-#include "window/Camera.h"
-#include "window/Window.h"
-#include "window/Events.h"
-#include "voxels/Chunks.h"
-#include "voxels/Block.h"
-#include "world/World.h"
-#include "world/Level.h"
-#include "objects/Player.h"
+#include "../typedefs.h"
+#include "../assets/Assets.h"
+#include "../graphics/Shader.h"
+#include "../graphics/Batch2D.h"
+#include "../graphics/Font.h"
+#include "../graphics/Mesh.h"
+#include "../window/Camera.h"
+#include "../window/Window.h"
+#include "../window/Events.h"
+#include "../voxels/Chunks.h"
+#include "../voxels/Block.h"
+#include "../world/World.h"
+#include "../world/Level.h"
+#include "../objects/Player.h"
 
 
 HudRenderer::HudRenderer() {

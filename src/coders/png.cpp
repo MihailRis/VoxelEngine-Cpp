@@ -20,7 +20,6 @@ int _png_load(const char* file, int* width, int* height){
     png_bytepp row_pointers;
     png_structp png_ptr;
     GLuint texture;
-    GLuint texturems;
     int alpha;
 
     if ( !( f = fopen(file, "r" ) ) ) {

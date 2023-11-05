@@ -32,8 +32,8 @@
 #include "definitions.h"
 #include "assets/Assets.h"
 #include "assets/AssetsLoader.h"
-#include "world_render.h"
-#include "hud_render.h"
+#include "frontend/world_render.h"
+#include "frontend/hud_render.h"
 
 using std::shared_ptr;
 
@@ -47,11 +47,17 @@ public:
 struct EngineSettings {
 	int displayWidth;
 	int displayHeight;
+	
 	/* Anti-aliasing samples */
 	int displaySamples;
-	const char* title;
+	/* Window title */
+	const char* displayTitle;
 	/* Max milliseconds that engine uses for chunks loading only */
 	uint chunksLoadSpeed;
+	/* Radius of chunks loading zone (chunk is unit) */
+	uint chunksLoadDistance;
+	/* Buffer zone where chunks are not unloading (chunk is unit)*/
+	uint chunksPadding;
 };
 
 
@@ -76,7 +82,10 @@ public:
 Engine::Engine(const EngineSettings& settings) {
     this->settings = settings;
     
-	Window::initialize(settings.displayWidth, settings.displayHeight, settings.title, settings.displaySamples);
+	Window::initialize(settings.displayWidth, 
+	                   settings.displayHeight, 
+	                   settings.displayTitle, 
+	                   settings.displaySamples);
 
 	assets = new Assets();
 	std::cout << "-- loading assets" << std::endl;
@@ -95,7 +104,7 @@ Engine::Engine(const EngineSettings& settings) {
 	Camera* camera = new Camera(playerPosition, radians(90.0f));
 	World* world = new World("world-1", "world/", 42);
 	Player* player = new Player(playerPosition, 4.0f, camera);
-	level = world->loadLevel(player);
+	level = world->loadLevel(player, settings.chunksLoadDistance, settings.chunksPadding);
 
 	std::cout << "-- initializing finished" << std::endl;
 
@@ -178,7 +187,15 @@ Engine::~Engine() {
 int main() {
 	setup_definitions();
 	try {
-		Engine engine(EngineSettings{ 1280, 720, 1, "VoxelEngine-Cpp v13", 15 });
+	    EngineSettings settings;
+	    settings.displayWidth = 1280;
+	    settings.displayHeight = 720;
+	    settings.displaySamples = 4;
+	    settings.displayTitle = "VoxelEngine-Cpp v13";
+	    settings.chunksLoadSpeed = 15;
+	    settings.chunksLoadDistance = 12;
+	    settings.chunksPadding = 2;
+		Engine engine(settings);
 		engine.mainloop();
 	}
 	catch (const initialize_error& err) {

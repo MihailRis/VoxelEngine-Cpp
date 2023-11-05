@@ -11,15 +11,16 @@
 #include "../objects/Player.h"
 #include "../objects/player_control.h"
 
-Level::Level(World* world, Player* player, Chunks* chunks, ChunksStorage* chunksStorage, PhysicsSolver* physics, LevelEvents* events) :
+Level::Level(World* world, Player* player, ChunksStorage* chunksStorage, LevelEvents* events, uint loadDistance, uint chunksPadding) :
 		world(world),
 		player(player),
-		chunks(chunks),
 		chunksStorage(chunksStorage),
-		physics(physics),
 		events(events) {
+    physics = new PhysicsSolver(vec3(0, -19.6f, 0));
+    uint matrixSize = (loadDistance+chunksPadding) * 2;
+    chunks = new Chunks(matrixSize, matrixSize, 0, 0, events);
 	lighting = new Lighting(chunks);
-	chunksController = new ChunksController(this, chunks, lighting);
+	chunksController = new ChunksController(this, chunks, lighting, chunksPadding);
 	playerController = new PlayerController(this);
 	events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
 		this->chunksStorage->remove(chunk->x, chunk->z);
