@@ -1,7 +1,6 @@
 # Run in windows with compiled executable file:
 
-[EXE for windows](https://drive.google.com/file/d/1lkFc5nyYOs0Yyu1wmOoAAwEp4r9jO1tE/view?usp=sharing)<br>
-[MinGW libraries (include & lib) + glew32.dll](https://drive.google.com/file/d/1k1Hnbz2Uhr4-03upt2yHxKws396HQDra/view?usp=sharing)
+[EXE for windows (old version)](https://drive.google.com/file/d/1lkFc5nyYOs0Yyu1wmOoAAwEp4r9jO1tE/view?usp=sharing)<br>
 
 # Controls:
 - **Tab** - toggle camera control
@@ -36,7 +35,3 @@ If you use X11
 
 If you use Wayland
 `$ sudo pacman -S glfw-wayland glew glm libpng openal`
-
-# Note for MinGW compiling:
-To fix problem with `#include <mingw.thread.h>` get headers `mingw.thread.h` and `mingw.invoke.h` from: 
-https://github.com/meganz/mingw-std-threads
