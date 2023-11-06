@@ -21,9 +21,10 @@ public:
 	size_t chunksCount;
 	int w,d;
 	int ox,oz;
+	WorldFiles* worldFiles;
 	LevelEvents* events;
 
-	Chunks(int w, int d, int ox, int oz, LevelEvents* events);
+	Chunks(int w, int d, int ox, int oz, WorldFiles* worldFiles, LevelEvents* events);
 	~Chunks();
 
 	bool putChunk(std::shared_ptr<Chunk> chunk);
@@ -41,8 +42,9 @@ public:
 	// does not move chunks inside
 	void _setOffset(int x, int z);
 
-	void setCenter(WorldFiles* worldFiles, int x, int z);
-	void translate(WorldFiles* worldFiles, int x, int z);
+	void setCenter(int x, int z);
+	void translate(int x, int z);
+	void resize(int newW, int newD);
 
 	void clear();
 };

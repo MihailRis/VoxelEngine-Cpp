@@ -132,6 +132,14 @@ void Engine::updateHotkeys() {
 	if (Events::jpressed(GLFW_KEY_F3)) {
 		level->player->debug = !level->player->debug;
 	}
+	if (Events::jpressed(GLFW_KEY_F8)) {
+		if (level->chunks->w >= 40) {
+			level->chunks->resize(level->chunks->w/4, level->chunks->d / 4);
+		}
+		else {
+			level->chunks->resize(level->chunks->w + 2, level->chunks->d + 2);
+		}
+	}
 	if (Events::jpressed(GLFW_KEY_F5)) {
 		for (uint i = 0; i < level->chunks->volume; i++) {
 			shared_ptr<Chunk> chunk = level->chunks->chunks[i];
@@ -149,7 +157,7 @@ void Engine::mainloop() {
 	HudRenderer hud(assets);
 	lastTime = glfwGetTime();
 
-	Window::swapInterval(0);
+	Window::swapInterval(1);
 	while (!Window::isShouldClose()){
 		updateTimers();
 		updateHotkeys();
@@ -172,6 +180,7 @@ Engine::~Engine() {
 	Audio::finalize();
 
 	World* world = level->world;
+
 	std::cout << "-- saving world" << std::endl;
 	world->write(level);
 
@@ -180,7 +189,6 @@ Engine::~Engine() {
 
 	std::cout << "-- shutting down" << std::endl;
 	delete assets;
-	Events::finalize();
 	Window::terminate();
 }
 
@@ -192,7 +200,7 @@ int main() {
 	    settings.displayHeight = 720;
 	    settings.displaySamples = 4;
 	    settings.displayTitle = "VoxelEngine-Cpp v13";
-	    settings.chunksLoadSpeed = 15;
+	    settings.chunksLoadSpeed = 10;
 	    settings.chunksLoadDistance = 12;
 	    settings.chunksPadding = 2;
 		Engine engine(settings);

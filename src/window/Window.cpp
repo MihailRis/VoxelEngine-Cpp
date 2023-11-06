@@ -98,6 +98,7 @@ void Window::setCursorMode(int mode){
 }
 
 void Window::terminate(){
+	Events::finalize();
 	glfwTerminate();
 }
 

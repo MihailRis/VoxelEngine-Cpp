@@ -16,7 +16,8 @@
 using glm::vec3;
 using std::shared_ptr;
 
-Chunks::Chunks(int w, int d, int ox, int oz, LevelEvents* events) : w(w), d(d), ox(ox), oz(oz), events(events) {
+Chunks::Chunks(int w, int d, int ox, int oz, WorldFiles* wfile, LevelEvents* events) 
+		: w(w), d(d), ox(ox), oz(oz), worldFiles(wfile), events(events) {
 	volume = (size_t)w*(size_t)d;
 	chunks = new shared_ptr<Chunk>[volume];
 	chunksSecond = new shared_ptr<Chunk>[volume];
@@ -233,7 +234,7 @@ voxel* Chunks::rayCast(vec3 a, vec3 dir, float maxDist, vec3& end, vec3& norm, v
 	return nullptr;
 }
 
-void Chunks::setCenter(WorldFiles* worldFiles, int x, int z) {
+void Chunks::setCenter(int x, int z) {
 	int cx = x / CHUNK_W;
 	int cz = z / CHUNK_D;
 	cx -= ox;
@@ -243,17 +244,17 @@ void Chunks::setCenter(WorldFiles* worldFiles, int x, int z) {
 	cx -= w/2;
 	cz -= d/2;
 	if (cx | cz) {
-		translate(worldFiles, cx,cz);
+		translate(cx,cz);
 	}
 }
 
-void Chunks::translate(WorldFiles* worldFiles, int dx, int dz){
-	for (unsigned int i = 0; i < volume; i++){
+void Chunks::translate(int dx, int dz){
+	for (uint i = 0; i < volume; i++){
 		chunksSecond[i] = nullptr;
 	}
 	for (int z = 0; z < d; z++){
 		for (int x = 0; x < w; x++){
-			shared_ptr<Chunk> chunk = chunks[z * w + x];
+			shared_ptr<Chunk> chunk = chunks[z * d + x];
 			int nx = x - dx;
 			int nz = z - dz;
 			if (chunk == nullptr)
@@ -273,6 +274,36 @@ void Chunks::translate(WorldFiles* worldFiles, int dx, int dz){
 
 	ox += dx;
 	oz += dz;
+}
+
+void Chunks::resize(int newW, int newD) {
+	if (newW < w) {
+		int delta = w - newW;
+		translate(delta / 2, 0);
+		translate(-delta, 0);
+		translate(delta, 0);
+	}
+	if (newD < d) {
+		int delta = d - newD;
+		translate(0, delta / 2);
+		translate(0, -delta);
+		translate(0, delta);
+	}
+	const int newVolume = newW * newD;
+	shared_ptr<Chunk>* newChunks = new shared_ptr<Chunk>[newVolume] {};
+	shared_ptr<Chunk>* newChunksSecond = new shared_ptr<Chunk>[newVolume] {};
+	for (int z = 0; z < d && z < newD; z++) {
+		for (int x = 0; x < w && x < newW; x++) {
+			newChunks[z * newW + x] = chunks[z * w + x];
+		}
+	}
+	delete[] chunks;
+	delete[] chunksSecond;
+	w = newW;
+	d = newD;
+	volume = newVolume;
+	chunks = newChunks;
+	chunksSecond = newChunksSecond;
 }
 
 void Chunks::_setOffset(int x, int z){
