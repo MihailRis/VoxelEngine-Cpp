@@ -3,14 +3,14 @@
 [EXE for windows (old version)](https://drive.google.com/file/d/1lkFc5nyYOs0Yyu1wmOoAAwEp4r9jO1tE/view?usp=sharing)<br>
 
 # Controls:
-- **Tab** - toggle camera control
-- **W,A,S,D** - movement
-- **Space** - jump
-- **LMB** - remove block 
-- **RMB** - place block
-- **F** - toggle flight mode
-- **N** - noclip mode
-- **Esc** - exit
+- <kbd>Tab</kbd> - toggle camera control
+- <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> - movement
+- <kbd>Space</kbd> - jump
+- <kbd>LMB</kbd> - remove block 
+- <kbd>RMB</kbd> - place block
+- <kbd>F</kbd> - toggle flight mode
+- <kbd>N</kbd> - noclip mode
+- <kbd>Esc</kbd> - exit
 
 #### Build with CMake
 ```sh
