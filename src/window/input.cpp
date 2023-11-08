@@ -3,6 +3,14 @@
 
 int keycode::ENTER = GLFW_KEY_ENTER;
 int keycode::TAB = GLFW_KEY_TAB;
+int keycode::SPACE = GLFW_KEY_SPACE;
+int keycode::BACKSPACE = GLFW_KEY_BACKSPACE;
+int keycode::LEFT_SHIFT = GLFW_KEY_LEFT_SHIFT;
+int keycode::LEFT_CONTROL = GLFW_KEY_LEFT_CONTROL;
+int keycode::LEFT_ALT = GLFW_KEY_LEFT_ALT;
+int keycode::RIGHT_SHIFT = GLFW_KEY_RIGHT_SHIFT;
+int keycode::RIGHT_CONTROL = GLFW_KEY_RIGHT_CONTROL;
+int keycode::RIGHT_ALT = GLFW_KEY_RIGHT_ALT;
 int keycode::F1 = GLFW_KEY_F1;
 int keycode::F2 = GLFW_KEY_F2;
 int keycode::F3 = GLFW_KEY_F3;
@@ -41,3 +49,17 @@ int keycode::W = GLFW_KEY_W;
 int keycode::X = GLFW_KEY_X;
 int keycode::Y = GLFW_KEY_Y;
 int keycode::Z = GLFW_KEY_Z;
+int keycode::NUM_0 = GLFW_KEY_0;
+int keycode::NUM_1 = GLFW_KEY_1;
+int keycode::NUM_2 = GLFW_KEY_2;
+int keycode::NUM_3 = GLFW_KEY_3;
+int keycode::NUM_4 = GLFW_KEY_4;
+int keycode::NUM_5 = GLFW_KEY_5;
+int keycode::NUM_6 = GLFW_KEY_6;
+int keycode::NUM_7 = GLFW_KEY_7;
+int keycode::NUM_8 = GLFW_KEY_8;
+int keycode::NUM_9 = GLFW_KEY_9;
+
+int mousecode::BUTTON_1 = GLFW_MOUSE_BUTTON_1;
+int mousecode::BUTTON_2 = GLFW_MOUSE_BUTTON_2;
+int mousecode::BUTTON_3 = GLFW_MOUSE_BUTTON_3;

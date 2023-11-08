@@ -4,6 +4,14 @@
 namespace keycode {
     extern int ENTER;
     extern int TAB;
+    extern int SPACE;
+    extern int BACKSPACE;
+    extern int LEFT_CONTROL;
+    extern int LEFT_SHIFT;
+    extern int LEFT_ALT;
+    extern int RIGHT_CONTROL;
+    extern int RIGHT_SHIFT;
+    extern int RIGHT_ALT;
     extern int F1;
     extern int F2;
     extern int F3;
@@ -42,6 +50,22 @@ namespace keycode {
     extern int X;
     extern int Y;
     extern int Z;
+    extern int NUM_0;
+    extern int NUM_1;
+    extern int NUM_2;
+    extern int NUM_3;
+    extern int NUM_4;
+    extern int NUM_5;
+    extern int NUM_6;
+    extern int NUM_7;
+    extern int NUM_8;
+    extern int NUM_9;
+}
+
+namespace mousecode {
+    extern int BUTTON_1;
+    extern int BUTTON_2;
+    extern int BUTTON_3;
 }
 
 #endif // WINDOW_INPUT_H_

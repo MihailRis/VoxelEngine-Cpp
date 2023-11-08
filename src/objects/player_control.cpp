@@ -10,7 +10,7 @@
 #include "../voxels/Chunks.h"
 #include "../window/Camera.h"
 #include "../window/Events.h"
-#include <GLFW/glfw3.h>
+#include "../window/input.h"
 
 #define CROUCH_SPEED_MUL 0.25f
 #define CROUCH_SHIFT_Y -0.2f
@@ -37,7 +37,7 @@ void PlayerController::update_controls(float delta){
 
 	/*block choose*/{
 		for (int i = 1; i < 10; i++){
-			if (Events::jpressed(GLFW_KEY_0+i)){
+			if (Events::jpressed(keycode::NUM_0+i)){
 				player->choosenBlock = i;
 			}
 		}
@@ -45,10 +45,10 @@ void PlayerController::update_controls(float delta){
 
 	Camera* camera = player->camera;
 	Hitbox* hitbox = player->hitbox;
-	bool sprint = Events::pressed(GLFW_KEY_LEFT_CONTROL);
-	bool shift = Events::pressed(GLFW_KEY_LEFT_SHIFT) && hitbox->grounded && !sprint;
-	bool zoom = Events::pressed(GLFW_KEY_C);
-	bool cheat = Events::pressed(GLFW_KEY_R);
+	bool sprint = Events::pressed(keycode::LEFT_CONTROL);
+	bool shift = Events::pressed(keycode::LEFT_SHIFT) && hitbox->grounded && !sprint;
+	bool zoom = Events::pressed(keycode::C);
+	bool cheat = Events::pressed(keycode::R);
 
 	float speed = player->speed;
 	if (player->flight){
@@ -81,14 +81,14 @@ void PlayerController::update_controls(float delta){
 		camera->position -= min(player->interpVel * 0.05f, 1.0f);
 	}//end
 
-	if ((Events::jpressed(GLFW_KEY_F) && !player->noclip) ||
-		(Events::jpressed(GLFW_KEY_N) && player->flight == player->noclip)){
+	if ((Events::jpressed(keycode::F) && !player->noclip) ||
+		(Events::jpressed(keycode::N) && player->flight == player->noclip)){
 		player->flight = !player->flight;
 		if (player->flight){
 			hitbox->grounded = false;
 		}
 	}
-	if (Events::jpressed(GLFW_KEY_N)) {
+	if (Events::jpressed(keycode::N)) {
 		player->noclip = !player->noclip;
 	}
 
@@ -108,23 +108,23 @@ void PlayerController::update_controls(float delta){
 		camera->zoom = zoomValue * dt + camera->zoom * (1.0f - dt);
 	}//end
 
-	if (Events::pressed(GLFW_KEY_SPACE) && hitbox->grounded){
+	if (Events::pressed(keycode::SPACE) && hitbox->grounded){
 		hitbox->velocity.y = JUMP_FORCE;
 	}
 	vec3 dir(0,0,0);
-	if (Events::pressed(GLFW_KEY_W)){
+	if (Events::pressed(keycode::W)){
 		dir.x += camera->dir.x;
 		dir.z += camera->dir.z;
 	}
-	if (Events::pressed(GLFW_KEY_S)){
+	if (Events::pressed(keycode::S)){
 		dir.x -= camera->dir.x;
 		dir.z -= camera->dir.z;
 	}
-	if (Events::pressed(GLFW_KEY_D)){
+	if (Events::pressed(keycode::D)){
 		dir.x += camera->right.x;
 		dir.z += camera->right.z;
 	}
-	if (Events::pressed(GLFW_KEY_A)){
+	if (Events::pressed(keycode::A)){
 		dir.x -= camera->right.x;
 		dir.z -= camera->right.z;
 	}
@@ -133,10 +133,10 @@ void PlayerController::update_controls(float delta){
 	if (player->flight){
 		hitbox->linear_damping = PLAYER_AIR_DAMPING;
 		hitbox->velocity.y *= 1.0f - delta * 9;
-		if (Events::pressed(GLFW_KEY_SPACE)){
+		if (Events::pressed(keycode::SPACE)){
 			hitbox->velocity.y += speed * delta * 9;
 		}
-		if (Events::pressed(GLFW_KEY_LEFT_SHIFT)){
+		if (Events::pressed(keycode::LEFT_SHIFT)){
 			hitbox->velocity.y -= speed * delta * 9;
 		}
 	}
@@ -212,11 +212,11 @@ void PlayerController::update_interaction(){
 		}
 		
 		Block* block = Block::blocks[vox->id];
-		if (Events::jclicked(GLFW_MOUSE_BUTTON_1) && block->breakable){
+		if (Events::jclicked(mousecode::BUTTON_1) && block->breakable){
 			chunks->set(x,y,z, 0, 0);
-			lighting->onBlockSet(x,y,z,0);
+			lighting->onBlockSet(x,y,z, 0);
 		}
-		if (Events::jclicked(GLFW_MOUSE_BUTTON_2)){
+		if (Events::jclicked(mousecode::BUTTON_2)){
 			if (block->model != BLOCK_MODEL_X_SPRITE){
 				x = (int)(iend.x)+(int)(norm.x);
 				y = (int)(iend.y)+(int)(norm.y);
@@ -227,7 +227,7 @@ void PlayerController::update_interaction(){
 				lighting->onBlockSet(x,y,z, player->choosenBlock);
 			}
 		}
-		if (Events::jclicked(GLFW_MOUSE_BUTTON_3)){
+		if (Events::jclicked(mousecode::BUTTON_3)){
 			player->choosenBlock = chunks->get(x,y,z)->id;
 		}
 	} else {
