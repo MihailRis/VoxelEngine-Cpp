@@ -50,6 +50,8 @@ struct EngineSettings {
 	int displayHeight;
 	/* Anti-aliasing samples */
 	int displaySamples;
+	/* GLFW swap interval value, 0 - unlimited fps, 1 - vsync*/
+	int displaySwapInterval;
 	/* Window title */
 	const char* displayTitle;
 	/* Max milliseconds that engine uses for chunks loading only */
@@ -68,8 +70,8 @@ class Engine {
 	EngineSettings settings;
 
 	uint64_t frame = 0;
-	float lastTime = 0.0f;
-	float delta = 0.0f;
+	double lastTime = 0.0;
+	double delta = 0.0;
 	bool occlusion = true;
 public:
 	Engine(const EngineSettings& settings);
@@ -87,6 +89,7 @@ Engine::Engine(const EngineSettings& settings) {
 	                   settings.displayHeight, 
 	                   settings.displayTitle, 
 	                   settings.displaySamples);
+	Window::swapInterval(settings.displaySwapInterval);
 
 	assets = new Assets();
 	std::cout << "-- loading assets" << std::endl;
@@ -114,7 +117,7 @@ Engine::Engine(const EngineSettings& settings) {
 
 void Engine::updateTimers() {
 	frame++;
-	float currentTime = Window::time();
+	double currentTime = Window::time();
 	delta = currentTime - lastTime;
 	lastTime = currentTime;
 }
@@ -146,7 +149,6 @@ void Engine::mainloop() {
 	HudRenderer hud(assets);
 	lastTime = Window::time();
 
-	Window::swapInterval(1);
 	while (!Window::isShouldClose()){
 		updateTimers();
 		updateHotkeys();
@@ -187,6 +189,7 @@ void load_settings(EngineSettings& settings, std::string filename) {
 	obj->num("display-width", settings.displayWidth);
 	obj->num("display-height", settings.displayHeight);
 	obj->num("display-samples", settings.displaySamples);
+	obj->num("display-swap-interval", settings.displaySwapInterval);
 	obj->num("chunks-load-distance", settings.chunksLoadDistance);
 	obj->num("chunks-load-speed", settings.chunksLoadSpeed);
 	obj->num("chunks-padding", settings.chunksPadding);
@@ -197,6 +200,7 @@ void save_settings(EngineSettings& settings, std::string filename) {
 	obj.put("display-width", settings.displayWidth);
 	obj.put("display-height", settings.displayHeight);
 	obj.put("display-samples", settings.displaySamples);
+	obj.put("display-swap-interval", settings.displaySwapInterval);
 	obj.put("chunks-load-distance", settings.chunksLoadDistance);
 	obj.put("chunks-load-speed", settings.chunksLoadSpeed);
 	obj.put("chunks-padding", settings.chunksPadding);
@@ -214,6 +218,7 @@ int main() {
 	    settings.chunksLoadSpeed = 10;
 	    settings.chunksLoadDistance = 12;
 	    settings.chunksPadding = 2;
+		settings.displaySwapInterval = 1;
 
 		if (std::filesystem::is_regular_file(SETTINGS_FILE)) {
 			std::cout << "-- loading settings" << std::endl;
