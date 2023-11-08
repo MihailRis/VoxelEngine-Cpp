@@ -232,6 +232,14 @@ JArray& JArray::put(string value) {
     return *this;
 }
 
+JArray& JArray::put(uint value) {
+    return put((number_t)value);
+}
+
+JArray& JArray::put(int value) {
+    return put((number_t)value);
+}
+
 JArray& JArray::put(number_t value) {
     valvalue val;
     val.num = value;
@@ -266,18 +274,28 @@ JObject::~JObject() {
     }
 }
 
-std::string JObject::str(std::string key, std::string def) const {
+void JObject::str(std::string key, std::string& dst) const {
     auto found = map.find(key);
     if (found != map.end())
-        return *found->second->value.str;
-    return def;
+        dst = *found->second->value.str;
 }
 
-number_t JObject::num(std::string key, number_t def) const {
+void JObject::num(std::string key, number_t& dst) const {
     auto found = map.find(key);
     if (found != map.end())
-        return found->second->value.num;
-    return def;
+        dst = found->second->value.num;
+}
+
+void JObject::num(std::string key, int& dst) const {
+    auto found = map.find(key);
+    if (found != map.end())
+        dst = found->second->value.num;
+}
+
+void JObject::num(std::string key, uint& dst) const {
+    auto found = map.find(key);
+    if (found != map.end())
+        dst = found->second->value.num;
 }
 
 JObject* JObject::obj(std::string key) const {
@@ -294,12 +312,20 @@ JArray* JObject::arr(std::string key) const {
     return nullptr;
 }
 
-bool JObject::flag(std::string key, bool def) const {
+void JObject::flag(std::string key, bool& dst) const {
     auto found = map.find(key);
     if (found != map.end())
-        return found->second->value.boolean;
-    return def;
+        dst = found->second->value.boolean;
 }
+
+JObject& JObject::put(string key, uint value) {
+    return put(key, (number_t)value);
+}
+
+JObject& JObject::put(string key, int value) {
+    return put(key, (number_t)value);
+}
+
 
 JObject& JObject::put(string key, number_t value) {
     auto found = map.find(key);
@@ -636,4 +662,13 @@ Value* Parser::parseValue() {
         return new Value(valtype::string, val);
     }
     throw error("unexpected character '"+string({next})+"'");
+}
+
+JObject* json::parse(std::string filename, std::string source) {
+    Parser parser(filename, source);
+    return parser.parse();
+}
+
+JObject* json::parse(std::string source) {
+    return parse("<string>", source);
 }
