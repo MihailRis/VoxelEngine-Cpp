@@ -11,7 +11,7 @@ using std::unique_ptr;
 using std::ifstream;
 using std::ofstream;
 
-bool files::write_binary_file(string filename, const char* data, size_t size) {
+bool files::write_bytes(string filename, const char* data, size_t size) {
 	ofstream output(filename, ios::binary);
 	if (!output.is_open())
 		return false;
@@ -20,17 +20,17 @@ bool files::write_binary_file(string filename, const char* data, size_t size) {
 	return true;
 }
 
-unsigned int files::append_binary_file(string filename, const char* data, size_t size) {
+uint files::append_bytes(string filename, const char* data, size_t size) {
 	ofstream output(filename, ios::binary | ios::app);
 	if (!output.is_open())
 		return 0;
-	unsigned int position = output.tellp();
+	uint position = output.tellp();
 	output.write(data, size);
 	output.close();
 	return position;
 }
 
-bool files::read_binary_file(string filename, char* data, size_t size) {
+bool files::read(string filename, char* data, size_t size) {
 	ifstream output(filename, ios::binary);
 	if (!output.is_open())
 		return false;
@@ -39,7 +39,7 @@ bool files::read_binary_file(string filename, char* data, size_t size) {
 	return true;
 }
 
-char* files::read_binary_file(string filename, size_t& length) {
+char* files::read_bytes(string filename, size_t& length) {
 	ifstream input(filename, ios::binary);
 	if (!input.is_open())
 		return nullptr;
@@ -55,7 +55,7 @@ char* files::read_binary_file(string filename, size_t& length) {
 
 std::string files::read_string(string filename) {
 	size_t size;
-	unique_ptr<char> chars (read_binary_file(filename, size));
+	unique_ptr<char> chars (read_bytes(filename, size));
 	return string(chars.get(), size);
 }
 

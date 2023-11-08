@@ -56,12 +56,10 @@ float bytes2Float(ubyte* src, uint offset){
 }
 
 WorldFiles::WorldFiles(std::string directory, size_t mainBufferCapacity) : directory(directory){
-	mainBufferIn = new ubyte[CHUNK_DATA_LEN * 2];
 	compressionBuffer = new ubyte[CHUNK_DATA_LEN * 2];
 }
 
 WorldFiles::~WorldFiles(){
-	delete[] mainBufferIn;
 	delete[] compressionBuffer;
 	for (auto it = regions.begin(); it != regions.end(); it++){
 	    WorldRegion region = it->second;
@@ -224,12 +222,12 @@ void WorldFiles::writePlayer(Player* player){
 	dst[offset++] = player->flight * PLAYER_FLAG_FLIGHT |
 					player->noclip * PLAYER_FLAG_NOCLIP;
 
-	files::write_binary_file(getPlayerFile(), (const char*)dst, sizeof(dst));
+	files::write_bytes(getPlayerFile(), (const char*)dst, sizeof(dst));
 }
 
 bool WorldFiles::readPlayer(Player* player) {
 	size_t length = 0;
-	ubyte* data = (ubyte*)files::read_binary_file(getPlayerFile(), length);
+	ubyte* data = (ubyte*)files::read_bytes(getPlayerFile(), length);
 	if (data == nullptr){
 		std::cerr << "could not to read player.bin (ignored)" << std::endl;
 		return false;

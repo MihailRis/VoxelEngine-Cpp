@@ -29,7 +29,6 @@ class WorldFiles {
 public:
 	std::unordered_map<glm::ivec2, WorldRegion> regions;
 	std::string directory;
-	ubyte* mainBufferIn;
 	ubyte* compressionBuffer;
 
 	WorldFiles(std::string directory, size_t mainBufferCapacity);
