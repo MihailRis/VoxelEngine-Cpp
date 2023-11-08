@@ -224,12 +224,12 @@ void WorldFiles::writePlayer(Player* player){
 	dst[offset++] = player->flight * PLAYER_FLAG_FLIGHT |
 					player->noclip * PLAYER_FLAG_NOCLIP;
 
-	write_binary_file(getPlayerFile(), (const char*)dst, sizeof(dst));
+	files::write_binary_file(getPlayerFile(), (const char*)dst, sizeof(dst));
 }
 
 bool WorldFiles::readPlayer(Player* player) {
 	size_t length = 0;
-	ubyte* data = (ubyte*)read_binary_file(getPlayerFile(), length);
+	ubyte* data = (ubyte*)files::read_binary_file(getPlayerFile(), length);
 	if (data == nullptr){
 		std::cerr << "could not to read player.bin (ignored)" << std::endl;
 		return false;

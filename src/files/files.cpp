@@ -5,17 +5,14 @@
 #include <memory>
 #include <stdint.h>
 
-bool write_binary_file_part(std::string filename, const char* data, size_t offset, size_t size){
-	std::ofstream output(filename, std::ios::out | std::ios::binary | std::ios::in);
-	if (!output.is_open())
-		return false;
-	output.seekp(offset);
-	output.write(data, size);
-	return true;
-}
+using std::ios;
+using std::string;
+using std::unique_ptr;
+using std::ifstream;
+using std::ofstream;
 
-bool write_binary_file(std::string filename, const char* data, size_t size) {
-	std::ofstream output(filename, std::ios::binary);
+bool files::write_binary_file(string filename, const char* data, size_t size) {
+	ofstream output(filename, ios::binary);
 	if (!output.is_open())
 		return false;
 	output.write(data, size);
@@ -23,8 +20,8 @@ bool write_binary_file(std::string filename, const char* data, size_t size) {
 	return true;
 }
 
-unsigned int append_binary_file(std::string filename, const char* data, size_t size) {
-	std::ofstream output(filename, std::ios::binary | std::ios::app);
+unsigned int files::append_binary_file(string filename, const char* data, size_t size) {
+	ofstream output(filename, ios::binary | ios::app);
 	if (!output.is_open())
 		return 0;
 	unsigned int position = output.tellp();
@@ -33,8 +30,8 @@ unsigned int append_binary_file(std::string filename, const char* data, size_t s
 	return position;
 }
 
-bool read_binary_file(std::string filename, char* data, size_t size) {
-	std::ifstream output(filename, std::ios::binary);
+bool files::read_binary_file(string filename, char* data, size_t size) {
+	ifstream output(filename, ios::binary);
 	if (!output.is_open())
 		return false;
 	output.read(data, size);
@@ -42,16 +39,31 @@ bool read_binary_file(std::string filename, char* data, size_t size) {
 	return true;
 }
 
-char* read_binary_file(std::string filename, size_t& length) {
-	std::ifstream input(filename, std::ios::binary);
+char* files::read_binary_file(string filename, size_t& length) {
+	ifstream input(filename, ios::binary);
 	if (!input.is_open())
 		return nullptr;
 	input.seekg(0, std::ios_base::end);
 	length = input.tellg();
 	input.seekg(0, std::ios_base::beg);
 
-	std::unique_ptr<char> data {new char[length]};
+	unique_ptr<char> data {new char[length]};
 	input.read(data.get(), length);
 	input.close();
 	return data.release();
+}
+
+std::string files::read_string(string filename) {
+	size_t size;
+	unique_ptr<char> chars (read_binary_file(filename, size));
+	return string(chars.get(), size);
+}
+
+bool files::write_string(string filename, const string content) {
+	ofstream file(filename);
+	if (!file) {
+		return false;
+	}
+	file << content;
+	return true;
 }
