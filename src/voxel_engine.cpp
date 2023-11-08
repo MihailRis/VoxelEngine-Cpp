@@ -1,5 +1,3 @@
-// Install dependencies:
-// sudo apt install libgl-dev libglew-dev libglfw3-dev libpng-dev libglm-dev
 #include <iostream>
 #include <cmath>
 #include <stdint.h>
@@ -12,12 +10,15 @@
 #include <vector>
 #include <ctime>
 #include <exception>
+#include <filesystem>
 
 // GLM
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "coders/json.h"
+#include "files/files.h"
 #include "window/Window.h"
 #include "window/Events.h"
 #include "window/Camera.h"
@@ -35,6 +36,8 @@
 #include "frontend/world_render.h"
 #include "frontend/hud_render.h"
 
+#define SETTINGS_FILE "settings.json"
+
 using std::shared_ptr;
 
 
@@ -42,7 +45,6 @@ class initialize_error : public std::runtime_error {
 public:
 	initialize_error(const std::string& message) : std::runtime_error(message) {}
 };
-
 
 struct EngineSettings {
     /* Window width (pixels) */
@@ -61,6 +63,7 @@ struct EngineSettings {
 	uint chunksPadding;
 };
 
+void save_settings(EngineSettings& settings, std::string filename);
 
 class Engine {
 	Assets* assets;
@@ -132,14 +135,6 @@ void Engine::updateHotkeys() {
 	if (Events::jpressed(GLFW_KEY_F3)) {
 		level->player->debug = !level->player->debug;
 	}
-	if (Events::jpressed(GLFW_KEY_F8)) {
-		if (level->chunks->w >= 40) {
-			level->chunks->resize(level->chunks->w/4, level->chunks->d / 4);
-		}
-		else {
-			level->chunks->resize(level->chunks->w + 2, level->chunks->d + 2);
-		}
-	}
 	if (Events::jpressed(GLFW_KEY_F5)) {
 		for (uint i = 0; i < level->chunks->volume; i++) {
 			shared_ptr<Chunk> chunk = level->chunks->chunks[i];
@@ -192,17 +187,46 @@ Engine::~Engine() {
 	Window::terminate();
 }
 
+void load_settings(EngineSettings& settings, std::string filename) {
+	std::string source = files::read_string(filename);
+	std::unique_ptr<json::JObject> obj(json::parse(filename, source));
+	obj->num("display-width", settings.displayWidth);
+	obj->num("display-height", settings.displayHeight);
+	obj->num("display-samples", settings.displaySamples);
+	obj->num("chunks-load-distance", settings.chunksLoadDistance);
+	obj->num("chunks-load-speed", settings.chunksLoadSpeed);
+	obj->num("chunks-padding", settings.chunksPadding);
+}
+
+void save_settings(EngineSettings& settings, std::string filename) {
+	json::JObject obj;
+	obj.put("display-width", settings.displayWidth);
+	obj.put("display-height", settings.displayHeight);
+	obj.put("display-samples", settings.displaySamples);
+	obj.put("chunks-load-distance", settings.chunksLoadDistance);
+	obj.put("chunks-load-speed", settings.chunksLoadSpeed);
+	obj.put("chunks-padding", settings.chunksPadding);
+	files::write_string(filename, json::stringify(&obj, true, "  "));
+}
+
 int main() {
 	setup_definitions();
 	try {
 	    EngineSettings settings;
 	    settings.displayWidth = 1280;
 	    settings.displayHeight = 720;
-	    settings.displaySamples = 4;
-	    settings.displayTitle = "VoxelEngine-Cpp v13";
+	    settings.displaySamples = 0; // верну мультисемплинг позже
+	    settings.displayTitle = "VoxelEngine-Cpp v0.13";
 	    settings.chunksLoadSpeed = 10;
 	    settings.chunksLoadDistance = 12;
 	    settings.chunksPadding = 2;
+
+		if (std::filesystem::is_regular_file(SETTINGS_FILE)) {
+			std::cout << "-- loading settings" << std::endl;
+			load_settings(settings, SETTINGS_FILE);
+		} else {
+			save_settings(settings, SETTINGS_FILE);
+		}
 		Engine engine(settings);
 		engine.mainloop();
 	}
