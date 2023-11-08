@@ -2,11 +2,17 @@
 #define WINDOW_WINDOW_H_
 
 #include "../typedefs.h"
+#include <stack>
+#include <vector>
+
+#include <glm/glm.hpp>
 
 class GLFWwindow;
 
 class Window {
 	static GLFWwindow* window;
+	static std::stack<glm::vec4> scissorStack;
+	static glm::vec4 scissorArea;
 public:
 	static uint width;
 	static uint height;
@@ -19,6 +25,10 @@ public:
 	static void setShouldClose(bool flag);
 	static void swapBuffers();
 	static void swapInterval(int interval);
+
+	static void pushScissor(glm::vec4 area);
+	static void popScissor();
+	static void resetScissor();
 };
 
 #endif /* WINDOW_WINDOW_H_ */

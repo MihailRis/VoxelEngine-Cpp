@@ -16,6 +16,8 @@ public:
 	static float y;
 	static bool _cursor_locked;
 	static bool _cursor_started;
+	static std::vector<uint> codepoints;
+	static std::vector<int> pressedKeys;
 
 	static int initialize();
 	static void finalize();

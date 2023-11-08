@@ -12,8 +12,8 @@ float Events::x = 0.0f;
 float Events::y = 0.0f;
 bool Events::_cursor_locked = false;
 bool Events::_cursor_started = false;
-
-
+std::vector<uint> Events::codepoints;
+std::vector<int> Events::pressedKeys;
 
 int Events::initialize(){
 	_keys = new bool[1032];
@@ -61,5 +61,7 @@ void Events::pullEvents(){
 	_current++;
 	deltaX = 0.0f;
 	deltaY = 0.0f;
+	codepoints.clear();
+	pressedKeys.clear();
 	glfwPollEvents();
 }
