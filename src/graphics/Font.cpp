@@ -2,7 +2,7 @@
 #include "Texture.h"
 #include "Batch2D.h"
 
-Font::Font(std::vector<Texture*> pages) : pages(pages) {
+Font::Font(std::vector<Texture*> pages, int lineHeight) : lineHeight_(lineHeight), pages(pages) {
 }
 
 Font::~Font(){
@@ -26,6 +26,9 @@ Font::~Font(){
 // 	return 7;
 // }
 
+int Font::lineHeight() const {
+	return lineHeight_;
+}
 
 bool Font::isPrintableChar(int c) {
 	switch (c){
@@ -41,6 +44,10 @@ bool Font::isPrintableChar(int c) {
 }
 
 #define RES 16
+
+int Font::calcWidth(std::wstring text) {
+	return text.length() * 8;
+}
 
 void Font::draw(Batch2D* batch, std::wstring text, int x, int y) {
 	draw(batch, text, x, y, STYLE_NONE);

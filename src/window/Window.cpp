@@ -1,6 +1,8 @@
 #include <iostream>
 #include "Window.h"
 #include "Events.h"
+
+#define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -167,4 +169,8 @@ void Window::swapInterval(int interval){
 void Window::swapBuffers(){
 	glfwSwapBuffers(window);
 	Window::resetScissor();
+}
+
+double Window::time() {
+	return glfwGetTime();
 }

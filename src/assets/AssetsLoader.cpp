@@ -68,7 +68,7 @@ bool _load_font(Assets* assets, const std::string& filename, const std::string& 
 		}
 		pages.push_back(texture);
 	}
-	Font* font = new Font(pages);
+	Font* font = new Font(pages, pages[0]->height / 16);
 	assets->store(font, name);
 	return true;
 }

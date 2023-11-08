@@ -2,10 +2,6 @@
 #include <cmath>
 #include <stdint.h>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 #include <memory>
 #include <vector>
 #include <ctime>
@@ -22,6 +18,7 @@
 #include "window/Window.h"
 #include "window/Events.h"
 #include "window/Camera.h"
+#include "window/input.h"
 #include "audio/Audio.h"
 #include "voxels/Chunk.h"
 #include "voxels/Chunks.h"
@@ -117,25 +114,22 @@ Engine::Engine(const EngineSettings& settings) {
 
 void Engine::updateTimers() {
 	frame++;
-	float currentTime = glfwGetTime();
+	float currentTime = Window::time();
 	delta = currentTime - lastTime;
 	lastTime = currentTime;
 }
 
 void Engine::updateHotkeys() {
-	if (Events::jpressed(GLFW_KEY_ESCAPE)) {
-		Window::setShouldClose(true);
-	}
-	if (Events::jpressed(GLFW_KEY_TAB) || Events::jpressed(GLFW_KEY_E)) {
+	if (Events::jpressed(keycode::TAB)) {
 		Events::toggleCursor();
 	}
-	if (Events::jpressed(GLFW_KEY_O)) {
+	if (Events::jpressed(keycode::O)) {
 		occlusion = !occlusion;
 	}
-	if (Events::jpressed(GLFW_KEY_F3)) {
+	if (Events::jpressed(keycode::F3)) {
 		level->player->debug = !level->player->debug;
 	}
-	if (Events::jpressed(GLFW_KEY_F5)) {
+	if (Events::jpressed(keycode::F5)) {
 		for (uint i = 0; i < level->chunks->volume; i++) {
 			shared_ptr<Chunk> chunk = level->chunks->chunks[i];
 			if (chunk != nullptr && chunk->isReady()) {
@@ -150,7 +144,7 @@ void Engine::mainloop() {
 	std::cout << "-- preparing systems" << std::endl;
 	WorldRenderer worldRenderer(level, assets);
 	HudRenderer hud(assets);
-	lastTime = glfwGetTime();
+	lastTime = Window::time();
 
 	Window::swapInterval(1);
 	while (!Window::isShouldClose()){

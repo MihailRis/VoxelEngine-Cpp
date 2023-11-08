@@ -29,6 +29,8 @@ public:
 	static void pushScissor(glm::vec4 area);
 	static void popScissor();
 	static void resetScissor();
+
+	static double time();
 };
 
 #endif /* WINDOW_WINDOW_H_ */
