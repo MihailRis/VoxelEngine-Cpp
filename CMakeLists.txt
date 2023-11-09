@@ -9,6 +9,7 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 if(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /W4)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /source-charset:UTF-8")
 else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -lstdc++fs
     # additional warnings
