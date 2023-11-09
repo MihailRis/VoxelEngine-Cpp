@@ -2,6 +2,7 @@
 #define FILES_WORLDFILES_H_
 
 #include <map>
+#include <string>
 #include <unordered_map>
 #include <string>
 
