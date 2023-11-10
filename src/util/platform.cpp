@@ -1,5 +1,12 @@
 #include "platform.h"
 
+#define SETTINGS_FILE "settings.json"
+
+
+std::string platform::get_settings_file() {
+	return SETTINGS_FILE;
+}
+
 #ifdef WIN32
 #include <Windows.h>
 
@@ -11,4 +18,5 @@ void platform::configure_encoding() {
 #else
 void platform::configure_encoding(){
 }
+
 #endif
