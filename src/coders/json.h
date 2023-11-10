@@ -72,6 +72,7 @@ namespace json {
 
         JArray& put(uint value);
         JArray& put(int value);
+        JArray& put(float value);
         JArray& put(number_t value);
         JArray& put(std::string value);
         JArray& put(JObject* value);
@@ -86,6 +87,7 @@ namespace json {
 
         void str(std::string key, std::string& dst) const;
         void num(std::string key, int& dst) const;
+        void num(std::string key, float& dst) const;
         void num(std::string key, uint& dst) const;
         void num(std::string key, number_t& dst) const;
         JObject* obj(std::string key) const;
@@ -94,6 +96,7 @@ namespace json {
 
         JObject& put(std::string key, uint value);
         JObject& put(std::string key, int value);
+        JObject& put(std::string key, float value);
         JObject& put(std::string key, number_t value);
         JObject& put(std::string key, std::string value);
         JObject& put(std::string key, JObject* value);
