@@ -23,7 +23,7 @@ class Framebuffer;
 
 
 class WorldRenderer {
-	Batch3D *batch3d;
+	Batch3D* batch3d;
 	Assets* assets;
 	Level* level;
 	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion);
@@ -34,7 +34,7 @@ public:
 	WorldRenderer(Level* level, Assets* assets);
 	~WorldRenderer();
 
-	void draw(Camera* camera, bool occlusion);
+	void draw(Camera* camera, bool occlusion, float fogFactor, float fogCurve);
 };
 
 

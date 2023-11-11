@@ -32,7 +32,7 @@ public:
 	      uint chunksPadding);
 	~Level();
 
-	void update(float delta, bool interactions);
+	void update(float delta, bool updatePlayer, bool interactions);
 };
 
 #endif /* WORLD_LEVEL_H_ */

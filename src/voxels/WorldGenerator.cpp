@@ -137,7 +137,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 				} else if (real_y < height){
 					id = BLOCK_DIRT;
 				} else {
-					int tree = generate_tree(&noise, &randomtree, heights, real_x, real_y, real_z, 23);
+					int tree = generate_tree(&noise, &randomtree, heights, real_x, real_y, real_z, 12);
 					if (tree) {
 						id = tree;
 						states = 0x32;

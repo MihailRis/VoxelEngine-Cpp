@@ -91,6 +91,8 @@ int Window::initialize(uint width, uint height, const char* title, int samples){
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Window::width = width;
@@ -103,6 +105,10 @@ int Window::initialize(uint width, uint height, const char* title, int samples){
 	glfwSetWindowSizeCallback(window, window_size_callback);
 	glfwSetCharCallback(window, character_callback);
 	return 0;
+}
+
+void Window::clear() {
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void Window::viewport(int x, int y, int width, int height){

@@ -24,9 +24,6 @@
 
 using std::shared_ptr;
 
-float _camera_cx;
-float _camera_cz;
-
 WorldRenderer::WorldRenderer(Level* level, Assets* assets) : assets(assets), level(level) {
 	lineBatch = new LineBatch(4096);
 	batch3d = new Batch3D(1024);
@@ -40,15 +37,6 @@ WorldRenderer::~WorldRenderer() {
 	delete batch3d;
 	delete lineBatch;
 	delete renderer;
-}
-
-Chunks* _chunks = nullptr;
-
-bool chunks_distance_compare(size_t i, size_t j) {
-	shared_ptr<Chunk> a = _chunks->chunks[i];
-	shared_ptr<Chunk> b = _chunks->chunks[j];
-	return ((a->x + 0.5f - _camera_cx)*(a->x + 0.5f - _camera_cx) + (a->z + 0.5f - _camera_cz)*(a->z + 0.5f - _camera_cz) >
-			(b->x + 0.5f - _camera_cx)*(b->x + 0.5f - _camera_cx) + (b->z + 0.5f - _camera_cz)*(b->z + 0.5f - _camera_cz));
 }
 
 bool WorldRenderer::drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion){
@@ -75,14 +63,12 @@ bool WorldRenderer::drawChunk(size_t index, Camera* camera, Shader* shader, bool
 	}
 	mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x*CHUNK_W, 0.0f, chunk->z*CHUNK_D+1));
 	shader->uniformMatrix("u_model", model);
-	glDisable(GL_MULTISAMPLE);
 	mesh->draw(GL_TRIANGLES);
-	glEnable(GL_MULTISAMPLE);
 	return false;
 }
 
 
-void WorldRenderer::draw(Camera* camera, bool occlusion){
+void WorldRenderer::draw(Camera* camera, bool occlusion, float fogFactor, float fogCurve){
 	Chunks* chunks = level->chunks;
 
 	vec4 skyColor(0.7f, 0.81f, 1.0f, 1.0f);
@@ -103,7 +89,8 @@ void WorldRenderer::draw(Camera* camera, bool occlusion){
 	shader->uniform1f("u_gamma", 1.6f);
 	shader->uniform3f("u_skyLightColor", 1.1f,1.1f,1.1f);
 	shader->uniform3f("u_fogColor", skyColor.r,skyColor.g,skyColor.b);
-	shader->uniform1f("u_fogFactor", 0.025f);
+	shader->uniform1f("u_fogFactor", fogFactor);
+	shader->uniform1f("u_fogCurve", fogCurve);
 	shader->uniform3f("u_cameraPos", camera->position.x,camera->position.y,camera->position.z);
 
 	Block* cblock = Block::blocks[level->player->choosenBlock];
@@ -112,7 +99,6 @@ void WorldRenderer::draw(Camera* camera, bool occlusion){
 			cblock->emission[1] / 15.0f,
 			cblock->emission[2] / 15.0f);
 	shader->uniform1f("u_torchlightDistance", 6.0f);
-	shader->uniform1f("u_fogFactor", 0.025f);
 	texture->bind();
 
 	std::vector<size_t> indices;
@@ -126,11 +112,12 @@ void WorldRenderer::draw(Camera* camera, bool occlusion){
 
 	float px = camera->position.x / (float)CHUNK_W;
 	float pz = camera->position.z / (float)CHUNK_D;
-
-	_camera_cx = px;
-	_camera_cz = pz;
-	_chunks = chunks;
-	std::sort(indices.begin(), indices.end(), chunks_distance_compare);
+	std::sort(indices.begin(), indices.end(), [this, chunks, px, pz](size_t i, size_t j) {
+		shared_ptr<Chunk> a = chunks->chunks[i];
+		shared_ptr<Chunk> b = chunks->chunks[j];
+		return ((a->x + 0.5f - px)*(a->x + 0.5f - px) + (a->z + 0.5f - pz)*(a->z + 0.5f - pz) >
+				(b->x + 0.5f - px)*(b->x + 0.5f - px) + (b->z + 0.5f - pz)*(b->z + 0.5f - pz));
+	});
 
 
 	int occludedChunks = 0;
@@ -161,9 +148,9 @@ void WorldRenderer::draw(Camera* camera, bool occlusion){
 		linesShader->use();
 		linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
 
-		vec3 point = vec3(camera->position.x+camera->front.x/1,
-						 camera->position.y+camera->front.y/1,
-						 camera->position.z+camera->front.z/1);
+		vec3 point = vec3(camera->position.x+camera->front.x,
+						  camera->position.y+camera->front.y,
+						  camera->position.z+camera->front.z);
 
 		glDisable(GL_DEPTH_TEST);
 

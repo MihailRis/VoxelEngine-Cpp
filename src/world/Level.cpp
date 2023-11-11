@@ -38,8 +38,8 @@ Level::~Level(){
 	delete playerController;
 }
 
-void Level::update(float delta, bool interactions) {
-	playerController->update_controls(delta);
+void Level::update(float delta, bool updatePlayer, bool interactions) {
+	playerController->update_controls(delta, updatePlayer);
 	if (interactions) {
 		playerController->update_interaction();
 	}

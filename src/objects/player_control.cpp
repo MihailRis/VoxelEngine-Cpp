@@ -32,7 +32,7 @@
 PlayerController::PlayerController(Level* level) : level(level) {
 }
 
-void PlayerController::update_controls(float delta){
+void PlayerController::update_controls(float delta, bool movement){
 	Player* player = level->player;
 
 	/*block choose*/{
@@ -45,10 +45,10 @@ void PlayerController::update_controls(float delta){
 
 	Camera* camera = player->camera;
 	Hitbox* hitbox = player->hitbox;
-	bool sprint = Events::pressed(keycode::LEFT_CONTROL);
-	bool shift = Events::pressed(keycode::LEFT_SHIFT) && hitbox->grounded && !sprint;
-	bool zoom = Events::pressed(keycode::C);
-	bool cheat = Events::pressed(keycode::R);
+	bool sprint = Events::pressed(keycode::LEFT_CONTROL) && movement;
+	bool shift = Events::pressed(keycode::LEFT_SHIFT) && hitbox->grounded && !sprint && movement;
+	bool zoom = Events::pressed(keycode::C) && movement;
+	bool cheat = Events::pressed(keycode::R) && movement;
 
 	float speed = player->speed;
 	if (player->flight){
@@ -59,7 +59,8 @@ void PlayerController::update_controls(float delta){
 	}
 	int substeps = (int)(delta * 1000);
 	substeps = (substeps <= 0 ? 1 : (substeps > 100 ? 100 : substeps));
-	level->physics->step(level->chunks, hitbox, delta, substeps, shift, player->flight ? 0.0f : 1.0f, !player->noclip);
+	if (movement)
+		level->physics->step(level->chunks, hitbox, delta, substeps, shift, player->flight ? 0.0f : 1.0f, !player->noclip);
 	camera->position.x = hitbox->position.x;
 	camera->position.y = hitbox->position.y + 0.7f;
 	camera->position.z = hitbox->position.z;
@@ -81,14 +82,14 @@ void PlayerController::update_controls(float delta){
 		camera->position -= min(player->interpVel * 0.05f, 1.0f);
 	}//end
 
-	if ((Events::jpressed(keycode::F) && !player->noclip) ||
-		(Events::jpressed(keycode::N) && player->flight == player->noclip)){
+	if ((Events::jpressed(keycode::F) && movement && !player->noclip) ||
+		(Events::jpressed(keycode::N) && movement && player->flight == player->noclip)){
 		player->flight = !player->flight;
 		if (player->flight){
 			hitbox->grounded = false;
 		}
 	}
-	if (Events::jpressed(keycode::N)) {
+	if (Events::jpressed(keycode::N) && movement) {
 		player->noclip = !player->noclip;
 	}
 
@@ -108,23 +109,23 @@ void PlayerController::update_controls(float delta){
 		camera->zoom = zoomValue * dt + camera->zoom * (1.0f - dt);
 	}//end
 
-	if (Events::pressed(keycode::SPACE) && hitbox->grounded){
+	if (Events::pressed(keycode::SPACE) && movement && hitbox->grounded){
 		hitbox->velocity.y = JUMP_FORCE;
 	}
 	vec3 dir(0,0,0);
-	if (Events::pressed(keycode::W)){
+	if (Events::pressed(keycode::W) && movement){
 		dir.x += camera->dir.x;
 		dir.z += camera->dir.z;
 	}
-	if (Events::pressed(keycode::S)){
+	if (Events::pressed(keycode::S) && movement){
 		dir.x -= camera->dir.x;
 		dir.z -= camera->dir.z;
 	}
-	if (Events::pressed(keycode::D)){
+	if (Events::pressed(keycode::D) && movement){
 		dir.x += camera->right.x;
 		dir.z += camera->right.z;
 	}
-	if (Events::pressed(keycode::A)){
+	if (Events::pressed(keycode::A) && movement){
 		dir.x -= camera->right.x;
 		dir.z -= camera->right.z;
 	}
@@ -133,10 +134,10 @@ void PlayerController::update_controls(float delta){
 	if (player->flight){
 		hitbox->linear_damping = PLAYER_AIR_DAMPING;
 		hitbox->velocity.y *= 1.0f - delta * 9;
-		if (Events::pressed(keycode::SPACE)){
+		if (Events::pressed(keycode::SPACE) && movement){
 			hitbox->velocity.y += speed * delta * 9;
 		}
-		if (Events::pressed(keycode::LEFT_SHIFT)){
+		if (Events::pressed(keycode::LEFT_SHIFT) && movement){
 			hitbox->velocity.y -= speed * delta * 9;
 		}
 	}

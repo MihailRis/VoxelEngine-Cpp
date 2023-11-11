@@ -72,6 +72,7 @@ void setup_definitions() {
 	block->lightPassing = true;
 	block->obstacle = false;
 	block->model = 2;
+	block->hitboxScale = 0.5f;
 	Block::blocks[block->id] = block;
 
 	block = new Block(BLOCK_FLOWER, 16);

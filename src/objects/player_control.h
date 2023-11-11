@@ -14,7 +14,7 @@ public:
 	glm::vec3 selectedBlockPosition;
 	int selectedBlockId = -1;
 	PlayerController(Level* level);
-	void update_controls(float delta);
+	void update_controls(float delta, bool movement);
 	void update_interaction();
 };
 

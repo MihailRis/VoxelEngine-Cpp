@@ -28,7 +28,6 @@ public:
 	bool breakable = true;
 	bool rotatable = false;
 	float hitboxScale = 1;
-	float hitboxY = 1;
 
 	Block(unsigned int id, int texture);
 };
