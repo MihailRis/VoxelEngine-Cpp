@@ -36,10 +36,10 @@ void World::write(Level* level) {
 	wfile->writePlayer(level->player);
 }
 
-Level* World::loadLevel(Player* player, uint loadDistance, uint chunksPadding) {
+Level* World::loadLevel(Player* player, EngineSettings& settings) {
 	ChunksStorage* storage = new ChunksStorage();
 	LevelEvents* events = new LevelEvents();
-	Level* level = new Level(this, player, storage, events, loadDistance, chunksPadding);
+	Level* level = new Level(this, player, storage, events, settings);
 	wfile->readPlayer(player);
 
 	Camera* camera = player->camera;

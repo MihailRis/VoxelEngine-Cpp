@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <glm/glm.hpp>
+#include <functional>
 
 class Batch2D;
 class Assets;
@@ -43,11 +44,19 @@ namespace gui {
     class UINode;
     class Container;
 
+    typedef std::function<void()> ontimeout;
+    struct IntervalEvent {
+        ontimeout callback;
+        float interval;
+        float timer;
+    };
+
     class GUI {
         Container* container;
         std::shared_ptr<UINode> hover = nullptr;
         std::shared_ptr<UINode> pressed = nullptr;
         std::shared_ptr<UINode> focus = nullptr;
+        std::vector<IntervalEvent> intervalEvents;
     public:
         GUI();
         ~GUI();
@@ -55,9 +64,11 @@ namespace gui {
         std::shared_ptr<UINode> getFocused() const;
         bool isFocusCaught() const;
 
-        void act();
+        void act(float delta);
         void draw(Batch2D* batch, Assets* assets);
         void add(std::shared_ptr<UINode> panel);
+
+        void interval(float interval, ontimeout callback);
     };
 }
 

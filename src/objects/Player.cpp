@@ -17,3 +17,7 @@ Player::Player(glm::vec3 position, float speed, Camera* camera) :
 Player::~Player(){
 	delete hitbox;
 }
+
+void Player::teleport(glm::vec3 position) {
+	hitbox->position = position;
+}

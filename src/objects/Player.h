@@ -26,6 +26,8 @@ public:
 	voxel selectedVoxel {0, 0};
 	Player(glm::vec3 position, float speed, Camera* camera);
 	~Player();
+
+	void teleport(glm::vec3 position);
 };
 
 #endif /* SRC_OBJECTS_PLAYER_H_ */

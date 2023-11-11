@@ -140,7 +140,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 					int tree = generate_tree(&noise, &randomtree, heights, real_x, real_y, real_z, 12);
 					if (tree) {
 						id = tree;
-						states = 0x32;
+						states = BLOCK_DIR_Y;
 					// } else if ((tree = generate_tree(&noise, &randomtree, heights, real_x, real_y, real_z, 19))){
 					// 	id = tree;
 					// } else if ((tree = generate_tree(&noise, &randomtree, heights, real_x, real_y, real_z, 23))){
@@ -162,7 +162,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 				}
 				if ((height > 56) && ((int)(height + 1) == real_y) && ((unsigned short)randomgrass.rand() > 65533)){
 					id = BLOCK_WOOD;
-					states = 0x32;
+					states = BLOCK_DIR_Y;
 				}
 				voxels[(y * CHUNK_D + z) * CHUNK_W + x].id = id;
 				voxels[(y * CHUNK_D + z) * CHUNK_W + x].states = states;

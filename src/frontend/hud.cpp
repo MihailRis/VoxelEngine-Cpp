@@ -34,12 +34,7 @@ using std::shared_ptr;
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
-using gui::GUI;
-using gui::UINode;
-using gui::Panel;
-using gui::Label;
-using gui::Button;
-using gui::TextBox;
+using namespace gui;
 
 inline Label* create_label(gui::wstringsupplier supplier) {
 	Label* label = new Label(L"-");
@@ -49,10 +44,15 @@ inline Label* create_label(gui::wstringsupplier supplier) {
 
 HudRenderer::HudRenderer(GUI* gui, Level* level, Assets* assets) : level(level), assets(assets), guiController(gui) {
 	batch = new Batch2D(1024);
-	uicamera = new Camera(glm::vec3(), Window::height);
+	uicamera = new Camera(vec3(), Window::height);
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 
+	gui->interval(1.0f, [this]() {
+		fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
+		fpsMin = fps;
+		fpsMax = fps;
+	});
 	Panel* panel = new Panel(vec2(200, 200), vec4(5.0f), 1.0f);
 	panel->setCoord(vec2(10, 10));
 	panel->add(shared_ptr<Label>(create_label([this](){
@@ -74,11 +74,14 @@ HudRenderer::HudRenderer(GUI* gui, Level* level, Assets* assets) : level(level),
 	})));
 	for (int ax = 0; ax < 3; ax++){
 		Panel* sub = new Panel(vec2(10, 27), vec4(0.0f));
-		sub->orientation(gui::Orientation::horizontal);
+		sub->orientation(Orientation::horizontal);
+
 		Label* label = new Label(wstring({L'x'+ax})+L": ");
 		label->margin(vec4(2, 3, 2, 3));
 		sub->add(shared_ptr<UINode>(label));
 		sub->color(vec4(0.0f));
+
+		// Coordinate input
 		TextBox* box = new TextBox(L"");
 		box->textSupplier([this, ax]() {
 			Hitbox* hitbox = this->level->player->hitbox;
@@ -86,7 +89,9 @@ HudRenderer::HudRenderer(GUI* gui, Level* level, Assets* assets) : level(level),
 		});
 		box->textConsumer([this, ax](wstring text) {
 			try {
-				this->level->player->hitbox->position[ax] = std::stoi(text);
+				vec3 position = this->level->player->hitbox->position;
+				position[ax] = std::stoi(text);
+				this->level->player->teleport(position);
 			} catch (std::invalid_argument& _){
 			}
 		});
@@ -125,12 +130,7 @@ HudRenderer::~HudRenderer() {
 
 void HudRenderer::drawDebug(int fps, bool occlusion){
 	this->occlusion = occlusion;
-	if (fpsFrame % 60 == 0) {
-		fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
-		fpsMin = fps;
-		fpsMax = fps;
-	}
-	fpsFrame++;
+	this->fps = fps;
 	fpsMin = min(fps, fpsMin);
 	fpsMax = max(fps, fpsMax);
 }
@@ -240,6 +240,7 @@ void HudRenderer::draw(){
 		batch->line(width/2-5, height/2-5, width/2+5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
 		batch->line(width/2+5, height/2-5, width/2-5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
 	}
+	Player* player = level->player;
 
 	batch->rect(Window::width/2-128-4, Window::height-80-4, 256+8, 64+8,
 						0.95f, 0.95f, 0.95f, 0.85f, 0.85f, 0.85f,
@@ -259,7 +260,7 @@ void HudRenderer::draw(){
 						0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 2);
 
 	batch->texture(blocks);
-	Player* player = level->player;
+
 	{
 		Block* cblock = Block::blocks[player->choosenBlock];
 		if (cblock->model == BLOCK_MODEL_CUBE){
@@ -295,4 +296,12 @@ void HudRenderer::draw(){
         drawInventory(player);
 	}
 	batch->render();
+}
+
+bool HudRenderer::isInventoryOpen() const {
+	return inventoryOpen;
+}
+
+bool HudRenderer::isPause() const {
+	return pause;
 }

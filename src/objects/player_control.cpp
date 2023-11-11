@@ -29,46 +29,100 @@
 #define CHEAT_SPEED_MUL 5.0f
 #define JUMP_FORCE 7.0f
 
-PlayerController::PlayerController(Level* level) : level(level) {
+PlayerController::PlayerController(Level* level, const EngineSettings& settings) 
+	: level(level), player(level->player), camSettings(settings.camera) {
 }
 
-void PlayerController::update_controls(float delta, bool movement){
-	Player* player = level->player;
+void PlayerController::refreshCamera() {
+	level->player->camera->position = level->player->hitbox->position + cameraOffset;
+}
 
-	/*block choose*/{
-		for (int i = 1; i < 10; i++){
-			if (Events::jpressed(keycode::NUM_0+i)){
-				player->choosenBlock = i;
-			}
+void PlayerController::updateKeyboard() {
+	input.zoom = Events::pressed(keycode::C);
+	input.moveForward = Events::pressed(keycode::W);
+	input.moveBack = Events::pressed(keycode::S);
+	input.moveLeft = Events::pressed(keycode::A);
+	input.moveRight = Events::pressed(keycode::D);
+	input.sprint = Events::pressed(keycode::LEFT_CONTROL);
+	input.shift = Events::pressed(keycode::LEFT_SHIFT);
+	input.cheat = Events::pressed(keycode::R);
+	input.jump = Events::pressed(keycode::SPACE);
+
+	input.noclip = Events::jpressed(keycode::N);
+	input.flight = Events::jpressed(keycode::F);
+
+	// block choice
+	for (int i = 1; i < 10; i++){
+		if (Events::jpressed(keycode::NUM_0+i)){
+			player->choosenBlock = i;
 		}
-	}//end
+	}
+}
 
+void PlayerController::resetKeyboard() {
+	input.zoom = false;
+	input.moveForward = false;
+	input.moveBack = false;
+	input.moveLeft = false;
+	input.moveRight = false;
+	input.sprint = false;
+	input.shift = false;
+	input.cheat = false;
+	input.jump = false;
+}
+
+void PlayerController::updateControls(float delta){
+	Player* player = level->player;
 	Camera* camera = player->camera;
 	Hitbox* hitbox = player->hitbox;
-	bool sprint = Events::pressed(keycode::LEFT_CONTROL) && movement;
-	bool shift = Events::pressed(keycode::LEFT_SHIFT) && hitbox->grounded && !sprint && movement;
-	bool zoom = Events::pressed(keycode::C) && movement;
-	bool cheat = Events::pressed(keycode::R) && movement;
 
+	bool crouch = input.shift && hitbox->grounded && !input.sprint;
 	float speed = player->speed;
+
 	if (player->flight){
 		speed *= FLIGHT_SPEED_MUL;
 	}
-	if (cheat){
+	if (input.cheat){
 		speed *= CHEAT_SPEED_MUL;
 	}
+
+	vec3 dir(0,0,0);
+	if (input.moveForward){
+		dir.x += camera->dir.x;
+		dir.z += camera->dir.z;
+	}
+	if (input.moveBack){
+		dir.x -= camera->dir.x;
+		dir.z -= camera->dir.z;
+	}
+	if (input.moveRight){
+		dir.x += camera->right.x;
+		dir.z += camera->right.z;
+	}
+	if (input.moveLeft){
+		dir.x -= camera->right.x;
+		dir.z -= camera->right.z;
+	}
+	if (length(dir) > 0.0f){
+		dir = normalize(dir);
+		hitbox->velocity.x += dir.x * speed * delta * 9;
+		hitbox->velocity.z += dir.z * speed * delta * 9;
+	}
+
 	int substeps = (int)(delta * 1000);
 	substeps = (substeps <= 0 ? 1 : (substeps > 100 ? 100 : substeps));
-	if (movement)
-		level->physics->step(level->chunks, hitbox, delta, substeps, shift, player->flight ? 0.0f : 1.0f, !player->noclip);
-	camera->position.x = hitbox->position.x;
-	camera->position.y = hitbox->position.y + 0.7f;
-	camera->position.z = hitbox->position.z;
-
-	if (player->flight && hitbox->grounded)
+	level->physics->step(level->chunks, hitbox, delta, substeps, crouch, player->flight ? 0.0f : 1.0f, !player->noclip);
+	if (player->flight && hitbox->grounded) {
 		player->flight = false;
-	
-	/*camera shaking*/{
+	}
+
+	if (input.jump && hitbox->grounded){
+		hitbox->velocity.y = JUMP_FORCE;
+	}
+
+	cameraOffset = vec3(0.0f, 0.7f, 0.0f);
+
+	if (camSettings.shaking) {
 		player->interpVel = player->interpVel * (1.0f - delta * 5) + hitbox->velocity * delta * 0.1f;
 		if (hitbox->grounded && player->interpVel.y < 0.0f){
 			player->interpVel.y *= -30.0f;
@@ -77,104 +131,80 @@ void PlayerController::update_controls(float delta, bool movement){
 		player->cameraShakingTimer += delta * factor * CAMERA_SHAKING_SPEED;
 		float shakeTimer = player->cameraShakingTimer;
 		player->cameraShaking = player->cameraShaking * (1.0f - delta * CAMERA_SHAKING_DELTA_K) + factor * delta * CAMERA_SHAKING_DELTA_K;
-		camera->position += camera->right * sin(shakeTimer) * CAMERA_SHAKING_OFFSET * player->cameraShaking;
-		camera->position += camera->up * abs(cos(shakeTimer)) * CAMERA_SHAKING_OFFSET_Y * player->cameraShaking;
-		camera->position -= min(player->interpVel * 0.05f, 1.0f);
-	}//end
+		cameraOffset += camera->right * sin(shakeTimer) * CAMERA_SHAKING_OFFSET * player->cameraShaking;
+		cameraOffset += camera->up * abs(cos(shakeTimer)) * CAMERA_SHAKING_OFFSET_Y * player->cameraShaking;
+		cameraOffset -= min(player->interpVel * 0.05f, 1.0f);
+	}
 
-	if ((Events::jpressed(keycode::F) && movement && !player->noclip) ||
-		(Events::jpressed(keycode::N) && movement && player->flight == player->noclip)){
+	if ((input.flight && !player->noclip) ||
+		(input.noclip && player->flight == player->noclip)){
 		player->flight = !player->flight;
 		if (player->flight){
 			hitbox->grounded = false;
 		}
 	}
-	if (Events::jpressed(keycode::N) && movement) {
+	if (input.noclip) {
 		player->noclip = !player->noclip;
 	}
 
-	/*field of view manipulations*/{
+	if (camSettings.fovEvents){
 		float dt = min(1.0f, delta * ZOOM_SPEED);
 		float zoomValue = 1.0f;
-		if (shift){
+		if (crouch){
 			speed *= CROUCH_SPEED_MUL;
-			camera->position.y += CROUCH_SHIFT_Y;
+			cameraOffset += CROUCH_SHIFT_Y;
 			zoomValue = CROUCH_ZOOM;
-		} else if (sprint){
+		} else if (input.sprint){
 			speed *= RUN_SPEED_MUL;
 			zoomValue = RUN_ZOOM;
 		}
-		if (zoom)
+		if (input.zoom)
 			zoomValue *= C_ZOOM;
 		camera->zoom = zoomValue * dt + camera->zoom * (1.0f - dt);
-	}//end
-
-	if (Events::pressed(keycode::SPACE) && movement && hitbox->grounded){
-		hitbox->velocity.y = JUMP_FORCE;
-	}
-	vec3 dir(0,0,0);
-	if (Events::pressed(keycode::W) && movement){
-		dir.x += camera->dir.x;
-		dir.z += camera->dir.z;
-	}
-	if (Events::pressed(keycode::S) && movement){
-		dir.x -= camera->dir.x;
-		dir.z -= camera->dir.z;
-	}
-	if (Events::pressed(keycode::D) && movement){
-		dir.x += camera->right.x;
-		dir.z += camera->right.z;
-	}
-	if (Events::pressed(keycode::A) && movement){
-		dir.x -= camera->right.x;
-		dir.z -= camera->right.z;
 	}
 
 	hitbox->linear_damping = PLAYER_GROUND_DAMPING;
 	if (player->flight){
 		hitbox->linear_damping = PLAYER_AIR_DAMPING;
 		hitbox->velocity.y *= 1.0f - delta * 9;
-		if (Events::pressed(keycode::SPACE) && movement){
+		if (input.jump){
 			hitbox->velocity.y += speed * delta * 9;
 		}
-		if (Events::pressed(keycode::LEFT_SHIFT) && movement){
+		if (input.shift){
 			hitbox->velocity.y -= speed * delta * 9;
 		}
 	}
-	if (!hitbox->grounded)
+	if (!hitbox->grounded) {
 		hitbox->linear_damping = PLAYER_AIR_DAMPING;
-	if (length(dir) > 0.0f){
-		dir = normalize(dir);
-		hitbox->velocity.x += dir.x * speed * delta * 9;
-		hitbox->velocity.z += dir.z * speed * delta * 9;
 	}
 
-
-	/*camera rotate*/{
-		if (Events::_cursor_locked){
-			float rotX = -Events::deltaX / Window::height * 2;
-			float rotY = -Events::deltaY / Window::height * 2;
-			if (zoom){
-				rotX /= 4;
-				rotY /= 4;
-			}
-			player->camX += rotX;
-			player->camY += rotY;
-
-			if (player->camY < -radians(89.9f)){
-				player->camY = -radians(89.9f);
-			}
-			if (player->camY > radians(89.9f)){
-				player->camY = radians(89.9f);
-			}
-
-			camera->rotation = mat4(1.0f);
-			camera->rotate(player->camY, player->camX, 0);
-		}
-	}//end
+	input.noclip = false;
+	input.flight = false;
 }
 
-void PlayerController::update_interaction(){
+void PlayerController::updateCameraControl() {
+	Camera* camera = player->camera;
+	float rotX = -Events::deltaX / Window::height * 2;
+	float rotY = -Events::deltaY / Window::height * 2;
+	if (input.zoom){
+		rotX /= 4;
+		rotY /= 4;
+	}
+	player->camX += rotX;
+	player->camY += rotY;
+
+	if (player->camY < -radians(89.9f)){
+		player->camY = -radians(89.9f);
+	}
+	if (player->camY > radians(89.9f)){
+		player->camY = radians(89.9f);
+	}
+
+	camera->rotation = mat4(1.0f);
+	camera->rotate(player->camY, player->camX, 0);
+}
+
+void PlayerController::updateInteraction(){
 	Chunks* chunks = level->chunks;
 	Player* player = level->player;
 	Lighting* lighting = level->lighting;
@@ -193,22 +223,13 @@ void PlayerController::update_interaction(){
 		uint8_t states = 0;
 
 		if (Block::blocks[player->choosenBlock]->rotatable){
-			// states = states & 0b11111100;
-			// if (abs(norm.x) > abs(norm.z)){
-			// 	if (abs(norm.x) > abs(norm.y)) states = states | 0b00000001;
-			// 	if (abs(norm.x) < abs(norm.y)) states = states | 0b00000010;
-			// }
-			// if (abs(norm.x) < abs(norm.z)){
-			// 	if (abs(norm.z) > abs(norm.y)) states = states | 0b00000011;
-			// 	if (abs(norm.z) < abs(norm.y)) states = states | 0b00000010;
-			// }
 			if (abs(norm.x) > abs(norm.z)){
-				if (abs(norm.x) > abs(norm.y)) states = 0x31;
-				if (abs(norm.x) < abs(norm.y)) states = 0x32;
+				if (abs(norm.x) > abs(norm.y)) states = BLOCK_DIR_X;
+				if (abs(norm.x) < abs(norm.y)) states = BLOCK_DIR_Y;
 			}
 			if (abs(norm.x) < abs(norm.z)){
-				if (abs(norm.z) > abs(norm.y)) states = 0x33;
-				if (abs(norm.z) < abs(norm.y)) states = 0x32;
+				if (abs(norm.z) > abs(norm.y)) states = BLOCK_DIR_Z;
+				if (abs(norm.z) < abs(norm.y)) states = BLOCK_DIR_Y;
 			}
 		}
 		

@@ -21,9 +21,9 @@ class HudRenderer {
 	Batch2D* batch;
 	Camera* uicamera;
 
+	int fps = 60;
 	int fpsMin = 60;
 	int fpsMax = 60;
-	int fpsFrame = 0;
 	std::wstring fpsString;
 	bool occlusion;
 	bool inventoryOpen = false;
@@ -38,6 +38,9 @@ public:
 	void drawInventory(Player* player);
 	void draw();
 	void drawDebug(int fps, bool occlusion);
+
+	bool isInventoryOpen() const;
+	bool isPause() const;
 };
 
 #endif /* SRC_HUD_H_ */

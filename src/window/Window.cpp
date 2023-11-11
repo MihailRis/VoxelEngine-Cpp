@@ -64,15 +64,18 @@ void character_callback(GLFWwindow* window, unsigned int codepoint){
 }
 
 
-int Window::initialize(uint width, uint height, const char* title, int samples){
+int Window::initialize(DisplaySettings& settings){
+	Window::width = settings.width;
+	Window::height = settings.height;
+
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-	glfwWindowHint(GLFW_SAMPLES, samples);
+	glfwWindowHint(GLFW_SAMPLES, settings.samples);
 
-	window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+	window = glfwCreateWindow(width, height, settings.title, nullptr, nullptr);
 	if (window == nullptr){
 		std::cerr << "Failed to create GLFW Window" << std::endl;
 		glfwTerminate();
@@ -95,15 +98,14 @@ int Window::initialize(uint width, uint height, const char* title, int samples){
 	glDisable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Window::width = width;
-	Window::height = height;
-
 	Events::initialize();
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 	glfwSetWindowSizeCallback(window, window_size_callback);
 	glfwSetCharCallback(window, character_callback);
+
+	glfwSwapInterval(settings.swapInterval);
 	return 0;
 }
 

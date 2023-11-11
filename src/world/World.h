@@ -3,6 +3,7 @@
 
 #include <string>
 #include "../typedefs.h"
+#include "../settings.h"
 
 class WorldFiles;
 class Chunks;
@@ -19,7 +20,7 @@ public:
 	~World();
 
 	void write(Level* level);
-	Level* loadLevel(Player* player, uint loadDistance, uint chunksPadding);
+	Level* loadLevel(Player* player, EngineSettings& settings);
 };
 
 #endif /* WORLD_WORLD_H_ */

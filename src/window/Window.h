@@ -2,6 +2,8 @@
 #define WINDOW_WINDOW_H_
 
 #include "../typedefs.h"
+#include "../settings.h"
+
 #include <stack>
 #include <vector>
 
@@ -16,7 +18,7 @@ class Window {
 public:
 	static uint width;
 	static uint height;
-	static int initialize(uint width, uint height, const char* title, int samples);
+	static int initialize(DisplaySettings& settings);
 	static void terminate();
 
 	static void viewport(int x, int y, int width, int height);

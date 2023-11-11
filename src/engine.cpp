@@ -30,40 +30,12 @@ using std::shared_ptr;
 using glm::vec3;
 using gui::GUI;
 
-void load_settings(EngineSettings& settings, std::string filename) {
-	std::string source = files::read_string(filename);
-	std::unique_ptr<json::JObject> obj(json::parse(filename, source));
-	obj->num("display-width", settings.displayWidth);
-	obj->num("display-height", settings.displayHeight);
-	obj->num("display-samples", settings.displaySamples);
-	obj->num("display-swap-interval", settings.displaySwapInterval);
-	obj->num("chunks-load-distance", settings.chunksLoadDistance);
-	obj->num("chunks-load-speed", settings.chunksLoadSpeed);
-	obj->num("chunks-padding", settings.chunksPadding);
-	obj->num("fog-curve", settings.fogCurve);
-}
 
-void save_settings(EngineSettings& settings, std::string filename) {
-	json::JObject obj;
-	obj.put("display-width", settings.displayWidth);
-	obj.put("display-height", settings.displayHeight);
-	obj.put("display-samples", settings.displaySamples);
-	obj.put("display-swap-interval", settings.displaySwapInterval);
-	obj.put("chunks-load-distance", settings.chunksLoadDistance);
-	obj.put("chunks-load-speed", settings.chunksLoadSpeed);
-	obj.put("chunks-padding", settings.chunksPadding);
-	obj.put("fog-curve", settings.fogCurve);
-	files::write_string(filename, json::stringify(&obj, true, "  "));
-}
 
-Engine::Engine(const EngineSettings& settings) {
-    this->settings = settings;
+Engine::Engine(const EngineSettings& settings_) {
+    this->settings = settings_;
     
-	Window::initialize(settings.displayWidth, 
-	                   settings.displayHeight, 
-	                   settings.displayTitle, 
-	                   settings.displaySamples);
-	Window::swapInterval(settings.displaySwapInterval);
+	Window::initialize(settings.display);
 
 	assets = new Assets();
 	std::cout << "-- loading assets" << std::endl;
@@ -82,7 +54,7 @@ Engine::Engine(const EngineSettings& settings) {
 	Camera* camera = new Camera(playerPosition, radians(90.0f));
 	World* world = new World("world-1", "world/", 42);
 	Player* player = new Player(playerPosition, 4.0f, camera);
-	level = world->loadLevel(player, settings.chunksLoadDistance, settings.chunksPadding);
+	level = world->loadLevel(player, settings);
 
 	std::cout << "-- initializing finished" << std::endl;
 
@@ -116,8 +88,9 @@ void Engine::updateHotkeys() {
 }
 
 void Engine::mainloop() {
-	Camera* camera = level->player->camera;
 	std::cout << "-- preparing systems" << std::endl;
+	
+	Camera* camera = level->player->camera;
 	WorldRenderer worldRenderer(level, assets);
 	HudRenderer hud(gui, level, assets);
 	Batch2D batch(1024);
@@ -127,15 +100,18 @@ void Engine::mainloop() {
 		updateTimers();
 		updateHotkeys();
 
-		level->update(delta, Events::_cursor_locked, Events::_cursor_locked);
-		level->chunksController->update(settings.chunksLoadSpeed);
+		bool inputLocked = hud.isPause() || hud.isInventoryOpen() || gui->isFocusCaught();
+		level->updatePlayer(delta, !inputLocked, hud.isPause(), !inputLocked);
+		level->update();
+		level->chunksController->update(settings.chunks.loadSpeed);
 
-		worldRenderer.draw(camera, occlusion, 1.6f / (float)settings.chunksLoadDistance, settings.fogCurve);
+		float fovFactor = 1.6f / (float)settings.chunks.loadDistance;
+		worldRenderer.draw(camera, occlusion, fovFactor, settings.fogCurve);
 		hud.draw();
 		if (level->player->debug) {
 			hud.drawDebug( 1 / delta, occlusion);
 		}
-		gui->act();
+		gui->act(delta);
 		gui->draw(&batch, assets);
 
 		Window::swapBuffers();

@@ -2,6 +2,7 @@
 #define WORLD_LEVEL_H_
 
 #include "../typedefs.h"
+#include "../settings.h"
 
 class World;
 class Player;
@@ -24,15 +25,20 @@ public:
 	ChunksController* chunksController;
 	PlayerController* playerController;
 	LevelEvents* events;
+
 	Level(World* world, 
 	      Player* player, 
 	      ChunksStorage* chunksStorage,
 	      LevelEvents* events,
-	      uint loadDistance,
-	      uint chunksPadding);
+	      EngineSettings& settings);
 	~Level();
 
-	void update(float delta, bool updatePlayer, bool interactions);
+	void updatePlayer(float delta, 
+					  bool input, 
+					  bool pause, 
+					  bool interactions);
+
+	void update();
 };
 
 #endif /* WORLD_LEVEL_H_ */
