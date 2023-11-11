@@ -3,7 +3,7 @@
 [EXE for windows (old version)](https://drive.google.com/file/d/1lkFc5nyYOs0Yyu1wmOoAAwEp4r9jO1tE/view?usp=sharing)<br>
 
 # Controls:
-- <kbd>**Escape**</kbd> - pause
+- <kbd>**Esc**</kbd> - pause
 - <kbd>**Tab**</kbd> - open inventory
 - <kbd>**W**</kbd> <kbd>**A**</kbd> <kbd>**S**</kbd> <kbd>**D**</kbd> - movement
 - <kbd>**Space**</kbd> - jump
