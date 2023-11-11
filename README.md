@@ -11,7 +11,6 @@
 - <kbd>**RMB**</kbd> - place block
 - <kbd>**F**</kbd> - toggle flight mode
 - <kbd>**N**</kbd> - noclip mode
-- <kbd>**Esc**</kbd> - exit
 
 #### Build with CMake
 ```sh
