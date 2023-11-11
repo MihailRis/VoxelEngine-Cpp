@@ -16,6 +16,7 @@
 #include <memory>
 #include <fstream>
 #include <iostream>
+#include <filesystem>
 
 #define SECTION_POSITION 1
 #define SECTION_ROTATION 2
@@ -195,6 +196,9 @@ ubyte* WorldFiles::readChunkData(int x, int y, uint32_t& length){
 }
 
 void WorldFiles::write(){
+	if (!std::filesystem::is_directory(directory)) {
+		std::filesystem::create_directory(directory);
+	}
 	for (auto it = regions.begin(); it != regions.end(); it++){
 		if (it->second.chunksData == nullptr || !it->second.unsaved)
 			continue;
