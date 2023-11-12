@@ -107,8 +107,8 @@ void BlocksRenderer::cube(vec3 coord, vec3 size, const UVRegion texfaces[6]) {
 	face(coord + vec3(size.x, 0, 0), size.z, size.y, vec3(0, 0, -1), vec3(0, 1, 0), texfaces[5], lights);
 }
 
-constexpr vec4 do_tint(float value) {
-	return vec4(value, value, value, 1.0f);
+inline vec4 do_tint(float value) {
+	return vec4(value);
 }
 
 void BlocksRenderer::blockCube(int x, int y, int z, vec3 size, const UVRegion texfaces[6], ubyte group) {
