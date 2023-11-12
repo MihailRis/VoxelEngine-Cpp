@@ -133,4 +133,5 @@ Engine::~Engine() {
 	std::cout << "-- shutting down" << std::endl;
 	delete assets;
 	Window::terminate();
+	std::cout << "-- engine finished" << std::endl;
 }
