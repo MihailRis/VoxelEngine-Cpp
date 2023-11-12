@@ -13,7 +13,7 @@
 #ifdef LIBPNG
 #include <png.h>
 
-ImageData* _png_load(const char* file, int* width, int* height){
+ImageData* _png_load(const char* file){
     FILE *f;
     int is_png, bit_depth, color_type, row_bytes;
     png_infop info_ptr, end_info;
@@ -61,8 +61,6 @@ ImageData* _png_load(const char* file, int* width, int* height){
     png_read_info( png_ptr, info_ptr );
     png_get_IHDR( png_ptr, info_ptr, &t_width, &t_height, &bit_depth,
         &color_type, NULL, NULL, NULL );
-    *width = t_width;
-    *height = t_height;
     png_read_update_info( png_ptr, info_ptr );
     row_bytes = png_get_rowbytes( png_ptr, info_ptr );
     image_data = new png_byte[row_bytes * t_height];
@@ -97,7 +95,7 @@ ImageData* _png_load(const char* file, int* width, int* height){
             png_destroy_read_struct( &png_ptr, &info_ptr, &end_info );
             return nullptr;
     }
-    ImageData* image = new ImageData(format, *width, *height, (void*)image_data);
+    ImageData* image = new ImageData(format, t_width, t_height, (void*)image_data);
     png_destroy_read_struct( &png_ptr, &info_ptr, &end_info );
     free( row_pointers );
     fclose( f );
@@ -108,7 +106,7 @@ ImageData* _png_load(const char* file, int* width, int* height){
 #include <stdio.h>
 #include <inttypes.h>
 
-int _png_load(const char* file, int* pwidth, int* pheight){
+int _png_load(const char* file){
 	int r = 0;
 	FILE *png;
 	char *pngbuf = nullptr;
@@ -195,9 +193,6 @@ int _png_load(const char* file, int* pwidth, int* pheight){
 
     ImageData* image = new ImageData(ImageFormat::rgba8888, ihdr.width, ihdr.height, (void*)flipped);
 
-    pwidth[0] = ihdr.width;
-    pheight[0] = ihdr.height;
-
 	spng_ctx_free(ctx);
 	delete[] pngbuf;
 
@@ -206,9 +201,12 @@ int _png_load(const char* file, int* pwidth, int* pheight){
 
 #endif
 
+ImageData* png::load_image(std::string filename) {
+    return _png_load(filename.c_str());
+}
+
 Texture* png::load_texture(std::string filename){
-	int width, height;
-	ImageData* image = _png_load(filename.c_str(), &width, &height);
+	ImageData* image = _png_load(filename.c_str());
 	if (image == nullptr){
 		std::cerr << "Could not load image " << filename << std::endl;
 		return nullptr;
