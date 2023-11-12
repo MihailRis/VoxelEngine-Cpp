@@ -59,8 +59,10 @@ ImageData* add_atlas_margins(ImageData* image, int grid_size) {
                     if (srcdata[((soy+ly) * srcwidth + sox + lx) * 4 + 3]) {
                         for (int c = 0; c < 3; c++) {
                             int val = srcdata[((soy+ly) * srcwidth + sox + lx) * 4 + c];
-                            dstdata[((doy+ly) * dstwidth + dox + lx + 1) * 4 + c] = val;
-                            dstdata[((doy+ly + 1) * dstwidth + dox + lx) * 4 + c] = val;
+                            if (dstdata[((doy+ly) * dstwidth + dox + lx + 1) * 4 + 3] == 0)
+                                dstdata[((doy+ly) * dstwidth + dox + lx + 1) * 4 + c] = val;
+                            if (dstdata[((doy+ly + 1) * dstwidth + dox + lx) * 4 + 3] == 0)
+                                dstdata[((doy+ly + 1) * dstwidth + dox + lx) * 4 + c] = val;
                         }
                     }
                 }
