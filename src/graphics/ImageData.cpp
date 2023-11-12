@@ -53,15 +53,14 @@ ImageData* add_atlas_margins(ImageData* image, int grid_size) {
                 }
             }
             
+            // Fixing black transparent pixels for Mip-Mapping
             for (int ly = 0; ly < imgres; ly++) {
                 for (int lx = 0; lx < imgres; lx++) {
-                    int sy = lx;
-                    int sx = ly;
-                    if (srcdata[((soy+sy) * srcwidth + sox + sx) * 4 + 3]) {
+                    if (srcdata[((soy+ly) * srcwidth + sox + lx) * 4 + 3]) {
                         for (int c = 0; c < 3; c++) {
-                            dstdata[((doy+ly) * dstwidth + dox + lx + 1) * 4 + c] = srcdata[((soy+sy) * srcwidth + sox + sx) * 4 + c];
-                            dstdata[((doy+ly + 1) * dstwidth + dox + lx) * 4 + c] = srcdata[((soy+sy) * srcwidth + sox + sx) * 4 + c];
-                            dstdata[((doy+ly + 1) * dstwidth + dox + lx + 1) * 4 + c] = srcdata[((soy+sy) * srcwidth + sox + sx) * 4 + c];
+                            int val = srcdata[((soy+ly) * srcwidth + sox + lx) * 4 + c];
+                            dstdata[((doy+ly) * dstwidth + dox + lx + 1) * 4 + c] = val;
+                            dstdata[((doy+ly + 1) * dstwidth + dox + lx) * 4 + c] = val;
                         }
                     }
                 }
