@@ -3,6 +3,7 @@
 #include <memory>
 #include <iostream>
 #include <glm/glm.hpp>
+#define GLEW_STATIC
 
 #include "audio/Audio.h"
 #include "assets/Assets.h"

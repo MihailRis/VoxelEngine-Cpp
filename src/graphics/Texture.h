@@ -2,6 +2,7 @@
 #define GRAPHICS_TEXTURE_H_
 
 #include <string>
+#include "../typedefs.h"
 
 class ImageData;
 

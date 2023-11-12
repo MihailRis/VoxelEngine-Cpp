@@ -106,7 +106,7 @@ ImageData* _png_load(const char* file){
 #include <stdio.h>
 #include <inttypes.h>
 
-int _png_load(const char* file){
+ImageData* _png_load(const char* file){
 	int r = 0;
 	FILE *png;
 	char *pngbuf = nullptr;
@@ -198,7 +198,6 @@ int _png_load(const char* file){
 
     return image;
 }
-
 #endif
 
 ImageData* png::load_image(std::string filename) {

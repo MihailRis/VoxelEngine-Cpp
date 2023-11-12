@@ -76,7 +76,9 @@ HudRenderer::HudRenderer(GUI* gui, Level* level, Assets* assets) : level(level),
 		Panel* sub = new Panel(vec2(10, 27), vec4(0.0f));
 		sub->orientation(Orientation::horizontal);
 
-		Label* label = new Label(wstring({L'x'+ax})+L": ");
+		wstring str = L"x: ";
+		str[0] += ax;
+		Label* label = new Label(str);
 		label->margin(vec4(2, 3, 2, 3));
 		sub->add(shared_ptr<UINode>(label));
 		sub->color(vec4(0.0f));
