@@ -9,6 +9,7 @@
 #define ASSET_TEXTURE 1
 #define ASSET_SHADER 2
 #define ASSET_FONT 3
+#define ASSET_ATLAS 4
 
 class Assets;
 

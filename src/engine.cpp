@@ -30,8 +30,6 @@ using std::shared_ptr;
 using glm::vec3;
 using gui::GUI;
 
-
-
 Engine::Engine(const EngineSettings& settings_) {
     this->settings = settings_;
     

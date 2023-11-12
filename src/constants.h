@@ -18,4 +18,6 @@ inline uint vox_index(int x, int y, int z, int w, int d) {
 	return (y * d + z) * w + x;
 }
 
+#define ATLAS_MARGIN_SIZE 2
+
 #endif // SRC_CONSTANTS_H_

@@ -23,6 +23,7 @@ ImageData::~ImageData() {
     }
 }
 
+#include <iostream>
 ImageData* add_atlas_margins(ImageData* image, int grid_size) {
     // RGBA is only supported
     assert(image->getFormat() == ImageFormat::rgba8888);
@@ -39,16 +40,33 @@ ImageData* add_atlas_margins(ImageData* image, int grid_size) {
     int imgres = image->getWidth() / grid_size; 
     for (int row = 0; row < grid_size; row++) {
         for (int col = 0; col < grid_size; col++) {
-            int ox = 1 + col * (imgres + 2);
-            int oy = 1 + row * (imgres + 2);
+            int sox = col * imgres;
+            int soy = row * imgres;
+            int dox = 1 + col * (imgres + 2);
+            int doy = 1 + row * (imgres + 2);
             for (int ly = -1; ly <= imgres; ly++) {
                 for (int lx = -1; lx <= imgres; lx++) {
                     int sy = max(min(ly, imgres-1), 0);
                     int sx = max(min(lx, imgres-1), 0);
                     for (int c = 0; c < 4; c++)
-                        dstdata[((oy+ly) * dstwidth + ox + lx) * 4 + c] = srcdata[(sy * srcwidth + sx) * 4 + c];
+                        dstdata[((doy+ly) * dstwidth + dox + lx) * 4 + c] = srcdata[((soy+sy) * srcwidth + sox + sx) * 4 + c];
+                }
+            }
+            
+            for (int ly = 0; ly < imgres; ly++) {
+                for (int lx = 0; lx < imgres; lx++) {
+                    int sy = lx;
+                    int sx = ly;
+                    if (srcdata[((soy+sy) * srcwidth + sox + sx) * 4 + 3]) {
+                        for (int c = 0; c < 3; c++) {
+                            dstdata[((doy+ly) * dstwidth + dox + lx + 1) * 4 + c] = srcdata[((soy+sy) * srcwidth + sox + sx) * 4 + c];
+                            dstdata[((doy+ly + 1) * dstwidth + dox + lx) * 4 + c] = srcdata[((soy+sy) * srcwidth + sox + sx) * 4 + c];
+                            dstdata[((doy+ly + 1) * dstwidth + dox + lx + 1) * 4 + c] = srcdata[((soy+sy) * srcwidth + sox + sx) * 4 + c];
+                        }
+                    }
                 }
             }
         }
     }
+    return new ImageData(image->getFormat(), dstwidth, dstheight, dstdata);
 }

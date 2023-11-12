@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include "../constants.h"
+
 AssetsLoader::AssetsLoader(Assets* assets) : assets(assets) {
 }
 
@@ -35,6 +37,7 @@ bool AssetsLoader::loadNext() {
 
 #include "../coders/png.h"
 #include "../graphics/Shader.h"
+#include "../graphics/ImageData.h"
 #include "../graphics/Texture.h"
 #include "../graphics/Font.h"
 
@@ -58,6 +61,23 @@ bool _load_texture(Assets* assets, const std::string& filename, const std::strin
 	return true;
 }
 
+bool _load_atlas(Assets* assets, const std::string& filename, const std::string& name) {
+	ImageData* image = png::load_image(filename);
+	if (image == nullptr) {
+		std::cerr << "failed to load image '" << name << "'" << std::endl;
+		return false;
+	}
+	for (int i = 0; i < ATLAS_MARGIN_SIZE; i++) {
+		ImageData* newimage = add_atlas_margins(image, 16);
+		delete image;
+		image = newimage;
+	}
+
+	Texture* texture = Texture::from(image);
+	assets->store(texture, name);
+	return true;
+}
+
 bool _load_font(Assets* assets, const std::string& filename, const std::string& name) {
 	std::vector<Texture*> pages;
 	for (size_t i = 0; i <= 4; i++) {
@@ -77,6 +97,7 @@ void AssetsLoader::createDefaults(AssetsLoader& loader) {
 	loader.addLoader(ASSET_SHADER, _load_shader);
 	loader.addLoader(ASSET_TEXTURE, _load_texture);
 	loader.addLoader(ASSET_FONT, _load_font);
+	loader.addLoader(ASSET_ATLAS, _load_atlas);
 }
 
 void AssetsLoader::addDefaults(AssetsLoader& loader) {
@@ -84,7 +105,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader) {
 	loader.add(ASSET_SHADER, "res/lines", "lines");
 	loader.add(ASSET_SHADER, "res/ui", "ui");
 
-	loader.add(ASSET_TEXTURE, "res/block.png", "block");
+	loader.add(ASSET_ATLAS, "res/block.png", "block");
 	loader.add(ASSET_TEXTURE, "res/slot.png", "slot");
 
 	loader.add(ASSET_FONT, "res/font", "normal");

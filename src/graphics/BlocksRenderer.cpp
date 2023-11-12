@@ -138,8 +138,8 @@ void BlocksRenderer::blockCube(int x, int y, int z, vec3 size, const UVRegion te
 
 void BlocksRenderer::blockXSprite(int x, int y, int z, vec3 size, const UVRegion texface1, const UVRegion texface2, float spread) {
 	vec4 lights[]{
-			pickSoftLight(x, y, z, {1, 0, 0}, {0, 1, 0}),
-			pickSoftLight(x + 1, y, z, {1, 0, 0}, {0, 1, 0}),
+			pickSoftLight(x, y+1, z, {1, 0, 0}, {0, 1, 0}),
+			pickSoftLight(x + 1, y+1, z, {1, 0, 0}, {0, 1, 0}),
 			pickSoftLight(x + 1, y + 1, z, {1, 0, 0}, {0, 1, 0}),
 			pickSoftLight(x, y + 1, z, {1, 0, 0}, {0, 1, 0}) };
 
@@ -151,17 +151,17 @@ void BlocksRenderer::blockXSprite(int x, int y, int z, vec3 size, const UVRegion
 	const float w = size.x/1.41f;
 	face(vec3(x + xs + (1.0 - w) * 0.5f, y, 
 		      z + zs - 1 + (1.0 - w) * 0.5f), w, size.y, 
-		      vec3(1.0f, 0, 1.0f), vec3(0, 1, 0), texface1, lights, do_tint(0.9f));
+		      vec3(1.0f, 0, 1.0f), vec3(0, 1, 0), texface1, lights, do_tint(0.8f));
 	face(vec3(x + xs - (1.0 - w) * 0.5f + 1, y, 
 		      z + zs - (1.0 - w) * 0.5f), w, size.y, 
-		      vec3(-1.0f, 0, -1.0f), vec3(0, 1, 0), texface1, lights, do_tint(0.9f));
+		      vec3(-1.0f, 0, -1.0f), vec3(0, 1, 0), texface1, lights, do_tint(0.8f));
 
 	face(vec3(x + xs + (1.0 - w) * 0.5f, y, 
 		      z + zs - (1.0 - w) * 0.5f), w, size.y, 
-		      vec3(1.0f, 0, -1.0f), vec3(0, 1, 0), texface2, lights, do_tint(0.9f));
+		      vec3(1.0f, 0, -1.0f), vec3(0, 1, 0), texface2, lights, do_tint(0.8f));
 	face(vec3(x + xs - (1.0 - w) * 0.5f + 1, y, 
 		      z + zs + (1.0 - w) * 0.5f - 1), w, size.y, 
-			  vec3(-1.0f, 0, 1.0f), vec3(0, 1, 0), texface2, lights, do_tint(0.9f));
+			  vec3(-1.0f, 0, 1.0f), vec3(0, 1, 0), texface2, lights, do_tint(0.8f));
 }
 
 void BlocksRenderer::blockCubeShaded(int x, int y, int z, vec3 size, const UVRegion texfaces_[6], const Block* block, ubyte states) {
@@ -174,17 +174,17 @@ void BlocksRenderer::blockCubeShaded(int x, int y, int z, vec3 size, const UVReg
 	}
 
 	if (block->rotatable) {
-		if (states == 0x31) {
+		if (states == BLOCK_DIR_X) {
 			rot = 1;
 			texfaces[0] = texfaces_[2];
 			texfaces[1] = texfaces_[3];
 			texfaces[2] = texfaces_[0];
 			texfaces[3] = texfaces_[1];
 		}
-		else if (states == 0x32) {
+		else if (states == BLOCK_DIR_Y) {
 			rot = 2;
 		}
-		else if (states == 0x33) {
+		else if (states == BLOCK_DIR_Z) {
 			rot = 3;
 			texfaces[2] = texfaces_[4];
 			texfaces[3] = texfaces_[5];
@@ -292,10 +292,11 @@ vec4 BlocksRenderer::pickSoftLight(int x, int y, int z, ivec3 right, ivec3 up) c
 // Get texture atlas UV region for block face
 inline UVRegion uvfor(const Block& def, uint face, int atlas_size) {
 	float uvsize = 1.0f / (float)atlas_size;
+	float us = 0.0097;
 	const uint id = def.textureFaces[face];
 	float u = (id % atlas_size) * uvsize;
 	float v = 1.0f - (id / atlas_size + 1) * uvsize;
-	return UVRegion(u, v, u + uvsize, v + uvsize);
+	return UVRegion(u+us, v+us, u + uvsize - us * 0.36f, v + uvsize - us * 0.36f);
 }
 
 void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
