@@ -106,6 +106,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader) {
 	loader.add(ASSET_SHADER, "res/ui", "ui");
 
 	loader.add(ASSET_ATLAS, "res/block.png", "block");
+	loader.add(ASSET_TEXTURE, "res/block.png", "block_tex");
 	loader.add(ASSET_TEXTURE, "res/slot.png", "slot");
 
 	loader.add(ASSET_FONT, "res/font", "normal");
