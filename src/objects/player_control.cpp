@@ -86,6 +86,12 @@ void PlayerController::updateControls(float delta){
 		speed *= CHEAT_SPEED_MUL;
 	}
 
+	if (crouch) {
+		speed *= CROUCH_SPEED_MUL;
+	} else if (input.sprint) {
+		speed *= RUN_SPEED_MUL;
+	}
+
 	vec3 dir(0,0,0);
 	if (input.moveForward){
 		dir.x += camera->dir.x;
@@ -151,11 +157,9 @@ void PlayerController::updateControls(float delta){
 		float dt = min(1.0f, delta * ZOOM_SPEED);
 		float zoomValue = 1.0f;
 		if (crouch){
-			speed *= CROUCH_SPEED_MUL;
 			cameraOffset += CROUCH_SHIFT_Y;
 			zoomValue = CROUCH_ZOOM;
 		} else if (input.sprint){
-			speed *= RUN_SPEED_MUL;
 			zoomValue = RUN_ZOOM;
 		}
 		if (input.zoom)
