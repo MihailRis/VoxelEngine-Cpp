@@ -28,6 +28,6 @@ void main(){
 	a_color = vec4(pow(light, vec3(u_gamma)),1.0f);
 	a_texCoord = v_texCoord;
 	a_color.rgb += u_skyLightColor * v_light.a;
-	a_distance = pow(length(viewmodelpos), 1.5);
+	a_distance = length(viewmodelpos);
 	gl_Position = u_proj * viewmodelpos;
 }
