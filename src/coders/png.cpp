@@ -5,6 +5,7 @@
 
 #include "../graphics/ImageData.h"
 #include "../graphics/Texture.h"
+#include "../files/files.h"
 
 #ifndef _WIN32
 #define LIBPNG
@@ -12,6 +13,81 @@
 
 #ifdef LIBPNG
 #include <png.h>
+
+int _png_write(const char* filename, uint width, uint height, const ubyte* data, bool alpha) {
+	int code = 0;
+	png_structp png_ptr = NULL;
+	png_infop info_ptr = NULL;
+	png_bytep row = NULL;
+    uint pixsize = alpha ? 4 : 3;
+
+	// Open file for writing (binary mode)
+	FILE* fp = fopen(filename, "wb");
+	if (fp == NULL) {
+		fprintf(stderr, "Could not open file %s for writing\n", filename);
+		code = 1;
+		goto finalize;
+	}
+
+	// Initialize write structure
+	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	if (png_ptr == NULL) {
+		fprintf(stderr, "Could not allocate write struct\n");
+		code = 1;
+		goto finalize;
+	}
+
+	// Initialize info structure
+	info_ptr = png_create_info_struct(png_ptr);
+	if (info_ptr == NULL) {
+		fprintf(stderr, "Could not allocate info struct\n");
+		code = 1;
+		goto finalize;
+	}
+
+	// Setup Exception handling
+	if (setjmp(png_jmpbuf(png_ptr))) {
+		fprintf(stderr, "Error during png creation\n");
+		code = 1;
+		goto finalize;
+	}
+
+	png_init_io(png_ptr, fp);
+
+	// Write header (8 bit colour depth)
+	png_set_IHDR(png_ptr, info_ptr, width, height,
+			8, 
+            alpha ? PNG_COLOR_TYPE_RGBA : 
+                       PNG_COLOR_TYPE_RGB, 
+            PNG_INTERLACE_NONE,
+			PNG_COMPRESSION_TYPE_BASE, 
+            PNG_FILTER_TYPE_BASE);
+
+	png_write_info(png_ptr, info_ptr);
+
+	row = (png_bytep) malloc(pixsize * width * sizeof(png_byte));
+
+	// Write image data
+	for (uint y = 0; y < height; y++) {
+		for (uint x = 0; x < width; x++) {
+            for (uint i = 0; i < pixsize; i++) {
+                row[x * pixsize + i] = (png_byte)data[(y * width + x) * pixsize + i];
+            }
+		}
+		png_write_row(png_ptr, row);
+	}
+
+	// End write
+	png_write_end(png_ptr, NULL);
+
+	finalize:
+	if (fp != NULL) fclose(fp);
+	if (info_ptr != NULL) png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
+	if (png_ptr != NULL) png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+	if (row != NULL) free(row);
+
+	return code;
+}
 
 ImageData* _png_load(const char* file){
     FILE *f;
@@ -22,40 +98,42 @@ ImageData* _png_load(const char* file){
     png_bytepp row_pointers;
     png_structp png_ptr;
 
-    if (!( f = fopen(file, "r" ) ) ) {
+    if (!(f = fopen(file, "r"))) {
         return nullptr;
     }
-    fread( header, 1, 8, f );
-    is_png = !png_sig_cmp( header, 0, 8 );
-    if ( !is_png ) {
-        fclose( f );
+    fread(header, 1, 8, f);
+    is_png = !png_sig_cmp(header, 0, 8);
+    if (!is_png) {
+        fclose(f);
         return nullptr;
     }
-    png_ptr = png_create_read_struct( PNG_LIBPNG_VER_STRING, NULL,
-        NULL, NULL );
-    if ( !png_ptr ) {
-        fclose( f );
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL,
+        NULL, NULL);
+    if (!png_ptr) {
+        fclose(f);
         return nullptr;
     }
-    info_ptr = png_create_info_struct( png_ptr );
-    if ( !info_ptr ) {
+    info_ptr = png_create_info_struct(png_ptr);
+    if (!info_ptr) {
         png_destroy_read_struct( &png_ptr, (png_infopp) NULL,
             (png_infopp) NULL );
-        fclose( f );
+        fclose(f);
         return nullptr;
     }
-    end_info = png_create_info_struct( png_ptr );
-    if ( !end_info ) {
-        png_destroy_read_struct( &png_ptr, (png_infopp) NULL,
-            (png_infopp) NULL );
-        fclose( f );
+    end_info = png_create_info_struct(png_ptr);
+    if (!end_info) {
+        png_destroy_read_struct(&png_ptr, (png_infopp) NULL,
+            (png_infopp) NULL);
+        fclose(f);
         return nullptr;
     }
-    if ( setjmp( png_jmpbuf( png_ptr ) ) ) {
-        png_destroy_read_struct( &png_ptr, &info_ptr, &end_info );
-        fclose( f );
+    
+    if (setjmp(png_jmpbuf(png_ptr))) {
+        png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
+        fclose(f);
         return nullptr;
     }
+
     png_init_io( png_ptr, f );
     png_set_sig_bytes( png_ptr, 8 );
     png_read_info( png_ptr, info_ptr );
@@ -76,7 +154,7 @@ ImageData* _png_load(const char* file){
         fclose(f);
         return nullptr;
     }
-    for (unsigned int i = 0; i < t_height; ++i ) {
+    for (uint i = 0; i < t_height; ++i ) {
         row_pointers[t_height - 1 - i] = image_data + i * row_bytes;
     }
     png_read_image(png_ptr, row_pointers);
@@ -105,6 +183,47 @@ ImageData* _png_load(const char* file){
 #include <spng.h>
 #include <stdio.h>
 #include <inttypes.h>
+
+int _png_write(const char* filename, uint width, uint height, const ubyte* data, bool alpha) {
+	int fmt;
+	int ret = 0;
+	spng_ctx* ctx = NULL;
+	spng_ihdr ihdr = { 0 };
+	uint pixsize = alpha ? 4 : 3;
+
+	ctx = spng_ctx_new(SPNG_CTX_ENCODER);
+	spng_set_option(ctx, SPNG_ENCODE_TO_BUFFER, 1);
+
+	ihdr.width = width;
+	ihdr.height = height;
+	ihdr.color_type = alpha ? SPNG_COLOR_TYPE_TRUECOLOR_ALPHA : SPNG_COLOR_TYPE_TRUECOLOR;
+	ihdr.bit_depth = 8;
+
+	spng_set_ihdr(ctx, &ihdr);
+	fmt = SPNG_FMT_PNG;
+
+	ret = spng_encode_image(ctx, data, width * height , fmt, SPNG_ENCODE_FINALIZE);
+
+	if (ret) {
+		printf("spng_encode_image() error: %s\n", spng_strerror(ret));
+		goto encode_error;
+	}
+
+	size_t png_size;
+	void* png_buf = spng_get_png_buffer(ctx, &png_size, &ret);
+
+	if (png_buf == NULL) {
+		printf("spng_get_png_buffer() error: %s\n", spng_strerror(ret));
+	}
+	else {
+		files::write_bytes(filename, (const char*)png_buf, png_size);
+	}
+	free(png_buf);
+
+encode_error:
+	spng_ctx_free(ctx);
+	return ret;
+}
 
 ImageData* _png_load(const char* file){
 	int r = 0;
@@ -204,11 +323,15 @@ ImageData* png::load_image(std::string filename) {
     return _png_load(filename.c_str());
 }
 
-Texture* png::load_texture(std::string filename){
+Texture* png::load_texture(std::string filename) {
 	ImageData* image = _png_load(filename.c_str());
 	if (image == nullptr){
 		std::cerr << "Could not load image " << filename << std::endl;
 		return nullptr;
 	}
 	return Texture::from(image);
+}
+
+void png::write_image(std::string filename, const ImageData* image) {
+    _png_write(filename.c_str(), image->getWidth(), image->getHeight(), (const ubyte*)image->getData(), image->getFormat() == ImageFormat::rgba8888);
 }
