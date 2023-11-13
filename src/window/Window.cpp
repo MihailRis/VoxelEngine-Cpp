@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Window.h"
 #include "Events.h"
+#include "../graphics/ImageData.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -180,4 +181,10 @@ void Window::swapBuffers(){
 
 double Window::time() {
 	return glfwGetTime();
+}
+
+ImageData* Window::takeScreenshot() {
+	ubyte* data = new ubyte[width * height * 3];
+	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+	return new ImageData(ImageFormat::rgb888, width, height, data);
 }

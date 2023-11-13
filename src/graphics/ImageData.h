@@ -17,6 +17,9 @@ public:
     ImageData(ImageFormat format, uint width, uint height, void* data);
     ~ImageData();
 
+    void flipX();
+    void flipY();
+
     void* getData() const {
         return data;
     }

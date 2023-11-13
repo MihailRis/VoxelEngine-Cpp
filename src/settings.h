@@ -15,7 +15,7 @@ struct DisplaySettings {
 	/* GLFW swap interval value, 0 - unlimited fps, 1 - vsync*/
 	int swapInterval = 1;
 	/* Window title */
-	const char* title = "VoxelEngine-Cpp v0.13";
+	const char* title = "VoxelEngine-Cpp v0.14";
 };
 
 struct ChunksSettings {

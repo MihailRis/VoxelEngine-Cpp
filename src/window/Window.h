@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 
 class GLFWwindow;
+class ImageData;
 
 class Window {
 	static GLFWwindow* window;
@@ -33,8 +34,9 @@ public:
 	static void resetScissor();
 
 	static void clear();
-
 	static double time();
+
+	static ImageData* takeScreenshot();
 };
 
 #endif /* WINDOW_WINDOW_H_ */

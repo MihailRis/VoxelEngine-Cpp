@@ -201,12 +201,12 @@ int _png_write(const char* filename, uint width, uint height, const ubyte* data,
 
 	spng_set_ihdr(ctx, &ihdr);
 	fmt = SPNG_FMT_PNG;
-
-	ret = spng_encode_image(ctx, data, width * height , fmt, SPNG_ENCODE_FINALIZE);
-
+	ret = spng_encode_image(ctx, data, (size_t)width * (size_t)height * pixsize , fmt, SPNG_ENCODE_FINALIZE);
 	if (ret) {
 		printf("spng_encode_image() error: %s\n", spng_strerror(ret));
-		goto encode_error;
+		fflush(stdout);
+		spng_ctx_free(ctx);
+		return ret;
 	}
 
 	size_t png_size;
@@ -218,9 +218,7 @@ int _png_write(const char* filename, uint width, uint height, const ubyte* data,
 	else {
 		files::write_bytes(filename, (const char*)png_buf, png_size);
 	}
-	free(png_buf);
-
-encode_error:
+	fflush(stdout);
 	spng_ctx_free(ctx);
 	return ret;
 }

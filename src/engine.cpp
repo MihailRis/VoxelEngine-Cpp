@@ -13,6 +13,7 @@
 #include "window/Camera.h"
 #include "window/input.h"
 #include "graphics/Batch2D.h"
+#include "graphics/ImageData.h"
 #include "world/World.h"
 #include "world/Level.h"
 #include "voxels/Chunk.h"
@@ -23,8 +24,10 @@
 #include "frontend/world_render.h"
 #include "frontend/hud.h"
 #include "frontend/gui/GUI.h"
+#include "util/platform.h"
 
 #include "coders/json.h"
+#include "coders/png.h"
 #include "files/files.h"
 
 using std::shared_ptr;
@@ -72,6 +75,14 @@ void Engine::updateTimers() {
 void Engine::updateHotkeys() {
 	if (Events::jpressed(keycode::O)) {
 		occlusion = !occlusion;
+	}
+	if (Events::jpressed(keycode::F2)) {
+		ImageData* image = Window::takeScreenshot();
+		image->flipY();
+		std::string filename = platform::get_screenshot_file("png");
+		png::write_image(filename, image);
+		delete image;
+		std::cout << "saved screenshot as " << filename << std::endl;
 	}
 	if (Events::jpressed(keycode::F3)) {
 		level->player->debug = !level->player->debug;
