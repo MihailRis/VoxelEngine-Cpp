@@ -10,25 +10,25 @@ using std::stringstream;
 using std::wstring;
 using std::wstringstream;
 
-wstring lfill(wstring s, int length, wchar_t c) {
+wstring lfill(wstring s, uint length, wchar_t c) {
     if (s.length() >= length) {
         return s;
     }
     wstringstream ss;
-    for (int i = 0; i < length-s.length(); i++) {
+    for (uint i = 0; i < length-s.length(); i++) {
         ss << c;
     }
     ss << s;
     return ss.str();
 }
 
-wstring rfill(wstring s, int length, wchar_t c) {
+wstring rfill(wstring s, uint length, wchar_t c) {
     if (s.length() >= length) {
         return s;
     }
     wstringstream ss;
     ss << s;
-    for (int i = 0; i < length-s.length(); i++) {
+    for (uint i = 0; i < length-s.length(); i++) {
         ss << c;
     }
     return ss.str();

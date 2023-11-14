@@ -14,7 +14,7 @@ else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -lstdc++fs
     # additional warnings
     -Wformat-nonliteral -Wcast-align 
-    -Wpointer-arith -Winline -Wundef
+    -Wpointer-arith -Wundef
     -Wwrite-strings -Wno-unused-parameter)
 endif()
 

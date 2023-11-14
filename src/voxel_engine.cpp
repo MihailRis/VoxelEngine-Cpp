@@ -13,7 +13,7 @@
 #include "coders/toml.h"
 #include "files/files.h"
 
-inline toml::Wrapper create_wrapper(EngineSettings& settings) {
+toml::Wrapper create_wrapper(EngineSettings& settings) {
 	toml::Wrapper wrapper;
 	toml::Section& display = wrapper.add("display");
 	display.add("width", &settings.display.width);

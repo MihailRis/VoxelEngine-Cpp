@@ -115,7 +115,7 @@ void Engine::mainloop() {
 		level->update();
 		level->chunksController->update(settings.chunks.loadSpeed);
 
-		float fovFactor = 16.0f / (float)settings.chunks.loadDistance;
+		float fovFactor = 18.0f / (float)settings.chunks.loadDistance;
 		worldRenderer.draw(camera, occlusion, fovFactor, settings.fogCurve);
 		hud.draw();
 		if (level->player->debug) {
