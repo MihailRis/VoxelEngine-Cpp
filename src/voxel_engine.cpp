@@ -31,7 +31,10 @@ toml::Wrapper create_wrapper(EngineSettings& settings) {
 	camera.add("shaking", &settings.camera.shaking);
 
 	toml::Section& graphics = wrapper.add("graphics");
-	graphics.add("fog-curve", &settings.fogCurve);
+	graphics.add("fog-curve", &settings.graphics.fogCurve);
+
+	toml::Section& debug = wrapper.add("debug");
+	debug.add("generator-test-mode", &settings.debug.generatorTestMode);
 	return wrapper;
 }
 

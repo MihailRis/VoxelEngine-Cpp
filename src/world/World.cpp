@@ -14,15 +14,15 @@
 
 using std::shared_ptr;
 
-World::World(std::string name, std::string directory, int seed) : name(name), seed(seed) {
-	wfile = new WorldFiles(directory, REGION_VOL * (CHUNK_DATA_LEN * 2 + 8));
+World::World(std::string name, std::string directory, int seed, EngineSettings& settings) : name(name), seed(seed) {
+	wfile = new WorldFiles(directory, REGION_VOL * (CHUNK_DATA_LEN * 2 + 8), settings.debug.generatorTestMode);
 }
 
 World::~World(){
 	delete wfile;
 }
 
-void World::write(Level* level) {
+void World::write(Level* level, bool writeChunks) {
 	Chunks* chunks = level->chunks;
 
 	for (size_t i = 0; i < chunks->volume; i++) {

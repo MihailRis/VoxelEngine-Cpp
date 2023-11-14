@@ -56,7 +56,8 @@ float bytes2Float(ubyte* src, uint offset){
 	return *(float*)(&value);
 }
 
-WorldFiles::WorldFiles(std::string directory, size_t mainBufferCapacity) : directory(directory){
+WorldFiles::WorldFiles(std::string directory, size_t mainBufferCapacity, bool generatorTestMode) 
+	: directory(directory), generatorTestMode(generatorTestMode) {
 	compressionBuffer = new ubyte[CHUNK_DATA_LEN * 2];
 }
 
@@ -161,6 +162,9 @@ ubyte* WorldFiles::getChunk(int x, int y){
 }
 
 ubyte* WorldFiles::readChunkData(int x, int y, uint32_t& length){
+	if (generatorTestMode)
+		return nullptr;
+		
 	int regionX = floordiv(x, REGION_SIZE);
 	int regionY = floordiv(y, REGION_SIZE);
 
@@ -199,6 +203,8 @@ void WorldFiles::write(){
 	if (!std::filesystem::is_directory(directory)) {
 		std::filesystem::create_directory(directory);
 	}
+	if (generatorTestMode)
+		return;
 	for (auto it = regions.begin(); it != regions.end(); it++){
 		if (it->second.chunksData == nullptr || !it->second.unsaved)
 			continue;
@@ -263,7 +269,6 @@ bool WorldFiles::readPlayer(Player* player) {
 	player->camera->position = position + vec3(0, 1, 0);
 	return true;
 }
-
 
 void WorldFiles::writeRegion(int x, int y, WorldRegion& entry){
 	ubyte** region = entry.chunksData;

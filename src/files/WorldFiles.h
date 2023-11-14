@@ -31,8 +31,9 @@ public:
 	std::unordered_map<glm::ivec2, WorldRegion> regions;
 	std::string directory;
 	ubyte* compressionBuffer;
+	bool generatorTestMode;
 
-	WorldFiles(std::string directory, size_t mainBufferCapacity);
+	WorldFiles(std::string directory, size_t mainBufferCapacity, bool generatorTestMode);
 	~WorldFiles();
 
 	void put(Chunk* chunk);

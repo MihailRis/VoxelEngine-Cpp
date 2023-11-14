@@ -34,17 +34,23 @@ struct CameraSettings {
     bool shaking = true;
 };
 
+struct GraphicsSettings {
+	/* Fog opacity is calculated as `pow(depth*k, fogCurve)` where k depends on chunksLoadDistance.
+	   Use values in range [1.0 - 2.0] where 1.0 is linear, 2.0 is quadratic */
+	float fogCurve = 1.6f;
+};
+
+struct DebugSettings {
+	/* Turns off chunks saving/loading */
+	bool generatorTestMode = false;
+};
+
 struct EngineSettings {
     DisplaySettings display;
 	ChunksSettings chunks;
 	CameraSettings camera;
-
-	/* Fog opacity is calculated as `pow(depth*k, fogCurve)` where k depends on chunksLoadDistance.
-	   Use values in range [1.0 - 2.0] where 1.0 is linear, 2.0 is quadratic
-	*/
-	float fogCurve = 1.6f;
-
-	
+	GraphicsSettings graphics;
+	DebugSettings debug;
 };
 
 #endif // SRC_SETTINGS_H_

@@ -261,7 +261,8 @@ void Chunks::translate(int dx, int dz){
 				continue;
 			if (nx < 0 || nz < 0 || nx >= w || nz >= d){
 				events->trigger(EVT_CHUNK_HIDDEN, chunk.get());
-				worldFiles->put(chunk.get());
+				if (worldFiles)
+					worldFiles->put(chunk.get());
 				chunksCount--;
 				continue;
 			}

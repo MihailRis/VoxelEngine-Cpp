@@ -20,7 +20,10 @@ Level::Level(World* world, Player* player, ChunksStorage* chunksStorage, LevelEv
 
     uint matrixSize = (settings.chunks.loadDistance+
 					   settings.chunks.padding) * 2;
-    chunks = new Chunks(matrixSize, matrixSize, 0, 0, world->wfile, events);
+    chunks = new Chunks(matrixSize, matrixSize, 
+		0, 0, 
+		world->wfile, 
+		events);
 	lighting = new Lighting(chunks);
 	chunksController = new ChunksController(this, chunks, lighting, settings.chunks.padding);
 	playerController = new PlayerController(this, settings);

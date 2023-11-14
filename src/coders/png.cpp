@@ -1,11 +1,14 @@
 #include "png.h"
 
 #include <iostream>
+#include <memory>
 #include <GL/glew.h>
 
 #include "../graphics/ImageData.h"
 #include "../graphics/Texture.h"
 #include "../files/files.h"
+
+using std::unique_ptr;
 
 #ifndef _WIN32
 #define LIBPNG
@@ -15,41 +18,45 @@
 #include <png.h>
 
 int _png_write(const char* filename, uint width, uint height, const ubyte* data, bool alpha) {
-	int code = 0;
 	png_structp png_ptr = NULL;
 	png_infop info_ptr = NULL;
-	png_bytep row = NULL;
     uint pixsize = alpha ? 4 : 3;
 
 	// Open file for writing (binary mode)
 	FILE* fp = fopen(filename, "wb");
 	if (fp == NULL) {
 		fprintf(stderr, "Could not open file %s for writing\n", filename);
-		code = 1;
-		goto finalize;
+		fclose(fp);
+		return 1;
 	}
 
 	// Initialize write structure
 	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (png_ptr == NULL) {
 		fprintf(stderr, "Could not allocate write struct\n");
-		code = 1;
-		goto finalize;
+		fclose(fp);
+		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		return 1;
 	}
 
 	// Initialize info structure
 	info_ptr = png_create_info_struct(png_ptr);
 	if (info_ptr == NULL) {
 		fprintf(stderr, "Could not allocate info struct\n");
-		code = 1;
-		goto finalize;
+		fclose(fp);
+		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
+		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		return 1;
+		
 	}
 
 	// Setup Exception handling
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		fprintf(stderr, "Error during png creation\n");
-		code = 1;
-		goto finalize;
+		fclose(fp);
+		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
+		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		return 1;
 	}
 
 	png_init_io(png_ptr, fp);
@@ -65,7 +72,7 @@ int _png_write(const char* filename, uint width, uint height, const ubyte* data,
 
 	png_write_info(png_ptr, info_ptr);
 
-	row = (png_bytep) malloc(pixsize * width * sizeof(png_byte));
+	unique_ptr<png_byte[]> row(new png_byte[pixsize * width]);
 
 	// Write image data
 	for (uint y = 0; y < height; y++) {
@@ -74,19 +81,16 @@ int _png_write(const char* filename, uint width, uint height, const ubyte* data,
                 row[x * pixsize + i] = (png_byte)data[(y * width + x) * pixsize + i];
             }
 		}
-		png_write_row(png_ptr, row);
+		png_write_row(png_ptr, row.get());
 	}
 
 	// End write
 	png_write_end(png_ptr, NULL);
 
-	finalize:
-	if (fp != NULL) fclose(fp);
-	if (info_ptr != NULL) png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
-	if (png_ptr != NULL) png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
-	if (row != NULL) free(row);
-
-	return code;
+	fclose(fp);
+	png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
+	png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+	return 0;
 }
 
 ImageData* _png_load(const char* file){

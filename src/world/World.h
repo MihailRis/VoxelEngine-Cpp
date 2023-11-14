@@ -16,10 +16,10 @@ public:
 	WorldFiles* wfile;
 	int seed;
 
-	World(std::string name, std::string directory, int seed);
+	World(std::string name, std::string directory, int seed, EngineSettings& settings);
 	~World();
 
-	void write(Level* level);
+	void write(Level* level, bool writeChunks);
 	Level* loadLevel(Player* player, EngineSettings& settings);
 };
 

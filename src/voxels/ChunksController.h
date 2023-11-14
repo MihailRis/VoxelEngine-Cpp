@@ -22,7 +22,7 @@ public:
 	~ChunksController();
 
     void update(int64_t maxDuration);
-	bool loadVisible(WorldFiles* worldFiles);
+	bool loadVisible();
 };
 
 #endif /* VOXELS_CHUNKSCONTROLLER_H_ */

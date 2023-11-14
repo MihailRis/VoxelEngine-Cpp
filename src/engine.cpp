@@ -54,7 +54,7 @@ Engine::Engine(const EngineSettings& settings_) {
 	std::cout << "-- loading world" << std::endl;
 	vec3 playerPosition = vec3(0, 64, 0);
 	Camera* camera = new Camera(playerPosition, radians(90.0f));
-	World* world = new World("world-1", "world/", 42);
+	World* world = new World("world-1", "world/", 42, settings);
 	Player* player = new Player(playerPosition, 4.0f, camera);
 	level = world->loadLevel(player, settings);
 
@@ -116,7 +116,7 @@ void Engine::mainloop() {
 		level->chunksController->update(settings.chunks.loadSpeed);
 
 		float fovFactor = 18.0f / (float)settings.chunks.loadDistance;
-		worldRenderer.draw(camera, occlusion, fovFactor, settings.fogCurve);
+		worldRenderer.draw(camera, occlusion, fovFactor, settings.graphics.fogCurve);
 		hud.draw();
 		if (level->player->debug) {
 			hud.drawDebug( 1 / delta, occlusion);
@@ -135,7 +135,7 @@ Engine::~Engine() {
 	World* world = level->world;
 
 	std::cout << "-- saving world" << std::endl;
-	world->write(level);
+	world->write(level, !settings.debug.generatorTestMode);
 
 	delete level;
 	delete world;
