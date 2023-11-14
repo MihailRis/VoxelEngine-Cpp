@@ -47,7 +47,7 @@ string Section::getName() const {
 
 const Field* Section::field(std::string name) const {
     auto found = fields.find(name);
-    if (found == nullptr) {
+    if (found == fields.end()) {
         return nullptr;
     }
     return &found->second;
