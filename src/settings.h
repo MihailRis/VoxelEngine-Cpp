@@ -43,9 +43,8 @@ struct EngineSettings {
 	   Use values in range [1.0 - 2.0] where 1.0 is linear, 2.0 is quadratic
 	*/
 	float fogCurve = 1.6f;
-};
 
-void load_settings(EngineSettings& settings, std::string filename);
-void save_settings(EngineSettings& settings, std::string filename);
+	
+};
 
 #endif // SRC_SETTINGS_H_

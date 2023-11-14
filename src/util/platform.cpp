@@ -7,7 +7,7 @@
 
 #include "../typedefs.h"
 
-#define SETTINGS_FILE "settings.json"
+#define SETTINGS_FILE "settings.toml"
 #define SCREENSHOTS_FOLDER "screenshots"
 
 using std::string;
