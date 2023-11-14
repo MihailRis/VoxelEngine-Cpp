@@ -57,12 +57,9 @@ Engine::Engine(const EngineSettings& settings_) {
 	World* world = new World("world-1", "world/", 42, settings);
 	Player* player = new Player(playerPosition, 4.0f, camera);
 	level = world->loadLevel(player, settings);
-
-	std::cout << "-- initializing finished" << std::endl;
-
 	Audio::initialize();
-
 	gui = new GUI();
+	std::cout << "-- initializing finished" << std::endl;
 }
 
 void Engine::updateTimers() {
