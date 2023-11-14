@@ -58,6 +58,9 @@ const std::vector<std::string>& Section::keys() const {
 }
 
 Wrapper::~Wrapper() {
+    for (auto entry : sections) {
+        delete entry.second;
+    }
 }
 
 Section& Wrapper::add(std::string name) {
