@@ -1,15 +1,16 @@
 #ifndef VOXELS_BLOCK_H_
 #define VOXELS_BLOCK_H_
 
-#define BLOCK_MODEL_CUBE 1
-#define BLOCK_MODEL_X_SPRITE 2
-
 #define FACE_MX 0
 #define FACE_PX 1
 #define FACE_MY 2
 #define FACE_PY 3
 #define FACE_MZ 4
 #define FACE_PZ 5
+
+enum class BlockModel {
+	none, block, xsprite
+};
 
 class Block {
 public:
@@ -20,7 +21,7 @@ public:
 	int textureFaces[6]; // -x,x, -y,y, -z,z
 	unsigned char emission[3];
 	unsigned char drawGroup = 0;
-	unsigned char model = 1; // 0:None 1:Block 2:XSprite
+	BlockModel model = BlockModel::block;
 	bool lightPassing = false;
 	bool skyLightPassing = false;
 	bool obstacle = true;

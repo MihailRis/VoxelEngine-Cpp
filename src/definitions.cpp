@@ -15,7 +15,7 @@ void setup_definitions() {
 	block->skyLightPassing = true;
 	block->obstacle = false;
 	block->selectable = false;
-	block->model = 0;
+	block->model = BlockModel::none;
 	Block::blocks[block->id] = block;
 
 	block = new Block(BLOCK_DIRT, 2);
@@ -71,7 +71,7 @@ void setup_definitions() {
 	block->drawGroup = 5;
 	block->lightPassing = true;
 	block->obstacle = false;
-	block->model = 2;
+	block->model = BlockModel::xsprite;
 	block->hitboxScale = 0.5f;
 	Block::blocks[block->id] = block;
 
@@ -79,7 +79,7 @@ void setup_definitions() {
 	block->drawGroup = 5;
 	block->lightPassing = true;
 	block->obstacle = false;
-	block->model = 2;
+	block->model = BlockModel::xsprite;
 	Block::blocks[block->id] = block;
 
 	block = new Block(BLOCK_BRICK, 17);

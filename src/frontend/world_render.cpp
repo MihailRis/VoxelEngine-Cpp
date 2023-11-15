@@ -136,9 +136,9 @@ void WorldRenderer::draw(Camera* camera, bool occlusion, float fogFactor, float 
 		linesShader->use();
 		linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
 		glLineWidth(2.0f);
-		if (selectedBlock->model == 1){
+		if (selectedBlock->model == BlockModel::block){
 			lineBatch->box(pos.x+0.5f, pos.y+0.5f, pos.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
-		} else if (selectedBlock->model == 2){
+		} else if (selectedBlock->model == BlockModel::xsprite){
 			lineBatch->box(pos.x+0.5f, pos.y+0.35f, pos.z+0.5f, 0.805f,0.705f,0.805f, 0,0,0,0.5f);
 		}
 		lineBatch->render();

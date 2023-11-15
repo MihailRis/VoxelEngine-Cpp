@@ -22,12 +22,15 @@ void main(){
 	vec2 pos2d = (u_model * vec4(v_position, 1.0)).xz-u_cameraPos.xz;
 	vec4 modelpos = u_model * vec4(v_position+vec3(0,pow(length(pos2d)*0.0, 3.0),0), 1.0);
 	vec4 viewmodelpos = u_view * modelpos;
-	vec3 light = v_light.rgb;
+	vec3 light = v_light.rgb * 1.6;
 	float torchlight = max(0.0, 1.0-distance(u_cameraPos, modelpos.xyz)/u_torchlightDistance);
 	light += torchlight * u_torchlightColor;
 	a_color = vec4(pow(light, vec3(u_gamma)),1.0f);
 	a_texCoord = v_texCoord;
 	a_color.rgb += u_skyLightColor * v_light.a;
+	a_color.r = min(a_color.r, 1.1);
+	a_color.g = min(a_color.g, 1.1);
+	a_color.b = min(a_color.b, 1.1);
 	a_distance = length(viewmodelpos);
 	gl_Position = u_proj * viewmodelpos;
 }

@@ -243,7 +243,7 @@ void PlayerController::updateInteraction(){
 			lighting->onBlockSet(x,y,z, 0);
 		}
 		if (Events::jclicked(mousecode::BUTTON_2)){
-			if (block->model != BLOCK_MODEL_X_SPRITE){
+			if (block->model != BlockModel::xsprite){
 				x = (int)(iend.x)+(int)(norm.x);
 				y = (int)(iend.y)+(int)(norm.y);
 				z = (int)(iend.z)+(int)(norm.z);

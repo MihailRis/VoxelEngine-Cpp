@@ -313,7 +313,7 @@ void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 												uvfor(def, 2, atlas_size), uvfor(def, 3, atlas_size),
 												uvfor(def, 4, atlas_size), uvfor(def, 5, atlas_size) };
 					switch (def.model) {
-					case BLOCK_MODEL_CUBE:
+					case BlockModel::block:
 						if (*((light_t*)&def.emission)) {
 							blockCube(x, y, z, vec3(1, 1, 1), texfaces, def.drawGroup);
 						}
@@ -321,7 +321,7 @@ void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 							blockCubeShaded(x, y, z, vec3(1, 1, 1), texfaces, &def, vox.states);
 						}
 						break;
-					case BLOCK_MODEL_X_SPRITE: {
+					case BlockModel::xsprite: {
 						blockXSprite(x, y, z, vec3(1, 1, 1), texfaces[FACE_MX], texfaces[FACE_MZ], 1.0f);
 						break;
 					}
