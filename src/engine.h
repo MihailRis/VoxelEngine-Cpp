@@ -9,6 +9,7 @@
 
 class Assets;
 class Level;
+class Screen;
 
 namespace gui {
 	class GUI;
@@ -21,13 +22,12 @@ public:
 
 class Engine {
 	Assets* assets;
-	Level* level;
+	Screen* screen = nullptr;
 	EngineSettings settings;
 
 	uint64_t frame = 0;
 	double lastTime = 0.0;
 	double delta = 0.0;
-	bool occlusion = true;
 
 	gui::GUI* gui;
 public:
@@ -37,6 +37,11 @@ public:
 	void updateTimers();
 	void updateHotkeys();
 	void mainloop();
+
+	Assets* getAssets();
+	gui::GUI* getGUI();
+	EngineSettings& getSettings();
+	void setScreen(Screen* screen);
 };
 
 #endif // SRC_ENGINE_H_

@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <iostream>
+#include <assert.h>
 #include <glm/glm.hpp>
 #define GLEW_STATIC
 
@@ -24,11 +25,13 @@
 #include "frontend/world_render.h"
 #include "frontend/hud.h"
 #include "frontend/gui/GUI.h"
+#include "frontend/screens.h"
 #include "util/platform.h"
 
 #include "coders/json.h"
 #include "coders/png.h"
 #include "files/files.h"
+#include "files/engine_files.h"
 
 using std::shared_ptr;
 using glm::vec3;
@@ -51,15 +54,17 @@ Engine::Engine(const EngineSettings& settings_) {
 			throw initialize_error("could not to initialize assets");
 		}
 	}
-	std::cout << "-- loading world" << std::endl;
-	vec3 playerPosition = vec3(0, 64, 0);
-	Camera* camera = new Camera(playerPosition, radians(90.0f));
-	World* world = new World("world-1", "world/", 42, settings);
-	Player* player = new Player(playerPosition, 4.0f, camera);
-	level = world->loadLevel(player, settings);
 	Audio::initialize();
 	gui = new GUI();
 	std::cout << "-- initializing finished" << std::endl;
+
+	std::cout << "-- loading world" << std::endl;
+	vec3 playerPosition = vec3(0, 64, 0);
+	Camera* camera = new Camera(playerPosition, radians(90.0f));
+	World* world = new World("world-1", enginefs::get_worlds_folder()/"world", 42, settings);
+	Player* player = new Player(playerPosition, 4.0f, camera);
+	setScreen(new LevelScreen(this, world->loadLevel(player, settings)));
+
 }
 
 void Engine::updateTimers() {
@@ -70,54 +75,29 @@ void Engine::updateTimers() {
 }
 
 void Engine::updateHotkeys() {
-	if (Events::jpressed(keycode::O)) {
-		occlusion = !occlusion;
-	}
 	if (Events::jpressed(keycode::F2)) {
 		ImageData* image = Window::takeScreenshot();
 		image->flipY();
-		std::string filename = platform::get_screenshot_file("png");
+		std::string filename = enginefs::get_screenshot_file("png");
 		png::write_image(filename, image);
 		delete image;
 		std::cout << "saved screenshot as " << filename << std::endl;
-	}
-	if (Events::jpressed(keycode::F3)) {
-		level->player->debug = !level->player->debug;
-	}
-	if (Events::jpressed(keycode::F5)) {
-		for (uint i = 0; i < level->chunks->volume; i++) {
-			shared_ptr<Chunk> chunk = level->chunks->chunks[i];
-			if (chunk != nullptr && chunk->isReady()) {
-				chunk->setModified(true);
-			}
-		}
 	}
 }
 
 void Engine::mainloop() {
 	std::cout << "-- preparing systems" << std::endl;
-	
-	Camera* camera = level->player->camera;
-	WorldRenderer worldRenderer(level, assets);
-	HudRenderer hud(gui, level, assets);
+
 	Batch2D batch(1024);
 	lastTime = Window::time();
 
 	while (!Window::isShouldClose()){
+		assert(screen != nullptr);
 		updateTimers();
 		updateHotkeys();
 
-		bool inputLocked = hud.isPause() || hud.isInventoryOpen() || gui->isFocusCaught();
-		level->updatePlayer(delta, !inputLocked, hud.isPause(), !inputLocked);
-		level->update();
-		level->chunksController->update(settings.chunks.loadSpeed);
-
-		float fovFactor = 18.0f / (float)settings.chunks.loadDistance;
-		worldRenderer.draw(camera, occlusion, fovFactor, settings.graphics.fogCurve);
-		hud.draw();
-		if (level->player->debug) {
-			hud.drawDebug( 1 / delta, occlusion);
-		}
+		screen->update(delta);
+		screen->draw(delta);
 		gui->act(delta);
 		gui->draw(&batch, assets);
 
@@ -127,18 +107,32 @@ void Engine::mainloop() {
 }
 
 Engine::~Engine() {
+	delete screen;
+	delete gui;
+
 	Audio::finalize();
-
-	World* world = level->world;
-
-	std::cout << "-- saving world" << std::endl;
-	world->write(level, !settings.debug.generatorTestMode);
-
-	delete level;
-	delete world;
 
 	std::cout << "-- shutting down" << std::endl;
 	delete assets;
 	Window::terminate();
 	std::cout << "-- engine finished" << std::endl;
+}
+
+GUI* Engine::getGUI() {
+	return gui;
+}
+
+EngineSettings& Engine::getSettings() {
+	return settings;
+}
+
+Assets* Engine::getAssets() {
+	return assets;
+}
+
+void Engine::setScreen(Screen* screen) {
+	if (this->screen != nullptr) {
+		delete this->screen;
+	}
+	this->screen = screen;
 }

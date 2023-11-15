@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include <string>
+#include <filesystem>
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -29,11 +30,11 @@ struct WorldRegion {
 class WorldFiles {
 public:
 	std::unordered_map<glm::ivec2, WorldRegion> regions;
-	std::string directory;
+	std::filesystem::path directory;
 	ubyte* compressionBuffer;
 	bool generatorTestMode;
 
-	WorldFiles(std::string directory, size_t mainBufferCapacity, bool generatorTestMode);
+	WorldFiles(std::filesystem::path directory, size_t mainBufferCapacity, bool generatorTestMode);
 	~WorldFiles();
 
 	void put(Chunk* chunk);

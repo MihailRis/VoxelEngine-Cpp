@@ -110,8 +110,13 @@ int Window::initialize(DisplaySettings& settings){
 }
 
 void Window::clear() {
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
+
+void Window::setBgColor(glm::vec3 color) {
+	glClearColor(color.r, color.g, color.b, 1.0f);
+}
+
 
 void Window::viewport(int x, int y, int width, int height){
 	glViewport(x, y, width, height);

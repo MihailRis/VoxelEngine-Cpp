@@ -77,6 +77,7 @@ void GUI::act(float delta) {
 }
 
 void GUI::draw(Batch2D* batch, Assets* assets) {
+    batch->begin();
     container->draw(batch, assets);
 }
 

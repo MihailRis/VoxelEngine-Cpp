@@ -34,6 +34,7 @@ public:
 	static void resetScissor();
 
 	static void clear();
+	static void setBgColor(glm::vec3 color);
 	static double time();
 
 	static ImageData* takeScreenshot();

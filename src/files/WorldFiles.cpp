@@ -16,7 +16,6 @@
 #include <memory>
 #include <fstream>
 #include <iostream>
-#include <filesystem>
 
 #define SECTION_POSITION 1
 #define SECTION_ROTATION 2
@@ -28,6 +27,7 @@ using glm::ivec2;
 using glm::vec3;
 using std::ios;
 using std::unique_ptr;
+using std::filesystem::path;
 
 int bytes2Int(const ubyte* src, size_t offset){
 	return (src[offset] << 24) | (src[offset+1] << 16) | (src[offset+2] << 8) | (src[offset+3]);
@@ -56,7 +56,7 @@ float bytes2Float(ubyte* src, uint offset){
 	return *(float*)(&value);
 }
 
-WorldFiles::WorldFiles(std::string directory, size_t mainBufferCapacity, bool generatorTestMode) 
+WorldFiles::WorldFiles(path directory, size_t mainBufferCapacity, bool generatorTestMode) 
 	: directory(directory), generatorTestMode(generatorTestMode) {
 	compressionBuffer = new ubyte[CHUNK_DATA_LEN * 2];
 }
@@ -116,11 +116,11 @@ void WorldFiles::put(Chunk* chunk){
 }
 
 std::string WorldFiles::getRegionFile(int x, int y) {
-	return directory + std::to_string(x) + "_" + std::to_string(y) + ".bin";
+	return directory/(std::to_string(x) + "_" + std::to_string(y) + ".bin");
 }
 
 std::string WorldFiles::getPlayerFile() {
-	return directory + "/player.bin";
+	return directory/"player.bin";
 }
 
 ubyte* WorldFiles::getChunk(int x, int y){
@@ -201,7 +201,7 @@ ubyte* WorldFiles::readChunkData(int x, int y, uint32_t& length){
 
 void WorldFiles::write(){
 	if (!std::filesystem::is_directory(directory)) {
-		std::filesystem::create_directory(directory);
+		std::filesystem::create_directories(directory);
 	}
 	if (generatorTestMode)
 		return;

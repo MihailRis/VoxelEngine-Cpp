@@ -71,10 +71,10 @@ bool WorldRenderer::drawChunk(size_t index, Camera* camera, Shader* shader, bool
 void WorldRenderer::draw(Camera* camera, bool occlusion, float fogFactor, float fogCurve){
 	Chunks* chunks = level->chunks;
 
-	vec4 skyColor(0.7f, 0.81f, 1.0f, 1.0f);
-	glClearColor(skyColor.r, skyColor.g, skyColor.b, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	vec3 skyColor(0.7f, 0.81f, 1.0f);
 
+	Window::setBgColor(skyColor);
+	Window::clear();
 	Window::viewport(0, 0, Window::width, Window::height);
 
 	glEnable(GL_DEPTH_TEST);
