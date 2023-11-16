@@ -15,16 +15,10 @@
 #include <memory>
 #include <chrono>
 
-#if defined(_WIN32) && defined(__MINGW32__)
-#define _WIN32_WINNT 0x0501
-#include <mingw.thread.h>
-#else
-#include <thread>
-#endif
-
 #define MAX_WORK_PER_FRAME 16
 #define MIN_SURROUNDING 9
 
+using std::unique_ptr;
 using std::shared_ptr;
 using std::chrono::high_resolution_clock;
 using std::chrono::duration_cast;
@@ -63,8 +57,8 @@ bool ChunksController::loadVisible(){
 	int nearX = 0;
 	int nearZ = 0;
 	int minDistance = ((w-padding*2)/2)*((w-padding*2)/2);
-	for (int z = padding; z < d-padding; z++){
-		for (int x = padding; x < w-padding; x++){
+	for (uint z = padding; z < d-padding; z++){
+		for (uint x = padding; x < w-padding; x++){
 			int index = z * w + x;
 			shared_ptr<Chunk> chunk = chunks->chunks[index];
 			if (chunk != nullptr){
@@ -101,14 +95,7 @@ bool ChunksController::loadVisible(){
 		return false;
 	}
 
-	chunk = shared_ptr<Chunk>(new Chunk(nearX+ox, nearZ+oz));
-	level->chunksStorage->store(chunk);
-	ubyte* data = level->world->wfile->getChunk(chunk->x, chunk->z);
-	if (data) {
-		chunk->decode(data);
-		chunk->setLoaded(true);
-		delete[] data;
-	}
+	chunk = level->chunksStorage->create(nearX+ox, nearZ+oz);
 	chunks->putChunk(chunk);
 
 	if (!chunk->isLoaded()) {

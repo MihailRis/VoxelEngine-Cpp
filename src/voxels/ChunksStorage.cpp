@@ -4,14 +4,18 @@
 
 #include "VoxelsVolume.h"
 #include "Chunk.h"
+#include "../files/WorldFiles.h"
+#include "../world/Level.h"
+#include "../world/World.h"
 #include "../maths/voxmaths.h"
 #include "../lighting/Lightmap.h"
-
+#include "../typedefs.h"
 
 using glm::ivec2;
+using std::unique_ptr;
 using std::shared_ptr;
 
-ChunksStorage::ChunksStorage() {
+ChunksStorage::ChunksStorage(Level* level) : level(level) {
 }
 
 ChunksStorage::~ChunksStorage() {
@@ -34,6 +38,17 @@ void ChunksStorage::remove(int x, int z) {
 	if (found != chunksMap.end()) {
 		chunksMap.erase(found->first);
 	}
+}
+
+std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
+	auto chunk = shared_ptr<Chunk>(new Chunk(x, z));
+	store(chunk);
+	unique_ptr<ubyte> data(level->world->wfile->getChunk(chunk->x, chunk->z));
+	if (data) {
+		chunk->decode(data.get());
+		chunk->setLoaded(true);
+	}
+	return chunk;
 }
 
 // some magic code
@@ -70,13 +85,13 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume) const {
 						for (int lx = max(x, cx * CHUNK_W);
 							lx < min(x + w, (cx + 1) * CHUNK_W);
 							lx++) {
-							voxels[vox_index(lx - x, ly - y, lz - z, w, d)].id = BLOCK_VOID;
-							lights[vox_index(lx - x, ly - y, lz - z, w, d)] = 0;
+							uint idx = vox_index(lx - x, ly - y, lz - z, w, d);
+							voxels[idx].id = BLOCK_VOID;
+							lights[idx] = 0;
 						}
 					}
 				}
-			}
-			else {
+			} else {
 				const std::shared_ptr<Chunk>& chunk = found->second;
 				const voxel* cvoxels = chunk->voxels;
 				const light_t* clights = chunk->lightmap->getLights();
@@ -87,10 +102,11 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume) const {
 						for (int lx = max(x, cx * CHUNK_W);
 							lx < min(x + w, (cx + 1) * CHUNK_W);
 							lx++) {
-							voxels[vox_index(lx - x, ly - y, lz - z, w, d)] =
-								cvoxels[vox_index(lx - cx * CHUNK_W, ly, lz - cz * CHUNK_D, CHUNK_W, CHUNK_D)];
-							lights[vox_index(lx - x, ly - y, lz - z, w, d)] =
-								clights[vox_index(lx - cx * CHUNK_W, ly, lz - cz * CHUNK_D, CHUNK_W, CHUNK_D)];
+							uint vidx = vox_index(lx - x, ly - y, lz - z, w, d);
+							uint cidx = vox_index(lx - cx * CHUNK_W, ly, 
+										lz - cz * CHUNK_D, CHUNK_W, CHUNK_D);
+							voxels[vidx] = cvoxels[cidx];
+							lights[vidx] = clights[cidx];
 						}
 					}
 				}

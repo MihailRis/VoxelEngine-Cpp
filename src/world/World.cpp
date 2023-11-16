@@ -9,15 +9,19 @@
 #include "../voxels/Chunks.h"
 #include "../voxels/ChunksStorage.h"
 #include "../objects/Player.h"
-#include "../physics/PhysicsSolver.h"
 #include "../window/Camera.h"
-#include "../world/LevelEvents.h"
 
 using glm::vec3;
 using std::shared_ptr;
+using std::string;
+using std::filesystem::path;
 
-World::World(std::string name, std::filesystem::path directory, int seed, EngineSettings& settings) : name(name), seed(seed) {
-	wfile = new WorldFiles(directory, REGION_VOL * (CHUNK_DATA_LEN * 2 + 8), settings.debug.generatorTestMode);
+World::World(string name, 
+			 path directory, 
+			 uint64_t seed, 
+			 EngineSettings& settings) 
+			: name(name), seed(seed) {
+	wfile = new WorldFiles(directory, settings.debug.generatorTestMode);
 }
 
 World::~World(){
@@ -34,18 +38,20 @@ void World::write(Level* level, bool writeChunks) {
 		wfile->put(chunk.get());
 	}
 
-	wfile->write();
+	wfile->write(WorldInfo {name, wfile->directory, seed});
 	wfile->writePlayer(level->player);
 }
 
-Level* World::loadLevel(EngineSettings& settings) {
-	ChunksStorage* storage = new ChunksStorage();
-	LevelEvents* events = new LevelEvents();
+Level* World::load(EngineSettings& settings) {
+	WorldInfo info {name, wfile->directory, seed};
+	wfile->readWorldInfo(info);
+	seed = info.seed;
+	name = info.name;
 
 	vec3 playerPosition = vec3(0, 64, 0);
 	Camera* camera = new Camera(playerPosition, glm::radians(90.0f));
 	Player* player = new Player(playerPosition, 4.0f, camera);
-	Level* level = new Level(this, player, storage, events, settings);
+	Level* level = new Level(this, player, settings);
 	wfile->readPlayer(player);
 
 	camera->rotation = mat4(1.0f);

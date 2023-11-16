@@ -2,6 +2,7 @@
 
 #include "files.h"
 #include "rle.h"
+#include "binary_io.h"
 #include "../window/Camera.h"
 #include "../objects/Player.h"
 #include "../physics/Hitbox.h"
@@ -23,6 +24,8 @@
 #define PLAYER_FLAG_FLIGHT 0x1
 #define PLAYER_FLAG_NOCLIP 0x2
 
+#define WORLD_SECTION_MAIN 1
+
 using glm::ivec2;
 using glm::vec3;
 using std::ios;
@@ -40,14 +43,6 @@ void int2Bytes(int value, ubyte* dest, size_t offset){
 	dest[offset+3] = (char) (value >> 0 & 255);
 }
 
-void floatToBytes(float fvalue, ubyte* dest, size_t offset){
-	uint32_t value = *((uint32_t*)&fvalue);
-	dest[offset] = (char) (value >> 24 & 255);
-	dest[offset+1] = (char) (value >> 16 & 255);
-	dest[offset+2] = (char) (value >> 8 & 255);
-	dest[offset+3] = (char) (value >> 0 & 255);
-}
-
 float bytes2Float(ubyte* src, uint offset){
 	uint32_t value = ((src[offset] << 24) |
 					  (src[offset+1] << 16) |
@@ -56,7 +51,7 @@ float bytes2Float(ubyte* src, uint offset){
 	return *(float*)(&value);
 }
 
-WorldFiles::WorldFiles(path directory, size_t mainBufferCapacity, bool generatorTestMode) 
+WorldFiles::WorldFiles(path directory, bool generatorTestMode) 
 	: directory(directory), generatorTestMode(generatorTestMode) {
 	compressionBuffer = new ubyte[CHUNK_DATA_LEN * 2];
 }
@@ -115,12 +110,16 @@ void WorldFiles::put(Chunk* chunk){
 	region.compressedSizes[chunk_index] = compressedSize;
 }
 
-path WorldFiles::getRegionFile(int x, int y) {
+path WorldFiles::getRegionFile(int x, int y) const {
 	return directory/path(std::to_string(x) + "_" + std::to_string(y) + ".bin");
 }
 
-path WorldFiles::getPlayerFile() {
+path WorldFiles::getPlayerFile() const {
 	return directory/path("player.bin");
+}
+
+path WorldFiles::getWorldFile() const {
+	return directory/path("world.bin");
 }
 
 ubyte* WorldFiles::getChunk(int x, int y){
@@ -199,10 +198,11 @@ ubyte* WorldFiles::readChunkData(int x, int y, uint32_t& length){
 	return data;
 }
 
-void WorldFiles::write(){
+void WorldFiles::write(const WorldInfo info){
 	if (!std::filesystem::is_directory(directory)) {
 		std::filesystem::create_directories(directory);
 	}
+	writeWorldInfo(info);
 	if (generatorTestMode)
 		return;
 	for (auto it = regions.begin(); it != regions.end(); it++){
@@ -213,26 +213,58 @@ void WorldFiles::write(){
 	}
 }
 
-void WorldFiles::writePlayer(Player* player){
-	ubyte dst[1+3*4 + 1+2*4 + 1+1];
+void WorldFiles::writeWorldInfo(const WorldInfo& info) {
+	BinaryWriter out;
+	out.putCStr(WORLD_FORMAT_MAGIC);
+	out.put(WORLD_FORMAT_VERSION);
+	out.put(WORLD_SECTION_MAIN);
 
+	out.putInt64(info.seed);
+	out.put(info.name);
+
+	files::write_bytes(getWorldFile(), (const char*)out.data(), out.size());
+}
+
+bool WorldFiles::readWorldInfo(WorldInfo& info) {
+	size_t length = 0;
+	ubyte* data = (ubyte*)files::read_bytes(getPlayerFile(), length);
+	if (data == nullptr){
+		std::cerr << "could not to read world.bin (ignored)" << std::endl;
+		return false;
+	}
+	BinaryReader inp(data, length);
+	inp.checkMagic(WORLD_FORMAT_MAGIC, length);
+	/*ubyte version = */inp.get();
+	while (inp.hasNext()) {
+		ubyte section = inp.get();
+		switch (section) {
+		case WORLD_SECTION_MAIN:
+			info.seed = inp.getInt64();
+			info.name = inp.getString();
+			break;
+		}
+	}
+	return false;
+}
+
+void WorldFiles::writePlayer(Player* player){
 	vec3 position = player->hitbox->position;
 
-	size_t offset = 0;
-	dst[offset++] = SECTION_POSITION;
-	floatToBytes(position.x, dst, offset); offset += 4;
-	floatToBytes(position.y, dst, offset); offset += 4;
-	floatToBytes(position.z, dst, offset); offset += 4;
+	BinaryWriter out;
+	out.put(SECTION_POSITION);
+	out.putFloat32(position.x);
+	out.putFloat32(position.y);
+	out.putFloat32(position.z);
 
-	dst[offset++] = SECTION_ROTATION;
-	floatToBytes(player->camX, dst, offset); offset += 4;
-	floatToBytes(player->camY, dst, offset); offset += 4;
+	out.put(SECTION_ROTATION);
+	out.putFloat32(player->camX);
+	out.putFloat32(player->camY);
 
-	dst[offset++] = SECTION_FLAGS;
-	dst[offset++] = player->flight * PLAYER_FLAG_FLIGHT |
-					player->noclip * PLAYER_FLAG_NOCLIP;
+	out.put(SECTION_FLAGS);
+	out.put(player->flight * PLAYER_FLAG_FLIGHT |
+			player->noclip * PLAYER_FLAG_NOCLIP);
 
-	files::write_bytes(getPlayerFile(), (const char*)dst, sizeof(dst));
+	files::write_bytes(getPlayerFile(), (const char*)out.data(), out.size());
 }
 
 bool WorldFiles::readPlayer(Player* player) {
@@ -243,28 +275,29 @@ bool WorldFiles::readPlayer(Player* player) {
 		return false;
 	}
 	vec3 position = player->hitbox->position;
-	size_t offset = 0;
-	while (offset < length){
-		char section = data[offset++];
-		switch (section){
+	BinaryReader inp(data, length);
+	while (inp.hasNext()) {
+		ubyte section = inp.get();
+		switch (section) {
 		case SECTION_POSITION:
-			position.x = bytes2Float(data, offset); offset += 4;
-			position.y = bytes2Float(data, offset); offset += 4;
-			position.z = bytes2Float(data, offset); offset += 4;
+			position.x = inp.getFloat32();
+			position.y = inp.getFloat32();
+			position.z = inp.getFloat32();
 			break;
 		case SECTION_ROTATION:
-			player->camX = bytes2Float(data, offset); offset += 4;
-			player->camY = bytes2Float(data, offset); offset += 4;
+			player->camX = inp.getFloat32();
+			player->camY = inp.getFloat32();
 			break;
-		case SECTION_FLAGS:
+		case SECTION_FLAGS: 
 			{
-				ubyte flags = data[offset++];
+				ubyte flags = inp.get();
 				player->flight = flags & PLAYER_FLAG_FLIGHT;
 				player->noclip = flags & PLAYER_FLAG_NOCLIP;
 			}
 			break;
 		}
 	}
+
 	player->hitbox->position = position;
 	player->camera->position = position + vec3(0, 1, 0);
 	return true;
@@ -281,7 +314,7 @@ void WorldFiles::writeRegion(int x, int y, WorldRegion& entry){
 		}
 	}
 
-	char header[10] = ".VOXREG";
+	char header[10] = REGION_FORMAT_MAGIC;
 	header[8] = REGION_FORMAT_VERSION;
 	header[9] = 0; // flags
 	std::ofstream file(getRegionFile(x, y), ios::out | ios::binary);

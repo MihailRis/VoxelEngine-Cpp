@@ -97,17 +97,15 @@ light_t Chunks::getLight(int x, int y, int z){
 }
 
 Chunk* Chunks::getChunkByVoxel(int x, int y, int z){
+	if (y < 0 || y >= CHUNK_H)
+		return nullptr;
 	x -= ox * CHUNK_W;
 	z -= oz * CHUNK_D;
-	int cx = x / CHUNK_W;
-	int cy = y / CHUNK_H;
-	int cz = z / CHUNK_D;
-	if (x < 0) cx--;
-	if (y < 0) cy--;
-	if (z < 0) cz--;
-	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= 1 || cz >= d)
+	int cx = floordiv(x, CHUNK_W);
+	int cz = floordiv(z, CHUNK_D);
+	if (cx < 0 || cz < 0 || cx >= w || cz >= d)
 		return nullptr;
-	return chunks[(cy * d + cz) * w + cx].get();
+	return chunks[cz * w + cx].get();
 }
 
 Chunk* Chunks::getChunk(int x, int z){
@@ -119,14 +117,12 @@ Chunk* Chunks::getChunk(int x, int z){
 }
 
 void Chunks::set(int x, int y, int z, int id, uint8_t states){
-	x -= ox * CHUNK_W;
-	z -= oz * CHUNK_D;
-	int cx = x / CHUNK_W;
 	if (y < 0 || y >= CHUNK_H)
 		return;
-	int cz = z / CHUNK_D;
-	if (x < 0) cx--;
-	if (z < 0) cz--;
+	x -= ox * CHUNK_W;
+	z -= oz * CHUNK_D;
+	int cx = floordiv(x, CHUNK_W);
+	int cz = floordiv(z, CHUNK_D);
 	if (cx < 0 || cz < 0 || cx >= w || cz >= d)
 		return;
 	Chunk* chunk = chunks[cz * w + cx].get();
@@ -143,17 +139,26 @@ void Chunks::set(int x, int y, int z, int id, uint8_t states){
 	else if (y + 1 > chunk->top) chunk->top = y + 1;
 	else if (id == 0) chunk->updateHeights();
 
-	if (lx == 0 && (chunk = getChunk(cx+ox-1, cz+oz))) chunk->setModified(true);
-	if (lz == 0 && (chunk = getChunk(cx+ox, cz+oz-1))) chunk->setModified(true);
+	if (lx == 0 && (chunk = getChunk(cx+ox-1, cz+oz))) 
+		chunk->setModified(true);
+	if (lz == 0 && (chunk = getChunk(cx+ox, cz+oz-1))) 
+		chunk->setModified(true);
 
-	if (lx == CHUNK_W-1 && (chunk = getChunk(cx+ox+1, cz+oz))) chunk->setModified(true);
-	if (lz == CHUNK_D-1 && (chunk = getChunk(cx+ox, cz+oz+1))) chunk->setModified(true);
+	if (lx == CHUNK_W-1 && (chunk = getChunk(cx+ox+1, cz+oz))) 
+		chunk->setModified(true);
+	if (lz == CHUNK_D-1 && (chunk = getChunk(cx+ox, cz+oz+1))) 
+		chunk->setModified(true);
 }
 
-voxel* Chunks::rayCast(vec3 a, vec3 dir, float maxDist, vec3& end, vec3& norm, vec3& iend) {
-	float px = a.x;
-	float py = a.y;
-	float pz = a.z;
+voxel* Chunks::rayCast(vec3 start, 
+					   vec3 dir, 
+					   float maxDist, 
+					   vec3& end, 
+					   vec3& norm, 
+					   vec3& iend) {
+	float px = start.x;
+	float py = start.y;
+	float pz = start.z;
 
 	float dx = dir.x;
 	float dy = dir.y;
@@ -239,14 +244,10 @@ voxel* Chunks::rayCast(vec3 a, vec3 dir, float maxDist, vec3& end, vec3& norm, v
 }
 
 void Chunks::setCenter(int x, int z) {
-	int cx = x / CHUNK_W;
-	int cz = z / CHUNK_D;
-	cx -= ox;
-	cz -= oz;
-	if (x < 0) cx--;
-	if (z < 0) cz--;
-	cx -= w/2;
-	cz -= d/2;
+	int cx = floordiv(x, CHUNK_W);
+	int cz = floordiv(z, CHUNK_D);
+	cx -= ox + w / 2;
+	cz -= oz + d / 2;
 	if (cx | cz) {
 		translate(cx,cz);
 	}
@@ -295,8 +296,8 @@ void Chunks::resize(int newW, int newD) {
 		translate(0, delta);
 	}
 	const int newVolume = newW * newD;
-	shared_ptr<Chunk>* newChunks = new shared_ptr<Chunk>[newVolume] {};
-	shared_ptr<Chunk>* newChunksSecond = new shared_ptr<Chunk>[newVolume] {};
+	auto newChunks = new shared_ptr<Chunk>[newVolume] {};
+	auto newChunksSecond = new shared_ptr<Chunk>[newVolume] {};
 	for (int z = 0; z < d && z < newD; z++) {
 		for (int x = 0; x < w && x < newW; x++) {
 			newChunks[z * newW + x] = chunks[z * w + x];

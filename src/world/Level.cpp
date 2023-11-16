@@ -11,11 +11,11 @@
 #include "../objects/Player.h"
 #include "../objects/player_control.h"
 
-Level::Level(World* world, Player* player, ChunksStorage* chunksStorage, LevelEvents* events, EngineSettings& settings) :
-		world(world),
+Level::Level(World* world, Player* player, EngineSettings& settings) 
+	  : world(world),
 		player(player),
-		chunksStorage(chunksStorage),
-		events(events) {
+		chunksStorage(new ChunksStorage(this)),
+		events(new LevelEvents()) {
     physics = new PhysicsSolver(vec3(0, -19.6f, 0));
 
     uint matrixSize = (settings.chunks.loadDistance+
@@ -25,7 +25,8 @@ Level::Level(World* world, Player* player, ChunksStorage* chunksStorage, LevelEv
 		world->wfile, 
 		events);
 	lighting = new Lighting(chunks);
-	chunksController = new ChunksController(this, chunks, lighting, settings.chunks.padding);
+	chunksController = new ChunksController(this, chunks, lighting, 
+											settings.chunks.padding);
 	playerController = new PlayerController(this, settings);
 
 	events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {

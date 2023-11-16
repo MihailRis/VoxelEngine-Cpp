@@ -15,13 +15,16 @@ class World {
 public:
 	std::string name;
 	WorldFiles* wfile;
-	int seed;
+	uint64_t seed;
 
-	World(std::string name, std::filesystem::path directory, int seed, EngineSettings& settings);
+	World(std::string name, 
+		  std::filesystem::path directory, 
+		  uint64_t seed, 
+		  EngineSettings& settings);
 	~World();
 
 	void write(Level* level, bool writeChunks);
-	Level* loadLevel(EngineSettings& settings);
+	Level* load(EngineSettings& settings);
 };
 
 #endif /* WORLD_WORLD_H_ */

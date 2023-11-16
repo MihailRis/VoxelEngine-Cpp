@@ -46,7 +46,7 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
             path folder = enginefs::get_worlds_folder()/path("world");
             World* world = new World("world", folder, 42, settings);
 
-            auto screen = new LevelScreen(engine, world->loadLevel(settings));
+            auto screen = new LevelScreen(engine, world->load(settings));
             engine->setScreen(shared_ptr<Screen>(screen));
         });
         panel->add(shared_ptr<UINode>(button));

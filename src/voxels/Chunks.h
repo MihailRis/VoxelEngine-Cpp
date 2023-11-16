@@ -13,6 +13,7 @@ class voxel;
 class WorldFiles;
 class LevelEvents;
 
+/* Player-centred chunks matrix */
 class Chunks {
 public:
 	std::shared_ptr<Chunk>* chunks;
@@ -25,7 +26,8 @@ public:
 	WorldFiles* worldFiles;
 	LevelEvents* events;
 
-	Chunks(int w, int d, int ox, int oz, WorldFiles* worldFiles, LevelEvents* events);
+	Chunks(int w, int d, int ox, int oz, 
+		   WorldFiles* worldFiles, LevelEvents* events);
 	~Chunks();
 
 	bool putChunk(std::shared_ptr<Chunk> chunk);
@@ -36,7 +38,13 @@ public:
 	light_t getLight(int x, int y, int z);
 	ubyte getLight(int x, int y, int z, int channel);
 	void set(int x, int y, int z, int id, uint8_t states);
-	voxel* rayCast(glm::vec3 start, glm::vec3 dir, float maxLength, glm::vec3& end, glm::vec3& norm, glm::vec3& iend);
+
+	voxel* rayCast(glm::vec3 start, 
+				   glm::vec3 dir, 
+				   float maxLength, 
+				   glm::vec3& end, 
+				   glm::vec3& norm, 
+				   glm::vec3& iend);
 
 	bool isObstacle(int x, int y, int z);
 

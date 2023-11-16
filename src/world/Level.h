@@ -28,8 +28,6 @@ public:
 
 	Level(World* world, 
 	      Player* player, 
-	      ChunksStorage* chunksStorage,
-	      LevelEvents* events,
 	      EngineSettings& settings);
 	~Level();
 
