@@ -3,6 +3,7 @@
 
 #include <string>
 #include <stdexcept>
+#include "../typedefs.h"
 
 inline int is_box(int c) {
     switch (c) {

@@ -46,8 +46,8 @@ public:
 	void writePlayer(Player* player);
 	void write();
 
-	std::string getRegionFile(int x, int y);
-	std::string getPlayerFile();
+	std::filesystem::path getRegionFile(int x, int y);
+	std::filesystem::path getPlayerFile();
 };
 
 #endif /* FILES_WORLDFILES_H_ */

@@ -1,6 +1,8 @@
 #include "engine_files.h"
 
 #include <filesystem>
+#include <sstream>
+#include "../typedefs.h"
 
 namespace filesystem = std::filesystem;
 using std::string;

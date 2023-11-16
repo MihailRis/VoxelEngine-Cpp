@@ -10,8 +10,9 @@ using std::string;
 using std::unique_ptr;
 using std::ifstream;
 using std::ofstream;
+using std::filesystem::path;
 
-bool files::write_bytes(string filename, const char* data, size_t size) {
+bool files::write_bytes(path filename, const char* data, size_t size) {
 	ofstream output(filename, ios::binary);
 	if (!output.is_open())
 		return false;
@@ -20,7 +21,7 @@ bool files::write_bytes(string filename, const char* data, size_t size) {
 	return true;
 }
 
-uint files::append_bytes(string filename, const char* data, size_t size) {
+uint files::append_bytes(path filename, const char* data, size_t size) {
 	ofstream output(filename, ios::binary | ios::app);
 	if (!output.is_open())
 		return 0;
@@ -30,7 +31,7 @@ uint files::append_bytes(string filename, const char* data, size_t size) {
 	return position;
 }
 
-bool files::read(string filename, char* data, size_t size) {
+bool files::read(path filename, char* data, size_t size) {
 	ifstream output(filename, ios::binary);
 	if (!output.is_open())
 		return false;
@@ -39,7 +40,7 @@ bool files::read(string filename, char* data, size_t size) {
 	return true;
 }
 
-char* files::read_bytes(string filename, size_t& length) {
+char* files::read_bytes(path filename, size_t& length) {
 	ifstream input(filename, ios::binary);
 	if (!input.is_open())
 		return nullptr;
@@ -53,13 +54,13 @@ char* files::read_bytes(string filename, size_t& length) {
 	return data.release();
 }
 
-std::string files::read_string(string filename) {
+std::string files::read_string(path filename) {
 	size_t size;
 	unique_ptr<char> chars (read_bytes(filename, size));
 	return string(chars.get(), size);
 }
 
-bool files::write_string(string filename, const string content) {
+bool files::write_string(path filename, const string content) {
 	ofstream file(filename);
 	if (!file) {
 		return false;

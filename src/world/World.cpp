@@ -16,7 +16,7 @@
 using glm::vec3;
 using std::shared_ptr;
 
-World::World(std::string name, std::string directory, int seed, EngineSettings& settings) : name(name), seed(seed) {
+World::World(std::string name, std::filesystem::path directory, int seed, EngineSettings& settings) : name(name), seed(seed) {
 	wfile = new WorldFiles(directory, REGION_VOL * (CHUNK_DATA_LEN * 2 + 8), settings.debug.generatorTestMode);
 }
 

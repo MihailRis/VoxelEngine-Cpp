@@ -115,12 +115,12 @@ void WorldFiles::put(Chunk* chunk){
 	region.compressedSizes[chunk_index] = compressedSize;
 }
 
-std::string WorldFiles::getRegionFile(int x, int y) {
-	return directory/(std::to_string(x) + "_" + std::to_string(y) + ".bin");
+path WorldFiles::getRegionFile(int x, int y) {
+	return directory/path(std::to_string(x) + "_" + std::to_string(y) + ".bin");
 }
 
-std::string WorldFiles::getPlayerFile() {
-	return directory/"player.bin";
+path WorldFiles::getPlayerFile() {
+	return directory/path("player.bin");
 }
 
 ubyte* WorldFiles::getChunk(int x, int y){
@@ -173,7 +173,7 @@ ubyte* WorldFiles::readChunkData(int x, int y, uint32_t& length){
 
 	int chunkIndex = localY * REGION_SIZE + localX;
 
-	std::string filename = getRegionFile(regionX, regionY);
+	path filename = getRegionFile(regionX, regionY);
 	std::ifstream input(filename, std::ios::binary);
 	if (!input.is_open()){
 		return nullptr;
