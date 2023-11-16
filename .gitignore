@@ -7,8 +7,14 @@ Debug/voxel_engine
 
 /world
 /worlds/**/*
+/settings.toml
 
 .vscode
+/.vs
+*.sln
+*.vcxproj
+*.filters
+*.user
 
 .cache
 .settings

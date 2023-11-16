@@ -19,6 +19,7 @@ public:
 	std::shared_ptr<Chunk>* chunksSecond;
 	size_t volume;
 	size_t chunksCount;
+	size_t visible;
 	int w,d;
 	int ox,oz;
 	WorldFiles* worldFiles;

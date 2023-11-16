@@ -50,15 +50,15 @@ HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(en
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 
-	Panel* panel = new Panel(vec2(200, 200), vec4(5.0f), 1.0f);
+	Panel* panel = new Panel(vec2(250, 200), vec4(5.0f), 1.0f);
 	panel->listenInterval(1.0f, [this]() {
 		fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
 		fpsMin = fps;
 		fpsMax = fps;
 	});
 	panel->setCoord(vec2(10, 10));
-	panel->add(shared_ptr<Label>(create_label([this](){
-		return L"chunks: "+std::to_wstring(this->level->chunks->chunksCount);
+	panel->add(shared_ptr<Label>(create_label([this, level]() {
+		return L"chunks: "+std::to_wstring(this->level->chunks->chunksCount)+L" visible: "+std::to_wstring(level->chunks->visible);
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
 		return L"fps: "+this->fpsString;
