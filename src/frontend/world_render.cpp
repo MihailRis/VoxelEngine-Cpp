@@ -52,8 +52,8 @@ bool WorldRenderer::drawChunk(size_t index, Camera* camera, Shader* shader, bool
 
 	// Simple frustum culling
 	if (occlusion){
-		glm::vec3 min = glm::vec3(chunk->x * CHUNK_W, chunk->bottom, chunk->z * CHUNK_D);
-		glm::vec3 max = glm::vec3(chunk->x * CHUNK_W + CHUNK_W, chunk->top, chunk->z * CHUNK_D + CHUNK_D);
+		glm::vec3 min(chunk->x * CHUNK_W, chunk->bottom, chunk->z * CHUNK_D);
+		glm::vec3 max(chunk->x * CHUNK_W + CHUNK_W, chunk->top, chunk->z * CHUNK_D + CHUNK_D);
 
 		if (!frustumCulling->IsBoxVisible(min, max)) return false;
 	}
@@ -145,8 +145,7 @@ void WorldRenderer::draw(Camera* camera, bool occlusion, float fogFactor, float 
 		float lenght = 40.f;
 
 		linesShader->use();
-		glm::mat4 model(1.0f);
-		model = glm::translate(model, glm::vec3(Window::width >> 1, -static_cast<int>(Window::height) >> 1, 0.f));
+		glm::mat4 model(glm::translate(glm::mat4(1.f), glm::vec3(Window::width >> 1, -static_cast<int>(Window::height) >> 1, 0.f)));
 		linesShader->uniformMatrix("u_projview", glm::ortho(0.f, static_cast<float>(Window::width), -static_cast<float>(Window::height), 0.f, -lenght, lenght) * model * glm::inverse(camera->rotation));
 
 		glDisable(GL_DEPTH_TEST);
