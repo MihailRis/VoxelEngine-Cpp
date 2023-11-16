@@ -29,6 +29,7 @@ using std::wstring;
 using glm::vec3;
 using glm::vec4;
 using std::shared_ptr;
+using std::filesystem::path;
 using std::filesystem::directory_iterator;
 using namespace gui;
 
@@ -38,11 +39,12 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
 	panel->setCoord(vec2(10, 10));
 
     {
-        Button* button = new Button(L"Continue", vec4(12.0f, 10.0f, 12.0f, 10.0f));
+        auto button = new Button(L"Continue", vec4(12.0f, 10.0f, 12.0f, 10.0f));
         button->listenAction([this, panel](GUI*) {
             std::cout << "-- loading world" << std::endl;
             EngineSettings& settings = engine->getSettings();
-            World* world = new World("world", enginefs::get_worlds_folder()/"world", 42, settings);
+            path folder = enginefs::get_worlds_folder()/"world";
+            World* world = new World("world", folder, 42, settings);
 
             auto screen = new LevelScreen(engine, world->loadLevel(settings));
             engine->setScreen(shared_ptr<Screen>(screen));
@@ -90,7 +92,9 @@ void MenuScreen::draw(float delta) {
     Window::setBgColor(vec3(0.2f, 0.2f, 0.2f));
 }
 
-LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine), level(level) {
+LevelScreen::LevelScreen(Engine* engine, Level* level) 
+    : Screen(engine), 
+      level(level) {
     worldRenderer = new WorldRenderer(level, engine->getAssets());
     hud = new HudRenderer(engine, level);
 }
@@ -128,7 +132,9 @@ void LevelScreen::update(float delta) {
     gui::GUI* gui = engine->getGUI();
     EngineSettings& settings = engine->getSettings();
 
-    bool inputLocked = hud->isPause() || hud->isInventoryOpen() || gui->isFocusCaught();
+    bool inputLocked = hud->isPause() || 
+                       hud->isInventoryOpen() || 
+                       gui->isFocusCaught();
     if (!inputLocked) {
         updateHotkeys();
     }
@@ -141,8 +147,8 @@ void LevelScreen::draw(float delta) {
     EngineSettings& settings = engine->getSettings();
     Camera* camera = level->player->camera;
 
-    float fovFactor = 18.0f / (float)settings.chunks.loadDistance;
-    worldRenderer->draw(camera, occlusion, fovFactor, settings.graphics.fogCurve);
+    float fogFactor = 18.0f / (float)settings.chunks.loadDistance;
+    worldRenderer->draw(camera, occlusion, fogFactor, settings.graphics.fogCurve);
     hud->draw();
     if (level->player->debug) {
         hud->drawDebug( 1 / delta, occlusion);

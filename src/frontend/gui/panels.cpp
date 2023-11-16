@@ -97,7 +97,7 @@ void Panel::refresh() {
     vec2 size = this->size();
     if (orientation_ == Orientation::vertical) {
         float maxw = size.x;
-        for (auto node : nodes) {
+        for (auto& node : nodes) {
             vec2 nodesize = node->size();
             const vec4 margin = node->margin();
             y += margin.y;
@@ -116,25 +116,29 @@ void Panel::refresh() {
             }
             node->setCoord(vec2(ex, y));
             y += nodesize.y + margin.w + interval;
-            node->size(vec2(size.x - padding.x - padding.z - margin.x - margin.z, nodesize.y));
+
+            float width = size.x - padding.x - padding.z - margin.x - margin.z;
+            node->size(vec2(width, nodesize.y));
             maxw = fmax(maxw, ex+node->size().x+margin.z+padding.z);
         }
         if (resizing_)
-            this->size(vec2(maxw, y+padding.w));
+            this->size(vec2(size.x, y+padding.w));
     } else {
         float maxh = size.y;
-        for (auto node : nodes) {
+        for (auto& node : nodes) {
             vec2 nodesize = node->size();
             const vec4 margin = node->margin();
             x += margin.x;
             node->setCoord(vec2(x, y+margin.y));
             x += nodesize.x + margin.z + interval;
-            node->size(vec2(nodesize.x, size.y - padding.y - padding.w - margin.y - margin.w));
+
+            float height = size.y - padding.y - padding.w - margin.y - margin.w;
+            node->size(vec2(nodesize.x, height));
             maxh = fmax(maxh, y+margin.y+node->size().y+margin.w+padding.w);
         }
         bool increased = maxh > size.y;
         if (resizing_)
-            this->size(vec2(x+padding.z, maxh));
+            this->size(vec2(x+padding.z, size.y));
         if (increased)
             refresh();
     }
