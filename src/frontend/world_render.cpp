@@ -85,10 +85,10 @@ void WorldRenderer::draw(Camera* camera, bool occlusion, float fogFactor, float 
 	shader->uniformMatrix("u_view", camera->getView());
 	shader->uniform1f("u_gamma", 1.6f);
 	shader->uniform3f("u_skyLightColor", 1.1f,1.1f,1.1f);
-	shader->uniform3f("u_fogColor", skyColor.r,skyColor.g,skyColor.b);
+	shader->uniform3f("u_fogColor", skyColor);
 	shader->uniform1f("u_fogFactor", fogFactor);
 	shader->uniform1f("u_fogCurve", fogCurve);
-	shader->uniform3f("u_cameraPos", camera->position.x,camera->position.y,camera->position.z);
+	shader->uniform3f("u_cameraPos", camera->position);
 
 	Block* cblock = Block::blocks[level->player->choosenBlock];
 	float multiplier = 0.2f;
@@ -146,8 +146,12 @@ void WorldRenderer::draw(Camera* camera, bool occlusion, float fogFactor, float 
 		float length = 40.f;
 
 		linesShader->use();
-		glm::mat4 model(glm::translate(glm::mat4(1.f), vec3(Window::width >> 1, -static_cast<int>(Window::height) >> 1, 0.f)));
-		linesShader->uniformMatrix("u_projview", glm::ortho(0.f, static_cast<float>(Window::width), -static_cast<float>(Window::height), 0.f, -length, length) * model * glm::inverse(camera->rotation));
+		vec3 tsl = vec3(Window::width/2, -((int)Window::height)/2, 0.f);
+		glm::mat4 model(glm::translate(glm::mat4(1.f), tsl));
+		linesShader->uniformMatrix("u_projview", glm::ortho(
+				0.f, (float)Window::width, 
+				-(float)Window::height, 0.f, 
+				-length, length) * model * glm::inverse(camera->rotation));
 
 		glDisable(GL_DEPTH_TEST);
 

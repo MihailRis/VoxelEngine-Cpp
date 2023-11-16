@@ -41,11 +41,20 @@ void Shader::uniform2f(std::string name, float x, float y){
 	glUniform2f(transformLoc, x, y);
 }
 
+void Shader::uniform2f(std::string name, glm::vec2 xy){
+	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
+	glUniform2f(transformLoc, xy.x, xy.y);
+}
+
 void Shader::uniform3f(std::string name, float x, float y, float z){
 	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniform3f(transformLoc, x,y,z);
 }
 
+void Shader::uniform3f(std::string name, glm::vec3 xyz){
+	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
+	glUniform3f(transformLoc, xyz.x, xyz.y, xyz.z);
+}
 
 
 Shader* load_shader(std::string vertexFile, std::string fragmentFile) {

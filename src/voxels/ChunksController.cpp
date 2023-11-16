@@ -108,7 +108,9 @@ bool ChunksController::loadVisible(){
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
 		blockid_t id = chunk->voxels[i].id;
 		if (Block::blocks[id] == nullptr) {
-			std::cout << "corruped block detected at " << i << " of chunk " << chunk->x << "x" << chunk->z << " -> " << (int)id << std::endl;
+			std::cout << "corruped block detected at " << i << " of chunk ";
+			std::cout << chunk->x << "x" << chunk->z;
+			std::cout << " -> " << (int)id << std::endl;
 			chunk->voxels[i].id = 11;
 		}
 	}
