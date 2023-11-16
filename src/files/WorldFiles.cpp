@@ -227,13 +227,13 @@ void WorldFiles::writeWorldInfo(const WorldInfo& info) {
 
 bool WorldFiles::readWorldInfo(WorldInfo& info) {
 	size_t length = 0;
-	ubyte* data = (ubyte*)files::read_bytes(getPlayerFile(), length);
+	ubyte* data = (ubyte*)files::read_bytes(getWorldFile(), length);
 	if (data == nullptr){
 		std::cerr << "could not to read world.bin (ignored)" << std::endl;
 		return false;
 	}
 	BinaryReader inp(data, length);
-	inp.checkMagic(WORLD_FORMAT_MAGIC, length);
+	inp.checkMagic(WORLD_FORMAT_MAGIC, 8);
 	/*ubyte version = */inp.get();
 	while (inp.hasNext()) {
 		ubyte section = inp.get();

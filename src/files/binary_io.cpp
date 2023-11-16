@@ -128,7 +128,7 @@ float BinaryReader::getFloat32() {
 
 string BinaryReader::getString() {
     uint16_t length = (uint16_t)getInt16();
-    if (pos+length >= size) {
+    if (pos+length > size) {
         throw std::underflow_error("unexpected end");
     }
     pos += length;

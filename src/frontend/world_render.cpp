@@ -143,25 +143,25 @@ void WorldRenderer::draw(Camera* camera, bool occlusion, float fogFactor, float 
 	}
 
 	if (level->player->debug) {
-		float lenght = 40.f;
+		float length = 40.f;
 
 		linesShader->use();
 		glm::mat4 model(glm::translate(glm::mat4(1.f), vec3(Window::width >> 1, -static_cast<int>(Window::height) >> 1, 0.f)));
-		linesShader->uniformMatrix("u_projview", glm::ortho(0.f, static_cast<float>(Window::width), -static_cast<float>(Window::height), 0.f, -lenght, lenght) * model * glm::inverse(camera->rotation));
+		linesShader->uniformMatrix("u_projview", glm::ortho(0.f, static_cast<float>(Window::width), -static_cast<float>(Window::height), 0.f, -length, length) * model * glm::inverse(camera->rotation));
 
 		glDisable(GL_DEPTH_TEST);
 
 		glLineWidth(4.0f);
-		lineBatch->line(0.f, 0.f, 0.f, lenght, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f);
-		lineBatch->line(0.f, 0.f, 0.f, 0.f, lenght, 0.f, 0.f, 0.f, 0.f, 1.f);
-		lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, lenght, 0.f, 0.f, 0.f, 1.f);
+		lineBatch->line(0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f);
+		lineBatch->line(0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 0.f, 1.f);
+		lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 1.f);
 		lineBatch->render();
 		glEnable(GL_DEPTH_TEST);
 
 		glLineWidth(2.0f);
-		lineBatch->line(0.f, 0.f, 0.f, lenght, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f);
-		lineBatch->line(0.f, 0.f, 0.f, 0.f, lenght, 0.f, 0.f, 1.f, 0.f, 1.f);
-		lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, lenght, 0.f, 0.f, 1.f, 1.f);
+		lineBatch->line(0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f);
+		lineBatch->line(0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 0.f, 1.f);
+		lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 1.f);
 		lineBatch->render();
 	}
 }
