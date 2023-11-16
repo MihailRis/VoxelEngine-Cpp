@@ -119,7 +119,7 @@ HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(en
 		Button* button = new Button(L"Save and Quit to Menu", vec4(12.0f, 10.0f, 12.0f, 12.0f));
 		button->listenAction([this, engine](GUI*){
 			this->pauseMenu->visible(false);
-			engine->setScreen(new MenuScreen(engine));
+			engine->setScreen(shared_ptr<Screen>(new MenuScreen(engine)));
 		});
 		pauseMenu->add(shared_ptr<UINode>(button));
 	}

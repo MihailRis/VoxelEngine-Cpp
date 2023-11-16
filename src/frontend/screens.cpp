@@ -46,7 +46,8 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
             vec3 playerPosition = vec3(0, 64, 0);
             Camera* camera = new Camera(playerPosition, radians(90.0f));
             Player* player = new Player(playerPosition, 4.0f, camera);
-            engine->setScreen(new LevelScreen(engine, world->loadLevel(player, settings)));
+            auto screen = new LevelScreen(engine, world->loadLevel(player, settings));
+            engine->setScreen(shared_ptr<Screen>(screen));
         });
         panel->add(shared_ptr<UINode>(button));
     }

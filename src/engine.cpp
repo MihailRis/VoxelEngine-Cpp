@@ -4,6 +4,7 @@
 #include <iostream>
 #include <assert.h>
 #include <glm/glm.hpp>
+#include <filesystem>
 #define GLEW_STATIC
 
 #include "audio/Audio.h"
@@ -33,7 +34,10 @@
 #include "files/files.h"
 #include "files/engine_files.h"
 
+using std::unique_ptr;
 using std::shared_ptr;
+using std::string;
+using std::filesystem::path;
 using glm::vec3;
 using gui::GUI;
 
@@ -58,7 +62,7 @@ Engine::Engine(const EngineSettings& settings_) {
 	gui = new GUI();
 	std::cout << "-- initializing finished" << std::endl;
 
-	setScreen(new MenuScreen(this));
+	setScreen(shared_ptr<Screen>(new MenuScreen(this)));
 }
 
 void Engine::updateTimers() {
@@ -70,11 +74,10 @@ void Engine::updateTimers() {
 
 void Engine::updateHotkeys() {
 	if (Events::jpressed(keycode::F2)) {
-		ImageData* image = Window::takeScreenshot();
+		unique_ptr<ImageData> image(Window::takeScreenshot());
 		image->flipY();
-		std::string filename = enginefs::get_screenshot_file("png");
-		png::write_image(filename, image);
-		delete image;
+		path filename = enginefs::get_screenshot_file("png");
+		png::write_image(filename, image.get());
 		std::cout << "saved screenshot as " << filename << std::endl;
 	}
 }
@@ -101,7 +104,7 @@ void Engine::mainloop() {
 }
 
 Engine::~Engine() {
-	delete screen;
+	screen = nullptr;
 	delete gui;
 
 	Audio::finalize();
@@ -124,9 +127,6 @@ Assets* Engine::getAssets() {
 	return assets;
 }
 
-void Engine::setScreen(Screen* screen) {
-	if (this->screen != nullptr) {
-		delete this->screen;
-	}
+void Engine::setScreen(shared_ptr<Screen> screen) {
 	this->screen = screen;
 }

@@ -22,7 +22,7 @@ public:
 
 class Engine {
 	Assets* assets;
-	Screen* screen = nullptr;
+	std::shared_ptr<Screen> screen = nullptr;
 	EngineSettings settings;
 
 	uint64_t frame = 0;
@@ -41,7 +41,7 @@ public:
 	Assets* getAssets();
 	gui::GUI* getGUI();
 	EngineSettings& getSettings();
-	void setScreen(Screen* screen);
+	void setScreen(std::shared_ptr<Screen> screen);
 };
 
 #endif // SRC_ENGINE_H_
