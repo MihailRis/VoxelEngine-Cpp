@@ -116,7 +116,7 @@ void WorldRenderer::draw(Camera* camera, bool occlusion, float fogFactor, float 
 				(b->x + 0.5f - px)*(b->x + 0.5f - px) + (b->z + 0.5f - pz)*(b->z + 0.5f - pz));
 	});
 
-	frustumCulling->update(camera->getProjection() * camera->getView());
+	if (occlusion) frustumCulling->update(camera->getProjView());
 	chunks->visible = 0;
 	for (size_t i = 0; i < indices.size(); i++){
 		chunks->visible += drawChunk(indices[i], camera, shader, occlusion);
