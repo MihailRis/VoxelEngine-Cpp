@@ -93,9 +93,9 @@ void Engine::mainloop() {
 		updateTimers();
 		updateHotkeys();
 
+		gui->act(delta);
 		screen->update(delta);
 		screen->draw(delta);
-		gui->act(delta);
 		gui->draw(&batch, assets);
 
 		Window::swapBuffers();
