@@ -157,7 +157,7 @@ void PlayerController::updateControls(float delta){
 		float dt = min(1.0f, delta * ZOOM_SPEED);
 		float zoomValue = 1.0f;
 		if (crouch){
-			cameraOffset += CROUCH_SHIFT_Y;
+			cameraOffset += vec3(0.f, CROUCH_SHIFT_Y, 0.f);
 			zoomValue = CROUCH_ZOOM;
 		} else if (input.sprint){
 			zoomValue = RUN_ZOOM;

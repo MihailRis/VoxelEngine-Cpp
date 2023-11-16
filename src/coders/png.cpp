@@ -275,7 +275,7 @@ ImageData* _png_load(const char* file){
 		return 0;
 	}
 
-	char *clr_type_str;
+	const char *clr_type_str;
 	if(ihdr.color_type == SPNG_COLOR_TYPE_GRAYSCALE)
 		clr_type_str = "grayscale";
 	else if(ihdr.color_type == SPNG_COLOR_TYPE_TRUECOLOR)

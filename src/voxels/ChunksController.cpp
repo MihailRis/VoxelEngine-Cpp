@@ -116,6 +116,8 @@ bool ChunksController::loadVisible(){
 		chunk->setUnsaved(true);
 	}
 
+	chunk->updateHeights();
+
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
 		blockid_t id = chunk->voxels[i].id;
 		if (Block::blocks[id] == nullptr) {
