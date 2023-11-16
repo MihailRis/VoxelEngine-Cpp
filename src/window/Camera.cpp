@@ -48,3 +48,7 @@ mat4 Camera::getView(){
 	else
 		return glm::translate(glm::mat4(1.0f), position);
 }
+
+mat4 Camera::getProjView(){
+	return getProjection()*getView();
+}

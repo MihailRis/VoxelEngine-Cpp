@@ -25,6 +25,7 @@ public:
 
 	mat4 getProjection();
 	mat4 getView();
+	mat4 getProjView();
 };
 
 #endif /* WINDOW_CAMERA_H_ */

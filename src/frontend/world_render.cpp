@@ -94,10 +94,11 @@ void WorldRenderer::draw(Camera* camera, bool occlusion, float fogFactor, float 
 	shader->uniform3f("u_cameraPos", camera->position.x,camera->position.y,camera->position.z);
 
 	Block* cblock = Block::blocks[level->player->choosenBlock];
+	float multiplier = 0.2f;
 	shader->uniform3f("u_torchlightColor",
-			cblock->emission[0] / 15.0f,
-			cblock->emission[1] / 15.0f,
-			cblock->emission[2] / 15.0f);
+			cblock->emission[0] / 15.0f * multiplier,
+			cblock->emission[1] / 15.0f * multiplier,
+			cblock->emission[2] / 15.0f * multiplier);
 	shader->uniform1f("u_torchlightDistance", 6.0f);
 	texture->bind();
 

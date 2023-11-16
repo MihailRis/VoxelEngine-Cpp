@@ -72,7 +72,6 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
         });
         panel->add(shared_ptr<UINode>(button));
     }
-
     this->panel = shared_ptr<UINode>(panel);
     engine->getGUI()->add(this->panel);
 }
@@ -100,15 +99,12 @@ LevelScreen::~LevelScreen() {
     delete hud;
     delete worldRenderer;
 
-
+	std::cout << "-- writing world" << std::endl;
     World* world = level->world;
-
-	std::cout << "-- saving world" << std::endl;
 	world->write(level, !engine->getSettings().debug.generatorTestMode);
 
-	delete world;
     delete level;
-
+	delete world;
 }
 
 void LevelScreen::updateHotkeys() {
