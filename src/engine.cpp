@@ -58,15 +58,6 @@ Engine::Engine(const EngineSettings& settings_) {
 	gui = new GUI();
 	std::cout << "-- initializing finished" << std::endl;
 
-	std::cout << "-- loading world" << std::endl;
-
-	//World* world = new World("world-1", enginefs::get_worlds_folder()/"world", 42, settings);
-	
-	//vec3 playerPosition = vec3(0, 64, 0);
-	//Camera* camera = new Camera(playerPosition, radians(90.0f));
-	//Player* player = new Player(playerPosition, 4.0f, camera);
-	//setScreen(new LevelScreen(this, world->loadLevel(player, settings)));
-
 	setScreen(new MenuScreen(this));
 }
 

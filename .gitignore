@@ -6,7 +6,7 @@ Debug/voxel_engine
 /build
 
 /world
-/worlds
+/worlds/**/*
 
 .vscode
 

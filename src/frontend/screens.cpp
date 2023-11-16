@@ -40,6 +40,7 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     {
         Button* button = new Button(L"Continue", vec4(12.0f, 10.0f, 12.0f, 10.0f));
         button->listenAction([this, panel](GUI*) {
+            std::cout << "-- loading world" << std::endl;
             EngineSettings& settings = engine->getSettings();
             World* world = new World("world", enginefs::get_worlds_folder()/"world", 42, settings);
             vec3 playerPosition = vec3(0, 64, 0);
