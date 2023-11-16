@@ -275,17 +275,17 @@ ImageData* _png_load(const char* file){
 		return 0;
 	}
 
-	char *clr_type_str;
-	if(ihdr.color_type == SPNG_COLOR_TYPE_GRAYSCALE)
-		clr_type_str = "grayscale";
-	else if(ihdr.color_type == SPNG_COLOR_TYPE_TRUECOLOR)
-		clr_type_str = "truecolor";
-	else if(ihdr.color_type == SPNG_COLOR_TYPE_INDEXED)
-		clr_type_str = "indexed color";
-	else if(ihdr.color_type == SPNG_COLOR_TYPE_GRAYSCALE_ALPHA)
-		clr_type_str = "grayscale with alpha";
-	else
-		clr_type_str = "truecolor with alpha";
+	//char *clr_type_str;
+	//if(ihdr.color_type == SPNG_COLOR_TYPE_GRAYSCALE)
+	//	clr_type_str = "grayscale";
+	//else if(ihdr.color_type == SPNG_COLOR_TYPE_TRUECOLOR)
+	//	clr_type_str = "truecolor";
+	//else if(ihdr.color_type == SPNG_COLOR_TYPE_INDEXED)
+	//	clr_type_str = "indexed color";
+	//else if(ihdr.color_type == SPNG_COLOR_TYPE_GRAYSCALE_ALPHA)
+	//	clr_type_str = "grayscale with alpha";
+	//else
+	//	clr_type_str = "truecolor with alpha";
 
 	size_t out_size;
 	r = spng_decoded_image_size(ctx, SPNG_FMT_RGBA8, &out_size);

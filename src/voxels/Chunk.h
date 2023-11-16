@@ -26,6 +26,7 @@ struct RenderData {
 class Chunk {
 public:
 	int x, z;
+	int top, bottom;
 	voxel* voxels;
 	Lightmap* lightmap;
 	int flags = 0;
@@ -36,6 +37,8 @@ public:
 	~Chunk();
 
 	bool isEmpty();
+
+	void updateHeights();
 
 	Chunk* clone() const;
 

@@ -71,8 +71,8 @@ HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(en
 		stream << std::hex << this->level->player->selectedVoxel.states;
 		return L"block-selected: "+std::to_wstring(this->level->player->selectedVoxel.id)+L" "+stream.str();
 	})));
-	panel->add(shared_ptr<Label>(create_label([this](){
-		return L"meshes: " + std::to_wstring(Mesh::meshesCount);
+	panel->add(shared_ptr<Label>(create_label([this, level](){
+		return L"meshes: " + std::to_wstring(Mesh::meshesCount) + L" visible: " + std::to_wstring(level->chunks->visible);
 	})));
 	for (int ax = 0; ax < 3; ax++){
 		Panel* sub = new Panel(vec2(10, 27), vec4(0.0f));

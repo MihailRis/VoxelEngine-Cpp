@@ -9,6 +9,9 @@ Debug/voxel_engine
 /worlds/**/*
 
 .vscode
+.vs/
+*.user
+*.vcxproj
 
 .cache
 .settings
@@ -16,3 +19,12 @@ Debug/voxel_engine
 .project
 .git
 /Default/
+<<<<<<< HEAD
+
+bin/
+screenshots/
+
+*.dll
+settings.toml
+=======
+>>>>>>> a62fc5c4e09e0151048a8040f1cd93cd1c64e550

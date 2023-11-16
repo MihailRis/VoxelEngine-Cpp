@@ -20,12 +20,14 @@ class ChunksRenderer;
 class Shader;
 class Texture;
 class Framebuffer;
+class FrustumCulling;
 
 
 class WorldRenderer {
 	Batch3D* batch3d;
 	Assets* assets;
 	Level* level;
+	FrustumCulling* frustumCulling;
 	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion);
 public:
 	ChunksRenderer* renderer;

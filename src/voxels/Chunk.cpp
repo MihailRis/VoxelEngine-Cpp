@@ -2,7 +2,10 @@
 #include "voxel.h"
 #include "../lighting/Lightmap.h"
 
-Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos){
+Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos),
+	top(CHUNK_H),
+	bottom(0)
+{
 	voxels = new voxel[CHUNK_VOL];
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
 		voxels[i].id = 2;
@@ -28,6 +31,22 @@ bool Chunk::isEmpty(){
 		}
 	}
 	return true;
+}
+
+void Chunk::updateHeights() {
+	for (int i = 0; i < CHUNK_VOL; i++) {
+		if (voxels[i].id != 0) {
+			bottom = i / (CHUNK_D * CHUNK_W);
+			break;
+		}
+	}
+
+	for (int i = CHUNK_VOL - 1; i > -1; i--) {
+		if (voxels[i].id != 0) {
+			top = i / (CHUNK_D * CHUNK_W) + 1;
+			break;
+		}
+	}
 }
 
 Chunk* Chunk::clone() const {

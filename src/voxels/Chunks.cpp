@@ -139,6 +139,10 @@ void Chunks::set(int x, int y, int z, int id, uint8_t states){
 	chunk->setUnsaved(true);
 	chunk->setModified(true);
 
+	if (y < chunk->bottom) chunk->bottom = y;
+	else if (y + 1 > chunk->top) chunk->top = y + 1;
+	else if (id == 0) chunk->updateHeights();
+
 	if (lx == 0 && (chunk = getChunk(cx+ox-1, cz+oz))) chunk->setModified(true);
 	if (lz == 0 && (chunk = getChunk(cx+ox, cz+oz-1))) chunk->setModified(true);
 

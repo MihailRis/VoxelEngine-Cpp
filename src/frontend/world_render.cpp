@@ -21,10 +21,13 @@
 #include "../objects/Player.h"
 #include "../assets/Assets.h"
 #include "../objects/player_control.h"
+#include "../maths/FrustumCulling.h"
 
 using std::shared_ptr;
 
-WorldRenderer::WorldRenderer(Level* level, Assets* assets) : assets(assets), level(level) {
+WorldRenderer::WorldRenderer(Level* level, Assets* assets) : assets(assets), level(level),
+	frustumCulling(new FrustumCulling())
+{
 	lineBatch = new LineBatch(4096);
 	batch3d = new Batch3D(1024);
 	renderer = new ChunksRenderer(level);
@@ -37,6 +40,7 @@ WorldRenderer::~WorldRenderer() {
 	delete batch3d;
 	delete lineBatch;
 	delete renderer;
+	delete frustumCulling;
 }
 
 bool WorldRenderer::drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion){
@@ -47,24 +51,16 @@ bool WorldRenderer::drawChunk(size_t index, Camera* camera, Shader* shader, bool
 	if (mesh == nullptr)
 		return false;
 
-	// Simple frustum culling
 	if (occlusion){
-		float y = camera->position.y+camera->front.y * CHUNK_H * 0.5f;
-		if (y < 0.0f)
-			y = 0.0f;
-		if (y > CHUNK_H)
-			y = CHUNK_H;
-		vec3 v = vec3(chunk->x*CHUNK_W, y, chunk->z*CHUNK_D)-camera->position;
-		if (v.x*v.x+v.z*v.z > (CHUNK_W*3)*(CHUNK_W*3)) {
-			if (dot(camera->front, v) < 0.0f){
-				return true;
-			}
-		}
+		glm::vec3 min = glm::vec3(chunk->x * CHUNK_W, chunk->bottom, chunk->z * CHUNK_D);
+		glm::vec3 max = glm::vec3(chunk->x * CHUNK_W + CHUNK_W, chunk->top, chunk->z * CHUNK_D + CHUNK_D);
+
+		if (!frustumCulling->IsBoxVisible(min, max)) return false;
 	}
 	mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x*CHUNK_W, 0.0f, chunk->z*CHUNK_D+1));
 	shader->uniformMatrix("u_model", model);
 	mesh->draw(GL_TRIANGLES);
-	return false;
+	return true;
 }
 
 
@@ -120,10 +116,11 @@ void WorldRenderer::draw(Camera* camera, bool occlusion, float fogFactor, float 
 				(b->x + 0.5f - px)*(b->x + 0.5f - px) + (b->z + 0.5f - pz)*(b->z + 0.5f - pz));
 	});
 
+	frustumCulling->update(camera->getProjection() * camera->getView());
 
-	int occludedChunks = 0;
+	chunks->visible = 0;
 	for (size_t i = 0; i < indices.size(); i++){
-		occludedChunks += drawChunk(indices[i], camera, shader, occlusion);
+		chunks->visible += drawChunk(indices[i], camera, shader, occlusion);
 	}
 
 	shader->uniformMatrix("u_model", mat4(1.0f));
@@ -147,38 +144,26 @@ void WorldRenderer::draw(Camera* camera, bool occlusion, float fogFactor, float 
 
 	if (level->player->debug) {
 		linesShader->use();
-		linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
-
-		vec3 point = vec3(camera->position.x+camera->front.x,
-						  camera->position.y+camera->front.y,
-						  camera->position.z+camera->front.z);
+		glm::mat4 model(1.f);
+		model = glm::translate(model, glm::vec3(Window::width >> 1, -static_cast<int>(Window::height) >> 1, 0.f));
+		linesShader->uniformMatrix("u_projview", glm::ortho(0.f, static_cast<float>(Window::width), -static_cast<float>(Window::height), 0.f, -100.f, 100.f) * model * glm::inverse(camera->rotation));
 
 		glDisable(GL_DEPTH_TEST);
 
-		glLineWidth(4.0f);
-		lineBatch->line(point.x, point.y, point.z,
-						point.x+0.1f, point.y, point.z,
-						0, 0, 0, 1);
-		lineBatch->line(point.x, point.y, point.z,
-						point.x, point.y, point.z+0.1f,
-						0, 0, 0, 1);
-		lineBatch->line(point.x, point.y, point.z,
-						point.x, point.y+0.1f, point.z,
-						0, 0, 0, 1);
-		lineBatch->render();
+		float lenght = 40.f;
 
-		glLineWidth(2.0f);
-		lineBatch->line(point.x, point.y, point.z,
-						point.x+0.1f, point.y, point.z,
-						1, 0, 0, 1);
-		lineBatch->line(point.x, point.y, point.z,
-						point.x, point.y, point.z+0.1f,
-						0, 0, 1, 1);
-		lineBatch->line(point.x, point.y, point.z,
-						point.x, point.y+0.1f, point.z,
-						0, 1, 0, 1);
+		glLineWidth(4.0f);
+		lineBatch->line(0.f, 0.f, 0.f, lenght, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f);
+		lineBatch->line(0.f, 0.f, 0.f, 0.f, lenght, 0.f, 0.f, 0.f, 0.f, 1.f);
+		lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, lenght, 0.f, 0.f, 0.f, 1.f);
 		lineBatch->render();
 
 		glEnable(GL_DEPTH_TEST);
+
+		glLineWidth(2.0f);
+		lineBatch->line(0.f, 0.f, 0.f, lenght, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f);
+		lineBatch->line(0.f, 0.f, 0.f, 0.f, lenght, 0.f, 0.f, 1.f, 0.f, 1.f);
+		lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, lenght, 0.f, 0.f, 1.f, 1.f);
+		lineBatch->render();
 	}
 }

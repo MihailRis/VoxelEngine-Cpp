@@ -42,7 +42,7 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
         button->listenAction([this, panel](GUI*) {
             std::cout << "-- loading world" << std::endl;
             EngineSettings& settings = engine->getSettings();
-            World* world = new World("world", enginefs::get_worlds_folder()/"world", 42, settings);
+            World* world = new World("world", enginefs::get_worlds_folder().string() + "/" + "world", 42, settings);
 
             auto screen = new LevelScreen(engine, world->loadLevel(settings));
             engine->setScreen(shared_ptr<Screen>(screen));

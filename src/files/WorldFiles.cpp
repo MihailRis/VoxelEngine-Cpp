@@ -116,11 +116,11 @@ void WorldFiles::put(Chunk* chunk){
 }
 
 std::string WorldFiles::getRegionFile(int x, int y) {
-	return directory/(std::to_string(x) + "_" + std::to_string(y) + ".bin");
+	return directory.string() + "/" + (std::to_string(x) + "_" + std::to_string(y) + ".bin");
 }
 
 std::string WorldFiles::getPlayerFile() {
-	return directory/"player.bin";
+	return directory.string() + "/" + "player.bin";
 }
 
 ubyte* WorldFiles::getChunk(int x, int y){

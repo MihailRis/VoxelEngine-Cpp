@@ -77,7 +77,7 @@ void Engine::updateHotkeys() {
 		unique_ptr<ImageData> image(Window::takeScreenshot());
 		image->flipY();
 		path filename = enginefs::get_screenshot_file("png");
-		png::write_image(filename, image.get());
+		png::write_image(filename.string(), image.get());
 		std::cout << "saved screenshot as " << filename << std::endl;
 	}
 }

@@ -115,6 +115,7 @@ bool ChunksController::loadVisible(){
 		WorldGenerator::generate(chunk->voxels, chunk->x, chunk->z, level->world->seed);
 		chunk->setUnsaved(true);
 	}
+	chunk->updateHeights();
 
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
 		blockid_t id = chunk->voxels[i].id;
