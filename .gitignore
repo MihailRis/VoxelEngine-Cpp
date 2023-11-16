@@ -16,3 +16,9 @@ Debug/voxel_engine
 .project
 .git
 /Default/
+/.vs
+/settings.toml
+/VoxelEngine-Cpp.sln
+/VoxelEngine-Cpp.vcxproj
+/VoxelEngine-Cpp.vcxproj.filters
+/VoxelEngine-Cpp.vcxproj.user
