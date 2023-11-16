@@ -41,7 +41,7 @@ class LevelScreen : public Screen {
     Level* level;
     WorldRenderer* worldRenderer;
     HudRenderer* hud;
-    bool occlusion;
+    bool occlusion = true;
     void updateHotkeys();
 public:
     LevelScreen(Engine* engine, Level* level);
