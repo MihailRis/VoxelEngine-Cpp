@@ -43,10 +43,8 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
             std::cout << "-- loading world" << std::endl;
             EngineSettings& settings = engine->getSettings();
             World* world = new World("world", enginefs::get_worlds_folder()/"world", 42, settings);
-            vec3 playerPosition = vec3(0, 64, 0);
-            Camera* camera = new Camera(playerPosition, radians(90.0f));
-            Player* player = new Player(playerPosition, 4.0f, camera);
-            auto screen = new LevelScreen(engine, world->loadLevel(player, settings));
+
+            auto screen = new LevelScreen(engine, world->loadLevel(settings));
             engine->setScreen(shared_ptr<Screen>(screen));
         });
         panel->add(shared_ptr<UINode>(button));
@@ -61,10 +59,7 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
         button->listenAction([this, panel, name](GUI*) {
             EngineSettings& settings = engine->getSettings();
             World* world = new World(name, enginefs::get_worlds_folder()/name, 42, settings);
-            vec3 playerPosition = vec3(0, 64, 0);
-            Camera* camera = new Camera(playerPosition, radians(90.0f));
-            Player* player = new Player(playerPosition, 4.0f, camera);
-            engine->setScreen(new LevelScreen(engine, world->loadLevel(player, settings)));
+            engine->setScreen(new LevelScreen(engine, world->loadLevel(settings)));
         });
         worldsPanel->add(shared_ptr<UINode>(button));
     }

@@ -1,6 +1,7 @@
 #include "World.h"
 
 #include <memory>
+#include <glm/glm.hpp>
 
 #include "Level.h"
 #include "../files/WorldFiles.h"
@@ -12,6 +13,7 @@
 #include "../window/Camera.h"
 #include "../world/LevelEvents.h"
 
+using glm::vec3;
 using std::shared_ptr;
 
 World::World(std::string name, std::string directory, int seed, EngineSettings& settings) : name(name), seed(seed) {
@@ -36,13 +38,16 @@ void World::write(Level* level, bool writeChunks) {
 	wfile->writePlayer(level->player);
 }
 
-Level* World::loadLevel(Player* player, EngineSettings& settings) {
+Level* World::loadLevel(EngineSettings& settings) {
 	ChunksStorage* storage = new ChunksStorage();
 	LevelEvents* events = new LevelEvents();
+
+	vec3 playerPosition = vec3(0, 64, 0);
+	Camera* camera = new Camera(playerPosition, glm::radians(90.0f));
+	Player* player = new Player(playerPosition, 4.0f, camera);
 	Level* level = new Level(this, player, storage, events, settings);
 	wfile->readPlayer(player);
 
-	Camera* camera = player->camera;
 	camera->rotation = mat4(1.0f);
 	camera->rotate(player->camY, player->camX, 0);
 	return level;

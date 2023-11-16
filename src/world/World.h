@@ -20,7 +20,7 @@ public:
 	~World();
 
 	void write(Level* level, bool writeChunks);
-	Level* loadLevel(Player* player, EngineSettings& settings);
+	Level* loadLevel(EngineSettings& settings);
 };
 
 #endif /* WORLD_WORLD_H_ */
