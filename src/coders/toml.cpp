@@ -226,6 +226,14 @@ void Reader::readSection(Section* section /*nullable*/) {
                 if (section) {
                     section->set(name, flag);
                 }
+            } else if (identifier == "inf") {
+                if (section) {
+                    section->set(name, INFINITY);
+                }
+            } else if (identifier == "nan") {
+                if (section) {
+                    section->set(name, NAN);
+                }
             }
         } else if (c == '"' || c == '\'') {
             pos++;
