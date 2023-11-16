@@ -2,10 +2,13 @@
 
 #include <iostream>
 #include <memory>
+#include <glm/glm.hpp>
+#include <filesystem>
 
 #include "../window/Camera.h"
 #include "../window/Events.h"
 #include "../window/input.h"
+#include "../graphics/Shader.h"
 #include "../assets/Assets.h"
 #include "../world/Level.h"
 #include "../world/World.h"
@@ -16,13 +19,84 @@
 #include "world_render.h"
 #include "hud.h"
 #include "gui/GUI.h"
+#include "gui/panels.h"
+#include "gui/controls.h"
 #include "../engine.h"
+#include "../files/engine_files.h"
+#include "../util/stringutil.h"
 
+using std::wstring;
+using glm::vec3;
+using glm::vec4;
 using std::shared_ptr;
+using std::filesystem::directory_iterator;
+using namespace gui;
+
+MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
+    Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
+    panel->color(vec4(0.0f));
+	panel->setCoord(vec2(10, 10));
+
+    {
+        Button* button = new Button(L"Continue", vec4(12.0f, 10.0f, 12.0f, 10.0f));
+        button->listenAction([this, panel](GUI*) {
+            EngineSettings& settings = engine->getSettings();
+            World* world = new World("world", enginefs::get_worlds_folder()/"world", 42, settings);
+            vec3 playerPosition = vec3(0, 64, 0);
+            Camera* camera = new Camera(playerPosition, radians(90.0f));
+            Player* player = new Player(playerPosition, 4.0f, camera);
+            engine->setScreen(new LevelScreen(engine, world->loadLevel(player, settings)));
+        });
+        panel->add(shared_ptr<UINode>(button));
+    }
+    // ATTENTION: FUNCTIONALITY INCOMPLETE ZONE
+    /*Panel* worldsPanel = new Panel(vec2(390, 200), vec4(5.0f));
+    worldsPanel->color(vec4(0.1f));
+    for (auto const& entry : directory_iterator(enginefs::get_worlds_folder())) {
+        std::string name = entry.path().filename();
+        Button* button = new Button(util::str2wstr_utf8(name), vec4(10.0f, 8.0f, 10.0f, 8.0f));
+        button->color(vec4(0.5f));
+        button->listenAction([this, panel, name](GUI*) {
+            EngineSettings& settings = engine->getSettings();
+            World* world = new World(name, enginefs::get_worlds_folder()/name, 42, settings);
+            vec3 playerPosition = vec3(0, 64, 0);
+            Camera* camera = new Camera(playerPosition, radians(90.0f));
+            Player* player = new Player(playerPosition, 4.0f, camera);
+            engine->setScreen(new LevelScreen(engine, world->loadLevel(player, settings)));
+        });
+        worldsPanel->add(shared_ptr<UINode>(button));
+    }
+    panel->add(shared_ptr<UINode>(worldsPanel));*/
+    
+    {
+        Button* button = new Button(L"Quit", vec4(12.0f, 10.0f, 12.0f, 10.0f));
+        button->listenAction([this](GUI*) {
+            Window::setShouldClose(true);
+        });
+        panel->add(shared_ptr<UINode>(button));
+    }
+
+    this->panel = shared_ptr<UINode>(panel);
+    engine->getGUI()->add(this->panel);
+}
+
+MenuScreen::~MenuScreen() {
+    engine->getGUI()->remove(panel);
+}
+
+void MenuScreen::update(float delta) {
+}
+
+void MenuScreen::draw(float delta) {
+    panel->setCoord((Window::size() - panel->size()) / 2.0f);
+    
+    Window::clear();
+    Window::setBgColor(vec3(0.2f, 0.2f, 0.2f));
+}
 
 LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine), level(level) {
     worldRenderer = new WorldRenderer(level, engine->getAssets());
-    hud = new HudRenderer(engine->getGUI(), level, engine->getAssets());
+    hud = new HudRenderer(engine, level);
 }
 
 LevelScreen::~LevelScreen() {

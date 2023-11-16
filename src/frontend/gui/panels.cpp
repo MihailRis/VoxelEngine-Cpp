@@ -29,6 +29,20 @@ shared_ptr<UINode> Container::getAt(vec2 pos, shared_ptr<UINode> self) {
     return UINode::getAt(pos, self);
 }
 
+void Container::act(float delta) {
+    for (IntervalEvent& event : intervalEvents) {
+        event.timer += delta;
+        if (event.timer > event.interval) {
+            event.callback();
+            event.timer = fmod(event.timer, event.interval);
+        }
+    }
+    for (auto node : nodes) {
+        if (node->visible())
+            node->act(delta);
+    }
+}
+
 void Container::draw(Batch2D* batch, Assets* assets) {
     vec2 coord = calcCoord();
     vec2 size = this->size();
@@ -48,6 +62,18 @@ void Container::add(shared_ptr<UINode> node) {
     nodes.push_back(node);
     node->setParent(this);
     refresh();
+}
+
+void Container::remove(shared_ptr<UINode> selected) {
+    selected->setParent(nullptr);
+    nodes.erase(std::remove_if(nodes.begin(), nodes.end(), [selected](const shared_ptr<UINode> node) {
+        return node == selected;
+    }), nodes.end());
+    refresh();
+}
+
+void Container::listenInterval(float interval, ontimeout callback) {
+    intervalEvents.push_back({callback, interval, 0.0f});
 }
 
 Panel::Panel(vec2 size, glm::vec4 padding, float interval, bool resizing)

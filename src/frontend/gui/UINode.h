@@ -35,6 +35,7 @@ namespace gui {
         UINode(glm::vec2 coord, glm::vec2 size);
     public:
         virtual ~UINode();
+        virtual void act(float delta) {};
         virtual void draw(Batch2D* batch, Assets* assets) = 0;
 
         virtual void visible(bool flag);

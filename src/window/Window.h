@@ -37,6 +37,10 @@ public:
 	static void setBgColor(glm::vec3 color);
 	static double time();
 
+	static glm::vec2 size() {
+		return glm::vec2(width, height);
+	}
+
 	static ImageData* takeScreenshot();
 };
 

@@ -28,6 +28,8 @@
 #include "gui/panels.h"
 #include "gui/UINode.h"
 #include "gui/GUI.h"
+#include "screens.h"
+#include "../engine.h"
 
 using std::wstring;
 using std::shared_ptr;
@@ -42,18 +44,18 @@ inline Label* create_label(gui::wstringsupplier supplier) {
 	return label;
 }
 
-HudRenderer::HudRenderer(GUI* gui, Level* level, Assets* assets) : level(level), assets(assets), guiController(gui) {
+HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(engine->getAssets()), guiController(engine->getGUI()) {
 	batch = new Batch2D(1024);
 	uicamera = new Camera(vec3(), Window::height);
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 
-	gui->interval(1.0f, [this]() {
+	Panel* panel = new Panel(vec2(200, 200), vec4(5.0f), 1.0f);
+	panel->listenInterval(1.0f, [this]() {
 		fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
 		fpsMin = fps;
 		fpsMax = fps;
 	});
-	Panel* panel = new Panel(vec2(200, 200), vec4(5.0f), 1.0f);
 	panel->setCoord(vec2(10, 10));
 	panel->add(shared_ptr<Label>(create_label([this](){
 		return L"chunks: "+std::to_wstring(this->level->chunks->chunksCount);
@@ -102,9 +104,9 @@ HudRenderer::HudRenderer(GUI* gui, Level* level, Assets* assets) : level(level),
 		panel->add(shared_ptr<UINode>(sub));
 	}
 	panel->refresh();
-	debugPanel = panel;
+	debugPanel = shared_ptr<UINode>(panel);
 
-	pauseMenu = new Panel(vec2(350, 200));
+	Panel* pauseMenu = new Panel(vec2(350, 200));
 	pauseMenu->color(vec4(0.0f));
 	{
 		Button* button = new Button(L"Continue", vec4(12.0f, 10.0f, 12.0f, 12.0f));
@@ -114,17 +116,21 @@ HudRenderer::HudRenderer(GUI* gui, Level* level, Assets* assets) : level(level),
 		pauseMenu->add(shared_ptr<UINode>(button));
 	}
 	{
-		Button* button = new Button(L"Save and Quit", vec4(12.0f, 10.0f, 12.0f, 12.0f));
-		button->listenAction([this](GUI*){
-			Window::setShouldClose(true);
+		Button* button = new Button(L"Save and Quit to Menu", vec4(12.0f, 10.0f, 12.0f, 12.0f));
+		button->listenAction([this, engine](GUI*){
+			this->pauseMenu->visible(false);
+			engine->setScreen(new MenuScreen(engine));
 		});
 		pauseMenu->add(shared_ptr<UINode>(button));
 	}
-	guiController->add(shared_ptr<UINode>(debugPanel));
-	guiController->add(shared_ptr<UINode>(pauseMenu));
+	this->pauseMenu = std::shared_ptr<gui::UINode>(pauseMenu);
+	guiController->add(this->debugPanel);
+	guiController->add(this->pauseMenu);
 }
 
 HudRenderer::~HudRenderer() {
+	guiController->remove(debugPanel);
+	guiController->remove(pauseMenu);
 	delete batch;
 	delete uicamera;
 }
@@ -216,7 +222,7 @@ void HudRenderer::drawInventory(Player* player) {
 void HudRenderer::draw(){
 	debugPanel->visible(level->player->debug);
 	pauseMenu->visible(pause);
-	pauseMenu->setCoord(vec2(Window::width/2.0f, Window::height/2.0f) - pauseMenu->size() / 2.0f);
+	pauseMenu->setCoord((Window::size() - pauseMenu->size()) / 2.0f);
 
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);

@@ -10,18 +10,29 @@ class Batch2D;
 class Assets;
 
 namespace gui {
+    typedef std::function<void()> ontimeout;
+    struct IntervalEvent {
+        ontimeout callback;
+        float interval;
+        float timer;
+    };
+
     enum class Orientation { vertical, horizontal };
 
     class Container : public UINode {
     protected:
         std::vector<std::shared_ptr<UINode>> nodes;
+        std::vector<IntervalEvent> intervalEvents;
     public:
         Container(glm::vec2 coord, glm::vec2 size);
 
+        virtual void act(float delta) override;
         virtual void drawBackground(Batch2D* batch, Assets* assets) {};
-        virtual void draw(Batch2D* batch, Assets* assets);
+        virtual void draw(Batch2D* batch, Assets* assets) override;
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
         virtual void add(std::shared_ptr<UINode> node);
+        virtual void remove(std::shared_ptr<UINode> node);
+        void listenInterval(float interval, ontimeout callback);
     };
 
     class Panel : public Container {
