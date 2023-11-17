@@ -1,7 +1,9 @@
 #include "screens.h"
 
+#include <iomanip>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <glm/glm.hpp>
 #include <filesystem>
 #include <stdexcept>
@@ -179,7 +181,7 @@ Panel* create_settings_panel(Engine* engine) {
                 std::to_wstring(engine->getSettings().chunks.loadDistance);
         }));
 
-        TrackBar* trackbar = new TrackBar(0, 64, 10);
+        TrackBar* trackbar = new TrackBar(3, 66, 10);
         trackbar->supplier([=]() {
             return engine->getSettings().chunks.loadDistance;
         });
@@ -191,8 +193,10 @@ Panel* create_settings_panel(Engine* engine) {
 
     /* Fog Curve setting track bar */{
         panel->add((new Label(L""))->textSupplier([=]() {
-            return L"Fog Curve: " + 
-                std::to_wstring(engine->getSettings().graphics.fogCurve);
+            std::wstringstream ss;
+            ss << std::fixed << std::setprecision(1);
+            ss << engine->getSettings().graphics.fogCurve;
+            return L"Fog Curve: " + ss.str();
         }));
 
         TrackBar* trackbar = new TrackBar(1.0, 6.0, 1.0, 0.1, 2);
