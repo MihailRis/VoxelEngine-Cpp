@@ -9,6 +9,7 @@
 #include "../window/Events.h"
 #include "../window/input.h"
 #include "../graphics/Shader.h"
+#include "../graphics/Batch2D.h"
 #include "../assets/Assets.h"
 #include "../world/Level.h"
 #include "../world/World.h"
@@ -39,7 +40,7 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
 	panel->setCoord(vec2(10, 10));
 
     {
-        auto button = new Button(L"Continue", vec4(12.0f, 10.0f, 12.0f, 10.0f));
+        auto button = new Button(L"New World", vec4(12.0f, 10.0f, 12.0f, 10.0f));
         button->listenAction([this, panel](GUI*) {
             std::cout << "-- loading world" << std::endl;
             EngineSettings& settings = engine->getSettings();
@@ -51,8 +52,7 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
         });
         panel->add(shared_ptr<UINode>(button));
     }
-    // ATTENTION: FUNCTIONALITY INCOMPLETE ZONE
-    /*Panel* worldsPanel = new Panel(vec2(390, 200), vec4(5.0f));
+    Panel* worldsPanel = new Panel(vec2(390, 200), vec4(5.0f));
     worldsPanel->color(vec4(0.1f));
     for (auto const& entry : directory_iterator(enginefs::get_worlds_folder())) {
         std::string name = entry.path().filename();
@@ -61,11 +61,11 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
         button->listenAction([this, panel, name](GUI*) {
             EngineSettings& settings = engine->getSettings();
             World* world = new World(name, enginefs::get_worlds_folder()/name, 42, settings);
-            engine->setScreen(new LevelScreen(engine, world->loadLevel(settings)));
+            engine->setScreen(shared_ptr<Screen>(new LevelScreen(engine, world->load(settings))));
         });
         worldsPanel->add(shared_ptr<UINode>(button));
     }
-    panel->add(shared_ptr<UINode>(worldsPanel));*/
+    panel->add(shared_ptr<UINode>(worldsPanel));
     
     {
         Button* button = new Button(L"Quit", vec4(12.0f, 10.0f, 12.0f, 10.0f));
@@ -76,10 +76,17 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     }
     this->panel = shared_ptr<UINode>(panel);
     engine->getGUI()->add(this->panel);
+
+    batch = new Batch2D(1024);
+    uicamera = new Camera(vec3(), Window::height);
+	uicamera->perspective = false;
+	uicamera->flipped = true;
 }
 
 MenuScreen::~MenuScreen() {
     engine->getGUI()->remove(panel);
+    delete batch;
+    delete uicamera;
 }
 
 void MenuScreen::update(float delta) {
@@ -90,6 +97,19 @@ void MenuScreen::draw(float delta) {
     
     Window::clear();
     Window::setBgColor(vec3(0.2f, 0.2f, 0.2f));
+
+    uicamera->fov = Window::height;
+	Shader* uishader = engine->getAssets()->getShader("ui");
+	uishader->use();
+	uishader->uniformMatrix("u_projview", uicamera->getProjView());
+
+    batch->begin();
+    batch->texture(engine->getAssets()->getTexture("menubg"));
+    batch->rect(0, 0, 
+                Window::width, Window::height, 0, 0, 0, 
+                UVRegion(0, 0, Window::width/64, Window::height/64), 
+                false, false, glm::vec4(1.0f));
+    batch->render();
 }
 
 LevelScreen::LevelScreen(Engine* engine, Level* level) 
