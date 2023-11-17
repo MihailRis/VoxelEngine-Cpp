@@ -57,14 +57,17 @@ HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(en
 		fpsMax = fps;
 	});
 	panel->setCoord(vec2(10, 10));
-	panel->add(shared_ptr<Label>(create_label([this, level]() {
-		return L"chunks: "+std::to_wstring(this->level->chunks->chunksCount)+L" visible: "+std::to_wstring(level->chunks->visible);
-	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
 		return L"fps: "+this->fpsString;
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
+		return L"meshes: " + std::to_wstring(Mesh::meshesCount);
+	})));
+	panel->add(shared_ptr<Label>(create_label([this](){
 		return L"occlusion: "+wstring(this->occlusion ? L"on" : L"off");
+	})));
+	panel->add(shared_ptr<Label>(create_label([this, level]() {
+		return L"chunks: "+std::to_wstring(this->level->chunks->chunksCount)+L" visible: "+std::to_wstring(level->chunks->visible);
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
 		std::wstringstream stream;
@@ -72,8 +75,9 @@ HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(en
 		return L"block-selected: "+std::to_wstring(this->level->player->selectedVoxel.id)+L" "+stream.str();
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
-		return L"meshes: " + std::to_wstring(Mesh::meshesCount);
+		return L"seed: "+std::to_wstring(this->level->world->seed);
 	})));
+
 	for (int ax = 0; ax < 3; ax++){
 		Panel* sub = new Panel(vec2(10, 27), vec4(0.0f));
 		sub->orientation(Orientation::horizontal);

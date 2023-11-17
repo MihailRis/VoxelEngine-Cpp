@@ -15,6 +15,8 @@ namespace gui {
         ontimeout callback;
         float interval;
         float timer;
+        // -1 - infinity, 1 - one time event
+        int repeat;
     };
 
     enum class Orientation { vertical, horizontal };
@@ -32,7 +34,7 @@ namespace gui {
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
         virtual void add(std::shared_ptr<UINode> node);
         virtual void remove(std::shared_ptr<UINode> node);
-        void listenInterval(float interval, ontimeout callback);
+        void listenInterval(float interval, ontimeout callback, int repeat=-1);
     };
 
     class Panel : public Container {

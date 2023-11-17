@@ -84,8 +84,11 @@ void Button::listenAction(onaction action) {
     actions.push_back(action);
 }
 
-TextBox::TextBox(wstring text, vec4 padding) : Panel(vec2(200,32), padding, 0, false) {
-    label = new Label(text);
+TextBox::TextBox(wstring placeholder, vec4 padding) 
+    : Panel(vec2(200,32), padding, 0, false), 
+      input(L""),
+      placeholder(placeholder) {
+    label = new Label(L"");
     label->align(Align::center);
     add(shared_ptr<UINode>(label));
 }
@@ -96,20 +99,28 @@ void TextBox::drawBackground(Batch2D* batch, Assets* assets) {
     batch->color = (isfocused() ? focusedColor : (hover_ ? hoverColor : color_));
     batch->rect(coord.x, coord.y, size_.x, size_.y);
     if (!focused_ && supplier) {
-        label->text(supplier());
+        input = supplier();
+    }
+
+    if (input.empty()) {
+        label->color(vec4(0.5f));
+        label->text(placeholder);
+    } else {
+        label->color(vec4(1.0f));
+        label->text(input);
     }
 }
 
 void TextBox::typed(unsigned int codepoint) {
-    label->text(label->text() + wstring({(wchar_t)codepoint}));    
+    input += wstring({(wchar_t)codepoint});
 }
 
 void TextBox::keyPressed(int key) {
-    wstring src = label->text();
     switch (key) {
         case KEY_BACKSPACE:
-            if (src.length())
-                label->text(src.substr(0, src.length()-1));
+            if (!input.empty()){
+                input = input.substr(0, input.length()-1);
+            }
             break;
         case KEY_ENTER:
             if (consumer) {
@@ -130,4 +141,10 @@ void TextBox::textSupplier(wstringsupplier supplier) {
 
 void TextBox::textConsumer(wstringconsumer consumer) {
     this->consumer = consumer;
+}
+
+wstring TextBox::text() const {
+    if (input.empty())
+        return placeholder;
+    return input;
 }

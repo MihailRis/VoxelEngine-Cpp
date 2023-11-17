@@ -53,10 +53,12 @@ namespace gui {
         glm::vec4 hoverColor {0.05f, 0.1f, 0.2f, 0.75f};
         glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
         Label* label;
+        std::wstring input;
+        std::wstring placeholder;
         wstringsupplier supplier = nullptr;
         wstringconsumer consumer = nullptr;
     public:
-        TextBox(std::wstring text, glm::vec4 padding=glm::vec4(2.0f));
+        TextBox(std::wstring placeholder, glm::vec4 padding=glm::vec4(2.0f));
 
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
@@ -66,6 +68,7 @@ namespace gui {
         virtual void textSupplier(wstringsupplier supplier);
         virtual void textConsumer(wstringconsumer consumer);
         virtual bool isfocuskeeper() const override {return true;}
+        virtual std::wstring text() const;
     };
 }
 

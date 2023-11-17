@@ -48,7 +48,7 @@ Level* World::load(EngineSettings& settings) {
 	seed = info.seed;
 	name = info.name;
 
-	vec3 playerPosition = vec3(0, 64, 0);
+	vec3 playerPosition = vec3(0, 100, 0);
 	Camera* camera = new Camera(playerPosition, glm::radians(90.0f));
 	Player* player = new Player(playerPosition, 4.0f, camera);
 	Level* level = new Level(this, player, settings);

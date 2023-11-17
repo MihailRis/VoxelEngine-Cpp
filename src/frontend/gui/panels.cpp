@@ -35,11 +35,22 @@ void Container::act(float delta) {
         if (event.timer > event.interval) {
             event.callback();
             event.timer = fmod(event.timer, event.interval);
+            if (event.repeat > 0) {
+                event.repeat--;
+            }
         }
     }
+    intervalEvents.erase(std::remove_if(
+        intervalEvents.begin(), intervalEvents.end(),
+        [](const IntervalEvent& event) {
+            return event.repeat == 0;
+        }
+    ), intervalEvents.end());
+    
     for (auto node : nodes) {
-        if (node->visible())
+        if (node->visible()) {
             node->act(delta);
+        }
     }
 }
 
@@ -66,18 +77,23 @@ void Container::add(shared_ptr<UINode> node) {
 
 void Container::remove(shared_ptr<UINode> selected) {
     selected->setParent(nullptr);
-    nodes.erase(std::remove_if(nodes.begin(), nodes.end(), [selected](const shared_ptr<UINode> node) {
-        return node == selected;
-    }), nodes.end());
+    nodes.erase(std::remove_if(nodes.begin(), nodes.end(), 
+        [selected](const shared_ptr<UINode> node) {
+            return node == selected;
+        }
+    ), nodes.end());
     refresh();
 }
 
-void Container::listenInterval(float interval, ontimeout callback) {
-    intervalEvents.push_back({callback, interval, 0.0f});
+void Container::listenInterval(float interval, ontimeout callback, int repeat) {
+    intervalEvents.push_back({callback, interval, 0.0f, repeat});
 }
 
 Panel::Panel(vec2 size, glm::vec4 padding, float interval, bool resizing)
-    : Container(vec2(), size), padding(padding), interval(interval), resizing_(resizing) {
+    : Container(vec2(), size), 
+      padding(padding), 
+      interval(interval), 
+      resizing_(resizing) {
     color_ = vec4(0.0f, 0.0f, 0.0f, 0.75f);
 }
 
@@ -103,13 +119,13 @@ void Panel::refresh() {
             y += margin.y;
             
             float ex;
-
+            float spacex = size.x - margin.z - padding.z;
             switch (node->align()) {
                 case Align::center:
-                    ex = x + fmax(0.0f, (size.x - margin.z - padding.z) - node->size().x) / 2.0f;
+                    ex = x + fmax(0.0f, spacex - node->size().x) / 2.0f;
                     break;
                 case Align::right:
-                    ex = x + size.x - margin.z - padding.z - node->size().x;
+                    ex = x + spacex - node->size().x;
                     break;
                 default:
                     ex = x + margin.x;
@@ -131,7 +147,7 @@ void Panel::refresh() {
             x += margin.x;
             node->setCoord(vec2(x, y+margin.y));
             x += nodesize.x + margin.z + interval;
-
+            
             float height = size.y - padding.y - padding.w - margin.y - margin.w;
             node->size(vec2(nodesize.x, height));
             maxh = fmax(maxh, y+margin.y+node->size().y+margin.w+padding.w);

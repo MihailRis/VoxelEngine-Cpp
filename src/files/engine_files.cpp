@@ -4,14 +4,14 @@
 #include <sstream>
 #include "../typedefs.h"
 
-namespace filesystem = std::filesystem;
+namespace fs = std::filesystem;
 using std::string;
-using filesystem::path;
+using fs::path;
 
 path enginefs::get_screenshot_file(string ext) {
 	path folder = SCREENSHOTS_FOLDER;
-	if (!filesystem::is_directory(folder)) {
-		filesystem::create_directory(folder);
+	if (!fs::is_directory(folder)) {
+		fs::create_directory(folder);
 	}
 
 	auto t = std::time(nullptr);
@@ -23,15 +23,19 @@ path enginefs::get_screenshot_file(string ext) {
 	ss << std::put_time(&tm, format);
 	string datetimestr = ss.str();
 
-	path filename = folder/("screenshot-"+datetimestr+"."+ext);
+	path filename = folder/path("screenshot-"+datetimestr+"."+ext);
 	uint index = 0;
-	while (filesystem::exists(filename)) {
-		filename = folder/("screenshot-"+datetimestr+"-"+std::to_string(index)+"."+ext);
+	while (fs::exists(filename)) {
+		filename = folder/path("screenshot-"+datetimestr+"-"+std::to_string(index)+"."+ext);
 		index++;
 	}
 	return filename;
 }
 
 path enginefs::get_worlds_folder() {
-    return "worlds";
+    return path("worlds");
+}
+
+bool enginefs::is_world_name_used(std::string name) {
+	return fs::exists(enginefs::get_worlds_folder()/fs::u8path(name));
 }
