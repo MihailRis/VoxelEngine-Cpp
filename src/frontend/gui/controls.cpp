@@ -149,3 +149,45 @@ wstring TextBox::text() const {
         return placeholder;
     return input;
 }
+
+TrackBar::TrackBar(double min, double max, double value, double step)
+    : UINode(vec2(), vec2(32)), min(min), max(max), value(value), step(step) {
+    color(vec4(0.f, 0.f, 0.f, 0.4f));
+}
+
+void TrackBar::draw(Batch2D* batch, Assets* assets) {
+    if (supplier_) {
+        value = supplier_();
+    }
+    vec2 coord = calcCoord();
+    batch->texture(nullptr);
+    batch->color = (hover_ ? hoverColor : color_);
+    batch->rect(coord.x, coord.y, size_.x, size_.y);
+
+    float width = size_.x;
+    float t = (value - min) / (max-min+trackWidth);
+
+    batch->color = trackColor;
+    batch->rect(coord.x + width * t, coord.y, size_.x * (trackWidth / (max-min)), size_.y);
+}
+
+void TrackBar::supplier(doublesupplier supplier) {
+    this->supplier_ = supplier;
+}
+
+void TrackBar::consumer(doubleconsumer consumer) {
+    this->consumer_ = consumer;
+}
+
+void TrackBar::mouseMove(GUI*, int x, int y) {
+    vec2 coord = calcCoord();
+    x -= coord.x;
+    x = x/size_.x * (max-min+trackWidth);
+    x = (x > max) ? max : x;
+    x = (x < min) ? min : x;
+    x = (int)(x / step) * step;
+    value = x;
+    if (consumer_) {
+        consumer_(value);
+    }
+}

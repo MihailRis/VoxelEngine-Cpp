@@ -16,6 +16,9 @@ namespace gui {
     typedef std::function<std::wstring()> wstringsupplier;
     typedef std::function<void(std::wstring)> wstringconsumer;
 
+    typedef std::function<double()> doublesupplier;
+    typedef std::function<void(double)> doubleconsumer;
+
     class Label : public UINode {
     protected:
         std::wstring text_;
@@ -27,10 +30,11 @@ namespace gui {
         virtual Label& text(std::wstring text);
         std::wstring text() const;
 
-        virtual void draw(Batch2D* batch, Assets* assets);
+        virtual void draw(Batch2D* batch, Assets* assets) override;
 
         virtual void textSupplier(wstringsupplier supplier);
     };
+
     class Button : public Panel {
     protected:
         glm::vec4 hoverColor {0.05f, 0.1f, 0.2f, 0.75f};
@@ -69,6 +73,28 @@ namespace gui {
         virtual void textConsumer(wstringconsumer consumer);
         virtual bool isfocuskeeper() const override {return true;}
         virtual std::wstring text() const;
+    };
+
+    class TrackBar : public UINode {
+    protected:
+        glm::vec4 hoverColor {0.01f, 0.02f, 0.03f, 0.5f};
+        glm::vec4 trackColor {1.0f, 1.0f, 1.0f, 0.4f};
+        Label* label;
+        doublesupplier supplier_ = nullptr;
+        doubleconsumer consumer_ = nullptr;
+        double min;
+        double max;
+        double value;
+        double step;
+        int trackWidth = 3;
+    public:
+        TrackBar(double min, double max, double value, double step=1.0);
+        virtual void draw(Batch2D* batch, Assets* assets) override;
+
+        virtual void supplier(doublesupplier supplier);
+        virtual void consumer(doubleconsumer consumer);
+
+        virtual void mouseMove(GUI*, int x, int y) override;
     };
 }
 

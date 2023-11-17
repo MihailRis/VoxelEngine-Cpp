@@ -25,6 +25,7 @@ public:
 	ChunksController* chunksController;
 	PlayerController* playerController;
 	LevelEvents* events;
+	const EngineSettings& settings;
 
 	Level(World* world, 
 	      Player* player, 

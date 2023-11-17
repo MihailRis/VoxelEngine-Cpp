@@ -16,7 +16,6 @@ namespace gui {
     class UINode;
 }
 
-
 /* Screen is a mainloop state */
 class Screen {
 protected:

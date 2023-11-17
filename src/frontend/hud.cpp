@@ -51,6 +51,7 @@ HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(en
 	uicamera->flipped = true;
 
 	Panel* panel = new Panel(vec2(250, 200), vec4(5.0f), 1.0f);
+	debugPanel = shared_ptr<UINode>(panel);
 	panel->listenInterval(1.0f, [this]() {
 		fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
 		fpsMin = fps;
@@ -112,26 +113,32 @@ HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(en
 		panel->add(shared_ptr<UINode>(sub));
 	}
 	panel->refresh();
-	debugPanel = shared_ptr<UINode>(panel);
 
-	Panel* pauseMenu = new Panel(vec2(350, 200));
-	pauseMenu->color(vec4(0.0f));
+	panel = new Panel(vec2(350, 200));
+	pauseMenu = shared_ptr<UINode>(panel);
+	panel->color(vec4(0.0f));
 	{
 		Button* button = new Button(L"Continue", vec4(10.0f));
 		button->listenAction([this](GUI*){
 			this->pause = false;
+			pauseMenu->visible(false);
 		});
-		pauseMenu->add(shared_ptr<UINode>(button));
+		panel->add(shared_ptr<UINode>(button));
 	}
+	panel->add((new Button(L"Settings", vec4(10.f)))->listenAction([=](GUI* gui) {
+        pauseMenu->visible(false);
+		gui->store("back", pauseMenu);
+        gui->get("settings")->visible(true);
+    }));
 	{
 		Button* button = new Button(L"Save and Quit to Menu", vec4(10.f));
 		button->listenAction([this, engine](GUI*){
 			this->pauseMenu->visible(false);
 			engine->setScreen(shared_ptr<Screen>(new MenuScreen(engine)));
 		});
-		pauseMenu->add(shared_ptr<UINode>(button));
+		panel->add(shared_ptr<UINode>(button));
 	}
-	this->pauseMenu = std::shared_ptr<gui::UINode>(pauseMenu);
+	panel->visible(false);
 	guiController->add(this->debugPanel);
 	guiController->add(this->pauseMenu);
 }
@@ -229,8 +236,10 @@ void HudRenderer::drawInventory(Player* player) {
 
 void HudRenderer::draw(){
 	debugPanel->visible(level->player->debug);
-	pauseMenu->visible(pause);
 	pauseMenu->setCoord((Window::size() - pauseMenu->size()) / 2.0f);
+
+	auto settingsPanel = guiController->get("settings");
+    settingsPanel->setCoord((Window::size() - settingsPanel->size()) / 2.0f);
 
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -288,10 +297,13 @@ void HudRenderer::draw(){
 	if (Events::jpressed(keycode::ESCAPE) && !guiController->isFocusCaught()) {
 		if (pause) {
 			pause = false;
+			pauseMenu->visible(false);
+			settingsPanel->visible(false);
 		} else if (inventoryOpen) {
 			inventoryOpen = false;
 		} else {
 			pause = true;
+			pauseMenu->visible(true);
 		}
 	}
 	if (Events::jpressed(keycode::TAB)) {

@@ -45,11 +45,11 @@ void GUI::act(float delta) {
     }
     this->hover = hover;
 
-    if (Events::clicked(0)) {
+    if (Events::jclicked(0)) {
         if (pressed == nullptr && this->hover) {
             pressed = hover;
             pressed->click(this, mx, my);
-            if (focus) {
+            if (focus && focus != pressed) {
                 focus->defocus();
             }
             focus = pressed;
@@ -74,6 +74,9 @@ void GUI::act(float delta) {
             }
             for (auto key : Events::pressedKeys) {
                 focus->keyPressed(key);
+            }
+            if (Events::clicked(mousecode::BUTTON_1)) {
+                focus->mouseMove(this, mx, my);
             }
         }
     }

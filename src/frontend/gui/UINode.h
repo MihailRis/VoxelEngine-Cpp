@@ -57,6 +57,7 @@ namespace gui {
         glm::vec4 margin() const;
 
         virtual void click(GUI*, int x, int y);
+        virtual void mouseMove(GUI*, int x, int y) {};
         virtual void mouseRelease(GUI*, int x, int y);
 
         bool ispressed() const;

@@ -11,11 +11,12 @@
 #include "../objects/Player.h"
 #include "../objects/player_control.h"
 
-Level::Level(World* world, Player* player, EngineSettings& settings) 
+Level::Level(World* world, Player* player, EngineSettings& settings)
 	  : world(world),
 		player(player),
 		chunksStorage(new ChunksStorage(this)),
-		events(new LevelEvents()) {
+		events(new LevelEvents()) ,
+		settings(settings) {
     physics = new PhysicsSolver(vec3(0, -19.6f, 0));
 
     uint matrixSize = (settings.chunks.loadDistance+
@@ -70,4 +71,10 @@ void Level::updatePlayer(float delta,
 void Level::update() {
 	vec3 position = player->hitbox->position;
 	chunks->setCenter(position.x, position.z);
+
+	int matrixSize = (settings.chunks.loadDistance+
+					settings.chunks.padding) * 2;
+	if (chunks->w != matrixSize) {
+		chunks->resize(matrixSize, matrixSize);
+	}
 }
