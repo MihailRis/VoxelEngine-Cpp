@@ -41,9 +41,7 @@ using std::filesystem::path;
 using glm::vec3;
 using gui::GUI;
 
-Engine::Engine(const EngineSettings& settings_) {
-    this->settings = settings_;
-    
+Engine::Engine(EngineSettings& settings) : settings(settings) {    
 	Window::initialize(settings.display);
 
 	assets = new Assets();

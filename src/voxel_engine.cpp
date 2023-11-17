@@ -57,6 +57,9 @@ int main() {
 		}
 		Engine engine(settings);
 		engine.mainloop();
+		
+		std::cout << "-- saving settings" << std::endl;
+		files::write_string(settings_file, wrapper.write());
 	}
 	catch (const initialize_error& err) {
 		std::cerr << "could not to initialize engine" << std::endl;

@@ -23,7 +23,7 @@ public:
 class Engine {
 	Assets* assets;
 	std::shared_ptr<Screen> screen = nullptr;
-	EngineSettings settings;
+	EngineSettings& settings;
 
 	uint64_t frame = 0;
 	double lastTime = 0.0;
@@ -31,7 +31,7 @@ class Engine {
 
 	gui::GUI* gui;
 public:
-	Engine(const EngineSettings& settings);
+	Engine(EngineSettings& settings);
 	~Engine();
 
 	void updateTimers();
