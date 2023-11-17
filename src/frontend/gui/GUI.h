@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <string>
 #include <glm/glm.hpp>
 #include <functional>
 #include <unordered_map>
