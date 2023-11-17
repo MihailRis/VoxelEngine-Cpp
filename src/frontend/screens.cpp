@@ -173,13 +173,11 @@ Panel* create_settings_panel(Engine* engine) {
     panel->color(vec4(0.0f));
 	panel->setCoord(vec2(10, 10));
 
-    {
-        Label* label = new Label(L"");
-        label->textSupplier([=]() {
+    /* Load Distance setting track bar */{
+        panel->add((new Label(L""))->textSupplier([=]() {
             return L"Load Distance: " + 
                 std::to_wstring(engine->getSettings().chunks.loadDistance);
-        });
-        panel->add(label);
+        }));
 
         TrackBar* trackbar = new TrackBar(0, 64, 10);
         trackbar->supplier([=]() {
@@ -187,6 +185,22 @@ Panel* create_settings_panel(Engine* engine) {
         });
         trackbar->consumer([=](double value) {
             engine->getSettings().chunks.loadDistance = value;
+        });
+        panel->add(trackbar);
+    }
+
+    /* Fog Curve setting track bar */{
+        panel->add((new Label(L""))->textSupplier([=]() {
+            return L"Fog Curve: " + 
+                std::to_wstring(engine->getSettings().graphics.fogCurve);
+        }));
+
+        TrackBar* trackbar = new TrackBar(1.0, 6.0, 1.0, 0.1, 2);
+        trackbar->supplier([=]() {
+            return engine->getSettings().graphics.fogCurve;
+        });
+        trackbar->consumer([=](double value) {
+            engine->getSettings().graphics.fogCurve = value;
         });
         panel->add(trackbar);
     }

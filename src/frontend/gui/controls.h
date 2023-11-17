@@ -32,7 +32,7 @@ namespace gui {
 
         virtual void draw(Batch2D* batch, Assets* assets) override;
 
-        virtual void textSupplier(wstringsupplier supplier);
+        virtual Label* textSupplier(wstringsupplier supplier);
     };
 
     class Button : public Panel {
@@ -86,9 +86,9 @@ namespace gui {
         double max;
         double value;
         double step;
-        int trackWidth = 3;
+        int trackWidth;
     public:
-        TrackBar(double min, double max, double value, double step=1.0);
+        TrackBar(double min, double max, double value, double step=1.0, int trackWidth=3);
         virtual void draw(Batch2D* batch, Assets* assets) override;
 
         virtual void supplier(doublesupplier supplier);
