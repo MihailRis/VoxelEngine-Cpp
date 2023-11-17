@@ -43,14 +43,6 @@ void int2Bytes(int value, ubyte* dest, size_t offset){
 	dest[offset+3] = (char) (value >> 0 & 255);
 }
 
-float bytes2Float(ubyte* src, uint offset){
-	uint32_t value = ((src[offset] << 24) |
-					  (src[offset+1] << 16) |
-					  (src[offset+2] << 8) |
-					  (src[offset+3]));
-	return *(float*)(&value);
-}
-
 WorldFiles::WorldFiles(path directory, bool generatorTestMode) 
 	: directory(directory), generatorTestMode(generatorTestMode) {
 	compressionBuffer = new ubyte[CHUNK_DATA_LEN * 2];

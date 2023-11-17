@@ -67,12 +67,16 @@ HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(en
 		return L"occlusion: "+wstring(this->occlusion ? L"on" : L"off");
 	})));
 	panel->add(shared_ptr<Label>(create_label([this, level]() {
-		return L"chunks: "+std::to_wstring(this->level->chunks->chunksCount)+L" visible: "+std::to_wstring(level->chunks->visible);
+		return L"chunks: "+std::to_wstring(this->level->chunks->chunksCount)+
+			   L" visible: "+std::to_wstring(level->chunks->visible);
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
 		std::wstringstream stream;
 		stream << std::hex << this->level->player->selectedVoxel.states;
-		return L"block-selected: "+std::to_wstring(this->level->player->selectedVoxel.id)+L" "+stream.str();
+
+		auto player = this->level->player;
+		return L"block-selected: "+std::to_wstring(player->selectedVoxel.id)+
+		       L" "+stream.str();
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
 		return L"seed: "+std::to_wstring(this->level->world->seed);
@@ -89,7 +93,7 @@ HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(en
 		sub->add(shared_ptr<UINode>(label));
 		sub->color(vec4(0.0f));
 
-		// Coordinate input
+		// Coord input
 		TextBox* box = new TextBox(L"");
 		box->textSupplier([this, ax]() {
 			Hitbox* hitbox = this->level->player->hitbox;
@@ -113,14 +117,14 @@ HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(en
 	Panel* pauseMenu = new Panel(vec2(350, 200));
 	pauseMenu->color(vec4(0.0f));
 	{
-		Button* button = new Button(L"Continue", vec4(12.0f, 10.0f, 12.0f, 12.0f));
+		Button* button = new Button(L"Continue", vec4(10.0f));
 		button->listenAction([this](GUI*){
 			this->pause = false;
 		});
 		pauseMenu->add(shared_ptr<UINode>(button));
 	}
 	{
-		Button* button = new Button(L"Save and Quit to Menu", vec4(12.0f, 10.0f, 12.0f, 12.0f));
+		Button* button = new Button(L"Save and Quit to Menu", vec4(10.f));
 		button->listenAction([this, engine](GUI*){
 			this->pauseMenu->visible(false);
 			engine->setScreen(shared_ptr<Screen>(new MenuScreen(engine)));

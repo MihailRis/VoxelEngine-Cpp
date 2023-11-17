@@ -45,7 +45,7 @@ namespace gui {
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
         virtual void mouseRelease(GUI*, int x, int y) override;
-        virtual void listenAction(onaction action);
+        virtual Button* listenAction(onaction action);
     };
 
     class TextBox : public Panel {

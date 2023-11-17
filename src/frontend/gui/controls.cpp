@@ -80,8 +80,9 @@ void Button::mouseRelease(GUI* gui, int x, int y) {
     }
 }
 
-void Button::listenAction(onaction action) {
+Button* Button::listenAction(onaction action) {
     actions.push_back(action);
+    return this;
 }
 
 TextBox::TextBox(wstring placeholder, vec4 padding) 

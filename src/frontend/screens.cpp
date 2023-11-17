@@ -37,21 +37,16 @@ using std::filesystem::u8path;
 using std::filesystem::directory_iterator;
 using namespace gui;
 
-                                            // Replace this ugly piece of code
-                                            // With some normal pages system
-Panel* create_main_menu_panel(Engine* engine, shared_ptr<UINode>* newWorldPanel) {
+Panel* create_main_menu_panel(Engine* engine) {
     Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
     panel->color(vec4(0.0f));
 	panel->setCoord(vec2(10, 10));
 
-    {
-        auto button = new Button(L"New World", vec4(12.0f, 10.0f, 12.0f, 10.0f));
-        button->listenAction([engine, panel, newWorldPanel](GUI*) {
-            panel->visible(false);
-            (*newWorldPanel)->visible(true);
-        });
-        panel->add(shared_ptr<UINode>(button));
-    }
+    panel->add((new Button(L"New World", vec4(10.f)))->listenAction([=](GUI* gui) {
+        panel->visible(false);
+        gui->get("new-world")->visible(true);
+    }));
+
     Panel* worldsPanel = new Panel(vec2(390, 200), vec4(5.0f));
     worldsPanel->color(vec4(0.1f));
     for (auto const& entry : directory_iterator(enginefs::get_worlds_folder())) {
@@ -67,21 +62,17 @@ Panel* create_main_menu_panel(Engine* engine, shared_ptr<UINode>* newWorldPanel)
             auto screen = new LevelScreen(engine, world->load(settings));
             engine->setScreen(shared_ptr<Screen>(screen));
         });
-        worldsPanel->add(shared_ptr<UINode>(button));
+        worldsPanel->add(button);
     }
-    panel->add(shared_ptr<UINode>(worldsPanel));
+    panel->add(worldsPanel);
     
-    {
-        Button* button = new Button(L"Quit", vec4(12.0f, 10.0f, 12.0f, 10.0f));
-        button->listenAction([](GUI*) {
-            Window::setShouldClose(true);
-        });
-        panel->add(shared_ptr<UINode>(button));
-    }
+    panel->add((new Button(L"Quit", vec4(10.f)))->listenAction([](GUI*) {
+        Window::setShouldClose(true);
+    }));
     return panel;
 }
 
-Panel* create_new_world_panel(Engine* engine, shared_ptr<UINode>* mainPanel) {
+Panel* create_new_world_panel(Engine* engine) {
     Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
     panel->color(vec4(0.0f));
 	panel->setCoord(vec2(10, 10));
@@ -89,10 +80,10 @@ Panel* create_new_world_panel(Engine* engine, shared_ptr<UINode>* mainPanel) {
     TextBox* worldNameInput;
     {
         Label* label = new Label(L"World Name");
-        panel->add(shared_ptr<UINode>(label));
+        panel->add(label);
 
         TextBox* input = new TextBox(L"New World", vec4(6.0f));
-        panel->add(shared_ptr<UINode>(input));
+        panel->add(input);
         worldNameInput = input;
     }
 
@@ -103,12 +94,12 @@ Panel* create_new_world_panel(Engine* engine, shared_ptr<UINode>* mainPanel) {
 
         uint64_t randseed = rand() ^ (rand() << 8) ^ 
                         (rand() << 16) ^ (rand() << 24) ^
-                        ((uint64_t)rand() << 32) ^ ((uint64_t)rand() << 40) ^
+                        ((uint64_t)rand() << 32) ^ 
+                        ((uint64_t)rand() << 40) ^
                         ((uint64_t)rand() << 56);
 
-        TextBox* input = new TextBox(std::to_wstring(randseed), vec4(6.0f));
-        panel->add(shared_ptr<UINode>(input));
-        seedInput = input;
+        seedInput = new TextBox(std::to_wstring(randseed), vec4(6.0f));
+        panel->add(seedInput);
     }
 
     {
@@ -158,26 +149,25 @@ Panel* create_new_world_panel(Engine* engine, shared_ptr<UINode>* mainPanel) {
             auto screen = new LevelScreen(engine, world->load(settings));
             engine->setScreen(shared_ptr<Screen>(screen));
         });
-        panel->add(shared_ptr<UINode>(button));
+        panel->add(button);
     }
 
-    {
-        Button* button = new Button(L"Back", vec4(10.0f));
-        button->listenAction([panel, mainPanel](GUI*) {
-            panel->visible(false);
-            (*mainPanel)->visible(true);
-        });
-        panel->add(shared_ptr<UINode>(button));
-    }
+    panel->add((new Button(L"Back", vec4(10.f)))->listenAction([=](GUI* gui) {
+        panel->visible(false);
+        gui->get("main-menu")->visible(true);
+    }));
 
     return panel;
 }
 
 MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     GUI* gui = engine->getGUI();
-    panel = shared_ptr<UINode>(create_main_menu_panel(engine, &newWorldPanel));
-    newWorldPanel = shared_ptr<UINode>(create_new_world_panel(engine, &panel));
+    panel = shared_ptr<UINode>(create_main_menu_panel(engine));
+    newWorldPanel = shared_ptr<UINode>(create_new_world_panel(engine));
     newWorldPanel->visible(false);
+
+    gui->store("main-menu", panel);
+    gui->store("new-world", newWorldPanel);
     gui->add(panel);
     gui->add(newWorldPanel);
 
@@ -189,6 +179,10 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
 
 MenuScreen::~MenuScreen() {
     GUI* gui = engine->getGUI();
+    
+    gui->remove("main-menu");
+    gui->remove("new-world");
+
     gui->remove(newWorldPanel);
     gui->remove(panel);
     delete batch;

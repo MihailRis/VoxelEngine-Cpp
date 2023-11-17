@@ -325,6 +325,8 @@ void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 						blockXSprite(x, y, z, vec3(1, 1, 1), texfaces[FACE_MX], texfaces[FACE_MZ], 1.0f);
 						break;
 					}
+					default:
+						break;
 					}
 					if (overflow)
 						return;

@@ -12,6 +12,7 @@
 #include "../../window/input.h"
 #include "../../window/Camera.h"
 
+using std::string;
 using std::shared_ptr;
 using namespace gui;
 
@@ -101,6 +102,22 @@ void GUI::add(shared_ptr<UINode> panel) {
     container->add(panel);
 }
 
-void GUI::remove(std::shared_ptr<UINode> panel) {
+void GUI::remove(shared_ptr<UINode> panel) {
     container->remove(panel);
+}
+
+void GUI::store(string name, shared_ptr<UINode> node) {
+    storage[name] = node;
+}
+
+shared_ptr<UINode> GUI::get(string name) {
+    auto found = storage.find(name);
+    if (found == storage.end()) {
+        return nullptr;
+    }
+    return found->second;
+}
+
+void GUI::remove(string name) {
+    storage.erase(name);
 }

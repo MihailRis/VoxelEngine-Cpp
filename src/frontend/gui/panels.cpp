@@ -75,6 +75,10 @@ void Container::add(shared_ptr<UINode> node) {
     refresh();
 }
 
+void Container::add(UINode* node) {
+    add(shared_ptr<UINode>(node));
+}
+
 void Container::remove(shared_ptr<UINode> selected) {
     selected->setParent(nullptr);
     nodes.erase(std::remove_if(nodes.begin(), nodes.end(), 
