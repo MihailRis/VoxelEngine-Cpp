@@ -53,14 +53,14 @@ shared_ptr<UINode> create_main_menu_panel(Engine* engine) {
     Panel* worldsPanel = new Panel(vec2(390, 200), vec4(5.0f));
     worldsPanel->color(vec4(0.1f));
     for (auto const& entry : directory_iterator(enginefs::get_worlds_folder())) {
-        string name = entry.path().filename();
+        string name = entry.path().filename().string();
         Button* button = new Button(util::str2wstr_utf8(name), 
                                     vec4(10.0f, 8.0f, 10.0f, 8.0f));
         button->color(vec4(0.5f));
         button->listenAction([engine, panel, name](GUI*) {
             EngineSettings& settings = engine->getSettings();
 
-            auto folder = enginefs::get_worlds_folder()/name;
+            auto folder = enginefs::get_worlds_folder()/u8path(name);
             World* world = new World(name, folder, 42, settings);
             auto screen = new LevelScreen(engine, world->load(settings));
             engine->setScreen(shared_ptr<Screen>(screen));
