@@ -10,32 +10,28 @@
 #include <glm/ext.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-class World;
 class Level;
 class Camera;
-class Assets;
 class LineBatch;
-class Batch3D;
 class ChunksRenderer;
 class Shader;
 class Texture;
-class Framebuffer;
 class Frustum;
+class Engine;
 
 class WorldRenderer {
-	Batch3D* batch3d;
-	Assets* assets;
+	Engine* engine;
 	Level* level;
 	Frustum* frustumCulling;
+	LineBatch* lineBatch;
+	ChunksRenderer* renderer;
 	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion);
 public:
-	ChunksRenderer* renderer;
-	LineBatch* lineBatch;
 
-	WorldRenderer(Level* level, Assets* assets);
+	WorldRenderer(Engine* engine, Level* level);
 	~WorldRenderer();
 
-	void draw(Camera* camera, bool occlusion, float fogFactor, float fogCurve);
+	void draw(Camera* camera, bool occlusion);
 };
 
 

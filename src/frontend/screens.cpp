@@ -301,7 +301,7 @@ void MenuScreen::draw(float delta) {
 LevelScreen::LevelScreen(Engine* engine, Level* level) 
     : Screen(engine), 
       level(level) {
-    worldRenderer = new WorldRenderer(level, engine->getAssets());
+    worldRenderer = new WorldRenderer(engine, level);
     hud = new HudRenderer(engine, level);
 }
 
@@ -351,11 +351,9 @@ void LevelScreen::update(float delta) {
 }
 
 void LevelScreen::draw(float delta) {
-    EngineSettings& settings = engine->getSettings();
     Camera* camera = level->player->camera;
 
-    float fogFactor = 18.0f / (float)settings.chunks.loadDistance;
-    worldRenderer->draw(camera, occlusion, fogFactor, settings.graphics.fogCurve);
+    worldRenderer->draw(camera, occlusion);
     hud->draw();
     if (level->player->debug) {
         hud->drawDebug( 1 / delta, occlusion);

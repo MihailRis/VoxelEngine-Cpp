@@ -1,10 +1,3 @@
-/*
- * LineBatch.h
- *
- *  Created on: Jun 25, 2020
- *      Author: MihailRis
- */
-
 #ifndef GRAPHICS_LINEBATCH_H_
 #define GRAPHICS_LINEBATCH_H_
 
@@ -27,6 +20,7 @@ public:
 			float r, float g, float b, float a);
 
 	void render();
+	void lineWidth(float width);
 };
 
 #endif /* GRAPHICS_LINEBATCH_H_ */

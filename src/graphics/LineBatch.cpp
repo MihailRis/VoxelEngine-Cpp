@@ -1,10 +1,3 @@
-/*
- * LineBatch.cpp
- *
- *  Created on: Jun 25, 2020
- *      Author: MihailRis
- */
-
 #include "LineBatch.h"
 #include "Mesh.h"
 
@@ -67,11 +60,14 @@ void LineBatch::box(float x, float y, float z, float w, float h, float d,
 	line(x+w, y+h, z-d, x+w, y+h, z+d, r,g,b,a);
 }
 
-#include <iostream>
 void LineBatch::render(){
 	if (index == 0)
 		return;
 	mesh->reload(buffer, index / LB_VERTEX_SIZE);
 	mesh->draw(GL_LINES);
 	index = 0;
+}
+
+void LineBatch::lineWidth(float width) {
+	glLineWidth(width);
 }
