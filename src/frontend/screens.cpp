@@ -181,7 +181,7 @@ Panel* create_settings_panel(Engine* engine) {
                 std::to_wstring(engine->getSettings().chunks.loadDistance);
         }));
 
-        TrackBar* trackbar = new TrackBar(3, 66, 10);
+        TrackBar* trackbar = new TrackBar(3, 66, 10, 1, 3);
         trackbar->supplier([=]() {
             return engine->getSettings().chunks.loadDistance;
         });
@@ -207,6 +207,25 @@ Panel* create_settings_panel(Engine* engine) {
             engine->getSettings().graphics.fogCurve = value;
         });
         panel->add(trackbar);
+    }
+
+    {
+        Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
+        checkpanel->color(vec4(0.0f));
+        checkpanel->orientation(Orientation::horizontal);
+
+        CheckBox* checkbox = new CheckBox();
+        checkbox->margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
+        checkbox->supplier([=]() {
+            return engine->getSettings().display.swapInterval != 0;
+        });
+        checkbox->consumer([=](bool checked) {
+            engine->getSettings().display.swapInterval = checked;
+        });
+        checkpanel->add(checkbox);
+        checkpanel->add(new Label(L"V-Sync"));
+
+        panel->add(checkpanel);
     }
 
     panel->add((new Button(L"Back", vec4(10.f)))->listenAction([=](GUI* gui) {

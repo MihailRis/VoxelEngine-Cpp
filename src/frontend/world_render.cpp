@@ -91,7 +91,7 @@ void WorldRenderer::draw(Camera* camera, bool occlusion, float fogFactor, float 
 	shader->uniform3f("u_cameraPos", camera->position);
 
 	Block* cblock = Block::blocks[level->player->choosenBlock];
-	float multiplier = 0.2f;
+	float multiplier = 0.5f;
 	shader->uniform3f("u_torchlightColor",
 			cblock->emission[0] / 15.0f * multiplier,
 			cblock->emission[1] / 15.0f * multiplier,

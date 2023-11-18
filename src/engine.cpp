@@ -96,6 +96,7 @@ void Engine::mainloop() {
 		screen->draw(delta);
 		gui->draw(&batch, assets);
 
+		Window::swapInterval(settings.display.swapInterval);
 		Window::swapBuffers();
 		Events::pullEvents();
 	}
