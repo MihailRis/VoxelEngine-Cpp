@@ -38,18 +38,18 @@ void PlayerController::refreshCamera() {
 }
 
 void PlayerController::updateKeyboard() {
-	input.zoom = Events::pressed(keycode::C);
-	input.moveForward = Events::pressed(keycode::W);
-	input.moveBack = Events::pressed(keycode::S);
-	input.moveLeft = Events::pressed(keycode::A);
-	input.moveRight = Events::pressed(keycode::D);
-	input.sprint = Events::pressed(keycode::LEFT_CONTROL);
-	input.shift = Events::pressed(keycode::LEFT_SHIFT);
-	input.cheat = Events::pressed(keycode::R);
-	input.jump = Events::pressed(keycode::SPACE);
+	input.moveForward = Events::active("movement.forward");
+	input.moveBack = Events::active("movement.back");
+	input.moveLeft = Events::active("movement.left");
+	input.moveRight = Events::active("movement.right");
+	input.sprint = Events::active("movement.sprint");
+	input.shift = Events::active("movement.crouch");
+	input.cheat = Events::active("movement.cheat");
+	input.jump = Events::active("movement.jump");
+	input.zoom = Events::active("camera.zoom");
 
-	input.noclip = Events::jpressed(keycode::N);
-	input.flight = Events::jpressed(keycode::F);
+	input.noclip = Events::jactive("player.noclip");
+	input.flight = Events::jactive("player.flight");
 
 	// block choice
 	for (int i = 1; i < 10; i++){

@@ -14,6 +14,7 @@ bool Events::_cursor_locked = false;
 bool Events::_cursor_started = false;
 std::vector<uint> Events::codepoints;
 std::vector<int> Events::pressedKeys;
+std::unordered_map<std::string, Binding> Events::bindings;
 
 int Events::initialize(){
 	_keys = new bool[1032];
@@ -64,4 +65,47 @@ void Events::pullEvents(){
 	codepoints.clear();
 	pressedKeys.clear();
 	glfwPollEvents();
+
+	for (auto& entry : bindings) {
+		auto& binding = entry.second;
+		binding.justChange = false;
+
+		bool newstate = false;
+		switch (binding.type) {
+			case inputtype::keyboard: newstate = pressed(binding.code); break;
+			case inputtype::button: newstate = clicked(binding.code); break;
+		}
+
+		if (newstate) {
+			if (!binding.state) {
+				binding.state = true;
+				binding.justChange = true;
+			}
+		} else {
+			if (binding.state) {
+				binding.state = false;
+				binding.justChange = true;
+			}
+		}
+	}
+}
+
+void Events::bind(std::string name, inputtype type, int code) {
+	bindings[name] = {type, code, false, false};
+}
+
+bool Events::active(std::string name) {
+	const auto& found = bindings.find(name);
+	if (found == bindings.end()) {
+		return false;
+	}
+	return found->second.active();
+}
+
+bool Events::jactive(std::string name) {
+	const auto& found = bindings.find(name);
+	if (found == bindings.end()) {
+		return false;
+	}
+	return found->second.jactive();
 }

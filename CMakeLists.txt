@@ -15,6 +15,7 @@ else()
     # additional warnings
     -Wformat-nonliteral -Wcast-align 
     -Wpointer-arith -Wundef
+    -Wswitch-enum
     -Wwrite-strings -Wno-unused-parameter)
 endif()
 

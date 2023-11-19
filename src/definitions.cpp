@@ -1,6 +1,8 @@
 #include "definitions.h"
 
 #include "window/Window.h"
+#include "window/Events.h"
+#include "window/input.h"
 #include "voxels/Block.h"
 
 // All in-game definitions (blocks, items, etc..)
@@ -90,4 +92,18 @@ void setup_definitions() {
 
 	block = new Block(BLOCK_RUST, 19);
 	Block::blocks[block->id] = block;
+}
+
+void setup_bindings() {
+	Events::bind(BIND_MOVE_FORWARD, inputtype::keyboard, keycode::W);
+	Events::bind(BIND_MOVE_BACK, inputtype::keyboard, keycode::S);
+	Events::bind(BIND_MOVE_RIGHT, inputtype::keyboard, keycode::D);
+	Events::bind(BIND_MOVE_LEFT, inputtype::keyboard, keycode::A);
+	Events::bind(BIND_MOVE_JUMP, inputtype::keyboard, keycode::SPACE);
+	Events::bind(BIND_MOVE_SPRINT, inputtype::keyboard, keycode::LEFT_CONTROL);
+	Events::bind(BIND_MOVE_CROUCH, inputtype::keyboard, keycode::LEFT_SHIFT);
+	Events::bind(BIND_MOVE_CHEAT, inputtype::keyboard, keycode::R);
+	Events::bind(BIND_CAM_ZOOM, inputtype::keyboard, keycode::C);
+	Events::bind(BIND_PLAYER_NOCLIP, inputtype::keyboard, keycode::N);
+	Events::bind(BIND_PLAYER_FLIGHT, inputtype::keyboard, keycode::F);
 }

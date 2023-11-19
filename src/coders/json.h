@@ -81,6 +81,7 @@ namespace json {
         JObject& put(std::string key, int value);
         JObject& put(std::string key, float value);
         JObject& put(std::string key, double value);
+        JObject& put(std::string key, const char* value);
         JObject& put(std::string key, std::string value);
         JObject& put(std::string key, JObject* value);
         JObject& put(std::string key, JArray* value);

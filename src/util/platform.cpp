@@ -1,19 +1,23 @@
 #include "platform.h"
 
 #include <sstream>
-#include <filesystem>
 #include <iomanip>
 #include <time.h>
 
 #include "../typedefs.h"
 
 #define SETTINGS_FILE "settings.toml"
+#define CONTROLS_FILE "controls.json"
 
-using std::string;
+using std::filesystem::path;
 
 
-string platform::get_settings_file() {
-	return SETTINGS_FILE;
+path platform::get_settings_file() {
+	return path(SETTINGS_FILE);
+}
+
+path platform::get_controls_file() {
+	return path(CONTROLS_FILE);
 }
 
 #ifdef WIN32
