@@ -10,6 +10,8 @@
 #include <glm/ext.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../graphics/GfxContext.h"
+
 class Level;
 class Camera;
 class LineBatch;
@@ -18,6 +20,7 @@ class Shader;
 class Texture;
 class Frustum;
 class Engine;
+class Chunks;
 
 class WorldRenderer {
 	Engine* engine;
@@ -26,12 +29,13 @@ class WorldRenderer {
 	LineBatch* lineBatch;
 	ChunksRenderer* renderer;
 	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion);
+	void drawChunks(Chunks* chunks, Camera* camera, Shader* shader, bool occlusion);
 public:
 
 	WorldRenderer(Engine* engine, Level* level);
 	~WorldRenderer();
 
-	void draw(Camera* camera, bool occlusion);
+	void draw(const GfxContext& context, Camera* camera, bool occlusion);
 };
 
 

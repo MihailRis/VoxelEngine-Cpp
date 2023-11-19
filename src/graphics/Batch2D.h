@@ -62,6 +62,8 @@ public:
 			float r4, float g4, float b4, int sh);
 	void render(unsigned int gl_primitive);
 	void render();
+
+	void lineWidth(float width);
 };
 
 #endif /* SRC_GRAPHICS_BATCH2D_H_ */

@@ -215,8 +215,21 @@ void PlayerController::updateInteraction(){
 	Camera* camera = player->camera;
 	vec3 end;
 	vec3 norm;
+
+	bool xkey = Events::pressed(keycode::X);
+	bool lclick = Events::jclicked(mousecode::BUTTON_1) || 
+				  (xkey && Events::clicked(mousecode::BUTTON_1));
+	bool rclick = Events::jclicked(mousecode::BUTTON_2) || 
+				  (xkey && Events::clicked(mousecode::BUTTON_2));
+	float maxDistance = 10.0f;
+	if (xkey) {
+		maxDistance *= 20.0f;
+	}
 	vec3 iend;
-	voxel* vox = chunks->rayCast(camera->position, camera->front, 10.0f, end, norm, iend);
+	voxel* vox = chunks->rayCast(camera->position, 
+								 camera->front, 
+								 maxDistance, 
+								 end, norm, iend);
 	if (vox != nullptr){
 		player->selectedVoxel = *vox;
 		selectedBlockId = vox->id;
@@ -238,11 +251,11 @@ void PlayerController::updateInteraction(){
 		}
 		
 		Block* block = Block::blocks[vox->id];
-		if (Events::jclicked(mousecode::BUTTON_1) && block->breakable){
+		if (lclick && block->breakable){
 			chunks->set(x,y,z, 0, 0);
 			lighting->onBlockSet(x,y,z, 0);
 		}
-		if (Events::jclicked(mousecode::BUTTON_2)){
+		if (rclick){
 			if (block->model != BlockModel::xsprite){
 				x = (int)(iend.x)+(int)(norm.x);
 				y = (int)(iend.y)+(int)(norm.y);

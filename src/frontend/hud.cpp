@@ -44,9 +44,9 @@ inline Label* create_label(gui::wstringsupplier supplier) {
 	return label;
 }
 
-HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(engine->getAssets()), guiController(engine->getGUI()) {
+HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(engine->getAssets()), gui(engine->getGUI()) {
 	batch = new Batch2D(1024);
-	uicamera = new Camera(vec3(), Window::height);
+	uicamera = new Camera(vec3(), 1);
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 
@@ -139,13 +139,13 @@ HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(en
 		panel->add(shared_ptr<UINode>(button));
 	}
 	panel->visible(false);
-	guiController->add(this->debugPanel);
-	guiController->add(this->pauseMenu);
+	gui->add(this->debugPanel);
+	gui->add(this->pauseMenu);
 }
 
 HudRenderer::~HudRenderer() {
-	guiController->remove(debugPanel);
-	guiController->remove(pauseMenu);
+	gui->remove(debugPanel);
+	gui->remove(pauseMenu);
 	delete batch;
 	delete uicamera;
 }
@@ -157,7 +157,11 @@ void HudRenderer::drawDebug(int fps, bool occlusion){
 	fpsMax = max(fps, fpsMax);
 }
 
-void HudRenderer::drawInventory(Player* player) {
+void HudRenderer::drawInventory(const GfxContext& ctx, Player* player) {
+	const Viewport& viewport = ctx.getViewport();
+	const uint width = viewport.getWidth();
+	const uint height = viewport.getHeight();
+
 	Texture* blocks = assets->getTexture("block_tex");
 	uint size = 48;
 	uint step = 64;
@@ -165,15 +169,15 @@ void HudRenderer::drawInventory(Player* player) {
 	uint inv_rows = 8;
 	uint inv_w = step*inv_cols + size;
 	uint inv_h = step*inv_rows + size;
-	int inv_x = (Window::width - (inv_w)) / 2;
-	int inv_y = (Window::height - (inv_h)) / 2;
-	int xs = (Window::width - inv_w + step)/2;
-	int ys = (Window::height - inv_h + step)/2;
-	if (Window::width > inv_w*3){
-		inv_x = (Window::width + (inv_w)) / 2;
-		inv_y = (Window::height - (inv_h)) / 2;
-		xs = (Window::width + inv_w + step)/2;
-		ys = (Window::height - inv_h + step)/2;
+	int inv_x = (width - (inv_w)) / 2;
+	int inv_y = (height - (inv_h)) / 2;
+	int xs = (width - inv_w + step)/2;
+	int ys = (height - inv_h + step)/2;
+	if (width > inv_w*3){
+		inv_x = (width + (inv_w)) / 2;
+		inv_y = (height - (inv_h)) / 2;
+		xs = (width + inv_w + step)/2;
+		ys = (height - inv_h + step)/2;
 	}
 	vec4 tint = vec4(1.0f);
 	int mx = Events::x;
@@ -234,17 +238,18 @@ void HudRenderer::drawInventory(Player* player) {
 	}
 }
 
-void HudRenderer::draw(){
+void HudRenderer::draw(const GfxContext& ctx){
+	const Viewport& viewport = ctx.getViewport();
+	const uint width = viewport.getWidth();
+	const uint height = viewport.getHeight();
+
 	debugPanel->visible(level->player->debug);
-	pauseMenu->setCoord((Window::size() - pauseMenu->size()) / 2.0f);
+	pauseMenu->setCoord((viewport.size() - pauseMenu->size()) / 2.0f);
 
-	auto settingsPanel = guiController->get("settings");
-    settingsPanel->setCoord((Window::size() - settingsPanel->size()) / 2.0f);
+	auto settingsPanel = gui->get("settings");
+    settingsPanel->setCoord((viewport.size() - settingsPanel->size()) / 2.0f);
 
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-
-	uicamera->fov = Window::height;
+	uicamera->fov = height;
 
 	Shader* uishader = assets->getShader("ui");
 	uishader->use();
@@ -256,9 +261,7 @@ void HudRenderer::draw(){
 	batch->texture(nullptr);
 	batch->color = vec4(1.0f);
 	if (Events::_cursor_locked && !level->player->debug) {
-		glLineWidth(2);
-		const uint width = Window::width;
-		const uint height = Window::height;
+		batch->lineWidth(2);
 		batch->line(width/2, height/2-6, width/2, height/2+6, 0.2f, 0.2f, 0.2f, 1.0f);
 		batch->line(width/2+6, height/2, width/2-6, height/2, 0.2f, 0.2f, 0.2f, 1.0f);
 		batch->line(width/2-5, height/2-5, width/2+5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
@@ -266,19 +269,19 @@ void HudRenderer::draw(){
 	}
 	Player* player = level->player;
 
-	batch->rect(Window::width/2-128-4, Window::height-80-4, 256+8, 64+8,
+	batch->rect(width/2-128-4, height-80-4, 256+8, 64+8,
 						0.95f, 0.95f, 0.95f, 0.85f, 0.85f, 0.85f,
 						0.7f, 0.7f, 0.7f,
 						0.55f, 0.55f, 0.55f, 0.45f, 0.45f, 0.45f, 4);
-	batch->rect(Window::width/2-128, Window::height - 80, 256, 64,
+	batch->rect(width/2-128, height - 80, 256, 64,
 						0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f,
 						0.75f, 0.75f, 0.75f,
 						0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 4);
-	batch->rect(Window::width/2-32+2, Window::height - 80+2, 60, 60,
+	batch->rect(width/2-32+2, height - 80+2, 60, 60,
 						0.45f, 0.45f, 0.45f, 0.55f, 0.55f, 0.55f,
 						0.7f, 0.7f, 0.7f,
 						0.85f, 0.85f, 0.85f, 0.95f, 0.95f, 0.95f, 2);
-	batch->rect(Window::width/2-32+4, Window::height - 80+4, 56, 56,
+	batch->rect(width/2-32+4, height - 80+4, 56, 56,
 						0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f,
 						0.75f, 0.75f, 0.75f,
 						0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 2);
@@ -288,13 +291,13 @@ void HudRenderer::draw(){
 	{
 		Block* cblock = Block::blocks[player->choosenBlock];
 		if (cblock->model == BlockModel::block){
-			batch->blockSprite(Window::width/2-24, uicamera->fov - 72, 48, 48, 16, cblock->textureFaces, vec4(1.0f));
+			batch->blockSprite(width/2-24, uicamera->fov - 72, 48, 48, 16, cblock->textureFaces, vec4(1.0f));
 		} else if (cblock->model == BlockModel::xsprite){
-			batch->sprite(Window::width/2-24, uicamera->fov - 72, 48, 48, 16, cblock->textureFaces[3], vec4(1.0f));
+			batch->sprite(width/2-24, uicamera->fov - 72, 48, 48, 16, cblock->textureFaces[3], vec4(1.0f));
 		}
 	}
 
-	if (Events::jpressed(keycode::ESCAPE) && !guiController->isFocusCaught()) {
+	if (Events::jpressed(keycode::ESCAPE) && !gui->isFocusCaught()) {
 		if (pause) {
 			pause = false;
 			pauseMenu->visible(false);
@@ -317,10 +320,10 @@ void HudRenderer::draw(){
 	if (pause || inventoryOpen) {
 		batch->texture(nullptr);
 		batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
-		batch->rect(0, 0, Window::width, Window::height);
+		batch->rect(0, 0, width, height);
 	}
 	if (inventoryOpen) {
-        drawInventory(player);
+        drawInventory(ctx, player);
 	}
 	batch->render();
 }

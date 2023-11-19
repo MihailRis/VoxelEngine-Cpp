@@ -13,6 +13,7 @@
 #include "../window/input.h"
 #include "../graphics/Shader.h"
 #include "../graphics/Batch2D.h"
+#include "../graphics/GfxContext.h"
 #include "../assets/Assets.h"
 #include "../world/Level.h"
 #include "../world/World.h"
@@ -356,8 +357,11 @@ void LevelScreen::update(float delta) {
 void LevelScreen::draw(float delta) {
     Camera* camera = level->player->camera;
 
-    worldRenderer->draw(camera, occlusion);
-    hud->draw();
+    Viewport viewport(Window::width, Window::height);
+    GfxContext ctx(nullptr, viewport, nullptr);
+
+    worldRenderer->draw(ctx, camera, occlusion);
+    hud->draw(ctx);
     if (level->player->debug) {
         hud->drawDebug( 1 / delta, occlusion);
     }
