@@ -2,8 +2,11 @@
 #include "Assets.h"
 
 #include <iostream>
+#include <memory>
 
 #include "../constants.h"
+
+using std::unique_ptr;
 
 AssetsLoader::AssetsLoader(Assets* assets) : assets(assets) {
 }
@@ -62,18 +65,17 @@ bool _load_texture(Assets* assets, const std::string& filename, const std::strin
 }
 
 bool _load_atlas(Assets* assets, const std::string& filename, const std::string& name) {
-	ImageData* image = png::load_image(filename);
+	unique_ptr<ImageData> image (png::load_image(filename));
 	if (image == nullptr) {
 		std::cerr << "failed to load image '" << name << "'" << std::endl;
 		return false;
 	}
 	for (int i = 0; i < ATLAS_MARGIN_SIZE; i++) {
-		ImageData* newimage = add_atlas_margins(image, 16);
-		delete image;
-		image = newimage;
+		ImageData* newimage = add_atlas_margins(image.get(), 16);
+		image.reset(newimage);
 	}
 
-	Texture* texture = Texture::from(image);
+	Texture* texture = Texture::from(image.get());
 	assets->store(texture, name);
 	return true;
 }
