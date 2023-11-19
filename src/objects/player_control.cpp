@@ -12,6 +12,8 @@
 #include "../window/Events.h"
 #include "../window/input.h"
 
+#include "../core_defs.h"
+
 #define CROUCH_SPEED_MUL 0.25f
 #define CROUCH_SHIFT_Y -0.2f
 #define RUN_SPEED_MUL 1.5f
@@ -38,18 +40,18 @@ void PlayerController::refreshCamera() {
 }
 
 void PlayerController::updateKeyboard() {
-	input.moveForward = Events::active("movement.forward");
-	input.moveBack = Events::active("movement.back");
-	input.moveLeft = Events::active("movement.left");
-	input.moveRight = Events::active("movement.right");
-	input.sprint = Events::active("movement.sprint");
-	input.shift = Events::active("movement.crouch");
-	input.cheat = Events::active("movement.cheat");
-	input.jump = Events::active("movement.jump");
-	input.zoom = Events::active("camera.zoom");
+	input.moveForward = Events::active(BIND_MOVE_FORWARD);
+	input.moveBack = Events::active(BIND_MOVE_BACK);
+	input.moveLeft = Events::active(BIND_MOVE_LEFT);
+	input.moveRight = Events::active(BIND_MOVE_RIGHT);
+	input.sprint = Events::active(BIND_MOVE_SPRINT);
+	input.shift = Events::active(BIND_MOVE_CROUCH);
+	input.cheat = Events::active(BIND_MOVE_CHEAT);
+	input.jump = Events::active(BIND_MOVE_JUMP);
+	input.zoom = Events::active(BIND_CAM_ZOOM);
 
-	input.noclip = Events::jactive("player.noclip");
-	input.flight = Events::jactive("player.flight");
+	input.noclip = Events::jactive(BIND_PLAYER_NOCLIP);
+	input.flight = Events::jactive(BIND_PLAYER_FLIGHT);
 
 	// block choice
 	for (int i = 1; i < 10; i++){

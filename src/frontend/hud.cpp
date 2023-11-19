@@ -30,6 +30,7 @@
 #include "gui/GUI.h"
 #include "screens.h"
 #include "../engine.h"
+#include "../core_defs.h"
 
 using std::wstring;
 using std::shared_ptr;
@@ -309,7 +310,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 			pauseMenu->visible(true);
 		}
 	}
-	if (Events::jactive("hud.inventory")) {
+	if (Events::jactive(BIND_HUD_INVENTORY)) {
 		if (!pause) {
 			inventoryOpen = !inventoryOpen;
 		}
