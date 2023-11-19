@@ -309,7 +309,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 			pauseMenu->visible(true);
 		}
 	}
-	if (Events::jpressed(keycode::TAB)) {
+	if (Events::jactive("hud.inventory")) {
 		if (!pause) {
 			inventoryOpen = !inventoryOpen;
 		}

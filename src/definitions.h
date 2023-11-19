@@ -32,6 +32,7 @@
 #define BIND_CAM_ZOOM "camera.zoom"
 #define BIND_PLAYER_NOCLIP "player.noclip"
 #define BIND_PLAYER_FLIGHT "player.flight"
+#define BIND_HUD_INVENTORY "hud.inventory"
 
 extern void setup_bindings();
 extern void setup_definitions();
