@@ -28,9 +28,9 @@ BlocksRenderer::~BlocksRenderer() {
 	delete[] buffer;
 }
 
-void BlocksRenderer::vertex(vec3 coord,
+void BlocksRenderer::vertex(const vec3& coord,
 	float u, float v,
-	vec4 light) {
+	const vec4& light) {
 	buffer[offset++] = coord.x;
 	buffer[offset++] = coord.y;
 	buffer[offset++] = coord.z;
@@ -44,12 +44,12 @@ void BlocksRenderer::vertex(vec3 coord,
 	buffer[offset++] = light.a;
 }
 
-void BlocksRenderer::face(vec3 coord, float w, float h,
-	const vec3 axisX,
-	const vec3 axisY,
+void BlocksRenderer::face(const vec3& coord, float w, float h,
+	const vec3& axisX,
+	const vec3& axisY,
 	const UVRegion& region,
-	const vec4 lights[4],
-	const vec4 tint) {
+	const vec4 (&lights)[4],
+	const vec4& tint) {
 	if (offset + VERTEX_SIZE * 6 > capacity) {
 		overflow = true;
 		return;
@@ -63,12 +63,12 @@ void BlocksRenderer::face(vec3 coord, float w, float h,
 	vertex(coord + axisY * h, region.u1, region.v2, lights[3] * tint);
 }
 
-void BlocksRenderer::face(vec3 coord, float w, float h,
-	const vec3 axisX,
-	const vec3 axisY,
+void BlocksRenderer::face(const vec3& coord, float w, float h,
+	const vec3& axisX,
+	const vec3& axisY,
 	const UVRegion& region,
-	const vec4 lights[4],
-	const vec4 tint,
+	const vec4 (&lights)[4],
+	const vec4& tint,
 	bool rotated) {
 	if (offset + VERTEX_SIZE * 6 > capacity) {
 		overflow = true;
@@ -94,7 +94,7 @@ void BlocksRenderer::face(vec3 coord, float w, float h,
 	}
 }
 
-void BlocksRenderer::cube(vec3 coord, vec3 size, const UVRegion texfaces[6]) {
+void BlocksRenderer::cube(const vec3& coord, const vec3& size, const UVRegion (&texfaces)[6]) {
 	vec4 lights[]{ vec4(),vec4(),vec4(),vec4() };
 
 	face(coord, size.x, size.y, vec3(1, 0, 0), vec3(0, 1, 0), texfaces[0], lights);
@@ -111,7 +111,7 @@ inline vec4 do_tint(float value) {
 	return vec4(value);
 }
 
-void BlocksRenderer::blockCube(int x, int y, int z, vec3 size, const UVRegion texfaces[6], ubyte group) {
+void BlocksRenderer::blockCube(int x, int y, int z, const vec3& size, const UVRegion (&texfaces)[6], ubyte group) {
 	vec4 lights[]{ vec4(1.0f), vec4(1.0f), vec4(1.0f), vec4(1.0f) };
 	if (isOpen(x, y, z + 1, group)) {
 		face(vec3(x, y, z), size.x, size.y, vec3(1, 0, 0), vec3(0, 1, 0), texfaces[5], lights, do_tint(0.9f));
@@ -136,7 +136,7 @@ void BlocksRenderer::blockCube(int x, int y, int z, vec3 size, const UVRegion te
 	}
 }
 
-void BlocksRenderer::blockXSprite(int x, int y, int z, vec3 size, const UVRegion texface1, const UVRegion texface2, float spread) {
+void BlocksRenderer::blockXSprite(int x, int y, int z, const vec3& size, const UVRegion& texface1, const UVRegion& texface2, float spread) {
 	vec4 lights[]{
 			pickSoftLight(x, y+1, z, {1, 0, 0}, {0, 1, 0}),
 			pickSoftLight(x + 1, y+1, z, {1, 0, 0}, {0, 1, 0}),
@@ -164,7 +164,7 @@ void BlocksRenderer::blockXSprite(int x, int y, int z, vec3 size, const UVRegion
 			  vec3(-1.0f, 0, 1.0f), vec3(0, 1, 0), texface2, lights, do_tint(0.8f));
 }
 
-void BlocksRenderer::blockCubeShaded(int x, int y, int z, vec3 size, const UVRegion texfaces_[6], const Block* block, ubyte states) {
+void BlocksRenderer::blockCubeShaded(int x, int y, int z, const vec3& size, const UVRegion (&texfaces_)[6], const Block* block, ubyte states) {
 	ubyte group = block->drawGroup;
 	UVRegion texfaces[6];
 	int rot = 0;
@@ -282,7 +282,7 @@ vec4 BlocksRenderer::pickLight(int x, int y, int z) const {
 	}
 }
 
-vec4 BlocksRenderer::pickSoftLight(int x, int y, int z, ivec3 right, ivec3 up) const {
+vec4 BlocksRenderer::pickSoftLight(int x, int y, int z, const ivec3& right, const ivec3& up) const {
 	return (pickLight(x - right.x - up.x, y - right.y - up.y, z - right.z - up.z) +
 		pickLight(x - up.x, y - up.y, z - up.z) +
 		pickLight(x, y, z) +
@@ -300,38 +300,39 @@ inline UVRegion uvfor(const Block& def, uint face, int atlas_size) {
 }
 
 void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
+	int begin = chunk->bottom * (CHUNK_W * CHUNK_D);
+	int end = chunk->top * (CHUNK_W * CHUNK_D);
 	for (ubyte group = 0; group < 8; group++) {
-		for (uint y = 0; y < CHUNK_H; y++) {
-			for (uint z = 0; z < CHUNK_D; z++) {
-				for (uint x = 0; x < CHUNK_W; x++) {
-					const voxel& vox = voxels[((y * CHUNK_D) + z) * CHUNK_W + x];
-					blockid_t id = vox.id;
-					const Block& def = *Block::blocks[id];
-					if (!id || def.drawGroup != group)
-						continue;
-					const UVRegion texfaces[6]{ uvfor(def, 0, atlas_size), uvfor(def, 1, atlas_size),
-												uvfor(def, 2, atlas_size), uvfor(def, 3, atlas_size),
-												uvfor(def, 4, atlas_size), uvfor(def, 5, atlas_size) };
-					switch (def.model) {
-					case BlockModel::block:
-						if (*((light_t*)&def.emission)) {
-							blockCube(x, y, z, vec3(1, 1, 1), texfaces, def.drawGroup);
-						}
-						else {
-							blockCubeShaded(x, y, z, vec3(1, 1, 1), texfaces, &def, vox.states);
-						}
-						break;
-					case BlockModel::xsprite: {
-						blockXSprite(x, y, z, vec3(1, 1, 1), texfaces[FACE_MX], texfaces[FACE_MZ], 1.0f);
-						break;
-					}
-					default:
-						break;
-					}
-					if (overflow)
-						return;
+		for (int i = begin; i < end; i++) {
+			const voxel& vox = voxels[i];
+			blockid_t id = vox.id;
+			const Block& def = *Block::blocks[id];
+			if (!id || def.drawGroup != group)
+				continue;
+			const UVRegion texfaces[6]{ uvfor(def, 0, atlas_size), uvfor(def, 1, atlas_size),
+										uvfor(def, 2, atlas_size), uvfor(def, 3, atlas_size),
+										uvfor(def, 4, atlas_size), uvfor(def, 5, atlas_size) };
+			int x = i % CHUNK_W;
+			int y = i / (CHUNK_D * CHUNK_W);
+			int z = (i / CHUNK_D) % CHUNK_W;
+			switch (def.model) {
+			case BlockModel::block:
+				if (*((light_t*)&def.emission)) {
+					blockCube(x, y, z, vec3(1, 1, 1), texfaces, def.drawGroup);
 				}
+				else {
+					blockCubeShaded(x, y, z, vec3(1, 1, 1), texfaces, &def, vox.states);
+				}
+				break;
+			case BlockModel::xsprite: {
+				blockXSprite(x, y, z, vec3(1, 1, 1), texfaces[FACE_MX], texfaces[FACE_MZ], 1.0f);
+				break;
 			}
+			default:
+				break;
+			}
+			if (overflow)
+				return;
 		}
 	}
 }
