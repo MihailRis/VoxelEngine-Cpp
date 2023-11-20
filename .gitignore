@@ -8,7 +8,6 @@ Debug/voxel_engine
 /world
 /worlds/**/*
 /settings.toml
-/controls.json
 
 .vscode
 /.vs
