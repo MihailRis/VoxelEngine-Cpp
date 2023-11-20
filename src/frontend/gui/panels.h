@@ -61,6 +61,10 @@ namespace gui {
 
     struct Page {
         std::shared_ptr<UINode> panel = nullptr;
+
+        ~Page() {
+            panel = nullptr;
+        }
     };
 
     class PagesControl : public Container {
@@ -72,8 +76,10 @@ namespace gui {
     public:
         PagesControl();
 
+        bool has(std::string name);
         void set(std::string name, bool history=true);
         void add(std::string name, std::shared_ptr<UINode> panel);
+        void add(std::string name, UINode* panel);
         void back();
         void clearHistory();
         void reset();

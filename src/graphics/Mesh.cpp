@@ -4,9 +4,9 @@
 int Mesh::meshesCount = 0;
 
 Mesh::Mesh(const float* vertexBuffer, size_t vertices, const int* indexBuffer, size_t indices, const vattr* attrs) : 
+	ibo(0),
 	vertices(vertices),
-	indices(indices),
-	ibo(0)
+	indices(indices)
 {
 	meshesCount++;
 	vertexSize = 0;
