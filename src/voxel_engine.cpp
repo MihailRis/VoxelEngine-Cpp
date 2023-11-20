@@ -95,7 +95,7 @@ int main() {
 		if (std::filesystem::is_regular_file(settings_file)) {
 			std::cout << "-- loading settings" << std::endl;
 			std::string content = files::read_string(settings_file);
-			toml::Reader reader(&wrapper, settings_file, content);
+			toml::Reader reader(&wrapper, settings_file.string(), content);
 			reader.read();
 		}
 		Engine engine(settings);
