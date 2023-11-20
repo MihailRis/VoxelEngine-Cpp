@@ -8,6 +8,7 @@ Debug/voxel_engine
 /world
 /worlds/**/*
 /settings.toml
+/controls.json
 
 .vscode
 /.vs
@@ -22,4 +23,3 @@ Debug/voxel_engine
 .project
 .git
 /Default/
-/controls.json
