@@ -66,12 +66,59 @@ namespace keycode {
     extern int NUM_7;
     extern int NUM_8;
     extern int NUM_9;
+    extern int MENU;
+    extern int PAUSE;
+    extern int INSERT;
+    extern int LEFT_SUPER;
+    extern int RIGHT_SUPER;
+    extern int DELETE;
+    extern int PAGE_UP;
+    extern int PAGE_DOWN;
+    extern int HOME;
+    extern int END;
+    extern int PRINT_SCREEN;
+    extern int NUM_LOCK;
+    extern int LEFT_BRACKET;
+    extern int RIGHT_BRACKET;
+
+    extern const char* name(int code);
 }
 
 namespace mousecode {
     extern int BUTTON_1;
     extern int BUTTON_2;
     extern int BUTTON_3;
+
+    extern const char* name(int code);
 }
+
+enum class inputtype {
+    keyboard,
+    mouse,
+};
+
+struct Binding {
+    inputtype type;
+    int code;
+    bool state = false;
+    bool justChange = false;
+
+    bool active() const {
+        return state; 
+    }
+
+    bool jactive() const {
+        return state && justChange;
+    }
+
+    const char* text() const {
+        switch (type) {
+            case inputtype::keyboard: return keycode::name(code);
+            case inputtype::mouse: return mousecode::name(code);
+        }
+        return "<unknown input type>";
+    }
+};
+
 
 #endif // WINDOW_INPUT_H_

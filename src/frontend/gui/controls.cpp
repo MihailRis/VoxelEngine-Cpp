@@ -5,6 +5,7 @@
 #include "../../assets/Assets.h"
 #include "../../graphics/Batch2D.h"
 #include "../../graphics/Font.h"
+#include "../../util/stringutil.h"
 
 using std::string;
 using std::wstring;
@@ -36,7 +37,7 @@ void Label::draw(Batch2D* batch, Assets* assets) {
     }
     batch->color = color_;
     Font* font = assets->getFont(fontName_);
-    vec2 size = this->size();
+    vec2 size = UINode::size();
     vec2 newsize = vec2(font->calcWidth(text_), font->lineHeight());
     if (newsize.x > size.x) {
         this->size(newsize);
@@ -51,6 +52,11 @@ Label* Label::textSupplier(wstringsupplier supplier) {
     return this;
 }
 
+void Label::size(vec2 sizenew) {
+    UINode::size(vec2(UINode::size().x, sizenew.y));
+}
+
+// ================================= Button ===================================
 Button::Button(shared_ptr<UINode> content, glm::vec4 padding) : Panel(vec2(32,32), padding, 0) {
     add(content);
 }
@@ -86,12 +92,12 @@ Button* Button::listenAction(onaction action) {
     return this;
 }
 
+// ================================ TextBox ===================================
 TextBox::TextBox(wstring placeholder, vec4 padding) 
     : Panel(vec2(200,32), padding, 0, false), 
       input(L""),
       placeholder(placeholder) {
     label = new Label(L"");
-    label->align(Align::center);
     add(shared_ptr<UINode>(label));
 }
 
@@ -151,6 +157,42 @@ wstring TextBox::text() const {
     return input;
 }
 
+// ============================== InputBindBox ================================
+InputBindBox::InputBindBox(Binding& binding, vec4 padding) 
+    : Panel(vec2(100,32), padding, 0, false),
+      binding(binding) {
+    label = new Label(L"");
+    //label->align(Align::center);
+    add(shared_ptr<UINode>(label));
+}
+
+shared_ptr<UINode> InputBindBox::getAt(vec2 pos, shared_ptr<UINode> self) {
+    return UINode::getAt(pos, self);
+}
+
+void InputBindBox::drawBackground(Batch2D* batch, Assets* assets) {
+    vec2 coord = calcCoord();
+    batch->texture(nullptr);
+    batch->color = (isfocused() ? focusedColor : (hover_ ? hoverColor : color_));
+    batch->rect(coord.x, coord.y, size_.x, size_.y);
+    label->text(util::str2wstr_utf8(binding.text()));
+}
+
+void InputBindBox::clicked(GUI*, int button) {
+    binding.type = inputtype::mouse;
+    binding.code = button;
+    defocus();
+}
+
+void InputBindBox::keyPressed(int key) {
+    if (key != keycode::ESCAPE) {
+        binding.type = inputtype::keyboard;
+        binding.code = key;
+    }
+    defocus();
+}
+
+// ================================ TrackBar ==================================
 TrackBar::TrackBar(double min, double max, double value, double step, int trackWidth)
     : UINode(vec2(), vec2(32)), min(min), max(max), value(value), step(step), trackWidth(trackWidth) {
     color(vec4(0.f, 0.f, 0.f, 0.4f));
@@ -194,6 +236,7 @@ void TrackBar::mouseMove(GUI*, int x, int y) {
     }
 }
 
+// ================================ CheckBox ==================================
 CheckBox::CheckBox(bool checked) : UINode(vec2(), vec2(32.0f)), checked_(checked) {
     color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
 }

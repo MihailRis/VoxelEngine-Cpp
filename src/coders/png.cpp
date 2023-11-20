@@ -326,12 +326,12 @@ ImageData* png::load_image(std::string filename) {
 }
 
 Texture* png::load_texture(std::string filename) {
-	ImageData* image = _png_load(filename.c_str());
+	unique_ptr<ImageData> image (_png_load(filename.c_str()));
 	if (image == nullptr){
 		std::cerr << "Could not load image " << filename << std::endl;
 		return nullptr;
 	}
-	return Texture::from(image);
+	return Texture::from(image.get());
 }
 
 void png::write_image(std::string filename, const ImageData* image) {

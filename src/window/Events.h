@@ -2,6 +2,11 @@
 #define WINDOW_EVENTS_H_
 
 #include "Window.h"
+#include "input.h"
+
+#include <string>
+#include <vector>
+#include <unordered_map>
 
 typedef unsigned int uint;
 
@@ -18,6 +23,7 @@ public:
 	static bool _cursor_started;
 	static std::vector<uint> codepoints;
 	static std::vector<int> pressedKeys;
+	static std::unordered_map<std::string, Binding> bindings;
 
 	static int initialize();
 	static void finalize();
@@ -30,6 +36,10 @@ public:
 	static bool jclicked(int button);
 
 	static void toggleCursor();
+
+	static void bind(std::string name, inputtype type, int code);
+	static bool active(std::string name);
+	static bool jactive(std::string name);
 };
 
 #define _MOUSE_BUTTONS 1024

@@ -1,15 +1,14 @@
 #include "panels.h"
 
+#include <stdexcept>
+
 #include "../../window/Window.h"
 #include "../../assets/Assets.h"
 #include "../../graphics/Batch2D.h"
 
 using std::shared_ptr;
 
-using gui::UINode;
-using gui::Container;
-using gui::Panel;
-using gui::Orientation;
+using namespace gui;
 
 using glm::vec2;
 using glm::vec4;
@@ -138,7 +137,8 @@ void Panel::refresh() {
             y += nodesize.y + margin.w + interval;
 
             float width = size.x - padding.x - padding.z - margin.x - margin.z;
-            node->size(vec2(width, nodesize.y));
+            node->size(vec2(width, nodesize.y));;
+            node->refresh();
             maxw = fmax(maxw, ex+node->size().x+margin.z+padding.z);
         }
         if (resizing_)
@@ -154,6 +154,7 @@ void Panel::refresh() {
             
             float height = size.y - padding.y - padding.w - margin.y - margin.w;
             node->size(vec2(nodesize.x, height));
+            node->refresh();
             maxh = fmax(maxh, y+margin.y+node->size().y+margin.w+padding.w);
         }
         bool increased = maxh > size.y;
@@ -177,4 +178,53 @@ void Panel::lock(){
         node->lock();
     }
     resizing_ = false;
+}
+
+PagesControl::PagesControl() : Container(vec2(), vec2(1)){
+}
+
+void PagesControl::add(std::string name, std::shared_ptr<UINode> panel) {
+    pages[name] = Page{panel};
+}
+
+void PagesControl::set(std::string name, bool history) {
+    auto found = pages.find(name);
+    if (found == pages.end()) {
+        throw std::runtime_error("no page found");
+    }
+    if (current_.panel) {
+        Container::remove(current_.panel);
+    }
+    if (history) {
+        pageStack.push(curname_);
+    }
+    curname_ = name;
+    current_ = found->second;
+    Container::add(current_.panel);
+    size(current_.panel->size());
+}
+
+void PagesControl::back() {
+    if (pageStack.empty())
+        return;
+    std::string name = pageStack.top();
+    pageStack.pop();
+    set(name, false);
+}
+
+Page PagesControl::current() {
+    return current_;
+}
+
+void PagesControl::clearHistory() {
+    pageStack = std::stack<std::string>();
+}
+
+void PagesControl::reset() {
+    clearHistory();
+    if (current_.panel) {
+        curname_ = "";
+        Container::remove(current_.panel);
+        current_ = Page{nullptr};
+    }
 }

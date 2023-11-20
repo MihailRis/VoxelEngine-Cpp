@@ -56,7 +56,9 @@ namespace gui {
         virtual void margin(glm::vec4 margin);
         glm::vec4 margin() const;
 
+        virtual void focus(GUI*) {focused_ = true;}
         virtual void click(GUI*, int x, int y);
+        virtual void clicked(GUI*, int button) {}
         virtual void mouseMove(GUI*, int x, int y) {};
         virtual void mouseRelease(GUI*, int x, int y);
 

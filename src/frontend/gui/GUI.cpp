@@ -45,6 +45,7 @@ void GUI::act(float delta) {
     }
     this->hover = hover;
 
+    auto prevfocus = focus;
     if (Events::jclicked(0)) {
         if (pressed == nullptr && this->hover) {
             pressed = hover;
@@ -52,7 +53,10 @@ void GUI::act(float delta) {
             if (focus && focus != pressed) {
                 focus->defocus();
             }
-            focus = pressed;
+            if (focus != pressed) {
+                focus = pressed;
+                focus->focus(this);
+            }
         }
         if (this->hover == nullptr && focus) {
             focus->defocus();
@@ -63,9 +67,7 @@ void GUI::act(float delta) {
         pressed = nullptr;
     }
     if (focus) {
-        if (!focus->isfocused()){
-            focus = nullptr;
-        } else if (Events::jpressed(keycode::ESCAPE)) {
+        if (Events::jpressed(keycode::ESCAPE)) {
             focus->defocus();
             focus = nullptr;
         } else {
@@ -78,7 +80,16 @@ void GUI::act(float delta) {
             if (Events::clicked(mousecode::BUTTON_1)) {
                 focus->mouseMove(this, mx, my);
             }
+            if (prevfocus == focus)
+                for (int i = mousecode::BUTTON_1; i < mousecode::BUTTON_1+12; i++) {
+                    if (Events::jclicked(i)) {
+                        focus->clicked(this, i);
+                    }
+                }
         }
+    }
+    if (focus && !focus->isfocused()) {
+        focus = nullptr;
     }
 }
 

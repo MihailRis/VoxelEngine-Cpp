@@ -2,8 +2,8 @@
 #define DECLARATIONS_H
 
 #include <iostream>
+#include "core_defs.h"
 
-#define BLOCK_AIR 0
 #define BLOCK_DIRT 1
 #define BLOCK_GRASS_BLOCK 2
 #define BLOCK_LAMP 3
@@ -21,7 +21,8 @@
 #define BLOCK_METAL 15
 #define BLOCK_RUST 16
 
-void setup_definitions();
+extern void setup_bindings();
+extern void setup_definitions();
 
 #endif // DECLARATIONS_H
 

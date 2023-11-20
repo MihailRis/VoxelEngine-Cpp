@@ -4,6 +4,8 @@
 #include <string>
 #include <memory>
 
+#include "../graphics/GfxContext.h"
+
 class Batch2D;
 class Camera;
 class Level;
@@ -32,13 +34,14 @@ class HudRenderer {
 	bool pause = false;
 
 	std::shared_ptr<gui::UINode> debugPanel;
-	std::shared_ptr<gui::UINode> pauseMenu;
-	gui::GUI* guiController;
+	gui::GUI* gui;
 public:
 	HudRenderer(Engine* engine, Level* level);
 	~HudRenderer();
-	void drawInventory(Player* player);
-	void draw();
+
+	void update();
+	void drawInventory(const GfxContext& ctx, Player* player);
+	void draw(const GfxContext& context);
 	void drawDebug(int fps, bool occlusion);
 
 	bool isInventoryOpen() const;

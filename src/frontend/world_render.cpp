@@ -60,51 +60,15 @@ bool WorldRenderer::drawChunk(size_t index, Camera* camera, Shader* shader, bool
 	}
 	mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x*CHUNK_W, 0.0f, chunk->z*CHUNK_D+1));
 	shader->uniformMatrix("u_model", model);
-	mesh->draw(GL_TRIANGLES);
+	mesh->draw();
 	return true;
 }
 
-
-void WorldRenderer::draw(Camera* camera, bool occlusion){
-	EngineSettings& settings = engine->getSettings();
-	Assets* assets = engine->getAssets();
-	Chunks* chunks = level->chunks;
-
-	vec3 skyColor(0.7f, 0.81f, 1.0f);
-
-	Window::setBgColor(skyColor);
-	Window::clear();
-	Window::viewport(0, 0, Window::width, Window::height);
-
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-
-	float fogFactor = 18.0f / (float)settings.chunks.loadDistance;
-
-	Texture* texture = assets->getTexture("block");
-	Shader* shader = assets->getShader("main");
-	Shader* linesShader = assets->getShader("lines");
-	shader->use();
-	shader->uniformMatrix("u_proj", camera->getProjection());
-	shader->uniformMatrix("u_view", camera->getView());
-	shader->uniform1f("u_gamma", 1.6f);
-	shader->uniform3f("u_skyLightColor", 1.1f,1.1f,1.1f);
-	shader->uniform3f("u_fogColor", skyColor);
-	shader->uniform1f("u_fogFactor", fogFactor);
-	shader->uniform1f("u_fogCurve", settings.graphics.fogCurve);
-	shader->uniform3f("u_cameraPos", camera->position);
-
-	Block* cblock = Block::blocks[level->player->choosenBlock];
-	float multiplier = 0.5f;
-	shader->uniform3f("u_torchlightColor",
-			cblock->emission[0] / 15.0f * multiplier,
-			cblock->emission[1] / 15.0f * multiplier,
-			cblock->emission[2] / 15.0f * multiplier);
-	shader->uniform1f("u_torchlightDistance", 6.0f);
-	texture->bind();
-
+void WorldRenderer::drawChunks(Chunks* chunks, 
+							   Camera* camera, 
+							   Shader* shader, 
+							   bool occlusion) {
 	std::vector<size_t> indices;
-
 	for (size_t i = 0; i < chunks->volume; i++){
 		shared_ptr<Chunk> chunk = chunks->chunks[i];
 		if (chunk == nullptr)
@@ -126,34 +90,84 @@ void WorldRenderer::draw(Camera* camera, bool occlusion){
 	for (size_t i = 0; i < indices.size(); i++){
 		chunks->visible += drawChunk(indices[i], camera, shader, occlusion);
 	}
+}
 
-	shader->uniformMatrix("u_model", mat4(1.0f));
 
-	if (level->playerController->selectedBlockId != -1){
-		Block* selectedBlock = Block::blocks[level->playerController->selectedBlockId];
-		vec3 pos = level->playerController->selectedBlockPosition;
-		linesShader->use();
-		linesShader->uniformMatrix("u_projview", camera->getProjection()*camera->getView());
-		glLineWidth(2.0f);
-		if (selectedBlock->model == BlockModel::block){
-			lineBatch->box(pos.x+0.5f, pos.y+0.5f, pos.z+0.5f, 1.005f,1.005f,1.005f, 0,0,0,0.5f);
-		} else if (selectedBlock->model == BlockModel::xsprite){
-			lineBatch->box(pos.x+0.5f, pos.y+0.35f, pos.z+0.5f, 0.805f,0.705f,0.805f, 0,0,0,0.5f);
+void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion){
+	Assets* assets = engine->getAssets();
+	Texture* texture = assets->getTexture("block");
+	Shader* shader = assets->getShader("main");
+	Shader* linesShader = assets->getShader("lines");
+
+	const Viewport& viewport = pctx.getViewport();
+	int displayWidth = viewport.getWidth();
+	int displayHeight = viewport.getHeight();
+	{
+		GfxContext ctx = pctx.sub();
+		ctx.depthTest(true);
+		ctx.cullFace(true);
+
+		EngineSettings& settings = engine->getSettings();
+
+		vec3 skyColor(0.7f, 0.81f, 1.0f);
+
+		Window::setBgColor(skyColor);
+		Window::clear();
+		Window::viewport(0, 0, displayWidth, displayHeight);
+
+		float fogFactor = 18.0f / (float)settings.chunks.loadDistance;
+
+		shader->use();
+		shader->uniformMatrix("u_proj", camera->getProjection());
+		shader->uniformMatrix("u_view", camera->getView());
+		shader->uniform1f("u_gamma", 1.6f);
+		shader->uniform3f("u_skyLightColor", 1.1f,1.1f,1.1f);
+		shader->uniform3f("u_fogColor", skyColor);
+		shader->uniform1f("u_fogFactor", fogFactor);
+		shader->uniform1f("u_fogCurve", settings.graphics.fogCurve);
+		shader->uniform3f("u_cameraPos", camera->position);
+
+		Block* cblock = Block::blocks[level->player->choosenBlock];
+		float multiplier = 0.5f;
+		shader->uniform3f("u_torchlightColor",
+				cblock->emission[0] / 15.0f * multiplier,
+				cblock->emission[1] / 15.0f * multiplier,
+				cblock->emission[2] / 15.0f * multiplier);
+		shader->uniform1f("u_torchlightDistance", 6.0f);
+		texture->bind();
+
+		Chunks* chunks = level->chunks;
+		drawChunks(chunks, camera, shader, occlusion);
+
+		shader->uniformMatrix("u_model", mat4(1.0f));
+
+		if (level->playerController->selectedBlockId != -1){
+			Block* block = Block::blocks[level->playerController->selectedBlockId];
+			vec3 pos = level->playerController->selectedBlockPosition;
+			linesShader->use();
+			linesShader->uniformMatrix("u_projview", camera->getProjView());
+			lineBatch->lineWidth(2.0f);
+			if (block->model == BlockModel::block){
+				lineBatch->box(pos.x+0.5f, pos.y+0.5f, pos.z+0.5f, 
+							   1.008f,1.008f,1.008f, 0,0,0,0.5f);
+			} else if (block->model == BlockModel::xsprite){
+				lineBatch->box(pos.x+0.5f, pos.y+0.35f, pos.z+0.5f, 
+							   0.805f,0.705f,0.805f, 0,0,0,0.5f);
+			}
+			lineBatch->render();
 		}
-		lineBatch->render();
 	}
-
-	glDisable(GL_DEPTH_TEST);
 
 	if (level->player->debug) {
 		float length = 40.f;
 
 		linesShader->use();
-		vec3 tsl = vec3(Window::width/2, -((int)Window::height)/2, 0.f);
+		// top-right: vec3 tsl = vec3(displayWidth - length - 4, -length - 4, 0.f);
+		vec3 tsl = vec3(displayWidth/2, -((int)displayHeight)/2, 0.f);
 		glm::mat4 model(glm::translate(glm::mat4(1.f), tsl));
 		linesShader->uniformMatrix("u_projview", glm::ortho(
-				0.f, (float)Window::width, 
-				-(float)Window::height, 0.f, 
+				0.f, (float)displayWidth, 
+				-(float)displayHeight, 0.f, 
 				-length, length) * model * glm::inverse(camera->rotation));
 
 		lineBatch->lineWidth(4.0f);

@@ -65,7 +65,81 @@ int keycode::NUM_6 = GLFW_KEY_6;
 int keycode::NUM_7 = GLFW_KEY_7;
 int keycode::NUM_8 = GLFW_KEY_8;
 int keycode::NUM_9 = GLFW_KEY_9;
+int keycode::MENU = GLFW_KEY_MENU;
+int keycode::PAUSE = GLFW_KEY_PAUSE;
+int keycode::INSERT = GLFW_KEY_INSERT;
+int keycode::LEFT_SUPER = GLFW_KEY_LEFT_SUPER;
+int keycode::RIGHT_SUPER = GLFW_KEY_RIGHT_SUPER;
+int keycode::DELETE = GLFW_KEY_DELETE;
+int keycode::PAGE_UP = GLFW_KEY_PAGE_UP;
+int keycode::PAGE_DOWN = GLFW_KEY_PAGE_DOWN;
+int keycode::HOME = GLFW_KEY_HOME;
+int keycode::END = GLFW_KEY_END;
+int keycode::PRINT_SCREEN = GLFW_KEY_PRINT_SCREEN;
+int keycode::NUM_LOCK = GLFW_KEY_NUM_LOCK;
+int keycode::LEFT_BRACKET = GLFW_KEY_LEFT_BRACKET;
+int keycode::RIGHT_BRACKET = GLFW_KEY_RIGHT_BRACKET;
+
+const char* keycode::name(int code) {
+    const char* name = glfwGetKeyName(code, glfwGetKeyScancode(code));
+    if (name == nullptr) {
+        switch (code) {
+            case GLFW_KEY_TAB: return "Tab";
+            case GLFW_KEY_LEFT_CONTROL: return "Left Ctrl";
+            case GLFW_KEY_RIGHT_CONTROL: return "Right Ctrl";
+            case GLFW_KEY_LEFT_ALT: return "Left Alt";
+            case GLFW_KEY_RIGHT_ALT: return "Right Alt";
+            case GLFW_KEY_LEFT_SHIFT: return "Left Shift";
+            case GLFW_KEY_RIGHT_SHIFT: return "Right Shift";
+            case GLFW_KEY_CAPS_LOCK: return "Caps-Lock";
+            case GLFW_KEY_SPACE: return "Space";
+            case GLFW_KEY_ESCAPE: return "Esc";
+            case GLFW_KEY_ENTER: return "Enter";
+            case GLFW_KEY_UP: return "Up";
+            case GLFW_KEY_DOWN: return "Down";
+            case GLFW_KEY_LEFT: return "Left";
+            case GLFW_KEY_RIGHT: return "Right";
+            case GLFW_KEY_BACKSPACE: return "Backspace";
+            case GLFW_KEY_F1: return "F1";
+            case GLFW_KEY_F2: return "F2";
+            case GLFW_KEY_F3: return "F3";
+            case GLFW_KEY_F4: return "F4";
+            case GLFW_KEY_F5: return "F5";
+            case GLFW_KEY_F6: return "F6";
+            case GLFW_KEY_F7: return "F7";
+            case GLFW_KEY_F8: return "F8";
+            case GLFW_KEY_F9: return "F9";
+            case GLFW_KEY_F10: return "F10";
+            case GLFW_KEY_F11: return "F11";
+            case GLFW_KEY_F12: return "F12";
+            case GLFW_KEY_DELETE: return "Delete";
+            case GLFW_KEY_HOME: return "Home";
+            case GLFW_KEY_END: return "End";
+            case GLFW_KEY_LEFT_SUPER: return "Left Super";
+            case GLFW_KEY_RIGHT_SUPER: return "Right Super";
+            case GLFW_KEY_PAGE_UP: return "Page Up";
+            case GLFW_KEY_PAGE_DOWN: return "Page Down";
+            case GLFW_KEY_INSERT: return "Insert";
+            case GLFW_KEY_PRINT_SCREEN: return "Print Screen";
+            case GLFW_KEY_NUM_LOCK: return "Num Lock";
+            case GLFW_KEY_MENU: return "Menu";
+            case GLFW_KEY_PAUSE: return "Pause";
+            default:
+                return "Unknown";
+        }
+    }
+    return name;
+}
 
 int mousecode::BUTTON_1 = GLFW_MOUSE_BUTTON_1;
 int mousecode::BUTTON_2 = GLFW_MOUSE_BUTTON_2;
 int mousecode::BUTTON_3 = GLFW_MOUSE_BUTTON_3;
+
+const char* mousecode::name(int code) {
+    switch (code) {
+        case GLFW_MOUSE_BUTTON_1: return "LMB";
+        case GLFW_MOUSE_BUTTON_2: return "RMB";
+        case GLFW_MOUSE_BUTTON_3: return "MMB";
+    }
+    return "unknown button";
+}
