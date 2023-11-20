@@ -66,6 +66,20 @@ namespace keycode {
     extern int NUM_7;
     extern int NUM_8;
     extern int NUM_9;
+    extern int MENU;
+    extern int PAUSE;
+    extern int INSERT;
+    extern int LEFT_SUPER;
+    extern int RIGHT_SUPER;
+    extern int DELETE;
+    extern int PAGE_UP;
+    extern int PAGE_DOWN;
+    extern int HOME;
+    extern int END;
+    extern int PRINT_SCREEN;
+    extern int NUM_LOCK;
+    extern int LEFT_BRACKET;
+    extern int RIGHT_BRACKET;
 
     extern const char* name(int code);
 }

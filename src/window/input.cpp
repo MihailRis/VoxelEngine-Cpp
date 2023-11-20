@@ -65,6 +65,20 @@ int keycode::NUM_6 = GLFW_KEY_6;
 int keycode::NUM_7 = GLFW_KEY_7;
 int keycode::NUM_8 = GLFW_KEY_8;
 int keycode::NUM_9 = GLFW_KEY_9;
+int keycode::MENU = GLFW_KEY_MENU;
+int keycode::PAUSE = GLFW_KEY_PAUSE;
+int keycode::INSERT = GLFW_KEY_INSERT;
+int keycode::LEFT_SUPER = GLFW_KEY_LEFT_SUPER;
+int keycode::RIGHT_SUPER = GLFW_KEY_RIGHT_SUPER;
+int keycode::DELETE = GLFW_KEY_DELETE;
+int keycode::PAGE_UP = GLFW_KEY_PAGE_UP;
+int keycode::PAGE_DOWN = GLFW_KEY_PAGE_DOWN;
+int keycode::HOME = GLFW_KEY_HOME;
+int keycode::END = GLFW_KEY_END;
+int keycode::PRINT_SCREEN = GLFW_KEY_PRINT_SCREEN;
+int keycode::NUM_LOCK = GLFW_KEY_NUM_LOCK;
+int keycode::LEFT_BRACKET = GLFW_KEY_LEFT_BRACKET;
+int keycode::RIGHT_BRACKET = GLFW_KEY_RIGHT_BRACKET;
 
 const char* keycode::name(int code) {
     const char* name = glfwGetKeyName(code, glfwGetKeyScancode(code));
