@@ -84,12 +84,12 @@ int keycode::RIGHT_BRACKET = GLFW_KEY_RIGHT_BRACKET;
 #include <windows.h>
 #endif // _WIN32
 
-const char* keycode::name(int code) {
+const std::string keycode::name(int code) {
 #ifdef _WIN32
     char name[64];
     int result = GetKeyNameTextA(glfwGetKeyScancode(code) << 16, name, 64);
     if (result == NULL) return "Unknown";
-    return name;
+    return std::string(name);
 #else
     const char* name = glfwGetKeyName(code, glfwGetKeyScancode(code));
     if (name == nullptr) {
@@ -138,7 +138,7 @@ const char* keycode::name(int code) {
                 return "Unknown";
         }
     }
-    return name;
+    return std::string(name);
 #endif // _WIN32
 }
 
@@ -146,7 +146,7 @@ int mousecode::BUTTON_1 = GLFW_MOUSE_BUTTON_1;
 int mousecode::BUTTON_2 = GLFW_MOUSE_BUTTON_2;
 int mousecode::BUTTON_3 = GLFW_MOUSE_BUTTON_3;
 
-const char* mousecode::name(int code) {
+const std::string mousecode::name(int code) {
     switch (code) {
         case GLFW_MOUSE_BUTTON_1: return "LMB";
         case GLFW_MOUSE_BUTTON_2: return "RMB";
