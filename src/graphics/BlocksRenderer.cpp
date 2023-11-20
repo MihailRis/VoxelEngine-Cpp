@@ -69,7 +69,7 @@ void BlocksRenderer::face(const vec3& coord, float w, float h,
 	vertex(coord + axisX * w, region.u2, region.v1, lights[1] * tint);
 	vertex(coord + axisX * w + axisY * h, region.u2, region.v2, lights[2] * tint);
 	vertex(coord + axisY * h, region.u1, region.v2, lights[3] * tint);
-	index(0, 1, 3, 0, 2, 3);
+	index(0, 1, 3, 1, 2, 3);
 }
 
 void BlocksRenderer::face(const vec3& coord, float w, float h,
