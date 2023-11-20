@@ -80,7 +80,7 @@ namespace mousecode {
 
 enum class inputtype {
     keyboard,
-    button,
+    mouse,
 };
 
 struct Binding {
@@ -100,7 +100,7 @@ struct Binding {
     const char* text() const {
         switch (type) {
             case inputtype::keyboard: return keycode::name(code);
-            case inputtype::button: return mousecode::name(code);
+            case inputtype::mouse: return mousecode::name(code);
         }
         return "<unknown input type>";
     }

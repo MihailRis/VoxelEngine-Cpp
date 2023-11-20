@@ -49,7 +49,7 @@ std::string write_controls() {
 		json::JObject* jentry = new json::JObject();
 		switch (binding.type) {
 			case inputtype::keyboard: jentry->put("type", "keyboard"); break;
-			case inputtype::button: jentry->put("type", "button"); break;
+			case inputtype::mouse: jentry->put("type", "mouse"); break;
 			default: throw std::runtime_error("unsupported control type");
 		}
 		jentry->put("code", binding.code);
@@ -72,8 +72,8 @@ void load_controls(std::string filename, std::string source) {
 
 		if (typestr == "keyboard") {
 			type = inputtype::keyboard;
-		} else if (typestr == "button") {
-			type = inputtype::button;
+		} else if (typestr == "mouse") {
+			type = inputtype::mouse;
 		} else {
 			std::cerr << "unknown input type '" << typestr << "'" << std::endl;
 			continue;

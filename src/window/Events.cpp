@@ -73,7 +73,7 @@ void Events::pullEvents(){
 		bool newstate = false;
 		switch (binding.type) {
 			case inputtype::keyboard: newstate = pressed(binding.code); break;
-			case inputtype::button: newstate = clicked(binding.code); break;
+			case inputtype::mouse: newstate = clicked(binding.code); break;
 		}
 
 		if (newstate) {

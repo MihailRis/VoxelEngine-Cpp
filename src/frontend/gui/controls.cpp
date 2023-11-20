@@ -179,7 +179,7 @@ void InputBindBox::drawBackground(Batch2D* batch, Assets* assets) {
 }
 
 void InputBindBox::clicked(GUI*, int button) {
-    binding.type = inputtype::button;
+    binding.type = inputtype::mouse;
     binding.code = button;
     defocus();
 }
