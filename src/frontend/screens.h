@@ -12,10 +12,6 @@ class Engine;
 class Camera;
 class Batch2D;
 
-namespace gui {
-    class UINode;
-}
-
 /* Screen is a mainloop state */
 class Screen {
 protected:
@@ -28,7 +24,6 @@ public:
 };
 
 class MenuScreen : public Screen {
-    std::shared_ptr<gui::UINode> pages;
     Batch2D* batch;
     Camera* uicamera;
 public:

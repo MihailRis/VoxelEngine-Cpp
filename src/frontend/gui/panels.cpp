@@ -183,8 +183,16 @@ void Panel::lock(){
 PagesControl::PagesControl() : Container(vec2(), vec2(1)){
 }
 
+bool PagesControl::has(std::string name) {
+    return pages.find(name) != pages.end();
+}
+
 void PagesControl::add(std::string name, std::shared_ptr<UINode> panel) {
     pages[name] = Page{panel};
+}
+
+void PagesControl::add(std::string name, UINode* panel) {
+    add(name, shared_ptr<UINode>(panel));
 }
 
 void PagesControl::set(std::string name, bool history) {
