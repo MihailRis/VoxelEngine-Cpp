@@ -184,9 +184,7 @@ PagesControl::PagesControl() : Container(vec2(), vec2(1)){
 }
 
 void PagesControl::add(std::string name, std::shared_ptr<UINode> panel) {
-    panel->visible(false);
     pages[name] = Page{panel};
-    Container::add(panel);
 }
 
 void PagesControl::set(std::string name, bool history) {
@@ -195,14 +193,14 @@ void PagesControl::set(std::string name, bool history) {
         throw std::runtime_error("no page found");
     }
     if (current_.panel) {
-        current_.panel->visible(false);
+        Container::remove(current_.panel);
     }
     if (history) {
         pageStack.push(curname_);
     }
     curname_ = name;
     current_ = found->second;
-    current_.panel->visible(true);
+    Container::add(current_.panel);
     size(current_.panel->size());
 }
 
@@ -226,7 +224,7 @@ void PagesControl::reset() {
     clearHistory();
     if (current_.panel) {
         curname_ = "";
-        current_.panel->visible(false);
+        Container::remove(current_.panel);
         current_ = Page{nullptr};
     }
 }

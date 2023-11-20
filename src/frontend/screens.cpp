@@ -176,8 +176,7 @@ Panel* create_controls_panel(Engine* engine, PagesControl* pages) {
 
     for (auto& entry : Events::bindings){
         string bindname = entry.first;
-        std::cout << bindname << std::endl;
-
+        
         Panel* subpanel = new Panel(vec2(400, 45), vec4(5.0f), 1.0f);
         subpanel->color(vec4(0.0f));
         subpanel->orientation(Orientation::horizontal);
