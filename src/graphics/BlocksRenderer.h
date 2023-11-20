@@ -15,43 +15,46 @@ class VoxelsVolume;
 class ChunksStorage;
 
 class BlocksRenderer {
-	float* buffer;
-	size_t offset;
+	float* vertexBuffer;
+	int* indexBuffer;
+	size_t vertexOffset;
+	size_t indexOffset, indexSize;
 	size_t capacity;
 
 	bool overflow = false;
 
 	const Chunk* chunk = nullptr;
 	VoxelsVolume* voxelsBuffer;
-	
-	void vertex(const glm::vec3& coord, float u, float v, const glm::vec4& light);
 
-	void face(const glm::vec3& coord, float w, float h,
-			const glm::vec3& axisX,
-			const glm::vec3& axisY,
-			const UVRegion& region,
-			const glm::vec4 (&lights)[4],
-			const glm::vec4& tint);
+	void vertex(const glm::vec3& coord, float u, float v, const glm::vec4& light);
+	void index(int a, int b, int c, int d, int e, int f);
 
 	void face(const glm::vec3& coord, float w, float h,
 		const glm::vec3& axisX,
 		const glm::vec3& axisY,
 		const UVRegion& region,
-		const glm::vec4 (&lights)[4],
+		const glm::vec4(&lights)[4],
+		const glm::vec4& tint);
+
+	void face(const glm::vec3& coord, float w, float h,
+		const glm::vec3& axisX,
+		const glm::vec3& axisY,
+		const UVRegion& region,
+		const glm::vec4(&lights)[4],
 		const glm::vec4& tint,
 		bool rotated);
 
 	void face(const glm::vec3& coord, float w, float h,
-			const glm::vec3& axisX,
-			const glm::vec3& axisY,
-			const UVRegion& region,
-			const glm::vec4 (&lights)[4]) {
+		const glm::vec3& axisX,
+		const glm::vec3& axisY,
+		const UVRegion& region,
+		const glm::vec4(&lights)[4]) {
 		face(coord, w, h, axisX, axisY, region, lights, glm::vec4(1.0f));
 	}
 
-	void cube(const glm::vec3& coord, const glm::vec3& size, const UVRegion (&faces)[6]);
-	void blockCube(int x, int y, int z, const glm::vec3& size, const UVRegion (&faces)[6], ubyte group);
-	void blockCubeShaded(int x, int y, int z, const glm::vec3& size, const UVRegion (&faces)[6], const Block* block, ubyte states);
+	void cube(const glm::vec3& coord, const glm::vec3& size, const UVRegion(&faces)[6]);
+	void blockCube(int x, int y, int z, const glm::vec3& size, const UVRegion(&faces)[6], ubyte group);
+	void blockCubeShaded(int x, int y, int z, const glm::vec3& size, const UVRegion(&faces)[6], const Block* block, ubyte states);
 	void blockXSprite(int x, int y, int z, const glm::vec3& size, const UVRegion& face1, const UVRegion& face2, float spread);
 
 	bool isOpenForLight(int x, int y, int z) const;
