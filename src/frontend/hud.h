@@ -34,11 +34,12 @@ class HudRenderer {
 	bool pause = false;
 
 	std::shared_ptr<gui::UINode> debugPanel;
-	std::shared_ptr<gui::UINode> pauseMenu;
 	gui::GUI* gui;
 public:
 	HudRenderer(Engine* engine, Level* level);
 	~HudRenderer();
+
+	void update();
 	void drawInventory(const GfxContext& ctx, Player* player);
 	void draw(const GfxContext& context);
 	void drawDebug(int fps, bool occlusion);

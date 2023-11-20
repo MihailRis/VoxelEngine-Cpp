@@ -29,6 +29,7 @@
 #include "../engine.h"
 #include "../files/engine_files.h"
 #include "../util/stringutil.h"
+#include "../core_defs.h"
 
 using std::string;
 using std::wstring;
@@ -40,15 +41,13 @@ using std::filesystem::u8path;
 using std::filesystem::directory_iterator;
 using namespace gui;
 
-shared_ptr<UINode> create_main_menu_panel(Engine* engine) {
+shared_ptr<UINode> create_main_menu_panel(Engine* engine, PagesControl* pages) {
     Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
     shared_ptr<UINode> panelptr(panel);
     panel->color(vec4(0.0f));
-	panel->setCoord(vec2(10, 10));
 
     panel->add((new Button(L"New World", vec4(10.f)))->listenAction([=](GUI* gui) {
-        panel->visible(false);
-        gui->get("new-world")->visible(true);
+        pages->set("new-world");
     }));
 
     Panel* worldsPanel = new Panel(vec2(390, 200), vec4(5.0f));
@@ -74,22 +73,20 @@ shared_ptr<UINode> create_main_menu_panel(Engine* engine) {
     panel->add(worldsPanel);
 
     panel->add((new Button(L"Settings", vec4(10.f)))->listenAction([=](GUI* gui) {
-        panel->visible(false);
-        gui->store("back", panelptr);
-        gui->get("settings")->visible(true);
+        pages->set("settings");
     }));
     
     panel->add((new Button(L"Quit", vec4(10.f)))->listenAction([](GUI*) {
         Window::setShouldClose(true);
     }));
+    panel->refresh();
     return panelptr;
 }
 
-shared_ptr<UINode> create_new_world_panel(Engine* engine) {
+shared_ptr<UINode> create_new_world_panel(Engine* engine, PagesControl* pages) {
     Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
     shared_ptr<UINode> panelptr(panel);
     panel->color(vec4(0.0f));
-	panel->setCoord(vec2(10, 10));
 
     TextBox* worldNameInput;
     {
@@ -167,17 +164,44 @@ shared_ptr<UINode> create_new_world_panel(Engine* engine) {
     }
 
     panel->add((new Button(L"Back", vec4(10.f)))->listenAction([=](GUI* gui) {
-        panel->visible(false);
-        gui->get("main-menu")->visible(true);
+        pages->back();
     }));
-
+    panel->refresh();
     return panelptr;
 }
 
-Panel* create_settings_panel(Engine* engine) {
+Panel* create_controls_panel(Engine* engine, PagesControl* pages) {
     Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
     panel->color(vec4(0.0f));
-	panel->setCoord(vec2(10, 10));
+
+    for (auto& entry : Events::bindings){
+        string bindname = entry.first;
+        std::cout << bindname << std::endl;
+
+        Panel* subpanel = new Panel(vec2(400, 45), vec4(5.0f), 1.0f);
+        subpanel->color(vec4(0.0f));
+        subpanel->orientation(Orientation::horizontal);
+
+        InputBindBox* bindbox = new InputBindBox(entry.second);
+        subpanel->add(bindbox);
+        Label* label = new Label(util::str2wstr_utf8(bindname));
+        label->margin(vec4(6.0f));
+        subpanel->add(label);
+        panel->add(subpanel);
+    }
+
+    panel->add((new Button(L"Back", vec4(10.f)))->listenAction([=](GUI* gui) {
+        pages->back();
+    }));
+    panel->refresh();
+    return panel;
+}
+
+shared_ptr<UINode> create_settings_panel(Engine* engine, PagesControl* pages) {
+    Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
+    panel->color(vec4(0.0f));
+
+    shared_ptr<UINode> panelptr(panel);
 
     /* Load Distance setting track bar */{
         panel->add((new Label(L""))->textSupplier([=]() {
@@ -232,30 +256,44 @@ Panel* create_settings_panel(Engine* engine) {
         panel->add(checkpanel);
     }
 
-    panel->add((new Button(L"Back", vec4(10.f)))->listenAction([=](GUI* gui) {
-        panel->visible(false);
-        gui->get("back")->visible(true);
+    panel->add((new Button(L"Controls", vec4(10.f)))->listenAction([=](GUI* gui) {
+        pages->set("controls");
     }));
-    return panel;
+
+    panel->add((new Button(L"Back", vec4(10.f)))->listenAction([=](GUI* gui) {
+        pages->back();
+    }));
+    panel->refresh();
+    return panelptr;
 }
 
 MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     GUI* gui = engine->getGUI();
-    panel = create_main_menu_panel(engine);
-    newWorldPanel = create_new_world_panel(engine);
-    newWorldPanel->visible(false);
 
-    auto settingsPanel = shared_ptr<UINode>(create_settings_panel(engine));
-    settingsPanel->visible(false);
+    auto pagesptr = gui->get("pages");
+    PagesControl* pages;
+    if (pagesptr == nullptr) {
+        pages = new PagesControl();
+        auto newWorldPanel = create_new_world_panel(engine, pages);
 
-    gui->store("main-menu", panel);
-    gui->store("new-world", newWorldPanel);
-    if (gui->get("settings") == nullptr) {
-        gui->store("settings", settingsPanel);
+        auto settingsPanel = shared_ptr<UINode>(create_settings_panel(engine, pages));
+        auto controlsPanel = shared_ptr<UINode>(create_controls_panel(engine, pages));
+
+        pages->add("new-world", newWorldPanel);
+        pages->add("settings", settingsPanel);
+        pages->add("controls", controlsPanel);
+
+        this->pages = shared_ptr<UINode>(pages);
+        gui->add(this->pages);
+        gui->store("pages", this->pages);
+    } else {
+        this->pages = pagesptr;
+        pages = (PagesControl*)(pagesptr.get());
+        pages->reset();
     }
-    gui->add(panel);
-    gui->add(newWorldPanel);
-    gui->add(settingsPanel);
+    auto mainMenuPanel = create_main_menu_panel(engine, pages);
+    pages->add("main", mainMenuPanel);
+    pages->set("main");
 
     batch = new Batch2D(1024);
     uicamera = new Camera(vec3(), Window::height);
@@ -264,13 +302,6 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
 }
 
 MenuScreen::~MenuScreen() {
-    GUI* gui = engine->getGUI();
-    
-    gui->remove("main-menu");
-    gui->remove("new-world");
-
-    gui->remove(newWorldPanel);
-    gui->remove(panel);
     delete batch;
     delete uicamera;
 }
@@ -279,11 +310,7 @@ void MenuScreen::update(float delta) {
 }
 
 void MenuScreen::draw(float delta) {
-    panel->setCoord((Window::size() - panel->size()) / 2.0f);
-    newWorldPanel->setCoord((Window::size() - newWorldPanel->size()) / 2.0f);
-    
-    auto settingsPanel = engine->getGUI()->get("settings");
-    settingsPanel->setCoord((Window::size() - settingsPanel->size()) / 2.0f);
+    pages->setCoord((Window::size() - pages->size()) / 2.0f);
     
     Window::clear();
     Window::setBgColor(vec3(0.2f, 0.2f, 0.2f));
@@ -352,6 +379,8 @@ void LevelScreen::update(float delta) {
     level->update();
     
     level->chunksController->update(settings.chunks.loadSpeed);
+
+    hud->update();
 }
 
 void LevelScreen::draw(float delta) {

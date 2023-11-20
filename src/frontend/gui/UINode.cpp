@@ -52,7 +52,6 @@ UINode* UINode::getParent() const {
 
 void UINode::click(GUI*, int x, int y) {
     pressed_ = true;
-    focused_ = true;
 }
 
 void UINode::mouseRelease(GUI*, int x, int y) {
@@ -103,7 +102,7 @@ void UINode::size(vec2 size) {
     this->size_ = size;
     if (parent) {
         sizelock = true;
-        parent->refresh();
+        //parent->refresh();
         sizelock = false;
     }
 }

@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include "UINode.h"
 #include "panels.h"
+#include "../../window/input.h"
 
 class Batch2D;
 class Assets;
@@ -36,6 +37,7 @@ namespace gui {
         virtual void draw(Batch2D* batch, Assets* assets) override;
 
         virtual Label* textSupplier(wstringsupplier supplier);
+        virtual void size(glm::vec2 size) override;
     };
 
     class Button : public Panel {
@@ -77,6 +79,22 @@ namespace gui {
         virtual void textConsumer(wstringconsumer consumer);
         virtual bool isfocuskeeper() const override {return true;}
         virtual std::wstring text() const;
+    };
+
+    class InputBindBox : public Panel {
+    protected:
+        glm::vec4 hoverColor {0.05f, 0.1f, 0.2f, 0.75f};
+        glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
+        Label* label;
+        Binding& binding;
+    public:
+        InputBindBox(Binding& binding, glm::vec4 padding=glm::vec4(6.0f));
+        virtual void drawBackground(Batch2D* batch, Assets* assets) override;
+        virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
+
+        virtual void clicked(GUI*, int button) override;
+        virtual void keyPressed(int key) override;
+        virtual bool isfocuskeeper() const override {return true;}
     };
 
     class TrackBar : public UINode {

@@ -59,8 +59,6 @@ Engine::Engine(EngineSettings& settings) : settings(settings) {
 	Audio::initialize();
 	gui = new GUI();
 	std::cout << "-- initializing finished" << std::endl;
-
-	setScreen(shared_ptr<Screen>(new MenuScreen(this)));
 }
 
 void Engine::updateTimers() {
@@ -81,6 +79,8 @@ void Engine::updateHotkeys() {
 }
 
 void Engine::mainloop() {
+	setScreen(shared_ptr<Screen>(new MenuScreen(this)));
+	
 	std::cout << "-- preparing systems" << std::endl;
 
 	Batch2D batch(1024);

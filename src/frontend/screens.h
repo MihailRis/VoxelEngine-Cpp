@@ -28,8 +28,7 @@ public:
 };
 
 class MenuScreen : public Screen {
-    std::shared_ptr<gui::UINode> panel;
-    std::shared_ptr<gui::UINode> newWorldPanel;
+    std::shared_ptr<gui::UINode> pages;
     Batch2D* batch;
     Camera* uicamera;
 public:

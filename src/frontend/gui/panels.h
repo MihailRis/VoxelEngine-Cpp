@@ -3,6 +3,8 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <stack>
+#include <string>
 #include <memory>
 #include "UINode.h"
 
@@ -55,6 +57,28 @@ namespace gui {
 
         virtual void refresh() override;
         virtual void lock() override;
+    };
+
+    struct Page {
+        std::shared_ptr<UINode> panel = nullptr;
+    };
+
+    class PagesControl : public Container {
+    protected:
+        std::unordered_map<std::string, Page> pages;
+        std::stack<std::string> pageStack;
+        Page current_;
+        std::string curname_ = "";
+    public:
+        PagesControl();
+
+        void set(std::string name, bool history=true);
+        void add(std::string name, std::shared_ptr<UINode> panel);
+        void back();
+        void clearHistory();
+        void reset();
+
+        Page current();
     };
 }
 #endif // FRONTEND_GUI_PANELS_H_

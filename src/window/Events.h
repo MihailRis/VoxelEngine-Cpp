@@ -2,32 +2,13 @@
 #define WINDOW_EVENTS_H_
 
 #include "Window.h"
+#include "input.h"
 
 #include <string>
 #include <vector>
 #include <unordered_map>
 
 typedef unsigned int uint;
-
-enum class inputtype {
-    keyboard,
-    button,
-};
-
-struct Binding {
-    inputtype type;
-    int code;
-    bool state = false;
-    bool justChange = false;
-
-    bool active() const {
-        return state; 
-    }
-
-    bool jactive() const {
-        return state && justChange;
-    }
-};
 
 class Events {
 public:

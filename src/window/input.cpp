@@ -66,6 +66,36 @@ int keycode::NUM_7 = GLFW_KEY_7;
 int keycode::NUM_8 = GLFW_KEY_8;
 int keycode::NUM_9 = GLFW_KEY_9;
 
+const char* keycode::name(int code) {
+    const char* name = glfwGetKeyName(code, glfwGetKeyScancode(code));
+    if (name == nullptr) {
+        switch (code) {
+            case GLFW_KEY_TAB: return "Tab";
+            case GLFW_KEY_LEFT_CONTROL: return "Left Ctrl";
+            case GLFW_KEY_RIGHT_CONTROL: return "Right Ctrl";
+            case GLFW_KEY_LEFT_ALT: return "Left Alt";
+            case GLFW_KEY_RIGHT_ALT: return "Right Alt";
+            case GLFW_KEY_LEFT_SHIFT: return "Left Shift";
+            case GLFW_KEY_RIGHT_SHIFT: return "Right Shift";
+            case GLFW_KEY_CAPS_LOCK: return "Caps-Lock";
+            case GLFW_KEY_SPACE: return "Space";
+            case GLFW_KEY_ESCAPE: return "Esc";
+            default:
+                return "Unknown";
+        }
+    }
+    return name;
+}
+
 int mousecode::BUTTON_1 = GLFW_MOUSE_BUTTON_1;
 int mousecode::BUTTON_2 = GLFW_MOUSE_BUTTON_2;
 int mousecode::BUTTON_3 = GLFW_MOUSE_BUTTON_3;
+
+const char* mousecode::name(int code) {
+    switch (code) {
+        case GLFW_MOUSE_BUTTON_1: return "LMB";
+        case GLFW_MOUSE_BUTTON_2: return "RMB";
+        case GLFW_MOUSE_BUTTON_3: return "MMB";
+    }
+    return "unknown button";
+}
