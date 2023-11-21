@@ -27,10 +27,9 @@ void main(){
 	light += torchlight * u_torchlightColor;
 	a_color = vec4(pow(light, vec3(u_gamma)),1.0f);
 	a_texCoord = v_texCoord;
-	a_color.rgb += u_skyLightColor * v_light.a;
-	a_color.r = min(a_color.r, 1.1);
-	a_color.g = min(a_color.g, 1.1);
-	a_color.b = min(a_color.b, 1.1);
+	a_color.r = max(a_color.r, u_skyLightColor.r*v_light.a);
+	a_color.g = max(a_color.g, u_skyLightColor.g*v_light.a);
+	a_color.b = max(a_color.b, u_skyLightColor.b*v_light.a);
 	a_distance = length(viewmodelpos);
 	gl_Position = u_proj * viewmodelpos;
 }
