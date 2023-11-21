@@ -18,8 +18,6 @@ inline uint vox_index(int x, int y, int z, int w=CHUNK_W, int d=CHUNK_D) {
 	return (y * d + z) * w + x;
 }
 
-#define ATLAS_MARGIN_SIZE 2
-
 #define RES_FLODER "res/"
 
 #define SHADERS_FOLDER "res/shaders"

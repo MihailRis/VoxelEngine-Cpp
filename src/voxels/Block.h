@@ -18,8 +18,8 @@ class Block {
 public:
 	std::string const name;
 	unsigned int id;
-						 //  0 1   2 3   4 5
-	int textureFaces[6]; // -x,x, -y,y, -z,z
+						               //  0 1   2 3   4 5
+	std::string textureFaces[6]; // -x,x, -y,y, -z,z
 	unsigned char emission[3];
 	unsigned char drawGroup = 0;
 	BlockModel model = BlockModel::block;
@@ -31,7 +31,9 @@ public:
 	bool rotatable = false;
 	float hitboxScale = 1;
 
-	Block(std::string name, int texture);
+	float uvdata[4*6];
+
+	Block(std::string name, std::string texture);
 };
 
 #endif /* VOXELS_BLOCK_H_ */

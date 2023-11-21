@@ -162,8 +162,7 @@ InputBindBox::InputBindBox(Binding& binding, vec4 padding)
     : Panel(vec2(100,32), padding, 0, false),
       binding(binding) {
     label = new Label(L"");
-    //label->align(Align::center);
-    add(shared_ptr<UINode>(label));
+    add(label);
 }
 
 shared_ptr<UINode> InputBindBox::getAt(vec2 pos, shared_ptr<UINode> self) {

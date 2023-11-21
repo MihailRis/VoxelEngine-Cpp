@@ -15,6 +15,7 @@
 #include "../graphics/Shader.h"
 #include "../graphics/Batch2D.h"
 #include "../graphics/Font.h"
+#include "../graphics/Atlas.h"
 #include "../graphics/Mesh.h"
 #include "../window/Camera.h"
 #include "../window/Window.h"
@@ -146,6 +147,7 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 
 	const Viewport& viewport = ctx.getViewport();
 	const uint width = viewport.getWidth();
+	Atlas* atlas = assets->getAtlas("blocks");
 
 	uint count = contentIds->countBlockDefs();
 	uint icon_size = 48;
@@ -171,7 +173,7 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 	batch->rect(inv_x, inv_y, inv_w, inv_h);
 
 	// blocks & items
-	batch->texture(assets->getTexture("block_tex"));
+	batch->texture(atlas->getTexture());
 	for (uint i = 0; i < count-1; i++) {
 		Block* cblock = contentIds->getBlockDef(i+1);
 		if (cblock == nullptr)
@@ -190,9 +192,10 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 		}
 		
 		if (cblock->model == BlockModel::block){
-			batch->blockSprite(x, y, icon_size, icon_size, 16, cblock->textureFaces, tint);
+			batch->blockSprite(x, y, icon_size, icon_size, (const UVRegion*)cblock->uvdata, tint);
 		} else if (cblock->model == BlockModel::xsprite){
-			batch->sprite(x, y, icon_size, icon_size, 16, cblock->textureFaces[3], tint);
+			const UVRegion& region = (reinterpret_cast<UVRegion*>(cblock->uvdata))[3];
+			batch->sprite(x, y, icon_size, icon_size, region, tint);
 		}
 	}
 }
@@ -231,6 +234,8 @@ void HudRenderer::draw(const GfxContext& ctx){
 	const uint width = viewport.getWidth();
 	const uint height = viewport.getHeight();
 
+	Atlas* atlas = assets->getAtlas("blocks");
+
 	debugPanel->visible(level->player->debug);
 
 	uicamera->fov = height;
@@ -239,10 +244,9 @@ void HudRenderer::draw(const GfxContext& ctx){
 	uishader->use();
 	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
 
-	// Chosen block preview
-	Texture* blocks = assets->getTexture("block_tex");
+	batch->begin();
 
-	batch->texture(nullptr);
+	// Chosen block preview
 	batch->color = vec4(1.0f);
 	if (Events::_cursor_locked && !level->player->debug) {
 		batch->lineWidth(2);
@@ -258,14 +262,15 @@ void HudRenderer::draw(const GfxContext& ctx){
 	batch->rect(width - 68, height - 68, 68, 68);
 
 	batch->color = vec4(1.0f);
-	batch->texture(blocks);
+	batch->texture(atlas->getTexture());
 	{
 		Block* cblock = contentIds->getBlockDef(player->choosenBlock);
 		assert(cblock != nullptr);
 		if (cblock->model == BlockModel::block){
-			batch->blockSprite(width-56, uicamera->fov - 56, 48, 48, 16, cblock->textureFaces, vec4(1.0f));
+			batch->blockSprite(width-56, uicamera->fov - 56, 48, 48, (const UVRegion*)cblock->uvdata, vec4(1.0f));
 		} else if (cblock->model == BlockModel::xsprite){
-			batch->sprite(width-56, uicamera->fov - 56, 48, 48, 16, cblock->textureFaces[3], vec4(1.0f));
+			const UVRegion& region = (reinterpret_cast<UVRegion*>(cblock->uvdata))[3];
+			batch->sprite(width-56, uicamera->fov - 56, 48, 48, region, vec4(1.0f));
 		}
 	}
 

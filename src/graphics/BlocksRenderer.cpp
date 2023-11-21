@@ -303,12 +303,7 @@ vec4 BlocksRenderer::pickSoftLight(int x, int y, int z, const ivec3& right, cons
 
 // Get texture atlas UV region for block face
 inline UVRegion uvfor(const Block& def, uint face, int atlas_size) {
-	float uvsize = 1.0f / (float)atlas_size;
-	float us = 1.0f / (float)atlas_size / (float)atlas_size * ATLAS_MARGIN_SIZE * 0.8f;
-	const uint id = def.textureFaces[face];
-	float u = (id % atlas_size) * uvsize;
-	float v = 1.0f - (id / atlas_size + 1) * uvsize;
-	return UVRegion(u + us, v + us, u + uvsize - us, v + uvsize - us);
+	return *reinterpret_cast<const UVRegion*>(def.uvdata + face * 4);
 }
 
 void BlocksRenderer::render(const voxel* voxels, int atlas_size) {

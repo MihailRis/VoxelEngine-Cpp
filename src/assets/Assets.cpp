@@ -2,6 +2,7 @@
 
 #include "../graphics/Texture.h"
 #include "../graphics/Shader.h"
+#include "../graphics/Atlas.h"
 #include "../graphics/Font.h"
 
 Assets::~Assets() {
@@ -14,6 +15,10 @@ Assets::~Assets() {
 	}
 
 	for (auto& iter : fonts){
+		delete iter.second;
+	}
+
+	for (auto& iter : atlases) {
 		delete iter.second;
 	}
 }
@@ -51,4 +56,15 @@ Font* Assets::getFont(std::string name) const {
 
 void Assets::store(Font* font, std::string name){
 	fonts[name] = font;
+}
+
+Atlas* Assets::getAtlas(std::string name) const {
+	auto found = atlases.find(name);
+	if (found == atlases.end())
+		return nullptr;
+	return found->second;
+}
+
+void Assets::store(Atlas* atlas, std::string name){
+	atlases[name] = atlas;
 }

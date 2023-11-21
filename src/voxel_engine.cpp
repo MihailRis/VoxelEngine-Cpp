@@ -13,6 +13,10 @@
 #include "files/settings_io.h"
 #include "content/Content.h"
 
+#include "coders/png.h"
+#include "graphics/Atlas.h"
+#include "graphics/ImageData.h"
+
 int main() {
 	platform::configure_encoding();
 	ContentBuilder contentBuilder;

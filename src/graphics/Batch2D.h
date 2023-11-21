@@ -37,9 +37,10 @@ public:
 
 	void begin();
 	void texture(Texture* texture);
-	void sprite(float x, float y, float w, float h, int atlasRes, int index, vec4 tint);
+	void sprite(float x, float y, float w, float h, const UVRegion& region, vec4 tint);
 	void sprite(Sprite* sprite);
-	void blockSprite(float x, float y, float w, float h, int atlasRes, int index[6], vec4 tint);
+	void sprite(float x, float y, float w, float h, int atlasRes, int index, vec4 tint);
+	void blockSprite(float x, float y, float w, float h, const UVRegion regions[], vec4 tint);
 	void point(float x, float y, float r, float g, float b, float a);
 	void line(float x1, float y1, float x2, float y2, float r, float g, float b, float a);
 	void rect(float x, float y,

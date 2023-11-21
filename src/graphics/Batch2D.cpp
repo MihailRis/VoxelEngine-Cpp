@@ -288,6 +288,10 @@ void Batch2D::sprite(Sprite* sprite) {
 		sprite->color);
 }
 
+void Batch2D::sprite(float x, float y, float w, float h, const UVRegion& region, vec4 tint){
+	rect(x, y, w, h, region.u1, region.v1, region.u2-region.u1, region.v2-region.v1, tint.r, tint.g, tint.b, tint.a);
+}
+
 void Batch2D::sprite(float x, float y, float w, float h, int atlasRes, int index, vec4 tint){
 	float scale = 1.0f / (float)atlasRes;
 	float u = (index % atlasRes) * scale;
@@ -295,12 +299,16 @@ void Batch2D::sprite(float x, float y, float w, float h, int atlasRes, int index
 	rect(x, y, w, h, u, v, scale, scale, tint.r, tint.g, tint.b, tint.a);
 }
 
-void Batch2D::blockSprite(float x, float y, float w, float h, int atlasRes, int index[6], vec4 tint){
-	float scale = 1.0f / (float)atlasRes;
-	float uu = (index[3] % atlasRes) * scale;
-	float vu = 1.0f - ((index[3] / atlasRes) * scale) - scale;
-	float uf = (index[0] % atlasRes) * scale;
-	float vf = 1.0f - ((index[0] / atlasRes) * scale) - scale;
+void Batch2D::blockSprite(float x, float y, float w, float h, const UVRegion regions[], vec4 tint){
+	// TODO: rewrite it
+	float uu = (regions[3].u1);
+	float vu = (regions[3].v1);
+
+	float uf = (regions[0].u1);
+	float vf = (regions[0].v1);
+
+	float scalex = regions[3].u2-regions[3].u1;
+	float scaley = regions[3].v2-regions[3].v1;
 
 	if (this->index + 18*VERTEX_SIZE >= capacity)
 		render();
@@ -317,13 +325,13 @@ void Batch2D::blockSprite(float x, float y, float w, float h, int atlasRes, int 
 						vec2(ox-sx,     y+(h*0.75f))};
 
 	vec2 uvpoints[8] = {vec2(uu,        vu),
-						vec2(uu+scale,  vu),
-						vec2(uu+scale,  vu+scale),
-						vec2(uu,        vu+scale),
+						vec2(uu+scalex,  vu),
+						vec2(uu+scalex,  vu+scalex),
+						vec2(uu,        vu+scalex),
 						vec2(uf,        vf),
-						vec2(uf+scale,  vf),
-						vec2(uf+scale,  vf+scale),
-						vec2(uf,        vf+scale)};
+						vec2(uf+scaley,  vf),
+						vec2(uf+scaley,  vf+scaley),
+						vec2(uf,        vf+scaley)};
 	
 	vertex(points[0], uvpoints[3], tint.r, tint.g, tint.b, tint.a);
 	vertex(points[1], uvpoints[0], tint.r, tint.g, tint.b, tint.a);

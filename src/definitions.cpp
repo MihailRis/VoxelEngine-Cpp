@@ -9,7 +9,7 @@
 // All in-game definitions (blocks, items, etc..)
 void setup_definitions(ContentBuilder* builder) {
 	// TODO: automatic atlas generation instead of using texture indices
-	Block* block = new Block("core:air", 0);
+	Block* block = new Block("core:air", "air");
 	block->drawGroup = 1;
 	block->lightPassing = true;
 	block->skyLightPassing = true;
@@ -18,41 +18,41 @@ void setup_definitions(ContentBuilder* builder) {
 	block->model = BlockModel::none;
 	builder->add(block);
 
-	block = new Block("base:dirt", 2);
+	block = new Block("base:dirt", "dirt");
 	builder->add(block);
 
-	block = new Block("base:grass_block", 4);
-	block->textureFaces[2] = 2;
-	block->textureFaces[3] = 1;
+	block = new Block("base:grass_block", "grass_side");
+	block->textureFaces[2] = "dirt";
+	block->textureFaces[3] = "grass_top";
 	builder->add(block);
 
-	block = new Block("base:lamp", 3);
+	block = new Block("base:lamp", "lamp");
 	block->emission[0] = 15;
 	block->emission[1] = 14;
 	block->emission[2] = 13;
 	builder->add(block);
 
-	block = new Block("base:glass",5);
+	block = new Block("base:glass", "glass");
 	block->drawGroup = 2;
 	block->lightPassing = true;
 	builder->add(block);
 
-	block = new Block("base:planks", 6);
+	block = new Block("base:planks", "planks");
 	builder->add(block);
 
-	block = new Block("base:wood", 7);
-	block->textureFaces[2] = 8;
-	block->textureFaces[3] = 8;
+	block = new Block("base:wood", "wood");
+	block->textureFaces[2] = "wood_top";
+	block->textureFaces[3] = "wood_top";
 	block->rotatable = true;
 	builder->add(block);
 
-	block = new Block("base:leaves", 9);
+	block = new Block("base:leaves", "leaves");
 	builder->add(block);
 
-	block = new Block("base:stone", 10);
+	block = new Block("base:stone", "stone");
 	builder->add(block);
 
-	block = new Block("base:water", 11);
+	block = new Block("base:water", "water");
 	block->drawGroup = 4;
 	block->lightPassing = true;
 	block->skyLightPassing = false;
@@ -60,14 +60,14 @@ void setup_definitions(ContentBuilder* builder) {
 	block->selectable = false;
 	builder->add(block);
 
-	block = new Block("base:sand", 12);
+	block = new Block("base:sand", "sand");
 	builder->add(block);
 
-	block = new Block("base:bedrock", 13);
+	block = new Block("base:bedrock", "bedrock");
 	block->breakable = false;
 	builder->add(block);
 
-	block = new Block("base:grass", 14);
+	block = new Block("base:grass", "grass");
 	block->drawGroup = 5;
 	block->lightPassing = true;
 	block->obstacle = false;
@@ -75,20 +75,20 @@ void setup_definitions(ContentBuilder* builder) {
 	block->hitboxScale = 0.5f;
 	builder->add(block);
 
-	block = new Block("base:flower", 16);
+	block = new Block("base:flower", "flower");
 	block->drawGroup = 5;
 	block->lightPassing = true;
 	block->obstacle = false;
 	block->model = BlockModel::xsprite;
 	builder->add(block);
 
-	block = new Block("base:brick", 17);
+	block = new Block("base:brick", "brick");
 	builder->add(block);
 
-	block = new Block("base:metal", 18);
+	block = new Block("base:metal", "metal");
 	builder->add(block);
 
-	block = new Block("base:rust", 19);
+	block = new Block("base:rust", "rust");
 	builder->add(block);
 }
 

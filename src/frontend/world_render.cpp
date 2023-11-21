@@ -10,6 +10,7 @@
 #include "../window/Window.h"
 #include "../window/Camera.h"
 #include "../graphics/Mesh.h"
+#include "../graphics/Atlas.h"
 #include "../graphics/Shader.h"
 #include "../graphics/Texture.h"
 #include "../graphics/LineBatch.h"
@@ -27,6 +28,7 @@
 #include "../engine.h"
 
 using glm::vec3;
+using std::string;
 using std::shared_ptr;
 
 WorldRenderer::WorldRenderer(Engine* engine, Level* level) 
@@ -37,6 +39,26 @@ WorldRenderer::WorldRenderer(Engine* engine, Level* level)
 	level->events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
 		renderer->unload(chunk);
 	});
+
+	// TODO: move to some proper place
+	// otrefactoryu dnem
+	Assets* assets = engine->getAssets();
+	Atlas* atlas = assets->getAtlas("blocks");
+	const Content* content = level->content;
+	const ContentIndices* contentIds = content->indices;
+	for (uint i = 0; i < contentIds->countBlockDefs(); i++) {
+		Block* def = contentIds->getBlockDef(i);
+		for (uint side = 0; side < 6; side++) {
+			string tex = def->textureFaces[side];
+			if (atlas->has(tex)) {
+				UVRegion region = atlas->get(tex);
+				float* data = reinterpret_cast<float*>(&region);
+				for (uint j = 0; j < 4; j++) {
+					def->uvdata[side * 4 + j] = data[j];
+				}
+			}
+		}
+	}
 }
 
 WorldRenderer::~WorldRenderer() {
@@ -99,7 +121,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 	const Content* content = level->content;
 	const ContentIndices* contentIds = content->indices;
 	Assets* assets = engine->getAssets();
-	Texture* texture = assets->getTexture("block");
+	Atlas* atlas = assets->getAtlas("blocks");
 	Shader* shader = assets->getShader("main");
 	Shader* linesShader = assets->getShader("lines");
 
@@ -139,7 +161,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 				cblock->emission[1] / 15.0f * multiplier,
 				cblock->emission[2] / 15.0f * multiplier);
 		shader->uniform1f("u_torchlightDistance", 6.0f);
-		texture->bind();
+		atlas->getTexture()->bind();
 
 		Chunks* chunks = level->chunks;
 		drawChunks(chunks, camera, shader, occlusion);

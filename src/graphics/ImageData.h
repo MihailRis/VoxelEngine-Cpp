@@ -14,11 +14,16 @@ class ImageData {
     uint height;
     void* data;
 public:
+    ImageData(ImageFormat format, uint width, uint height);
     ImageData(ImageFormat format, uint width, uint height, void* data);
     ~ImageData();
 
     void flipX();
     void flipY();
+
+    void blit(const ImageData* image, int x, int y);
+    void extrude(int x, int y, int w, int h);
+    void fixAlphaColor();
 
     void* getData() const {
         return data;
