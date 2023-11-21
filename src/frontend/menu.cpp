@@ -51,6 +51,9 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
     path worldsFolder = enginefs::get_worlds_folder();
     if (std::filesystem::is_directory(worldsFolder)) {
         for (auto const& entry : directory_iterator(worldsFolder)) {
+            if (!entry.is_directory()) {
+                continue;
+            }
             string name = entry.path().filename().string();
             Button* button = new Button(util::str2wstr_utf8(name), 
                                         vec4(10.0f, 8.0f, 10.0f, 8.0f));
