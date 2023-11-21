@@ -41,7 +41,8 @@ using std::filesystem::path;
 using glm::vec3;
 using gui::GUI;
 
-Engine::Engine(EngineSettings& settings) : settings(settings) {    
+Engine::Engine(EngineSettings& settings, Content* content) 
+	   : settings(settings), content(content) {    
 	Window::initialize(settings.display);
 
 	assets = new Assets();
@@ -128,4 +129,8 @@ Assets* Engine::getAssets() {
 
 void Engine::setScreen(shared_ptr<Screen> screen) {
 	this->screen = screen;
+}
+
+const Content* Engine::getContent() const {
+	return content;
 }

@@ -1,6 +1,7 @@
 #include "Level.h"
 #include "World.h"
 #include "LevelEvents.h"
+#include "../content/Content.h"
 #include "../lighting/Lighting.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/Chunks.h"
@@ -11,8 +12,10 @@
 #include "../objects/Player.h"
 #include "../objects/player_control.h"
 
-Level::Level(World* world, Player* player, EngineSettings& settings)
+Level::Level(World* world, const Content* content, Player* player, EngineSettings& settings)
 	  : world(world),
+	    content(content),
+		contentIds(content->indices),
 		player(player),
 		chunksStorage(new ChunksStorage(this)),
 		events(new LevelEvents()) ,
@@ -24,8 +27,9 @@ Level::Level(World* world, Player* player, EngineSettings& settings)
     chunks = new Chunks(matrixSize, matrixSize, 
 		0, 0, 
 		world->wfile, 
-		events);
-	lighting = new Lighting(chunks);
+		events,
+		content);
+	lighting = new Lighting(content, chunks);
 	chunksController = new ChunksController(this, chunks, lighting, 
 											settings.chunks.padding);
 	playerController = new PlayerController(this, settings);

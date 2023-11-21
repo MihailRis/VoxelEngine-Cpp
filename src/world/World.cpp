@@ -42,7 +42,7 @@ void World::write(Level* level, bool writeChunks) {
 	wfile->writePlayer(level->player);
 }
 
-Level* World::load(EngineSettings& settings) {
+Level* World::load(EngineSettings& settings, const Content* content) {
 	WorldInfo info {name, wfile->directory, seed};
 	wfile->readWorldInfo(info);
 	seed = info.seed;
@@ -51,7 +51,7 @@ Level* World::load(EngineSettings& settings) {
 	vec3 playerPosition = vec3(0, 100, 0);
 	Camera* camera = new Camera(playerPosition, glm::radians(90.0f));
 	Player* player = new Player(playerPosition, 4.0f, camera);
-	Level* level = new Level(this, player, settings);
+	Level* level = new Level(this, content, player, settings);
 	wfile->readPlayer(player);
 
 	camera->rotation = mat4(1.0f);

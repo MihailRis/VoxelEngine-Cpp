@@ -14,7 +14,7 @@
 /* BLOCK_VOID is block id used to mark non-existing voxel (voxel of missing chunk) */
 #define BLOCK_VOID (blockid_t)((2 << (sizeof(blockid_t)*CHAR_BIT)) - 1)
 
-inline uint vox_index(int x, int y, int z, int w, int d) {
+inline uint vox_index(int x, int y, int z, int w=CHUNK_W, int d=CHUNK_D) {
 	return (y * d + z) * w + x;
 }
 

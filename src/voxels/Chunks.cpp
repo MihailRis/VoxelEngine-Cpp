@@ -3,6 +3,7 @@
 #include "voxel.h"
 #include "Block.h"
 #include "WorldGenerator.h"
+#include "../content/Content.h"
 #include "../lighting/Lightmap.h"
 #include "../files/WorldFiles.h"
 #include "../world/LevelEvents.h"
@@ -16,8 +17,16 @@
 using glm::vec3;
 using std::shared_ptr;
 
-Chunks::Chunks(int w, int d, int ox, int oz, WorldFiles* wfile, LevelEvents* events) 
-		: w(w), d(d), ox(ox), oz(oz), worldFiles(wfile), events(events) {
+Chunks::Chunks(int w, int d, 
+			   int ox, int oz, 
+			   WorldFiles* wfile, 
+			   LevelEvents* events, 
+			   const Content* content) 
+		: content(content),
+		  contentIds(content->indices), 
+		  w(w), d(d), ox(ox), oz(oz), 
+		  worldFiles(wfile), 
+		  events(events) {
 	volume = (size_t)w*(size_t)d;
 	chunks = new shared_ptr<Chunk>[volume];
 	chunksSecond = new shared_ptr<Chunk>[volume];
@@ -59,7 +68,7 @@ bool Chunks::isObstacle(int x, int y, int z){
 	voxel* v = get(x,y,z);
 	if (v == nullptr)
 		return true; // void - is obstacle
-	return Block::blocks[v->id]->obstacle;
+	return contentIds->getBlockDef(v->id)->obstacle;
 }
 
 ubyte Chunks::getLight(int x, int y, int z, int channel){
@@ -191,7 +200,7 @@ voxel* Chunks::rayCast(vec3 start,
 
 	while (t <= maxDist){
 		voxel* voxel = get(ix, iy, iz);
-		if (voxel == nullptr || Block::blocks[voxel->id]->selectable){
+		if (voxel == nullptr || contentIds->getBlockDef(voxel->id)->selectable){
 			end.x = px + t * dx;
 			end.y = py + t * dy;
 			end.z = pz + t * dz;

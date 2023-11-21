@@ -1,97 +1,95 @@
 #include "definitions.h"
 
+#include "content/Content.h"
 #include "window/Window.h"
 #include "window/Events.h"
 #include "window/input.h"
 #include "voxels/Block.h"
 
 // All in-game definitions (blocks, items, etc..)
-void setup_definitions() {
-	for (size_t i = 0; i < 256; i++) {
-		Block::blocks[i] = nullptr;
-	}
-
-	Block* block = new Block(BLOCK_AIR, 0);
+void setup_definitions(ContentBuilder* builder) {
+	// TODO: automatic atlas generation instead of using texture indices
+	Block* block = new Block("core:air", 0);
 	block->drawGroup = 1;
 	block->lightPassing = true;
 	block->skyLightPassing = true;
 	block->obstacle = false;
 	block->selectable = false;
 	block->model = BlockModel::none;
-	Block::blocks[block->id] = block;
+	builder->add(block);
 
-	block = new Block(BLOCK_DIRT, 2);
-	Block::blocks[block->id] = block;
+	block = new Block("base:dirt", 2);
+	builder->add(block);
 
-	block = new Block(BLOCK_GRASS_BLOCK, 4);
+	block = new Block("base:grass_block", 4);
 	block->textureFaces[2] = 2;
 	block->textureFaces[3] = 1;
-	Block::blocks[block->id] = block;
+	builder->add(block);
 
-	block = new Block(BLOCK_LAMP, 3);
+	block = new Block("base:lamp", 3);
 	block->emission[0] = 15;
 	block->emission[1] = 14;
 	block->emission[2] = 13;
-	Block::blocks[block->id] = block;
+	builder->add(block);
 
-	block = new Block(BLOCK_GLASS,5);
+	block = new Block("base:glass",5);
 	block->drawGroup = 2;
 	block->lightPassing = true;
-	Block::blocks[block->id] = block;
+	builder->add(block);
 
-	block = new Block(BLOCK_PLANKS, 6);
-	Block::blocks[block->id] = block;
+	block = new Block("base:planks", 6);
+	builder->add(block);
 
-	block = new Block(BLOCK_WOOD, 7);
+	block = new Block("base:wood", 7);
 	block->textureFaces[2] = 8;
 	block->textureFaces[3] = 8;
 	block->rotatable = true;
-	Block::blocks[block->id] = block;
+	builder->add(block);
 
-	block = new Block(BLOCK_LEAVES, 9);
-	Block::blocks[block->id] = block;
+	block = new Block("base:leaves", 9);
+	builder->add(block);
 
-	block = new Block(BLOCK_STONE, 10);
-	Block::blocks[block->id] = block;
+	block = new Block("base:stone", 10);
+	builder->add(block);
 
-	block = new Block(BLOCK_WATER, 11);
+	block = new Block("base:water", 11);
 	block->drawGroup = 4;
 	block->lightPassing = true;
 	block->skyLightPassing = false;
 	block->obstacle = false;
 	block->selectable = false;
-	Block::blocks[block->id] = block;
+	builder->add(block);
 
-	block = new Block(BLOCK_SAND, 12);
-	Block::blocks[block->id] = block;
+	block = new Block("base:sand", 12);
+	builder->add(block);
 
-	block = new Block(BLOCK_BEDROCK, 13);
+	block = new Block("base:bedrock", 13);
 	block->breakable = false;
-	Block::blocks[block->id] = block;
+	builder->add(block);
 
-	block = new Block(BLOCK_GRASS, 14);
+	block = new Block("base:grass", 14);
 	block->drawGroup = 5;
 	block->lightPassing = true;
 	block->obstacle = false;
 	block->model = BlockModel::xsprite;
 	block->hitboxScale = 0.5f;
-	Block::blocks[block->id] = block;
+	builder->add(block);
 
-	block = new Block(BLOCK_FLOWER, 16);
+	block = new Block("base:flower", 16);
 	block->drawGroup = 5;
 	block->lightPassing = true;
 	block->obstacle = false;
 	block->model = BlockModel::xsprite;
-	Block::blocks[block->id] = block;
+	builder->add(block);
 
-	block = new Block(BLOCK_BRICK, 17);
-	Block::blocks[block->id] = block;
+	block = new Block("base:brick", 17);
+	builder->add(block);
 
-	block = new Block(BLOCK_METAL, 18);
-	Block::blocks[block->id] = block;
+	block = new Block("base:metal", 18);
+	builder->add(block);
 
-	block = new Block(BLOCK_RUST, 19);
-	Block::blocks[block->id] = block;
+	block = new Block("base:rust", 19);
+	builder->add(block);
 }
 
 void setup_bindings() {

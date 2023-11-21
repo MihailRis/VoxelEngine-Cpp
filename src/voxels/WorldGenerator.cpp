@@ -1,6 +1,7 @@
 #include "WorldGenerator.h"
 #include "voxel.h"
 #include "Chunk.h"
+#include "Block.h"
 
 #include <iostream>
 #include <time.h>
@@ -11,8 +12,9 @@
 #define FNL_IMPL
 #include "../maths/FastNoiseLite.h"
 
-#include "../definitions.h"
+#include "../content/Content.h"
 #include "../maths/voxmaths.h"
+#include "../core_defs.h"
 
 #define SEA_LEVEL 55
 
@@ -92,6 +94,19 @@ float calc_height(fnl_state *noise, int real_x, int real_z){
 	height += 1.0f;
 	height *= 64.0f;
 	return height;
+}
+
+WorldGenerator::WorldGenerator(const Content* content)
+	           : idStone(content->require("base:stone")->id),
+			     idDirt(content->require("base:dirt")->id),
+				 idGrassBlock(content->require("base:grass_block")->id),
+				 idSand(content->require("base:sand")->id),
+				 idWater(content->require("base:water")->id),
+				 idWood(content->require("base:wood")->id),
+				 idLeaves(content->require("base:leaves")->id),
+				 idGrass(content->require("base:grass")->id),
+				 idFlower(content->require("base:flower")->id),
+				 idBedrock(content->require("base:bedrock")->id) {;
 }
 
 int generate_tree(fnl_state *noise, 
@@ -179,14 +194,14 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 
 			for (int y = 0; y < CHUNK_H; y++){
 				int real_y = y;
-				int id = real_y < SEA_LEVEL ? BLOCK_WATER : BLOCK_AIR;
+				int id = real_y < SEA_LEVEL ? idWater : BLOCK_AIR;
 				int states = 0;
 				if ((real_y == (int)height) && (SEA_LEVEL-2 < real_y)) {
-					id = BLOCK_GRASS_BLOCK;
+					id = idGrassBlock;
 				} else if (real_y < (height - 6)){
-					id = BLOCK_STONE;
+					id = idStone;
 				} else if (real_y < height){
-					id = BLOCK_DIRT;
+					id = idDirt;
 				} else {
 					int tree = generate_tree(&noise, &randomtree, heights, humidity, real_x, real_y, real_z, treesTile);
 					if (tree) {
@@ -195,20 +210,20 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 					}
 				}
 				if (((height - (1.5 - 0.2 * pow(height - 54, 4))) < real_y) && (real_y < height) && humidity.get(real_x, real_z) < 0.1){
-					id = BLOCK_SAND;
+					id = idSand;
 				}
 				if (real_y <= 2)
-					id = BLOCK_BEDROCK;
+					id = idBedrock;
 
 				randomgrass.setSeed(real_x,real_z);
 				if ((id == 0) && (height > SEA_LEVEL+0.5) && ((int)(height + 1) == real_y) && ((unsigned short)randomgrass.rand() > 56000)){
-					id = BLOCK_GRASS;
+					id = idGrass;
 				}
 				if ((id == 0) && (height > SEA_LEVEL+0.5) && ((int)(height + 1) == real_y) && ((unsigned short)randomgrass.rand() > 65000)){
-					id = BLOCK_FLOWER;
+					id = idFlower;
 				}
 				if ((height > SEA_LEVEL+1) && ((int)(height + 1) == real_y) && ((unsigned short)randomgrass.rand() > 65533)){
-					id = BLOCK_WOOD;
+					id = idWood;
 					states = BLOCK_DIR_Y;
 				}
 				voxels[(y * CHUNK_D + z) * CHUNK_W + x].id = id;

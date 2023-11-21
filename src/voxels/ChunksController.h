@@ -9,6 +9,7 @@ class Lighting;
 class WorldFiles;
 class VoxelRenderer;
 class ChunksLoader;
+class WorldGenerator;
 
 class ChunksController {
 private:
@@ -17,6 +18,7 @@ private:
 	Lighting* lighting;
 	int64_t avgDurationMcs = 1000;
 	uint padding;
+	WorldGenerator* generator;
 public:
 	ChunksController(Level* level, Chunks* chunks, Lighting* lighting, uint padding);
 	~ChunksController();

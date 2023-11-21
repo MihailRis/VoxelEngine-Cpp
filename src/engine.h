@@ -10,6 +10,7 @@
 class Assets;
 class Level;
 class Screen;
+class Content;
 
 namespace gui {
 	class GUI;
@@ -24,6 +25,7 @@ class Engine {
 	Assets* assets;
 	std::shared_ptr<Screen> screen = nullptr;
 	EngineSettings& settings;
+	Content* content;
 
 	uint64_t frame = 0;
 	double lastTime = 0.0;
@@ -31,7 +33,7 @@ class Engine {
 
 	gui::GUI* gui;
 public:
-	Engine(EngineSettings& settings);
+	Engine(EngineSettings& settings, Content* content);
 	~Engine();
 
 	void updateTimers();
@@ -42,6 +44,8 @@ public:
 	gui::GUI* getGUI();
 	EngineSettings& getSettings();
 	void setScreen(std::shared_ptr<Screen> screen);
+
+	const Content* getContent() const;
 };
 
 #endif // SRC_ENGINE_H_

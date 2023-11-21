@@ -1,17 +1,19 @@
 #ifndef LIGHTING_LIGHTING_H_
 #define LIGHTING_LIGHTING_H_
 
+class Content;
 class Chunks;
 class LightSolver;
 
 class Lighting {
-	Chunks* chunks = nullptr;
-	LightSolver* solverR = nullptr;
-	LightSolver* solverG = nullptr;
-	LightSolver* solverB = nullptr;
-	LightSolver* solverS = nullptr;
+	const Content* const content;
+	Chunks* chunks;
+	LightSolver* solverR;
+	LightSolver* solverG;
+	LightSolver* solverB;
+	LightSolver* solverS;
 public:
-	Lighting(Chunks* chunks);
+	Lighting(const Content* content, Chunks* chunks);
 	~Lighting();
 
 	void clear();

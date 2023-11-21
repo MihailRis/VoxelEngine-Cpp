@@ -1,6 +1,8 @@
 #ifndef VOXELS_BLOCK_H_
 #define VOXELS_BLOCK_H_
 
+#include <string>
+
 #define FACE_MX 0
 #define FACE_PX 1
 #define FACE_MY 2
@@ -14,9 +16,8 @@ enum class BlockModel {
 
 class Block {
 public:
-	static Block* blocks[256];
-
-	const unsigned int id;
+	std::string const name;
+	unsigned int id;
 						 //  0 1   2 3   4 5
 	int textureFaces[6]; // -x,x, -y,y, -z,z
 	unsigned char emission[3];
@@ -30,7 +31,7 @@ public:
 	bool rotatable = false;
 	float hitboxScale = 1;
 
-	Block(unsigned int id, int texture);
+	Block(std::string name, int texture);
 };
 
 #endif /* VOXELS_BLOCK_H_ */

@@ -5,6 +5,7 @@
 #include "../physics/Hitbox.h"
 #include "../lighting/Lighting.h"
 #include "../world/Level.h"
+#include "../content/Content.h"
 #include "../voxels/Block.h"
 #include "../voxels/voxel.h"
 #include "../voxels/Chunks.h"
@@ -211,6 +212,7 @@ void PlayerController::updateCameraControl() {
 }
 
 void PlayerController::updateInteraction(){
+	const ContentIndices* contentIds = level->contentIds;
 	Chunks* chunks = level->chunks;
 	Player* player = level->player;
 	Lighting* lighting = level->lighting;
@@ -241,7 +243,7 @@ void PlayerController::updateInteraction(){
 		int z = (int)iend.z;
 		uint8_t states = 0;
 
-		if (Block::blocks[player->choosenBlock]->rotatable){
+		if (contentIds->getBlockDef(player->choosenBlock)->rotatable){
 			if (abs(norm.x) > abs(norm.z)){
 				if (abs(norm.x) > abs(norm.y)) states = BLOCK_DIR_X;
 				if (abs(norm.x) < abs(norm.y)) states = BLOCK_DIR_Y;
@@ -252,7 +254,7 @@ void PlayerController::updateInteraction(){
 			}
 		}
 		
-		Block* block = Block::blocks[vox->id];
+		Block* block = contentIds->getBlockDef(vox->id);
 		if (lclick && block->breakable){
 			chunks->set(x,y,z, 0, 0);
 			lighting->onBlockSet(x,y,z, 0);

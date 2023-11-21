@@ -2,12 +2,14 @@
 #include <assert.h>
 #include "LightSolver.h"
 #include "Lightmap.h"
+#include "../content/Content.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/voxel.h"
 #include "../voxels/Block.h"
 
-LightSolver::LightSolver(Chunks* chunks, int channel) : chunks(chunks), channel(channel) {
+LightSolver::LightSolver(const ContentIndices* contentIds, Chunks* chunks, int channel) 
+	: contentIds(contentIds), chunks(chunks), channel(channel) {
 }
 
 void LightSolver::add(int x, int y, int z, int emission) {
@@ -93,6 +95,7 @@ void LightSolver::solve(){
 		}
 	}
 
+	const Block* const* blockDefs = contentIds->getBlockDefs();
 	while (!addqueue.empty()){
 		const lightentry entry = addqueue.front();
 		addqueue.pop();
@@ -108,7 +111,7 @@ void LightSolver::solve(){
 			if (chunk) {
 				int light = chunks->getLight(x,y,z, channel);
 				voxel* v = chunks->get(x,y,z);
-				Block* block = Block::blocks[v->id];
+				const Block* block = blockDefs[v->id];
 				if (block->lightPassing && light+2 <= entry.light){
 					chunk->lightmap->set(x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, channel, entry.light-1);
 					chunk->setModified(true);

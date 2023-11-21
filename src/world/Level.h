@@ -4,6 +4,8 @@
 #include "../typedefs.h"
 #include "../settings.h"
 
+class Content;
+class ContentIndices;
 class World;
 class Player;
 class Chunks;
@@ -17,6 +19,8 @@ class PlayerController;
 class Level {
 public:
 	World* world;
+	const Content* const content;
+	const ContentIndices* const contentIds;
 	Player* player;
 	Chunks* chunks;
 	ChunksStorage* chunksStorage;
@@ -28,6 +32,7 @@ public:
 	const EngineSettings& settings;
 
 	Level(World* world, 
+		  const Content* content,
 	      Player* player, 
 	      EngineSettings& settings);
 	~Level();

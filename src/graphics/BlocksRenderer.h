@@ -7,6 +7,7 @@
 #include "../typedefs.h"
 #include "../voxels/voxel.h"
 
+class Content;
 class Mesh;
 class Block;
 class Chunk;
@@ -15,6 +16,7 @@ class VoxelsVolume;
 class ChunksStorage;
 
 class BlocksRenderer {
+	const Content* const content;
 	float* vertexBuffer;
 	int* indexBuffer;
 	size_t vertexOffset;
@@ -25,6 +27,8 @@ class BlocksRenderer {
 
 	const Chunk* chunk = nullptr;
 	VoxelsVolume* voxelsBuffer;
+
+	const Block* const* blockDefsCache;
 
 	void vertex(const glm::vec3& coord, float u, float v, const glm::vec4& light);
 	void index(int a, int b, int c, int d, int e, int f);
@@ -64,7 +68,7 @@ class BlocksRenderer {
 	glm::vec4 pickSoftLight(int x, int y, int z, const glm::ivec3& right, const glm::ivec3& up) const;
 	void render(const voxel* voxels, int atlas_size);
 public:
-	BlocksRenderer(size_t capacity);
+	BlocksRenderer(size_t capacity, const Content* content);
 	virtual ~BlocksRenderer();
 
 	Mesh* render(const Chunk* chunk, int atlas_size, const ChunksStorage* chunks);

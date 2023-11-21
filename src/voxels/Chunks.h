@@ -8,6 +8,8 @@
 
 class VoxelRenderer;
 
+class Content;
+class ContentIndices;
 class Chunk;
 class voxel;
 class WorldFiles;
@@ -15,6 +17,8 @@ class LevelEvents;
 
 /* Player-centred chunks matrix */
 class Chunks {
+	const Content* const content;
+	const ContentIndices* const contentIds;
 public:
 	std::shared_ptr<Chunk>* chunks;
 	std::shared_ptr<Chunk>* chunksSecond;
@@ -27,7 +31,7 @@ public:
 	LevelEvents* events;
 
 	Chunks(int w, int d, int ox, int oz, 
-		   WorldFiles* worldFiles, LevelEvents* events);
+		   WorldFiles* worldFiles, LevelEvents* events, const Content* content);
 	~Chunks();
 
 	bool putChunk(std::shared_ptr<Chunk> chunk);

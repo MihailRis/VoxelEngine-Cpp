@@ -6,6 +6,7 @@
 #include "../typedefs.h"
 #include "../settings.h"
 
+class Content;
 class WorldFiles;
 class Chunks;
 class Level;
@@ -24,7 +25,7 @@ public:
 	~World();
 
 	void write(Level* level, bool writeChunks);
-	Level* load(EngineSettings& settings);
+	Level* load(EngineSettings& settings, const Content* content);
 };
 
 #endif /* WORLD_WORLD_H_ */

@@ -40,7 +40,7 @@ public:
 	~HudRenderer();
 
 	void update();
-	void drawInventory(const GfxContext& ctx, Player* player);
+	void drawContentAccess(const GfxContext& ctx, Player* player);
 	void draw(const GfxContext& context);
 	void drawDebug(int fps, bool occlusion);
 

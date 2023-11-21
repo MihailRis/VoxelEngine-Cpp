@@ -3,7 +3,9 @@
 #include <iostream>
 #include <GL/glew.h>
 #include <memory>
+#include <assert.h>
 
+#include "../content/Content.h"
 #include "../graphics/ChunksRenderer.h"
 #include "../window/Window.h"
 #include "../window/Camera.h"
@@ -94,6 +96,8 @@ void WorldRenderer::drawChunks(Chunks* chunks,
 
 
 void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion){
+	const Content* content = level->content;
+	const ContentIndices* contentIds = content->indices;
 	Assets* assets = engine->getAssets();
 	Texture* texture = assets->getTexture("block");
 	Shader* shader = assets->getShader("main");
@@ -127,7 +131,8 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 		shader->uniform1f("u_fogCurve", settings.graphics.fogCurve);
 		shader->uniform3f("u_cameraPos", camera->position);
 
-		Block* cblock = Block::blocks[level->player->choosenBlock];
+		Block* cblock = contentIds->getBlockDef(level->player->choosenBlock);
+		assert(cblock != nullptr);
 		float multiplier = 0.5f;
 		shader->uniform3f("u_torchlightColor",
 				cblock->emission[0] / 15.0f * multiplier,
@@ -142,7 +147,8 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 		shader->uniformMatrix("u_model", mat4(1.0f));
 
 		if (level->playerController->selectedBlockId != -1){
-			Block* block = Block::blocks[level->playerController->selectedBlockId];
+			Block* block = contentIds->getBlockDef(level->playerController->selectedBlockId);
+			assert(block != nullptr);
 			vec3 pos = level->playerController->selectedBlockPosition;
 			linesShader->use();
 			linesShader->uniformMatrix("u_projview", camera->getProjView());

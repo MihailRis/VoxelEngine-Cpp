@@ -3,11 +3,13 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
+#include <assert.h>
 #include <stdexcept>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include "../typedefs.h"
+#include "../content/Content.h"
 #include "../util/stringutil.h"
 #include "../assets/Assets.h"
 #include "../graphics/Shader.h"
@@ -24,6 +26,7 @@
 #include "../world/Level.h"
 #include "../objects/Player.h"
 #include "../physics/Hitbox.h"
+#include "../maths/voxmaths.h"
 #include "gui/controls.h"
 #include "gui/panels.h"
 #include "gui/UINode.h"
@@ -45,7 +48,10 @@ inline Label* create_label(gui::wstringsupplier supplier) {
 	return label;
 }
 
-HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(engine->getAssets()), gui(engine->getGUI()) {
+HudRenderer::HudRenderer(Engine* engine, Level* level) 
+            : level(level), 
+			  assets(engine->getAssets()), 
+			  gui(engine->getGUI()) {
 	auto menu = gui->getMenu();
 	batch = new Batch2D(1024);
 	uicamera = new Camera(vec3(), 1);
@@ -93,7 +99,7 @@ HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(en
 		str[0] += ax;
 		Label* label = new Label(str);
 		label->margin(vec4(2, 3, 2, 3));
-		sub->add(shared_ptr<UINode>(label));
+		sub->add(label);
 		sub->color(vec4(0.0f));
 
 		// Coord input
@@ -111,8 +117,8 @@ HudRenderer::HudRenderer(Engine* engine, Level* level) : level(level), assets(en
 			}
 		});
 
-		sub->add(shared_ptr<UINode>(box));
-		panel->add(shared_ptr<UINode>(sub));
+		sub->add(box);
+		panel->add(sub);
 	}
 	panel->refresh();
 	menu->reset();
@@ -133,68 +139,46 @@ void HudRenderer::drawDebug(int fps, bool occlusion){
 	fpsMax = max(fps, fpsMax);
 }
 
-void HudRenderer::drawInventory(const GfxContext& ctx, Player* player) {
+/* Inventory temporary replaced with blocks access panel */
+void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
+	const Content* content = level->content;
+	const ContentIndices* contentIds = content->indices;
+
 	const Viewport& viewport = ctx.getViewport();
 	const uint width = viewport.getWidth();
-	const uint height = viewport.getHeight();
 
-	Texture* blocks = assets->getTexture("block_tex");
-	uint size = 48;
-	uint step = 64;
-	uint inv_cols = 10;
-	uint inv_rows = 8;
-	uint inv_w = step*inv_cols + size;
-	uint inv_h = step*inv_rows + size;
-	int inv_x = (width - (inv_w)) / 2;
-	int inv_y = (height - (inv_h)) / 2;
-	int xs = (width - inv_w + step)/2;
-	int ys = (height - inv_h + step)/2;
-	if (width > inv_w*3){
-		inv_x = (width + (inv_w)) / 2;
-		inv_y = (height - (inv_h)) / 2;
-		xs = (width + inv_w + step)/2;
-		ys = (height - inv_h + step)/2;
-	}
+	uint count = contentIds->countBlockDefs();
+	uint icon_size = 48;
+	uint interval = 4;
+	uint inv_cols = 8;
+	uint inv_rows = ceildiv(count-1, inv_cols);
+	int pad_x = interval;
+	int pad_y = interval;
+	uint inv_w = inv_cols * icon_size + (inv_cols-1) * interval + pad_x * 2;
+	uint inv_h = inv_rows * icon_size + (inv_rows-1) * interval + pad_x * 2;
+	int inv_x = (width - (inv_w));
+	int inv_y = 0;
+	int xs = inv_x + pad_x;
+	int ys = inv_y + pad_y;
+
 	vec4 tint = vec4(1.0f);
 	int mx = Events::x;
 	int my = Events::y;
-	uint count = inv_cols * inv_rows;
 
-	// back
+	// background
 	batch->texture(nullptr);
-	batch->color = vec4(0.0f, 0.0f, 0.0f, 0.3f);
-	batch->rect(inv_x - 4, inv_y - 4, inv_w+8, inv_h+8,
-					0.95f, 0.95f, 0.95f, 0.85f, 0.85f, 0.85f,
-					0.7f, 0.7f, 0.7f,
-					0.55f, 0.55f, 0.55f, 0.45f, 0.45f, 0.45f, 4);
-	batch->rect(inv_x, inv_y, inv_w, inv_h,
-					0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f,
-					0.75f, 0.75f, 0.75f,
-					0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 4);
+	batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
+	batch->rect(inv_x, inv_y, inv_w, inv_h);
 
-	batch->color = vec4(0.35f, 0.35f, 0.35f, 1.0f);
-	for (uint i = 0; i < count; i++) {
-		int x = xs + step * (i % (inv_cols));
-		int y = ys + step * (i / (inv_cols));
-		batch->rect(x-2, y-2, size+4, size+4,
-					0.45f, 0.45f, 0.45f, 0.55f, 0.55f, 0.55f,
-					0.7f, 0.7f, 0.7f,
-					0.85f, 0.85f, 0.85f, 0.95f, 0.95f, 0.95f, 2);
-		batch->rect(x, y, size, size,
-					0.65f, 0.65f, 0.65f, 0.65f, 0.65f, 0.65f,
-					0.65f, 0.65f, 0.65f,
-					0.65f, 0.65f, 0.65f, 0.65f, 0.65f, 0.65f, 2);
-	}
-
-	// front
-	batch->texture(blocks);
-	for (uint i = 0; i < count; i++) {
-		Block* cblock = Block::blocks[i+1];
+	// blocks & items
+	batch->texture(assets->getTexture("block_tex"));
+	for (uint i = 0; i < count-1; i++) {
+		Block* cblock = contentIds->getBlockDef(i+1);
 		if (cblock == nullptr)
 			break;
-		int x = xs + step * (i % inv_cols);
-		int y = ys + step * (i / inv_cols);
-		if (mx > x && mx < x + (int)size && my > y && my < y + (int)size) {
+		int x = xs + (icon_size+interval) * (i % inv_cols);
+		int y = ys + (icon_size+interval) * (i / inv_cols);
+		if (mx > x && mx < x + (int)icon_size && my > y && my < y + (int)icon_size) {
 			tint.r *= 1.2f;
 			tint.g *= 1.2f;
 			tint.b *= 1.2f;
@@ -206,9 +190,9 @@ void HudRenderer::drawInventory(const GfxContext& ctx, Player* player) {
 		}
 		
 		if (cblock->model == BlockModel::block){
-			batch->blockSprite(x, y, size, size, 16, cblock->textureFaces, tint);
+			batch->blockSprite(x, y, icon_size, icon_size, 16, cblock->textureFaces, tint);
 		} else if (cblock->model == BlockModel::xsprite){
-			batch->sprite(x, y, size, size, 16, cblock->textureFaces[3], tint);
+			batch->sprite(x, y, icon_size, icon_size, 16, cblock->textureFaces[3], tint);
 		}
 	}
 }
@@ -234,11 +218,15 @@ void HudRenderer::update() {
 			inventoryOpen = !inventoryOpen;
 		}
 	}
-	if ((pause || inventoryOpen) == Events::_cursor_locked)
+	if ((pause || inventoryOpen) == Events::_cursor_locked) {
 		Events::toggleCursor();
+	}
 }
 
 void HudRenderer::draw(const GfxContext& ctx){
+	const Content* content = level->content;
+	const ContentIndices* contentIds = content->indices;
+
 	const Viewport& viewport = ctx.getViewport();
 	const uint width = viewport.getWidth();
 	const uint height = viewport.getHeight();
@@ -265,31 +253,19 @@ void HudRenderer::draw(const GfxContext& ctx){
 	}
 	Player* player = level->player;
 
-	batch->rect(width/2-128-4, height-80-4, 256+8, 64+8,
-						0.95f, 0.95f, 0.95f, 0.85f, 0.85f, 0.85f,
-						0.7f, 0.7f, 0.7f,
-						0.55f, 0.55f, 0.55f, 0.45f, 0.45f, 0.45f, 4);
-	batch->rect(width/2-128, height - 80, 256, 64,
-						0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f,
-						0.75f, 0.75f, 0.75f,
-						0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 4);
-	batch->rect(width/2-32+2, height - 80+2, 60, 60,
-						0.45f, 0.45f, 0.45f, 0.55f, 0.55f, 0.55f,
-						0.7f, 0.7f, 0.7f,
-						0.85f, 0.85f, 0.85f, 0.95f, 0.95f, 0.95f, 2);
-	batch->rect(width/2-32+4, height - 80+4, 56, 56,
-						0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f,
-						0.75f, 0.75f, 0.75f,
-						0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 2);
 
+	batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
+	batch->rect(width - 68, height - 68, 68, 68);
+
+	batch->color = vec4(1.0f);
 	batch->texture(blocks);
-
 	{
-		Block* cblock = Block::blocks[player->choosenBlock];
+		Block* cblock = contentIds->getBlockDef(player->choosenBlock);
+		assert(cblock != nullptr);
 		if (cblock->model == BlockModel::block){
-			batch->blockSprite(width/2-24, uicamera->fov - 72, 48, 48, 16, cblock->textureFaces, vec4(1.0f));
+			batch->blockSprite(width-56, uicamera->fov - 56, 48, 48, 16, cblock->textureFaces, vec4(1.0f));
 		} else if (cblock->model == BlockModel::xsprite){
-			batch->sprite(width/2-24, uicamera->fov - 72, 48, 48, 16, cblock->textureFaces[3], vec4(1.0f));
+			batch->sprite(width-56, uicamera->fov - 56, 48, 48, 16, cblock->textureFaces[3], vec4(1.0f));
 		}
 	}
 
@@ -299,7 +275,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 		batch->rect(0, 0, width, height);
 	}
 	if (inventoryOpen) {
-        drawInventory(ctx, player);
+        drawContentAccess(ctx, player);
 	}
 	batch->render();
 }

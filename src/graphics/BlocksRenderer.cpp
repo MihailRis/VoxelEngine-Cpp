@@ -5,6 +5,7 @@
 #include "Mesh.h"
 #include "UVRegion.h"
 #include "../constants.h"
+#include "../content/Content.h"
 #include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/VoxelsVolume.h"
@@ -17,10 +18,16 @@ using glm::vec4;
 
 #define VERTEX_SIZE 9
 
-BlocksRenderer::BlocksRenderer(size_t capacity) : vertexOffset(0), indexOffset(0), indexSize(0), capacity(capacity) {
+BlocksRenderer::BlocksRenderer(size_t capacity, const Content* content) 
+			   : content(content), 
+			     vertexOffset(0), 
+				 indexOffset(0), 
+				 indexSize(0), 
+				 capacity(capacity) {
 	vertexBuffer = new float[capacity];
 	indexBuffer = new int[capacity];
 	voxelsBuffer = new VoxelsVolume(CHUNK_W + 2, CHUNK_H, CHUNK_D + 2);
+	blockDefsCache = content->indices->getBlockDefs();
 }
 
 BlocksRenderer::~BlocksRenderer() {
@@ -256,7 +263,7 @@ bool BlocksRenderer::isOpen(int x, int y, int z, ubyte group) const {
 	blockid_t id = voxelsBuffer->pickBlockId(chunk->x * CHUNK_W + x, y, chunk->z * CHUNK_D + z);
 	if (id == BLOCK_VOID)
 		return false;
-	const Block& block = *Block::blocks[id];
+	const Block& block = *blockDefsCache[id];
 	if (block.drawGroup != group && block.lightPassing) {
 		return true;
 	}
@@ -267,7 +274,7 @@ bool BlocksRenderer::isOpenForLight(int x, int y, int z) const {
 	blockid_t id = voxelsBuffer->pickBlockId(chunk->x * CHUNK_W + x, y, chunk->z * CHUNK_D + z);
 	if (id == BLOCK_VOID)
 		return false;
-	const Block& block = *Block::blocks[id];
+	const Block& block = *blockDefsCache[id];
 	if (block.lightPassing) {
 		return true;
 	}
@@ -311,7 +318,7 @@ void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 		for (int i = begin; i < end; i++) {
 			const voxel& vox = voxels[i];
 			blockid_t id = vox.id;
-			const Block& def = *Block::blocks[id];
+			const Block& def = *blockDefsCache[id];
 			if (!id || def.drawGroup != group)
 				continue;
 			const UVRegion texfaces[6]{ uvfor(def, 0, atlas_size), uvfor(def, 1, atlas_size),
