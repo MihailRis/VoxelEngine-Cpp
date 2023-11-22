@@ -4,6 +4,8 @@
 
 #include "VoxelsVolume.h"
 #include "Chunk.h"
+#include "Block.h"
+#include "../content/Content.h"
 #include "../files/WorldFiles.h"
 #include "../world/Level.h"
 #include "../world/World.h"
@@ -52,7 +54,9 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 }
 
 // some magic code
-void ChunksStorage::getVoxels(VoxelsVolume* volume) const {
+void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
+	const Content* content = level->content;
+	const ContentIndices* indices = content->indices;
 	voxel* voxels = volume->getVoxels();
 	light_t* lights = volume->getLights();
 	int x = volume->getX();
@@ -106,7 +110,19 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume) const {
 							uint cidx = vox_index(lx - cx * CHUNK_W, ly, 
 										lz - cz * CHUNK_D, CHUNK_W, CHUNK_D);
 							voxels[vidx] = cvoxels[cidx];
-							lights[vidx] = clights[cidx];
+							light_t light = clights[cidx];
+							if (backlight) {
+								const Block* block = indices->getBlockDef(voxels[vidx].id);
+								if (block->lightPassing) {
+									light = Lightmap::combine(
+										min(15, Lightmap::extract(light, 0)+1),
+										min(15, Lightmap::extract(light, 1)+1),
+										min(15, Lightmap::extract(light, 2)+1),
+										min(15, Lightmap::extract(light, 3)+1)
+									);
+								}
+							}
+							lights[vidx] = light;
 						}
 					}
 				}

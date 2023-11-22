@@ -71,6 +71,10 @@ public:
 		return map;
 	}
 
+	static inline light_t combine(int r, int g, int b, int s) {
+		return r | (g << 4) | (b << 8) | (s << 12);
+	}
+
 	static inline light_t extract(light_t light, ubyte channel) {
 		return (light >> (channel << 2)) & 0xF;
 	}

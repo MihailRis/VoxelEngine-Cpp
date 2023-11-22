@@ -346,7 +346,7 @@ void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 Mesh* BlocksRenderer::render(const Chunk* chunk, int atlas_size, const ChunksStorage* chunks) {
 	this->chunk = chunk;
 	voxelsBuffer->setPosition(chunk->x * CHUNK_W - 1, 0, chunk->z * CHUNK_D - 1);
-	chunks->getVoxels(voxelsBuffer);
+	chunks->getVoxels(voxelsBuffer, true);
 	overflow = false;
 	vertexOffset = 0;
 	indexOffset = indexSize = 0;
