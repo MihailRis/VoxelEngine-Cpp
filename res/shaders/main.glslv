@@ -33,7 +33,7 @@ void main(){
 	vec4 modelpos = u_model * vec4(v_position+vec3(0,pow(length(pos2d)*0.0, 3.0),0), 1.0);
 	vec4 viewmodelpos = u_view * modelpos;
 	vec4 decomp_light = decompress_light(v_light);
-	vec3 light = decomp_light.rgb * 1.6;
+	vec3 light = decomp_light.rgb;
 	float torchlight = max(0.0, 1.0-distance(u_cameraPos, modelpos.xyz)/u_torchlightDistance);
 	light += torchlight * u_torchlightColor;
 	a_color = vec4(pow(light, vec3(u_gamma)),1.0f);

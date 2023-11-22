@@ -103,5 +103,8 @@ void setup_bindings() {
 	Events::bind(BIND_CAM_ZOOM, inputtype::keyboard, keycode::C);
 	Events::bind(BIND_PLAYER_NOCLIP, inputtype::keyboard, keycode::N);
 	Events::bind(BIND_PLAYER_FLIGHT, inputtype::keyboard, keycode::F);
+	Events::bind(BIND_PLAYER_ATTACK, inputtype::mouse, mousecode::BUTTON_1);
+	Events::bind(BIND_PLAYER_BUILD, inputtype::mouse, mousecode::BUTTON_2);
+	Events::bind(BIND_PLAYER_PICK, inputtype::mouse, mousecode::BUTTON_3);
 	Events::bind(BIND_HUD_INVENTORY, inputtype::keyboard, keycode::TAB);
 }
