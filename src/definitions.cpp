@@ -8,7 +8,6 @@
 
 // All in-game definitions (blocks, items, etc..)
 void setup_definitions(ContentBuilder* builder) {
-	// TODO: automatic atlas generation instead of using texture indices
 	Block* block = new Block("core:air", "air");
 	block->drawGroup = 1;
 	block->lightPassing = true;

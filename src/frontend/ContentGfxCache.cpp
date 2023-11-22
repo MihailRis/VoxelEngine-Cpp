@@ -20,6 +20,9 @@ ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets) {
 			string tex = def->textureFaces[side];
 			if (atlas->has(tex)) {
 				sideregions[i * 6 + side] = atlas->get(tex);
+			} else {
+				if (atlas->has("notfound"))
+					sideregions[i * 6 + side] = atlas->get("notfound");
 			}
 		}
     }
