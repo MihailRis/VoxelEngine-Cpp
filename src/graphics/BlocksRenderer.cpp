@@ -17,7 +17,7 @@ using glm::ivec3;
 using glm::vec3;
 using glm::vec4;
 
-#define VERTEX_SIZE 9
+#define VERTEX_SIZE 6
 
 BlocksRenderer::BlocksRenderer(size_t capacity, 
 							   const Content* content, 
@@ -50,10 +50,17 @@ void BlocksRenderer::vertex(const vec3& coord,
 	vertexBuffer[vertexOffset++] = u;
 	vertexBuffer[vertexOffset++] = v;
 
-	vertexBuffer[vertexOffset++] = light.r;
-	vertexBuffer[vertexOffset++] = light.g;
-	vertexBuffer[vertexOffset++] = light.b;
-	vertexBuffer[vertexOffset++] = light.a;
+	union {
+		float floating;
+		uint32_t integer;
+	} compressed;
+
+	compressed.integer = (uint32_t(light.r * 255) & 0xff) << 24;
+	compressed.integer |= (uint32_t(light.g * 255) & 0xff) << 16;
+	compressed.integer |= (uint32_t(light.b * 255) & 0xff) << 8;
+	compressed.integer |= (uint32_t(light.a * 255) & 0xff);
+
+	vertexBuffer[vertexOffset++] = compressed.floating;
 }
 
 void BlocksRenderer::index(int a, int b, int c, int d, int e, int f) {
@@ -353,7 +360,7 @@ Mesh* BlocksRenderer::render(const Chunk* chunk, int atlas_size, const ChunksSto
 	const voxel* voxels = chunk->voxels;
 	render(voxels, atlas_size);
 
-	const vattr attrs[]{ {3}, {2}, {4}, {0} };
+	const vattr attrs[]{ {3}, {2}, {1}, {0} };
 	Mesh* mesh = new Mesh(vertexBuffer, vertexOffset / VERTEX_SIZE, indexBuffer, indexSize, attrs);
 	return mesh;
 }
