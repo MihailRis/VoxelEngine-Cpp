@@ -116,12 +116,7 @@ void LevelScreen::updateHotkeys() {
         level->player->debug = !level->player->debug;
     }
     if (Events::jpressed(keycode::F5)) {
-        for (uint i = 0; i < level->chunks->volume; i++) {
-            shared_ptr<Chunk> chunk = level->chunks->chunks[i];
-            if (chunk != nullptr && chunk->isReady()) {
-                chunk->setModified(true);
-            }
-        }
+        level->chunks->clear();
     }
 }
 
@@ -132,7 +127,7 @@ void LevelScreen::update(float delta) {
     bool inputLocked = hud->isPause() || 
                        hud->isInventoryOpen() || 
                        gui->isFocusCaught();
-    if (!inputLocked) {
+    if (!gui->isFocusCaught()) {
         updateHotkeys();
     }
     level->updatePlayer(delta, !inputLocked, hud->isPause(), !inputLocked);
