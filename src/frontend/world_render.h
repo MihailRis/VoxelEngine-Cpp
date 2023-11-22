@@ -32,7 +32,6 @@ class WorldRenderer {
 	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion);
 	void drawChunks(Chunks* chunks, Camera* camera, Shader* shader, bool occlusion);
 public:
-
 	WorldRenderer(Engine* engine, Level* level, const ContentGfxCache* cache);
 	~WorldRenderer();
 

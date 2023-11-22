@@ -68,7 +68,8 @@ void ImageData::flipY() {
                 for (uint x = 0; x < width; x++) {
                     for (uint c = 0; c < size; c++) {
                         ubyte temp = pixels[(y * width + x) * size + c];
-                        pixels[(y * width + x) * size + c] = pixels[((height-y-1) * width + x) * size + c];
+                        pixels[(y * width + x) * size + c] = 
+                               pixels[((height-y-1) * width + x) * size + c];
                         pixels[((height-y-1) * width + x) * size + c] = temp;
                     }
                 }
@@ -209,8 +210,8 @@ void ImageData::fixAlphaColor() {
     ubyte* pixels = static_cast<ubyte*>(data); 
 
     // Fixing black transparent pixels for Mip-Mapping
-    for (int ly = 0; ly < height-1; ly++) {
-        for (int lx = 0; lx < width-1; lx++) {
+    for (uint ly = 0; ly < height-1; ly++) {
+        for (uint lx = 0; lx < width-1; lx++) {
             if (pixels[((ly) * width + lx) * 4 + 3]) {
                 for (int c = 0; c < 3; c++) {
                     int val = pixels[((ly) + + lx) * 4 + c];

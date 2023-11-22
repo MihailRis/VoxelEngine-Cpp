@@ -109,6 +109,8 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 	const Viewport& viewport = pctx.getViewport();
 	int displayWidth = viewport.getWidth();
 	int displayHeight = viewport.getHeight();
+
+	float skyLightMutliplier = level->skyLightMutliplier;
 	{
 		GfxContext ctx = pctx.sub();
 		ctx.depthTest(true);
@@ -117,6 +119,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 		EngineSettings& settings = engine->getSettings();
 
 		vec3 skyColor(0.7f, 0.81f, 1.0f);
+		skyColor *= skyLightMutliplier;
 
 		Window::setBgColor(skyColor);
 		Window::clear();
@@ -128,7 +131,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 		shader->uniformMatrix("u_proj", camera->getProjection());
 		shader->uniformMatrix("u_view", camera->getView());
 		shader->uniform1f("u_gamma", 1.6f);
-		shader->uniform3f("u_skyLightColor", 1.1f,1.1f,1.1f);
+		shader->uniform3f("u_skyLightColor", vec3(1.1f) * skyLightMutliplier);
 		shader->uniform3f("u_fogColor", skyColor);
 		shader->uniform1f("u_fogFactor", fogFactor);
 		shader->uniform1f("u_fogCurve", settings.graphics.fogCurve);
