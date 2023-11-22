@@ -118,7 +118,7 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 										min(15, Lightmap::extract(light, 0)+1),
 										min(15, Lightmap::extract(light, 1)+1),
 										min(15, Lightmap::extract(light, 2)+1),
-										min(15, Lightmap::extract(light, 3)+1)
+										min(15, Lightmap::extract(light, 3))
 									);
 								}
 							}
