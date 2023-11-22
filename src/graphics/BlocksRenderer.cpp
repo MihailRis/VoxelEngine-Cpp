@@ -11,6 +11,7 @@
 #include "../voxels/VoxelsVolume.h"
 #include "../voxels/ChunksStorage.h"
 #include "../lighting/Lightmap.h"
+#include "../frontend/ContentGfxCache.h"
 
 using glm::ivec3;
 using glm::vec3;
@@ -18,12 +19,15 @@ using glm::vec4;
 
 #define VERTEX_SIZE 9
 
-BlocksRenderer::BlocksRenderer(size_t capacity, const Content* content) 
+BlocksRenderer::BlocksRenderer(size_t capacity, 
+							   const Content* content, 
+							   const ContentGfxCache* cache) 
 			   : content(content), 
 			     vertexOffset(0), 
 				 indexOffset(0), 
 				 indexSize(0), 
-				 capacity(capacity) {
+				 capacity(capacity),
+				 cache(cache) {
 	vertexBuffer = new float[capacity];
 	indexBuffer = new int[capacity];
 	voxelsBuffer = new VoxelsVolume(CHUNK_W + 2, CHUNK_H, CHUNK_D + 2);
@@ -301,11 +305,6 @@ vec4 BlocksRenderer::pickSoftLight(int x, int y, int z, const ivec3& right, cons
 		pickLight(x - right.x, y - right.y, z - right.z)) * 0.25f;
 }
 
-// Get texture atlas UV region for block face
-inline UVRegion uvfor(const Block& def, uint face, int atlas_size) {
-	return *reinterpret_cast<const UVRegion*>(def.uvdata + face * 4);
-}
-
 void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 	int begin = chunk->bottom * (CHUNK_W * CHUNK_D);
 	int end = chunk->top * (CHUNK_W * CHUNK_D);
@@ -316,9 +315,9 @@ void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 			const Block& def = *blockDefsCache[id];
 			if (!id || def.drawGroup != group)
 				continue;
-			const UVRegion texfaces[6]{ uvfor(def, 0, atlas_size), uvfor(def, 1, atlas_size),
-										uvfor(def, 2, atlas_size), uvfor(def, 3, atlas_size),
-										uvfor(def, 4, atlas_size), uvfor(def, 5, atlas_size) };
+			const UVRegion texfaces[6]{ cache->getRegion(id, 0), cache->getRegion(id, 1),
+										cache->getRegion(id, 2), cache->getRegion(id, 3),
+										cache->getRegion(id, 4), cache->getRegion(id, 5)};
 			int x = i % CHUNK_W;
 			int y = i / (CHUNK_D * CHUNK_W);
 			int z = (i / CHUNK_D) % CHUNK_W;

@@ -11,13 +11,14 @@ class Mesh;
 class Chunk;
 class Level;
 class BlocksRenderer;
+class ContentGfxCache;
 
 class ChunksRenderer {
 	BlocksRenderer* renderer;
 	Level* level;
 	std::unordered_map<glm::ivec2, std::shared_ptr<Mesh>> meshes;
 public:
-	ChunksRenderer(Level* level);
+	ChunksRenderer(Level* level, const ContentGfxCache* cache);
 	virtual ~ChunksRenderer();
 
 	std::shared_ptr<Mesh> render(Chunk* chunk);

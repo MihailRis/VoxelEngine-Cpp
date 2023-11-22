@@ -31,8 +31,6 @@ public:
 	bool rotatable = false;
 	float hitboxScale = 1;
 
-	float uvdata[4*6];
-
 	Block(std::string name, std::string texture);
 };
 

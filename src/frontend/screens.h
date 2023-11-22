@@ -11,6 +11,7 @@ class HudRenderer;
 class Engine;
 class Camera;
 class Batch2D;
+class ContentGfxCache;
 
 /* Screen is a mainloop state */
 class Screen {
@@ -38,6 +39,7 @@ class LevelScreen : public Screen {
     Level* level;
     WorldRenderer* worldRenderer;
     HudRenderer* hud;
+    ContentGfxCache* cache;
     bool occlusion = true;
     void updateHotkeys();
 public:

@@ -73,7 +73,6 @@ bool _load_atlas(Assets* assets, const std::string& filename, const std::string&
 		if (file.extension() == ".png") {
 			std::string name = file.stem().string();
 			std::unique_ptr<ImageData> image (png::load_image(file.string()));
-			//image->flipY();
 			image->fixAlphaColor();
 			builder.add(name, image.release());
 		}

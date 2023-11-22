@@ -32,6 +32,7 @@
 #include "gui/panels.h"
 #include "gui/UINode.h"
 #include "gui/GUI.h"
+#include "ContentGfxCache.h"
 #include "screens.h"
 #include "../engine.h"
 #include "../core_defs.h"
@@ -49,10 +50,11 @@ inline Label* create_label(gui::wstringsupplier supplier) {
 	return label;
 }
 
-HudRenderer::HudRenderer(Engine* engine, Level* level) 
+HudRenderer::HudRenderer(Engine* engine, Level* level, const ContentGfxCache* cache) 
             : level(level), 
 			  assets(engine->getAssets()), 
-			  gui(engine->getGUI()) {
+			  gui(engine->getGUI()),
+			  cache(cache) {
 	auto menu = gui->getMenu();
 	batch = new Batch2D(1024);
 	uicamera = new Camera(vec3(), 1);
@@ -192,10 +194,9 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 		}
 		
 		if (cblock->model == BlockModel::block){
-			batch->blockSprite(x, y, icon_size, icon_size, (const UVRegion*)cblock->uvdata, tint);
+			batch->blockSprite(x, y, icon_size, icon_size, &cache->getRegion(cblock->id, 0), tint);
 		} else if (cblock->model == BlockModel::xsprite){
-			const UVRegion& region = (reinterpret_cast<UVRegion*>(cblock->uvdata))[3];
-			batch->sprite(x, y, icon_size, icon_size, region, tint);
+			batch->sprite(x, y, icon_size, icon_size, cache->getRegion(cblock->id, 3), tint);
 		}
 	}
 }
@@ -267,10 +268,9 @@ void HudRenderer::draw(const GfxContext& ctx){
 		Block* cblock = contentIds->getBlockDef(player->choosenBlock);
 		assert(cblock != nullptr);
 		if (cblock->model == BlockModel::block){
-			batch->blockSprite(width-56, uicamera->fov - 56, 48, 48, (const UVRegion*)cblock->uvdata, vec4(1.0f));
+			batch->blockSprite(width-56, uicamera->fov - 56, 48, 48, &cache->getRegion(cblock->id, 0), vec4(1.0f));
 		} else if (cblock->model == BlockModel::xsprite){
-			const UVRegion& region = (reinterpret_cast<UVRegion*>(cblock->uvdata))[3];
-			batch->sprite(width-56, uicamera->fov - 56, 48, 48, region, vec4(1.0f));
+			batch->sprite(width-56, uicamera->fov - 56, 48, 48, cache->getRegion(cblock->id, 3), vec4(1.0f));
 		}
 	}
 

@@ -26,39 +26,20 @@
 #include "../maths/FrustumCulling.h"
 #include "../settings.h"
 #include "../engine.h"
+#include "ContentGfxCache.h"
 
 using glm::vec3;
 using std::string;
 using std::shared_ptr;
 
-WorldRenderer::WorldRenderer(Engine* engine, Level* level) 
+WorldRenderer::WorldRenderer(Engine* engine, Level* level, const ContentGfxCache* cache) 
 	: engine(engine), level(level) {
 	lineBatch = new LineBatch(4096);
-	renderer = new ChunksRenderer(level);
+	renderer = new ChunksRenderer(level, cache);
 	frustumCulling = new Frustum();
 	level->events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
 		renderer->unload(chunk);
 	});
-
-	// TODO: move to some proper place
-	// otrefactoryu dnem
-	Assets* assets = engine->getAssets();
-	Atlas* atlas = assets->getAtlas("blocks");
-	const Content* content = level->content;
-	const ContentIndices* contentIds = content->indices;
-	for (uint i = 0; i < contentIds->countBlockDefs(); i++) {
-		Block* def = contentIds->getBlockDef(i);
-		for (uint side = 0; side < 6; side++) {
-			string tex = def->textureFaces[side];
-			if (atlas->has(tex)) {
-				UVRegion region = atlas->get(tex);
-				float* data = reinterpret_cast<float*>(&region);
-				for (uint j = 0; j < 4; j++) {
-					def->uvdata[side * 4 + j] = data[j];
-				}
-			}
-		}
-	}
 }
 
 WorldRenderer::~WorldRenderer() {

@@ -21,6 +21,7 @@ class Texture;
 class Frustum;
 class Engine;
 class Chunks;
+class ContentGfxCache;
 
 class WorldRenderer {
 	Engine* engine;
@@ -32,7 +33,7 @@ class WorldRenderer {
 	void drawChunks(Chunks* chunks, Camera* camera, Shader* shader, bool occlusion);
 public:
 
-	WorldRenderer(Engine* engine, Level* level);
+	WorldRenderer(Engine* engine, Level* level, const ContentGfxCache* cache);
 	~WorldRenderer();
 
 	void draw(const GfxContext& context, Camera* camera, bool occlusion);

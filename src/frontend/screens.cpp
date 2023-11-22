@@ -23,6 +23,7 @@
 #include "../voxels/Chunk.h"
 #include "world_render.h"
 #include "hud.h"
+#include "ContentGfxCache.h"
 #include "gui/GUI.h"
 #include "gui/panels.h"
 #include "../engine.h"
@@ -89,13 +90,15 @@ void MenuScreen::draw(float delta) {
 LevelScreen::LevelScreen(Engine* engine, Level* level) 
     : Screen(engine), 
       level(level) {
-    worldRenderer = new WorldRenderer(engine, level);
-    hud = new HudRenderer(engine, level);
+    cache = new ContentGfxCache(level->content, engine->getAssets());
+    worldRenderer = new WorldRenderer(engine, level, cache);
+    hud = new HudRenderer(engine, level, cache);
 }
 
 LevelScreen::~LevelScreen() {
     delete hud;
     delete worldRenderer;
+    delete cache;
 
 	std::cout << "-- writing world" << std::endl;
     World* world = level->world;

@@ -11,9 +11,9 @@
 using glm::ivec2;
 using std::shared_ptr;
 
-ChunksRenderer::ChunksRenderer(Level* level) : level(level) {
+ChunksRenderer::ChunksRenderer(Level* level, const ContentGfxCache* cache) : level(level) {
 	const int MAX_FULL_CUBES = 3000;
-	renderer = new BlocksRenderer(9 * 6 * 6 * MAX_FULL_CUBES, level->content);
+	renderer = new BlocksRenderer(9 * 6 * 6 * MAX_FULL_CUBES, level->content, cache);
 }
 
 ChunksRenderer::~ChunksRenderer() {
