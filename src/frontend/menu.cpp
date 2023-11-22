@@ -170,7 +170,7 @@ Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
     for (auto& entry : Events::bindings){
         string bindname = entry.first;
         
-        Panel* subpanel = new Panel(vec2(400, 45), vec4(5.0f), 1.0f);
+        Panel* subpanel = new Panel(vec2(400, 40), vec4(5.0f), 1.0f);
         subpanel->color(vec4(0.0f));
         subpanel->orientation(Orientation::horizontal);
 

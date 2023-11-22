@@ -221,10 +221,10 @@ void PlayerController::updateInteraction(){
 	vec3 norm;
 
 	bool xkey = Events::pressed(keycode::X);
-	bool lclick = Events::jclicked(mousecode::BUTTON_1) || 
-				  (xkey && Events::clicked(mousecode::BUTTON_1));
-	bool rclick = Events::jclicked(mousecode::BUTTON_2) || 
-				  (xkey && Events::clicked(mousecode::BUTTON_2));
+	bool lclick = Events::jactive(BIND_PLAYER_ATTACK) || 
+				  (xkey && Events::active(BIND_PLAYER_ATTACK));
+	bool rclick = Events::jactive(BIND_PLAYER_BUILD) || 
+				  (xkey && Events::active(BIND_PLAYER_BUILD));
 	float maxDistance = 10.0f;
 	if (xkey) {
 		maxDistance *= 20.0f;
@@ -270,7 +270,7 @@ void PlayerController::updateInteraction(){
 				lighting->onBlockSet(x,y,z, player->choosenBlock);
 			}
 		}
-		if (Events::jclicked(mousecode::BUTTON_3)){
+		if (Events::jactive(BIND_PLAYER_PICK)){
 			player->choosenBlock = chunks->get(x,y,z)->id;
 		}
 	} else {

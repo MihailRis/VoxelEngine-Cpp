@@ -16,6 +16,9 @@
 #define BIND_CAM_ZOOM "camera.zoom"
 #define BIND_PLAYER_NOCLIP "player.noclip"
 #define BIND_PLAYER_FLIGHT "player.flight"
+#define BIND_PLAYER_ATTACK "player.attack"
+#define BIND_PLAYER_BUILD "player.build"
+#define BIND_PLAYER_PICK "player.pick"
 #define BIND_HUD_INVENTORY "hud.inventory"
 
 #endif // SRC_CORE_DEFS_H_
