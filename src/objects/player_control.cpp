@@ -78,6 +78,7 @@ void PlayerController::updateControls(float delta){
 	Player* player = level->player;
 	Camera* camera = player->camera;
 	Hitbox* hitbox = player->hitbox;
+	bool cameraShaking = camSettings.shaking;
 
 	bool crouch = input.shift && hitbox->grounded && !input.sprint;
 	float speed = player->speed;
@@ -87,6 +88,7 @@ void PlayerController::updateControls(float delta){
 	}
 	if (input.cheat){
 		speed *= CHEAT_SPEED_MUL;
+		cameraShaking = false;
 	}
 
 	if (crouch) {
@@ -131,7 +133,7 @@ void PlayerController::updateControls(float delta){
 
 	cameraOffset = vec3(0.0f, 0.7f, 0.0f);
 
-	if (camSettings.shaking) {
+	if (cameraShaking) {
 		player->interpVel = player->interpVel * (1.0f - delta * 5) + hitbox->velocity * delta * 0.1f;
 		if (hitbox->grounded && player->interpVel.y < 0.0f){
 			player->interpVel.y *= -30.0f;
