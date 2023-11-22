@@ -38,7 +38,6 @@ void mouse_button_callback(GLFWwindow*, int button, int action, int) {
 }
 
 void key_callback(GLFWwindow*, int key, int scancode, int action, int /*mode*/) {
-	if (key == GLFW_KEY_UNKNOWN) return;
 	if (action == GLFW_PRESS) {
 		Events::_keys[key] = true;
 		Events::_frames[key] = Events::_current;
