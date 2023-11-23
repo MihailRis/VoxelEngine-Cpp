@@ -60,7 +60,12 @@ void BinaryWriter::putInt64(int64_t val) {
 }
 
 void BinaryWriter::putFloat32(float val) {
-    putInt32(*((uint32_t*)&val));
+    union {
+        int32_t vali32;
+        float valfloat;
+    } value;
+    value.valfloat = val;
+    putInt32(value.vali32);
 }
 
 BinaryReader::BinaryReader(const ubyte* data, size_t size)
@@ -122,8 +127,12 @@ int64_t BinaryReader::getInt64() {
 }
 
 float BinaryReader::getFloat32() {
-    int32_t value = getInt32();
-    return *(float*)(&value);
+    union {
+        int32_t vali32;
+        float valfloat;
+    } value;
+    value.vali32 = getInt32();
+    return value.valfloat;
 }
 
 string BinaryReader::getString() {

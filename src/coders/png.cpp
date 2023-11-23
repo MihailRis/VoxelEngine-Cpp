@@ -105,7 +105,11 @@ ImageData* _png_load(const char* file){
     if (!(f = fopen(file, "r"))) {
         return nullptr;
     }
-    fread(header, 1, 8, f);
+    if (fread(header, 1, 8, f) < 8) {
+		fclose(f);
+		return nullptr;
+	}
+	
     is_png = !png_sig_cmp(header, 0, 8);
     if (!is_png) {
         fclose(f);
