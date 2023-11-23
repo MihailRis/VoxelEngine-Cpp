@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include "../voxels/Block.h"
 #include "../voxels/ChunksStorage.h"
+#include "../settings.h"
 
 class Mesh;
 class Chunk;
@@ -18,7 +19,9 @@ class ChunksRenderer {
 	Level* level;
 	std::unordered_map<glm::ivec2, std::shared_ptr<Mesh>> meshes;
 public:
-	ChunksRenderer(Level* level, const ContentGfxCache* cache);
+	ChunksRenderer(Level* level, 
+				   const ContentGfxCache* cache, 
+				   const EngineSettings& settings);
 	virtual ~ChunksRenderer();
 
 	std::shared_ptr<Mesh> render(Chunk* chunk);

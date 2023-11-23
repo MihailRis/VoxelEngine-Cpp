@@ -246,7 +246,7 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
         panel->add(trackbar);
     }
 
-    {
+    /* V-Sync checkbox */{
         Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
         checkpanel->color(vec4(0.0f));
         checkpanel->orientation(Orientation::horizontal);
@@ -261,6 +261,25 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
         });
         checkpanel->add(checkbox);
         checkpanel->add(new Label(L"V-Sync"));
+
+        panel->add(checkpanel);
+    }
+
+    /* Backlight checkbox */{
+        Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
+        checkpanel->color(vec4(0.0f));
+        checkpanel->orientation(Orientation::horizontal);
+
+        CheckBox* checkbox = new CheckBox();
+        checkbox->margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
+        checkbox->supplier([=]() {
+            return engine->getSettings().graphics.backlight != 0;
+        });
+        checkbox->consumer([=](bool checked) {
+            engine->getSettings().graphics.backlight = checked;
+        });
+        checkpanel->add(checkbox);
+        checkpanel->add(new Label(L"Backlight"));
 
         panel->add(checkpanel);
     }

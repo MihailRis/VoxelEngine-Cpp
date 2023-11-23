@@ -35,7 +35,7 @@ using std::shared_ptr;
 WorldRenderer::WorldRenderer(Engine* engine, Level* level, const ContentGfxCache* cache) 
 	: engine(engine), level(level) {
 	lineBatch = new LineBatch(4096);
-	renderer = new ChunksRenderer(level, cache);
+	renderer = new ChunksRenderer(level, cache, engine->getSettings());
 	frustumCulling = new Frustum();
 	level->events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
 		renderer->unload(chunk);

@@ -87,12 +87,14 @@ void MenuScreen::draw(float delta) {
     batch->render();
 }
 
+static bool backlight;
 LevelScreen::LevelScreen(Engine* engine, Level* level) 
     : Screen(engine), 
       level(level) {
     cache = new ContentGfxCache(level->content, engine->getAssets());
     worldRenderer = new WorldRenderer(engine, level, cache);
     hud = new HudRenderer(engine, level, cache);
+    backlight = engine->getSettings().graphics.backlight;
 }
 
 LevelScreen::~LevelScreen() {
@@ -129,6 +131,10 @@ void LevelScreen::update(float delta) {
                        gui->isFocusCaught();
     if (!gui->isFocusCaught()) {
         updateHotkeys();
+    }
+    if (settings.graphics.backlight != backlight) {
+        level->chunks->clear();
+        backlight = settings.graphics.backlight;
     }
     level->updatePlayer(delta, !inputLocked, hud->isPause(), !inputLocked);
     level->update();

@@ -21,13 +21,15 @@ using glm::vec4;
 
 BlocksRenderer::BlocksRenderer(size_t capacity,
 	const Content* content,
-	const ContentGfxCache* cache)
+	const ContentGfxCache* cache,
+	const EngineSettings& settings)
 	: content(content),
 	vertexOffset(0),
 	indexOffset(0),
 	indexSize(0),
 	capacity(capacity),
-	cache(cache) {
+	cache(cache),
+	settings(settings) {
 	vertexBuffer = new float[capacity];
 	indexBuffer = new int[capacity];
 	voxelsBuffer = new VoxelsVolume(CHUNK_W + 2, CHUNK_H, CHUNK_D + 2);
@@ -353,7 +355,7 @@ void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 Mesh* BlocksRenderer::render(const Chunk* chunk, int atlas_size, const ChunksStorage* chunks) {
 	this->chunk = chunk;
 	voxelsBuffer->setPosition(chunk->x * CHUNK_W - 1, 0, chunk->z * CHUNK_D - 1);
-	chunks->getVoxels(voxelsBuffer, true);
+	chunks->getVoxels(voxelsBuffer, settings.graphics.backlight);
 	overflow = false;
 	vertexOffset = 0;
 	indexOffset = indexSize = 0;

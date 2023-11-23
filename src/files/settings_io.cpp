@@ -28,6 +28,7 @@ toml::Wrapper create_wrapper(EngineSettings& settings) {
 
 	toml::Section& graphics = wrapper.add("graphics");
 	graphics.add("fog-curve", &settings.graphics.fogCurve);
+	graphics.add("backlight", &settings.graphics.backlight);
 
 	toml::Section& debug = wrapper.add("debug");
 	debug.add("generator-test-mode", &settings.debug.generatorTestMode);
