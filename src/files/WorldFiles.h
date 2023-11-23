@@ -23,6 +23,8 @@
 
 class Player;
 class Chunk;
+class Content;
+class ContentIndices;
 
 struct WorldRegion {
 	ubyte** chunksData;
@@ -38,9 +40,11 @@ struct WorldInfo {
 
 class WorldFiles {
 	void writeWorldInfo(const WorldInfo& info);
+	std::filesystem::path getRegionsFolder() const;
 	std::filesystem::path getRegionFile(int x, int y) const;
 	std::filesystem::path getPlayerFile() const;
 	std::filesystem::path getWorldFile() const;
+	std::filesystem::path getBlockIndicesFile() const;
 public:
 	std::unordered_map<glm::ivec2, WorldRegion> regions;
 	std::filesystem::path directory;
@@ -58,7 +62,8 @@ public:
 	ubyte* getChunk(int x, int y);
 	void writeRegion(int x, int y, WorldRegion& entry);
 	void writePlayer(Player* player);
-	void write(const WorldInfo info);
+	void write(const WorldInfo info, const Content* content);
+	void writeIndices(const ContentIndices* indices);
 };
 
 #endif /* FILES_WORLDFILES_H_ */

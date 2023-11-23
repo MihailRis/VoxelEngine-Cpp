@@ -4,9 +4,11 @@
 #include "rle.h"
 #include "binary_io.h"
 #include "../window/Camera.h"
+#include "../content/Content.h"
 #include "../objects/Player.h"
 #include "../physics/Hitbox.h"
 #include "../voxels/voxel.h"
+#include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
 #include "../typedefs.h"
 #include "../maths/voxmaths.h"
@@ -102,8 +104,12 @@ void WorldFiles::put(Chunk* chunk){
 	region.compressedSizes[chunk_index] = compressedSize;
 }
 
+path WorldFiles::getRegionsFolder() const {
+	return directory/path("regions");
+}
+
 path WorldFiles::getRegionFile(int x, int y) const {
-	return directory/path(std::to_string(x) + "_" + std::to_string(y) + ".bin");
+	return getRegionsFolder()/path(std::to_string(x) + "_" + std::to_string(y) + ".bin");
 }
 
 path WorldFiles::getPlayerFile() const {
@@ -112,6 +118,10 @@ path WorldFiles::getPlayerFile() const {
 
 path WorldFiles::getWorldFile() const {
 	return directory/path("world.bin");
+}
+
+path WorldFiles::getBlockIndicesFile() const {
+	return directory/path("blocks.idx");
 }
 
 ubyte* WorldFiles::getChunk(int x, int y){
@@ -190,18 +200,34 @@ ubyte* WorldFiles::readChunkData(int x, int y, uint32_t& length){
 	return data;
 }
 
-void WorldFiles::write(const WorldInfo info){
+void WorldFiles::write(const WorldInfo info, const Content* content) {
+	path directory = getRegionsFolder();
 	if (!std::filesystem::is_directory(directory)) {
 		std::filesystem::create_directories(directory);
 	}
 	writeWorldInfo(info);
 	if (generatorTestMode)
 		return;
+	writeIndices(content->indices);
 	for (auto it = regions.begin(); it != regions.end(); it++){
 		if (it->second.chunksData == nullptr || !it->second.unsaved)
 			continue;
 		ivec2 key = it->first;
 		writeRegion(key.x, key.y, it->second);
+	}
+}
+
+void WorldFiles::writeIndices(const ContentIndices* indices) {
+	/* Blocks indices */ {
+		BinaryWriter out;
+		uint count = indices->countBlockDefs();
+		out.putInt16(count);
+		for (uint i = 0; i < count; i++) {
+			const Block* def = indices->getBlockDef(i);
+			out.putShortStr(def->name);
+		}
+		files::write_bytes(getBlockIndicesFile(), 
+						   (const char*)out.data(), out.size());
 	}
 }
 

@@ -5,6 +5,7 @@
 
 #include "Level.h"
 #include "../files/WorldFiles.h"
+#include "../content/Content.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/ChunksStorage.h"
@@ -29,6 +30,8 @@ World::~World(){
 }
 
 void World::write(Level* level) {
+	const Content* content = level->content;
+
 	Chunks* chunks = level->chunks;
 
 	for (size_t i = 0; i < chunks->volume; i++) {
@@ -38,7 +41,7 @@ void World::write(Level* level) {
 		wfile->put(chunk.get());
 	}
 
-	wfile->write(WorldInfo {name, wfile->directory, seed});
+	wfile->write(WorldInfo {name, wfile->directory, seed}, content);
 	wfile->writePlayer(level->player);
 }
 

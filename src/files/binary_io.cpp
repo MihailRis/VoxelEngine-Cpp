@@ -27,6 +27,15 @@ void BinaryWriter::put(const string& s) {
     put((const ubyte*)s.data(), len);
 }
 
+void BinaryWriter::putShortStr(const string& s) {
+    size_t len = s.length();
+    if (len > 255) {
+        throw std::domain_error("length > 255");
+    }
+    put(len);
+    put((const ubyte*)s.data(), len);
+}
+
 void BinaryWriter::put(const ubyte* arr, size_t size) {
     buffer.reserve(buffer.size() + size);
     for (size_t i = 0; i < size; i++) {
@@ -137,6 +146,15 @@ float BinaryReader::getFloat32() {
 
 string BinaryReader::getString() {
     uint16_t length = (uint16_t)getInt16();
+    if (pos+length > size) {
+        throw std::underflow_error("unexpected end");
+    }
+    pos += length;
+    return string((const char*)(data+pos-length), length);
+}
+
+string BinaryReader::getShortString() {
+    ubyte length = get();
     if (pos+length > size) {
         throw std::underflow_error("unexpected end");
     }

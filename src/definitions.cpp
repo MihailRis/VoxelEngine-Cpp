@@ -89,6 +89,18 @@ void setup_definitions(ContentBuilder* builder) {
 
 	block = new Block("base:rust", "rust");
 	builder->add(block);
+
+	block = new Block("base:red_lamp", "red_lamp");
+	block->emission[0] = 15;
+	builder->add(block);
+
+	block = new Block("base:green_lamp", "green_lamp");
+	block->emission[1] = 15;
+	builder->add(block);
+
+	block = new Block("base:blue_lamp", "blue_lamp");
+	block->emission[2] = 15;
+	builder->add(block);
 }
 
 void setup_bindings() {
