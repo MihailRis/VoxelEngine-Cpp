@@ -2,6 +2,7 @@
 
 #include <string>
 #include <memory>
+#include <sstream>
 #include <iostream>
 #include <filesystem>
 #include <glm/glm.hpp>
