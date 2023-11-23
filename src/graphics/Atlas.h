@@ -38,7 +38,7 @@ public:
     AtlasBuilder() {}
     void add(std::string name, ImageData* image);
 
-    Atlas* build(uint extrusion);
+    Atlas* build(uint extrusion, uint maxResolution=8192);
 };
 
 #endif // GRAPHICS_ATLAS_H_

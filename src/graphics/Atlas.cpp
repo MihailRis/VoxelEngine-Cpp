@@ -42,7 +42,7 @@ void AtlasBuilder::add(string name, ImageData* image) {
     entries.push_back(atlasentry{name, shared_ptr<ImageData>(image)});
 }
 
-Atlas* AtlasBuilder::build(uint extrusion) {
+Atlas* AtlasBuilder::build(uint extrusion, uint maxResolution) {
     unique_ptr<uint[]> sizes (new uint[entries.size() * 2]);
     for (uint i = 0; i < entries.size(); i++) {
         auto& entry = entries[i];
@@ -53,13 +53,17 @@ Atlas* AtlasBuilder::build(uint extrusion) {
     LMPacker packer(sizes.get(), entries.size()*2);
     sizes.reset(nullptr);
 
-    int width = 32;
-    int height = 32;
+    uint width = 32;
+    uint height = 32;
     while (!packer.buildCompact(width, height, extrusion)) {
         if (width > height) {
             height *= 2;
         } else {
             width *= 2;
+        }
+        if (width > maxResolution || height > maxResolution) {
+            throw std::runtime_error("max atlas resolution "+
+                                     std::to_string(maxResolution)+" exceeded");
         }
     }
 
