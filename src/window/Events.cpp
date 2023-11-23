@@ -10,6 +10,7 @@ float Events::deltaX = 0.0f;
 float Events::deltaY = 0.0f;
 float Events::x = 0.0f;
 float Events::y = 0.0f;
+int Events::scroll = 0;
 bool Events::_cursor_locked = false;
 bool Events::_cursor_started = false;
 std::vector<uint> Events::codepoints;
@@ -62,6 +63,7 @@ void Events::pullEvents(){
 	_current++;
 	deltaX = 0.0f;
 	deltaY = 0.0f;
+	scroll = 0;
 	codepoints.clear();
 	pressedKeys.clear();
 	glfwPollEvents();

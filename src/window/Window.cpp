@@ -53,6 +53,10 @@ void key_callback(GLFWwindow*, int key, int scancode, int action, int /*mode*/) 
 	}
 }
 
+void scroll_callback(GLFWwindow*, double xoffset, double yoffset) {
+	Events::scroll += yoffset;
+}
+
 void window_size_callback(GLFWwindow*, int width, int height) {
 	glViewport(0, 0, width, height);
 	Window::width = width;
@@ -105,6 +109,7 @@ int Window::initialize(DisplaySettings& settings){
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 	glfwSetWindowSizeCallback(window, window_size_callback);
 	glfwSetCharCallback(window, character_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 
 	glfwSwapInterval(settings.swapInterval);
 	return 0;
@@ -139,13 +144,20 @@ void Window::pushScissor(vec4 area) {
 	}
 	scissorStack.push(scissorArea);
 
+	area.z += area.x;
+	area.w += area.y;
+
 	area.x = fmax(area.x, scissorArea.x);
 	area.y = fmax(area.y, scissorArea.y);
 
 	area.z = fmin(area.z, scissorArea.z);
 	area.w = fmin(area.w, scissorArea.w);
 
-	glScissor(area.x, Window::height-area.y-area.w, area.z, area.w);
+	if (area.z < 0.0f || area.w < 0.0f) {
+		glScissor(0, 0, 0, 0);
+	} else {
+		glScissor(area.x, Window::height-area.w, area.z-area.x, area.w-area.y);
+	}
 	scissorArea = area;
 }
 
@@ -156,7 +168,11 @@ void Window::popScissor() {
 	}
 	vec4 area = scissorStack.top();
 	scissorStack.pop();
-	glScissor(area.x, Window::height-area.y-area.w, area.z, area.w);
+	if (area.z < 0.0f || area.w < 0.0f) {
+		glScissor(0, 0, 0, 0);
+	} else {
+		glScissor(area.x, Window::height-area.w, area.z-area.x, area.w-area.y);
+	}
 	if (scissorStack.empty()) {
 		glDisable(GL_SCISSOR_TEST);
 	}

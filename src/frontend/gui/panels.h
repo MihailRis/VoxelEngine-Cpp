@@ -27,6 +27,9 @@ namespace gui {
     protected:
         std::vector<std::shared_ptr<UINode>> nodes;
         std::vector<IntervalEvent> intervalEvents;
+        int scroll = 0;
+        int actualLength = 0;
+        bool scrollable_ = true;
     public:
         Container(glm::vec2 coord, glm::vec2 size);
 
@@ -37,7 +40,10 @@ namespace gui {
         virtual void add(std::shared_ptr<UINode> node);
         virtual void add(UINode* node);
         virtual void remove(std::shared_ptr<UINode> node);
+        virtual void scrolled(int value) override;
+        virtual void scrollable(bool flag);
         void listenInterval(float interval, ontimeout callback, int repeat=-1);
+        virtual glm::vec2 contentOffset() override {return glm::vec2(0.0f, scroll);};
     };
 
     class Panel : public Container {
@@ -46,6 +52,7 @@ namespace gui {
         glm::vec4 padding {2.0f};
         float interval = 2.0f;
         bool resizing_;
+        int maxLength_ = 0;
     public:
         Panel(glm::vec2 size, glm::vec4 padding=glm::vec4(2.0f), float interval=2.0f, bool resizing=true);
         virtual ~Panel();
@@ -57,6 +64,9 @@ namespace gui {
 
         virtual void refresh() override;
         virtual void lock() override;
+
+        virtual void maxLength(int value);
+        int maxLength() const;
     };
 
     struct Page {

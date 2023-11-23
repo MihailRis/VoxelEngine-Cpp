@@ -61,6 +61,7 @@ namespace gui {
         virtual void clicked(GUI*, int button) {}
         virtual void mouseMove(GUI*, int x, int y) {};
         virtual void mouseRelease(GUI*, int x, int y);
+        virtual void scrolled(int value);
 
         bool ispressed() const;
         void defocus();
@@ -73,6 +74,7 @@ namespace gui {
         virtual bool isInside(glm::vec2 pos);
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self);
 
+        virtual glm::vec2 contentOffset() {return glm::vec2(0.0f);};
         glm::vec2 calcCoord() const;
         void setCoord(glm::vec2 coord);
         glm::vec2 size() const;

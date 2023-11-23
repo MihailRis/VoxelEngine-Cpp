@@ -59,12 +59,14 @@ void Label::size(vec2 sizenew) {
 // ================================= Button ===================================
 Button::Button(shared_ptr<UINode> content, glm::vec4 padding) : Panel(vec2(32,32), padding, 0) {
     add(content);
+    scrollable(false);
 }
 
 Button::Button(wstring text, glm::vec4 padding) : Panel(vec2(32,32), padding, 0) {
     Label* label = new Label(text);
     label->align(Align::center);
     add(shared_ptr<UINode>(label));
+    scrollable(false);
 }
 
 void Button::drawBackground(Batch2D* batch, Assets* assets) {
@@ -117,6 +119,7 @@ void TextBox::drawBackground(Batch2D* batch, Assets* assets) {
         label->color(vec4(1.0f));
         label->text(input);
     }
+    scrollable(false);
 }
 
 void TextBox::typed(unsigned int codepoint) {
@@ -163,6 +166,7 @@ InputBindBox::InputBindBox(Binding& binding, vec4 padding)
       binding(binding) {
     label = new Label(L"");
     add(label);
+    scrollable(false);
 }
 
 shared_ptr<UINode> InputBindBox::getAt(vec2 pos, shared_ptr<UINode> self) {

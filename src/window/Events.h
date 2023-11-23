@@ -19,6 +19,7 @@ public:
 	static float deltaY;
 	static float x;
 	static float y;
+	static int scroll;
 	static bool _cursor_locked;
 	static bool _cursor_started;
 	static std::vector<uint> codepoints;

@@ -48,6 +48,7 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
 
     Panel* worldsPanel = new Panel(vec2(390, 200), vec4(5.0f));
     worldsPanel->color(vec4(0.1f));
+    worldsPanel->maxLength(400);
     path worldsFolder = enginefs::get_worlds_folder();
     if (std::filesystem::is_directory(worldsFolder)) {
         for (auto const& entry : directory_iterator(worldsFolder)) {
@@ -164,9 +165,12 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
 }
 
 Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
-    Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
+    Panel* panel = new Panel(vec2(400, 200), vec4(2.0f), 1.0f);
     panel->color(vec4(0.0f));
 
+    Panel* scrollPanel = new Panel(vec2(400, 200), vec4(2.0f), 1.0f);
+    scrollPanel->color(vec4(0.0f, 0.0f, 0.0f, 0.3f));
+    scrollPanel->maxLength(500);
     for (auto& entry : Events::bindings){
         string bindname = entry.first;
         
@@ -179,8 +183,9 @@ Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
         Label* label = new Label(util::str2wstr_utf8(bindname));
         label->margin(vec4(6.0f));
         subpanel->add(label);
-        panel->add(subpanel);
+        scrollPanel->add(subpanel);
     }
+    panel->add(scrollPanel);
 
     panel->add(backButton(menu));
     panel->refresh();

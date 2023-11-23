@@ -49,6 +49,9 @@ void GUI::act(float delta) {
     }
     if (hover) {
         hover->hover(true);
+        if (Events::scroll) {
+            hover->scrolled(Events::scroll);
+        }
     }
     this->hover = hover;
 
@@ -87,12 +90,13 @@ void GUI::act(float delta) {
             if (Events::clicked(mousecode::BUTTON_1)) {
                 focus->mouseMove(this, mx, my);
             }
-            if (prevfocus == focus)
+            if (prevfocus == focus){
                 for (int i = mousecode::BUTTON_1; i < mousecode::BUTTON_1+12; i++) {
                     if (Events::jclicked(i)) {
                         focus->clicked(this, i);
                     }
                 }
+            }
         }
     }
     if (focus && !focus->isfocused()) {

@@ -83,9 +83,15 @@ shared_ptr<UINode> UINode::getAt(vec2 pos, shared_ptr<UINode> self) {
 
 vec2 UINode::calcCoord() const {
     if (parent) {
-        return coord + parent->calcCoord();
+        return coord + parent->calcCoord() + parent->contentOffset();
     }
     return coord;
+}
+
+void UINode::scrolled(int value) {
+    if (parent) {
+        parent->scrolled(value);
+    }
 }
 
 void UINode::setCoord(vec2 coord) {
@@ -100,11 +106,6 @@ void UINode::size(vec2 size) {
     if (sizelock)
         return;
     this->size_ = size;
-    if (parent) {
-        sizelock = true;
-        //parent->refresh();
-        sizelock = false;
-    }
 }
 
 void UINode::_size(vec2 size) {
