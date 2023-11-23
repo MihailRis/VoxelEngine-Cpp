@@ -16,9 +16,10 @@ struct rectangle {
 	int height;
 	int extX = 0;
 	int extY = 0;
+	uint idx;
 
-	rectangle(int x, int y, int width, int height)
-		: x(x), y(y), width(width), height(height){
+	rectangle(uint idx, int x, int y, int width, int height)
+		: idx(idx), x(x), y(y), width(width), height(height){
 	}
 };
 

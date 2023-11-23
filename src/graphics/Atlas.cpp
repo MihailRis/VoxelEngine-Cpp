@@ -68,7 +68,7 @@ Atlas* AtlasBuilder::build(uint extrusion) {
     vector<rectangle> rects = packer.getResult();
     for (uint i = 0; i < entries.size(); i++) {
         const rectangle& rect = rects[i];
-        const atlasentry& entry = entries[i];
+        const atlasentry& entry = entries[rect.idx];
         uint x = rect.x;
         uint y = rect.y;
         uint w = rect.width;
