@@ -212,6 +212,22 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
         panel->add(trackbar);
     }
 
+    /* Load Speed setting track bar */{
+        panel->add((new Label(L""))->textSupplier([=]() {
+            return L"Load Speed: " + 
+                std::to_wstring(engine->getSettings().chunks.loadSpeed);
+        }));
+
+        TrackBar* trackbar = new TrackBar(1, 32, 10, 1, 1);
+        trackbar->supplier([=]() {
+            return engine->getSettings().chunks.loadSpeed;
+        });
+        trackbar->consumer([=](double value) {
+            engine->getSettings().chunks.loadSpeed = value;
+        });
+        panel->add(trackbar);
+    }
+
     /* Fog Curve setting track bar */{
         panel->add((new Label(L""))->textSupplier([=]() {
             std::wstringstream ss;
