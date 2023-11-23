@@ -36,10 +36,7 @@ PagesControl* GUI::getMenu() {
     return menu;
 }
 
-void GUI::act(float delta) {
-    container->size(vec2(Window::width, Window::height));
-    container->act(delta);
-
+void GUI::actMouse(float delta) {
     int mx = Events::x;
     int my = Events::y;
 
@@ -55,7 +52,6 @@ void GUI::act(float delta) {
     }
     this->hover = hover;
 
-    auto prevfocus = focus;
     if (Events::jclicked(0)) {
         if (pressed == nullptr && this->hover) {
             pressed = hover;
@@ -76,6 +72,17 @@ void GUI::act(float delta) {
         pressed->mouseRelease(this, mx, my);
         pressed = nullptr;
     }
+} 
+
+void GUI::act(float delta) {
+    container->size(vec2(Window::width, Window::height));
+    container->act(delta);
+    auto prevfocus = focus;
+
+    if (!Events::_cursor_locked) {
+        actMouse(delta);
+    }
+    
     if (focus) {
         if (Events::jpressed(keycode::ESCAPE)) {
             focus->defocus();
@@ -88,6 +95,8 @@ void GUI::act(float delta) {
                 focus->keyPressed(key);
             }
             if (Events::clicked(mousecode::BUTTON_1)) {
+                int mx = Events::x;
+                int my = Events::y;
                 focus->mouseMove(this, mx, my);
             }
             if (prevfocus == focus){

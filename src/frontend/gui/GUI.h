@@ -57,6 +57,7 @@ namespace gui {
 
         Camera* uicamera;
         PagesControl* menu;
+        void actMouse(float delta);
     public:
         GUI();
         ~GUI();
