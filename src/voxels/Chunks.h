@@ -59,7 +59,7 @@ public:
 	void translate(int x, int z);
 	void resize(int newW, int newD);
 
-	void clear();
+	void saveAndClear();
 };
 
 #endif /* VOXELS_CHUNKS_H_ */

@@ -24,7 +24,7 @@ public:
 		  EngineSettings& settings);
 	~World();
 
-	void write(Level* level, bool writeChunks);
+	void write(Level* level);
 	Level* load(EngineSettings& settings, const Content* content);
 };
 

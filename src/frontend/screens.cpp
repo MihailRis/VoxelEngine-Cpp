@@ -104,7 +104,7 @@ LevelScreen::~LevelScreen() {
 
 	std::cout << "-- writing world" << std::endl;
     World* world = level->world;
-	world->write(level, !engine->getSettings().debug.generatorTestMode);
+	world->write(level);
 
     delete level;
 	delete world;
@@ -118,7 +118,7 @@ void LevelScreen::updateHotkeys() {
         level->player->debug = !level->player->debug;
     }
     if (Events::jpressed(keycode::F5)) {
-        level->chunks->clear();
+        level->chunks->saveAndClear();
     }
 }
 
@@ -133,7 +133,7 @@ void LevelScreen::update(float delta) {
         updateHotkeys();
     }
     if (settings.graphics.backlight != backlight) {
-        level->chunks->clear();
+        level->chunks->saveAndClear();
         backlight = settings.graphics.backlight;
     }
     level->updatePlayer(delta, !inputLocked, hud->isPause(), !inputLocked);

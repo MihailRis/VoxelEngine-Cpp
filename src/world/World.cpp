@@ -28,7 +28,7 @@ World::~World(){
 	delete wfile;
 }
 
-void World::write(Level* level, bool writeChunks) {
+void World::write(Level* level) {
 	Chunks* chunks = level->chunks;
 
 	for (size_t i = 0; i < chunks->volume; i++) {

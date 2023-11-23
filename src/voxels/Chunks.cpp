@@ -338,10 +338,11 @@ bool Chunks::putChunk(shared_ptr<Chunk> chunk) {
 	return true;
 }
 
-void Chunks::clear(){
+void Chunks::saveAndClear(){
 	for (size_t i = 0; i < volume; i++){
 		Chunk* chunk = chunks[i].get();
 		if (chunk) {
+			worldFiles->put(chunk);
 			events->trigger(EVT_CHUNK_HIDDEN, chunk);
 		}
 		chunks[i] = nullptr;
