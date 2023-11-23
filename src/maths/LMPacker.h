@@ -10,15 +10,15 @@
 #include <vector>
 
 struct rectangle {
+	unsigned int idx;
 	int x;
 	int y;
 	int width;
 	int height;
 	int extX = 0;
 	int extY = 0;
-	uint idx;
 
-	rectangle(uint idx, int x, int y, int width, int height)
+	rectangle(unsigned int idx, int x, int y, int width, int height)
 		: idx(idx), x(x), y(y), width(width), height(height){
 	}
 };
