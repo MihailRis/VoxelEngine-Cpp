@@ -31,8 +31,6 @@ public:
 	LevelEvents* events;
 	const EngineSettings& settings;
 
-	float skyLightMutliplier = 1.0f; // will be replaced with day-night cycle
-
 	Level(World* world, 
 		  const Content* content,
 	      Player* player, 

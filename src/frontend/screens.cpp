@@ -93,7 +93,7 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
       level(level) {
     cache = new ContentGfxCache(level->content, engine->getAssets());
     worldRenderer = new WorldRenderer(engine, level, cache);
-    hud = new HudRenderer(engine, level, cache);
+    hud = new HudRenderer(engine, level, cache, worldRenderer);
     backlight = engine->getSettings().graphics.backlight;
 }
 

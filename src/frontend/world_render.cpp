@@ -24,6 +24,7 @@
 #include "../assets/Assets.h"
 #include "../objects/player_control.h"
 #include "../maths/FrustumCulling.h"
+#include "../maths/voxmaths.h"
 #include "../settings.h"
 #include "../engine.h"
 #include "ContentGfxCache.h"
@@ -110,7 +111,6 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 	int displayWidth = viewport.getWidth();
 	int displayHeight = viewport.getHeight();
 
-	float skyLightMutliplier = level->skyLightMutliplier;
 	{
 		GfxContext ctx = pctx.sub();
 		ctx.depthTest(true);
@@ -174,6 +174,27 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 		float length = 40.f;
 
 		linesShader->use();
+		if (chunkBorders){
+			linesShader->uniformMatrix("u_projview", camera->getProjView());
+			GfxContext ctx = pctx.sub();
+			ctx.depthTest(true);
+			vec3 coord = level->player->camera->position;
+			int cx = floordiv((int)coord.x, CHUNK_W);
+			int cz = floordiv((int)coord.z, CHUNK_D);
+			for (int xx = 0; xx < CHUNK_W; xx++) {
+				lineBatch->line(cx * CHUNK_W + xx, 0, cz * CHUNK_D, 
+								cx * CHUNK_W + xx, CHUNK_H, cz * CHUNK_D, 0,0,1,0.5f);
+				lineBatch->line(cx * CHUNK_W + xx, 0, (cz+1) * CHUNK_D, 
+								cx * CHUNK_W + xx, CHUNK_H, (cz+1) * CHUNK_D, 0,0,1,0.5f);
+
+				lineBatch->line(cx * CHUNK_W, 0, cz * CHUNK_D+xx, 
+								cx * CHUNK_W, CHUNK_H, cz * CHUNK_D+xx, 1,0,0,0.5f);
+				lineBatch->line((cx+1) * CHUNK_W, 0, cz * CHUNK_D+xx, 
+								(cx+1) * CHUNK_W, CHUNK_H, cz * CHUNK_D+xx, 1,0,0,0.5f);
+			}
+			lineBatch->render();
+		}
+
 		// top-right: vec3 tsl = vec3(displayWidth - length - 4, -length - 4, 0.f);
 		vec3 tsl = vec3(displayWidth/2, -((int)displayHeight)/2, 0.f);
 		glm::mat4 model(glm::translate(glm::mat4(1.f), tsl));

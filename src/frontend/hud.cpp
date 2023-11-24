@@ -34,6 +34,7 @@
 #include "gui/GUI.h"
 #include "ContentGfxCache.h"
 #include "screens.h"
+#include "world_render.h"
 #include "../engine.h"
 #include "../core_defs.h"
 
@@ -50,11 +51,12 @@ inline Label* create_label(gui::wstringsupplier supplier) {
 	return label;
 }
 
-HudRenderer::HudRenderer(Engine* engine, Level* level, const ContentGfxCache* cache) 
+HudRenderer::HudRenderer(Engine* engine, Level* level, const ContentGfxCache* cache, WorldRenderer* renderer) 
             : level(level), 
 			  assets(engine->getAssets()), 
 			  gui(engine->getGUI()),
-			  cache(cache) {
+			  cache(cache),
+			  renderer(renderer) {
 	auto menu = gui->getMenu();
 	batch = new Batch2D(1024);
 	uicamera = new Camera(vec3(), 1);
@@ -126,12 +128,30 @@ HudRenderer::HudRenderer(Engine* engine, Level* level, const ContentGfxCache* ca
 	{
 		TrackBar* bar = new TrackBar(0.0f, 1.0f, 1.0f, 0.02f, 2);
 		bar->supplier([=]() {
-			return level->skyLightMutliplier;
+			return renderer->skyLightMutliplier;
 		});
 		bar->consumer([=](double val) {
-			level->skyLightMutliplier = val;
+			renderer->skyLightMutliplier = val;
 		});
 		panel->add(bar);
+	}
+	{
+        Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
+        checkpanel->color(vec4(0.0f));
+        checkpanel->orientation(Orientation::horizontal);
+
+        CheckBox* checkbox = new CheckBox();
+        checkbox->margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
+        checkbox->supplier([=]() {
+            return renderer->isChunkBordersOn();
+        });
+        checkbox->consumer([=](bool checked) {
+            renderer->setChunkBorders(checked);
+        });
+        checkpanel->add(checkbox);
+        checkpanel->add(new Label(L"Show Chunk Borders"));
+
+        panel->add(checkpanel);
 	}
 	panel->refresh();
 	menu->reset();
