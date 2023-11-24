@@ -171,14 +171,15 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 	}
 
 	if (level->player->debug) {
-		float length = 40.f;
+		GfxContext ctx = pctx.sub();
+		ctx.depthTest(true);
 
 		linesShader->use();
 		if (engine->getSettings().debug.showChunkBorders){
 			linesShader->uniformMatrix("u_projview", camera->getProjView());
-			GfxContext ctx = pctx.sub();
-			ctx.depthTest(true);
 			vec3 coord = level->player->camera->position;
+			if (coord.x < 0) coord.x--;
+			if (coord.z < 0) coord.z--;
 			int cx = floordiv((int)coord.x, CHUNK_W);
 			int cz = floordiv((int)coord.z, CHUNK_D);
 			for (int i = 0; i < CHUNK_W; i++) {
@@ -195,20 +196,23 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 			lineBatch->render();
 		}
 
+		float length = 40.f;
 		// top-right: vec3 tsl = vec3(displayWidth - length - 4, -length - 4, 0.f);
-		vec3 tsl = vec3(displayWidth/2, -((int)displayHeight)/2, 0.f);
+		vec3 tsl = vec3(displayWidth/2, displayHeight/2, 0.f);
 		glm::mat4 model(glm::translate(glm::mat4(1.f), tsl));
 		linesShader->uniformMatrix("u_projview", glm::ortho(
 				0.f, (float)displayWidth, 
-				-(float)displayHeight, 0.f, 
+				0.f, (float)displayHeight,
 				-length, length) * model * glm::inverse(camera->rotation));
 
+		ctx.depthTest(false);
 		lineBatch->lineWidth(4.0f);
 		lineBatch->line(0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f);
 		lineBatch->line(0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 0.f, 1.f);
 		lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 1.f);
 		lineBatch->render();
 
+		ctx.depthTest(true);
 		lineBatch->lineWidth(2.0f);
 		lineBatch->line(0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f);
 		lineBatch->line(0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 0.f, 1.f);

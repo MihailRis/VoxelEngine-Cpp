@@ -94,7 +94,7 @@ void GUI::act(float delta) {
             for (auto key : Events::pressedKeys) {
                 focus->keyPressed(key);
             }
-            if (Events::clicked(mousecode::BUTTON_1)) {
+            if (!Events::_cursor_locked && Events::clicked(mousecode::BUTTON_1)) {
                 int mx = Events::x;
                 int my = Events::y;
                 focus->mouseMove(this, mx, my);
