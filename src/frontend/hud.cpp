@@ -51,7 +51,10 @@ inline Label* create_label(gui::wstringsupplier supplier) {
 	return label;
 }
 
-HudRenderer::HudRenderer(Engine* engine, Level* level, const ContentGfxCache* cache, WorldRenderer* renderer) 
+HudRenderer::HudRenderer(Engine* engine, 
+						 Level* level, 
+						 const ContentGfxCache* cache,
+						  WorldRenderer* renderer) 
             : level(level), 
 			  assets(engine->getAssets()), 
 			  gui(engine->getGUI()),
@@ -143,10 +146,10 @@ HudRenderer::HudRenderer(Engine* engine, Level* level, const ContentGfxCache* ca
         CheckBox* checkbox = new CheckBox();
         checkbox->margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
         checkbox->supplier([=]() {
-            return renderer->isChunkBordersOn();
+            return engine->getSettings().debug.showChunkBorders;
         });
         checkbox->consumer([=](bool checked) {
-            renderer->setChunkBorders(checked);
+            engine->getSettings().debug.showChunkBorders = checked;
         });
         checkpanel->add(checkbox);
         checkpanel->add(new Label(L"Show Chunk Borders"));

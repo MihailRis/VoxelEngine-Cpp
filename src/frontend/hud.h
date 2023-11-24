@@ -40,7 +40,10 @@ class HudRenderer {
 	const ContentGfxCache* const cache;
 	WorldRenderer* renderer;
 public:
-	HudRenderer(Engine* engine, Level* level, const ContentGfxCache* cache, WorldRenderer* renderer);
+	HudRenderer(Engine* engine, 
+				Level* level, 
+				const ContentGfxCache* cache, 
+				WorldRenderer* renderer);
 	~HudRenderer();
 
 	void update();

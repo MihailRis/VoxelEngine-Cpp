@@ -29,20 +29,16 @@ class WorldRenderer {
 	Frustum* frustumCulling;
 	LineBatch* lineBatch;
 	ChunksRenderer* renderer;
-	bool chunkBorders = false;
 	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion);
 	void drawChunks(Chunks* chunks, Camera* camera, Shader* shader, bool occlusion);
 public:
 	float skyLightMutliplier = 1.0f; // will be replaced with day-night cycle
-	
+
 	WorldRenderer(Engine* engine, Level* level, const ContentGfxCache* cache);
 	~WorldRenderer();
 
 	void draw(const GfxContext& context, Camera* camera, bool occlusion);
 	void drawDebug(const GfxContext& context, Camera* camera);
-
-	inline bool isChunkBordersOn() {return chunkBorders;}
-	inline void setChunkBorders(bool flag) {chunkBorders = flag;}
 };
 
 

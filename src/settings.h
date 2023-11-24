@@ -45,6 +45,7 @@ struct GraphicsSettings {
 struct DebugSettings {
 	/* Turns off chunks saving/loading */
 	bool generatorTestMode = false;
+	bool showChunkBorders = false;
 };
 
 struct EngineSettings {
