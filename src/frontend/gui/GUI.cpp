@@ -94,15 +94,18 @@ void GUI::act(float delta) {
             for (auto key : Events::pressedKeys) {
                 focus->keyPressed(key);
             }
-            if (Events::clicked(mousecode::BUTTON_1)) {
-                int mx = Events::x;
-                int my = Events::y;
-                focus->mouseMove(this, mx, my);
-            }
-            if (prevfocus == focus){
-                for (int i = mousecode::BUTTON_1; i < mousecode::BUTTON_1+12; i++) {
-                    if (Events::jclicked(i)) {
-                        focus->clicked(this, i);
+
+            if (!Events::_cursor_locked) {
+                if (Events::clicked(mousecode::BUTTON_1)) {
+                    int mx = Events::x;
+                    int my = Events::y;
+                    focus->mouseMove(this, mx, my);
+                }
+                if (prevfocus == focus){
+                    for (int i = mousecode::BUTTON_1; i < mousecode::BUTTON_1+12; i++) {
+                        if (Events::jclicked(i)) {
+                            focus->clicked(this, i);
+                        }
                     }
                 }
             }
