@@ -20,7 +20,7 @@ public:
 	unsigned int id;
 						               //  0 1   2 3   4 5
 	std::string textureFaces[6]; // -x,x, -y,y, -z,z
-	unsigned char emission[3];
+	unsigned char emission[4];
 	unsigned char drawGroup = 0;
 	BlockModel model = BlockModel::block;
 	bool lightPassing = false;

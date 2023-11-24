@@ -139,7 +139,7 @@ inline vec4 do_tint(float value) {
 void BlocksRenderer::blockCube(int x, int y, int z, const vec3& size, const UVRegion(&texfaces)[6], ubyte group) {
 	vec4 lights[]{ vec4(1.0f), vec4(1.0f), vec4(1.0f), vec4(1.0f) };
 	if (isOpen(x, y, z + 1, group)) {
-		face(vec3(x, y, z), size.x, size.y, vec3(1, 0, 0), vec3(0, 1, 0), texfaces[5], lights, do_tint(0.9f));
+		face(vec3(x, y, z), size.x, size.y, vec3(1, 0, 0), vec3(0, 1, 0), texfaces[5], lights, do_tint(1.0));
 	}
 	if (isOpen(x, y, z - 1, group)) {
 		face(vec3(x + size.x, y, z - size.z), size.x, size.y, vec3(-1, 0, 0), vec3(0, 1, 0), texfaces[4], lights, vec4(1.0f));
@@ -332,7 +332,7 @@ void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 			int z = (i / CHUNK_D) % CHUNK_W;
 			switch (def.model) {
 			case BlockModel::block:
-				if (*((light_t*)&def.emission)) {
+				if (*((uint32_t*)&def.emission)) {
 					blockCube(x, y, z, vec3(1, 1, 1), texfaces, def.drawGroup);
 				}
 				else {
