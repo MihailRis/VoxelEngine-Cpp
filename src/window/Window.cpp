@@ -9,6 +9,7 @@
 using glm::vec4;
 
 GLFWwindow* Window::window = nullptr;
+DisplaySettings* Window::settings = nullptr;
 std::stack<vec4> Window::scissorStack;
 vec4 Window::scissorArea;
 uint Window::width = 0;
@@ -61,6 +62,10 @@ void window_size_callback(GLFWwindow*, int width, int height) {
 	glViewport(0, 0, width, height);
 	Window::width = width;
 	Window::height = height;
+	if (!Window::isFullscreen()) {
+		Window::getSettings()->width = width;
+		Window::getSettings()->height = height;
+	}
 	Window::resetScissor();
 }
 
@@ -68,8 +73,8 @@ void character_callback(GLFWwindow* window, unsigned int codepoint){
 	Events::codepoints.push_back(codepoint);
 }
 
-
 int Window::initialize(DisplaySettings& settings){
+	Window::settings = &settings;
 	Window::width = settings.width;
 	Window::height = settings.height;
 
@@ -111,6 +116,15 @@ int Window::initialize(DisplaySettings& settings){
 	glfwSetCharCallback(window, character_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+	if (settings.fullscreen) {
+		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
+	}
+	else {
+		tryToMaximize(window, monitor);
+	}
+
 	glfwSwapInterval(settings.swapInterval);
 	return 0;
 }
@@ -122,7 +136,6 @@ void Window::clear() {
 void Window::setBgColor(glm::vec3 color) {
 	glClearColor(color.r, color.g, color.b, 1.0f);
 }
-
 
 void Window::viewport(int x, int y, int width, int height){
 	glViewport(x, y, width, height);
@@ -196,6 +209,32 @@ void Window::swapInterval(int interval){
 	glfwSwapInterval(interval);
 }
 
+void Window::toggleFullscreen(){
+	settings->fullscreen = !settings->fullscreen;
+
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+	if (Events::_cursor_locked) Events::toggleCursor();
+
+	if (settings->fullscreen) {
+		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
+	}
+	else {
+		glfwSetWindowMonitor(window, nullptr, 0, 0, settings->width, settings->height, GLFW_DONT_CARE);
+		tryToMaximize(window, monitor);
+	}
+
+	double xPos, yPos;
+	glfwGetCursorPos(window, &xPos, &yPos);
+	Events::x = xPos;
+	Events::y = yPos;
+}
+
+bool Window::isFullscreen() {
+	return settings->fullscreen;
+}
+
 void Window::swapBuffers(){
 	glfwSwapBuffers(window);
 	Window::resetScissor();
@@ -205,8 +244,30 @@ double Window::time() {
 	return glfwGetTime();
 }
 
+DisplaySettings* Window::getSettings() {
+	return settings;
+}
+
 ImageData* Window::takeScreenshot() {
 	ubyte* data = new ubyte[width * height * 3];
 	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
 	return new ImageData(ImageFormat::rgb888, width, height, data);
+}
+
+bool Window::tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor) {
+	glm::ivec4 windowFrame(0);
+	glm::ivec4 workArea(0);
+	glfwGetWindowFrameSize(window, &windowFrame.x, &windowFrame.y, &windowFrame.z, &windowFrame.w);
+	glfwGetMonitorWorkarea(monitor, &workArea.x, &workArea.y, &workArea.z, &workArea.w);
+	if (Window::width > workArea.z) Window::width = workArea.z;
+	if (Window::height > workArea.w) Window::height = workArea.w;
+	if (Window::width >= workArea.z - (windowFrame.x + windowFrame.z) &&
+		Window::height >= workArea.w - (windowFrame.y + windowFrame.w)) {
+		glfwMaximizeWindow(window);
+		return true;
+	}
+	glfwSetWindowSize(window, Window::width, Window::height);
+	glfwSetWindowPos(window, workArea.x + (workArea.z - Window::width) / 2, 
+							 workArea.y + (workArea.w - Window::height) / 2 + windowFrame.y / 2);
+	return false;
 }

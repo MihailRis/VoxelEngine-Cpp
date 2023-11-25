@@ -12,6 +12,7 @@ using std::string;
 toml::Wrapper create_wrapper(EngineSettings& settings) {
 	toml::Wrapper wrapper;
 	toml::Section& display = wrapper.add("display");
+	display.add("fullscreen", &settings.display.fullscreen);
 	display.add("width", &settings.display.width);
 	display.add("height", &settings.display.height);
 	display.add("samples", &settings.display.samples);

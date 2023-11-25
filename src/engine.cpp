@@ -68,6 +68,9 @@ void Engine::updateHotkeys() {
 		png::write_image(filename.string(), image.get());
 		std::cout << "saved screenshot as " << filename << std::endl;
 	}
+	if (Events::jpressed(keycode::F11)) {
+		Window::toggleFullscreen();
+	}
 }
 
 void Engine::mainloop() {
