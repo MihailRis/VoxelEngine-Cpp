@@ -5,6 +5,7 @@
 #include "../../window/Window.h"
 #include "../../assets/Assets.h"
 #include "../../graphics/Batch2D.h"
+#include "../../window/Events.h"
 
 using std::shared_ptr;
 
@@ -18,6 +19,7 @@ Container::Container(vec2 coord, vec2 size) : UINode(coord, size) {
 }
 
 shared_ptr<UINode> Container::getAt(vec2 pos, shared_ptr<UINode> self) {
+    if (!isInside(vec2(Events::x, Events::y))) return nullptr;
     for (auto node : nodes) {
         if (!node->visible())
             continue;
