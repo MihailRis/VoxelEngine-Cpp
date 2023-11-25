@@ -11,6 +11,9 @@
 - <kbd>**RMB**</kbd> - place block
 - <kbd>**F**</kbd> - toggle flight mode
 - <kbd>**N**</kbd> - noclip mode
+- <kbd>**F2**</kbd> - save screenshot
+- <kbd>**F3**</kbd> - debug mode
+- <kbd>**F5**</kbd> - reload chunks
 
 #### Build with CMake
 ```sh
