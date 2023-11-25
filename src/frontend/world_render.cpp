@@ -11,8 +11,8 @@
 #include "../window/Camera.h"
 #include "../graphics/Mesh.h"
 #include "../graphics/Atlas.h"
-#include "../graphics/Shader.h"
-#include "../graphics/Texture.h"
+#include "../graphics-base/IShader.h"
+#include "../graphics-base/ITexture.h"
 #include "../graphics/LineBatch.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/Chunk.h"
@@ -49,7 +49,7 @@ WorldRenderer::~WorldRenderer() {
 	delete frustumCulling;
 }
 
-bool WorldRenderer::drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion){
+bool WorldRenderer::drawChunk(size_t index, Camera* camera, IShader* shader, bool occlusion){
 	shared_ptr<Chunk> chunk = level->chunks->chunks[index];
 	if (!chunk->isLighted())
 		return false;
@@ -72,7 +72,7 @@ bool WorldRenderer::drawChunk(size_t index, Camera* camera, Shader* shader, bool
 
 void WorldRenderer::drawChunks(Chunks* chunks, 
 							   Camera* camera, 
-							   Shader* shader, 
+							   IShader* shader,
 							   bool occlusion) {
 	std::vector<size_t> indices;
 	for (size_t i = 0; i < chunks->volume; i++){
@@ -104,8 +104,8 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 	const ContentIndices* contentIds = content->indices;
 	Assets* assets = engine->getAssets();
 	Atlas* atlas = assets->getAtlas("blocks");
-	Shader* shader = assets->getShader("main");
-	Shader* linesShader = assets->getShader("lines");
+	IShader* shader = assets->getShader("main");
+	IShader* linesShader = assets->getShader("lines");
 
 	const Viewport& viewport = pctx.getViewport();
 	int displayWidth = viewport.getWidth();

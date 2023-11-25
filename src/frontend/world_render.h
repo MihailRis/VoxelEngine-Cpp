@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <algorithm>
-#include <GL/glew.h>
 #include <string>
 
 #include <glm/glm.hpp>
@@ -16,8 +15,8 @@ class Level;
 class Camera;
 class LineBatch;
 class ChunksRenderer;
-class Shader;
-class Texture;
+class IShader;
+class ITexture;
 class Frustum;
 class Engine;
 class Chunks;
@@ -29,8 +28,8 @@ class WorldRenderer {
 	Frustum* frustumCulling;
 	LineBatch* lineBatch;
 	ChunksRenderer* renderer;
-	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion);
-	void drawChunks(Chunks* chunks, Camera* camera, Shader* shader, bool occlusion);
+	bool drawChunk(size_t index, Camera* camera, IShader* shader, bool occlusion);
+	void drawChunks(Chunks* chunks, Camera* camera, IShader* shader, bool occlusion);
 public:
 	float skyLightMutliplier = 1.0f; // will be replaced with day-night cycle
 

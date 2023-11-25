@@ -2,11 +2,11 @@
 #include "Texture.h"
 #include "Batch2D.h"
 
-Font::Font(std::vector<Texture*> pages, int lineHeight) : lineHeight_(lineHeight), pages(pages) {
+Font::Font(std::vector<ITexture*> pages, int lineHeight) : lineHeight_(lineHeight), pages(pages) {
 }
 
 Font::~Font(){
-	for (Texture* texture : pages)
+	for (ITexture* texture : pages)
 		delete texture;
 }
 
@@ -58,11 +58,11 @@ void Font::draw(Batch2D* batch, std::wstring text, int x, int y, int style) {
 	int next = 10000;
 	int init_x = x;
 	do {
-		for (unsigned c : text){
+		for (const unsigned char c : text){
 			if (isPrintableChar(c)){
 				int charpage = c >> 8;
 				if (charpage == page){
-				    Texture* texture = pages[charpage];
+				    ITexture* texture = pages[charpage];
 				    if (texture == nullptr){
 				        texture = pages[0];
 				    }

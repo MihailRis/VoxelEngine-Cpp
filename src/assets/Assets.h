@@ -4,23 +4,23 @@
 #include <string>
 #include <unordered_map>
 
-class Texture;
-class Shader;
+class ITexture;
+class IShader;
 class Font;
 class Atlas;
 
 class Assets {
-	std::unordered_map<std::string, Texture*> textures;
-	std::unordered_map<std::string, Shader*> shaders;
+	std::unordered_map<std::string, ITexture*> textures;
+	std::unordered_map<std::string, IShader*> shaders;
 	std::unordered_map<std::string, Font*> fonts;
 	std::unordered_map<std::string, Atlas*> atlases;
 public:
 	~Assets();
-	Texture* getTexture(std::string name) const;
-	void store(Texture* texture, std::string name);
+	ITexture* getTexture(std::string name) const;
+	void store(ITexture* texture, std::string name);
 
-	Shader* getShader(std::string name) const;
-	void store(Shader* shader, std::string name);
+	IShader* getShader(std::string name) const;
+	void store(IShader* shader, std::string name);
 
 	Font* getFont(std::string name) const;
 	void store(Font* font, std::string name);

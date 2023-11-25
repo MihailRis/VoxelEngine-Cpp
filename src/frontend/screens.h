@@ -4,6 +4,10 @@
 #include <memory>
 #include "../settings.h"
 
+namespace vulkan {
+    class Batch2D;
+}
+
 class Assets;
 class Level;
 class WorldRenderer;

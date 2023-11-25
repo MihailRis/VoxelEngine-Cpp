@@ -11,7 +11,7 @@
 #include "../window/Camera.h"
 #include "../window/Events.h"
 #include "../window/input.h"
-#include "../graphics/Shader.h"
+#include "../graphics-base/IShader.h"
 #include "../graphics/Batch2D.h"
 #include "../graphics/GfxContext.h"
 #include "../assets/Assets.h"
@@ -74,15 +74,15 @@ void MenuScreen::draw(float delta) {
     Window::setBgColor(vec3(0.2f, 0.2f, 0.2f));
 
     uicamera->fov = Window::height;
-	Shader* uishader = engine->getAssets()->getShader("ui");
+	IShader* uishader = engine->getAssets()->getShader("ui");
 	uishader->use();
 	uishader->uniformMatrix("u_projview", uicamera->getProjView());
 
     batch->begin();
     batch->texture(engine->getAssets()->getTexture("menubg"));
     batch->rect(0, 0, 
-                Window::width, Window::height, 0, 0, 0, 
-                UVRegion(0, 0, Window::width/64, Window::height/64), 
+                static_cast<float>(Window::width), static_cast<float>(Window::height), 0, 0, 0,
+                UVRegion(0, 0, static_cast<float>(Window::width) / 64, static_cast<float>(Window::height) / 64),
                 false, false, vec4(1.0f));
     batch->render();
 }

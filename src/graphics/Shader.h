@@ -4,21 +4,23 @@
 #include <string>
 #include <glm/glm.hpp>
 
-class Shader {
+#include "../graphics-base/IShader.h"
+
+class Shader : public IShader {
 public:
 	unsigned int id;
 
 	Shader(unsigned int id);
-	~Shader();
+	~Shader() override;
 
-	void use();
-	void uniformMatrix(std::string name, glm::mat4 matrix);
-	void uniform1i(std::string name, int x);
-	void uniform1f(std::string name, float x);
-	void uniform2f(std::string name, float x, float y);
-	void uniform2f(std::string name, glm::vec2 xy);
-	void uniform3f(std::string name, float x, float y, float z);
-	void uniform3f(std::string name, glm::vec3 xyz);
+	void use() override;
+	void uniformMatrix(std::string name, glm::mat4 matrix) override;
+	void uniform1i(std::string name, int x) override;
+	void uniform1f(std::string name, float x) override;
+	void uniform2f(std::string name, float x, float y) override;
+	void uniform2f(std::string name, glm::vec2 xy) override;
+	void uniform3f(std::string name, float x, float y, float z) override;
+	void uniform3f(std::string name, glm::vec3 xyz) override;
 };
 
 extern Shader* load_shader(std::string vertexFile, std::string fragmentFile);

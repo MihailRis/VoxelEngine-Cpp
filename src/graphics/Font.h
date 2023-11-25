@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-class Texture;
+class ITexture;
 class Batch2D;
 
 #define STYLE_NONE 0
@@ -14,8 +14,8 @@ class Batch2D;
 class Font {
 	int lineHeight_;
 public:
-	std::vector<Texture*> pages;
-	Font(std::vector<Texture*> pages, int lineHeight);
+	std::vector<ITexture*> pages;
+	Font(std::vector<ITexture*> pages, int lineHeight);
 	~Font();
 
 	int lineHeight() const;

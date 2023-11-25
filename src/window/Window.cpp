@@ -4,6 +4,7 @@
 #include "../graphics/ImageData.h"
 
 #include <GL/glew.h>
+#include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 
 using glm::vec4;
@@ -203,6 +204,20 @@ void Window::swapBuffers(){
 
 double Window::time() {
 	return glfwGetTime();
+}
+
+std::vector<const char*> Window::getRequiredExtensions() {
+	u32 count = 0;
+	const char** extensions = glfwGetRequiredInstanceExtensions(&count);
+
+	return {extensions, extensions + count};
+}
+
+VkSurfaceKHR Window::createWindowSurface(VkInstance instance) {
+	VkSurfaceKHR surface = nullptr;
+	glfwCreateWindowSurface(instance, window, nullptr, &surface);
+
+	return surface;
 }
 
 ImageData* Window::takeScreenshot() {

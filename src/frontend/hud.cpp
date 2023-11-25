@@ -12,7 +12,7 @@
 #include "../content/Content.h"
 #include "../util/stringutil.h"
 #include "../assets/Assets.h"
-#include "../graphics/Shader.h"
+#include "../graphics-base/IShader.h"
 #include "../graphics/Batch2D.h"
 #include "../graphics/Font.h"
 #include "../graphics/Atlas.h"
@@ -274,7 +274,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 
 	uicamera->fov = height;
 
-	Shader* uishader = assets->getShader("ui");
+	IShader* uishader = assets->getShader("ui");
 	uishader->use();
 	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
 

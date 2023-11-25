@@ -1,0 +1,21 @@
+//
+// Created by chelovek on 11/18/23.
+//
+
+#include "ImageDepth.h"
+
+#include "../VulkanContext.h"
+
+const std::vector<VkFormat> DEPTH_FORMATS = {
+    VK_FORMAT_D32_SFLOAT_S8_UINT,
+    VK_FORMAT_D32_SFLOAT,
+    VK_FORMAT_D24_UNORM_S8_UINT,
+    VK_FORMAT_D16_UNORM_S8_UINT,
+    VK_FORMAT_D16_UNORM
+};
+
+ImageDepth::ImageDepth(VkExtent3D extent) : Image(
+    extent,
+    selectSupportedFormat(DEPTH_FORMATS, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT),
+    VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) { }

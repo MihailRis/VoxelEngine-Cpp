@@ -23,26 +23,26 @@ Assets::~Assets() {
 	}
 }
 
-Texture* Assets::getTexture(std::string name) const {
+ITexture* Assets::getTexture(std::string name) const {
 	auto found = textures.find(name);
 	if (found == textures.end())
 		return nullptr;
 	return found->second;
 }
 
-void Assets::store(Texture* texture, std::string name){
+void Assets::store(ITexture* texture, std::string name){
 	textures[name] = texture;
 }
 
 
-Shader* Assets::getShader(std::string name) const{
+IShader* Assets::getShader(std::string name) const{
 	auto found = shaders.find(name);
 	if (found == shaders.end())
 		return nullptr;
 	return found->second;
 }
 
-void Assets::store(Shader* shader, std::string name){
+void Assets::store(IShader* shader, std::string name){
 	shaders[name] = shader;
 }
 

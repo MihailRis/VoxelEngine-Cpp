@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(VoxelEngine)
 
-file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp)
+file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
@@ -20,7 +20,10 @@ endif()
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(Vulkan REQUIRED)
 find_package(OpenAL REQUIRED)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/vma)
 
 if (WIN32)
     set(PNGLIB spng)
@@ -42,6 +45,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 
-target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ${PNGLIB})
+target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator ${PNGLIB})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

@@ -59,7 +59,7 @@ void Batch2D::vertex(vec2 point,
 	buffer[index++] = a;
 }
 
-void Batch2D::texture(Texture* new_texture){
+void Batch2D::texture(ITexture* new_texture){
 	if (_texture == new_texture)
 		return;
 	render(GL_TRIANGLES);
@@ -71,16 +71,16 @@ void Batch2D::texture(Texture* new_texture){
 }
 
 void Batch2D::point(float x, float y, float r, float g, float b, float a){
-	if (index + 6*VERTEX_SIZE >= capacity)
-		render(GL_TRIANGLES);
+	// if (index + 6*VERTEX_SIZE >= capacity)
+		// render(GL_TRIANGLES);
 
 	vertex(x, y, 0, 0, r,g,b,a);
 	render(GL_POINTS);
 }
 
 void Batch2D::line(float x1, float y1, float x2, float y2, float r, float g, float b, float a){
-	if (index + 6*VERTEX_SIZE >= capacity)
-		render(GL_TRIANGLES);
+	// if (index + 6*VERTEX_SIZE >= capacity)
+		// render(GL_TRIANGLES);
 
 	vertex(x1, y1, 0, 0, r,g,b,a);
 	vertex(x2, y2, 1, 1, r,g,b,a);
@@ -92,8 +92,8 @@ void Batch2D::rect(float x, float y, float w, float h){
 	const float g = color.g;
 	const float b = color.b;
 	const float a = color.a;
-	if (index + 6*VERTEX_SIZE >= capacity)
-		render(GL_TRIANGLES);
+	// if (index + 6*VERTEX_SIZE >= capacity)
+		// render(GL_TRIANGLES);
 
 	vertex(x, y, 0, 0, r,g,b,a);
 	vertex(x, y+h, 0, 1, r,g,b,a);
@@ -113,8 +113,8 @@ void Batch2D::rect(
 		bool flippedX,
 		bool flippedY,
 		vec4 tint) {
-	if (index + 6*VERTEX_SIZE >= capacity)
-		render(GL_TRIANGLES);
+	// if (index + 6*VERTEX_SIZE >= capacity)
+		// render(GL_TRIANGLES);
 
     float centerX = w*ox;
     float centerY = h*oy;
@@ -201,8 +201,8 @@ void Batch2D::rect(
 void Batch2D::rect(float x, float y, float w, float h,
 		float u, float v, float tx, float ty,
 		float r, float g, float b, float a){
-	if (index + 6*VERTEX_SIZE >= capacity)
-		render(GL_TRIANGLES);
+	// if (index + 6*VERTEX_SIZE >= capacity)
+		// render(GL_TRIANGLES);
 	vertex(x, y, u, v+ty, r,g,b,a);
 	vertex(x+w, y+h, u+tx, v, r,g,b,a);
 	vertex(x, y+h, u, v, r,g,b,a);
@@ -218,8 +218,8 @@ void Batch2D::rect(float x, float y, float w, float h,
 		float r2, float g2, float b2,
 		float r3, float g3, float b3,
 		float r4, float g4, float b4, int sh){
-	if (index + 30*VERTEX_SIZE >= capacity)
-		render(GL_TRIANGLES);
+	// if (index + 30*VERTEX_SIZE >= capacity)
+		// render(GL_TRIANGLES);
 	vec2 v0 = vec2(x+h/2,y+h/2);
 	vec2 v1 = vec2(x+w-sh,y);
 	vec2 v2 = vec2(x+sh,y);
@@ -310,8 +310,8 @@ void Batch2D::blockSprite(float x, float y, float w, float h, const UVRegion reg
 	float scalex = regions[3].u2-regions[3].u1;
 	float scaley = regions[3].v2-regions[3].v1;
 
-	if (this->index + 18*VERTEX_SIZE >= capacity)
-		render();
+	// if (this->index + 18*VERTEX_SIZE >= capacity)
+		// render();
 
 	float ar = 0.88f;
 	float ox = x + (w * 0.5f);

@@ -9,10 +9,10 @@
 #include "../typedefs.h"
 
 class ImageData;
-class Texture;
+class ITexture;
 
 class Atlas {
-    Texture* texture;
+    ITexture* texture;
     ImageData* image;
     std::unordered_map<std::string, UVRegion> regions;
 public:
@@ -22,7 +22,7 @@ public:
     bool has(std::string name) const;
     const UVRegion& get(std::string name) const;
 
-    Texture* getTexture() const;
+    ITexture* getTexture() const;
     ImageData* getImage() const;
 };
 

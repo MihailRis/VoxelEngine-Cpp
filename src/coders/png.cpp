@@ -7,6 +7,8 @@
 #include "../graphics/ImageData.h"
 #include "../graphics/Texture.h"
 #include "../files/files.h"
+#include "../graphics-vk/VulkanContext.h"
+#include "../graphics-vk/texture/Image2d.h"
 
 using std::unique_ptr;
 
@@ -329,13 +331,15 @@ ImageData* png::load_image(std::string filename) {
     return _png_load(filename.c_str());
 }
 
-Texture* png::load_texture(std::string filename) {
+ITexture* png::load_texture(std::string filename) {
 	unique_ptr<ImageData> image (_png_load(filename.c_str()));
 	if (image == nullptr){
 		std::cerr << "Could not load image " << filename << std::endl;
 		return nullptr;
 	}
-	return Texture::from(image.get());
+	return vulkan::VulkanContext::isVulkanEnabled() ?
+		reinterpret_cast<ITexture*>(Image2d::from(image.get())) :
+		reinterpret_cast<ITexture*>(Texture::from(image.get()));
 }
 
 void png::write_image(std::string filename, const ImageData* image) {

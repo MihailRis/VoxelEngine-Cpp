@@ -6,6 +6,9 @@
 #include <memory>
 
 #include "../constants.h"
+#include "../graphics-vk/ShaderType.h"
+#include "../graphics-vk/VulkanContext.h"
+#include "../graphics-vk/device/Shader.h"
 
 using std::unique_ptr;
 
@@ -47,7 +50,10 @@ bool AssetsLoader::loadNext() {
 #include "../graphics/Font.h"
 
 bool _load_shader(Assets* assets, const std::string& filename, const std::string& name) {
-	Shader* shader = load_shader(filename + ".glslv", filename + ".glslf");
+	ShaderType type = toShaderType(name);
+	IShader* shader = vulkan::VulkanContext::isVulkanEnabled() ?
+		reinterpret_cast<IShader*>(vulkan::load_shader(filename + ".vert.spv", filename + ".frag.spv", type)) :
+		reinterpret_cast<IShader*>(load_shader(filename + ".glslv", filename + ".glslf"));
 	if (shader == nullptr) {
 		std::cerr << "failed to load shader '" << name << "'" << std::endl;
 		return false;
@@ -57,7 +63,7 @@ bool _load_shader(Assets* assets, const std::string& filename, const std::string
 }
 
 bool _load_texture(Assets* assets, const std::string& filename, const std::string& name) {
-	Texture* texture = png::load_texture(filename);
+	ITexture* texture = png::load_texture(filename);
 	if (texture == nullptr) {
 		std::cerr << "failed to load texture '" << name << "'" << std::endl;
 		return false;
@@ -83,16 +89,16 @@ bool _load_atlas(Assets* assets, const std::string& filename, const std::string&
 }
 
 bool _load_font(Assets* assets, const std::string& filename, const std::string& name) {
-	std::vector<Texture*> pages;
+	std::vector<ITexture*> pages;
 	for (size_t i = 0; i <= 4; i++) {
-		Texture* texture = png::load_texture(filename + "_" + std::to_string(i) + ".png");
+		ITexture* texture = png::load_texture(filename + "_" + std::to_string(i) + ".png");
 		if (texture == nullptr) {
 			std::cerr << "failed to load bitmap font '" << name << "' (missing page " << std::to_string(i) << ")" << std::endl;
 			return false;
 		}
 		pages.push_back(texture);
 	}
-	Font* font = new Font(pages, pages[0]->height / 16);
+	Font* font = new Font(pages, pages[0]->getHeight() / 16);
 	assets->store(font, name);
 	return true;
 }
