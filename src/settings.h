@@ -6,6 +6,8 @@
 #include "typedefs.h"
 
 struct DisplaySettings {
+	/* Is window in full screen mode */
+	bool fullscreen = false;
     /* Window width (pixels) */
 	int width = 1280;
 	/* Window height (pixels) */
