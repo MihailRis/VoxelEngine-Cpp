@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
+
+set(CMAKE_TOOLCHAIN_FILE F:/vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake CACHE STRING "Vcpkg toolchain file")
+
 project(VoxelEngine)
 
 file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp)
@@ -26,6 +29,8 @@ find_package(OpenAL CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(PNG REQUIRED)
 
+message(WIN32)
+
 if (WIN32)
     set(PNGLIB spng)
 else()
@@ -44,6 +49,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie")
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw PRIVATE glew PRIVATE glm::glm PRIVATE OpenAL::OpenAL PRIVATE OpenGL::GL ${PNGLIB})
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw PRIVATE GLEW::GLEW PRIVATE glm::glm PRIVATE OpenAL::OpenAL PRIVATE OpenGL::GL ${PNGLIB})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

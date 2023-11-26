@@ -50,15 +50,14 @@ if not exist build (
   echo Be sure "run install" have beed runned.
 )
 cd build
-cmake -DCMAKE_BUILD_TYPE=%BUILD_MODE% ../
+cmake -DCMAKE_BUILD_TYPE=%BUILD_MODE% ../ -DCMAKE_GENERATOR_PLATFORM=x64
 cd ..
 cmake --build build
 build/VoxelEngine
 goto end
 
 :install
-set VCPKG_DEFAULT_TRIPLET="x64-windows"
-vcpkg integrate install
+vcpkg install --triplet=x64-windows
 cmake --preset=default
 goto build
 
