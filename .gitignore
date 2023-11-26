@@ -1,12 +1,12 @@
+CMakeCache.txt
+/CMakeFiles
+
 Debug/src/**/*.d
 Debug/src/**/*.o
 
 Debug/voxel_engine
 
 /build
-
-/vcpkg_installed
-/CMakeFiles
 
 /world
 /worlds/**/*

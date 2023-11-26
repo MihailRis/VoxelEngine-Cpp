@@ -3,25 +3,45 @@
 :: Разбор флагов запуска.
 set BUILD=1
 set BUILD_MODE=Release
+set INSTALL_MODE="0"
+set HELP="0"
 
 :parsing
 if not "%1" == "" (
   if "%1" == "install" (
     set INSTALL_MODE=1
-    shift
   ) else if "%1" == "mode" (
     set BUILD_MODE=%2
     shift
-    shift
+  ) else if "%1" == "help" (
+    set HELP=1
+  ) else (
+    echo Unexpected argument: "%1".
   )
+  shift
   goto parsing
 )
 
 :: Запуск.
 if "%INSTALL_MODE%" == "1" (
   goto install
+) else if "%HELP%" == "1" (
+  goto help
 )
 goto build
+
+:: Команда помощи.
+:help
+echo Commands list:
+echo   make install
+echo         ^\ Initialize all required settings and download all dependencies.
+echo   make
+echo         ^\ Default building with "Release" mode.
+echo   make mode Release
+echo         ^\ Manually setting building mode.
+echo   make help
+echo         ^\ Get a list of commands.
+goto end
 
 :: Сборка.
 :build
@@ -31,10 +51,8 @@ if not exist build (
 )
 cd build
 cmake -DCMAKE_BUILD_TYPE=%BUILD_MODE% ../
-if NOT "%errorlevel%" == "0" goto end
 cd ..
-cmake --build ./build
-if NOT "%errorlevel%" == "0" goto end
+cmake --build build
 build/VoxelEngine
 goto end
 
