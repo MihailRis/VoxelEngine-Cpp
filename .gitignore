@@ -1,5 +1,8 @@
 CMakeCache.txt
+
 /CMakeFiles
+
+vcpkg_installed/
 
 Debug/src/**/*.d
 Debug/src/**/*.o

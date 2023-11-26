@@ -29,10 +29,8 @@ find_package(OpenAL CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(PNG REQUIRED)
 
-message(WIN32)
-
 if (WIN32)
-    set(PNGLIB spng)
+    set(PNGLIB PNG::PNG)
 else()
     find_package(PNG REQUIRED)
     set(PNGLIB PNG::PNG)
