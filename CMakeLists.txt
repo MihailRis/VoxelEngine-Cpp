@@ -24,6 +24,7 @@ find_package(glew REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(OpenAL CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(PNG REQUIRED)
 
 if (WIN32)
     set(PNGLIB spng)
@@ -43,6 +44,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie")
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glew PRIVATE glm::glm PRIVATE OpenAL::OpenAL PRIVATE OpenGL::GL ${PNGLIB})
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw PRIVATE glew PRIVATE glm::glm PRIVATE OpenAL::OpenAL PRIVATE OpenGL::GL ${PNGLIB})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

@@ -57,8 +57,9 @@ build/VoxelEngine
 goto end
 
 :install
+set VCPKG_DEFAULT_TRIPLET="x64-windows"
 vcpkg integrate install
 cmake --preset=default
-goto end
+goto build
 
 :end

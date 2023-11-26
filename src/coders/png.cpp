@@ -10,7 +10,7 @@
 
 using std::unique_ptr;
 
-#ifndef _WIN32
+#ifdef _WIN64
 #define LIBPNG
 #endif
 
