@@ -114,7 +114,7 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
 
     {
         Button* button = new Button(L"Create World", vec4(10.0f));
-        button->margin(vec4(0, 20, 0, 0));
+        button->margin(vec4(1, 20, 1, 1));
         vec4 basecolor = worldNameInput->color();   
         button->listenAction([=](GUI*) {
             wstring name = worldNameInput->text();
