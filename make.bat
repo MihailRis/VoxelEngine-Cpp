@@ -52,7 +52,7 @@ if not exist build (
 cd build
 cmake -DCMAKE_BUILD_TYPE=%BUILD_MODE% ../
 cd ..
-cmake --build build
+cmake --build ./build
 build/VoxelEngine
 goto end
 
