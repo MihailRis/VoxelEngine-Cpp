@@ -2,14 +2,15 @@
 #include "Assets.h"
 
 #include <iostream>
-#include <filesystem>
 #include <memory>
 
 #include "../constants.h"
 
+using std::filesystem::path;
 using std::unique_ptr;
 
-AssetsLoader::AssetsLoader(Assets* assets) : assets(assets) {
+AssetsLoader::AssetsLoader(Assets* assets, path resdir) 
+			 : assets(assets), resdir(resdir) {
 }
 
 void AssetsLoader::addLoader(int tag, aloader_func func) {
@@ -105,12 +106,17 @@ void AssetsLoader::createDefaults(AssetsLoader& loader) {
 }
 
 void AssetsLoader::addDefaults(AssetsLoader& loader) {
-	loader.add(ASSET_SHADER, SHADERS_FOLDER"/main", "main");
-	loader.add(ASSET_SHADER, SHADERS_FOLDER"/lines", "lines");
-	loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui", "ui");
+	path resdir = loader.getDirectory();
+	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/main"), "main");
+	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/lines"), "lines");
+	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/ui"), "ui");
 
-	loader.add(ASSET_ATLAS, TEXTURES_FOLDER"/blocks", "blocks");
-	loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/menubg.png", "menubg");
+	loader.add(ASSET_ATLAS, resdir/path(TEXTURES_FOLDER"/blocks"), "blocks");
+	loader.add(ASSET_TEXTURE, resdir/path(TEXTURES_FOLDER"/menubg.png"), "menubg");
 
-	loader.add(ASSET_FONT, FONTS_FOLDER"/font", "normal");
+	loader.add(ASSET_FONT, resdir/path(FONTS_FOLDER"/font"), "normal");
+}
+
+path AssetsLoader::getDirectory() const {
+	return resdir;
 }

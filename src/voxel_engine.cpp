@@ -11,13 +11,20 @@
 #include "coders/toml.h"
 #include "files/files.h"
 #include "files/settings_io.h"
+#include "files/engine_paths.h"
 #include "content/Content.h"
 
 #include "coders/png.h"
 #include "graphics/Atlas.h"
 #include "graphics/ImageData.h"
 
-int main() {
+#include "util/command_line.h"
+
+int main(int argc, char** argv) {
+	EnginePaths paths;
+	if (!parse_cmdline(argc, argv, paths))
+		return EXIT_SUCCESS;
+
 	platform::configure_encoding();
 	ContentBuilder contentBuilder;
 	setup_definitions(&contentBuilder);
@@ -35,7 +42,7 @@ int main() {
 			toml::Reader reader(&wrapper, settings_file.string(), content);
 			reader.read();
 		}
-		Engine engine(settings, content.get());
+		Engine engine(settings, &paths, content.get());
 		setup_bindings();
 		if (std::filesystem::is_regular_file(controls_file)) {
 			std::cout << "-- loading controls" << std::endl;
@@ -52,5 +59,5 @@ int main() {
 		std::cerr << "could not to initialize engine" << std::endl;
 		std::cerr << err.what() << std::endl;
 	}
-	return 0;
+	return EXIT_SUCCESS;
 }

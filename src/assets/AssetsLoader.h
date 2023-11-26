@@ -3,6 +3,7 @@
 
 #include <string>
 #include <functional>
+#include <filesystem>
 #include <map>
 #include <queue>
 
@@ -25,8 +26,9 @@ class AssetsLoader {
 	Assets* assets;
 	std::map<int, aloader_func> loaders;
 	std::queue<aloader_entry> entries;
+	std::filesystem::path resdir;
 public:
-	AssetsLoader(Assets* assets);
+	AssetsLoader(Assets* assets, std::filesystem::path resdir);
 	void addLoader(int tag, aloader_func func);
 	void add(int tag, const std::string filename, const std::string alias);
 
@@ -35,6 +37,8 @@ public:
 
 	static void createDefaults(AssetsLoader& loader);
 	static void addDefaults(AssetsLoader& loader);
+
+	std::filesystem::path getDirectory() const;
 };
 
 #endif // ASSETS_ASSETS_LOADER_H
