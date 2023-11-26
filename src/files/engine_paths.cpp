@@ -19,7 +19,7 @@ path EnginePaths::getResources() const {
 }
 
 path EnginePaths::getScreenshotFile(string ext) {
-	path folder = SCREENSHOTS_FOLDER;
+	path folder = userfiles/path(SCREENSHOTS_FOLDER);
 	if (!fs::is_directory(folder)) {
 		fs::create_directory(folder);
 	}
@@ -42,7 +42,7 @@ path EnginePaths::getScreenshotFile(string ext) {
 }
 
 path EnginePaths::getWorldsFolder() {
-    return path("worlds");
+    return userfiles/path("worlds");
 }
 
 bool EnginePaths::isWorldNameUsed(string name) {
