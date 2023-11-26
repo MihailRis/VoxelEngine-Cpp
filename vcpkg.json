@@ -1,6 +1,7 @@
 {
   "dependencies": [
     "glfw3",
+    "glew",
     "glm",
     "openal-soft",
     "opengl",
