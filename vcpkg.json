@@ -1,0 +1,9 @@
+{
+  "dependencies": [
+    "glfw3",
+    "glm",
+    "openal-soft",
+    "opengl",
+    "libpng"
+  ]
+}

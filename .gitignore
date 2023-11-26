@@ -5,6 +5,9 @@ Debug/voxel_engine
 
 /build
 
+/vcpkg_installed
+/CMakeFiles
+
 /world
 /worlds/**/*
 /settings.toml
