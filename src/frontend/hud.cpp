@@ -307,7 +307,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 		}
 	}
 
-	if (pause || inventoryOpen) {
+	if (pause) {
 		batch->texture(nullptr);
 		batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
 		batch->rect(0, 0, width, height);
