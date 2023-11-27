@@ -4,6 +4,12 @@
 #include <limits.h>
 #include "typedefs.h"
 
+#define ENGINE_VERSION_MAJOR 0
+#define ENGINE_VERSION_MINOR 15
+#define STR_(x) #x
+#define STR(x) STR_(x)
+#define ENGINE_VERSION STR(ENGINE_VERSION_MAJOR) "." STR(ENGINE_VERSION_MINOR)
+
 #define CHUNK_W 16
 #define CHUNK_H 256
 #define CHUNK_D 16
