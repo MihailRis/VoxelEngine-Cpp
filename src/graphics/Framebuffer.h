@@ -1,16 +1,18 @@
 #ifndef SRC_GRAPHICS_FRAMEBUFFER_H_
 #define SRC_GRAPHICS_FRAMEBUFFER_H_
 
+#include "../typedefs.h"
+
 class Texture;
 
 class Framebuffer {
-	unsigned int fbo;
-	unsigned int depth;
+	uint fbo;
+	uint depth;
 public:
-	int width;
-	int height;
+	uint width;
+	uint height;
 	Texture* texture;
-	Framebuffer(int width, int height);
+	Framebuffer(uint width, uint height);
 	~Framebuffer();
 
 	void bind();

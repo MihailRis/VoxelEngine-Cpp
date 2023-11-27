@@ -14,6 +14,8 @@ std::stack<vec4> Window::scissorStack;
 vec4 Window::scissorArea;
 uint Window::width = 0;
 uint Window::height = 0;
+int Window::posX = 0;
+int Window::posY = 0;
 
 void cursor_position_callback(GLFWwindow*, double xpos, double ypos) {
 	if (Events::_cursor_started) {
@@ -58,11 +60,15 @@ void scroll_callback(GLFWwindow*, double xoffset, double yoffset) {
 	Events::scroll += yoffset;
 }
 
+bool Window::isMaximized() {
+	return glfwGetWindowAttrib(window, GLFW_MAXIMIZED);
+}
+
 void window_size_callback(GLFWwindow*, int width, int height) {
 	glViewport(0, 0, width, height);
 	Window::width = width;
 	Window::height = height;
-	if (!Window::isFullscreen()) {
+	if (!Window::isFullscreen() && !Window::isMaximized()) {
 		Window::getSettings()->width = width;
 		Window::getSettings()->height = height;
 	}
@@ -115,16 +121,11 @@ int Window::initialize(DisplaySettings& settings){
 	glfwSetWindowSizeCallback(window, window_size_callback);
 	glfwSetCharCallback(window, character_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-
-	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 	if (settings.fullscreen) {
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
 	}
-	else {
-		tryToMaximize(window, monitor);
-	}
-
 	glfwSwapInterval(settings.swapInterval);
 	return 0;
 }
@@ -218,11 +219,12 @@ void Window::toggleFullscreen(){
 	if (Events::_cursor_locked) Events::toggleCursor();
 
 	if (settings->fullscreen) {
+		glfwGetWindowPos(window, &posX, &posY);
 		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
 	}
 	else {
-		glfwSetWindowMonitor(window, nullptr, 0, 0, settings->width, settings->height, GLFW_DONT_CARE);
-		tryToMaximize(window, monitor);
+		glfwSetWindowMonitor(window, nullptr, posX, posY, settings->width, settings->height, GLFW_DONT_CARE);
+		glfwSetWindowAttrib(window, GLFW_MAXIMIZED, GLFW_FALSE);
 	}
 
 	double xPos, yPos;
@@ -259,10 +261,10 @@ bool Window::tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor) {
 	glm::ivec4 workArea(0);
 	glfwGetWindowFrameSize(window, &windowFrame.x, &windowFrame.y, &windowFrame.z, &windowFrame.w);
 	glfwGetMonitorWorkarea(monitor, &workArea.x, &workArea.y, &workArea.z, &workArea.w);
-	if (Window::width > workArea.z) Window::width = workArea.z;
-	if (Window::height > workArea.w) Window::height = workArea.w;
-	if (Window::width >= workArea.z - (windowFrame.x + windowFrame.z) &&
-		Window::height >= workArea.w - (windowFrame.y + windowFrame.w)) {
+	if (Window::width > (uint)workArea.z) Window::width = (uint)workArea.z;
+	if (Window::height > (uint)workArea.w) Window::height = (uint)workArea.w;
+	if (Window::width >= (uint)(workArea.z - (windowFrame.x + windowFrame.z)) &&
+		Window::height >= (uint)(workArea.w - (windowFrame.y + windowFrame.w))) {
 		glfwMaximizeWindow(window);
 		return true;
 	}

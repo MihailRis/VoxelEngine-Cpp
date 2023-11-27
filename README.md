@@ -25,7 +25,7 @@ cmake ../
 cmake --build .
 ```
 
-## Instal libs:
+## Install libs:
 #### Debian-based distro:
 `$ sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev`
 

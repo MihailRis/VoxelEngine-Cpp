@@ -65,8 +65,24 @@ Button::Button(shared_ptr<UINode> content, glm::vec4 padding) : Panel(vec2(32,32
 Button::Button(wstring text, glm::vec4 padding) : Panel(vec2(32,32), padding, 0) {
     Label* label = new Label(text);
     label->align(Align::center);
-    add(shared_ptr<UINode>(label));
+    this->label = shared_ptr<UINode>(label);
+    add(this->label);
     scrollable(false);
+}
+
+void Button::text(std::wstring text) {
+    if (label) {
+        Label* label = (Label*)(this->label.get());
+        label->text(text);
+    }
+}
+
+wstring Button::text() const {
+    if (label) {
+        Label* label = (Label*)(this->label.get());
+        return label->text();
+    }
+    return L"";
 }
 
 void Button::drawBackground(Batch2D* batch, Assets* assets) {
