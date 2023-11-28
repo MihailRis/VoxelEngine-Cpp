@@ -48,7 +48,7 @@ bool AssetsLoader::loadNext() {
 #include "../graphics/Font.h"
 
 bool _load_shader(Assets* assets, const path& filename, const std::string& name) {
-	Shader* shader = load_shader(filename.string() + ".glslv", filename.string() + ".glslf");
+	Shader* shader = Shader::loadShader(filename.string() + ".glslv", filename.string() + ".glslf");
 	if (shader == nullptr) {
 		std::cerr << "failed to load shader '" << name << "'" << std::endl;
 		return false;

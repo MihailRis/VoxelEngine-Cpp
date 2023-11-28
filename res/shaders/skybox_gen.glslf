@@ -22,8 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#version 330 core
-
 // first, lets define some constants to use (planet radius, position, and scattering coefficients)
 #define PLANET_POS vec3(0.0) /* the position of the planet */
 #define PLANET_RADIUS 6371e3 /* radius of the planet */
