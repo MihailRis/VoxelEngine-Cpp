@@ -1,15 +1,25 @@
-#include "engine_files.h"
+#include "engine_paths.h"
 
 #include <filesystem>
 #include <sstream>
 #include "../typedefs.h"
 
+#define SCREENSHOTS_FOLDER "screenshots"
+
 namespace fs = std::filesystem;
 using std::string;
 using fs::path;
 
-path enginefs::get_screenshot_file(string ext) {
-	path folder = SCREENSHOTS_FOLDER;
+path EnginePaths::getUserfiles() const {
+	return userfiles;
+}
+
+path EnginePaths::getResources() const {
+	return resources;
+}
+
+path EnginePaths::getScreenshotFile(string ext) {
+	path folder = userfiles/path(SCREENSHOTS_FOLDER);
 	if (!fs::is_directory(folder)) {
 		fs::create_directory(folder);
 	}
@@ -31,10 +41,18 @@ path enginefs::get_screenshot_file(string ext) {
 	return filename;
 }
 
-path enginefs::get_worlds_folder() {
-    return path("worlds");
+path EnginePaths::getWorldsFolder() {
+    return userfiles/path("worlds");
 }
 
-bool enginefs::is_world_name_used(std::string name) {
-	return fs::exists(enginefs::get_worlds_folder()/fs::u8path(name));
+bool EnginePaths::isWorldNameUsed(string name) {
+	return fs::exists(EnginePaths::getWorldsFolder()/fs::u8path(name));
+}
+
+void EnginePaths::setUserfiles(path folder) {
+	this->userfiles = folder;
+}
+
+void EnginePaths::setResources(path folder) {
+	this->resources = folder;
 }

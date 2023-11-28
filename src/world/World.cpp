@@ -29,6 +29,11 @@ World::~World(){
 	delete wfile;
 }
 
+void World::updateTimers(float delta) {
+	daytime += delta * daytimeSpeed;
+	daytime = fmod(daytime, 1.0f);
+}
+
 void World::write(Level* level) {
 	const Content* content = level->content;
 
@@ -41,15 +46,17 @@ void World::write(Level* level) {
 		wfile->put(chunk.get());
 	}
 
-	wfile->write(WorldInfo {name, wfile->directory, seed}, content);
+	wfile->write(WorldInfo {name, wfile->directory, seed, daytime, daytimeSpeed}, content);
 	wfile->writePlayer(level->player);
 }
 
 Level* World::load(EngineSettings& settings, const Content* content) {
-	WorldInfo info {name, wfile->directory, seed};
+	WorldInfo info {name, wfile->directory, seed, daytime, daytimeSpeed};
 	wfile->readWorldInfo(info);
 	seed = info.seed;
 	name = info.name;
+	daytime = info.daytime;
+	daytimeSpeed = info.daytimeSpeed;
 
 	vec3 playerPosition = vec3(0, 100, 0);
 	Camera* camera = new Camera(playerPosition, glm::radians(90.0f));

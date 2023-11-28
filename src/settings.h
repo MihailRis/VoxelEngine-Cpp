@@ -3,9 +3,12 @@
 
 #include <string>
 
+#include "constants.h"
 #include "typedefs.h"
 
 struct DisplaySettings {
+	/* Is window in full screen mode */
+	bool fullscreen = false;
     /* Window width (pixels) */
 	int width = 1280;
 	/* Window height (pixels) */
@@ -15,7 +18,7 @@ struct DisplaySettings {
 	/* GLFW swap interval value, 0 - unlimited fps, 1 - vsync*/
 	int swapInterval = 1;
 	/* Window title */
-	const char* title = "VoxelEngine-Cpp v0.14";
+	const char* title = "VoxelEngine-Cpp v" ENGINE_VERSION;
 };
 
 struct ChunksSettings {

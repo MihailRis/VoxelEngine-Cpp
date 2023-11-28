@@ -2,7 +2,6 @@
 #include "Assets.h"
 
 #include <iostream>
-#include <filesystem>
 #include <memory>
 
 #include "../constants.h"
@@ -10,16 +9,18 @@
 #include "../graphics-vk/VulkanContext.h"
 #include "../graphics-vk/device/Shader.h"
 
+using std::filesystem::path;
 using std::unique_ptr;
 
-AssetsLoader::AssetsLoader(Assets* assets) : assets(assets) {
+AssetsLoader::AssetsLoader(Assets* assets, path resdir)
+			 : assets(assets), resdir(resdir) {
 }
 
 void AssetsLoader::addLoader(int tag, aloader_func func) {
 	loaders[tag] = func;
 }
 
-void AssetsLoader::add(int tag, const std::string filename, const std::string alias) {
+void AssetsLoader::add(int tag, const path filename, const std::string alias) {
 	entries.push(aloader_entry{ tag, filename, alias });
 }
 
@@ -49,11 +50,11 @@ bool AssetsLoader::loadNext() {
 #include "../graphics/Atlas.h"
 #include "../graphics/Font.h"
 
-bool _load_shader(Assets* assets, const std::string& filename, const std::string& name) {
+bool _load_shader(Assets* assets, const path& filename, const std::string& name) {
 	ShaderType type = toShaderType(name);
 	IShader* shader = vulkan::VulkanContext::isVulkanEnabled() ?
-		reinterpret_cast<IShader*>(vulkan::load_shader(filename + ".vert.spv", filename + ".frag.spv", type)) :
-		reinterpret_cast<IShader*>(load_shader(filename + ".glslv", filename + ".glslf"));
+		reinterpret_cast<IShader*>(vulkan::load_shader(filename.string() + ".vert.spv", filename.string() + ".frag.spv", type)) :
+		reinterpret_cast<IShader*>(load_shader(filename.string() + ".glslv", filename.string() + ".glslf"));
 	if (shader == nullptr) {
 		std::cerr << "failed to load shader '" << name << "'" << std::endl;
 		return false;
@@ -62,8 +63,8 @@ bool _load_shader(Assets* assets, const std::string& filename, const std::string
 	return true;
 }
 
-bool _load_texture(Assets* assets, const std::string& filename, const std::string& name) {
-	ITexture* texture = png::load_texture(filename);
+bool _load_texture(Assets* assets, const path& filename, const std::string& name) {
+	ITexture* texture = png::load_texture(filename.string());
 	if (texture == nullptr) {
 		std::cerr << "failed to load texture '" << name << "'" << std::endl;
 		return false;
@@ -72,7 +73,7 @@ bool _load_texture(Assets* assets, const std::string& filename, const std::strin
 	return true;
 }
 
-bool _load_atlas(Assets* assets, const std::string& filename, const std::string& name) {
+bool _load_atlas(Assets* assets, const path& filename, const std::string& name) {
 	AtlasBuilder builder;
 	for (const auto& entry : std::filesystem::directory_iterator(filename)) {
 		std::filesystem::path file = entry.path();
@@ -88,10 +89,10 @@ bool _load_atlas(Assets* assets, const std::string& filename, const std::string&
 	return true;
 }
 
-bool _load_font(Assets* assets, const std::string& filename, const std::string& name) {
+bool _load_font(Assets* assets, const path& filename, const std::string& name) {
 	std::vector<ITexture*> pages;
 	for (size_t i = 0; i <= 4; i++) {
-		ITexture* texture = png::load_texture(filename + "_" + std::to_string(i) + ".png");
+		ITexture* texture = png::load_texture(filename.string() + "_" + std::to_string(i) + ".png");
 		if (texture == nullptr) {
 			std::cerr << "failed to load bitmap font '" << name << "' (missing page " << std::to_string(i) << ")" << std::endl;
 			return false;
@@ -111,12 +112,19 @@ void AssetsLoader::createDefaults(AssetsLoader& loader) {
 }
 
 void AssetsLoader::addDefaults(AssetsLoader& loader) {
-	loader.add(ASSET_SHADER, SHADERS_FOLDER"/main", "main");
-	loader.add(ASSET_SHADER, SHADERS_FOLDER"/lines", "lines");
-	loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui", "ui");
+	path resdir = loader.getDirectory();
+	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/main"), "main");
+	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/lines"), "lines");
+	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/ui"), "ui");
+	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/background"), "background");
+	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/skybox_gen"), "skybox_gen");
 
-	loader.add(ASSET_ATLAS, TEXTURES_FOLDER"/blocks", "blocks");
-	loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/menubg.png", "menubg");
+	loader.add(ASSET_ATLAS, resdir/path(TEXTURES_FOLDER"/blocks"), "blocks");
+	loader.add(ASSET_TEXTURE, resdir/path(TEXTURES_FOLDER"/menubg.png"), "menubg");
 
-	loader.add(ASSET_FONT, FONTS_FOLDER"/font", "normal");
+	loader.add(ASSET_FONT, resdir/path(FONTS_FOLDER"/font"), "normal");
+}
+
+path AssetsLoader::getDirectory() const {
+	return resdir;
 }

@@ -23,7 +23,7 @@
 #include "coders/json.h"
 #include "coders/png.h"
 #include "files/files.h"
-#include "files/engine_files.h"
+#include "files/engine_paths.h"
 
 using std::unique_ptr;
 using std::shared_ptr;
@@ -32,13 +32,13 @@ using std::filesystem::path;
 using glm::vec3;
 using gui::GUI;
 
-Engine::Engine(EngineSettings& settings, Content* content) 
-	   : settings(settings), content(content) {    
+Engine::Engine(EngineSettings& settings, EnginePaths* paths, Content* content) 
+	   : settings(settings), content(content), paths(paths) {    
 	Window::initialize(settings.display);
 
 	assets = new Assets();
 	std::cout << "-- loading assets" << std::endl;
-	AssetsLoader loader(assets);
+	AssetsLoader loader(assets, paths->getResources());
 	AssetsLoader::createDefaults(loader);
 	AssetsLoader::addDefaults(loader);
 	while (loader.hasNext()) {
@@ -64,9 +64,12 @@ void Engine::updateHotkeys() {
 	if (Events::jpressed(keycode::F2)) {
 		unique_ptr<ImageData> image(Window::takeScreenshot());
 		image->flipY();
-		path filename = enginefs::get_screenshot_file("png");
+		path filename = paths->getScreenshotFile("png");
 		png::write_image(filename.string(), image.get());
 		std::cout << "saved screenshot as " << filename << std::endl;
+	}
+	if (Events::jpressed(keycode::F11)) {
+		Window::toggleFullscreen();
 	}
 }
 
@@ -124,4 +127,8 @@ void Engine::setScreen(shared_ptr<Screen> screen) {
 
 const Content* Engine::getContent() const {
 	return content;
+}
+
+EnginePaths* Engine::getPaths() {
+	return paths;
 }

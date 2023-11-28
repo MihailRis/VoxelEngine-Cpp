@@ -4,6 +4,12 @@
 #include <limits.h>
 #include "typedefs.h"
 
+#define ENGINE_VERSION_MAJOR 0
+#define ENGINE_VERSION_MINOR 15
+#define STR_(x) #x
+#define STR(x) STR_(x)
+#define ENGINE_VERSION STR(ENGINE_VERSION_MAJOR) "." STR(ENGINE_VERSION_MINOR)
+
 #define CHUNK_W 16
 #define CHUNK_H 256
 #define CHUNK_D 16
@@ -18,10 +24,8 @@ inline uint vox_index(int x, int y, int z, int w=CHUNK_W, int d=CHUNK_D) {
 	return (y * d + z) * w + x;
 }
 
-#define RES_FLODER "res/"
-
-#define SHADERS_FOLDER "res/shaders"
-#define TEXTURES_FOLDER "res/textures"
-#define FONTS_FOLDER "res/fonts"
+#define SHADERS_FOLDER "shaders"
+#define TEXTURES_FOLDER "textures"
+#define FONTS_FOLDER "fonts"
 
 #endif // SRC_CONSTANTS_H_

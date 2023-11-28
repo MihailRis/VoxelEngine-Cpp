@@ -11,6 +11,7 @@
 #include "../typedefs.h"
 #include "../content/Content.h"
 #include "../util/stringutil.h"
+#include "../util/timeutil.h"
 #include "../assets/Assets.h"
 #include "../graphics-base/IShader.h"
 #include "../graphics/Batch2D.h"
@@ -128,13 +129,22 @@ HudRenderer::HudRenderer(Engine* engine,
 		sub->add(box);
 		panel->add(sub);
 	}
+	panel->add(shared_ptr<Label>(create_label([this](){
+		int hour, minute, second;
+		timeutil::from_value(this->level->world->daytime, hour, minute, second);
+
+		std::wstring timeString = 
+					 util::lfill(std::to_wstring(hour), 2, L'0') + L":" +
+					 util::lfill(std::to_wstring(minute), 2, L'0');
+		return L"time: "+timeString;
+	})));
 	{
-		TrackBar* bar = new TrackBar(0.0f, 1.0f, 1.0f, 0.02f, 2);
+		TrackBar* bar = new TrackBar(0.0f, 1.0f, 1.0f, 0.005f, 8);
 		bar->supplier([=]() {
-			return renderer->skyLightMutliplier;
+			return level->world->daytime;
 		});
 		bar->consumer([=](double val) {
-			renderer->skyLightMutliplier = val;
+			level->world->daytime = val;
 		});
 		panel->add(bar);
 	}
@@ -307,7 +317,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 		}
 	}
 
-	if (pause || inventoryOpen) {
+	if (pause) {
 		batch->texture(nullptr);
 		batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
 		batch->rect(0, 0, width, height);

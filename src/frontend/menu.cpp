@@ -12,7 +12,7 @@
 #include "gui/controls.h"
 #include "screens.h"
 #include "../util/stringutil.h"
-#include "../files/engine_files.h"
+#include "../files/engine_paths.h"
 #include "../world/World.h"
 #include "../window/Events.h"
 #include "../window/Window.h"
@@ -42,6 +42,8 @@ inline Button* backButton(PagesControl* menu) {
 }
 
 Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
+    EnginePaths* paths = engine->getPaths();
+
     Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
     panel->color(vec4(0.0f));
 
@@ -50,7 +52,7 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
     Panel* worldsPanel = new Panel(vec2(390, 200), vec4(5.0f));
     worldsPanel->color(vec4(0.1f));
     worldsPanel->maxLength(400);
-    path worldsFolder = enginefs::get_worlds_folder();
+    path worldsFolder = paths->getWorldsFolder();
     if (std::filesystem::is_directory(worldsFolder)) {
         for (auto const& entry : directory_iterator(worldsFolder)) {
             if (!entry.is_directory()) {
@@ -60,10 +62,10 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
             Button* button = new Button(util::str2wstr_utf8(name), 
                                         vec4(10.0f, 8.0f, 10.0f, 8.0f));
             button->color(vec4(0.5f));
-            button->listenAction([engine, panel, name](GUI*) {
+            button->listenAction([=](GUI*) {
                 EngineSettings& settings = engine->getSettings();
 
-                auto folder = enginefs::get_worlds_folder()/u8path(name);
+                auto folder = paths->getWorldsFolder()/u8path(name);
                 World* world = new World(name, folder, 42, settings);
                 auto screen = new LevelScreen(engine, 
                     world->load(settings, engine->getContent()));
@@ -112,15 +114,16 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
 
     {
         Button* button = new Button(L"Create World", vec4(10.0f));
-        button->margin(vec4(0, 20, 0, 0));
+        button->margin(vec4(1, 20, 1, 1));
         vec4 basecolor = worldNameInput->color();   
         button->listenAction([=](GUI*) {
             wstring name = worldNameInput->text();
             string nameutf8 = util::wstr2str_utf8(name);
+            EnginePaths* paths = engine->getPaths();
 
             // Basic validation
             if (!util::is_valid_filename(name) || 
-                 enginefs::is_world_name_used(nameutf8)) {
+                 paths->isWorldNameUsed(nameutf8)) {
                 // blink red two times
                 panel->listenInterval(0.1f, [worldNameInput, basecolor]() {
                     static bool flag = true;
@@ -151,7 +154,7 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
             
             EngineSettings& settings = engine->getSettings();
 
-            auto folder = enginefs::get_worlds_folder()/u8path(nameutf8);
+            auto folder = paths->getWorldsFolder()/u8path(nameutf8);
             std::filesystem::create_directories(folder);
             World* world = new World(nameutf8, folder, seed, settings);
             auto screen = new LevelScreen(engine, world->load(settings, engine->getContent()));

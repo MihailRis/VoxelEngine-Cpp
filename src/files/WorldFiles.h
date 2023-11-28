@@ -36,6 +36,8 @@ struct WorldInfo {
 	std::string name;
 	std::filesystem::path directory;
 	uint64_t seed;
+	float daytime;
+	float daytimeSpeed;
 };
 
 class WorldFiles {
