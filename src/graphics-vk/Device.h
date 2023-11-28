@@ -29,7 +29,7 @@ public:
     const Queue &getGraphis() const;
     const Queue &getPresent() const;
 
-    VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkComponentMapping components) const;
+    VkImageView createImageView(VkImage image, VkFormat format, VkImageViewType viewType, VkImageAspectFlags aspectFlags, VkComponentMapping components) const;
     VkSampler createSampler(VkFilter filter, VkSamplerAddressMode addressMode, bool anisotropic) const;
     VkRenderPass createRenderPass(VkFormat swapchainFormat, VkFormat depthFormat) const;
     VkFramebuffer createFramebuffer(VkRenderPass renderPass, const std::vector<VkImageView> &imageViews, VkExtent2D extent) const;

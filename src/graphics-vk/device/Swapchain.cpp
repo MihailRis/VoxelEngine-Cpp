@@ -56,7 +56,7 @@ Swapchain::Swapchain(Surface &surface, Device& device) : m_device(device) {
     vkGetSwapchainImagesKHR(device, m_swapchain, &imageCount, m_images.data());
 
     for (const auto &image : m_images) {
-        auto imageView = device.createImageView(image, surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, {
+        auto imageView = device.createImageView(image, surfaceFormat.format, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT, {
             VK_COMPONENT_SWIZZLE_R,
             VK_COMPONENT_SWIZZLE_G,
             VK_COMPONENT_SWIZZLE_B,

@@ -14,7 +14,7 @@ VkFormat Image::selectSupportedFormat(const std::vector<VkFormat>& formats, VkIm
     return vulkan::VulkanContext::get().getDevice().selectSupportedFormat(formats, tiling, featureFlags);
 }
 
-Image::Image(VkExtent3D extent, VkFormat format, VkImageAspectFlags aspectFlags, VkImageTiling tiling,
+Image::Image(VkExtent3D extent, VkFormat format, VkImageViewType viewType, VkImageAspectFlags aspectFlags, VkImageTiling tiling,
              VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
     : m_format(format),
       m_extent3D(extent) {
@@ -24,7 +24,7 @@ Image::Image(VkExtent3D extent, VkFormat format, VkImageAspectFlags aspectFlags,
 
     allocator.createImage(extent, format, tiling, usage, properties, m_image, m_allocation);
 
-    m_imageView = device.createImageView(m_image, format, aspectFlags, {
+    m_imageView = device.createImageView(m_image, format, viewType, aspectFlags, {
         VK_COMPONENT_SWIZZLE_R,
         VK_COMPONENT_SWIZZLE_G,
         VK_COMPONENT_SWIZZLE_B,

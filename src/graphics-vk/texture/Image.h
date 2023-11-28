@@ -23,7 +23,7 @@ protected:
     static VkFormat selectSupportedFormat(const std::vector<VkFormat> &formats, VkImageTiling tiling, VkFormatFeatureFlags featureFlags);
 public:
     Image() = default;
-    Image(VkExtent3D extent, VkFormat format, VkImageAspectFlags aspectFlags, VkImageTiling tiling,
+    Image(VkExtent3D extent, VkFormat format, VkImageViewType viewType, VkImageAspectFlags aspectFlags, VkImageTiling tiling,
           VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
 
     virtual ~Image();

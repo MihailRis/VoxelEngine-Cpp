@@ -125,13 +125,14 @@ const Queue& Device::getPresent() const {
 VkImageView Device::createImageView(
     VkImage image,
     VkFormat format,
+    VkImageViewType viewType,
     VkImageAspectFlags aspectFlags,
     VkComponentMapping components) const {
 
     VkImageViewCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     createInfo.image = image;
-    createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    createInfo.viewType = viewType;
     createInfo.format = format;
     createInfo.subresourceRange.aspectMask = aspectFlags;
     createInfo.subresourceRange.baseMipLevel = 0;
