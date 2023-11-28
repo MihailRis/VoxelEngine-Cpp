@@ -42,11 +42,16 @@ mat4 Camera::getProjection(){
 			return glm::ortho(0.0f, fov*aspect, 0.0f, fov);
 }
 
-mat4 Camera::getView(){
-	if (perspective)
+mat4 Camera::getView(bool pos){
+	vec3 position = this->position;
+	if (!pos) {
+		position = vec3(0.0f);
+	}
+	if (perspective) {
 		return glm::lookAt(position, position+front, up);
-	else
+	} else {
 		return glm::translate(glm::mat4(1.0f), position);
+	}
 }
 
 mat4 Camera::getProjView(){

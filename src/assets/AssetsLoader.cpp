@@ -17,8 +17,8 @@ void AssetsLoader::addLoader(int tag, aloader_func func) {
 	loaders[tag] = func;
 }
 
-void AssetsLoader::add(int tag, const path filename, const std::string alias) {
-	entries.push(aloader_entry{ tag, filename.string(), alias});
+void AssetsLoader::add(int tag, const std::string filename, const std::string alias) {
+	entries.push(aloader_entry{ tag, filename, alias });
 }
 
 bool AssetsLoader::hasNext() const {
@@ -47,8 +47,8 @@ bool AssetsLoader::loadNext() {
 #include "../graphics/Atlas.h"
 #include "../graphics/Font.h"
 
-bool _load_shader(Assets* assets, const std::string& filename, const std::string& name) {
-	Shader* shader = load_shader(filename + ".glslv", filename + ".glslf");
+bool _load_shader(Assets* assets, const path& filename, const std::string& name) {
+	Shader* shader = load_shader(filename.string() + ".glslv", filename.string() + ".glslf");
 	if (shader == nullptr) {
 		std::cerr << "failed to load shader '" << name << "'" << std::endl;
 		return false;
@@ -57,8 +57,8 @@ bool _load_shader(Assets* assets, const std::string& filename, const std::string
 	return true;
 }
 
-bool _load_texture(Assets* assets, const std::string& filename, const std::string& name) {
-	Texture* texture = png::load_texture(filename);
+bool _load_texture(Assets* assets, const path& filename, const std::string& name) {
+	Texture* texture = png::load_texture(filename.string());
 	if (texture == nullptr) {
 		std::cerr << "failed to load texture '" << name << "'" << std::endl;
 		return false;
@@ -67,7 +67,7 @@ bool _load_texture(Assets* assets, const std::string& filename, const std::strin
 	return true;
 }
 
-bool _load_atlas(Assets* assets, const std::string& filename, const std::string& name) {
+bool _load_atlas(Assets* assets, const path& filename, const std::string& name) {
 	AtlasBuilder builder;
 	for (const auto& entry : std::filesystem::directory_iterator(filename)) {
 		std::filesystem::path file = entry.path();
@@ -83,10 +83,10 @@ bool _load_atlas(Assets* assets, const std::string& filename, const std::string&
 	return true;
 }
 
-bool _load_font(Assets* assets, const std::string& filename, const std::string& name) {
+bool _load_font(Assets* assets, const path& filename, const std::string& name) {
 	std::vector<Texture*> pages;
 	for (size_t i = 0; i <= 4; i++) {
-		Texture* texture = png::load_texture(filename + "_" + std::to_string(i) + ".png");
+		Texture* texture = png::load_texture(filename.string() + "_" + std::to_string(i) + ".png");
 		if (texture == nullptr) {
 			std::cerr << "failed to load bitmap font '" << name << "' (missing page " << std::to_string(i) << ")" << std::endl;
 			return false;
@@ -110,6 +110,8 @@ void AssetsLoader::addDefaults(AssetsLoader& loader) {
 	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/main"), "main");
 	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/lines"), "lines");
 	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/ui"), "ui");
+	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/background"), "background");
+	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/skybox_gen"), "skybox_gen");
 
 	loader.add(ASSET_ATLAS, resdir/path(TEXTURES_FOLDER"/blocks"), "blocks");
 	loader.add(ASSET_TEXTURE, resdir/path(TEXTURES_FOLDER"/menubg.png"), "menubg");

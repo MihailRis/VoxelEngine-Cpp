@@ -22,6 +22,7 @@ class Frustum;
 class Engine;
 class Chunks;
 class ContentGfxCache;
+class Skybox;
 
 class WorldRenderer {
 	Engine* engine;
@@ -29,11 +30,10 @@ class WorldRenderer {
 	Frustum* frustumCulling;
 	LineBatch* lineBatch;
 	ChunksRenderer* renderer;
+	Skybox* skybox;
 	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion);
 	void drawChunks(Chunks* chunks, Camera* camera, Shader* shader, bool occlusion);
 public:
-	float skyLightMutliplier = 1.0f; // will be replaced with day-night cycle
-
 	WorldRenderer(Engine* engine, Level* level, const ContentGfxCache* cache);
 	~WorldRenderer();
 

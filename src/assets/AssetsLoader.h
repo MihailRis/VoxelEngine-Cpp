@@ -14,11 +14,11 @@
 
 class Assets;
 
-typedef std::function<bool(Assets*, const std::string&, const std::string&)> aloader_func;
+typedef std::function<bool(Assets*, const std::filesystem::path&, const std::string&)> aloader_func;
 
 struct aloader_entry {
 	int tag;
-	const std::string filename;
+	const std::filesystem::path filename;
 	const std::string alias;
 };
 

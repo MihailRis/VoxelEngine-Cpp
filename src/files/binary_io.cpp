@@ -101,7 +101,7 @@ ubyte BinaryReader::get() {
 }
 
 int16_t BinaryReader::getInt16() {
-    if (pos+2 >= size) {
+    if (pos+2 > size) {
         throw std::underflow_error("unexpected end");
     }
     pos += 2;
@@ -110,7 +110,7 @@ int16_t BinaryReader::getInt16() {
 }
 
 int32_t BinaryReader::getInt32() {
-    if (pos+4 >= size) {
+    if (pos+4 > size) {
         throw std::underflow_error("unexpected end");
     }
     pos += 4;
@@ -121,7 +121,7 @@ int32_t BinaryReader::getInt32() {
 }
 
 int64_t BinaryReader::getInt64() {
-    if (pos+8 >= size) {
+    if (pos+8 > size) {
         throw std::underflow_error("unexpected end");
     }
     pos += 8;

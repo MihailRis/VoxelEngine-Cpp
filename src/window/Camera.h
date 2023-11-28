@@ -24,7 +24,7 @@ public:
 	void rotate(float x, float y, float z);
 
 	mat4 getProjection();
-	mat4 getView();
+	mat4 getView(bool position=true);
 	mat4 getProjView();
 };
 
