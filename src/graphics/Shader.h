@@ -4,8 +4,11 @@
 #include <string>
 #include <glm/glm.hpp>
 
+class GLSLExtension;
+
 class Shader {
 public:
+	static GLSLExtension* preprocessor;
 	unsigned int id;
 
 	Shader(unsigned int id);
@@ -19,8 +22,8 @@ public:
 	void uniform2f(std::string name, glm::vec2 xy);
 	void uniform3f(std::string name, float x, float y, float z);
 	void uniform3f(std::string name, glm::vec3 xyz);
-};
 
-extern Shader* load_shader(std::string vertexFile, std::string fragmentFile);
+	static Shader* loadShader(std::string vertexFile, std::string fragmentFile);
+};
 
 #endif /* GRAPHICS_SHADER_H_ */

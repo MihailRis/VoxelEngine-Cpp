@@ -1,4 +1,4 @@
-#version 330 core
+#include <commons>
 
 layout (location = 0) in vec3 v_position;
 layout (location = 1) in vec2 v_texCoord;
@@ -22,15 +22,6 @@ uniform float u_torchlightDistance;
 
 #define SKY_LIGHT_MUL 2.5
 
-vec4 decompress_light(float compressed_light) {
-	vec4 result;
-    int compressed = floatBitsToInt(compressed_light);
-    result.r = ((compressed >> 24) & 0xFF) / 255.f;
-    result.g = ((compressed >> 16) & 0xFF) / 255.f;
-    result.b = ((compressed >> 8) & 0xFF) / 255.f;
-    result.a = (compressed & 0xFF) / 255.f;
-	return result;
-}
 
 void main(){
 	vec2 pos2d = (u_model * vec4(v_position, 1.0)).xz-u_cameraPos.xz;

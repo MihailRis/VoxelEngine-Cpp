@@ -10,6 +10,12 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "../coders/GLSLExtension.h"
+
+using std::filesystem::path;
+
+GLSLExtension* Shader::preprocessor = new GLSLExtension();
+
 Shader::Shader(unsigned int id) : id(id){
 }
 
@@ -57,7 +63,7 @@ void Shader::uniform3f(std::string name, glm::vec3 xyz){
 }
 
 
-Shader* load_shader(std::string vertexFile, std::string fragmentFile) {
+Shader* Shader::loadShader(std::string vertexFile, std::string fragmentFile) {
 	// Reading Files
 	std::string vertexCode;
 	std::string fragmentCode;
@@ -84,6 +90,9 @@ Shader* load_shader(std::string vertexFile, std::string fragmentFile) {
 		std::cerr << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
 		return nullptr;
 	}
+	vertexCode = preprocessor->process(path(vertexFile), vertexCode);
+	fragmentCode = preprocessor->process(path(fragmentFile), fragmentCode);
+
 	const GLchar* vShaderCode = vertexCode.c_str();
 	const GLchar* fShaderCode = fragmentCode.c_str();
 
@@ -98,7 +107,7 @@ Shader* load_shader(std::string vertexFile, std::string fragmentFile) {
 	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
 	if (!success){
 		glGetShaderInfoLog(vertex, 512, nullptr, infoLog);
-		std::cerr << "SHADER::VERTEX: compilation failed" << std::endl;
+		std::cerr << "SHADER::VERTEX: compilation failed: " << vertexFile << std::endl;
 		std::cerr << infoLog << std::endl;
 		return nullptr;
 	}
@@ -110,7 +119,7 @@ Shader* load_shader(std::string vertexFile, std::string fragmentFile) {
 	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
 	if (!success){
 		glGetShaderInfoLog(fragment, 512, nullptr, infoLog);
-		std::cerr << "SHADER::FRAGMENT: compilation failed" << std::endl;
+		std::cerr << "SHADER::FRAGMENT: compilation failed: " << vertexFile << std::endl;
 		std::cerr << infoLog << std::endl;
 		return nullptr;
 	}
