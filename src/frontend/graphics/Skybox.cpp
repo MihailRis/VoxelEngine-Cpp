@@ -7,6 +7,10 @@
 #include "../../graphics/Mesh.h"
 #include "../../window/Window.h"
 
+#ifndef M_PI
+#define M_PI 3.141592
+#endif // M_PI
+
 using glm::vec3;
 
 Skybox::Skybox(uint size, Shader* shader) : size(size), shader(shader) {
