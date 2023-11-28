@@ -136,6 +136,9 @@ void LevelScreen::update(float delta) {
         level->chunks->saveAndClear();
         backlight = settings.graphics.backlight;
     }
+    if (!hud->isPause()) {
+        level->world->updateTimers(delta);
+    }
     level->updatePlayer(delta, !inputLocked, hud->isPause(), !inputLocked);
     level->update();
     

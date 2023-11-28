@@ -27,6 +27,7 @@
 #define PLAYER_FLAG_NOCLIP 0x2
 
 #define WORLD_SECTION_MAIN 1
+#define WORLD_SECTION_DAYNIGHT 2
 
 using glm::ivec2;
 using glm::vec3;
@@ -235,10 +236,14 @@ void WorldFiles::writeWorldInfo(const WorldInfo& info) {
 	BinaryWriter out;
 	out.putCStr(WORLD_FORMAT_MAGIC);
 	out.put(WORLD_FORMAT_VERSION);
+	
 	out.put(WORLD_SECTION_MAIN);
-
 	out.putInt64(info.seed);
 	out.put(info.name);
+
+	out.put(WORLD_SECTION_DAYNIGHT);
+	out.putFloat32(info.daytime);
+	out.putFloat32(info.daytimeSpeed);
 
 	files::write_bytes(getWorldFile(), (const char*)out.data(), out.size());
 }
@@ -259,6 +264,10 @@ bool WorldFiles::readWorldInfo(WorldInfo& info) {
 		case WORLD_SECTION_MAIN:
 			info.seed = inp.getInt64();
 			info.name = inp.getString();
+			break;
+		case WORLD_SECTION_DAYNIGHT:
+			info.daytime = inp.getFloat32();
+			info.daytimeSpeed = inp.getFloat32();
 			break;
 		}
 	}
