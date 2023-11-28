@@ -17,7 +17,7 @@ void AssetsLoader::addLoader(int tag, aloader_func func) {
 	loaders[tag] = func;
 }
 
-void AssetsLoader::add(int tag, const std::string filename, const std::string alias) {
+void AssetsLoader::add(int tag, const path filename, const std::string alias) {
 	entries.push(aloader_entry{ tag, filename, alias });
 }
 
