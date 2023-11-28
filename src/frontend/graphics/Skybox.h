@@ -4,20 +4,20 @@
 #include "../../typedefs.h"
 
 class Mesh;
-class Shader;
+class IShader;
 
 class Skybox {
     uint fbo;
     uint cubemap;
     uint size;
     Mesh* mesh;
-    Shader* shader;
+    IShader* shader;
     bool ready = false;
 public:
-    Skybox(uint size, Shader* shader);
+    Skybox(uint size, IShader* shader);
     ~Skybox();
 
-    void draw(Shader* shader);
+    void draw(IShader* shader);
 
     void refresh(float t, float mie, uint quality);
     void bind() const;

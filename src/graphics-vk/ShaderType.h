@@ -12,8 +12,9 @@ enum class ShaderType {
     NONE = -1,
     MAIN,
     LINES,
-    SCREEN,
-    UI
+    UI,
+    BACKGROUND,
+    SKYBOX_GEN
 };
 
 inline ShaderType toShaderType(const std::string &name) {
@@ -21,10 +22,12 @@ inline ShaderType toShaderType(const std::string &name) {
         return ShaderType::MAIN;
     if (name == "lines")
         return ShaderType::LINES;
-    if (name == "screen")
-        return ShaderType::SCREEN;
     if (name == "ui")
         return ShaderType::UI;
+    if (name == "background")
+        return ShaderType::BACKGROUND;
+    if (name == "skybox_gen")
+        return ShaderType::SKYBOX_GEN;
 
     return ShaderType::NONE;
 }
@@ -36,8 +39,8 @@ inline std::vector<VkDescriptorSetLayoutBinding> getSamplerBindingsByShader(Shad
         case ShaderType::LINES:
             return {};
         case ShaderType::MAIN:
-        case ShaderType::SCREEN:
-        case ShaderType::UI: {
+        case ShaderType::UI:
+        case ShaderType::BACKGROUND: {
             VkDescriptorSetLayoutBinding samplerUniformBinding{};
             samplerUniformBinding.binding = 0;
             samplerUniformBinding.descriptorCount = 1;
@@ -52,6 +55,7 @@ inline std::vector<VkDescriptorSetLayoutBinding> getUniformSetBindingsByShader(S
     std::vector<VkDescriptorSetLayoutBinding> descriptroBindings{};
 
     switch (type) {
+        default:
         case ShaderType::NONE:
             break;
         case ShaderType::MAIN: {
@@ -76,8 +80,7 @@ inline std::vector<VkDescriptorSetLayoutBinding> getUniformSetBindingsByShader(S
             descriptroBindings.emplace_back(stateUniformBinding);
             descriptroBindings.emplace_back(lightUniformBinding);
             descriptroBindings.emplace_back(fogUniformBinding);
-        }
-            break;
+        } break;
         case ShaderType::LINES: {
             VkDescriptorSetLayoutBinding projviewUniformBinding{};
             projviewUniformBinding.binding = 0;
@@ -86,10 +89,7 @@ inline std::vector<VkDescriptorSetLayoutBinding> getUniformSetBindingsByShader(S
             projviewUniformBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
             descriptroBindings.emplace_back(projviewUniformBinding);
-        }
-            break;
-        case ShaderType::SCREEN:
-            break;
+        } break;
         case ShaderType::UI: {
             VkDescriptorSetLayoutBinding projviewUniformBinding{};
             projviewUniformBinding.binding = 0;
@@ -98,8 +98,25 @@ inline std::vector<VkDescriptorSetLayoutBinding> getUniformSetBindingsByShader(S
             projviewUniformBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
             descriptroBindings.emplace_back(projviewUniformBinding);
-        }
-            break;
+        } break;
+        case ShaderType::BACKGROUND: {
+            VkDescriptorSetLayoutBinding backgroundUniformBinding{};
+            backgroundUniformBinding.binding = 0;
+            backgroundUniformBinding.descriptorCount = 1;
+            backgroundUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            backgroundUniformBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+            descriptroBindings.emplace_back(backgroundUniformBinding);
+        } break;
+        case ShaderType::SKYBOX_GEN: {
+            VkDescriptorSetLayoutBinding skyboxUniformBinding{};
+            skyboxUniformBinding.binding = 0;
+            skyboxUniformBinding.descriptorCount = 1;
+            skyboxUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            skyboxUniformBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+            descriptroBindings.emplace_back(skyboxUniformBinding);
+        } break;
     }
 
     return descriptroBindings;

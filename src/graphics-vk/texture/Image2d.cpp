@@ -138,7 +138,6 @@ void Image2d::bind() {
 
     VkWriteDescriptorSet samplerWrite{};
     samplerWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    samplerWrite.dstSet = pipeline->getSamplerSet();
     samplerWrite.dstArrayElement = 0;
     samplerWrite.descriptorCount = 1;
     samplerWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -146,17 +145,19 @@ void Image2d::bind() {
 
     switch (type) {
         case ShaderType::MAIN:
-        case ShaderType::SCREEN:
         case ShaderType::UI:
+        case ShaderType::BACKGROUND:
             samplerWrite.dstBinding = 0;
             break;
         case ShaderType::NONE:
         case ShaderType::LINES:
+        case ShaderType::SKYBOX_GEN:
         default:
             return;
     }
 
-    vkUpdateDescriptorSets(device, 1, &samplerWrite, 0, nullptr);
+    auto &state = vulkan::VulkanContext::get().getCurrentState();
+    vulkan::vkCmdPushDescriptorSetKhr(state.commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getLayout(), 1, 1, &samplerWrite);
 }
 
 void Image2d::reload(unsigned char* data) {

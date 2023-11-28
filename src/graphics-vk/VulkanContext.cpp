@@ -7,14 +7,19 @@
 #include "VulkanDefenitions.h"
 #include "../window/Window.h"
 #include "device/GraphicsPipeline.h"
+#include "uniforms/BackgroundUniform.h"
 #include "uniforms/FogUniform.h"
 #include "uniforms/LightUniform.h"
 #include "uniforms/ProjectionViewUniform.h"
+#include "uniforms/SkyboxUniform.h"
 #include "uniforms/StateUniform.h"
 
 constexpr uint32_t DESCRIPTOR_SET_COUNT = 1000;
 
 namespace vulkan {
+
+    PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKhr = nullptr;
+
     bool VulkanContext::vulkanEnabled = false;
 
     void UniformBuffersHolder::initBuffers() {
@@ -22,6 +27,8 @@ namespace vulkan {
         m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(LightUniform)));
         m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(FogUniform)));
         m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(ProjectionViewUniform)));
+        m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(BackgroundUniform)));
+        m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(SkyboxUniform)));
     }
 
     const UniformBuffer* UniformBuffersHolder::operator[](Type index) const {
@@ -38,8 +45,9 @@ namespace vulkan {
         : m_instance(Instance::create()),
           m_surface(m_instance.createSurface()),
           m_device(m_instance, m_surface),
-          m_swapchain(m_surface, m_device),
+          m_swapchain(std::make_unique<Swapchain>(m_surface, m_device)),
           m_allocator(m_instance, m_device) {
+        vkCmdPushDescriptorSetKhr = reinterpret_cast<PFN_vkCmdPushDescriptorSetKHR>(vkGetDeviceProcAddr(m_device, "vkCmdPushDescriptorSetKHR"));
     }
 
     void VulkanContext::initDescriptorPool() {
@@ -59,7 +67,7 @@ namespace vulkan {
     }
 
     void VulkanContext::initDepth() {
-        const auto swapChainExtent = m_swapchain.getExtent();
+        const auto swapChainExtent = m_swapchain->getExtent();
         m_imageDepth = std::make_unique<ImageDepth>(VkExtent3D{swapChainExtent.width, swapChainExtent.height, 1});
     }
 
@@ -113,7 +121,7 @@ namespace vulkan {
         vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
         m_imageDepth->destroy();
         m_allocator.destroy();
-        m_swapchain.destroy();
+        m_swapchain->destroy();
         m_device.destroy();
         m_surface.destroy();
         m_instance.destroy();
@@ -132,7 +140,7 @@ namespace vulkan {
     }
 
     const Swapchain& VulkanContext::getSwapchain() const {
-        return m_swapchain;
+        return *m_swapchain;
     }
 
     const ImageDepth& VulkanContext::getDepth() const {
@@ -147,6 +155,12 @@ namespace vulkan {
         return m_uniformBuffersHolder[type];
     }
 
+    void VulkanContext::recreateSwapChain() {
+        m_swapchain->destroy();
+        m_swapchain.reset();
+        m_swapchain = std::make_unique<Swapchain>(m_surface, m_device);
+    }
+
     void VulkanContext::updateState(GraphicsPipeline* pipeline) {
         m_state.pipeline = pipeline;
     }
@@ -155,11 +169,11 @@ namespace vulkan {
         m_state.commandbuffer = commandBuffer;
     }
 
-    void VulkanContext::beginDraw(float r, float g, float b) {
+    void VulkanContext::beginDraw(float r, float g, float b, VkAttachmentLoadOp loadOp) {
         CHECK_VK(vkWaitForFences(m_device, 1, &m_renderFence, VK_TRUE, UINT64_MAX));
         CHECK_VK(vkResetFences(m_device, 1, &m_renderFence));
 
-        CHECK_VK(vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, m_presentSemaphore, VK_NULL_HANDLE, &m_currentImage));
+        CHECK_VK(vkAcquireNextImageKHR(m_device, *m_swapchain, UINT64_MAX, m_presentSemaphore, VK_NULL_HANDLE, &m_currentImage));
 
         CHECK_VK(vkResetCommandBuffer(m_frameDatas[m_currentFrame].commandBuffer, 0));
 
@@ -171,7 +185,7 @@ namespace vulkan {
         CHECK_VK(vkBeginCommandBuffer(m_frameDatas[m_currentFrame].commandBuffer, &commandBufferBeginInfo));
 
         tools::insertImageMemoryBarrier(m_frameDatas[m_currentFrame].commandBuffer,
-            m_swapchain.getImages().at(m_currentImage),
+            m_swapchain->getImages().at(m_currentImage),
             0,
             VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
             VK_IMAGE_LAYOUT_UNDEFINED,
@@ -192,9 +206,9 @@ namespace vulkan {
 
         VkRenderingAttachmentInfo colorAttachment{};
         colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        colorAttachment.imageView = m_swapchain.getImageViews().at(m_currentImage);
+        colorAttachment.imageView = m_swapchain->getImageViews().at(m_currentImage);
         colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colorAttachment.loadOp = loadOp;
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachment.clearValue = { r, g, b, 1.0f };
 
@@ -218,10 +232,6 @@ namespace vulkan {
         vkCmdBeginRendering(m_frameDatas[m_currentFrame].commandBuffer, &renderingInfo);
 
         updateState(m_frameDatas[m_currentFrame].commandBuffer);
-
-        if (m_state.pipeline != nullptr) {
-            vkCmdSetLineWidth(m_frameDatas[m_currentFrame].commandBuffer, 1.0f);
-        }
     }
 
     void VulkanContext::endDraw() {
@@ -229,7 +239,7 @@ namespace vulkan {
         vkCmdEndRendering(m_frameDatas[m_currentFrame].commandBuffer);
 
         tools::insertImageMemoryBarrier(m_frameDatas[m_currentFrame].commandBuffer,
-            m_swapchain.getImages().at(m_currentImage),
+            m_swapchain->getImages().at(m_currentImage),
             VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
             0,
             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
@@ -263,7 +273,7 @@ namespace vulkan {
         presentInfo.waitSemaphoreCount = signalSemaphores.size();
         presentInfo.pWaitSemaphores = signalSemaphores.data();
 
-        VkSwapchainKHR swapchains[] = { m_swapchain };
+        const VkSwapchainKHR swapchains[] = { *m_swapchain };
 
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapchains;

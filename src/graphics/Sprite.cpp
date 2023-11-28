@@ -1,8 +1,8 @@
 #include "Sprite.h"
 
-#include "Texture.h"
+#include "../graphics-base/ITexture.h"
 
-Sprite::Sprite(glm::vec2 position, glm::vec2 size, Texture* texture)
+Sprite::Sprite(glm::vec2 position, glm::vec2 size, ITexture* texture)
 	: position(position),
 	  size(size),
 	  origin(0.5f, 0.5f),

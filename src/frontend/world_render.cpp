@@ -122,7 +122,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 	Window::clearDepth();
 	Window::viewport(0, 0, displayWidth, displayHeight);
 
-	Shader* backShader = assets->getShader("background");
+	IShader* backShader = assets->getShader("background");
 	backShader->use();
 	backShader->uniformMatrix("u_view", camera->getView(false));
 	backShader->uniform1f("u_zoom", camera->zoom);

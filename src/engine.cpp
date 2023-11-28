@@ -24,6 +24,9 @@
 #include "coders/png.h"
 #include "files/files.h"
 #include "files/engine_paths.h"
+#include "graphics-base/IShader.h"
+#include "graphics-vk/Batch2D.h"
+#include "graphics-vk/VulkanContext.h"
 
 using std::unique_ptr;
 using std::shared_ptr;
@@ -32,9 +35,11 @@ using std::filesystem::path;
 using glm::vec3;
 using gui::GUI;
 
-Engine::Engine(EngineSettings& settings, EnginePaths* paths, Content* content) 
-	   : settings(settings), content(content), paths(paths) {    
+Engine::Engine(EngineSettings& settings, EnginePaths* paths, Content* content)
+	   : settings(settings), content(content), paths(paths) {
 	Window::initialize(settings.display);
+
+	vulkan::VulkanContext::initialize();
 
 	assets = new Assets();
 	std::cout << "-- loading assets" << std::endl;
@@ -74,11 +79,11 @@ void Engine::updateHotkeys() {
 }
 
 void Engine::mainloop() {
-	setScreen(shared_ptr<Screen>(new MenuScreen(this)));
+	setScreen(std::make_shared<MenuScreen>(this));
 	
 	std::cout << "-- preparing systems" << std::endl;
 
-	Batch2D batch(1024);
+	vulkan::Batch2D batch(5000);
 	lastTime = Window::time();
 
 	while (!Window::isShouldClose()){
@@ -88,13 +93,18 @@ void Engine::mainloop() {
 
 		gui->act(delta);
 		screen->update(delta);
+
+		vulkan::VulkanContext::get().beginDraw(0.2f, 0.2f, 0.2f, VK_ATTACHMENT_LOAD_OP_CLEAR);
 		screen->draw(delta);
 		gui->draw(&batch, assets);
+		vulkan::VulkanContext::get().endDraw();
 
 		Window::swapInterval(settings.display.swapInterval);
 		Window::swapBuffers();
 		Events::pullEvents();
 	}
+
+	vulkan::VulkanContext::waitIdle();
 }
 
 Engine::~Engine() {
@@ -105,6 +115,7 @@ Engine::~Engine() {
 
 	std::cout << "-- shutting down" << std::endl;
 	delete assets;
+	vulkan::VulkanContext::finalize();
 	Window::terminate();
 	std::cout << "-- engine finished" << std::endl;
 }

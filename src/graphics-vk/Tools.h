@@ -99,7 +99,6 @@ namespace tools {
             default:
             case ShaderType::NONE:
             case ShaderType::MAIN:
-            case ShaderType::SCREEN:
             case ShaderType::UI:
                 return VK_POLYGON_MODE_FILL;
             case ShaderType::LINES:

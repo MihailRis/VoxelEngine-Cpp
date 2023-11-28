@@ -7,6 +7,8 @@
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 
+#include "../graphics-vk/VulkanContext.h"
+
 using glm::vec4;
 
 GLFWwindow* Window::window = nullptr;
@@ -86,11 +88,13 @@ int Window::initialize(DisplaySettings& settings){
 	Window::height = settings.height;
 
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-	glfwWindowHint(GLFW_SAMPLES, settings.samples);
+	// glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	// glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	// glfwWindowHint(GLFW_SAMPLES, settings.samples);
+
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 	window = glfwCreateWindow(width, height, settings.title, nullptr, nullptr);
 	if (window == nullptr){
@@ -98,22 +102,22 @@ int Window::initialize(DisplaySettings& settings){
 		glfwTerminate();
 		return -1;
 	}
-	glfwMakeContextCurrent(window);
-
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK){
-		std::cerr << "Failed to initialize GLEW" << std::endl;
-		return -1;
-	}
-	glViewport(0,0, width, height);
-
-	glClearColor(0.0f,0.0f,0.0f, 1);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// glfwMakeContextCurrent(window);
+	//
+	// glewExperimental = GL_TRUE;
+	// if (glewInit() != GLEW_OK){
+	// 	std::cerr << "Failed to initialize GLEW" << std::endl;
+	// 	return -1;
+	// }
+	// glViewport(0,0, width, height);
+	//
+	// glClearColor(0.0f,0.0f,0.0f, 1);
+	// glEnable(GL_DEPTH_TEST);
+	// glEnable(GL_CULL_FACE);
+	// glEnable(GL_BLEND);
+	// glDisable(GL_DEPTH_TEST);
+	// glDisable(GL_CULL_FACE);
+	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Events::initialize();
 	glfwSetKeyCallback(window, key_callback);
@@ -128,27 +132,27 @@ int Window::initialize(DisplaySettings& settings){
 		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
 	}
 	glfwSwapInterval(settings.swapInterval);
-	const GLubyte* vendor = glGetString(GL_VENDOR);
-	const GLubyte* renderer = glGetString(GL_RENDERER);
-	std::cout << "GL Vendor: " << (char*)vendor << std::endl;
-	std::cout << "GL Renderer: " << (char*)renderer << std::endl;
+	// const GLubyte* vendor = glGetString(GL_VENDOR);
+	// const GLubyte* renderer = glGetString(GL_RENDERER);
+	// std::cout << "GL Vendor: " << (char*)vendor << std::endl;
+	// std::cout << "GL Renderer: " << (char*)renderer << std::endl;
 	return 0;
 }
 
 void Window::clear() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::clearDepth() {
-	glClear(GL_DEPTH_BUFFER_BIT);
+	// glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::setBgColor(glm::vec3 color) {
-	glClearColor(color.r, color.g, color.b, 1.0f);
+	// glClearColor(color.r, color.g, color.b, 1.0f);
 }
 
 void Window::viewport(int x, int y, int width, int height){
-	glViewport(x, y, width, height);
+	// glViewport(x, y, width, height);
 }
 
 void Window::setCursorMode(int mode){
@@ -158,12 +162,14 @@ void Window::setCursorMode(int mode){
 void Window::resetScissor() {
 	scissorArea = vec4(0.0f, 0.0f, width, height);
 	scissorStack = std::stack<vec4>();
-	glDisable(GL_SCISSOR_TEST);
+	// glDisable(GL_SCISSOR_TEST);
 }
 
 void Window::pushScissor(vec4 area) {
+	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandbuffer;
 	if (scissorStack.empty()) {
-		glEnable(GL_SCISSOR_TEST);
+		VkRect2D scissor = { {0, 0}, {Window::width, Window::height} };
+		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 	scissorStack.push(scissorArea);
 
@@ -177,9 +183,18 @@ void Window::pushScissor(vec4 area) {
 	area.w = fmin(area.w, scissorArea.w);
 
 	if (area.z < 0.0f || area.w < 0.0f) {
-		glScissor(0, 0, 0, 0);
+		// glScissor(0, 0, 0, 0);
+		VkRect2D scissor = { {0, 0}, {0, 0} };
+		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	} else {
-		glScissor(area.x, Window::height-area.w, area.z-area.x, area.w-area.y);
+		// glScissor(area.x, Window::height-area.w, area.z-area.x, area.w-area.y);
+		VkRect2D scissor{};
+		scissor.offset.x = area.x;
+		scissor.offset.y = Window::height - area.w;
+		scissor.extent.width = std::max(0, static_cast<int32_t>(area.z-area.x));
+		scissor.extent.height = std::max(0, static_cast<int32_t>(area.w-area.y));
+
+		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 	scissorArea = area;
 }
@@ -191,13 +206,25 @@ void Window::popScissor() {
 	}
 	vec4 area = scissorStack.top();
 	scissorStack.pop();
+	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandbuffer;
 	if (area.z < 0.0f || area.w < 0.0f) {
-		glScissor(0, 0, 0, 0);
+		// glScissor(0, 0, 0, 0);
+		VkRect2D scissor = { {0, 0}, {0, 0} };
+		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	} else {
-		glScissor(area.x, Window::height-area.w, area.z-area.x, area.w-area.y);
+		// glScissor(area.x, Window::height-area.w, area.z-area.x, area.w-area.y);
+		VkRect2D scissor{};
+		scissor.offset.x = area.x;
+		scissor.offset.y = Window::height-area.s;
+		scissor.extent.width = std::max(0, static_cast<int32_t>(area.z - area.x));
+		scissor.extent.height = std::max(0, static_cast<int32_t>(area.w - area.y));
+
+		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 	if (scissorStack.empty()) {
-		glDisable(GL_SCISSOR_TEST);
+		// glDisable(GL_SCISSOR_TEST);
+		VkRect2D scissor = { {0, 0}, {Window::width, Window::height} };
+		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 	scissorArea = area;
 }

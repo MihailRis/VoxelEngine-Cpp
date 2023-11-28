@@ -7,6 +7,7 @@
 
 #include "../../assets/Assets.h"
 #include "../../graphics/Batch2D.h"
+#include "../../graphics-vk/Batch2D.h"
 #include "../../graphics/Shader.h"
 #include "../../window/Events.h"
 #include "../../window/input.h"
@@ -19,7 +20,8 @@ using namespace gui;
 GUI::GUI() {
     container = new Container(vec2(0, 0), vec2(Window::width, Window::height));
 
-    uicamera = new Camera(vec3(), Window::height);
+    const vec3 camPos = vulkan::VulkanContext::isVulkanEnabled() ? vec3(0, 0, -1) : vec3();
+    uicamera = new Camera(camPos, static_cast<float>(Window::height));
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 
@@ -116,11 +118,11 @@ void GUI::act(float delta) {
     }
 }
 
-void GUI::draw(Batch2D* batch, Assets* assets) {
+void GUI::draw(vulkan::Batch2D* batch, Assets* assets) {
     menu->setCoord((Window::size() - menu->size()) / 2.0f);
     uicamera->fov = Window::height;
 
-	Shader* uishader = assets->getShader("ui");
+	IShader* uishader = assets->getShader("ui");
 	uishader->use();
 	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
 

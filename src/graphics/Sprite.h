@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include "UVRegion.h"
 
-class Texture;
+class ITexture;
 
 class Sprite {
 public:
@@ -15,13 +15,13 @@ public:
 	float angle;
 	bool flippedX = false;
 	bool flippedY = false;
-	Texture* texture;
+	ITexture* texture;
 	UVRegion region;
 
-	Sprite(glm::vec2 position, glm::vec2 size, Texture* texture);
+	Sprite(glm::vec2 position, glm::vec2 size, ITexture* texture);
 	virtual ~Sprite();
 
-	void setTexture(Texture* texture) {
+	void setTexture(ITexture* texture) {
 		this->texture = texture;
 	}
 };

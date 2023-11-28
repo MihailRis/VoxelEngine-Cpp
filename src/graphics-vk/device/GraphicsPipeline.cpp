@@ -12,12 +12,13 @@
 #include "../VulkanContext.h"
 #include "../VulkanDefenitions.h"
 #include "../Vertices.h"
+#include "../../window/Window.h"
 
-// TODO: to much dynamic states...
 constexpr VkDynamicState DYNAMIC_STATES[] = {
     VK_DYNAMIC_STATE_LINE_WIDTH,
     VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY,
-    // VK_DYNAMIC_STATE_VIEWPORT
+    VK_DYNAMIC_STATE_VIEWPORT,
+    VK_DYNAMIC_STATE_SCISSOR,
 };
 
 GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, VkPipelineLayout layout, VkDescriptorSetLayout uniformSetLayout, VkDescriptorSetLayout samplerSetLayout, ShaderType shaderType)
@@ -31,21 +32,20 @@ GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, VkPipelineLayout layout,
 
     VkDescriptorPool descriptorPool = context.getDescriptorPool();
 
-    VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
-    descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    descriptorSetAllocateInfo.descriptorPool = descriptorPool;
-    descriptorSetAllocateInfo.descriptorSetCount = 1;
-    descriptorSetAllocateInfo.pSetLayouts = &m_uniformsSetLayout;
+    VkDescriptorSetAllocateInfo uniformSetAllocateInfo{};
+    uniformSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    uniformSetAllocateInfo.descriptorPool = descriptorPool;
+    uniformSetAllocateInfo.descriptorSetCount = 1;
+    uniformSetAllocateInfo.pSetLayouts = &m_uniformsSetLayout;
 
-    CHECK_VK(vkAllocateDescriptorSets(device, &descriptorSetAllocateInfo, &m_uniformSet));
-
-    descriptorSetAllocateInfo.pSetLayouts = &m_samplerSetLayout;
-    CHECK_VK(vkAllocateDescriptorSets(device, &descriptorSetAllocateInfo, &m_samplerSet));
+    CHECK_VK(vkAllocateDescriptorSets(device, &uniformSetAllocateInfo, &m_uniformSet));
 
     const auto stateBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::STATE)->getBufferInfo();
     const auto lightBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::LIGHT)->getBufferInfo();
     const auto fogBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::FOG)->getBufferInfo();
     const auto projectionViewBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::PROJECTION_VIEW)->getBufferInfo();
+    const auto backgraundUniformInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::BACKGROUND)->getBufferInfo();
+    const auto skyboxUniformInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::SKYBOX)->getBufferInfo();
 
     switch (shaderType) {
         case ShaderType::MAIN: {
@@ -56,26 +56,36 @@ GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, VkPipelineLayout layout,
             };
 
             vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-        }
-            break;
+        } break;
         case ShaderType::LINES: {
             const std::array writeSets = {
                 initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &projectionViewBufferInfo),
             };
 
             vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-        }
-            break;
+        } break;
         case ShaderType::UI: {
             const std::array writeSets = {
                 initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &projectionViewBufferInfo),
             };
 
             vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-        }
-            break;
+        } break;
+        case ShaderType::BACKGROUND: {
+            const std::array writeSets = {
+                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &backgraundUniformInfo),
+            };
+
+            vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
+        } break;
+        case ShaderType::SKYBOX_GEN: {
+            const std::array writeSets = {
+                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &skyboxUniformInfo),
+            };
+
+            vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
+        } break;
         case ShaderType::NONE:
-        case ShaderType::SCREEN:
         default:
             break;
     }
@@ -93,6 +103,10 @@ ShaderType GraphicsPipeline::getType() const {
     return m_shaderType;
 }
 
+VkPipelineLayout GraphicsPipeline::getLayout() const {
+    return m_layout;
+}
+
 VkDescriptorSet GraphicsPipeline::getUniformSet() const {
     return m_uniformSet;
 }
@@ -103,8 +117,22 @@ VkDescriptorSet GraphicsPipeline::getSamplerSet() const {
 
 void GraphicsPipeline::bind(VkCommandBuffer commandBuffer) {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
-    const VkDescriptorSet sets[] = { m_uniformSet, m_samplerSet };
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_layout, 0, 2, sets, 0, nullptr);
+    const VkDescriptorSet sets[] = { m_uniformSet };
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_layout, 0, 1, sets, 0, nullptr);
+
+    VkViewport viewport{};
+    viewport.width = static_cast<float>(Window::width);
+    viewport.height = -static_cast<float>(Window::height);
+    viewport.x = 0.0f;
+    viewport.y = static_cast<float>(Window::height);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+    VkRect2D scissor{};
+    scissor.extent = { Window::width, Window::height };
+    scissor.offset = { 0, 0 };
+    vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }
 
 void GraphicsPipeline::destroy() {
@@ -130,8 +158,8 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
         case ShaderType::NONE:
             throw std::runtime_error("Failed to initialize pipeline");
         case ShaderType::MAIN:
-        case ShaderType::SCREEN:
         case ShaderType::UI:
+        case ShaderType::BACKGROUND:
             descriptorBindingFlags.emplace_back(VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT);
         break;
         case ShaderType::LINES:
@@ -155,8 +183,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     samplerSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     samplerSetLayoutCreateInfo.bindingCount = samplerBindings.size();
     samplerSetLayoutCreateInfo.pBindings = samplerBindings.data();
-    samplerSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
-    samplerSetLayoutCreateInfo.pNext = &bindingFlagsCreateInfo;
+    samplerSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
 
     VkDescriptorSetLayout uniformSetLayout = VK_NULL_HANDLE;
     CHECK_VK(vkCreateDescriptorSetLayout(device, &uniformsSetLayoutCreateInfo, nullptr, &uniformSetLayout));
@@ -219,7 +246,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
 
     VkPipelineMultisampleStateCreateInfo multisampling{};
@@ -229,7 +256,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
 
     VkPipelineDepthStencilStateCreateInfo depthStencil{};
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    depthStencil.depthTestEnable = VK_TRUE;
+    depthStencil.depthTestEnable = type == ShaderType::UI ? VK_FALSE : VK_TRUE;
     depthStencil.depthWriteEnable = VK_TRUE;
     depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
     depthStencil.depthBoundsTestEnable = VK_FALSE;

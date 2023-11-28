@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 project(VoxelEngine)
 
+option(VOXEL_ENGINE_USE_VULKAN "Use vulkan as backend for render" ON)
+
 file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
@@ -20,10 +22,15 @@ endif()
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(Vulkan REQUIRED)
 find_package(OpenAL REQUIRED)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/vma)
+set(LIBS "")
+if (VOXEL_ENGINE_USE_VULKAN)
+    find_package(Vulkan REQUIRED)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/vma)
+
+    set(LIBS ${LIBS} Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator)
+endif ()
 
 if (WIN32)
     set(PNGLIB spng)
@@ -33,7 +40,6 @@ else()
     set(PNGLIB PNG::PNG)
 endif(WIN32)
 
-set(LIBS "")
 
 if(UNIX)
     find_package(Threads REQUIRED)
@@ -45,6 +51,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 
-target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator ${PNGLIB})
+target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ${PNGLIB})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

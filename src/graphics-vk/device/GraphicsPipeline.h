@@ -30,12 +30,14 @@ public:
     operator VkPipeline() const;
 
     ShaderType getType() const;
+    VkPipelineLayout getLayout() const;
     VkDescriptorSet getUniformSet() const;
     VkDescriptorSet getSamplerSet() const;
 
     void bind(VkCommandBuffer commandBuffer);
 
     void destroy();
+
 
     static std::shared_ptr<GraphicsPipeline> create(const std::vector<VkPipelineShaderStageCreateInfo> &stages, ShaderType type);
 };

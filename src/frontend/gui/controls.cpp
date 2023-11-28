@@ -3,7 +3,8 @@
 #include <iostream>
 
 #include "../../assets/Assets.h"
-#include "../../graphics/Batch2D.h"
+// #include "../../graphics/Batch2D.h"
+#include "../../graphics-vk/Batch2D.h"
 #include "../../graphics/Font.h"
 #include "../../util/stringutil.h"
 
@@ -31,11 +32,11 @@ wstring Label::text() const {
     return text_;
 }
 
-void Label::draw(Batch2D* batch, Assets* assets) {
+void Label::draw(vulkan::Batch2D* batch, Assets* assets) {
     if (supplier) {
         text(supplier());
     }
-    batch->color = color_;
+    batch->setColor(color_);
     Font* font = assets->getFont(fontName_);
     vec2 size = UINode::size();
     vec2 newsize = vec2(font->calcWidth(text_), font->lineHeight());
@@ -85,10 +86,10 @@ wstring Button::text() const {
     return L"";
 }
 
-void Button::drawBackground(Batch2D* batch, Assets* assets) {
+void Button::drawBackground(vulkan::Batch2D* batch, Assets* assets) {
     vec2 coord = calcCoord();
     batch->texture(nullptr);
-    batch->color = (ispressed() ? pressedColor : (hover_ ? hoverColor : color_));
+    batch->setColor(ispressed() ? pressedColor : (hover_ ? hoverColor : color_));
     batch->rect(coord.x, coord.y, size_.x, size_.y);
 }
 
@@ -111,7 +112,7 @@ Button* Button::listenAction(onaction action) {
 }
 
 // ================================ TextBox ===================================
-TextBox::TextBox(wstring placeholder, vec4 padding) 
+TextBox::TextBox(wstring placeholder, glm::vec4 padding)
     : Panel(vec2(200,32), padding, 0, false), 
       input(L""),
       placeholder(placeholder) {
@@ -119,20 +120,20 @@ TextBox::TextBox(wstring placeholder, vec4 padding)
     add(shared_ptr<UINode>(label));
 }
 
-void TextBox::drawBackground(Batch2D* batch, Assets* assets) {
+void TextBox::drawBackground(vulkan::Batch2D* batch, Assets* assets) {
     vec2 coord = calcCoord();
     batch->texture(nullptr);
-    batch->color = (isfocused() ? focusedColor : (hover_ ? hoverColor : color_));
+    batch->setColor(isfocused() ? focusedColor : (hover_ ? hoverColor : color_));
     batch->rect(coord.x, coord.y, size_.x, size_.y);
     if (!focused_ && supplier) {
         input = supplier();
     }
 
     if (input.empty()) {
-        label->color(vec4(0.5f));
+        label->color(glm::vec4(0.5f));
         label->text(placeholder);
     } else {
-        label->color(vec4(1.0f));
+        label->color(glm::vec4(1.0f));
         label->text(input);
     }
     scrollable(false);
@@ -177,7 +178,7 @@ wstring TextBox::text() const {
 }
 
 // ============================== InputBindBox ================================
-InputBindBox::InputBindBox(Binding& binding, vec4 padding) 
+InputBindBox::InputBindBox(Binding& binding, glm::vec4 padding)
     : Panel(vec2(100,32), padding, 0, false),
       binding(binding) {
     label = new Label(L"");
@@ -189,10 +190,10 @@ shared_ptr<UINode> InputBindBox::getAt(vec2 pos, shared_ptr<UINode> self) {
     return UINode::getAt(pos, self);
 }
 
-void InputBindBox::drawBackground(Batch2D* batch, Assets* assets) {
+void InputBindBox::drawBackground(vulkan::Batch2D* batch, Assets* assets) {
     vec2 coord = calcCoord();
     batch->texture(nullptr);
-    batch->color = (isfocused() ? focusedColor : (hover_ ? hoverColor : color_));
+    batch->setColor(isfocused() ? focusedColor : (hover_ ? hoverColor : color_));
     batch->rect(coord.x, coord.y, size_.x, size_.y);
     label->text(util::str2wstr_utf8(binding.text()));
 }
@@ -214,22 +215,22 @@ void InputBindBox::keyPressed(int key) {
 // ================================ TrackBar ==================================
 TrackBar::TrackBar(double min, double max, double value, double step, int trackWidth)
     : UINode(vec2(), vec2(32)), min(min), max(max), value(value), step(step), trackWidth(trackWidth) {
-    color(vec4(0.f, 0.f, 0.f, 0.4f));
+    color(glm::vec4(0.f, 0.f, 0.f, 0.4f));
 }
 
-void TrackBar::draw(Batch2D* batch, Assets* assets) {
+void TrackBar::draw(vulkan::Batch2D* batch, Assets* assets) {
     if (supplier_) {
         value = supplier_();
     }
     vec2 coord = calcCoord();
     batch->texture(nullptr);
-    batch->color = (hover_ ? hoverColor : color_);
+    batch->setColor(hover_ ? hoverColor : color_);
     batch->rect(coord.x, coord.y, size_.x, size_.y);
 
     float width = size_.x;
     float t = (value - min) / (max-min+trackWidth*step);
 
-    batch->color = trackColor;
+    batch->setColor(trackColor);
     batch->rect(coord.x + width * t, coord.y, size_.x * (trackWidth / (max-min+trackWidth*step) * step), size_.y);
 }
 
@@ -257,16 +258,16 @@ void TrackBar::mouseMove(GUI*, int x, int y) {
 
 // ================================ CheckBox ==================================
 CheckBox::CheckBox(bool checked) : UINode(vec2(), vec2(32.0f)), checked_(checked) {
-    color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    color(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
 }
 
-void CheckBox::draw(Batch2D* batch, Assets* assets) {
+void CheckBox::draw(vulkan::Batch2D* batch, Assets* assets) {
     if (supplier_) {
         checked_ = supplier_();
     }
     vec2 coord = calcCoord();
     batch->texture(nullptr);
-    batch->color = checked_ ? checkColor : (hover_ ? hoverColor : color_);
+    batch->setColor(checked_ ? checkColor : (hover_ ? hoverColor : color_));
     batch->rect(coord.x, coord.y, size_.x, size_.y);
 }
 

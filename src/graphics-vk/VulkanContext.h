@@ -1,6 +1,7 @@
 #ifndef VULKAN_CONTEXT_H
 #define VULKAN_CONTEXT_H
 
+#include <functional>
 #include <memory>
 
 #include "Allocator.h"
@@ -35,6 +36,8 @@ namespace vulkan {
             LIGHT,
             FOG,
             PROJECTION_VIEW,
+            BACKGROUND,
+            SKYBOX
         };
 
         UniformBuffersHolder() = default;
@@ -46,13 +49,15 @@ namespace vulkan {
         void destroy();
     };
 
+    extern PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKhr;
+
     class VulkanContext final : Noncopybale {
         static bool vulkanEnabled;
 
         Instance m_instance;
         Surface m_surface;
         Device m_device;
-        Swapchain m_swapchain;
+        std::unique_ptr<Swapchain> m_swapchain;
         Allocator m_allocator;
         std::unique_ptr<ImageDepth> m_imageDepth = nullptr;
         VkDescriptorPool m_descriptorPool = VK_NULL_HANDLE;
@@ -87,10 +92,12 @@ namespace vulkan {
         VkDescriptorPool getDescriptorPool() const;
         const UniformBuffer *getUniformBuffer(UniformBuffersHolder::Type type) const;
 
+        void recreateSwapChain();
+
         void updateState(GraphicsPipeline *pipeline);
         void updateState(VkCommandBuffer commandBuffer);
 
-        void beginDraw(float r, float g, float b);
+        void beginDraw(float r, float g, float b, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
         void endDraw();
 
         static VulkanContext &get();

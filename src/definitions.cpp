@@ -101,6 +101,13 @@ void setup_definitions(ContentBuilder* builder) {
 	block = new Block("base:blue_lamp", "blue_lamp");
 	block->emission[2] = 15;
 	builder->add(block);
+
+	block = new Block("base:vulkan_logo", "vulkan_logo");
+	block->drawGroup = 1;
+	block->emission[0] = 15;
+	block->emission[2] = 15;
+	block->lightPassing = true;
+	builder->add(block);
 }
 
 void setup_bindings() {

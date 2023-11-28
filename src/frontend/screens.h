@@ -29,7 +29,7 @@ public:
 };
 
 class MenuScreen : public Screen {
-    Batch2D* batch;
+    vulkan::Batch2D* batch;
     Camera* uicamera;
 public:
     MenuScreen(Engine* engine);

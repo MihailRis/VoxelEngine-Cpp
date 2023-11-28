@@ -3,7 +3,7 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
-#include "../../graphics/Shader.h"
+#include "../../graphics-base/IShader.h"
 #include "../../graphics/Mesh.h"
 #include "../../window/Window.h"
 
@@ -13,7 +13,7 @@
 
 using glm::vec3;
 
-Skybox::Skybox(uint size, Shader* shader) : size(size), shader(shader) {
+Skybox::Skybox(uint size, IShader* shader) : size(size), shader(shader) {
     glGenTextures(1, &cubemap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
     glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -40,7 +40,7 @@ Skybox::~Skybox() {
     delete mesh;
 }
 
-void Skybox::draw(Shader* shader) {
+void Skybox::draw(IShader* shader) {
     shader->uniform1i("u_cubemap", 1);
     bind();
     mesh->draw();

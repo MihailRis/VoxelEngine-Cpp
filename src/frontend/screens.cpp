@@ -13,6 +13,7 @@
 #include "../window/input.h"
 #include "../graphics-base/IShader.h"
 #include "../graphics/Batch2D.h"
+#include "../graphics-vk/Batch2D.h"
 #include "../graphics/GfxContext.h"
 #include "../assets/Assets.h"
 #include "../world/Level.h"
@@ -31,6 +32,7 @@
 #include "../core_defs.h"
 
 #include "menu.h"
+#include "../graphics-vk/VulkanContext.h"
 
 using std::string;
 using std::wstring;
@@ -55,8 +57,9 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     menu->reset();
     menu->set("main");
 
-    batch = new Batch2D(1024);
-    uicamera = new Camera(vec3(), Window::height);
+    batch = new vulkan::Batch2D(1024);
+    const vec3 camPos = vulkan::VulkanContext::isVulkanEnabled() ? vec3(0, 0, -1) : vec3();
+    uicamera = new Camera(camPos, static_cast<float>(Window::height));
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 }

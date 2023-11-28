@@ -79,14 +79,14 @@ struct VertexLines {
     }
 };
 
-struct VertexScreen {
+struct VertexBackSkyGen {
     glm::vec2 position;
 
     static VkVertexInputBindingDescription getBinding() {
         VkVertexInputBindingDescription inputBindingDescription{};
         inputBindingDescription.binding = 0;
         inputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        inputBindingDescription.stride = sizeof(VertexScreen);
+        inputBindingDescription.stride = sizeof(VertexBackSkyGen);
         return inputBindingDescription;
     }
 
@@ -95,7 +95,7 @@ struct VertexScreen {
         posAttrib.binding = 0;
         posAttrib.location = 0;
         posAttrib.format = VK_FORMAT_R32G32_SFLOAT;
-        posAttrib.offset = offsetof(VertexScreen, position);
+        posAttrib.offset = offsetof(VertexBackSkyGen, position);
 
         return { posAttrib };
     }
@@ -144,10 +144,11 @@ inline VkVertexInputBindingDescription getVertexBindingByType(ShaderType type) {
             return VertexMain::getBinding();
         case ShaderType::LINES:
             return VertexLines::getBinding();
-        case ShaderType::SCREEN:
-            return VertexScreen::getBinding();
         case ShaderType::UI:
             return Vertex2D::getBinding();
+        case ShaderType::BACKGROUND:
+        case ShaderType::SKYBOX_GEN:
+            return VertexBackSkyGen::getBinding();
         case ShaderType::NONE:
         default:
             throw std::runtime_error("");
@@ -162,10 +163,11 @@ inline std::vector<VkVertexInputAttributeDescription> getVertexAttributeDescript
             return VertexMain::getAttributes();
         case ShaderType::LINES:
             return VertexLines::getAttributes();
-        case ShaderType::SCREEN:
-            return VertexScreen::getAttributes();
         case ShaderType::UI:
             return Vertex2D::getAttributes();
+        case ShaderType::BACKGROUND:
+        case ShaderType::SKYBOX_GEN:
+            return VertexBackSkyGen::getAttributes();
     }
     return {};
 }

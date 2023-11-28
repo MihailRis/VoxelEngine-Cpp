@@ -8,6 +8,10 @@
 #include <functional>
 #include <unordered_map>
 
+namespace vulkan {
+    class Batch2D;
+}
+
 class Batch2D;
 class Assets;
 class Camera;
@@ -68,7 +72,7 @@ namespace gui {
         bool isFocusCaught() const;
 
         void act(float delta);
-        void draw(Batch2D* batch, Assets* assets);
+        void draw(vulkan::Batch2D* batch, Assets* assets);
         void add(std::shared_ptr<UINode> panel);
         void remove(std::shared_ptr<UINode> panel);
         void store(std::string name, std::shared_ptr<UINode> node);
