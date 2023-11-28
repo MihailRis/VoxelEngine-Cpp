@@ -82,8 +82,8 @@ inline void parsing_warning(
              " at line "+std::to_string(linenum) << std::endl;
 }
 
-inline void source_line(std::stringstream& ss, const path& file, uint linenum) {
-    ss << "#line " << linenum << " " << file << '\n';
+inline void source_line(std::stringstream& ss, uint linenum) {
+    ss << "#line " << linenum << "\n";
 }
 
 const string GLSLExtension::process(const path file, const string& source) {
@@ -94,7 +94,7 @@ const string GLSLExtension::process(const path file, const string& source) {
     for (auto& entry : defines) {
         ss << "#define " << entry.first << " " << entry.second << '\n';
     }
-    source_line(ss, file, linenum);
+    source_line(ss, linenum);
     while (pos < source.length()) {
         size_t endline = source.find('\n', pos);
         if (endline == string::npos) {
@@ -121,11 +121,11 @@ const string GLSLExtension::process(const path file, const string& source) {
                 if (!hasHeader(name)) {
                     loadHeader(name);
                 }
-                source_line(ss, hfile, 1);
+                source_line(ss, 1);
                 ss << getHeader(name) << '\n';
                 pos = endline+1;
                 linenum++;
-                source_line(ss, file, linenum);
+                source_line(ss, linenum);
                 continue;
             } 
             // removing extra 'include' directives
@@ -133,7 +133,7 @@ const string GLSLExtension::process(const path file, const string& source) {
                 parsing_warning(file, linenum, "removed #version directive");
                 pos = endline+1;
                 linenum++;
-                source_line(ss, file, linenum);
+                source_line(ss, linenum);
                 continue;
             }
         }
