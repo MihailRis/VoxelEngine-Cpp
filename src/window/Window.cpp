@@ -178,7 +178,9 @@ void Window::pushScissor(vec4 area) {
 	if (area.z < 0.0f || area.w < 0.0f) {
 		glScissor(0, 0, 0, 0);
 	} else {
-		glScissor(area.x, Window::height-area.w, area.z-area.x, area.w-area.y);
+		glScissor(area.x, Window::height-area.w, 
+				  std::max(0, int(area.z-area.x)), 
+				  std::max(0, int(area.w-area.y)));
 	}
 	scissorArea = area;
 }
@@ -193,7 +195,9 @@ void Window::popScissor() {
 	if (area.z < 0.0f || area.w < 0.0f) {
 		glScissor(0, 0, 0, 0);
 	} else {
-		glScissor(area.x, Window::height-area.w, area.z-area.x, area.w-area.y);
+		glScissor(area.x, Window::height-area.w, 
+				  std::max(0, int(area.z-area.x)), 
+				  std::max(0, int(area.w-area.y)));
 	}
 	if (scissorStack.empty()) {
 		glDisable(GL_SCISSOR_TEST);
