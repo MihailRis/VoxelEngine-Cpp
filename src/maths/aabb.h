@@ -23,8 +23,8 @@ struct AABB {
     inline bool inside(const glm::vec3 pos) const {
         const glm::vec3 p = min();
         const glm::vec3 s = size();
-        return !(pos.x < p.x || pos.y < p.y || 
-                 pos.x >= p.x+s.x || pos.y >= p.y+s.y);
+        return !(pos.x < p.x || pos.y < p.y || pos.z < p.z ||
+                 pos.x >= p.x+s.x || pos.y >= p.y+s.y || pos.z >= p.z+s.z);
     }
 };
 
