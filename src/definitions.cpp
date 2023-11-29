@@ -71,7 +71,7 @@ void setup_definitions(ContentBuilder* builder) {
 	block->lightPassing = true;
 	block->obstacle = false;
 	block->model = BlockModel::xsprite;
-	block->hitboxScale = 0.5f;
+	block->hitboxScale = 0.7f;
 	builder->add(block);
 
 	block = new Block("base:flower", "flower");

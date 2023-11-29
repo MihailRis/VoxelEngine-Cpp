@@ -168,13 +168,9 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 			linesShader->use();
 			linesShader->uniformMatrix("u_projview", camera->getProjView());
 			lineBatch->lineWidth(2.0f);
-			if (block->model == BlockModel::block){
-				lineBatch->box(pos.x+0.5f, pos.y+0.5f, pos.z+0.5f, 
-							   1.008f,1.008f,1.008f, 0,0,0,0.5f);
-			} else if (block->model == BlockModel::xsprite){
-				lineBatch->box(pos.x+0.5f, pos.y+0.35f, pos.z+0.5f, 
-							   0.805f,0.705f,0.805f, 0,0,0,0.5f);
-			}
+			float size = block->hitboxScale;
+			lineBatch->box(pos.x+0.5f, pos.y+size*0.5f, pos.z+0.5f, 
+						   size, size, size, 0, 0, 0, 0.5f);
 			lineBatch->render();
 		}
 		skybox->unbind();
