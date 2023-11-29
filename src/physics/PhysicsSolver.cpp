@@ -1,8 +1,9 @@
 #include "PhysicsSolver.h"
 #include "Hitbox.h"
-#include "../voxels/Chunks.h"
 
-#include <iostream>
+#include "../maths/aabb.h"
+#include "../voxels/Block.h"
+#include "../voxels/Chunks.h"
 
 #define E 0.03
 
@@ -38,11 +39,11 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 		pos.z += vel.z * dt;
 
 		if (shifting && hitbox->grounded){
-			int y = floor(pos.y-half.y-E);
+			float y = (pos.y-half.y-E);
 
 			hitbox->grounded = false;
-			for (int x = floor(px-half.x+E); x <= floor(px+half.x-E); x++){
-				for (int z = floor(pos.z-half.z+E); z <= floor(pos.z+half.z-E); z++){
+			for (float x = (px-half.x+E); x <= (px+half.x-E); x++){
+				for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z++){
 					if (chunks->isObstacle(x,y,z)){
 						hitbox->grounded = true;
 						break;
@@ -53,8 +54,8 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 				pos.z = pz;
 			hitbox->grounded = false;
 
-			for (int x = floor(pos.x-half.x+E); x <= floor(pos.x+half.x-E); x++){
-				for (int z = floor(pz-half.z+E); z <= floor(pz+half.z-E); z++){
+			for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x++){
+				for (float z = (pz-half.z+E); z <= (pz+half.z-E); z++){
 					if (chunks->isObstacle(x,y,z)){
 						hitbox->grounded = true;
 						break;
@@ -70,25 +71,30 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 }
 
 void PhysicsSolver::colisionCalc(Chunks* chunks, Hitbox* hitbox, vec3* vel, vec3* pos, vec3 half){
+	// step size (smaller - more accurate, but slower)
+	float s = 2.0/BLOCK_AABB_GRID;
+
+	const AABB* aabb;
+	
 	if (vel->x < 0.0){
-		for (int y = floor(pos->y-half.y+E); y <= floor(pos->y+half.y-E); y++){
-			for (int z = floor(pos->z-half.z+E); z <= floor(pos->z+half.z-E); z++){
-				int x = floor(pos->x-half.x-E);
-				if (chunks->isObstacle(x,y,z)){
+		for (float y = (pos->y-half.y+E); y <= (pos->y+half.y-E); y+=s){
+			for (float z = (pos->z-half.z+E); z <= (pos->z+half.z-E); z+=s){
+				float x = (pos->x-half.x-E);
+				if ((aabb = chunks->isObstacle(x,y,z))){
 					vel->x *= 0.0;
-					pos->x = x + 1 + half.x + E;
+					pos->x = floor(x) + aabb->max().x + half.x + E;
 					break;
 				}
 			}
 		}
 	}
 	if (vel->x > 0.0){
-		for (int y = floor(pos->y-half.y+E); y <= floor(pos->y+half.y-E); y++){
-			for (int z = floor(pos->z-half.z+E); z <= floor(pos->z+half.z-E); z++){
-				int x = floor(pos->x+half.x+E);
-				if (chunks->isObstacle(x,y,z)){
+		for (float y = (pos->y-half.y+E); y <= (pos->y+half.y-E); y+=s){
+			for (float z = (pos->z-half.z+E); z <= (pos->z+half.z-E); z+=s){
+				float x = (pos->x+half.x+E);
+				if ((aabb = chunks->isObstacle(x,y,z))){
 					vel->x *= 0.0;
-					pos->x = x - half.x - E;
+					pos->x = floor(x) - half.x + aabb->min().x - E;
 					break;
 				}
 			}
@@ -96,12 +102,12 @@ void PhysicsSolver::colisionCalc(Chunks* chunks, Hitbox* hitbox, vec3* vel, vec3
 	}
 
 	if (vel->z < 0.0){
-		for (int y = floor(pos->y-half.y+E); y <= floor(pos->y+half.y-E); y++){
-			for (int x = floor(pos->x-half.x+E); x <= floor(pos->x+half.x-E); x++){
-				int z = floor(pos->z-half.z-E);
-				if (chunks->isObstacle(x,y,z)){
+		for (float y = (pos->y-half.y+E); y <= (pos->y+half.y-E); y+=s){
+			for (float x = (pos->x-half.x+E); x <= (pos->x+half.x-E); x+=s){
+				float z = (pos->z-half.z-E);
+				if ((aabb = chunks->isObstacle(x,y,z))){
 					vel->z *= 0.0;
-					pos->z = z + 1 + half.z + E;
+					pos->z = floor(z) + aabb->max().z + half.z + E;
 					break;
 				}
 			}
@@ -109,12 +115,12 @@ void PhysicsSolver::colisionCalc(Chunks* chunks, Hitbox* hitbox, vec3* vel, vec3
 	}
 
 	if (vel->z > 0.0){
-		for (int y = floor(pos->y-half.y+E); y <= floor(pos->y+half.y-E); y++){
-			for (int x = floor(pos->x-half.x+E); x <= floor(pos->x+half.x-E); x++){
-				int z = floor(pos->z+half.z+E);
-				if (chunks->isObstacle(x,y,z)){
+		for (float y = (pos->y-half.y+E); y <= (pos->y+half.y-E); y+=s){
+			for (float x = (pos->x-half.x+E); x <= (pos->x+half.x-E); x+=s){
+				float z = (pos->z+half.z+E);
+				if ((aabb = chunks->isObstacle(x,y,z))){
 					vel->z *= 0.0;
-					pos->z = z - half.z - E;
+					pos->z = floor(z) - half.z + aabb->min().z - E;
 					break;
 				}
 			}
@@ -122,12 +128,12 @@ void PhysicsSolver::colisionCalc(Chunks* chunks, Hitbox* hitbox, vec3* vel, vec3
 	}
 
 	if (vel->y < 0.0){
-		for (int x = floor(pos->x-half.x+E); x <= floor(pos->x+half.x-E); x++){
-			for (int z = floor(pos->z-half.z+E); z <= floor(pos->z+half.z-E); z++){
-				int y = floor(pos->y-half.y-E);
-				if (chunks->isObstacle(x,y,z)){
+		for (float x = (pos->x-half.x+E); x <= (pos->x+half.x-E); x+=s){
+			for (float z = (pos->z-half.z+E); z <= (pos->z+half.z-E); z+=s){
+				float y = (pos->y-half.y-E);
+				if ((aabb = chunks->isObstacle(x,y,z))){
 					vel->y *= 0.0;
-					pos->y = y + 1 + half.y;
+					pos->y = floor(y) + aabb->max().y + half.y;
 					hitbox->grounded = true;
 					break;
 				}
@@ -135,12 +141,12 @@ void PhysicsSolver::colisionCalc(Chunks* chunks, Hitbox* hitbox, vec3* vel, vec3
 		}
 	}
 	if (vel->y > 0.0){
-		for (int x = floor(pos->x-half.x+E); x <= floor(pos->x+half.x-E); x++){
-			for (int z = floor(pos->z-half.z+E); z <= floor(pos->z+half.z-E); z++){
-				int y = floor(pos->y+half.y+E);
-				if (chunks->isObstacle(x,y,z)){
+		for (float x = (pos->x-half.x+E); x <= (pos->x+half.x-E); x+=s){
+			for (float z = (pos->z-half.z+E); z <= (pos->z+half.z-E); z+=s){
+				float y = (pos->y+half.y+E);
+				if ((aabb = chunks->isObstacle(x,y,z))){
 					vel->y *= 0.0;
-					pos->y = y - half.y - E;
+					pos->y = floor(y) - half.y + aabb->min().y - E;
 					break;
 				}
 			}
