@@ -31,6 +31,7 @@
 #include "graphics/Skybox.h"
 
 using glm::vec3;
+using glm::vec4;
 using std::string;
 using std::shared_ptr;
 
@@ -168,13 +169,11 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 			linesShader->use();
 			linesShader->uniformMatrix("u_projview", camera->getProjView());
 			lineBatch->lineWidth(2.0f);
-			if (block->model == BlockModel::block){
-				lineBatch->box(pos.x+0.5f, pos.y+0.5f, pos.z+0.5f, 
-							   1.008f,1.008f,1.008f, 0,0,0,0.5f);
-			} else if (block->model == BlockModel::xsprite){
-				lineBatch->box(pos.x+0.5f, pos.y+0.35f, pos.z+0.5f, 
-							   0.805f,0.705f,0.805f, 0,0,0,0.5f);
-			}
+
+			const AABB& hitbox = block->hitbox;
+			const vec3 center = pos + hitbox.center();
+			const vec3 size = hitbox.size();
+			lineBatch->box(center, size, vec4(0.0f, 0.0f, 0.0f, 0.5f));
 			lineBatch->render();
 		}
 		skybox->unbind();

@@ -3,12 +3,16 @@
 
 #include <string>
 
+#include "../maths/aabb.h"
+
 #define FACE_MX 0
 #define FACE_PX 1
 #define FACE_MY 2
 #define FACE_PY 3
 #define FACE_MZ 4
 #define FACE_PZ 5
+
+#define BLOCK_AABB_GRID 16
 
 enum class BlockModel {
 	none, block, xsprite
@@ -29,7 +33,13 @@ public:
 	bool selectable = true;
 	bool breakable = true;
 	bool rotatable = false;
-	float hitboxScale = 1;
+	AABB hitbox;
+
+	struct {
+		bool solid = true;
+		bool emissive = false;
+		bool hitboxGrid[BLOCK_AABB_GRID][BLOCK_AABB_GRID][BLOCK_AABB_GRID];
+	} rt;
 
 	Block(std::string name, std::string texture);
 };
