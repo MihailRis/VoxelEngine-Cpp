@@ -159,6 +159,7 @@ void Chunks::set(int x, int y, int z, int id, uint8_t states){
 		chunk->setModified(true);
 }
 
+#include <iostream>
 voxel* Chunks::rayCast(vec3 start, 
 					   vec3 dir, 
 					   float maxDist, 
@@ -207,20 +208,16 @@ voxel* Chunks::rayCast(vec3 start,
 			end.z = pz + t * dz;
 			
 			// TODO: replace this dumb solution with something better
-			if (def && def->hitboxScale < 1.0f) {
-				const float sz = def->hitboxScale;
-				const int subs = 16;
+			if (def && !def->rt.solid) {
+				const AABB& box = def->hitbox;
+				const int subs = BLOCK_AABB_GRID;
+				iend = vec3(ix, iy, iz);
+				end -= iend;
 				for (int i = 0; i < subs; i++) {
 					end.x += dx / float(subs);
 					end.y += dy / float(subs);
 					end.z += dz / float(subs);
-					if (end.x - ix >= 0.5f - sz * 0.5f && end.x - ix <= 0.5f + sz * 0.5f &&
-					    end.y - iy >= 0.0f && end.y - iy <= sz &&
-						end.z - iz >= 0.5f - sz * 0.5f && end.z - iz <= 0.5f + sz * 0.5f) {
-						iend.x = ix;
-						iend.y = iy;
-						iend.z = iz;
-
+					if (box.inside(end)) {
 						norm.x = norm.y = norm.z = 0.0f;
 						if (steppedIndex == 0) norm.x = -stepx;
 						if (steppedIndex == 1) norm.y = -stepy;

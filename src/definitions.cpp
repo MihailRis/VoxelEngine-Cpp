@@ -1,10 +1,14 @@
 #include "definitions.h"
 
+#include <glm/glm.hpp>
+
 #include "content/Content.h"
 #include "window/Window.h"
 #include "window/Events.h"
 #include "window/input.h"
 #include "voxels/Block.h"
+
+using glm::vec3;
 
 // All in-game definitions (blocks, items, etc..)
 void setup_definitions(ContentBuilder* builder) {
@@ -71,7 +75,7 @@ void setup_definitions(ContentBuilder* builder) {
 	block->lightPassing = true;
 	block->obstacle = false;
 	block->model = BlockModel::xsprite;
-	block->hitboxScale = 0.7f;
+	block->hitbox.scale(vec3(0.7f), vec3(0.5f, 0.0f, 0.5f));
 	builder->add(block);
 
 	block = new Block("base:flower", "flower");
@@ -79,6 +83,7 @@ void setup_definitions(ContentBuilder* builder) {
 	block->lightPassing = true;
 	block->obstacle = false;
 	block->model = BlockModel::xsprite;
+	block->hitbox.scale(vec3(0.7f));
 	builder->add(block);
 
 	block = new Block("base:brick", "brick");
