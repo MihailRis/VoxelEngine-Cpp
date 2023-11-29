@@ -15,6 +15,7 @@
 #include "window/Camera.h"
 #include "window/input.h"
 #include "graphics/Batch2D.h"
+#include "graphics/Shader.h"
 #include "graphics/ImageData.h"
 #include "frontend/gui/GUI.h"
 #include "frontend/screens.h"
@@ -22,6 +23,7 @@
 
 #include "coders/json.h"
 #include "coders/png.h"
+#include "coders/GLSLExtension.h"
 #include "files/files.h"
 #include "files/engine_paths.h"
 #include "graphics-base/IShader.h"
@@ -38,6 +40,7 @@ using gui::GUI;
 Engine::Engine(EngineSettings& settings, EnginePaths* paths, Content* content)
 	   : settings(settings), content(content), paths(paths) {
 	Window::initialize(settings.display);
+	Shader::preprocessor->setLibFolder(paths->getResources()/path("shaders/lib"));
 
 	vulkan::VulkanContext::initialize();
 

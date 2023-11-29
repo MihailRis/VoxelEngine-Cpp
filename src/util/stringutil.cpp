@@ -4,6 +4,7 @@
 #include <locale>
 #include <sstream>
 #include <stdexcept>
+#include <algorithm>
 
 using std::vector;
 using std::string;
@@ -149,4 +150,21 @@ bool util::is_valid_filename(std::wstring name) {
         }
     }
     return true;
+}
+
+void util::ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }));
+}
+
+void util::rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+}
+
+void util::trim(std::string &s) {
+    rtrim(s);
+    ltrim(s);
 }

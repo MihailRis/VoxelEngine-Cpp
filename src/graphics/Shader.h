@@ -6,8 +6,11 @@
 
 #include "../graphics-base/IShader.h"
 
+class GLSLExtension;
+
 class Shader : public IShader {
 public:
+	static GLSLExtension* preprocessor;
 	unsigned int id;
 
 	Shader(unsigned int id);
@@ -21,8 +24,8 @@ public:
 	void uniform2f(std::string name, glm::vec2 xy) override;
 	void uniform3f(std::string name, float x, float y, float z) override;
 	void uniform3f(std::string name, glm::vec3 xyz) override;
-};
 
-extern Shader* load_shader(std::string vertexFile, std::string fragmentFile);
+	static Shader* loadShader(std::string vertexFile, std::string fragmentFile);
+};
 
 #endif /* GRAPHICS_SHADER_H_ */

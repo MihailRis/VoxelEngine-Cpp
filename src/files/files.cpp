@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <stdint.h>
+#include <stdexcept>
 
 using std::ios;
 using std::string;
@@ -57,6 +58,9 @@ char* files::read_bytes(path filename, size_t& length) {
 std::string files::read_string(path filename) {
 	size_t size;
 	unique_ptr<char> chars (read_bytes(filename, size));
+	if (chars == nullptr) {
+		throw std::runtime_error("could not to load file '"+filename.string()+"'");
+	}
 	return string(chars.get(), size);
 }
 

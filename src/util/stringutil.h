@@ -15,6 +15,10 @@ namespace util {
     extern bool is_integer(std::string text);
     extern bool is_integer(std::wstring text);
     extern bool is_valid_filename(std::wstring name);
+
+    extern void ltrim(std::string &s);
+    extern void rtrim(std::string &s);
+    extern void trim(std::string &s);
 }
 
 #endif // UTIL_STRINGUTIL_H_

@@ -86,7 +86,7 @@ void Skybox::refresh(float t, float mie, uint quality) {
     
     shader->uniform1i("u_quality", quality);
     shader->uniform1f("u_mie", mie);
-    shader->uniform3f("u_lightDir", glm::normalize(vec3(sin(t), -cos(t), 0.7f)));
+    shader->uniform3f("u_lightDir", glm::normalize(vec3(sin(t), -cos(t), -0.7f)));
     for (uint face = 0; face < 6; face++) {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, cubemap, 0);
         glClear(GL_COLOR_BUFFER_BIT);
