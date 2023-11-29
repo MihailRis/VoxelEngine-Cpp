@@ -7,6 +7,9 @@
 #include <GLFW/glfw3.h>
 
 using glm::vec4;
+using std::cout;
+using std::cerr;
+using std::endl;
 
 GLFWwindow* Window::window = nullptr;
 DisplaySettings* Window::settings = nullptr;
@@ -79,40 +82,67 @@ void character_callback(GLFWwindow* window, unsigned int codepoint){
 	Events::codepoints.push_back(codepoint);
 }
 
+const char* glfwErrorName(int error) {
+	switch (error) {
+		case GLFW_NO_ERROR: return "no error";
+		case GLFW_NOT_INITIALIZED: return "not initialized";
+		case GLFW_NO_CURRENT_CONTEXT: return "no current context";
+		case GLFW_INVALID_ENUM: return "invalid enum";
+		case GLFW_INVALID_VALUE: return "invalid value";
+		case GLFW_OUT_OF_MEMORY: return "out of memory";
+		case GLFW_API_UNAVAILABLE: return "api unavailable";
+		case GLFW_VERSION_UNAVAILABLE: return "version unavailable";
+		case GLFW_PLATFORM_ERROR: return "platform error";
+		case GLFW_FORMAT_UNAVAILABLE: return "format unavailable";
+		case GLFW_NO_WINDOW_CONTEXT: return "no window context";
+		default: return "unknown error";
+	}
+}
+
+void error_callback(int error, const char* description) {
+	cerr << "GLFW error [0x" << std::hex << error << "]: ";
+	cerr << glfwErrorName(error) << endl;
+	if (description) {
+		cerr << description << endl;
+	}
+}
+
 int Window::initialize(DisplaySettings& settings){
 	Window::settings = &settings;
 	Window::width = settings.width;
 	Window::height = settings.height;
 
-	glfwInit();
+	glfwSetErrorCallback(error_callback);
+	if (glfwInit() == GLFW_FALSE) {
+		cerr << "Failed to initialize GLFW" << endl;
+		return -1;
+	}
+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-	
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 	glfwWindowHint(GLFW_SAMPLES, settings.samples);
 
 	window = glfwCreateWindow(width, height, settings.title, nullptr, nullptr);
 	if (window == nullptr){
-		std::cerr << "Failed to create GLFW Window" << std::endl;
+		cerr << "Failed to create GLFW Window" << endl;
 		glfwTerminate();
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
 
 	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK){
-		std::cerr << "Failed to initialize GLEW" << std::endl;
+	GLenum glewErr = glewInit();
+	if (glewErr != GLEW_OK){
+		cerr << "Failed to initialize GLEW: " << std::endl;
+		cerr << glewGetErrorString(glewErr) << std::endl;
 		return -1;
 	}
-	glViewport(0,0, width, height);
 
+	glViewport(0,0, width, height);
 	glClearColor(0.0f,0.0f,0.0f, 1);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Events::initialize();
@@ -130,8 +160,8 @@ int Window::initialize(DisplaySettings& settings){
 	glfwSwapInterval(settings.swapInterval);
 	const GLubyte* vendor = glGetString(GL_VENDOR);
 	const GLubyte* renderer = glGetString(GL_RENDERER);
-	std::cout << "GL Vendor: " << (char*)vendor << std::endl;
-	std::cout << "GL Renderer: " << (char*)renderer << std::endl;
+	cout << "GL Vendor: " << (char*)vendor << endl;
+	cout << "GL Renderer: " << (char*)renderer << endl;
 	return 0;
 }
 
