@@ -165,8 +165,107 @@ namespace vulkan {
         m_state.pipeline = pipeline;
     }
 
-    void VulkanContext::updateState(VkCommandBuffer commandBuffer) {
+    void VulkanContext::updateStateCommandBuffer(VkCommandBuffer commandBuffer) {
         m_state.commandbuffer = commandBuffer;
+    }
+
+    void VulkanContext::beginDrawToImage(const Image& image, float r, float g, float b, VkAttachmentLoadOp loadOp) {
+        CHECK_VK(vkWaitForFences(m_device, 1, &m_renderFence, VK_TRUE, UINT64_MAX));
+        CHECK_VK(vkResetFences(m_device, 1, &m_renderFence));
+
+        CHECK_VK(vkAcquireNextImageKHR(m_device, *m_swapchain, UINT64_MAX, m_presentSemaphore, VK_NULL_HANDLE, &m_currentImage));
+
+        CHECK_VK(vkResetCommandBuffer(m_frameDatas[m_currentFrame].commandBuffer, 0));
+
+        VkCommandBufferBeginInfo commandBufferBeginInfo{};
+        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        commandBufferBeginInfo.flags = 0;
+        commandBufferBeginInfo.pInheritanceInfo = nullptr;
+
+        CHECK_VK(vkBeginCommandBuffer(m_frameDatas[m_currentFrame].commandBuffer, &commandBufferBeginInfo));
+
+        tools::insertImageMemoryBarrier(m_frameDatas[m_currentFrame].commandBuffer,
+            image.getImage(),
+            VK_ACCESS_MEMORY_READ_BIT,
+            VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+            VK_IMAGE_LAYOUT_UNDEFINED,
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+            VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+
+        tools::insertImageMemoryBarrier(m_frameDatas[m_currentFrame].commandBuffer,
+            m_imageDepth->getImage(),
+            0,
+            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+            VK_IMAGE_LAYOUT_UNDEFINED,
+            VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+            VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+            VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+            VkImageSubresourceRange{ VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, 0, 1, 0, 1 });
+
+        VkRenderingAttachmentInfo colorAttachment{};
+        colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        colorAttachment.imageView = image.getView();
+        colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        colorAttachment.loadOp = loadOp;
+        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachment.clearValue = { r, g, b, 1.0f };
+
+        VkRenderingAttachmentInfo depthAttachment{};
+        depthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        depthAttachment.imageView = m_imageDepth->getView();
+        depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        depthAttachment.clearValue.depthStencil = { 1.0f, 0 };
+
+        VkRenderingInfo renderingInfo{};
+        renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+        renderingInfo.renderArea = { {0, 0}, {Image::getWidth(image), Image::getHeight(image)} };
+        renderingInfo.layerCount = 1;
+        renderingInfo.colorAttachmentCount = 1;
+        renderingInfo.pColorAttachments = &colorAttachment;
+        renderingInfo.pDepthAttachment = &depthAttachment;
+        renderingInfo.pStencilAttachment = &depthAttachment;
+
+        vkCmdBeginRendering(m_frameDatas[m_currentFrame].commandBuffer, &renderingInfo);
+
+        updateStateCommandBuffer(m_frameDatas[m_currentFrame].commandBuffer);
+    }
+
+    void VulkanContext::endDrawToImage(const Image& image) {
+        vkCmdEndRendering(m_frameDatas[m_currentFrame].commandBuffer);
+
+        tools::insertImageMemoryBarrier(m_frameDatas[m_currentFrame].commandBuffer,
+            image.getImage(),
+            VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+            VK_ACCESS_SHADER_READ_BIT,
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+            VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+            VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+
+        CHECK_VK(vkEndCommandBuffer(m_frameDatas[m_currentFrame].commandBuffer));
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+        const std::array waitSemaphores = { m_presentSemaphore };
+        constexpr VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+        submitInfo.waitSemaphoreCount = waitSemaphores.size();
+        submitInfo.pWaitSemaphores = waitSemaphores.data();
+        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &m_frameDatas[m_currentFrame].commandBuffer;
+
+        const std::array signalSemaphores = { m_renderSemaphore };
+        submitInfo.signalSemaphoreCount = signalSemaphores.size();
+        submitInfo.pSignalSemaphores = signalSemaphores.data();
+
+        vkQueueSubmit(m_device.getGraphis(), 1, &submitInfo, m_renderFence);
     }
 
     void VulkanContext::beginDraw(float r, float g, float b, VkAttachmentLoadOp loadOp) {
@@ -231,7 +330,7 @@ namespace vulkan {
 
         vkCmdBeginRendering(m_frameDatas[m_currentFrame].commandBuffer, &renderingInfo);
 
-        updateState(m_frameDatas[m_currentFrame].commandBuffer);
+        updateStateCommandBuffer(m_frameDatas[m_currentFrame].commandBuffer);
     }
 
     void VulkanContext::endDraw() {
@@ -249,6 +348,8 @@ namespace vulkan {
             VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
 
         CHECK_VK(vkEndCommandBuffer(m_frameDatas[m_currentFrame].commandBuffer));
+
+        updateStateCommandBuffer(VK_NULL_HANDLE);
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -268,6 +369,24 @@ namespace vulkan {
 
         vkQueueSubmit(m_device.getGraphis(), 1, &submitInfo, m_renderFence);
 
+        VkPresentInfoKHR presentInfo{};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount = signalSemaphores.size();
+        presentInfo.pWaitSemaphores = signalSemaphores.data();
+
+        const VkSwapchainKHR swapchains[] = { *m_swapchain };
+
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = swapchains;
+        presentInfo.pImageIndices = &m_currentImage;
+
+        CHECK_VK(vkQueuePresentKHR(m_device.getPresent(), &presentInfo));
+
+        m_currentFrame = (m_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+    }
+
+    void VulkanContext::present() {
+        const std::array signalSemaphores = { m_renderSemaphore };
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = signalSemaphores.size();

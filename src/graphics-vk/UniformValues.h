@@ -11,9 +11,11 @@
 #include <glm/glm.hpp>
 
 #include "Tools.h"
+#include "uniforms/BackgroundUniform.h"
 #include "uniforms/FogUniform.h"
 #include "uniforms/LightUniform.h"
 #include "uniforms/ProjectionViewUniform.h"
+#include "uniforms/SkyboxUniform.h"
 #include "uniforms/StateUniform.h"
 
 namespace vulkan {
@@ -80,6 +82,18 @@ namespace vulkan {
             ProjectionViewUniform uniform{};
 
             uniform.projectionView = getUniformValue<glm::mat4>("u_projview");
+
+            return uniform;
+        }
+
+        inline BackgroundUniform getBackgroundUniform() const {
+            BackgroundUniform uniform{};
+
+            return uniform;
+        }
+
+        inline SkyboxUniform getSkyboxUniform() const {
+            SkyboxUniform uniform{};
 
             return uniform;
         }

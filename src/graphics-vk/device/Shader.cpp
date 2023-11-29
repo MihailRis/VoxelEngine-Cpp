@@ -118,19 +118,25 @@ namespace vulkan {
         auto *lightBuffer = context.getUniformBuffer(UniformBuffersHolder::LIGHT);
         auto *fogBuffer = context.getUniformBuffer(UniformBuffersHolder::FOG);
         auto *projectionViewBuffer = context.getUniformBuffer(UniformBuffersHolder::PROJECTION_VIEW);
+        auto *backgroundBuffer = context.getUniformBuffer(UniformBuffersHolder::BACKGROUND);
+        auto *skyboxBuffer = context.getUniformBuffer(UniformBuffersHolder::SKYBOX);
 
         const auto stateUniform = m_values.getStateUniform();
         const auto lightUniform = m_values.getLightUniform();
         const auto fogUniform = m_values.getFogUniform();
         const auto projectionViewUniform = m_values.getProjectionView();
+        const auto backgroundUniform = m_values.getBackgroundUniform();
+        const auto skyboxUniform = m_values.getSkyboxUniform();
 
         stateBuffer->uploadData(stateUniform);
         lightBuffer->uploadData(lightUniform);
         fogBuffer->uploadData(fogUniform);
         projectionViewBuffer->uploadData(projectionViewUniform);
+        backgroundBuffer->uploadData(backgroundUniform);
+        skyboxBuffer->uploadData(skyboxUniform);
     }
 
-    Shader* load_shader(std::string vertexFile, std::string fragmentFile, ShaderType type) {
+    Shader* loadShader(std::string vertexFile, std::string fragmentFile, ShaderType type) {
         if (type == ShaderType::NONE)
             return nullptr;
 

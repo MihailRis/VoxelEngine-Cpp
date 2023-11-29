@@ -38,7 +38,20 @@ inline std::vector<VkDescriptorSetLayoutBinding> getSamplerBindingsByShader(Shad
         case ShaderType::NONE:
         case ShaderType::LINES:
             return {};
-        case ShaderType::MAIN:
+        case ShaderType::MAIN: {
+            VkDescriptorSetLayoutBinding samplerUniformBinding{};
+            samplerUniformBinding.binding = 0;
+            samplerUniformBinding.descriptorCount = 1;
+            samplerUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            samplerUniformBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+            VkDescriptorSetLayoutBinding samplerCubeUniformBinding{};
+            samplerCubeUniformBinding.binding = 1;
+            samplerCubeUniformBinding.descriptorCount = 1;
+            samplerCubeUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            samplerCubeUniformBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+            return {samplerUniformBinding, samplerCubeUniformBinding};
+        }
         case ShaderType::UI:
         case ShaderType::BACKGROUND: {
             VkDescriptorSetLayoutBinding samplerUniformBinding{};

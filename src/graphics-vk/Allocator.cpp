@@ -29,7 +29,7 @@ namespace vulkan {
     }
 
     void Allocator::createImage(VkExtent3D extent, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
-        VkMemoryPropertyFlags properties, VkImage &image, VmaAllocation &allocation) const {
+        VkMemoryPropertyFlags properties, bool isCube, VkImage &image, VmaAllocation &allocation, uint32_t levelCount, uint32_t layerCount) const {
         VmaAllocationCreateInfo allocationCreateInfo{};
         allocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
         allocationCreateInfo.flags = properties;
@@ -38,14 +38,15 @@ namespace vulkan {
         imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
         imageCreateInfo.extent = extent;
-        imageCreateInfo.mipLevels = 1;
-        imageCreateInfo.arrayLayers = 1;
+        imageCreateInfo.mipLevels = levelCount;
+        imageCreateInfo.arrayLayers = layerCount;
         imageCreateInfo.format = format;
         imageCreateInfo.tiling = tiling;
         imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageCreateInfo.usage = usage;
         imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        imageCreateInfo.flags = isCube ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
 
         CHECK_VK(vmaCreateImage(m_allocator, &imageCreateInfo, &allocationCreateInfo, &image, &allocation, nullptr));
     }

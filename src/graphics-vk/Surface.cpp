@@ -24,7 +24,7 @@ inline VkPresentModeKHR choosePresentMode(const std::vector<VkPresentModeKHR> &p
             return presentMode;
     }
 
-    return presentModes[0];
+    return presentModes[presentModes.size() - 1];
 }
 
 Surface::Surface(VkSurfaceKHR surface, Instance *instance)

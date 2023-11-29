@@ -95,10 +95,15 @@ namespace vulkan {
         void recreateSwapChain();
 
         void updateState(GraphicsPipeline *pipeline);
-        void updateState(VkCommandBuffer commandBuffer);
+        void updateStateCommandBuffer(VkCommandBuffer commandBuffer);
+
+        void beginDrawToImage(const Image &image, float r, float g, float b, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
+        void endDrawToImage(const Image &image);
 
         void beginDraw(float r, float g, float b, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
         void endDraw();
+
+        void present();
 
         static VulkanContext &get();
 

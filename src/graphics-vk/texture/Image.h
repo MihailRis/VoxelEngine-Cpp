@@ -24,7 +24,7 @@ protected:
 public:
     Image() = default;
     Image(VkExtent3D extent, VkFormat format, VkImageViewType viewType, VkImageAspectFlags aspectFlags, VkImageTiling tiling,
-          VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
+          VkImageUsageFlags usage, VkMemoryPropertyFlags properties, bool isCube = false, uint32_t levelCount = 1, uint32_t layerCount = 1);
 
     virtual ~Image();
 
@@ -39,6 +39,9 @@ public:
     VkFormat getFormat() const;
 
     void destroy();
+
+    static uint32_t getWidth(const Image &image) { return image.m_extent3D.width; }
+    static uint32_t getHeight(const Image &image) { return image.m_extent3D.height; }
 };
 
 

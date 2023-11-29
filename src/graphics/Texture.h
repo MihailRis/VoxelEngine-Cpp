@@ -18,9 +18,9 @@ public:
 
 	void bind() override;
 	void reload(unsigned char* data) override;
-	int getWidth() override { return width; }
+	int getWidth() const override { return width; }
 
-	int getHeight() override { return height; }
+	int getHeight() const override { return height; }
 
 	static Texture* from(const ImageData* image);
 };

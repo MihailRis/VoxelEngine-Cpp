@@ -163,12 +163,16 @@ void Window::resetScissor() {
 	scissorArea = vec4(0.0f, 0.0f, width, height);
 	scissorStack = std::stack<vec4>();
 	// glDisable(GL_SCISSOR_TEST);
+	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandbuffer;
+	if (commandBuffer == VK_NULL_HANDLE) return;
+	VkRect2D scissor = {{0, 0}, {Window::width, Window::height}};
+	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }
 
 void Window::pushScissor(vec4 area) {
 	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandbuffer;
 	if (scissorStack.empty()) {
-		VkRect2D scissor = { {0, 0}, {Window::width, Window::height} };
+		// VkRect2D scissor = { {0, 0}, {Window::width, Window::height} };
 		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 	scissorStack.push(scissorArea);
@@ -184,18 +188,18 @@ void Window::pushScissor(vec4 area) {
 
 	if (area.z < 0.0f || area.w < 0.0f) {
 		// glScissor(0, 0, 0, 0);
-		VkRect2D scissor = { {0, 0}, {0, 0} };
+		// VkRect2D scissor = { {0, 0}, {0, 0} };
 		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	} else {
 		// glScissor(area.x, Window::height-area.w,
-				  std::max(0, int(area.z-area.x)),
-				  std::max(0, int(area.w-area.y)));
-		VkRect2D scissor{};
-		scissor.offset.x = area.x;
-		scissor.offset.y = Window::height - area.w;
-		scissor.extent.width = std::max(0, static_cast<int32_t>(area.z-area.x));
-		scissor.extent.height = std::max(0, static_cast<int32_t>(area.w-area.y));
-
+				  // std::max(0, int(area.z-area.x)),
+				  // std::max(0, int(area.w-area.y)));
+		// VkRect2D scissor{};
+		// scissor.offset.x = area.x;
+		// scissor.offset.y = Window::height - area.w;
+		// scissor.extent.width = std::max(0, static_cast<int>(area.z - area.x));
+		// scissor.extent.height = std::max(0, static_cast<int>(area.w - area.y));
+		//
 		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 	scissorArea = area;
@@ -211,23 +215,23 @@ void Window::popScissor() {
 	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandbuffer;
 	if (area.z < 0.0f || area.w < 0.0f) {
 		// glScissor(0, 0, 0, 0);
-		VkRect2D scissor = { {0, 0}, {0, 0} };
+		// VkRect2D scissor = { {0, 0}, {0, 0} };
 		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	} else {
 		// glScissor(area.x, Window::height-area.w,
-				  std::max(0, int(area.z-area.x)),
-				  std::max(0, int(area.w-area.y)));
-		VkRect2D scissor{};
-		scissor.offset.x = area.x;
-		scissor.offset.y = Window::height-area.s;
-		scissor.extent.width = std::max(0, static_cast<int32_t>(area.z - area.x));
-		scissor.extent.height = std::max(0, static_cast<int32_t>(area.w - area.y));
-
+				  // std::max(0, int(area.z-area.x)),
+				  // std::max(0, int(area.w-area.y)));
+		// VkRect2D scissor{};
+		// scissor.offset.x = area.x;
+		// scissor.offset.y = Window::height-area.s;
+		// scissor.extent.width = std::max(0, static_cast<int>(area.z - area.x));
+		// scissor.extent.height = std::max(0, static_cast<int>(area.w - area.y));
+		//
 		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 	if (scissorStack.empty()) {
 		// glDisable(GL_SCISSOR_TEST);
-		VkRect2D scissor = { {0, 0}, {Window::width, Window::height} };
+		// VkRect2D scissor = { {0, 0}, {Window::width, Window::height} };
 		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 	scissorArea = area;
@@ -278,7 +282,7 @@ bool Window::isFullscreen() {
 }
 
 void Window::swapBuffers(){
-	glfwSwapBuffers(window);
+	// glfwSwapBuffers(window);
 	Window::resetScissor();
 }
 

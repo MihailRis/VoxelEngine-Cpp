@@ -53,9 +53,8 @@ bool AssetsLoader::loadNext() {
 bool _load_shader(Assets* assets, const path& filename, const std::string& name) {
 	ShaderType type = toShaderType(name);
 	IShader* shader = vulkan::VulkanContext::isVulkanEnabled() ?
-		reinterpret_cast<IShader*>(vulkan::load_shader(filename.string() + ".vert.spv", filename.string() + ".frag.spv", type)) :
-		reinterpret_cast<IShader*>(load_shader(filename.string() + ".glslv", filename.string() + ".glslf"));
-	Shader* shader = Shader::loadShader(filename.string() + ".glslv", filename.string() + ".glslf");
+		reinterpret_cast<IShader*>(vulkan::loadShader(filename.string() + ".vert.spv", filename.string() + ".frag.spv", type)) :
+		reinterpret_cast<IShader*>(Shader::loadShader(filename.string() + ".glslv", filename.string() + ".glslf"));
 	if (shader == nullptr) {
 		std::cerr << "failed to load shader '" << name << "'" << std::endl;
 		return false;

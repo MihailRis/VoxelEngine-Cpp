@@ -5,7 +5,9 @@
 #ifndef UNIFORMBUFFER_H
 #define UNIFORMBUFFER_H
 
+#include <array>
 #include <cstring>
+#include <vector>
 
 #include "Buffer.h"
 

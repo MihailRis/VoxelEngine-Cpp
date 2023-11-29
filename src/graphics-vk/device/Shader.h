@@ -52,7 +52,7 @@ namespace vulkan {
         void updateUniform();
     };
 
-    Shader *load_shader(std::string vertexFile, std::string fragmentFile, ShaderType type);
+    Shader *loadShader(std::string vertexFile, std::string fragmentFile, ShaderType type);
 
 } // vulkan
 

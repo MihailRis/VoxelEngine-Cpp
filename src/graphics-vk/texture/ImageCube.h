@@ -16,9 +16,9 @@ public:
 
     void reload(unsigned char* data) override;
 
-    int getWidth() override;
+    int getWidth() const override;
 
-    int getHeight() override;
+    int getHeight() const override;
 };
 
 

@@ -20,9 +20,9 @@ public:
 
     static Image2d *from(const ImageData *data);
 
-    int getWidth() override;
+    int getWidth() const override;
 
-    int getHeight() override;
+    int getHeight() const override;
 };
 
 namespace vulkan {

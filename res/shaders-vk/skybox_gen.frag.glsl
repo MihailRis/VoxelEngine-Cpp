@@ -24,6 +24,8 @@ SOFTWARE.
 
 #version 450
 
+#extension GL_EXT_multiview : require
+
 // first, lets define some constants to use (planet radius, position, and scattering coefficients)
 #define PLANET_POS vec3(0.0) /* the position of the planet */
 #define PLANET_RADIUS 6371e3 /* radius of the planet */
@@ -240,19 +242,20 @@ layout(location = 0) in vec2 v_coord;
 layout(location = 0) out vec4 f_color;
 
 layout(binding = 0) uniform Skybox {
-    vec3 u_xaxis;
-    vec3 u_yaxis;
-    vec3 u_zaxis;
+    vec3 u_xaxis[6];
+    vec3 u_yaxis[6];
+    vec3 u_zaxis[6];
     vec3 u_lightDir;
     int u_quality;
     float u_mie;
 };
 
 void main() {
+    int view = gl_ViewIndex;
     vec3 camera_position = vec3(0.0f, PLANET_RADIUS+1.0f, 0.0f);
-    vec3 camera_vector = normalize(u_xaxis * v_coord.x + 
-                                   u_yaxis * -v_coord.y -
-                                   u_zaxis);
+    vec3 camera_vector = normalize(u_xaxis[view] * v_coord.x +
+                                   u_yaxis[view] * -v_coord.y -
+                                   u_zaxis[view]);
     // hide darkness at horizon
     camera_vector.y = max(0.01, camera_vector.y)*(1.0-u_mie*0.08) + 0.08*u_mie;  
     camera_vector = normalize(camera_vector);

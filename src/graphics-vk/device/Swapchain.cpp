@@ -61,7 +61,7 @@ Swapchain::Swapchain(Surface &surface, Device& device) : m_device(device) {
             VK_COMPONENT_SWIZZLE_G,
             VK_COMPONENT_SWIZZLE_B,
             VK_COMPONENT_SWIZZLE_A
-        });
+        }, 1, 1);
 
         m_imageViews.emplace_back(imageView);
     }

@@ -29,6 +29,7 @@
 #include "graphics-base/IShader.h"
 #include "graphics-vk/Batch2D.h"
 #include "graphics-vk/VulkanContext.h"
+#include "graphics-vk/texture/ImageCube.h"
 
 using std::unique_ptr;
 using std::shared_ptr;
@@ -82,6 +83,7 @@ void Engine::updateHotkeys() {
 }
 
 void Engine::mainloop() {
+	ImageCube foo(64, 64, VK_FORMAT_R8G8B8A8_SRGB);
 	setScreen(std::make_shared<MenuScreen>(this));
 	
 	std::cout << "-- preparing systems" << std::endl;

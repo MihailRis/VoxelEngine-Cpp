@@ -127,7 +127,9 @@ VkImageView Device::createImageView(
     VkFormat format,
     VkImageViewType viewType,
     VkImageAspectFlags aspectFlags,
-    VkComponentMapping components) const {
+    VkComponentMapping components,
+    uint32_t levelCount,
+    uint32_t layerCount) const {
 
     VkImageViewCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -136,9 +138,9 @@ VkImageView Device::createImageView(
     createInfo.format = format;
     createInfo.subresourceRange.aspectMask = aspectFlags;
     createInfo.subresourceRange.baseMipLevel = 0;
-    createInfo.subresourceRange.levelCount = 1;
+    createInfo.subresourceRange.levelCount = levelCount;
     createInfo.subresourceRange.baseArrayLayer = 0;
-    createInfo.subresourceRange.layerCount = 1;
+    createInfo.subresourceRange.layerCount = layerCount;
     createInfo.components = components;
 
     VkImageView imageView = VK_NULL_HANDLE;

@@ -28,6 +28,7 @@ namespace vulkan {
         size_t m_vertices;
         size_t m_indices;
     public:
+        Mesh() = default;
         Mesh(const TVertex *vertexBuffer, size_t vertices, const int* indexBuffer, size_t indices);
         Mesh(const TVertex *vertexBuffer, size_t vertices) :
             Mesh(vertexBuffer, vertices, nullptr, 0) {}

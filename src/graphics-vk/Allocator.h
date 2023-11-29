@@ -22,7 +22,7 @@ namespace vulkan {
         operator VmaAllocator() const;
 
         void createImage(VkExtent3D extent, VkFormat format, VkImageTiling tiling,
-             VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VmaAllocation &allocation) const;
+             VkImageUsageFlags usage, VkMemoryPropertyFlags properties, bool isCube, VkImage &image, VmaAllocation &allocation, uint32_t levelCount, uint32_t layerCount) const;
 
         void destroyImage(VkImage image, VmaAllocation allocation) const;
 

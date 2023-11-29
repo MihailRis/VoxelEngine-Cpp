@@ -147,11 +147,11 @@ void Image2d::bind() {
     switch (type) {
         case ShaderType::MAIN:
         case ShaderType::UI:
-        case ShaderType::BACKGROUND:
             samplerWrite.dstBinding = 0;
             break;
         case ShaderType::NONE:
         case ShaderType::LINES:
+        case ShaderType::BACKGROUND:
         case ShaderType::SKYBOX_GEN:
         default:
             return;
@@ -178,10 +178,10 @@ Image2d* Image2d::from(const ImageData *data) {
     return new Image2d(static_cast<const unsigned char*>(data->getData()), data->getWidth(), data->getHeight(), format);
 }
 
-int Image2d::getWidth() {
+int Image2d::getWidth() const {
     return m_extent3D.width;
 }
 
-int Image2d::getHeight() {
+int Image2d::getHeight() const {
     return m_extent3D.height;
 }
