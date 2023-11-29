@@ -200,20 +200,41 @@ voxel* Chunks::rayCast(vec3 start,
 
 	while (t <= maxDist){
 		voxel* voxel = get(ix, iy, iz);
-		if (voxel == nullptr || contentIds->getBlockDef(voxel->id)->selectable){
+		const Block* def = nullptr;
+		if (voxel == nullptr || (def = contentIds->getBlockDef(voxel->id))->selectable){
 			end.x = px + t * dx;
 			end.y = py + t * dy;
 			end.z = pz + t * dz;
+			
+			// TODO: replace this dumb solution with something better
+			if (def && !def->rt.solid) {
+				const AABB& box = def->hitbox;
+				const int subs = BLOCK_AABB_GRID;
+				iend = vec3(ix, iy, iz);
+				end -= iend;
+				for (int i = 0; i < subs; i++) {
+					end.x += dx / float(subs);
+					end.y += dy / float(subs);
+					end.z += dz / float(subs);
+					if (box.inside(end)) {
+						norm.x = norm.y = norm.z = 0.0f;
+						if (steppedIndex == 0) norm.x = -stepx;
+						if (steppedIndex == 1) norm.y = -stepy;
+						if (steppedIndex == 2) norm.z = -stepz;
+						return voxel;
+					}
+				}
+			} else {
+				iend.x = ix;
+				iend.y = iy;
+				iend.z = iz;
 
-			iend.x = ix;
-			iend.y = iy;
-			iend.z = iz;
-
-			norm.x = norm.y = norm.z = 0.0f;
-			if (steppedIndex == 0) norm.x = -stepx;
-			if (steppedIndex == 1) norm.y = -stepy;
-			if (steppedIndex == 2) norm.z = -stepz;
-			return voxel;
+				norm.x = norm.y = norm.z = 0.0f;
+				if (steppedIndex == 0) norm.x = -stepx;
+				if (steppedIndex == 1) norm.y = -stepy;
+				if (steppedIndex == 2) norm.z = -stepz;
+				return voxel;
+			}
 		}
 		if (txMax < tyMax) {
 			if (txMax < tzMax) {

@@ -2,6 +2,7 @@
 #define GRAPHICS_LINEBATCH_H_
 
 #include <stdlib.h>
+#include <glm/glm.hpp>
 
 class Mesh;
 
@@ -18,6 +19,11 @@ public:
 			float r, float g, float b, float a);
 	void box(float x, float y, float z, float w, float h, float d,
 			float r, float g, float b, float a);
+
+	inline void box(glm::vec3 xyz, glm::vec3 whd, glm::vec4 rgba) {
+		return box(xyz.x, xyz.y, xyz.z, whd.x, whd.y, whd.z,
+				   rgba.r, rgba.g, rgba.b, rgba.a);
+	}
 
 	void render();
 	void lineWidth(float width);
