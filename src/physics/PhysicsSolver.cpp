@@ -13,6 +13,7 @@ PhysicsSolver::PhysicsSolver(vec3 gravity) : gravity(gravity) {
 void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned substeps, bool shifting,
 		float gravityScale,
 		bool collisions) {
+	float s = 2.0/BLOCK_AABB_GRID;
 	hitbox->grounded = false;
 	for (unsigned i = 0; i < substeps; i++){
 		float dt = delta / (float)substeps;
@@ -42,8 +43,8 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 			float y = (pos.y-half.y-E);
 
 			hitbox->grounded = false;
-			for (float x = (px-half.x+E); x <= (px+half.x-E); x++){
-				for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z++){
+			for (float x = (px-half.x+E); x <= (px+half.x-E); x+=s){
+				for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
 					if (chunks->isObstacle(x,y,z)){
 						hitbox->grounded = true;
 						break;
@@ -54,8 +55,8 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 				pos.z = pz;
 			hitbox->grounded = false;
 
-			for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x++){
-				for (float z = (pz-half.z+E); z <= (pz+half.z-E); z++){
+			for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
+				for (float z = (pz-half.z+E); z <= (pz+half.z-E); z+=s){
 					if (chunks->isObstacle(x,y,z)){
 						hitbox->grounded = true;
 						break;
