@@ -7,41 +7,42 @@
 
 #define E 0.03
 
+using glm::vec3;
+
 PhysicsSolver::PhysicsSolver(vec3 gravity) : gravity(gravity) {
 }
 
-void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned substeps, bool shifting,
+void PhysicsSolver::step(
+		Chunks* chunks, 
+		Hitbox* hitbox, 
+		float delta, 
+		uint substeps, 
+		bool shifting,
 		float gravityScale,
-		bool collisions) {
-	float s = 2.0/BLOCK_AABB_GRID;
+		bool collisions)
+{
+	float dt = delta / float(substeps);
+	float linear_damping = hitbox->linear_damping;
+	float s = 2.0f/BLOCK_AABB_GRID;
+
 	hitbox->grounded = false;
-	for (unsigned i = 0; i < substeps; i++){
-		float dt = delta / (float)substeps;
-		float linear_damping = hitbox->linear_damping;
+	for (uint i = 0; i < substeps; i++) {
 		vec3& pos = hitbox->position;
 		vec3& half = hitbox->halfsize;
 		vec3& vel = hitbox->velocity;
-		vel.x += gravity.x*dt * gravityScale;
-		vel.y += gravity.y*dt * gravityScale;
-		vel.z += gravity.z*dt * gravityScale;
-
 		float px = pos.x;
 		float pz = pos.z;
-
+		
+		vel += gravity * dt * gravityScale;
 		if (collisions) {
-			colisionCalc(chunks, hitbox, &vel, &pos, half);
+			colisionCalc(chunks, hitbox, vel, pos, half);
 		}
-
-		vel.x *= max(0.0, 1.0 - dt * linear_damping);
-		vel.z *= max(0.0, 1.0 - dt * linear_damping);
-
-		pos.x += vel.x * dt;
-		pos.y += vel.y * dt;
-		pos.z += vel.z * dt;
+		vel.x *= glm::max(0.0f, 1.0f - dt * linear_damping);
+		vel.z *= glm::max(0.0f, 1.0f - dt * linear_damping);
+		pos += vel * dt;
 
 		if (shifting && hitbox->grounded){
 			float y = (pos.y-half.y-E);
-
 			hitbox->grounded = false;
 			for (float x = (px-half.x+E); x <= (px+half.x-E); x+=s){
 				for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
@@ -51,10 +52,10 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 					}
 				}
 			}
-			if (!hitbox->grounded)
+			if (!hitbox->grounded) {
 				pos.z = pz;
+			}
 			hitbox->grounded = false;
-
 			for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
 				for (float z = (pz-half.z+E); z <= (pz+half.z-E); z+=s){
 					if (chunks->isObstacle(x,y,z)){
@@ -63,91 +64,97 @@ void PhysicsSolver::step(Chunks* chunks, Hitbox* hitbox, float delta, unsigned s
 					}
 				}
 			}
-			if (!hitbox->grounded)
+			if (!hitbox->grounded) {
 				pos.x = px;
-
+			}
 			hitbox->grounded = true;
 		}
 	}
 }
 
-void PhysicsSolver::colisionCalc(Chunks* chunks, Hitbox* hitbox, vec3* vel, vec3* pos, vec3 half){
+void PhysicsSolver::colisionCalc(
+		Chunks* chunks, 
+		Hitbox* hitbox, 
+		vec3& vel, 
+		vec3& pos, 
+		const vec3 half)
+{
 	// step size (smaller - more accurate, but slower)
-	float s = 2.0/BLOCK_AABB_GRID;
+	float s = 2.0f/BLOCK_AABB_GRID;
 
 	const AABB* aabb;
 	
-	if (vel->x < 0.0){
-		for (float y = (pos->y-half.y+E); y <= (pos->y+half.y-E); y+=s){
-			for (float z = (pos->z-half.z+E); z <= (pos->z+half.z-E); z+=s){
-				float x = (pos->x-half.x-E);
+	if (vel.x < 0.0f){
+		for (float y = (pos.y-half.y+E); y <= (pos.y+half.y-E); y+=s){
+			for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
+				float x = (pos.x-half.x-E);
 				if ((aabb = chunks->isObstacle(x,y,z))){
-					vel->x *= 0.0;
-					pos->x = floor(x) + aabb->max().x + half.x + E;
+					vel.x *= 0.0f;
+					pos.x = floor(x) + aabb->max().x + half.x + E;
 					break;
 				}
 			}
 		}
 	}
-	if (vel->x > 0.0){
-		for (float y = (pos->y-half.y+E); y <= (pos->y+half.y-E); y+=s){
-			for (float z = (pos->z-half.z+E); z <= (pos->z+half.z-E); z+=s){
-				float x = (pos->x+half.x+E);
+	if (vel.x > 0.0f){
+		for (float y = (pos.y-half.y+E); y <= (pos.y+half.y-E); y+=s){
+			for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
+				float x = (pos.x+half.x+E);
 				if ((aabb = chunks->isObstacle(x,y,z))){
-					vel->x *= 0.0;
-					pos->x = floor(x) - half.x + aabb->min().x - E;
-					break;
-				}
-			}
-		}
-	}
-
-	if (vel->z < 0.0){
-		for (float y = (pos->y-half.y+E); y <= (pos->y+half.y-E); y+=s){
-			for (float x = (pos->x-half.x+E); x <= (pos->x+half.x-E); x+=s){
-				float z = (pos->z-half.z-E);
-				if ((aabb = chunks->isObstacle(x,y,z))){
-					vel->z *= 0.0;
-					pos->z = floor(z) + aabb->max().z + half.z + E;
+					vel.x *= 0.0f;
+					pos.x = floor(x) - half.x + aabb->min().x - E;
 					break;
 				}
 			}
 		}
 	}
 
-	if (vel->z > 0.0){
-		for (float y = (pos->y-half.y+E); y <= (pos->y+half.y-E); y+=s){
-			for (float x = (pos->x-half.x+E); x <= (pos->x+half.x-E); x+=s){
-				float z = (pos->z+half.z+E);
+	if (vel.z < 0.0f){
+		for (float y = (pos.y-half.y+E); y <= (pos.y+half.y-E); y+=s){
+			for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
+				float z = (pos.z-half.z-E);
 				if ((aabb = chunks->isObstacle(x,y,z))){
-					vel->z *= 0.0;
-					pos->z = floor(z) - half.z + aabb->min().z - E;
+					vel.z *= 0.0f;
+					pos.z = floor(z) + aabb->max().z + half.z + E;
 					break;
 				}
 			}
 		}
 	}
 
-	if (vel->y < 0.0){
-		for (float x = (pos->x-half.x+E); x <= (pos->x+half.x-E); x+=s){
-			for (float z = (pos->z-half.z+E); z <= (pos->z+half.z-E); z+=s){
-				float y = (pos->y-half.y-E);
+	if (vel.z > 0.0f){
+		for (float y = (pos.y-half.y+E); y <= (pos.y+half.y-E); y+=s){
+			for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
+				float z = (pos.z+half.z+E);
 				if ((aabb = chunks->isObstacle(x,y,z))){
-					vel->y *= 0.0;
-					pos->y = floor(y) + aabb->max().y + half.y;
+					vel.z *= 0.0f;
+					pos.z = floor(z) - half.z + aabb->min().z - E;
+					break;
+				}
+			}
+		}
+	}
+
+	if (vel.y < 0.0f){
+		for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
+			for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
+				float y = (pos.y-half.y-E);
+				if ((aabb = chunks->isObstacle(x,y,z))){
+					vel.y *= 0.0f;
+					pos.y = floor(y) + aabb->max().y + half.y;
 					hitbox->grounded = true;
 					break;
 				}
 			}
 		}
 	}
-	if (vel->y > 0.0){
-		for (float x = (pos->x-half.x+E); x <= (pos->x+half.x-E); x+=s){
-			for (float z = (pos->z-half.z+E); z <= (pos->z+half.z-E); z+=s){
-				float y = (pos->y+half.y+E);
+	if (vel.y > 0.0f){
+		for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
+			for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
+				float y = (pos.y+half.y+E);
 				if ((aabb = chunks->isObstacle(x,y,z))){
-					vel->y *= 0.0;
-					pos->y = floor(y) - half.y + aabb->min().y - E;
+					vel.y *= 0.0f;
+					pos.y = floor(y) - half.y + aabb->min().y - E;
 					break;
 				}
 			}

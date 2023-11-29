@@ -15,7 +15,7 @@
 
 #include "../core_defs.h"
 
-#define CROUCH_SPEED_MUL 0.25f
+#define CROUCH_SPEED_MUL 0.35f
 #define CROUCH_SHIFT_Y -0.2f
 #define RUN_SPEED_MUL 1.5f
 #define CROUCH_ZOOM 0.9f
