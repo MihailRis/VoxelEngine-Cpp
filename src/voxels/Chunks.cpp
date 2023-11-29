@@ -64,11 +64,24 @@ voxel* Chunks::get(int x, int y, int z){
 	return &chunk->voxels[(ly * CHUNK_D + lz) * CHUNK_W + lx];
 }
 
-bool Chunks::isObstacle(int x, int y, int z){
-	voxel* v = get(x,y,z);
+const AABB* Chunks::isObstacle(float x, float y, float z){
+	int ix = floor(x);
+	int iy = floor(y);
+	int iz = floor(z);
+	voxel* v = get(ix,iy,iz);
 	if (v == nullptr)
-		return true; // void - is obstacle
-	return contentIds->getBlockDef(v->id)->obstacle;
+		return nullptr;
+	const Block* def = contentIds->getBlockDef(v->id);
+	if (def->obstacle) {
+		if (def->rt.solid) {
+			return &def->hitbox;
+		} else {
+			if (def->hitbox.inside({x - ix, y - iy, z - iz}))
+				return &def->hitbox;
+			return nullptr;
+		}
+	}
+	return nullptr;
 }
 
 ubyte Chunks::getLight(int x, int y, int z, int channel){
