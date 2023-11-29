@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 
 using glm::vec4;
+using std::cout;
 using std::cerr;
 using std::endl;
 
@@ -111,12 +112,15 @@ int Window::initialize(DisplaySettings& settings){
 	Window::width = settings.width;
 	Window::height = settings.height;
 
-	glfwInit();
 	glfwSetErrorCallback(error_callback);
+	if (glfwInit() == GLFW_FALSE) {
+		cerr << "Failed to initialize GLFW" << endl;
+		return -1;
+	}
+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-	
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 	glfwWindowHint(GLFW_SAMPLES, settings.samples);
 
@@ -129,20 +133,16 @@ int Window::initialize(DisplaySettings& settings){
 	glfwMakeContextCurrent(window);
 
 	glewExperimental = GL_TRUE;
-	GLenum err = glewInit();
-	if (err != GLEW_OK){
-		std::cerr << "Failed to initialize GLEW: " << std::endl;
-		std::cerr << glewGetErrorString(err) << std::endl;
+	GLenum glewErr = glewInit();
+	if (glewErr != GLEW_OK){
+		cerr << "Failed to initialize GLEW: " << std::endl;
+		cerr << glewGetErrorString(glewErr) << std::endl;
 		return -1;
 	}
-	glViewport(0,0, width, height);
 
+	glViewport(0,0, width, height);
 	glClearColor(0.0f,0.0f,0.0f, 1);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Events::initialize();
@@ -160,8 +160,8 @@ int Window::initialize(DisplaySettings& settings){
 	glfwSwapInterval(settings.swapInterval);
 	const GLubyte* vendor = glGetString(GL_VENDOR);
 	const GLubyte* renderer = glGetString(GL_RENDERER);
-	std::cout << "GL Vendor: " << (char*)vendor << std::endl;
-	std::cout << "GL Renderer: " << (char*)renderer << std::endl;
+	cout << "GL Vendor: " << (char*)vendor << endl;
+	cout << "GL Renderer: " << (char*)renderer << endl;
 	return 0;
 }
 
