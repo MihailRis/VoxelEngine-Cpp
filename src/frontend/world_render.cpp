@@ -173,7 +173,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 			const AABB& hitbox = block->hitbox;
 			const vec3 center = pos + hitbox.center();
 			const vec3 size = hitbox.size();
-			lineBatch->box(center, size, vec4(0.0f, 0.0f, 0.0f, 0.5f));
+			lineBatch->box(center, size + vec3(0.02), vec4(0.0f, 0.0f, 0.0f, 0.5f));
 			lineBatch->render();
 		}
 		skybox->unbind();
