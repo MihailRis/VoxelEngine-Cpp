@@ -54,6 +54,18 @@ void Batch3D::vertex(float x, float y, float z, float u, float v,
 	buffer[index++] = b;
 	buffer[index++] = a;
 }
+void Batch3D::vertex(vec3 coord, float u, float v,
+					 float r, float g, float b, float a) {
+	buffer[index++] = coord.x;
+	buffer[index++] = coord.y;
+	buffer[index++] = coord.z;
+	buffer[index++] = u;
+	buffer[index++] = v;
+	buffer[index++] = r;
+	buffer[index++] = g;
+	buffer[index++] = b;
+	buffer[index++] = a;
+}
 void Batch3D::vertex(vec3 point,
 					 vec2 uvpoint,
 					 float r, float g, float b, float a) {
@@ -66,6 +78,29 @@ void Batch3D::vertex(vec3 point,
 	buffer[index++] = g;
 	buffer[index++] = b;
 	buffer[index++] = a;
+}
+
+void Batch3D::face(const vec3& coord, float w, float h,
+	const vec3& axisX,
+	const vec3& axisY,
+	const UVRegion& region,
+	const vec4& tint) {
+	if (index + VERTEX_SIZE * 4 > capacity) {
+		render();
+	}
+	vertex(coord, region.u1, region.v1, 
+		   tint.r, tint.g, tint.b, tint.a);
+	vertex(coord + axisX * w, region.u2, region.v1, 
+	 	   tint.r, tint.g, tint.b, tint.a);
+	vertex(coord + axisX * w + axisY * h, region.u2, region.v2, 
+		   tint.r, tint.g, tint.b, tint.a);
+
+	vertex(coord, region.u1, region.v1, 
+		   tint.r, tint.g, tint.b, tint.a);
+	vertex(coord + axisX * w + axisY * h, region.u2, region.v2,
+		   tint.r, tint.g, tint.b, tint.a);
+	vertex(coord + axisY * h, region.u1, region.v2, 
+		   tint.r, tint.g, tint.b, tint.a);
 }
 
 void Batch3D::texture(Texture* new_texture){
@@ -124,46 +159,17 @@ void Batch3D::sprite(vec3 pos, vec3 up, vec3 right, float w, float h){
 			r,g,b,a);
 }
 
-void Batch3D::sprite(vec3 pos, vec3 up, vec3 right, float w, float h, int atlasRes, int index, vec4 tint){
-	float scale = 1.0f / (float)atlasRes;
-	float u = (index % atlasRes) * scale;
-	float v = 1.0f - ((index / atlasRes) * scale) - scale;
+inline vec4 do_tint(float value) {
+	return vec4(value, value, value, 1.0f);
+}
 
-	vertex(pos.x - right.x * w - up.x * h,
-			pos.y - right.y * w - up.y * h,
-			pos.z - right.z * w - up.z * h,
-			u, v,
-			tint.r,tint.g,tint.b,tint.a);
-
-	vertex(pos.x + right.x * w + up.x * h,
-			pos.y + right.y * w + up.y * h,
-			pos.z + right.z * w + up.z * h,
-			u+scale, v+scale,
-			tint.r,tint.g,tint.b,tint.a);
-
-	vertex(pos.x - right.x * w - up.x * h,
-			pos.y + right.y * w + up.y * h,
-			pos.z - right.z * w - up.z * h,
-			u, v+scale,
-			tint.r,tint.g,tint.b,tint.a);
-
-	vertex(pos.x - right.x * w - up.x * h,
-			pos.y - right.y * w - up.y * h,
-			pos.z - right.z * w - up.z * h,
-			u, v,
-			tint.r,tint.g,tint.b,tint.a);
-
-	vertex(pos.x + right.x * w + up.x * h,
-			pos.y - right.y * w - up.y * h,
-			pos.z + right.z * w + up.z * h,
-			u+scale, v,
-			tint.r,tint.g,tint.b,tint.a);
-
-	vertex(pos.x + right.x * w + up.x * h,
-			pos.y + right.y * w + up.y * h,
-			pos.z + right.z * w + up.z * h,
-			u+scale, v+scale,
-			tint.r,tint.g,tint.b,tint.a);
+void Batch3D::blockCube(const vec3& size, const UVRegion(&texfaces)[6], ubyte group) {
+	face(vec3(0.0f, 0.0f, 0.0f), size.x, size.y, vec3(1, 0, 0), vec3(0, 1, 0), texfaces[5], do_tint(1.0));
+	face(vec3(size.x, 0.0f, -size.z), size.x, size.y, vec3(-1, 0, 0), vec3(0, 1, 0), texfaces[4], vec4(1.0f));
+	face(vec3(0.0f, size.y, 0.0f), size.x, size.z, vec3(1, 0, 0), vec3(0, 0, -1), texfaces[3], vec4(1.0f));
+	face(vec3(0.0f, 0.0f, -size.z), size.x, size.z, vec3(1, 0, 0), vec3(0, 0, 1), texfaces[2], vec4(1.0f));
+	face(vec3(0.0f, 0.0f, -size.z), size.z, size.y, vec3(0, 0, 1), vec3(0, 1, 0), texfaces[0], vec4(1.0f));
+	face(vec3(size.x, 0.0f, 0.0f), size.z, size.y, vec3(0, 0, -1), vec3(0, 1, 0), texfaces[1], vec4(1.0f));
 }
 
 void Batch3D::render() {
