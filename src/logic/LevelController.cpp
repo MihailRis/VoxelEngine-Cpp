@@ -23,22 +23,7 @@ void LevelController::update(
         float delta, 
         bool input, 
         bool pause) {
-    if (!pause) {
-		if (input) {
-			player->updateKeyboard();
-		} else {
-			player->resetKeyboard();
-		}
-        player->updateCamera(delta, input);
-		player->updateControls(delta);
-
-	}
-	player->refreshCamera();
-	if (input) {
-		player->updateInteraction();
-	} else {
-		player->selectedBlockId = -1;
-	}
+    player->update(delta, input, pause);
     level->update();
     chunks->update(settings.chunks.loadSpeed);
 }

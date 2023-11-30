@@ -7,7 +7,7 @@ class Level;
 class ChunksController;
 class PlayerController;
 
-/* LevelController - the main game logic controller */
+/* LevelController manages other controllers */
 class LevelController {
     EngineSettings& settings;
     Level* level;

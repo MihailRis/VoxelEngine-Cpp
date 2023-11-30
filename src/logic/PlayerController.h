@@ -7,7 +7,6 @@
 #include "../objects/Player.h"
 
 class Camera;
-class Player;
 class Level;
 
 class CameraControl {
@@ -30,17 +29,20 @@ class PlayerController {
 	Player* player;
 	PlayerInput input;
 	CameraControl camControl;
-public:
-	static glm::vec3 selectedBlockPosition;
-	static int selectedBlockId;
 
-	PlayerController(Level* level, const EngineSettings& settings);
 	void updateKeyboard();
 	void updateCamera(float delta, bool movement);
 	void refreshCamera();
 	void resetKeyboard();
 	void updateControls(float delta);
 	void updateInteraction();
+
+public:
+	static glm::vec3 selectedBlockPosition;
+	static int selectedBlockId;
+
+	PlayerController(Level* level, const EngineSettings& settings);
+	void update(float delta, bool input, bool pause);
 };
 
 #endif /* PLAYER_CONTROL_H_ */

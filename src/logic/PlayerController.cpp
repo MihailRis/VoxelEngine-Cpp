@@ -115,6 +115,25 @@ PlayerController::PlayerController(Level* level, const EngineSettings& settings)
 	  camControl(level->player, settings.camera) {
 }
 
+void PlayerController::update(float delta, bool input, bool pause) {
+	if (!pause) {
+		if (input) {
+			updateKeyboard();
+		} else {
+			resetKeyboard();
+		}
+        updateCamera(delta, input);
+		updateControls(delta);
+
+	}
+	refreshCamera();
+	if (input) {
+		updateInteraction();
+	} else {
+		selectedBlockId = -1;
+	}
+}
+
 void PlayerController::updateKeyboard() {
 	input.moveForward = Events::active(BIND_MOVE_FORWARD);
 	input.moveBack = Events::active(BIND_MOVE_BACK);
