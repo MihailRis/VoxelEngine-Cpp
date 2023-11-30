@@ -22,8 +22,7 @@ LevelController::~LevelController() {
 void LevelController::update(
         float delta, 
         bool input, 
-        bool pause, 
-        bool interactions) {
+        bool pause) {
     if (!pause) {
 		if (input) {
 			player->updateKeyboard();
@@ -35,7 +34,7 @@ void LevelController::update(
 
 	}
 	player->refreshCamera();
-	if (interactions) {
+	if (input) {
 		player->updateInteraction();
 	} else {
 		player->selectedBlockId = -1;
