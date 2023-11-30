@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <glm/glm.hpp>
 #include "UVRegion.h"
+#include "../typedefs.h"
 
 class Mesh;
 class Texture;
