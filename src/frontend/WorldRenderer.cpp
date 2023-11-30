@@ -189,6 +189,8 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 			Block* block = contentIds->getBlockDef(id);
 			assert(block != nullptr);
 			const vec3 pos = PlayerController::selectedBlockPosition;
+			const vec3 point = PlayerController::selectedPointPosition;
+			const vec3 norm = PlayerController::selectedBlockNormal;
 			const AABB& hitbox = block->hitbox;
 			const vec3 center = pos + hitbox.center();
 			const vec3 size = hitbox.size();
@@ -196,6 +198,8 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 			linesShader->uniformMatrix("u_projview", camera->getProjView());
 			lineBatch->lineWidth(2.0f);
 			lineBatch->box(center, size + vec3(0.02), vec4(0.f, 0.f, 0.f, 0.5f));
+			if (level->player->debug)
+				lineBatch->line(point, point+norm*0.5f, vec4(1.0f, 0.0f, 1.0f, 1.0f));
 			lineBatch->render();
 		}
 		skybox->unbind();
@@ -206,6 +210,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 		ctx.depthTest(true);
 
 		linesShader->use();
+
 		if (settings.debug.showChunkBorders){
 			linesShader->uniformMatrix("u_projview", camera->getProjView());
 			vec3 coord = level->player->camera->position;
