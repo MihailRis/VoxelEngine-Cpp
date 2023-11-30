@@ -17,7 +17,6 @@ class ChunksStorage;
 class PlayerController;
 
 class Level {
-	const ContentIndices* const contentIds;
 public:
 	World* world;
 	const Content* const content;

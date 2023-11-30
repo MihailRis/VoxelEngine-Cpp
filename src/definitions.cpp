@@ -13,6 +13,8 @@ using glm::vec3;
 // All in-game definitions (blocks, items, etc..)
 void setup_definitions(ContentBuilder* builder) {
 	Block* block = new Block("core:air", "air");
+	block->replaceable = true;
+	block->drawGroup = 1;
 	block->lightPassing = true;
 	block->skyLightPassing = true;
 	block->obstacle = false;
@@ -60,6 +62,7 @@ void setup_definitions(ContentBuilder* builder) {
 	block->skyLightPassing = false;
 	block->obstacle = false;
 	block->selectable = false;
+	block->replaceable = true;
 	builder->add(block);
 
 	block = new Block("base:sand", "sand");
@@ -73,6 +76,7 @@ void setup_definitions(ContentBuilder* builder) {
 	block->drawGroup = 1;
 	block->lightPassing = true;
 	block->obstacle = false;
+	block->replaceable = true;
 	block->model = BlockModel::xsprite;
 	block->hitbox.scale(vec3(0.7f), vec3(0.5f, 0.0f, 0.5f));
 	builder->add(block);
@@ -81,6 +85,7 @@ void setup_definitions(ContentBuilder* builder) {
 	block->drawGroup = 1;
 	block->lightPassing = true;
 	block->obstacle = false;
+	block->replaceable = true;
 	block->model = BlockModel::xsprite;
 	block->hitbox.scale(vec3(0.7f));
 	builder->add(block);

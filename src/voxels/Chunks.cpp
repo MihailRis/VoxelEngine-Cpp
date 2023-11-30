@@ -221,14 +221,21 @@ voxel* Chunks::rayCast(vec3 start,
 			
 			// TODO: replace this dumb solution with something better
 			if (def && !def->rt.solid) {
+				const int gridSize = BLOCK_AABB_GRID * 2;
 				const AABB& box = def->hitbox;
-				const int subs = BLOCK_AABB_GRID;
+				const int subs = gridSize;
 				iend = vec3(ix, iy, iz);
 				end -= iend;
-				for (int i = 0; i < subs; i++) {
-					end.x += dx / float(subs);
-					end.y += dy / float(subs);
-					end.z += dz / float(subs);
+				int six = end.x * gridSize;
+				int siy = end.y * gridSize;
+				int siz = end.z * gridSize;
+				float stxMax = (txDelta < infinity) ? txDelta * xdist : infinity;
+				float styMax = (tyDelta < infinity) ? tyDelta * ydist : infinity;
+				float stzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
+				for (int i = 0; i < subs*2; i++) {
+					end.x = six / float(gridSize);
+					end.y = siy / float(gridSize);
+					end.z = siz / float(gridSize);
 					if (box.inside(end)) {
 						end += iend;
 						norm.x = norm.y = norm.z = 0.0f;
@@ -236,6 +243,27 @@ voxel* Chunks::rayCast(vec3 start,
 						if (steppedIndex == 1) norm.y = -stepy;
 						if (steppedIndex == 2) norm.z = -stepz;
 						return voxel;
+					}
+					if (stxMax < styMax) {
+						if (stxMax < stzMax) {
+							six += stepx;
+							stxMax += txDelta;
+							steppedIndex = 0;
+						} else {
+							siz += stepz;
+							stzMax += tzDelta;
+							steppedIndex = 2;
+						}
+					} else {
+						if (styMax < stzMax) {
+							siy += stepy;
+							styMax += tyDelta;
+							steppedIndex = 1;
+						} else {
+							siz += stepz;
+							stzMax += tzDelta;
+							steppedIndex = 2;
+						}
 					}
 				}
 			} else {

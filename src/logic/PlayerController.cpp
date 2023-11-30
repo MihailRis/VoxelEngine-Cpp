@@ -238,9 +238,12 @@ void PlayerController::updateInteraction(){
 				y = (int)(iend.y)+(int)(norm.y);
 				z = (int)(iend.z)+(int)(norm.z);
 			}
-			if (!level->physics->isBlockInside(x,y,z, player->hitbox)){
-				chunks->set(x, y, z, player->choosenBlock, states);
-				lighting->onBlockSet(x,y,z, player->choosenBlock);
+			vox = chunks->get(x, y, z);
+			if (vox && (block = contentIds->getBlockDef(vox->id))->replaceable) {
+				if (!level->physics->isBlockInside(x,y,z, player->hitbox)){
+					chunks->set(x, y, z, player->choosenBlock, states);
+					lighting->onBlockSet(x,y,z, player->choosenBlock);
+				}
 			}
 		}
 		if (Events::jactive(BIND_PLAYER_PICK)){

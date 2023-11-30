@@ -34,6 +34,7 @@ public:
 	bool skyLightPassing = false;
 	bool obstacle = true;
 	bool selectable = true;
+	bool replaceable = false;
 	bool breakable = true;
 	bool rotatable = false;
 	AABB hitbox;

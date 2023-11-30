@@ -13,7 +13,6 @@
 Level::Level(World* world, const Content* content, Player* player, EngineSettings& settings)
 	  : world(world),
 	    content(content),
-		contentIds(content->indices),
 		player(player),
 		chunksStorage(new ChunksStorage(this)),
 		events(new LevelEvents()) ,
@@ -22,11 +21,8 @@ Level::Level(World* world, const Content* content, Player* player, EngineSetting
 
     uint matrixSize = (settings.chunks.loadDistance+
 					   settings.chunks.padding) * 2;
-    chunks = new Chunks(matrixSize, matrixSize, 
-		0, 0, 
-		world->wfile, 
-		events,
-		content);
+    chunks = new Chunks(matrixSize, matrixSize, 0, 0, 
+						world->wfile, events, content);
 	lighting = new Lighting(content, chunks);
 
 	events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
