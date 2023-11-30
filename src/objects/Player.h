@@ -4,30 +4,49 @@
 #include <glm/glm.hpp>
 
 #include "../voxels/voxel.h"
+#include "../settings.h"
 
 class Camera;
 class Hitbox;
 class PhysicsSolver;
 class Chunks;
+class Level;
+
+struct PlayerInput {
+	bool zoom;
+	bool moveForward;
+	bool moveBack;
+	bool moveRight;
+	bool moveLeft;
+	bool sprint;
+	bool shift;
+	bool cheat;
+	bool jump;
+	bool noclip;
+	bool flight;
+};
 
 class Player {
-public:
 	float speed;
+public:
 	Camera* camera;
 	Hitbox* hitbox;
 	bool flight = false;
 	bool noclip = false;
 	bool debug = false;
 	int choosenBlock;
-	float camX, camY;
-	float cameraShaking = 0.0f;
-	float cameraShakingTimer = 0.0f;
-	glm::vec3 interpVel {0.0f, 0.0f, 0.0f};
 	voxel selectedVoxel {0, 0};
+
+	float camX = 0.0f;
+	float camY = 0.0f;
+
 	Player(glm::vec3 position, float speed, Camera* camera);
 	~Player();
 
 	void teleport(glm::vec3 position);
+
+	float getSpeed() const;
+	void update(Level* level, PlayerInput& input, float delta);
 };
 
 #endif /* SRC_OBJECTS_PLAYER_H_ */

@@ -307,7 +307,8 @@ vec4 BlocksRenderer::pickLight(int x, int y, int z) const {
 	}
 }
 
-vec4 BlocksRenderer::pickSoftLight(int x, int y, int z, const ivec3& right, const ivec3& up) const {
+vec4 BlocksRenderer::pickSoftLight(int x, int y, int z, 
+								  const ivec3& right, const ivec3& up) const {
 	return (pickLight(x - right.x - up.x, y - right.y - up.y, z - right.z - up.z) +
 		pickLight(x - up.x, y - up.y, z - up.z) +
 		pickLight(x, y, z) +
@@ -332,15 +333,15 @@ void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 			int z = (i / CHUNK_D) % CHUNK_W;
 			switch (def.model) {
 			case BlockModel::block:
-				if (*((uint32_t*)&def.emission)) {
-					blockCube(x, y, z, vec3(1, 1, 1), texfaces, def.drawGroup);
+				if (def.rt.emissive) {
+					blockCube(x, y, z, vec3(1.0f), texfaces, def.drawGroup);
 				}
 				else {
-					blockCubeShaded(x, y, z, vec3(1, 1, 1), texfaces, &def, vox.states);
+					blockCubeShaded(x, y, z, vec3(1.0f), texfaces, &def, vox.states);
 				}
 				break;
 			case BlockModel::xsprite: {
-				blockXSprite(x, y, z, vec3(1, 1, 1), texfaces[FACE_MX], texfaces[FACE_MZ], 1.0f);
+				blockXSprite(x, y, z, vec3(1.0f), texfaces[FACE_MX], texfaces[FACE_MZ], 1.0f);
 				break;
 			}
 			default:

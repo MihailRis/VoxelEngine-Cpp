@@ -1,9 +1,15 @@
 #include "ChunksController.h"
-#include "Block.h"
-#include "Chunk.h"
-#include "Chunks.h"
-#include "ChunksStorage.h"
-#include "WorldGenerator.h"
+
+#include <iostream>
+#include <limits.h>
+#include <memory>
+#include <chrono>
+
+#include "../voxels/Block.h"
+#include "../voxels/Chunk.h"
+#include "../voxels/Chunks.h"
+#include "../voxels/ChunksStorage.h"
+#include "../voxels/WorldGenerator.h"
 #include "../content/Content.h"
 #include "../graphics/Mesh.h"
 #include "../lighting/Lighting.h"
@@ -11,10 +17,6 @@
 #include "../world/Level.h"
 #include "../world/World.h"
 #include "../maths/voxmaths.h"
-#include <iostream>
-#include <limits.h>
-#include <memory>
-#include <chrono>
 
 #define MAX_WORK_PER_FRAME 16
 #define MIN_SURROUNDING 9
@@ -26,7 +28,11 @@ using std::chrono::duration_cast;
 using std::chrono::microseconds;
 
 
-ChunksController::ChunksController(Level* level, Chunks* chunks, Lighting* lighting, uint padding) 
+ChunksController::ChunksController(
+	Level* level, 
+	Chunks* chunks, 
+	Lighting* lighting, 
+	uint padding) 
     : level(level), 
 	  chunks(chunks), 
 	  lighting(lighting), 

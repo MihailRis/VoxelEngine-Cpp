@@ -11,20 +11,26 @@ class VoxelRenderer;
 class ChunksLoader;
 class WorldGenerator;
 
+/* ChunksController manages chunks dynamic loading/unloading */
 class ChunksController {
 private:
 	Level* level;
 	Chunks* chunks;
 	Lighting* lighting;
-	int64_t avgDurationMcs = 1000;
 	uint padding;
 	WorldGenerator* generator;
+
+	/* Average measured microseconds duration of loadVisible call */
+	int64_t avgDurationMcs = 1000;
+
+	/* Process one chunk: load it or calculate lights for it */
+	bool loadVisible();
 public:
 	ChunksController(Level* level, Chunks* chunks, Lighting* lighting, uint padding);
 	~ChunksController();
 
+	/* @param maxDuration milliseconds reserved for chunks loading */
     void update(int64_t maxDuration);
-	bool loadVisible();
 };
 
 #endif /* VOXELS_CHUNKSCONTROLLER_H_ */
