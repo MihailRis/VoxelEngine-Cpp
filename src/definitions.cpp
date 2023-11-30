@@ -105,6 +105,18 @@ void setup_definitions(ContentBuilder* builder) {
 	block = new Block("base:blue_lamp", "blue_lamp");
 	block->emission[2] = 15;
 	builder->add(block);
+
+	// block added for test
+	block = new Block("base:pane", "pane");
+	block->textureFaces[FACE_MX] = "pane_side";
+	block->textureFaces[FACE_PX] = "pane_side";
+	block->textureFaces[FACE_MY] = "pane_side_2";
+	block->textureFaces[FACE_PY] = "pane_side_2";
+	block->model = BlockModel::aabb;
+	block->hitbox.scale(vec3(1.0f, 1.0f, 0.2f), vec3(0.5f, 0.5f, 0.0f));
+	block->lightPassing = true;
+	block->skyLightPassing = true;
+	builder->add(block);
 }
 
 void setup_bindings() {

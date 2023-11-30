@@ -4,11 +4,14 @@
 #include <string>
 #include <memory>
 
+#include <glm/glm.hpp>
+
 #include "../graphics/GfxContext.h"
 
 class Batch2D;
 class Camera;
 class Level;
+class Block;
 class Assets;
 class Player;
 class Level;
@@ -38,6 +41,8 @@ class HudRenderer {
 	gui::GUI* gui;
 	const ContentGfxCache* const cache;
 	WorldRenderer* renderer;
+
+	void drawBlockPreview(const Block* def, float x, float y, float w, float h, glm::vec4 tint);
 public:
 	HudRenderer(Engine* engine, 
 				Level* level, 

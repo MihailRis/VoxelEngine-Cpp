@@ -37,6 +37,8 @@ class PlayerController {
 	void updateInteraction();
 public:
 	static glm::vec3 selectedBlockPosition;
+	static glm::vec3 selectedBlockNormal;
+	static glm::vec3 selectedPointPosition;
 	static int selectedBlockId;
 
 	PlayerController(Level* level, const EngineSettings& settings);

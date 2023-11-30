@@ -8,15 +8,15 @@ class ImageData;
 
 class Texture {
 public:
-	unsigned int id;
+	uint id;
 	int width;
 	int height;
-	Texture(unsigned int id, int width, int height);
-	Texture(unsigned char* data, int width, int height, uint format);
+	Texture(uint id, int width, int height);
+	Texture(ubyte* data, int width, int height, uint format);
 	~Texture();
 
 	void bind();
-	void reload(unsigned char* data);
+	void reload(ubyte* data);
 
 	static Texture* from(const ImageData* image);
 };

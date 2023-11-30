@@ -91,11 +91,15 @@ HudRenderer::HudRenderer(Engine* engine,
 			   L" visible: "+std::to_wstring(level->chunks->visible);
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
+		auto player = this->level->player;
+		auto indices = this->level->content->indices;
+		auto def = indices->getBlockDef(player->selectedVoxel.id);
 		std::wstringstream stream;
 		stream << std::hex << this->level->player->selectedVoxel.states;
-
-		auto player = this->level->player;
-		return L"block-selected: "+std::to_wstring(player->selectedVoxel.id)+
+		if (def) {
+			stream << L" (" << util::str2wstr_utf8(def->name) << L")";
+		}
+		return L"block: "+std::to_wstring(player->selectedVoxel.id)+
 		       L" "+stream.str();
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
@@ -236,12 +240,17 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 		} else {
 			tint = vec4(1.0f);
 		}
-		
-		if (cblock->model == BlockModel::block){
-			batch->blockSprite(x, y, icon_size, icon_size, &cache->getRegion(cblock->id, 0), tint);
-		} else if (cblock->model == BlockModel::xsprite){
-			batch->sprite(x, y, icon_size, icon_size, cache->getRegion(cblock->id, 3), tint);
-		}
+		drawBlockPreview(cblock, x, y, icon_size, icon_size, tint);
+	}
+}
+
+void HudRenderer::drawBlockPreview(const Block* def, float x, float y, float w, float h, vec4 tint) {
+	if (def->model == BlockModel::block){
+		batch->blockSprite(x, y, w, h, &cache->getRegion(def->rt.id, 0), tint);
+	} else if (def->model == BlockModel::aabb) {
+		batch->blockSprite(x, y, w, h, &cache->getRegion(def->rt.id, 0), tint, def->hitbox.size());
+	} else if (def->model == BlockModel::xsprite){
+		batch->sprite(x, y, w, h, cache->getRegion(def->rt.id, 3), tint);
 	}
 }
 
@@ -311,11 +320,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 	{
 		Block* cblock = contentIds->getBlockDef(player->choosenBlock);
 		assert(cblock != nullptr);
-		if (cblock->model == BlockModel::block){
-			batch->blockSprite(width-56, uicamera->fov - 56, 48, 48, &cache->getRegion(cblock->id, 0), vec4(1.0f));
-		} else if (cblock->model == BlockModel::xsprite){
-			batch->sprite(width-56, uicamera->fov - 56, 48, 48, cache->getRegion(cblock->id, 3), vec4(1.0f));
-		}
+		drawBlockPreview(cblock, width - 56, uicamera->fov - 56, 48, 48, vec4(1.0f));
 	}
 
 	if (pause) {

@@ -12,6 +12,8 @@
 #include "../../window/input.h"
 #include "../../window/Camera.h"
 
+using glm::vec2;
+using glm::vec3;
 using std::string;
 using std::shared_ptr;
 using namespace gui;

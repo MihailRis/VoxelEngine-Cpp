@@ -107,6 +107,8 @@ void CameraControl::update(PlayerInput& input, float delta) {
 }
 
 vec3 PlayerController::selectedBlockPosition;
+vec3 PlayerController::selectedPointPosition;
+vec3 PlayerController::selectedBlockNormal;
 int PlayerController::selectedBlockId = -1;
 
 PlayerController::PlayerController(Level* level, const EngineSettings& settings) 
@@ -179,8 +181,9 @@ void PlayerController::updateControls(float delta){
 	player->update(level, input, delta);
 }
 
+#include <iostream>
 void PlayerController::updateInteraction(){
-	const ContentIndices* contentIds = level->contentIds;
+	auto contentIds = level->content->indices;
 	Chunks* chunks = level->chunks;
 	Player* player = level->player;
 	Lighting* lighting = level->lighting;
@@ -206,6 +209,8 @@ void PlayerController::updateInteraction(){
 		player->selectedVoxel = *vox;
 		selectedBlockId = vox->id;
 		selectedBlockPosition = iend;
+		selectedPointPosition = end;
+		selectedBlockNormal = norm;
 		int x = (int)iend.x;
 		int y = (int)iend.y;
 		int z = (int)iend.z;

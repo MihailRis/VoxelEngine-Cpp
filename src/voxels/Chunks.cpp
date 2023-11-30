@@ -230,6 +230,7 @@ voxel* Chunks::rayCast(vec3 start,
 					end.y += dy / float(subs);
 					end.z += dz / float(subs);
 					if (box.inside(end)) {
+						end += iend;
 						norm.x = norm.y = norm.z = 0.0f;
 						if (steppedIndex == 0) norm.x = -stepx;
 						if (steppedIndex == 1) norm.y = -stepy;

@@ -6,8 +6,6 @@
 
 #include "UVRegion.h"
 
-using namespace glm;
-
 class Mesh;
 class Texture;
 class Sprite;
@@ -25,8 +23,8 @@ class Batch2D {
 	void vertex(float x, float y,
 			float u, float v,
 			float r, float g, float b, float a);
-	void vertex(vec2 point,
-			vec2 uvpoint,
+	void vertex(glm::vec2 point,
+			glm::vec2 uvpoint,
 			float r, float g, float b, float a);
 
 public:
@@ -37,10 +35,10 @@ public:
 
 	void begin();
 	void texture(Texture* texture);
-	void sprite(float x, float y, float w, float h, const UVRegion& region, vec4 tint);
+	void sprite(float x, float y, float w, float h, const UVRegion& region, glm::vec4 tint);
 	void sprite(Sprite* sprite);
-	void sprite(float x, float y, float w, float h, int atlasRes, int index, vec4 tint);
-	void blockSprite(float x, float y, float w, float h, const UVRegion regions[], vec4 tint);
+	void sprite(float x, float y, float w, float h, int atlasRes, int index, glm::vec4 tint);
+	void blockSprite(float x, float y, float w, float h, const UVRegion regions[], glm::vec4 tint, glm::vec3 size=glm::vec3(1.0f, 1.0f, 1.0f));
 	void point(float x, float y, float r, float g, float b, float a);
 	void line(float x1, float y1, float x2, float y2, float r, float g, float b, float a);
 	void rect(float x, float y,
@@ -48,7 +46,7 @@ public:
 			float ox, float oy,
 			float angle, UVRegion region,
 			bool flippedX, bool flippedY,
-			vec4 tint);
+			glm::vec4 tint);
 
 	void rect(float x, float y, float w, float h);
 	void rect(float x, float y, float w, float h,
