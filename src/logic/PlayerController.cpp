@@ -181,7 +181,6 @@ void PlayerController::updateControls(float delta){
 	player->update(level, input, delta);
 }
 
-#include <iostream>
 void PlayerController::updateInteraction(){
 	auto contentIds = level->content->indices;
 	Chunks* chunks = level->chunks;

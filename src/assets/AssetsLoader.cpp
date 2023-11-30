@@ -110,6 +110,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader) {
 	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/main"), "main");
 	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/lines"), "lines");
 	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/ui"), "ui");
+	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/ui3d"), "ui3d");
 	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/background"), "background");
 	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/skybox_gen"), "skybox_gen");
 

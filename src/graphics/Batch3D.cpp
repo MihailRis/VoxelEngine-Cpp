@@ -4,10 +4,18 @@
 #include "Texture.h"
 
 #include <GL/glew.h>
+#include "../typedefs.h"
 
 #define VERTEX_SIZE 9
 
-Batch3D::Batch3D(size_t capacity) : capacity(capacity), offset(0), color(1.0f, 1.0f, 1.0f, 0.0f){
+using glm::vec2;
+using glm::vec3;
+using glm::vec4;
+
+Batch3D::Batch3D(size_t capacity) 
+	: capacity(capacity), 
+	  offset(0), 
+	  color(1.0f, 1.0f, 1.0f, 1.0f) {
 	const vattr attrs[] = {
 		{3}, {2}, {4}, {0}
 	};
@@ -16,8 +24,8 @@ Batch3D::Batch3D(size_t capacity) : capacity(capacity), offset(0), color(1.0f, 1
 	mesh = new Mesh(buffer, 0, attrs);
 	index = 0;
 
-	unsigned char pixels[] = {
-			255, 255, 255, 255,
+	ubyte pixels[] = {
+		255, 255, 255, 255,
 	};
 	blank = new Texture(pixels, 1, 1, GL_RGBA);
 	_texture = nullptr;
@@ -35,7 +43,7 @@ void Batch3D::begin(){
 }
 
 void Batch3D::vertex(float x, float y, float z, float u, float v,
-		float r, float g, float b, float a) {
+					 float r, float g, float b, float a) {
 	buffer[index++] = x;
 	buffer[index++] = y;
 	buffer[index++] = z;
@@ -47,8 +55,8 @@ void Batch3D::vertex(float x, float y, float z, float u, float v,
 	buffer[index++] = a;
 }
 void Batch3D::vertex(vec3 point,
-		vec2 uvpoint,
-		float r, float g, float b, float a) {
+					 vec2 uvpoint,
+					 float r, float g, float b, float a) {
 	buffer[index++] = point.x;
 	buffer[index++] = point.y;
 	buffer[index++] = point.z;
@@ -160,6 +168,6 @@ void Batch3D::sprite(vec3 pos, vec3 up, vec3 right, float w, float h, int atlasR
 
 void Batch3D::render() {
 	mesh->reload(buffer, index / VERTEX_SIZE);
-	mesh->draw(GL_TRIANGLES);
+	mesh->draw();
 	index = 0;
 }
