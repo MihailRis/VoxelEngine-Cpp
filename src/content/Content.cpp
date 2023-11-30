@@ -22,10 +22,12 @@ Content* ContentBuilder::build() {
     vector<Block*> blockDefsIndices;
     for (const string& name : blockIds) {
         Block* def = blockDefs[name];
-        def->id = blockDefsIndices.size();
+        
+        // Generating runtime info
+        def->rt.id = blockDefsIndices.size();
         def->rt.emissive = *((uint32_t*)def->emission);
         
-        // build hitbox grid 3d for raycasts
+        // building hitbox grid 3d for raycasts
         const AABB& hitbox = def->hitbox;
         for (uint gy = 0; gy < BLOCK_AABB_GRID; gy++) {
             for (uint gz = 0; gz < BLOCK_AABB_GRID; gz++) {

@@ -7,6 +7,10 @@
 
 #define VERTEX_SIZE 8
 
+using glm::vec2;
+using glm::vec3;
+using glm::vec4;
+
 Batch2D::Batch2D(size_t capacity) : capacity(capacity), offset(0), color(1.0f, 1.0f, 1.0f, 1.0f){
 	const vattr attrs[] = {
 		{2}, {2}, {4}, {0}
@@ -47,8 +51,8 @@ void Batch2D::vertex(float x, float y,
 	buffer[index++] = a;
 }
 void Batch2D::vertex(vec2 point,
-		vec2 uvpoint,
-		float r, float g, float b, float a) {
+					vec2 uvpoint,
+					float r, float g, float b, float a) {
 	buffer[index++] = point.x;
 	buffer[index++] = point.y;
 	buffer[index++] = uvpoint.x;
@@ -299,8 +303,11 @@ void Batch2D::sprite(float x, float y, float w, float h, int atlasRes, int index
 	rect(x, y, w, h, u, v, scale, scale, tint.r, tint.g, tint.b, tint.a);
 }
 
-void Batch2D::blockSprite(float x, float y, float w, float h, const UVRegion regions[], vec4 tint){
-	// TODO: rewrite it
+
+#include <iostream>
+
+void Batch2D::blockSprite(float x, float y, float w, float h, const UVRegion regions[], vec4 tint, vec3 size){
+	// TODO: replace it using actual 3D with ortho projection
 	float uu = (regions[3].u1);
 	float vu = (regions[3].v1);
 
@@ -313,16 +320,24 @@ void Batch2D::blockSprite(float x, float y, float w, float h, const UVRegion reg
 	if (this->index + 18*VERTEX_SIZE >= capacity)
 		render();
 
+	float d = (w + h) * 0.5f;
 	float ar = 0.88f;
 	float ox = x + (w * 0.5f);
 	float sx = w * 0.5f * ar;
-	vec2 points[7] =   {vec2(ox,        y+(h*0.5f)),
-						vec2(ox-sx,     y+(h*0.25f)),
-						vec2(ox,        y),
-						vec2(ox+sx,     y+(h*0.25f)),
-						vec2(ox+sx,     y+(h*0.75f)),
-						vec2(ox,        y+h),
-						vec2(ox-sx,     y+(h*0.75f))};
+	float hh = h * 0.25f;
+	float ww = w * 0.25f;
+	float dd = d * 0.25f;
+
+	vec3 half = size * h * 0.25f;
+
+	y += hh * 2.0f;
+	vec2 points[7] =   {vec2(ox-ww+half.x+dd-half.z,    	y+hh-half.y), // center
+						vec2(ox-sx+ww-half.x+dd-half.z,   y-half.y+ww-half.x), // left
+						vec2(ox+ww-half.x-dd+half.z,      y-hh-half.y+ww-half.x+dd-half.z), // top
+						vec2(ox+sx-ww+half.x-dd+half.z,   y-half.y+dd-half.z), // right
+						vec2(ox+sx-ww+half.x-dd+half.z,   y+half.y+dd-half.z), // b-right
+						vec2(ox-ww+half.x+dd-half.z,      y+hh+half.y), // bottom
+						vec2(ox-sx+ww-half.x+dd-half.z,   y+half.y+ww-half.x)}; // b-left
 
 	vec2 uvpoints[8] = {vec2(uu,        vu),
 						vec2(uu+scalex,  vu),

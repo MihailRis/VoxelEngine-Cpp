@@ -189,6 +189,57 @@ void BlocksRenderer::blockXSprite(int x, int y, int z, const vec3& size, const U
 		vec3(-1.0f, 0, 1.0f), vec3(0, 1, 0), texface2, lights, do_tint(0.8f));
 }
 
+void BlocksRenderer::blockCubeShaded(const vec3& pos, const vec3& size, const UVRegion(&texfaces)[6], const Block* block, ubyte states) {
+	int rot = 0;
+	float x = pos.x;
+	float y = pos.y;
+	float z = pos.z;
+	{
+		vec4 lights[]{
+				pickSoftLight(x, y, z + 1, {1, 0, 0}, {0, 1, 0}),
+				pickSoftLight(x + 1, y, z + 1, {1, 0, 0}, {0, 1, 0}),
+				pickSoftLight(x + 1, y + 1, z + 1, {1, 0, 0}, {0, 1, 0}),
+				pickSoftLight(x, y + 1, z + 1, {1, 0, 0}, {0, 1, 0}) };
+		face(vec3(x, y, z), size.x, size.y, vec3(1, 0, 0), vec3(0, 1, 0), texfaces[5], lights, do_tint(0.9f), rot == 1);
+	} {
+		vec4 lights[]{
+				pickSoftLight(pos.x, pos.y, pos.z - 1, {-1, 0, 0}, {0, 1, 0}),
+				pickSoftLight(pos.x - 1, pos.y, pos.z - 1, {-1, 0, 0}, {0, 1, 0}),
+				pickSoftLight(pos.x - 1, pos.y + 1, pos.z - 1, {-1, 0, 0}, {0, 1, 0}),
+				pickSoftLight(pos.x, pos.y + 1, pos.z - 1, {-1, 0, 0}, {0, 1, 0}) };
+		face(vec3(x + size.x, y, z - size.z), size.x, size.y, vec3(-1, 0, 0), vec3(0, 1, 0), texfaces[4], lights, do_tint(0.75f), rot == 1);
+	} {
+		vec4 lights[]{
+				pickSoftLight(x, pos.y + 1, pos.z + 1, {1, 0, 0}, {0, 0, 1}),
+				pickSoftLight(x + 1, pos.y + 1, pos.z + 1, {1, 0, 0}, {0, 0, 1}),
+				pickSoftLight(x + 1, pos.y + 1, pos.z, {1, 0, 0}, {0, 0, 1}),
+				pickSoftLight(x, pos.y + 1, pos.z, {1, 0, 0}, {0, 0, 1}) };
+
+		face(vec3(x, y + size.y, z), size.x, size.z, vec3(1, 0, 0), vec3(0, 0, -1), texfaces[3], lights, vec4(1.0f), rot == 1);
+	} {
+		vec4 lights[]{
+				pickSoftLight(pos.x, pos.y - 1, pos.z - 1, {1, 0, 0}, {0, 0, -1}),
+				pickSoftLight(pos.x + 1, y - 1, pos.z - 1, {1, 0, 0}, {0, 0,-1}),
+				pickSoftLight(pos.x + 1, y - 1, pos.z, {1, 0, 0}, {0, 0, -1}),
+				pickSoftLight(x, y - 1, z, {1, 0, 0}, {0, 0, -1}) };
+		face(vec3(x, y, z - size.z), size.x, size.z, vec3(1, 0, 0), vec3(0, 0, 1), texfaces[2], lights, do_tint(0.6f), rot == 1);
+	} {
+		vec4 lights[]{
+				pickSoftLight(x - 1, y, z - 1, {0, 0, -1}, {0, 1, 0}),
+				pickSoftLight(x - 1, y, z, {0, 0, -1}, {0, 1, 0}),
+				pickSoftLight(x - 1, y + 1, z, {0, 0, -1}, {0, 1, 0}),
+				pickSoftLight(x - 1, y + 1, z - 1, {0, 0, -1}, {0, 1, 0}) };
+		face(vec3(x, y, z - size.z), size.z, size.y, vec3(0, 0, 1), vec3(0, 1, 0), texfaces[0], lights, do_tint(0.7f), rot == 3);
+	} {
+		vec4 lights[]{
+				pickSoftLight(x + 1, y, z, {0, 0, -1}, {0, 1, 0}),
+				pickSoftLight(x + 1, y, z - 1, {0, 0, -1}, {0, 1, 0}),
+				pickSoftLight(x + 1, y + 1, z - 1, {0, 0, -1}, {0, 1, 0}),
+				pickSoftLight(x + 1, y + 1, z, {0, 0, -1}, {0, 1, 0}) };
+		face(vec3(x + size.x, y, z), size.z, size.y, vec3(0, 0, -1), vec3(0, 1, 0), texfaces[1], lights, do_tint(0.8f), rot == 3);
+	}
+}
+
 void BlocksRenderer::blockCubeShaded(int x, int y, int z, const vec3& size, const UVRegion(&texfaces_)[6], const Block* block, ubyte states) {
 	ubyte group = block->drawGroup;
 	UVRegion texfaces[6];
@@ -277,7 +328,7 @@ bool BlocksRenderer::isOpen(int x, int y, int z, ubyte group) const {
 	if (id == BLOCK_VOID)
 		return false;
 	const Block& block = *blockDefsCache[id];
-	if (block.drawGroup != group && block.lightPassing) {
+	if ((block.drawGroup != group && block.lightPassing) || !block.rt.solid) {
 		return true;
 	}
 	return !id;
@@ -315,6 +366,11 @@ vec4 BlocksRenderer::pickSoftLight(int x, int y, int z,
 		pickLight(x - right.x, y - right.y, z - right.z)) * 0.25f;
 }
 
+vec4 BlocksRenderer::pickSoftLight(float x, float y, float z, 
+								  const ivec3& right, const ivec3& up) const {
+	return pickSoftLight(int(round(x)), int(round(y)), int(round(z)), right, up);
+}
+
 void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 	int begin = chunk->bottom * (CHUNK_W * CHUNK_D);
 	int end = chunk->top * (CHUNK_W * CHUNK_D);
@@ -342,6 +398,14 @@ void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 				break;
 			case BlockModel::xsprite: {
 				blockXSprite(x, y, z, vec3(1.0f), texfaces[FACE_MX], texfaces[FACE_MZ], 1.0f);
+				break;
+			}
+			case BlockModel::aabb: {
+				vec3 size = def.hitbox.size();
+				vec3 off = def.hitbox.min();
+				off.z *= -1.0f;
+				off.z = -1.0f-off.z + size.z;
+				blockCubeShaded(off+vec3(x,y,z), size, texfaces, &def, vox.states);
 				break;
 			}
 			default:

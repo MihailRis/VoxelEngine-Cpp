@@ -180,7 +180,7 @@ void PlayerController::updateControls(float delta){
 }
 
 void PlayerController::updateInteraction(){
-	const ContentIndices* contentIds = level->contentIds;
+	auto contentIds = level->content->indices;
 	Chunks* chunks = level->chunks;
 	Player* player = level->player;
 	Lighting* lighting = level->lighting;

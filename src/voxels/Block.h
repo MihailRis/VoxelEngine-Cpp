@@ -4,6 +4,7 @@
 #include <string>
 
 #include "../maths/aabb.h"
+#include "../typedefs.h"
 
 #define FACE_MX 0
 #define FACE_PX 1
@@ -15,13 +16,15 @@
 #define BLOCK_AABB_GRID 16
 
 enum class BlockModel {
-	none, block, xsprite
+	none, // invisible 
+	block, // default shape
+	xsprite, // X-shape (grass)
+	aabb // box shaped as block hitbox
 };
 
 class Block {
 public:
 	std::string const name;
-	unsigned int id;
 						               //  0 1   2 3   4 5
 	std::string textureFaces[6]; // -x,x, -y,y, -z,z
 	unsigned char emission[4];
@@ -36,6 +39,7 @@ public:
 	AABB hitbox;
 
 	struct {
+		blockid_t id;
 		bool solid = true;
 		bool emissive = false;
 		bool hitboxGrid[BLOCK_AABB_GRID][BLOCK_AABB_GRID][BLOCK_AABB_GRID];
