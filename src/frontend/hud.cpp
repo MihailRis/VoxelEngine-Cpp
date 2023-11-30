@@ -35,7 +35,7 @@
 #include "gui/GUI.h"
 #include "ContentGfxCache.h"
 #include "screens.h"
-#include "world_render.h"
+#include "WorldRenderer.h"
 #include "../engine.h"
 #include "../core_defs.h"
 
@@ -81,8 +81,10 @@ HudRenderer::HudRenderer(Engine* engine,
 	panel->add(shared_ptr<Label>(create_label([this](){
 		return L"meshes: " + std::to_wstring(Mesh::meshesCount);
 	})));
-	panel->add(shared_ptr<Label>(create_label([this](){
-		return L"occlusion: "+wstring(this->occlusion ? L"on" : L"off");
+	panel->add(shared_ptr<Label>(create_label([=](){
+		auto& settings = engine->getSettings();
+		bool culling = settings.graphics.frustumCulling;
+		return L"frustum-culling: "+wstring(culling ? L"on" : L"off");
 	})));
 	panel->add(shared_ptr<Label>(create_label([this, level]() {
 		return L"chunks: "+std::to_wstring(this->level->chunks->chunksCount)+
@@ -178,8 +180,7 @@ HudRenderer::~HudRenderer() {
 	delete uicamera;
 }
 
-void HudRenderer::drawDebug(int fps, bool occlusion){
-	this->occlusion = occlusion;
+void HudRenderer::drawDebug(int fps){
 	this->fps = fps;
 	fpsMin = min(fps, fpsMin);
 	fpsMax = max(fps, fpsMax);

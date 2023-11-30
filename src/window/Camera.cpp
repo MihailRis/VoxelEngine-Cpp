@@ -3,6 +3,10 @@
 
 #include <glm/ext.hpp>
 
+using glm::vec3;
+using glm::vec4;
+using glm::mat4;
+
 Camera::Camera(vec3 position, float fov) : position(position), fov(fov), zoom(1.0f), rotation(1.0f) {
 	updateVectors();
 }

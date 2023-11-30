@@ -31,14 +31,15 @@ class WorldRenderer {
 	LineBatch* lineBatch;
 	ChunksRenderer* renderer;
 	Skybox* skybox;
-	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool occlusion);
-	void drawChunks(Chunks* chunks, Camera* camera, Shader* shader, bool occlusion);
+	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool culling);
+	void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
 public:
 	WorldRenderer(Engine* engine, Level* level, const ContentGfxCache* cache);
 	~WorldRenderer();
 
-	void draw(const GfxContext& context, Camera* camera, bool occlusion);
+	void draw(const GfxContext& context, Camera* camera);
 	void drawDebug(const GfxContext& context, Camera* camera);
+	void drawBorders(int sx, int sy, int sz, int ex, int ey, int ez);
 };
 
 
