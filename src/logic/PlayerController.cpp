@@ -126,7 +126,7 @@ void PlayerController::update(float delta, bool input, bool pause) {
 		updateControls(delta);
 
 	}
-	refreshCamera();
+	camControl.refresh();
 	if (input) {
 		updateInteraction();
 	} else {
@@ -177,10 +177,6 @@ void PlayerController::resetKeyboard() {
 
 void PlayerController::updateControls(float delta){
 	player->update(level, input, delta);
-}
-
-void PlayerController::refreshCamera() {
-	camControl.refresh();
 }
 
 void PlayerController::updateInteraction(){

@@ -32,11 +32,9 @@ class PlayerController {
 
 	void updateKeyboard();
 	void updateCamera(float delta, bool movement);
-	void refreshCamera();
 	void resetKeyboard();
 	void updateControls(float delta);
 	void updateInteraction();
-
 public:
 	static glm::vec3 selectedBlockPosition;
 	static int selectedBlockId;
