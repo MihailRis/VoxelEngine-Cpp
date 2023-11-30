@@ -374,12 +374,12 @@ vec4 BlocksRenderer::pickSoftLight(float x, float y, float z,
 void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 	int begin = chunk->bottom * (CHUNK_W * CHUNK_D);
 	int end = chunk->top * (CHUNK_W * CHUNK_D);
-	for (ubyte group = 0; group < 8; group++) {
+	for (const auto drawGroup : *content->drawGroups) {
 		for (int i = begin; i < end; i++) {
 			const voxel& vox = voxels[i];
 			blockid_t id = vox.id;
 			const Block& def = *blockDefsCache[id];
-			if (!id || def.drawGroup != group)
+			if (!id || def.drawGroup != drawGroup)
 				continue;
 			const UVRegion texfaces[6]{ cache->getRegion(id, 0), cache->getRegion(id, 1),
 										cache->getRegion(id, 2), cache->getRegion(id, 3),

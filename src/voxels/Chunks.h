@@ -8,7 +8,7 @@
 
 class VoxelRenderer;
 
-class AABB;
+struct AABB;
 class Content;
 class ContentIndices;
 class Chunk;

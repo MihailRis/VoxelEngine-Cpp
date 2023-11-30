@@ -20,6 +20,7 @@ void ContentBuilder::add(Block* def) {
 
 Content* ContentBuilder::build() {
     vector<Block*> blockDefsIndices;
+    DrawGroups* groups = new DrawGroups;
     for (const string& name : blockIds) {
         Block* def = blockDefs[name];
         
@@ -44,18 +45,22 @@ Content* ContentBuilder::build() {
         }
 
         blockDefsIndices.push_back(def);
+        if (groups->find(def->drawGroup) == groups->end()) {
+            groups->insert(def->drawGroup);
+        }
     }
     ContentIndices* indices = new ContentIndices(blockDefsIndices);
-    return new Content(indices, blockDefs);
+    return new Content(indices, groups, blockDefs);
 }
 
 ContentIndices::ContentIndices(vector<Block*> blockDefs)
                : blockDefs(blockDefs) {
 }
 
-Content::Content(ContentIndices* indices,
+Content::Content(ContentIndices* indices, DrawGroups* drawGroups,
                  unordered_map<string, Block*> blockDefs)
         : blockDefs(blockDefs),
+          drawGroups(drawGroups),
           indices(indices) {
 }
 

@@ -57,7 +57,7 @@ void setup_definitions(ContentBuilder* builder) {
 	builder->add(block);
 
 	block = new Block("base:water", "water");
-	block->drawGroup = 4;
+	block->drawGroup = 3;
 	block->lightPassing = true;
 	block->skyLightPassing = false;
 	block->obstacle = false;
@@ -73,7 +73,7 @@ void setup_definitions(ContentBuilder* builder) {
 	builder->add(block);
 
 	block = new Block("base:grass", "grass");
-	block->drawGroup = 5;
+	block->drawGroup = 1;
 	block->lightPassing = true;
 	block->obstacle = false;
 	block->replaceable = true;
@@ -82,7 +82,7 @@ void setup_definitions(ContentBuilder* builder) {
 	builder->add(block);
 
 	block = new Block("base:flower", "flower");
-	block->drawGroup = 5;
+	block->drawGroup = 1;
 	block->lightPassing = true;
 	block->obstacle = false;
 	block->replaceable = true;
