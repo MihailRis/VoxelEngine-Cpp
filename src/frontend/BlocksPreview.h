@@ -7,7 +7,6 @@
 class Shader;
 class Atlas;
 class Batch3D;
-class Camera;
 class Block;
 class ContentGfxCache;
 
@@ -15,7 +14,6 @@ class BlocksPreview {
     Shader* shader;
     Atlas* atlas;
     Batch3D* batch;
-    Camera* camera;
     const ContentGfxCache* const cache;
 public:
     BlocksPreview(Shader* shader, Atlas* atlas, const ContentGfxCache* cache);

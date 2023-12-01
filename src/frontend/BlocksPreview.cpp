@@ -19,11 +19,9 @@ BlocksPreview::BlocksPreview(Shader* shader,
                              const ContentGfxCache* cache)
     : shader(shader), atlas(atlas), cache(cache) {
     batch = new Batch3D(1024);
-    camera = new Camera(vec3(0.0f), 1.0f);
 }
 
 BlocksPreview::~BlocksPreview() {
-    delete camera;
     delete batch;
 }
 
@@ -33,7 +31,8 @@ void BlocksPreview::begin() {
         glm::ortho(0.0f, 
                     float(Window::width), 
                    0.0f, 
-                    float(Window::height), -1000.0f, 1000.0f) * 
+                    float(Window::height), 
+                    -1000.0f, 1000.0f) * 
         glm::lookAt(vec3(2, 2, 2), vec3(0.0f), vec3(0, 1, 0)));
     atlas->getTexture()->bind();
 }
