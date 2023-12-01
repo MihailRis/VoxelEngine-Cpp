@@ -27,7 +27,7 @@ public:
 	std::string const name;
 						               //  0 1   2 3   4 5
 	std::string textureFaces[6]; // -x,x, -y,y, -z,z
-	unsigned char emission[4];
+	unsigned char emission[4] {0, 0, 0, 0};
 	unsigned char drawGroup = 0;
 	BlockModel model = BlockModel::block;
 	bool lightPassing = false;
@@ -46,6 +46,7 @@ public:
 		bool hitboxGrid[BLOCK_AABB_GRID][BLOCK_AABB_GRID][BLOCK_AABB_GRID];
 	} rt;
 
+	Block(std::string name);
 	Block(std::string name, std::string texture);
 };
 

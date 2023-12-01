@@ -60,8 +60,8 @@ ContentIndices::ContentIndices(vector<Block*> blockDefs)
 Content::Content(ContentIndices* indices, DrawGroups* drawGroups,
                  unordered_map<string, Block*> blockDefs)
         : blockDefs(blockDefs),
-          drawGroups(drawGroups),
-          indices(indices) {
+          indices(indices),
+          drawGroups(drawGroups) {
 }
 
 Content::~Content() {

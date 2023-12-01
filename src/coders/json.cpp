@@ -190,6 +190,12 @@ void JObject::num(std::string key, double& dst) const {
         dst = found->second->value.num;
 }
 
+void JObject::num(std::string key, ubyte& dst) const {
+    auto found = map.find(key);
+    if (found != map.end())
+        dst = found->second->value.num;
+}
+
 void JObject::num(std::string key, float& dst) const {
     auto found = map.find(key);
     if (found != map.end())
@@ -287,6 +293,10 @@ JObject& JObject::put(string key, bool value){
     val.boolean = value;
     map.insert(make_pair(key, new Value(valtype::boolean, val)));
     return *this;
+}
+
+bool JObject::has(string key) {
+    return map.find(key) != map.end();
 }
 
 Value::Value(valtype type, valvalue value) : type(type), value(value) {

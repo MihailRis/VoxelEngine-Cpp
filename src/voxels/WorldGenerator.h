@@ -16,7 +16,7 @@ class WorldGenerator {
 	blockid_t const idLeaves;
 	blockid_t const idGrass;
 	blockid_t const idFlower;
-	blockid_t const idBedrock;
+	blockid_t const idBazalt;
 public:
 	WorldGenerator(const Content* content);
 	void generate(voxel* voxels, int x, int z, int seed);

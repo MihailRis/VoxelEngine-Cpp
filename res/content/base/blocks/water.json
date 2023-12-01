@@ -1,0 +1,9 @@
+{
+    "texture": "water",
+    "draw-group": 3,
+    "light-passing": true,
+    "sky-light-passing": false,
+    "obstacle": false,
+    "selectable": false,
+    "replaceable": true
+}

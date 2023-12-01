@@ -1,0 +1,14 @@
+{
+    "texture-faces": [
+        "pane_side",
+        "pane_side",
+        "pane_side_2",
+        "pane_side_2",
+        "pane",
+        "pane"
+    ],
+    "model": "aabb",
+    "hitbox": [0.0, 0.0, 0.0, 1.0, 1.0, 0.1],
+    "light-passing": true,
+    "sky-light-passing": true
+}

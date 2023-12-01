@@ -72,6 +72,7 @@ namespace json {
         void num(std::string key, int& dst) const;
         void num(std::string key, float& dst) const;
         void num(std::string key, uint& dst) const;
+        void num(std::string key, ubyte& dst) const;
         void num(std::string key, double& dst) const;
         JObject* obj(std::string key) const;
         JArray* arr(std::string key) const;
@@ -86,6 +87,8 @@ namespace json {
         JObject& put(std::string key, JObject* value);
         JObject& put(std::string key, JArray* value);
         JObject& put(std::string key, bool value);
+
+        bool has(std::string key);
     };
 
     class Parser : public BasicParser {
