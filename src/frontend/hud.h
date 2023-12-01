@@ -18,6 +18,7 @@ class Level;
 class Engine;
 class ContentGfxCache;
 class WorldRenderer;
+class BlocksPreview;
 
 namespace gui {
 	class GUI;
@@ -29,6 +30,7 @@ class HudRenderer {
     Assets* assets;
 	Batch2D* batch;
 	Camera* uicamera;
+	BlocksPreview* blocksPreview;
 
 	int fps = 60;
 	int fpsMin = 60;
@@ -42,7 +44,6 @@ class HudRenderer {
 	const ContentGfxCache* const cache;
 	WorldRenderer* renderer;
 
-	void drawBlockPreview(const Block* def, float x, float y, float w, float h, glm::vec4 tint);
 public:
 	HudRenderer(Engine* engine, 
 				Level* level, 

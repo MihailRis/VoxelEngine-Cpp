@@ -13,7 +13,6 @@ class Batch3D {
 	float* buffer;
 	size_t capacity;
 	size_t offset;
-	glm::vec4 color;
 	Mesh* mesh;
 	size_t index;
 
@@ -41,9 +40,10 @@ public:
 
 	void begin();
 	void texture(Texture* texture);
-	void sprite(glm::vec3 pos, glm::vec3 up, glm::vec3 right, float w, float h);
-	void blockCube(const glm::vec3& size, const UVRegion(&texfaces)[6], ubyte group);
-	void render();
+	void sprite(glm::vec3 pos, glm::vec3 up, glm::vec3 right, float w, float h, const UVRegion& uv, glm::vec4 tint);
+	void xSprite(float w, float h, const UVRegion& uv, const glm::vec4 tint, bool shading=true);
+	void blockCube(const glm::vec3 size, const UVRegion(&texfaces)[6], const glm::vec4 tint, bool shading=true);
+	void flush();
 };
 
 #endif /* GRAPHICS_BATCH3D_H_ */

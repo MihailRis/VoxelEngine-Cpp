@@ -15,6 +15,7 @@
 #include "../assets/Assets.h"
 #include "../graphics/Shader.h"
 #include "../graphics/Batch2D.h"
+#include "../graphics/Batch3D.h"
 #include "../graphics/Font.h"
 #include "../graphics/Atlas.h"
 #include "../graphics/Mesh.h"
@@ -36,6 +37,7 @@
 #include "ContentGfxCache.h"
 #include "screens.h"
 #include "WorldRenderer.h"
+#include "BlocksPreview.h"
 #include "../engine.h"
 #include "../core_defs.h"
 
@@ -58,11 +60,15 @@ HudRenderer::HudRenderer(Engine* engine,
 						  WorldRenderer* renderer) 
             : level(level), 
 			  assets(engine->getAssets()), 
+			  batch(new Batch2D(1024)),
 			  gui(engine->getGUI()),
 			  cache(cache),
 			  renderer(renderer) {
 	auto menu = gui->getMenu();
-	batch = new Batch2D(1024);
+	blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
+									  assets->getAtlas("blocks"),
+									  cache);
+
 	uicamera = new Camera(vec3(), 1);
 	uicamera->perspective = false;
 	uicamera->flipped = true;
@@ -180,6 +186,7 @@ HudRenderer::HudRenderer(Engine* engine,
 
 HudRenderer::~HudRenderer() {
 	gui->remove(debugPanel);
+	delete blocksPreview;
 	delete batch;
 	delete uicamera;
 }
@@ -197,7 +204,7 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 
 	const Viewport& viewport = ctx.getViewport();
 	const uint width = viewport.getWidth();
-	Atlas* atlas = assets->getAtlas("blocks");
+	Shader* uiShader = assets->getShader("ui");
 
 	uint count = contentIds->countBlockDefs();
 	uint icon_size = 48;
@@ -221,37 +228,35 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 	batch->texture(nullptr);
 	batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
 	batch->rect(inv_x, inv_y, inv_w, inv_h);
+	batch->render();
 
 	// blocks & items
-	batch->texture(atlas->getTexture());
-	for (uint i = 0; i < count-1; i++) {
-		Block* cblock = contentIds->getBlockDef(i+1);
-		if (cblock == nullptr)
-			break;
-		int x = xs + (icon_size+interval) * (i % inv_cols);
-		int y = ys + (icon_size+interval) * (i / inv_cols);
-		if (mx > x && mx < x + (int)icon_size && my > y && my < y + (int)icon_size) {
-			tint.r *= 1.2f;
-			tint.g *= 1.2f;
-			tint.b *= 1.2f;
-			if (Events::jclicked(mousecode::BUTTON_1)) {
-				player->choosenBlock = i+1;
+	blocksPreview->begin();
+	{
+		Window::clearDepth();
+		GfxContext subctx = ctx.sub();
+		subctx.depthTest(true);
+		subctx.cullFace(true);
+		for (uint i = 0; i < count-1; i++) {
+			Block* cblock = contentIds->getBlockDef(i+1);
+			if (cblock == nullptr)
+				break;
+			int x = xs + (icon_size+interval) * (i % inv_cols);
+			int y = ys + (icon_size+interval) * (i / inv_cols);
+			if (mx > x && mx < x + (int)icon_size && my > y && my < y + (int)icon_size) {
+				tint.r *= 1.2f;
+				tint.g *= 1.2f;
+				tint.b *= 1.2f;
+				if (Events::jclicked(mousecode::BUTTON_1)) {
+					player->choosenBlock = i+1;
+				}
+			} else {
+				tint = vec4(1.0f);
 			}
-		} else {
-			tint = vec4(1.0f);
+			blocksPreview->draw(cblock, x, y, icon_size, tint);
 		}
-		drawBlockPreview(cblock, x, y, icon_size, icon_size, tint);
 	}
-}
-
-void HudRenderer::drawBlockPreview(const Block* def, float x, float y, float w, float h, vec4 tint) {
-	if (def->model == BlockModel::block){
-		batch->blockSprite(x, y, w, h, &cache->getRegion(def->rt.id, 0), tint);
-	} else if (def->model == BlockModel::aabb) {
-		batch->blockSprite(x, y, w, h, &cache->getRegion(def->rt.id, 0), tint, def->hitbox.size());
-	} else if (def->model == BlockModel::xsprite){
-		batch->sprite(x, y, w, h, cache->getRegion(def->rt.id, 3), tint);
-	}
+	uiShader->use();
 }
 
 void HudRenderer::update() {
@@ -288,8 +293,6 @@ void HudRenderer::draw(const GfxContext& ctx){
 	const uint width = viewport.getWidth();
 	const uint height = viewport.getHeight();
 
-	Atlas* atlas = assets->getAtlas("blocks");
-
 	debugPanel->visible(level->player->debug);
 
 	uicamera->fov = height;
@@ -312,16 +315,25 @@ void HudRenderer::draw(const GfxContext& ctx){
 	Player* player = level->player;
 
 
-	batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
+	batch->color = vec4(0.0f, 0.0f, 0.0f, 0.75f);
 	batch->rect(width - 68, height - 68, 68, 68);
-
 	batch->color = vec4(1.0f);
-	batch->texture(atlas->getTexture());
+	batch->render();
+
+	blocksPreview->begin();
 	{
+		Window::clearDepth();
+		GfxContext subctx = ctx.sub();
+		subctx.depthTest(true);
+		subctx.cullFace(true);
+		
 		Block* cblock = contentIds->getBlockDef(player->choosenBlock);
 		assert(cblock != nullptr);
-		drawBlockPreview(cblock, width - 56, uicamera->fov - 56, 48, 48, vec4(1.0f));
+		blocksPreview->draw(cblock, width - 56, uicamera->fov - 56, 48, vec4(1.0f));
+		//drawBlockPreview(cblock, width - 56, uicamera->fov - 56, 48, 48, vec4(1.0f));
 	}
+	uishader->use();
+	batch->begin();
 
 	if (pause) {
 		batch->texture(nullptr);
