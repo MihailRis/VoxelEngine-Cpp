@@ -84,7 +84,7 @@ void Batch3D::face(const vec3& coord, float w, float h,
 	const vec3& axisY,
 	const UVRegion& region,
 	const vec4& tint) {
-	if (index + VERTEX_SIZE * 4 > capacity) {
+	if (index + VERTEX_SIZE * 6 > capacity) {
 		flush();
 	}
 	vertex(coord, region.u1, region.v1, 

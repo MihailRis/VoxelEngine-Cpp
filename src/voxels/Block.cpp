@@ -2,8 +2,8 @@
 
 Block::Block(std::string name) 
 	: name(name), 
-	  textureFaces({"notfound","notfound","notfound",
-	  			    "notfound","notfound","notfound",}) {
+	  textureFaces {"notfound","notfound","notfound",
+	  			    "notfound","notfound","notfound",} {
 
 }
 
