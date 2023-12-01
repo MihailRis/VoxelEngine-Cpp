@@ -295,6 +295,12 @@ JObject& JObject::put(string key, bool value){
     return *this;
 }
 
+JArray& JObject::putArray(std::string key) {
+    JArray* arr = new JArray();
+    put(key, arr);
+    return *arr;
+}
+
 bool JObject::has(string key) {
     return map.find(key) != map.end();
 }
