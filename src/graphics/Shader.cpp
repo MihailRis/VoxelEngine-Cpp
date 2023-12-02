@@ -12,6 +12,11 @@
 
 #include "../coders/GLSLExtension.h"
 
+using std::cerr;
+using std::endl;
+using glm::vec2;
+using glm::vec3;
+using std::string;
 using std::filesystem::path;
 
 GLSLExtension* Shader::preprocessor = new GLSLExtension();
@@ -27,69 +32,46 @@ void Shader::use(){
 	glUseProgram(id);
 }
 
-void Shader::uniformMatrix(std::string name, glm::mat4 matrix){
+void Shader::uniformMatrix(string name, glm::mat4 matrix){
 	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-void Shader::uniform1i(std::string name, int x){
+void Shader::uniform1i(string name, int x){
 	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniform1i(transformLoc, x);
 }
 
-void Shader::uniform1f(std::string name, float x){
+void Shader::uniform1f(string name, float x){
 	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniform1f(transformLoc, x);
 }
 
-void Shader::uniform2f(std::string name, float x, float y){
+void Shader::uniform2f(string name, float x, float y){
 	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniform2f(transformLoc, x, y);
 }
 
-void Shader::uniform2f(std::string name, glm::vec2 xy){
+void Shader::uniform2f(string name, vec2 xy){
 	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniform2f(transformLoc, xy.x, xy.y);
 }
 
-void Shader::uniform3f(std::string name, float x, float y, float z){
+void Shader::uniform3f(string name, float x, float y, float z){
 	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniform3f(transformLoc, x,y,z);
 }
 
-void Shader::uniform3f(std::string name, glm::vec3 xyz){
+void Shader::uniform3f(string name, vec3 xyz){
 	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniform3f(transformLoc, xyz.x, xyz.y, xyz.z);
 }
 
 
-Shader* Shader::loadShader(std::string vertexFile, std::string fragmentFile) {
-	// Reading Files
-	std::string vertexCode;
-	std::string fragmentCode;
-	std::ifstream vShaderFile;
-	std::ifstream fShaderFile;
-
-	vShaderFile.exceptions(std::ifstream::badbit);
-	fShaderFile.exceptions(std::ifstream::badbit);
-	try {
-		vShaderFile.open(vertexFile);
-		fShaderFile.open(fragmentFile);
-		std::stringstream vShaderStream, fShaderStream;
-
-		vShaderStream << vShaderFile.rdbuf();
-		fShaderStream << fShaderFile.rdbuf();
-
-		vShaderFile.close();
-		fShaderFile.close();
-
-		vertexCode = vShaderStream.str();
-		fragmentCode = fShaderStream.str();
-	}
-	catch(std::ifstream::failure& e) {
-		std::cerr << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
-		return nullptr;
-	}
+Shader* Shader::loadShader(string vertexFile, 
+						   string fragmentFile,
+						   string vertexCode,
+						   string fragmentCode) {
 	vertexCode = preprocessor->process(path(vertexFile), vertexCode);
 	fragmentCode = preprocessor->process(path(fragmentFile), fragmentCode);
 
@@ -107,8 +89,8 @@ Shader* Shader::loadShader(std::string vertexFile, std::string fragmentFile) {
 	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
 	if (!success){
 		glGetShaderInfoLog(vertex, 512, nullptr, infoLog);
-		std::cerr << "SHADER::VERTEX: compilation failed: " << vertexFile << std::endl;
-		std::cerr << infoLog << std::endl;
+		cerr << "SHADER::VERTEX: compilation failed: " << vertexFile << endl;
+		cerr << infoLog << endl;
 		return nullptr;
 	}
 
@@ -119,8 +101,8 @@ Shader* Shader::loadShader(std::string vertexFile, std::string fragmentFile) {
 	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
 	if (!success){
 		glGetShaderInfoLog(fragment, 512, nullptr, infoLog);
-		std::cerr << "SHADER::FRAGMENT: compilation failed: " << vertexFile << std::endl;
-		std::cerr << infoLog << std::endl;
+		cerr << "SHADER::FRAGMENT: compilation failed: " << vertexFile << endl;
+		cerr << infoLog << endl;
 		return nullptr;
 	}
 
@@ -133,8 +115,8 @@ Shader* Shader::loadShader(std::string vertexFile, std::string fragmentFile) {
 	glGetProgramiv(id, GL_LINK_STATUS, &success);
 	if (!success){
 		glGetProgramInfoLog(id, 512, nullptr, infoLog);
-		std::cerr << "SHADER::PROGRAM: linking failed" << std::endl;
-		std::cerr << infoLog << std::endl;
+		cerr << "SHADER::PROGRAM: linking failed" << endl;
+		cerr << infoLog << endl;
 
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
