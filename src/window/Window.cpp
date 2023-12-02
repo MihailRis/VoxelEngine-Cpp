@@ -87,6 +87,8 @@ int Window::initialize(DisplaySettings& settings){
 	Window::width = settings.width;
 	Window::height = settings.height;
 
+	// TODO: uncomment this and compile time set
+
 	glfwInit();
 	// glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	// glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -140,23 +142,28 @@ int Window::initialize(DisplaySettings& settings){
 }
 
 void Window::clear() {
+	// TODO: compile time change
 	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::clearDepth() {
+	// TODO: compile time change
 	// glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::setBgColor(glm::vec3 color) {
+	// TODO: compile time change
 	// glClearColor(color.r, color.g, color.b, 1.0f);
 }
 
 void Window::viewport(int x, int y, int width, int height){
+	// TODO: compile time change
 	// glViewport(x, y, width, height);
 }
 
 void Window::setCursorMode(int mode){
-	glfwSetInputMode(window, GLFW_CURSOR, mode);
+	// TODO: compile time change
+	// glfwSetInputMode(window, GLFW_CURSOR, mode);
 }
 
 void Window::resetScissor() {
@@ -170,6 +177,7 @@ void Window::resetScissor() {
 }
 
 void Window::pushScissor(vec4 area) {
+	// TODO: compile time change and fix for vulkan
 	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandbuffer;
 	if (scissorStack.empty()) {
 		// VkRect2D scissor = { {0, 0}, {Window::width, Window::height} };
@@ -206,6 +214,7 @@ void Window::pushScissor(vec4 area) {
 }
 
 void Window::popScissor() {
+	// TODO: compile time change and fix for vulkan
 	if (scissorStack.empty()) {
 		std::cerr << "warning: extra Window::popScissor call" << std::endl;
 		return;
@@ -282,6 +291,7 @@ bool Window::isFullscreen() {
 }
 
 void Window::swapBuffers(){
+	// TODO: compile time change
 	// glfwSwapBuffers(window);
 	Window::resetScissor();
 }
@@ -309,6 +319,7 @@ DisplaySettings* Window::getSettings() {
 }
 
 ImageData* Window::takeScreenshot() {
+	// TODO: compile time change and realize screenshot for vulkan
 	ubyte* data = new ubyte[width * height * 3];
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
