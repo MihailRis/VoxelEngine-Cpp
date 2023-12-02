@@ -21,10 +21,12 @@ endif()
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenAL REQUIRED)
+find_package(GLFW3 REQUIRED)
+find_package(ZLIB REQUIRED)
 
 if (WIN32)
     set(PNGLIB spng)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glfw)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/libspng)
 else()
     find_package(PNG REQUIRED)
     set(PNGLIB PNG::PNG)
@@ -42,6 +44,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 
-target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ${PNGLIB})
+target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ${PNGLIB} spng ZLIB::ZLIB)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

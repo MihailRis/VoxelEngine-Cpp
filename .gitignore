@@ -3,7 +3,10 @@ Debug/src/**/*.o
 
 Debug/voxel_engine
 
+out/
 /build
+
+CMakeLists.txt
 
 /world
 /worlds/**/*
