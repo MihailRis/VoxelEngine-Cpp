@@ -208,16 +208,24 @@ void Reader::readSection(Section* section /*nullable*/) {
         expect('=');
         c = peek();
         if (is_digit(c)) {
-            double number = parseNumber(1);
-            if (section) {
-                section->set(name, number);
+            number_u num;
+            if (parseNumber(1, num)) {
+                if (section)
+                    section->set(name, (double)num.ival);
+            } else {
+                if (section)
+                    section->set(name, num.fval);
             }
         } else if (c == '-' || c == '+') {
             int sign = c == '-' ? -1 : 1;
             pos++;
-            double number = parseNumber(sign);
-            if (section) {
-                section->set(name, number);
+            number_u num;
+            if (parseNumber(sign, num)) {
+                if (section)
+                    section->set(name, (double)num.ival);
+            } else {
+                if (section)
+                    section->set(name, num.fval);
             }
         } else if (is_identifier_start(c)) {
             string identifier = parseName();

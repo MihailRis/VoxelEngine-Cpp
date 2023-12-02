@@ -5,6 +5,11 @@
 #include <stdexcept>
 #include "../typedefs.h"
 
+union number_u {
+    double fval;
+    int64_t ival;
+};
+
 inline int is_box(int c) {
     switch (c) {
         case 'B':
@@ -73,7 +78,7 @@ protected:
 
     std::string parseName();
     int64_t parseSimpleInt(int base);
-    double parseNumber(int sign);
+    bool parseNumber(int sign, number_u& out);
     std::string parseString(char chr);
 
     parsing_error error(std::string message);
