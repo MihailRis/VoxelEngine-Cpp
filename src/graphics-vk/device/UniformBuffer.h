@@ -5,9 +5,7 @@
 #ifndef UNIFORMBUFFER_H
 #define UNIFORMBUFFER_H
 
-#include <array>
 #include <cstring>
-#include <vector>
 
 #include "Buffer.h"
 
@@ -25,7 +23,7 @@ namespace vulkan {
 
             mapMemory(&mapedData);
 
-            memcpy(mapedData, &data, sizeof(data));
+            memcpy(mapedData, &data, sizeof(T));
 
             unmapMemory();
         }

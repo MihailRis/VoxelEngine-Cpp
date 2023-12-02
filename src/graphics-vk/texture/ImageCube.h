@@ -9,8 +9,10 @@
 
 
 class ImageCube : public Image, public ITexture {
+    std::vector<VkImageView> m_views;
 public:
     ImageCube(int width, int height, VkFormat format);
+    ~ImageCube() override;
 
     void bind() override;
 
@@ -19,6 +21,7 @@ public:
     int getWidth() const override;
 
     int getHeight() const override;
+
 };
 
 

@@ -6,6 +6,11 @@
 
 #include "../graphics/GfxContext.h"
 
+namespace vulkan {
+	class Batch2D;
+	class WorldRenderer;
+}
+
 class Batch2D;
 class Camera;
 class Level;
@@ -24,7 +29,7 @@ namespace gui {
 class HudRenderer {
 	Level* level;
     Assets* assets;
-	Batch2D* batch;
+	vulkan::Batch2D* batch;
 	Camera* uicamera;
 
 	int fps = 60;
@@ -38,12 +43,12 @@ class HudRenderer {
 	std::shared_ptr<gui::UINode> debugPanel;
 	gui::GUI* gui;
 	const ContentGfxCache* const cache;
-	WorldRenderer* renderer;
+	vulkan::WorldRenderer* renderer;
 public:
 	HudRenderer(Engine* engine, 
 				Level* level, 
 				const ContentGfxCache* cache, 
-				WorldRenderer* renderer);
+				vulkan::WorldRenderer* renderer);
 	~HudRenderer();
 
 	void update();

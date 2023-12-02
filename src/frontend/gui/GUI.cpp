@@ -119,8 +119,9 @@ void GUI::act(float delta) {
 }
 
 void GUI::draw(vulkan::Batch2D* batch, Assets* assets) {
+    vulkan::VulkanContext::get().beginGuiDraw();
     menu->setCoord((Window::size() - menu->size()) / 2.0f);
-    uicamera->fov = Window::height;
+    uicamera->fov = static_cast<float>(Window::height);
 
 	IShader* uishader = assets->getShader("ui");
 	uishader->use();
@@ -128,6 +129,8 @@ void GUI::draw(vulkan::Batch2D* batch, Assets* assets) {
 
     batch->begin();
     container->draw(batch, assets);
+
+    vulkan::VulkanContext::get().endGuiDraw();
 }
 
 shared_ptr<UINode> GUI::getFocused() const {

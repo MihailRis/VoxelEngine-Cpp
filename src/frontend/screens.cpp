@@ -33,6 +33,7 @@
 
 #include "menu.h"
 #include "../graphics-vk/VulkanContext.h"
+#include "../graphics-vk/WorldRenderer.h"
 
 using std::string;
 using std::wstring;
@@ -75,6 +76,7 @@ void MenuScreen::update(float delta) {
 void MenuScreen::draw(float delta) {
     Window::clear();
     Window::setBgColor(vec3(0.2f, 0.2f, 0.2f));
+    vulkan::VulkanContext::get().beginScreenDraw(0.2f, 0.2f, 0.2f);
 
     uicamera->fov = Window::height;
 	IShader* uishader = engine->getAssets()->getShader("ui");
@@ -88,6 +90,8 @@ void MenuScreen::draw(float delta) {
                 UVRegion(0, 0, static_cast<float>(Window::width) / 64, static_cast<float>(Window::height) / 64),
                 false, false, vec4(1.0f));
     batch->render();
+
+    vulkan::VulkanContext::get().endScreenDraw();
 }
 
 static bool backlight;
@@ -95,7 +99,7 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
     : Screen(engine), 
       level(level) {
     cache = new ContentGfxCache(level->content, engine->getAssets());
-    worldRenderer = new WorldRenderer(engine, level, cache);
+    worldRenderer = new vulkan::WorldRenderer(engine, level, cache);
     hud = new HudRenderer(engine, level, cache, worldRenderer);
     backlight = engine->getSettings().graphics.backlight;
 }
@@ -156,9 +160,12 @@ void LevelScreen::draw(float delta) {
     Viewport viewport(Window::width, Window::height);
     GfxContext ctx(nullptr, viewport, nullptr);
 
+    vulkan::VulkanContext::get().beginScreenDraw(0.0f, 0.0f, 0.0f);
     worldRenderer->draw(ctx, camera, occlusion);
     hud->draw(ctx);
     if (level->player->debug) {
         hud->drawDebug( 1 / delta, occlusion);
     }
+
+    vulkan::VulkanContext::get().endScreenDraw();
 }

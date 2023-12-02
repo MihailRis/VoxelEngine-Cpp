@@ -83,7 +83,6 @@ void Engine::updateHotkeys() {
 }
 
 void Engine::mainloop() {
-	ImageCube foo(64, 64, VK_FORMAT_R8G8B8A8_SRGB);
 	setScreen(std::make_shared<MenuScreen>(this));
 	
 	std::cout << "-- preparing systems" << std::endl;
@@ -99,10 +98,10 @@ void Engine::mainloop() {
 		gui->act(delta);
 		screen->update(delta);
 
-		vulkan::VulkanContext::get().beginDraw(0.2f, 0.2f, 0.2f, VK_ATTACHMENT_LOAD_OP_CLEAR);
 		screen->draw(delta);
 		gui->draw(&batch, assets);
-		vulkan::VulkanContext::get().endDraw();
+
+		vulkan::VulkanContext::get().draw();
 
 		Window::swapInterval(settings.display.swapInterval);
 		Window::swapBuffers();

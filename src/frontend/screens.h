@@ -6,6 +6,7 @@
 
 namespace vulkan {
     class Batch2D;
+    class WorldRenderer;
 }
 
 class Assets;
@@ -41,7 +42,7 @@ public:
 
 class LevelScreen : public Screen {
     Level* level;
-    WorldRenderer* worldRenderer;
+    vulkan::WorldRenderer* worldRenderer;
     HudRenderer* hud;
     ContentGfxCache* cache;
     bool occlusion = true;

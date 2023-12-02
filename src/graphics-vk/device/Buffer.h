@@ -17,7 +17,9 @@ namespace vulkan {
         uint64_t m_size;
         bool m_destroyed = false;
     public:
-        Buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+        Buffer(VkDeviceSize size, VkBufferUsageFlags usage,
+            VkMemoryPropertyFlags properties,
+            VmaAllocationCreateFlags flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT);
         ~Buffer();
 
         void mapMemory(void **data) const;
@@ -27,6 +29,8 @@ namespace vulkan {
 
         operator VkBuffer() const;
         operator const VkBuffer*() const;
+
+        void upluadDataToGpu(const void *data, size_t size);
 
         void destroy();
     };

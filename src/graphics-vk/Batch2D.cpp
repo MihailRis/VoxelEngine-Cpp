@@ -46,6 +46,7 @@ namespace vulkan {
 
     void Batch2D::begin() {
         m_texture->bind();
+        m_mesh->bind();
         m_index = 0;
         m_currentOffset = 0;
     }

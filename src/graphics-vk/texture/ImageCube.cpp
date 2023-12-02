@@ -17,7 +17,65 @@ ImageCube::ImageCube(int width, int height, VkFormat format)
         VK_IMAGE_USAGE_SAMPLED_BIT,
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, true, 1, 6) {
 
+    constexpr uint32_t CUBE_LAYER_COUNT = 6;
+
     auto &device = vulkan::VulkanContext::get().getDevice();
+
+    for (uint32_t i = 0; i < CUBE_LAYER_COUNT; ++i) {
+        auto imageView = device.createImageView(m_image, getFormat(), VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT,
+            VkComponentMapping{
+                VK_COMPONENT_SWIZZLE_R,
+                VK_COMPONENT_SWIZZLE_G,
+                VK_COMPONENT_SWIZZLE_B,
+                VK_COMPONENT_SWIZZLE_A
+            },
+            1,
+            1, i
+        );
+
+        m_views.emplace_back(imageView);
+    }
+
+    VkCommandPool commandPool = device.createCommadPool();
+    VkCommandBuffer commandBuffer = device.createCommandBuffer(commandPool);
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    CHECK_VK(vkBeginCommandBuffer(commandBuffer, &beginInfo));
+
+    VkImageSubresourceRange range{};
+    range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    range.baseMipLevel = 0;
+    range.levelCount = 1;
+    range.baseArrayLayer = 0;
+    range.layerCount = 6;
+
+    tools::insertImageMemoryBarrier(commandBuffer,
+        m_image,
+        0,
+        VK_ACCESS_SHADER_READ_BIT,
+        VK_IMAGE_LAYOUT_UNDEFINED,
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+        VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+        range);
+
+    vkEndCommandBuffer(commandBuffer);
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.waitSemaphoreCount = 0;
+    submitInfo.pWaitSemaphores = nullptr;
+    submitInfo.pWaitDstStageMask = nullptr;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+    submitInfo.signalSemaphoreCount = 0;
+    submitInfo.pSignalSemaphores = nullptr;
+
+    vkQueueSubmit(device.getGraphis(), 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(device.getGraphis());
 
     VkSamplerCreateInfo samplerCreateInfo{};
     samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -40,15 +98,25 @@ ImageCube::ImageCube(int width, int height, VkFormat format)
     samplerCreateInfo.maxLod = 0.0f;
 
     CHECK_VK(vkCreateSampler(device, &samplerCreateInfo, nullptr, &m_sampler));
+
+    vkDestroyCommandPool(device, commandPool, nullptr);
+}
+
+ImageCube::~ImageCube() {
+    auto &device = vulkan::VulkanContext::get().getDevice();
+    for (const auto &view: m_views) {
+        vkDestroyImageView(device, view, nullptr);
+    }
+
+    Image::~Image();
 }
 
 void ImageCube::bind() {
-    auto &device = vulkan::VulkanContext::get().getDevice();
     const auto pipeline = vulkan::VulkanContext::get().getCurrentState().pipeline;
 
     if (pipeline == nullptr) return;
 
-    auto type = pipeline->getType();
+    const auto type = pipeline->getType();
 
     VkDescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

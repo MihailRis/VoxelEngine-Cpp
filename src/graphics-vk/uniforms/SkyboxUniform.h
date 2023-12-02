@@ -7,10 +7,10 @@
 
 #include <glm/glm.hpp>
 
-class SkyboxUniform {
-    alignas(16) glm::vec3 xaxis;
-    alignas(16) glm::vec3 yaxis;
-    alignas(16) glm::vec3 zaxis;
+struct SkyboxUniform {
+    alignas(16) glm::vec3 xaxis[6];
+    alignas(16) glm::vec3 yaxis[6];
+    alignas(16) glm::vec3 zaxis[6];
     alignas(16) glm::vec3 lightDir;
     alignas(4) int quality;
     alignas(4) float mie;

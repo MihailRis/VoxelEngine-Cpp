@@ -18,7 +18,8 @@ Device::Device(Instance &instance, VkSurfaceKHR surface) : m_physicalDevice(inst
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME, // this extension is used to disable the need to create renderpasses and frame buffers
         VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME,
-        VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME
+        VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,
+        VK_KHR_MULTIVIEW_EXTENSION_NAME
     };
     VkPhysicalDevice physicalDevice = instance.getPhysicalDevice();
     u32 queueCount = 0;
@@ -56,17 +57,23 @@ Device::Device(Instance &instance, VkSurfaceKHR surface) : m_physicalDevice(inst
 
     VkPhysicalDeviceFeatures deviceFeatures{};
     deviceFeatures.samplerAnisotropy = VK_TRUE;
+    deviceFeatures.fillModeNonSolid = VK_TRUE;
+    deviceFeatures.wideLines = VK_TRUE;
+
+    VkPhysicalDeviceMultiviewFeatures physicalDeviceMultiviewFeatures{};
+    physicalDeviceMultiviewFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES;
+    physicalDeviceMultiviewFeatures.multiview = VK_TRUE;
 
     VkPhysicalDeviceDescriptorIndexingFeatures physicalDeviceDescriptorIndexingFeatures{};
     physicalDeviceDescriptorIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
     physicalDeviceDescriptorIndexingFeatures.descriptorBindingUniformBufferUpdateAfterBind = VK_TRUE;
     physicalDeviceDescriptorIndexingFeatures.descriptorBindingSampledImageUpdateAfterBind = VK_TRUE;
+    physicalDeviceDescriptorIndexingFeatures.pNext = &physicalDeviceMultiviewFeatures;
 
     VkPhysicalDeviceDynamicRenderingFeatures physicalDeviceDynamicRenderingFeatures{};
     physicalDeviceDynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
     physicalDeviceDynamicRenderingFeatures.dynamicRendering = VK_TRUE;
     physicalDeviceDynamicRenderingFeatures.pNext = &physicalDeviceDescriptorIndexingFeatures;
-
 
     VkDeviceCreateInfo deviceCreateInfo = tools::deviceCreateInfo(extensions, layers, queueCreateInfos, &deviceFeatures);
     deviceCreateInfo.pNext = &physicalDeviceDynamicRenderingFeatures;
@@ -95,33 +102,6 @@ const Queue& Device::getPresent() const {
     return m_present;
 }
 
-// Image Device::createImage(VmaAllocator allocator, VkExtent3D extent, VkFormat format, VkImageTiling tiling,
-//     VkImageUsageFlags usage, VkMemoryPropertyFlags properties) {
-//     VmaAllocationCreateInfo allocationCreateInfo{};
-//     allocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
-//     allocationCreateInfo.requiredFlags = properties;
-//
-//     VkImageCreateInfo imageCreateInfo{};
-//     imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-//     imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
-//     imageCreateInfo.extent = extent;
-//     imageCreateInfo.mipLevels = 1;
-//     imageCreateInfo.arrayLayers = 1;
-//     imageCreateInfo.format = format;
-//     imageCreateInfo.tiling = tiling;
-//     imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-//     imageCreateInfo.usage = usage;
-//     imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-//     imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-//
-//     VkImage image = VK_NULL_HANDLE;
-//     VmaAllocation allocation = VK_NULL_HANDLE;
-//
-//     CHECK_VK(vmaCreateImage(allocator, &imageCreateInfo, &allocationCreateInfo, &image, &allocation, nullptr));
-//
-//     return {image, allocation, allocator};
-// }
-
 VkImageView Device::createImageView(
     VkImage image,
     VkFormat format,
@@ -129,7 +109,8 @@ VkImageView Device::createImageView(
     VkImageAspectFlags aspectFlags,
     VkComponentMapping components,
     uint32_t levelCount,
-    uint32_t layerCount) const {
+    uint32_t layerCount,
+    uint32_t baseLayer) const {
 
     VkImageViewCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -139,7 +120,7 @@ VkImageView Device::createImageView(
     createInfo.subresourceRange.aspectMask = aspectFlags;
     createInfo.subresourceRange.baseMipLevel = 0;
     createInfo.subresourceRange.levelCount = levelCount;
-    createInfo.subresourceRange.baseArrayLayer = 0;
+    createInfo.subresourceRange.baseArrayLayer = baseLayer;
     createInfo.subresourceRange.layerCount = layerCount;
     createInfo.components = components;
 

@@ -23,7 +23,7 @@ namespace vulkan {
         void draw(IShader* shader);
 
         void refresh(float t, float mie, uint quality);
-        void bind() const;
+        void bind();
         void unbind() const;
         bool isReady() const;
     };

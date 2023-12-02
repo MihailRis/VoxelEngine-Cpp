@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <memory>
+#include <glm/vec4.hpp>
 
 #include "Allocator.h"
 #include "Device.h"
@@ -18,6 +19,11 @@ class GraphicsPipeline;
 namespace vulkan {
     constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
+    enum class RenderTargetType {
+        SCREEN,
+        UI
+    };
+
     struct State {
         VkCommandBuffer commandbuffer = VK_NULL_HANDLE;
         GraphicsPipeline *pipeline = nullptr;
@@ -25,14 +31,14 @@ namespace vulkan {
 
     struct FrameData {
         VkCommandPool commandPool;
-        VkCommandBuffer commandBuffer;
+        VkCommandBuffer screenCommandBuffer, guiCommandBuffer;
     };
 
     class UniformBuffersHolder {
         std::vector<std::unique_ptr<UniformBuffer>> m_buffers;
     public:
-        enum Type {
-            STATE,
+        enum Type : size_t {
+            STATE = 0,
             LIGHT,
             FOG,
             PROJECTION_VIEW,
@@ -67,7 +73,7 @@ namespace vulkan {
         UniformBuffersHolder m_uniformBuffersHolder;
 
         FrameData m_frameDatas[MAX_FRAMES_IN_FLIGHT]{};
-        VkSemaphore m_presentSemaphore, m_renderSemaphore;
+        VkSemaphore m_presentSemaphore, m_renderSemaphore, m_uiRenderSemaphore;
         VkFence m_renderFence;
 
         State m_state;
@@ -100,10 +106,13 @@ namespace vulkan {
         void beginDrawToImage(const Image &image, float r, float g, float b, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
         void endDrawToImage(const Image &image);
 
-        void beginDraw(float r, float g, float b, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
-        void endDraw();
+        void beginScreenDraw(float r, float g, float b, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
+        void endScreenDraw();
 
-        void present();
+        void beginGuiDraw(VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_LOAD);
+        void endGuiDraw();
+
+        void draw();
 
         static VulkanContext &get();
 
@@ -112,6 +121,10 @@ namespace vulkan {
         static void finalize();
 
         static bool isVulkanEnabled();
+
+    private:
+        void beginDraw(VkCommandBuffer commandBuffer, glm::vec4 clearColor, VkAttachmentLoadOp loadOp, RenderTargetType renderTarget);
+        void endDraw(VkCommandBuffer commandBuffer, RenderTargetType renderTarget);
     };
 
 } // vulkan
