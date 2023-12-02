@@ -32,11 +32,9 @@ bool assetload::texture(Assets* assets,
 bool assetload::shader(Assets* assets, 
                         const path filename, 
                         const string name) {
-    path vertexFile = filename;
-    path fragmentFile = filename;
-    vertexFile.append(".glslv");
-    fragmentFile.append(".glslf");
-
+    path vertexFile = path(filename.string()+".glslv");
+    path fragmentFile = path(filename.string()+".glslf");
+    
     string vertexSource = files::read_string(vertexFile);
     string fragmentSource = files::read_string(fragmentFile);
 
