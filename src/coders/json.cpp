@@ -39,6 +39,7 @@ void stringifyObj(JObject* obj,
                string indentstr, 
                bool nice);
 
+#include <iostream>
 void stringify(Value* value, 
                stringstream& ss, 
                int indent, 
@@ -71,7 +72,6 @@ void stringify(Value* value,
     } else if (value->type == valtype::boolean) {
         ss << (value->value.boolean ? "true" : "false");
     } else if (value->type == valtype::number) {
-        ss << std::fixed;
         ss << std::setprecision(15);
         ss << value->value.decimal;
     } else if (value->type == valtype::integer) {
