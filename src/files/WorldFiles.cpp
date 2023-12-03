@@ -12,6 +12,7 @@
 #include "../voxels/Chunk.h"
 #include "../typedefs.h"
 #include "../maths/voxmaths.h"
+#include "../world/World.h"
 
 #include <cassert>
 #include <iostream>
@@ -201,12 +202,12 @@ ubyte* WorldFiles::readChunkData(int x, int y, uint32_t& length){
 	return data;
 }
 
-void WorldFiles::write(const WorldInfo info, const Content* content) {
+void WorldFiles::write(const World* world, const Content* content) {
 	path directory = getRegionsFolder();
 	if (!std::filesystem::is_directory(directory)) {
 		std::filesystem::create_directories(directory);
 	}
-	writeWorldInfo(info);
+	writeWorldInfo(world);
 	if (generatorTestMode)
 		return;
 	writeIndices(content->indices);
@@ -232,23 +233,23 @@ void WorldFiles::writeIndices(const ContentIndices* indices) {
 	}
 }
 
-void WorldFiles::writeWorldInfo(const WorldInfo& info) {
+void WorldFiles::writeWorldInfo(const World* world) {
 	BinaryWriter out;
 	out.putCStr(WORLD_FORMAT_MAGIC);
 	out.put(WORLD_FORMAT_VERSION);
 	
 	out.put(WORLD_SECTION_MAIN);
-	out.putInt64(info.seed);
-	out.put(info.name);
+	out.putInt64(world->seed);
+	out.put(world->name);
 
 	out.put(WORLD_SECTION_DAYNIGHT);
-	out.putFloat32(info.daytime);
-	out.putFloat32(info.daytimeSpeed);
+	out.putFloat32(world->daytime);
+	out.putFloat32(world->daytimeSpeed);
 
 	files::write_bytes(getWorldFile(), (const char*)out.data(), out.size());
 }
 
-bool WorldFiles::readWorldInfo(WorldInfo& info) {
+bool WorldFiles::readWorldInfo(World* world) {
 	size_t length = 0;
 	ubyte* data = (ubyte*)files::read_bytes(getWorldFile(), length);
 	if (data == nullptr){
@@ -262,12 +263,12 @@ bool WorldFiles::readWorldInfo(WorldInfo& info) {
 		ubyte section = inp.get();
 		switch (section) {
 		case WORLD_SECTION_MAIN:
-			info.seed = inp.getInt64();
-			info.name = inp.getString();
+			world->seed = inp.getInt64();
+			world->name = inp.getString();
 			break;
 		case WORLD_SECTION_DAYNIGHT:
-			info.daytime = inp.getFloat32();
-			info.daytimeSpeed = inp.getFloat32();
+			world->daytime = inp.getFloat32();
+			world->daytimeSpeed = inp.getFloat32();
 			break;
 		}
 	}

@@ -20,15 +20,14 @@ class Level {
 public:
 	World* world;
 	const Content* const content;
-	const ContentIndices* const contentIds;
 	Player* player;
 	Chunks* chunks;
 	ChunksStorage* chunksStorage;
+
 	PhysicsSolver* physics;
 	Lighting* lighting;
-	ChunksController* chunksController;
-	PlayerController* playerController;
 	LevelEvents* events;
+
 	const EngineSettings& settings;
 
 	Level(World* world, 
@@ -36,11 +35,6 @@ public:
 	      Player* player, 
 	      EngineSettings& settings);
 	~Level();
-
-	void updatePlayer(float delta, 
-					  bool input, 
-					  bool pause, 
-					  bool interactions);
 
 	void update();
 };

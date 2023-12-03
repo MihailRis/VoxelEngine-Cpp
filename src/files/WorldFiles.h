@@ -25,6 +25,7 @@ class Player;
 class Chunk;
 class Content;
 class ContentIndices;
+class World;
 
 struct WorldRegion {
 	ubyte** chunksData;
@@ -32,16 +33,8 @@ struct WorldRegion {
 	bool unsaved;
 };
 
-struct WorldInfo {
-	std::string name;
-	std::filesystem::path directory;
-	uint64_t seed;
-	float daytime;
-	float daytimeSpeed;
-};
-
 class WorldFiles {
-	void writeWorldInfo(const WorldInfo& info);
+	void writeWorldInfo(const World* world);
 	std::filesystem::path getRegionsFolder() const;
 	std::filesystem::path getRegionFile(int x, int y) const;
 	std::filesystem::path getPlayerFile() const;
@@ -58,13 +51,13 @@ public:
 
 	void put(Chunk* chunk);
 
-	bool readWorldInfo(WorldInfo& info);
+	bool readWorldInfo(World* world);
 	bool readPlayer(Player* player);
 	ubyte* readChunkData(int x, int y, uint32_t& length);
 	ubyte* getChunk(int x, int y);
 	void writeRegion(int x, int y, WorldRegion& entry);
 	void writePlayer(Player* player);
-	void write(const WorldInfo info, const Content* content);
+	void write(const World* world, const Content* content);
 	void writeIndices(const ContentIndices* indices);
 };
 

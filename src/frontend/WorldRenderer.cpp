@@ -1,4 +1,4 @@
-#include "world_render.h"
+#include "WorldRenderer.h"
 
 #include <iostream>
 #include <GL/glew.h>
@@ -22,7 +22,7 @@
 #include "../world/LevelEvents.h"
 #include "../objects/Player.h"
 #include "../assets/Assets.h"
-#include "../objects/player_control.h"
+#include "../logic/PlayerController.h"
 #include "../maths/FrustumCulling.h"
 #include "../maths/voxmaths.h"
 #include "../settings.h"
@@ -31,20 +31,27 @@
 #include "graphics/Skybox.h"
 
 using glm::vec3;
+using glm::vec4;
+using glm::mat4;
 using std::string;
 using std::shared_ptr;
 
-WorldRenderer::WorldRenderer(Engine* engine, Level* level, const ContentGfxCache* cache) 
-	: engine(engine), level(level) {
-	EngineSettings& settings = engine->getSettings();
+WorldRenderer::WorldRenderer(Engine* engine,
+							 Level* level,
+							 const ContentGfxCache* cache)
+	: engine(engine),
+	  level(level),
+	  frustumCulling(new Frustum()),
+	  lineBatch(new LineBatch()),
+	  renderer( new ChunksRenderer(level, cache, engine->getSettings())) {
 
-	lineBatch = new LineBatch(4096);
-	renderer = new ChunksRenderer(level, cache, settings);
-	frustumCulling = new Frustum();
-	level->events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
-		renderer->unload(chunk);
-	});
-	skybox = new Skybox(64, engine->getAssets()->getShader("skybox_gen"));
+	level->events->listen(EVT_CHUNK_HIDDEN,
+		[this](lvl_event_type type, Chunk* chunk) {
+			renderer->unload(chunk);
+		}
+	);
+	auto assets = engine->getAssets();
+	skybox = new Skybox(64, assets->getShader("skybox_gen"));
 }
 
 WorldRenderer::~WorldRenderer() {
@@ -54,22 +61,30 @@ WorldRenderer::~WorldRenderer() {
 	delete frustumCulling;
 }
 
-bool WorldRenderer::drawChunk(size_t index, Camera* camera, IShader* shader, bool occlusion){
-	shared_ptr<Chunk> chunk = level->chunks->chunks[index];
-	if (!chunk->isLighted())
+bool WorldRenderer::drawChunk(size_t index,
+							  Camera* camera,
+							  IShader* shader,
+							  bool culling){
+	auto chunk = level->chunks->chunks[index];
+	if (!chunk->isLighted()) {
 		return false;
+	}
 	shared_ptr<Mesh> mesh = renderer->getOrRender(chunk.get());
-	if (mesh == nullptr)
+	if (mesh == nullptr) {
 		return false;
-
-	// Simple frustum culling
-	if (occlusion){
-		vec3 min(chunk->x * CHUNK_W, chunk->bottom, chunk->z * CHUNK_D);
-		vec3 max(chunk->x * CHUNK_W + CHUNK_W, chunk->top, chunk->z * CHUNK_D + CHUNK_D);
+	}
+	if (culling){
+		vec3 min(chunk->x * CHUNK_W,
+				 chunk->bottom,
+				 chunk->z * CHUNK_D);
+		vec3 max(chunk->x * CHUNK_W + CHUNK_W,
+				 chunk->top,
+				 chunk->z * CHUNK_D + CHUNK_D);
 
 		if (!frustumCulling->IsBoxVisible(min, max)) return false;
 	}
-	mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x*CHUNK_W, 0.0f, chunk->z*CHUNK_D+1));
+	vec3 coord = vec3(chunk->x*CHUNK_W, 0.0f, chunk->z*CHUNK_D+1);
+	mat4 model = glm::translate(mat4(1.0f), coord);
 	shader->uniformMatrix("u_model", model);
 	mesh->draw();
 	return true;
@@ -77,8 +92,7 @@ bool WorldRenderer::drawChunk(size_t index, Camera* camera, IShader* shader, boo
 
 void WorldRenderer::drawChunks(Chunks* chunks, 
 							   Camera* camera, 
-							   IShader* shader,
-							   bool occlusion) {
+							   IShader* shader) {
 	std::vector<size_t> indices;
 	for (size_t i = 0; i < chunks->volume; i++){
 		shared_ptr<Chunk> chunk = chunks->chunks[i];
@@ -86,25 +100,30 @@ void WorldRenderer::drawChunks(Chunks* chunks,
 			continue;
 		indices.push_back(i);
 	}
-
 	float px = camera->position.x / (float)CHUNK_W;
 	float pz = camera->position.z / (float)CHUNK_D;
 	std::sort(indices.begin(), indices.end(), [this, chunks, px, pz](size_t i, size_t j) {
 		shared_ptr<Chunk> a = chunks->chunks[i];
 		shared_ptr<Chunk> b = chunks->chunks[j];
-		return ((a->x + 0.5f - px)*(a->x + 0.5f - px) + (a->z + 0.5f - pz)*(a->z + 0.5f - pz) >
-				(b->x + 0.5f - px)*(b->x + 0.5f - px) + (b->z + 0.5f - pz)*(b->z + 0.5f - pz));
+		return ((a->x + 0.5f - px)*(a->x + 0.5f - px) +
+				(a->z + 0.5f - pz)*(a->z + 0.5f - pz)
+				>
+				(b->x + 0.5f - px)*(b->x + 0.5f - px) +
+				(b->z + 0.5f - pz)*(b->z + 0.5f - pz));
 	});
 
-	if (occlusion) frustumCulling->update(camera->getProjView());
+	bool culling = engine->getSettings().graphics.frustumCulling;
+	if (culling) {
+		frustumCulling->update(camera->getProjView());
+	}
 	chunks->visible = 0;
 	for (size_t i = 0; i < indices.size(); i++){
-		chunks->visible += drawChunk(indices[i], camera, shader, occlusion);
+		chunks->visible += drawChunk(indices[i], camera, shader, culling);
 	}
 }
 
 
-void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion){
+void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 	EngineSettings& settings = engine->getSettings();
 	skybox->refresh(level->world->daytime, 
 					fmax(1.0f, 18.0f/settings.chunks.loadDistance), 4);
@@ -122,6 +141,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 	Window::clearDepth();
 	Window::viewport(0, 0, displayWidth, displayHeight);
 
+	// Drawing background sky plane
 	IShader* backShader = assets->getShader("background");
 	backShader->use();
 	backShader->uniformMatrix("u_view", camera->getView(false));
@@ -136,8 +156,8 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 
 		float fogFactor = 18.0f / (float)settings.chunks.loadDistance;
 
+		// Setting up main shader
 		shader->use();
-		skybox->bind();
 		shader->uniformMatrix("u_proj", camera->getProjection());
 		shader->uniformMatrix("u_view", camera->getView());
 		shader->uniform1f("u_gamma", 1.0f);
@@ -145,36 +165,41 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 		shader->uniform1f("u_fogCurve", settings.graphics.fogCurve);
 		shader->uniform3f("u_cameraPos", camera->position);
 		shader->uniform1i("u_cubemap", 1);
+		{
+			blockid_t id = level->player->choosenBlock;
+			Block* block = contentIds->getBlockDef(id);
+			assert(block != nullptr);
+			float multiplier = 0.5f;
+			shader->uniform3f("u_torchlightColor",
+					block->emission[0] / 15.0f * multiplier,
+					block->emission[1] / 15.0f * multiplier,
+					block->emission[2] / 15.0f * multiplier);
+			shader->uniform1f("u_torchlightDistance", 6.0f);
+		}
 
-		Block* cblock = contentIds->getBlockDef(level->player->choosenBlock);
-		assert(cblock != nullptr);
-		float multiplier = 0.5f;
-		shader->uniform3f("u_torchlightColor",
-				cblock->emission[0] / 15.0f * multiplier,
-				cblock->emission[1] / 15.0f * multiplier,
-				cblock->emission[2] / 15.0f * multiplier);
-		shader->uniform1f("u_torchlightDistance", 6.0f);
+		// Binding main shader textures
+		skybox->bind();
 		atlas->getTexture()->bind();
 
-		Chunks* chunks = level->chunks;
-		drawChunks(chunks, camera, shader, occlusion);
+		drawChunks(level->chunks, camera, shader);
 
-		shader->uniformMatrix("u_model", mat4(1.0f));
-
-		if (level->playerController->selectedBlockId != -1){
-			Block* block = contentIds->getBlockDef(level->playerController->selectedBlockId);
+		// Selected block
+		if (PlayerController::selectedBlockId != -1){
+			blockid_t id = PlayerController::selectedBlockId;
+			Block* block = contentIds->getBlockDef(id);
 			assert(block != nullptr);
-			vec3 pos = level->playerController->selectedBlockPosition;
+			const vec3 pos = PlayerController::selectedBlockPosition;
+			const vec3 point = PlayerController::selectedPointPosition;
+			const vec3 norm = PlayerController::selectedBlockNormal;
+			const AABB& hitbox = block->hitbox;
+			const vec3 center = pos + hitbox.center();
+			const vec3 size = hitbox.size();
 			linesShader->use();
 			linesShader->uniformMatrix("u_projview", camera->getProjView());
 			lineBatch->lineWidth(2.0f);
-			if (block->model == BlockModel::block){
-				lineBatch->box(pos.x+0.5f, pos.y+0.5f, pos.z+0.5f, 
-							   1.008f,1.008f,1.008f, 0,0,0,0.5f);
-			} else if (block->model == BlockModel::xsprite){
-				lineBatch->box(pos.x+0.5f, pos.y+0.35f, pos.z+0.5f, 
-							   0.805f,0.705f,0.805f, 0,0,0,0.5f);
-			}
+			lineBatch->box(center, size + vec3(0.02), vec4(0.f, 0.f, 0.f, 0.5f));
+			if (level->player->debug)
+				lineBatch->line(point, point+norm*0.5f, vec4(1.0f, 0.0f, 1.0f, 1.0f));
 			lineBatch->render();
 		}
 		skybox->unbind();
@@ -185,6 +210,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 		ctx.depthTest(true);
 
 		linesShader->use();
+
 		if (settings.debug.showChunkBorders){
 			linesShader->uniformMatrix("u_projview", camera->getProjView());
 			vec3 coord = level->player->camera->position;
@@ -192,44 +218,12 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 			if (coord.z < 0) coord.z--;
 			int cx = floordiv((int)coord.x, CHUNK_W);
 			int cz = floordiv((int)coord.z, CHUNK_D);
-			/*corner*/ {
-				lineBatch->line( cx    * CHUNK_W, 0,        cz    * CHUNK_D,     
-								 cx    * CHUNK_W, CHUNK_H,  cz    * CHUNK_D,     0.8f, 0, 0.8f, 1);
-				lineBatch->line( cx    * CHUNK_W, 0,       (cz+1) * CHUNK_D,     
-								 cx    * CHUNK_W, CHUNK_H, (cz+1) * CHUNK_D,     0.8f, 0, 0.8f, 1);
-				lineBatch->line((cx+1) * CHUNK_W, 0,        cz    * CHUNK_D,     
-								(cx+1) * CHUNK_W, CHUNK_H,  cz    * CHUNK_D,     0.8f, 0, 0.8f, 1);
-				lineBatch->line((cx+1) * CHUNK_W, 0,       (cz+1) * CHUNK_D,     
-								(cx+1) * CHUNK_W, CHUNK_H, (cz+1) * CHUNK_D,     0.8f, 0, 0.8f, 1);
-			}
-			for (int i = 2; i < CHUNK_W; i+=2) {
-				lineBatch->line( cx    * CHUNK_W + i, 0,        cz    * CHUNK_D,     
-								 cx    * CHUNK_W + i, CHUNK_H,  cz    * CHUNK_D,     0, 0, 0.8f, 1);
-				lineBatch->line( cx    * CHUNK_W + i, 0,       (cz+1) * CHUNK_D,     
-								 cx    * CHUNK_W + i, CHUNK_H, (cz+1) * CHUNK_D,     0, 0, 0.8f, 1);
-			}
-			for (int i = 2; i < CHUNK_D; i+=2) {
-				lineBatch->line( cx    * CHUNK_W,     0,        cz    * CHUNK_D + i, 
-								 cx    * CHUNK_W,     CHUNK_H,  cz    * CHUNK_D + i, 0.8f, 0, 0, 1);
-				lineBatch->line((cx+1) * CHUNK_W,     0,        cz    * CHUNK_D + i, 
-								(cx+1) * CHUNK_W,     CHUNK_H,  cz    * CHUNK_D + i, 0.8f, 0, 0, 1);
-			}
-			for (int i=0; i < CHUNK_H; i+=2){
-				lineBatch->line( cx    * CHUNK_W, i,  cz    * CHUNK_D,
-								 cx    * CHUNK_W, i, (cz+1) * CHUNK_D, 0, 0.8f, 0, 1);
-				lineBatch->line( cx    * CHUNK_W, i, (cz+1) * CHUNK_D,
-								(cx+1) * CHUNK_W, i, (cz+1) * CHUNK_D, 0, 0.8f, 0, 1);
-				lineBatch->line((cx+1) * CHUNK_W, i, (cz+1) * CHUNK_D,
-								(cx+1) * CHUNK_W, i,  cz    * CHUNK_D, 0, 0.8f, 0, 1);
-				lineBatch->line((cx+1) * CHUNK_W, i,  cz    * CHUNK_D,
-								 cx    * CHUNK_W, i,  cz    * CHUNK_D, 0, 0.8f, 0, 1);
 
-			}
-			lineBatch->render();
+			drawBorders(cx * CHUNK_W, 0, cz * CHUNK_D,
+					    (cx + 1) * CHUNK_W, CHUNK_H, (cz + 1) * CHUNK_D);
 		}
 
 		float length = 40.f;
-		// top-right: vec3 tsl = vec3(displayWidth - length - 4, -length - 4, 0.f);
 		vec3 tsl = vec3(displayWidth/2, displayHeight/2, 0.f);
 		glm::mat4 model(glm::translate(glm::mat4(1.f), tsl));
 		linesShader->uniformMatrix("u_projview", glm::ortho(
@@ -251,4 +245,42 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool occlusion)
 		lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 1.f);
 		lineBatch->render();
 	}
+}
+
+void WorldRenderer::drawBorders(int sx, int sy, int sz, int ex, int ey, int ez) {
+	int ww = ex-sx;
+	int dd = ez-sz;
+	/*corner*/ {
+		lineBatch->line(sx, sy, sz,
+						sx, ey, sz, 0.8f, 0, 0.8f, 1);
+		lineBatch->line(sx, sy, ez,
+						sx, ey, ez, 0.8f, 0, 0.8f, 1);
+		lineBatch->line(ex, sy, sz,
+						ex, ey, sz, 0.8f, 0, 0.8f, 1);
+		lineBatch->line(ex, sy, ez,
+						ex, ey, ez, 0.8f, 0, 0.8f, 1);
+	}
+	for (int i = 2; i < ww; i+=2) {
+		lineBatch->line(sx + i, sy, sz,
+						sx + i, ey, sz, 0, 0, 0.8f, 1);
+		lineBatch->line(sx + i, sy, ez,
+						sx + i, ey, ez, 0, 0, 0.8f, 1);
+	}
+	for (int i = 2; i < dd; i+=2) {
+		lineBatch->line(sx, sy, sz + i,
+						sx, ey, sz + i, 0.8f, 0, 0, 1);
+		lineBatch->line(ex, sy, sz + i,
+						ex, ey, sz + i, 0.8f, 0, 0, 1);
+	}
+	for (int i = sy; i < ey; i+=2){
+		lineBatch->line(sx, i, sz,
+						sx, i, ez, 0, 0.8f, 0, 1);
+		lineBatch->line(sx, i, ez,
+						ex, i, ez, 0, 0.8f, 0, 1);
+		lineBatch->line(ex, i, ez,
+						ex, i, sz, 0, 0.8f, 0, 1);
+		lineBatch->line(ex, i, sz,
+						sx, i, sz, 0, 0.8f, 0, 1);
+	}
+	lineBatch->render();
 }

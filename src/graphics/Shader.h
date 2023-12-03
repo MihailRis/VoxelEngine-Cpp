@@ -25,7 +25,8 @@ public:
 	void uniform3f(std::string name, float x, float y, float z) override;
 	void uniform3f(std::string name, glm::vec3 xyz) override;
 
-	static Shader* loadShader(std::string vertexFile, std::string fragmentFile);
+	static Shader* loadShader(std::string vertexFile, std::string fragmentFile,
+						std::string vertexSource, std::string fragmentSource);
 };
 
 #endif /* GRAPHICS_SHADER_H_ */

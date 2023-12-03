@@ -4,10 +4,12 @@
 
 #include "ImageData.h"
 
-Texture::Texture(unsigned int id, int width, int height) : id(id), width(width), height(height) {
+Texture::Texture(uint id, int width, int height) 
+	: id(id), width(width), height(height) {
 }
 
-Texture::Texture(unsigned char* data, int width, int height, uint format) : width(width), height(height) {
+Texture::Texture(ubyte* data, int width, int height, uint format) 
+	: width(width), height(height) {
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -28,7 +30,7 @@ void Texture::bind(){
 	glBindTexture(GL_TEXTURE_2D, id);
 }
 
-void Texture::reload(unsigned char* data){
+void Texture::reload(ubyte* data){
 	glBindTexture(GL_TEXTURE_2D, id);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
 		GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *) data);
@@ -36,6 +38,8 @@ void Texture::reload(unsigned char* data){
 }
 
 Texture* Texture::from(const ImageData* image) {
+	uint width = image->getWidth();
+	uint height = image->getHeight();
 	uint format;
 	const void* data = image->getData();
 	switch (image->getFormat())	{
@@ -44,5 +48,5 @@ Texture* Texture::from(const ImageData* image) {
 		default:
 			throw std::runtime_error("unsupported image data format");
 	}
-	return new Texture((unsigned char*)data, image->getWidth(), image->getHeight(), format);
+	return new Texture((ubyte*)data, width, height, format);
 }

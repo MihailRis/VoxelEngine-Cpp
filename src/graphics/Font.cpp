@@ -3,6 +3,8 @@
 #include "Batch2D.h"
 #include "../graphics-vk/Batch2D.h"
 
+using glm::vec4;
+
 Font::Font(std::vector<ITexture*> pages, int lineHeight) : lineHeight_(lineHeight), pages(pages) {
 }
 
@@ -10,22 +12,6 @@ Font::~Font(){
 	for (ITexture* texture : pages)
 		delete texture;
 }
-
-// int Font::getGlyphWidth(char c) {
-// 	switch (c){
-// 		case 'l':
-// 		case 'i':
-// 		case 'j':
-// 		case '|':
-// 		case '.':
-// 		case ',':
-// 		case ':':
-// 		case ';': return 7;
-// 		case 't': return 8;
-// 		case ' ': return 7;
-// 	}
-// 	return 7;
-// }
 
 int Font::lineHeight() const {
 	return lineHeight_;

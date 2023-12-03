@@ -19,18 +19,18 @@
 #include "../world/Level.h"
 #include "../world/World.h"
 #include "../objects/Player.h"
-#include "../voxels/ChunksController.h"
+#include "../logic/ChunksController.h"
+#include "../logic/LevelController.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/Chunk.h"
-#include "world_render.h"
+#include "../engine.h"
+#include "../util/stringutil.h"
+#include "../core_defs.h"
+#include "WorldRenderer.h"
 #include "hud.h"
 #include "ContentGfxCache.h"
 #include "gui/GUI.h"
 #include "gui/panels.h"
-#include "../engine.h"
-#include "../util/stringutil.h"
-#include "../core_defs.h"
-
 #include "menu.h"
 #include "../graphics-vk/VulkanContext.h"
 #include "../graphics-vk/WorldRenderer.h"
@@ -75,7 +75,7 @@ void MenuScreen::update(float delta) {
 
 void MenuScreen::draw(float delta) {
     Window::clear();
-    Window::setBgColor(vec3(0.2f, 0.2f, 0.2f));
+    Window::setBgColor(vec3(0.2f));
     vulkan::VulkanContext::get().beginScreenDraw(0.2f, 0.2f, 0.2f);
 
     uicamera->fov = Window::height;
@@ -95,16 +95,20 @@ void MenuScreen::draw(float delta) {
 }
 
 static bool backlight;
-LevelScreen::LevelScreen(Engine* engine, Level* level) 
+
+LevelScreen::LevelScreen(Engine* engine, Level* level)
     : Screen(engine), 
       level(level) {
+    auto& settings = engine->getSettings();
+    controller = new LevelController(settings, level);
     cache = new ContentGfxCache(level->content, engine->getAssets());
     worldRenderer = new vulkan::WorldRenderer(engine, level, cache);
     hud = new HudRenderer(engine, level, cache, worldRenderer);
-    backlight = engine->getSettings().graphics.backlight;
+    backlight = settings.graphics.backlight;
 }
 
 LevelScreen::~LevelScreen() {
+    delete controller;
     delete hud;
     delete worldRenderer;
     delete cache;
@@ -118,8 +122,9 @@ LevelScreen::~LevelScreen() {
 }
 
 void LevelScreen::updateHotkeys() {
+    auto& settings = engine->getSettings();
     if (Events::jpressed(keycode::O)) {
-        occlusion = !occlusion;
+        settings.graphics.frustumCulling = !settings.graphics.frustumCulling;
     }
     if (Events::jpressed(keycode::F3)) {
         level->player->debug = !level->player->debug;
@@ -131,7 +136,6 @@ void LevelScreen::updateHotkeys() {
 
 void LevelScreen::update(float delta) {
     gui::GUI* gui = engine->getGUI();
-    EngineSettings& settings = engine->getSettings();
 
     bool inputLocked = hud->isPause() ||
                        hud->isInventoryOpen() ||
@@ -139,6 +143,8 @@ void LevelScreen::update(float delta) {
     if (!gui->isFocusCaught()) {
         updateHotkeys();
     }
+    // TODO: subscribe for setting change
+    EngineSettings& settings = engine->getSettings();
     if (settings.graphics.backlight != backlight) {
         level->chunks->saveAndClear();
         backlight = settings.graphics.backlight;
@@ -146,11 +152,7 @@ void LevelScreen::update(float delta) {
     if (!hud->isPause()) {
         level->world->updateTimers(delta);
     }
-    level->updatePlayer(delta, !inputLocked, hud->isPause(), !inputLocked);
-    level->update();
-    
-    level->chunksController->update(settings.chunks.loadSpeed);
-
+    controller->update(delta, !inputLocked, hud->isPause());
     hud->update();
 }
 
@@ -161,10 +163,10 @@ void LevelScreen::draw(float delta) {
     GfxContext ctx(nullptr, viewport, nullptr);
 
     vulkan::VulkanContext::get().beginScreenDraw(0.0f, 0.0f, 0.0f);
-    worldRenderer->draw(ctx, camera, occlusion);
+    worldRenderer->draw(ctx, camera);
     hud->draw(ctx);
     if (level->player->debug) {
-        hud->drawDebug( 1 / delta, occlusion);
+        hud->drawDebug(1 / delta);
     }
 
     vulkan::VulkanContext::get().endScreenDraw();

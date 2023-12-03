@@ -40,7 +40,9 @@ using gui::GUI;
 
 Engine::Engine(EngineSettings& settings, EnginePaths* paths, Content* content)
 	   : settings(settings), content(content), paths(paths) {
-	Window::initialize(settings.display);
+	if (Window::initialize(settings.display)){
+		throw initialize_error("could not initialize window");
+	}
 	Shader::preprocessor->setLibFolder(paths->getResources()/path("shaders/lib"));
 
 	vulkan::VulkanContext::initialize();

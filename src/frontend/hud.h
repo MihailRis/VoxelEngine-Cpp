@@ -4,6 +4,8 @@
 #include <string>
 #include <memory>
 
+#include <glm/glm.hpp>
+
 #include "../graphics/GfxContext.h"
 
 namespace vulkan {
@@ -14,12 +16,14 @@ namespace vulkan {
 class Batch2D;
 class Camera;
 class Level;
+class Block;
 class Assets;
 class Player;
 class Level;
 class Engine;
 class ContentGfxCache;
 class WorldRenderer;
+class BlocksPreview;
 
 namespace gui {
 	class GUI;
@@ -31,12 +35,12 @@ class HudRenderer {
     Assets* assets;
 	vulkan::Batch2D* batch;
 	Camera* uicamera;
+	BlocksPreview* blocksPreview;
 
 	int fps = 60;
 	int fpsMin = 60;
 	int fpsMax = 60;
 	std::wstring fpsString;
-	bool occlusion;
 	bool inventoryOpen = false;
 	bool pause = false;
 
@@ -54,7 +58,7 @@ public:
 	void update();
 	void drawContentAccess(const GfxContext& ctx, Player* player);
 	void draw(const GfxContext& context);
-	void drawDebug(int fps, bool occlusion);
+	void drawDebug(int fps);
 
 	bool isInventoryOpen() const;
 	bool isPause() const;

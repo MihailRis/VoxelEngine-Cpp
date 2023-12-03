@@ -8,6 +8,7 @@
 
 class VoxelRenderer;
 
+struct AABB;
 class Content;
 class ContentIndices;
 class Chunk;
@@ -50,7 +51,7 @@ public:
 				   glm::vec3& norm, 
 				   glm::vec3& iend);
 
-	bool isObstacle(int x, int y, int z);
+	const AABB* isObstacle(float x, float y, float z);
 
 	// does not move chunks inside
 	void _setOffset(int x, int z);

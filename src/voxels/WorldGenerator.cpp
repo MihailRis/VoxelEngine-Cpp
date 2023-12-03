@@ -97,16 +97,16 @@ float calc_height(fnl_state *noise, int real_x, int real_z){
 }
 
 WorldGenerator::WorldGenerator(const Content* content)
-	           : idStone(content->require("base:stone")->id),
-			     idDirt(content->require("base:dirt")->id),
-				 idGrassBlock(content->require("base:grass_block")->id),
-				 idSand(content->require("base:sand")->id),
-				 idWater(content->require("base:water")->id),
-				 idWood(content->require("base:wood")->id),
-				 idLeaves(content->require("base:leaves")->id),
-				 idGrass(content->require("base:grass")->id),
-				 idFlower(content->require("base:flower")->id),
-				 idBedrock(content->require("base:bedrock")->id) {;
+	           : idStone(content->require("base:stone")->rt.id),
+			     idDirt(content->require("base:dirt")->rt.id),
+				 idGrassBlock(content->require("base:grass_block")->rt.id),
+				 idSand(content->require("base:sand")->rt.id),
+				 idWater(content->require("base:water")->rt.id),
+				 idWood(content->require("base:wood")->rt.id),
+				 idLeaves(content->require("base:leaves")->rt.id),
+				 idGrass(content->require("base:grass")->rt.id),
+				 idFlower(content->require("base:flower")->rt.id),
+				 idBazalt(content->require("base:bazalt")->rt.id) {;
 }
 
 int generate_tree(fnl_state *noise, 
@@ -213,7 +213,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 					id = idSand;
 				}
 				if (real_y <= 2)
-					id = idBedrock;
+					id = idBazalt;
 
 				randomgrass.setSeed(real_x,real_z);
 				if ((id == 0) && (height > SEA_LEVEL+0.5) && ((int)(height + 1) == real_y) && ((unsigned short)randomgrass.rand() > 56000)){

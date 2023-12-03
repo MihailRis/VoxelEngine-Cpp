@@ -172,7 +172,7 @@ void Panel::refresh() {
         }
         if (resizing_) {
             if (maxLength_)
-                this->size(vec2(size.x, min(maxLength_, (int)(y+padding.w))));
+                this->size(vec2(size.x, glm::min(maxLength_, (int)(y+padding.w))));
             else
                 this->size(vec2(size.x, y+padding.w));
         }
@@ -194,7 +194,7 @@ void Panel::refresh() {
         bool increased = maxh > size.y;
         if (resizing_) {
             if (maxLength_)
-                this->size(vec2(min(maxLength_, (int)(x+padding.z)), size.y));
+                this->size(vec2(glm::min(maxLength_, (int)(x+padding.z)), size.y));
             else
                 this->size(vec2(x+padding.z, size.y));
         }

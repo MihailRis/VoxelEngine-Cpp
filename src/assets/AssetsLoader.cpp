@@ -1,6 +1,8 @@
 #include "AssetsLoader.h"
 #include "Assets.h"
 
+#include "asset_loaders.h"
+
 #include <iostream>
 #include <memory>
 
@@ -105,10 +107,10 @@ bool _load_font(Assets* assets, const path& filename, const std::string& name) {
 }
 
 void AssetsLoader::createDefaults(AssetsLoader& loader) {
-	loader.addLoader(ASSET_SHADER, _load_shader);
-	loader.addLoader(ASSET_TEXTURE, _load_texture);
-	loader.addLoader(ASSET_FONT, _load_font);
-	loader.addLoader(ASSET_ATLAS, _load_atlas);
+	loader.addLoader(ASSET_SHADER, assetload::shader);
+	loader.addLoader(ASSET_TEXTURE, assetload::texture);
+	loader.addLoader(ASSET_FONT, assetload::font);
+	loader.addLoader(ASSET_ATLAS, assetload::atlas);
 }
 
 void AssetsLoader::addDefaults(AssetsLoader& loader) {
@@ -116,6 +118,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader) {
 	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/main"), "main");
 	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/lines"), "lines");
 	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/ui"), "ui");
+	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/ui3d"), "ui3d");
 	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/background"), "background");
 	loader.add(ASSET_SHADER, resdir/path(SHADERS_FOLDER"/skybox_gen"), "skybox_gen");
 

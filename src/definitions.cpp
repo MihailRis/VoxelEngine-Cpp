@@ -1,112 +1,25 @@
 #include "definitions.h"
 
+#include <glm/glm.hpp>
+
 #include "content/Content.h"
 #include "window/Window.h"
 #include "window/Events.h"
 #include "window/input.h"
 #include "voxels/Block.h"
 
+using glm::vec3;
+
 // All in-game definitions (blocks, items, etc..)
 void setup_definitions(ContentBuilder* builder) {
 	Block* block = new Block("core:air", "air");
+	block->replaceable = true;
 	block->drawGroup = 1;
 	block->lightPassing = true;
 	block->skyLightPassing = true;
 	block->obstacle = false;
 	block->selectable = false;
 	block->model = BlockModel::none;
-	builder->add(block);
-
-	block = new Block("base:dirt", "dirt");
-	builder->add(block);
-
-	block = new Block("base:grass_block", "grass_side");
-	block->textureFaces[2] = "dirt";
-	block->textureFaces[3] = "grass_top";
-	builder->add(block);
-
-	block = new Block("base:lamp", "lamp");
-	block->emission[0] = 15;
-	block->emission[1] = 14;
-	block->emission[2] = 13;
-	builder->add(block);
-
-	block = new Block("base:glass", "glass");
-	block->drawGroup = 2;
-	block->lightPassing = true;
-	builder->add(block);
-
-	block = new Block("base:planks", "planks");
-	builder->add(block);
-
-	block = new Block("base:wood", "wood");
-	block->textureFaces[2] = "wood_top";
-	block->textureFaces[3] = "wood_top";
-	block->rotatable = true;
-	builder->add(block);
-
-	block = new Block("base:leaves", "leaves");
-	builder->add(block);
-
-	block = new Block("base:stone", "stone");
-	builder->add(block);
-
-	block = new Block("base:water", "water");
-	block->drawGroup = 4;
-	block->lightPassing = true;
-	block->skyLightPassing = false;
-	block->obstacle = false;
-	block->selectable = false;
-	builder->add(block);
-
-	block = new Block("base:sand", "sand");
-	builder->add(block);
-
-	block = new Block("base:bedrock", "bedrock");
-	block->breakable = false;
-	builder->add(block);
-
-	block = new Block("base:grass", "grass");
-	block->drawGroup = 5;
-	block->lightPassing = true;
-	block->obstacle = false;
-	block->model = BlockModel::xsprite;
-	block->hitboxScale = 0.5f;
-	builder->add(block);
-
-	block = new Block("base:flower", "flower");
-	block->drawGroup = 5;
-	block->lightPassing = true;
-	block->obstacle = false;
-	block->model = BlockModel::xsprite;
-	builder->add(block);
-
-	block = new Block("base:brick", "brick");
-	builder->add(block);
-
-	block = new Block("base:metal", "metal");
-	builder->add(block);
-
-	block = new Block("base:rust", "rust");
-	builder->add(block);
-
-	block = new Block("base:red_lamp", "red_lamp");
-	block->emission[0] = 15;
-	builder->add(block);
-
-	block = new Block("base:green_lamp", "green_lamp");
-	block->emission[1] = 15;
-	builder->add(block);
-
-	block = new Block("base:blue_lamp", "blue_lamp");
-	block->emission[2] = 15;
-	builder->add(block);
-
-	block = new Block("base:vulkan_logo", "vulkan_logo");
-	block->drawGroup = 1;
-	block->emission[0] = 15;
-	block->emission[2] = 15;
-	block->lightPassing = true;
 	builder->add(block);
 }
 

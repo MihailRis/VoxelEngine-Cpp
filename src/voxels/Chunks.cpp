@@ -64,11 +64,24 @@ voxel* Chunks::get(int x, int y, int z){
 	return &chunk->voxels[(ly * CHUNK_D + lz) * CHUNK_W + lx];
 }
 
-bool Chunks::isObstacle(int x, int y, int z){
-	voxel* v = get(x,y,z);
+const AABB* Chunks::isObstacle(float x, float y, float z){
+	int ix = floor(x);
+	int iy = floor(y);
+	int iz = floor(z);
+	voxel* v = get(ix,iy,iz);
 	if (v == nullptr)
-		return true; // void - is obstacle
-	return contentIds->getBlockDef(v->id)->obstacle;
+		return nullptr;
+	const Block* def = contentIds->getBlockDef(v->id);
+	if (def->obstacle) {
+		if (def->rt.solid) {
+			return &def->hitbox;
+		} else {
+			if (def->hitbox.inside({x - ix, y - iy, z - iz}))
+				return &def->hitbox;
+			return nullptr;
+		}
+	}
+	return nullptr;
 }
 
 ubyte Chunks::getLight(int x, int y, int z, int channel){
@@ -200,20 +213,70 @@ voxel* Chunks::rayCast(vec3 start,
 
 	while (t <= maxDist){
 		voxel* voxel = get(ix, iy, iz);
-		if (voxel == nullptr || contentIds->getBlockDef(voxel->id)->selectable){
+		const Block* def = nullptr;
+		if (voxel == nullptr || (def = contentIds->getBlockDef(voxel->id))->selectable){
 			end.x = px + t * dx;
 			end.y = py + t * dy;
 			end.z = pz + t * dz;
+			
+			// TODO: replace this dumb solution with something better
+			if (def && !def->rt.solid) {
+				const int gridSize = BLOCK_AABB_GRID * 2;
+				const AABB& box = def->hitbox;
+				const int subs = gridSize;
+				iend = vec3(ix, iy, iz);
+				end -= iend;
+				int six = end.x * gridSize;
+				int siy = end.y * gridSize;
+				int siz = end.z * gridSize;
+				float stxMax = (txDelta < infinity) ? txDelta * xdist : infinity;
+				float styMax = (tyDelta < infinity) ? tyDelta * ydist : infinity;
+				float stzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
+				for (int i = 0; i < subs*2; i++) {
+					end.x = six / float(gridSize);
+					end.y = siy / float(gridSize);
+					end.z = siz / float(gridSize);
+					if (box.inside(end)) {
+						end += iend;
+						norm.x = norm.y = norm.z = 0.0f;
+						if (steppedIndex == 0) norm.x = -stepx;
+						if (steppedIndex == 1) norm.y = -stepy;
+						if (steppedIndex == 2) norm.z = -stepz;
+						return voxel;
+					}
+					if (stxMax < styMax) {
+						if (stxMax < stzMax) {
+							six += stepx;
+							stxMax += txDelta;
+							steppedIndex = 0;
+						} else {
+							siz += stepz;
+							stzMax += tzDelta;
+							steppedIndex = 2;
+						}
+					} else {
+						if (styMax < stzMax) {
+							siy += stepy;
+							styMax += tyDelta;
+							steppedIndex = 1;
+						} else {
+							siz += stepz;
+							stzMax += tzDelta;
+							steppedIndex = 2;
+						}
+					}
+				}
+			} else {
+				iend.x = ix;
+				iend.y = iy;
+				iend.z = iz;
 
-			iend.x = ix;
-			iend.y = iy;
-			iend.z = iz;
-
-			norm.x = norm.y = norm.z = 0.0f;
-			if (steppedIndex == 0) norm.x = -stepx;
-			if (steppedIndex == 1) norm.y = -stepy;
-			if (steppedIndex == 2) norm.z = -stepz;
-			return voxel;
+				norm.x = norm.y = norm.z = 0.0f;
+				if (steppedIndex == 0) norm.x = -stepx;
+				if (steppedIndex == 1) norm.y = -stepy;
+				if (steppedIndex == 2) norm.z = -stepz;
+				return voxel;
+			}
 		}
 		if (txMax < tyMax) {
 			if (txMax < tzMax) {

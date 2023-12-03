@@ -15,6 +15,7 @@
 #include "../assets/Assets.h"
 #include "../graphics-base/IShader.h"
 #include "../graphics/Batch2D.h"
+#include "../graphics/Batch3D.h"
 #include "../graphics/Font.h"
 #include "../graphics/Atlas.h"
 #include "../graphics/Mesh.h"
@@ -37,7 +38,8 @@
 #include "gui/GUI.h"
 #include "ContentGfxCache.h"
 #include "screens.h"
-#include "world_render.h"
+#include "WorldRenderer.h"
+#include "BlocksPreview.h"
 #include "../engine.h"
 #include "../core_defs.h"
 
@@ -60,11 +62,16 @@ HudRenderer::HudRenderer(Engine* engine,
 						  vulkan::WorldRenderer* renderer)
             : level(level), 
 			  assets(engine->getAssets()), 
+			  batch(new Batch2D(1024)),
 			  gui(engine->getGUI()),
 			  cache(cache),
 			  renderer(renderer) {
 	auto menu = gui->getMenu();
 	batch = new vulkan::Batch2D(1024);
+	blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
+									  assets->getAtlas("blocks"),
+									  cache);
+
 	uicamera = new Camera(vec3(), 1);
 	uicamera->perspective = false;
 	uicamera->flipped = true;
@@ -83,19 +90,25 @@ HudRenderer::HudRenderer(Engine* engine,
 	panel->add(shared_ptr<Label>(create_label([this](){
 		return L"meshes: " + std::to_wstring(Mesh::meshesCount);
 	})));
-	panel->add(shared_ptr<Label>(create_label([this](){
-		return L"occlusion: "+wstring(this->occlusion ? L"on" : L"off");
+	panel->add(shared_ptr<Label>(create_label([=](){
+		auto& settings = engine->getSettings();
+		bool culling = settings.graphics.frustumCulling;
+		return L"frustum-culling: "+wstring(culling ? L"on" : L"off");
 	})));
 	panel->add(shared_ptr<Label>(create_label([this, level]() {
 		return L"chunks: "+std::to_wstring(this->level->chunks->chunksCount)+
 			   L" visible: "+std::to_wstring(level->chunks->visible);
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
+		auto player = this->level->player;
+		auto indices = this->level->content->indices;
+		auto def = indices->getBlockDef(player->selectedVoxel.id);
 		std::wstringstream stream;
 		stream << std::hex << this->level->player->selectedVoxel.states;
-
-		auto player = this->level->player;
-		return L"block-selected: "+std::to_wstring(player->selectedVoxel.id)+
+		if (def) {
+			stream << L" (" << util::str2wstr_utf8(def->name) << L")";
+		}
+		return L"block: "+std::to_wstring(player->selectedVoxel.id)+
 		       L" "+stream.str();
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
@@ -176,12 +189,12 @@ HudRenderer::HudRenderer(Engine* engine,
 
 HudRenderer::~HudRenderer() {
 	gui->remove(debugPanel);
+	delete blocksPreview;
 	delete batch;
 	delete uicamera;
 }
 
-void HudRenderer::drawDebug(int fps, bool occlusion){
-	this->occlusion = occlusion;
+void HudRenderer::drawDebug(int fps){
 	this->fps = fps;
 	fpsMin = min(fps, fpsMin);
 	fpsMax = max(fps, fpsMax);
@@ -194,7 +207,7 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 
 	const Viewport& viewport = ctx.getViewport();
 	const uint width = viewport.getWidth();
-	Atlas* atlas = assets->getAtlas("blocks");
+	Shader* uiShader = assets->getShader("ui");
 
 	uint count = contentIds->countBlockDefs();
 	uint icon_size = 48;
@@ -218,32 +231,35 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 	batch->texture(nullptr);
 	batch->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
 	batch->rect(inv_x, inv_y, inv_w, inv_h);
+	batch->render();
 
 	// blocks & items
-	batch->texture(atlas->getTexture());
-	for (uint i = 0; i < count-1; i++) {
-		Block* cblock = contentIds->getBlockDef(i+1);
-		if (cblock == nullptr)
-			break;
-		int x = xs + (icon_size+interval) * (i % inv_cols);
-		int y = ys + (icon_size+interval) * (i / inv_cols);
-		if (mx > x && mx < x + (int)icon_size && my > y && my < y + (int)icon_size) {
-			tint.r *= 1.2f;
-			tint.g *= 1.2f;
-			tint.b *= 1.2f;
-			if (Events::jclicked(mousecode::BUTTON_1)) {
-				player->choosenBlock = i+1;
+	blocksPreview->begin();
+	{
+		Window::clearDepth();
+		GfxContext subctx = ctx.sub();
+		subctx.depthTest(true);
+		subctx.cullFace(true);
+		for (uint i = 0; i < count-1; i++) {
+			Block* cblock = contentIds->getBlockDef(i+1);
+			if (cblock == nullptr)
+				break;
+			int x = xs + (icon_size+interval) * (i % inv_cols);
+			int y = ys + (icon_size+interval) * (i / inv_cols);
+			if (mx > x && mx < x + (int)icon_size && my > y && my < y + (int)icon_size) {
+				tint.r *= 1.2f;
+				tint.g *= 1.2f;
+				tint.b *= 1.2f;
+				if (Events::jclicked(mousecode::BUTTON_1)) {
+					player->choosenBlock = i+1;
+				}
+			} else {
+				tint = vec4(1.0f);
 			}
-		} else {
-			tint = vec4(1.0f);
-		}
-		
-		if (cblock->model == BlockModel::block){
-			// batch->blockSprite(x, y, icon_size, icon_size, &cache->getRegion(cblock->id, 0), tint);
-		} else if (cblock->model == BlockModel::xsprite){
-			batch->sprite(x, y, icon_size, icon_size, cache->getRegion(cblock->id, 3), tint);
+			blocksPreview->draw(cblock, x, y, icon_size, tint);
 		}
 	}
+	uiShader->use();
 }
 
 void HudRenderer::update() {
@@ -280,8 +296,6 @@ void HudRenderer::draw(const GfxContext& ctx){
 	const uint width = viewport.getWidth();
 	const uint height = viewport.getHeight();
 
-	Atlas* atlas = assets->getAtlas("blocks");
-
 	debugPanel->visible(level->player->debug);
 
 	uicamera->fov = height;
@@ -304,20 +318,25 @@ void HudRenderer::draw(const GfxContext& ctx){
 	Player* player = level->player;
 
 
-	batch->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+	batch->setColor(vec4(0.0f, 0.0f, 0.0f, 0.75f));
 	batch->rect(width - 68, height - 68, 68, 68);
-
 	batch->setColor(vec4(1.0f));
-	batch->texture(atlas->getTexture());
+	batch->render();
+
+	blocksPreview->begin();
 	{
+		Window::clearDepth();
+		GfxContext subctx = ctx.sub();
+		subctx.depthTest(true);
+		subctx.cullFace(true);
+
 		Block* cblock = contentIds->getBlockDef(player->choosenBlock);
 		assert(cblock != nullptr);
-		if (cblock->model == BlockModel::block){
-			// batch->blockSprite(width-56, uicamera->fov - 56, 48, 48, &cache->getRegion(cblock->id, 0), vec4(1.0f));
-		} else if (cblock->model == BlockModel::xsprite){
-			batch->sprite(width-56, uicamera->fov - 56, 48, 48, cache->getRegion(cblock->id, 3), vec4(1.0f));
-		}
+		blocksPreview->draw(cblock, width - 56, uicamera->fov - 56, 48, vec4(1.0f));
+		//drawBlockPreview(cblock, width - 56, uicamera->fov - 56, 48, 48, vec4(1.0f));
 	}
+	uishader->use();
+	batch->begin();
 
 	if (pause) {
 		batch->texture(nullptr);

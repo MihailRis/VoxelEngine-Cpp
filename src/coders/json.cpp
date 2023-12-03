@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <sstream>
+#include <iomanip>
 #include <memory>
 
 #include "commons.h"
@@ -15,7 +16,7 @@ using std::unordered_map;
 using std::stringstream;
 using std::make_pair;
 
-inline void newline(std::stringstream& ss, bool nice, uint indent, const std::string indentstr) {
+inline void newline(stringstream& ss, bool nice, uint indent, const string indentstr) {
     if (nice) {
         ss << "\n";
         for (uint i = 0; i < indent; i++) {
@@ -26,10 +27,23 @@ inline void newline(std::stringstream& ss, bool nice, uint indent, const std::st
     }
 }
 
-void stringify(Value* value, stringstream& ss, int indent, string indentstr, bool nice);
-void stringifyObj(JObject* obj, stringstream& ss, int indent, string indentstr, bool nice);
+void stringify(Value* value, 
+               stringstream& ss, 
+               int indent, 
+               string indentstr, 
+               bool nice);
 
-void stringify(Value* value, stringstream& ss, int indent, string indentstr, bool nice) {
+void stringifyObj(JObject* obj, 
+               stringstream& ss, 
+               int indent, 
+               string indentstr, 
+               bool nice);
+
+void stringify(Value* value, 
+               stringstream& ss, 
+               int indent, 
+               string indentstr, 
+               bool nice) {
     if (value->type == valtype::object) {
         stringifyObj(value->value.obj, ss, indent, indentstr, nice);
     }
@@ -57,7 +71,11 @@ void stringify(Value* value, stringstream& ss, int indent, string indentstr, boo
     } else if (value->type == valtype::boolean) {
         ss << (value->value.boolean ? "true" : "false");
     } else if (value->type == valtype::number) {
-        ss << value->value.num;
+        ss << std::fixed;
+        ss << std::setprecision(15);
+        ss << value->value.decimal;
+    } else if (value->type == valtype::integer) {
+        ss << value->value.integer;
     } else if (value->type == valtype::string) {
         ss << escape_string(*value->value.str);
     }
@@ -103,11 +121,39 @@ JArray::~JArray() {
 }
 
 std::string JArray::str(size_t index) const {
-    return *values[index]->value.str;
+    const auto& val = values[index];
+    switch (val->type) {
+        case valtype::string: return *val->value.str;
+        case valtype::boolean: return val->value.boolean ? "true" : "false";
+        case valtype::number: return std::to_string(val->value.decimal);
+        case valtype::integer: return std::to_string(val->value.integer);
+        default:
+            throw std::runtime_error("type error");
+    }
 }
 
 double JArray::num(size_t index) const {
-    return values[index]->value.num;
+    const auto& val = values[index];
+    switch (val->type) {
+        case valtype::number: return val->value.decimal;
+        case valtype::integer: return val->value.integer;
+        case valtype::string: return std::stoll(*val->value.str);
+        case valtype::boolean: return val->value.boolean;
+        default:
+            throw std::runtime_error("type error");
+    }
+}
+
+int64_t JArray::integer(size_t index) const {
+    const auto& val = values[index];
+    switch (val->type) {
+        case valtype::number: return val->value.decimal;
+        case valtype::integer: return val->value.integer;
+        case valtype::string: return std::stoll(*val->value.str);
+        case valtype::boolean: return val->value.boolean;
+        default:
+            throw std::runtime_error("type error");
+    }
 }
 
 JObject* JArray::obj(size_t index) const {
@@ -130,25 +176,33 @@ JArray& JArray::put(string value) {
 }
 
 JArray& JArray::put(uint value) {
-    return put((double)value);
+    return put((int64_t)value);
 }
 
 JArray& JArray::put(int value) {
-    return put((double)value);
+    return put((int64_t)value);
+}
+
+JArray& JArray::put(int64_t value) {
+    valvalue val;
+    val.integer = value;
+    values.push_back(new Value(valtype::integer, val));
+    return *this;
+}
+
+JArray& JArray::put(uint64_t value) {
+    return put((int64_t)value);
 }
 
 JArray& JArray::put(double value) {
     valvalue val;
-    val.num = value;
+    val.decimal = value;
     values.push_back(new Value(valtype::number, val));
     return *this;
 }
 
 JArray& JArray::put(float value) {
-    valvalue val;
-    val.num = value;
-    values.push_back(new Value(valtype::number, val));
-    return *this;
+    return put((double)value);
 }
 
 JArray& JArray::put(bool value) {
@@ -172,40 +226,96 @@ JArray& JArray::put(JArray* value) {
     return *this;
 }
 
+JArray& JArray::putArray() {
+    JArray* arr = new JArray();
+    put(arr);
+    return *arr;
+}
+
+JObject& JArray::putObj() {
+    JObject* obj = new JObject();
+    put(obj);
+    return *obj;
+}
+
 JObject::~JObject() {
     for (auto entry : map) {
         delete entry.second;
     }
 }
 
-void JObject::str(std::string key, std::string& dst) const {
-    auto found = map.find(key);
-    if (found != map.end())
-        dst = *found->second->value.str;
+void JObject::str(string key, string& dst) const {
+    dst = getStr(key, dst);
 }
 
-void JObject::num(std::string key, double& dst) const {
+string JObject::getStr(string key, const string& def) const {
     auto found = map.find(key);
-    if (found != map.end())
-        dst = found->second->value.num;
+    if (found == map.end())
+        return def;
+    auto& val = found->second;
+    switch (val->type) {
+        case valtype::string: return *val->value.str;
+        case valtype::boolean: return val->value.boolean ? "true" : "false";
+        case valtype::number: return std::to_string(val->value.decimal);
+        case valtype::integer: return std::to_string(val->value.integer);
+        default: throw std::runtime_error("type error");
+    } 
+}
+
+double JObject::getNum(string key, double def) const {
+    auto found = map.find(key);
+    if (found == map.end())
+        return def;
+    auto& val = found->second;
+    switch (val->type) {
+        case valtype::number: return val->value.decimal;
+        case valtype::integer: return val->value.integer;
+        case valtype::string: return std::stoull(*val->value.str);
+        case valtype::boolean: return val->value.boolean;
+        default: throw std::runtime_error("type error");
+    }
+}
+
+int64_t JObject::getInteger(string key, int64_t def) const {
+    auto found = map.find(key);
+    if (found == map.end())
+        return def;
+    auto& val = found->second;
+    switch (val->type) {
+        case valtype::number: return val->value.decimal;
+        case valtype::integer: return val->value.integer;
+        case valtype::string: return std::stoull(*val->value.str);
+        case valtype::boolean: return val->value.boolean;
+        default: throw std::runtime_error("type error");
+    }
+}
+
+void JObject::num(string key, double& dst) const {
+    dst = getNum(key, dst);
 }
 
 void JObject::num(std::string key, float& dst) const {
-    auto found = map.find(key);
-    if (found != map.end())
-        dst = found->second->value.num;
+    dst = getNum(key, dst);
+}
+
+void JObject::num(std::string key, ubyte& dst) const {
+    dst = getInteger(key, dst);
 }
 
 void JObject::num(std::string key, int& dst) const {
-    auto found = map.find(key);
-    if (found != map.end())
-        dst = found->second->value.num;
+    dst = getInteger(key, dst);
+}
+
+void JObject::num(std::string key, int64_t& dst) const {
+    dst = getInteger(key, dst);
+}
+
+void JObject::num(std::string key, uint64_t& dst) const {
+    dst = getInteger(key, dst);
 }
 
 void JObject::num(std::string key, uint& dst) const {
-    auto found = map.find(key);
-    if (found != map.end())
-        dst = found->second->value.num;
+    dst = getInteger(key, dst);
 }
 
 JObject* JObject::obj(std::string key) const {
@@ -229,11 +339,24 @@ void JObject::flag(std::string key, bool& dst) const {
 }
 
 JObject& JObject::put(string key, uint value) {
-    return put(key, (double)value);
+    return put(key, (int64_t)value);
 }
 
 JObject& JObject::put(string key, int value) {
-    return put(key, (double)value);
+    return put(key, (int64_t)value);
+}
+
+JObject& JObject::put(string key, int64_t value) {
+    auto found = map.find(key);
+    if (found != map.end()) delete found->second;
+    valvalue val;
+    val.integer = value;
+    map.insert(make_pair(key, new Value(valtype::integer, val)));
+    return *this;
+}
+
+JObject& JObject::put(string key, uint64_t value) {
+    return put(key, (int64_t)value);
 }
 
 JObject& JObject::put(string key, float value) {
@@ -244,7 +367,7 @@ JObject& JObject::put(string key, double value) {
     auto found = map.find(key);
     if (found != map.end()) delete found->second;
     valvalue val;
-    val.num = value;
+    val.decimal = value;
     map.insert(make_pair(key, new Value(valtype::number, val)));
     return *this;
 }
@@ -287,6 +410,22 @@ JObject& JObject::put(string key, bool value){
     val.boolean = value;
     map.insert(make_pair(key, new Value(valtype::boolean, val)));
     return *this;
+}
+
+JArray& JObject::putArray(string key) {
+    JArray* arr = new JArray();
+    put(key, arr);
+    return *arr;
+}
+
+JObject& JObject::putObj(string key) {
+    JObject* obj = new JObject();
+    put(key, obj);
+    return *obj;
+}
+
+bool JObject::has(string key) {
+    return map.find(key) != map.end();
 }
 
 Value::Value(valtype type, valvalue value) : type(type), value(value) {
@@ -370,10 +509,10 @@ Value* Parser::parseValue() {
             val.boolean = false;
             return new Value(valtype::boolean, val);
         } else if (literal == "inf") {
-            val.num = INFINITY;
+            val.decimal = INFINITY;
             return new Value(valtype::number, val);
         } else if (literal == "nan") {
-            val.num = NAN;
+            val.decimal = NAN;
             return new Value(valtype::number, val);
         }
         throw error("invalid literal");
@@ -388,12 +527,28 @@ Value* Parser::parseValue() {
     }
     if (next == '-' || next == '+') {
         pos++;
-        val.num = parseNumber(next == '-' ? -1 : 1);
-        return new Value(valtype::number, val);
+        number_u num;
+        valtype type;
+        if (parseNumber(next == '-' ? -1 : 1, num)) {
+            val.integer = num.ival;
+            type = valtype::integer;
+        } else {
+            val.decimal = num.fval;
+            type = valtype::number;
+        }
+        return new Value(type, val);
     }
     if (is_digit(next)) {
-        val.num = parseNumber(1);
-        return new Value(valtype::number, val);  
+        number_u num;
+        valtype type;
+        if (parseNumber(1, num)) {
+            val.integer = num.ival;
+            type = valtype::integer;
+        } else {
+            val.decimal = num.fval;
+            type = valtype::number;
+        }
+        return new Value(type, val);  
     }
     if (next == '"' || next == '\'') {
         pos++;
@@ -403,11 +558,11 @@ Value* Parser::parseValue() {
     throw error("unexpected character '"+string({next})+"'");
 }
 
-JObject* json::parse(std::string filename, std::string source) {
+JObject* json::parse(string filename, string source) {
     Parser parser(filename, source);
     return parser.parse();
 }
 
-JObject* json::parse(std::string source) {
+JObject* json::parse(string source) {
     return parse("<string>", source);
 }

@@ -9,15 +9,15 @@ class ImageData;
 
 class Texture : public ITexture {
 public:
-	unsigned int id;
+	uint id;
 	int width;
 	int height;
-	Texture(unsigned int id, int width, int height);
-	Texture(unsigned char* data, int width, int height, uint format);
+	Texture(uint id, int width, int height);
+	Texture(ubyte* data, int width, int height, uint format);
 	~Texture() override;
 
 	void bind() override;
-	void reload(unsigned char* data) override;
+	void reload(ubyte* data) override;
 	int getWidth() const override { return width; }
 
 	int getHeight() const override { return height; }

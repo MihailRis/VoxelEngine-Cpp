@@ -17,6 +17,7 @@ class Engine;
 class Camera;
 class Batch2D;
 class ContentGfxCache;
+class LevelController;
 
 /* Screen is a mainloop state */
 class Screen {
@@ -43,9 +44,9 @@ public:
 class LevelScreen : public Screen {
     Level* level;
     vulkan::WorldRenderer* worldRenderer;
+    LevelController* controller;
     HudRenderer* hud;
     ContentGfxCache* cache;
-    bool occlusion = true;
     void updateHotkeys();
 public:
     LevelScreen(Engine* engine, Level* level);

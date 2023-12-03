@@ -43,6 +43,8 @@ struct GraphicsSettings {
 	float fogCurve = 1.6f;
 	/* Enable blocks backlight to prevent complete darkness */
 	bool backlight = true;
+	/* Enable chunks frustum culling */
+	bool frustumCulling = true;
 };
 
 struct DebugSettings {
