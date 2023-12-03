@@ -10,11 +10,6 @@
 
 using std::unique_ptr;
 
-#ifndef _WIN32
-#define LIBPNG
-#endif
-
-#ifdef LIBPNG
 #include <png.h>
 
 int _png_write(const char* filename, uint width, uint height, const ubyte* data, bool alpha) {
@@ -102,7 +97,7 @@ ImageData* _png_load(const char* file){
     png_bytepp row_pointers;
     png_structp png_ptr;
 
-    if (!(f = fopen(file, "r"))) {
+    if (!(f = fopen(file, "rb"))) {
         return nullptr;
     }
     if (fread(header, 1, 8, f) < 8) {
@@ -187,143 +182,7 @@ ImageData* _png_load(const char* file){
     fclose( f );
     return image;
 }
-#else
-#include <spng.h>
-#include <stdio.h>
-#include <inttypes.h>
 
-int _png_write(const char* filename, uint width, uint height, const ubyte* data, bool alpha) {
-	int fmt;
-	int ret = 0;
-	spng_ctx* ctx = NULL;
-	spng_ihdr ihdr = { 0 };
-	uint pixsize = alpha ? 4 : 3;
-
-	ctx = spng_ctx_new(SPNG_CTX_ENCODER);
-	spng_set_option(ctx, SPNG_ENCODE_TO_BUFFER, 1);
-
-	ihdr.width = width;
-	ihdr.height = height;
-	ihdr.color_type = alpha ? SPNG_COLOR_TYPE_TRUECOLOR_ALPHA : SPNG_COLOR_TYPE_TRUECOLOR;
-	ihdr.bit_depth = 8;
-
-	spng_set_ihdr(ctx, &ihdr);
-	fmt = SPNG_FMT_PNG;
-	ret = spng_encode_image(ctx, data, (size_t)width * (size_t)height * pixsize , fmt, SPNG_ENCODE_FINALIZE);
-	if (ret) {
-		printf("spng_encode_image() error: %s\n", spng_strerror(ret));
-		fflush(stdout);
-		spng_ctx_free(ctx);
-		return ret;
-	}
-
-	size_t png_size;
-	void* png_buf = spng_get_png_buffer(ctx, &png_size, &ret);
-
-	if (png_buf == NULL) {
-		printf("spng_get_png_buffer() error: %s\n", spng_strerror(ret));
-	}
-	else {
-		files::write_bytes(filename, (const char*)png_buf, png_size);
-	}
-	fflush(stdout);
-	spng_ctx_free(ctx);
-	return ret;
-}
-
-ImageData* _png_load(const char* file){
-	int r = 0;
-	FILE *png;
-	char *pngbuf = nullptr;
-	spng_ctx *ctx = nullptr;
-	unsigned char *out = nullptr;
-
-	png = fopen(file, "rb");
-	if (png == nullptr){
-		std::cerr << "could not to open file " << file << std::endl;
-		return 0;
-	}
-
-	fseek(png, 0, SEEK_END);
-	long siz_pngbuf = ftell(png);
-	rewind(png);
-	if(siz_pngbuf < 1) {
-		std::cerr << "could not to read file " << file << std::endl;
-		return 0;
-	}
-	pngbuf = new char[siz_pngbuf];
-	if(fread(pngbuf, siz_pngbuf, 1, png) != 1){
-		std::cerr << "fread() failed" << std::endl;
-		return 0;
-	}
-	ctx = spng_ctx_new(0);
-	if (ctx == nullptr){
-		std::cerr << "spng_ctx_new() failed" << std::endl;
-		return 0;
-	}
-	r = spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
-	if (r){
-		std::cerr << "spng_set_crc_action() error: " << spng_strerror(r) << std::endl;
-		return 0;
-	}
-	r = spng_set_png_buffer(ctx, pngbuf, siz_pngbuf);
-	if (r){
-		std::cerr << "spng_set_png_buffer() error: " << spng_strerror(r) << std::endl;
-		return 0;
-	}
-
-	spng_ihdr ihdr;
-	r = spng_get_ihdr(ctx, &ihdr);
-	if (r){
-		std::cerr << "spng_get_ihdr() error: " << spng_strerror(r) << std::endl;
-		return 0;
-	}
-
-	const char *clr_type_str;
-	if(ihdr.color_type == SPNG_COLOR_TYPE_GRAYSCALE)
-		clr_type_str = "grayscale";
-	else if(ihdr.color_type == SPNG_COLOR_TYPE_TRUECOLOR)
-		clr_type_str = "truecolor";
-	else if(ihdr.color_type == SPNG_COLOR_TYPE_INDEXED)
-		clr_type_str = "indexed color";
-	else if(ihdr.color_type == SPNG_COLOR_TYPE_GRAYSCALE_ALPHA)
-		clr_type_str = "grayscale with alpha";
-	else
-		clr_type_str = "truecolor with alpha";
-
-	size_t out_size;
-	r = spng_decoded_image_size(ctx, SPNG_FMT_RGBA8, &out_size);
-	if (r){
-		std::cerr << "spng_decoded_image_size() error: " << spng_strerror(r) << std::endl;
-		return 0;
-	}
-	out = new unsigned char[out_size];
-	r = spng_decode_image(ctx, out, out_size, SPNG_FMT_RGBA8, 0);
-	if (r){
-		std::cerr << "spng_decode_image() error: " << spng_strerror(r) << std::endl;
-		return 0;
-	}
-
-	unsigned char* flipped = new unsigned char[out_size];
-
-	for (size_t i = 0; i < ihdr.height; i+=1){
-		size_t rowsize = ihdr.width*4;
-		for (size_t j = 0; j < rowsize; j++){
-			flipped[(ihdr.height-i-1)*rowsize+j] = out[i*rowsize+j];
-		}
-	}
-	delete[] out;
-
-    unsigned int texture;
-
-    ImageData* image = new ImageData(ImageFormat::rgba8888, ihdr.width, ihdr.height, (void*)flipped);
-
-	spng_ctx_free(ctx);
-	delete[] pngbuf;
-
-    return image;
-}
-#endif
 
 ImageData* png::load_image(std::string filename) {
     return _png_load(filename.c_str());

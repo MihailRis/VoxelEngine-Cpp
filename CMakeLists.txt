@@ -21,14 +21,11 @@ endif()
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenAL REQUIRED)
+find_package(glfw3 REQUIRED)
 
-if (WIN32)
-    set(PNGLIB spng)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glfw)
-else()
-    find_package(PNG REQUIRED)
-    set(PNGLIB PNG::PNG)
-endif(WIN32)
+find_package(PNG REQUIRED)
+set(PNGLIB PNG::PNG)
+
 
 set(LIBS "")
 
