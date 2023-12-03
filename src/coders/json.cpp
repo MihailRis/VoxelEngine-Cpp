@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <sstream>
+#include <iomanip>
 #include <memory>
 
 #include "commons.h"
@@ -70,6 +71,8 @@ void stringify(Value* value,
     } else if (value->type == valtype::boolean) {
         ss << (value->value.boolean ? "true" : "false");
     } else if (value->type == valtype::number) {
+        ss << std::fixed;
+        ss << std::setprecision(15);
         ss << value->value.decimal;
     } else if (value->type == valtype::integer) {
         ss << value->value.integer;

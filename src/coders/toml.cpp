@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <assert.h>
 
@@ -96,7 +97,10 @@ std::string Wrapper::write() const {
                     break;
                 case fieldtype::ftint: ss << *((int*)field->ptr); break;
                 case fieldtype::ftuint: ss << *((uint*)field->ptr); break;
-                case fieldtype::ftfloat: ss << *((float*)field->ptr); break;
+                case fieldtype::ftfloat: 
+                    ss << std::fixed;
+                    ss << std::setprecision(15);
+                    ss << *((float*)field->ptr); break;
                 case fieldtype::ftstring: 
                     ss << escape_string(*((const string*)field->ptr)); 
                     break;
