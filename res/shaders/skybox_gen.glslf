@@ -248,24 +248,20 @@ uniform float u_fog;
 #include <commons>
 
 void main() {
-    
-
     vec3 camera_position = vec3(0.0f, PLANET_RADIUS+1.0f, 0.0f);
     vec3 camera_vector = normalize(u_xaxis * v_coord.x*1.005 + 
                                    u_yaxis * -v_coord.y*1.005 -
                                    u_zaxis);
 
-    camera_vector = mix(camera_vector, vec3(0, 1, 0), min(1.0, u_fog-1.0));
-    float fog = 1.0f / u_fog;
+    camera_vector = mix(camera_vector, vec3(0, 1, 0), min(1.0, u_fog));
+
+    float fog = 1.0f / (u_fog + 1.0);
     // hide darkness at horizon
     camera_vector.y = max(0.01, camera_vector.y)*(1.0-u_mie*0.08) + 0.08*u_mie;  
     camera_vector = normalize(camera_vector);
 
     // the color of this pixel
     vec3 col = vec3(0.0);//scene.xyz;
-
-
-    
     // get the atmosphere color
     col += calculate_scattering(
     	camera_position,				// the position of the camera
