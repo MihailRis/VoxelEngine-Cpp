@@ -128,7 +128,7 @@ void WorldRenderer::drawChunks(Chunks* chunks,
 void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 	EngineSettings& settings = engine->getSettings();
 	skybox->refresh(level->world->daytime, 
-					fmax(1.0f, 18.0f/settings.chunks.loadDistance), 4);
+					fmax(1.0f, 10.0f/(settings.chunks.loadDistance-2)), 4);
 
 	const Content* content = level->content;
 	const ContentIndices* contentIds = content->indices;
@@ -156,7 +156,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 		ctx.depthTest(true);
 		ctx.cullFace(true);
 
-		float fogFactor = 18.0f / (float)settings.chunks.loadDistance;
+		float fogFactor = 15.0f / ((float)settings.chunks.loadDistance-2);
 
 		// Setting up main shader
 		shader->use();
