@@ -119,6 +119,43 @@ void BlocksRenderer::face(const vec3& coord, float w, float h,
 	}
 }
 
+void BlocksRenderer::vertex(const ivec3& coord, float u, float v,
+							const vec4& tint,
+							const ivec3& axisX,
+							const ivec3& axisY,
+							const ivec3& axisZ) {
+	vec4 light = pickSoftLight(coord+axisZ, axisX, axisY);
+	vertex(coord, u, v, light * tint);
+}
+
+void BlocksRenderer::face(const ivec3& coord,
+						  const ivec3& axisX,
+						  const ivec3& axisY,
+						  const ivec3& axisZ,
+						  const UVRegion& region,
+						  const vec4& tint,
+						  bool rotated) {
+	if (vertexOffset + VERTEX_SIZE * 4 > capacity) {
+		overflow = true;
+		return;
+	}
+		
+	if (rotated) {
+		vertex(coord, region.u2, region.v1, tint, axisX, axisY, axisZ);
+		vertex(coord + axisX, region.u2, region.v2, tint, axisX, axisY, axisZ);
+		vertex(coord + axisX + axisY, region.u1, region.v2, tint, axisX, axisY, axisZ);
+		vertex(coord + axisY, region.u1, region.v1, tint, axisX, axisY, axisZ);
+		index(0, 1, 2, 0, 2, 3);
+	}
+	else {
+		vertex(coord, region.u1, region.v1, tint, axisX, axisY, axisZ);
+		vertex(coord + axisX, region.u2, region.v1, tint, axisX, axisY, axisZ);
+		vertex(coord + axisX + axisY, region.u2, region.v2, tint, axisX, axisY, axisZ);
+		vertex(coord + axisY, region.u1, region.v2, tint, axisX, axisY, axisZ);
+		index(0, 1, 2, 0, 2, 3);
+	}		
+}
+
 void BlocksRenderer::cube(const vec3& coord, const vec3& size, const UVRegion(&texfaces)[6]) {
 	vec4 lights[]{ vec4(),vec4(),vec4(),vec4() };
 
@@ -132,14 +169,10 @@ void BlocksRenderer::cube(const vec3& coord, const vec3& size, const UVRegion(&t
 	face(coord + vec3(size.x, 0, 0), size.z, size.y, vec3(0, 0, -1), vec3(0, 1, 0), texfaces[5], lights);
 }
 
-inline vec4 do_tint(float value) {
-	return vec4(value);
-}
-
 void BlocksRenderer::blockCube(int x, int y, int z, const vec3& size, const UVRegion(&texfaces)[6], ubyte group) {
 	vec4 lights[]{ vec4(1.0f), vec4(1.0f), vec4(1.0f), vec4(1.0f) };
 	if (isOpen(x, y, z + 1, group)) {
-		face(vec3(x, y, z), size.x, size.y, vec3(1, 0, 0), vec3(0, 1, 0), texfaces[5], lights, do_tint(1.0));
+		face(vec3(x, y, z), size.x, size.y, vec3(1, 0, 0), vec3(0, 1, 0), texfaces[5], lights, vec4(1.0f));
 	}
 	if (isOpen(x, y, z - 1, group)) {
 		face(vec3(x + size.x, y, z - size.z), size.x, size.y, vec3(-1, 0, 0), vec3(0, 1, 0), texfaces[4], lights, vec4(1.0f));
@@ -163,10 +196,10 @@ void BlocksRenderer::blockCube(int x, int y, int z, const vec3& size, const UVRe
 
 void BlocksRenderer::blockXSprite(int x, int y, int z, const vec3& size, const UVRegion& texface1, const UVRegion& texface2, float spread) {
 	vec4 lights[]{
-			pickSoftLight(x, y + 1, z, {1, 0, 0}, {0, 1, 0}),
-			pickSoftLight(x + 1, y + 1, z, {1, 0, 0}, {0, 1, 0}),
-			pickSoftLight(x + 1, y + 1, z, {1, 0, 0}, {0, 1, 0}),
-			pickSoftLight(x, y + 1, z, {1, 0, 0}, {0, 1, 0}) };
+			pickSoftLight({x, y + 1, z}, {1, 0, 0}, {0, 1, 0}),
+			pickSoftLight({x + 1, y + 1, z}, {1, 0, 0}, {0, 1, 0}),
+			pickSoftLight({x + 1, y + 1, z}, {1, 0, 0}, {0, 1, 0}),
+			pickSoftLight({x, y + 1, z}, {1, 0, 0}, {0, 1, 0}) };
 
 	int rand = ((x * z + y) ^ (z * y - x)) * (z + y);
 
@@ -174,19 +207,20 @@ void BlocksRenderer::blockXSprite(int x, int y, int z, const vec3& size, const U
 	float zs = ((float)(char)(rand >> 8) / 512) * spread;
 
 	const float w = size.x / 1.41f;
+	const float tint = 0.8f;
 	face(vec3(x + xs + (1.0 - w) * 0.5f, y,
 		z + zs - 1 + (1.0 - w) * 0.5f), w, size.y,
-		vec3(1.0f, 0, 1.0f), vec3(0, 1, 0), texface1, lights, do_tint(0.8f));
+		vec3(1.0f, 0, 1.0f), vec3(0, 1, 0), texface1, lights, vec4(tint));
 	face(vec3(x + xs - (1.0 - w) * 0.5f + 1, y,
 		z + zs - (1.0 - w) * 0.5f), w, size.y,
-		vec3(-1.0f, 0, -1.0f), vec3(0, 1, 0), texface1, lights, do_tint(0.8f));
+		vec3(-1.0f, 0, -1.0f), vec3(0, 1, 0), texface1, lights, vec4(tint));
 
 	face(vec3(x + xs + (1.0 - w) * 0.5f, y,
 		z + zs - (1.0 - w) * 0.5f), w, size.y,
-		vec3(1.0f, 0, -1.0f), vec3(0, 1, 0), texface2, lights, do_tint(0.8f));
+		vec3(1.0f, 0, -1.0f), vec3(0, 1, 0), texface2, lights, vec4(tint));
 	face(vec3(x + xs - (1.0 - w) * 0.5f + 1, y,
 		z + zs + (1.0 - w) * 0.5f - 1), w, size.y,
-		vec3(-1.0f, 0, 1.0f), vec3(0, 1, 0), texface2, lights, do_tint(0.8f));
+		vec3(-1.0f, 0, 1.0f), vec3(0, 1, 0), texface2, lights, vec4(tint));
 }
 
 void BlocksRenderer::blockCubeShaded(const vec3& pos, const vec3& size, const UVRegion(&texfaces)[6], const Block* block, ubyte states) {
@@ -200,14 +234,14 @@ void BlocksRenderer::blockCubeShaded(const vec3& pos, const vec3& size, const UV
 				pickSoftLight(x + 1, y, z + 1, {1, 0, 0}, {0, 1, 0}),
 				pickSoftLight(x + 1, y + 1, z + 1, {1, 0, 0}, {0, 1, 0}),
 				pickSoftLight(x, y + 1, z + 1, {1, 0, 0}, {0, 1, 0}) };
-		face(vec3(x, y, z), size.x, size.y, vec3(1, 0, 0), vec3(0, 1, 0), texfaces[5], lights, do_tint(0.9f), rot == 1);
+		face(vec3(x, y, z), size.x, size.y, vec3(1, 0, 0), vec3(0, 1, 0), texfaces[5], lights, vec4(0.9f), rot == 1);
 	} {
 		vec4 lights[]{
 				pickSoftLight(pos.x, pos.y, pos.z - 1, {-1, 0, 0}, {0, 1, 0}),
 				pickSoftLight(pos.x - 1, pos.y, pos.z - 1, {-1, 0, 0}, {0, 1, 0}),
 				pickSoftLight(pos.x - 1, pos.y + 1, pos.z - 1, {-1, 0, 0}, {0, 1, 0}),
 				pickSoftLight(pos.x, pos.y + 1, pos.z - 1, {-1, 0, 0}, {0, 1, 0}) };
-		face(vec3(x + size.x, y, z - size.z), size.x, size.y, vec3(-1, 0, 0), vec3(0, 1, 0), texfaces[4], lights, do_tint(0.75f), rot == 1);
+		face(vec3(x + size.x, y, z - size.z), size.x, size.y, vec3(-1, 0, 0), vec3(0, 1, 0), texfaces[4], lights, vec4(0.75f), rot == 1);
 	} {
 		vec4 lights[]{
 				pickSoftLight(x, pos.y + 1, pos.z + 1, {1, 0, 0}, {0, 0, 1}),
@@ -222,25 +256,25 @@ void BlocksRenderer::blockCubeShaded(const vec3& pos, const vec3& size, const UV
 				pickSoftLight(pos.x + 1, y - 1, pos.z - 1, {1, 0, 0}, {0, 0,-1}),
 				pickSoftLight(pos.x + 1, y - 1, pos.z, {1, 0, 0}, {0, 0, -1}),
 				pickSoftLight(x, y - 1, z, {1, 0, 0}, {0, 0, -1}) };
-		face(vec3(x, y, z - size.z), size.x, size.z, vec3(1, 0, 0), vec3(0, 0, 1), texfaces[2], lights, do_tint(0.6f), rot == 1);
+		face(vec3(x, y, z - size.z), size.x, size.z, vec3(1, 0, 0), vec3(0, 0, 1), texfaces[2], lights, vec4(0.6f), rot == 1);
 	} {
 		vec4 lights[]{
 				pickSoftLight(x - 1, y, z - 1, {0, 0, -1}, {0, 1, 0}),
 				pickSoftLight(x - 1, y, z, {0, 0, -1}, {0, 1, 0}),
 				pickSoftLight(x - 1, y + 1, z, {0, 0, -1}, {0, 1, 0}),
 				pickSoftLight(x - 1, y + 1, z - 1, {0, 0, -1}, {0, 1, 0}) };
-		face(vec3(x, y, z - size.z), size.z, size.y, vec3(0, 0, 1), vec3(0, 1, 0), texfaces[0], lights, do_tint(0.7f), rot == 3);
+		face(vec3(x, y, z - size.z), size.z, size.y, vec3(0, 0, 1), vec3(0, 1, 0), texfaces[0], lights, vec4(0.7f), rot == 3);
 	} {
 		vec4 lights[]{
 				pickSoftLight(x + 1, y, z, {0, 0, -1}, {0, 1, 0}),
 				pickSoftLight(x + 1, y, z - 1, {0, 0, -1}, {0, 1, 0}),
 				pickSoftLight(x + 1, y + 1, z - 1, {0, 0, -1}, {0, 1, 0}),
 				pickSoftLight(x + 1, y + 1, z, {0, 0, -1}, {0, 1, 0}) };
-		face(vec3(x + size.x, y, z), size.z, size.y, vec3(0, 0, -1), vec3(0, 1, 0), texfaces[1], lights, do_tint(0.8f), rot == 3);
+		face(vec3(x + size.x, y, z), size.z, size.y, vec3(0, 0, -1), vec3(0, 1, 0), texfaces[1], lights, vec4(0.8f), rot == 3);
 	}
 }
 
-void BlocksRenderer::blockCubeShaded(int x, int y, int z, const vec3& size, const UVRegion(&texfaces_)[6], const Block* block, ubyte states) {
+void BlocksRenderer::blockCubeShaded(int x, int y, int z, const UVRegion(&texfaces_)[6], const Block* block, ubyte states) {
 	ubyte group = block->drawGroup;
 	UVRegion texfaces[6];
 	int rot = 0;
@@ -248,7 +282,6 @@ void BlocksRenderer::blockCubeShaded(int x, int y, int z, const vec3& size, cons
 	for (int i = 0; i < 6; i++) {
 		texfaces[i] = texfaces_[i];
 	}
-
 	if (block->rotatable) {
 		if (states == BLOCK_DIR_X) {
 			rot = 1;
@@ -268,57 +301,28 @@ void BlocksRenderer::blockCubeShaded(int x, int y, int z, const vec3& size, cons
 			texfaces[5] = texfaces_[3];
 		}
 	}
+
+	static const ivec3 X(1, 0, 0);
+	static const ivec3 Y(0, 1, 0);
+	static const ivec3 Z(0, 0, 1);
+	
 	if (isOpen(x, y, z + 1, group)) {
-		vec4 lights[]{
-				pickSoftLight(x, y, z + 1, {1, 0, 0}, {0, 1, 0}),
-				pickSoftLight(x + 1, y, z + 1, {1, 0, 0}, {0, 1, 0}),
-				pickSoftLight(x + 1, y + 1, z + 1, {1, 0, 0}, {0, 1, 0}),
-				pickSoftLight(x, y + 1, z + 1, {1, 0, 0}, {0, 1, 0}) };
-		face(vec3(x, y, z), size.x, size.y, vec3(1, 0, 0), vec3(0, 1, 0), texfaces[5], lights, do_tint(0.9f), rot == 1);
+		face(ivec3(x, y, z), X, Y, Z, texfaces[5], vec4(0.9f), rot == 1);
 	}
 	if (isOpen(x, y, z - 1, group)) {
-		vec4 lights[]{
-				pickSoftLight(x, y, z - 1, {-1, 0, 0}, {0, 1, 0}),
-				pickSoftLight(x - 1, y, z - 1, {-1, 0, 0}, {0, 1, 0}),
-				pickSoftLight(x - 1, y + 1, z - 1, {-1, 0, 0}, {0, 1, 0}),
-				pickSoftLight(x, y + 1, z - 1, {-1, 0, 0}, {0, 1, 0}) };
-		face(vec3(x + size.x, y, z - size.z), size.x, size.y, vec3(-1, 0, 0), vec3(0, 1, 0), texfaces[4], lights, do_tint(0.75f), rot == 1);
+		face(ivec3(x + 1, y, z - 1), -X, Y, Z-Z-X, texfaces[4], vec4(0.75f), rot == 1);
 	}
-
 	if (isOpen(x, y + 1, z, group)) {
-		vec4 lights[]{
-				pickSoftLight(x, y + 1, z + 1, {1, 0, 0}, {0, 0, 1}),
-				pickSoftLight(x + 1, y + 1, z + 1, {1, 0, 0}, {0, 0, 1}),
-				pickSoftLight(x + 1, y + 1, z, {1, 0, 0}, {0, 0, 1}),
-				pickSoftLight(x, y + 1, z, {1, 0, 0}, {0, 0, 1}) };
-
-		face(vec3(x, y + size.y, z), size.x, size.z, vec3(1, 0, 0), vec3(0, 0, -1), texfaces[3], lights, vec4(1.0f), rot == 1);
+		face(ivec3(x, y + 1, z), X, -Z, Y-Y, texfaces[3], vec4(1.0f), rot == 1);
 	}
-
 	if (isOpen(x, y - 1, z, group)) {
-		vec4 lights[]{
-				pickSoftLight(x, y - 1, z - 1, {1, 0, 0}, {0, 0, -1}),
-				pickSoftLight(x + 1, y - 1, z - 1, {1, 0, 0}, {0, 0,-1}),
-				pickSoftLight(x + 1, y - 1, z, {1, 0, 0}, {0, 0, -1}),
-				pickSoftLight(x, y - 1, z, {1, 0, 0}, {0, 0, -1}) };
-		face(vec3(x, y, z - size.z), size.x, size.z, vec3(1, 0, 0), vec3(0, 0, 1), texfaces[2], lights, do_tint(0.6f), rot == 1);
-	}
-
-	if (isOpen(x - 1, y, z, group)) {
-		vec4 lights[]{
-				pickSoftLight(x - 1, y, z - 1, {0, 0, -1}, {0, 1, 0}),
-				pickSoftLight(x - 1, y, z, {0, 0, -1}, {0, 1, 0}),
-				pickSoftLight(x - 1, y + 1, z, {0, 0, -1}, {0, 1, 0}),
-				pickSoftLight(x - 1, y + 1, z - 1, {0, 0, -1}, {0, 1, 0}) };
-		face(vec3(x, y, z - size.z), size.z, size.y, vec3(0, 0, 1), vec3(0, 1, 0), texfaces[0], lights, do_tint(0.7f), rot == 3);
+		face(ivec3(x, y, z - 1), X, Z, -Y+Z, texfaces[2], vec4(0.6f), rot == 1);
 	}
 	if (isOpen(x + 1, y, z, group)) {
-		vec4 lights[]{
-				pickSoftLight(x + 1, y, z, {0, 0, -1}, {0, 1, 0}),
-				pickSoftLight(x + 1, y, z - 1, {0, 0, -1}, {0, 1, 0}),
-				pickSoftLight(x + 1, y + 1, z - 1, {0, 0, -1}, {0, 1, 0}),
-				pickSoftLight(x + 1, y + 1, z, {0, 0, -1}, {0, 1, 0}) };
-		face(vec3(x + size.x, y, z), size.z, size.y, vec3(0, 0, -1), vec3(0, 1, 0), texfaces[1], lights, do_tint(0.8f), rot == 3);
+		face(ivec3(x + 1, y, z), -Z, Y, X-X, texfaces[1], vec4(0.8f), rot == 3);
+	}
+	if (isOpen(x - 1, y, z, group)) {
+		face(ivec3(x, y, z - 1), Z, Y, -X+Z, texfaces[0], vec4(0.7f), rot == 3);
 	}
 }
 
@@ -358,17 +362,22 @@ vec4 BlocksRenderer::pickLight(int x, int y, int z) const {
 	}
 }
 
-vec4 BlocksRenderer::pickSoftLight(int x, int y, int z, 
-								  const ivec3& right, const ivec3& up) const {
-	return (pickLight(x - right.x - up.x, y - right.y - up.y, z - right.z - up.z) +
-		pickLight(x - up.x, y - up.y, z - up.z) +
-		pickLight(x, y, z) +
-		pickLight(x - right.x, y - right.y, z - right.z)) * 0.25f;
+vec4 BlocksRenderer::pickLight(const ivec3& coord) const {
+	return pickLight(coord.x, coord.y, coord.z);
+}
+
+vec4 BlocksRenderer::pickSoftLight(const ivec3& coord, 
+								   const ivec3& right, const ivec3& up) const {
+	return (
+		pickLight(coord) +
+		pickLight(coord - right) +
+		pickLight(coord - right - up) +
+		pickLight(coord - up)) * 0.25f;
 }
 
 vec4 BlocksRenderer::pickSoftLight(float x, float y, float z, 
 								  const ivec3& right, const ivec3& up) const {
-	return pickSoftLight(int(round(x)), int(round(y)), int(round(z)), right, up);
+	return pickSoftLight({int(round(x)), int(round(y)), int(round(z))}, right, up);
 }
 
 void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
@@ -393,7 +402,7 @@ void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 					blockCube(x, y, z, vec3(1.0f), texfaces, def.drawGroup);
 				}
 				else {
-					blockCubeShaded(x, y, z, vec3(1.0f), texfaces, &def, vox.states);
+					blockCubeShaded(x, y, z, texfaces, &def, vox.states);
 				}
 				break;
 			case BlockModel::xsprite: {
