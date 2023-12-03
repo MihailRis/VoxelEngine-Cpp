@@ -39,7 +39,14 @@ class WorldFiles {
 	std::filesystem::path getRegionFile(int x, int y) const;
 	std::filesystem::path getPlayerFile() const;
 	std::filesystem::path getWorldFile() const;
-	std::filesystem::path getBlockIndicesFile() const;
+	std::filesystem::path getIndicesFile() const;
+
+	// TODO: remove in 0.16
+	std::filesystem::path getOldPlayerFile() const;
+	std::filesystem::path getOldWorldFile() const;
+	bool readOldWorldInfo(World* world);
+	bool readOldPlayer(Player* player);
+	// --------------------
 public:
 	std::unordered_map<glm::ivec2, WorldRegion> regions;
 	std::filesystem::path directory;
