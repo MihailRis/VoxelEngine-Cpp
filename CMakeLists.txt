@@ -26,6 +26,7 @@ find_package(OpenAL REQUIRED)
 
 set(LIBS "")
 if (VOXEL_ENGINE_USE_VULKAN)
+    add_compile_definitions(USE_VULKAN)
     find_package(Vulkan REQUIRED)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/vma)
 
