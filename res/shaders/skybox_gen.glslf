@@ -243,20 +243,28 @@ uniform vec3 u_zaxis;
 uniform vec3 u_lightDir;
 uniform int u_quality;
 uniform float u_mie;
+uniform float u_fog;
 
 #include <commons>
 
 void main() {
+    
+
     vec3 camera_position = vec3(0.0f, PLANET_RADIUS+1.0f, 0.0f);
     vec3 camera_vector = normalize(u_xaxis * v_coord.x*1.005 + 
                                    u_yaxis * -v_coord.y*1.005 -
                                    u_zaxis);
+
+    camera_vector = mix(camera_vector, vec3(0, 1, 0), min(1.0, u_fog-1.0));
+    float fog = 1.0f / u_fog;
     // hide darkness at horizon
     camera_vector.y = max(0.01, camera_vector.y)*(1.0-u_mie*0.08) + 0.08*u_mie;  
     camera_vector = normalize(camera_vector);
 
     // the color of this pixel
     vec3 col = vec3(0.0);//scene.xyz;
+
+
     
     // get the atmosphere color
     col += calculate_scattering(
@@ -265,7 +273,7 @@ void main() {
         1e12f, 						    // max dist, essentially the scene depth
         vec3(0.0f),						// scene color, the color of the current pixel being rendered
         u_lightDir,						// light direction
-        vec3(40.0),						// light intensity, 40 looks nice
+        vec3(40.0*fog),						// light intensity, 40 looks nice
         PLANET_POS,						// position of the planet
         PLANET_RADIUS,                  // radius of the planet in meters
         ATMOS_RADIUS,                   // radius of the atmosphere in meters
@@ -273,7 +281,7 @@ void main() {
         MIE_BETA,                       // Mie scattering coefficient
         ABSORPTION_BETA,                // Absorbtion coefficient
         AMBIENT_BETA,					// ambient scattering, turned off for now. This causes the air to glow a bit when no light reaches it
-        G,                          	// Mie preferred scattering direction
+        G*fog,                          	// Mie preferred scattering direction
         HEIGHT_RAY,                     // Rayleigh scale height
         HEIGHT_MIE*u_mie*u_mie,                     // Mie scale height
         HEIGHT_ABSORPTION,				// the height at which the most absorption happens
