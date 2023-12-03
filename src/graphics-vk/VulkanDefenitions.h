@@ -7,7 +7,13 @@
 
 #ifndef NDEBUG
     constexpr bool IS_DEBUG = true;
-    #define CHECK_VK(fn) fn
+    #include <iostream>
+    #define CHECK_VK(fn) { VkResult result = fn; \
+                            if (result != VK_SUCCESS) { \
+                                std::cout << "Error while call " << #fn << std::endl; \
+                                std::abort(); \
+                            } \
+                          }
 #else
     constexpr bool IS_DEBUG = false;
     #define CHECK_VK(fn) fn

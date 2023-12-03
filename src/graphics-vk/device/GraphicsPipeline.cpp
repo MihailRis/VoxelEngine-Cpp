@@ -13,6 +13,7 @@
 #include "../VulkanDefenitions.h"
 #include "../Vertices.h"
 #include "../../window/Window.h"
+#include "../uniforms/DynamicConstants.h"
 
 constexpr VkDynamicState DYNAMIC_STATES[] = {
     VK_DYNAMIC_STATE_LINE_WIDTH,
@@ -40,7 +41,6 @@ GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, VkPipelineLayout layout,
     CHECK_VK(vkAllocateDescriptorSets(device, &uniformSetAllocateInfo, &m_uniformSet));
 
     const auto stateBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::STATE)->getBufferInfo();
-    const auto lightBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::LIGHT)->getBufferInfo();
     const auto fogBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::FOG)->getBufferInfo();
     const auto projectionViewBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::PROJECTION_VIEW)->getBufferInfo();
     const auto backgraundUniformInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::BACKGROUND)->getBufferInfo();
@@ -50,8 +50,7 @@ GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, VkPipelineLayout layout,
         case ShaderType::MAIN: {
             const std::array writeSets = {
                 initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &stateBufferInfo),
-                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 1, &lightBufferInfo),
-                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 2, &fogBufferInfo),
+                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 1, &fogBufferInfo),
             };
 
             vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
@@ -192,10 +191,14 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
 
     std::array setLayouts = { uniformSetLayout, samplerSetLayout };
 
+    std::array pushConstantRanges = getPushConstantRanges(tools::PushConstantRange{ sizeof(DynamicConstants), 0, VK_SHADER_STAGE_VERTEX_BIT });
+
     VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
     pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutCreateInfo.setLayoutCount = setLayouts.size();
     pipelineLayoutCreateInfo.pSetLayouts = setLayouts.data();
+    pipelineLayoutCreateInfo.pushConstantRangeCount = type == ShaderType::MAIN ? pushConstantRanges.size() : 0;
+    pipelineLayoutCreateInfo.pPushConstantRanges = pushConstantRanges.data();
 
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
     CHECK_VK(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout));
@@ -278,13 +281,14 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     colorBlending.pAttachments = &colorBlendAttachment;
 
     VkFormat sawpchainFormat = vulkan::VulkanContext::get().getSwapchain().getFormat();
-    auto &depth = vulkan::VulkanContext::get().getDepth();
+    const auto depthStencilFormat = vulkan::VulkanContext::get().getDepth().getFormat();
+
     VkPipelineRenderingCreateInfo renderingCreateInfo{};
     renderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
     renderingCreateInfo.colorAttachmentCount = 1;
     renderingCreateInfo.pColorAttachmentFormats = &sawpchainFormat;
-    renderingCreateInfo.depthAttachmentFormat = depth.getFormat();
-    renderingCreateInfo.stencilAttachmentFormat = depth.getFormat();
+    renderingCreateInfo.depthAttachmentFormat = depthStencilFormat;
+    renderingCreateInfo.stencilAttachmentFormat = depthStencilFormat;
 
     VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
     graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

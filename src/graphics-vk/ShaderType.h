@@ -78,20 +78,19 @@ inline std::vector<VkDescriptorSetLayoutBinding> getUniformSetBindingsByShader(S
             stateUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             stateUniformBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-            VkDescriptorSetLayoutBinding lightUniformBinding{};
-            lightUniformBinding.binding = 1;
-            lightUniformBinding.descriptorCount = 1;
-            lightUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            lightUniformBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+            // VkDescriptorSetLayoutBinding lightUniformBinding{};
+            // lightUniformBinding.binding = 1;
+            // lightUniformBinding.descriptorCount = 1;
+            // lightUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            // lightUniformBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
             VkDescriptorSetLayoutBinding fogUniformBinding{};
-            fogUniformBinding.binding = 2;
+            fogUniformBinding.binding = 1;
             fogUniformBinding.descriptorCount = 1;
             fogUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             fogUniformBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
             descriptroBindings.emplace_back(stateUniformBinding);
-            descriptroBindings.emplace_back(lightUniformBinding);
             descriptroBindings.emplace_back(fogUniformBinding);
         } break;
         case ShaderType::LINES: {

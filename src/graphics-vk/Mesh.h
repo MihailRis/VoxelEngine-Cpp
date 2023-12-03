@@ -97,9 +97,7 @@ namespace vulkan {
 
         VkCommandBuffer commandBuffer = VulkanContext::get().getCurrentState().commandbuffer;
 
-        constexpr VkDeviceSize offsetSize = 0;
         if (m_indexBuffer != nullptr || m_indices > 0) {
-            vkCmdBindIndexBuffer(commandBuffer, *m_indexBuffer, offsetSize, VK_INDEX_TYPE_UINT32);
             vkCmdDrawIndexed(commandBuffer, m_indices, 1, 0, 0, 0);
         }
         else if (m_vertices > 0) {

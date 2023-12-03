@@ -6,6 +6,9 @@
 #define WORLDRENDERER_H
 
 #include <cstddef>
+#include <vector>
+
+#include "uniforms/DynamicConstants.h"
 
 class GfxContext;
 class ContentGfxCache;
@@ -29,6 +32,8 @@ namespace vulkan {
         LineBatch* m_lineBatch;
         ChunksRenderer* m_renderer;
         Skybox* m_skybox;
+        std::vector<DynamicConstants> m_constantses;
+        size_t m_constantIndex = 0;
 
         bool drawChunk(size_t index, Camera* camera, IShader* shader, bool occlusion);
         void drawChunks(Chunks* chunks, Camera* camera, IShader* shader, bool occlusion);

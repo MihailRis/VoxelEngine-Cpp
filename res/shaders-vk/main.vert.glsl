@@ -2,9 +2,9 @@
 
 #include "../shaders/lib/commons.glsl"
 
-layout (location = 0) in vec3 v_position;
-layout (location = 1) in vec2 v_texCoord;
-layout (location = 2) in float v_light;
+layout(location = 0) in vec3 v_position;
+layout(location = 1) in vec2 v_texCoord;
+layout(location = 2) in float v_light;
 
 layout(location = 0) out vec4 a_color;
 layout(location = 1) out vec2 a_texCoord;
@@ -12,7 +12,7 @@ layout(location = 2) out float a_distance;
 layout(location = 3) out vec3 a_dir;
 
 layout(set = 0, binding = 0) uniform State {
-    mat4 u_model;
+//    mat4 u_model;
     mat4 u_proj;
     mat4 u_view;
     vec3 u_skyLightColor;
@@ -20,25 +20,20 @@ layout(set = 0, binding = 0) uniform State {
     float u_gamma;
 };
 
-
-layout(set = 0, binding = 1) uniform Light {
+layout(push_constant) uniform Dynamic {
+    mat4 u_model;
     vec3 u_torchlightColor;
     float u_torchlightDistance;
 };
 
+//layout(set = 0, binding = 1) uniform Light {
+//    vec3 u_torchlightColor;
+//    float u_torchlightDistance;
+//};
+
 layout(set = 1, binding = 1) uniform samplerCube u_cubemap;
 
 #define SKY_LIGHT_MUL 2.5
-
-//vec4 decompress_light(float compressed_light) {
-//    vec4 result;
-//    int compressed = floatBitsToInt(compressed_light);
-//    result.r = ((compressed >> 24) & 0xFF) / 255.f;
-//    result.g = ((compressed >> 16) & 0xFF) / 255.f;
-//    result.b = ((compressed >> 8) & 0xFF) / 255.f;
-//    result.a = (compressed & 0xFF) / 255.f;
-//    return result;
-//}
 
 void main(){
     vec2 pos2d = (u_model * vec4(v_position, 1.0)).xz-u_cameraPos.xz;

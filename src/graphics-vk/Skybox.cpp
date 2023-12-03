@@ -30,7 +30,6 @@ namespace vulkan {
     }
 
     void Skybox::draw(IShader* shader) {
-        shader->uniform1i("u_cubemap", 1);
         bind();
         m_mesh->draw({0, 6});
     }
@@ -38,7 +37,7 @@ namespace vulkan {
     void Skybox::refresh(float t, float mie, uint quality) {
         m_ready = true;
         m_shader->use();
-         constexpr std::array<glm::vec3, 6> xaxs = {
+        constexpr std::array<glm::vec3, 6> xaxs = {
             glm::vec3{0.0f, 0.0f, -1.0f},
             glm::vec3{0.0f, 0.0f, 1.0f},
             glm::vec3{-1.0f, 0.0f, 0.0f},
@@ -57,7 +56,7 @@ namespace vulkan {
             glm::vec3{0.0f, 1.0f, 0.0f},
         };
 
-         constexpr std::array<glm::vec3, 6> zaxs = {
+        constexpr std::array<glm::vec3, 6> zaxs = {
             glm::vec3{1.0f, 0.0f, 0.0f},
             glm::vec3{-1.0f, 0.0f, 0.0f},
             glm::vec3{0.0f, -1.0f, 0.0f},
@@ -66,7 +65,7 @@ namespace vulkan {
             glm::vec3{0.0f, 0.0f, -1.0f},
             glm::vec3{0.0f, 0.0f, 1.0f},
         };
-        t *= M_PI*2.0f;
+        t *= M_PI * 2.0f;
 
         m_shader->uniform1i("u_quality", quality);
         m_shader->uniform1f("u_mie", mie);

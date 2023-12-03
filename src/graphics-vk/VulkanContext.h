@@ -39,7 +39,6 @@ namespace vulkan {
     public:
         enum Type : size_t {
             STATE = 0,
-            LIGHT,
             FOG,
             PROJECTION_VIEW,
             BACKGROUND,

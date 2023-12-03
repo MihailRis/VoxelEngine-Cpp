@@ -23,7 +23,7 @@ namespace vulkan {
 
             mapMemory(&mapedData);
 
-            memcpy(mapedData, &data, sizeof(T));
+            std::memcpy(mapedData, &data, m_size);
 
             unmapMemory();
         }

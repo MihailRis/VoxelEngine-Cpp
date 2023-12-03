@@ -10,7 +10,7 @@ layout(location = 0) out vec4 f_color;
 layout(set = 1, binding = 0) uniform sampler2D u_texture0;
 layout(set = 1, binding = 1) uniform samplerCube u_cubemap;
 
-layout (binding = 2) uniform Fog {
+layout (set = 0, binding = 1) uniform Fog {
     vec3 u_fogColor;
     float u_fogFactor;
     float u_fogCurve;

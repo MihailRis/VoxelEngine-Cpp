@@ -24,7 +24,6 @@ namespace vulkan {
 
     void UniformBuffersHolder::initBuffers() {
         m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(StateUniform)));
-        m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(LightUniform)));
         m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(FogUniform)));
         m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(ProjectionViewUniform)));
         m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(BackgroundUniform)));

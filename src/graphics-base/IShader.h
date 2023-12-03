@@ -8,6 +8,8 @@
 #include <string>
 #include <glm/glm.hpp>
 
+struct DynamicConstants;
+
 class IShader {
 public:
     virtual ~IShader() = default;
@@ -20,6 +22,10 @@ public:
     virtual void uniform2f(std::string name, glm::vec2 xy) = 0;
     virtual void uniform3f(std::string name, float x, float y, float z) = 0;
     virtual void uniform3f(std::string name, glm::vec3 xyz) = 0;
+
+#ifdef USE_VULKAN
+    virtual void pushConstant(const DynamicConstants &constants) { }
+#endif
 };
 
 

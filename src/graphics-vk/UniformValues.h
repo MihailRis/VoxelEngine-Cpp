@@ -22,11 +22,10 @@ namespace vulkan {
     using UniformValue = std::variant<std::monostate,
         float, int,
         glm::vec2, glm::vec3, glm::vec4,
-        glm::mat4,
-        std::vector<glm::vec3>>;
+        glm::mat4>;
 
     template<typename T>
-    inline constexpr bool is_uniform_type_v = tools::is_same_of_types_v<T, float, int, glm::vec2, glm::vec3, glm::vec4, glm::mat4, std::vector<glm::vec3>>;
+    inline constexpr bool is_uniform_type_v = tools::is_same_of_types_v<T, float, int, glm::vec2, glm::vec3, glm::vec4, glm::mat4>;
 
     // this class use for generate vulkan uniforms
     // Vulkan shaders doesn't support OpenGL uniform: uniform mat4 name
@@ -41,22 +40,6 @@ namespace vulkan {
             m_uniformValues[name] = value;
         }
 
-        template<typename T, size_t N>
-        void addOrUpdate(const std::string &name, const std::array<T, N> &value) {
-            static_assert(is_uniform_type_v<T>, "Value type can be: float, int, glm::vec2, glm::vec3, glm::vec4, glm::mat4");
-            std::vector<T> res;
-            std::copy(value.begin(), value.end(), std::back_inserter(res));
-            m_uniformValues[name] = res;
-        }
-
-        template<typename T>
-        void addOrUpdate(const std::string &name, const std::vector<T> &value) {
-            static_assert(is_uniform_type_v<T>, "Value type can be: float, int, glm::vec2, glm::vec3, glm::vec4, glm::mat4");
-            std::vector<T> res;
-            std::copy(value.begin(), value.end(), std::back_inserter(res));
-            m_uniformValues[name] = res;
-        }
-
         template<typename T>
         const T &getUniformValue(const std::string &name) const {
             static_assert(is_uniform_type_v<T>, "Type can be: float, int, glm::vec2, glm::vec3, glm::vec4, glm::mat4");
@@ -69,7 +52,6 @@ namespace vulkan {
 
         inline StateUniform getStateUniform() const {
             StateUniform uniform{};
-            uniform.model = getUniformValue<glm::mat4>("u_model");
             uniform.projection = getUniformValue<glm::mat4>("u_proj");
             uniform.view = getUniformValue<glm::mat4>("u_view");
             uniform.skyLightColor = getUniformValue<glm::vec3>("u_skyLightColor");
@@ -118,14 +100,6 @@ namespace vulkan {
 
         inline SkyboxUniform getSkyboxUniform() const {
             SkyboxUniform uniform{};
-
-            auto &xaxis = getUniformValue<std::vector<glm::vec3>>("u_xaxis");
-            auto &yaxis = getUniformValue<std::vector<glm::vec3>>("u_yaxis");
-            auto &zaxis = getUniformValue<std::vector<glm::vec3>>("u_zaxis");
-
-            std::copy(xaxis.cbegin(), xaxis.cend(), std::begin(uniform.xaxis));
-            std::copy(yaxis.cbegin(), xaxis.cend(), std::begin(uniform.yaxis));
-            std::copy(zaxis.cbegin(), xaxis.cend(), std::begin(uniform.zaxis));
 
             uniform.lightDir = getUniformValue<glm::vec3>("u_lightDir");
             uniform.quality = getUniformValue<int>("u_quality");

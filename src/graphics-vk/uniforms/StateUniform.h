@@ -7,7 +7,6 @@
 #include <glm/glm.hpp>
 
 struct StateUniform {
-    glm::mat4 model;
     glm::mat4 projection;
     glm::mat4 view;
     alignas(16) glm::vec3 skyLightColor;

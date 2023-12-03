@@ -44,9 +44,26 @@ namespace vulkan {
             if (!m_frustumCulling->IsBoxVisible(min, max)) return false;
         }
         glm::mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x * CHUNK_W, 0.0f, chunk->z * CHUNK_D + 1));
-        shader->uniformMatrix("u_model", model);
+
+        auto &constant = m_constantses.at(m_constantIndex);
+        constant.model = model;
+
+        glm::vec3 torchLightColor = constant.torchlightColor;
+        float torchLightDistance = constant.torchlightDistance;
+
+        shader->pushConstant(constant);
+
         mesh->bind();
         mesh->draw({0, 0});
+
+        m_constantses.emplace_back(DynamicConstants{
+            glm::mat4(1.0),
+            torchLightColor,
+            torchLightDistance
+        });
+
+        ++m_constantIndex;
+
         return true;
     }
 
@@ -97,7 +114,9 @@ namespace vulkan {
     }
 
     void WorldRenderer::draw(const GfxContext&context, Camera* camera, bool occlusion) {
-        EngineSettings&settings = m_engine->getSettings();
+        m_constantses.clear();
+        m_constantIndex = 0;
+        const EngineSettings &settings = m_engine->getSettings();
         // skybox->refresh(m_level->world->daytime,
         // 				fmax(1.0f, 18.0f/settings.chunks.loadDistance), 4);
 
@@ -106,7 +125,7 @@ namespace vulkan {
         Assets* assets = m_engine->getAssets();
         Atlas* atlas = assets->getAtlas("blocks");
         IShader* shader = assets->getShader("main");
-        IShader* linesShader = assets->getShader("lines");
+        // IShader* linesShader = assets->getShader("lines");
 
         const Viewport&viewport = context.getViewport();
         int displayWidth = viewport.getWidth();
@@ -136,108 +155,114 @@ namespace vulkan {
             Block* cblock = contentIds->getBlockDef(m_level->player->choosenBlock);
             assert(cblock != nullptr);
             float multiplier = 0.5f;
-            shader->uniform3f("u_torchlightColor",
-                              cblock->emission[0] / 15.0f * multiplier,
-                              cblock->emission[1] / 15.0f * multiplier,
-                              cblock->emission[2] / 15.0f * multiplier);
-            shader->uniform1f("u_torchlightDistance", 6.0f);
+            const glm::vec3 torchlightColor{
+                static_cast<float>(cblock->emission[0]) / 15.0f * multiplier,
+                static_cast<float>(cblock->emission[1]) / 15.0f * multiplier,
+                static_cast<float>(cblock->emission[2]) / 15.0f * multiplier
+            };
+
+            m_constantses.emplace_back(DynamicConstants{
+                mat4(1.0),
+                torchlightColor,
+                6.0f
+            });
+
             atlas->getTexture()->bind();
 
             Chunks* chunks = m_level->chunks;
             drawChunks(chunks, camera, shader, occlusion);
 
-            shader->uniformMatrix("u_model", mat4(1.0f));
 
-            if (m_level->playerController->selectedBlockId != -1) {
-                Block* block = contentIds->getBlockDef(m_level->playerController->selectedBlockId);
-                assert(block != nullptr);
-                glm::vec3 pos = m_level->playerController->selectedBlockPosition;
-                linesShader->use();
-                linesShader->uniformMatrix("u_projview", camera->getProjView());
-                m_lineBatch->lineWidth(2.0f);
-                if (block->model == BlockModel::block) {
-                    m_lineBatch->box(pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f,
-                                     1.008f, 1.008f, 1.008f, 0, 0, 0, 0.5f);
-                }
-                else if (block->model == BlockModel::xsprite) {
-                    m_lineBatch->box(pos.x + 0.5f, pos.y + 0.35f, pos.z + 0.5f,
-                                     0.805f, 0.705f, 0.805f, 0, 0, 0, 0.5f);
-                }
-                m_lineBatch->render();
-            }
+            // if (m_level->playerController->selectedBlockId != -1) {
+            //     Block* block = contentIds->getBlockDef(m_level->playerController->selectedBlockId);
+            //     assert(block != nullptr);
+            //     glm::vec3 pos = m_level->playerController->selectedBlockPosition;
+            //     linesShader->use();
+            //     linesShader->uniformMatrix("u_projview", camera->getProjView());
+            //     m_lineBatch->lineWidth(2.0f);
+            //     if (block->model == BlockModel::block) {
+            //         m_lineBatch->box(pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f,
+            //                          1.008f, 1.008f, 1.008f, 0, 0, 0, 0.5f);
+            //     }
+            //     else if (block->model == BlockModel::xsprite) {
+            //         m_lineBatch->box(pos.x + 0.5f, pos.y + 0.35f, pos.z + 0.5f,
+            //                          0.805f, 0.705f, 0.805f, 0, 0, 0, 0.5f);
+            //     }
+            //     m_lineBatch->render();
+            // }
             //  skybox->unbind();
         }
 
-        if (m_level->player->debug) {
-            GfxContext ctx = context.sub();
-            ctx.depthTest(true);
-
-            linesShader->use();
-            if (settings.debug.showChunkBorders) {
-                linesShader->uniformMatrix("u_projview", camera->getProjView());
-                glm::vec3 coord = m_level->player->camera->position;
-                if (coord.x < 0) coord.x--;
-                if (coord.z < 0) coord.z--;
-                int cx = floordiv((int)coord.x, CHUNK_W);
-                int cz = floordiv((int)coord.z, CHUNK_D);
-                /*corner*/ {
-                    m_lineBatch->line(cx * CHUNK_W, 0, cz * CHUNK_D,
-                                      cx * CHUNK_W, CHUNK_H, cz * CHUNK_D, 0.8f, 0, 0.8f, 1);
-                    m_lineBatch->line(cx * CHUNK_W, 0, (cz + 1) * CHUNK_D,
-                                      cx * CHUNK_W, CHUNK_H, (cz + 1) * CHUNK_D, 0.8f, 0, 0.8f, 1);
-                    m_lineBatch->line((cx + 1) * CHUNK_W, 0, cz * CHUNK_D,
-                                      (cx + 1) * CHUNK_W, CHUNK_H, cz * CHUNK_D, 0.8f, 0, 0.8f, 1);
-                    m_lineBatch->line((cx + 1) * CHUNK_W, 0, (cz + 1) * CHUNK_D,
-                                      (cx + 1) * CHUNK_W, CHUNK_H, (cz + 1) * CHUNK_D, 0.8f, 0, 0.8f, 1);
-                }
-                for (int i = 2; i < CHUNK_W; i += 2) {
-                    m_lineBatch->line(cx * CHUNK_W + i, 0, cz * CHUNK_D,
-                                      cx * CHUNK_W + i, CHUNK_H, cz * CHUNK_D, 0, 0, 0.8f, 1);
-                    m_lineBatch->line(cx * CHUNK_W + i, 0, (cz + 1) * CHUNK_D,
-                                      cx * CHUNK_W + i, CHUNK_H, (cz + 1) * CHUNK_D, 0, 0, 0.8f, 1);
-                }
-                for (int i = 2; i < CHUNK_D; i += 2) {
-                    m_lineBatch->line(cx * CHUNK_W, 0, cz * CHUNK_D + i,
-                                      cx * CHUNK_W, CHUNK_H, cz * CHUNK_D + i, 0.8f, 0, 0, 1);
-                    m_lineBatch->line((cx + 1) * CHUNK_W, 0, cz * CHUNK_D + i,
-                                      (cx + 1) * CHUNK_W, CHUNK_H, cz * CHUNK_D + i, 0.8f, 0, 0, 1);
-                }
-                for (int i = 0; i < CHUNK_H; i += 2) {
-                    m_lineBatch->line(cx * CHUNK_W, i, cz * CHUNK_D,
-                                      cx * CHUNK_W, i, (cz + 1) * CHUNK_D, 0, 0.8f, 0, 1);
-                    m_lineBatch->line(cx * CHUNK_W, i, (cz + 1) * CHUNK_D,
-                                      (cx + 1) * CHUNK_W, i, (cz + 1) * CHUNK_D, 0, 0.8f, 0, 1);
-                    m_lineBatch->line((cx + 1) * CHUNK_W, i, (cz + 1) * CHUNK_D,
-                                      (cx + 1) * CHUNK_W, i, cz * CHUNK_D, 0, 0.8f, 0, 1);
-                    m_lineBatch->line((cx + 1) * CHUNK_W, i, cz * CHUNK_D,
-                                      cx * CHUNK_W, i, cz * CHUNK_D, 0, 0.8f, 0, 1);
-                }
-                m_lineBatch->render();
-            }
-
-            float length = 40.f;
-            // top-right: glm::vec3 tsl = glm::vec3(displayWidth - length - 4, -length - 4, 0.f);
-            glm::vec3 tsl = glm::vec3(displayWidth / 2, displayHeight / 2, 0.f);
-            glm::mat4 model(glm::translate(glm::mat4(1.f), tsl));
-            linesShader->uniformMatrix("u_projview", glm::ortho(
-                                                         0.f, (float)displayWidth,
-                                                         0.f, (float)displayHeight,
-                                                         -length, length) * model * glm::inverse(camera->rotation));
-
-            ctx.depthTest(false);
-            m_lineBatch->lineWidth(4.0f);
-            m_lineBatch->line(0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f);
-            m_lineBatch->line(0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 0.f, 1.f);
-            m_lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 1.f);
-            m_lineBatch->render();
-
-            ctx.depthTest(true);
-            m_lineBatch->lineWidth(2.0f);
-            m_lineBatch->line(0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f);
-            m_lineBatch->line(0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 0.f, 1.f);
-            m_lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 1.f);
-            m_lineBatch->render();
-        }
+        // if (m_level->player->debug) {
+        //     GfxContext ctx = context.sub();
+        //     ctx.depthTest(true);
+        //
+        //     linesShader->use();
+        //     if (settings.debug.showChunkBorders) {
+        //         linesShader->uniformMatrix("u_projview", camera->getProjView());
+        //         glm::vec3 coord = m_level->player->camera->position;
+        //         if (coord.x < 0) coord.x--;
+        //         if (coord.z < 0) coord.z--;
+        //         int cx = floordiv((int)coord.x, CHUNK_W);
+        //         int cz = floordiv((int)coord.z, CHUNK_D);
+        //         /*corner*/ {
+        //             m_lineBatch->line(cx * CHUNK_W, 0, cz * CHUNK_D,
+        //                               cx * CHUNK_W, CHUNK_H, cz * CHUNK_D, 0.8f, 0, 0.8f, 1);
+        //             m_lineBatch->line(cx * CHUNK_W, 0, (cz + 1) * CHUNK_D,
+        //                               cx * CHUNK_W, CHUNK_H, (cz + 1) * CHUNK_D, 0.8f, 0, 0.8f, 1);
+        //             m_lineBatch->line((cx + 1) * CHUNK_W, 0, cz * CHUNK_D,
+        //                               (cx + 1) * CHUNK_W, CHUNK_H, cz * CHUNK_D, 0.8f, 0, 0.8f, 1);
+        //             m_lineBatch->line((cx + 1) * CHUNK_W, 0, (cz + 1) * CHUNK_D,
+        //                               (cx + 1) * CHUNK_W, CHUNK_H, (cz + 1) * CHUNK_D, 0.8f, 0, 0.8f, 1);
+        //         }
+        //         for (int i = 2; i < CHUNK_W; i += 2) {
+        //             m_lineBatch->line(cx * CHUNK_W + i, 0, cz * CHUNK_D,
+        //                               cx * CHUNK_W + i, CHUNK_H, cz * CHUNK_D, 0, 0, 0.8f, 1);
+        //             m_lineBatch->line(cx * CHUNK_W + i, 0, (cz + 1) * CHUNK_D,
+        //                               cx * CHUNK_W + i, CHUNK_H, (cz + 1) * CHUNK_D, 0, 0, 0.8f, 1);
+        //         }
+        //         for (int i = 2; i < CHUNK_D; i += 2) {
+        //             m_lineBatch->line(cx * CHUNK_W, 0, cz * CHUNK_D + i,
+        //                               cx * CHUNK_W, CHUNK_H, cz * CHUNK_D + i, 0.8f, 0, 0, 1);
+        //             m_lineBatch->line((cx + 1) * CHUNK_W, 0, cz * CHUNK_D + i,
+        //                               (cx + 1) * CHUNK_W, CHUNK_H, cz * CHUNK_D + i, 0.8f, 0, 0, 1);
+        //         }
+        //         for (int i = 0; i < CHUNK_H; i += 2) {
+        //             m_lineBatch->line(cx * CHUNK_W, i, cz * CHUNK_D,
+        //                               cx * CHUNK_W, i, (cz + 1) * CHUNK_D, 0, 0.8f, 0, 1);
+        //             m_lineBatch->line(cx * CHUNK_W, i, (cz + 1) * CHUNK_D,
+        //                               (cx + 1) * CHUNK_W, i, (cz + 1) * CHUNK_D, 0, 0.8f, 0, 1);
+        //             m_lineBatch->line((cx + 1) * CHUNK_W, i, (cz + 1) * CHUNK_D,
+        //                               (cx + 1) * CHUNK_W, i, cz * CHUNK_D, 0, 0.8f, 0, 1);
+        //             m_lineBatch->line((cx + 1) * CHUNK_W, i, cz * CHUNK_D,
+        //                               cx * CHUNK_W, i, cz * CHUNK_D, 0, 0.8f, 0, 1);
+        //         }
+        //         m_lineBatch->render();
+        //     }
+        //
+        //     float length = 40.f;
+        //     // top-right: glm::vec3 tsl = glm::vec3(displayWidth - length - 4, -length - 4, 0.f);
+        //     glm::vec3 tsl = glm::vec3(displayWidth / 2, displayHeight / 2, 0.f);
+        //     glm::mat4 model(glm::translate(glm::mat4(1.f), tsl));
+        //     linesShader->uniformMatrix("u_projview", glm::ortho(
+        //                                                  0.f, (float)displayWidth,
+        //                                                  0.f, (float)displayHeight,
+        //                                                  -length, length) * model * glm::inverse(camera->rotation));
+        //
+        //     ctx.depthTest(false);
+        //     m_lineBatch->lineWidth(4.0f);
+        //     m_lineBatch->line(0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f);
+        //     m_lineBatch->line(0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 0.f, 1.f);
+        //     m_lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 1.f);
+        //     m_lineBatch->render();
+        //
+        //     ctx.depthTest(true);
+        //     m_lineBatch->lineWidth(2.0f);
+        //     m_lineBatch->line(0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f);
+        //     m_lineBatch->line(0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 0.f, 1.f);
+        //     m_lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 1.f);
+        //     m_lineBatch->render();
+        // }
     }
 
     void WorldRenderer::drawDebug(const GfxContext&context, Camera* camera) {

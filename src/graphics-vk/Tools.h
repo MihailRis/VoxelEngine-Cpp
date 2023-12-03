@@ -105,6 +105,22 @@ namespace tools {
                 return VK_POLYGON_MODE_LINE;
         }
     }
+
+    struct PushConstantRange {
+        uint32_t size;
+        uint32_t offset;
+        VkShaderStageFlags shaderStage;
+    };
+
+    template<typename ...Args>
+    std::array<VkPushConstantRange, sizeof...(Args)> getPushConstantRanges(Args &&...args) {
+        if constexpr (sizeof...(Args) == 0)
+            return {};
+        else
+            return {
+                { VkPushConstantRange{ args.shaderStage, args.offset, args.size }... }
+            };
+    }
 }
 
 #endif //TOOLS_H

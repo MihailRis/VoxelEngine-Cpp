@@ -162,8 +162,7 @@ void Window::viewport(int x, int y, int width, int height){
 }
 
 void Window::setCursorMode(int mode){
-	// TODO: compile time change
-	// glfwSetInputMode(window, GLFW_CURSOR, mode);
+	glfwSetInputMode(window, GLFW_CURSOR, mode);
 }
 
 void Window::resetScissor() {

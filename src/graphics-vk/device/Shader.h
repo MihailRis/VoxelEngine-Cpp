@@ -47,6 +47,7 @@ namespace vulkan {
 
         void uniform3f(std::string name, glm::vec3 xyz) override;
 
+        void pushConstant(const DynamicConstants& constants) override;
     private:
         GraphicsPipeline *getOrCreatePipeline();
         void updateUniform();

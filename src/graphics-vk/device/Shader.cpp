@@ -11,6 +11,7 @@
 #include "../Inistializers.h"
 #include "../VulkanContext.h"
 #include "../VulkanDefenitions.h"
+#include "../uniforms/DynamicConstants.h"
 
 inline std::vector<char> readFile(const std::filesystem::path &path) {
 
@@ -105,6 +106,13 @@ namespace vulkan {
         updateUniform();
     }
 
+    void Shader::pushConstant(const DynamicConstants &constants) {
+        const auto commandBuffer = VulkanContext::get().getCurrentState().commandbuffer;
+
+        if (commandBuffer == VK_NULL_HANDLE || m_pipeline == nullptr || m_type != ShaderType::MAIN) return;
+        vkCmdPushConstants(commandBuffer, m_pipeline->getLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(DynamicConstants), &constants);
+    }
+
     GraphicsPipeline* Shader::getOrCreatePipeline() {
         if (m_pipeline == nullptr)
             m_pipeline = GraphicsPipeline::create(m_stages, m_type);
@@ -115,25 +123,36 @@ namespace vulkan {
     void Shader::updateUniform() {
         const auto &context = VulkanContext::get();
         auto *stateBuffer = context.getUniformBuffer(UniformBuffersHolder::STATE);
-        auto *lightBuffer = context.getUniformBuffer(UniformBuffersHolder::LIGHT);
         auto *fogBuffer = context.getUniformBuffer(UniformBuffersHolder::FOG);
         auto *projectionViewBuffer = context.getUniformBuffer(UniformBuffersHolder::PROJECTION_VIEW);
         auto *backgroundBuffer = context.getUniformBuffer(UniformBuffersHolder::BACKGROUND);
         auto *skyboxBuffer = context.getUniformBuffer(UniformBuffersHolder::SKYBOX);
 
         const auto stateUniform = m_values.getStateUniform();
-        const auto lightUniform = m_values.getLightUniform();
         const auto fogUniform = m_values.getFogUniform();
         const auto projectionViewUniform = m_values.getProjectionView();
         const auto backgroundUniform = m_values.getBackgroundUniform();
         const auto skyboxUniform = m_values.getSkyboxUniform();
 
-        stateBuffer->uploadData(stateUniform);
-        lightBuffer->uploadData(lightUniform);
-        fogBuffer->uploadData(fogUniform);
-        projectionViewBuffer->uploadData(projectionViewUniform);
-        backgroundBuffer->uploadData(backgroundUniform);
-        skyboxBuffer->uploadData(skyboxUniform);
+        switch (m_type) {
+            case ShaderType::NONE:
+                return;
+            case ShaderType::MAIN: {
+                stateBuffer->uploadData(stateUniform);
+                fogBuffer->uploadData(fogUniform);
+            } break;
+            case ShaderType::LINES:
+            case ShaderType::UI: {
+                projectionViewBuffer->uploadData(projectionViewUniform);
+            } break;
+            case ShaderType::BACKGROUND: {
+                backgroundBuffer->uploadData(backgroundUniform);
+            } break;
+            case ShaderType::SKYBOX_GEN: {
+                skyboxBuffer->uploadData(skyboxUniform);
+            } break;
+        }
+
     }
 
     Shader* loadShader(std::string vertexFile, std::string fragmentFile, ShaderType type) {
