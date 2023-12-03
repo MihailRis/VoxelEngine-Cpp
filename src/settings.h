@@ -45,6 +45,7 @@ struct GraphicsSettings {
 	bool backlight = true;
 	/* Enable chunks frustum culling */
 	bool frustumCulling = true;
+	int skyboxResolution = 64 + 32;
 };
 
 struct DebugSettings {

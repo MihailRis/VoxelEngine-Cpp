@@ -45,13 +45,15 @@ WorldRenderer::WorldRenderer(Engine* engine,
 	  lineBatch(new LineBatch()),
 	  renderer( new ChunksRenderer(level, cache, engine->getSettings())) {
 
+	auto& settings = engine->getSettings();
 	level->events->listen(EVT_CHUNK_HIDDEN, 
 		[this](lvl_event_type type, Chunk* chunk) {
 			renderer->unload(chunk);
 		}
 	);
 	auto assets = engine->getAssets();
-	skybox = new Skybox(64, assets->getShader("skybox_gen"));
+	skybox = new Skybox(settings.graphics.skyboxResolution, 
+						assets->getShader("skybox_gen"));
 }
 
 WorldRenderer::~WorldRenderer() {

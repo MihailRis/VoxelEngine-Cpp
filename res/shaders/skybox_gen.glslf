@@ -244,10 +244,12 @@ uniform vec3 u_lightDir;
 uniform int u_quality;
 uniform float u_mie;
 
+#include <commons>
+
 void main() {
     vec3 camera_position = vec3(0.0f, PLANET_RADIUS+1.0f, 0.0f);
-    vec3 camera_vector = normalize(u_xaxis * v_coord.x + 
-                                   u_yaxis * -v_coord.y -
+    vec3 camera_vector = normalize(u_xaxis * v_coord.x*1.005 + 
+                                   u_yaxis * -v_coord.y*1.005 -
                                    u_zaxis);
     // hide darkness at horizon
     camera_vector.y = max(0.01, camera_vector.y)*(1.0-u_mie*0.08) + 0.08*u_mie;  
