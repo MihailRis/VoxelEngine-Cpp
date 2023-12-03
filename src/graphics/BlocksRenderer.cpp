@@ -306,23 +306,23 @@ void BlocksRenderer::blockCubeShaded(int x, int y, int z, const UVRegion(&texfac
 	static const ivec3 Y(0, 1, 0);
 	static const ivec3 Z(0, 0, 1);
 	
-	if (isOpen(x, y, z + 1, group)) {
+	if (isOpen(x+Z.x, y+Z.y, z+Z.z, group)) {
 		face(ivec3(x, y, z), X, Y, Z, texfaces[5], vec4(0.9f), rot == 1);
 	}
-	if (isOpen(x, y, z - 1, group)) {
-		face(ivec3(x + 1, y, z - 1), -X, Y, Z-Z-X, texfaces[4], vec4(0.75f), rot == 1);
+	if (isOpen(x-Z.x, y-Z.y, z-Z.z, group)) {
+		face(ivec3(x, y, z)+X-Z, -X, Y, Z-Z-X, texfaces[4], vec4(0.75f), rot == 1);
 	}
-	if (isOpen(x, y + 1, z, group)) {
-		face(ivec3(x, y + 1, z), X, -Z, Y-Y, texfaces[3], vec4(1.0f), rot == 1);
+	if (isOpen(x+Y.x, y+Y.y, z+Y.z, group)) {
+		face(ivec3(x, y, z)+Y, X, -Z, Y-Y, texfaces[3], vec4(1.0f), rot == 1);
 	}
-	if (isOpen(x, y - 1, z, group)) {
-		face(ivec3(x, y, z - 1), X, Z, -Y+Z, texfaces[2], vec4(0.6f), rot == 1);
+	if (isOpen(x-Y.x, y-Y.y, z-Y.z, group)) {
+		face(ivec3(x, y, z)-Z, X, Z, -Y+Z, texfaces[2], vec4(0.6f), rot == 1);
 	}
-	if (isOpen(x + 1, y, z, group)) {
-		face(ivec3(x + 1, y, z), -Z, Y, X-X, texfaces[1], vec4(0.8f), rot == 3);
+	if (isOpen(x+X.x, y+X.y, z+X.z, group)) {
+		face(ivec3(x, y, z)+X, -Z, Y, X-X, texfaces[1], vec4(0.8f), rot == 3);
 	}
-	if (isOpen(x - 1, y, z, group)) {
-		face(ivec3(x, y, z - 1), Z, Y, -X+Z, texfaces[0], vec4(0.7f), rot == 3);
+	if (isOpen(x-X.x, y-X.y, z-X.z, group)) {
+		face(ivec3(x, y, z)-Z, Z, Y, -X+Z, texfaces[0], vec4(0.7f), rot == 3);
 	}
 }
 
