@@ -45,67 +45,6 @@ bool AssetsLoader::loadNext() {
 	return status;
 }
 
-#include "../coders/png.h"
-#include "../graphics/Shader.h"
-#include "../graphics/ImageData.h"
-#include "../graphics/Texture.h"
-#include "../graphics/Atlas.h"
-#include "../graphics/Font.h"
-
-bool _load_shader(Assets* assets, const path& filename, const std::string& name) {
-	ShaderType type = toShaderType(name);
-	IShader* shader = vulkan::VulkanContext::isVulkanEnabled() ?
-		reinterpret_cast<IShader*>(vulkan::loadShader(filename.string() + ".vert.spv", filename.string() + ".frag.spv", type)) :
-		reinterpret_cast<IShader*>(Shader::loadShader(filename.string() + ".glslv", filename.string() + ".glslf"));
-	if (shader == nullptr) {
-		std::cerr << "failed to load shader '" << name << "'" << std::endl;
-		return false;
-	}
-	assets->store(shader, name);
-	return true;
-}
-
-bool _load_texture(Assets* assets, const path& filename, const std::string& name) {
-	ITexture* texture = png::load_texture(filename.string());
-	if (texture == nullptr) {
-		std::cerr << "failed to load texture '" << name << "'" << std::endl;
-		return false;
-	}
-	assets->store(texture, name);
-	return true;
-}
-
-bool _load_atlas(Assets* assets, const path& filename, const std::string& name) {
-	AtlasBuilder builder;
-	for (const auto& entry : std::filesystem::directory_iterator(filename)) {
-		std::filesystem::path file = entry.path();
-		if (file.extension() == ".png") {
-			std::string name = file.stem().string();
-			std::unique_ptr<ImageData> image (png::load_image(file.string()));
-			image->fixAlphaColor();
-			builder.add(name, image.release());
-		}
-	}
-	Atlas* atlas = builder.build(2);
-	assets->store(atlas, name);
-	return true;
-}
-
-bool _load_font(Assets* assets, const path& filename, const std::string& name) {
-	std::vector<ITexture*> pages;
-	for (size_t i = 0; i <= 4; i++) {
-		ITexture* texture = png::load_texture(filename.string() + "_" + std::to_string(i) + ".png");
-		if (texture == nullptr) {
-			std::cerr << "failed to load bitmap font '" << name << "' (missing page " << std::to_string(i) << ")" << std::endl;
-			return false;
-		}
-		pages.push_back(texture);
-	}
-	Font* font = new Font(pages, pages[0]->getHeight() / 16);
-	assets->store(font, name);
-	return true;
-}
-
 void AssetsLoader::createDefaults(AssetsLoader& loader) {
 	loader.addLoader(ASSET_SHADER, assetload::shader);
 	loader.addLoader(ASSET_TEXTURE, assetload::texture);

@@ -120,6 +120,7 @@ namespace vulkan {
         return m_pipeline.get();
     }
 
+    // TODO: optimize this
     void Shader::updateUniform() {
         const auto &context = VulkanContext::get();
         auto *stateBuffer = context.getUniformBuffer(UniformBuffersHolder::STATE);

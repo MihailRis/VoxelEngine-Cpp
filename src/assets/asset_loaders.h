@@ -7,8 +7,8 @@
 class Assets;
 
 namespace assetload {
-    bool texture(Assets* assets, 
-                 const std::filesystem::path filename, 
+    bool texture(Assets* assets,
+                 const std::filesystem::path filename,
                  const std::string name);
     bool shader(Assets* assets, 
                  const std::filesystem::path filename, 

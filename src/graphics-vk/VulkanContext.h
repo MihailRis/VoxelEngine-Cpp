@@ -42,7 +42,8 @@ namespace vulkan {
             FOG,
             PROJECTION_VIEW,
             BACKGROUND,
-            SKYBOX
+            SKYBOX,
+            APPLY
         };
 
         UniformBuffersHolder() = default;

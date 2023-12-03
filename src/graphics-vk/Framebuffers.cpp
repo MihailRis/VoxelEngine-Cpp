@@ -8,7 +8,7 @@
 #include "device/Swapchain.h"
 
 Framebuffers::Framebuffers(Device& device, Swapchain& swapchain, VkRenderPass renderPass) : m_device(device) {
-    auto imageCount = swapchain.getImages().size();
+    const auto imageCount = swapchain.getImages().size();
 
     m_framebuffers.resize(imageCount);
 

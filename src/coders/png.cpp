@@ -337,9 +337,15 @@ ITexture* png::load_texture(std::string filename) {
 		std::cerr << "Could not load image " << filename << std::endl;
 		return nullptr;
 	}
-	return vulkan::VulkanContext::isVulkanEnabled() ?
-		reinterpret_cast<ITexture*>(Image2d::from(image.get())) :
-		reinterpret_cast<ITexture*>(Texture::from(image.get()));
+
+	ITexture *texture = nullptr;
+#ifdef USE_VULKAN
+	texture = Image2d::from(image.get());
+#else
+	texture = Texture::from(image.get());
+#endif
+
+	return texture;
 }
 
 void png::write_image(std::string filename, const ImageData* image) {

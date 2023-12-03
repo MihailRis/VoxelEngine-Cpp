@@ -7,9 +7,9 @@
 #include "VulkanDefenitions.h"
 #include "../window/Window.h"
 #include "device/GraphicsPipeline.h"
+#include "uniforms/ApplyUniform.h"
 #include "uniforms/BackgroundUniform.h"
 #include "uniforms/FogUniform.h"
-#include "uniforms/LightUniform.h"
 #include "uniforms/ProjectionViewUniform.h"
 #include "uniforms/SkyboxUniform.h"
 #include "uniforms/StateUniform.h"
@@ -28,6 +28,7 @@ namespace vulkan {
         m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(ProjectionViewUniform)));
         m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(BackgroundUniform)));
         m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(SkyboxUniform)));
+        m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(ApplyUniform)));
     }
 
     const UniformBuffer* UniformBuffersHolder::operator[](Type index) const {

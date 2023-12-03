@@ -11,14 +11,15 @@
 #include <glm/glm.hpp>
 
 #include "Tools.h"
+#include "uniforms/ApplyUniform.h"
 #include "uniforms/BackgroundUniform.h"
 #include "uniforms/FogUniform.h"
-#include "uniforms/LightUniform.h"
 #include "uniforms/ProjectionViewUniform.h"
 #include "uniforms/SkyboxUniform.h"
 #include "uniforms/StateUniform.h"
 
 namespace vulkan {
+    // TODO: add array support
     using UniformValue = std::variant<std::monostate,
         float, int,
         glm::vec2, glm::vec3, glm::vec4,
@@ -61,15 +62,6 @@ namespace vulkan {
             return uniform;
         }
 
-        inline LightUniform getLightUniform() const {
-            LightUniform uniform{};
-
-            uniform.torchlightColor = getUniformValue<glm::vec3>("u_torchlightColor");
-            uniform.torchlightDistance = getUniformValue<float>("u_torchlightDistance");
-
-            return uniform;
-        }
-
         inline FogUniform getFogUniform() const {
             FogUniform uniform{};
 
@@ -98,12 +90,21 @@ namespace vulkan {
             return uniform;
         }
 
+        // TODO: set array
         inline SkyboxUniform getSkyboxUniform() const {
             SkyboxUniform uniform{};
 
             uniform.lightDir = getUniformValue<glm::vec3>("u_lightDir");
             uniform.quality = getUniformValue<int>("u_quality");
             uniform.mie = getUniformValue<float>("u_mie");
+
+            return uniform;
+        }
+
+        inline ApplyUniform getApplyUniform() const {
+            ApplyUniform uniform{};
+
+            uniform.apply = getUniformValue<glm::mat4>("u_apply");
 
             return uniform;
         }

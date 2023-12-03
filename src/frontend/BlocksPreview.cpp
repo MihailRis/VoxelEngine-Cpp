@@ -14,7 +14,7 @@
 using glm::vec4;
 using glm::vec3;
 
-BlocksPreview::BlocksPreview(Shader* shader, 
+BlocksPreview::BlocksPreview(IShader* shader,
                              Atlas* atlas, 
                              const ContentGfxCache* cache)
     : shader(shader), atlas(atlas), cache(cache) {

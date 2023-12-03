@@ -4,19 +4,19 @@
 #include "../typedefs.h"
 #include <glm/glm.hpp>
 
-class Shader;
+class IShader;
 class Atlas;
 class Batch3D;
 class Block;
 class ContentGfxCache;
 
 class BlocksPreview {
-    Shader* shader;
+    IShader* shader;
     Atlas* atlas;
     Batch3D* batch;
     const ContentGfxCache* const cache;
 public:
-    BlocksPreview(Shader* shader, Atlas* atlas, const ContentGfxCache* cache);
+    BlocksPreview(IShader* shader, Atlas* atlas, const ContentGfxCache* cache);
     ~BlocksPreview();
 
     void begin();

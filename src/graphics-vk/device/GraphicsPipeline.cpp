@@ -45,6 +45,7 @@ GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, VkPipelineLayout layout,
     const auto projectionViewBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::PROJECTION_VIEW)->getBufferInfo();
     const auto backgraundUniformInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::BACKGROUND)->getBufferInfo();
     const auto skyboxUniformInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::SKYBOX)->getBufferInfo();
+    const auto applyUniformBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::APPLY)->getBufferInfo();
 
     switch (shaderType) {
         case ShaderType::MAIN: {
@@ -83,6 +84,14 @@ GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, VkPipelineLayout layout,
 
             vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
         } break;
+        case ShaderType::UI3D: {
+            const std::array writeSets = {
+                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &projectionViewBufferInfo),
+                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 1, &applyUniformBufferInfo)
+            };
+
+            vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
+        } break;
         case ShaderType::NONE:
         default:
             break;
@@ -114,7 +123,7 @@ VkDescriptorSet GraphicsPipeline::getSamplerSet() const {
 }
 
 void GraphicsPipeline::bind(VkCommandBuffer commandBuffer) {
-     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
     const VkDescriptorSet sets[] = { m_uniformSet };
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_layout, 0, 1, sets, 0, nullptr);
 
@@ -157,6 +166,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
             throw std::runtime_error("Failed to initialize pipeline");
         case ShaderType::MAIN:
         case ShaderType::UI:
+        case ShaderType::UI3D:
         case ShaderType::BACKGROUND:
             descriptorBindingFlags.emplace_back(VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT);
         break;
@@ -225,8 +235,8 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     VkViewport viewport{};
     viewport.x = 0.f;
     viewport.y = 0.f;
-    viewport.width = extent2D.width;
-    viewport.height = extent2D.height;
+    viewport.width = static_cast<float>(extent2D.width);
+    viewport.height = static_cast<float>(extent2D.height);
     viewport.minDepth = 0.f;
     viewport.maxDepth = 1.f;
 

@@ -6,9 +6,12 @@
 #include "../coders/png.h"
 #include "../graphics/Shader.h"
 #include "../graphics/Texture.h"
+#include "../graphics-base/IShader.h"
+#include "../graphics-base/ITexture.h"
 #include "../graphics/ImageData.h"
 #include "../graphics/Atlas.h"
 #include "../graphics/Font.h"
+#include "../graphics-vk/device/Shader.h"
 
 using std::string;
 using std::vector;
@@ -20,7 +23,7 @@ namespace fs = std::filesystem;
 bool assetload::texture(Assets* assets, 
                         const path filename, 
                         const string name) {
-	Texture* texture = png::load_texture(filename.string());
+	ITexture* texture = png::load_texture(filename.string());
 	if (texture == nullptr) {
 		std::cerr << "failed to load texture '" << name << "'" << std::endl;
 		return false;
@@ -38,8 +41,13 @@ bool assetload::shader(Assets* assets,
     string vertexSource = files::read_string(vertexFile);
     string fragmentSource = files::read_string(fragmentFile);
 
-	Shader* shader = Shader::loadShader(vertexFile.string(), fragmentFile.string(),
+#ifdef USE_VULKAN
+	const ShaderType shaderType = toShaderType(name);
+	IShader* shader = vulkan::loadShader(filename.string() + "", filename.string() + "", shaderType);
+#else
+	IShader* shader = Shader::loadShader(vertexFile.string(), fragmentFile.string(),
                                         vertexSource, fragmentSource);
+#endif
 	if (shader == nullptr) {
 		std::cerr << "failed to load shader '" << name << "'" << std::endl;
 		return false;
@@ -69,10 +77,10 @@ bool assetload::atlas(Assets* assets,
 bool assetload::font(Assets* assets, 
                         const path filename, 
                         const string name) {
-	vector<Texture*> pages;
+	vector<ITexture*> pages;
 	for (size_t i = 0; i <= 4; i++) {
         string name = filename.string() + "_" + std::to_string(i) + ".png";
-		Texture* texture = png::load_texture(name);
+		ITexture* texture = png::load_texture(name);
 		if (texture == nullptr) {
 			std::cerr << "failed to load bitmap font '" << name;
             std::cerr << "' (missing page " << std::to_string(i) << ")";
@@ -81,7 +89,7 @@ bool assetload::font(Assets* assets,
 		}
 		pages.push_back(texture);
 	}
-	Font* font = new Font(pages, pages[0]->height / 16);
+	Font* font = new Font(pages, pages[0]->getHeight() / 16);
 	assets->store(font, name);
 	return true;
 }

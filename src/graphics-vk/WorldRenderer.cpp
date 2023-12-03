@@ -24,11 +24,10 @@
 #include "../assets/Assets.h"
 #include "../content/Content.h"
 #include "../objects/Player.h"
-#include "../objects/player_control.h"
 #include "../maths/voxmaths.h"
 
 namespace vulkan {
-    bool WorldRenderer::drawChunk(size_t index, Camera* camera, IShader* shader, bool occlusion) {
+    bool WorldRenderer::drawChunk(size_t index, Camera* camera, IShader* shader, bool culling) {
         std::shared_ptr<Chunk> chunk = m_level->chunks->chunks[index];
         if (!chunk->isLighted())
             return false;
@@ -37,19 +36,19 @@ namespace vulkan {
             return false;
 
         // Simple frustum culling
-        if (occlusion) {
+        if (culling) {
             glm::vec3 min(chunk->x * CHUNK_W, chunk->bottom, chunk->z * CHUNK_D);
             glm::vec3 max(chunk->x * CHUNK_W + CHUNK_W, chunk->top, chunk->z * CHUNK_D + CHUNK_D);
 
             if (!m_frustumCulling->IsBoxVisible(min, max)) return false;
         }
-        glm::mat4 model = glm::translate(mat4(1.0f), vec3(chunk->x * CHUNK_W, 0.0f, chunk->z * CHUNK_D + 1));
+        const glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(chunk->x * CHUNK_W, 0.0f, chunk->z * CHUNK_D + 1));
 
         auto &constant = m_constantses.at(m_constantIndex);
         constant.model = model;
 
-        glm::vec3 torchLightColor = constant.torchlightColor;
-        float torchLightDistance = constant.torchlightDistance;
+        const glm::vec3 torchLightColor = constant.torchlightColor;
+        const float torchLightDistance = constant.torchlightDistance;
 
         shader->pushConstant(constant);
 
@@ -67,7 +66,7 @@ namespace vulkan {
         return true;
     }
 
-    void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, IShader* shader, bool occlusion) {
+    void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, IShader* shader) {
         std::vector<size_t> indices;
         for (size_t i = 0; i < chunks->volume; i++) {
             std::shared_ptr<Chunk> chunk = chunks->chunks[i];
@@ -85,10 +84,14 @@ namespace vulkan {
                     (b->x + 0.5f - px) * (b->x + 0.5f - px) + (b->z + 0.5f - pz) * (b->z + 0.5f - pz));
         });
 
-        if (occlusion) m_frustumCulling->update(camera->getProjView());
+        bool culling = m_engine->getSettings().graphics.frustumCulling;
+
+        if (culling) {
+            m_frustumCulling->update(camera->getProjView());
+        }
         chunks->visible = 0;
         for (const auto &indice : indices) {
-            chunks->visible += drawChunk(indice, camera, shader, occlusion);
+            chunks->visible += drawChunk(indice, camera, shader, culling);
         }
     }
 
@@ -113,7 +116,7 @@ namespace vulkan {
         delete m_frustumCulling;
     }
 
-    void WorldRenderer::draw(const GfxContext&context, Camera* camera, bool occlusion) {
+    void WorldRenderer::draw(const GfxContext&context, Camera* camera) {
         m_constantses.clear();
         m_constantIndex = 0;
         const EngineSettings &settings = m_engine->getSettings();
@@ -162,7 +165,7 @@ namespace vulkan {
             };
 
             m_constantses.emplace_back(DynamicConstants{
-                mat4(1.0),
+                glm::mat4(1.0),
                 torchlightColor,
                 6.0f
             });
@@ -170,7 +173,7 @@ namespace vulkan {
             atlas->getTexture()->bind();
 
             Chunks* chunks = m_level->chunks;
-            drawChunks(chunks, camera, shader, occlusion);
+            drawChunks(chunks, camera, shader);
 
 
             // if (m_level->playerController->selectedBlockId != -1) {

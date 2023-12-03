@@ -15,9 +15,11 @@ using std::shared_ptr;
 using std::unordered_map;
 
 inline ITexture* createTexture(ImageData *data) {
-    return vulkan::VulkanContext::isVulkanEnabled() ?
-        reinterpret_cast<ITexture*>(Image2d::from(data)) :
-        reinterpret_cast<ITexture*>(Texture::from(data));
+#ifdef USE_VULKAN
+    return Image2d::from(data);
+#else
+    return Texture::from(data);
+#endif
 }
 
 Atlas::Atlas(ImageData* image, 

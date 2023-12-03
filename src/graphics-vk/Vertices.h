@@ -49,6 +49,43 @@ struct VertexMain {
     }
 };
 
+struct Vertex3DUI {
+    glm::vec3 position;
+    glm::vec2 textureCoord;
+    glm::vec4 color;
+
+    static VkVertexInputBindingDescription getBinding() {
+        VkVertexInputBindingDescription inputBindingDescription{};
+        inputBindingDescription.binding = 0;
+        inputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+        inputBindingDescription.stride = sizeof(VertexMain);
+
+        return inputBindingDescription;
+    }
+
+    static std::vector<VkVertexInputAttributeDescription> getAttributes() {
+        VkVertexInputAttributeDescription posAttrib{};
+        posAttrib.binding = 0;
+        posAttrib.location = 0;
+        posAttrib.format = VK_FORMAT_R32G32B32_SFLOAT;
+        posAttrib.offset = offsetof(Vertex3DUI, position);
+
+        VkVertexInputAttributeDescription texCoordAttrib{};
+        texCoordAttrib.binding = 0;
+        texCoordAttrib.location = 1;
+        texCoordAttrib.format = VK_FORMAT_R32G32_SFLOAT;
+        texCoordAttrib.offset = offsetof(Vertex3DUI, textureCoord);
+
+        VkVertexInputAttributeDescription lightAttrib{};
+        lightAttrib.binding = 0;
+        lightAttrib.location = 2;
+        lightAttrib.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+        lightAttrib.offset = offsetof(Vertex3DUI, color);
+
+        return { posAttrib, texCoordAttrib, lightAttrib };
+    }
+};
+
 struct VertexLines {
     glm::vec3 position;
     glm::vec4 color;
@@ -149,6 +186,8 @@ inline VkVertexInputBindingDescription getVertexBindingByType(ShaderType type) {
         case ShaderType::BACKGROUND:
         case ShaderType::SKYBOX_GEN:
             return VertexBackSkyGen::getBinding();
+        case ShaderType::UI3D:
+            return Vertex3DUI::getBinding();
         case ShaderType::NONE:
         default:
             throw std::runtime_error("");
@@ -168,6 +207,8 @@ inline std::vector<VkVertexInputAttributeDescription> getVertexAttributeDescript
         case ShaderType::BACKGROUND:
         case ShaderType::SKYBOX_GEN:
             return VertexBackSkyGen::getAttributes();
+        case ShaderType::UI3D:
+            return Vertex3DUI::getAttributes();
     }
     return {};
 }

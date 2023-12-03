@@ -62,7 +62,7 @@ HudRenderer::HudRenderer(Engine* engine,
 						  vulkan::WorldRenderer* renderer)
             : level(level), 
 			  assets(engine->getAssets()), 
-			  batch(new Batch2D(1024)),
+			  batch(new vulkan::Batch2D(1024)),
 			  gui(engine->getGUI()),
 			  cache(cache),
 			  renderer(renderer) {
@@ -207,7 +207,7 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 
 	const Viewport& viewport = ctx.getViewport();
 	const uint width = viewport.getWidth();
-	Shader* uiShader = assets->getShader("ui");
+	IShader* uiShader = assets->getShader("ui");
 
 	uint count = contentIds->countBlockDefs();
 	uint icon_size = 48;
@@ -333,7 +333,6 @@ void HudRenderer::draw(const GfxContext& ctx){
 		Block* cblock = contentIds->getBlockDef(player->choosenBlock);
 		assert(cblock != nullptr);
 		blocksPreview->draw(cblock, width - 56, uicamera->fov - 56, 48, vec4(1.0f));
-		//drawBlockPreview(cblock, width - 56, uicamera->fov - 56, 48, 48, vec4(1.0f));
 	}
 	uishader->use();
 	batch->begin();
