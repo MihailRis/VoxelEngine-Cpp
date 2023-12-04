@@ -14,9 +14,9 @@ using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 
-#define KEY_ESCAPE 256
-#define KEY_ENTER 257
-#define KEY_BACKSPACE 259
+const uint KEY_ESCAPE = 256;
+const uint KEY_ENTER = 257;
+const uint KEY_BACKSPACE = 259;
 
 using namespace gui;
 

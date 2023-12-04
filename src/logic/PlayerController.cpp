@@ -15,15 +15,15 @@
 
 #include "../core_defs.h"
 
-#define CAM_SHAKE_OFFSET 0.025f
-#define CAM_SHAKE_OFFSET_Y 0.031f
-#define CAM_SHAKE_SPEED 1.6f
-#define CAM_SHAKE_DELTA_K 10.0f
-#define ZOOM_SPEED 16.0f
-#define CROUCH_ZOOM 0.9f
-#define RUN_ZOOM 1.1f
-#define C_ZOOM 0.1f
-#define CROUCH_SHIFT_Y -0.2f
+const float CAM_SHAKE_OFFSET = 0.025f;
+const float CAM_SHAKE_OFFSET_Y = 0.031f;
+const float CAM_SHAKE_SPEED = 1.6f;
+const float CAM_SHAKE_DELTA_K = 10.0f;
+const float ZOOM_SPEED = 16.0f;
+const float CROUCH_ZOOM = 0.9f;
+const float RUN_ZOOM = 1.1f;
+const float C_ZOOM = 0.1f;
+const float CROUCH_SHIFT_Y = -0.2f;
 
 using glm::vec2;
 using glm::vec3;

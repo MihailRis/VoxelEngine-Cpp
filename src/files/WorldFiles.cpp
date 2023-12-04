@@ -25,14 +25,14 @@
 #include <fstream>
 #include <iostream>
 
-#define SECTION_POSITION 1
-#define SECTION_ROTATION 2
-#define SECTION_FLAGS 3
-#define PLAYER_FLAG_FLIGHT 0x1
-#define PLAYER_FLAG_NOCLIP 0x2
+const int SECTION_POSITION = 1;
+const int SECTION_ROTATION = 2;
+const int SECTION_FLAGS = 3;
+const int PLAYER_FLAG_FLIGHT = 0x1;
+const int PLAYER_FLAG_NOCLIP = 0x2;
 
-#define WORLD_SECTION_MAIN 1
-#define WORLD_SECTION_DAYNIGHT 2
+const int WORLD_SECTION_MAIN = 1;
+const int WORLD_SECTION_DAYNIGHT = 2;
 
 using glm::ivec2;
 using glm::vec3;
