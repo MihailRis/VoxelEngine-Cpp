@@ -22,6 +22,9 @@ struct CoordSystem {
 	glm::ivec3 axisZ;
 	// Grid 3d position fix offset (for negative vectors)
 	glm::ivec3 fix;
+	glm::ivec3 fix2;
+
+	void transform(AABB& aabb);
 };
 
 struct BlockRotProfile {
@@ -30,7 +33,7 @@ struct BlockRotProfile {
 	/* Wood logs, pillars, pipes
 	   3 orientations supported
 	 */
-	static BlockRotProfile PIPE;
+	static const BlockRotProfile PIPE;
 };
 
 enum class BlockModel {

@@ -43,26 +43,35 @@ class BlocksRenderer {
 				const glm::ivec3& axisY,
 				const glm::ivec3& axisZ);
 
-	void face(const glm::vec3& coord, float w, float h,
-		const glm::vec3& axisX,
-		const glm::vec3& axisY,
-		const UVRegion& region,
-		const glm::vec4(&lights)[4],
-		const glm::vec4& tint);
+	void vertex(const glm::vec3& coord, float u, float v, 
+				const glm::vec4& brightness,
+				const glm::ivec3& axisX,
+				const glm::ivec3& axisY,
+				const glm::ivec3& axisZ);
 
 	void face(const glm::vec3& coord, float w, float h,
 		const glm::vec3& axisX,
 		const glm::vec3& axisY,
 		const UVRegion& region,
 		const glm::vec4(&lights)[4],
-		const glm::vec4& tint,
-		bool rotated);
+		const glm::vec4& tint);
 	
 	void face(const glm::ivec3& coord,
 		const glm::ivec3& axisX,
 		const glm::ivec3& axisY,
 		const glm::ivec3& axisZ,
 		const glm::ivec3& laxisZ,
+		const UVRegion& region);
+
+	void face(const glm::ivec3& coord,
+		const glm::ivec3& axisX,
+		const glm::ivec3& axisY,
+		const glm::ivec3& axisZ,
+		const glm::ivec3& laxisZ,
+		const glm::vec3& offset,
+		float width,
+		float height,
+		float depth,
 		const UVRegion& region);
 
 	void face(const glm::vec3& coord, float w, float h,

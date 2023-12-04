@@ -110,6 +110,7 @@ vec3 PlayerController::selectedBlockPosition;
 vec3 PlayerController::selectedPointPosition;
 vec3 PlayerController::selectedBlockNormal;
 int PlayerController::selectedBlockId = -1;
+int PlayerController::selectedBlockStates = 0;
 
 PlayerController::PlayerController(Level* level, const EngineSettings& settings) 
 	: level(level), 
@@ -133,6 +134,7 @@ void PlayerController::update(float delta, bool input, bool pause) {
 		updateInteraction();
 	} else {
 		selectedBlockId = -1;
+		selectedBlockStates = 0;
 	}
 }
 
@@ -207,6 +209,7 @@ void PlayerController::updateInteraction(){
 	if (vox != nullptr){
 		player->selectedVoxel = *vox;
 		selectedBlockId = vox->id;
+		selectedBlockStates = vox->states;
 		selectedBlockPosition = iend;
 		selectedPointPosition = end;
 		selectedBlockNormal = norm;
@@ -250,5 +253,6 @@ void PlayerController::updateInteraction(){
 		}
 	} else {
 		selectedBlockId = -1;
+		selectedBlockStates = 0;
 	}
 }
