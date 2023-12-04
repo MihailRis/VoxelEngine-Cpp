@@ -73,6 +73,7 @@ namespace vulkan {
         UniformBuffersHolder m_uniformBuffersHolder;
 
         FrameData m_frameDatas[MAX_FRAMES_IN_FLIGHT]{};
+        // TODO: test semaphires in frame data array
         VkSemaphore m_presentSemaphore, m_renderSemaphore, m_uiRenderSemaphore;
         VkFence m_renderFence;
 

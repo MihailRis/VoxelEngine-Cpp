@@ -4,6 +4,8 @@
 
 #include "Batch2D.h"
 
+// TODO: optimize for vulkan
+
 GfxContext::GfxContext(const GfxContext* parent, Viewport& viewport, Batch2D* g2d)
     : parent(parent), viewport(viewport), g2d(g2d) {
 }
@@ -12,12 +14,12 @@ GfxContext::~GfxContext() {
     if (parent == nullptr)
         return;
     if (depthTest_ != parent->depthTest_) {
-        if (depthTest_) glDisable(GL_DEPTH_TEST);
-        else glEnable(GL_DEPTH_TEST);
+        // if (depthTest_) glDisable(GL_DEPTH_TEST);
+        // else glEnable(GL_DEPTH_TEST);
     }
     if (cullFace_ != parent->cullFace_) {
-        if (cullFace_) glDisable(GL_CULL_FACE);
-        else glEnable(GL_CULL_FACE);
+        // if (cullFace_) glDisable(GL_CULL_FACE);
+        // else glEnable(GL_CULL_FACE);
     }
 }
 
@@ -41,9 +43,9 @@ void GfxContext::depthTest(bool flag) {
         return;
     depthTest_ = flag;
     if (depthTest_) {
-        glEnable(GL_DEPTH_TEST);
+        // glEnable(GL_DEPTH_TEST);
     } else {
-        glDisable(GL_DEPTH_TEST);
+        // glDisable(GL_DEPTH_TEST);
     }
 }
 
@@ -52,8 +54,8 @@ void GfxContext::cullFace(bool flag) {
         return;
     cullFace_ = flag;
     if (cullFace_) {
-        glEnable(GL_CULL_FACE);
+        // glEnable(GL_CULL_FACE);
     } else {
-        glDisable(GL_CULL_FACE);
+        // glDisable(GL_CULL_FACE);
     }
 }

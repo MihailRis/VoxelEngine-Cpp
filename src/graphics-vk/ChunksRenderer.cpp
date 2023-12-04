@@ -6,7 +6,7 @@
 
 #include "../world/Level.h"
 #include "../voxels/Chunk.h"
-#include "BlocksRenderer.h"
+#include "../graphics/BlocksRenderer.h"
 #include "Mesh.h"
 
 namespace vulkan {
@@ -22,7 +22,7 @@ namespace vulkan {
 
     std::shared_ptr<Mesh<VertexMain>> ChunksRenderer::render(Chunk* chunk) {
         chunk->setModified(false);
-        auto* mesh = m_renderer->render(chunk, 16, m_level->chunksStorage);
+        auto *mesh = m_renderer->renderVulkanMesh(chunk, 16, m_level->chunksStorage);
         auto sptr = std::shared_ptr<Mesh<VertexMain>>(mesh);
         m_meshes[glm::ivec2(chunk->x, chunk->z)] = sptr;
         return sptr;

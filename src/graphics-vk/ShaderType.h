@@ -29,7 +29,7 @@ inline ShaderType toShaderType(const std::string &name) {
         return ShaderType::BACKGROUND;
     if (name == "skybox_gen")
         return ShaderType::SKYBOX_GEN;
-    if (name == "UI3D")
+    if (name == "ui3d")
         return ShaderType::UI3D;
 
     return ShaderType::NONE;

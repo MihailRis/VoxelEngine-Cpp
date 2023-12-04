@@ -105,7 +105,7 @@ void Engine::mainloop() {
 
 		vulkan::VulkanContext::get().draw();
 
-		Window::swapInterval(settings.display.swapInterval);
+		// Window::swapInterval(settings.display.swapInterval);
 		Window::swapBuffers();
 		Events::pullEvents();
 	}

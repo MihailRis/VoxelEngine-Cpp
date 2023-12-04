@@ -91,9 +91,9 @@ Instance Instance::create() {
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = "Voxel Engine";
-    appInfo.applicationVersion = VK_MAKE_VERSION(0, 13, 0);
+    appInfo.applicationVersion = ENGINE_VERSION_VALUE;
     appInfo.pEngineName = "Voxel Engine";
-    appInfo.applicationVersion = VK_MAKE_VERSION(0, 13, 0);
+    appInfo.engineVersion = ENGINE_VERSION_VALUE;
     appInfo.apiVersion = VK_API_VERSION_1_3;
 
     VkInstanceCreateInfo createInfo{};

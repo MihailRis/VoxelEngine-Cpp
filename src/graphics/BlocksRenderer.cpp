@@ -43,8 +43,8 @@ BlocksRenderer::~BlocksRenderer() {
 }
 
 void BlocksRenderer::vertex(const vec3& coord,
-	float u, float v,
-	const vec4& light) {
+                            float u, float v,
+                            const vec4& light) {
 	vertexBuffer[vertexOffset++] = coord.x;
 	vertexBuffer[vertexOffset++] = coord.y;
 	vertexBuffer[vertexOffset++] = coord.z;
@@ -425,6 +425,25 @@ void BlocksRenderer::render(const voxel* voxels, int atlas_size) {
 		}
 	}
 }
+
+#ifdef USE_VULKAN
+vulkan::Mesh<VertexMain>* BlocksRenderer::renderVulkanMesh(const Chunk* chunk, int atlas_size,
+	const ChunksStorage* chunks) {
+	this->chunk = chunk;
+	this->chunk = chunk;
+	voxelsBuffer->setPosition(chunk->x * CHUNK_W - 1, 0, chunk->z * CHUNK_D - 1);
+	chunks->getVoxels(voxelsBuffer, settings.graphics.backlight);
+	overflow = false;
+	vertexOffset = 0;
+	indexOffset = indexSize = 0;
+	const voxel* voxels = chunk->voxels;
+	render(voxels, atlas_size);
+
+	const VertexMain *vertices = reinterpret_cast<VertexMain *>(vertexBuffer);
+	auto *mesh = new vulkan::Mesh(vertices, vertexOffset / VERTEX_SIZE, indexBuffer, indexSize);
+	return mesh;
+}
+#endif
 
 Mesh* BlocksRenderer::render(const Chunk* chunk, int atlas_size, const ChunksStorage* chunks) {
 	this->chunk = chunk;

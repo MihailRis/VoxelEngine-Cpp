@@ -16,11 +16,11 @@ class Chunk;
 struct EngineSettings;
 class ContentGfxCache;
 class Level;
+class BlocksRenderer;
 
 namespace vulkan {
 
     template<typename T> class Mesh;
-    class BlocksRenderer;
 
     class ChunksRenderer {
         BlocksRenderer *m_renderer;

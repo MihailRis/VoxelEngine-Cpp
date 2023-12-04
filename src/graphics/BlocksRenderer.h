@@ -7,6 +7,8 @@
 #include "../typedefs.h"
 #include "../voxels/voxel.h"
 #include "../settings.h"
+#include "../graphics-vk/Mesh.h"
+#include "../graphics-vk/VulkanContext.h"
 
 class Content;
 class Mesh;
@@ -94,6 +96,10 @@ public:
 	BlocksRenderer(size_t capacity, const Content* content, const ContentGfxCache* cache, const EngineSettings& settings);
 	virtual ~BlocksRenderer();
 
+#ifdef USE_VULKAN
+	vulkan::Mesh<VertexMain> *renderVulkanMesh(const Chunk* chunk, int atlas_size, const ChunksStorage* chunks);
+#endif
+	
 	Mesh* render(const Chunk* chunk, int atlas_size, const ChunksStorage* chunks);
 	VoxelsVolume* getVoxelsBuffer() const;
 };

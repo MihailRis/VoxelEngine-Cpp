@@ -68,9 +68,10 @@ HudRenderer::HudRenderer(Engine* engine,
 			  renderer(renderer) {
 	auto menu = gui->getMenu();
 	batch = new vulkan::Batch2D(1024);
-	blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
-									  assets->getAtlas("blocks"),
-									  cache);
+	// TODO: create batch3D for vulkan
+	// blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
+	// 								  assets->getAtlas("blocks"),
+	// 								  cache);
 
 	uicamera = new Camera(vec3(), 1);
 	uicamera->perspective = false;
@@ -234,31 +235,31 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 	batch->render();
 
 	// blocks & items
-	blocksPreview->begin();
-	{
-		Window::clearDepth();
-		GfxContext subctx = ctx.sub();
-		subctx.depthTest(true);
-		subctx.cullFace(true);
-		for (uint i = 0; i < count-1; i++) {
-			Block* cblock = contentIds->getBlockDef(i+1);
-			if (cblock == nullptr)
-				break;
-			int x = xs + (icon_size+interval) * (i % inv_cols);
-			int y = ys + (icon_size+interval) * (i / inv_cols);
-			if (mx > x && mx < x + (int)icon_size && my > y && my < y + (int)icon_size) {
-				tint.r *= 1.2f;
-				tint.g *= 1.2f;
-				tint.b *= 1.2f;
-				if (Events::jclicked(mousecode::BUTTON_1)) {
-					player->choosenBlock = i+1;
-				}
-			} else {
-				tint = vec4(1.0f);
-			}
-			blocksPreview->draw(cblock, x, y, icon_size, tint);
-		}
-	}
+	// blocksPreview->begin();
+	// {
+	// 	Window::clearDepth();
+	// 	GfxContext subctx = ctx.sub();
+	// 	subctx.depthTest(true);
+	// 	subctx.cullFace(true);
+	// 	for (uint i = 0; i < count-1; i++) {
+	// 		Block* cblock = contentIds->getBlockDef(i+1);
+	// 		if (cblock == nullptr)
+	// 			break;
+	// 		int x = xs + (icon_size+interval) * (i % inv_cols);
+	// 		int y = ys + (icon_size+interval) * (i / inv_cols);
+	// 		if (mx > x && mx < x + (int)icon_size && my > y && my < y + (int)icon_size) {
+	// 			tint.r *= 1.2f;
+	// 			tint.g *= 1.2f;
+	// 			tint.b *= 1.2f;
+	// 			if (Events::jclicked(mousecode::BUTTON_1)) {
+	// 				player->choosenBlock = i+1;
+	// 			}
+	// 		} else {
+	// 			tint = vec4(1.0f);
+	// 		}
+	// 		blocksPreview->draw(cblock, x, y, icon_size, tint);
+	// 	}
+	// }
 	uiShader->use();
 }
 
@@ -323,17 +324,17 @@ void HudRenderer::draw(const GfxContext& ctx){
 	batch->setColor(vec4(1.0f));
 	batch->render();
 
-	blocksPreview->begin();
-	{
-		Window::clearDepth();
-		GfxContext subctx = ctx.sub();
-		subctx.depthTest(true);
-		subctx.cullFace(true);
-
-		Block* cblock = contentIds->getBlockDef(player->choosenBlock);
-		assert(cblock != nullptr);
-		blocksPreview->draw(cblock, width - 56, uicamera->fov - 56, 48, vec4(1.0f));
-	}
+	// blocksPreview->begin();
+	// {
+	// 	Window::clearDepth();
+	// 	GfxContext subctx = ctx.sub();
+	// 	subctx.depthTest(true);
+	// 	subctx.cullFace(true);
+	//
+	// 	Block* cblock = contentIds->getBlockDef(player->choosenBlock);
+	// 	assert(cblock != nullptr);
+	// 	blocksPreview->draw(cblock, width - 56, uicamera->fov - 56, 48, vec4(1.0f));
+	// }
 	uishader->use();
 	batch->begin();
 

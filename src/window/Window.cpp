@@ -121,11 +121,16 @@ int Window::initialize(DisplaySettings& settings){
 		return -1;
 	}
 
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_SAMPLES, settings.samples);
+
+#ifdef USE_VULKAN
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+#else
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-	glfwWindowHint(GLFW_SAMPLES, settings.samples);
+#endif
 
 	window = glfwCreateWindow(width, height, settings.title, nullptr, nullptr);
 	if (window == nullptr){
@@ -133,6 +138,7 @@ int Window::initialize(DisplaySettings& settings){
 		glfwTerminate();
 		return -1;
 	}
+#ifndef USE_VULKAN
 	glfwMakeContextCurrent(window);
 
 	glewExperimental = GL_TRUE;
@@ -147,6 +153,7 @@ int Window::initialize(DisplaySettings& settings){
 	glClearColor(0.0f,0.0f,0.0f, 1);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#endif
 
 	Events::initialize();
 	glfwSetKeyCallback(window, key_callback);
@@ -160,11 +167,15 @@ int Window::initialize(DisplaySettings& settings){
 		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
 	}
+#ifdef USE_VULKAN
+	// TODO: add vendor and renderer
+#else
 	glfwSwapInterval(settings.swapInterval);
 	const GLubyte* vendor = glGetString(GL_VENDOR);
 	const GLubyte* renderer = glGetString(GL_RENDERER);
 	cout << "GL Vendor: " << (char*)vendor << endl;
 	cout << "GL Renderer: " << (char*)renderer << endl;
+#endif
 	return 0;
 }
 
