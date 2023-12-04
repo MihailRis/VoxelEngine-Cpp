@@ -389,6 +389,7 @@ bool WorldFiles::readPlayer(Player* player) {
 	position.x = posarr->num(0);
 	position.y = posarr->num(1);
 	position.z = posarr->num(2);
+	player->camera->position = position;
 
 	json::JArray* rotarr = root->arr("rotation");
 	player->camX = rotarr->num(0);

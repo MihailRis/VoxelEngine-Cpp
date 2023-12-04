@@ -62,9 +62,8 @@ class BlocksRenderer {
 		const glm::ivec3& axisX,
 		const glm::ivec3& axisY,
 		const glm::ivec3& axisZ,
-		const UVRegion& region,
-		const glm::vec4& tint,
-		bool rotated);
+		const glm::ivec3& laxisZ,
+		const UVRegion& region);
 
 	void face(const glm::vec3& coord, float w, float h,
 		const glm::vec3& axisX,

@@ -132,28 +132,24 @@ void BlocksRenderer::face(const ivec3& coord,
 						  const ivec3& axisX,
 						  const ivec3& axisY,
 						  const ivec3& axisZ,
-						  const UVRegion& region,
-						  const vec4& tint,
-						  bool rotated) {
+						  const ivec3& laxisZ,
+						  const UVRegion& region) {
 	if (vertexOffset + VERTEX_SIZE * 4 > capacity) {
 		overflow = true;
 		return;
 	}
+
+	const vec3 sunVector = vec3(0.431934f, 0.863868f, 0.259161f);
+	float d = glm::dot(vec3(axisZ.x, axisZ.y, axisZ.z), sunVector);
+	d = 0.75f +  d*0.25f;
+
+	vec4 tint(d);
 		
-	if (rotated) {
-		vertex(coord, region.u2, region.v1, tint, axisX, axisY, axisZ);
-		vertex(coord + axisX, region.u2, region.v2, tint, axisX, axisY, axisZ);
-		vertex(coord + axisX + axisY, region.u1, region.v2, tint, axisX, axisY, axisZ);
-		vertex(coord + axisY, region.u1, region.v1, tint, axisX, axisY, axisZ);
-		index(0, 1, 2, 0, 2, 3);
-	}
-	else {
-		vertex(coord, region.u1, region.v1, tint, axisX, axisY, axisZ);
-		vertex(coord + axisX, region.u2, region.v1, tint, axisX, axisY, axisZ);
-		vertex(coord + axisX + axisY, region.u2, region.v2, tint, axisX, axisY, axisZ);
-		vertex(coord + axisY, region.u1, region.v2, tint, axisX, axisY, axisZ);
-		index(0, 1, 2, 0, 2, 3);
-	}		
+	vertex(coord, region.u1, region.v1, tint, axisX, axisY, laxisZ);
+	vertex(coord + axisX, region.u2, region.v1, tint, axisX, axisY, laxisZ);
+	vertex(coord + axisX + axisY, region.u2, region.v2, tint, axisX, axisY, laxisZ);
+	vertex(coord + axisY, region.u1, region.v2, tint, axisX, axisY, laxisZ);
+	index(0, 1, 2, 0, 2, 3);
 }
 
 void BlocksRenderer::cube(const vec3& coord, const vec3& size, const UVRegion(&texfaces)[6]) {
@@ -274,55 +270,45 @@ void BlocksRenderer::blockCubeShaded(const vec3& pos, const vec3& size, const UV
 	}
 }
 
-void BlocksRenderer::blockCubeShaded(int x, int y, int z, const UVRegion(&texfaces_)[6], const Block* block, ubyte states) {
+void BlocksRenderer::blockCubeShaded(int x, int y, int z, const UVRegion(&texfaces)[6], const Block* block, ubyte states) {
 	ubyte group = block->drawGroup;
-	UVRegion texfaces[6];
-	int rot = 0;
 
-	for (int i = 0; i < 6; i++) {
-		texfaces[i] = texfaces_[i];
-	}
+	ivec3 X(1, 0, 0);
+	ivec3 Y(0, 1, 0);
+	ivec3 Z(0, 0, 1);
+	ivec3 loff(0);
+	ivec3 coord(x, y, z);
 	if (block->rotatable) {
 		if (states == BLOCK_DIR_X) {
-			rot = 1;
-			texfaces[0] = texfaces_[2];
-			texfaces[1] = texfaces_[3];
-			texfaces[2] = texfaces_[0];
-			texfaces[3] = texfaces_[1];
-		}
-		else if (states == BLOCK_DIR_Y) {
-			rot = 2;
-		}
-		else if (states == BLOCK_DIR_Z) {
-			rot = 3;
-			texfaces[2] = texfaces_[4];
-			texfaces[3] = texfaces_[5];
-			texfaces[4] = texfaces_[2];
-			texfaces[5] = texfaces_[3];
+			Y = {1, 0, 0};
+			X = {0, -1, 0};
+			coord.y++;
+			loff.y--;
+		} else if (states == BLOCK_DIR_Z) {
+			Y = {0, 0, 1};
+			Z = {0, -1, 0};
+			coord.z--;
+			loff.z++;
 		}
 	}
-
-	static const ivec3 X(1, 0, 0);
-	static const ivec3 Y(0, 1, 0);
-	static const ivec3 Z(0, 0, 1);
 	
 	if (isOpen(x+Z.x, y+Z.y, z+Z.z, group)) {
-		face(ivec3(x, y, z), X, Y, Z, texfaces[5], vec4(0.9f), rot == 1);
+		face(coord, X, Y, Z, Z+loff, texfaces[5]);
 	}
 	if (isOpen(x-Z.x, y-Z.y, z-Z.z, group)) {
-		face(ivec3(x, y, z)+X-Z, -X, Y, Z-Z-X, texfaces[4], vec4(0.75f), rot == 1);
+		face(coord+X-Z, -X, Y, -Z, Z-Z-X+loff, texfaces[4]);
 	}
 	if (isOpen(x+Y.x, y+Y.y, z+Y.z, group)) {
-		face(ivec3(x, y, z)+Y, X, -Z, Y-Y, texfaces[3], vec4(1.0f), rot == 1);
+		face(coord+Y, X, -Z, Y, Y-Y+loff, texfaces[3]);
 	}
 	if (isOpen(x-Y.x, y-Y.y, z-Y.z, group)) {
-		face(ivec3(x, y, z)-Z, X, Z, -Y+Z, texfaces[2], vec4(0.6f), rot == 1);
+		face(coord-Z, X, Z, -Y, -Y+Z+loff, texfaces[2]);
 	}
 	if (isOpen(x+X.x, y+X.y, z+X.z, group)) {
-		face(ivec3(x, y, z)+X, -Z, Y, X-X, texfaces[1], vec4(0.8f), rot == 3);
+		face(coord+X, -Z, Y, X, X-X+loff, texfaces[1]);
 	}
 	if (isOpen(x-X.x, y-X.y, z-X.z, group)) {
-		face(ivec3(x, y, z)-Z, Z, Y, -X+Z, texfaces[0], vec4(0.7f), rot == 3);
+		face(coord-Z, Z, Y, -X, -X+Z+loff, texfaces[0]);
 	}
 }
 
