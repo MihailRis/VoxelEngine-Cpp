@@ -128,7 +128,7 @@ int Window::initialize(DisplaySettings& settings){
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 	glfwWindowHint(GLFW_SAMPLES, settings.samples);
 
-	window = glfwCreateWindow(width, height, settings.title, nullptr, nullptr);
+	window = glfwCreateWindow(width, height, settings.title.c_str(), nullptr, nullptr);
 	if (window == nullptr){
 		cerr << "Failed to create GLFW Window" << endl;
 		glfwTerminate();
