@@ -264,7 +264,7 @@ void WorldFiles::writeWorldInfo(const World* world) {
 // TODO: remove in v0.16
 bool WorldFiles::readOldWorldInfo(World* world) {
 	size_t length = 0;
-	ubyte* data = (ubyte*)files::read_bytes(getWorldFile(), length);
+	ubyte* data = (ubyte*)files::read_bytes(getOldWorldFile(), length);
 	assert(data != nullptr);
 	BinaryReader inp(data, length);
 	inp.checkMagic(WORLD_FORMAT_MAGIC, 8);
@@ -286,7 +286,7 @@ bool WorldFiles::readOldWorldInfo(World* world) {
 }
 bool WorldFiles::readOldPlayer(Player* player) {
 	size_t length = 0;
-	ubyte* data = (ubyte*)files::read_bytes(getPlayerFile(), length);
+	ubyte* data = (ubyte*)files::read_bytes(getOldPlayerFile(), length);
 	if (data == nullptr){
 		std::cerr << "could not to read player.bin (ignored)" << std::endl;
 		return false;
