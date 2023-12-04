@@ -1,7 +1,11 @@
+#include <iostream>
 #include "Events.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string.h>
+
+const short KEYS_BUFFER_SIZE = 1032;
+const short _MOUSE_KEYS_OFFSET = 1024;
 
 bool* Events::_keys;
 uint* Events::_frames;
@@ -18,11 +22,11 @@ std::vector<int> Events::pressedKeys;
 std::unordered_map<std::string, Binding> Events::bindings;
 
 int Events::initialize(){
-	_keys = new bool[1032];
-	_frames = new uint[1032];
+	_keys = new bool[KEYS_BUFFER_SIZE];
+	_frames = new uint[KEYS_BUFFER_SIZE];
 
-	memset(_keys, false, 1032*sizeof(bool));
-	memset(_frames, 0, 1032*sizeof(uint));
+	memset(_keys, false, KEYS_BUFFER_SIZE*sizeof(bool));
+	memset(_frames, 0, KEYS_BUFFER_SIZE*sizeof(uint));
 
 	return 0;
 }
@@ -32,26 +36,28 @@ void Events::finalize(){
 	delete[] _frames;
 }
 
+// Returns bool repr. of key state
 bool Events::pressed(int keycode){
-	if (keycode < 0 || keycode >= _MOUSE_BUTTONS)
+	if (keycode < 0 || keycode >= KEYS_BUFFER_SIZE){
+		// VERY bad behaviour and it happens constantly! (so console-printing is not a good idea)
 		return false;
+	}
 	return _keys[keycode];
 }
 
-bool Events::jpressed(int keycode){
-	if (keycode < 0 || keycode >= _MOUSE_BUTTONS)
-		return false;
-	return _keys[keycode] && _frames[keycode] == _current;
+// Returns bool repr. of key state
+bool Events::jpressed(int keycode){ 
+	return Events::pressed(keycode) && _frames[keycode] == _current;
 }
 
+// Returns bool repr. of mouse key state
 bool Events::clicked(int button){
-	int index = _MOUSE_BUTTONS+button;
-	return _keys[index];
+	return Events::pressed(_MOUSE_KEYS_OFFSET + button);
 }
 
+// Returns bool repr. of mouse key state
 bool Events::jclicked(int button){
-	int index = _MOUSE_BUTTONS+button;
-	return _keys[index] && _frames[index] == _current;
+	return Events::jpressed(_MOUSE_KEYS_OFFSET + button);
 }
 
 void Events::toggleCursor(){
@@ -59,7 +65,7 @@ void Events::toggleCursor(){
 	Window::setCursorMode(_cursor_locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
-void Events::pullEvents(){
+void Events::pollEvents(){
 	_current++;
 	deltaX = 0.0f;
 	deltaY = 0.0f;
