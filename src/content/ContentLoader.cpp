@@ -52,6 +52,17 @@ Block* ContentLoader::loadBlock(string name, path file) {
         cerr << "unknown model " << model << endl;
         def->model = BlockModel::none;
     }
+
+    // rotation profile
+    string profile = "none";
+    root->str("rotation", profile);
+    def->rotatable = profile != "none";
+    if (profile == "pipe") {
+        def->rotations = BlockRotProfile::PIPE;
+    } else if (profile != "none") {
+        cerr << "unknown rotation profile " << profile << endl;
+        def->rotatable = false;
+    }
     
     // block hitbox AABB [x, y, z, width, height, depth]
     json::JArray* hitboxobj = root->arr("hitbox");
@@ -76,7 +87,6 @@ Block* ContentLoader::loadBlock(string name, path file) {
     root->flag("light-passing", def->lightPassing);
     root->flag("breakable", def->breakable);
     root->flag("selectable", def->selectable);
-    root->flag("rotatable", def->rotatable);
     root->flag("sky-light-passing", def->skyLightPassing);
     root->num("draw-group", def->drawGroup);
 

@@ -2,6 +2,7 @@
 #define VOXELS_BLOCK_H_
 
 #include <string>
+#include <glm/glm.hpp>
 
 #include "../maths/aabb.h"
 #include "../typedefs.h"
@@ -14,6 +15,23 @@
 #define FACE_PZ 5
 
 #define BLOCK_AABB_GRID 16
+
+struct CoordSystem {
+	glm::ivec3 axisX;
+	glm::ivec3 axisY;
+	glm::ivec3 axisZ;
+	// Grid 3d position fix offset (for negative vectors)
+	glm::ivec3 fix;
+};
+
+struct BlockRotProfile {
+	CoordSystem variants[16];
+
+	/* Wood logs, pillars, pipes
+	   3 orientations supported
+	 */
+	static BlockRotProfile PIPE;
+};
 
 enum class BlockModel {
 	none, // invisible 
@@ -38,6 +56,7 @@ public:
 	bool breakable = true;
 	bool rotatable = false;
 	AABB hitbox;
+	BlockRotProfile rotations;
 
 	struct {
 		blockid_t id;

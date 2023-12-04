@@ -279,17 +279,13 @@ void BlocksRenderer::blockCubeShaded(int x, int y, int z, const UVRegion(&texfac
 	ivec3 loff(0);
 	ivec3 coord(x, y, z);
 	if (block->rotatable) {
-		if (states == BLOCK_DIR_X) {
-			Y = {1, 0, 0};
-			X = {0, -1, 0};
-			coord.y++;
-			loff.y--;
-		} else if (states == BLOCK_DIR_Z) {
-			Y = {0, 0, 1};
-			Z = {0, -1, 0};
-			coord.z--;
-			loff.z++;
-		}
+		auto& rotations = block->rotations;
+		auto& orient = rotations.variants[states & BLOCK_ROT_MASK];
+		X = orient.axisX;
+		Y = orient.axisY;
+		Z = orient.axisZ;
+		coord += orient.fix;
+		loff -= orient.fix;
 	}
 	
 	if (isOpen(x+Z.x, y+Z.y, z+Z.z, group)) {
