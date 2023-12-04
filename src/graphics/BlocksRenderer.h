@@ -18,6 +18,7 @@ class ChunksStorage;
 class ContentGfxCache;
 
 class BlocksRenderer {
+	static const uint VERTEX_SIZE;
 	const Content* const content;
 	float* vertexBuffer;
 	int* indexBuffer;

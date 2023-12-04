@@ -18,8 +18,8 @@
 #include "../world/World.h"
 #include "../maths/voxmaths.h"
 
-#define MAX_WORK_PER_FRAME 16
-#define MIN_SURROUNDING 9
+const uint MAX_WORK_PER_FRAME = 16;
+const uint MIN_SURROUNDING = 9;
 
 using std::unique_ptr;
 using std::shared_ptr;

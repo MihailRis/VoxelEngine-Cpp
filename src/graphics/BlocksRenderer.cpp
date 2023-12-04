@@ -17,7 +17,7 @@ using glm::ivec3;
 using glm::vec3;
 using glm::vec4;
 
-#define VERTEX_SIZE 6
+const uint BlocksRenderer::VERTEX_SIZE = 6;
 
 BlocksRenderer::BlocksRenderer(size_t capacity,
 	const Content* content,
@@ -81,7 +81,7 @@ void BlocksRenderer::face(const vec3& coord, float w, float h,
 	const UVRegion& region,
 	const vec4(&lights)[4],
 	const vec4& tint) {
-	if (vertexOffset + VERTEX_SIZE * 4 > capacity) {
+	if (vertexOffset + BlocksRenderer::VERTEX_SIZE * 4 > capacity) {
 		overflow = true;
 		return;
 	}
@@ -116,7 +116,7 @@ void BlocksRenderer::face(const ivec3& coord,
 						  const ivec3& axisZ,
 						  const ivec3& laxisZ,
 						  const UVRegion& region) {
-	if (vertexOffset + VERTEX_SIZE * 4 > capacity) {
+	if (vertexOffset + BlocksRenderer::VERTEX_SIZE * 4 > capacity) {
 		overflow = true;
 		return;
 	}
@@ -144,7 +144,7 @@ void BlocksRenderer::face(const ivec3& coord_,
 						  float height,
 						  float depth,
 						  const UVRegion& region) {
-	if (vertexOffset + VERTEX_SIZE * 4 > capacity) {
+	if (vertexOffset + BlocksRenderer::VERTEX_SIZE * 4 > capacity) {
 		overflow = true;
 		return;
 	}
@@ -414,7 +414,7 @@ Mesh* BlocksRenderer::render(const Chunk* chunk, int atlas_size, const ChunksSto
 	render(voxels, atlas_size);
 
 	const vattr attrs[]{ {3}, {2}, {1}, {0} };
-	Mesh* mesh = new Mesh(vertexBuffer, vertexOffset / VERTEX_SIZE, indexBuffer, indexSize, attrs);
+	Mesh* mesh = new Mesh(vertexBuffer, vertexOffset / BlocksRenderer::VERTEX_SIZE, indexBuffer, indexSize, attrs);
 	return mesh;
 }
 
