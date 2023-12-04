@@ -216,14 +216,12 @@ void PlayerController::updateInteraction(){
 		uint8_t states = 0;
 
 		if (contentIds->getBlockDef(player->choosenBlock)->rotatable){
-			if (abs(norm.x) > abs(norm.z)){
-				if (abs(norm.x) > abs(norm.y)) states = BLOCK_DIR_X;
-				if (abs(norm.x) < abs(norm.y)) states = BLOCK_DIR_Y;
-			}
-			if (abs(norm.x) < abs(norm.z)){
-				if (abs(norm.z) > abs(norm.y)) states = BLOCK_DIR_Z;
-				if (abs(norm.z) < abs(norm.y)) states = BLOCK_DIR_Y;
-			}
+			if (norm.x > 0) states = BLOCK_DIR_PX;
+			else if (norm.x < 0) states = BLOCK_DIR_MX;
+			else if (norm.y > 0) states = BLOCK_DIR_PY;
+			else if (norm.y < 0) states = BLOCK_DIR_MY;
+			else if (norm.z > 0) states = BLOCK_DIR_PZ;
+			else if (norm.z < 0) states = BLOCK_DIR_MZ;
 		}
 		
 		Block* block = contentIds->getBlockDef(vox->id);
