@@ -17,12 +17,12 @@ std::vector<ALBuffer*> Audio::freebuffers;
 
 bool ALSource::setBuffer(ALBuffer* buffer) {
 	alSourcei(id, AL_BUFFER, buffer->id);
-	return alCheck();
+	return alCheckErrorsMacro();
 }
 
 bool ALSource::play(){
 	alSourcePlay(id);
-	return alCheck();
+	return alCheckErrorsMacro();
 }
 
 bool ALSource::isPlaying() {
@@ -33,33 +33,33 @@ bool ALSource::isPlaying() {
 
 bool ALSource::setPosition(glm::vec3 position) {
 	alSource3f(id, AL_POSITION, position.x, position.y, position.z);
-	return alCheck();
+	return alCheckErrorsMacro();
 }
 
 bool ALSource::setVelocity(glm::vec3 velocity) {
 	alSource3f(id, AL_VELOCITY, velocity.x, velocity.y, velocity.z);
-	return alCheck();
+	return alCheckErrorsMacro();
 }
 
 bool ALSource::setLoop(bool loop) {
 	alSourcei(id, AL_LOOPING, AL_TRUE ? loop : AL_FALSE);
-	return alCheck();
+	return alCheckErrorsMacro();
 }
 
 bool ALSource::setGain(float gain) {
 	alSourcef(id, AL_GAIN, gain);
-	return alCheck();
+	return alCheckErrorsMacro();
 }
 
 
 bool ALSource::setPitch(float pitch) {
 	alSourcef(id, AL_PITCH, pitch);
-	return alCheck();
+	return alCheckErrorsMacro();
 }
 
 bool ALBuffer::load(int format, const char* data, int size, int freq) {
 	alBufferData(id, format, data, size, freq);
-	return alCheck();
+	return alCheckErrorsMacro();
 }
 
 
@@ -72,7 +72,7 @@ bool Audio::initialize() {
 		alcCloseDevice(device);
 		return false;
 	}
-	if (!alCheck())
+	if (!alCheckErrorsMacro())
 		return false;
 
 	ALCint size;
@@ -91,13 +91,13 @@ bool Audio::initialize() {
 void Audio::finalize(){
 	for (ALSource* source : allsources){
 		if (source->isPlaying()){
-			alSourceStop(source->id); alCheck();
+			alSourceStop(source->id); alCheckErrorsMacro();
 		}
-		alDeleteSources(1, &source->id); alCheck();
+		alDeleteSources(1, &source->id); alCheckErrorsMacro();
 	}
 
 	for (ALBuffer* buffer : allbuffers){
-		alDeleteBuffers(1, &buffer->id); alCheck();
+		alDeleteBuffers(1, &buffer->id); alCheckErrorsMacro();
 	}
 
 	alcMakeContextCurrent(context);
@@ -121,7 +121,7 @@ ALSource* Audio::getFreeSource(){
 	}
 	ALuint id;
 	alGenSources(1, &id);
-	if (!alCheck())
+	if (!alCheckErrorsMacro())
 		return nullptr;
 
 	ALSource* source = new ALSource(id);
@@ -141,7 +141,7 @@ ALBuffer* Audio::getFreeBuffer(){
 	}
 	ALuint id;
 	alGenBuffers(1, &id);
-	if (!alCheck())
+	if (!alCheckErrorsMacro())
 		return nullptr;
 
 	ALBuffer* buffer = new ALBuffer(id);
@@ -160,7 +160,7 @@ void Audio::freeBuffer(ALBuffer* buffer){
 bool Audio::get_available_devices(std::vector<std::string>& devicesVec){
     const ALCchar* devices;
     devices = alcGetString(device, ALC_DEVICE_SPECIFIER);
-    if (!alCheck())
+    if (!alCheckErrorsMacro())
         return false;
 
     const char* ptr = devices;
@@ -180,9 +180,9 @@ void Audio::setListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 at, gl
 	ALfloat listenerOri[] = { at.x, at.y, at.z, up.x, up.y, up.z };
 
 	alListener3f(AL_POSITION, position.x, position.y, position.z);
-	alCheck();
+	alCheckErrorsMacro();
 	alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z);
-	alCheck();
+	alCheckErrorsMacro();
 	alListenerfv(AL_ORIENTATION, listenerOri);
-	alCheck();
+	alCheckErrorsMacro();
 }
