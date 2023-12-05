@@ -28,12 +28,14 @@ struct CoordSystem {
 };
 
 struct BlockRotProfile {
-	CoordSystem variants[16];
+	static const int MAX_COUNT = 16;
+	std::string name;
+	CoordSystem variants[MAX_COUNT];
 
-	/* Wood logs, pillars, pipes
-	   3 orientations supported
-	 */
+	/* Wood logs, pillars, pipes */
 	static const BlockRotProfile PIPE;
+	/* Doors, signs and other panes */
+	static const BlockRotProfile PANE;
 };
 
 enum class BlockModel {
@@ -65,7 +67,7 @@ public:
 		blockid_t id;
 		bool solid = true;
 		bool emissive = false;
-		bool hitboxGrid[BLOCK_AABB_GRID][BLOCK_AABB_GRID][BLOCK_AABB_GRID];
+		AABB hitboxes[BlockRotProfile::MAX_COUNT];
 	} rt;
 
 	Block(std::string name);

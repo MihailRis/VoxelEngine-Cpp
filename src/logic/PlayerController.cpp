@@ -27,6 +27,7 @@ const float CROUCH_SHIFT_Y = -0.2f;
 
 using glm::vec2;
 using glm::vec3;
+using std::string;
 
 CameraControl::CameraControl(Player* player, const CameraSettings& settings) 
 	: player(player), 
@@ -218,13 +219,29 @@ void PlayerController::updateInteraction(){
 		int z = (int)iend.z;
 		uint8_t states = 0;
 
-		if (contentIds->getBlockDef(player->choosenBlock)->rotatable){
-			if (norm.x > 0) states = BLOCK_DIR_PX;
-			else if (norm.x < 0) states = BLOCK_DIR_MX;
-			else if (norm.y > 0) states = BLOCK_DIR_PY;
-			else if (norm.y < 0) states = BLOCK_DIR_MY;
-			else if (norm.z > 0) states = BLOCK_DIR_PZ;
-			else if (norm.z < 0) states = BLOCK_DIR_MZ;
+		Block* def = contentIds->getBlockDef(player->choosenBlock);
+		if (def->rotatable){
+			const string& name = def->rotations.name;
+			if (name == "pipe") {
+				if (abs(norm.x) > abs(norm.z)){
+					if (abs(norm.x) > abs(norm.y)) states = BLOCK_DIR_X;
+					if (abs(norm.x) < abs(norm.y)) states = BLOCK_DIR_Y;
+				}
+				if (abs(norm.x) < abs(norm.z)){
+					if (abs(norm.z) > abs(norm.y)) states = BLOCK_DIR_Z;
+					if (abs(norm.z) < abs(norm.y)) states = BLOCK_DIR_Y;
+				}
+			} else if (name == "pane") {
+				vec3 vec = camera->dir;
+				if (abs(vec.x) > abs(vec.z)){
+					if (vec.x > 0.0f) states = BLOCK_DIR_EAST;
+					if (vec.x < 0.0f) states = BLOCK_DIR_WEST;
+				}
+				if (abs(vec.x) < abs(vec.z)){
+					if (vec.z > 0.0f) states = BLOCK_DIR_SOUTH;
+					if (vec.z < 0.0f) states = BLOCK_DIR_NORTH;
+				}
+			}
 		}
 		
 		Block* block = contentIds->getBlockDef(vox->id);

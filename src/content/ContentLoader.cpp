@@ -59,6 +59,8 @@ Block* ContentLoader::loadBlock(string name, path file) {
     def->rotatable = profile != "none";
     if (profile == "pipe") {
         def->rotations = BlockRotProfile::PIPE;
+    } else if (profile == "pane") {
+        def->rotations = BlockRotProfile::PANE;
     } else if (profile != "none") {
         cerr << "unknown rotation profile " << profile << endl;
         def->rotatable = false;

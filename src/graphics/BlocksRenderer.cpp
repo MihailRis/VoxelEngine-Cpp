@@ -126,9 +126,9 @@ void BlocksRenderer::face(const ivec3& coord,
 		return;
 	}
 
-	const vec3 sunVector = vec3(0.431934f, 0.863868f, 0.259161f);
+	const vec3 sunVector = vec3(0.411934f, 0.863868f, 0.279161f);
 	float d = glm::dot(vec3(axisZ.x, axisZ.y, axisZ.z), sunVector);
-	d = 0.75f +  d*0.25f;
+	d = 0.7f +  d*0.3f;
 
 	vec4 tint(d);
 		
@@ -251,21 +251,18 @@ void BlocksRenderer::blockCubeShaded(const ivec3& icoord,
 		coord += orient.fix;
 		loff -= orient.fix;
 	}
-
-	vec3 fX(X);
-	vec3 fY(Y);
 	vec3 fZ(Z);
 	
-	vec3 local = offset.x*vec3(X)+offset.y*vec3(Y)+offset.z*vec3(-Z);
-	//local -= loff;
+	vec3 local = offset.x*vec3(X)+offset.y*vec3(Y)+offset.z*-fZ;
+	
 	face(coord, X, Y, Z, Z+loff, local-size.z*fZ, size.x, size.y, size.z, texfaces[5]);
 	face(coord+X, -X, Y, -Z, Z-Z-X+loff, local-size.z*fZ, size.x, size.y, 0.0f, texfaces[4]);
 
-	face(coord+Y, X, -Z, Y, Y-Y+loff, local, size.x, size.z, 0.0f, texfaces[3]); //;
-	face(coord+X, -X, -Z, -Y, -Y+Z+loff, local, size.x, size.z, 0.0f, texfaces[2]); //;
+	face(coord+Y, X, -Z, Y, Y-Y+loff, local, size.x, size.z, 0.0f, texfaces[3]);
+	face(coord+X, -X, -Z, -Y, -X-Y+loff, local, size.x, size.z, 0.0f, texfaces[2]);
 	
-	face(coord+X, -Z, Y, X, X-X+loff, local, size.z, size.y, 0.0f, texfaces[1]); //;
-	face(coord+Y, -Z, -Y, -X, -X+Z+loff, local, size.z, size.y, 0.0f, texfaces[0]); //;
+	face(coord+X, -Z, Y, X, X-X+loff, local, size.z, size.y, 0.0f, texfaces[1]);
+	face(coord+Y, -Z, -Y, -X, -X-Y+loff, local, size.z, size.y, 0.0f, texfaces[0]);
 }
 
 /* Fastest solid shaded blocks render method */
@@ -372,7 +369,6 @@ vec4 BlocksRenderer::pickSoftLight(float x, float y, float z,
 	return pickSoftLight({int(round(x)), int(round(y)), int(round(z))}, right, up);
 }
 
-#include <iostream>
 void BlocksRenderer::render(const voxel* voxels) {
 	int begin = chunk->bottom * (CHUNK_W * CHUNK_D);
 	int end = chunk->top * (CHUNK_W * CHUNK_D);
@@ -410,14 +406,9 @@ void BlocksRenderer::render(const voxel* voxels) {
 				AABB hitbox = def.hitbox;
 				hitbox.a = vec3(1.0f)-hitbox.a;
 				hitbox.b = vec3(1.0f)-hitbox.b;
-				std::cout << hitbox.a.x << " " << hitbox.a.y << " " << hitbox.a.z << " --- ";
-				std::cout << hitbox.b.x << " " << hitbox.b.y << " " << hitbox.b.z << std::endl;
 
 				vec3 size = hitbox.size();
-
-				std::cout << "s " << size.x << " " << size.y << " " << size.z << std::endl;
 				vec3 off = hitbox.min();
-				std::cout << "m " << off.x << " " << off.y << " " << off.z << std::endl;
 				blockCubeShaded(ivec3(x,y,z), off, size, texfaces, &def, vox.states);
 				break;
 			}

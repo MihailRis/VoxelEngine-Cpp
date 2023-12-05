@@ -7,6 +7,11 @@
 #define BLOCK_DIR_Y 0x0
 #define BLOCK_DIR_Z 0x2
 
+const int BLOCK_DIR_NORTH = 0x0;
+const int BLOCK_DIR_WEST = 0x1;
+const int BLOCK_DIR_SOUTH = 0x2;
+const int BLOCK_DIR_EAST = 0x3;
+
 // limited to 16 block orientations
 const int BLOCK_ROT_MASK = 0xF;
 

@@ -128,7 +128,7 @@ void WorldRenderer::drawChunks(Chunks* chunks,
 void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 	EngineSettings& settings = engine->getSettings();
 	skybox->refresh(level->world->daytime, 
-					fmax(1.0f, 10.0f/(settings.chunks.loadDistance-2)), 4);
+					fmax(1.0f, 10.0f/(settings.chunks.loadDistance-2))+fog*2.0f, 4);
 
 	const Content* content = level->content;
 	const ContentIndices* contentIds = content->indices;
@@ -291,3 +291,5 @@ void WorldRenderer::drawBorders(int sx, int sy, int sz, int ex, int ey, int ez) 
 	}
 	lineBatch->render();
 }
+
+float WorldRenderer::fog = 0.0f;

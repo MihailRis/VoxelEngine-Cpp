@@ -40,6 +40,8 @@ public:
 	void draw(const GfxContext& context, Camera* camera);
 	void drawDebug(const GfxContext& context, Camera* camera);
 	void drawBorders(int sx, int sy, int sz, int ex, int ey, int ez);
+
+	static float fog;
 };
 
 

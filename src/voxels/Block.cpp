@@ -1,5 +1,7 @@
 #include "Block.h"
 
+#include "../core_defs.h"
+
 using glm::vec3;
 
 void CoordSystem::transform(AABB& aabb) {
@@ -12,7 +14,7 @@ void CoordSystem::transform(AABB& aabb) {
 	aabb.b += fix2;
 }
 
-const BlockRotProfile BlockRotProfile::PIPE {{
+const BlockRotProfile BlockRotProfile::PIPE {"pipe", {
 		// Vertical
 		{{1, 0, 0}, {0, 1, 0}, {0, 0, 1},	{0, 0, 0}, {0, 0, 0}},
 		// X-Aligned
@@ -21,13 +23,25 @@ const BlockRotProfile BlockRotProfile::PIPE {{
 		{{1, 0, 0}, {0, 0, 1}, {0, -1, 0},	{0, 0, -1}, {0, 1, 0}},
 }};
 
+const BlockRotProfile BlockRotProfile::PANE {"pane", {
+		// North
+		{{1, 0, 0}, {0, 1, 0}, {0, 0, 1},	{0, 0, 0}, {0, 0, 0}},
+		// East
+		{{0, 0, -1}, {0, 1, 0}, {1, 0, 0},	{1, 0, 0}, {0, 0, 1}},
+		// South
+		{{-1, 0, 0}, {0, 1, 0}, {0, 0, -1},	{1, 0, -1}, {1, 0, 1}},
+		// West
+		{{0, 0, 1}, {0, 1, 0}, {-1, 0, 0},	{0, 0, -1}, {1, 0, 0}},
+}};
+
 Block::Block(std::string name) 
 	: name(name), 
-	  textureFaces {"notfound","notfound","notfound",
-	  			    "notfound","notfound","notfound",} {
+	  textureFaces {TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,
+	  			    TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,} {
 	rotations = BlockRotProfile::PIPE;
 }
 
 Block::Block(std::string name, std::string texture) : name(name),
 		textureFaces{texture,texture,texture,texture,texture,texture} {
+	rotations = BlockRotProfile::PIPE;
 }

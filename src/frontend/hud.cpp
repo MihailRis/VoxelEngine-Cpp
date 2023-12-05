@@ -56,14 +56,12 @@ inline Label* create_label(gui::wstringsupplier supplier) {
 
 HudRenderer::HudRenderer(Engine* engine, 
 						 Level* level, 
-						 const ContentGfxCache* cache,
-						  WorldRenderer* renderer) 
+						 const ContentGfxCache* cache) 
             : level(level), 
 			  assets(engine->getAssets()), 
 			  batch(new Batch2D(1024)),
 			  gui(engine->getGUI()),
-			  cache(cache),
-			  renderer(renderer) {
+			  cache(cache) {
 	auto menu = gui->getMenu();
 	blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
 									  assets->getAtlas("blocks"),
@@ -157,6 +155,16 @@ HudRenderer::HudRenderer(Engine* engine,
 		});
 		bar->consumer([=](double val) {
 			level->world->daytime = val;
+		});
+		panel->add(bar);
+	}
+	{
+		TrackBar* bar = new TrackBar(0.0f, 1.0f, 0.0f, 0.005f, 8);
+		bar->supplier([=]() {
+			return WorldRenderer::fog;
+		});
+		bar->consumer([=](double val) {
+			WorldRenderer::fog = val;
 		});
 		panel->add(bar);
 	}
