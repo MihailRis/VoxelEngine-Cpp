@@ -193,7 +193,12 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 			const vec3 pos = PlayerController::selectedBlockPosition;
 			const vec3 point = PlayerController::selectedPointPosition;
 			const vec3 norm = PlayerController::selectedBlockNormal;
-			const AABB& hitbox = block->hitbox;
+			AABB hitbox = block->hitbox;
+			if (block->rotatable) {
+				auto states = PlayerController::selectedBlockStates;
+				block->rotations.variants[states].transform(hitbox);
+			}
+
 			const vec3 center = pos + hitbox.center();
 			const vec3 size = hitbox.size();
 			linesShader->use();

@@ -5,7 +5,7 @@
 #include "../voxels/Block.h"
 #include "../voxels/Chunks.h"
 
-#define E 0.03
+const double E = 0.03;
 
 using glm::vec3;
 

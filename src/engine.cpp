@@ -98,7 +98,7 @@ void Engine::mainloop() {
 
 		Window::swapInterval(settings.display.swapInterval);
 		Window::swapBuffers();
-		Events::pullEvents();
+		Events::pollEvents();
 	}
 }
 

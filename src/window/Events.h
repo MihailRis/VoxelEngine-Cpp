@@ -10,6 +10,9 @@
 
 typedef unsigned int uint;
 
+extern const short KEYS_BUFFER_SIZE;
+extern const short _MOUSE_KEYS_OFFSET;
+
 class Events {
 public:
 	static bool* _keys;
@@ -28,7 +31,7 @@ public:
 
 	static int initialize();
 	static void finalize();
-	static void pullEvents();
+	static void pollEvents();
 
 	static bool pressed(int keycode);
 	static bool jpressed(int keycode);
@@ -42,7 +45,5 @@ public:
 	static bool active(std::string name);
 	static bool jactive(std::string name);
 };
-
-#define _MOUSE_BUTTONS 1024
 
 #endif /* WINDOW_EVENTS_H_ */

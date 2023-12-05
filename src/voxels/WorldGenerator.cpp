@@ -16,7 +16,7 @@
 #include "../maths/voxmaths.h"
 #include "../core_defs.h"
 
-#define SEA_LEVEL 55
+const int SEA_LEVEL = 55;
 
 class Map2D {
 	int x, z;

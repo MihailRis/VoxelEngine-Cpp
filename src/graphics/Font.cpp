@@ -29,7 +29,7 @@ bool Font::isPrintableChar(int c) {
 	}
 }
 
-#define RES 16
+const int RES = 16;
 
 int Font::calcWidth(std::wstring text) {
 	return text.length() * 8;

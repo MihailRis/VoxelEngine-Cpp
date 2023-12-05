@@ -7,14 +7,14 @@
 #include "../maths/aabb.h"
 #include "../typedefs.h"
 
-#define FACE_MX 0
-#define FACE_PX 1
-#define FACE_MY 2
-#define FACE_PY 3
-#define FACE_MZ 4
-#define FACE_PZ 5
+const uint FACE_MX = 0;
+const uint FACE_PX = 1;
+const uint FACE_MY = 2;
+const uint FACE_PY = 3;
+const uint FACE_MZ = 4;
+const uint FACE_PZ = 5;
 
-#define BLOCK_AABB_GRID 16
+const uint BLOCK_AABB_GRID = 16;
 
 struct CoordSystem {
 	glm::ivec3 axisX;
@@ -22,6 +22,9 @@ struct CoordSystem {
 	glm::ivec3 axisZ;
 	// Grid 3d position fix offset (for negative vectors)
 	glm::ivec3 fix;
+	glm::ivec3 fix2;
+
+	void transform(AABB& aabb);
 };
 
 struct BlockRotProfile {
@@ -30,7 +33,7 @@ struct BlockRotProfile {
 	/* Wood logs, pillars, pipes
 	   3 orientations supported
 	 */
-	static BlockRotProfile PIPE;
+	static const BlockRotProfile PIPE;
 };
 
 enum class BlockModel {
