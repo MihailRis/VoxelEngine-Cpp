@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "../typedefs.h"
 
 class Texture;
 class Batch2D;
