@@ -5,6 +5,7 @@
 #include <memory>
 #include <stdint.h>
 #include <stdexcept>
+#include "../coders/json.h"
 
 using std::ios;
 using std::string;
@@ -71,4 +72,14 @@ bool files::write_string(path filename, const string content) {
 	}
 	file << content;
 	return true;
+}
+
+json::JObject* files::read_json(path file) {
+	string text = files::read_string(file);
+	try {
+		return json::parse(file.string(), text);
+	} catch (const parsing_error& error) {
+        std::cerr << error.errorLog() << std::endl;
+        throw std::runtime_error("could not to parse "+file.string());
+    }
 }

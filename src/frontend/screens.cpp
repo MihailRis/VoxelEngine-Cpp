@@ -78,7 +78,7 @@ void MenuScreen::draw(float delta) {
     Window::setBgColor(vec3(0.2f));
     vulkan::VulkanContext::get().beginScreenDraw(0.2f, 0.2f, 0.2f);
 
-    uicamera->fov = Window::height;
+    uicamera->setFov(Window::height);
 	IShader* uishader = engine->getAssets()->getShader("ui");
 	uishader->use();
 	uishader->uniformMatrix("u_projview", uicamera->getProjView());
@@ -103,7 +103,7 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
     controller = new LevelController(settings, level);
     cache = new ContentGfxCache(level->content, engine->getAssets());
     worldRenderer = new vulkan::WorldRenderer(engine, level, cache);
-    hud = new HudRenderer(engine, level, cache, worldRenderer);
+    hud = new HudRenderer(engine, level, cache);
     backlight = settings.graphics.backlight;
 }
 
@@ -143,12 +143,15 @@ void LevelScreen::update(float delta) {
     if (!gui->isFocusCaught()) {
         updateHotkeys();
     }
+
     // TODO: subscribe for setting change
     EngineSettings& settings = engine->getSettings();
+    level->player->camera->setFov(glm::radians(settings.camera.fov));
     if (settings.graphics.backlight != backlight) {
         level->chunks->saveAndClear();
         backlight = settings.graphics.backlight;
     }
+
     if (!hud->isPause()) {
         level->world->updateTimers(delta);
     }

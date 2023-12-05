@@ -45,13 +45,15 @@ WorldRenderer::WorldRenderer(Engine* engine,
 	  lineBatch(new LineBatch()),
 	  renderer( new ChunksRenderer(level, cache, engine->getSettings())) {
 
+	auto& settings = engine->getSettings();
 	level->events->listen(EVT_CHUNK_HIDDEN,
 		[this](lvl_event_type type, Chunk* chunk) {
 			renderer->unload(chunk);
 		}
 	);
 	auto assets = engine->getAssets();
-	skybox = new Skybox(64, assets->getShader("skybox_gen"));
+	skybox = new Skybox(settings.graphics.skyboxResolution,
+						assets->getShader("skybox_gen"));
 }
 
 WorldRenderer::~WorldRenderer() {
@@ -126,7 +128,7 @@ void WorldRenderer::drawChunks(Chunks* chunks,
 void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 	EngineSettings& settings = engine->getSettings();
 	skybox->refresh(level->world->daytime, 
-					fmax(1.0f, 18.0f/settings.chunks.loadDistance), 4);
+					fmax(1.0f, 10.0f/(settings.chunks.loadDistance-2))+fog*2.0f, 4);
 
 	const Content* content = level->content;
 	const ContentIndices* contentIds = content->indices;
@@ -145,7 +147,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 	IShader* backShader = assets->getShader("background");
 	backShader->use();
 	backShader->uniformMatrix("u_view", camera->getView(false));
-	backShader->uniform1f("u_zoom", camera->zoom);
+	backShader->uniform1f("u_zoom", camera->zoom*camera->getFov()/(3.141592*0.5f));
 	backShader->uniform1f("u_ar", (float)Window::width/(float)Window::height);
 	skybox->draw(backShader);
 
@@ -154,7 +156,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 		ctx.depthTest(true);
 		ctx.cullFace(true);
 
-		float fogFactor = 18.0f / (float)settings.chunks.loadDistance;
+		float fogFactor = 15.0f / ((float)settings.chunks.loadDistance-2);
 
 		// Setting up main shader
 		shader->use();
@@ -191,7 +193,12 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 			const vec3 pos = PlayerController::selectedBlockPosition;
 			const vec3 point = PlayerController::selectedPointPosition;
 			const vec3 norm = PlayerController::selectedBlockNormal;
-			const AABB& hitbox = block->hitbox;
+			AABB hitbox = block->hitbox;
+			if (block->rotatable) {
+				auto states = PlayerController::selectedBlockStates;
+				block->rotations.variants[states].transform(hitbox);
+			}
+
 			const vec3 center = pos + hitbox.center();
 			const vec3 size = hitbox.size();
 			linesShader->use();
@@ -284,3 +291,5 @@ void WorldRenderer::drawBorders(int sx, int sy, int sz, int ex, int ey, int ez) 
 	}
 	lineBatch->render();
 }
+
+float WorldRenderer::fog = 0.0f;

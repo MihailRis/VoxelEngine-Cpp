@@ -243,10 +243,10 @@ bool BasicParser::parseNumber(int sign, number_u& out) {
             out.fval = sign * dvalue * power(10.0, s * parseSimpleInt(10));
             return false;
         }
-        out.fval = dvalue;
+        out.fval = sign * dvalue;
         return false;
     }
-    out.ival = value;
+    out.ival = sign * value;
     return true;
 }
 

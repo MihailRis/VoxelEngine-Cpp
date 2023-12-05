@@ -22,7 +22,7 @@ ChunksRenderer::~ChunksRenderer() {
 
 shared_ptr<Mesh> ChunksRenderer::render(Chunk* chunk) {
 	chunk->setModified(false);
-	Mesh* mesh = renderer->render(chunk, 16, level->chunksStorage);
+	Mesh* mesh = renderer->render(chunk, level->chunksStorage);
 	auto sptr = shared_ptr<Mesh>(mesh);
 	meshes[ivec2(chunk->x, chunk->z)] = sptr;
 	return sptr;

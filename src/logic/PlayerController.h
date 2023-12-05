@@ -40,6 +40,7 @@ public:
 	static glm::vec3 selectedBlockNormal;
 	static glm::vec3 selectedPointPosition;
 	static int selectedBlockId;
+	static int selectedBlockStates;
 
 	PlayerController(Level* level, const EngineSettings& settings);
 	void update(float delta, bool input, bool pause);

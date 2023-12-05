@@ -58,20 +58,16 @@ inline Label* create_label(gui::wstringsupplier supplier) {
 
 HudRenderer::HudRenderer(Engine* engine, 
 						 Level* level, 
-						 const ContentGfxCache* cache,
-						  vulkan::WorldRenderer* renderer)
+						 const ContentGfxCache* cache)
             : level(level), 
 			  assets(engine->getAssets()), 
 			  batch(new vulkan::Batch2D(1024)),
 			  gui(engine->getGUI()),
-			  cache(cache),
-			  renderer(renderer) {
+			  cache(cache) {
 	auto menu = gui->getMenu();
-	batch = new vulkan::Batch2D(1024);
-	// TODO: create batch3D for vulkan
-	// blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
-	// 								  assets->getAtlas("blocks"),
-	// 								  cache);
+	blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
+									  assets->getAtlas("blocks"),
+									  cache);
 
 	uicamera = new Camera(vec3(), 1);
 	uicamera->perspective = false;
@@ -161,6 +157,16 @@ HudRenderer::HudRenderer(Engine* engine,
 		});
 		bar->consumer([=](double val) {
 			level->world->daytime = val;
+		});
+		panel->add(bar);
+	}
+	{
+		TrackBar* bar = new TrackBar(0.0f, 1.0f, 0.0f, 0.005f, 8);
+		bar->supplier([=]() {
+			return WorldRenderer::fog;
+		});
+		bar->consumer([=](double val) {
+			WorldRenderer::fog = val;
 		});
 		panel->add(bar);
 	}
@@ -299,7 +305,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 
 	debugPanel->visible(level->player->debug);
 
-	uicamera->fov = height;
+	uicamera->setFov(height);
 
 	IShader* uishader = assets->getShader("ui");
 	uishader->use();
@@ -333,7 +339,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 	//
 	// 	Block* cblock = contentIds->getBlockDef(player->choosenBlock);
 	// 	assert(cblock != nullptr);
-	// 	blocksPreview->draw(cblock, width - 56, uicamera->fov - 56, 48, vec4(1.0f));
+	// 	blocksPreview->draw(cblock, width - 56, uicamera->getFov() - 56, 48, vec4(1.0f));
 	// }
 	uishader->use();
 	batch->begin();

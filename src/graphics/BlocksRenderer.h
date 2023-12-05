@@ -20,6 +20,7 @@ class ChunksStorage;
 class ContentGfxCache;
 
 class BlocksRenderer {
+	static const uint VERTEX_SIZE;
 	const Content* const content;
 	float* vertexBuffer;
 	int* indexBuffer;
@@ -45,6 +46,12 @@ class BlocksRenderer {
 				const glm::ivec3& axisY,
 				const glm::ivec3& axisZ);
 
+	void vertex(const glm::vec3& coord, float u, float v,
+				const glm::vec4& brightness,
+				const glm::ivec3& axisX,
+				const glm::ivec3& axisY,
+				const glm::ivec3& axisZ);
+
 	void face(const glm::vec3& coord, float w, float h,
 		const glm::vec3& axisX,
 		const glm::vec3& axisY,
@@ -52,21 +59,23 @@ class BlocksRenderer {
 		const glm::vec4(&lights)[4],
 		const glm::vec4& tint);
 
-	void face(const glm::vec3& coord, float w, float h,
-		const glm::vec3& axisX,
-		const glm::vec3& axisY,
-		const UVRegion& region,
-		const glm::vec4(&lights)[4],
-		const glm::vec4& tint,
-		bool rotated);
-	
 	void face(const glm::ivec3& coord,
 		const glm::ivec3& axisX,
 		const glm::ivec3& axisY,
 		const glm::ivec3& axisZ,
-		const UVRegion& region,
-		const glm::vec4& tint,
-		bool rotated);
+		const glm::ivec3& laxisZ,
+		const UVRegion& region);
+
+	void face(const glm::ivec3& coord,
+		const glm::ivec3& axisX,
+		const glm::ivec3& axisY,
+		const glm::ivec3& axisZ,
+		const glm::ivec3& laxisZ,
+		const glm::vec3& offset,
+		float width,
+		float height,
+		float depth,
+		const UVRegion& region);
 
 	void face(const glm::vec3& coord, float w, float h,
 		const glm::vec3& axisX,
@@ -76,12 +85,15 @@ class BlocksRenderer {
 		face(coord, w, h, axisX, axisY, region, lights, glm::vec4(1.0f));
 	}
 
-	void cube(const glm::vec3& coord, const glm::vec3& size, const UVRegion(&faces)[6]);
-	void blockCube(int x, int y, int z, const glm::vec3& size, const UVRegion(&faces)[6], ubyte group);
-	/* Fastest solid shaded blocks render method */
+	void blockCube(int x, int y, int z, const UVRegion(&faces)[6], ubyte group);
+
 	void blockCubeShaded(int x, int y, int z, const UVRegion(&faces)[6], const Block* block, ubyte states);
-	/* AABB blocks render method (WIP)*/
-	void blockCubeShaded(const glm::vec3& pos, const glm::vec3& size, const UVRegion(&faces)[6], const Block* block, ubyte states);
+	void blockCubeShaded(const glm::ivec3& coord,
+						 const glm::vec3& offset,
+						 const glm::vec3& size,
+						 const UVRegion(&faces)[6],
+						 const Block* block,
+						 ubyte states);
 	void blockXSprite(int x, int y, int z, const glm::vec3& size, const UVRegion& face1, const UVRegion& face2, float spread);
 
 	bool isOpenForLight(int x, int y, int z) const;
@@ -91,7 +103,7 @@ class BlocksRenderer {
 	glm::vec4 pickLight(const glm::ivec3& coord) const;
 	glm::vec4 pickSoftLight(const glm::ivec3& coord, const glm::ivec3& right, const glm::ivec3& up) const;
 	glm::vec4 pickSoftLight(float x, float y, float z, const glm::ivec3& right, const glm::ivec3& up) const;
-	void render(const voxel* voxels, int atlas_size);
+	void render(const voxel* voxels);
 public:
 	BlocksRenderer(size_t capacity, const Content* content, const ContentGfxCache* cache, const EngineSettings& settings);
 	virtual ~BlocksRenderer();
@@ -99,8 +111,8 @@ public:
 #ifdef USE_VULKAN
 	vulkan::Mesh<VertexMain> *renderVulkanMesh(const Chunk* chunk, int atlas_size, const ChunksStorage* chunks);
 #endif
-	
-	Mesh* render(const Chunk* chunk, int atlas_size, const ChunksStorage* chunks);
+
+	Mesh* render(const Chunk* chunk, const ChunksStorage* chunks);
 	VoxelsVolume* getVoxelsBuffer() const;
 };
 

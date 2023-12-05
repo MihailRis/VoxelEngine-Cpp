@@ -12,6 +12,7 @@
 
 #include <glm/glm.hpp>
 
+// don't ask
 using glm::vec3;
 using std::cout;
 using std::cerr;
@@ -24,14 +25,7 @@ ContentLoader::ContentLoader(path folder) : folder(folder) {}
 
 // TODO: add basic validation and logging
 Block* ContentLoader::loadBlock(string name, path file) {
-    string source = files::read_string(file);
-    unique_ptr<json::JObject> root = nullptr;
-    try {
-        root.reset(json::parse(file.string(), source));
-    } catch (const parsing_error& error) {
-        cerr << error.errorLog() << endl;
-        throw std::runtime_error("could not load block def");
-    }
+    unique_ptr<json::JObject> root(files::read_json(file));
     unique_ptr<Block> def(new Block(name));
 
     // block texturing
@@ -58,6 +52,19 @@ Block* ContentLoader::loadBlock(string name, path file) {
         cerr << "unknown model " << model << endl;
         def->model = BlockModel::none;
     }
+
+    // rotation profile
+    string profile = "none";
+    root->str("rotation", profile);
+    def->rotatable = profile != "none";
+    if (profile == "pipe") {
+        def->rotations = BlockRotProfile::PIPE;
+    } else if (profile == "pane") {
+        def->rotations = BlockRotProfile::PANE;
+    } else if (profile != "none") {
+        cerr << "unknown rotation profile " << profile << endl;
+        def->rotatable = false;
+    }
     
     // block hitbox AABB [x, y, z, width, height, depth]
     json::JArray* hitboxobj = root->arr("hitbox");
@@ -82,7 +89,6 @@ Block* ContentLoader::loadBlock(string name, path file) {
     root->flag("light-passing", def->lightPassing);
     root->flag("breakable", def->breakable);
     root->flag("selectable", def->selectable);
-    root->flag("rotatable", def->rotatable);
     root->flag("sky-light-passing", def->skyLightPassing);
     root->num("draw-group", def->drawGroup);
 

@@ -15,9 +15,9 @@ using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 
-#define KEY_ESCAPE 256
-#define KEY_ENTER 257
-#define KEY_BACKSPACE 259
+const uint KEY_ESCAPE = 256;
+const uint KEY_ENTER = 257;
+const uint KEY_BACKSPACE = 259;
 
 using namespace gui;
 
@@ -215,8 +215,17 @@ void InputBindBox::keyPressed(int key) {
 }
 
 // ================================ TrackBar ==================================
-TrackBar::TrackBar(double min, double max, double value, double step, int trackWidth)
-    : UINode(vec2(), vec2(32)), min(min), max(max), value(value), step(step), trackWidth(trackWidth) {
+TrackBar::TrackBar(double min,
+                   double max,
+                   double value,
+                   double step,
+                   int trackWidth)
+    : UINode(vec2(), vec2(26)),
+      min(min),
+      max(max),
+      value(value),
+      step(step),
+      trackWidth(trackWidth) {
     color(glm::vec4(0.f, 0.f, 0.f, 0.4f));
 }
 
@@ -233,7 +242,8 @@ void TrackBar::draw(vulkan::Batch2D* batch, Assets* assets) {
     float t = (value - min) / (max-min+trackWidth*step);
 
     batch->setColor(trackColor);
-    batch->rect(coord.x + width * t, coord.y, size_.x * (trackWidth / (max-min+trackWidth*step) * step), size_.y);
+    int actualWidth = size_.x * (trackWidth / (max-min+trackWidth*step) * step);
+    batch->rect(coord.x + width * t, coord.y, actualWidth, size_.y);
 }
 
 void TrackBar::supplier(doublesupplier supplier) {

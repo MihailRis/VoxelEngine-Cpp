@@ -16,7 +16,7 @@
 #include "../maths/voxmaths.h"
 #include "../core_defs.h"
 
-#define SEA_LEVEL 55
+const int SEA_LEVEL = 55;
 
 class Map2D {
 	int x, z;
@@ -206,7 +206,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 					int tree = generate_tree(&noise, &randomtree, heights, humidity, real_x, real_y, real_z, treesTile);
 					if (tree) {
 						id = tree;
-						states = BLOCK_DIR_Y;
+						states = BLOCK_DIR_UP;
 					}
 				}
 				if (((height - (1.5 - 0.2 * pow(height - 54, 4))) < real_y) && (real_y < height) && humidity.get(real_x, real_z) < 0.1){
@@ -224,7 +224,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 				}
 				if ((height > SEA_LEVEL+1) && ((int)(height + 1) == real_y) && ((unsigned short)randomgrass.rand() > 65533)){
 					id = idWood;
-					states = BLOCK_DIR_Y;
+					states = BLOCK_DIR_UP;
 				}
 				voxels[(y * CHUNK_D + z) * CHUNK_W + x].id = id;
 				voxels[(y * CHUNK_D + z) * CHUNK_W + x].states = states;

@@ -13,13 +13,13 @@
 
 #include "../typedefs.h"
 
-#define REGION_SIZE_BIT 5
-#define REGION_SIZE (1 << (REGION_SIZE_BIT))
-#define REGION_VOL ((REGION_SIZE) * (REGION_SIZE))
-#define REGION_FORMAT_VERSION 1
+const uint REGION_SIZE_BIT = 5;
+const uint REGION_SIZE = (1 << (REGION_SIZE_BIT));
+const uint REGION_VOL = ((REGION_SIZE) * (REGION_SIZE));
+const uint REGION_FORMAT_VERSION = 1;
+const uint WORLD_FORMAT_VERSION = 1;
 #define REGION_FORMAT_MAGIC ".VOXREG"
 #define WORLD_FORMAT_MAGIC ".VOXWLD"
-#define WORLD_FORMAT_VERSION 1
 
 class Player;
 class Chunk;
@@ -39,7 +39,14 @@ class WorldFiles {
 	std::filesystem::path getRegionFile(int x, int y) const;
 	std::filesystem::path getPlayerFile() const;
 	std::filesystem::path getWorldFile() const;
-	std::filesystem::path getBlockIndicesFile() const;
+	std::filesystem::path getIndicesFile() const;
+
+	// TODO: remove in 0.16
+	std::filesystem::path getOldPlayerFile() const;
+	std::filesystem::path getOldWorldFile() const;
+	bool readOldWorldInfo(World* world);
+	bool readOldPlayer(Player* player);
+	// --------------------
 public:
 	std::unordered_map<glm::ivec2, WorldRegion> regions;
 	std::filesystem::path directory;

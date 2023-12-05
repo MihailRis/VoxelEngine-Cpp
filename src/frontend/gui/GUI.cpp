@@ -123,7 +123,7 @@ void GUI::act(float delta) {
 void GUI::draw(vulkan::Batch2D* batch, Assets* assets) {
     vulkan::VulkanContext::get().beginGuiDraw();
     menu->setCoord((Window::size() - menu->size()) / 2.0f);
-    uicamera->fov = static_cast<float>(Window::height);
+    uicamera->setFov(Window::height);
 
 	IShader* uishader = assets->getShader("ui");
 	uishader->use();
