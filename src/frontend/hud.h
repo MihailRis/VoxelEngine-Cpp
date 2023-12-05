@@ -42,13 +42,10 @@ class HudRenderer {
 	std::shared_ptr<gui::UINode> debugPanel;
 	gui::GUI* gui;
 	const ContentGfxCache* const cache;
-	WorldRenderer* renderer;
-
 public:
 	HudRenderer(Engine* engine, 
 				Level* level, 
-				const ContentGfxCache* cache, 
-				WorldRenderer* renderer);
+				const ContentGfxCache* cache);
 	~HudRenderer();
 
 	void update();

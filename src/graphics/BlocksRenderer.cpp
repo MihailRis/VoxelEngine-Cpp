@@ -251,21 +251,18 @@ void BlocksRenderer::blockCubeShaded(const ivec3& icoord,
 		coord += orient.fix;
 		loff -= orient.fix;
 	}
-
-	vec3 fX(X);
-	vec3 fY(Y);
 	vec3 fZ(Z);
 	
-	vec3 local = offset.x*vec3(X)+offset.y*vec3(Y)+offset.z*vec3(-Z);
-	//local -= loff;
+	vec3 local = offset.x*vec3(X)+offset.y*vec3(Y)+offset.z*-fZ;
+	
 	face(coord, X, Y, Z, Z+loff, local-size.z*fZ, size.x, size.y, size.z, texfaces[5]);
 	face(coord+X, -X, Y, -Z, Z-Z-X+loff, local-size.z*fZ, size.x, size.y, 0.0f, texfaces[4]);
 
-	face(coord+Y, X, -Z, Y, Y-Y+loff, local, size.x, size.z, 0.0f, texfaces[3]); //;
-	face(coord+X, -X, -Z, -Y, -Y+Z+loff, local, size.x, size.z, 0.0f, texfaces[2]); //;
+	face(coord+Y, X, -Z, Y, Y-Y+loff, local, size.x, size.z, 0.0f, texfaces[3]);
+	face(coord+X, -X, -Z, -Y, -X-Y+loff, local, size.x, size.z, 0.0f, texfaces[2]);
 	
-	face(coord+X, -Z, Y, X, X-X+loff, local, size.z, size.y, 0.0f, texfaces[1]); //;
-	face(coord+Y, -Z, -Y, -X, -X+Z+loff, local, size.z, size.y, 0.0f, texfaces[0]); //;
+	face(coord+X, -Z, Y, X, X-X+loff, local, size.z, size.y, 0.0f, texfaces[1]);
+	face(coord+Y, -Z, -Y, -X, -X-Y-Z+loff, local, size.z, size.y, 0.0f, texfaces[0]);
 }
 
 /* Fastest solid shaded blocks render method */
