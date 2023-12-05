@@ -25,7 +25,9 @@ toml::Wrapper create_wrapper(EngineSettings& settings) {
 	
 	toml::Section& camera = wrapper.add("camera");
 	camera.add("fov-effects", &settings.camera.fovEvents);
+	camera.add("fov", &settings.camera.fov);
 	camera.add("shaking", &settings.camera.shaking);
+	camera.add("sensitivity", &settings.camera.sensitivity);
 
 	toml::Section& graphics = wrapper.add("graphics");
 	graphics.add("fog-curve", &settings.graphics.fogCurve);

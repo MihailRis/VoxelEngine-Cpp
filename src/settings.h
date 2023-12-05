@@ -37,6 +37,10 @@ struct CameraSettings {
     bool fovEvents = true;
     /* Camera movement shake */
     bool shaking = true;
+	/* Camera field of view */
+	float fov = 90.0f;
+	/* Camera sensitivity */
+	float sensitivity = 2.0f;
 };
 
 struct GraphicsSettings {
