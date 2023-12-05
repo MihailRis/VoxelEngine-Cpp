@@ -7,7 +7,7 @@ using glm::vec3;
 using glm::vec4;
 using glm::mat4;
 
-Camera::Camera(vec3 position, float fov) : position(position), fov(fov), zoom(1.0f), rotation(1.0f) {
+Camera::Camera(vec3 position, float fov) : fov(fov), position(position), zoom(1.0f), rotation(1.0f) {
 	updateVectors();
 }
 
@@ -60,4 +60,12 @@ mat4 Camera::getView(bool pos){
 
 mat4 Camera::getProjView(){
 	return getProjection()*getView();
+}
+
+void Camera::setFov(float fov) {
+	this->fov = fov;
+}
+
+float Camera::getFov() const {
+	return fov;
 }

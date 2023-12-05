@@ -73,7 +73,7 @@ void MenuScreen::draw(float delta) {
     Window::clear();
     Window::setBgColor(vec3(0.2f));
 
-    uicamera->fov = Window::height;
+    uicamera->setFov(Window::height);
 	Shader* uishader = engine->getAssets()->getShader("ui");
 	uishader->use();
 	uishader->uniformMatrix("u_projview", uicamera->getProjView());
@@ -136,12 +136,15 @@ void LevelScreen::update(float delta) {
     if (!gui->isFocusCaught()) {
         updateHotkeys();
     }
+
     // TODO: subscribe for setting change
     EngineSettings& settings = engine->getSettings();
+    level->player->camera->setFov(glm::radians(settings.camera.fov));
     if (settings.graphics.backlight != backlight) {
         level->chunks->saveAndClear();
         backlight = settings.graphics.backlight;
     }
+
     if (!hud->isPause()) {
         level->world->updateTimers(delta);
     }
