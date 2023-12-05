@@ -31,10 +31,10 @@ struct BlockRotProfile {
 	static const int MAX_COUNT = 16;
 	CoordSystem variants[MAX_COUNT];
 
-	/* Wood logs, pillars, pipes
-	   3 orientations supported
-	 */
+	/* Wood logs, pillars, pipes */
 	static const BlockRotProfile PIPE;
+	/* Doors, signs and other panes */
+	static const BlockRotProfile PANE;
 };
 
 enum class BlockModel {

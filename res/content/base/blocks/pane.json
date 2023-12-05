@@ -11,5 +11,5 @@
     "hitbox": [0.0, 0.0, 0.0, 1.0, 1.0, 0.2],
     "light-passing": true,
     "sky-light-passing": true,
-    "rotation": "pipe"
+    "rotation": "pane"
 }

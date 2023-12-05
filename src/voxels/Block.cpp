@@ -21,6 +21,17 @@ const BlockRotProfile BlockRotProfile::PIPE {{
 		{{1, 0, 0}, {0, 0, 1}, {0, -1, 0},	{0, 0, -1}, {0, 1, 0}},
 }};
 
+const BlockRotProfile BlockRotProfile::PANE {{
+		// North
+		{{1, 0, 0}, {0, 1, 0}, {0, 0, 1},	{0, 0, 0}, {0, 0, 0}},
+		// East
+		{{0, 0, -1}, {0, 1, 0}, {1, 0, 0},	{1, 0, 0}, {0, 0, 1}},
+		// South
+		{{-1, 0, 0}, {0, 1, 0}, {0, 0, -1},	{1, 0, -1}, {1, 0, 1}},
+		// West
+		{{0, 0, 1}, {0, 1, 0}, {-1, 0, 0},	{0, 0, -1}, {1, 0, 0}},
+}};
+
 Block::Block(std::string name) 
 	: name(name), 
 	  textureFaces {"notfound","notfound","notfound",
