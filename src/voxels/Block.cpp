@@ -30,4 +30,5 @@ Block::Block(std::string name)
 
 Block::Block(std::string name, std::string texture) : name(name),
 		textureFaces{texture,texture,texture,texture,texture,texture} {
+	rotations = BlockRotProfile::PIPE;
 }

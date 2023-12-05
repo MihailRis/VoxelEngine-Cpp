@@ -372,7 +372,6 @@ vec4 BlocksRenderer::pickSoftLight(float x, float y, float z,
 	return pickSoftLight({int(round(x)), int(round(y)), int(round(z))}, right, up);
 }
 
-#include <iostream>
 void BlocksRenderer::render(const voxel* voxels) {
 	int begin = chunk->bottom * (CHUNK_W * CHUNK_D);
 	int end = chunk->top * (CHUNK_W * CHUNK_D);
@@ -410,14 +409,9 @@ void BlocksRenderer::render(const voxel* voxels) {
 				AABB hitbox = def.hitbox;
 				hitbox.a = vec3(1.0f)-hitbox.a;
 				hitbox.b = vec3(1.0f)-hitbox.b;
-				std::cout << hitbox.a.x << " " << hitbox.a.y << " " << hitbox.a.z << " --- ";
-				std::cout << hitbox.b.x << " " << hitbox.b.y << " " << hitbox.b.z << std::endl;
 
 				vec3 size = hitbox.size();
-
-				std::cout << "s " << size.x << " " << size.y << " " << size.z << std::endl;
 				vec3 off = hitbox.min();
-				std::cout << "m " << off.x << " " << off.y << " " << off.z << std::endl;
 				blockCubeShaded(ivec3(x,y,z), off, size, texfaces, &def, vox.states);
 				break;
 			}
