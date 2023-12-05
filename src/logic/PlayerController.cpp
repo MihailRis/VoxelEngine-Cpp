@@ -223,14 +223,12 @@ void PlayerController::updateInteraction(){
 		if (def->rotatable){
 			const string& name = def->rotations.name;
 			if (name == "pipe") {
-				if (abs(norm.x) > abs(norm.z)){
-					if (abs(norm.x) > abs(norm.y)) states = BLOCK_DIR_X;
-					if (abs(norm.x) < abs(norm.y)) states = BLOCK_DIR_Y;
-				}
-				if (abs(norm.x) < abs(norm.z)){
-					if (abs(norm.z) > abs(norm.y)) states = BLOCK_DIR_Z;
-					if (abs(norm.z) < abs(norm.y)) states = BLOCK_DIR_Y;
-				}
+				if (norm.x < 0.0f) states = BLOCK_DIR_WEST;
+				else if (norm.x > 0.0f) states = BLOCK_DIR_EAST;
+				else if (norm.y > 0.0f) states = BLOCK_DIR_UP;
+				else if (norm.y < 0.0f) states = BLOCK_DIR_DOWN;
+				else if (norm.z > 0.0f) states = BLOCK_DIR_NORTH;
+				else if (norm.z < 0.0f) states = BLOCK_DIR_SOUTH;
 			} else if (name == "pane") {
 				vec3 vec = camera->dir;
 				if (abs(vec.x) > abs(vec.z)){
