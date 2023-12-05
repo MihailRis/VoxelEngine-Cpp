@@ -83,8 +83,7 @@ class BlocksRenderer {
 		face(coord, w, h, axisX, axisY, region, lights, glm::vec4(1.0f));
 	}
 
-	void cube(const glm::vec3& coord, const glm::vec3& size, const UVRegion(&faces)[6]);
-	void blockCube(int x, int y, int z, const glm::vec3& size, const UVRegion(&faces)[6], ubyte group);
+	void blockCube(int x, int y, int z, const UVRegion(&faces)[6], ubyte group);
 	/* Fastest solid shaded blocks render method */
 	void blockCubeShaded(int x, int y, int z, const UVRegion(&faces)[6], const Block* block, ubyte states);
 	/* AABB blocks render method (WIP)*/
@@ -98,12 +97,12 @@ class BlocksRenderer {
 	glm::vec4 pickLight(const glm::ivec3& coord) const;
 	glm::vec4 pickSoftLight(const glm::ivec3& coord, const glm::ivec3& right, const glm::ivec3& up) const;
 	glm::vec4 pickSoftLight(float x, float y, float z, const glm::ivec3& right, const glm::ivec3& up) const;
-	void render(const voxel* voxels, int atlas_size);
+	void render(const voxel* voxels);
 public:
 	BlocksRenderer(size_t capacity, const Content* content, const ContentGfxCache* cache, const EngineSettings& settings);
 	virtual ~BlocksRenderer();
 
-	Mesh* render(const Chunk* chunk, int atlas_size, const ChunksStorage* chunks);
+	Mesh* render(const Chunk* chunk, const ChunksStorage* chunks);
 	VoxelsVolume* getVoxelsBuffer() const;
 };
 
