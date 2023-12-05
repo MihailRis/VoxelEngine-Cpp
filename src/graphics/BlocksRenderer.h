@@ -84,10 +84,14 @@ class BlocksRenderer {
 	}
 
 	void blockCube(int x, int y, int z, const UVRegion(&faces)[6], ubyte group);
-	/* Fastest solid shaded blocks render method */
+	
 	void blockCubeShaded(int x, int y, int z, const UVRegion(&faces)[6], const Block* block, ubyte states);
-	/* AABB blocks render method (WIP)*/
-	void blockCubeShaded(const glm::vec3& pos, const glm::vec3& size, const UVRegion(&faces)[6], const Block* block, ubyte states);
+	void blockCubeShaded(const glm::ivec3& coord, 
+						 const glm::vec3& offset, 
+						 const glm::vec3& size, 
+						 const UVRegion(&faces)[6], 
+						 const Block* block, 
+						 ubyte states);
 	void blockXSprite(int x, int y, int z, const glm::vec3& size, const UVRegion& face1, const UVRegion& face2, float spread);
 
 	bool isOpenForLight(int x, int y, int z) const;
