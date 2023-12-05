@@ -214,8 +214,17 @@ void InputBindBox::keyPressed(int key) {
 }
 
 // ================================ TrackBar ==================================
-TrackBar::TrackBar(double min, double max, double value, double step, int trackWidth)
-    : UINode(vec2(), vec2(32)), min(min), max(max), value(value), step(step), trackWidth(trackWidth) {
+TrackBar::TrackBar(double min, 
+                   double max, 
+                   double value, 
+                   double step, 
+                   int trackWidth)
+    : UINode(vec2(), vec2(26)), 
+      min(min), 
+      max(max), 
+      value(value), 
+      step(step), 
+      trackWidth(trackWidth) {
     color(vec4(0.f, 0.f, 0.f, 0.4f));
 }
 
@@ -232,7 +241,8 @@ void TrackBar::draw(Batch2D* batch, Assets* assets) {
     float t = (value - min) / (max-min+trackWidth*step);
 
     batch->color = trackColor;
-    batch->rect(coord.x + width * t, coord.y, size_.x * (trackWidth / (max-min+trackWidth*step) * step), size_.y);
+    int actualWidth = size_.x * (trackWidth / (max-min+trackWidth*step) * step);
+    batch->rect(coord.x + width * t, coord.y, actualWidth, size_.y);
 }
 
 void TrackBar::supplier(doublesupplier supplier) {
