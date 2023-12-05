@@ -12,7 +12,7 @@ void CoordSystem::transform(AABB& aabb) {
 	aabb.b += fix2;
 }
 
-const BlockRotProfile BlockRotProfile::PIPE {{
+const BlockRotProfile BlockRotProfile::PIPE {"pipe", {
 		// Vertical
 		{{1, 0, 0}, {0, 1, 0}, {0, 0, 1},	{0, 0, 0}, {0, 0, 0}},
 		// X-Aligned
@@ -21,7 +21,7 @@ const BlockRotProfile BlockRotProfile::PIPE {{
 		{{1, 0, 0}, {0, 0, 1}, {0, -1, 0},	{0, 0, -1}, {0, 1, 0}},
 }};
 
-const BlockRotProfile BlockRotProfile::PANE {{
+const BlockRotProfile BlockRotProfile::PANE {"pane", {
 		// North
 		{{1, 0, 0}, {0, 1, 0}, {0, 0, 1},	{0, 0, 0}, {0, 0, 0}},
 		// East

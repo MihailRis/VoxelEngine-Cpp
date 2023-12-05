@@ -29,6 +29,7 @@ struct CoordSystem {
 
 struct BlockRotProfile {
 	static const int MAX_COUNT = 16;
+	std::string name;
 	CoordSystem variants[MAX_COUNT];
 
 	/* Wood logs, pillars, pipes */
