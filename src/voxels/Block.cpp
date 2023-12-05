@@ -1,5 +1,7 @@
 #include "Block.h"
 
+#include "../core_defs.h"
+
 using glm::vec3;
 
 void CoordSystem::transform(AABB& aabb) {
@@ -34,8 +36,8 @@ const BlockRotProfile BlockRotProfile::PANE {"pane", {
 
 Block::Block(std::string name) 
 	: name(name), 
-	  textureFaces {"notfound","notfound","notfound",
-	  			    "notfound","notfound","notfound",} {
+	  textureFaces {TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,
+	  			    TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,} {
 	rotations = BlockRotProfile::PIPE;
 }
 

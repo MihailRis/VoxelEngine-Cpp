@@ -5,6 +5,8 @@
 
 const int BLOCK_AIR = 0;
 
+const std::string TEXTURE_NOTFOUND = "notfound";
+
 const std::string BIND_MOVE_FORWARD = "movement.forward";
 const std::string BIND_MOVE_BACK = "movement.back";
 const std::string BIND_MOVE_LEFT = "movement.left";
