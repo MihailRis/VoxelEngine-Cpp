@@ -14,7 +14,7 @@ const float PLAYER_GROUND_DAMPING = 10.0f;
 const float PLAYER_AIR_DAMPING = 7.0f;
 const float FLIGHT_SPEED_MUL = 4.0f;
 const float CHEAT_SPEED_MUL = 5.0f;
-const float JUMP_FORCE = 7.0f;
+const float JUMP_FORCE = 8.0f;
 
 Player::Player(glm::vec3 position, float speed, Camera* camera) :
 		speed(speed),

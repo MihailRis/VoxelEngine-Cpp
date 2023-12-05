@@ -17,7 +17,7 @@
 
 const float CAM_SHAKE_OFFSET = 0.025f;
 const float CAM_SHAKE_OFFSET_Y = 0.031f;
-const float CAM_SHAKE_SPEED = 1.6f;
+const float CAM_SHAKE_SPEED = 1.75f;
 const float CAM_SHAKE_DELTA_K = 10.0f;
 const float ZOOM_SPEED = 16.0f;
 const float CROUCH_ZOOM = 0.9f;
