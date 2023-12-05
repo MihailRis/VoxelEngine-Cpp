@@ -126,9 +126,9 @@ void BlocksRenderer::face(const ivec3& coord,
 		return;
 	}
 
-	const vec3 sunVector = vec3(0.431934f, 0.863868f, 0.259161f);
+	const vec3 sunVector = vec3(0.411934f, 0.863868f, 0.279161f);
 	float d = glm::dot(vec3(axisZ.x, axisZ.y, axisZ.z), sunVector);
-	d = 0.75f +  d*0.25f;
+	d = 0.7f +  d*0.3f;
 
 	vec4 tint(d);
 		
