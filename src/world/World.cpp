@@ -43,9 +43,10 @@ void World::write(Level* level) {
 
 	for (size_t i = 0; i < chunks->volume; i++) {
 		shared_ptr<Chunk> chunk = chunks->chunks[i];
-		if (chunk == nullptr)
+		if (chunk == nullptr || !chunk->isLighted())
 			continue;
-		bool lightsUnsaved = !chunk->isLoadedLights() && settings.debug.doWriteLights;
+		bool lightsUnsaved = !chunk->isLoadedLights() && 
+							  settings.debug.doWriteLights;
 		if (!chunk->isUnsaved() && !lightsUnsaved)
 			continue;
 		wfile->put(chunk.get());
