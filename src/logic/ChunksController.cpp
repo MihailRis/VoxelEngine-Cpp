@@ -79,7 +79,9 @@ bool ChunksController::loadVisible(){
 				}
 				chunk->surrounding = surrounding;
 				if (surrounding == MIN_SURROUNDING && !chunk->isLighted()) {
-					lighting->buildSkyLight(chunk->x, chunk->z);
+					if (!chunk->isLoadedLights()) {
+						lighting->buildSkyLight(chunk->x, chunk->z);
+					}
 					lighting->onChunkLoaded(chunk->x, chunk->z);
 					chunk->setLighted(true);
 					return true;
@@ -123,6 +125,8 @@ bool ChunksController::loadVisible(){
 			chunk->voxels[i].id = 11;
 		}
 	}
-	lighting->prebuildSkyLight(chunk->x, chunk->z);
+	if (!chunk->isLoadedLights()) {
+		lighting->prebuildSkyLight(chunk->x, chunk->z);
+	}
 	return true;
 }

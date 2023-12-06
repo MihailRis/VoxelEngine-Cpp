@@ -13,6 +13,7 @@
 #include "../typedefs.h"
 #include "../maths/voxmaths.h"
 #include "../world/World.h"
+#include "../lighting/Lightmap.h"
 
 #include "../util/data_io.h"
 #include "../coders/json.h"
@@ -87,8 +88,10 @@ uint WorldRegion::getSize(uint x, uint z) {
 	return sizes[z * REGION_SIZE + x];
 }
 
-WorldFiles::WorldFiles(path directory, bool generatorTestMode) 
-	: directory(directory), generatorTestMode(generatorTestMode) {
+WorldFiles::WorldFiles(path directory, const DebugSettings& settings) 
+	: directory(directory), 
+	  generatorTestMode(settings.generatorTestMode),
+	  doWriteLights(settings.doWriteLights) {
 	compressionBuffer = new ubyte[CHUNK_DATA_LEN * 2];
 }
 
@@ -106,6 +109,17 @@ WorldRegion* WorldFiles::getRegion(unordered_map<ivec2, WorldRegion*>& regions,
 	if (found == regions.end())
 		return nullptr;
 	return found->second;
+}
+
+WorldRegion* WorldFiles::getOrCreateRegion(
+			unordered_map<ivec2, WorldRegion*>& regions, 
+			int x, int z) {
+	WorldRegion* region = getRegion(regions, x, z);
+	if (region == nullptr) {
+		region = new WorldRegion();
+		regions[ivec2(x, z)] = region;
+	}
+	return region;
 }
 
 ubyte* WorldFiles::compress(ubyte* src, size_t srclen, size_t& len) {
@@ -128,30 +142,38 @@ void WorldFiles::put(Chunk* chunk){
 
 	int regionX = floordiv(chunk->x, REGION_SIZE);
 	int regionZ = floordiv(chunk->z, REGION_SIZE);
-
-	WorldRegion* region = getRegion(regions, regionX, regionZ);
-	if (region == nullptr) {
-		region = new WorldRegion();
-		regions[ivec2(regionX, regionZ)] = region;
-	}
-	region->setUnsaved(true);
-
 	int localX = chunk->x - (regionX * REGION_SIZE);
 	int localZ = chunk->z - (regionZ * REGION_SIZE);
 
-	unique_ptr<ubyte[]> chunk_data (chunk->encode());
-	size_t compressedSize;
-	ubyte* data = compress(chunk_data.get(), CHUNK_DATA_LEN, compressedSize);
-	region->put(localX, localZ, data, compressedSize);
+	/* Writing Voxels */ {
+		WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
+		region->setUnsaved(true);
+		unique_ptr<ubyte[]> chunk_data (chunk->encode());
+		size_t compressedSize;
+		ubyte* data = compress(chunk_data.get(), CHUNK_DATA_LEN, compressedSize);
+		region->put(localX, localZ, data, compressedSize);
+	}
+	if (doWriteLights) {
+		WorldRegion* region = getOrCreateRegion(lights, regionX, regionZ);
+		region->setUnsaved(true);
+		unique_ptr<ubyte[]> light_data (chunk->lightmap->encode());
+		size_t compressedSize;
+		ubyte* data = compress(light_data.get(), LIGHTMAP_DATA_LEN, compressedSize);
+		region->put(localX, localZ, data, compressedSize);
+	}
 }
 
 path WorldFiles::getRegionsFolder() const {
 	return directory/path("regions");
 }
 
-path WorldFiles::getRegionFile(int x, int y) const {
+path WorldFiles::getLightsFolder() const {
+	return directory/path("lights");
+}
+
+path WorldFiles::getRegionFilename(int x, int y) const {
 	string filename = std::to_string(x) + "_" + std::to_string(y) + ".bin";
-	return getRegionsFolder()/path(filename);
+	return path(filename);
 }
 
 path WorldFiles::getPlayerFile() const {
@@ -175,6 +197,19 @@ path WorldFiles::getOldWorldFile() const {
 }
 
 ubyte* WorldFiles::getChunk(int x, int z){
+	return getData(regions, getRegionsFolder(), x, z);
+}
+
+light_t* WorldFiles::getLights(int x, int z) {
+	ubyte* data = getData(lights, getLightsFolder(), x, z);
+	if (data == nullptr)
+		return nullptr;
+	return Lightmap::decode(data);
+}
+
+ubyte* WorldFiles::getData(unordered_map<ivec2, WorldRegion*>& regions,
+						   const path& folder,
+						   int x, int z) {
 	int regionX = floordiv(x, REGION_SIZE);
 	int regionZ = floordiv(z, REGION_SIZE);
 
@@ -190,7 +225,8 @@ ubyte* WorldFiles::getChunk(int x, int z){
 	ubyte* data = region->get(localX, localZ);
 	if (data == nullptr) {
 		uint32_t size;
-		data = readChunkData(x, z, size, getRegionFile(regionX, regionZ));
+		data = readChunkData(x, z, size, 
+			folder/getRegionFilename(regionX, regionZ));
 		if (data) {
 			region->put(localX, localZ, data, size);
 		}
@@ -278,21 +314,36 @@ void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, path filename){
 	}
 }
 
+void WorldFiles::writeRegions(unordered_map<ivec2, WorldRegion*>& regions,
+							  const path& folder) {
+	for (auto it : regions){
+		WorldRegion* region = it.second;
+		if (region->getChunks() == nullptr || !region->isUnsaved())
+			continue;
+		ivec2 key = it.first;
+		writeRegion(key.x, key.y, region, folder/getRegionFilename(key.x, key.y));
+	}
+}
+
 void WorldFiles::write(const World* world, const Content* content) {
-	path directory = getRegionsFolder();
-	if (!fs::is_directory(directory)) {
-		fs::create_directories(directory);
+	{
+		path directory = getRegionsFolder();
+		if (!fs::is_directory(directory)) {
+			fs::create_directories(directory);
+		}
+	}
+	{
+		path directory = getLightsFolder();
+		if (!fs::is_directory(directory)) {
+			fs::create_directories(directory);
+		}
 	}
 	writeWorldInfo(world);
 	if (generatorTestMode)
 		return;
 	writeIndices(content->indices);
-	for (auto it = regions.begin(); it != regions.end(); it++){
-		if (it->second->getChunks() == nullptr || !it->second->isUnsaved())
-			continue;
-		ivec2 key = it->first;
-		writeRegion(key.x, key.y, it->second, getRegionFile(key.x, key.y));
-	}
+	writeRegions(regions, getRegionsFolder());
+	writeRegions(lights, getLightsFolder());
 }
 
 void WorldFiles::writeIndices(const ContentIndices* indices) {

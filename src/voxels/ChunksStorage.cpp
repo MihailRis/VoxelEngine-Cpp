@@ -50,6 +50,12 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 		chunk->decode(data.get());
 		chunk->setLoaded(true);
 	}
+
+	light_t* lights = level->world->wfile->getLights(chunk->x, chunk->z);
+	if (lights) {
+		chunk->lightmap->set(lights);
+		chunk->setLoadedLights(true);
+	}
 	return chunk;
 }
 

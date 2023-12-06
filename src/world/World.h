@@ -14,6 +14,7 @@ class Level;
 class Player;
 
 class World {
+	EngineSettings& settings;
 public:
 	std::string name;
 	WorldFiles* wfile;

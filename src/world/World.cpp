@@ -21,8 +21,10 @@ World::World(string name,
 			 path directory, 
 			 uint64_t seed, 
 			 EngineSettings& settings) 
-			: name(name), seed(seed) {
-	wfile = new WorldFiles(directory, settings.debug.generatorTestMode);
+		: settings(settings), 
+		  name(name), 
+		  seed(seed) {
+	wfile = new WorldFiles(directory, settings.debug);
 }
 
 World::~World(){
@@ -41,7 +43,10 @@ void World::write(Level* level) {
 
 	for (size_t i = 0; i < chunks->volume; i++) {
 		shared_ptr<Chunk> chunk = chunks->chunks[i];
-		if (chunk == nullptr || !chunk->isUnsaved())
+		if (chunk == nullptr)
+			continue;
+		bool lightsUnsaved = !chunk->isLoadedLights() && settings.debug.doWriteLights;
+		if (!chunk->isUnsaved() && !lightsUnsaved)
 			continue;
 		wfile->put(chunk.get());
 	}
