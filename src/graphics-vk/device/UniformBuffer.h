@@ -18,7 +18,7 @@ namespace vulkan {
         VkDescriptorBufferInfo getBufferInfo() const;
 
         template<typename T>
-        void uploadData(T data) const {
+        void uploadData(T data) {
             void *mapedData = nullptr;
 
             mapMemory(&mapedData);

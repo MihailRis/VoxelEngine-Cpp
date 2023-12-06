@@ -19,7 +19,8 @@ Device::Device(Instance &instance, VkSurfaceKHR surface) : m_physicalDevice(inst
         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME, // this extension is used to disable the need to create renderpasses and frame buffers
         VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME,
         VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,
-        VK_KHR_MULTIVIEW_EXTENSION_NAME
+        VK_KHR_MULTIVIEW_EXTENSION_NAME,
+        VK_EXT_LINE_RASTERIZATION_EXTENSION_NAME
     };
     VkPhysicalDevice physicalDevice = instance.getPhysicalDevice();
     u32 queueCount = 0;

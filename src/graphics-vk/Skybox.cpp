@@ -5,7 +5,7 @@
 #include "Skybox.h"
 
 #include <array>
-#include "../graphics-base/IShader.h"
+#include "../graphics-common/IShader.h"
 
 #ifndef M_PI
 #define M_PI 3.141592

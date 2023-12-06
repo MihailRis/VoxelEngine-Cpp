@@ -3,7 +3,7 @@
 
 #include <string>
 #include "../typedefs.h"
-#include "../graphics-base/ITexture.h"
+#include "../graphics-common/ITexture.h"
 
 class ImageData;
 

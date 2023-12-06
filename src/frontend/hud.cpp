@@ -13,7 +13,7 @@
 #include "../util/stringutil.h"
 #include "../util/timeutil.h"
 #include "../assets/Assets.h"
-#include "../graphics-base/IShader.h"
+#include "../graphics-common/IShader.h"
 #include "../graphics/Batch2D.h"
 #include "../graphics/Batch3D.h"
 #include "../graphics/Font.h"
@@ -65,9 +65,9 @@ HudRenderer::HudRenderer(Engine* engine,
 			  gui(engine->getGUI()),
 			  cache(cache) {
 	auto menu = gui->getMenu();
-	blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
-									  assets->getAtlas("blocks"),
-									  cache);
+	// blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
+	// 								  assets->getAtlas("blocks"),
+	// 								  cache);
 
 	uicamera = new Camera(vec3(), 1);
 	uicamera->perspective = false;
@@ -317,10 +317,10 @@ void HudRenderer::draw(const GfxContext& ctx){
 	batch->setColor(vec4(1.0f));
 	if (Events::_cursor_locked && !level->player->debug) {
 		// batch->lineWidth(2);
-		batch->line(width/2, height/2-6, width/2, height/2+6, 0.2f, 0.2f, 0.2f, 1.0f);
-		batch->line(width/2+6, height/2, width/2-6, height/2, 0.2f, 0.2f, 0.2f, 1.0f);
-		batch->line(width/2-5, height/2-5, width/2+5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
-		batch->line(width/2+5, height/2-5, width/2-5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
+		// batch->line(width/2, height/2-6, width/2, height/2+6, 0.2f, 0.2f, 0.2f, 1.0f);
+		// batch->line(width/2+6, height/2, width/2-6, height/2, 0.2f, 0.2f, 0.2f, 1.0f);
+		// batch->line(width/2-5, height/2-5, width/2+5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
+		// batch->line(width/2+5, height/2-5, width/2-5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
 	}
 	Player* player = level->player;
 

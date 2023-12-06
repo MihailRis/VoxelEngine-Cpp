@@ -3,7 +3,7 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
-#include "../../graphics-base/IShader.h"
+#include "../../graphics-common/IShader.h"
 #include "../../graphics/Mesh.h"
 #include "../../window/Window.h"
 

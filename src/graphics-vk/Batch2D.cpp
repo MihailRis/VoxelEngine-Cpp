@@ -5,12 +5,12 @@
 #include "Batch2D.h"
 
 #include "texture/Image2d.h"
+#include <vulkan/vulkan.h>
 
 namespace vulkan {
     Batch2D::Batch2D(size_t capacity) : m_capacity(capacity) {
-        m_buffer = new Vertex2D[capacity];
-
         m_mesh = new Mesh(m_buffer, capacity);
+        m_mesh->mapVertex(&m_buffer);
 
         constexpr unsigned char pixels[] = {
             255, 255, 255, 255
@@ -201,7 +201,7 @@ namespace vulkan {
     void Batch2D::render() {
         const VertexOffset offset = {m_currentOffset, m_index - m_currentOffset};
         if (offset.count == 0 || offset.offset >= m_capacity) return;
-        m_mesh->reload(m_buffer, m_index);
+        m_mesh->reload(nullptr, m_index);
         m_texture->bind();
         m_mesh->draw(offset);
 

@@ -114,13 +114,7 @@ inline std::vector<VkDescriptorSetLayoutBinding> getUniformSetBindingsByShader(S
             VkDescriptorSetLayoutBinding skyboxUniformBinding{};
             skyboxUniformBinding.binding = 0;
             skyboxUniformBinding.descriptorCount = 1;
-            skyboxUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;VkDescriptorSetLayoutBinding projviewUniformBinding{};
-            projviewUniformBinding.binding = 0;
-            projviewUniformBinding.descriptorCount = 1;
-            projviewUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            projviewUniformBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-            descriptroBindings.emplace_back(projviewUniformBinding);
+            skyboxUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             skyboxUniformBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
             descriptroBindings.emplace_back(skyboxUniformBinding);
@@ -133,10 +127,10 @@ inline std::vector<VkDescriptorSetLayoutBinding> getUniformSetBindingsByShader(S
             projviewUniformBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
             VkDescriptorSetLayoutBinding applyUniformBinding{};
-            projviewUniformBinding.binding = 1;
-            projviewUniformBinding.descriptorCount = 1;
-            projviewUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            projviewUniformBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+            applyUniformBinding.binding = 1;
+            applyUniformBinding.descriptorCount = 1;
+            applyUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            applyUniformBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
             descriptroBindings.emplace_back(projviewUniformBinding);
             descriptroBindings.emplace_back(applyUniformBinding);

@@ -32,6 +32,9 @@ namespace vulkan {
     struct FrameData {
         VkCommandPool commandPool;
         VkCommandBuffer screenCommandBuffer, guiCommandBuffer;
+
+        VkSemaphore presentSemaphore, renderSemaphore, uiRenderSemaphore;
+        VkFence renderFence;
     };
 
     class UniformBuffersHolder {
@@ -50,9 +53,15 @@ namespace vulkan {
 
         void initBuffers();
 
-        const UniformBuffer *operator[](Type index) const;
+        UniformBuffer *operator[](Type index) const;
 
         void destroy();
+    };
+
+    struct UploadContext {
+        VkFence uploadFence;
+        VkCommandPool commandPool;
+        VkCommandBuffer commandBuffer;
     };
 
     extern PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKhr;
@@ -70,12 +79,11 @@ namespace vulkan {
         uint32_t m_currentImage = 0;
         uint32_t m_currentFrame = 0;
 
+        UploadContext m_uploadContext;
+
         UniformBuffersHolder m_uniformBuffersHolder;
 
         FrameData m_frameDatas[MAX_FRAMES_IN_FLIGHT]{};
-        // TODO: test semaphires in frame data array
-        VkSemaphore m_presentSemaphore, m_renderSemaphore, m_uiRenderSemaphore;
-        VkFence m_renderFence;
 
         State m_state;
     public:
@@ -84,6 +92,7 @@ namespace vulkan {
 
         void initDescriptorPool();
         void initDepth();
+        void initUploadContext();
         void initFrameDatas();
         void initUniformBuffers();
 
@@ -97,15 +106,18 @@ namespace vulkan {
         const Swapchain &getSwapchain() const;
         const ImageDepth &getDepth() const;
         VkDescriptorPool getDescriptorPool() const;
-        const UniformBuffer *getUniformBuffer(UniformBuffersHolder::Type type) const;
+
+        void immediateSubmit(std::function<void(VkCommandBuffer)> &&function) const;
+
+        UniformBuffer* getUniformBuffer(UniformBuffersHolder::Type type);
 
         void recreateSwapChain();
 
         void updateState(GraphicsPipeline *pipeline);
         void updateStateCommandBuffer(VkCommandBuffer commandBuffer);
 
-        void beginDrawToImage(const Image &image, float r, float g, float b, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
-        void endDrawToImage(const Image &image);
+        // void beginDrawToImage(const Image &image, float r, float g, float b, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
+        // void endDrawToImage(const Image &image);
 
         void beginScreenDraw(float r, float g, float b, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
         void endScreenDraw();

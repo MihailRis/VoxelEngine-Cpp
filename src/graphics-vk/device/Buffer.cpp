@@ -20,7 +20,7 @@ namespace vulkan {
         allocationCreateInfo.flags = flags;
         allocationCreateInfo.requiredFlags = properties;
 
-        vmaCreateBuffer(allocator, &bufferCreateInfo, &allocationCreateInfo, &m_buffer, &m_allocation, nullptr);
+        vmaCreateBuffer(allocator, &bufferCreateInfo, &allocationCreateInfo, &m_buffer, &m_allocation, &m_info);
     }
 
     Buffer::~Buffer() {
@@ -28,14 +28,16 @@ namespace vulkan {
     }
 
 
-    void Buffer::mapMemory(void **data) const {
+    void Buffer::mapMemory(void **data) {
         auto &allocator = VulkanContext::get().getAllocator();
         vmaMapMemory(allocator, m_allocation, data);
+        m_mapped = true;
     }
 
-    void Buffer::unmapMemory() const {
+    void Buffer::unmapMemory() {
         auto &allocator = VulkanContext::get().getAllocator();
         vmaUnmapMemory(allocator, m_allocation);
+        m_mapped = false;
     }
 
     uint64_t Buffer::getSize() const {
@@ -106,6 +108,8 @@ namespace vulkan {
 
     void Buffer::destroy() {
         if (m_destroyed) return;
+        if (m_mapped) unmapMemory();
+
         auto &allocator = VulkanContext::get().getAllocator();
         vmaDestroyBuffer(allocator, m_buffer, m_allocation);
         m_destroyed = true;

@@ -12,7 +12,7 @@
 
 #include "ShaderType.h"
 
-struct VertexMain {
+struct Vertex3D {
     glm::vec3 position;
     glm::vec2 textureCoord;
     float light;
@@ -21,7 +21,7 @@ struct VertexMain {
         VkVertexInputBindingDescription inputBindingDescription{};
         inputBindingDescription.binding = 0;
         inputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        inputBindingDescription.stride = sizeof(VertexMain);
+        inputBindingDescription.stride = sizeof(Vertex3D);
 
         return inputBindingDescription;
     }
@@ -31,19 +31,19 @@ struct VertexMain {
         posAttrib.binding = 0;
         posAttrib.location = 0;
         posAttrib.format = VK_FORMAT_R32G32B32_SFLOAT;
-        posAttrib.offset = offsetof(VertexMain, position);
+        posAttrib.offset = offsetof(Vertex3D, position);
 
         VkVertexInputAttributeDescription texCoordAttrib{};
         texCoordAttrib.binding = 0;
         texCoordAttrib.location = 1;
         texCoordAttrib.format = VK_FORMAT_R32G32_SFLOAT;
-        texCoordAttrib.offset = offsetof(VertexMain, textureCoord);
+        texCoordAttrib.offset = offsetof(Vertex3D, textureCoord);
 
         VkVertexInputAttributeDescription lightAttrib{};
         lightAttrib.binding = 0;
         lightAttrib.location = 2;
         lightAttrib.format = VK_FORMAT_R32_SFLOAT;
-        lightAttrib.offset = offsetof(VertexMain, light);
+        lightAttrib.offset = offsetof(Vertex3D, light);
 
         return { posAttrib, texCoordAttrib, lightAttrib };
     }
@@ -58,7 +58,7 @@ struct Vertex3DUI {
         VkVertexInputBindingDescription inputBindingDescription{};
         inputBindingDescription.binding = 0;
         inputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        inputBindingDescription.stride = sizeof(VertexMain);
+        inputBindingDescription.stride = sizeof(Vertex3D);
 
         return inputBindingDescription;
     }
@@ -86,7 +86,7 @@ struct Vertex3DUI {
     }
 };
 
-struct VertexLines {
+struct VertexLine {
     glm::vec3 position;
     glm::vec4 color;
 
@@ -94,7 +94,7 @@ struct VertexLines {
         VkVertexInputBindingDescription inputBindingDescription{};
         inputBindingDescription.binding = 0;
         inputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        inputBindingDescription.stride = sizeof(VertexLines);
+        inputBindingDescription.stride = sizeof(VertexLine);
 
         return inputBindingDescription;
     }
@@ -104,13 +104,13 @@ struct VertexLines {
         posAttrib.binding = 0;
         posAttrib.location = 0;
         posAttrib.format = VK_FORMAT_R32G32B32_SFLOAT;
-        posAttrib.offset = offsetof(VertexLines, position);
+        posAttrib.offset = offsetof(VertexLine, position);
 
         VkVertexInputAttributeDescription colorAttrib{};
         colorAttrib.binding = 0;
         colorAttrib.location = 1;
         colorAttrib.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-        colorAttrib.offset = offsetof(VertexLines, color);
+        colorAttrib.offset = offsetof(VertexLine, color);
 
         return { posAttrib, colorAttrib };
     }
@@ -178,9 +178,9 @@ struct Vertex2D {
 inline VkVertexInputBindingDescription getVertexBindingByType(ShaderType type) {
     switch (type) {
         case ShaderType::MAIN:
-            return VertexMain::getBinding();
+            return Vertex3D::getBinding();
         case ShaderType::LINES:
-            return VertexLines::getBinding();
+            return VertexLine::getBinding();
         case ShaderType::UI:
             return Vertex2D::getBinding();
         case ShaderType::BACKGROUND:
@@ -199,9 +199,9 @@ inline std::vector<VkVertexInputAttributeDescription> getVertexAttributeDescript
         case ShaderType::NONE:
             break;
         case ShaderType::MAIN:
-            return VertexMain::getAttributes();
+            return Vertex3D::getAttributes();
         case ShaderType::LINES:
-            return VertexLines::getAttributes();
+            return VertexLine::getAttributes();
         case ShaderType::UI:
             return Vertex2D::getAttributes();
         case ShaderType::BACKGROUND:

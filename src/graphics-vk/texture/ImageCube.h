@@ -5,7 +5,7 @@
 #ifndef IMAGECUBE_H
 #define IMAGECUBE_H
 #include "Image.h"
-#include "../../graphics-base/ITexture.h"
+#include "../../graphics-common/ITexture.h"
 
 
 class ImageCube : public Image, public ITexture {

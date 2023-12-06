@@ -122,7 +122,7 @@ namespace vulkan {
 
     // TODO: optimize this
     void Shader::updateUniform() {
-        const auto &context = VulkanContext::get();
+        auto &context = VulkanContext::get();
         auto *stateBuffer = context.getUniformBuffer(UniformBuffersHolder::STATE);
         auto *fogBuffer = context.getUniformBuffer(UniformBuffersHolder::FOG);
         auto *projectionViewBuffer = context.getUniformBuffer(UniformBuffersHolder::PROJECTION_VIEW);

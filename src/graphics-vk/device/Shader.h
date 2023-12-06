@@ -13,7 +13,7 @@
 
 #include "../UniformValues.h"
 #include "../ShaderType.h"
-#include "../../graphics-base/IShader.h"
+#include "../../graphics-common/IShader.h"
 
 class GraphicsPipeline;
 

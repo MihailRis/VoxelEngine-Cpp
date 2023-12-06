@@ -9,8 +9,8 @@
 namespace vulkan {
 
     class LineBatch {
-        Mesh<VertexLines> *m_mesh = nullptr;
-        VertexLines *m_buffer = nullptr;
+        Mesh<VertexLine> *m_mesh = nullptr;
+        VertexLine *m_buffer = nullptr;
         size_t m_index = 0;
         size_t m_capacity = 0;
     public:
@@ -21,6 +21,15 @@ namespace vulkan {
             float r, float g, float b, float a);
         void box(float x, float y, float z, float w, float h, float d,
                 float r, float g, float b, float a);
+
+        inline void line(const glm::vec3 a, const glm::vec3 b, const glm::vec4 color) {
+            line(a.x, a.y, a.z, b.x, b.y, b.z, color.r, color.g, color.b, color.a);
+        }
+
+        inline void box(glm::vec3 xyz, glm::vec3 whd, glm::vec4 rgba) {
+            box(xyz.x, xyz.y, xyz.z, whd.x, whd.y, whd.z,
+                       rgba.r, rgba.g, rgba.b, rgba.a);
+        }
 
         void render();
         void lineWidth(float width);

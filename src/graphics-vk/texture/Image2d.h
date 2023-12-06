@@ -6,7 +6,7 @@
 #define TEXTURE_H
 
 #include "Image.h"
-#include "../../graphics-base/ITexture.h"
+#include "../../graphics-common/ITexture.h"
 
 class ImageData;
 

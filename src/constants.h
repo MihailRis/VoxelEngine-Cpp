@@ -2,14 +2,15 @@
 #define SRC_CONSTANTS_H_
 
 #include <climits>
+#include <limits>
+
 #include "typedefs.h"
 
-const int ENGINE_VERSION_MAJOR = 0;
-const int ENGINE_VERSION_MINOR = 15;
+constexpr int ENGINE_VERSION_MAJOR = 0;
+constexpr int ENGINE_VERSION_MINOR = 15;
 #define MAKE_VERSION(major, minor, patch) \
 			((((uint32_t)(major)) << 22U) | (((uint32_t)(minor)) << 12U) | ((uint32_t)(patch)))
-#define ENGINE_VERSION_VALUE MAKE_VERSION(0, 15, 0)
-
+constexpr uint32_t ENGINE_VERSION_VALUE = MAKE_VERSION(0, 15, 0);
 
 const int CHUNK_W = 16;
 const int CHUNK_H = 256;

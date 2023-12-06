@@ -26,7 +26,7 @@
 #include "coders/GLSLExtension.h"
 #include "files/files.h"
 #include "files/engine_paths.h"
-#include "graphics-base/IShader.h"
+#include "graphics-common/IShader.h"
 #include "graphics-vk/Batch2D.h"
 #include "graphics-vk/VulkanContext.h"
 #include "graphics-vk/texture/ImageCube.h"

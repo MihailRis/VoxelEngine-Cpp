@@ -31,7 +31,7 @@ namespace vulkan {
         m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(ApplyUniform)));
     }
 
-    const UniformBuffer* UniformBuffersHolder::operator[](Type index) const {
+    UniformBuffer* UniformBuffersHolder::operator[](Type index) const {
         return m_buffers.at(index).get();
     }
 
@@ -71,6 +71,30 @@ namespace vulkan {
         m_imageDepth = std::make_unique<ImageDepth>(VkExtent3D{swapChainExtent.width, swapChainExtent.height, 1});
     }
 
+    void VulkanContext::initUploadContext() {
+        VkFenceCreateInfo fenceInfo{};
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        // fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+        VkCommandPoolCreateInfo commandPoolCreateInfo{};
+        commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        commandPoolCreateInfo.queueFamilyIndex = m_device.getGraphis().getIndex();
+
+        VkCommandBufferAllocateInfo commandBufferAllocateInfo{};
+        commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        commandBufferAllocateInfo.commandBufferCount = 1;
+
+        CHECK_VK(vkCreateCommandPool(m_device, &commandPoolCreateInfo, nullptr, &m_uploadContext.commandPool));
+
+        commandBufferAllocateInfo.commandPool = m_uploadContext.commandPool;
+
+        CHECK_VK(vkAllocateCommandBuffers(m_device, &commandBufferAllocateInfo, &m_uploadContext.commandBuffer));
+
+        CHECK_VK(vkCreateFence(m_device, &fenceInfo, nullptr, &m_uploadContext.uploadFence));
+    }
+
     void VulkanContext::initFrameDatas() {
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -89,11 +113,6 @@ namespace vulkan {
         commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         commandBufferAllocateInfo.commandBufferCount = 1;
 
-        CHECK_VK(vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_presentSemaphore));
-        CHECK_VK(vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_renderSemaphore));
-        CHECK_VK(vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_uiRenderSemaphore));
-        CHECK_VK(vkCreateFence(m_device, &fenceInfo, nullptr, &m_renderFence));
-
         for (auto &m_frameData : m_frameDatas) {
             CHECK_VK(vkCreateCommandPool(m_device, &commandPoolCreateInfo, nullptr, &m_frameData.commandPool));
 
@@ -101,6 +120,11 @@ namespace vulkan {
 
             CHECK_VK(vkAllocateCommandBuffers(m_device, &commandBufferAllocateInfo, &m_frameData.screenCommandBuffer));
             CHECK_VK(vkAllocateCommandBuffers(m_device, &commandBufferAllocateInfo, &m_frameData.guiCommandBuffer));
+
+            CHECK_VK(vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_frameData.presentSemaphore));
+            CHECK_VK(vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_frameData.renderSemaphore));
+            CHECK_VK(vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_frameData.uiRenderSemaphore));
+            CHECK_VK(vkCreateFence(m_device, &fenceInfo, nullptr, &m_frameData.renderFence));
         }
     }
 
@@ -113,12 +137,12 @@ namespace vulkan {
 
         for (auto &frameData : m_frameDatas) {
             vkDestroyCommandPool(m_device, frameData.commandPool, nullptr);
-        }
 
-        vkDestroyFence(m_device, m_renderFence, nullptr);
-        vkDestroySemaphore(m_device, m_presentSemaphore, nullptr);
-        vkDestroySemaphore(m_device, m_renderSemaphore, nullptr);
-        vkDestroySemaphore(m_device, m_uiRenderSemaphore, nullptr);
+            vkDestroyFence(m_device, frameData.renderFence, nullptr);
+            vkDestroySemaphore(m_device, frameData.presentSemaphore, nullptr);
+            vkDestroySemaphore(m_device, frameData.renderSemaphore, nullptr);
+            vkDestroySemaphore(m_device, frameData.uiRenderSemaphore, nullptr);
+        }
 
         m_uniformBuffersHolder.destroy();
         vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
@@ -154,7 +178,31 @@ namespace vulkan {
         return m_descriptorPool;
     }
 
-    const UniformBuffer* VulkanContext::getUniformBuffer(UniformBuffersHolder::Type type) const {
+    void VulkanContext::immediateSubmit(std::function<void(VkCommandBuffer)>&& function) const {
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        CHECK_VK(vkBeginCommandBuffer(m_uploadContext.commandBuffer, &beginInfo));
+
+        function(m_uploadContext.commandBuffer);
+
+        CHECK_VK(vkEndCommandBuffer(m_uploadContext.commandBuffer));
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &m_uploadContext.commandBuffer;
+
+        CHECK_VK(vkQueueSubmit(m_device.getGraphis(), 1, &submitInfo, m_uploadContext.uploadFence));
+
+        vkWaitForFences(m_device, 1, &m_uploadContext.uploadFence, VK_TRUE, UINT64_MAX);
+        vkResetFences(m_device, 1, &m_uploadContext.uploadFence);
+
+        vkResetCommandPool(m_device, m_uploadContext.commandPool, 0);
+    }
+
+    UniformBuffer* VulkanContext::getUniformBuffer(UniformBuffersHolder::Type type) {
         return m_uniformBuffersHolder[type];
     }
 
@@ -172,107 +220,107 @@ namespace vulkan {
         m_state.commandbuffer = commandBuffer;
     }
 
-    void VulkanContext::beginDrawToImage(const Image& image, float r, float g, float b, VkAttachmentLoadOp loadOp) {
-        CHECK_VK(vkWaitForFences(m_device, 1, &m_renderFence, VK_TRUE, UINT64_MAX));
-        CHECK_VK(vkResetFences(m_device, 1, &m_renderFence));
+    // void VulkanContext::beginDrawToImage(const Image& image, float r, float g, float b, VkAttachmentLoadOp loadOp) {
+    //     CHECK_VK(vkWaitForFences(m_device, 1, &m_renderFence, VK_TRUE, UINT64_MAX));
+    //     CHECK_VK(vkResetFences(m_device, 1, &m_renderFence));
+    //
+    //     CHECK_VK(vkAcquireNextImageKHR(m_device, *m_swapchain, UINT64_MAX, m_presentSemaphore, VK_NULL_HANDLE, &m_currentImage));
+    //
+    //     CHECK_VK(vkResetCommandBuffer(m_frameDatas[m_currentFrame].screenCommandBuffer, 0));
+    //
+    //     VkCommandBufferBeginInfo commandBufferBeginInfo{};
+    //     commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    //     commandBufferBeginInfo.flags = 0;
+    //     commandBufferBeginInfo.pInheritanceInfo = nullptr;
+    //
+    //     CHECK_VK(vkBeginCommandBuffer(m_frameDatas[m_currentFrame].screenCommandBuffer, &commandBufferBeginInfo));
+    //
+    //     tools::insertImageMemoryBarrier(m_frameDatas[m_currentFrame].screenCommandBuffer,
+    //         image.getImage(),
+    //         VK_ACCESS_MEMORY_READ_BIT,
+    //         VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+    //         VK_IMAGE_LAYOUT_UNDEFINED,
+    //         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+    //         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+    //         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+    //         VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+    //
+    //     tools::insertImageMemoryBarrier(m_frameDatas[m_currentFrame].screenCommandBuffer,
+    //         m_imageDepth->getImage(),
+    //         0,
+    //         VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+    //         VK_IMAGE_LAYOUT_UNDEFINED,
+    //         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+    //         VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+    //         VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+    //         VkImageSubresourceRange{ VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, 0, 1, 0, 1 });
+    //
+    //     VkRenderingAttachmentInfo colorAttachment{};
+    //     colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+    //     colorAttachment.imageView = image.getView();
+    //     colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    //     colorAttachment.loadOp = loadOp;
+    //     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    //     colorAttachment.clearValue = { r, g, b, 1.0f };
+    //
+    //     VkRenderingAttachmentInfo depthAttachment{};
+    //     depthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+    //     depthAttachment.imageView = m_imageDepth->getView();
+    //     depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    //     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    //     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    //     depthAttachment.clearValue.depthStencil = { 1.0f, 0 };
+    //
+    //     VkRenderingInfo renderingInfo{};
+    //     renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+    //     renderingInfo.renderArea = { {0, 0}, {Image::getWidth(image), Image::getHeight(image)} };
+    //     renderingInfo.layerCount = 1;
+    //     renderingInfo.colorAttachmentCount = 1;
+    //     renderingInfo.pColorAttachments = &colorAttachment;
+    //     renderingInfo.pDepthAttachment = &depthAttachment;
+    //     renderingInfo.pStencilAttachment = &depthAttachment;
+    //
+    //     vkCmdBeginRendering(m_frameDatas[m_currentFrame].screenCommandBuffer, &renderingInfo);
+    //
+    //     updateStateCommandBuffer(m_frameDatas[m_currentFrame].screenCommandBuffer);
+    // }
 
-        CHECK_VK(vkAcquireNextImageKHR(m_device, *m_swapchain, UINT64_MAX, m_presentSemaphore, VK_NULL_HANDLE, &m_currentImage));
-
-        CHECK_VK(vkResetCommandBuffer(m_frameDatas[m_currentFrame].screenCommandBuffer, 0));
-
-        VkCommandBufferBeginInfo commandBufferBeginInfo{};
-        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        commandBufferBeginInfo.flags = 0;
-        commandBufferBeginInfo.pInheritanceInfo = nullptr;
-
-        CHECK_VK(vkBeginCommandBuffer(m_frameDatas[m_currentFrame].screenCommandBuffer, &commandBufferBeginInfo));
-
-        tools::insertImageMemoryBarrier(m_frameDatas[m_currentFrame].screenCommandBuffer,
-            image.getImage(),
-            VK_ACCESS_MEMORY_READ_BIT,
-            VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-            VK_IMAGE_LAYOUT_UNDEFINED,
-            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-            VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
-
-        tools::insertImageMemoryBarrier(m_frameDatas[m_currentFrame].screenCommandBuffer,
-            m_imageDepth->getImage(),
-            0,
-            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-            VK_IMAGE_LAYOUT_UNDEFINED,
-            VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-            VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-            VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-            VkImageSubresourceRange{ VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, 0, 1, 0, 1 });
-
-        VkRenderingAttachmentInfo colorAttachment{};
-        colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        colorAttachment.imageView = image.getView();
-        colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        colorAttachment.loadOp = loadOp;
-        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachment.clearValue = { r, g, b, 1.0f };
-
-        VkRenderingAttachmentInfo depthAttachment{};
-        depthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-        depthAttachment.imageView = m_imageDepth->getView();
-        depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        depthAttachment.clearValue.depthStencil = { 1.0f, 0 };
-
-        VkRenderingInfo renderingInfo{};
-        renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
-        renderingInfo.renderArea = { {0, 0}, {Image::getWidth(image), Image::getHeight(image)} };
-        renderingInfo.layerCount = 1;
-        renderingInfo.colorAttachmentCount = 1;
-        renderingInfo.pColorAttachments = &colorAttachment;
-        renderingInfo.pDepthAttachment = &depthAttachment;
-        renderingInfo.pStencilAttachment = &depthAttachment;
-
-        vkCmdBeginRendering(m_frameDatas[m_currentFrame].screenCommandBuffer, &renderingInfo);
-
-        updateStateCommandBuffer(m_frameDatas[m_currentFrame].screenCommandBuffer);
-    }
-
-    void VulkanContext::endDrawToImage(const Image& image) {
-        vkCmdEndRendering(m_frameDatas[m_currentFrame].screenCommandBuffer);
-
-        tools::insertImageMemoryBarrier(m_frameDatas[m_currentFrame].screenCommandBuffer,
-            image.getImage(),
-            VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-            VK_ACCESS_SHADER_READ_BIT,
-            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-            VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-            VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-            VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
-
-        CHECK_VK(vkEndCommandBuffer(m_frameDatas[m_currentFrame].screenCommandBuffer));
-
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-        const std::array waitSemaphores = { m_presentSemaphore };
-        constexpr VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-
-        submitInfo.waitSemaphoreCount = waitSemaphores.size();
-        submitInfo.pWaitSemaphores = waitSemaphores.data();
-        submitInfo.pWaitDstStageMask = waitStages;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &m_frameDatas[m_currentFrame].screenCommandBuffer;
-
-        const std::array signalSemaphores = { m_renderSemaphore };
-        submitInfo.signalSemaphoreCount = signalSemaphores.size();
-        submitInfo.pSignalSemaphores = signalSemaphores.data();
-
-        vkQueueSubmit(m_device.getGraphis(), 1, &submitInfo, m_renderFence);
-    }
+    // void VulkanContext::endDrawToImage(const Image& image) {
+    //     vkCmdEndRendering(m_frameDatas[m_currentFrame].screenCommandBuffer);
+    //
+    //     tools::insertImageMemoryBarrier(m_frameDatas[m_currentFrame].screenCommandBuffer,
+    //         image.getImage(),
+    //         VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+    //         VK_ACCESS_SHADER_READ_BIT,
+    //         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+    //         VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+    //         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+    //         VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+    //         VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+    //
+    //     CHECK_VK(vkEndCommandBuffer(m_frameDatas[m_currentFrame].screenCommandBuffer));
+    //
+    //     VkSubmitInfo submitInfo{};
+    //     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    //
+    //     const std::array waitSemaphores = { m_presentSemaphore };
+    //     constexpr VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    //
+    //     submitInfo.waitSemaphoreCount = waitSemaphores.size();
+    //     submitInfo.pWaitSemaphores = waitSemaphores.data();
+    //     submitInfo.pWaitDstStageMask = waitStages;
+    //     submitInfo.commandBufferCount = 1;
+    //     submitInfo.pCommandBuffers = &m_frameDatas[m_currentFrame].screenCommandBuffer;
+    //
+    //     const std::array signalSemaphores = { m_renderSemaphore };
+    //     submitInfo.signalSemaphoreCount = signalSemaphores.size();
+    //     submitInfo.pSignalSemaphores = signalSemaphores.data();
+    //
+    //     vkQueueSubmit(m_device.getGraphis(), 1, &submitInfo, m_renderFence);
+    // }
 
     void VulkanContext::beginScreenDraw(float r, float g, float b, VkAttachmentLoadOp loadOp) {
-        CHECK_VK(vkAcquireNextImageKHR(m_device, *m_swapchain, UINT64_MAX, m_presentSemaphore, VK_NULL_HANDLE, &m_currentImage));
+        CHECK_VK(vkAcquireNextImageKHR(m_device, *m_swapchain, UINT64_MAX, m_frameDatas[m_currentFrame].presentSemaphore, VK_NULL_HANDLE, &m_currentImage));
 
         beginDraw(m_frameDatas[m_currentFrame].screenCommandBuffer, glm::vec4(r, g, b, 1.0), loadOp, RenderTargetType::SCREEN);
 
@@ -301,35 +349,35 @@ namespace vulkan {
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &m_presentSemaphore;
+        submitInfo.pWaitSemaphores = &m_frameDatas[m_currentFrame].presentSemaphore;
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_frameDatas[m_currentFrame].screenCommandBuffer;
         submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &m_uiRenderSemaphore;
+        submitInfo.pSignalSemaphores = &m_frameDatas[m_currentFrame].uiRenderSemaphore;
 
-        vkQueueSubmit(m_device.getGraphis(), 1, &submitInfo, m_renderFence);
+        vkQueueSubmit(m_device.getGraphis(), 1, &submitInfo, m_frameDatas[m_currentFrame].renderFence);
 
-        CHECK_VK(vkWaitForFences(m_device, 1, &m_renderFence, VK_TRUE, UINT64_MAX));
-        CHECK_VK(vkResetFences(m_device, 1, &m_renderFence));
+        CHECK_VK(vkWaitForFences(m_device, 1, &m_frameDatas[m_currentFrame].renderFence, VK_TRUE, UINT64_MAX));
+        CHECK_VK(vkResetFences(m_device, 1, &m_frameDatas[m_currentFrame].renderFence));
 
         submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &m_uiRenderSemaphore;
+        submitInfo.pWaitSemaphores = &m_frameDatas[m_currentFrame].uiRenderSemaphore;
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_frameDatas[m_currentFrame].guiCommandBuffer;
         submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &m_renderSemaphore;
+        submitInfo.pSignalSemaphores = &m_frameDatas[m_currentFrame].renderSemaphore;
 
-        vkQueueSubmit(m_device.getGraphis(), 1, &submitInfo, m_renderFence);
+        vkQueueSubmit(m_device.getGraphis(), 1, &submitInfo, m_frameDatas[m_currentFrame].renderFence);
 
-        CHECK_VK(vkWaitForFences(m_device, 1, &m_renderFence, VK_TRUE, UINT64_MAX));
-        CHECK_VK(vkResetFences(m_device, 1, &m_renderFence));
+        CHECK_VK(vkWaitForFences(m_device, 1, &m_frameDatas[m_currentFrame].renderFence, VK_TRUE, UINT64_MAX));
+        CHECK_VK(vkResetFences(m_device, 1, &m_frameDatas[m_currentFrame].renderFence));
 
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &m_renderSemaphore;
+        presentInfo.pWaitSemaphores = &m_frameDatas[m_currentFrame].renderSemaphore;
 
         const VkSwapchainKHR swapchains[] = { *m_swapchain };
 
@@ -352,6 +400,7 @@ namespace vulkan {
         vulkanEnabled = true;
         context.initDescriptorPool();
         context.initDepth();
+        context.initUploadContext();
         context.initFrameDatas();
         context.initUniformBuffers();
     }

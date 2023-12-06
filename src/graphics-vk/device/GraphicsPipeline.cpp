@@ -27,7 +27,7 @@ GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, VkPipelineLayout layout,
       m_uniformsSetLayout(uniformSetLayout),
       m_samplerSetLayout(samplerSetLayout),
       m_shaderType(shaderType) {
-    const auto &context = vulkan::VulkanContext::get();
+    auto &context = vulkan::VulkanContext::get();
     auto &device= context.getDevice();
 
     VkDescriptorPool descriptorPool = context.getDescriptorPool();
@@ -227,7 +227,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    inputAssembly.topology = type == ShaderType::LINES ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
     const VkExtent2D extent2D = vulkan::VulkanContext::get().getSwapchain().getExtent();

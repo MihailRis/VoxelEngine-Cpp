@@ -16,14 +16,16 @@ namespace vulkan {
         VmaAllocation m_allocation = VK_NULL_HANDLE;
         uint64_t m_size;
         bool m_destroyed = false;
+        bool m_mapped = false;
+        VmaAllocationInfo m_info;
     public:
         Buffer(VkDeviceSize size, VkBufferUsageFlags usage,
             VkMemoryPropertyFlags properties,
             VmaAllocationCreateFlags flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT);
         ~Buffer();
 
-        void mapMemory(void **data) const;
-        void unmapMemory() const;
+        void mapMemory(void **data);
+        void unmapMemory();
 
         uint64_t getSize() const;
 

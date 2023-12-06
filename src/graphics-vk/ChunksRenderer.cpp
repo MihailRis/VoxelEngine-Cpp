@@ -20,10 +20,10 @@ namespace vulkan {
         delete m_renderer;
     }
 
-    std::shared_ptr<Mesh<VertexMain>> ChunksRenderer::render(Chunk* chunk) {
+    std::shared_ptr<Mesh<Vertex3D>> ChunksRenderer::render(Chunk* chunk) {
         chunk->setModified(false);
-        auto *mesh = m_renderer->renderVulkanMesh(chunk, 16, m_level->chunksStorage);
-        auto sptr = std::shared_ptr<Mesh<VertexMain>>(mesh);
+        auto *mesh = m_renderer->renderVulkanMesh(chunk, m_level->chunksStorage);
+        auto sptr = std::shared_ptr<Mesh<Vertex3D>>(mesh);
         m_meshes[glm::ivec2(chunk->x, chunk->z)] = sptr;
         return sptr;
     }
@@ -35,7 +35,7 @@ namespace vulkan {
         }
     }
 
-    std::shared_ptr<Mesh<VertexMain>> ChunksRenderer::getOrRender(Chunk* chunk) {
+    std::shared_ptr<Mesh<Vertex3D>> ChunksRenderer::getOrRender(Chunk* chunk) {
         const auto found = m_meshes.find(glm::ivec2(chunk->x, chunk->z));
         if (found != m_meshes.end() && !chunk->isModified()){
             return found->second;
@@ -43,7 +43,7 @@ namespace vulkan {
         return render(chunk);
     }
 
-    std::shared_ptr<Mesh<VertexMain>> ChunksRenderer::get(Chunk* chunk) {
+    std::shared_ptr<Mesh<Vertex3D>> ChunksRenderer::get(Chunk* chunk) {
         const auto found = m_meshes.find(glm::ivec2(chunk->x, chunk->z));
         if (found != m_meshes.end()) {
             return found->second;

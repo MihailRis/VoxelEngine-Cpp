@@ -9,8 +9,8 @@
 #include "Skybox.h"
 #include "../engine.h"
 #include "../settings.h"
-#include "../graphics-base/IShader.h"
-#include "../graphics-base/ITexture.h"
+#include "../graphics-common/IShader.h"
+#include "../graphics-common/ITexture.h"
 #include "../graphics/GfxContext.h"
 #include "../graphics/Atlas.h"
 #include "../maths/FrustumCulling.h"
@@ -23,6 +23,7 @@
 #include "../voxels/Chunk.h"
 #include "../assets/Assets.h"
 #include "../content/Content.h"
+#include "../logic/PlayerController.h"
 #include "../objects/Player.h"
 #include "../maths/voxmaths.h"
 
@@ -31,7 +32,7 @@ namespace vulkan {
         std::shared_ptr<Chunk> chunk = m_level->chunks->chunks[index];
         if (!chunk->isLighted())
             return false;
-        std::shared_ptr<Mesh<VertexMain>> mesh = m_renderer->getOrRender(chunk.get());
+        const std::shared_ptr<Mesh<Vertex3D>> mesh = m_renderer->getOrRender(chunk.get());
         if (mesh == nullptr)
             return false;
 
@@ -95,18 +96,18 @@ namespace vulkan {
         }
     }
 
-    WorldRenderer::WorldRenderer(Engine* engine, Level* m_level, const ContentGfxCache* cache)
+    WorldRenderer::WorldRenderer(Engine* engine, Level* level, const ContentGfxCache* cache)
         : m_engine(engine),
-          m_level(m_level) {
-        EngineSettings&settings = engine->getSettings();
+          m_level(level),
+          m_frustumCulling(new Frustum()),
+          m_lineBatch(new LineBatch(4096)),
+          m_renderer(new ChunksRenderer(level, cache, engine->getSettings())){
 
-        m_lineBatch = new LineBatch(4096);
-        m_renderer = new ChunksRenderer(m_level, cache, settings);
-        m_frustumCulling = new Frustum();
-        m_level->events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
+        level->events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
             m_renderer->unload(chunk);
         });
-        m_skybox = new Skybox(64, engine->getAssets()->getShader("skybox_gen"));
+        const auto *assets = engine->getAssets();
+        m_skybox = new Skybox(64, assets->getShader("skybox_gen"));
     }
 
     WorldRenderer::~WorldRenderer() {
@@ -128,7 +129,7 @@ namespace vulkan {
         Assets* assets = m_engine->getAssets();
         Atlas* atlas = assets->getAtlas("blocks");
         IShader* shader = assets->getShader("main");
-        // IShader* linesShader = assets->getShader("lines");
+        IShader* linesShader = assets->getShader("lines");
 
         const Viewport&viewport = context.getViewport();
         int displayWidth = viewport.getWidth();
@@ -176,23 +177,29 @@ namespace vulkan {
             drawChunks(chunks, camera, shader);
 
 
-            // if (m_level->playerController->selectedBlockId != -1) {
-            //     Block* block = contentIds->getBlockDef(m_level->playerController->selectedBlockId);
-            //     assert(block != nullptr);
-            //     glm::vec3 pos = m_level->playerController->selectedBlockPosition;
-            //     linesShader->use();
-            //     linesShader->uniformMatrix("u_projview", camera->getProjView());
-            //     m_lineBatch->lineWidth(2.0f);
-            //     if (block->model == BlockModel::block) {
-            //         m_lineBatch->box(pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f,
-            //                          1.008f, 1.008f, 1.008f, 0, 0, 0, 0.5f);
-            //     }
-            //     else if (block->model == BlockModel::xsprite) {
-            //         m_lineBatch->box(pos.x + 0.5f, pos.y + 0.35f, pos.z + 0.5f,
-            //                          0.805f, 0.705f, 0.805f, 0, 0, 0, 0.5f);
-            //     }
-            //     m_lineBatch->render();
-            // }
+            if (PlayerController::selectedBlockId != -1){
+                blockid_t id = PlayerController::selectedBlockId;
+                Block* block = contentIds->getBlockDef(id);
+                assert(block != nullptr);
+                const glm::vec3 pos = PlayerController::selectedBlockPosition;
+                const glm::vec3 point = PlayerController::selectedPointPosition;
+                const glm::vec3 norm = PlayerController::selectedBlockNormal;
+                AABB hitbox = block->hitbox;
+                if (block->rotatable) {
+                    auto states = PlayerController::selectedBlockStates;
+                    block->rotations.variants[states].transform(hitbox);
+                }
+
+                const glm::vec3 center = pos + hitbox.center();
+                const glm::vec3 size = hitbox.size();
+                linesShader->use();
+                linesShader->uniformMatrix("u_projview", camera->getProjView());
+                m_lineBatch->lineWidth(2.0f);
+                m_lineBatch->box(center, size + glm::vec3(0.02), glm::vec4(0.f, 0.f, 0.f, 0.5f));
+                if (m_level->player->debug)
+                    m_lineBatch->line(point, point+norm*0.5f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+                m_lineBatch->render();
+            }
             //  skybox->unbind();
         }
 

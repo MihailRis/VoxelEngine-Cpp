@@ -11,7 +11,7 @@
 #include "../window/Camera.h"
 #include "../window/Events.h"
 #include "../window/input.h"
-#include "../graphics-base/IShader.h"
+#include "../graphics-common/IShader.h"
 #include "../graphics/Batch2D.h"
 #include "../graphics-vk/Batch2D.h"
 #include "../graphics/GfxContext.h"

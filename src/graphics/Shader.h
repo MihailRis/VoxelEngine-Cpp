@@ -4,7 +4,7 @@
 #include <string>
 #include <glm/glm.hpp>
 
-#include "../graphics-base/IShader.h"
+#include "../graphics-common/IShader.h"
 
 class GLSLExtension;
 

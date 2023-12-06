@@ -109,7 +109,7 @@ public:
 	virtual ~BlocksRenderer();
 
 #ifdef USE_VULKAN
-	vulkan::Mesh<VertexMain> *renderVulkanMesh(const Chunk* chunk, int atlas_size, const ChunksStorage* chunks);
+	vulkan::Mesh<Vertex3D> *renderVulkanMesh(const Chunk* chunk, const ChunksStorage* chunks);
 #endif
 
 	Mesh* render(const Chunk* chunk, const ChunksStorage* chunks);

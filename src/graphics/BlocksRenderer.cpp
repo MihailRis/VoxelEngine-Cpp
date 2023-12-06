@@ -422,7 +422,7 @@ void BlocksRenderer::render(const voxel* voxels) {
 }
 
 #ifdef USE_VULKAN
-vulkan::Mesh<VertexMain>* BlocksRenderer::renderVulkanMesh(const Chunk* chunk, int atlas_size,
+vulkan::Mesh<Vertex3D>* BlocksRenderer::renderVulkanMesh(const Chunk* chunk,
 	const ChunksStorage* chunks) {
 	this->chunk = chunk;
 	this->chunk = chunk;
@@ -432,9 +432,9 @@ vulkan::Mesh<VertexMain>* BlocksRenderer::renderVulkanMesh(const Chunk* chunk, i
 	vertexOffset = 0;
 	indexOffset = indexSize = 0;
 	const voxel* voxels = chunk->voxels;
-	render(voxels, atlas_size);
+	render(voxels);
 
-	const VertexMain *vertices = reinterpret_cast<VertexMain *>(vertexBuffer);
+	const Vertex3D *vertices = reinterpret_cast<Vertex3D *>(vertexBuffer);
 	auto *mesh = new vulkan::Mesh(vertices, vertexOffset / VERTEX_SIZE, indexBuffer, indexSize);
 	return mesh;
 }

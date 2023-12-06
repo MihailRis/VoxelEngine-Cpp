@@ -8,13 +8,11 @@
 
 namespace vulkan {
     LineBatch::LineBatch(size_t capacity) : m_capacity(capacity) {
-        m_buffer = new VertexLines[capacity];
-        std::memset(m_buffer, 0, capacity * sizeof(VertexLines));
         m_mesh = new Mesh(m_buffer, capacity);
+        m_mesh->mapVertex(&m_buffer);
     }
 
     LineBatch::~LineBatch() {
-        delete[] m_buffer;
         delete m_mesh;
     }
 
@@ -23,8 +21,8 @@ namespace vulkan {
         if (m_index >= m_capacity)
             return;
 
-        m_buffer[m_index++] = VertexLines{{x1, y1, z1}, {r, g, b, a}};
-        m_buffer[m_index++] = VertexLines{{x2, y2, z2}, {r, g, b, a}};
+        m_buffer[m_index++] = VertexLine{{x1, y1, z1}, {r, g, b, a}};
+        m_buffer[m_index++] = VertexLine{{x2, y2, z2}, {r, g, b, a}};
     }
 
     void LineBatch::box(float x, float y, float z, float w, float h, float d, float r, float g, float b, float a) {
@@ -51,7 +49,6 @@ namespace vulkan {
     void LineBatch::render() {
         if (m_index == 0) return;
         m_mesh->bind();
-        m_mesh->reload(m_buffer, m_index);
         m_mesh->draw({0, m_index}, GL_LINE);
         m_index = 0;
     }
