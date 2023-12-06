@@ -2,6 +2,7 @@
 #define LIGHTING_LIGHTMAP_H_
 
 #include "../constants.h"
+#include "../typedefs.h"
 #include "../voxels/Chunk.h"
 
 // Lichtkarte
@@ -78,6 +79,8 @@ public:
 	static inline light_t extract(light_t light, ubyte channel) {
 		return (light >> (channel << 2)) & 0xF;
 	}
+
+	ubyte* encode() const;
 };
 
 #endif /* LIGHTING_LIGHTMAP_H_ */

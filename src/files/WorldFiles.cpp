@@ -14,6 +14,7 @@
 #include "../maths/voxmaths.h"
 #include "../world/World.h"
 
+#include "../util/data_io.h"
 #include "../coders/json.h"
 #include "../constants.h"
 
@@ -39,22 +40,9 @@ using glm::vec3;
 using std::ios;
 using std::string;
 using std::unique_ptr;
+using std::unordered_map;
 using std::filesystem::path;
 namespace fs = std::filesystem;
-
-int bytes2Int(const ubyte* src, size_t offset){
-	return (src[offset] << 24) | 
-		   (src[offset+1] << 16) | 
-		   (src[offset+2] << 8) | 
-		   (src[offset+3]);
-}
-
-void int2Bytes(int value, ubyte* dest, size_t offset){
-	dest[offset] = (char) (value >> 24 & 255);
-	dest[offset+1] = (char) (value >> 16 & 255);
-	dest[offset+2] = (char) (value >> 8 & 255);
-	dest[offset+3] = (char) (value >> 0 & 255);
-}
 
 WorldRegion::WorldRegion() {
 	chunksData = new ubyte*[REGION_VOL]{};
@@ -112,7 +100,8 @@ WorldFiles::~WorldFiles(){
 	regions.clear();
 }
 
-WorldRegion* WorldFiles::getRegion(int x, int z) {
+WorldRegion* WorldFiles::getRegion(unordered_map<ivec2, WorldRegion*>& regions, 
+								   int x, int z) {
 	auto found = regions.find(ivec2(x, z));
 	if (found == regions.end())
 		return nullptr;
@@ -140,7 +129,7 @@ void WorldFiles::put(Chunk* chunk){
 	int regionX = floordiv(chunk->x, REGION_SIZE);
 	int regionZ = floordiv(chunk->z, REGION_SIZE);
 
-	WorldRegion* region = getRegion(regionX, regionZ);
+	WorldRegion* region = getRegion(regions, regionX, regionZ);
 	if (region == nullptr) {
 		region = new WorldRegion();
 		regions[ivec2(regionX, regionZ)] = region;
@@ -192,7 +181,7 @@ ubyte* WorldFiles::getChunk(int x, int z){
 	int localX = x - (regionX * REGION_SIZE);
 	int localZ = z - (regionZ * REGION_SIZE);
 
-	WorldRegion* region = getRegion(regionX, regionZ);
+	WorldRegion* region = getRegion(regions, regionX, regionZ);
 	if (region == nullptr) {
 		region = new WorldRegion();
 		regions[ivec2(regionX, regionZ)] = region;
@@ -218,10 +207,8 @@ ubyte* WorldFiles::readChunkData(int x, int z, uint32_t& length, path filename){
 		
 	int regionX = floordiv(x, REGION_SIZE);
 	int regionZ = floordiv(z, REGION_SIZE);
-
 	int localX = x - (regionX * REGION_SIZE);
 	int localZ = z - (regionZ * REGION_SIZE);
-
 	int chunkIndex = localZ * REGION_SIZE + localX;
 
 	std::ifstream input(filename, std::ios::binary);
@@ -235,14 +222,14 @@ ubyte* WorldFiles::readChunkData(int x, int z, uint32_t& length, path filename){
 	uint32_t offset;
 	input.seekg(table_offset + chunkIndex * 4);
 	input.read((char*)(&offset), 4);
-	offset = bytes2Int((const ubyte*)(&offset), 0);
+	offset = dataio::read_int32_big((const ubyte*)(&offset), 0);
 	if (offset == 0){
 		input.close();
 		return nullptr;
 	}
 	input.seekg(offset);
 	input.read((char*)(&offset), 4);
-	length = bytes2Int((const ubyte*)(&offset), 0);
+	length = dataio::read_int32_big((const ubyte*)(&offset), 0);
 	ubyte* data = new ubyte[length];
 	input.read((char*)data, length);
 	input.close();
@@ -278,7 +265,7 @@ void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, path filename){
 			offsets[i] = offset;
 
 			size_t compressedSize = sizes[i];
-			int2Bytes(compressedSize, (ubyte*)intbuf, 0);
+			dataio::write_int32_big(compressedSize, (ubyte*)intbuf, 0);
 			offset += 4 + compressedSize;
 
 			file.write(intbuf, 4);
@@ -286,7 +273,7 @@ void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, path filename){
 		}
 	}
 	for (size_t i = 0; i < REGION_VOL; i++) {
-		int2Bytes(offsets[i], (ubyte*)intbuf, 0);
+		dataio::write_int32_big(offsets[i], (ubyte*)intbuf, 0);
 		file.write(intbuf, 4);
 	}
 }

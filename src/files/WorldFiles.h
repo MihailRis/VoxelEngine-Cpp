@@ -61,7 +61,8 @@ class WorldFiles {
 	bool readOldPlayer(Player* player);
 	// --------------------
 
-	WorldRegion* getRegion(int x, int z);
+	WorldRegion* getRegion(std::unordered_map<glm::ivec2, WorldRegion*>& regions,
+						   int x, int z);
 
 	/* Compress buffer with extrle
 	   @param src source buffer
@@ -75,8 +76,13 @@ class WorldFiles {
 	   @param dstlen max expected length of source buffer
 	*/
 	ubyte* decompress(ubyte* src, size_t srclen, size_t dstlen);
+
+	ubyte* readChunkData(int x, int y, 
+						uint32_t& length, 
+						std::filesystem::path file);
 public:
 	std::unordered_map<glm::ivec2, WorldRegion*> regions;
+	std::unordered_map<glm::ivec2, WorldRegion*> lights;
 	std::filesystem::path directory;
 	ubyte* compressionBuffer;
 	bool generatorTestMode;
@@ -89,9 +95,7 @@ public:
 
 	bool readWorldInfo(World* world);
 	bool readPlayer(Player* player);
-	ubyte* readChunkData(int x, int y, 
-						 uint32_t& length, 
-						 std::filesystem::path file);
+
 	void writeRegion(int x, int y, 
 					 WorldRegion* entry, 
 					 std::filesystem::path file);
