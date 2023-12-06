@@ -145,6 +145,10 @@ namespace vulkan {
         }
 
         m_uniformBuffersHolder.destroy();
+
+        vkDestroyFence(m_device, m_uploadContext.uploadFence, nullptr);
+        vkDestroyCommandPool(m_device, m_uploadContext.commandPool, nullptr);
+
         vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
         m_imageDepth->destroy();
         m_allocator.destroy();
