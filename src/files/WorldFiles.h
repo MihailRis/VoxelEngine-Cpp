@@ -28,17 +28,22 @@ class ContentIndices;
 class World;
 
 class WorldRegion {
-public:
 	ubyte** chunksData;
-	uint32_t* compressedSizes;
+	uint32_t* sizes;
 	bool unsaved = true;
-
+public:
 	WorldRegion();
 	~WorldRegion();
 
 	void put(uint x, uint z, ubyte* data, uint32_t size);
 	ubyte* get(uint x, uint z);
 	uint getSize(uint x, uint z);
+
+	void setUnsaved(bool unsaved);
+	bool isUnsaved() const;
+
+	ubyte** getChunks() const;
+	uint32_t* getSizes() const;
 };
 
 class WorldFiles {

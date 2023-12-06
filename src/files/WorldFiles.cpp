@@ -58,22 +58,37 @@ void int2Bytes(int value, ubyte* dest, size_t offset){
 
 WorldRegion::WorldRegion() {
 	chunksData = new ubyte*[REGION_VOL]{};
-	compressedSizes = new uint32_t[REGION_VOL]{};
+	sizes = new uint32_t[REGION_VOL]{};
 }
 
 WorldRegion::~WorldRegion() {
 	for (uint i = 0; i < REGION_VOL; i++) {
 		delete[] chunksData[i];
 	}
-	delete[] compressedSizes;
+	delete[] sizes;
 	delete[] chunksData;
+}
+
+void WorldRegion::setUnsaved(bool unsaved) {
+	this->unsaved = unsaved;
+}
+bool WorldRegion::isUnsaved() const {
+	return unsaved;
+}
+
+ubyte** WorldRegion::getChunks() const {
+	return chunksData;
+}
+
+uint32_t* WorldRegion::getSizes() const {
+	return sizes;
 }
 
 void WorldRegion::put(uint x, uint z, ubyte* data, uint32_t size) {
 	size_t chunk_index = z * REGION_SIZE + x;
 	delete[] chunksData[chunk_index];
 	chunksData[chunk_index] = data;
-	compressedSizes[chunk_index] = size;
+	sizes[chunk_index] = size;
 }
 
 ubyte* WorldRegion::get(uint x, uint z) {
@@ -81,7 +96,7 @@ ubyte* WorldRegion::get(uint x, uint z) {
 }
 
 uint WorldRegion::getSize(uint x, uint z) {
-	return compressedSizes[z * REGION_SIZE + x];
+	return sizes[z * REGION_SIZE + x];
 }
 
 WorldFiles::WorldFiles(path directory, bool generatorTestMode) 
@@ -130,7 +145,7 @@ void WorldFiles::put(Chunk* chunk){
 		region = new WorldRegion();
 		regions[ivec2(regionX, regionZ)] = region;
 	}
-	region->unsaved = true;
+	region->setUnsaved(true);
 
 	int localX = chunk->x - (regionX * REGION_SIZE);
 	int localZ = chunk->z - (regionZ * REGION_SIZE);
@@ -235,8 +250,8 @@ ubyte* WorldFiles::readChunkData(int x, int z, uint32_t& length, path filename){
 }
 
 void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, path filename){
-	ubyte** region = entry->chunksData;
-	uint32_t* sizes = entry->compressedSizes;
+	ubyte** region = entry->getChunks();
+	uint32_t* sizes = entry->getSizes();
 	for (size_t i = 0; i < REGION_VOL; i++) {
 		int chunk_x = (i % REGION_SIZE) + x * REGION_SIZE;
 		int chunk_z = (i / REGION_SIZE) + y * REGION_SIZE;
@@ -286,7 +301,7 @@ void WorldFiles::write(const World* world, const Content* content) {
 		return;
 	writeIndices(content->indices);
 	for (auto it = regions.begin(); it != regions.end(); it++){
-		if (it->second->chunksData == nullptr || !it->second->unsaved)
+		if (it->second->getChunks() == nullptr || !it->second->isUnsaved())
 			continue;
 		ivec2 key = it->first;
 		writeRegion(key.x, key.y, it->second, getRegionFile(key.x, key.y));
