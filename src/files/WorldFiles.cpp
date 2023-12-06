@@ -43,7 +43,10 @@ using std::filesystem::path;
 namespace fs = std::filesystem;
 
 int bytes2Int(const ubyte* src, size_t offset){
-	return (src[offset] << 24) | (src[offset+1] << 16) | (src[offset+2] << 8) | (src[offset+3]);
+	return (src[offset] << 24) | 
+		   (src[offset+1] << 16) | 
+		   (src[offset+2] << 8) | 
+		   (src[offset+3]);
 }
 
 void int2Bytes(int value, ubyte* dest, size_t offset){
@@ -53,6 +56,34 @@ void int2Bytes(int value, ubyte* dest, size_t offset){
 	dest[offset+3] = (char) (value >> 0 & 255);
 }
 
+WorldRegion::WorldRegion() {
+	chunksData = new ubyte*[REGION_VOL]{};
+	compressedSizes = new uint32_t[REGION_VOL]{};
+}
+
+WorldRegion::~WorldRegion() {
+	for (uint i = 0; i < REGION_VOL; i++) {
+		delete[] chunksData[i];
+	}
+	delete[] compressedSizes;
+	delete[] chunksData;
+}
+
+void WorldRegion::put(uint x, uint z, ubyte* data, uint32_t size) {
+	size_t chunk_index = z * REGION_SIZE + x;
+	delete[] chunksData[chunk_index];
+	chunksData[chunk_index] = data;
+	compressedSizes[chunk_index] = size;
+}
+
+ubyte* WorldRegion::get(uint x, uint z) {
+	return chunksData[z * REGION_SIZE + x];
+}
+
+uint WorldRegion::getSize(uint x, uint z) {
+	return compressedSizes[z * REGION_SIZE + x];
+}
+
 WorldFiles::WorldFiles(path directory, bool generatorTestMode) 
 	: directory(directory), generatorTestMode(generatorTestMode) {
 	compressionBuffer = new ubyte[CHUNK_DATA_LEN * 2];
@@ -60,56 +91,54 @@ WorldFiles::WorldFiles(path directory, bool generatorTestMode)
 
 WorldFiles::~WorldFiles(){
 	delete[] compressionBuffer;
-	for (auto it = regions.begin(); it != regions.end(); it++){
-	    WorldRegion region = it->second;
-	    if (region.chunksData == nullptr)
-	    	continue;
-	    for (size_t i = 0; i < REGION_VOL; i++){
-	    	delete[] region.chunksData[i];
-	    }
-	    delete[] region.chunksData;
+	for (auto it : regions){
+	    delete it.second;
 	}
 	regions.clear();
+}
+
+WorldRegion* WorldFiles::getRegion(int x, int z) {
+	auto found = regions.find(ivec2(x, z));
+	if (found == regions.end())
+		return nullptr;
+	return found->second;
+}
+
+ubyte* WorldFiles::compress(ubyte* src, size_t srclen, size_t& len) {
+	len = extrle::encode(src, srclen, compressionBuffer);
+	ubyte* data = new ubyte[len];
+	for (size_t i = 0; i < len; i++) {
+		data[i] = compressionBuffer[i];
+	}
+	return data;
+}
+
+ubyte* WorldFiles::decompress(ubyte* src, size_t srclen, size_t dstlen) {
+	ubyte* decompressed = new ubyte[dstlen];
+	extrle::decode(src, srclen, decompressed);
+	return decompressed;
 }
 
 void WorldFiles::put(Chunk* chunk){
 	assert(chunk != nullptr);
 
 	int regionX = floordiv(chunk->x, REGION_SIZE);
-	int regionY = floordiv(chunk->z, REGION_SIZE);
+	int regionZ = floordiv(chunk->z, REGION_SIZE);
+
+	WorldRegion* region = getRegion(regionX, regionZ);
+	if (region == nullptr) {
+		region = new WorldRegion();
+		regions[ivec2(regionX, regionZ)] = region;
+	}
+	region->unsaved = true;
 
 	int localX = chunk->x - (regionX * REGION_SIZE);
-	int localY = chunk->z - (regionY * REGION_SIZE);
+	int localZ = chunk->z - (regionZ * REGION_SIZE);
 
-	ivec2 key(regionX, regionY);
-
-	auto found = regions.find(key);
-	if (found == regions.end()) {
-		ubyte** chunksData = new ubyte*[REGION_VOL];
-		uint32_t* compressedSizes = new uint32_t[REGION_VOL];
-		for (uint i = 0; i < REGION_VOL; i++) {
-			chunksData[i] = nullptr;
-		}
-		regions[key] = { chunksData, compressedSizes, true };
-	}
-
-	WorldRegion& region = regions[key];
-	region.unsaved = true;
-	size_t chunk_index = localY * REGION_SIZE + localX;
-	ubyte* target_chunk = region.chunksData[chunk_index];
-	if (target_chunk) {
-		delete[] target_chunk;
-	}
-
-	ubyte* chunk_data = chunk->encode();
-	size_t compressedSize = extrle::encode(chunk_data, CHUNK_DATA_LEN, compressionBuffer);
-	delete[] chunk_data;
-	ubyte* data = new ubyte[compressedSize];
-	for (size_t i = 0; i < compressedSize; i++) {
-		data[i] = compressionBuffer[i];
-	}
-	region.chunksData[chunk_index] = data;
-	region.compressedSizes[chunk_index] = compressedSize;
+	unique_ptr<ubyte[]> chunk_data (chunk->encode());
+	size_t compressedSize;
+	ubyte* data = compress(chunk_data.get(), CHUNK_DATA_LEN, compressedSize);
+	region->put(localX, localZ, data, compressedSize);
 }
 
 path WorldFiles::getRegionsFolder() const {
@@ -117,7 +146,8 @@ path WorldFiles::getRegionsFolder() const {
 }
 
 path WorldFiles::getRegionFile(int x, int y) const {
-	return getRegionsFolder()/path(std::to_string(x) + "_" + std::to_string(y) + ".bin");
+	string filename = std::to_string(x) + "_" + std::to_string(y) + ".bin";
+	return getRegionsFolder()/path(filename);
 }
 
 path WorldFiles::getPlayerFile() const {
@@ -140,57 +170,45 @@ path WorldFiles::getOldWorldFile() const {
 	return directory/path("world.bin");
 }
 
-ubyte* WorldFiles::getChunk(int x, int y){
+ubyte* WorldFiles::getChunk(int x, int z){
 	int regionX = floordiv(x, REGION_SIZE);
-	int regionY = floordiv(y, REGION_SIZE);
+	int regionZ = floordiv(z, REGION_SIZE);
 
 	int localX = x - (regionX * REGION_SIZE);
-	int localY = y - (regionY * REGION_SIZE);
+	int localZ = z - (regionZ * REGION_SIZE);
 
-	int chunkIndex = localY * REGION_SIZE + localX;
-	assert(chunkIndex >= 0 && chunkIndex < REGION_VOL);
-
-	ivec2 key(regionX, regionY);
-
-	auto found = regions.find(key);
-	if (found == regions.end()) {
-		ubyte** chunksData = new ubyte * [REGION_VOL];
-		uint32_t* compressedSizes = new uint32_t[REGION_VOL];
-		for (uint i = 0; i < REGION_VOL; i++) {
-			chunksData[i] = nullptr;
-		}
-		regions[key] = { chunksData, compressedSizes, true };
+	WorldRegion* region = getRegion(regionX, regionZ);
+	if (region == nullptr) {
+		region = new WorldRegion();
+		regions[ivec2(regionX, regionZ)] = region;
 	}
 
-	WorldRegion& region = regions[key];
-	ubyte* data = region.chunksData[chunkIndex];
+	ubyte* data = region->get(localX, localZ);
 	if (data == nullptr) {
-		data = readChunkData(x, y, region.compressedSizes[chunkIndex]);
+		uint32_t size;
+		data = readChunkData(x, z, size, getRegionFile(regionX, regionZ));
 		if (data) {
-			region.chunksData[chunkIndex] = data;
+			region->put(localX, localZ, data, size);
 		}
 	}
 	if (data) {
-		ubyte* decompressed = new ubyte[CHUNK_DATA_LEN];
-		extrle::decode(data, region.compressedSizes[chunkIndex], decompressed);
-		return decompressed;
+		return decompress(data, region->getSize(localX, localZ), CHUNK_DATA_LEN);
 	}
 	return nullptr;
 }
 
-ubyte* WorldFiles::readChunkData(int x, int y, uint32_t& length){
+ubyte* WorldFiles::readChunkData(int x, int z, uint32_t& length, path filename){
 	if (generatorTestMode)
 		return nullptr;
 		
 	int regionX = floordiv(x, REGION_SIZE);
-	int regionY = floordiv(y, REGION_SIZE);
+	int regionZ = floordiv(z, REGION_SIZE);
 
 	int localX = x - (regionX * REGION_SIZE);
-	int localY = y - (regionY * REGION_SIZE);
+	int localZ = z - (regionZ * REGION_SIZE);
 
-	int chunkIndex = localY * REGION_SIZE + localX;
+	int chunkIndex = localZ * REGION_SIZE + localX;
 
-	path filename = getRegionFile(regionX, regionY);
 	std::ifstream input(filename, std::ios::binary);
 	if (!input.is_open()){
 		return nullptr;
@@ -216,20 +234,62 @@ ubyte* WorldFiles::readChunkData(int x, int y, uint32_t& length){
 	return data;
 }
 
+void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, path filename){
+	ubyte** region = entry->chunksData;
+	uint32_t* sizes = entry->compressedSizes;
+	for (size_t i = 0; i < REGION_VOL; i++) {
+		int chunk_x = (i % REGION_SIZE) + x * REGION_SIZE;
+		int chunk_z = (i / REGION_SIZE) + y * REGION_SIZE;
+		if (region[i] == nullptr) {
+			region[i] = readChunkData(chunk_x, chunk_z, sizes[i], filename);
+		}
+	}
+
+	char header[10] = REGION_FORMAT_MAGIC;
+	header[8] = REGION_FORMAT_VERSION;
+	header[9] = 0; // flags
+	std::ofstream file(filename, ios::out | ios::binary);
+	file.write(header, 10);
+
+	size_t offset = 10;
+	char intbuf[4]{};
+	uint offsets[REGION_VOL]{};
+	
+	for (size_t i = 0; i < REGION_VOL; i++) {
+		ubyte* chunk = region[i];
+		if (chunk == nullptr){
+			offsets[i] = 0;
+		} else {
+			offsets[i] = offset;
+
+			size_t compressedSize = sizes[i];
+			int2Bytes(compressedSize, (ubyte*)intbuf, 0);
+			offset += 4 + compressedSize;
+
+			file.write(intbuf, 4);
+			file.write((const char*)chunk, compressedSize);
+		}
+	}
+	for (size_t i = 0; i < REGION_VOL; i++) {
+		int2Bytes(offsets[i], (ubyte*)intbuf, 0);
+		file.write(intbuf, 4);
+	}
+}
+
 void WorldFiles::write(const World* world, const Content* content) {
 	path directory = getRegionsFolder();
-	if (!std::filesystem::is_directory(directory)) {
-		std::filesystem::create_directories(directory);
+	if (!fs::is_directory(directory)) {
+		fs::create_directories(directory);
 	}
 	writeWorldInfo(world);
 	if (generatorTestMode)
 		return;
 	writeIndices(content->indices);
 	for (auto it = regions.begin(); it != regions.end(); it++){
-		if (it->second.chunksData == nullptr || !it->second.unsaved)
+		if (it->second->chunksData == nullptr || !it->second->unsaved)
 			continue;
 		ivec2 key = it->first;
-		writeRegion(key.x, key.y, it->second);
+		writeRegion(key.x, key.y, it->second, getRegionFile(key.x, key.y));
 	}
 }
 
@@ -398,46 +458,4 @@ bool WorldFiles::readPlayer(Player* player) {
 	root->flag("flight", player->flight);
 	root->flag("noclip", player->noclip);
 	return true;
-}
-
-void WorldFiles::writeRegion(int x, int y, WorldRegion& entry){
-	ubyte** region = entry.chunksData;
-	uint32_t* sizes = entry.compressedSizes;
-	for (size_t i = 0; i < REGION_VOL; i++) {
-		int chunk_x = (i % REGION_SIZE) + x * REGION_SIZE;
-		int chunk_y = (i / REGION_SIZE) + y * REGION_SIZE;
-		if (region[i] == nullptr) {
-			region[i] = readChunkData(chunk_x, chunk_y, sizes[i]);
-		}
-	}
-
-	char header[10] = REGION_FORMAT_MAGIC;
-	header[8] = REGION_FORMAT_VERSION;
-	header[9] = 0; // flags
-	std::ofstream file(getRegionFile(x, y), ios::out | ios::binary);
-	file.write(header, 10);
-
-	size_t offset = 10;
-	char intbuf[4]{};
-	uint offsets[REGION_VOL]{};
-	
-	for (size_t i = 0; i < REGION_VOL; i++) {
-		ubyte* chunk = region[i];
-		if (chunk == nullptr){
-			offsets[i] = 0;
-		} else {
-			offsets[i] = offset;
-
-			size_t compressedSize = sizes[i];
-			int2Bytes(compressedSize, (ubyte*)intbuf, 0);
-			offset += 4 + compressedSize;
-
-			file.write(intbuf, 4);
-			file.write((const char*)chunk, compressedSize);
-		}
-	}
-	for (size_t i = 0; i < REGION_VOL; i++) {
-		int2Bytes(offsets[i], (ubyte*)intbuf, 0);
-		file.write(intbuf, 4);
-	}
 }

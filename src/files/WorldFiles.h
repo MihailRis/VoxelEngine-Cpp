@@ -27,10 +27,18 @@ class Content;
 class ContentIndices;
 class World;
 
-struct WorldRegion {
+class WorldRegion {
+public:
 	ubyte** chunksData;
 	uint32_t* compressedSizes;
-	bool unsaved;
+	bool unsaved = true;
+
+	WorldRegion();
+	~WorldRegion();
+
+	void put(uint x, uint z, ubyte* data, uint32_t size);
+	ubyte* get(uint x, uint z);
+	uint getSize(uint x, uint z);
 };
 
 class WorldFiles {
@@ -47,8 +55,23 @@ class WorldFiles {
 	bool readOldWorldInfo(World* world);
 	bool readOldPlayer(Player* player);
 	// --------------------
+
+	WorldRegion* getRegion(int x, int z);
+
+	/* Compress buffer with extrle
+	   @param src source buffer
+	   @param srclen length of source buffer
+	   @param len (out argument) length of result buffer */
+	ubyte* compress(ubyte* src, size_t srclen, size_t& len);
+
+	/* Decompress buffer with extrle
+	   @param src compressed buffer
+	   @param srclen length of compressed buffer
+	   @param dstlen max expected length of source buffer
+	*/
+	ubyte* decompress(ubyte* src, size_t srclen, size_t dstlen);
 public:
-	std::unordered_map<glm::ivec2, WorldRegion> regions;
+	std::unordered_map<glm::ivec2, WorldRegion*> regions;
 	std::filesystem::path directory;
 	ubyte* compressionBuffer;
 	bool generatorTestMode;
@@ -57,12 +80,16 @@ public:
 	~WorldFiles();
 
 	void put(Chunk* chunk);
+	ubyte* getChunk(int x, int y);
 
 	bool readWorldInfo(World* world);
 	bool readPlayer(Player* player);
-	ubyte* readChunkData(int x, int y, uint32_t& length);
-	ubyte* getChunk(int x, int y);
-	void writeRegion(int x, int y, WorldRegion& entry);
+	ubyte* readChunkData(int x, int y, 
+						 uint32_t& length, 
+						 std::filesystem::path file);
+	void writeRegion(int x, int y, 
+					 WorldRegion* entry, 
+					 std::filesystem::path file);
 	void writePlayer(Player* player);
 	void write(const World* world, const Content* content);
 	void writeIndices(const ContentIndices* indices);
