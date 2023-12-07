@@ -34,10 +34,10 @@ namespace gui {
         virtual Label& setText(std::wstring text);
         const std::wstring& text() const;
 
-        virtual void draw(Batch2D* batch, Assets* assets) override;
+        void draw(Batch2D* batch, Assets* assets) override;
 
-        virtual Label* textSupplier(wstringsupplier supplier);
-        virtual void setSize(glm::vec2 size) override;
+        virtual Label* setTextSupplier(wstringsupplier supplier);
+        void setSize(glm::vec2 size) override;
     };
 
     class Button : public Panel {
@@ -52,9 +52,9 @@ namespace gui {
 
         virtual void drawBackground(Batch2D* batch, Assets* assets);
 
-        virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
+        std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
-        virtual void mouseRelease(GUI*, int x, int y) override;
+        void mouseRelease(GUI*, int x, int y) override;
         virtual Button* listenAction(onaction action);
 
         virtual void setText(std::wstring text);
@@ -74,14 +74,14 @@ namespace gui {
         TextBox(std::wstring placeholder, 
                 glm::vec4 padding=glm::vec4(2.0f));
 
-        virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
+        std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
-        virtual void drawBackground(Batch2D* batch, Assets* assets) override;
-        virtual void typed(unsigned int codepoint) override; 
-        virtual void keyPressed(int key) override;
-        virtual void textSupplier(wstringsupplier supplier);
-        virtual void textConsumer(wstringconsumer consumer);
-        virtual bool isfocuskeeper() const override {return true;}
+        void drawBackground(Batch2D* batch, Assets* assets) override;
+        void typed(unsigned int codepoint) override; 
+        void keyPressed(int key) override;
+        virtual void setTextSupplier(wstringsupplier supplier);
+        virtual void setTextConsumer(wstringconsumer consumer);
+        bool isfocuskeeper() const override {return true;}
         virtual const std::wstring& text() const;
     };
 
@@ -93,12 +93,12 @@ namespace gui {
         Binding& binding;
     public:
         InputBindBox(Binding& binding, glm::vec4 padding=glm::vec4(6.0f));
-        virtual void drawBackground(Batch2D* batch, Assets* assets) override;
-        virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
+        void drawBackground(Batch2D* batch, Assets* assets) override;
+        std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
-        virtual void clicked(GUI*, int button) override;
-        virtual void keyPressed(int key) override;
-        virtual bool isfocuskeeper() const override {return true;}
+        void clicked(GUI*, int button) override;
+        void keyPressed(int key) override;
+        bool isfocuskeeper() const override {return true;}
     };
 
     class TrackBar : public UINode {
@@ -118,12 +118,12 @@ namespace gui {
                  double value, 
                  double step=1.0, 
                  int trackWidth=1);
-        virtual void draw(Batch2D* batch, Assets* assets) override;
+        void draw(Batch2D* batch, Assets* assets) override;
 
         virtual void supplier(doublesupplier supplier);
         virtual void consumer(doubleconsumer consumer);
 
-        virtual void mouseMove(GUI*, int x, int y) override;
+        void mouseMove(GUI*, int x, int y) override;
     };
 
     class CheckBox : public UINode {
@@ -136,9 +136,9 @@ namespace gui {
     public:
         CheckBox(bool checked=false);
 
-        virtual void draw(Batch2D* batch, Assets* assets) override;
+        void draw(Batch2D* batch, Assets* assets) override;
 
-        virtual void mouseRelease(GUI*, int x, int y) override;
+        void mouseRelease(GUI*, int x, int y) override;
 
         virtual void supplier(boolsupplier supplier);
         virtual void consumer(boolconsumer consumer);

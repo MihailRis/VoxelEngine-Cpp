@@ -173,7 +173,7 @@ Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
     panel->color(vec4(0.0f));
 
     /* Camera sensitivity setting track bar */{
-        panel->add((new Label(L""))->textSupplier([=]() {
+        panel->add((new Label(L""))->setTextSupplier([=]() {
             std::wstringstream ss;
             ss << std::fixed << std::setprecision(1);
             ss << engine->getSettings().camera.sensitivity;
@@ -220,7 +220,7 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
 
     // TODO: simplify repeating code for trackbars
     /* Load Distance setting track bar */{
-        panel->add((new Label(L""))->textSupplier([=]() {
+        panel->add((new Label(L""))->setTextSupplier([=]() {
             return L"Load Distance: " + 
                 std::to_wstring(engine->getSettings().chunks.loadDistance);
         }));
@@ -236,7 +236,7 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
     }
 
     /* Load Speed setting track bar */{
-        panel->add((new Label(L""))->textSupplier([=]() {
+        panel->add((new Label(L""))->setTextSupplier([=]() {
             return L"Load Speed: " + 
                 std::to_wstring(engine->getSettings().chunks.loadSpeed);
         }));
@@ -252,7 +252,7 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
     }
 
     /* Fog Curve setting track bar */{
-        panel->add((new Label(L""))->textSupplier([=]() {
+        panel->add((new Label(L""))->setTextSupplier([=]() {
             std::wstringstream ss;
             ss << std::fixed << std::setprecision(1);
             ss << engine->getSettings().graphics.fogCurve;
@@ -270,7 +270,7 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
     }
 
     /* Fov setting track bar */{
-        panel->add((new Label(L""))->textSupplier([=]() {
+        panel->add((new Label(L""))->setTextSupplier([=]() {
             int fov = (int)engine->getSettings().camera.fov;
             return L"FOV: "+std::to_wstring(fov)+L"°";
         }));

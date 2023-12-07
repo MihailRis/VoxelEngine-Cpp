@@ -50,7 +50,7 @@ using namespace gui;
 
 inline Label* create_label(gui::wstringsupplier supplier) {
 	Label* label = new Label(L"-");
-	label->textSupplier(supplier);
+	label->setTextSupplier(supplier);
 	return label;
 }
 
@@ -123,11 +123,11 @@ HudRenderer::HudRenderer(Engine* engine,
 
 		// Coord input
 		TextBox* box = new TextBox(L"");
-		box->textSupplier([this, ax]() {
+		box->setTextSupplier([this, ax]() {
 			Hitbox* hitbox = this->level->player->hitbox;
 			return std::to_wstring((int)hitbox->position[ax]);
 		});
-		box->textConsumer([this, ax](wstring text) {
+		box->setTextConsumer([this, ax](wstring text) {
 			try {
 				vec3 position = this->level->player->hitbox->position;
 				position[ax] = std::stoi(text);

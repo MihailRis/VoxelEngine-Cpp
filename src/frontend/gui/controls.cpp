@@ -49,7 +49,7 @@ void Label::draw(Batch2D* batch, Assets* assets) {
     font->draw(batch, text_, coord.x, coord.y);
 }
 
-Label* Label::textSupplier(wstringsupplier supplier) {
+Label* Label::setTextSupplier(wstringsupplier supplier) {
     this->supplier = supplier;
     return this;
 }
@@ -164,11 +164,11 @@ shared_ptr<UINode> TextBox::getAt(vec2 pos, shared_ptr<UINode> self) {
     return UINode::getAt(pos, self);
 }
 
-void TextBox::textSupplier(wstringsupplier supplier) {
+void TextBox::setTextSupplier(wstringsupplier supplier) {
     this->supplier = supplier;
 }
 
-void TextBox::textConsumer(wstringconsumer consumer) {
+void TextBox::setTextConsumer(wstringconsumer consumer) {
     this->consumer = consumer;
 }
 

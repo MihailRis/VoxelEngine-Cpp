@@ -33,17 +33,17 @@ namespace gui {
     public:
         Container(glm::vec2 coord, glm::vec2 size);
 
-        virtual void act(float delta) override;
+        void act(float delta) override;
         virtual void drawBackground(Batch2D* batch, Assets* assets) {};
-        virtual void draw(Batch2D* batch, Assets* assets) override;
-        virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
+        void draw(Batch2D* batch, Assets* assets) override;
+        std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
         virtual void add(std::shared_ptr<UINode> node);
         virtual void add(UINode* node);
         virtual void remove(std::shared_ptr<UINode> node);
-        virtual void scrolled(int value) override;
+        void scrolled(int value) override;
         virtual void scrollable(bool flag);
         void listenInterval(float interval, ontimeout callback, int repeat=-1);
-        virtual glm::vec2 contentOffset() override {return glm::vec2(0.0f, scroll);};
+        glm::vec2 contentOffset() override {return glm::vec2(0.0f, scroll);};
     };
 
     class Panel : public Container {
@@ -57,13 +57,13 @@ namespace gui {
         Panel(glm::vec2 size, glm::vec4 padding=glm::vec4(2.0f), float interval=2.0f, bool resizing=true);
         virtual ~Panel();
 
-        virtual void drawBackground(Batch2D* batch, Assets* assets) override;
+        void drawBackground(Batch2D* batch, Assets* assets) override;
 
         virtual void orientation(Orientation orientation);
         Orientation orientation() const;
 
-        virtual void refresh() override;
-        virtual void lock() override;
+        void refresh() override;
+        void lock() override;
 
         virtual void maxLength(int value);
         int maxLength() const;
