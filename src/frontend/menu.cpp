@@ -45,13 +45,13 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
     EnginePaths* paths = engine->getPaths();
 
     Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
-    panel->color(vec4(0.0f));
+    panel->setColor(vec4(0.0f));
 
     panel->add(gotoButton(L"New World", "new-world", menu));
 
     Panel* worldsPanel = new Panel(vec2(390, 200), vec4(5.0f));
-    worldsPanel->color(vec4(0.1f));
-    worldsPanel->maxLength(400);
+    worldsPanel->setColor(vec4(0.1f));
+    worldsPanel->setMaxLength(400);
     path worldsFolder = paths->getWorldsFolder();
     if (std::filesystem::is_directory(worldsFolder)) {
         for (auto const& entry : directory_iterator(worldsFolder)) {
@@ -61,7 +61,7 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
             string name = entry.path().filename().string();
             Button* button = new Button(util::str2wstr_utf8(name), 
                                         vec4(10.0f, 8.0f, 10.0f, 8.0f));
-            button->color(vec4(0.5f));
+            button->setColor(vec4(0.5f));
             button->listenAction([=](GUI*) {
                 EngineSettings& settings = engine->getSettings();
 
@@ -85,7 +85,7 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
 
 Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
     Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
-    panel->color(vec4(0.0f));
+    panel->setColor(vec4(0.0f));
 
     TextBox* worldNameInput;
     {
@@ -128,9 +128,9 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
                 panel->listenInterval(0.1f, [worldNameInput, basecolor]() {
                     static bool flag = true;
                     if (flag) {
-                        worldNameInput->color(vec4(0.3f, 0.0f, 0.0f, 0.5f));
+                        worldNameInput->setColor(vec4(0.3f, 0.0f, 0.0f, 0.5f));
                     } else {
-                        worldNameInput->color(basecolor);
+                        worldNameInput->setColor(basecolor);
                     }
                     flag = !flag;
                 }, 4);
@@ -170,7 +170,7 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
 
 Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
     Panel* panel = new Panel(vec2(400, 200), vec4(2.0f), 1.0f);
-    panel->color(vec4(0.0f));
+    panel->setColor(vec4(0.0f));
 
     /* Camera sensitivity setting track bar */{
         panel->add((new Label(L""))->setTextSupplier([=]() {
@@ -191,14 +191,14 @@ Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
     }
 
     Panel* scrollPanel = new Panel(vec2(400, 200), vec4(2.0f), 1.0f);
-    scrollPanel->color(vec4(0.0f, 0.0f, 0.0f, 0.3f));
-    scrollPanel->maxLength(400);
+    scrollPanel->setColor(vec4(0.0f, 0.0f, 0.0f, 0.3f));
+    scrollPanel->setMaxLength(400);
     for (auto& entry : Events::bindings){
         string bindname = entry.first;
         
         Panel* subpanel = new Panel(vec2(400, 40), vec4(5.0f), 1.0f);
-        subpanel->color(vec4(0.0f));
-        subpanel->orientation(Orientation::horizontal);
+        subpanel->setColor(vec4(0.0f));
+        subpanel->setOrientation(Orientation::horizontal);
 
         InputBindBox* bindbox = new InputBindBox(entry.second);
         subpanel->add(bindbox);
@@ -216,7 +216,7 @@ Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
 
 Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
     Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
-    panel->color(vec4(0.0f));
+    panel->setColor(vec4(0.0f));
 
     // TODO: simplify repeating code for trackbars
     /* Load Distance setting track bar */{
@@ -287,8 +287,8 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
 
     /* V-Sync checkbox */{
         Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
-        checkpanel->color(vec4(0.0f));
-        checkpanel->orientation(Orientation::horizontal);
+        checkpanel->setColor(vec4(0.0f));
+        checkpanel->setOrientation(Orientation::horizontal);
 
         CheckBox* checkbox = new CheckBox();
         checkbox->margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
@@ -306,8 +306,8 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
 
     /* Backlight checkbox */{
         Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
-        checkpanel->color(vec4(0.0f));
-        checkpanel->orientation(Orientation::horizontal);
+        checkpanel->setColor(vec4(0.0f));
+        checkpanel->setOrientation(Orientation::horizontal);
 
         CheckBox* checkbox = new CheckBox();
         checkbox->margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
@@ -331,7 +331,7 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
 
 Panel* create_pause_panel(Engine* engine, PagesControl* menu) {
     Panel* panel = new Panel(vec2(400, 200));
-	panel->color(vec4(0.0f));
+	panel->setColor(vec4(0.0f));
 	{
 		Button* button = new Button(L"Continue", vec4(10.0f));
 		button->listenAction([=](GUI*){

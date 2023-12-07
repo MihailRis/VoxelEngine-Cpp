@@ -31,26 +31,26 @@ namespace gui {
         bool pressed_ = false;
         bool focused_ = false;
         Align align_ = Align::left;
-        UINode* parent = nullptr;
+        UINode* parent_ = nullptr;
         UINode(glm::vec2 coord, glm::vec2 size);
     public:
         virtual ~UINode();
         virtual void act(float delta) {};
         virtual void draw(Batch2D* batch, Assets* assets) = 0;
 
-        virtual void visible(bool flag);
+        virtual void setVisible(bool flag);
         bool visible() const;
 
-        virtual void align(Align align);
+        virtual void setAlign(Align align);
         Align align() const;
 
-        virtual void hover(bool flag);
+        virtual void setHover(bool flag);
         bool hover() const;
 
         virtual void setParent(UINode* node);
-        UINode* getParent() const;
+        UINode* parent() const;
 
-        virtual void color(glm::vec4 newColor);
+        virtual void setColor(glm::vec4 newColor);
         glm::vec4 color() const;
 
         virtual void margin(glm::vec4 margin);
@@ -61,7 +61,7 @@ namespace gui {
         virtual void clicked(GUI*, int button) {}
         virtual void mouseMove(GUI*, int x, int y) {};
         virtual void mouseRelease(GUI*, int x, int y);
-        virtual void scrolled(int value);
+        virtual void setScroll(int value);
 
         bool ispressed() const;
         void defocus();

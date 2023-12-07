@@ -21,10 +21,10 @@ class Window {
 	static glm::vec4 scissorArea;
 
 	static bool tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor);
-	static int _posX;
-	static int _posY;
-	static uint _width;
-	static uint _height;
+	static int posX_;
+	static int posY_;
+	static uint width_;
+	static uint height_;
 public:
 	static int initialize(DisplaySettings& settings);
 	static void terminate();
@@ -50,13 +50,13 @@ public:
 	static DisplaySettings* getSettings();
 
 	static glm::vec2 size() {
-		return glm::vec2(_width, _height);
+		return glm::vec2(width_, height_);
 	}
 	static uint width(){
-		return _width;
+		return width_;
 	}
 	static uint height(){
-		return _height;
+		return height_;
 	}
 	static void setWidth(uint w);
 	static void setHeight(uint h);

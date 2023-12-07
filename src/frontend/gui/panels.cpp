@@ -55,7 +55,7 @@ void Container::act(float delta) {
     }
 }
 
-void Container::scrolled(int value) {
+void Container::setScroll(int value) {
     int diff = (actualLength-size().y);
     if (diff > 0 && scrollable_) {
         scroll += value * 20;
@@ -64,12 +64,12 @@ void Container::scrolled(int value) {
         if (-scroll > diff) {
             scroll = -diff;
         }
-    } else if (parent) {
-        parent->scrolled(value);
+    } else if (parent_) {
+        parent_->setScroll(value);
     }
 }
 
-void Container::scrollable(bool flag) {
+void Container::setScrollable(bool flag) {
     scrollable_ = flag;
 }
 
@@ -130,7 +130,7 @@ void Panel::drawBackground(Batch2D* batch, Assets* assets) {
     batch->rect(coord.x, coord.y, size_.x, size_.y);
 }
 
-void Panel::maxLength(int value) {
+void Panel::setMaxLength(int value) {
     maxLength_ = value;
 }
 
@@ -203,7 +203,7 @@ void Panel::refresh() {
     }
 }
 
-void Panel::orientation(Orientation orientation) {
+void Panel::setOrientation(Orientation orientation) {
     this->orientation_ = orientation;
 }
 

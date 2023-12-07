@@ -112,14 +112,14 @@ HudRenderer::HudRenderer(Engine* engine,
 
 	for (int ax = 0; ax < 3; ax++){
 		Panel* sub = new Panel(vec2(10, 27), vec4(0.0f));
-		sub->orientation(Orientation::horizontal);
+		sub->setOrientation(Orientation::horizontal);
 
 		wstring str = L"x: ";
 		str[0] += ax;
 		Label* label = new Label(str);
 		label->margin(vec4(2, 3, 2, 3));
 		sub->add(label);
-		sub->color(vec4(0.0f));
+		sub->setColor(vec4(0.0f));
 
 		// Coord input
 		TextBox* box = new TextBox(L"");
@@ -170,8 +170,8 @@ HudRenderer::HudRenderer(Engine* engine,
 	}
 	{
         Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
-        checkpanel->color(vec4(0.0f));
-        checkpanel->orientation(Orientation::horizontal);
+        checkpanel->setColor(vec4(0.0f));
+        checkpanel->setOrientation(Orientation::horizontal);
 
         CheckBox* checkbox = new CheckBox();
         checkbox->margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
@@ -301,7 +301,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 	const uint width = viewport.getWidth();
 	const uint height = viewport.getHeight();
 
-	debugPanel->visible(level->player->debug);
+	debugPanel->setVisible(level->player->debug);
 
 	uicamera->setFov(height);
 

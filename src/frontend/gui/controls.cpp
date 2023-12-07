@@ -61,15 +61,15 @@ void Label::setSize(vec2 sizenew) {
 // ================================= Button ===================================
 Button::Button(shared_ptr<UINode> content, glm::vec4 padding) : Panel(vec2(32,32), padding, 0) {
     add(content);
-    scrollable(false);
+    setScrollable(false);
 }
 
 Button::Button(wstring text, glm::vec4 padding) : Panel(vec2(32,32), padding, 0) {
     Label* label = new Label(text);
-    label->align(Align::center);
+    label->setAlign(Align::center);
     this->label = shared_ptr<UINode>(label);
     add(this->label);
-    scrollable(false);
+    setScrollable(false);
 }
 
 void Button::setText(std::wstring text) {
@@ -131,13 +131,13 @@ void TextBox::drawBackground(Batch2D* batch, Assets* assets) {
     }
 
     if (input.empty()) {
-        label->color(vec4(0.5f));
+        label->setColor(vec4(0.5f));
         label->setText(placeholder);
     } else {
-        label->color(vec4(1.0f));
+        label->setColor(vec4(1.0f));
         label->setText(input);
     }
-    scrollable(false);
+    setScrollable(false);
 }
 
 void TextBox::typed(unsigned int codepoint) {
@@ -184,7 +184,7 @@ InputBindBox::InputBindBox(Binding& binding, vec4 padding)
       binding(binding) {
     label = new Label(L"");
     add(label);
-    scrollable(false);
+    setScrollable(false);
 }
 
 shared_ptr<UINode> InputBindBox::getAt(vec2 pos, shared_ptr<UINode> self) {
@@ -225,7 +225,7 @@ TrackBar::TrackBar(double min,
       value(value), 
       step(step), 
       trackWidth(trackWidth) {
-    color(vec4(0.f, 0.f, 0.f, 0.4f));
+    setColor(vec4(0.f, 0.f, 0.f, 0.4f));
 }
 
 void TrackBar::draw(Batch2D* batch, Assets* assets) {
@@ -269,7 +269,7 @@ void TrackBar::mouseMove(GUI*, int x, int y) {
 
 // ================================ CheckBox ==================================
 CheckBox::CheckBox(bool checked) : UINode(vec2(), vec2(32.0f)), checked_(checked) {
-    color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
 }
 
 void CheckBox::draw(Batch2D* batch, Assets* assets) {

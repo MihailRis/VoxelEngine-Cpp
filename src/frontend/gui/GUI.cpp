@@ -44,12 +44,12 @@ void GUI::actMouse(float delta) {
 
     auto hover = container->getAt(vec2(mx, my), nullptr);
     if (this->hover && this->hover != hover) {
-        this->hover->hover(false);
+        this->hover->setHover(false);
     }
     if (hover) {
-        hover->hover(true);
+        hover->setHover(true);
         if (Events::scroll) {
-            hover->scrolled(Events::scroll);
+            hover->setScroll(Events::scroll);
         }
     }
     this->hover = hover;

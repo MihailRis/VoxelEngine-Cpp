@@ -40,8 +40,8 @@ namespace gui {
         virtual void add(std::shared_ptr<UINode> node);
         virtual void add(UINode* node);
         virtual void remove(std::shared_ptr<UINode> node);
-        void scrolled(int value) override;
-        virtual void scrollable(bool flag);
+        void setScroll(int value) override;
+        virtual void setScrollable(bool flag);
         void listenInterval(float interval, ontimeout callback, int repeat=-1);
         glm::vec2 contentOffset() override {return glm::vec2(0.0f, scroll);};
     };
@@ -59,13 +59,13 @@ namespace gui {
 
         void drawBackground(Batch2D* batch, Assets* assets) override;
 
-        virtual void orientation(Orientation orientation);
+        virtual void setOrientation(Orientation orientation);
         Orientation orientation() const;
 
         void refresh() override;
         void lock() override;
 
-        virtual void maxLength(int value);
+        virtual void setMaxLength(int value);
         int maxLength() const;
     };
 

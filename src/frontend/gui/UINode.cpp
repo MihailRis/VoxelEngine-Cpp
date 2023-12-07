@@ -22,7 +22,7 @@ bool UINode::visible() const {
     return isvisible;
 }
 
-void UINode::visible(bool flag) {
+void UINode::setVisible(bool flag) {
     isvisible = flag;
 }
 
@@ -30,11 +30,11 @@ Align UINode::align() const {
     return align_;
 }
 
-void UINode::align(Align align) {
+void UINode::setAlign(Align align) {
     align_ = align;
 }
 
-void UINode::hover(bool flag) {
+void UINode::setHover(bool flag) {
     hover_ = flag;
 }
 
@@ -43,11 +43,11 @@ bool UINode::hover() const {
 }
 
 void UINode::setParent(UINode* node) {
-    parent = node;
+    parent_ = node;
 }
 
-UINode* UINode::getParent() const {
-    return parent;
+UINode* UINode::parent() const {
+    return parent_;
 }
 
 void UINode::click(GUI*, int x, int y) {
@@ -82,15 +82,15 @@ shared_ptr<UINode> UINode::getAt(vec2 pos, shared_ptr<UINode> self) {
 }
 
 vec2 UINode::calcCoord() const {
-    if (parent) {
-        return coord + parent->calcCoord() + parent->contentOffset();
+    if (parent_) {
+        return coord + parent_->calcCoord() + parent_->contentOffset();
     }
     return coord;
 }
 
-void UINode::scrolled(int value) {
-    if (parent) {
-        parent->scrolled(value);
+void UINode::setScroll(int value) {
+    if (parent_) {
+        parent_->setScroll(value);
     }
 }
 
@@ -108,7 +108,7 @@ void UINode::setSize(vec2 size) {
     this->size_ = size;
 }
 
-void UINode::color(vec4 color) {
+void UINode::setColor(vec4 color) {
     this->color_ = color;
 }
 
