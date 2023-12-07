@@ -97,16 +97,16 @@ float calc_height(fnl_state *noise, int real_x, int real_z){
 }
 
 WorldGenerator::WorldGenerator(const Content* content)
-	           : idStone(content->require("base:stone")->rt.id),
-			     idDirt(content->require("base:dirt")->rt.id),
-				 idGrassBlock(content->require("base:grass_block")->rt.id),
-				 idSand(content->require("base:sand")->rt.id),
-				 idWater(content->require("base:water")->rt.id),
-				 idWood(content->require("base:wood")->rt.id),
-				 idLeaves(content->require("base:leaves")->rt.id),
-				 idGrass(content->require("base:grass")->rt.id),
-				 idFlower(content->require("base:flower")->rt.id),
-				 idBazalt(content->require("base:bazalt")->rt.id) {;
+	           : idStone(content->requireBlock("base:stone")->rt.id),
+			     idDirt(content->requireBlock("base:dirt")->rt.id),
+				 idGrassBlock(content->requireBlock("base:grass_block")->rt.id),
+				 idSand(content->requireBlock("base:sand")->rt.id),
+				 idWater(content->requireBlock("base:water")->rt.id),
+				 idWood(content->requireBlock("base:wood")->rt.id),
+				 idLeaves(content->requireBlock("base:leaves")->rt.id),
+				 idGrass(content->requireBlock("base:grass")->rt.id),
+				 idFlower(content->requireBlock("base:flower")->rt.id),
+				 idBazalt(content->requireBlock("base:bazalt")->rt.id) {;
 }
 
 int generate_tree(fnl_state *noise, 

@@ -40,7 +40,7 @@ public:
 	float camX = 0.0f;
 	float camY = 0.0f;
 
-	Player(glm::vec3 position, float speed, Camera* camera);
+	Player(glm::vec3 position, float speed);
 	~Player();
 
 	void teleport(glm::vec3 position);

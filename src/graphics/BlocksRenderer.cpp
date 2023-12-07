@@ -235,7 +235,7 @@ void BlocksRenderer::blockCubeShaded(const ivec3& icoord,
 									 const vec3& offset,
 									 const vec3& size,
 									 const UVRegion(&texfaces)[6],
-									 const Block* block, ubyte states) {
+									 const Block* block, ubyte rotation) {
 
 	ivec3 X(1, 0, 0);
 	ivec3 Y(0, 1, 0);
@@ -244,25 +244,27 @@ void BlocksRenderer::blockCubeShaded(const ivec3& icoord,
 	ivec3 coord = icoord;
 	if (block->rotatable) {
 		auto& rotations = block->rotations;
-		auto& orient = rotations.variants[states & BLOCK_ROT_MASK];
+		auto& orient = rotations.variants[rotation];
 		X = orient.axisX;
 		Y = orient.axisY;
 		Z = orient.axisZ;
 		coord += orient.fix;
 		loff -= orient.fix;
 	}
+	vec3 fX(X);
+	vec3 fY(Y);
 	vec3 fZ(Z);
 
 	vec3 local = offset.x*vec3(X)+offset.y*vec3(Y)+offset.z*-fZ;
 
-	face(coord, X, Y, Z, Z+loff, local-size.z*fZ, size.x, size.y, size.z, texfaces[5]);
-	face(coord+X, -X, Y, -Z, Z-Z-X+loff, local-size.z*fZ, size.x, size.y, 0.0f, texfaces[4]);
+	face(coord, X, Y, Z, Z+loff, local-size.z*fZ, size.x, size.y, size.z, texfaces[5]); // north ;;;
+	face(coord, -X, Y, -Z, Z-Z-X+loff, local-size.z*fZ+fX*size.x, size.x, size.y, 0.0f, texfaces[4]); // south ;;;
 
-	face(coord+Y, X, -Z, Y, Y-Y+loff, local, size.x, size.z, 0.0f, texfaces[3]);
-	face(coord+X, -X, -Z, -Y, -X-Y+loff, local, size.x, size.z, 0.0f, texfaces[2]);
+	face(coord+Y, X, -Z, Y, Y-Y+loff, local, size.x, size.z, 0.0f, texfaces[3]); // top ;;;
+	face(coord+X, -X, -Z, -Y, -X-Y+loff, local+size.x*fX-fX, size.x, size.z, 0.0f, texfaces[2]); // bottom ;;;
 
-	face(coord+X, -Z, Y, X, X-X+loff, local, size.z, size.y, 0.0f, texfaces[1]);
-	face(coord+Y, -Z, -Y, -X, -X-Y+loff, local, size.z, size.y, 0.0f, texfaces[0]);
+	face(coord+X, -Z, Y, X, X-X+loff, local+size.x*fX-fX, size.z, size.y, 0.0f, texfaces[1]); // west ;;;
+	face(coord+Y, -Z, -Y, -X, -X-Y+loff, local, size.z, size.y, 0.0f, texfaces[0]); // east ;;;
 }
 
 /* Fastest solid shaded blocks render method */
@@ -409,7 +411,7 @@ void BlocksRenderer::render(const voxel* voxels) {
 
 				vec3 size = hitbox.size();
 				vec3 off = hitbox.min();
-				blockCubeShaded(ivec3(x,y,z), off, size, texfaces, &def, vox.states);
+				blockCubeShaded(ivec3(x,y,z), off, size, texfaces, &def, vox.rotation());
 				break;
 			}
 			default:

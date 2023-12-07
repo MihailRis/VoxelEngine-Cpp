@@ -17,7 +17,7 @@ Level::Level(World* world, const Content* content, Player* player, EngineSetting
 		chunksStorage(new ChunksStorage(this)),
 		events(new LevelEvents()) ,
 		settings(settings) {
-    physics = new PhysicsSolver(vec3(0, -19.6f, 0));
+    physics = new PhysicsSolver(vec3(0, -22.6f, 0));
 
     uint matrixSize = (settings.chunks.loadDistance+
 					   settings.chunks.padding) * 2;

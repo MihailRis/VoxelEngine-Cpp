@@ -10,6 +10,7 @@ struct ChunkFlag{
 	static const int LOADED = 0x4;
 	static const int LIGHTED = 0x8;
 	static const int UNSAVED = 0x10;
+	static const int LOADED_LIGHTS = 0x20;
 };
 #define CHUNK_DATA_LEN (CHUNK_VOL*2)
 
@@ -57,6 +58,8 @@ public:
 
 	inline bool isLoaded() const {return flags & ChunkFlag::LOADED;}
 
+	inline bool isLoadedLights() const {return flags & ChunkFlag::LOADED_LIGHTS;}
+
 	inline bool isReady() const {return flags & ChunkFlag::READY;}
 
 	inline void setUnsaved(bool newState) {SETFLAGS(ChunkFlag::UNSAVED, newState);}
@@ -64,6 +67,8 @@ public:
 	inline void setModified(bool newState) {SETFLAGS(ChunkFlag::MODIFIED, newState);}
 
 	inline void setLoaded(bool newState) {SETFLAGS(ChunkFlag::LOADED, newState);}
+
+	inline void setLoadedLights(bool newState) {SETFLAGS(ChunkFlag::LOADED_LIGHTS, newState);}
 
 	inline void setLighted(bool newState) {SETFLAGS(ChunkFlag::LIGHTED, newState);}
 

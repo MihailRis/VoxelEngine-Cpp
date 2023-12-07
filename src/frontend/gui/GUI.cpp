@@ -20,7 +20,7 @@ using std::shared_ptr;
 using namespace gui;
 
 GUI::GUI() {
-    container = new Container(vec2(0, 0), vec2(Window::width, Window::height));
+    container = new Container(vec2(0, 0), vec2(1000));
 
     const vec3 camPos = vulkan::VulkanContext::isVulkanEnabled() ? vec3(0, 0, -1) : vec3();
     uicamera = new Camera(camPos, static_cast<float>(Window::height));

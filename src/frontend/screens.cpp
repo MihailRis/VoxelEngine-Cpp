@@ -35,6 +35,9 @@
 #include "../graphics-vk/VulkanContext.h"
 #include "../graphics-vk/WorldRenderer.h"
 
+#include "../content/Content.h"
+#include "../voxels/Block.h"
+
 using std::string;
 using std::wstring;
 using glm::vec3;
@@ -83,11 +86,14 @@ void MenuScreen::draw(float delta) {
 	uishader->use();
 	uishader->uniformMatrix("u_projview", uicamera->getProjView());
 
+    uint width = Window::width;
+    uint height = Window::height;
+
     batch->begin();
     batch->texture(engine->getAssets()->getTexture("menubg"));
     batch->rect(0, 0, 
-                static_cast<float>(Window::width), static_cast<float>(Window::height), 0, 0, 0,
-                UVRegion(0, 0, static_cast<float>(Window::width) / 64, static_cast<float>(Window::height) / 64),
+                width, height, 0, 0, 0,
+                UVRegion(0, 0, width/64, height/64),
                 false, false, vec4(1.0f));
     batch->render();
 
@@ -130,6 +136,23 @@ void LevelScreen::updateHotkeys() {
         level->player->debug = !level->player->debug;
     }
     if (Events::jpressed(keycode::F5)) {
+        level->chunks->saveAndClear();
+    }
+
+    // TODO: remove in v0.16
+    if (Events::jpressed(keycode::F9)) {
+        blockid_t woodid = level->content->requireBlock("base:wood")->rt.id;
+        for (size_t i = 0; i < level->chunks->volume; i++){
+            Chunk* chunk = level->chunks->chunks[i].get();
+            if (chunk) {
+                for (uint i = 0; i < CHUNK_VOL; i++) {
+                    auto& vox = chunk->voxels[i];
+                    if (vox.id == woodid) {
+                        vox.states = BLOCK_DIR_UP;
+                    }
+                }
+            }
+        }
         level->chunks->saveAndClear();
     }
 }

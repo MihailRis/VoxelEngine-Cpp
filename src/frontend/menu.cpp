@@ -19,6 +19,8 @@
 #include "../engine.h"
 #include "../settings.h"
 
+#include "gui/gui_util.h"
+
 using glm::vec2;
 using glm::vec4;
 using std::string;
@@ -29,25 +31,13 @@ using std::filesystem::u8path;
 using std::filesystem::directory_iterator;
 using namespace gui;
 
-inline Button* gotoButton(wstring text, string page, PagesControl* menu) {
-    return (new Button(text, vec4(10.f)))->listenAction([=](GUI* gui) {
-        menu->set(page);
-    });
-}
-
-inline Button* backButton(PagesControl* menu) {
-    return (new Button(L"Back", vec4(10.f)))->listenAction([=](GUI* gui) {
-        menu->back();
-    });
-}
-
 Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
     EnginePaths* paths = engine->getPaths();
 
     Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
     panel->color(vec4(0.0f));
 
-    panel->add(gotoButton(L"New World", "new-world", menu));
+    panel->add(guiutil::gotoButton(L"New World", "new-world", menu));
 
     Panel* worldsPanel = new Panel(vec2(390, 200), vec4(5.0f));
     worldsPanel->color(vec4(0.1f));
@@ -66,17 +56,16 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
                 EngineSettings& settings = engine->getSettings();
 
                 auto folder = paths->getWorldsFolder()/u8path(name);
-                World* world = new World(name, folder, 42, settings);
-                auto screen = new LevelScreen(engine, 
-                    world->load(settings, engine->getContent()));
+                Level* level = World::load(folder, settings, engine->getContent());
+                auto screen = new LevelScreen(engine, level);
                 engine->setScreen(shared_ptr<Screen>(screen));
             });
             worldsPanel->add(button);
         }
     }
     panel->add(worldsPanel);
-    panel->add(gotoButton(L"Settings", "settings", menu));
-    panel->add((new Button(L"Quit", vec4(10.f)))->listenAction([](GUI*) {
+    panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
+    panel->add((new Button(L"Quit", vec4(10.f)))->listenAction([](GUI* gui) {
         Window::setShouldClose(true);
     }));
     panel->refresh();
@@ -156,14 +145,14 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
 
             auto folder = paths->getWorldsFolder()/u8path(nameutf8);
             std::filesystem::create_directories(folder);
-            World* world = new World(nameutf8, folder, seed, settings);
-            auto screen = new LevelScreen(engine, world->load(settings, engine->getContent()));
+            Level* level = World::create(nameutf8, folder, seed, settings, engine->getContent());
+            auto screen = new LevelScreen(engine, level);
             engine->setScreen(shared_ptr<Screen>(screen));
         });
         panel->add(button);
     }
 
-    panel->add(backButton(menu));
+    panel->add(guiutil::backButton(menu));
     panel->refresh();
     return panel;
 }
@@ -209,7 +198,7 @@ Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
     }
     panel->add(scrollPanel);
 
-    panel->add(backButton(menu));
+    panel->add(guiutil::backButton(menu));
     panel->refresh();
     return panel;
 }
@@ -323,8 +312,8 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
         panel->add(checkpanel);
     }
 
-    panel->add(gotoButton(L"Controls", "controls", menu));
-    panel->add(backButton(menu));
+    panel->add(guiutil::gotoButton(L"Controls", "controls", menu));
+    panel->add(guiutil::backButton(menu));
     panel->refresh();
     return panel;
 }
@@ -339,7 +328,7 @@ Panel* create_pause_panel(Engine* engine, PagesControl* menu) {
 		});
 		panel->add(shared_ptr<UINode>(button));
 	}
-    panel->add(gotoButton(L"Settings", "settings", menu));
+    panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
 	{
 		Button* button = new Button(L"Save and Quit to Menu", vec4(10.f));
 		button->listenAction([engine](GUI*){

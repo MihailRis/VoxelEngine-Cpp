@@ -4,6 +4,7 @@
 #include "../typedefs.h"
 #include <glm/glm.hpp>
 
+class Viewport;
 class IShader;
 class Atlas;
 class Batch3D;
@@ -15,11 +16,12 @@ class BlocksPreview {
     Atlas* atlas;
     Batch3D* batch;
     const ContentGfxCache* const cache;
+    const Viewport* viewport;
 public:
     BlocksPreview(IShader* shader, Atlas* atlas, const ContentGfxCache* cache);
     ~BlocksPreview();
 
-    void begin();
+    void begin(const Viewport* viewport);
     void draw(const Block* block, int x, int y, int size, glm::vec4 tint);
 };
 

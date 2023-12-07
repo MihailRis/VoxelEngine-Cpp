@@ -48,6 +48,8 @@ class Camera;
 */
 
 namespace gui {
+    typedef std::function<void()> runnable;
+
     class UINode;
     class Container;
     class PagesControl;

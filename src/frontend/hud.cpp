@@ -241,7 +241,7 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 	batch->render();
 
 	// blocks & items
-	// blocksPreview->begin();
+	// blocksPreview->begin(&ctx.getViewport());
 	// {
 	// 	Window::clearDepth();
 	// 	GfxContext subctx = ctx.sub();
@@ -330,7 +330,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 	batch->setColor(vec4(1.0f));
 	batch->render();
 
-	// blocksPreview->begin();
+	// blocksPreview->begin(&ctx.getViewport());
 	// {
 	// 	Window::clearDepth();
 	// 	GfxContext subctx = ctx.sub();

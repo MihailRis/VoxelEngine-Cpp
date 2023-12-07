@@ -1,6 +1,7 @@
 #include "ChunksStorage.h"
 
 #include <assert.h>
+#include <iostream>
 
 #include "VoxelsVolume.h"
 #include "Chunk.h"
@@ -43,12 +44,32 @@ void ChunksStorage::remove(int x, int z) {
 }
 
 std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
+	World* world = level->world;
+
 	auto chunk = shared_ptr<Chunk>(new Chunk(x, z));
 	store(chunk);
-	unique_ptr<ubyte> data(level->world->wfile->getChunk(chunk->x, chunk->z));
+	unique_ptr<ubyte> data(world->wfile->getChunk(chunk->x, chunk->z));
 	if (data) {
 		chunk->decode(data.get());
 		chunk->setLoaded(true);
+	}
+
+	// Verifying and converting data
+	ContentIndices* indices = level->content->indices;
+	for (size_t i = 0; i < CHUNK_VOL; i++) {
+		blockid_t id = chunk->voxels[i].id;
+		if (indices->getBlockDef(id) == nullptr) {
+			std::cout << "corruped block detected at " << i << " of chunk ";
+			std::cout << chunk->x << "x" << chunk->z;
+			std::cout << " -> " << (int)id << std::endl;
+			chunk->voxels[i].id = 11;
+		}
+	}
+
+	light_t* lights = world->wfile->getLights(chunk->x, chunk->z);
+	if (lights) {
+		chunk->lightmap->set(lights);
+		chunk->setLoadedLights(true);
 	}
 	return chunk;
 }

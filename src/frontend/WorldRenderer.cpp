@@ -148,7 +148,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 	backShader->use();
 	backShader->uniformMatrix("u_view", camera->getView(false));
 	backShader->uniform1f("u_zoom", camera->zoom*camera->getFov()/(3.141592*0.5f));
-	backShader->uniform1f("u_ar", (float)Window::width/(float)Window::height);
+	backShader->uniform1f("u_ar", float(displayWidth)/float(displayHeight));
 	skybox->draw(backShader);
 
 	{
