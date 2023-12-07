@@ -43,15 +43,17 @@ void ChunksStorage::remove(int x, int z) {
 }
 
 std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
+	World* world = level->world;
+
 	auto chunk = shared_ptr<Chunk>(new Chunk(x, z));
 	store(chunk);
-	unique_ptr<ubyte> data(level->world->wfile->getChunk(chunk->x, chunk->z));
+	unique_ptr<ubyte> data(world->wfile->getChunk(chunk->x, chunk->z));
 	if (data) {
 		chunk->decode(data.get());
 		chunk->setLoaded(true);
 	}
 
-	light_t* lights = level->world->wfile->getLights(chunk->x, chunk->z);
+	light_t* lights = world->wfile->getLights(chunk->x, chunk->z);
 	if (lights) {
 		chunk->lightmap->set(lights);
 		chunk->setLoadedLights(true);

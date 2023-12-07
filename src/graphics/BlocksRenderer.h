@@ -91,7 +91,7 @@ class BlocksRenderer {
 						 const glm::vec3& size, 
 						 const UVRegion(&faces)[6], 
 						 const Block* block, 
-						 ubyte states);
+						 ubyte rotation);
 	void blockXSprite(int x, int y, int z, const glm::vec3& size, const UVRegion& face1, const UVRegion& face2, float spread);
 
 	bool isOpenForLight(int x, int y, int z) const;

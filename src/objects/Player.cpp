@@ -16,10 +16,10 @@ const float FLIGHT_SPEED_MUL = 4.0f;
 const float CHEAT_SPEED_MUL = 5.0f;
 const float JUMP_FORCE = 8.0f;
 
-Player::Player(glm::vec3 position, float speed, Camera* camera) :
+Player::Player(glm::vec3 position, float speed) :
 		speed(speed),
-		camera(camera),
 		choosenBlock(1) {
+	camera = new Camera(position, glm::radians(90.0f));
 	hitbox = new Hitbox(position, vec3(0.3f,0.9f,0.3f));
 }
 

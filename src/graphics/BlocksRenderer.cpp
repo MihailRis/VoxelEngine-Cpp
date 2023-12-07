@@ -235,7 +235,7 @@ void BlocksRenderer::blockCubeShaded(const ivec3& icoord,
 									 const vec3& offset,
 									 const vec3& size, 
 									 const UVRegion(&texfaces)[6], 
-									 const Block* block, ubyte states) {
+									 const Block* block, ubyte rotation) {
 
 	ivec3 X(1, 0, 0);
 	ivec3 Y(0, 1, 0);
@@ -244,7 +244,7 @@ void BlocksRenderer::blockCubeShaded(const ivec3& icoord,
 	ivec3 coord = icoord;
 	if (block->rotatable) {
 		auto& rotations = block->rotations;
-		auto& orient = rotations.variants[states & BLOCK_ROT_MASK];
+		auto& orient = rotations.variants[rotation];
 		X = orient.axisX;
 		Y = orient.axisY;
 		Z = orient.axisZ;
@@ -411,7 +411,7 @@ void BlocksRenderer::render(const voxel* voxels) {
 
 				vec3 size = hitbox.size();
 				vec3 off = hitbox.min();
-				blockCubeShaded(ivec3(x,y,z), off, size, texfaces, &def, vox.states);
+				blockCubeShaded(ivec3(x,y,z), off, size, texfaces, &def, vox.rotation());
 				break;
 			}
 			default:

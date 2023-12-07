@@ -35,6 +35,7 @@ public:
 
 	void updateTimers(float delta);
 	void write(Level* level);
+	Level* create(EngineSettings& settings, const Content* content);
 	Level* load(EngineSettings& settings, const Content* content);
 };
 

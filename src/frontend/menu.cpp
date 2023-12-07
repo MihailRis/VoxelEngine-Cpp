@@ -147,7 +147,7 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
             auto folder = paths->getWorldsFolder()/u8path(nameutf8);
             std::filesystem::create_directories(folder);
             World* world = new World(nameutf8, folder, seed, settings);
-            auto screen = new LevelScreen(engine, world->load(settings, engine->getContent()));
+            auto screen = new LevelScreen(engine, world->create(settings, engine->getContent()));
             engine->setScreen(shared_ptr<Screen>(screen));
         });
         panel->add(button);

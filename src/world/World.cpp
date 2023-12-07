@@ -56,17 +56,20 @@ void World::write(Level* level) {
 	wfile->writePlayer(level->player);
 }
 
+const float DEF_PLAYER_Y = 100.0f;
+const float DEF_PLAYER_SPEED = 4.0f;
+
+Level* World::create(EngineSettings& settings, const Content* content) {
+	Player* player = new Player(vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
+	return new Level(this, content, player, settings);
+}
+
 Level* World::load(EngineSettings& settings, const Content* content) {
 	wfile->readWorldInfo(this);
 
-	vec3 playerPosition = vec3(0, 100, 0);
-	Camera* camera = new Camera(playerPosition, glm::radians(90.0f));
-	Player* player = new Player(playerPosition, 4.0f, camera);
+	Player* player = new Player(vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
 	Level* level = new Level(this, content, player, settings);
 
 	wfile->readPlayer(player);
-
-	camera->rotation = glm::mat4(1.0f);
-	camera->rotate(player->camY, player->camX, 0);
 	return level;
 }

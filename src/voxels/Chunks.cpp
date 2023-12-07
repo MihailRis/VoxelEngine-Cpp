@@ -74,7 +74,7 @@ const AABB* Chunks::isObstacle(float x, float y, float z){
 	const Block* def = contentIds->getBlockDef(v->id);
 	if (def->obstacle) {
 		const AABB& hitbox = def->rotatable 
-							 ? def->rt.hitboxes[v->states & BLOCK_ROT_MASK] 
+							 ? def->rt.hitboxes[v->rotation()] 
 							 : def->hitbox;
 		if (def->rt.solid) {
 			return &hitbox;
@@ -225,7 +225,9 @@ voxel* Chunks::rayCast(vec3 start,
 			// TODO: replace this dumb solution with something better
 			if (def && !def->rt.solid) {
 				const int gridSize = BLOCK_AABB_GRID * 2;
-				const AABB& box = def->rotatable ? def->rt.hitboxes[voxel->states & BLOCK_ROT_MASK] : def->hitbox;
+				const AABB& box = def->rotatable 
+								  ? def->rt.hitboxes[voxel->rotation()] 
+								  : def->hitbox;
 				const int subs = gridSize;
 				iend = vec3(ix, iy, iz);
 				end -= iend;
