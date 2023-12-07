@@ -153,7 +153,7 @@ void WorldFiles::put(Chunk* chunk){
 		ubyte* data = compress(chunk_data.get(), CHUNK_DATA_LEN, compressedSize);
 		region->put(localX, localZ, data, compressedSize);
 	}
-	if (doWriteLights) {
+	if (doWriteLights && chunk->isLighted()) {
 		WorldRegion* region = getOrCreateRegion(lights, regionX, regionZ);
 		region->setUnsaved(true);
 		unique_ptr<ubyte[]> light_data (chunk->lightmap->encode());
