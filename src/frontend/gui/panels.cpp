@@ -165,15 +165,15 @@ void Panel::refresh() {
             y += nodesize.y + margin.w + interval;
 
             float width = size.x - padding.x - padding.z - margin.x - margin.z;
-            node->size(vec2(width, nodesize.y));;
+            node->setSize(vec2(width, nodesize.y));;
             node->refresh();
             maxw = fmax(maxw, ex+node->size().x+margin.z+padding.z);
         }
         if (resizing_) {
             if (maxLength_)
-                this->size(vec2(size.x, glm::min(maxLength_, (int)(y+padding.w))));
+                this->setSize(vec2(size.x, glm::min(maxLength_, (int)(y+padding.w))));
             else
-                this->size(vec2(size.x, y+padding.w));
+                this->setSize(vec2(size.x, y+padding.w));
         }
         actualLength = y + padding.w;
     } else {
@@ -186,16 +186,16 @@ void Panel::refresh() {
             x += nodesize.x + margin.z + interval;
             
             float height = size.y - padding.y - padding.w - margin.y - margin.w;
-            node->size(vec2(nodesize.x, height));
+            node->setSize(vec2(nodesize.x, height));
             node->refresh();
             maxh = fmax(maxh, y+margin.y+node->size().y+margin.w+padding.w);
         }
         bool increased = maxh > size.y;
         if (resizing_) {
             if (maxLength_)
-                this->size(vec2(glm::min(maxLength_, (int)(x+padding.z)), size.y));
+                this->setSize(vec2(glm::min(maxLength_, (int)(x+padding.z)), size.y));
             else
-                this->size(vec2(x+padding.z, size.y));
+                this->setSize(vec2(x+padding.z, size.y));
         }
         if (increased)
             refresh();
@@ -247,7 +247,7 @@ void PagesControl::set(std::string name, bool history) {
     curname_ = name;
     current_ = found->second;
     Container::add(current_.panel);
-    size(current_.panel->size());
+    setSize(current_.panel->size());
 }
 
 void PagesControl::back() {

@@ -31,13 +31,13 @@ namespace gui {
     public:
         Label(std::wstring text, std::string fontName="normal");
 
-        virtual Label& text(std::wstring text);
-        std::wstring text() const;
+        virtual Label& setText(std::wstring text);
+        const std::wstring& text() const;
 
         virtual void draw(Batch2D* batch, Assets* assets) override;
 
         virtual Label* textSupplier(wstringsupplier supplier);
-        virtual void size(glm::vec2 size) override;
+        virtual void setSize(glm::vec2 size) override;
     };
 
     class Button : public Panel {
@@ -57,8 +57,8 @@ namespace gui {
         virtual void mouseRelease(GUI*, int x, int y) override;
         virtual Button* listenAction(onaction action);
 
-        virtual void text(std::wstring text);
-        virtual std::wstring text() const;
+        virtual void setText(std::wstring text);
+        virtual const std::wstring& text() const;
     };
 
     class TextBox : public Panel {
@@ -82,7 +82,7 @@ namespace gui {
         virtual void textSupplier(wstringsupplier supplier);
         virtual void textConsumer(wstringconsumer consumer);
         virtual bool isfocuskeeper() const override {return true;}
-        virtual std::wstring text() const;
+        virtual const std::wstring& text() const;
     };
 
     class InputBindBox : public Panel {

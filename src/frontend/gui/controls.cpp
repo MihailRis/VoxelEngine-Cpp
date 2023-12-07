@@ -24,25 +24,25 @@ Label::Label(wstring text, string fontName)
  : UINode(vec2(), vec2(text.length() * 8, 15)), text_(text), fontName_(fontName) {
 }
 
-Label& Label::text(wstring text) {
+Label& Label::setText(wstring text) {
     this->text_ = text;
     return *this;
 }
 
-wstring Label::text() const {
+const wstring& Label::text() const {
     return text_;
 }
 
 void Label::draw(Batch2D* batch, Assets* assets) {
     if (supplier) {
-        text(supplier());
+        setText(supplier());
     }
     batch->color = color_;
     Font* font = assets->getFont(fontName_);
     vec2 size = UINode::size();
     vec2 newsize = vec2(font->calcWidth(text_), font->lineHeight());
     if (newsize.x > size.x) {
-        this->size(newsize);
+        this->setSize(newsize);
         size = newsize;
     }
     vec2 coord = calcCoord();
@@ -54,8 +54,8 @@ Label* Label::textSupplier(wstringsupplier supplier) {
     return this;
 }
 
-void Label::size(vec2 sizenew) {
-    UINode::size(vec2(UINode::size().x, sizenew.y));
+void Label::setSize(vec2 sizenew) {
+    UINode::setSize(vec2(UINode::size().x, sizenew.y));
 }
 
 // ================================= Button ===================================
@@ -72,14 +72,14 @@ Button::Button(wstring text, glm::vec4 padding) : Panel(vec2(32,32), padding, 0)
     scrollable(false);
 }
 
-void Button::text(std::wstring text) {
+void Button::setText(std::wstring text) {
     if (label) {
         Label* label = (Label*)(this->label.get());
-        label->text(text);
+        label->setText(text);
     }
 }
 
-wstring Button::text() const {
+const wstring& Button::text() const {
     if (label) {
         Label* label = (Label*)(this->label.get());
         return label->text();
@@ -132,10 +132,10 @@ void TextBox::drawBackground(Batch2D* batch, Assets* assets) {
 
     if (input.empty()) {
         label->color(vec4(0.5f));
-        label->text(placeholder);
+        label->setText(placeholder);
     } else {
         label->color(vec4(1.0f));
-        label->text(input);
+        label->setText(input);
     }
     scrollable(false);
 }
@@ -172,7 +172,7 @@ void TextBox::textConsumer(wstringconsumer consumer) {
     this->consumer = consumer;
 }
 
-wstring TextBox::text() const {
+const wstring& TextBox::text() const {
     if (input.empty())
         return placeholder;
     return input;
@@ -196,7 +196,7 @@ void InputBindBox::drawBackground(Batch2D* batch, Assets* assets) {
     batch->texture(nullptr);
     batch->color = (isfocused() ? focusedColor : (hover_ ? hoverColor : color_));
     batch->rect(coord.x, coord.y, size_.x, size_.y);
-    label->text(util::str2wstr_utf8(binding.text()));
+    label->setText(util::str2wstr_utf8(binding.text()));
 }
 
 void InputBindBox::clicked(GUI*, int button) {

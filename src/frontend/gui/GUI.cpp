@@ -19,9 +19,9 @@ using std::shared_ptr;
 using namespace gui;
 
 GUI::GUI() {
-    container = new Container(vec2(0, 0), vec2(Window::width, Window::height));
+    container = new Container(vec2(0, 0), vec2(Window::width(), Window::height()));
 
-    uicamera = new Camera(vec3(), Window::height);
+    uicamera = new Camera(vec3(), Window::height());
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 
@@ -77,7 +77,7 @@ void GUI::actMouse(float delta) {
 } 
 
 void GUI::act(float delta) {
-    container->size(vec2(Window::width, Window::height));
+    container->setSize(vec2(Window::width(), Window::height()));
     container->act(delta);
     auto prevfocus = focus;
 
@@ -120,7 +120,7 @@ void GUI::act(float delta) {
 
 void GUI::draw(Batch2D* batch, Assets* assets) {
     menu->setCoord((Window::size() - menu->size()) / 2.0f);
-    uicamera->setFov(Window::height);
+    uicamera->setFov(Window::height());
 
 	Shader* uishader = assets->getShader("ui");
 	uishader->use();

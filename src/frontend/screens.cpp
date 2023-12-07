@@ -59,7 +59,7 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     menu->set("main");
 
     batch = new Batch2D(1024);
-    uicamera = new Camera(vec3(), Window::height);
+    uicamera = new Camera(vec3(), Window::height());
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 }
@@ -76,7 +76,7 @@ void MenuScreen::draw(float delta) {
     Window::clear();
     Window::setBgColor(vec3(0.2f));
 
-    uicamera->setFov(Window::height);
+    uicamera->setFov(Window::height());
 	Shader* uishader = engine->getAssets()->getShader("ui");
 	uishader->use();
 	uishader->uniformMatrix("u_projview", uicamera->getProjView());
@@ -84,8 +84,8 @@ void MenuScreen::draw(float delta) {
     batch->begin();
     batch->texture(engine->getAssets()->getTexture("menubg"));
     batch->rect(0, 0, 
-                Window::width, Window::height, 0, 0, 0, 
-                UVRegion(0, 0, Window::width/64, Window::height/64), 
+                Window::width(), Window::height(), 0, 0, 0, 
+                UVRegion(0, 0, Window::width()/64, Window::height()/64), 
                 false, false, vec4(1.0f));
     batch->render();
 }
@@ -175,7 +175,7 @@ void LevelScreen::update(float delta) {
 void LevelScreen::draw(float delta) {
     Camera* camera = level->player->camera;
 
-    Viewport viewport(Window::width, Window::height);
+    Viewport viewport(Window::width(), Window::height());
     GfxContext ctx(nullptr, viewport, nullptr);
 
     worldRenderer->draw(ctx, camera);

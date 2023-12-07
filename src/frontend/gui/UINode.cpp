@@ -102,13 +102,7 @@ vec2 UINode::size() const {
     return size_;
 }
 
-void UINode::size(vec2 size) {
-    if (sizelock)
-        return;
-    this->size_ = size;
-}
-
-void UINode::_size(vec2 size) {
+void UINode::setSize(vec2 size) {
     if (sizelock)
         return;
     this->size_ = size;

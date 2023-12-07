@@ -29,9 +29,9 @@ void BlocksPreview::begin() {
     shader->use();
     shader->uniformMatrix("u_projview", 
         glm::ortho(0.0f, 
-                    float(Window::width), 
+                    float(Window::width()), 
                    0.0f, 
-                    float(Window::height), 
+                    float(Window::height()), 
                     -1000.0f, 1000.0f) * 
         glm::lookAt(vec3(2, 2, 2), vec3(0.0f), vec3(0, 1, 0)));
     atlas->getTexture()->bind();
@@ -39,10 +39,14 @@ void BlocksPreview::begin() {
 
 /* Draw one block preview at given screen position */
 void BlocksPreview::draw(const Block* def, int x, int y, int size, vec4 tint) {
-    y = Window::height - y - 1;
+    y = Window::height() - y - 1;
     x += 2;
     y -= 35;
-    shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), vec3(x/float(Window::width) * 2, y/float(Window::height) * 2, 0.0f)));
+    shader->uniformMatrix("u_apply",
+                        glm::translate(glm::mat4(1.0f),
+                        vec3( x/float(Window::width()) * 2,
+                              y/float(Window::height()) * 2, 0.0f))
+                        );
     blockid_t id = def->rt.id;
     const UVRegion texfaces[6]{ cache->getRegion(id, 0), cache->getRegion(id, 1),
                                 cache->getRegion(id, 2), cache->getRegion(id, 3),

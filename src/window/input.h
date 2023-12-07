@@ -83,7 +83,7 @@ struct keycode {
     static int LEFT_BRACKET;
     static int RIGHT_BRACKET;
 
-    static const std::string name(int code);
+    static std::string name(int code);
 };
 
 struct mousecode {
@@ -91,7 +91,7 @@ struct mousecode {
     static int BUTTON_2;
     static int BUTTON_3;
 
-    static const std::string name(int code);
+    static std::string name(int code);
 };
 
 enum class inputtype {
@@ -113,7 +113,7 @@ struct Binding {
         return state && justChange;
     }
 
-    const std::string text() const {
+    std::string text() const {
         switch (type) {
             case inputtype::keyboard: return keycode::name(code);
             case inputtype::mouse: return mousecode::name(code);

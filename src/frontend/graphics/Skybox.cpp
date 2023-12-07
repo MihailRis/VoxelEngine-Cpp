@@ -98,7 +98,7 @@ void Skybox::refresh(float t, float mie, uint quality) {
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     glActiveTexture(GL_TEXTURE0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    Window::viewport(0, 0, Window::width, Window::height);
+    Window::viewport(0, 0, Window::width(), Window::height());
 }
 
 void Skybox::bind() const {

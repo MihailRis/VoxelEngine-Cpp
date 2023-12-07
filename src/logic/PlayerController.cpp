@@ -42,8 +42,8 @@ void CameraControl::refresh() {
 
 void CameraControl::updateMouse(PlayerInput& input) {
 	float sensitivity = settings.sensitivity;
-	float rotX = -Events::deltaX / Window::height * sensitivity;
-	float rotY = -Events::deltaY / Window::height * sensitivity;
+	float rotX = -Events::deltaX / Window::height() * sensitivity;
+	float rotY = -Events::deltaY / Window::height() * sensitivity;
 
 	if (input.zoom){
 		rotX /= 4;
