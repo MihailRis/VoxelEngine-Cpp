@@ -3,6 +3,7 @@
 
 #include <string>
 #include <filesystem>
+#include <stdexcept>
 #include "../typedefs.h"
 #include "../settings.h"
 #include "../util/timeutil.h"
@@ -13,8 +14,14 @@ class Chunks;
 class Level;
 class Player;
 
+class world_load_error : public std::runtime_error {
+public:
+	world_load_error(std::string message);
+};
+
 class World {
 	EngineSettings& settings;
+	const Content* const content;
 public:
 	std::string name;
 	WorldFiles* wfile;
@@ -30,13 +37,21 @@ public:
 	World(std::string name, 
 		  std::filesystem::path directory, 
 		  uint64_t seed, 
-		  EngineSettings& settings);
+		  EngineSettings& settings,
+		  const Content* content);
 	~World();
 
 	void updateTimers(float delta);
 	void write(Level* level);
-	Level* create(EngineSettings& settings, const Content* content);
-	Level* load(EngineSettings& settings, const Content* content);
+
+	static Level* create(std::string name, 
+						 std::filesystem::path directory, 
+						 uint64_t seed, 
+						 EngineSettings& settings, 
+						 const Content* content);
+	static Level* load(std::filesystem::path directory,
+					   EngineSettings& settings,
+					   const Content* content);
 };
 
 #endif /* WORLD_WORLD_H_ */

@@ -1,6 +1,5 @@
 #include "ChunksController.h"
 
-#include <iostream>
 #include <limits.h>
 #include <memory>
 
@@ -57,7 +56,6 @@ void ChunksController::update(int64_t maxDuration) {
 }
 
 bool ChunksController::loadVisible(){
-	const Content* content = level->content;
 	const int w = chunks->w;
 	const int d = chunks->d;
 	const int ox = chunks->ox;
@@ -115,16 +113,6 @@ bool ChunksController::loadVisible(){
 
 	chunk->updateHeights();
 
-	ContentIndices* indices = content->indices;
-	for (size_t i = 0; i < CHUNK_VOL; i++) {
-		blockid_t id = chunk->voxels[i].id;
-		if (indices->getBlockDef(id) == nullptr) {
-			std::cout << "corruped block detected at " << i << " of chunk ";
-			std::cout << chunk->x << "x" << chunk->z;
-			std::cout << " -> " << (int)id << std::endl;
-			chunk->voxels[i].id = 11;
-		}
-	}
 	if (!chunk->isLoadedLights()) {
 		lighting->prebuildSkyLight(chunk->x, chunk->z);
 	}

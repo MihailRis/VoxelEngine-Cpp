@@ -447,6 +447,7 @@ bool WorldFiles::readWorldInfo(World* world) {
 	}
 
 	unique_ptr<json::JObject> root(files::read_json(file));
+	root->str("name", world->name);
 	root->num("seed", world->seed);
 
 	json::JObject* verobj = root->obj("version");

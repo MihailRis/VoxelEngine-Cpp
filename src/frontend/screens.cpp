@@ -134,7 +134,7 @@ void LevelScreen::updateHotkeys() {
 
     // TODO: remove in v0.16
     if (Events::jpressed(keycode::F9)) {
-        blockid_t woodid = level->content->require("base:wood")->rt.id;
+        blockid_t woodid = level->content->requireBlock("base:wood")->rt.id;
         for (size_t i = 0; i < level->chunks->volume; i++){
             Chunk* chunk = level->chunks->chunks[i].get();
             if (chunk) {

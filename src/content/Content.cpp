@@ -64,7 +64,15 @@ Content::~Content() {
     delete indices;
 }
 
-Block* Content::require(std::string id) const {
+Block* Content::findBlock(string id) const {
+    auto found = blockDefs.find(id);
+    if (found == blockDefs.end()) {
+        return nullptr;
+    }
+    return found->second;
+}
+
+Block* Content::requireBlock(string id) const {
     auto found = blockDefs.find(id);
     if (found == blockDefs.end()) {
         throw std::runtime_error("missing block "+id);
