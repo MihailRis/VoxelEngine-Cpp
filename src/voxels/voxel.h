@@ -12,10 +12,20 @@ const int BLOCK_DIR_DOWN = 0x5;
 
 // limited to 16 block orientations
 const int BLOCK_ROT_MASK = 0xF;
+// limited to 16 block variants
+const int BLOCK_VARIANT_MASK = 0xF0;
 
 struct voxel {
 	blockid_t id;
 	uint8_t states;
+
+	inline uint8_t rotation() {
+		return states & BLOCK_ROT_MASK;
+	}
+
+	inline int8_t variant() {
+		return (states & BLOCK_VARIANT_MASK) >> 4;
+	}
 };
 
 #endif /* VOXELS_VOXEL_H_ */

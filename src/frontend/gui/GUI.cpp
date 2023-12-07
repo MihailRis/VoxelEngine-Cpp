@@ -19,7 +19,7 @@ using std::shared_ptr;
 using namespace gui;
 
 GUI::GUI() {
-    container = new Container(vec2(0, 0), vec2(Window::width, Window::height));
+    container = new Container(vec2(0, 0), vec2(1000));
 
     uicamera = new Camera(vec3(), Window::height);
 	uicamera->perspective = false;
