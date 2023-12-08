@@ -6,7 +6,7 @@
 #include "Level.h"
 #include "../files/WorldFiles.h"
 #include "../content/Content.h"
-#include "../content/ContentIndexLUT.h"
+#include "../content/ContentLUT.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/ChunksStorage.h"
@@ -77,18 +77,18 @@ Level* World::create(string name,
 	return new Level(world, content, player, settings);
 }
 
-Level* World::load(path directory,
-				   EngineSettings& settings,
-				   const Content* content) {
-
+ContentLUT* World::checkIndices(const path& directory, 
+                                     const Content* content) {
 	path indicesFile = directory/path("indices.json");
 	if (fs::is_regular_file(indicesFile)) {
-		auto lut = ContentIndexLUT::create(indicesFile, content);
-		if (lut) {
-			throw world_load_error("world indices conflict");
-		}
+		return ContentLUT::create(indicesFile, content);
 	}
+	return nullptr;
+}
 
+Level* World::load(path directory,
+                   EngineSettings& settings,
+                   const Content* content) {
 	unique_ptr<World> world (new World(".", directory, 0, settings, content));
 	auto& wfile = world->wfile;
 

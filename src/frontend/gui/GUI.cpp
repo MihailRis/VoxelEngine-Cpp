@@ -27,6 +27,7 @@ GUI::GUI() {
 
     menu = new PagesControl();
     container->add(menu);
+    container->scrollable(false);
 }
 
 GUI::~GUI() {
@@ -160,4 +161,14 @@ shared_ptr<UINode> GUI::get(string name) {
 
 void GUI::remove(string name) {
     storage.erase(name);
+}
+
+void GUI::setFocus(shared_ptr<UINode> node) {
+    if (focus) {
+        focus->defocus();
+    }
+    focus = node;
+    if (focus) {
+        focus->focus(this);
+    }
 }

@@ -37,19 +37,20 @@ void guiutil::alert(GUI* gui, wstring text, gui::runnable on_hidden) {
     menu->set("<alert>");
 }
 
-void guiutil::confirm(GUI* gui, wstring text, gui::runnable on_confirm) {
+void guiutil::confirm(GUI* gui, wstring text, gui::runnable on_confirm,
+                      wstring yestext, wstring notext) {
     PagesControl* menu = gui->getMenu();
-    Panel* panel = new Panel(vec2(500, 200), vec4(8.0f), 8.0f);
+    Panel* panel = new Panel(vec2(600, 200), vec4(8.0f), 8.0f);
     panel->color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
     panel->add(new Label(text));
-    Panel* subpanel = new Panel(vec2(500, 53));
+    Panel* subpanel = new Panel(vec2(600, 53));
     subpanel->color(vec4(0));
-    subpanel->add((new Button(L"Yes", vec4(8.0f)))->listenAction([=](GUI*){
+    subpanel->add((new Button(yestext, vec4(8.0f)))->listenAction([=](GUI*){
         if (on_confirm)
             on_confirm();
         menu->back();
     }));
-    subpanel->add((new Button(L"No", vec4(8.0f)))->listenAction([=](GUI*){
+    subpanel->add((new Button(notext, vec4(8.0f)))->listenAction([=](GUI*){
         menu->back();
     }));
     panel->add(subpanel);
