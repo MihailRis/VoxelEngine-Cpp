@@ -1,5 +1,7 @@
 #include "timeutil.h"
 
+#include <iostream>
+
 using std::chrono::high_resolution_clock;
 using std::chrono::duration_cast;
 using std::chrono::microseconds;
@@ -9,6 +11,12 @@ timeutil::Timer::Timer() {
 }
 int64_t timeutil::Timer::stop() {
     return duration_cast<microseconds>(high_resolution_clock::now()-start).count();
+}
+
+timeutil::ScopeLogTimer::ScopeLogTimer(long long id) : scopeid_(id) {}
+
+timeutil::ScopeLogTimer::~ScopeLogTimer() {
+    std::cout << "Scope "<< scopeid_ <<" finished in "<< ScopeLogTimer::stop() << " micros."<<std::endl;
 }
 
 float timeutil::time_value(float hour, float minute, float second) {

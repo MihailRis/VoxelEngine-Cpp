@@ -45,7 +45,7 @@ Chunks::~Chunks(){
 }
 
 voxel* Chunks::get(int x, int y, int z){
-	x -= ox * CHUNK_W;
+	x -= ox * CHUNK_W; 
 	z -= oz * CHUNK_D;
 	int cx = x / CHUNK_W;
 	int cy = y / CHUNK_H;
@@ -174,7 +174,7 @@ void Chunks::set(int x, int y, int z, int id, uint8_t states){
 	if (lz == CHUNK_D-1 && (chunk = getChunk(cx+ox, cz+oz+1))) 
 		chunk->setModified(true);
 }
-
+#include "../util/timeutil.h"
 voxel* Chunks::rayCast(vec3 start, 
 					   vec3 dir, 
 					   float maxDist, 
@@ -218,6 +218,7 @@ voxel* Chunks::rayCast(vec3 start,
 		voxel* voxel = get(ix, iy, iz);
 		const Block* def = nullptr;
 		if (voxel == nullptr || (def = contentIds->getBlockDef(voxel->id))->selectable){
+			timeutil::ScopeLogTimer lg((long long)def);
 			end.x = px + t * dx;
 			end.y = py + t * dy;
 			end.z = pz + t * dz;
@@ -336,7 +337,7 @@ void Chunks::translate(int dx, int dz){
 	}
 	for (int z = 0; z < d; z++){
 		for (int x = 0; x < w; x++){
-			shared_ptr<Chunk> chunk = chunks[z * d + x];
+			shared_ptr<Chunk> chunk = chunks[z * w + x];
 			int nx = x - dx;
 			int nz = z - dz;
 			if (chunk == nullptr)
@@ -351,9 +352,7 @@ void Chunks::translate(int dx, int dz){
 			chunksSecond[nz * w + nx] = chunk;
 		}
 	}
-	shared_ptr<Chunk>* ctemp = chunks;
-	chunks = chunksSecond;
-	chunksSecond = ctemp;
+	std::swap(chunks, chunksSecond);
 
 	ox += dx;
 	oz += dz;
