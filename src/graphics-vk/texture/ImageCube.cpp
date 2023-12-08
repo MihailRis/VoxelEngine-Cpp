@@ -14,7 +14,7 @@ ImageCube::ImageCube(int width, int height, VkFormat format)
         VK_IMAGE_VIEW_TYPE_CUBE,
         VK_IMAGE_ASPECT_COLOR_BIT,
         VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_SAMPLED_BIT,
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, true, 1, 6) {
 
     constexpr uint32_t CUBE_LAYER_COUNT = 6;
@@ -43,7 +43,7 @@ ImageCube::ImageCube(int width, int height, VkFormat format)
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-    CHECK_VK(vkBeginCommandBuffer(commandBuffer, &beginInfo));
+    CHECK_VK_FUNCTION(vkBeginCommandBuffer(commandBuffer, &beginInfo));
 
     VkImageSubresourceRange range{};
     range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -97,7 +97,7 @@ ImageCube::ImageCube(int width, int height, VkFormat format)
     samplerCreateInfo.minLod = 0.0f;
     samplerCreateInfo.maxLod = 0.0f;
 
-    CHECK_VK(vkCreateSampler(device, &samplerCreateInfo, nullptr, &m_sampler));
+    CHECK_VK_FUNCTION(vkCreateSampler(device, &samplerCreateInfo, nullptr, &m_sampler));
 
     vkDestroyCommandPool(device, commandPool, nullptr);
 }

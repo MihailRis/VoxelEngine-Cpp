@@ -12,8 +12,9 @@
 #include "device/Swapchain.h"
 #include "../util/Noncopybale.h"
 #include "device/UniformBuffer.h"
-#include "texture/ImageDepth.h"
 
+class ImageCube;
+class ImageDepth;
 class GraphicsPipeline;
 
 namespace vulkan {
@@ -25,13 +26,17 @@ namespace vulkan {
     };
 
     struct State {
+        VkCommandBuffer prevCommandbuffer = VK_NULL_HANDLE;
         VkCommandBuffer commandbuffer = VK_NULL_HANDLE;
         GraphicsPipeline *pipeline = nullptr;
+        VkExtent2D viewport;
     };
 
     struct FrameData {
         VkCommandPool commandPool;
-        VkCommandBuffer screenCommandBuffer, guiCommandBuffer;
+        VkCommandBuffer screenCommandBuffer, guiCommandBuffer, skyboxCommandBuffer;
+
+        bool skyboxRendered = false;
 
         VkSemaphore presentSemaphore, renderSemaphore, uiRenderSemaphore;
         VkFence renderFence;
@@ -86,6 +91,9 @@ namespace vulkan {
         FrameData m_frameDatas[MAX_FRAMES_IN_FLIGHT]{};
 
         State m_state;
+
+        void recreateSwapChain();
+        void recreateImageDepth();
     public:
         VulkanContext();
         ~VulkanContext() = default;
@@ -95,6 +103,7 @@ namespace vulkan {
         void initUploadContext();
         void initFrameDatas();
         void initUniformBuffers();
+        void nextImage();
 
         void destroy();
 
@@ -111,13 +120,13 @@ namespace vulkan {
 
         UniformBuffer* getUniformBuffer(UniformBuffersHolder::Type type);
 
-        void recreateSwapChain();
+        void resize();
 
         void updateState(GraphicsPipeline *pipeline);
         void updateStateCommandBuffer(VkCommandBuffer commandBuffer);
 
-        // void beginDrawToImage(const Image &image, float r, float g, float b, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
-        // void endDrawToImage(const Image &image);
+        VkCommandBuffer beginDrawSkybox(const ImageCube &image, float r, float g, float b, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
+        void endDrawSkybox(const ImageCube &image, VkCommandBuffer commandBuffer);
 
         void beginScreenDraw(float r, float g, float b, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
         void endScreenDraw();
@@ -136,7 +145,7 @@ namespace vulkan {
         static bool isVulkanEnabled();
 
     private:
-        void beginDraw(VkCommandBuffer commandBuffer, glm::vec4 clearColor, VkAttachmentLoadOp loadOp, RenderTargetType renderTarget);
+        void beginDraw(VkCommandBuffer commandBuffer, glm::vec4 clearColor, VkAttachmentLoadOp loadOp, RenderTargetType renderTarget, VkExtent2D renderArea);
         void endDraw(VkCommandBuffer commandBuffer, RenderTargetType renderTarget);
     };
 

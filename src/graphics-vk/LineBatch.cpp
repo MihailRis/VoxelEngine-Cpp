@@ -48,6 +48,7 @@ namespace vulkan {
 
     void LineBatch::render() {
         if (m_index == 0) return;
+        m_mesh->reload(nullptr, m_index);
         m_mesh->bind();
         m_mesh->draw({0, m_index}, GL_LINE);
         m_index = 0;

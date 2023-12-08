@@ -65,7 +65,8 @@ namespace tools {
         VkImageLayout newImageLayout,
         VkPipelineStageFlags srcStageMask,
         VkPipelineStageFlags dstStageMask,
-        VkImageSubresourceRange subresourceRange) {
+        VkImageSubresourceRange subresourceRange,
+        VkDependencyFlags dependencyFlags = 0) {
 
         VkImageMemoryBarrier imageMemoryBarrier{};
         imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -79,7 +80,7 @@ namespace tools {
         vkCmdPipelineBarrier(commandBuffer,
             srcStageMask,
             dstStageMask,
-            0,
+            dependencyFlags,
             0, nullptr,
             0, nullptr,
             1, &imageMemoryBarrier);

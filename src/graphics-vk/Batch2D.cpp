@@ -201,10 +201,13 @@ namespace vulkan {
     void Batch2D::render() {
         const VertexOffset offset = {m_currentOffset, m_index - m_currentOffset};
         if (offset.count == 0 || offset.offset >= m_capacity) return;
-        m_mesh->reload(nullptr, m_index);
         m_texture->bind();
         m_mesh->draw(offset);
 
         m_currentOffset = m_index;
+    }
+
+    void Batch2D::end() {
+        m_mesh->reload(nullptr, m_capacity);
     }
 } // vulkan

@@ -68,7 +68,7 @@ RenderPass::RenderPass(Device &device, VkFormat swapchainFormat, VkFormat depthF
     renderPassCreateInfo.dependencyCount = dependencies.size();
     renderPassCreateInfo.pDependencies = dependencies.data();
 
-    CHECK_VK(vkCreateRenderPass(device, &renderPassCreateInfo, nullptr, &m_renderPass));
+    CHECK_VK_FUNCTION(vkCreateRenderPass(device, &renderPassCreateInfo, nullptr, &m_renderPass));
 }
 
 RenderPass::operator VkRenderPass() const {

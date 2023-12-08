@@ -21,7 +21,6 @@ public:
     int getWidth() const override;
 
     int getHeight() const override;
-
 };
 
 

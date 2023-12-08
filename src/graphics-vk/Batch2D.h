@@ -59,6 +59,8 @@ namespace vulkan {
                   glm::vec4 tint);
 
         void render();
+
+        void end();
     };
 
 } // vulkan

@@ -96,6 +96,7 @@ void MenuScreen::draw(float delta) {
                 UVRegion(0, 0, width/64, height/64),
                 false, false, vec4(1.0f));
     batch->render();
+    batch->end();
 
     vulkan::VulkanContext::get().endScreenDraw();
 }

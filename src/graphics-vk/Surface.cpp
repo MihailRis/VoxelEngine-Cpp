@@ -32,7 +32,6 @@ Surface::Surface(VkSurfaceKHR surface, Instance *instance)
       m_surface(surface) {
 
     const auto physicalDevice = instance->getPhysicalDevice();
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, m_surface, &m_capabilities);
 
     u32 surfaceFormatCount = 0;
     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_surface, &surfaceFormatCount, nullptr);
@@ -53,7 +52,10 @@ VkSurfaceFormatKHR Surface::getFormat() const {
 }
 
 VkSurfaceCapabilitiesKHR Surface::getCapabilities() const {
-    return m_capabilities;
+    VkSurfaceCapabilitiesKHR capabilities = {};
+    const auto physicalDevice = m_instance->getPhysicalDevice();
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, m_surface, &capabilities);
+    return capabilities;
 }
 
 VkPresentModeKHR Surface::getPresentMode() const {

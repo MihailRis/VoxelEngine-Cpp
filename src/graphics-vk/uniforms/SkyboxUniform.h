@@ -14,6 +14,7 @@ struct SkyboxUniform {
     alignas(16) glm::vec3 lightDir;
     alignas(4) int quality;
     alignas(4) float mie;
+    alignas(4) float fog;
 };
 
 

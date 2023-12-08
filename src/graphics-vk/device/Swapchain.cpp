@@ -48,7 +48,7 @@ Swapchain::Swapchain(Surface &surface, Device& device) : m_device(device) {
     createInfo.clipped = true;
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    CHECK_VK(vkCreateSwapchainKHR(device, &createInfo, nullptr, &m_swapchain));
+    CHECK_VK_FUNCTION(vkCreateSwapchainKHR(device, &createInfo, nullptr, &m_swapchain));
 
     imageCount = 0;
     vkGetSwapchainImagesKHR(device, m_swapchain, &imageCount, nullptr);

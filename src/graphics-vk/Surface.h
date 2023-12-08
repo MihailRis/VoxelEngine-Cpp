@@ -13,7 +13,6 @@ class Surface {
     Instance *m_instance = nullptr;
     VkSurfaceKHR m_surface = VK_NULL_HANDLE;
 
-    VkSurfaceCapabilitiesKHR m_capabilities{};
     VkSurfaceFormatKHR m_format{};
     VkPresentModeKHR m_presentMode{};
 public:

@@ -40,7 +40,7 @@ inline VkShaderModule createModule(const std::vector<char> &code, VkDevice devic
     shaderModuleCreateInfo.pCode = reinterpret_cast<const u32 *>(code.data());
 
     VkShaderModule module = VK_NULL_HANDLE;
-    CHECK_VK(vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &module));
+    CHECK_VK_FUNCTION(vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &module));
 
     return module;
 }
@@ -66,9 +66,11 @@ namespace vulkan {
 
     void Shader::use() {
         if (m_pipeline == nullptr) getOrCreatePipeline();
-        const VkCommandBuffer commandBuffer = VulkanContext::get().getCurrentState().commandbuffer;
-        m_pipeline->bind(commandBuffer);
-        VulkanContext::get().updateState(m_pipeline.get());
+        auto &context = VulkanContext::get();
+        auto &state = context.getCurrentState();
+        if (state.commandbuffer == VK_NULL_HANDLE) return;
+        m_pipeline->bind(state.commandbuffer, state.viewport);
+        context.updateState(m_pipeline.get());
     }
 
     void Shader::uniformMatrix(std::string name, glm::mat4 matrix) {
@@ -113,6 +115,11 @@ namespace vulkan {
         vkCmdPushConstants(commandBuffer, m_pipeline->getLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(DynamicConstants), &constants);
     }
 
+    void Shader::use(VkCommandBuffer commandBuffer, VkExtent2D extent2D) {
+        if (commandBuffer == VK_NULL_HANDLE) return;
+        m_pipeline->bind(commandBuffer, extent2D);
+    }
+
     GraphicsPipeline* Shader::getOrCreatePipeline() {
         if (m_pipeline == nullptr)
             m_pipeline = GraphicsPipeline::create(m_stages, m_type);
@@ -127,13 +134,13 @@ namespace vulkan {
         auto *fogBuffer = context.getUniformBuffer(UniformBuffersHolder::FOG);
         auto *projectionViewBuffer = context.getUniformBuffer(UniformBuffersHolder::PROJECTION_VIEW);
         auto *backgroundBuffer = context.getUniformBuffer(UniformBuffersHolder::BACKGROUND);
-        auto *skyboxBuffer = context.getUniformBuffer(UniformBuffersHolder::SKYBOX);
+        auto *applyBuffer = context.getUniformBuffer(UniformBuffersHolder::APPLY);
 
         const auto stateUniform = m_values.getStateUniform();
         const auto fogUniform = m_values.getFogUniform();
         const auto projectionViewUniform = m_values.getProjectionView();
         const auto backgroundUniform = m_values.getBackgroundUniform();
-        const auto skyboxUniform = m_values.getSkyboxUniform();
+        const auto applyUniform = m_values.getApplyUniform();
 
         switch (m_type) {
             case ShaderType::NONE:
@@ -149,11 +156,11 @@ namespace vulkan {
             case ShaderType::BACKGROUND: {
                 backgroundBuffer->uploadData(backgroundUniform);
             } break;
-            case ShaderType::SKYBOX_GEN: {
-                skyboxBuffer->uploadData(skyboxUniform);
+            case ShaderType::UI3D: {
+                projectionViewBuffer->uploadData(projectionViewUniform);
+                applyBuffer->uploadData(applyUniform);
             } break;
         }
-
     }
 
     Shader* loadShader(std::string vertexFile, std::string fragmentFile, ShaderType type) {

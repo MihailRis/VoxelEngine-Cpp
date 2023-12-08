@@ -79,7 +79,7 @@ Device::Device(Instance &instance, VkSurfaceKHR surface) : m_physicalDevice(inst
     VkDeviceCreateInfo deviceCreateInfo = tools::deviceCreateInfo(extensions, layers, queueCreateInfos, &deviceFeatures);
     deviceCreateInfo.pNext = &physicalDeviceDynamicRenderingFeatures;
 
-    CHECK_VK(vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &m_device));
+    CHECK_VK_FUNCTION(vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &m_device));
 
     VkQueue graphicsQueue;
     VkQueue presentQueue;
@@ -127,7 +127,7 @@ VkImageView Device::createImageView(
 
     VkImageView imageView = VK_NULL_HANDLE;
 
-    CHECK_VK(vkCreateImageView(m_device, &createInfo, nullptr, &imageView));
+    CHECK_VK_FUNCTION(vkCreateImageView(m_device, &createInfo, nullptr, &imageView));
 
     return imageView;
 }
@@ -150,7 +150,7 @@ VkSampler Device::createSampler(VkFilter filter, VkSamplerAddressMode addressMod
 
     VkSampler sampler = VK_NULL_HANDLE;
 
-    CHECK_VK(vkCreateSampler(m_device, &samplerCreateInfo, nullptr, &sampler));
+    CHECK_VK_FUNCTION(vkCreateSampler(m_device, &samplerCreateInfo, nullptr, &sampler));
 
     return sampler;
 }
@@ -214,7 +214,7 @@ VkRenderPass Device::createRenderPass(VkFormat swapchainFormat, VkFormat depthFo
     createInfo.pDependencies = subpassDependencies.data();
 
     VkRenderPass renderPass = VK_NULL_HANDLE;
-    CHECK_VK(vkCreateRenderPass(m_device, &createInfo, nullptr, &renderPass));
+    CHECK_VK_FUNCTION(vkCreateRenderPass(m_device, &createInfo, nullptr, &renderPass));
 
     return renderPass;
 }
@@ -233,7 +233,7 @@ VkFramebuffer Device::createFramebuffer(VkRenderPass renderPass,
     createInfo.layers = 1;
 
     VkFramebuffer framebuffer = VK_NULL_HANDLE;
-    CHECK_VK(vkCreateFramebuffer(m_device, &createInfo, nullptr, &framebuffer));
+    CHECK_VK_FUNCTION(vkCreateFramebuffer(m_device, &createInfo, nullptr, &framebuffer));
 
     return framebuffer;
 }
@@ -262,7 +262,7 @@ VkCommandPool Device::createCommadPool() const {
     commandPoolCreateInfo.queueFamilyIndex = m_graphics.getIndex();
 
     VkCommandPool commandPool = VK_NULL_HANDLE;
-    CHECK_VK(vkCreateCommandPool(m_device, &commandPoolCreateInfo, nullptr, &commandPool));
+    CHECK_VK_FUNCTION(vkCreateCommandPool(m_device, &commandPoolCreateInfo, nullptr, &commandPool));
 
     return commandPool;
 }
@@ -275,7 +275,7 @@ VkCommandBuffer Device::createCommandBuffer(VkCommandPool commandPool) const {
     info.commandBufferCount = 1;
 
     VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-    CHECK_VK(vkAllocateCommandBuffers(m_device, &info, &commandBuffer));
+    CHECK_VK_FUNCTION(vkAllocateCommandBuffers(m_device, &info, &commandBuffer));
 
     return commandBuffer;
 }

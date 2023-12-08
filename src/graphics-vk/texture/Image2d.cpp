@@ -42,7 +42,7 @@ Image2d::Image2d(const unsigned char* data, int width, int height, VkFormat form
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-    CHECK_VK(vkBeginCommandBuffer(commandBuffer, &beginInfo));
+    CHECK_VK_FUNCTION(vkBeginCommandBuffer(commandBuffer, &beginInfo));
 
     VkImageSubresourceRange range{};
     range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -121,7 +121,7 @@ Image2d::Image2d(const unsigned char* data, int width, int height, VkFormat form
     samplerCreateInfo.minLod = 0.0f;
     samplerCreateInfo.maxLod = 0.0f;
 
-    CHECK_VK(vkCreateSampler(device, &samplerCreateInfo, nullptr, &m_sampler));
+    CHECK_VK_FUNCTION(vkCreateSampler(device, &samplerCreateInfo, nullptr, &m_sampler));
 }
 
 void Image2d::bind() {

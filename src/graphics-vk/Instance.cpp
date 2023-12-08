@@ -110,7 +110,7 @@ Instance Instance::create() {
     }
 
     VkInstance instance = VK_NULL_HANDLE;
-    CHECK_VK(vkCreateInstance(&createInfo, nullptr, &instance));
+    CHECK_VK_FUNCTION(vkCreateInstance(&createInfo, nullptr, &instance));
 
     VkDebugUtilsMessengerEXT debugUtilsMessenger = VK_NULL_HANDLE;
 

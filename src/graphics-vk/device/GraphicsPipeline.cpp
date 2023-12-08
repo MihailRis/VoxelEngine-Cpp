@@ -14,6 +14,7 @@
 #include "../Vertices.h"
 #include "../../window/Window.h"
 #include "../uniforms/DynamicConstants.h"
+#include "../texture/ImageDepth.h"
 
 constexpr VkDynamicState DYNAMIC_STATES[] = {
     VK_DYNAMIC_STATE_LINE_WIDTH,
@@ -38,7 +39,7 @@ GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, VkPipelineLayout layout,
     uniformSetAllocateInfo.descriptorSetCount = 1;
     uniformSetAllocateInfo.pSetLayouts = &m_uniformsSetLayout;
 
-    CHECK_VK(vkAllocateDescriptorSets(device, &uniformSetAllocateInfo, &m_uniformSet));
+    CHECK_VK_FUNCTION(vkAllocateDescriptorSets(device, &uniformSetAllocateInfo, &m_uniformSet));
 
     const auto stateBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::STATE)->getBufferInfo();
     const auto fogBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::FOG)->getBufferInfo();
@@ -122,22 +123,22 @@ VkDescriptorSet GraphicsPipeline::getSamplerSet() const {
     return m_samplerSet;
 }
 
-void GraphicsPipeline::bind(VkCommandBuffer commandBuffer) {
+void GraphicsPipeline::bind(VkCommandBuffer commandBuffer, VkExtent2D extent2D) {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
     const VkDescriptorSet sets[] = { m_uniformSet };
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_layout, 0, 1, sets, 0, nullptr);
 
     VkViewport viewport{};
-    viewport.width = static_cast<float>(Window::width);
-    viewport.height = -static_cast<float>(Window::height);
+    viewport.width = static_cast<float>(extent2D.width);
+    viewport.height = -static_cast<float>(extent2D.height);
     viewport.x = 0.0f;
-    viewport.y = static_cast<float>(Window::height);
+    viewport.y = static_cast<float>(extent2D.height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
     VkRect2D scissor{};
-    scissor.extent = { Window::width, Window::height };
+    scissor.extent = extent2D;
     scissor.offset = { 0, 0 };
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }
@@ -194,10 +195,10 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     samplerSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
 
     VkDescriptorSetLayout uniformSetLayout = VK_NULL_HANDLE;
-    CHECK_VK(vkCreateDescriptorSetLayout(device, &uniformsSetLayoutCreateInfo, nullptr, &uniformSetLayout));
+    CHECK_VK_FUNCTION(vkCreateDescriptorSetLayout(device, &uniformsSetLayoutCreateInfo, nullptr, &uniformSetLayout));
 
     VkDescriptorSetLayout samplerSetLayout = VK_NULL_HANDLE;
-    CHECK_VK(vkCreateDescriptorSetLayout(device, &samplerSetLayoutCreateInfo, nullptr, &samplerSetLayout));
+    CHECK_VK_FUNCTION(vkCreateDescriptorSetLayout(device, &samplerSetLayoutCreateInfo, nullptr, &samplerSetLayout));
 
     std::array setLayouts = { uniformSetLayout, samplerSetLayout };
 
@@ -211,7 +212,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     pipelineLayoutCreateInfo.pPushConstantRanges = pushConstantRanges.data();
 
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-    CHECK_VK(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout));
+    CHECK_VK_FUNCTION(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout));
 
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -293,10 +294,11 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     VkFormat sawpchainFormat = vulkan::VulkanContext::get().getSwapchain().getFormat();
     const auto depthStencilFormat = vulkan::VulkanContext::get().getDepth().getFormat();
 
+    VkFormat cubeFormat = VK_FORMAT_R8G8B8A8_SRGB;
     VkPipelineRenderingCreateInfo renderingCreateInfo{};
     renderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
     renderingCreateInfo.colorAttachmentCount = 1;
-    renderingCreateInfo.pColorAttachmentFormats = &sawpchainFormat;
+    renderingCreateInfo.pColorAttachmentFormats = type == ShaderType::SKYBOX_GEN ? &cubeFormat : &sawpchainFormat;
     renderingCreateInfo.depthAttachmentFormat = depthStencilFormat;
     renderingCreateInfo.stencilAttachmentFormat = depthStencilFormat;
 
@@ -316,7 +318,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     graphicsPipelineCreateInfo.pNext = &renderingCreateInfo;
 
     VkPipeline pipeline = VK_NULL_HANDLE;
-    CHECK_VK(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, nullptr, &pipeline));
+    CHECK_VK_FUNCTION(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, nullptr, &pipeline));
 
     return std::make_shared<GraphicsPipeline>(pipeline, pipelineLayout, uniformSetLayout, samplerSetLayout, type);
 }

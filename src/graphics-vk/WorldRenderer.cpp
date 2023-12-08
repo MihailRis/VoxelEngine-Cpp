@@ -17,6 +17,7 @@
 #include "../window/Window.h"
 #include "../window/Camera.h"
 #include "../world/Level.h"
+#include "../world/World.h"
 #include "../world/LevelEvents.h"
 #include "../voxels/Block.h"
 #include "../voxels/Chunks.h"
@@ -121,7 +122,7 @@ namespace vulkan {
         m_constantses.clear();
         m_constantIndex = 0;
         const EngineSettings &settings = m_engine->getSettings();
-        // skybox->refresh(m_level->world->daytime,
+        // m_skybox->refresh(m_level->world->daytime,
         // 				fmax(1.0f, 18.0f/settings.chunks.loadDistance), 4);
 
         const Content* content = m_level->content;

@@ -48,7 +48,7 @@ namespace vulkan {
         imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         imageCreateInfo.flags = isCube ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
 
-        CHECK_VK(vmaCreateImage(m_allocator, &imageCreateInfo, &allocationCreateInfo, &image, &allocation, nullptr));
+        CHECK_VK_FUNCTION(vmaCreateImage(m_allocator, &imageCreateInfo, &allocationCreateInfo, &image, &allocation, nullptr));
     }
 
     void Allocator::destroyImage(VkImage image, VmaAllocation allocation) const {

@@ -17,7 +17,8 @@ VkFormat Image::selectSupportedFormat(const std::vector<VkFormat>& formats, VkIm
 Image::Image(VkExtent3D extent, VkFormat format, VkImageViewType viewType, VkImageAspectFlags aspectFlags, VkImageTiling tiling,
              VkImageUsageFlags usage, VkMemoryPropertyFlags properties, bool isCube, uint32_t levelCount, uint32_t layerCount)
     : m_format(format),
-      m_extent3D(extent) {
+      m_extent3D(extent),
+      m_layerCount(layerCount) {
 
     auto &device = vulkan::VulkanContext::get().getDevice();
     auto &allocator = vulkan::VulkanContext::get().getAllocator();
@@ -61,6 +62,10 @@ VkSampler Image::getSampler() const {
 
 VkFormat Image::getFormat() const {
     return m_format;
+}
+
+uint32_t Image::getLayerCount() const {
+    return m_layerCount;
 }
 
 void Image::destroy() {

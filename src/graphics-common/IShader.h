@@ -8,7 +8,11 @@
 #include <string>
 #include <glm/glm.hpp>
 
+#ifdef USE_VULKAN
+#include <vulkan/vulkan_core.h>
 struct DynamicConstants;
+#endif
+
 
 class IShader {
 public:
@@ -24,6 +28,7 @@ public:
     virtual void uniform3f(std::string name, glm::vec3 xyz) = 0;
 
 #ifdef USE_VULKAN
+    virtual void use(VkCommandBuffer commandBuffer, VkExtent2D extent2D) { }
     virtual void pushConstant(const DynamicConstants &constants) { }
 #endif
 };

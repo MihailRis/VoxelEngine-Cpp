@@ -39,9 +39,11 @@ namespace vulkan {
         ~Mesh() = default;
 
         void bind();
+        void bind(VkCommandBuffer commandBuffer);
         void reload(const TVertex *vertexBuffer, size_t vertices, const int *indexBuffer = nullptr, size_t indices = 0);
         void draw(const VertexOffset &offset, unsigned int primitive);
         void draw(const VertexOffset &offset);
+        void draw(const VertexOffset &offset, VkCommandBuffer commandBuffer);
 
         void mapVertex(TVertex **data);
         void mapIndex(int **data);
@@ -65,8 +67,14 @@ namespace vulkan {
 
     template<typename TVertex>
     void Mesh<TVertex>::bind() {
-        constexpr VkDeviceSize offsetSize = 0;
         const auto commandBuffer = VulkanContext::get().getCurrentState().commandbuffer;
+        if (commandBuffer == VK_NULL_HANDLE) return;
+        bind(commandBuffer);
+    }
+
+    template<typename TVertex>
+    void Mesh<TVertex>::bind(VkCommandBuffer commandBuffer) {
+        constexpr VkDeviceSize offsetSize = 0;
         if (m_vertexBuffer != nullptr) {
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, *m_vertexBuffer, &offsetSize);
         }
@@ -129,18 +137,23 @@ namespace vulkan {
         if (m_stagingVertexBuffer == nullptr) return;
 
         const auto commandBuffer = VulkanContext::get().getCurrentState().commandbuffer;
+        if (commandBuffer == VK_NULL_HANDLE) return;
+        draw(offset, commandBuffer);
+    }
 
+    template<typename TVertex>
+    void Mesh<TVertex>::draw(const VertexOffset &offset) {
+        draw(offset, GL_TRIANGLES);
+    }
+
+    template<typename TVertex>
+    void Mesh<TVertex>::draw(const VertexOffset& offset, VkCommandBuffer commandBuffer) {
         if (m_stagingIndexBuffer != nullptr || m_indices > 0) {
             vkCmdDrawIndexed(commandBuffer, m_indices, 1, 0, 0, 0);
         }
         else if (m_vertices > 0) {
             vkCmdDraw(commandBuffer, offset.count, 1, offset.offset, 0);
         }
-    }
-
-    template<typename TVertex>
-    void Mesh<TVertex>::draw(const VertexOffset &offset) {
-        draw(offset, GL_TRIANGLES);
     }
 
     template<typename TVertex>

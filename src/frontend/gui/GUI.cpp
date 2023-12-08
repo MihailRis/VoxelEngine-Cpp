@@ -131,6 +131,7 @@ void GUI::draw(vulkan::Batch2D* batch, Assets* assets) {
 
     batch->begin();
     container->draw(batch, assets);
+    batch->end();
 
     vulkan::VulkanContext::get().endGuiDraw();
 }

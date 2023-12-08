@@ -22,6 +22,7 @@ uint Window::width = 0;
 uint Window::height = 0;
 int Window::posX = 0;
 int Window::posY = 0;
+bool Window::isResized = false;
 
 void cursor_position_callback(GLFWwindow*, double xpos, double ypos) {
 	if (Events::_cursor_started) {
@@ -75,7 +76,10 @@ bool Window::isMaximized() {
 }
 
 void window_size_callback(GLFWwindow*, int width, int height) {
+	Window::isResized = true;
+#ifndef USE_VULKAN
 	glViewport(0, 0, width, height);
+#endif
 	Window::width = width;
 	Window::height = height;
 	if (!Window::isFullscreen() && !Window::isMaximized()) {
@@ -125,7 +129,7 @@ int Window::initialize(DisplaySettings& settings){
 		return -1;
 	}
 
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	glfwWindowHint(GLFW_SAMPLES, settings.samples);
 
 #ifdef USE_VULKAN
@@ -220,6 +224,7 @@ void Window::resetScissor() {
 void Window::pushScissor(vec4 area) {
 	// TODO: compile time change and fix for vulkan
 	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandbuffer;
+	if (commandBuffer == VK_NULL_HANDLE) return;
 	if (scissorStack.empty()) {
 		// VkRect2D scissor = { {0, 0}, {Window::width, Window::height} };
 		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
@@ -263,6 +268,7 @@ void Window::popScissor() {
 	vec4 area = scissorStack.top();
 	scissorStack.pop();
 	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandbuffer;
+	if (commandBuffer == VK_NULL_HANDLE) return;
 	if (area.z < 0.0f || area.w < 0.0f) {
 		// glScissor(0, 0, 0, 0);
 		// VkRect2D scissor = { {0, 0}, {0, 0} };
@@ -273,7 +279,7 @@ void Window::popScissor() {
 				  // std::max(0, int(area.w-area.y)));
 		// VkRect2D scissor{};
 		// scissor.offset.x = area.x;
-		// scissor.offset.y = Window::height-area.s;
+		// scissor.offset.y = Window::height - area.s;
 		// scissor.extent.width = std::max(0, static_cast<int>(area.z - area.x));
 		// scissor.extent.height = std::max(0, static_cast<int>(area.w - area.y));
 		//

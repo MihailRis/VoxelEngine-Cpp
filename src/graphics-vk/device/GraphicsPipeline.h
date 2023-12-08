@@ -34,7 +34,7 @@ public:
     VkDescriptorSet getUniformSet() const;
     VkDescriptorSet getSamplerSet() const;
 
-    void bind(VkCommandBuffer commandBuffer);
+    void bind(VkCommandBuffer commandBuffer, VkExtent2D extent2D);
 
     void destroy();
 

@@ -248,6 +248,7 @@ layout(binding = 0) uniform Skybox {
     vec3 u_lightDir;
     int u_quality;
     float u_mie;
+    float u_fog;
 };
 
 void main() {
@@ -256,6 +257,10 @@ void main() {
     vec3 camera_vector = normalize(u_xaxis[view] * v_coord.x +
                                    u_yaxis[view] * -v_coord.y -
                                    u_zaxis[view]);
+
+    camera_vector = mix(camera_vector, vec3(0, 1, 0), min(1.0, u_fog));
+    float fog = 1.0f / (u_fog*0.5 + 1.0);
+
     // hide darkness at horizon
     camera_vector.y = max(0.01, camera_vector.y)*(1.0-u_mie*0.08) + 0.08*u_mie;  
     camera_vector = normalize(camera_vector);

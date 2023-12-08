@@ -29,6 +29,7 @@ public:
 	static int posY;
 	static uint width;
 	static uint height;
+	static bool isResized;
 	static int initialize(DisplaySettings& settings);
 	static void terminate();
 

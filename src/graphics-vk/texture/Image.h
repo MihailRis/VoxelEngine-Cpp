@@ -19,6 +19,7 @@ protected:
     VkImage m_image = VK_NULL_HANDLE;
     VkImageView m_imageView = VK_NULL_HANDLE;
     VkSampler m_sampler = VK_NULL_HANDLE;
+    uint32_t m_layerCount = 0;
 
     static VkFormat selectSupportedFormat(const std::vector<VkFormat> &formats, VkImageTiling tiling, VkFormatFeatureFlags featureFlags);
 public:
@@ -37,6 +38,8 @@ public:
     VkSampler getSampler() const;
 
     VkFormat getFormat() const;
+
+    uint32_t getLayerCount() const;
 
     void destroy();
 
