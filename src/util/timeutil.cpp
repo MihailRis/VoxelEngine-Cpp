@@ -16,7 +16,7 @@ int64_t timeutil::Timer::stop() {
 timeutil::ScopeLogTimer::ScopeLogTimer(long long id) : scopeid_(id) {}
 
 timeutil::ScopeLogTimer::~ScopeLogTimer() {
-    std::cout << "Scope "<< scopeid_ <<" finished in "<< ScopeLogTimer::stop() << " micros."<<std::endl;
+    std::cout << "Scope "<< scopeid_ <<" finished in "<< ScopeLogTimer::stop() << " micros. \n";
 }
 
 float timeutil::time_value(float hour, float minute, float second) {

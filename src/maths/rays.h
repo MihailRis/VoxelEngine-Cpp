@@ -23,6 +23,11 @@ class AABBFaces{
 public:
 	std::array<std::pair<rayvec3, rayvec2>, AABBFACES_COUNT> faces; // every face is min-point and opposite corner point
 
+	static constexpr std::array<AAFaceKind,AABBFACES_COUNT> KINDS_ORDER = {
+									AAFaceKind::Xperp, AAFaceKind::Xperp,
+									AAFaceKind::Yperp, AAFaceKind::Yperp,
+									AAFaceKind::Zperp, AAFaceKind::Zperp};
+
 	AABBFaces(){};
 	AABBFaces(const rayvec3& parentBoxPos, const AABB& parentBox);
 
@@ -57,7 +62,8 @@ static RayRelation isRayIntersectsAAFace(
 				   const rayvec3& rayOrigin, 
 				   const rayvec3& rayDir,
 				   const rayvec3& faceMin,
-				   const rayvec2& faceOppositeCorner
+				   const rayvec2& faceOppositeCorner,
+				   glm::ivec3& normal_ret
 				);
 
 static RayRelation rayIntersectAABB(

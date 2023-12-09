@@ -4,22 +4,18 @@
 
 #include "glm/glm.hpp"
 
-constexpr std::array<AAFaceKind,AABBFACES_COUNT> AABBFACES_KINDS_ORDER = {
-									AAFaceKind::Xperp, AAFaceKind::Xperp,
-									AAFaceKind::Yperp, AAFaceKind::Yperp,
-									AAFaceKind::Zperp, AAFaceKind::Zperp};
 std::unordered_map<rayvec3, AABBFaces> Rays::raysBoxCache_ = {};
 const rayvec3 X_AXIS = rayvec3(1,0,0), Y_AXIS = rayvec3(0,1,0), Z_AXIS = rayvec3(0,0,1);
 
-//make edges from AABB
+//make faces from AABB
 AABBFaces::AABBFaces(const rayvec3& parentBoxPos, const AABB& parentBox){
-	rayvec3 pbMin = parentBox.min(),
+	rayvec3 pbMin = parentBox.min(), // every face is min-point and opposite corner point
 			pbMax = parentBox.max(),
 			pbRealPos = parentBoxPos + pbMin;
 	rayvec2 yzMax = rayvec2(parentBoxPos.y + pbMax.y, parentBoxPos.z + pbMax.z ),
 			xzMax = rayvec2(parentBoxPos.x + pbMax.x, parentBoxPos.z + pbMax.z ),
 			xyMax = rayvec2(parentBoxPos.x + pbMax.x, parentBoxPos.y + pbMax.y );
-	faces[0] = {pbRealPos, yzMax};
+	faces[0] = {pbRealPos, yzMax}; //in order of AABBFaces::KINDS_ORDER!
 
 	faces[1] = {parentBoxPos + rayvec3(pbMax.x, pbMin.y, pbMin.z), yzMax};
 
@@ -41,9 +37,6 @@ RayRelation Rays::rayIntersectAAFace<AAFaceKind::Xperp>(
 				   rayvec3& intersectPoint_ret
 				   ){
 	if (fabs(glm::dot(rayDir, X_AXIS)) < 1.0E-8){ //precision
-		if (rayOrigin.x == faceMin.x) {
-			return RayRelation::Embed; // there can be check of hit, but not necessarily
-		}
 		return RayRelation::Parallel;
 	}
 
@@ -80,9 +73,6 @@ RayRelation Rays::rayIntersectAAFace<AAFaceKind::Yperp>(
 				   rayvec3& intersectPoint_ret
 				   ){
 	if (fabs(glm::dot(rayDir, Y_AXIS)) < 1.0E-8){ //precision
-		if (rayOrigin.y == faceMin.y) {
-			return RayRelation::Embed; // there can be check of hit, but not necessarily
-		}
 		return RayRelation::Parallel;
 	}
 
@@ -119,9 +109,6 @@ RayRelation Rays::rayIntersectAAFace<AAFaceKind::Zperp>(
 				   rayvec3& intersectPoint_ret
 					){
 	if (fabs(glm::dot(rayDir, Z_AXIS)) < 1.0E-8){ //precision
-		if (rayOrigin.z == faceMin.z) {
-			return RayRelation::Embed; // there can be check of hit, but not necessarily
-		}
 		return RayRelation::Parallel;
 	}
 	
@@ -154,12 +141,10 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Xperp>(
 				   const rayvec3& rayOrigin, 
 				   const rayvec3& rayDir,
 				   const rayvec3& faceMin,
-				   const rayvec2& faceOppositeCorner
+				   const rayvec2& faceOppositeCorner,
+				   glm::ivec3& normal_ret
 				){ 
 	if (fabs(glm::dot(rayDir, X_AXIS)) < 1.0E-8){ //precision of "parallelity"
-		if (rayOrigin.x == faceMin.x) {
-			return RayRelation::Embed; // there can be check of hit, but not necessarily
-		}
 		return RayRelation::Parallel;
 	}
 
@@ -192,12 +177,10 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Yperp>(
 				   const rayvec3& rayOrigin, 
 				   const rayvec3& rayDir,
 				   const rayvec3& faceMin,
-				   const rayvec2& faceOppositeCorner
+				   const rayvec2& faceOppositeCorner,
+				   glm::ivec3& normal_ret
 				){ 
-	if (fabs(glm::dot(rayDir, Y_AXIS)) < 1.0E-8){ //precision
-		if (rayOrigin.y == faceMin.y) {
-			return RayRelation::Embed; // there can be check of hit, but not necessarily
-		}
+	if (fabs(glm::dot(rayDir, Y_AXIS)) < 1.0E-8){ //precision of "parallelity"
 		return RayRelation::Parallel;
 	}
 
@@ -230,12 +213,10 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Zperp>(
 				   const rayvec3& rayOrigin, 
 				   const rayvec3& rayDir,
 				   const rayvec3& faceMin,
-				   const rayvec2& faceOppositeCorner
+				   const rayvec2& faceOppositeCorner,
+				   glm::ivec3& normal_ret
 				){ 
-	if (fabs(glm::dot(rayDir, Z_AXIS)) < 1.0E-8){ //precision
-		if (rayOrigin.z == faceMin.z) {
-			return RayRelation::Embed; // there can be check of hit, but not necessarily
-		}
+	if (fabs(glm::dot(rayDir, Z_AXIS)) < 1.0E-8){ //precision of "parallelity"
 		return RayRelation::Parallel;
 	}
 
@@ -295,39 +276,51 @@ RayRelation Rays::rayIntersectAABBFaces(
                    const AABBFaces& boxFaces,
 				   rayvec3& pointIn_ret,
 				   rayvec3& pointOut_ret,
-                   glm::ivec3& normal_ret){//TODO: refs update
+                   glm::ivec3& normal_ret){//TODO: points returning
 	RayRelation rel;
-	unsigned char intersectedCount = 0;
-		rel = isRayIntersectsAAFace<AABBFACES_KINDS_ORDER[0]>(
-				rayOrigin, rayDir, boxFaces.faces[0].first, boxFaces.faces[0].second 
-				);
-    	intersectedCount+= (bool)rel;
+	unsigned char intersectedCount = 0; //this code is very uncomfortable, DONT LEARN IT!
+	rel = isRayIntersectsAAFace<AABBFaces::KINDS_ORDER[0]>(
+			rayOrigin, rayDir, boxFaces.faces[0].first, boxFaces.faces[0].second, normal_ret
+			);
+	if (rel > RayRelation::None){
+		++intersectedCount;
+	}
 
-		rel = isRayIntersectsAAFace<AABBFACES_KINDS_ORDER[1]>(
-				rayOrigin, rayDir, boxFaces.faces[1].first, boxFaces.faces[1].second 
-				);
-    	intersectedCount+= (bool)rel;
+	rel = isRayIntersectsAAFace<AABBFaces::KINDS_ORDER[1]>(
+			rayOrigin, rayDir, boxFaces.faces[1].first, boxFaces.faces[1].second, normal_ret
+			);
+	if (rel > RayRelation::None){
+		++intersectedCount;
+	}
 
-		rel = isRayIntersectsAAFace<AABBFACES_KINDS_ORDER[2]>(
-				rayOrigin, rayDir, boxFaces.faces[2].first, boxFaces.faces[2].second 
-				);
-    	intersectedCount+= (bool)rel;
+	rel = isRayIntersectsAAFace<AABBFaces::KINDS_ORDER[2]>(
+			rayOrigin, rayDir, boxFaces.faces[2].first, boxFaces.faces[2].second, normal_ret
+			);
+	if (rel > RayRelation::None){
+		++intersectedCount;
+	}
 
-		rel = isRayIntersectsAAFace<AABBFACES_KINDS_ORDER[3]>(
-				rayOrigin, rayDir, boxFaces.faces[3].first, boxFaces.faces[3].second 
-				);
-    	intersectedCount+= (bool)rel;
+	rel = isRayIntersectsAAFace<AABBFaces::KINDS_ORDER[3]>(
+			rayOrigin, rayDir, boxFaces.faces[3].first, boxFaces.faces[3].second, normal_ret
+			);
+	if (rel > RayRelation::None){
+		++intersectedCount;
+	}
 
-		rel = isRayIntersectsAAFace<AABBFACES_KINDS_ORDER[4]>(
-				rayOrigin, rayDir, boxFaces.faces[4].first, boxFaces.faces[4].second 
-				);
-    	intersectedCount+= (bool)rel;
+	rel = isRayIntersectsAAFace<AABBFaces::KINDS_ORDER[4]>(
+			rayOrigin, rayDir, boxFaces.faces[4].first, boxFaces.faces[4].second, normal_ret
+			);
+	if (rel > RayRelation::None){
+		++intersectedCount;
+	}
 
-		rel = isRayIntersectsAAFace<AABBFACES_KINDS_ORDER[5]>(
-				rayOrigin, rayDir, boxFaces.faces[5].first, boxFaces.faces[5].second 
-				);
-    	intersectedCount+= (bool)rel;
-
+	rel = isRayIntersectsAAFace<AABBFaces::KINDS_ORDER[5]>(
+			rayOrigin, rayDir, boxFaces.faces[5].first, boxFaces.faces[5].second, normal_ret
+			);
+	if (rel > RayRelation::None){
+		++intersectedCount;
+	}
+	
 	if (intersectedCount > 0) return RayRelation::Intersect;
 	return RayRelation::None;
 }
