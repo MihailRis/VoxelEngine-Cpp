@@ -68,13 +68,9 @@ bool Window::isMaximized() {
 }
 
 void window_size_callback(GLFWwindow*, int width, int height) {
-
-	if (Window::getFocus()) {
-		glViewport(0, 0, width, height);
-		Window::width = width;
-		Window::height = height;
-	}
-
+	glViewport(0, 0, width, height);
+	Window::width = width;
+	Window::height = height;
 	if (!Window::isFullscreen() && !Window::isMaximized()) {
 		Window::getSettings()->width = width;
 		Window::getSettings()->height = height;
@@ -243,12 +239,6 @@ void Window::popScissor() {
 void Window::terminate(){
 	Events::finalize();
 	glfwTerminate();
-}
-
-bool Window::getFocus()
-{
-	bool focus = glfwGetWindowAttrib(window, GLFW_FOCUSED);
-	return focus;
 }
 
 bool Window::isShouldClose(){
