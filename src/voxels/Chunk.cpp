@@ -1,5 +1,6 @@
 #include "Chunk.h"
 #include "voxel.h"
+#include "../content/ContentLUT.h"
 #include "../lighting/Lightmap.h"
 
 Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos){
@@ -79,4 +80,11 @@ bool Chunk::decode(ubyte* data) {
 		vox.states = data[CHUNK_VOL + i];
 	}
 	return true;
+}
+
+void Chunk::convert(ubyte* data, const ContentLUT* lut) {
+    for (size_t i = 0; i < CHUNK_VOL; i++) {
+        blockid_t id = data[i];
+		data[i] = lut->getBlockId(id);
+    }
 }
