@@ -70,8 +70,8 @@ public:
 		AABB hitboxes[BlockRotProfile::MAX_COUNT];
 	} rt;
 
-	Block(std::string name);
-	Block(std::string name, std::string texture);
+	Block(const std::string& name);
+	Block(const std::string& name, const std::string& texture);
 };
 
 #endif /* VOXELS_BLOCK_H_ */

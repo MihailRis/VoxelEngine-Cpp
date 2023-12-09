@@ -73,9 +73,9 @@ namespace gui {
         void draw(Batch2D* batch, Assets* assets);
         void add(std::shared_ptr<UINode> panel);
         void remove(std::shared_ptr<UINode> panel);
-        void store(std::string name, std::shared_ptr<UINode> node);
-        std::shared_ptr<UINode> get(std::string name);
-        void remove(std::string name);
+        void store(const std::string& name, std::shared_ptr<UINode> node);
+        std::shared_ptr<UINode> get(const std::string& name);
+        void remove(const std::string& name);
     };
 }
 

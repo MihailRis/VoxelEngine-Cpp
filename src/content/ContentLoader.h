@@ -10,9 +10,9 @@ class ContentBuilder;
 class ContentLoader {
     std::filesystem::path folder;
 public:
-    ContentLoader(std::filesystem::path folder);
+    ContentLoader(const std::filesystem::path& folder);
 
-    Block* loadBlock(std::string name, std::filesystem::path file);
+    Block* loadBlock(const std::string& name, const std::filesystem::path& file);
     void load(ContentBuilder* builder);
 };
 

@@ -325,11 +325,11 @@ ImageData* _png_load(const char* file){
 }
 #endif
 
-ImageData* png::load_image(std::string filename) {
+ImageData* png::load_image(const std::string& filename) {
     return _png_load(filename.c_str());
 }
 
-Texture* png::load_texture(std::string filename) {
+Texture* png::load_texture(const std::string& filename) {
 	unique_ptr<ImageData> image (_png_load(filename.c_str()));
 	if (image == nullptr){
 		std::cerr << "Could not load image " << filename << std::endl;
@@ -338,6 +338,6 @@ Texture* png::load_texture(std::string filename) {
 	return Texture::from(image.get());
 }
 
-void png::write_image(std::string filename, const ImageData* image) {
+void png::write_image(const std::string& filename, const ImageData* image) {
     _png_write(filename.c_str(), image->getWidth(), image->getHeight(), (const ubyte*)image->getData(), image->getFormat() == ImageFormat::rgba8888);
 }

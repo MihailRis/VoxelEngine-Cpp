@@ -14,7 +14,7 @@ using std::ifstream;
 using std::ofstream;
 using std::filesystem::path;
 
-bool files::write_bytes(path filename, const char* data, size_t size) {
+bool files::write_bytes(const path& filename, const char* data, size_t size) {
 	ofstream output(filename, ios::binary);
 	if (!output.is_open())
 		return false;
@@ -23,7 +23,7 @@ bool files::write_bytes(path filename, const char* data, size_t size) {
 	return true;
 }
 
-uint files::append_bytes(path filename, const char* data, size_t size) {
+uint files::append_bytes(const path& filename, const char* data, size_t size) {
 	ofstream output(filename, ios::binary | ios::app);
 	if (!output.is_open())
 		return 0;
@@ -33,7 +33,7 @@ uint files::append_bytes(path filename, const char* data, size_t size) {
 	return position;
 }
 
-bool files::read(path filename, char* data, size_t size) {
+bool files::read(const path& filename, char* data, size_t size) {
 	ifstream output(filename, ios::binary);
 	if (!output.is_open())
 		return false;
@@ -42,7 +42,7 @@ bool files::read(path filename, char* data, size_t size) {
 	return true;
 }
 
-char* files::read_bytes(path filename, size_t& length) {
+char* files::read_bytes(const path& filename, size_t& length) {
 	ifstream input(filename, ios::binary);
 	if (!input.is_open())
 		return nullptr;
@@ -56,7 +56,7 @@ char* files::read_bytes(path filename, size_t& length) {
 	return data.release();
 }
 
-std::string files::read_string(path filename) {
+std::string files::read_string(const path& filename) {
 	size_t size;
 	unique_ptr<char> chars (read_bytes(filename, size));
 	if (chars == nullptr) {
@@ -65,7 +65,7 @@ std::string files::read_string(path filename) {
 	return string(chars.get(), size);
 }
 
-bool files::write_string(path filename, const string content) {
+bool files::write_string(const path& filename, const string& content) {
 	ofstream file(filename);
 	if (!file) {
 		return false;
@@ -74,7 +74,7 @@ bool files::write_string(path filename, const string content) {
 	return true;
 }
 
-json::JObject* files::read_json(path file) {
+json::JObject* files::read_json(const path& file) {
 	string text = files::read_string(file);
 	try {
 		return json::parse(file.string(), text);

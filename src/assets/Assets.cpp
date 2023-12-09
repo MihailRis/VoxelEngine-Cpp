@@ -23,48 +23,48 @@ Assets::~Assets() {
 	}
 }
 
-Texture* Assets::getTexture(std::string name) const {
+Texture* Assets::getTexture(const std::string& name) const {
 	auto found = textures.find(name);
 	if (found == textures.end())
 		return nullptr;
 	return found->second;
 }
 
-void Assets::store(Texture* texture, std::string name){
+void Assets::store(Texture* texture, const std::string& name){
 	textures[name] = texture;
 }
 
 
-Shader* Assets::getShader(std::string name) const{
+Shader* Assets::getShader(const std::string& name) const{
 	auto found = shaders.find(name);
 	if (found == shaders.end())
 		return nullptr;
 	return found->second;
 }
 
-void Assets::store(Shader* shader, std::string name){
+void Assets::store(Shader* shader, const std::string& name){
 	shaders[name] = shader;
 }
 
 
-Font* Assets::getFont(std::string name) const {
+Font* Assets::getFont(const std::string& name) const {
 	auto found = fonts.find(name);
 	if (found == fonts.end())
 		return nullptr;
 	return found->second;
 }
 
-void Assets::store(Font* font, std::string name){
+void Assets::store(Font* font, const std::string& name){
 	fonts[name] = font;
 }
 
-Atlas* Assets::getAtlas(std::string name) const {
+Atlas* Assets::getAtlas(const std::string& name) const {
 	auto found = atlases.find(name);
 	if (found == atlases.end())
 		return nullptr;
 	return found->second;
 }
 
-void Assets::store(Atlas* atlas, std::string name){
+void Assets::store(Atlas* atlas, const std::string& name){
 	atlases[name] = atlas;
 }

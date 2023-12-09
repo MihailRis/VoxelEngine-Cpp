@@ -11,15 +11,15 @@
 using std::filesystem::path;
 using std::unique_ptr;
 
-AssetsLoader::AssetsLoader(Assets* assets, path resdir) 
+AssetsLoader::AssetsLoader(Assets* assets, const path& resdir) 
 			 : assets(assets), resdir(resdir) {
 }
 
-void AssetsLoader::addLoader(int tag, aloader_func func) {
+void AssetsLoader::addLoader(int tag, const aloader_func& func) {
 	loaders[tag] = func;
 }
 
-void AssetsLoader::add(int tag, const path filename, const std::string alias) {
+void AssetsLoader::add(int tag, const path& filename, const std::string& alias) {
 	entries.push(aloader_entry{ tag, filename, alias });
 }
 

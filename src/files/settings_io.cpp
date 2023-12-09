@@ -56,10 +56,12 @@ string write_controls() {
 		jentry->put("code", binding.code);
 		obj->put(entry.first, jentry);
 	}
-	return json::stringify(obj, true, "  ");
+	string result = json::stringify(obj, true, "  ");
+	delete obj;
+	return result;
 }
 
-void load_controls(string filename, string source) {
+void load_controls(const string& filename, const string& source) {
 	json::JObject* obj = json::parse(filename, source);
 	for (auto& entry : Events::bindings) {
 		auto& binding = entry.second;
@@ -82,4 +84,5 @@ void load_controls(string filename, string source) {
 		binding.type = type;
 		jentry->num("code", binding.code);
 	}
+	delete obj;
 }

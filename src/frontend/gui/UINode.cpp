@@ -114,7 +114,7 @@ void UINode::_size(vec2 size) {
     this->size_ = size;
 }
 
-void UINode::color(vec4 color) {
+void UINode::color(const vec4& color) {
     this->color_ = color;
 }
 

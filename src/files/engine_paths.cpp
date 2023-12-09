@@ -18,7 +18,7 @@ path EnginePaths::getResources() const {
 	return resources;
 }
 
-path EnginePaths::getScreenshotFile(string ext) {
+path EnginePaths::getScreenshotFile(const string& ext) {
 	path folder = userfiles/path(SCREENSHOTS_FOLDER);
 	if (!fs::is_directory(folder)) {
 		fs::create_directory(folder);
@@ -45,14 +45,14 @@ path EnginePaths::getWorldsFolder() {
     return userfiles/path("worlds");
 }
 
-bool EnginePaths::isWorldNameUsed(string name) {
+bool EnginePaths::isWorldNameUsed(const string& name) {
 	return fs::exists(EnginePaths::getWorldsFolder()/fs::u8path(name));
 }
 
-void EnginePaths::setUserfiles(path folder) {
+void EnginePaths::setUserfiles(const path& folder) {
 	this->userfiles = folder;
 }
 
-void EnginePaths::setResources(path folder) {
+void EnginePaths::setResources(const path& folder) {
 	this->resources = folder;
 }

@@ -21,7 +21,7 @@ public:
         return blocks[index];
     }
 
-    inline void setBlock(blockid_t index, std::string name, blockid_t id) {
+    inline void setBlock(blockid_t index, const std::string& name, blockid_t id) {
         blocks[index] = id;
         blockNames[index] = name;
     }

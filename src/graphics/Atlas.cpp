@@ -12,7 +12,7 @@ using std::shared_ptr;
 using std::unordered_map;
 
 Atlas::Atlas(ImageData* image, 
-             unordered_map<string, UVRegion> regions)
+             const unordered_map<string, UVRegion>& regions)
       : texture(Texture::from(image)),
         image(image),
         regions(regions) {        
@@ -23,11 +23,11 @@ Atlas::~Atlas() {
     delete texture;
 }
 
-bool Atlas::has(string name) const {
+bool Atlas::has(const string& name) const {
     return regions.find(name) != regions.end();
 }
 
-const UVRegion& Atlas::get(string name) const {
+const UVRegion& Atlas::get(const string& name) const {
     return regions.at(name);
 }
 
@@ -39,7 +39,7 @@ ImageData* Atlas::getImage() const {
     return image;
 }
 
-void AtlasBuilder::add(string name, ImageData* image) {
+void AtlasBuilder::add(const string& name, ImageData* image) {
     entries.push_back(atlasentry{name, shared_ptr<ImageData>(image)});
 }
 

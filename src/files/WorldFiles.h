@@ -85,7 +85,7 @@ class WorldFiles {
 
 	ubyte* readChunkData(int x, int y, 
 						uint32_t& length, 
-						std::filesystem::path file);
+						const std::filesystem::path& file);
 
 	void writeRegions(std::unordered_map<glm::ivec2, WorldRegion*>& regions,
 					  const std::filesystem::path& folder);
@@ -101,7 +101,7 @@ public:
 	bool generatorTestMode;
 	bool doWriteLights;
 
-	WorldFiles(std::filesystem::path directory, const DebugSettings& settings);
+	WorldFiles(const std::filesystem::path& directory, const DebugSettings& settings);
 	~WorldFiles();
 
 	void put(Chunk* chunk);
@@ -113,7 +113,7 @@ public:
 
 	void writeRegion(int x, int y, 
 					 WorldRegion* entry, 
-					 std::filesystem::path file);
+					 const std::filesystem::path& file);
 	void writePlayer(Player* player);
 	void write(const World* world, const Content* content);
 	void writeIndices(const ContentIndices* indices);

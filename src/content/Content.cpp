@@ -42,19 +42,17 @@ Content* ContentBuilder::build() {
         if (groups->find(def->drawGroup) == groups->end()) {
             groups->insert(def->drawGroup);
         }
-
-
     }
     ContentIndices* indices = new ContentIndices(blockDefsIndices);
     return new Content(indices, groups, blockDefs);
 }
 
-ContentIndices::ContentIndices(vector<Block*> blockDefs)
+ContentIndices::ContentIndices(const vector<Block*>& blockDefs)
                : blockDefs(blockDefs) {
 }
 
 Content::Content(ContentIndices* indices, DrawGroups* drawGroups,
-                 unordered_map<string, Block*> blockDefs)
+                 const unordered_map<string, Block*>& blockDefs)
         : blockDefs(blockDefs),
           indices(indices),
           drawGroups(drawGroups) {
@@ -62,9 +60,10 @@ Content::Content(ContentIndices* indices, DrawGroups* drawGroups,
 
 Content::~Content() {
     delete indices;
+    delete drawGroups;
 }
 
-Block* Content::findBlock(string id) const {
+Block* Content::findBlock(const string& id) const {
     auto found = blockDefs.find(id);
     if (found == blockDefs.end()) {
         return nullptr;
@@ -72,7 +71,7 @@ Block* Content::findBlock(string id) const {
     return found->second;
 }
 
-Block* Content::requireBlock(string id) const {
+Block* Content::requireBlock(const string& id) const {
     auto found = blockDefs.find(id);
     if (found == blockDefs.end()) {
         throw std::runtime_error("missing block "+id);

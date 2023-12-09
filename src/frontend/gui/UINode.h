@@ -50,7 +50,7 @@ namespace gui {
         virtual void setParent(UINode* node);
         UINode* getParent() const;
 
-        virtual void color(glm::vec4 newColor);
+        virtual void color(const glm::vec4& newColor);
         glm::vec4 color() const;
 
         virtual void margin(glm::vec4 margin);

@@ -146,11 +146,11 @@ void GUI::remove(shared_ptr<UINode> panel) {
     container->remove(panel);
 }
 
-void GUI::store(string name, shared_ptr<UINode> node) {
+void GUI::store(const string& name, shared_ptr<UINode> node) {
     storage[name] = node;
 }
 
-shared_ptr<UINode> GUI::get(string name) {
+shared_ptr<UINode> GUI::get(const string& name) {
     auto found = storage.find(name);
     if (found == storage.end()) {
         return nullptr;
@@ -158,6 +158,6 @@ shared_ptr<UINode> GUI::get(string name) {
     return found->second;
 }
 
-void GUI::remove(string name) {
+void GUI::remove(const string& name) {
     storage.erase(name);
 }

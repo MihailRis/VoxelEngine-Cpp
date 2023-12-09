@@ -26,7 +26,7 @@ class ContentIndices {
     // blockDefs must be a plain vector with block id used as index
     std::vector<Block*> blockDefs;
 public:
-    ContentIndices(std::vector<Block*> blockDefs);
+    ContentIndices(const std::vector<Block*>& blockDefs);
 
     inline Block* getBlockDef(blockid_t id) const {
         if (id >= blockDefs.size())
@@ -52,11 +52,11 @@ public:
     DrawGroups* const drawGroups;
 
     Content(ContentIndices* indices, DrawGroups* drawGroups,
-            std::unordered_map<std::string, Block*> blockDefs);
+            const std::unordered_map<std::string, Block*>& blockDefs);
     ~Content();
     
-    Block* findBlock(std::string id) const;
-    Block* requireBlock(std::string id) const;
+    Block* findBlock(const std::string& id) const;
+    Block* requireBlock(const std::string& id) const;
 };
 
 #endif // CONTENT_CONTENT_H_

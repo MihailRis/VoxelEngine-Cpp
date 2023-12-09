@@ -8,10 +8,10 @@
 #include <glm/glm.hpp>
 #include "UINode.h"
 #include "panels.h"
-#include "../../window/input.h"
 
 class Batch2D;
 class Assets;
+struct Binding;
 
 namespace gui {
     typedef std::function<std::wstring()> wstringsupplier;
@@ -29,14 +29,14 @@ namespace gui {
         std::string fontName_;
         wstringsupplier supplier = nullptr;
     public:
-        Label(std::wstring text, std::string fontName="normal");
+        Label(const std::wstring_view& text, const std::string& fontName="normal");
 
-        virtual Label& text(std::wstring text);
+        virtual Label& text(const std::wstring_view& text);
         std::wstring text() const;
 
         virtual void draw(Batch2D* batch, Assets* assets) override;
 
-        virtual Label* textSupplier(wstringsupplier supplier);
+        virtual Label* textSupplier(const wstringsupplier& supplier);
         virtual void size(glm::vec2 size) override;
     };
 
@@ -47,17 +47,17 @@ namespace gui {
         std::vector<onaction> actions;
         std::shared_ptr<UINode> label = nullptr;
     public:
-        Button(std::shared_ptr<UINode> content, glm::vec4 padding=glm::vec4(2.0f));
-        Button(std::wstring text, glm::vec4 padding=glm::vec4(2.0f));
+        Button(std::shared_ptr<UINode> content, const glm::vec4& padding=glm::vec4(2.0f));
+        Button(const std::wstring_view& text, const glm::vec4& padding=glm::vec4(2.0f));
 
         virtual void drawBackground(Batch2D* batch, Assets* assets);
 
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
         virtual void mouseRelease(GUI*, int x, int y) override;
-        virtual Button* listenAction(onaction action);
+        virtual Button* listenAction(const onaction& action);
 
-        virtual void text(std::wstring text);
+        virtual void text(const std::wstring& text);
         virtual std::wstring text() const;
     };
 
@@ -71,16 +71,16 @@ namespace gui {
         wstringsupplier supplier = nullptr;
         wstringconsumer consumer = nullptr;
     public:
-        TextBox(std::wstring placeholder, 
-                glm::vec4 padding=glm::vec4(2.0f));
+        TextBox(const std::wstring& placeholder, 
+                const glm::vec4& padding=glm::vec4(2.0f));
 
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
         virtual void drawBackground(Batch2D* batch, Assets* assets) override;
         virtual void typed(unsigned int codepoint) override; 
         virtual void keyPressed(int key) override;
-        virtual void textSupplier(wstringsupplier supplier);
-        virtual void textConsumer(wstringconsumer consumer);
+        virtual void textSupplier(const wstringsupplier& supplier);
+        virtual void textConsumer(const wstringconsumer& consumer);
         virtual bool isfocuskeeper() const override {return true;}
         virtual std::wstring text() const;
     };
@@ -92,7 +92,7 @@ namespace gui {
         Label* label;
         Binding& binding;
     public:
-        InputBindBox(Binding& binding, glm::vec4 padding=glm::vec4(6.0f));
+        InputBindBox(Binding& binding, const glm::vec4& padding=glm::vec4(6.0f));
         virtual void drawBackground(Batch2D* batch, Assets* assets) override;
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
@@ -120,8 +120,8 @@ namespace gui {
                  int trackWidth=1);
         virtual void draw(Batch2D* batch, Assets* assets) override;
 
-        virtual void supplier(doublesupplier supplier);
-        virtual void consumer(doubleconsumer consumer);
+        virtual void supplier(const doublesupplier& supplier);
+        virtual void consumer(const doubleconsumer& consumer);
 
         virtual void mouseMove(GUI*, int x, int y) override;
     };
@@ -140,8 +140,8 @@ namespace gui {
 
         virtual void mouseRelease(GUI*, int x, int y) override;
 
-        virtual void supplier(boolsupplier supplier);
-        virtual void consumer(boolconsumer consumer);
+        virtual void supplier(const boolsupplier& supplier);
+        virtual void consumer(const boolconsumer& consumer);
 
         virtual CheckBox* checked(bool flag);
 

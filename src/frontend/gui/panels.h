@@ -42,7 +42,7 @@ namespace gui {
         virtual void remove(std::shared_ptr<UINode> node);
         virtual void scrolled(int value) override;
         virtual void scrollable(bool flag);
-        void listenInterval(float interval, ontimeout callback, int repeat=-1);
+        void listenInterval(float interval, const ontimeout& callback, int repeat=-1);
         virtual glm::vec2 contentOffset() override {return glm::vec2(0.0f, scroll);};
     };
 
@@ -54,7 +54,7 @@ namespace gui {
         bool resizing_;
         int maxLength_ = 0;
     public:
-        Panel(glm::vec2 size, glm::vec4 padding=glm::vec4(2.0f), float interval=2.0f, bool resizing=true);
+        Panel(glm::vec2 size, const glm::vec4& padding=glm::vec4(2.0f), float interval=2.0f, bool resizing=true);
         virtual ~Panel();
 
         virtual void drawBackground(Batch2D* batch, Assets* assets) override;
@@ -86,10 +86,10 @@ namespace gui {
     public:
         PagesControl();
 
-        bool has(std::string name);
-        void set(std::string name, bool history=true);
-        void add(std::string name, std::shared_ptr<UINode> panel);
-        void add(std::string name, UINode* panel);
+        bool has(const std::string& name);
+        void set(const std::string& name, bool history=true);
+        void add(const std::string& name, std::shared_ptr<UINode> panel);
+        void add(const std::string& name, UINode* panel);
         void back();
         void clearHistory();
         void reset();

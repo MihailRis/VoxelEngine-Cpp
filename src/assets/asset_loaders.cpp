@@ -18,8 +18,8 @@ using std::filesystem::path;
 namespace fs = std::filesystem;
 
 bool assetload::texture(Assets* assets, 
-                        const path filename, 
-                        const string name) {
+                        const path& filename, 
+                        const string& name) {
 	Texture* texture = png::load_texture(filename.string());
 	if (texture == nullptr) {
 		std::cerr << "failed to load texture '" << name << "'" << std::endl;
@@ -30,10 +30,10 @@ bool assetload::texture(Assets* assets,
 }
 
 bool assetload::shader(Assets* assets, 
-                        const path filename, 
-                        const string name) {
-    path vertexFile = path(filename.string()+".glslv");
-    path fragmentFile = path(filename.string()+".glslf");
+                        const path& filename, 
+                        const string& name) {
+    path vertexFile = filename.string()+".glslv";
+    path fragmentFile = filename.string()+".glslf";
     
     string vertexSource = files::read_string(vertexFile);
     string fragmentSource = files::read_string(fragmentFile);
@@ -49,8 +49,8 @@ bool assetload::shader(Assets* assets,
 }
 
 bool assetload::atlas(Assets* assets, 
-                        const path directory, 
-                        const string name) {
+                        const path& directory, 
+                        const string& name) {
 	AtlasBuilder builder;
 	for (const auto& entry : fs::directory_iterator(directory)) {
 		path file = entry.path();
@@ -67,8 +67,8 @@ bool assetload::atlas(Assets* assets,
 }
 
 bool assetload::font(Assets* assets, 
-                        const path filename, 
-                        const string name) {
+                        const path& filename, 
+                        const string& name) {
 	vector<Texture*> pages;
 	for (size_t i = 0; i <= 4; i++) {
         string name = filename.string() + "_" + std::to_string(i) + ".png";

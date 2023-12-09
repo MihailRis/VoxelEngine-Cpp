@@ -6,25 +6,23 @@
 #include "../../graphics/Batch2D.h"
 #include "../../graphics/Font.h"
 #include "../../util/stringutil.h"
+#include "../../window/input.h"
 
 using std::string;
 using std::wstring;
+using std::wstring_view;
 using std::shared_ptr;
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 
-const uint KEY_ESCAPE = 256;
-const uint KEY_ENTER = 257;
-const uint KEY_BACKSPACE = 259;
-
 using namespace gui;
 
-Label::Label(wstring text, string fontName) 
+Label::Label(const wstring_view& text, const string& fontName) 
  : UINode(vec2(), vec2(text.length() * 8, 15)), text_(text), fontName_(fontName) {
 }
 
-Label& Label::text(wstring text) {
+Label& Label::text(const wstring_view& text) {
     this->text_ = text;
     return *this;
 }
@@ -49,7 +47,7 @@ void Label::draw(Batch2D* batch, Assets* assets) {
     font->draw(batch, text_, coord.x, coord.y);
 }
 
-Label* Label::textSupplier(wstringsupplier supplier) {
+Label* Label::textSupplier(const wstringsupplier& supplier) {
     this->supplier = supplier;
     return this;
 }
@@ -59,12 +57,12 @@ void Label::size(vec2 sizenew) {
 }
 
 // ================================= Button ===================================
-Button::Button(shared_ptr<UINode> content, glm::vec4 padding) : Panel(vec2(32,32), padding, 0) {
+Button::Button(shared_ptr<UINode> content, const glm::vec4& padding) : Panel(vec2(32,32), padding, 0) {
     add(content);
     scrollable(false);
 }
 
-Button::Button(wstring text, glm::vec4 padding) : Panel(vec2(32,32), padding, 0) {
+Button::Button(const wstring_view& text, const glm::vec4& padding) : Panel(vec2(32,32), padding, 0) {
     Label* label = new Label(text);
     label->align(Align::center);
     this->label = shared_ptr<UINode>(label);
@@ -72,7 +70,7 @@ Button::Button(wstring text, glm::vec4 padding) : Panel(vec2(32,32), padding, 0)
     scrollable(false);
 }
 
-void Button::text(std::wstring text) {
+void Button::text(const std::wstring& text) {
     if (label) {
         Label* label = (Label*)(this->label.get());
         label->text(text);
@@ -101,19 +99,19 @@ shared_ptr<UINode> Button::getAt(vec2 pos, shared_ptr<UINode> self) {
 void Button::mouseRelease(GUI* gui, int x, int y) {
     UINode::mouseRelease(gui, x, y);
     if (isInside(vec2(x, y))) {
-        for (auto callback : actions) {
+        for (auto& callback : actions) {
             callback(gui);
         }
     }
 }
 
-Button* Button::listenAction(onaction action) {
+Button* Button::listenAction(const onaction& action) {
     actions.push_back(action);
     return this;
 }
 
 // ================================ TextBox ===================================
-TextBox::TextBox(wstring placeholder, vec4 padding) 
+TextBox::TextBox(const wstring& placeholder, const vec4& padding) 
     : Panel(vec2(200,32), padding, 0, false), 
       input(L""),
       placeholder(placeholder) {
@@ -141,22 +139,20 @@ void TextBox::drawBackground(Batch2D* batch, Assets* assets) {
 }
 
 void TextBox::typed(unsigned int codepoint) {
-    input += wstring({(wchar_t)codepoint});
+    input += (wchar_t)codepoint;
 }
 
 void TextBox::keyPressed(int key) {
-    switch (key) {
-        case KEY_BACKSPACE:
-            if (!input.empty()){
-                input = input.substr(0, input.length()-1);
-            }
-            break;
-        case KEY_ENTER:
-            if (consumer) {
-                consumer(label->text());
-            }
-            defocus();
-            break;
+    if (key == keycode::BACKSPACE) {
+        if (!input.empty()) {
+            input.pop_back();
+        }
+    }
+    else if (key == keycode::ENTER) {
+        if (consumer) {
+            consumer(label->text());
+        }
+        defocus();
     }
 }
 
@@ -164,11 +160,11 @@ shared_ptr<UINode> TextBox::getAt(vec2 pos, shared_ptr<UINode> self) {
     return UINode::getAt(pos, self);
 }
 
-void TextBox::textSupplier(wstringsupplier supplier) {
+void TextBox::textSupplier(const wstringsupplier& supplier) {
     this->supplier = supplier;
 }
 
-void TextBox::textConsumer(wstringconsumer consumer) {
+void TextBox::textConsumer(const wstringconsumer& consumer) {
     this->consumer = consumer;
 }
 
@@ -179,7 +175,7 @@ wstring TextBox::text() const {
 }
 
 // ============================== InputBindBox ================================
-InputBindBox::InputBindBox(Binding& binding, vec4 padding) 
+InputBindBox::InputBindBox(Binding& binding, const vec4& padding) 
     : Panel(vec2(100,32), padding, 0, false),
       binding(binding) {
     label = new Label(L"");
@@ -245,11 +241,11 @@ void TrackBar::draw(Batch2D* batch, Assets* assets) {
     batch->rect(coord.x + width * t, coord.y, actualWidth, size_.y);
 }
 
-void TrackBar::supplier(doublesupplier supplier) {
+void TrackBar::supplier(const doublesupplier& supplier) {
     this->supplier_ = supplier;
 }
 
-void TrackBar::consumer(doubleconsumer consumer) {
+void TrackBar::consumer(const doubleconsumer& consumer) {
     this->consumer_ = consumer;
 }
 
@@ -289,11 +285,11 @@ void CheckBox::mouseRelease(GUI*, int x, int y) {
     }
 }
 
-void CheckBox::supplier(boolsupplier supplier) {
+void CheckBox::supplier(const boolsupplier& supplier) {
     supplier_ = supplier;
 }
 
-void CheckBox::consumer(boolconsumer consumer) {
+void CheckBox::consumer(const boolconsumer& consumer) {
     consumer_ = consumer;
 }
 

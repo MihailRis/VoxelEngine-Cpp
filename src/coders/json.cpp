@@ -88,7 +88,7 @@ void stringifyObj(JObject* obj, stringstream& ss, int indent, string indentstr, 
     }
     ss << "{";
     uint index = 0;
-    for (auto entry : obj->map) {
+    for (auto& entry : obj->map) {
         const std::string& key = entry.first;
         if (index > 0 || nice) {
             newline(ss, nice, indent, indentstr);
@@ -239,7 +239,7 @@ JObject& JArray::putObj() {
 }
 
 JObject::~JObject() {
-    for (auto entry : map) {
+    for (auto& entry : map) {
         delete entry.second;
     }
 }

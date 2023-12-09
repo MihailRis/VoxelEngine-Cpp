@@ -41,9 +41,9 @@ public:
 
 	static void toggleCursor();
 
-	static void bind(std::string name, inputtype type, int code);
-	static bool active(std::string name);
-	static bool jactive(std::string name);
+	static void bind(const std::string& name, inputtype type, int code);
+	static bool active(const std::string& name);
+	static bool jactive(const std::string& name);
 };
 
 #endif /* WINDOW_EVENTS_H_ */

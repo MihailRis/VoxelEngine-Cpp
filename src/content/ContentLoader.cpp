@@ -21,10 +21,10 @@ using std::string;
 using std::unique_ptr;
 using std::filesystem::path;
 
-ContentLoader::ContentLoader(path folder) : folder(folder) {}
+ContentLoader::ContentLoader(const path& folder) : folder(folder) {}
 
 // TODO: add basic validation and logging
-Block* ContentLoader::loadBlock(string name, path file) {
+Block* ContentLoader::loadBlock(const string& name, const path& file) {
     unique_ptr<json::JObject> root(files::read_json(file));
     unique_ptr<Block> def(new Block(name));
 

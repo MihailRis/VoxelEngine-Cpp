@@ -10,33 +10,33 @@ using std::string;
 using std::filesystem::path;
 namespace fs = std::filesystem;
 
-path GLSLExtension::getHeaderPath(string name) {
+path GLSLExtension::getHeaderPath(const string& name) {
     return libFolder/path(name+".glsl");
 }
 
-void GLSLExtension::setLibFolder(path folder) {
+void GLSLExtension::setLibFolder(const path& folder) {
     this->libFolder = folder;
 }
 
-void GLSLExtension::setVersion(string version) {
+void GLSLExtension::setVersion(const std::string_view& version) {
     this->version = version;
 }
 
-void GLSLExtension::loadHeader(string name) {
+void GLSLExtension::loadHeader(const string& name) {
     path file = getHeaderPath(name);
     string source = files::read_string(file);
     addHeader(name, source);
 }
 
-void GLSLExtension::addHeader(string name, string source) {
+void GLSLExtension::addHeader(const string& name, const string& source) {
     headers[name] = source;
 }
 
-void GLSLExtension::define(string name, string value) {
+void GLSLExtension::define(const string& name, const string& value) {
     defines[name] = value;
 }
 
-const string& GLSLExtension::getHeader(const string name) const {
+const string& GLSLExtension::getHeader(const string& name) const {
     auto found = headers.find(name);
     if (found == headers.end()) {
         throw std::runtime_error("no header '"+name+"' loaded");
@@ -44,7 +44,7 @@ const string& GLSLExtension::getHeader(const string name) const {
     return found->second;
 }
 
-const string GLSLExtension::getDefine(const string name) const {
+const string GLSLExtension::getDefine(const string& name) const {
     auto found = defines.find(name);
     if (found == defines.end()) {
         return "";
@@ -52,15 +52,15 @@ const string GLSLExtension::getDefine(const string name) const {
     return found->second;
 }
 
-bool GLSLExtension::hasDefine(const string name) const {
+bool GLSLExtension::hasDefine(const string& name) const {
     return defines.find(name) != defines.end();
 }
 
-bool GLSLExtension::hasHeader(const string name) const {
+bool GLSLExtension::hasHeader(const string& name) const {
     return headers.find(name) != headers.end();
 }
 
-void GLSLExtension::undefine(string name) {
+void GLSLExtension::undefine(const string& name) {
     if (hasDefine(name)) {
         defines.erase(name);
     }
@@ -86,7 +86,7 @@ inline void source_line(std::stringstream& ss, uint linenum) {
     ss << "#line " << linenum << "\n";
 }
 
-const string GLSLExtension::process(const path file, const string& source) {
+const string GLSLExtension::process(const path& file, const string& source) {
     std::stringstream ss;
     size_t pos = 0;
     uint linenum = 1;

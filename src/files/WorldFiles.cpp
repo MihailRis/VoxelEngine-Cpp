@@ -88,7 +88,7 @@ uint WorldRegion::getSize(uint x, uint z) {
 	return sizes[z * REGION_SIZE + x];
 }
 
-WorldFiles::WorldFiles(path directory, const DebugSettings& settings) 
+WorldFiles::WorldFiles(const path& directory, const DebugSettings& settings) 
 	: directory(directory), 
 	  generatorTestMode(settings.generatorTestMode),
 	  doWriteLights(settings.doWriteLights) {
@@ -97,7 +97,7 @@ WorldFiles::WorldFiles(path directory, const DebugSettings& settings)
 
 WorldFiles::~WorldFiles(){
 	delete[] compressionBuffer;
-	for (auto it : regions){
+	for (auto& it : regions){
 	    delete it.second;
 	}
 	regions.clear();
@@ -237,7 +237,7 @@ ubyte* WorldFiles::getData(unordered_map<ivec2, WorldRegion*>& regions,
 	return nullptr;
 }
 
-ubyte* WorldFiles::readChunkData(int x, int z, uint32_t& length, path filename){
+ubyte* WorldFiles::readChunkData(int x, int z, uint32_t& length, const path& filename){
 	if (generatorTestMode)
 		return nullptr;
 		
@@ -272,7 +272,7 @@ ubyte* WorldFiles::readChunkData(int x, int z, uint32_t& length, path filename){
 	return data;
 }
 
-void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, path filename){
+void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, const path& filename){
 	ubyte** region = entry->getChunks();
 	uint32_t* sizes = entry->getSizes();
 	for (size_t i = 0; i < REGION_VOL; i++) {
@@ -316,7 +316,7 @@ void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, path filename){
 
 void WorldFiles::writeRegions(unordered_map<ivec2, WorldRegion*>& regions,
 							  const path& folder) {
-	for (auto it : regions){
+	for (auto& it : regions){
 		WorldRegion* region = it.second;
 		if (region->getChunks() == nullptr || !region->isUnsaved())
 			continue;

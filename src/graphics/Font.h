@@ -23,8 +23,8 @@ public:
 	int calcWidth(std::wstring text);
 	// int getGlyphWidth(char c);
 	bool isPrintableChar(int c);
-	void draw(Batch2D* batch, std::wstring text, int x, int y);
-	void draw(Batch2D* batch, std::wstring text, int x, int y, int style);
+	void draw(Batch2D* batch, const std::wstring_view& text, int x, int y);
+	void draw(Batch2D* batch, const std::wstring_view& text, int x, int y, int style);
 };
 
 #endif /* GRAPHICS_FONT_H_ */

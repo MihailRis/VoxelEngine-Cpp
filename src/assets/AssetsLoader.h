@@ -28,9 +28,9 @@ class AssetsLoader {
 	std::queue<aloader_entry> entries;
 	std::filesystem::path resdir;
 public:
-	AssetsLoader(Assets* assets, std::filesystem::path resdir);
-	void addLoader(int tag, aloader_func func);
-	void add(int tag, const std::filesystem::path filename, const std::string alias);
+	AssetsLoader(Assets* assets, const std::filesystem::path& resdir);
+	void addLoader(int tag, const aloader_func& func);
+	void add(int tag, const std::filesystem::path& filename, const std::string& alias);
 
 	bool hasNext() const;
 	bool loadNext();
