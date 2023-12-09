@@ -19,7 +19,7 @@ using std::shared_ptr;
 using namespace gui;
 
 GUI::GUI() {
-    container = new Container(vec2(0, 0), vec2(Window::width, Window::height));
+    container = new Container(vec2(0, 0), vec2(1000));
 
     uicamera = new Camera(vec3(), Window::height);
 	uicamera->perspective = false;
@@ -27,6 +27,7 @@ GUI::GUI() {
 
     menu = new PagesControl();
     container->add(menu);
+    container->scrollable(false);
 }
 
 GUI::~GUI() {
@@ -120,7 +121,7 @@ void GUI::act(float delta) {
 
 void GUI::draw(Batch2D* batch, Assets* assets) {
     menu->setCoord((Window::size() - menu->size()) / 2.0f);
-    uicamera->fov = Window::height;
+    uicamera->setFov(Window::height);
 
 	Shader* uishader = assets->getShader("ui");
 	uishader->use();
@@ -160,4 +161,14 @@ shared_ptr<UINode> GUI::get(string name) {
 
 void GUI::remove(string name) {
     storage.erase(name);
+}
+
+void GUI::setFocus(shared_ptr<UINode> node) {
+    if (focus) {
+        focus->defocus();
+    }
+    focus = node;
+    if (focus) {
+        focus->focus(this);
+    }
 }

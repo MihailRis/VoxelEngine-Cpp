@@ -25,16 +25,20 @@ toml::Wrapper create_wrapper(EngineSettings& settings) {
 	
 	toml::Section& camera = wrapper.add("camera");
 	camera.add("fov-effects", &settings.camera.fovEvents);
+	camera.add("fov", &settings.camera.fov);
 	camera.add("shaking", &settings.camera.shaking);
+	camera.add("sensitivity", &settings.camera.sensitivity);
 
 	toml::Section& graphics = wrapper.add("graphics");
 	graphics.add("fog-curve", &settings.graphics.fogCurve);
 	graphics.add("backlight", &settings.graphics.backlight);
 	graphics.add("frustum-culling", &settings.graphics.frustumCulling);
+	graphics.add("skybox-resolution", &settings.graphics.skyboxResolution);
 
 	toml::Section& debug = wrapper.add("debug");
 	debug.add("generator-test-mode", &settings.debug.generatorTestMode);
 	debug.add("show-chunk-borders", &settings.debug.showChunkBorders);
+	debug.add("do-write-lights", &settings.debug.doWriteLights);
 	return wrapper;
 }
 

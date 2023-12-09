@@ -5,6 +5,7 @@
 
 class Camera {
 	void updateVectors();
+	float fov;
 public:
 	glm::vec3 front;
 	glm::vec3 up;
@@ -12,7 +13,7 @@ public:
 	glm::vec3 dir;
 
 	glm::vec3 position;
-	float fov;
+
 	float zoom;
 	glm::mat4 rotation;
 	bool perspective = true;
@@ -25,6 +26,9 @@ public:
 	glm::mat4 getProjection();
 	glm::mat4 getView(bool position=true);
 	glm::mat4 getProjView();
+
+	void setFov(float fov);
+	float getFov() const;
 };
 
 #endif /* WINDOW_CAMERA_H_ */

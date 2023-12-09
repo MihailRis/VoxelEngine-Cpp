@@ -16,7 +16,7 @@
 #include "../maths/voxmaths.h"
 #include "../core_defs.h"
 
-#define SEA_LEVEL 55
+const int SEA_LEVEL = 55;
 
 class Map2D {
 	int x, z;
@@ -97,16 +97,16 @@ float calc_height(fnl_state *noise, int real_x, int real_z){
 }
 
 WorldGenerator::WorldGenerator(const Content* content)
-	           : idStone(content->require("base:stone")->rt.id),
-			     idDirt(content->require("base:dirt")->rt.id),
-				 idGrassBlock(content->require("base:grass_block")->rt.id),
-				 idSand(content->require("base:sand")->rt.id),
-				 idWater(content->require("base:water")->rt.id),
-				 idWood(content->require("base:wood")->rt.id),
-				 idLeaves(content->require("base:leaves")->rt.id),
-				 idGrass(content->require("base:grass")->rt.id),
-				 idFlower(content->require("base:flower")->rt.id),
-				 idBazalt(content->require("base:bazalt")->rt.id) {;
+	           : idStone(content->requireBlock("base:stone")->rt.id),
+			     idDirt(content->requireBlock("base:dirt")->rt.id),
+				 idGrassBlock(content->requireBlock("base:grass_block")->rt.id),
+				 idSand(content->requireBlock("base:sand")->rt.id),
+				 idWater(content->requireBlock("base:water")->rt.id),
+				 idWood(content->requireBlock("base:wood")->rt.id),
+				 idLeaves(content->requireBlock("base:leaves")->rt.id),
+				 idGrass(content->requireBlock("base:grass")->rt.id),
+				 idFlower(content->requireBlock("base:flower")->rt.id),
+				 idBazalt(content->requireBlock("base:bazalt")->rt.id) {;
 }
 
 int generate_tree(fnl_state *noise, 
@@ -175,7 +175,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 			float hum = fnlGetNoise3D(&noise, real_x * 0.3 + 633, 0.0, real_z * 0.3);
 			if (height >= SEA_LEVEL) {
 				height = ((height - SEA_LEVEL) * 0.1) - 0.0;
-				height = powf(height, (1.0+hum - fmax(0.0, height) * 0.2));
+				height = powf(height, (1.0+hum - fmax(0.0, height) * 0.1));
 				height = height * 10 + SEA_LEVEL;
 			} else {
 				height *= 1.0f + (height-SEA_LEVEL) * 0.05f * hum;
@@ -206,7 +206,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 					int tree = generate_tree(&noise, &randomtree, heights, humidity, real_x, real_y, real_z, treesTile);
 					if (tree) {
 						id = tree;
-						states = BLOCK_DIR_Y;
+						states = BLOCK_DIR_UP;
 					}
 				}
 				if (((height - (1.5 - 0.2 * pow(height - 54, 4))) < real_y) && (real_y < height) && humidity.get(real_x, real_z) < 0.1){
@@ -224,7 +224,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 				}
 				if ((height > SEA_LEVEL+1) && ((int)(height + 1) == real_y) && ((unsigned short)randomgrass.rand() > 65533)){
 					id = idWood;
-					states = BLOCK_DIR_Y;
+					states = BLOCK_DIR_UP;
 				}
 				voxels[(y * CHUNK_D + z) * CHUNK_W + x].id = id;
 				voxels[(y * CHUNK_D + z) * CHUNK_W + x].states = states;

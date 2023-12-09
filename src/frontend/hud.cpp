@@ -56,14 +56,12 @@ inline Label* create_label(gui::wstringsupplier supplier) {
 
 HudRenderer::HudRenderer(Engine* engine, 
 						 Level* level, 
-						 const ContentGfxCache* cache,
-						  WorldRenderer* renderer) 
+						 const ContentGfxCache* cache) 
             : level(level), 
 			  assets(engine->getAssets()), 
 			  batch(new Batch2D(1024)),
 			  gui(engine->getGUI()),
-			  cache(cache),
-			  renderer(renderer) {
+			  cache(cache) {
 	auto menu = gui->getMenu();
 	blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
 									  assets->getAtlas("blocks"),
@@ -161,6 +159,16 @@ HudRenderer::HudRenderer(Engine* engine,
 		panel->add(bar);
 	}
 	{
+		TrackBar* bar = new TrackBar(0.0f, 1.0f, 0.0f, 0.005f, 8);
+		bar->supplier([=]() {
+			return WorldRenderer::fog;
+		});
+		bar->consumer([=](double val) {
+			WorldRenderer::fog = val;
+		});
+		panel->add(bar);
+	}
+	{
         Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
         checkpanel->color(vec4(0.0f));
         checkpanel->orientation(Orientation::horizontal);
@@ -231,7 +239,7 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 	batch->render();
 
 	// blocks & items
-	blocksPreview->begin();
+	blocksPreview->begin(&ctx.getViewport());
 	{
 		Window::clearDepth();
 		GfxContext subctx = ctx.sub();
@@ -295,7 +303,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 
 	debugPanel->visible(level->player->debug);
 
-	uicamera->fov = height;
+	uicamera->setFov(height);
 
 	Shader* uishader = assets->getShader("ui");
 	uishader->use();
@@ -320,7 +328,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 	batch->color = vec4(1.0f);
 	batch->render();
 
-	blocksPreview->begin();
+	blocksPreview->begin(&ctx.getViewport());
 	{
 		Window::clearDepth();
 		GfxContext subctx = ctx.sub();
@@ -329,7 +337,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 		
 		Block* cblock = contentIds->getBlockDef(player->choosenBlock);
 		assert(cblock != nullptr);
-		blocksPreview->draw(cblock, width - 56, uicamera->fov - 56, 48, vec4(1.0f));
+		blocksPreview->draw(cblock, width - 56, uicamera->getFov() - 56, 48, vec4(1.0f));
 		//drawBlockPreview(cblock, width - 56, uicamera->fov - 56, 48, 48, vec4(1.0f));
 	}
 	uishader->use();

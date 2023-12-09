@@ -2,18 +2,41 @@
 #define VOXELS_BLOCK_H_
 
 #include <string>
+#include <glm/glm.hpp>
 
 #include "../maths/aabb.h"
 #include "../typedefs.h"
 
-#define FACE_MX 0
-#define FACE_PX 1
-#define FACE_MY 2
-#define FACE_PY 3
-#define FACE_MZ 4
-#define FACE_PZ 5
+const uint FACE_MX = 0;
+const uint FACE_PX = 1;
+const uint FACE_MY = 2;
+const uint FACE_PY = 3;
+const uint FACE_MZ = 4;
+const uint FACE_PZ = 5;
 
-#define BLOCK_AABB_GRID 16
+const uint BLOCK_AABB_GRID = 16;
+
+struct CoordSystem {
+	glm::ivec3 axisX;
+	glm::ivec3 axisY;
+	glm::ivec3 axisZ;
+	// Grid 3d position fix offset (for negative vectors)
+	glm::ivec3 fix;
+	glm::ivec3 fix2;
+
+	void transform(AABB& aabb);
+};
+
+struct BlockRotProfile {
+	static const int MAX_COUNT = 16;
+	std::string name;
+	CoordSystem variants[MAX_COUNT];
+
+	/* Wood logs, pillars, pipes */
+	static const BlockRotProfile PIPE;
+	/* Doors, signs and other panes */
+	static const BlockRotProfile PANE;
+};
 
 enum class BlockModel {
 	none, // invisible 
@@ -38,12 +61,13 @@ public:
 	bool breakable = true;
 	bool rotatable = false;
 	AABB hitbox;
+	BlockRotProfile rotations;
 
 	struct {
 		blockid_t id;
 		bool solid = true;
 		bool emissive = false;
-		bool hitboxGrid[BLOCK_AABB_GRID][BLOCK_AABB_GRID][BLOCK_AABB_GRID];
+		AABB hitboxes[BlockRotProfile::MAX_COUNT];
 	} rt;
 
 	Block(std::string name);

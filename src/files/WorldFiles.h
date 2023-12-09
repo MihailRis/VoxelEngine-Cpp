@@ -12,14 +12,15 @@
 #include "glm/gtx/hash.hpp"
 
 #include "../typedefs.h"
+#include "../settings.h"
 
-#define REGION_SIZE_BIT 5
-#define REGION_SIZE (1 << (REGION_SIZE_BIT))
-#define REGION_VOL ((REGION_SIZE) * (REGION_SIZE))
-#define REGION_FORMAT_VERSION 1
+const uint REGION_SIZE_BIT = 5;
+const uint REGION_SIZE = (1 << (REGION_SIZE_BIT));
+const uint REGION_VOL = ((REGION_SIZE) * (REGION_SIZE));
+const uint REGION_FORMAT_VERSION = 1;
+const uint WORLD_FORMAT_VERSION = 1;
 #define REGION_FORMAT_MAGIC ".VOXREG"
 #define WORLD_FORMAT_MAGIC ".VOXWLD"
-#define WORLD_FORMAT_VERSION 1
 
 class Player;
 class Chunk;
@@ -27,36 +28,98 @@ class Content;
 class ContentIndices;
 class World;
 
-struct WorldRegion {
+class WorldRegion {
 	ubyte** chunksData;
-	uint32_t* compressedSizes;
-	bool unsaved;
+	uint32_t* sizes;
+	bool unsaved = false;
+public:
+	WorldRegion();
+	~WorldRegion();
+
+	void put(uint x, uint z, ubyte* data, uint32_t size);
+	ubyte* get(uint x, uint z);
+	uint getSize(uint x, uint z);
+
+	void setUnsaved(bool unsaved);
+	bool isUnsaved() const;
+
+	ubyte** getChunks() const;
+	uint32_t* getSizes() const;
 };
 
 class WorldFiles {
 	void writeWorldInfo(const World* world);
-	std::filesystem::path getRegionsFolder() const;
-	std::filesystem::path getRegionFile(int x, int y) const;
+	std::filesystem::path getLightsFolder() const;
+	std::filesystem::path getRegionFilename(int x, int y) const;
 	std::filesystem::path getPlayerFile() const;
 	std::filesystem::path getWorldFile() const;
-	std::filesystem::path getBlockIndicesFile() const;
+	std::filesystem::path getIndicesFile() const;
+
+	// TODO: remove in 0.16
+	std::filesystem::path getOldPlayerFile() const;
+	std::filesystem::path getOldWorldFile() const;
+	bool readOldWorldInfo(World* world);
+	bool readOldPlayer(Player* player);
+	// --------------------
+
+	WorldRegion* getRegion(std::unordered_map<glm::ivec2, WorldRegion*>& regions,
+						   int x, int z);
+
+	WorldRegion* getOrCreateRegion(
+						   std::unordered_map<glm::ivec2, WorldRegion*>& regions,
+						   int x, int z);
+
+	/* Compress buffer with extrle
+	   @param src source buffer
+	   @param srclen length of source buffer
+	   @param len (out argument) length of result buffer */
+	ubyte* compress(const ubyte* src, size_t srclen, size_t& len);
+
+	/* Decompress buffer with extrle
+	   @param src compressed buffer
+	   @param srclen length of compressed buffer
+	   @param dstlen max expected length of source buffer
+	*/
+	ubyte* decompress(const ubyte* src, size_t srclen, size_t dstlen);
+
+	ubyte* readChunkData(int x, int y, 
+						uint32_t& length, 
+						std::filesystem::path file);
+
+	void writeRegions(std::unordered_map<glm::ivec2, WorldRegion*>& regions,
+					  const std::filesystem::path& folder);
+
+	ubyte* getData(std::unordered_map<glm::ivec2, WorldRegion*>& regions,
+				   const std::filesystem::path& folder,
+				   int x, int z);
 public:
-	std::unordered_map<glm::ivec2, WorldRegion> regions;
+    static bool parseRegionFilename(const std::string& name, int& x, int& y);
+    std::filesystem::path getRegionsFolder() const;
+
+	std::unordered_map<glm::ivec2, WorldRegion*> regions;
+	std::unordered_map<glm::ivec2, WorldRegion*> lights;
 	std::filesystem::path directory;
 	ubyte* compressionBuffer;
 	bool generatorTestMode;
+	bool doWriteLights;
 
-	WorldFiles(std::filesystem::path directory, bool generatorTestMode);
+	WorldFiles(std::filesystem::path directory, const DebugSettings& settings);
 	~WorldFiles();
 
 	void put(Chunk* chunk);
+    void put(int x, int z, const ubyte* voxelData);
+
+	ubyte* getChunk(int x, int z);
+	light_t* getLights(int x, int z);
 
 	bool readWorldInfo(World* world);
 	bool readPlayer(Player* player);
-	ubyte* readChunkData(int x, int y, uint32_t& length);
-	ubyte* getChunk(int x, int y);
-	void writeRegion(int x, int y, WorldRegion& entry);
+
+	void writeRegion(int x, int y, 
+					 WorldRegion* entry, 
+					 std::filesystem::path file);
 	void writePlayer(Player* player);
+    /* @param world world info to save (nullable) */
 	void write(const World* world, const Content* content);
 	void writeIndices(const ContentIndices* indices);
 };

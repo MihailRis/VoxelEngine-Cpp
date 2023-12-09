@@ -44,6 +44,8 @@ class Camera;
 */
 
 namespace gui {
+    typedef std::function<void()> runnable;
+
     class UINode;
     class Container;
     class PagesControl;
@@ -74,6 +76,7 @@ namespace gui {
         void store(std::string name, std::shared_ptr<UINode> node);
         std::shared_ptr<UINode> get(std::string name);
         void remove(std::string name);
+        void setFocus(std::shared_ptr<UINode> node);
     };
 }
 

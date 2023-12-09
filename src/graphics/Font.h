@@ -3,13 +3,14 @@
 
 #include <string>
 #include <vector>
+#include "../typedefs.h"
 
 class Texture;
 class Batch2D;
 
-#define STYLE_NONE 0
-#define STYLE_SHADOW 1
-#define STYLE_OUTLINE 2
+const uint STYLE_NONE = 0;
+const uint STYLE_SHADOW = 1;
+const uint STYLE_OUTLINE = 2;
 
 class Font {
 	int lineHeight_;

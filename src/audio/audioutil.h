@@ -7,7 +7,7 @@
 
 #include <AL/al.h>
 
-#define alCheck() check_al_errors(__FILE__, __LINE__)
+#define alCheckErrorsMacro() check_al_errors(__FILE__, __LINE__)
 
 bool check_al_errors(const std::string& filename, const std::uint_fast32_t line);
 

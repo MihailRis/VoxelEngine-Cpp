@@ -34,23 +34,27 @@ void cursor_position_callback(GLFWwindow*, double xpos, double ypos) {
 
 void mouse_button_callback(GLFWwindow*, int button, int action, int) {
 	if (action == GLFW_PRESS) {
-		Events::_keys[_MOUSE_BUTTONS + button] = true;
-		Events::_frames[_MOUSE_BUTTONS + button] = Events::_current;
+		// Unsafe assignments! (no checks)
+		Events::_keys[_MOUSE_KEYS_OFFSET + button] = true; 
+		Events::_frames[_MOUSE_KEYS_OFFSET + button] = Events::_current;
 	}
 	else if (action == GLFW_RELEASE) {
-		Events::_keys[_MOUSE_BUTTONS + button] = false;
-		Events::_frames[_MOUSE_BUTTONS + button] = Events::_current;
+		// Unsafe assignments! (no checks)
+		Events::_keys[_MOUSE_KEYS_OFFSET + button] = false;
+		Events::_frames[_MOUSE_KEYS_OFFSET + button] = Events::_current;
 	}
 }
 
 void key_callback(GLFWwindow*, int key, int scancode, int action, int /*mode*/) {
 	if (key == GLFW_KEY_UNKNOWN) return;
 	if (action == GLFW_PRESS) {
+		// Unsafe assignments! (no checks)
 		Events::_keys[key] = true;
 		Events::_frames[key] = Events::_current;
 		Events::pressedKeys.push_back(key);
 	}
 	else if (action == GLFW_RELEASE) {
+		// Unsafe assignments! (no checks)
 		Events::_keys[key] = false;
 		Events::_frames[key] = Events::_current;
 	}
@@ -124,7 +128,7 @@ int Window::initialize(DisplaySettings& settings){
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 	glfwWindowHint(GLFW_SAMPLES, settings.samples);
 
-	window = glfwCreateWindow(width, height, settings.title, nullptr, nullptr);
+	window = glfwCreateWindow(width, height, settings.title.c_str(), nullptr, nullptr);
 	if (window == nullptr){
 		cerr << "Failed to create GLFW Window" << endl;
 		glfwTerminate();

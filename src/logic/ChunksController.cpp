@@ -1,9 +1,7 @@
 #include "ChunksController.h"
 
-#include <iostream>
 #include <limits.h>
 #include <memory>
-#include <chrono>
 
 #include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
@@ -17,22 +15,18 @@
 #include "../world/Level.h"
 #include "../world/World.h"
 #include "../maths/voxmaths.h"
+#include "../util/timeutil.h"
 
-#define MAX_WORK_PER_FRAME 16
-#define MIN_SURROUNDING 9
+const uint MAX_WORK_PER_FRAME = 64;
+const uint MIN_SURROUNDING = 9;
 
 using std::unique_ptr;
 using std::shared_ptr;
-using std::chrono::high_resolution_clock;
-using std::chrono::duration_cast;
-using std::chrono::microseconds;
 
-
-ChunksController::ChunksController(
-	Level* level, 
-	Chunks* chunks, 
-	Lighting* lighting, 
-	uint padding) 
+ChunksController::ChunksController(Level* level, 
+								   Chunks* chunks, 
+								   Lighting* lighting, 
+								   uint padding) 
     : level(level), 
 	  chunks(chunks), 
 	  lighting(lighting), 
@@ -46,11 +40,11 @@ ChunksController::~ChunksController(){
 
 void ChunksController::update(int64_t maxDuration) {
     int64_t mcstotal = 0;
+
     for (uint i = 0; i < MAX_WORK_PER_FRAME; i++) {
-        auto start = high_resolution_clock::now();
+		timeutil::Timer timer;
         if (loadVisible()) {
-            auto elapsed = high_resolution_clock::now() - start;
-            int64_t mcs = duration_cast<microseconds>(elapsed).count();
+            int64_t mcs = timer.stop();
             avgDurationMcs = mcs * 0.2 + avgDurationMcs * 0.8;
             if (mcstotal + max(avgDurationMcs, mcs) * 2 < maxDuration * 1000) {
                 mcstotal += mcs;
@@ -62,7 +56,6 @@ void ChunksController::update(int64_t maxDuration) {
 }
 
 bool ChunksController::loadVisible(){
-	const Content* content = level->content;
 	const int w = chunks->w;
 	const int d = chunks->d;
 	const int ox = chunks->ox;
@@ -84,7 +77,9 @@ bool ChunksController::loadVisible(){
 				}
 				chunk->surrounding = surrounding;
 				if (surrounding == MIN_SURROUNDING && !chunk->isLighted()) {
-					lighting->buildSkyLight(chunk->x, chunk->z);
+					if (!chunk->isLoadedLights()) {
+						lighting->buildSkyLight(chunk->x, chunk->z);
+					}
 					lighting->onChunkLoaded(chunk->x, chunk->z);
 					chunk->setLighted(true);
 					return true;
@@ -118,16 +113,8 @@ bool ChunksController::loadVisible(){
 
 	chunk->updateHeights();
 
-	ContentIndices* indices = content->indices;
-	for (size_t i = 0; i < CHUNK_VOL; i++) {
-		blockid_t id = chunk->voxels[i].id;
-		if (indices->getBlockDef(id) == nullptr) {
-			std::cout << "corruped block detected at " << i << " of chunk ";
-			std::cout << chunk->x << "x" << chunk->z;
-			std::cout << " -> " << (int)id << std::endl;
-			chunk->voxels[i].id = 11;
-		}
+	if (!chunk->isLoadedLights()) {
+		lighting->prebuildSkyLight(chunk->x, chunk->z);
 	}
-	lighting->prebuildSkyLight(chunk->x, chunk->z);
 	return true;
 }

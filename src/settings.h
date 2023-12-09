@@ -18,7 +18,9 @@ struct DisplaySettings {
 	/* GLFW swap interval value, 0 - unlimited fps, 1 - vsync*/
 	int swapInterval = 1;
 	/* Window title */
-	const char* title = "VoxelEngine-Cpp v" ENGINE_VERSION;
+	std::string title = "VoxelEngine-Cpp v" + 
+		std::to_string(ENGINE_VERSION_MAJOR) + "." +
+		std::to_string(ENGINE_VERSION_MINOR);
 };
 
 struct ChunksSettings {
@@ -35,6 +37,10 @@ struct CameraSettings {
     bool fovEvents = true;
     /* Camera movement shake */
     bool shaking = true;
+	/* Camera field of view */
+	float fov = 90.0f;
+	/* Camera sensitivity */
+	float sensitivity = 2.0f;
 };
 
 struct GraphicsSettings {
@@ -45,12 +51,14 @@ struct GraphicsSettings {
 	bool backlight = true;
 	/* Enable chunks frustum culling */
 	bool frustumCulling = true;
+	int skyboxResolution = 64 + 32;
 };
 
 struct DebugSettings {
 	/* Turns off chunks saving/loading */
 	bool generatorTestMode = false;
 	bool showChunkBorders = false;
+	bool doWriteLights = true;
 };
 
 struct EngineSettings {

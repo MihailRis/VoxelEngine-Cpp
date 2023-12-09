@@ -3,22 +3,24 @@
 
 /* blocks and bindings used in engine code */
 
-#define BLOCK_AIR 0
+const int BLOCK_AIR = 0;
 
-#define BIND_MOVE_FORWARD "movement.forward"
-#define BIND_MOVE_BACK "movement.back"
-#define BIND_MOVE_LEFT "movement.left"
-#define BIND_MOVE_RIGHT "movement.right"
-#define BIND_MOVE_JUMP "movement.jump"
-#define BIND_MOVE_SPRINT "movement.sprint"
-#define BIND_MOVE_CROUCH "movement.crouch"
-#define BIND_MOVE_CHEAT "movement.cheat"
-#define BIND_CAM_ZOOM "camera.zoom"
-#define BIND_PLAYER_NOCLIP "player.noclip"
-#define BIND_PLAYER_FLIGHT "player.flight"
-#define BIND_PLAYER_ATTACK "player.attack"
-#define BIND_PLAYER_BUILD "player.build"
-#define BIND_PLAYER_PICK "player.pick"
-#define BIND_HUD_INVENTORY "hud.inventory"
+const std::string TEXTURE_NOTFOUND = "notfound";
+
+const std::string BIND_MOVE_FORWARD = "movement.forward";
+const std::string BIND_MOVE_BACK = "movement.back";
+const std::string BIND_MOVE_LEFT = "movement.left";
+const std::string BIND_MOVE_RIGHT = "movement.right";
+const std::string BIND_MOVE_JUMP = "movement.jump";
+const std::string BIND_MOVE_SPRINT = "movement.sprint";
+const std::string BIND_MOVE_CROUCH = "movement.crouch";
+const std::string BIND_MOVE_CHEAT = "movement.cheat";
+const std::string BIND_CAM_ZOOM = "camera.zoom";
+const std::string BIND_PLAYER_NOCLIP = "player.noclip";
+const std::string BIND_PLAYER_FLIGHT = "player.flight";
+const std::string BIND_PLAYER_ATTACK = "player.attack";
+const std::string BIND_PLAYER_BUILD = "player.build";
+const std::string BIND_PLAYER_PICK = "player.pick";
+const std::string BIND_HUD_INVENTORY = "hud.inventory";
 
 #endif // SRC_CORE_DEFS_H_

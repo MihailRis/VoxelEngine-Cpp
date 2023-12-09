@@ -39,6 +39,7 @@ void stringifyObj(JObject* obj,
                string indentstr, 
                bool nice);
 
+#include <iostream>
 void stringify(Value* value, 
                stringstream& ss, 
                int indent, 
@@ -71,7 +72,6 @@ void stringify(Value* value,
     } else if (value->type == valtype::boolean) {
         ss << (value->value.boolean ? "true" : "false");
     } else if (value->type == valtype::number) {
-        ss << std::fixed;
         ss << std::setprecision(15);
         ss << value->value.decimal;
     } else if (value->type == valtype::integer) {
@@ -320,8 +320,12 @@ void JObject::num(std::string key, uint& dst) const {
 
 JObject* JObject::obj(std::string key) const {
     auto found = map.find(key);
-    if (found != map.end())
-        return found->second->value.obj;
+    if (found != map.end()) {
+        auto& val = found->second;
+        if (val->type != valtype::object)
+            return nullptr;
+        return val->value.obj;
+    }
     return nullptr;
 }
 
@@ -500,6 +504,19 @@ JArray* Parser::parseArray() {
 Value* Parser::parseValue() {
     char next = peek();
     valvalue val;
+    if (next == '-' || next == '+') {
+        pos++;
+        number_u num;
+        valtype type;
+        if (parseNumber(next == '-' ? -1 : 1, num)) {
+            val.integer = num.ival;
+            type = valtype::integer;
+        } else {
+            val.decimal = num.fval;
+            type = valtype::number;
+        }
+        return new Value(type, val);
+    }
     if (is_identifier_start(next)) {
         string literal = parseName();
         if (literal == "true") {
@@ -515,7 +532,7 @@ Value* Parser::parseValue() {
             val.decimal = NAN;
             return new Value(valtype::number, val);
         }
-        throw error("invalid literal");
+        throw error("invalid literal ");
     }
     if (next == '{') {
         val.obj = parseObject();
@@ -524,19 +541,6 @@ Value* Parser::parseValue() {
     if (next == '[') {
         val.arr = parseArray();
         return new Value(valtype::array, val);
-    }
-    if (next == '-' || next == '+') {
-        pos++;
-        number_u num;
-        valtype type;
-        if (parseNumber(next == '-' ? -1 : 1, num)) {
-            val.integer = num.ival;
-            type = valtype::integer;
-        } else {
-            val.decimal = num.fval;
-            type = valtype::number;
-        }
-        return new Value(type, val);
     }
     if (is_digit(next)) {
         number_u num;

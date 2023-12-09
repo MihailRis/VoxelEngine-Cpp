@@ -15,18 +15,19 @@
 
 #include "../core_defs.h"
 
-#define CAM_SHAKE_OFFSET 0.025f
-#define CAM_SHAKE_OFFSET_Y 0.031f
-#define CAM_SHAKE_SPEED 1.6f
-#define CAM_SHAKE_DELTA_K 10.0f
-#define ZOOM_SPEED 16.0f
-#define CROUCH_ZOOM 0.9f
-#define RUN_ZOOM 1.1f
-#define C_ZOOM 0.1f
-#define CROUCH_SHIFT_Y -0.2f
+const float CAM_SHAKE_OFFSET = 0.025f;
+const float CAM_SHAKE_OFFSET_Y = 0.031f;
+const float CAM_SHAKE_SPEED = 1.75f;
+const float CAM_SHAKE_DELTA_K = 10.0f;
+const float ZOOM_SPEED = 16.0f;
+const float CROUCH_ZOOM = 0.9f;
+const float RUN_ZOOM = 1.1f;
+const float C_ZOOM = 0.1f;
+const float CROUCH_SHIFT_Y = -0.2f;
 
 using glm::vec2;
 using glm::vec3;
+using std::string;
 
 CameraControl::CameraControl(Player* player, const CameraSettings& settings) 
 	: player(player), 
@@ -40,8 +41,9 @@ void CameraControl::refresh() {
 }
 
 void CameraControl::updateMouse(PlayerInput& input) {
-	float rotX = -Events::deltaX / Window::height * 2;
-	float rotY = -Events::deltaY / Window::height * 2;
+	float sensitivity = settings.sensitivity;
+	float rotX = -Events::deltaX / Window::height * sensitivity;
+	float rotY = -Events::deltaY / Window::height * sensitivity;
 
 	if (input.zoom){
 		rotX /= 4;
@@ -110,6 +112,7 @@ vec3 PlayerController::selectedBlockPosition;
 vec3 PlayerController::selectedPointPosition;
 vec3 PlayerController::selectedBlockNormal;
 int PlayerController::selectedBlockId = -1;
+int PlayerController::selectedBlockStates = 0;
 
 PlayerController::PlayerController(Level* level, const EngineSettings& settings) 
 	: level(level), 
@@ -133,6 +136,7 @@ void PlayerController::update(float delta, bool input, bool pause) {
 		updateInteraction();
 	} else {
 		selectedBlockId = -1;
+		selectedBlockStates = 0;
 	}
 }
 
@@ -207,6 +211,7 @@ void PlayerController::updateInteraction(){
 	if (vox != nullptr){
 		player->selectedVoxel = *vox;
 		selectedBlockId = vox->id;
+		selectedBlockStates = vox->states;
 		selectedBlockPosition = iend;
 		selectedPointPosition = end;
 		selectedBlockNormal = norm;
@@ -215,14 +220,26 @@ void PlayerController::updateInteraction(){
 		int z = (int)iend.z;
 		uint8_t states = 0;
 
-		if (contentIds->getBlockDef(player->choosenBlock)->rotatable){
-			if (abs(norm.x) > abs(norm.z)){
-				if (abs(norm.x) > abs(norm.y)) states = BLOCK_DIR_X;
-				if (abs(norm.x) < abs(norm.y)) states = BLOCK_DIR_Y;
-			}
-			if (abs(norm.x) < abs(norm.z)){
-				if (abs(norm.z) > abs(norm.y)) states = BLOCK_DIR_Z;
-				if (abs(norm.z) < abs(norm.y)) states = BLOCK_DIR_Y;
+		Block* def = contentIds->getBlockDef(player->choosenBlock);
+		if (def->rotatable){
+			const string& name = def->rotations.name;
+			if (name == "pipe") {
+				if (norm.x < 0.0f) states = BLOCK_DIR_WEST;
+				else if (norm.x > 0.0f) states = BLOCK_DIR_EAST;
+				else if (norm.y > 0.0f) states = BLOCK_DIR_UP;
+				else if (norm.y < 0.0f) states = BLOCK_DIR_DOWN;
+				else if (norm.z > 0.0f) states = BLOCK_DIR_NORTH;
+				else if (norm.z < 0.0f) states = BLOCK_DIR_SOUTH;
+			} else if (name == "pane") {
+				vec3 vec = camera->dir;
+				if (abs(vec.x) > abs(vec.z)){
+					if (vec.x > 0.0f) states = BLOCK_DIR_EAST;
+					if (vec.x < 0.0f) states = BLOCK_DIR_WEST;
+				}
+				if (abs(vec.x) < abs(vec.z)){
+					if (vec.z > 0.0f) states = BLOCK_DIR_SOUTH;
+					if (vec.z < 0.0f) states = BLOCK_DIR_NORTH;
+				}
 			}
 		}
 		
@@ -250,5 +267,6 @@ void PlayerController::updateInteraction(){
 		}
 	} else {
 		selectedBlockId = -1;
+		selectedBlockStates = 0;
 	}
 }

@@ -7,10 +7,10 @@
 #include <map>
 #include <queue>
 
-#define ASSET_TEXTURE 1
-#define ASSET_SHADER 2
-#define ASSET_FONT 3
-#define ASSET_ATLAS 4
+const short ASSET_TEXTURE = 1;
+const short ASSET_SHADER = 2;
+const short ASSET_FONT = 3;
+const short ASSET_ATLAS = 4;
 
 class Assets;
 

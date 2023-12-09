@@ -55,7 +55,8 @@ public:
             std::unordered_map<std::string, Block*> blockDefs);
     ~Content();
     
-    Block* require(std::string id) const;
+    Block* findBlock(std::string id) const;
+    Block* requireBlock(std::string id) const;
 };
 
 #endif // CONTENT_CONTENT_H_

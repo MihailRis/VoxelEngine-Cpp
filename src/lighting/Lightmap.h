@@ -2,7 +2,10 @@
 #define LIGHTING_LIGHTMAP_H_
 
 #include "../constants.h"
+#include "../typedefs.h"
 #include "../voxels/Chunk.h"
+
+const int LIGHTMAP_DATA_LEN = CHUNK_VOL/2;
 
 // Lichtkarte
 class Lightmap {
@@ -13,6 +16,8 @@ public:
 	~Lightmap();
 
 	void set(const Lightmap* lightmap);
+
+	void set(light_t* map);
 
 	inline unsigned short get(int x, int y, int z){
 		return (map[y*CHUNK_D*CHUNK_W+z*CHUNK_W+x]);
@@ -78,6 +83,9 @@ public:
 	static inline light_t extract(light_t light, ubyte channel) {
 		return (light >> (channel << 2)) & 0xF;
 	}
+
+	ubyte* encode() const;
+	static light_t* decode(ubyte* buffer);
 };
 
 #endif /* LIGHTING_LIGHTMAP_H_ */

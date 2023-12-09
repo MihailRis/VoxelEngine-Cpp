@@ -27,20 +27,14 @@ Content* ContentBuilder::build() {
         // Generating runtime info
         def->rt.id = blockDefsIndices.size();
         def->rt.emissive = *((uint32_t*)def->emission);
-        
-        // building hitbox grid 3d for raycasts
-        const AABB& hitbox = def->hitbox;
-        for (uint gy = 0; gy < BLOCK_AABB_GRID; gy++) {
-            for (uint gz = 0; gz < BLOCK_AABB_GRID; gz++) {
-                for (uint gx = 0; gx < BLOCK_AABB_GRID; gx++) {
-                    float x = gx / float(BLOCK_AABB_GRID);
-                    float y = gy / float(BLOCK_AABB_GRID);
-                    float z = gz / float(BLOCK_AABB_GRID);
-                    bool flag = hitbox.inside({x, y, z});
-                    if (!flag)
-                        def->rt.solid = false;
-                    def->rt.hitboxGrid[gy][gz][gx] = flag;
-                }
+        def->rt.solid = def->model == BlockModel::block;
+
+        if (def->rotatable) {
+            const AABB& hitbox = def->hitbox;
+            for (uint i = 0; i < BlockRotProfile::MAX_COUNT; i++) {
+                AABB aabb = hitbox;
+                def->rotations.variants[i].transform(aabb);
+                def->rt.hitboxes[i] = aabb;
             }
         }
 
@@ -48,6 +42,8 @@ Content* ContentBuilder::build() {
         if (groups->find(def->drawGroup) == groups->end()) {
             groups->insert(def->drawGroup);
         }
+
+
     }
     ContentIndices* indices = new ContentIndices(blockDefsIndices);
     return new Content(indices, groups, blockDefs);
@@ -68,7 +64,15 @@ Content::~Content() {
     delete indices;
 }
 
-Block* Content::require(std::string id) const {
+Block* Content::findBlock(string id) const {
+    auto found = blockDefs.find(id);
+    if (found == blockDefs.end()) {
+        return nullptr;
+    }
+    return found->second;
+}
+
+Block* Content::requireBlock(string id) const {
     auto found = blockDefs.find(id);
     if (found == blockDefs.end()) {
         throw std::runtime_error("missing block "+id);
