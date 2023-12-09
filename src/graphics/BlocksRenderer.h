@@ -73,7 +73,8 @@ class BlocksRenderer {
 		float width,
 		float height,
 		float depth,
-		const UVRegion& region);
+		const UVRegion& region,
+        bool lights);
 
 	void face(const glm::vec3& coord, float w, float h,
 		const glm::vec3& axisX,
@@ -86,12 +87,13 @@ class BlocksRenderer {
 	void blockCube(int x, int y, int z, const UVRegion(&faces)[6], ubyte group);
 	
 	void blockCubeShaded(int x, int y, int z, const UVRegion(&faces)[6], const Block* block, ubyte states);
-	void blockCubeShaded(const glm::ivec3& coord, 
-						 const glm::vec3& offset, 
-						 const glm::vec3& size, 
-						 const UVRegion(&faces)[6], 
-						 const Block* block, 
-						 ubyte rotation);
+	void blockAABB(const glm::ivec3& coord, 
+                    const glm::vec3& offset, 
+                    const glm::vec3& size, 
+                    const UVRegion(&faces)[6], 
+                    const Block* block, 
+                    ubyte rotation,
+                    bool lights);
 	void blockXSprite(int x, int y, int z, const glm::vec3& size, const UVRegion& face1, const UVRegion& face2, float spread);
 
 	bool isOpenForLight(int x, int y, int z) const;
