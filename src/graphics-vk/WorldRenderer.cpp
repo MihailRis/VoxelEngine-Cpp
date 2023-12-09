@@ -104,11 +104,12 @@ namespace vulkan {
           m_lineBatch(new LineBatch(4096)),
           m_renderer(new ChunksRenderer(level, cache, engine->getSettings())){
 
+        const auto& settings = engine->getSettings();
         level->events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
             m_renderer->unload(chunk);
         });
         const auto *assets = engine->getAssets();
-        m_skybox = new Skybox(128, assets->getShader("skybox_gen"));
+        m_skybox = new Skybox(settings.graphics.skyboxResolution, assets->getShader("skybox_gen"));
     }
 
     WorldRenderer::~WorldRenderer() {
