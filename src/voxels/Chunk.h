@@ -16,6 +16,7 @@ struct ChunkFlag{
 
 struct voxel;
 class Lightmap;
+class ContentLUT;
 
 struct RenderData {
 	float* vertices;
@@ -76,6 +77,8 @@ public:
 
 	ubyte* encode() const;
 	bool decode(ubyte* data);
+
+    static void convert(ubyte* data, const ContentLUT* lut);
 };
 
 #endif /* VOXELS_CHUNK_H_ */

@@ -175,7 +175,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 			float hum = fnlGetNoise3D(&noise, real_x * 0.3 + 633, 0.0, real_z * 0.3);
 			if (height >= SEA_LEVEL) {
 				height = ((height - SEA_LEVEL) * 0.1) - 0.0;
-				height = powf(height, (1.0+hum - fmax(0.0, height) * 0.2));
+				height = powf(height, (1.0+hum - fmax(0.0, height) * 0.1));
 				height = height * 10 + SEA_LEVEL;
 			} else {
 				height *= 1.0f + (height-SEA_LEVEL) * 0.05f * hum;
