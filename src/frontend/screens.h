@@ -42,6 +42,7 @@ class LevelScreen : public Screen {
     WorldRenderer* worldRenderer;
     HudRenderer* hud;
     ContentGfxCache* cache;
+    bool hudVisible = true;
     void updateHotkeys();
 public:
     LevelScreen(Engine* engine, Level* level);
