@@ -10,6 +10,8 @@
 
 #include "../graphics/Mesh.h"
 #include "../maths/voxmaths.h"
+#include "../maths/aabb.h"
+#include "../maths/rays.h"
 
 #include <math.h>
 #include <limits.h>
@@ -55,7 +57,7 @@ voxel* Chunks::get(int x, int y, int z){
 	if (z < 0) cz--;
 	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= 1 || cz >= d)
 		return nullptr;
-	shared_ptr<Chunk> chunk = chunks[(cy * d + cz) * w + cx];
+	shared_ptr<Chunk> chunk = chunks[cz * w + cx]; // chunks is 2D-array
 	if (chunk == nullptr)
 		return nullptr;
 	int lx = x - cx * CHUNK_W;
@@ -175,6 +177,7 @@ void Chunks::set(int x, int y, int z, int id, uint8_t states){
 		chunk->setModified(true);
 }
 #include "../util/timeutil.h"
+#include <iostream>
 voxel* Chunks::rayCast(vec3 start, 
 					   vec3 dir, 
 					   float maxDist, 
@@ -212,33 +215,37 @@ voxel* Chunks::rayCast(vec3 start,
 	float tyMax = (tyDelta < infinity) ? tyDelta * ydist : infinity;
 	float tzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
 
-	int steppedIndex = -1;
+	int steppedIndex = -1;      
+                                
+	while (t <= maxDist){       
+		voxel* voxel = get(ix, iy, iz);		
+		if (!voxel){ return nullptr; }
 
-	while (t <= maxDist){
-		voxel* voxel = get(ix, iy, iz);
-		const Block* def = nullptr;
-		if (voxel == nullptr || (def = contentIds->getBlockDef(voxel->id))->selectable){
+		const Block* def = contentIds->getBlockDef(voxel->id);
+		if (def->selectable){
 			timeutil::ScopeLogTimer lg((long long)def);
 			end.x = px + t * dx;
 			end.y = py + t * dy;
 			end.z = pz + t * dz;
+					iend.x = ix;
+					iend.y = iy;
+					iend.z = iz;
 			
-			// TODO: replace this dumb solution with something better
 			if (def && !def->rt.solid) {
 				const int gridSize = BLOCK_AABB_GRID * 2;
 				const AABB& box = def->rotatable 
 								  ? def->rt.hitboxes[voxel->rotation()] 
 								  : def->hitbox;
-				const int subs = gridSize;
+				/*const int subs = gridSize;
 				iend = vec3(ix, iy, iz);
-				end -= iend;
+				end -= iend; // in-block coordinates
 				int six = end.x * gridSize;
 				int siy = end.y * gridSize;
 				int siz = end.z * gridSize;
 				float stxMax = (txDelta < infinity) ? txDelta * xdist : infinity;
 				float styMax = (tyDelta < infinity) ? tyDelta * ydist : infinity;
 				float stzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
-				for (int i = 0; i < subs*2; i++) {
+				for (int i = 0; i < subs*3; i++) {
 					end.x = six / float(gridSize);
 					end.y = siy / float(gridSize);
 					end.z = siz / float(gridSize);
@@ -271,7 +278,17 @@ voxel* Chunks::rayCast(vec3 start,
 							steppedIndex = 2;
 						}
 					}
+				}*/
+				rayvec3 in, out;
+				glm::ivec3 normal;
+				if ((bool)Rays::rayIntersectAABB(start, dir, iend, box, in, out, normal)){
+					norm.x = norm.y = norm.z = 0.0f;
+					if (steppedIndex == 0) norm.x = -stepx;
+					if (steppedIndex == 1) norm.y = -stepy;
+					if (steppedIndex == 2) norm.z = -stepz;
+					return voxel;
 				}
+
 			} else {
 				iend.x = ix;
 				iend.y = iy;
