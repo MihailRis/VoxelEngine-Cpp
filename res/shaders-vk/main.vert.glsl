@@ -26,11 +26,6 @@ layout(push_constant) uniform Dynamic {
     float u_torchlightDistance;
 };
 
-//layout(set = 0, binding = 1) uniform Light {
-//    vec3 u_torchlightColor;
-//    float u_torchlightDistance;
-//};
-
 layout(set = 1, binding = 1) uniform samplerCube u_cubemap;
 
 #define SKY_LIGHT_MUL 2.5
@@ -47,7 +42,7 @@ void main(){
     a_color = vec4(pow(light, vec3(u_gamma)),1.0f);
     a_texCoord = v_texCoord;
 
-    vec3 skyLightColor = texture(u_cubemap, vec3(-0.4f, -0.4f, -0.4f)).rgb;
+    vec3 skyLightColor = texture(u_cubemap, vec3(-0.4f, 0.05f, -0.4f)).rgb;
     skyLightColor.g *= 0.9;
     skyLightColor.b *= 0.8;
     skyLightColor = min(vec3(1.0), skyLightColor*SKY_LIGHT_MUL);

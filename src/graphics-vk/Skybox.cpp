@@ -95,20 +95,6 @@ namespace vulkan {
         const auto commandBuffer = context.beginDrawSkybox(m_cubemap, 0, 0, 0);
         m_shader->use(commandBuffer, {Image::getWidth(m_cubemap), Image::getHeight(m_cubemap)});
 
-        VkViewport viewport{};
-        viewport.width = static_cast<float>(Image::getWidth(m_cubemap));
-        viewport.height = static_cast<float>(Image::getHeight(m_cubemap));
-        viewport.x = 0.0f;
-        viewport.y = 0.0f;
-        viewport.minDepth = 0.0f;
-        viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-        VkRect2D scissor{};
-        scissor.extent = {Image::getWidth(m_cubemap), Image::getHeight(m_cubemap)};
-        scissor.offset = { 0, 0 };
-        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
         m_mesh->bind(commandBuffer);
         m_mesh->draw({0, 6}, commandBuffer);
 
@@ -121,10 +107,6 @@ namespace vulkan {
 
     void Skybox::bind() {
         m_cubemap.bind();
-    }
-
-    void Skybox::unbind() const {
-        // nothing
     }
 
     bool Skybox::isReady() const {

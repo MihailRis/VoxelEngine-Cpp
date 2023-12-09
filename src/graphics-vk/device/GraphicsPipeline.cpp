@@ -258,7 +258,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = type == ShaderType::LINES ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = type == ShaderType::BACKGROUND ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT;
+    rasterizer.cullMode = type == ShaderType::BACKGROUND || type == ShaderType::SKYBOX_GEN ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT;
     rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
 

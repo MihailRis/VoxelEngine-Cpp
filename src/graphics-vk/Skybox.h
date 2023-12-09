@@ -27,7 +27,6 @@ namespace vulkan {
         void refresh(float t, float mie, uint quality);
         void bind(VkCommandBuffer commandBuffer, GraphicsPipeline *pipeline);
         void bind();
-        void unbind() const;
         bool isReady() const;
     };
 

@@ -340,6 +340,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 	batch->rect(width - 68, height - 68, 68, 68);
 	batch->setColor(vec4(1.0f));
 	batch->render();
+	batch->end();
 
 	// blocksPreview->begin(&ctx.getViewport());
 	// {

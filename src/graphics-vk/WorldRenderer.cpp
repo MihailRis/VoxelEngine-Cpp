@@ -208,7 +208,6 @@ namespace vulkan {
                     m_lineBatch->line(point, point+norm*0.5f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
                 m_lineBatch->render();
             }
-            //  skybox->unbind();
         }
 
         // if (m_level->player->debug) {
