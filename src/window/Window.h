@@ -28,6 +28,8 @@ public:
 	static uint height;
 	static int initialize(DisplaySettings& settings);
 	static void terminate();
+	
+	static bool getFocus();
 
 	static void viewport(int x, int y, int width, int height);
 	static void setCursorMode(int mode);
