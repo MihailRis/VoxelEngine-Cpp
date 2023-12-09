@@ -22,7 +22,10 @@ namespace vulkan {
 
         void draw(IShader* shader);
 
+        void draw(IShader* shader, VkCommandBuffer commandBuffer);
+
         void refresh(float t, float mie, uint quality);
+        void bind(VkCommandBuffer commandBuffer, GraphicsPipeline *pipeline);
         void bind();
         void unbind() const;
         bool isReady() const;

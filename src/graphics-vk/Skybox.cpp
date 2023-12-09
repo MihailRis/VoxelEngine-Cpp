@@ -6,6 +6,7 @@
 
 #include <array>
 #include "../graphics-common/IShader.h"
+#include "device/Shader.h"
 #include "uniforms/SkyboxUniform.h"
 
 #ifndef M_PI
@@ -32,7 +33,14 @@ namespace vulkan {
 
     void Skybox::draw(IShader* shader) {
         bind();
+        m_mesh->bind();
         m_mesh->draw({0, 6});
+    }
+
+    void Skybox::draw(IShader* shader, VkCommandBuffer commandBuffer) {
+        bind(commandBuffer, dynamic_cast<Shader *>(shader)->getOrCreatePipeline());
+        m_mesh->bind(commandBuffer);
+        m_mesh->draw({0, 6}, commandBuffer);
     }
 
     void Skybox::refresh(float t, float mie, uint quality) {
@@ -69,9 +77,11 @@ namespace vulkan {
 
         SkyboxUniform skyboxUniform{};
 
-        std::copy(xaxs.cbegin(), xaxs.cend(), skyboxUniform.xaxis);
-        std::copy(yaxs.cbegin(), yaxs.cend(), skyboxUniform.yaxis);
-        std::copy(zaxs.cbegin(), zaxs.cend(), skyboxUniform.zaxis);
+        for (size_t i = 0; i < 6; ++i) {
+            skyboxUniform.xaxis[i].val = xaxs[i];
+            skyboxUniform.yaxis[i].val = yaxs[i];
+            skyboxUniform.zaxis[i].val = zaxs[i];
+        }
 
         skyboxUniform.quality = static_cast<int>(quality);
         skyboxUniform.mie = mie;
@@ -85,10 +95,28 @@ namespace vulkan {
         const auto commandBuffer = context.beginDrawSkybox(m_cubemap, 0, 0, 0);
         m_shader->use(commandBuffer, {Image::getWidth(m_cubemap), Image::getHeight(m_cubemap)});
 
+        VkViewport viewport{};
+        viewport.width = static_cast<float>(Image::getWidth(m_cubemap));
+        viewport.height = static_cast<float>(Image::getHeight(m_cubemap));
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+        VkRect2D scissor{};
+        scissor.extent = {Image::getWidth(m_cubemap), Image::getHeight(m_cubemap)};
+        scissor.offset = { 0, 0 };
+        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
         m_mesh->bind(commandBuffer);
         m_mesh->draw({0, 6}, commandBuffer);
 
         context.endDrawSkybox(m_cubemap, commandBuffer);
+    }
+
+    void Skybox::bind(VkCommandBuffer commandBuffer, GraphicsPipeline *pipeline) {
+        m_cubemap.bind(commandBuffer, pipeline);
     }
 
     void Skybox::bind() {

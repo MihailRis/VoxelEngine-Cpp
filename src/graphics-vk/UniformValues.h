@@ -23,8 +23,7 @@ namespace vulkan {
     using UniformValue = std::variant<std::monostate,
         float, int,
         glm::vec2, glm::vec3, glm::vec4,
-        glm::mat4,
-        std::vector<glm::vec3>>;
+        glm::mat4>;
 
     template<typename T>
     inline constexpr bool is_uniform_type_v = tools::is_same_of_types_v<T, float, int, glm::vec2, glm::vec3, glm::vec4, glm::mat4, std::vector<glm::vec3>>;
@@ -40,14 +39,6 @@ namespace vulkan {
         void addOrUpdate(const std::string &name, const T &value) {
             static_assert(is_uniform_type_v<T>, "Value type can be: float, int, glm::vec2, glm::vec3, glm::vec4, glm::mat4");
             m_uniformValues[name] = value;
-        }
-
-        template<typename T, size_t N>
-        void addOrUpdate(const std::string &name, const std::array<T, N> &value) {
-            static_assert(is_uniform_type_v<T>, "Value type can be: float, int, glm::vec2, glm::vec3, glm::vec4, glm::mat4");
-            std::vector<T> temp;
-            std::copy(value.cbegin(), value.cend(), std::back_inserter(temp));
-            m_uniformValues[name] = temp;
         }
 
         template<typename T>
@@ -95,26 +86,6 @@ namespace vulkan {
             uniform.view = getUniformValue<glm::mat4>("u_view");
             uniform.ar = getUniformValue<float>("u_ar");
             uniform.zoom = getUniformValue<float>("zoom");
-
-            return uniform;
-        }
-
-        // TODO: set array
-        inline SkyboxUniform getSkyboxUniform() const {
-            SkyboxUniform uniform{};
-
-            auto &xaxis = getUniformValue<std::vector<glm::vec3>>("u_xaxis");
-            auto &yaxis = getUniformValue<std::vector<glm::vec3>>("u_yaxis");
-            auto &zaxis = getUniformValue<std::vector<glm::vec3>>("u_zaxis");
-
-            std::copy(xaxis.cbegin(), xaxis.cend(), uniform.xaxis);
-            std::copy(yaxis.cbegin(), yaxis.cend(), uniform.yaxis);
-            std::copy(zaxis.cbegin(), zaxis.cend(), uniform.zaxis);
-
-            uniform.lightDir = getUniformValue<glm::vec3>("u_lightDir");
-            uniform.quality = getUniformValue<int>("u_quality");
-            uniform.mie = getUniformValue<float>("u_mie");
-            uniform.fog = getUniformValue<float>("u_fog");
 
             return uniform;
         }

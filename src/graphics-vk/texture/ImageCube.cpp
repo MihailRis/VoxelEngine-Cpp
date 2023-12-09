@@ -112,11 +112,11 @@ ImageCube::~ImageCube() {
 }
 
 void ImageCube::bind() {
-    const auto pipeline = vulkan::VulkanContext::get().getCurrentState().pipeline;
+    const auto &state = vulkan::VulkanContext::get().getCurrentState();
 
-    if (pipeline == nullptr) return;
+    if (state.pipeline == nullptr) return;
 
-    const auto type = pipeline->getType();
+    const auto type = state.pipeline->getType();
 
     VkDescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -145,7 +145,42 @@ void ImageCube::bind() {
             return;
     }
 
-    auto &commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandbuffer;
+    if (state.commandbuffer == VK_NULL_HANDLE) return;
+    vulkan::vkCmdPushDescriptorSetKhr(state.commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipeline->getLayout(), 1, 1, &samplerWrite);
+}
+
+void ImageCube::bind(VkCommandBuffer commandBuffer, const GraphicsPipeline *pipeline) {
+    if (pipeline == nullptr) return;
+
+    const auto type = pipeline->getType();
+
+    VkDescriptorImageInfo imageInfo{};
+    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    imageInfo.imageView = m_imageView;
+    imageInfo.sampler = m_sampler;
+
+    VkWriteDescriptorSet samplerWrite{};
+    samplerWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    samplerWrite.dstArrayElement = 0;
+    samplerWrite.descriptorCount = 1;
+    samplerWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerWrite.pImageInfo = &imageInfo;
+
+    switch (type) {
+        case ShaderType::MAIN:
+            samplerWrite.dstBinding = 1;
+        break;
+        case ShaderType::BACKGROUND:
+            samplerWrite.dstBinding = 0;
+        break;
+        case ShaderType::UI:
+        case ShaderType::NONE:
+        case ShaderType::LINES:
+        case ShaderType::SKYBOX_GEN:
+        default:
+            return;
+    }
+
     if (commandBuffer == VK_NULL_HANDLE) return;
     vulkan::vkCmdPushDescriptorSetKhr(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getLayout(), 1, 1, &samplerWrite);
 }

@@ -35,6 +35,7 @@ namespace vulkan {
         std::vector<DynamicConstants> m_constantses;
         size_t m_constantIndex = 0;
 
+
         bool drawChunk(size_t index, Camera* camera, IShader* shader, bool culling);
         void drawChunks(Chunks* chunks, Camera* camera, IShader* shader);
     public:
@@ -43,6 +44,8 @@ namespace vulkan {
 
         void draw(const GfxContext& context, Camera* camera);
         void drawDebug(const GfxContext& context, Camera* camera);
+
+        static float fog;
     };
 
 } // vulkan

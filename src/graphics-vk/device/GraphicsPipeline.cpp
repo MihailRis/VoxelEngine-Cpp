@@ -258,7 +258,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = type == ShaderType::LINES ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.cullMode = type == ShaderType::BACKGROUND ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT;
     rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
 
@@ -269,7 +269,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
 
     VkPipelineDepthStencilStateCreateInfo depthStencil{};
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    depthStencil.depthTestEnable = type == ShaderType::UI ? VK_FALSE : VK_TRUE;
+    depthStencil.depthTestEnable = type == ShaderType::UI || type == ShaderType::SKYBOX_GEN ? VK_FALSE : VK_TRUE;
     depthStencil.depthWriteEnable = VK_TRUE;
     depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
     depthStencil.depthBoundsTestEnable = VK_FALSE;
@@ -301,6 +301,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     renderingCreateInfo.pColorAttachmentFormats = type == ShaderType::SKYBOX_GEN ? &cubeFormat : &sawpchainFormat;
     renderingCreateInfo.depthAttachmentFormat = depthStencilFormat;
     renderingCreateInfo.stencilAttachmentFormat = depthStencilFormat;
+    renderingCreateInfo.viewMask = type == ShaderType::SKYBOX_GEN ? 0b111111 : 0;
 
     VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
     graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

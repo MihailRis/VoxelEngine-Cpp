@@ -427,7 +427,6 @@ void BlocksRenderer::render(const voxel* voxels) {
 vulkan::Mesh<Vertex3D>* BlocksRenderer::renderVulkanMesh(const Chunk* chunk,
 	const ChunksStorage* chunks) {
 	this->chunk = chunk;
-	this->chunk = chunk;
 	voxelsBuffer->setPosition(chunk->x * CHUNK_W - 1, 0, chunk->z * CHUNK_D - 1);
 	chunks->getVoxels(voxelsBuffer, settings.graphics.backlight);
 	overflow = false;

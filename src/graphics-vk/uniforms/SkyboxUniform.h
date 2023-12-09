@@ -7,10 +7,14 @@
 
 #include <glm/glm.hpp>
 
+struct vec3alig {
+    alignas(16) glm::vec3 val;
+};
+
 struct SkyboxUniform {
-    alignas(16) glm::vec3 xaxis[6];
-    alignas(16) glm::vec3 yaxis[6];
-    alignas(16) glm::vec3 zaxis[6];
+    alignas(16) vec3alig xaxis[6];
+    alignas(16) vec3alig yaxis[6];
+    alignas(16) vec3alig zaxis[6];
     alignas(16) glm::vec3 lightDir;
     alignas(4) int quality;
     alignas(4) float mie;

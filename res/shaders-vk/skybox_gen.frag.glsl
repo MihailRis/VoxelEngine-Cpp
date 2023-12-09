@@ -76,16 +76,16 @@ vec3 calculate_scattering(
     float b = 2.0 * dot(dir, start);
     float c = dot(start, start) - (atmo_radius * atmo_radius);
     float d = (b * b) - 4.0 * a * c;
-    
+
     // stop early if there is no intersect
     if (d < 0.0) return scene_color;
-    
+
     // calculate the ray length
     vec2 ray_length = vec2(
-        max((-b - sqrt(d)) / (2.0 * a), 0.0),
-        min((-b + sqrt(d)) / (2.0 * a), max_dist)
+    max((-b - sqrt(d)) / (2.0 * a), 0.0),
+    min((-b + sqrt(d)) / (2.0 * a), max_dist)
     );
-    
+
     // if the ray did not hit the atmosphere, return a black color
     if (ray_length.x > ray_length.y) return scene_color;
     // prevent the mie glow from appearing if there's an object in front of the camera
@@ -95,23 +95,23 @@ vec3 calculate_scattering(
     ray_length.x = max(ray_length.x, 0.0);
     // get the step size of the ray
     float step_size_i = (ray_length.y - ray_length.x) / float(steps_i);
-    
+
     // next, set how far we are along the ray, so we can calculate the position of the sample
     // if the camera is outside the atmosphere, the ray should start at the edge of the atmosphere
     // if it's inside, it should start at the position of the camera
     // the min statement makes sure of that
     float ray_pos_i = ray_length.x + step_size_i * 0.5;
-    
+
     // these are the values we use to gather all the scattered light
     vec3 total_ray = vec3(0.0); // for rayleigh
     vec3 total_mie = vec3(0.0); // for mie
-    
+
     // initialize the optical depth. This is used to calculate how much air was in the ray
     vec3 opt_i = vec3(0.0);
-    
+
     // also init the scale height, avoids some vec2's later on
     vec2 scale_height = vec2(height_ray, height_mie);
-    
+
     // Calculate the Rayleigh and Mie phases.
     // This is the color that will be scattered for this ray
     // mu, mumu and gg are used quite a lot in the calculation, so to speed it up, precalculate them
@@ -120,32 +120,32 @@ vec3 calculate_scattering(
     float gg = g * g;
     float phase_ray = 3.0 / (50.2654824574 /* (16 * pi) */) * (1.0 + mumu);
     float phase_mie = allow_mie ? 3.0 / (25.1327412287 /* (8 * pi) */) * ((1.0 - gg) * (mumu + 1.0)) / (pow(1.0 + gg - 2.0 * mu * g, 1.5) * (2.0 + gg)) : 0.0;
-    
+
     // now we need to sample the 'primary' ray. this ray gathers the light that gets scattered onto it
     for (int i = 0; i < steps_i; ++i) {
-        
+
         // calculate where we are along this ray
         vec3 pos_i = start + dir * ray_pos_i;
-        
+
         // and how high we are above the surface
         float height_i = length(pos_i) - planet_radius;
-        
+
         // now calculate the density of the particles (both for rayleigh and mie)
         vec3 density = vec3(exp(-height_i / scale_height), 0.0);
-        
+
         // and the absorption density. this is for ozone, which scales together with the rayleigh, 
         // but absorbs the most at a specific height, so use the sech function for a nice curve falloff for this height
         // clamp it to avoid it going out of bounds. This prevents weird black spheres on the night side
         float denom = (height_absorption - height_i) / absorption_falloff;
         density.z = (1.0 / (denom * denom + 1.0)) * density.x;
-        
+
         // multiply it by the step size here
         // we are going to use the density later on as well
         density *= step_size_i;
-        
+
         // Add these densities to the optical depth, so that we know how many particles are on this ray.
         opt_i += density;
-        
+
         // Calculate the step size of the light ray.
         // again with a ray sphere intersect
         // a, b, c and d are already defined
@@ -164,7 +164,7 @@ vec3 calculate_scattering(
 
         // and the optical depth of this ray
         vec3 opt_l = vec3(0.0);
-            
+
         // now sample the light ray
         // this is similar to what we did before
         for (int l = 0; l < steps_l; ++l) {
@@ -179,22 +179,22 @@ vec3 calculate_scattering(
             // this is a bit verbose
             // first, set the density for ray and mie
             vec3 density_l = vec3(exp(-height_l / scale_height), 0.0);
-            
+
             // then, the absorption
             float denom = (height_absorption - height_l) / absorption_falloff;
             density_l.z = (1.0 / (denom * denom + 1.0)) * density_l.x;
-            
+
             // multiply the density by the step size
             density_l *= step_size_l;
-            
+
             // and add it to the total optical depth
             opt_l += density_l;
-            
+
             // and increment where we are along the light ray.
             ray_pos_l += step_size_l;
-            
+
         }
-        
+
         // Now we need to calculate the attenuation
         // this is essentially how much light reaches the current sample point due to scattering
         vec3 attn = exp(-beta_ray * (opt_i.x + opt_l.x) - beta_mie * (opt_i.y + opt_l.y) - beta_absorption * (opt_i.z + opt_l.z));
@@ -205,9 +205,9 @@ vec3 calculate_scattering(
 
         // and increment the position on this ray
         ray_pos_i += step_size_i;
-    	
+
     }
-    
+
     // calculate how much light can pass through the atmosphere
     vec3 opacity = exp(-(beta_mie * opt_i.y + beta_ray * opt_i.x + beta_absorption * opt_i.z));
     
@@ -259,43 +259,42 @@ void main() {
                                    u_zaxis[view]);
 
     camera_vector = mix(camera_vector, vec3(0, 1, 0), min(1.0, u_fog));
-    float fog = 1.0f / (u_fog*0.5 + 1.0);
 
+    float fog = 1.0f / (u_fog*0.5 + 1.0);
     // hide darkness at horizon
-    camera_vector.y = max(0.01, camera_vector.y)*(1.0-u_mie*0.08) + 0.08*u_mie;  
+    camera_vector.y = max(0.01, camera_vector.y)*(1.0-u_mie*0.08) + 0.08*u_mie;
     camera_vector = normalize(camera_vector);
 
     // the color of this pixel
     vec3 col = vec3(0.0);//scene.xyz;
-    
     // get the atmosphere color
     col += calculate_scattering(
-    	camera_position,				// the position of the camera
-        camera_vector, 					// the camera vector (ray direction of this pixel)
-        1e12f, 						    // max dist, essentially the scene depth
-        vec3(0.0f),						// scene color, the color of the current pixel being rendered
-        u_lightDir,						// light direction
-        vec3(40.0),						// light intensity, 40 looks nice
-        PLANET_POS,						// position of the planet
-        PLANET_RADIUS,                  // radius of the planet in meters
-        ATMOS_RADIUS,                   // radius of the atmosphere in meters
-        RAY_BETA,						// Rayleigh scattering coefficient
-        MIE_BETA,                       // Mie scattering coefficient
-        ABSORPTION_BETA,                // Absorbtion coefficient
-        AMBIENT_BETA,					// ambient scattering, turned off for now. This causes the air to glow a bit when no light reaches it
-        G,                          	// Mie preferred scattering direction
-        HEIGHT_RAY,                     // Rayleigh scale height
-        HEIGHT_MIE*u_mie*u_mie,                     // Mie scale height
-        HEIGHT_ABSORPTION,				// the height at which the most absorption happens
-        ABSORPTION_FALLOFF,				// how fast the absorption falls off from the absorption height 
-        PRIMARY_STEPS*u_quality, 		// steps in the ray direction 
-        LIGHT_STEPS*u_quality 			// steps in the light direction
+    camera_position,				// the position of the camera
+    camera_vector, 					// the camera vector (ray direction of this pixel)
+    1e12f, 						    // max dist, essentially the scene depth
+    vec3(0.0f),						// scene color, the color of the current pixel being rendered
+    u_lightDir,						// light direction
+    vec3(40.0*fog),						// light intensity, 40 looks nice
+    PLANET_POS,						// position of the planet
+    PLANET_RADIUS,                  // radius of the planet in meters
+    ATMOS_RADIUS,                   // radius of the atmosphere in meters
+    RAY_BETA,						// Rayleigh scattering coefficient
+    MIE_BETA,                       // Mie scattering coefficient
+    ABSORPTION_BETA,                // Absorbtion coefficient
+    AMBIENT_BETA,					// ambient scattering, turned off for now. This causes the air to glow a bit when no light reaches it
+    G*fog,                          	// Mie preferred scattering direction
+    HEIGHT_RAY,                     // Rayleigh scale height
+    HEIGHT_MIE*u_mie*u_mie,                     // Mie scale height
+    HEIGHT_ABSORPTION,				// the height at which the most absorption happens
+    ABSORPTION_FALLOFF,				// how fast the absorption falls off from the absorption height
+    PRIMARY_STEPS*u_quality, 		// steps in the ray direction
+    LIGHT_STEPS*u_quality 			// steps in the light direction
     );
-        
+
     // apply exposure, removing this makes the brighter colors look ugly
     // you can play around with removing this
     col = 1.0 - exp(-col);
-    
+
     // Output to screen
     f_color = vec4(col, 1.0);
 }

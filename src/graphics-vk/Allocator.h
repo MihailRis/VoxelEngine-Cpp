@@ -16,6 +16,7 @@ namespace vulkan {
 
     class Allocator : Noncopybale {
         VmaAllocator m_allocator = VK_NULL_HANDLE;
+        const Device &m_device;
     public:
         Allocator(const Instance &instance, const Device &device);
 

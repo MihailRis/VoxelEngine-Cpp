@@ -22,7 +22,8 @@ namespace vulkan {
 
     enum class RenderTargetType {
         SCREEN,
-        UI
+        UI,
+        IMMEDIATE
     };
 
     struct State {
@@ -34,7 +35,7 @@ namespace vulkan {
 
     struct FrameData {
         VkCommandPool commandPool;
-        VkCommandBuffer screenCommandBuffer, guiCommandBuffer, skyboxCommandBuffer;
+        VkCommandBuffer screenCommandBuffer, guiCommandBuffer, skyboxCommandBuffer, immediateCommandBuffer;
 
         bool skyboxRendered = false;
 
@@ -124,6 +125,9 @@ namespace vulkan {
 
         void updateState(GraphicsPipeline *pipeline);
         void updateStateCommandBuffer(VkCommandBuffer commandBuffer);
+
+        VkCommandBuffer immediateBeginDraw(float r, float g, float b, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
+        void immediateEndDraw(VkCommandBuffer commandBuffer);
 
         VkCommandBuffer beginDrawSkybox(const ImageCube &image, float r, float g, float b, VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR);
         void endDrawSkybox(const ImageCube &image, VkCommandBuffer commandBuffer);

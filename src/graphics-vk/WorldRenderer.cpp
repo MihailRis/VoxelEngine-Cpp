@@ -108,7 +108,7 @@ namespace vulkan {
             m_renderer->unload(chunk);
         });
         const auto *assets = engine->getAssets();
-        m_skybox = new Skybox(64, assets->getShader("skybox_gen"));
+        m_skybox = new Skybox(128, assets->getShader("skybox_gen"));
     }
 
     WorldRenderer::~WorldRenderer() {
@@ -119,11 +119,12 @@ namespace vulkan {
     }
 
     void WorldRenderer::draw(const GfxContext&context, Camera* camera) {
+        auto &vkContext = VulkanContext::get();
         m_constantses.clear();
         m_constantIndex = 0;
         const EngineSettings &settings = m_engine->getSettings();
-        // m_skybox->refresh(m_level->world->daytime,
-        // 				fmax(1.0f, 18.0f/settings.chunks.loadDistance), 4);
+        m_skybox->refresh(m_level->world->daytime,
+                    fmax(1.0f, 10.0f/(settings.chunks.loadDistance-2))+fog*2.0f, 4);
 
         const Content* content = m_level->content;
         const ContentIndices* contentIds = content->indices;
@@ -132,16 +133,21 @@ namespace vulkan {
         IShader* shader = assets->getShader("main");
         IShader* linesShader = assets->getShader("lines");
 
-        const Viewport&viewport = context.getViewport();
-        int displayWidth = viewport.getWidth();
-        int displayHeight = viewport.getHeight();
+        const Viewport &viewport = context.getViewport();
+        u32 displayWidth = viewport.getWidth();
+        u32 displayHeight = viewport.getHeight();
 
-        // IShader* backShader = assets->getShader("background");
-        // backShader->use();
-        // backShader->uniformMatrix("u_view", camera->getView(false));
-        // backShader->uniform1f("u_zoom", camera->zoom);
-        // backShader->uniform1f("u_ar", (float)Window::width / (float)Window::height);
-        // skybox->draw(backShader);
+        const auto commandBuffer = vkContext.immediateBeginDraw(0, 0, 0, VK_ATTACHMENT_LOAD_OP_CLEAR);
+
+        IShader* backShader = assets->getShader("background");
+        backShader->use(commandBuffer, vkContext.getSwapchain().getExtent());
+        backShader->uniformMatrix("u_view", camera->getView(false));
+        backShader->uniform1f("u_zoom", camera->zoom);
+        backShader->uniform1f("u_ar", static_cast<float>(displayWidth) / static_cast<float>(displayHeight));
+        m_skybox->draw(backShader, commandBuffer);
+
+        vkContext.immediateEndDraw(commandBuffer);
+
         {
             GfxContext ctx = context.sub();
             ctx.depthTest(true);
@@ -278,4 +284,6 @@ namespace vulkan {
 
     void WorldRenderer::drawDebug(const GfxContext&context, Camera* camera) {
     }
+
+    float WorldRenderer::fog = 0.0f;
 } // vulkan

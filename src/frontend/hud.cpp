@@ -75,6 +75,13 @@ HudRenderer::HudRenderer(Engine* engine,
 
 	Panel* panel = new Panel(vec2(250, 200), vec4(5.0f), 1.0f);
 	debugPanel = shared_ptr<UINode>(panel);
+	panel->add(shared_ptr<Label>(create_label([this]() {
+#ifdef USE_VULKAN
+		return L"Vulkan render";
+#else
+		return L"OpenGL render";
+#endif
+	})));
 	panel->listenInterval(1.0f, [this]() {
 		fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
 		fpsMin = fps;
@@ -166,7 +173,11 @@ HudRenderer::HudRenderer(Engine* engine,
 			return WorldRenderer::fog;
 		});
 		bar->consumer([=](double val) {
+#ifdef USE_VULKAN
+			vulkan::WorldRenderer::fog = static_cast<float>(val);
+#else
 			WorldRenderer::fog = val;
+#endif
 		});
 		panel->add(bar);
 	}

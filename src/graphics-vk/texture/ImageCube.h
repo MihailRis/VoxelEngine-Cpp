@@ -8,6 +8,8 @@
 #include "../../graphics-common/ITexture.h"
 
 
+class GraphicsPipeline;
+
 class ImageCube : public Image, public ITexture {
     std::vector<VkImageView> m_views;
 public:
@@ -15,6 +17,7 @@ public:
     ~ImageCube() override;
 
     void bind() override;
+    void bind(VkCommandBuffer commandBuffer, const GraphicsPipeline *pipeline);
 
     void reload(unsigned char* data) override;
 

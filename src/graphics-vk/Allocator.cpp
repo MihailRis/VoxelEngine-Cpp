@@ -4,12 +4,14 @@
 
 #include "Allocator.h"
 
+#include <array>
+
 #include "Instance.h"
 #include "Device.h"
 #include "VulkanDefenitions.h"
 
 namespace vulkan {
-    Allocator::Allocator(const Instance &instance, const Device &device) {
+    Allocator::Allocator(const Instance &instance, const Device &device) : m_device(device) {
         VmaVulkanFunctions vulkanFunctions{};
         vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
         vulkanFunctions.vkGetDeviceProcAddr = &vkGetDeviceProcAddr;

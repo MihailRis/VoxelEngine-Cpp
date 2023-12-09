@@ -189,7 +189,7 @@ void LevelScreen::draw(float delta) {
     Viewport viewport(Window::width, Window::height);
     GfxContext ctx(nullptr, viewport, nullptr);
 
-    vulkan::VulkanContext::get().beginScreenDraw(0.0f, 0.0f, 0.0f);
+    vulkan::VulkanContext::get().beginScreenDraw(0.0f, 0.0f, 0.0f, VK_ATTACHMENT_LOAD_OP_LOAD);
     worldRenderer->draw(ctx, camera);
     hud->draw(ctx);
     if (level->player->debug) {
