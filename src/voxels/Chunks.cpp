@@ -223,7 +223,6 @@ voxel* Chunks::rayCast(vec3 start,
 
 		const Block* def = contentIds->getBlockDef(voxel->id);
 		if (def->selectable){
-			timeutil::ScopeLogTimer lg((long long)def);
 			end.x = px + t * dx;
 			end.y = py + t * dy;
 			end.z = pz + t * dz;
