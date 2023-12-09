@@ -5,6 +5,7 @@
 #include "aabb.h"
 #include "glm/glm.hpp"
 
+#include <array>
 #include <unordered_map>
 
 typedef glm::highp_dvec3 rayvec3;
