@@ -56,6 +56,13 @@ static RayRelation rayIntersectAAFace(
 				   rayvec3& intersectPoint_ret
 				   );
 
+static double updateNormal(
+	               double newDistApprox,
+				   const glm::ivec3& newNormal,
+				   double currentDistApprox,
+				   glm::ivec3& normal_ret
+				   );
+
 //optimized, not returns intersectPoint coordinates 
 template <AAFaceKind faceKind>
 static RayRelation isRayIntersectsAAFace(
@@ -63,7 +70,8 @@ static RayRelation isRayIntersectsAAFace(
 				   const rayvec3& rayDir,
 				   const rayvec3& faceMin,
 				   const rayvec2& faceOppositeCorner,
-				   glm::ivec3& normal_ret
+				   glm::ivec3& normal_ret,
+				   double& currentDistApprox
 				);
 
 static RayRelation rayIntersectAABB(
@@ -71,6 +79,7 @@ static RayRelation rayIntersectAABB(
 				   const rayvec3& rayDir,
                    const rayvec3& boxPos,
 				   const AABB& box,
+				   float maxDist,
 				   rayvec3& pointIn_ret,
 				   rayvec3& pointOut_ret,
                    glm::ivec3& normal_ret);
@@ -79,6 +88,7 @@ static RayRelation rayIntersectAABBFaces(
                    const rayvec3& rayOrigin, 
 				   const rayvec3& rayDir,
                    const AABBFaces& boxFaces,
+				   float maxDist,
 				   rayvec3& pointIn_ret,
 				   rayvec3& pointOut_ret,
                    glm::ivec3& normal_ret);

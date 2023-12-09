@@ -223,7 +223,7 @@ voxel* Chunks::rayCast(vec3 start,
 
 		const Block* def = contentIds->getBlockDef(voxel->id);
 		if (def->selectable){
-			//timeutil::ScopeLogTimer lg((long long)def);
+			timeutil::ScopeLogTimer lg((long long)def);
 			end.x = px + t * dx;
 			end.y = py + t * dy;
 			end.z = pz + t * dz;
@@ -236,7 +236,7 @@ voxel* Chunks::rayCast(vec3 start,
 								  ? def->rt.hitboxes[voxel->rotation()] 
 								  : def->hitbox;
 				rayvec3 in, out; // <- now not used, but for future...
-				if (Rays::rayIntersectAABB(start, dir, iend, box, in, out, norm) > RayRelation::None){
+				if (Rays::rayIntersectAABB(start, dir, iend, box, maxDist, in, out, norm) > RayRelation::None){
 					return voxel;
 				}
 

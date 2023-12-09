@@ -136,13 +136,27 @@ RayRelation Rays::rayIntersectAAFace<AAFaceKind::Zperp>(
 	return RayRelation::None;
 }
 
+double Rays::updateNormal(
+	               double newDistApprox,
+				   const glm::ivec3& newNormal,
+				   double currentDistApprox,
+				   glm::ivec3& normal_ret
+				   ){
+					if (newDistApprox < currentDistApprox){
+						currentDistApprox = newDistApprox;
+						normal_ret = newNormal;
+					}
+					return currentDistApprox;
+				   }
+
 template <>
 RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Xperp>(
 				   const rayvec3& rayOrigin, 
 				   const rayvec3& rayDir,
 				   const rayvec3& faceMin,
 				   const rayvec2& faceOppositeCorner,
-				   glm::ivec3& normal_ret
+				   glm::ivec3& normal_ret,
+				   double& currentDistApprox
 				){ 
 	if (fabs(glm::dot(rayDir, X_AXIS)) < 1.0E-8){ //precision of "parallelity"
 		return RayRelation::Parallel;
@@ -158,6 +172,7 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Xperp>(
 		&& intersectPointMult.y <= faceOppositeCorner[0] * rayDir.x
 		&& intersectPointMult.z >= faceMin.z * rayDir.x
 		&& intersectPointMult.z <= faceOppositeCorner[1] * rayDir.x){ 
+			currentDistApprox = updateNormal(fabs(rayCoef * rayDir.y * rayDir.z), -X_AXIS, currentDistApprox, normal_ret);
 			return RayRelation::Intersect; 
 		} 
 	}
@@ -166,6 +181,7 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Xperp>(
 		&& intersectPointMult.y >= faceOppositeCorner[0] * rayDir.x
 		&& intersectPointMult.z <= faceMin.z * rayDir.x
 		&& intersectPointMult.z >= faceOppositeCorner[1] * rayDir.x){ 
+			currentDistApprox = updateNormal(fabs(rayCoef * rayDir.y * rayDir.z), X_AXIS, currentDistApprox, normal_ret);
 			return RayRelation::Intersect; 
 		}
 	}
@@ -178,7 +194,8 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Yperp>(
 				   const rayvec3& rayDir,
 				   const rayvec3& faceMin,
 				   const rayvec2& faceOppositeCorner,
-				   glm::ivec3& normal_ret
+				   glm::ivec3& normal_ret,
+				   double& currentDistApprox
 				){ 
 	if (fabs(glm::dot(rayDir, Y_AXIS)) < 1.0E-8){ //precision of "parallelity"
 		return RayRelation::Parallel;
@@ -194,6 +211,7 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Yperp>(
 		&& intersectPointMult.x <= faceOppositeCorner[0] * rayDir.y
 		&& intersectPointMult.z >= faceMin.z * rayDir.y
 		&& intersectPointMult.z <= faceOppositeCorner[1] * rayDir.y){ 
+			currentDistApprox = updateNormal(fabs(rayCoef * rayDir.x * rayDir.z), -Y_AXIS, currentDistApprox, normal_ret);
 			return RayRelation::Intersect; 
 		} 
 	}
@@ -202,6 +220,7 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Yperp>(
 		&& intersectPointMult.x >= faceOppositeCorner[0] * rayDir.y
 		&& intersectPointMult.z <= faceMin.z * rayDir.y
 		&& intersectPointMult.z >= faceOppositeCorner[1] * rayDir.y){ 
+			currentDistApprox = updateNormal(fabs(rayCoef * rayDir.x * rayDir.z), Y_AXIS, currentDistApprox, normal_ret);
 			return RayRelation::Intersect; 
 		}
 	}
@@ -214,7 +233,8 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Zperp>(
 				   const rayvec3& rayDir,
 				   const rayvec3& faceMin,
 				   const rayvec2& faceOppositeCorner,
-				   glm::ivec3& normal_ret
+				   glm::ivec3& normal_ret,
+				   double& currentDistApprox
 				){ 
 	if (fabs(glm::dot(rayDir, Z_AXIS)) < 1.0E-8){ //precision of "parallelity"
 		return RayRelation::Parallel;
@@ -230,6 +250,7 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Zperp>(
 		&& intersectPointMult.x <= faceOppositeCorner[0] * rayDir.z
 		&& intersectPointMult.y >= faceMin.y * rayDir.z
 		&& intersectPointMult.y <= faceOppositeCorner[1] * rayDir.z){ 
+			currentDistApprox = updateNormal(fabs(rayCoef * rayDir.x * rayDir.y), -Z_AXIS, currentDistApprox, normal_ret);
 			return RayRelation::Intersect; 
 		}
 	}
@@ -238,6 +259,7 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Zperp>(
 		&& intersectPointMult.x >= faceOppositeCorner[0] * rayDir.z
 		&& intersectPointMult.y <= faceMin.y * rayDir.z
 		&& intersectPointMult.y >= faceOppositeCorner[1] * rayDir.z){ 
+			currentDistApprox = updateNormal(fabs(rayCoef * rayDir.x * rayDir.y), Z_AXIS, currentDistApprox, normal_ret);
 			return RayRelation::Intersect; 
 		} 
 	}
@@ -249,6 +271,7 @@ RayRelation Rays::rayIntersectAABB(
 				   const rayvec3& rayDir,
                    const rayvec3& boxPos,
 				   const AABB& box,
+				   float maxDist,
 				   rayvec3& pointIn_ret,
 				   rayvec3& pointOut_ret,
                    glm::ivec3& normal_ret){
@@ -256,16 +279,16 @@ RayRelation Rays::rayIntersectAABB(
 
 		if (raysBoxCache_.find(boxPos) != raysBoxCache_.end()){
 			const AABBFaces& boxFaces = raysBoxCache_[boxPos];
-			return rayIntersectAABBFaces(rayOrigin, rayDir, boxFaces, pointIn_ret, pointOut_ret, normal_ret);
+			return rayIntersectAABBFaces(rayOrigin, rayDir, boxFaces, maxDist, pointIn_ret, pointOut_ret, normal_ret);
 		} else {
 			const AABBFaces& boxFaces = AABBFaces(boxPos, box);
 			raysBoxCache_[boxPos] = boxFaces;
-			return rayIntersectAABBFaces(rayOrigin, rayDir, boxFaces, pointIn_ret, pointOut_ret, normal_ret);
+			return rayIntersectAABBFaces(rayOrigin, rayDir, boxFaces, maxDist, pointIn_ret, pointOut_ret, normal_ret);
 		}
 
 	} else {
 		const AABBFaces& boxFaces = AABBFaces(boxPos, box);
-		return rayIntersectAABBFaces(rayOrigin, rayDir, boxFaces, pointIn_ret, pointOut_ret, normal_ret);
+		return rayIntersectAABBFaces(rayOrigin, rayDir, boxFaces, maxDist, pointIn_ret, pointOut_ret, normal_ret);
 	}
 
 }
@@ -274,48 +297,50 @@ RayRelation Rays::rayIntersectAABBFaces(
                    const rayvec3& rayOrigin, 
 				   const rayvec3& rayDir,
                    const AABBFaces& boxFaces,
+				   float maxDist,
 				   rayvec3& pointIn_ret,
 				   rayvec3& pointOut_ret,
                    glm::ivec3& normal_ret){//TODO: points returning
 	RayRelation rel;
+	double faceDistApprox = maxDist;
 	unsigned char intersectedCount = 0; //this code is very uncomfortable, DONT LEARN IT!
 	rel = isRayIntersectsAAFace<AABBFaces::KINDS_ORDER[0]>(
-			rayOrigin, rayDir, boxFaces.faces[0].first, boxFaces.faces[0].second, normal_ret
+			rayOrigin, rayDir, boxFaces.faces[0].first, boxFaces.faces[0].second, normal_ret, faceDistApprox
 			);
 	if (rel > RayRelation::None){
 		++intersectedCount;
 	}
 
 	rel = isRayIntersectsAAFace<AABBFaces::KINDS_ORDER[1]>(
-			rayOrigin, rayDir, boxFaces.faces[1].first, boxFaces.faces[1].second, normal_ret
+			rayOrigin, rayDir, boxFaces.faces[1].first, boxFaces.faces[1].second, normal_ret, faceDistApprox
 			);
 	if (rel > RayRelation::None){
 		++intersectedCount;
 	}
 
 	rel = isRayIntersectsAAFace<AABBFaces::KINDS_ORDER[2]>(
-			rayOrigin, rayDir, boxFaces.faces[2].first, boxFaces.faces[2].second, normal_ret
+			rayOrigin, rayDir, boxFaces.faces[2].first, boxFaces.faces[2].second, normal_ret, faceDistApprox
 			);
 	if (rel > RayRelation::None){
 		++intersectedCount;
 	}
 
 	rel = isRayIntersectsAAFace<AABBFaces::KINDS_ORDER[3]>(
-			rayOrigin, rayDir, boxFaces.faces[3].first, boxFaces.faces[3].second, normal_ret
+			rayOrigin, rayDir, boxFaces.faces[3].first, boxFaces.faces[3].second, normal_ret, faceDistApprox
 			);
 	if (rel > RayRelation::None){
 		++intersectedCount;
 	}
 
 	rel = isRayIntersectsAAFace<AABBFaces::KINDS_ORDER[4]>(
-			rayOrigin, rayDir, boxFaces.faces[4].first, boxFaces.faces[4].second, normal_ret
+			rayOrigin, rayDir, boxFaces.faces[4].first, boxFaces.faces[4].second, normal_ret, faceDistApprox
 			);
 	if (rel > RayRelation::None){
 		++intersectedCount;
 	}
 
 	rel = isRayIntersectsAAFace<AABBFaces::KINDS_ORDER[5]>(
-			rayOrigin, rayDir, boxFaces.faces[5].first, boxFaces.faces[5].second, normal_ret
+			rayOrigin, rayDir, boxFaces.faces[5].first, boxFaces.faces[5].second, normal_ret, faceDistApprox
 			);
 	if (rel > RayRelation::None){
 		++intersectedCount;
