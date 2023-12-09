@@ -130,7 +130,7 @@ RayRelation Rays::rayIntersectAAFace<AAFaceKind::Zperp>(
 						rayCoef*rayDir.y + rayOrigin.y,
 						faceMin.z};
 
-	if (rayDir.y > 0){
+	if (rayDir.z > 0){
 		if (intersectPoint_ret.x >= faceMin.x  //Face-hit check
 		&& intersectPoint_ret.x <= faceOppositeCorner[0] 
 		&& intersectPoint_ret.y >= faceMin.y  
@@ -244,7 +244,7 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Zperp>(
 						rayCoef*rayDir.y + rayOrigin.y * rayDir.z,
 						faceMin.z * rayDir.z};
 	
-	if (rayDir.y > 0){
+	if (rayDir.z > 0){
 		if (intersectPointMult.x >= faceMin.x * rayDir.z  //Face-hit check
 		&& intersectPointMult.x <= faceOppositeCorner[0] * rayDir.z
 		&& intersectPointMult.y >= faceMin.y * rayDir.z
