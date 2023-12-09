@@ -93,7 +93,8 @@ namespace gui {
         void back();
         void clearHistory();
         void reset();
-
+        
+//FIXME "gui::PagesControl::current() returns Page by-value! (can initiate unexpected behaviour)")
         Page current();
     };
 }
