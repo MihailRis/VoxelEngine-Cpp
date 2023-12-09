@@ -71,10 +71,18 @@ bool Window::isMaximized() {
 	return glfwGetWindowAttrib(window, GLFW_MAXIMIZED);
 }
 
+bool Window::isFocused()
+{
+	return glfwGetWindowAttrib(window, GLFW_FOCUSED);
+}
+
 void window_size_callback(GLFWwindow*, int width, int height) {
-	glViewport(0, 0, width, height);
-	Window::width = width;
-	Window::height = height;
+	if (Window::isFocused()) {
+		glViewport(0, 0, width, height);
+		Window::width = width;
+		Window::height = height;
+	}
+
 	if (!Window::isFullscreen() && !Window::isMaximized()) {
 		Window::getSettings()->width = width;
 		Window::getSettings()->height = height;
