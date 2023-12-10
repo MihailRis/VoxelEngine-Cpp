@@ -22,7 +22,7 @@ git clone --recursive https://github.com/MihailRis/VoxelEngine-Cpp.git
 cd VoxelEngine-Cpp
 mkdir build
 cd build
-cmake ../
+cmake ..
 cmake --build .
 ```
 
@@ -39,3 +39,9 @@ If you use X11
 
 If you use Wayland
 `$ sudo pacman -S glfw-wayland glew glm libpng openal`
+
+#### macOS:
+
+`$ brew install glfw3 glew glm libpng`
+
+Download, compile and install OpenAL
