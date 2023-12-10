@@ -267,7 +267,7 @@ void BlocksRenderer::blockAABB(const ivec3& icoord,
 	vec3 fZ(Z);
 	
     // TODO: simplify this pile of magic calculations and fix 5th arg (laxisZ)
-	vec3 local = offset.x*fX+offset.y*fY+offset.z*-fZ;
+	vec3 local = (1.0f-offset.x-size.x)*fX+offset.y*fY+offset.z*-fZ;
 	face(coord, X, Y, Z, Z+loff, 
         local-size.z*fZ-offset.y*fY,
         size.x, size.y, size.z, texfaces[5], lights); // north
