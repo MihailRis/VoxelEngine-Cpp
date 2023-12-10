@@ -85,7 +85,7 @@ namespace vulkan {
 
             uniform.view = getUniformValue<glm::mat4>("u_view");
             uniform.ar = getUniformValue<float>("u_ar");
-            uniform.zoom = getUniformValue<float>("zoom");
+            uniform.zoom = getUniformValue<float>("u_zoom");
 
             return uniform;
         }

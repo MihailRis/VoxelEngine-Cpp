@@ -11,6 +11,7 @@ layout(binding = 0) uniform Background {
 };
 
 void main(){
-	v_coord = (vec4(v_position*vec2(u_ar, 1.0f)*u_zoom, -1.0, 1.0) * u_view).xyz;
+	v_coord = (vec4(v_position * vec2(u_ar, 1.0f) * u_zoom, -1.0, 1.0) * u_view).xyz;
+	v_coord.z = -v_coord.z;
 	gl_Position = vec4(v_position, 0.0, 1.0);
 }

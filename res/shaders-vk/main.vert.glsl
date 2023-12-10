@@ -12,7 +12,6 @@ layout(location = 2) out float a_distance;
 layout(location = 3) out vec3 a_dir;
 
 layout(set = 0, binding = 0) uniform State {
-//    mat4 u_model;
     mat4 u_proj;
     mat4 u_view;
     vec3 u_skyLightColor;

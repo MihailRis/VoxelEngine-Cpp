@@ -16,7 +16,7 @@
 namespace vulkan {
     Skybox::Skybox(uint size, IShader* shader)
         : m_shader(shader),
-          m_cubemap(size, size, VK_FORMAT_R8G8B8A8_SRGB) {
+          m_cubemap(size, size, VK_FORMAT_R8G8B8A8_UNORM) {
 
         VertexBackSkyGen vertices[] = {
             {{-1.f, -1.f}}, {{-1.0f, 1.0f}}, {{1.0f, 1.0f}},
@@ -94,6 +94,15 @@ namespace vulkan {
 
         const auto commandBuffer = context.beginDrawSkybox(m_cubemap, 0, 0, 0);
         m_shader->use(commandBuffer, {Image::getWidth(m_cubemap), Image::getHeight(m_cubemap)});
+
+        VkViewport viewport{};
+        viewport.width = static_cast<float>(Image::getWidth(m_cubemap));
+        viewport.height = static_cast<float>(Image::getHeight(m_cubemap));
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
         m_mesh->bind(commandBuffer);
         m_mesh->draw({0, 6}, commandBuffer);

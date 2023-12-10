@@ -258,8 +258,8 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = type == ShaderType::LINES ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = type == ShaderType::BACKGROUND || type == ShaderType::SKYBOX_GEN ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.frontFace = type == ShaderType::BACKGROUND ? VK_FRONT_FACE_CLOCKWISE : VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
 
     VkPipelineMultisampleStateCreateInfo multisampling{};
@@ -294,7 +294,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     VkFormat sawpchainFormat = vulkan::VulkanContext::get().getSwapchain().getFormat();
     const auto depthStencilFormat = vulkan::VulkanContext::get().getDepth().getFormat();
 
-    VkFormat cubeFormat = VK_FORMAT_R8G8B8A8_SRGB;
+    VkFormat cubeFormat = VK_FORMAT_R8G8B8A8_UNORM;
     VkPipelineRenderingCreateInfo renderingCreateInfo{};
     renderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
     renderingCreateInfo.colorAttachmentCount = 1;

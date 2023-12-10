@@ -125,7 +125,6 @@ Image2d::Image2d(const unsigned char* data, int width, int height, VkFormat form
 }
 
 void Image2d::bind() {
-    auto &device = vulkan::VulkanContext::get().getDevice();
     const auto pipeline = vulkan::VulkanContext::get().getCurrentState().pipeline;
 
     if (pipeline == nullptr) return;

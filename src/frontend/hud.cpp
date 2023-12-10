@@ -170,7 +170,11 @@ HudRenderer::HudRenderer(Engine* engine,
 	{
 		TrackBar* bar = new TrackBar(0.0f, 1.0f, 0.0f, 0.005f, 8);
 		bar->supplier([=]() {
+#ifdef USE_VULKAN
+			return vulkan::WorldRenderer::fog;
+#else
 			return WorldRenderer::fog;
+#endif
 		});
 		bar->consumer([=](double val) {
 #ifdef USE_VULKAN

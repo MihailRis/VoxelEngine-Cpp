@@ -249,6 +249,8 @@ namespace vulkan {
     }
 
     VkCommandBuffer VulkanContext::immediateBeginDraw(float r, float g, float b, VkAttachmentLoadOp loadOp) {
+        CHECK_VK_FUNCTION(vkResetCommandBuffer(m_frameDatas[m_currentFrame].immediateCommandBuffer, 0));
+
         const auto swapchainExtent = m_swapchain->getExtent();
         beginDraw(m_frameDatas[m_currentFrame].immediateCommandBuffer, glm::vec4(r, g, b, 1.0f), loadOp, RenderTargetType::IMMEDIATE, swapchainExtent);
 
@@ -266,15 +268,12 @@ namespace vulkan {
         CHECK_VK_FUNCTION(vkQueueSubmit(m_device.getGraphis(), 1, &submitInfo, m_frameDatas[m_currentFrame].renderFence));
         CHECK_VK_FUNCTION(vkWaitForFences(m_device, 1, &m_frameDatas[m_currentFrame].renderFence, VK_TRUE, UINT64_MAX));
         CHECK_VK_FUNCTION(vkResetFences(m_device, 1, &m_frameDatas[m_currentFrame].renderFence));
-
-        CHECK_VK_FUNCTION(vkResetCommandBuffer(commandBuffer, 0));
     }
 
     VkCommandBuffer VulkanContext::beginDrawSkybox(const ImageCube& image, float r, float g, float b, VkAttachmentLoadOp loadOp) {
-        CHECK_VK_FUNCTION(vkResetCommandBuffer(m_frameDatas[m_currentFrame].skyboxCommandBuffer, 0));
-
         VkCommandBufferBeginInfo commandBufferBeginInfo{};
         commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
         CHECK_VK_FUNCTION(vkBeginCommandBuffer(m_frameDatas[m_currentFrame].skyboxCommandBuffer, &commandBufferBeginInfo));
 
@@ -550,12 +549,11 @@ namespace vulkan {
     }
 
     void VulkanContext::beginDraw(VkCommandBuffer commandBuffer, glm::vec4 clearColor, VkAttachmentLoadOp loadOp, RenderTargetType renderTarget, VkExtent2D renderArea) {
-        vkResetCommandBuffer(commandBuffer, 0);
-
         VkCommandBufferBeginInfo commandBufferBeginInfo{};
         commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         commandBufferBeginInfo.flags = 0;
         commandBufferBeginInfo.pInheritanceInfo = nullptr;
+        commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
         CHECK_VK_FUNCTION(vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo));
 
