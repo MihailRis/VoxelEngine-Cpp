@@ -133,6 +133,9 @@ void LevelScreen::updateHotkeys() {
     if (Events::jpressed(keycode::O)) {
         settings.graphics.frustumCulling = !settings.graphics.frustumCulling;
     }
+    if (Events::jpressed(keycode::F1)) {
+        hudVisible = !hudVisible;
+    }
     if (Events::jpressed(keycode::F3)) {
         level->player->debug = !level->player->debug;
     }
@@ -180,7 +183,8 @@ void LevelScreen::update(float delta) {
         level->world->updateTimers(delta);
     }
     controller->update(delta, !inputLocked, hud->isPause());
-    hud->update();
+    if (hudVisible)
+        hud->update();
 }
 
 void LevelScreen::draw(float delta) {
@@ -191,9 +195,12 @@ void LevelScreen::draw(float delta) {
 
     vulkan::VulkanContext::get().beginScreenDraw(0.0f, 0.0f, 0.0f, VK_ATTACHMENT_LOAD_OP_LOAD);
     worldRenderer->draw(ctx, camera);
-    hud->draw(ctx);
-    if (level->player->debug) {
-        hud->drawDebug(1 / delta);
+
+    if (hudVisible) {
+        hud->draw(ctx);
+        if (level->player->debug) {
+            hud->drawDebug(1 / delta);
+        }
     }
 
     vulkan::VulkanContext::get().endScreenDraw();

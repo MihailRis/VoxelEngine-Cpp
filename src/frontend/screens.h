@@ -47,6 +47,7 @@ class LevelScreen : public Screen {
     LevelController* controller;
     HudRenderer* hud;
     ContentGfxCache* cache;
+    bool hudVisible = true;
     void updateHotkeys();
 public:
     LevelScreen(Engine* engine, Level* level);

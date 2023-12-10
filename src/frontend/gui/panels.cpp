@@ -259,7 +259,7 @@ void PagesControl::back() {
     set(name, false);
 }
 
-Page PagesControl::current() {
+Page& PagesControl::current() {
     return current_;
 }
 

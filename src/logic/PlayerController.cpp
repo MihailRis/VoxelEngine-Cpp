@@ -110,7 +110,7 @@ void CameraControl::update(PlayerInput& input, float delta) {
 
 vec3 PlayerController::selectedBlockPosition;
 vec3 PlayerController::selectedPointPosition;
-vec3 PlayerController::selectedBlockNormal;
+ivec3 PlayerController::selectedBlockNormal;
 int PlayerController::selectedBlockId = -1;
 int PlayerController::selectedBlockStates = 0;
 
@@ -192,7 +192,8 @@ void PlayerController::updateInteraction(){
 	Lighting* lighting = level->lighting;
 	Camera* camera = player->camera;
 	vec3 end;
-	vec3 norm;
+	ivec3 iend;
+	ivec3 norm;
 
 	bool xkey = Events::pressed(keycode::X);
 	bool lclick = Events::jactive(BIND_PLAYER_ATTACK) || 
@@ -203,7 +204,7 @@ void PlayerController::updateInteraction(){
 	if (xkey) {
 		maxDistance *= 20.0f;
 	}
-	vec3 iend;
+
 	voxel* vox = chunks->rayCast(camera->position, 
 								 camera->front, 
 								 maxDistance, 
@@ -215,9 +216,9 @@ void PlayerController::updateInteraction(){
 		selectedBlockPosition = iend;
 		selectedPointPosition = end;
 		selectedBlockNormal = norm;
-		int x = (int)iend.x;
-		int y = (int)iend.y;
-		int z = (int)iend.z;
+		int x = iend.x;
+		int y = iend.y;
+		int z = iend.z;
 		uint8_t states = 0;
 
 		Block* def = contentIds->getBlockDef(player->choosenBlock);
@@ -250,9 +251,9 @@ void PlayerController::updateInteraction(){
 		}
 		if (rclick){
 			if (block->model != BlockModel::xsprite){
-				x = (int)(iend.x)+(int)(norm.x);
-				y = (int)(iend.y)+(int)(norm.y);
-				z = (int)(iend.z)+(int)(norm.z);
+				x = (iend.x)+(norm.x);
+				y = (iend.y)+(norm.y);
+				z = (iend.z)+(norm.z);
 			}
 			vox = chunks->get(x, y, z);
 			if (vox && (block = contentIds->getBlockDef(vox->id))->replaceable) {

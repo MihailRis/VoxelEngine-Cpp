@@ -426,7 +426,7 @@ bool WorldFiles::readOldWorldInfo(World* world) {
 			break;
 		}
 	}
-	return false;
+	return true;
 }
 bool WorldFiles::readOldPlayer(Player* player) {
 	size_t length = 0;
@@ -471,7 +471,7 @@ bool WorldFiles::readWorldInfo(World* world) {
 		// TODO: remove in v0.16
 		file = getOldWorldFile();
 		if (fs::is_regular_file(file)) {
-			readOldWorldInfo(world);
+			return readOldWorldInfo(world);
 		}
 		std::cerr << "warning: world.json does not exists" << std::endl;
 		return false;

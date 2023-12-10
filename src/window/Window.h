@@ -42,6 +42,7 @@ public:
 	static void toggleFullscreen();
 	static bool isFullscreen();
 	static bool isMaximized();
+	static bool isFocused();
 
 	static void pushScissor(glm::vec4 area);
 	static void popScissor();
