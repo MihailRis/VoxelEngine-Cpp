@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "Content.h"
+#include "../item/Item.h"
 #include "../voxels/Block.h"
 #include "../files/files.h"
 #include "../coders/json.h"
@@ -95,6 +96,15 @@ Block* ContentLoader::loadBlock(string name, path file) {
     return def.release();
 }
 
+Item* ContentLoader::loadItem(string name, path file) {
+    unique_ptr<json::JObject> root(files::read_json(file));
+    unique_ptr<Item> def(new Item(name));
+
+    // TODO: load item properties
+
+    return def.release();
+}
+
 void ContentLoader::load(ContentBuilder* builder) {
     cout << "-- loading content " << folder << endl;
 
@@ -125,6 +135,17 @@ void ContentLoader::load(ContentBuilder* builder) {
             cout << "    loading block " << id << ":" << name << endl;
             path blockfile = folder/path("blocks/"+name+".json");
             builder->add(loadBlock(id+":"+name, blockfile));
+        }
+    }
+
+    json::JArray* itemsarr = root->arr("items");
+    if (itemsarr) {
+        cout << "    items: " << itemsarr->size() << endl;
+        for (uint i = 0; i < itemsarr->size(); i++) {
+            string name = itemsarr->str(i);
+            cout << "    loading item " << id << ":" << name << endl;
+            path itemfile = folder/path("items/"+name+".json");
+            builder->add(loadItem(id+":"+name, itemfile));
         }
     }
 }

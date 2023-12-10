@@ -25,5 +25,8 @@
         "pane",
         "pipe",
         "lightbulb"
+    ],
+    "items": [
+        "stone"
     ]
 }

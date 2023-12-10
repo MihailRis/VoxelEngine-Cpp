@@ -5,6 +5,7 @@
 #include <filesystem>
 
 class Block;
+class Item;
 class ContentBuilder;
 
 class ContentLoader {
@@ -13,6 +14,7 @@ public:
     ContentLoader(std::filesystem::path folder);
 
     Block* loadBlock(std::string name, std::filesystem::path file);
+    Item* loadItem(std::string name, std::filesystem::path file);
     void load(ContentBuilder* builder);
 };
 
