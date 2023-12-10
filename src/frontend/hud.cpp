@@ -358,7 +358,9 @@ void HudRenderer::draw(const GfxContext& ctx){
 	// 	blocksPreview->draw(cblock, width - 56, uicamera->getFov() - 56, 48, vec4(1.0f));
 	// }
 	uishader->use();
+#ifndef USE_VULKAN
 	batch->begin();
+#endif
 
 	if (pause) {
 		batch->texture(nullptr);
@@ -369,6 +371,9 @@ void HudRenderer::draw(const GfxContext& ctx){
         drawContentAccess(ctx, player);
 	}
 	batch->render();
+#ifdef USE_VULKAN
+	batch->end();
+#endif
 }
 
 bool HudRenderer::isInventoryOpen() const {

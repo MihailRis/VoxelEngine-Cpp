@@ -125,7 +125,7 @@ namespace vulkan {
         m_constantIndex = 0;
         const EngineSettings &settings = m_engine->getSettings();
         m_skybox->refresh(m_level->world->daytime,
-                    fmax(1.0f, 10.0f/(settings.chunks.loadDistance-2))+fog*2.0f, 4);
+                    fmaxf(1.0f, 10.0f / (static_cast<float>(settings.chunks.loadDistance) - 2)) + fog * 2.0f, 4);
 
         const Content* content = m_level->content;
         const ContentIndices* contentIds = content->indices;
