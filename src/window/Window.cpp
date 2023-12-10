@@ -83,7 +83,9 @@ bool Window::isFocused()
 void window_size_callback(GLFWwindow*, int width, int height) {
 	Window::isResized = true;
 	if (Window::isFocused()) {
+#ifndef USE_VULKAN
 		glViewport(0, 0, width, height);
+#endif
 		Window::width = width;
 		Window::height = height;
 	}

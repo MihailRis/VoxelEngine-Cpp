@@ -294,7 +294,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     VkFormat sawpchainFormat = vulkan::VulkanContext::get().getSwapchain().getFormat();
     const auto depthStencilFormat = vulkan::VulkanContext::get().getDepth().getFormat();
 
-    VkFormat cubeFormat = VK_FORMAT_R8G8B8A8_UNORM;
+    VkFormat cubeFormat = VK_FORMAT_R8G8B8A8_SRGB;
     VkPipelineRenderingCreateInfo renderingCreateInfo{};
     renderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
     renderingCreateInfo.colorAttachmentCount = 1;
