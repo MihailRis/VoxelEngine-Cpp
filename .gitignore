@@ -6,6 +6,7 @@ Debug/voxel_engine
 /build
 /cmake-build-**
 /screenshots
+/out
 
 /world
 /worlds/**/*

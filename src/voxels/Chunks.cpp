@@ -234,8 +234,9 @@ voxel* Chunks::rayCast(vec3 start,
 				const AABB& box = def->rotatable 
 								  ? def->rt.hitboxes[voxel->rotation()] 
 								  : def->hitbox;
-				rayvec3 in, out; // <- now not used, but for future...
-				if (Rays::rayIntersectAABB(start, dir, iend, box, maxDist, in, out, norm) > RayRelation::None){
+				scalar_t distance;
+				if (Rays::rayIntersectAABB(start, dir, iend, box, maxDist, norm, distance) > RayRelation::None){
+					end = start + (dir * vec3(distance));
 					return voxel;
 				}
 
