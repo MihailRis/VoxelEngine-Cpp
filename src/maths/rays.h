@@ -44,7 +44,7 @@ struct std::hash<rayvec3>{
 
 class Rays{
 protected:
-	static const bool IS_RAYS_BOX_CACHE_ON = true;
+	static const bool IS_RAYS_BOX_CACHE_ON = false;
 	static std::unordered_map<rayvec3, AABBFaces> raysBoxCache_; //[boxPos]: faces array 
 
 public:
