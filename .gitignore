@@ -5,6 +5,7 @@ Debug/voxel_engine
 
 /build
 /screenshots
+/out
 
 /world
 /worlds/**/*
