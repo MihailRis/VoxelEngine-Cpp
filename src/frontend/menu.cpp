@@ -213,6 +213,7 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
             std::cout << "world seed: " << seed << std::endl;
 
             auto folder = paths->getWorldsFolder()/u8path(nameutf8);
+            std::filesystem::create_directories(folder);
             Level* level = World::create(nameutf8, 
                                          folder, 
                                          seed, 
