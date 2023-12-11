@@ -257,7 +257,8 @@ void PlayerController::updateInteraction(){
 			}
 			vox = chunks->get(x, y, z);
 			if (vox && (block = contentIds->getBlockDef(vox->id))->replaceable) {
-				if (!level->physics->isBlockInside(x,y,z, player->hitbox)){
+				if (!level->physics->isBlockInside(x,y,z, player->hitbox) 
+					|| !def->obstacle){
 					chunks->set(x, y, z, player->choosenBlock, states);
 					lighting->onBlockSet(x,y,z, player->choosenBlock);
 				}
