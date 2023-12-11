@@ -4,6 +4,7 @@
 #include "Block.h"
 
 #include <iostream>
+#include <vector>
 #include <time.h>
 #include <stdexcept>
 #include <math.h>
@@ -18,35 +19,46 @@
 
 const int SEA_LEVEL = 55;
 
+enum class MAPS{
+	SEND,
+	TREE,
+	CLIFF,
+	HEIGHT
+};
+#define MAPS_LEN 4
+
 class Map2D {
 	int x, z;
 	int w, d;
-	float* heights;
+	float* heights[MAPS_LEN];
 public:
 	Map2D(int x, int z, int w, int d)
 			: x(x), z(z), w(w), d(d) {
-		heights = new float[w * d];
+		for (int i = 0; i < MAPS_LEN; i++)
+			heights[i] = new float[w*d];
 	}
 	~Map2D() {
-		delete[] heights;
+
+		for (int i = 0; i < MAPS_LEN; i++)
+			delete[] heights[i];
 	}
 
-	inline float get(int x, int z) {
+	inline float get(MAPS map, int x, int z) {
 		x -= this->x;
 		z -= this->z;
 		if (x < 0 || z < 0 || x >= w || z >= d) {
 			throw std::runtime_error("out of heightmap");
 		}
-		return heights[z * w + x];
+		return heights[(int)map][z * w + x];
 	}
 
-	inline void set(int x, int z, float value) {
+	inline void set(MAPS map, int x, int z, float value) {
 		x -= this->x;
 		z -= this->z;
 		if (x < 0 || z < 0 || x >= w || z >= d) {
 			throw std::runtime_error("out of heightmap");
 		}
-		heights[z * w + x] = value;
+		heights[(int)map][z * w + x] = value;
 	}
 };
 
@@ -78,19 +90,20 @@ public:
 	}
 };
 
-float calc_height(fnl_state *noise, int real_x, int real_z){
+
+
+float calc_height(fnl_state *noise, int cur_x, int cur_z){
 	float height = 0;
 
-	height += fnlGetNoise3D(noise, real_x*0.0125f*8-125567,real_z*0.0125f*8+3546, 0.0f);
-	height += fnlGetNoise3D(noise, real_x*0.025f*8+4647,real_z*0.025f*8-3436, 0.0f)*0.5f;
-	height += fnlGetNoise3D(noise, real_x*0.05f*8-834176,real_z*0.05f*8+23678, 0.0f)*0.25f;
-	height += fnlGetNoise3D(noise,
-			real_x*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8-23557,real_z*0.1f*8-6568, 0.0f)*50,
-			real_z*0.2f*8 + fnlGetNoise3D(noise, real_x*0.1f*8+4363,real_z*0.1f*8+4456, 0.0f)*50,
-			0.0f) * fnlGetNoise3D(noise, real_x*0.01f-834176,real_z*0.01f+23678, 0.0f);
-	height += fnlGetNoise3D(noise, real_x*0.1f*8-3465,real_z*0.1f*8+4534, 0.0f)*0.125f;
-	//height += fnlGetNoise3D(noise, real_x*0.4f+4565,real_z*0.4f*18+46456, 0.0f)*0.0625f * 0.3f;
-	height *= fnlGetNoise3D(noise, real_x*0.1f+1000,real_z*0.1f+1000, 0.0f)*0.5f+0.5f;
+	height += fnlGetNoise2D(noise, cur_x*0.0125f*8-125567,cur_z*0.0125f*8+3546);
+	height += fnlGetNoise2D(noise, cur_x*0.025f*8+4647,cur_z*0.025f*8-3436)*0.5f;
+	height += fnlGetNoise2D(noise, cur_x*0.05f*8-834176,cur_z*0.05f*8+23678)*0.25f;
+	height += fnlGetNoise2D(noise,
+							cur_x*0.2f*8 + fnlGetNoise2D(noise, cur_x*0.1f*8-23557,cur_z*0.1f*8-6568)*50,
+							cur_z*0.2f*8 + fnlGetNoise2D(noise, cur_x*0.1f*8+4363,cur_z*0.1f*8+4456)*50
+							) * fnlGetNoise2D(noise, cur_x*0.01f-834176,cur_z*0.01f+23678) * 0.25;
+	height += fnlGetNoise2D(noise, cur_x*0.1f*8-3465,cur_z*0.1f*8+4534)*0.125f;
+	height *= fnlGetNoise2D(noise, cur_x*0.1f+1000,cur_z*0.1f+1000)*0.5f+0.5f;
 	height += 1.0f;
 	height *= 64.0f;
 	return height;
@@ -106,19 +119,18 @@ WorldGenerator::WorldGenerator(const Content* content)
 				 idLeaves(content->requireBlock("base:leaves")->rt.id),
 				 idGrass(content->requireBlock("base:grass")->rt.id),
 				 idFlower(content->requireBlock("base:flower")->rt.id),
-				 idBazalt(content->requireBlock("base:bazalt")->rt.id) {;
-}
+				 idBazalt(content->requireBlock("base:bazalt")->rt.id) {}
 
 int generate_tree(fnl_state *noise, 
 				  PseudoRandom* random, 
 				  Map2D& heights, 
-				  Map2D& humidity,
-				  int real_x, 
-				  int real_y, 
-				  int real_z, 
+				//   Map2D& humidity,
+				  int cur_x, 
+				  int cur_y, 
+				  int cur_z, 
 				  int tileSize){
-	const int tileX = floordiv(real_x, tileSize);
-	const int tileZ = floordiv(real_z, tileSize);
+	const int tileX = floordiv(cur_x, tileSize);
+	const int tileZ = floordiv(cur_z, tileSize);
 
 	random->setSeed(tileX*4325261+tileZ*12160951+tileSize*9431111);
 
@@ -128,18 +140,18 @@ int generate_tree(fnl_state *noise,
 	int centerX = tileX * tileSize + tileSize/2 + randomX;
 	int centerZ = tileZ * tileSize + tileSize/2 + randomZ;
 
-	bool gentree = (random->rand() % 10) < humidity.get(centerX, centerZ) * 13;
+	bool gentree = (random->rand() % 10) < heights.get(MAPS::TREE, centerX, centerZ) * 13;
 	if (!gentree)
 		return 0;
 
-	int height = (int)(heights.get(centerX, centerZ));
+	int height = (int)(heights.get(MAPS::HEIGHT, centerX, centerZ));
 	if (height < SEA_LEVEL+1)
 		return 0;
-	int lx = real_x - centerX;
+	int lx = cur_x - centerX;
 	int radius = random->rand() % 4 + 2;
-	int ly = real_y - height - 3 * radius;
-	int lz = real_z - centerZ;
-	if (lx == 0 && lz == 0 && real_y - height < (3*radius + radius/2))
+	int ly = cur_y - height - 3 * radius;
+	int lz = cur_z - centerZ;
+	if (lx == 0 && lz == 0 && cur_y - height < (3*radius + radius/2))
 		return 6;
 	if (lx*lx+ly*ly/2+lz*lz < radius*radius)
 		return 7;
@@ -160,74 +172,74 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 					  CHUNK_W + padding * 2, 
 					  CHUNK_D + padding * 2);
 
-	
-	// Influences to trees and sand generation
-	Map2D humidity(cx * CHUNK_W - padding, 
-					cz * CHUNK_D - padding, 
-					CHUNK_W + padding * 2, 
-					CHUNK_D + padding * 2);
-
 	for (int z = -padding; z < CHUNK_D+padding; z++){
 		for (int x = -padding; x < CHUNK_W+padding; x++){
-			int real_x = x + cx * CHUNK_W;
-			int real_z = z + cz * CHUNK_D;
-			float height = calc_height(&noise, real_x, real_z);
-			float hum = fnlGetNoise3D(&noise, real_x * 0.3 + 633, 0.0, real_z * 0.3);
-			if (height >= SEA_LEVEL) {
-				height = ((height - SEA_LEVEL) * 0.1) - 0.0;
-				height = powf(height, (1.0+hum - fmax(0.0, height) * 0.1));
-				height = height * 10 + SEA_LEVEL;
-			} else {
-				height *= 1.0f + (height-SEA_LEVEL) * 0.05f * hum;
-			}
-			heights.set(real_x, real_z, height);
-			humidity.set(real_x, real_z, hum);
+			int cur_x = x + cx * CHUNK_W;
+			int cur_z = z + cz * CHUNK_D;
+			float height = calc_height(&noise, cur_x, cur_z);
+			float hum = fnlGetNoise2D(&noise, cur_x * 0.3 + 633, cur_z * 0.3);
+			float send = fnlGetNoise2D(&noise, cur_x * 0.1 - 633, cur_z * 0.1 + 1000);
+				float cliff = pow((send + abs(send)) / 2, 2);
+				float w = pow(fmax(-abs(height-SEA_LEVEL)+4,0)/6,2) * cliff;
+				float h1 = -abs(height-SEA_LEVEL - 0.03);
+				float h2 = abs(height-SEA_LEVEL + 0.04);
+				float h = (h1 + h2)*100;
+				height += (h * w);
+			heights.set(MAPS::HEIGHT, cur_x, cur_z, height);
+			heights.set(MAPS::TREE, cur_x, cur_z, hum);
+			heights.set(MAPS::SEND, cur_x, cur_z, send);
+			heights.set(MAPS::CLIFF, cur_x, cur_z, cliff);
 		
 		}
 	}
 
 	for (int z = 0; z < CHUNK_D; z++){
-		int real_z = z + cz * CHUNK_D;
+		int cur_z = z + cz * CHUNK_D;
 		for (int x = 0; x < CHUNK_W; x++){
-			int real_x = x + cx * CHUNK_W;
-			float height = heights.get(real_x, real_z);
+			int cur_x = x + cx * CHUNK_W;
+			float height = heights.get(MAPS::HEIGHT, cur_x, cur_z);
 
-			for (int y = 0; y < CHUNK_H; y++){
-				int real_y = y;
-				int id = real_y < SEA_LEVEL ? idWater : BLOCK_AIR;
+			for (int cur_y = 0; cur_y < CHUNK_H; cur_y++){
+				// int cur_y = y;
+				int id = cur_y < SEA_LEVEL ? idWater : BLOCK_AIR;
 				int states = 0;
-				if ((real_y == (int)height) && (SEA_LEVEL-2 < real_y)) {
+				if ((cur_y == (int)height) && (SEA_LEVEL-2 < cur_y)) {
 					id = idGrassBlock;
-				} else if (real_y < (height - 6)){
+				} else if (cur_y < (height - 6)){
 					id = idStone;
-				} else if (real_y < height){
+				} else if (cur_y < height){
 					id = idDirt;
 				} else {
-					int tree = generate_tree(&noise, &randomtree, heights, humidity, real_x, real_y, real_z, treesTile);
+					int tree = generate_tree(&noise, &randomtree, heights, cur_x, cur_y, cur_z, treesTile);
 					if (tree) {
 						id = tree;
 						states = BLOCK_DIR_UP;
 					}
 				}
-				if (((height - (1.5 - 0.2 * pow(height - 54, 4))) < real_y) && (real_y < height) && humidity.get(real_x, real_z) < 0.1){
+				float send = fmax(heights.get(MAPS::SEND, cur_x, cur_z), heights.get(MAPS::CLIFF, cur_x, cur_z));
+				if (
+						((height -  (1.1 - 0.2 * pow(height - 54, 4))
+										+
+									(5*send)) < cur_y + (height - 0.01- (int)height))
+						&& (cur_y < height)){
 					id = idSand;
 				}
-				if (real_y <= 2)
+				if (cur_y <= 2)
 					id = idBazalt;
 
-				randomgrass.setSeed(real_x,real_z);
-				if ((id == 0) && (height > SEA_LEVEL+0.5) && ((int)(height + 1) == real_y) && ((unsigned short)randomgrass.rand() > 56000)){
+				randomgrass.setSeed(cur_x,cur_z);
+				if ((id == 0) && ((height > SEA_LEVEL+0.4) || (send > 0.1)) && ((int)(height + 1) == cur_y) && ((unsigned short)randomgrass.rand() > 56000)){
 					id = idGrass;
 				}
-				if ((id == 0) && (height > SEA_LEVEL+0.5) && ((int)(height + 1) == real_y) && ((unsigned short)randomgrass.rand() > 65000)){
+				if ((id == 0) && (height > SEA_LEVEL+0.4) && ((int)(height + 1) == cur_y) && ((unsigned short)randomgrass.rand() > 65000)){
 					id = idFlower;
 				}
-				if ((height > SEA_LEVEL+1) && ((int)(height + 1) == real_y) && ((unsigned short)randomgrass.rand() > 65533)){
+				if ((height > SEA_LEVEL+1) && ((int)(height + 1) == cur_y) && ((unsigned short)randomgrass.rand() > 65533)){
 					id = idWood;
 					states = BLOCK_DIR_UP;
 				}
-				voxels[(y * CHUNK_D + z) * CHUNK_W + x].id = id;
-				voxels[(y * CHUNK_D + z) * CHUNK_W + x].states = states;
+				voxels[(cur_y * CHUNK_D + z) * CHUNK_W + x].id = id;
+				voxels[(cur_y * CHUNK_D + z) * CHUNK_W + x].states = states;
 			}
 		}
 	}
