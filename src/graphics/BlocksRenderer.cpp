@@ -285,8 +285,8 @@ void BlocksRenderer::blockAABB(const ivec3& icoord,
 	face(coord+X, -Z, Y, X, X-X+loff, 
         local+size.x*fX-fX-(offset.y)*fY, 
         size.z, size.y, 0.0f, texfaces[1], lights); // west
-	face(coord+Y, -Z, -Y, -X, -X-Y+loff, 
-        local-(1.0f-(size.y-offset.y))*fY, 
+	face(coord+Y, Z, Y, -X, -X-Y+loff, 
+        local-(offset.y)*fY-fY-fZ*size.z, 
         size.z, size.y, 0.0f, texfaces[0], lights); // east
 }
 
