@@ -267,26 +267,25 @@ void BlocksRenderer::blockAABB(const ivec3& icoord,
 	vec3 fZ(Z);
 	
     // TODO: simplify this pile of magic calculations and fix 5th arg (laxisZ)
-	vec3 local = (1.0f-offset.x-size.x)*fX+offset.y*fY+offset.z*-fZ;
 	face(coord, X, Y, Z, Z+loff, 
-        local-size.z*fZ-offset.y*fY,
+		(1.0f - offset.x - size.x) * fX  - (offset.z + size.z)*fZ,
         size.x, size.y, size.z, texfaces[5], lights); // north
 	face(coord, -X, Y, -Z, Z-Z-X+loff, 
-        local-size.z*fZ+fX*size.x-(offset.y)*fY, 
+		(1.0f - offset.x) * fX - (offset.z + size.z) * fZ,
         size.x, size.y, 0.0f, texfaces[4], lights); // south
 
-	face(coord+Y, X, -Z, Y, Y-Y+loff, 
-        local-(1.0f-(size.y-offset.y))*fY, 
+	face(coord, X, -Z, Y, Y-Y+loff, 
+		(1.0f - offset.x - size.x) * fX - offset.z * fZ + size.y*fY,
         size.x, size.z, 0.0f, texfaces[3], lights); // top
-	face(coord+X, -X, -Z, -Y, -X-Y+loff, 
-        local+size.x*fX-fX-(offset.y)*fY, 
+	face(coord, -X, -Z, -Y, -X-Y+loff, 
+		(1.0f - offset.x) * fX - offset.z * fZ,
         size.x, size.z, 0.0f, texfaces[2], lights); // bottom
 	
-	face(coord+X, -Z, Y, X, X-X+loff, 
-        local+size.x*fX-fX-(offset.y)*fY, 
+	face(coord, -Z, Y, X, X-X+loff, 
+		(1.0f - offset.x) * fX - offset.z * fZ,
         size.z, size.y, 0.0f, texfaces[1], lights); // west
-	face(coord+Y, -Z, -Y, -X, -X-Y+loff, 
-        local-(1.0f-(size.y-offset.y))*fY, 
+	face(coord, Z, Y, -X, -X-Y+loff, 
+		(1.0f - offset.x - size.x) * fX - (offset.z + size.z) * fZ,
         size.z, size.y, 0.0f, texfaces[0], lights); // east
 }
 
@@ -428,12 +427,12 @@ void BlocksRenderer::render(const voxel* voxels) {
 				break;
 			}
 			case BlockModel::aabb: {
-				AABB hitbox = def.hitbox;
-				hitbox.a = vec3(1.0f)-hitbox.a;
-				hitbox.b = vec3(1.0f)-hitbox.b;
+				AABB inversedHitbox = def.hitbox;
+				inversedHitbox.a = vec3(1.0f) - inversedHitbox.a;
+				inversedHitbox.b = vec3(1.0f) - inversedHitbox.b;
 
-				vec3 size = hitbox.size();
-				vec3 off = hitbox.min();
+				vec3 size = inversedHitbox.size();
+				vec3 off = inversedHitbox.min();
 				blockAABB(ivec3(x,y,z), off, size, texfaces, &def, vox.rotation(), !def.rt.emissive);
 				break;
 			}
