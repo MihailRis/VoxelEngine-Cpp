@@ -20,6 +20,9 @@ Player::Player(glm::vec3 position, float speed) :
 		speed(speed),
 		choosenBlock(1) {
 	camera = new Camera(position, glm::radians(90.0f));
+	currentViewCamera = camera;
+	SPCamera = new Camera(position, glm::radians(90.0f));
+	TPCamera = new Camera(position, glm::radians(90.0f));
 	hitbox = new Hitbox(position, vec3(0.3f,0.9f,0.3f));
 }
 
