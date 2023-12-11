@@ -5,7 +5,11 @@
 #include <type_traits>
 #include <cstdint>
 
+#ifdef __APPLE__
+#include <OpenAL/al.h>
+#else
 #include <AL/al.h>
+#endif
 
 #define alCheckErrorsMacro() check_al_errors(__FILE__, __LINE__)
 
