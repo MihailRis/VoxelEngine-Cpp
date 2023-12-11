@@ -33,6 +33,7 @@ void setup_bindings() {
 	Events::bind(BIND_MOVE_CROUCH, inputtype::keyboard, keycode::LEFT_SHIFT);
 	Events::bind(BIND_MOVE_CHEAT, inputtype::keyboard, keycode::R);
 	Events::bind(BIND_CAM_ZOOM, inputtype::keyboard, keycode::C);
+	Events::bind(BIND_CAM_MODE, inputtype::keyboard, keycode::F4);
 	Events::bind(BIND_PLAYER_NOCLIP, inputtype::keyboard, keycode::N);
 	Events::bind(BIND_PLAYER_FLIGHT, inputtype::keyboard, keycode::F);
 	Events::bind(BIND_PLAYER_ATTACK, inputtype::mouse, mousecode::BUTTON_1);
