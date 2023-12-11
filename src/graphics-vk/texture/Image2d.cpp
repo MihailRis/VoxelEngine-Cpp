@@ -168,9 +168,9 @@ Image2d* Image2d::from(const ImageData *data) {
     VkFormat format = VK_FORMAT_UNDEFINED;
 
     switch (data->getFormat()) {
-        case ImageFormat::rgb888: format = VK_FORMAT_R8G8B8_SRGB;
+        case ImageFormat::rgb888: format = VK_FORMAT_R8G8B8_UNORM;
         break;
-        case ImageFormat::rgba8888: format = VK_FORMAT_R8G8B8A8_SRGB;
+        case ImageFormat::rgba8888: format = VK_FORMAT_R8G8B8A8_UNORM;
         break;
     }
 

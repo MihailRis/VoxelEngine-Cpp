@@ -16,7 +16,7 @@
 namespace vulkan {
     Skybox::Skybox(uint size, IShader* shader)
         : m_shader(shader),
-          m_cubemap(size, size, VK_FORMAT_R8G8B8A8_SRGB) {
+          m_cubemap(size, size, VK_FORMAT_R8G8B8A8_UNORM) {
 
         VertexBackSkyGen vertices[] = {
             {{-1.f, -1.f}}, {{-1.0f, 1.0f}}, {{1.0f, 1.0f}},
