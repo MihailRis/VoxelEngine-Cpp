@@ -1,0 +1,45 @@
+# Общее
+Yes=Да
+No=Нет
+Ok=Ок
+Back=Назад
+Continue=Продолжить
+
+# Меню
+menu.new-world=Новый Мир
+menu.quit=Выход
+menu.continue=Продолжить
+menu.save-and-quit=Сохранить и Выйти в Меню
+menu.missing-content=Отсутствует Контент!
+menu.controls=Управление
+menu.back-to-menu=Вернуться в Меню
+menu.settings=Настройки
+world.seed=Зерно
+world.name=Название
+world.create=Создать Мир
+
+# Настройки
+chunks.load-distance=Дистанция Загрузки
+chunks.load-speed=Скорость Загрузки
+graphics.fog-curve=Кривая Тумана
+graphics.backlight=Подсветка
+display.vsync=V-Sync
+camera.fov=Поле Зрения
+mouse.sensitivity=Чувствительность Мыши
+
+# Управление
+movement.forward=Вперёд
+movement.back=Назад
+movement.left=Влево
+movement.right=Вправо
+movement.jump=Прыжок
+movement.sprint=Ускорение
+movement.crouch=Красться
+movement.cheat=Чит
+hud.inventory=Инвентарь
+player.pick=Подобрать Блок
+player.attack=Атаковать / Сломать
+player.build=Поставить Блок
+player.flight=Полёт
+camera.zoom=Приближение
+camera.mode=Сменить Режим Камеры

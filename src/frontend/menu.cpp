@@ -23,6 +23,7 @@
 #include "../content/ContentLUT.h"
 
 #include "gui/gui_util.h"
+#include "locale/langs.h"
 
 using glm::vec2;
 using glm::vec4;
@@ -41,7 +42,7 @@ void show_content_missing(GUI* gui, const Content* content, ContentLUT* lut) {
     PagesControl* menu = gui->getMenu();
     Panel* panel = new Panel(vec2(500, 200), vec4(8.0f), 8.0f);
     panel->color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
-    panel->add(new Label(L"Content missing!"));
+    panel->add(new Label(langs::get(L"menu.missing-content")));
 
     Panel* subpanel = new Panel(vec2(500, 100));
     subpanel->color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
@@ -67,7 +68,7 @@ void show_content_missing(GUI* gui, const Content* content, ContentLUT* lut) {
     subpanel->maxLength(400);
     panel->add(subpanel);
 
-    panel->add((new Button(L"Back to Main Menu", vec4(8.0f)))->listenAction([=](GUI*){
+    panel->add((new Button(langs::get(L"menu.back-to-menu"), vec4(8.0f)))->listenAction([=](GUI*){
         menu->back();
     }));
     panel->refresh();
@@ -97,7 +98,7 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
     Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
     panel->color(vec4(0.0f));
 
-    panel->add(guiutil::gotoButton(L"New World", "new-world", menu));
+    panel->add(guiutil::gotoButton(langs::get(L"menu.new-world"), "new-world", menu));
 
     Panel* worldsPanel = new Panel(vec2(390, 200), vec4(5.0f));
     worldsPanel->color(vec4(1.0f, 1.0f, 1.0f, 0.07f));
@@ -135,8 +136,8 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
         }
     }
     panel->add(worldsPanel);
-    panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
-    panel->add((new Button(L"Quit", vec4(10.f)))->listenAction([](GUI* gui) {
+    panel->add(guiutil::gotoButton(langs::get(L"menu.settings"), "settings", menu));
+    panel->add((new Button(langs::get(L"menu.quit"), vec4(10.f)))->listenAction([](GUI* gui) {
         Window::setShouldClose(true);
     }));
     panel->refresh();
@@ -149,7 +150,7 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
 
     TextBox* worldNameInput;
     {
-        Label* label = new Label(L"World Name");
+        Label* label = new Label(langs::get(L"world.name"));
         panel->add(label);
 
         TextBox* input = new TextBox(L"New World", vec4(6.0f));
@@ -159,7 +160,7 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
 
     TextBox* seedInput;
     {
-        Label* label = new Label(L"Seed");
+        Label* label = new Label(langs::get(L"world.seed"));
         panel->add(shared_ptr<UINode>(label));
 
         uint64_t randseed = rand() ^ (rand() << 8) ^ 
@@ -173,7 +174,7 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
     }
 
     {
-        Button* button = new Button(L"Create World", vec4(10.0f));
+        Button* button = new Button(langs::get(L"world.create"), vec4(10.0f));
         button->margin(vec4(1, 20, 1, 1));
         vec4 basecolor = worldNameInput->color();   
         button->listenAction([=](GUI*) {
@@ -239,7 +240,7 @@ Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
             std::wstringstream ss;
             ss << std::fixed << std::setprecision(1);
             ss << engine->getSettings().camera.sensitivity;
-            return L"Mouse Sensitivity: "+ss.str();
+            return langs::get(L"mouse.sensitivity")+L": "+ss.str();
         }));
 
         TrackBar* trackbar = new TrackBar(0.1, 10.0, 2.0, 0.1, 4);
@@ -264,7 +265,7 @@ Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
 
         InputBindBox* bindbox = new InputBindBox(entry.second);
         subpanel->add(bindbox);
-        Label* label = new Label(util::str2wstr_utf8(bindname));
+        Label* label = new Label(langs::get(util::str2wstr_utf8(bindname)));
         label->margin(vec4(6.0f));
         subpanel->add(label);
         scrollPanel->add(subpanel);
@@ -282,7 +283,7 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
 
     /* Load Distance setting track bar */{
         panel->add((new Label(L""))->textSupplier([=]() {
-            return L"Load Distance: " + 
+            return langs::get(L"chunks.load-distance")+L": " + 
                 std::to_wstring(engine->getSettings().chunks.loadDistance);
         }));
 
@@ -298,7 +299,7 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
 
     /* Load Speed setting track bar */{
         panel->add((new Label(L""))->textSupplier([=]() {
-            return L"Load Speed: " + 
+            return langs::get(L"chunks.load-speed")+L": " + 
                 std::to_wstring(engine->getSettings().chunks.loadSpeed);
         }));
 
@@ -317,7 +318,7 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
             std::wstringstream ss;
             ss << std::fixed << std::setprecision(1);
             ss << engine->getSettings().graphics.fogCurve;
-            return L"Fog Curve: " + ss.str();
+            return langs::get(L"graphics.fog-curve")+L": " + ss.str();
         }));
 
         TrackBar* trackbar = new TrackBar(1.0, 6.0, 1.0, 0.1, 2);
@@ -333,7 +334,7 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
     /* Fov setting track bar */{
         panel->add((new Label(L""))->textSupplier([=]() {
             int fov = (int)engine->getSettings().camera.fov;
-            return L"FOV: "+std::to_wstring(fov)+L"°";
+            return langs::get(L"camera.fov")+L": "+std::to_wstring(fov)+L"°";
         }));
 
         TrackBar* trackbar = new TrackBar(30.0, 120.0, 90, 1, 4);
@@ -360,7 +361,7 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
             engine->getSettings().display.swapInterval = checked;
         });
         checkpanel->add(checkbox);
-        checkpanel->add(new Label(L"V-Sync"));
+        checkpanel->add(new Label(langs::get(L"display.vsync")));
 
         panel->add(checkpanel);
     }
@@ -379,12 +380,12 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
             engine->getSettings().graphics.backlight = checked;
         });
         checkpanel->add(checkbox);
-        checkpanel->add(new Label(L"Backlight"));
+        checkpanel->add(new Label(langs::get(L"graphics.backlight")));
 
         panel->add(checkpanel);
     }
 
-    panel->add(guiutil::gotoButton(L"Controls", "controls", menu));
+    panel->add(guiutil::gotoButton(langs::get(L"menu.controls"), "controls", menu));
     panel->add(guiutil::backButton(menu));
     panel->refresh();
     return panel;
@@ -394,15 +395,15 @@ Panel* create_pause_panel(Engine* engine, PagesControl* menu) {
     Panel* panel = new Panel(vec2(400, 200));
 	panel->color(vec4(0.0f));
 	{
-		Button* button = new Button(L"Continue", vec4(10.0f));
+		Button* button = new Button(langs::get(L"Continue"), vec4(10.0f));
 		button->listenAction([=](GUI*){
 			menu->reset();
 		});
 		panel->add(shared_ptr<UINode>(button));
 	}
-    panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
+    panel->add(guiutil::gotoButton(langs::get(L"Settings"), "settings", menu));
 	{
-		Button* button = new Button(L"Save and Quit to Menu", vec4(10.f));
+		Button* button = new Button(langs::get(L"menu.save-and-quit"), vec4(10.f));
 		button->listenAction([engine](GUI*){
 			engine->setScreen(shared_ptr<Screen>(new MenuScreen(engine)));
 		});

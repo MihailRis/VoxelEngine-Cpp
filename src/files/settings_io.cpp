@@ -39,6 +39,9 @@ toml::Wrapper create_wrapper(EngineSettings& settings) {
 	debug.add("generator-test-mode", &settings.debug.generatorTestMode);
 	debug.add("show-chunk-borders", &settings.debug.showChunkBorders);
 	debug.add("do-write-lights", &settings.debug.doWriteLights);
+
+    toml::Section& ui = wrapper.add("ui");
+    ui.add("language", &settings.ui.language);
 	return wrapper;
 }
 

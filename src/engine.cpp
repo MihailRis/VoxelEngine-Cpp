@@ -3,6 +3,7 @@
 #include <memory>
 #include <iostream>
 #include <assert.h>
+#include <vector>
 #include <glm/glm.hpp>
 #include <filesystem>
 #define GLEW_STATIC
@@ -26,6 +27,9 @@
 #include "coders/GLSLExtension.h"
 #include "files/files.h"
 #include "files/engine_paths.h"
+
+#include "content/ContentPack.h"
+#include "frontend/locale/langs.h"
 
 using std::unique_ptr;
 using std::shared_ptr;
@@ -55,6 +59,16 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths, Content* content)
 	}
 	Audio::initialize();
 	gui = new GUI();
+
+    std::vector<const ContentPack*> packs;
+    auto resdir = paths->getResources();
+    auto base = std::make_unique<ContentPack>("base", resdir/path("content/base"));
+    packs.push_back(base.get());
+
+    if (settings.ui.language == "auto") {
+        settings.ui.language = platform::detect_locale();
+    }
+    langs::setup(resdir, settings.ui.language, packs);
 	std::cout << "-- initializing finished" << std::endl;
 }
 

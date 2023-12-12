@@ -1,0 +1,39 @@
+# Menu
+menu.new-world=New World
+menu.quit=Quit
+menu.create-world=Create World
+menu.save-and-quit=Save and Quit to Menu
+menu.missing-content=Missing Content!
+menu.controls=Controls
+menu.back-to-menu=Back to Main Menu
+menu.settings=Settings
+world.seed=Seed
+world.name=World Name
+world.create=Create World
+
+# Settings
+chunks.load-distance=Load Distance
+chunks.load-speed=Load Speed
+graphics.fog-curve=Fog Curve
+graphics.backlight=Backlight
+display.vsync=V-Sync
+camera.fov=FOV
+mouse.sensitivity=Mouse Sensitivity
+
+# Bindings
+movement.forward=Forward
+movement.back=Back
+movement.left=Left
+movement.right=Right
+movement.jump=Jump
+movement.sprint=Sprint
+movement.crouch=Crouch
+movement.cheat=Cheat
+hud.inventory=Inventory
+player.pick=Pick Block
+player.attack=Attack / Break
+player.build=Place Block
+player.flight=Flight
+player.noclip=No-clip
+camera.zoom=Zoom
+camera.mode=Switch Camera Mode
