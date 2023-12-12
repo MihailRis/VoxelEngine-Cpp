@@ -7,27 +7,29 @@ Back=Назад
 Continue=Продолжить
 
 # Меню
-menu.new-world=Новый Мир
-menu.quit=Выход
-menu.continue=Продолжить
-menu.save-and-quit=Сохранить и Выйти в Меню
+menu.New World=Новый Мир
+menu.Quit=Выход
+menu.Continue=Продолжить
+menu.Save and Quit to Menu=Сохранить и Выйти в Меню
 menu.missing-content=Отсутствует Контент!
-menu.controls=Управление
-menu.back-to-menu=Вернуться в Меню
-menu.settings=Настройки
-world.seed=Зерно
-world.name=Название
-world.create=Создать Мир
+menu.Controls=Управление
+menu.Back to Main Menu=Вернуться в Меню
+menu.Settings=Настройки
+world.Seed=Зерно
+world.Name=Название
+world.Create World=Создать Мир
+
 world.convert-request=Есть изменения в индексах! Конвертировать мир?
 
 # Настройки
-chunks.load-distance=Дистанция Загрузки
-chunks.load-speed=Скорость Загрузки
-graphics.fog-curve=Кривая Тумана
-graphics.backlight=Подсветка
-display.vsync=V-Sync
-camera.fov=Поле Зрения
-mouse.sensitivity=Чувствительность Мыши
+settings.Load Distance=Дистанция Загрузки
+settings.Load Speed=Скорость Загрузки
+settings.Fog Curve=Кривая Тумана
+settings.Backlight=Подсветка
+settings.V-Sync=Вертикальная Синхронизация
+
+FOV=Поле Зрения
+settings.Mouse Sensitivity=Чувствительность Мыши
 
 # Управление
 movement.forward=Вперёд

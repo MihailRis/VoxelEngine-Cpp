@@ -131,3 +131,12 @@ void langs::setup(const path& resdir,
 const wstring& langs::get(const wstring& key) {
     return current->get(key);
 }
+
+const wstring& langs::get(const wstring& key, const wstring& context) {
+    wstring ctxkey = context + L"." + key;
+    const wstring& text = current->get(ctxkey);
+    if (&ctxkey != &text) {
+        return text;
+    }
+    return current->get(key);
+}

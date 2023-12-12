@@ -1,25 +1,6 @@
 # Menu
-menu.new-world=New World
-menu.quit=Quit
-menu.create-world=Create World
-menu.save-and-quit=Save and Quit to Menu
 menu.missing-content=Missing Content!
-menu.controls=Controls
-menu.back-to-menu=Back to Main Menu
-menu.settings=Settings
-world.seed=Seed
-world.name=World Name
-world.create=Create World
 world.convert-request=Content indices have changed! Convert world files?
-
-# Settings
-chunks.load-distance=Load Distance
-chunks.load-speed=Load Speed
-graphics.fog-curve=Fog Curve
-graphics.backlight=Backlight
-display.vsync=V-Sync
-camera.fov=FOV
-mouse.sensitivity=Mouse Sensitivity
 
 # Bindings
 movement.forward=Forward

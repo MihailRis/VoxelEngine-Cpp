@@ -56,6 +56,8 @@ namespace langs {
                      std::vector<const ContentPack*>& packs);
 
     extern const std::wstring& get(const std::wstring& key);
+    extern const std::wstring& get(const std::wstring& key, 
+                                   const std::wstring& context);
 
     extern void setup(const std::filesystem::path& resdir,
                       const std::string& locale,
