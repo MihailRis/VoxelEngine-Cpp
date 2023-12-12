@@ -27,3 +27,5 @@ Debug/voxel_engine
 .project
 .git
 /Default/
+
+.DS_Store
