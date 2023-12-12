@@ -78,8 +78,7 @@ void show_content_missing(GUI* gui, const Content* content, ContentLUT* lut) {
 
 void show_convert_request(GUI* gui, const Content* content, ContentLUT* lut,
                           path folder) {
-    guiutil::confirm(gui, L"Content indices have changed! Convert "
-                     +util::str2wstr_utf8(folder.string())+L"?",
+    guiutil::confirm(gui, langs::get(L"world.convert-request"),
     [=]() {
         std::cout << "Convert the world: " << folder.string() << std::endl;    
         // TODO: add multithreading here
@@ -89,7 +88,7 @@ void show_convert_request(GUI* gui, const Content* content, ContentLUT* lut,
         }
         converter->write();
         delete lut;
-    }, L"Yes", L"Cancel");
+    }, L"", langs::get(L"Cancel"));
 }
 
 Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {

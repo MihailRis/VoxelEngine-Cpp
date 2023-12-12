@@ -2,6 +2,7 @@
 Yes=Да
 No=Нет
 Ok=Ок
+Cancel=Отмена
 Back=Назад
 Continue=Продолжить
 
@@ -17,6 +18,7 @@ menu.settings=Настройки
 world.seed=Зерно
 world.name=Название
 world.create=Создать Мир
+world.convert-request=Есть изменения в индексах! Конвертировать мир?
 
 # Настройки
 chunks.load-distance=Дистанция Загрузки

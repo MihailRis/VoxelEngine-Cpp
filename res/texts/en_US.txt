@@ -10,6 +10,7 @@ menu.settings=Settings
 world.seed=Seed
 world.name=World Name
 world.create=Create World
+world.convert-request=Content indices have changed! Convert world files?
 
 # Settings
 chunks.load-distance=Load Distance
