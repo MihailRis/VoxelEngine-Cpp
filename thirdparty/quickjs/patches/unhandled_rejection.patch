@@ -1,0 +1,72 @@
+diff --git a/quickjs/quickjs.c b/quickjs/quickjs.c
+index 8afc4ca..c3f98e2 100644
+--- a/quickjs/quickjs.c
++++ b/quickjs/quickjs.c
+@@ -282,6 +282,9 @@ struct JSRuntime {
+ 
+     JSHostPromiseRejectionTracker *host_promise_rejection_tracker;
+     void *host_promise_rejection_tracker_opaque;
++
++    JSHostPromiseRejectionTracker *host_unhandled_promise_rejection_tracker;
++    void *host_unhandled_promise_rejection_tracker_opaque;
+     
+     struct list_head job_list; /* list of JSJobEntry.link */
+ 
+@@ -46255,6 +46258,7 @@ typedef struct JSPromiseData {
+     struct list_head promise_reactions[2];
+     BOOL is_handled; /* Note: only useful to debug */
+     JSValue promise_result;
++    JSContext * ctx;
+ } JSPromiseData;
+ 
+ typedef struct JSPromiseFunctionDataResolved {
+@@ -46335,6 +46339,14 @@ void JS_SetHostPromiseRejectionTracker(JSRuntime *rt,
+     rt->host_promise_rejection_tracker_opaque = opaque;
+ }
+ 
++void JS_SetHostUnhandledPromiseRejectionTracker(JSRuntime *rt,
++                                       JSHostPromiseRejectionTracker *cb,
++                                       void *opaque)
++{
++    rt->host_unhandled_promise_rejection_tracker = cb;
++    rt->host_unhandled_promise_rejection_tracker_opaque = opaque;
++}
++
+ static void fulfill_or_reject_promise(JSContext *ctx, JSValueConst promise,
+                                       JSValueConst value, BOOL is_reject)
+ {
+@@ -46539,6 +46551,14 @@ static void js_promise_finalizer(JSRuntime *rt, JSValue val)
+ 
+     if (!s)
+         return;
++
++    if (s->promise_state == JS_PROMISE_REJECTED && !s->is_handled) {
++        if (rt->host_unhandled_promise_rejection_tracker) {
++            rt->host_unhandled_promise_rejection_tracker(s->ctx, val, s->promise_result, FALSE,
++                                                         rt->host_unhandled_promise_rejection_tracker_opaque);
++        }
++    }
++
+     for(i = 0; i < 2; i++) {
+         list_for_each_safe(el, el1, &s->promise_reactions[i]) {
+             JSPromiseReactionData *rd =
+@@ -46589,6 +46609,7 @@ static JSValue js_promise_constructor(JSContext *ctx, JSValueConst new_target,
+     s = js_mallocz(ctx, sizeof(*s));
+     if (!s)
+         goto fail;
++    s->ctx = ctx;
+     s->promise_state = JS_PROMISE_PENDING;
+     s->is_handled = FALSE;
+     for(i = 0; i < 2; i++)
+diff --git a/quickjs/quickjs.h b/quickjs/quickjs.h
+index 0540191..215e7b2 100644
+--- a/quickjs/quickjs.h
++++ b/quickjs/quickjs.h
+@@ -839,6 +839,7 @@ typedef void JSHostPromiseRejectionTracker(JSContext *ctx, JSValueConst promise,
+                                            JSValueConst reason,
+                                            JS_BOOL is_handled, void *opaque);
+ void JS_SetHostPromiseRejectionTracker(JSRuntime *rt, JSHostPromiseRejectionTracker *cb, void *opaque);
++void JS_SetHostUnhandledPromiseRejectionTracker(JSRuntime *rt, JSHostPromiseRejectionTracker *cb, void *opaque);
+ 
+ /* return != 0 if the JS code needs to be interrupted */
+ typedef int JSInterruptHandler(JSRuntime *rt, void *opaque);

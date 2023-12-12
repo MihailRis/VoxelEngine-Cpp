@@ -27,6 +27,8 @@
 #include "files/files.h"
 #include "files/engine_paths.h"
 
+#include "jsruntime/jsruntime.h"
+
 using std::unique_ptr;
 using std::shared_ptr;
 using std::string;
@@ -55,6 +57,9 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths, Content* content)
 	}
 	Audio::initialize();
 	gui = new GUI();
+
+    jstest();
+    
 	std::cout << "-- initializing finished" << std::endl;
 }
 

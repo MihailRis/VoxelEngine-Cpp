@@ -47,6 +47,17 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 
-target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ${PNGLIB})
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/quickjs)
+
+add_library(quickjspp INTERFACE)
+target_link_libraries(quickjspp INTERFACE quickjs ${CMAKE_REQUIRED_LIBRARIES})
+target_compile_features(quickjspp INTERFACE cxx_std_17)
+target_include_directories(quickjspp INTERFACE .)
+set_target_properties(quickjspp PROPERTIES PUBLIC_HEADER quickjspp.hpp)
+
+
+target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ${PNGLIB} quickjspp)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

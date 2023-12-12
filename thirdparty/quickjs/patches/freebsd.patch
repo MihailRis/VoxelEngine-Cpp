@@ -1,0 +1,18 @@
+diff --git a/quickjs/quickjs-libc.c b/quickjs/quickjs-libc.c
+index e180dd0cd3..f0c61be66f 100644
+--- a/quickjs/quickjs-libc.c
++++ b/quickjs/quickjs-libc.c
+@@ -55,6 +55,13 @@ typedef sig_t sighandler_t;
+ #endif
+ #endif /* __APPLE__ */
+
++#if defined(__FreeBSD__)
++typedef sig_t sighandler_t;
++__BEGIN_DECLS
++extern char **environ;
++__END_DECLS
++#endif  /* __FreeBSD__ */
++
+ #endif
+
+ #if !defined(_WIN32)
