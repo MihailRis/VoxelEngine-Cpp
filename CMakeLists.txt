@@ -9,7 +9,7 @@ file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 
 if(MSVC)
-  target_compile_options(${PROJECT_NAME} PRIVATE /W4)
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4  /O2)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /source-charset:UTF-8")
 else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -lstdc++fs
