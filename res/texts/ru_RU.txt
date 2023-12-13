@@ -28,8 +28,9 @@ settings.Fog Curve=Кривая Тумана
 settings.Backlight=Подсветка
 settings.V-Sync=Вертикальная Синхронизация
 
-FOV=Поле Зрения
+settings.FOV=Поле Зрения
 settings.Mouse Sensitivity=Чувствительность Мыши
+settings.Language=Язык
 
 # Управление
 movement.forward=Вперёд

@@ -34,6 +34,7 @@
 using std::unique_ptr;
 using std::shared_ptr;
 using std::string;
+using std::vector;
 using std::filesystem::path;
 using glm::vec3;
 using gui::GUI;
@@ -60,15 +61,13 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths, Content* content)
 	Audio::initialize();
 	gui = new GUI();
 
-    std::vector<const ContentPack*> packs;
     auto resdir = paths->getResources();
-    auto base = std::make_unique<ContentPack>("base", resdir/path("content/base"));
-    packs.push_back(base.get());
+    contentPacks.push_back(ContentPack("base", resdir/path("content/base")));
 
     if (settings.ui.language == "auto") {
         settings.ui.language = platform::detect_locale();
     }
-    langs::setup(resdir, settings.ui.language, packs);
+    langs::setup(resdir, settings.ui.language, contentPacks);
 	std::cout << "-- initializing finished" << std::endl;
 }
 
@@ -146,6 +145,10 @@ void Engine::setScreen(shared_ptr<Screen> screen) {
 
 const Content* Engine::getContent() const {
 	return content;
+}
+
+vector<ContentPack>& Engine::getContentPacks() {
+    return contentPacks;
 }
 
 EnginePaths* Engine::getPaths() {

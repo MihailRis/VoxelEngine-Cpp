@@ -45,16 +45,7 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     auto menu = engine->getGUI()->getMenu();
 
     // Create pages if not created yet
-    if (!menu->has("new-world"))
-        menu->add("new-world", create_new_world_panel(engine, menu));
-    if (!menu->has("settings"))
-        menu->add("settings", create_settings_panel(engine, menu));
-    if (!menu->has("controls"))
-        menu->add("controls", create_controls_panel(engine, menu));
-    if (!menu->has("pause"))
-        menu->add("pause", create_pause_panel(engine, menu));
-
-    menu->add("main", create_main_menu_panel(engine, menu));
+    create_menus(engine, menu);
     menu->reset();
     menu->set("main");
 

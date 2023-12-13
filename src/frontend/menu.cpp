@@ -21,6 +21,7 @@
 #include "../settings.h"
 #include "../content/Content.h"
 #include "../content/ContentLUT.h"
+#include "../content/ContentPack.h"
 
 #include "gui/gui_util.h"
 #include "locale/langs.h"
@@ -37,6 +38,12 @@ using std::filesystem::u8path;
 using std::filesystem::directory_iterator;
 using namespace gui;
 
+Panel* create_main_menu_panel(Engine* engine, PagesControl* menu);
+Panel* create_new_world_panel(Engine* engine, PagesControl* menu);
+Panel* create_controls_panel(Engine* engine, PagesControl* menu);
+Panel* create_settings_panel(Engine* engine, PagesControl* menu);
+Panel* create_pause_panel(Engine* engine, PagesControl* menu);
+Panel* create_languages_panel(Engine* engine, PagesControl* menu);
 
 void show_content_missing(GUI* gui, const Content* content, ContentLUT* lut) {
     PagesControl* menu = gui->getMenu();
@@ -89,6 +96,42 @@ void show_convert_request(GUI* gui, const Content* content, ContentLUT* lut,
         converter->write();
         delete lut;
     }, L"", langs::get(L"Cancel"));
+}
+
+void create_menus(Engine* engine, PagesControl* menu) {
+    menu->add("new-world", create_new_world_panel(engine, menu));
+    menu->add("settings", create_settings_panel(engine, menu));
+    menu->add("controls", create_controls_panel(engine, menu));
+    menu->add("pause", create_pause_panel(engine, menu));
+    menu->add("languages", create_languages_panel(engine, menu));
+    menu->add("main", create_main_menu_panel(engine, menu));
+}
+
+Panel* create_languages_panel(Engine* engine, PagesControl* menu) {
+    Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
+    panel->scrollable(true);
+    std::vector<string> locales;
+    for (auto& entry : langs::locales_info) {
+        locales.push_back(entry.first);
+    }
+    std::sort(locales.begin(), locales.end());
+    for (string& name : locales) {
+        auto& locale = langs::locales_info.at(name);
+        string& fullName = locale.name;
+
+        Button* button = new Button(util::str2wstr_utf8(fullName), vec4(10.f));
+        button->listenAction([=](GUI*) {
+            auto resdir = engine->getPaths()->getResources();
+            langs::setup(resdir, name, engine->getContentPacks());
+            engine->getSettings().ui.language = name;
+            create_menus(engine, menu);
+            menu->back();
+        });
+        panel->add(button);
+    }
+    panel->add(guiutil::backButton(menu));
+    panel->refresh();
+    return panel;
 }
 
 Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
@@ -382,6 +425,14 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
         checkpanel->add(new Label(langs::get(L"Backlight", L"settings")));
 
         panel->add(checkpanel);
+    }
+
+    {
+        string langName = langs::locales_info.at(langs::current->getId()).name;
+        panel->add(guiutil::gotoButton(
+            langs::get(L"Language", L"settings")+L": "+
+            util::str2wstr_utf8(langName), 
+            "languages", menu));
     }
 
     panel->add(guiutil::gotoButton(langs::get(L"Controls", L"menu"), "controls", menu));

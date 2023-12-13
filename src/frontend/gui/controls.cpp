@@ -87,6 +87,13 @@ wstring Button::text() const {
     return L"";
 }
 
+Button* Button::textSupplier(wstringsupplier supplier) {
+    if (label) {
+        Label* label = (Label*)(this->label.get());
+        label->textSupplier(supplier);
+    }
+    return this;
+}
 void Button::drawBackground(Batch2D* batch, Assets* assets) {
     vec2 coord = calcCoord();
     batch->texture(nullptr);
@@ -110,6 +117,14 @@ void Button::mouseRelease(GUI* gui, int x, int y) {
 Button* Button::listenAction(onaction action) {
     actions.push_back(action);
     return this;
+}
+
+void Button::textAlign(Align align) {
+    if (label) {
+        Label* label = (Label*)(this->label.get());
+        label->align(align);
+        refresh();
+    }
 }
 
 // ================================ TextBox ===================================

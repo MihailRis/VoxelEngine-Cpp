@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <unordered_map>
 
-class ContentPack;
+#include "../../content/ContentPack.h"
 
 namespace langs {
     const char LANG_FILE_EXT[] = ".txt";
@@ -32,6 +32,8 @@ namespace langs {
 
         const std::wstring& get(const std::wstring& key) const;
         void put(const std::wstring& key, const std::wstring& text);
+
+        const std::string& getId() const;
     };
 
     struct LocaleInfo {
@@ -40,7 +42,7 @@ namespace langs {
     };
 
     extern std::unique_ptr<Lang> current;
-    extern std::vector<LocaleInfo> locales_info;
+    extern std::unordered_map<std::string, LocaleInfo> locales_info;
 
     extern void loadLocalesInfo(
         const std::filesystem::path& resdir,
@@ -48,12 +50,12 @@ namespace langs {
 
     extern void load(const std::filesystem::path& resdir,
                      const std::string& locale,
-                     std::vector<const ContentPack*>& packs,
+                     const std::vector<ContentPack>& packs,
                      Lang& lang);
     extern void load(const std::filesystem::path& resdir,
                      const std::string& locale,
                      const std::string& fallback,
-                     std::vector<const ContentPack*>& packs);
+                     const std::vector<ContentPack>& packs);
 
     extern const std::wstring& get(const std::wstring& key);
     extern const std::wstring& get(const std::wstring& key, 
@@ -61,7 +63,7 @@ namespace langs {
 
     extern void setup(const std::filesystem::path& resdir,
                       const std::string& locale,
-                      std::vector<const ContentPack*>& packs);
+                      const std::vector<ContentPack>& packs);
 }
 
 #endif // FRONTEND_LOCALE_LANGS_H
