@@ -43,9 +43,7 @@ using std::shared_ptr;
 
 MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     auto menu = engine->getGUI()->getMenu();
-
-    // Create pages if not created yet
-    create_menus(engine, menu);
+    menus::refresh_menus(engine, menu);
     menu->reset();
     menu->set("main");
 
@@ -123,23 +121,6 @@ void LevelScreen::updateHotkeys() {
         level->player->debug = !level->player->debug;
     }
     if (Events::jpressed(keycode::F5)) {
-        level->chunks->saveAndClear();
-    }
-
-    // TODO: remove in v0.16
-    if (Events::jpressed(keycode::F9)) {
-        blockid_t woodid = level->content->requireBlock("base:wood")->rt.id;
-        for (size_t i = 0; i < level->chunks->volume; i++){
-            Chunk* chunk = level->chunks->chunks[i].get();
-            if (chunk) {
-                for (uint i = 0; i < CHUNK_VOL; i++) {
-                    auto& vox = chunk->voxels[i];
-                    if (vox.id == woodid) {
-                        vox.states = BLOCK_DIR_UP;
-                    }
-                }
-            }
-        }
         level->chunks->saveAndClear();
     }
 }

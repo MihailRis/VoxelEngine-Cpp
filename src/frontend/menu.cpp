@@ -45,6 +45,19 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu);
 Panel* create_pause_panel(Engine* engine, PagesControl* menu);
 Panel* create_languages_panel(Engine* engine, PagesControl* menu);
 
+void menus::create_menus(Engine* engine, PagesControl* menu) {
+    menu->add("new-world", create_new_world_panel(engine, menu));
+    menu->add("settings", create_settings_panel(engine, menu));
+    menu->add("controls", create_controls_panel(engine, menu));
+    menu->add("pause", create_pause_panel(engine, menu));
+    menu->add("languages", create_languages_panel(engine, menu));
+    menu->add("main", create_main_menu_panel(engine, menu));
+}
+
+void menus::refresh_menus(Engine* engine, PagesControl* menu) {
+    menu->add("main", create_main_menu_panel(engine, menu));
+}
+
 void show_content_missing(GUI* gui, const Content* content, ContentLUT* lut) {
     PagesControl* menu = gui->getMenu();
     Panel* panel = new Panel(vec2(500, 200), vec4(8.0f), 8.0f);
@@ -98,15 +111,6 @@ void show_convert_request(GUI* gui, const Content* content, ContentLUT* lut,
     }, L"", langs::get(L"Cancel"));
 }
 
-void create_menus(Engine* engine, PagesControl* menu) {
-    menu->add("new-world", create_new_world_panel(engine, menu));
-    menu->add("settings", create_settings_panel(engine, menu));
-    menu->add("controls", create_controls_panel(engine, menu));
-    menu->add("pause", create_pause_panel(engine, menu));
-    menu->add("languages", create_languages_panel(engine, menu));
-    menu->add("main", create_main_menu_panel(engine, menu));
-}
-
 Panel* create_languages_panel(Engine* engine, PagesControl* menu) {
     Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
     panel->scrollable(true);
@@ -122,9 +126,7 @@ Panel* create_languages_panel(Engine* engine, PagesControl* menu) {
         Button* button = new Button(util::str2wstr_utf8(fullName), vec4(10.f));
         button->listenAction([=](GUI*) {
             auto resdir = engine->getPaths()->getResources();
-            langs::setup(resdir, name, engine->getContentPacks());
-            engine->getSettings().ui.language = name;
-            create_menus(engine, menu);
+            engine->setLanguage(name);
             menu->back();
         });
         panel->add(button);

@@ -20,6 +20,7 @@
 #include "graphics/ImageData.h"
 #include "frontend/gui/GUI.h"
 #include "frontend/screens.h"
+#include "frontend/menu.h"
 #include "util/platform.h"
 
 #include "coders/json.h"
@@ -67,7 +68,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths, Content* content)
     if (settings.ui.language == "auto") {
         settings.ui.language = platform::detect_locale();
     }
-    langs::setup(resdir, settings.ui.language, contentPacks);
+    setLanguage(settings.ui.language);
 	std::cout << "-- initializing finished" << std::endl;
 }
 
@@ -153,4 +154,10 @@ vector<ContentPack>& Engine::getContentPacks() {
 
 EnginePaths* Engine::getPaths() {
 	return paths;
+}
+
+void Engine::setLanguage(string locale) {
+	settings.ui.language = locale;
+	langs::setup(paths->getResources(), locale, contentPacks);
+	menus::create_menus(this, gui->getMenu());
 }

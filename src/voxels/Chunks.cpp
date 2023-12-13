@@ -177,7 +177,7 @@ void Chunks::set(int x, int y, int z, int id, uint8_t states){
 	if (lz == CHUNK_D-1 && (chunk = getChunk(cx+ox, cz+oz+1))) 
 		chunk->setModified(true);
 }
-#include "../util/timeutil.h"
+
 voxel* Chunks::rayCast(vec3 start, 
 					   vec3 dir, 
 					   float maxDist, 
@@ -321,8 +321,6 @@ vec3 Chunks::rayCastToObstacle(vec3 start, vec3 dir, float maxDist) {
 	float tyMax = (tyDelta < infinity) ? tyDelta * ydist : infinity;
 	float tzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
 
-	int steppedIndex = -1;
-
 	while (t <= maxDist) {
 		voxel* voxel = get(ix, iy, iz);
 		if (!voxel) { return vec3(px + t * dx, py + t * dy, pz + t * dz); }
@@ -349,13 +347,11 @@ vec3 Chunks::rayCastToObstacle(vec3 start, vec3 dir, float maxDist) {
 				ix += stepx;
 				t = txMax;
 				txMax += txDelta;
-				steppedIndex = 0;
 			}
 			else {
 				iz += stepz;
 				t = tzMax;
 				tzMax += tzDelta;
-				steppedIndex = 2;
 			}
 		}
 		else {
@@ -363,13 +359,11 @@ vec3 Chunks::rayCastToObstacle(vec3 start, vec3 dir, float maxDist) {
 				iy += stepy;
 				t = tyMax;
 				tyMax += tyDelta;
-				steppedIndex = 1;
 			}
 			else {
 				iz += stepz;
 				t = tzMax;
 				tzMax += tzDelta;
-				steppedIndex = 2;
 			}
 		}
 	}

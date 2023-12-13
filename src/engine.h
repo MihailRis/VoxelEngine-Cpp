@@ -53,6 +53,7 @@ public:
 	EnginePaths* getPaths();
 	const Content* getContent() const;
     std::vector<ContentPack>& getContentPacks();
+	void setLanguage(std::string locale);
 };
 
 #endif // SRC_ENGINE_H_
