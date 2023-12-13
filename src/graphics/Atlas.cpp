@@ -41,15 +41,20 @@ ImageData* Atlas::getImage() const {
 
 void AtlasBuilder::add(string name, ImageData* image) {
     entries.push_back(atlasentry{name, shared_ptr<ImageData>(image)});
+    names.insert(name);
+}
+
+bool AtlasBuilder::has(string name) const {
+    return names.find(name) != names.end();
 }
 
 Atlas* AtlasBuilder::build(uint extrusion, uint maxResolution) {
     unique_ptr<uint[]> sizes (new uint[entries.size() * 2]);
-    for (uint i = 0; i < entries.size(); i++) {
-        auto& entry = entries[i];
+    uint index = 0;
+    for (auto& entry : entries) {
         auto image = entry.image;
-        sizes[i*2] = image->getWidth();
-        sizes[i*2+1] = image->getHeight();
+        sizes[index++] = image->getWidth();
+        sizes[index++] = image->getHeight();
     }
     LMPacker packer(sizes.get(), entries.size()*2);
     sizes.reset(nullptr);

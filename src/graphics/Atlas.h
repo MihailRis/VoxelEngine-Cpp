@@ -1,6 +1,7 @@
 #ifndef GRAPHICS_ATLAS_H_
 #define GRAPHICS_ATLAS_H_
 
+#include <set>
 #include <string>
 #include <memory>
 #include <vector>
@@ -33,10 +34,12 @@ struct atlasentry {
 };
 
 class AtlasBuilder {
-    std::vector<atlasentry> entries;   
+    std::vector<atlasentry> entries;
+    std::set<std::string> names;
 public:
     AtlasBuilder() {}
     void add(std::string name, ImageData* image);
+    bool has(std::string name) const;
 
     Atlas* build(uint extrusion, uint maxResolution=8192);
 };

@@ -52,29 +52,8 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 
     auto resdir = paths->getResources();
     contentPacks.push_back({"base", resdir/path("content/base")});
-    {
-        ContentBuilder contentBuilder;
-	    setup_definitions(&contentBuilder);
-        for (auto& pack : contentPacks) {
-	        ContentLoader loader(pack.folder);
-            loader.load(&contentBuilder);
-        }
-        content.reset(contentBuilder.build());
-    }
-    Shader::preprocessor->setLibFolder(paths->getResources()/path("shaders/lib"));
+    loadContent();
 
-	assets = new Assets();
-	std::cout << "-- loading assets" << std::endl;
-	AssetsLoader loader(assets, paths->getResources());
-	AssetsLoader::createDefaults(loader);
-	AssetsLoader::addDefaults(loader);
-	while (loader.hasNext()) {
-		if (!loader.loadNext()) {
-			delete assets;
-			Window::terminate();
-			throw initialize_error("could not to initialize assets");
-		}
-	}
 	Audio::initialize();
 	gui = new GUI();
     if (settings.ui.language == "auto") {
@@ -120,7 +99,7 @@ void Engine::mainloop() {
 		gui->act(delta);
 		screen->update(delta);
 		screen->draw(delta);
-		gui->draw(&batch, assets);
+		gui->draw(&batch, assets.get());
 
 		Window::swapInterval(settings.display.swapInterval);
 		Window::swapBuffers();
@@ -135,7 +114,7 @@ Engine::~Engine() {
 	Audio::finalize();
 
 	std::cout << "-- shutting down" << std::endl;
-	delete assets;
+    assets.reset();
 	Window::terminate();
 	std::cout << "-- engine finished" << std::endl;
 }
@@ -149,7 +128,7 @@ EngineSettings& Engine::getSettings() {
 }
 
 Assets* Engine::getAssets() {
-	return assets;
+	return assets.get();
 }
 
 void Engine::setScreen(shared_ptr<Screen> screen) {
@@ -172,4 +151,34 @@ void Engine::setLanguage(string locale) {
 	settings.ui.language = locale;
 	langs::setup(paths->getResources(), locale, contentPacks);
 	menus::create_menus(this, gui->getMenu());
+}
+
+void Engine::loadContent() {
+    auto resdir = paths->getResources();
+    ContentBuilder contentBuilder;
+    setup_definitions(&contentBuilder);
+    
+    vector<path> resRoots;
+    for (auto& pack : contentPacks) {
+        ContentLoader loader(pack.folder);
+        loader.load(&contentBuilder);
+        resRoots.push_back(pack.folder);
+    }
+    content.reset(contentBuilder.build());
+    resPaths.reset(new ResPaths(resdir, resRoots));
+
+    Shader::preprocessor->setPaths(resPaths.get());
+
+	assets.reset(new Assets());
+	std::cout << "-- loading assets" << std::endl;
+	AssetsLoader loader(assets.get(), resPaths.get());
+	AssetsLoader::createDefaults(loader);
+	AssetsLoader::addDefaults(loader);
+	while (loader.hasNext()) {
+		if (!loader.loadNext()) {
+			assets.reset();
+			Window::terminate();
+			throw initialize_error("could not to initialize assets");
+		}
+	}
 }

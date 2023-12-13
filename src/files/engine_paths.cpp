@@ -8,6 +8,7 @@
 
 namespace fs = std::filesystem;
 using std::string;
+using std::vector;
 using fs::path;
 
 path EnginePaths::getUserfiles() const {
@@ -55,4 +56,39 @@ void EnginePaths::setUserfiles(path folder) {
 
 void EnginePaths::setResources(path folder) {
 	this->resources = folder;
+}
+
+ResPaths::ResPaths(path mainRoot, vector<path> roots) 
+    : mainRoot(mainRoot), roots(roots) {
+}
+
+path ResPaths::find(const string& filename) const {
+    for (auto& root : roots) {
+        path file = root / path(filename);
+        if (fs::exists(file)) {
+            return file;
+        }
+    }
+    return mainRoot / path(filename);
+}
+
+vector<path> ResPaths::listdir(const string& folderName) const {
+    vector<path> entries;
+    for (auto& root : roots) {
+        path folder = root / path(folderName);
+        if (!fs::is_directory(folder))
+            continue;
+        for (const auto& entry : fs::directory_iterator(folder)) {
+            entries.push_back(entry.path());
+        }
+    }
+    {
+        path folder = mainRoot / path(folderName);
+        if (!fs::is_directory(folder))
+            return entries;
+        for (const auto& entry : fs::directory_iterator(folder)) {
+            entries.push_back(entry.path());
+        }
+    }
+    return entries;
 }
