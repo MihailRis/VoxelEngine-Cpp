@@ -117,12 +117,12 @@ void CameraControl::update(PlayerInput& input, float delta, Chunks* chunks) {
 			player->currentViewCamera = camera;
 	}
 	if (player->currentViewCamera == player->SPCamera) {
-		player->SPCamera->position = chunks->rayCastToObstacle(camera->position, camera->front, 3.0f);
+		player->SPCamera->position = chunks->rayCastToObstacle(camera->position, camera->front, 3.0f) - 0.2f*(camera->front);
 		player->SPCamera->dir = -camera->dir;
 		player->SPCamera->front = -camera->front;
 	}
 	else if (player->currentViewCamera == player->TPCamera) {
-		player->TPCamera->position = chunks->rayCastToObstacle(camera->position, -camera->front, 3.0f);
+		player->TPCamera->position = chunks->rayCastToObstacle(camera->position, -camera->front, 3.0f) + 0.2f * (camera->front);
 		player->TPCamera->dir = camera->dir;
 		player->TPCamera->front = camera->front;
 	}

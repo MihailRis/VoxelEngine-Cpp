@@ -24,6 +24,8 @@
         "blue_lamp",
         "pane",
         "pipe",
-        "lightbulb"
+        "lightbulb",
+		"torch",
+		"wallpaper"
     ]
 }
