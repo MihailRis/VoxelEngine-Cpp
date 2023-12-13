@@ -12,13 +12,6 @@
 #include "files/files.h"
 #include "files/settings_io.h"
 #include "files/engine_paths.h"
-#include "content/Content.h"
-#include "content/ContentLoader.h"
-
-#include "coders/png.h"
-#include "graphics/Atlas.h"
-#include "graphics/ImageData.h"
-
 #include "util/command_line.h"
 
 using std::filesystem::path;
@@ -29,13 +22,6 @@ int main(int argc, char** argv) {
 		return EXIT_SUCCESS;
 
 	platform::configure_encoding();
-	ContentBuilder contentBuilder;
-	setup_definitions(&contentBuilder);
-	// TODO: implement worlds indexing
-	ContentLoader loader(paths.getResources()/path("content/base"));
-	loader.load(&contentBuilder);
-
-	std::unique_ptr<Content> content(contentBuilder.build());
 	try {
 	    EngineSettings settings;
 		toml::Wrapper wrapper = create_wrapper(settings);
@@ -44,16 +30,16 @@ int main(int argc, char** argv) {
 		path controls_file = platform::get_controls_file();
 		if (std::filesystem::is_regular_file(settings_file)) {
 			std::cout << "-- loading settings" << std::endl;
-			std::string content = files::read_string(settings_file);
-			toml::Reader reader(&wrapper, settings_file.string(), content);
+			std::string text = files::read_string(settings_file);
+			toml::Reader reader(&wrapper, settings_file.string(), text);
 			reader.read();
 		}
-		Engine engine(settings, &paths, content.get());
+		Engine engine(settings, &paths);
 		setup_bindings();
 		if (std::filesystem::is_regular_file(controls_file)) {
 			std::cout << "-- loading controls" << std::endl;
-			std::string content = files::read_string(controls_file);
-			load_controls(controls_file.string(), content);
+			std::string text = files::read_string(controls_file);
+			load_controls(controls_file.string(), text);
 		}
 		engine.mainloop();
 		

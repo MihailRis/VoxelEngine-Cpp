@@ -105,11 +105,11 @@ void langs::load(const path& resdir,
         reader.read(lang, "");
     }
     for (auto pack : packs) {
-        path file = pack.getFolder()/filename;
+        path file = pack.folder/filename;
         if (fs::is_regular_file(file)) {
             string text = files::read_string(file);
             Reader reader(file.string(), text);
-            reader.read(lang, pack.getId()+":");
+            reader.read(lang, pack.id+":");
         }
     }
 }

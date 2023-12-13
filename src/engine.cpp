@@ -29,8 +29,12 @@
 #include "files/files.h"
 #include "files/engine_paths.h"
 
+#include "content/Content.h"
 #include "content/ContentPack.h"
+#include "content/ContentLoader.h"
 #include "frontend/locale/langs.h"
+
+#include "definitions.h"
 
 using std::unique_ptr;
 using std::shared_ptr;
@@ -40,12 +44,24 @@ using std::filesystem::path;
 using glm::vec3;
 using gui::GUI;
 
-Engine::Engine(EngineSettings& settings, EnginePaths* paths, Content* content) 
-	   : settings(settings), content(content), paths(paths) {    
+Engine::Engine(EngineSettings& settings, EnginePaths* paths) 
+	   : settings(settings), paths(paths) {    
 	if (Window::initialize(settings.display)){
 		throw initialize_error("could not initialize window");
 	}
-	Shader::preprocessor->setLibFolder(paths->getResources()/path("shaders/lib"));
+
+    auto resdir = paths->getResources();
+    contentPacks.push_back({"base", resdir/path("content/base")});
+    {
+        ContentBuilder contentBuilder;
+	    setup_definitions(&contentBuilder);
+        for (auto& pack : contentPacks) {
+	        ContentLoader loader(pack.folder);
+            loader.load(&contentBuilder);
+        }
+        content.reset(contentBuilder.build());
+    }
+    Shader::preprocessor->setLibFolder(paths->getResources()/path("shaders/lib"));
 
 	assets = new Assets();
 	std::cout << "-- loading assets" << std::endl;
@@ -61,10 +77,6 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths, Content* content)
 	}
 	Audio::initialize();
 	gui = new GUI();
-
-    auto resdir = paths->getResources();
-    contentPacks.push_back(ContentPack("base", resdir/path("content/base")));
-
     if (settings.ui.language == "auto") {
         settings.ui.language = platform::detect_locale();
     }
@@ -145,7 +157,7 @@ void Engine::setScreen(shared_ptr<Screen> screen) {
 }
 
 const Content* Engine::getContent() const {
-	return content;
+	return content.get();
 }
 
 vector<ContentPack>& Engine::getContentPacks() {

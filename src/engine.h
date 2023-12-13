@@ -8,12 +8,12 @@
 #include "typedefs.h"
 #include "settings.h"
 
+#include "content/Content.h"
 #include "content/ContentPack.h"
 
 class Assets;
 class Level;
 class Screen;
-class Content;
 class EnginePaths;
 
 namespace gui {
@@ -30,7 +30,7 @@ class Engine {
 	std::shared_ptr<Screen> screen = nullptr;
     std::vector<ContentPack> contentPacks;
 	EngineSettings& settings;
-	Content* content;
+	std::unique_ptr<Content> content = nullptr;
 	EnginePaths* paths;
 
 	uint64_t frame = 0;
@@ -39,7 +39,7 @@ class Engine {
 
 	gui::GUI* gui;
 public:
-	Engine(EngineSettings& settings, EnginePaths* paths, Content* content);
+	Engine(EngineSettings& settings, EnginePaths* paths);
 	~Engine();
 
 	void updateTimers();
