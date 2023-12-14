@@ -153,7 +153,7 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
             if (!entry.is_directory()) {
                 continue;
             }
-            string name = entry.path().filename().string();
+            string name = entry.path().filename().u8string();
             Button* button = new Button(util::str2wstr_utf8(name), 
                                         vec4(10.0f, 8.0f, 10.0f, 8.0f));
             button->color(vec4(1.0f, 1.0f, 1.0f, 0.1f));
