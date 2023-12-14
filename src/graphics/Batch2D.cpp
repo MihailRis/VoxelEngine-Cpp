@@ -304,9 +304,11 @@ void Batch2D::sprite(float x, float y, float w, float h, int atlasRes, int index
 }
 
 void Batch2D::render(unsigned int gl_primitive) {
-	mesh->reload(buffer, index / B2D_VERTEX_SIZE);
-	mesh->draw(gl_primitive);
-	index = 0;
+    if (index == 0)
+        return;
+    mesh->reload(buffer, index / B2D_VERTEX_SIZE);
+    mesh->draw(gl_primitive);
+    index = 0;
 }
 
 void Batch2D::render() {
