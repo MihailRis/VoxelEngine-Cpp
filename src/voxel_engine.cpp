@@ -24,14 +24,14 @@ int main(int argc, char** argv) {
 	platform::configure_encoding();
 	try {
 	    EngineSettings settings;
-		toml::Wrapper wrapper = create_wrapper(settings);
+		std::unique_ptr<toml::Wrapper> wrapper (create_wrapper(settings));
 
 		path settings_file = platform::get_settings_file();
 		path controls_file = platform::get_controls_file();
 		if (std::filesystem::is_regular_file(settings_file)) {
 			std::cout << "-- loading settings" << std::endl;
 			std::string text = files::read_string(settings_file);
-			toml::Reader reader(&wrapper, settings_file.string(), text);
+			toml::Reader reader(wrapper.get(), settings_file.string(), text);
 			reader.read();
 		}
 		Engine engine(settings, &paths);
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 		engine.mainloop();
 		
 		std::cout << "-- saving settings" << std::endl;
-		files::write_string(settings_file, wrapper.write());
+		files::write_string(settings_file, wrapper->write());
 		files::write_string(controls_file, write_controls());
 	}
 	catch (const initialize_error& err) {

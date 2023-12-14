@@ -1,48 +1,50 @@
 #include "settings_io.h"
 
+#include <memory>
 #include <iostream>
 
 #include "../window/Events.h"
 #include "../window/input.h"
 
+#include "../coders/toml.h"
 #include "../coders/json.h"
 
 using std::string;
 
-toml::Wrapper create_wrapper(EngineSettings& settings) {
-	toml::Wrapper wrapper;
-	toml::Section& display = wrapper.add("display");
+toml::Wrapper* create_wrapper(EngineSettings& settings) {
+	std::unique_ptr<toml::Wrapper> wrapper (new toml::Wrapper());
+	toml::Section& display = wrapper->add("display");
 	display.add("fullscreen", &settings.display.fullscreen);
 	display.add("width", &settings.display.width);
 	display.add("height", &settings.display.height);
 	display.add("samples", &settings.display.samples);
 	display.add("swap-interval", &settings.display.swapInterval);
 
-	toml::Section& chunks = wrapper.add("chunks");
+	toml::Section& chunks = wrapper->add("chunks");
 	chunks.add("load-distance", &settings.chunks.loadDistance);
 	chunks.add("load-speed", &settings.chunks.loadSpeed);
 	chunks.add("padding", &settings.chunks.padding);
 	
-	toml::Section& camera = wrapper.add("camera");
+	toml::Section& camera = wrapper->add("camera");
 	camera.add("fov-effects", &settings.camera.fovEvents);
 	camera.add("fov", &settings.camera.fov);
 	camera.add("shaking", &settings.camera.shaking);
 	camera.add("sensitivity", &settings.camera.sensitivity);
 
-	toml::Section& graphics = wrapper.add("graphics");
+	toml::Section& graphics = wrapper->add("graphics");
 	graphics.add("fog-curve", &settings.graphics.fogCurve);
 	graphics.add("backlight", &settings.graphics.backlight);
 	graphics.add("frustum-culling", &settings.graphics.frustumCulling);
 	graphics.add("skybox-resolution", &settings.graphics.skyboxResolution);
 
-	toml::Section& debug = wrapper.add("debug");
+	toml::Section& debug = wrapper->add("debug");
 	debug.add("generator-test-mode", &settings.debug.generatorTestMode);
 	debug.add("show-chunk-borders", &settings.debug.showChunkBorders);
 	debug.add("do-write-lights", &settings.debug.doWriteLights);
 
-    toml::Section& ui = wrapper.add("ui");
+    toml::Section& ui = wrapper->add("ui");
     ui.add("language", &settings.ui.language);
-	return wrapper;
+	return wrapper.release();
 }
 
 string write_controls() {
