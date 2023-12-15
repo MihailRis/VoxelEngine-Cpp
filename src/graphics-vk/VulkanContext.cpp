@@ -90,7 +90,6 @@ namespace vulkan {
     void VulkanContext::initUploadContext() {
         VkFenceCreateInfo fenceInfo{};
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        // fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
         VkCommandPoolCreateInfo commandPoolCreateInfo{};
         commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;

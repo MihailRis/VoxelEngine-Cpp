@@ -12,6 +12,7 @@
 #include "../VulkanContext.h"
 #include "../VulkanDefenitions.h"
 #include "../uniforms/DynamicConstants.h"
+#include "../uniforms/ProjectionViewConstant.h"
 
 inline std::vector<char> readFile(const std::filesystem::path &path) {
 
@@ -115,6 +116,21 @@ namespace vulkan {
         vkCmdPushConstants(commandBuffer, m_pipeline->getLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(DynamicConstants), &constants);
     }
 
+    template<ShaderType ...Types>
+    struct CheckAllowShaders {
+        bool value = false;
+        explicit CheckAllowShaders(ShaderType type) {
+            value = ((type == Types) || ...);
+        }
+    };
+
+    void Shader::pushConatnt(const ProjectionViewConstant& constant) {
+        const auto commandBuffer = VulkanContext::get().getCurrentState().commandbuffer;
+
+        if (commandBuffer == VK_NULL_HANDLE || m_pipeline == nullptr || !CheckAllowShaders<ShaderType::UI, ShaderType::UI3D, ShaderType::LINES>(m_type).value) return;
+        vkCmdPushConstants(commandBuffer, m_pipeline->getLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ProjectionViewConstant), &constant);
+    }
+
     void Shader::use(VkCommandBuffer commandBuffer, VkExtent2D extent2D) {
         if (commandBuffer == VK_NULL_HANDLE) return;
         m_pipeline->bind(commandBuffer, extent2D);
@@ -143,6 +159,7 @@ namespace vulkan {
         const auto applyUniform = m_values.getApplyUniform();
 
         switch (m_type) {
+            default:
             case ShaderType::NONE:
                 return;
             case ShaderType::MAIN: {
@@ -163,7 +180,7 @@ namespace vulkan {
         }
     }
 
-    Shader* loadShader(std::string vertexFile, std::string fragmentFile, ShaderType type) {
+    Shader* loadShader(const std::filesystem::path &vertexFile, const std::filesystem::path &fragmentFile, ShaderType type) {
         if (type == ShaderType::NONE)
             return nullptr;
 

@@ -4,6 +4,10 @@
 #include "../typedefs.h"
 #include <glm/glm.hpp>
 
+namespace vulkan {
+    class Batch3D;
+}
+
 class Viewport;
 class IShader;
 class Atlas;
@@ -14,7 +18,7 @@ class ContentGfxCache;
 class BlocksPreview {
     IShader* shader;
     Atlas* atlas;
-    Batch3D* batch;
+    vulkan::Batch3D* batch;
     const ContentGfxCache* const cache;
     const Viewport* viewport;
 public:

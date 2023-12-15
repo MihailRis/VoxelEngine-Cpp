@@ -68,7 +68,7 @@ void MenuScreen::update(float delta) {
 void MenuScreen::draw(float delta) {
     Window::clear();
     Window::setBgColor(vec3(0.2f));
-    vulkan::VulkanContext::get().beginScreenDraw(0.2f, 0.2f, 0.2f);
+    vulkan::VulkanContext::get().beginScreenDraw(0.0f, 0.0f, 0.0f);
 
     uicamera->setFov(Window::height);
 	IShader* uishader = engine->getAssets()->getShader("ui");

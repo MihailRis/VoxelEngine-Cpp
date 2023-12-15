@@ -17,7 +17,9 @@ layout (set = 0, binding = 1) uniform Fog {
 };
 
 void main(){
-    vec3 fogColor = texture(u_cubemap, a_dir).rgb;
+    vec3 dir = a_dir;
+    dir.z = -dir.z;
+    vec3 fogColor = texture(u_cubemap, dir).rgb;
     vec4 tex_color = texture(u_texture0, a_texCoord);
     float depth = (a_distance/256.0);
     float alpha = a_color.a * tex_color.a;

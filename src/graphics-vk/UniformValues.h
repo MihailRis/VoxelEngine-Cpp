@@ -15,7 +15,6 @@
 #include "uniforms/BackgroundUniform.h"
 #include "uniforms/FogUniform.h"
 #include "uniforms/ProjectionViewUniform.h"
-#include "uniforms/SkyboxUniform.h"
 #include "uniforms/StateUniform.h"
 
 namespace vulkan {
@@ -26,7 +25,7 @@ namespace vulkan {
         glm::mat4>;
 
     template<typename T>
-    inline constexpr bool is_uniform_type_v = tools::is_same_of_types_v<T, float, int, glm::vec2, glm::vec3, glm::vec4, glm::mat4, std::vector<glm::vec3>>;
+    inline constexpr bool is_uniform_type_v = tools::is_same_of_types_v<T, float, int, glm::vec2, glm::vec3, glm::vec4, glm::mat4>;
 
     // this class use for generate vulkan uniforms
     // Vulkan shaders doesn't support OpenGL uniform: uniform mat4 name

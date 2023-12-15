@@ -10,6 +10,7 @@
 
 #ifdef USE_VULKAN
 #include <vulkan/vulkan_core.h>
+struct ProjectionViewConstant;
 struct DynamicConstants;
 #endif
 
@@ -30,6 +31,7 @@ public:
 #ifdef USE_VULKAN
     virtual void use(VkCommandBuffer commandBuffer, VkExtent2D extent2D) { }
     virtual void pushConstant(const DynamicConstants &constants) { }
+    virtual void pushConatnt(const ProjectionViewConstant &constant) { }
 #endif
 };
 

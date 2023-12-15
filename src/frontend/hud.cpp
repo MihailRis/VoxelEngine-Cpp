@@ -65,9 +65,9 @@ HudRenderer::HudRenderer(Engine* engine,
 			  gui(engine->getGUI()),
 			  cache(cache) {
 	auto menu = gui->getMenu();
-	// blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
-	// 								  assets->getAtlas("blocks"),
-	// 								  cache);
+	blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
+									  assets->getAtlas("blocks"),
+									  cache);
 
 	uicamera = new Camera(vec3(), 1);
 	uicamera->perspective = false;
@@ -92,7 +92,11 @@ HudRenderer::HudRenderer(Engine* engine,
 		return L"fps: "+this->fpsString;
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
+#ifdef USE_VULKAN
+		return L"meshes: " + std::to_wstring(vulkan::meshesCount);
+#else
 		return L"meshes: " + std::to_wstring(Mesh::meshesCount);
+#endif
 	})));
 	panel->add(shared_ptr<Label>(create_label([=](){
 		auto& settings = engine->getSettings();
@@ -344,19 +348,19 @@ void HudRenderer::draw(const GfxContext& ctx){
 	batch->rect(width - 68, height - 68, 68, 68);
 	batch->setColor(vec4(1.0f));
 	batch->render();
-	batch->end();
+	// batch->end();
 
-	// blocksPreview->begin(&ctx.getViewport());
-	// {
-	// 	Window::clearDepth();
-	// 	GfxContext subctx = ctx.sub();
-	// 	subctx.depthTest(true);
-	// 	subctx.cullFace(true);
-	//
-	// 	Block* cblock = contentIds->getBlockDef(player->choosenBlock);
-	// 	assert(cblock != nullptr);
-	// 	blocksPreview->draw(cblock, width - 56, uicamera->getFov() - 56, 48, vec4(1.0f));
-	// }
+	blocksPreview->begin(&ctx.getViewport());
+	{
+		Window::clearDepth();
+		GfxContext subctx = ctx.sub();
+		subctx.depthTest(true);
+		subctx.cullFace(true);
+
+		Block* cblock = contentIds->getBlockDef(player->choosenBlock);
+		assert(cblock != nullptr);
+		blocksPreview->draw(cblock, width - 56, uicamera->getFov() - 56, 48, vec4(1.0f));
+	}
 	uishader->use();
 #ifndef USE_VULKAN
 	batch->begin();

@@ -48,6 +48,7 @@ namespace vulkan {
         void uniform3f(std::string name, glm::vec3 xyz) override;
 
         void pushConstant(const DynamicConstants& constants) override;
+        void pushConatnt(const ProjectionViewConstant& constant) override;
 
         void use(VkCommandBuffer commandBuffer, VkExtent2D extent2D) override;
         
@@ -56,7 +57,7 @@ namespace vulkan {
         void updateUniform();
     };
 
-    Shader *loadShader(std::string vertexFile, std::string fragmentFile, ShaderType type);
+    Shader *loadShader(const std::filesystem::path &vertexFile, const std::filesystem::path &fragmentFile, ShaderType type);
 
 } // vulkan
 

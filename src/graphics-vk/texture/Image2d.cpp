@@ -146,6 +146,7 @@ void Image2d::bind() {
     switch (type) {
         case ShaderType::MAIN:
         case ShaderType::UI:
+        case ShaderType::UI3D:
             samplerWrite.dstBinding = 0;
             break;
         case ShaderType::NONE:

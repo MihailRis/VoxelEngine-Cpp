@@ -14,7 +14,6 @@ class ITexture;
 namespace vulkan {
 
     class Batch2D {
-        std::vector<VertexOffset> m_offsets{};
         Vertex2D *m_buffer = nullptr;
         Mesh<Vertex2D> *m_mesh = nullptr;
         size_t m_capacity = 0;

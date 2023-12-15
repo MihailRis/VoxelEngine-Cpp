@@ -6,8 +6,8 @@
 #include "UVRegion.h"
 #include "../typedefs.h"
 
+class ITexture;
 class Mesh;
-class Texture;
 
 class Batch3D {
 	float* buffer;
@@ -16,8 +16,8 @@ class Batch3D {
 	Mesh* mesh;
 	size_t index;
 
-	Texture* blank;
-	Texture* _texture;
+	ITexture* blank;
+	ITexture* _texture;
 
 	void vertex(float x, float y, float z,
 				float u, float v,
@@ -39,7 +39,7 @@ public:
 	~Batch3D();
 
 	void begin();
-	void texture(Texture* texture);
+	void texture(ITexture* texture);
 	void sprite(glm::vec3 pos, glm::vec3 up, glm::vec3 right, float w, float h, const UVRegion& uv, glm::vec4 tint);
 	void xSprite(float w, float h, const UVRegion& uv, const glm::vec4 tint, bool shading=true);
 	void blockCube(const glm::vec3 size, const UVRegion(&texfaces)[6], const glm::vec4 tint, bool shading=true);

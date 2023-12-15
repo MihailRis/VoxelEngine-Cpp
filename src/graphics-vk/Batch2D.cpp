@@ -16,7 +16,7 @@ namespace vulkan {
             255, 255, 255, 255
         };
 
-        m_blank = new Image2d(pixels, 1, 1, VK_FORMAT_R8G8B8A8_SRGB);
+        m_blank = new Image2d(pixels, 1, 1, VK_FORMAT_R8G8B8A8_UNORM);
         m_texture = m_blank;
     }
 
@@ -39,9 +39,11 @@ namespace vulkan {
         render();
         if (texture == nullptr) {
             m_texture = m_blank;
+            m_texture->bind();
             return;
         }
         m_texture = texture;
+        m_texture->bind();
     }
 
     void Batch2D::begin() {
@@ -201,7 +203,6 @@ namespace vulkan {
     void Batch2D::render() {
         const VertexOffset offset = {m_currentOffset, m_index - m_currentOffset};
         if (offset.count == 0 || offset.offset >= m_capacity) return;
-        m_texture->bind();
         m_mesh->draw(offset);
 
         m_currentOffset = m_index;

@@ -40,8 +40,10 @@ bool assetload::shader(Assets* assets,
                        const string filename,
                        const string name) {
 #ifdef USE_VULKAN
+	path vertexFile = paths->find(filename + ".vert.spv");
+	path fragmentFile = paths->find(filename + ".frag.spv");
 	const ShaderType shaderType = toShaderType(name);
-	IShader* shader = vulkan::loadShader(filename.string() + ".vert.spv", filename.string() + ".frag.spv", shaderType);
+	IShader* shader = vulkan::loadShader(vertexFile, fragmentFile, shaderType);
 #else
 	path vertexFile = paths->find(filename+".glslv");
 	path fragmentFile = paths->find(filename+".glslf");

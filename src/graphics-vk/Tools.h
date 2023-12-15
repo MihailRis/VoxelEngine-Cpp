@@ -115,12 +115,9 @@ namespace tools {
 
     template<typename ...Args>
     std::array<VkPushConstantRange, sizeof...(Args)> getPushConstantRanges(Args &&...args) {
-        if constexpr (sizeof...(Args) == 0)
-            return {};
-        else
-            return {
-                { VkPushConstantRange{ args.shaderStage, args.offset, args.size }... }
-            };
+        return {
+            {VkPushConstantRange{args.shaderStage, args.offset, args.size}...}
+        };
     }
 }
 

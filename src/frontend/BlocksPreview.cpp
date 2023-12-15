@@ -7,6 +7,7 @@
 #include "../graphics/Texture.h"
 #include "../graphics/Atlas.h"
 #include "../graphics/Batch3D.h"
+#include "../graphics-vk/Batch3D.h"
 #include "../window/Camera.h"
 #include "../voxels/Block.h"
 #include "ContentGfxCache.h"
@@ -18,7 +19,7 @@ BlocksPreview::BlocksPreview(IShader* shader,
                              Atlas* atlas, 
                              const ContentGfxCache* cache)
     : shader(shader), atlas(atlas), cache(cache) {
-    batch = new Batch3D(1024);
+    batch = new vulkan::Batch3D(1024);
 }
 
 BlocksPreview::~BlocksPreview() {
@@ -28,10 +29,10 @@ BlocksPreview::~BlocksPreview() {
 void BlocksPreview::begin(const Viewport* viewport) {
     this->viewport = viewport;
     shader->use();
-    shader->uniformMatrix("u_projview", 
-        glm::ortho(0.0f, float(viewport->getWidth()), 
-                   0.0f, float(viewport->getHeight()), 
-                    -1000.0f, 1000.0f) * 
+    shader->uniformMatrix("u_projview",
+        glm::ortho(0.0f, float(viewport->getWidth()),
+                   0.0f, float(viewport->getHeight()),
+                    -1000.0f, 1000.0f) *
         glm::lookAt(vec3(2, 2, 2), vec3(0.0f), vec3(0, 1, 0)));
     atlas->getTexture()->bind();
 }

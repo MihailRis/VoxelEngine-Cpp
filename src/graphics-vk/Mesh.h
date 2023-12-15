@@ -19,9 +19,11 @@ namespace vulkan {
         size_t count;
     };
 
+    inline u32 meshesCount = 0;
+
     template<typename TVertex>
     class Mesh {
-        static_assert(tools::is_same_of_types_v<TVertex, Vertex3D, VertexLine, Vertex2D, VertexBackSkyGen>, "Only vertices");
+        static_assert(tools::is_same_of_types_v<TVertex, Vertex3D, VertexLine, Vertex2D, Vertex3DUI, VertexBackSkyGen>, "Only vertices");
 
         std::unique_ptr<Buffer> m_stagingVertexBuffer = nullptr;
         std::unique_ptr<Buffer> m_stagingIndexBuffer = nullptr;
@@ -32,6 +34,7 @@ namespace vulkan {
         size_t m_vertices = 0;
         size_t m_indices = 0;
     public:
+
         Mesh() = default;
         Mesh(const TVertex *vertexBuffer, size_t vertices, const int* indexBuffer, size_t indices);
         Mesh(const TVertex *vertexBuffer, size_t vertices) :
@@ -54,6 +57,8 @@ namespace vulkan {
 
     template<typename TVertex>
     Mesh<TVertex>::Mesh(const TVertex *vertexBuffer, size_t vertices, const int *indexBuffer, size_t indices) : m_vertices(vertices), m_indices(indices) {
+        ++meshesCount;
+
         m_stagingVertexBuffer = std::make_unique<Buffer>(vertices * sizeof(TVertex), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         m_vertexBuffer = std::make_unique<Buffer>(vertices * sizeof(TVertex), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 0);
 

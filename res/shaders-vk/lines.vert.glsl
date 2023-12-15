@@ -5,7 +5,7 @@ layout (location = 1) in vec4 a_color;
 
 layout(location = 0) out vec4 v_color;
 
-layout(binding = 0) uniform Projview {
+layout(set = 0, binding = 0) uniform Projview {
 	mat4 u_projview;
 };
 
