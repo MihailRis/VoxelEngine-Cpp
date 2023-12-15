@@ -177,7 +177,7 @@ void Chunks::set(int x, int y, int z, int id, uint8_t states){
 	if (lz == CHUNK_D-1 && (chunk = getChunk(cx+ox, cz+oz+1))) 
 		chunk->setModified(true);
 }
-#include "../util/timeutil.h"
+
 voxel* Chunks::rayCast(vec3 start, 
 					   vec3 dir, 
 					   float maxDist, 
@@ -234,8 +234,9 @@ voxel* Chunks::rayCast(vec3 start,
 				const AABB& box = def->rotatable 
 								  ? def->rt.hitboxes[voxel->rotation()] 
 								  : def->hitbox;
-				rayvec3 in, out; // <- now not used, but for future...
-				if (Rays::rayIntersectAABB(start, dir, iend, box, maxDist, in, out, norm) > RayRelation::None){
+				scalar_t distance;
+				if (Rays::rayIntersectAABB(start, dir, iend, box, maxDist, norm, distance) > RayRelation::None){
+					end = start + (dir * vec3(distance));
 					return voxel;
 				}
 
@@ -287,6 +288,88 @@ voxel* Chunks::rayCast(vec3 start,
 	norm.x = norm.y = norm.z = 0;
 	return nullptr;
 }
+
+vec3 Chunks::rayCastToObstacle(vec3 start, vec3 dir, float maxDist) {
+	float px = start.x;
+	float py = start.y;
+	float pz = start.z;
+
+	float dx = dir.x;
+	float dy = dir.y;
+	float dz = dir.z;
+
+	float t = 0.0f;
+	int ix = floor(px);
+	int iy = floor(py);
+	int iz = floor(pz);
+
+	int stepx = (dx > 0.0f) ? 1 : -1;
+	int stepy = (dy > 0.0f) ? 1 : -1;
+	int stepz = (dz > 0.0f) ? 1 : -1;
+
+	constexpr float infinity = std::numeric_limits<float>::infinity();
+
+	float txDelta = (dx == 0.0f) ? infinity : abs(1.0f / dx);
+	float tyDelta = (dy == 0.0f) ? infinity : abs(1.0f / dy);
+	float tzDelta = (dz == 0.0f) ? infinity : abs(1.0f / dz);
+
+	float xdist = (stepx > 0) ? (ix + 1 - px) : (px - ix);
+	float ydist = (stepy > 0) ? (iy + 1 - py) : (py - iy);
+	float zdist = (stepz > 0) ? (iz + 1 - pz) : (pz - iz);
+
+	float txMax = (txDelta < infinity) ? txDelta * xdist : infinity;
+	float tyMax = (tyDelta < infinity) ? tyDelta * ydist : infinity;
+	float tzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
+
+	while (t <= maxDist) {
+		voxel* voxel = get(ix, iy, iz);
+		if (!voxel) { return vec3(px + t * dx, py + t * dy, pz + t * dz); }
+
+		const Block* def = contentIds->getBlockDef(voxel->id);
+		if (def->obstacle) {
+			if (!def->rt.solid) {
+				const AABB& box = def->rotatable
+					? def->rt.hitboxes[voxel->rotation()]
+					: def->hitbox;
+				scalar_t distance;
+				ivec3 norm;
+				// norm is dummy now, can be inefficient
+				if (Rays::rayIntersectAABB(start, dir, ivec3(ix, iy, iz), box, maxDist, norm, distance) > RayRelation::None) {
+					return start + (dir * vec3(distance));
+				}
+			}
+			else {
+				return vec3(px + t * dx, py + t * dy, pz + t * dz);
+			}
+		}
+		if (txMax < tyMax) {
+			if (txMax < tzMax) {
+				ix += stepx;
+				t = txMax;
+				txMax += txDelta;
+			}
+			else {
+				iz += stepz;
+				t = tzMax;
+				tzMax += tzDelta;
+			}
+		}
+		else {
+			if (tyMax < tzMax) {
+				iy += stepy;
+				t = tyMax;
+				tyMax += tyDelta;
+			}
+			else {
+				iz += stepz;
+				t = tzMax;
+				tzMax += tzDelta;
+			}
+		}
+	}
+	return vec3(px + maxDist * dx, py + maxDist * dy, pz + maxDist * dz);
+}
+
 
 void Chunks::setCenter(int x, int z) {
 	int cx = floordiv(x, CHUNK_W);

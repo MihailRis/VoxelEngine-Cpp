@@ -2,19 +2,21 @@
 #define CODERS_GLSL_EXTESION_H_
 
 #include <string>
+#include <vector>
 #include <unordered_map>
 #include <filesystem>
+
+class ResPaths;
 
 class GLSLExtension {
     std::unordered_map<std::string, std::string> headers;
     std::unordered_map<std::string, std::string> defines;
-    std::filesystem::path libFolder;
     std::string version = "330 core";
 
+    const ResPaths* paths = nullptr;
     void loadHeader(std::string name);
-    std::filesystem::path getHeaderPath(std::string name);
 public:
-    void setLibFolder(std::filesystem::path folder);
+    void setPaths(const ResPaths* paths);
     void setVersion(std::string version);
 
     void define(std::string name, std::string value);

@@ -1,8 +1,10 @@
 #include "asset_loaders.h"
 
 #include <iostream>
+#include <filesystem>
 #include "Assets.h"
 #include "../files/files.h"
+#include "../files/engine_paths.h"
 #include "../coders/png.h"
 #include "../graphics/Shader.h"
 #include "../graphics/Texture.h"
@@ -21,9 +23,10 @@ using std::filesystem::path;
 namespace fs = std::filesystem;
 
 bool assetload::texture(Assets* assets, 
-                        const path filename, 
+                        const ResPaths* paths,
+                        const string filename,
                         const string name) {
-	ITexture* texture = png::load_texture(filename.string());
+	ITexture* texture = png::load_texture(paths->find(filename).string());
 	if (texture == nullptr) {
 		std::cerr << "failed to load texture '" << name << "'" << std::endl;
 		return false;
@@ -33,14 +36,15 @@ bool assetload::texture(Assets* assets,
 }
 
 bool assetload::shader(Assets* assets, 
-                        const path filename, 
-                        const string name) {
+                       const ResPaths* paths,
+                       const string filename,
+                       const string name) {
 #ifdef USE_VULKAN
 	const ShaderType shaderType = toShaderType(name);
 	IShader* shader = vulkan::loadShader(filename.string() + ".vert.spv", filename.string() + ".frag.spv", shaderType);
 #else
-	path vertexFile = path(filename.string()+".glslv");
-	path fragmentFile = path(filename.string()+".glslf");
+	path vertexFile = paths->find(filename+".glslv");
+	path fragmentFile = paths->find(filename+".glslf");
 
 	string vertexSource = files::read_string(vertexFile);
 	string fragmentSource = files::read_string(fragmentFile);
@@ -57,13 +61,16 @@ bool assetload::shader(Assets* assets,
 }
 
 bool assetload::atlas(Assets* assets, 
-                        const path directory, 
-                        const string name) {
+                      const ResPaths* paths,
+                      const string directory,
+                      const string name) {
 	AtlasBuilder builder;
-	for (const auto& entry : fs::directory_iterator(directory)) {
-		path file = entry.path();
+	for (const auto& file : paths->listdir(directory)) {
 		if (file.extension() == ".png") {
 			string name = file.stem().string();
+            if (builder.has(name)) {
+                continue; // skip duplicates
+            }
 			std::unique_ptr<ImageData> image (png::load_image(file.string()));
 			image->fixAlphaColor();
 			builder.add(name, image.release());
@@ -75,11 +82,13 @@ bool assetload::atlas(Assets* assets,
 }
 
 bool assetload::font(Assets* assets, 
-                        const path filename, 
-                        const string name) {
+                     const ResPaths* paths,
+                     const string filename,
+                     const string name) {
 	vector<ITexture*> pages;
 	for (size_t i = 0; i <= 4; i++) {
-        string name = filename.string() + "_" + std::to_string(i) + ".png";
+        string name = filename + "_" + std::to_string(i) + ".png";
+        name = paths->find(name).string();
 		ITexture* texture = png::load_texture(name);
 		if (texture == nullptr) {
 			std::cerr << "failed to load bitmap font '" << name;

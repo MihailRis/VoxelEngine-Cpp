@@ -1,0 +1,11 @@
+{
+    "langs": {
+        "en_US": {
+            "name": "English"
+        },
+        "ru_RU": {
+            "name": "Русский"
+        }
+    },
+    "fallback": "en_US"
+}

@@ -22,7 +22,7 @@ git clone --recursive https://github.com/MihailRis/VoxelEngine-Cpp.git
 cd VoxelEngine-Cpp
 mkdir build
 cd build
-cmake ../
+cmake ..
 cmake --build .
 ```
 
@@ -47,3 +47,9 @@ If you use Wayland
 For vulkan need install **vulkan-devel**:
 
 `$ sudo pacman -S vulkan-devel`
+
+#### macOS:
+
+`$ brew install glfw3 glew glm libpng`
+
+Download, compile and install OpenAL

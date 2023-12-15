@@ -303,82 +303,12 @@ void Batch2D::sprite(float x, float y, float w, float h, int atlasRes, int index
 	rect(x, y, w, h, u, v, scale, scale, tint.r, tint.g, tint.b, tint.a);
 }
 
-
-#include <iostream>
-
-void Batch2D::blockSprite(float x, float y, float w, float h, const UVRegion regions[], vec4 tint, vec3 size){
-	// TODO: replace it using actual 3D with ortho projection
-	float uu = (regions[3].u1);
-	float vu = (regions[3].v1);
-
-	float uf = (regions[0].u1);
-	float vf = (regions[0].v1);
-
-	float scalex = regions[3].u2-regions[3].u1;
-	float scaley = regions[3].v2-regions[3].v1;
-
-	if (this->index + 18*B2D_VERTEX_SIZE >= capacity)
-		render();
-
-	float d = (w + h) * 0.5f;
-	float ar = 0.88f;
-	float ox = x + (w * 0.5f);
-	float sx = w * 0.5f * ar;
-	float hh = h * 0.25f;
-	float ww = w * 0.25f;
-	float dd = d * 0.25f;
-
-	vec3 half = size * h * 0.25f;
-
-	y += hh * 2.0f;
-	vec2 points[7] =   {vec2(ox-ww+half.x+dd-half.z,    	y+hh-half.y), // center
-						vec2(ox-sx+ww-half.x+dd-half.z,   y-half.y+ww-half.x), // left
-						vec2(ox+ww-half.x-dd+half.z,      y-hh-half.y+ww-half.x+dd-half.z), // top
-						vec2(ox+sx-ww+half.x-dd+half.z,   y-half.y+dd-half.z), // right
-						vec2(ox+sx-ww+half.x-dd+half.z,   y+half.y+dd-half.z), // b-right
-						vec2(ox-ww+half.x+dd-half.z,      y+hh+half.y), // bottom
-						vec2(ox-sx+ww-half.x+dd-half.z,   y+half.y+ww-half.x)}; // b-left
-
-	vec2 uvpoints[8] = {vec2(uu,        vu),
-						vec2(uu+scalex,  vu),
-						vec2(uu+scalex,  vu+scalex),
-						vec2(uu,        vu+scalex),
-						vec2(uf,        vf),
-						vec2(uf+scaley,  vf),
-						vec2(uf+scaley,  vf+scaley),
-						vec2(uf,        vf+scaley)};
-	
-	vertex(points[0], uvpoints[3], tint.r, tint.g, tint.b, tint.a);
-	vertex(points[1], uvpoints[0], tint.r, tint.g, tint.b, tint.a);
-	vertex(points[2], uvpoints[1], tint.r, tint.g, tint.b, tint.a);
-
-	vertex(points[0], uvpoints[3], tint.r, tint.g, tint.b, tint.a);
-	vertex(points[2], uvpoints[1], tint.r, tint.g, tint.b, tint.a);
-	vertex(points[3], uvpoints[2], tint.r, tint.g, tint.b, tint.a);
-
-	
-	vertex(points[0], uvpoints[7], tint.r, tint.g, tint.b, tint.a);
-	vertex(points[3], uvpoints[6], tint.r, tint.g, tint.b, tint.a);
-	vertex(points[4], uvpoints[5], tint.r, tint.g, tint.b, tint.a);
-
-	vertex(points[0], uvpoints[7], tint.r, tint.g, tint.b, tint.a);
-	vertex(points[4], uvpoints[5], tint.r, tint.g, tint.b, tint.a);
-	vertex(points[5], uvpoints[4], tint.r, tint.g, tint.b, tint.a);
-
-	
-	vertex(points[0], uvpoints[6], tint.r, tint.g, tint.b, tint.a);
-	vertex(points[5], uvpoints[5], tint.r, tint.g, tint.b, tint.a);
-	vertex(points[6], uvpoints[4], tint.r, tint.g, tint.b, tint.a);
-
-	vertex(points[0], uvpoints[6], tint.r, tint.g, tint.b, tint.a);
-	vertex(points[6], uvpoints[4], tint.r, tint.g, tint.b, tint.a);
-	vertex(points[1], uvpoints[7], tint.r, tint.g, tint.b, tint.a);
-}
-
 void Batch2D::render(unsigned int gl_primitive) {
-	mesh->reload(buffer, index / B2D_VERTEX_SIZE);
-	mesh->draw(gl_primitive);
-	index = 0;
+    if (index == 0)
+        return;
+    mesh->reload(buffer, index / B2D_VERTEX_SIZE);
+    mesh->draw(gl_primitive);
+    index = 0;
 }
 
 void Batch2D::render() {

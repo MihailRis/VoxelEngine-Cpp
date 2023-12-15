@@ -4,6 +4,8 @@
 
 #include <glm/glm.hpp>
 
+#include "../locale/langs.h"
+
 using namespace gui;
 using glm::vec2;
 using glm::vec4;
@@ -11,7 +13,7 @@ using std::string;
 using std::wstring;
 
 Button* guiutil::backButton(PagesControl* menu) {
-    return (new Button(L"Back", vec4(10.f)))->listenAction([=](GUI* gui) {
+    return (new Button(langs::get(L"Back"), vec4(10.f)))->listenAction([=](GUI* gui) {
         menu->back();
     });
 }
@@ -27,7 +29,7 @@ void guiutil::alert(GUI* gui, wstring text, gui::runnable on_hidden) {
     Panel* panel = new Panel(vec2(500, 200), vec4(8.0f), 8.0f);
     panel->color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
     panel->add(new Label(text));
-    panel->add((new Button(L"Ok", vec4(10.f)))->listenAction([=](GUI* gui) {
+    panel->add((new Button(langs::get(L"Ok"), vec4(10.f)))->listenAction([=](GUI* gui) {
         if (on_hidden)
             on_hidden();
         menu->back();
@@ -39,6 +41,9 @@ void guiutil::alert(GUI* gui, wstring text, gui::runnable on_hidden) {
 
 void guiutil::confirm(GUI* gui, wstring text, gui::runnable on_confirm,
                       wstring yestext, wstring notext) {
+    if (yestext.empty()) yestext = langs::get(L"Yes");
+    if (notext.empty()) notext = langs::get(L"No");
+
     PagesControl* menu = gui->getMenu();
     Panel* panel = new Panel(vec2(600, 200), vec4(8.0f), 8.0f);
     panel->color(vec4(0.0f, 0.0f, 0.0f, 0.5f));

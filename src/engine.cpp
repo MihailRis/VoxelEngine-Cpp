@@ -3,6 +3,7 @@
 #include <memory>
 #include <iostream>
 #include <assert.h>
+#include <vector>
 #include <glm/glm.hpp>
 #include <filesystem>
 #define GLEW_STATIC
@@ -19,6 +20,7 @@
 #include "graphics/ImageData.h"
 #include "frontend/gui/GUI.h"
 #include "frontend/screens.h"
+#include "frontend/menu.h"
 #include "util/platform.h"
 
 #include "coders/json.h"
@@ -31,36 +33,39 @@
 #include "graphics-vk/VulkanContext.h"
 #include "graphics-vk/texture/ImageCube.h"
 
+#include "content/Content.h"
+#include "content/ContentPack.h"
+#include "content/ContentLoader.h"
+#include "frontend/locale/langs.h"
+
+#include "definitions.h"
+
 using std::unique_ptr;
 using std::shared_ptr;
 using std::string;
+using std::vector;
 using std::filesystem::path;
 using glm::vec3;
 using gui::GUI;
 
-Engine::Engine(EngineSettings& settings, EnginePaths* paths, Content* content)
-	   : settings(settings), content(content), paths(paths) {
+Engine::Engine(EngineSettings& settings, EnginePaths* paths)
+	   : settings(settings), paths(paths) {
 	if (Window::initialize(settings.display)){
 		throw initialize_error("could not initialize window");
 	}
-	Shader::preprocessor->setLibFolder(paths->getResources()/path("shaders/lib"));
 
 	vulkan::VulkanContext::initialize();
 
-	assets = new Assets();
-	std::cout << "-- loading assets" << std::endl;
-	AssetsLoader loader(assets, paths->getResources());
-	AssetsLoader::createDefaults(loader);
-	AssetsLoader::addDefaults(loader);
-	while (loader.hasNext()) {
-		if (!loader.loadNext()) {
-			delete assets;
-			Window::terminate();
-			throw initialize_error("could not to initialize assets");
-		}
-	}
+    auto resdir = paths->getResources();
+    contentPacks.push_back({"base", resdir/path("content/base")});
+    loadContent();
+
 	Audio::initialize();
 	gui = new GUI();
+    if (settings.ui.language == "auto") {
+        settings.ui.language = platform::detect_locale();
+    }
+    setLanguage(settings.ui.language);
 	std::cout << "-- initializing finished" << std::endl;
 }
 
@@ -101,7 +106,7 @@ void Engine::mainloop() {
 		screen->update(delta);
 
 		screen->draw(delta);
-		gui->draw(&batch, assets);
+		gui->draw(&batch, assets.get());
 
 		vulkan::VulkanContext::get().draw();
 
@@ -120,7 +125,7 @@ Engine::~Engine() {
 	Audio::finalize();
 
 	std::cout << "-- shutting down" << std::endl;
-	delete assets;
+    assets.reset();
 	vulkan::VulkanContext::finalize();
 	Window::terminate();
 	std::cout << "-- engine finished" << std::endl;
@@ -135,7 +140,7 @@ EngineSettings& Engine::getSettings() {
 }
 
 Assets* Engine::getAssets() {
-	return assets;
+	return assets.get();
 }
 
 void Engine::setScreen(shared_ptr<Screen> screen) {
@@ -143,9 +148,49 @@ void Engine::setScreen(shared_ptr<Screen> screen) {
 }
 
 const Content* Engine::getContent() const {
-	return content;
+	return content.get();
+}
+
+vector<ContentPack>& Engine::getContentPacks() {
+    return contentPacks;
 }
 
 EnginePaths* Engine::getPaths() {
 	return paths;
+}
+
+void Engine::setLanguage(string locale) {
+	settings.ui.language = locale;
+	langs::setup(paths->getResources(), locale, contentPacks);
+	menus::create_menus(this, gui->getMenu());
+}
+
+void Engine::loadContent() {
+    auto resdir = paths->getResources();
+    ContentBuilder contentBuilder;
+    setup_definitions(&contentBuilder);
+
+    vector<path> resRoots;
+    for (auto& pack : contentPacks) {
+        ContentLoader loader(pack.folder);
+        loader.load(&contentBuilder);
+        resRoots.push_back(pack.folder);
+    }
+    content.reset(contentBuilder.build());
+    resPaths.reset(new ResPaths(resdir, resRoots));
+
+    Shader::preprocessor->setPaths(resPaths.get());
+
+	assets.reset(new Assets());
+	std::cout << "-- loading assets" << std::endl;
+	AssetsLoader loader(assets.get(), resPaths.get());
+	AssetsLoader::createDefaults(loader);
+	AssetsLoader::addDefaults(loader);
+	while (loader.hasNext()) {
+		if (!loader.loadNext()) {
+			assets.reset();
+			Window::terminate();
+			throw initialize_error("could not to initialize assets");
+		}
+	}
 }

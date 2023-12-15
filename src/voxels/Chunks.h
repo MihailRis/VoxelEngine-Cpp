@@ -51,6 +51,8 @@ public:
 				   glm::ivec3& norm, 
 				   glm::ivec3& iend);
 
+	glm::vec3 rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDist);
+
 	const AABB* isObstacle(float x, float y, float z);
 
 	// does not move chunks inside

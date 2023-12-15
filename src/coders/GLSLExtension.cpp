@@ -5,25 +5,22 @@
 #include "../util/stringutil.h"
 #include "../typedefs.h"
 #include "../files/files.h"
+#include "../files/engine_paths.h"
 
 using std::string;
 using std::filesystem::path;
 namespace fs = std::filesystem;
 
-path GLSLExtension::getHeaderPath(string name) {
-    return libFolder/path(name+".glsl");
-}
-
-void GLSLExtension::setLibFolder(path folder) {
-    this->libFolder = folder;
-}
-
 void GLSLExtension::setVersion(string version) {
     this->version = version;
 }
 
+void GLSLExtension::setPaths(const ResPaths* paths) {
+    this->paths = paths;
+}
+
 void GLSLExtension::loadHeader(string name) {
-    path file = getHeaderPath(name);
+    path file = paths->find("shaders/lib/"+name+".glsl");
     string source = files::read_string(file);
     addHeader(name, source);
 }
@@ -117,7 +114,6 @@ const string GLSLExtension::process(const path file, const string& source) {
                         "expected '#include <filename>' syntax");
                 }
                 string name = line.substr(1, line.length()-2);
-                path hfile = getHeaderPath(name);
                 if (!hasHeader(name)) {
                     loadHeader(name);
                 }

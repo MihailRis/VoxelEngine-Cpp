@@ -1,0 +1,50 @@
+# Общее
+Yes=Да
+No=Нет
+Ok=Ок
+Cancel=Отмена
+Back=Назад
+Continue=Продолжить
+
+# Меню
+menu.New World=Новый Мир
+menu.Quit=Выход
+menu.Continue=Продолжить
+menu.Save and Quit to Menu=Сохранить и Выйти в Меню
+menu.missing-content=Отсутствует Контент!
+menu.Controls=Управление
+menu.Back to Main Menu=Вернуться в Меню
+menu.Settings=Настройки
+world.Seed=Зерно
+world.Name=Название
+world.Create World=Создать Мир
+
+world.convert-request=Есть изменения в индексах! Конвертировать мир?
+
+# Настройки
+settings.Load Distance=Дистанция Загрузки
+settings.Load Speed=Скорость Загрузки
+settings.Fog Curve=Кривая Тумана
+settings.Backlight=Подсветка
+settings.V-Sync=Вертикальная Синхронизация
+
+settings.FOV=Поле Зрения
+settings.Mouse Sensitivity=Чувствительность Мыши
+settings.Language=Язык
+
+# Управление
+movement.forward=Вперёд
+movement.back=Назад
+movement.left=Влево
+movement.right=Вправо
+movement.jump=Прыжок
+movement.sprint=Ускорение
+movement.crouch=Красться
+movement.cheat=Чит
+hud.inventory=Инвентарь
+player.pick=Подобрать Блок
+player.attack=Атаковать / Сломать
+player.build=Поставить Блок
+player.flight=Полёт
+camera.zoom=Приближение
+camera.mode=Сменить Режим Камеры

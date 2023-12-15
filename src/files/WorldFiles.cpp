@@ -218,14 +218,6 @@ path WorldFiles::getIndicesFile() const {
 	return directory/path("indices.json");
 }
 
-path WorldFiles::getOldPlayerFile() const {
-	return directory/path("player.bin");
-}
-
-path WorldFiles::getOldWorldFile() const {
-	return directory/path("world.bin");
-}
-
 ubyte* WorldFiles::getChunk(int x, int z){
 	return getData(regions, getRegionsFolder(), x, z);
 }
@@ -405,74 +397,9 @@ void WorldFiles::writeWorldInfo(const World* world) {
 	files::write_string(getWorldFile(), json::stringify(&root, true, "  "));
 }
 
-// TODO: remove in v0.16
-bool WorldFiles::readOldWorldInfo(World* world) {
-	size_t length = 0;
-	ubyte* data = (ubyte*)files::read_bytes(getOldWorldFile(), length);
-	assert(data != nullptr);
-	BinaryReader inp(data, length);
-	inp.checkMagic(WORLD_FORMAT_MAGIC, 8);
-	/*ubyte version = */inp.get();
-	while (inp.hasNext()) {
-		ubyte section = inp.get();
-		switch (section) {
-		case WORLD_SECTION_MAIN:
-			world->seed = inp.getInt64();
-			world->name = inp.getString();
-			break;
-		case WORLD_SECTION_DAYNIGHT:
-			world->daytime = inp.getFloat32();
-			world->daytimeSpeed = inp.getFloat32();
-			break;
-		}
-	}
-	return true;
-}
-bool WorldFiles::readOldPlayer(Player* player) {
-	size_t length = 0;
-	ubyte* data = (ubyte*)files::read_bytes(getOldPlayerFile(), length);
-	if (data == nullptr){
-		std::cerr << "could not to read player.bin (ignored)" << std::endl;
-		return false;
-	}
-	vec3 position = player->hitbox->position;
-	BinaryReader inp(data, length);
-	while (inp.hasNext()) {
-		ubyte section = inp.get();
-		switch (section) {
-		case SECTION_POSITION:
-			position.x = inp.getFloat32();
-			position.y = inp.getFloat32();
-			position.z = inp.getFloat32();
-			break;
-		case SECTION_ROTATION:
-			player->camX = inp.getFloat32();
-			player->camY = inp.getFloat32();
-			break;
-		case SECTION_FLAGS: 
-			{
-				ubyte flags = inp.get();
-				player->flight = flags & PLAYER_FLAG_FLIGHT;
-				player->noclip = flags & PLAYER_FLAG_NOCLIP;
-			}
-			break;
-		}
-	}
-
-	player->hitbox->position = position;
-	player->camera->position = position + vec3(0, 1, 0);
-	return true;
-}
-// ----- // ----- //
-
 bool WorldFiles::readWorldInfo(World* world) {
 	path file = getWorldFile();
 	if (!fs::is_regular_file(file)) {
-		// TODO: remove in v0.16
-		file = getOldWorldFile();
-		if (fs::is_regular_file(file)) {
-			return readOldWorldInfo(world);
-		}
 		std::cerr << "warning: world.json does not exists" << std::endl;
 		return false;
 	}
@@ -519,11 +446,6 @@ void WorldFiles::writePlayer(Player* player){
 bool WorldFiles::readPlayer(Player* player) {
 	path file = getPlayerFile();
 	if (!fs::is_regular_file(file)) {
-		// TODO: remove in v0.16
-		file = getOldPlayerFile();
-		if (fs::is_regular_file(file)) {
-			readOldPlayer(player);
-		}
 		std::cerr << "warning: player.json does not exists" << std::endl;
 		return false;
 	}

@@ -16,6 +16,7 @@ const std::string BIND_MOVE_SPRINT = "movement.sprint";
 const std::string BIND_MOVE_CROUCH = "movement.crouch";
 const std::string BIND_MOVE_CHEAT = "movement.cheat";
 const std::string BIND_CAM_ZOOM = "camera.zoom";
+const std::string BIND_CAM_MODE = "camera.mode";
 const std::string BIND_PLAYER_NOCLIP = "player.noclip";
 const std::string BIND_PLAYER_FLIGHT = "player.flight";
 const std::string BIND_PLAYER_ATTACK = "player.attack";

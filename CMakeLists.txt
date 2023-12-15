@@ -4,18 +4,19 @@ project(VoxelEngine)
 option(VOXEL_ENGINE_USE_VULKAN "Use vulkan as backend for render" ON)
 
 file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
+set(CMAKE_CXX_STANDARD 17)
+
 file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 if(MSVC)
-  target_compile_options(${PROJECT_NAME} PRIVATE /W4)
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4  /O2)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /source-charset:UTF-8")
 else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -lstdc++fs
     # additional warnings
-    -Wformat-nonliteral -Wcast-align 
+    -Wformat-nonliteral -Wcast-align
     -Wpointer-arith -Wundef
     -Wwrite-strings -Wno-unused-parameter)
 endif()
@@ -39,13 +40,17 @@ if (WIN32)
 else()
     find_package(PNG REQUIRED)
     set(PNGLIB PNG::PNG)
-endif(WIN32)
+endif()
+
+if (APPLE)
+    find_package(glfw3 3.3 REQUIRED)
+endif ()
 
 
 if(UNIX)
     find_package(Threads REQUIRED)
     set(LIBS ${LIBS} Threads::Threads)
-endif(UNIX)
+endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie")

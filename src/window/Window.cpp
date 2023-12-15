@@ -82,7 +82,7 @@ bool Window::isFocused()
 
 void window_size_callback(GLFWwindow*, int width, int height) {
 	Window::isResized = true;
-	if (Window::isFocused()) {
+	if (Window::isFocused() && width && height) {
 #ifndef USE_VULKAN
 		glViewport(0, 0, width, height);
 #endif
@@ -145,7 +145,13 @@ int Window::initialize(DisplaySettings& settings){
 #else
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+#else
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+#endif
 #endif
 
 	window = glfwCreateWindow(width, height, settings.title.c_str(), nullptr, nullptr);

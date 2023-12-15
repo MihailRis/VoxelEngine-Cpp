@@ -1,0 +1,21 @@
+# Menu
+menu.missing-content=Missing Content!
+world.convert-request=Content indices have changed! Convert world files?
+
+# Bindings
+movement.forward=Forward
+movement.back=Back
+movement.left=Left
+movement.right=Right
+movement.jump=Jump
+movement.sprint=Sprint
+movement.crouch=Crouch
+movement.cheat=Cheat
+hud.inventory=Inventory
+player.pick=Pick Block
+player.attack=Attack / Break
+player.build=Place Block
+player.flight=Flight
+player.noclip=No-clip
+camera.zoom=Zoom
+camera.mode=Switch Camera Mode
