@@ -1,25 +1,33 @@
 name: CMake
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  workflow_call:
+    inputs:
+      build_type:
+        # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+        description: Type of build (Debug, Release, RelWithDebInfo, MinSizeRel)
+        type: string
+        default: Debug
+      upload_artifacts:
+        description: Should upload artifacts or not
+        type: boolean
+        default: false
 
 jobs:
   build:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
-    
+    - uses: actions/checkout@v4
+
     - name: Install packages
     # If libluajit-5.1-dev is not available, use this:
     #   git clone https://luajit.org/git/luajit.git
@@ -32,10 +40,24 @@ jobs:
           sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
 
     - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only
+      # required if you are using a single-configuration generator such as
+      # make.
+      #
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{inputs.build_type}}
 
     - name: Build
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: |
+        cmake --build ${{github.workspace}}/build --config ${{inputs.build_type}}
+        mv ${{github.workspace}}/build/VoxelEngine VoxelEngine
+
+    - name: Upload artifacts
+      if: ${{ inputs.upload_artifacts }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: VoxelEngine
+        path: |
+          VoxelEngine
+          res/*
