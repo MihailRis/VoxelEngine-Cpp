@@ -11,7 +11,7 @@ class ContentBuilder;
 class ContentLoader {
     const ContentPack* pack;
 public:
-    ContentLoader(const ContentPack* pack);
+    ContentLoader(ContentPack* pack);
 
     Block* loadBlock(std::string name, std::filesystem::path file);
     void load(ContentBuilder* builder);

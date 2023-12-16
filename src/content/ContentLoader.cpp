@@ -15,7 +15,7 @@
 
 namespace fs = std::filesystem;
 
-ContentLoader::ContentLoader(const ContentPack* pack) : pack(pack) {
+ContentLoader::ContentLoader(ContentPack* pack) : pack(pack) {
 }
 
 // TODO: add basic validation and logging
