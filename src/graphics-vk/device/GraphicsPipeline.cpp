@@ -169,7 +169,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
         case ShaderType::UI:
         case ShaderType::UI3D:
         case ShaderType::BACKGROUND:
-            descriptorBindingFlags.emplace_back(VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT);
+            // descriptorBindingFlags.emplace_back(VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT);
         break;
         case ShaderType::LINES:
         default:
@@ -178,10 +178,10 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
 
     auto &device = vulkan::VulkanContext::get().getDevice();
 
-    VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsCreateInfo{};
-    bindingFlagsCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
-    bindingFlagsCreateInfo.bindingCount = descriptorBindingFlags.size();
-    bindingFlagsCreateInfo.pBindingFlags = descriptorBindingFlags.data();
+    // VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsCreateInfo{};
+    // bindingFlagsCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+    // bindingFlagsCreateInfo.bindingCount = descriptorBindingFlags.size();
+    // bindingFlagsCreateInfo.pBindingFlags = descriptorBindingFlags.data();
 
     VkDescriptorSetLayoutCreateInfo uniformsSetLayoutCreateInfo{};
     uniformsSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;

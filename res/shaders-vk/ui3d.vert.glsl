@@ -1,3 +1,5 @@
+#version 450
+
 layout (location = 0) in vec3 v_position;
 layout (location = 1) in vec2 v_textureCoord;
 layout (location = 2) in vec4 v_color;

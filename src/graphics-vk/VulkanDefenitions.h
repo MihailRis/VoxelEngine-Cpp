@@ -22,7 +22,7 @@
 #else
     constexpr bool IS_DEBUG = false;
     #define CHECK_VK_FUNCTION(fn) fn
-    #define CHECK_VK_NEXT_IMAGE(result)
+    #define CHECK_VK_RESULT(result)
 #endif
 
 #endif //VULKANDEFENITIONS_H

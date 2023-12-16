@@ -80,7 +80,7 @@ namespace vulkan {
         Device m_device;
         std::unique_ptr<Swapchain> m_swapchain;
         Allocator m_allocator;
-        std::unique_ptr<ImageDepth> m_imageDepth = nullptr;
+        std::unique_ptr<ImageDepth> m_imageDepth;
         VkDescriptorPool m_descriptorPool = VK_NULL_HANDLE;
         uint32_t m_currentImage = 0;
         uint32_t m_currentFrame = 0;
