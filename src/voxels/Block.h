@@ -29,7 +29,7 @@ struct CoordSystem {
 
 	void transform(AABB& aabb);
 
-	static bool CoordSystem::isVectorHasNegatives(glm::ivec3 vec) {
+	static bool isVectorHasNegatives(glm::ivec3 vec) {
 		if (vec.x < 0 || vec.y < 0 || vec.z < 0) {
 			return true;
 		}
