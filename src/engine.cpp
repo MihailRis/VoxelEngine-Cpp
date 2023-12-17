@@ -57,7 +57,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 	vulkan::VulkanContext::initialize();
 
     auto resdir = paths->getResources();
-    contentPacks.push_back({"base", resdir/path("content/base")});
+    contentPacks.push_back(ContentPack::read(resdir/path("content/base")));
     loadContent();
 
 	Audio::initialize();
@@ -172,7 +172,7 @@ void Engine::loadContent() {
 
     vector<path> resRoots;
     for (auto& pack : contentPacks) {
-        ContentLoader loader(pack.folder);
+        ContentLoader loader(&pack);
         loader.load(&contentBuilder);
         resRoots.push_back(pack.folder);
     }

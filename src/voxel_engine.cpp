@@ -34,8 +34,8 @@ int main(int argc, char** argv) {
 			toml::Reader reader(wrapper.get(), settings_file.string(), text);
 			reader.read();
 		}
+        setup_bindings();
 		Engine engine(settings, &paths);
-		setup_bindings();
 		if (std::filesystem::is_regular_file(controls_file)) {
 			std::cout << "-- loading controls" << std::endl;
 			std::string text = files::read_string(controls_file);

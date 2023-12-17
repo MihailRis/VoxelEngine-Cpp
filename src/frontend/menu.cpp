@@ -44,6 +44,7 @@ Panel* create_controls_panel(Engine* engine, PagesControl* menu);
 Panel* create_settings_panel(Engine* engine, PagesControl* menu);
 Panel* create_pause_panel(Engine* engine, PagesControl* menu);
 Panel* create_languages_panel(Engine* engine, PagesControl* menu);
+Panel* create_content_panel(Engine* engine, PagesControl* menu);
 
 void menus::create_menus(Engine* engine, PagesControl* menu) {
     menu->add("new-world", create_new_world_panel(engine, menu));
@@ -51,6 +52,7 @@ void menus::create_menus(Engine* engine, PagesControl* menu) {
     menu->add("controls", create_controls_panel(engine, menu));
     menu->add("pause", create_pause_panel(engine, menu));
     menu->add("languages", create_languages_panel(engine, menu));
+    menu->add("content", create_content_panel(engine, menu));
     menu->add("main", create_main_menu_panel(engine, menu));
 }
 
@@ -91,7 +93,6 @@ void show_content_missing(GUI* gui, const Content* content, ContentLUT* lut) {
     panel->add((new Button(langs::get(L"Back to Main Menu", L"menu"), vec4(8.0f)))->listenAction([=](GUI*){
         menu->back();
     }));
-    panel->refresh();
     menu->add("missing-content", panel);
     menu->set("missing-content");
 }
@@ -132,7 +133,6 @@ Panel* create_languages_panel(Engine* engine, PagesControl* menu) {
         panel->add(button);
     }
     panel->add(guiutil::backButton(menu));
-    panel->refresh();
     return panel;
 }
 
@@ -181,10 +181,20 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
     }
     panel->add(worldsPanel);
     panel->add(guiutil::gotoButton(langs::get(L"Settings", L"menu"), "settings", menu));
+    panel->add(guiutil::gotoButton(langs::get(L"Content", L"menu"), "content", menu));
     panel->add((new Button(langs::get(L"Quit", L"menu"), vec4(10.f)))->listenAction([](GUI* gui) {
         Window::setShouldClose(true);
     }));
-    panel->refresh();
+    return panel;
+}
+
+Panel* create_content_panel(Engine* engine, PagesControl* menu) {
+    Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 5.0f);
+    panel->color(vec4(0.0f));
+
+    panel->add(new Label(L"work in progress"));
+
+    panel->add(guiutil::backButton(menu));
     return panel;
 }
 
@@ -271,7 +281,6 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
     }
 
     panel->add(guiutil::backButton(menu));
-    panel->refresh();
     return panel;
 }
 
@@ -315,9 +324,7 @@ Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
         scrollPanel->add(subpanel);
     }
     panel->add(scrollPanel);
-
     panel->add(guiutil::backButton(menu));
-    panel->refresh();
     return panel;
 }
 
@@ -439,7 +446,6 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
 
     panel->add(guiutil::gotoButton(langs::get(L"Controls", L"menu"), "controls", menu));
     panel->add(guiutil::backButton(menu));
-    panel->refresh();
     return panel;
 }
 
