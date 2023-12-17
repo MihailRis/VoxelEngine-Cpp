@@ -300,6 +300,9 @@ void BlocksRenderer::blockCubeShaded(int x, int y, int z,
 	ivec3 X(1, 0, 0);
 	ivec3 Y(0, 1, 0);
 	ivec3 Z(0, 0, 1);
+
+	face(vec3(0, 100, 0), X, Y, Z, Z, 1.0f, 1.0f, 0.0f, texfaces[0], true);
+
 	ivec3 loff(0);
 	ivec3 coord(x, y, z);
 	if (block->rotatable) {
