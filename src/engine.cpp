@@ -52,6 +52,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 
     auto resdir = paths->getResources();
     contentPacks.push_back(ContentPack::read(resdir/path("content/base")));
+	contentPacks.push_back(ContentPack::read(resdir / path("content/mcclassic")));
     loadContent();
 
 	Audio::initialize();

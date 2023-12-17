@@ -125,7 +125,7 @@ HudRenderer::HudRenderer(Engine* engine,
 		TextBox* box = new TextBox(L"");
 		box->textSupplier([this, ax]() {
 			Hitbox* hitbox = this->level->player->hitbox;
-			return std::to_wstring((int)hitbox->position[ax]);
+			return std::to_wstring(hitbox->position[ax]);
 		});
 		box->textConsumer([this, ax](wstring text) {
 			try {

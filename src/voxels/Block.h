@@ -24,7 +24,17 @@ struct CoordSystem {
 	glm::ivec3 fix;
 	glm::ivec3 fix2;
 
+	CoordSystem() = default;
+	CoordSystem(glm::ivec3 axisX, glm::ivec3 axisY, glm::ivec3 axisZ, glm::ivec3 fix);
+
 	void transform(AABB& aabb);
+
+	static bool CoordSystem::isVectorHasNegatives(glm::ivec3 vec) {
+		if (vec.x < 0 || vec.y < 0 || vec.z < 0) {
+			return true;
+		}
+		else return false;
+	}
 };
 
 struct BlockRotProfile {
