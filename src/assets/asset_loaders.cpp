@@ -63,7 +63,7 @@ bool assetload::atlas(Assets* assets,
             if (builder.has(name)) {
                 continue; // skip duplicates
             }
-			std::unique_ptr<ImageData> image (png::load_image(file.string()));
+			std::unique_ptr<ImageData> image (png::load_image(file.string()));//but what if load_image return nullptr?
 			image->fixAlphaColor();
 			builder.add(name, image.release());
 		}
