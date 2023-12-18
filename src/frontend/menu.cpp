@@ -279,7 +279,7 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
 
             // TODO: complete and move somewhere
             auto resdir = engine->getPaths()->getResources();
-            auto packs = engine->getContentPacks();
+            auto& packs = engine->getContentPacks();
             packs.clear();
             packs.push_back(ContentPack::read(resdir/path("content/base")));
             engine->loadContent();
