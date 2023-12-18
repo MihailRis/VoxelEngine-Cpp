@@ -159,15 +159,27 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
             button->color(vec4(1.0f, 1.0f, 1.0f, 0.1f));
             button->listenAction([=](GUI* gui) {
                 // TODO: complete and move somewhere
+
+                auto folder = paths->getWorldsFolder()/u8path(name);
                 auto resdir = engine->getPaths()->getResources();
                 auto& packs = engine->getContentPacks();
                 packs.clear();
-                packs.push_back(ContentPack::read(resdir/path("content/base")));
+                auto packnames = ContentPack::worldPacksList(folder);
+                for (auto name : packnames) {
+                    path packfolder;
+                    try {
+                        packfolder = ContentPack::findPack(paths, name);
+                    } catch (std::runtime_error& error) {
+                        guiutil::alert(gui, langs::get(L"error.pack-not-found")+
+                                       L": "+util::str2wstr_utf8(name));
+                        return;
+                    }
+                    packs.push_back(ContentPack::read(packfolder));
+                }
                 engine->loadContent();
 
                 auto* content = engine->getContent();
                 auto& settings = engine->getSettings();
-                auto folder = paths->getWorldsFolder()/u8path(name);
                 std::filesystem::create_directories(folder);
                 ContentLUT* lut = World::checkIndices(folder, content);
                 if (lut) {

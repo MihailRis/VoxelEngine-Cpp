@@ -6,6 +6,8 @@ Cancel=Отмена
 Back=Назад
 Continue=Продолжить
 
+error.pack-not-found=Не удалось найти пакет
+
 # Меню
 menu.New World=Новый Мир
 menu.Quit=Выход

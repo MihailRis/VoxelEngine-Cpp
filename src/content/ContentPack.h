@@ -5,6 +5,8 @@
 #include <vector>
 #include <filesystem>
 
+class EnginePaths;
+
 struct ContentPack {
     std::string id = "none";
     std::string title = "untitled";
@@ -19,6 +21,8 @@ struct ContentPack {
     static ContentPack read(std::filesystem::path folder);
     static void scan(std::filesystem::path folder, 
                      std::vector<ContentPack>& packs);
+    static std::vector<std::string> worldPacksList(std::filesystem::path folder);
+    static std::filesystem::path findPack(const EnginePaths* paths, std::string name);
 };
 
 #endif // CONTENT_CONTENT_PACK_H_
