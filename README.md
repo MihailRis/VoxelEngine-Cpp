@@ -1,6 +1,6 @@
-# Run in windows with compiled executable file:
+# Run with compiled executable file:
 
-[EXE for Windows](https://drive.google.com/file/d/1hkqCFP6MG9t6V6hjfL4UXdIW9VRsRaAt/view?usp=sharing)
+[Windows (64 bit)](https://drive.google.com/file/d/1hkqCFP6MG9t6V6hjfL4UXdIW9VRsRaAt/view?usp=sharing)
 
 # Controls:
 - <kbd>**Esc**</kbd> - pause
