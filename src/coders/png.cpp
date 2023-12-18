@@ -179,6 +179,8 @@ ImageData* _png_load(const char* file){
             printf( "Color type %d not supported!\n",
                 png_get_color_type( png_ptr, info_ptr ) );
             png_destroy_read_struct( &png_ptr, &info_ptr, &end_info );
+			delete[] image_data;
+			fclose(f);
             return nullptr;
     }
     ImageData* image = new ImageData(format, t_width, t_height, (void*)image_data);
@@ -241,67 +243,83 @@ ImageData* _png_load(const char* file){
 	png = fopen(file, "rb");
 	if (png == nullptr){
 		std::cerr << "could not to open file " << file << std::endl;
-		return 0;
+		return nullptr;
 	}
 
 	fseek(png, 0, SEEK_END);
 	long siz_pngbuf = ftell(png);
 	rewind(png);
 	if(siz_pngbuf < 1) {
+		fclose(png);
 		std::cerr << "could not to read file " << file << std::endl;
-		return 0;
+		return nullptr;
 	}
 	pngbuf = new char[siz_pngbuf];
 	if(fread(pngbuf, siz_pngbuf, 1, png) != 1){
+		fclose(png);
+		delete[] pngbuf;
 		std::cerr << "fread() failed" << std::endl;
-		return 0;
+		return nullptr;
 	}
+	fclose(png); // <- finally closing file
 	ctx = spng_ctx_new(0);
 	if (ctx == nullptr){
+		delete[] pngbuf;
 		std::cerr << "spng_ctx_new() failed" << std::endl;
-		return 0;
+		return nullptr;
 	}
 	r = spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
 	if (r){
+		delete[] pngbuf;
+		spng_ctx_free(ctx);
 		std::cerr << "spng_set_crc_action() error: " << spng_strerror(r) << std::endl;
-		return 0;
+		return nullptr;
 	}
 	r = spng_set_png_buffer(ctx, pngbuf, siz_pngbuf);
 	if (r){
+		delete[] pngbuf;
+		spng_ctx_free(ctx);
 		std::cerr << "spng_set_png_buffer() error: " << spng_strerror(r) << std::endl;
-		return 0;
+		return nullptr;
 	}
 
 	spng_ihdr ihdr;
 	r = spng_get_ihdr(ctx, &ihdr);
 	if (r){
+		delete[] pngbuf;
+		spng_ctx_free(ctx);
 		std::cerr << "spng_get_ihdr() error: " << spng_strerror(r) << std::endl;
-		return 0;
+		return nullptr;
 	}
-
-	const char *clr_type_str;
-	if(ihdr.color_type == SPNG_COLOR_TYPE_GRAYSCALE)
-		clr_type_str = "grayscale";
-	else if(ihdr.color_type == SPNG_COLOR_TYPE_TRUECOLOR)
-		clr_type_str = "truecolor";
-	else if(ihdr.color_type == SPNG_COLOR_TYPE_INDEXED)
-		clr_type_str = "indexed color";
-	else if(ihdr.color_type == SPNG_COLOR_TYPE_GRAYSCALE_ALPHA)
-		clr_type_str = "grayscale with alpha";
-	else
-		clr_type_str = "truecolor with alpha";
+	//// Unused "something"
+	//const char *clr_type_str;
+	//if(ihdr.color_type == SPNG_COLOR_TYPE_GRAYSCALE)
+	//	clr_type_str = "grayscale";
+	//else if(ihdr.color_type == SPNG_COLOR_TYPE_TRUECOLOR)
+	//	clr_type_str = "truecolor";
+	//else if(ihdr.color_type == SPNG_COLOR_TYPE_INDEXED)
+	//	clr_type_str = "indexed color";
+	//else if(ihdr.color_type == SPNG_COLOR_TYPE_GRAYSCALE_ALPHA)
+	//	clr_type_str = "grayscale with alpha";
+	//else
+	//	clr_type_str = "truecolor with alpha";
 
 	size_t out_size;
 	r = spng_decoded_image_size(ctx, SPNG_FMT_RGBA8, &out_size);
 	if (r){
+		delete[] pngbuf;
+		spng_ctx_free(ctx);
 		std::cerr << "spng_decoded_image_size() error: " << spng_strerror(r) << std::endl;
-		return 0;
+		return nullptr;
 	}
 	out = new unsigned char[out_size];
 	r = spng_decode_image(ctx, out, out_size, SPNG_FMT_RGBA8, 0);
 	if (r){
+		delete[] out;
+		delete[] pngbuf;
+		spng_ctx_free(ctx);
 		std::cerr << "spng_decode_image() error: " << spng_strerror(r) << std::endl;
-		return 0;
+		return nullptr;
 	}
 
 	unsigned char* flipped = new unsigned char[out_size];
@@ -312,27 +330,30 @@ ImageData* _png_load(const char* file){
 			flipped[(ihdr.height-i-1)*rowsize+j] = out[i*rowsize+j];
 		}
 	}
-	delete[] out;
-
-    unsigned int texture;
+	delete[] out; // <- finally delete out
 
     ImageData* image = new ImageData(ImageFormat::rgba8888, ihdr.width, ihdr.height, (void*)flipped);
 
-	spng_ctx_free(ctx);
 	delete[] pngbuf;
+	spng_ctx_free(ctx);
 
     return image;
 }
 #endif
 
 ImageData* png::load_image(std::string filename) {
-    return _png_load(filename.c_str());
+	ImageData* image (_png_load(filename.c_str()));
+	if (image == nullptr) {
+		std::cerr << "Could not load image " << filename << std::endl;
+		return nullptr;
+	}
+    return image;
 }
 
 Texture* png::load_texture(std::string filename) {
 	unique_ptr<ImageData> image (_png_load(filename.c_str()));
 	if (image == nullptr){
-		std::cerr << "Could not load image " << filename << std::endl;
+		std::cerr << "Could not load texture " << filename << std::endl;
 		return nullptr;
 	}
 	return Texture::from(image.get());

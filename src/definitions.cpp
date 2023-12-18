@@ -11,7 +11,7 @@
 using glm::vec3;
 
 // All in-game definitions (blocks, items, etc..)
-void setup_definitions(ContentBuilder* builder) {
+void setup_definitions(ContentBuilder* builder) { // Strange function, need to REDO ?
 	Block* block = new Block("core:air", "air");
 	block->replaceable = true;
 	block->drawGroup = 1;
