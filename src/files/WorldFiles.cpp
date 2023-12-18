@@ -238,22 +238,18 @@ ubyte* WorldFiles::getData(unordered_map<ivec2, WorldRegion*>& regions,
 	int localX = x - (regionX * REGION_SIZE);
 	int localZ = z - (regionZ * REGION_SIZE);
 
-	WorldRegion* region = getRegion(regions, regionX, regionZ);
-	if (region == nullptr) {
-		region = new WorldRegion();
-		regions[ivec2(regionX, regionZ)] = region;
-	}
+	WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
 
 	ubyte* data = region->get(localX, localZ);
 	if (data == nullptr) {
 		uint32_t size;
 		data = readChunkData(x, z, size, 
 			folder/getRegionFilename(regionX, regionZ));
-		if (data) {
+		if (data != nullptr) {
 			region->put(localX, localZ, data, size);
 		}
 	}
-	if (data) {
+	if (data != nullptr) {
 		return decompress(data, region->getSize(localX, localZ), CHUNK_DATA_LEN);
 	}
 	return nullptr;
@@ -291,6 +287,9 @@ ubyte* WorldFiles::readChunkData(int x, int z, uint32_t& length, path filename){
 	ubyte* data = new ubyte[length];
 	input.read((char*)data, length);
 	input.close();
+	if (data == nullptr) {
+		std::cerr << "ERROR: failed to read data of chunk x("<< x <<"), z("<< z <<")" << std::endl;
+	}
 	return data;
 }
 

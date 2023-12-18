@@ -50,7 +50,7 @@ char* files::read_bytes(path filename, size_t& length) {
 	length = input.tellg();
 	input.seekg(0, std::ios_base::beg);
 
-	unique_ptr<char> data {new char[length]};
+	unique_ptr<char> data(new char[length]);
 	input.read(data.get(), length);
 	input.close();
 	return data.release();
