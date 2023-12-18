@@ -51,8 +51,23 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 	}
 
     auto resdir = paths->getResources();
-    contentPacks.push_back(ContentPack::read(resdir/path("content/base")));
-    loadContent();
+
+	std::cout << "-- loading assets" << std::endl;
+    std::vector<path> roots {resdir};
+    resPaths.reset(new ResPaths(resdir, roots));
+    assets.reset(new Assets());
+	AssetsLoader loader(assets.get(), resPaths.get());
+	AssetsLoader::createDefaults(loader);
+	AssetsLoader::addDefaults(loader);
+
+    Shader::preprocessor->setPaths(resPaths.get());
+	while (loader.hasNext()) {
+		if (!loader.loadNext()) {
+			assets.reset();
+			Window::terminate();
+			throw initialize_error("could not to initialize assets");
+		}
+	}
 
 	Audio::initialize();
 	gui = new GUI();
@@ -169,16 +184,16 @@ void Engine::loadContent() {
 
     Shader::preprocessor->setPaths(resPaths.get());
 
-	assets.reset(new Assets());
+    unique_ptr<Assets> new_assets(new Assets());
 	std::cout << "-- loading assets" << std::endl;
-	AssetsLoader loader(assets.get(), resPaths.get());
-	AssetsLoader::createDefaults(loader);
-	AssetsLoader::addDefaults(loader);
+	AssetsLoader loader(new_assets.get(), resPaths.get());
+    AssetsLoader::createDefaults(loader);
+    AssetsLoader::addDefaults(loader);
 	while (loader.hasNext()) {
 		if (!loader.loadNext()) {
-			assets.reset();
-			Window::terminate();
-			throw initialize_error("could not to initialize assets");
+			new_assets.reset();
+			throw std::runtime_error("could not to load assets");
 		}
 	}
+    assets->extend(*new_assets.get());
 }

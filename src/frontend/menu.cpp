@@ -158,6 +158,13 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
                                         vec4(10.0f, 8.0f, 10.0f, 8.0f));
             button->color(vec4(1.0f, 1.0f, 1.0f, 0.1f));
             button->listenAction([=](GUI* gui) {
+                // TODO: complete and move somewhere
+                auto resdir = engine->getPaths()->getResources();
+                auto& packs = engine->getContentPacks();
+                packs.clear();
+                packs.push_back(ContentPack::read(resdir/path("content/base")));
+                engine->loadContent();
+
                 auto* content = engine->getContent();
                 auto& settings = engine->getSettings();
                 auto folder = paths->getWorldsFolder()/u8path(name);
@@ -269,6 +276,14 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
 
             auto folder = paths->getWorldsFolder()/u8path(nameutf8);
             std::filesystem::create_directories(folder);
+
+            // TODO: complete and move somewhere
+            auto resdir = engine->getPaths()->getResources();
+            auto packs = engine->getContentPacks();
+            packs.clear();
+            packs.push_back(ContentPack::read(resdir/path("content/base")));
+            engine->loadContent();
+            
             Level* level = World::create(nameutf8, 
                                          folder, 
                                          seed, 
