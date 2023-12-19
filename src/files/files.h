@@ -2,6 +2,7 @@
 #define FILES_FILES_H_
 
 #include <string>
+#include <vector>
 #include <filesystem>
 #include "../typedefs.h"
 
@@ -17,6 +18,7 @@ namespace files {
     extern std::string read_string(std::filesystem::path filename);
     extern bool write_string(std::filesystem::path filename, const std::string content);
     extern json::JObject* read_json(std::filesystem::path file);
+    extern std::vector<std::string> read_list(std::filesystem::path file);
 }
 
 #endif /* FILES_FILES_H_ */
