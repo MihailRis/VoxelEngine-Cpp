@@ -28,14 +28,11 @@
 
 using glm::vec2;
 using glm::vec4;
-using std::string;
-using std::wstring;
 using std::make_unique;
 using std::unique_ptr;
 using std::shared_ptr;
-using std::filesystem::path;
-using std::filesystem::u8path;
-using std::filesystem::directory_iterator;
+
+namespace fs = std::filesystem;
 using namespace gui;
 
 Panel* create_main_menu_panel(Engine* engine, PagesControl* menu);
@@ -58,6 +55,40 @@ void menus::create_menus(Engine* engine, PagesControl* menu) {
 
 void menus::refresh_menus(Engine* engine, PagesControl* menu) {
     menu->add("main", create_main_menu_panel(engine, menu));
+}
+
+void show_content_select(GUI* gui, const EnginePaths* paths, 
+                         std::vector<ContentPack>& packs) {
+    PagesControl* menu = gui->getMenu();
+    Panel* panel = new Panel(vec2(200, 200), vec4(8.0f), 8.0f);
+
+    auto resdir = paths->getResources();
+    std::vector<ContentPack> allpacks;
+    ContentPack::scan(resdir / fs::path("content"), allpacks);
+
+    for (ContentPack& pack : allpacks) {
+        bool selected = false;
+        for (ContentPack& spack : packs) {
+            if (spack.id == pack.id) {
+                selected = true;
+                break;
+            }
+        }
+        Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
+        checkpanel->color(vec4(0.0f));
+        checkpanel->orientation(Orientation::horizontal);
+
+        CheckBox* checkbox = new CheckBox(selected);
+        checkbox->margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
+
+        checkpanel->add(checkbox);
+        checkpanel->add(new Label(langs::get(util::str2wstr_utf8(pack.title), L"pack-title")));
+
+        panel->add(checkpanel);
+    }
+    panel->add(guiutil::backButton(menu));
+    menu->add("content-select", panel);
+    menu->set("content-select");
 }
 
 void show_content_missing(GUI* gui, const Content* content, ContentLUT* lut) {
@@ -98,7 +129,7 @@ void show_content_missing(GUI* gui, const Content* content, ContentLUT* lut) {
 }
 
 void show_convert_request(GUI* gui, const Content* content, ContentLUT* lut,
-                          path folder) {
+                          fs::path folder) {
     guiutil::confirm(gui, langs::get(L"world.convert-request"),
     [=]() {
         std::cout << "Convert the world: " << folder.string() << std::endl;    
@@ -115,14 +146,14 @@ void show_convert_request(GUI* gui, const Content* content, ContentLUT* lut,
 Panel* create_languages_panel(Engine* engine, PagesControl* menu) {
     Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
     panel->scrollable(true);
-    std::vector<string> locales;
+    std::vector<std::string> locales;
     for (auto& entry : langs::locales_info) {
         locales.push_back(entry.first);
     }
     std::sort(locales.begin(), locales.end());
-    for (string& name : locales) {
+    for (std::string& name : locales) {
         auto& locale = langs::locales_info.at(name);
-        string& fullName = locale.name;
+        std::string& fullName = locale.name;
 
         Button* button = new Button(util::str2wstr_utf8(fullName), vec4(10.f));
         button->listenAction([=](GUI*) {
@@ -147,26 +178,26 @@ Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
     Panel* worldsPanel = new Panel(vec2(390, 200), vec4(5.0f));
     worldsPanel->color(vec4(1.0f, 1.0f, 1.0f, 0.07f));
     worldsPanel->maxLength(400);
-    path worldsFolder = paths->getWorldsFolder();
+    fs::path worldsFolder = paths->getWorldsFolder();
     if (std::filesystem::is_directory(worldsFolder)) {
-        for (auto const& entry : directory_iterator(worldsFolder)) {
+        for (auto const& entry : fs::directory_iterator(worldsFolder)) {
             if (!entry.is_directory()) {
                 continue;
             }
-            string name = entry.path().filename().u8string();
+            std::string name = entry.path().filename().u8string();
             Button* button = new Button(util::str2wstr_utf8(name), 
                                         vec4(10.0f, 8.0f, 10.0f, 8.0f));
             button->color(vec4(1.0f, 1.0f, 1.0f, 0.1f));
             button->listenAction([=](GUI* gui) {
                 // TODO: complete and move somewhere
 
-                auto folder = paths->getWorldsFolder()/u8path(name);
+                auto folder = paths->getWorldsFolder()/fs::u8path(name);
                 auto resdir = engine->getPaths()->getResources();
                 auto& packs = engine->getContentPacks();
                 packs.clear();
                 auto packnames = ContentPack::worldPacksList(folder);
                 for (auto name : packnames) {
-                    path packfolder;
+                    fs::path packfolder;
                     try {
                         packfolder = ContentPack::findPack(paths, name);
                     } catch (std::runtime_error& error) {
@@ -246,13 +277,17 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
         panel->add(seedInput);
     }
 
+    panel->add((new Button(langs::get(L"Content", L"menu"), vec4(10.0f)))->listenAction([=](GUI* gui){
+        show_content_select(gui, engine->getPaths(), engine->getContentPacks());
+    }));
+
     {
         Button* button = new Button(langs::get(L"Create World", L"world"), vec4(10.0f));
         button->margin(vec4(1, 20, 1, 1));
         vec4 basecolor = worldNameInput->color();   
         button->listenAction([=](GUI*) {
-            wstring name = worldNameInput->text();
-            string nameutf8 = util::wstr2str_utf8(name);
+            std::wstring name = worldNameInput->text();
+            std::string nameutf8 = util::wstr2str_utf8(name);
             EnginePaths* paths = engine->getPaths();
 
             // Basic validation
@@ -271,29 +306,29 @@ Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
                 return;
             }
 
-            wstring seedstr = seedInput->text();
+            std::wstring seedstr = seedInput->text();
             uint64_t seed;
             if (util::is_integer(seedstr)) {
                 try {
                     seed = std::stoull(seedstr);
                 } catch (const std::out_of_range& err) {
-                    std::hash<wstring> hash;
+                    std::hash<std::wstring> hash;
                     seed = hash(seedstr);
                 }
             } else {
-                std::hash<wstring> hash;
+                std::hash<std::wstring> hash;
                 seed = hash(seedstr);
             }
             std::cout << "world seed: " << seed << std::endl;
 
-            auto folder = paths->getWorldsFolder()/u8path(nameutf8);
+            auto folder = paths->getWorldsFolder()/fs::u8path(nameutf8);
             std::filesystem::create_directories(folder);
 
             // TODO: complete and move somewhere
             auto resdir = engine->getPaths()->getResources();
             auto& packs = engine->getContentPacks();
             packs.clear();
-            packs.push_back(ContentPack::read(resdir/path("content/base")));
+            packs.push_back(ContentPack::read(resdir/fs::path("content/base")));
             engine->loadContent();
             
             Level* level = World::create(nameutf8, 
@@ -337,7 +372,7 @@ Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
     scrollPanel->color(vec4(0.0f, 0.0f, 0.0f, 0.3f));
     scrollPanel->maxLength(400);
     for (auto& entry : Events::bindings){
-        string bindname = entry.first;
+        std::string bindname = entry.first;
         
         Panel* subpanel = new Panel(vec2(400, 40), vec4(5.0f), 1.0f);
         subpanel->color(vec4(0.0f));
@@ -464,7 +499,7 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
     }
 
     {
-        string langName = langs::locales_info.at(langs::current->getId()).name;
+        std::string langName = langs::locales_info.at(langs::current->getId()).name;
         panel->add(guiutil::gotoButton(
             langs::get(L"Language", L"settings")+L": "+
             util::str2wstr_utf8(langName), 
