@@ -235,7 +235,8 @@ voxel* Chunks::rayCast(vec3 start,
 								  ? def->rt.hitboxes[voxel->rotation()] 
 								  : def->hitbox;
 				scalar_t distance;
-				if (Rays::rayIntersectAABB(start, dir, iend, box, maxDist, norm, distance) > RayRelation::None){
+				Ray ray(start, dir);
+				if (ray.intersectAABB(iend, box, maxDist, norm, distance) > RayRelation::None){
 					end = start + (dir * vec3(distance));
 					return voxel;
 				}
@@ -333,8 +334,9 @@ vec3 Chunks::rayCastToObstacle(vec3 start, vec3 dir, float maxDist) {
 					: def->hitbox;
 				scalar_t distance;
 				ivec3 norm;
+				Ray ray(start, dir);
 				// norm is dummy now, can be inefficient
-				if (Rays::rayIntersectAABB(start, dir, ivec3(ix, iy, iz), box, maxDist, norm, distance) > RayRelation::None) {
+				if (ray.intersectAABB(ivec3(ix, iy, iz), box, maxDist, norm, distance) > RayRelation::None) {
 					return start + (dir * vec3(distance));
 				}
 			}
