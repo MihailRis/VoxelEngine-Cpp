@@ -18,9 +18,9 @@ menu.Controls=Управление
 menu.Back to Main Menu=Вернуться на Главную
 menu.Settings=Настройки
 menu.Content=Наполнение
-world.Seed=Семя
-world.Name=Название
-world.Create World=Создать Мир
+menu.Seed=Семя
+menu.Name=Название
+menu.Create World=Создать Мир
 
 world.convert-request=Есть изменения в индексах! Преобразовать мир?
 

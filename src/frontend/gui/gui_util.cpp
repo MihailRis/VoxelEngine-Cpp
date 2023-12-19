@@ -19,6 +19,7 @@ Button* guiutil::backButton(PagesControl* menu) {
 }
 
 Button* guiutil::gotoButton(wstring text, string page, PagesControl* menu) {
+    text = langs::get(text, L"menu");
     return (new Button(text, vec4(10.f)))->listenAction([=](GUI* gui) {
         menu->set(page);
     });
