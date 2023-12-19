@@ -4,8 +4,10 @@
 
 #include "glm/glm.hpp"
 
-std::unordered_map<rayvec3, AABBFaces> Rays::raysBoxCache_ = {};
+std::unordered_map<rayvec3, AABBFaces> Ray::raysBoxCache_ = {};
 const rayvec3 X_AXIS = rayvec3(1,0,0), Y_AXIS = rayvec3(0,1,0), Z_AXIS = rayvec3(0,0,1);
+
+Ray::Ray(const rayvec3& origin, const rayvec3& dir) : origin(origin), dir(dir) {}
 
 //make faces from AABB
 AABBFaces::AABBFaces(const rayvec3& parentBoxPos, const AABB& parentBox){
@@ -29,30 +31,28 @@ AABBFaces::AABBFaces(const rayvec3& parentBoxPos, const AABB& parentBox){
 }
 
 template <>
-RayRelation Rays::rayIntersectAAFace<AAFaceKind::Xperp>( 
-	               const rayvec3& rayOrigin, 
-				   const rayvec3& rayDir,
+RayRelation Ray::intersectAAFace<AAFaceKind::Xperp>( 
 				   const rayvec3& faceMin,
 				   const rayvec2& faceOppositeCorner, //y and z global coords of opposite corner
 				   glm::ivec3& normal_ret,
 				   scalar_t& distance_ret //sinonym of rayCoef
 				   ){
-	if (fabs(glm::dot(rayDir, X_AXIS)) < 1.0E-8){ //precision
+	if (fabs(glm::dot(dir, X_AXIS)) < 1.0E-8){ //precision
 		return RayRelation::Parallel;
 	}
 
-	scalar_t rayCoef = (faceMin.x - rayOrigin.x) / (rayDir.x);// equivalent to distance if raydir normalized
+	scalar_t rayCoef = (faceMin.x - origin.x) / (dir.x);// equivalent to distance if dir normalized
 	if (rayCoef < 0) return RayRelation::None;
 	rayvec3 intersectPoint = {faceMin.x,
-						rayCoef*rayDir.y + rayOrigin.y,
-						rayCoef*rayDir.z + rayOrigin.z};
+						rayCoef*dir.y + origin.y,
+						rayCoef*dir.z + origin.z};
 
 	if (intersectPoint.y >= faceMin.y
 	&& intersectPoint.y <= faceOppositeCorner[0]
 	&& intersectPoint.z >= faceMin.z
 	&& intersectPoint.z <= faceOppositeCorner[1]){
-		distance_ret = rayCoef; // believe that raydir normalized
-		if (rayDir.x > 0) normal_ret = -X_AXIS;
+		distance_ret = rayCoef; // believe that dir normalized
+		if (dir.x > 0) normal_ret = -X_AXIS;
 		else normal_ret = X_AXIS;
 		return RayRelation::Intersect; 
 	} 
@@ -60,30 +60,28 @@ RayRelation Rays::rayIntersectAAFace<AAFaceKind::Xperp>(
 }
 
 template <>
-RayRelation Rays::rayIntersectAAFace<AAFaceKind::Yperp>(
-	               const rayvec3& rayOrigin, 
-				   const rayvec3& rayDir,
+RayRelation Ray::intersectAAFace<AAFaceKind::Yperp>(
 				   const rayvec3& faceMin,
 				   const rayvec2& faceOppositeCorner, //x and z global coords of opposite corner
 				   glm::ivec3& normal_ret,
 				   scalar_t& distance_ret
 				   ){
-	if (fabs(glm::dot(rayDir, Y_AXIS)) < 1.0E-8){ //precision
+	if (fabs(glm::dot(dir, Y_AXIS)) < 1.0E-8){ //precision
 		return RayRelation::Parallel;
 	}
 
-	scalar_t rayCoef = (faceMin.y - rayOrigin.y) / (rayDir.y);// equivalent to distance if raydir normalized
+	scalar_t rayCoef = (faceMin.y - origin.y) / (dir.y);// equivalent to distance if dir normalized
 	if (rayCoef < 0) return RayRelation::None;
-	rayvec3 intersectPoint = { rayCoef *rayDir.x + rayOrigin.x,
+	rayvec3 intersectPoint = { rayCoef *dir.x + origin.x,
 						faceMin.y,
-						rayCoef*rayDir.z + rayOrigin.z};
+						rayCoef*dir.z + origin.z};
 
 	if (intersectPoint.x >= faceMin.x  //Face-hit check
 	&& intersectPoint.x <= faceOppositeCorner[0] 
 	&& intersectPoint.z >= faceMin.z 
 	&& intersectPoint.z <= faceOppositeCorner[1] ){
-		distance_ret = rayCoef; // believe that raydir normalized
-		if (rayDir.y > 0) normal_ret = -Y_AXIS;
+		distance_ret = rayCoef; // believe that dir normalized
+		if (dir.y > 0) normal_ret = -Y_AXIS;
 		else normal_ret = Y_AXIS;
 		return RayRelation::Intersect;
 	} 
@@ -91,30 +89,28 @@ RayRelation Rays::rayIntersectAAFace<AAFaceKind::Yperp>(
 }
 
 template <>
-RayRelation Rays::rayIntersectAAFace<AAFaceKind::Zperp>(
-	               const rayvec3& rayOrigin, 
-				   const rayvec3& rayDir,
+RayRelation Ray::intersectAAFace<AAFaceKind::Zperp>(
 				   const rayvec3& faceMin,
 				   const rayvec2& faceOppositeCorner, //x and y global coords of opposite corner
 				   glm::ivec3& normal_ret,
 				   scalar_t& distance_ret
 					){
-	if (fabs(glm::dot(rayDir, Z_AXIS)) < 1.0E-8){ //precision
+	if (fabs(glm::dot(dir, Z_AXIS)) < 1.0E-8){ //precision
 		return RayRelation::Parallel;
 	}
 	
-	scalar_t rayCoef = (faceMin.z - rayOrigin.z) / (rayDir.z); // equivalent to distance if raydir normalized
+	scalar_t rayCoef = (faceMin.z - origin.z) / (dir.z); // equivalent to distance if dir normalized
 	if (rayCoef < 0) return RayRelation::None;
-	rayvec3 intersectPoint = { rayCoef *rayDir.x + rayOrigin.x,
-						rayCoef*rayDir.y + rayOrigin.y,
+	rayvec3 intersectPoint = { rayCoef *dir.x + origin.x,
+						rayCoef*dir.y + origin.y,
 						faceMin.z};
 		
 	if (intersectPoint.x >= faceMin.x  //Face-hit check
 	&& intersectPoint.x <= faceOppositeCorner[0] 
 	&& intersectPoint.y >= faceMin.y  
 	&& intersectPoint.y <= faceOppositeCorner[1]  ){
-		distance_ret = rayCoef; // believe that raydir normalized
-		if (rayDir.z > 0) normal_ret = -Z_AXIS;
+		distance_ret = rayCoef; // believe that dir normalized
+		if (dir.z > 0) normal_ret = -Z_AXIS;
 		else normal_ret = Z_AXIS;
 		return RayRelation::Intersect;
 	}
@@ -122,21 +118,19 @@ RayRelation Rays::rayIntersectAAFace<AAFaceKind::Zperp>(
 }
 
 template <>
-RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Xperp>(
-				const rayvec3& rayOrigin, 
-				const rayvec3& rayDir,
+RayRelation Ray::isIntersectsAAFace<AAFaceKind::Xperp>(
 				const rayvec3& faceMin,
 				const rayvec2& faceOppositeCorner
 				){ 
-	if (fabs(glm::dot(rayDir, X_AXIS)) < 1.0E-8) { //precision of "parallelity"
+	if (fabs(glm::dot(dir, X_AXIS)) < 1.0E-8) { //precision of "parallelity"
 		return RayRelation::Parallel;
 	}
 
-	scalar_t rayCoef = (faceMin.x - rayOrigin.x) / (rayDir.x);
+	scalar_t rayCoef = (faceMin.x - origin.x) / (dir.x);
 	if (rayCoef < 0) return RayRelation::None;
 	rayvec3 intersectPoint = { faceMin.x,
-						rayCoef * rayDir.y + rayOrigin.y,
-						rayCoef * rayDir.z + rayOrigin.z };
+						rayCoef * dir.y + origin.y,
+						rayCoef * dir.z + origin.z };
 
 	if (intersectPoint.y >= faceMin.y
 		&& intersectPoint.y <= faceOppositeCorner[0]
@@ -148,21 +142,19 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Xperp>(
 }
 
 template <>
-RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Yperp>(
-				const rayvec3& rayOrigin,
-				const rayvec3& rayDir,
+RayRelation Ray::isIntersectsAAFace<AAFaceKind::Yperp>(
 				const rayvec3& faceMin,
 				const rayvec2& faceOppositeCorner
 				) {
-	if (fabs(glm::dot(rayDir, Y_AXIS)) < 1.0E-8) { //precision of "parallelity"
+	if (fabs(glm::dot(dir, Y_AXIS)) < 1.0E-8) { //precision of "parallelity"
 		return RayRelation::Parallel;
 	}
 
-	scalar_t rayCoef = (faceMin.y - rayOrigin.y) / (rayDir.y);
+	scalar_t rayCoef = (faceMin.y - origin.y) / (dir.y);
 	if (rayCoef < 0) return RayRelation::None;
-	rayvec3 intersectPoint = { rayCoef * rayDir.x + rayOrigin.x,
+	rayvec3 intersectPoint = { rayCoef * dir.x + origin.x,
 						faceMin.y,
-						rayCoef * rayDir.z + rayOrigin.z };
+						rayCoef * dir.z + origin.z };
 
 	if (intersectPoint.x >= faceMin.x  //Face-hit check
 		&& intersectPoint.x <= faceOppositeCorner[0]
@@ -174,20 +166,18 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Yperp>(
 }
 
 template <>
-RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Zperp>(
-				const rayvec3& rayOrigin,
-				const rayvec3& rayDir,
+RayRelation Ray::isIntersectsAAFace<AAFaceKind::Zperp>(
 				const rayvec3& faceMin,
 				const rayvec2& faceOppositeCorner
 				) {
-	if (fabs(glm::dot(rayDir, Z_AXIS)) < 1.0E-8) { //precision of "parallelity"
+	if (fabs(glm::dot(dir, Z_AXIS)) < 1.0E-8) { //precision of "parallelity"
 		return RayRelation::Parallel;
 	}
 
-	scalar_t rayCoef = (faceMin.z - rayOrigin.z) / (rayDir.z);
+	scalar_t rayCoef = (faceMin.z - origin.z) / (dir.z);
 	if (rayCoef < 0) return RayRelation::None;
-	rayvec3 intersectPoint = { rayCoef * rayDir.x + rayOrigin.x,
-						rayCoef * rayDir.y + rayOrigin.y,
+	rayvec3 intersectPoint = { rayCoef * dir.x + origin.x,
+						rayCoef * dir.y + origin.y,
 						faceMin.z };
 
 	if (intersectPoint.x >= faceMin.x  //Face-hit check
@@ -199,9 +189,7 @@ RayRelation Rays::isRayIntersectsAAFace<AAFaceKind::Zperp>(
 	return RayRelation::None;
 }
 
-RayRelation Rays::rayIntersectAABB(
-                   const rayvec3& rayOrigin, 
-				   const rayvec3& rayDir,
+RayRelation Ray::intersectAABB(
                    const rayvec3& boxPos,
 				   const AABB& box,
 				   float maxDist,
@@ -211,23 +199,21 @@ RayRelation Rays::rayIntersectAABB(
 
 		if (raysBoxCache_.find(boxPos) != raysBoxCache_.end()){
 			const AABBFaces& boxFaces = raysBoxCache_[boxPos];
-			return rayIntersectAABBFaces(rayOrigin, rayDir, boxFaces, maxDist, normal_ret, distance_ret);
+			return intersectAABBFaces(boxFaces, maxDist, normal_ret, distance_ret);
 		} else {
 			const AABBFaces& boxFaces = AABBFaces(boxPos, box);
 			raysBoxCache_[boxPos] = boxFaces;
-			return rayIntersectAABBFaces(rayOrigin, rayDir, boxFaces, maxDist, normal_ret, distance_ret);
+			return intersectAABBFaces(boxFaces, maxDist, normal_ret, distance_ret);
 		}
 
 	} else {
 		const AABBFaces& boxFaces = AABBFaces(boxPos, box);
-		return rayIntersectAABBFaces(rayOrigin, rayDir, boxFaces, maxDist, normal_ret, distance_ret);
+		return intersectAABBFaces(boxFaces, maxDist, normal_ret, distance_ret);
 	}
 
 }
 
-RayRelation Rays::rayIntersectAABBFaces(
-                   const rayvec3& rayOrigin, 
-				   const rayvec3& rayDir,
+RayRelation Ray::intersectAABBFaces(
                    const AABBFaces& boxFaces,
 				   float maxDist,
                    glm::ivec3& normal_ret,
@@ -239,48 +225,48 @@ RayRelation Rays::rayIntersectAABBFaces(
 	//unsigned char intersectedCount = 0; //this code is very uncomfortable, DONT LEARN IT!
 	bool isIntersect = false;
 
-	if (rayIntersectAAFace<AABBFaces::KINDS_ORDER[0]>(
-		rayOrigin, rayDir, boxFaces.faces[0].first, boxFaces.faces[0].second, bufNormal, faceDist
+	if (intersectAAFace<AABBFaces::KINDS_ORDER[0]>(
+		boxFaces.faces[0].first, boxFaces.faces[0].second, bufNormal, faceDist
 		) > RayRelation::None && faceDist < distance_ret){
 		isIntersect = true;
 		normal_ret = bufNormal;
 		distance_ret = faceDist;
 	}
 
-	if (rayIntersectAAFace<AABBFaces::KINDS_ORDER[1]>(
-		rayOrigin, rayDir, boxFaces.faces[1].first, boxFaces.faces[1].second, bufNormal, faceDist
+	if (intersectAAFace<AABBFaces::KINDS_ORDER[1]>(
+		boxFaces.faces[1].first, boxFaces.faces[1].second, bufNormal, faceDist
 		) > RayRelation::None && faceDist < distance_ret) {
 		isIntersect = true;
 		normal_ret = bufNormal;
 		distance_ret = faceDist;
 	}
 
-	if (rayIntersectAAFace<AABBFaces::KINDS_ORDER[2]>(
-		rayOrigin, rayDir, boxFaces.faces[2].first, boxFaces.faces[2].second, bufNormal, faceDist
+	if (intersectAAFace<AABBFaces::KINDS_ORDER[2]>(
+		boxFaces.faces[2].first, boxFaces.faces[2].second, bufNormal, faceDist
 		) > RayRelation::None && faceDist < distance_ret) {
 		isIntersect = true;
 		normal_ret = bufNormal;
 		distance_ret = faceDist;
 	}
 
-	if (rayIntersectAAFace<AABBFaces::KINDS_ORDER[3]>(
-		rayOrigin, rayDir, boxFaces.faces[3].first, boxFaces.faces[3].second, bufNormal, faceDist
+	if (intersectAAFace<AABBFaces::KINDS_ORDER[3]>(
+		boxFaces.faces[3].first, boxFaces.faces[3].second, bufNormal, faceDist
 		) > RayRelation::None && faceDist < distance_ret) {
 		isIntersect = true;
 		normal_ret = bufNormal;
 		distance_ret = faceDist;
 	}
 
-	if (rayIntersectAAFace<AABBFaces::KINDS_ORDER[4]>(
-		rayOrigin, rayDir, boxFaces.faces[4].first, boxFaces.faces[4].second, bufNormal, faceDist
+	if (intersectAAFace<AABBFaces::KINDS_ORDER[4]>(
+		boxFaces.faces[4].first, boxFaces.faces[4].second, bufNormal, faceDist
 		) > RayRelation::None && faceDist < distance_ret) {
 		isIntersect = true;
 		normal_ret = bufNormal;
 		distance_ret = faceDist;
 	}
 
-	if (rayIntersectAAFace<AABBFaces::KINDS_ORDER[5]>(
-		rayOrigin, rayDir, boxFaces.faces[5].first, boxFaces.faces[5].second, bufNormal, faceDist
+	if (intersectAAFace<AABBFaces::KINDS_ORDER[5]>(
+		boxFaces.faces[5].first, boxFaces.faces[5].second, bufNormal, faceDist
 		) > RayRelation::None && faceDist < distance_ret) {
 		isIntersect = true;
 		normal_ret = bufNormal;

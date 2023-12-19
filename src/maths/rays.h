@@ -42,67 +42,60 @@ struct std::hash<rayvec3>{
 	}
 };
 
-class Rays{
+class Ray{
 protected:
 	static const bool IS_RAYS_BOX_CACHE_ON = false;
 	static std::unordered_map<rayvec3, AABBFaces> raysBoxCache_; //[boxPos]: faces array 
 
 public:
+	rayvec3 origin;
+	rayvec3 dir;
+
+	Ray(const rayvec3& rayOrigin,
+		const rayvec3& rayDir);
 
 //optimized, NOT returns intersectPoint coordinates and normal vector
-template <AAFaceKind faceKind>
-static RayRelation isRayIntersectsAAFace(
-				   const rayvec3& rayOrigin, 
-				   const rayvec3& rayDir,
+	template <AAFaceKind faceKind>
+	RayRelation isIntersectsAAFace(
 				   const rayvec3& faceMin,
 				   const rayvec2& faceOppositeCorner
-				);
+	);
 
 //returns only normal
-template <AAFaceKind faceKind>
-static RayRelation rayIntersectAAFace( 
-	               const rayvec3& rayOrigin, 
-				   const rayvec3& rayDir,
+	template <AAFaceKind faceKind>
+	RayRelation intersectAAFace( 
 				   const rayvec3& faceMin,
 				   const rayvec2& faceOppositeCorner,
 				   glm::ivec3& normal_ret
-);
+	);
 
 //returns normal and distance
-template <AAFaceKind faceKind>
-static RayRelation rayIntersectAAFace( 
-	               const rayvec3& rayOrigin, 
-				   const rayvec3& rayDir,
+	template <AAFaceKind faceKind>
+	RayRelation intersectAAFace( 
 				   const rayvec3& faceMin,
 				   const rayvec2& faceOppositeCorner,
 				   glm::ivec3& normal_ret,
 				   scalar_t& distance_ret
-				   );
+	);
 
 // returns normal, distance and intersection point
-template <AAFaceKind faceKind>
-static RayRelation rayIntersectAAFace( 
-				const rayvec3& rayOrigin,
-				const rayvec3& rayDir,
+	template <AAFaceKind faceKind>
+	RayRelation intersectAAFace( 
 				const rayvec3& faceMin,
 				const rayvec2& faceOppositeCorner,
 				glm::ivec3& normal_ret,
 				scalar_t& distance_ret,
 				rayvec3& intersectPoint_ret
-);
+	);
 
-static RayRelation rayIntersectAABB(
-	               const rayvec3& rayOrigin, 
-				   const rayvec3& rayDir,
+	RayRelation intersectAABB(
                    const rayvec3& boxPos,
 				   const AABB& box,
 				   float maxDist,
                    glm::ivec3& normal_ret,
 				   scalar_t& distance_ret);
 
-static RayRelation rayIntersectAABBFaces( // calculates only normal and distance
-                   const rayvec3& rayOrigin, 
-				   const rayvec3& rayDir,
+	RayRelation intersectAABBFaces( // calculates only normal and distance
                    const AABBFaces& boxFaces,
 				   float maxDist,
                    glm::ivec3& normal_ret,
