@@ -194,10 +194,12 @@ ImageData* _png_load(const char* file){
 #include <stdio.h>
 #include <inttypes.h>
 
+static const int SPNG_SUCCESS = 0;
+//returns spng result code
 int _png_write(const char* filename, uint width, uint height, const ubyte* data, bool alpha) {
 	int fmt;
 	int ret = 0;
-	spng_ctx* ctx = NULL;
+	spng_ctx* ctx = nullptr;
 	spng_ihdr ihdr = { 0 };
 	uint pixsize = alpha ? 4 : 3;
 
@@ -212,7 +214,7 @@ int _png_write(const char* filename, uint width, uint height, const ubyte* data,
 	spng_set_ihdr(ctx, &ihdr);
 	fmt = SPNG_FMT_PNG;
 	ret = spng_encode_image(ctx, data, (size_t)width * (size_t)height * pixsize , fmt, SPNG_ENCODE_FINALIZE);
-	if (ret) {
+	if (ret != SPNG_SUCCESS) {
 		printf("spng_encode_image() error: %s\n", spng_strerror(ret));
 		fflush(stdout);
 		spng_ctx_free(ctx);
@@ -222,7 +224,7 @@ int _png_write(const char* filename, uint width, uint height, const ubyte* data,
 	size_t png_size;
 	void* png_buf = spng_get_png_buffer(ctx, &png_size, &ret);
 
-	if (png_buf == NULL) {
+	if (png_buf == nullptr) {
 		printf("spng_get_png_buffer() error: %s\n", spng_strerror(ret));
 	}
 	else {
@@ -235,7 +237,7 @@ int _png_write(const char* filename, uint width, uint height, const ubyte* data,
 
 ImageData* _png_load(const char* file){
 	int r = 0;
-	FILE *png;
+	FILE *png = nullptr;
 	char *pngbuf = nullptr;
 	spng_ctx *ctx = nullptr;
 	unsigned char *out = nullptr;
@@ -255,7 +257,7 @@ ImageData* _png_load(const char* file){
 		return nullptr;
 	}
 	pngbuf = new char[siz_pngbuf];
-	if(fread(pngbuf, siz_pngbuf, 1, png) != 1){
+	if(fread(pngbuf, siz_pngbuf, 1, png) != 1){ //check of read elements count
 		fclose(png);
 		delete[] pngbuf;
 		std::cerr << "fread() failed" << std::endl;
@@ -269,14 +271,14 @@ ImageData* _png_load(const char* file){
 		return nullptr;
 	}
 	r = spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
-	if (r){
+	if (r != SPNG_SUCCESS){
 		delete[] pngbuf;
 		spng_ctx_free(ctx);
 		std::cerr << "spng_set_crc_action() error: " << spng_strerror(r) << std::endl;
 		return nullptr;
 	}
 	r = spng_set_png_buffer(ctx, pngbuf, siz_pngbuf);
-	if (r){
+	if (r != SPNG_SUCCESS){
 		delete[] pngbuf;
 		spng_ctx_free(ctx);
 		std::cerr << "spng_set_png_buffer() error: " << spng_strerror(r) << std::endl;
@@ -285,7 +287,7 @@ ImageData* _png_load(const char* file){
 
 	spng_ihdr ihdr;
 	r = spng_get_ihdr(ctx, &ihdr);
-	if (r){
+	if (r != SPNG_SUCCESS){
 		delete[] pngbuf;
 		spng_ctx_free(ctx);
 		std::cerr << "spng_get_ihdr() error: " << spng_strerror(r) << std::endl;
@@ -306,7 +308,7 @@ ImageData* _png_load(const char* file){
 
 	size_t out_size;
 	r = spng_decoded_image_size(ctx, SPNG_FMT_RGBA8, &out_size);
-	if (r){
+	if (r != SPNG_SUCCESS){
 		delete[] pngbuf;
 		spng_ctx_free(ctx);
 		std::cerr << "spng_decoded_image_size() error: " << spng_strerror(r) << std::endl;
@@ -314,7 +316,7 @@ ImageData* _png_load(const char* file){
 	}
 	out = new unsigned char[out_size];
 	r = spng_decode_image(ctx, out, out_size, SPNG_FMT_RGBA8, 0);
-	if (r){
+	if (r != SPNG_SUCCESS){
 		delete[] out;
 		delete[] pngbuf;
 		spng_ctx_free(ctx);
