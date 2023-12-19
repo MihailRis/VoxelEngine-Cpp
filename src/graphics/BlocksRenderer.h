@@ -44,7 +44,8 @@ class BlocksRenderer {
 				const glm::ivec3& axisY,
 				const glm::ivec3& axisZ);
 
-	void vertex(const glm::vec3& coord, float u, float v, 
+	void vertex(const glm::vec3& coord, 
+                float u, float v, 
 				const glm::vec4& brightness,
 				const glm::ivec3& axisX,
 				const glm::ivec3& axisY,
