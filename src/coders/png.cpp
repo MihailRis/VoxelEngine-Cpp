@@ -17,35 +17,36 @@ using std::unique_ptr;
 #ifdef LIBPNG
 #include <png.h>
 
+// returns 0 if all-right, 1 otherwise
 int _png_write(const char* filename, uint width, uint height, const ubyte* data, bool alpha) {
-	png_structp png_ptr = NULL;
-	png_infop info_ptr = NULL;
+	png_structp png_ptr = nullptr;
+	png_infop info_ptr = nullptr;
     uint pixsize = alpha ? 4 : 3;
 
 	// Open file for writing (binary mode)
 	FILE* fp = fopen(filename, "wb");
-	if (fp == NULL) {
+	if (fp == nullptr) {
 		fprintf(stderr, "Could not open file %s for writing\n", filename);
 		fclose(fp);
 		return 1;
 	}
 
 	// Initialize write structure
-	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-	if (png_ptr == NULL) {
+	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+	if (png_ptr == nullptr) {
 		fprintf(stderr, "Could not allocate write struct\n");
 		fclose(fp);
-		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		png_destroy_write_struct(&png_ptr, (png_infopp)nullptr);
 		return 1;
 	}
 
 	// Initialize info structure
 	info_ptr = png_create_info_struct(png_ptr);
-	if (info_ptr == NULL) {
+	if (info_ptr == nullptr) {
 		fprintf(stderr, "Could not allocate info struct\n");
 		fclose(fp);
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
-		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		png_destroy_write_struct(&png_ptr, (png_infopp)nullptr);
 		return 1;
 		
 	}
@@ -55,7 +56,7 @@ int _png_write(const char* filename, uint width, uint height, const ubyte* data,
 		fprintf(stderr, "Error during png creation\n");
 		fclose(fp);
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
-		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		png_destroy_write_struct(&png_ptr, (png_infopp)nullptr);
 		return 1;
 	}
 
@@ -85,58 +86,59 @@ int _png_write(const char* filename, uint width, uint height, const ubyte* data,
 	}
 
 	// End write
-	png_write_end(png_ptr, NULL);
+	png_write_end(png_ptr, nullptr);
 
 	fclose(fp);
 	png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
-	png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+	png_destroy_write_struct(&png_ptr, (png_infopp)nullptr);
 	return 0;
 }
 
 ImageData* _png_load(const char* file){
-    FILE *f;
-    int is_png, bit_depth, color_type, row_bytes;
+    FILE *f = nullptr;
+	bool is_png = false;
+    int bit_depth, color_type, row_bytes;
     png_infop info_ptr, end_info;
     png_uint_32 t_width, t_height;
     png_byte header[8], *image_data;
     png_bytepp row_pointers;
     png_structp png_ptr;
 
-    if (!(f = fopen(file, "r"))) {
+    if ((f = fopen(file, "r")) == nullptr) {
         return nullptr;
     }
-    if (fread(header, 1, 8, f) < 8) {
+    if (fread(header, 1, 8, f) < 8) { // check of read elements count
 		fclose(f);
 		return nullptr;
 	}
 	
-    is_png = !png_sig_cmp(header, 0, 8);
+    is_png = (png_sig_cmp(header, 0, 8) == 0);
     if (!is_png) {
         fclose(f);
         return nullptr;
     }
-    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL,
-        NULL, NULL);
-    if (!png_ptr) {
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
+        nullptr, nullptr);
+    if (png_ptr == nullptr) {
         fclose(f);
         return nullptr;
     }
     info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) {
-        png_destroy_read_struct( &png_ptr, (png_infopp) NULL,
-            (png_infopp) NULL );
+    if (info_ptr == nullptr) {
+        png_destroy_read_struct( &png_ptr, (png_infopp) nullptr,
+            (png_infopp) nullptr );
         fclose(f);
         return nullptr;
     }
     end_info = png_create_info_struct(png_ptr);
-    if (!end_info) {
-        png_destroy_read_struct(&png_ptr, (png_infopp) NULL,
-            (png_infopp) NULL);
+    if (end_info == nullptr) {
+        png_destroy_read_struct(&png_ptr, (png_infopp) nullptr,
+            (png_infopp) nullptr);
         fclose(f);
         return nullptr;
     }
     
-    if (setjmp(png_jmpbuf(png_ptr))) {
+    if (setjmp(png_jmpbuf(png_ptr)) != 0) {
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
         fclose(f);
         return nullptr;
@@ -146,7 +148,7 @@ ImageData* _png_load(const char* file){
     png_set_sig_bytes( png_ptr, 8 );
     png_read_info( png_ptr, info_ptr );
     png_get_IHDR( png_ptr, info_ptr, &t_width, &t_height, &bit_depth,
-        &color_type, NULL, NULL, NULL );
+        &color_type, nullptr, nullptr, nullptr );
     png_read_update_info( png_ptr, info_ptr );
     row_bytes = png_get_rowbytes( png_ptr, info_ptr );
     image_data = new png_byte[row_bytes * t_height];
@@ -156,7 +158,7 @@ ImageData* _png_load(const char* file){
         return nullptr;
     }
     row_pointers = (png_bytepp) malloc( t_height * sizeof(png_bytep) );
-    if ( !row_pointers ) {
+    if ( row_pointers == nullptr ) {
         png_destroy_read_struct( &png_ptr, &info_ptr, &end_info );
         delete[] image_data;
         fclose(f);
@@ -180,6 +182,7 @@ ImageData* _png_load(const char* file){
                 png_get_color_type( png_ptr, info_ptr ) );
             png_destroy_read_struct( &png_ptr, &info_ptr, &end_info );
 			delete[] image_data;
+			free( row_pointers );
 			fclose(f);
             return nullptr;
     }
