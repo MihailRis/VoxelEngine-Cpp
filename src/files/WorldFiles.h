@@ -16,7 +16,7 @@
 
 const uint REGION_SIZE_BIT = 5;
 const uint REGION_SIZE = (1 << (REGION_SIZE_BIT));
-const uint REGION_VOL = ((REGION_SIZE) * (REGION_SIZE));
+const uint REGION_CHUNKS_COUNT = ((REGION_SIZE) * (REGION_SIZE));
 const uint REGION_FORMAT_VERSION = 1;
 const uint WORLD_FORMAT_VERSION = 1;
 #define REGION_FORMAT_MAGIC ".VOXREG"
@@ -37,8 +37,8 @@ public:
 	~WorldRegion();
 
 	void put(uint x, uint z, ubyte* data, uint32_t size);
-	ubyte* get(uint x, uint z);
-	uint getSize(uint x, uint z);
+	ubyte* getChunkData(uint x, uint z);
+	uint getChunkDataSize(uint x, uint z);
 
 	void setUnsaved(bool unsaved);
 	bool isUnsaved() const;
