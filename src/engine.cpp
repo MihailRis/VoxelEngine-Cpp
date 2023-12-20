@@ -203,5 +203,4 @@ void Engine::loadAllPacks() {
 	auto resdir = paths->getResources();
 	contentPacks.clear();
 	ContentPack::scan(resdir/fs::path("content"), contentPacks);
-	loadContent();
 }

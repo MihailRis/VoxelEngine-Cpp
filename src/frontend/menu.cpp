@@ -156,16 +156,16 @@ void open_world(std::string name, Engine* engine) {
     packs.clear();
     auto packnames = ContentPack::worldPacksList(folder);
     for (auto name : packnames) {
-        fs::path packfolder;
         try {
-            packfolder = ContentPack::findPack(paths, name);
-        } catch (std::runtime_error& error) {
+            fs::path packfolder = ContentPack::findPack(paths, name);
+            packs.push_back(ContentPack::read(packfolder));
+        } catch (contentpack_error& error) {
+            // could not to find or read pack
             guiutil::alert(engine->getGUI(), 
                            langs::get(L"error.pack-not-found")+
-                           L": "+util::str2wstr_utf8(name));
+                           L": "+util::str2wstr_utf8(error.getPackId()));
             return;
         }
-        packs.push_back(ContentPack::read(packfolder));
     }
     engine->loadContent();
 
@@ -291,6 +291,7 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
         fs::create_directories(folder);
 
         engine->loadAllPacks();
+        engine->loadContent();
         Level* level = World::create(nameutf8, 
                                      folder, 
                                      seed, 

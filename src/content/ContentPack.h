@@ -3,9 +3,22 @@
 
 #include <string>
 #include <vector>
+#include <stdexcept>
 #include <filesystem>
 
 class EnginePaths;
+
+class contentpack_error : public std::runtime_error {
+    std::string packId;
+    std::filesystem::path folder;
+public:
+    contentpack_error(std::string packId, 
+                      std::filesystem::path folder, 
+                      std::string message);
+
+    std::string getPackId() const;
+    std::filesystem::path getFolder() const;
+};
 
 struct ContentPack {
     std::string id = "none";

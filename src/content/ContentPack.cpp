@@ -1,7 +1,6 @@
 #include "ContentPack.h"
 
 #include <iostream>
-#include <stdexcept>
 
 #include "../coders/json.h"
 #include "../files/files.h"
@@ -11,6 +10,20 @@ namespace fs = std::filesystem;
 
 const std::string ContentPack::PACKAGE_FILENAME = "package.json";
 const std::string ContentPack::CONTENT_FILENAME = "content.json";
+
+contentpack_error::contentpack_error(
+    std::string packId, 
+    std::filesystem::path folder, 
+    std::string message)
+    : std::runtime_error(message), packId(packId), folder(folder) {
+}
+
+std::string contentpack_error::getPackId() const {
+    return packId;
+}
+std::filesystem::path contentpack_error::getFolder() const {
+    return folder;
+}
 
 std::filesystem::path ContentPack::getContentFile() const {
     return folder/fs::path(CONTENT_FILENAME);
@@ -28,7 +41,7 @@ ContentPack ContentPack::read(std::filesystem::path folder) {
     root->str("version", pack.version);
     pack.folder = folder;
     if (pack.id == "none")
-        throw std::runtime_error("content-pack id is none: "+folder.u8string());
+        throw contentpack_error(pack.id, folder, "content-pack id is none");
     return pack;
 }
 
@@ -60,7 +73,8 @@ std::vector<std::string> ContentPack::worldPacksList(fs::path folder) {
 fs::path ContentPack::findPack(const EnginePaths* paths, std::string name) {
     auto folder = paths->getResources() / fs::path("content") / fs::path(name);
     if (!fs::is_directory(folder)) {
-        throw std::runtime_error("could not to find pack '"+name+"'");
+        throw contentpack_error(name, folder, 
+                                "could not to find pack '"+name+"'");
     }
     return folder;
 }
