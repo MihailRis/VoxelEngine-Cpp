@@ -148,19 +148,21 @@ void WorldFiles::put(Chunk* chunk){
 	int localZ = chunk->z - (regionZ * REGION_SIZE);
 
 	/* Writing Voxels */ {
+        size_t compressedSize;
+        std::unique_ptr<ubyte[]> chunk_data (chunk->encode());
+		ubyte* data = compress(chunk_data.get(), CHUNK_DATA_LEN, compressedSize);
+
 		WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
 		region->setUnsaved(true);
-		std::unique_ptr<ubyte[]> chunk_data (chunk->encode());
-		size_t compressedSize;
-		ubyte* data = compress(chunk_data.get(), CHUNK_DATA_LEN, compressedSize);
 		region->put(localX, localZ, data, compressedSize);
 	}
 	if (doWriteLights && chunk->isLighted()) {
+        size_t compressedSize;
+        std::unique_ptr<ubyte[]> light_data (chunk->lightmap->encode());
+		ubyte* data = compress(light_data.get(), LIGHTMAP_DATA_LEN, compressedSize);
+
 		WorldRegion* region = getOrCreateRegion(lights, regionX, regionZ);
 		region->setUnsaved(true);
-		std::unique_ptr<ubyte[]> light_data (chunk->lightmap->encode());
-		size_t compressedSize;
-		ubyte* data = compress(light_data.get(), LIGHTMAP_DATA_LEN, compressedSize);
 		region->put(localX, localZ, data, compressedSize);
 	}
 }
@@ -239,7 +241,8 @@ ubyte* WorldFiles::getData(regionsmap& regions, const fs::path& folder,
 		}
 	}
 	if (data != nullptr) {
-		return decompress(data, region->getChunkDataSize(localX, localZ), CHUNK_DATA_LEN);
+        size_t size = region->getChunkDataSize(localX, localZ);
+		return decompress(data, size, CHUNK_DATA_LEN);
 	}
 	return nullptr;
 }
@@ -250,9 +253,9 @@ files::rafile* WorldFiles::getRegFile(glm::ivec3 coord, const fs::path& folder) 
         return found->second.get();
     }
     if (openRegFiles.size() == MAX_OPEN_REGION_FILES) {
-        // [todo] replace with something better
-        auto item = std::next(openRegFiles.begin(), rand() % openRegFiles.size());
-        openRegFiles.erase(item->first);
+        // [todo] replace with closing the most unused region
+        auto iter = std::next(openRegFiles.begin(), rand() % openRegFiles.size());
+        openRegFiles.erase(iter);
     }
     fs::path filename = folder/getRegionFilename(coord.x, coord.y);
     if (!fs::is_regular_file(filename)) {
@@ -303,20 +306,25 @@ ubyte* WorldFiles::readChunkData(int x,
 	return data;
 }
 
+void WorldFiles::fetchChunks(WorldRegion* region, int x, int y, fs::path folder, int layer) {
+    ubyte** chunks = region->getChunks();
+	uint32_t* sizes = region->getSizes();
+
+    for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
+        int chunk_x = (i % REGION_SIZE) + x * REGION_SIZE;
+        int chunk_z = (i / REGION_SIZE) + y * REGION_SIZE;
+        if (chunks[i] == nullptr) {
+            chunks[i] = readChunkData(chunk_x, chunk_z, sizes[i], folder, layer);
+        }
+    }
+}
+
 void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, fs::path folder, int layer){
     fs::path filename = folder/getRegionFilename(x, y);
 
-	ubyte** region = entry->getChunks();
-	uint32_t* sizes = entry->getSizes();
     glm::ivec3 regcoord(x, y, layer);
     if (getRegFile(regcoord, folder)) {
-        for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
-            int chunk_x = (i % REGION_SIZE) + x * REGION_SIZE;
-            int chunk_z = (i / REGION_SIZE) + y * REGION_SIZE;
-            if (region[i] == nullptr) {
-                region[i] = readChunkData(chunk_x, chunk_z, sizes[i], folder, layer);
-            }
-        }
+        fetchChunks(entry, x, y, folder, layer);
         openRegFiles.erase(regcoord);
     }
     
@@ -330,6 +338,9 @@ void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, fs::path folder, 
 	char intbuf[4]{};
 	uint offsets[REGION_CHUNKS_COUNT]{};
 	
+    ubyte** region = entry->getChunks();
+	uint32_t* sizes = entry->getSizes();
+    
 	for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
 		ubyte* chunk = region[i];
 		if (chunk == nullptr){

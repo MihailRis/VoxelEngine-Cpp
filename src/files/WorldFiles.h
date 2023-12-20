@@ -88,6 +88,8 @@ class WorldFiles {
 						 uint32_t& length, 
 						 std::filesystem::path folder,
                          int layer);
+    void fetchChunks(WorldRegion* region, int x, int y, 
+                     std::filesystem::path folder, int layer);
 
 	void writeRegions(regionsmap& regions,
 					  const std::filesystem::path& folder, int layer);
