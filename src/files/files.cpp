@@ -9,6 +9,27 @@
 
 namespace fs = std::filesystem;
 
+files::rafile::rafile(std::filesystem::path filename)
+    : file(filename, std::ios::binary | std::ios::ate) {
+    if (!file) {
+        throw std::runtime_error("could not to open file "+filename.string());
+    }
+    filelength = file.tellg();
+    file.seekg(0);
+}
+
+size_t files::rafile::length() const {
+    return filelength;
+}
+
+void files::rafile::seekg(std::streampos pos) {
+    file.seekg(pos);
+}
+
+void files::rafile::read(char* buffer, std::streamsize size) {
+    file.read(buffer, size);
+}
+
 bool files::write_bytes(fs::path filename, const char* data, size_t size) {
 	std::ofstream output(filename, std::ios::binary);
 	if (!output.is_open())
