@@ -45,12 +45,12 @@ using std::unordered_map;
 namespace fs = std::filesystem;
 
 WorldRegion::WorldRegion() {
-	chunksData = new ubyte*[REGION_VOL]{};
-	sizes = new uint32_t[REGION_VOL]{};
+	chunksData = new ubyte*[REGION_CHUNKS_COUNT]{};
+	sizes = new uint32_t[REGION_CHUNKS_COUNT]{};
 }
 
 WorldRegion::~WorldRegion() {
-	for (uint i = 0; i < REGION_VOL; i++) {
+	for (uint i = 0; i < REGION_CHUNKS_COUNT; i++) {
 		delete[] chunksData[i];
 	}
 	delete[] sizes;
@@ -79,11 +79,11 @@ void WorldRegion::put(uint x, uint z, ubyte* data, uint32_t size) {
 	sizes[chunk_index] = size;
 }
 
-ubyte* WorldRegion::get(uint x, uint z) {
+ubyte* WorldRegion::getChunkData(uint x, uint z) {
 	return chunksData[z * REGION_SIZE + x];
 }
 
-uint WorldRegion::getSize(uint x, uint z) {
+uint WorldRegion::getChunkDataSize(uint x, uint z) {
 	return sizes[z * REGION_SIZE + x];
 }
 
@@ -243,7 +243,7 @@ ubyte* WorldFiles::getData(unordered_map<ivec2, WorldRegion*>& regions,
 
 	WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
 
-	ubyte* data = region->get(localX, localZ);
+	ubyte* data = region->getChunkData(localX, localZ);
 	if (data == nullptr) {
 		uint32_t size;
 		data = readChunkData(x, z, size, 
@@ -253,7 +253,7 @@ ubyte* WorldFiles::getData(unordered_map<ivec2, WorldRegion*>& regions,
 		}
 	}
 	if (data != nullptr) {
-		return decompress(data, region->getSize(localX, localZ), CHUNK_DATA_LEN);
+		return decompress(data, region->getChunkDataSize(localX, localZ), CHUNK_DATA_LEN);
 	}
 	return nullptr;
 }
@@ -268,13 +268,13 @@ ubyte* WorldFiles::readChunkData(int x, int z, uint32_t& length, fs::path filena
 	int localZ = z - (regionZ * REGION_SIZE);
 	int chunkIndex = localZ * REGION_SIZE + localX;
 
-	std::ifstream input(filename, std::ios::binary);
+	std::ifstream input(filename, std::ios::binary); // BAD: open/close a file for every single chunk may be ineffective
 	if (!input.is_open()){
 		return nullptr;
 	}
 	input.seekg(0, ios::end);
 	size_t file_size = input.tellg();
-	size_t table_offset = file_size - REGION_VOL * 4;
+	size_t table_offset = file_size - REGION_CHUNKS_COUNT * 4;
 
 	uint32_t offset;
 	input.seekg(table_offset + chunkIndex * 4);
@@ -299,7 +299,7 @@ ubyte* WorldFiles::readChunkData(int x, int z, uint32_t& length, fs::path filena
 void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, fs::path filename){
 	ubyte** region = entry->getChunks();
 	uint32_t* sizes = entry->getSizes();
-	for (size_t i = 0; i < REGION_VOL; i++) {
+	for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
 		int chunk_x = (i % REGION_SIZE) + x * REGION_SIZE;
 		int chunk_z = (i / REGION_SIZE) + y * REGION_SIZE;
 		if (region[i] == nullptr) {
@@ -315,9 +315,9 @@ void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, fs::path filename
 
 	size_t offset = 10;
 	char intbuf[4]{};
-	uint offsets[REGION_VOL]{};
+	uint offsets[REGION_CHUNKS_COUNT]{};
 	
-	for (size_t i = 0; i < REGION_VOL; i++) {
+	for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
 		ubyte* chunk = region[i];
 		if (chunk == nullptr){
 			offsets[i] = 0;
@@ -332,7 +332,7 @@ void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, fs::path filename
 			file.write((const char*)chunk, compressedSize);
 		}
 	}
-	for (size_t i = 0; i < REGION_VOL; i++) {
+	for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
 		dataio::write_int32_big(offsets[i], (ubyte*)intbuf, 0);
 		file.write(intbuf, 4);
 	}
