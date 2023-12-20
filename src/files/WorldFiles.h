@@ -54,6 +54,7 @@ class WorldFiles {
 	std::filesystem::path getPlayerFile() const;
 	std::filesystem::path getWorldFile() const;
 	std::filesystem::path getIndicesFile() const;
+	std::filesystem::path getPacksFile() const;
 	
 	WorldRegion* getRegion(std::unordered_map<glm::ivec2, WorldRegion*>& regions,
 						   int x, int z);
@@ -114,6 +115,7 @@ public:
 	void writePlayer(Player* player);
     /* @param world world info to save (nullable) */
 	void write(const World* world, const Content* content);
+	void writePacks(const World* world);
 	void writeIndices(const ContentIndices* indices);
 };
 

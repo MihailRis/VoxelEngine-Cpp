@@ -40,9 +40,10 @@ using std::unique_ptr;
 using std::shared_ptr;
 using std::string;
 using std::vector;
-using std::filesystem::path;
 using glm::vec3;
 using gui::GUI;
+
+namespace fs = std::filesystem;
 
 Engine::Engine(EngineSettings& settings, EnginePaths* paths) 
 	   : settings(settings), paths(paths) {    
@@ -53,7 +54,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     auto resdir = paths->getResources();
 
 	std::cout << "-- loading assets" << std::endl;
-    std::vector<path> roots {resdir};
+    std::vector<fs::path> roots {resdir};
     resPaths.reset(new ResPaths(resdir, roots));
     assets.reset(new Assets());
 	AssetsLoader loader(assets.get(), resPaths.get());
@@ -89,7 +90,7 @@ void Engine::updateHotkeys() {
 	if (Events::jpressed(keycode::F2)) {
 		unique_ptr<ImageData> image(Window::takeScreenshot());
 		image->flipY();
-		path filename = paths->getScreenshotFile("png");
+		fs::path filename = paths->getScreenshotFile("png");
 		png::write_image(filename.string(), image.get());
 		std::cout << "saved screenshot as " << filename << std::endl;
 	}
@@ -173,7 +174,7 @@ void Engine::loadContent() {
     ContentBuilder contentBuilder;
     setup_definitions(&contentBuilder);
     
-    vector<path> resRoots;
+    vector<fs::path> resRoots;
     for (auto& pack : contentPacks) {
         ContentLoader loader(&pack);
         loader.load(&contentBuilder);
@@ -196,4 +197,11 @@ void Engine::loadContent() {
 		}
 	}
     assets->extend(*new_assets.get());
+}
+
+void Engine::loadAllPacks() {
+	auto resdir = paths->getResources();
+	contentPacks.clear();
+	ContentPack::scan(resdir/fs::path("content"), contentPacks);
+	loadContent();
 }

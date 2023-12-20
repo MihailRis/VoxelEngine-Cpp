@@ -58,6 +58,7 @@ public:
     std::vector<ContentPack>& getContentPacks();
 	void setLanguage(std::string locale);
     void loadContent();
+	void loadAllPacks();
 };
 
 #endif // SRC_ENGINE_H_

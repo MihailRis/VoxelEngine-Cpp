@@ -66,39 +66,6 @@ Button* create_button(std::wstring text,
     return btn;
 }
 
-void show_content_select(GUI* gui, Engine* engine) {
-    PagesControl* menu = gui->getMenu();
-    Panel* panel = new Panel(vec2(200, 200), vec4(8.0f), 8.0f);
-
-    auto resdir = engine->getPaths()->getResources();
-    std::vector<ContentPack> allpacks;
-    ContentPack::scan(resdir / fs::path("content"), allpacks);
-
-    for (ContentPack& pack : allpacks) {
-        bool selected = false;
-        for (ContentPack& spack : engine->getContentPacks()) {
-            if (spack.id == pack.id) {
-                selected = true;
-                break;
-            }
-        }
-        Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
-        checkpanel->color(vec4(0.0f));
-        checkpanel->orientation(Orientation::horizontal);
-
-        CheckBox* checkbox = new CheckBox(selected);
-        checkbox->margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
-
-        checkpanel->add(checkbox);
-        checkpanel->add(new Label(langs::get(util::str2wstr_utf8(pack.title), L"pack-title")));
-
-        panel->add(checkpanel);
-    }
-    panel->add(guiutil::backButton(menu));
-    menu->add("content-select", panel);
-    menu->set("content-select");
-}
-
 void show_content_missing(Engine* engine, const Content* content, ContentLUT* lut) {
     auto* gui = engine->getGUI();
     auto* menu = gui->getMenu();
@@ -214,7 +181,7 @@ void open_world(std::string name, Engine* engine) {
             show_convert_request(engine, content, lut, folder);
         }
     } else {
-        Level* level = World::load(folder, settings, content);
+        Level* level = World::load(folder, settings, content, packs);
         engine->setScreen(std::make_shared<LevelScreen>(engine, level));
     }
 }
@@ -249,8 +216,6 @@ void create_main_menu_panel(Engine* engine, PagesControl* menu) {
     panel->add(guiutil::gotoButton(L"New World", "new-world", menu));
     panel->add(create_worlds_panel(engine));
     panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
-    panel->add(guiutil::gotoButton(L"Content", "content", menu));
-
     panel->add((new Button(langs::get(L"Quit", L"menu"), vec4(10.f)))
     ->listenAction([](GUI* gui) {
         Window::setShouldClose(true);
@@ -295,11 +260,6 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
         panel->add(seedInput);
     }
 
-    panel->add((new Button(langs::get(L"Content", L"menu"), vec4(10.0f)))
-    ->listenAction([=](GUI* gui){
-        show_content_select(gui, engine);
-    }));
-
     vec4 basecolor = worldNameInput->color();   
     panel->add(create_button( L"Create World", vec4(10), vec4(1, 20, 1, 1), 
     [=](GUI*) {
@@ -330,18 +290,13 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
         auto folder = paths->getWorldsFolder()/fs::u8path(nameutf8);
         fs::create_directories(folder);
 
-        // TODO: complete and move somewhere
-        auto resdir = engine->getPaths()->getResources();
-        auto& packs = engine->getContentPacks();
-        packs.clear();
-        packs.push_back(ContentPack::read(resdir/fs::path("content/base")));
-        engine->loadContent();
-        
+        engine->loadAllPacks();
         Level* level = World::create(nameutf8, 
-                                        folder, 
-                                        seed, 
-                                        engine->getSettings(), 
-                                        engine->getContent());
+                                     folder, 
+                                     seed, 
+                                     engine->getSettings(), 
+                                     engine->getContent(),
+                                     engine->getContentPacks());
         engine->setScreen(std::make_shared<LevelScreen>(engine, level));
     }));
     panel->add(guiutil::backButton(menu));
