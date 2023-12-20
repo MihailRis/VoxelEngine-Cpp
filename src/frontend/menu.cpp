@@ -147,25 +147,19 @@ void create_languages_panel(Engine* engine, PagesControl* menu) {
 }
 
 void open_world(std::string name, Engine* engine) {
-    // TODO: complete and move somewhere
     auto paths = engine->getPaths();
-    auto resdir = paths->getResources();
     auto folder = paths->getWorldsFolder()/fs::u8path(name);
-    
     auto& packs = engine->getContentPacks();
     packs.clear();
-    auto packnames = ContentPack::worldPacksList(folder);
-    for (auto name : packnames) {
-        try {
-            fs::path packfolder = ContentPack::findPack(paths, name);
-            packs.push_back(ContentPack::read(packfolder));
-        } catch (contentpack_error& error) {
-            // could not to find or read pack
-            guiutil::alert(engine->getGUI(), 
-                           langs::get(L"error.pack-not-found")+
-                           L": "+util::str2wstr_utf8(error.getPackId()));
-            return;
-        }
+    try {
+        auto packNames = ContentPack::worldPacksList(folder);
+        ContentPack::readPacks(paths, packs, packNames);
+    } catch (contentpack_error& error) {
+        // could not to find or read pack
+        guiutil::alert(engine->getGUI(), 
+                        langs::get(L"error.pack-not-found")+
+                        L": "+util::str2wstr_utf8(error.getPackId()));
+        return;
     }
     engine->loadContent();
 

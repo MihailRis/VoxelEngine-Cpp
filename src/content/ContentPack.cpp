@@ -78,3 +78,12 @@ fs::path ContentPack::findPack(const EnginePaths* paths, std::string name) {
     }
     return folder;
 }
+
+void ContentPack::readPacks(const EnginePaths* paths,
+                            std::vector<ContentPack>& packs, 
+                            const std::vector<std::string>& packnames) {
+    for (const auto& name : packnames) {
+        fs::path packfolder = ContentPack::findPack(paths, name);
+        packs.push_back(ContentPack::read(packfolder));
+    }
+}
