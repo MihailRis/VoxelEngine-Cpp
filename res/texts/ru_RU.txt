@@ -6,6 +6,8 @@ Cancel=Отмена
 Back=Назад
 Continue=Продолжить
 
+error.pack-not-found=Не удалось найти пакет
+
 # Меню
 menu.New World=Новый Мир
 menu.Quit=Выход
@@ -16,9 +18,9 @@ menu.Controls=Управление
 menu.Back to Main Menu=Вернуться в Меню
 menu.Settings=Настройки
 menu.Content=Контент
-world.Seed=Зерно
-world.Name=Название
-world.Create World=Создать Мир
+menu.Seed=Зерно
+menu.Name=Название
+menu.Create World=Создать Мир
 
 world.convert-request=Есть изменения в индексах! Конвертировать мир?
 

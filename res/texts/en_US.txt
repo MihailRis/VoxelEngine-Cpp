@@ -1,6 +1,7 @@
 # Menu
 menu.missing-content=Missing Content!
 world.convert-request=Content indices have changed! Convert world files?
+error.pack-not-found=Could not to find pack
 
 # Bindings
 movement.forward=Forward

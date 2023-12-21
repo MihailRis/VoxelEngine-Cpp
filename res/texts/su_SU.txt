@@ -1,0 +1,53 @@
+# Общее
+Yes=Да
+No=Нет
+Ok = Понятно
+Cancel=Отмена
+Back = Обратно
+Continue=Продолжить
+
+error.pack-not-found=Не удалось найти пакет
+
+# Меню
+menu.New World = Новый Мир
+menu.Quit=Выход
+menu.Continue=Продолжить
+menu.Save and Quit to Menu=Сохранить и Вернуться на Главную
+menu.missing-content=Отсутствует некоторое наполнение!
+menu.Controls=Управление
+menu.Back to Main Menu=Вернуться на Главную
+menu.Settings=Настройки
+menu.Content=Наполнение
+menu.Seed=Семя
+menu.Name=Название
+menu.Create World=Создать Мир
+
+world.convert-request=Есть изменения в индексах! Преобразовать мир?
+
+# Настройки
+settings.Load Distance=Дальность Загрузки
+settings.Load Speed=Скорость Загрузки
+settings.Fog Curve=Искривление Тумана
+settings.Backlight=Подсветка
+settings.V-Sync=Вертикальная Синхронизация
+
+settings.FOV=Поле Зрения
+settings.Mouse Sensitivity=Чувствительность Мыши
+settings.Language=Язык
+
+# Управление
+movement.forward=Вперёд
+movement.back=Назад
+movement.left=Влево
+movement.right=Вправо
+movement.jump=Прыжок
+movement.sprint=Ускорение
+movement.crouch=Красться
+movement.cheat=Чит
+hud.inventory=Инвентарь
+player.pick=Подобрать Блок
+player.attack=Атаковать / Сломать
+player.build=Поставить Блок
+player.flight=Полёт
+camera.zoom=Приближение
+camera.mode=Сменить Режим Камеры

@@ -2,6 +2,7 @@
 #define ASSETS_ASSETS_H_
 
 #include <string>
+#include <memory>
 #include <unordered_map>
 
 class ITexture;
@@ -10,10 +11,10 @@ class Font;
 class Atlas;
 
 class Assets {
-	std::unordered_map<std::string, ITexture*> textures;
-	std::unordered_map<std::string, IShader*> shaders;
-	std::unordered_map<std::string, Font*> fonts;
-	std::unordered_map<std::string, Atlas*> atlases;
+	std::unordered_map<std::string, std::shared_ptr<ITexture>> textures;
+	std::unordered_map<std::string, std::shared_ptr<IShader>> shaders;
+	std::unordered_map<std::string, std::shared_ptr<Font>> fonts;
+	std::unordered_map<std::string, std::shared_ptr<Atlas>> atlases;
 public:
 	~Assets();
 	ITexture* getTexture(std::string name) const;
@@ -27,6 +28,8 @@ public:
 
 	Atlas* getAtlas(std::string name) const;
 	void store(Atlas* atlas, std::string name);
+
+    void extend(const Assets& assets);
 };
 
 #endif /* ASSETS_ASSETS_H_ */

@@ -46,7 +46,8 @@ class BlocksRenderer {
 				const glm::ivec3& axisY,
 				const glm::ivec3& axisZ);
 
-	void vertex(const glm::vec3& coord, float u, float v,
+	void vertex(const glm::vec3& coord,
+                float u, float v,
 				const glm::vec4& brightness,
 				const glm::ivec3& axisX,
 				const glm::ivec3& axisY,
@@ -66,12 +67,11 @@ class BlocksRenderer {
 		const glm::ivec3& laxisZ,
 		const UVRegion& region);
 
-	void face(const glm::ivec3& coord,
+	void face(const glm::vec3& coord,
 		const glm::ivec3& axisX,
 		const glm::ivec3& axisY,
 		const glm::ivec3& axisZ,
 		const glm::ivec3& laxisZ,
-		const glm::vec3& offset,
 		float width,
 		float height,
 		float depth,
@@ -90,9 +90,7 @@ class BlocksRenderer {
 
 	void blockCubeShaded(int x, int y, int z, const UVRegion(&faces)[6], const Block* block, ubyte states);
 	void blockAABB(const glm::ivec3& coord,
-                    const glm::vec3& offset,
-                    const glm::vec3& size,
-                    const UVRegion(&faces)[6],
+                    const  UVRegion(&faces)[6],
                     const Block* block,
                     ubyte rotation,
                     bool lights);

@@ -62,6 +62,7 @@ Content::Content(ContentIndices* indices, DrawGroups* drawGroups,
 
 Content::~Content() {
     delete indices;
+    delete drawGroups;
 }
 
 Block* Content::findBlock(string id) const {

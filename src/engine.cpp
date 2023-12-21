@@ -44,9 +44,10 @@ using std::unique_ptr;
 using std::shared_ptr;
 using std::string;
 using std::vector;
-using std::filesystem::path;
 using glm::vec3;
 using gui::GUI;
+
+namespace fs = std::filesystem;
 
 Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 	   : settings(settings), paths(paths) {
@@ -57,8 +58,23 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 	vulkan::VulkanContext::initialize();
 
     auto resdir = paths->getResources();
-    contentPacks.push_back(ContentPack::read(resdir/path("content/base")));
-    loadContent();
+
+	std::cout << "-- loading assets" << std::endl;
+    std::vector<fs::path> roots {resdir};
+    resPaths.reset(new ResPaths(resdir, roots));
+    assets.reset(new Assets());
+	AssetsLoader loader(assets.get(), resPaths.get());
+	AssetsLoader::createDefaults(loader);
+	AssetsLoader::addDefaults(loader);
+
+    Shader::preprocessor->setPaths(resPaths.get());
+	while (loader.hasNext()) {
+		if (!loader.loadNext()) {
+			assets.reset();
+			Window::terminate();
+			throw initialize_error("could not to initialize assets");
+		}
+	}
 
 	Audio::initialize();
 	gui = new GUI();
@@ -80,7 +96,7 @@ void Engine::updateHotkeys() {
 	if (Events::jpressed(keycode::F2)) {
 		unique_ptr<ImageData> image(Window::takeScreenshot());
 		image->flipY();
-		path filename = paths->getScreenshotFile("png");
+		fs::path filename = paths->getScreenshotFile("png");
 		png::write_image(filename.string(), image.get());
 		std::cout << "saved screenshot as " << filename << std::endl;
 	}
@@ -170,7 +186,7 @@ void Engine::loadContent() {
     ContentBuilder contentBuilder;
     setup_definitions(&contentBuilder);
 
-    vector<path> resRoots;
+    vector<fs::path> resRoots;
     for (auto& pack : contentPacks) {
         ContentLoader loader(&pack);
         loader.load(&contentBuilder);
@@ -181,16 +197,22 @@ void Engine::loadContent() {
 
     Shader::preprocessor->setPaths(resPaths.get());
 
-	assets.reset(new Assets());
+    unique_ptr<Assets> new_assets(new Assets());
 	std::cout << "-- loading assets" << std::endl;
-	AssetsLoader loader(assets.get(), resPaths.get());
-	AssetsLoader::createDefaults(loader);
-	AssetsLoader::addDefaults(loader);
+	AssetsLoader loader(new_assets.get(), resPaths.get());
+    AssetsLoader::createDefaults(loader);
+    AssetsLoader::addDefaults(loader);
 	while (loader.hasNext()) {
 		if (!loader.loadNext()) {
-			assets.reset();
-			Window::terminate();
-			throw initialize_error("could not to initialize assets");
+			new_assets.reset();
+			throw std::runtime_error("could not to load assets");
 		}
 	}
+    assets->extend(*new_assets.get());
+}
+
+void Engine::loadAllPacks() {
+	auto resdir = paths->getResources();
+	contentPacks.clear();
+	ContentPack::scan(resdir/fs::path("content"), contentPacks);
 }

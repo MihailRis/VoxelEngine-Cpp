@@ -65,7 +65,9 @@ Button::Button(shared_ptr<UINode> content, glm::vec4 padding) : Panel(vec2(32,32
     scrollable(false);
 }
 
-Button::Button(wstring text, glm::vec4 padding) : Panel(vec2(32,32), padding, 0) {
+Button::Button(wstring text, glm::vec4 padding, glm::vec4 margin) 
+    : Panel(vec2(32,32), padding, 0) {
+    this->margin(margin);
     Label* label = new Label(text);
     label->align(Align::center);
     this->label = shared_ptr<UINode>(label);

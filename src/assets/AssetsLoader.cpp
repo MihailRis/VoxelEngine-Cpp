@@ -1,7 +1,7 @@
 #include "AssetsLoader.h"
 #include "Assets.h"
 
-#include "asset_loaders.h"
+#include "assetload_funcs.h"
 
 #include <iostream>
 #include <memory>

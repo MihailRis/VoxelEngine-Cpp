@@ -126,7 +126,7 @@ void BlocksRenderer::face(const ivec3& coord,
 		return;
 	}
 
-	const vec3 sunVector = vec3(0.411934f, 0.863868f, 0.279161f);
+	const vec3 sunVector = vec3(0.411934f, 0.863868f, -0.279161f);
 	float d = glm::dot(vec3(axisZ.x, axisZ.y, axisZ.z), sunVector);
 	d = 0.7f +  d*0.3f;
 
@@ -139,12 +139,11 @@ void BlocksRenderer::face(const ivec3& coord,
 	index(0, 1, 2, 0, 2, 3);
 }
 
-void BlocksRenderer::face(const ivec3& coord_,
+void BlocksRenderer::face(const vec3& coord,
 						  const ivec3& axisX,
 						  const ivec3& axisY,
 						  const ivec3& axisZ,
 						  const ivec3& laxisZ,
-						  const vec3& offset,
 						  float width,
 						  float height,
 						  float depth,
@@ -159,10 +158,8 @@ void BlocksRenderer::face(const ivec3& coord_,
 	const vec3 Y(axisY);
 	const vec3 Z(axisZ);
 
-    vec3 coord(vec3(coord_) + offset);
-
     if (lights) {
-        const vec3 sunVector = vec3(0.431934f, 0.863868f, 0.259161f);
+        const vec3 sunVector = vec3(0.431934f, 0.863868f, -0.259161f);
         float d = glm::dot(Z, sunVector);
         d = 0.75f +  d*0.25f;
         vec4 tint(d);
@@ -242,17 +239,21 @@ void BlocksRenderer::blockXSprite(int x, int y, int z,
 
 /* AABB blocks render method (WIP) */
 void BlocksRenderer::blockAABB(const ivec3& icoord,
-									 const vec3& offset,
-									 const vec3& size, 
-									 const UVRegion(&texfaces)[6], 
-									 const Block* block, ubyte rotation,
-                                     bool lights) {
+								const UVRegion(&texfaces)[6],
+								const Block* block, ubyte rotation,
+                                bool lights) {
+	AABB inversedHitbox = block->hitbox;
+	inversedHitbox.a = vec3(1.0f) - inversedHitbox.a;
+	inversedHitbox.b = vec3(1.0f) - inversedHitbox.b;
+
+	vec3 size = inversedHitbox.size();
+	vec3 offset = inversedHitbox.min();
 
 	ivec3 X(1, 0, 0);
 	ivec3 Y(0, 1, 0);
 	ivec3 Z(0, 0, 1);
 	ivec3 loff(0);
-	ivec3 coord = icoord;
+	vec3 coord(icoord);
 	if (block->rotatable) {
 		auto& rotations = block->rotations;
 		auto& orient = rotations.variants[rotation];
@@ -267,25 +268,25 @@ void BlocksRenderer::blockAABB(const ivec3& icoord,
 	vec3 fZ(Z);
 	
     // TODO: simplify this pile of magic calculations and fix 5th arg (laxisZ)
-	face(coord, X, Y, Z, Z+loff,
-		(1.0f - offset.x - size.x) * fX  - (offset.z + size.z)*fZ,
+	face(coord +
+		(1.0f - offset.x - size.x) * fX  - (offset.z + size.z)*fZ,X, Y, Z, Z+loff,
         size.x, size.y, size.z, texfaces[5], lights); // north
-	face(coord, -X, Y, -Z, Z-Z-X+loff,
-		(1.0f - offset.x) * fX - (offset.z + size.z) * fZ,
+	face(coord +
+		(1.0f - offset.x) * fX - (offset.z + size.z) * fZ,-X, Y, -Z, Z-Z-X+loff,
         size.x, size.y, 0.0f, texfaces[4], lights); // south
 
-	face(coord, X, -Z, Y, Y-Y+loff,
-		(1.0f - offset.x - size.x) * fX - offset.z * fZ + size.y*fY,
+	face(coord +
+		(1.0f - offset.x - size.x) * fX - offset.z * fZ + size.y*fY,X, -Z, Y, Y-Y+loff,
         size.x, size.z, 0.0f, texfaces[3], lights); // top
-	face(coord, -X, -Z, -Y, -X-Y+loff,
-		(1.0f - offset.x) * fX - offset.z * fZ,
+	face(coord +
+		(1.0f - offset.x) * fX - offset.z * fZ,-X, -Z, -Y, -X-Y+loff,
         size.x, size.z, 0.0f, texfaces[2], lights); // bottom
 
-	face(coord, -Z, Y, X, X-X+loff,
-		(1.0f - offset.x) * fX - offset.z * fZ,
+	face(coord+
+		(1.0f - offset.x) * fX - offset.z * fZ,-Z, Y, X, X-X+loff,
         size.z, size.y, 0.0f, texfaces[1], lights); // west
-	face(coord, Z, Y, -X, -X-Y+loff,
-		(1.0f - offset.x - size.x) * fX - (offset.z + size.z) * fZ,
+	face(coord +
+		(1.0f - offset.x - size.x) * fX - (offset.z + size.z) * fZ,Z, Y, -X, -X-Y+loff,
         size.z, size.y, 0.0f, texfaces[0], lights); // east
 }
 
@@ -407,7 +408,7 @@ void BlocksRenderer::render(const voxel* voxels) {
 										cache->getRegion(id, 1),
 										cache->getRegion(id, 2),
 										cache->getRegion(id, 3),
-										cache->getRegion(id, 4),
+										cache->getRegion(id, 4), 
 										cache->getRegion(id, 5)};
 			int x = i % CHUNK_W;
 			int y = i / (CHUNK_D * CHUNK_W);
@@ -427,13 +428,7 @@ void BlocksRenderer::render(const voxel* voxels) {
 				break;
 			}
 			case BlockModel::aabb: {
-				AABB inversedHitbox = def.hitbox;
-				inversedHitbox.a = vec3(1.0f) - inversedHitbox.a;
-				inversedHitbox.b = vec3(1.0f) - inversedHitbox.b;
-
-				vec3 size = inversedHitbox.size();
-				vec3 off = inversedHitbox.min();
-				blockAABB(ivec3(x,y,z), off, size, texfaces, &def, vox.rotation(), !def.rt.emissive);
+				blockAABB(ivec3(x,y,z), texfaces, &def, vox.rotation(), !def.rt.emissive);
 				break;
 			}
 			default:
