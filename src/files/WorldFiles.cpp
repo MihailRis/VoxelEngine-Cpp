@@ -20,9 +20,9 @@
 
 #include <cassert>
 #include <iostream>
+#include <sstream>
 #include <cstdint>
 #include <fstream>
-#include <iostream>
 
 const int SECTION_POSITION = 1;
 const int SECTION_ROTATION = 2;
