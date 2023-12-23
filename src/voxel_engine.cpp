@@ -22,12 +22,13 @@ int main(int argc, char** argv) {
 		return EXIT_SUCCESS;
 
 	platform::configure_encoding();
+    std::filesystem::path userfiles = paths.getUserfiles();
 	try {
 	    EngineSettings settings;
 		std::unique_ptr<toml::Wrapper> wrapper (create_wrapper(settings));
 
-		path settings_file = platform::get_settings_file();
-		path controls_file = platform::get_controls_file();
+		path settings_file = userfiles/platform::get_settings_file();
+		path controls_file = userfiles/platform::get_controls_file();
 		if (std::filesystem::is_regular_file(settings_file)) {
 			std::cout << "-- loading settings" << std::endl;
 			std::string text = files::read_string(settings_file);
