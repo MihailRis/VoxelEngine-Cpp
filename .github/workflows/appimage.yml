@@ -18,7 +18,7 @@ jobs:
       - name: install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev -libluajit-5.1-dev cmake squashfs-tools
+          sudo apt-get install -y build-essential libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev cmake squashfs-tools
           sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
       - name: configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_APPDIR=1
