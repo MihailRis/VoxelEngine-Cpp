@@ -2,13 +2,13 @@
 
 #include <limits.h>
 #include <memory>
+#include <iostream>
 
 #include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/ChunksStorage.h"
 #include "../voxels/WorldGenerator.h"
-#include "../content/Content.h"
 #include "../graphics/Mesh.h"
 #include "../lighting/Lighting.h"
 #include "../files/WorldFiles.h"
@@ -17,19 +17,14 @@
 #include "../maths/voxmaths.h"
 #include "../util/timeutil.h"
 
+
 const uint MAX_WORK_PER_FRAME = 64;
 const uint MIN_SURROUNDING = 9;
 
-using std::unique_ptr;
-using std::shared_ptr;
-
-ChunksController::ChunksController(Level* level, 
-								   Chunks* chunks, 
-								   Lighting* lighting, 
-								   uint padding) 
+ChunksController::ChunksController(Level* level, uint padding) 
     : level(level), 
-	  chunks(chunks), 
-	  lighting(lighting), 
+	  chunks(level->chunks), 
+	  lighting(level->lighting), 
 	  padding(padding), 
 	  generator(new WorldGenerator(level->content)) {
 }
@@ -66,7 +61,7 @@ bool ChunksController::loadVisible(){
 	for (uint z = padding; z < d-padding; z++){
 		for (uint x = padding; x < w-padding; x++){
 			int index = z * w + x;
-			shared_ptr<Chunk> chunk = chunks->chunks[index];
+			std::shared_ptr<Chunk> chunk = chunks->chunks[index];
 			if (chunk != nullptr){
 				int surrounding = 0;
 				for (int oz = -1; oz <= 1; oz++){
@@ -98,7 +93,7 @@ bool ChunksController::loadVisible(){
 	}
 
 	int index = nearZ * w + nearX;
-	shared_ptr<Chunk> chunk = chunks->chunks[index];
+	std::shared_ptr<Chunk> chunk = chunks->chunks[index];
 	if (chunk != nullptr) {
 		return false;
 	}

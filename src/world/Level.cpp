@@ -17,7 +17,7 @@ Level::Level(World* world, const Content* content, Player* player, EngineSetting
 		chunksStorage(new ChunksStorage(this)),
 		events(new LevelEvents()) ,
 		settings(settings) {
-    physics = new PhysicsSolver(vec3(0, -22.6f, 0));
+    physics = new PhysicsSolver(glm::vec3(0, -22.6f, 0));
 
     uint matrixSize = (settings.chunks.loadDistance+
 					   settings.chunks.padding) * 2;
@@ -40,7 +40,7 @@ Level::~Level(){
 }
 
 void Level::update() {
-	vec3 position = player->hitbox->position;
+	glm::vec3 position = player->hitbox->position;
 	chunks->setCenter(position.x, position.z);
 
 	int matrixSize = (settings.chunks.loadDistance+

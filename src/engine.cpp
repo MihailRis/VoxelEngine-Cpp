@@ -33,6 +33,7 @@
 #include "content/ContentPack.h"
 #include "content/ContentLoader.h"
 #include "frontend/locale/langs.h"
+#include "logic/scripting/scripting.h"
 
 #include "definitions.h"
 
@@ -45,6 +46,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 	}
 
     auto resdir = paths->getResources();
+    scripting::initialize();
 
 	std::cout << "-- loading assets" << std::endl;
     std::vector<fs::path> roots {resdir};
@@ -117,6 +119,7 @@ void Engine::mainloop() {
 }
 
 Engine::~Engine() {
+    scripting::close();
 	screen = nullptr;
 	delete gui;
 
@@ -126,40 +129,6 @@ Engine::~Engine() {
     assets.reset();
 	Window::terminate();
 	std::cout << "-- engine finished" << std::endl;
-}
-
-gui::GUI* Engine::getGUI() {
-	return gui;
-}
-
-EngineSettings& Engine::getSettings() {
-	return settings;
-}
-
-Assets* Engine::getAssets() {
-	return assets.get();
-}
-
-void Engine::setScreen(std::shared_ptr<Screen> screen) {
-	this->screen = screen;
-}
-
-const Content* Engine::getContent() const {
-	return content.get();
-}
-
-std::vector<ContentPack>& Engine::getContentPacks() {
-    return contentPacks;
-}
-
-EnginePaths* Engine::getPaths() {
-	return paths;
-}
-
-void Engine::setLanguage(std::string locale) {
-	settings.ui.language = locale;
-	langs::setup(paths->getResources(), locale, contentPacks);
-	menus::create_menus(this, gui->getMenu());
 }
 
 void Engine::loadContent() {
@@ -196,4 +165,38 @@ void Engine::loadAllPacks() {
 	auto resdir = paths->getResources();
 	contentPacks.clear();
 	ContentPack::scan(resdir/fs::path("content"), contentPacks);
+}
+
+void Engine::setScreen(std::shared_ptr<Screen> screen) {
+	this->screen = screen;
+}
+
+void Engine::setLanguage(std::string locale) {
+	settings.ui.language = locale;
+	langs::setup(paths->getResources(), locale, contentPacks);
+	menus::create_menus(this, gui->getMenu());
+}
+
+gui::GUI* Engine::getGUI() {
+	return gui;
+}
+
+EngineSettings& Engine::getSettings() {
+	return settings;
+}
+
+Assets* Engine::getAssets() {
+	return assets.get();
+}
+
+const Content* Engine::getContent() const {
+	return content.get();
+}
+
+std::vector<ContentPack>& Engine::getContentPacks() {
+    return contentPacks;
+}
+
+EnginePaths* Engine::getPaths() {
+	return paths;
 }
