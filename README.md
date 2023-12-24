@@ -22,7 +22,7 @@ git clone --recursive https://github.com/MihailRis/VoxelEngine-Cpp.git
 cd VoxelEngine-Cpp
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 
