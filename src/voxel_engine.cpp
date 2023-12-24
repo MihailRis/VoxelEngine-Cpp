@@ -14,7 +14,10 @@
 #include "files/engine_paths.h"
 #include "util/command_line.h"
 
-using std::filesystem::path;
+#define SETTINGS_FILE "settings.toml"
+#define CONTROLS_FILE "controls.json"
+
+namespace fs = std::filesystem;
 
 int main(int argc, char** argv) {
 	EnginePaths paths;
@@ -27,8 +30,8 @@ int main(int argc, char** argv) {
 	    EngineSettings settings;
 		std::unique_ptr<toml::Wrapper> wrapper (create_wrapper(settings));
 
-		path settings_file = userfiles/platform::get_settings_file();
-		path controls_file = userfiles/platform::get_controls_file();
+		fs::path settings_file = userfiles/fs::path(SETTINGS_FILE);
+		fs::path controls_file = userfiles/fs::path(CONTROLS_FILE);
 		if (std::filesystem::is_regular_file(settings_file)) {
 			std::cout << "-- loading settings" << std::endl;
 			std::string text = files::read_string(settings_file);
