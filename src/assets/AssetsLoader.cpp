@@ -50,18 +50,18 @@ void AssetsLoader::createDefaults(AssetsLoader& loader) {
 	loader.addLoader(ASSET_ATLAS, assetload::atlas);
 }
 
-void AssetsLoader::addDefaults(AssetsLoader& loader) {
-	loader.add(ASSET_SHADER, SHADERS_FOLDER"/main", "main");
-	loader.add(ASSET_SHADER, SHADERS_FOLDER"/lines", "lines");
-	loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui", "ui");
-	loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui3d", "ui3d");
-	loader.add(ASSET_SHADER, SHADERS_FOLDER"/background", "background");
-	loader.add(ASSET_SHADER, SHADERS_FOLDER"/skybox_gen", "skybox_gen");
-
-	loader.add(ASSET_ATLAS, TEXTURES_FOLDER"/blocks", "blocks");
-	loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/menubg.png", "menubg");
-
-	loader.add(ASSET_FONT, FONTS_FOLDER"/font", "normal");
+void AssetsLoader::addDefaults(AssetsLoader& loader, bool allAssets) {
+    if (allAssets) {
+        loader.add(ASSET_SHADER, SHADERS_FOLDER"/main", "main");
+        loader.add(ASSET_SHADER, SHADERS_FOLDER"/lines", "lines");
+        loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui", "ui");
+        loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui3d", "ui3d");
+        loader.add(ASSET_SHADER, SHADERS_FOLDER"/background", "background");
+        loader.add(ASSET_SHADER, SHADERS_FOLDER"/skybox_gen", "skybox_gen");
+        loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/menubg.png", "menubg");
+        loader.add(ASSET_FONT, FONTS_FOLDER"/font", "normal");
+    }
+    loader.add(ASSET_ATLAS, TEXTURES_FOLDER"/blocks", "blocks");
 }
 
 const ResPaths* AssetsLoader::getPaths() const {
