@@ -50,7 +50,6 @@ void scripting::initialize() {
         throw std::runtime_error("could not to initialize Lua");
     }
     luaopen_base(L);
-    luaopen_bit(L);
     luaopen_math(L);
     luaopen_jit(L);
 
