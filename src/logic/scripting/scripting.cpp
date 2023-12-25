@@ -40,7 +40,7 @@ bool rename_global(lua_State* L, const char* src, const char* dst) {
 }
 
 void call_func(lua_State* L, int argc, const std::string& name) {
-    if (lua_pcall(L, argc, LUA_MULTRET, 0) != LUA_OK) {
+    if (lua_pcall(L, argc, LUA_MULTRET, 0)) {
         std::cerr << "Lua error in " << name << ": ";
         std::cerr << lua_tostring(L,-1) << std::endl;
     }
@@ -54,12 +54,11 @@ void scripting::initialize(EnginePaths* paths) {
         throw std::runtime_error("could not to initialize Lua");
     }
     luaopen_base(L);
-    luaopen_bit(L);
     luaopen_math(L);
-    luaopen_jit(L);
-
+    
     std::cout << LUA_VERSION << std::endl;
 #   ifdef LUAJIT_VERSION
+        luaopen_jit(L);
         std::cout << LUAJIT_VERSION << std::endl;
 #   endif // LUAJIT_VERSION
 
@@ -120,7 +119,7 @@ void scripting::on_block_broken(Player* player, const Block* block, int x, int y
 void scripting::load_block_script(std::string prefix, fs::path file, block_funcs_set* funcsset) {
     std::string src = files::read_string(file);
     std::cout << "loading script " << file.u8string() << std::endl;
-    if (luaL_loadbuffer(L, src.c_str(), src.size(), file.string().c_str()) != LUA_OK) {
+    if (luaL_loadbuffer(L, src.c_str(), src.size(), file.string().c_str())) {
         std::cerr << "Lua error:" << lua_tostring(L,-1) << std::endl;
         return;
     }
