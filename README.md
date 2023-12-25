@@ -29,7 +29,9 @@ cmake --build .
 ## Install libs:
 
 #### Debian-based distro:
-`$ sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev`
+```sh
+sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev
+```
 
 CMake missing LUA_INCLUDE_DIR and LUA_LIBRARIES fix:
 ```sh
@@ -38,16 +40,22 @@ sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
 ```
 
 #### RHEL-based distro:
-`$ sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel openal-devel`
+```sh
+sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel openal-devel
+```
 
 \+ install LuaJIT
 
 #### Arch-based distro:
 If you use X11
-`$ sudo pacman -S glfw-x11 glew glm libpng openal`
+```sh
+sudo pacman -S glfw-x11 glew glm libpng openal
+```
 
 If you use Wayland
-`$ sudo pacman -S glfw-wayland glew glm libpng openal`
+```sh
+sudo pacman -S glfw-wayland glew glm libpng openal
+```
 
 \+ install LuaJIT
 
@@ -60,6 +68,8 @@ make && sudo make install INSTALL_INC=/usr/include/lua
 
 #### macOS:
 
-`$ brew install glfw3 glew glm libpng`
+```
+brew install glfw3 glew glm libpng
+```
 
 Download, compile and install OpenAL and LuaJIT
