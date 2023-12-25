@@ -20,7 +20,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev cmake squashfs-tools
           sudo apt-get install liblua5.1-dev
-          sudo apt-get remove liblua5.1-dev
+          sudo apt-get remove liblua5.1-dev liblua5.1-0
           sudo apt-get install libluajit-5.1-dev
           sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
       - name: configure
