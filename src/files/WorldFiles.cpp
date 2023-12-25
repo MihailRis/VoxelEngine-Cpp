@@ -22,7 +22,7 @@
 #include <iostream>
 #include <cstdint>
 #include <fstream>
-#include <iostream>
+#include <sstream>
 
 const int SECTION_POSITION = 1;
 const int SECTION_ROTATION = 2;
