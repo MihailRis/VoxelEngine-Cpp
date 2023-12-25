@@ -16,6 +16,14 @@ const uint FACE_PZ = 5;
 
 const uint BLOCK_AABB_GRID = 16;
 
+struct block_funcs_set {
+	bool init: 1;
+	bool update: 1;
+    bool onplaced: 1;
+    bool onbroken: 1;
+    bool randupdate: 1;
+};
+
 struct CoordSystem {
 	glm::ivec3 axisX;
 	glm::ivec3 axisY;
@@ -70,6 +78,7 @@ public:
 	bool replaceable = false;
 	bool breakable = true;
 	bool rotatable = false;
+    bool grounded = false;
 	AABB hitbox;
 	BlockRotProfile rotations;
 
@@ -78,6 +87,7 @@ public:
 		bool solid = true;
 		bool emissive = false;
 		AABB hitboxes[BlockRotProfile::MAX_COUNT];
+		block_funcs_set funcsset {};
 	} rt;
 
 	Block(std::string name);

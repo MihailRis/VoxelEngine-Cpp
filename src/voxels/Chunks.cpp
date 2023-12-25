@@ -90,6 +90,13 @@ const AABB* Chunks::isObstacle(float x, float y, float z){
 	return nullptr;
 }
 
+bool Chunks::isSolid(int x, int y, int z) {
+    voxel* v = get(x, y, z);
+    if (v == nullptr)
+        return false;
+    return contentIds->getBlockDef(v->id)->rt.solid;
+}
+
 ubyte Chunks::getLight(int x, int y, int z, int channel){
 	x -= ox * CHUNK_W;
 	z -= oz * CHUNK_D;
@@ -167,7 +174,7 @@ void Chunks::set(int x, int y, int z, int id, uint8_t states){
 	else if (y + 1 > chunk->top) chunk->top = y + 1;
 	else if (id == 0) chunk->updateHeights();
 
-	if (lx == 0 && (chunk = getChunk(cx+ox-1, cz+oz))) 
+	if (lx == 0 && (chunk = getChunk(cx+ox-1, cz+oz)))
 		chunk->setModified(true);
 	if (lz == 0 && (chunk = getChunk(cx+ox, cz+oz-1))) 
 		chunk->setModified(true);
