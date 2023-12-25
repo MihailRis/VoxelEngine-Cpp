@@ -4,22 +4,24 @@
 #include <stdexcept>
 #include <lua.hpp>
 
+#include "../../files/engine_paths.h"
 #include "../../files/files.h"
 #include "../../util/timeutil.h"
 #include "../../world/Level.h"
 #include "../../voxels/Block.h"
-
 #include "api_lua.h"
 
 using namespace scripting;
 
 namespace scripting {
     extern lua_State* L;
+    extern EnginePaths* paths;
 }
 
 lua_State* scripting::L = nullptr;
 Level* scripting::level = nullptr;
 const Content* scripting::content = nullptr;
+EnginePaths* scripting::paths = nullptr;
 
 void delete_global(lua_State* L, const char* name) {
     lua_pushnil(L);
@@ -44,7 +46,9 @@ void call_func(lua_State* L, int argc, const std::string& name) {
     }
 }
 
-void scripting::initialize() {
+void scripting::initialize(EnginePaths* paths) {
+    scripting::paths = paths;
+
     L = luaL_newstate();
     if (L == nullptr) {
         throw std::runtime_error("could not to initialize Lua");
@@ -66,8 +70,9 @@ void scripting::on_world_load(Level* level) {
     scripting::level = level;
     scripting::content = level->content;
 
-    std::string src = files::read_string(fs::path("res/scripts/world.lua"));
-    luaL_loadbuffer(L, src.c_str(), src.length(), "res/scripts/world.lua");
+    fs::path file = paths->getResources()/fs::path("scripts/world.lua");
+    std::string src = files::read_string(file);
+    luaL_loadbuffer(L, src.c_str(), src.length(), file.string().c_str());
     call_func(L, 0, "<script>");
 }
 

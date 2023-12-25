@@ -3,6 +3,7 @@
 
 namespace fs = std::filesystem;
 
+class EnginePaths;
 class Content;
 class Level;
 class Block;
@@ -13,7 +14,7 @@ namespace scripting {
     extern const Content* content;
     extern Level* level;
 
-    void initialize();
+    void initialize(EnginePaths* paths);
     void on_world_load(Level* level);
     void on_world_quit();
     void update_block(const Block* block, int x, int y, int z);
