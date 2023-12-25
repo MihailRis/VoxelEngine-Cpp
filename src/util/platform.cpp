@@ -8,20 +8,7 @@
 #include "../typedefs.h"
 
 namespace platform {
-    const std::string SETTINGS_FILE = "settings.toml";
-    const std::string CONTROLS_FILE = "controls.json";
     const std::string DEFAULT_LOCALE = "en_EN";
-}
-
-using std::filesystem::path;
-
-
-path platform::get_settings_file() {
-	return path(SETTINGS_FILE);
-}
-
-path platform::get_controls_file() {
-	return path(CONTROLS_FILE);
 }
 
 /*System locale to engine locale mapping*/
@@ -35,7 +22,7 @@ std::string platform::get_locale_by_lang(std::string lang) {
 #ifdef WIN32
 #include <Windows.h>
 
-#include "../util/stringutil.h"
+#include "./stringutil.h"
 
 void platform::configure_encoding() {
 	// set utf-8 encoding to console output
