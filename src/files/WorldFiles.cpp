@@ -24,15 +24,6 @@
 #include <fstream>
 #include <sstream>
 
-const int SECTION_POSITION = 1;
-const int SECTION_ROTATION = 2;
-const int SECTION_FLAGS = 3;
-const int PLAYER_FLAG_FLIGHT = 0x1;
-const int PLAYER_FLAG_NOCLIP = 0x2;
-
-const int WORLD_SECTION_MAIN = 1;
-const int WORLD_SECTION_DAYNIGHT = 2;
-
 namespace fs = std::filesystem;
 
 WorldRegion::WorldRegion() {
