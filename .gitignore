@@ -27,3 +27,7 @@ Debug/voxel_engine
 .project
 .git
 /Default/
+AppDir
+appimage-build/
+
+*~

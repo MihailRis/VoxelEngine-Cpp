@@ -18,12 +18,12 @@ const float JUMP_FORCE = 8.0f;
 
 Player::Player(glm::vec3 position, float speed) :
 		speed(speed),
-		choosenBlock(1) {
+		chosenBlock(1) {
 	camera = new Camera(position, glm::radians(90.0f));
 	currentViewCamera = camera;
 	SPCamera = new Camera(position, glm::radians(90.0f));
 	TPCamera = new Camera(position, glm::radians(90.0f));
-	hitbox = new Hitbox(position, vec3(0.3f,0.9f,0.3f));
+	hitbox = new Hitbox(position, glm::vec3(0.3f,0.9f,0.3f));
 }
 
 Player::~Player(){
@@ -49,7 +49,7 @@ void Player::update(
 		speed *= RUN_SPEED_MUL;
 	}
 
-	vec3 dir(0,0,0);
+	glm::vec3 dir(0,0,0);
 	if (input.moveForward){
 		dir.x += camera->dir.x;
 		dir.z += camera->dir.z;
@@ -66,8 +66,8 @@ void Player::update(
 		dir.x -= camera->right.x;
 		dir.z -= camera->right.z;
 	}
-	if (length(dir) > 0.0f){
-		dir = normalize(dir);
+	if (glm::length(dir) > 0.0f){
+		dir = glm::normalize(dir);
 		hitbox->velocity.x += dir.x * speed * delta * 9;
 		hitbox->velocity.z += dir.z * speed * delta * 9;
 	}

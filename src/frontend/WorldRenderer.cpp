@@ -168,7 +168,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 		shader->uniform3f("u_cameraPos", camera->position);
 		shader->uniform1i("u_cubemap", 1);
 		{
-			blockid_t id = level->player->choosenBlock;
+			blockid_t id = level->player->chosenBlock;
 			Block* block = contentIds->getBlockDef(id);
 			assert(block != nullptr);
 			float multiplier = 0.5f;

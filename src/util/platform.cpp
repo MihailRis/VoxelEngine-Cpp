@@ -60,6 +60,7 @@ std::string platform::detect_locale() {
 }
 
 #else
+
 void platform::configure_encoding(){
 }
 

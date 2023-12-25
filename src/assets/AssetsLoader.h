@@ -36,7 +36,7 @@ public:
 	bool loadNext();
 
 	static void createDefaults(AssetsLoader& loader);
-	static void addDefaults(AssetsLoader& loader);
+	static void addDefaults(AssetsLoader& loader, bool allAssets);
 
 	const ResPaths* getPaths() const;
 };

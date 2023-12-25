@@ -4,6 +4,7 @@
 #include "../settings.h"
 
 class Level;
+class BlocksController;
 class ChunksController;
 class PlayerController;
 
@@ -12,6 +13,7 @@ class LevelController {
     EngineSettings& settings;
     Level* level;
     // Sub-controllers
+    BlocksController* blocks;
     ChunksController* chunks;
     PlayerController* player;
 public:

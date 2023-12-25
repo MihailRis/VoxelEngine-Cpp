@@ -8,6 +8,7 @@
 
 class Camera;
 class Level;
+class BlocksController;
 
 class CameraControl {
 	Player* player;
@@ -29,6 +30,7 @@ class PlayerController {
 	Player* player;
 	PlayerInput input;
 	CameraControl camControl;
+    BlocksController* blocksController;
 
 	void updateKeyboard();
 	void updateCamera(float delta, bool movement);
@@ -42,7 +44,9 @@ public:
 	static int selectedBlockId;
 	static int selectedBlockStates;
 
-	PlayerController(Level* level, const EngineSettings& settings);
+	PlayerController(Level* level, 
+                     const EngineSettings& settings,
+                     BlocksController* blocksController);
 	void update(float delta, bool input, bool pause);
 };
 
