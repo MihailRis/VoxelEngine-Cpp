@@ -31,8 +31,11 @@ cmake --build .
 #### Debian-based distro:
 `$ sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev`
 
-CMake missing LUA_INCLUDE_DIR solution:
-`$ sudo ln -s /usr/include/luajit-2.1 /usr/include/lua`
+CMake missing LUA_INCLUDE_DIR and LUA_LIBRARIES fix:
+```sh
+sudo ln -s /usr/lib/x86_64-linux-gnu/libluajit-5.1.a /usr/lib/x86_64-linux-gnu/liblua5.1.a
+sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
+```
 
 #### RHEL-based distro:
 `$ sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel openal-devel`
