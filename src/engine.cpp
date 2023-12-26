@@ -68,7 +68,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 	Audio::initialize();
 	gui = new gui::GUI();
     if (settings.ui.language == "auto") {
-        settings.ui.language = platform::detect_locale();
+        settings.ui.language = langs::locale_by_envlocale(platform::detect_locale(), paths->getResources());
     }
     setLanguage(settings.ui.language);
 	std::cout << "-- initializing finished" << std::endl;
