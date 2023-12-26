@@ -143,15 +143,20 @@ void langs::load(const path& resdir,
                  const vector<ContentPack>& packs) {
     unique_ptr<Lang> lang (new Lang(locale));
     load(resdir, fallback, packs, *lang.get());
-    load(resdir, locale, packs, *lang.get());
+    if (locale != fallback) {
+        load(resdir, locale, packs, *lang.get());
+    }
     current.reset(lang.release());
 }
 
 void langs::setup(const path& resdir,
-                  const string& locale,
+                  string locale,
                   const vector<ContentPack>& packs) {
     string fallback = langs::FALLBACK_DEFAULT;
     langs::loadLocalesInfo(resdir, fallback);
+    if (langs::locales_info.find(locale) == langs::locales_info.end()) {
+        locale = fallback;
+    }
     langs::load(resdir, locale, fallback, packs);
 }
 
