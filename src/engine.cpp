@@ -37,15 +37,9 @@
 #include "content/ContentPack.h"
 #include "content/ContentLoader.h"
 #include "frontend/locale/langs.h"
+#include "logic/scripting/scripting.h"
 
 #include "definitions.h"
-
-using std::unique_ptr;
-using std::shared_ptr;
-using std::string;
-using std::vector;
-using glm::vec3;
-using gui::GUI;
 
 namespace fs = std::filesystem;
 
@@ -58,6 +52,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 	vulkan::VulkanContext::initialize();
 
     auto resdir = paths->getResources();
+    scripting::initialize(paths);
 
 	std::cout << "-- loading assets" << std::endl;
     std::vector<fs::path> roots {resdir};
@@ -65,7 +60,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     assets.reset(new Assets());
 	AssetsLoader loader(assets.get(), resPaths.get());
 	AssetsLoader::createDefaults(loader);
-	AssetsLoader::addDefaults(loader);
+	AssetsLoader::addDefaults(loader, true);
 
     Shader::preprocessor->setPaths(resPaths.get());
 	while (loader.hasNext()) {
@@ -77,7 +72,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 	}
 
 	Audio::initialize();
-	gui = new GUI();
+	gui = new gui::GUI();
     if (settings.ui.language == "auto") {
         settings.ui.language = platform::detect_locale();
     }
@@ -94,7 +89,7 @@ void Engine::updateTimers() {
 
 void Engine::updateHotkeys() {
 	if (Events::jpressed(keycode::F2)) {
-		unique_ptr<ImageData> image(Window::takeScreenshot());
+		std::unique_ptr<ImageData> image(Window::takeScreenshot());
 		image->flipY();
 		fs::path filename = paths->getScreenshotFile("png");
 		png::write_image(filename.string(), image.get());
@@ -106,7 +101,7 @@ void Engine::updateHotkeys() {
 }
 
 void Engine::mainloop() {
-	setScreen(std::make_shared<MenuScreen>(this));
+    setScreen(std::make_shared<MenuScreen>(this));
 	
 	std::cout << "-- preparing systems" << std::endl;
 
@@ -135,6 +130,7 @@ void Engine::mainloop() {
 }
 
 Engine::~Engine() {
+    scripting::close();
 	screen = nullptr;
 	delete gui;
 
@@ -147,46 +143,12 @@ Engine::~Engine() {
 	std::cout << "-- engine finished" << std::endl;
 }
 
-GUI* Engine::getGUI() {
-	return gui;
-}
-
-EngineSettings& Engine::getSettings() {
-	return settings;
-}
-
-Assets* Engine::getAssets() {
-	return assets.get();
-}
-
-void Engine::setScreen(shared_ptr<Screen> screen) {
-	this->screen = screen;
-}
-
-const Content* Engine::getContent() const {
-	return content.get();
-}
-
-vector<ContentPack>& Engine::getContentPacks() {
-    return contentPacks;
-}
-
-EnginePaths* Engine::getPaths() {
-	return paths;
-}
-
-void Engine::setLanguage(string locale) {
-	settings.ui.language = locale;
-	langs::setup(paths->getResources(), locale, contentPacks);
-	menus::create_menus(this, gui->getMenu());
-}
-
 void Engine::loadContent() {
     auto resdir = paths->getResources();
     ContentBuilder contentBuilder;
     setup_definitions(&contentBuilder);
 
-    vector<fs::path> resRoots;
+    std::vector<fs::path> resRoots;
     for (auto& pack : contentPacks) {
         ContentLoader loader(&pack);
         loader.load(&contentBuilder);
@@ -197,11 +159,11 @@ void Engine::loadContent() {
 
     Shader::preprocessor->setPaths(resPaths.get());
 
-    unique_ptr<Assets> new_assets(new Assets());
+    std::unique_ptr<Assets> new_assets(new Assets());
 	std::cout << "-- loading assets" << std::endl;
 	AssetsLoader loader(new_assets.get(), resPaths.get());
     AssetsLoader::createDefaults(loader);
-    AssetsLoader::addDefaults(loader);
+    AssetsLoader::addDefaults(loader, false);
 	while (loader.hasNext()) {
 		if (!loader.loadNext()) {
 			new_assets.reset();
@@ -215,4 +177,38 @@ void Engine::loadAllPacks() {
 	auto resdir = paths->getResources();
 	contentPacks.clear();
 	ContentPack::scan(resdir/fs::path("content"), contentPacks);
+}
+
+void Engine::setScreen(std::shared_ptr<Screen> screen) {
+	this->screen = screen;
+}
+
+void Engine::setLanguage(std::string locale) {
+	settings.ui.language = locale;
+	langs::setup(paths->getResources(), locale, contentPacks);
+	menus::create_menus(this, gui->getMenu());
+}
+
+gui::GUI* Engine::getGUI() {
+	return gui;
+}
+
+EngineSettings& Engine::getSettings() {
+	return settings;
+}
+
+Assets* Engine::getAssets() {
+	return assets.get();
+}
+
+const Content* Engine::getContent() const {
+	return content.get();
+}
+
+std::vector<ContentPack>& Engine::getContentPacks() {
+    return contentPacks;
+}
+
+EnginePaths* Engine::getPaths() {
+	return paths;
 }

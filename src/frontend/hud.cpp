@@ -277,7 +277,7 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 	// 			tint.g *= 1.2f;
 	// 			tint.b *= 1.2f;
 	// 			if (Events::jclicked(mousecode::BUTTON_1)) {
-	// 				player->choosenBlock = i+1;
+	// 				player->chosenBlock = i+1;
 	// 			}
 	// 		} else {
 	// 			tint = vec4(1.0f);
@@ -357,7 +357,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 		subctx.depthTest(true);
 		subctx.cullFace(true);
 
-		Block* cblock = contentIds->getBlockDef(player->choosenBlock);
+		Block* cblock = contentIds->getBlockDef(player->chosenBlock);
 		assert(cblock != nullptr);
 		blocksPreview->draw(cblock, width - 56, uicamera->getFov() - 56, 48, vec4(1.0f));
 	}

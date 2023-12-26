@@ -6,9 +6,6 @@
 class Level;
 class Chunks;
 class Lighting;
-class WorldFiles;
-class VoxelRenderer;
-class ChunksLoader;
 class WorldGenerator;
 
 /* ChunksController manages chunks dynamic loading/unloading */
@@ -26,7 +23,7 @@ private:
 	/* Process one chunk: load it or calculate lights for it */
 	bool loadVisible();
 public:
-	ChunksController(Level* level, Chunks* chunks, Lighting* lighting, uint padding);
+	ChunksController(Level* level, uint padding);
 	~ChunksController();
 
 	/* @param maxDuration milliseconds reserved for chunks loading */

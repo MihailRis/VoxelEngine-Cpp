@@ -12,6 +12,7 @@
 #include "../typedefs.h"
 
 #include "ContentPack.h"
+#include "../logic/scripting/scripting.h"
 
 namespace fs = std::filesystem;
 
@@ -84,6 +85,7 @@ Block* ContentLoader::loadBlock(std::string name, fs::path file) {
     root->flag("light-passing", def->lightPassing);
     root->flag("breakable", def->breakable);
     root->flag("selectable", def->selectable);
+    root->flag("grounded", def->grounded);
     root->flag("sky-light-passing", def->skyLightPassing);
     root->num("draw-group", def->drawGroup);
 
@@ -100,8 +102,14 @@ void ContentLoader::load(ContentBuilder* builder) {
     if (blocksarr) {
         for (uint i = 0; i < blocksarr->size(); i++) {
             std::string name = blocksarr->str(i); 
+            std::string prefix = pack->id+":"+name;
             fs::path blockfile = folder/fs::path("blocks/"+name+".json");
-            builder->add(loadBlock(pack->id+":"+name, blockfile));
+            Block* block = loadBlock(prefix, blockfile);
+            builder->add(block);
+            fs::path scriptfile = folder/fs::path("scripts/"+name+".lua");
+            if (fs::is_regular_file(scriptfile)) {
+                scripting::load_block_script(prefix, scriptfile, &block->rt.funcsset);
+            }
         }
     }
 }

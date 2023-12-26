@@ -21,9 +21,15 @@ jobs:
     - uses: actions/checkout@v3
     
     - name: Install packages
+    # If libluajit-5.1-dev is not available, use this:
+    #   git clone https://luajit.org/git/luajit.git
+    #   cd luajit
+    #   make && make install INSTALL_INC=/usr/include/lua
       run: |
           sudo apt-get update
-          sudo apt-get install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev
+          sudo apt-get install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev
+          sudo ln -s /usr/lib/x86_64-linux-gnu/libluajit-5.1.a /usr/lib/x86_64-linux-gnu/liblua-5.1.a
+          sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

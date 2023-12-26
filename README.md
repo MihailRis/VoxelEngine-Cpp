@@ -22,27 +22,53 @@ git clone --recursive https://github.com/MihailRis/VoxelEngine-Cpp.git
 cd VoxelEngine-Cpp
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 
 ## Install libs:
 
+
 #### Windows:
 For vulkan need install [**Vulkan SDK**](https://vulkan.lunarg.com/sdk/home#windows)
 
 #### Debian-based distro:
-`$ sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev`
+```sh
+sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev
+```
+
+CMake missing LUA_INCLUDE_DIR and LUA_LIBRARIES fix:
+```sh
+sudo ln -s /usr/lib/x86_64-linux-gnu/libluajit-5.1.a /usr/lib/x86_64-linux-gnu/liblua5.1.a
+sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
+```
 
 #### RHEL-based distro:
-`$ sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel openal-devel`
+```sh
+sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel openal-devel
+```
+
+\+ install LuaJIT
 
 #### Arch-based distro:
 If you use X11
-`$ sudo pacman -S glfw-x11 glew glm libpng openal`
+```sh
+sudo pacman -S glfw-x11 glew glm libpng openal
+```
 
 If you use Wayland
-`$ sudo pacman -S glfw-wayland glew glm libpng openal`
+```sh
+sudo pacman -S glfw-wayland glew glm libpng openal
+```
+
+\+ install LuaJIT
+
+#### LuaJIT installation:
+```sh
+git clone https://luajit.org/git/luajit.git
+cd luajit
+make && sudo make install INSTALL_INC=/usr/include/lua
+```
 
 For vulkan need install **vulkan-devel**:
 
@@ -50,6 +76,8 @@ For vulkan need install **vulkan-devel**:
 
 #### macOS:
 
-`$ brew install glfw3 glew glm libpng`
+```
+brew install glfw3 glew glm libpng
+```
 
-Download, compile and install OpenAL
+Download, compile and install OpenAL and LuaJIT

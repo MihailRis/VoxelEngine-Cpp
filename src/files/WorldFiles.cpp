@@ -22,16 +22,7 @@
 #include <iostream>
 #include <cstdint>
 #include <fstream>
-#include <iostream>
-
-const int SECTION_POSITION = 1;
-const int SECTION_ROTATION = 2;
-const int SECTION_FLAGS = 3;
-const int PLAYER_FLAG_FLIGHT = 0x1;
-const int PLAYER_FLAG_NOCLIP = 0x2;
-
-const int WORLD_SECTION_MAIN = 1;
-const int WORLD_SECTION_DAYNIGHT = 2;
+#include <sstream>
 
 namespace fs = std::filesystem;
 
@@ -94,7 +85,7 @@ WorldFiles::~WorldFiles(){
 }
 
 WorldRegion* WorldFiles::getRegion(regionsmap& regions, int x, int z) {
-	auto found = regions.find(ivec2(x, z));
+	auto found = regions.find(glm::ivec2(x, z));
 	if (found == regions.end())
 		return nullptr;
 	return found->second;
@@ -104,7 +95,7 @@ WorldRegion* WorldFiles::getOrCreateRegion(regionsmap& regions, int x, int z) {
 	WorldRegion* region = getRegion(regions, x, z);
 	if (region == nullptr) {
 		region = new WorldRegion();
-		regions[ivec2(x, z)] = region;
+		regions[glm::ivec2(x, z)] = region;
 	}
 	return region;
 }
@@ -367,7 +358,7 @@ void WorldFiles::writeRegions(regionsmap& regions, const fs::path& folder, int l
 		WorldRegion* region = it.second;
 		if (region->getChunks() == nullptr || !region->isUnsaved())
 			continue;
-		ivec2 key = it.first;
+		glm::ivec2 key = it.first;
 		writeRegion(key.x, key.y, region, folder, layer);
 	}
 }
@@ -458,7 +449,7 @@ bool WorldFiles::readWorldInfo(World* world) {
 }
 
 void WorldFiles::writePlayer(Player* player){
-	vec3 position = player->hitbox->position;
+	glm::vec3 position = player->hitbox->position;
 	json::JObject root;
 	json::JArray& posarr = root.putArray("position");
 	posarr.put(position.x);
@@ -484,7 +475,7 @@ bool WorldFiles::readPlayer(Player* player) {
 
 	std::unique_ptr<json::JObject> root(files::read_json(file));
 	json::JArray* posarr = root->arr("position");
-	vec3& position = player->hitbox->position;
+	glm::vec3& position = player->hitbox->position;
 	position.x = posarr->num(0);
 	position.y = posarr->num(1);
 	position.z = posarr->num(2);

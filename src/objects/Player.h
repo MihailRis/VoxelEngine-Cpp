@@ -35,7 +35,7 @@ public:
 	bool flight = false;
 	bool noclip = false;
 	bool debug = false;
-	int choosenBlock;
+	int chosenBlock;
 	voxel selectedVoxel {0, 0};
 
 	float camX = 0.0f;

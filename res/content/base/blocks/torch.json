@@ -9,7 +9,7 @@
     ],
     "emission": [13, 13, 12],
     "model": "aabb",
-    "hitbox": [0.3, 0.0, 0.7, 0.125, 0.5, 0.125],
+    "hitbox": [0.4375, 0.0, 0.4375, 0.125, 0.5, 0.125],
     "light-passing": true,
     "obstacle": false,
     "rotation": "pipe"
