@@ -7,18 +7,6 @@
 
 #include "../typedefs.h"
 
-namespace platform {
-    const std::string DEFAULT_LOCALE = "en_EN";
-}
-
-/*System locale to engine locale mapping*/
-std::string platform::get_locale_by_lang(std::string lang) {
-    if (lang == "ru") {
-        return "ru_RU";
-    }
-    return DEFAULT_LOCALE;
-}
-
 #ifdef WIN32
 #include <Windows.h>
 
@@ -32,18 +20,12 @@ void platform::configure_encoding() {
 
 std::string platform::detect_locale() {
     LCID lcid = GetThreadLocale();
-    wchar_t preferredLocaleName[LOCALE_NAME_MAX_LENGTH];
+    wchar_t preferredLocaleName[LOCALE_NAME_MAX_LENGTH];//locale name format: ll-CC
     if (LCIDToLocaleName(lcid, preferredLocaleName, LOCALE_NAME_MAX_LENGTH, 0) == 0) {
-        std::cout << "error in platform::detect_locale! LCIDToLocaleName failed." << std::endl;
+        std::cerr << "error in platform::detect_locale! LCIDToLocaleName failed." << std::endl;
     }
-    wchar_t parentLocaleName[LOCALE_NAME_MAX_LENGTH];
-    if (GetLocaleInfoEx(preferredLocaleName, LOCALE_SPARENT, parentLocaleName, LOCALE_NAME_MAX_LENGTH) == 0){
-        std::cout << "error in platform::detect_locale! GetLocaleInfoEx failed." << std::endl;
-    }
-    std::wcout << "detected environment language locale: " << parentLocaleName << std::endl;
-
-    std::string preferredLang = util::wstr2str_utf8(parentLocaleName);
-    return get_locale_by_lang(preferredLang);
+    //ll_CC format
+    return util::wstr2str_utf8(preferredLocaleName).replace(2, 1, "_").substr(0, 5);
 }
 
 #else
@@ -53,12 +35,10 @@ void platform::configure_encoding(){
 
 std::string platform::detect_locale() {
     std::string programLocaleName = setlocale(LC_ALL, nullptr);
-    std::string preferredLocaleName = setlocale(LC_ALL, "");
-    std::cout << "detected environment locale: " << preferredLocaleName << std::endl;
+    std::string preferredLocaleName = setlocale(LC_ALL, ""); //locale name format: ll_CC.encoding
     setlocale(LC_ALL, programLocaleName.c_str());
 
-    std::string preferredLang = preferredLocaleName.substr(0, 2);
-    return get_locale_by_lang(preferredLang);
+    return preferredLocaleName.substr(0, 5);
 }
 
 #endif
