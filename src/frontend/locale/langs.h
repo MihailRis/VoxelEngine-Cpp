@@ -62,7 +62,7 @@ namespace langs {
                                    const std::wstring& context);
 
     extern void setup(const std::filesystem::path& resdir,
-                      const std::string& locale,
+                      std::string locale,
                       const std::vector<ContentPack>& packs);
 }
 
