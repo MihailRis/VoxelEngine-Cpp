@@ -207,10 +207,10 @@ ubyte* WorldFiles::getChunk(int x, int z){
 }
 
 light_t* WorldFiles::getLights(int x, int z) {
-	ubyte* data = getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS);
+	std::unique_ptr<ubyte> data (getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS));
 	if (data == nullptr)
 		return nullptr;
-	return Lightmap::decode(data);
+	return Lightmap::decode(data.get());
 }
 
 ubyte* WorldFiles::getData(regionsmap& regions, const fs::path& folder, 
