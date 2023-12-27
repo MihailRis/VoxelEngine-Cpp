@@ -112,6 +112,11 @@ ubyte* WorldFiles::decompress(const ubyte* src, size_t srclen, size_t dstlen) {
 	return decompressed;
 }
 
+/* 
+ * Compress and store chunk voxels data in region 
+ * @param x chunk.x
+ * @param z chunk.z
+ */
 void WorldFiles::put(int x, int z, const ubyte* voxelData) {
     int regionX = floordiv(x, REGION_SIZE);
 	int regionZ = floordiv(z, REGION_SIZE);
@@ -127,6 +132,9 @@ void WorldFiles::put(int x, int z, const ubyte* voxelData) {
 	}
 }
 
+/*
+ * Store chunk (voxels and lights) in region (existing or new)
+ */
 void WorldFiles::put(Chunk* chunk){
 	assert(chunk != nullptr);
 
@@ -168,6 +176,13 @@ fs::path WorldFiles::getRegionFilename(int x, int z) const {
 	return fs::path(filename);
 }
 
+/* 
+ * Extract X and Z from 'X_Z.bin' region file name.
+ * @param name source region file name
+ * @param x parsed X destination
+ * @param z parsed Z destination
+ * @return false if std::invalid_argument or std::out_of_range occurred
+ */
 bool WorldFiles::parseRegionFilename(const std::string& name, int& x, int& z) {
     size_t sep = name.find('_');
     if (sep == std::string::npos || sep == 0 || sep == name.length()-1)
@@ -203,6 +218,8 @@ ubyte* WorldFiles::getChunk(int x, int z){
 	return getData(regions, getRegionsFolder(), x, z, REGION_LAYER_VOXELS);
 }
 
+/* Get cached lights for chunk at x,z 
+ * @return lights data or nullptr */
 light_t* WorldFiles::getLights(int x, int z) {
 	std::unique_ptr<ubyte> data (getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS));
 	if (data == nullptr)
@@ -294,6 +311,10 @@ ubyte* WorldFiles::readChunkData(int x,
 	return data;
 }
 
+/* Read missing chunks data (null pointers) from region file 
+ * @param layer used as third part of openRegFiles map key 
+ * (see REGION_LAYER_* constants)
+ */
 void WorldFiles::fetchChunks(WorldRegion* region, int x, int z, fs::path folder, int layer) {
     ubyte** chunks = region->getChunks();
 	uint32_t* sizes = region->getSizes();
@@ -307,6 +328,12 @@ void WorldFiles::fetchChunks(WorldRegion* region, int x, int z, fs::path folder,
     }
 }
 
+/* Write or rewrite region file
+ * @param x region X
+ * @param z region Z
+ * @param layer used as third part of openRegFiles map key 
+ * (see REGION_LAYER_* constants)
+ */
 void WorldFiles::writeRegion(int x, int z, WorldRegion* entry, fs::path folder, int layer){
     fs::path filename = folder/getRegionFilename(x, z);
 
