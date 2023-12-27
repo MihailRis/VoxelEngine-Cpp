@@ -454,8 +454,8 @@ void WorldFiles::writePlayer(Player* player){
 	posarr.put(position.z);
 
 	json::JArray& rotarr = root.putArray("rotation");
-	rotarr.put(player->camX);
-	rotarr.put(player->camY);
+	rotarr.put(player->cam.x);
+	rotarr.put(player->cam.y);
 	
 	root.put("flight", player->flight);
 	root.put("noclip", player->noclip);
@@ -479,8 +479,8 @@ bool WorldFiles::readPlayer(Player* player) {
 	player->camera->position = position;
 
 	json::JArray* rotarr = root->arr("rotation");
-	player->camX = rotarr->num(0);
-	player->camY = rotarr->num(1);
+	player->cam.x = rotarr->num(0);
+	player->cam.y = rotarr->num(1);
 
 	root->flag("flight", player->flight);
 	root->flag("noclip", player->noclip);

@@ -229,8 +229,8 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 	int ys = inv_y + pad_y;
 
 	vec4 tint = vec4(1.0f);
-	int mx = Events::x;
-	int my = Events::y;
+	int mx = Events::cursor.x;
+	int my = Events::cursor.y;
 
 	// background
 	batch->texture(nullptr);
