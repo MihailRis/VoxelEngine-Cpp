@@ -10,13 +10,13 @@
 
 typedef unsigned int uint;
 
-extern const short KEYS_BUFFER_SIZE;
-extern const short _MOUSE_KEYS_OFFSET;
+const short KEYS_BUFFER_SIZE = 1032;
+const short _MOUSE_KEYS_OFFSET = 1024;
 
 class Events {
 public:
-	static bool* _keys;
-	static uint* _frames;
+	static bool _keys[KEYS_BUFFER_SIZE];
+	static uint _frames[KEYS_BUFFER_SIZE];
 	static uint _current;
 	static float deltaX;
 	static float deltaY;
@@ -29,8 +29,6 @@ public:
 	static std::vector<int> pressedKeys;
 	static std::unordered_map<std::string, Binding> bindings;
 
-	static int initialize();
-	static void finalize();
 	static void pollEvents();
 
 	static bool pressed(int keycode);

@@ -163,7 +163,6 @@ int Window::initialize(DisplaySettings& settings){
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Events::initialize();
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
@@ -255,7 +254,6 @@ void Window::popScissor() {
 }
 
 void Window::terminate(){
-	Events::finalize();
 	glfwTerminate();
 }
 

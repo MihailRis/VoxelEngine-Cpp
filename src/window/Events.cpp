@@ -4,11 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <string.h>
 
-const short KEYS_BUFFER_SIZE = 1032;
-const short _MOUSE_KEYS_OFFSET = 1024;
-
-bool* Events::_keys;
-uint* Events::_frames;
+bool Events::_keys[KEYS_BUFFER_SIZE] = {};
+uint Events::_frames[KEYS_BUFFER_SIZE] = {};
 uint Events::_current = 0;
 float Events::deltaX = 0.0f;
 float Events::deltaY = 0.0f;
@@ -20,21 +17,6 @@ bool Events::_cursor_started = false;
 std::vector<uint> Events::codepoints;
 std::vector<int> Events::pressedKeys;
 std::unordered_map<std::string, Binding> Events::bindings;
-
-int Events::initialize(){
-	_keys = new bool[KEYS_BUFFER_SIZE];
-	_frames = new uint[KEYS_BUFFER_SIZE];
-
-	memset(_keys, false, KEYS_BUFFER_SIZE*sizeof(bool));
-	memset(_frames, 0, KEYS_BUFFER_SIZE*sizeof(uint));
-
-	return 0;
-}
-
-void Events::finalize(){
-	delete[] _keys;
-	delete[] _frames;
-}
 
 // Returns bool repr. of key state
 bool Events::pressed(int keycode){
