@@ -78,9 +78,6 @@ WorldFiles::WorldFiles(fs::path directory, const DebugSettings& settings)
 
 WorldFiles::~WorldFiles(){
 	delete[] compressionBuffer;
-	for (auto it : regions){
-	    delete it.second;
-	}
 	regions.clear();
 }
 
@@ -88,14 +85,14 @@ WorldRegion* WorldFiles::getRegion(regionsmap& regions, int x, int z) {
 	auto found = regions.find(glm::ivec2(x, z));
 	if (found == regions.end())
 		return nullptr;
-	return found->second;
+	return found->second.get();
 }
 
 WorldRegion* WorldFiles::getOrCreateRegion(regionsmap& regions, int x, int z) {
 	WorldRegion* region = getRegion(regions, x, z);
 	if (region == nullptr) {
 		region = new WorldRegion();
-		regions[glm::ivec2(x, z)] = region;
+		regions[glm::ivec2(x, z)].reset(region);
 	}
 	return region;
 }
@@ -354,8 +351,8 @@ void WorldFiles::writeRegion(int x, int z, WorldRegion* entry, fs::path folder, 
 }
 
 void WorldFiles::writeRegions(regionsmap& regions, const fs::path& folder, int layer) {
-	for (auto it : regions){
-		WorldRegion* region = it.second;
+	for (auto& it : regions){
+		WorldRegion* region = it.second.get();
 		if (region->getChunks() == nullptr || !region->isUnsaved())
 			continue;
 		glm::ivec2 key = it.first;
