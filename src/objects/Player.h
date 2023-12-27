@@ -38,8 +38,7 @@ public:
 	int chosenBlock;
 	voxel selectedVoxel {0, 0};
 
-	float camX = 0.0f;
-	float camY = 0.0f;
+	glm::vec2 cam = {};
 
 	Player(glm::vec3 position, float speed);
 	~Player();

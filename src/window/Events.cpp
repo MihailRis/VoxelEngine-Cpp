@@ -7,21 +7,19 @@
 bool Events::_keys[KEYS_BUFFER_SIZE] = {};
 uint Events::_frames[KEYS_BUFFER_SIZE] = {};
 uint Events::_current = 0;
-float Events::deltaX = 0.0f;
-float Events::deltaY = 0.0f;
-float Events::x = 0.0f;
-float Events::y = 0.0f;
 int Events::scroll = 0;
+glm::vec2 Events::delta = {};
+glm::vec2 Events::cursor = {};
+bool Events::cursor_drag = false;
 bool Events::_cursor_locked = false;
-bool Events::_cursor_started = false;
 std::vector<uint> Events::codepoints;
 std::vector<int> Events::pressedKeys;
 std::unordered_map<std::string, Binding> Events::bindings;
 
 // Returns bool repr. of key state
-bool Events::pressed(int keycode){
-	if (keycode < 0 || keycode >= KEYS_BUFFER_SIZE){
-		// VERY bad behaviour and it happens constantly! (so console-printing is not a good idea)
+bool Events::pressed(int keycode) {
+	if (keycode < 0 || keycode >= KEYS_BUFFER_SIZE) {
+        fprintf(stderr, "pressed %i\n", keycode);
 		return false;
 	}
 	return _keys[keycode];
@@ -49,8 +47,8 @@ void Events::toggleCursor(){
 
 void Events::pollEvents(){
 	_current++;
-	deltaX = 0.0f;
-	deltaY = 0.0f;
+	delta.x = 0.f;
+	delta.y = 0.f;
 	scroll = 0;
 	codepoints.clear();
 	pressedKeys.clear();
@@ -98,4 +96,23 @@ bool Events::jactive(std::string name) {
 		return false;
 	}
 	return found->second.jactive();
+}
+
+void Events::setKey(int key, bool b) {
+    Events::_keys[key] = b;
+    Events::_frames[key] = Events::_current;
+}
+
+void Events::setButton(int button, bool b) {
+    setKey(_MOUSE_KEYS_OFFSET + button, b);
+}
+
+void Events::setPosition(float xpos, float ypos) {
+    if (Events::cursor_drag) {
+        Events::delta.x += xpos - Events::cursor.x;
+        Events::delta.y += ypos - Events::cursor.y;
+    } else
+        Events::cursor_drag = true;
+    Events::cursor.x = xpos;
+    Events::cursor.y = ypos;
 }
