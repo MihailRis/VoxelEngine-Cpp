@@ -18,6 +18,7 @@ class ChunksStorage;
 class ContentGfxCache;
 
 class BlocksRenderer {
+    static const glm::vec3 SUN_VECTOR;
 	static const uint VERTEX_SIZE;
 	const Content* const content;
 	float* vertexBuffer;
@@ -38,11 +39,11 @@ class BlocksRenderer {
 	void vertex(const glm::vec3& coord, float u, float v, const glm::vec4& light);
 	void index(int a, int b, int c, int d, int e, int f);
 
-	void vertex(const glm::ivec3& coord, float u, float v, 
+	void vertex(const glm::vec3& coord, float u, float v, 
 				const glm::vec4& brightness,
-				const glm::ivec3& axisX,
-				const glm::ivec3& axisY,
-				const glm::ivec3& axisZ);
+				const glm::vec3& axisX,
+				const glm::vec3& axisY,
+				const glm::vec3& axisZ);
 
 	void vertex(const glm::vec3& coord, 
                 float u, float v, 
@@ -51,18 +52,18 @@ class BlocksRenderer {
 				const glm::ivec3& axisY,
 				const glm::ivec3& axisZ);
 
-	void face(const glm::vec3& coord, float w, float h,
+	void face(const glm::vec3& coord, float w, float h, float d,
 		const glm::vec3& axisX,
 		const glm::vec3& axisY,
+        const glm::vec3& axisZ,
 		const UVRegion& region,
 		const glm::vec4(&lights)[4],
 		const glm::vec4& tint);
 	
-	void face(const glm::ivec3& coord,
-		const glm::ivec3& axisX,
-		const glm::ivec3& axisY,
-		const glm::ivec3& axisZ,
-		const glm::ivec3& laxisZ,
+	void face(const glm::vec3& coord,
+		const glm::vec3& axisX,
+		const glm::vec3& axisY,
+		const glm::vec3& axisZ,
 		const UVRegion& region);
 
 	void face(const glm::vec3& coord,
@@ -75,14 +76,6 @@ class BlocksRenderer {
 		float depth,
 		const UVRegion& region,
         bool lights);
-
-	void face(const glm::vec3& coord, float w, float h,
-		const glm::vec3& axisX,
-		const glm::vec3& axisY,
-		const UVRegion& region,
-		const glm::vec4(&lights)[4]) {
-		face(coord, w, h, axisX, axisY, region, lights, glm::vec4(1.0f));
-	}
 
 	void blockCube(int x, int y, int z, const UVRegion(&faces)[6], ubyte group);
 	
