@@ -109,10 +109,16 @@ void Engine::mainloop() {
 
 		gui->act(delta);
 		screen->update(delta);
-		screen->draw(delta);
-		gui->draw(&batch, assets.get());
 
-		Window::swapInterval(settings.display.swapInterval);
+        if (!Window::isIconified()) {
+		    screen->draw(delta);
+		    gui->draw(&batch, assets.get());
+		    Window::swapInterval(settings.display.swapInterval);
+        } else {
+            Window::swapInterval(1);
+		    Window::swapBuffers();
+        }
+
 		Window::swapBuffers();
 		Events::pollEvents();
 	}

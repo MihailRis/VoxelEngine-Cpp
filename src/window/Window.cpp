@@ -50,6 +50,10 @@ bool Window::isMaximized() {
 	return glfwGetWindowAttrib(window, GLFW_MAXIMIZED);
 }
 
+bool Window::isIconified() {
+    return glfwGetWindowAttrib(window, GLFW_ICONIFIED);
+}
+
 bool Window::isFocused()
 {
 	return glfwGetWindowAttrib(window, GLFW_FOCUSED);
