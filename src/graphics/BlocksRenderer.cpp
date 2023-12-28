@@ -95,8 +95,8 @@ void BlocksRenderer::face(const vec3& coord,
     vec3 Z = axisZ * d;
     float s = 0.5f;
 	vertex(coord + (-X - Y + Z) * s, region.u1, region.v1, lights[0] * tint);
-	vertex(coord + (X - Y + Z) * s, region.u2, region.v1, lights[1] * tint);
-	vertex(coord + (X + Y + Z) * s, region.u2, region.v2, lights[2] * tint);
+	vertex(coord + ( X - Y + Z) * s, region.u2, region.v1, lights[1] * tint);
+	vertex(coord + ( X + Y + Z) * s, region.u2, region.v2, lights[2] * tint);
 	vertex(coord + (-X + Y + Z) * s, region.u1, region.v2, lights[3] * tint);
 	index(0, 1, 3, 1, 2, 3);
 }
@@ -104,10 +104,15 @@ void BlocksRenderer::face(const vec3& coord,
 void BlocksRenderer::vertex(const vec3& coord, 
 							float u, float v,
 							const vec4& tint,
-							const vec3& axisX,
-							const vec3& axisY,
-							const vec3& axisZ) {
-	vec4 light = pickSoftLight(coord+axisZ*0.5f+(axisX+axisY)*0.5f, axisX, axisY);
+							const vec3& X,
+							const vec3& Y,
+							const vec3& Z) {
+    // TODO: optimize
+    vec3 axisX = glm::normalize(X);
+    vec3 axisY = glm::normalize(Y);
+    vec3 axisZ = glm::normalize(Z);
+    vec3 pos = coord+axisZ*0.5f+(axisX+axisY)*0.5f;
+	vec4 light = pickSoftLight(ivec3(round(pos.x), round(pos.y), round(pos.z)), axisX, axisY);
 	vertex(coord, u, v, light * tint);
 }
 
@@ -243,7 +248,7 @@ void BlocksRenderer::blockXSprite(int x, int y, int z,
 
 // HINT: texture faces order: {east, west, bottom, top, south, north}
 
-/* AABB blocks render method (WIP) // TODO: fix lights */
+/* AABB blocks render method */
 void BlocksRenderer::blockAABB(const ivec3& icoord,
 							   const UVRegion(&texfaces)[6], 
 							   const Block* block, ubyte rotation,
