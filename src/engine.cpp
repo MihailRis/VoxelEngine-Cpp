@@ -116,10 +116,8 @@ void Engine::mainloop() {
 		    Window::swapInterval(settings.display.swapInterval);
         } else {
             Window::swapInterval(1);
-		    Window::swapBuffers();
         }
-
-		Window::swapBuffers();
+        Window::swapBuffers();
 		Events::pollEvents();
 	}
 }
