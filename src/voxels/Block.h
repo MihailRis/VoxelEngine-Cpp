@@ -21,6 +21,7 @@ struct block_funcs_set {
 	bool update: 1;
     bool onplaced: 1;
     bool onbroken: 1;
+    bool oninteract: 1;
     bool randupdate: 1;
 };
 

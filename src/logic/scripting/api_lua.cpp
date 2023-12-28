@@ -6,6 +6,7 @@
 #include "../../voxels/Block.h"
 #include "../../voxels/Chunks.h"
 #include "../../voxels/voxel.h"
+#include "../../lighting/Lighting.h"
 
 int l_block_name(lua_State* L) {
     int id = lua_tointeger(L, 1);
@@ -39,6 +40,7 @@ int l_set_block(lua_State* L) {
     int z = lua_tointeger(L, 3);
     int id = lua_tointeger(L, 4);    
     scripting::level->chunks->set(x, y, z, id, 0);
+    scripting::level->lighting->onBlockSet(x,y,z, id);
     return 0;
 }
 

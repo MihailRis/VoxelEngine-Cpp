@@ -266,6 +266,10 @@ void PlayerController::updateInteraction(){
             blocksController->breakBlock(player, block, x, y, z);
 		}
 		if (rclick){
+            if (block->rt.funcsset.oninteract) {
+                scripting::on_block_interact(player, block, x, y, z);
+                return;
+            }
 			if (block->model != BlockModel::xsprite){
 				x = (iend.x)+(norm.x);
 				y = (iend.y)+(norm.y);
