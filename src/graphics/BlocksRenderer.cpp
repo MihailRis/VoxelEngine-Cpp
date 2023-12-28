@@ -243,22 +243,17 @@ void BlocksRenderer::blockXSprite(int x, int y, int z,
 
 // HINT: texture faces order: {east, west, bottom, top, south, north}
 
-/* AABB blocks render method (WIP) //FIXME */
+/* AABB blocks render method (WIP) // TODO: fix lights */
 void BlocksRenderer::blockAABB(const ivec3& icoord,
-								const UVRegion(&texfaces)[6], 
-								const Block* block, ubyte rotation,
-                                bool lights) {
-	AABB inversedHitbox = block->hitbox;
-	inversedHitbox.a = vec3(1.0f) - inversedHitbox.a;
-	inversedHitbox.b = vec3(1.0f) - inversedHitbox.b;
+							   const UVRegion(&texfaces)[6], 
+							   const Block* block, ubyte rotation,
+                               bool lights) {
+	AABB hitbox = block->hitbox;
+	vec3 size = hitbox.size();
 
-	vec3 size = inversedHitbox.size();
-	vec3 offset = inversedHitbox.min();
-
-	ivec3 X(1, 0, 0);
-	ivec3 Y(0, 1, 0);
-	ivec3 Z(0, 0, 1);
-	ivec3 loff(0);
+	vec3 X(1, 0, 0);
+	vec3 Y(0, 1, 0);
+	vec3 Z(0, 0, 1);
 	vec3 coord(icoord);
 	if (block->rotatable) {
 		auto& rotations = block->rotations;
@@ -266,35 +261,19 @@ void BlocksRenderer::blockAABB(const ivec3& icoord,
 		X = orient.axisX;
 		Y = orient.axisY;
 		Z = orient.axisZ;
-		coord += orient.fix;
-		loff -= orient.fix;
+        orient.transform(hitbox);
 	}
-    coord -= vec3(0.5, 0.5f, -0.5f);
-	vec3 fX(X);
-	vec3 fY(Y);
-	vec3 fZ(Z);
-	
-    // TODO: simplify this pile of magic calculations and fix 5th arg (laxisZ)
-	face(coord + (1.0f - offset.x - size.x) * fX - (offset.z + size.z) * fZ,
-		X, Y, Z, Z+loff,
-        size.x, size.y, size.z, texfaces[5], lights); // north
-	face(coord + (1.0f - offset.x) * fX - (offset.z + size.z) * fZ,
-		-X, Y, -Z, Z-Z-X+loff,
-        size.x, size.y, 0.0f, texfaces[4], lights); // south
 
-	face(coord + (1.0f - offset.x - size.x) * fX - offset.z * fZ + size.y * fY,
-		X, -Z, Y, Y-Y+loff,
-        size.x, size.z, 0.0f, texfaces[3], lights); // top
-	face(coord + (1.0f - offset.x) * fX - offset.z * fZ,
-		-X, -Z, -Y, -X-Y+loff,
-        size.x, size.z, 0.0f, texfaces[2], lights); // bottom
+    coord = vec3(icoord) - vec3(0.5f) + hitbox.center();
 	
-	face(coord + (1.0f - offset.x) * fX - offset.z * fZ,
-		-Z, Y, X, X-X+loff,
-        size.z, size.y, 0.0f, texfaces[1], lights); // west
-	face(coord + (1.0f - offset.x - size.x) * fX - (offset.z + size.z) * fZ,
-		Z, Y, -X, -X-Y+loff,
-        size.z, size.y, 0.0f, texfaces[0], lights); // east
+    face(coord,  X*size.x,  Y*size.y,  Z*size.z, texfaces[5]); // north
+    face(coord, -X*size.x,  Y*size.y, -Z*size.z, texfaces[4]); // south
+
+    face(coord,  X*size.x, -Z*size.z,  Y*size.y, texfaces[3]); // top
+    face(coord, -X*size.x, -Z*size.z, -Y*size.y, texfaces[2]); // bottom
+
+    face(coord, -Z*size.z,  Y*size.y,  X*size.x, texfaces[1]); // west
+    face(coord,  Z*size.z,  Y*size.y, -X*size.x, texfaces[0]); // east
 }
 
 /* Fastest solid shaded blocks render method */
