@@ -289,7 +289,7 @@ void main() {
     // apply exposure, removing this makes the brighter colors look ugly
     // you can play around with removing this
     col = 1.0 - exp(-col);
-    
+    col = min(col, vec3(1.0));
     // Output to screen
     f_color = vec4(col, 1.0);
 }
