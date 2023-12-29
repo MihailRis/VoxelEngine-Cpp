@@ -238,6 +238,10 @@ JObject& JArray::putObj() {
     return *obj;
 }
 
+void JArray::remove(size_t index) {
+    values.erase(values.begin() + index);
+}
+
 JObject::~JObject() {
     for (auto entry : map) {
         delete entry.second;

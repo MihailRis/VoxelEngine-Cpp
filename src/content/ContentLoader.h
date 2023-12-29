@@ -13,6 +13,7 @@ class ContentLoader {
 public:
     ContentLoader(ContentPack* pack);
 
+    void fixPackIndices();
     Block* loadBlock(std::string name, std::filesystem::path file);
     void load(ContentBuilder* builder);
 };

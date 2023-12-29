@@ -30,6 +30,8 @@ struct ContentPack {
 
     static const std::string PACKAGE_FILENAME;
     static const std::string CONTENT_FILENAME;
+    static const std::filesystem::path BLOCKS_FOLDER;
+
     static bool is_pack(std::filesystem::path folder);
     static ContentPack read(std::filesystem::path folder);
     static void scan(std::filesystem::path folder, 
