@@ -257,9 +257,6 @@ void main() {
 
     float fog = 1.0f / (u_fog*0.5 + 1.0);
     // hide darkness at horizon
-    if (camera_vector.y < 0.0f) {
-        camera_vector.y *= 120.0f;
-    }
     camera_vector.y = max(0.01, camera_vector.y)*(1.0-u_mie*0.08) + 0.08*u_mie;  
     //camera_vector = normalize(camera_vector);
 
