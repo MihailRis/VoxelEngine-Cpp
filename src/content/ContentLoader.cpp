@@ -38,7 +38,7 @@ void ContentLoader::fixPackIndices() {
         for (auto entry : fs::directory_iterator(blocksFolder)) {
             fs::path file = entry.path();
             if (fs::is_regular_file(file) && file.extension() == ".json") {
-                std::string name = file.stem();
+                std::string name = file.stem().string();
                 if (name[0] == '_')
                     continue;
                 detectedBlocks.push_back(name);
