@@ -143,6 +143,7 @@ Block* ContentLoader::loadBlock(std::string name, fs::path file) {
     root->flag("breakable", def->breakable);
     root->flag("selectable", def->selectable);
     root->flag("grounded", def->grounded);
+    root->flag("hidden", def->hidden);
     root->flag("sky-light-passing", def->skyLightPassing);
     root->num("draw-group", def->drawGroup);
 

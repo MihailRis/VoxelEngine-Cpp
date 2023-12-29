@@ -80,6 +80,7 @@ public:
 	bool breakable = true;
 	bool rotatable = false;
     bool grounded = false;
+    bool hidden = false;
 	AABB hitbox;
 	BlockRotProfile rotations;
 

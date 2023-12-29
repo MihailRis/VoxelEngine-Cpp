@@ -55,6 +55,7 @@ public:
 
 	const AABB* isObstacle(float x, float y, float z);
     bool isSolid(int x, int y, int z);
+    bool isReplaceable(int x, int y, int z);
 
 	// does not move chunks inside
 	void _setOffset(int x, int z);
