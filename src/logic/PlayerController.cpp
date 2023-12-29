@@ -266,7 +266,7 @@ void PlayerController::updateInteraction(){
             blocksController->breakBlock(player, block, x, y, z);
 		}
 		if (rclick){
-            if (block->rt.funcsset.oninteract) {
+            if (!input.shift && block->rt.funcsset.oninteract) {
                 scripting::on_block_interact(player, block, x, y, z);
                 return;
             }
