@@ -20,6 +20,7 @@ LevelController::~LevelController() {
     scripting::on_world_quit();
     delete player;
     delete chunks;
+    delete blocks;
 }
 
 void LevelController::update(float delta, bool input, bool pause) {
