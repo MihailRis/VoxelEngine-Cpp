@@ -18,8 +18,8 @@ menu.Controls=Управление
 menu.Back to Main Menu=Вернуться в Меню
 menu.Settings=Настройки
 menu.Content=Контент
-menu.Seed=Зерно
-menu.Name=Название
+world.Seed=Зерно
+world.Name=Название
 menu.Create World=Создать Мир
 
 world.convert-request=Есть изменения в индексах! Конвертировать мир?
