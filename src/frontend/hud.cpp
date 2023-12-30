@@ -250,8 +250,8 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 	int ys = inv_y + pad_y;
 
 	vec4 tint = vec4(1.0f);
-	int mx = Events::x;
-	int my = Events::y;
+	int mx = Events::cursor.x;
+	int my = Events::cursor.y;
 
 	// background
 	batch->texture(nullptr);
@@ -260,31 +260,35 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 	batch->render();
 
 	// blocks & items
-	// blocksPreview->begin(&ctx.getViewport());
-	// {
-	// 	Window::clearDepth();
-	// 	GfxContext subctx = ctx.sub();
-	// 	subctx.depthTest(true);
-	// 	subctx.cullFace(true);
-	// 	for (uint i = 0; i < count-1; i++) {
-	// 		Block* cblock = contentIds->getBlockDef(i+1);
-	// 		if (cblock == nullptr)
-	// 			break;
-	// 		int x = xs + (icon_size+interval) * (i % inv_cols);
-	// 		int y = ys + (icon_size+interval) * (i / inv_cols);
-	// 		if (mx > x && mx < x + (int)icon_size && my > y && my < y + (int)icon_size) {
-	// 			tint.r *= 1.2f;
-	// 			tint.g *= 1.2f;
-	// 			tint.b *= 1.2f;
-	// 			if (Events::jclicked(mousecode::BUTTON_1)) {
-	// 				player->chosenBlock = i+1;
-	// 			}
-	// 		} else {
-	// 			tint = vec4(1.0f);
-	// 		}
-	// 		blocksPreview->draw(cblock, x, y, icon_size, tint);
-	// 	}
-	// }
+	blocksPreview->begin(&ctx.getViewport());
+	{
+		Window::clearDepth();
+		GfxContext subctx = ctx.sub();
+		subctx.depthTest(true);
+		subctx.cullFace(true);
+        uint index = 0;
+		for (uint i = 0; i < count-1; i++) {
+			Block* cblock = contentIds->getBlockDef(i+1);
+			if (cblock == nullptr)
+				break;
+            if (cblock->hidden)
+                continue;
+			int x = xs + (icon_size+interval) * (index % inv_cols);
+			int y = ys + (icon_size+interval) * (index / inv_cols);
+			if (mx > x && mx < x + (int)icon_size && my > y && my < y + (int)icon_size) {
+				tint.r *= 1.2f;
+				tint.g *= 1.2f;
+				tint.b *= 1.2f;
+				if (Events::jclicked(mousecode::BUTTON_1)) {
+					player->chosenBlock = i+1;
+				}
+			} else {
+				tint = vec4(1.0f);
+			}
+			blocksPreview->draw(cblock, x, y, icon_size, tint);
+            index++;
+		}
+	}
 	uiShader->use();
 }
 

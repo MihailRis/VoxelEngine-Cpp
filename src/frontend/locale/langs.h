@@ -48,6 +48,9 @@ namespace langs {
         const std::filesystem::path& resdir,
         std::string& fallback);
 
+    extern std::string locale_by_envlocale(const std::string& envlocale,
+                                           const std::filesystem::path& resdir);
+
     extern void load(const std::filesystem::path& resdir,
                      const std::string& locale,
                      const std::vector<ContentPack>& packs,
@@ -62,7 +65,7 @@ namespace langs {
                                    const std::wstring& context);
 
     extern void setup(const std::filesystem::path& resdir,
-                      const std::string& locale,
+                      std::string locale,
                       const std::vector<ContentPack>& packs);
 }
 

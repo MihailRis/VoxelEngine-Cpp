@@ -21,6 +21,7 @@ struct block_funcs_set {
 	bool update: 1;
     bool onplaced: 1;
     bool onbroken: 1;
+    bool oninteract: 1;
     bool randupdate: 1;
 };
 
@@ -28,14 +29,14 @@ struct CoordSystem {
 	glm::ivec3 axisX;
 	glm::ivec3 axisY;
 	glm::ivec3 axisZ;
+
 	// Grid 3d position fix offset (for negative vectors)
 	glm::ivec3 fix;
-	glm::ivec3 fix2;
 
 	CoordSystem() = default;
-	CoordSystem(glm::ivec3 axisX, glm::ivec3 axisY, glm::ivec3 axisZ, glm::ivec3 fix);
+	CoordSystem(glm::ivec3 axisX, glm::ivec3 axisY, glm::ivec3 axisZ);
 
-	void transform(AABB& aabb);
+	void transform(AABB& aabb) const;
 
 	static bool isVectorHasNegatives(glm::ivec3 vec) {
 		if (vec.x < 0 || vec.y < 0 || vec.z < 0) {
@@ -79,6 +80,7 @@ public:
 	bool breakable = true;
 	bool rotatable = false;
     bool grounded = false;
+    bool hidden = false;
 	AABB hitbox;
 	BlockRotProfile rotations;
 

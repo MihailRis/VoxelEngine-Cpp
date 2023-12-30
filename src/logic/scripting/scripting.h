@@ -21,6 +21,7 @@ namespace scripting {
     void random_update_block(const Block* block, int x, int y, int z);
     void on_block_placed(Player* player, const Block* block, int x, int y, int z);
     void on_block_broken(Player* player, const Block* block, int x, int y, int z);
+    void on_block_interact(Player* player, const Block* block, int x, int y, int z);
     void load_block_script(std::string prefix, fs::path file, block_funcs_set* funcsset);
     void close();
 }

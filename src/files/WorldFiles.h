@@ -52,7 +52,7 @@ public:
 	uint32_t* getSizes() const;
 };
 
-typedef std::unordered_map<glm::ivec2, WorldRegion*> regionsmap;
+typedef std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>> regionsmap;
 class WorldFiles {
     std::unordered_map<glm::ivec3, std::unique_ptr<files::rafile>> openRegFiles;
 

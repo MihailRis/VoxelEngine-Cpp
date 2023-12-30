@@ -85,7 +85,7 @@ bool WorldRenderer::drawChunk(size_t index,
 
 		if (!frustumCulling->IsBoxVisible(min, max)) return false;
 	}
-	vec3 coord = vec3(chunk->x*CHUNK_W, 0.0f, chunk->z*CHUNK_D+1);
+	vec3 coord = vec3(chunk->x*CHUNK_W+0.5f, 0.5f, chunk->z*CHUNK_D+0.5f);
 	mat4 model = glm::translate(mat4(1.0f), coord);
 	shader->uniformMatrix("u_model", model);
 	mesh->draw();
@@ -128,7 +128,7 @@ void WorldRenderer::drawChunks(Chunks* chunks,
 void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 	EngineSettings& settings = engine->getSettings();
 	skybox->refresh(level->world->daytime, 
-					fmax(1.0f, 10.0f/(settings.chunks.loadDistance-2))+fog*2.0f, 4);
+					1.0f+fog*2.0f, 4);
 
 	const Content* content = level->content;
 	const ContentIndices* contentIds = content->indices;

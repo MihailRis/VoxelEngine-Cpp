@@ -9,17 +9,15 @@
 
 LevelController::LevelController(EngineSettings& settings, Level* level) 
     : settings(settings), level(level) {
-    blocks = new BlocksController(level, settings.chunks.padding);
-    chunks = new ChunksController(level, settings.chunks.padding);
-    player = new PlayerController(level, settings, blocks);
+    blocks = std::make_unique<BlocksController>(level, settings.chunks.padding);
+    chunks = std::make_unique<ChunksController>(level, settings.chunks.padding);
+    player = std::make_unique<PlayerController>(level, settings, blocks.get());
 
     scripting::on_world_load(level);
 }
 
 LevelController::~LevelController() {
     scripting::on_world_quit();
-    delete player;
-    delete chunks;
 }
 
 void LevelController::update(float delta, bool input, bool pause) {

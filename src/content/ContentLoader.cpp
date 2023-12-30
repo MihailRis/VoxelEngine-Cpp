@@ -3,9 +3,11 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <algorithm>
 #include <glm/glm.hpp>
 
 #include "Content.h"
+#include "../util/listutil.h"
 #include "../voxels/Block.h"
 #include "../files/files.h"
 #include "../coders/json.h"
@@ -17,6 +19,61 @@
 namespace fs = std::filesystem;
 
 ContentLoader::ContentLoader(ContentPack* pack) : pack(pack) {
+}
+
+void ContentLoader::fixPackIndices() {
+    auto folder = pack->folder;
+    auto indexFile = pack->getContentFile();
+    auto blocksFolder = folder/ContentPack::BLOCKS_FOLDER;
+    std::unique_ptr<json::JObject> root;
+    if (fs::is_regular_file(indexFile)) {
+        root.reset(files::read_json(indexFile));
+    } else {
+        root.reset(new json::JObject());
+    }
+
+    std::vector<std::string> detectedBlocks;
+    std::vector<std::string> indexedBlocks;
+    if (fs::is_directory(blocksFolder)) {
+        for (auto entry : fs::directory_iterator(blocksFolder)) {
+            fs::path file = entry.path();
+            if (fs::is_regular_file(file) && file.extension() == ".json") {
+                std::string name = file.stem().string();
+                if (name[0] == '_')
+                    continue;
+                detectedBlocks.push_back(name);
+            }
+        }
+    }
+
+    bool modified = false;
+    if (!root->has("blocks")) {
+        root->putArray("blocks");
+    }
+    json::JArray* blocksarr = root->arr("blocks");
+    if (blocksarr) {
+        for (uint i = 0; i < blocksarr->size(); i++) {
+            std::string name = blocksarr->str(i);
+            if (!util::contains(detectedBlocks, name)) {
+                blocksarr->remove(i);
+                i--;
+                modified = true;
+                continue;
+            }
+            indexedBlocks.push_back(name);
+        }
+    }
+    for (auto name : detectedBlocks) {
+        if (!util::contains(indexedBlocks, name)) {
+            blocksarr->put(name);
+            modified = true;
+        }
+    }
+    if (modified){
+        // rewrite modified json
+        std::cout << indexFile << std::endl;
+        files::write_string(indexFile, json::stringify(root.get(), true, "  "));
+    }
 }
 
 // TODO: add basic validation and logging
@@ -86,6 +143,7 @@ Block* ContentLoader::loadBlock(std::string name, fs::path file) {
     root->flag("breakable", def->breakable);
     root->flag("selectable", def->selectable);
     root->flag("grounded", def->grounded);
+    root->flag("hidden", def->hidden);
     root->flag("sky-light-passing", def->skyLightPassing);
     root->num("draw-group", def->drawGroup);
 
@@ -95,8 +153,10 @@ Block* ContentLoader::loadBlock(std::string name, fs::path file) {
 void ContentLoader::load(ContentBuilder* builder) {
     std::cout << "-- loading pack [" << pack->id << "]" << std::endl;
 
+    fixPackIndices();
+
     auto folder = pack->folder;
-    auto root = files::read_json(pack->getContentFile());
+    std::unique_ptr<json::JObject> root (files::read_json(pack->getContentFile()));
 
     json::JArray* blocksarr = root->arr("blocks");
     if (blocksarr) {

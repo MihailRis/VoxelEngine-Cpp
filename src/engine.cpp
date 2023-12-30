@@ -74,7 +74,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 	Audio::initialize();
 	gui = new gui::GUI();
     if (settings.ui.language == "auto") {
-        settings.ui.language = platform::detect_locale();
+        settings.ui.language = langs::locale_by_envlocale(platform::detect_locale(), paths->getResources());
     }
     setLanguage(settings.ui.language);
 	std::cout << "-- initializing finished" << std::endl;
@@ -116,13 +116,14 @@ void Engine::mainloop() {
 		gui->act(delta);
 		screen->update(delta);
 
-		screen->draw(delta);
+		if (!Window::isIconified()) {screen->draw(delta);
 		gui->draw(&batch, assets.get());
 
 		vulkan::VulkanContext::get().draw();
-
-		// Window::swapInterval(settings.display.swapInterval);
-		Window::swapBuffers();
+		    // Window::swapInterval(settings.display.swapInterval);} else {
+            Window::swapInterval(1);
+        }
+        Window::swapBuffers();
 		Events::pollEvents();
 	}
 
@@ -147,7 +148,7 @@ void Engine::loadContent() {
     auto resdir = paths->getResources();
     ContentBuilder contentBuilder;
     setup_definitions(&contentBuilder);
-
+    
     std::vector<fs::path> resRoots;
     for (auto& pack : contentPacks) {
         ContentLoader loader(&pack);

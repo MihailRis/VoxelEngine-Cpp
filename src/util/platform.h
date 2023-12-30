@@ -5,8 +5,8 @@
 
 namespace platform {
     extern void configure_encoding();
+    // @return environment locale in ISO format ll_CC
     extern std::string detect_locale();
-    extern std::string get_locale_by_lang(std::string lang);
 }
 
 #endif // UTIL_PLATFORM_H_

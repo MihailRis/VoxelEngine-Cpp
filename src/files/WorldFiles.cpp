@@ -78,9 +78,6 @@ WorldFiles::WorldFiles(fs::path directory, const DebugSettings& settings)
 
 WorldFiles::~WorldFiles(){
 	delete[] compressionBuffer;
-	for (auto it : regions){
-	    delete it.second;
-	}
 	regions.clear();
 }
 
@@ -88,14 +85,14 @@ WorldRegion* WorldFiles::getRegion(regionsmap& regions, int x, int z) {
 	auto found = regions.find(glm::ivec2(x, z));
 	if (found == regions.end())
 		return nullptr;
-	return found->second;
+	return found->second.get();
 }
 
 WorldRegion* WorldFiles::getOrCreateRegion(regionsmap& regions, int x, int z) {
 	WorldRegion* region = getRegion(regions, x, z);
 	if (region == nullptr) {
 		region = new WorldRegion();
-		regions[glm::ivec2(x, z)] = region;
+		regions[glm::ivec2(x, z)].reset(region);
 	}
 	return region;
 }
@@ -115,6 +112,11 @@ ubyte* WorldFiles::decompress(const ubyte* src, size_t srclen, size_t dstlen) {
 	return decompressed;
 }
 
+/* 
+ * Compress and store chunk voxels data in region 
+ * @param x chunk.x
+ * @param z chunk.z
+ */
 void WorldFiles::put(int x, int z, const ubyte* voxelData) {
     int regionX = floordiv(x, REGION_SIZE);
 	int regionZ = floordiv(z, REGION_SIZE);
@@ -130,6 +132,9 @@ void WorldFiles::put(int x, int z, const ubyte* voxelData) {
 	}
 }
 
+/*
+ * Store chunk (voxels and lights) in region (existing or new)
+ */
 void WorldFiles::put(Chunk* chunk){
 	assert(chunk != nullptr);
 
@@ -166,18 +171,25 @@ fs::path WorldFiles::getLightsFolder() const {
 	return directory/fs::path("lights");
 }
 
-fs::path WorldFiles::getRegionFilename(int x, int y) const {
-	std::string filename = std::to_string(x) + "_" + std::to_string(y) + ".bin";
+fs::path WorldFiles::getRegionFilename(int x, int z) const {
+	std::string filename = std::to_string(x) + "_" + std::to_string(z) + ".bin";
 	return fs::path(filename);
 }
 
-bool WorldFiles::parseRegionFilename(const std::string& name, int& x, int& y) {
+/* 
+ * Extract X and Z from 'X_Z.bin' region file name.
+ * @param name source region file name
+ * @param x parsed X destination
+ * @param z parsed Z destination
+ * @return false if std::invalid_argument or std::out_of_range occurred
+ */
+bool WorldFiles::parseRegionFilename(const std::string& name, int& x, int& z) {
     size_t sep = name.find('_');
     if (sep == std::string::npos || sep == 0 || sep == name.length()-1)
         return false;
     try {
         x = std::stoi(name.substr(0, sep));
-        y = std::stoi(name.substr(sep+1));
+        z = std::stoi(name.substr(sep+1));
     } catch (std::invalid_argument& err) {
         return false;
     } catch (std::out_of_range& err) {
@@ -206,11 +218,13 @@ ubyte* WorldFiles::getChunk(int x, int z){
 	return getData(regions, getRegionsFolder(), x, z, REGION_LAYER_VOXELS);
 }
 
+/* Get cached lights for chunk at x,z 
+ * @return lights data or nullptr */
 light_t* WorldFiles::getLights(int x, int z) {
-	ubyte* data = getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS);
+	std::unique_ptr<ubyte> data (getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS));
 	if (data == nullptr)
 		return nullptr;
-	return Lightmap::decode(data);
+	return Lightmap::decode(data.get());
 }
 
 ubyte* WorldFiles::getData(regionsmap& regions, const fs::path& folder, 
@@ -248,7 +262,7 @@ files::rafile* WorldFiles::getRegFile(glm::ivec3 coord, const fs::path& folder) 
         auto iter = std::next(openRegFiles.begin(), rand() % openRegFiles.size());
         openRegFiles.erase(iter);
     }
-    fs::path filename = folder/getRegionFilename(coord.x, coord.y);
+	fs::path filename = folder / getRegionFilename(coord[0], coord[1]);
     if (!fs::is_regular_file(filename)) {
         return nullptr;
     }
@@ -297,25 +311,35 @@ ubyte* WorldFiles::readChunkData(int x,
 	return data;
 }
 
-void WorldFiles::fetchChunks(WorldRegion* region, int x, int y, fs::path folder, int layer) {
+/* Read missing chunks data (null pointers) from region file 
+ * @param layer used as third part of openRegFiles map key 
+ * (see REGION_LAYER_* constants)
+ */
+void WorldFiles::fetchChunks(WorldRegion* region, int x, int z, fs::path folder, int layer) {
     ubyte** chunks = region->getChunks();
 	uint32_t* sizes = region->getSizes();
 
     for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
         int chunk_x = (i % REGION_SIZE) + x * REGION_SIZE;
-        int chunk_z = (i / REGION_SIZE) + y * REGION_SIZE;
+        int chunk_z = (i / REGION_SIZE) + z * REGION_SIZE;
         if (chunks[i] == nullptr) {
             chunks[i] = readChunkData(chunk_x, chunk_z, sizes[i], folder, layer);
         }
     }
 }
 
-void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, fs::path folder, int layer){
-    fs::path filename = folder/getRegionFilename(x, y);
+/* Write or rewrite region file
+ * @param x region X
+ * @param z region Z
+ * @param layer used as third part of openRegFiles map key 
+ * (see REGION_LAYER_* constants)
+ */
+void WorldFiles::writeRegion(int x, int z, WorldRegion* entry, fs::path folder, int layer){
+    fs::path filename = folder/getRegionFilename(x, z);
 
-    glm::ivec3 regcoord(x, y, layer);
+    glm::ivec3 regcoord(x, z, layer);
     if (getRegFile(regcoord, folder)) {
-        fetchChunks(entry, x, y, folder, layer);
+        fetchChunks(entry, x, z, folder, layer);
         openRegFiles.erase(regcoord);
     }
     
@@ -354,12 +378,12 @@ void WorldFiles::writeRegion(int x, int y, WorldRegion* entry, fs::path folder, 
 }
 
 void WorldFiles::writeRegions(regionsmap& regions, const fs::path& folder, int layer) {
-	for (auto it : regions){
-		WorldRegion* region = it.second;
+	for (auto& it : regions){
+		WorldRegion* region = it.second.get();
 		if (region->getChunks() == nullptr || !region->isUnsaved())
 			continue;
 		glm::ivec2 key = it.first;
-		writeRegion(key.x, key.y, region, folder, layer);
+		writeRegion(key[0], key[1], region, folder, layer);
 	}
 }
 
@@ -457,8 +481,8 @@ void WorldFiles::writePlayer(Player* player){
 	posarr.put(position.z);
 
 	json::JArray& rotarr = root.putArray("rotation");
-	rotarr.put(player->camX);
-	rotarr.put(player->camY);
+	rotarr.put(player->cam.x);
+	rotarr.put(player->cam.y);
 	
 	root.put("flight", player->flight);
 	root.put("noclip", player->noclip);
@@ -482,8 +506,8 @@ bool WorldFiles::readPlayer(Player* player) {
 	player->camera->position = position;
 
 	json::JArray* rotarr = root->arr("rotation");
-	player->camX = rotarr->num(0);
-	player->camY = rotarr->num(1);
+	player->cam.x = rotarr->num(0);
+	player->cam.y = rotarr->num(1);
 
 	root->flag("flight", player->flight);
 	root->flag("noclip", player->noclip);

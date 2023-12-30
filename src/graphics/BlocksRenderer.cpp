@@ -18,6 +18,7 @@ using glm::vec3;
 using glm::vec4;
 
 const uint BlocksRenderer::VERTEX_SIZE = 6;
+const vec3 BlocksRenderer::SUN_VECTOR (0.411934f, 0.863868f, -0.279161f);
 
 BlocksRenderer::BlocksRenderer(size_t capacity,
 	const Content* content,
@@ -77,10 +78,11 @@ void BlocksRenderer::index(int a, int b, int c, int d, int e, int f) {
 }
 
 /* Add face with precalculated lights */
-void BlocksRenderer::face(const vec3& coord,
-						  float w, float h,
+void BlocksRenderer::face(const vec3& coord, 
+						  float w, float h, float d,
 						  const vec3& axisX,
 						  const vec3& axisY,
+                          const vec3& axisZ,
 						  const UVRegion& region,
 						  const vec4(&lights)[4],
 						  const vec4& tint) {
@@ -88,65 +90,36 @@ void BlocksRenderer::face(const vec3& coord,
 		overflow = true;
 		return;
 	}
-	vertex(coord, region.u1, region.v1, lights[0] * tint);
-	vertex(coord + axisX * w, region.u2, region.v1, lights[1] * tint);
-	vertex(coord + axisX * w + axisY * h, region.u2, region.v2, lights[2] * tint);
-	vertex(coord + axisY * h, region.u1, region.v2, lights[3] * tint);
+    vec3 X = axisX * w;
+    vec3 Y = axisY * h;
+    vec3 Z = axisZ * d;
+    float s = 0.5f;
+	vertex(coord + (-X - Y + Z) * s, region.u1, region.v1, lights[0] * tint);
+	vertex(coord + ( X - Y + Z) * s, region.u2, region.v1, lights[1] * tint);
+	vertex(coord + ( X + Y + Z) * s, region.u2, region.v2, lights[2] * tint);
+	vertex(coord + (-X + Y + Z) * s, region.u1, region.v2, lights[3] * tint);
 	index(0, 1, 3, 1, 2, 3);
 }
 
-void BlocksRenderer::vertex(const ivec3& coord,
+void BlocksRenderer::vertex(const vec3& coord, 
 							float u, float v,
 							const vec4& tint,
-							const ivec3& axisX,
-							const ivec3& axisY,
-							const ivec3& axisZ) {
-	vec4 light = pickSoftLight(coord+axisZ, axisX, axisY);
+							const vec3& X,
+							const vec3& Y,
+							const vec3& Z) {
+    // TODO: optimize
+    vec3 axisX = glm::normalize(X);
+    vec3 axisY = glm::normalize(Y);
+    vec3 axisZ = glm::normalize(Z);
+    vec3 pos = coord+axisZ*0.5f+(axisX+axisY)*0.5f;
+	vec4 light = pickSoftLight(ivec3(round(pos.x), round(pos.y), round(pos.z)), axisX, axisY);
 	vertex(coord, u, v, light * tint);
-}
-
-void BlocksRenderer::vertex(const vec3& coord,
-							float u, float v,
-							const vec4& tint,
-							const ivec3& axisX,
-							const ivec3& axisY,
-							const ivec3& axisZ) {
-	vec4 light = pickSoftLight(ivec3(coord.x, coord.y, coord.z)+axisZ, axisX, axisY);
-	vertex(coord, u, v, light * tint);
-}
-
-void BlocksRenderer::face(const ivec3& coord,
-						  const ivec3& axisX,
-						  const ivec3& axisY,
-						  const ivec3& axisZ,
-						  const ivec3& laxisZ,
-						  const UVRegion& region) {
-	if (vertexOffset + BlocksRenderer::VERTEX_SIZE * 4 > capacity) {
-		overflow = true;
-		return;
-	}
-
-	const vec3 sunVector = vec3(0.411934f, 0.863868f, -0.279161f);
-	float d = glm::dot(vec3(axisZ.x, axisZ.y, axisZ.z), sunVector);
-	d = 0.7f +  d*0.3f;
-
-	vec4 tint(d);
-
-	vertex(coord, region.u1, region.v1, tint, axisX, axisY, laxisZ);
-	vertex(coord + axisX, region.u2, region.v1, tint, axisX, axisY, laxisZ);
-	vertex(coord + axisX + axisY, region.u2, region.v2, tint, axisX, axisY, laxisZ);
-	vertex(coord + axisY, region.u1, region.v2, tint, axisX, axisY, laxisZ);
-	index(0, 1, 2, 0, 2, 3);
 }
 
 void BlocksRenderer::face(const vec3& coord,
-						  const ivec3& axisX,
-						  const ivec3& axisY,
-						  const ivec3& axisZ,
-						  const ivec3& laxisZ,
-						  float width,
-						  float height,
-						  float depth,
+						  const vec3& X,
+						  const vec3& Y,
+						  const vec3& Z,
 						  const UVRegion& region,
                           bool lights) {
 	if (vertexOffset + BlocksRenderer::VERTEX_SIZE * 4 > capacity) {
@@ -154,58 +127,31 @@ void BlocksRenderer::face(const vec3& coord,
 		return;
 	}
 
-	const vec3 X(axisX);
-	const vec3 Y(axisY);
-	const vec3 Z(axisZ);
-
+    float s = 0.5f;
     if (lights) {
-        const vec3 sunVector = vec3(0.431934f, 0.863868f, -0.259161f);
-        float d = glm::dot(Z, sunVector);
-        d = 0.75f +  d*0.25f;
-        vec4 tint(d);
+        float d = glm::dot(Z, SUN_VECTOR);
+        d = 0.7f + d * 0.3f;
 
-        vertex(coord + Z*depth, region.u1, region.v1, tint, axisX, axisY, laxisZ);
-        vertex(coord + Z*depth + X*width, region.u2, region.v1, tint, axisX, axisY, laxisZ);
-        vertex(coord + Z*depth + X*width + Y*height, region.u2, region.v2, tint, axisX, axisY, laxisZ);
-        vertex(coord + Z*depth + Y*height, region.u1, region.v2, tint, axisX, axisY, laxisZ);
+        vec4 tint(d);
+        vertex(coord + (-X - Y + Z) * s, region.u1, region.v1, tint, X, Y, Z);
+        vertex(coord + ( X - Y + Z) * s, region.u2, region.v1, tint, X, Y, Z);
+        vertex(coord + ( X + Y + Z) * s, region.u2, region.v2, tint, X, Y, Z);
+        vertex(coord + (-X + Y + Z) * s, region.u1, region.v2, tint, X, Y, Z);
     } else {
-        vertex(coord + Z*depth, region.u1, region.v1, vec4(1.0f));
-        vertex(coord + Z*depth + X*width, region.u2, region.v1, vec4(1.0f));
-        vertex(coord + Z*depth + X*width + Y*height, region.u2, region.v2, vec4(1.0f));
-        vertex(coord + Z*depth + Y*height, region.u1, region.v2, vec4(1.0f));
+        vec4 tint(1.0f);
+        vertex(coord + (-X - Y + Z) * s, region.u1, region.v1, tint);
+        vertex(coord + ( X - Y + Z) * s, region.u2, region.v1, tint);
+        vertex(coord + ( X + Y + Z) * s, region.u2, region.v2, tint);
+        vertex(coord + (-X + Y + Z) * s, region.u1, region.v2, tint);
     }
 	index(0, 1, 2, 0, 2, 3);
 }
 
-void BlocksRenderer::blockCube(int x, int y, int z, const UVRegion(&texfaces)[6], ubyte group) {
-	vec4 lights[]{ vec4(1.0f), vec4(1.0f), vec4(1.0f), vec4(1.0f) };
-	if (isOpen(x, y, z + 1, group)) {
-		face(vec3(x, y, z), 1, 1, vec3(1, 0, 0), vec3(0, 1, 0), texfaces[5], lights, vec4(1.0f));
-	}
-	if (isOpen(x, y, z - 1, group)) {
-		face(vec3(x + 1, y, z - 1), 1, 1, vec3(-1, 0, 0), vec3(0, 1, 0), texfaces[4], lights, vec4(1.0f));
-	}
 
-	if (isOpen(x, y + 1, z, group)) {
-		face(vec3(x, y + 1, z), 1, 1, vec3(1, 0, 0), vec3(0, 0, -1), texfaces[3], lights);
-	}
-
-	if (isOpen(x, y - 1, z, group)) {
-		face(vec3(x, y, z - 1), 1, 1, vec3(1, 0, 0), vec3(0, 0, 1), texfaces[2], lights, vec4(1.0f));
-	}
-
-	if (isOpen(x - 1, y, z, group)) {
-		face(vec3(x, y, z - 1), 1, 1, vec3(0, 0, 1), vec3(0, 1, 0), texfaces[0], lights, vec4(1.0f));
-	}
-	if (isOpen(x + 1, y, z, group)) {
-		face(vec3(x + 1, y, z), 1, 1, vec3(0, 0, -1), vec3(0, 1, 0), texfaces[1], lights, vec4(1.0f));
-	}
-}
-
-void BlocksRenderer::blockXSprite(int x, int y, int z,
-								  const vec3& size,
-								  const UVRegion& texface1,
-								  const UVRegion& texface2,
+void BlocksRenderer::blockXSprite(int x, int y, int z, 
+								  const vec3& size, 
+								  const UVRegion& texface1, 
+								  const UVRegion& texface2, 
 								  float spread) {
 	vec4 lights[]{
 			pickSoftLight({x, y + 1, z}, {1, 0, 0}, {0, 1, 0}),
@@ -220,39 +166,35 @@ void BlocksRenderer::blockXSprite(int x, int y, int z,
 
 	const float w = size.x / 1.41f;
 	const float tint = 0.8f;
-	face(vec3(x + xs + (1.0 - w) * 0.5f, y, z + zs - 1 + (1.0 - w) * 0.5f),
-		w, size.y, vec3(1.0f, 0, 1.0f), vec3(0, 1, 0),
+
+	face(vec3(x + xs, y, z + zs), 
+		w, size.y, 0, vec3(1, 0, 1), vec3(0, 1, 0), vec3(),
 		texface1, lights, vec4(tint));
-	face(vec3(x + xs - (1.0 - w) * 0.5f + 1, y, z + zs - (1.0 - w) * 0.5f),
-		w, size.y, vec3(-1.0f, 0, -1.0f), vec3(0, 1, 0),
+    face(vec3(x + xs, y, z + zs), 
+		w, size.y, 0, vec3(-1, 0, -1), vec3(0, 1, 0), vec3(), 
 		texface1, lights, vec4(tint));
 
-	face(vec3(x + xs + (1.0 - w) * 0.5f, y, z + zs - (1.0 - w) * 0.5f),
-		w, size.y, vec3(1.0f, 0, -1.0f), vec3(0, 1, 0),
-		texface2, lights, vec4(tint));
-	face(vec3(x + xs - (1.0 - w) * 0.5f + 1, y, z + zs + (1.0 - w) * 0.5f - 1),
-		w, size.y, vec3(-1.0f, 0, 1.0f), vec3(0, 1, 0),
-		texface2, lights, vec4(tint));
+    face(vec3(x + xs, y, z + zs), 
+		w, size.y, 0, vec3(1, 0, -1), vec3(0, 1, 0), vec3(), 
+		texface1, lights, vec4(tint));
+    face(vec3(x + xs, y, z + zs), 
+		w, size.y, 0, vec3(-1, 0, 1), vec3(0, 1, 0), vec3(), 
+		texface1, lights, vec4(tint));
 }
 
 // HINT: texture faces order: {east, west, bottom, top, south, north}
 
-/* AABB blocks render method (WIP) */
+/* AABB blocks render method */
 void BlocksRenderer::blockAABB(const ivec3& icoord,
-								const UVRegion(&texfaces)[6],
-								const Block* block, ubyte rotation,
-                                bool lights) {
-	AABB inversedHitbox = block->hitbox;
-	inversedHitbox.a = vec3(1.0f) - inversedHitbox.a;
-	inversedHitbox.b = vec3(1.0f) - inversedHitbox.b;
+							   const UVRegion(&texfaces)[6], 
+							   const Block* block, ubyte rotation,
+                               bool lights) {
+	AABB hitbox = block->hitbox;
+	vec3 size = hitbox.size();
 
-	vec3 size = inversedHitbox.size();
-	vec3 offset = inversedHitbox.min();
-
-	ivec3 X(1, 0, 0);
-	ivec3 Y(0, 1, 0);
-	ivec3 Z(0, 0, 1);
-	ivec3 loff(0);
+	vec3 X(1, 0, 0);
+	vec3 Y(0, 1, 0);
+	vec3 Z(0, 0, 1);
 	vec3 coord(icoord);
 	if (block->rotatable) {
 		auto& rotations = block->rotations;
@@ -260,82 +202,65 @@ void BlocksRenderer::blockAABB(const ivec3& icoord,
 		X = orient.axisX;
 		Y = orient.axisY;
 		Z = orient.axisZ;
-		coord += orient.fix;
-		loff -= orient.fix;
+        orient.transform(hitbox);
 	}
-	vec3 fX(X);
-	vec3 fY(Y);
-	vec3 fZ(Z);
+
+    coord = vec3(icoord) - vec3(0.5f) + hitbox.center();
 	
-    // TODO: simplify this pile of magic calculations and fix 5th arg (laxisZ)
-	face(coord +
-		(1.0f - offset.x - size.x) * fX  - (offset.z + size.z)*fZ,X, Y, Z, Z+loff,
-        size.x, size.y, size.z, texfaces[5], lights); // north
-	face(coord +
-		(1.0f - offset.x) * fX - (offset.z + size.z) * fZ,-X, Y, -Z, Z-Z-X+loff,
-        size.x, size.y, 0.0f, texfaces[4], lights); // south
+    face(coord,  X*size.x,  Y*size.y,  Z*size.z, texfaces[5], lights); // north
+    face(coord, -X*size.x,  Y*size.y, -Z*size.z, texfaces[4], lights); // south
 
-	face(coord +
-		(1.0f - offset.x - size.x) * fX - offset.z * fZ + size.y*fY,X, -Z, Y, Y-Y+loff,
-        size.x, size.z, 0.0f, texfaces[3], lights); // top
-	face(coord +
-		(1.0f - offset.x) * fX - offset.z * fZ,-X, -Z, -Y, -X-Y+loff,
-        size.x, size.z, 0.0f, texfaces[2], lights); // bottom
+    face(coord,  X*size.x, -Z*size.z,  Y*size.y, texfaces[3], lights); // top
+    face(coord, -X*size.x, -Z*size.z, -Y*size.y, texfaces[2], lights); // bottom
 
-	face(coord+
-		(1.0f - offset.x) * fX - offset.z * fZ,-Z, Y, X, X-X+loff,
-        size.z, size.y, 0.0f, texfaces[1], lights); // west
-	face(coord +
-		(1.0f - offset.x - size.x) * fX - (offset.z + size.z) * fZ,Z, Y, -X, -X-Y+loff,
-        size.z, size.y, 0.0f, texfaces[0], lights); // east
+    face(coord, -Z*size.z,  Y*size.y,  X*size.x, texfaces[1], lights); // west
+    face(coord,  Z*size.z,  Y*size.y, -X*size.x, texfaces[0], lights); // east
 }
 
 /* Fastest solid shaded blocks render method */
-void BlocksRenderer::blockCubeShaded(int x, int y, int z,
-									 const UVRegion(&texfaces)[6],
-									 const Block* block,
-									 ubyte states) {
+void BlocksRenderer::blockCube(int x, int y, int z, 
+									 const UVRegion(&texfaces)[6], 
+									 const Block* block, 
+									 ubyte states,
+                                     bool lights) {
 	ubyte group = block->drawGroup;
 
-	ivec3 X(1, 0, 0);
-	ivec3 Y(0, 1, 0);
-	ivec3 Z(0, 0, 1);
-	ivec3 loff(0);
-	ivec3 coord(x, y, z);
+	vec3 X(1, 0, 0);
+	vec3 Y(0, 1, 0);
+	vec3 Z(0, 0, 1);
+	vec3 coord(x, y, z);
 	if (block->rotatable) {
 		auto& rotations = block->rotations;
 		auto& orient = rotations.variants[states & BLOCK_ROT_MASK];
 		X = orient.axisX;
 		Y = orient.axisY;
 		Z = orient.axisZ;
-		coord += orient.fix;
-		loff -= orient.fix;
 	}
 	
 	if (isOpen(x+Z.x, y+Z.y, z+Z.z, group)) {
-		face(coord, X, Y, Z, Z+loff, texfaces[5]);
+	    face(coord, X, Y, Z, texfaces[5], lights);
 	}
 	if (isOpen(x-Z.x, y-Z.y, z-Z.z, group)) {
-		face(coord+X-Z, -X, Y, -Z, Z-Z-X+loff, texfaces[4]);
+	    face(coord, -X, Y, -Z, texfaces[4], lights);
 	}
 	if (isOpen(x+Y.x, y+Y.y, z+Y.z, group)) {
-		face(coord+Y, X, -Z, Y, Y-Y+loff, texfaces[3]);
+		face(coord, X, -Z, Y, texfaces[3], lights);
 	}
 	if (isOpen(x-Y.x, y-Y.y, z-Y.z, group)) {
-		face(coord-Z, X, Z, -Y, -Y+Z+loff, texfaces[2]);
+		face(coord, X, Z, -Y, texfaces[2], lights);
 	}
 	if (isOpen(x+X.x, y+X.y, z+X.z, group)) {
-		face(coord+X, -Z, Y, X, X-X+loff, texfaces[1]);
+		face(coord, -Z, Y, X, texfaces[1], lights);
 	}
 	if (isOpen(x-X.x, y-X.y, z-X.z, group)) {
-		face(coord-Z, Z, Y, -X, -X+Z+loff, texfaces[0]);
+		face(coord, Z, Y, -X, texfaces[0], lights);
 	}
 }
 
 // Does block allow to see other blocks sides (is it transparent)
 bool BlocksRenderer::isOpen(int x, int y, int z, ubyte group) const {
-	blockid_t id = voxelsBuffer->pickBlockId(chunk->x * CHUNK_W + x,
-											 y,
+	blockid_t id = voxelsBuffer->pickBlockId(chunk->x * CHUNK_W + x, 
+											 y, 
 											 chunk->z * CHUNK_D + z);
 	if (id == BLOCK_VOID)
 		return false;
@@ -347,8 +272,8 @@ bool BlocksRenderer::isOpen(int x, int y, int z, ubyte group) const {
 }
 
 bool BlocksRenderer::isOpenForLight(int x, int y, int z) const {
-	blockid_t id = voxelsBuffer->pickBlockId(chunk->x * CHUNK_W + x,
-											 y,
+	blockid_t id = voxelsBuffer->pickBlockId(chunk->x * CHUNK_W + x, 
+											 y, 
 											 chunk->z * CHUNK_D + z);
 	if (id == BLOCK_VOID)
 		return false;
@@ -361,8 +286,8 @@ bool BlocksRenderer::isOpenForLight(int x, int y, int z) const {
 
 vec4 BlocksRenderer::pickLight(int x, int y, int z) const {
 	if (isOpenForLight(x, y, z)) {
-		light_t light = voxelsBuffer->pickLight(chunk->x * CHUNK_W + x,
-												y,
+		light_t light = voxelsBuffer->pickLight(chunk->x * CHUNK_W + x, 
+												y, 
 												chunk->z * CHUNK_D + z);
 		return vec4(Lightmap::extract(light, 0) / 15.0f,
 			Lightmap::extract(light, 1) / 15.0f,
@@ -379,7 +304,7 @@ vec4 BlocksRenderer::pickLight(const ivec3& coord) const {
 }
 
 vec4 BlocksRenderer::pickSoftLight(const ivec3& coord, 
-								   const ivec3& right,
+								   const ivec3& right, 
 								   const ivec3& up) const {
 	return (
 		pickLight(coord) +
@@ -389,7 +314,7 @@ vec4 BlocksRenderer::pickSoftLight(const ivec3& coord,
 }
 
 vec4 BlocksRenderer::pickSoftLight(float x, float y, float z, 
-								  const ivec3& right,
+								  const ivec3& right, 
 								  const ivec3& up) const {
 	return pickSoftLight({int(round(x)), int(round(y)), int(round(z))}, right, up);
 }
@@ -404,9 +329,9 @@ void BlocksRenderer::render(const voxel* voxels) {
 			const Block& def = *blockDefsCache[id];
 			if (!id || def.drawGroup != drawGroup)
 				continue;
-			const UVRegion texfaces[6]{ cache->getRegion(id, 0),
+			const UVRegion texfaces[6]{ cache->getRegion(id, 0), 
 										cache->getRegion(id, 1),
-										cache->getRegion(id, 2),
+										cache->getRegion(id, 2), 
 										cache->getRegion(id, 3),
 										cache->getRegion(id, 4), 
 										cache->getRegion(id, 5)};
@@ -415,15 +340,10 @@ void BlocksRenderer::render(const voxel* voxels) {
 			int z = (i / CHUNK_D) % CHUNK_W;
 			switch (def.model) {
 			case BlockModel::block:
-				if (def.rt.emissive) {
-					blockCube(x, y, z, texfaces, def.drawGroup);
-				}
-				else {
-					blockCubeShaded(x, y, z, texfaces, &def, vox.states);
-				}
+                blockCube(x, y, z, texfaces, &def, vox.states, !def.rt.emissive);
 				break;
 			case BlockModel::xsprite: {
-				blockXSprite(x, y, z, vec3(1.0f),
+				blockXSprite(x, y, z, vec3(1.0f), 
 							 texfaces[FACE_MX], texfaces[FACE_MZ], 1.0f);
 				break;
 			}
@@ -439,24 +359,6 @@ void BlocksRenderer::render(const voxel* voxels) {
 		}
 	}
 }
-
-#ifdef USE_VULKAN
-vulkan::Mesh<Vertex3D>* BlocksRenderer::renderVulkanMesh(const Chunk* chunk,
-	const ChunksStorage* chunks) {
-	this->chunk = chunk;
-	voxelsBuffer->setPosition(chunk->x * CHUNK_W - 1, 0, chunk->z * CHUNK_D - 1);
-	chunks->getVoxels(voxelsBuffer, settings.graphics.backlight);
-	overflow = false;
-	vertexOffset = 0;
-	indexOffset = indexSize = 0;
-	const voxel* voxels = chunk->voxels;
-	render(voxels);
-
-	const Vertex3D *vertices = reinterpret_cast<Vertex3D *>(vertexBuffer);
-	auto *mesh = new vulkan::Mesh(vertices, vertexOffset / VERTEX_SIZE, indexBuffer, indexSize);
-	return mesh;
-}
-#endif
 
 Mesh* BlocksRenderer::render(const Chunk* chunk, const ChunksStorage* chunks) {
 	this->chunk = chunk;

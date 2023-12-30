@@ -25,42 +25,21 @@ int Window::posY = 0;
 bool Window::isResized = false;
 
 void cursor_position_callback(GLFWwindow*, double xpos, double ypos) {
-	if (Events::_cursor_started) {
-		Events::deltaX += xpos - Events::x;
-		Events::deltaY += ypos - Events::y;
-	}
-	else {
-		Events::_cursor_started = true;
-	}
-	Events::x = xpos;
-	Events::y = ypos;
+    Events::setPosition(xpos, ypos);
 }
 
 void mouse_button_callback(GLFWwindow*, int button, int action, int) {
-	if (action == GLFW_PRESS) {
-		// Unsafe assignments! (no checks)
-		Events::_keys[_MOUSE_KEYS_OFFSET + button] = true; 
-		Events::_frames[_MOUSE_KEYS_OFFSET + button] = Events::_current;
-	}
-	else if (action == GLFW_RELEASE) {
-		// Unsafe assignments! (no checks)
-		Events::_keys[_MOUSE_KEYS_OFFSET + button] = false;
-		Events::_frames[_MOUSE_KEYS_OFFSET + button] = Events::_current;
-	}
+    Events::setButton(button, action == GLFW_PRESS);
 }
 
 void key_callback(GLFWwindow*, int key, int scancode, int action, int /*mode*/) {
 	if (key == GLFW_KEY_UNKNOWN) return;
 	if (action == GLFW_PRESS) {
-		// Unsafe assignments! (no checks)
-		Events::_keys[key] = true;
-		Events::_frames[key] = Events::_current;
+        Events::setKey(key, true);
 		Events::pressedKeys.push_back(key);
 	}
 	else if (action == GLFW_RELEASE) {
-		// Unsafe assignments! (no checks)
-		Events::_keys[key] = false;
-		Events::_frames[key] = Events::_current;
+        Events::setKey(key, false);
 	}
 	else if (action == GLFW_REPEAT) {
 		Events::pressedKeys.push_back(key);
@@ -73,6 +52,10 @@ void scroll_callback(GLFWwindow*, double xoffset, double yoffset) {
 
 bool Window::isMaximized() {
 	return glfwGetWindowAttrib(window, GLFW_MAXIMIZED);
+}
+
+bool Window::isIconified() {
+    return glfwGetWindowAttrib(window, GLFW_ICONIFIED);
 }
 
 bool Window::isFocused()
@@ -177,7 +160,6 @@ int Window::initialize(DisplaySettings& settings){
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 #endif
 
-	Events::initialize();
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
@@ -308,7 +290,6 @@ void Window::popScissor() {
 }
 
 void Window::terminate(){
-	Events::finalize();
 	glfwTerminate();
 }
 
@@ -343,8 +324,7 @@ void Window::toggleFullscreen(){
 
 	double xPos, yPos;
 	glfwGetCursorPos(window, &xPos, &yPos);
-	Events::x = xPos;
-	Events::y = yPos;
+    Events::setPosition(xPos, yPos);
 }
 
 bool Window::isFullscreen() {
