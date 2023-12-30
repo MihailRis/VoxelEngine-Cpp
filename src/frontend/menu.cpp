@@ -263,7 +263,7 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
 
         // Basic validation
         if (!util::is_valid_filename(name) || 
-                paths->isWorldNameUsed(nameutf8)) {
+            paths->isWorldNameUsed(nameutf8)) {
             // blink red two times
             panel->listenInterval(0.1f, [worldNameInput, basecolor]() {
                 static bool flag = true;
