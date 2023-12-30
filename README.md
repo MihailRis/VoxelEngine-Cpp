@@ -1,6 +1,7 @@
 # Run with compiled executable file:
 
-[Windows (64 bit)](https://drive.google.com/file/d/1hkqCFP6MG9t6V6hjfL4UXdIW9VRsRaAt/view?usp=sharing)
+[Windows (64 bit)](https://drive.google.com/file/d/15v_PwtbPRQ0ytDok-1ucHYks2T2cZdnt/view?usp=sharing)
+[Linux AppImage (x86_64)](https://github.com/MihailRis/VoxelEngine-Cpp/releases/download/v16/VoxelEngine-0.16-x86_64.AppImage)
 
 # Controls:
 - <kbd>**Esc**</kbd> - pause
