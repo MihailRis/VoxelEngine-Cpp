@@ -4,14 +4,14 @@ No=Не
 Ok=Ок
 Cancel=Скасаваць
 Back=Назад
-Continue=Прадоўжыць
+Continue=Працягнуть
 
 error.pack-not-found=Не ўдалося знайсці пакет
 
 # Меню
 menu.New World=Новы Свет
 menu.Quit=Выхад
-menu.Continue=Прадоўжыць
+menu.Continue=Працягнуть
 menu.Save and Quit to Menu=Захаваць і Выйсці ў Меню
 menu.missing-content=Адсутнічае Кантэнт!
 menu.Controls=Кіраванне
