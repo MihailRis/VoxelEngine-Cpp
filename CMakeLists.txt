@@ -30,7 +30,8 @@ endif()
 
 
 if(MSVC)
-  target_compile_options(${PROJECT_NAME} PRIVATE /W4  /O2)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /MT /O2)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /source-charset:UTF-8")
 else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -lstdc++fs
