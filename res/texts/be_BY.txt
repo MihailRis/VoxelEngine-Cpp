@@ -1,0 +1,53 @@
+# Общее
+Yes=Так
+No=Не
+Ok=Ок
+Cancel=Скасаваць
+Back=Назад
+Continue=Прадоўжыць
+
+error.pack-not-found=Не ўдалося знайсці пакет
+
+# Меню
+menu.New World=Новы Свет
+menu.Quit=Выхад
+menu.Continue=Прадоўжыць
+menu.Save and Quit to Menu=Захаваць і Выйсці ў Меню
+menu.missing-content=Адсутнічае Кантэнт!
+menu.Controls=Кіраванне
+menu.Back to Main Menu=Вярнуцца ў Меню
+menu.Settings=Налады
+menu.Content=Кантэнт
+world.Seed=Зерне
+world.Name=Назва
+menu.Create World=Стварыць Свет
+
+world.convert-request=Ёсць змены ў індэксах! Канвертаваць свет?
+
+# Настройки
+settings.Load Distance=Дыстанцыя Загрузкі
+settings.Load Speed=Хуткасць Загрузкі
+settings.Fog Curve=Крывая Туману
+settings.Backlight=Падсветка
+settings.V-Sync=Вертыкальная Сінхранізацыя
+
+settings.FOV=Поле Зроку
+settings.Mouse Sensitivity=Адчувальнасць Мышы
+settings.Language=Мова
+
+# Управление
+movement.forward=Уперад
+movement.back=Назад
+movement.left=Улева
+movement.right=Управа
+movement.jump=Скачок
+movement.sprint=Ускорение
+movement.crouch=Красціся
+movement.cheat=Чыт
+hud.inventory=Рыштунак
+player.pick=Падабраць Блок
+player.attack=Атакаваць / Ламаць
+player.build=Паставіць Блок
+player.flight=Палёт
+camera.zoom=Прыбліжэнне
+camera.mode=Змяніць Рэжым Камеры
