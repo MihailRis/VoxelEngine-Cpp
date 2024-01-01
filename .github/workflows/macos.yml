@@ -24,8 +24,8 @@ jobs:
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release ..
       - name: build
-        run: cmake --build .
+        run: cmake --build ./build
       - uses: actions/upload-artifact@v2
         with:
           name: macOS App
-          path: './VoxelEngine*'
+          path: './build/VoxelEngine'
