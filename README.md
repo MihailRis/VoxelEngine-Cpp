@@ -79,7 +79,7 @@ For vulkan need install **vulkan-devel**:
 #### macOS:
 
 ```
-brew install glfw3 glew glm libpng
+brew install glfw3 glew glm libpng lua luajit openal-soft
 ```
 
-Download, compile and install OpenAL and LuaJIT
+If homebrew for some reason could not install the necessary packages: ```lua luajit openal-soft```, then download, install and compile them manually (Lua, LuaJIT and OpenAL).

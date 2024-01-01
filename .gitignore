@@ -31,4 +31,7 @@ Debug/voxel_engine
 AppDir
 appimage-build/
 
+# macOS folder attributes
+*.DS_Store
+
 *~

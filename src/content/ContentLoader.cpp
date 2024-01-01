@@ -156,6 +156,8 @@ void ContentLoader::load(ContentBuilder* builder) {
     fixPackIndices();
 
     auto folder = pack->folder;
+    if (!fs::is_regular_file(pack->getContentFile()))
+        return;
     std::unique_ptr<json::JObject> root (files::read_json(pack->getContentFile()));
 
     json::JArray* blocksarr = root->arr("blocks");
