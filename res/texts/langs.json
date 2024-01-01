@@ -3,7 +3,7 @@
         "en_US": {
             "name": "English"
         },
-		"su_SU": {
+	"su_SU": {
             "name": "Советский"
         },
         "ru_RU": {
@@ -11,7 +11,10 @@
         },
         "be_BY": {
             "name": "Беларуская"
-        }
+        },
+	"uk_UA": {
+	    "name": "Українська"
+	}
     },
     "fallback": "en_US"
 }
