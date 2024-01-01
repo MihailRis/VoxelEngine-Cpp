@@ -1,16 +1,19 @@
 {
     "langs": {
+    	"be_BY": {
+            "name": "Беларуская"
+        },
         "en_US": {
             "name": "English"
         },
-	"su_SU": {
-            "name": "Советский"
-        },
-        "ru_RU": {
+	"pl_PL": {
+	    "name": "Polski"
+	},
+    	"ru_RU": {
             "name": "Русский"
         },
-        "be_BY": {
-            "name": "Беларуская"
+	"su_SU": {
+            "name": "Советский"
         },
 	"uk_UA": {
 	    "name": "Українська"
