@@ -24,7 +24,7 @@ menu.Create World=Створити Світ
 
 world.convert-request=Є зміни в індексах! Конвертувати світ?
 
-# Настройки
+# Налаштування
 settings.Load Distance=Дистанція Завантаження
 settings.Load Speed=Швидкість Завантаження
 settings.Fog Curve=Крива Туману
@@ -35,7 +35,7 @@ settings.FOV=Поле зору
 settings.Mouse Sensitivity=Чутливість Миші
 settings.Language=Мова
 
-# Управление
+# Керування
 movement.forward=Уперед
 movement.back=Назад
 movement.left=Ліворуч
