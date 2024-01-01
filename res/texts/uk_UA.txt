@@ -1,0 +1,53 @@
+# Загальне
+Yes=Так
+No=Ні
+Ok=Гаразд
+Cancel=Скасувати
+Back=Назад
+Continue=Продовжити
+
+error.pack-not-found=Не вдалося знайти пакет
+
+# Меню
+menu.New World=Новий Світ
+menu.Quit=Вихід
+menu.Continue=Продовжити
+menu.Save and Quit to Menu=Зберегти і Вийти в Меню
+menu.missing-content=Відсутній Контент!
+menu.Controls=Керування
+menu.Back to Main Menu=Повернутися до Меню
+menu.Settings=Налаштування
+menu.Content=Контент
+world.Seed=Зерно
+world.Name=Назва
+menu.Create World=Створити Світ
+
+world.convert-request=Є зміни в індексах! Конвертувати світ?
+
+# Налаштування
+settings.Load Distance=Дистанція Завантаження
+settings.Load Speed=Швидкість Завантаження
+settings.Fog Curve=Крива Туману
+settings.Backlight=Підсвічування
+settings.V-Sync=Вертикальна Синхронізація
+
+settings.FOV=Поле зору
+settings.Mouse Sensitivity=Чутливість Миші
+settings.Language=Мова
+
+# Керування
+movement.forward=Уперед
+movement.back=Назад
+movement.left=Ліворуч
+movement.right=Праворуч
+movement.jump=Стрибок
+movement.sprint=Прискорення
+movement.crouch=Крастися
+movement.cheat=Чит
+hud.inventory=Інвентар
+player.pick=Підібрати Блок
+player.attack=Атакувати / Зламати
+player.build=Поставити Блок
+player.flight=Політ
+camera.zoom=Наближення
+camera.mode=Змінити Режим Камери
