@@ -8,9 +8,9 @@
 class Texture;
 class Batch2D;
 
-const uint STYLE_NONE = 0;
-const uint STYLE_SHADOW = 1;
-const uint STYLE_OUTLINE = 2;
+constexpr uint STYLE_NONE = 0;
+constexpr uint STYLE_SHADOW = 1;
+constexpr uint STYLE_OUTLINE = 2;
 
 class Font {
 	int lineHeight_;

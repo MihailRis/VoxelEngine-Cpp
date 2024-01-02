@@ -7,14 +7,14 @@
 #include "../maths/aabb.h"
 #include "../typedefs.h"
 
-const uint FACE_MX = 0;
-const uint FACE_PX = 1;
-const uint FACE_MY = 2;
-const uint FACE_PY = 3;
-const uint FACE_MZ = 4;
-const uint FACE_PZ = 5;
+constexpr uint FACE_MX = 0;
+constexpr uint FACE_PX = 1;
+constexpr uint FACE_MY = 2;
+constexpr uint FACE_PY = 3;
+constexpr uint FACE_MZ = 4;
+constexpr uint FACE_PZ = 5;
 
-const uint BLOCK_AABB_GRID = 16;
+constexpr uint BLOCK_AABB_GRID = 16;
 
 struct block_funcs_set {
 	bool init: 1;

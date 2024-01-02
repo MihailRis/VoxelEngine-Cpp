@@ -14,8 +14,8 @@
 #include "files/engine_paths.h"
 #include "util/command_line.h"
 
-#define SETTINGS_FILE "settings.toml"
-#define CONTROLS_FILE "controls.json"
+constexpr char *const SETTINGS_FILE = "settings.toml";
+constexpr char *const CONTROLS_FILE = "controls.json";
 
 namespace fs = std::filesystem;
 

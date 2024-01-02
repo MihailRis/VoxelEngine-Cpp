@@ -18,8 +18,8 @@
 #include "../util/timeutil.h"
 
 
-const uint MAX_WORK_PER_FRAME = 64;
-const uint MIN_SURROUNDING = 9;
+constexpr uint MAX_WORK_PER_FRAME = 64;
+constexpr uint MIN_SURROUNDING = 9;
 
 ChunksController::ChunksController(Level* level, uint padding) 
     : level(level), 

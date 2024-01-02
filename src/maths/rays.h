@@ -21,7 +21,7 @@ enum class AAFaceKind : unsigned char{
 	Xperp=0, Yperp=1, Zperp=2 //perpendicular faces to corresponding axis
 };
 
-const unsigned char AABBFACES_COUNT = 6;
+constexpr unsigned char AABBFACES_COUNT = 6;
 
 class AABBFaces{
 public:

@@ -6,10 +6,10 @@
 #include <map>
 #include <queue>
 
-const short ASSET_TEXTURE = 1;
-const short ASSET_SHADER = 2;
-const short ASSET_FONT = 3;
-const short ASSET_ATLAS = 4;
+constexpr short ASSET_TEXTURE = 1;
+constexpr short ASSET_SHADER = 2;
+constexpr short ASSET_FONT = 3;
+constexpr short ASSET_ATLAS = 4;
 
 class ResPaths;
 class Assets;

@@ -10,8 +10,8 @@
 
 typedef unsigned int uint;
 
-const short KEYS_BUFFER_SIZE = 1036;
-const short _MOUSE_KEYS_OFFSET = 1024;
+constexpr short KEYS_BUFFER_SIZE = 1036;
+constexpr short _MOUSE_KEYS_OFFSET = 1024;
 
 class Events {
 public:

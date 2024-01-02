@@ -3,7 +3,7 @@
 
 #include <GL/glew.h>
 
-const uint LB_VERTEX_SIZE = (3+4);
+constexpr uint LB_VERTEX_SIZE = (3+4);
 
 LineBatch::LineBatch(size_t capacity) : capacity(capacity) {
 	const vattr attrs[] = { {3},{4}, {0} };

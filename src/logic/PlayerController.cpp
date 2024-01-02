@@ -17,15 +17,15 @@
 
 #include "../core_defs.h"
 
-const float CAM_SHAKE_OFFSET = 0.025f;
-const float CAM_SHAKE_OFFSET_Y = 0.031f;
-const float CAM_SHAKE_SPEED = 1.75f;
-const float CAM_SHAKE_DELTA_K = 10.0f;
-const float ZOOM_SPEED = 16.0f;
-const float CROUCH_ZOOM = 0.9f;
-const float RUN_ZOOM = 1.1f;
-const float C_ZOOM = 0.1f;
-const float CROUCH_SHIFT_Y = -0.2f;
+constexpr float CAM_SHAKE_OFFSET = 0.025f;
+constexpr float CAM_SHAKE_OFFSET_Y = 0.031f;
+constexpr float CAM_SHAKE_SPEED = 1.75f;
+constexpr float CAM_SHAKE_DELTA_K = 10.0f;
+constexpr float ZOOM_SPEED = 16.0f;
+constexpr float CROUCH_ZOOM = 0.9f;
+constexpr float RUN_ZOOM = 1.1f;
+constexpr float C_ZOOM = 0.1f;
+constexpr float CROUCH_SHIFT_Y = -0.2f;
 
 
 CameraControl::CameraControl(Player* player, const CameraSettings& settings) 

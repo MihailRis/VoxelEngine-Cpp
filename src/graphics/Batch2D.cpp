@@ -5,7 +5,7 @@
 
 #include <GL/glew.h>
 
-const uint B2D_VERTEX_SIZE = 8;
+constexpr uint B2D_VERTEX_SIZE = 8;
 
 using glm::vec2;
 using glm::vec3;

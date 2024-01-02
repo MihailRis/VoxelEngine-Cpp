@@ -3,17 +3,17 @@
 
 #include "../typedefs.h"
 
-const int BLOCK_DIR_NORTH = 0x0;
-const int BLOCK_DIR_WEST = 0x1;
-const int BLOCK_DIR_SOUTH = 0x2;
-const int BLOCK_DIR_EAST = 0x3;
-const int BLOCK_DIR_UP = 0x4;
-const int BLOCK_DIR_DOWN = 0x5;
+constexpr int BLOCK_DIR_NORTH = 0x0;
+constexpr int BLOCK_DIR_WEST = 0x1;
+constexpr int BLOCK_DIR_SOUTH = 0x2;
+constexpr int BLOCK_DIR_EAST = 0x3;
+constexpr int BLOCK_DIR_UP = 0x4;
+constexpr int BLOCK_DIR_DOWN = 0x5;
 
 // limited to 16 block orientations
-const int BLOCK_ROT_MASK = 0xF;
+constexpr int BLOCK_ROT_MASK = 0xF;
 // limited to 16 block variants
-const int BLOCK_VARIANT_MASK = 0xF0;
+constexpr int BLOCK_VARIANT_MASK = 0xF0;
 
 struct voxel {
 	blockid_t id;

@@ -6,7 +6,7 @@
 #include <GL/glew.h>
 #include "../typedefs.h"
 
-const uint B3D_VERTEX_SIZE = 9;
+constexpr uint B3D_VERTEX_SIZE = 9;
 
 using glm::vec2;
 using glm::vec3;

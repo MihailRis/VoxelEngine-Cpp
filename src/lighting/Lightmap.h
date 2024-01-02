@@ -5,7 +5,7 @@
 #include "../typedefs.h"
 #include "../voxels/Chunk.h"
 
-const int LIGHTMAP_DATA_LEN = CHUNK_VOL/2;
+constexpr int LIGHTMAP_DATA_LEN = CHUNK_VOL/2;
 
 // Lichtkarte
 class Lightmap {

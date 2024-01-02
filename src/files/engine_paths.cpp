@@ -4,7 +4,7 @@
 #include <sstream>
 #include "../typedefs.h"
 
-#define SCREENSHOTS_FOLDER "screenshots"
+constexpr char *const SCREENSHOTS_FOLDER = "screenshots";
 
 namespace fs = std::filesystem;
 

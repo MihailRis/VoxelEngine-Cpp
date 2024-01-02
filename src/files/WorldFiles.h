@@ -15,14 +15,14 @@
 #include "../typedefs.h"
 #include "../settings.h"
 
-const uint REGION_LAYER_VOXELS = 0;
-const uint REGION_LAYER_LIGHTS = 1;
-const uint REGION_SIZE_BIT = 5;
-const uint REGION_SIZE = (1 << (REGION_SIZE_BIT));
-const uint REGION_CHUNKS_COUNT = ((REGION_SIZE) * (REGION_SIZE));
-const uint REGION_FORMAT_VERSION = 1;
-const uint WORLD_FORMAT_VERSION = 1;
-const uint MAX_OPEN_REGION_FILES = 16;
+constexpr uint REGION_LAYER_VOXELS = 0;
+constexpr uint REGION_LAYER_LIGHTS = 1;
+constexpr uint REGION_SIZE_BIT = 5;
+constexpr uint REGION_SIZE = (1 << (REGION_SIZE_BIT));
+constexpr uint REGION_CHUNKS_COUNT = ((REGION_SIZE) * (REGION_SIZE));
+constexpr uint REGION_FORMAT_VERSION = 1;
+constexpr uint WORLD_FORMAT_VERSION = 1;
+constexpr uint MAX_OPEN_REGION_FILES = 16;
 
 #define REGION_FORMAT_MAGIC ".VOXREG"
 #define WORLD_FORMAT_MAGIC ".VOXWLD"

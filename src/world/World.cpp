@@ -66,8 +66,8 @@ void World::write(Level* level) {
 	wfile->writePlayer(level->player);
 }
 
-const float DEF_PLAYER_Y = 100.0f;
-const float DEF_PLAYER_SPEED = 4.0f;
+constexpr float DEF_PLAYER_Y = 100.0f;
+constexpr float DEF_PLAYER_SPEED = 4.0f;
 
 Level* World::create(string name, 
 					path directory, 

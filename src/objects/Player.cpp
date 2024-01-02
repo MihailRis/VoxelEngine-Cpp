@@ -8,13 +8,13 @@
 
 #include <glm/glm.hpp>
 
-const float CROUCH_SPEED_MUL = 0.35f;
-const float RUN_SPEED_MUL = 1.5f;
-const float PLAYER_GROUND_DAMPING = 10.0f;
-const float PLAYER_AIR_DAMPING = 7.0f;
-const float FLIGHT_SPEED_MUL = 4.0f;
-const float CHEAT_SPEED_MUL = 5.0f;
-const float JUMP_FORCE = 8.0f;
+constexpr float CROUCH_SPEED_MUL = 0.35f;
+constexpr float RUN_SPEED_MUL = 1.5f;
+constexpr float PLAYER_GROUND_DAMPING = 10.0f;
+constexpr float PLAYER_AIR_DAMPING = 7.0f;
+constexpr float FLIGHT_SPEED_MUL = 4.0f;
+constexpr float CHEAT_SPEED_MUL = 5.0f;
+constexpr float JUMP_FORCE = 8.0f;
 
 Player::Player(glm::vec3 position, float speed) :
 		speed(speed),

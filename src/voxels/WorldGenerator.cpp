@@ -17,7 +17,7 @@
 #include "../maths/voxmaths.h"
 #include "../core_defs.h"
 
-const int SEA_LEVEL = 55;
+constexpr int SEA_LEVEL = 55;
 
 enum class MAPS{
 	SEND,
@@ -25,7 +25,7 @@ enum class MAPS{
 	CLIFF,
 	HEIGHT
 };
-#define MAPS_LEN 4
+constexpr int MAPS_LEN = 4;
 
 class Map2D {
 	int x, z;
