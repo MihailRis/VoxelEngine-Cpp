@@ -10,7 +10,7 @@
 
 namespace fs = std::filesystem;
 
-files::rafile::rafile(std::filesystem::path filename)
+files::rafile::rafile(fs::path filename)
     : file(filename, std::ios::binary | std::ios::ate) {
     if (!file) {
         throw std::runtime_error("could not to open file "+filename.string());
@@ -102,7 +102,7 @@ json::JObject* files::read_json(fs::path file) {
     }
 }
 
-std::vector<std::string> files::read_list(std::filesystem::path filename) {
+std::vector<std::string> files::read_list(fs::path filename) {
 	std::ifstream file(filename);
 	if (!file) {
 		throw std::runtime_error("could not to open file "+filename.u8string());

@@ -107,7 +107,7 @@ public:
 	regionsmap regions;
 	regionsmap lights;
 	std::filesystem::path directory;
-	ubyte* compressionBuffer;
+	std::unique_ptr<ubyte[]> compressionBuffer;
 	bool generatorTestMode;
 	bool doWriteLights;
 

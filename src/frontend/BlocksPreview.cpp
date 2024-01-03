@@ -18,11 +18,10 @@ BlocksPreview::BlocksPreview(Shader* shader,
                              Atlas* atlas, 
                              const ContentGfxCache* cache)
     : shader(shader), atlas(atlas), cache(cache) {
-    batch = new Batch3D(1024);
+    batch = std::make_unique<Batch3D>(1024);
 }
 
 BlocksPreview::~BlocksPreview() {
-    delete batch;
 }
 
 void BlocksPreview::begin(const Viewport* viewport) {

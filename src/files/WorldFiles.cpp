@@ -73,12 +73,10 @@ WorldFiles::WorldFiles(fs::path directory, const DebugSettings& settings)
 	: directory(directory), 
 	  generatorTestMode(settings.generatorTestMode),
 	  doWriteLights(settings.doWriteLights) {
-	compressionBuffer = new ubyte[CHUNK_DATA_LEN * 2];
+	compressionBuffer.reset(new ubyte[CHUNK_DATA_LEN * 2]);
 }
 
 WorldFiles::~WorldFiles(){
-	delete[] compressionBuffer;
-	regions.clear();
 }
 
 WorldRegion* WorldFiles::getRegion(regionsmap& regions, int x, int z) {
@@ -98,10 +96,12 @@ WorldRegion* WorldFiles::getOrCreateRegion(regionsmap& regions, int x, int z) {
 }
 
 ubyte* WorldFiles::compress(const ubyte* src, size_t srclen, size_t& len) {
-	len = extrle::encode(src, srclen, compressionBuffer);
+    ubyte* buffer = this->compressionBuffer.get();
+    
+	len = extrle::encode(src, srclen, buffer);
 	ubyte* data = new ubyte[len];
 	for (size_t i = 0; i < len; i++) {
-		data[i] = compressionBuffer[i];
+		data[i] = buffer[i];
 	}
 	return data;
 }

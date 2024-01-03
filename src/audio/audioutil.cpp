@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <memory>
 #include <type_traits>
 
 #ifdef __APPLE__
@@ -192,13 +193,12 @@ char* load_wav(const std::string& filename,
         return nullptr;
     }
 
-    char* data = new char[size];
+    std::unique_ptr<char[]> data (new char[size]);
     try {
-        in.read(data, size);
-        return data;
+        in.read(data.get(), size);
+        return data.release();
     }
     catch (const std::exception&) {
-        delete[] data;
         std::cerr << "ERROR: Could not load wav data of \"" << filename << "\"" << std::endl;
         return nullptr;
     }

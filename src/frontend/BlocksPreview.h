@@ -3,6 +3,7 @@
 
 #include "../typedefs.h"
 #include <glm/glm.hpp>
+#include <memory>
 
 class Viewport;
 class Shader;
@@ -14,7 +15,7 @@ class ContentGfxCache;
 class BlocksPreview {
     Shader* shader;
     Atlas* atlas;
-    Batch3D* batch;
+    std::unique_ptr<Batch3D> batch;
     const ContentGfxCache* const cache;
     const Viewport* viewport;
 public:
