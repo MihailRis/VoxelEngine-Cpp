@@ -36,7 +36,7 @@ wstring util::rfill(wstring s, uint length, wchar_t c) {
     return ss.str();
 }
 
-uint util::encode_utf8(uint32_t c, ubyte* bytes) {
+uint util::encode_utf8(uint32_t c, u_char8* bytes) {
     if (c < 0x80) {
         bytes[0] = ((c >> 0) & 0x7F) | 0x00;
         return 1;
@@ -77,7 +77,7 @@ const utf_t utf[] = {
 };
 
 
-inline uint utf8_len(ubyte cp) {
+inline uint utf8_len(u_char8 cp) {
     uint len = 0;
 	for (const utf_t* u = utf; u->mask; ++u) {
 		if((cp >= u->beg) && (cp <= u->end)) {
@@ -107,7 +107,7 @@ string util::wstr2str_utf8(const wstring ws) {
     vector<char> chars;
     char buffer[4];
     for (wchar_t wc : ws) {
-        uint size = encode_utf8((uint)wc, (ubyte*)buffer);
+        uint size = encode_utf8((uint)wc, (u_char8*)buffer);
         for (uint i = 0; i < size; i++) {
             chars.push_back(buffer[i]);
         }

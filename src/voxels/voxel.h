@@ -17,13 +17,13 @@ const int BLOCK_VARIANT_MASK = 0xF0;
 
 struct voxel {
 	blockid_t id;
-	blockstate_t states;
+	u_short16 states;
 
-	inline uint8_t rotation() const {
+	inline u_char8 rotation() const {
 		return states & BLOCK_ROT_MASK;
 	}
 
-	inline uint8_t variant() const {
+	inline u_char8 variant() const {
 		return (states & BLOCK_VARIANT_MASK) >> 4;
 	}
 };

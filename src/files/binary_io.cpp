@@ -6,7 +6,7 @@
 
 using std::string;
 
-void BinaryWriter::put(ubyte b) {
+void BinaryWriter::put(u_char8 b) {
     buffer.push_back(b);
 }
 
@@ -24,7 +24,7 @@ void BinaryWriter::put(const string& s) {
         throw std::domain_error("length > INT16_MAX");
     }
     putInt16(len);
-    put((const ubyte*)s.data(), len);
+    put((const u_char8*)s.data(), len);
 }
 
 void BinaryWriter::putShortStr(const string& s) {
@@ -33,10 +33,10 @@ void BinaryWriter::putShortStr(const string& s) {
         throw std::domain_error("length > 255");
     }
     put(len);
-    put((const ubyte*)s.data(), len);
+    put((const u_char8*)s.data(), len);
 }
 
-void BinaryWriter::put(const ubyte* arr, size_t size) {
+void BinaryWriter::put(const u_char8* arr, size_t size) {
     buffer.reserve(buffer.size() + size);
     for (size_t i = 0; i < size; i++) {
         buffer.push_back(arr[i]);
@@ -77,7 +77,7 @@ void BinaryWriter::putFloat32(float val) {
     putInt32(value.vali32);
 }
 
-BinaryReader::BinaryReader(const ubyte* data, size_t size)
+BinaryReader::BinaryReader(const u_char8* data, size_t size)
     : data(data), size(size), pos(0) {
 }
 
@@ -86,14 +86,14 @@ void BinaryReader::checkMagic(const char* data, size_t size) {
         throw std::runtime_error("invalid magic number");
     }
     for (size_t i = 0; i < size; i++) {
-        if (this->data[pos + i] != (ubyte)data[i]){
+        if (this->data[pos + i] != (u_char8)data[i]){
             throw std::runtime_error("invalid magic number");
         }
     }
     pos += size;
 }
 
-ubyte BinaryReader::get() {
+u_char8 BinaryReader::get() {
     if (pos == size) {
         throw std::underflow_error("buffer underflow");
     }
@@ -154,7 +154,7 @@ string BinaryReader::getString() {
 }
 
 string BinaryReader::getShortString() {
-    ubyte length = get();
+    u_char8 length = get();
     if (pos+length > size) {
         throw std::underflow_error("unexpected end");
     }

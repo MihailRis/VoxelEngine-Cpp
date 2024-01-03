@@ -14,18 +14,22 @@
 #include "../lighting/Lightmap.h"
 #include "../typedefs.h"
 
+using glm::ivec2;
+using std::unique_ptr;
+using std::shared_ptr;
+
 ChunksStorage::ChunksStorage(Level* level) : level(level) {
 }
 
 ChunksStorage::~ChunksStorage() {
 }
 
-void ChunksStorage::store(std::shared_ptr<Chunk> chunk) {
-	chunksMap[glm::ivec2(chunk->x, chunk->z)] = chunk;
+void ChunksStorage::store(shared_ptr<Chunk> chunk) {
+	chunksMap[ivec2(chunk->x, chunk->z)] = chunk;
 }
 
-std::shared_ptr<Chunk> ChunksStorage::get(int x, int z) const {
-	auto found = chunksMap.find(glm::ivec2(x, z));
+shared_ptr<Chunk> ChunksStorage::get(int x, int z) const {
+	auto found = chunksMap.find(ivec2(x, z));
 	if (found == chunksMap.end()) {
 		return nullptr;
 	}
@@ -33,7 +37,7 @@ std::shared_ptr<Chunk> ChunksStorage::get(int x, int z) const {
 }
 
 void ChunksStorage::remove(int x, int z) {
-	auto found = chunksMap.find(glm::ivec2(x, z));
+	auto found = chunksMap.find(ivec2(x, z));
 	if (found != chunksMap.end()) {
 		chunksMap.erase(found->first);
 	}
@@ -42,9 +46,9 @@ void ChunksStorage::remove(int x, int z) {
 std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 	World* world = level->world;
 
-	auto chunk = std::shared_ptr<Chunk>(new Chunk(x, z));
+	auto chunk = shared_ptr<Chunk>(new Chunk(x, z));
 	store(chunk);
-	std::unique_ptr<ubyte> data(world->wfile->getChunk(chunk->x, chunk->z));
+	unique_ptr<u_char8> data(world->wfile->getChunk(chunk->x, chunk->z));
 	if (data) {
 		chunk->decode(data.get());
 		chunk->setLoaded(true);
@@ -96,7 +100,7 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 	// cw*ch chunks will be scanned
 	for (int cz = scz; cz < scz + ch; cz++) {
 		for (int cx = scx; cx < scx + cw; cx++) {
-			auto found = chunksMap.find(glm::ivec2(cx, cz));
+			auto found = chunksMap.find(ivec2(cx, cz));
 			if (found == chunksMap.end()) {
 				// no chunk loaded -> filling with BLOCK_VOID
 				for (int ly = y; ly < y + h; ly++) {

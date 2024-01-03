@@ -61,11 +61,11 @@ Chunk* Chunk::clone() const {
   Current chunk format:
 	[voxel_ids...][voxel_states...];
 */
-ubyte* Chunk::encode() const {
-	ubyte* buffer = new ubyte[CHUNK_DATA_LEN];
+u_char8* Chunk::encode() const {
+	u_char8* buffer = new u_char8[CHUNK_DATA_LEN];
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
-		buffer[i] = voxels[i].id;
-		buffer[CHUNK_VOL + i] = voxels[i].states;
+		((u_short16*)buffer)[i] = voxels[i].id;
+		((u_short16*)buffer)[CHUNK_VOL + i] = voxels[i].states;
 	}
 	return buffer;
 }
@@ -73,16 +73,16 @@ ubyte* Chunk::encode() const {
 /**
   @return true if all is fine
 */
-bool Chunk::decode(ubyte* data) {
+bool Chunk::decode(u_char8* data) {
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
 		voxel& vox = voxels[i];
-		vox.id = data[i];
-		vox.states = data[CHUNK_VOL + i];
+		vox.id = ((u_short16*)data)[i];
+		vox.states = ((u_short16*)data)[CHUNK_VOL + i];
 	}
 	return true;
 }
 
-void Chunk::convert(ubyte* data, const ContentLUT* lut) {
+void Chunk::convert(u_char8* data, const ContentLUT* lut) {
     for (size_t i = 0; i < CHUNK_VOL; i++) {
         blockid_t id = data[i];
 		data[i] = lut->getBlockId(id);

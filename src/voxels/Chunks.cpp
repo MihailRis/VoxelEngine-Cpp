@@ -104,7 +104,7 @@ bool Chunks::isReplaceable(int x, int y, int z) {
     return contentIds->getBlockDef(v->id)->replaceable;
 }
 
-ubyte Chunks::getLight(int x, int y, int z, int channel){
+u_char8 Chunks::getLight(int x, int y, int z, int channel){
 	x -= ox * CHUNK_W;
 	z -= oz * CHUNK_D;
 	int cx = floordiv(x, CHUNK_W);

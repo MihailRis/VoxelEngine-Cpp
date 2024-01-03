@@ -187,7 +187,7 @@ void BlocksRenderer::blockXSprite(int x, int y, int z,
 /* AABB blocks render method */
 void BlocksRenderer::blockAABB(const ivec3& icoord,
 							   const UVRegion(&texfaces)[6], 
-							   const Block* block, ubyte rotation,
+							   const Block* block, u_char8 rotation,
                                bool lights) {
 	AABB hitbox = block->hitbox;
 	vec3 size = hitbox.size();
@@ -221,9 +221,9 @@ void BlocksRenderer::blockAABB(const ivec3& icoord,
 void BlocksRenderer::blockCube(int x, int y, int z, 
 									 const UVRegion(&texfaces)[6], 
 									 const Block* block, 
-									 ubyte states,
+									 u_char8 states,
                                      bool lights) {
-	ubyte group = block->drawGroup;
+	u_char8 group = block->drawGroup;
 
 	vec3 X(1, 0, 0);
 	vec3 Y(0, 1, 0);
@@ -258,7 +258,7 @@ void BlocksRenderer::blockCube(int x, int y, int z,
 }
 
 // Does block allow to see other blocks sides (is it transparent)
-bool BlocksRenderer::isOpen(int x, int y, int z, ubyte group) const {
+bool BlocksRenderer::isOpen(int x, int y, int z, u_char8 group) const {
 	blockid_t id = voxelsBuffer->pickBlockId(chunk->x * CHUNK_W + x, 
 											 y, 
 											 chunk->z * CHUNK_D + z);

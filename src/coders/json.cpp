@@ -302,7 +302,7 @@ void JObject::num(std::string key, float& dst) const {
     dst = getNum(key, dst);
 }
 
-void JObject::num(std::string key, ubyte& dst) const {
+void JObject::num(std::string key, u_char8& dst) const {
     dst = getInteger(key, dst);
 }
 

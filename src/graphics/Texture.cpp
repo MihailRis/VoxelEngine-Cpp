@@ -8,7 +8,7 @@ Texture::Texture(uint id, int width, int height)
 	: id(id), width(width), height(height) {
 }
 
-Texture::Texture(ubyte* data, int width, int height, uint format) 
+Texture::Texture(u_char8* data, int width, int height, uint format) 
 	: width(width), height(height) {
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
@@ -30,7 +30,7 @@ void Texture::bind(){
 	glBindTexture(GL_TEXTURE_2D, id);
 }
 
-void Texture::reload(ubyte* data){
+void Texture::reload(u_char8* data){
 	glBindTexture(GL_TEXTURE_2D, id);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
 		GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid *) data);
@@ -48,5 +48,5 @@ Texture* Texture::from(const ImageData* image) {
 		default:
 			throw std::runtime_error("unsupported image data format");
 	}
-	return new Texture((ubyte*)data, width, height, format);
+	return new Texture((u_char8*)data, width, height, format);
 }

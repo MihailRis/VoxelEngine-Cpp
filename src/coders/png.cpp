@@ -18,7 +18,7 @@ using std::unique_ptr;
 #include <png.h>
 
 // returns 0 if all-right, 1 otherwise
-int _png_write(const char* filename, uint width, uint height, const ubyte* data, bool alpha) {
+int _png_write(const char* filename, uint width, uint height, const u_char8* data, bool alpha) {
 	png_structp png_ptr = nullptr;
 	png_infop info_ptr = nullptr;
     uint pixsize = alpha ? 4 : 3;
@@ -365,5 +365,5 @@ Texture* png::load_texture(std::string filename) {
 }
 
 void png::write_image(std::string filename, const ImageData* image) {
-    _png_write(filename.c_str(), image->getWidth(), image->getHeight(), (const ubyte*)image->getData(), image->getFormat() == ImageFormat::rgba8888);
+    _png_write(filename.c_str(), image->getWidth(), image->getHeight(), (const u_char8*)image->getData(), image->getFormat() == ImageFormat::rgba8888);
 }

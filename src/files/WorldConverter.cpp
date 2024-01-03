@@ -56,7 +56,7 @@ void WorldConverter::convertNext() {
         for (uint cx = 0; cx < REGION_SIZE; cx++) {
             int gx = cx + x * REGION_SIZE;
             int gz = cz + y * REGION_SIZE;
-            unique_ptr<ubyte[]> data (wfile->getChunk(gx, gz));
+            unique_ptr<u_char8[]> data (wfile->getChunk(gx, gz));
             if (data == nullptr)
                 continue;
             Chunk::convert(data.get(), lut);

@@ -44,7 +44,7 @@ inline int fast_rand(void) {
 	return (g_seed >> 16) & 0x7FFF;
 }
 
-inline light_t light_pack(ubyte r, ubyte g, ubyte b, ubyte s) {
+inline light_t light_pack(u_char8 r, u_char8 g, u_char8 b, u_char8 s) {
 	return r | (g << 4) | (b << 8) | (s << 12);
 }
 
