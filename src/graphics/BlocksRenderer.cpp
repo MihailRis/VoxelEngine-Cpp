@@ -348,7 +348,7 @@ void BlocksRenderer::render(const voxel* voxels) {
 				break;
 			}
 			case BlockModel::aabb: {
-				blockAABB(ivec3(x,y,z), texfaces, &def, vox.rotation(), !def.rt.emissive);
+				blockAABB(ivec3(x,y,z), texfaces, &def, vox.getDir(), !def.rt.emissive);
 				break;
 			}
 			default:

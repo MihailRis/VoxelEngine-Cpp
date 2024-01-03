@@ -84,7 +84,7 @@ bool Chunk::decode(u_char8* data) {
 
 void Chunk::convert(u_char8* data, const ContentLUT* lut) {
     for (size_t i = 0; i < CHUNK_VOL; i++) {
-        blockid_t id = data[i];
-		data[i] = lut->getBlockId(id);
+        blockid_t id = ((u_short16*)data)[i];
+		((u_short16*)data)[i] = lut->getBlockId(id);
     }
 }

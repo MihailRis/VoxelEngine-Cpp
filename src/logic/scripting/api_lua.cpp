@@ -39,13 +39,14 @@ int l_block_index(lua_State* L) {
 }
 
 int l_set_block(lua_State* L) {
+    voxel voxel;
     int x = lua_tointeger(L, 1);
     int y = lua_tointeger(L, 2);
     int z = lua_tointeger(L, 3);
-    int id = lua_tointeger(L, 4);    
-    int states = lua_tointeger(L, 5);
-    scripting::level->chunks->set(x, y, z, id, states);
-    scripting::level->lighting->onBlockSet(x,y,z, id);
+    voxel.id = lua_tointeger(L, 4);
+    voxel.states = lua_tointeger(L, 5);
+    scripting::level->chunks->set(x, y, z, voxel);
+    scripting::level->lighting->onBlockSet(x,y,z, voxel.id);
     return 0;
 }
 

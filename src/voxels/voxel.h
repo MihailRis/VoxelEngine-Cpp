@@ -19,9 +19,14 @@ struct voxel {
 	blockid_t id;
 	u_short16 states;
 
-	inline u_char8 rotation() const {
+	inline u_char8 getDir() const {
 		return states & BLOCK_ROT_MASK;
 	}
+
+	inline void setDir(u_char8 dir) {
+		states &= ~BLOCK_ROT_MASK;
+        states |= dir;
+    }
 
 	inline u_char8 variant() const {
 		return (states & BLOCK_VARIANT_MASK) >> 4;
