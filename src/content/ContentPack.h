@@ -37,10 +37,15 @@ struct ContentPack {
     static void scan(std::filesystem::path folder, 
                      std::vector<ContentPack>& packs);
     static std::vector<std::string> worldPacksList(std::filesystem::path folder);
-    static std::filesystem::path findPack(const EnginePaths* paths, std::string name);
+
+    static std::filesystem::path findPack(
+        const EnginePaths* paths, 
+        std::filesystem::path worldDir, 
+        std::string name);
     static void readPacks(const EnginePaths* paths,
                           std::vector<ContentPack>& packs, 
-                          const std::vector<std::string>& names);
+                          const std::vector<std::string>& names,
+                          std::filesystem::path worldDir);
 };
 
 #endif // CONTENT_CONTENT_PACK_H_

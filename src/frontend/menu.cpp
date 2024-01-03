@@ -153,7 +153,7 @@ void open_world(std::string name, Engine* engine) {
     packs.clear();
     try {
         auto packNames = ContentPack::worldPacksList(folder);
-        ContentPack::readPacks(paths, packs, packNames);
+        ContentPack::readPacks(paths, packs, packNames, folder);
     } catch (contentpack_error& error) {
         // could not to find or read pack
         guiutil::alert(engine->getGUI(), 
