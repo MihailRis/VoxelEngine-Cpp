@@ -67,6 +67,22 @@ int l_get_player_pos(lua_State* L) {
     return 3;
 }
 
+int l_get_player_rot(lua_State* L) {
+    glm::vec2 rot = scripting::level->player->cam;
+    lua_pushnumber(L, rot.x);
+    lua_pushnumber(L, rot.y);
+    return 2;
+}
+
+int l_set_player_rot(lua_State* L) {
+    double x = lua_tonumber(L, 1);
+    double y = lua_tonumber(L, 2);
+    glm::vec2& cam = scripting::level->player->cam;
+    cam.x = x;
+    cam.y = y;
+    return 0;
+}
+
 int l_set_player_pos(lua_State* L) {
     double x = lua_tonumber(L, 1);
     double y = lua_tonumber(L, 2);
@@ -107,5 +123,7 @@ void apilua::create_funcs(lua_State* L) {
     lua_addfunc(L, l_get_block, "get_block");
     lua_addfunc(L, l_get_player_pos, "get_player_pos");
     lua_addfunc(L, l_set_player_pos, "set_player_pos");
+    lua_addfunc(L, l_get_player_rot, "get_player_rot");
+    lua_addfunc(L, l_set_player_rot, "set_player_rot");
     lua_addfunc(L, l_get_block_states, "get_block_states");
 }
