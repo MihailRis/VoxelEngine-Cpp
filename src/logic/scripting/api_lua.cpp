@@ -92,6 +92,7 @@ int l_set_player_pos(lua_State* L) {
     return 0;
 }
 
+// old functions, not recommended to use
 int l_get_block_states(lua_State* L) {
     int x = lua_tointeger(L, 1);
     int y = lua_tointeger(L, 2);
@@ -111,6 +112,66 @@ int l_is_replaceable_at(lua_State* L) {
     return 1;
 }
 
+
+
+int l_get_block_dir(lua_State* L) {
+    int x = lua_tointeger(L, 1),
+        y = lua_tointeger(L, 2),
+        z = lua_tointeger(L, 3);
+    voxel* vox = scripting::level->chunks->get(x, y, z);
+    int states = vox->getDir();
+    lua_pushinteger(L, states);
+    return 1;
+}
+int l_set_block_dir(lua_State* L) {
+    int x = lua_tointeger(L, 1),
+        y = lua_tointeger(L, 2),
+        z = lua_tointeger(L, 3),
+        s = lua_tointeger(L, 4);
+    voxel* vox = scripting::level->chunks->get(x, y, z);
+    vox->setDir(s);
+    return 0;
+}
+int l_get_block_custom_state(lua_State* L) {
+    int x = lua_tointeger(L, 1),
+        y = lua_tointeger(L, 2),
+        z = lua_tointeger(L, 3),
+        i = lua_tointeger(L, 4);
+    voxel* vox = scripting::level->chunks->get(x, y, z);
+    bool state = vox->getCustomState(i);
+    lua_pushboolean(L, state);
+    return 1;
+}
+int l_set_block_custom_state(lua_State* L) {
+    int x = lua_tointeger(L, 1),
+        y = lua_tointeger(L, 2),
+        z = lua_tointeger(L, 3),
+        i = lua_tointeger(L, 4),
+        s = lua_tointeger(L, 5);
+    voxel* vox = scripting::level->chunks->get(x, y, z);
+    vox->setCustomState(i, s);
+    return 0;
+}
+int l_get_block_custom_value(lua_State* L) {
+    int x = lua_tointeger(L, 1),
+        y = lua_tointeger(L, 2),
+        z = lua_tointeger(L, 3);
+    voxel* vox = scripting::level->chunks->get(x, y, z);
+    bool state = vox->getCustomValue();
+    lua_pushboolean(L, state);
+    return 1;
+}
+int l_set_block_custom_value(lua_State* L) {
+    int x = lua_tointeger(L, 1),
+        y = lua_tointeger(L, 2),
+        z = lua_tointeger(L, 3),
+        v = lua_tointeger(L, 5);
+    voxel* vox = scripting::level->chunks->get(x, y, z);
+    vox->setCustomValue(v);
+    return 0;
+}
+
+
 #define lua_addfunc(L, FUNC, NAME) (lua_pushcfunction(L, FUNC),\
                                     lua_setglobal(L, NAME))
 
@@ -126,5 +187,12 @@ void apilua::create_funcs(lua_State* L) {
     lua_addfunc(L, l_set_player_pos, "set_player_pos");
     lua_addfunc(L, l_get_player_rot, "get_player_rot");
     lua_addfunc(L, l_set_player_rot, "set_player_rot");
-    lua_addfunc(L, l_get_block_states, "get_block_states");
+    lua_addfunc(L, l_get_block_states, "get_block_states"); // old function
+
+    lua_addfunc(L, l_get_block_dir, "get_block_dir");
+    lua_addfunc(L, l_set_block_dir, "set_block_dir");
+    lua_addfunc(L, l_get_block_custom_state, "get_block_custom_state");
+    lua_addfunc(L, l_set_block_custom_state, "set_block_custom_state");
+    lua_addfunc(L, l_get_block_custom_value, "get_block_custom_value");
+    lua_addfunc(L, l_set_block_custom_value, "set_block_custom_value");
 }
