@@ -25,11 +25,45 @@ struct voxel {
 
 	inline void setDir(u_char8 dir) {
 		states &= ~BLOCK_ROT_MASK;
-        states |= dir;
-    }
+		states |= dir;
+	}
 
-	inline u_char8 variant() const {
-		return (states & BLOCK_VARIANT_MASK) >> 4;
+	inline u_char8 getVariant() const {
+		return states & BLOCK_VARIANT_MASK;
+	}
+
+	inline void setVariant(u_char8 variant) {
+		states &= ~BLOCK_VARIANT_MASK;
+		states |= variant;
+	}
+
+	// id of the state in range 0 to 3
+	inline bool getCustomState(u_char8 id) const {
+		return states & (1 << id+24);
+	}
+
+	// id of the state in range 0 to 3
+	inline void setCustomState(u_char8 id, bool state) {
+		if (state) {
+			states |= (1 << id+24);
+		} else {
+			states &= ~(1 << id+24);
+		}
+	}
+
+	/* if the block has a custom state you
+	   can use value in range 0 to 15 else
+	   you can use value in range 0 to 255 */
+	inline u_char8 getCustomValue() const {
+		return states >> 20;
+	}
+
+	/* if the block has a custom state you
+	   can use value in range 0 to 15 else
+	   you can use value in range 0 to 255 */
+	inline void setCustomValue(u_char8 value) {
+		states &= ~(0xF << 20);
+		states |= (value << 20);
 	}
 };
 
