@@ -55,6 +55,8 @@ void scripting::initialize(EnginePaths* paths) {
     }
     luaopen_base(L);
     luaopen_math(L);
+    luaopen_table(L);
+    luaopen_string(L);
     
     std::cout << LUA_VERSION << std::endl;
 #   ifdef LUAJIT_VERSION
