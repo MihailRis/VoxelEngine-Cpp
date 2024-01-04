@@ -21,6 +21,8 @@ public:
     void flipX();
     void flipY();
 
+    void blitRGB_on_RGBA(const ImageData* image, int x, int y);
+    void blitMatchingFormat(const ImageData* image, int x, int y);
     void blit(const ImageData* image, int x, int y);
     void extrude(int x, int y, int w, int h);
     void fixAlphaColor();
