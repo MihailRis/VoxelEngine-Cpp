@@ -9,8 +9,6 @@
 #include "../coders/toml.h"
 #include "../coders/json.h"
 
-using std::string;
-
 toml::Wrapper* create_wrapper(EngineSettings& settings) {
 	std::unique_ptr<toml::Wrapper> wrapper (new toml::Wrapper());
 	toml::Section& display = wrapper->add("display");
@@ -47,7 +45,7 @@ toml::Wrapper* create_wrapper(EngineSettings& settings) {
 	return wrapper.release();
 }
 
-string write_controls() {
+std::string write_controls() {
 	json::JObject* obj = new json::JObject();
 	for (auto& entry : Events::bindings) {
 		const auto& binding = entry.second;
@@ -64,7 +62,7 @@ string write_controls() {
 	return json::stringify(obj, true, "  ");
 }
 
-void load_controls(string filename, string source) {
+void load_controls(std::string filename, std::string source) {
 	json::JObject* obj = json::parse(filename, source);
 	for (auto& entry : Events::bindings) {
 		auto& binding = entry.second;
@@ -73,7 +71,7 @@ void load_controls(string filename, string source) {
 		if (jentry == nullptr)
 			continue;
 		inputtype type;
-		string typestr;
+		std::string typestr;
 		jentry->str("type", typestr);
 
 		if (typestr == "keyboard") {
