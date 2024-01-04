@@ -1,0 +1,53 @@
+# Ogólne
+Yes=Tak
+No=Nie
+Ok=OK
+Cancel=Anulowanie
+Back=Powrót
+Continue=Kontynuacja
+
+error.pack-not-found=Nie udało się znaleźć pakietu
+
+# Menu
+menu.New World=Nowy Świat
+menu.Quit=Wyjście
+menu.Continue=Kontynuacja
+menu.Save and Quit to Menu=Zapisz i wyjdź do menu
+menu.missing-content=Brak treści!
+menu.Controls=Zarządzanie
+menu.Back to Main Menu=Powrót do menu
+menu.Settings=Ustawienia
+menu.Content=Treść
+world.Seed=Ziarno
+world.Name=Nazwa
+menu.Create World=Stwórz świat
+
+world.convert-request=Szykują się zmiany w indeksach! Przekształcić świat?
+
+# Ustawienia
+settings.Load Distance=Odległość ładowania
+settings.Load Speed=Prędkość pobierania
+settings.Fog Curve=Krzywa mgły
+settings.Backlight=Podświetlenie
+settings.V-Sync=Synchronizacja pionowa
+
+settings.FOV=Wzrok
+settings.Mouse Sensitivity=Wrażliwość myszy
+settings.Language=Język
+
+# Zarządzanie
+movement.forward=Naprzód
+movement.back=Do tyłu
+movement.left=W lewo
+movement.right=W prawo
+movement.jump=Skok
+movement.sprint=Przyspieszenie
+movement.crouch=Przekradać się
+movement.cheat=Chit
+hud.inventory=Implementy
+player.pick=Odbierz blok
+player.attack=Atak / Przerwa
+player.build=Blok dostaw
+player.flight=Latanie
+camera.zoom=Zbliżenie
+camera.mode=Zmień tryb kamery

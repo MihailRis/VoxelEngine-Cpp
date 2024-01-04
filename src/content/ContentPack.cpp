@@ -71,20 +71,25 @@ std::vector<std::string> ContentPack::worldPacksList(fs::path folder) {
     return files::read_list(listfile);
 }
 
-fs::path ContentPack::findPack(const EnginePaths* paths, std::string name) {
-    auto folder = paths->getResources() / fs::path("content") / fs::path(name);
-    if (!fs::is_directory(folder)) {
-        throw contentpack_error(name, folder, 
-                                "could not to find pack '"+name+"'");
+fs::path ContentPack::findPack(const EnginePaths* paths, fs::path worldDir, std::string name) {
+    fs::path folder = worldDir / fs::path("content") / fs::path(name);
+    if (fs::is_directory(folder)) {
+        return folder;
     }
-    return folder;
+    folder = paths->getResources() / fs::path("content") / fs::path(name);
+    if (fs::is_directory(folder)) {
+        return folder;
+    }
+    throw contentpack_error(name, folder, 
+                            "could not to find pack '"+name+"'");
 }
 
 void ContentPack::readPacks(const EnginePaths* paths,
                             std::vector<ContentPack>& packs, 
-                            const std::vector<std::string>& packnames) {
+                            const std::vector<std::string>& packnames,
+                            std::filesystem::path worldDir) {
     for (const auto& name : packnames) {
-        fs::path packfolder = ContentPack::findPack(paths, name);
+        fs::path packfolder = ContentPack::findPack(paths, worldDir, name);
         packs.push_back(ContentPack::read(packfolder));
     }
 }

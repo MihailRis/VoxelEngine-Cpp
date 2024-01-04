@@ -6,10 +6,11 @@
 #include <stdint.h>
 #include <stdexcept>
 #include "../coders/json.h"
+#include "../util/stringutil.h"
 
 namespace fs = std::filesystem;
 
-files::rafile::rafile(std::filesystem::path filename)
+files::rafile::rafile(fs::path filename)
     : file(filename, std::ios::binary | std::ios::ate) {
     if (!file) {
         throw std::runtime_error("could not to open file "+filename.string());
@@ -101,7 +102,7 @@ json::JObject* files::read_json(fs::path file) {
     }
 }
 
-std::vector<std::string> files::read_list(std::filesystem::path filename) {
+std::vector<std::string> files::read_list(fs::path filename) {
 	std::ifstream file(filename);
 	if (!file) {
 		throw std::runtime_error("could not to open file "+filename.u8string());
@@ -109,6 +110,7 @@ std::vector<std::string> files::read_list(std::filesystem::path filename) {
 	std::vector<std::string> lines;
 	std::string line;
 	while (std::getline(file, line)) {
+        util::trim(line);
 		if (line.length() == 0)
 			continue;
 		if (line[0] == '#')

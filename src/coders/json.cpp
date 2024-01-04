@@ -356,7 +356,7 @@ JObject& JObject::put(string key, int value) {
 
 JObject& JObject::put(string key, int64_t value) {
     auto found = map.find(key);
-    if (found != map.end()) delete found->second;
+    if (found != map.end())  found->second;
     valvalue val;
     val.integer = value;
     map.insert(make_pair(key, new Value(valtype::integer, val)));

@@ -3,6 +3,7 @@
 
 #include "../typedefs.h"
 #include <glm/glm.hpp>
+#include <memory>
 
 namespace vulkan {
     class Batch3D;
@@ -18,7 +19,7 @@ class ContentGfxCache;
 class BlocksPreview {
     IShader* shader;
     Atlas* atlas;
-    vulkan::Batch3D* batch;
+    std::unique_ptr<vulkan::Batch3D> batch;
     const ContentGfxCache* const cache;
     const Viewport* viewport;
 public:

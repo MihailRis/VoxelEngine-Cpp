@@ -40,7 +40,7 @@ class Engine {
 	double lastTime = 0.0;
 	double delta = 0.0;
 
-	gui::GUI* gui;
+	std::unique_ptr<gui::GUI> gui;
 public:
 	Engine(EngineSettings& settings, EnginePaths* paths);
 	~Engine();

@@ -4,13 +4,13 @@
 #include <cstdlib>
 #include <cstdint>
 
-using uint = uint32_t;
-using ubyte = uint8_t;
+typedef unsigned int uint;
 
-using blockid_t = uint8_t;
-using light_t = uint16_t;
+// use for bytes arrays
+typedef uint8_t ubyte;
 
-using u32 = uint32_t;
-using i32 = int32_t;
+typedef uint16_t blockid_t;
+typedef uint16_t blockstate_t;
+typedef uint16_t light_t;
 
 #endif

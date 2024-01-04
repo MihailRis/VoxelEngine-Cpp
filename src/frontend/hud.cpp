@@ -260,6 +260,11 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 	batch->render();
 
 	// blocks & items
+    if (Events::scroll) {
+        inventoryScroll -= Events::scroll * (icon_size+interval);
+    }
+    inventoryScroll = std::min(inventoryScroll, int(inv_h-viewport.getHeight()));
+    inventoryScroll = std::max(inventoryScroll, 0);
 	blocksPreview->begin(&ctx.getViewport());
 	{
 		Window::clearDepth();
@@ -274,7 +279,11 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
             if (cblock->hidden)
                 continue;
 			int x = xs + (icon_size+interval) * (index % inv_cols);
-			int y = ys + (icon_size+interval) * (index / inv_cols);
+			int y = ys + (icon_size+interval) * (index / inv_cols) - inventoryScroll;
+            if (y < 0 || y >= int(viewport.getHeight())) {
+                index++;
+                continue;
+            }
 			if (mx > x && mx < x + (int)icon_size && my > y && my < y + (int)icon_size) {
 				tint.r *= 1.2f;
 				tint.g *= 1.2f;

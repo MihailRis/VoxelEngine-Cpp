@@ -7,7 +7,7 @@
 #include "typedefs.h"
 
 constexpr int ENGINE_VERSION_MAJOR = 0;
-constexpr int ENGINE_VERSION_MINOR = 16;
+constexpr int ENGINE_VERSION_MINOR = 17;
 #define MAKE_VERSION(major, minor, patch) \
 			((((uint32_t)(major)) << 22U) | (((uint32_t)(minor)) << 12U) | ((uint32_t)(patch)))
 constexpr uint32_t ENGINE_VERSION_VALUE = MAKE_VERSION(0, 15, 0);
@@ -16,8 +16,11 @@ const int CHUNK_W = 16;
 const int CHUNK_H = 256;
 const int CHUNK_D = 16;
 
+const uint VOXEL_USER_BITS = 8;
+constexpr uint VOXEL_USER_BITS_OFFSET = sizeof(blockstate_t)*8-VOXEL_USER_BITS;
+
 /* Chunk volume (count of voxels per Chunk) */
-const int CHUNK_VOL = (CHUNK_W * CHUNK_H * CHUNK_D);
+constexpr int CHUNK_VOL = (CHUNK_W * CHUNK_H * CHUNK_D);
 
 /* BLOCK_VOID is block id used to mark non-existing voxel (voxel of missing chunk) */
 const blockid_t BLOCK_VOID = std::numeric_limits<blockid_t>::max();
