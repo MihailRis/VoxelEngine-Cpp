@@ -7,12 +7,15 @@
 #include <memory>
 
 #include "../constants.h"
+#include "../graphics-vk/ShaderType.h"
+#include "../graphics-vk/VulkanContext.h"
+#include "../graphics-vk/device/Shader.h"
 #include "../files/engine_paths.h"
 
 using std::filesystem::path;
 using std::unique_ptr;
 
-AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths) 
+AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths)
 	: assets(assets), paths(paths) {
 }
 

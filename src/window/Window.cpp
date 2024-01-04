@@ -4,7 +4,10 @@
 #include "../graphics/ImageData.h"
 
 #include <GL/glew.h>
+#include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
+
+#include "../graphics-vk/VulkanContext.h"
 
 using glm::vec4;
 using std::cout;
@@ -19,6 +22,7 @@ uint Window::width = 0;
 uint Window::height = 0;
 int Window::posX = 0;
 int Window::posY = 0;
+bool Window::isResized = false;
 
 void cursor_position_callback(GLFWwindow*, double xpos, double ypos) {
     Events::setPosition(xpos, ypos);
@@ -60,8 +64,11 @@ bool Window::isFocused()
 }
 
 void window_size_callback(GLFWwindow*, int width, int height) {
+	Window::isResized = true;
 	if (Window::isFocused() && width && height) {
+#ifndef USE_VULKAN
 		glViewport(0, 0, width, height);
+#endif
 		Window::width = width;
 		Window::height = height;
 	}
@@ -113,6 +120,12 @@ int Window::initialize(DisplaySettings& settings){
 		return -1;
 	}
 
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+	glfwWindowHint(GLFW_SAMPLES, settings.samples);
+
+#ifdef USE_VULKAN
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+#else
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 #ifdef __APPLE__
@@ -122,8 +135,7 @@ int Window::initialize(DisplaySettings& settings){
 #else
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 #endif
-	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-	glfwWindowHint(GLFW_SAMPLES, settings.samples);
+#endif
 
 	window = glfwCreateWindow(width, height, settings.title.c_str(), nullptr, nullptr);
 	if (window == nullptr){
@@ -131,6 +143,7 @@ int Window::initialize(DisplaySettings& settings){
 		glfwTerminate();
 		return -1;
 	}
+#ifndef USE_VULKAN
 	glfwMakeContextCurrent(window);
 
 	glewExperimental = GL_TRUE;
@@ -145,6 +158,7 @@ int Window::initialize(DisplaySettings& settings){
 	glClearColor(0.0f,0.0f,0.0f, 1);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#endif
 
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
@@ -157,28 +171,36 @@ int Window::initialize(DisplaySettings& settings){
 		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
 	}
+#ifdef USE_VULKAN
+	// TODO: add vendor and renderer
+#else
 	glfwSwapInterval(settings.swapInterval);
 	const GLubyte* vendor = glGetString(GL_VENDOR);
 	const GLubyte* renderer = glGetString(GL_RENDERER);
 	cout << "GL Vendor: " << (char*)vendor << endl;
 	cout << "GL Renderer: " << (char*)renderer << endl;
+#endif
 	return 0;
 }
 
 void Window::clear() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// TODO: compile time change
+	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::clearDepth() {
-	glClear(GL_DEPTH_BUFFER_BIT);
+	// TODO: compile time change
+	// glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::setBgColor(glm::vec3 color) {
-	glClearColor(color.r, color.g, color.b, 1.0f);
+	// TODO: compile time change
+	// glClearColor(color.r, color.g, color.b, 1.0f);
 }
 
 void Window::viewport(int x, int y, int width, int height){
-	glViewport(x, y, width, height);
+	// TODO: compile time change
+	// glViewport(x, y, width, height);
 }
 
 void Window::setCursorMode(int mode){
@@ -188,12 +210,20 @@ void Window::setCursorMode(int mode){
 void Window::resetScissor() {
 	scissorArea = vec4(0.0f, 0.0f, width, height);
 	scissorStack = std::stack<vec4>();
-	glDisable(GL_SCISSOR_TEST);
+	// glDisable(GL_SCISSOR_TEST);
+	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandBuffer;
+	if (commandBuffer == VK_NULL_HANDLE) return;
+	VkRect2D scissor = {{0, 0}, {Window::width, Window::height}};
+	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }
 
 void Window::pushScissor(vec4 area) {
+	// TODO: compile time change and fix for vulkan
+	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandBuffer;
+	if (commandBuffer == VK_NULL_HANDLE) return;
 	if (scissorStack.empty()) {
-		glEnable(GL_SCISSOR_TEST);
+		// VkRect2D scissor = { {0, 0}, {Window::width, Window::height} };
+		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 	scissorStack.push(scissorArea);
 
@@ -207,31 +237,54 @@ void Window::pushScissor(vec4 area) {
 	area.w = fmin(area.w, scissorArea.w);
 
 	if (area.z < 0.0f || area.w < 0.0f) {
-		glScissor(0, 0, 0, 0);
+		// glScissor(0, 0, 0, 0);
+		// VkRect2D scissor = { {0, 0}, {0, 0} };
+		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	} else {
-		glScissor(area.x, Window::height-area.w, 
-				  std::max(0, int(area.z-area.x)), 
-				  std::max(0, int(area.w-area.y)));
+		// glScissor(area.x, Window::height-area.w,
+				  // std::max(0, int(area.z-area.x)),
+				  // std::max(0, int(area.w-area.y)));
+		// VkRect2D scissor{};
+		// scissor.offset.x = area.x;
+		// scissor.offset.y = Window::height - area.w;
+		// scissor.extent.width = std::max(0, static_cast<int>(area.z - area.x));
+		// scissor.extent.height = std::max(0, static_cast<int>(area.w - area.y));
+		//
+		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 	scissorArea = area;
 }
 
 void Window::popScissor() {
+	// TODO: compile time change and fix for vulkan
 	if (scissorStack.empty()) {
 		std::cerr << "warning: extra Window::popScissor call" << std::endl;
 		return;
 	}
 	vec4 area = scissorStack.top();
 	scissorStack.pop();
+	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandBuffer;
+	if (commandBuffer == VK_NULL_HANDLE) return;
 	if (area.z < 0.0f || area.w < 0.0f) {
-		glScissor(0, 0, 0, 0);
+		// glScissor(0, 0, 0, 0);
+		// VkRect2D scissor = { {0, 0}, {0, 0} };
+		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	} else {
-		glScissor(area.x, Window::height-area.w, 
-				  std::max(0, int(area.z-area.x)), 
-				  std::max(0, int(area.w-area.y)));
+		// glScissor(area.x, Window::height-area.w,
+				  // std::max(0, int(area.z-area.x)),
+				  // std::max(0, int(area.w-area.y)));
+		// VkRect2D scissor{};
+		// scissor.offset.x = area.x;
+		// scissor.offset.y = Window::height - area.s;
+		// scissor.extent.width = std::max(0, static_cast<int>(area.z - area.x));
+		// scissor.extent.height = std::max(0, static_cast<int>(area.w - area.y));
+		//
+		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 	if (scissorStack.empty()) {
-		glDisable(GL_SCISSOR_TEST);
+		// glDisable(GL_SCISSOR_TEST);
+		// VkRect2D scissor = { {0, 0}, {Window::width, Window::height} };
+		// vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 	scissorArea = area;
 }
@@ -279,7 +332,10 @@ bool Window::isFullscreen() {
 }
 
 void Window::swapBuffers(){
+	// TODO: compile time change
+#ifndef USE_VULKAN
 	glfwSwapBuffers(window);
+#endif
 	Window::resetScissor();
 }
 
@@ -287,11 +343,26 @@ double Window::time() {
 	return glfwGetTime();
 }
 
+std::vector<const char*> Window::getRequiredExtensions() {
+	u32 count = 0;
+	const char** extensions = glfwGetRequiredInstanceExtensions(&count);
+
+	return {extensions, extensions + count};
+}
+
+VkSurfaceKHR Window::createWindowSurface(VkInstance instance) {
+	VkSurfaceKHR surface = nullptr;
+	glfwCreateWindowSurface(instance, window, nullptr, &surface);
+
+	return surface;
+}
+
 DisplaySettings* Window::getSettings() {
 	return settings;
 }
 
 ImageData* Window::takeScreenshot() {
+	// TODO: compile time change and realize screenshot for vulkan
 	ubyte* data = new ubyte[width * height * 3];
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -311,7 +382,7 @@ bool Window::tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor) {
 		return true;
 	}
 	glfwSetWindowSize(window, Window::width, Window::height);
-	glfwSetWindowPos(window, workArea.x + (workArea.z - Window::width) / 2, 
+	glfwSetWindowPos(window, workArea.x + (workArea.z - Window::width) / 2,
 							 workArea.y + (workArea.w - Window::height) / 2 + windowFrame.y / 2);
 	return false;
 }

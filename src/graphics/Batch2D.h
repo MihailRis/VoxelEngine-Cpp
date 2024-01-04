@@ -7,7 +7,7 @@
 #include "UVRegion.h"
 
 class Mesh;
-class Texture;
+class ITexture;
 class Sprite;
 
 class Batch2D {
@@ -17,8 +17,8 @@ class Batch2D {
 	Mesh* mesh;
 	size_t index;
 
-	Texture* blank;
-	Texture* _texture;
+	ITexture* blank;
+	ITexture* _texture;
 
 	void vertex(float x, float y,
 			float u, float v,
@@ -34,7 +34,7 @@ public:
 	~Batch2D();
 
 	void begin();
-	void texture(Texture* texture);
+	void texture(ITexture* texture);
 	void sprite(float x, float y, float w, float h, const UVRegion& region, glm::vec4 tint);
 	void sprite(Sprite* sprite);
 	void sprite(float x, float y, float w, float h, int atlasRes, int index, glm::vec4 tint);

@@ -11,8 +11,15 @@
 #include "../window/Camera.h"
 #include "../window/Events.h"
 #include "../window/input.h"
-#include "../graphics/Shader.h"
+#include "../graphics-common/IShader.h"
+
+#ifdef USE_VULKAN
+#include "../graphics-vk/Batch2D.h"
+#include "../graphics-vk/uniforms/ProjectionViewUniform.h"
+#else
 #include "../graphics/Batch2D.h"
+#endif
+
 #include "../graphics/GfxContext.h"
 #include "../assets/Assets.h"
 #include "../world/Level.h"
@@ -31,6 +38,8 @@
 #include "gui/GUI.h"
 #include "gui/panels.h"
 #include "menu.h"
+#include "../graphics-vk/VulkanContext.h"
+#include "../graphics-vk/WorldRenderer.h"
 
 #include "../content/Content.h"
 #include "../voxels/Block.h"
@@ -47,8 +56,13 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     menu->reset();
     menu->set("main");
 
-    batch = new Batch2D(1024);
-    uicamera = new Camera(vec3(), Window::height);
+    batch = new vulkan::Batch2D(1024);
+#ifdef USE_VULKAN
+    constexpr vec3 camPos = vec3(0, 0, -1);
+#else
+    constexpr vec3 camPos = vec3();
+#endif
+    uicamera = new Camera(camPos, static_cast<float>(Window::height));
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 }
@@ -64,11 +78,19 @@ void MenuScreen::update(float delta) {
 void MenuScreen::draw(float delta) {
     Window::clear();
     Window::setBgColor(vec3(0.2f));
+#ifdef USE_VULKAN
+    vulkan::VulkanContext::get().beginScreenDraw(0.0f, 0.0f, 0.0f);
+#endif
 
     uicamera->setFov(Window::height);
-	Shader* uishader = engine->getAssets()->getShader("ui");
+	IShader* uishader = engine->getAssets()->getShader("ui");
 	uishader->use();
+#ifdef USE_VULKAN
+    const ProjectionViewUniform projectionViewUniform = { uicamera->getProjView() };
+    uishader->uniform(projectionViewUniform);
+#else
 	uishader->uniformMatrix("u_projview", uicamera->getProjView());
+#endif
 
     uint width = Window::width;
     uint height = Window::height;
@@ -76,21 +98,25 @@ void MenuScreen::draw(float delta) {
     batch->begin();
     batch->texture(engine->getAssets()->getTexture("menubg"));
     batch->rect(0, 0, 
-                width, height, 0, 0, 0, 
-                UVRegion(0, 0, width/64, height/64), 
+                width, height, 0, 0, 0,
+                UVRegion(0, 0, width/64, height/64),
                 false, false, vec4(1.0f));
     batch->render();
+    batch->end();
+#ifdef USE_VULKAN
+    vulkan::VulkanContext::get().endScreenDraw();
+#endif
 }
 
 static bool backlight;
 
-LevelScreen::LevelScreen(Engine* engine, Level* level) 
+LevelScreen::LevelScreen(Engine* engine, Level* level)
     : Screen(engine), 
       level(level) {
     auto& settings = engine->getSettings();
     controller = new LevelController(settings, level);
     cache = new ContentGfxCache(level->content, engine->getAssets());
-    worldRenderer = new WorldRenderer(engine, level, cache);
+    worldRenderer = new vulkan::WorldRenderer(engine, level, cache);
     hud = new HudRenderer(engine, level, cache);
     backlight = settings.graphics.backlight;
 }
@@ -127,9 +153,9 @@ void LevelScreen::updateHotkeys() {
 
 void LevelScreen::update(float delta) {
     gui::GUI* gui = engine->getGUI();
-    
-    bool inputLocked = hud->isPause() || 
-                       hud->isInventoryOpen() || 
+
+    bool inputLocked = hud->isPause() ||
+                       hud->isInventoryOpen() ||
                        gui->isFocusCaught();
     if (!gui->isFocusCaught()) {
         updateHotkeys();
@@ -156,6 +182,9 @@ void LevelScreen::draw(float delta) {
 
     Viewport viewport(Window::width, Window::height);
     GfxContext ctx(nullptr, viewport, nullptr);
+#ifdef USE_VULKAN
+    vulkan::VulkanContext::get().beginScreenDraw(0.0f, 0.0f, 0.0f, VK_ATTACHMENT_LOAD_OP_LOAD);
+#endif
 
     worldRenderer->draw(ctx, camera);
 
@@ -165,4 +194,7 @@ void LevelScreen::draw(float delta) {
             hud->drawDebug(1 / delta);
         }
     }
+#ifdef USE_VULKAN
+    vulkan::VulkanContext::get().endScreenDraw();
+#endif
 }

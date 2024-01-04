@@ -11,8 +11,8 @@
 #include "../window/Camera.h"
 #include "../graphics/Mesh.h"
 #include "../graphics/Atlas.h"
-#include "../graphics/Shader.h"
-#include "../graphics/Texture.h"
+#include "../graphics-common/IShader.h"
+#include "../graphics-common/ITexture.h"
 #include "../graphics/LineBatch.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/Chunk.h"
@@ -36,23 +36,23 @@ using glm::mat4;
 using std::string;
 using std::shared_ptr;
 
-WorldRenderer::WorldRenderer(Engine* engine, 
-							 Level* level, 
-							 const ContentGfxCache* cache) 
-	: engine(engine), 
+WorldRenderer::WorldRenderer(Engine* engine,
+							 Level* level,
+							 const ContentGfxCache* cache)
+	: engine(engine),
 	  level(level),
 	  frustumCulling(new Frustum()),
 	  lineBatch(new LineBatch()),
 	  renderer( new ChunksRenderer(level, cache, engine->getSettings())) {
 
 	auto& settings = engine->getSettings();
-	level->events->listen(EVT_CHUNK_HIDDEN, 
+	level->events->listen(EVT_CHUNK_HIDDEN,
 		[this](lvl_event_type type, Chunk* chunk) {
 			renderer->unload(chunk);
 		}
 	);
 	auto assets = engine->getAssets();
-	skybox = new Skybox(settings.graphics.skyboxResolution, 
+	skybox = new Skybox(settings.graphics.skyboxResolution,
 						assets->getShader("skybox_gen"));
 }
 
@@ -64,8 +64,8 @@ WorldRenderer::~WorldRenderer() {
 }
 
 bool WorldRenderer::drawChunk(size_t index,
-							  Camera* camera, 
-							  Shader* shader, 
+							  Camera* camera,
+							  IShader* shader,
 							  bool culling){
 	auto chunk = level->chunks->chunks[index];
 	if (!chunk->isLighted()) {
@@ -76,11 +76,11 @@ bool WorldRenderer::drawChunk(size_t index,
 		return false;
 	}
 	if (culling){
-		vec3 min(chunk->x * CHUNK_W, 
-				 chunk->bottom, 
+		vec3 min(chunk->x * CHUNK_W,
+				 chunk->bottom,
 				 chunk->z * CHUNK_D);
-		vec3 max(chunk->x * CHUNK_W + CHUNK_W, 
-				 chunk->top, 
+		vec3 max(chunk->x * CHUNK_W + CHUNK_W,
+				 chunk->top,
 				 chunk->z * CHUNK_D + CHUNK_D);
 
 		if (!frustumCulling->IsBoxVisible(min, max)) return false;
@@ -94,7 +94,7 @@ bool WorldRenderer::drawChunk(size_t index,
 
 void WorldRenderer::drawChunks(Chunks* chunks, 
 							   Camera* camera, 
-							   Shader* shader) {
+							   IShader* shader) {
 	std::vector<size_t> indices;
 	for (size_t i = 0; i < chunks->volume; i++){
 		shared_ptr<Chunk> chunk = chunks->chunks[i];
@@ -107,10 +107,10 @@ void WorldRenderer::drawChunks(Chunks* chunks,
 	std::sort(indices.begin(), indices.end(), [this, chunks, px, pz](size_t i, size_t j) {
 		shared_ptr<Chunk> a = chunks->chunks[i];
 		shared_ptr<Chunk> b = chunks->chunks[j];
-		return ((a->x + 0.5f - px)*(a->x + 0.5f - px) + 
+		return ((a->x + 0.5f - px)*(a->x + 0.5f - px) +
 				(a->z + 0.5f - pz)*(a->z + 0.5f - pz)
 				>
-				(b->x + 0.5f - px)*(b->x + 0.5f - px) + 
+				(b->x + 0.5f - px)*(b->x + 0.5f - px) +
 				(b->z + 0.5f - pz)*(b->z + 0.5f - pz));
 	});
 
@@ -134,8 +134,8 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 	const ContentIndices* contentIds = content->indices;
 	Assets* assets = engine->getAssets();
 	Atlas* atlas = assets->getAtlas("blocks");
-	Shader* shader = assets->getShader("main");
-	Shader* linesShader = assets->getShader("lines");
+	IShader* shader = assets->getShader("main");
+	IShader* linesShader = assets->getShader("lines");
 
 	const Viewport& viewport = pctx.getViewport();
 	int displayWidth = viewport.getWidth();
@@ -144,7 +144,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 	Window::viewport(0, 0, displayWidth, displayHeight);
 
 	// Drawing background sky plane
-	Shader* backShader = assets->getShader("background");
+	IShader* backShader = assets->getShader("background");
 	backShader->use();
 	backShader->uniformMatrix("u_view", camera->getView(false));
 	backShader->uniform1f("u_zoom", camera->zoom*camera->getFov()/(3.141592*0.5f));
@@ -226,7 +226,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 			int cx = floordiv((int)coord.x, CHUNK_W);
 			int cz = floordiv((int)coord.z, CHUNK_D);
 
-			drawBorders(cx * CHUNK_W, 0, cz * CHUNK_D, 
+			drawBorders(cx * CHUNK_W, 0, cz * CHUNK_D,
 					    (cx + 1) * CHUNK_W, CHUNK_H, (cz + 1) * CHUNK_D);
 		}
 
@@ -258,25 +258,25 @@ void WorldRenderer::drawBorders(int sx, int sy, int sz, int ex, int ey, int ez) 
 	int ww = ex-sx;
 	int dd = ez-sz;
 	/*corner*/ {
-		lineBatch->line(sx, sy, sz,     
+		lineBatch->line(sx, sy, sz,
 						sx, ey, sz, 0.8f, 0, 0.8f, 1);
-		lineBatch->line(sx, sy, ez,     
+		lineBatch->line(sx, sy, ez,
 						sx, ey, ez, 0.8f, 0, 0.8f, 1);
-		lineBatch->line(ex, sy, sz,     
+		lineBatch->line(ex, sy, sz,
 						ex, ey, sz, 0.8f, 0, 0.8f, 1);
-		lineBatch->line(ex, sy, ez,     
+		lineBatch->line(ex, sy, ez,
 						ex, ey, ez, 0.8f, 0, 0.8f, 1);
 	}
 	for (int i = 2; i < ww; i+=2) {
-		lineBatch->line(sx + i, sy, sz,     
+		lineBatch->line(sx + i, sy, sz,
 						sx + i, ey, sz, 0, 0, 0.8f, 1);
-		lineBatch->line(sx + i, sy, ez,     
+		lineBatch->line(sx + i, sy, ez,
 						sx + i, ey, ez, 0, 0, 0.8f, 1);
 	}
 	for (int i = 2; i < dd; i+=2) {
-		lineBatch->line(sx, sy, sz + i, 
+		lineBatch->line(sx, sy, sz + i,
 						sx, ey, sz + i, 0.8f, 0, 0, 1);
-		lineBatch->line(ex, sy, sz + i, 
+		lineBatch->line(ex, sy, sz + i,
 						ex, ey, sz + i, 0.8f, 0, 0, 1);
 	}
 	for (int i = sy; i < ey; i+=2){

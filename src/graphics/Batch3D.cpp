@@ -102,7 +102,7 @@ void Batch3D::face(const vec3& coord, float w, float h,
 		   tint.r, tint.g, tint.b, tint.a);
 }
 
-void Batch3D::texture(Texture* new_texture){
+void Batch3D::texture(ITexture* new_texture){
 	if (_texture == new_texture)
 		return;
 	flush();

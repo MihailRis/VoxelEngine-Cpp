@@ -1,14 +1,15 @@
 #include "Font.h"
 #include "Texture.h"
 #include "Batch2D.h"
+#include "../graphics-vk/Batch2D.h"
 
 using glm::vec4;
 
-Font::Font(std::vector<Texture*> pages, int lineHeight) : lineHeight_(lineHeight), pages(pages) {
+Font::Font(std::vector<ITexture*> pages, int lineHeight) : lineHeight_(lineHeight), pages(pages) {
 }
 
 Font::~Font(){
-	for (Texture* texture : pages)
+	for (ITexture* texture : pages)
 		delete texture;
 }
 
@@ -35,20 +36,20 @@ int Font::calcWidth(std::wstring text) {
 	return text.length() * 8;
 }
 
-void Font::draw(Batch2D* batch, std::wstring text, int x, int y) {
+void Font::draw(vulkan::Batch2D* batch, std::wstring text, int x, int y) {
 	draw(batch, text, x, y, STYLE_NONE);
 }
 
-void Font::draw(Batch2D* batch, std::wstring text, int x, int y, int style) {
+void Font::draw(vulkan::Batch2D* batch, std::wstring text, int x, int y, int style) {
 	int page = 0;
 	int next = 10000;
 	int init_x = x;
 	do {
-		for (unsigned c : text){
+		for (wchar_t c : text){
 			if (isPrintableChar(c)){
 				int charpage = c >> 8;
 				if (charpage == page){
-				    Texture* texture = pages[charpage];
+				    ITexture* texture = pages[charpage];
 				    if (texture == nullptr){
 				        texture = pages[0];
 				    }
@@ -68,7 +69,7 @@ void Font::draw(Batch2D* batch, std::wstring text, int x, int y, int style) {
 							break;
 					}
 
-					batch->sprite(x, y, RES, RES, 16, c, batch->color);
+					batch->sprite(x, y, RES, RES, 16, c, batch->getColor());
 				}
 				else if (charpage > page && charpage < next){
 					next = charpage;

@@ -8,6 +8,11 @@
 #include "../voxels/voxel.h"
 #include "../settings.h"
 
+#ifdef USE_VULKAN
+#	include "../graphics-vk/Mesh.h"
+#	include "../graphics-vk/Vertices.h"
+#endif
+
 class Content;
 class Mesh;
 class Block;
@@ -82,6 +87,10 @@ public:
 
 	Mesh* render(const Chunk* chunk, const ChunksStorage* chunks);
 	VoxelsVolume* getVoxelsBuffer() const;
+
+#ifdef USE_VULKAN
+    vulkan::Mesh<Vertex3D> *renderVulkanMesh(Chunk* chunk, ChunksStorage* chunksStorage);
+#endif
 };
 
 #endif // GRAPHICS_BLOCKS_RENDERER_H

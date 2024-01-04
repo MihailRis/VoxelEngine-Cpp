@@ -4,13 +4,13 @@
 #include <string>
 #include "../typedefs.h"
 
-class Texture;
+class ITexture;
 class ImageData;
 
 namespace png {
     extern ImageData* load_image(std::string filename);
     extern void write_image(std::string filename, const ImageData* image);
-    extern Texture* load_texture(std::string filename);
+    extern ITexture* load_texture(std::string filename);
 }
 
 #endif /* CODERS_PNG_H_ */

@@ -13,9 +13,17 @@
 #include "../util/stringutil.h"
 #include "../util/timeutil.h"
 #include "../assets/Assets.h"
-#include "../graphics/Shader.h"
+#include "../graphics-common/IShader.h"
+
+#ifdef USE_VULKAN
+#include "../graphics-vk/Batch2D.h"
+#include "../graphics-vk/WorldRenderer.h"
+#include "../graphics-vk/uniforms/ProjectionViewUniform.h"
+#else
 #include "../graphics/Batch2D.h"
 #include "../graphics/Batch3D.h"
+#endif
+
 #include "../graphics/Font.h"
 #include "../graphics/Atlas.h"
 #include "../graphics/Mesh.h"
@@ -56,10 +64,10 @@ inline Label* create_label(gui::wstringsupplier supplier) {
 
 HudRenderer::HudRenderer(Engine* engine, 
 						 Level* level, 
-						 const ContentGfxCache* cache) 
+						 const ContentGfxCache* cache)
             : level(level), 
 			  assets(engine->getAssets()), 
-			  batch(new Batch2D(1024)),
+			  batch(new vulkan::Batch2D(1024)),
 			  gui(engine->getGUI()),
 			  cache(cache) {
 	auto menu = gui->getMenu();
@@ -67,12 +75,24 @@ HudRenderer::HudRenderer(Engine* engine,
 									  assets->getAtlas("blocks"),
 									  cache);
 
-	uicamera = new Camera(vec3(), 1);
+#ifdef USE_VULKAN
+	constexpr vec3 camPos = vec3(0, 0, -1);
+#else
+	constexpr vec3 camPos = vec3();
+#endif
+	uicamera = new Camera(camPos, 1);
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 
 	Panel* panel = new Panel(vec2(250, 200), vec4(5.0f), 1.0f);
 	debugPanel = shared_ptr<UINode>(panel);
+	panel->add(shared_ptr<Label>(create_label([this]() {
+#ifdef USE_VULKAN
+		return L"Vulkan render";
+#else
+		return L"OpenGL render";
+#endif
+	})));
 	panel->listenInterval(1.0f, [this]() {
 		fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
 		fpsMin = fps;
@@ -82,8 +102,12 @@ HudRenderer::HudRenderer(Engine* engine,
 	panel->add(shared_ptr<Label>(create_label([this](){
 		return L"fps: "+this->fpsString;
 	})));
-	panel->add(shared_ptr<Label>(create_label([this](){
+	panel->add(shared_ptr<Label>(create_label([=]() {
+#ifdef USE_VULKAN
+		return L"meshes: " + std::to_wstring(vulkan::meshesCount);
+#else
 		return L"meshes: " + std::to_wstring(Mesh::meshesCount);
+#endif
 	})));
 	panel->add(shared_ptr<Label>(create_label([=](){
 		auto& settings = engine->getSettings();
@@ -161,10 +185,18 @@ HudRenderer::HudRenderer(Engine* engine,
 	{
 		TrackBar* bar = new TrackBar(0.0f, 1.0f, 0.0f, 0.005f, 8);
 		bar->supplier([=]() {
+#ifdef USE_VULKAN
+			return vulkan::WorldRenderer::fog;
+#else
 			return WorldRenderer::fog;
+#endif
 		});
 		bar->consumer([=](double val) {
+#ifdef USE_VULKAN
+			vulkan::WorldRenderer::fog = static_cast<float>(val);
+#else
 			WorldRenderer::fog = val;
+#endif
 		});
 		panel->add(bar);
 	}
@@ -212,7 +244,7 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 
 	const Viewport& viewport = ctx.getViewport();
 	const uint width = viewport.getWidth();
-	Shader* uiShader = assets->getShader("ui");
+	IShader* uiShader = assets->getShader("ui");
 
 	uint count = contentIds->countBlockDefs();
 	uint icon_size = 48;
@@ -234,7 +266,7 @@ void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
 
 	// background
 	batch->texture(nullptr);
-	batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
+	batch->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
 	batch->rect(inv_x, inv_y, inv_w, inv_h);
 	batch->render();
 
@@ -318,27 +350,32 @@ void HudRenderer::draw(const GfxContext& ctx){
 
 	uicamera->setFov(height);
 
-	Shader* uishader = assets->getShader("ui");
+	IShader* uishader = assets->getShader("ui");
 	uishader->use();
+#ifdef USE_VULKAN
+	const ProjectionViewUniform projectionViewUniform = { uicamera->getProjection() * uicamera->getView() };
+	uishader->uniform(projectionViewUniform);
+#else
 	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
+#endif
 
 	batch->begin();
 
 	// Chosen block preview
-	batch->color = vec4(1.0f);
+	batch->setColor(vec4(1.0f));
 	if (Events::_cursor_locked && !level->player->debug) {
-		batch->lineWidth(2);
-		batch->line(width/2, height/2-6, width/2, height/2+6, 0.2f, 0.2f, 0.2f, 1.0f);
-		batch->line(width/2+6, height/2, width/2-6, height/2, 0.2f, 0.2f, 0.2f, 1.0f);
-		batch->line(width/2-5, height/2-5, width/2+5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
-		batch->line(width/2+5, height/2-5, width/2-5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
+		// batch->lineWidth(2);
+		// batch->line(width/2, height/2-6, width/2, height/2+6, 0.2f, 0.2f, 0.2f, 1.0f);
+		// batch->line(width/2+6, height/2, width/2-6, height/2, 0.2f, 0.2f, 0.2f, 1.0f);
+		// batch->line(width/2-5, height/2-5, width/2+5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
+		// batch->line(width/2+5, height/2-5, width/2-5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
 	}
 	Player* player = level->player;
 
 
-	batch->color = vec4(0.0f, 0.0f, 0.0f, 0.75f);
+	batch->setColor(vec4(0.0f, 0.0f, 0.0f, 0.75f));
 	batch->rect(width - 68, height - 68, 68, 68);
-	batch->color = vec4(1.0f);
+	batch->setColor(vec4(1.0f));
 	batch->render();
 
 	blocksPreview->begin(&ctx.getViewport());
@@ -347,23 +384,31 @@ void HudRenderer::draw(const GfxContext& ctx){
 		GfxContext subctx = ctx.sub();
 		subctx.depthTest(true);
 		subctx.cullFace(true);
-		
+
 		Block* cblock = contentIds->getBlockDef(player->chosenBlock);
 		assert(cblock != nullptr);
 		blocksPreview->draw(cblock, width - 56, uicamera->getFov() - 56, 48, vec4(1.0f));
 	}
 	uishader->use();
+#ifdef USE_VULKAN
+	uishader->uniform(projectionViewUniform);
+	batch->rebegin();
+#else
 	batch->begin();
+#endif
 
 	if (pause) {
 		batch->texture(nullptr);
-		batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
+		batch->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
 		batch->rect(0, 0, width, height);
 	}
 	if (inventoryOpen) {
         drawContentAccess(ctx, player);
 	}
 	batch->render();
+#ifdef USE_VULKAN
+	batch->end();
+#endif
 }
 
 bool HudRenderer::isInventoryOpen() const {

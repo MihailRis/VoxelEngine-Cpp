@@ -30,6 +30,10 @@ cmake --build .
 
 ## Install libs:
 
+
+#### Windows:
+For vulkan need install [**Vulkan SDK**](https://vulkan.lunarg.com/sdk/home#windows)
+
 #### Debian-based distro:
 ```sh
 sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev
@@ -67,6 +71,10 @@ git clone https://luajit.org/git/luajit.git
 cd luajit
 make && sudo make install INSTALL_INC=/usr/include/lua
 ```
+
+For vulkan need install **vulkan-devel**:
+
+`$ sudo pacman -S vulkan-devel`
 
 #### macOS:
 

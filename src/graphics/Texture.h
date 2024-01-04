@@ -3,20 +3,24 @@
 
 #include <string>
 #include "../typedefs.h"
+#include "../graphics-common/ITexture.h"
 
 class ImageData;
 
-class Texture {
+class Texture : public ITexture {
 public:
 	uint id;
 	int width;
 	int height;
 	Texture(uint id, int width, int height);
 	Texture(ubyte* data, int width, int height, uint format);
-	~Texture();
+	~Texture() override;
 
-	void bind();
-	void reload(ubyte* data);
+	void bind() override;
+	void reload(ubyte* data) override;
+	int getWidth() const override { return width; }
+
+	int getHeight() const override { return height; }
 
 	static Texture* from(const ImageData* image);
 };

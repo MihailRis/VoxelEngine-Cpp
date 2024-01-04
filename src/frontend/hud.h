@@ -8,6 +8,11 @@
 
 #include "../graphics/GfxContext.h"
 
+namespace vulkan {
+	class Batch2D;
+	class WorldRenderer;
+}
+
 class Batch2D;
 class Camera;
 class Level;
@@ -28,7 +33,7 @@ namespace gui {
 class HudRenderer {
 	Level* level;
     Assets* assets;
-	Batch2D* batch;
+	vulkan::Batch2D* batch;
 	Camera* uicamera;
 	BlocksPreview* blocksPreview;
 

@@ -4,6 +4,11 @@
 #include <memory>
 #include "../settings.h"
 
+namespace vulkan {
+    class Batch2D;
+    class WorldRenderer;
+}
+
 class Assets;
 class Level;
 class WorldRenderer;
@@ -26,7 +31,7 @@ public:
 };
 
 class MenuScreen : public Screen {
-    Batch2D* batch;
+    vulkan::Batch2D* batch;
     Camera* uicamera;
 public:
     MenuScreen(Engine* engine);
@@ -38,8 +43,8 @@ public:
 
 class LevelScreen : public Screen {
     Level* level;
+    vulkan::WorldRenderer* worldRenderer;
     LevelController* controller;
-    WorldRenderer* worldRenderer;
     HudRenderer* hud;
     ContentGfxCache* cache;
     bool hudVisible = true;

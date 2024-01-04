@@ -5,6 +5,7 @@
 #include "../../window/Window.h"
 #include "../../assets/Assets.h"
 #include "../../graphics/Batch2D.h"
+#include "../../graphics-vk/Batch2D.h"
 
 using std::shared_ptr;
 
@@ -73,7 +74,7 @@ void Container::scrollable(bool flag) {
     scrollable_ = flag;
 }
 
-void Container::draw(Batch2D* batch, Assets* assets) {
+void Container::draw(vulkan::Batch2D* batch, Assets* assets) {
     vec2 coord = calcCoord();
     vec2 size = this->size();
     drawBackground(batch, assets);
@@ -123,10 +124,10 @@ Panel::Panel(vec2 size, glm::vec4 padding, float interval, bool resizing)
 Panel::~Panel() {
 }
 
-void Panel::drawBackground(Batch2D* batch, Assets* assets) {
+void Panel::drawBackground(vulkan::Batch2D* batch, Assets* assets) {
     vec2 coord = calcCoord();
     batch->texture(nullptr);
-    batch->color = color_;
+    batch->setColor(color_);
     batch->rect(coord.x, coord.y, size_.x, size_.y);
 }
 

@@ -9,6 +9,9 @@
 
 #include <glm/glm.hpp>
 
+using VkInstance = struct VkInstance_T*;
+using VkSurfaceKHR = struct VkSurfaceKHR_T*;
+
 class GLFWwindow;
 class ImageData;
 struct DisplaySettings;
@@ -26,6 +29,7 @@ public:
 	static int posY;
 	static uint width;
 	static uint height;
+	static bool isResized;
 	static int initialize(DisplaySettings& settings);
 	static void terminate();
 
@@ -50,6 +54,9 @@ public:
 	static void setBgColor(glm::vec3 color);
 	static double time();
 	static DisplaySettings* getSettings();
+
+	static std::vector<const char*> getRequiredExtensions();
+	static VkSurfaceKHR createWindowSurface(VkInstance instance);
 
 	static glm::vec2 size() {
 		return glm::vec2(width, height);

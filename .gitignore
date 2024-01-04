@@ -15,6 +15,7 @@ Debug/voxel_engine
 
 /.idea
 .vscode
+.idea
 /.vs
 *.sln
 *.vcxproj

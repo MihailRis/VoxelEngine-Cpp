@@ -3,6 +3,7 @@ project(VoxelEngine)
 
 option(VOXELENGINE_BUILD_APPDIR OFF)
 
+option(VOXEL_ENGINE_USE_VULKAN "Use vulkan as backend for render" ON)
 set(CMAKE_CXX_STANDARD 17)
 
 file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp)
@@ -47,6 +48,15 @@ find_package(OpenAL REQUIRED)
 # luajit has no CMakeLists.txt to use it as subdirectory, so install it
 find_package(Lua REQUIRED)
 
+set(LIBS "")
+if (VOXEL_ENGINE_USE_VULKAN)
+    add_compile_definitions(USE_VULKAN)
+    find_package(Vulkan REQUIRED)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/vma)
+
+    set(LIBS ${LIBS} Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator)
+endif ()
+
 if (WIN32)
     set(PNGLIB spng)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glfw)
@@ -59,7 +69,6 @@ if (APPLE)
     find_package(glfw3 3.3 REQUIRED)
 endif ()
 
-set(LIBS "")
 
 if(UNIX)
     find_package(Threads REQUIRED)

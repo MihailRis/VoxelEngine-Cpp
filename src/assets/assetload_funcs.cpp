@@ -8,18 +8,21 @@
 #include "../coders/png.h"
 #include "../graphics/Shader.h"
 #include "../graphics/Texture.h"
+#include "../graphics-common/IShader.h"
+#include "../graphics-common/ITexture.h"
 #include "../graphics/ImageData.h"
 #include "../graphics/Atlas.h"
 #include "../graphics/Font.h"
+#include "../graphics-vk/device/Shader.h"
 
 
 namespace fs = std::filesystem;
 
 bool assetload::texture(Assets* assets, 
                         const ResPaths* paths,
-                        const std::string filename, 
+                        const std::string filename,
                         const std::string name) {
-	Texture* texture = png::load_texture(paths->find(filename).string());
+	ITexture* texture = png::load_texture(paths->find(filename).string());
 	if (texture == nullptr) {
 		std::cerr << "failed to load texture '" << name << "'" << std::endl;
 		return false;
@@ -30,19 +33,31 @@ bool assetload::texture(Assets* assets,
 
 bool assetload::shader(Assets* assets, 
                        const ResPaths* paths,
-                       const std::string filename, 
+                       const std::string filename,
                        const std::string name) {
+
+#ifdef USE_VULKAN
+	fs::path vertexFile = paths->find(filename+".vert.spv");
+	fs::path fragmentFile = paths->find(filename+".frag.spv");
+
+	const auto vertexSource = files::read_bytes_as_vector(vertexFile);
+	const auto fragmentSource = files::read_bytes_as_vector(fragmentFile);
+
+	const ShaderType type = toShaderType(name);
+	IShader* shader = vulkan::loadShader(vertexSource, fragmentSource, type);
+#else
     fs::path vertexFile = paths->find(filename+".glslv");
     fs::path fragmentFile = paths->find(filename+".glslf");
-    
+
     std::string vertexSource = files::read_string(vertexFile);
     std::string fragmentSource = files::read_string(fragmentFile);
 
-	Shader* shader = Shader::loadShader(
-		vertexFile.string(), 
+	IShader* shader = Shader::loadShader(
+		vertexFile.string(),
 		fragmentFile.string(),
 		vertexSource, fragmentSource);
-		
+#endif
+
 	if (shader == nullptr) {
 		std::cerr << "failed to load shader '" << name << "'" << std::endl;
 		return false;
@@ -53,7 +68,7 @@ bool assetload::shader(Assets* assets,
 
 bool assetload::atlas(Assets* assets, 
                       const ResPaths* paths,
-                      const std::string directory, 
+                      const std::string directory,
                       const std::string name) {
 	AtlasBuilder builder;
 	for (const auto& file : paths->listdir(directory)) {
@@ -80,13 +95,13 @@ bool assetload::atlas(Assets* assets,
 
 bool assetload::font(Assets* assets, 
                      const ResPaths* paths,
-                     const std::string filename, 
+                     const std::string filename,
                      const std::string name) {
-	std::vector<Texture*> pages;
+	std::vector<ITexture*> pages;
 	for (size_t i = 0; i <= 4; i++) {
-        std::string name = filename + "_" + std::to_string(i) + ".png"; 
+        std::string name = filename + "_" + std::to_string(i) + ".png";
         name = paths->find(name).string();
-		Texture* texture = png::load_texture(name);
+		ITexture* texture = png::load_texture(name);
 		if (texture == nullptr) {
 			std::cerr << "failed to load bitmap font '" << name;
             std::cerr << "' (missing page " << std::to_string(i) << ")";
@@ -95,7 +110,7 @@ bool assetload::font(Assets* assets,
 		}
 		pages.push_back(texture);
 	}
-	Font* font = new Font(pages, pages[0]->height / 16);
+	Font* font = new Font(pages, pages[0]->getHeight() / 16);
 	assets->store(font, name);
 	return true;
 }

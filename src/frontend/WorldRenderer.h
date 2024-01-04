@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <algorithm>
-#include <GL/glew.h>
 #include <string>
 
 #include <glm/glm.hpp>
@@ -16,8 +15,8 @@ class Level;
 class Camera;
 class LineBatch;
 class ChunksRenderer;
-class Shader;
-class Texture;
+class IShader;
+class ITexture;
 class Frustum;
 class Engine;
 class Chunks;
@@ -31,8 +30,8 @@ class WorldRenderer {
 	LineBatch* lineBatch;
 	ChunksRenderer* renderer;
 	Skybox* skybox;
-	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool culling);
-	void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
+	bool drawChunk(size_t index, Camera* camera, IShader* shader, bool culling);
+	void drawChunks(Chunks* chunks, Camera* camera, IShader* shader);
 public:
 	WorldRenderer(Engine* engine, Level* level, const ContentGfxCache* cache);
 	~WorldRenderer();

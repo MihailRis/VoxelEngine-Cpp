@@ -28,6 +28,10 @@
 #include "coders/GLSLExtension.h"
 #include "files/files.h"
 #include "files/engine_paths.h"
+#include "graphics-common/IShader.h"
+#include "graphics-vk/Batch2D.h"
+#include "graphics-vk/VulkanContext.h"
+#include "graphics-vk/texture/ImageCube.h"
 
 #include "content/Content.h"
 #include "content/ContentPack.h"
@@ -39,11 +43,15 @@
 
 namespace fs = std::filesystem;
 
-Engine::Engine(EngineSettings& settings, EnginePaths* paths) 
-	   : settings(settings), paths(paths) {    
+Engine::Engine(EngineSettings& settings, EnginePaths* paths)
+	   : settings(settings), paths(paths) {
 	if (Window::initialize(settings.display)){
 		throw initialize_error("could not initialize window");
 	}
+
+#ifdef USE_VULKAN
+	vulkan::VulkanContext::initialize();
+#endif
 
     auto resdir = paths->getResources();
     scripting::initialize(paths);
@@ -60,6 +68,9 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 	while (loader.hasNext()) {
 		if (!loader.loadNext()) {
 			assets.reset();
+#ifdef USE_VULKAN
+			vulkan::VulkanContext::finalize();
+#endif
 			Window::terminate();
 			throw initialize_error("could not to initialize assets");
 		}
@@ -99,7 +110,7 @@ void Engine::mainloop() {
 	
 	std::cout << "-- preparing systems" << std::endl;
 
-	Batch2D batch(1024);
+	vulkan::Batch2D batch(5000);
 	lastTime = Window::time();
 
 	while (!Window::isShouldClose()){
@@ -110,16 +121,21 @@ void Engine::mainloop() {
 		gui->act(delta);
 		screen->update(delta);
 
-        if (!Window::isIconified()) {
-		    screen->draw(delta);
-		    gui->draw(&batch, assets.get());
-		    Window::swapInterval(settings.display.swapInterval);
-        } else {
-            Window::swapInterval(1);
+		if (!Window::isIconified()) {
+			screen->draw(delta);
+			gui->draw(&batch, assets.get());
+
+#ifdef USE_VULKAN
+			vulkan::VulkanContext::get().draw();
+#else
+            Window::swapInterval(settings.display.swapInterval);
+#endif
         }
-        Window::swapBuffers();
+		Window::swapBuffers();
 		Events::pollEvents();
 	}
+
+	vulkan::VulkanContext::waitIdle();
 }
 
 Engine::~Engine() {
@@ -130,6 +146,9 @@ Engine::~Engine() {
 
 	std::cout << "-- shutting down" << std::endl;
     assets.reset();
+#ifdef USE_VULKAN
+	vulkan::VulkanContext::finalize();
+#endif
 	Window::terminate();
 	std::cout << "-- engine finished" << std::endl;
 }

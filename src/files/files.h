@@ -29,6 +29,7 @@ namespace files {
     extern uint append_bytes(std::filesystem::path, const char* data, size_t size);
     extern bool read(std::filesystem::path, char* data, size_t size);
     extern char* read_bytes(std::filesystem::path, size_t& length);
+    extern std::vector<char> read_bytes_as_vector(const std::filesystem::path &path);
     extern std::string read_string(std::filesystem::path filename);
     extern bool write_string(std::filesystem::path filename, const std::string content);
     extern json::JObject* read_json(std::filesystem::path file);

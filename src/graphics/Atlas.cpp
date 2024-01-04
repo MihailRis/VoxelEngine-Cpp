@@ -1,9 +1,12 @@
 #include "Atlas.h"
 
 #include <stdexcept>
+#include <utility>
 #include "../maths/LMPacker.h"
 #include "Texture.h"
 #include "ImageData.h"
+#include "../graphics-vk/VulkanContext.h"
+#include "../graphics-vk/texture/Image2d.h"
 
 using std::vector;
 using std::string;
@@ -11,11 +14,19 @@ using std::unique_ptr;
 using std::shared_ptr;
 using std::unordered_map;
 
+inline ITexture* createTexture(ImageData *data) {
+#ifdef USE_VULKAN
+    return Image2d::from(data);
+#else
+    return Texture::from(data);
+#endif
+}
+
 Atlas::Atlas(ImageData* image, 
              unordered_map<string, UVRegion> regions)
-      : texture(Texture::from(image)),
+      : texture(createTexture(image)),
         image(image),
-        regions(regions) {        
+        regions(std::move(regions)) {
 }
 
 Atlas::~Atlas() {
@@ -31,7 +42,7 @@ const UVRegion& Atlas::get(string name) const {
     return regions.at(name);
 }
 
-Texture* Atlas::getTexture() const {
+ITexture* Atlas::getTexture() const {
     return texture;
 }
 

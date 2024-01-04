@@ -63,7 +63,7 @@ void Batch2D::vertex(vec2 point,
 	buffer[index++] = a;
 }
 
-void Batch2D::texture(Texture* new_texture){
+void Batch2D::texture(ITexture* new_texture){
 	if (_texture == new_texture)
 		return;
 	render(GL_TRIANGLES);
@@ -75,8 +75,8 @@ void Batch2D::texture(Texture* new_texture){
 }
 
 void Batch2D::point(float x, float y, float r, float g, float b, float a){
-	if (index + 6*B2D_VERTEX_SIZE >= capacity)
-		render(GL_TRIANGLES);
+	// if (index + 6*B2D_VERTEX_SIZE >= capacity)
+		// render(GL_TRIANGLES);
 
 	vertex(x, y, 0, 0, r,g,b,a);
 	render(GL_POINTS);

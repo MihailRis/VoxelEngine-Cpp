@@ -1,3 +1,6 @@
+#ifndef VOX_FURSTRUM_CULLING_H
+#define VOX_FURSTRUM_CULLING_H
+
 #include <glm/matrix.hpp>
 
 class Frustum
@@ -111,3 +114,5 @@ inline glm::vec3 Frustum::intersection(const glm::vec3* crosses) const
 		glm::vec3(m_planes[a].w, m_planes[b].w, m_planes[c].w);
 	return res * (-1.0f / D);
 }
+
+#endif //VOX_FURSTRUM_CULLING_H

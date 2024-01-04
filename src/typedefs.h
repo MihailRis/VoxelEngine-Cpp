@@ -1,8 +1,8 @@
 #ifndef VOX_TYPEDEFS_H
 #define VOX_TYPEDEFS_H
 
-#include <stdlib.h>
-#include <stdint.h>
+#include <cstdlib>
+#include <cstdint>
 
 typedef unsigned int uint;
 
@@ -12,5 +12,6 @@ typedef uint8_t ubyte;
 typedef uint16_t blockid_t;
 typedef uint16_t blockstate_t;
 typedef uint16_t light_t;
+using u32 = uint32_t;
 
 #endif
