@@ -10,28 +10,39 @@ const int BLOCK_DIR_EAST = 0x3;
 const int BLOCK_DIR_UP = 0x4;
 const int BLOCK_DIR_DOWN = 0x5;
 
-// limited to 16 block orientations
-const int BLOCK_ROT_MASK = 0xF;
+// limited to 8 block orientations
+const int BLOCK_DIR_MASK = 0x7;
+
+const int BLOCK_SIG_MASK = 0x8;
+
 // limited to 16 block variants
 const int BLOCK_VARIANT_MASK = 0xF0;
+
+//
+// |* * * * * * * * * * * * * * * *|* * *|*|* * * *|* * * *|*'*'*'*|
+//                 id                 dir/ \variant  value   state
+//                                      |sig|
+//
 
 struct voxel {
 	blockid_t id;
 	u_short16 states;
 
 	inline u_char8 getDir() const {
-		return states & BLOCK_ROT_MASK;
+		return states & BLOCK_DIR_MASK;
 	}
 
 	inline void setDir(u_char8 dir) {
-		states &= ~BLOCK_ROT_MASK;
+		states &= ~BLOCK_DIR_MASK;
 		states |= dir;
 	}
 
+	//todo: fix this
 	inline u_char8 getVariant() const {
 		return states & BLOCK_VARIANT_MASK;
 	}
 
+	//todo: fix this
 	inline void setVariant(u_char8 variant) {
 		states &= ~BLOCK_VARIANT_MASK;
 		states |= variant;
@@ -51,9 +62,7 @@ struct voxel {
 		}
 	}
 
-	/* if the block has a custom state you
-	   can use value in range 0 to 15 else
-	   you can use value in range 0 to 255 */
+	// can use value in range 0 to 15
 	inline u_char8 getCustomValue() const {
 		return states >> 20;
 	}
@@ -64,6 +73,15 @@ struct voxel {
 	inline void setCustomValue(u_char8 value) {
 		states &= ~(0xF << 20);
 		states |= (value << 20);
+	}
+
+	inline bool getSig() const {
+		return states & BLOCK_SIG_MASK;
+	}
+
+	inline void setSig(bool sig) {
+		states &= ~BLOCK_SIG_MASK;
+		states |= sig;
 	}
 };
 
