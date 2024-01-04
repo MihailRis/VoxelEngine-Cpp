@@ -27,6 +27,11 @@
 #include "../logic/PlayerController.h"
 #include "../objects/Player.h"
 #include "../maths/voxmaths.h"
+#include "uniforms/ApplyUniform.h"
+#include "uniforms/BackgroundUniform.h"
+#include "uniforms/FogUniform.h"
+#include "uniforms/ProjectionViewUniform.h"
+#include "uniforms/StateUniform.h"
 
 namespace vulkan {
     bool WorldRenderer::drawChunk(size_t index, Camera* camera, IShader* shader, bool culling) {
@@ -44,7 +49,8 @@ namespace vulkan {
 
             if (!m_frustumCulling->IsBoxVisible(min, max)) return false;
         }
-        const glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(chunk->x * CHUNK_W, 0.0f, chunk->z * CHUNK_D + 1));
+        const glm::vec3 coord = glm::vec3(chunk->x*CHUNK_W+0.5f, 0.5f, chunk->z*CHUNK_D+0.5f);
+        const glm::mat4 model = glm::translate(glm::mat4(1.0f), coord);
 
         auto &constant = m_constantses.at(m_constantIndex);
         constant.model = model;
@@ -142,9 +148,13 @@ namespace vulkan {
 
         IShader* backShader = assets->getShader("background");
         backShader->use(commandBuffer, vkContext.getSwapchain().getExtent());
-        backShader->uniformMatrix("u_view", camera->getView(false));
-        backShader->uniform1f("u_zoom", camera->zoom);
-        backShader->uniform1f("u_ar", static_cast<float>(displayWidth) / static_cast<float>(displayHeight));
+
+        BackgroundUniform backgroundUniform = {
+            camera->getView(false),
+            camera->zoom,
+            static_cast<float>(displayWidth) / static_cast<float>(displayHeight)
+        };
+        backShader->uniform(backgroundUniform);
         m_skybox->draw(backShader, commandBuffer);
 
         vkContext.immediateEndDraw(commandBuffer);
@@ -157,14 +167,23 @@ namespace vulkan {
 
             shader->use();
             m_skybox->bind();
-            shader->uniformMatrix("u_proj", camera->getProjection());
-            shader->uniformMatrix("u_view", camera->getView());
-            shader->uniform1f("u_gamma", 1.0f);
-            shader->uniform1f("u_fogFactor", fogFactor);
-            shader->uniform1f("u_fogCurve", settings.graphics.fogCurve);
-            shader->uniform3f("u_cameraPos", camera->position);
 
-            Block* cblock = contentIds->getBlockDef(m_level->player->choosenBlock);
+            StateUniform stateUniform = {
+                camera->getProjection(),
+                camera->getView(),
+                camera->position,
+                1.0f
+            };
+
+            FogUniform fogUniform = {
+                fogFactor,
+                settings.graphics.fogCurve
+            };
+
+            shader->uniform(stateUniform);
+            shader->uniform(fogUniform);
+
+            Block* cblock = contentIds->getBlockDef(m_level->player->chosenBlock);
             assert(cblock != nullptr);
             float multiplier = 0.5f;
             const glm::vec3 torchlightColor{
@@ -200,8 +219,9 @@ namespace vulkan {
 
                 const glm::vec3 center = pos + hitbox.center();
                 const glm::vec3 size = hitbox.size();
+                const ProjectionViewUniform projectionViewUniform = { camera->getProjView() };
                 linesShader->use();
-                linesShader->uniformMatrix("u_projview", camera->getProjView());
+                linesShader->uniform(projectionViewUniform);
                 m_lineBatch->lineWidth(2.0f);
                 m_lineBatch->box(center, size + glm::vec3(0.02), glm::vec4(0.f, 0.f, 0.f, 0.5f));
                 if (m_level->player->debug)

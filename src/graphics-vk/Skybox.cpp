@@ -38,7 +38,7 @@ namespace vulkan {
     }
 
     void Skybox::draw(IShader* shader, VkCommandBuffer commandBuffer) {
-        bind(commandBuffer, dynamic_cast<Shader *>(shader)->getOrCreatePipeline());
+        bind(commandBuffer, dynamic_cast<Shader *>(shader)->getPipeline());
         m_mesh->bind(commandBuffer);
         m_mesh->draw({0, 6}, commandBuffer);
     }
@@ -89,8 +89,8 @@ namespace vulkan {
         skyboxUniform.lightDir = glm::normalize(glm::vec3(sin(t), -cos(t), 0.7f));
 
         auto &context = VulkanContext::get();
-        auto *skyboxBuffer = context.getUniformBuffer(UniformBuffersHolder::SKYBOX);
-        skyboxBuffer->uploadData(skyboxUniform);
+
+        m_shader->uniform(skyboxUniform);
 
         const auto commandBuffer = context.beginDrawSkybox(m_cubemap, 0, 0, 0);
         m_shader->use(commandBuffer, {Image::getWidth(m_cubemap), Image::getHeight(m_cubemap)});

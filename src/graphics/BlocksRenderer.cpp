@@ -379,3 +379,21 @@ Mesh* BlocksRenderer::render(const Chunk* chunk, const ChunksStorage* chunks) {
 VoxelsVolume* BlocksRenderer::getVoxelsBuffer() const {
 	return voxelsBuffer;
 }
+
+#ifdef USE_VULKAN
+vulkan::Mesh<Vertex3D>* BlocksRenderer::renderVulkanMesh(Chunk* chunk, ChunksStorage* chunks) {
+	this->chunk = chunk;
+	voxelsBuffer->setPosition(chunk->x * CHUNK_W - 1, 0, chunk->z * CHUNK_D - 1);
+	chunks->getVoxels(voxelsBuffer, settings.graphics.backlight);
+	overflow = false;
+	vertexOffset = 0;
+	indexOffset = indexSize = 0;
+	const voxel* voxels = chunk->voxels;
+	render(voxels);
+
+	const Vertex3D *vertives = reinterpret_cast<Vertex3D*>(vertexBuffer);
+	const size_t vcount = vertexOffset / BlocksRenderer::VERTEX_SIZE;
+	auto *mesh = new vulkan::Mesh(vertives, vcount, indexBuffer, indexSize);
+	return mesh;
+}
+#endif

@@ -145,8 +145,8 @@ void ImageCube::bind() {
             return;
     }
 
-    if (state.commandbuffer == VK_NULL_HANDLE) return;
-    vulkan::vkCmdPushDescriptorSetKhr(state.commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipeline->getLayout(), 1, 1, &samplerWrite);
+    if (state.commandBuffer == VK_NULL_HANDLE) return;
+    vulkan::vkCmdPushDescriptorSetKhr(state.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipeline->getLayout(), 1, 1, &samplerWrite);
 }
 
 void ImageCube::bind(VkCommandBuffer commandBuffer, const GraphicsPipeline *pipeline) {

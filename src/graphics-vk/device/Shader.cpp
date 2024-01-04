@@ -13,26 +13,7 @@
 #include "../VulkanDefenitions.h"
 #include "../uniforms/DynamicConstants.h"
 #include "../uniforms/ProjectionViewConstant.h"
-
-inline std::vector<char> readFile(const std::filesystem::path &path) {
-
-    std::ifstream file(path, std::ios::ate | std::ios::binary);
-
-    if (!file.is_open()) {
-        return {};
-    }
-
-    const ssize_t fsize = file.tellg();
-
-    std::vector<char> buffer(fsize);
-
-    file.seekg(0);
-    file.read(buffer.data(), fsize);
-
-    file.close();
-
-    return buffer;
-}
+#include "../uniforms/SkyboxUniform.h"
 
 inline VkShaderModule createModule(const std::vector<char> &code, VkDevice device) {
     VkShaderModuleCreateInfo shaderModuleCreateInfo{};
@@ -47,6 +28,7 @@ inline VkShaderModule createModule(const std::vector<char> &code, VkDevice devic
 }
 
 namespace vulkan {
+    constexpr u32 OBJECT_COUNT = 32;
 
     Shader::Shader(VkShaderModule vertexModule, VkShaderModule fragmentModule, ShaderType type) : m_type(type) {
         m_modules.emplace_back(vertexModule);
@@ -55,144 +37,153 @@ namespace vulkan {
         m_stages.emplace_back(initializers::pipelineShaderStageCreateInfo(vertexModule, VK_SHADER_STAGE_VERTEX_BIT));
         m_stages.emplace_back(initializers::pipelineShaderStageCreateInfo(fragmentModule, VK_SHADER_STAGE_FRAGMENT_BIT));
 
-        m_pipeline = GraphicsPipeline::create(m_stages, m_type);
+        const Device &device = VulkanContext::get().getDevice();
+        const size_t projectionViewAlignment = device.padUniformBufferSize(sizeof(ProjectionViewUniform));
+
+        switch (type) {
+            case ShaderType::NONE:
+                throw std::runtime_error("Failed to init shader");
+            case ShaderType::MAIN: {
+                m_uniformBuffers["fog"] = std::make_unique<UniformBuffer>(sizeof(FogUniform));
+                m_uniformBuffers["state"] = std::make_unique<UniformBuffer>(sizeof(StateUniform));
+            } break;
+            case ShaderType::LINES:
+            case ShaderType::UI: {
+                m_uniformBuffers["projview"] = std::make_unique<UniformBuffer>(projectionViewAlignment, OBJECT_COUNT);
+                m_hasDynamic = true;
+            } break;
+            case ShaderType::BACKGROUND: {
+                m_uniformBuffers["background"] = std::make_unique<UniformBuffer>(sizeof(BackgroundUniform));
+            } break;
+            case ShaderType::SKYBOX_GEN: {
+                m_uniformBuffers["skybox"] = std::make_unique<UniformBuffer>(sizeof(SkyboxUniform));
+            } break;
+            case ShaderType::UI3D: {
+                m_uniformBuffers["apply"] = std::make_unique<UniformBuffer>(sizeof(ApplyUniform));
+                m_uniformBuffers["projview"] = std::make_unique<UniformBuffer>(projectionViewAlignment, OBJECT_COUNT);
+                m_hasDynamic = true;
+            } break;
+        }
+
+        std::vector<initializers::UniformBufferInfo> bufferInfos;
+        bufferInfos.reserve(m_uniformBuffers.size());
+
+        for (const auto &buffer: m_uniformBuffers) {
+            bufferInfos.emplace_back(buffer.second->getBufferInfo());
+        }
+
+        m_pipeline = GraphicsPipeline::create(m_stages, bufferInfos, m_type);
     }
 
     Shader::~Shader() {
-        auto &device = VulkanContext::get().getDevice();
+        const Device &device = VulkanContext::get().getDevice();
         for (const auto &module : m_modules) {
             vkDestroyShaderModule(device, module, nullptr);
         }
     }
 
     void Shader::use() {
-        if (m_pipeline == nullptr) getOrCreatePipeline();
         auto &context = VulkanContext::get();
         auto &state = context.getCurrentState();
-        if (state.commandbuffer == VK_NULL_HANDLE) return;
-        m_pipeline->bind(state.commandbuffer, state.viewport);
+        if (state.commandBuffer == VK_NULL_HANDLE) return;
+        m_pipeline->bind(state.commandBuffer, state.viewport);
         context.updateState(m_pipeline.get());
+        if (!m_hasDynamic) {
+            m_pipeline->bindDiscriptorSet(state.commandBuffer);
+        }
     }
 
     void Shader::uniformMatrix(std::string name, glm::mat4 matrix) {
         m_values.addOrUpdate(name, matrix);
-        updateUniform();
     }
 
     void Shader::uniform1i(std::string name, int x) {
         m_values.addOrUpdate(name, x);
-        updateUniform();
     }
 
     void Shader::uniform1f(std::string name, float x) {
         m_values.addOrUpdate(name, x);
-        updateUniform();
     }
 
     void Shader::uniform2f(std::string name, float x, float y) {
         m_values.addOrUpdate(name, glm::vec2(x, y));
-        updateUniform();
     }
 
     void Shader::uniform2f(std::string name, glm::vec2 xy) {
         m_values.addOrUpdate(name, xy);
-        updateUniform();
     }
 
     void Shader::uniform3f(std::string name, float x, float y, float z) {
         m_values.addOrUpdate(name, glm::vec3(x, y, z));
-        updateUniform();
     }
 
     void Shader::uniform3f(std::string name, glm::vec3 xyz) {
         m_values.addOrUpdate(name, xyz);
-        updateUniform();
+    }
+
+    void Shader::uniform(const StateUniform& uniform) {
+        m_uniformBuffers["state"]->uploadData(uniform);
+    }
+
+    void Shader::uniform(const FogUniform& uniform) {
+        m_uniformBuffers["fog"]->uploadData(uniform);
+    }
+
+    void Shader::uniform(const ApplyUniform& uniform) {
+        m_uniformBuffers["apply"]->uploadData(uniform);
+    }
+
+    void Shader::uniform(const ProjectionViewUniform& uniform) {
+        const VulkanContext &ctx = VulkanContext::get();
+        const uint32_t offset = ctx.getDevice().padUniformBufferSize(sizeof(ProjectionViewUniform)) * m_dynamicCount;
+
+        m_uniformBuffers["projview"]->uploadDataDynamic(uniform, offset);
+
+        const State &state = ctx.getCurrentState();
+        if (state.commandBuffer == VK_NULL_HANDLE) return;
+        m_pipeline->bindDiscriptorSet(state.commandBuffer, 1, &offset);
+
+        m_dynamicCount = (m_dynamicCount + 1) % OBJECT_COUNT;
+    }
+
+    void Shader::uniform(const SkyboxUniform& uniform) {
+        m_uniformBuffers["skybox"]->uploadData(uniform);
+    }
+
+    void Shader::uniform(const BackgroundUniform& uniform) {
+        m_uniformBuffers["background"]->uploadData(uniform);
     }
 
     void Shader::pushConstant(const DynamicConstants &constants) {
-        const auto commandBuffer = VulkanContext::get().getCurrentState().commandbuffer;
+        const auto commandBuffer = VulkanContext::get().getCurrentState().commandBuffer;
 
         if (commandBuffer == VK_NULL_HANDLE || m_pipeline == nullptr || m_type != ShaderType::MAIN) return;
         vkCmdPushConstants(commandBuffer, m_pipeline->getLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(DynamicConstants), &constants);
     }
 
-    template<ShaderType ...Types>
-    struct CheckAllowShaders {
-        bool value = false;
-        explicit CheckAllowShaders(ShaderType type) {
-            value = ((type == Types) || ...);
-        }
-    };
-
-    void Shader::pushConatnt(const ProjectionViewConstant& constant) {
-        const auto commandBuffer = VulkanContext::get().getCurrentState().commandbuffer;
-
-        if (commandBuffer == VK_NULL_HANDLE || m_pipeline == nullptr || !CheckAllowShaders<ShaderType::UI, ShaderType::UI3D, ShaderType::LINES>(m_type).value) return;
-        vkCmdPushConstants(commandBuffer, m_pipeline->getLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(ProjectionViewConstant), &constant);
-    }
-
     void Shader::use(VkCommandBuffer commandBuffer, VkExtent2D extent2D) {
         if (commandBuffer == VK_NULL_HANDLE) return;
         m_pipeline->bind(commandBuffer, extent2D);
-    }
-
-    GraphicsPipeline* Shader::getOrCreatePipeline() {
-        if (m_pipeline == nullptr)
-            m_pipeline = GraphicsPipeline::create(m_stages, m_type);
-
-        return m_pipeline.get();
-    }
-
-    // TODO: optimize this
-    void Shader::updateUniform() {
-        auto &context = VulkanContext::get();
-        auto *stateBuffer = context.getUniformBuffer(UniformBuffersHolder::STATE);
-        auto *fogBuffer = context.getUniformBuffer(UniformBuffersHolder::FOG);
-        auto *projectionViewBuffer = context.getUniformBuffer(UniformBuffersHolder::PROJECTION_VIEW);
-        auto *backgroundBuffer = context.getUniformBuffer(UniformBuffersHolder::BACKGROUND);
-        auto *applyBuffer = context.getUniformBuffer(UniformBuffersHolder::APPLY);
-
-        const auto stateUniform = m_values.getStateUniform();
-        const auto fogUniform = m_values.getFogUniform();
-        const auto projectionViewUniform = m_values.getProjectionView();
-        const auto backgroundUniform = m_values.getBackgroundUniform();
-        const auto applyUniform = m_values.getApplyUniform();
-
-        switch (m_type) {
-            default:
-            case ShaderType::NONE:
-                return;
-            case ShaderType::MAIN: {
-                stateBuffer->uploadData(stateUniform);
-                fogBuffer->uploadData(fogUniform);
-            } break;
-            case ShaderType::LINES:
-            case ShaderType::UI: {
-                projectionViewBuffer->uploadData(projectionViewUniform);
-            } break;
-            case ShaderType::BACKGROUND: {
-                backgroundBuffer->uploadData(backgroundUniform);
-            } break;
-            case ShaderType::UI3D: {
-                projectionViewBuffer->uploadData(projectionViewUniform);
-                applyBuffer->uploadData(applyUniform);
-            } break;
+        if (!m_hasDynamic) {
+            m_pipeline->bindDiscriptorSet(commandBuffer);
         }
     }
 
-    Shader* loadShader(const std::filesystem::path &vertexFile, const std::filesystem::path &fragmentFile, ShaderType type) {
+    GraphicsPipeline* Shader::getPipeline() const {
+        return m_pipeline.get();
+    }
+
+    Shader* loadShader(const std::vector<char> &vertexFile, const std::vector<char> &fragmentFile, ShaderType type) {
         if (type == ShaderType::NONE)
             return nullptr;
 
         auto &device = VulkanContext::get().getDevice();
-        const std::vector<char> vertexCode = readFile(vertexFile);
-        const std::vector<char> fragmentCode = readFile(fragmentFile);
 
-        if (vertexCode.empty() || fragmentCode.empty())
+        if (vertexFile.empty() || fragmentFile.empty())
             return nullptr;
 
-        auto vertexModule = createModule(vertexCode, device);
-        auto fragmentModule = createModule(fragmentCode, device);
+        const auto vertexModule = createModule(vertexFile, device);
+        const auto fragmentModule = createModule(fragmentFile, device);
 
         return new Shader(vertexModule, fragmentModule, type);
     }

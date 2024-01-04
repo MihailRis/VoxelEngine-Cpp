@@ -81,6 +81,8 @@ Device::Device(Instance &instance, VkSurfaceKHR surface) : m_physicalDevice(inst
 
     CHECK_VK_FUNCTION(vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &m_device));
 
+    vkGetPhysicalDeviceProperties(m_physicalDevice, &m_deviceProperties);
+
     VkQueue graphicsQueue;
     VkQueue presentQueue;
 
@@ -278,6 +280,16 @@ VkCommandBuffer Device::createCommandBuffer(VkCommandPool commandPool) const {
     CHECK_VK_FUNCTION(vkAllocateCommandBuffers(m_device, &info, &commandBuffer));
 
     return commandBuffer;
+}
+
+size_t Device::padUniformBufferSize(size_t size) const {
+    const size_t minUniformAlignment = m_deviceProperties.limits.minUniformBufferOffsetAlignment;
+    size_t alignmentSize = size;
+    if (minUniformAlignment > 0) {
+        alignmentSize = (alignmentSize + minUniformAlignment - 1) & ~(minUniformAlignment - 1);
+    }
+
+    return alignmentSize;
 }
 
 void Device::waitIdle() const {

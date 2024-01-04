@@ -12,8 +12,14 @@
 #include "../window/Events.h"
 #include "../window/input.h"
 #include "../graphics-common/IShader.h"
-#include "../graphics/Batch2D.h"
+
+#ifdef USE_VULKAN
 #include "../graphics-vk/Batch2D.h"
+#include "../graphics-vk/uniforms/ProjectionViewUniform.h"
+#else
+#include "../graphics/Batch2D.h"
+#endif
+
 #include "../graphics/GfxContext.h"
 #include "../assets/Assets.h"
 #include "../world/Level.h"
@@ -51,7 +57,11 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     menu->set("main");
 
     batch = new vulkan::Batch2D(1024);
-    const vec3 camPos = vulkan::VulkanContext::isVulkanEnabled() ? vec3(0, 0, -1) : vec3();
+#ifdef USE_VULKAN
+    constexpr vec3 camPos = vec3(0, 0, -1);
+#else
+    constexpr vec3 camPos = vec3();
+#endif
     uicamera = new Camera(camPos, static_cast<float>(Window::height));
 	uicamera->perspective = false;
 	uicamera->flipped = true;
@@ -68,12 +78,19 @@ void MenuScreen::update(float delta) {
 void MenuScreen::draw(float delta) {
     Window::clear();
     Window::setBgColor(vec3(0.2f));
+#ifdef USE_VULKAN
     vulkan::VulkanContext::get().beginScreenDraw(0.0f, 0.0f, 0.0f);
+#endif
 
     uicamera->setFov(Window::height);
 	IShader* uishader = engine->getAssets()->getShader("ui");
 	uishader->use();
+#ifdef USE_VULKAN
+    const ProjectionViewUniform projectionViewUniform = { uicamera->getProjView() };
+    uishader->uniform(projectionViewUniform);
+#else
 	uishader->uniformMatrix("u_projview", uicamera->getProjView());
+#endif
 
     uint width = Window::width;
     uint height = Window::height;
@@ -86,8 +103,9 @@ void MenuScreen::draw(float delta) {
                 false, false, vec4(1.0f));
     batch->render();
     batch->end();
-
+#ifdef USE_VULKAN
     vulkan::VulkanContext::get().endScreenDraw();
+#endif
 }
 
 static bool backlight;
@@ -164,8 +182,10 @@ void LevelScreen::draw(float delta) {
 
     Viewport viewport(Window::width, Window::height);
     GfxContext ctx(nullptr, viewport, nullptr);
-
+#ifdef USE_VULKAN
     vulkan::VulkanContext::get().beginScreenDraw(0.0f, 0.0f, 0.0f, VK_ATTACHMENT_LOAD_OP_LOAD);
+#endif
+
     worldRenderer->draw(ctx, camera);
 
     if (hudVisible) {
@@ -174,6 +194,7 @@ void LevelScreen::draw(float delta) {
             hud->drawDebug(1 / delta);
         }
     }
-
+#ifdef USE_VULKAN
     vulkan::VulkanContext::get().endScreenDraw();
+#endif
 }

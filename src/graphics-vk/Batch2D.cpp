@@ -53,14 +53,19 @@ namespace vulkan {
         m_currentOffset = 0;
     }
 
+    void Batch2D::rebegin() const {
+        m_texture->bind();
+        m_mesh->bind();
+    }
+
     void Batch2D::sprite(float x, float y, float w, float h, const UVRegion& region, glm::vec4 tint) {
         rect(x, y, w, h, region.u1, region.v1, region.u2-region.u1, region.v2-region.v1, tint.r, tint.g, tint.b, tint.a);
     }
 
     void Batch2D::sprite(float x, float y, float w, float h, int atlasRes, int index, glm::vec4 tint) {
         const float scale = 1.0f / static_cast<float>(atlasRes);
-        float u = (index % atlasRes) * scale;
-        float v = 1.0f - ((index / atlasRes) * scale) - scale;
+        const float u = (index % atlasRes) * scale;
+        const float v = 1.0f - ((index / atlasRes) * scale) - scale;
         rect(x, y, w, h, u, v, scale, scale, tint.r, tint.g, tint.b, tint.a);
     }
 

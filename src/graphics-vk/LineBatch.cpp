@@ -55,7 +55,7 @@ namespace vulkan {
     }
 
     void LineBatch::lineWidth(float width) {
-        VkCommandBuffer commandBuffer = VulkanContext::get().getCurrentState().commandbuffer;
+        VkCommandBuffer commandBuffer = VulkanContext::get().getCurrentState().commandBuffer;
         if (commandBuffer == VK_NULL_HANDLE) return;
         vkCmdSetLineWidth(commandBuffer, width);
     }

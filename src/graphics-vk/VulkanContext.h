@@ -11,7 +11,6 @@
 #include "Surface.h"
 #include "device/Swapchain.h"
 #include "../util/Noncopybale.h"
-#include "device/UniformBuffer.h"
 
 class ImageCube;
 class ImageDepth;
@@ -28,7 +27,7 @@ namespace vulkan {
 
     struct State {
         VkCommandBuffer prevCommandbuffer = VK_NULL_HANDLE;
-        VkCommandBuffer commandbuffer = VK_NULL_HANDLE;
+        VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
         GraphicsPipeline *pipeline = nullptr;
         VkExtent2D viewport;
     };
@@ -41,27 +40,6 @@ namespace vulkan {
 
         VkSemaphore presentSemaphore, renderSemaphore, uiRenderSemaphore;
         VkFence renderFence;
-    };
-
-    class UniformBuffersHolder {
-        std::vector<std::unique_ptr<UniformBuffer>> m_buffers;
-    public:
-        enum Type : size_t {
-            STATE = 0,
-            FOG,
-            PROJECTION_VIEW,
-            BACKGROUND,
-            SKYBOX,
-            APPLY
-        };
-
-        UniformBuffersHolder() = default;
-
-        void initBuffers();
-
-        UniformBuffer *operator[](Type index) const;
-
-        void destroy();
     };
 
     struct UploadContext {
@@ -86,8 +64,6 @@ namespace vulkan {
         uint32_t m_currentFrame = 0;
 
         UploadContext m_uploadContext;
-
-        UniformBuffersHolder m_uniformBuffersHolder;
 
         FrameData m_frameDatas[MAX_FRAMES_IN_FLIGHT]{};
 
@@ -118,8 +94,6 @@ namespace vulkan {
         VkDescriptorPool getDescriptorPool() const;
 
         void immediateSubmit(std::function<void(VkCommandBuffer)> &&function) const;
-
-        UniformBuffer* getUniformBuffer(UniformBuffersHolder::Type type);
 
         void resize();
 

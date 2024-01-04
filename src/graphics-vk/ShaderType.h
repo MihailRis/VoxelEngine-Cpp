@@ -96,7 +96,7 @@ inline std::vector<VkDescriptorSetLayoutBinding> getUniformSetBindingsByShader(S
             VkDescriptorSetLayoutBinding projviewUniformBinding{};
             projviewUniformBinding.binding = 0;
             projviewUniformBinding.descriptorCount = 1;
-            projviewUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            projviewUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
             projviewUniformBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
             descriptroBindings.emplace_back(projviewUniformBinding);
@@ -123,7 +123,7 @@ inline std::vector<VkDescriptorSetLayoutBinding> getUniformSetBindingsByShader(S
             VkDescriptorSetLayoutBinding projviewUniformBinding{};
             projviewUniformBinding.binding = 0;
             projviewUniformBinding.descriptorCount = 1;
-            projviewUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            projviewUniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
             projviewUniformBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
             VkDescriptorSetLayoutBinding applyUniformBinding{};

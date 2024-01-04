@@ -8,7 +8,6 @@
 #include <glm/glm.hpp>
 
 struct FogUniform {
-    alignas(16) glm::vec3 fogColor;
     alignas(4) float fogFactor;
     alignas(4) float fogCurve;
 };

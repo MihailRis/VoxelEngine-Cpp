@@ -12,5 +12,6 @@ typedef uint8_t ubyte;
 typedef uint16_t blockid_t;
 typedef uint16_t blockstate_t;
 typedef uint16_t light_t;
+using u32 = uint32_t;
 
 #endif

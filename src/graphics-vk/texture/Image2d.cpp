@@ -21,7 +21,7 @@ Image2d::Image2d(const unsigned char* data, int width, int height, VkFormat form
     VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
 
-    auto &device = vulkan::VulkanContext::get().getDevice();
+    const Device &device = vulkan::VulkanContext::get().getDevice();
 
     VkCommandPool commandPool = device.createCommadPool();
     VkCommandBuffer commandBuffer = device.createCommandBuffer(commandPool);
@@ -158,7 +158,7 @@ void Image2d::bind() {
     }
 
     auto &state = vulkan::VulkanContext::get().getCurrentState();
-    vulkan::vkCmdPushDescriptorSetKhr(state.commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getLayout(), 1, 1, &samplerWrite);
+    vulkan::vkCmdPushDescriptorSetKhr(state.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getLayout(), 1, 1, &samplerWrite);
 }
 
 void Image2d::reload(unsigned char* data) {

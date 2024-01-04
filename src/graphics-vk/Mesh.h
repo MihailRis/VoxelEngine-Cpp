@@ -5,6 +5,7 @@
 #ifndef VKMESH_H
 #define VKMESH_H
 
+#include <cstring>
 #include <memory>
 
 #include "Tools.h"
@@ -72,7 +73,7 @@ namespace vulkan {
 
     template<typename TVertex>
     void Mesh<TVertex>::bind() {
-        const auto commandBuffer = VulkanContext::get().getCurrentState().commandbuffer;
+        const auto commandBuffer = VulkanContext::get().getCurrentState().commandBuffer;
         if (commandBuffer == VK_NULL_HANDLE) return;
         bind(commandBuffer);
     }
@@ -90,7 +91,6 @@ namespace vulkan {
 
     template<typename TVertex>
     void Mesh<TVertex>::reload(const TVertex *vertexBuffer, size_t vertices, const int *indexBuffer, size_t indices) {
-
         const VkDeviceSize vertexBufferSize = sizeof(TVertex) * vertices;
         const VkDeviceSize indexBufferSize = sizeof(int) * indices;
 
@@ -141,7 +141,7 @@ namespace vulkan {
     void Mesh<TVertex>::draw(const VertexOffset &offset, unsigned int primitive) {
         if (m_stagingVertexBuffer == nullptr) return;
 
-        const auto commandBuffer = VulkanContext::get().getCurrentState().commandbuffer;
+        const auto commandBuffer = VulkanContext::get().getCurrentState().commandBuffer;
         if (commandBuffer == VK_NULL_HANDLE) return;
         draw(offset, commandBuffer);
     }

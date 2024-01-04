@@ -211,7 +211,7 @@ void Window::resetScissor() {
 	scissorArea = vec4(0.0f, 0.0f, width, height);
 	scissorStack = std::stack<vec4>();
 	// glDisable(GL_SCISSOR_TEST);
-	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandbuffer;
+	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandBuffer;
 	if (commandBuffer == VK_NULL_HANDLE) return;
 	VkRect2D scissor = {{0, 0}, {Window::width, Window::height}};
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
@@ -219,7 +219,7 @@ void Window::resetScissor() {
 
 void Window::pushScissor(vec4 area) {
 	// TODO: compile time change and fix for vulkan
-	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandbuffer;
+	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandBuffer;
 	if (commandBuffer == VK_NULL_HANDLE) return;
 	if (scissorStack.empty()) {
 		// VkRect2D scissor = { {0, 0}, {Window::width, Window::height} };
@@ -263,7 +263,7 @@ void Window::popScissor() {
 	}
 	vec4 area = scissorStack.top();
 	scissorStack.pop();
-	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandbuffer;
+	VkCommandBuffer commandBuffer = vulkan::VulkanContext::get().getCurrentState().commandBuffer;
 	if (commandBuffer == VK_NULL_HANDLE) return;
 	if (area.z < 0.0f || area.w < 0.0f) {
 		// glScissor(0, 0, 0, 0);
@@ -333,7 +333,9 @@ bool Window::isFullscreen() {
 
 void Window::swapBuffers(){
 	// TODO: compile time change
-	// glfwSwapBuffers(window);
+#ifndef USE_VULKAN
+	glfwSwapBuffers(window);
+#endif
 	Window::resetScissor();
 }
 

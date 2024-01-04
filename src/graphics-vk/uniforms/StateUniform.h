@@ -9,7 +9,6 @@
 struct StateUniform {
     glm::mat4 projection;
     glm::mat4 view;
-    alignas(16) glm::vec3 skyLightColor;
     alignas(16) glm::vec3 cameraPos;
     alignas(4) float gamma;
 };

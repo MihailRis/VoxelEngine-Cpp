@@ -6,9 +6,13 @@
 #include <algorithm>
 
 #include "../../assets/Assets.h"
-#include "../../graphics/Batch2D.h"
+#ifdef USE_VULKAN
 #include "../../graphics-vk/Batch2D.h"
-#include "../../graphics/Shader.h"
+#include "../../graphics-vk/uniforms/ProjectionViewUniform.h"
+#else
+#include "../../graphics/Batch2D.h"
+#endif
+#include "../../graphics-common/IShader.h"
 #include "../../window/Events.h"
 #include "../../window/input.h"
 #include "../../window/Camera.h"
@@ -22,7 +26,11 @@ using namespace gui;
 GUI::GUI() {
     container = new Container(vec2(0, 0), vec2(1000));
 
-    const vec3 camPos = vulkan::VulkanContext::isVulkanEnabled() ? vec3(0, 0, -1) : vec3();
+#ifdef USE_VULKAN
+    constexpr vec3 camPos = vec3(0, 0, -1);
+#else
+    constexpr vec3 camPos = vec3();
+#endif
     uicamera = new Camera(camPos, static_cast<float>(Window::height));
 	uicamera->perspective = false;
 	uicamera->flipped = true;
@@ -124,7 +132,12 @@ void GUI::draw(vulkan::Batch2D* batch, Assets* assets) {
 
 	IShader* uishader = assets->getShader("ui");
 	uishader->use();
+#ifdef USE_VULKAN
+    const ProjectionViewUniform projectionViewUniform = { uicamera->getProjection() * uicamera->getView() };
+    uishader->uniform(projectionViewUniform);
+#else
 	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
+#endif
 
     batch->begin();
     container->draw(batch, assets);

@@ -54,7 +54,6 @@ namespace vulkan {
             StateUniform uniform{};
             uniform.projection = getUniformValue<glm::mat4>("u_proj");
             uniform.view = getUniformValue<glm::mat4>("u_view");
-            uniform.skyLightColor = getUniformValue<glm::vec3>("u_skyLightColor");
             uniform.cameraPos = getUniformValue<glm::vec3>("u_cameraPos");
             uniform.gamma = getUniformValue<float>("u_gamma");
 
@@ -64,7 +63,6 @@ namespace vulkan {
         inline FogUniform getFogUniform() const {
             FogUniform uniform{};
 
-            uniform.fogColor = getUniformValue<glm::vec3>("u_fogColor");
             uniform.fogFactor = getUniformValue<float>("u_fogFactor");
             uniform.fogCurve = getUniformValue<float>("u_fogCurve");
 

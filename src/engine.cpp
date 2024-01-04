@@ -49,7 +49,9 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 		throw initialize_error("could not initialize window");
 	}
 
+#ifdef USE_VULKAN
 	vulkan::VulkanContext::initialize();
+#endif
 
     auto resdir = paths->getResources();
     scripting::initialize(paths);
@@ -66,6 +68,9 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 	while (loader.hasNext()) {
 		if (!loader.loadNext()) {
 			assets.reset();
+#ifdef USE_VULKAN
+			vulkan::VulkanContext::finalize();
+#endif
 			Window::terminate();
 			throw initialize_error("could not to initialize assets");
 		}
@@ -116,14 +121,17 @@ void Engine::mainloop() {
 		gui->act(delta);
 		screen->update(delta);
 
-		if (!Window::isIconified()) {screen->draw(delta);
-		gui->draw(&batch, assets.get());
+		if (!Window::isIconified()) {
+			screen->draw(delta);
+			gui->draw(&batch, assets.get());
 
-		vulkan::VulkanContext::get().draw();
-		    // Window::swapInterval(settings.display.swapInterval);} else {
-            Window::swapInterval(1);
+#ifdef USE_VULKAN
+			vulkan::VulkanContext::get().draw();
+#else
+            Window::swapInterval(settings.display.swapInterval);
+#endif
         }
-        Window::swapBuffers();
+		Window::swapBuffers();
 		Events::pollEvents();
 	}
 
@@ -138,7 +146,9 @@ Engine::~Engine() {
 
 	std::cout << "-- shutting down" << std::endl;
     assets.reset();
+#ifdef USE_VULKAN
 	vulkan::VulkanContext::finalize();
+#endif
 	Window::terminate();
 	std::cout << "-- engine finished" << std::endl;
 }

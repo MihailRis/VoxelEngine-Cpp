@@ -14,13 +14,19 @@
 #include "../util/timeutil.h"
 #include "../assets/Assets.h"
 #include "../graphics-common/IShader.h"
+
+#ifdef USE_VULKAN
+#include "../graphics-vk/Batch2D.h"
+#include "../graphics-vk/WorldRenderer.h"
+#include "../graphics-vk/uniforms/ProjectionViewUniform.h"
+#else
 #include "../graphics/Batch2D.h"
 #include "../graphics/Batch3D.h"
+#endif
+
 #include "../graphics/Font.h"
 #include "../graphics/Atlas.h"
 #include "../graphics/Mesh.h"
-#include "../graphics-vk/Batch2D.h"
-#include "../graphics-vk/WorldRenderer.h"
 #include "../window/Camera.h"
 #include "../window/Window.h"
 #include "../window/Events.h"
@@ -69,7 +75,12 @@ HudRenderer::HudRenderer(Engine* engine,
 									  assets->getAtlas("blocks"),
 									  cache);
 
-	uicamera = new Camera(vec3(), 1);
+#ifdef USE_VULKAN
+	constexpr vec3 camPos = vec3(0, 0, -1);
+#else
+	constexpr vec3 camPos = vec3();
+#endif
+	uicamera = new Camera(camPos, 1);
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 
@@ -91,7 +102,7 @@ HudRenderer::HudRenderer(Engine* engine,
 	panel->add(shared_ptr<Label>(create_label([this](){
 		return L"fps: "+this->fpsString;
 	})));
-	panel->add(shared_ptr<Label>(create_label([this](){
+	panel->add(shared_ptr<Label>(create_label([=]() {
 #ifdef USE_VULKAN
 		return L"meshes: " + std::to_wstring(vulkan::meshesCount);
 #else
@@ -341,7 +352,12 @@ void HudRenderer::draw(const GfxContext& ctx){
 
 	IShader* uishader = assets->getShader("ui");
 	uishader->use();
+#ifdef USE_VULKAN
+	const ProjectionViewUniform projectionViewUniform = { uicamera->getProjection() * uicamera->getView() };
+	uishader->uniform(projectionViewUniform);
+#else
 	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
+#endif
 
 	batch->begin();
 
@@ -361,7 +377,6 @@ void HudRenderer::draw(const GfxContext& ctx){
 	batch->rect(width - 68, height - 68, 68, 68);
 	batch->setColor(vec4(1.0f));
 	batch->render();
-	// batch->end();
 
 	blocksPreview->begin(&ctx.getViewport());
 	{
@@ -375,7 +390,10 @@ void HudRenderer::draw(const GfxContext& ctx){
 		blocksPreview->draw(cblock, width - 56, uicamera->getFov() - 56, 48, vec4(1.0f));
 	}
 	uishader->use();
-#ifndef USE_VULKAN
+#ifdef USE_VULKAN
+	uishader->uniform(projectionViewUniform);
+	batch->rebegin();
+#else
 	batch->begin();
 #endif
 

@@ -4,11 +4,13 @@
 
 #include "Buffer.h"
 
+#include <cstring>
+
 #include "../VulkanContext.h"
 
 namespace vulkan {
     Buffer::Buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VmaAllocationCreateFlags flags) : m_size(size) {
-        auto &allocator = VulkanContext::get().getAllocator();
+        const Allocator &allocator = VulkanContext::get().getAllocator();
 
         VkBufferCreateInfo bufferCreateInfo{};
         bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -29,13 +31,13 @@ namespace vulkan {
 
 
     void Buffer::mapMemory(void **data) {
-        auto &allocator = VulkanContext::get().getAllocator();
+        const Allocator &allocator = VulkanContext::get().getAllocator();
         vmaMapMemory(allocator, m_allocation, data);
         m_mapped = true;
     }
 
     void Buffer::unmapMemory() {
-        auto &allocator = VulkanContext::get().getAllocator();
+        const Allocator &allocator = VulkanContext::get().getAllocator();
         vmaUnmapMemory(allocator, m_allocation);
         m_mapped = false;
     }
@@ -53,7 +55,7 @@ namespace vulkan {
     }
 
     void Buffer::upluadDataToGpu(const void* data, size_t size) {
-        auto &device = VulkanContext::get().getDevice();
+        const Device &device = VulkanContext::get().getDevice();
 
         VkCommandPoolCreateInfo commandPoolCreateInfo{};
         commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -110,7 +112,7 @@ namespace vulkan {
         if (m_destroyed) return;
         if (m_mapped) unmapMemory();
 
-        auto &allocator = VulkanContext::get().getAllocator();
+        const Allocator &allocator = VulkanContext::get().getAllocator();
         vmaDestroyBuffer(allocator, m_buffer, m_allocation);
         m_destroyed = true;
     }

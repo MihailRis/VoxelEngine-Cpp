@@ -31,8 +31,6 @@ namespace vulkan {
         void vertex(glm::vec3 point, glm::vec2 uvpoint,
                     float r, float g, float b, float a);
 
-        void vertex(glm::vec3 point, glm::vec2 uvpoint, glm::vec4 color);
-
         void face(const glm::vec3& coord, float w, float h,
             const glm::vec3& axisX,
             const glm::vec3& axisY,

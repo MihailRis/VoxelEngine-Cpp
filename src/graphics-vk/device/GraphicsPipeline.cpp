@@ -22,7 +22,7 @@ constexpr VkDynamicState DYNAMIC_STATES[] = {
     VK_DYNAMIC_STATE_SCISSOR,
 };
 
-GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, VkPipelineLayout layout, VkDescriptorSetLayout uniformSetLayout, VkDescriptorSetLayout samplerSetLayout, ShaderType shaderType)
+GraphicsPipeline::GraphicsPipeline(const std::vector<initializers::UniformBufferInfo> &bufferInfos, VkPipeline pipeline, VkPipelineLayout layout, VkDescriptorSetLayout uniformSetLayout, VkDescriptorSetLayout samplerSetLayout, ShaderType shaderType)
     : m_pipeline(pipeline),
       m_layout(layout),
       m_uniformsSetLayout(uniformSetLayout),
@@ -41,62 +41,72 @@ GraphicsPipeline::GraphicsPipeline(VkPipeline pipeline, VkPipelineLayout layout,
 
     CHECK_VK_FUNCTION(vkAllocateDescriptorSets(device, &uniformSetAllocateInfo, &m_uniformSet));
 
-    const auto stateBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::STATE)->getBufferInfo();
-    const auto fogBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::FOG)->getBufferInfo();
-    const auto projectionViewBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::PROJECTION_VIEW)->getBufferInfo();
-    const auto backgraundUniformInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::BACKGROUND)->getBufferInfo();
-    const auto skyboxUniformInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::SKYBOX)->getBufferInfo();
-    const auto applyUniformBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::APPLY)->getBufferInfo();
+    std::vector<VkWriteDescriptorSet> writeDescriptorSets{};
 
-    switch (shaderType) {
-        case ShaderType::MAIN: {
-            const std::array writeSets = {
-                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &stateBufferInfo),
-                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 1, &fogBufferInfo),
-            };
-
-            vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-        } break;
-        case ShaderType::LINES: {
-            const std::array writeSets = {
-                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &projectionViewBufferInfo),
-            };
-
-            vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-        } break;
-        case ShaderType::UI: {
-            const std::array writeSets = {
-                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &projectionViewBufferInfo),
-            };
-
-            vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-        } break;
-        case ShaderType::BACKGROUND: {
-            const std::array writeSets = {
-                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &backgraundUniformInfo),
-            };
-
-            vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-        } break;
-        case ShaderType::SKYBOX_GEN: {
-            const std::array writeSets = {
-                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &skyboxUniformInfo),
-            };
-
-            vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-        } break;
-        case ShaderType::UI3D: {
-            const std::array writeSets = {
-                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &projectionViewBufferInfo),
-                initializers::writeUniformBufferDescriptorSet(m_uniformSet, 1, &applyUniformBufferInfo)
-            };
-
-            vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-        } break;
-        case ShaderType::NONE:
-        default:
-            break;
+    uint32_t dstBinding = 0;
+    for (const auto &bufferInfo : bufferInfos) {
+        writeDescriptorSets.emplace_back(initializers::writeUniformBufferDescriptorSet(m_uniformSet, dstBinding, bufferInfo));
+        ++dstBinding;
     }
+
+    vkUpdateDescriptorSets(device, writeDescriptorSets.size(), writeDescriptorSets.data(), 0, nullptr);
+
+    // const VkDescriptorBufferInfo stateBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::STATE)->getBufferInfo();
+    // const VkDescriptorBufferInfo fogBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::FOG)->getBufferInfo();
+    // const VkDescriptorBufferInfo projectionViewBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::PROJECTION_VIEW)->getBufferInfo();
+    // const VkDescriptorBufferInfo backgraundUniformInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::BACKGROUND)->getBufferInfo();
+    // const VkDescriptorBufferInfo skyboxUniformInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::SKYBOX)->getBufferInfo();
+    // const VkDescriptorBufferInfo applyUniformBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::APPLY)->getBufferInfo();
+    //
+    // switch (shaderType) {
+    //     case ShaderType::MAIN: {
+    //         const std::array writeSets = {
+    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &stateBufferInfo),
+    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 1, &fogBufferInfo),
+    //         };
+    //
+    //         vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
+    //     } break;
+    //     case ShaderType::LINES: {
+    //         const std::array writeSets = {
+    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &projectionViewBufferInfo),
+    //         };
+    //
+    //         vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
+    //     } break;
+    //     case ShaderType::UI: {
+    //         const std::array writeSets = {
+    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &projectionViewBufferInfo),
+    //         };
+    //
+    //         vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
+    //     } break;
+    //     case ShaderType::BACKGROUND: {
+    //         const std::array writeSets = {
+    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &backgraundUniformInfo),
+    //         };
+    //
+    //         vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
+    //     } break;
+    //     case ShaderType::SKYBOX_GEN: {
+    //         const std::array writeSets = {
+    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &skyboxUniformInfo),
+    //         };
+    //
+    //         vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
+    //     } break;
+    //     case ShaderType::UI3D: {
+    //         const std::array writeSets = {
+    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &projectionViewBufferInfo),
+    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 1, &applyUniformBufferInfo)
+    //         };
+    //
+    //         vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
+    //     } break;
+    //     case ShaderType::NONE:
+    //     default:
+    //         break;
+    // }
 }
 
 GraphicsPipeline::~GraphicsPipeline() {
@@ -125,8 +135,8 @@ VkDescriptorSet GraphicsPipeline::getSamplerSet() const {
 
 void GraphicsPipeline::bind(VkCommandBuffer commandBuffer, VkExtent2D extent2D) {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
-    const VkDescriptorSet sets[] = { m_uniformSet };
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_layout, 0, 1, sets, 0, nullptr);
+    // const VkDescriptorSet sets[] = { m_uniformSet };
+    // vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_layout, 0, 1, sets, 0, nullptr);
 
     VkViewport viewport{};
     viewport.width = static_cast<float>(extent2D.width);
@@ -143,15 +153,19 @@ void GraphicsPipeline::bind(VkCommandBuffer commandBuffer, VkExtent2D extent2D) 
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }
 
+void GraphicsPipeline::bindDiscriptorSet(VkCommandBuffer commandBuffer, uint32_t dynamiOffsetCount, const uint32_t *pDynamicOffsets) {
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_layout, 0, 1, &m_uniformSet, dynamiOffsetCount, pDynamicOffsets);
+}
+
 void GraphicsPipeline::destroy() {
-    auto &device = vulkan::VulkanContext::get().getDevice();
+    const Device &device = vulkan::VulkanContext::get().getDevice();
     vkDestroyPipeline(device, m_pipeline, nullptr);
     vkDestroyPipelineLayout(device, m_layout, nullptr);
     vkDestroyDescriptorSetLayout(device, m_uniformsSetLayout, nullptr);
     vkDestroyDescriptorSetLayout(device, m_samplerSetLayout, nullptr);
 }
 
-std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkPipelineShaderStageCreateInfo>& stages, ShaderType type) {
+std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkPipelineShaderStageCreateInfo> &stages, const std::vector<initializers::UniformBufferInfo> &bufferInfos, ShaderType type) {
     constexpr size_t dynamicStateCount = sizeof(DYNAMIC_STATES) / sizeof(VkDynamicState);
 
     VkVertexInputBindingDescription binding = getVertexBindingByType(type);
@@ -161,27 +175,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
 
     std::vector<VkDescriptorBindingFlags> descriptorBindingFlags;
 
-    switch (type)
-    {
-        case ShaderType::NONE:
-            throw std::runtime_error("Failed to initialize pipeline");
-        case ShaderType::MAIN:
-        case ShaderType::UI:
-        case ShaderType::UI3D:
-        case ShaderType::BACKGROUND:
-            // descriptorBindingFlags.emplace_back(VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT);
-        break;
-        case ShaderType::LINES:
-        default:
-            break;
-    }
-
-    auto &device = vulkan::VulkanContext::get().getDevice();
-
-    // VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsCreateInfo{};
-    // bindingFlagsCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
-    // bindingFlagsCreateInfo.bindingCount = descriptorBindingFlags.size();
-    // bindingFlagsCreateInfo.pBindingFlags = descriptorBindingFlags.data();
+    const Device &device = vulkan::VulkanContext::get().getDevice();
 
     VkDescriptorSetLayoutCreateInfo uniformsSetLayoutCreateInfo{};
     uniformsSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -202,6 +196,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
 
     std::array setLayouts = { uniformSetLayout, samplerSetLayout };
 
+    // TODO: blyat govno delete
     std::array pushConstantRanges = getPushConstantRanges(tools::PushConstantRange{ sizeof(DynamicConstants), 0, VK_SHADER_STAGE_VERTEX_BIT });
 
     VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
@@ -292,7 +287,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     colorBlending.pAttachments = &colorBlendAttachment;
 
     VkFormat sawpchainFormat = vulkan::VulkanContext::get().getSwapchain().getFormat();
-    const auto depthStencilFormat = vulkan::VulkanContext::get().getDepth().getFormat();
+    const VkFormat depthStencilFormat = vulkan::VulkanContext::get().getDepth().getFormat();
 
     VkFormat cubeFormat = VK_FORMAT_R8G8B8A8_UNORM;
     VkPipelineRenderingCreateInfo renderingCreateInfo{};
@@ -321,5 +316,5 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     VkPipeline pipeline = VK_NULL_HANDLE;
     CHECK_VK_FUNCTION(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, nullptr, &pipeline));
 
-    return std::make_shared<GraphicsPipeline>(pipeline, pipelineLayout, uniformSetLayout, samplerSetLayout, type);
+    return std::make_shared<GraphicsPipeline>(bufferInfos, pipeline, pipelineLayout, uniformSetLayout, samplerSetLayout, type);
 }

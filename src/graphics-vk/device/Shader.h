@@ -6,14 +6,16 @@
 #define SHADER_H
 
 #include <string>
-#include <vector>
+#include <unordered_map>
 #include <filesystem>
 #include <glm/fwd.hpp>
 #include <vulkan/vulkan.h>
 
+#include "UniformBuffer.h"
 #include "../UniformValues.h"
 #include "../ShaderType.h"
 #include "../../graphics-common/IShader.h"
+#include "../uniforms/SkyboxUniform.h"
 
 class GraphicsPipeline;
 
@@ -22,9 +24,13 @@ namespace vulkan {
     class Shader : public IShader {
         std::vector<VkShaderModule> m_modules;
         std::vector<VkPipelineShaderStageCreateInfo> m_stages;
+        std::unordered_map<std::string, std::unique_ptr<UniformBuffer>> m_uniformBuffers;
 
         UniformValues m_values;
         ShaderType m_type;
+        
+        uint32_t m_dynamicCount = 0;
+        bool m_hasDynamic = false;
 
         std::shared_ptr<GraphicsPipeline> m_pipeline = nullptr;
     public:
@@ -47,17 +53,21 @@ namespace vulkan {
 
         void uniform3f(std::string name, glm::vec3 xyz) override;
 
+        void uniform(const StateUniform &uniform) override;
+        void uniform(const FogUniform &uniform) override;
+        void uniform(const ApplyUniform &uniform) override;
+        void uniform(const ProjectionViewUniform &uniform) override;
+        void uniform(const SkyboxUniform &uniform) override;
+        void uniform(const BackgroundUniform &uniform) override;
+
         void pushConstant(const DynamicConstants& constants) override;
-        void pushConatnt(const ProjectionViewConstant& constant) override;
 
         void use(VkCommandBuffer commandBuffer, VkExtent2D extent2D) override;
         
-        GraphicsPipeline *getOrCreatePipeline();
-    private:
-        void updateUniform();
+        GraphicsPipeline *getPipeline() const;
     };
 
-    Shader *loadShader(const std::filesystem::path &vertexFile, const std::filesystem::path &fragmentFile, ShaderType type);
+    Shader *loadShader(const std::vector<char> &vertexFile, const std::vector<char> &fragmentFile, ShaderType type);
 
 } // vulkan
 

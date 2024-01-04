@@ -73,6 +73,13 @@ char* files::read_bytes(fs::path filename, size_t& length) {
 	return data.release();
 }
 
+std::vector<char> files::read_bytes_as_vector(const std::filesystem::path &path) {
+	size_t size = 0;
+	auto chars = read_bytes(path, size);
+
+	return {chars, chars + size};
+}
+
 std::string files::read_string(fs::path filename) {
 	size_t size;
 	std::unique_ptr<char> chars (read_bytes(filename, size));

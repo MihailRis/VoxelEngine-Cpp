@@ -16,32 +16,13 @@
 #include "uniforms/SkyboxUniform.h"
 #include "uniforms/StateUniform.h"
 
-constexpr uint32_t DESCRIPTOR_SET_COUNT = 1000;
+constexpr uint32_t DESCRIPTOR_SET_COUNT = 1024;
 
 namespace vulkan {
 
     PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKhr = nullptr;
 
     bool VulkanContext::vulkanEnabled = false;
-
-    void UniformBuffersHolder::initBuffers() {
-        m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(StateUniform)));
-        m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(FogUniform)));
-        m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(ProjectionViewUniform)));
-        m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(BackgroundUniform)));
-        m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(SkyboxUniform)));
-        m_buffers.emplace_back(std::make_unique<UniformBuffer>(sizeof(ApplyUniform)));
-    }
-
-    UniformBuffer* UniformBuffersHolder::operator[](Type index) const {
-        return m_buffers.at(index).get();
-    }
-
-    void UniformBuffersHolder::destroy() {
-        for (auto &uniformBuffer : m_buffers) {
-            uniformBuffer.reset();
-        }
-    }
 
     void VulkanContext::recreateSwapChain() {
         m_swapchain->destroy();
@@ -83,7 +64,7 @@ namespace vulkan {
     }
 
     void VulkanContext::initDepth() {
-        const auto swapChainExtent = m_swapchain->getExtent();
+        const VkExtent2D swapChainExtent = m_swapchain->getExtent();
         m_imageDepth = std::make_unique<ImageDepth>(VkExtent3D{swapChainExtent.width, swapChainExtent.height, 1});
     }
 
@@ -116,7 +97,6 @@ namespace vulkan {
 
         VkFenceCreateInfo fenceInfo{};
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        // fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
         VkCommandPoolCreateInfo commandPoolCreateInfo{};
         commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -145,10 +125,6 @@ namespace vulkan {
         }
     }
 
-    void VulkanContext::initUniformBuffers() {
-        m_uniformBuffersHolder.initBuffers();
-    }
-
     void VulkanContext::nextImage() {
         CHECK_VK_FUNCTION(vkAcquireNextImageKHR(m_device, *m_swapchain, UINT64_MAX, m_frameDatas[m_currentFrame].presentSemaphore, VK_NULL_HANDLE, &m_currentImage));
     }
@@ -164,8 +140,6 @@ namespace vulkan {
             vkDestroySemaphore(m_device, frameData.renderSemaphore, nullptr);
             vkDestroySemaphore(m_device, frameData.uiRenderSemaphore, nullptr);
         }
-
-        m_uniformBuffersHolder.destroy();
 
         vkDestroyFence(m_device, m_uploadContext.uploadFence, nullptr);
         vkDestroyCommandPool(m_device, m_uploadContext.commandPool, nullptr);
@@ -227,10 +201,6 @@ namespace vulkan {
         vkResetCommandPool(m_device, m_uploadContext.commandPool, 0);
     }
 
-    UniformBuffer* VulkanContext::getUniformBuffer(UniformBuffersHolder::Type type) {
-        return m_uniformBuffersHolder[type];
-    }
-
     void VulkanContext::resize() {
         recreateSwapChain();
         recreateImageDepth();
@@ -242,8 +212,8 @@ namespace vulkan {
     }
 
     void VulkanContext::updateStateCommandBuffer(VkCommandBuffer commandBuffer) {
-        m_state.prevCommandbuffer = m_state.commandbuffer;
-        m_state.commandbuffer = commandBuffer;
+        m_state.prevCommandbuffer = m_state.commandBuffer;
+        m_state.commandBuffer = commandBuffer;
     }
 
     VkCommandBuffer VulkanContext::immediateBeginDraw(float r, float g, float b, VkAttachmentLoadOp loadOp) {
@@ -351,7 +321,7 @@ namespace vulkan {
     }
 
     void VulkanContext::beginGuiDraw(VkAttachmentLoadOp loadOp) {
-        const auto swapchainExtent = m_swapchain->getExtent();
+        const VkExtent2D swapchainExtent = m_swapchain->getExtent();
         beginDraw(m_frameDatas[m_currentFrame].guiCommandBuffer, glm::vec4(0), loadOp, RenderTargetType::UI, swapchainExtent);
         updateStateCommandBuffer(m_frameDatas[m_currentFrame].guiCommandBuffer);
         m_state.viewport = swapchainExtent;
@@ -387,8 +357,8 @@ namespace vulkan {
 
         CHECK_VK_FUNCTION(vkQueueSubmit(m_device.getGraphis(), 1, &submitInfo, m_frameDatas[m_currentFrame].renderFence));
 
-        CHECK_VK_FUNCTION(vkWaitForFences(m_device, 1, &m_frameDatas[m_currentFrame].renderFence, VK_TRUE, UINT64_MAX));
-        CHECK_VK_FUNCTION(vkResetFences(m_device, 1, &m_frameDatas[m_currentFrame].renderFence));
+        (vkWaitForFences(m_device, 1, &m_frameDatas[m_currentFrame].renderFence, VK_TRUE, UINT64_MAX));
+        (vkResetFences(m_device, 1, &m_frameDatas[m_currentFrame].renderFence));
 
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -423,23 +393,22 @@ namespace vulkan {
     }
 
     void VulkanContext::initialize() {
-        auto &context = get();
+        VulkanContext &context = get();
         vulkanEnabled = true;
         context.initDescriptorPool();
         context.initDepth();
         context.initUploadContext();
         context.initFrameDatas();
-        context.initUniformBuffers();
         context.nextImage();
     }
 
     void VulkanContext::waitIdle() {
-        auto &device = get().getDevice();
+        const Device &device = get().getDevice();
         device.waitIdle();
     }
 
     void VulkanContext::finalize() {
-        auto &context = get();
+        VulkanContext &context = get();
         context.destroy();
     }
 

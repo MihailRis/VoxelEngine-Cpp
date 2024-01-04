@@ -5,15 +5,26 @@
 #include "UniformBuffer.h"
 
 namespace vulkan {
-    UniformBuffer::UniformBuffer(size_t size) : Buffer(size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) {
+    UniformBuffer::UniformBuffer(size_t size)
+        : Buffer(size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT),
+          m_baseSize(size),
+          m_isDynamic(false) {
     }
 
-    VkDescriptorBufferInfo UniformBuffer::getBufferInfo() const {
+    UniformBuffer::UniformBuffer(size_t size, size_t count)
+        : Buffer(size * count, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT),
+          m_baseSize(size),
+          m_isDynamic(true) {
+    }
+
+    initializers::UniformBufferInfo UniformBuffer::getBufferInfo() const {
         VkDescriptorBufferInfo bufferInfo{};
         bufferInfo.buffer = m_buffer;
         bufferInfo.offset = 0;
-        bufferInfo.range = m_size;
+        bufferInfo.range = m_baseSize;
 
-        return bufferInfo;
+        const initializers::UniformBufferInfo uniformBufferInfo = { m_isDynamic, bufferInfo };
+
+        return uniformBufferInfo;
     }
 } // vulkan

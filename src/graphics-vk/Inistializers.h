@@ -59,15 +59,20 @@ namespace initializers {
         return stageCreateInfo;
     }
 
-    inline VkWriteDescriptorSet writeUniformBufferDescriptorSet(VkDescriptorSet descriptorSet, uint32_t dstBinding, const VkDescriptorBufferInfo* pBufferInfo) {
+    struct UniformBufferInfo {
+        bool isDynamic = false;
+        VkDescriptorBufferInfo bufferInfo = {};
+    };
+
+    inline VkWriteDescriptorSet writeUniformBufferDescriptorSet(VkDescriptorSet descriptorSet, uint32_t dstBinding, const UniformBufferInfo &bufferInfo) {
         VkWriteDescriptorSet setWrite{};
         setWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         setWrite.dstSet = descriptorSet;
         setWrite.dstBinding = dstBinding;
         setWrite.dstArrayElement = 0;
         setWrite.descriptorCount = 1;
-        setWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        setWrite.pBufferInfo = pBufferInfo;
+        setWrite.descriptorType = bufferInfo.isDynamic ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        setWrite.pBufferInfo = &bufferInfo.bufferInfo;
 
         return setWrite;
     }

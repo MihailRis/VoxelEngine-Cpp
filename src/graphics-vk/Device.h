@@ -16,6 +16,7 @@ class Instance;
 class Device : Noncopybale {
     VkDevice m_device = VK_NULL_HANDLE;
     VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+    VkPhysicalDeviceProperties m_deviceProperties;
 
     Queue m_graphics;
     Queue m_present;
@@ -36,6 +37,8 @@ public:
     VkFormat selectSupportedFormat(const std::vector<VkFormat> &formats, VkImageTiling tiling, VkFormatFeatureFlags features) const;
     VkCommandPool createCommadPool() const;
     VkCommandBuffer createCommandBuffer(VkCommandPool commandPool) const;
+
+    size_t padUniformBufferSize(size_t size) const;
 
     void waitIdle() const;
     void destroy(VkCommandPool commandPool);

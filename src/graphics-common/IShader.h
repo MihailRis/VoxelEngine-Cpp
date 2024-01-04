@@ -10,8 +10,14 @@
 
 #ifdef USE_VULKAN
 #include <vulkan/vulkan_core.h>
+struct SkyboxUniform;
+struct ProjectionViewUniform;
+struct ApplyUniform;
+struct FogUniform;
+struct StateUniform;
 struct ProjectionViewConstant;
 struct DynamicConstants;
+struct BackgroundUniform;
 #endif
 
 
@@ -29,9 +35,16 @@ public:
     virtual void uniform3f(std::string name, glm::vec3 xyz) = 0;
 
 #ifdef USE_VULKAN
+    virtual void uniform(const StateUniform &uniform) { }
+    virtual void uniform(const FogUniform &uniform) { }
+    virtual void uniform(const ApplyUniform &uniform) { }
+    virtual void uniform(const ProjectionViewUniform &uniform) { }
+    virtual void uniform(const SkyboxUniform &uniform) { }
+    virtual void uniform(const BackgroundUniform& uniform) { }
+
     virtual void use(VkCommandBuffer commandBuffer, VkExtent2D extent2D) { }
     virtual void pushConstant(const DynamicConstants &constants) { }
-    virtual void pushConatnt(const ProjectionViewConstant &constant) { }
+
 #endif
 };
 

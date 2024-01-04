@@ -36,6 +36,8 @@ namespace vulkan {
 
         void begin();
 
+        void rebegin() const;
+
         void sprite(float x, float y, float w, float h, const UVRegion& region, glm::vec4 tint);
 
         void sprite(float x, float y, float w, float h, int atlasRes, int index, glm::vec4 tint);

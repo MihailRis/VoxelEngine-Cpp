@@ -13,6 +13,10 @@
 #include "Shader.h"
 #include "../ShaderType.h"
 
+namespace initializers {
+    struct UniformBufferInfo;
+}
+
 class Device;
 
 class GraphicsPipeline {
@@ -24,7 +28,7 @@ class GraphicsPipeline {
     VkDescriptorSet m_samplerSet = VK_NULL_HANDLE;
     ShaderType m_shaderType;
 public:
-    GraphicsPipeline(VkPipeline pipeline, VkPipelineLayout layout, VkDescriptorSetLayout uniformSetLayout, VkDescriptorSetLayout samplerSetLayout, ShaderType shaderType);
+    GraphicsPipeline(const std::vector<initializers::UniformBufferInfo> &bufferInfos, VkPipeline pipeline, VkPipelineLayout layout, VkDescriptorSetLayout uniformSetLayout, VkDescriptorSetLayout samplerSetLayout, ShaderType shaderType);
     ~GraphicsPipeline();
 
     operator VkPipeline() const;
@@ -35,11 +39,12 @@ public:
     VkDescriptorSet getSamplerSet() const;
 
     void bind(VkCommandBuffer commandBuffer, VkExtent2D extent2D);
+    void bindDiscriptorSet(VkCommandBuffer commandBuffer, uint32_t dynamiOffsetCount = 0, const uint32_t *pDynamicOffsets = nullptr);
 
     void destroy();
 
 
-    static std::shared_ptr<GraphicsPipeline> create(const std::vector<VkPipelineShaderStageCreateInfo> &stages, ShaderType type);
+    static std::shared_ptr<GraphicsPipeline> create(const std::vector<VkPipelineShaderStageCreateInfo> &stages, const std::vector<initializers::UniformBufferInfo> &bufferInfos, ShaderType type);
 };
 
 

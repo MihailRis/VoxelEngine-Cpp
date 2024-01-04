@@ -45,7 +45,7 @@ void Font::draw(vulkan::Batch2D* batch, std::wstring text, int x, int y, int sty
 	int next = 10000;
 	int init_x = x;
 	do {
-		for (const unsigned char c : text){
+		for (wchar_t c : text){
 			if (isPrintableChar(c)){
 				int charpage = c >> 8;
 				if (charpage == page){

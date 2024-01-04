@@ -5,9 +5,11 @@
 #include <vector>
 #include "../typedefs.h"
 
+#ifdef USE_VULKAN
 namespace vulkan {
 	class Batch2D;
 }
+#endif
 
 class ITexture;
 class Batch2D;

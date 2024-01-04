@@ -35,16 +35,28 @@ bool assetload::shader(Assets* assets,
                        const ResPaths* paths,
                        const std::string filename,
                        const std::string name) {
+
+#ifdef USE_VULKAN
+	fs::path vertexFile = paths->find(filename+".vert.spv");
+	fs::path fragmentFile = paths->find(filename+".frag.spv");
+
+	const auto vertexSource = files::read_bytes_as_vector(vertexFile);
+	const auto fragmentSource = files::read_bytes_as_vector(fragmentFile);
+
+	const ShaderType type = toShaderType(name);
+	IShader* shader = vulkan::loadShader(vertexSource, fragmentSource, type);
+#else
     fs::path vertexFile = paths->find(filename+".glslv");
     fs::path fragmentFile = paths->find(filename+".glslf");
 
     std::string vertexSource = files::read_string(vertexFile);
     std::string fragmentSource = files::read_string(fragmentFile);
 
-	Shader* shader = Shader::loadShader(
+	IShader* shader = Shader::loadShader(
 		vertexFile.string(),
 		fragmentFile.string(),
 		vertexSource, fragmentSource);
+#endif
 
 	if (shader == nullptr) {
 		std::cerr << "failed to load shader '" << name << "'" << std::endl;
