@@ -34,6 +34,12 @@ class Content;
 class ContentIndices;
 class World;
 
+class illegal_region_format : public std::runtime_error {
+public:
+    illegal_region_format(const std::string& message) 
+    : std::runtime_error(message) {}
+};
+
 class WorldRegion {
 	ubyte** chunksData;
 	uint32_t* sizes;
@@ -124,6 +130,9 @@ public:
 
 	void put(Chunk* chunk);
     void put(int x, int z, const ubyte* voxelData);
+
+    int getVoxelRegionVersion(int x, int z);
+    int getVoxelRegionsVersion();
 
 	ubyte* getChunk(int x, int z);
 	light_t* getLights(int x, int z);

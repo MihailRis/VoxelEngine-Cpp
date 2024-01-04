@@ -38,8 +38,8 @@ regfile::regfile(fs::path filename) : file(filename) {
         throw std::runtime_error("invalid region file magic number");
     }
     version = header[8];
-    if (version > 2) {
-        throw std::runtime_error(
+    if (version > REGION_FORMAT_VERSION) {
+        throw illegal_region_format(
             "region format "+std::to_string(version)+" is not supported");
     }
 }
@@ -130,6 +130,31 @@ ubyte* WorldFiles::decompress(const ubyte* src, size_t srclen, size_t dstlen) {
 	return decompressed;
 }
 
+int WorldFiles::getVoxelRegionVersion(int x, int z) {
+    regfile* rf = getRegFile(glm::ivec3(x, z, REGION_LAYER_VOXELS), getRegionsFolder());
+    if (rf == nullptr) {
+        return 0;
+    }
+    return rf->version;
+}
+
+int WorldFiles::getVoxelRegionsVersion() {
+    fs::path regionsFolder = getRegionsFolder();
+    if (!fs::is_directory(regionsFolder)) {
+        return REGION_FORMAT_VERSION;
+    }
+    for (auto file : fs::directory_iterator(regionsFolder)) {
+        int x;
+        int z;
+        if (!parseRegionFilename(file.path().stem().string(), x, z)) {
+            continue;
+        }
+        regfile* rf = getRegFile(glm::ivec3(x, z, REGION_LAYER_VOXELS), regionsFolder);
+        return rf->version;
+    }
+    return REGION_FORMAT_VERSION;
+}
+
 /* 
  * Compress and store chunk voxels data in region 
  * @param x chunk.x
@@ -190,8 +215,7 @@ fs::path WorldFiles::getLightsFolder() const {
 }
 
 fs::path WorldFiles::getRegionFilename(int x, int z) const {
-	std::string filename = std::to_string(x) + "_" + std::to_string(z) + ".bin";
-	return fs::path(filename);
+	return fs::path(std::to_string(x) + "_" + std::to_string(z) + ".bin");
 }
 
 /* 
@@ -254,7 +278,6 @@ ubyte* WorldFiles::getData(regionsmap& regions, const fs::path& folder,
 	int localZ = z - (regionZ * REGION_SIZE);
 
 	WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
-
 	ubyte* data = region->getChunkData(localX, localZ);
 	if (data == nullptr) {
 		uint32_t size;
