@@ -159,7 +159,7 @@ int l_get_block_states(lua_State* L) {
     return 1;
 }
 
-int l_get_block_script_states(lua_State* L) {
+int l_get_block_user_bits(lua_State* L) {
     int x = lua_tointeger(L, 1);
     int y = lua_tointeger(L, 2);
     int z = lua_tointeger(L, 3);
@@ -177,7 +177,7 @@ int l_get_block_script_states(lua_State* L) {
     return 1;
 }
 
-int l_set_block_script_states(lua_State* L) {
+int l_set_block_user_bits(lua_State* L) {
     int x = lua_tointeger(L, 1);
     int y = lua_tointeger(L, 2);
     int z = lua_tointeger(L, 3);
@@ -223,6 +223,6 @@ void apilua::create_funcs(lua_State* L) {
     lua_addfunc(L, l_get_player_rot, "get_player_rot");
     lua_addfunc(L, l_set_player_rot, "set_player_rot");
     lua_addfunc(L, l_get_block_states, "get_block_states");
-    lua_addfunc(L, l_get_block_script_states, "get_block_script_states");
-    lua_addfunc(L, l_set_block_script_states, "set_block_script_states");
+    lua_addfunc(L, l_get_block_user_bits, "get_block_user_bits");
+    lua_addfunc(L, l_set_block_user_bits, "set_block_user_bits");
 }
