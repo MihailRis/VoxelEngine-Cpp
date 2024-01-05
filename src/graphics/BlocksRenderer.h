@@ -60,16 +60,16 @@ class BlocksRenderer {
 		const UVRegion& region,
         bool lights);
 	
-	void blockCube(int x, int y, int z, const UVRegion(&faces)[6], const Block* block, ubyte states, bool lights);
+	void blockCube(int x, int y, int z, const UVRegion(&faces)[6], const Block* block, u_char8 states, bool lights);
 	void blockAABB(const glm::ivec3& coord,
                     const UVRegion(&faces)[6], 
                     const Block* block, 
-                    ubyte rotation,
+                    u_char8 rotation,
                     bool lights);
 	void blockXSprite(int x, int y, int z, const glm::vec3& size, const UVRegion& face1, const UVRegion& face2, float spread);
 
 	bool isOpenForLight(int x, int y, int z) const;
-	bool isOpen(int x, int y, int z, ubyte group) const;
+	bool isOpen(int x, int y, int z, u_char8 group) const;
 
 	glm::vec4 pickLight(int x, int y, int z) const;
 	glm::vec4 pickLight(const glm::ivec3& coord) const;

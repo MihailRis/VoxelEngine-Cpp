@@ -292,7 +292,7 @@ DisplaySettings* Window::getSettings() {
 }
 
 ImageData* Window::takeScreenshot() {
-	ubyte* data = new ubyte[width * height * 3];
+	u_char8* data = new u_char8[width * height * 3];
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
 	return new ImageData(ImageFormat::rgb888, width, height, data);

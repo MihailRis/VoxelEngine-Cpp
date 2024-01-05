@@ -74,8 +74,8 @@ Chunk* Chunk::clone() const {
 
     Total size: (CHUNK_VOL * 4) bytes
 */
-ubyte* Chunk::encode() const {
-	ubyte* buffer = new ubyte[CHUNK_DATA_LEN];
+u_char8* Chunk::encode() const {
+	u_char8* buffer = new u_char8[CHUNK_DATA_LEN];
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
 		buffer[i] = voxels[i].id >> 8;
         buffer[CHUNK_VOL+i] = voxels[i].id & 0xFF;
@@ -86,17 +86,18 @@ ubyte* Chunk::encode() const {
 }
 
 /**
+/**
  * @return true if all is fine
  **/
-bool Chunk::decode(ubyte* data) {
+bool Chunk::decode(u_char8* data) {
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
 		voxel& vox = voxels[i];
 
-        ubyte bid1 = data[i];
-        ubyte bid2 = data[CHUNK_VOL + i];
+        u_char8 bid1 = data[i];
+        u_char8 bid2 = data[CHUNK_VOL + i];
         
-        ubyte bst1 = data[CHUNK_VOL*2 + i];
-        ubyte bst2 = data[CHUNK_VOL*3 + i];
+        u_char8 bst1 = data[CHUNK_VOL*2 + i];
+        u_char8 bst2 = data[CHUNK_VOL*3 + i];
 
 		vox.id = (blockid_t(bid1) << 8) | (blockid_t(bid2));
         vox.states = (blockstate_t(bst1) << 8) | (blockstate_t(bst2));
@@ -107,7 +108,7 @@ bool Chunk::decode(ubyte* data) {
 /*
  * Convert chunk voxels data from 16 bit to 32 bit
  */
-void Chunk::fromOld(ubyte* data) {
+void Chunk::fromOld(u_char8* data) {
     for (size_t i = 0; i < CHUNK_VOL; i++) {
         data[i + CHUNK_VOL*3] = data[i + CHUNK_VOL];
         data[i + CHUNK_VOL] = data[i];
@@ -116,7 +117,7 @@ void Chunk::fromOld(ubyte* data) {
     }
 }
 
-void Chunk::convert(ubyte* data, const ContentLUT* lut) {
+void Chunk::convert(u_char8* data, const ContentLUT* lut) {
     for (size_t i = 0; i < CHUNK_VOL; i++) {
         // see encode method to understand what the hell is going on here
         blockid_t id = ((blockid_t(data[i]) << 8) | 

@@ -87,7 +87,7 @@ HudRenderer::HudRenderer(Engine* engine,
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 
-	Panel* panel = new Panel(vec2(250, 200), vec4(5.0f), 1.0f);
+	Panel* panel = new Panel(vec2(350, 300), vec4(5.0f), 1.0f);
 	debugPanel = shared_ptr<UINode>(panel);
 	panel->listenInterval(1.0f, [this]() {
 		fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
@@ -115,12 +115,18 @@ HudRenderer::HudRenderer(Engine* engine,
 		auto indices = this->level->content->indices;
 		auto def = indices->getBlockDef(player->selectedVoxel.id);
 		std::wstringstream stream;
-		stream << std::hex << this->level->player->selectedVoxel.states;
-		if (def) {
+
+		if (def)
 			stream << L" (" << util::str2wstr_utf8(def->name) << L")";
-		}
-		return L"block: "+std::to_wstring(player->selectedVoxel.id)+
-		       L" "+stream.str();
+
+		return	L"block: "+std::to_wstring(player->selectedVoxel.id)+
+				L" "+stream.str();
+	})));
+	panel->add(shared_ptr<Label>(create_label([this](){
+		auto player = this->level->player;
+		auto indices = this->level->content->indices;
+		auto str_ = L"dir: "+std::to_wstring(player->selectedVoxel.getDir()) + L"  signal: "+std::to_wstring(player->selectedVoxel.getSig());
+		return str_;
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
 		return L"seed: "+std::to_wstring(this->level->world->seed);

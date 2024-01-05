@@ -26,7 +26,7 @@ public:
 	void getVoxels(VoxelsVolume* volume, bool backlight=false) const;
 	std::shared_ptr<Chunk> create(int x, int z);
 
-	light_t getLight(int x, int y, int z, ubyte channel) const;
+	light_t getLight(int x, int y, int z, u_char8 channel) const;
 };
 
 

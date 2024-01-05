@@ -236,27 +236,27 @@ void PlayerController::updateInteraction(){
 		int x = iend.x;
 		int y = iend.y;
 		int z = iend.z;
-		uint8_t states = 0;
+		voxel voxel;
 
 		Block* def = contentIds->getBlockDef(player->chosenBlock);
 		if (def->rotatable){
 			const std::string& name = def->rotations.name;
 			if (name == "pipe") {
-				if (norm.x < 0.0f) states = BLOCK_DIR_WEST;
-				else if (norm.x > 0.0f) states = BLOCK_DIR_EAST;
-				else if (norm.y > 0.0f) states = BLOCK_DIR_UP;
-				else if (norm.y < 0.0f) states = BLOCK_DIR_DOWN;
-				else if (norm.z > 0.0f) states = BLOCK_DIR_NORTH;
-				else if (norm.z < 0.0f) states = BLOCK_DIR_SOUTH;
+				if 		(norm.x < 0.0f) voxel.setDir(BLOCK_DIR_WEST);
+				else if (norm.x > 0.0f) voxel.setDir(BLOCK_DIR_EAST);
+				else if (norm.y > 0.0f) voxel.setDir(BLOCK_DIR_UP);
+				else if (norm.y < 0.0f) voxel.setDir(BLOCK_DIR_DOWN);
+				else if (norm.z > 0.0f) voxel.setDir(BLOCK_DIR_NORTH);
+				else if (norm.z < 0.0f) voxel.setDir(BLOCK_DIR_SOUTH);
 			} else if (name == "pane") {
 				glm::vec3 vec = camera->dir;
 				if (abs(vec.x) > abs(vec.z)){
-					if (vec.x > 0.0f) states = BLOCK_DIR_EAST;
-					if (vec.x < 0.0f) states = BLOCK_DIR_WEST;
+					if (vec.x > 0.0f) voxel.setDir(BLOCK_DIR_EAST);
+					if (vec.x < 0.0f) voxel.setDir(BLOCK_DIR_WEST);
 				}
 				if (abs(vec.x) < abs(vec.z)){
-					if (vec.z > 0.0f) states = BLOCK_DIR_SOUTH;
-					if (vec.z < 0.0f) states = BLOCK_DIR_NORTH;
+					if (vec.z > 0.0f) voxel.setDir(BLOCK_DIR_SOUTH);
+					if (vec.z < 0.0f) voxel.setDir(BLOCK_DIR_NORTH);
 				}
 			}
 		}
@@ -285,7 +285,8 @@ void PlayerController::updateInteraction(){
                         chosenBlock = 0;
                     }
                     if (chosenBlock != vox->id) {
-                        chunks->set(x, y, z, chosenBlock, states);
+						voxel.id = chosenBlock;
+                        chunks->set(x, y, z, voxel);
                         lighting->onBlockSet(x,y,z, chosenBlock);
                         if (def->rt.funcsset.onplaced) {
                             scripting::on_block_placed(player, def, x, y, z);
@@ -299,6 +300,7 @@ void PlayerController::updateInteraction(){
 			player->chosenBlock = chunks->get(x,y,z)->id;
 		}
 	} else {
+		player->selectedVoxel = voxel{0, 0};
 		selectedBlockId = -1;
 		selectedBlockStates = 0;
 	}

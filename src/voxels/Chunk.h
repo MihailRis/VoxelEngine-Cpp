@@ -75,11 +75,11 @@ public:
 
 	inline void setReady(bool newState) {SETFLAGS(ChunkFlag::READY, newState);}
 
-	ubyte* encode() const;
-	bool decode(ubyte* data);
+	u_char8* encode() const;
+	bool decode(u_char8* data);
 
-    static void fromOld(ubyte* data);
-    static void convert(ubyte* data, const ContentLUT* lut);
+    static void fromOld(u_char8* data);
+    static void convert(u_char8* data, const ContentLUT* lut);
 };
 
 #endif /* VOXELS_CHUNK_H_ */

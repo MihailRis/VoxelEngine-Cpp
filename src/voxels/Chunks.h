@@ -41,8 +41,8 @@ public:
 	Chunk* getChunkByVoxel(int x, int y, int z);
 	voxel* get(int x, int y, int z);
 	light_t getLight(int x, int y, int z);
-	ubyte getLight(int x, int y, int z, int channel);
-	void set(int x, int y, int z, int id, uint8_t states);
+	u_char8 getLight(int x, int y, int z, int channel);
+	void set(int x, int y, int z, voxel voxel);
 
 	voxel* rayCast(glm::vec3 start, 
 				   glm::vec3 dir, 

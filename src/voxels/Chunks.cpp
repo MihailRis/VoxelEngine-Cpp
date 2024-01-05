@@ -75,7 +75,7 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
 	const Block* def = contentIds->getBlockDef(v->id);
 	if (def->obstacle) {
 		const AABB& hitbox = def->rotatable 
-							 ? def->rt.hitboxes[v->rotation()] 
+							 ? def->rt.hitboxes[v->getDir()] 
 							 : def->hitbox;
 		if (def->rt.solid) {
 			return &hitbox;
@@ -109,7 +109,7 @@ bool Chunks::isObstacleBlock(int x, int y, int z) {
 	return contentIds->getBlockDef(v->id)->obstacle;
 }
 
-ubyte Chunks::getLight(int x, int y, int z, int channel){
+u_char8 Chunks::getLight(int x, int y, int z, int channel){
 	x -= ox * CHUNK_W;
 	z -= oz * CHUNK_D;
 	int cx = floordiv(x, CHUNK_W);
@@ -163,7 +163,7 @@ Chunk* Chunks::getChunk(int x, int z){
 	return chunks[z * w + x].get();
 }
 
-void Chunks::set(int x, int y, int z, int id, uint8_t states){
+void Chunks::set(int x, int y, int z, voxel voxel) {
 	if (y < 0 || y >= CHUNK_H)
 		return;
 	x -= ox * CHUNK_W;
@@ -177,14 +177,14 @@ void Chunks::set(int x, int y, int z, int id, uint8_t states){
 		return;
 	int lx = x - cx * CHUNK_W;
 	int lz = z - cz * CHUNK_D;
-	chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx].id = id;
-	chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx].states = states;
+	chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx].id = voxel.id;
+	chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx].states = voxel.states;
 	chunk->setUnsaved(true);
 	chunk->setModified(true);
 
 	if (y < chunk->bottom) chunk->bottom = y;
 	else if (y + 1 > chunk->top) chunk->top = y + 1;
-	else if (id == 0) chunk->updateHeights();
+	else if (voxel.id == 0) chunk->updateHeights();
 
 	if (lx == 0 && (chunk = getChunk(cx+ox-1, cz+oz)))
 		chunk->setModified(true);
@@ -251,7 +251,7 @@ voxel* Chunks::rayCast(vec3 start,
 			
 			if (!def->rt.solid) {
 				const AABB& box = def->rotatable 
-								  ? def->rt.hitboxes[voxel->rotation()] 
+								  ? def->rt.hitboxes[voxel->getDir()] 
 								  : def->hitbox;
 				scalar_t distance;
 				Ray ray(start, dir);
@@ -349,7 +349,7 @@ vec3 Chunks::rayCastToObstacle(vec3 start, vec3 dir, float maxDist) {
 		if (def->obstacle) {
 			if (!def->rt.solid) {
 				const AABB& box = def->rotatable
-					? def->rt.hitboxes[voxel->rotation()]
+					? def->rt.hitboxes[voxel->getDir()]
 					: def->hitbox;
 				scalar_t distance;
 				ivec3 norm;
