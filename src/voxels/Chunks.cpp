@@ -238,7 +238,7 @@ voxel* Chunks::rayCast(vec3 start,
                                 
 	while (t <= maxDist){       
 		voxel* voxel = get(ix, iy, iz);		
-		if (!voxel){ return nullptr; }
+		if (voxel == nullptr){ return nullptr; }
 
 		const Block* def = contentIds->getBlockDef(voxel->id);
 		if (def->selectable){
@@ -343,7 +343,7 @@ vec3 Chunks::rayCastToObstacle(vec3 start, vec3 dir, float maxDist) {
 
 	while (t <= maxDist) {
 		voxel* voxel = get(ix, iy, iz);
-		if (!voxel) { return vec3(px + t * dx, py + t * dy, pz + t * dz); }
+		if (voxel == nullptr) { return vec3(px + t * dx, py + t * dy, pz + t * dz); }
 
 		const Block* def = contentIds->getBlockDef(voxel->id);
 		if (def->obstacle) {
