@@ -41,20 +41,24 @@ using glm::vec3;
 using glm::vec4;
 using std::shared_ptr;
 
+Screen::Screen(Engine* engine) : engine(engine), batch(new Batch2D(1024)) {
+}
+
+Screen::~Screen() {
+}
+
 MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     auto menu = engine->getGUI()->getMenu();
     menus::refresh_menus(engine, menu);
     menu->reset();
     menu->set("main");
 
-    batch = new Batch2D(1024);
     uicamera = new Camera(vec3(), Window::height);
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 }
 
 MenuScreen::~MenuScreen() {
-    delete batch;
     delete uicamera;
 }
 
@@ -155,7 +159,7 @@ void LevelScreen::draw(float delta) {
     Camera* camera = level->player->currentViewCamera;
 
     Viewport viewport(Window::width, Window::height);
-    GfxContext ctx(nullptr, viewport, nullptr);
+    GfxContext ctx(nullptr, viewport, batch.get());
 
     worldRenderer->draw(ctx, camera);
 
