@@ -281,7 +281,7 @@ void PlayerController::updateInteraction(){
 				if (!level->physics->isBlockInside(x,y,z, player->hitbox) 
 					|| !def->obstacle){
                     Block* def = contentIds->getBlockDef(chosenBlock);
-                    if (def->grounded && !chunks->isSolid(x, y-1, z)) {
+                    if (def->grounded && !chunks->isSolidBlock(x, y-1, z)) {
                         chosenBlock = 0;
                     }
                     if (chosenBlock != vox->id) {

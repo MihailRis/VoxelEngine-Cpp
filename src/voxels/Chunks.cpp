@@ -50,12 +50,9 @@ Chunks::~Chunks(){
 voxel* Chunks::get(int x, int y, int z){
 	x -= ox * CHUNK_W; 
 	z -= oz * CHUNK_D;
-	int cx = x / CHUNK_W;
-	int cy = y / CHUNK_H;
-	int cz = z / CHUNK_D;
-	if (x < 0) cx--;
-	if (y < 0) cy--;
-	if (z < 0) cz--;
+	int cx = floordiv(x, CHUNK_W);
+	int cy = floordiv(y, CHUNK_H);
+	int cz = floordiv(z, CHUNK_D);
 	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= 1 || cz >= d)
 		return nullptr;
 	shared_ptr<Chunk> chunk = chunks[cz * w + cx]; // chunks is 2D-array
@@ -67,7 +64,7 @@ voxel* Chunks::get(int x, int y, int z){
 	return &chunk->voxels[(ly * CHUNK_D + lz) * CHUNK_W + lx];
 }
 
-const AABB* Chunks::isObstacle(float x, float y, float z){
+const AABB* Chunks::isObstacleAt(float x, float y, float z){
 	int ix = floor(x);
 	int iy = floor(y);
 	int iz = floor(z);
@@ -82,7 +79,7 @@ const AABB* Chunks::isObstacle(float x, float y, float z){
 		if (def->rt.solid) {
 			return &hitbox;
 		} else {
-			if (hitbox.inside({x - ix, y - iy, z - iz}))
+			if (hitbox.contains({x - ix, y - iy, z - iz}))
 				return &hitbox;
 			return nullptr;
 		}
@@ -90,18 +87,25 @@ const AABB* Chunks::isObstacle(float x, float y, float z){
 	return nullptr;
 }
 
-bool Chunks::isSolid(int x, int y, int z) {
+bool Chunks::isSolidBlock(int x, int y, int z) {
     voxel* v = get(x, y, z);
     if (v == nullptr)
         return false;
     return contentIds->getBlockDef(v->id)->rt.solid;
 }
 
-bool Chunks::isReplaceable(int x, int y, int z) {
+bool Chunks::isReplaceableBlock(int x, int y, int z) {
     voxel* v = get(x, y, z);
     if (v == nullptr)
         return false;
     return contentIds->getBlockDef(v->id)->replaceable;
+}
+
+bool Chunks::isObstacleBlock(int x, int y, int z) {
+	voxel* v = get(x, y, z);
+	if (v == nullptr)
+		return false;
+	return contentIds->getBlockDef(v->id)->obstacle;
 }
 
 ubyte Chunks::getLight(int x, int y, int z, int channel){
