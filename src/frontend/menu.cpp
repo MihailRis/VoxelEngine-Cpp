@@ -254,6 +254,24 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
         panel->add(seedInput);
     }
 
+    Button* worldTypeButton; {
+        Label* label = new Label(L"World Type");
+        panel->add(label);
+        Button* typeButton = new Button(L"Standard", vec4(10), vec4(1, 20, 1, 1));
+        panel->add(typeButton);
+        worldTypeButton = typeButton;
+
+        typeButton->listenAction([=](GUI*) {
+            std::wstring worldTypeName;
+
+            if (typeButton->text() == L"Flat") worldTypeName = L"Standard";
+            if (typeButton->text() == L"Standard") worldTypeName = L"Minecraft";
+            if (typeButton->text() == L"Minecraft") worldTypeName = L"Flat";
+
+            worldTypeButton->text(worldTypeName);
+        });
+    }
+
     vec4 basecolor = worldNameInput->color();   
     panel->add(create_button( L"Create World", vec4(10), vec4(1, 20, 1, 1), 
     [=](GUI*) {
@@ -286,12 +304,19 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
 
         engine->loadAllPacks();
         engine->loadContent();
+
+        short int type_int = 3;
+        if (worldTypeButton->text() == L"Standard") type_int = 0;
+        if (worldTypeButton->text() == L"Minecraft") type_int = 1;
+        if (worldTypeButton->text() == L"Flat") type_int = 2;
+
         Level* level = World::create(nameutf8, 
                                      folder, 
                                      seed, 
                                      engine->getSettings(), 
                                      engine->getContent(),
-                                     engine->getContentPacks());
+                                     engine->getContentPacks(),
+                                     type_int);
         engine->setScreen(std::make_shared<LevelScreen>(engine, level));
     }));
     panel->add(guiutil::backButton(menu));

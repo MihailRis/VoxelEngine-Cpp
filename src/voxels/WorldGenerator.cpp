@@ -109,7 +109,7 @@ float calc_height(fnl_state *noise, int cur_x, int cur_z){
 	return height;
 }
 
-WorldGenerator::WorldGenerator(const Content* content)
+WorldGenerator::WorldGenerator(const Content* content, short int world_type)
 	           : idStone(content->requireBlock("base:stone")->rt.id),
 			     idDirt(content->requireBlock("base:dirt")->rt.id),
 				 idGrassBlock(content->requireBlock("base:grass_block")->rt.id),
@@ -119,7 +119,8 @@ WorldGenerator::WorldGenerator(const Content* content)
 				 idLeaves(content->requireBlock("base:leaves")->rt.id),
 				 idGrass(content->requireBlock("base:grass")->rt.id),
 				 idFlower(content->requireBlock("base:flower")->rt.id),
-				 idBazalt(content->requireBlock("base:bazalt")->rt.id) {}
+				 idBazalt(content->requireBlock("base:bazalt")->rt.id),
+				 world_type(world_type) {}
 
 int generate_tree(fnl_state *noise, 
 				  PseudoRandom* random, 
@@ -160,7 +161,7 @@ int generate_tree(fnl_state *noise,
 	return 0;
 }
 
-void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
+void WorldGenerator::generate_standard(voxel* voxels, int cx, int cz, int seed) {
 	const int treesTile = 12;
 	fnl_state noise = fnlCreateState();
 	noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
@@ -246,3 +247,52 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 		}
 	}
 }
+
+void WorldGenerator::generate_minecraft(voxel* voxels, int cx, int cz, int seed) {
+	generate_standard(voxels, cx, cz, seed);
+}
+
+void WorldGenerator::generate_flat(voxel* voxels, int cx, int cz, int seed) {
+	for (int z = 0; z < CHUNK_D; z++) {
+		int cur_z = z + cz * CHUNK_D;
+		for (int x = 0; x < CHUNK_W; x++) {
+			int cur_x = x + cx * CHUNK_W;
+			for (int cur_y = 0; cur_y < CHUNK_H; cur_y++) {
+				int id = BLOCK_AIR;
+				if (cur_y <= 5) {
+					id = idDirt;
+				} else if (cur_y == 6) {
+					id = idGrassBlock;
+				}
+				voxels[(cur_y * CHUNK_D + z) * CHUNK_W + x].id = id;
+			}
+		}
+	}
+}
+
+void WorldGenerator::generate_void(voxel* voxels, int cx, int cz, int seed) {
+	for (int z = 0; z < CHUNK_D; z++) {
+		int cur_z = z + cz * CHUNK_D;
+		for (int x = 0; x < CHUNK_W; x++) {
+			int cur_x = x + cx * CHUNK_W;
+			for (int cur_y = 0; cur_y < CHUNK_H; cur_y++) {
+				int id = BLOCK_AIR;
+				voxels[(cur_y * CHUNK_D + z) * CHUNK_W + x].id = id;
+			}
+		}
+	}
+}
+
+void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed) {
+	if (world_type == 0) {
+		generate_standard(voxels, cx, cz, seed);
+	} else if (world_type == 1) {
+		generate_minecraft(voxels, cx, cz, seed);
+	} else if (world_type == 2) {
+		generate_flat(voxels, cx, cz, seed);
+	} else {
+		generate_void(voxels, cx, cz, seed);
+	}
+}
+
+

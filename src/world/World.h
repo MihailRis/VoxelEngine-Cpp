@@ -28,6 +28,7 @@ class World {
 	const Content* const content;
 	std::vector<ContentPack> packs;
 public:
+	int world_type;
 	std::string name;
 	WorldFiles* wfile;
 	uint64_t seed;
@@ -49,6 +50,7 @@ public:
 
 	void updateTimers(float delta);
 	void write(Level* level);
+	void setWorldType(int type);
 
 	static ContentLUT* checkIndices(const std::filesystem::path& directory,
 										 const Content* content);
@@ -58,7 +60,8 @@ public:
 						 uint64_t seed, 
 						 EngineSettings& settings, 
 						 const Content* content,
-						 const std::vector<ContentPack>& packs);
+						 const std::vector<ContentPack>& packs,
+						 short int world_type);
 	static Level* load(std::filesystem::path directory,
 					   EngineSettings& settings,
 					   const Content* content,

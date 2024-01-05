@@ -30,4 +30,6 @@ Debug/voxel_engine
 AppDir
 appimage-build/
 
+/luajit
+
 *~

@@ -394,6 +394,7 @@ void WorldFiles::write(const World* world, const Content* content) {
 	fs::create_directories(regionsFolder);
 	fs::create_directories(lightsFolder);
 
+	// std::cout << (bool)world << std::endl;
     if (world) {
 	    writeWorldInfo(world);
 		writePacks(world);
@@ -436,6 +437,7 @@ void WorldFiles::writeWorldInfo(const World* world) {
 
 	root.put("name", world->name);
 	root.put("seed", world->seed);
+	root.put("type", world->world_type);
 	
 	json::JObject& timeobj = root.putObj("time");
 	timeobj.put("day-time", world->daytime);
@@ -454,6 +456,7 @@ bool WorldFiles::readWorldInfo(World* world) {
 	std::unique_ptr<json::JObject> root(files::read_json(file));
 	root->str("name", world->name);
 	root->num("seed", world->seed);
+	root->num("type", world->world_type);
 
 	json::JObject* verobj = root->obj("version");
 	if (verobj) {

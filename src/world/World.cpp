@@ -28,7 +28,7 @@ World::World(string name,
 			 uint64_t seed, 
 			 EngineSettings& settings,
 			 const Content* content,
-			 const std::vector<ContentPack> packs) 
+			 const std::vector<ContentPack> packs)
 		: settings(settings), 
 		  content(content),
 		  packs(packs),
@@ -66,6 +66,10 @@ void World::write(Level* level) {
 	wfile->writePlayer(level->player);
 }
 
+void World::setWorldType(int type) {
+	world_type = type;
+}
+
 const float DEF_PLAYER_Y = 100.0f;
 const float DEF_PLAYER_SPEED = 4.0f;
 
@@ -74,8 +78,10 @@ Level* World::create(string name,
 					uint64_t seed,
 					EngineSettings& settings, 
 					const Content* content,
-					const std::vector<ContentPack>& packs) {
+					const std::vector<ContentPack>& packs,
+					short int world_type) {
 	World* world = new World(name, directory, seed, settings, content, packs);
+	world->setWorldType(world_type);
 	Player* player = new Player(vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
 	return new Level(world, content, player, settings);
 }
