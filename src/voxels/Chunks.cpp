@@ -45,6 +45,7 @@ Chunks::~Chunks(){
 		chunks[i] = nullptr;
 	}
 	delete[] chunks;
+	delete[] chunksSecond;
 }
 
 voxel* Chunks::get(int x, int y, int z){
