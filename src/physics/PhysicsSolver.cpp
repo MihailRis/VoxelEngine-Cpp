@@ -46,7 +46,7 @@ void PhysicsSolver::step(
 			hitbox->grounded = false;
 			for (float x = (px-half.x+E); x <= (px+half.x-E); x+=s){
 				for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
-					if (chunks->isObstacle(x,y,z)){
+					if (chunks->isObstacleAt(x,y,z)){
 						hitbox->grounded = true;
 						break;
 					}
@@ -58,7 +58,7 @@ void PhysicsSolver::step(
 			hitbox->grounded = false;
 			for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
 				for (float z = (pz-half.z+E); z <= (pz+half.z-E); z+=s){
-					if (chunks->isObstacle(x,y,z)){
+					if (chunks->isObstacleAt(x,y,z)){
 						hitbox->grounded = true;
 						break;
 					}
@@ -88,7 +88,7 @@ void PhysicsSolver::colisionCalc(
 		for (float y = (pos.y-half.y+E); y <= (pos.y+half.y-E); y+=s){
 			for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
 				float x = (pos.x-half.x-E);
-				if ((aabb = chunks->isObstacle(x,y,z))){
+				if ((aabb = chunks->isObstacleAt(x,y,z))){
 					vel.x *= 0.0f;
 					pos.x = floor(x) + aabb->max().x + half.x + E;
 					break;
@@ -100,7 +100,7 @@ void PhysicsSolver::colisionCalc(
 		for (float y = (pos.y-half.y+E); y <= (pos.y+half.y-E); y+=s){
 			for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
 				float x = (pos.x+half.x+E);
-				if ((aabb = chunks->isObstacle(x,y,z))){
+				if ((aabb = chunks->isObstacleAt(x,y,z))){
 					vel.x *= 0.0f;
 					pos.x = floor(x) - half.x + aabb->min().x - E;
 					break;
@@ -113,7 +113,7 @@ void PhysicsSolver::colisionCalc(
 		for (float y = (pos.y-half.y+E); y <= (pos.y+half.y-E); y+=s){
 			for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
 				float z = (pos.z-half.z-E);
-				if ((aabb = chunks->isObstacle(x,y,z))){
+				if ((aabb = chunks->isObstacleAt(x,y,z))){
 					vel.z *= 0.0f;
 					pos.z = floor(z) + aabb->max().z + half.z + E;
 					break;
@@ -126,7 +126,7 @@ void PhysicsSolver::colisionCalc(
 		for (float y = (pos.y-half.y+E); y <= (pos.y+half.y-E); y+=s){
 			for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
 				float z = (pos.z+half.z+E);
-				if ((aabb = chunks->isObstacle(x,y,z))){
+				if ((aabb = chunks->isObstacleAt(x,y,z))){
 					vel.z *= 0.0f;
 					pos.z = floor(z) - half.z + aabb->min().z - E;
 					break;
@@ -139,7 +139,7 @@ void PhysicsSolver::colisionCalc(
 		for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
 			for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
 				float y = (pos.y-half.y-E);
-				if ((aabb = chunks->isObstacle(x,y,z))){
+				if ((aabb = chunks->isObstacleAt(x,y,z))){
 					vel.y *= 0.0f;
 					pos.y = floor(y) + aabb->max().y + half.y;
 					hitbox->grounded = true;
@@ -152,7 +152,7 @@ void PhysicsSolver::colisionCalc(
 		for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
 			for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
 				float y = (pos.y+half.y+E);
-				if ((aabb = chunks->isObstacle(x,y,z))){
+				if ((aabb = chunks->isObstacleAt(x,y,z))){
 					vel.y *= 0.0f;
 					pos.y = floor(y) - half.y + aabb->min().y - E;
 					break;
