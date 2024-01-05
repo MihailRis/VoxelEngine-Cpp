@@ -6,15 +6,15 @@
         "en_US": {
             "name": "English"
         },
-		"pl_PL": {
-			"name": "Polski"
-		},
+	"pl_PL": {
+		"name": "Polski"
+	},
     	"ru_RU": {
             "name": "Русский"
         },
-		"uk_UA": {
-			"name": "Українська"
-		}
+	"uk_UA": {
+		"name": "Українська"
+	}
     },
     "fallback": "en_US"
 }
