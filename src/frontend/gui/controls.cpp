@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "../../window/Events.h"
 #include "../../assets/Assets.h"
 // #include "../../graphics/Batch2D.h"
 #include "../../graphics-vk/Batch2D.h"
@@ -22,7 +23,9 @@ const uint KEY_BACKSPACE = 259;
 using namespace gui;
 
 Label::Label(wstring text, string fontName) 
- : UINode(vec2(), vec2(text.length() * 8, 15)), text_(text), fontName_(fontName) {
+     : UINode(vec2(), vec2(text.length() * 8, 15)), 
+       text_(text), 
+       fontName_(fontName) {
 }
 
 Label& Label::text(wstring text) {
@@ -175,6 +178,13 @@ void TextBox::keyPressed(int key) {
             }
             defocus();
             break;
+    }
+    // Pasting text from clipboard
+    if (key == keycode::V && Events::pressed(keycode::LEFT_CONTROL)) {
+        const char* text = Window::getClipboardText();
+        if (text) {
+            input += util::str2wstr_utf8(text);
+        }
     }
 }
 

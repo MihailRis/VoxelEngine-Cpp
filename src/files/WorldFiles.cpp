@@ -38,7 +38,7 @@ regfile::regfile(fs::path filename) : file(filename) {
         throw std::runtime_error("invalid region file magic number");
     }
     version = header[8];
-    if (version > REGION_FORMAT_VERSION) {
+    if (uint(version) > REGION_FORMAT_VERSION) {
         throw illegal_region_format(
             "region format "+std::to_string(version)+" is not supported");
     }

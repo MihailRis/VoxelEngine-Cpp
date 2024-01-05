@@ -48,7 +48,7 @@ struct AABB {
     }
 
     /* Check if given point is inside */
-    inline bool inside(const glm::vec3 pos) const {
+    inline bool contains(const glm::vec3 pos) const {
         const glm::vec3 p = min();
         const glm::vec3 s = size();
         return !(pos.x < p.x || pos.y < p.y || pos.z < p.z ||
