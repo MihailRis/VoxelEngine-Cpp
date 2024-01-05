@@ -38,6 +38,7 @@
 #include "screens.h"
 #include "WorldRenderer.h"
 #include "BlocksPreview.h"
+#include "InventoryView.h"
 #include "../engine.h"
 #include "../core_defs.h"
 
@@ -59,13 +60,28 @@ HudRenderer::HudRenderer(Engine* engine,
 						 const ContentGfxCache* cache) 
             : level(level), 
 			  assets(engine->getAssets()), 
-			  batch(new Batch2D(1024)),
 			  gui(engine->getGUI()),
 			  cache(cache) {
 	auto menu = gui->getMenu();
 	blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
 									  assets->getAtlas("blocks"),
 									  cache);
+    auto content = level->content;
+    auto indices = content->indices;
+    std::vector<blockid_t> blocks;
+    for (blockid_t id = 1; id < indices->countBlockDefs(); id++) {
+        const Block* def = indices->getBlockDef(id);
+        if (def->hidden)
+            continue;
+        blocks.push_back(id);
+    }
+    contentAccess.reset(new InventoryView(
+        8,
+        level->player, 
+        assets, 
+        indices, 
+        cache, 
+        blocks));
 
 	uicamera = new Camera(vec3(), 1);
 	uicamera->perspective = false;
@@ -195,7 +211,6 @@ HudRenderer::HudRenderer(Engine* engine,
 HudRenderer::~HudRenderer() {
 	gui->remove(debugPanel);
 	delete blocksPreview;
-	delete batch;
 	delete uicamera;
 }
 
@@ -203,81 +218,6 @@ void HudRenderer::drawDebug(int fps){
 	this->fps = fps;
 	fpsMin = min(fps, fpsMin);
 	fpsMax = max(fps, fpsMax);
-}
-
-/* Inventory temporary replaced with blocks access panel */
-void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
-	const Content* content = level->content;
-	const ContentIndices* contentIds = content->indices;
-
-	const Viewport& viewport = ctx.getViewport();
-	const uint width = viewport.getWidth();
-	Shader* uiShader = assets->getShader("ui");
-
-	uint count = contentIds->countBlockDefs();
-	uint icon_size = 48;
-	uint interval = 4;
-	uint inv_cols = 8;
-	uint inv_rows = ceildiv(count-1, inv_cols);
-	int pad_x = interval;
-	int pad_y = interval;
-	uint inv_w = inv_cols * icon_size + (inv_cols-1) * interval + pad_x * 2;
-	uint inv_h = inv_rows * icon_size + (inv_rows-1) * interval + pad_x * 2;
-	int inv_x = (width - (inv_w));
-	int inv_y = 0;
-	int xs = inv_x + pad_x;
-	int ys = inv_y + pad_y;
-
-	vec4 tint = vec4(1.0f);
-	int mx = Events::cursor.x;
-	int my = Events::cursor.y;
-
-	// background
-	batch->texture(nullptr);
-	batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
-	batch->rect(inv_x, inv_y, inv_w, inv_h);
-	batch->render();
-
-	// blocks & items
-    if (Events::scroll) {
-        inventoryScroll -= Events::scroll * (icon_size+interval);
-    }
-    inventoryScroll = std::min(inventoryScroll, int(inv_h-viewport.getHeight()));
-    inventoryScroll = std::max(inventoryScroll, 0);
-	blocksPreview->begin(&ctx.getViewport());
-	{
-		Window::clearDepth();
-		GfxContext subctx = ctx.sub();
-		subctx.depthTest(true);
-		subctx.cullFace(true);
-        uint index = 0;
-		for (uint i = 0; i < count-1; i++) {
-			Block* cblock = contentIds->getBlockDef(i+1);
-			if (cblock == nullptr)
-				break;
-            if (cblock->hidden)
-                continue;
-			int x = xs + (icon_size+interval) * (index % inv_cols);
-			int y = ys + (icon_size+interval) * (index / inv_cols) - inventoryScroll;
-            if (y < 0 || y >= int(viewport.getHeight())) {
-                index++;
-                continue;
-            }
-			if (mx > x && mx < x + (int)icon_size && my > y && my < y + (int)icon_size) {
-				tint.r *= 1.2f;
-				tint.g *= 1.2f;
-				tint.b *= 1.2f;
-				if (Events::jclicked(mousecode::BUTTON_1)) {
-					player->chosenBlock = i+1;
-				}
-			} else {
-				tint = vec4(1.0f);
-			}
-			blocksPreview->draw(cblock, x, y, icon_size, tint);
-            index++;
-		}
-	}
-	uiShader->use();
 }
 
 void HudRenderer::update() {
@@ -322,6 +262,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 	uishader->use();
 	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
 
+    auto batch = ctx.getBatch2D();
 	batch->begin();
 
 	// Chosen block preview
@@ -361,7 +302,8 @@ void HudRenderer::draw(const GfxContext& ctx){
 		batch->rect(0, 0, width, height);
 	}
 	if (inventoryOpen) {
-        drawContentAccess(ctx, player);
+        contentAccess->setPosition(viewport.getWidth()-contentAccess->getWidth(), 0);
+        contentAccess->actAndDraw(&ctx);
 	}
 	batch->render();
 }
