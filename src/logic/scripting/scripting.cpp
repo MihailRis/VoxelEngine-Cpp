@@ -53,10 +53,14 @@ void scripting::initialize(EnginePaths* paths) {
     if (L == nullptr) {
         throw std::runtime_error("could not to initialize Lua");
     }
+    
+    // Allowed standard libraries
     luaopen_base(L);
     luaopen_math(L);
-    luaopen_table(L);
     luaopen_string(L);
+    luaopen_table(L);
+
+    // io-manipulations will be implemented via api functions
     
     std::cout << LUA_VERSION << std::endl;
 #   ifdef LUAJIT_VERSION

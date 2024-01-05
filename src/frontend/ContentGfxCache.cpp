@@ -7,8 +7,6 @@
 #include "../graphics/Atlas.h"
 #include "../voxels/Block.h"
 
-using std::string;
-
 ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets) {
     const ContentIndices* contentIds = content->indices;
     sideregions = new UVRegion[contentIds->countBlockDefs() * 6];
@@ -17,7 +15,7 @@ ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets) {
 	for (uint i = 0; i < contentIds->countBlockDefs(); i++) {
 		Block* def = contentIds->getBlockDef(i);
 		for (uint side = 0; side < 6; side++) {
-			string tex = def->textureFaces[side];
+			std::string tex = def->textureFaces[side];
 			if (atlas->has(tex)) {
 				sideregions[i * 6 + side] = atlas->get(tex);
 			} else {
@@ -28,7 +26,6 @@ ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets) {
     }
 }
 
-ContentGfxCache::~ContentGfxCache()
-{
+ContentGfxCache::~ContentGfxCache() {
 	delete[] sideregions;
 }

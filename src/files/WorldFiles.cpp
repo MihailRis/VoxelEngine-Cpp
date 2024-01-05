@@ -23,8 +23,26 @@
 #include <cstdint>
 #include <fstream>
 #include <sstream>
+#include <cstring>
 
 namespace fs = std::filesystem;
+
+regfile::regfile(fs::path filename) : file(filename) {
+    if (file.length() < REGION_HEADER_SIZE)
+        throw std::runtime_error("incomplete region file header");
+    char header[REGION_HEADER_SIZE];
+    file.read(header, REGION_HEADER_SIZE);
+    
+    // avoid of use strcmp_s
+    if (std::string(header, strlen(REGION_FORMAT_MAGIC)) != REGION_FORMAT_MAGIC) {
+        throw std::runtime_error("invalid region file magic number");
+    }
+    version = header[8];
+    if (uint(version) > REGION_FORMAT_VERSION) {
+        throw illegal_region_format(
+            "region format "+std::to_string(version)+" is not supported");
+    }
+}
 
 WorldRegion::WorldRegion() {
 	chunksData = new u_char8*[REGION_CHUNKS_COUNT]{};
@@ -112,6 +130,31 @@ u_char8* WorldFiles::decompress(const u_char8* src, size_t srclen, size_t dstlen
 	return decompressed;
 }
 
+int WorldFiles::getVoxelRegionVersion(int x, int z) {
+    regfile* rf = getRegFile(glm::ivec3(x, z, REGION_LAYER_VOXELS), getRegionsFolder());
+    if (rf == nullptr) {
+        return 0;
+    }
+    return rf->version;
+}
+
+int WorldFiles::getVoxelRegionsVersion() {
+    fs::path regionsFolder = getRegionsFolder();
+    if (!fs::is_directory(regionsFolder)) {
+        return REGION_FORMAT_VERSION;
+    }
+    for (auto file : fs::directory_iterator(regionsFolder)) {
+        int x;
+        int z;
+        if (!parseRegionFilename(file.path().stem().string(), x, z)) {
+            continue;
+        }
+        regfile* rf = getRegFile(glm::ivec3(x, z, REGION_LAYER_VOXELS), regionsFolder);
+        return rf->version;
+    }
+    return REGION_FORMAT_VERSION;
+}
+
 /* 
  * Compress and store chunk voxels data in region 
  * @param x chunk.x
@@ -172,8 +215,7 @@ fs::path WorldFiles::getLightsFolder() const {
 }
 
 fs::path WorldFiles::getRegionFilename(int x, int z) const {
-	std::string filename = std::to_string(x) + "_" + std::to_string(z) + ".bin";
-	return fs::path(filename);
+	return fs::path(std::to_string(x) + "_" + std::to_string(z) + ".bin");
 }
 
 /* 
@@ -236,7 +278,6 @@ u_char8* WorldFiles::getData(regionsmap& regions, const fs::path& folder,
 	int localZ = z - (regionZ * REGION_SIZE);
 
 	WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
-
 	u_char8* data = region->getChunkData(localX, localZ);
 	if (data == nullptr) {
 		uint32_t size;
@@ -252,7 +293,8 @@ u_char8* WorldFiles::getData(regionsmap& regions, const fs::path& folder,
 	return nullptr;
 }
 
-files::rafile* WorldFiles::getRegFile(glm::ivec3 coord, const fs::path& folder) {
+
+regfile* WorldFiles::getRegFile(glm::ivec3 coord, const fs::path& folder) {
     const auto found = openRegFiles.find(coord);
     if (found != openRegFiles.end()) {
         return found->second.get();
@@ -266,7 +308,7 @@ files::rafile* WorldFiles::getRegFile(glm::ivec3 coord, const fs::path& folder) 
     if (!fs::is_regular_file(filename)) {
         return nullptr;
     }
-    openRegFiles[coord] = std::make_unique<files::rafile>(filename);
+    openRegFiles[coord] = std::make_unique<regfile>(filename);
     return openRegFiles[coord].get();
 }
 
@@ -285,26 +327,27 @@ u_char8* WorldFiles::readChunkData(int x,
 	int chunkIndex = localZ * REGION_SIZE + localX;
  
     glm::ivec3 coord(regionX, regionZ, layer);
-    files::rafile* file = WorldFiles::getRegFile(coord, folder);
-    if (file == nullptr) {
+    regfile* rfile = WorldFiles::getRegFile(coord, folder);
+    if (rfile == nullptr) {
         return nullptr;
     }
+    files::rafile& file = rfile->file;
 
-	size_t file_size = file->length();
+	size_t file_size = file.length();
 	size_t table_offset = file_size - REGION_CHUNKS_COUNT * 4;
 
 	uint32_t offset;
-	file->seekg(table_offset + chunkIndex * 4);
-	file->read((char*)(&offset), 4);
+	file.seekg(table_offset + chunkIndex * 4);
+	file.read((char*)(&offset), 4);
 	offset = dataio::read_int32_big((const u_char8*)(&offset), 0);
 	if (offset == 0){
 		return nullptr;
 	}
-	file->seekg(offset);
-	file->read((char*)(&offset), 4);
+	file.seekg(offset);
+	file.read((char*)(&offset), 4);
 	length = dataio::read_int32_big((const u_char8*)(&offset), 0);
 	u_char8* data = new u_char8[length];
-	file->read((char*)data, length);
+	file.read((char*)data, length);
 	if (data == nullptr) {
 		std::cerr << "ERROR: failed to read data of chunk x("<< x <<"), z("<< z <<")" << std::endl;
 	}
@@ -343,13 +386,13 @@ void WorldFiles::writeRegion(int x, int z, WorldRegion* entry, fs::path folder, 
         openRegFiles.erase(regcoord);
     }
     
-	char header[10] = REGION_FORMAT_MAGIC;
+	char header[REGION_HEADER_SIZE] = REGION_FORMAT_MAGIC;
 	header[8] = REGION_FORMAT_VERSION;
 	header[9] = 0; // flags
 	std::ofstream file(filename, std::ios::out | std::ios::binary);
-	file.write(header, 10);
+	file.write(header, REGION_HEADER_SIZE);
 
-	size_t offset = 10;
+	size_t offset = REGION_HEADER_SIZE;
 	char intbuf[4]{};
 	uint offsets[REGION_CHUNKS_COUNT]{};
 	

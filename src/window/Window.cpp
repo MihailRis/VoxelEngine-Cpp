@@ -298,6 +298,10 @@ ImageData* Window::takeScreenshot() {
 	return new ImageData(ImageFormat::rgb888, width, height, data);
 }
 
+const char* Window::getClipboardText() {
+    return glfwGetClipboardString(window);
+}
+
 bool Window::tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor) {
 	glm::ivec4 windowFrame(0);
 	glm::ivec4 workArea(0);

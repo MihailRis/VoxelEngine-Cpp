@@ -1,4 +1,7 @@
 #include "Chunk.h"
+
+#include <memory>
+
 #include "voxel.h"
 #include "../content/ContentLUT.h"
 #include "../lighting/Lightmap.h"
@@ -22,7 +25,7 @@ Chunk::~Chunk(){
 
 bool Chunk::isEmpty(){
 	int id = -1;
-	for (int i = 0; i < CHUNK_VOL; i++){
+	for (size_t i = 0; i < CHUNK_VOL; i++){
 		if (voxels[i].id != id){
 			if (id != -1)
 				return false;
@@ -34,14 +37,14 @@ bool Chunk::isEmpty(){
 }
 
 void Chunk::updateHeights() {
-	for (int i = 0; i < CHUNK_VOL; i++) {
+	for (size_t i = 0; i < CHUNK_VOL; i++) {
 		if (voxels[i].id != 0) {
 			bottom = i / (CHUNK_D * CHUNK_W);
 			break;
 		}
 	}
 
-	for (int i = CHUNK_VOL - 1; i > -1; i--) {
+	for (int i = CHUNK_VOL - 1; i >= 0; i--) {
 		if (voxels[i].id != 0) {
 			top = i / (CHUNK_D * CHUNK_W) + 1;
 			break;
@@ -51,7 +54,7 @@ void Chunk::updateHeights() {
 
 Chunk* Chunk::clone() const {
 	Chunk* other = new Chunk(x,z);
-	for (int i = 0; i < CHUNK_VOL; i++)
+	for (size_t i = 0; i < CHUNK_VOL; i++)
 		other->voxels[i] = voxels[i];
 	other->lightmap->set(lightmap);
 	return other;
@@ -59,32 +62,68 @@ Chunk* Chunk::clone() const {
 
 /** 
   Current chunk format:
-	[voxel_ids...][voxel_states...];
+    - byte-order: big-endian
+    - [don't panic!] first and second bytes are separated for RLE efficiency
+
+    ```cpp
+    uint8_t voxel_id_first_byte[CHUNK_VOL];
+    uint8_t voxel_id_second_byte[CHUNK_VOL];
+    uint8_t voxel_states_first_byte[CHUNK_VOL];
+    uint8_t voxel_states_second_byte[CHUNK_VOL];
+    ```
+
+    Total size: (CHUNK_VOL * 4) bytes
 */
 u_char8* Chunk::encode() const {
 	u_char8* buffer = new u_char8[CHUNK_DATA_LEN];
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
-		((u_short16*)buffer)[i] = voxels[i].id;
-		((u_short16*)buffer)[CHUNK_VOL + i] = voxels[i].states;
+		buffer[i] = voxels[i].id >> 8;
+        buffer[CHUNK_VOL+i] = voxels[i].id & 0xFF;
+		buffer[CHUNK_VOL*2 + i] = voxels[i].states >> 8;
+        buffer[CHUNK_VOL*3 + i] = voxels[i].states & 0xFF;
 	}
 	return buffer;
 }
 
 /**
-  @return true if all is fine
-*/
+/**
+ * @return true if all is fine
+ **/
 bool Chunk::decode(u_char8* data) {
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
 		voxel& vox = voxels[i];
-		vox.id = ((u_short16*)data)[i];
-		vox.states = ((u_short16*)data)[CHUNK_VOL + i];
+
+        u_char8 bid1 = data[i];
+        u_char8 bid2 = data[CHUNK_VOL + i];
+        
+        u_char8 bst1 = data[CHUNK_VOL*2 + i];
+        u_char8 bst2 = data[CHUNK_VOL*3 + i];
+
+		vox.id = (blockid_t(bid1) << 8) | (blockid_t(bid2));
+        vox.states = (blockstate_t(bst1) << 8) | (blockstate_t(bst2));
 	}
 	return true;
 }
 
+/*
+ * Convert chunk voxels data from 16 bit to 32 bit
+ */
+void Chunk::fromOld(u_char8* data) {
+    for (size_t i = 0; i < CHUNK_VOL; i++) {
+        data[i + CHUNK_VOL*3] = data[i + CHUNK_VOL];
+        data[i + CHUNK_VOL] = data[i];
+        data[i + CHUNK_VOL*2] = 0;
+        data[i] = 0;
+    }
+}
+
 void Chunk::convert(u_char8* data, const ContentLUT* lut) {
     for (size_t i = 0; i < CHUNK_VOL; i++) {
-        blockid_t id = ((u_short16*)data)[i];
-		((u_short16*)data)[i] = lut->getBlockId(id);
+        // see encode method to understand what the hell is going on here
+        blockid_t id = ((blockid_t(data[i]) << 8) | 
+                         blockid_t(data[CHUNK_VOL+i]));
+        blockid_t replacement = lut->getBlockId(id);
+        data[i] = replacement >> 8;
+        data[CHUNK_VOL+i] = replacement & 0xFF;
     }
 }

@@ -78,6 +78,7 @@ public:
 	u_char8* encode() const;
 	bool decode(u_char8* data);
 
+    static void fromOld(u_char8* data);
     static void convert(u_char8* data, const ContentLUT* lut);
 };
 

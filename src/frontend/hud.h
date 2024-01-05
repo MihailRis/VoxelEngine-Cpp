@@ -8,7 +8,6 @@
 
 #include "../graphics/GfxContext.h"
 
-class Batch2D;
 class Camera;
 class Level;
 class Block;
@@ -17,8 +16,8 @@ class Player;
 class Level;
 class Engine;
 class ContentGfxCache;
-class WorldRenderer;
 class BlocksPreview;
+class InventoryView;
 
 namespace gui {
 	class GUI;
@@ -28,7 +27,6 @@ namespace gui {
 class HudRenderer {
 	Level* level;
     Assets* assets;
-	Batch2D* batch;
 	Camera* uicamera;
 	BlocksPreview* blocksPreview;
 
@@ -39,6 +37,7 @@ class HudRenderer {
 	bool inventoryOpen = false;
 	bool pause = false;
 
+    std::unique_ptr<InventoryView> contentAccess;
 	std::shared_ptr<gui::UINode> debugPanel;
 	gui::GUI* gui;
 	const ContentGfxCache* const cache;
@@ -49,7 +48,6 @@ public:
 	~HudRenderer();
 
 	void update();
-	void drawContentAccess(const GfxContext& ctx, Player* player);
 	void draw(const GfxContext& context);
 	void drawDebug(int fps);
 

@@ -43,27 +43,28 @@ void ChunksStorage::remove(int x, int z) {
 	}
 }
 
+void verifyLoadedChunk(ContentIndices* indices, Chunk* chunk) {
+    for (size_t i = 0; i < CHUNK_VOL; i++) {
+        blockid_t id = chunk->voxels[i].id;
+        if (indices->getBlockDef(id) == nullptr) {
+            std::cout << "corruped block detected at " << i << " of chunk ";
+            std::cout << chunk->x << "x" << chunk->z;
+            std::cout << " -> " << (int)id << std::endl;
+            chunk->voxels[i].id = 11;
+        }
+    }
+}
+
 std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 	World* world = level->world;
 
-	auto chunk = shared_ptr<Chunk>(new Chunk(x, z));
+    auto chunk = std::make_shared<Chunk>(x, z);
 	store(chunk);
-	unique_ptr<u_char8> data(world->wfile->getChunk(chunk->x, chunk->z));
+	std::unique_ptr<u_char8[]> data(world->wfile->getChunk(chunk->x, chunk->z));
 	if (data) {
 		chunk->decode(data.get());
 		chunk->setLoaded(true);
-	}
-
-	// Verifying and converting data
-	ContentIndices* indices = level->content->indices;
-	for (size_t i = 0; i < CHUNK_VOL; i++) {
-		blockid_t id = chunk->voxels[i].id;
-		if (indices->getBlockDef(id) == nullptr) {
-			std::cout << "corruped block detected at " << i << " of chunk ";
-			std::cout << chunk->x << "x" << chunk->z;
-			std::cout << " -> " << (int)id << std::endl;
-			chunk->voxels[i].id = 11;
-		}
+        verifyLoadedChunk(level->content->indices, chunk.get());
 	}
 
 	light_t* lights = world->wfile->getLights(chunk->x, chunk->z);

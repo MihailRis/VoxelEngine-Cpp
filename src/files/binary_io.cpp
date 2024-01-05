@@ -4,8 +4,6 @@
 #include <limits>
 #include <stdexcept>
 
-using std::string;
-
 void BinaryWriter::put(u_char8 b) {
     buffer.push_back(b);
 }
@@ -18,7 +16,7 @@ void BinaryWriter::putCStr(const char* str) {
     }
 }
 
-void BinaryWriter::put(const string& s) {
+void BinaryWriter::put(const std::string& s) {
     size_t len = s.length();
     if (len > INT16_MAX) {
         throw std::domain_error("length > INT16_MAX");
@@ -27,7 +25,7 @@ void BinaryWriter::put(const string& s) {
     put((const u_char8*)s.data(), len);
 }
 
-void BinaryWriter::putShortStr(const string& s) {
+void BinaryWriter::putShortStr(const std::string& s) {
     size_t len = s.length();
     if (len > 255) {
         throw std::domain_error("length > 255");
@@ -144,22 +142,22 @@ float BinaryReader::getFloat32() {
     return value.valfloat;
 }
 
-string BinaryReader::getString() {
+std::string BinaryReader::getString() {
     uint16_t length = (uint16_t)getInt16();
     if (pos+length > size) {
         throw std::underflow_error("unexpected end");
     }
     pos += length;
-    return string((const char*)(data+pos-length), length);
+    return std::string((const char*)(data+pos-length), length);
 }
 
-string BinaryReader::getShortString() {
+std::string BinaryReader::getShortString() {
     u_char8 length = get();
     if (pos+length > size) {
         throw std::underflow_error("unexpected end");
     }
     pos += length;
-    return string((const char*)(data+pos-length), length);
+    return std::string((const char*)(data+pos-length), length);
 }
 
 bool BinaryReader::hasNext() const {

@@ -23,13 +23,13 @@ void CoordSystem::transform(AABB& aabb) const {
 	aabb.b += fix;
 }
 
-const BlockRotProfile BlockRotProfile::PIPE {"pipe", {//TODO consexpr or init-time fix calculations
+const BlockRotProfile BlockRotProfile::PIPE {"pipe", {
 		{ { 1, 0, 0 }, { 0, 0, 1 }, { 0, -1, 0 }}, // North
 		{ { 0, 0, 1 }, {-1, 0, 0 }, { 0, -1, 0 }}, // East
-		{ { -1, 0, 0 }, { 0, 0,-1 }, { 0, -1, 0 }}, // South
-		{ { 0, 0, -1 }, { 1, 0, 0 }, { 0, -1, 0 }}, // West
-		{ { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 }}, // Up
-		{ { 1, 0, 0 }, { 0,-1, 0 }, { 0, 0,-1 }}, // Down
+		{ {-1, 0, 0 }, { 0, 0,-1 }, { 0, -1, 0 }}, // South
+		{ { 0, 0,-1 }, { 1, 0, 0 }, { 0, -1, 0 }}, // West
+		{ { 1, 0, 0 }, { 0, 1, 0 }, { 0,  0, 1 }}, // Up
+		{ { 1, 0, 0 }, { 0,-1, 0 }, { 0,  0,-1 }}, // Down
 }};
 
 const BlockRotProfile BlockRotProfile::PANE {"pane", {

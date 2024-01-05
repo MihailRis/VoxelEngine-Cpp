@@ -47,7 +47,7 @@ struct CoordSystem {
 };
 
 struct BlockRotProfile {
-	static const int MAX_COUNT = 16;
+	static const int MAX_COUNT = 8;
 	std::string name;
 	CoordSystem variants[MAX_COUNT];
 

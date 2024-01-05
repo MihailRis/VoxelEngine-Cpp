@@ -14,7 +14,9 @@
 #include "../util/stringutil.h"
 #include "../files/engine_paths.h"
 #include "../files/WorldConverter.h"
+#include "../files/WorldFiles.h"
 #include "../world/World.h"
+#include "../world/Level.h"
 #include "../window/Events.h"
 #include "../window/Window.h"
 #include "../engine.h"
@@ -175,8 +177,18 @@ void open_world(std::string name, Engine* engine) {
             show_convert_request(engine, content, lut, folder);
         }
     } else {
-        Level* level = World::load(folder, settings, content, packs);
-        engine->setScreen(std::make_shared<LevelScreen>(engine, level));
+        // TODO: remove in 0.18
+        int version;
+        {
+            WorldFiles wfile(folder, settings.debug);
+            version = wfile.getVoxelRegionsVersion();
+        }
+        if (version != REGION_FORMAT_VERSION) {
+            show_convert_request(engine, content, lut, folder);
+        } else {
+            Level* level = World::load(folder, settings, content, packs);
+            engine->setScreen(std::make_shared<LevelScreen>(engine, level));
+        }
     }
 }
 

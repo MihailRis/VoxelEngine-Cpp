@@ -23,7 +23,7 @@ int l_is_solid_at(lua_State* L) {
     int y = lua_tointeger(L, 2);
     int z = lua_tointeger(L, 3);
 
-    lua_pushboolean(L, scripting::level->chunks->isSolid(x, y, z));
+    lua_pushboolean(L, scripting::level->chunks->isSolidBlock(x, y, z));
     return 1;
 }
 
@@ -58,6 +58,13 @@ int l_get_block(lua_State* L) {
     int id = vox == nullptr ? -1 : vox->id;
     lua_pushinteger(L, id);
     return 1;
+}
+
+inline int lua_pushivec3(lua_State* L, int x, int y, int z) {
+    lua_pushinteger(L, x);
+    lua_pushinteger(L, y);
+    lua_pushinteger(L, z);
+    return 3;
 }
 
 int l_get_player_pos(lua_State* L) {
@@ -103,12 +110,13 @@ int l_get_block_states(lua_State* L) {
     return 1;
 }
 
+
 int l_is_replaceable_at(lua_State* L) {
     int x = lua_tointeger(L, 1);
     int y = lua_tointeger(L, 2);
     int z = lua_tointeger(L, 3);
 
-    lua_pushboolean(L, scripting::level->chunks->isReplaceable(x, y, z));
+    lua_pushboolean(L, scripting::level->chunks->isReplaceableBlock(x, y, z));
     return 1;
 }
 
@@ -227,6 +235,7 @@ inline int lua_pushivec3(lua_State* L, int x, int y, int z) {
     lua_pushinteger(L, z);
     return 3;
 }
+
 int l_get_block_x(lua_State* L) {
     int x = lua_tointeger(L, 1);
     int y = lua_tointeger(L, 2);
@@ -288,6 +297,9 @@ void apilua::create_funcs(lua_State* L) {
     lua_addfunc(L, l_is_replaceable_at, "is_replaceable_at");
     lua_addfunc(L, l_set_block, "set_block");
     lua_addfunc(L, l_get_block, "get_block");
+    lua_addfunc(L, l_get_block_x, "get_block_X");
+    lua_addfunc(L, l_get_block_y, "get_block_Y");
+    lua_addfunc(L, l_get_block_z, "get_block_Z");
     lua_addfunc(L, l_get_player_pos, "get_player_pos");
     lua_addfunc(L, l_set_player_pos, "set_player_pos");
     lua_addfunc(L, l_get_player_rot, "get_player_rot");
@@ -306,4 +318,6 @@ void apilua::create_funcs(lua_State* L) {
     lua_addfunc(L, l_get_block_x, "get_block_X");
     lua_addfunc(L, l_get_block_y, "get_block_Y");
     lua_addfunc(L, l_get_block_z, "get_block_Z");
+    lua_addfunc(L, l_get_block_custom_bits, "get_block_custom_bits");
+    lua_addfunc(L, l_set_block_custom_bits, "set_block_custom_bits");
 }
