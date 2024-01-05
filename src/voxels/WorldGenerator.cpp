@@ -161,7 +161,7 @@ int generate_tree(fnl_state *noise,
 	return 0;
 }
 
-void WorldGenerator::generate_standard(voxel* voxels, int cx, int cz, int seed) {
+void WorldGenerator::generate_standard(voxel* voxels, int cx, int cz, int seed, bool treesgen) {
 	const int treesTile = 12;
 	fnl_state noise = fnlCreateState();
 	noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
@@ -214,7 +214,7 @@ void WorldGenerator::generate_standard(voxel* voxels, int cx, int cz, int seed) 
 					id = idDirt;
 				} else {
 					int tree = generate_tree(&noise, &randomtree, heights, cur_x, cur_y, cur_z, treesTile, idWood, idLeaves);
-					if (tree) {
+					if (tree && treesgen) {
 						id = tree;
 						states = BLOCK_DIR_UP;
 					}
@@ -248,10 +248,6 @@ void WorldGenerator::generate_standard(voxel* voxels, int cx, int cz, int seed) 
 	}
 }
 
-void WorldGenerator::generate_minecraft(voxel* voxels, int cx, int cz, int seed) {
-	generate_standard(voxels, cx, cz, seed);
-}
-
 void WorldGenerator::generate_flat(voxel* voxels, int cx, int cz, int seed) {
 	for (int z = 0; z < CHUNK_D; z++) {
 		int cur_z = z + cz * CHUNK_D;
@@ -259,7 +255,9 @@ void WorldGenerator::generate_flat(voxel* voxels, int cx, int cz, int seed) {
 			int cur_x = x + cx * CHUNK_W;
 			for (int cur_y = 0; cur_y < CHUNK_H; cur_y++) {
 				int id = BLOCK_AIR;
-				if (cur_y <= 5) {
+				if (cur_y == 0) {
+					id = idBazalt;
+				} else if (cur_y <= 5) {
 					id = idDirt;
 				} else if (cur_y == 6) {
 					id = idGrassBlock;
@@ -285,9 +283,9 @@ void WorldGenerator::generate_void(voxel* voxels, int cx, int cz, int seed) {
 
 void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed) {
 	if (world_type == 0) {
-		generate_standard(voxels, cx, cz, seed);
+		generate_standard(voxels, cx, cz, seed, true);
 	} else if (world_type == 1) {
-		generate_minecraft(voxels, cx, cz, seed);
+		generate_standard(voxels, cx, cz, seed, false);
 	} else if (world_type == 2) {
 		generate_flat(voxels, cx, cz, seed);
 	} else {

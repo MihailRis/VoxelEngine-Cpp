@@ -2,6 +2,9 @@
 menu.missing-content=Missing Content!
 world.convert-request=Content indices have changed! Convert world files?
 error.pack-not-found=Could not to find pack
+menu.standard=Standard
+menu.no_trees=No trees
+menu.flat=Flat
 
 # Bindings
 movement.forward=Forward
@@ -20,3 +23,4 @@ player.flight=Flight
 player.noclip=No-clip
 camera.zoom=Zoom
 camera.mode=Switch Camera Mode
+

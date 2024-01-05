@@ -21,6 +21,9 @@ menu.Content=Контент
 menu.Seed=Зерно
 menu.Name=Название
 menu.Create World=Создать Мир
+menu.standard=Стандартный
+menu.no_trees=Без деревьев
+menu.flat=Плоский
 
 world.convert-request=Есть изменения в индексах! Конвертировать мир?
 

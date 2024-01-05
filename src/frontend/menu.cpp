@@ -257,16 +257,16 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
     Button* worldTypeButton; {
         Label* label = new Label(L"World Type");
         panel->add(label);
-        Button* typeButton = new Button(L"Standard", vec4(10), vec4(1, 20, 1, 1));
+        Button* typeButton = new Button(langs::get(L"menu.standard"), vec4(10), vec4(1, 20, 1, 1));
         panel->add(typeButton);
         worldTypeButton = typeButton;
 
         typeButton->listenAction([=](GUI*) {
             std::wstring worldTypeName;
 
-            if (typeButton->text() == L"Flat") worldTypeName = L"Standard";
-            if (typeButton->text() == L"Standard") worldTypeName = L"Minecraft";
-            if (typeButton->text() == L"Minecraft") worldTypeName = L"Flat";
+            if (typeButton->text() == langs::get(L"menu.flat")) worldTypeName = langs::get(L"menu.standard");
+            if (typeButton->text() == langs::get(L"menu.standard")) worldTypeName = langs::get(L"menu.no_trees");
+            if (typeButton->text() == langs::get(L"menu.no_trees")) worldTypeName = langs::get(L"menu.flat");
 
             worldTypeButton->text(worldTypeName);
         });
@@ -306,9 +306,9 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
         engine->loadContent();
 
         short int type_int = 3;
-        if (worldTypeButton->text() == L"Standard") type_int = 0;
-        if (worldTypeButton->text() == L"Minecraft") type_int = 1;
-        if (worldTypeButton->text() == L"Flat") type_int = 2;
+        if (worldTypeButton->text() == langs::get(L"menu.standard")) type_int = 0;
+        if (worldTypeButton->text() == langs::get(L"menu.no_trees")) type_int = 1;
+        if (worldTypeButton->text() == langs::get(L"menu.flat")) type_int = 2;
 
         Level* level = World::create(nameutf8, 
                                      folder, 

@@ -20,8 +20,7 @@ class WorldGenerator {
 	short int world_type;
 public:
 	WorldGenerator(const Content* content, short int world_type);
-	void generate_standard(voxel* voxels, int x, int z, int seed);
-	void generate_minecraft(voxel* voxels, int x, int z, int seed);
+	void generate_standard(voxel* voxels, int x, int z, int seed, bool treesgen);
 	void generate_flat(voxel* voxels, int x, int z, int seed);
 	void generate_void(voxel* voxels, int x, int z, int seed);
 	void generate(voxel* voxels, int x, int z, int seed);
