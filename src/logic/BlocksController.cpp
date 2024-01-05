@@ -75,7 +75,11 @@ void BlocksController::updateBlock(int x, int y, int z) {
         return;
     }
     if (def->rt.funcsset.update) {
+        int states = vox->states;
+        int id = vox->id;
         scripting::update_block(def, x, y, z);
+        if (states != vox->states || id!= vox->id)
+            updateSides(x, y, z);
     }
 }
 

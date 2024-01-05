@@ -231,7 +231,7 @@ void BlocksRenderer::blockCube(int x, int y, int z,
 	vec3 coord(x, y, z);
 	if (block->rotatable) {
 		auto& rotations = block->rotations;
-		auto& orient = rotations.variants[states & BLOCK_ROT_MASK];
+		auto& orient = rotations.variants[states & BLOCK_DIR_MASK];
 		X = orient.axisX;
 		Y = orient.axisY;
 		Z = orient.axisZ;

@@ -300,6 +300,7 @@ void PlayerController::updateInteraction(){
 			player->chosenBlock = chunks->get(x,y,z)->id;
 		}
 	} else {
+		player->selectedVoxel = voxel{0, 0};
 		selectedBlockId = -1;
 		selectedBlockStates = 0;
 	}
