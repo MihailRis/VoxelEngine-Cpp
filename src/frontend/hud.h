@@ -8,12 +8,6 @@
 
 #include "../graphics/GfxContext.h"
 
-namespace vulkan {
-	class Batch2D;
-	class WorldRenderer;
-}
-
-class Batch2D;
 class Camera;
 class Level;
 class Block;
@@ -22,8 +16,8 @@ class Player;
 class Level;
 class Engine;
 class ContentGfxCache;
-class WorldRenderer;
 class BlocksPreview;
+class InventoryView;
 
 namespace gui {
 	class GUI;
@@ -33,7 +27,6 @@ namespace gui {
 class HudRenderer {
 	Level* level;
     Assets* assets;
-	vulkan::Batch2D* batch;
 	Camera* uicamera;
 	BlocksPreview* blocksPreview;
 
@@ -42,9 +35,9 @@ class HudRenderer {
 	int fpsMax = 60;
 	std::wstring fpsString;
 	bool inventoryOpen = false;
-    int inventoryScroll = 0;
 	bool pause = false;
 
+    std::unique_ptr<InventoryView> contentAccess;
 	std::shared_ptr<gui::UINode> debugPanel;
 	gui::GUI* gui;
 	const ContentGfxCache* const cache;
@@ -55,7 +48,6 @@ public:
 	~HudRenderer();
 
 	void update();
-	void drawContentAccess(const GfxContext& ctx, Player* player);
 	void draw(const GfxContext& context);
 	void drawDebug(int fps);
 

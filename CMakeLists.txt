@@ -31,8 +31,12 @@ endif()
 
 
 if(MSVC)
-  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /MT /O2)
+    if((CMAKE_BUILD_TYPE EQUAL "Release") OR (CMAKE_BUILD_TYPE EQUAL "RelWithDebInfo"))
+      set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
+      target_compile_options(${PROJECT_NAME} PRIVATE /W4 /MT /O2)
+    else()
+      target_compile_options(${PROJECT_NAME} PRIVATE /W4)
+    endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /source-charset:UTF-8")
 else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -lstdc++fs

@@ -13,17 +13,9 @@
 #include "../util/stringutil.h"
 #include "../util/timeutil.h"
 #include "../assets/Assets.h"
-#include "../graphics-common/IShader.h"
-
-#ifdef USE_VULKAN
-#include "../graphics-vk/Batch2D.h"
-#include "../graphics-vk/WorldRenderer.h"
-#include "../graphics-vk/uniforms/ProjectionViewUniform.h"
-#else
+#include "../graphics/Shader.h"
 #include "../graphics/Batch2D.h"
 #include "../graphics/Batch3D.h"
-#endif
-
 #include "../graphics/Font.h"
 #include "../graphics/Atlas.h"
 #include "../graphics/Mesh.h"
@@ -46,6 +38,7 @@
 #include "screens.h"
 #include "WorldRenderer.h"
 #include "BlocksPreview.h"
+#include "InventoryView.h"
 #include "../engine.h"
 #include "../core_defs.h"
 
@@ -64,35 +57,38 @@ inline Label* create_label(gui::wstringsupplier supplier) {
 
 HudRenderer::HudRenderer(Engine* engine, 
 						 Level* level, 
-						 const ContentGfxCache* cache)
+						 const ContentGfxCache* cache) 
             : level(level), 
 			  assets(engine->getAssets()), 
-			  batch(new vulkan::Batch2D(1024)),
 			  gui(engine->getGUI()),
 			  cache(cache) {
 	auto menu = gui->getMenu();
 	blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
 									  assets->getAtlas("blocks"),
 									  cache);
+    auto content = level->content;
+    auto indices = content->indices;
+    std::vector<blockid_t> blocks;
+    for (blockid_t id = 1; id < indices->countBlockDefs(); id++) {
+        const Block* def = indices->getBlockDef(id);
+        if (def->hidden)
+            continue;
+        blocks.push_back(id);
+    }
+    contentAccess.reset(new InventoryView(
+        8,
+        level->player, 
+        assets, 
+        indices, 
+        cache, 
+        blocks));
 
-#ifdef USE_VULKAN
-	constexpr vec3 camPos = vec3(0, 0, -1);
-#else
-	constexpr vec3 camPos = vec3();
-#endif
-	uicamera = new Camera(camPos, 1);
+	uicamera = new Camera(vec3(), 1);
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 
 	Panel* panel = new Panel(vec2(250, 200), vec4(5.0f), 1.0f);
 	debugPanel = shared_ptr<UINode>(panel);
-	panel->add(shared_ptr<Label>(create_label([this]() {
-#ifdef USE_VULKAN
-		return L"Vulkan render";
-#else
-		return L"OpenGL render";
-#endif
-	})));
 	panel->listenInterval(1.0f, [this]() {
 		fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
 		fpsMin = fps;
@@ -102,12 +98,8 @@ HudRenderer::HudRenderer(Engine* engine,
 	panel->add(shared_ptr<Label>(create_label([this](){
 		return L"fps: "+this->fpsString;
 	})));
-	panel->add(shared_ptr<Label>(create_label([=]() {
-#ifdef USE_VULKAN
-		return L"meshes: " + std::to_wstring(vulkan::meshesCount);
-#else
+	panel->add(shared_ptr<Label>(create_label([this](){
 		return L"meshes: " + std::to_wstring(Mesh::meshesCount);
-#endif
 	})));
 	panel->add(shared_ptr<Label>(create_label([=](){
 		auto& settings = engine->getSettings();
@@ -185,18 +177,10 @@ HudRenderer::HudRenderer(Engine* engine,
 	{
 		TrackBar* bar = new TrackBar(0.0f, 1.0f, 0.0f, 0.005f, 8);
 		bar->supplier([=]() {
-#ifdef USE_VULKAN
-			return vulkan::WorldRenderer::fog;
-#else
 			return WorldRenderer::fog;
-#endif
 		});
 		bar->consumer([=](double val) {
-#ifdef USE_VULKAN
-			vulkan::WorldRenderer::fog = static_cast<float>(val);
-#else
 			WorldRenderer::fog = val;
-#endif
 		});
 		panel->add(bar);
 	}
@@ -227,7 +211,6 @@ HudRenderer::HudRenderer(Engine* engine,
 HudRenderer::~HudRenderer() {
 	gui->remove(debugPanel);
 	delete blocksPreview;
-	delete batch;
 	delete uicamera;
 }
 
@@ -235,81 +218,6 @@ void HudRenderer::drawDebug(int fps){
 	this->fps = fps;
 	fpsMin = min(fps, fpsMin);
 	fpsMax = max(fps, fpsMax);
-}
-
-/* Inventory temporary replaced with blocks access panel */
-void HudRenderer::drawContentAccess(const GfxContext& ctx, Player* player) {
-	const Content* content = level->content;
-	const ContentIndices* contentIds = content->indices;
-
-	const Viewport& viewport = ctx.getViewport();
-	const uint width = viewport.getWidth();
-	IShader* uiShader = assets->getShader("ui");
-
-	uint count = contentIds->countBlockDefs();
-	uint icon_size = 48;
-	uint interval = 4;
-	uint inv_cols = 8;
-	uint inv_rows = ceildiv(count-1, inv_cols);
-	int pad_x = interval;
-	int pad_y = interval;
-	uint inv_w = inv_cols * icon_size + (inv_cols-1) * interval + pad_x * 2;
-	uint inv_h = inv_rows * icon_size + (inv_rows-1) * interval + pad_x * 2;
-	int inv_x = (width - (inv_w));
-	int inv_y = 0;
-	int xs = inv_x + pad_x;
-	int ys = inv_y + pad_y;
-
-	vec4 tint = vec4(1.0f);
-	int mx = Events::cursor.x;
-	int my = Events::cursor.y;
-
-	// background
-	batch->texture(nullptr);
-	batch->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
-	batch->rect(inv_x, inv_y, inv_w, inv_h);
-	batch->render();
-
-	// blocks & items
-    if (Events::scroll) {
-        inventoryScroll -= Events::scroll * (icon_size+interval);
-    }
-    inventoryScroll = std::min(inventoryScroll, int(inv_h-viewport.getHeight()));
-    inventoryScroll = std::max(inventoryScroll, 0);
-	blocksPreview->begin(&ctx.getViewport());
-	{
-		Window::clearDepth();
-		GfxContext subctx = ctx.sub();
-		subctx.depthTest(true);
-		subctx.cullFace(true);
-        uint index = 0;
-		for (uint i = 0; i < count-1; i++) {
-			Block* cblock = contentIds->getBlockDef(i+1);
-			if (cblock == nullptr)
-				break;
-            if (cblock->hidden)
-                continue;
-			int x = xs + (icon_size+interval) * (index % inv_cols);
-			int y = ys + (icon_size+interval) * (index / inv_cols) - inventoryScroll;
-            if (y < 0 || y >= int(viewport.getHeight())) {
-                index++;
-                continue;
-            }
-			if (mx > x && mx < x + (int)icon_size && my > y && my < y + (int)icon_size) {
-				tint.r *= 1.2f;
-				tint.g *= 1.2f;
-				tint.b *= 1.2f;
-				if (Events::jclicked(mousecode::BUTTON_1)) {
-					player->chosenBlock = i+1;
-				}
-			} else {
-				tint = vec4(1.0f);
-			}
-			blocksPreview->draw(cblock, x, y, icon_size, tint);
-            index++;
-		}
-	}
-	uiShader->use();
 }
 
 void HudRenderer::update() {
@@ -350,32 +258,28 @@ void HudRenderer::draw(const GfxContext& ctx){
 
 	uicamera->setFov(height);
 
-	IShader* uishader = assets->getShader("ui");
+	Shader* uishader = assets->getShader("ui");
 	uishader->use();
-#ifdef USE_VULKAN
-	const ProjectionViewUniform projectionViewUniform = { uicamera->getProjection() * uicamera->getView() };
-	uishader->uniform(projectionViewUniform);
-#else
 	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
-#endif
 
+    auto batch = ctx.getBatch2D();
 	batch->begin();
 
 	// Chosen block preview
-	batch->setColor(vec4(1.0f));
+	batch->color = vec4(1.0f);
 	if (Events::_cursor_locked && !level->player->debug) {
-		// batch->lineWidth(2);
-		// batch->line(width/2, height/2-6, width/2, height/2+6, 0.2f, 0.2f, 0.2f, 1.0f);
-		// batch->line(width/2+6, height/2, width/2-6, height/2, 0.2f, 0.2f, 0.2f, 1.0f);
-		// batch->line(width/2-5, height/2-5, width/2+5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
-		// batch->line(width/2+5, height/2-5, width/2-5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
+		batch->lineWidth(2);
+		batch->line(width/2, height/2-6, width/2, height/2+6, 0.2f, 0.2f, 0.2f, 1.0f);
+		batch->line(width/2+6, height/2, width/2-6, height/2, 0.2f, 0.2f, 0.2f, 1.0f);
+		batch->line(width/2-5, height/2-5, width/2+5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
+		batch->line(width/2+5, height/2-5, width/2-5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
 	}
 	Player* player = level->player;
 
 
-	batch->setColor(vec4(0.0f, 0.0f, 0.0f, 0.75f));
+	batch->color = vec4(0.0f, 0.0f, 0.0f, 0.75f);
 	batch->rect(width - 68, height - 68, 68, 68);
-	batch->setColor(vec4(1.0f));
+	batch->color = vec4(1.0f);
 	batch->render();
 
 	blocksPreview->begin(&ctx.getViewport());
@@ -384,31 +288,24 @@ void HudRenderer::draw(const GfxContext& ctx){
 		GfxContext subctx = ctx.sub();
 		subctx.depthTest(true);
 		subctx.cullFace(true);
-
+		
 		Block* cblock = contentIds->getBlockDef(player->chosenBlock);
 		assert(cblock != nullptr);
 		blocksPreview->draw(cblock, width - 56, uicamera->getFov() - 56, 48, vec4(1.0f));
 	}
 	uishader->use();
-#ifdef USE_VULKAN
-	uishader->uniform(projectionViewUniform);
-	batch->rebegin();
-#else
 	batch->begin();
-#endif
 
 	if (pause) {
 		batch->texture(nullptr);
-		batch->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+		batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
 		batch->rect(0, 0, width, height);
 	}
 	if (inventoryOpen) {
-        drawContentAccess(ctx, player);
+        contentAccess->setPosition(viewport.getWidth()-contentAccess->getWidth(), 0);
+        contentAccess->actAndDraw(&ctx);
 	}
 	batch->render();
-#ifdef USE_VULKAN
-	batch->end();
-#endif
 }
 
 bool HudRenderer::isInventoryOpen() const {

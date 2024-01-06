@@ -44,11 +44,11 @@
 #include "../content/Content.h"
 #include "../voxels/Block.h"
 
-using std::string;
-using std::wstring;
-using glm::vec3;
-using glm::vec4;
-using std::shared_ptr;
+Screen::Screen(Engine* engine) : engine(engine), batch(new Batch2D(1024)) {
+}
+
+Screen::~Screen() {
+}
 
 MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     auto menu = engine->getGUI()->getMenu();
@@ -56,9 +56,8 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     menu->reset();
     menu->set("main");
 
-    batch = new vulkan::Batch2D(1024);
 #ifdef USE_VULKAN
-    constexpr vec3 camPos = vec3(0, 0, -1);
+    constexpr glm::vec3 camPos = glm::vec3(0, 0, -1);
 #else
     constexpr vec3 camPos = vec3();
 #endif
@@ -68,7 +67,6 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
 }
 
 MenuScreen::~MenuScreen() {
-    delete batch;
     delete uicamera;
 }
 
@@ -77,7 +75,7 @@ void MenuScreen::update(float delta) {
 
 void MenuScreen::draw(float delta) {
     Window::clear();
-    Window::setBgColor(vec3(0.2f));
+    Window::setBgColor(glm::vec3(0.2f));
 #ifdef USE_VULKAN
     vulkan::VulkanContext::get().beginScreenDraw(0.0f, 0.0f, 0.0f);
 #endif
@@ -100,7 +98,7 @@ void MenuScreen::draw(float delta) {
     batch->rect(0, 0, 
                 width, height, 0, 0, 0,
                 UVRegion(0, 0, width/64, height/64),
-                false, false, vec4(1.0f));
+                false, false, glm::vec4(1.0f));
     batch->render();
     batch->end();
 #ifdef USE_VULKAN
@@ -181,7 +179,7 @@ void LevelScreen::draw(float delta) {
     Camera* camera = level->player->currentViewCamera;
 
     Viewport viewport(Window::width, Window::height);
-    GfxContext ctx(nullptr, viewport, nullptr);
+    GfxContext ctx(nullptr, viewport, batch.get());
 #ifdef USE_VULKAN
     vulkan::VulkanContext::get().beginScreenDraw(0.0f, 0.0f, 0.0f, VK_ATTACHMENT_LOAD_OP_LOAD);
 #endif

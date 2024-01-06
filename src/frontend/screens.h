@@ -23,15 +23,15 @@ class LevelController;
 class Screen {
 protected:
     Engine* engine;
+    std::unique_ptr<Batch2D> batch;
 public:
-    Screen(Engine* engine) : engine(engine) {};
-    virtual ~Screen() {};
+    Screen(Engine* engine);
+    virtual ~Screen();
     virtual void update(float delta) = 0;
     virtual void draw(float delta) = 0;
 };
 
 class MenuScreen : public Screen {
-    vulkan::Batch2D* batch;
     Camera* uicamera;
 public:
     MenuScreen(Engine* engine);
@@ -47,6 +47,7 @@ class LevelScreen : public Screen {
     LevelController* controller;
     HudRenderer* hud;
     ContentGfxCache* cache;
+
     bool hudVisible = true;
     void updateHotkeys();
 public:
