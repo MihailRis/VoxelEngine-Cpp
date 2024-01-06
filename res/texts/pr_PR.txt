@@ -1,0 +1,53 @@
+# Общее
+Yes=Да, треску мне в зад
+No=Нет, якорь мне в глаз
+Ok=Попутного ветра!
+Cancel=Освободите мои плавники
+Back=Вернуться в бухту!
+Continue=Заткнись и дай пройти!
+
+error.pack-not-found=Трусливый щенок! Не нашёл я твоих сундуков!
+
+# Меню
+menu.New World=Новые воды
+menu.Quit=Катитесь к Дейви Джонсу
+menu.Continue=Заткнись и дай пройти!
+menu.Save and Quit to Menu=Сохранить память и отдать концы
+menu.missing-content=Трусливый щенок! Не нашёл я твоих сундуков!
+menu.Controls=Рулевой
+menu.Back to Main Menu=Вернуться в бухту!
+menu.Settings=Эй, на палубе! Слушайте сюда!
+menu.Content=Золото
+world.Seed=Капля воды
+world.Name=Кликуха
+menu.Create World=На АБОРДАЖ!
+
+world.convert-request=Рад увидеть твою рожу снова! Индексы отдали концы. Чиним лодку?
+
+# Настройки
+settings.Load Distance=Дистанция плавания
+settings.Load Speed=Скорость судна
+settings.Fog Curve=Туман в водах
+settings.Backlight=Озарение
+settings.V-Sync=Встать в ширенгу!
+
+settings.FOV=Зона видимости
+settings.Mouse Sensitivity=Чувствительность судна
+settings.Language=Язык
+
+# Управление
+movement.forward=Вперёд
+movement.back=Назад
+movement.left=Влево
+movement.right=Вправо
+movement.jump=Прыжок
+movement.sprint=Ускорение
+movement.crouch=Красться
+movement.cheat=Чит
+hud.inventory=Инвентарь
+player.pick=Подобрать Блок
+player.attack=Атаковать / Сломать
+player.build=Поставить Блок
+player.flight=Полёт
+camera.zoom=Приближение
+camera.mode=Сменить Режим Камеры
