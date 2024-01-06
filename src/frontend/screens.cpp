@@ -35,12 +35,6 @@
 #include "../content/Content.h"
 #include "../voxels/Block.h"
 
-using std::string;
-using std::wstring;
-using glm::vec3;
-using glm::vec4;
-using std::shared_ptr;
-
 Screen::Screen(Engine* engine) : engine(engine), batch(new Batch2D(1024)) {
 }
 
@@ -53,7 +47,7 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     menu->reset();
     menu->set("main");
 
-    uicamera = new Camera(vec3(), Window::height);
+    uicamera = new Camera(glm::vec3(), Window::height);
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 }
@@ -67,7 +61,7 @@ void MenuScreen::update(float delta) {
 
 void MenuScreen::draw(float delta) {
     Window::clear();
-    Window::setBgColor(vec3(0.2f));
+    Window::setBgColor(glm::vec3(0.2f));
 
     uicamera->setFov(Window::height);
 	Shader* uishader = engine->getAssets()->getShader("ui");
@@ -82,7 +76,7 @@ void MenuScreen::draw(float delta) {
     batch->rect(0, 0, 
                 width, height, 0, 0, 0, 
                 UVRegion(0, 0, width/64, height/64), 
-                false, false, vec4(1.0f));
+                false, false, glm::vec4(1.0f));
     batch->render();
 }
 
