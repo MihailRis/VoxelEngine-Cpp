@@ -1,9 +1,5 @@
 #include "GfxContext.h"
 
-#include <GL/glew.h>
-
-#include "Batch2D.h"
-
 // TODO: optimize for vulkan
 
 GfxContext::GfxContext(const GfxContext* parent, Viewport& viewport, Batch2D* g2d)

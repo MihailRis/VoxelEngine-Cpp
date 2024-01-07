@@ -79,7 +79,6 @@ namespace vulkan {
         void initDepth();
         void initUploadContext();
         void initFrameDatas();
-        void initUniformBuffers();
         void nextImage();
 
         void destroy();

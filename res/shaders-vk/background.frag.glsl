@@ -7,5 +7,6 @@ layout(set = 1, binding = 0) uniform samplerCube u_cubemap;
 
 void main(){
 	vec3 dir = normalize(v_coord);
+	dir.z = -dir.z;
 	f_color = texture(u_cubemap, dir);
 }

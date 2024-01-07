@@ -1,7 +1,6 @@
 #include "WorldRenderer.h"
 
 #include <iostream>
-#include <GL/glew.h>
 #include <memory>
 #include <assert.h>
 
@@ -13,7 +12,6 @@
 #include "../graphics/Atlas.h"
 #include "../graphics-common/IShader.h"
 #include "../graphics-common/ITexture.h"
-#include "../graphics/LineBatch.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/Block.h"

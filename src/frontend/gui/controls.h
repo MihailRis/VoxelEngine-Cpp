@@ -10,7 +10,7 @@
 #include "panels.h"
 #include "../../window/input.h"
 
-class Batch2D;
+#include "../../graphics-common/graphicsDefenitions.h"
 class Assets;
 
 namespace gui {
@@ -34,7 +34,7 @@ namespace gui {
         virtual Label& text(std::wstring text);
         std::wstring text() const;
 
-        virtual void draw(vulkan::Batch2D* batch, Assets* assets) override;
+        virtual void draw(Batch2D* batch, Assets* assets) override;
 
         virtual Label* textSupplier(wstringsupplier supplier);
         virtual void size(glm::vec2 size) override;
@@ -52,7 +52,7 @@ namespace gui {
                glm::vec4 padding=glm::vec4(2.0f), 
                glm::vec4 margin=glm::vec4(1.0f));
 
-        void drawBackground(vulkan::Batch2D* batch, Assets* assets) override;
+        void drawBackground(Batch2D* batch, Assets* assets) override;
 
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
@@ -82,7 +82,7 @@ namespace gui {
 
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
-        virtual void drawBackground(vulkan::Batch2D* batch, Assets* assets) override;
+        virtual void drawBackground(Batch2D* batch, Assets* assets) override;
         virtual void typed(unsigned int codepoint) override; 
         virtual void keyPressed(int key) override;
         virtual void textSupplier(wstringsupplier supplier);
@@ -99,7 +99,7 @@ namespace gui {
         Binding& binding;
     public:
         InputBindBox(Binding& binding, glm::vec4 padding=glm::vec4(6.0f));
-        virtual void drawBackground(vulkan::Batch2D* batch, Assets* assets) override;
+        virtual void drawBackground(Batch2D* batch, Assets* assets) override;
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
         virtual void clicked(GUI*, int button) override;
@@ -124,7 +124,7 @@ namespace gui {
                  double value, 
                  double step=1.0, 
                  int trackWidth=1);
-        virtual void draw(vulkan::Batch2D* batch, Assets* assets) override;
+        virtual void draw(Batch2D* batch, Assets* assets) override;
 
         virtual void supplier(doublesupplier supplier);
         virtual void consumer(doubleconsumer consumer);
@@ -142,7 +142,7 @@ namespace gui {
     public:
         CheckBox(bool checked=false);
 
-        virtual void draw(vulkan::Batch2D* batch, Assets* assets) override;
+        virtual void draw(Batch2D* batch, Assets* assets) override;
 
         virtual void mouseRelease(GUI*, int x, int y) override;
 

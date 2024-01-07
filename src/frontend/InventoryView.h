@@ -1,6 +1,7 @@
 #ifndef FRONTEND_INVENTORY_VIEW_H_
 #define FRONTEND_INVENTORY_VIEW_H_
 
+#include <memory>
 #include <vector>
 #include <functional>
 #include <glm/glm.hpp>
@@ -20,7 +21,7 @@ class InventoryView {
     const ContentIndices* indices;
     const ContentGfxCache* const cache;
     std::vector<blockid_t> blocks;
-    BlocksPreview* blocksPreview;
+    std::unique_ptr<BlocksPreview> blocksPreview;
     slotconsumer consumer = nullptr;
 
     int scroll = 0;

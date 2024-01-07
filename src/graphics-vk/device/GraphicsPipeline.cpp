@@ -22,9 +22,10 @@ constexpr VkDynamicState DYNAMIC_STATES[] = {
     VK_DYNAMIC_STATE_SCISSOR,
 };
 
-GraphicsPipeline::GraphicsPipeline(const std::vector<initializers::UniformBufferInfo> &bufferInfos, VkPipeline pipeline, VkPipelineLayout layout, VkDescriptorSetLayout uniformSetLayout, VkDescriptorSetLayout samplerSetLayout, ShaderType shaderType)
+GraphicsPipeline::GraphicsPipeline(const std::vector<initializers::UniformBufferInfo> &bufferInfos, VkPipeline pipeline, VkPipelineLayout layout, VkPipelineCache cache, VkDescriptorSetLayout uniformSetLayout, VkDescriptorSetLayout samplerSetLayout, ShaderType shaderType)
     : m_pipeline(pipeline),
       m_layout(layout),
+      m_cache(cache),
       m_uniformsSetLayout(uniformSetLayout),
       m_samplerSetLayout(samplerSetLayout),
       m_shaderType(shaderType) {
@@ -50,63 +51,6 @@ GraphicsPipeline::GraphicsPipeline(const std::vector<initializers::UniformBuffer
     }
 
     vkUpdateDescriptorSets(device, writeDescriptorSets.size(), writeDescriptorSets.data(), 0, nullptr);
-
-    // const VkDescriptorBufferInfo stateBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::STATE)->getBufferInfo();
-    // const VkDescriptorBufferInfo fogBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::FOG)->getBufferInfo();
-    // const VkDescriptorBufferInfo projectionViewBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::PROJECTION_VIEW)->getBufferInfo();
-    // const VkDescriptorBufferInfo backgraundUniformInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::BACKGROUND)->getBufferInfo();
-    // const VkDescriptorBufferInfo skyboxUniformInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::SKYBOX)->getBufferInfo();
-    // const VkDescriptorBufferInfo applyUniformBufferInfo = context.getUniformBuffer(vulkan::UniformBuffersHolder::APPLY)->getBufferInfo();
-    //
-    // switch (shaderType) {
-    //     case ShaderType::MAIN: {
-    //         const std::array writeSets = {
-    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &stateBufferInfo),
-    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 1, &fogBufferInfo),
-    //         };
-    //
-    //         vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-    //     } break;
-    //     case ShaderType::LINES: {
-    //         const std::array writeSets = {
-    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &projectionViewBufferInfo),
-    //         };
-    //
-    //         vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-    //     } break;
-    //     case ShaderType::UI: {
-    //         const std::array writeSets = {
-    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &projectionViewBufferInfo),
-    //         };
-    //
-    //         vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-    //     } break;
-    //     case ShaderType::BACKGROUND: {
-    //         const std::array writeSets = {
-    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &backgraundUniformInfo),
-    //         };
-    //
-    //         vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-    //     } break;
-    //     case ShaderType::SKYBOX_GEN: {
-    //         const std::array writeSets = {
-    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &skyboxUniformInfo),
-    //         };
-    //
-    //         vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-    //     } break;
-    //     case ShaderType::UI3D: {
-    //         const std::array writeSets = {
-    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 0, &projectionViewBufferInfo),
-    //             initializers::writeUniformBufferDescriptorSet(m_uniformSet, 1, &applyUniformBufferInfo)
-    //         };
-    //
-    //         vkUpdateDescriptorSets(device, writeSets.size(), writeSets.data(), 0, nullptr);
-    //     } break;
-    //     case ShaderType::NONE:
-    //     default:
-    //         break;
-    // }
 }
 
 GraphicsPipeline::~GraphicsPipeline() {
@@ -161,6 +105,7 @@ void GraphicsPipeline::destroy() {
     const Device &device = vulkan::VulkanContext::get().getDevice();
     vkDestroyPipeline(device, m_pipeline, nullptr);
     vkDestroyPipelineLayout(device, m_layout, nullptr);
+    vkDestroyPipelineCache(device, m_cache, nullptr);
     vkDestroyDescriptorSetLayout(device, m_uniformsSetLayout, nullptr);
     vkDestroyDescriptorSetLayout(device, m_samplerSetLayout, nullptr);
 }
@@ -196,15 +141,18 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
 
     std::array setLayouts = { uniformSetLayout, samplerSetLayout };
 
-    // TODO: blyat govno delete
-    std::array pushConstantRanges = getPushConstantRanges(tools::PushConstantRange{ sizeof(DynamicConstants), 0, VK_SHADER_STAGE_VERTEX_BIT });
+    constexpr VkPushConstantRange pushConstantRange = {
+        VK_SHADER_STAGE_VERTEX_BIT,
+        0,
+        sizeof(DynamicConstants)
+    };
 
     VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
     pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutCreateInfo.setLayoutCount = setLayouts.size();
     pipelineLayoutCreateInfo.pSetLayouts = setLayouts.data();
-    pipelineLayoutCreateInfo.pushConstantRangeCount = type == ShaderType::MAIN ? pushConstantRanges.size() : 0;
-    pipelineLayoutCreateInfo.pPushConstantRanges = pushConstantRanges.data();
+    pipelineLayoutCreateInfo.pushConstantRangeCount = type == ShaderType::MAIN ? 1 : 0;
+    pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
 
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
     CHECK_VK_FUNCTION(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout));
@@ -251,7 +199,7 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizer.depthClampEnable = VK_FALSE;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
-    rasterizer.polygonMode = type == ShaderType::LINES ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
+    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
     rasterizer.frontFace = type == ShaderType::BACKGROUND ? VK_FRONT_FACE_CLOCKWISE : VK_FRONT_FACE_COUNTER_CLOCKWISE;
@@ -313,8 +261,16 @@ std::shared_ptr<GraphicsPipeline> GraphicsPipeline::create(const std::vector<VkP
     graphicsPipelineCreateInfo.layout = pipelineLayout;
     graphicsPipelineCreateInfo.pNext = &renderingCreateInfo;
 
-    VkPipeline pipeline = VK_NULL_HANDLE;
-    CHECK_VK_FUNCTION(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, nullptr, &pipeline));
+    VkPipelineCacheCreateInfo pipelineCacheCreateInfo{};
+    pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+    pipelineCacheCreateInfo.initialDataSize = 0;
+    pipelineCacheCreateInfo.pInitialData = nullptr;
 
-    return std::make_shared<GraphicsPipeline>(bufferInfos, pipeline, pipelineLayout, uniformSetLayout, samplerSetLayout, type);
+    VkPipelineCache pipelineCache = VK_NULL_HANDLE;
+    CHECK_VK_FUNCTION(vkCreatePipelineCache(device, &pipelineCacheCreateInfo, nullptr, &pipelineCache));
+
+    VkPipeline pipeline = VK_NULL_HANDLE;
+    CHECK_VK_FUNCTION(vkCreateGraphicsPipelines(device, pipelineCache, 1, &graphicsPipelineCreateInfo, nullptr, &pipeline));
+
+    return std::make_shared<GraphicsPipeline>(bufferInfos, pipeline, pipelineLayout, pipelineCache, uniformSetLayout, samplerSetLayout, type);
 }

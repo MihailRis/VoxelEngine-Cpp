@@ -1,17 +1,16 @@
 #include "InventoryView.h"
 
 #include <glm/glm.hpp>
+#include <utility>
 
 #include "BlocksPreview.h"
 #include "../window/Events.h"
 #include "../assets/Assets.h"
-#include "../graphics/Shader.h"
-#include "../graphics/Batch2D.h"
+#include "../graphics-common/IShader.h"
 #include "../graphics/GfxContext.h"
 #include "../content/Content.h"
 #include "../maths/voxmaths.h"
 #include "../objects/Player.h"
-#include "../voxels/Block.h"
 
 InventoryView::InventoryView(
             int columns,
@@ -22,9 +21,9 @@ InventoryView::InventoryView(
             : assets(assets), 
               indices(indices), 
               cache(cache), 
-              blocks(blocks),
+              blocks(std::move(blocks)),
               columns(columns) {
-    blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
+    blocksPreview = std::make_unique<BlocksPreview>(assets->getShader("ui3d"),
                                       assets->getAtlas("blocks"),
                                       cache);
 }
@@ -48,7 +47,7 @@ void InventoryView::setSlotConsumer(slotconsumer consumer) {
 }
 
 void InventoryView::actAndDraw(const GfxContext* ctx) {
-    Shader* uiShader = assets->getShader("ui");
+    IShader* uiShader = assets->getShader("ui");
 
     auto viewport = ctx->getViewport();
 	uint inv_w = getWidth();
@@ -63,9 +62,11 @@ void InventoryView::actAndDraw(const GfxContext* ctx) {
 	// background
     auto batch = ctx->getBatch2D();
 	batch->texture(nullptr);
-	batch->color = glm::vec4(0.0f, 0.0f, 0.0f, 0.5f);
+	batch->begin();
+	batch->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
 	batch->rect(position.x, position.y, inv_w, inv_h);
 	batch->render();
+	batch->end();
 
 	// blocks & items
     if (Events::scroll) {

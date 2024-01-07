@@ -44,6 +44,8 @@ public:
 	void xSprite(float w, float h, const UVRegion& uv, const glm::vec4 tint, bool shading=true);
 	void blockCube(const glm::vec3 size, const UVRegion(&texfaces)[6], const glm::vec4 tint, bool shading=true);
 	void flush();
+
+	void end();
 };
 
 #endif /* GRAPHICS_BATCH3D_H_ */

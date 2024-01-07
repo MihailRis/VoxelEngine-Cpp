@@ -8,11 +8,8 @@
 #include "../graphics/Atlas.h"
 
 #ifdef USE_VULKAN
-#include "../graphics-vk/Batch3D.h"
 #include "../graphics-vk/uniforms/ApplyUniform.h"
 #include "../graphics-vk/uniforms/ProjectionViewUniform.h"
-#else
-#include "../graphics/Batch3D.h"
 #endif
 
 #include "../window/Camera.h"
@@ -23,7 +20,7 @@ BlocksPreview::BlocksPreview(IShader* shader,
                              Atlas* atlas, 
                              const ContentGfxCache* cache)
     : shader(shader), atlas(atlas), cache(cache) {
-    batch = std::make_unique<vulkan::Batch3D>(1024);
+    batch = std::make_unique<Batch3D>(1024);
 }
 
 BlocksPreview::~BlocksPreview() {
@@ -34,8 +31,8 @@ void BlocksPreview::begin(const Viewport* viewport) {
     shader->use();
 #ifdef USE_VULKAN
     const ProjectionViewUniform projectionViewUniform = {
-        glm::ortho(0.0f, float(viewport->getWidth()),
-                   0.0f, float(viewport->getHeight()),
+        glm::ortho(0.0f, static_cast<float>(viewport->getWidth()),
+                   0.0f, static_cast<float>(viewport->getHeight()),
                     -1000.0f, 1000.0f) *
         glm::lookAt(glm::vec3(2, 2, 2), glm::vec3(0.0f), glm::vec3(0, 1, 0))
     };
@@ -48,8 +45,8 @@ void BlocksPreview::begin(const Viewport* viewport) {
                     -1000.0f, 1000.0f) *
         glm::lookAt(glm::vec3(2, 2, 2), glm::vec3(0.0f), glm::vec3(0, 1, 0)));
 #endif
-    atlas->getTexture()->bind();
     batch->begin();
+    batch->texture(atlas->getTexture());
 }
 
 /* Draw one block preview at given screen position */
@@ -62,7 +59,7 @@ void BlocksPreview::draw(const Block* def, int x, int y, int size, glm::vec4 tin
     y -= 35;
 
 #ifdef USE_VULKAN
-    glm::vec3 offset (x/float(width) * 2, y/float(height) * 2, 0.0f);
+    glm::vec3 offset (static_cast<float>(x) / static_cast<float>(width) * 2, static_cast<float>(y) / static_cast<float>(height) * 2, 0.0f);
     const ApplyUniform applyUniform = {glm::translate(glm::mat4(1.0f), offset)};
     shader->uniform(applyUniform);
 #else
@@ -83,15 +80,15 @@ void BlocksPreview::draw(const Block* def, int x, int y, int size, glm::vec4 tin
             batch->blockCube(glm::vec3(static_cast<float>(size) * 0.63f), texfaces, tint, !def->rt.emissive);
             break;
         case BlockModel::aabb:
-            batch->blockCube(def->hitbox.size() * glm::vec3(size * 0.63f),
+            batch->blockCube(def->hitbox.size() * glm::vec3(static_cast<float>(size) * 0.63f),
                              texfaces, tint, !def->rt.emissive);
             break;
         case BlockModel::xsprite: {
             glm::vec3 right = glm::normalize(glm::vec3(1.f, 0.f, -1.f));
-            batch->sprite(right*float(size)*0.43f+glm::vec3(0, size*0.4f, 0),
+            batch->sprite(right * static_cast<float>(size) * 0.43f + glm::vec3(0, static_cast<float>(size) * 0.4f, 0),
                           glm::vec3(0.f, 1.f, 0.f),
                           right,
-                          size*0.5f, size*0.6f,
+                          static_cast<float>(size) * 0.5f, static_cast<float>(size) * 0.6f,
                           texfaces[0],
                           tint);
             break;
@@ -99,4 +96,8 @@ void BlocksPreview::draw(const Block* def, int x, int y, int size, glm::vec4 tin
     }
 
     batch->flush();
+}
+
+void BlocksPreview::end() {
+    batch->end();
 }

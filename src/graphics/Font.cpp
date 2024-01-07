@@ -1,7 +1,5 @@
 #include "Font.h"
 #include "Texture.h"
-#include "Batch2D.h"
-#include "../graphics-vk/Batch2D.h"
 
 using glm::vec4;
 
@@ -36,11 +34,11 @@ int Font::calcWidth(std::wstring text) {
 	return text.length() * 8;
 }
 
-void Font::draw(vulkan::Batch2D* batch, std::wstring text, int x, int y) {
+void Font::draw(Batch2D* batch, std::wstring text, int x, int y) {
 	draw(batch, text, x, y, STYLE_NONE);
 }
 
-void Font::draw(vulkan::Batch2D* batch, std::wstring text, int x, int y, int style) {
+void Font::draw(Batch2D* batch, std::wstring text, int x, int y, int style) {
 	int page = 0;
 	int next = 10000;
 	int init_x = x;

@@ -8,7 +8,7 @@
 
 namespace vulkan {
     LineBatch::LineBatch(size_t capacity) : m_capacity(capacity) {
-        m_mesh = new Mesh(m_buffer, capacity);
+        m_mesh = new Mesh<VertexLine>(nullptr, capacity);
         m_mesh->mapVertex(&m_buffer);
     }
 
@@ -46,12 +46,23 @@ namespace vulkan {
         line(x+w, y+h, z-d, x+w, y+h, z+d, r,g,b,a);
     }
 
+    void LineBatch::begin() {
+        m_mesh->bind();
+    }
+
     void LineBatch::render() {
         if (m_index == 0) return;
+
+        const VertexOffset offset{m_vertexOffset, m_index - m_vertexOffset};
+        m_mesh->draw(offset);
+
+        m_vertexOffset = m_index;
+    }
+
+    void LineBatch::end() {
         m_mesh->reload(nullptr, m_index);
-        m_mesh->bind();
-        m_mesh->draw({0, m_index}, GL_LINE);
         m_index = 0;
+        m_vertexOffset = 0;
     }
 
     void LineBatch::lineWidth(float width) {

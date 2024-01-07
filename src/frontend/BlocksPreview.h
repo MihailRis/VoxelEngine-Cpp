@@ -5,21 +5,18 @@
 #include <glm/glm.hpp>
 #include <memory>
 
-namespace vulkan {
-    class Batch3D;
-}
+#include "../graphics-common/graphicsDefenitions.h"
 
 class Viewport;
 class IShader;
 class Atlas;
-class Batch3D;
 class Block;
 class ContentGfxCache;
 
 class BlocksPreview {
     IShader* shader;
     Atlas* atlas;
-    std::unique_ptr<vulkan::Batch3D> batch;
+    std::unique_ptr<Batch3D> batch;
     const ContentGfxCache* const cache;
     const Viewport* viewport;
 public:
@@ -28,6 +25,8 @@ public:
 
     void begin(const Viewport* viewport);
     void draw(const Block* block, int x, int y, int size, glm::vec4 tint);
+
+    void end();
 };
 
 #endif // FRONTEND_BLOCKS_PREVIEW_H_

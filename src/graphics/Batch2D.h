@@ -62,6 +62,12 @@ public:
 	void render();
 
 	void lineWidth(float width);
+
+	void setColor(glm::vec4 newColor);
+
+	void end();
+
+	glm::vec4 getColor();
 };
 
 #endif /* SRC_GRAPHICS_BATCH2D_H_ */

@@ -13,7 +13,6 @@
 
 class Level;
 class Camera;
-class LineBatch;
 class ChunksRenderer;
 class IShader;
 class ITexture;

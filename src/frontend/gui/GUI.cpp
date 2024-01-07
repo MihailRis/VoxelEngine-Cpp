@@ -7,10 +7,7 @@
 
 #include "../../assets/Assets.h"
 #ifdef USE_VULKAN
-#include "../../graphics-vk/Batch2D.h"
 #include "../../graphics-vk/uniforms/ProjectionViewUniform.h"
-#else
-#include "../../graphics/Batch2D.h"
 #endif
 #include "../../graphics-common/IShader.h"
 #include "../../window/Events.h"
@@ -125,8 +122,10 @@ void GUI::act(float delta) {
     }
 }
 
-void GUI::draw(vulkan::Batch2D* batch, Assets* assets) {
+void GUI::draw(Batch2D* batch, Assets* assets) {
+#ifdef USE_VULKAN
     vulkan::VulkanContext::get().beginGuiDraw();
+#endif
     menu->setCoord((Window::size() - menu->size()) / 2.0f);
     uicamera->setFov(Window::height);
 
@@ -143,7 +142,9 @@ void GUI::draw(vulkan::Batch2D* batch, Assets* assets) {
     container->draw(batch, assets);
     batch->end();
 
+#ifdef USE_VULKAN
     vulkan::VulkanContext::get().endGuiDraw();
+#endif
 }
 
 shared_ptr<UINode> GUI::getFocused() const {

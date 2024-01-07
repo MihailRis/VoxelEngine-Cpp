@@ -15,8 +15,15 @@
 #include "window/Events.h"
 #include "window/Camera.h"
 #include "window/input.h"
-#include "graphics/Batch2D.h"
+
+#include "graphics-common/graphicsDefenitions.h"
+
+#ifdef USE_VULKAN
+#include "graphics-vk/VulkanContext.h"
+#else
 #include "graphics/Shader.h"
+#endif
+
 #include "graphics/ImageData.h"
 #include "frontend/gui/GUI.h"
 #include "frontend/screens.h"
@@ -29,9 +36,6 @@
 #include "files/files.h"
 #include "files/engine_paths.h"
 #include "graphics-common/IShader.h"
-#include "graphics-vk/Batch2D.h"
-#include "graphics-vk/VulkanContext.h"
-#include "graphics-vk/texture/ImageCube.h"
 
 #include "content/Content.h"
 #include "content/ContentPack.h"
@@ -64,7 +68,9 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 	AssetsLoader::createDefaults(loader);
 	AssetsLoader::addDefaults(loader, true);
 
+#ifndef USE_VULKAN
     Shader::preprocessor->setPaths(resPaths.get());
+#endif
 	while (loader.hasNext()) {
 		if (!loader.loadNext()) {
 			assets.reset();
@@ -110,7 +116,7 @@ void Engine::mainloop() {
 	
 	std::cout << "-- preparing systems" << std::endl;
 
-	vulkan::Batch2D batch(5000);
+	Batch2D batch(5000);
 	lastTime = Window::time();
 
 	while (!Window::isShouldClose()){
@@ -134,8 +140,9 @@ void Engine::mainloop() {
 		Window::swapBuffers();
 		Events::pollEvents();
 	}
-
+#ifdef USE_VULKAN
 	vulkan::VulkanContext::waitIdle();
+#endif
 }
 
 Engine::~Engine() {
@@ -167,7 +174,9 @@ void Engine::loadContent() {
     content.reset(contentBuilder.build());
     resPaths.reset(new ResPaths(resdir, resRoots));
 
+#ifndef USE_VULKAN
     Shader::preprocessor->setPaths(resPaths.get());
+#endif
 
     std::unique_ptr<Assets> new_assets(new Assets());
 	std::cout << "-- loading assets" << std::endl;

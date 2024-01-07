@@ -183,3 +183,6 @@ void Batch3D::flush() {
 	mesh->draw();
 	index = 0;
 }
+
+void Batch3D::end() {
+}

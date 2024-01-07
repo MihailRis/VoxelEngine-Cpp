@@ -9,15 +9,18 @@
 
 namespace vulkan {
     void Batch3D::vertex(float x, float y, float z, float u, float v, float r, float g, float b, float a) {
-        m_buffer[m_index++] = Vertex3DUI{glm::vec3(x, y, z), {u, v}, {r, g, b, a}};
+        m_buffer[m_index] = Vertex3DUI{glm::vec3(x, y, z), {u, v}, {r, g, b, a}};
+        ++m_index;
     }
 
     void Batch3D::vertex(glm::vec3 coord, float u, float v, float r, float g, float b, float a) {
-        m_buffer[m_index++] = Vertex3DUI{coord, {u, v}, {r, g, b, a}};
+        m_buffer[m_index] = Vertex3DUI{coord, {u, v}, {r, g, b, a}};
+        ++m_index;
     }
 
     void Batch3D::vertex(glm::vec3 point, glm::vec2 uvpoint, float r, float g, float b, float a) {
-        m_buffer[m_index++] = Vertex3DUI{point, uvpoint, {r, g, b, a}};
+        m_buffer[m_index] = Vertex3DUI{point, uvpoint, {r, g, b, a}};
+        ++m_index;
     }
 
     void Batch3D::face(const glm::vec3& coord, float w, float h,
@@ -60,8 +63,6 @@ namespace vulkan {
     void Batch3D::begin() {
         m_texture->bind();
         m_mesh->bind();
-        m_index = 0;
-        m_currentOffset = 0;
     }
 
     void Batch3D::texture(ITexture* texture) {
@@ -138,19 +139,20 @@ namespace vulkan {
     void Batch3D::blockCube(const glm::vec3 size, const UVRegion(& texfaces)[6], const glm::vec4 tint, bool shading) {
         if (m_index >= m_capacity) return;
         glm::vec3 coord = (1.0f - size);
-        face(coord + glm::vec3(0.0f, 0.0f, 0.0f), size.x, size.y, glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), texfaces[5], (shading ? do_tint(0.8)*tint : tint));
-        face(coord + glm::vec3(size.x, 0.0f, -size.z), size.x, size.y, glm::vec3(-1, 0, 0), glm::vec3(0, 1, 0), texfaces[4], (shading ? do_tint(0.8f)*tint : tint));
-        face(coord + glm::vec3(0.0f, size.y, 0.0f), size.x, size.z, glm::vec3(1, 0, 0), glm::vec3(0, 0, -1), texfaces[3], (shading ? do_tint(1.0f)*tint : tint));
-        face(coord + glm::vec3(0.0f, 0.0f, -size.z), size.x, size.z, glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), texfaces[2], (shading ? do_tint(0.7f)*tint : tint));
-        face(coord + glm::vec3(0.0f, 0.0f, -size.z), size.z, size.y, glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), texfaces[0], (shading ? do_tint(0.9f)*tint : tint));
-        face(coord + glm::vec3(size.x, 0.0f, 0.0f), size.z, size.y, glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), texfaces[1], (shading ? do_tint(0.9f)*tint : tint));
+        
+		face(coord + glm::vec3(0.0f, 0.0f, 0.0f), size.x, size.y, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), texfaces[5], (shading ? do_tint(0.8)*tint : tint));
+
+        // face(coord + glm::vec3(0.0f, 0.0f, 0.0f), size.x, size.y, glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), texfaces[5], (shading ? do_tint(0.8)*tint : tint));
+        // face(coord + glm::vec3(size.x, 0.0f, -size.z), size.x, size.y, glm::vec3(-1, 0, 0), glm::vec3(0, 1, 0), texfaces[4], (shading ? do_tint(0.8f)*tint : tint));
+        // face(coord + glm::vec3(0.0f, size.y, 0.0f), size.x, size.z, glm::vec3(1, 0, 0), glm::vec3(0, 0, -1), texfaces[3], (shading ? do_tint(1.0f)*tint : tint));
+        // face(coord + glm::vec3(0.0f, 0.0f, -size.z), size.x, size.z, glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), texfaces[2], (shading ? do_tint(0.7f)*tint : tint));
+        // face(coord + glm::vec3(0.0f, 0.0f, -size.z), size.z, size.y, glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), texfaces[0], (shading ? do_tint(0.9f)*tint : tint));
+        // face(coord + glm::vec3(size.x, 0.0f, 0.0f), size.z, size.y, glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), texfaces[1], (shading ? do_tint(0.9f)*tint : tint));
     }
 
     void Batch3D::flush() {
         const VertexOffset offset = {m_currentOffset, m_index - m_currentOffset};
         if (offset.count == 0 || offset.offset >= m_capacity) return;
-        end();
-        m_mesh->bind();
         m_mesh->draw(offset);
 
         m_currentOffset = m_index;
@@ -158,5 +160,7 @@ namespace vulkan {
 
     void Batch3D::end() {
         m_mesh->reload(nullptr, m_capacity);
+        m_currentOffset = 0;
+        m_index = 0;
     }
 } // vulkan

@@ -7,6 +7,8 @@
 #include <glm/glm.hpp>
 
 #include "../graphics/GfxContext.h"
+#include "../graphics-common/graphicsDefenitions.h"
+#include "../graphics-vk/LineBatch.h"
 
 class Camera;
 class Level;
@@ -29,6 +31,7 @@ class HudRenderer {
     Assets* assets;
 	Camera* uicamera;
 	BlocksPreview* blocksPreview;
+	std::unique_ptr<vulkan::LineBatch> lineBatch;
 
 	int fps = 60;
 	int fpsMin = 60;

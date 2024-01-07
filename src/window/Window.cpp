@@ -171,9 +171,7 @@ int Window::initialize(DisplaySettings& settings){
 		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
 	}
-#ifdef USE_VULKAN
-	// TODO: add vendor and renderer
-#else
+#ifndef USE_VULKAN
 	glfwSwapInterval(settings.swapInterval);
 	const GLubyte* vendor = glGetString(GL_VENDOR);
 	const GLubyte* renderer = glGetString(GL_RENDERER);

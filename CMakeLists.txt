@@ -3,10 +3,12 @@ project(VoxelEngine)
 
 option(VOXELENGINE_BUILD_APPDIR OFF)
 
-option(VOXEL_ENGINE_USE_VULKAN "Use vulkan as backend for render" ON)
+option(VOXELENGINE_USE_VULKAN "Use vulkan as backend for render" ON)
+option(VOXELENGINE_BUILD_APPDIR "Build appimage" OFF)
 set(CMAKE_CXX_STANDARD 17)
 
-file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp)
+file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
@@ -53,7 +55,7 @@ find_package(OpenAL REQUIRED)
 find_package(Lua REQUIRED)
 
 set(LIBS "")
-if (VOXEL_ENGINE_USE_VULKAN)
+if (VOXELENGINE_USE_VULKAN)
     add_compile_definitions(USE_VULKAN)
     find_package(Vulkan REQUIRED)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/vma)

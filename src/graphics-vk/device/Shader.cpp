@@ -12,7 +12,6 @@
 #include "../VulkanContext.h"
 #include "../VulkanDefenitions.h"
 #include "../uniforms/DynamicConstants.h"
-#include "../uniforms/ProjectionViewConstant.h"
 #include "../uniforms/SkyboxUniform.h"
 
 inline VkShaderModule createModule(const std::vector<char> &code, VkDevice device) {

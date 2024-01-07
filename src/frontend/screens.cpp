@@ -59,7 +59,7 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
 #ifdef USE_VULKAN
     constexpr glm::vec3 camPos = glm::vec3(0, 0, -1);
 #else
-    constexpr vec3 camPos = vec3();
+    constexpr glm::vec3 camPos{};
 #endif
     uicamera = new Camera(camPos, static_cast<float>(Window::height));
 	uicamera->perspective = false;

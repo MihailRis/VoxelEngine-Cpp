@@ -1,7 +1,5 @@
 #include "UINode.h"
 
-#include "../../graphics/Batch2D.h"
-
 using std::shared_ptr;
 
 using gui::UINode;

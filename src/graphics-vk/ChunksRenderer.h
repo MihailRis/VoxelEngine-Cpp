@@ -30,7 +30,7 @@ namespace vulkan {
         ChunksRenderer(Level *level,
                    const ContentGfxCache *cache,
                    const EngineSettings &settings);
-        virtual ~ChunksRenderer();
+        ~ChunksRenderer();
 
         std::shared_ptr<Mesh<Vertex3D>> render(Chunk *chunk);
         void unload(Chunk* chunk);

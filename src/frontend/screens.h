@@ -3,9 +3,9 @@
 
 #include <memory>
 #include "../settings.h"
+#include "../graphics-common/graphicsDefenitions.h"
 
 namespace vulkan {
-    class Batch2D;
     class WorldRenderer;
 }
 
@@ -15,7 +15,6 @@ class WorldRenderer;
 class HudRenderer;
 class Engine;
 class Camera;
-class Batch2D;
 class ContentGfxCache;
 class LevelController;
 

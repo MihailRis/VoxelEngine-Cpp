@@ -318,3 +318,14 @@ void Batch2D::render() {
 void Batch2D::lineWidth(float width) {
 	glLineWidth(width);
 }
+
+void Batch2D::setColor(glm::vec4 newColor) {
+	color = newColor;
+}
+
+void Batch2D::end() {
+}
+
+glm::vec4 Batch2D::getColor() {
+	return color;
+}

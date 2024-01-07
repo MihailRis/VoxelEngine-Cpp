@@ -4,8 +4,8 @@
 
 #include "../../window/Events.h"
 #include "../../assets/Assets.h"
-// #include "../../graphics/Batch2D.h"
-#include "../../graphics-vk/Batch2D.h"
+// // #include "../../graphics/Batch2D.h"
+// #include "../../graphics-vk/Batch2D.h"
 #include "../../graphics/Font.h"
 #include "../../util/stringutil.h"
 
@@ -37,7 +37,7 @@ wstring Label::text() const {
     return text_;
 }
 
-void Label::draw(vulkan::Batch2D* batch, Assets* assets) {
+void Label::draw(Batch2D* batch, Assets* assets) {
     if (supplier) {
         text(supplier());
     }
@@ -100,7 +100,7 @@ Button* Button::textSupplier(wstringsupplier supplier) {
     }
     return this;
 }
-void Button::drawBackground(vulkan::Batch2D* batch, Assets* assets) {
+void Button::drawBackground(Batch2D* batch, Assets* assets) {
     vec2 coord = calcCoord();
     batch->texture(nullptr);
     batch->setColor(ispressed() ? pressedColor : (hover_ ? hoverColor : color_));
@@ -142,7 +142,7 @@ TextBox::TextBox(wstring placeholder, glm::vec4 padding)
     add(shared_ptr<UINode>(label));
 }
 
-void TextBox::drawBackground(vulkan::Batch2D* batch, Assets* assets) {
+void TextBox::drawBackground(Batch2D* batch, Assets* assets) {
     vec2 coord = calcCoord();
     batch->texture(nullptr);
     batch->setColor(isfocused() ? focusedColor : (hover_ ? hoverColor : color_));
@@ -219,7 +219,7 @@ shared_ptr<UINode> InputBindBox::getAt(vec2 pos, shared_ptr<UINode> self) {
     return UINode::getAt(pos, self);
 }
 
-void InputBindBox::drawBackground(vulkan::Batch2D* batch, Assets* assets) {
+void InputBindBox::drawBackground(Batch2D* batch, Assets* assets) {
     vec2 coord = calcCoord();
     batch->texture(nullptr);
     batch->setColor(isfocused() ? focusedColor : (hover_ ? hoverColor : color_));
@@ -256,7 +256,7 @@ TrackBar::TrackBar(double min,
     color(glm::vec4(0.f, 0.f, 0.f, 0.4f));
 }
 
-void TrackBar::draw(vulkan::Batch2D* batch, Assets* assets) {
+void TrackBar::draw(Batch2D* batch, Assets* assets) {
     if (supplier_) {
         value = supplier_();
     }
@@ -300,7 +300,7 @@ CheckBox::CheckBox(bool checked) : UINode(vec2(), vec2(32.0f)), checked_(checked
     color(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
 }
 
-void CheckBox::draw(vulkan::Batch2D* batch, Assets* assets) {
+void CheckBox::draw(Batch2D* batch, Assets* assets) {
     if (supplier_) {
         checked_ = supplier_();
     }

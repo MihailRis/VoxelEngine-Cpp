@@ -6,11 +6,7 @@
 #include <memory>
 #include <functional>
 
-namespace vulkan {
-    class Batch2D;
-}
-
-class Batch2D;
+#include "../../graphics-common/graphicsDefenitions.h"
 class Assets;
 
 namespace gui {
@@ -40,7 +36,7 @@ namespace gui {
     public:
         virtual ~UINode();
         virtual void act(float delta) {};
-        virtual void draw(vulkan::Batch2D* batch, Assets* assets) = 0;
+        virtual void draw(Batch2D* batch, Assets* assets) = 0;
 
         virtual void visible(bool flag);
         bool visible() const;

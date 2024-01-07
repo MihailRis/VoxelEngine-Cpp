@@ -22,13 +22,14 @@ class Device;
 class GraphicsPipeline {
     VkPipeline m_pipeline = VK_NULL_HANDLE;
     VkPipelineLayout m_layout = VK_NULL_HANDLE;
+    VkPipelineCache m_cache = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_uniformsSetLayout = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_samplerSetLayout = VK_NULL_HANDLE;
     VkDescriptorSet m_uniformSet = VK_NULL_HANDLE;
     VkDescriptorSet m_samplerSet = VK_NULL_HANDLE;
     ShaderType m_shaderType;
 public:
-    GraphicsPipeline(const std::vector<initializers::UniformBufferInfo> &bufferInfos, VkPipeline pipeline, VkPipelineLayout layout, VkDescriptorSetLayout uniformSetLayout, VkDescriptorSetLayout samplerSetLayout, ShaderType shaderType);
+    GraphicsPipeline(const std::vector<initializers::UniformBufferInfo> &bufferInfos, VkPipeline pipeline, VkPipelineLayout layout, VkPipelineCache cache, VkDescriptorSetLayout uniformSetLayout, VkDescriptorSetLayout samplerSetLayout, ShaderType shaderType);
     ~GraphicsPipeline();
 
     operator VkPipeline() const;

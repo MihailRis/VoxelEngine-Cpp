@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iostream>
 #include <filesystem>
+#include <random>
 #include <glm/glm.hpp>
 
 #include "gui/GUI.h"
@@ -35,11 +36,14 @@ namespace fs = std::filesystem;
 using namespace gui;
 
 inline uint64_t randU64() {
-    return rand() ^ (rand() << 8) ^ 
-        (rand() << 16) ^ (rand() << 24) ^
-        ((uint64_t)rand() << 32) ^ 
-        ((uint64_t)rand() << 40) ^
-        ((uint64_t)rand() << 56);
+    static std::random_device randomDevice;
+    static std::mt19937 rng{randomDevice()};
+    static std::uniform_int_distribution<std::mt19937::result_type> dist{};
+    return dist(rng) ^ (dist(rng) << 8) ^
+        (dist(rng) << 16) ^ (dist(rng) << 24) ^
+        (dist(rng) << 32) ^
+        (dist(rng) << 40) ^
+        (dist(rng) << 56);
 }
 
 std::shared_ptr<Panel> create_page(

@@ -49,8 +49,6 @@ namespace vulkan {
     void Batch2D::begin() {
         m_texture->bind();
         m_mesh->bind();
-        m_index = 0;
-        m_currentOffset = 0;
     }
 
     void Batch2D::rebegin() const {
@@ -215,5 +213,7 @@ namespace vulkan {
 
     void Batch2D::end() {
         m_mesh->reload(nullptr, m_capacity);
+        m_index = 0;
+        m_currentOffset = 0;
     }
 } // vulkan

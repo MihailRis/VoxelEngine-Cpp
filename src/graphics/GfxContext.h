@@ -4,7 +4,7 @@
 #include "../typedefs.h"
 #include "Viewport.h"
 
-class Batch2D;
+#include "../graphics-common/graphicsDefenitions.h"
 
 class GfxContext {
     const GfxContext* parent;

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cmath>
-#include <stdint.h>
+#include <cstdint>
 #include <memory>
 #include <filesystem>
 #include <stdexcept>
