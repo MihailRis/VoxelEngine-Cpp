@@ -48,13 +48,12 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     menu->reset();
     menu->set("main");
 
-    uicamera = new Camera(glm::vec3(), Window::height);
+    uicamera.reset(new Camera(glm::vec3(), Window::height));
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 }
 
 MenuScreen::~MenuScreen() {
-    delete uicamera;
 }
 
 void MenuScreen::update(float delta) {
@@ -87,8 +86,8 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
     : Screen(engine), 
       level(level),
       frontend(std::make_unique<LevelFrontend>(level, engine->getAssets())),
-      hud(std::make_unique<HudRenderer>(engine, level, frontend.get())),
-      worldRenderer(std::make_unique<WorldRenderer>(engine, level, frontend.get())),
+      hud(std::make_unique<HudRenderer>(engine, frontend.get())),
+      worldRenderer(std::make_unique<WorldRenderer>(engine, frontend.get())),
       controller(std::make_unique<LevelController>(engine->getSettings(), level)) {
 
     auto& settings = engine->getSettings();

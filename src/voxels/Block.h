@@ -67,7 +67,7 @@ enum class BlockModel {
 class Block {
 public:
 	std::string const name;
-						               //  0 1   2 3   4 5
+	                             //  0 1   2 3   4 5
 	std::string textureFaces[6]; // -x,x, -y,y, -z,z
 	unsigned char emission[4] {0, 0, 0, 0};
 	unsigned char drawGroup = 0;

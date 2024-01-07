@@ -34,7 +34,7 @@ class WorldRenderer {
 	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool culling);
 	void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
 public:
-	WorldRenderer(Engine* engine, Level* level, LevelFrontend* frontend);
+	WorldRenderer(Engine* engine, LevelFrontend* frontend);
 	~WorldRenderer();
 
 	void draw(const GfxContext& context, Camera* camera);

@@ -24,7 +24,6 @@ namespace gui {
 }
 
 class HudRenderer {
-	Level* level;
     Assets* assets;
 	Camera* uicamera;
 
@@ -42,9 +41,7 @@ class HudRenderer {
 
     void createDebugPanel(Engine* engine);
 public:
-	HudRenderer(Engine* engine, 
-				Level* level, 
-				LevelFrontend* frontend);
+	HudRenderer(Engine* engine, LevelFrontend* frontend);
 	~HudRenderer();
 
 	void update();

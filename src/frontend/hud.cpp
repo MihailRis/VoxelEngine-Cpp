@@ -55,6 +55,8 @@ inline std::shared_ptr<Label> create_label(gui::wstringsupplier supplier) {
 }
 
 void HudRenderer::createDebugPanel(Engine* engine) {
+    auto level = frontend->getLevel();
+
     Panel* panel = new Panel(vec2(250, 200), vec4(5.0f), 1.0f);
 	debugPanel = std::shared_ptr<UINode>(panel);
 	panel->listenInterval(1.0f, [this]() {
@@ -72,11 +74,11 @@ void HudRenderer::createDebugPanel(Engine* engine) {
 		bool culling = settings.graphics.frustumCulling;
 		return L"frustum-culling: "+std::wstring(culling ? L"on" : L"off");
 	}));
-	panel->add(create_label([this]() {
+	panel->add(create_label([=]() {
 		return L"chunks: "+std::to_wstring(level->chunks->chunksCount)+
 			   L" visible: "+std::to_wstring(level->chunks->visible);
 	}));
-	panel->add(create_label([this](){
+	panel->add(create_label([=](){
 		auto player = level->player;
 		auto indices = level->content->indices;
 		auto def = indices->getBlockDef(player->selectedVoxel.id);
@@ -88,7 +90,7 @@ void HudRenderer::createDebugPanel(Engine* engine) {
 		return L"block: "+std::to_wstring(player->selectedVoxel.id)+
 		       L" "+stream.str();
 	}));
-	panel->add(create_label([this](){
+	panel->add(create_label([=](){
 		return L"seed: "+std::to_wstring(level->world->seed);
 	}));
 
@@ -105,15 +107,15 @@ void HudRenderer::createDebugPanel(Engine* engine) {
 
 		// Coord input
 		TextBox* box = new TextBox(L"");
-		box->textSupplier([this, ax]() {
-			Hitbox* hitbox = this->level->player->hitbox;
+		box->textSupplier([=]() {
+			Hitbox* hitbox = level->player->hitbox;
 			return std::to_wstring(hitbox->position[ax]);
 		});
-		box->textConsumer([this, ax](std::wstring text) {
+		box->textConsumer([=](std::wstring text) {
 			try {
-				vec3 position = this->level->player->hitbox->position;
+				vec3 position = level->player->hitbox->position;
 				position[ax] = std::stoi(text);
-				this->level->player->teleport(position);
+				level->player->teleport(position);
 			} catch (std::invalid_argument& _){
 			}
 		});
@@ -121,9 +123,9 @@ void HudRenderer::createDebugPanel(Engine* engine) {
 		sub->add(box);
 		panel->add(sub);
 	}
-	panel->add(create_label([this](){
+	panel->add(create_label([=](){
 		int hour, minute, second;
-		timeutil::from_value(this->level->world->daytime, hour, minute, second);
+		timeutil::from_value(level->world->daytime, hour, minute, second);
 
 		std::wstring timeString = 
 					 util::lfill(std::to_wstring(hour), 2, L'0') + L":" +
@@ -171,14 +173,12 @@ void HudRenderer::createDebugPanel(Engine* engine) {
 	panel->refresh();
 }
 
-HudRenderer::HudRenderer(Engine* engine, 
-						 Level* level, 
-						 LevelFrontend* frontend) 
-    : level(level), 
-      assets(engine->getAssets()), 
+HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend) 
+    : assets(engine->getAssets()), 
       gui(engine->getGUI()),
       frontend(frontend) {
 
+    auto level = frontend->getLevel();
 	auto menu = gui->getMenu();
     auto content = level->content;
     auto indices = content->indices;
@@ -242,6 +242,7 @@ void HudRenderer::update() {
 }
 
 void HudRenderer::draw(const GfxContext& ctx){
+    auto level = frontend->getLevel();
 	const Content* content = level->content;
 	const ContentIndices* contentIds = content->indices;
 

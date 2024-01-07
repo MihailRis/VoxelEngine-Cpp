@@ -36,11 +36,9 @@ using glm::mat4;
 using std::string;
 using std::shared_ptr;
 
-WorldRenderer::WorldRenderer(Engine* engine, 
-							 Level* level, 
-							 LevelFrontend* frontend) 
+WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend) 
 	: engine(engine), 
-	  level(level),
+	  level(frontend->getLevel()),
 	  frustumCulling(new Frustum()),
 	  lineBatch(new LineBatch()),
 	  renderer(new ChunksRenderer(level, 

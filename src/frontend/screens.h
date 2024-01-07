@@ -27,7 +27,7 @@ public:
 };
 
 class MenuScreen : public Screen {
-    Camera* uicamera;
+    std::unique_ptr<Camera> uicamera;
 public:
     MenuScreen(Engine* engine);
     ~MenuScreen();
