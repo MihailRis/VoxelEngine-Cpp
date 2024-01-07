@@ -27,7 +27,7 @@
 #include "../maths/voxmaths.h"
 #include "../settings.h"
 #include "../engine.h"
-#include "ContentGfxCache.h"
+#include "LevelFrontend.h"
 #include "graphics/Skybox.h"
 
 using glm::vec3;
@@ -38,12 +38,14 @@ using std::shared_ptr;
 
 WorldRenderer::WorldRenderer(Engine* engine, 
 							 Level* level, 
-							 const ContentGfxCache* cache) 
+							 LevelFrontend* frontend) 
 	: engine(engine), 
 	  level(level),
 	  frustumCulling(new Frustum()),
 	  lineBatch(new LineBatch()),
-	  renderer( new ChunksRenderer(level, cache, engine->getSettings())) {
+	  renderer(new ChunksRenderer(level, 
+                frontend->getContentGfxCache(), 
+                engine->getSettings())) {
 
 	auto& settings = engine->getSettings();
 	level->events->listen(EVT_CHUNK_HIDDEN, 

@@ -15,9 +15,8 @@ class Assets;
 class Player;
 class Level;
 class Engine;
-class ContentGfxCache;
-class BlocksPreview;
 class InventoryView;
+class LevelFrontend;
 
 namespace gui {
 	class GUI;
@@ -28,7 +27,6 @@ class HudRenderer {
 	Level* level;
     Assets* assets;
 	Camera* uicamera;
-	BlocksPreview* blocksPreview;
 
 	int fps = 60;
 	int fpsMin = 60;
@@ -40,13 +38,13 @@ class HudRenderer {
     std::unique_ptr<InventoryView> contentAccess;
 	std::shared_ptr<gui::UINode> debugPanel;
 	gui::GUI* gui;
-	const ContentGfxCache* const cache;
+	LevelFrontend* frontend;
 
     void createDebugPanel(Engine* engine);
 public:
 	HudRenderer(Engine* engine, 
 				Level* level, 
-				const ContentGfxCache* cache);
+				LevelFrontend* frontend);
 	~HudRenderer();
 
 	void update();

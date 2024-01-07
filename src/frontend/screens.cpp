@@ -28,6 +28,7 @@
 #include "WorldRenderer.h"
 #include "hud.h"
 #include "ContentGfxCache.h"
+#include "LevelFrontend.h"
 #include "gui/GUI.h"
 #include "gui/panels.h"
 #include "menu.h"
@@ -84,26 +85,20 @@ static bool backlight;
 
 LevelScreen::LevelScreen(Engine* engine, Level* level) 
     : Screen(engine), 
-      level(level) {
+      level(level),
+      frontend(std::make_unique<LevelFrontend>(level, engine->getAssets())),
+      hud(std::make_unique<HudRenderer>(engine, level, frontend.get())),
+      worldRenderer(std::make_unique<WorldRenderer>(engine, level, frontend.get())),
+      controller(std::make_unique<LevelController>(engine->getSettings(), level)) {
+
     auto& settings = engine->getSettings();
-    controller = new LevelController(settings, level);
-    cache = new ContentGfxCache(level->content, engine->getAssets());
-    worldRenderer = new WorldRenderer(engine, level, cache);
-    hud = new HudRenderer(engine, level, cache);
     backlight = settings.graphics.backlight;
 }
 
 LevelScreen::~LevelScreen() {
-    delete controller;
-    delete hud;
-    delete worldRenderer;
-    delete cache;
-
 	std::cout << "-- writing world" << std::endl;
     World* world = level->world;
-	world->write(level);
-
-    delete level;
+	world->write(level.get());
 	delete world;
 }
 

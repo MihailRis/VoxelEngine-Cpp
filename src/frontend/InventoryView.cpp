@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 #include "BlocksPreview.h"
+#include "LevelFrontend.h"
 #include "../window/Events.h"
 #include "../assets/Assets.h"
 #include "../graphics/Shader.h"
@@ -15,18 +16,16 @@
 
 InventoryView::InventoryView(
             int columns,
-            const Assets* assets,
             const ContentIndices* indices,
-            const ContentGfxCache* cache, 
-            std::vector<blockid_t> blocks)
-            : assets(assets), 
-              indices(indices), 
-              cache(cache), 
+            LevelFrontend* frontend,
+            std::vector<blockid_t> blocks) 
+            : indices(indices), 
               blocks(blocks),
+              frontend(frontend),
               columns(columns) {
-    blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
-                                      assets->getAtlas("blocks"),
-                                      cache);
+}
+
+InventoryView::~InventoryView() {
 }
 
 void InventoryView::setPosition(int x, int y) {
@@ -48,6 +47,7 @@ void InventoryView::setSlotConsumer(slotconsumer consumer) {
 }
 
 void InventoryView::actAndDraw(const GfxContext* ctx) {
+    Assets* assets = frontend->getAssets();
     Shader* uiShader = assets->getShader("ui");
 
     auto viewport = ctx->getViewport();
@@ -73,6 +73,8 @@ void InventoryView::actAndDraw(const GfxContext* ctx) {
     }
     scroll = std::min(scroll, int(inv_h-viewport.getHeight()));
     scroll = std::max(scroll, 0);
+
+    auto blocksPreview = frontend->getBlocksPreview();
 	blocksPreview->begin(&ctx->getViewport());
 	{
 		Window::clearDepth();

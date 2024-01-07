@@ -10,18 +10,15 @@
 class Assets;
 class GfxContext;
 class ContentIndices;
-class BlocksPreview;
-class ContentGfxCache;
+class LevelFrontend;
 
 typedef std::function<void(blockid_t)> slotconsumer;
 
 class InventoryView {
-    const Assets* assets;
     const ContentIndices* indices;
-    const ContentGfxCache* const cache;
     std::vector<blockid_t> blocks;
-    BlocksPreview* blocksPreview;
     slotconsumer consumer = nullptr;
+    LevelFrontend* frontend;
 
     int scroll = 0;
     int columns;
@@ -32,13 +29,15 @@ class InventoryView {
 public:
     InventoryView(
         int columns,
-        const Assets* assets,
         const ContentIndices* indices, 
-        const ContentGfxCache* cache,
+        LevelFrontend* frontend,
         std::vector<blockid_t> blocks);
 
+    virtual ~InventoryView();
+
+    virtual void actAndDraw(const GfxContext* ctx);
+
     void setPosition(int x, int y);
-    void actAndDraw(const GfxContext* ctx);
     int getWidth() const;
     int getHeight() const;
     void setSlotConsumer(slotconsumer consumer);
