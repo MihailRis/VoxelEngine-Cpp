@@ -1,0 +1,53 @@
+# Общее
+Yes=Joo
+No=Ei
+Ok = Kyllä
+Cancel= Hylää
+Back = Takaisin
+Continue=Jatka
+
+error.pack-not-found=Pakettia ei löytynyt!
+
+# Меню
+menu.New World = Uusi Maailma
+menu.Quit=Poistu
+menu.Continue=Jatka
+menu.Save and Quit to Menu=Tallenna ja Takaisin valikoon
+menu.missing-content=Puuttuu jotkut lisäosat!
+menu.Controls=Ohjaus
+menu.Back to Main Menu=Takaisin Valikoon
+menu.Settings=Asetukset
+menu.Content=Lisäosat
+menu.Seed=Siemen
+menu.Name=Nimi
+menu.Create World=Luo Maailma
+
+world.convert-request=Indeksit vaihdettu! Lataa maailma uudeleen?
+
+# Настройки
+settings.Load Distance=Lataus Alue
+settings.Load Speed=Lataus Nopeus
+settings.Fog Curve=Sumun valaistus
+settings.Backlight=Valaistus
+settings.V-Sync=Pystytahdistus
+
+settings.FOV=Näkökenttä
+settings.Mouse Sensitivity=Hiiren nopeus
+settings.Language=Kieli
+
+# Управление
+movement.forward=Eteenpäin
+movement.back=Taaksepäin
+movement.left=Vaseemalle
+movement.right=Oikealle
+movement.jump=Hyppy
+movement.sprint=Kiihtyvyys
+movement.crouch=Istu alas
+movement.cheat=Huijata
+hud.inventory=Varasto
+player.pick=Ottaa lohko
+player.attack=Lyödä / Rikkoa
+player.build=Aseta lohko
+player.flight=Lento
+camera.zoom=Lähentäminen
+camera.mode=Vaihda Kameratila
