@@ -11,6 +11,7 @@ namespace fs = std::filesystem;
 const std::string ContentPack::PACKAGE_FILENAME = "package.json";
 const std::string ContentPack::CONTENT_FILENAME = "content.json";
 const fs::path ContentPack::BLOCKS_FOLDER = "blocks";
+const fs::path ContentPack::ITEMS_FOLDER = "items";
 
 contentpack_error::contentpack_error(
     std::string packId, 

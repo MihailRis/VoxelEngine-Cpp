@@ -18,6 +18,8 @@
 #include "../coders/json.h"
 #include "../constants.h"
 
+#include "../content/ItemDef.h"
+
 #include <cassert>
 #include <iostream>
 #include <cstdint>
@@ -461,12 +463,21 @@ void WorldFiles::writePacks(const World* world) {
 
 void WorldFiles::writeIndices(const ContentIndices* indices) {
 	json::JObject root;
+    uint count;
 	json::JArray& blocks = root.putArray("blocks");
-	uint count = indices->countBlockDefs();
+	count = indices->countBlockDefs();
 	for (uint i = 0; i < count; i++) {
 		const Block* def = indices->getBlockDef(i);
 		blocks.put(def->name);
 	}
+
+    json::JArray& items = root.putArray("items");
+	count = indices->countItemDefs();
+	for (uint i = 0; i < count; i++) {
+		const ItemDef* def = indices->getItemDef(i);
+		items.put(def->name);
+	}
+
 	files::write_string(getIndicesFile(), json::stringify(&root, true, "  "));
 }
 

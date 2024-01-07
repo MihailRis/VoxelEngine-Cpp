@@ -9,6 +9,7 @@
 #include "../../util/timeutil.h"
 #include "../../world/Level.h"
 #include "../../voxels/Block.h"
+#include "../../content/ItemDef.h"
 #include "api_lua.h"
 
 using namespace scripting;
@@ -131,6 +132,8 @@ void scripting::on_block_interact(Player* player, const Block* block, int x, int
     call_func(L, 3, name);
 }
 
+// todo: refactor
+
 void scripting::load_block_script(std::string prefix, fs::path file, block_funcs_set* funcsset) {
     std::string src = files::read_string(file);
     std::cout << "loading script " << file.u8string() << std::endl;
@@ -145,6 +148,17 @@ void scripting::load_block_script(std::string prefix, fs::path file, block_funcs
     funcsset->onbroken=rename_global(L, "on_broken", (prefix+".broken").c_str());
     funcsset->onplaced=rename_global(L, "on_placed", (prefix+".placed").c_str());
     funcsset->oninteract=rename_global(L, "on_interact", (prefix+".oninteract").c_str());
+}
+
+void scripting::load_item_script(std::string prefix, fs::path file, item_funcs_set* funcsset) {
+    std::string src = files::read_string(file);
+    std::cout << "loading script " << file.u8string() << std::endl;
+    if (luaL_loadbuffer(L, src.c_str(), src.size(), file.string().c_str())) {
+        std::cerr << "Lua error:" << lua_tostring(L,-1) << std::endl;
+        return;
+    }
+    call_func(L, 0, "<script>");
+    funcsset->init=rename_global(L, "init", (prefix+".init").c_str());
 }
 
 void scripting::close() {

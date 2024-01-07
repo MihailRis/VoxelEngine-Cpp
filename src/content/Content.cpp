@@ -4,22 +4,43 @@
 #include <glm/glm.hpp>
 
 #include "../voxels/Block.h"
+#include "../content/ItemDef.h"
 
 using glm::vec3;
-using std::vector;
 using std::string;
 using std::unordered_map;
 
 void ContentBuilder::add(Block* def) {
-    if (blockDefs.find(def->name) != blockDefs.end()) {
-        throw std::runtime_error("block name duplicate: "+def->name);
-    }
+    checkIdentifier(def->name);
     blockDefs[def->name] = def;
     blockIds.push_back(def->name);
 }
 
+void ContentBuilder::add(ItemDef* def) {
+    checkIdentifier(def->name);
+    itemDefs[def->name] = def;
+    itemIds.push_back(def->name);
+}
+
+void ContentBuilder::checkIdentifier(std::string id) {
+    contenttype result;
+    if ((checkContentType(id) != contenttype::none)) {
+        throw contentindexreuse_error("identifier "+id+" is already used", result);
+    }  
+}
+
+contenttype ContentBuilder::checkContentType(std::string id) {
+    if (blockDefs.find(id) != blockDefs.end()) {
+        return contenttype::block;
+    }
+    if (itemDefs.find(id) != itemDefs.end()) {
+        return contenttype::item;
+    }
+    return contenttype::none;
+}
+
 Content* ContentBuilder::build() {
-    vector<Block*> blockDefsIndices;
+    std::vector<Block*> blockDefsIndices;
     DrawGroups* groups = new DrawGroups;
     for (const string& name : blockIds) {
         Block* def = blockDefs[name];
@@ -42,15 +63,26 @@ Content* ContentBuilder::build() {
         if (groups->find(def->drawGroup) == groups->end()) {
             groups->insert(def->drawGroup);
         }
-
-
     }
-    ContentIndices* indices = new ContentIndices(blockDefsIndices);
+
+    std::vector<ItemDef*> itemDefsIndices;
+    for (const string& name : itemIds) {
+        ItemDef* def = itemDefs[name];
+
+        // Generating runtime info
+        def->rt.id = itemDefsIndices.size();
+        itemDefsIndices.push_back(def);
+    }
+
+    auto indices = new ContentIndices(blockDefsIndices, itemDefsIndices);
     return new Content(indices, groups, blockDefs);
 }
 
-ContentIndices::ContentIndices(vector<Block*> blockDefs)
-               : blockDefs(blockDefs) {
+ContentIndices::ContentIndices(
+    std::vector<Block*> blockDefs, 
+    std::vector<ItemDef*> itemDefs)
+    : blockDefs(blockDefs), 
+      itemDefs(itemDefs) {
 }
 
 Content::Content(ContentIndices* indices, DrawGroups* drawGroups,
@@ -77,6 +109,22 @@ Block* Content::requireBlock(string id) const {
     auto found = blockDefs.find(id);
     if (found == blockDefs.end()) {
         throw std::runtime_error("missing block "+id);
+    }
+    return found->second;
+}
+
+ItemDef* Content::findItem(string id) const {
+    auto found = itemDefs.find(id);
+    if (found == itemDefs.end()) {
+        return nullptr;
+    }
+    return found->second;
+}
+
+ItemDef* Content::requireItem(string id) const {
+    auto found = itemDefs.find(id);
+    if (found == itemDefs.end()) {
+        throw std::runtime_error("missing item "+id);
     }
     return found->second;
 }
