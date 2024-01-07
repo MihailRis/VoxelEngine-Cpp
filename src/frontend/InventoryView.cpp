@@ -15,34 +15,36 @@
 
 InventoryView::InventoryView(
             int columns,
-            Player* player,
             const Assets* assets,
             const ContentIndices* indices,
             const ContentGfxCache* cache, 
             std::vector<blockid_t> blocks)
-            : player(player),
-              assets(assets), 
+            : assets(assets), 
               indices(indices), 
               cache(cache), 
               blocks(blocks),
-              invColumns(columns) {
+              columns(columns) {
     blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
                                       assets->getAtlas("blocks"),
                                       cache);
 }
 
 void InventoryView::setPosition(int x, int y) {
-    this->invX = x;
-    this->invY = y;
+    position.x = x;
+    position.y = y;
 }
 
 int InventoryView::getWidth() const {
-    return invColumns * iconSize + (invColumns-1) * interval + padX * 2;
+    return columns * iconSize + (columns-1) * interval + padding.x * 2;
 }
 
 int InventoryView::getHeight() const {
-    uint inv_rows = ceildiv(blocks.size(), invColumns);
-    return inv_rows * iconSize + (inv_rows-1) * interval + padY * 2;
+    uint inv_rows = ceildiv(blocks.size(), columns);
+    return inv_rows * iconSize + (inv_rows-1) * interval + padding.y * 2;
+}
+
+void InventoryView::setSlotConsumer(slotconsumer consumer) {
+    this->consumer = consumer;
 }
 
 void InventoryView::actAndDraw(const GfxContext* ctx) {
@@ -51,8 +53,8 @@ void InventoryView::actAndDraw(const GfxContext* ctx) {
     auto viewport = ctx->getViewport();
 	uint inv_w = getWidth();
 	uint inv_h = getHeight();
-	int xs = invX + padX;
-	int ys = invY + padY;
+	int xs = position.x + padding.x;
+	int ys = position.y + padding.y;
 
 	glm::vec4 tint (1.0f);
 	int mx = Events::cursor.x;
@@ -62,15 +64,15 @@ void InventoryView::actAndDraw(const GfxContext* ctx) {
     auto batch = ctx->getBatch2D();
 	batch->texture(nullptr);
 	batch->color = glm::vec4(0.0f, 0.0f, 0.0f, 0.5f);
-	batch->rect(invX, invY, inv_w, inv_h);
+	batch->rect(position.x, position.y, inv_w, inv_h);
 	batch->render();
 
 	// blocks & items
     if (Events::scroll) {
-        inventoryScroll -= Events::scroll * (iconSize+interval);
+        scroll -= Events::scroll * (iconSize+interval);
     }
-    inventoryScroll = std::min(inventoryScroll, int(inv_h-viewport.getHeight()));
-    inventoryScroll = std::max(inventoryScroll, 0);
+    scroll = std::min(scroll, int(inv_h-viewport.getHeight()));
+    scroll = std::max(scroll, 0);
 	blocksPreview->begin(&ctx->getViewport());
 	{
 		Window::clearDepth();
@@ -80,8 +82,8 @@ void InventoryView::actAndDraw(const GfxContext* ctx) {
         uint index = 0;
 		for (uint i = 0; i < blocks.size(); i++) {
 			Block* cblock = indices->getBlockDef(blocks[i]);
-			int x = xs + (iconSize+interval) * (index % invColumns);
-			int y = ys + (iconSize+interval) * (index / invColumns) - inventoryScroll;
+			int x = xs + (iconSize+interval) * (index % columns);
+			int y = ys + (iconSize+interval) * (index / columns) - scroll;
             if (y < -int(iconSize+interval) || y >= int(viewport.getHeight())) {
                 index++;
                 continue;
@@ -91,7 +93,9 @@ void InventoryView::actAndDraw(const GfxContext* ctx) {
 				tint.g *= 1.2f;
 				tint.b *= 1.2f;
 				if (Events::jclicked(mousecode::BUTTON_1)) {
-					player->chosenBlock = blocks[i];
+                    if (consumer) {
+                        consumer(blocks[i]);
+                    }
 				}
 			} else {
 				tint = glm::vec4(1.0f);

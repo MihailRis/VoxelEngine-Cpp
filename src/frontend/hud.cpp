@@ -55,39 +55,8 @@ inline Label* create_label(gui::wstringsupplier supplier) {
 	return label;
 }
 
-HudRenderer::HudRenderer(Engine* engine, 
-						 Level* level, 
-						 const ContentGfxCache* cache) 
-            : level(level), 
-			  assets(engine->getAssets()), 
-			  gui(engine->getGUI()),
-			  cache(cache) {
-	auto menu = gui->getMenu();
-	blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
-									  assets->getAtlas("blocks"),
-									  cache);
-    auto content = level->content;
-    auto indices = content->indices;
-    std::vector<blockid_t> blocks;
-    for (blockid_t id = 1; id < indices->countBlockDefs(); id++) {
-        const Block* def = indices->getBlockDef(id);
-        if (def->hidden)
-            continue;
-        blocks.push_back(id);
-    }
-    contentAccess.reset(new InventoryView(
-        8,
-        level->player, 
-        assets, 
-        indices, 
-        cache, 
-        blocks));
-
-	uicamera = new Camera(vec3(), 1);
-	uicamera->perspective = false;
-	uicamera->flipped = true;
-
-	Panel* panel = new Panel(vec2(250, 200), vec4(5.0f), 1.0f);
+void HudRenderer::createDebugPanel(Engine* engine) {
+    Panel* panel = new Panel(vec2(250, 200), vec4(5.0f), 1.0f);
 	debugPanel = shared_ptr<UINode>(panel);
 	panel->listenInterval(1.0f, [this]() {
 		fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
@@ -106,16 +75,16 @@ HudRenderer::HudRenderer(Engine* engine,
 		bool culling = settings.graphics.frustumCulling;
 		return L"frustum-culling: "+wstring(culling ? L"on" : L"off");
 	})));
-	panel->add(shared_ptr<Label>(create_label([this, level]() {
-		return L"chunks: "+std::to_wstring(this->level->chunks->chunksCount)+
+	panel->add(shared_ptr<Label>(create_label([this]() {
+		return L"chunks: "+std::to_wstring(level->chunks->chunksCount)+
 			   L" visible: "+std::to_wstring(level->chunks->visible);
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
-		auto player = this->level->player;
-		auto indices = this->level->content->indices;
+		auto player = level->player;
+		auto indices = level->content->indices;
 		auto def = indices->getBlockDef(player->selectedVoxel.id);
 		std::wstringstream stream;
-		stream << std::hex << this->level->player->selectedVoxel.states;
+		stream << std::hex << level->player->selectedVoxel.states;
 		if (def) {
 			stream << L" (" << util::str2wstr_utf8(def->name) << L")";
 		}
@@ -123,7 +92,7 @@ HudRenderer::HudRenderer(Engine* engine,
 		       L" "+stream.str();
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
-		return L"seed: "+std::to_wstring(this->level->world->seed);
+		return L"seed: "+std::to_wstring(level->world->seed);
 	})));
 
 	for (int ax = 0; ax < 3; ax++){
@@ -203,6 +172,38 @@ HudRenderer::HudRenderer(Engine* engine,
         panel->add(checkpanel);
 	}
 	panel->refresh();
+}
+
+HudRenderer::HudRenderer(Engine* engine, 
+						 Level* level, 
+						 const ContentGfxCache* cache) 
+            : level(level), 
+			  assets(engine->getAssets()), 
+			  gui(engine->getGUI()),
+			  cache(cache) {
+	auto menu = gui->getMenu();
+	blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
+									  assets->getAtlas("blocks"),
+									  cache);
+    auto content = level->content;
+    auto indices = content->indices;
+    std::vector<blockid_t> blocks;
+    for (blockid_t id = 1; id < indices->countBlockDefs(); id++) {
+        const Block* def = indices->getBlockDef(id);
+        if (def->hidden)
+            continue;
+        blocks.push_back(id);
+    }
+    contentAccess.reset(new InventoryView(8, assets, indices, cache, blocks));
+    contentAccess->setSlotConsumer([=](blockid_t id) {
+        level->player->chosenBlock = id;
+    });
+
+	uicamera = new Camera(vec3(), 1);
+	uicamera->perspective = false;
+	uicamera->flipped = true;
+
+    createDebugPanel(engine);
 	menu->reset();
 	
 	gui->add(this->debugPanel);

@@ -41,6 +41,8 @@ class HudRenderer {
 	std::shared_ptr<gui::UINode> debugPanel;
 	gui::GUI* gui;
 	const ContentGfxCache* const cache;
+
+    void createDebugPanel(Engine* engine);
 public:
 	HudRenderer(Engine* engine, 
 				Level* level, 
