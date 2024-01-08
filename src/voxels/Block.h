@@ -2,7 +2,9 @@
 #define VOXELS_BLOCK_H_
 
 #include <string>
+#include <vector>
 #include <glm/glm.hpp>
+#include "../graphics/UVRegion.h"
 
 #include "../maths/aabb.h"
 #include "../typedefs.h"
@@ -61,7 +63,8 @@ enum class BlockModel {
 	none, // invisible 
 	block, // default shape
 	xsprite, // X-shape (grass)
-	aabb // box shaped as block hitbox
+	aabb, // box shaped as block hitbox
+	customfaces // set of paired triangles (usual faces)
 };
 
 class Block {
@@ -69,6 +72,9 @@ public:
 	std::string const name;
 						               //  0 1   2 3   4 5
 	std::string textureFaces[6]; // -x,x, -y,y, -z,z
+	std::vector<std::string> textureMoreFaces = {};
+	std::vector<glm::vec3> customfacesPoints = {};
+	std::vector<UVRegion> customfacesExtraUVs = {};
 	unsigned char emission[4] {0, 0, 0, 0};
 	unsigned char drawGroup = 0;
 	BlockModel model = BlockModel::block;
