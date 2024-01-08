@@ -18,7 +18,7 @@ const float JUMP_FORCE = 8.0f;
 
 Player::Player(glm::vec3 position, float speed) :
 		speed(speed),
-		chosenBlock(1) {
+		chosenItem(1) {
 	camera = new Camera(position, glm::radians(90.0f));
 	currentViewCamera = camera;
 	SPCamera = new Camera(position, glm::radians(90.0f));

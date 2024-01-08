@@ -1,14 +1,11 @@
 #include "Content.h"
 
+#include <memory>
 #include <stdexcept>
 #include <glm/glm.hpp>
 
 #include "../voxels/Block.h"
-#include "../content/ItemDef.h"
-
-using glm::vec3;
-using std::string;
-using std::unordered_map;
+#include "../items/ItemDef.h"
 
 ContentBuilder::~ContentBuilder() {
 }
@@ -69,7 +66,7 @@ contenttype ContentBuilder::checkContentType(std::string id) {
 Content* ContentBuilder::build() {
     std::vector<Block*> blockDefsIndices;
     DrawGroups* groups = new DrawGroups;
-    for (const string& name : blockIds) {
+    for (const std::string& name : blockIds) {
         Block* def = blockDefs[name];
         
         // Generating runtime info
@@ -93,7 +90,7 @@ Content* ContentBuilder::build() {
     }
 
     std::vector<ItemDef*> itemDefsIndices;
-    for (const string& name : itemIds) {
+    for (const std::string& name : itemIds) {
         ItemDef* def = itemDefs[name];
 
         // Generating runtime info
@@ -102,7 +99,14 @@ Content* ContentBuilder::build() {
     }
 
     auto indices = new ContentIndices(blockDefsIndices, itemDefsIndices);
-    return new Content(indices, groups, blockDefs);
+    std::unique_ptr<Content> content (new Content(indices, groups, blockDefs, itemDefs));
+
+    // Now, it's time to solve foreign keys
+    for (Block* def : blockDefsIndices) {
+        def->rt.pickingItem = content->requireItem(def->pickingItem)->rt.id;
+    }
+
+    return content.release();
 }
 
 ContentIndices::ContentIndices(
@@ -113,8 +117,10 @@ ContentIndices::ContentIndices(
 }
 
 Content::Content(ContentIndices* indices, DrawGroups* drawGroups,
-                 unordered_map<string, Block*> blockDefs)
+                 std::unordered_map<std::string, Block*> blockDefs,
+                 std::unordered_map<std::string, ItemDef*> itemDefs)
         : blockDefs(blockDefs),
+          itemDefs(itemDefs),
           indices(indices),
           drawGroups(drawGroups) {
 }
@@ -124,7 +130,7 @@ Content::~Content() {
     delete drawGroups;
 }
 
-Block* Content::findBlock(string id) const {
+Block* Content::findBlock(std::string id) const {
     auto found = blockDefs.find(id);
     if (found == blockDefs.end()) {
         return nullptr;
@@ -132,7 +138,7 @@ Block* Content::findBlock(string id) const {
     return found->second;
 }
 
-Block* Content::requireBlock(string id) const {
+Block* Content::requireBlock(std::string id) const {
     auto found = blockDefs.find(id);
     if (found == blockDefs.end()) {
         throw std::runtime_error("missing block "+id);
@@ -140,7 +146,7 @@ Block* Content::requireBlock(string id) const {
     return found->second;
 }
 
-ItemDef* Content::findItem(string id) const {
+ItemDef* Content::findItem(std::string id) const {
     auto found = itemDefs.find(id);
     if (found == itemDefs.end()) {
         return nullptr;
@@ -148,7 +154,7 @@ ItemDef* Content::findItem(string id) const {
     return found->second;
 }
 
-ItemDef* Content::requireItem(string id) const {
+ItemDef* Content::requireItem(std::string id) const {
     auto found = itemDefs.find(id);
     if (found == itemDefs.end()) {
         throw std::runtime_error("missing item "+id);

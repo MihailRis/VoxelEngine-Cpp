@@ -17,8 +17,7 @@
 #include "../util/data_io.h"
 #include "../coders/json.h"
 #include "../constants.h"
-
-#include "../content/ItemDef.h"
+#include "../items/ItemDef.h"
 
 #include <cassert>
 #include <iostream>

@@ -1,13 +1,11 @@
-#ifndef CONTENT_ITEM_DEF_H_
-#define CONTENT_ITEM_DEF_H_
+#ifndef CONTENT_ITEMS_ITEM_DEF_H_
+#define CONTENT_ITEMS_ITEM_DEF_H_
 
 #include <string>
 #include <glm/glm.hpp>
 
 #include "../graphics/UVRegion.h"
 #include "../typedefs.h"
-
-#define BLOCK_ITEM_SUFFIX ".item"
 
 struct item_funcs_set {
 	bool init: 1;
@@ -39,4 +37,4 @@ public:
     ItemDef(std::string name);
 };
 
-#endif //CONTENT_ITEM_DEF_H_
+#endif //CONTENT_ITEMS_ITEM_DEF_H_

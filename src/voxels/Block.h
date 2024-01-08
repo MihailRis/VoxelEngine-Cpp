@@ -9,6 +9,8 @@
 #include "../maths/aabb.h"
 #include "../typedefs.h"
 
+#define BLOCK_ITEM_SUFFIX ".item"
+
 const uint FACE_MX = 0;
 const uint FACE_PX = 1;
 const uint FACE_MY = 2;
@@ -89,6 +91,7 @@ public:
     bool hidden = false;
 	AABB hitbox;
 	BlockRotProfile rotations;
+    std::string pickingItem = name+BLOCK_ITEM_SUFFIX;
 
 	struct {
 		blockid_t id;
@@ -96,6 +99,7 @@ public:
 		bool emissive = false;
 		AABB hitboxes[BlockRotProfile::MAX_COUNT];
 		block_funcs_set funcsset {};
+        itemid_t pickingItem = 0;
 	} rt;
 
 	Block(std::string name);

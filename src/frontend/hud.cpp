@@ -42,6 +42,7 @@
 #include "LevelFrontend.h"
 #include "../engine.h"
 #include "../core_defs.h"
+#include "../items/ItemDef.h"
 
 using glm::vec2;
 using glm::vec3;
@@ -188,7 +189,7 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
     }
     contentAccess.reset(new InventoryView(8, content, frontend, items));
     contentAccess->setSlotConsumer([=](blockid_t id) {
-        level->player->chosenBlock = id;
+        level->player->chosenItem = id;
     });
 
 	uicamera = new Camera(vec3(), 1);
@@ -281,10 +282,17 @@ void HudRenderer::draw(const GfxContext& ctx){
 		GfxContext subctx = ctx.sub();
 		subctx.depthTest(true);
 		subctx.cullFace(true);
-		
-		Block* cblock = contentIds->getBlockDef(player->chosenBlock);
-		assert(cblock != nullptr);
-		blocksPreview->draw(cblock, width - 56, uicamera->getFov() - 56, 48, vec4(1.0f));
+        
+        ItemDef* item = contentIds->getItemDef(player->chosenItem);
+        switch (item->iconType) {
+            case item_icon_type::block: {
+                Block* cblock = content->findBlock(item->icon);
+                assert(cblock != nullptr);
+		        blocksPreview->draw(cblock, width - 56, uicamera->getFov() - 56, 48, vec4(1.0f));
+                break;
+            }
+            // TODO: handle other types
+        }
 	}
 	uishader->use();
 	batch->begin();

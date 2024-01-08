@@ -35,7 +35,7 @@ public:
 	bool flight = false;
 	bool noclip = false;
 	bool debug = false;
-	int chosenBlock;
+	int chosenItem;
 	voxel selectedVoxel {0, 0};
 
 	glm::vec2 cam = {};

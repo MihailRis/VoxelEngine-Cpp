@@ -10,7 +10,7 @@
 #include "../graphics/Batch2D.h"
 #include "../graphics/GfxContext.h"
 #include "../content/Content.h"
-#include "../content/ItemDef.h"
+#include "../items/ItemDef.h"
 #include "../maths/voxmaths.h"
 #include "../objects/Player.h"
 #include "../voxels/Block.h"

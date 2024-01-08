@@ -97,7 +97,8 @@ public:
     DrawGroups* const drawGroups;
 
     Content(ContentIndices* indices, DrawGroups* drawGroups,
-            std::unordered_map<std::string, Block*> blockDefs);
+            std::unordered_map<std::string, Block*> blockDefs,
+            std::unordered_map<std::string, ItemDef*> itemDefs);
     ~Content();
     
     Block* findBlock(std::string id) const;

@@ -12,6 +12,7 @@
 #include "../window/Camera.h"
 #include "../window/Events.h"
 #include "../window/input.h"
+#include "../items/ItemDef.h"
 #include "scripting/scripting.h"
 #include "BlocksController.h"
 
@@ -174,7 +175,7 @@ void PlayerController::updateKeyboard() {
 	// block choice
 	for (int i = 1; i < 10; i++){
 		if (Events::jpressed(keycode::NUM_0+i)){
-			player->chosenBlock = i;
+			player->chosenItem = i;
 		}
 	}
 }
@@ -238,8 +239,10 @@ void PlayerController::updateInteraction(){
 		int z = iend.z;
 		uint8_t states = 0;
 
-		Block* def = contentIds->getBlockDef(player->chosenBlock);
-		if (def->rotatable){
+        ItemDef* item = contentIds->getItemDef(player->chosenItem);
+
+		Block* def = level->content->findBlock(item->placingBlock);
+		if (def && def->rotatable){
 			const std::string& name = def->rotations.name;
 			if (name == "pipe") {
 				if (norm.x < 0.0f) states = BLOCK_DIR_WEST;
@@ -265,7 +268,7 @@ void PlayerController::updateInteraction(){
 		if (lclick && block->breakable){
             blocksController->breakBlock(player, block, x, y, z);
 		}
-		if (rclick){
+		if (def && rclick){
             if (!input.shift && block->rt.funcsset.oninteract) {
                 scripting::on_block_interact(player, block, x, y, z);
                 return;
@@ -276,11 +279,10 @@ void PlayerController::updateInteraction(){
 				z = (iend.z)+(norm.z);
 			}
 			vox = chunks->get(x, y, z);
-            int chosenBlock = player->chosenBlock;
+            blockid_t chosenBlock = def->rt.id;
 			if (vox && (block = contentIds->getBlockDef(vox->id))->replaceable) {
 				if (!level->physics->isBlockInside(x,y,z, player->hitbox) 
 					|| !def->obstacle){
-                    Block* def = contentIds->getBlockDef(chosenBlock);
                     if (def->grounded && !chunks->isSolidBlock(x, y-1, z)) {
                         chosenBlock = 0;
                     }
@@ -296,7 +298,8 @@ void PlayerController::updateInteraction(){
 			}
 		}
 		if (Events::jactive(BIND_PLAYER_PICK)){
-			player->chosenBlock = chunks->get(x,y,z)->id;
+            Block* block = contentIds->getBlockDef(chunks->get(x,y,z)->id);
+			player->chosenItem = block->rt.pickingItem;
 		}
 	} else {
 		selectedBlockId = -1;

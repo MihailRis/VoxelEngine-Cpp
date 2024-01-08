@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "Content.h"
-#include "ItemDef.h"
+#include "../items/ItemDef.h"
 #include "../util/listutil.h"
 #include "../voxels/Block.h"
 #include "../files/files.h"
@@ -175,6 +175,8 @@ void ContentLoader::loadBlock(Block* def, std::string name, fs::path file) {
     root->flag("hidden", def->hidden);
     root->flag("sky-light-passing", def->skyLightPassing);
     root->num("draw-group", def->drawGroup);
+
+    root->str("picking-item", def->pickingItem);
 }
 
 void ContentLoader::loadItem(ItemDef* def, std::string name, std::filesystem::path file) {

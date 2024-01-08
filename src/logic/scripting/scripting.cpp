@@ -9,7 +9,7 @@
 #include "../../util/timeutil.h"
 #include "../../world/Level.h"
 #include "../../voxels/Block.h"
-#include "../../content/ItemDef.h"
+#include "../../items/ItemDef.h"
 #include "api_lua.h"
 
 using namespace scripting;
