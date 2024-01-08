@@ -100,12 +100,17 @@ Block* ContentLoader::loadBlock(std::string name, fs::path file) {
     if (root->has("texture")) {
         std::string texture;
         root->str("texture", texture);
-        for (uint i = 0; i < 6; i++)
+        for (uint i = 0; i < 6; i++) {
             def->textureFaces[i] = texture;
+        }
     } else if (root->has("texture-faces")) {
         json::JArray* texarr = root->arr("texture-faces");
         for (uint i = 0; i < 6; i++) {
             def->textureFaces[i] = texarr->str(i);
+        }
+        for (uint i = 6; i < texarr->values.size(); i++)
+        {
+            def->textureMoreFaces.push_back(texarr->str(i));
         }
     }
 
@@ -114,6 +119,16 @@ Block* ContentLoader::loadBlock(std::string name, fs::path file) {
     root->str("model", model);
     if (model == "block") def->model = BlockModel::block;
     else if (model == "aabb") def->model = BlockModel::aabb;
+    else if (model == "custom") { 
+        def->model = BlockModel::customfaces;
+        json::JArray* pointarr = root->arr("faces-points");
+        for (uint i = 0; i < pointarr->values.size(); i+=3)
+        {
+            def->customfacesPoints.push_back(glm::vec3(pointarr->num(i), 
+                                                       pointarr->num(i+1),
+                                                       pointarr->num(i + 2)));
+        }
+    }
     else if (model == "X") def->model = BlockModel::xsprite;
     else if (model == "none") def->model = BlockModel::none;
     else {

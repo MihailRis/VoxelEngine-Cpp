@@ -147,6 +147,19 @@ void BlocksRenderer::face(const vec3& coord,
 	index(0, 1, 2, 0, 2, 3);
 }
 
+void BlocksRenderer::tetragonicFace(const vec3& coord, const vec3& p1,
+	const vec3& p2, const vec3& p3, const vec3& p4,
+									const vec3& X,
+									const vec3& Y,
+									const vec3& Z,
+									const UVRegion& texreg,
+									const vec4& tint) {
+	vertex(coord + (p1.x - 0.5f) * X + (p1.y - 0.5f) * Y + (p1.z - 0.5f) * Z, texreg.u1, texreg.v1, tint);
+	vertex(coord + (p2.x - 0.5f) * X + (p2.y - 0.5f) * Y + (p2.z - 0.5f) * Z, texreg.u2, texreg.v1, tint);
+	vertex(coord + (p3.x - 0.5f) * X + (p3.y - 0.5f) * Y + (p3.z - 0.5f) * Z, texreg.u2, texreg.v2, tint);
+	vertex(coord + (p4.x - 0.5f) * X + (p4.y - 0.5f) * Y + (p4.z - 0.5f) * Z, texreg.u1, texreg.v2, tint);
+	index(0, 1, 3, 1, 2, 3);
+}
 
 void BlocksRenderer::blockXSprite(int x, int y, int z, 
 								  const vec3& size, 
@@ -215,6 +228,38 @@ void BlocksRenderer::blockAABB(const ivec3& icoord,
 
     face(coord, -Z*size.z,  Y*size.y,  X*size.x, texfaces[1], lights); // west
     face(coord,  Z*size.z,  Y*size.y, -X*size.x, texfaces[0], lights); // east
+}
+
+void BlocksRenderer::blockCustomFaces(const ivec3& icoord, const UVRegion(&texfaces)[6],
+									  const Block* block, ubyte rotation, bool lights) {
+	const float tint = 1.0f;
+	vec3 X(1, 0, 0);
+	vec3 Y(0, 1, 0);
+	vec3 Z(0, 0, 1);
+	vec3 coord(icoord);
+	if (block->rotatable) {
+		auto& rotations = block->rotations;
+		auto& orient = rotations.variants[rotation];
+		X = orient.axisX;
+		Y = orient.axisY;
+		Z = orient.axisZ;
+	}
+	
+	for (uint i = 0; i < 6; i++)
+	{
+		tetragonicFace(coord,
+			block->customfacesPoints[i * 4 + 0],
+			block->customfacesPoints[i * 4 + 1],
+			block->customfacesPoints[i * 4 + 2],
+			block->customfacesPoints[i * 4 + 3],X,Y,Z, texfaces[i], vec4(tint));
+	}
+	for (uint i = 0; i < block->textureMoreFaces.size(); i++) {
+		tetragonicFace(coord,
+			block->customfacesPoints[i * 4 + 24],
+			block->customfacesPoints[i * 4 + 25],
+			block->customfacesPoints[i * 4 + 26],
+			block->customfacesPoints[i * 4 + 27], X, Y, Z, block->customfacesExtraUVs[i], vec4(tint));
+	}
 }
 
 /* Fastest solid shaded blocks render method */
@@ -327,7 +372,7 @@ void BlocksRenderer::render(const voxel* voxels) {
 			const voxel& vox = voxels[i];
 			blockid_t id = vox.id;
 			const Block& def = *blockDefsCache[id];
-			if (!id || def.drawGroup != drawGroup)
+			if (id == 0 || def.drawGroup != drawGroup)
 				continue;
 			const UVRegion texfaces[6]{ cache->getRegion(id, 0), 
 										cache->getRegion(id, 1),
@@ -349,6 +394,10 @@ void BlocksRenderer::render(const voxel* voxels) {
 			}
 			case BlockModel::aabb: {
 				blockAABB(ivec3(x,y,z), texfaces, &def, vox.rotation(), !def.rt.emissive);
+				break;
+			}
+			case BlockModel::customfaces: {
+				blockCustomFaces(ivec3(x, y, z), texfaces, &def, vox.rotation(), !def.rt.emissive);
 				break;
 			}
 			default:

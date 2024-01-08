@@ -465,6 +465,10 @@ JObject* Parser::parseObject() {
     unique_ptr<JObject> obj(new JObject());
     unordered_map<string, Value*>& map = obj->map;
     while (peek() != '}') {
+        if (peek() == '#') {
+            skipLine();
+            continue;
+        }
         string key = parseName();
         char next = peek();
         if (next != ':') {
@@ -490,6 +494,10 @@ JArray* Parser::parseArray() {
     unique_ptr<JArray> arr(new JArray());
     vector<Value*>& values = arr->values;
     while (peek() != ']') {
+        if (peek() == '#') {
+            skipLine();
+            continue;
+        }
         values.push_back(parseValue());
 
         char next = peek();
