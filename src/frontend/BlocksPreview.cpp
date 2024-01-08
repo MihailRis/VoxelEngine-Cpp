@@ -59,6 +59,7 @@ void BlocksPreview::draw(const Block* def, int x, int y, int size, glm::vec4 tin
             batch->blockCube(def->hitbox.size() * glm::vec3(size * 0.63f), 
                              texfaces, tint, !def->rt.emissive);
             break;
+        case BlockModel::customfaces:
         case BlockModel::xsprite: {
             glm::vec3 right = glm::normalize(glm::vec3(1.f, 0.f, -1.f));
             batch->sprite(right*float(size)*0.43f+glm::vec3(0, size*0.4f, 0), 
