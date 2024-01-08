@@ -18,10 +18,10 @@ enum class contenttype {
     none, block, item
 };
 
-class contentindexreuse_error: public std::runtime_error {
+class namereuse_error: public std::runtime_error {
     contenttype type;
 public:
-    contentindexreuse_error(const std::string& msg, contenttype type)
+    namereuse_error(const std::string& msg, contenttype type)
         : std::runtime_error(msg), type(type) {}
 
     inline contenttype getType() const {
@@ -36,8 +36,13 @@ class ContentBuilder {
     std::unordered_map<std::string, ItemDef*> itemDefs;
     std::vector<std::string> itemIds;
 public:
+    ~ContentBuilder();
+
     void add(Block* def);
     void add(ItemDef* def);
+
+    Block* createBlock(std::string id);
+    ItemDef* createItem(std::string id);
 
     void checkIdentifier(std::string id);
     contenttype checkContentType(std::string id);

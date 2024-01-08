@@ -16,8 +16,8 @@ namespace json {
 class ContentLoader {
     const ContentPack* pack;
 
-    Block* loadBlock(std::string name);
-    ItemDef* loadItem(std::string name);
+    void loadBlock(Block* def, std::string full, std::string name);
+    void loadItem(ItemDef* def, std::string full, std::string name);
 public:
     ContentLoader(ContentPack* pack);
 
@@ -25,8 +25,8 @@ public:
                         json::JObject* indicesRoot,
                         std::string contentSection);
     void fixPackIndices();
-    Block* loadBlock(std::string name, std::filesystem::path file);
-    ItemDef* loadItem(std::string name, std::filesystem::path file);
+    void loadBlock(Block* def, std::string name, std::filesystem::path file);
+    void loadItem(ItemDef* def, std::string name, std::filesystem::path file);
     void load(ContentBuilder* builder);
 };
 

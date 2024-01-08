@@ -10,6 +10,9 @@ using glm::vec3;
 using std::string;
 using std::unordered_map;
 
+ContentBuilder::~ContentBuilder() {
+}
+
 void ContentBuilder::add(Block* def) {
     checkIdentifier(def->name);
     blockDefs[def->name] = def;
@@ -22,10 +25,34 @@ void ContentBuilder::add(ItemDef* def) {
     itemIds.push_back(def->name);
 }
 
+Block* ContentBuilder::createBlock(std::string id) {
+    auto found = blockDefs.find(id);
+    if (found != blockDefs.end()) {
+        //return found->second;
+        throw namereuse_error("name "+id+" is already used", contenttype::item);
+    }
+    Block* block = new Block(id);
+    add(block);
+    return block;
+}
+
+ItemDef* ContentBuilder::createItem(std::string id) {
+    auto found = itemDefs.find(id);
+    if (found != itemDefs.end()) {
+        if (found->second->generated) {
+            return found->second;
+        }
+        throw namereuse_error("name "+id+" is already used", contenttype::item);
+    }
+    ItemDef* item = new ItemDef(id);
+    add(item);
+    return item;
+}
+
 void ContentBuilder::checkIdentifier(std::string id) {
     contenttype result;
     if ((checkContentType(id) != contenttype::none)) {
-        throw contentindexreuse_error("identifier "+id+" is already used", result);
+        throw namereuse_error("name "+id+" is already used", result);
     }  
 }
 

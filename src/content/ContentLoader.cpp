@@ -92,9 +92,8 @@ void ContentLoader::fixPackIndices() {
 }
 
 // TODO: add basic validation and logging
-Block* ContentLoader::loadBlock(std::string name, fs::path file) {
+void ContentLoader::loadBlock(Block* def, std::string name, fs::path file) {
     std::unique_ptr<json::JObject> root(files::read_json(file));
-    std::unique_ptr<Block> def(new Block(name));
 
     // block texturing
     if (root->has("texture")) {
@@ -176,41 +175,32 @@ Block* ContentLoader::loadBlock(std::string name, fs::path file) {
     root->flag("hidden", def->hidden);
     root->flag("sky-light-passing", def->skyLightPassing);
     root->num("draw-group", def->drawGroup);
-
-    return def.release();
 }
 
-ItemDef* ContentLoader::loadItem(std::string name, std::filesystem::path file) {
+void ContentLoader::loadItem(ItemDef* def, std::string name, std::filesystem::path file) {
     std::unique_ptr<json::JObject> root(files::read_json(file));
-    std::unique_ptr<ItemDef> def(new ItemDef(name)); 
-
-    return def.release();
 }
 
-Block* ContentLoader::loadBlock(std::string name) {
+void ContentLoader::loadBlock(Block* def, std::string full, std::string name) {
     auto folder = pack->folder;
 
-    std::string prefix = pack->id+":"+name;
     fs::path configFile = folder/fs::path("blocks/"+name+".json");
     fs::path scriptfile = folder/fs::path("scripts/"+name+".lua");
-    Block* def = loadBlock(prefix, configFile);
+    loadBlock(def, full, configFile);
     if (fs::is_regular_file(scriptfile)) {
-        scripting::load_block_script(prefix, scriptfile, &def->rt.funcsset);
+        scripting::load_block_script(full, scriptfile, &def->rt.funcsset);
     }
-    return def;
 }
 
-ItemDef* ContentLoader::loadItem(std::string name) {
+void ContentLoader::loadItem(ItemDef* def, std::string full, std::string name) {
     auto folder = pack->folder;
 
-    std::string prefix = pack->id+":"+name;
     fs::path configFile = folder/fs::path("items/"+name+".json");
     fs::path scriptfile = folder/fs::path("scripts/"+name+".lua");
-    ItemDef* def = loadItem(prefix, configFile);
+    loadItem(def, full, configFile);
     if (fs::is_regular_file(scriptfile)) {
-        scripting::load_item_script(prefix, scriptfile, &def->rt.funcsset);
+        scripting::load_item_script(full, scriptfile, &def->rt.funcsset);
     }
-    return def;
 }
 
 void ContentLoader::load(ContentBuilder* builder) {
@@ -226,14 +216,26 @@ void ContentLoader::load(ContentBuilder* builder) {
     json::JArray* blocksarr = root->arr("blocks");
     if (blocksarr) {
         for (uint i = 0; i < blocksarr->size(); i++) {
-            builder->add(loadBlock(blocksarr->str(i)));
+            std::string name = blocksarr->str(i);
+            std::string full = pack->id+":"+name;
+            auto def = builder->createBlock(full);
+            loadBlock(def, full, name);
+            if (!def->hidden) {
+                auto item = builder->createItem(full+BLOCK_ITEM_SUFFIX);
+                item->generated = true;
+                item->iconType = item_icon_type::block;
+                item->icon = full;
+                item->placingBlock = full;
+            }
         }
     }
 
     json::JArray* itemsarr = root->arr("items");
     if (itemsarr) {
         for (uint i = 0; i < itemsarr->size(); i++) {
-            builder->add(loadItem(itemsarr->str(i)));
+            std::string name = itemsarr->str(i);
+            std::string full = pack->id+":"+name;
+            loadItem(builder->createItem(full), full, name);
         }
     }
 }

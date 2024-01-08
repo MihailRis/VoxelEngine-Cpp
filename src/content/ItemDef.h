@@ -6,13 +6,26 @@
 
 #include "../typedefs.h"
 
+#define BLOCK_ITEM_SUFFIX ".item"
+
 struct item_funcs_set {
 	bool init: 1;
 };
 
+enum class item_icon_type {
+    sprite, block,
+};
+
 class ItemDef {
 public:
-    std::string name;
+    std::string const name;
+
+    bool generated = false;
+
+    item_icon_type iconType = item_icon_type::sprite;
+    std::string icon = "block:notfound";
+
+    std::string placingBlock = "none";
 
     struct {
         itemid_t id;
