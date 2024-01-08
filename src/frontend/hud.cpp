@@ -39,98 +39,66 @@
 #include "WorldRenderer.h"
 #include "BlocksPreview.h"
 #include "InventoryView.h"
+#include "LevelFrontend.h"
 #include "../engine.h"
 #include "../core_defs.h"
 
-using std::wstring;
-using std::shared_ptr;
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 using namespace gui;
 
-inline Label* create_label(gui::wstringsupplier supplier) {
-	Label* label = new Label(L"-");
+inline std::shared_ptr<Label> create_label(gui::wstringsupplier supplier) {
+	auto label = std::make_shared<Label>(L"-");
 	label->textSupplier(supplier);
 	return label;
 }
 
-HudRenderer::HudRenderer(Engine* engine, 
-						 Level* level, 
-						 const ContentGfxCache* cache) 
-            : level(level), 
-			  assets(engine->getAssets()), 
-			  gui(engine->getGUI()),
-			  cache(cache) {
-	auto menu = gui->getMenu();
-	blocksPreview = new BlocksPreview(assets->getShader("ui3d"),
-									  assets->getAtlas("blocks"),
-									  cache);
-    auto content = level->content;
-    auto indices = content->indices;
-    std::vector<blockid_t> blocks;
-    for (blockid_t id = 1; id < indices->countBlockDefs(); id++) {
-        const Block* def = indices->getBlockDef(id);
-        if (def->hidden)
-            continue;
-        blocks.push_back(id);
-    }
-    contentAccess.reset(new InventoryView(
-        8,
-        level->player, 
-        assets, 
-        indices, 
-        cache, 
-        blocks));
+void HudRenderer::createDebugPanel(Engine* engine) {
+    auto level = frontend->getLevel();
 
-	uicamera = new Camera(vec3(), 1);
-	uicamera->perspective = false;
-	uicamera->flipped = true;
-
-	Panel* panel = new Panel(vec2(250, 200), vec4(5.0f), 1.0f);
-	debugPanel = shared_ptr<UINode>(panel);
+    Panel* panel = new Panel(vec2(250, 200), vec4(5.0f), 1.0f);
+	debugPanel = std::shared_ptr<UINode>(panel);
 	panel->listenInterval(1.0f, [this]() {
 		fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
 		fpsMin = fps;
 		fpsMax = fps;
 	});
 	panel->setCoord(vec2(10, 10));
-	panel->add(shared_ptr<Label>(create_label([this](){
-		return L"fps: "+this->fpsString;
-	})));
-	panel->add(shared_ptr<Label>(create_label([this](){
+	panel->add(create_label([this](){ return L"fps: "+this->fpsString;}));
+	panel->add(create_label([this](){
 		return L"meshes: " + std::to_wstring(Mesh::meshesCount);
-	})));
-	panel->add(shared_ptr<Label>(create_label([=](){
+	}));
+	panel->add(create_label([=](){
 		auto& settings = engine->getSettings();
 		bool culling = settings.graphics.frustumCulling;
-		return L"frustum-culling: "+wstring(culling ? L"on" : L"off");
-	})));
-	panel->add(shared_ptr<Label>(create_label([this, level]() {
-		return L"chunks: "+std::to_wstring(this->level->chunks->chunksCount)+
+		return L"frustum-culling: "+std::wstring(culling ? L"on" : L"off");
+	}));
+	panel->add(create_label([=]() {
+		return L"chunks: "+std::to_wstring(level->chunks->chunksCount)+
 			   L" visible: "+std::to_wstring(level->chunks->visible);
-	})));
-	panel->add(shared_ptr<Label>(create_label([this](){
-		auto player = this->level->player;
-		auto indices = this->level->content->indices;
+	}));
+	panel->add(create_label([=](){
+		auto player = level->player;
+		auto indices = level->content->indices;
 		auto def = indices->getBlockDef(player->selectedVoxel.id);
 		std::wstringstream stream;
-		stream << std::hex << this->level->player->selectedVoxel.states;
+		stream << std::hex << level->player->selectedVoxel.states;
 		if (def) {
 			stream << L" (" << util::str2wstr_utf8(def->name) << L")";
 		}
 		return L"block: "+std::to_wstring(player->selectedVoxel.id)+
 		       L" "+stream.str();
-	})));
-	panel->add(shared_ptr<Label>(create_label([this](){
-		return L"seed: "+std::to_wstring(this->level->world->seed);
-	})));
+	}));
+	panel->add(create_label([=](){
+		return L"seed: "+std::to_wstring(level->world->seed);
+	}));
 
 	for (int ax = 0; ax < 3; ax++){
 		Panel* sub = new Panel(vec2(10, 27), vec4(0.0f));
 		sub->orientation(Orientation::horizontal);
 
-		wstring str = L"x: ";
+		std::wstring str = L"x: ";
 		str[0] += ax;
 		Label* label = new Label(str);
 		label->margin(vec4(2, 3, 2, 3));
@@ -139,15 +107,15 @@ HudRenderer::HudRenderer(Engine* engine,
 
 		// Coord input
 		TextBox* box = new TextBox(L"");
-		box->textSupplier([this, ax]() {
-			Hitbox* hitbox = this->level->player->hitbox;
+		box->textSupplier([=]() {
+			Hitbox* hitbox = level->player->hitbox;
 			return std::to_wstring(hitbox->position[ax]);
 		});
-		box->textConsumer([this, ax](wstring text) {
+		box->textConsumer([=](std::wstring text) {
 			try {
-				vec3 position = this->level->player->hitbox->position;
+				vec3 position = level->player->hitbox->position;
 				position[ax] = std::stoi(text);
-				this->level->player->teleport(position);
+				level->player->teleport(position);
 			} catch (std::invalid_argument& _){
 			}
 		});
@@ -155,15 +123,15 @@ HudRenderer::HudRenderer(Engine* engine,
 		sub->add(box);
 		panel->add(sub);
 	}
-	panel->add(shared_ptr<Label>(create_label([this](){
+	panel->add(create_label([=](){
 		int hour, minute, second;
-		timeutil::from_value(this->level->world->daytime, hour, minute, second);
+		timeutil::from_value(level->world->daytime, hour, minute, second);
 
 		std::wstring timeString = 
 					 util::lfill(std::to_wstring(hour), 2, L'0') + L":" +
 					 util::lfill(std::to_wstring(minute), 2, L'0');
 		return L"time: "+timeString;
-	})));
+	}));
 	{
 		TrackBar* bar = new TrackBar(0.0f, 1.0f, 1.0f, 0.005f, 8);
 		bar->supplier([=]() {
@@ -203,6 +171,34 @@ HudRenderer::HudRenderer(Engine* engine,
         panel->add(checkpanel);
 	}
 	panel->refresh();
+}
+
+HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend) 
+    : assets(engine->getAssets()), 
+      gui(engine->getGUI()),
+      frontend(frontend) {
+
+    auto level = frontend->getLevel();
+	auto menu = gui->getMenu();
+    auto content = level->content;
+    auto indices = content->indices;
+    std::vector<blockid_t> blocks;
+    for (blockid_t id = 1; id < indices->countBlockDefs(); id++) {
+        const Block* def = indices->getBlockDef(id);
+        if (def->hidden)
+            continue;
+        blocks.push_back(id);
+    }
+    contentAccess.reset(new InventoryView(8, indices, frontend, blocks));
+    contentAccess->setSlotConsumer([=](blockid_t id) {
+        level->player->chosenBlock = id;
+    });
+
+	uicamera = new Camera(vec3(), 1);
+	uicamera->perspective = false;
+	uicamera->flipped = true;
+
+    createDebugPanel(engine);
 	menu->reset();
 	
 	gui->add(this->debugPanel);
@@ -210,7 +206,6 @@ HudRenderer::HudRenderer(Engine* engine,
 
 HudRenderer::~HudRenderer() {
 	gui->remove(debugPanel);
-	delete blocksPreview;
 	delete uicamera;
 }
 
@@ -247,6 +242,7 @@ void HudRenderer::update() {
 }
 
 void HudRenderer::draw(const GfxContext& ctx){
+    auto level = frontend->getLevel();
 	const Content* content = level->content;
 	const ContentIndices* contentIds = content->indices;
 
@@ -274,14 +270,14 @@ void HudRenderer::draw(const GfxContext& ctx){
 		batch->line(width/2-5, height/2-5, width/2+5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
 		batch->line(width/2+5, height/2-5, width/2-5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
 	}
+
 	Player* player = level->player;
-
-
 	batch->color = vec4(0.0f, 0.0f, 0.0f, 0.75f);
 	batch->rect(width - 68, height - 68, 68, 68);
 	batch->color = vec4(1.0f);
 	batch->render();
 
+    auto blocksPreview = frontend->getBlocksPreview();
 	blocksPreview->begin(&ctx.getViewport());
 	{
 		Window::clearDepth();

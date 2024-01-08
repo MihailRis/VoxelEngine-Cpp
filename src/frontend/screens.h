@@ -11,7 +11,7 @@ class HudRenderer;
 class Engine;
 class Camera;
 class Batch2D;
-class ContentGfxCache;
+class LevelFrontend;
 class LevelController;
 
 /* Screen is a mainloop state */
@@ -27,7 +27,7 @@ public:
 };
 
 class MenuScreen : public Screen {
-    Camera* uicamera;
+    std::unique_ptr<Camera> uicamera;
 public:
     MenuScreen(Engine* engine);
     ~MenuScreen();
@@ -37,11 +37,11 @@ public:
 };
 
 class LevelScreen : public Screen {
-    Level* level;
-    LevelController* controller;
-    WorldRenderer* worldRenderer;
-    HudRenderer* hud;
-    ContentGfxCache* cache;
+    std::unique_ptr<Level> level;
+    std::unique_ptr<LevelFrontend> frontend;
+    std::unique_ptr<HudRenderer> hud;
+    std::unique_ptr<WorldRenderer> worldRenderer;
+    std::unique_ptr<LevelController> controller;
     
     bool hudVisible = true;
     void updateHotkeys();

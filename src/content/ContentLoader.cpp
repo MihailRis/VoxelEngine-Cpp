@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "Content.h"
+#include "ItemDef.h"
 #include "../util/listutil.h"
 #include "../voxels/Block.h"
 #include "../files/files.h"
@@ -21,10 +22,56 @@ namespace fs = std::filesystem;
 ContentLoader::ContentLoader(ContentPack* pack) : pack(pack) {
 }
 
+bool ContentLoader::fixPackIndices(fs::path folder, 
+                                   json::JObject* indicesRoot,
+                                   std::string contentSection) {
+
+    std::vector<std::string> detected;
+    std::vector<std::string> indexed;
+    if (fs::is_directory(folder)) {
+        for (auto entry : fs::directory_iterator(folder)) {
+            fs::path file = entry.path();
+            if (fs::is_regular_file(file) && file.extension() == ".json") {
+                std::string name = file.stem().string();
+                if (name[0] == '_')
+                    continue;
+                detected.push_back(name);
+            }
+        }
+    }
+
+    bool modified = false;
+    if (!indicesRoot->has(contentSection)) {
+        indicesRoot->putArray(contentSection);
+    }
+    json::JArray* arr = indicesRoot->arr(contentSection);
+    if (arr) {
+        for (uint i = 0; i < arr->size(); i++) {
+            std::string name = arr->str(i);
+            if (!util::contains(detected, name)) {
+                arr->remove(i);
+                i--;
+                modified = true;
+                continue;
+            }
+            indexed.push_back(name);
+        }
+    }
+    for (auto name : detected) {
+        if (!util::contains(indexed, name)) {
+            arr->put(name);
+            modified = true;
+        }
+    }
+    return modified;
+}
+
 void ContentLoader::fixPackIndices() {
     auto folder = pack->folder;
     auto indexFile = pack->getContentFile();
     auto blocksFolder = folder/ContentPack::BLOCKS_FOLDER;
+    auto itemsFolder = folder/ContentPack::ITEMS_FOLDER;
+
     std::unique_ptr<json::JObject> root;
     if (fs::is_regular_file(indexFile)) {
         root.reset(files::read_json(indexFile));
@@ -32,43 +79,11 @@ void ContentLoader::fixPackIndices() {
         root.reset(new json::JObject());
     }
 
-    std::vector<std::string> detectedBlocks;
-    std::vector<std::string> indexedBlocks;
-    if (fs::is_directory(blocksFolder)) {
-        for (auto entry : fs::directory_iterator(blocksFolder)) {
-            fs::path file = entry.path();
-            if (fs::is_regular_file(file) && file.extension() == ".json") {
-                std::string name = file.stem().string();
-                if (name[0] == '_')
-                    continue;
-                detectedBlocks.push_back(name);
-            }
-        }
-    }
-
     bool modified = false;
-    if (!root->has("blocks")) {
-        root->putArray("blocks");
-    }
-    json::JArray* blocksarr = root->arr("blocks");
-    if (blocksarr) {
-        for (uint i = 0; i < blocksarr->size(); i++) {
-            std::string name = blocksarr->str(i);
-            if (!util::contains(detectedBlocks, name)) {
-                blocksarr->remove(i);
-                i--;
-                modified = true;
-                continue;
-            }
-            indexedBlocks.push_back(name);
-        }
-    }
-    for (auto name : detectedBlocks) {
-        if (!util::contains(indexedBlocks, name)) {
-            blocksarr->put(name);
-            modified = true;
-        }
-    }
+
+    modified |= fixPackIndices(blocksFolder, root.get(), "blocks");
+    modified |= fixPackIndices(itemsFolder, root.get(), "items");
+
     if (modified){
         // rewrite modified json
         std::cout << indexFile << std::endl;
@@ -165,6 +180,39 @@ Block* ContentLoader::loadBlock(std::string name, fs::path file) {
     return def.release();
 }
 
+ItemDef* ContentLoader::loadItem(std::string name, std::filesystem::path file) {
+    std::unique_ptr<json::JObject> root(files::read_json(file));
+    std::unique_ptr<ItemDef> def(new ItemDef(name)); 
+
+    return def.release();
+}
+
+Block* ContentLoader::loadBlock(std::string name) {
+    auto folder = pack->folder;
+
+    std::string prefix = pack->id+":"+name;
+    fs::path configFile = folder/fs::path("blocks/"+name+".json");
+    fs::path scriptfile = folder/fs::path("scripts/"+name+".lua");
+    Block* def = loadBlock(prefix, configFile);
+    if (fs::is_regular_file(scriptfile)) {
+        scripting::load_block_script(prefix, scriptfile, &def->rt.funcsset);
+    }
+    return def;
+}
+
+ItemDef* ContentLoader::loadItem(std::string name) {
+    auto folder = pack->folder;
+
+    std::string prefix = pack->id+":"+name;
+    fs::path configFile = folder/fs::path("items/"+name+".json");
+    fs::path scriptfile = folder/fs::path("scripts/"+name+".lua");
+    ItemDef* def = loadItem(prefix, configFile);
+    if (fs::is_regular_file(scriptfile)) {
+        scripting::load_item_script(prefix, scriptfile, &def->rt.funcsset);
+    }
+    return def;
+}
+
 void ContentLoader::load(ContentBuilder* builder) {
     std::cout << "-- loading pack [" << pack->id << "]" << std::endl;
 
@@ -178,15 +226,14 @@ void ContentLoader::load(ContentBuilder* builder) {
     json::JArray* blocksarr = root->arr("blocks");
     if (blocksarr) {
         for (uint i = 0; i < blocksarr->size(); i++) {
-            std::string name = blocksarr->str(i); 
-            std::string prefix = pack->id+":"+name;
-            fs::path blockfile = folder/fs::path("blocks/"+name+".json");
-            Block* block = loadBlock(prefix, blockfile);
-            builder->add(block);
-            fs::path scriptfile = folder/fs::path("scripts/"+name+".lua");
-            if (fs::is_regular_file(scriptfile)) {
-                scripting::load_block_script(prefix, scriptfile, &block->rt.funcsset);
-            }
+            builder->add(loadBlock(blocksarr->str(i)));
+        }
+    }
+
+    json::JArray* itemsarr = root->arr("items");
+    if (itemsarr) {
+        for (uint i = 0; i < itemsarr->size(); i++) {
+            builder->add(loadItem(itemsarr->str(i)));
         }
     }
 }

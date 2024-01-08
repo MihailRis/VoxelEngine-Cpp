@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <memory>
 
+class Assets;
 class Viewport;
 class Shader;
 class Atlas;
@@ -19,7 +20,7 @@ class BlocksPreview {
     const ContentGfxCache* const cache;
     const Viewport* viewport;
 public:
-    BlocksPreview(Shader* shader, Atlas* atlas, const ContentGfxCache* cache);
+    BlocksPreview(Assets* assets, const ContentGfxCache* cache);
     ~BlocksPreview();
 
     void begin(const Viewport* viewport);

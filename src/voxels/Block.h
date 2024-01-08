@@ -70,7 +70,7 @@ enum class BlockModel {
 class Block {
 public:
 	std::string const name;
-						               //  0 1   2 3   4 5
+	                             //  0 1   2 3   4 5
 	std::string textureFaces[6]; // -x,x, -y,y, -z,z
 	std::vector<std::string> textureMoreFaces = {};
 	std::vector<glm::vec3> customfacesPoints = {};
