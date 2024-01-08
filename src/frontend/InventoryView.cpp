@@ -10,17 +10,19 @@
 #include "../graphics/Batch2D.h"
 #include "../graphics/GfxContext.h"
 #include "../content/Content.h"
+#include "../content/ItemDef.h"
 #include "../maths/voxmaths.h"
 #include "../objects/Player.h"
 #include "../voxels/Block.h"
 
 InventoryView::InventoryView(
             int columns,
-            const ContentIndices* indices,
+            const Content* content,
             LevelFrontend* frontend,
-            std::vector<blockid_t> blocks) 
-            : indices(indices), 
-              blocks(blocks),
+            std::vector<itemid_t> items) 
+            : content(content),
+              indices(content->indices), 
+              items(items),
               frontend(frontend),
               columns(columns) {
 }
@@ -38,7 +40,7 @@ int InventoryView::getWidth() const {
 }
 
 int InventoryView::getHeight() const {
-    uint inv_rows = ceildiv(blocks.size(), columns);
+    uint inv_rows = ceildiv(items.size(), columns);
     return inv_rows * iconSize + (inv_rows-1) * interval + padding.y * 2;
 }
 
@@ -82,8 +84,8 @@ void InventoryView::actAndDraw(const GfxContext* ctx) {
 		subctx.depthTest(true);
 		subctx.cullFace(true);
         uint index = 0;
-		for (uint i = 0; i < blocks.size(); i++) {
-			Block* cblock = indices->getBlockDef(blocks[i]);
+		for (uint i = 0; i < items.size(); i++) {
+            ItemDef* item = indices->getItemDef(items[i]);
 			int x = xs + (iconSize+interval) * (index % columns);
 			int y = ys + (iconSize+interval) * (index / columns) - scroll;
             if (y < -int(iconSize+interval) || y >= int(viewport.getHeight())) {
@@ -96,13 +98,19 @@ void InventoryView::actAndDraw(const GfxContext* ctx) {
 				tint.b *= 1.2f;
 				if (Events::jclicked(mousecode::BUTTON_1)) {
                     if (consumer) {
-                        consumer(blocks[i]);
+                        consumer(items[i]);
                     }
 				}
 			} else {
 				tint = glm::vec4(1.0f);
 			}
-			blocksPreview->draw(cblock, x, y, iconSize, tint);
+            switch (item->iconType) {
+                case item_icon_type::block: {
+                    Block* cblock = content->requireBlock(item->icon);
+                    blocksPreview->draw(cblock, x, y, iconSize, tint);
+                    break;
+                }
+            }
             index++;
 		}
 	}

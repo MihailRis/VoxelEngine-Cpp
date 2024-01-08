@@ -182,14 +182,11 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
 	auto menu = gui->getMenu();
     auto content = level->content;
     auto indices = content->indices;
-    std::vector<blockid_t> blocks;
-    for (blockid_t id = 1; id < indices->countBlockDefs(); id++) {
-        const Block* def = indices->getBlockDef(id);
-        if (def->hidden)
-            continue;
-        blocks.push_back(id);
+    std::vector<itemid_t> items;
+    for (itemid_t id = 0; id < indices->countItemDefs(); id++) {
+        items.push_back(id);
     }
-    contentAccess.reset(new InventoryView(8, indices, frontend, blocks));
+    contentAccess.reset(new InventoryView(8, content, frontend, items));
     contentAccess->setSlotConsumer([=](blockid_t id) {
         level->player->chosenBlock = id;
     });

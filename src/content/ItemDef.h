@@ -4,6 +4,7 @@
 #include <string>
 #include <glm/glm.hpp>
 
+#include "../graphics/UVRegion.h"
 #include "../typedefs.h"
 
 #define BLOCK_ITEM_SUFFIX ".item"
@@ -13,7 +14,9 @@ struct item_funcs_set {
 };
 
 enum class item_icon_type {
-    sprite, block,
+    none, // invisible (core:empty) must not be rendered
+    sprite, // textured quad: icon is `atlas_name:texture_name`
+    block, // block preview: icon is string block id
 };
 
 class ItemDef {
@@ -30,6 +33,7 @@ public:
     struct {
         itemid_t id;
         item_funcs_set funcsset {};
+        UVRegion iconRegion {0, 0, 1, 1};
     } rt;
 
     ItemDef(std::string name);

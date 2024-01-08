@@ -9,14 +9,16 @@
 
 class Assets;
 class GfxContext;
+class Content;
 class ContentIndices;
 class LevelFrontend;
 
-typedef std::function<void(blockid_t)> slotconsumer;
+typedef std::function<void(itemid_t)> slotconsumer;
 
 class InventoryView {
+    const Content* content;
     const ContentIndices* indices;
-    std::vector<blockid_t> blocks;
+    std::vector<itemid_t> items;
     slotconsumer consumer = nullptr;
     LevelFrontend* frontend;
 
@@ -29,9 +31,9 @@ class InventoryView {
 public:
     InventoryView(
         int columns,
-        const ContentIndices* indices, 
+        const Content* content, 
         LevelFrontend* frontend,
-        std::vector<blockid_t> blocks);
+        std::vector<itemid_t> items);
 
     virtual ~InventoryView();
 
