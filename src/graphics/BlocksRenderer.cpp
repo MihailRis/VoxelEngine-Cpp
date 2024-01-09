@@ -248,11 +248,11 @@ void BlocksRenderer::blockCustomModel(const ivec3& icoord,
 
 	for (size_t i = 0; i < block->modelBoxes.size(); i++) {
 		AABB box = block->modelBoxes[i];
-		vec3 size = box.size(),
-			 center_coord = coord - vec3(0.5f) + box.center();
+		vec3 size = box.size();
 		if (block->rotatable) {
 			orient.transform(box);
 		}
+		vec3 center_coord = coord - vec3(0.5f) + box.center();
 		face(center_coord, X * size.x, Y * size.y, Z * size.z, block->modelUVs[i * 6 + 5], lights); // north
 		face(center_coord, -X * size.x, Y * size.y, -Z * size.z, block->modelUVs[i * 6 + 4], lights); // south
 		face(center_coord, X * size.x, -Z * size.z, Y * size.y, block->modelUVs[i * 6 + 3], lights); // top
