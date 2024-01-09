@@ -230,35 +230,45 @@ void BlocksRenderer::blockAABB(const ivec3& icoord,
     face(coord,  Z*size.z,  Y*size.y, -X*size.x, texfaces[0], lights); // east
 }
 
-void BlocksRenderer::blockCustomFaces(const ivec3& icoord, const UVRegion(&texfaces)[6],
+void BlocksRenderer::blockCustomModel(const ivec3& icoord,
 									  const Block* block, ubyte rotation, bool lights) {
 	const float tint = 1.0f;
 	vec3 X(1, 0, 0);
 	vec3 Y(0, 1, 0);
 	vec3 Z(0, 0, 1);
+	CoordSystem orient(X,Y,Z);
 	vec3 coord(icoord);
 	if (block->rotatable) {
 		auto& rotations = block->rotations;
-		auto& orient = rotations.variants[rotation];
+		orient = rotations.variants[rotation];
 		X = orient.axisX;
 		Y = orient.axisY;
 		Z = orient.axisZ;
 	}
-	
-	for (uint i = 0; i < 6; i++)
-	{
-		tetragonicFace(coord,
-			block->customfacesPoints[i * 4 + 0],
-			block->customfacesPoints[i * 4 + 1],
-			block->customfacesPoints[i * 4 + 2],
-			block->customfacesPoints[i * 4 + 3],X,Y,Z, texfaces[i], vec4(tint));
+
+	for (size_t i = 0; i < block->modelBoxes.size(); i++) {
+		AABB box = block->modelBoxes[i];
+		vec3 size = box.size(),
+			 center_coord = coord - vec3(0.5f) + box.center();
+		if (block->rotatable) {
+			orient.transform(box);
+		}
+		face(center_coord, X * size.x, Y * size.y, Z * size.z, block->modelUVs[i * 6 + 5], lights); // north
+		face(center_coord, -X * size.x, Y * size.y, -Z * size.z, block->modelUVs[i * 6 + 4], lights); // south
+		face(center_coord, X * size.x, -Z * size.z, Y * size.y, block->modelUVs[i * 6 + 3], lights); // top
+		face(center_coord, -X * size.x, -Z * size.z, -Y * size.y, block->modelUVs[i * 6 + 2], lights); // bottom
+		face(center_coord, -Z * size.z, Y * size.y, X * size.x, block->modelUVs[i * 6 + 1], lights); // west
+		face(center_coord, Z * size.z, Y * size.y, -X * size.x, block->modelUVs[i * 6 + 0], lights); // east
 	}
-	for (uint i = 0; i < block->textureMoreFaces.size(); i++) {
+	
+	for (size_t i = 0; i < block->modelExtraPoints.size()/4; i++) {
 		tetragonicFace(coord,
-			block->customfacesPoints[i * 4 + 24],
-			block->customfacesPoints[i * 4 + 25],
-			block->customfacesPoints[i * 4 + 26],
-			block->customfacesPoints[i * 4 + 27], X, Y, Z, block->customfacesExtraUVs[i], vec4(tint));
+			block->modelExtraPoints[i * 4 + 0],
+			block->modelExtraPoints[i * 4 + 1],
+			block->modelExtraPoints[i * 4 + 2],
+			block->modelExtraPoints[i * 4 + 3],
+			X, Y, Z,
+			block->modelUVs[block->modelBoxes.size()*6 + i], vec4(tint));
 	}
 }
 
@@ -396,8 +406,8 @@ void BlocksRenderer::render(const voxel* voxels) {
 				blockAABB(ivec3(x,y,z), texfaces, &def, vox.rotation(), !def.rt.emissive);
 				break;
 			}
-			case BlockModel::customfaces: {
-				blockCustomFaces(ivec3(x, y, z), texfaces, &def, vox.rotation(), !def.rt.emissive);
+			case BlockModel::custom: {
+				blockCustomModel(ivec3(x, y, z), &def, vox.rotation(), !def.rt.emissive);
 				break;
 			}
 			default:
