@@ -160,10 +160,11 @@ void BlocksRenderer::tetragonicFace(const vec3& coord, const vec3& p1,
     const vec3 fp3 = (p3.x - 0.5f) * X + (p3.y - 0.5f) * Y + (p3.z - 0.5f) * Z;
     const vec3 fp4 = (p4.x - 0.5f) * X + (p4.y - 0.5f) * Y + (p4.z - 0.5f) * Z;
 
-    vec3 dir = glm::cross(fp2 - fp1, fp3 - fp1);
-    vec3 normal = glm::normalize(dir);
     vec4 tint(1.0f);
     if (lights) {
+        vec3 dir = glm::cross(fp2 - fp1, fp3 - fp1);
+        vec3 normal = glm::normalize(dir);
+
         float d = glm::dot(normal, SUN_VECTOR);
         d = 0.7f + d * 0.3f;
         tint *= d;
