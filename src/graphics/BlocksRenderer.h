@@ -68,7 +68,7 @@ class BlocksRenderer {
 		const glm::vec3& Y,
 		const glm::vec3& Z,
 		const UVRegion& texreg,
-		const glm::vec4& tint);
+		bool lights);
 	
 	void blockCube(int x, int y, int z, const UVRegion(&faces)[6], const Block* block, ubyte states, bool lights);
 	void blockAABB(const glm::ivec3& coord,
