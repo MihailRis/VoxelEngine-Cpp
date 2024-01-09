@@ -106,6 +106,10 @@ Content* ContentBuilder::build() {
         def->rt.pickingItem = content->requireItem(def->pickingItem)->rt.id;
     }
 
+    for (ItemDef* def : itemDefsIndices) {
+        def->rt.placingBlock = content->requireBlock(def->placingBlock)->rt.id;
+    }
+
     return content.release();
 }
 

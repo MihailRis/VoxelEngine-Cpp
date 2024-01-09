@@ -241,7 +241,7 @@ void PlayerController::updateInteraction(){
 
         ItemDef* item = contentIds->getItemDef(player->chosenItem);
 
-		Block* def = level->content->findBlock(item->placingBlock);
+		Block* def = contentIds->getBlockDef(item->rt.placingBlock);
 		if (def && def->rotatable){
 			const std::string& name = def->rotations.name;
 			if (name == "pipe") {

@@ -4,7 +4,6 @@
 #include <string>
 #include <glm/glm.hpp>
 
-#include "../graphics/UVRegion.h"
 #include "../typedefs.h"
 
 struct item_funcs_set {
@@ -26,12 +25,12 @@ public:
     item_icon_type iconType = item_icon_type::sprite;
     std::string icon = "block:notfound";
 
-    std::string placingBlock = "none";
+    std::string placingBlock = "core:air";
 
     struct {
         itemid_t id;
         item_funcs_set funcsset {};
-        UVRegion iconRegion {0, 0, 1, 1};
+        blockid_t placingBlock;
     } rt;
 
     ItemDef(std::string name);
