@@ -154,19 +154,29 @@ void BlocksRenderer::tetragonicFace(const vec3& coord, const vec3& p1,
 									const vec3& Z,
 									const UVRegion& texreg,
 									bool lights) {
-    glm::vec3 dir = glm::cross(p2 - p1, p3 - p1);
-    glm::vec3 normal = glm::normalize(dir);
-    glm::vec4 tint(1.0f);
+    
+    const vec3 fp1 = (p1.x - 0.5f) * X + (p1.y - 0.5f) * Y + (p1.z - 0.5f) * Z;
+    const vec3 fp2 = (p2.x - 0.5f) * X + (p2.y - 0.5f) * Y + (p2.z - 0.5f) * Z;
+    const vec3 fp3 = (p3.x - 0.5f) * X + (p3.y - 0.5f) * Y + (p3.z - 0.5f) * Z;
+    const vec3 fp4 = (p4.x - 0.5f) * X + (p4.y - 0.5f) * Y + (p4.z - 0.5f) * Z;
+
+    vec3 dir = glm::cross(fp2 - fp1, fp3 - fp1);
+    vec3 normal = glm::normalize(dir);
+    vec4 tint(1.0f);
     if (lights) {
         float d = glm::dot(normal, SUN_VECTOR);
         d = 0.7f + d * 0.3f;
         tint *= d;
         tint *= pickLight(coord);
+        // debug normal
+        // tint.x = normal.x * 0.5f + 0.5f;
+        // tint.y = normal.y * 0.5f + 0.5f;
+        // tint.z = normal.z * 0.5f + 0.5f;
     }
-	vertex(coord + (p1.x - 0.5f) * X + (p1.y - 0.5f) * Y + (p1.z - 0.5f) * Z, texreg.u1, texreg.v1, tint);
-	vertex(coord + (p2.x - 0.5f) * X + (p2.y - 0.5f) * Y + (p2.z - 0.5f) * Z, texreg.u2, texreg.v1, tint);
-	vertex(coord + (p3.x - 0.5f) * X + (p3.y - 0.5f) * Y + (p3.z - 0.5f) * Z, texreg.u2, texreg.v2, tint);
-	vertex(coord + (p4.x - 0.5f) * X + (p4.y - 0.5f) * Y + (p4.z - 0.5f) * Z, texreg.u1, texreg.v2, tint);
+	vertex(coord + fp1, texreg.u1, texreg.v1, tint);
+	vertex(coord + fp2, texreg.u2, texreg.v1, tint);
+	vertex(coord + fp3, texreg.u2, texreg.v2, tint);
+	vertex(coord + fp4, texreg.u1, texreg.v2, tint);
 	index(0, 1, 3, 1, 2, 3);
 }
 
