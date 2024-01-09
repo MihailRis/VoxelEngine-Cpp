@@ -207,21 +207,33 @@ void ContentLoader::loadCustomBlockModel(Block* def, json::JObject* primitives) 
             /* Parse tetragon to points */
             json::JArray* tgonobj = modeltetragons->arr(i);
             glm::vec3 p1(tgonobj->num(0), tgonobj->num(1), tgonobj->num(2)),
-                      p2(tgonobj->num(3), tgonobj->num(4), tgonobj->num(5)),
-                      p3(tgonobj->num(6), tgonobj->num(7), tgonobj->num(8));
-            glm::vec3 p4 = p3 + (p1 - p2);
+                    xw(tgonobj->num(3), tgonobj->num(4), tgonobj->num(5)),
+                    yh(tgonobj->num(6), tgonobj->num(7), tgonobj->num(8));
             def->modelExtraPoints.push_back(p1);
-            def->modelExtraPoints.push_back(p2);
-            def->modelExtraPoints.push_back(p3);
-            def->modelExtraPoints.push_back(p4);
+            def->modelExtraPoints.push_back(p1+xw);
+            def->modelExtraPoints.push_back(p1+xw+yh);
+            def->modelExtraPoints.push_back(p1+yh);
 
             def->modelTextures.push_back(tgonobj->str(9));
         }
     }
 }
 
-void ContentLoader::loadItem(ItemDef* def, std::string name, std::filesystem::path file) {
+void ContentLoader::loadItem(ItemDef* def, std::string name, fs::path file) {
     std::unique_ptr<json::JObject> root(files::read_json(file));
+    std::string iconTypeStr = "none";
+    root->str("icon-type", iconTypeStr);
+    if (iconTypeStr == "none") {
+        def->iconType = item_icon_type::none;
+    } else if (iconTypeStr == "block") {
+        def->iconType = item_icon_type::block;
+    } else if (iconTypeStr == "sprite") {
+        def->iconType = item_icon_type::sprite;
+    } else {
+        std::cerr << "unknown icon type" << iconTypeStr << std::endl;
+    }
+    root->str("icon", def->icon);
+    root->str("placing-block", def->placingBlock);
 }
 
 void ContentLoader::loadBlock(Block* def, std::string full, std::string name) {

@@ -62,6 +62,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, bool allAssets) {
         loader.add(ASSET_FONT, FONTS_FOLDER"/font", "normal");
     }
     loader.add(ASSET_ATLAS, TEXTURES_FOLDER"/blocks", "blocks");
+    loader.add(ASSET_ATLAS, TEXTURES_FOLDER"/items", "items");
 }
 
 const ResPaths* AssetsLoader::getPaths() const {

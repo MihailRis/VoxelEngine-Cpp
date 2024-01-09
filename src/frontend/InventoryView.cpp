@@ -6,6 +6,7 @@
 #include "LevelFrontend.h"
 #include "../window/Events.h"
 #include "../assets/Assets.h"
+#include "../graphics/Atlas.h"
 #include "../graphics/Shader.h"
 #include "../graphics/Batch2D.h"
 #include "../graphics/GfxContext.h"
@@ -77,7 +78,7 @@ void InventoryView::actAndDraw(const GfxContext* ctx) {
     scroll = std::max(scroll, 0);
 
     auto blocksPreview = frontend->getBlocksPreview();
-	blocksPreview->begin(&ctx->getViewport());
+    // todo: optimize
 	{
 		Window::clearDepth();
 		GfxContext subctx = ctx->sub();
@@ -105,9 +106,32 @@ void InventoryView::actAndDraw(const GfxContext* ctx) {
 				tint = glm::vec4(1.0f);
 			}
             switch (item->iconType) {
+                case item_icon_type::none:
+                    break;
                 case item_icon_type::block: {
                     Block* cblock = content->requireBlock(item->icon);
+                    blocksPreview->begin(&ctx->getViewport());
                     blocksPreview->draw(cblock, x, y, iconSize, tint);
+                    break;
+                }
+                case item_icon_type::sprite: {
+                    batch->begin();
+                    uiShader->use();
+                    size_t index = item->icon.find(':');
+                    std::string name = item->icon.substr(index+1);
+                    UVRegion region(0.0f, 0.0, 1.0f, 1.0f);
+                    if (index == std::string::npos) {
+                        batch->texture(assets->getTexture(name));
+                    } else {
+                        std::string atlasname = item->icon.substr(0, index);
+                        Atlas* atlas = assets->getAtlas(atlasname);
+                        if (atlas && atlas->has(name)) {
+                            region = atlas->get(name);
+                            batch->texture(atlas->getTexture());
+                        }
+                    }
+                    batch->rect(x, y, 48, 48, 0, 0, 0, region, false, true, glm::vec4(1.0f));
+                    batch->render();
                     break;
                 }
             }

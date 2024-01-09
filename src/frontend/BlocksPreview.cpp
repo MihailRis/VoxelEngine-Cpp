@@ -41,6 +41,10 @@ void BlocksPreview::draw(const Block* def, int x, int y, int size, glm::vec4 tin
     y = height - y - 1 - 35 /* magic garbage */;
     x += 2;
 
+    if (def->model == BlockModel::aabb) {
+        y += (1.0f - def->hitbox.size()).y * size * 0.5f;
+    }
+
     glm::vec3 offset (x/float(width) * 2, y/float(height) * 2, 0.0f);
     shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), offset));
     blockid_t id = def->rt.id;
