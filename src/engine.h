@@ -36,7 +36,7 @@ class Engine {
 	EnginePaths* paths;
     std::unique_ptr<ResPaths> resPaths = nullptr;
 
-	uint64_t frame = 0;
+	u_long frame = 0;
 	double lastTime = 0.0;
 	double delta = 0.0;
 

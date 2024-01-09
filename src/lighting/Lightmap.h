@@ -80,12 +80,12 @@ public:
 		return r | (g << 4) | (b << 8) | (s << 12);
 	}
 
-	static inline light_t extract(light_t light, u_char8 channel) {
+	static inline light_t extract(light_t light, u_char channel) {
 		return (light >> (channel << 2)) & 0xF;
 	}
 
-	u_char8* encode() const;
-	static light_t* decode(u_char8* buffer);
+	u_char* encode() const;
+	static light_t* decode(u_char* buffer);
 };
 
 #endif /* LIGHTING_LIGHTMAP_H_ */

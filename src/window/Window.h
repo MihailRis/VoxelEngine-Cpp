@@ -24,8 +24,8 @@ class Window {
 public:
 	static int posX;
 	static int posY;
-	static uint width;
-	static uint height;
+	static u_int width;
+	static u_int height;
 	static int initialize(DisplaySettings& settings);
 	static void terminate();
 

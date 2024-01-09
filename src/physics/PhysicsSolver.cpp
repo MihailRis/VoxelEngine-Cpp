@@ -16,7 +16,7 @@ void PhysicsSolver::step(
 		Chunks* chunks, 
 		Hitbox* hitbox, 
 		float delta, 
-		uint substeps, 
+		u_int substeps, 
 		bool shifting,
 		float gravityScale,
 		bool collisions)
@@ -26,7 +26,7 @@ void PhysicsSolver::step(
 	float s = 2.0f/BLOCK_AABB_GRID;
 
 	hitbox->grounded = false;
-	for (uint i = 0; i < substeps; i++) {
+	for (u_int i = 0; i < substeps; i++) {
 		vec3& pos = hitbox->position;
 		vec3& half = hitbox->halfsize;
 		vec3& vel = hitbox->velocity;

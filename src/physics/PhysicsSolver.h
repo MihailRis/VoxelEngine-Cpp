@@ -14,7 +14,7 @@ public:
 	void step(Chunks* chunks,
 			Hitbox* hitbox,
 			float delta,
-			uint substeps,
+			u_int substeps,
 			bool shifting,
 			float gravityScale,
 			bool collisions);

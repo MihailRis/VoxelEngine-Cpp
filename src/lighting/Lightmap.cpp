@@ -27,18 +27,18 @@ void Lightmap::set(light_t* map) {
 
 static_assert(sizeof(light_t) == 2, "replace dataio calls to new light_t");
 
-u_char8* Lightmap::encode() const {
-	u_char8* buffer = new u_char8[LIGHTMAP_DATA_LEN];
+u_char* Lightmap::encode() const {
+	u_char* buffer = new u_char[LIGHTMAP_DATA_LEN];
 	for (uint i = 0; i < CHUNK_VOL; i+=2) {
 		buffer[i/2] = ((map[i] >> 12) & 0xF) | ((map[i+1] >> 8) & 0xF0);
 	}
 	return buffer;
 }
 
-light_t* Lightmap::decode(u_char8* buffer) {
+light_t* Lightmap::decode(u_char* buffer) {
 	light_t* lights = new light_t[CHUNK_VOL];
 	for (uint i = 0; i < CHUNK_VOL; i+=2) {
-		u_char8 b = buffer[i/2];
+		u_char b = buffer[i/2];
 		lights[i] = ((b & 0xF) << 12);
 		lights[i+1] = ((b & 0xF0) << 8);
 	} 

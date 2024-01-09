@@ -34,7 +34,7 @@ regfile::regfile(fs::path filename) : file(filename) {
     file.read(header, REGION_HEADER_SIZE);
     
     // avoid of use strcmp_s
-    if (std::string(header, strlen(REGION_FORMAT_MAGIC)) != REGION_FORMAT_MAGIC) {
+    if (std::string(header, std::strlen(REGION_FORMAT_MAGIC)) != REGION_FORMAT_MAGIC) {
         throw std::runtime_error("invalid region file magic number");
     }
     version = header[8];
@@ -45,7 +45,7 @@ regfile::regfile(fs::path filename) : file(filename) {
 }
 
 WorldRegion::WorldRegion() {
-	chunksData = new u_char8*[REGION_CHUNKS_COUNT]{};
+	chunksData = new u_char*[REGION_CHUNKS_COUNT]{};
 	sizes = new uint32_t[REGION_CHUNKS_COUNT]{};
 }
 
@@ -64,7 +64,7 @@ bool WorldRegion::isUnsaved() const {
 	return unsaved;
 }
 
-u_char8** WorldRegion::getChunks() const {
+u_char** WorldRegion::getChunks() const {
 	return chunksData;
 }
 
@@ -72,14 +72,14 @@ uint32_t* WorldRegion::getSizes() const {
 	return sizes;
 }
 
-void WorldRegion::put(uint x, uint z, u_char8* data, uint32_t size) {
+void WorldRegion::put(uint x, uint z, u_char* data, uint32_t size) {
 	size_t chunk_index = z * REGION_SIZE + x;
 	delete[] chunksData[chunk_index];
 	chunksData[chunk_index] = data;
 	sizes[chunk_index] = size;
 }
 
-u_char8* WorldRegion::getChunkData(uint x, uint z) {
+u_char* WorldRegion::getChunkData(uint x, uint z) {
 	return chunksData[z * REGION_SIZE + x];
 }
 
@@ -91,7 +91,7 @@ WorldFiles::WorldFiles(fs::path directory, const DebugSettings& settings)
 	: directory(directory), 
 	  generatorTestMode(settings.generatorTestMode),
 	  doWriteLights(settings.doWriteLights) {
-	compressionBuffer.reset(new u_char8[CHUNK_DATA_LEN * 2]);
+	compressionBuffer.reset(new u_char[CHUNK_DATA_LEN * 2]);
 }
 
 WorldFiles::~WorldFiles(){
@@ -113,20 +113,20 @@ WorldRegion* WorldFiles::getOrCreateRegion(regionsmap& regions, int x, int z) {
 	return region;
 }
 
-u_char8* WorldFiles::compress(const u_char8* src, size_t srclen, size_t& len) {
-    u_char8* buffer = this->compressionBuffer.get();
+u_char* WorldFiles::compress(const u_char* src, size_t srclen, size_t& len) {
+    u_char* buffer = this->compressionBuffer.get();
     
-	len = extrle::encode(src, srclen, buffer);
-	u_char8* data = new u_char8[len];
+	len = rle::encode((voxel_t *)src, srclen, (voxel_t *)buffer);
+	u_char* data = new u_char[len];
 	for (size_t i = 0; i < len; i++) {
 		data[i] = buffer[i];
 	}
 	return data;
 }
 
-u_char8* WorldFiles::decompress(const u_char8* src, size_t srclen, size_t dstlen) {
-	u_char8* decompressed = new u_char8[dstlen];
-	extrle::decode(src, srclen, decompressed);
+u_char* WorldFiles::decompress(const u_char* src, size_t srclen, size_t dstlen) {
+	u_char* decompressed = new u_char[dstlen];
+	rle::decode((voxel_t *)src, srclen, (voxel_t *)decompressed);
 	return decompressed;
 }
 
@@ -160,7 +160,7 @@ int WorldFiles::getVoxelRegionsVersion() {
  * @param x chunk.x
  * @param z chunk.z
  */
-void WorldFiles::put(int x, int z, const u_char8* voxelData) {
+void WorldFiles::put(int x, int z, const u_char* voxelData) {
     int regionX = floordiv(x, REGION_SIZE);
 	int regionZ = floordiv(z, REGION_SIZE);
 	int localX = x - (regionX * REGION_SIZE);
@@ -170,7 +170,7 @@ void WorldFiles::put(int x, int z, const u_char8* voxelData) {
 		WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
 		region->setUnsaved(true);
 		size_t compressedSize;
-		u_char8* data = compress(voxelData, CHUNK_DATA_LEN, compressedSize);
+		u_char* data = compress(voxelData, CHUNK_DATA_LEN, compressedSize);
 		region->put(localX, localZ, data, compressedSize);
 	}
 }
@@ -188,8 +188,8 @@ void WorldFiles::put(Chunk* chunk){
 
 	/* Writing Voxels */ {
         size_t compressedSize;
-        std::unique_ptr<u_char8[]> chunk_data (chunk->encode());
-		u_char8* data = compress(chunk_data.get(), CHUNK_DATA_LEN, compressedSize);
+        std::unique_ptr<u_char[]> chunk_data (chunk->encode());
+		u_char* data = compress(chunk_data.get(), CHUNK_DATA_LEN, compressedSize);
 
 		WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
 		region->setUnsaved(true);
@@ -197,8 +197,8 @@ void WorldFiles::put(Chunk* chunk){
 	}
 	if (doWriteLights && chunk->isLighted()) {
         size_t compressedSize;
-        std::unique_ptr<u_char8[]> light_data (chunk->lightmap->encode());
-		u_char8* data = compress(light_data.get(), LIGHTMAP_DATA_LEN, compressedSize);
+        std::unique_ptr<u_char[]> light_data (chunk->lightmap->encode());
+		u_char* data = compress(light_data.get(), LIGHTMAP_DATA_LEN, compressedSize);
 
 		WorldRegion* region = getOrCreateRegion(lights, regionX, regionZ);
 		region->setUnsaved(true);
@@ -256,20 +256,20 @@ fs::path WorldFiles::getPacksFile() const {
 	return directory/fs::path("packs.list");
 }
 
-u_char8* WorldFiles::getChunk(int x, int z){
+u_char* WorldFiles::getChunk(int x, int z){
 	return getData(regions, getRegionsFolder(), x, z, REGION_LAYER_VOXELS);
 }
 
 /* Get cached lights for chunk at x,z 
  * @return lights data or nullptr */
 light_t* WorldFiles::getLights(int x, int z) {
-	std::unique_ptr<u_char8> data (getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS));
+	std::unique_ptr<u_char> data (getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS));
 	if (data == nullptr)
 		return nullptr;
 	return Lightmap::decode(data.get());
 }
 
-u_char8* WorldFiles::getData(regionsmap& regions, const fs::path& folder, 
+u_char* WorldFiles::getData(regionsmap& regions, const fs::path& folder, 
                            int x, int z, int layer) {
 	int regionX = floordiv(x, REGION_SIZE);
 	int regionZ = floordiv(z, REGION_SIZE);
@@ -278,7 +278,7 @@ u_char8* WorldFiles::getData(regionsmap& regions, const fs::path& folder,
 	int localZ = z - (regionZ * REGION_SIZE);
 
 	WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
-	u_char8* data = region->getChunkData(localX, localZ);
+	u_char* data = region->getChunkData(localX, localZ);
 	if (data == nullptr) {
 		uint32_t size;
 		data = readChunkData(x, z, size, folder, layer);
@@ -312,7 +312,7 @@ regfile* WorldFiles::getRegFile(glm::ivec3 coord, const fs::path& folder) {
     return openRegFiles[coord].get();
 }
 
-u_char8* WorldFiles::readChunkData(int x, 
+u_char* WorldFiles::readChunkData(int x, 
                                  int z, 
                                  uint32_t& length, 
                                  fs::path folder, 
@@ -339,14 +339,14 @@ u_char8* WorldFiles::readChunkData(int x,
 	uint32_t offset;
 	file.seekg(table_offset + chunkIndex * 4);
 	file.read((char*)(&offset), 4);
-	offset = dataio::read_int32_big((const u_char8*)(&offset), 0);
+	offset = dataio::read_int32_big((const u_char*)(&offset), 0);
 	if (offset == 0){
 		return nullptr;
 	}
 	file.seekg(offset);
 	file.read((char*)(&offset), 4);
-	length = dataio::read_int32_big((const u_char8*)(&offset), 0);
-	u_char8* data = new u_char8[length];
+	length = dataio::read_int32_big((const u_char*)(&offset), 0);
+	u_char* data = new u_char[length];
 	file.read((char*)data, length);
 	if (data == nullptr) {
 		std::cerr << "ERROR: failed to read data of chunk x("<< x <<"), z("<< z <<")" << std::endl;
@@ -359,7 +359,7 @@ u_char8* WorldFiles::readChunkData(int x,
  * (see REGION_LAYER_* constants)
  */
 void WorldFiles::fetchChunks(WorldRegion* region, int x, int z, fs::path folder, int layer) {
-    u_char8** chunks = region->getChunks();
+    u_char** chunks = region->getChunks();
 	uint32_t* sizes = region->getSizes();
 
     for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
@@ -396,18 +396,18 @@ void WorldFiles::writeRegion(int x, int z, WorldRegion* entry, fs::path folder, 
 	char intbuf[4]{};
 	uint offsets[REGION_CHUNKS_COUNT]{};
 	
-    u_char8** region = entry->getChunks();
+    u_char** region = entry->getChunks();
 	uint32_t* sizes = entry->getSizes();
     
 	for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
-		u_char8* chunk = region[i];
+		u_char* chunk = region[i];
 		if (chunk == nullptr){
 			offsets[i] = 0;
 		} else {
 			offsets[i] = offset;
 
 			size_t compressedSize = sizes[i];
-			dataio::write_int32_big(compressedSize, (u_char8*)intbuf, 0);
+			dataio::write_int32_big(compressedSize, (u_char*)intbuf, 0);
 			offset += 4 + compressedSize;
 
 			file.write(intbuf, 4);
@@ -415,7 +415,7 @@ void WorldFiles::writeRegion(int x, int z, WorldRegion* entry, fs::path folder, 
 		}
 	}
 	for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
-		dataio::write_int32_big(offsets[i], (u_char8*)intbuf, 0);
+		dataio::write_int32_big(offsets[i], (u_char*)intbuf, 0);
 		file.write(intbuf, 4);
 	}
 }

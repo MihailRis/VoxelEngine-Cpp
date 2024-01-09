@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "../constants.h"
+#include "voxel.h"
 
 struct ChunkFlag{
 	static const int MODIFIED = 0x1;
@@ -12,9 +13,8 @@ struct ChunkFlag{
 	static const int UNSAVED = 0x10;
 	static const int LOADED_LIGHTS = 0x20;
 };
-#define CHUNK_DATA_LEN (CHUNK_VOL*4)
+#define CHUNK_DATA_LEN (CHUNK_VOL*sizeof(voxel))
 
-struct voxel;
 class Lightmap;
 class ContentLUT;
 
@@ -75,11 +75,11 @@ public:
 
 	inline void setReady(bool newState) {SETFLAGS(ChunkFlag::READY, newState);}
 
-	u_char8* encode() const;
-	bool decode(u_char8* data);
+	u_char* encode() const;
+	bool decode(u_char* data);
 
-    static void fromOld(u_char8* data);
-    static void convert(u_char8* data, const ContentLUT* lut);
+    static void fromOld(u_char* data);
+    static void convert(u_char* data, const ContentLUT* lut);
 };
 
 #endif /* VOXELS_CHUNK_H_ */

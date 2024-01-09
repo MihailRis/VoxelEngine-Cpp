@@ -23,7 +23,7 @@ Batch3D::Batch3D(size_t capacity)
 	mesh = new Mesh(buffer, 0, attrs);
 	index = 0;
 
-	u_char8 pixels[] = {
+	u_char pixels[] = {
 		255, 255, 255, 255,
 	};
 	blank = new Texture(pixels, 1, 1, GL_RGBA);

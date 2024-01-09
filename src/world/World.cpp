@@ -25,7 +25,7 @@ world_load_error::world_load_error(string message) : std::runtime_error(message)
 
 World::World(string name, 
 			 path directory, 
-			 uint64_t seed, 
+			 u_long seed, 
 			 EngineSettings& settings,
 			 const Content* content,
 			 const std::vector<ContentPack> packs) 
@@ -71,7 +71,7 @@ const float DEF_PLAYER_SPEED = 4.0f;
 
 Level* World::create(string name, 
 					path directory, 
-					uint64_t seed,
+					u_long seed,
 					EngineSettings& settings, 
 					const Content* content,
 					const std::vector<ContentPack>& packs) {

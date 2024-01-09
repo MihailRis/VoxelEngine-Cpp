@@ -53,7 +53,7 @@ void WorldConverter::convertNext() {
         for (uint cx = 0; cx < REGION_SIZE; cx++) {
             int gx = cx + x * REGION_SIZE;
             int gz = cz + z * REGION_SIZE;
-            std::unique_ptr<u_char8[]> data (wfile->getChunk(gx, gz));
+            std::unique_ptr<u_char[]> data (wfile->getChunk(gx, gz));
             if (data == nullptr)
                 continue;
             if (wfile->getVoxelRegionVersion(x, z) != REGION_FORMAT_VERSION) {

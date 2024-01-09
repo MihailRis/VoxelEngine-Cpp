@@ -5,7 +5,7 @@
 #include "../typedefs.h"
 
 struct vattr {
-	u_char8 size;
+	u_char size;
 };
 
 class Mesh {

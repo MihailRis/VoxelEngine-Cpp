@@ -12,7 +12,6 @@ Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos){
 	voxels = new voxel[CHUNK_VOL];
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
 		voxels[i].id = 2;
-		voxels[i].states = 0;
 	}
 	lightmap = new Lightmap();
 	renderData.vertices = nullptr;
@@ -74,13 +73,18 @@ Chunk* Chunk::clone() const {
 
     Total size: (CHUNK_VOL * 4) bytes
 */
-u_char8* Chunk::encode() const {
-	u_char8* buffer = new u_char8[CHUNK_DATA_LEN];
+u_char* Chunk::encode() const {
+	u_char* buffer = new u_char[CHUNK_DATA_LEN];
+	voxel_t* tmp_voxs = (voxel_t *)this->voxels;
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
-		buffer[i] = voxels[i].id >> 8;
-        buffer[CHUNK_VOL+i] = voxels[i].id & 0xFF;
-		buffer[CHUNK_VOL*2 + i] = voxels[i].states >> 8;
-        buffer[CHUNK_VOL*3 + i] = voxels[i].states & 0xFF;
+		((voxel_t*)buffer)[i] = tmp_voxs[i];
+        // buffer[CHUNK_VOL+i] = tmp_voxs[i] >> 8;
+		// buffer[CHUNK_VOL*2 + i] = tmp_voxs[i] >> 16;
+        // buffer[CHUNK_VOL*3 + i] = tmp_voxs[i] >> 24;
+		// buffer[CHUNK_VOL*4 + i] = tmp_voxs[i] >> 32;
+        // buffer[CHUNK_VOL*5 + i] = tmp_voxs[i] >> 40;
+		// buffer[CHUNK_VOL*6 + i] = tmp_voxs[i] >> 48;
+        // buffer[CHUNK_VOL*7 + i] = tmp_voxs[i] >> 56;
 	}
 	return buffer;
 }
@@ -89,18 +93,22 @@ u_char8* Chunk::encode() const {
 /**
  * @return true if all is fine
  **/
-bool Chunk::decode(u_char8* data) {
+bool Chunk::decode(u_char* data) {
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
 		voxel& vox = voxels[i];
 
-        u_char8 bid1 = data[i];
-        u_char8 bid2 = data[CHUNK_VOL + i];
-        
-        u_char8 bst1 = data[CHUNK_VOL*2 + i];
-        u_char8 bst2 = data[CHUNK_VOL*3 + i];
+		vox = ((voxel_t*)data)[i];
+        // u_char b1 = data[i];
+        // u_char b2 = data[CHUNK_VOL + i];
+        // u_char b3 = data[CHUNK_VOL*2 + i];
+        // u_char b4 = data[CHUNK_VOL*3 + i];
+        // u_char b3 = data[CHUNK_VOL*4 + i];
+        // u_char b4 = data[CHUNK_VOL*5 + i];
+        // u_char b3 = data[CHUNK_VOL*6 + i];
+        // u_char b4 = data[CHUNK_VOL*7 + i];
 
-		vox.id = (blockid_t(bid1) << 8) | (blockid_t(bid2));
-        vox.states = (blockstate_t(bst1) << 8) | (blockstate_t(bst2));
+		// vox.id = (blockid_t(bid1) << 8) | (blockid_t(bid2));
+        // vox.states = (blockstate_t(bst1) << 8) | (blockstate_t(bst2));
 	}
 	return true;
 }
@@ -108,7 +116,7 @@ bool Chunk::decode(u_char8* data) {
 /*
  * Convert chunk voxels data from 16 bit to 32 bit
  */
-void Chunk::fromOld(u_char8* data) {
+void Chunk::fromOld(u_char* data) {
     for (size_t i = 0; i < CHUNK_VOL; i++) {
         data[i + CHUNK_VOL*3] = data[i + CHUNK_VOL];
         data[i + CHUNK_VOL] = data[i];
@@ -117,7 +125,7 @@ void Chunk::fromOld(u_char8* data) {
     }
 }
 
-void Chunk::convert(u_char8* data, const ContentLUT* lut) {
+void Chunk::convert(u_char* data, const ContentLUT* lut) {
     for (size_t i = 0; i < CHUNK_VOL; i++) {
         // see encode method to understand what the hell is going on here
         blockid_t id = ((blockid_t(data[i]) << 8) | 

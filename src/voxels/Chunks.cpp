@@ -75,7 +75,7 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
 	const Block* def = contentIds->getBlockDef(v->id);
 	if (def->obstacle) {
 		const AABB& hitbox = def->rotatable 
-							 ? def->rt.hitboxes[v->getDir()] 
+							 ? def->rt.hitboxes[v->dir] 
 							 : def->hitbox;
 		if (def->rt.solid) {
 			return &hitbox;
@@ -109,7 +109,7 @@ bool Chunks::isObstacleBlock(int x, int y, int z) {
 	return contentIds->getBlockDef(v->id)->obstacle;
 }
 
-u_char8 Chunks::getLight(int x, int y, int z, int channel){
+u_char Chunks::getLight(int x, int y, int z, int channel){
 	x -= ox * CHUNK_W;
 	z -= oz * CHUNK_D;
 	int cx = floordiv(x, CHUNK_W);
@@ -177,8 +177,7 @@ void Chunks::set(int x, int y, int z, voxel voxel) {
 		return;
 	int lx = x - cx * CHUNK_W;
 	int lz = z - cz * CHUNK_D;
-	chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx].id = voxel.id;
-	chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx].states = voxel.states;
+	chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx] = voxel;
 	chunk->setUnsaved(true);
 	chunk->setModified(true);
 
@@ -251,7 +250,7 @@ voxel* Chunks::rayCast(vec3 start,
 			
 			if (!def->rt.solid) {
 				const AABB& box = def->rotatable 
-								  ? def->rt.hitboxes[voxel->getDir()] 
+								  ? def->rt.hitboxes[voxel->dir] 
 								  : def->hitbox;
 				scalar_t distance;
 				Ray ray(start, dir);
@@ -349,7 +348,7 @@ vec3 Chunks::rayCastToObstacle(vec3 start, vec3 dir, float maxDist) {
 		if (def->obstacle) {
 			if (!def->rt.solid) {
 				const AABB& box = def->rotatable
-					? def->rt.hitboxes[voxel->getDir()]
+					? def->rt.hitboxes[voxel->dir]
 					: def->hitbox;
 				scalar_t distance;
 				ivec3 norm;
@@ -403,7 +402,7 @@ void Chunks::setCenter(int x, int z) {
 }
 
 void Chunks::translate(int dx, int dz){
-	for (uint i = 0; i < volume; i++){
+	for (u_int i = 0; i < volume; i++){
 		chunksSecond[i] = nullptr;
 	}
 	for (int z = 0; z < d; z++){

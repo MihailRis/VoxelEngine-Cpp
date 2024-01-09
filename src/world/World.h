@@ -30,7 +30,7 @@ class World {
 public:
 	std::string name;
 	WorldFiles* wfile;
-	uint64_t seed;
+	u_long seed;
 
 	/* Day/night loop timer in range 0..1 
 	   0.0 - is midnight
@@ -41,7 +41,7 @@ public:
 
 	World(std::string name, 
 		  std::filesystem::path directory, 
-		  uint64_t seed, 
+		  u_long seed, 
 		  EngineSettings& settings,
 		  const Content* content,
 		  std::vector<ContentPack> packs);
@@ -55,7 +55,7 @@ public:
 
 	static Level* create(std::string name, 
 						 std::filesystem::path directory, 
-						 uint64_t seed, 
+						 u_long seed, 
 						 EngineSettings& settings, 
 						 const Content* content,
 						 const std::vector<ContentPack>& packs);

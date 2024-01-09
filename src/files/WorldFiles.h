@@ -41,21 +41,21 @@ public:
 };
 
 class WorldRegion {
-	u_char8** chunksData;
+	u_char** chunksData;
 	uint32_t* sizes;
 	bool unsaved = false;
 public:
 	WorldRegion();
 	~WorldRegion();
 
-	void put(uint x, uint z, u_char8* data, uint32_t size);
-	u_char8* getChunkData(uint x, uint z);
+	void put(uint x, uint z, u_char* data, uint32_t size);
+	u_char* getChunkData(uint x, uint z);
 	uint getChunkDataSize(uint x, uint z);
 
 	void setUnsaved(bool unsaved);
 	bool isUnsaved() const;
 
-	u_char8** getChunks() const;
+	u_char** getChunks() const;
 	uint32_t* getSizes() const;
 };
 
@@ -89,16 +89,16 @@ class WorldFiles {
 	   @param src source buffer
 	   @param srclen length of source buffer
 	   @param len (out argument) length of result buffer */
-	u_char8* compress(const u_char8* src, size_t srclen, size_t& len);
+	u_char* compress(const u_char* src, size_t srclen, size_t& len);
 
 	/* Decompress buffer with extrle
 	   @param src compressed buffer
 	   @param srclen length of compressed buffer
 	   @param dstlen max expected length of source buffer
 	*/
-	u_char8* decompress(const u_char8* src, size_t srclen, size_t dstlen);
+	u_char* decompress(const u_char* src, size_t srclen, size_t dstlen);
 
-	u_char8* readChunkData(int x, int y, 
+	u_char* readChunkData(int x, int y, 
 						 uint32_t& length, 
 						 std::filesystem::path folder,
                          int layer);
@@ -108,7 +108,7 @@ class WorldFiles {
 	void writeRegions(regionsmap& regions,
 					  const std::filesystem::path& folder, int layer);
 
-	u_char8* getData(regionsmap& regions,
+	u_char* getData(regionsmap& regions,
 				   const std::filesystem::path& folder,
 				   int x, int z, int layer);
     
@@ -121,7 +121,7 @@ public:
 	regionsmap regions;
 	regionsmap lights;
 	std::filesystem::path directory;
-	std::unique_ptr<u_char8[]> compressionBuffer;
+	std::unique_ptr<u_char[]> compressionBuffer;
 	bool generatorTestMode;
 	bool doWriteLights;
 
@@ -129,12 +129,12 @@ public:
 	~WorldFiles();
 
 	void put(Chunk* chunk);
-    void put(int x, int z, const u_char8* voxelData);
+    void put(int x, int z, const u_char* voxelData);
 
     int getVoxelRegionVersion(int x, int z);
     int getVoxelRegionsVersion();
 
-	u_char8* getChunk(int x, int z);
+	u_char* getChunk(int x, int z);
 	light_t* getLights(int x, int z);
 
 	bool readWorldInfo(World* world);

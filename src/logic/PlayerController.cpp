@@ -229,7 +229,6 @@ void PlayerController::updateInteraction(){
 	if (vox != nullptr){
 		player->selectedVoxel = *vox;
 		selectedBlockId = vox->id;
-		selectedBlockStates = vox->states;
 		selectedBlockPosition = iend;
 		selectedPointPosition = end;
 		selectedBlockNormal = norm;
@@ -242,21 +241,21 @@ void PlayerController::updateInteraction(){
 		if (def->rotatable){
 			const std::string& name = def->rotations.name;
 			if (name == "pipe") {
-				if 		(norm.x < 0.0f) voxel.setDir(BLOCK_DIR_WEST);
-				else if (norm.x > 0.0f) voxel.setDir(BLOCK_DIR_EAST);
-				else if (norm.y > 0.0f) voxel.setDir(BLOCK_DIR_UP);
-				else if (norm.y < 0.0f) voxel.setDir(BLOCK_DIR_DOWN);
-				else if (norm.z > 0.0f) voxel.setDir(BLOCK_DIR_NORTH);
-				else if (norm.z < 0.0f) voxel.setDir(BLOCK_DIR_SOUTH);
+				if 		(norm.x < 0.0f) voxel.dir = (voxel_t)VOX_DIR::WEST;
+				else if (norm.x > 0.0f) voxel.dir = (voxel_t)VOX_DIR::EAST;
+				else if (norm.y > 0.0f) voxel.dir = (voxel_t)VOX_DIR::UP;
+				else if (norm.y < 0.0f) voxel.dir = (voxel_t)VOX_DIR::DOWN;
+				else if (norm.z > 0.0f) voxel.dir = (voxel_t)VOX_DIR::NORTH;
+				else if (norm.z < 0.0f) voxel.dir = (voxel_t)VOX_DIR::SOUTH;
 			} else if (name == "pane") {
 				glm::vec3 vec = camera->dir;
 				if (abs(vec.x) > abs(vec.z)){
-					if (vec.x > 0.0f) voxel.setDir(BLOCK_DIR_EAST);
-					if (vec.x < 0.0f) voxel.setDir(BLOCK_DIR_WEST);
+					if (vec.x > 0.0f) voxel.dir = (voxel_t)VOX_DIR::EAST;
+					if (vec.x < 0.0f) voxel.dir = (voxel_t)VOX_DIR::WEST;
 				}
 				if (abs(vec.x) < abs(vec.z)){
-					if (vec.z > 0.0f) voxel.setDir(BLOCK_DIR_SOUTH);
-					if (vec.z < 0.0f) voxel.setDir(BLOCK_DIR_NORTH);
+					if (vec.z > 0.0f) voxel.dir = (voxel_t)VOX_DIR::SOUTH;
+					if (vec.z < 0.0f) voxel.dir = (voxel_t)VOX_DIR::NORTH;
 				}
 			}
 		}
@@ -300,7 +299,7 @@ void PlayerController::updateInteraction(){
 			player->chosenBlock = chunks->get(x,y,z)->id;
 		}
 	} else {
-		player->selectedVoxel = voxel{0, 0};
+		player->selectedVoxel = voxel();
 		selectedBlockId = -1;
 		selectedBlockStates = 0;
 	}

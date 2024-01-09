@@ -9,7 +9,7 @@ using std::chrono::microseconds;
 timeutil::Timer::Timer() {
     start = high_resolution_clock::now();
 }
-int64_t timeutil::Timer::stop() {
+long timeutil::Timer::stop() {
     return duration_cast<microseconds>(high_resolution_clock::now()-start).count();
 }
 

@@ -86,7 +86,7 @@ namespace json {
         void num(std::string key, uint& dst) const;
         void num(std::string key, int64_t& dst) const;
         void num(std::string key, uint64_t& dst) const;
-        void num(std::string key, u_char8& dst) const;
+        void num(std::string key, u_char& dst) const;
         void num(std::string key, double& dst) const;
         JObject* obj(std::string key) const;
         JArray* arr(std::string key) const;

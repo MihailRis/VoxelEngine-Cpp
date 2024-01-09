@@ -5,14 +5,14 @@
 #include <string.h>
 
 bool Events::_keys[KEYS_BUFFER_SIZE] = {};
-uint Events::_frames[KEYS_BUFFER_SIZE] = {};
-uint Events::_current = 0;
+u_int Events::_frames[KEYS_BUFFER_SIZE] = {};
+u_int Events::_current = 0;
 int Events::scroll = 0;
 glm::vec2 Events::delta = {};
 glm::vec2 Events::cursor = {};
 bool Events::cursor_drag = false;
 bool Events::_cursor_locked = false;
-std::vector<uint> Events::codepoints;
+std::vector<u_int> Events::codepoints;
 std::vector<int> Events::pressedKeys;
 std::unordered_map<std::string, Binding> Events::bindings;
 

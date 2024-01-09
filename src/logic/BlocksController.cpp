@@ -57,7 +57,7 @@ void BlocksController::updateSides(int x, int y, int z) {
 }
 
 void BlocksController::breakBlock(Player* player, const Block* def, int x, int y, int z) {
-    chunks->set(x,y,z, voxel{0,0});
+    chunks->set(x,y,z, voxel());
     lighting->onBlockSet(x,y,z, 0);
     if (def->rt.funcsset.onbroken) {
         scripting::on_block_broken(player, def, x, y, z);
@@ -75,10 +75,9 @@ void BlocksController::updateBlock(int x, int y, int z) {
         return;
     }
     if (def->rt.funcsset.update) {
-        int states = vox->states;
-        int id = vox->id;
+        voxel tmp = *vox;
         scripting::update_block(def, x, y, z);
-        if (states != vox->states || id!= vox->id)
+        if (tmp != *vox)
             updateSides(x, y, z);
     }
 }

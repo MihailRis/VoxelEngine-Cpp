@@ -65,7 +65,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 		}
 	}
 
-	Audio::initialize();
+	// Audio::initialize();
 	gui = std::make_unique<gui::GUI>();
     if (settings.ui.language == "auto") {
         settings.ui.language = langs::locale_by_envlocale(platform::detect_locale(), paths->getResources());
@@ -126,7 +126,7 @@ Engine::~Engine() {
     scripting::close();
 	screen = nullptr;
 
-	Audio::finalize();
+	// Audio::finalize();
 
 	std::cout << "-- shutting down" << std::endl;
     assets.reset();

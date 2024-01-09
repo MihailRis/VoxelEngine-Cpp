@@ -11,8 +11,8 @@ const int CHUNK_W = 16;
 const int CHUNK_H = 256;
 const int CHUNK_D = 16;
 
-const uint VOXEL_USER_BITS = 8;
-constexpr uint VOXEL_USER_BITS_OFFSET = sizeof(blockstate_t)*8-VOXEL_USER_BITS;
+const u_int VOXEL_USER_BITS = 8;
+constexpr u_int VOXEL_USER_BITS_OFFSET = sizeof(blockstate_t)*8-VOXEL_USER_BITS;
 
 /* Chunk volume (count of voxels per Chunk) */
 constexpr int CHUNK_VOL = (CHUNK_W * CHUNK_H * CHUNK_D);
@@ -21,7 +21,7 @@ constexpr int CHUNK_VOL = (CHUNK_W * CHUNK_H * CHUNK_D);
 const blockid_t BLOCK_VOID = std::numeric_limits<blockid_t>::max();
 const blockid_t MAX_BLOCKS = BLOCK_VOID;
 
-inline uint vox_index(int x, int y, int z, int w=CHUNK_W, int d=CHUNK_D) {
+inline u_int vox_index(int x, int y, int z, int w=CHUNK_W, int d=CHUNK_D) {
 	return (y * d + z) * w + x;
 }
 

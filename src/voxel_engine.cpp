@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
 			load_controls(controls_file.string(), text);
 		}
 		engine.mainloop();
-		
+
 		std::cout << "-- saving settings" << std::endl;
 		files::write_string(settings_file, wrapper->write());
 		files::write_string(controls_file, write_controls());
@@ -54,6 +54,9 @@ int main(int argc, char** argv) {
 	catch (const initialize_error& err) {
 		std::cerr << "could not to initialize engine" << std::endl;
 		std::cerr << err.what() << std::endl;
+	}
+	catch (...) {
+		std::cerr << "break" << std::endl;
 	}
 	return EXIT_SUCCESS;
 }

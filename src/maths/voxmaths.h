@@ -25,15 +25,15 @@ inline int min(int a, int b) {
 	return (a < b) ? a : b;
 }
 
-inline int64_t max(int64_t a, int64_t b) {
+inline long max(long a, long b) {
 	return (a > b) ? a : b;
 }
 
-inline int64_t min(int64_t a, int64_t b) {
+inline long min(long a, long b) {
 	return (a < b) ? a : b;
 }
 
-static unsigned int g_seed;
+static u_int g_seed;
 
 inline void fast_srand(int seed) {
 	g_seed = seed;
@@ -44,7 +44,7 @@ inline int fast_rand(void) {
 	return (g_seed >> 16) & 0x7FFF;
 }
 
-inline light_t light_pack(u_char8 r, u_char8 g, u_char8 b, u_char8 s) {
+inline light_t light_pack(u_char r, u_char g, u_char b, u_char s) {
 	return r | (g << 4) | (b << 8) | (s << 12);
 }
 

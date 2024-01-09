@@ -14,8 +14,8 @@ inline int max(int a, int b) {
 ImageData::ImageData(ImageFormat format, uint width, uint height) 
     : format(format), width(width), height(height) {
     switch (format) {
-        case ImageFormat::rgb888: data = new u_char8[width*height*3]{}; break;
-        case ImageFormat::rgba8888: data = new u_char8[width*height*4]{}; break;
+        case ImageFormat::rgb888: data = new u_char[width*height*3]{}; break;
+        case ImageFormat::rgba8888: data = new u_char[width*height*4]{}; break;
         default:
             throw std::runtime_error("format is not supported");
     }
@@ -29,7 +29,7 @@ ImageData::~ImageData() {
     switch (format) {
         case ImageFormat::rgb888:
         case ImageFormat::rgba8888:
-            delete[] (u_char8*)data;
+            delete[] (u_char*)data;
             break;
     }
 }
@@ -40,11 +40,11 @@ void ImageData::flipX() {
         case ImageFormat::rgb888:
         case ImageFormat::rgba8888: {
             size = (format == ImageFormat::rgba8888) ? 4 : 3;
-            u_char8* pixels = (u_char8*)data;
+            u_char* pixels = (u_char*)data;
             for (uint y = 0; y < height; y++) {
                 for (uint x = 0; x < width/2; x++) {
                     for (uint c = 0; c < size; c++) {
-                        u_char8 temp = pixels[(y * width + x) * size + c];
+                        u_char temp = pixels[(y * width + x) * size + c];
                         pixels[(y * width + x) * size + c] = pixels[(y * width + (width - x - 1)) * size + c];
                         pixels[(y * width + (width - x - 1)) * size + c] = temp;
                     }
@@ -63,11 +63,11 @@ void ImageData::flipY() {
         case ImageFormat::rgb888:
         case ImageFormat::rgba8888: {
             size = (format == ImageFormat::rgba8888) ? 4 : 3;
-            u_char8* pixels = (u_char8*)data;
+            u_char* pixels = (u_char*)data;
             for (uint y = 0; y < height/2; y++) {
                 for (uint x = 0; x < width; x++) {
                     for (uint c = 0; c < size; c++) {
-                        u_char8 temp = pixels[(y * width + x) * size + c];
+                        u_char temp = pixels[(y * width + x) * size + c];
                         pixels[(y * width + x) * size + c] = 
                                pixels[((height-y-1) * width + x) * size + c];
                         pixels[((height-y-1) * width + x) * size + c] = temp;
@@ -95,8 +95,8 @@ void ImageData::blit(const ImageData* image, int x, int y) {
 }
 
 void ImageData::blitRGB_on_RGBA(const ImageData* image, int x, int y) {
-    ubyte* pixels = static_cast<ubyte*>(data);
-    ubyte* source = static_cast<ubyte*>(image->getData());
+    u_char* pixels = static_cast<u_char*>(data);
+    u_char* source = static_cast<u_char*>(image->getData());
     uint srcwidth = image->getWidth();
     uint srcheight = image->getHeight();
 
@@ -122,8 +122,8 @@ void ImageData::blitMatchingFormat(const ImageData* image, int x, int y) {
         default:
             throw std::runtime_error("only unsigned byte formats supported");    
     }
-    u_char8* pixels = static_cast<u_char8*>(data);
-    u_char8* source = static_cast<u_char8*>(image->getData());
+    u_char* pixels = static_cast<u_char*>(data);
+    u_char* source = static_cast<u_char*>(image->getData());
     uint srcwidth = image->getWidth();
     uint srcheight = image->getHeight();
 
@@ -150,7 +150,7 @@ void ImageData::extrude(int x, int y, int w, int h) {
         default:
             throw std::runtime_error("only unsigned byte formats supported");    
     }
-    u_char8* pixels = static_cast<u_char8*>(data);
+    u_char* pixels = static_cast<u_char*>(data);
 
     int rx = x + w - 1;
     int ry = y + h - 1;
@@ -237,7 +237,7 @@ void ImageData::extrude(int x, int y, int w, int h) {
 }
 
 void ImageData::fixAlphaColor() {
-    u_char8* pixels = static_cast<u_char8*>(data); 
+    u_char* pixels = static_cast<u_char*>(data); 
 
     // Fixing black transparent pixels for Mip-Mapping
     for (uint ly = 0; ly < height-1; ly++) {
@@ -265,8 +265,8 @@ ImageData* add_atlas_margins(ImageData* image, int grid_size) {
     int dstwidth = srcwidth + grid_size * 2;
     int dstheight = srcheight + grid_size * 2;
 
-    const u_char8* srcdata = (const u_char8*)image->getData(); 
-    u_char8* dstdata = new u_char8[dstwidth*dstheight * 4];
+    const u_char* srcdata = (const u_char*)image->getData(); 
+    u_char* dstdata = new u_char[dstwidth*dstheight * 4];
 
     int imgres = image->getWidth() / grid_size; 
     for (int row = 0; row < grid_size; row++) {

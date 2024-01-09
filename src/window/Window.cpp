@@ -15,8 +15,8 @@ GLFWwindow* Window::window = nullptr;
 DisplaySettings* Window::settings = nullptr;
 std::stack<vec4> Window::scissorStack;
 vec4 Window::scissorArea;
-uint Window::width = 0;
-uint Window::height = 0;
+u_int Window::width = 0;
+u_int Window::height = 0;
 int Window::posX = 0;
 int Window::posY = 0;
 
@@ -292,7 +292,7 @@ DisplaySettings* Window::getSettings() {
 }
 
 ImageData* Window::takeScreenshot() {
-	u_char8* data = new u_char8[width * height * 3];
+	u_char* data = new u_char[width * height * 3];
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
 	return new ImageData(ImageFormat::rgb888, width, height, data);
@@ -307,10 +307,10 @@ bool Window::tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor) {
 	glm::ivec4 workArea(0);
 	glfwGetWindowFrameSize(window, &windowFrame.x, &windowFrame.y, &windowFrame.z, &windowFrame.w);
 	glfwGetMonitorWorkarea(monitor, &workArea.x, &workArea.y, &workArea.z, &workArea.w);
-	if (Window::width > (uint)workArea.z) Window::width = (uint)workArea.z;
-	if (Window::height > (uint)workArea.w) Window::height = (uint)workArea.w;
-	if (Window::width >= (uint)(workArea.z - (windowFrame.x + windowFrame.z)) &&
-		Window::height >= (uint)(workArea.w - (windowFrame.y + windowFrame.w))) {
+	if (Window::width > (u_int)workArea.z) Window::width = (u_int)workArea.z;
+	if (Window::height > (u_int)workArea.w) Window::height = (u_int)workArea.w;
+	if (Window::width >= (u_int)(workArea.z - (windowFrame.x + windowFrame.z)) &&
+		Window::height >= (u_int)(workArea.w - (windowFrame.y + windowFrame.w))) {
 		glfwMaximizeWindow(window);
 		return true;
 	}

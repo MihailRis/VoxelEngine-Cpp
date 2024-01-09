@@ -60,7 +60,7 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 
     auto chunk = std::make_shared<Chunk>(x, z);
 	store(chunk);
-	std::unique_ptr<u_char8[]> data(world->wfile->getChunk(chunk->x, chunk->z));
+	std::unique_ptr<u_char[]> data(world->wfile->getChunk(chunk->x, chunk->z));
 	if (data) {
 		chunk->decode(data.get());
 		chunk->setLoaded(true);
@@ -111,7 +111,7 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 						for (int lx = max(x, cx * CHUNK_W);
 							lx < min(x + w, (cx + 1) * CHUNK_W);
 							lx++) {
-							uint idx = vox_index(lx - x, ly - y, lz - z, w, d);
+							u_int idx = vox_index(lx - x, ly - y, lz - z, w, d);
 							voxels[idx].id = BLOCK_VOID;
 							lights[idx] = 0;
 						}
@@ -128,8 +128,8 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 						for (int lx = max(x, cx * CHUNK_W);
 							lx < min(x + w, (cx + 1) * CHUNK_W);
 							lx++) {
-							uint vidx = vox_index(lx - x, ly - y, lz - z, w, d);
-							uint cidx = vox_index(lx - cx * CHUNK_W, ly, 
+							u_int vidx = vox_index(lx - x, ly - y, lz - z, w, d);
+							u_int cidx = vox_index(lx - cx * CHUNK_W, ly, 
 										lz - cz * CHUNK_D, CHUNK_W, CHUNK_D);
 							voxels[vidx] = cvoxels[cidx];
 							light_t light = clights[cidx];

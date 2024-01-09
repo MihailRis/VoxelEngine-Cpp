@@ -63,10 +63,10 @@ public:
 };
 
 class PseudoRandom {
-	unsigned short seed;
+	u_short seed;
 public:
 	PseudoRandom(){
-		seed = (unsigned short)time(0);
+		seed = (u_short)time(0);
 	}
 
 	int rand(){
@@ -81,11 +81,11 @@ public:
 	}
 
 	void setSeed(int number){
-		seed = ((unsigned short)(number*23729) ^ (unsigned short)(number+16786));
+		seed = ((u_short)(number*23729) ^ (u_short)(number+16786));
 		rand();
 	}
 	void setSeed(int number1,int number2){
-		seed = (((unsigned short)(number1*23729) | (unsigned short)(number2%16786)) ^ (unsigned short)(number2*number1));
+		seed = (((u_short)(number1*23729) | (u_short)(number2%16786)) ^ (u_short)(number2*number1));
 		rand();
 	}
 };
@@ -150,7 +150,7 @@ int generate_tree(fnl_state *noise,
 	if (height < SEA_LEVEL+1)
 		return 0;
 	int lx = cur_x - centerX;
-	int radius = random->rand() % 4 + 2;
+	int radius = random->rand() % 4 + 5;
 	int ly = cur_y - height - 3 * radius;
 	int lz = cur_z - centerZ;
 	if (lx == 0 && lz == 0 && cur_y - height < (3*radius + radius/2))
@@ -161,7 +161,7 @@ int generate_tree(fnl_state *noise,
 }
 
 void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
-	const int treesTile = 12;
+	const int treesTile = 16;
 	fnl_state noise = fnlCreateState();
 	noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
 	noise.seed = seed * 60617077 % 25896307;
@@ -183,8 +183,8 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 			float send = fnlGetNoise2D(&noise, cur_x * 0.1 - 633, cur_z * 0.1 + 1000);
 				float cliff = pow((send + abs(send)) / 2, 2);
 				float w = pow(fmax(-abs(height-SEA_LEVEL)+4,0)/6,2) * cliff;
-				float h1 = -abs(height-SEA_LEVEL - 0.03);
-				float h2 = abs(height-SEA_LEVEL + 0.04);
+				float h1 = -abs(height-SEA_LEVEL - 0.06);
+				float h2 = abs(height-SEA_LEVEL + 0.08);
 				float h = (h1 + h2)*100;
 				height += (h * w);
 			heights.set(MAPS::HEIGHT, cur_x, cur_z, height);
@@ -203,19 +203,19 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 
 			for (int cur_y = 0; cur_y < CHUNK_H; cur_y++){
 				// int cur_y = y;
-				int id = cur_y < SEA_LEVEL ? idWater : BLOCK_AIR;
-				int states = 0;
+				voxel vox;
+				vox.id = cur_y < SEA_LEVEL ? idWater : BLOCK_AIR;
 				if ((cur_y == (int)height) && (SEA_LEVEL-2 < cur_y)) {
-					id = idGrassBlock;
+					vox.id = idGrassBlock;
 				} else if (cur_y < (height - 6)){
-					id = idStone;
+					vox.id = idStone;
 				} else if (cur_y < height){
-					id = idDirt;
+					vox.id = idDirt;
 				} else {
 					int tree = generate_tree(&noise, &randomtree, heights, cur_x, cur_y, cur_z, treesTile, idWood, idLeaves);
 					if (tree) {
-						id = tree;
-						states = BLOCK_DIR_UP;
+						vox.id = tree;
+						vox.dir = (voxel_t)VOX_DIR::UP;
 					}
 				}
 				float send = fmax(heights.get(MAPS::SEND, cur_x, cur_z), heights.get(MAPS::CLIFF, cur_x, cur_z));
@@ -224,24 +224,23 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 										+
 						(5*send)) < cur_y + (height - 0.01- (int)height))
 						&& (cur_y < height)){
-					id = idSand;
+					vox.id = idSand;
 				}
 				if (cur_y <= 2)
-					id = idBazalt;
+					vox.id = idBazalt;
 
 				randomgrass.setSeed(cur_x,cur_z);
-				if ((id == 0) && ((height > SEA_LEVEL+0.4) || (send > 0.1)) && ((int)(height + 1) == cur_y) && ((unsigned short)randomgrass.rand() > 56000)){
-					id = idGrass;
+				if ((vox.id == 0) && ((height > SEA_LEVEL+0.4) || (send > 0.1)) && ((int)(height + 1) == cur_y) && ((u_short)randomgrass.rand() > 56000)){
+					vox.id = idGrass;
 				}
-				if ((id == 0) && (height > SEA_LEVEL+0.4) && ((int)(height + 1) == cur_y) && ((unsigned short)randomgrass.rand() > 65000)){
-					id = idFlower;
+				if ((vox.id == 0) && (height > SEA_LEVEL+0.4) && ((int)(height + 1) == cur_y) && ((u_short)randomgrass.rand() > 65000)){
+					vox.id = idFlower;
 				}
-				if ((height > SEA_LEVEL+1) && ((int)(height + 1) == cur_y) && ((unsigned short)randomgrass.rand() > 65533)){
-					id = idWood;
-					states = BLOCK_DIR_UP;
+				if ((height > SEA_LEVEL+1) && ((int)(height + 1) == cur_y) && ((u_short)randomgrass.rand() > 65533)){
+					vox.id = idWood;
+					vox.dir = (voxel_t)VOX_DIR::UP;
 				}
-				voxels[(cur_y * CHUNK_D + z) * CHUNK_W + x].id = id;
-				voxels[(cur_y * CHUNK_D + z) * CHUNK_W + x].states = states;
+				voxels[(cur_y * CHUNK_D + z) * CHUNK_W + x] = vox;
 			}
 		}
 	}

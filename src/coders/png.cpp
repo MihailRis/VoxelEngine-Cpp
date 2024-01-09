@@ -16,7 +16,7 @@
 #include <png.h>
 
 // returns 0 if all-right, 1 otherwise
-int _png_write(const char* filename, u_int width, u_int height, const u_char8* data, bool alpha) {
+int _png_write(const char* filename, u_int width, u_int height, const u_char* data, bool alpha) {
     u_int pixsize = alpha ? 4 : 3;
 
 	// Open file for writing (binary mode)
@@ -355,5 +355,5 @@ Texture* png::load_texture(std::string filename) {
 }
 
 void png::write_image(std::string filename, const ImageData* image) {
-    _png_write(filename.c_str(), image->getWidth(), image->getHeight(), (const u_char8*)image->getData(), image->getFormat() == ImageFormat::rgba8888);
+    _png_write(filename.c_str(), image->getWidth(), image->getHeight(), (const u_char*)image->getData(), image->getFormat() == ImageFormat::rgba8888);
 }

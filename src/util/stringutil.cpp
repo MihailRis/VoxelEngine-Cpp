@@ -6,31 +6,31 @@
 #include <stdexcept>
 #include <algorithm>
 
-std::wstring util::lfill(std::wstring s, uint length, wchar_t c) {
+std::wstring util::lfill(std::wstring s, u_int length, wchar_t c) {
     if (s.length() >= length) {
         return s;
     }
     std::wstringstream ss;
-    for (uint i = 0; i < length-s.length(); i++) {
+    for (u_int i = 0; i < length-s.length(); i++) {
         ss << c;
     }
     ss << s;
     return ss.str();
 }
 
-std::wstring util::rfill(std::wstring s, uint length, wchar_t c) {
+std::wstring util::rfill(std::wstring s, u_int length, wchar_t c) {
     if (s.length() >= length) {
         return s;
     }
     std::wstringstream ss;
     ss << s;
-    for (uint i = 0; i < length-s.length(); i++) {
+    for (u_int i = 0; i < length-s.length(); i++) {
         ss << c;
     }
     return ss.str();
 }
 
-uint util::encode_utf8(uint32_t c, u_char8* bytes) {
+u_int util::encode_utf8(u_int c, u_char* bytes) {
     if (c < 0x80) {
         bytes[0] = ((c >> 0) & 0x7F) | 0x00;
         return 1;
@@ -55,8 +55,8 @@ uint util::encode_utf8(uint32_t c, u_char8* bytes) {
 struct utf_t {
 	char mask;
 	char lead;
-	uint32_t beg;
-	uint32_t end;
+	u_int beg;
+	u_int end;
 	int bits_stored;
 };
 
@@ -71,8 +71,8 @@ const utf_t utf[] = {
 };
 
 
-inline uint utf8_len(u_char8 cp) {
-    uint len = 0;
+inline u_int utf8_len(u_char cp) {
+    u_int len = 0;
 	for (const utf_t* u = utf; u->mask; ++u) {
 		if((cp >= u->beg) && (cp <= u->end)) {
 			break;
@@ -85,12 +85,12 @@ inline uint utf8_len(u_char8 cp) {
 	return len;
 }
 
-extern uint32_t util::decode_utf8(uint& size, const char* chr) {
+extern u_int util::decode_utf8(u_int& size, const char* chr) {
 	size = utf8_len(*chr);
 	int shift = utf[0].bits_stored * (size - 1);
-	uint32_t code = (*chr++ & utf[size].mask) << shift;
+	u_int code = (*chr++ & utf[size].mask) << shift;
 
-	for(uint i = 1; i < size; ++i, ++chr) {
+	for(u_int i = 1; i < size; ++i, ++chr) {
 		shift -= utf[0].bits_stored;
 		code |= ((char)*chr & utf[0].mask) << shift;
 	}
@@ -101,8 +101,8 @@ std::string util::wstr2str_utf8(const std::wstring ws) {
     std::vector<char> chars;
     char buffer[4];
     for (wchar_t wc : ws) {
-        uint size = encode_utf8((uint)wc, (u_char8*)buffer);
-        for (uint i = 0; i < size; i++) {
+        u_int size = encode_utf8((u_int)wc, (u_char*)buffer);
+        for (u_int i = 0; i < size; i++) {
             chars.push_back(buffer[i]);
         }
     }
@@ -112,7 +112,7 @@ std::string util::wstr2str_utf8(const std::wstring ws) {
 std::wstring util::str2wstr_utf8(const std::string s) {
     std::vector<wchar_t> chars;
     size_t pos = 0;
-    uint size = 0;
+    u_int size = 0;
     while (pos < s.length()) {
         chars.push_back(decode_utf8(size, &s.at(pos)));
         pos += size;

@@ -19,7 +19,7 @@ Level::Level(World* world, const Content* content, Player* player, EngineSetting
 		settings(settings) {
     physics = new PhysicsSolver(glm::vec3(0, -22.6f, 0));
 
-    uint matrixSize = (settings.chunks.loadDistance+
+    u_int matrixSize = (settings.chunks.loadDistance+
 					   settings.chunks.padding) * 2;
     chunks = new Chunks(matrixSize, matrixSize, 0, 0, 
 						world->wfile, events, content);

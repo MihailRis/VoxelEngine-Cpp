@@ -2,129 +2,115 @@
 #define VOXELS_VOXEL_H_
 
 #include "../typedefs.h"
+#include <bit>
+#include <cstring>
 
-const u_int32 BLOCK_DIR_NORTH = 0x0;
-const u_int32 BLOCK_DIR_WEST = 0x1;
-const u_int32 BLOCK_DIR_SOUTH = 0x2;
-const u_int32 BLOCK_DIR_EAST = 0x3;
-const u_int32 BLOCK_DIR_UP = 0x4;
-const u_int32 BLOCK_DIR_DOWN = 0x5;
+namespace std {
+	#ifndef __cpp_lib_bit_cast
+	
+	// #include <type_traits>
 
-
-const u_int32 BLOCK_DIR_MASK       = 0b111;
-const u_int32 BLOCK_DIR_OFFSET     = 0x0;
-
-const u_int32 BLOCK_SIG_MASK       = 0b1;
-const u_int32 BLOCK_SIG_OFFSET     = 0x3;
-
-const u_int32 BLOCK_VARIANT_MASK   = 0b1111;
-const u_int32 BLOCK_VARIANT_OFFSET = 0x4;
-
-const u_int32 BLOCK_BITS_MASK      = 0b11111111;
-const u_int32 BLOCK_BITS_OFFSET    = 0x8;
-const u_int32   BLOCK_VALUE_MASK   = 0b1111;
-const u_int32   BLOCK_VALUE_OFFSET = 0x8;
-const u_int32   BLOCK_STATE_MASK   = 0b1111;
-const u_int32   BLOCK_STATE_OFFSET = 0xC;
-
-
-//*                           VOXEL BIT MAP                               |
-//*-----------------------------------------------------------------------|
-//*   0                               16    19 20     24      28      32  |
-//*   |                               |     | /       |       |       |   |
-//*   |* * * * * * * * * * * * * * * *|* * *|*|* * * *|* * * *|*'*'*'*|   |
-//*                   id                dir / \ variant  value  4states   |
-//*                                        |sig|                          |
-//*-----------------------------------------------------------------------|
+	template<class To, class From>
+	enable_if_t<
+		sizeof(To) == sizeof(From) &&
+		is_trivially_copyable_v<From> &&
+		is_trivially_copyable_v<To>,
+		To>
+	// constexpr support needs compiler magic
+	bit_cast(const From& src) noexcept
+	{
+		// static_assert(is_trivially_constructible_v<To>,
+		// 	"This implementation additionally requires "
+		// 	"destination type to be trivially constructible");
+	
+		To dst;
+		memcpy(&dst, &src, sizeof(To));
+		return dst;
+	}
+	#endif
+}
 
 
+/**
+ *    ,------------------------------------------------------------------------------------------------------------------------------------,
+ *    |                                                                                                                                    |
+ *    |                     ,---------------------,                                                                                        |
+ *    |                     |  OLD VOXEL BIT MAP  |                                                                                        |
+ *    |                     '---------------------'                                                                                        |
+ *    | 0                               16    19 20     24      28      32                                                                 |
+ *    | |                               |     | /       |       |       |                                                                  |
+ *    | |# # # # # # # # # # # # # # # #|# # #|#|# # # #|# # # #|#'#'#'#|                                                                  |
+ *    |                 id                dir / \ variant  value  4states                                                                  |
+ *    |                                      |sig|                                                                                         |
+ *    |                                                                                                                                    |
+ *    |                                                                                                                                    |
+ *    |                                                      ,---------------------,                                                       |
+ *:   |                                                      |  NEW VOXEL BIT MAP  |                                                       |
+ *    |                                                      '---------------------'                                                       |
+ *    | 0                               16              24      28      32              40              48              56              64 |
+ *    | |                               |               |       |       |               :               :               :               |  |
+ *    | |# # # # # # # # # # # # # # # #'# # # # # # # #|# # # #|# # # #|# # # # # # # #'# # # # # # # #'# # # # # # # #'# # # # # # # #|  |
+ *    |                 id                   variant      dir     signal                        custom bits states                         |
+ *    |                                                                                                                                    |
+ *    '------------------------------------------------------------------------------------------------------------------------------------'
+ */
 
-//TODO                                        NEW VOXEL BIT MAP                                           |
-//*-------------------------------------------------------------------------------------------------------|
-//*   0                               16              24      28 29   32              40              48  |
-//*   |                               |               |       | /     | 8 bool states |     value     |   |
-//*   |# # # # # # # # # # # # # # # #'# # # # # # # #|# # # #|#|# # #|#`#`#`#`#`#`#`#'# # # # # # # #|   |
-//*                   id                   sub id      variant/ \ dir          dynamic bits states        |
-//*                                                          |sig|                                        |
-//*-------------------------------------------------------------------------------------------------------|
+enum class VOX_DIR:voxel_t {
+	NORTH,
+	WEST,
+	SOUTH,
+	EAST,
+	UP,
+	DOWN
+};
 
+enum class VOX_ROT:voxel_t {
+	NN,
+	WW,
+	SS,
+	EE,
+	NW,
+	WS,
+	SE,
+	EN
+};
 
+struct voxel
+{
+	voxel_t id:16 = 0;
+	voxel_t variant:8 = 0;
+	voxel_t dir:4 = 0;
+	voxel_t signal:4 = 0;
+	voxel_t bits:32 = 0;
 
-struct voxel {
-	blockid_t id;
-	u_short16 states;
+	voxel() = default;
 
-	inline u_int32 getId()  const {
-		return id;
+	voxel(voxel_t vox) : voxel(std::bit_cast<voxel>(vox)) {
+
 	}
 
-	inline u_char8 getDir() const {
-		return (states >> BLOCK_DIR_OFFSET) & BLOCK_DIR_MASK;
+	explicit operator voxel_t() const {
+		return std::bit_cast<voxel_t>(*this);
+	};
+
+	inline u_char getCustomBits(u_char offset, u_char len) const {
+		return (bits >> (offset)) & ((1 << len) - 1);
 	}
 
-	inline void setDir(u_char8 dir) {
-		states &= ~BLOCK_DIR_MASK << BLOCK_DIR_OFFSET;
-		states |= dir << BLOCK_DIR_OFFSET;
+	inline void setCustomBits(u_char offset, u_char len, u_char value) {
+		int mask = ((1 << len) - 1);
+		value &= mask;
+		bits &= ~(mask << offset);
+		bits |= value << offset;
 	}
 
-	inline u_char8 getVariant() const {
-		return (states >> BLOCK_VALUE_OFFSET) & BLOCK_VARIANT_MASK;
+	bool operator==(const voxel& other) const {
+		return id == other.id && variant == other.variant && dir == other.dir && signal == other.signal && bits == other.bits;
 	}
 
-	inline void setVariant(u_char8 variant) {
-		states &= ~BLOCK_VARIANT_MASK << BLOCK_VARIANT_OFFSET;
-		states |= variant << BLOCK_VARIANT_OFFSET;
-	}
-
-
-	inline u_char8 getCustomBits(u_char8 offset, u_char8 len) const {
-		return (states >> (BLOCK_BITS_OFFSET + offset)) & ((1 << len) - 1);
-	}
-
-	inline void setCustomBits(u_char8 offset, u_char8 len, u_char8 value) {
-		int len_musk = ((1 << len) - 1);
-		offset += BLOCK_BITS_OFFSET;
-		value &= len_musk;
-		states &= ~(len_musk << offset);
-		states |= value << offset;
-	}
-
-
-	// id of the state in range 0 to 3
-	inline bool getCustomState(u_char8 id) const {
-		return states & (1 << id+24);
-	}
-
-	// id of the state in range 0 to 3
-	inline void setCustomState(u_char8 id, bool state) {
-		if (state) {
-			states |= (1 << id+24);
-		} else {
-			states &= ~(1 << id+24);
-		}
-	}
-
-	// can use value in range 0 to 15
-	inline u_char8 getCustomValue() const {
-		return states >> 20;
-	}
-
-	/* if the block has a custom state you
-	   can use value in range 0 to 15 else
-	   you can use value in range 0 to 255 */
-	inline void setCustomValue(u_char8 value) {
-		states &= ~(0xF << 20);
-		states |= (value << 20);
-	}
-
-	inline bool getSig() const {
-		return (states >> BLOCK_SIG_OFFSET) & BLOCK_SIG_MASK;
-	}
-
-	inline void setSig(bool sig) {
-		states &= ~(BLOCK_SIG_MASK << BLOCK_SIG_OFFSET);
-		states |= sig << BLOCK_SIG_OFFSET;
-	}
+	bool operator!=(const voxel& other) const {
+        return!(*this == other);
+    }
 };
 
 #endif /* VOXELS_VOXEL_H_ */

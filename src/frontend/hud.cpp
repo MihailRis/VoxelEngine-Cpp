@@ -125,7 +125,7 @@ HudRenderer::HudRenderer(Engine* engine,
 	panel->add(shared_ptr<Label>(create_label([this](){
 		auto player = this->level->player;
 		auto indices = this->level->content->indices;
-		auto str_ = L"dir: "+std::to_wstring(player->selectedVoxel.getDir()) + L"  signal: "+std::to_wstring(player->selectedVoxel.getSig());
+		auto str_ = L"dir: "+std::to_wstring(player->selectedVoxel.dir) + L"  signal: "+std::to_wstring(player->selectedVoxel.signal);
 		return str_;
 	})));
 	panel->add(shared_ptr<Label>(create_label([this](){
