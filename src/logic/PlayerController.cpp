@@ -171,13 +171,6 @@ void PlayerController::updateKeyboard() {
 	input.cameraMode = Events::jactive(BIND_CAM_MODE);
 	input.noclip = Events::jactive(BIND_PLAYER_NOCLIP);
 	input.flight = Events::jactive(BIND_PLAYER_FLIGHT);
-
-	// block choice
-	for (int i = 1; i < 10; i++){
-		if (Events::jpressed(keycode::NUM_0+i)){
-			player->chosenItem = i;
-		}
-	}
 }
 
 void PlayerController::updateCamera(float delta, bool movement) {

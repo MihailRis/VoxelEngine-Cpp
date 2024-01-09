@@ -68,6 +68,22 @@ Button* create_button(std::wstring text,
     return btn;
 }
 
+void show_content_error_page(Engine* engine, std::string message) {
+    auto* gui = engine->getGUI();
+    auto* menu = gui->getMenu();
+    auto panel = create_page(engine, "error", 800, 0.5f, 8);
+
+    panel->add(new Label(langs::get(L"Content Error", L"menu")));
+    panel->add(new Label(util::str2wstr_utf8(message)));
+
+    panel->add((new Button(langs::get(L"Back to Main Menu", L"menu"), 
+                           vec4(8.0f)))
+    ->listenAction([=](GUI*){
+        menu->back();
+    }));
+    menu->set("error");
+}
+
 void show_content_missing(Engine* engine, const Content* content, ContentLUT* lut) {
     auto* gui = engine->getGUI();
     auto* menu = gui->getMenu();
@@ -163,7 +179,12 @@ void open_world(std::string name, Engine* engine) {
                         L": "+util::str2wstr_utf8(error.getPackId()));
         return;
     }
-    engine->loadContent();
+    try {
+        engine->loadContent();
+    } catch (const std::runtime_error& error) {
+        show_content_error_page(engine, error.what());
+        return;
+    }
 
     auto* content = engine->getContent();
     auto& settings = engine->getSettings();

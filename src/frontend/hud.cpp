@@ -309,7 +309,8 @@ void HudRenderer::draw(const GfxContext& ctx){
                         batch->texture(atlas->getTexture());
                     }
                 }
-                batch->rect(width - 56, uicamera->getFov() - 56, 48, 48, 0, 0, 0, region, false, true, glm::vec4(1.0f));
+                batch->rect(width - 56, uicamera->getFov() - 56, 48, 48, 0, 0, 0, 
+                            region, false, true, glm::vec4(1.0f));
                 batch->render();
             }
         }
