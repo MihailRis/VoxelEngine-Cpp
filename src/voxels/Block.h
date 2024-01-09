@@ -66,17 +66,20 @@ enum class BlockModel {
 	block, // default shape
 	xsprite, // X-shape (grass)
 	aabb, // box shaped as block hitbox
-	customfaces // set of paired triangles (usual faces)
+	custom
 };
+
+using BoxModel = AABB;
 
 class Block {
 public:
 	std::string const name;
 	                             //  0 1   2 3   4 5
 	std::string textureFaces[6]; // -x,x, -y,y, -z,z
-	std::vector<std::string> textureMoreFaces = {};
-	std::vector<glm::vec3> customfacesPoints = {};
-	std::vector<UVRegion> customfacesExtraUVs = {};
+	std::vector<std::string> modelTextures = {};
+	std::vector<BoxModel> modelBoxes = {};
+	std::vector<glm::vec3> modelExtraPoints = {}; //initially made for tetragons
+	std::vector<UVRegion> modelUVs = {}; // boxes' tex-UVs also there
 	unsigned char emission[4] {0, 0, 0, 0};
 	unsigned char drawGroup = 0;
 	BlockModel model = BlockModel::block;

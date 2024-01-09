@@ -107,10 +107,6 @@ void ContentLoader::loadBlock(Block* def, std::string name, fs::path file) {
         for (uint i = 0; i < 6; i++) {
             def->textureFaces[i] = texarr->str(i);
         }
-        for (uint i = 6; i < texarr->values.size(); i++)
-        {
-            def->textureMoreFaces.push_back(texarr->str(i));
-        }
     }
 
     // block model
@@ -119,13 +115,13 @@ void ContentLoader::loadBlock(Block* def, std::string name, fs::path file) {
     if (model == "block") def->model = BlockModel::block;
     else if (model == "aabb") def->model = BlockModel::aabb;
     else if (model == "custom") { 
-        def->model = BlockModel::customfaces;
-        json::JArray* pointarr = root->arr("faces-points");
-        for (uint i = 0; i < pointarr->values.size(); i+=3)
-        {
-            def->customfacesPoints.push_back(glm::vec3(pointarr->num(i), 
-                                                       pointarr->num(i+1),
-                                                       pointarr->num(i + 2)));
+        def->model = BlockModel::custom;
+        if (root->has("model-primitives")) {
+            loadCustomBlockModel(def, root->obj("model-primitives"));
+        }
+        else {
+            std::cerr << "ERROR occured while block "
+                       << name << " parsed: no \"model-primitives\" found" << std::endl;
         }
     }
     else if (model == "X") def->model = BlockModel::xsprite;
@@ -177,6 +173,51 @@ void ContentLoader::loadBlock(Block* def, std::string name, fs::path file) {
     root->num("draw-group", def->drawGroup);
 
     root->str("picking-item", def->pickingItem);
+}
+
+void ContentLoader::loadCustomBlockModel(Block* def, json::JObject* primitives) {
+    if (primitives->has("aabbs")) {
+        json::JArray* modelboxes = primitives->arr("aabbs");
+        for (uint i = 0; i < modelboxes->size(); i++ ) {
+            /* Parse aabb */
+            json::JArray* boxobj = modelboxes->arr(i);
+            AABB modelbox;
+            modelbox.a = glm::vec3(boxobj->num(0), boxobj->num(1), boxobj->num(2));
+            modelbox.b = glm::vec3(boxobj->num(3), boxobj->num(4), boxobj->num(5));
+            modelbox.b += modelbox.a;
+            def->modelBoxes.push_back(modelbox);
+
+            if (boxobj->size() == 7)
+                for (uint i = 6; i < 12; i++) {
+                    def->modelTextures.push_back(boxobj->str(6));
+                }
+            else if (boxobj->size() == 12)
+                for (uint i = 6; i < 12; i++) {
+                    def->modelTextures.push_back(boxobj->str(i));
+                }
+            else
+                for (uint i = 6; i < 12; i++) {
+                    def->modelTextures.push_back("notfound");
+                }
+        }
+    }
+    if (primitives->has("tetragons")) {
+        json::JArray* modeltetragons = primitives->arr("tetragons");
+        for (uint i = 0; i < modeltetragons->size(); i++) {
+            /* Parse tetragon to points */
+            json::JArray* tgonobj = modeltetragons->arr(i);
+            glm::vec3 p1(tgonobj->num(0), tgonobj->num(1), tgonobj->num(2)),
+                      p2(tgonobj->num(3), tgonobj->num(4), tgonobj->num(5)),
+                      p3(tgonobj->num(6), tgonobj->num(7), tgonobj->num(8));
+            glm::vec3 p4 = p3 + (p1 - p2);
+            def->modelExtraPoints.push_back(p1);
+            def->modelExtraPoints.push_back(p2);
+            def->modelExtraPoints.push_back(p3);
+            def->modelExtraPoints.push_back(p4);
+
+            def->modelTextures.push_back(tgonobj->str(9));
+        }
+    }
 }
 
 void ContentLoader::loadItem(ItemDef* def, std::string name, std::filesystem::path file) {

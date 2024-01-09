@@ -77,8 +77,7 @@ class BlocksRenderer {
                     ubyte rotation,
                     bool lights);
 	void blockXSprite(int x, int y, int z, const glm::vec3& size, const UVRegion& face1, const UVRegion& face2, float spread);
-	void blockCustomFaces(const glm::ivec3& icoord,
-		const UVRegion(&texfaces)[6],
+	void blockCustomModel(const glm::ivec3& icoord,
 		const Block* block, ubyte rotation,
 		bool lights);
 

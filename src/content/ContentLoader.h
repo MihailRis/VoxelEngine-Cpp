@@ -17,6 +17,7 @@ class ContentLoader {
     const ContentPack* pack;
 
     void loadBlock(Block* def, std::string full, std::string name);
+    void loadCustomBlockModel(Block* def, json::JObject* primitives);
     void loadItem(ItemDef* def, std::string full, std::string name);
 public:
     ContentLoader(ContentPack* pack);
