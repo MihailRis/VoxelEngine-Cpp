@@ -91,79 +91,83 @@ int _png_write(const char* filename, uint width, uint height, const ubyte* data,
 }
 
 ImageData* _png_load(const char* file){
-    int bit_depth, color_type, row_bytes;
-    png_uint_32 t_width, t_height;
-    png_byte header[8];
-
-    FILE *f = nullptr;
-    if ((f = fopen(file, "r")) == nullptr) {
+    FILE* fp = nullptr;
+    if ((fp = fopen(file, "rb")) == nullptr) {
         return nullptr;
     }
-    if (fread(header, 1, 8, f) < 8) { // check of read elements count
-		fclose(f);
-		return nullptr;
-	}
-	
-    bool is_png = (png_sig_cmp(header, 0, 8) == 0);
-    if (!is_png) {
-        fclose(f);
+    png_struct* png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (png == nullptr) {
+        fclose(fp);
         return nullptr;
     }
-    png_struct* png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
-        nullptr, nullptr);
-    if (png_ptr == nullptr) {
-        fclose(f);
+    png_info* info = png_create_info_struct(png);
+    if (info == nullptr) {
+        png_destroy_read_struct(&png, (png_info**) nullptr, (png_info**) nullptr);
+        fclose(fp);
         return nullptr;
     }
-    png_info* info_ptr = png_create_info_struct(png_ptr);
-    if (info_ptr == nullptr) {
-        png_destroy_read_struct(&png_ptr, (png_info**) nullptr,
-            (png_info**) nullptr);
-        fclose(f);
-        return nullptr;
-    }
-    png_info* end_info = png_create_info_struct(png_ptr);
+    png_info* end_info = png_create_info_struct(png);
     if (end_info == nullptr) {
-        png_destroy_read_struct(&png_ptr, (png_info**) nullptr,
-            (png_info**) nullptr);
-        fclose(f);
+        png_destroy_read_struct(&png, (png_info**) nullptr, (png_info**) nullptr);
+        fclose(fp);
         return nullptr;
     }
     
-    if (setjmp(png_jmpbuf(png_ptr)) != 0) {
-        png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-        fclose(f);
+    if (setjmp(png_jmpbuf(png))) {
+        png_destroy_read_struct(&png, &info, &end_info);
+        fclose(fp);
         return nullptr;
     }
 
-    png_init_io(png_ptr, f);
-    png_set_sig_bytes(png_ptr, 8);
-    png_read_info(png_ptr, info_ptr);
-    png_get_IHDR(png_ptr, info_ptr, &t_width, &t_height, &bit_depth,
-                 &color_type, nullptr, nullptr, nullptr);
-    png_read_update_info(png_ptr, info_ptr);
-    row_bytes = png_get_rowbytes(png_ptr, info_ptr);
+    png_init_io(png, fp);
+    png_read_info(png, info);
 
-    std::unique_ptr<png_byte[]> image_data (new png_byte[row_bytes * t_height]);
-    if (!image_data) {
-        png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-        fclose(f);
-        return nullptr;
-    }
+    int width      = png_get_image_width(png, info);
+    int height     = png_get_image_height(png, info);
+    png_byte color_type = png_get_color_type(png, info);
+    int bit_depth  = png_get_bit_depth(png, info);
 
-    std::unique_ptr<png_byte*[]> row_pointers (new png_byte*[t_height]);
-    if (row_pointers == nullptr) {
-        png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-        fclose(f);
-        return nullptr;
-    }
-    for (uint i = 0; i < t_height; ++i ) {
-        row_pointers[t_height - 1 - i] = image_data.get() + i * row_bytes;
-    }
-    png_read_image(png_ptr, row_pointers.get());
+    if(bit_depth == 16)
+        png_set_strip_16(png);
 
-    ImageFormat format;
-    switch (png_get_color_type(png_ptr, info_ptr)) {
+    if(color_type == PNG_COLOR_TYPE_PALETTE)
+        png_set_palette_to_rgb(png);
+
+    if(color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
+        png_set_expand_gray_1_2_4_to_8(png);
+
+    if(png_get_valid(png, info, PNG_INFO_tRNS))
+        png_set_tRNS_to_alpha(png);
+
+    // These color_type don't have an alpha channel then fill it with 0xff.
+    if(color_type == PNG_COLOR_TYPE_RGB ||
+        color_type == PNG_COLOR_TYPE_GRAY ||
+        color_type == PNG_COLOR_TYPE_PALETTE)
+        png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
+
+    if(color_type == PNG_COLOR_TYPE_GRAY ||
+     color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+        png_set_gray_to_rgb(png);
+
+    png_read_update_info(png, info);
+
+    int row_bytes = png_get_rowbytes(png, info);
+    //color_type = png_get_color_type(png, info);
+    // png_get_color_type returns 2 (RGB) but raster always have alpha channel
+    // due to PNG_FILLER_AFTER
+
+    color_type = 6;
+    bit_depth  = png_get_bit_depth(png, info);
+
+    std::unique_ptr<png_byte[]> image_data (new png_byte[row_bytes * height]);
+    std::unique_ptr<png_byte*[]> row_pointers (new png_byte*[height]);
+    for (int i = 0; i < height; ++i ) {
+        row_pointers[height - 1 - i] = image_data.get() + i * row_bytes;
+    }
+    png_read_image(png, row_pointers.get());
+
+    ImageFormat format = ImageFormat::rgba8888;
+    switch (color_type) {
         case PNG_COLOR_TYPE_RGBA:
             format = ImageFormat::rgba8888;
             break;
@@ -171,17 +175,17 @@ ImageData* _png_load(const char* file){
             format = ImageFormat::rgb888;
             break;
         default:
-            printf("Color type %d not supported!\n",
-                   png_get_color_type(png_ptr, info_ptr));
-            png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-			fclose(f);
+            printf("Color type %d not supported!\n", color_type);
+            png_destroy_read_struct(&png, &info, &end_info);
+			fclose(fp);
             return nullptr;
     }
-    ImageData* image = new ImageData(format, t_width, t_height, (void*)image_data.release());
-    png_destroy_read_struct( &png_ptr, &info_ptr, &end_info );
-    fclose(f);
+    ImageData* image = new ImageData(format, width, height, (void*)image_data.release());
+    png_destroy_read_struct(&png, &info, &end_info);
+    fclose(fp);
     return image;
 }
+
 #else
 #include <spng.h>
 #include <stdio.h>
