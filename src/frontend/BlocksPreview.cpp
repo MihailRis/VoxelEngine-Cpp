@@ -28,7 +28,7 @@ void BlocksPreview::begin(const Viewport* viewport) {
     shader->uniformMatrix("u_projview", 
         glm::ortho(0.0f, float(viewport->getWidth()), 
                    0.0f, float(viewport->getHeight()), 
-                    -1000.0f, 1000.0f) * 
+                    -100.0f, 100.0f) * 
         glm::lookAt(glm::vec3(2, 2, 2), glm::vec3(0.0f), glm::vec3(0, 1, 0)));
     atlas->getTexture()->bind();
 }
@@ -42,15 +42,17 @@ void BlocksPreview::draw(const Block* def, int x, int y, int size, glm::vec4 tin
     x += 2;
 
     if (def->model == BlockModel::aabb) {
-        y += (1.0f - def->hitbox.size()).y * size * 0.5f;
+        x += (1.0f - def->hitbox.size()).x * size * 0.5f;
+        y += (1.0f - def->hitbox.size()).y * size * 0.25f;
     }
 
     glm::vec3 offset (x/float(width) * 2, y/float(height) * 2, 0.0f);
     shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), offset));
+    
     blockid_t id = def->rt.id;
-    const UVRegion texfaces[6]{ cache->getRegion(id, 0), cache->getRegion(id, 1),
-                                cache->getRegion(id, 2), cache->getRegion(id, 3),
-                                cache->getRegion(id, 4), cache->getRegion(id, 5)};
+    const UVRegion texfaces[6]{cache->getRegion(id, 0), cache->getRegion(id, 1),
+                               cache->getRegion(id, 2), cache->getRegion(id, 3),
+                               cache->getRegion(id, 4), cache->getRegion(id, 5)};
 
     switch (def->model) {
         case BlockModel::none:

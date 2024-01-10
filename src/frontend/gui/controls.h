@@ -23,6 +23,8 @@ namespace gui {
     typedef std::function<bool()> boolsupplier;
     typedef std::function<void(bool)> boolconsumer;
 
+    typedef std::function<bool(const std::wstring&)> wstringchecker;
+
     class Label : public UINode {
     protected:
         std::wstring text_;
@@ -71,11 +73,14 @@ namespace gui {
     protected:
         glm::vec4 hoverColor {0.05f, 0.1f, 0.2f, 0.75f};
         glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
+        glm::vec4 invalidColor {0.1f, 0.05f, 0.03f, 1.0f};
         Label* label;
         std::wstring input;
         std::wstring placeholder;
         wstringsupplier supplier = nullptr;
         wstringconsumer consumer = nullptr;
+        wstringchecker validator = nullptr;
+        bool valid = true;
     public:
         TextBox(std::wstring placeholder, 
                 glm::vec4 padding=glm::vec4(2.0f));
@@ -87,8 +92,12 @@ namespace gui {
         virtual void keyPressed(int key) override;
         virtual void textSupplier(wstringsupplier supplier);
         virtual void textConsumer(wstringconsumer consumer);
+        virtual void textValidator(wstringchecker validator);
         virtual bool isfocuskeeper() const override {return true;}
         virtual std::wstring text() const;
+        virtual bool validate();
+        virtual void setValid(bool valid);
+        virtual bool isValid() const;
     };
 
     class InputBindBox : public Panel {

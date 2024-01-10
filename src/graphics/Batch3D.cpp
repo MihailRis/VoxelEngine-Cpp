@@ -169,7 +169,7 @@ void Batch3D::xSprite(float w, float h, const UVRegion& uv, const vec4 tint, boo
 }
 
 void Batch3D::blockCube(const vec3 size, const UVRegion(&texfaces)[6], const vec4 tint, bool shading) {
-	vec3 coord = (1.0f - size) * -0.45f;
+	vec3 coord = (1.0f - size) * -0.5f;
 	face(coord+vec3(0.0f, 0.0f, 0.0f), size.x, size.y, vec3(1, 0, 0), vec3(0, 1, 0), texfaces[5], (shading ? do_tint(0.8)*tint : tint));
 	face(coord+vec3(size.x, 0.0f, -size.z), size.x, size.y, vec3(-1, 0, 0), vec3(0, 1, 0), texfaces[4], (shading ? do_tint(0.8f)*tint : tint));
 	face(coord+vec3(0.0f, size.y, 0.0f), size.x, size.z, vec3(1, 0, 0), vec3(0, 0, -1), texfaces[3], (shading ? do_tint(1.0f)*tint : tint));

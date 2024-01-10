@@ -135,22 +135,14 @@ void HudRenderer::createDebugPanel(Engine* engine) {
 	}));
 	{
 		TrackBar* bar = new TrackBar(0.0f, 1.0f, 1.0f, 0.005f, 8);
-		bar->supplier([=]() {
-			return level->world->daytime;
-		});
-		bar->consumer([=](double val) {
-			level->world->daytime = val;
-		});
+		bar->supplier([=]() {return level->world->daytime;});
+		bar->consumer([=](double val) {level->world->daytime = val;});
 		panel->add(bar);
 	}
 	{
 		TrackBar* bar = new TrackBar(0.0f, 1.0f, 0.0f, 0.005f, 8);
-		bar->supplier([=]() {
-			return WorldRenderer::fog;
-		});
-		bar->consumer([=](double val) {
-			WorldRenderer::fog = val;
-		});
+		bar->supplier([=]() {return WorldRenderer::fog;});
+		bar->consumer([=](double val) {WorldRenderer::fog = val;});
 		panel->add(bar);
 	}
 	{
@@ -159,7 +151,6 @@ void HudRenderer::createDebugPanel(Engine* engine) {
         checkpanel->orientation(Orientation::horizontal);
 
         CheckBox* checkbox = new CheckBox();
-        checkbox->margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
         checkbox->supplier([=]() {
             return engine->getSettings().debug.showChunkBorders;
         });
@@ -249,19 +240,25 @@ void HudRenderer::draw(const GfxContext& ctx){
 	const uint width = viewport.getWidth();
 	const uint height = viewport.getHeight();
 
-	debugPanel->visible(level->player->debug);
+	Player* player = level->player;
+	debugPanel->visible(player->debug);
 
 	uicamera->setFov(height);
-
-	Shader* uishader = assets->getShader("ui");
-	uishader->use();
-	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
 
     auto batch = ctx.getBatch2D();
 	batch->begin();
 
-	// Chosen block preview
-	batch->color = vec4(1.0f);
+	Shader* uishader = assets->getShader("ui");
+	uishader->use();
+	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
+	
+	// Draw selected item preview
+    hotbarView->setPosition(width-60, height-60);
+    hotbarView->setItems({player->getChosenItem()});
+    hotbarView->actAndDraw(&ctx);
+
+	// Crosshair
+	batch->begin();
 	if (Events::_cursor_locked && !level->player->debug) {
 		batch->lineWidth(2);
 		batch->line(width/2, height/2-6, width/2, height/2+6, 0.2f, 0.2f, 0.2f, 1.0f);
@@ -270,20 +267,16 @@ void HudRenderer::draw(const GfxContext& ctx){
 		batch->line(width/2+5, height/2-5, width/2-5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
 	}
 
-	Player* player = level->player;
-    hotbarView->setPosition(width-56, height-56);
-    hotbarView->setItems({player->getChosenItem()});
-    hotbarView->actAndDraw(&ctx);
-
-	uishader->use();
 	batch->begin();
 
 	if (pause) {
+		// draw fullscreen dark overlay
 		batch->texture(nullptr);
 		batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
 		batch->rect(0, 0, width, height);
 	}
 	if (inventoryOpen) {
+		// draw content access panel (all available items)
         contentAccess->setPosition(viewport.getWidth()-contentAccess->getWidth(), 0);
         contentAccess->actAndDraw(&ctx);
 	}

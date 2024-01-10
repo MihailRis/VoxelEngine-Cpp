@@ -277,6 +277,12 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
         panel->add(label);
 
         TextBox* input = new TextBox(L"New World", vec4(6.0f));
+        input->textValidator([=](const std::wstring& text) {
+            EnginePaths* paths = engine->getPaths();
+            std::string textutf8 = util::wstr2str_utf8(text);
+            return util::is_valid_filename(text) && 
+                   !paths->isWorldNameUsed(textutf8);
+        });
         panel->add(input);
         worldNameInput = input;
     }
@@ -287,28 +293,14 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
         panel->add(seedInput);
     }
 
-    vec4 basecolor = worldNameInput->color();   
     panel->add(create_button( L"Create World", vec4(10), vec4(1, 20, 1, 1), 
     [=](GUI*) {
+        if (!worldNameInput->validate())
+            return;
+
         std::wstring name = worldNameInput->text();
         std::string nameutf8 = util::wstr2str_utf8(name);
         EnginePaths* paths = engine->getPaths();
-
-        // Basic validation
-        if (!util::is_valid_filename(name) || 
-            paths->isWorldNameUsed(nameutf8)) {
-            // blink red two times
-            panel->listenInterval(0.1f, [worldNameInput, basecolor]() {
-                static bool flag = true;
-                if (flag) {
-                    worldNameInput->color(vec4(0.3f, 0.0f, 0.0f, 0.5f));
-                } else {
-                    worldNameInput->color(basecolor);
-                }
-                flag = !flag;
-            }, 4);
-            return;
-        }
 
         std::wstring seedstr = seedInput->text();
         uint64_t seed = str2seed(seedstr);
@@ -447,7 +439,6 @@ void create_settings_panel(Engine* engine, PagesControl* menu) {
         checkpanel->orientation(Orientation::horizontal);
 
         CheckBox* checkbox = new CheckBox();
-        checkbox->margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
         checkbox->supplier([=]() {
             return engine->getSettings().display.swapInterval != 0;
         });
@@ -466,7 +457,6 @@ void create_settings_panel(Engine* engine, PagesControl* menu) {
         checkpanel->orientation(Orientation::horizontal);
 
         CheckBox* checkbox = new CheckBox();
-        checkbox->margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
         checkbox->supplier([=]() {
             return engine->getSettings().graphics.backlight != 0;
         });

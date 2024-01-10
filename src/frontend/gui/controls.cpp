@@ -144,7 +144,19 @@ TextBox::TextBox(wstring placeholder, vec4 padding)
 void TextBox::drawBackground(Batch2D* batch, Assets* assets) {
     vec2 coord = calcCoord();
     batch->texture(nullptr);
-    batch->color = (isfocused() ? focusedColor : (hover_ ? hoverColor : color_));
+    
+    if (valid) {
+        if (isfocused()) {
+            batch->color = focusedColor;
+        } else if (hover_) {
+            batch->color = hoverColor;
+        } else {
+            batch->color = color_;
+        }
+    } else {
+        batch->color = invalidColor;
+    }
+
     batch->rect(coord.x, coord.y, size_.x, size_.y);
     if (!focused_ && supplier) {
         input = supplier();
@@ -162,6 +174,24 @@ void TextBox::drawBackground(Batch2D* batch, Assets* assets) {
 
 void TextBox::typed(unsigned int codepoint) {
     input += wstring({(wchar_t)codepoint});
+    validate();
+}
+
+bool TextBox::validate() {
+    if (validator) {
+        valid = validator(input);
+    } else {
+        valid = true;
+    }
+    return valid;
+}
+
+void TextBox::setValid(bool valid) {
+    this->valid = valid;
+}
+
+bool TextBox::isValid() const {
+    return valid;
 }
 
 void TextBox::keyPressed(int key) {
@@ -169,10 +199,11 @@ void TextBox::keyPressed(int key) {
         case KEY_BACKSPACE:
             if (!input.empty()){
                 input = input.substr(0, input.length()-1);
+                validate();
             }
             break;
         case KEY_ENTER:
-            if (consumer) {
+            if (validate() && consumer) {
                 consumer(label->text());
             }
             defocus();
@@ -183,6 +214,7 @@ void TextBox::keyPressed(int key) {
         const char* text = Window::getClipboardText();
         if (text) {
             input += util::str2wstr_utf8(text);
+            validate();
         }
     }
 }
@@ -197,6 +229,10 @@ void TextBox::textSupplier(wstringsupplier supplier) {
 
 void TextBox::textConsumer(wstringconsumer consumer) {
     this->consumer = consumer;
+}
+
+void TextBox::textValidator(wstringchecker validator) {
+    this->validator = validator;
 }
 
 wstring TextBox::text() const {
@@ -297,6 +333,7 @@ void TrackBar::mouseMove(GUI*, int x, int y) {
 // ================================ CheckBox ==================================
 CheckBox::CheckBox(bool checked) : UINode(vec2(), vec2(32.0f)), checked_(checked) {
     color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
 }
 
 void CheckBox::draw(Batch2D* batch, Assets* assets) {
