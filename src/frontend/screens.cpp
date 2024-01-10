@@ -144,12 +144,12 @@ void LevelScreen::update(float delta) {
 }
 
 void LevelScreen::draw(float delta) {
-    Camera* camera = level->player->currentViewCamera;
+    auto camera = level->player->currentCamera;
 
     Viewport viewport(Window::width, Window::height);
     GfxContext ctx(nullptr, viewport, batch.get());
 
-    worldRenderer->draw(ctx, camera);
+    worldRenderer->draw(ctx, camera.get());
 
     if (hudVisible) {
         hud->draw(ctx);

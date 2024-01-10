@@ -39,6 +39,8 @@ public:
 
     virtual void actAndDraw(const GfxContext* ctx);
 
+    void setItems(std::vector<itemid_t> items);
+
     void setPosition(int x, int y);
     int getWidth() const;
     int getHeight() const;

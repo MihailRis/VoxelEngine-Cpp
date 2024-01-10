@@ -49,6 +49,10 @@ void InventoryView::setSlotConsumer(slotconsumer consumer) {
     this->consumer = consumer;
 }
 
+void InventoryView::setItems(std::vector<itemid_t> items) {
+    this->items = items;
+}
+
 void InventoryView::actAndDraw(const GfxContext* ctx) {
     Assets* assets = frontend->getAssets();
     Shader* uiShader = assets->getShader("ui");

@@ -35,6 +35,7 @@ class HudRenderer {
 	bool pause = false;
 
     std::unique_ptr<InventoryView> contentAccess;
+    std::unique_ptr<InventoryView> hotbarView;
 	std::shared_ptr<gui::UINode> debugPanel;
 	gui::GUI* gui;
 	LevelFrontend* frontend;

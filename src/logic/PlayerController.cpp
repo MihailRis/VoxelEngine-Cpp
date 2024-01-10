@@ -32,7 +32,7 @@ const float CROUCH_SHIFT_Y = -0.2f;
 CameraControl::CameraControl(Player* player, const CameraSettings& settings) 
 	: player(player), 
 	  camera(player->camera), 
-	  currentViewCamera(player->currentViewCamera), //TODO "start view" settings (for custom worlds and minigames, maybe)
+	  currentViewCamera(player->currentCamera),
 	  settings(settings),
 	  offset(0.0f, 0.7f, 0.0f) {
 }
@@ -61,7 +61,7 @@ void CameraControl::updateMouse(PlayerInput& input) {
 }
 
 void CameraControl::update(PlayerInput& input, float delta, Chunks* chunks) {
-	Hitbox* hitbox = player->hitbox;
+	Hitbox* hitbox = player->hitbox.get();
 
 	offset = glm::vec3(0.0f, 0.7f, 0.0f);
 
@@ -102,23 +102,26 @@ void CameraControl::update(PlayerInput& input, float delta, Chunks* chunks) {
 		camera->zoom = zoomValue * dt + camera->zoom * (1.0f - dt);
 	}
 
+    auto spCamera = player->spCamera;
+    auto tpCamera = player->tpCamera;
+
 	if (input.cameraMode) { //ugly but effective
-		if (player->currentViewCamera == camera)
-			player->currentViewCamera = player->SPCamera;
-		else if (player->currentViewCamera == player->SPCamera)
-			player->currentViewCamera = player->TPCamera;
-		else if (player->currentViewCamera == player->TPCamera)
-			player->currentViewCamera = camera;
+		if (player->currentCamera == camera)
+			player->currentCamera = tpCamera;
+		else if (player->currentCamera == spCamera)
+			player->currentCamera = camera;
+		else if (player->currentCamera == tpCamera)
+			player->currentCamera = spCamera;
 	}
-	if (player->currentViewCamera == player->SPCamera) {
-		player->SPCamera->position = chunks->rayCastToObstacle(camera->position, camera->front, 3.0f) - 0.2f*(camera->front);
-		player->SPCamera->dir = -camera->dir;
-		player->SPCamera->front = -camera->front;
+	if (player->currentCamera == spCamera) {
+		spCamera->position = chunks->rayCastToObstacle(camera->position, camera->front, 3.0f) - 0.2f*(camera->front);
+		spCamera->dir = -camera->dir;
+		spCamera->front = -camera->front;
 	}
-	else if (player->currentViewCamera == player->TPCamera) {
-		player->TPCamera->position = chunks->rayCastToObstacle(camera->position, -camera->front, 3.0f) + 0.2f * (camera->front);
-		player->TPCamera->dir = camera->dir;
-		player->TPCamera->front = camera->front;
+	else if (player->currentCamera == tpCamera) {
+		tpCamera->position = chunks->rayCastToObstacle(camera->position, -camera->front, 3.0f) + 0.2f * (camera->front);
+		tpCamera->dir = camera->dir;
+		tpCamera->front = camera->front;
 	}
 }
 
@@ -201,7 +204,7 @@ void PlayerController::updateInteraction(){
 	Chunks* chunks = level->chunks;
 	Player* player = level->player;
 	Lighting* lighting = level->lighting;
-	Camera* camera = player->camera;
+	Camera* camera = player->camera.get();
 	glm::vec3 end;
 	glm::ivec3 iend;
 	glm::ivec3 norm;
@@ -232,8 +235,7 @@ void PlayerController::updateInteraction(){
 		int z = iend.z;
 		uint8_t states = 0;
 
-        ItemDef* item = contentIds->getItemDef(player->chosenItem);
-
+        ItemDef* item = contentIds->getItemDef(player->getChosenItem());
 		Block* def = contentIds->getBlockDef(item->rt.placingBlock);
 		if (def && def->rotatable){
 			const std::string& name = def->rotations.name;
@@ -257,24 +259,24 @@ void PlayerController::updateInteraction(){
 			}
 		}
 		
-		Block* block = contentIds->getBlockDef(vox->id);
-		if (lclick && block->breakable){
-            blocksController->breakBlock(player, block, x, y, z);
+		Block* target = contentIds->getBlockDef(vox->id);
+		if (lclick && target->breakable){
+            blocksController->breakBlock(player, target, x, y, z);
 		}
 		if (def && rclick){
-            if (!input.shift && block->rt.funcsset.oninteract) {
-                scripting::on_block_interact(player, block, x, y, z);
+            if (!input.shift && target->rt.funcsset.oninteract) {
+                scripting::on_block_interact(player, target, x, y, z);
                 return;
             }
-			if (block->model != BlockModel::xsprite){
+			if (target->model != BlockModel::xsprite){
 				x = (iend.x)+(norm.x);
 				y = (iend.y)+(norm.y);
 				z = (iend.z)+(norm.z);
 			}
 			vox = chunks->get(x, y, z);
             blockid_t chosenBlock = def->rt.id;
-			if (vox && (block = contentIds->getBlockDef(vox->id))->replaceable) {
-				if (!level->physics->isBlockInside(x,y,z, player->hitbox) 
+			if (vox && (target = contentIds->getBlockDef(vox->id))->replaceable) {
+				if (!level->physics->isBlockInside(x,y,z, player->hitbox.get()) 
 					|| !def->obstacle){
                     if (def->grounded && !chunks->isSolidBlock(x, y-1, z)) {
                         chosenBlock = 0;
@@ -292,7 +294,7 @@ void PlayerController::updateInteraction(){
 		}
 		if (Events::jactive(BIND_PLAYER_PICK)){
             Block* block = contentIds->getBlockDef(chunks->get(x,y,z)->id);
-			player->chosenItem = block->rt.pickingItem;
+            player->setChosenItem(block->rt.pickingItem);
 		}
 	} else {
 		selectedBlockId = -1;

@@ -109,7 +109,7 @@ void HudRenderer::createDebugPanel(Engine* engine) {
 		// Coord input
 		TextBox* box = new TextBox(L"");
 		box->textSupplier([=]() {
-			Hitbox* hitbox = level->player->hitbox;
+			Hitbox* hitbox = level->player->hitbox.get();
 			return std::to_wstring(hitbox->position[ax]);
 		});
 		box->textConsumer([=](std::wstring text) {
@@ -183,14 +183,17 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
 	auto menu = gui->getMenu();
     auto content = level->content;
     auto indices = content->indices;
+
     std::vector<itemid_t> items;
     for (itemid_t id = 1; id < indices->countItemDefs(); id++) {
         items.push_back(id);
     }
     contentAccess.reset(new InventoryView(8, content, frontend, items));
     contentAccess->setSlotConsumer([=](blockid_t id) {
-        level->player->chosenItem = id;
+        level->player->setChosenItem(id);
     });
+
+    hotbarView.reset(new InventoryView(1, content, frontend, std::vector<itemid_t> {0}));
 
 	uicamera = new Camera(vec3(), 1);
 	uicamera->perspective = false;
@@ -270,50 +273,16 @@ void HudRenderer::draw(const GfxContext& ctx){
 	}
 
 	Player* player = level->player;
-	batch->color = vec4(0.0f, 0.0f, 0.0f, 0.75f);
-	batch->rect(width - 68, height - 68, 68, 68);
-	batch->color = vec4(1.0f);
-	batch->render();
-
 
 	{
 		Window::clearDepth();
 		GfxContext subctx = ctx.sub();
 		subctx.depthTest(true);
 		subctx.cullFace(true);
-        
-        ItemDef* item = contentIds->getItemDef(player->chosenItem);
-        switch (item->iconType) {
-            case item_icon_type::none:
-                break;
-            case item_icon_type::block: {
-                Block* cblock = content->findBlock(item->icon);
-                assert(cblock != nullptr);
-                
-                auto blocksPreview = frontend->getBlocksPreview();
-	            blocksPreview->begin(&ctx.getViewport());
-		        blocksPreview->draw(cblock, width - 56, uicamera->getFov() - 56, 48, vec4(1.0f));
-                break;
-            }
-            case item_icon_type::sprite: {
-                size_t index = item->icon.find(':');
-                std::string name = item->icon.substr(index+1);
-                UVRegion region(0.0f, 0.0, 1.0f, 1.0f);
-                if (index == std::string::npos) {
-                    batch->texture(assets->getTexture(name));
-                } else {
-                    std::string atlasname = item->icon.substr(0, index);
-                    Atlas* atlas = assets->getAtlas(atlasname);
-                    if (atlas && atlas->has(name)) {
-                        region = atlas->get(name);
-                        batch->texture(atlas->getTexture());
-                    }
-                }
-                batch->rect(width - 56, uicamera->getFov() - 56, 48, 48, 0, 0, 0, 
-                            region, false, true, glm::vec4(1.0f));
-                batch->render();
-            }
-        }
+
+        hotbarView->setPosition(width-56, height-56);
+        hotbarView->setItems({player->getChosenItem()});
+        hotbarView->actAndDraw(&subctx);
 	}
 	uishader->use();
 	batch->begin();
