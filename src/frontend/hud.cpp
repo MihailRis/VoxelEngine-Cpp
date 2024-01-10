@@ -244,8 +244,6 @@ void HudRenderer::update() {
 
 void HudRenderer::draw(const GfxContext& ctx){
     auto level = frontend->getLevel();
-	const Content* content = level->content;
-	const ContentIndices* contentIds = content->indices;
 
 	const Viewport& viewport = ctx.getViewport();
 	const uint width = viewport.getWidth();
@@ -273,17 +271,10 @@ void HudRenderer::draw(const GfxContext& ctx){
 	}
 
 	Player* player = level->player;
+    hotbarView->setPosition(width-56, height-56);
+    hotbarView->setItems({player->getChosenItem()});
+    hotbarView->actAndDraw(&ctx);
 
-	{
-		Window::clearDepth();
-		GfxContext subctx = ctx.sub();
-		subctx.depthTest(true);
-		subctx.cullFace(true);
-
-        hotbarView->setPosition(width-56, height-56);
-        hotbarView->setItems({player->getChosenItem()});
-        hotbarView->actAndDraw(&subctx);
-	}
 	uishader->use();
 	batch->begin();
 
