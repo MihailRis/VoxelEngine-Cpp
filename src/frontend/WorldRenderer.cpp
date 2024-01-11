@@ -27,6 +27,7 @@
 #include "../maths/voxmaths.h"
 #include "../settings.h"
 #include "../engine.h"
+#include "../items/ItemDef.h"
 #include "LevelFrontend.h"
 #include "graphics/Skybox.h"
 
@@ -168,14 +169,14 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 		shader->uniform3f("u_cameraPos", camera->position);
 		shader->uniform1i("u_cubemap", 1);
 		{
-			blockid_t id = level->player->getChosenItem();
-			Block* block = contentIds->getBlockDef(id);
-			assert(block != nullptr);
+			itemid_t id = level->player->getChosenItem();
+            ItemDef* item = contentIds->getItemDef(id);
+			assert(item != nullptr);
 			float multiplier = 0.5f;
-			shader->uniform3f("u_torchlightColor",
-					block->emission[0] / 15.0f * multiplier,
-					block->emission[1] / 15.0f * multiplier,
-					block->emission[2] / 15.0f * multiplier);
+			shader->uniform3f("u_torchlightColor",  
+					item->emission[0] / 15.0f * multiplier,
+					item->emission[1] / 15.0f * multiplier,
+					item->emission[2] / 15.0f * multiplier);
 			shader->uniform1f("u_torchlightDistance", 6.0f);
 		}
 

@@ -80,7 +80,7 @@ public:
 	std::vector<BoxModel> modelBoxes = {};
 	std::vector<glm::vec3> modelExtraPoints = {}; //initially made for tetragons
 	std::vector<UVRegion> modelUVs = {}; // boxes' tex-UVs also there
-	unsigned char emission[4] {0, 0, 0, 0};
+	uint8_t emission[4] {0, 0, 0, 0};
 	unsigned char drawGroup = 0;
 	BlockModel model = BlockModel::block;
 	bool lightPassing = false;

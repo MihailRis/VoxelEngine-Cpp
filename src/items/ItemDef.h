@@ -21,6 +21,7 @@ public:
     std::string const name;
 
     bool generated = false;
+    uint8_t emission[4] {0, 0, 0, 0};
 
     item_icon_type iconType = item_icon_type::sprite;
     std::string icon = "block:notfound";
@@ -31,6 +32,7 @@ public:
         itemid_t id;
         item_funcs_set funcsset {};
         blockid_t placingBlock;
+        bool emissive = false;
     } rt;
 
     ItemDef(std::string name);

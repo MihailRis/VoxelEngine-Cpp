@@ -234,6 +234,14 @@ void ContentLoader::loadItem(ItemDef* def, std::string name, fs::path file) {
     }
     root->str("icon", def->icon);
     root->str("placing-block", def->placingBlock);
+
+    // item light emission [r, g, b] where r,g,b in range [0..15]
+    json::JArray* emissionobj = root->arr("emission");
+    if (emissionobj) {
+        def->emission[0] = emissionobj->num(0);
+        def->emission[1] = emissionobj->num(1);
+        def->emission[2] = emissionobj->num(2);
+    }
 }
 
 void ContentLoader::loadBlock(Block* def, std::string full, std::string name) {
@@ -281,6 +289,10 @@ void ContentLoader::load(ContentBuilder* builder) {
                 item->iconType = item_icon_type::block;
                 item->icon = full;
                 item->placingBlock = full;
+                
+                for (uint j = 0; j < 4; j++) {
+                    item->emission[j] = def->emission[j];
+                }
             }
         }
     }

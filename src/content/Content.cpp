@@ -92,9 +92,10 @@ Content* ContentBuilder::build() {
     std::vector<ItemDef*> itemDefsIndices;
     for (const std::string& name : itemIds) {
         ItemDef* def = itemDefs[name];
-
+        
         // Generating runtime info
         def->rt.id = itemDefsIndices.size();
+        def->rt.emissive = *((uint32_t*)def->emission);
         itemDefsIndices.push_back(def);
     }
 
