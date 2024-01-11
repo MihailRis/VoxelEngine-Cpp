@@ -166,6 +166,29 @@ namespace gui {
             return checked_;
         }
     };
+
+    class FullCheckBox : public Panel {
+    protected:
+        std::shared_ptr<CheckBox> checkbox;
+    public:
+        FullCheckBox(std::wstring text, glm::vec2 size, bool checked=false);
+
+        virtual void supplier(boolsupplier supplier) {
+            checkbox->supplier(supplier);
+        }
+
+        virtual void consumer(boolconsumer consumer) {
+            checkbox->consumer(consumer);
+        }
+
+        virtual void checked(bool flag) {
+            checkbox->checked(flag);
+        }
+
+        virtual bool checked() const {
+            return checkbox->checked();
+        }
+    };
 }
 
 #endif // FRONTEND_GUI_CONTROLS_H_

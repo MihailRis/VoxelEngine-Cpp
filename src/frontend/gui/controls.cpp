@@ -333,7 +333,6 @@ void TrackBar::mouseMove(GUI*, int x, int y) {
 // ================================ CheckBox ==================================
 CheckBox::CheckBox(bool checked) : UINode(vec2(), vec2(32.0f)), checked_(checked) {
     color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
-    margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
 }
 
 void CheckBox::draw(Batch2D* batch, Assets* assets) {
@@ -364,4 +363,17 @@ void CheckBox::consumer(boolconsumer consumer) {
 CheckBox* CheckBox::checked(bool flag) {
     checked_ = flag;
     return this;
+}
+
+FullCheckBox::FullCheckBox(std::wstring text, glm::vec2 size, bool checked)
+    : Panel(size), 
+      checkbox(std::make_shared<CheckBox>(checked)){
+    color(vec4(0.0f));
+    orientation(Orientation::horizontal);
+
+    add(checkbox);
+
+    auto label = std::make_shared<Label>(text); 
+    label->margin(vec4(5.0f, 5.0f, 0.0f, 0.0f));
+    add(label);
 }

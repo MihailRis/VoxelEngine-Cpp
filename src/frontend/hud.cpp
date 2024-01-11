@@ -146,21 +146,14 @@ void HudRenderer::createDebugPanel(Engine* engine) {
 		panel->add(bar);
 	}
 	{
-        Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
-        checkpanel->color(vec4(0.0f));
-        checkpanel->orientation(Orientation::horizontal);
-
-        CheckBox* checkbox = new CheckBox();
+        auto checkbox = new FullCheckBox(L"Show Chunk Borders", vec2(400, 32));
         checkbox->supplier([=]() {
             return engine->getSettings().debug.showChunkBorders;
         });
         checkbox->consumer([=](bool checked) {
             engine->getSettings().debug.showChunkBorders = checked;
         });
-        checkpanel->add(checkbox);
-        checkpanel->add(new Label(L"Show Chunk Borders"));
-
-        panel->add(checkpanel);
+        panel->add(checkbox);
 	}
 	panel->refresh();
 }

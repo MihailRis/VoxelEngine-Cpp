@@ -139,7 +139,6 @@ void create_languages_panel(Engine* engine, PagesControl* menu) {
 
         Button* button = new Button(util::str2wstr_utf8(fullName), vec4(10.f));
         button->listenAction([=](GUI*) {
-            auto resdir = engine->getPaths()->getResources();
             engine->setLanguage(name);
             menu->back();
         });
@@ -252,33 +251,27 @@ inline uint64_t str2seed(std::wstring seedstr) {
 void create_new_world_panel(Engine* engine, PagesControl* menu) {
     auto panel = create_page(engine, "new-world", 400, 0.0f, 1);
 
-    TextBox* worldNameInput; {
-        Label* label = new Label(langs::get(L"Name", L"world"));
-        panel->add(label);
+    panel->add(std::make_shared<Label>(langs::get(L"Name", L"world")));
+    auto nameInput = std::make_shared<TextBox>(L"New World", vec4(6.0f));
+    nameInput->textValidator([=](const std::wstring& text) {
+        EnginePaths* paths = engine->getPaths();
+        std::string textutf8 = util::wstr2str_utf8(text);
+        return util::is_valid_filename(text) && 
+                !paths->isWorldNameUsed(textutf8);
+    });
+    panel->add(nameInput);
 
-        TextBox* input = new TextBox(L"New World", vec4(6.0f));
-        input->textValidator([=](const std::wstring& text) {
-            EnginePaths* paths = engine->getPaths();
-            std::string textutf8 = util::wstr2str_utf8(text);
-            return util::is_valid_filename(text) && 
-                   !paths->isWorldNameUsed(textutf8);
-        });
-        panel->add(input);
-        worldNameInput = input;
-    }
-
-    TextBox* seedInput; {
-        panel->add(std::make_shared<Label>(langs::get(L"Seed", L"world")));
-        seedInput = new TextBox(std::to_wstring(randU64()), vec4(6.0f));
-        panel->add(seedInput);
-    }
+    panel->add(std::make_shared<Label>(langs::get(L"Seed", L"world")));
+    auto seedstr = std::to_wstring(randU64());
+    auto seedInput = std::make_shared<TextBox>(seedstr, vec4(6.0f));
+    panel->add(seedInput);
 
     panel->add(create_button( L"Create World", vec4(10), vec4(1, 20, 1, 1), 
     [=](GUI*) {
-        if (!worldNameInput->validate())
+        if (!nameInput->validate())
             return;
 
-        std::wstring name = worldNameInput->text();
+        std::wstring name = nameInput->text();
         std::string nameutf8 = util::wstr2str_utf8(name);
         EnginePaths* paths = engine->getPaths();
 
@@ -291,12 +284,11 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
 
         engine->loadAllPacks();
         engine->loadContent();
-        Level* level = World::create(nameutf8, 
-                                     folder, 
-                                     seed, 
-                                     engine->getSettings(), 
-                                     engine->getContent(),
-                                     engine->getContentPacks());
+        Level* level = World::create(
+            nameutf8, folder, seed, 
+            engine->getSettings(), 
+            engine->getContent(),
+            engine->getContentPacks());
         engine->setScreen(std::make_shared<LevelScreen>(engine, level));
     }));
     panel->add(guiutil::backButton(menu));
@@ -307,10 +299,9 @@ void create_controls_panel(Engine* engine, PagesControl* menu) {
 
     /* Camera sensitivity setting track bar */{
         panel->add((new Label(L""))->textSupplier([=]() {
-            std::wstringstream ss;
-            ss << std::fixed << std::setprecision(1);
-            ss << engine->getSettings().camera.sensitivity;
-            return langs::get(L"Mouse Sensitivity", L"settings")+L": "+ss.str();
+            float s = engine->getSettings().camera.sensitivity;
+            return langs::get(L"Mouse Sensitivity", L"settings")+L": "+
+                   util::to_wstring(s, 1);
         }));
 
         TrackBar* trackbar = new TrackBar(0.1, 10.0, 2.0, 0.1, 4);
@@ -381,10 +372,9 @@ void create_settings_panel(Engine* engine, PagesControl* menu) {
 
     /* Fog Curve setting track bar */{
         panel->add((new Label(L""))->textSupplier([=]() {
-            std::wstringstream ss;
-            ss << std::fixed << std::setprecision(1);
-            ss << engine->getSettings().graphics.fogCurve;
-            return langs::get(L"Fog Curve", L"settings")+L": " + ss.str();
+            float value = engine->getSettings().graphics.fogCurve;
+            return langs::get(L"Fog Curve", L"settings")+L": " +
+                   util::to_wstring(value, 1);
         }));
 
         TrackBar* trackbar = new TrackBar(1.0, 6.0, 1.0, 0.1, 2);
@@ -414,39 +404,25 @@ void create_settings_panel(Engine* engine, PagesControl* menu) {
     }
 
     /* V-Sync checkbox */{
-        Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
-        checkpanel->color(vec4(0.0f));
-        checkpanel->orientation(Orientation::horizontal);
-
-        CheckBox* checkbox = new CheckBox();
+        auto checkbox = new FullCheckBox(langs::get(L"V-Sync", L"settings"), vec2(400, 32));
         checkbox->supplier([=]() {
             return engine->getSettings().display.swapInterval != 0;
         });
         checkbox->consumer([=](bool checked) {
             engine->getSettings().display.swapInterval = checked;
         });
-        checkpanel->add(checkbox);
-        checkpanel->add(new Label(langs::get(L"V-Sync", L"settings")));
-
-        panel->add(checkpanel);
+        panel->add(checkbox);
     }
 
     /* Backlight checkbox */{
-        Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
-        checkpanel->color(vec4(0.0f));
-        checkpanel->orientation(Orientation::horizontal);
-
-        CheckBox* checkbox = new CheckBox();
+        auto checkbox = new FullCheckBox(langs::get(L"Backlight", L"settings"), vec2(400, 32));
         checkbox->supplier([=]() {
             return engine->getSettings().graphics.backlight != 0;
         });
         checkbox->consumer([=](bool checked) {
             engine->getSettings().graphics.backlight = checked;
         });
-        checkpanel->add(checkbox);
-        checkpanel->add(new Label(langs::get(L"Backlight", L"settings")));
-
-        panel->add(checkpanel);
+        panel->add(checkbox);
     }
 
     std::string langName = langs::locales_info.at(langs::current->getId()).name;
