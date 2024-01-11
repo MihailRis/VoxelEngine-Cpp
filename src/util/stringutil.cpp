@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <locale>
+#include <iomanip>
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
@@ -161,4 +162,10 @@ void util::rtrim(std::string &s) {
 void util::trim(std::string &s) {
     rtrim(s);
     ltrim(s);
+}
+
+std::wstring util::to_wstring(double x, int precision) {
+    std::wstringstream ss;
+    ss << std::fixed << std::setprecision(precision) << x;
+    return ss.str();
 }
