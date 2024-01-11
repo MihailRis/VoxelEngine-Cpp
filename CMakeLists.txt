@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
+
 project(VoxelEngine)
 
 option(VOXELENGINE_BUILD_APPDIR OFF)
@@ -48,8 +49,12 @@ endif()
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenAL REQUIRED)
+
 # luajit has no CMakeLists.txt to use it as subdirectory, so install it
-find_package(Lua REQUIRED)
+# find_package(Lua REQUIRED)
+set(LUA_INCLUDE     "/usr/include/luajit-2.1")
+set(LUA_LIB_STATIC  "/usr/local/lib/libluajit-5.1.a")
+set(LUA_LIB_SHARED  "/usr/local/lib/libluajit-5.1.so")
 
 if (WIN32)
     set(PNGLIB spng)
@@ -63,19 +68,30 @@ if (APPLE)
     find_package(glfw3 3.3 REQUIRED)
 endif ()
 
-set(LIBS "")
+set(ADVANCE_LIBS "")
 
 if(UNIX)
     find_package(Threads REQUIRED)
-    set(LIBS ${LIBS} Threads::Threads)
+    set(ADVANCE_LIBS ${ADVANCE_LIBS} Threads::Threads)
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie")
 endif()
 
-include_directories(${LUA_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ${PNGLIB} ${LUA_LIBRARIES} ${CMAKE_DL_LIBS})
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${LUA_INCLUDE}
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    glfw
+    OpenGL::GL
+    GLEW::GLEW
+    ${OPENAL_LIBRARY}
+    ${PNGLIB}
+    ${LUA_LIB_STATIC}
+    ${CMAKE_DL_LIBS}
+    ${ADVANCE_LIBS}
+)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
