@@ -68,23 +68,8 @@ Button* create_button(std::wstring text,
     return btn;
 }
 
-void show_content_error_page(Engine* engine, std::string message) {
-    auto* gui = engine->getGUI();
-    auto* menu = gui->getMenu();
-    auto panel = create_page(engine, "error", 800, 0.5f, 8);
-
-    panel->add(new Label(langs::get(L"Content Error", L"menu")));
-    panel->add(new Label(util::str2wstr_utf8(message)));
-
-    panel->add((new Button(langs::get(L"Back to Main Menu", L"menu"), 
-                           vec4(8.0f)))
-    ->listenAction([=](GUI*){
-        menu->back();
-    }));
-    menu->set("error");
-}
-
-void show_content_missing(Engine* engine, const Content* content, ContentLUT* lut) {
+void show_content_missing(Engine* engine, const Content* content, 
+                          std::shared_ptr<ContentLUT> lut) {
     auto* gui = engine->getGUI();
     auto* menu = gui->getMenu();
     auto panel = create_page(engine, "missing-content", 500, 0.5f, 8);
@@ -126,7 +111,7 @@ void show_content_missing(Engine* engine, const Content* content, ContentLUT* lu
 void show_convert_request(
         Engine* engine, 
         const Content* content, 
-        ContentLUT* lut,
+        std::shared_ptr<ContentLUT> lut,
         fs::path folder) {
     guiutil::confirm(engine->getGUI(), langs::get(L"world.convert-request"),
     [=]() {
@@ -136,7 +121,6 @@ void show_convert_request(
             converter->convertNext();
         }
         converter->write();
-        delete lut;
     }, L"", langs::get(L"Cancel"));
 }
 
@@ -167,33 +151,29 @@ void create_languages_panel(Engine* engine, PagesControl* menu) {
 void open_world(std::string name, Engine* engine) {
     auto paths = engine->getPaths();
     auto folder = paths->getWorldsFolder()/fs::u8path(name);
-    auto& packs = engine->getContentPacks();
-    packs.clear();
     try {
-        auto packNames = ContentPack::worldPacksList(folder);
-        ContentPack::readPacks(paths, packs, packNames, folder);
+        engine->loadWorldContent(folder);
     } catch (contentpack_error& error) {
         // could not to find or read pack
         guiutil::alert(engine->getGUI(), 
-                        langs::get(L"error.pack-not-found")+
-                        L": "+util::str2wstr_utf8(error.getPackId()));
+                       langs::get(L"error.pack-not-found")+
+                       L": "+util::str2wstr_utf8(error.getPackId()));
         return;
-    }
-    try {
-        engine->loadContent();
     } catch (const std::runtime_error& error) {
-        show_content_error_page(engine, error.what());
+        guiutil::alert(engine->getGUI(),
+                       langs::get(L"Content Error", L"menu")+
+                       L": "+util::str2wstr_utf8(error.what()));
         return;
     }
 
+    auto& packs = engine->getContentPacks();
     auto* content = engine->getContent();
     auto& settings = engine->getSettings();
     fs::create_directories(folder);
-    ContentLUT* lut = World::checkIndices(folder, content);
+    std::shared_ptr<ContentLUT> lut (World::checkIndices(folder, content));
     if (lut) {
         if (lut->hasMissingContent()) {
             show_content_missing(engine, content, lut);
-            delete lut;
         } else {
             show_convert_request(engine, content, lut, folder);
         }

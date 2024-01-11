@@ -11,7 +11,7 @@ namespace fs = std::filesystem;
 
 WorldConverter::WorldConverter(fs::path folder, 
                                const Content* content, 
-                               const ContentLUT* lut) 
+                               std::shared_ptr<ContentLUT> lut) 
     : lut(lut), content(content) {
     DebugSettings settings;
     wfile = new WorldFiles(folder, settings);
@@ -60,7 +60,7 @@ void WorldConverter::convertNext() {
                 Chunk::fromOld(data.get());
             }
             if (lut) {
-                Chunk::convert(data.get(), lut);
+                Chunk::convert(data.get(), lut.get());
             }
             wfile->put(gx, gz, data.get());
         }

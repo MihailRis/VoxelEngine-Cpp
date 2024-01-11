@@ -164,6 +164,13 @@ void Engine::loadContent() {
     assets->extend(*new_assets.get());
 }
 
+void Engine::loadWorldContent(const fs::path& folder) {
+    contentPacks.clear();
+    auto packNames = ContentPack::worldPacksList(folder);
+    ContentPack::readPacks(paths, contentPacks, packNames, folder);
+    loadContent();
+}
+
 void Engine::loadAllPacks() {
 	auto resdir = paths->getResources();
 	contentPacks.clear();

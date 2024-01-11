@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <stdexcept>
+#include <filesystem>
 #include "typedefs.h"
 #include "settings.h"
 
@@ -17,6 +18,8 @@ class Level;
 class Screen;
 class EnginePaths;
 class ResPaths;
+
+namespace fs = std::filesystem;
 
 namespace gui {
 	class GUI;
@@ -58,6 +61,7 @@ public:
     std::vector<ContentPack>& getContentPacks();
 	void setLanguage(std::string locale);
     void loadContent();
+    void loadWorldContent(const fs::path& folder);
 	void loadAllPacks();
 };
 
