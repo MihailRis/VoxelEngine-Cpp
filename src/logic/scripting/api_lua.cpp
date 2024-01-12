@@ -14,6 +14,7 @@
 #include "../../lighting/Lighting.h"
 #include "../../logic/BlocksController.h"
 
+/* == world library ==*/
 static int l_world_get_day_time(lua_State* L) {
     lua_pushnumber(L, scripting::level->world->daytime);
     return 1;
@@ -42,6 +43,65 @@ int luaopen_world(lua_State* L) {
     return 1;
 }
 
+/* == player library ==*/
+static int l_player_get_pos(lua_State* L) {
+    int playerid = lua_tointeger(L, 1);
+    if (playerid != 1)
+        return 0;
+    glm::vec3 pos = scripting::level->player->hitbox->position;
+    lua_pushnumber(L, pos.x);
+    lua_pushnumber(L, pos.y);
+    lua_pushnumber(L, pos.z);
+    return 3;
+}
+
+static int l_player_get_rot(lua_State* L) {
+    int playerid = lua_tointeger(L, 1);
+    if (playerid != 1)
+        return 0;
+    glm::vec2 rot = scripting::level->player->cam;
+    lua_pushnumber(L, rot.x);
+    lua_pushnumber(L, rot.y);
+    return 2;
+}
+
+static int l_player_set_rot(lua_State* L) {
+    int playerid = lua_tointeger(L, 1);
+    if (playerid != 1)
+        return 0;
+    double x = lua_tonumber(L, 2);
+    double y = lua_tonumber(L, 3);
+    glm::vec2& cam = scripting::level->player->cam;
+    cam.x = x;
+    cam.y = y;
+    return 0;
+}
+
+static int l_player_set_pos(lua_State* L) {
+    int playerid = lua_tointeger(L, 1);
+    if (playerid != 1)
+        return 0;
+    double x = lua_tonumber(L, 2);
+    double y = lua_tonumber(L, 3);
+    double z = lua_tonumber(L, 4);
+    scripting::level->player->hitbox->position = glm::vec3(x, y, z);
+    return 0;
+}
+
+static const luaL_Reg playerlib [] = {
+    {"get_pos", l_player_get_pos},
+    {"set_pos", l_player_set_pos},
+    {"get_rot", l_player_get_rot},
+    {"set_rot", l_player_set_rot},
+    {NULL, NULL}
+};
+
+int luaopen_player(lua_State* L) {
+    luaL_openlib(L, "player", playerlib, 0);
+    return 1;
+}
+
+/* == blocks-related functions == */
 static int l_block_name(lua_State* L) {
     int id = lua_tointeger(L, 1);
     lua_pushstring(L, scripting::content->indices->getBlockDef(id)->name.c_str());
@@ -150,38 +210,6 @@ static int l_get_block_z(lua_State* L) {
     }
 }
 
-static int l_get_player_pos(lua_State* L) {
-    glm::vec3 pos = scripting::level->player->hitbox->position;
-    lua_pushnumber(L, pos.x);
-    lua_pushnumber(L, pos.y);
-    lua_pushnumber(L, pos.z);
-    return 3;
-}
-
-static int l_get_player_rot(lua_State* L) {
-    glm::vec2 rot = scripting::level->player->cam;
-    lua_pushnumber(L, rot.x);
-    lua_pushnumber(L, rot.y);
-    return 2;
-}
-
-static int l_set_player_rot(lua_State* L) {
-    double x = lua_tonumber(L, 1);
-    double y = lua_tonumber(L, 2);
-    glm::vec2& cam = scripting::level->player->cam;
-    cam.x = x;
-    cam.y = y;
-    return 0;
-}
-
-static int l_set_player_pos(lua_State* L) {
-    double x = lua_tonumber(L, 1);
-    double y = lua_tonumber(L, 2);
-    double z = lua_tonumber(L, 3);
-    scripting::level->player->hitbox->position = glm::vec3(x, y, z);
-    return 0;
-}
-
 static int l_get_block_states(lua_State* L) {
     int x = lua_tointeger(L, 1);
     int y = lua_tointeger(L, 2);
@@ -242,6 +270,7 @@ static int l_is_replaceable_at(lua_State* L) {
 
 void apilua::create_funcs(lua_State* L) {
     luaopen_world(L);
+    luaopen_player(L);
 
     lua_addfunc(L, l_block_index, "block_index");
     lua_addfunc(L, l_block_name, "block_name");
@@ -253,10 +282,6 @@ void apilua::create_funcs(lua_State* L) {
     lua_addfunc(L, l_get_block_x, "get_block_X");
     lua_addfunc(L, l_get_block_y, "get_block_Y");
     lua_addfunc(L, l_get_block_z, "get_block_Z");
-    lua_addfunc(L, l_get_player_pos, "get_player_pos");
-    lua_addfunc(L, l_set_player_pos, "set_player_pos");
-    lua_addfunc(L, l_get_player_rot, "get_player_rot");
-    lua_addfunc(L, l_set_player_rot, "set_player_rot");
     lua_addfunc(L, l_get_block_states, "get_block_states");
     lua_addfunc(L, l_get_block_user_bits, "get_block_user_bits");
     lua_addfunc(L, l_set_block_user_bits, "set_block_user_bits");
