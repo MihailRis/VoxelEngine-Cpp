@@ -200,8 +200,11 @@ void HudRenderer::drawDebug(int fps){
 	fpsMax = max(fps, fpsMax);
 }
 
-void HudRenderer::update() {
+void HudRenderer::update(bool visible) {
 	auto menu = gui->getMenu();
+    if (!visible && inventoryOpen) {
+        inventoryOpen = false;
+    }
 	if (pause && menu->current().panel == nullptr) {
 		pause = false;
 	}
@@ -216,7 +219,7 @@ void HudRenderer::update() {
 			menu->set("pause");
 		}
 	}
-	if (Events::jactive(BIND_HUD_INVENTORY)) {
+	if (visible && Events::jactive(BIND_HUD_INVENTORY)) {
 		if (!pause) {
 			inventoryOpen = !inventoryOpen;
 		}
@@ -225,6 +228,26 @@ void HudRenderer::update() {
 		Events::toggleCursor();
 	}
 }
+
+void HudRenderer::drawOverlay(const GfxContext& ctx) {
+	if (pause) {
+	    Shader* uishader = assets->getShader("ui");
+	    uishader->use();
+	    uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
+
+        const Viewport& viewport = ctx.getViewport();
+        const uint width = viewport.getWidth();
+        const uint height = viewport.getHeight();
+        auto batch = ctx.getBatch2D();
+        batch->begin();
+
+		// draw fullscreen dark overlay
+		batch->texture(nullptr);
+		batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
+		batch->rect(0, 0, width, height);
+        batch->render();
+	}
+} 
 
 void HudRenderer::draw(const GfxContext& ctx){
     auto level = frontend->getLevel();
@@ -252,7 +275,7 @@ void HudRenderer::draw(const GfxContext& ctx){
 
 	// Crosshair
 	batch->begin();
-	if (Events::_cursor_locked && !level->player->debug) {
+	if (!pause && Events::_cursor_locked && !level->player->debug) {
 		batch->lineWidth(2);
 		batch->line(width/2, height/2-6, width/2, height/2+6, 0.2f, 0.2f, 0.2f, 1.0f);
 		batch->line(width/2+6, height/2, width/2-6, height/2, 0.2f, 0.2f, 0.2f, 1.0f);
@@ -260,14 +283,6 @@ void HudRenderer::draw(const GfxContext& ctx){
 		batch->line(width/2+5, height/2-5, width/2-5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
 	}
 
-	batch->begin();
-
-	if (pause) {
-		// draw fullscreen dark overlay
-		batch->texture(nullptr);
-		batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
-		batch->rect(0, 0, width, height);
-	}
 	if (inventoryOpen) {
 		// draw content access panel (all available items)
         contentAccess->setPosition(viewport.getWidth()-contentAccess->getWidth(), 0);

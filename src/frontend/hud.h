@@ -45,7 +45,8 @@ public:
 	HudRenderer(Engine* engine, LevelFrontend* frontend);
 	~HudRenderer();
 
-	void update();
+	void update(bool hudVisible);
+    void drawOverlay(const GfxContext& context);
 	void draw(const GfxContext& context);
 	void drawDebug(int fps);
 

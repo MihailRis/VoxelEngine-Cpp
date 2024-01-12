@@ -139,8 +139,7 @@ void LevelScreen::update(float delta) {
         level->world->updateTimers(delta);
     }
     controller->update(delta, !inputLocked, hud->isPause());
-    if (hudVisible)
-        hud->update();
+    hud->update(hudVisible);
 }
 
 void LevelScreen::draw(float delta) {
@@ -151,6 +150,7 @@ void LevelScreen::draw(float delta) {
 
     worldRenderer->draw(ctx, camera.get(), hudVisible);
 
+    hud->drawOverlay(ctx);
     if (hudVisible) {
         hud->draw(ctx);
         if (level->player->debug) {
