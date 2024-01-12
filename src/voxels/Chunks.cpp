@@ -45,17 +45,15 @@ Chunks::~Chunks(){
 		chunks[i] = nullptr;
 	}
 	delete[] chunks;
+	delete[] chunksSecond;
 }
 
 voxel* Chunks::get(int x, int y, int z){
 	x -= ox * CHUNK_W; 
 	z -= oz * CHUNK_D;
-	int cx = x / CHUNK_W;
-	int cy = y / CHUNK_H;
-	int cz = z / CHUNK_D;
-	if (x < 0) cx--;
-	if (y < 0) cy--;
-	if (z < 0) cz--;
+	int cx = floordiv(x, CHUNK_W);
+	int cy = floordiv(y, CHUNK_H);
+	int cz = floordiv(z, CHUNK_D);
 	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= 1 || cz >= d)
 		return nullptr;
 	shared_ptr<Chunk> chunk = chunks[cz * w + cx]; // chunks is 2D-array
@@ -67,7 +65,7 @@ voxel* Chunks::get(int x, int y, int z){
 	return &chunk->voxels[(ly * CHUNK_D + lz) * CHUNK_W + lx];
 }
 
-const AABB* Chunks::isObstacle(float x, float y, float z){
+const AABB* Chunks::isObstacleAt(float x, float y, float z){
 	int ix = floor(x);
 	int iy = floor(y);
 	int iz = floor(z);
@@ -82,12 +80,33 @@ const AABB* Chunks::isObstacle(float x, float y, float z){
 		if (def->rt.solid) {
 			return &hitbox;
 		} else {
-			if (hitbox.inside({x - ix, y - iy, z - iz}))
+			if (hitbox.contains({x - ix, y - iy, z - iz}))
 				return &hitbox;
 			return nullptr;
 		}
 	}
 	return nullptr;
+}
+
+bool Chunks::isSolidBlock(int x, int y, int z) {
+    voxel* v = get(x, y, z);
+    if (v == nullptr)
+        return false;
+    return contentIds->getBlockDef(v->id)->rt.solid;
+}
+
+bool Chunks::isReplaceableBlock(int x, int y, int z) {
+    voxel* v = get(x, y, z);
+    if (v == nullptr)
+        return false;
+    return contentIds->getBlockDef(v->id)->replaceable;
+}
+
+bool Chunks::isObstacleBlock(int x, int y, int z) {
+	voxel* v = get(x, y, z);
+	if (v == nullptr)
+		return false;
+	return contentIds->getBlockDef(v->id)->obstacle;
 }
 
 ubyte Chunks::getLight(int x, int y, int z, int channel){
@@ -167,7 +186,7 @@ void Chunks::set(int x, int y, int z, int id, uint8_t states){
 	else if (y + 1 > chunk->top) chunk->top = y + 1;
 	else if (id == 0) chunk->updateHeights();
 
-	if (lx == 0 && (chunk = getChunk(cx+ox-1, cz+oz))) 
+	if (lx == 0 && (chunk = getChunk(cx+ox-1, cz+oz)))
 		chunk->setModified(true);
 	if (lz == 0 && (chunk = getChunk(cx+ox, cz+oz-1))) 
 		chunk->setModified(true);
@@ -219,7 +238,7 @@ voxel* Chunks::rayCast(vec3 start,
                                 
 	while (t <= maxDist){       
 		voxel* voxel = get(ix, iy, iz);		
-		if (!voxel){ return nullptr; }
+		if (voxel == nullptr){ return nullptr; }
 
 		const Block* def = contentIds->getBlockDef(voxel->id);
 		if (def->selectable){
@@ -235,7 +254,8 @@ voxel* Chunks::rayCast(vec3 start,
 								  ? def->rt.hitboxes[voxel->rotation()] 
 								  : def->hitbox;
 				scalar_t distance;
-				if (Rays::rayIntersectAABB(start, dir, iend, box, maxDist, norm, distance) > RayRelation::None){
+				Ray ray(start, dir);
+				if (ray.intersectAABB(iend, box, maxDist, norm, distance) > RayRelation::None){
 					end = start + (dir * vec3(distance));
 					return voxel;
 				}
@@ -323,7 +343,7 @@ vec3 Chunks::rayCastToObstacle(vec3 start, vec3 dir, float maxDist) {
 
 	while (t <= maxDist) {
 		voxel* voxel = get(ix, iy, iz);
-		if (!voxel) { return vec3(px + t * dx, py + t * dy, pz + t * dz); }
+		if (voxel == nullptr) { return vec3(px + t * dx, py + t * dy, pz + t * dz); }
 
 		const Block* def = contentIds->getBlockDef(voxel->id);
 		if (def->obstacle) {
@@ -333,8 +353,9 @@ vec3 Chunks::rayCastToObstacle(vec3 start, vec3 dir, float maxDist) {
 					: def->hitbox;
 				scalar_t distance;
 				ivec3 norm;
+				Ray ray(start, dir);
 				// norm is dummy now, can be inefficient
-				if (Rays::rayIntersectAABB(start, dir, ivec3(ix, iy, iz), box, maxDist, norm, distance) > RayRelation::None) {
+				if (ray.intersectAABB(ivec3(ix, iy, iz), box, maxDist, norm, distance) > RayRelation::None) {
 					return start + (dir * vec3(distance));
 				}
 			}

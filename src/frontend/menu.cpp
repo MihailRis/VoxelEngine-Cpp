@@ -14,7 +14,9 @@
 #include "../util/stringutil.h"
 #include "../files/engine_paths.h"
 #include "../files/WorldConverter.h"
+#include "../files/WorldFiles.h"
 #include "../world/World.h"
+#include "../world/Level.h"
 #include "../window/Events.h"
 #include "../window/Window.h"
 #include "../engine.h"
@@ -28,40 +30,50 @@
 
 using glm::vec2;
 using glm::vec4;
-using std::string;
-using std::wstring;
-using std::make_unique;
-using std::unique_ptr;
-using std::shared_ptr;
-using std::filesystem::path;
-using std::filesystem::u8path;
-using std::filesystem::directory_iterator;
+
+namespace fs = std::filesystem;
 using namespace gui;
 
-Panel* create_main_menu_panel(Engine* engine, PagesControl* menu);
-Panel* create_new_world_panel(Engine* engine, PagesControl* menu);
-Panel* create_controls_panel(Engine* engine, PagesControl* menu);
-Panel* create_settings_panel(Engine* engine, PagesControl* menu);
-Panel* create_pause_panel(Engine* engine, PagesControl* menu);
-Panel* create_languages_panel(Engine* engine, PagesControl* menu);
-
-void menus::create_menus(Engine* engine, PagesControl* menu) {
-    menu->add("new-world", create_new_world_panel(engine, menu));
-    menu->add("settings", create_settings_panel(engine, menu));
-    menu->add("controls", create_controls_panel(engine, menu));
-    menu->add("pause", create_pause_panel(engine, menu));
-    menu->add("languages", create_languages_panel(engine, menu));
-    menu->add("main", create_main_menu_panel(engine, menu));
+inline uint64_t randU64() {
+    return rand() ^ (rand() << 8) ^ 
+        (rand() << 16) ^ (rand() << 24) ^
+        ((uint64_t)rand() << 32) ^ 
+        ((uint64_t)rand() << 40) ^
+        ((uint64_t)rand() << 56);
 }
 
-void menus::refresh_menus(Engine* engine, PagesControl* menu) {
-    menu->add("main", create_main_menu_panel(engine, menu));
+std::shared_ptr<Panel> create_page(
+        Engine* engine, 
+        std::string name, 
+        int width, 
+        float opacity, 
+        int interval) {
+    PagesControl* menu = engine->getGUI()->getMenu();
+    Panel* panel = new Panel(vec2(width, 200), vec4(8.0f), interval);
+    panel->color(vec4(0.0f, 0.0f, 0.0f, opacity));
+
+    std::shared_ptr<Panel> ptr (panel);
+    menu->add(name, ptr);
+    return ptr;
 }
 
-void show_content_missing(GUI* gui, const Content* content, ContentLUT* lut) {
-    PagesControl* menu = gui->getMenu();
-    Panel* panel = new Panel(vec2(500, 200), vec4(8.0f), 8.0f);
-    panel->color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+Button* create_button(std::wstring text, 
+                      glm::vec4 padding, 
+                      glm::vec4 margin, 
+                      gui::onaction action) {
+
+    auto btn = new Button(langs::get(text, L"menu"), 
+                          padding, margin);
+    btn->listenAction(action);
+    return btn;
+}
+
+void show_content_missing(Engine* engine, const Content* content, 
+                          std::shared_ptr<ContentLUT> lut) {
+    auto* gui = engine->getGUI();
+    auto* menu = gui->getMenu();
+    auto panel = create_page(engine, "missing-content", 500, 0.5f, 8);
+
     panel->add(new Label(langs::get(L"menu.missing-content")));
 
     Panel* subpanel = new Panel(vec2(500, 100));
@@ -88,203 +100,208 @@ void show_content_missing(GUI* gui, const Content* content, ContentLUT* lut) {
     subpanel->maxLength(400);
     panel->add(subpanel);
 
-    panel->add((new Button(langs::get(L"Back to Main Menu", L"menu"), vec4(8.0f)))->listenAction([=](GUI*){
+    panel->add((new Button(langs::get(L"Back to Main Menu", L"menu"), 
+                           vec4(8.0f)))
+    ->listenAction([=](GUI*){
         menu->back();
     }));
-    panel->refresh();
-    menu->add("missing-content", panel);
     menu->set("missing-content");
 }
 
-void show_convert_request(GUI* gui, const Content* content, ContentLUT* lut,
-                          path folder) {
-    guiutil::confirm(gui, langs::get(L"world.convert-request"),
+void show_convert_request(
+        Engine* engine, 
+        const Content* content, 
+        std::shared_ptr<ContentLUT> lut,
+        fs::path folder) {
+    guiutil::confirm(engine->getGUI(), langs::get(L"world.convert-request"),
     [=]() {
-        std::cout << "Convert the world: " << folder.string() << std::endl;    
         // TODO: add multithreading here
-        auto converter = make_unique<WorldConverter>(folder, content, lut);
+        auto converter = std::make_unique<WorldConverter>(folder, content, lut);
         while (converter->hasNext()) {
             converter->convertNext();
         }
         converter->write();
-        delete lut;
     }, L"", langs::get(L"Cancel"));
 }
 
-Panel* create_languages_panel(Engine* engine, PagesControl* menu) {
-    Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
+void create_languages_panel(Engine* engine, PagesControl* menu) {
+    auto panel = create_page(engine, "languages", 400, 0.5f, 1);
     panel->scrollable(true);
-    std::vector<string> locales;
+
+    std::vector<std::string> locales;
     for (auto& entry : langs::locales_info) {
         locales.push_back(entry.first);
     }
     std::sort(locales.begin(), locales.end());
-    for (string& name : locales) {
+    for (std::string& name : locales) {
         auto& locale = langs::locales_info.at(name);
-        string& fullName = locale.name;
+        std::string& fullName = locale.name;
 
         Button* button = new Button(util::str2wstr_utf8(fullName), vec4(10.f));
         button->listenAction([=](GUI*) {
-            auto resdir = engine->getPaths()->getResources();
             engine->setLanguage(name);
             menu->back();
         });
         panel->add(button);
     }
     panel->add(guiutil::backButton(menu));
-    panel->refresh();
-    return panel;
 }
 
-Panel* create_main_menu_panel(Engine* engine, PagesControl* menu) {
-    EnginePaths* paths = engine->getPaths();
+void open_world(std::string name, Engine* engine) {
+    auto paths = engine->getPaths();
+    auto folder = paths->getWorldsFolder()/fs::u8path(name);
+    try {
+        engine->loadWorldContent(folder);
+    } catch (contentpack_error& error) {
+        // could not to find or read pack
+        guiutil::alert(engine->getGUI(), 
+                       langs::get(L"error.pack-not-found")+
+                       L": "+util::str2wstr_utf8(error.getPackId()));
+        return;
+    } catch (const std::runtime_error& error) {
+        guiutil::alert(engine->getGUI(),
+                       langs::get(L"Content Error", L"menu")+
+                       L": "+util::str2wstr_utf8(error.what()));
+        return;
+    }
 
-    Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
-    panel->color(vec4(0.0f));
+    auto& packs = engine->getContentPacks();
+    auto* content = engine->getContent();
+    auto& settings = engine->getSettings();
+    fs::create_directories(folder);
+    std::shared_ptr<ContentLUT> lut (World::checkIndices(folder, content));
+    if (lut) {
+        if (lut->hasMissingContent()) {
+            show_content_missing(engine, content, lut);
+        } else {
+            show_convert_request(engine, content, lut, folder);
+        }
+    } else {
+        // TODO: remove in 0.18
+        int version;
+        {
+            WorldFiles wfile(folder, settings.debug);
+            version = wfile.getVoxelRegionsVersion();
+        }
+        if (version != REGION_FORMAT_VERSION) {
+            show_convert_request(engine, content, lut, folder);
+        } else {
+            Level* level = World::load(folder, settings, content, packs);
+            engine->setScreen(std::make_shared<LevelScreen>(engine, level));
+        }
+    }
+}
 
-    panel->add(guiutil::gotoButton(langs::get(L"New World", L"menu"), "new-world", menu));
+Panel* create_worlds_panel(Engine* engine) {
+    auto panel = new Panel(vec2(390, 200), vec4(5.0f));
+    panel->color(vec4(1.0f, 1.0f, 1.0f, 0.07f));
+    panel->maxLength(400);
 
-    Panel* worldsPanel = new Panel(vec2(390, 200), vec4(5.0f));
-    worldsPanel->color(vec4(1.0f, 1.0f, 1.0f, 0.07f));
-    worldsPanel->maxLength(400);
-    path worldsFolder = paths->getWorldsFolder();
-    if (std::filesystem::is_directory(worldsFolder)) {
-        for (auto const& entry : directory_iterator(worldsFolder)) {
+    auto paths = engine->getPaths();
+    fs::path worldsFolder = paths->getWorldsFolder();
+    if (fs::is_directory(worldsFolder)) {
+        for (auto entry : fs::directory_iterator(worldsFolder)) {
             if (!entry.is_directory()) {
                 continue;
             }
-            string name = entry.path().filename().string();
-            Button* button = new Button(util::str2wstr_utf8(name), 
-                                        vec4(10.0f, 8.0f, 10.0f, 8.0f));
-            button->color(vec4(1.0f, 1.0f, 1.0f, 0.1f));
-            button->listenAction([=](GUI* gui) {
-                auto* content = engine->getContent();
-                auto& settings = engine->getSettings();
-                auto folder = paths->getWorldsFolder()/u8path(name);
-                std::filesystem::create_directories(folder);
-                ContentLUT* lut = World::checkIndices(folder, content);
-                if (lut) {
-                    if (lut->hasMissingContent()) {
-                        show_content_missing(gui, content, lut);
-                        delete lut;
-                    } else {
-                        show_convert_request(gui, content, lut, folder);
-                    }
-                } else {
-                    Level* level = World::load(folder, settings, content);
-                    auto screen = new LevelScreen(engine, level);
-                    engine->setScreen(shared_ptr<Screen>(screen));
-                }
+            auto name = entry.path().filename().u8string();
+            auto btn = new Button(util::str2wstr_utf8(name), 
+                                  vec4(10.0f, 8.0f, 10.0f, 8.0f));
+            btn->color(vec4(1.0f, 1.0f, 1.0f, 0.1f));
+            btn->listenAction([=](GUI*) {
+                open_world(name, engine);
             });
-            worldsPanel->add(button);
+            panel->add(btn);
         }
     }
-    panel->add(worldsPanel);
-    panel->add(guiutil::gotoButton(langs::get(L"Settings", L"menu"), "settings", menu));
-    panel->add((new Button(langs::get(L"Quit", L"menu"), vec4(10.f)))->listenAction([](GUI* gui) {
+    return panel;
+}
+
+void create_main_menu_panel(Engine* engine, PagesControl* menu) {
+    auto panel = create_page(engine, "main", 400, 0.0f, 1);
+    panel->add(guiutil::gotoButton(L"New World", "new-world", menu));
+    panel->add(create_worlds_panel(engine));
+    panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
+    panel->add((new Button(langs::get(L"Quit", L"menu"), vec4(10.f)))
+    ->listenAction([](GUI* gui) {
         Window::setShouldClose(true);
     }));
-    panel->refresh();
-    return panel;
 }
 
-Panel* create_new_world_panel(Engine* engine, PagesControl* menu) {
-    Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
-    panel->color(vec4(0.0f));
-
-    TextBox* worldNameInput;
-    {
-        Label* label = new Label(langs::get(L"Name", L"world"));
-        panel->add(label);
-
-        TextBox* input = new TextBox(L"New World", vec4(6.0f));
-        panel->add(input);
-        worldNameInput = input;
-    }
-
-    TextBox* seedInput;
-    {
-        Label* label = new Label(langs::get(L"Seed", L"world"));
-        panel->add(shared_ptr<UINode>(label));
-
-        uint64_t randseed = rand() ^ (rand() << 8) ^ 
-                        (rand() << 16) ^ (rand() << 24) ^
-                        ((uint64_t)rand() << 32) ^ 
-                        ((uint64_t)rand() << 40) ^
-                        ((uint64_t)rand() << 56);
-
-        seedInput = new TextBox(std::to_wstring(randseed), vec4(6.0f));
-        panel->add(seedInput);
-    }
-
-    {
-        Button* button = new Button(langs::get(L"Create World", L"world"), vec4(10.0f));
-        button->margin(vec4(1, 20, 1, 1));
-        vec4 basecolor = worldNameInput->color();   
-        button->listenAction([=](GUI*) {
-            wstring name = worldNameInput->text();
-            string nameutf8 = util::wstr2str_utf8(name);
-            EnginePaths* paths = engine->getPaths();
-
-            // Basic validation
-            if (!util::is_valid_filename(name) || 
-                 paths->isWorldNameUsed(nameutf8)) {
-                // blink red two times
-                panel->listenInterval(0.1f, [worldNameInput, basecolor]() {
-                    static bool flag = true;
-                    if (flag) {
-                        worldNameInput->color(vec4(0.3f, 0.0f, 0.0f, 0.5f));
-                    } else {
-                        worldNameInput->color(basecolor);
-                    }
-                    flag = !flag;
-                }, 4);
-                return;
-            }
-
-            wstring seedstr = seedInput->text();
-            uint64_t seed;
-            if (util::is_integer(seedstr)) {
-                try {
-                    seed = std::stoull(seedstr);
-                } catch (const std::out_of_range& err) {
-                    std::hash<wstring> hash;
-                    seed = hash(seedstr);
-                }
-            } else {
-                std::hash<wstring> hash;
-                seed = hash(seedstr);
-            }
-            std::cout << "world seed: " << seed << std::endl;
-
-            auto folder = paths->getWorldsFolder()/u8path(nameutf8);
-            std::filesystem::create_directories(folder);
-            Level* level = World::create(nameutf8, 
-                                         folder, 
-                                         seed, 
-                                         engine->getSettings(), 
-                                         engine->getContent());
-            auto screen = new LevelScreen(engine, level);
-            engine->setScreen(shared_ptr<Screen>(screen));
-        });
-        panel->add(button);
-    }
-
+void create_content_panel(Engine* engine, PagesControl* menu) {
+    auto panel = create_page(engine, "content", 400, 0.0f, 5);
+    panel->add(new Label(L"work in progress"));
     panel->add(guiutil::backButton(menu));
-    panel->refresh();
-    return panel;
 }
 
-Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
-    Panel* panel = new Panel(vec2(400, 200), vec4(2.0f), 1.0f);
-    panel->color(vec4(0.0f));
+inline uint64_t str2seed(std::wstring seedstr) {
+    if (util::is_integer(seedstr)) {
+        try {
+            return std::stoull(seedstr);
+        } catch (const std::out_of_range& err) {
+            std::hash<std::wstring> hash;
+            return hash(seedstr);
+        }
+    } else {
+        std::hash<std::wstring> hash;
+        return hash(seedstr);
+    }
+}
+
+void create_new_world_panel(Engine* engine, PagesControl* menu) {
+    auto panel = create_page(engine, "new-world", 400, 0.0f, 1);
+
+    panel->add(std::make_shared<Label>(langs::get(L"Name", L"world")));
+    auto nameInput = std::make_shared<TextBox>(L"New World", vec4(6.0f));
+    nameInput->textValidator([=](const std::wstring& text) {
+        EnginePaths* paths = engine->getPaths();
+        std::string textutf8 = util::wstr2str_utf8(text);
+        return util::is_valid_filename(text) && 
+                !paths->isWorldNameUsed(textutf8);
+    });
+    panel->add(nameInput);
+
+    panel->add(std::make_shared<Label>(langs::get(L"Seed", L"world")));
+    auto seedstr = std::to_wstring(randU64());
+    auto seedInput = std::make_shared<TextBox>(seedstr, vec4(6.0f));
+    panel->add(seedInput);
+
+    panel->add(create_button( L"Create World", vec4(10), vec4(1, 20, 1, 1), 
+    [=](GUI*) {
+        if (!nameInput->validate())
+            return;
+
+        std::wstring name = nameInput->text();
+        std::string nameutf8 = util::wstr2str_utf8(name);
+        EnginePaths* paths = engine->getPaths();
+
+        std::wstring seedstr = seedInput->text();
+        uint64_t seed = str2seed(seedstr);
+        std::cout << "world seed: " << seed << std::endl;
+
+        auto folder = paths->getWorldsFolder()/fs::u8path(nameutf8);
+        fs::create_directories(folder);
+
+        engine->loadAllPacks();
+        engine->loadContent();
+        Level* level = World::create(
+            nameutf8, folder, seed, 
+            engine->getSettings(), 
+            engine->getContent(),
+            engine->getContentPacks());
+        engine->setScreen(std::make_shared<LevelScreen>(engine, level));
+    }));
+    panel->add(guiutil::backButton(menu));
+}
+
+void create_controls_panel(Engine* engine, PagesControl* menu) {
+    auto panel = create_page(engine, "controls", 400, 0.0f, 1);
 
     /* Camera sensitivity setting track bar */{
         panel->add((new Label(L""))->textSupplier([=]() {
-            std::wstringstream ss;
-            ss << std::fixed << std::setprecision(1);
-            ss << engine->getSettings().camera.sensitivity;
-            return langs::get(L"Mouse Sensitivity", L"settings")+L": "+ss.str();
+            float s = engine->getSettings().camera.sensitivity;
+            return langs::get(L"Mouse Sensitivity", L"settings")+L": "+
+                   util::to_wstring(s, 1);
         }));
 
         TrackBar* trackbar = new TrackBar(0.1, 10.0, 2.0, 0.1, 4);
@@ -301,7 +318,7 @@ Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
     scrollPanel->color(vec4(0.0f, 0.0f, 0.0f, 0.3f));
     scrollPanel->maxLength(400);
     for (auto& entry : Events::bindings){
-        string bindname = entry.first;
+        std::string bindname = entry.first;
         
         Panel* subpanel = new Panel(vec2(400, 40), vec4(5.0f), 1.0f);
         subpanel->color(vec4(0.0f));
@@ -315,15 +332,11 @@ Panel* create_controls_panel(Engine* engine, PagesControl* menu) {
         scrollPanel->add(subpanel);
     }
     panel->add(scrollPanel);
-
     panel->add(guiutil::backButton(menu));
-    panel->refresh();
-    return panel;
 }
 
-Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
-    Panel* panel = new Panel(vec2(400, 200), vec4(5.0f), 1.0f);
-    panel->color(vec4(0.0f));
+void create_settings_panel(Engine* engine, PagesControl* menu) {
+    auto panel = create_page(engine, "settings", 400, 0.0f, 1);
 
     /* Load Distance setting track bar */{
         panel->add((new Label(L""))->textSupplier([=]() {
@@ -359,10 +372,9 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
 
     /* Fog Curve setting track bar */{
         panel->add((new Label(L""))->textSupplier([=]() {
-            std::wstringstream ss;
-            ss << std::fixed << std::setprecision(1);
-            ss << engine->getSettings().graphics.fogCurve;
-            return langs::get(L"Fog Curve", L"settings")+L": " + ss.str();
+            float value = engine->getSettings().graphics.fogCurve;
+            return langs::get(L"Fog Curve", L"settings")+L": " +
+                   util::to_wstring(value, 1);
         }));
 
         TrackBar* trackbar = new TrackBar(1.0, 6.0, 1.0, 0.1, 2);
@@ -392,74 +404,60 @@ Panel* create_settings_panel(Engine* engine, PagesControl* menu) {
     }
 
     /* V-Sync checkbox */{
-        Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
-        checkpanel->color(vec4(0.0f));
-        checkpanel->orientation(Orientation::horizontal);
-
-        CheckBox* checkbox = new CheckBox();
-        checkbox->margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
+        auto checkbox = new FullCheckBox(langs::get(L"V-Sync", L"settings"), vec2(400, 32));
         checkbox->supplier([=]() {
             return engine->getSettings().display.swapInterval != 0;
         });
         checkbox->consumer([=](bool checked) {
             engine->getSettings().display.swapInterval = checked;
         });
-        checkpanel->add(checkbox);
-        checkpanel->add(new Label(langs::get(L"V-Sync", L"settings")));
-
-        panel->add(checkpanel);
+        panel->add(checkbox);
     }
 
     /* Backlight checkbox */{
-        Panel* checkpanel = new Panel(vec2(400, 32), vec4(5.0f), 1.0f);
-        checkpanel->color(vec4(0.0f));
-        checkpanel->orientation(Orientation::horizontal);
-
-        CheckBox* checkbox = new CheckBox();
-        checkbox->margin(vec4(0.0f, 0.0f, 5.0f, 0.0f));
+        auto checkbox = new FullCheckBox(langs::get(L"Backlight", L"settings"), vec2(400, 32));
         checkbox->supplier([=]() {
             return engine->getSettings().graphics.backlight != 0;
         });
         checkbox->consumer([=](bool checked) {
             engine->getSettings().graphics.backlight = checked;
         });
-        checkpanel->add(checkbox);
-        checkpanel->add(new Label(langs::get(L"Backlight", L"settings")));
-
-        panel->add(checkpanel);
+        panel->add(checkbox);
     }
 
-    {
-        string langName = langs::locales_info.at(langs::current->getId()).name;
-        panel->add(guiutil::gotoButton(
-            langs::get(L"Language", L"settings")+L": "+
-            util::str2wstr_utf8(langName), 
-            "languages", menu));
-    }
+    std::string langName = langs::locales_info.at(langs::current->getId()).name;
+    panel->add(guiutil::gotoButton(
+        langs::get(L"Language", L"settings")+L": "+
+        util::str2wstr_utf8(langName), 
+        "languages", menu));
 
-    panel->add(guiutil::gotoButton(langs::get(L"Controls", L"menu"), "controls", menu));
+    panel->add(guiutil::gotoButton(L"Controls", "controls", menu));
     panel->add(guiutil::backButton(menu));
-    panel->refresh();
-    return panel;
 }
 
-Panel* create_pause_panel(Engine* engine, PagesControl* menu) {
-    Panel* panel = new Panel(vec2(400, 200));
-	panel->color(vec4(0.0f));
-	{
-		Button* button = new Button(langs::get(L"Continue", L"menu"), vec4(10.0f));
-		button->listenAction([=](GUI*){
-			menu->reset();
-		});
-		panel->add(shared_ptr<UINode>(button));
-	}
-    panel->add(guiutil::gotoButton(langs::get(L"Settings", L"menu"), "settings", menu));
-	{
-		Button* button = new Button(langs::get(L"Save and Quit to Menu", L"menu"), vec4(10.f));
-		button->listenAction([engine](GUI*){
-			engine->setScreen(shared_ptr<Screen>(new MenuScreen(engine)));
-		});
-		panel->add(shared_ptr<UINode>(button));
-	}
-    return panel;
+void create_pause_panel(Engine* engine, PagesControl* menu) {
+    auto panel = create_page(engine, "pause", 400, 0.0f, 1);
+
+    panel->add(create_button(L"Continue", vec4(10.0f), vec4(1), [=](GUI*){
+        menu->reset();
+    }));
+    panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
+
+    panel->add(create_button(L"Save and Quit to Menu", vec4(10.f), vec4(1), [=](GUI*){
+        engine->setScreen(std::make_shared<MenuScreen>(engine));
+    }));
+}
+
+void menus::create_menus(Engine* engine, PagesControl* menu) {
+    create_new_world_panel(engine, menu);
+    create_settings_panel(engine, menu);
+    create_controls_panel(engine, menu);
+    create_pause_panel(engine, menu);
+    create_languages_panel(engine, menu);
+    create_content_panel(engine, menu);
+    create_main_menu_panel(engine, menu);
+}
+
+void menus::refresh_menus(Engine* engine, PagesControl* menu) {
+    create_main_menu_panel(engine, menu);
 }

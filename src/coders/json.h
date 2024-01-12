@@ -68,6 +68,8 @@ namespace json {
 
         JArray& putArray();
         JObject& putObj();
+
+        void remove(size_t index);
     };
 
     class JObject {

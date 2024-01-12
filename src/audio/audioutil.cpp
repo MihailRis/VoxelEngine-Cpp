@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <memory>
 #include <type_traits>
 
 #ifdef __APPLE__
@@ -176,6 +177,7 @@ bool load_wav_file_header(std::ifstream& file,
     return true;
 }
 
+// after that user must free returned memory by himself!
 char* load_wav(const std::string& filename,
                std::uint8_t& channels,
                std::int32_t& sampleRate,
@@ -191,9 +193,13 @@ char* load_wav(const std::string& filename,
         return nullptr;
     }
 
-    char* data = new char[size];
-
-    in.read(data, size);
-
-    return data;
+    std::unique_ptr<char[]> data (new char[size]);
+    try {
+        in.read(data.get(), size);
+        return data.release();
+    }
+    catch (const std::exception&) {
+        std::cerr << "ERROR: Could not load wav data of \"" << filename << "\"" << std::endl;
+        return nullptr;
+    }
 }

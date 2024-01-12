@@ -27,9 +27,11 @@ World::World(string name,
 			 path directory, 
 			 uint64_t seed, 
 			 EngineSettings& settings,
-			 const Content* content) 
+			 const Content* content,
+			 const std::vector<ContentPack> packs) 
 		: settings(settings), 
 		  content(content),
+		  packs(packs),
 		  name(name), 
 		  seed(seed) {
 	wfile = new WorldFiles(directory, settings.debug);
@@ -71,8 +73,9 @@ Level* World::create(string name,
 					path directory, 
 					uint64_t seed,
 					EngineSettings& settings, 
-					const Content* content) {
-	World* world = new World(name, directory, seed, settings, content);
+					const Content* content,
+					const std::vector<ContentPack>& packs) {
+	World* world = new World(name, directory, seed, settings, content, packs);
 	Player* player = new Player(vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
 	return new Level(world, content, player, settings);
 }
@@ -88,8 +91,9 @@ ContentLUT* World::checkIndices(const path& directory,
 
 Level* World::load(path directory,
                    EngineSettings& settings,
-                   const Content* content) {
-	unique_ptr<World> world (new World(".", directory, 0, settings, content));
+                   const Content* content,
+				   const std::vector<ContentPack>& packs) {
+	unique_ptr<World> world (new World(".", directory, 0, settings, content, packs));
 	auto& wfile = world->wfile;
 
 	if (!wfile->readWorldInfo(world.get())) {
@@ -102,4 +106,8 @@ Level* World::load(path directory,
 
 	world.release();
 	return level;
+}
+
+const std::vector<ContentPack>& World::getPacks() const {
+	return packs;
 }

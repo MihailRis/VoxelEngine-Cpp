@@ -2,11 +2,14 @@
 #define WORLD_WORLD_H_
 
 #include <string>
+#include <vector>
 #include <filesystem>
 #include <stdexcept>
 #include "../typedefs.h"
 #include "../settings.h"
 #include "../util/timeutil.h"
+
+#include "../content/ContentPack.h"
 
 class Content;
 class WorldFiles;
@@ -23,6 +26,7 @@ public:
 class World {
 	EngineSettings& settings;
 	const Content* const content;
+	std::vector<ContentPack> packs;
 public:
 	std::string name;
 	WorldFiles* wfile;
@@ -39,7 +43,8 @@ public:
 		  std::filesystem::path directory, 
 		  uint64_t seed, 
 		  EngineSettings& settings,
-		  const Content* content);
+		  const Content* content,
+		  std::vector<ContentPack> packs);
 	~World();
 
 	void updateTimers(float delta);
@@ -52,10 +57,14 @@ public:
 						 std::filesystem::path directory, 
 						 uint64_t seed, 
 						 EngineSettings& settings, 
-						 const Content* content);
+						 const Content* content,
+						 const std::vector<ContentPack>& packs);
 	static Level* load(std::filesystem::path directory,
 					   EngineSettings& settings,
-					   const Content* content);
+					   const Content* content,
+					   const std::vector<ContentPack>& packs);
+	
+	const std::vector<ContentPack>& getPacks() const;
 };
 
 #endif /* WORLD_WORLD_H_ */

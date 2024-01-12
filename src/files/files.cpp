@@ -6,16 +6,33 @@
 #include <stdint.h>
 #include <stdexcept>
 #include "../coders/json.h"
+#include "../util/stringutil.h"
 
-using std::ios;
-using std::string;
-using std::unique_ptr;
-using std::ifstream;
-using std::ofstream;
-using std::filesystem::path;
+namespace fs = std::filesystem;
 
-bool files::write_bytes(const path& filename, const char* data, size_t size) {
-	ofstream output(filename, ios::binary);
+files::rafile::rafile(fs::path filename)
+    : file(filename, std::ios::binary | std::ios::ate) {
+    if (!file) {
+        throw std::runtime_error("could not to open file "+filename.string());
+    }
+    filelength = file.tellg();
+    file.seekg(0);
+}
+
+size_t files::rafile::length() const {
+    return filelength;
+}
+
+void files::rafile::seekg(std::streampos pos) {
+    file.seekg(pos);
+}
+
+void files::rafile::read(char* buffer, std::streamsize size) {
+    file.read(buffer, size);
+}
+
+bool files::write_bytes(fs::path filename, const char* data, size_t size) {
+	std::ofstream output(filename, std::ios::binary);
 	if (!output.is_open())
 		return false;
 	output.write(data, size);
@@ -23,8 +40,8 @@ bool files::write_bytes(const path& filename, const char* data, size_t size) {
 	return true;
 }
 
-uint files::append_bytes(const path& filename, const char* data, size_t size) {
-	ofstream output(filename, ios::binary | ios::app);
+uint files::append_bytes(fs::path filename, const char* data, size_t size) {
+	std::ofstream output(filename, std::ios::binary | std::ios::app);
 	if (!output.is_open())
 		return 0;
 	uint position = output.tellp();
@@ -33,8 +50,8 @@ uint files::append_bytes(const path& filename, const char* data, size_t size) {
 	return position;
 }
 
-bool files::read(const path& filename, char* data, size_t size) {
-	ifstream output(filename, ios::binary);
+bool files::read(fs::path filename, char* data, size_t size) {
+	std::ifstream output(filename, std::ios::binary);
 	if (!output.is_open())
 		return false;
 	output.read(data, size);
@@ -42,31 +59,32 @@ bool files::read(const path& filename, char* data, size_t size) {
 	return true;
 }
 
-char* files::read_bytes(const path& filename, size_t& length) {
-	ifstream input(filename, ios::binary);
+char* files::read_bytes(fs::path filename, size_t& length) {
+	std::ifstream input(filename, std::ios::binary);
 	if (!input.is_open())
 		return nullptr;
 	input.seekg(0, std::ios_base::end);
 	length = input.tellg();
 	input.seekg(0, std::ios_base::beg);
 
-	unique_ptr<char> data {new char[length]};
+	std::unique_ptr<char> data(new char[length]);
 	input.read(data.get(), length);
 	input.close();
 	return data.release();
 }
 
-std::string files::read_string(const path& filename) {
+std::string files::read_string(fs::path filename) {
 	size_t size;
-	unique_ptr<char> chars (read_bytes(filename, size));
+	std::unique_ptr<char> chars (read_bytes(filename, size));
 	if (chars == nullptr) {
-		throw std::runtime_error("could not to load file '"+filename.string()+"'");
+		throw std::runtime_error("could not to load file '"+
+								 filename.string()+"'");
 	}
-	return string(chars.get(), size);
+	return std::string(chars.get(), size);
 }
 
-bool files::write_string(const path& filename, const string& content) {
-	ofstream file(filename);
+bool files::write_string(fs::path filename, const std::string content) {
+	std::ofstream file(filename);
 	if (!file) {
 		return false;
 	}
@@ -74,12 +92,30 @@ bool files::write_string(const path& filename, const string& content) {
 	return true;
 }
 
-json::JObject* files::read_json(const path& file) {
-	string text = files::read_string(file);
+json::JObject* files::read_json(fs::path file) {
+	std::string text = files::read_string(file);
 	try {
 		return json::parse(file.string(), text);
 	} catch (const parsing_error& error) {
         std::cerr << error.errorLog() << std::endl;
         throw std::runtime_error("could not to parse "+file.string());
     }
+}
+
+std::vector<std::string> files::read_list(fs::path filename) {
+	std::ifstream file(filename);
+	if (!file) {
+		throw std::runtime_error("could not to open file "+filename.u8string());
+	}
+	std::vector<std::string> lines;
+	std::string line;
+	while (std::getline(file, line)) {
+        util::trim(line);
+		if (line.length() == 0)
+			continue;
+		if (line[0] == '#')
+			continue;
+		lines.push_back(line);
+	}
+	return lines;
 }

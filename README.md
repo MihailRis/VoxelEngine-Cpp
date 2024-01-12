@@ -1,6 +1,8 @@
-# Run in windows with compiled executable file:
+# Run with compiled executable file:
 
-[EXE for Windows](https://drive.google.com/file/d/1hkqCFP6MG9t6V6hjfL4UXdIW9VRsRaAt/view?usp=sharing)
+[Windows (64 bit)](https://drive.google.com/file/d/15v_PwtbPRQ0ytDok-1ucHYks2T2cZdnt/view?usp=sharing)
+
+[Linux AppImage (x86_64)](https://github.com/MihailRis/VoxelEngine-Cpp/releases/download/v16/VoxelEngine-0.16-x86_64.AppImage)
 
 # Controls:
 - <kbd>**Esc**</kbd> - pause
@@ -22,26 +24,54 @@ git clone --recursive https://github.com/MihailRis/VoxelEngine-Cpp.git
 cd VoxelEngine-Cpp
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 
 ## Install libs:
+
 #### Debian-based distro:
-`$ sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev`
+```sh
+sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev
+```
+
+CMake missing LUA_INCLUDE_DIR and LUA_LIBRARIES fix:
+```sh
+sudo ln -s /usr/lib/x86_64-linux-gnu/libluajit-5.1.a /usr/lib/x86_64-linux-gnu/liblua5.1.a
+sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
+```
 
 #### RHEL-based distro:
-`$ sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel openal-devel`
+```sh
+sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel openal-devel
+```
+
+\+ install LuaJIT
 
 #### Arch-based distro:
 If you use X11
-`$ sudo pacman -S glfw-x11 glew glm libpng openal`
+```sh
+sudo pacman -S glfw-x11 glew glm libpng openal
+```
 
 If you use Wayland
-`$ sudo pacman -S glfw-wayland glew glm libpng openal`
+```sh
+sudo pacman -S glfw-wayland glew glm libpng openal
+```
+
+\+ install LuaJIT
+
+#### LuaJIT installation:
+```sh
+git clone https://luajit.org/git/luajit.git
+cd luajit
+make && sudo make install INSTALL_INC=/usr/include/lua
+```
 
 #### macOS:
 
-`$ brew install glfw3 glew glm libpng`
+```
+brew install glfw3 glew glm libpng lua luajit openal-soft
+```
 
-Download, compile and install OpenAL
+If homebrew for some reason could not install the necessary packages: ```lua luajit openal-soft```, then download, install and compile them manually (Lua, LuaJIT and OpenAL).

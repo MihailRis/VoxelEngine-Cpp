@@ -1,6 +1,7 @@
 #ifndef PLAYER_CONTROL_H_
 #define PLAYER_CONTROL_H_
 
+#include <memory>
 #include <glm/glm.hpp>
 
 #include "../settings.h"
@@ -8,10 +9,11 @@
 
 class Camera;
 class Level;
+class BlocksController;
 
 class CameraControl {
 	Player* player;
-	Camera* camera, *currentViewCamera;
+	std::shared_ptr<Camera> camera, currentViewCamera;
 	const CameraSettings& settings;
 	glm::vec3 offset;
 	float shake = 0.0f;
@@ -29,6 +31,7 @@ class PlayerController {
 	Player* player;
 	PlayerInput input;
 	CameraControl camControl;
+    BlocksController* blocksController;
 
 	void updateKeyboard();
 	void updateCamera(float delta, bool movement);
@@ -42,7 +45,9 @@ public:
 	static int selectedBlockId;
 	static int selectedBlockStates;
 
-	PlayerController(Level* level, const EngineSettings& settings);
+	PlayerController(Level* level, 
+                     const EngineSettings& settings,
+                     BlocksController* blocksController);
 	void update(float delta, bool input, bool pause);
 };
 

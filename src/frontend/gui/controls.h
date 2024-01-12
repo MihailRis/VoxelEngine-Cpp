@@ -8,10 +8,10 @@
 #include <glm/glm.hpp>
 #include "UINode.h"
 #include "panels.h"
+#include "../../window/input.h"
 
 class Batch2D;
 class Assets;
-struct Binding;
 
 namespace gui {
     typedef std::function<std::wstring()> wstringsupplier;
@@ -23,20 +23,22 @@ namespace gui {
     typedef std::function<bool()> boolsupplier;
     typedef std::function<void(bool)> boolconsumer;
 
+    typedef std::function<bool(const std::wstring&)> wstringchecker;
+
     class Label : public UINode {
     protected:
         std::wstring text_;
         std::string fontName_;
         wstringsupplier supplier = nullptr;
     public:
-        Label(const std::wstring_view& text, const std::string& fontName="normal");
+        Label(std::wstring text, std::string fontName="normal");
 
-        virtual Label& text(const std::wstring_view& text);
+        virtual Label& text(std::wstring text);
         std::wstring text() const;
 
         virtual void draw(Batch2D* batch, Assets* assets) override;
 
-        virtual Label* textSupplier(const wstringsupplier& supplier);
+        virtual Label* textSupplier(wstringsupplier supplier);
         virtual void size(glm::vec2 size) override;
     };
 
@@ -47,15 +49,17 @@ namespace gui {
         std::vector<onaction> actions;
         std::shared_ptr<UINode> label = nullptr;
     public:
-        Button(std::shared_ptr<UINode> content, const glm::vec4& padding=glm::vec4(2.0f));
-        Button(const std::wstring_view& text, const glm::vec4& padding=glm::vec4(2.0f));
+        Button(std::shared_ptr<UINode> content, glm::vec4 padding=glm::vec4(2.0f));
+        Button(std::wstring text, 
+               glm::vec4 padding=glm::vec4(2.0f), 
+               glm::vec4 margin=glm::vec4(1.0f));
 
         virtual void drawBackground(Batch2D* batch, Assets* assets);
 
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
         virtual void mouseRelease(GUI*, int x, int y) override;
-        virtual Button* listenAction(const onaction& action);
+        virtual Button* listenAction(onaction action);
 
         virtual void textAlign(Align align);
 
@@ -69,24 +73,31 @@ namespace gui {
     protected:
         glm::vec4 hoverColor {0.05f, 0.1f, 0.2f, 0.75f};
         glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
+        glm::vec4 invalidColor {0.1f, 0.05f, 0.03f, 1.0f};
         Label* label;
         std::wstring input;
         std::wstring placeholder;
         wstringsupplier supplier = nullptr;
         wstringconsumer consumer = nullptr;
+        wstringchecker validator = nullptr;
+        bool valid = true;
     public:
-        TextBox(const std::wstring& placeholder, 
-                const glm::vec4& padding=glm::vec4(2.0f));
+        TextBox(std::wstring placeholder, 
+                glm::vec4 padding=glm::vec4(2.0f));
 
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
         virtual void drawBackground(Batch2D* batch, Assets* assets) override;
         virtual void typed(unsigned int codepoint) override; 
         virtual void keyPressed(int key) override;
-        virtual void textSupplier(const wstringsupplier& supplier);
-        virtual void textConsumer(const wstringconsumer& consumer);
+        virtual void textSupplier(wstringsupplier supplier);
+        virtual void textConsumer(wstringconsumer consumer);
+        virtual void textValidator(wstringchecker validator);
         virtual bool isfocuskeeper() const override {return true;}
         virtual std::wstring text() const;
+        virtual bool validate();
+        virtual void setValid(bool valid);
+        virtual bool isValid() const;
     };
 
     class InputBindBox : public Panel {
@@ -96,7 +107,7 @@ namespace gui {
         Label* label;
         Binding& binding;
     public:
-        InputBindBox(Binding& binding, const glm::vec4& padding=glm::vec4(6.0f));
+        InputBindBox(Binding& binding, glm::vec4 padding=glm::vec4(6.0f));
         virtual void drawBackground(Batch2D* batch, Assets* assets) override;
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
@@ -124,8 +135,8 @@ namespace gui {
                  int trackWidth=1);
         virtual void draw(Batch2D* batch, Assets* assets) override;
 
-        virtual void supplier(const doublesupplier& supplier);
-        virtual void consumer(const doubleconsumer& consumer);
+        virtual void supplier(doublesupplier supplier);
+        virtual void consumer(doubleconsumer consumer);
 
         virtual void mouseMove(GUI*, int x, int y) override;
     };
@@ -144,8 +155,8 @@ namespace gui {
 
         virtual void mouseRelease(GUI*, int x, int y) override;
 
-        virtual void supplier(const boolsupplier& supplier);
-        virtual void consumer(const boolconsumer& consumer);
+        virtual void supplier(boolsupplier supplier);
+        virtual void consumer(boolconsumer consumer);
 
         virtual CheckBox* checked(bool flag);
 
@@ -153,6 +164,29 @@ namespace gui {
             if (supplier_)
                 return supplier_();
             return checked_;
+        }
+    };
+
+    class FullCheckBox : public Panel {
+    protected:
+        std::shared_ptr<CheckBox> checkbox;
+    public:
+        FullCheckBox(std::wstring text, glm::vec2 size, bool checked=false);
+
+        virtual void supplier(boolsupplier supplier) {
+            checkbox->supplier(supplier);
+        }
+
+        virtual void consumer(boolconsumer consumer) {
+            checkbox->consumer(consumer);
+        }
+
+        virtual void checked(bool flag) {
+            checkbox->checked(flag);
+        }
+
+        virtual bool checked() const {
+            return checkbox->checked();
         }
     };
 }

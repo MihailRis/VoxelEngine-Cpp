@@ -5,14 +5,29 @@
 #include <filesystem>
 
 class Block;
+class ItemDef;
+class ContentPack;
 class ContentBuilder;
 
-class ContentLoader {
-    std::filesystem::path folder;
-public:
-    ContentLoader(const std::filesystem::path& folder);
+namespace json {
+    class JObject;
+}
 
-    Block* loadBlock(const std::string& name, const std::filesystem::path& file);
+class ContentLoader {
+    const ContentPack* pack;
+
+    void loadBlock(Block* def, std::string full, std::string name);
+    void loadCustomBlockModel(Block* def, json::JObject* primitives);
+    void loadItem(ItemDef* def, std::string full, std::string name);
+public:
+    ContentLoader(ContentPack* pack);
+
+    bool fixPackIndices(std::filesystem::path folder,
+                        json::JObject* indicesRoot,
+                        std::string contentSection);
+    void fixPackIndices();
+    void loadBlock(Block* def, std::string name, std::filesystem::path file);
+    void loadItem(ItemDef* def, std::string name, std::filesystem::path file);
     void load(ContentBuilder* builder);
 };
 

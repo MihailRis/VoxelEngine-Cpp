@@ -8,18 +8,15 @@
 #include "../content/ContentLUT.h"
 
 namespace fs = std::filesystem;
-using std::string;
-using std::unique_ptr;
-using fs::path;
 
-WorldConverter::WorldConverter(path folder, 
+WorldConverter::WorldConverter(fs::path folder, 
                                const Content* content, 
-                               const ContentLUT* lut) 
+                               std::shared_ptr<ContentLUT> lut) 
     : lut(lut), content(content) {
     DebugSettings settings;
     wfile = new WorldFiles(folder, settings);
 
-    path regionsFolder = wfile->getRegionsFolder();
+    fs::path regionsFolder = wfile->getRegionsFolder();
     if (!fs::is_directory(regionsFolder)) {
         std::cerr << "nothing to convert" << std::endl;
         return;
@@ -41,13 +38,13 @@ void WorldConverter::convertNext() {
     if (!hasNext()) {
         throw std::runtime_error("no more regions to convert");
     }
-    path regfile = regions.front();
+    fs::path regfile = regions.front();
     regions.pop();
     if (!fs::is_regular_file(regfile))
         return;
-    int x, y;
-    string name = regfile.stem().string();
-    if (!WorldFiles::parseRegionFilename(name, x, y)) {
+    int x, z;
+    std::string name = regfile.stem().string();
+    if (!WorldFiles::parseRegionFilename(name, x, z)) {
         std::cerr << "could not parse name " << name << std::endl;
         return;
     }
@@ -55,11 +52,16 @@ void WorldConverter::convertNext() {
     for (uint cz = 0; cz < REGION_SIZE; cz++) {
         for (uint cx = 0; cx < REGION_SIZE; cx++) {
             int gx = cx + x * REGION_SIZE;
-            int gz = cz + y * REGION_SIZE;
-            unique_ptr<ubyte[]> data (wfile->getChunk(gx, gz));
+            int gz = cz + z * REGION_SIZE;
+            std::unique_ptr<ubyte[]> data (wfile->getChunk(gx, gz));
             if (data == nullptr)
                 continue;
-            Chunk::convert(data.get(), lut);
+            if (wfile->getVoxelRegionVersion(x, z) != REGION_FORMAT_VERSION) {
+                Chunk::fromOld(data.get());
+            }
+            if (lut) {
+                Chunk::convert(data.get(), lut.get());
+            }
             wfile->put(gx, gz, data.get());
         }
     }

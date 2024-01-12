@@ -2,6 +2,7 @@
 #define ASSETS_ASSETS_H_
 
 #include <string>
+#include <memory>
 #include <unordered_map>
 
 class Texture;
@@ -10,23 +11,25 @@ class Font;
 class Atlas;
 
 class Assets {
-	std::unordered_map<std::string, Texture*> textures;
-	std::unordered_map<std::string, Shader*> shaders;
-	std::unordered_map<std::string, Font*> fonts;
-	std::unordered_map<std::string, Atlas*> atlases;
+	std::unordered_map<std::string, std::shared_ptr<Texture>> textures;
+	std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
+	std::unordered_map<std::string, std::shared_ptr<Font>> fonts;
+	std::unordered_map<std::string, std::shared_ptr<Atlas>> atlases;
 public:
 	~Assets();
-	Texture* getTexture(const std::string& name) const;
-	void store(Texture* texture, const std::string& name);
+	Texture* getTexture(std::string name) const;
+	void store(Texture* texture, std::string name);
 
-	Shader* getShader(const std::string& name) const;
-	void store(Shader* shader, const std::string& name);
+	Shader* getShader(std::string name) const;
+	void store(Shader* shader, std::string name);
 
-	Font* getFont(const std::string& name) const;
-	void store(Font* font, const std::string& name);
+	Font* getFont(std::string name) const;
+	void store(Font* font, std::string name);
 
-	Atlas* getAtlas(const std::string& name) const;
-	void store(Atlas* atlas, const std::string& name);
+	Atlas* getAtlas(std::string name) const;
+	void store(Atlas* atlas, std::string name);
+
+    void extend(const Assets& assets);
 };
 
 #endif /* ASSETS_ASSETS_H_ */

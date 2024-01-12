@@ -1,29 +1,6 @@
 {
     "id": "base",
-    "version": "0.15",
-    "description": "basic content package",
-    "blocks": [
-        "dirt",
-        "grass_block",
-        "lamp",
-        "glass",
-        "planks",
-        "wood",
-        "leaves",
-        "stone",
-        "water",
-        "sand",
-        "bazalt",
-        "grass",
-        "flower",
-        "brick",
-        "metal",
-        "rust",
-        "red_lamp",
-        "green_lamp",
-        "blue_lamp",
-        "pane",
-        "pipe",
-        "lightbulb"
-    ]
+    "title": "Base",
+    "version": "0.16",
+    "description": "basic content package"
 }

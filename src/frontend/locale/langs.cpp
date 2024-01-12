@@ -77,6 +77,7 @@ void langs::loadLocalesInfo(const path& resdir, string& fallback) {
 
     auto langs = root->obj("langs");
     if (langs) {
+        std::cout << "locales ";
         for (auto& entry : langs->map) {
             auto langInfo = entry.second;
 
@@ -87,9 +88,31 @@ void langs::loadLocalesInfo(const path& resdir, string& fallback) {
                 continue;
             }
 
-            std::cout << "locale " << entry.first << " (" << name << ") added" << std::endl;
+            std::cout << "[" << entry.first << " (" << name << ")] ";
             langs::locales_info[entry.first] = LocaleInfo {entry.first, name};
         } 
+        std::cout << "added" << std::endl;
+    }
+}
+
+std::string langs::locale_by_envlocale(const std::string& envlocale, const path& resdir){
+    string fallback = FALLBACK_DEFAULT;
+    if (locales_info.size() == 0) {
+        loadLocalesInfo(resdir, fallback);
+    }
+    if (locales_info.find(envlocale) != locales_info.end()) {
+        std::cout << "locale " << envlocale << " is automatically selected" << std::endl;
+        return envlocale;
+    }
+    else {
+        for (const auto& loc : locales_info) {
+            if (loc.first.find(envlocale.substr(0, 2)) != std::string::npos) {
+                std::cout << "locale " << loc.first << " is automatically selected" << std::endl;
+                return loc.first;
+            }
+        }
+        std::cout << "locale " << fallback << " is automatically selected" << std::endl;
+        return fallback;
     }
 }
 
@@ -105,11 +128,11 @@ void langs::load(const path& resdir,
         reader.read(lang, "");
     }
     for (auto pack : packs) {
-        path file = pack.getFolder()/filename;
+        path file = pack.folder/filename;
         if (fs::is_regular_file(file)) {
             string text = files::read_string(file);
             Reader reader(file.string(), text);
-            reader.read(lang, pack.getId()+":");
+            reader.read(lang, pack.id+":");
         }
     }
 }
@@ -120,15 +143,20 @@ void langs::load(const path& resdir,
                  const vector<ContentPack>& packs) {
     unique_ptr<Lang> lang (new Lang(locale));
     load(resdir, fallback, packs, *lang.get());
-    load(resdir, locale, packs, *lang.get());
+    if (locale != fallback) {
+        load(resdir, locale, packs, *lang.get());
+    }
     current.reset(lang.release());
 }
 
 void langs::setup(const path& resdir,
-                  const string& locale,
+                  string locale,
                   const vector<ContentPack>& packs) {
     string fallback = langs::FALLBACK_DEFAULT;
     langs::loadLocalesInfo(resdir, fallback);
+    if (langs::locales_info.find(locale) == langs::locales_info.end()) {
+        locale = fallback;
+    }
     langs::load(resdir, locale, fallback, packs);
 }
 

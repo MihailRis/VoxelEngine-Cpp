@@ -1,11 +1,23 @@
 {
     "langs": {
+    	"be_BY": {
+            "name": "Беларуская"
+        },
         "en_US": {
             "name": "English"
         },
-        "ru_RU": {
+	"pl_PL": {
+	    "name": "Polski"
+	},
+    	"ru_RU": {
             "name": "Русский"
-        }
+        },
+	"uk_UA": {
+	    "name": "Українська"
+	},
+	"fi_FI": {
+	    "name": "Suomi"
+	}
     },
     "fallback": "en_US"
 }

@@ -5,16 +5,13 @@
 #include "../settings.h"
 
 class Content;
-class ContentIndices;
 class World;
 class Player;
 class Chunks;
 class LevelEvents;
 class Lighting;
 class PhysicsSolver;
-class ChunksController;
 class ChunksStorage;
-class PlayerController;
 
 class Level {
 public:

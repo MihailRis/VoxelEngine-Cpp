@@ -28,6 +28,7 @@
 #include "WorldRenderer.h"
 #include "hud.h"
 #include "ContentGfxCache.h"
+#include "LevelFrontend.h"
 #include "gui/GUI.h"
 #include "gui/panels.h"
 #include "menu.h"
@@ -35,11 +36,11 @@
 #include "../content/Content.h"
 #include "../voxels/Block.h"
 
-using std::string;
-using std::wstring;
-using glm::vec3;
-using glm::vec4;
-using std::shared_ptr;
+Screen::Screen(Engine* engine) : engine(engine), batch(new Batch2D(1024)) {
+}
+
+Screen::~Screen() {
+}
 
 MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     auto menu = engine->getGUI()->getMenu();
@@ -47,15 +48,12 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     menu->reset();
     menu->set("main");
 
-    batch = new Batch2D(1024);
-    uicamera = new Camera(vec3(), Window::height);
+    uicamera.reset(new Camera(glm::vec3(), Window::height));
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 }
 
 MenuScreen::~MenuScreen() {
-    delete batch;
-    delete uicamera;
 }
 
 void MenuScreen::update(float delta) {
@@ -63,7 +61,7 @@ void MenuScreen::update(float delta) {
 
 void MenuScreen::draw(float delta) {
     Window::clear();
-    Window::setBgColor(vec3(0.2f));
+    Window::setBgColor(glm::vec3(0.2f));
 
     uicamera->setFov(Window::height);
 	Shader* uishader = engine->getAssets()->getShader("ui");
@@ -78,7 +76,7 @@ void MenuScreen::draw(float delta) {
     batch->rect(0, 0, 
                 width, height, 0, 0, 0, 
                 UVRegion(0, 0, width/64, height/64), 
-                false, false, vec4(1.0f));
+                false, false, glm::vec4(1.0f));
     batch->render();
 }
 
@@ -86,26 +84,20 @@ static bool backlight;
 
 LevelScreen::LevelScreen(Engine* engine, Level* level) 
     : Screen(engine), 
-      level(level) {
+      level(level),
+      frontend(std::make_unique<LevelFrontend>(level, engine->getAssets())),
+      hud(std::make_unique<HudRenderer>(engine, frontend.get())),
+      worldRenderer(std::make_unique<WorldRenderer>(engine, frontend.get())),
+      controller(std::make_unique<LevelController>(engine->getSettings(), level)) {
+
     auto& settings = engine->getSettings();
-    controller = new LevelController(settings, level);
-    cache = new ContentGfxCache(level->content, engine->getAssets());
-    worldRenderer = new WorldRenderer(engine, level, cache);
-    hud = new HudRenderer(engine, level, cache);
     backlight = settings.graphics.backlight;
 }
 
 LevelScreen::~LevelScreen() {
-    delete controller;
-    delete hud;
-    delete worldRenderer;
-    delete cache;
-
 	std::cout << "-- writing world" << std::endl;
     World* world = level->world;
-	world->write(level);
-
-    delete level;
+	world->write(level.get());
 	delete world;
 }
 
@@ -147,18 +139,18 @@ void LevelScreen::update(float delta) {
         level->world->updateTimers(delta);
     }
     controller->update(delta, !inputLocked, hud->isPause());
-    if (hudVisible)
-        hud->update();
+    hud->update(hudVisible);
 }
 
 void LevelScreen::draw(float delta) {
-    Camera* camera = level->player->currentViewCamera;
+    auto camera = level->player->currentCamera;
 
     Viewport viewport(Window::width, Window::height);
-    GfxContext ctx(nullptr, viewport, nullptr);
+    GfxContext ctx(nullptr, viewport, batch.get());
 
-    worldRenderer->draw(ctx, camera);
+    worldRenderer->draw(ctx, camera.get(), hudVisible);
 
+    hud->drawOverlay(ctx);
     if (hudVisible) {
         hud->draw(ctx);
         if (level->player->debug) {

@@ -19,6 +19,8 @@ namespace util {
     extern void ltrim(std::string &s);
     extern void rtrim(std::string &s);
     extern void trim(std::string &s);
+
+    extern std::wstring to_wstring(double x, int precision);
 }
 
 #endif // UTIL_STRINGUTIL_H_

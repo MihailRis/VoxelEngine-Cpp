@@ -36,6 +36,7 @@ Batch2D::~Batch2D(){
 void Batch2D::begin(){
 	_texture = nullptr;
 	blank->bind();
+	color = vec4(1.0f);
 }
 
 void Batch2D::vertex(float x, float y,
@@ -304,9 +305,11 @@ void Batch2D::sprite(float x, float y, float w, float h, int atlasRes, int index
 }
 
 void Batch2D::render(unsigned int gl_primitive) {
-	mesh->reload(buffer, index / B2D_VERTEX_SIZE);
-	mesh->draw(gl_primitive);
-	index = 0;
+    if (index == 0)
+        return;
+    mesh->reload(buffer, index / B2D_VERTEX_SIZE);
+    mesh->draw(gl_primitive);
+    index = 0;
 }
 
 void Batch2D::render() {

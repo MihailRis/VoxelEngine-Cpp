@@ -2,6 +2,7 @@
 #define GRAPHICS_BLOCKS_RENDERER_H
 
 #include <stdlib.h>
+#include <vector>
 #include <glm/glm.hpp>
 #include "UVRegion.h"
 #include "../typedefs.h"
@@ -18,6 +19,7 @@ class ChunksStorage;
 class ContentGfxCache;
 
 class BlocksRenderer {
+    static const glm::vec3 SUN_VECTOR;
 	static const uint VERTEX_SIZE;
 	const Content* const content;
 	float* vertexBuffer;
@@ -38,63 +40,46 @@ class BlocksRenderer {
 	void vertex(const glm::vec3& coord, float u, float v, const glm::vec4& light);
 	void index(int a, int b, int c, int d, int e, int f);
 
-	void vertex(const glm::ivec3& coord, float u, float v, 
-				const glm::vec4& brightness,
-				const glm::ivec3& axisX,
-				const glm::ivec3& axisY,
-				const glm::ivec3& axisZ);
-
 	void vertex(const glm::vec3& coord, float u, float v, 
 				const glm::vec4& brightness,
-				const glm::ivec3& axisX,
-				const glm::ivec3& axisY,
-				const glm::ivec3& axisZ);
+				const glm::vec3& axisX,
+				const glm::vec3& axisY,
+				const glm::vec3& axisZ);
 
-	void face(const glm::vec3& coord, float w, float h,
+	void face(const glm::vec3& coord, float w, float h, float d,
 		const glm::vec3& axisX,
 		const glm::vec3& axisY,
+        const glm::vec3& axisZ,
 		const UVRegion& region,
 		const glm::vec4(&lights)[4],
 		const glm::vec4& tint);
 	
-	void face(const glm::ivec3& coord,
-		const glm::ivec3& axisX,
-		const glm::ivec3& axisY,
-		const glm::ivec3& axisZ,
-		const glm::ivec3& laxisZ,
-		const UVRegion& region);
-
-	void face(const glm::ivec3& coord,
-		const glm::ivec3& axisX,
-		const glm::ivec3& axisY,
-		const glm::ivec3& axisZ,
-		const glm::ivec3& laxisZ,
-		const glm::vec3& offset,
-		float width,
-		float height,
-		float depth,
+	void face(const glm::vec3& coord,
+		const glm::vec3& axisX,
+		const glm::vec3& axisY,
+		const glm::vec3& axisZ,
 		const UVRegion& region,
         bool lights);
 
-	void face(const glm::vec3& coord, float w, float h,
-		const glm::vec3& axisX,
-		const glm::vec3& axisY,
-		const UVRegion& region,
-		const glm::vec4(&lights)[4]) {
-		face(coord, w, h, axisX, axisY, region, lights, glm::vec4(1.0f));
-	}
-
-	void blockCube(int x, int y, int z, const UVRegion(&faces)[6], ubyte group);
+	void tetragonicFace(const glm::vec3& coord,
+		const glm::vec3& p1, const glm::vec3& p2,
+		const glm::vec3& p3, const glm::vec3& p4,
+		const glm::vec3& X,
+		const glm::vec3& Y,
+		const glm::vec3& Z,
+		const UVRegion& texreg,
+		bool lights);
 	
-	void blockCubeShaded(int x, int y, int z, const UVRegion(&faces)[6], const Block* block, ubyte states);
-	void blockAABB(const glm::ivec3& coord, 
-                    const glm::vec3& offset, 
-                    const glm::vec3& size, 
+	void blockCube(int x, int y, int z, const UVRegion(&faces)[6], const Block* block, ubyte states, bool lights);
+	void blockAABB(const glm::ivec3& coord,
                     const UVRegion(&faces)[6], 
                     const Block* block, 
                     ubyte rotation,
                     bool lights);
 	void blockXSprite(int x, int y, int z, const glm::vec3& size, const UVRegion& face1, const UVRegion& face2, float spread);
+	void blockCustomModel(const glm::ivec3& icoord,
+		const Block* block, ubyte rotation,
+		bool lights);
 
 	bool isOpenForLight(int x, int y, int z) const;
 	bool isOpen(int x, int y, int z, ubyte group) const;

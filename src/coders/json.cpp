@@ -238,6 +238,10 @@ JObject& JArray::putObj() {
     return *obj;
 }
 
+void JArray::remove(size_t index) {
+    values.erase(values.begin() + index);
+}
+
 JObject::~JObject() {
     for (auto& entry : map) {
         delete entry.second;
@@ -352,7 +356,7 @@ JObject& JObject::put(string key, int value) {
 
 JObject& JObject::put(string key, int64_t value) {
     auto found = map.find(key);
-    if (found != map.end()) delete found->second;
+    if (found != map.end())  found->second;
     valvalue val;
     val.integer = value;
     map.insert(make_pair(key, new Value(valtype::integer, val)));
@@ -461,6 +465,10 @@ JObject* Parser::parseObject() {
     unique_ptr<JObject> obj(new JObject());
     unordered_map<string, Value*>& map = obj->map;
     while (peek() != '}') {
+        if (peek() == '#') {
+            skipLine();
+            continue;
+        }
         string key = parseName();
         char next = peek();
         if (next != ':') {
@@ -486,6 +494,10 @@ JArray* Parser::parseArray() {
     unique_ptr<JArray> arr(new JArray());
     vector<Value*>& values = arr->values;
     while (peek() != ']') {
+        if (peek() == '#') {
+            skipLine();
+            continue;
+        }
         values.push_back(parseValue());
 
         char next = peek();

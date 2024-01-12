@@ -5,16 +5,21 @@
 #include <memory>
 #include <vector>
 #include <stdexcept>
+#include <filesystem>
 #include "typedefs.h"
 #include "settings.h"
 
+#include "assets/Assets.h"
+#include "content/Content.h"
 #include "content/ContentPack.h"
+#include "files/engine_paths.h"
 
-class Assets;
 class Level;
 class Screen;
-class Content;
 class EnginePaths;
+class ResPaths;
+
+namespace fs = std::filesystem;
 
 namespace gui {
 	class GUI;
@@ -26,20 +31,21 @@ public:
 };
 
 class Engine {
-	Assets* assets;
+	std::unique_ptr<Assets> assets = nullptr;
 	std::shared_ptr<Screen> screen = nullptr;
     std::vector<ContentPack> contentPacks;
 	EngineSettings& settings;
-	Content* content;
+	std::unique_ptr<Content> content = nullptr;
 	EnginePaths* paths;
+    std::unique_ptr<ResPaths> resPaths = nullptr;
 
 	uint64_t frame = 0;
 	double lastTime = 0.0;
 	double delta = 0.0;
 
-	gui::GUI* gui;
+	std::unique_ptr<gui::GUI> gui;
 public:
-	Engine(EngineSettings& settings, EnginePaths* paths, Content* content);
+	Engine(EngineSettings& settings, EnginePaths* paths);
 	~Engine();
 
 	void updateTimers();
@@ -54,6 +60,9 @@ public:
 	const Content* getContent() const;
     std::vector<ContentPack>& getContentPacks();
 	void setLanguage(std::string locale);
+    void loadContent();
+    void loadWorldContent(const fs::path& folder);
+	void loadAllPacks();
 };
 
 #endif // SRC_ENGINE_H_

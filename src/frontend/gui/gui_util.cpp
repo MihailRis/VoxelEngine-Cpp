@@ -9,8 +9,6 @@
 using namespace gui;
 using glm::vec2;
 using glm::vec4;
-using std::string;
-using std::wstring;
 
 Button* guiutil::backButton(PagesControl* menu) {
     return (new Button(langs::get(L"Back"), vec4(10.f)))->listenAction([=](GUI* gui) {
@@ -18,17 +16,35 @@ Button* guiutil::backButton(PagesControl* menu) {
     });
 }
 
-Button* guiutil::gotoButton(wstring text, string page, PagesControl* menu) {
+Button* guiutil::gotoButton(
+        std::wstring text, 
+        const std::string& page, 
+        PagesControl* menu) {
+    text = langs::get(text, L"menu");
     return (new Button(text, vec4(10.f)))->listenAction([=](GUI* gui) {
         menu->set(page);
     });
 }
 
-void guiutil::alert(GUI* gui, wstring text, gui::runnable on_hidden) {
+void guiutil::alert(GUI* gui, const std::wstring& text, gui::runnable on_hidden) {
     PagesControl* menu = gui->getMenu();
     Panel* panel = new Panel(vec2(500, 200), vec4(8.0f), 8.0f);
     panel->color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
-    panel->add(new Label(text));
+    
+    // TODO: implement built-in text wrapping
+    const int wrap_length = 60;
+    if (text.length() > wrap_length) {
+        size_t offset = 0;
+        int extra;
+        while ((extra = text.length() - offset) > 0) {
+            extra = std::min(extra, wrap_length);
+            std::wstring part = text.substr(offset, extra);
+            panel->add(new Label(part));
+            offset += extra;
+        }
+    } else {
+        panel->add(new Label(text));
+    }
     panel->add((new Button(langs::get(L"Ok"), vec4(10.f)))->listenAction([=](GUI* gui) {
         if (on_hidden)
             on_hidden();
@@ -39,8 +55,12 @@ void guiutil::alert(GUI* gui, wstring text, gui::runnable on_hidden) {
     menu->set("<alert>");
 }
 
-void guiutil::confirm(GUI* gui, wstring text, gui::runnable on_confirm,
-                      wstring yestext, wstring notext) {
+void guiutil::confirm(
+        GUI* gui, 
+        const std::wstring& text, 
+        gui::runnable on_confirm,
+        std::wstring yestext, 
+        std::wstring notext) {
     if (yestext.empty()) yestext = langs::get(L"Yes");
     if (notext.empty()) notext = langs::get(L"No");
 

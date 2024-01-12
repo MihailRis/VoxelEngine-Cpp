@@ -2,21 +2,16 @@
 
 #include <vector>
 #include <locale>
+#include <iomanip>
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
 
-using std::vector;
-using std::string;
-using std::stringstream;
-using std::wstring;
-using std::wstringstream;
-
-wstring util::lfill(const wstring& s, uint length, wchar_t c) {
+std::wstring util::lfill(std::wstring s, uint length, wchar_t c) {
     if (s.length() >= length) {
         return s;
     }
-    wstringstream ss;
+    std::wstringstream ss;
     for (uint i = 0; i < length-s.length(); i++) {
         ss << c;
     }
@@ -24,11 +19,11 @@ wstring util::lfill(const wstring& s, uint length, wchar_t c) {
     return ss.str();
 }
 
-wstring util::rfill(const wstring& s, uint length, wchar_t c) {
+std::wstring util::rfill(std::wstring s, uint length, wchar_t c) {
     if (s.length() >= length) {
         return s;
     }
-    wstringstream ss;
+    std::wstringstream ss;
     ss << s;
     for (uint i = 0; i < length-s.length(); i++) {
         ss << c;
@@ -103,8 +98,8 @@ extern uint32_t util::decode_utf8(uint& size, const char* chr) {
     return code;
 }
 
-string util::wstr2str_utf8(const wstring& ws) {
-    vector<char> chars;
+std::string util::wstr2str_utf8(const std::wstring ws) {
+    std::vector<char> chars;
     char buffer[4];
     for (wchar_t wc : ws) {
         uint size = encode_utf8((uint)wc, (ubyte*)buffer);
@@ -112,21 +107,21 @@ string util::wstr2str_utf8(const wstring& ws) {
             chars.push_back(buffer[i]);
         }
     }
-    return string(chars.data(), chars.size());
+    return std::string(chars.data(), chars.size());
 }
 
-wstring util::str2wstr_utf8(const string& s) {
-    vector<wchar_t> chars;
+std::wstring util::str2wstr_utf8(const std::string s) {
+    std::vector<wchar_t> chars;
     size_t pos = 0;
     uint size = 0;
     while (pos < s.length()) {
         chars.push_back(decode_utf8(size, &s.at(pos)));
         pos += size;
     }
-    return wstring(chars.data(), chars.size());
+    return std::wstring(chars.data(), chars.size());
 }
 
-bool util::is_integer(const string& text) {
+bool util::is_integer(std::string text) {
     for (char c : text) {
         if (c < '0' || c > '9')
             return false;
@@ -134,7 +129,7 @@ bool util::is_integer(const string& text) {
     return true;
 }
 
-bool util::is_integer(const wstring& text) {
+bool util::is_integer(std::wstring text) {
     for (wchar_t c : text) {
         if (c < L'0' || c > L'9')
             return false;
@@ -142,7 +137,7 @@ bool util::is_integer(const wstring& text) {
     return true;
 }
 
-bool util::is_valid_filename(const std::wstring& name) {
+bool util::is_valid_filename(std::wstring name) {
     for (wchar_t c : name) {
         if (c < 31 || c == '/' || c == '\\' || c == '<' || c == '>' ||
             c == ':' || c == '"' || c == '|' || c == '?' || c == '*'){
@@ -167,4 +162,10 @@ void util::rtrim(std::string &s) {
 void util::trim(std::string &s) {
     rtrim(s);
     ltrim(s);
+}
+
+std::wstring util::to_wstring(double x, int precision) {
+    std::wstringstream ss;
+    ss << std::fixed << std::setprecision(precision) << x;
+    return ss.str();
 }

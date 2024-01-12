@@ -2,12 +2,10 @@
 #define UTIL_PLATFORM_H_
 
 #include <string>
-#include <filesystem>
 
 namespace platform {
     extern void configure_encoding();
-    extern std::filesystem::path get_settings_file();
-    extern std::filesystem::path get_controls_file();
+    // @return environment locale in ISO format ll_CC
     extern std::string detect_locale();
 }
 

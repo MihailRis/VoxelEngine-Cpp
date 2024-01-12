@@ -2,27 +2,32 @@
 
 #include <iostream>
 
+#include "../../window/Events.h"
 #include "../../assets/Assets.h"
 #include "../../graphics/Batch2D.h"
 #include "../../graphics/Font.h"
 #include "../../util/stringutil.h"
-#include "../../window/input.h"
 
 using std::string;
 using std::wstring;
-using std::wstring_view;
 using std::shared_ptr;
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 
+const uint KEY_ESCAPE = 256;
+const uint KEY_ENTER = 257;
+const uint KEY_BACKSPACE = 259;
+
 using namespace gui;
 
-Label::Label(const wstring_view& text, const string& fontName) 
- : UINode(vec2(), vec2(text.length() * 8, 15)), text_(text), fontName_(fontName) {
+Label::Label(wstring text, string fontName) 
+     : UINode(vec2(), vec2(text.length() * 8, 15)), 
+       text_(text), 
+       fontName_(fontName) {
 }
 
-Label& Label::text(const wstring_view& text) {
+Label& Label::text(wstring text) {
     this->text_ = text;
     return *this;
 }
@@ -47,7 +52,7 @@ void Label::draw(Batch2D* batch, Assets* assets) {
     font->draw(batch, text_, coord.x, coord.y);
 }
 
-Label* Label::textSupplier(const wstringsupplier& supplier) {
+Label* Label::textSupplier(wstringsupplier supplier) {
     this->supplier = supplier;
     return this;
 }
@@ -57,12 +62,14 @@ void Label::size(vec2 sizenew) {
 }
 
 // ================================= Button ===================================
-Button::Button(shared_ptr<UINode> content, const glm::vec4& padding) : Panel(vec2(32,32), padding, 0) {
+Button::Button(shared_ptr<UINode> content, glm::vec4 padding) : Panel(vec2(32,32), padding, 0) {
     add(content);
     scrollable(false);
 }
 
-Button::Button(const wstring_view& text, const glm::vec4& padding) : Panel(vec2(32,32), padding, 0) {
+Button::Button(wstring text, glm::vec4 padding, glm::vec4 margin) 
+    : Panel(vec2(32,32), padding, 0) {
+    this->margin(margin);
     Label* label = new Label(text);
     label->align(Align::center);
     this->label = shared_ptr<UINode>(label);
@@ -70,7 +77,7 @@ Button::Button(const wstring_view& text, const glm::vec4& padding) : Panel(vec2(
     scrollable(false);
 }
 
-void Button::text(const std::wstring& text) {
+void Button::text(std::wstring text) {
     if (label) {
         Label* label = (Label*)(this->label.get());
         label->text(text);
@@ -106,13 +113,13 @@ shared_ptr<UINode> Button::getAt(vec2 pos, shared_ptr<UINode> self) {
 void Button::mouseRelease(GUI* gui, int x, int y) {
     UINode::mouseRelease(gui, x, y);
     if (isInside(vec2(x, y))) {
-        for (auto& callback : actions) {
+        for (auto callback : actions) {
             callback(gui);
         }
     }
 }
 
-Button* Button::listenAction(const onaction& action) {
+Button* Button::listenAction(onaction action) {
     actions.push_back(action);
     return this;
 }
@@ -126,7 +133,7 @@ void Button::textAlign(Align align) {
 }
 
 // ================================ TextBox ===================================
-TextBox::TextBox(const wstring& placeholder, const vec4& padding) 
+TextBox::TextBox(wstring placeholder, vec4 padding) 
     : Panel(vec2(200,32), padding, 0, false), 
       input(L""),
       placeholder(placeholder) {
@@ -137,7 +144,19 @@ TextBox::TextBox(const wstring& placeholder, const vec4& padding)
 void TextBox::drawBackground(Batch2D* batch, Assets* assets) {
     vec2 coord = calcCoord();
     batch->texture(nullptr);
-    batch->color = (isfocused() ? focusedColor : (hover_ ? hoverColor : color_));
+    
+    if (valid) {
+        if (isfocused()) {
+            batch->color = focusedColor;
+        } else if (hover_) {
+            batch->color = hoverColor;
+        } else {
+            batch->color = color_;
+        }
+    } else {
+        batch->color = invalidColor;
+    }
+
     batch->rect(coord.x, coord.y, size_.x, size_.y);
     if (!focused_ && supplier) {
         input = supplier();
@@ -154,20 +173,49 @@ void TextBox::drawBackground(Batch2D* batch, Assets* assets) {
 }
 
 void TextBox::typed(unsigned int codepoint) {
-    input += (wchar_t)codepoint;
+    input += wstring({(wchar_t)codepoint});
+    validate();
+}
+
+bool TextBox::validate() {
+    if (validator) {
+        valid = validator(input);
+    } else {
+        valid = true;
+    }
+    return valid;
+}
+
+void TextBox::setValid(bool valid) {
+    this->valid = valid;
+}
+
+bool TextBox::isValid() const {
+    return valid;
 }
 
 void TextBox::keyPressed(int key) {
-    if (key == keycode::BACKSPACE) {
-        if (!input.empty()) {
-            input.pop_back();
-        }
+    switch (key) {
+        case KEY_BACKSPACE:
+            if (!input.empty()){
+                input = input.substr(0, input.length()-1);
+                validate();
+            }
+            break;
+        case KEY_ENTER:
+            if (validate() && consumer) {
+                consumer(label->text());
+            }
+            defocus();
+            break;
     }
-    else if (key == keycode::ENTER) {
-        if (consumer) {
-            consumer(label->text());
+    // Pasting text from clipboard
+    if (key == keycode::V && Events::pressed(keycode::LEFT_CONTROL)) {
+        const char* text = Window::getClipboardText();
+        if (text) {
+            input += util::str2wstr_utf8(text);
+            validate();
         }
-        defocus();
     }
 }
 
@@ -175,12 +223,16 @@ shared_ptr<UINode> TextBox::getAt(vec2 pos, shared_ptr<UINode> self) {
     return UINode::getAt(pos, self);
 }
 
-void TextBox::textSupplier(const wstringsupplier& supplier) {
+void TextBox::textSupplier(wstringsupplier supplier) {
     this->supplier = supplier;
 }
 
-void TextBox::textConsumer(const wstringconsumer& consumer) {
+void TextBox::textConsumer(wstringconsumer consumer) {
     this->consumer = consumer;
+}
+
+void TextBox::textValidator(wstringchecker validator) {
+    this->validator = validator;
 }
 
 wstring TextBox::text() const {
@@ -190,7 +242,7 @@ wstring TextBox::text() const {
 }
 
 // ============================== InputBindBox ================================
-InputBindBox::InputBindBox(Binding& binding, const vec4& padding) 
+InputBindBox::InputBindBox(Binding& binding, vec4 padding) 
     : Panel(vec2(100,32), padding, 0, false),
       binding(binding) {
     label = new Label(L"");
@@ -256,11 +308,11 @@ void TrackBar::draw(Batch2D* batch, Assets* assets) {
     batch->rect(coord.x + width * t, coord.y, actualWidth, size_.y);
 }
 
-void TrackBar::supplier(const doublesupplier& supplier) {
+void TrackBar::supplier(doublesupplier supplier) {
     this->supplier_ = supplier;
 }
 
-void TrackBar::consumer(const doubleconsumer& consumer) {
+void TrackBar::consumer(doubleconsumer consumer) {
     this->consumer_ = consumer;
 }
 
@@ -300,15 +352,28 @@ void CheckBox::mouseRelease(GUI*, int x, int y) {
     }
 }
 
-void CheckBox::supplier(const boolsupplier& supplier) {
+void CheckBox::supplier(boolsupplier supplier) {
     supplier_ = supplier;
 }
 
-void CheckBox::consumer(const boolconsumer& consumer) {
+void CheckBox::consumer(boolconsumer consumer) {
     consumer_ = consumer;
 }
 
 CheckBox* CheckBox::checked(bool flag) {
     checked_ = flag;
     return this;
+}
+
+FullCheckBox::FullCheckBox(std::wstring text, glm::vec2 size, bool checked)
+    : Panel(size), 
+      checkbox(std::make_shared<CheckBox>(checked)){
+    color(vec4(0.0f));
+    orientation(Orientation::horizontal);
+
+    add(checkbox);
+
+    auto label = std::make_shared<Label>(text); 
+    label->margin(vec4(5.0f, 5.0f, 0.0f, 0.0f));
+    add(label);
 }

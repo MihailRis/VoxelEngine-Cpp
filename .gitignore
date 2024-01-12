@@ -27,3 +27,10 @@ Debug/voxel_engine
 .project
 .git
 /Default/
+AppDir
+appimage-build/
+
+# macOS folder attributes
+*.DS_Store
+
+*~

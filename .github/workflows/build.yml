@@ -1,0 +1,14 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build
+    uses: ./.github/workflows/cmake.yml
+    with:
+      build_type: Release

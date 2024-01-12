@@ -128,7 +128,9 @@ int generate_tree(fnl_state *noise,
 				  int cur_x, 
 				  int cur_y, 
 				  int cur_z, 
-				  int tileSize){
+				  int tileSize,
+				  blockid_t idWood,
+				  blockid_t idLeaves){
 	const int tileX = floordiv(cur_x, tileSize);
 	const int tileZ = floordiv(cur_z, tileSize);
 
@@ -152,9 +154,9 @@ int generate_tree(fnl_state *noise,
 	int ly = cur_y - height - 3 * radius;
 	int lz = cur_z - centerZ;
 	if (lx == 0 && lz == 0 && cur_y - height < (3*radius + radius/2))
-		return 6;
+		return idWood;
 	if (lx*lx+ly*ly/2+lz*lz < radius*radius)
-		return 7;
+		return idLeaves;
 	return 0;
 }
 
@@ -210,7 +212,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 				} else if (cur_y < height){
 					id = idDirt;
 				} else {
-					int tree = generate_tree(&noise, &randomtree, heights, cur_x, cur_y, cur_z, treesTile);
+					int tree = generate_tree(&noise, &randomtree, heights, cur_x, cur_y, cur_z, treesTile, idWood, idLeaves);
 					if (tree) {
 						id = tree;
 						states = BLOCK_DIR_UP;
@@ -220,7 +222,7 @@ void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
 				if (
 						((height -  (1.1 - 0.2 * pow(height - 54, 4))
 										+
-									(5*send)) < cur_y + (height - 0.01- (int)height))
+						(5*send)) < cur_y + (height - 0.01- (int)height))
 						&& (cur_y < height)){
 					id = idSand;
 				}

@@ -21,7 +21,7 @@ class Texture;
 class Frustum;
 class Engine;
 class Chunks;
-class ContentGfxCache;
+class LevelFrontend;
 class Skybox;
 
 class WorldRenderer {
@@ -34,10 +34,10 @@ class WorldRenderer {
 	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool culling);
 	void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
 public:
-	WorldRenderer(Engine* engine, Level* level, const ContentGfxCache* cache);
+	WorldRenderer(Engine* engine, LevelFrontend* frontend);
 	~WorldRenderer();
 
-	void draw(const GfxContext& context, Camera* camera);
+	void draw(const GfxContext& context, Camera* camera, bool hudVisible);
 	void drawDebug(const GfxContext& context, Camera* camera);
 	void drawBorders(int sx, int sy, int sz, int ex, int ey, int ez);
 

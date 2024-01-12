@@ -27,7 +27,8 @@
 #include "../maths/voxmaths.h"
 #include "../settings.h"
 #include "../engine.h"
-#include "ContentGfxCache.h"
+#include "../items/ItemDef.h"
+#include "LevelFrontend.h"
 #include "graphics/Skybox.h"
 
 using glm::vec3;
@@ -36,14 +37,14 @@ using glm::mat4;
 using std::string;
 using std::shared_ptr;
 
-WorldRenderer::WorldRenderer(Engine* engine, 
-							 Level* level, 
-							 const ContentGfxCache* cache) 
+WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend) 
 	: engine(engine), 
-	  level(level),
+	  level(frontend->getLevel()),
 	  frustumCulling(new Frustum()),
 	  lineBatch(new LineBatch()),
-	  renderer( new ChunksRenderer(level, cache, engine->getSettings())) {
+	  renderer(new ChunksRenderer(level, 
+                frontend->getContentGfxCache(), 
+                engine->getSettings())) {
 
 	auto& settings = engine->getSettings();
 	level->events->listen(EVT_CHUNK_HIDDEN, 
@@ -85,7 +86,7 @@ bool WorldRenderer::drawChunk(size_t index,
 
 		if (!frustumCulling->IsBoxVisible(min, max)) return false;
 	}
-	vec3 coord = vec3(chunk->x*CHUNK_W, 0.0f, chunk->z*CHUNK_D+1);
+	vec3 coord = vec3(chunk->x*CHUNK_W+0.5f, 0.5f, chunk->z*CHUNK_D+0.5f);
 	mat4 model = glm::translate(mat4(1.0f), coord);
 	shader->uniformMatrix("u_model", model);
 	mesh->draw();
@@ -125,10 +126,10 @@ void WorldRenderer::drawChunks(Chunks* chunks,
 }
 
 
-void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
+void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible){
 	EngineSettings& settings = engine->getSettings();
 	skybox->refresh(level->world->daytime, 
-					fmax(1.0f, 10.0f/(settings.chunks.loadDistance-2))+fog*2.0f, 4);
+					1.0f+fog*2.0f, 4);
 
 	const Content* content = level->content;
 	const ContentIndices* contentIds = content->indices;
@@ -168,14 +169,14 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 		shader->uniform3f("u_cameraPos", camera->position);
 		shader->uniform1i("u_cubemap", 1);
 		{
-			blockid_t id = level->player->choosenBlock;
-			Block* block = contentIds->getBlockDef(id);
-			assert(block != nullptr);
+			itemid_t id = level->player->getChosenItem();
+            ItemDef* item = contentIds->getItemDef(id);
+			assert(item != nullptr);
 			float multiplier = 0.5f;
-			shader->uniform3f("u_torchlightColor",
-					block->emission[0] / 15.0f * multiplier,
-					block->emission[1] / 15.0f * multiplier,
-					block->emission[2] / 15.0f * multiplier);
+			shader->uniform3f("u_torchlightColor",  
+					item->emission[0] / 15.0f * multiplier,
+					item->emission[1] / 15.0f * multiplier,
+					item->emission[2] / 15.0f * multiplier);
 			shader->uniform1f("u_torchlightDistance", 6.0f);
 		}
 
@@ -186,7 +187,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 		drawChunks(level->chunks, camera, shader);
 
 		// Selected block
-		if (PlayerController::selectedBlockId != -1){
+		if (PlayerController::selectedBlockId != -1 && hudVisible){
 			blockid_t id = PlayerController::selectedBlockId;
 			Block* block = contentIds->getBlockDef(id);
 			assert(block != nullptr);
