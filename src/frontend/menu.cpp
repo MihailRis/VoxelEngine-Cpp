@@ -403,7 +403,7 @@ void create_settings_panel(Engine* engine, PagesControl* menu) {
         panel->add(trackbar);
     }
 
-    /* Skybox interval track bar */{
+    /* Skybox update interval track bar */{
         panel->add((new Label(L""))->textSupplier([=]() {
             int interval = (int)engine->getSettings().graphics.skyboxUpdateInterval;
             return langs::get(L"Skybox update interval", L"settings")+L": "+std::to_wstring(interval);
