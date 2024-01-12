@@ -7,6 +7,7 @@
 #include "../../graphics/Batch2D.h"
 #include "../../graphics/Font.h"
 #include "../../util/stringutil.h"
+#include "GUI.h"
 
 using std::string;
 using std::wstring;
@@ -194,6 +195,17 @@ bool TextBox::isValid() const {
     return valid;
 }
 
+void TextBox::setOnEditStart(gui::runnable oneditstart) {
+    onEditStart = oneditstart;
+}
+
+void TextBox::focus(GUI* gui) {
+    Panel::focus(gui);
+    if (onEditStart){
+        onEditStart();
+    }
+}
+
 void TextBox::keyPressed(int key) {
     switch (key) {
         case KEY_BACKSPACE:
@@ -239,6 +251,10 @@ wstring TextBox::text() const {
     if (input.empty())
         return placeholder;
     return input;
+}
+
+void TextBox::text(std::wstring value) {
+    this->input = value;
 }
 
 // ============================== InputBindBox ================================

@@ -6,6 +6,7 @@
 #include <vector>
 #include <functional>
 #include <glm/glm.hpp>
+#include "GUI.h"
 #include "UINode.h"
 #include "panels.h"
 #include "../../window/input.h"
@@ -80,6 +81,7 @@ namespace gui {
         wstringsupplier supplier = nullptr;
         wstringconsumer consumer = nullptr;
         wstringchecker validator = nullptr;
+        runnable onEditStart = nullptr;
         bool valid = true;
     public:
         TextBox(std::wstring placeholder, 
@@ -95,9 +97,12 @@ namespace gui {
         virtual void textValidator(wstringchecker validator);
         virtual bool isfocuskeeper() const override {return true;}
         virtual std::wstring text() const;
+        virtual void text(std::wstring value);
         virtual bool validate();
         virtual void setValid(bool valid);
         virtual bool isValid() const;
+        virtual void setOnEditStart(runnable oneditstart);
+        virtual void focus(GUI*) override;
     };
 
     class InputBindBox : public Panel {
