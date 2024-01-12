@@ -6,6 +6,7 @@
 #include "../voxels/Chunks.h"
 
 const double E = 0.03;
+const double MAX_FIX = 0.1;
 
 using glm::vec3;
 
@@ -90,7 +91,10 @@ void PhysicsSolver::colisionCalc(
 				float x = (pos.x-half.x-E);
 				if ((aabb = chunks->isObstacleAt(x,y,z))){
 					vel.x *= 0.0f;
-					pos.x = floor(x) + aabb->max().x + half.x + E;
+					float newx = floor(x) + aabb->max().x + half.x + E;
+					if (glm::abs(newx-pos.x) <= MAX_FIX) {
+						pos.x = newx;
+					}
 					break;
 				}
 			}
@@ -102,7 +106,10 @@ void PhysicsSolver::colisionCalc(
 				float x = (pos.x+half.x+E);
 				if ((aabb = chunks->isObstacleAt(x,y,z))){
 					vel.x *= 0.0f;
-					pos.x = floor(x) - half.x + aabb->min().x - E;
+					float newx = floor(x) - half.x + aabb->min().x - E;
+					if (glm::abs(newx-pos.x) <= MAX_FIX) {
+						pos.x = newx;
+					}
 					break;
 				}
 			}
@@ -115,7 +122,10 @@ void PhysicsSolver::colisionCalc(
 				float z = (pos.z-half.z-E);
 				if ((aabb = chunks->isObstacleAt(x,y,z))){
 					vel.z *= 0.0f;
-					pos.z = floor(z) + aabb->max().z + half.z + E;
+					float newz = floor(z) + aabb->max().z + half.z + E;
+					if (glm::abs(newz-pos.z) <= MAX_FIX) { 
+						pos.z = newz;
+					}
 					break;
 				}
 			}
@@ -128,7 +138,10 @@ void PhysicsSolver::colisionCalc(
 				float z = (pos.z+half.z+E);
 				if ((aabb = chunks->isObstacleAt(x,y,z))){
 					vel.z *= 0.0f;
-					pos.z = floor(z) - half.z + aabb->min().z - E;
+					float newz = floor(z) - half.z + aabb->min().z - E;
+					if (glm::abs(newz-pos.z) <= MAX_FIX) {
+						pos.z = newz;
+					}
 					break;
 				}
 			}
@@ -141,7 +154,10 @@ void PhysicsSolver::colisionCalc(
 				float y = (pos.y-half.y-E);
 				if ((aabb = chunks->isObstacleAt(x,y,z))){
 					vel.y *= 0.0f;
-					pos.y = floor(y) + aabb->max().y + half.y;
+					float newy = floor(y) + aabb->max().y + half.y;
+					if (glm::abs(newy-pos.y) <= MAX_FIX) {
+						pos.y = newy;	
+					}
 					hitbox->grounded = true;
 					break;
 				}
@@ -154,7 +170,10 @@ void PhysicsSolver::colisionCalc(
 				float y = (pos.y+half.y+E);
 				if ((aabb = chunks->isObstacleAt(x,y,z))){
 					vel.y *= 0.0f;
-					pos.y = floor(y) - half.y + aabb->min().y - E;
+					float newy = floor(y) - half.y + aabb->min().y - E;
+					if (glm::abs(newy-pos.y) <= MAX_FIX) {
+						pos.y = newy;
+					}
 					break;
 				}
 			}
