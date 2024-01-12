@@ -15,16 +15,16 @@ public:
 	~Shader();
 
 	void use();
-	void uniformMatrix(const std::string_view& name, const glm::mat4& matrix);
-	void uniform1i(const std::string_view& name, int x);
-	void uniform1f(const std::string_view& name, float x);
-	void uniform2f(const std::string_view& name, float x, float y);
-	void uniform2f(const std::string_view& name, glm::vec2 xy);
-	void uniform3f(const std::string_view& name, float x, float y, float z);
-	void uniform3f(const std::string_view& name, const glm::vec3& xyz);
+	void uniformMatrix(std::string name, glm::mat4 matrix);
+	void uniform1i(std::string name, int x);
+	void uniform1f(std::string name, float x);
+	void uniform2f(std::string name, float x, float y);
+	void uniform2f(std::string name, glm::vec2 xy);
+	void uniform3f(std::string name, float x, float y, float z);
+	void uniform3f(std::string name, glm::vec3 xyz);
 
-	static Shader* loadShader(const std::string& vertexFile, const std::string& fragmentFile,
-							  std::string& vertexSource, std::string& fragmentSource);
+	static Shader* loadShader(std::string vertexFile, std::string fragmentFile,
+						std::string vertexSource, std::string fragmentSource);
 };
 
 #endif /* GRAPHICS_SHADER_H_ */

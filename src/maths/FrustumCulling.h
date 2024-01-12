@@ -5,7 +5,7 @@ class Frustum
 public:
 	Frustum() {};
 
-	void update(glm::mat4& projview);
+	void update(glm::mat4 projview);
 	bool IsBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) const;
 
 private:
@@ -34,7 +34,7 @@ private:
 	glm::vec3   m_points[8];
 };
 
-inline void Frustum::update(glm::mat4& m)
+inline void Frustum::update(glm::mat4 m)
 {
 	m = glm::transpose(m);
 	m_planes[Left] = m[3] + m[0];

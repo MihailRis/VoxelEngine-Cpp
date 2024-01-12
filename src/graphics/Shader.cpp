@@ -8,6 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 #include "../coders/GLSLExtension.h"
 
@@ -16,7 +17,6 @@ using std::endl;
 using glm::vec2;
 using glm::vec3;
 using std::string;
-using std::string_view;
 using std::filesystem::path;
 
 GLSLExtension* Shader::preprocessor = new GLSLExtension();
@@ -32,48 +32,48 @@ void Shader::use(){
 	glUseProgram(id);
 }
 
-void Shader::uniformMatrix(const string_view& name, const glm::mat4& matrix){
-	GLuint transformLoc = glGetUniformLocation(id, name.data());
+void Shader::uniformMatrix(string name, glm::mat4 matrix){
+	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-void Shader::uniform1i(const string_view& name, int x){
-	GLuint transformLoc = glGetUniformLocation(id, name.data());
+void Shader::uniform1i(string name, int x){
+	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniform1i(transformLoc, x);
 }
 
-void Shader::uniform1f(const string_view& name, float x){
-	GLuint transformLoc = glGetUniformLocation(id, name.data());
+void Shader::uniform1f(string name, float x){
+	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniform1f(transformLoc, x);
 }
 
-void Shader::uniform2f(const string_view& name, float x, float y){
-	GLuint transformLoc = glGetUniformLocation(id, name.data());
+void Shader::uniform2f(string name, float x, float y){
+	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniform2f(transformLoc, x, y);
 }
 
-void Shader::uniform2f(const string_view& name, vec2 xy){
-	GLuint transformLoc = glGetUniformLocation(id, name.data());
+void Shader::uniform2f(string name, vec2 xy){
+	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniform2f(transformLoc, xy.x, xy.y);
 }
 
-void Shader::uniform3f(const string_view& name, float x, float y, float z){
-	GLuint transformLoc = glGetUniformLocation(id, name.data());
+void Shader::uniform3f(string name, float x, float y, float z){
+	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniform3f(transformLoc, x,y,z);
 }
 
-void Shader::uniform3f(const string_view& name, const vec3& xyz){
-	GLuint transformLoc = glGetUniformLocation(id, name.data());
+void Shader::uniform3f(string name, vec3 xyz){
+	GLuint transformLoc = glGetUniformLocation(id, name.c_str());
 	glUniform3f(transformLoc, xyz.x, xyz.y, xyz.z);
 }
 
 
-Shader* Shader::loadShader(const string& vertexFile, 
-						   const string& fragmentFile,
-						   string& vertexCode,
-						   string& fragmentCode) {
-	vertexCode = preprocessor->process(vertexFile, vertexCode);
-	fragmentCode = preprocessor->process(fragmentFile, fragmentCode);
+Shader* Shader::loadShader(string vertexFile, 
+						   string fragmentFile,
+						   string vertexCode,
+						   string fragmentCode) {
+	vertexCode = preprocessor->process(path(vertexFile), vertexCode);
+	fragmentCode = preprocessor->process(path(fragmentFile), fragmentCode);
 
 	const GLchar* vShaderCode = vertexCode.c_str();
 	const GLchar* fShaderCode = fragmentCode.c_str();

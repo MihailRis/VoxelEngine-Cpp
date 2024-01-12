@@ -78,11 +78,11 @@ void Events::pollEvents(){
 	}
 }
 
-void Events::bind(const std::string& name, inputtype type, int code) {
+void Events::bind(std::string name, inputtype type, int code) {
 	bindings[name] = {type, code, false, false};
 }
 
-bool Events::active(const std::string& name) {
+bool Events::active(std::string name) {
 	const auto& found = bindings.find(name);
 	if (found == bindings.end()) {
 		return false;
@@ -90,7 +90,7 @@ bool Events::active(const std::string& name) {
 	return found->second.active();
 }
 
-bool Events::jactive(const std::string& name) {
+bool Events::jactive(std::string name) {
 	const auto& found = bindings.find(name);
 	if (found == bindings.end()) {
 		return false;

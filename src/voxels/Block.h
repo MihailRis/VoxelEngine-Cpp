@@ -105,8 +105,8 @@ public:
         itemid_t pickingItem = 0;
 	} rt;
 
-	Block(const std::string& name);
-	Block(const std::string& name, const std::string& texture);
+	Block(std::string name);
+	Block(std::string name, std::string texture);
 };
 
 #endif /* VOXELS_BLOCK_H_ */

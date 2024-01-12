@@ -108,11 +108,11 @@ void Container::remove(shared_ptr<UINode> selected) {
     refresh();
 }
 
-void Container::listenInterval(float interval, const ontimeout& callback, int repeat) {
+void Container::listenInterval(float interval, ontimeout callback, int repeat) {
     intervalEvents.push_back({callback, interval, 0.0f, repeat});
 }
 
-Panel::Panel(vec2 size, const glm::vec4& padding, float interval, bool resizing)
+Panel::Panel(vec2 size, glm::vec4 padding, float interval, bool resizing)
     : Container(vec2(), size), 
       padding(padding), 
       interval(interval), 
@@ -212,7 +212,7 @@ Orientation Panel::orientation() const {
 }
 
 void Panel::lock(){
-    for (auto& node : nodes) {
+    for (auto node : nodes) {
         node->lock();
     }
     resizing_ = false;
@@ -221,19 +221,19 @@ void Panel::lock(){
 PagesControl::PagesControl() : Container(vec2(), vec2(1)){
 }
 
-bool PagesControl::has(const std::string& name) {
+bool PagesControl::has(std::string name) {
     return pages.find(name) != pages.end();
 }
 
-void PagesControl::add(const std::string& name, std::shared_ptr<UINode> panel) {
+void PagesControl::add(std::string name, std::shared_ptr<UINode> panel) {
     pages[name] = Page{panel};
 }
 
-void gui::PagesControl::add(const std::string& name, UINode* panel) {
+void PagesControl::add(std::string name, UINode* panel) {
     add(name, shared_ptr<UINode>(panel));
 }
 
-void PagesControl::set(const std::string& name, bool history) {
+void PagesControl::set(std::string name, bool history) {
     auto found = pages.find(name);
     if (found == pages.end()) {
         throw std::runtime_error("no page found");
