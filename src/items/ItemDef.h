@@ -8,6 +8,8 @@
 
 struct item_funcs_set {
 	bool init: 1;
+    bool on_use_on_block: 1;
+    bool on_block_break_by: 1;
 };
 
 enum class item_icon_type {

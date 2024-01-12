@@ -13,7 +13,7 @@ LevelController::LevelController(EngineSettings& settings, Level* level)
     chunks = std::make_unique<ChunksController>(level, settings.chunks.padding);
     player = std::make_unique<PlayerController>(level, settings, blocks.get());
 
-    scripting::on_world_load(level);
+    scripting::on_world_load(level, blocks.get());
 }
 
 LevelController::~LevelController() {

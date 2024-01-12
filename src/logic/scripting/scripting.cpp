@@ -10,6 +10,7 @@
 #include "../../world/Level.h"
 #include "../../voxels/Block.h"
 #include "../../items/ItemDef.h"
+#include "../../logic/BlocksController.h"
 #include "api_lua.h"
 
 using namespace scripting;
@@ -23,6 +24,14 @@ lua_State* scripting::L = nullptr;
 Level* scripting::level = nullptr;
 const Content* scripting::content = nullptr;
 EnginePaths* scripting::paths = nullptr;
+BlocksController* scripting::blocks = nullptr;
+
+inline int lua_pushivec3(lua_State* L, int x, int y, int z) {
+    lua_pushinteger(L, x);
+    lua_pushinteger(L, y);
+    lua_pushinteger(L, z);
+    return 3;
+}
 
 void delete_global(lua_State* L, const char* name) {
     lua_pushnil(L);
@@ -40,11 +49,15 @@ bool rename_global(lua_State* L, const char* src, const char* dst) {
     return true;
 }
 
-void call_func(lua_State* L, int argc, const std::string& name) {
+int call_func(lua_State* L, int argc, const std::string& name) {
     if (lua_pcall(L, argc, LUA_MULTRET, 0)) {
         std::cerr << "Lua error in " << name << ": ";
         std::cerr << lua_tostring(L,-1) << std::endl;
+        return 0;
     }
+    int res_count = lua_tointeger(L, -1);
+    lua_pop(L, -1);
+    return res_count;
 }
 
 void scripting::initialize(EnginePaths* paths) {
@@ -72,9 +85,10 @@ void scripting::initialize(EnginePaths* paths) {
     apilua::create_funcs(L);
 }
 
-void scripting::on_world_load(Level* level) {
+void scripting::on_world_load(Level* level, BlocksController* blocks) {
     scripting::level = level;
     scripting::content = level->content;
+    scripting::blocks = blocks;
 
     fs::path file = paths->getResources()/fs::path("scripts/world.lua");
     std::string src = files::read_string(file);
@@ -90,46 +104,61 @@ void scripting::on_world_quit() {
 void scripting::update_block(const Block* block, int x, int y, int z) {
     std::string name = block->name+".update";
     lua_getglobal(L, name.c_str());
-    lua_pushinteger(L, x);
-    lua_pushinteger(L, y);
-    lua_pushinteger(L, z);
+    lua_pushivec3(L, x, y, z);
     call_func(L, 3, name);
 }
 
 void scripting::random_update_block(const Block* block, int x, int y, int z) {
     std::string name = block->name+".randupdate";
     lua_getglobal(L, name.c_str());
-    lua_pushinteger(L, x);
-    lua_pushinteger(L, y);
-    lua_pushinteger(L, z);
+    lua_pushivec3(L, x, y, z);
     call_func(L, 3, name);
 }
 
 void scripting::on_block_placed(Player* player, const Block* block, int x, int y, int z) {
     std::string name = block->name+".placed";
     lua_getglobal(L, name.c_str());
-    lua_pushinteger(L, x);
-    lua_pushinteger(L, y);
-    lua_pushinteger(L, z);
-    call_func(L, 3, name);
+    lua_pushivec3(L, x, y, z);
+    lua_pushinteger(L, 1);
+    call_func(L, 4, name);
 }
 
 void scripting::on_block_broken(Player* player, const Block* block, int x, int y, int z) {
     std::string name = block->name+".broken";
     lua_getglobal(L, name.c_str());
-    lua_pushinteger(L, x);
-    lua_pushinteger(L, y);
-    lua_pushinteger(L, z);
-    call_func(L, 3, name);
+    lua_pushivec3(L, x, y, z);
+    lua_pushinteger(L, 1);
+    call_func(L, 4, name);
 }
 
 void scripting::on_block_interact(Player* player, const Block* block, int x, int y, int z) {
     std::string name = block->name+".oninteract";
     lua_getglobal(L, name.c_str());
-    lua_pushinteger(L, x);
-    lua_pushinteger(L, y);
-    lua_pushinteger(L, z);
-    call_func(L, 3, name);
+    lua_pushivec3(L, x, y, z);
+    lua_pushinteger(L, 1);
+    call_func(L, 4, name);
+}
+
+bool scripting::on_item_use_on_block(Player* player, const ItemDef* item, int x, int y, int z) {
+    std::string name = item->name+".useon";
+    lua_getglobal(L, name.c_str());
+    lua_pushivec3(L, x, y, z);
+    lua_pushinteger(L, 1);
+    if (call_func(L, 4, name)) {
+        return lua_toboolean(L, -1);
+    }
+    return false;
+}
+
+bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, int y, int z) {
+    std::string name = item->name+".blockbreakby";
+    lua_getglobal(L, name.c_str());
+    lua_pushivec3(L, x, y, z);
+    lua_pushinteger(L, 1);
+    if (call_func(L, 4, name)) {
+        return lua_toboolean(L, -1);
+    }
+    return false;
 }
 
 // todo: refactor
@@ -159,6 +188,8 @@ void scripting::load_item_script(std::string prefix, fs::path file, item_funcs_s
     }
     call_func(L, 0, "<script>");
     funcsset->init=rename_global(L, "init", (prefix+".init").c_str());
+    funcsset->on_use_on_block=rename_global(L, "on_use_on_block", (prefix+".useon").c_str());
+    funcsset->on_block_break_by=rename_global(L, "on_block_break_by", (prefix+".blockbreakby").c_str());
 }
 
 void scripting::close() {

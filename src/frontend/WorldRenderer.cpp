@@ -126,7 +126,7 @@ void WorldRenderer::drawChunks(Chunks* chunks,
 }
 
 
-void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
+void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible){
 	EngineSettings& settings = engine->getSettings();
 	skybox->refresh(level->world->daytime, 
 					1.0f+fog*2.0f, 4);
@@ -187,7 +187,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera){
 		drawChunks(level->chunks, camera, shader);
 
 		// Selected block
-		if (PlayerController::selectedBlockId != -1){
+		if (PlayerController::selectedBlockId != -1 && hudVisible){
 			blockid_t id = PlayerController::selectedBlockId;
 			Block* block = contentIds->getBlockDef(id);
 			assert(block != nullptr);

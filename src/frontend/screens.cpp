@@ -149,7 +149,7 @@ void LevelScreen::draw(float delta) {
     Viewport viewport(Window::width, Window::height);
     GfxContext ctx(nullptr, viewport, batch.get());
 
-    worldRenderer->draw(ctx, camera.get());
+    worldRenderer->draw(ctx, camera.get(), hudVisible);
 
     if (hudVisible) {
         hud->draw(ctx);

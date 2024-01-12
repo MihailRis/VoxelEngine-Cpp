@@ -259,10 +259,23 @@ void PlayerController::updateInteraction(){
 			}
 		}
 		
+        if (lclick) {
+            if (!input.shift && item->rt.funcsset.on_use_on_block) {
+                if (scripting::on_item_break_block(player, item, x, y, z))
+                    return;
+            } 
+        }
+
 		Block* target = contentIds->getBlockDef(vox->id);
 		if (lclick && target->breakable){
             blocksController->breakBlock(player, target, x, y, z);
 		}
+        if (rclick) {
+            if (!input.shift && item->rt.funcsset.on_use_on_block) {
+                if (scripting::on_item_use_on_block(player, item, x, y, z))
+                    return;
+            } 
+        }
 		if (def && rclick){
             if (!input.shift && target->rt.funcsset.oninteract) {
                 scripting::on_block_interact(player, target, x, y, z);

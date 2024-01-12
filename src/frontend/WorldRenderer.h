@@ -37,7 +37,7 @@ public:
 	WorldRenderer(Engine* engine, LevelFrontend* frontend);
 	~WorldRenderer();
 
-	void draw(const GfxContext& context, Camera* camera);
+	void draw(const GfxContext& context, Camera* camera, bool hudVisible);
 	void drawDebug(const GfxContext& context, Camera* camera);
 	void drawBorders(int sx, int sy, int sz, int ex, int ey, int ez);
 
