@@ -13,6 +13,7 @@ class WorldFiles;
 class Chunks;
 class Level;
 class Player;
+class ContentLUT;
 
 class world_load_error : public std::runtime_error {
 public:
@@ -43,6 +44,9 @@ public:
 
 	void updateTimers(float delta);
 	void write(Level* level);
+
+	static ContentLUT* checkIndices(const std::filesystem::path& directory,
+										 const Content* content);
 
 	static Level* create(std::string name, 
 						 std::filesystem::path directory, 

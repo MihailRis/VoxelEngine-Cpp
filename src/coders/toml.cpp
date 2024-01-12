@@ -115,16 +115,7 @@ Reader::Reader(Wrapper* wrapper, string file, string source) : BasicParser(file,
 void Reader::skipWhitespace() {
     BasicParser::skipWhitespace();
     if (hasNext() && source[pos] == '#') {
-        pos++;
-        while (hasNext()) {
-            if (source[pos] == '\n') {
-                pos++;
-                linestart = pos;
-                line++;
-                break;
-            }
-            pos++;
-        }
+        skipLine();
         if (hasNext() && is_whitespace(peek())) {
             skipWhitespace();
         }

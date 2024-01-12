@@ -10,6 +10,7 @@
 
 typedef glm::highp_dvec3 rayvec3;
 typedef glm::highp_dvec2 rayvec2;
+typedef double scalar_t;
 
 enum class RayRelation{
     Embed=2, Intersect=1, Parallel=0, None=0
@@ -37,7 +38,7 @@ public:
 template<>
 struct std::hash<rayvec3>{
 	std::size_t operator()(const rayvec3& r) const noexcept{
-		return std::hash<double>{}(r.x) ^ (std::hash<double>{}(r.y) << 1) ^ (std::hash<double>{}(r.z) << 2);
+		return std::hash<scalar_t>{}(r.x) ^ (std::hash<scalar_t>{}(r.y) << 1) ^ (std::hash<scalar_t>{}(r.z) << 2);
 	}
 };
 
@@ -48,32 +49,47 @@ protected:
 
 public:
 
-template <AAFaceKind faceKind>
-static RayRelation rayIntersectAAFace(
-	               const rayvec3& rayOrigin, 
-				   const rayvec3& rayDir,
-				   const rayvec3& faceMin,
-				   const rayvec2& faceOppositeCorner,
-				   rayvec3& intersectPoint_ret
-				   );
-
-static double updateNormal(
-	               double newDistApprox,
-				   const glm::ivec3& newNormal,
-				   double currentDistApprox,
-				   glm::ivec3& normal_ret
-				   );
-
-//optimized, not returns intersectPoint coordinates 
+//optimized, NOT returns intersectPoint coordinates and normal vector
 template <AAFaceKind faceKind>
 static RayRelation isRayIntersectsAAFace(
 				   const rayvec3& rayOrigin, 
 				   const rayvec3& rayDir,
 				   const rayvec3& faceMin,
+				   const rayvec2& faceOppositeCorner
+				);
+
+//returns only normal
+template <AAFaceKind faceKind>
+static RayRelation rayIntersectAAFace( 
+	               const rayvec3& rayOrigin, 
+				   const rayvec3& rayDir,
+				   const rayvec3& faceMin,
+				   const rayvec2& faceOppositeCorner,
+				   glm::ivec3& normal_ret
+);
+
+//returns normal and distance
+template <AAFaceKind faceKind>
+static RayRelation rayIntersectAAFace( 
+	               const rayvec3& rayOrigin, 
+				   const rayvec3& rayDir,
+				   const rayvec3& faceMin,
 				   const rayvec2& faceOppositeCorner,
 				   glm::ivec3& normal_ret,
-				   double& currentDistApprox
-				);
+				   scalar_t& distance_ret
+				   );
+
+// returns normal, distance and intersection point
+template <AAFaceKind faceKind>
+static RayRelation rayIntersectAAFace( 
+				const rayvec3& rayOrigin,
+				const rayvec3& rayDir,
+				const rayvec3& faceMin,
+				const rayvec2& faceOppositeCorner,
+				glm::ivec3& normal_ret,
+				scalar_t& distance_ret,
+				rayvec3& intersectPoint_ret
+);
 
 static RayRelation rayIntersectAABB(
 	               const rayvec3& rayOrigin, 
@@ -81,18 +97,16 @@ static RayRelation rayIntersectAABB(
                    const rayvec3& boxPos,
 				   const AABB& box,
 				   float maxDist,
-				   rayvec3& pointIn_ret,
-				   rayvec3& pointOut_ret,
-                   glm::ivec3& normal_ret);
+                   glm::ivec3& normal_ret,
+				   scalar_t& distance_ret);
 
-static RayRelation rayIntersectAABBFaces(
+static RayRelation rayIntersectAABBFaces( // calculates only normal and distance
                    const rayvec3& rayOrigin, 
 				   const rayvec3& rayDir,
                    const AABBFaces& boxFaces,
 				   float maxDist,
-				   rayvec3& pointIn_ret,
-				   rayvec3& pointOut_ret,
-                   glm::ivec3& normal_ret);
+                   glm::ivec3& normal_ret,
+				   scalar_t& distance_ret);
 };
 
 #endif // SRC_VOXNATHS_H_

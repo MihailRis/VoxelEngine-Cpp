@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.15)
 project(VoxelEngine)
 
+set(CMAKE_CXX_STANDARD 17)
+
 file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp)
 file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 if(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /W4)
@@ -13,7 +14,7 @@ if(MSVC)
 else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -lstdc++fs
     # additional warnings
-    -Wformat-nonliteral -Wcast-align 
+    -Wformat-nonliteral -Wcast-align
     -Wpointer-arith -Wundef
     -Wwrite-strings -Wno-unused-parameter)
 endif()
@@ -28,14 +29,18 @@ if (WIN32)
 else()
     find_package(PNG REQUIRED)
     set(PNGLIB PNG::PNG)
-endif(WIN32)
+endif()
+
+if (APPLE)
+    find_package(glfw3 3.3 REQUIRED)
+endif ()
 
 set(LIBS "")
 
 if(UNIX)
     find_package(Threads REQUIRED)
     set(LIBS ${LIBS} Threads::Threads)
-endif(UNIX)
+endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie")

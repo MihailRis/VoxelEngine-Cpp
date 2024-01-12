@@ -122,7 +122,7 @@ WorldRegion* WorldFiles::getOrCreateRegion(
 	return region;
 }
 
-ubyte* WorldFiles::compress(ubyte* src, size_t srclen, size_t& len) {
+ubyte* WorldFiles::compress(const ubyte* src, size_t srclen, size_t& len) {
 	len = extrle::encode(src, srclen, compressionBuffer);
 	ubyte* data = new ubyte[len];
 	for (size_t i = 0; i < len; i++) {
@@ -131,10 +131,25 @@ ubyte* WorldFiles::compress(ubyte* src, size_t srclen, size_t& len) {
 	return data;
 }
 
-ubyte* WorldFiles::decompress(ubyte* src, size_t srclen, size_t dstlen) {
+ubyte* WorldFiles::decompress(const ubyte* src, size_t srclen, size_t dstlen) {
 	ubyte* decompressed = new ubyte[dstlen];
 	extrle::decode(src, srclen, decompressed);
 	return decompressed;
+}
+
+void WorldFiles::put(int x, int z, const ubyte* voxelData) {
+    int regionX = floordiv(x, REGION_SIZE);
+	int regionZ = floordiv(z, REGION_SIZE);
+	int localX = x - (regionX * REGION_SIZE);
+	int localZ = z - (regionZ * REGION_SIZE);
+
+	/* Writing Voxels */ {
+		WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
+		region->setUnsaved(true);
+		size_t compressedSize;
+		ubyte* data = compress(voxelData, CHUNK_DATA_LEN, compressedSize);
+		region->put(localX, localZ, data, compressedSize);
+	}
 }
 
 void WorldFiles::put(Chunk* chunk){
@@ -153,7 +168,7 @@ void WorldFiles::put(Chunk* chunk){
 		ubyte* data = compress(chunk_data.get(), CHUNK_DATA_LEN, compressedSize);
 		region->put(localX, localZ, data, compressedSize);
 	}
-	if (doWriteLights) {
+	if (doWriteLights && chunk->isLighted()) {
 		WorldRegion* region = getOrCreateRegion(lights, regionX, regionZ);
 		region->setUnsaved(true);
 		unique_ptr<ubyte[]> light_data (chunk->lightmap->encode());
@@ -176,6 +191,21 @@ path WorldFiles::getRegionFilename(int x, int y) const {
 	return path(filename);
 }
 
+bool WorldFiles::parseRegionFilename(const string& name, int& x, int& y) {
+    size_t sep = name.find('_');
+    if (sep == string::npos || sep == 0 || sep == name.length()-1)
+        return false;
+    try {
+        x = std::stoi(name.substr(0, sep));
+        y = std::stoi(name.substr(sep+1));
+    } catch (std::invalid_argument& err) {
+        return false;
+    } catch (std::out_of_range& err) {
+        return false;
+    }
+    return true;
+}
+
 path WorldFiles::getPlayerFile() const {
 	return directory/path("player.json");
 }
@@ -186,14 +216,6 @@ path WorldFiles::getWorldFile() const {
 
 path WorldFiles::getIndicesFile() const {
 	return directory/path("indices.json");
-}
-
-path WorldFiles::getOldPlayerFile() const {
-	return directory/path("player.bin");
-}
-
-path WorldFiles::getOldWorldFile() const {
-	return directory/path("world.bin");
 }
 
 ubyte* WorldFiles::getChunk(int x, int z){
@@ -338,7 +360,8 @@ void WorldFiles::write(const World* world, const Content* content) {
 			fs::create_directories(directory);
 		}
 	}
-	writeWorldInfo(world);
+    if (world)
+	    writeWorldInfo(world);
 	if (generatorTestMode)
 		return;
 	writeIndices(content->indices);
@@ -374,74 +397,9 @@ void WorldFiles::writeWorldInfo(const World* world) {
 	files::write_string(getWorldFile(), json::stringify(&root, true, "  "));
 }
 
-// TODO: remove in v0.16
-bool WorldFiles::readOldWorldInfo(World* world) {
-	size_t length = 0;
-	ubyte* data = (ubyte*)files::read_bytes(getOldWorldFile(), length);
-	assert(data != nullptr);
-	BinaryReader inp(data, length);
-	inp.checkMagic(WORLD_FORMAT_MAGIC, 8);
-	/*ubyte version = */inp.get();
-	while (inp.hasNext()) {
-		ubyte section = inp.get();
-		switch (section) {
-		case WORLD_SECTION_MAIN:
-			world->seed = inp.getInt64();
-			world->name = inp.getString();
-			break;
-		case WORLD_SECTION_DAYNIGHT:
-			world->daytime = inp.getFloat32();
-			world->daytimeSpeed = inp.getFloat32();
-			break;
-		}
-	}
-	return false;
-}
-bool WorldFiles::readOldPlayer(Player* player) {
-	size_t length = 0;
-	ubyte* data = (ubyte*)files::read_bytes(getOldPlayerFile(), length);
-	if (data == nullptr){
-		std::cerr << "could not to read player.bin (ignored)" << std::endl;
-		return false;
-	}
-	vec3 position = player->hitbox->position;
-	BinaryReader inp(data, length);
-	while (inp.hasNext()) {
-		ubyte section = inp.get();
-		switch (section) {
-		case SECTION_POSITION:
-			position.x = inp.getFloat32();
-			position.y = inp.getFloat32();
-			position.z = inp.getFloat32();
-			break;
-		case SECTION_ROTATION:
-			player->camX = inp.getFloat32();
-			player->camY = inp.getFloat32();
-			break;
-		case SECTION_FLAGS: 
-			{
-				ubyte flags = inp.get();
-				player->flight = flags & PLAYER_FLAG_FLIGHT;
-				player->noclip = flags & PLAYER_FLAG_NOCLIP;
-			}
-			break;
-		}
-	}
-
-	player->hitbox->position = position;
-	player->camera->position = position + vec3(0, 1, 0);
-	return true;
-}
-// ----- // ----- //
-
 bool WorldFiles::readWorldInfo(World* world) {
 	path file = getWorldFile();
 	if (!fs::is_regular_file(file)) {
-		// TODO: remove in v0.16
-		file = getOldWorldFile();
-		if (fs::is_regular_file(file)) {
-			readOldWorldInfo(world);
-		}
 		std::cerr << "warning: world.json does not exists" << std::endl;
 		return false;
 	}
@@ -488,11 +446,6 @@ void WorldFiles::writePlayer(Player* player){
 bool WorldFiles::readPlayer(Player* player) {
 	path file = getPlayerFile();
 	if (!fs::is_regular_file(file)) {
-		// TODO: remove in v0.16
-		file = getOldPlayerFile();
-		if (fs::is_regular_file(file)) {
-			readOldPlayer(player);
-		}
 		std::cerr << "warning: player.json does not exists" << std::endl;
 		return false;
 	}

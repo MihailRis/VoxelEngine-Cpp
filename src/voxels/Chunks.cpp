@@ -10,11 +10,14 @@
 
 #include "../graphics/Mesh.h"
 #include "../maths/voxmaths.h"
+#include "../maths/aabb.h"
+#include "../maths/rays.h"
 
 #include <math.h>
 #include <limits.h>
 
 using glm::vec3;
+using glm::ivec3;
 using std::shared_ptr;
 
 Chunks::Chunks(int w, int d, 
@@ -45,7 +48,7 @@ Chunks::~Chunks(){
 }
 
 voxel* Chunks::get(int x, int y, int z){
-	x -= ox * CHUNK_W;
+	x -= ox * CHUNK_W; 
 	z -= oz * CHUNK_D;
 	int cx = x / CHUNK_W;
 	int cy = y / CHUNK_H;
@@ -55,7 +58,7 @@ voxel* Chunks::get(int x, int y, int z){
 	if (z < 0) cz--;
 	if (cx < 0 || cy < 0 || cz < 0 || cx >= w || cy >= 1 || cz >= d)
 		return nullptr;
-	shared_ptr<Chunk> chunk = chunks[(cy * d + cz) * w + cx];
+	shared_ptr<Chunk> chunk = chunks[cz * w + cx]; // chunks is 2D-array
 	if (chunk == nullptr)
 		return nullptr;
 	int lx = x - cx * CHUNK_W;
@@ -179,8 +182,8 @@ voxel* Chunks::rayCast(vec3 start,
 					   vec3 dir, 
 					   float maxDist, 
 					   vec3& end, 
-					   vec3& norm, 
-					   vec3& iend) {
+					   ivec3& norm, 
+					   ivec3& iend) {
 	float px = start.x;
 	float py = start.y;
 	float pz = start.z;
@@ -194,9 +197,9 @@ voxel* Chunks::rayCast(vec3 start,
 	int iy = floor(py);
 	int iz = floor(pz);
 
-	float stepx = (dx > 0.0f) ? 1.0f : -1.0f;
-	float stepy = (dy > 0.0f) ? 1.0f : -1.0f;
-	float stepz = (dz > 0.0f) ? 1.0f : -1.0f;
+	int stepx = (dx > 0.0f) ? 1 : -1;
+	int stepy = (dy > 0.0f) ? 1 : -1;
+	int stepz = (dz > 0.0f) ? 1 : -1;
 
 	constexpr float infinity = std::numeric_limits<float>::infinity();
 
@@ -212,71 +215,37 @@ voxel* Chunks::rayCast(vec3 start,
 	float tyMax = (tyDelta < infinity) ? tyDelta * ydist : infinity;
 	float tzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
 
-	int steppedIndex = -1;
+	int steppedIndex = -1;      
+                                
+	while (t <= maxDist){       
+		voxel* voxel = get(ix, iy, iz);		
+		if (!voxel){ return nullptr; }
 
-	while (t <= maxDist){
-		voxel* voxel = get(ix, iy, iz);
-		const Block* def = nullptr;
-		if (voxel == nullptr || (def = contentIds->getBlockDef(voxel->id))->selectable){
+		const Block* def = contentIds->getBlockDef(voxel->id);
+		if (def->selectable){
 			end.x = px + t * dx;
 			end.y = py + t * dy;
 			end.z = pz + t * dz;
+					iend.x = ix;
+					iend.y = iy;
+					iend.z = iz;
 			
-			// TODO: replace this dumb solution with something better
-			if (def && !def->rt.solid) {
-				const int gridSize = BLOCK_AABB_GRID * 2;
+			if (!def->rt.solid) {
 				const AABB& box = def->rotatable 
 								  ? def->rt.hitboxes[voxel->rotation()] 
 								  : def->hitbox;
-				const int subs = gridSize;
-				iend = vec3(ix, iy, iz);
-				end -= iend;
-				int six = end.x * gridSize;
-				int siy = end.y * gridSize;
-				int siz = end.z * gridSize;
-				float stxMax = (txDelta < infinity) ? txDelta * xdist : infinity;
-				float styMax = (tyDelta < infinity) ? tyDelta * ydist : infinity;
-				float stzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
-				for (int i = 0; i < subs*2; i++) {
-					end.x = six / float(gridSize);
-					end.y = siy / float(gridSize);
-					end.z = siz / float(gridSize);
-					if (box.inside(end)) {
-						end += iend;
-						norm.x = norm.y = norm.z = 0.0f;
-						if (steppedIndex == 0) norm.x = -stepx;
-						if (steppedIndex == 1) norm.y = -stepy;
-						if (steppedIndex == 2) norm.z = -stepz;
-						return voxel;
-					}
-					if (stxMax < styMax) {
-						if (stxMax < stzMax) {
-							six += stepx;
-							stxMax += txDelta;
-							steppedIndex = 0;
-						} else {
-							siz += stepz;
-							stzMax += tzDelta;
-							steppedIndex = 2;
-						}
-					} else {
-						if (styMax < stzMax) {
-							siy += stepy;
-							styMax += tyDelta;
-							steppedIndex = 1;
-						} else {
-							siz += stepz;
-							stzMax += tzDelta;
-							steppedIndex = 2;
-						}
-					}
+				scalar_t distance;
+				if (Rays::rayIntersectAABB(start, dir, iend, box, maxDist, norm, distance) > RayRelation::None){
+					end = start + (dir * vec3(distance));
+					return voxel;
 				}
+
 			} else {
 				iend.x = ix;
 				iend.y = iy;
 				iend.z = iz;
 
-				norm.x = norm.y = norm.z = 0.0f;
+				norm.x = norm.y = norm.z = 0;
 				if (steppedIndex == 0) norm.x = -stepx;
 				if (steppedIndex == 1) norm.y = -stepy;
 				if (steppedIndex == 2) norm.z = -stepz;
@@ -316,9 +285,91 @@ voxel* Chunks::rayCast(vec3 start,
 	end.x = px + t * dx;
 	end.y = py + t * dy;
 	end.z = pz + t * dz;
-	norm.x = norm.y = norm.z = 0.0f;
+	norm.x = norm.y = norm.z = 0;
 	return nullptr;
 }
+
+vec3 Chunks::rayCastToObstacle(vec3 start, vec3 dir, float maxDist) {
+	float px = start.x;
+	float py = start.y;
+	float pz = start.z;
+
+	float dx = dir.x;
+	float dy = dir.y;
+	float dz = dir.z;
+
+	float t = 0.0f;
+	int ix = floor(px);
+	int iy = floor(py);
+	int iz = floor(pz);
+
+	int stepx = (dx > 0.0f) ? 1 : -1;
+	int stepy = (dy > 0.0f) ? 1 : -1;
+	int stepz = (dz > 0.0f) ? 1 : -1;
+
+	constexpr float infinity = std::numeric_limits<float>::infinity();
+
+	float txDelta = (dx == 0.0f) ? infinity : abs(1.0f / dx);
+	float tyDelta = (dy == 0.0f) ? infinity : abs(1.0f / dy);
+	float tzDelta = (dz == 0.0f) ? infinity : abs(1.0f / dz);
+
+	float xdist = (stepx > 0) ? (ix + 1 - px) : (px - ix);
+	float ydist = (stepy > 0) ? (iy + 1 - py) : (py - iy);
+	float zdist = (stepz > 0) ? (iz + 1 - pz) : (pz - iz);
+
+	float txMax = (txDelta < infinity) ? txDelta * xdist : infinity;
+	float tyMax = (tyDelta < infinity) ? tyDelta * ydist : infinity;
+	float tzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
+
+	while (t <= maxDist) {
+		voxel* voxel = get(ix, iy, iz);
+		if (!voxel) { return vec3(px + t * dx, py + t * dy, pz + t * dz); }
+
+		const Block* def = contentIds->getBlockDef(voxel->id);
+		if (def->obstacle) {
+			if (!def->rt.solid) {
+				const AABB& box = def->rotatable
+					? def->rt.hitboxes[voxel->rotation()]
+					: def->hitbox;
+				scalar_t distance;
+				ivec3 norm;
+				// norm is dummy now, can be inefficient
+				if (Rays::rayIntersectAABB(start, dir, ivec3(ix, iy, iz), box, maxDist, norm, distance) > RayRelation::None) {
+					return start + (dir * vec3(distance));
+				}
+			}
+			else {
+				return vec3(px + t * dx, py + t * dy, pz + t * dz);
+			}
+		}
+		if (txMax < tyMax) {
+			if (txMax < tzMax) {
+				ix += stepx;
+				t = txMax;
+				txMax += txDelta;
+			}
+			else {
+				iz += stepz;
+				t = tzMax;
+				tzMax += tzDelta;
+			}
+		}
+		else {
+			if (tyMax < tzMax) {
+				iy += stepy;
+				t = tyMax;
+				tyMax += tyDelta;
+			}
+			else {
+				iz += stepz;
+				t = tzMax;
+				tzMax += tzDelta;
+			}
+		}
+	}
+	return vec3(px + maxDist * dx, py + maxDist * dy, pz + maxDist * dz);
+}
+
 
 void Chunks::setCenter(int x, int z) {
 	int cx = floordiv(x, CHUNK_W);
@@ -336,7 +387,7 @@ void Chunks::translate(int dx, int dz){
 	}
 	for (int z = 0; z < d; z++){
 		for (int x = 0; x < w; x++){
-			shared_ptr<Chunk> chunk = chunks[z * d + x];
+			shared_ptr<Chunk> chunk = chunks[z * w + x];
 			int nx = x - dx;
 			int nz = z - dz;
 			if (chunk == nullptr)
@@ -351,9 +402,7 @@ void Chunks::translate(int dx, int dz){
 			chunksSecond[nz * w + nx] = chunk;
 		}
 	}
-	shared_ptr<Chunk>* ctemp = chunks;
-	chunks = chunksSecond;
-	chunksSecond = ctemp;
+	std::swap(chunks, chunksSecond);
 
 	ox += dx;
 	oz += dz;

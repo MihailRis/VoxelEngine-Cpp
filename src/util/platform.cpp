@@ -20,6 +20,15 @@ path platform::get_controls_file() {
 	return path(CONTROLS_FILE);
 }
 
+std::string platform::detect_locale() {
+    // TODO: implement
+    std::string name = setlocale(LC_ALL, nullptr);
+    if (name.find("ru_RU") != std::string::npos) {
+        return "ru_RU";
+    }
+    return "en_US";
+}
+
 #ifdef WIN32
 #include <Windows.h>
 

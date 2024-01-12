@@ -57,8 +57,12 @@ namespace gui {
         virtual void mouseRelease(GUI*, int x, int y) override;
         virtual Button* listenAction(const onaction& action);
 
-        virtual void text(const std::wstring& text);
+        virtual void textAlign(Align align);
+
+        virtual void text(std::wstring text);
         virtual std::wstring text() const;
+
+        virtual Button* textSupplier(wstringsupplier supplier);
     };
 
     class TextBox : public Panel {

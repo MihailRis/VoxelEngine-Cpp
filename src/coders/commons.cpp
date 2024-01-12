@@ -98,6 +98,18 @@ void BasicParser::skipWhitespace() {
     }
 }
 
+void BasicParser::skipLine() {
+    while (hasNext()) {
+        if (source[pos] == '\n') {
+            pos++;
+            linestart = pos;
+            line++;
+            break;
+        }
+        pos++;
+    }
+}
+
 bool BasicParser::hasNext() {
     return pos < source.length();
 }
@@ -250,7 +262,7 @@ bool BasicParser::parseNumber(int sign, number_u& out) {
     return true;
 }
 
-string BasicParser::parseString(char quote) {
+string BasicParser::parseString(char quote, bool closeRequired) {
     std::stringstream ss;
     while (hasNext()) {
         char c = source[pos];
@@ -282,13 +294,16 @@ string BasicParser::parseString(char quote) {
             }
             continue;
         }
-        if (c == '\n') {
+        if (c == '\n' && closeRequired) {
             throw error("non-closed string literal");
         }
         ss << c;
         pos++;
     }
-    throw error("unexpected end");
+    if (closeRequired) {
+        throw error("unexpected end");
+    }
+    return ss.str();
 }
 
 parsing_error BasicParser::error(std::string message) {

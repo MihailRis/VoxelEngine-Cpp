@@ -23,6 +23,7 @@
         "green_lamp",
         "blue_lamp",
         "pane",
-        "pipe"
+        "pipe",
+        "lightbulb"
     ]
 }

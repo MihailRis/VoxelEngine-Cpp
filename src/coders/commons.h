@@ -70,6 +70,7 @@ protected:
     uint linestart = 0;
 
     virtual void skipWhitespace();
+    void skipLine();
     void expect(char expected);
     char peek();
     char nextChar();
@@ -79,7 +80,7 @@ protected:
     std::string parseName();
     int64_t parseSimpleInt(int base);
     bool parseNumber(int sign, number_u& out);
-    std::string parseString(char chr);
+    std::string parseString(char chr, bool closeRequired=true);
 
     parsing_error error(std::string message);
 

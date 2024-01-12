@@ -49,20 +49,12 @@ public:
 
 class WorldFiles {
 	void writeWorldInfo(const World* world);
-	std::filesystem::path getRegionsFolder() const;
 	std::filesystem::path getLightsFolder() const;
 	std::filesystem::path getRegionFilename(int x, int y) const;
 	std::filesystem::path getPlayerFile() const;
 	std::filesystem::path getWorldFile() const;
 	std::filesystem::path getIndicesFile() const;
-
-	// TODO: remove in 0.16
-	std::filesystem::path getOldPlayerFile() const;
-	std::filesystem::path getOldWorldFile() const;
-	bool readOldWorldInfo(World* world);
-	bool readOldPlayer(Player* player);
-	// --------------------
-
+	
 	WorldRegion* getRegion(std::unordered_map<glm::ivec2, WorldRegion*>& regions,
 						   int x, int z);
 
@@ -74,14 +66,14 @@ class WorldFiles {
 	   @param src source buffer
 	   @param srclen length of source buffer
 	   @param len (out argument) length of result buffer */
-	ubyte* compress(ubyte* src, size_t srclen, size_t& len);
+	ubyte* compress(const ubyte* src, size_t srclen, size_t& len);
 
 	/* Decompress buffer with extrle
 	   @param src compressed buffer
 	   @param srclen length of compressed buffer
 	   @param dstlen max expected length of source buffer
 	*/
-	ubyte* decompress(ubyte* src, size_t srclen, size_t dstlen);
+	ubyte* decompress(const ubyte* src, size_t srclen, size_t dstlen);
 
 	ubyte* readChunkData(int x, int y, 
 						uint32_t& length, 
@@ -94,6 +86,9 @@ class WorldFiles {
 				   const std::filesystem::path& folder,
 				   int x, int z);
 public:
+    static bool parseRegionFilename(const std::string& name, int& x, int& y);
+    std::filesystem::path getRegionsFolder() const;
+
 	std::unordered_map<glm::ivec2, WorldRegion*> regions;
 	std::unordered_map<glm::ivec2, WorldRegion*> lights;
 	std::filesystem::path directory;
@@ -105,8 +100,10 @@ public:
 	~WorldFiles();
 
 	void put(Chunk* chunk);
-	ubyte* getChunk(int x, int y);
-	light_t* getLights(int x, int y);
+    void put(int x, int z, const ubyte* voxelData);
+
+	ubyte* getChunk(int x, int z);
+	light_t* getLights(int x, int z);
 
 	bool readWorldInfo(World* world);
 	bool readPlayer(Player* player);
@@ -115,6 +112,7 @@ public:
 					 WorldRegion* entry, 
 					 const std::filesystem::path& file);
 	void writePlayer(Player* player);
+    /* @param world world info to save (nullable) */
 	void write(const World* world, const Content* content);
 	void writeIndices(const ContentIndices* indices);
 };

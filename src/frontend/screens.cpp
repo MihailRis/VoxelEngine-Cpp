@@ -43,18 +43,7 @@ using std::shared_ptr;
 
 MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     auto menu = engine->getGUI()->getMenu();
-
-    // Create pages if not created yet
-    if (!menu->has("new-world"))
-        menu->add("new-world", create_new_world_panel(engine, menu));
-    if (!menu->has("settings"))
-        menu->add("settings", create_settings_panel(engine, menu));
-    if (!menu->has("controls"))
-        menu->add("controls", create_controls_panel(engine, menu));
-    if (!menu->has("pause"))
-        menu->add("pause", create_pause_panel(engine, menu));
-
-    menu->add("main", create_main_menu_panel(engine, menu));
+    menus::refresh_menus(engine, menu);
     menu->reset();
     menu->set("main");
 
@@ -125,27 +114,13 @@ void LevelScreen::updateHotkeys() {
     if (Events::jpressed(keycode::O)) {
         settings.graphics.frustumCulling = !settings.graphics.frustumCulling;
     }
+    if (Events::jpressed(keycode::F1)) {
+        hudVisible = !hudVisible;
+    }
     if (Events::jpressed(keycode::F3)) {
         level->player->debug = !level->player->debug;
     }
     if (Events::jpressed(keycode::F5)) {
-        level->chunks->saveAndClear();
-    }
-
-    // TODO: remove in v0.16
-    if (Events::jpressed(keycode::F9)) {
-        blockid_t woodid = level->content->requireBlock("base:wood")->rt.id;
-        for (size_t i = 0; i < level->chunks->volume; i++){
-            Chunk* chunk = level->chunks->chunks[i].get();
-            if (chunk) {
-                for (uint i = 0; i < CHUNK_VOL; i++) {
-                    auto& vox = chunk->voxels[i];
-                    if (vox.id == woodid) {
-                        vox.states = BLOCK_DIR_UP;
-                    }
-                }
-            }
-        }
         level->chunks->saveAndClear();
     }
 }
@@ -172,18 +147,22 @@ void LevelScreen::update(float delta) {
         level->world->updateTimers(delta);
     }
     controller->update(delta, !inputLocked, hud->isPause());
-    hud->update();
+    if (hudVisible)
+        hud->update();
 }
 
 void LevelScreen::draw(float delta) {
-    Camera* camera = level->player->camera;
+    Camera* camera = level->player->currentViewCamera;
 
     Viewport viewport(Window::width, Window::height);
     GfxContext ctx(nullptr, viewport, nullptr);
 
     worldRenderer->draw(ctx, camera);
-    hud->draw(ctx);
-    if (level->player->debug) {
-        hud->drawDebug(1 / delta);
+
+    if (hudVisible) {
+        hud->draw(ctx);
+        if (level->player->debug) {
+            hud->drawDebug(1 / delta);
+        }
     }
 }

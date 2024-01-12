@@ -20,6 +20,9 @@ Player::Player(glm::vec3 position, float speed) :
 		speed(speed),
 		choosenBlock(1) {
 	camera = new Camera(position, glm::radians(90.0f));
+	currentViewCamera = camera;
+	SPCamera = new Camera(position, glm::radians(90.0f));
+	TPCamera = new Camera(position, glm::radians(90.0f));
 	hitbox = new Hitbox(position, vec3(0.3f,0.9f,0.3f));
 }
 
@@ -69,12 +72,14 @@ void Player::update(
 		hitbox->velocity.z += dir.z * speed * delta * 9;
 	}
 
-	int substeps = (int)(delta * 1000);
-	substeps = std::min(100, std::max(0, substeps));
+    float vel = std::max(glm::length(hitbox->velocity * 0.25f), 1.0f);
+	int substeps = int(delta * vel * 1000);
+	substeps = std::min(100, std::max(1, substeps));
 	level->physics->step(level->chunks, hitbox, 
 						 delta,  substeps, 
 						 crouch, flight ? 0.0f : 1.0f, 
 						 !noclip);
+                         
 	if (flight && hitbox->grounded) {
 		flight = false;
 	}

@@ -1,6 +1,6 @@
 # Run in windows with compiled executable file:
 
-[EXE for Windows](https://drive.google.com/file/d/1y09I2d9jPF-QuVZDxuP719fNWnj7rr0M/view?usp=drive_link)
+[EXE for Windows](https://drive.google.com/file/d/1hkqCFP6MG9t6V6hjfL4UXdIW9VRsRaAt/view?usp=sharing)
 
 # Controls:
 - <kbd>**Esc**</kbd> - pause
@@ -11,6 +11,7 @@
 - <kbd>**RMB**</kbd> - place block
 - <kbd>**F**</kbd> - toggle flight mode
 - <kbd>**N**</kbd> - noclip mode
+- <kbd>**F1**</kbd> - toggle interface
 - <kbd>**F2**</kbd> - save screenshot
 - <kbd>**F3**</kbd> - debug mode
 - <kbd>**F5**</kbd> - reload chunks
@@ -21,7 +22,7 @@ git clone --recursive https://github.com/MihailRis/VoxelEngine-Cpp.git
 cd VoxelEngine-Cpp
 mkdir build
 cd build
-cmake ../
+cmake ..
 cmake --build .
 ```
 
@@ -38,3 +39,9 @@ If you use X11
 
 If you use Wayland
 `$ sudo pacman -S glfw-wayland glew glm libpng openal`
+
+#### macOS:
+
+`$ brew install glfw3 glew glm libpng`
+
+Download, compile and install OpenAL

@@ -148,7 +148,8 @@ void BlocksRenderer::face(const ivec3& coord_,
 						  float width,
 						  float height,
 						  float depth,
-						  const UVRegion& region) {
+						  const UVRegion& region,
+                          bool lights) {
 	if (vertexOffset + BlocksRenderer::VERTEX_SIZE * 4 > capacity) {
 		overflow = true;
 		return;
@@ -158,17 +159,24 @@ void BlocksRenderer::face(const ivec3& coord_,
 	const vec3 Y(axisY);
 	const vec3 Z(axisZ);
 
-	const vec3 sunVector = vec3(0.431934f, 0.863868f, 0.259161f);
-	float d = glm::dot(Z, sunVector);
-	d = 0.75f +  d*0.25f;
-
-	vec4 tint(d);
-	vec3 coord(vec3(coord_) + offset);
-		
-	vertex(coord + Z*depth, region.u1, region.v1, tint, axisX, axisY, laxisZ);
-	vertex(coord + Z*depth + X*width, region.u2, region.v1, tint, axisX, axisY, laxisZ);
-	vertex(coord + Z*depth + X*width + Y*height, region.u2, region.v2, tint, axisX, axisY, laxisZ);
-	vertex(coord + Z*depth + Y*height, region.u1, region.v2, tint, axisX, axisY, laxisZ);
+    vec3 coord(vec3(coord_) + offset);
+	
+    if (lights) {
+        const vec3 sunVector = vec3(0.431934f, 0.863868f, 0.259161f);
+        float d = glm::dot(Z, sunVector);
+        d = 0.75f +  d*0.25f;
+        vec4 tint(d);
+	
+        vertex(coord + Z*depth, region.u1, region.v1, tint, axisX, axisY, laxisZ);
+        vertex(coord + Z*depth + X*width, region.u2, region.v1, tint, axisX, axisY, laxisZ);
+        vertex(coord + Z*depth + X*width + Y*height, region.u2, region.v2, tint, axisX, axisY, laxisZ);
+        vertex(coord + Z*depth + Y*height, region.u1, region.v2, tint, axisX, axisY, laxisZ);
+    } else {
+        vertex(coord + Z*depth, region.u1, region.v1, vec4(1.0f));
+        vertex(coord + Z*depth + X*width, region.u2, region.v1, vec4(1.0f));
+        vertex(coord + Z*depth + X*width + Y*height, region.u2, region.v2, vec4(1.0f));
+        vertex(coord + Z*depth + Y*height, region.u1, region.v2, vec4(1.0f));
+    }
 	index(0, 1, 2, 0, 2, 3);
 }
 
@@ -230,12 +238,15 @@ void BlocksRenderer::blockXSprite(int x, int y, int z,
 		texface2, lights, vec4(tint));
 }
 
+// HINT: texture faces order: {east, west, bottom, top, south, north}
+
 /* AABB blocks render method (WIP) */
-void BlocksRenderer::blockCubeShaded(const ivec3& icoord,
+void BlocksRenderer::blockAABB(const ivec3& icoord,
 									 const vec3& offset,
 									 const vec3& size, 
 									 const UVRegion(&texfaces)[6], 
-									 const Block* block, ubyte rotation) {
+									 const Block* block, ubyte rotation,
+                                     bool lights) {
 
 	ivec3 X(1, 0, 0);
 	ivec3 Y(0, 1, 0);
@@ -255,16 +266,27 @@ void BlocksRenderer::blockCubeShaded(const ivec3& icoord,
 	vec3 fY(Y);
 	vec3 fZ(Z);
 	
-	vec3 local = offset.x*vec3(X)+offset.y*vec3(Y)+offset.z*-fZ;
-	
-	face(coord, X, Y, Z, Z+loff, local-size.z*fZ, size.x, size.y, size.z, texfaces[5]); // north ;;;
-	face(coord, -X, Y, -Z, Z-Z-X+loff, local-size.z*fZ+fX*size.x, size.x, size.y, 0.0f, texfaces[4]); // south ;;;
+    // TODO: simplify this pile of magic calculations and fix 5th arg (laxisZ)
+	face(coord, X, Y, Z, Z+loff, 
+		(1.0f - offset.x - size.x) * fX  - (offset.z + size.z)*fZ,
+        size.x, size.y, size.z, texfaces[5], lights); // north
+	face(coord, -X, Y, -Z, Z-Z-X+loff, 
+		(1.0f - offset.x) * fX - (offset.z + size.z) * fZ,
+        size.x, size.y, 0.0f, texfaces[4], lights); // south
 
-	face(coord+Y, X, -Z, Y, Y-Y+loff, local, size.x, size.z, 0.0f, texfaces[3]); // top ;;;
-	face(coord+X, -X, -Z, -Y, -X-Y+loff, local+size.x*fX-fX, size.x, size.z, 0.0f, texfaces[2]); // bottom ;;;
+	face(coord, X, -Z, Y, Y-Y+loff, 
+		(1.0f - offset.x - size.x) * fX - offset.z * fZ + size.y*fY,
+        size.x, size.z, 0.0f, texfaces[3], lights); // top
+	face(coord, -X, -Z, -Y, -X-Y+loff, 
+		(1.0f - offset.x) * fX - offset.z * fZ,
+        size.x, size.z, 0.0f, texfaces[2], lights); // bottom
 	
-	face(coord+X, -Z, Y, X, X-X+loff, local+size.x*fX-fX, size.z, size.y, 0.0f, texfaces[1]); // west ;;;
-	face(coord+Y, -Z, -Y, -X, -X-Y+loff, local, size.z, size.y, 0.0f, texfaces[0]); // east ;;;
+	face(coord, -Z, Y, X, X-X+loff, 
+		(1.0f - offset.x) * fX - offset.z * fZ,
+        size.z, size.y, 0.0f, texfaces[1], lights); // west
+	face(coord, Z, Y, -X, -X-Y+loff, 
+		(1.0f - offset.x - size.x) * fX - (offset.z + size.z) * fZ,
+        size.z, size.y, 0.0f, texfaces[0], lights); // east
 }
 
 /* Fastest solid shaded blocks render method */
@@ -405,13 +427,13 @@ void BlocksRenderer::render(const voxel* voxels) {
 				break;
 			}
 			case BlockModel::aabb: {
-				AABB hitbox = def.hitbox;
-				hitbox.a = vec3(1.0f)-hitbox.a;
-				hitbox.b = vec3(1.0f)-hitbox.b;
+				AABB inversedHitbox = def.hitbox;
+				inversedHitbox.a = vec3(1.0f) - inversedHitbox.a;
+				inversedHitbox.b = vec3(1.0f) - inversedHitbox.b;
 
-				vec3 size = hitbox.size();
-				vec3 off = hitbox.min();
-				blockCubeShaded(ivec3(x,y,z), off, size, texfaces, &def, vox.rotation());
+				vec3 size = inversedHitbox.size();
+				vec3 off = inversedHitbox.min();
+				blockAABB(ivec3(x,y,z), off, size, texfaces, &def, vox.rotation(), !def.rt.emissive);
 				break;
 			}
 			default:

@@ -11,7 +11,7 @@ class Level;
 
 class CameraControl {
 	Player* player;
-	Camera* camera;
+	Camera* camera, *currentViewCamera;
 	const CameraSettings& settings;
 	glm::vec3 offset;
 	float shake = 0.0f;
@@ -20,7 +20,7 @@ class CameraControl {
 public:
 	CameraControl(Player* player, const CameraSettings& settings);
 	void updateMouse(PlayerInput& input);
-	void update(PlayerInput& input, float delta);
+	void update(PlayerInput& input, float delta, Chunks* chunks);
 	void refresh();
 };
 
@@ -37,7 +37,7 @@ class PlayerController {
 	void updateInteraction();
 public:
 	static glm::vec3 selectedBlockPosition;
-	static glm::vec3 selectedBlockNormal;
+	static glm::ivec3 selectedBlockNormal;
 	static glm::vec3 selectedPointPosition;
 	static int selectedBlockId;
 	static int selectedBlockStates;

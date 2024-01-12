@@ -61,12 +61,17 @@ struct DebugSettings {
 	bool doWriteLights = true;
 };
 
+struct UiSettings {
+    std::string language = "auto";
+};
+
 struct EngineSettings {
     DisplaySettings display;
 	ChunksSettings chunks;
 	CameraSettings camera;
 	GraphicsSettings graphics;
 	DebugSettings debug;
+    UiSettings ui;
 };
 
 #endif // SRC_SETTINGS_H_

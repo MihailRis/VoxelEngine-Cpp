@@ -3,9 +3,12 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 #include <stdexcept>
 #include "typedefs.h"
 #include "settings.h"
+
+#include "content/ContentPack.h"
 
 class Assets;
 class Level;
@@ -25,6 +28,7 @@ public:
 class Engine {
 	Assets* assets;
 	std::shared_ptr<Screen> screen = nullptr;
+    std::vector<ContentPack> contentPacks;
 	EngineSettings& settings;
 	Content* content;
 	EnginePaths* paths;
@@ -48,6 +52,8 @@ public:
 	void setScreen(std::shared_ptr<Screen> screen);
 	EnginePaths* getPaths();
 	const Content* getContent() const;
+    std::vector<ContentPack>& getContentPacks();
+	void setLanguage(std::string locale);
 };
 
 #endif // SRC_ENGINE_H_

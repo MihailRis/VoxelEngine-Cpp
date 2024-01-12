@@ -4,12 +4,16 @@ Debug/src/**/*.o
 Debug/voxel_engine
 
 /build
+/cmake-build-**
+/screenshots
+/out
 
 /world
 /worlds/**/*
 /settings.toml
 /controls.json
 
+/.idea
 .vscode
 /.vs
 *.sln

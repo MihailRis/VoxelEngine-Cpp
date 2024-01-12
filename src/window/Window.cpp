@@ -71,10 +71,18 @@ bool Window::isMaximized() {
 	return glfwGetWindowAttrib(window, GLFW_MAXIMIZED);
 }
 
+bool Window::isFocused()
+{
+	return glfwGetWindowAttrib(window, GLFW_FOCUSED);
+}
+
 void window_size_callback(GLFWwindow*, int width, int height) {
-	glViewport(0, 0, width, height);
-	Window::width = width;
-	Window::height = height;
+	if (Window::isFocused() && width && height) {
+		glViewport(0, 0, width, height);
+		Window::width = width;
+		Window::height = height;
+	}
+
 	if (!Window::isFullscreen() && !Window::isMaximized()) {
 		Window::getSettings()->width = width;
 		Window::getSettings()->height = height;
@@ -124,7 +132,13 @@ int Window::initialize(DisplaySettings& settings){
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+#else
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+#endif
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 	glfwWindowHint(GLFW_SAMPLES, settings.samples);
 

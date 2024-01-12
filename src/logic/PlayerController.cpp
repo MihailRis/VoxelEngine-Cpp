@@ -32,6 +32,7 @@ using std::string;
 CameraControl::CameraControl(Player* player, const CameraSettings& settings) 
 	: player(player), 
 	  camera(player->camera), 
+	  currentViewCamera(player->currentViewCamera), //TODO "start view" settings (for custom worlds and minigames, maybe)
 	  settings(settings),
 	  offset(0.0f, 0.7f, 0.0f) {
 }
@@ -65,7 +66,7 @@ void CameraControl::updateMouse(PlayerInput& input) {
 	camera->rotate(camY, camX, 0);
 }
 
-void CameraControl::update(PlayerInput& input, float delta) {
+void CameraControl::update(PlayerInput& input, float delta, Chunks* chunks) {
 	Hitbox* hitbox = player->hitbox;
 
 	offset = vec3(0.0f, 0.7f, 0.0f);
@@ -106,11 +107,30 @@ void CameraControl::update(PlayerInput& input, float delta) {
 			zoomValue *= C_ZOOM;
 		camera->zoom = zoomValue * dt + camera->zoom * (1.0f - dt);
 	}
+
+	if (input.cameraMode) { //ugly but effective
+		if (player->currentViewCamera == camera)
+			player->currentViewCamera = player->SPCamera;
+		else if (player->currentViewCamera == player->SPCamera)
+			player->currentViewCamera = player->TPCamera;
+		else if (player->currentViewCamera == player->TPCamera)
+			player->currentViewCamera = camera;
+	}
+	if (player->currentViewCamera == player->SPCamera) {
+		player->SPCamera->position = chunks->rayCastToObstacle(camera->position, camera->front, 3.0f);
+		player->SPCamera->dir = -camera->dir;
+		player->SPCamera->front = -camera->front;
+	}
+	else if (player->currentViewCamera == player->TPCamera) {
+		player->TPCamera->position = chunks->rayCastToObstacle(camera->position, -camera->front, 3.0f);
+		player->TPCamera->dir = camera->dir;
+		player->TPCamera->front = camera->front;
+	}
 }
 
 vec3 PlayerController::selectedBlockPosition;
 vec3 PlayerController::selectedPointPosition;
-vec3 PlayerController::selectedBlockNormal;
+ivec3 PlayerController::selectedBlockNormal;
 int PlayerController::selectedBlockId = -1;
 int PlayerController::selectedBlockStates = 0;
 
@@ -150,7 +170,7 @@ void PlayerController::updateKeyboard() {
 	input.cheat = Events::active(BIND_MOVE_CHEAT);
 	input.jump = Events::active(BIND_MOVE_JUMP);
 	input.zoom = Events::active(BIND_CAM_ZOOM);
-
+	input.cameraMode = Events::jactive(BIND_CAM_MODE);
 	input.noclip = Events::jactive(BIND_PLAYER_NOCLIP);
 	input.flight = Events::jactive(BIND_PLAYER_FLIGHT);
 
@@ -166,7 +186,7 @@ void PlayerController::updateCamera(float delta, bool movement) {
 	if (movement) {
 		camControl.updateMouse(input);
 	}
-	camControl.update(input, delta);
+	camControl.update(input, delta, level->chunks);
 }
 
 void PlayerController::resetKeyboard() {
@@ -192,7 +212,8 @@ void PlayerController::updateInteraction(){
 	Lighting* lighting = level->lighting;
 	Camera* camera = player->camera;
 	vec3 end;
-	vec3 norm;
+	ivec3 iend;
+	ivec3 norm;
 
 	bool xkey = Events::pressed(keycode::X);
 	bool lclick = Events::jactive(BIND_PLAYER_ATTACK) || 
@@ -203,7 +224,7 @@ void PlayerController::updateInteraction(){
 	if (xkey) {
 		maxDistance *= 20.0f;
 	}
-	vec3 iend;
+
 	voxel* vox = chunks->rayCast(camera->position, 
 								 camera->front, 
 								 maxDistance, 
@@ -215,9 +236,9 @@ void PlayerController::updateInteraction(){
 		selectedBlockPosition = iend;
 		selectedPointPosition = end;
 		selectedBlockNormal = norm;
-		int x = (int)iend.x;
-		int y = (int)iend.y;
-		int z = (int)iend.z;
+		int x = iend.x;
+		int y = iend.y;
+		int z = iend.z;
 		uint8_t states = 0;
 
 		Block* def = contentIds->getBlockDef(player->choosenBlock);
@@ -250,13 +271,14 @@ void PlayerController::updateInteraction(){
 		}
 		if (rclick){
 			if (block->model != BlockModel::xsprite){
-				x = (int)(iend.x)+(int)(norm.x);
-				y = (int)(iend.y)+(int)(norm.y);
-				z = (int)(iend.z)+(int)(norm.z);
+				x = (iend.x)+(norm.x);
+				y = (iend.y)+(norm.y);
+				z = (iend.z)+(norm.z);
 			}
 			vox = chunks->get(x, y, z);
 			if (vox && (block = contentIds->getBlockDef(vox->id))->replaceable) {
-				if (!level->physics->isBlockInside(x,y,z, player->hitbox)){
+				if (!level->physics->isBlockInside(x,y,z, player->hitbox) 
+					|| !def->obstacle){
 					chunks->set(x, y, z, player->choosenBlock, states);
 					lighting->onBlockSet(x,y,z, player->choosenBlock);
 				}
