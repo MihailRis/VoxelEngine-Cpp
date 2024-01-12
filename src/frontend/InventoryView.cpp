@@ -16,16 +16,53 @@
 #include "../objects/Player.h"
 #include "../voxels/Block.h"
 
+ItemStorage::ItemStorage(size_t slots) {
+    items.resize(slots);
+}
+
+ItemStorage::ItemStorage(const std::vector<itemid_t>& items) :
+    items(items)
+{
+}
+
+ItemStorage::~ItemStorage()
+{
+}
+
+void ItemStorage::setItems(const std::vector<itemid_t>& items) {
+    this->items = items;
+}
+
+void ItemStorage::setItem(size_t slot, itemid_t item) {
+    if (slot >= items.size()) return;
+    items[slot] = item;
+}
+
+itemid_t ItemStorage::viewItem(size_t slot) const {
+    if (slot >= items.size()) return 0;
+    return items[slot];
+}
+
+void ItemStorage::clearSlot(size_t slot) {
+    if (slot >= items.size()) return;
+    items[slot] = 0;
+}
+
+size_t ItemStorage::getSize() {
+    return items.size();
+}
+
 InventoryView::InventoryView(
             int columns,
             const Content* content,
             LevelFrontend* frontend,
-            std::vector<itemid_t> items) 
-            : content(content),
+            const std::vector<itemid_t>& items) 
+            : ItemStorage(items),
+              content(content),
               indices(content->indices), 
-              items(items),
               frontend(frontend),
-              columns(columns) {
+              columns(columns)
+{
 }
 
 InventoryView::~InventoryView() {
@@ -49,8 +86,8 @@ void InventoryView::setSlotConsumer(slotconsumer consumer) {
     this->consumer = consumer;
 }
 
-void InventoryView::setItems(std::vector<itemid_t> items) {
-    this->items = items;
+void InventoryView::setHoverSlot(int slot) {
+    hoverSlot = slot;
 }
 
 void InventoryView::actAndDraw(const GfxContext* ctx) {
@@ -73,6 +110,14 @@ void InventoryView::actAndDraw(const GfxContext* ctx) {
 	batch->color = glm::vec4(0.0f, 0.0f, 0.0f, 0.5f);
 	batch->rect(position.x, position.y, inv_w, inv_h);
 	batch->render();
+
+    if (hoverSlot > -1) {
+        int x = xs + (iconSize + interval) * (hoverSlot % columns);
+        int y = ys + (iconSize + interval) * (hoverSlot / columns) - scroll;
+        batch->color = glm::vec4(1.f, 1.f, 1.f, 0.5f);
+        batch->rect(x, y, iconSize, iconSize);
+        batch->render();
+    }
 
 	// blocks & items
     if (Events::scroll) {

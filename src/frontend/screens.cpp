@@ -135,7 +135,7 @@ void LevelScreen::update(float delta) {
         backlight = settings.graphics.backlight;
     }
 
-    if (!hud->isPause()) {
+    if (!hud->isPause() && !level->world->freezeTime) {
         level->world->updateTimers(delta);
     }
     controller->update(delta, !inputLocked, hud->isPause());

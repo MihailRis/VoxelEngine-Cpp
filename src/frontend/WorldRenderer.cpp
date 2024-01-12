@@ -53,7 +53,8 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend)
 		}
 	);
 	auto assets = engine->getAssets();
-	skybox = new Skybox(settings.graphics.skyboxResolution, 
+	skybox = new Skybox(settings.graphics.skyboxResolution,
+						&settings.graphics.skyboxUpdateInterval,
 						assets->getShader("skybox_gen"));
 }
 

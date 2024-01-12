@@ -32,6 +32,7 @@ public:
 	WorldFiles* wfile;
 	uint64_t seed;
 
+	int freezeTime = false;
 	/* Day/night loop timer in range 0..1 
 	   0.0 - is midnight
 	   0.5 - is noon

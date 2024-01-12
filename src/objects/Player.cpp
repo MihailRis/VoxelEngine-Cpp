@@ -14,11 +14,12 @@ const float PLAYER_GROUND_DAMPING = 10.0f;
 const float PLAYER_AIR_DAMPING = 7.0f;
 const float FLIGHT_SPEED_MUL = 4.0f;
 const float CHEAT_SPEED_MUL = 5.0f;
+const float CHEAT_JUMP_FORCE_MUL = 2.0f;
 const float JUMP_FORCE = 8.0f;
 
 Player::Player(glm::vec3 position, float speed) :
 		speed(speed),
-		chosenItem(0),
+		items(PLAYER_HOTBAR_SLOTS),
 	    camera(new Camera(position, glm::radians(90.0f))),
 	    spCamera(new Camera(position, glm::radians(90.0f))),
 	    tpCamera(new Camera(position, glm::radians(90.0f))),
@@ -35,11 +36,13 @@ void Player::update(
 		float delta) {
 	bool crouch = input.shift && hitbox->grounded && !input.sprint;
 	float speed = this->speed;
+	float jumpForce = JUMP_FORCE;
 	if (flight){
 		speed *= FLIGHT_SPEED_MUL;
 	}
 	if (input.cheat){
 		speed *= CHEAT_SPEED_MUL;
+		jumpForce *= CHEAT_JUMP_FORCE_MUL;
 	}
 
 	if (crouch) {
@@ -84,7 +87,7 @@ void Player::update(
 	}
 
 	if (input.jump && hitbox->grounded){
-		hitbox->velocity.y = JUMP_FORCE;
+		hitbox->velocity.y = jumpForce;
 	}
 
 	if ((input.flight && !noclip) ||
@@ -122,11 +125,19 @@ void Player::teleport(glm::vec3 position) {
 }
 
 void Player::setChosenItem(itemid_t id) {
-    chosenItem = id;
+	items.setItem(activeSlot, id);
+}
+
+void Player::setInventoryItem(size_t slot, itemid_t id) {
+	items.setItem(slot, id);
 }
 
 itemid_t Player::getChosenItem() const {
-    return chosenItem;
+    return items.viewItem(activeSlot);
+}
+
+itemid_t Player::getInventoryItem(size_t slot) const {
+	return items.viewItem(slot);
 }
 
 float Player::getSpeed() const {

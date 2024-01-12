@@ -52,6 +52,8 @@ struct GraphicsSettings {
 	/* Enable chunks frustum culling */
 	bool frustumCulling = true;
 	int skyboxResolution = 64 + 32;
+	/* Update skybox every `n` tenths of game seconds  */
+	float skyboxUpdateInterval = 30.f;
 };
 
 struct DebugSettings {

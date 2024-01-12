@@ -146,6 +146,16 @@ void HudRenderer::createDebugPanel(Engine* engine) {
 		panel->add(bar);
 	}
 	{
+        auto checkbox = new FullCheckBox(L"Freeze Time", vec2(400, 32));
+        checkbox->supplier([=]() {
+            return level->world->freezeTime;
+        });
+        checkbox->consumer([=](bool checked) {
+			level->world->freezeTime = checked;
+        });
+        panel->add(checkbox);
+	}
+	{
         auto checkbox = new FullCheckBox(L"Show Chunk Borders", vec2(400, 32));
         checkbox->supplier([=]() {
             return engine->getSettings().debug.showChunkBorders;
@@ -177,7 +187,7 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
         level->player->setChosenItem(id);
     });
 
-    hotbarView.reset(new InventoryView(1, content, frontend, std::vector<itemid_t> {0}));
+    hotbarView.reset(new InventoryView(9, content, frontend, std::vector<itemid_t> {0}));
 
 	uicamera = new Camera(vec3(), 1);
 	uicamera->perspective = false;
@@ -268,9 +278,14 @@ void HudRenderer::draw(const GfxContext& ctx){
 	uishader->use();
 	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
 	
-	// Draw selected item preview
-    hotbarView->setPosition(width-60, height-60);
-    hotbarView->setItems({player->getChosenItem()});
+	// Draw player hotbar
+    hotbarView->setPosition(width / 2 - hotbarView->getWidth() / 2, height - hotbarView->getHeight());
+	std::vector<itemid_t> temp;
+	for (size_t i = 0; i < PLAYER_HOTBAR_SLOTS; i++) {
+		temp.emplace_back(player->getInventoryItem(i));
+	}
+    hotbarView->setItems(temp);
+	hotbarView->setHoverSlot(player->activeSlot);
     hotbarView->actAndDraw(&ctx);
 
 	// Crosshair

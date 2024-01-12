@@ -6,6 +6,9 @@
 
 #include "../voxels/voxel.h"
 #include "../settings.h"
+#include "..\frontend\InventoryView.h"
+
+const size_t PLAYER_HOTBAR_SLOTS = 9;
 
 class Camera;
 class Hitbox;
@@ -30,7 +33,7 @@ struct PlayerInput {
 
 class Player {
 	float speed;
-    itemid_t chosenItem;
+	ItemStorage items;
 public:
 	std::shared_ptr<Camera> camera, spCamera, tpCamera;
     std::shared_ptr<Camera> currentCamera;
@@ -38,6 +41,7 @@ public:
 	bool flight = false;
 	bool noclip = false;
 	bool debug = false;
+	size_t activeSlot = 0;
 	voxel selectedVoxel {0, 0};
 
 	glm::vec2 cam = {};
@@ -49,8 +53,10 @@ public:
 	void update(Level* level, PlayerInput& input, float delta);
 
     void setChosenItem(itemid_t id);
+	void setInventoryItem(size_t slot, itemid_t id);
 
     itemid_t getChosenItem() const;
+	itemid_t getInventoryItem(size_t slot) const;
 	float getSpeed() const;
 };
 

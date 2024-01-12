@@ -491,6 +491,7 @@ void WorldFiles::writeWorldInfo(const World* world) {
 	root.put("seed", world->seed);
 	
 	json::JObject& timeobj = root.putObj("time");
+	timeobj.put("freeze-time", world->freezeTime);
 	timeobj.put("day-time", world->daytime);
 	timeobj.put("day-time-speed", world->daytimeSpeed);
 
@@ -518,6 +519,7 @@ bool WorldFiles::readWorldInfo(World* world) {
 
 	json::JObject* timeobj = root->obj("time");
 	if (timeobj) {
+		timeobj->num("freeze-time", world->freezeTime);
 		timeobj->num("day-time", world->daytime);
 		timeobj->num("day-time-speed", world->daytimeSpeed);
 	}
@@ -539,6 +541,12 @@ void WorldFiles::writePlayer(Player* player){
 	
 	root.put("flight", player->flight);
 	root.put("noclip", player->noclip);
+
+	json::JArray& hotbararr = root.putArray("hotbar");
+	for (size_t i = 0; i < PLAYER_HOTBAR_SLOTS; i++){
+		hotbararr.put(player->getInventoryItem(i));
+	}
+	root.put("active_slot", player->activeSlot);
 
 	files::write_string(getPlayerFile(), json::stringify(&root, true, "  "));
 }
@@ -564,5 +572,17 @@ bool WorldFiles::readPlayer(Player* player) {
 
 	root->flag("flight", player->flight);
 	root->flag("noclip", player->noclip);
+
+	json::JArray* hotbararr = root->arr("hotbar");
+	if (hotbararr != nullptr) {
+		for (size_t i = 0; i < hotbararr->size(); i++) {
+			if (i >= PLAYER_HOTBAR_SLOTS) break;
+			itemid_t item = hotbararr->num(i);
+			// TODO: add item id check
+			player->setInventoryItem(i, item);
+		}
+	}
+	root->num("active_slot", player->activeSlot);
+
 	return true;
 }

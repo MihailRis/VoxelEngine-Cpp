@@ -13,8 +13,10 @@ class Skybox {
     Mesh* mesh;
     Shader* shader;
     bool ready = false;
+    float *updateInterval;
+    int lastUpdate;
 public:
-    Skybox(uint size, Shader* shader);
+    Skybox(uint size, float* updateInterval, Shader* shader);
     ~Skybox();
 
     void draw(Shader* shader);

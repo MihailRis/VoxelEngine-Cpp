@@ -197,6 +197,12 @@ void PlayerController::resetKeyboard() {
 
 void PlayerController::updateControls(float delta){
 	player->update(level, input, delta);
+
+	int activeSlot = player->activeSlot;
+	activeSlot -= Events::scroll;
+	if (activeSlot >= static_cast<int>(PLAYER_HOTBAR_SLOTS)) activeSlot = 0;
+	else if (activeSlot < 0) activeSlot = static_cast<int>(PLAYER_HOTBAR_SLOTS) - 1;
+	player->activeSlot = static_cast<size_t>(activeSlot);
 }
 
 void PlayerController::updateInteraction(){

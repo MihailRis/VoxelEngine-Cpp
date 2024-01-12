@@ -6,6 +6,7 @@
 #include "../../graphics/Shader.h"
 #include "../../graphics/Mesh.h"
 #include "../../window/Window.h"
+#include "../../util/timeutil.h"
 
 #ifndef M_PI
 #define M_PI 3.141592
@@ -13,7 +14,7 @@
 
 using glm::vec3;
 
-Skybox::Skybox(uint size, Shader* shader) : size(size), shader(shader) {
+Skybox::Skybox(uint size, float* updateInterval, Shader* shader) : size(size), shader(shader), updateInterval(updateInterval), lastUpdate(0) {
     glGenTextures(1, &cubemap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
     glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -48,6 +49,12 @@ void Skybox::draw(Shader* shader) {
 }
 
 void Skybox::refresh(float t, float mie, uint quality) {
+    int hour, minute, second;
+    timeutil::from_value(t, hour, minute, second);
+    second += hour * minute * 60;
+    if (lastUpdate > second - (*updateInterval / 10) && lastUpdate < second + (*updateInterval / 10)) return;
+    lastUpdate = second;
+
     ready = true;
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glActiveTexture(GL_TEXTURE1);

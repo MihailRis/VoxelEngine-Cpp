@@ -403,6 +403,22 @@ void create_settings_panel(Engine* engine, PagesControl* menu) {
         panel->add(trackbar);
     }
 
+    /* Skybox interval track bar */{
+        panel->add((new Label(L""))->textSupplier([=]() {
+            int interval = (int)engine->getSettings().graphics.skyboxUpdateInterval;
+            return langs::get(L"Skybox update interval", L"settings")+L": "+std::to_wstring(interval);
+        }));
+
+        TrackBar* trackbar = new TrackBar(1.0, 100.0, 90, 1, 4);
+        trackbar->supplier([=]() {
+            return engine->getSettings().graphics.skyboxUpdateInterval;
+        });
+        trackbar->consumer([=](double value) {
+            engine->getSettings().graphics.skyboxUpdateInterval = value;
+        });
+        panel->add(trackbar);
+    }
+
     /* V-Sync checkbox */{
         auto checkbox = new FullCheckBox(langs::get(L"V-Sync", L"settings"), vec2(400, 32));
         checkbox->supplier([=]() {

@@ -15,13 +15,36 @@ class LevelFrontend;
 
 typedef std::function<void(itemid_t)> slotconsumer;
 
-class InventoryView {
+struct ItemSlot {
+    ItemSlot(itemid_t id = 0u, ubyte amount = 0u) : id(id), amount(amount) {};
+    itemid_t id = 0u;
+    ubyte amount = 0u;
+};
+
+class ItemStorage {
+public:
+    ItemStorage(size_t slots);
+    ItemStorage(const std::vector<itemid_t>& items);
+    ~ItemStorage();
+
+    void setItems(const std::vector<itemid_t>& items);
+    void setItem(size_t slot, itemid_t item);
+    itemid_t viewItem(size_t slot) const;
+    void clearSlot(size_t slot);
+    size_t getSize();
+
+protected:
+    //  "itemid_t" may be replaced by the "ItemSlot" struct in the future.
+    std::vector<itemid_t> items;
+};
+
+class InventoryView : public ItemStorage {
     const Content* content;
     const ContentIndices* indices;
-    std::vector<itemid_t> items;
     slotconsumer consumer = nullptr;
     LevelFrontend* frontend;
 
+    int hoverSlot = -1;
     int scroll = 0;
     int columns;
     uint iconSize = 48;
@@ -33,18 +56,17 @@ public:
         int columns,
         const Content* content, 
         LevelFrontend* frontend,
-        std::vector<itemid_t> items);
+        const std::vector<itemid_t>& items);
 
     virtual ~InventoryView();
 
     virtual void actAndDraw(const GfxContext* ctx);
 
-    void setItems(std::vector<itemid_t> items);
-
     void setPosition(int x, int y);
     int getWidth() const;
     int getHeight() const;
     void setSlotConsumer(slotconsumer consumer);
+    void setHoverSlot(int slot);
 };
 
 #endif // FRONTEND_INVENTORY_VIEW_H_
