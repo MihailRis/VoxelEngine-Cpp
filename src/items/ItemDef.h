@@ -26,7 +26,7 @@ public:
     uint8_t emission[4] {0, 0, 0, 0};
 
     item_icon_type iconType = item_icon_type::sprite;
-    std::string icon = "block:notfound";
+    std::string icon = "blocks:notfound";
 
     std::string placingBlock = "core:air";
 

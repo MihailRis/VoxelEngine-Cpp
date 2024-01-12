@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
+#include <string>
 #include <assert.h>
 #include <stdexcept>
 #include <GL/glew.h>
@@ -110,7 +111,7 @@ void HudRenderer::createDebugPanel(Engine* engine) {
 		TextBox* box = new TextBox(L"");
 		box->textSupplier([=]() {
 			Hitbox* hitbox = level->player->hitbox.get();
-			return std::to_wstring(hitbox->position[ax]);
+			return util::to_wstring(hitbox->position[ax], 2);
 		});
 		box->textConsumer([=](std::wstring text) {
 			try {
@@ -119,6 +120,10 @@ void HudRenderer::createDebugPanel(Engine* engine) {
 				level->player->teleport(position);
 			} catch (std::invalid_argument& _){
 			}
+		});
+		box->setOnEditStart([=](){
+			Hitbox* hitbox = level->player->hitbox.get();
+			box->text(std::to_wstring(int(hitbox->position[ax])));
 		});
 
 		sub->add(box);

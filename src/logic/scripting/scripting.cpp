@@ -119,7 +119,7 @@ void scripting::on_block_placed(Player* player, const Block* block, int x, int y
     std::string name = block->name+".placed";
     lua_getglobal(L, name.c_str());
     lua_pushivec3(L, x, y, z);
-    lua_pushinteger(L, 1);
+    lua_pushinteger(L, 1); // player id placeholder
     call_func(L, 4, name);
 }
 
@@ -127,7 +127,7 @@ void scripting::on_block_broken(Player* player, const Block* block, int x, int y
     std::string name = block->name+".broken";
     lua_getglobal(L, name.c_str());
     lua_pushivec3(L, x, y, z);
-    lua_pushinteger(L, 1);
+    lua_pushinteger(L, 1); // player id placeholder
     call_func(L, 4, name);
 }
 
@@ -143,7 +143,7 @@ bool scripting::on_item_use_on_block(Player* player, const ItemDef* item, int x,
     std::string name = item->name+".useon";
     lua_getglobal(L, name.c_str());
     lua_pushivec3(L, x, y, z);
-    lua_pushinteger(L, 1);
+    lua_pushinteger(L, 1); // player id placeholder
     if (call_func(L, 4, name)) {
         return lua_toboolean(L, -1);
     }
@@ -154,7 +154,7 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
     std::string name = item->name+".blockbreakby";
     lua_getglobal(L, name.c_str());
     lua_pushivec3(L, x, y, z);
-    lua_pushinteger(L, 1);
+    lua_pushinteger(L, 1); // player id placeholder
     if (call_func(L, 4, name)) {
         return lua_toboolean(L, -1);
     }
