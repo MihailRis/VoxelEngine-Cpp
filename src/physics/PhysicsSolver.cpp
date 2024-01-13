@@ -176,7 +176,6 @@ void PhysicsSolver::colisionCalc(
 					if (glm::abs(newy-pos.y) <= MAX_FIX+stepHeight) {
 						pos.y = newy;	
 					}
-					hitbox->grounded = true;
 					break;
 				}
 			}
