@@ -260,7 +260,7 @@ void PlayerController::updateInteraction(){
 		}
 		
         if (lclick) {
-            if (!input.shift && item->rt.funcsset.on_use_on_block) {
+            if (!input.shift && item->rt.funcsset.on_block_break_by) {
                 if (scripting::on_item_break_block(player, item, x, y, z))
                     return;
             } 
