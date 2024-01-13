@@ -74,3 +74,5 @@ brew install glfw3 glew glm libpng lua luajit openal-soft
 ```
 
 If homebrew for some reason could not install the necessary packages: ```lua luajit openal-soft```, then download, install and compile them manually (Lua, LuaJIT and OpenAL).
+
+Made with ❤ on Earth.
