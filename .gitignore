@@ -25,6 +25,7 @@ Debug/voxel_engine
 .settings
 .cproject
 .project
+.fleet
 .git
 /Default/
 AppDir
