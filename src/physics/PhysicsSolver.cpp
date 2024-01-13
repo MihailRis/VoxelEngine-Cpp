@@ -36,7 +36,8 @@ void PhysicsSolver::step(
 		
 		vel += gravity * dt * gravityScale;
 		if (collisions) {
-			colisionCalc(chunks, hitbox, vel, pos, half);
+			colisionCalc(chunks, hitbox, vel, pos, half, 
+                         (gravityScale > 0.0f) ? 0.5f : 0.0f);
 		}
 		vel.x *= glm::max(0.0f, 1.0f - dt * linear_damping);
 		vel.z *= glm::max(0.0f, 1.0f - dt * linear_damping);
@@ -78,7 +79,8 @@ void PhysicsSolver::colisionCalc(
 		Hitbox* hitbox, 
 		vec3& vel, 
 		vec3& pos, 
-		const vec3 half)
+		const vec3 half,
+        float stepHeight)
 {
 	// step size (smaller - more accurate, but slower)
 	float s = 2.0f/BLOCK_AABB_GRID;
@@ -86,7 +88,7 @@ void PhysicsSolver::colisionCalc(
 	const AABB* aabb;
 	
 	if (vel.x < 0.0f){
-		for (float y = (pos.y-half.y+E); y <= (pos.y+half.y-E); y+=s){
+		for (float y = (pos.y-half.y+E+stepHeight); y <= (pos.y+half.y-E); y+=s){
 			for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
 				float x = (pos.x-half.x-E);
 				if ((aabb = chunks->isObstacleAt(x,y,z))){
@@ -101,7 +103,7 @@ void PhysicsSolver::colisionCalc(
 		}
 	}
 	if (vel.x > 0.0f){
-		for (float y = (pos.y-half.y+E); y <= (pos.y+half.y-E); y+=s){
+		for (float y = (pos.y-half.y+E+stepHeight); y <= (pos.y+half.y-E); y+=s){
 			for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
 				float x = (pos.x+half.x+E);
 				if ((aabb = chunks->isObstacleAt(x,y,z))){
@@ -117,7 +119,7 @@ void PhysicsSolver::colisionCalc(
 	}
 
 	if (vel.z < 0.0f){
-		for (float y = (pos.y-half.y+E); y <= (pos.y+half.y-E); y+=s){
+		for (float y = (pos.y-half.y+E+stepHeight); y <= (pos.y+half.y-E); y+=s){
 			for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
 				float z = (pos.z-half.z-E);
 				if ((aabb = chunks->isObstacleAt(x,y,z))){
@@ -133,7 +135,7 @@ void PhysicsSolver::colisionCalc(
 	}
 
 	if (vel.z > 0.0f){
-		for (float y = (pos.y-half.y+E); y <= (pos.y+half.y-E); y+=s){
+		for (float y = (pos.y-half.y+E+stepHeight); y <= (pos.y+half.y-E); y+=s){
 			for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
 				float z = (pos.z+half.z+E);
 				if ((aabb = chunks->isObstacleAt(x,y,z))){
@@ -156,6 +158,22 @@ void PhysicsSolver::colisionCalc(
 					vel.y *= 0.0f;
 					float newy = floor(y) + aabb->max().y + half.y;
 					if (glm::abs(newy-pos.y) <= MAX_FIX) {
+						pos.y = newy;	
+					}
+					hitbox->grounded = true;
+					break;
+				}
+			}
+		}
+	}
+    if (stepHeight > 0.0 && vel.y <= 0.0f){
+		for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
+			for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
+				float y = (pos.y-half.y+E);
+				if ((aabb = chunks->isObstacleAt(x,y,z))){
+					vel.y *= 0.0f;
+					float newy = floor(y) + aabb->max().y + half.y;
+					if (glm::abs(newy-pos.y) <= MAX_FIX+stepHeight) {
 						pos.y = newy;	
 					}
 					hitbox->grounded = true;
