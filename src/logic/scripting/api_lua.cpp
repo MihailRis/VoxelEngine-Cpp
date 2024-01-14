@@ -14,10 +14,10 @@
 #include "../../lighting/Lighting.h"
 #include "../../logic/BlocksController.h"
 
-#if (LUA_VERSION_NUM < 503 && !defined(LUAJIT_VERSION))
-static void luaL_openlib(lua_State* L, const char* name, const luaL_Reg* libfuncs) {
+#if (LUA_VERSION_NUM < 502)
+inline void luaL_openlib(lua_State* L, const char* name, const luaL_Reg* libfuncs, int nup) {
     lua_newtable(L);
-    luaL_setfuncs(L, libfuncs, 0);
+    luaL_setfuncs(L, libfuncs, nup);
     lua_setglobal(L, name);
 }
 #endif

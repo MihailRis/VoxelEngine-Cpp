@@ -1,27 +1,30 @@
 {
-    "blocks": [
-        "dirt",
-        "grass_block",
-        "lamp",
-        "glass",
-        "planks",
-        "wood",
-        "leaves",
-        "stone",
-        "water",
-        "sand",
-        "bazalt",
-        "grass",
-        "flower",
-        "brick",
-        "metal",
-        "rust",
-        "red_lamp",
-        "green_lamp",
-        "blue_lamp",
-        "pane",
-        "pipe",
-        "lightbulb",
-		"torch"
-    ]
+  "items": [
+    "bazalt_breaker"
+  ],
+  "blocks": [
+    "dirt",
+    "grass_block",
+    "lamp",
+    "glass",
+    "planks",
+    "wood",
+    "leaves",
+    "stone",
+    "water",
+    "sand",
+    "bazalt",
+    "grass",
+    "flower",
+    "brick",
+    "metal",
+    "rust",
+    "red_lamp",
+    "green_lamp",
+    "blue_lamp",
+    "pane",
+    "pipe",
+    "lightbulb",
+    "torch"
+  ]
 }

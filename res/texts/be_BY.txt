@@ -14,6 +14,7 @@ menu.Quit=Выхад
 menu.Continue=Працягнуть
 menu.Save and Quit to Menu=Захаваць і Выйсці ў Меню
 menu.missing-content=Адсутнічае Кантэнт!
+menu.Content Error=Памылка Кантэнту
 menu.Controls=Кіраванне
 menu.Back to Main Menu=Вярнуцца ў Меню
 menu.Settings=Налады
