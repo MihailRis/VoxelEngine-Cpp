@@ -55,9 +55,7 @@ int call_func(lua_State* L, int argc, const std::string& name) {
         std::cerr << lua_tostring(L,-1) << std::endl;
         return 0;
     }
-    int res_count = lua_tointeger(L, -1);
-    lua_pop(L, -1);
-    return res_count;
+    return 1;
 }
 
 void scripting::initialize(EnginePaths* paths) {
