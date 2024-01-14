@@ -29,7 +29,7 @@ static int l_world_get_day_time(lua_State* L) {
 }
 
 static int l_world_set_day_time(lua_State* L) {
-    double value = scripting::level->world->daytime;
+    double value = lua_tonumber(L, 1);
     scripting::level->world->daytime = fmod(value, 1.0);
     return 0;
 }
