@@ -14,7 +14,7 @@
 #include "../../lighting/Lighting.h"
 #include "../../logic/BlocksController.h"
 
-#if (LUA_VERSION_NUM < 503 and not defined(LUAJIT_VERSION))
+#if (LUA_VERSION_NUM < 503 && !defined(LUAJIT_VERSION))
 static void luaL_openlib(lua_State* L, const char* name, const luaL_Reg* libfuncs) {
     lua_newtable(L);
     luaL_setfuncs(L, libfuncs, 0);
