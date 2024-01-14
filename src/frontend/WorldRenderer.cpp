@@ -40,10 +40,10 @@ using std::shared_ptr;
 WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend) 
 	: engine(engine), 
 	  level(frontend->getLevel()),
-	  frustumCulling(new Frustum()),
-	  lineBatch(new LineBatch()),
-	  renderer(new ChunksRenderer(level, 
-                frontend->getContentGfxCache(), 
+	  frustumCulling(std::make_unique<Frustum>()),
+	  lineBatch(std::make_unique<LineBatch>()),
+	  renderer(std::make_unique<ChunksRenderer>(level,
+                frontend->getContentGfxCache(),
                 engine->getSettings())) {
 
 	auto& settings = engine->getSettings();
@@ -53,16 +53,11 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend)
 		}
 	);
 	auto assets = engine->getAssets();
-	skybox = new Skybox(settings.graphics.skyboxResolution, 
+	skybox = std::make_unique<Skybox>(settings.graphics.skyboxResolution,
 						assets->getShader("skybox_gen"));
 }
 
-WorldRenderer::~WorldRenderer() {
-	delete skybox;
-	delete lineBatch;
-	delete renderer;
-	delete frustumCulling;
-}
+WorldRenderer::~WorldRenderer() = default;
 
 bool WorldRenderer::drawChunk(size_t index,
 							  Camera* camera, 

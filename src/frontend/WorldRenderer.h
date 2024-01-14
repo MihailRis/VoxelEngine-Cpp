@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <GL/glew.h>
 #include <string>
+#include <memory>
 
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -27,10 +28,10 @@ class Skybox;
 class WorldRenderer {
 	Engine* engine;
 	Level* level;
-	Frustum* frustumCulling;
-	LineBatch* lineBatch;
-	ChunksRenderer* renderer;
-	Skybox* skybox;
+	std::unique_ptr<Frustum> frustumCulling;
+	std::unique_ptr<LineBatch> lineBatch;
+	std::unique_ptr<ChunksRenderer> renderer;
+	std::unique_ptr<Skybox> skybox;
 	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool culling);
 	void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
 public:
