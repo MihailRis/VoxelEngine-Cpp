@@ -46,12 +46,12 @@ string Section::getName() const {
     return name;
 }
 
-const Field* Section::field(std::string name) const {
+std::optional<std::reference_wrapper<const Field>> Section::field(std::string name) const {
     auto found = fields.find(name);
     if (found == fields.end()) {
-        return nullptr;
+        return std::nullopt;
     }
-    return &found->second;
+    return found->second;
 }
 
 const std::vector<std::string>& Section::keys() const {
@@ -67,12 +67,12 @@ Section& Wrapper::add(std::string name) {
     return section;
 }
 
-Section* Wrapper::section(std::string name) {
+std::optional<std::reference_wrapper<Section>> Wrapper::section(std::string name) {
     auto found = sections.find(name);
     if (found == sections.end()) {
-        return nullptr;
+        return std::nullopt;
     }
-    return &found->second;
+    return found->second;
 }
 
 std::string Wrapper::write() const {
@@ -82,17 +82,17 @@ std::string Wrapper::write() const {
         ss << "[" << key << "]\n";
         for (const string& key : section.keys()) {
             ss << key << " = ";
-            const Field* field = section.field(key);
-            assert(field != nullptr);
-            switch (field->type) {
+            assert(section.field(key).has_value());
+            const Field& field = section.field(key).value();
+            switch (field.type) {
                 case fieldtype::ftbool:
-                    ss << (*((bool*)field->ptr) ? "true" : "false");
+                    ss << (*((bool*)field.ptr) ? "true" : "false");
                     break;
-                case fieldtype::ftint: ss << *((int*)field->ptr); break;
-                case fieldtype::ftuint: ss << *((uint*)field->ptr); break;
-                case fieldtype::ftfloat: ss << *((float*)field->ptr); break;
-                case fieldtype::ftstring: 
-                    ss << escape_string(*((const string*)field->ptr)); 
+                case fieldtype::ftint: ss << *((int*)field.ptr); break;
+                case fieldtype::ftuint: ss << *((uint*)field.ptr); break;
+                case fieldtype::ftfloat: ss << *((float*)field.ptr); break;
+                case fieldtype::ftstring:
+                    ss << escape_string(*((const string*)field.ptr));
                     break;
             }
             ss << "\n";
@@ -120,7 +120,7 @@ void Reader::read() {
     if (!hasNext()) {
         return;
     }
-    readSection(nullptr);
+    readSection(std::nullopt);
 }
 
 inline bool is_numeric_type(fieldtype type) {
@@ -128,16 +128,17 @@ inline bool is_numeric_type(fieldtype type) {
 }
 
 void Section::set(string name, double value) {
-    const Field* field = this->field(name);
-    if (field == nullptr) {
+    auto fieldOpt = this->field(name);
+    if (!fieldOpt.has_value()) {
         std::cerr << "warning: unknown key '" << name << "'" << std::endl;
     } else {
-        switch (field->type) {
-        case fieldtype::ftbool: *(bool*)(field->ptr) = fabs(value) > 0.0; break;
-        case fieldtype::ftint: *(int*)(field->ptr) = value; break;
-        case fieldtype::ftuint: *(uint*)(field->ptr) = value; break;
-        case fieldtype::ftfloat: *(float*)(field->ptr) = value; break;
-        case fieldtype::ftstring: *(string*)(field->ptr) = std::to_string(value); break;
+        const Field& field = fieldOpt.value();
+        switch (field.type) {
+        case fieldtype::ftbool: *(bool*)(field.ptr) = fabs(value) > 0.0; break;
+        case fieldtype::ftint: *(int*)(field.ptr) = value; break;
+        case fieldtype::ftuint: *(uint*)(field.ptr) = value; break;
+        case fieldtype::ftfloat: *(float*)(field.ptr) = value; break;
+        case fieldtype::ftstring: *(string*)(field.ptr) = std::to_string(value); break;
         default:
             std::cerr << "error: type error for key '" << name << "'" << std::endl;
         }
@@ -145,16 +146,17 @@ void Section::set(string name, double value) {
 }
 
 void Section::set(std::string name, bool value) {
-    const Field* field = this->field(name);
-    if (field == nullptr) {
+    auto fieldOpt = this->field(name);
+    if (!fieldOpt.has_value()) {
         std::cerr << "warning: unknown key '" << name << "'" << std::endl;
     } else {
-        switch (field->type) {
-        case fieldtype::ftbool: *(bool*)(field->ptr) = value; break;
-        case fieldtype::ftint: *(int*)(field->ptr) = (int)value; break;
-        case fieldtype::ftuint: *(uint*)(field->ptr) = (uint)value; break;
-        case fieldtype::ftfloat: *(float*)(field->ptr) = (float)value; break;
-        case fieldtype::ftstring: *(string*)(field->ptr) = value ? "true" : "false"; break;
+        const Field& field = fieldOpt.value();
+        switch (field.type) {
+        case fieldtype::ftbool: *(bool*)(field.ptr) = value; break;
+        case fieldtype::ftint: *(int*)(field.ptr) = (int)value; break;
+        case fieldtype::ftuint: *(uint*)(field.ptr) = (uint)value; break;
+        case fieldtype::ftfloat: *(float*)(field.ptr) = (float)value; break;
+        case fieldtype::ftstring: *(string*)(field.ptr) = value ? "true" : "false"; break;
         default:
             std::cerr << "error: type error for key '" << name << "'" << std::endl;
         }
@@ -162,19 +164,20 @@ void Section::set(std::string name, bool value) {
 }
 
 void Section::set(std::string name, std::string value) {
-    const Field* field = this->field(name);
-    if (field == nullptr) {
+    auto fieldOpt = this->field(name);
+    if (!fieldOpt.has_value()) {
         std::cerr << "warning: unknown key '" << name << "'" << std::endl;
     } else {
-        switch (field->type) {
-        case fieldtype::ftstring: *(string*)(field->ptr) = value; break;
+        const Field& field = fieldOpt.value();
+        switch (field.type) {
+        case fieldtype::ftstring: *(string*)(field.ptr) = value; break;
         default:
             std::cerr << "error: type error for key '" << name << "'" << std::endl;
         }
     }
 }
 
-void Reader::readSection(Section* section /*nullable*/) {
+void Reader::readSection(std::optional<std::reference_wrapper<Section>> section) {
     while (hasNext()) {
         skipWhitespace();
         if (!hasNext()) {
@@ -183,7 +186,7 @@ void Reader::readSection(Section* section /*nullable*/) {
         char c = nextChar();
         if (c == '[') {
             string name = parseName();
-            Section* section = wrapper->section(name);
+            auto section = wrapper->section(name);
             pos++;
             readSection(section);
             return;
@@ -195,44 +198,44 @@ void Reader::readSection(Section* section /*nullable*/) {
         if (is_digit(c)) {
             number_u num;
             if (parseNumber(1, num)) {
-                if (section)
-                    section->set(name, (double)num.ival);
+                if (section.has_value())
+                    section.value().get().set(name, (double)num.ival);
             } else {
-                if (section)
-                    section->set(name, num.fval);
+                if (section.has_value())
+                    section.value().get().set(name, num.fval);
             }
         } else if (c == '-' || c == '+') {
             int sign = c == '-' ? -1 : 1;
             pos++;
             number_u num;
             if (parseNumber(sign, num)) {
-                if (section)
-                    section->set(name, (double)num.ival);
+                if (section.has_value())
+                    section.value().get().set(name, (double)num.ival);
             } else {
-                if (section)
-                    section->set(name, num.fval);
+                if (section.has_value())
+                    section.value().get().set(name, num.fval);
             }
         } else if (is_identifier_start(c)) {
             string identifier = parseName();
             if (identifier == "true" || identifier == "false") {
                 bool flag = identifier == "true";
-                if (section) {
-                    section->set(name, flag);
+                if (section.has_value()) {
+                    section.value().get().set(name, flag);
                 }
             } else if (identifier == "inf") {
-                if (section) {
-                    section->set(name, INFINITY);
+                if (section.has_value()) {
+                    section.value().get().set(name, INFINITY);
                 }
             } else if (identifier == "nan") {
-                if (section) {
-                    section->set(name, NAN);
+                if (section.has_value()) {
+                    section.value().get().set(name, NAN);
                 }
             }
         } else if (c == '"' || c == '\'') {
             pos++;
             string str = parseString(c);
-            if (section) {
-                section->set(name, str);
+            if (section.has_value()) {
+                section.value().get().set(name, str);
             }
         } else {
             throw error("feature is not supported");
