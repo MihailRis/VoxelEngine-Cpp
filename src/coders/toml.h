@@ -59,11 +59,11 @@ namespace toml {
     };
 
     class Reader : public BasicParser {
-        Wrapper* wrapper;
+        Wrapper& wrapper;
         void skipWhitespace() override;
         void readSection(std::optional<std::reference_wrapper<Section>> section);
     public:
-        Reader(Wrapper* wrapper, std::string file, std::string source);
+        Reader(Wrapper& wrapper, std::string file, std::string source);
         void read();
     };
 }

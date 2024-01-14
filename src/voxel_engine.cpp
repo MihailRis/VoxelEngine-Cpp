@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
 		if (fs::is_regular_file(settings_file)) {
 			std::cout << "-- loading settings" << std::endl;
 			std::string text = files::read_string(settings_file);
-			toml::Reader reader(wrapper.get(), settings_file.string(), text);
+			toml::Reader reader(*wrapper, settings_file.string(), text);
 			reader.read();
 		}
         setup_bindings();

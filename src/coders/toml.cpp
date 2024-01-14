@@ -102,7 +102,7 @@ std::string Wrapper::write() const {
     return ss.str();
 }
 
-Reader::Reader(Wrapper* wrapper, string file, string source) : BasicParser(file, source), wrapper(wrapper) {
+Reader::Reader(Wrapper& wrapper, string file, string source) : BasicParser(file, source), wrapper(wrapper) {
 }
 
 void Reader::skipWhitespace() {
@@ -186,7 +186,7 @@ void Reader::readSection(std::optional<std::reference_wrapper<Section>> section)
         char c = nextChar();
         if (c == '[') {
             string name = parseName();
-            auto section = wrapper->section(name);
+            auto section = wrapper.section(name);
             pos++;
             readSection(section);
             return;
