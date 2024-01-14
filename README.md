@@ -8,7 +8,7 @@
 - <kbd>**Tab**</kbd> - open inventory
 - <kbd>**W**</kbd> <kbd>**A**</kbd> <kbd>**S**</kbd> <kbd>**D**</kbd> - movement
 - <kbd>**Space**</kbd> - jump
-- <kbd>**LMB**</kbd> - remove block 
+- <kbd>**LMB**</kbd> - remove block
 - <kbd>**RMB**</kbd> - place block
 - <kbd>**F**</kbd> - toggle flight mode
 - <kbd>**N**</kbd> - noclip mode
@@ -74,3 +74,27 @@ brew install glfw3 glew glm libpng lua luajit openal-soft
 ```
 
 If homebrew for some reason could not install the necessary packages: ```lua luajit openal-soft```, then download, install and compile them manually (Lua, LuaJIT and OpenAL).
+
+## Build using Docker
+
+### Step 0. Install docker on your system
+
+See https://docs.docker.com/engine/install
+
+### Step 1. Build docker container
+
+```
+docker build -t voxel-engine .
+```
+
+### Step 2. Build project using the docker container
+
+```
+docker run --rm -it -v$(pwd):/project voxel-engine bash -c "cmake -DCMAKE_BUILD_TYPE=Release -Bbuild && cmake --build build"
+```
+
+### Step 3. Run project using the docker container
+
+```
+docker run --rm -it -v$(pwd):/project -v/tmp/.X11-unix:/tmp/.X11-unix -v${XAUTHORITY}:/home/user/.Xauthority:ro -eDISPLAY --network=host voxel-engine ./build/VoxelEngine
+```
