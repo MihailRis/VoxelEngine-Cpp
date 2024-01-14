@@ -31,21 +31,13 @@ Chunks::Chunks(int w, int d,
 		  worldFiles(wfile), 
 		  events(events) {
 	volume = (size_t)w*(size_t)d;
-	chunks = new shared_ptr<Chunk>[volume];
-	chunksSecond = new shared_ptr<Chunk>[volume];
+	chunks.resize(volume);
+	chunksSecond.resize(volume);
 
 	for (size_t i = 0; i < volume; i++){
 		chunks[i] = nullptr;
 	}
 	chunksCount = 0;
-}
-
-Chunks::~Chunks(){
-	for (size_t i = 0; i < volume; i++){
-		chunks[i] = nullptr;
-	}
-	delete[] chunks;
-	delete[] chunksSecond;
 }
 
 voxel* Chunks::get(int x, int y, int z){
@@ -443,20 +435,18 @@ void Chunks::resize(int newW, int newD) {
 		translate(0, delta);
 	}
 	const int newVolume = newW * newD;
-	auto newChunks = new shared_ptr<Chunk>[newVolume] {};
-	auto newChunksSecond = new shared_ptr<Chunk>[newVolume] {};
+	std::vector<shared_ptr<Chunk>> newChunks(newVolume);
+	std::vector<shared_ptr<Chunk>> newChunksSecond(newVolume);
 	for (int z = 0; z < d && z < newD; z++) {
 		for (int x = 0; x < w && x < newW; x++) {
 			newChunks[z * newW + x] = chunks[z * w + x];
 		}
 	}
-	delete[] chunks;
-	delete[] chunksSecond;
 	w = newW;
 	d = newD;
 	volume = newVolume;
-	chunks = newChunks;
-	chunksSecond = newChunksSecond;
+	chunks = std::move(newChunks);
+	chunksSecond = std::move(newChunksSecond);
 }
 
 void Chunks::_setOffset(int x, int z){
