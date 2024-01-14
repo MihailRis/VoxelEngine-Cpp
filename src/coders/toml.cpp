@@ -58,20 +58,13 @@ const std::vector<std::string>& Section::keys() const {
     return keyOrder;
 }
 
-Wrapper::~Wrapper() {
-    for (auto entry : sections) {
-        delete entry.second;
-    }
-}
-
 Section& Wrapper::add(std::string name) {
     if (sections.find(name) != sections.end()) {
         throw std::runtime_error("section duplication");
     }
-    Section* section = new Section(name);
-    sections[name] = section;
+    Section& section = sections.emplace(name, name).first->second;
     keyOrder.push_back(name);
-    return *section;
+    return section;
 }
 
 Section* Wrapper::section(std::string name) {
@@ -79,17 +72,17 @@ Section* Wrapper::section(std::string name) {
     if (found == sections.end()) {
         return nullptr;
     }
-    return found->second;
+    return &found->second;
 }
 
 std::string Wrapper::write() const {
     std::stringstream ss;
     for (string key : keyOrder) {
-        const Section* section = sections.at(key);
+        const Section& section = sections.at(key);
         ss << "[" << key << "]\n";
-        for (const string& key : section->keys()) {
+        for (const string& key : section.keys()) {
             ss << key << " = ";
-            const Field* field = section->field(key);
+            const Field* field = section.field(key);
             assert(field != nullptr);
             switch (field->type) {
                 case fieldtype::ftbool:

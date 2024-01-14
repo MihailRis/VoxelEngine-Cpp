@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <unordered_map>
 
 #include "commons.h"
@@ -27,6 +28,7 @@ namespace toml {
         std::string name;
         void add(std::string name, Field field);
     public:
+        Section() = default;
         Section(std::string name);
         void add(std::string name, bool* ptr);
         void add(std::string name, int* ptr);
@@ -45,10 +47,10 @@ namespace toml {
     };
 
     class Wrapper {
-        std::unordered_map<std::string, Section*> sections;
+        std::unordered_map<std::string, Section> sections;
         std::vector<std::string> keyOrder;
     public:
-        ~Wrapper();
+        ~Wrapper() = default;
         Section& add(std::string section);
         Section* section(std::string name);
 
