@@ -104,18 +104,6 @@ bool Chunk::decode(ubyte* data) {
 	return true;
 }
 
-/*
- * Convert chunk voxels data from 16 bit to 32 bit
- */
-void Chunk::fromOld(ubyte* data) {
-    for (size_t i = 0; i < CHUNK_VOL; i++) {
-        data[i + CHUNK_VOL*3] = data[i + CHUNK_VOL];
-        data[i + CHUNK_VOL] = data[i];
-        data[i + CHUNK_VOL*2] = 0;
-        data[i] = 0;
-    }
-}
-
 void Chunk::convert(ubyte* data, const ContentLUT* lut) {
     for (size_t i = 0; i < CHUNK_VOL; i++) {
         // see encode method to understand what the hell is going on here
