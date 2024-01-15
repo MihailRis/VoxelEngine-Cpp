@@ -235,9 +235,9 @@ int _png_write(const char* filename, uint width, uint height, const ubyte* data,
 ImageData* _png_load(const char* file){
 	int r = 0;
 	FILE *png = nullptr;
-	char *pngbuf = nullptr;
+	std::vector<char> pngbuf;
 	spng_ctx *ctx = nullptr;
-	unsigned char *out = nullptr;
+	std::vector<char> out;
 
 	png = fopen(file, "rb");
 	if (png == nullptr){
@@ -253,30 +253,26 @@ ImageData* _png_load(const char* file){
 		std::cerr << "could not to read file " << file << std::endl;
 		return nullptr;
 	}
-	pngbuf = new char[siz_pngbuf];
-	if(fread(pngbuf, siz_pngbuf, 1, png) != 1){ //check of read elements count
+	pngbuf.resize(siz_pngbuf);
+	if(fread(pngbuf.data(), pngbuf.size(), 1, png) != 1){ //check of read elements count
 		fclose(png);
-		delete[] pngbuf;
 		std::cerr << "fread() failed" << std::endl;
 		return nullptr;
 	}
 	fclose(png); // <- finally closing file
 	ctx = spng_ctx_new(0);
 	if (ctx == nullptr){
-		delete[] pngbuf;
 		std::cerr << "spng_ctx_new() failed" << std::endl;
 		return nullptr;
 	}
 	r = spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
 	if (r != SPNG_SUCCESS){
-		delete[] pngbuf;
 		spng_ctx_free(ctx);
 		std::cerr << "spng_set_crc_action() error: " << spng_strerror(r) << std::endl;
 		return nullptr;
 	}
-	r = spng_set_png_buffer(ctx, pngbuf, siz_pngbuf);
+	r = spng_set_png_buffer(ctx, pngbuf.data(), pngbuf.size());
 	if (r != SPNG_SUCCESS){
-		delete[] pngbuf;
 		spng_ctx_free(ctx);
 		std::cerr << "spng_set_png_buffer() error: " << spng_strerror(r) << std::endl;
 		return nullptr;
@@ -285,7 +281,6 @@ ImageData* _png_load(const char* file){
 	spng_ihdr ihdr;
 	r = spng_get_ihdr(ctx, &ihdr);
 	if (r != SPNG_SUCCESS){
-		delete[] pngbuf;
 		spng_ctx_free(ctx);
 		std::cerr << "spng_get_ihdr() error: " << spng_strerror(r) << std::endl;
 		return nullptr;
@@ -306,16 +301,13 @@ ImageData* _png_load(const char* file){
 	size_t out_size;
 	r = spng_decoded_image_size(ctx, SPNG_FMT_RGBA8, &out_size);
 	if (r != SPNG_SUCCESS){
-		delete[] pngbuf;
 		spng_ctx_free(ctx);
 		std::cerr << "spng_decoded_image_size() error: " << spng_strerror(r) << std::endl;
 		return nullptr;
 	}
-	out = new unsigned char[out_size];
-	r = spng_decode_image(ctx, out, out_size, SPNG_FMT_RGBA8, 0);
+	out.resize(out_size);
+	r = spng_decode_image(ctx, out.data(), out.size(), SPNG_FMT_RGBA8, 0);
 	if (r != SPNG_SUCCESS){
-		delete[] out;
-		delete[] pngbuf;
 		spng_ctx_free(ctx);
 		std::cerr << "spng_decode_image() error: " << spng_strerror(r) << std::endl;
 		return nullptr;
@@ -329,11 +321,9 @@ ImageData* _png_load(const char* file){
 			flipped[(ihdr.height-i-1)*rowsize+j] = out[i*rowsize+j];
 		}
 	}
-	delete[] out; // <- finally delete out // no, delete spng usage
 
     ImageData* image = new ImageData(ImageFormat::rgba8888, ihdr.width, ihdr.height, (void*)flipped);
 
-	delete[] pngbuf;
 	spng_ctx_free(ctx);
 
     return image;
