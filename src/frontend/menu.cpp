@@ -280,10 +280,18 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
         std::cout << "world seed: " << seed << std::endl;
 
         auto folder = paths->getWorldsFolder()/fs::u8path(nameutf8);
+
+        try {
+            engine->loadAllPacks();
+            engine->loadContent();
+        } catch (const std::runtime_error& error) {
+            guiutil::alert(engine->getGUI(),
+                        langs::get(L"Content Error", L"menu")+
+                        L": "+util::str2wstr_utf8(error.what()));
+            return;
+        }
         fs::create_directories(folder);
 
-        engine->loadAllPacks();
-        engine->loadContent();
         Level* level = World::create(
             nameutf8, folder, seed, 
             engine->getSettings(), 

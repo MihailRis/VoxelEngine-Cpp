@@ -14,13 +14,11 @@
 #include "../../lighting/Lighting.h"
 #include "../../logic/BlocksController.h"
 
-#if (LUA_VERSION_NUM < 502)
 inline void luaL_openlib(lua_State* L, const char* name, const luaL_Reg* libfuncs, int nup) {
     lua_newtable(L);
     luaL_setfuncs(L, libfuncs, nup);
     lua_setglobal(L, name);
 }
-#endif
 
 /* == world library ==*/
 static int l_world_get_day_time(lua_State* L) {
