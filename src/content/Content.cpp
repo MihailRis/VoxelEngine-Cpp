@@ -48,7 +48,7 @@ ItemDef* ContentBuilder::createItem(std::string id) {
 
 void ContentBuilder::checkIdentifier(std::string id) {
     contenttype result;
-    if ((checkContentType(id) != contenttype::none)) {
+    if (((result = checkContentType(id)) != contenttype::none)) {
         throw namereuse_error("name "+id+" is already used", result);
     }  
 }

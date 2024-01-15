@@ -1,12 +1,12 @@
 #ifndef SRC_CORE_DEFS_H_
 #define SRC_CORE_DEFS_H_
 
-/* blocks and bindings used in engine code */
+#include <string>
 
-const int BLOCK_AIR = 0;
 
 const std::string TEXTURE_NOTFOUND = "notfound";
 
+/* bindings used in engine code */
 const std::string BIND_MOVE_FORWARD = "movement.forward";
 const std::string BIND_MOVE_BACK = "movement.back";
 const std::string BIND_MOVE_LEFT = "movement.left";

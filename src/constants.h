@@ -7,6 +7,9 @@
 const int ENGINE_VERSION_MAJOR = 0;
 const int ENGINE_VERSION_MINOR = 18;
 
+const int BLOCK_AIR = 0;
+const int ITEM_EMPTY = 0;
+
 const int CHUNK_W = 16;
 const int CHUNK_H = 256;
 const int CHUNK_D = 16;
