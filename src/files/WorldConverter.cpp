@@ -9,12 +9,12 @@
 
 namespace fs = std::filesystem;
 
-WorldConverter::WorldConverter(fs::path folder, 
-                               const Content* content, 
-                               std::shared_ptr<ContentLUT> lut) 
+WorldConverter::WorldConverter(fs::path folder,
+                               const Content* content,
+                               std::shared_ptr<ContentLUT> lut)
     : lut(lut), content(content) {
     DebugSettings settings;
-    wfile = new WorldFiles(folder, settings);
+    wfile = std::make_unique<WorldFiles>(folder, settings);
 
     fs::path regionsFolder = wfile->getRegionsFolder();
     if (!fs::is_directory(regionsFolder)) {
@@ -26,9 +26,7 @@ WorldConverter::WorldConverter(fs::path folder,
     }
 }
 
-WorldConverter::~WorldConverter() {
-    delete wfile;
-}
+WorldConverter::~WorldConverter() = default;
 
 bool WorldConverter::hasNext() const {
     return !regions.empty();
@@ -53,16 +51,16 @@ void WorldConverter::convertNext() {
         for (uint cx = 0; cx < REGION_SIZE; cx++) {
             int gx = cx + x * REGION_SIZE;
             int gz = cz + z * REGION_SIZE;
-            std::unique_ptr<ubyte[]> data (wfile->getChunk(gx, gz));
-            if (data == nullptr)
+            auto data = wfile->getChunk(gx, gz);
+            if (!data.has_value())
                 continue;
             if (wfile->getVoxelRegionVersion(x, z) != REGION_FORMAT_VERSION) {
-                Chunk::fromOld(data.get());
+                Chunk::fromOld(data.value().data());
             }
             if (lut) {
-                Chunk::convert(data.get(), lut.get());
+                Chunk::convert(data.value().data(), lut.get());
             }
-            wfile->put(gx, gz, data.get());
+            wfile->put(gx, gz, data.value().data());
         }
     }
 }

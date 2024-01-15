@@ -45,19 +45,6 @@ regfile::regfile(fs::path filename) : file(filename) {
     }
 }
 
-WorldRegion::WorldRegion() {
-	chunksData = new ubyte*[REGION_CHUNKS_COUNT]{};
-	sizes = new uint32_t[REGION_CHUNKS_COUNT]{};
-}
-
-WorldRegion::~WorldRegion() {
-	for (uint i = 0; i < REGION_CHUNKS_COUNT; i++) {
-		delete[] chunksData[i];
-	}
-	delete[] sizes;
-	delete[] chunksData;
-}
-
 void WorldRegion::setUnsaved(bool unsaved) {
 	this->unsaved = unsaved;
 }
@@ -65,47 +52,35 @@ bool WorldRegion::isUnsaved() const {
 	return unsaved;
 }
 
-ubyte** WorldRegion::getChunks() const {
-	return chunksData;
+std::array<std::optional<std::vector<ubyte>>, REGION_CHUNKS_COUNT>& WorldRegion::getChunks() /*const*/ {
+	return chunks;
 }
 
-uint32_t* WorldRegion::getSizes() const {
-	return sizes;
-}
-
-void WorldRegion::put(uint x, uint z, ubyte* data, uint32_t size) {
+void WorldRegion::put(uint x, uint z, std::vector<ubyte>&& data) {
 	size_t chunk_index = z * REGION_SIZE + x;
-	delete[] chunksData[chunk_index];
-	chunksData[chunk_index] = data;
-	sizes[chunk_index] = size;
+	chunks[chunk_index] = std::forward<std::vector<ubyte>>(data);
 }
 
-ubyte* WorldRegion::getChunkData(uint x, uint z) {
-	return chunksData[z * REGION_SIZE + x];
-}
-
-uint WorldRegion::getChunkDataSize(uint x, uint z) {
-	return sizes[z * REGION_SIZE + x];
+std::optional<std::vector<ubyte>>& WorldRegion::getChunkData(uint x, uint z) {
+	return chunks[z * REGION_SIZE + x];
 }
 
 WorldFiles::WorldFiles(fs::path directory, const DebugSettings& settings) 
 	: directory(directory), 
 	  generatorTestMode(settings.generatorTestMode),
 	  doWriteLights(settings.doWriteLights) {
-	compressionBuffer.reset(new ubyte[CHUNK_DATA_LEN * 2]);
 }
 
-WorldFiles::~WorldFiles(){
-}
+WorldFiles::~WorldFiles() = default;
 
-WorldRegion* WorldFiles::getRegion(regionsmap& regions, int x, int z) {
+WorldRegion* WorldFiles::getRegion(RegionsMap& regions, int x, int z) {
 	auto found = regions.find(glm::ivec2(x, z));
 	if (found == regions.end())
 		return nullptr;
 	return found->second.get();
 }
 
-WorldRegion* WorldFiles::getOrCreateRegion(regionsmap& regions, int x, int z) {
+WorldRegion* WorldFiles::getOrCreateRegion(RegionsMap& regions, int x, int z) {
 	WorldRegion* region = getRegion(regions, x, z);
 	if (region == nullptr) {
 		region = new WorldRegion();
@@ -114,21 +89,20 @@ WorldRegion* WorldFiles::getOrCreateRegion(regionsmap& regions, int x, int z) {
 	return region;
 }
 
-ubyte* WorldFiles::compress(const ubyte* src, size_t srclen, size_t& len) {
-    ubyte* buffer = this->compressionBuffer.get();
-    
-	len = extrle::encode(src, srclen, buffer);
-	ubyte* data = new ubyte[len];
-	for (size_t i = 0; i < len; i++) {
-		data[i] = buffer[i];
-	}
-	return data;
+std::vector<ubyte> WorldFiles::compress(const ubyte* src, size_t srclen) {
+    std::vector<ubyte> data(CHUNK_DATA_LEN * 2);
+    auto len = extrle::encode(src, srclen, data.data());
+    data.resize(len);
+    return data;
 }
 
-ubyte* WorldFiles::decompress(const ubyte* src, size_t srclen, size_t dstlen) {
-	ubyte* decompressed = new ubyte[dstlen];
-	extrle::decode(src, srclen, decompressed);
-	return decompressed;
+std::vector<ubyte> WorldFiles::decompress(const std::vector<ubyte>& src, size_t dstlen) {
+    std::vector<ubyte> decompressed(dstlen);
+    auto decompressed_size = extrle::decode(src.data(), src.size(), decompressed.data());
+    if (decompressed.size() > decompressed_size) {
+        decompressed.resize(decompressed_size);
+    }
+    return decompressed;
 }
 
 int WorldFiles::getVoxelRegionVersion(int x, int z) {
@@ -170,9 +144,8 @@ void WorldFiles::put(int x, int z, const ubyte* voxelData) {
 	/* Writing Voxels */ {
 		WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
 		region->setUnsaved(true);
-		size_t compressedSize;
-		ubyte* data = compress(voxelData, CHUNK_DATA_LEN, compressedSize);
-		region->put(localX, localZ, data, compressedSize);
+		auto data = compress(voxelData, CHUNK_DATA_LEN);
+		region->put(localX, localZ, std::move(data));
 	}
 }
 
@@ -188,22 +161,20 @@ void WorldFiles::put(Chunk* chunk){
 	int localZ = chunk->z - (regionZ * REGION_SIZE);
 
 	/* Writing Voxels */ {
-        size_t compressedSize;
         std::unique_ptr<ubyte[]> chunk_data (chunk->encode());
-		ubyte* data = compress(chunk_data.get(), CHUNK_DATA_LEN, compressedSize);
+		auto data = compress(chunk_data.get(), CHUNK_DATA_LEN);
 
 		WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
 		region->setUnsaved(true);
-		region->put(localX, localZ, data, compressedSize);
+		region->put(localX, localZ, std::move(data));
 	}
 	if (doWriteLights && chunk->isLighted()) {
-        size_t compressedSize;
         std::unique_ptr<ubyte[]> light_data (chunk->lightmap->encode());
-		ubyte* data = compress(light_data.get(), LIGHTMAP_DATA_LEN, compressedSize);
+		auto data = compress(light_data.get(), LIGHTMAP_DATA_LEN);
 
 		WorldRegion* region = getOrCreateRegion(lights, regionX, regionZ);
 		region->setUnsaved(true);
-		region->put(localX, localZ, data, compressedSize);
+		region->put(localX, localZ, std::move(data));
 	}
 }
 
@@ -257,21 +228,23 @@ fs::path WorldFiles::getPacksFile() const {
 	return directory/fs::path("packs.list");
 }
 
-ubyte* WorldFiles::getChunk(int x, int z){
-	return getData(regions, getRegionsFolder(), x, z, REGION_LAYER_VOXELS);
+std::optional<std::vector<ubyte>> WorldFiles::getChunk(int x, int z) {
+    return getData(regions, getRegionsFolder(), x, z, REGION_LAYER_VOXELS);
 }
 
-/* Get cached lights for chunk at x,z 
+/* Get cached lights for chunk at x,z
  * @return lights data or nullptr */
 light_t* WorldFiles::getLights(int x, int z) {
-	std::unique_ptr<ubyte> data (getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS));
-	if (data == nullptr)
-		return nullptr;
-	return Lightmap::decode(data.get());
+    auto data = getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS);
+    if (!data.has_value()) {
+        return nullptr;
+    }
+    return Lightmap::decode(data.value().data());
 }
 
-ubyte* WorldFiles::getData(regionsmap& regions, const fs::path& folder, 
-                           int x, int z, int layer) {
+std::optional<std::vector<ubyte>> WorldFiles::getData(RegionsMap& regions,
+                                                      const fs::path& folder,
+                                                      int x, int z, int layer) {
 	int regionX = floordiv(x, REGION_SIZE);
 	int regionZ = floordiv(z, REGION_SIZE);
 
@@ -279,19 +252,14 @@ ubyte* WorldFiles::getData(regionsmap& regions, const fs::path& folder,
 	int localZ = z - (regionZ * REGION_SIZE);
 
 	WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
-	ubyte* data = region->getChunkData(localX, localZ);
-	if (data == nullptr) {
-		uint32_t size;
-		data = readChunkData(x, z, size, folder, layer);
-		if (data != nullptr) {
-			region->put(localX, localZ, data, size);
-		}
+	auto& chunk = region->getChunkData(localX, localZ);
+	if (!chunk.has_value()) {
+		chunk = readChunkData(x, z, folder, layer);
 	}
-	if (data != nullptr) {
-        size_t size = region->getChunkDataSize(localX, localZ);
-		return decompress(data, size, CHUNK_DATA_LEN);
+	if (chunk.has_value()) {
+		return decompress(chunk.value(), CHUNK_DATA_LEN);
 	}
-	return nullptr;
+	return std::nullopt;
 }
 
 
@@ -313,14 +281,12 @@ regfile* WorldFiles::getRegFile(glm::ivec3 coord, const fs::path& folder) {
     return openRegFiles[coord].get();
 }
 
-ubyte* WorldFiles::readChunkData(int x, 
-                                 int z, 
-                                 uint32_t& length, 
-                                 fs::path folder, 
-                                 int layer){
+std::optional<std::vector<ubyte>> WorldFiles::readChunkData(int x, int z,
+                                                            fs::path folder,
+                                                            int layer) {
 	if (generatorTestMode)
-		return nullptr;
-		
+		return std::nullopt;
+
 	int regionX = floordiv(x, REGION_SIZE);
 	int regionZ = floordiv(z, REGION_SIZE);
 	int localX = x - (regionX * REGION_SIZE);
@@ -330,7 +296,7 @@ ubyte* WorldFiles::readChunkData(int x,
     glm::ivec3 coord(regionX, regionZ, layer);
     regfile* rfile = WorldFiles::getRegFile(coord, folder);
     if (rfile == nullptr) {
-        return nullptr;
+        return std::nullopt;
     }
     files::rafile& file = rfile->file;
 
@@ -342,14 +308,14 @@ ubyte* WorldFiles::readChunkData(int x,
 	file.read((char*)(&offset), 4);
 	offset = dataio::read_int32_big((const ubyte*)(&offset), 0);
 	if (offset == 0){
-		return nullptr;
+		return std::nullopt;
 	}
 	file.seekg(offset);
 	file.read((char*)(&offset), 4);
-	length = dataio::read_int32_big((const ubyte*)(&offset), 0);
-	ubyte* data = new ubyte[length];
-	file.read((char*)data, length);
-	if (data == nullptr) {
+	auto length = dataio::read_int32_big((const ubyte*)(&offset), 0);
+	std::vector<ubyte> data(length);
+	file.read((char*)data.data(), data.size());
+	if (data.data() == nullptr) { // FIXME: this condition is always TRUE! There is should be another way for checking read status.
 		std::cerr << "ERROR: failed to read data of chunk x("<< x <<"), z("<< z <<")" << std::endl;
 	}
 	return data;
@@ -360,14 +326,13 @@ ubyte* WorldFiles::readChunkData(int x,
  * (see REGION_LAYER_* constants)
  */
 void WorldFiles::fetchChunks(WorldRegion* region, int x, int z, fs::path folder, int layer) {
-    ubyte** chunks = region->getChunks();
-	uint32_t* sizes = region->getSizes();
+	auto& chunks = region->getChunks();
 
     for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
         int chunk_x = (i % REGION_SIZE) + x * REGION_SIZE;
         int chunk_z = (i / REGION_SIZE) + z * REGION_SIZE;
-        if (chunks[i] == nullptr) {
-            chunks[i] = readChunkData(chunk_x, chunk_z, sizes[i], folder, layer);
+        if (!chunks[i].has_value()) {
+            chunks[i] = readChunkData(chunk_x, chunk_z, folder, layer);
         }
     }
 }
@@ -397,22 +362,21 @@ void WorldFiles::writeRegion(int x, int z, WorldRegion* entry, fs::path folder, 
 	char intbuf[4]{};
 	uint offsets[REGION_CHUNKS_COUNT]{};
 	
-    ubyte** region = entry->getChunks();
-	uint32_t* sizes = entry->getSizes();
-    
+    const auto& region = entry->getChunks();
+
 	for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
-		ubyte* chunk = region[i];
-		if (chunk == nullptr){
+		const auto& chunk = region[i];
+		if (!chunk.has_value()) {
 			offsets[i] = 0;
 		} else {
 			offsets[i] = offset;
 
-			size_t compressedSize = sizes[i];
+			size_t compressedSize = chunk.value().size();
 			dataio::write_int32_big(compressedSize, (ubyte*)intbuf, 0);
 			offset += 4 + compressedSize;
 
 			file.write(intbuf, 4);
-			file.write((const char*)chunk, compressedSize);
+			file.write((const char*)chunk.value().data(), compressedSize);
 		}
 	}
 	for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
@@ -421,10 +385,10 @@ void WorldFiles::writeRegion(int x, int z, WorldRegion* entry, fs::path folder, 
 	}
 }
 
-void WorldFiles::writeRegions(regionsmap& regions, const fs::path& folder, int layer) {
+void WorldFiles::writeRegions(RegionsMap& regions, const fs::path& folder, int layer) {
 	for (auto& it : regions){
 		WorldRegion* region = it.second.get();
-		if (region->getChunks() == nullptr || !region->isUnsaved())
+		if (!region->isUnsaved())
 			continue;
 		glm::ivec2 key = it.first;
 		writeRegion(key[0], key[1], region, folder, layer);

@@ -56,9 +56,9 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 
     auto chunk = std::make_shared<Chunk>(x, z);
 	store(chunk);
-	std::unique_ptr<ubyte[]> data(world->wfile->getChunk(chunk->x, chunk->z));
-	if (data) {
-		chunk->decode(data.get());
+    auto data = world->wfile->getChunk(chunk->x, chunk->z);
+    if (data.has_value()) {
+        chunk->decode(data.value().data());
 		chunk->setLoaded(true);
         verifyLoadedChunk(level->content->indices, chunk.get());
 	}

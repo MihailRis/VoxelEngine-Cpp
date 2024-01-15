@@ -2,8 +2,11 @@
 #define FILES_WORLDFILES_H_
 
 #include <map>
+#include <array>
+#include <vector>
 #include <string>
 #include <memory>
+#include <optional>
 #include <unordered_map>
 #include <filesystem>
 
@@ -41,22 +44,19 @@ public:
 };
 
 class WorldRegion {
-	ubyte** chunksData;
-	uint32_t* sizes;
-	bool unsaved = false;
+    std::array<std::optional<std::vector<ubyte>>, REGION_CHUNKS_COUNT> chunks;
+    bool unsaved = false;
 public:
-	WorldRegion();
-	~WorldRegion();
+    WorldRegion() = default;
+    ~WorldRegion() = default;
 
-	void put(uint x, uint z, ubyte* data, uint32_t size);
-	ubyte* getChunkData(uint x, uint z);
-	uint getChunkDataSize(uint x, uint z);
+    void put(uint x, uint z, std::vector<ubyte>&& data);
+    std::optional<std::vector<ubyte>>& getChunkData(uint x, uint z);
 
-	void setUnsaved(bool unsaved);
-	bool isUnsaved() const;
+    void setUnsaved(bool unsaved);
+    bool isUnsaved() const;
 
-	ubyte** getChunks() const;
-	uint32_t* getSizes() const;
+    std::array<std::optional<std::vector<ubyte>>, REGION_CHUNKS_COUNT>& getChunks() /*const*/;
 };
 
 struct regfile {
@@ -66,7 +66,7 @@ struct regfile {
     regfile(std::filesystem::path filename);
 };
 
-typedef std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>> regionsmap;
+using RegionsMap = std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>>;
 class WorldFiles {
     std::unordered_map<glm::ivec3, std::unique_ptr<regfile>> openRegFiles;
 
@@ -78,50 +78,46 @@ class WorldFiles {
 	std::filesystem::path getIndicesFile() const;
 	std::filesystem::path getPacksFile() const;
 	
-	WorldRegion* getRegion(regionsmap& regions,
+	WorldRegion* getRegion(RegionsMap& regions,
 						   int x, int z);
 
 	WorldRegion* getOrCreateRegion(
-						   regionsmap& regions,
+						   RegionsMap& regions,
 						   int x, int z);
 
-	/* Compress buffer with extrle
-	   @param src source buffer
-	   @param srclen length of source buffer
-	   @param len (out argument) length of result buffer */
-	ubyte* compress(const ubyte* src, size_t srclen, size_t& len);
+    /* Compress buffer with extrle
+       @param src source buffer
+       @param srclen length of source buffer */
+    std::vector<ubyte> compress(const ubyte* src, size_t srclen);
 
-	/* Decompress buffer with extrle
-	   @param src compressed buffer
-	   @param srclen length of compressed buffer
-	   @param dstlen max expected length of source buffer
-	*/
-	ubyte* decompress(const ubyte* src, size_t srclen, size_t dstlen);
+    /* Decompress buffer with extrle
+       @param src compressed buffer
+       @param dstlen max expected length of source buffer
+    */
+    std::vector<ubyte> decompress(const std::vector<ubyte>& src, size_t dstlen);
 
-	ubyte* readChunkData(int x, int y, 
-						 uint32_t& length, 
-						 std::filesystem::path folder,
-                         int layer);
-    void fetchChunks(WorldRegion* region, int x, int y, 
+    std::optional<std::vector<ubyte>> readChunkData(int x, int y,
+                                                    std::filesystem::path folder,
+                                                    int layer);
+    void fetchChunks(WorldRegion* region, int x, int y,
                      std::filesystem::path folder, int layer);
 
-	void writeRegions(regionsmap& regions,
+	void writeRegions(RegionsMap& regions,
 					  const std::filesystem::path& folder, int layer);
 
-	ubyte* getData(regionsmap& regions,
-				   const std::filesystem::path& folder,
-				   int x, int z, int layer);
-    
+    std::optional<std::vector<ubyte>> getData(RegionsMap& regions,
+                                              const std::filesystem::path& folder,
+                                              int x, int z, int layer);
+
     regfile* getRegFile(glm::ivec3 coord,
                         const std::filesystem::path& folder);
 public:
     static bool parseRegionFilename(const std::string& name, int& x, int& y);
     std::filesystem::path getRegionsFolder() const;
 
-	regionsmap regions;
-	regionsmap lights;
+	RegionsMap regions;
+	RegionsMap lights;
 	std::filesystem::path directory;
-	std::unique_ptr<ubyte[]> compressionBuffer;
 	bool generatorTestMode;
 	bool doWriteLights;
 
@@ -134,7 +130,7 @@ public:
     int getVoxelRegionVersion(int x, int z);
     int getVoxelRegionsVersion();
 
-	ubyte* getChunk(int x, int z);
+    std::optional<std::vector<ubyte>> getChunk(int x, int z);
 	light_t* getLights(int x, int z);
 
 	bool readWorldInfo(World* world);

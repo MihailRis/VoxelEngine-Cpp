@@ -12,12 +12,12 @@ class ContentLUT;
 class WorldFiles;
 
 class WorldConverter {
-    WorldFiles* wfile;
+    std::unique_ptr<WorldFiles> wfile;
     std::shared_ptr<ContentLUT> const lut;
     const Content* const content;
     std::queue<fs::path> regions;
 public:
-    WorldConverter(fs::path folder, const Content* content, 
+    WorldConverter(fs::path folder, const Content* content,
                    std::shared_ptr<ContentLUT> lut);
     ~WorldConverter();
 
