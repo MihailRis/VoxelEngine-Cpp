@@ -36,7 +36,8 @@ value     = %x01 document
           / %x0A                        boolean 'false'
           / %x0B                        boolean 'true'
           / %x0C                        null value
-cdocument = %x1F %x8B (16*byte)         gzip-compressed document
+cdocument = %x1F %x8B (16*byte)         gzip-compressed data:
+                                            %x01 document
 cstring   = (*%x01-FF) %x00
 string    = uint32 (*byte)              uint32 stores number of the 
                                         encoded string bytes
