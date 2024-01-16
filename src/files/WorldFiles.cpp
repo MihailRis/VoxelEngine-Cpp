@@ -169,8 +169,8 @@ void WorldFiles::put(Chunk* chunk){
 		region->put(localX, localZ, std::move(data));
 	}
 	if (doWriteLights && chunk->isLighted()) {
-        std::unique_ptr<ubyte[]> light_data (chunk->lightmap->encode());
-		auto data = compress(light_data.get(), LIGHTMAP_DATA_LEN);
+        auto light_data = chunk->lightmap->encode();
+		auto data = compress(light_data.data(), light_data.size());
 
 		WorldRegion* region = getOrCreateRegion(lights, regionX, regionZ);
 		region->setUnsaved(true);
@@ -234,12 +234,12 @@ std::optional<std::vector<ubyte>> WorldFiles::getChunk(int x, int z) {
 
 /* Get cached lights for chunk at x,z
  * @return lights data or nullptr */
-light_t* WorldFiles::getLights(int x, int z) {
+std::optional<std::vector<light_t>> WorldFiles::getLights(int x, int z) {
     auto data = getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS);
     if (!data.has_value()) {
-        return nullptr;
+        return std::nullopt;
     }
-    return Lightmap::decode(data.value().data());
+    return Lightmap::decode(data.value());
 }
 
 std::optional<std::vector<ubyte>> WorldFiles::getData(RegionsMap& regions,

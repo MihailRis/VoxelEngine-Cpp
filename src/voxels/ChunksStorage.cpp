@@ -52,23 +52,23 @@ void verifyLoadedChunk(ContentIndices* indices, Chunk* chunk) {
 }
 
 std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
-	World* world = level->world;
+    World* world = level->world;
 
     auto chunk = std::make_shared<Chunk>(x, z);
-	store(chunk);
+    store(chunk);
     auto data = world->wfile->getChunk(chunk->x, chunk->z);
     if (data.has_value()) {
         chunk->decode(data.value().data());
-		chunk->setLoaded(true);
+        chunk->setLoaded(true);
         verifyLoadedChunk(level->content->indices, chunk.get());
-	}
+    }
 
-	light_t* lights = world->wfile->getLights(chunk->x, chunk->z);
-	if (lights) {
-		chunk->lightmap->set(lights);
-		chunk->setLoadedLights(true);
-	}
-	return chunk;
+    auto lights = world->wfile->getLights(chunk->x, chunk->z);
+    if (lights.has_value()) {
+        chunk->lightmap->set(std::move(lights.value()));
+        chunk->setLoadedLights(true);
+    }
+    return chunk;
 }
 
 // some magic code
@@ -116,7 +116,7 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 			} else {
 				const std::shared_ptr<Chunk>& chunk = found->second;
 				const voxel* cvoxels = chunk->voxels;
-				const light_t* clights = chunk->lightmap->getLights();
+				const auto& clights = chunk->lightmap->getLights();
 				for (int ly = y; ly < y + h; ly++) {
 					for (int lz = max(z, cz * CHUNK_D);
 						lz < min(z + d, (cz + 1) * CHUNK_D);

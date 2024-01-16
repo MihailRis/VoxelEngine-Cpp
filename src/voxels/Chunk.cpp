@@ -56,7 +56,7 @@ Chunk* Chunk::clone() const {
 	Chunk* other = new Chunk(x,z);
 	for (size_t i = 0; i < CHUNK_VOL; i++)
 		other->voxels[i] = voxels[i];
-	other->lightmap->set(lightmap);
+	other->lightmap->set(*lightmap);
 	return other;
 }
 

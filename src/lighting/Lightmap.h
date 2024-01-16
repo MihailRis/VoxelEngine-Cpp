@@ -1,6 +1,7 @@
 #ifndef LIGHTING_LIGHTMAP_H_
 #define LIGHTING_LIGHTMAP_H_
 
+#include <vector>
 #include "../constants.h"
 #include "../typedefs.h"
 #include "../voxels/Chunk.h"
@@ -10,14 +11,12 @@ const int LIGHTMAP_DATA_LEN = CHUNK_VOL/2;
 // Lichtkarte
 class Lightmap {
 public:
-	light_t* map;
-	int highestPoint = 0;
-	Lightmap();
-	~Lightmap();
-
-	void set(const Lightmap* lightmap);
-
-	void set(light_t* map);
+    std::vector<light_t> map = std::vector<light_t>(CHUNK_VOL, 0); // later it might be replaced with `fixed_vector` as its size should be a constant
+    int highestPoint = 0;
+    Lightmap() = default;
+    ~Lightmap() = default;
+    void set(const Lightmap& lightmap);
+    void set(std::vector<light_t>&& map);
 
 	inline unsigned short get(int x, int y, int z){
 		return (map[y*CHUNK_D*CHUNK_W+z*CHUNK_W+x]);
@@ -68,13 +67,13 @@ public:
 		map[index] = (map[index] & (0xFFFF & (~(0xF << (channel*4))))) | (value << (channel << 2));
 	}
 
-	inline const light_t* getLights() const {
-		return map;
-	}
+    inline const std::vector<light_t>& getLights() const {
+        return map;
+    }
 
-	inline light_t* getLightsWriteable() {
-		return map;
-	}
+    inline std::vector<light_t>& getLights() {
+        return map;
+    }
 
 	static inline light_t combine(int r, int g, int b, int s) {
 		return r | (g << 4) | (b << 8) | (s << 12);
@@ -84,8 +83,8 @@ public:
 		return (light >> (channel << 2)) & 0xF;
 	}
 
-	ubyte* encode() const;
-	static light_t* decode(ubyte* buffer);
+	std::vector<ubyte> encode() const;
+	static std::vector<light_t> decode(const std::vector<ubyte>& buffer);
 };
 
 #endif /* LIGHTING_LIGHTMAP_H_ */

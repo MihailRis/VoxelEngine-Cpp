@@ -131,7 +131,7 @@ public:
     int getVoxelRegionsVersion();
 
     std::optional<std::vector<ubyte>> getChunk(int x, int z);
-	light_t* getLights(int x, int z);
+    std::optional<std::vector<light_t>> getLights(int x, int z);
 
 	bool readWorldInfo(World* world);
 	bool readPlayer(Player* player);
