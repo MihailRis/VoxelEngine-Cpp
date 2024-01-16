@@ -2,6 +2,7 @@
 #define VOXELS_CHUNKS_H_
 
 #include <stdlib.h>
+#include <vector>
 #include <memory>
 #include <glm/glm.hpp>
 #include "../typedefs.h"
