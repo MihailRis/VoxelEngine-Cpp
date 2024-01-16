@@ -69,15 +69,15 @@ void World::write(Level* level) {
 const float DEF_PLAYER_Y = 100.0f;
 const float DEF_PLAYER_SPEED = 4.0f;
 
-Level* World::create(string name, 
-					path directory, 
-					uint64_t seed,
-					EngineSettings& settings, 
-					const Content* content,
-					const std::vector<ContentPack>& packs) {
-	World* world = new World(name, directory, seed, settings, content, packs);
-	Player* player = new Player(vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
-	return new Level(world, content, player, settings);
+Level* World::create(string name,
+                     path directory,
+                     uint64_t seed,
+                     EngineSettings& settings,
+                     const Content* content,
+                     const std::vector<ContentPack>& packs) {
+    auto world = std::make_shared<World>(name, directory, seed, settings, content, packs);
+    Player* player = new Player(vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
+    return new Level(world, content, player, settings);
 }
 
 ContentLUT* World::checkIndices(const path& directory, 
@@ -92,20 +92,18 @@ ContentLUT* World::checkIndices(const path& directory,
 Level* World::load(path directory,
                    EngineSettings& settings,
                    const Content* content,
-				   const std::vector<ContentPack>& packs) {
-	unique_ptr<World> world (new World(".", directory, 0, settings, content, packs));
-	auto& wfile = world->wfile;
+                   const std::vector<ContentPack>& packs) {
+    auto world = std::make_shared<World>(".", directory, 0, settings, content, packs);
+    auto& wfile = world->wfile;
 
-	if (!wfile->readWorldInfo(world.get())) {
-		throw world_load_error("could not to find world.json");
-	}
+    if (!wfile->readWorldInfo(world.get())) {
+        throw world_load_error("could not to find world.json");
+    }
 
-	Player* player = new Player(vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
-	Level* level = new Level(world.get(), content, player, settings);
-	wfile->readPlayer(player);
+    Player* player = new Player(vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
+    wfile->readPlayer(player);
 
-	world.release();
-	return level;
+    return new Level(world, content, player, settings);
 }
 
 const std::vector<ContentPack>& World::getPacks() const {

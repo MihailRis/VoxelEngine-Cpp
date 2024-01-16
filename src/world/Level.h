@@ -1,6 +1,7 @@
 #ifndef WORLD_LEVEL_H_
 #define WORLD_LEVEL_H_
 
+#include <memory>
 #include "../typedefs.h"
 #include "../settings.h"
 
@@ -15,7 +16,7 @@ class ChunksStorage;
 
 class Level {
 public:
-	World* world;
+    std::shared_ptr<World> world;
 	const Content* const content;
 	Player* player;
 	Chunks* chunks;
@@ -27,7 +28,7 @@ public:
 
 	const EngineSettings& settings;
 
-	Level(World* world, 
+    Level(std::shared_ptr<World> world,
 		  const Content* content,
 	      Player* player, 
 	      EngineSettings& settings);

@@ -10,8 +10,8 @@
 #include "../physics/PhysicsSolver.h"
 #include "../objects/Player.h"
 
-Level::Level(World* world, const Content* content, Player* player, EngineSettings& settings)
-	  : world(world),
+Level::Level(std::shared_ptr<World> world, const Content* content, Player* player, EngineSettings& settings)
+      : world(world),
 	    content(content),
 		player(player),
 		chunksStorage(new ChunksStorage(this)),
