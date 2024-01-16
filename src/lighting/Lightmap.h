@@ -4,7 +4,6 @@
 #include <vector>
 #include "../constants.h"
 #include "../typedefs.h"
-#include "../voxels/Chunk.h"
 
 const int LIGHTMAP_DATA_LEN = CHUNK_VOL/2;
 
@@ -17,6 +16,7 @@ public:
     ~Lightmap() = default;
     void set(const Lightmap& lightmap);
     void set(std::vector<light_t>&& map);
+	void clear();
 
 	inline unsigned short get(int x, int y, int z){
 		return (map[y*CHUNK_D*CHUNK_W+z*CHUNK_W+x]);

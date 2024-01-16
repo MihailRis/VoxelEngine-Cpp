@@ -1,27 +1,21 @@
 #include "Chunk.h"
 
 #include <memory>
+#include <cassert>
 
-#include "voxel.h"
 #include "../content/ContentLUT.h"
-#include "../lighting/Lightmap.h"
 
 Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos){
 	bottom = 0;
 	top = CHUNK_H;
-	voxels = new voxel[CHUNK_VOL];
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
 		voxels[i].id = 2;
 		voxels[i].states = 0;
 	}
-	lightmap = new Lightmap();
 	renderData.vertices = nullptr;
 }
 
-Chunk::~Chunk(){
-	delete lightmap;
-	delete[] voxels;
-}
+Chunk::~Chunk() = default;
 
 bool Chunk::isEmpty(){
 	int id = -1;
@@ -52,14 +46,6 @@ void Chunk::updateHeights() {
 	}
 }
 
-Chunk* Chunk::clone() const {
-	Chunk* other = new Chunk(x,z);
-	for (size_t i = 0; i < CHUNK_VOL; i++)
-		other->voxels[i] = voxels[i];
-	other->lightmap->set(*lightmap);
-	return other;
-}
-
 /** 
   Current chunk format:
     - byte-order: big-endian
@@ -74,8 +60,8 @@ Chunk* Chunk::clone() const {
 
     Total size: (CHUNK_VOL * 4) bytes
 */
-ubyte* Chunk::encode() const {
-	ubyte* buffer = new ubyte[CHUNK_DATA_LEN];
+std::vector<ubyte> Chunk::encode() const {
+	std::vector<ubyte> buffer(CHUNK_DATA_LEN);
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
 		buffer[i] = voxels[i].id >> 8;
         buffer[CHUNK_VOL+i] = voxels[i].id & 0xFF;
@@ -88,7 +74,8 @@ ubyte* Chunk::encode() const {
 /**
  * @return true if all is fine
  **/
-bool Chunk::decode(ubyte* data) {
+bool Chunk::decode(const std::vector<ubyte>& data) {
+    assert(data.size() == CHUNK_DATA_LEN);
 	for (size_t i = 0; i < CHUNK_VOL; i++) {
 		voxel& vox = voxels[i];
 
@@ -107,7 +94,8 @@ bool Chunk::decode(ubyte* data) {
 /*
  * Convert chunk voxels data from 16 bit to 32 bit
  */
-void Chunk::fromOld(ubyte* data) {
+void Chunk::fromOld(std::vector<ubyte>& data) {
+    assert(data.size() == CHUNK_DATA_LEN);
     for (size_t i = 0; i < CHUNK_VOL; i++) {
         data[i + CHUNK_VOL*3] = data[i + CHUNK_VOL];
         data[i + CHUNK_VOL] = data[i];
@@ -116,12 +104,13 @@ void Chunk::fromOld(ubyte* data) {
     }
 }
 
-void Chunk::convert(ubyte* data, const ContentLUT* lut) {
+void Chunk::convert(std::vector<ubyte>& data, const ContentLUT& lut) {
+    assert(data.size() >= CHUNK_VOL * 2);
     for (size_t i = 0; i < CHUNK_VOL; i++) {
         // see encode method to understand what the hell is going on here
-        blockid_t id = ((blockid_t(data[i]) << 8) | 
+        blockid_t id = ((blockid_t(data[i]) << 8) |
                          blockid_t(data[CHUNK_VOL+i]));
-        blockid_t replacement = lut->getBlockId(id);
+        blockid_t replacement = lut.getBlockId(id);
         data[i] = replacement >> 8;
         data[CHUNK_VOL+i] = replacement & 0xFF;
     }

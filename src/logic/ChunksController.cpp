@@ -102,7 +102,7 @@ bool ChunksController::loadVisible(){
 	chunks->putChunk(chunk);
 
 	if (!chunk->isLoaded()) {
-		generator->generate(chunk->voxels, chunk->x, chunk->z, level->world->seed);
+		generator->generate(chunk->voxels.data(), chunk->x, chunk->z, level->world->seed);
 		chunk->setUnsaved(true);
 	}
 

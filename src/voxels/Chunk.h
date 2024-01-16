@@ -1,8 +1,12 @@
 #ifndef VOXELS_CHUNK_H_
 #define VOXELS_CHUNK_H_
 
+#include <array>
+#include <memory>
 #include <stdlib.h>
 #include "../constants.h"
+#include "../lighting/Lightmap.h"
+#include "voxel.h"
 
 struct ChunkFlag{
 	static const int MODIFIED = 0x1;
@@ -14,8 +18,6 @@ struct ChunkFlag{
 };
 #define CHUNK_DATA_LEN (CHUNK_VOL*4)
 
-struct voxel;
-class Lightmap;
 class ContentLUT;
 
 struct RenderData {
@@ -27,8 +29,8 @@ class Chunk {
 public:
 	int x, z;
 	int bottom, top;
-	voxel* voxels;
-	Lightmap* lightmap;
+	std::array<voxel, CHUNK_VOL> voxels;
+	Lightmap lightmap;
 	int flags = 0;
 	int surrounding = 0;
 	RenderData renderData;
@@ -39,8 +41,6 @@ public:
 	bool isEmpty();
 
 	void updateHeights();
-
-	Chunk* clone() const;
 
 	// flags getters/setters below
 	
@@ -75,11 +75,11 @@ public:
 
 	inline void setReady(bool newState) {SETFLAGS(ChunkFlag::READY, newState);}
 
-	ubyte* encode() const;
-	bool decode(ubyte* data);
+	std::vector<ubyte> encode() const;
+	bool decode(const std::vector<ubyte>& data);
 
-    static void fromOld(ubyte* data);
-    static void convert(ubyte* data, const ContentLUT* lut);
+    static void fromOld(std::vector<ubyte>& data);
+    static void convert(std::vector<ubyte>& data, const ContentLUT& lut);
 };
 
 #endif /* VOXELS_CHUNK_H_ */

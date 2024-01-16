@@ -4,11 +4,15 @@
 #include "../util/data_io.h"
 
 void Lightmap::set(const Lightmap& lightmap) {
-	map = lightmap.map;
+    map = lightmap.map;
 }
 
 void Lightmap::set(std::vector<light_t>&& map) {
-	this->map = std::forward<std::vector<light_t>>(map);
+    this->map = std::forward<std::vector<light_t>>(map);
+}
+
+void Lightmap::clear() {
+    map.assign(map.size(), 0);
 }
 
 static_assert(sizeof(light_t) == 2, "replace dataio calls to new light_t");

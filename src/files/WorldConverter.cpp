@@ -55,10 +55,10 @@ void WorldConverter::convertNext() {
             if (!data.has_value())
                 continue;
             if (wfile->getVoxelRegionVersion(x, z) != REGION_FORMAT_VERSION) {
-                Chunk::fromOld(data.value().data());
+                Chunk::fromOld(data.value());
             }
             if (lut) {
-                Chunk::convert(data.value().data(), lut.get());
+                Chunk::convert(data.value(), *lut);
             }
             wfile->put(gx, gz, data.value().data());
         }

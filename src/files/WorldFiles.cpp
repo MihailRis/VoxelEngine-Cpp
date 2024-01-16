@@ -161,15 +161,15 @@ void WorldFiles::put(Chunk* chunk){
 	int localZ = chunk->z - (regionZ * REGION_SIZE);
 
 	/* Writing Voxels */ {
-        std::unique_ptr<ubyte[]> chunk_data (chunk->encode());
-		auto data = compress(chunk_data.get(), CHUNK_DATA_LEN);
+        auto chunk_data = chunk->encode();
+        auto data = compress(chunk_data.data(), chunk_data.size());
 
 		WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
 		region->setUnsaved(true);
 		region->put(localX, localZ, std::move(data));
 	}
 	if (doWriteLights && chunk->isLighted()) {
-        auto light_data = chunk->lightmap->encode();
+        auto light_data = chunk->lightmap.encode();
 		auto data = compress(light_data.data(), light_data.size());
 
 		WorldRegion* region = getOrCreateRegion(lights, regionX, regionZ);

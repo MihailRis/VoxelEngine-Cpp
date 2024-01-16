@@ -445,8 +445,7 @@ Mesh* BlocksRenderer::render(const Chunk* chunk, const ChunksStorage* chunks) {
 	overflow = false;
 	vertexOffset = 0;
 	indexOffset = indexSize = 0;
-	const voxel* voxels = chunk->voxels;
-	render(voxels);
+	render(chunk->voxels.data());
 
 	const vattr attrs[]{ {3}, {2}, {1}, {0} };
 	size_t vcount = vertexOffset / BlocksRenderer::VERTEX_SIZE;
