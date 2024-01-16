@@ -49,3 +49,7 @@ void Level::update() {
 		chunks->resize(matrixSize, matrixSize);
 	}
 }
+
+World* Level::getWorld() {
+    return world.get();
+}

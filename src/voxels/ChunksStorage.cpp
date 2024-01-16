@@ -39,7 +39,7 @@ void ChunksStorage::remove(int x, int z) {
 	}
 }
 
-void verifyLoadedChunk(ContentIndices* indices, Chunk* chunk) {
+static void verifyLoadedChunk(ContentIndices* indices, Chunk* chunk) {
     for (size_t i = 0; i < CHUNK_VOL; i++) {
         blockid_t id = chunk->voxels[i].id;
         if (indices->getBlockDef(id) == nullptr) {
@@ -52,18 +52,19 @@ void verifyLoadedChunk(ContentIndices* indices, Chunk* chunk) {
 }
 
 std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
-	World* world = level->world;
+	World* world = level->getWorld();
+    WorldFiles* wfile = world->wfile;
 
     auto chunk = std::make_shared<Chunk>(x, z);
 	store(chunk);
-	std::unique_ptr<ubyte[]> data(world->wfile->getChunk(chunk->x, chunk->z));
+	std::unique_ptr<ubyte[]> data(wfile->getChunk(chunk->x, chunk->z));
 	if (data) {
 		chunk->decode(data.get());
 		chunk->setLoaded(true);
         verifyLoadedChunk(level->content->indices, chunk.get());
 	}
 
-	light_t* lights = world->wfile->getLights(chunk->x, chunk->z);
+	light_t* lights = wfile->getLights(chunk->x, chunk->z);
 	if (lights) {
 		chunk->lightmap->set(lights);
 		chunk->setLoadedLights(true);

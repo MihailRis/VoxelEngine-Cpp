@@ -15,7 +15,6 @@ Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos){
 		voxels[i].states = 0;
 	}
 	lightmap = new Lightmap();
-	renderData.vertices = nullptr;
 }
 
 Chunk::~Chunk(){

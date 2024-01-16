@@ -18,11 +18,6 @@ struct voxel;
 class Lightmap;
 class ContentLUT;
 
-struct RenderData {
-	float* vertices;
-	size_t size;
-};
-
 class Chunk {
 public:
 	int x, z;
@@ -31,7 +26,6 @@ public:
 	Lightmap* lightmap;
 	int flags = 0;
 	int surrounding = 0;
-	RenderData renderData;
 
 	Chunk(int x, int z);
 	~Chunk();
@@ -44,7 +38,7 @@ public:
 
 	// flags getters/setters below
 	
-	void SETFLAGS(int mask, bool value){
+	inline void setFlags(int mask, bool value){
 		if (value)
 			flags |= mask; 
 		else
@@ -63,17 +57,17 @@ public:
 
 	inline bool isReady() const {return flags & ChunkFlag::READY;}
 
-	inline void setUnsaved(bool newState) {SETFLAGS(ChunkFlag::UNSAVED, newState);}
+	inline void setUnsaved(bool newState) {setFlags(ChunkFlag::UNSAVED, newState);}
 
-	inline void setModified(bool newState) {SETFLAGS(ChunkFlag::MODIFIED, newState);}
+	inline void setModified(bool newState) {setFlags(ChunkFlag::MODIFIED, newState);}
 
-	inline void setLoaded(bool newState) {SETFLAGS(ChunkFlag::LOADED, newState);}
+	inline void setLoaded(bool newState) {setFlags(ChunkFlag::LOADED, newState);}
 
-	inline void setLoadedLights(bool newState) {SETFLAGS(ChunkFlag::LOADED_LIGHTS, newState);}
+	inline void setLoadedLights(bool newState) {setFlags(ChunkFlag::LOADED_LIGHTS, newState);}
 
-	inline void setLighted(bool newState) {SETFLAGS(ChunkFlag::LIGHTED, newState);}
+	inline void setLighted(bool newState) {setFlags(ChunkFlag::LIGHTED, newState);}
 
-	inline void setReady(bool newState) {SETFLAGS(ChunkFlag::READY, newState);}
+	inline void setReady(bool newState) {setFlags(ChunkFlag::READY, newState);}
 
 	ubyte* encode() const;
 	bool decode(ubyte* data);
