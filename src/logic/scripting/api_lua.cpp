@@ -14,6 +14,13 @@
 #include "../../lighting/Lighting.h"
 #include "../../logic/BlocksController.h"
 
+inline int lua_pushivec3(lua_State* L, int x, int y, int z) {
+    lua_pushinteger(L, x);
+    lua_pushinteger(L, y);
+    lua_pushinteger(L, z);
+    return 3;
+}
+
 inline void luaL_openlib(lua_State* L, const char* name, const luaL_Reg* libfuncs, int nup) {
     lua_newtable(L);
     luaL_setfuncs(L, libfuncs, nup);
@@ -43,11 +50,6 @@ static const luaL_Reg worldlib [] = {
     {"get_seed", l_world_get_seed},
     {NULL, NULL}
 };
-
-int luaopen_world(lua_State* L) {
-    luaL_openlib(L, "world", worldlib, 0);
-    return 1;
-}
 
 /* == player library ==*/
 static int l_player_get_pos(lua_State* L) {
@@ -102,11 +104,6 @@ static const luaL_Reg playerlib [] = {
     {NULL, NULL}
 };
 
-int luaopen_player(lua_State* L) {
-    luaL_openlib(L, "player", playerlib, 0);
-    return 1;
-}
-
 /* == blocks-related functions == */
 static int l_block_name(lua_State* L) {
     int id = lua_tointeger(L, 1);
@@ -156,13 +153,6 @@ static int l_get_block(lua_State* L) {
     int id = vox == nullptr ? -1 : vox->id;
     lua_pushinteger(L, id);
     return 1;
-}
-
-inline int lua_pushivec3(lua_State* L, int x, int y, int z) {
-    lua_pushinteger(L, x);
-    lua_pushinteger(L, y);
-    lua_pushinteger(L, z);
-    return 3;
 }
 
 static int l_get_block_x(lua_State* L) {
@@ -275,8 +265,8 @@ static int l_is_replaceable_at(lua_State* L) {
                                     lua_setglobal(L, NAME))
 
 void apilua::create_funcs(lua_State* L) {
-    luaopen_world(L);
-    luaopen_player(L);
+    luaL_openlib(L, "world", worldlib, 0);
+    luaL_openlib(L, "player", playerlib, 0);
 
     lua_addfunc(L, l_block_index, "block_index");
     lua_addfunc(L, l_block_name, "block_name");

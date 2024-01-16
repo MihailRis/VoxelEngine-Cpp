@@ -6,17 +6,28 @@
 #include <memory>
 
 #include "commons.h"
+#include "byte_utils.h"
 
 using namespace json;
 
-using std::string;
-using std::vector;
-using std::unique_ptr;
-using std::unordered_map;
-using std::stringstream;
-using std::make_pair;
+const int BJSON_END = 0x0;
+const int BJSON_TYPE_DOCUMENT = 0x1;
+const int BJSON_TYPE_LIST = 0x2;
+const int BJSON_TYPE_BYTE = 0x3;
+const int BJSON_TYPE_INT16 = 0x4;
+const int BJSON_TYPE_INT32 = 0x5;
+const int BJSON_TYPE_INT64 = 0x6;
+const int BJSON_TYPE_NUMBER = 0x7;
+const int BJSON_TYPE_STRING = 0x8;
+const int BJSON_TYPE_BYTES = 0x9;
+const int BJSON_TYPE_FALSE = 0xA;
+const int BJSON_TYPE_TRUE = 0xB;
+const int BJSON_TYPE_NULL = 0xC;
+const int BJSON_TYPE_CDOCUMENT = 0x1F;
 
-inline void newline(stringstream& ss, bool nice, uint indent, const string indentstr) {
+inline void newline(std::stringstream& ss, 
+                    bool nice, uint indent, 
+                    const std::string& indentstr) {
     if (nice) {
         ss << "\n";
         for (uint i = 0; i < indent; i++) {
@@ -27,29 +38,28 @@ inline void newline(stringstream& ss, bool nice, uint indent, const string inden
     }
 }
 
-void stringify(Value* value, 
-               stringstream& ss, 
+void stringify(const Value* value, 
+               std::stringstream& ss, 
                int indent, 
-               string indentstr, 
+               const std::string& indentstr, 
                bool nice);
 
-void stringifyObj(JObject* obj, 
-               stringstream& ss, 
+void stringifyObj(const JObject* obj, 
+               std::stringstream& ss, 
                int indent, 
-               string indentstr, 
+               const std::string& indentstr, 
                bool nice);
 
-#include <iostream>
-void stringify(Value* value, 
-               stringstream& ss, 
+void stringify(const Value* value, 
+               std::stringstream& ss, 
                int indent, 
-               string indentstr, 
+               const std::string& indentstr, 
                bool nice) {
     if (value->type == valtype::object) {
         stringifyObj(value->value.obj, ss, indent, indentstr, nice);
     }
     else if (value->type == valtype::array) {
-        vector<Value*>& list = value->value.arr->values;
+        std::vector<Value*>& list = value->value.arr->values;
         if (list.empty()) {
             ss << "[]";
             return;
@@ -81,7 +91,11 @@ void stringify(Value* value,
     }
 }
 
-void stringifyObj(JObject* obj, stringstream& ss, int indent, string indentstr, bool nice) {
+void stringifyObj(const JObject* obj, 
+                  std::stringstream& ss, 
+                  int indent, 
+                  const std::string& indentstr, 
+                  bool nice) {
     if (obj->map.empty()) {
         ss << "{}";
         return;
@@ -107,12 +121,165 @@ void stringifyObj(JObject* obj, stringstream& ss, int indent, string indentstr, 
     ss << '}';
 }
 
-string json::stringify(JObject* obj, bool nice, string indent) {
-    stringstream ss;
+std::string json::stringify(
+        const JObject* obj, 
+        bool nice, 
+        const std::string& indent) {
+    std::stringstream ss;
     stringifyObj(obj, ss, 1, indent, nice);
     return ss.str();
 }
 
+static void to_binary(ByteBuilder& builder, const Value* value) {
+    switch (value->type) {
+        case valtype::object: {
+            std::vector<ubyte> bytes = to_binary(value->value.obj);
+            builder.put(bytes.data(), bytes.size());
+            break;
+        }
+        case valtype::array:
+            builder.put(BJSON_TYPE_LIST);
+            for (Value* element : value->value.arr->values) {
+                to_binary(builder, element);
+            }
+            builder.put(BJSON_END);
+            break;
+        case valtype::integer: {
+            int64_t val = value->value.integer;
+            if (val >= 0 && val <= 255) {
+                builder.put(BJSON_TYPE_BYTE);
+                builder.put(val);
+            } else if (val >= INT16_MIN && val <= INT16_MAX){
+                builder.put(BJSON_TYPE_INT16);
+                builder.putInt16(val);
+            } else if (val >= INT32_MIN && val <= INT32_MAX) {
+                builder.put(BJSON_TYPE_INT32);
+                builder.putInt32(val);
+            } else {
+                builder.put(BJSON_TYPE_INT64);
+                builder.putInt64(val);
+            }
+            break;
+        }
+        case valtype::number:
+            builder.put(BJSON_TYPE_NUMBER);
+            builder.putFloat64(value->value.decimal);
+            break;
+        case valtype::boolean:
+            builder.put(BJSON_TYPE_FALSE + value->value.boolean);
+            break;
+        case valtype::string:
+            builder.put(BJSON_TYPE_STRING);
+            builder.put(*value->value.str);
+            break;
+    }
+}
+
+static JArray* array_from_binary(ByteReader& reader);
+static JObject* object_from_binary(ByteReader& reader);
+
+std::vector<ubyte> json::to_binary(const JObject* obj) {
+    ByteBuilder builder;
+    // type byte
+    builder.put(BJSON_TYPE_DOCUMENT);
+    // document size
+    builder.putInt32(0);
+
+    // writing entries
+    for (auto& entry : obj->map) {
+        builder.putCStr(entry.first.c_str());
+        to_binary(builder, entry.second);
+    }
+    // terminating byte
+    builder.put(BJSON_END);
+
+    // updating document size
+    builder.setInt32(1, builder.size());
+    return builder.build();
+}
+
+static Value* value_from_binary(ByteReader& reader) {
+    ubyte typecode = reader.get();
+    valtype type;
+    valvalue val;
+    switch (typecode) {
+        case BJSON_TYPE_DOCUMENT:
+            type = valtype::object;
+            reader.getInt32();
+            val.obj = object_from_binary(reader);
+            break;
+        case BJSON_TYPE_LIST:
+            type = valtype::array;
+            val.arr = array_from_binary(reader);
+            break;
+        case BJSON_TYPE_BYTE:
+            type = valtype::integer;
+            val.integer = reader.get();
+            break;
+        case BJSON_TYPE_INT16:
+            type = valtype::integer;
+            val.integer = reader.getInt16();
+            break;
+        case BJSON_TYPE_INT32:
+            type = valtype::integer;
+            val.integer = reader.getInt32();
+            break;
+        case BJSON_TYPE_INT64:
+            type = valtype::integer;
+            val.integer = reader.getInt64();
+            break;
+        case BJSON_TYPE_NUMBER:
+            type = valtype::number;
+            val.decimal = reader.getFloat64();
+            break;
+        case BJSON_TYPE_FALSE:
+        case BJSON_TYPE_TRUE:
+            type = valtype::boolean;
+            val.boolean = typecode - BJSON_TYPE_FALSE;
+            break;
+        case BJSON_TYPE_STRING:
+            type = valtype::string;
+            val.str = new std::string(reader.getString());
+            break;
+        default:
+            throw std::runtime_error(
+                  "type "+std::to_string(typecode)+" is not supported");
+    }
+    return new Value(type, val);
+}
+
+static JArray* array_from_binary(ByteReader& reader) {
+    auto array = std::make_unique<JArray>();
+    auto& items = array->values;
+    while (reader.peek() != BJSON_END) {
+        items.push_back(value_from_binary(reader));
+    }
+    reader.get();
+    return array.release();
+}
+
+static JObject* object_from_binary(ByteReader& reader) {
+    auto obj = std::make_unique<JObject>();
+    auto& map = obj->map;
+    while (reader.peek() != BJSON_END) {
+        const char* key = reader.getCString();
+        Value* value = value_from_binary(reader);
+        map.insert(std::make_pair(key, value));
+    }
+    reader.get();
+    return obj.release();
+}
+
+JObject* json::from_binary(const ubyte* src, size_t size) {
+    ByteReader reader(src, size);
+    std::unique_ptr<Value> value (value_from_binary(reader));
+    if (value->type != valtype::object) {
+        throw std::runtime_error("root value is not an object");
+    }
+    JObject* obj = value->value.obj;
+    value->value.obj = nullptr;
+    return obj;
+}
 
 JArray::~JArray() {
     for (auto value : values) {
@@ -168,9 +335,9 @@ bool JArray::flag(size_t index) const {
     return values[index]->value.boolean;
 }
 
-JArray& JArray::put(string value) {
+JArray& JArray::put(std::string value) {
     valvalue val;
-    val.str = new string(value);
+    val.str = new std::string(value);
     values.push_back(new Value(valtype::string, val));
     return *this;
 }
@@ -248,11 +415,11 @@ JObject::~JObject() {
     }
 }
 
-void JObject::str(string key, string& dst) const {
+void JObject::str(std::string key, std::string& dst) const {
     dst = getStr(key, dst);
 }
 
-string JObject::getStr(string key, const string& def) const {
+std::string JObject::getStr(std::string key, const std::string& def) const {
     auto found = map.find(key);
     if (found == map.end())
         return def;
@@ -266,7 +433,7 @@ string JObject::getStr(string key, const string& def) const {
     } 
 }
 
-double JObject::getNum(string key, double def) const {
+double JObject::getNum(std::string key, double def) const {
     auto found = map.find(key);
     if (found == map.end())
         return def;
@@ -280,7 +447,7 @@ double JObject::getNum(string key, double def) const {
     }
 }
 
-int64_t JObject::getInteger(string key, int64_t def) const {
+int64_t JObject::getInteger(std::string key, int64_t def) const {
     auto found = map.find(key);
     if (found == map.end())
         return def;
@@ -294,7 +461,7 @@ int64_t JObject::getInteger(string key, int64_t def) const {
     }
 }
 
-void JObject::num(string key, double& dst) const {
+void JObject::num(std::string key, double& dst) const {
     dst = getNum(key, dst);
 }
 
@@ -346,93 +513,93 @@ void JObject::flag(std::string key, bool& dst) const {
         dst = found->second->value.boolean;
 }
 
-JObject& JObject::put(string key, uint value) {
+JObject& JObject::put(std::string key, uint value) {
     return put(key, (int64_t)value);
 }
 
-JObject& JObject::put(string key, int value) {
+JObject& JObject::put(std::string key, int value) {
     return put(key, (int64_t)value);
 }
 
-JObject& JObject::put(string key, int64_t value) {
+JObject& JObject::put(std::string key, int64_t value) {
     auto found = map.find(key);
     if (found != map.end())  found->second;
     valvalue val;
     val.integer = value;
-    map.insert(make_pair(key, new Value(valtype::integer, val)));
+    map.insert(std::make_pair(key, new Value(valtype::integer, val)));
     return *this;
 }
 
-JObject& JObject::put(string key, uint64_t value) {
+JObject& JObject::put(std::string key, uint64_t value) {
     return put(key, (int64_t)value);
 }
 
-JObject& JObject::put(string key, float value) {
+JObject& JObject::put(std::string key, float value) {
     return put(key, (double)value);
 }
 
-JObject& JObject::put(string key, double value) {
+JObject& JObject::put(std::string key, double value) {
     auto found = map.find(key);
     if (found != map.end()) delete found->second;
     valvalue val;
     val.decimal = value;
-    map.insert(make_pair(key, new Value(valtype::number, val)));
+    map.insert(std::make_pair(key, new Value(valtype::number, val)));
     return *this;
 }
 
-JObject& JObject::put(string key, string value){
+JObject& JObject::put(std::string key, std::string value){
     auto found = map.find(key);
     if (found != map.end()) delete found->second;
     valvalue val;
-    val.str = new string(value);
-    map.insert(make_pair(key, new Value(valtype::string, val)));
+    val.str = new std::string(value);
+    map.insert(std::make_pair(key, new Value(valtype::string, val)));
     return *this;
 }
 
 JObject& JObject::put(std::string key, const char* value) {
-    return put(key, string(value));
+    return put(key, std::string(value));
 }
 
-JObject& JObject::put(string key, JObject* value){
+JObject& JObject::put(std::string key, JObject* value){
     auto found = map.find(key);
     if (found != map.end()) delete found->second;
     valvalue val;
     val.obj = value;
-    map.insert(make_pair(key, new Value(valtype::object, val)));
+    map.insert(std::make_pair(key, new Value(valtype::object, val)));
     return *this;
 }
 
-JObject& JObject::put(string key, JArray* value){
+JObject& JObject::put(std::string key, JArray* value){
     auto found = map.find(key);
     if (found != map.end()) delete found->second;
     valvalue val;
     val.arr = value;
-    map.insert(make_pair(key, new Value(valtype::array, val)));
+    map.insert(std::make_pair(key, new Value(valtype::array, val)));
     return *this;
 }
 
-JObject& JObject::put(string key, bool value){
+JObject& JObject::put(std::string key, bool value){
     auto found = map.find(key);
     if (found != map.end()) delete found->second;
     valvalue val;
     val.boolean = value;
-    map.insert(make_pair(key, new Value(valtype::boolean, val)));
+    map.insert(std::make_pair(key, new Value(valtype::boolean, val)));
     return *this;
 }
 
-JArray& JObject::putArray(string key) {
+JArray& JObject::putArray(std::string key) {
     JArray* arr = new JArray();
     put(key, arr);
     return *arr;
 }
 
-JObject& JObject::putObj(string key) {
+JObject& JObject::putObj(std::string key) {
     JObject* obj = new JObject();
     put(key, obj);
     return *obj;
 }
 
-bool JObject::has(string key) {
+bool JObject::has(std::string key) {
     return map.find(key) != map.end();
 }
 
@@ -449,7 +616,8 @@ Value::~Value() {
     }
 }
 
-Parser::Parser(string filename, string source) : BasicParser(filename, source) {    
+Parser::Parser(std::string filename, std::string source) 
+      : BasicParser(filename, source) {    
 }
 
 JObject* Parser::parse() {
@@ -462,20 +630,20 @@ JObject* Parser::parse() {
 
 JObject* Parser::parseObject() {
     expect('{');
-    unique_ptr<JObject> obj(new JObject());
-    unordered_map<string, Value*>& map = obj->map;
+    auto obj = std::make_unique<JObject>();
+    auto& map = obj->map;
     while (peek() != '}') {
         if (peek() == '#') {
             skipLine();
             continue;
         }
-        string key = parseName();
+        std::string key = parseName();
         char next = peek();
         if (next != ':') {
             throw error("':' expected");
         }
         pos++;
-        map.insert(make_pair(key, parseValue()));
+        map.insert(std::make_pair(key, parseValue()));
         next = peek();
         if (next == ',') {
             pos++;
@@ -491,8 +659,8 @@ JObject* Parser::parseObject() {
 
 JArray* Parser::parseArray() {
     expect('[');
-    unique_ptr<JArray> arr(new JArray());
-    vector<Value*>& values = arr->values;
+    auto arr = std::make_unique<JArray>();
+    auto& values = arr->values;
     while (peek() != ']') {
         if (peek() == '#') {
             skipLine();
@@ -530,7 +698,7 @@ Value* Parser::parseValue() {
         return new Value(type, val);
     }
     if (is_identifier_start(next)) {
-        string literal = parseName();
+        std::string literal = parseName();
         if (literal == "true") {
             val.boolean = true;
             return new Value(valtype::boolean, val);
@@ -568,17 +736,17 @@ Value* Parser::parseValue() {
     }
     if (next == '"' || next == '\'') {
         pos++;
-        val.str = new string(parseString(next));
+        val.str = new std::string(parseString(next));
         return new Value(valtype::string, val);
     }
-    throw error("unexpected character '"+string({next})+"'");
+    throw error("unexpected character '"+std::string({next})+"'");
 }
 
-JObject* json::parse(string filename, string source) {
+JObject* json::parse(std::string filename, std::string source) {
     Parser parser(filename, source);
     return parser.parse();
 }
 
-JObject* json::parse(string source) {
+JObject* json::parse(std::string source) {
     return parse("<string>", source);
 }

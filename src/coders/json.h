@@ -16,7 +16,9 @@ namespace json {
     class JArray;
     class Value;
 
-    extern std::string stringify(JObject* obj, bool nice, std::string indent);
+    extern std::string stringify(const JObject* obj, bool nice, const std::string& indent);
+    extern std::vector<ubyte> to_binary(const JObject* obj);
+    extern JObject* from_binary(const ubyte* src, size_t size);
 
     enum class valtype {
         object, array, number, integer, string, boolean
