@@ -56,9 +56,6 @@ void WorldConverter::convertNext() {
             std::unique_ptr<ubyte[]> data (wfile->getChunk(gx, gz));
             if (data == nullptr)
                 continue;
-            if (wfile->getVoxelRegionVersion(x, z) != REGION_FORMAT_VERSION) {
-                Chunk::fromOld(data.get());
-            }
             if (lut) {
                 Chunk::convert(data.get(), lut.get());
             }
