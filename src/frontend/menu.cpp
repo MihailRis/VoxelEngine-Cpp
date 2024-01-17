@@ -35,6 +35,7 @@ namespace fs = std::filesystem;
 using namespace gui;
 
 inline uint64_t randU64() {
+    srand(time(NULL));
     return rand() ^ (rand() << 8) ^ 
         (rand() << 16) ^ (rand() << 24) ^
         ((uint64_t)rand() << 32) ^ 
@@ -458,4 +459,5 @@ void menus::create_menus(Engine* engine, PagesControl* menu) {
 
 void menus::refresh_menus(Engine* engine, PagesControl* menu) {
     create_main_menu_panel(engine, menu);
+    create_new_world_panel(engine, menu);
 }
