@@ -96,9 +96,8 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
 
 LevelScreen::~LevelScreen() {
 	std::cout << "-- writing world" << std::endl;
-    World* world = level->world;
+    auto world = level->getWorld();
 	world->write(level.get());
-	delete world;
 }
 
 void LevelScreen::updateHotkeys() {

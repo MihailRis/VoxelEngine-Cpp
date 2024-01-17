@@ -87,7 +87,7 @@ void ContentLoader::fixPackIndices() {
     if (modified){
         // rewrite modified json
         std::cout << indexFile << std::endl;
-        files::write_string(indexFile, json::stringify(root.get(), true, "  "));
+        files::write_json(indexFile, root.get());
     }
 }
 
