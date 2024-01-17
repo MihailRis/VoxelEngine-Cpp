@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 
+#include "gzip.h"
 #include "byte_utils.h"
 
 using namespace json;
@@ -148,12 +149,21 @@ static Map* object_from_binary(ByteReader& reader) {
 }
 
 std::unique_ptr<Map> json::from_binary(const ubyte* src, size_t size) {
-    ByteReader reader(src, size);
-    std::unique_ptr<Value> value (value_from_binary(reader));
-    if (value->type != valtype::map) {
-        throw std::runtime_error("root value is not an object");
+    if (size < 2) {
+        throw std::runtime_error("bytes length is less than 2");
     }
-    std::unique_ptr<Map> obj (value->value.map);
-    value->value.map = nullptr;
-    return obj;
+    if (src[0] == gzip::MAGIC[0] && src[1] == gzip::MAGIC[1]) {
+        // reading compressed document
+        auto data = gzip::decompress(src, size);
+        return from_binary(data.data(), data.size());
+    } else {
+        ByteReader reader(src, size);
+        std::unique_ptr<Value> value (value_from_binary(reader));
+        if (value->type != valtype::map) {
+            throw std::runtime_error("root value is not an object");
+        }
+        std::unique_ptr<Map> obj (value->value.map);
+        value->value.map = nullptr;
+        return obj;
+    }
 }
