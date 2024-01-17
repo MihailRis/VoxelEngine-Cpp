@@ -22,7 +22,7 @@ InventoryView::InventoryView(
             LevelFrontend* frontend,
             std::vector<itemid_t> items) 
             : content(content),
-              indices(content->indices), 
+              indices(content->getIndices()), 
               items(items),
               frontend(frontend),
               columns(columns) {

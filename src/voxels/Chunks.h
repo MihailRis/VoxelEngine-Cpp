@@ -34,7 +34,7 @@ public:
 
 	Chunks(int w, int d, int ox, int oz, 
 		   WorldFiles* worldFiles, LevelEvents* events, const Content* content);
-	~Chunks();
+	~Chunks() = default;
 
 	bool putChunk(std::shared_ptr<Chunk> chunk);
 

@@ -107,7 +107,8 @@ static const luaL_Reg playerlib [] = {
 /* == blocks-related functions == */
 static int l_block_name(lua_State* L) {
     int id = lua_tointeger(L, 1);
-    lua_pushstring(L, scripting::content->indices->getBlockDef(id)->name.c_str());
+    auto def = scripting::content->getIndices()->getBlockDef(id);
+    lua_pushstring(L, def->name.c_str());
     return 1;
 }
 
@@ -121,7 +122,7 @@ static int l_is_solid_at(lua_State* L) {
 }
 
 static int l_blocks_count(lua_State* L) {
-    lua_pushinteger(L, scripting::content->indices->countBlockDefs());
+    lua_pushinteger(L, scripting::content->getIndices()->countBlockDefs());
     return 1;
 }
 
@@ -163,7 +164,7 @@ static int l_get_block_x(lua_State* L) {
     if (vox == nullptr) {
         return lua_pushivec3(L, 1, 0, 0);
     }
-    const Block* def = scripting::level->content->indices->getBlockDef(vox->id);
+    auto def = scripting::level->content->getIndices()->getBlockDef(vox->id);
     if (!def->rotatable) {
         return lua_pushivec3(L, 1, 0, 0);
     } else {
@@ -180,7 +181,7 @@ static int l_get_block_y(lua_State* L) {
     if (vox == nullptr) {
         return lua_pushivec3(L, 0, 1, 0);
     }
-    const Block* def = scripting::level->content->indices->getBlockDef(vox->id);
+    auto def = scripting::level->content->getIndices()->getBlockDef(vox->id);
     if (!def->rotatable) {
         return lua_pushivec3(L, 0, 1, 0);
     } else {
@@ -197,7 +198,7 @@ static int l_get_block_z(lua_State* L) {
     if (vox == nullptr) {
         return lua_pushivec3(L, 0, 0, 1);
     }
-    const Block* def = scripting::level->content->indices->getBlockDef(vox->id);
+    auto def = scripting::level->content->getIndices()->getBlockDef(vox->id);
     if (!def->rotatable) {
         return lua_pushivec3(L, 0, 0, 1);
     } else {

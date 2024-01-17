@@ -17,9 +17,6 @@
 ChunksStorage::ChunksStorage(Level* level) : level(level) {
 }
 
-ChunksStorage::~ChunksStorage() {
-}
-
 void ChunksStorage::store(std::shared_ptr<Chunk> chunk) {
 	chunksMap[glm::ivec2(chunk->x, chunk->z)] = chunk;
 }
@@ -61,7 +58,7 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 	if (data) {
 		chunk->decode(data.get());
 		chunk->setLoaded(true);
-        verifyLoadedChunk(level->content->indices, chunk.get());
+        verifyLoadedChunk(level->content->getIndices(), chunk.get());
 	}
 
 	light_t* lights = wfile->getLights(chunk->x, chunk->z);
@@ -75,7 +72,7 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 // some magic code
 void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 	const Content* content = level->content;
-	const ContentIndices* indices = content->indices;
+	auto indices = content->getIndices();
 	voxel* voxels = volume->getVoxels();
 	light_t* lights = volume->getLights();
 	int x = volume->getX();
@@ -115,7 +112,7 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 					}
 				}
 			} else {
-				const std::shared_ptr<Chunk>& chunk = found->second;
+				auto& chunk = found->second;
 				const voxel* cvoxels = chunk->voxels;
 				const light_t* clights = chunk->lightmap->getLights();
 				for (int ly = y; ly < y + h; ly++) {

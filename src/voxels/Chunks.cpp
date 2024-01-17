@@ -22,7 +22,7 @@ Chunks::Chunks(int w, int d,
 			   LevelEvents* events, 
 			   const Content* content) 
 		: content(content),
-		  contentIds(content->indices), 
+		  contentIds(content->getIndices()), 
           chunks(w*d),
           chunksSecond(w*d),
 		  w(w), d(d), ox(ox), oz(oz), 
@@ -30,9 +30,6 @@ Chunks::Chunks(int w, int d,
 		  events(events) {
 	volume = (size_t)w*(size_t)d;
 	chunksCount = 0;
-}
-
-Chunks::~Chunks(){
 }
 
 voxel* Chunks::get(int x, int y, int z){

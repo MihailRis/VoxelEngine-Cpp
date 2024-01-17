@@ -26,9 +26,6 @@ Player::Player(glm::vec3 position, float speed) :
 	    hitbox(new Hitbox(position, glm::vec3(0.3f,0.9f,0.3f))) {
 }
 
-Player::~Player(){
-}
-
 void Player::update(
 		Level* level,
 		PlayerInput& input, 

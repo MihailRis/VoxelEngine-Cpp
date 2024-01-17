@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "../constants.h"
 
-struct ChunkFlag{
+struct ChunkFlag {
 	static const int MODIFIED = 0x1;
 	static const int READY = 0x2;
 	static const int LOADED = 0x4;
@@ -37,7 +37,6 @@ public:
 	Chunk* clone() const;
 
 	// flags getters/setters below
-	
 	inline void setFlags(int mask, bool value){
 		if (value)
 			flags |= mask; 

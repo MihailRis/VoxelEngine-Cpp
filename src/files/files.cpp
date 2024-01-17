@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include "../coders/json.h"
 #include "../util/stringutil.h"
+#include "../data/dynamic.h"
 
 namespace fs = std::filesystem;
 
@@ -92,18 +93,18 @@ bool files::write_string(fs::path filename, const std::string content) {
 	return true;
 }
 
-bool files::write_json(fs::path filename, const json::JObject* obj, bool nice) {
+bool files::write_json(fs::path filename, const dynamic::Map* obj, bool nice) {
     // -- binary json tests
     //return write_binary_json(fs::path(filename.u8string()+".bin"), obj);
     return files::write_string(filename, json::stringify(obj, nice, "  "));
 }
 
-bool files::write_binary_json(fs::path filename, const json::JObject* obj) {
+bool files::write_binary_json(fs::path filename, const dynamic::Map* obj) {
     std::vector<ubyte> bytes = json::to_binary(obj);
     return files::write_bytes(filename, (const char*)bytes.data(), bytes.size());
 }
 
-json::JObject* files::read_json(fs::path filename) {
+std::unique_ptr<dynamic::Map> files::read_json(fs::path filename) {
     // binary json tests
     // fs::path binfile = fs::path(filename.u8string()+".bin");
     // if (fs::is_regular_file(binfile)){
@@ -121,10 +122,10 @@ json::JObject* files::read_json(fs::path filename) {
     }
 }
 
-json::JObject* files::read_binary_json(fs::path file) {
+std::unique_ptr<dynamic::Map> files::read_binary_json(fs::path file) {
     size_t size;
     std::unique_ptr<char[]> bytes (files::read_bytes(file, size));
-    return json::from_binary((const ubyte*)bytes.get(), size);
+    return std::unique_ptr<dynamic::Map>(json::from_binary((const ubyte*)bytes.get(), size));
 }
 
 std::vector<std::string> files::read_list(fs::path filename) {
