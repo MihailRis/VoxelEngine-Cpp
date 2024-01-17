@@ -69,7 +69,7 @@ void BlocksController::updateBlock(int x, int y, int z) {
     voxel* vox = chunks->get(x, y, z);
     if (vox == nullptr)
         return;
-    const Block* def = level->content->indices->getBlockDef(vox->id);
+    const Block* def = level->content->getIndices()->getBlockDef(vox->id);
     if (def->grounded && !chunks->isSolidBlock(x, y-1, z)) {
         breakBlock(nullptr, def, x, y, z);
         return;
@@ -89,7 +89,7 @@ void BlocksController::randomTick(int tickid, int parts) {
     // timeutil::ScopeLogTimer timer(5000+tickid);
     const int w = chunks->w;
     const int d = chunks->d;
-    auto indices = level->content->indices;
+    auto indices = level->content->getIndices();
     for (uint z = padding; z < d-padding; z++){
         for (uint x = padding; x < w-padding; x++){
             int index = z * w + x;

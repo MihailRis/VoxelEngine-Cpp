@@ -1,9 +1,8 @@
 #include "commons.h"
 
 #include <sstream>
+#include <stdexcept>
 #include <math.h>
-
-using std::string;
 
 inline int char2int(int c) {
     if (c >= '0' && c <= '9') {
@@ -26,23 +25,24 @@ inline double power(double base, int64_t power) {
     return result;
 }
 
-parsing_error::parsing_error(string message, 
-                string filename, 
-                string source, 
-                uint pos, 
-                uint line, 
-                uint linestart)
+parsing_error::parsing_error(
+    std::string message, 
+    std::string filename, 
+    std::string source, 
+    uint pos, 
+    uint line, 
+    uint linestart)
     : std::runtime_error(message), filename(filename), source(source), 
       pos(pos), line(line), linestart(linestart) {
 }
 
-string parsing_error::errorLog() const {
+std::string parsing_error::errorLog() const {
     std::stringstream ss;
     uint linepos = pos - linestart;
     ss << "parsing error in file '" << filename;
     ss << "' at " << (line+1) << ":" << linepos << ": " << this->what() << "\n";
     size_t end = source.find("\n", linestart);
-    if (end == string::npos) {
+    if (end == std::string::npos) {
         end = source.length();
     }
     ss << source.substr(linestart, end-linestart) << "\n";
@@ -54,7 +54,7 @@ string parsing_error::errorLog() const {
 
 }
 
-string escape_string(string s) {
+std::string escape_string(std::string s) {
     std::stringstream ss;
     ss << '"';
     for (char c : s) {
@@ -124,7 +124,7 @@ char BasicParser::nextChar() {
 void BasicParser::expect(char expected) {
     char c = peek();
     if (c != expected) {
-        throw error("'"+string({expected})+"' expected");
+        throw error("'"+std::string({expected})+"' expected");
     }
     pos++;
 }
@@ -153,7 +153,7 @@ char BasicParser::peek() {
     return source[pos];
 }
 
-string BasicParser::parseName() {
+std::string BasicParser::parseName() {
     char c = peek();
     if (!is_identifier_start(c)) {
         if (c == '"') {
@@ -262,7 +262,7 @@ bool BasicParser::parseNumber(int sign, number_u& out) {
     return true;
 }
 
-string BasicParser::parseString(char quote, bool closeRequired) {
+std::string BasicParser::parseString(char quote, bool closeRequired) {
     std::stringstream ss;
     while (hasNext()) {
         char c = source[pos];
@@ -290,7 +290,8 @@ string BasicParser::parseString(char quote, bool closeRequired) {
                 case '/': ss << '/'; break;
                 case '\n': pos++; continue;
                 default:
-                    throw error("'\\" + string({c}) + "' is an illegal escape");
+                    throw error("'\\" + std::string({c}) + 
+                                "' is an illegal escape");
             }
             continue;
         }

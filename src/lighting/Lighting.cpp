@@ -15,11 +15,11 @@ using std::shared_ptr;
 
 Lighting::Lighting(const Content* content, Chunks* chunks) 
 	     : content(content), chunks(chunks) {
-	const ContentIndices* contentIds = content->indices;
-	solverR = new LightSolver(contentIds, chunks, 0);
-	solverG = new LightSolver(contentIds, chunks, 1);
-	solverB = new LightSolver(contentIds, chunks, 2);
-	solverS = new LightSolver(contentIds, chunks, 3);
+	auto indices = content->getIndices();
+	solverR = new LightSolver(indices, chunks, 0);
+	solverG = new LightSolver(indices, chunks, 1);
+	solverB = new LightSolver(indices, chunks, 2);
+	solverS = new LightSolver(indices, chunks, 3);
 }
 
 Lighting::~Lighting(){
@@ -42,7 +42,7 @@ void Lighting::clear(){
 }
 
 void Lighting::prebuildSkyLight(int cx, int cz){
-	const Block* const* blockDefs = content->indices->getBlockDefs();
+	const Block* const* blockDefs = content->getIndices()->getBlockDefs();
 
 	Chunk* chunk = chunks->getChunk(cx, cz);
 	int highestPoint = 0;
@@ -68,7 +68,7 @@ void Lighting::prebuildSkyLight(int cx, int cz){
 }
 
 void Lighting::buildSkyLight(int cx, int cz){
-	const Block* const* blockDefs = content->indices->getBlockDefs();
+	const Block* const* blockDefs = content->getIndices()->getBlockDefs();
 
 	Chunk* chunk = chunks->getChunk(cx, cz);
 	for (int z = 0; z < CHUNK_D; z++){
@@ -95,7 +95,7 @@ void Lighting::buildSkyLight(int cx, int cz){
 }
 
 void Lighting::onChunkLoaded(int cx, int cz){
-	const Block* const* blockDefs = content->indices->getBlockDefs();
+	const Block* const* blockDefs = content->getIndices()->getBlockDefs();
 	const Chunk* chunk = chunks->getChunk(cx, cz);
 
 	for (unsigned int y = 0; y < CHUNK_H; y++){
@@ -137,7 +137,7 @@ void Lighting::onChunkLoaded(int cx, int cz){
 }
 
 void Lighting::onBlockSet(int x, int y, int z, int const id){
-	Block* block = content->indices->getBlockDef(id);
+	Block* block = content->getIndices()->getBlockDef(id);
 	if (id == 0){
 		solverR->remove(x,y,z);
 		solverG->remove(x,y,z);

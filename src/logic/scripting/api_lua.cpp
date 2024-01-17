@@ -14,6 +14,13 @@
 #include "../../lighting/Lighting.h"
 #include "../../logic/BlocksController.h"
 
+inline int lua_pushivec3(lua_State* L, int x, int y, int z) {
+    lua_pushinteger(L, x);
+    lua_pushinteger(L, y);
+    lua_pushinteger(L, z);
+    return 3;
+}
+
 inline void luaL_openlib(lua_State* L, const char* name, const luaL_Reg* libfuncs, int nup) {
     lua_newtable(L);
     luaL_setfuncs(L, libfuncs, nup);
@@ -43,11 +50,6 @@ static const luaL_Reg worldlib [] = {
     {"get_seed", l_world_get_seed},
     {NULL, NULL}
 };
-
-int luaopen_world(lua_State* L) {
-    luaL_openlib(L, "world", worldlib, 0);
-    return 1;
-}
 
 /* == player library ==*/
 static int l_player_get_pos(lua_State* L) {
@@ -102,15 +104,11 @@ static const luaL_Reg playerlib [] = {
     {NULL, NULL}
 };
 
-int luaopen_player(lua_State* L) {
-    luaL_openlib(L, "player", playerlib, 0);
-    return 1;
-}
-
 /* == blocks-related functions == */
 static int l_block_name(lua_State* L) {
     int id = lua_tointeger(L, 1);
-    lua_pushstring(L, scripting::content->indices->getBlockDef(id)->name.c_str());
+    auto def = scripting::content->getIndices()->getBlockDef(id);
+    lua_pushstring(L, def->name.c_str());
     return 1;
 }
 
@@ -124,7 +122,7 @@ static int l_is_solid_at(lua_State* L) {
 }
 
 static int l_blocks_count(lua_State* L) {
-    lua_pushinteger(L, scripting::content->indices->countBlockDefs());
+    lua_pushinteger(L, scripting::content->getIndices()->countBlockDefs());
     return 1;
 }
 
@@ -158,13 +156,6 @@ static int l_get_block(lua_State* L) {
     return 1;
 }
 
-inline int lua_pushivec3(lua_State* L, int x, int y, int z) {
-    lua_pushinteger(L, x);
-    lua_pushinteger(L, y);
-    lua_pushinteger(L, z);
-    return 3;
-}
-
 static int l_get_block_x(lua_State* L) {
     int x = lua_tointeger(L, 1);
     int y = lua_tointeger(L, 2);
@@ -173,7 +164,7 @@ static int l_get_block_x(lua_State* L) {
     if (vox == nullptr) {
         return lua_pushivec3(L, 1, 0, 0);
     }
-    const Block* def = scripting::level->content->indices->getBlockDef(vox->id);
+    auto def = scripting::level->content->getIndices()->getBlockDef(vox->id);
     if (!def->rotatable) {
         return lua_pushivec3(L, 1, 0, 0);
     } else {
@@ -190,7 +181,7 @@ static int l_get_block_y(lua_State* L) {
     if (vox == nullptr) {
         return lua_pushivec3(L, 0, 1, 0);
     }
-    const Block* def = scripting::level->content->indices->getBlockDef(vox->id);
+    auto def = scripting::level->content->getIndices()->getBlockDef(vox->id);
     if (!def->rotatable) {
         return lua_pushivec3(L, 0, 1, 0);
     } else {
@@ -207,7 +198,7 @@ static int l_get_block_z(lua_State* L) {
     if (vox == nullptr) {
         return lua_pushivec3(L, 0, 0, 1);
     }
-    const Block* def = scripting::level->content->indices->getBlockDef(vox->id);
+    auto def = scripting::level->content->getIndices()->getBlockDef(vox->id);
     if (!def->rotatable) {
         return lua_pushivec3(L, 0, 0, 1);
     } else {
@@ -275,8 +266,8 @@ static int l_is_replaceable_at(lua_State* L) {
                                     lua_setglobal(L, NAME))
 
 void apilua::create_funcs(lua_State* L) {
-    luaopen_world(L);
-    luaopen_player(L);
+    luaL_openlib(L, "world", worldlib, 0);
+    luaL_openlib(L, "player", playerlib, 0);
 
     lua_addfunc(L, l_block_index, "block_index");
     lua_addfunc(L, l_block_name, "block_name");

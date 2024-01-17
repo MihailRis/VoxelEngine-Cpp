@@ -132,7 +132,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
 					1.0f+fog*2.0f, 4);
 
 	const Content* content = level->content;
-	const ContentIndices* contentIds = content->indices;
+	auto indices = content->getIndices();
 	Assets* assets = engine->getAssets();
 	Atlas* atlas = assets->getAtlas("blocks");
 	Shader* shader = assets->getShader("main");
@@ -170,7 +170,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
 		shader->uniform1i("u_cubemap", 1);
 		{
 			itemid_t id = level->player->getChosenItem();
-            ItemDef* item = contentIds->getItemDef(id);
+            ItemDef* item = indices->getItemDef(id);
 			assert(item != nullptr);
 			float multiplier = 0.5f;
 			shader->uniform3f("u_torchlightColor",  
@@ -189,7 +189,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
 		// Selected block
 		if (PlayerController::selectedBlockId != -1 && hudVisible){
 			blockid_t id = PlayerController::selectedBlockId;
-			Block* block = contentIds->getBlockDef(id);
+			Block* block = indices->getBlockDef(id);
 			assert(block != nullptr);
 			const vec3 pos = PlayerController::selectedBlockPosition;
 			const vec3 point = PlayerController::selectedPointPosition;

@@ -17,9 +17,6 @@
 ChunksStorage::ChunksStorage(Level* level) : level(level) {
 }
 
-ChunksStorage::~ChunksStorage() {
-}
-
 void ChunksStorage::store(std::shared_ptr<Chunk> chunk) {
 	chunksMap[glm::ivec2(chunk->x, chunk->z)] = chunk;
 }
@@ -39,7 +36,7 @@ void ChunksStorage::remove(int x, int z) {
 	}
 }
 
-void verifyLoadedChunk(ContentIndices* indices, Chunk* chunk) {
+static void verifyLoadedChunk(ContentIndices* indices, Chunk* chunk) {
     for (size_t i = 0; i < CHUNK_VOL; i++) {
         blockid_t id = chunk->voxels[i].id;
         if (indices->getBlockDef(id) == nullptr) {
@@ -52,18 +49,19 @@ void verifyLoadedChunk(ContentIndices* indices, Chunk* chunk) {
 }
 
 std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
-	World* world = level->world;
+	World* world = level->getWorld();
+    WorldFiles* wfile = world->wfile;
 
     auto chunk = std::make_shared<Chunk>(x, z);
 	store(chunk);
-	std::unique_ptr<ubyte[]> data(world->wfile->getChunk(chunk->x, chunk->z));
+	std::unique_ptr<ubyte[]> data(wfile->getChunk(chunk->x, chunk->z));
 	if (data) {
 		chunk->decode(data.get());
 		chunk->setLoaded(true);
-        verifyLoadedChunk(level->content->indices, chunk.get());
+        verifyLoadedChunk(level->content->getIndices(), chunk.get());
 	}
 
-	light_t* lights = world->wfile->getLights(chunk->x, chunk->z);
+	light_t* lights = wfile->getLights(chunk->x, chunk->z);
 	if (lights) {
 		chunk->lightmap->set(lights);
 		chunk->setLoadedLights(true);
@@ -74,7 +72,7 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 // some magic code
 void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 	const Content* content = level->content;
-	const ContentIndices* indices = content->indices;
+	auto indices = content->getIndices();
 	voxel* voxels = volume->getVoxels();
 	light_t* lights = volume->getLights();
 	int x = volume->getX();
@@ -114,7 +112,7 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 					}
 				}
 			} else {
-				const std::shared_ptr<Chunk>& chunk = found->second;
+				auto& chunk = found->second;
 				const voxel* cvoxels = chunk->voxels;
 				const light_t* clights = chunk->lightmap->getLights();
 				for (int ly = y; ly < y + h; ly++) {

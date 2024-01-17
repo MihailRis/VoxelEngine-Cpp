@@ -1,6 +1,8 @@
 #ifndef WORLD_LEVEL_H_
 #define WORLD_LEVEL_H_
 
+#include <memory>
+
 #include "../typedefs.h"
 #include "../settings.h"
 
@@ -15,7 +17,7 @@ class ChunksStorage;
 
 class Level {
 public:
-	World* world;
+	std::unique_ptr<World> world;
 	const Content* const content;
 	Player* player;
 	Chunks* chunks;
@@ -34,6 +36,8 @@ public:
 	~Level();
 
 	void update();
+    
+    World* getWorld();
 };
 
 #endif /* WORLD_LEVEL_H_ */

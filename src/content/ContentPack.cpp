@@ -5,6 +5,7 @@
 #include "../coders/json.h"
 #include "../files/files.h"
 #include "../files/engine_paths.h"
+#include "../data/dynamic.h"
 
 namespace fs = std::filesystem;
 
@@ -15,7 +16,7 @@ const fs::path ContentPack::ITEMS_FOLDER = "items";
 
 contentpack_error::contentpack_error(
     std::string packId, 
-    std::filesystem::path folder, 
+    fs::path folder, 
     std::string message)
     : std::runtime_error(message), packId(packId), folder(folder) {
 }
@@ -23,19 +24,19 @@ contentpack_error::contentpack_error(
 std::string contentpack_error::getPackId() const {
     return packId;
 }
-std::filesystem::path contentpack_error::getFolder() const {
+fs::path contentpack_error::getFolder() const {
     return folder;
 }
 
-std::filesystem::path ContentPack::getContentFile() const {
+fs::path ContentPack::getContentFile() const {
     return folder/fs::path(CONTENT_FILENAME);
 }
 
-bool ContentPack::is_pack(std::filesystem::path folder) {
+bool ContentPack::is_pack(fs::path folder) {
     return fs::is_regular_file(folder/fs::path(PACKAGE_FILENAME));
 }
 
-ContentPack ContentPack::read(std::filesystem::path folder) {
+ContentPack ContentPack::read(fs::path folder) {
     auto root = files::read_json(folder/fs::path(PACKAGE_FILENAME));
     ContentPack pack;
     root->str("id", pack.id);
@@ -88,7 +89,7 @@ fs::path ContentPack::findPack(const EnginePaths* paths, fs::path worldDir, std:
 void ContentPack::readPacks(const EnginePaths* paths,
                             std::vector<ContentPack>& packs, 
                             const std::vector<std::string>& packnames,
-                            std::filesystem::path worldDir) {
+                            fs::path worldDir) {
     for (const auto& name : packnames) {
         fs::path packfolder = ContentPack::findPack(paths, worldDir, name);
         packs.push_back(ContentPack::read(packfolder));

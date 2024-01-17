@@ -43,7 +43,7 @@ public:
 	glm::vec2 cam = {};
 
 	Player(glm::vec3 position, float speed);
-	~Player();
+	~Player() = default;
 
 	void teleport(glm::vec3 position);
 	void update(Level* level, PlayerInput& input, float delta);

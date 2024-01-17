@@ -8,6 +8,8 @@
 #include "../typedefs.h"
 #include "../constants.h"
 
+namespace fs = std::filesystem;
+
 class Content;
 
 /* Content indices lookup table or report 
@@ -40,7 +42,7 @@ public:
         }
     }
 
-    static ContentLUT* create(const std::filesystem::path& filename, 
+    static ContentLUT* create(const fs::path& filename, 
                                    const Content* content);
     
     inline bool hasContentReorder() const {

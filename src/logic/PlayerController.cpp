@@ -204,7 +204,7 @@ void PlayerController::updateControls(float delta){
 }
 
 void PlayerController::updateInteraction(){
-	auto contentIds = level->content->indices;
+	auto indices = level->content->getIndices();
 	Chunks* chunks = level->chunks;
 	Player* player = level->player;
 	Lighting* lighting = level->lighting;
@@ -239,8 +239,8 @@ void PlayerController::updateInteraction(){
 		int z = iend.z;
 		uint8_t states = 0;
 
-        ItemDef* item = contentIds->getItemDef(player->getChosenItem());
-		Block* def = contentIds->getBlockDef(item->rt.placingBlock);
+        ItemDef* item = indices->getItemDef(player->getChosenItem());
+		Block* def = indices->getBlockDef(item->rt.placingBlock);
 		if (def && def->rotatable){
 			const std::string& name = def->rotations.name;
 			if (name == "pipe") {
@@ -270,7 +270,7 @@ void PlayerController::updateInteraction(){
             } 
         }
 
-		Block* target = contentIds->getBlockDef(vox->id);
+		Block* target = indices->getBlockDef(vox->id);
 		if (lclick && target->breakable){
             blocksController->breakBlock(player, target, x, y, z);
 		}
@@ -292,7 +292,7 @@ void PlayerController::updateInteraction(){
 			}
 			vox = chunks->get(x, y, z);
             blockid_t chosenBlock = def->rt.id;
-			if (vox && (target = contentIds->getBlockDef(vox->id))->replaceable) {
+			if (vox && (target = indices->getBlockDef(vox->id))->replaceable) {
 				if (!level->physics->isBlockInside(x,y,z, player->hitbox.get()) 
 					|| !def->obstacle){
                     if (def->grounded && !chunks->isSolidBlock(x, y-1, z)) {
@@ -310,7 +310,7 @@ void PlayerController::updateInteraction(){
 			}
 		}
 		if (Events::jactive(BIND_PLAYER_PICK)){
-            Block* block = contentIds->getBlockDef(chunks->get(x,y,z)->id);
+            Block* block = indices->getBlockDef(chunks->get(x,y,z)->id);
             player->setChosenItem(block->rt.pickingItem);
 		}
 	} else {
