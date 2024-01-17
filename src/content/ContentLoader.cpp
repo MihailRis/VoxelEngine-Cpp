@@ -233,6 +233,7 @@ void ContentLoader::loadItem(ItemDef* def, std::string name, fs::path file) {
     }
     root->str("icon", def->icon);
     root->str("placing-block", def->placingBlock);
+    root->num("stack-size", def->stackSize);
 
     // item light emission [r, g, b] where r,g,b in range [0..15]
     auto emissionarr = root->list("emission");

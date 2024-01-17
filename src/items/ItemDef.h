@@ -22,6 +22,7 @@ class ItemDef {
 public:
     std::string const name;
 
+    itemcount_t stackSize = 64;
     bool generated = false;
     uint8_t emission[4] {0, 0, 0, 0};
 
