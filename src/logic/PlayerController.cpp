@@ -285,7 +285,7 @@ void PlayerController::updateInteraction(){
                 scripting::on_block_interact(player, target, x, y, z);
                 return;
             }
-			if (target->model != BlockModel::xsprite){
+			if (!target->replaceable){
 				x = (iend.x)+(norm.x);
 				y = (iend.y)+(norm.y);
 				z = (iend.z)+(norm.z);
