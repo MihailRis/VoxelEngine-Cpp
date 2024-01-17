@@ -87,7 +87,7 @@ void BlocksController::update(float delta) {
 }
 
 void BlocksController::randomTick(int tickid, int parts) {
-    timeutil::ScopeLogTimer timer(5000+tickid);
+    // timeutil::ScopeLogTimer timer(5000+tickid);
     const int w = chunks->w;
     const int d = chunks->d;
     int segments = 4;
