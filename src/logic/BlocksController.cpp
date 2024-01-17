@@ -8,6 +8,7 @@
 #include "../content/Content.h"
 #include "../lighting/Lighting.h"
 #include "../util/timeutil.h"
+#include "../maths/fastmaths.h"
 
 #include "scripting/scripting.h"
 
@@ -86,10 +87,13 @@ void BlocksController::update(float delta) {
 }
 
 void BlocksController::randomTick(int tickid, int parts) {
-    // timeutil::ScopeLogTimer timer(5000+tickid);
+    timeutil::ScopeLogTimer timer(5000+tickid);
     const int w = chunks->w;
     const int d = chunks->d;
+    int segments = 4;
+    int segheight = CHUNK_H / segments;
     auto indices = level->content->getIndices();
+    
     for (uint z = padding; z < d-padding; z++){
         for (uint x = padding; x < w-padding; x++){
             int index = z * w + x;
@@ -98,13 +102,11 @@ void BlocksController::randomTick(int tickid, int parts) {
             std::shared_ptr<Chunk> chunk = chunks->chunks[index];
             if (chunk == nullptr || !chunk->isLighted())
                 continue;
-            int segments = 4;
-            int segheight = CHUNK_H / segments;
             for (int s = 0; s < segments; s++) {
-                for (int i = 0; i < 3; i++) {
-                    int bx = rand() % CHUNK_W;
-                    int by = rand() % segheight + s * segheight;
-                    int bz = rand() % CHUNK_D;
+                for (int i = 0; i < 4; i++) {
+                    int bx = fastmaths::rand() % CHUNK_W;
+                    int by = fastmaths::rand() % segheight + s * segheight;
+                    int bz = fastmaths::rand() % CHUNK_D;
                     const voxel& vox = chunk->voxels[(by * CHUNK_D + bz) * CHUNK_W + bx];
                     Block* block = indices->getBlockDef(vox.id);
                     if (block->rt.funcsset.randupdate) {
