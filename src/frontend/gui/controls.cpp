@@ -62,8 +62,19 @@ void Label::size(vec2 sizenew) {
     UINode::size(vec2(UINode::size().x, sizenew.y));
 }
 
+// ================================= Image ====================================
+Image::Image(string texture, vec2 size) : UINode(vec2(), size), texture(texture) {
+}
+
+void Image::draw(Batch2D* batch, Assets* assets) {
+    vec2 coord = calcCoord();
+    batch->texture(assets->getTexture(texture));
+    batch->color = color_;
+    batch->rect(coord.x, coord.y, size_.x, size_.y, 0, 0, 0, UVRegion(), false, true, color_);
+}
+
 // ================================= Button ===================================
-Button::Button(shared_ptr<UINode> content, glm::vec4 padding) : Panel(vec2(32,32), padding, 0) {
+Button::Button(shared_ptr<UINode> content, glm::vec4 padding) : Panel(vec2(34,32), padding, 0) {
     add(content);
     scrollable(false);
 }
@@ -100,6 +111,11 @@ Button* Button::textSupplier(wstringsupplier supplier) {
     }
     return this;
 }
+
+void Button::setHoverColor(glm::vec4 color) {
+    hoverColor = color;
+}
+
 void Button::drawBackground(Batch2D* batch, Assets* assets) {
     vec2 coord = calcCoord();
     batch->texture(nullptr);
@@ -131,6 +147,35 @@ void Button::textAlign(Align align) {
         label->align(align);
         refresh();
     }
+}
+
+// ============================== RichButton ==================================
+RichButton::RichButton(vec2 size) : Container(vec2(), size) {
+}
+
+void RichButton::mouseRelease(GUI* gui, int x, int y) {
+    UINode::mouseRelease(gui, x, y);
+    if (isInside(vec2(x, y))) {
+        for (auto callback : actions) {
+            callback(gui);
+        }
+    }
+}
+
+RichButton* RichButton::listenAction(onaction action) {
+    actions.push_back(action);
+    return this;
+}
+
+void RichButton::setHoverColor(glm::vec4 color) {
+    hoverColor = color;
+}
+
+void RichButton::drawBackground(Batch2D* batch, Assets* assets) {
+    vec2 coord = calcCoord();
+    batch->texture(nullptr);
+    batch->color = (ispressed() ? pressedColor : (hover_ ? hoverColor : color_));
+    batch->rect(coord.x, coord.y, size_.x, size_.y);
 }
 
 // ================================ TextBox ===================================

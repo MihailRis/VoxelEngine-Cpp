@@ -98,6 +98,11 @@ void Container::add(UINode* node) {
     add(shared_ptr<UINode>(node));
 }
 
+void Container::add(shared_ptr<UINode> node, glm::vec2 coord) {
+    node->setCoord(coord);
+    add(node);
+}
+
 void Container::remove(shared_ptr<UINode> selected) {
     selected->setParent(nullptr);
     nodes.erase(std::remove_if(nodes.begin(), nodes.end(), 
@@ -190,15 +195,12 @@ void Panel::refresh() {
             node->refresh();
             maxh = fmax(maxh, y+margin.y+node->size().y+margin.w+padding.w);
         }
-        bool increased = maxh > size.y;
         if (resizing_) {
             if (maxLength_)
                 this->size(vec2(glm::min(maxLength_, (int)(x+padding.z)), size.y));
             else
                 this->size(vec2(x+padding.z, size.y));
         }
-        if (increased)
-            refresh();
         actualLength = size.y;
     }
 }
