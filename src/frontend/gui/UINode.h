@@ -30,6 +30,7 @@ namespace gui {
         bool hover_ = false;
         bool pressed_ = false;
         bool focused_ = false;
+        bool interactive = true;
         Align align_ = Align::left;
         UINode* parent = nullptr;
         UINode(glm::vec2 coord, glm::vec2 size);
@@ -74,9 +75,12 @@ namespace gui {
         virtual bool isInside(glm::vec2 pos);
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self);
 
+        virtual bool isInteractive() const;
+        virtual void setInteractive(bool flag);
+
         virtual glm::vec2 contentOffset() {return glm::vec2(0.0f);};
         glm::vec2 calcCoord() const;
-        void setCoord(glm::vec2 coord);
+        virtual void setCoord(glm::vec2 coord);
         glm::vec2 size() const;
         virtual void size(glm::vec2 size);
         void _size(glm::vec2 size);

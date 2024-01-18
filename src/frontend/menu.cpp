@@ -201,7 +201,10 @@ Panel* create_worlds_panel(Engine* engine) {
             auto btn = std::make_shared<RichButton>(vec2(390, 46));
             btn->color(vec4(1.0f, 1.0f, 1.0f, 0.1f));
             btn->setHoverColor(vec4(1.0f, 1.0f, 1.0f, 0.17f));
-            btn->add(std::make_shared<Label>(namews), vec2(8, 8));
+
+            auto label = std::make_shared<Label>(namews);
+            label->setInteractive(false);
+            btn->add(label, vec2(8, 8));
             btn->listenAction([=](GUI*) {
                 open_world(name, engine);
             });
