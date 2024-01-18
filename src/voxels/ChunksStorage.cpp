@@ -53,6 +53,7 @@ void verifyLoadedChunk(ContentIndices* indices, Chunk* chunk) {
 
 std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 	std::shared_ptr<World> world = level->world;
+	assert(world != nullptr);
 
     auto chunk = std::make_shared<Chunk>(x, z);
 	store(chunk);

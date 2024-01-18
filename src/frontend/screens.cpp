@@ -95,9 +95,14 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
 }
 
 LevelScreen::~LevelScreen() {
-	std::cout << "-- writing world" << std::endl;
+    std::cout << "-- writing world" << std::endl;
     std::shared_ptr<World> world = level->world;
-	world->write(level.get());
+    if (world != nullptr) {
+        world->write(level.get());
+    } else {
+        std::cerr << "failed to save world" << std::endl;
+        abort();
+    }
 }
 
 void LevelScreen::updateHotkeys() {
