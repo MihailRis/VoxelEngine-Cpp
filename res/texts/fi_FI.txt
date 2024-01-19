@@ -14,6 +14,7 @@ menu.Quit=Poistu
 menu.Continue=Jatka
 menu.Save and Quit to Menu=Tallenna ja poistu valikkoon
 menu.missing-content=Puuttuu jotkut lisäosat!
+menu.Content Error=Sisältövirhe!
 menu.Controls=Ohjaus
 menu.Back to Main Menu=Takaisin Valikoon
 menu.Settings=Asetukset
@@ -23,6 +24,7 @@ menu.Name=Nimi
 menu.Create World=Luo Maailma
 
 world.convert-request=Indeksit vaihdettu! Lataa maailma uudeleen?
+world.delete-confirm=Poistetaanko maailma ikuisesti?
 
 # Настройки
 settings.Load Distance=Latausalue
