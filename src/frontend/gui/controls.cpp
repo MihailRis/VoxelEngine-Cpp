@@ -74,7 +74,9 @@ void Image::draw(Batch2D* batch, Assets* assets) {
 }
 
 // ================================= Button ===================================
-Button::Button(shared_ptr<UINode> content, glm::vec4 padding) : Panel(vec2(34,32), padding, 0) {
+Button::Button(shared_ptr<UINode> content, glm::vec4 padding)
+    : Panel(content->size()+vec2(padding[0]+padding[2]+content->margin()[0]+content->margin()[2],
+                                 padding[1]+padding[3]+content->margin()[1]+content->margin()[3]), padding, 0) {
     add(content);
     scrollable(false);
 }
