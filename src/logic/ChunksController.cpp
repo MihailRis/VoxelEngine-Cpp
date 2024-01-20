@@ -74,8 +74,8 @@ bool ChunksController::loadVisible(){
 				if (surrounding == MIN_SURROUNDING && !chunk->isLighted()) {
 					if (!chunk->isLoadedLights()) {
 						lighting->buildSkyLight(chunk->x, chunk->z);
-					    lighting->onChunkLoaded(chunk->x, chunk->z);
                     }
+                    lighting->onChunkLoaded(chunk->x, chunk->z);
 					chunk->setLighted(true);
 					return true;
 				}
