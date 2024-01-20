@@ -1,0 +1,14 @@
+{
+    "name": "voxelengine",
+    "version-string": "1.0.0",
+    "dependencies": [
+      "opengl",
+      "openal-soft",
+      "glfw3",
+      "glew",
+      "glm",
+      "libspng",
+      "zlib",
+      "luajit"
+    ]
+  }
