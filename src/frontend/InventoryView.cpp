@@ -153,31 +153,26 @@ void SlotView::draw(Batch2D* batch, Assets* assets) {
     
     batch->color = glm::vec4(1.0f);
 
-    Shader* uiShader = assets->getShader("ui");
     Viewport viewport(Window::width, Window::height);
     GfxContext ctx(nullptr, viewport, batch);
 
-    auto preview = frontend->getBlocksPreview();
+    auto previews = frontend->getBlocksAtlas();
     auto indices = content->getIndices();
 
     ItemDef* item = indices->getItemDef(stack.getItemId());
     switch (item->iconType) {
         case item_icon_type::none:
             break;
-        case item_icon_type::block: 
-            batch->render();
-            {    
-                GfxContext subctx = ctx.sub();
-                subctx.depthTest(true);
-                subctx.cullFace(true);
+        case item_icon_type::block: {
+            Block* cblock = content->requireBlock(item->icon);
+            batch->texture(previews->getTexture());
 
-                Block* cblock = content->requireBlock(item->icon);
-                preview->begin(&subctx.getViewport());
-                preview->draw(cblock, coord.x, coord.y, slotSize, tint);
-            }
-            uiShader->use();
-            batch->begin();
+            UVRegion region = previews->get(cblock->name);
+            batch->rect(
+                coord.x, coord.y, slotSize, slotSize, 
+                0, 0, 0, region, false, true, tint);
             break;
+        }
         case item_icon_type::sprite: {
             size_t index = item->icon.find(':');
             std::string name = item->icon.substr(index+1);
@@ -325,12 +320,6 @@ void InventoryView::setInventory(std::shared_ptr<Inventory> inventory) {
 
 InventoryLayout* InventoryView::getLayout() const {
     return layout.get();
-}
-
-// performance disaster x2
-void InventoryView::draw(Batch2D* batch, Assets* assets) {
-    Container::draw(batch, assets);
-    Window::clearDepth();
 }
 
 void InventoryView::drawBackground(Batch2D* batch, Assets* assets) {

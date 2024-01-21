@@ -126,7 +126,6 @@ public:
 
     void build();
 
-    virtual void draw(Batch2D* batch, Assets* assets) override;
     virtual void drawBackground(Batch2D* batch, Assets* assets) override;
 
     void setInventory(std::shared_ptr<Inventory> inventory);
@@ -138,7 +137,7 @@ public:
     void setSelected(int index);
 
     static const int SLOT_INTERVAL = 4;
-    static const int SLOT_SIZE = 48;
+    static const int SLOT_SIZE = ITEM_ICON_SIZE;
 };
 
 class InventoryInteraction {
