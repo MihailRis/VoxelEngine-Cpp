@@ -14,6 +14,7 @@
 #include "../graphics/Shader.h"
 #include "../graphics/Batch2D.h"
 #include "../graphics/GfxContext.h"
+#include "../graphics/TextureAnimation.h"
 #include "../assets/Assets.h"
 #include "../world/Level.h"
 #include "../world/World.h"
@@ -92,6 +93,9 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
 
     auto& settings = engine->getSettings();
     backlight = settings.graphics.backlight;
+
+    animator.reset(new TextureAnimator());
+    animator->addAnimations(engine->getAssets()->getAnimations());
 }
 
 LevelScreen::~LevelScreen() {
@@ -136,6 +140,7 @@ void LevelScreen::update(float delta) {
 
     if (!hud->isPause()) {
         level->world->updateTimers(delta);
+        animator->update(delta);
     }
     controller->update(delta, !inputLocked, hud->isPause());
     hud->update(hudVisible);

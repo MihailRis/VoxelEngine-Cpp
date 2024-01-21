@@ -1,9 +1,12 @@
 #ifndef ASSETS_ASSETS_H_
 #define ASSETS_ASSETS_H_
 
+#include "../graphics/TextureAnimation.h"
+
 #include <string>
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 class Texture;
 class Shader;
@@ -15,6 +18,7 @@ class Assets {
 	std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
 	std::unordered_map<std::string, std::shared_ptr<Font>> fonts;
 	std::unordered_map<std::string, std::shared_ptr<Atlas>> atlases;
+	std::vector<TextureAnimation> animations;
 public:
 	~Assets();
 	Texture* getTexture(std::string name) const;
@@ -28,6 +32,9 @@ public:
 
 	Atlas* getAtlas(std::string name) const;
 	void store(Atlas* atlas, std::string name);
+
+	const std::vector<TextureAnimation>& getAnimations();
+	void store(const TextureAnimation& animation);
 
     void extend(const Assets& assets);
 };
