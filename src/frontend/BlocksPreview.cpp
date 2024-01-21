@@ -35,7 +35,8 @@ ImageData* BlocksPreview::draw(
             // something went wrong...
             break;
         case BlockModel::block:
-            batch->blockCube(glm::vec3(size * 0.63f), texfaces, glm::vec4(1.0f), !def->rt.emissive);
+            batch->blockCube(glm::vec3(size * 0.63f), texfaces, 
+                             glm::vec4(1.0f), !def->rt.emissive);
             break;
         case BlockModel::aabb:
             batch->blockCube(def->hitbox.size() * glm::vec3(size * 0.63f), 

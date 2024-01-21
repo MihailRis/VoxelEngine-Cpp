@@ -153,9 +153,6 @@ void SlotView::draw(Batch2D* batch, Assets* assets) {
     
     batch->color = glm::vec4(1.0f);
 
-    Viewport viewport(Window::width, Window::height);
-    GfxContext ctx(nullptr, viewport, batch);
-
     auto previews = frontend->getBlocksAtlas();
     auto indices = content->getIndices();
 
