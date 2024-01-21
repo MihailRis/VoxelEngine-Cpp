@@ -18,6 +18,8 @@ public:
 	void bind();
 	void reload(ubyte* data);
 
+    ImageData* readData();
+
 	static Texture* from(const ImageData* image);
 };
 
