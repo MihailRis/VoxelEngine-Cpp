@@ -28,6 +28,8 @@
 #include "../settings.h"
 #include "../engine.h"
 #include "../items/ItemDef.h"
+#include "../items/ItemStack.h"
+#include "../items/Inventory.h"
 #include "LevelFrontend.h"
 #include "graphics/Skybox.h"
 
@@ -169,8 +171,10 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
 		shader->uniform3f("u_cameraPos", camera->position);
 		shader->uniform1i("u_cubemap", 1);
 		{
-			itemid_t id = level->player->getChosenItem();
-            ItemDef* item = indices->getItemDef(id);
+            auto player = level->player;
+            auto inventory = player->getInventory();
+            ItemStack& stack = inventory->getSlot(player->getChosenSlot());
+            ItemDef* item = indices->getItemDef(stack.getItemId());
 			assert(item != nullptr);
 			float multiplier = 0.5f;
 			shader->uniform3f("u_torchlightColor",  

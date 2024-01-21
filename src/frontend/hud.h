@@ -15,12 +15,15 @@ class Assets;
 class Player;
 class Level;
 class Engine;
+class SlotView;
 class InventoryView;
 class LevelFrontend;
+class InventoryInteraction;
 
 namespace gui {
 	class GUI;
 	class UINode;
+    class Panel;
 }
 
 class HudRenderer {
@@ -34,13 +37,21 @@ class HudRenderer {
 	bool inventoryOpen = false;
 	bool pause = false;
 
-    std::unique_ptr<InventoryView> contentAccess;
-    std::unique_ptr<InventoryView> hotbarView;
+    std::shared_ptr<gui::Panel> contentAccessPanel;
+    std::shared_ptr<InventoryView> contentAccess;
+    std::shared_ptr<InventoryView> hotbarView;
+    std::shared_ptr<InventoryView> inventoryView;
 	std::shared_ptr<gui::UINode> debugPanel;
+    std::unique_ptr<InventoryInteraction> interaction;
+    std::shared_ptr<SlotView> grabbedItemView;
 	gui::GUI* gui;
 	LevelFrontend* frontend;
 
     void createDebugPanel(Engine* engine);
+
+    std::shared_ptr<InventoryView> createContentAccess();
+    std::shared_ptr<InventoryView> createHotbar();
+    std::shared_ptr<InventoryView> createInventory();
 public:
 	HudRenderer(Engine* engine, LevelFrontend* frontend);
 	~HudRenderer();

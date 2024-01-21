@@ -1,146 +1,334 @@
 #include "InventoryView.h"
 
+#include <iostream>
 #include <glm/glm.hpp>
 
 #include "BlocksPreview.h"
 #include "LevelFrontend.h"
 #include "../window/Events.h"
+#include "../window/input.h"
 #include "../assets/Assets.h"
 #include "../graphics/Atlas.h"
 #include "../graphics/Shader.h"
 #include "../graphics/Batch2D.h"
 #include "../graphics/GfxContext.h"
+#include "../graphics/Font.h"
 #include "../content/Content.h"
 #include "../items/ItemDef.h"
+#include "../items/Inventory.h"
 #include "../maths/voxmaths.h"
 #include "../objects/Player.h"
 #include "../voxels/Block.h"
+#include "../frontend/gui/controls.h"
+#include "../util/stringutil.h"
+
+InventoryLayout::InventoryLayout(glm::vec2 size) : size(size) {}
+
+void InventoryLayout::add(SlotLayout slot) {
+    slots.push_back(slot);
+}
+
+void InventoryLayout::setSize(glm::vec2 size) {
+    this->size = size;
+}
+
+void InventoryLayout::setOrigin(glm::vec2 origin) {
+    this->origin = origin;
+}
+
+glm::vec2 InventoryLayout::getSize() const {
+    return size;
+}
+
+glm::vec2 InventoryLayout::getOrigin() const {
+    return origin;
+}
+
+std::vector<SlotLayout>& InventoryLayout::getSlots() {
+    return slots;
+}
+
+SlotLayout::SlotLayout(
+    glm::vec2 position,
+    bool background,
+    bool itemSource,
+    itemsharefunc shareFunc,
+    slotcallback rightClick
+) 
+    : position(position),
+      background(background),
+      itemSource(itemSource),
+      shareFunc(shareFunc),
+      rightClick(rightClick) {}
+
+InventoryPanel::InventoryPanel(
+    glm::vec2 position,
+    glm::vec2 size,
+    glm::vec4 color)
+    : position(position), size(size), color(color) {}
+
+InventoryBuilder::InventoryBuilder() 
+    : layout(std::make_unique<InventoryLayout>(glm::vec2()))
+{}
+
+void InventoryBuilder::addGrid(
+    int cols, int rows, 
+    glm::vec2 coord, 
+    int padding, 
+    SlotLayout slotLayout) 
+{
+    const int slotSize = InventoryView::SLOT_SIZE;
+    const int interval = InventoryView::SLOT_INTERVAL;
+
+    uint width =  cols * (slotSize + interval) - interval + padding*2;
+    uint height = rows * (slotSize + interval) - interval + padding*2;
+    
+    auto lsize = layout->getSize();
+    if (coord.x + width > lsize.x) {
+        lsize.x = coord.x + width;
+    }
+    if (coord.y + height > lsize.y) {
+        lsize.y = coord.y + height;
+    }
+    layout->setSize(lsize);
+
+    for (int row = 0; row < rows; row++) {
+        for (int col = 0; col < cols; col++) {
+            glm::vec2 position (
+                col * (slotSize + interval) + padding,
+                row * (slotSize + interval) + padding
+            );
+            auto builtSlot = slotLayout;
+            builtSlot.position = position;
+            layout->add(builtSlot);
+        }
+    }
+}
+
+std::unique_ptr<InventoryLayout> InventoryBuilder::build() {
+    return std::unique_ptr<InventoryLayout>(layout.release());
+}
+
+SlotView::SlotView(
+    ItemStack& stack, 
+    LevelFrontend* frontend,
+    InventoryInteraction* interaction,
+    const Content* content,
+    SlotLayout layout) 
+    : UINode(glm::vec2(), glm::vec2(InventoryView::SLOT_SIZE)), 
+      frontend(frontend),
+      interaction(interaction),
+      content(content),
+      stack(stack),
+      layout(layout) {
+    color(glm::vec4(0, 0, 0, 0.2f));
+}
+
+// performance disaster
+void SlotView::draw(Batch2D* batch, Assets* assets) {
+    glm::vec2 coord = calcCoord();
+
+    int slotSize = InventoryView::SLOT_SIZE;
+
+    glm::vec4 tint(1.0f);
+    glm::vec4 color = color_;
+    if (hover_ || highlighted) {
+        tint *= 1.333f;
+        color = glm::vec4(1, 1, 1, 0.2f);
+    }
+
+    batch->color = color;
+    if (color.a > 0.0) {
+        batch->texture(nullptr);
+        if (highlighted) {
+            batch->rect(coord.x-4, coord.y-4, slotSize+8, slotSize+8);
+        } else {
+            batch->rect(coord.x, coord.y, slotSize, slotSize);
+        }
+    }
+    
+    batch->color = glm::vec4(1.0f);
+
+    Shader* uiShader = assets->getShader("ui");
+    Viewport viewport(Window::width, Window::height);
+    GfxContext ctx(nullptr, viewport, batch);
+
+    auto preview = frontend->getBlocksPreview();
+    auto indices = content->getIndices();
+
+    ItemDef* item = indices->getItemDef(stack.getItemId());    
+    switch (item->iconType) {
+        case item_icon_type::none:
+            break;
+        case item_icon_type::block: 
+            batch->render();
+            {    
+                GfxContext subctx = ctx.sub();
+                subctx.depthTest(true);
+                subctx.cullFace(true);
+
+                Block* cblock = content->requireBlock(item->icon);
+                preview->begin(&subctx.getViewport());
+                preview->draw(cblock, coord.x, coord.y, slotSize, tint);
+            }
+            uiShader->use();
+            batch->begin();
+            break;
+        case item_icon_type::sprite: {
+            size_t index = item->icon.find(':');
+            std::string name = item->icon.substr(index+1);
+            UVRegion region(0.0f, 0.0, 1.0f, 1.0f);
+            if (index == std::string::npos) {
+                batch->texture(assets->getTexture(name));
+            } else {
+                std::string atlasname = item->icon.substr(0, index);
+                Atlas* atlas = assets->getAtlas(atlasname);
+                if (atlas && atlas->has(name)) {
+                    region = atlas->get(name);
+                    batch->texture(atlas->getTexture());
+                }
+            }
+            batch->rect(
+                coord.x, coord.y, slotSize, slotSize, 
+                0, 0, 0, region, false, true, tint);
+            break;
+        }
+    }
+
+    if (stack.getCount() > 1) {
+        auto font = assets->getFont("normal");
+        std::wstring text = std::to_wstring(stack.getCount());
+
+        int x = coord.x+slotSize-text.length()*8;
+        int y = coord.y+slotSize-16;
+
+        batch->color = glm::vec4(0, 0, 0, 1.0f);
+        font->draw(batch, text, x+1, y+1);
+        batch->color = glm::vec4(1.0f);
+        font->draw(batch, text, x, y);
+    }
+}
+
+void SlotView::setHighlighted(bool flag) {
+    highlighted = flag;
+}
+
+bool SlotView::isHighlighted() const {
+    return highlighted;
+}
+
+void SlotView::clicked(gui::GUI* gui, int button) {
+    ItemStack& grabbed = interaction->getGrabbedItem();
+    if (button == mousecode::BUTTON_1) {
+        if (Events::pressed(keycode::LEFT_SHIFT)) {
+            if (layout.shareFunc) {
+                layout.shareFunc(stack);
+            }
+            return;
+        }
+        if (!layout.itemSource && stack.accepts(grabbed)) {
+            stack.move(grabbed, content->getIndices());
+        } else {
+            if (layout.itemSource) {
+                if (grabbed.isEmpty()) {
+                    grabbed.set(stack);
+                } else {
+                    grabbed.clear();
+                }
+            } else {
+                std::swap(grabbed, stack);
+            }
+        }
+    } else if (button == mousecode::BUTTON_2) {
+        if (layout.rightClick) {
+            layout.rightClick(stack, grabbed);
+            return;
+        }
+        if (layout.itemSource)
+            return;
+        if (grabbed.isEmpty()) {
+            if (!stack.isEmpty()) {
+                grabbed.set(stack);
+                int halfremain = stack.getCount() / 2;
+                grabbed.setCount(stack.getCount() - halfremain);
+                stack.setCount(halfremain);
+            }
+        } else {
+            if (stack.isEmpty()) {
+                stack.set(grabbed);
+                stack.setCount(1);
+            } else {
+                stack.setCount(stack.getCount()+1);
+            }
+            grabbed.setCount(grabbed.getCount()-1);
+        }
+    }
+}
 
 InventoryView::InventoryView(
-            int columns,
             const Content* content,
             LevelFrontend* frontend,
-            std::vector<itemid_t> items) 
-            : content(content),
+            InventoryInteraction* interaction,
+            std::shared_ptr<Inventory> inventory,
+            std::unique_ptr<InventoryLayout> layout) 
+            : Container(glm::vec2(), glm::vec2()),
+              content(content),
               indices(content->getIndices()), 
-              items(items),
+              inventory(inventory),
+              layout(std::move(layout)),
               frontend(frontend),
-              columns(columns) {
+              interaction(interaction) {
+    size(this->layout->getSize());
+    color(glm::vec4(0, 0, 0, 0.5f));
 }
 
-InventoryView::~InventoryView() {
-}
+InventoryView::~InventoryView() {}
 
-void InventoryView::setPosition(int x, int y) {
-    position.x = x;
-    position.y = y;
-}
+void InventoryView::build() {
+    int index = 0;
+    for (auto& slot : layout->getSlots()) {
+        ItemStack& item = inventory->getSlot(index);
 
-int InventoryView::getWidth() const {
-    return columns * iconSize + (columns-1) * interval + padding.x * 2;
-}
-
-int InventoryView::getHeight() const {
-    uint inv_rows = ceildiv(items.size(), columns);
-    return inv_rows * iconSize + (inv_rows-1) * interval + padding.y * 2;
-}
-
-void InventoryView::setSlotConsumer(slotconsumer consumer) {
-    this->consumer = consumer;
-}
-
-void InventoryView::setItems(std::vector<itemid_t> items) {
-    this->items = items;
-}
-
-void InventoryView::actAndDraw(const GfxContext* ctx) {
-    Assets* assets = frontend->getAssets();
-    Shader* uiShader = assets->getShader("ui");
-
-    auto viewport = ctx->getViewport();
-	uint inv_w = getWidth();
-	uint inv_h = getHeight();
-	int xs = position.x + padding.x;
-	int ys = position.y + padding.y;
-
-	glm::vec4 tint (1.0f);
-	int mx = Events::cursor.x;
-	int my = Events::cursor.y;
-
-	// background
-    auto batch = ctx->getBatch2D();
-	batch->texture(nullptr);
-	batch->color = glm::vec4(0.0f, 0.0f, 0.0f, 0.5f);
-	batch->rect(position.x, position.y, inv_w, inv_h);
-	batch->render();
-
-	// blocks & items
-    if (Events::scroll) {
-        scroll -= Events::scroll * (iconSize+interval);
+        auto view = std::make_shared<SlotView>(
+            item, frontend, interaction, content, slot
+        );
+        if (!slot.background) {
+            view->color(glm::vec4());
+        }
+        slots.push_back(view.get());
+        add(view, slot.position);
+        index++;
     }
-    scroll = std::min(scroll, int(inv_h-viewport.getHeight()));
-    scroll = std::max(scroll, 0);
+}
 
-    auto blocksPreview = frontend->getBlocksPreview();
-    // todo: optimize
-	{
-		Window::clearDepth();
-		GfxContext subctx = ctx->sub();
-		subctx.depthTest(true);
-		subctx.cullFace(true);
-        uint index = 0;
-		for (uint i = 0; i < items.size(); i++) {
-            ItemDef* item = indices->getItemDef(items[i]);
-			int x = xs + (iconSize+interval) * (index % columns);
-			int y = ys + (iconSize+interval) * (index / columns) - scroll;
-            if (y < -int(iconSize+interval) || y >= int(viewport.getHeight())) {
-                index++;
-                continue;
-            }
-			if (mx > x && mx < x + (int)iconSize && my > y && my < y + (int)iconSize) {
-				tint.r *= 1.2f;
-				tint.g *= 1.2f;
-				tint.b *= 1.2f;
-				if (Events::jclicked(mousecode::BUTTON_1)) {
-                    if (consumer) {
-                        consumer(items[i]);
-                    }
-				}
-			} else {
-				tint = glm::vec4(1.0f);
-			}
-            switch (item->iconType) {
-                case item_icon_type::none:
-                    break;
-                case item_icon_type::block: {
-                    Block* cblock = content->requireBlock(item->icon);
-                    blocksPreview->begin(&ctx->getViewport());
-                    blocksPreview->draw(cblock, x, y, iconSize, tint);
-                    break;
-                }
-                case item_icon_type::sprite: {
-                    batch->begin();
-                    uiShader->use();
-                    size_t index = item->icon.find(':');
-                    std::string name = item->icon.substr(index+1);
-                    UVRegion region(0.0f, 0.0, 1.0f, 1.0f);
-                    if (index == std::string::npos) {
-                        batch->texture(assets->getTexture(name));
-                    } else {
-                        std::string atlasname = item->icon.substr(0, index);
-                        Atlas* atlas = assets->getAtlas(atlasname);
-                        if (atlas && atlas->has(name)) {
-                            region = atlas->get(name);
-                            batch->texture(atlas->getTexture());
-                        }
-                    }
-                    batch->rect(x, y, 48, 48, 0, 0, 0, region, false, true, glm::vec4(1.0f));
-                    batch->render();
-                    break;
-                }
-            }
-            index++;
-		}
-	}
-	uiShader->use();
+void InventoryView::setSelected(int index) {
+    for (int i = 0; i < int(slots.size()); i++) {
+        auto slot = slots[i];
+        slot->setHighlighted(i == index);
+    }
+}
+
+void InventoryView::setCoord(glm::vec2 coord) {
+    Container::setCoord(coord - layout->getOrigin());
+}
+
+void InventoryView::setInventory(std::shared_ptr<Inventory> inventory) {
+    this->inventory = inventory;
+}
+
+InventoryLayout* InventoryView::getLayout() const {
+    return layout.get();
+}
+
+// performance disaster x2
+void InventoryView::draw(Batch2D* batch, Assets* assets) {
+    Container::draw(batch, assets);
+    Window::clearDepth();
+}
+
+void InventoryView::drawBackground(Batch2D* batch, Assets* assets) {
+    glm::vec2 coord = calcCoord();
+    batch->texture(nullptr);
+    batch->color = color_;
+    batch->rect(coord.x-1, coord.y-1, size_.x+2, size_.y+2);
 }
