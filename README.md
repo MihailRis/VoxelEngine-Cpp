@@ -100,3 +100,20 @@ docker run --rm -it -v$(pwd):/project voxel-engine bash -c "cmake -DCMAKE_BUILD_
 ```
 docker run --rm -it -v$(pwd):/project -v/tmp/.X11-unix:/tmp/.X11-unix -v${XAUTHORITY}:/home/user/.Xauthority:ro -eDISPLAY --network=host voxel-engine ./build/VoxelEngine
 ```
+
+## Build with CMake and vcpkg for Windows
+
+```sh
+git clone --recursive https://github.com/MihailRis/VoxelEngine-Cpp.git
+cd VoxelEngine-Cpp
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..
+del CMakeCache.txt
+rmdir /s /q CMakeFiles
+cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..
+cmake --build . --config Release
+```
+note: you can use ```rm CMakeCache.txt``` and ```rm -rf CMakeFiles``` while using Git Bash
+
+If you have issues during the vcpkg integration, try navigate to ```vcpkg\downloads``` and extract PowerShell-[version]-win-x86 to ```vcpkg\downloads\tools``` as powershell-core-[version]-windows. Then rerun ```cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..```
