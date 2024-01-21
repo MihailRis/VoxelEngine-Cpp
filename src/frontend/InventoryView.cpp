@@ -156,7 +156,7 @@ void SlotView::draw(Batch2D* batch, Assets* assets) {
     auto preview = frontend->getBlocksPreview();
     auto indices = content->getIndices();
 
-    ItemDef* item = indices->getItemDef(stack.getItemId());    
+    ItemDef* item = indices->getItemDef(stack.getItemId());
     switch (item->iconType) {
         case item_icon_type::none:
             break;
@@ -285,8 +285,11 @@ InventoryView::InventoryView(
 InventoryView::~InventoryView() {}
 
 void InventoryView::build() {
-    int index = 0;
+    size_t index = 0;
     for (auto& slot : layout->getSlots()) {
+        if (index >= inventory->size())
+            break;
+
         ItemStack& item = inventory->getSlot(index);
 
         auto view = std::make_shared<SlotView>(

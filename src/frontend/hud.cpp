@@ -177,31 +177,21 @@ std::shared_ptr<InventoryView> HudRenderer::createContentAccess() {
         accessInventory->getSlot(id-1).set(ItemStack(id, 1));
     }
 
-    const int slotSize = InventoryView::SLOT_SIZE;
-    const int interval = InventoryView::SLOT_INTERVAL;
-    int padding = 8;
+    SlotLayout slotLayout(glm::vec2(), false, true, 
+    [=](ItemStack& item) {
+        auto copy = ItemStack(item);
+        inventory->move(copy, indices);
+    }, 
+    [=](ItemStack& item, ItemStack& grabbed) {
+        inventory->getSlot(player->getChosenSlot()).set(item);
+    });
 
     int columns = 8;
     int rows = ceildiv(itemsCount-1, columns);
-    uint cawidth = columns * (slotSize + interval) - interval + padding;
-    uint caheight = rows * (slotSize + interval) - interval + padding*2;
-    auto layout = std::make_unique<InventoryLayout>(glm::vec2(cawidth, caheight));
-    for (int i = 0; i < itemsCount-1; i++) {
-        int row = i / columns;
-        int col = i % columns;
-        glm::vec2 position (
-            col * slotSize + (col-1) * interval + padding,
-            row * slotSize + (row-1) * interval + padding
-        );
-        layout->add(SlotLayout(position, false, true, 
-        [=](ItemStack& item) {
-            auto copy = ItemStack(item);
-            inventory->move(copy, indices);
-        }, 
-        [=](ItemStack& item, ItemStack& grabbed) {
-            inventory->getSlot(player->getChosenSlot()).set(item);
-        }));
-    }
+    InventoryBuilder builder;
+    builder.addGrid(columns, rows, glm::vec2(), 8, slotLayout);
+    auto layout = builder.build();
+    
     auto contentAccess = std::make_shared<InventoryView>(
         content, 
 		frontend, 
@@ -219,18 +209,12 @@ std::shared_ptr<InventoryView> HudRenderer::createHotbar() {
     auto inventory = player->getInventory();
     auto content = level->content;
 
-    const int slotSize = InventoryView::SLOT_SIZE;
-    const int interval = InventoryView::SLOT_INTERVAL;
+    SlotLayout slotLayout(glm::vec2(), false, false, nullptr, nullptr);
+    InventoryBuilder builder;
+    builder.addGrid(10, 1, glm::vec2(), 4, slotLayout);
+    auto layout = builder.build();
 
-    int padding = 4;
-    uint width = 10 * (slotSize + interval) - interval + padding*2;
-    uint height = slotSize + padding * 2;
-    auto layout = std::make_unique<InventoryLayout>(glm::vec2(width, height));
-    for (int i = 0; i < 10; i++) {
-        glm::vec2 position (i * (slotSize + interval) + padding, padding);
-        layout->add(SlotLayout(position, false, false, nullptr, nullptr));
-    }
-    layout->setOrigin(glm::vec2(width / 2, 0));
+    layout->setOrigin(glm::vec2(layout->getSize().x/2, 0));
     auto view = std::make_shared<InventoryView>(
         content, 
 		frontend, 
