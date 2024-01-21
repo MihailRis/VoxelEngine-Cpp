@@ -72,7 +72,7 @@ public:
     InventoryBuilder();
 
     void addGrid(
-        int cols, int rows, 
+        int cols, int count, 
         glm::vec2 coord, 
         int padding, 
         SlotLayout slotLayout);

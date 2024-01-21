@@ -186,12 +186,10 @@ std::shared_ptr<InventoryView> HudRenderer::createContentAccess() {
         inventory->getSlot(player->getChosenSlot()).set(item);
     });
 
-    int columns = 8;
-    int rows = ceildiv(itemsCount-1, columns);
     InventoryBuilder builder;
-    builder.addGrid(columns, rows, glm::vec2(), 8, slotLayout);
+    builder.addGrid(8, itemsCount-1, glm::vec2(), 8, slotLayout);
     auto layout = builder.build();
-    
+
     auto contentAccess = std::make_shared<InventoryView>(
         content, 
 		frontend, 
@@ -211,7 +209,7 @@ std::shared_ptr<InventoryView> HudRenderer::createHotbar() {
 
     SlotLayout slotLayout(glm::vec2(), false, false, nullptr, nullptr);
     InventoryBuilder builder;
-    builder.addGrid(10, 1, glm::vec2(), 4, slotLayout);
+    builder.addGrid(10, 10, glm::vec2(), 4, slotLayout);
     auto layout = builder.build();
 
     layout->setOrigin(glm::vec2(layout->getSize().x/2, 0));
@@ -236,13 +234,9 @@ std::shared_ptr<InventoryView> HudRenderer::createInventory() {
     SlotLayout slotLayout(glm::vec2(), true, false, [=](ItemStack& stack) {
         stack.clear();
     }, nullptr);
-    
-    int columns = 10;
-    int rows = ceildiv(inventory->size(), columns);
-    int padding = 4;
 
     InventoryBuilder builder;
-    builder.addGrid(columns, rows, glm::vec2(), padding, slotLayout);
+    builder.addGrid(10, inventory->size(), glm::vec2(), 4, slotLayout);
     auto layout = builder.build();
 
     auto view = std::make_shared<InventoryView>(

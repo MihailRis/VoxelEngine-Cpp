@@ -72,13 +72,15 @@ InventoryBuilder::InventoryBuilder()
 {}
 
 void InventoryBuilder::addGrid(
-    int cols, int rows, 
+    int cols, int count, 
     glm::vec2 coord, 
     int padding, 
     SlotLayout slotLayout) 
 {
     const int slotSize = InventoryView::SLOT_SIZE;
     const int interval = InventoryView::SLOT_INTERVAL;
+
+    int rows = ceildiv(count, cols);
 
     uint width =  cols * (slotSize + interval) - interval + padding*2;
     uint height = rows * (slotSize + interval) - interval + padding*2;
