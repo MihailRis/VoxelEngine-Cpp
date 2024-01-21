@@ -10,8 +10,6 @@ using gui::Align;
 using glm::vec2;
 using glm::vec4;
 
-#include <iostream>
-
 UINode::UINode(vec2 coord, vec2 size) : coord(coord), size_(size) {
 }
 
@@ -85,7 +83,7 @@ shared_ptr<UINode> UINode::getAt(vec2 pos, shared_ptr<UINode> self) {
 }
 
 bool UINode::isInteractive() const {
-    return interactive;
+    return interactive && visible();
 }
 
 void UINode::setInteractive(bool flag) {

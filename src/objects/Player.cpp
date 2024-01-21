@@ -5,6 +5,7 @@
 #include "../world/Level.h"
 #include "../window/Events.h"
 #include "../window/Camera.h"
+#include "../items/Inventory.h"
 
 #include <glm/glm.hpp>
 
@@ -18,12 +19,16 @@ const float JUMP_FORCE = 8.0f;
 
 Player::Player(glm::vec3 position, float speed) :
 		speed(speed),
-		chosenItem(0),
+		chosenSlot(0),
 	    camera(new Camera(position, glm::radians(90.0f))),
 	    spCamera(new Camera(position, glm::radians(90.0f))),
 	    tpCamera(new Camera(position, glm::radians(90.0f))),
         currentCamera(camera),
-	    hitbox(new Hitbox(position, glm::vec3(0.3f,0.9f,0.3f))) {
+	    hitbox(new Hitbox(position, glm::vec3(0.3f,0.9f,0.3f))),
+        inventory(new Inventory(40)) {
+}
+
+Player::~Player() {
 }
 
 void Player::update(
@@ -118,14 +123,18 @@ void Player::teleport(glm::vec3 position) {
 	hitbox->position = position;
 }
 
-void Player::setChosenItem(itemid_t id) {
-    chosenItem = id;
+void Player::setChosenSlot(int index) {
+    chosenSlot = index;
 }
 
-itemid_t Player::getChosenItem() const {
-    return chosenItem;
+int Player::getChosenSlot() const {
+    return chosenSlot;
 }
 
 float Player::getSpeed() const {
 	return speed;
+}
+
+std::shared_ptr<Inventory> Player::getInventory() const {
+    return inventory;
 }
