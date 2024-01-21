@@ -13,6 +13,7 @@
 #include "../../voxels/voxel.h"
 #include "../../lighting/Lighting.h"
 #include "../../logic/BlocksController.h"
+#include "../../engine.h"
 
 inline int lua_pushivec3(lua_State* L, int x, int y, int z) {
     lua_pushinteger(L, x);
@@ -27,7 +28,25 @@ inline void luaL_openlib(lua_State* L, const char* name, const luaL_Reg* libfunc
     lua_setglobal(L, name);
 }
 
-/* == world library ==*/
+/* == pack library == */
+static int l_pack_get_folder(lua_State* L) {
+    std::string packName = lua_tostring(L, 1);
+    for (auto& pack : scripting::engine->getContentPacks()) {
+        if (pack.id == packName) {
+            lua_pushstring(L, (pack.folder.u8string()+"/").c_str());
+            return 1;
+        }
+    }
+    lua_pushstring(L, "");
+    return 1;
+}
+
+static const luaL_Reg packlib [] = {
+    {"get_folder", l_pack_get_folder},
+    {NULL, NULL}
+};
+
+/* == world library == */
 static int l_world_get_day_time(lua_State* L) {
     lua_pushnumber(L, scripting::level->world->daytime);
     return 1;
@@ -266,6 +285,7 @@ static int l_is_replaceable_at(lua_State* L) {
                                     lua_setglobal(L, NAME))
 
 void apilua::create_funcs(lua_State* L) {
+    luaL_openlib(L, "pack", packlib, 0);
     luaL_openlib(L, "world", worldlib, 0);
     luaL_openlib(L, "player", playerlib, 0);
 

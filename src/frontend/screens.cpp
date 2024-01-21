@@ -73,7 +73,7 @@ void MenuScreen::draw(float delta) {
     uint height = Window::height;
 
     batch->begin();
-    batch->texture(engine->getAssets()->getTexture("menubg"));
+    batch->texture(engine->getAssets()->getTexture("gui/menubg"));
     batch->rect(0, 0, 
                 width, height, 0, 0, 0, 
                 UVRegion(0, 0, width/64, height/64), 

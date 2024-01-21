@@ -13,6 +13,8 @@
 #include "../window/Events.h"
 #include "../window/input.h"
 #include "../items/ItemDef.h"
+#include "../items/ItemStack.h"
+#include "../items/Inventory.h"
 #include "scripting/scripting.h"
 #include "BlocksController.h"
 
@@ -239,7 +241,9 @@ void PlayerController::updateInteraction(){
 		int z = iend.z;
 		uint8_t states = 0;
 
-        ItemDef* item = indices->getItemDef(player->getChosenItem());
+        auto inventory = player->getInventory();
+        ItemStack& stack = inventory->getSlot(player->getChosenSlot());
+        ItemDef* item = indices->getItemDef(stack.getItemId());
 		Block* def = indices->getBlockDef(item->rt.placingBlock);
 		if (def && def->rotatable){
 			const std::string& name = def->rotations.name;
@@ -285,7 +289,7 @@ void PlayerController::updateInteraction(){
                 scripting::on_block_interact(player, target, x, y, z);
                 return;
             }
-			if (target->model != BlockModel::xsprite){
+			if (!target->replaceable){
 				x = (iend.x)+(norm.x);
 				y = (iend.y)+(norm.y);
 				z = (iend.z)+(norm.z);
@@ -311,7 +315,18 @@ void PlayerController::updateInteraction(){
 		}
 		if (Events::jactive(BIND_PLAYER_PICK)){
             Block* block = indices->getBlockDef(chunks->get(x,y,z)->id);
-            player->setChosenItem(block->rt.pickingItem);
+			itemid_t id = block->rt.pickingItem;
+			auto inventory = player->getInventory();
+			size_t slotid = inventory->findSlotByItem(id);
+			if (slotid == Inventory::npos) {
+				slotid = player->getChosenSlot();
+			} else {
+				player->setChosenSlot(slotid);
+			}
+			ItemStack& stack = inventory->getSlot(slotid);
+			if (stack.getItemId() != id) {
+				stack.set(ItemStack(id, 1));
+			}
 		}
 	} else {
 		selectedBlockId = -1;

@@ -46,7 +46,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 	}
 
     auto resdir = paths->getResources();
-    scripting::initialize(paths);
+    scripting::initialize(this);
 
 	std::cout << "-- loading assets" << std::endl;
     std::vector<fs::path> roots {resdir};

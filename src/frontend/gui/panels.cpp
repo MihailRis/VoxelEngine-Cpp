@@ -18,6 +18,9 @@ Container::Container(vec2 coord, vec2 size) : UINode(coord, size) {
 }
 
 shared_ptr<UINode> Container::getAt(vec2 pos, shared_ptr<UINode> self) {
+    if (!interactive) {
+        return nullptr;
+    }
     if (!isInside(pos)) return nullptr;
     for (auto node : nodes) {
         if (!node->visible())
@@ -58,7 +61,7 @@ void Container::act(float delta) {
 void Container::scrolled(int value) {
     int diff = (actualLength-size().y);
     if (diff > 0 && scrollable_) {
-        scroll += value * 20;
+        scroll += value * 40;
         if (scroll > 0)
             scroll = 0;
         if (-scroll > diff) {
@@ -96,6 +99,11 @@ void Container::add(shared_ptr<UINode> node) {
 
 void Container::add(UINode* node) {
     add(shared_ptr<UINode>(node));
+}
+
+void Container::add(shared_ptr<UINode> node, glm::vec2 coord) {
+    node->setCoord(coord);
+    add(node);
 }
 
 void Container::remove(shared_ptr<UINode> selected) {
@@ -190,15 +198,12 @@ void Panel::refresh() {
             node->refresh();
             maxh = fmax(maxh, y+margin.y+node->size().y+margin.w+padding.w);
         }
-        bool increased = maxh > size.y;
         if (resizing_) {
             if (maxLength_)
                 this->size(vec2(glm::min(maxLength_, (int)(x+padding.z)), size.y));
             else
                 this->size(vec2(x+padding.z, size.y));
         }
-        if (increased)
-            refresh();
         actualLength = size.y;
     }
 }

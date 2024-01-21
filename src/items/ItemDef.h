@@ -22,6 +22,7 @@ class ItemDef {
 public:
     std::string const name;
 
+    itemcount_t stackSize = 64;
     bool generated = false;
     uint8_t emission[4] {0, 0, 0, 0};
 
@@ -29,6 +30,7 @@ public:
     std::string icon = "blocks:notfound";
 
     std::string placingBlock = "core:air";
+    std::string scriptName = name.substr(name.find(':')+1);
 
     struct {
         itemid_t id;

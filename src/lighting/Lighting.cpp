@@ -7,11 +7,10 @@
 #include "../voxels/voxel.h"
 #include "../voxels/Block.h"
 #include "../constants.h"
+#include "../typedefs.h"
 
 #include <memory>
 #include <iostream>
-
-using std::shared_ptr;
 
 Lighting::Lighting(const Content* content, Chunks* chunks) 
 	     : content(content), chunks(chunks) {
@@ -31,7 +30,7 @@ Lighting::~Lighting(){
 
 void Lighting::clear(){
 	for (unsigned int index = 0; index < chunks->volume; index++){
-		shared_ptr<Chunk> chunk = chunks->chunks[index];
+		auto chunk = chunks->chunks[index];
 		if (chunk == nullptr)
 			continue;
 		Lightmap* lightmap = chunk->lightmap;
@@ -98,10 +97,10 @@ void Lighting::onChunkLoaded(int cx, int cz){
 	const Block* const* blockDefs = content->getIndices()->getBlockDefs();
 	const Chunk* chunk = chunks->getChunk(cx, cz);
 
-	for (unsigned int y = 0; y < CHUNK_H; y++){
-		for (unsigned int z = 0; z < CHUNK_D; z++){
-			for (unsigned int x = 0; x < CHUNK_W; x++){
-				voxel vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
+	for (uint y = 0; y < CHUNK_H; y++){
+		for (uint z = 0; z < CHUNK_D; z++){
+			for (uint x = 0; x < CHUNK_W; x++){
+				voxel& vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
 				const Block* block = blockDefs[vox.id];
 				int gx = x + cx * CHUNK_W;
 				int gz = z + cz * CHUNK_D;

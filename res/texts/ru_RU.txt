@@ -24,6 +24,7 @@ world.Name=Название
 menu.Create World=Создать Мир
 
 world.convert-request=Есть изменения в индексах! Конвертировать мир?
+world.delete-confirm=Удалить мир безвозвратно?
 
 # Настройки
 settings.Load Distance=Дистанция Загрузки

@@ -5,6 +5,7 @@
 #include "../typedefs.h"
 
 namespace gzip {
+    const unsigned char MAGIC[] = "\x1F\x8B";
     std::vector<ubyte> compress(const ubyte* src, size_t size);
     std::vector<ubyte> decompress(const ubyte* src, size_t size);
 }

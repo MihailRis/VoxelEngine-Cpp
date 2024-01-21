@@ -9,6 +9,7 @@
 
 class Camera;
 class Hitbox;
+class Inventory;
 class PhysicsSolver;
 class Chunks;
 class Level;
@@ -30,11 +31,12 @@ struct PlayerInput {
 
 class Player {
 	float speed;
-    itemid_t chosenItem;
+    int chosenSlot;
 public:
 	std::shared_ptr<Camera> camera, spCamera, tpCamera;
     std::shared_ptr<Camera> currentCamera;
 	std::unique_ptr<Hitbox> hitbox;
+    std::shared_ptr<Inventory> inventory;
 	bool flight = false;
 	bool noclip = false;
 	bool debug = false;
@@ -43,15 +45,17 @@ public:
 	glm::vec2 cam = {};
 
 	Player(glm::vec3 position, float speed);
-	~Player() = default;
+	~Player();
 
 	void teleport(glm::vec3 position);
 	void update(Level* level, PlayerInput& input, float delta);
 
-    void setChosenItem(itemid_t id);
+    void setChosenSlot(int index);
 
-    itemid_t getChosenItem() const;
+    int getChosenSlot() const;
 	float getSpeed() const;
+    
+    std::shared_ptr<Inventory> getInventory() const;
 };
 
 #endif /* SRC_OBJECTS_PLAYER_H_ */

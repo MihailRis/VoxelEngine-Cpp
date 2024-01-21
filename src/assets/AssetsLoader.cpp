@@ -58,7 +58,8 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, bool allAssets) {
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui3d", "ui3d");
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/background", "background");
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/skybox_gen", "skybox_gen");
-        loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/menubg.png", "menubg");
+        loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/menubg.png", "gui/menubg");
+        loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/delete_icon.png", "gui/delete_icon");
         loader.add(ASSET_FONT, FONTS_FOLDER"/font", "normal");
     }
     loader.add(ASSET_ATLAS, TEXTURES_FOLDER"/blocks", "blocks");
