@@ -13,6 +13,7 @@ class Camera;
 class Batch2D;
 class LevelFrontend;
 class LevelController;
+class TextureAnimator;
 
 /* Screen is a mainloop state */
 class Screen {
@@ -42,7 +43,8 @@ class LevelScreen : public Screen {
     std::unique_ptr<HudRenderer> hud;
     std::unique_ptr<WorldRenderer> worldRenderer;
     std::unique_ptr<LevelController> controller;
-    
+    std::unique_ptr<TextureAnimator> animator;
+
     bool hudVisible = true;
     void updateHotkeys();
 public:
