@@ -11,6 +11,7 @@
 
 class ContentIndices;
 
+// TODO: items indices fix
 class Inventory {
     std::vector<ItemStack> slots;
 public:

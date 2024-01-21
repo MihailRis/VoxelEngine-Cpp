@@ -17,6 +17,7 @@
 #include "../coders/json.h"
 #include "../constants.h"
 #include "../items/ItemDef.h"
+#include "../items/Inventory.h"
 
 #include "../data/dynamic.h"
 
@@ -526,7 +527,7 @@ bool WorldFiles::readWorldInfo(World* world) {
 	return true;
 }
 
-void WorldFiles::writePlayer(Player* player){
+void WorldFiles::writePlayer(Player* player) {
 	glm::vec3 position = player->hitbox->position;
 	dynamic::Map root;
 	auto& posarr = root.putList("position");
@@ -540,6 +541,8 @@ void WorldFiles::writePlayer(Player* player){
 	
 	root.put("flight", player->flight);
 	root.put("noclip", player->noclip);
+    root.put("chosen-slot", player->getChosenSlot());
+    root.put("inventory", player->getInventory()->write().release());
 
 	files::write_json(getPlayerFile(), &root);
 }
@@ -565,5 +568,11 @@ bool WorldFiles::readPlayer(Player* player) {
 
 	root->flag("flight", player->flight);
 	root->flag("noclip", player->noclip);
+    player->setChosenSlot(root->getInt("chosen-slot", player->getChosenSlot()));
+
+    auto invmap = root->map("inventory");
+    if (invmap) {
+        player->getInventory()->read(invmap);
+    }
 	return true;
 }
