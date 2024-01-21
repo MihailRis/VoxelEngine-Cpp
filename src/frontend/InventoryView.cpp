@@ -96,6 +96,8 @@ void InventoryBuilder::addGrid(
 
     for (int row = 0; row < rows; row++) {
         for (int col = 0; col < cols; col++) {
+            if (row * cols + col >= count)
+                return;
             glm::vec2 position (
                 col * (slotSize + interval) + padding,
                 row * (slotSize + interval) + padding
