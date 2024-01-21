@@ -2,7 +2,7 @@
 #include "Texture.h"
 #include "Framebuffer.h"
 
-#include <GL\glew.h>
+#include <GL/glew.h>
 #include <unordered_set>
 
 TextureAnimator::TextureAnimator() :
