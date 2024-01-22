@@ -225,7 +225,7 @@ int _png_write(const char* filename, uint width, uint height, const ubyte* data,
 		printf("spng_get_png_buffer() error: %s\n", spng_strerror(ret));
 	}
 	else {
-		files::write_bytes(filename, (const char*)png_buf, png_size);
+		files::write_bytes(filename, (const unsigned char*)png_buf, png_size);
 	}
 	fflush(stdout);
 	spng_ctx_free(ctx);
