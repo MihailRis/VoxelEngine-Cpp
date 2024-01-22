@@ -75,6 +75,7 @@ void Assets::extend(const Assets& assets) {
     for (auto entry : assets.atlases) {
         atlases[entry.first] = entry.second;
     }
+    animations.clear();
 	for (auto entry : assets.animations) {
 		animations.emplace_back(entry);
 	}

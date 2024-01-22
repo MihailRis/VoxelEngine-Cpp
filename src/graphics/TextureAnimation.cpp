@@ -48,6 +48,7 @@ void TextureAnimator::update(float delta) {
 							  GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		}
 	}
+    frameBuffer->unbind();
 	for (auto& elem : changedTextures) {
 		glBindTexture(GL_TEXTURE_2D, elem);
 		glGenerateMipmap(GL_TEXTURE_2D);
