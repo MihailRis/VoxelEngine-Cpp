@@ -541,7 +541,13 @@ void WorldFiles::writePlayer(Player* player) {
 	auto& rotarr = root.putList("rotation");
 	rotarr.put(player->cam.x);
 	rotarr.put(player->cam.y);
-	
+
+	auto& sparr = root.putList("spawnpoint");
+	glm::vec3 spawnpoint = player->getSpawnPoint();
+	sparr.put(spawnpoint.x);
+	sparr.put(spawnpoint.y);
+	sparr.put(spawnpoint.z);
+
 	root.put("flight", player->flight);
 	root.put("noclip", player->noclip);
     root.put("chosen-slot", player->getChosenSlot());
@@ -568,6 +574,17 @@ bool WorldFiles::readPlayer(Player* player) {
 	auto rotarr = root->list("rotation");
 	player->cam.x = rotarr->num(0);
 	player->cam.y = rotarr->num(1);
+
+	if (root->has("spawnpoint")) {
+		auto sparr = root->list("spawnpoint");
+		player->setSpawnPoint(glm::vec3(
+			sparr->num(0),
+			sparr->num(1),
+			sparr->num(2)
+		));
+	} else {
+		player->setSpawnPoint(position);
+	}
 
 	root->flag("flight", player->flight);
 	root->flag("noclip", player->noclip);

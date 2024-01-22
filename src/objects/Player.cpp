@@ -117,10 +117,31 @@ void Player::update(
 
 	input.noclip = false;
 	input.flight = false;
+
+	if (spawnpoint.y <= 0.1) {
+		attemptToFindSpawnpoint(level);
+	}
 }
 
 void Player::teleport(glm::vec3 position) {
 	hitbox->position = position;
+}
+
+void Player::attemptToFindSpawnpoint(Level* level) {
+	glm::vec3 ppos = hitbox->position;
+	glm::vec3 newpos {ppos.x + (rand() % 200 - 100),
+					  rand() % 80 + 100,
+					  ppos.z + (rand() % 200 - 100)};
+	while (newpos.y > 0 && !level->chunks->isObstacleBlock(newpos.x, newpos.y-2, newpos.z)) {
+		newpos.y--;
+	}
+
+	voxel* headvox = level->chunks->get(newpos.x, newpos.y+1, newpos.z);
+	if (level->chunks->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
+		headvox == nullptr || headvox->id != 0)
+		return;
+	spawnpoint = newpos;
+	teleport(spawnpoint);
 }
 
 void Player::setChosenSlot(int index) {
@@ -137,4 +158,12 @@ float Player::getSpeed() const {
 
 std::shared_ptr<Inventory> Player::getInventory() const {
     return inventory;
+}
+
+void Player::setSpawnPoint(glm::vec3 spawnpoint) {
+	this->spawnpoint = spawnpoint;
+}
+
+glm::vec3 Player::getSpawnPoint() const {
+	return spawnpoint;
 }
