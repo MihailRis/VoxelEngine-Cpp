@@ -25,13 +25,17 @@ void TextureAnimator::update(float delta) {
 
 	frameBuffer->bind();
 	for (auto& elem : animations) {
-		if (changedTextures.find(elem.dstTexture->id) == changedTextures.end()) changedTextures.insert(elem.dstTexture->id);
-		elem.timer -= delta;
-		Frame& frame = elem.frames[elem.currentFrame];
-		if (elem.timer <= 0) {
-			elem.timer = frame.duration;
+		elem.timer += delta;
+		size_t frameNum = elem.currentFrame;
+		Frame frame = elem.frames[elem.currentFrame];
+		while (elem.timer >= frame.duration) {
+			elem.timer -= frame.duration;
 			elem.currentFrame++;
 			if (elem.currentFrame >= elem.frames.size()) elem.currentFrame = 0;
+			frame = elem.frames[elem.currentFrame];
+		}
+		if (frameNum != elem.currentFrame){
+			if (changedTextures.find(elem.dstTexture->id) == changedTextures.end()) changedTextures.insert(elem.dstTexture->id);
 
 			glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, elem.srcTexture->id, 0);
 			glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, elem.dstTexture->id, 0);
