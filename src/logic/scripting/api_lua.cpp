@@ -47,6 +47,11 @@ static const luaL_Reg packlib [] = {
 };
 
 /* == world library == */
+static int l_world_get_total_time(lua_State* L) {
+    lua_pushnumber(L, scripting::level->world->totalTime);
+    return 1;
+}
+
 static int l_world_get_day_time(lua_State* L) {
     lua_pushnumber(L, scripting::level->world->daytime);
     return 1;
@@ -59,11 +64,12 @@ static int l_world_set_day_time(lua_State* L) {
 }
 
 static int l_world_get_seed(lua_State* L) {
-    lua_pushinteger(L, scripting::level->world->seed);
+    lua_pushinteger(L, scripting::level->world->getSeed());
     return 1;
 }
 
 static const luaL_Reg worldlib [] = {
+    {"get_total_time", l_world_get_total_time},
     {"get_day_time", l_world_get_day_time},
     {"set_day_time", l_world_set_day_time},
     {"get_seed", l_world_get_seed},
@@ -261,14 +267,14 @@ static int l_set_block_user_bits(lua_State* L) {
     int offset = lua_tointeger(L, 4) + VOXEL_USER_BITS_OFFSET;
     int bits = lua_tointeger(L, 5);
 
-    uint mask = (1 << bits) - 1;
-    int value = lua_tointeger(L, 6) & mask;
+    uint mask = ((1 << bits) - 1) << offset;
+    int value = (lua_tointeger(L, 6) << offset) & mask;
     
     voxel* vox = scripting::level->chunks->get(x, y, z);
     if (vox == nullptr) {
         return 0;
     }
-    vox->states = (vox->states & (~mask)) | (value << offset);
+    vox->states = (vox->states & (~mask)) | value;
     return 0;
 }
 

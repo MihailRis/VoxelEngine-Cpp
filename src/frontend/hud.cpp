@@ -94,7 +94,7 @@ void HudRenderer::createDebugPanel(Engine* engine) {
                L" "+stream.str();
     }));
     panel->add(create_label([=](){
-        return L"seed: "+std::to_wstring(level->world->seed);
+        return L"seed: "+std::to_wstring(level->world->getSeed());
     }));
 
     for (int ax = 0; ax < 3; ax++){
