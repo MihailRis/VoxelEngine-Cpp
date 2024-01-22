@@ -40,11 +40,16 @@ int Clock::getPart() const {
     return tickParts-tickPartsUndone-1;
 }
 
+int Clock::getTickRate() const {
+    return tickRate;
+}
+
 BlocksController::BlocksController(Level* level, uint padding) 
     : level(level), 
 	  chunks(level->chunks), 
 	  lighting(level->lighting),
       randTickClock(20, 3),
+      blocksTickClock(20, 1),
       padding(padding) {
 }
 
@@ -84,10 +89,26 @@ void BlocksController::update(float delta) {
     if (randTickClock.update(delta)) {
         randomTick(randTickClock.getPart(), randTickClock.getParts());
     }
+    if (blocksTickClock.update(delta)) {
+        onBlocksTick(blocksTickClock.getPart(), blocksTickClock.getParts());
+    }
+}
+
+void BlocksController::onBlocksTick(int tickid, int parts) {
+    auto content = level->content;
+    auto indices = content->getIndices();
+    int tickRate = blocksTickClock.getTickRate();
+    for (size_t id = 0; id < indices->countBlockDefs(); id++) {
+        if ((id + tickid) % parts != 0)
+            continue;
+        auto def = indices->getBlockDef(id);
+        if (def->rt.funcsset.onblockstick) {
+            scripting::on_blocks_tick(def, tickRate);
+        }
+    }
 }
 
 void BlocksController::randomTick(int tickid, int parts) {
-    // timeutil::ScopeLogTimer timer(5000+tickid);
     const int w = chunks->w;
     const int d = chunks->d;
     int segments = 4;
@@ -99,7 +120,7 @@ void BlocksController::randomTick(int tickid, int parts) {
             int index = z * w + x;
             if ((index + tickid) % parts != 0)
                 continue;
-            std::shared_ptr<Chunk> chunk = chunks->chunks[index];
+            auto chunk = chunks->chunks[index];
             if (chunk == nullptr || !chunk->isLighted())
                 continue;
             for (int s = 0; s < segments; s++) {

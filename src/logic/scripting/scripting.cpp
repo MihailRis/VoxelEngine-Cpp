@@ -112,6 +112,13 @@ void scripting::on_world_quit() {
     scripting::content = nullptr;
 }
 
+void scripting::on_blocks_tick(const Block* block, int tps) {
+    std::string name = block->name+".blockstick";
+    lua_getglobal(L, name.c_str());
+    lua_pushinteger(L, tps);
+    call_func(L, 1, name);   
+}
+
 void scripting::update_block(const Block* block, int x, int y, int z) {
     std::string name = block->name+".update";
     lua_getglobal(L, name.c_str());
@@ -188,6 +195,7 @@ void scripting::load_block_script(std::string prefix, fs::path file, block_funcs
     funcsset->onbroken=rename_global(L, "on_broken", (prefix+".broken").c_str());
     funcsset->onplaced=rename_global(L, "on_placed", (prefix+".placed").c_str());
     funcsset->oninteract=rename_global(L, "on_interact", (prefix+".oninteract").c_str());
+    funcsset->onblockstick=rename_global(L, "on_blocks_tick", (prefix+".blockstick").c_str());
 }
 
 void scripting::load_item_script(std::string prefix, fs::path file, item_funcs_set* funcsset) {
