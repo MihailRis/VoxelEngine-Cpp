@@ -13,6 +13,7 @@
 #include "../../voxels/voxel.h"
 #include "../../lighting/Lighting.h"
 #include "../../logic/BlocksController.h"
+#include "../../window/Window.h"
 #include "../../engine.h"
 
 inline int lua_pushivec3(lua_State* L, int x, int y, int z) {
@@ -28,6 +29,17 @@ inline void luaL_openlib(lua_State* L, const char* name, const luaL_Reg* libfunc
     lua_setglobal(L, name);
 }
 
+/* == time library == */
+static int l_time_uptime(lua_State* L) {
+    lua_pushnumber(L, Window::time());
+    return 1;
+}
+
+static const luaL_Reg timelib [] = {
+    {"uptime", l_time_uptime},
+    {NULL, NULL}
+};
+ 
 /* == pack library == */
 static int l_pack_get_folder(lua_State* L) {
     std::string packName = lua_tostring(L, 1);
@@ -294,6 +306,7 @@ void apilua::create_funcs(lua_State* L) {
     luaL_openlib(L, "pack", packlib, 0);
     luaL_openlib(L, "world", worldlib, 0);
     luaL_openlib(L, "player", playerlib, 0);
+    luaL_openlib(L, "time", timelib, 0);
 
     lua_addfunc(L, l_block_index, "block_index");
     lua_addfunc(L, l_block_name, "block_name");

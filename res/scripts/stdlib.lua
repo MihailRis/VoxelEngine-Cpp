@@ -49,3 +49,11 @@ function load_script(path, nocache)
     end
     return result
 end
+
+function sleep(timesec)
+    local start = time.uptime()
+    while time.uptime() - start < timesec do
+        coroutine.yield()
+    end
+end
+
