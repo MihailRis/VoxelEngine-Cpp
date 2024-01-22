@@ -187,7 +187,7 @@ std::shared_ptr<InventoryView> HudRenderer::createContentAccess() {
     });
 
     InventoryBuilder builder;
-    builder.addGrid(8, itemsCount-1, glm::vec2(), 8, slotLayout);
+    builder.addGrid(8, itemsCount-1, glm::vec2(), 8, true, slotLayout);
     auto layout = builder.build();
 
     auto contentAccess = std::make_shared<InventoryView>(
@@ -209,7 +209,7 @@ std::shared_ptr<InventoryView> HudRenderer::createHotbar() {
 
     SlotLayout slotLayout(glm::vec2(), false, false, nullptr, nullptr);
     InventoryBuilder builder;
-    builder.addGrid(10, 10, glm::vec2(), 4, slotLayout);
+    builder.addGrid(10, 10, glm::vec2(), 4, true, slotLayout);
     auto layout = builder.build();
 
     layout->setOrigin(glm::vec2(layout->getSize().x/2, 0));
@@ -236,7 +236,7 @@ std::shared_ptr<InventoryView> HudRenderer::createInventory() {
     }, nullptr);
 
     InventoryBuilder builder;
-    builder.addGrid(10, inventory->size(), glm::vec2(), 4, slotLayout);
+    builder.addGrid(10, inventory->size(), glm::vec2(), 4, true, slotLayout);
     auto layout = builder.build();
 
     auto view = std::make_shared<InventoryView>(

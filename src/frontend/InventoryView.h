@@ -53,10 +53,12 @@ class InventoryLayout {
     glm::vec2 size;
     glm::vec2 origin;
     std::vector<SlotLayout> slots;
+    std::vector<InventoryPanel> panels;
 public:
     InventoryLayout(glm::vec2 size);
 
     void add(SlotLayout slot);
+    void add(InventoryPanel panel);
     void setSize(glm::vec2 size);
     void setOrigin(glm::vec2 origin);
 
@@ -64,6 +66,7 @@ public:
     glm::vec2 getOrigin() const;
 
     std::vector<SlotLayout>& getSlots();
+    std::vector<InventoryPanel>& getPanels();
 };
 
 class InventoryBuilder {
@@ -74,8 +77,13 @@ public:
     void addGrid(
         int cols, int count, 
         glm::vec2 coord, 
-        int padding, 
+        int padding,
+        bool addpanel,
         SlotLayout slotLayout);
+    
+    void add(SlotLayout slotLayout);
+    void add(InventoryPanel panel);
+
     std::unique_ptr<InventoryLayout> build();
 };
 
