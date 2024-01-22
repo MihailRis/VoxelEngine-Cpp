@@ -33,8 +33,8 @@ bool assetload::shader(Assets* assets,
                        const ResPaths* paths,
                        const std::string filename, 
                        const std::string name) {
-    fs::path vertexFile = paths->find(filename+".glslv");
-    fs::path fragmentFile = paths->find(filename+".glslf");
+	fs::path vertexFile = paths->find(filename+".glslv");
+	fs::path fragmentFile = paths->find(filename+".glslf");
 
 	std::string vertexSource = files::read_string(vertexFile);
 	std::string fragmentSource = files::read_string(fragmentFile);
