@@ -26,6 +26,10 @@ Level* scripting::level = nullptr;
 const Content* scripting::content = nullptr;
 BlocksController* scripting::blocks = nullptr;
 
+static void handleError(lua_State* L) {
+    std::cerr << "lua error: " << lua_tostring(L,-1) << std::endl;
+}
+
 inline int lua_pushivec3(lua_State* L, int x, int y, int z) {
     lua_pushinteger(L, x);
     lua_pushinteger(L, y);
@@ -51,11 +55,22 @@ bool rename_global(lua_State* L, const char* src, const char* dst) {
 
 int call_func(lua_State* L, int argc, const std::string& name) {
     if (lua_pcall(L, argc, LUA_MULTRET, 0)) {
-        std::cerr << "Lua error in " << name << ": ";
-        std::cerr << lua_tostring(L,-1) << std::endl;
+        handleError(L);
         return 0;
     }
     return 1;
+}
+
+void load_script(fs::path name) {
+    auto paths = scripting::engine->getPaths();
+    fs::path file = paths->getResources()/fs::path("scripts")/name;
+
+    std::string src = files::read_string(file);
+    if (luaL_loadbuffer(L, src.c_str(), src.length(), file.u8string().c_str())) {
+        handleError(L);
+        return;
+    }
+    call_func(L, 0, file.u8string());
 }
 
 void scripting::initialize(Engine* engine) {
@@ -81,17 +96,15 @@ void scripting::initialize(Engine* engine) {
 #   endif // LUAJIT_VERSION
 
     apilua::create_funcs(L);
+
+    load_script(fs::path("stdlib.lua"));
 }
 
 void scripting::on_world_load(Level* level, BlocksController* blocks) {
     scripting::level = level;
     scripting::content = level->content;
     scripting::blocks = blocks;
-    auto paths = scripting::engine->getPaths();
-    fs::path file = paths->getResources()/fs::path("scripts/world.lua");
-    std::string src = files::read_string(file);
-    luaL_loadbuffer(L, src.c_str(), src.length(), file.string().c_str());
-    call_func(L, 0, "<script>");
+    load_script("world.lua");
 }
 
 void scripting::on_world_quit() {
@@ -165,7 +178,7 @@ void scripting::load_block_script(std::string prefix, fs::path file, block_funcs
     std::string src = files::read_string(file);
     std::cout << "loading script " << file.u8string() << std::endl;
     if (luaL_loadbuffer(L, src.c_str(), src.size(), file.string().c_str())) {
-        std::cerr << "Lua error:" << lua_tostring(L,-1) << std::endl;
+        handleError(L);
         return;
     }
     call_func(L, 0, "<script>");
@@ -181,7 +194,7 @@ void scripting::load_item_script(std::string prefix, fs::path file, item_funcs_s
     std::string src = files::read_string(file);
     std::cout << "loading script " << file.u8string() << std::endl;
     if (luaL_loadbuffer(L, src.c_str(), src.size(), file.string().c_str())) {
-        std::cerr << "Lua error:" << lua_tostring(L,-1) << std::endl;
+        handleError(L);
         return;
     }
     call_func(L, 0, "<script>");
