@@ -28,6 +28,10 @@ void InventoryLayout::add(SlotLayout slot) {
     slots.push_back(slot);
 }
 
+void InventoryLayout::add(InventoryPanel panel) {
+    panels.push_back(panel);
+}
+
 void InventoryLayout::setSize(glm::vec2 size) {
     this->size = size;
 }
@@ -46,6 +50,10 @@ glm::vec2 InventoryLayout::getOrigin() const {
 
 std::vector<SlotLayout>& InventoryLayout::getSlots() {
     return slots;
+}
+
+std::vector<InventoryPanel>& InventoryLayout::getPanels() {
+    return panels;
 }
 
 SlotLayout::SlotLayout(
@@ -72,13 +80,16 @@ InventoryBuilder::InventoryBuilder()
 {}
 
 void InventoryBuilder::addGrid(
-    int cols, int rows, 
+    int cols, int count, 
     glm::vec2 coord, 
-    int padding, 
+    int padding,
+    bool addpanel,
     SlotLayout slotLayout) 
 {
     const int slotSize = InventoryView::SLOT_SIZE;
     const int interval = InventoryView::SLOT_INTERVAL;
+
+    int rows = ceildiv(count, cols);
 
     uint width =  cols * (slotSize + interval) - interval + padding*2;
     uint height = rows * (slotSize + interval) - interval + padding*2;
@@ -94,6 +105,8 @@ void InventoryBuilder::addGrid(
 
     for (int row = 0; row < rows; row++) {
         for (int col = 0; col < cols; col++) {
+            if (row * cols + col >= count)
+                break;
             glm::vec2 position (
                 col * (slotSize + interval) + padding,
                 row * (slotSize + interval) + padding
@@ -103,6 +116,32 @@ void InventoryBuilder::addGrid(
             layout->add(builtSlot);
         }
     }
+
+    if (addpanel) {
+        add(InventoryPanel(
+            coord, 
+            glm::vec2(width, height), 
+            glm::vec4(0, 0, 0, 0.5f)));
+    }
+}
+
+void InventoryBuilder::add(SlotLayout slotLayout) {
+    uint width =  InventoryView::SLOT_SIZE;
+    uint height = InventoryView::SLOT_SIZE;
+
+    auto coord = slotLayout.position;
+    auto lsize = layout->getSize();
+    if (coord.x + width > lsize.x) {
+        lsize.x = coord.x + width;
+    }
+    if (coord.y + height > lsize.y) {
+        lsize.y = coord.y + height;
+    }
+    layout->add(slotLayout);
+}
+
+void InventoryBuilder::add(InventoryPanel panel) {
+    layout->add(panel);
 }
 
 std::unique_ptr<InventoryLayout> InventoryBuilder::build() {
@@ -149,31 +188,23 @@ void SlotView::draw(Batch2D* batch, Assets* assets) {
     
     batch->color = glm::vec4(1.0f);
 
-    Shader* uiShader = assets->getShader("ui");
-    Viewport viewport(Window::width, Window::height);
-    GfxContext ctx(nullptr, viewport, batch);
-
-    auto preview = frontend->getBlocksPreview();
+    auto previews = frontend->getBlocksAtlas();
     auto indices = content->getIndices();
 
-    ItemDef* item = indices->getItemDef(stack.getItemId());    
+    ItemDef* item = indices->getItemDef(stack.getItemId());
     switch (item->iconType) {
         case item_icon_type::none:
             break;
-        case item_icon_type::block: 
-            batch->render();
-            {    
-                GfxContext subctx = ctx.sub();
-                subctx.depthTest(true);
-                subctx.cullFace(true);
+        case item_icon_type::block: {
+            Block* cblock = content->requireBlock(item->icon);
+            batch->texture(previews->getTexture());
 
-                Block* cblock = content->requireBlock(item->icon);
-                preview->begin(&subctx.getViewport());
-                preview->draw(cblock, coord.x, coord.y, slotSize, tint);
-            }
-            uiShader->use();
-            batch->begin();
+            UVRegion region = previews->get(cblock->name);
+            batch->rect(
+                coord.x, coord.y, slotSize, slotSize, 
+                0, 0, 0, region, false, true, tint);
             break;
+        }
         case item_icon_type::sprite: {
             size_t index = item->icon.find(':');
             std::string name = item->icon.substr(index+1);
@@ -279,14 +310,17 @@ InventoryView::InventoryView(
               frontend(frontend),
               interaction(interaction) {
     size(this->layout->getSize());
-    color(glm::vec4(0, 0, 0, 0.5f));
+    color(glm::vec4(0, 0, 0, 0.0f));
 }
 
 InventoryView::~InventoryView() {}
 
 void InventoryView::build() {
-    int index = 0;
+    size_t index = 0;
     for (auto& slot : layout->getSlots()) {
+        if (index >= inventory->size())
+            break;
+
         ItemStack& item = inventory->getSlot(index);
 
         auto view = std::make_shared<SlotView>(
@@ -320,15 +354,15 @@ InventoryLayout* InventoryView::getLayout() const {
     return layout.get();
 }
 
-// performance disaster x2
-void InventoryView::draw(Batch2D* batch, Assets* assets) {
-    Container::draw(batch, assets);
-    Window::clearDepth();
-}
-
 void InventoryView::drawBackground(Batch2D* batch, Assets* assets) {
     glm::vec2 coord = calcCoord();
+
     batch->texture(nullptr);
-    batch->color = color_;
-    batch->rect(coord.x-1, coord.y-1, size_.x+2, size_.y+2);
+
+    for (auto& panel : layout->getPanels()) {
+        glm::vec2 size = panel.size;
+        glm::vec2 pos = coord + panel.position;
+        batch->color = panel.color;
+        batch->rect(pos.x-1, pos.y-1, size.x+2, size.y+2);
+    }
 }

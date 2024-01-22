@@ -17,6 +17,7 @@
 #include "../coders/json.h"
 #include "../constants.h"
 #include "../items/ItemDef.h"
+#include "../items/Inventory.h"
 
 #include "../data/dynamic.h"
 
@@ -488,12 +489,13 @@ void WorldFiles::writeWorldInfo(const World* world) {
 	versionobj.put("major", ENGINE_VERSION_MAJOR);
 	versionobj.put("minor", ENGINE_VERSION_MINOR);
 
-	root.put("name", world->name);
-	root.put("seed", world->seed);
+	root.put("name", world->getName());
+	root.put("seed", world->getSeed());
 	
     auto& timeobj = root.putMap("time");
 	timeobj.put("day-time", world->daytime);
 	timeobj.put("day-time-speed", world->daytimeSpeed);
+    timeobj.put("total-time", world->totalTime);
 
 	files::write_json(getWorldFile(), &root);
 }
@@ -506,8 +508,9 @@ bool WorldFiles::readWorldInfo(World* world) {
 	}
 
 	auto root = files::read_json(file);
-	root->str("name", world->name);
-	root->num("seed", world->seed);
+    
+    world->setName(root->getStr("name", world->getName()));
+    world->setSeed(root->getInt("seed", world->getSeed()));
 
 	auto verobj = root->map("version");
 	if (verobj) {
@@ -521,12 +524,13 @@ bool WorldFiles::readWorldInfo(World* world) {
 	if (timeobj) {
 		timeobj->num("day-time", world->daytime);
 		timeobj->num("day-time-speed", world->daytimeSpeed);
+        timeobj->num("total-time", world->totalTime);
 	}
 
 	return true;
 }
 
-void WorldFiles::writePlayer(Player* player){
+void WorldFiles::writePlayer(Player* player) {
 	glm::vec3 position = player->hitbox->position;
 	dynamic::Map root;
 	auto& posarr = root.putList("position");
@@ -540,6 +544,8 @@ void WorldFiles::writePlayer(Player* player){
 	
 	root.put("flight", player->flight);
 	root.put("noclip", player->noclip);
+    root.put("chosen-slot", player->getChosenSlot());
+    root.put("inventory", player->getInventory()->write().release());
 
 	files::write_json(getPlayerFile(), &root);
 }
@@ -565,5 +571,11 @@ bool WorldFiles::readPlayer(Player* player) {
 
 	root->flag("flight", player->flight);
 	root->flag("noclip", player->noclip);
+    player->setChosenSlot(root->getInt("chosen-slot", player->getChosenSlot()));
+
+    auto invmap = root->map("inventory");
+    if (invmap) {
+        player->getInventory()->read(invmap);
+    }
 	return true;
 }

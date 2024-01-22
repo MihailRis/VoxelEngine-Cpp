@@ -4,7 +4,7 @@ Inventory::Inventory(size_t size) : slots(size) {
 }
 
 ItemStack& Inventory::getSlot(size_t index) {
-    return slots[index];
+    return slots.at(index);
 }
 
 size_t Inventory::findEmptySlot(size_t begin, size_t end) const {

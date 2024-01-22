@@ -8,17 +8,19 @@ class ImageData;
 
 class Texture {
 public:
-	uint id;
-	int width;
-	int height;
-	Texture(uint id, int width, int height);
-	Texture(ubyte* data, int width, int height, uint format);
-	~Texture();
+    uint id;
+    int width;
+    int height;
+    Texture(uint id, int width, int height);
+    Texture(ubyte* data, int width, int height, uint format);
+    ~Texture();
 
-	void bind();
-	void reload(ubyte* data);
+    void bind();
+    void reload(ubyte* data);
 
-	static Texture* from(const ImageData* image);
+    ImageData* readData();
+
+    static Texture* from(const ImageData* image);
 };
 
 #endif /* GRAPHICS_TEXTURE_H_ */

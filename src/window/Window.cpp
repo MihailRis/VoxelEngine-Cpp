@@ -179,6 +179,10 @@ void Window::setBgColor(glm::vec3 color) {
 	glClearColor(color.r, color.g, color.b, 1.0f);
 }
 
+void Window::setBgColor(glm::vec4 color) {
+	glClearColor(color.r, color.g, color.b, color.a);
+}
+
 void Window::viewport(int x, int y, int width, int height){
 	glViewport(x, y, width, height);
 }
