@@ -250,8 +250,9 @@ void ContentLoader::loadBlock(Block* def, std::string full, std::string name) {
     auto folder = pack->folder;
 
     fs::path configFile = folder/fs::path("blocks/"+name+".json");
-    fs::path scriptfile = folder/fs::path("scripts/"+def->scriptName+".lua");
     loadBlock(def, full, configFile);
+
+    fs::path scriptfile = folder/fs::path("scripts/"+def->scriptName+".lua");
     if (fs::is_regular_file(scriptfile)) {
         scripting::load_block_script(full, scriptfile, &def->rt.funcsset);
     }
@@ -261,8 +262,9 @@ void ContentLoader::loadItem(ItemDef* def, std::string full, std::string name) {
     auto folder = pack->folder;
 
     fs::path configFile = folder/fs::path("items/"+name+".json");
-    fs::path scriptfile = folder/fs::path("scripts/"+def->scriptName+".lua");
     loadItem(def, full, configFile);
+
+    fs::path scriptfile = folder/fs::path("scripts/"+def->scriptName+".lua");
     if (fs::is_regular_file(scriptfile)) {
         scripting::load_item_script(full, scriptfile, &def->rt.funcsset);
     }
