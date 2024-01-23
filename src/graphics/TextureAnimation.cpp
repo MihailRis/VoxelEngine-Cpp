@@ -52,10 +52,9 @@ void TextureAnimator::update(float delta) {
             glBlitFramebuffer(frame.srcPos.x, srcPosY,			frame.srcPos.x + frame.size.x,	srcPosY + frame.size.y,
                               frame.dstPos.x, frame.dstPos.y,	frame.dstPos.x + frame.size.x,	frame.dstPos.y + frame.size.y,
                               GL_COLOR_BUFFER_BIT, GL_NEAREST);
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-
         }
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     for (auto& elem : changedTextures) {
