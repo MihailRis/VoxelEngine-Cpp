@@ -50,8 +50,8 @@ struct InventoryPanel {
 };
 
 class InventoryLayout {
-    glm::vec2 size;
-    glm::vec2 origin;
+    glm::vec2 size {};
+    glm::vec2 origin {};
     std::vector<SlotLayout> slots;
     std::vector<InventoryPanel> panels;
 public:
