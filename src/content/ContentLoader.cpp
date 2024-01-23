@@ -221,7 +221,7 @@ void ContentLoader::loadCustomBlockModel(Block* def, dynamic::Map* primitives) {
 
 void ContentLoader::loadItem(ItemDef* def, std::string name, fs::path file) {
     auto root = files::read_json(file);
-    std::string iconTypeStr = "none";
+    std::string iconTypeStr = "";
     root->str("icon-type", iconTypeStr);
     if (iconTypeStr == "none") {
         def->iconType = item_icon_type::none;
@@ -229,7 +229,7 @@ void ContentLoader::loadItem(ItemDef* def, std::string name, fs::path file) {
         def->iconType = item_icon_type::block;
     } else if (iconTypeStr == "sprite") {
         def->iconType = item_icon_type::sprite;
-    } else {
+    } else if (iconTypeStr.length()){
         std::cerr << "unknown icon type" << iconTypeStr << std::endl;
     }
     root->str("icon", def->icon);
