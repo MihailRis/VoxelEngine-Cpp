@@ -40,18 +40,17 @@ void Lighting::clear(){
 	}
 }
 
-void Lighting::prebuildSkyLight(int cx, int cz){
-	const Block* const* blockDefs = content->getIndices()->getBlockDefs();
+void Lighting::prebuildSkyLight(Chunk* chunk, const ContentIndices* indices){
+	auto* blockDefs = indices->getBlockDefs();
 
-	Chunk* chunk = chunks->getChunk(cx, cz);
 	int highestPoint = 0;
 	for (int z = 0; z < CHUNK_D; z++){
 		for (int x = 0; x < CHUNK_W; x++){
 			for (int y = CHUNK_H-1;;y--){
 				if (y < 0)
 					break;
-				voxel* vox = &(chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x]);
-				const Block* block = blockDefs[vox->id];
+				voxel& vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
+				const Block* block = blockDefs[vox.id];
 				if (!block->skyLightPassing) {
 					if (highestPoint < y)
 						highestPoint = y;

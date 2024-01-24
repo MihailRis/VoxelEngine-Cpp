@@ -4,6 +4,7 @@
 #include <memory>
 #include <iostream>
 
+#include "../content/Content.h"
 #include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/Chunks.h"
@@ -63,7 +64,7 @@ bool ChunksController::loadVisible(){
 			int index = z * w + x;
 			auto chunk = chunks->chunks[index];
 			if (chunk != nullptr){
-				if (!chunk->isLighted()) {
+				if (chunk->isLoaded() && !chunk->isLighted()) {
 					int surrounding = 0;
 					for (int oz = -1; oz <= 1; oz++){
 						for (int ox = -1; ox <= 1; ox++){
@@ -112,11 +113,11 @@ bool ChunksController::loadVisible(){
         );
 		chunk->setUnsaved(true);
 	}
-
 	chunk->updateHeights();
 
 	if (!chunk->isLoadedLights()) {
-		lighting->prebuildSkyLight(chunk->x, chunk->z);
+		Lighting::prebuildSkyLight(chunk.get(), level->content->getIndices());
 	}
+	chunk->setLoaded(true);
 	return true;
 }

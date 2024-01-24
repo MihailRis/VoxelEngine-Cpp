@@ -25,7 +25,7 @@ struct DisplaySettings {
 
 struct ChunksSettings {
     /* Max milliseconds that engine uses for chunks loading only */
-	uint loadSpeed = 10;
+	uint loadSpeed = 4;
 	/* Radius of chunks loading zone (chunk is unit) */
 	uint loadDistance = 22;
 	/* Buffer zone where chunks are not unloading (chunk is unit)*/
