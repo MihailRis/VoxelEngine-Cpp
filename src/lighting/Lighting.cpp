@@ -114,18 +114,32 @@ void Lighting::onChunkLoaded(int cx, int cz, bool expand){
 	}
 
 	if (expand) {
-		for (int y = -1; y <= CHUNK_H; y++){
-			for (int z = -1; z <= CHUNK_D; z++){
-				for (int x = -1; x <= CHUNK_W; x++){
-					if (!(x == -1 || x == CHUNK_W || z == -1 || z == CHUNK_D))
-						continue;
+		for (int x = 0; x < CHUNK_W; x += CHUNK_W-1) {
+			for (int y = 0; y < CHUNK_H; y++) {
+				for (int z = 0; z < CHUNK_D; z++) {
 					int gx = x + cx * CHUNK_W;
 					int gz = z + cz * CHUNK_D;
-					if (chunks->getLight(x,y,z)){
-						solverR->add(gx,y,gz);
-						solverG->add(gx,y,gz);
-						solverB->add(gx,y,gz);
-						solverS->add(gx,y,gz);
+					int rgbs = chunk->lightmap->get(x, y, z);
+					if (rgbs){
+						solverR->add(gx,y,gz, Lightmap::extract(rgbs, 0));
+						solverG->add(gx,y,gz, Lightmap::extract(rgbs, 1));
+						solverB->add(gx,y,gz, Lightmap::extract(rgbs, 2));
+						solverS->add(gx,y,gz, Lightmap::extract(rgbs, 3));
+					}
+				}
+			}
+		}
+		for (int z = 0; z < CHUNK_D; z += CHUNK_D-1) {
+			for (int y = 0; y < CHUNK_H; y++) {
+				for (int x = 0; x < CHUNK_W; x++) {
+					int gx = x + cx * CHUNK_W;
+					int gz = z + cz * CHUNK_D;
+					int rgbs = chunk->lightmap->get(x, y, z);
+					if (rgbs){
+						solverR->add(gx,y,gz, Lightmap::extract(rgbs, 0));
+						solverG->add(gx,y,gz, Lightmap::extract(rgbs, 1));
+						solverB->add(gx,y,gz, Lightmap::extract(rgbs, 2));
+						solverS->add(gx,y,gz, Lightmap::extract(rgbs, 3));
 					}
 				}
 			}

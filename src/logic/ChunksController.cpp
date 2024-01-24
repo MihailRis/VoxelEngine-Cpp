@@ -30,7 +30,6 @@ ChunksController::ChunksController(Level* level, uint padding)
 }
 
 ChunksController::~ChunksController(){
-	delete generator;
 }
 
 void ChunksController::update(int64_t maxDuration) {
@@ -73,6 +72,7 @@ bool ChunksController::loadVisible(){
 				}
 				chunk->surrounding = surrounding;
 				if (surrounding == MIN_SURROUNDING && !chunk->isLighted()) {
+					timeutil::ScopeLogTimer log(555);
 					bool lightsCache = chunk->isLoadedLights();
 					if (!lightsCache) {
 						lighting->buildSkyLight(chunk->x, chunk->z);
