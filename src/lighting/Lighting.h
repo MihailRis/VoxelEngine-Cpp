@@ -19,7 +19,7 @@ public:
 	void clear();
 	void prebuildSkyLight(int cx, int cz);
 	void buildSkyLight(int cx, int cz);
-	void onChunkLoaded(int cx, int cz);
+	void onChunkLoaded(int cx, int cz, bool expand);
 	void onBlockSet(int x, int y, int z, int id);
 };
 
