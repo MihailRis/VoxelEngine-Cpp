@@ -67,11 +67,10 @@ std::string escape_string(std::string s) {
             case '"': ss << "\\\""; break;
             case '\\': ss << "\\\\"; break;
             default:
-                /*if (c < ' ') {
+                if (c < ' ') {
                     ss << "\\" << std::oct << uint(ubyte(c));
                     break;
-                }*/
-                // write it utf-8 encoded as is
+                }
                 ss << c;
                 break;
         }
