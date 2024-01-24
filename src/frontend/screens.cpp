@@ -14,6 +14,7 @@
 #include "../graphics/Shader.h"
 #include "../graphics/Batch2D.h"
 #include "../graphics/GfxContext.h"
+#include "../graphics/TextureAnimation.h"
 #include "../assets/Assets.h"
 #include "../world/Level.h"
 #include "../world/World.h"
@@ -72,7 +73,7 @@ void MenuScreen::draw(float delta) {
     uint height = Window::height;
 
     batch->begin();
-    batch->texture(engine->getAssets()->getTexture("menubg"));
+    batch->texture(engine->getAssets()->getTexture("gui/menubg"));
     batch->rect(0, 0, 
                 width, height, 0, 0, 0, 
                 UVRegion(0, 0, width/64, height/64), 
@@ -92,17 +93,15 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
 
     auto& settings = engine->getSettings();
     backlight = settings.graphics.backlight;
+
+    animator.reset(new TextureAnimator());
+    animator->addAnimations(engine->getAssets()->getAnimations());
 }
 
 LevelScreen::~LevelScreen() {
-    std::cout << "-- writing world" << std::endl;
-    std::shared_ptr<World> world = level->world;
-    if (world != nullptr) {
-        world->write(level.get());
-    } else {
-        std::cerr << "failed to save world" << std::endl;
-        abort();
-    }
+	std::cout << "-- writing world" << std::endl;
+    auto& world = level->getWorld();
+	world.write(level.get());
 }
 
 void LevelScreen::updateHotkeys() {
@@ -141,6 +140,7 @@ void LevelScreen::update(float delta) {
 
     if (!hud->isPause()) {
         level->world->updateTimers(delta);
+        animator->update(delta);
     }
     controller->update(delta, !inputLocked, hud->isPause());
     hud->update(hudVisible);

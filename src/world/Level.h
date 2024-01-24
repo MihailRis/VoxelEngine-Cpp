@@ -16,7 +16,7 @@ class ChunksStorage;
 
 class Level {
 public:
-    std::shared_ptr<World> world;
+	std::unique_ptr<World> world;
 	const Content* const content;
 	Player* player;
 	Chunks* chunks;
@@ -28,13 +28,15 @@ public:
 
 	const EngineSettings& settings;
 
-    Level(std::shared_ptr<World> world,
-		  const Content* content,
-	      Player* player, 
+    Level(std::unique_ptr<World>&& world,
+	      const Content* content,
+	      Player* player,
 	      EngineSettings& settings);
 	~Level();
 
 	void update();
+
+    World& getWorld();
 };
 
 #endif /* WORLD_LEVEL_H_ */

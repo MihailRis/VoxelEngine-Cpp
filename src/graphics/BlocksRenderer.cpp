@@ -34,7 +34,7 @@ BlocksRenderer::BlocksRenderer(size_t capacity,
 	vertexBuffer = new float[capacity];
 	indexBuffer = new int[capacity];
 	voxelsBuffer = new VoxelsVolume(CHUNK_W + 2, CHUNK_H, CHUNK_D + 2);
-	blockDefsCache = content->indices->getBlockDefs();
+	blockDefsCache = content->getIndices()->getBlockDefs();
 }
 
 BlocksRenderer::~BlocksRenderer() {
@@ -44,9 +44,7 @@ BlocksRenderer::~BlocksRenderer() {
 }
 
 /* Basic vertex add method */
-void BlocksRenderer::vertex(const vec3& coord,
-	float u, float v,
-	const vec4& light) {
+void BlocksRenderer::vertex(const vec3& coord, float u, float v, const vec4& light) {
 	vertexBuffer[vertexOffset++] = coord.x;
 	vertexBuffer[vertexOffset++] = coord.y;
 	vertexBuffer[vertexOffset++] = coord.z;

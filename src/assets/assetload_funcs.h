@@ -5,6 +5,7 @@
 
 class ResPaths;
 class Assets;
+class Atlas;
 
 namespace assetload {
     bool texture(Assets* assets, 
@@ -23,6 +24,11 @@ namespace assetload {
               const ResPaths* paths,
               const std::string filename, 
               const std::string name);
+	bool animation(Assets* assets,
+		           const ResPaths* paths,
+		           const std::string directory,
+		           const std::string name,
+		           Atlas* dstAtlas);
 }
 
 #endif // ASSETS_ASSET_LOADERS_H_

@@ -12,8 +12,9 @@ error.pack-not-found=Pakettia ei löytynyt!
 menu.New World = Uusi Maailma
 menu.Quit=Poistu
 menu.Continue=Jatka
-menu.Save and Quit to Menu=Tallenna ja Takaisin valikoon
+menu.Save and Quit to Menu=Tallenna ja poistu valikkoon
 menu.missing-content=Puuttuu jotkut lisäosat!
+menu.Content Error=Sisältövirhe!
 menu.Controls=Ohjaus
 menu.Back to Main Menu=Takaisin Valikoon
 menu.Settings=Asetukset
@@ -23,12 +24,13 @@ menu.Name=Nimi
 menu.Create World=Luo Maailma
 
 world.convert-request=Indeksit vaihdettu! Lataa maailma uudeleen?
+world.delete-confirm=Poistetaanko maailma ikuisesti?
 
 # Настройки
-settings.Load Distance=Lataus Alue
-settings.Load Speed=Lataus Nopeus
-settings.Fog Curve=Sumun valaistus
-settings.Backlight=Valaistus
+settings.Load Distance=Latausalue
+settings.Load Speed=Latausnopeus
+settings.Fog Curve=Sumun tiheys
+settings.Backlight=Taustavalo
 settings.V-Sync=Pystytahdistus
 
 settings.FOV=Näkökenttä
@@ -41,8 +43,8 @@ movement.back=Taaksepäin
 movement.left=Vaseemalle
 movement.right=Oikealle
 movement.jump=Hyppy
-movement.sprint=Kiihtyvyys
-movement.crouch=Istu alas
+movement.sprint=Juoksu
+movement.crouch=Hiipiä
 movement.cheat=Huijata
 hud.inventory=Varasto
 player.pick=Ottaa lohko

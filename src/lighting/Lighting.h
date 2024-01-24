@@ -2,6 +2,8 @@
 #define LIGHTING_LIGHTING_H_
 
 class Content;
+class ContentIndices;
+class Chunk;
 class Chunks;
 class LightSolver;
 
@@ -17,10 +19,11 @@ public:
 	~Lighting();
 
 	void clear();
-	void prebuildSkyLight(int cx, int cz);
 	void buildSkyLight(int cx, int cz);
-	void onChunkLoaded(int cx, int cz);
+	void onChunkLoaded(int cx, int cz, bool expand);
 	void onBlockSet(int x, int y, int z, int id);
+
+	static void prebuildSkyLight(Chunk* chunk, const ContentIndices* indices);
 };
 
 #endif /* LIGHTING_LIGHTING_H_ */

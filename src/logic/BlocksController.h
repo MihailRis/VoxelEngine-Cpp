@@ -23,6 +23,7 @@ public:
 
     int getParts() const;
     int getPart() const;
+    int getTickRate() const;
 };
 
 class BlocksController {
@@ -30,6 +31,7 @@ class BlocksController {
 	Chunks* chunks;
 	Lighting* lighting;
     Clock randTickClock;
+    Clock blocksTickClock;
     uint padding;
 public:
     BlocksController(Level* level, uint padding);
@@ -41,6 +43,7 @@ public:
 
     void update(float delta);
     void randomTick(int tickid, int parts);
+    void onBlocksTick(int tickid, int parts);
 };
 
 #endif // LOGIC_BLOCKS_CONTROLLER_H_

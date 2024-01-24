@@ -25,10 +25,15 @@ Debug/voxel_engine
 .settings
 .cproject
 .project
+.fleet
 .git
 /Default/
 AppDir
 appimage-build/
+
+# for vcpkg
+/vcpkg/
+.gitmodules
 
 # macOS folder attributes
 *.DS_Store

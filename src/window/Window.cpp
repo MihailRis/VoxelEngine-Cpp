@@ -60,15 +60,17 @@ bool Window::isFocused()
 }
 
 void window_size_callback(GLFWwindow*, int width, int height) {
-	if (Window::isFocused() && width && height) {
-		glViewport(0, 0, width, height);
-		Window::width = width;
-		Window::height = height;
-	}
+	if (width && height) {
+		if (Window::isFocused()) {
+			glViewport(0, 0, width, height);
+			Window::width = width;
+			Window::height = height;
+		}
 
-	if (!Window::isFullscreen() && !Window::isMaximized()) {
-		Window::getSettings()->width = width;
-		Window::getSettings()->height = height;
+		if (!Window::isFullscreen() && !Window::isMaximized()) {
+			Window::getSettings()->width = width;
+			Window::getSettings()->height = height;
+		}
 	}
 	Window::resetScissor();
 }
@@ -175,6 +177,10 @@ void Window::clearDepth() {
 
 void Window::setBgColor(glm::vec3 color) {
 	glClearColor(color.r, color.g, color.b, 1.0f);
+}
+
+void Window::setBgColor(glm::vec4 color) {
+	glClearColor(color.r, color.g, color.b, color.a);
 }
 
 void Window::viewport(int x, int y, int width, int height){

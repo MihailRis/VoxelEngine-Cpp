@@ -10,8 +10,8 @@
 #include "../physics/PhysicsSolver.h"
 #include "../objects/Player.h"
 
-Level::Level(std::shared_ptr<World> world, const Content* content, Player* player, EngineSettings& settings)
-      : world(world),
+Level::Level(std::unique_ptr<World>&& world, const Content* content, Player* player, EngineSettings& settings)
+      : world(std::forward<std::unique_ptr<World>>(world)),
 	    content(content),
 		player(player),
 		chunksStorage(new ChunksStorage(this)),
@@ -21,7 +21,7 @@ Level::Level(std::shared_ptr<World> world, const Content* content, Player* playe
 
     uint matrixSize = (settings.chunks.loadDistance+
 					   settings.chunks.padding) * 2;
-    chunks = new Chunks(matrixSize, matrixSize, 0, 0, 
+    chunks = new Chunks(matrixSize, matrixSize, 0, 0,
 						world->wfile, events, content);
 	lighting = new Lighting(content, chunks);
 
@@ -48,4 +48,8 @@ void Level::update() {
 	if (chunks->w != matrixSize) {
 		chunks->resize(matrixSize, matrixSize);
 	}
+}
+
+World& Level::getWorld() {
+    return *world;
 }

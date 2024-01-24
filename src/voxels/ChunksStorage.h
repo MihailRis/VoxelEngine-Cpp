@@ -18,7 +18,7 @@ class ChunksStorage {
 	std::unordered_map<glm::ivec2, std::shared_ptr<Chunk>> chunksMap;
 public:
 	ChunksStorage(Level* level);
-	virtual ~ChunksStorage();
+	~ChunksStorage() = default;
 
 	std::shared_ptr<Chunk> get(int x, int z) const;
 	void store(std::shared_ptr<Chunk> chunk);

@@ -9,7 +9,6 @@
 #include <glm/ext.hpp>
 
 using glm::ivec2;
-using std::shared_ptr;
 
 ChunksRenderer::ChunksRenderer(Level* level, const ContentGfxCache* cache, const EngineSettings& settings) : level(level) {
 	const int MAX_FULL_CUBES = 3000;
@@ -20,10 +19,10 @@ ChunksRenderer::~ChunksRenderer() {
 	delete renderer;
 }
 
-shared_ptr<Mesh> ChunksRenderer::render(Chunk* chunk) {
+std::shared_ptr<Mesh> ChunksRenderer::render(Chunk* chunk) {
 	chunk->setModified(false);
 	Mesh* mesh = renderer->render(chunk, level->chunksStorage);
-	auto sptr = shared_ptr<Mesh>(mesh);
+	auto sptr = std::shared_ptr<Mesh>(mesh);
 	meshes[ivec2(chunk->x, chunk->z)] = sptr;
 	return sptr;
 }
@@ -35,7 +34,7 @@ void ChunksRenderer::unload(Chunk* chunk) {
 	}
 }
 
-shared_ptr<Mesh> ChunksRenderer::getOrRender(Chunk* chunk) {
+std::shared_ptr<Mesh> ChunksRenderer::getOrRender(Chunk* chunk) {
 	auto found = meshes.find(ivec2(chunk->x, chunk->z));
 	if (found != meshes.end() && !chunk->isModified()){
 		return found->second;
@@ -43,7 +42,7 @@ shared_ptr<Mesh> ChunksRenderer::getOrRender(Chunk* chunk) {
 	return render(chunk);
 }
 
-shared_ptr<Mesh> ChunksRenderer::get(Chunk* chunk) {
+std::shared_ptr<Mesh> ChunksRenderer::get(Chunk* chunk) {
 	auto found = meshes.find(ivec2(chunk->x, chunk->z));
 	if (found != meshes.end()) {
 		return found->second;

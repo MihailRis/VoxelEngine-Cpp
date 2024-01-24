@@ -8,6 +8,7 @@
 #include "../content/Content.h"
 #include "../lighting/Lighting.h"
 #include "../util/timeutil.h"
+#include "../maths/fastmaths.h"
 
 #include "scripting/scripting.h"
 
@@ -39,11 +40,16 @@ int Clock::getPart() const {
     return tickParts-tickPartsUndone-1;
 }
 
+int Clock::getTickRate() const {
+    return tickRate;
+}
+
 BlocksController::BlocksController(Level* level, uint padding) 
     : level(level), 
 	  chunks(level->chunks), 
 	  lighting(level->lighting),
       randTickClock(20, 3),
+      blocksTickClock(20, 1),
       padding(padding) {
 }
 
@@ -69,7 +75,7 @@ void BlocksController::updateBlock(int x, int y, int z) {
     voxel* vox = chunks->get(x, y, z);
     if (vox == nullptr)
         return;
-    const Block* def = level->content->indices->getBlockDef(vox->id);
+    const Block* def = level->content->getIndices()->getBlockDef(vox->id);
     if (def->grounded && !chunks->isSolidBlock(x, y-1, z)) {
         breakBlock(nullptr, def, x, y, z);
         return;
@@ -83,28 +89,45 @@ void BlocksController::update(float delta) {
     if (randTickClock.update(delta)) {
         randomTick(randTickClock.getPart(), randTickClock.getParts());
     }
+    if (blocksTickClock.update(delta)) {
+        onBlocksTick(blocksTickClock.getPart(), blocksTickClock.getParts());
+    }
+}
+
+void BlocksController::onBlocksTick(int tickid, int parts) {
+    auto content = level->content;
+    auto indices = content->getIndices();
+    int tickRate = blocksTickClock.getTickRate();
+    for (size_t id = 0; id < indices->countBlockDefs(); id++) {
+        if ((id + tickid) % parts != 0)
+            continue;
+        auto def = indices->getBlockDef(id);
+        if (def->rt.funcsset.onblockstick) {
+            scripting::on_blocks_tick(def, tickRate);
+        }
+    }
 }
 
 void BlocksController::randomTick(int tickid, int parts) {
-    // timeutil::ScopeLogTimer timer(5000+tickid);
     const int w = chunks->w;
     const int d = chunks->d;
-    auto indices = level->content->indices;
+    int segments = 4;
+    int segheight = CHUNK_H / segments;
+    auto indices = level->content->getIndices();
+    
     for (uint z = padding; z < d-padding; z++){
         for (uint x = padding; x < w-padding; x++){
             int index = z * w + x;
             if ((index + tickid) % parts != 0)
                 continue;
-            std::shared_ptr<Chunk> chunk = chunks->chunks[index];
+            auto chunk = chunks->chunks[index];
             if (chunk == nullptr || !chunk->isLighted())
                 continue;
-            int segments = 4;
-            int segheight = CHUNK_H / segments;
             for (int s = 0; s < segments; s++) {
-                for (int i = 0; i < 3; i++) {
-                    int bx = rand() % CHUNK_W;
-                    int by = rand() % segheight + s * segheight;
-                    int bz = rand() % CHUNK_D;
+                for (int i = 0; i < 4; i++) {
+                    int bx = fastmaths::rand() % CHUNK_W;
+                    int by = fastmaths::rand() % segheight + s * segheight;
+                    int bz = fastmaths::rand() % CHUNK_D;
                     const voxel& vox = chunk->voxels[(by * CHUNK_D + bz) * CHUNK_W + bx];
                     Block* block = indices->getBlockDef(vox.id);
                     if (block->rt.funcsset.randupdate) {

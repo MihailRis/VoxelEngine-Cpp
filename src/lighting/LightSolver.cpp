@@ -9,22 +9,20 @@
 #include "../voxels/Block.h"
 
 LightSolver::LightSolver(const ContentIndices* contentIds, Chunks* chunks, int channel) 
-	: contentIds(contentIds), chunks(chunks), channel(channel) {
+	: contentIds(contentIds), 
+	  chunks(chunks), 
+	  channel(channel) {
 }
 
 void LightSolver::add(int x, int y, int z, int emission) {
 	if (emission <= 1)
 		return;
-	lightentry entry;
-	entry.x = x;
-	entry.y = y;
-	entry.z = z;
-	entry.light = emission;
-	addqueue.push(entry);
 
-	Chunk* chunk = chunks->getChunkByVoxel(entry.x, entry.y, entry.z);
+	addqueue.push(lightentry {x, y, z, ubyte(emission)});
+
+	Chunk* chunk = chunks->getChunkByVoxel(x, y, z);
 	chunk->setModified(true);
-	chunk->lightmap->set(entry.x-chunk->x*CHUNK_W, entry.y, entry.z-chunk->z*CHUNK_D, channel, entry.light);
+	chunk->lightmap->set(x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, channel, emission);
 }
 
 void LightSolver::add(int x, int y, int z) {
@@ -37,19 +35,12 @@ void LightSolver::remove(int x, int y, int z) {
 	if (chunk == nullptr)
 		return;
 
-	int light = chunk->lightmap->get(x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, channel);
+	ubyte light = chunk->lightmap->get(x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, channel);
 	if (light == 0){
 		return;
 	}
-
-	lightentry entry;
-	entry.x = x;
-	entry.y = y;
-	entry.z = z;
-	entry.light = light;
-	remqueue.push(entry);
-
-	chunk->lightmap->set(entry.x-chunk->x*CHUNK_W, entry.y, entry.z-chunk->z*CHUNK_D, channel, 0);
+	remqueue.push(lightentry {x, y, z, light});
+	chunk->lightmap->set(x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, channel, 0);
 }
 
 void LightSolver::solve(){
@@ -66,30 +57,23 @@ void LightSolver::solve(){
 		const lightentry entry = remqueue.front();
 		remqueue.pop();
 
-		for (size_t i = 0; i < 6; i++) {
+		for (int i = 0; i < 6; i++) {
 			int x = entry.x+coords[i*3+0];
 			int y = entry.y+coords[i*3+1];
 			int z = entry.z+coords[i*3+2];
 			Chunk* chunk = chunks->getChunkByVoxel(x,y,z);
 			if (chunk) {
+				int lx = x - chunk->x * CHUNK_W;
+				int lz = z - chunk->z * CHUNK_D;
 				chunk->setModified(true);
-				int light = chunks->getLight(x,y,z, channel);
+
+				ubyte light = chunk->lightmap->get(lx,y,lz, channel);
 				if (light != 0 && light == entry.light-1){
-					lightentry nentry;
-					nentry.x = x;
-					nentry.y = y;
-					nentry.z = z;
-					nentry.light = light;
-					remqueue.push(nentry);
-					chunk->lightmap->set(x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, channel, 0);
+					remqueue.push(lightentry {x, y, z, light});
+					chunk->lightmap->set(lx, y, lz, channel, 0);
 				}
 				else if (light >= entry.light){
-					lightentry nentry;
-					nentry.x = x;
-					nentry.y = y;
-					nentry.z = z;
-					nentry.light = light;
-					addqueue.push(nentry);
+					addqueue.push(lightentry {x, y, z, light});
 				}
 			}
 		}
@@ -100,27 +84,25 @@ void LightSolver::solve(){
 		const lightentry entry = addqueue.front();
 		addqueue.pop();
 
-		if (entry.light <= 1)
-			continue;
-
-		for (size_t i = 0; i < 6; i++) {
+		for (int i = 0; i < 6; i++) {
 			int x = entry.x+coords[i*3+0];
 			int y = entry.y+coords[i*3+1];
 			int z = entry.z+coords[i*3+2];
 			Chunk* chunk = chunks->getChunkByVoxel(x,y,z);
 			if (chunk) {
+				int lx = x - chunk->x * CHUNK_W;
+				int lz = z - chunk->z * CHUNK_D;
 				chunk->setModified(true);
-				int light = chunks->getLight(x,y,z, channel);
-				voxel* v = chunks->get(x,y,z);
-				const Block* block = blockDefs[v->id];
+
+				ubyte light = chunk->lightmap->get(lx, y, lz, channel);
+				voxel& v = chunk->voxels[vox_index(lx, y, lz)];
+				const Block* block = blockDefs[v.id];
 				if (block->lightPassing && light+2 <= entry.light){
-					chunk->lightmap->set(x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, channel, entry.light-1);
-					lightentry nentry;
-					nentry.x = x;
-					nentry.y = y;
-					nentry.z = z;
-					nentry.light = entry.light-1;
-					addqueue.push(nentry);
+					chunk->lightmap->set(
+						x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, 
+						channel, 
+						entry.light-1);
+					addqueue.push(lightentry {x, y, z, ubyte(entry.light-1)});
 				}
 			}
 		}

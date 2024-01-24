@@ -35,6 +35,7 @@ namespace fs = std::filesystem;
 using namespace gui;
 
 inline uint64_t randU64() {
+    srand(time(NULL));
     return rand() ^ (rand() << 8) ^ 
         (rand() << 16) ^ (rand() << 24) ^
         ((uint64_t)rand() << 32) ^ 
@@ -194,13 +195,40 @@ Panel* create_worlds_panel(Engine* engine) {
             if (!entry.is_directory()) {
                 continue;
             }
-            auto name = entry.path().filename().u8string();
-            auto btn = new Button(util::str2wstr_utf8(name), 
-                                  vec4(10.0f, 8.0f, 10.0f, 8.0f));
+            auto folder = entry.path();
+            auto name = folder.filename().u8string();
+            auto namews = util::str2wstr_utf8(name);
+
+            auto btn = std::make_shared<RichButton>(vec2(390, 46));
             btn->color(vec4(1.0f, 1.0f, 1.0f, 0.1f));
+            btn->setHoverColor(vec4(1.0f, 1.0f, 1.0f, 0.17f));
+
+            auto label = std::make_shared<Label>(namews);
+            label->setInteractive(false);
+            btn->add(label, vec2(8, 8));
             btn->listenAction([=](GUI*) {
                 open_world(name, engine);
             });
+
+            auto image = std::make_shared<Image>("gui/delete_icon", vec2(32, 32));
+            image->color(vec4(1, 1, 1, 0.5f));
+
+            auto delbtn = std::make_shared<Button>(image, vec4(2));
+            delbtn->color(vec4(0.0f));
+            delbtn->setHoverColor(vec4(1.0f, 1.0f, 1.0f, 0.17f));
+            
+            btn->add(delbtn, vec2(330, 3));
+
+            delbtn->listenAction([=](GUI* gui) {
+                guiutil::confirm(gui, langs::get(L"delete-confirm", L"world")+
+                L" ("+util::str2wstr_utf8(folder.u8string())+L")", [=]() 
+                {
+                    std::cout << "deleting " << folder.u8string() << std::endl;
+                    fs::remove_all(folder);
+                    menus::refresh_menus(engine, gui->getMenu());
+                });
+            });
+
             panel->add(btn);
         }
     }
@@ -458,4 +486,5 @@ void menus::create_menus(Engine* engine, PagesControl* menu) {
 
 void menus::refresh_menus(Engine* engine, PagesControl* menu) {
     create_main_menu_panel(engine, menu);
+    create_new_world_panel(engine, menu);
 }

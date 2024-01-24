@@ -48,6 +48,7 @@ public:
 	static void clear();
 	static void clearDepth();
 	static void setBgColor(glm::vec3 color);
+    static void setBgColor(glm::vec4 color);
 	static double time();
     static const char* getClipboardText();
 	static DisplaySettings* getSettings();

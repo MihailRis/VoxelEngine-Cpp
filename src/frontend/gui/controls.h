@@ -43,6 +43,15 @@ namespace gui {
         virtual void size(glm::vec2 size) override;
     };
 
+    class Image : public UINode {
+    protected:
+        std::string texture;
+    public:
+        Image(std::string texture, glm::vec2 size);
+
+        virtual void draw(Batch2D* batch, Assets* assets) override;
+    };
+
     class Button : public Panel {
     protected:
         glm::vec4 hoverColor {0.05f, 0.1f, 0.15f, 0.75f};
@@ -55,7 +64,7 @@ namespace gui {
                glm::vec4 padding=glm::vec4(2.0f), 
                glm::vec4 margin=glm::vec4(1.0f));
 
-        virtual void drawBackground(Batch2D* batch, Assets* assets);
+        virtual void drawBackground(Batch2D* batch, Assets* assets) override;
 
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
@@ -68,6 +77,24 @@ namespace gui {
         virtual std::wstring text() const;
 
         virtual Button* textSupplier(wstringsupplier supplier);
+
+        virtual void setHoverColor(glm::vec4 color);
+    };
+
+    class RichButton : public Container {
+    protected:
+        glm::vec4 hoverColor {0.05f, 0.1f, 0.15f, 0.75f};
+        glm::vec4 pressedColor {0.0f, 0.0f, 0.0f, 0.95f};
+        std::vector<onaction> actions;
+    public:
+        RichButton(glm::vec2 size);
+
+        virtual void drawBackground(Batch2D* batch, Assets* assets) override;
+
+        virtual void mouseRelease(GUI*, int x, int y) override;
+        virtual RichButton* listenAction(onaction action);
+
+        virtual void setHoverColor(glm::vec4 color);
     };
 
     class TextBox : public Panel {

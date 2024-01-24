@@ -17,6 +17,9 @@
 #include "../coders/json.h"
 #include "../constants.h"
 #include "../items/ItemDef.h"
+#include "../items/Inventory.h"
+
+#include "../data/dynamic.h"
 
 #include <cassert>
 #include <iostream>
@@ -444,7 +447,7 @@ void WorldFiles::write(const World* world, const Content* content) {
 	if (generatorTestMode)
 		return;
 		
-	writeIndices(content->indices);
+	writeIndices(content->getIndices());
 	writeRegions(regions, regionsFolder, REGION_LAYER_VOXELS);
 	writeRegions(lights, lightsFolder, REGION_LAYER_LIGHTS);
 }
@@ -460,16 +463,16 @@ void WorldFiles::writePacks(const World* world) {
 }
 
 void WorldFiles::writeIndices(const ContentIndices* indices) {
-	json::JObject root;
+	dynamic::Map root;
     uint count;
-	json::JArray& blocks = root.putArray("blocks");
+	auto& blocks = root.putList("blocks");
 	count = indices->countBlockDefs();
 	for (uint i = 0; i < count; i++) {
 		const Block* def = indices->getBlockDef(i);
 		blocks.put(def->name);
 	}
 
-    json::JArray& items = root.putArray("items");
+    auto& items = root.putList("items");
 	count = indices->countItemDefs();
 	for (uint i = 0; i < count; i++) {
 		const ItemDef* def = indices->getItemDef(i);
@@ -480,18 +483,19 @@ void WorldFiles::writeIndices(const ContentIndices* indices) {
 }
 
 void WorldFiles::writeWorldInfo(const World* world) {
-	json::JObject root;
+	dynamic::Map root;
 
-	json::JObject& versionobj = root.putObj("version");
+	auto& versionobj = root.putMap("version");
 	versionobj.put("major", ENGINE_VERSION_MAJOR);
 	versionobj.put("minor", ENGINE_VERSION_MINOR);
 
-	root.put("name", world->name);
-	root.put("seed", world->seed);
+	root.put("name", world->getName());
+	root.put("seed", world->getSeed());
 	
-	json::JObject& timeobj = root.putObj("time");
+    auto& timeobj = root.putMap("time");
 	timeobj.put("day-time", world->daytime);
 	timeobj.put("day-time-speed", world->daytimeSpeed);
+    timeobj.put("total-time", world->totalTime);
 
 	files::write_json(getWorldFile(), &root);
 }
@@ -503,11 +507,12 @@ bool WorldFiles::readWorldInfo(World* world) {
 		return false;
 	}
 
-	std::unique_ptr<json::JObject> root(files::read_json(file));
-	root->str("name", world->name);
-	root->num("seed", world->seed);
+	auto root = files::read_json(file);
+    
+    world->setName(root->getStr("name", world->getName()));
+    world->setSeed(root->getInt("seed", world->getSeed()));
 
-	json::JObject* verobj = root->obj("version");
+	auto verobj = root->map("version");
 	if (verobj) {
 		int major=0, minor=-1;
 		verobj->num("major", major);
@@ -515,29 +520,38 @@ bool WorldFiles::readWorldInfo(World* world) {
 		std::cout << "world version: " << major << "." << minor << std::endl;
 	}
 
-	json::JObject* timeobj = root->obj("time");
+	auto timeobj = root->map("time");
 	if (timeobj) {
 		timeobj->num("day-time", world->daytime);
 		timeobj->num("day-time-speed", world->daytimeSpeed);
+        timeobj->num("total-time", world->totalTime);
 	}
 
 	return true;
 }
 
-void WorldFiles::writePlayer(Player* player){
+void WorldFiles::writePlayer(Player* player) {
 	glm::vec3 position = player->hitbox->position;
-	json::JObject root;
-	json::JArray& posarr = root.putArray("position");
+	dynamic::Map root;
+	auto& posarr = root.putList("position");
 	posarr.put(position.x);
 	posarr.put(position.y);
 	posarr.put(position.z);
 
-	json::JArray& rotarr = root.putArray("rotation");
+	auto& rotarr = root.putList("rotation");
 	rotarr.put(player->cam.x);
 	rotarr.put(player->cam.y);
-	
+
+	auto& sparr = root.putList("spawnpoint");
+	glm::vec3 spawnpoint = player->getSpawnPoint();
+	sparr.put(spawnpoint.x);
+	sparr.put(spawnpoint.y);
+	sparr.put(spawnpoint.z);
+
 	root.put("flight", player->flight);
 	root.put("noclip", player->noclip);
+    root.put("chosen-slot", player->getChosenSlot());
+    root.put("inventory", player->getInventory()->write().release());
 
 	files::write_json(getPlayerFile(), &root);
 }
@@ -549,19 +563,36 @@ bool WorldFiles::readPlayer(Player* player) {
 		return false;
 	}
 
-	std::unique_ptr<json::JObject> root(files::read_json(file));
-	json::JArray* posarr = root->arr("position");
+	auto root = files::read_json(file);
+	auto posarr = root->list("position");
 	glm::vec3& position = player->hitbox->position;
 	position.x = posarr->num(0);
 	position.y = posarr->num(1);
 	position.z = posarr->num(2);
 	player->camera->position = position;
 
-	json::JArray* rotarr = root->arr("rotation");
+	auto rotarr = root->list("rotation");
 	player->cam.x = rotarr->num(0);
 	player->cam.y = rotarr->num(1);
 
+	if (root->has("spawnpoint")) {
+		auto sparr = root->list("spawnpoint");
+		player->setSpawnPoint(glm::vec3(
+			sparr->num(0),
+			sparr->num(1),
+			sparr->num(2)
+		));
+	} else {
+		player->setSpawnPoint(position);
+	}
+
 	root->flag("flight", player->flight);
 	root->flag("noclip", player->noclip);
+    player->setChosenSlot(root->getInt("chosen-slot", player->getChosenSlot()));
+
+    auto invmap = root->map("inventory");
+    if (invmap) {
+        player->getInventory()->read(invmap);
+    }
 	return true;
 }

@@ -3,7 +3,7 @@
 
 namespace fs = std::filesystem;
 
-class EnginePaths;
+class Engine;
 class Content;
 class Level;
 class Block;
@@ -14,13 +14,15 @@ struct item_funcs_set;
 class BlocksController;
 
 namespace scripting {
+    extern Engine* engine;
     extern const Content* content;
     extern Level* level;
     extern BlocksController* blocks;
 
-    void initialize(EnginePaths* paths);
+    void initialize(Engine* engine);
     void on_world_load(Level* level, BlocksController* blocks);
     void on_world_quit();
+    void on_blocks_tick(const Block* block, int tps);
     void update_block(const Block* block, int x, int y, int z);
     void random_update_block(const Block* block, int x, int y, int z);
     void on_block_placed(Player* player, const Block* block, int x, int y, int z);

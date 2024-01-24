@@ -27,6 +27,7 @@ struct block_funcs_set {
     bool onbroken: 1;
     bool oninteract: 1;
     bool randupdate: 1;
+    bool onblockstick: 1;
 };
 
 struct CoordSystem {
@@ -81,7 +82,7 @@ public:
 	std::vector<glm::vec3> modelExtraPoints = {}; //initially made for tetragons
 	std::vector<UVRegion> modelUVs = {}; // boxes' tex-UVs also there
 	uint8_t emission[4] {0, 0, 0, 0};
-	unsigned char drawGroup = 0;
+	ubyte drawGroup = 0;
 	BlockModel model = BlockModel::block;
 	bool lightPassing = false;
 	bool skyLightPassing = false;
@@ -95,6 +96,7 @@ public:
 	AABB hitbox;
 	BlockRotProfile rotations;
     std::string pickingItem = name+BLOCK_ITEM_SUFFIX;
+    std::string scriptName = name.substr(name.find(':')+1);
 
 	struct {
 		blockid_t id;

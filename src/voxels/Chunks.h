@@ -2,6 +2,7 @@
 #define VOXELS_CHUNKS_H_
 
 #include <stdlib.h>
+#include <vector>
 #include <memory>
 #include <glm/glm.hpp>
 #include "../typedefs.h"
@@ -21,8 +22,8 @@ class Chunks {
 	const Content* const content;
 	const ContentIndices* const contentIds;
 public:
-	std::shared_ptr<Chunk>* chunks;
-	std::shared_ptr<Chunk>* chunksSecond;
+	std::vector<std::shared_ptr<Chunk>> chunks;
+	std::vector<std::shared_ptr<Chunk>> chunksSecond;
 	size_t volume;
 	size_t chunksCount;
 	size_t visible;
@@ -33,7 +34,7 @@ public:
 
 	Chunks(int w, int d, int ox, int oz, 
 		   WorldFiles* worldFiles, LevelEvents* events, const Content* content);
-	~Chunks();
+	~Chunks() = default;
 
 	bool putChunk(std::shared_ptr<Chunk> chunk);
 
