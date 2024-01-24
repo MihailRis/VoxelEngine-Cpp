@@ -229,15 +229,16 @@ std::string util::base64_encode(const ubyte* data, size_t size) {
 }
 
 std::vector<ubyte> util::base64_decode(const char* str, size_t size) {
-    std::vector<ubyte> bytes;
+    std::vector<ubyte> bytes((size/4)*3);
+    ubyte* dst = bytes.data();
     for (size_t i = 0; i < size;) {
         ubyte a = base64_decode_char(ubyte(str[i++]));
         ubyte b = base64_decode_char(ubyte(str[i++]));
         ubyte c = base64_decode_char(ubyte(str[i++]));
         ubyte d = base64_decode_char(ubyte(str[i++]));
-        bytes.push_back((a << 2) | ((b & 0b110000) >> 4));
-        bytes.push_back(((b & 0b1111) << 4) | ((c & 0b111100) >> 2));
-        bytes.push_back(((c & 0b11) << 6) | d);
+        *(dst++) = ((a << 2) | ((b & 0b110000) >> 4));
+        *(dst++) = (((b & 0b1111) << 4) | ((c & 0b111100) >> 2));
+        *(dst++) = (((c & 0b11) << 6) | d);
     }
     if (size >= 2) {
         size_t outsize = bytes.size();
