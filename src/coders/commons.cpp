@@ -68,7 +68,7 @@ std::string escape_string(std::string s) {
             case '\\': ss << "\\\\"; break;
             default:
                 if (c < ' ') {
-                    ss << "\\" << std::oct << (int)c;
+                    ss << "\\" << std::oct << uint(ubyte(c));
                     break;
                 }
                 ss << c;
