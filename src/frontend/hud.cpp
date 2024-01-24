@@ -356,7 +356,7 @@ void HudRenderer::update(bool visible) {
     }
     if (!inventoryOpen && Events::scroll) {
         int slot = player->getChosenSlot();
-        slot = (slot + Events::scroll) % 10;
+        slot = (slot - Events::scroll) % 10;
         if (slot < 0) {
             slot += 10;
         }
