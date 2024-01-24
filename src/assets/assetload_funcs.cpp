@@ -124,6 +124,7 @@ bool assetload::animation(Assets* assets,
 		if (fs::is_empty(folder)) continue;
 		
 		AtlasBuilder builder;
+        appendAtlas(builder, paths->find(blocksDir + "/" + name + ".png"));
 
 		std::string animFile = folder.string() + "/animation.json";
 
