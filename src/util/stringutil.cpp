@@ -169,3 +169,85 @@ std::wstring util::to_wstring(double x, int precision) {
     ss << std::fixed << std::setprecision(precision) << x;
     return ss.str();
 }
+
+const char B64ABC[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                      "abcdefghijklmnopqrstuvwxyz"
+                      "0123456789"
+                      "+/";
+
+inline ubyte base64_decode_char(char c) {
+    if (c >= 'A' && c <= 'Z')
+        return c - 'A';
+    if (c >= 'a' && c <= 'z')
+        return c - 'a' + 26;
+    if (c >= '0' && c <= '9')
+        return c - '0' + 52;
+    if (c == '+')
+        return 62;
+    if (c == '/')
+        return 63;
+    return 0;
+}
+
+inline void base64_encode_(const ubyte* segment, char* output) {
+    output[0] = B64ABC[(segment[0] & 0b11111100) >> 2];
+    output[1] = B64ABC[((segment[0] & 0b11) << 4) | ((segment[1] & 0b11110000) >> 4)];
+    output[2] = B64ABC[((segment[1] & 0b1111) << 2) | ((segment[2] & 0b11000000) >> 6)];
+    output[3] = B64ABC[segment[2] & 0b111111];
+}
+
+std::string util::base64_encode(const ubyte* data, size_t size) {
+    std::stringstream ss;
+
+    size_t fullsegments = (size/3)*3;
+
+    size_t i = 0;
+    for (; i < fullsegments; i+=3) {
+        char output[] = "====";
+        base64_encode_(data+i, output);
+        ss << output;
+    }
+
+    ubyte ending[3] {};
+    for (; i < size; i++) {
+        ending[i-fullsegments] = data[i];
+    }
+    size_t trailing = size-fullsegments;
+    {
+        char output[] = "====";
+        output[0] = B64ABC[(ending[0] & 0b11111100) >> 2];
+        output[1] = B64ABC[((ending[0] & 0b11) << 4) | 
+                           ((ending[1] & 0b11110000) >> 4)];
+        if (trailing > 1)
+            output[2] = B64ABC[((ending[1] & 0b1111) << 2) | 
+                               ((ending[2] & 0b11000000) >> 6)];
+        if (trailing > 2)
+            output[3] = B64ABC[ending[2] & 0b111111];
+        ss << output;
+    }
+    return ss.str();
+}
+
+std::vector<ubyte> util::base64_decode(const char* str, size_t size) {
+    std::vector<ubyte> bytes;
+    for (size_t i = 0; i < size;) {
+        ubyte a = base64_decode_char(ubyte(str[i++]));
+        ubyte b = base64_decode_char(ubyte(str[i++]));
+        ubyte c = base64_decode_char(ubyte(str[i++]));
+        ubyte d = base64_decode_char(ubyte(str[i++]));
+        bytes.push_back((a << 2) | ((b & 0b110000) >> 4));
+        bytes.push_back(((b & 0b1111) << 4) | ((c & 0b111100) >> 2));
+        bytes.push_back(((c & 0b11) << 6) | d);
+    }
+    if (size >= 2) {
+        size_t outsize = bytes.size();
+        if (str[size-1] == '=') outsize--;
+        if (str[size-2] == '=') outsize--;
+        bytes.resize(outsize);
+    }
+    return bytes;
+}
+
+std::vector<ubyte> util::base64_decode(const std::string& str) {
+    return base64_decode(str.c_str(), str.size());
+}
