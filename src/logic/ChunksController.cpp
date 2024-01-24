@@ -63,23 +63,24 @@ bool ChunksController::loadVisible(){
 			int index = z * w + x;
 			auto chunk = chunks->chunks[index];
 			if (chunk != nullptr){
-				int surrounding = 0;
-				for (int oz = -1; oz <= 1; oz++){
-					for (int ox = -1; ox <= 1; ox++){
-						Chunk* other = chunks->getChunk(chunk->x+ox, chunk->z+oz);
-						if (other != nullptr) surrounding++;
+				if (!chunk->isLighted()) {
+					int surrounding = 0;
+					for (int oz = -1; oz <= 1; oz++){
+						for (int ox = -1; ox <= 1; ox++){
+							Chunk* other = chunks->getChunk(chunk->x+ox, chunk->z+oz);
+							if (other != nullptr) surrounding++;
+						}
 					}
-				}
-				chunk->surrounding = surrounding;
-				if (surrounding == MIN_SURROUNDING && !chunk->isLighted()) {
-					timeutil::ScopeLogTimer log(555);
-					bool lightsCache = chunk->isLoadedLights();
-					if (!lightsCache) {
-						lighting->buildSkyLight(chunk->x, chunk->z);
-                    }
-                    lighting->onChunkLoaded(chunk->x, chunk->z, !lightsCache);
-					chunk->setLighted(true);
-					return true;
+					chunk->surrounding = surrounding;
+					if (surrounding == MIN_SURROUNDING) {
+						bool lightsCache = chunk->isLoadedLights();
+						if (!lightsCache) {
+							lighting->buildSkyLight(chunk->x, chunk->z);
+						}
+						lighting->onChunkLoaded(chunk->x, chunk->z, !lightsCache);
+						chunk->setLighted(true);
+						return true;
+					}
 				}
 				continue;
 			}
