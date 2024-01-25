@@ -354,7 +354,7 @@ void HudRenderer::update(bool visible) {
     if (Events::jpressed(keycode::NUM_0)) {
         player->setChosenSlot(9);
     }
-    if (!inventoryOpen && Events::scroll) {
+    if (!pause && !inventoryOpen && Events::scroll) {
         int slot = player->getChosenSlot();
         slot = (slot - Events::scroll) % 10;
         if (slot < 0) {
