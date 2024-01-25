@@ -43,7 +43,9 @@ public:
 	void sprite(glm::vec3 pos, glm::vec3 up, glm::vec3 right, float w, float h, const UVRegion& uv, glm::vec4 tint);
 	void xSprite(float w, float h, const UVRegion& uv, const glm::vec4 tint, bool shading=true);
 	void blockCube(const glm::vec3 size, const UVRegion(&texfaces)[6], const glm::vec4 tint, bool shading=true);
+    void point(glm::vec3 pos, glm::vec4 tint);
 	void flush();
+    void flushPoints();
 };
 
 #endif /* GRAPHICS_BATCH3D_H_ */

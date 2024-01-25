@@ -355,7 +355,9 @@ Texture* png::load_texture(std::string filename) {
 		std::cerr << "Could not load texture " << filename << std::endl;
 		return nullptr;
 	}
-	return Texture::from(image.get());
+	auto texture = Texture::from(image.get());
+    texture->setNearestFilter();
+    return texture;
 }
 
 void png::write_image(std::string filename, const ImageData* image) {

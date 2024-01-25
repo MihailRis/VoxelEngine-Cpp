@@ -2,6 +2,7 @@
 #define LOGIC_BLOCKS_CONTROLLER_H_
 
 #include "../typedefs.h"
+#include "../maths/fastmaths.h"
 
 class Player;
 class Block;
@@ -33,6 +34,7 @@ class BlocksController {
     Clock randTickClock;
     Clock blocksTickClock;
     uint padding;
+    FastRandom random;
 public:
     BlocksController(Level* level, uint padding);
 

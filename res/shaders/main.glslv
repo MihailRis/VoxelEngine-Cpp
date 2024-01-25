@@ -39,6 +39,7 @@ void main(){
 	skyLightColor.g *= 0.9;
 	skyLightColor.b *= 0.8;
 	skyLightColor = min(vec3(1.0), skyLightColor*SKY_LIGHT_MUL);
+    skyLightColor = max(vec3(0.1, 0.11, 0.14), skyLightColor);
 	
 	a_color.rgb = max(a_color.rgb, skyLightColor.rgb*decomp_light.a);
 	a_distance = length(u_view * u_model * vec4(pos3d.x, pos3d.y*0.2, pos3d.z, 0.0));
