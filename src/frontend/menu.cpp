@@ -302,6 +302,13 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
         try {
             engine->loadAllPacks();
             engine->loadContent();
+        } catch (const contentpack_error& error) {
+            guiutil::alert(engine->getGUI(),
+                        langs::get(L"Content Error", L"menu")+
+                        L":\n"+util::str2wstr_utf8(std::string(error.what())+
+                                "\npack '"+error.getPackId()+"' from "+
+                                error.getFolder().u8string()));
+            return;
         } catch (const std::runtime_error& error) {
             guiutil::alert(engine->getGUI(),
                         langs::get(L"Content Error", L"menu")+

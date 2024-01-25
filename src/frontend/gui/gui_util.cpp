@@ -37,6 +37,10 @@ void guiutil::alert(GUI* gui, const std::wstring& text, gui::runnable on_hidden)
         size_t offset = 0;
         int extra;
         while ((extra = text.length() - offset) > 0) {
+            size_t endline = text.find(L'\n', offset);
+            if (endline != std::string::npos) {
+                extra = std::min(extra, int(endline-offset)+1);
+            }
             extra = std::min(extra, wrap_length);
             std::wstring part = text.substr(offset, extra);
             panel->add(new Label(part));

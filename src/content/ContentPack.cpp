@@ -1,6 +1,7 @@
 #include "ContentPack.h"
 
 #include <iostream>
+#include <algorithm>
 
 #include "../coders/json.h"
 #include "../files/files.h"
@@ -13,6 +14,9 @@ const std::string ContentPack::PACKAGE_FILENAME = "package.json";
 const std::string ContentPack::CONTENT_FILENAME = "content.json";
 const fs::path ContentPack::BLOCKS_FOLDER = "blocks";
 const fs::path ContentPack::ITEMS_FOLDER = "items";
+const std::vector<std::string> ContentPack::RESERVED_NAMES = {
+    "res", "abs", "local", "core", "user", "world", "none", "null"
+};
 
 contentpack_error::contentpack_error(
     std::string packId, 
@@ -36,6 +40,27 @@ bool ContentPack::is_pack(fs::path folder) {
     return fs::is_regular_file(folder/fs::path(PACKAGE_FILENAME));
 }
 
+static void checkContentPackId(const std::string& id, const fs::path& folder) {
+    if (id.length() < 2 || id.length() > 24)
+        throw contentpack_error(id, folder, 
+            "content-pack id length is out of range [2, 24]");
+    if (isdigit(id[0])) 
+        throw contentpack_error(id, folder, 
+            "content-pack id must not start with a digit");
+    for (char c : id) {
+        if (!isalnum(c) && c != '_') {
+            throw contentpack_error(id, folder, 
+                "illegal character in content-pack id");
+        }
+    }
+    if (std::find(ContentPack::RESERVED_NAMES.begin(), 
+                  ContentPack::RESERVED_NAMES.end(), id)
+        != ContentPack::RESERVED_NAMES.end()) {
+        throw contentpack_error(id, folder, 
+                "this content-pack id is reserved");
+    }
+}
+
 ContentPack ContentPack::read(fs::path folder) {
     auto root = files::read_json(folder/fs::path(PACKAGE_FILENAME));
     ContentPack pack;
@@ -43,8 +68,12 @@ ContentPack ContentPack::read(fs::path folder) {
     root->str("title", pack.title);
     root->str("version", pack.version);
     pack.folder = folder;
+
     if (pack.id == "none")
-        throw contentpack_error(pack.id, folder, "content-pack id is none");
+        throw contentpack_error(pack.id, folder, 
+            "content-pack id is not specified");
+    checkContentPackId(pack.id, folder);
+
     return pack;
 }
 
