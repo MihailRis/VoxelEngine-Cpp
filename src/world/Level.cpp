@@ -22,7 +22,7 @@ Level::Level(std::unique_ptr<World>&& world, const Content* content, Player* pla
     uint matrixSize = (settings.chunks.loadDistance+
 					   settings.chunks.padding) * 2;
     chunks = new Chunks(matrixSize, matrixSize, 0, 0,
-						world->wfile, events, content);
+						this->world->wfile, events, content);
 	lighting = new Lighting(content, chunks);
 
 	events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
