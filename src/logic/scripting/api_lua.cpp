@@ -91,7 +91,7 @@ static int l_file_length(lua_State* L) {
 static const luaL_Reg filelib [] = {
     {"resolve", l_file_resolve},
     {"read", l_file_read},
-    {"file", l_file_write},
+    {"write", l_file_write},
     {"exists", l_file_exists},
     {"isfile", l_file_isfile},
     {"isdir", l_file_isdir},
