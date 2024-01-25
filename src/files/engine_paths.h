@@ -5,30 +5,38 @@
 #include <vector>
 #include <filesystem>
 
+#include "../content/ContentPack.h"
+
+namespace fs = std::filesystem;
+
 class EnginePaths {
-    std::filesystem::path userfiles {"."};
-    std::filesystem::path resources {"res"}; 
+    fs::path userfiles {"."};
+    fs::path resources {"res"}; 
+    std::vector<ContentPack>* contentPacks = nullptr;
 public:
-    std::filesystem::path getUserfiles() const;
-    std::filesystem::path getResources() const;
+    fs::path getUserfiles() const;
+    fs::path getResources() const;
     
-    std::filesystem::path getScreenshotFile(std::string ext);
-    std::filesystem::path getWorldsFolder();
+    fs::path getScreenshotFile(std::string ext);
+    fs::path getWorldsFolder();
     bool isWorldNameUsed(std::string name);
 
-    void setUserfiles(std::filesystem::path folder);
-    void setResources(std::filesystem::path folder);
+    void setUserfiles(fs::path folder);
+    void setResources(fs::path folder);
+    void setContentPacks(std::vector<ContentPack>* contentPacks);
+
+    fs::path resolve(std::string path);
 };
 
 class ResPaths {
-    std::filesystem::path mainRoot;
-    std::vector<std::filesystem::path> roots;
+    fs::path mainRoot;
+    std::vector<fs::path> roots;
 public:
-    ResPaths(std::filesystem::path mainRoot,
-             std::vector<std::filesystem::path> roots);
+    ResPaths(fs::path mainRoot,
+             std::vector<fs::path> roots);
     
-    std::filesystem::path find(const std::string& filename) const;
-    std::vector<std::filesystem::path> listdir(const std::string& folder) const;
+    fs::path find(const std::string& filename) const;
+    std::vector<fs::path> listdir(const std::string& folder) const;
 };
 
 #endif // FILES_ENGINE_PATHS_H_

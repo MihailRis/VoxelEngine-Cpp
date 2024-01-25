@@ -31,8 +31,7 @@ end
 -- nocache - ignore cached script, load anyway
 function load_script(path, nocache)
     local packname, filename = parse_path(path)
-    local packpath = pack.get_folder(packname)
-    local fullpath = packpath..filename
+    local fullpath = file.resolve(path);
 
     -- __cached_scripts used in condition because cached result may be nil
     if not nocache and __cached_scripts[fullpath] ~= nil then

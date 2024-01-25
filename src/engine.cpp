@@ -162,6 +162,8 @@ void Engine::loadContent() {
 		}
 	}
     assets->extend(*new_assets.get());
+
+    paths->setContentPacks(&contentPacks);
 }
 
 void Engine::loadWorldContent(const fs::path& folder) {

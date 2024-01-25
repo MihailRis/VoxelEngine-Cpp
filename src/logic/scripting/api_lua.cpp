@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 
+#include "../../files/files.h"
 #include "../../physics/Hitbox.h"
 #include "../../objects/Player.h"
 #include "../../world/Level.h"
@@ -28,6 +29,75 @@ inline void luaL_openlib(lua_State* L, const char* name, const luaL_Reg* libfunc
     luaL_setfuncs(L, libfuncs, nup);
     lua_setglobal(L, name);
 }
+
+/* == file library == */
+static int l_file_resolve(lua_State* L) {
+    std::string path = lua_tostring(L, 1);
+    fs::path resolved = scripting::engine->getPaths()->resolve(path);
+    lua_pushstring(L, resolved.u8string().c_str());
+    return 1;
+}
+
+static int l_file_read(lua_State* L) {
+    auto paths = scripting::engine->getPaths();
+    fs::path path = paths->resolve(lua_tostring(L, 1));
+    if (fs::is_regular_file(path)) {
+        lua_pushstring(L, files::read_string(path).c_str());
+        return 1;
+    }
+    return luaL_error(L, "file does not exists '%s'", path.u8string().c_str());
+}
+
+static int l_file_write(lua_State* L) {
+    auto paths = scripting::engine->getPaths();
+    fs::path path = paths->resolve(lua_tostring(L, 1));
+    const char* text = lua_tostring(L, 2);
+    files::write_string(path, text);
+    return 1;    
+}
+
+static int l_file_exists(lua_State* L) {
+    auto paths = scripting::engine->getPaths();
+    fs::path path = paths->resolve(lua_tostring(L, 1));
+    lua_pushboolean(L, fs::exists(path));
+    return 1;
+}
+
+static int l_file_isfile(lua_State* L) {
+    auto paths = scripting::engine->getPaths();
+    fs::path path = paths->resolve(lua_tostring(L, 1));
+    lua_pushboolean(L, fs::is_regular_file(path));
+    return 1;
+}
+
+static int l_file_isdir(lua_State* L) {
+    auto paths = scripting::engine->getPaths();
+    fs::path path = paths->resolve(lua_tostring(L, 1));
+    lua_pushboolean(L, fs::is_directory(path));
+    return 1;
+}
+
+static int l_file_length(lua_State* L) {
+    auto paths = scripting::engine->getPaths();
+    fs::path path = paths->resolve(lua_tostring(L, 1));
+    if (fs::exists(path)){
+        lua_pushinteger(L, fs::file_size(path));
+    } else {
+        lua_pushinteger(L, -1);
+    }
+    return 1;
+}
+
+static const luaL_Reg filelib [] = {
+    {"resolve", l_file_resolve},
+    {"read", l_file_read},
+    {"file", l_file_write},
+    {"exists", l_file_exists},
+    {"isfile", l_file_isfile},
+    {"isdir", l_file_isdir},
+    {"length", l_file_length},
+    {NULL, NULL}
+};
 
 /* == time library == */
 static int l_time_uptime(lua_State* L) {
@@ -313,6 +383,7 @@ void apilua::create_funcs(lua_State* L) {
     luaL_openlib(L, "world", worldlib, 0);
     luaL_openlib(L, "player", playerlib, 0);
     luaL_openlib(L, "time", timelib, 0);
+    luaL_openlib(L, "file", filelib, 0);
 
     lua_addfunc(L, l_block_index, "block_index");
     lua_addfunc(L, l_block_name, "block_name");
