@@ -345,6 +345,7 @@ void HudRenderer::update(bool visible) {
     inventoryView->visible(inventoryOpen);
     contentAccessPanel->visible(inventoryOpen);
     contentAccessPanel->size(glm::vec2(invSize.x, Window::height));
+    hotbarView->visible(visible);
 
     for (int i = keycode::NUM_1; i <= keycode::NUM_9; i++) {
         if (Events::jpressed(i)) {
