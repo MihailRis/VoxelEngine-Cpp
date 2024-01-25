@@ -7,7 +7,7 @@ AppDir:
     icon: VoxelEngine
     version: latest
     exec: usr/bin/VoxelEngine
-    exec_args: --dir $HOME --res $APPDIR/usr/share/VoxelEngine/res $@
+    exec_args: --dir $HOME/.voxeng --res $APPDIR/usr/share/VoxelEngine/res $@
   apt:
     arch: amd64
     sources:
