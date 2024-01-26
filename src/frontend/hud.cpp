@@ -279,6 +279,9 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
     hotbarView = createHotbar();
     inventoryView = createInventory();
 
+    darkOverlay = std::make_unique<Panel>(glm::vec2(4000.0f));
+    darkOverlay->color(glm::vec4(0, 0, 0, 0.5f));
+
     uicamera = new Camera(vec3(), 1);
     uicamera->perspective = false;
     uicamera->flipped = true;
@@ -286,9 +289,10 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
     createDebugPanel(engine);
     menu->reset();
     
+    gui->addBack(darkOverlay);
+    gui->addBack(hotbarView);
     gui->add(debugPanel);
     gui->add(contentAccessPanel);
-    gui->add(hotbarView);
     gui->add(inventoryView);
     gui->add(grabbedItemView);
 }
@@ -297,6 +301,7 @@ HudRenderer::~HudRenderer() {
     gui->remove(grabbedItemView);
     gui->remove(inventoryView);
     gui->remove(hotbarView);
+    gui->remove(darkOverlay);
     gui->remove(contentAccessPanel);
     gui->remove(debugPanel);
     delete uicamera;
@@ -368,6 +373,8 @@ void HudRenderer::update(bool visible) {
         }
         player->setChosenSlot(slot);
     }
+
+    darkOverlay->visible(pause);
 }
 
 void HudRenderer::closeInventory() {
@@ -375,26 +382,6 @@ void HudRenderer::closeInventory() {
     ItemStack& grabbed = interaction->getGrabbedItem();
     grabbed.clear();
 }
-
-void HudRenderer::drawOverlay(const GfxContext& ctx) {
-    if (pause) {
-        Shader* uishader = assets->getShader("ui");
-        uishader->use();
-        uishader->uniformMatrix("u_projview", uicamera->getProjView());
-
-        const Viewport& viewport = ctx.getViewport();
-        const uint width = viewport.getWidth();
-        const uint height = viewport.getHeight();
-        auto batch = ctx.getBatch2D();
-        batch->begin();
-
-        // draw fullscreen dark overlay
-        batch->texture(nullptr);
-        batch->color = vec4(0.0f, 0.0f, 0.0f, 0.5f);
-        batch->rect(0, 0, width, height);
-        batch->render();
-    }
-} 
 
 void HudRenderer::draw(const GfxContext& ctx){
     auto level = frontend->getLevel();

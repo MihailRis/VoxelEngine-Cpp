@@ -154,7 +154,6 @@ void LevelScreen::draw(float delta) {
 
     worldRenderer->draw(ctx, camera.get(), hudVisible);
 
-    hud->drawOverlay(ctx);
     if (hudVisible) {
         hud->draw(ctx);
         if (level->player->debug) {

@@ -42,6 +42,7 @@ class HudRenderer {
     std::shared_ptr<InventoryView> hotbarView;
     std::shared_ptr<InventoryView> inventoryView;
 	std::shared_ptr<gui::UINode> debugPanel;
+    std::shared_ptr<gui::Panel> darkOverlay;
     std::unique_ptr<InventoryInteraction> interaction;
     std::shared_ptr<SlotView> grabbedItemView;
 	gui::GUI* gui;
@@ -57,7 +58,6 @@ public:
 	~HudRenderer();
 
 	void update(bool hudVisible);
-    void drawOverlay(const GfxContext& context);
 	void draw(const GfxContext& context);
 	void drawDebug(int fps);
 

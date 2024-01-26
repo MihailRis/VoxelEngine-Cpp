@@ -474,6 +474,7 @@ void create_pause_panel(Engine* engine, PagesControl* menu) {
     panel->add(create_button(L"Continue", vec4(10.0f), vec4(1), [=](GUI*){
         menu->reset();
     }));
+    panel->add(guiutil::gotoButton(L"Content", "content", menu));
     panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
 
     panel->add(create_button(L"Save and Quit to Menu", vec4(10.f), vec4(1), [=](GUI*){
