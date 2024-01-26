@@ -146,6 +146,8 @@ public:
 	void write(const World* world, const Content* content);
 	void writePacks(const World* world);
 	void writeIndices(const ContentIndices* indices);
+
+    static const char* WORLD_FILE;
 };
 
 #endif /* FILES_WORLDFILES_H_ */

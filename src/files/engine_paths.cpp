@@ -2,7 +2,9 @@
 
 #include <filesystem>
 #include <sstream>
+
 #include "../typedefs.h"
+#include "WorldFiles.h"
 
 #define SCREENSHOTS_FOLDER "screenshots"
 
@@ -39,6 +41,27 @@ fs::path EnginePaths::getScreenshotFile(std::string ext) {
 
 fs::path EnginePaths::getWorldsFolder() {
     return userfiles/fs::path("worlds");
+}
+
+std::vector<fs::path> EnginePaths::scanForWorlds() {
+    std::vector<fs::path> folders;
+
+    fs::path folder = getWorldsFolder();
+    if (!fs::is_directory(folder))
+        return folders;
+    
+    for (auto entry : fs::directory_iterator(folder)) {
+        if (!entry.is_directory()) {
+            continue;
+        }
+        fs::path worldFolder = entry.path();
+        fs::path worldFile = worldFolder/fs::path(WorldFiles::WORLD_FILE);
+        if (!fs::is_regular_file(worldFile)) {
+            continue;
+        }
+        folders.push_back(worldFolder);
+    }
+    return folders;
 }
 
 bool EnginePaths::isWorldNameUsed(std::string name) {

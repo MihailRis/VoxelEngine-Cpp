@@ -153,7 +153,7 @@ void open_world(std::string name, Engine* engine) {
     auto folder = paths->getWorldsFolder()/fs::u8path(name);
     try {
         engine->loadWorldContent(folder);
-    } catch (contentpack_error& error) {
+    } catch (const contentpack_error& error) {
         // could not to find or read pack
         guiutil::alert(engine->getGUI(), 
                        langs::get(L"error.pack-not-found")+
@@ -178,8 +178,15 @@ void open_world(std::string name, Engine* engine) {
             show_convert_request(engine, content, lut, folder);
         }
     } else {
-        Level* level = World::load(folder, settings, content, packs);
-        engine->setScreen(std::make_shared<LevelScreen>(engine, level));
+        try {
+            Level* level = World::load(folder, settings, content, packs);
+            engine->setScreen(std::make_shared<LevelScreen>(engine, level));
+        } catch (const world_load_error& error) {
+            guiutil::alert(engine->getGUI(), 
+                        langs::get(L"Error")+
+                        L": "+util::str2wstr_utf8(error.what()));
+            return;
+        }
     }
 }
 
@@ -189,48 +196,45 @@ Panel* create_worlds_panel(Engine* engine) {
     panel->maxLength(400);
 
     auto paths = engine->getPaths();
+
+    auto folders = paths->scanForWorlds();
+
     fs::path worldsFolder = paths->getWorldsFolder();
-    if (fs::is_directory(worldsFolder)) {
-        for (auto entry : fs::directory_iterator(worldsFolder)) {
-            if (!entry.is_directory()) {
-                continue;
-            }
-            auto folder = entry.path();
-            auto name = folder.filename().u8string();
-            auto namews = util::str2wstr_utf8(name);
+    for (auto folder : folders) {
+        auto name = folder.filename().u8string();
+        auto namews = util::str2wstr_utf8(name);
 
-            auto btn = std::make_shared<RichButton>(vec2(390, 46));
-            btn->color(vec4(1.0f, 1.0f, 1.0f, 0.1f));
-            btn->setHoverColor(vec4(1.0f, 1.0f, 1.0f, 0.17f));
+        auto btn = std::make_shared<RichButton>(vec2(390, 46));
+        btn->color(vec4(1.0f, 1.0f, 1.0f, 0.1f));
+        btn->setHoverColor(vec4(1.0f, 1.0f, 1.0f, 0.17f));
 
-            auto label = std::make_shared<Label>(namews);
-            label->setInteractive(false);
-            btn->add(label, vec2(8, 8));
-            btn->listenAction([=](GUI*) {
-                open_world(name, engine);
+        auto label = std::make_shared<Label>(namews);
+        label->setInteractive(false);
+        btn->add(label, vec2(8, 8));
+        btn->listenAction([=](GUI*) {
+            open_world(name, engine);
+        });
+
+        auto image = std::make_shared<Image>("gui/delete_icon", vec2(32, 32));
+        image->color(vec4(1, 1, 1, 0.5f));
+
+        auto delbtn = std::make_shared<Button>(image, vec4(2));
+        delbtn->color(vec4(0.0f));
+        delbtn->setHoverColor(vec4(1.0f, 1.0f, 1.0f, 0.17f));
+        
+        btn->add(delbtn, vec2(330, 3));
+
+        delbtn->listenAction([=](GUI* gui) {
+            guiutil::confirm(gui, langs::get(L"delete-confirm", L"world")+
+            L" ("+util::str2wstr_utf8(folder.u8string())+L")", [=]() 
+            {
+                std::cout << "deleting " << folder.u8string() << std::endl;
+                fs::remove_all(folder);
+                menus::refresh_menus(engine, gui->getMenu());
             });
+        });
 
-            auto image = std::make_shared<Image>("gui/delete_icon", vec2(32, 32));
-            image->color(vec4(1, 1, 1, 0.5f));
-
-            auto delbtn = std::make_shared<Button>(image, vec4(2));
-            delbtn->color(vec4(0.0f));
-            delbtn->setHoverColor(vec4(1.0f, 1.0f, 1.0f, 0.17f));
-            
-            btn->add(delbtn, vec2(330, 3));
-
-            delbtn->listenAction([=](GUI* gui) {
-                guiutil::confirm(gui, langs::get(L"delete-confirm", L"world")+
-                L" ("+util::str2wstr_utf8(folder.u8string())+L")", [=]() 
-                {
-                    std::cout << "deleting " << folder.u8string() << std::endl;
-                    fs::remove_all(folder);
-                    menus::refresh_menus(engine, gui->getMenu());
-                });
-            });
-
-            panel->add(btn);
-        }
+        panel->add(btn);
     }
     return panel;
 }

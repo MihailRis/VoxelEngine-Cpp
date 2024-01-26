@@ -28,8 +28,6 @@
 #include <sstream>
 #include <cstring>
 
-namespace fs = std::filesystem;
-
 regfile::regfile(fs::path filename) : file(filename) {
     if (file.length() < REGION_HEADER_SIZE)
         throw std::runtime_error("incomplete region file header");
@@ -89,6 +87,8 @@ ubyte* WorldRegion::getChunkData(uint x, uint z) {
 uint WorldRegion::getChunkDataSize(uint x, uint z) {
 	return sizes[z * REGION_SIZE + x];
 }
+
+const char* WorldFiles::WORLD_FILE = "world.json";
 
 WorldFiles::WorldFiles(fs::path directory, const DebugSettings& settings) 
 	: directory(directory), 
@@ -248,7 +248,7 @@ fs::path WorldFiles::getPlayerFile() const {
 }
 
 fs::path WorldFiles::getWorldFile() const {
-	return directory/fs::path("world.json");
+	return directory/fs::path(WORLD_FILE);
 }
 
 fs::path WorldFiles::getIndicesFile() const {
