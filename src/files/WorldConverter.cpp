@@ -4,8 +4,12 @@
 #include <iostream>
 #include <stdexcept>
 #include "WorldFiles.h"
+
+#include "../data/dynamic.h"
+#include "../files/files.h"
 #include "../voxels/Chunk.h"
 #include "../content/ContentLUT.h"
+#include "../objects/Player.h"
 
 namespace fs = std::filesystem;
 
@@ -21,8 +25,9 @@ WorldConverter::WorldConverter(fs::path folder,
         std::cerr << "nothing to convert" << std::endl;
         return;
     }
+    tasks.push(convert_task {convert_task_type::player, wfile->getPlayerFile()});
     for (auto file : fs::directory_iterator(regionsFolder)) {
-        regions.push(file.path());
+        tasks.push(convert_task {convert_task_type::region, file.path()});
     }
 }
 
@@ -31,19 +36,12 @@ WorldConverter::~WorldConverter() {
 }
 
 bool WorldConverter::hasNext() const {
-    return !regions.empty();
+    return !tasks.empty();
 }
 
-void WorldConverter::convertNext() {
-    if (!hasNext()) {
-        throw std::runtime_error("no more regions to convert");
-    }
-    fs::path regfile = regions.front();
-    regions.pop();
-    if (!fs::is_regular_file(regfile))
-        return;
+void WorldConverter::convertRegion(fs::path file) {
     int x, z;
-    std::string name = regfile.stem().string();
+    std::string name = file.stem().string();
     if (!WorldFiles::parseRegionFilename(name, x, z)) {
         std::cerr << "could not parse name " << name << std::endl;
         return;
@@ -61,6 +59,32 @@ void WorldConverter::convertNext() {
             }
             wfile->put(gx, gz, data.get());
         }
+    }
+}
+
+void WorldConverter::convertPlayer(fs::path file) {
+    std::cout << "converting player " << file.u8string() << std::endl;
+    auto map = files::read_json(file);
+    Player::convert(map.get(), lut.get());
+    files::write_json(file, map.get());
+}
+
+void WorldConverter::convertNext() {
+    if (!hasNext()) {
+        throw std::runtime_error("no more regions to convert");
+    }
+    convert_task task = tasks.front();
+    tasks.pop();
+
+    if (!fs::is_regular_file(task.file))
+        return;
+    switch (task.type) {
+        case convert_task_type::region:
+            convertRegion(task.file);
+            break;
+        case convert_task_type::player:
+            convertPlayer(task.file);
+            break;
     }
 }
 

@@ -4,12 +4,14 @@
 #include <memory>
 #include <glm/glm.hpp>
 
+#include "../data/dynamic.h"
 #include "../voxels/voxel.h"
 #include "../settings.h"
 
 class Camera;
 class Hitbox;
 class Inventory;
+class ContentLUT;
 class PhysicsSolver;
 class Chunks;
 class Level;
@@ -62,6 +64,10 @@ public:
 
     void setSpawnPoint(glm::vec3 point);
     glm::vec3 getSpawnPoint() const;
+
+    std::unique_ptr<dynamic::Map> write() const;
+
+    static void convert(dynamic::Map* data, const ContentLUT* lut);
 };
 
 #endif /* SRC_OBJECTS_PLAYER_H_ */

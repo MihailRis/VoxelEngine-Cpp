@@ -12,6 +12,8 @@ namespace fs = std::filesystem;
 
 class Content;
 
+// TODO: make it unified for all types of content
+
 /* Content indices lookup table or report 
    used to convert world with different indices
    Building with indices.json */
@@ -19,10 +21,13 @@ class ContentLUT {
     std::vector<blockid_t> blocks;
     std::vector<std::string> blockNames;
 
+    std::vector<itemid_t> items;
+    std::vector<std::string> itemNames;
+
     bool reorderContent = false;
     bool missingContent = false;
 public:
-    ContentLUT(size_t blocks, const Content* content);
+    ContentLUT(const Content* content, size_t blocks, size_t items);
 
     inline const std::string& getBlockName(blockid_t index) const {
         return blockNames[index];
@@ -42,8 +47,28 @@ public:
         }
     }
 
-    static ContentLUT* create(const fs::path& filename, 
-                                   const Content* content);
+    inline const std::string& getItemName(blockid_t index) const {
+        return itemNames[index];
+    }
+
+    inline itemid_t getItemId(itemid_t index) const {
+        return items[index];
+    }
+
+    inline void setItem(itemid_t index, std::string name, itemid_t id) {
+        items[index] = id;
+        itemNames[index] = name;
+        if (id == ITEM_VOID) {
+            missingContent = true;
+        } else if (index != id) {
+            reorderContent = true;
+        }
+    }
+
+    static ContentLUT* create(
+        const fs::path& filename, 
+        const Content* content
+    );
     
     inline bool hasContentReorder() const {
         return reorderContent;
@@ -54,6 +79,10 @@ public:
 
     inline size_t countBlocks() const {
         return blocks.size();
+    }
+
+    inline size_t countItems() const {
+        return items.size();
     }
 };
 

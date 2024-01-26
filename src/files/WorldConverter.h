@@ -11,11 +11,23 @@ class Content;
 class ContentLUT;
 class WorldFiles;
 
+enum class convert_task_type {
+    region, player
+};
+
+struct convert_task {
+    convert_task_type type;
+    fs::path file;
+};
+
 class WorldConverter {
     WorldFiles* wfile;
     std::shared_ptr<ContentLUT> const lut;
     const Content* const content;
-    std::queue<fs::path> regions;
+    std::queue<convert_task> tasks;
+
+    void convertPlayer(fs::path file);
+    void convertRegion(fs::path file);
 public:
     WorldConverter(fs::path folder, const Content* content, 
                    std::shared_ptr<ContentLUT> lut);

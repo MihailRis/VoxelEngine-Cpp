@@ -9,6 +9,7 @@
 #include "../typedefs.h"
 #include "../data/dynamic.h"
 
+class ContentLUT;
 class ContentIndices;
 
 // TODO: items indices fix
@@ -35,6 +36,8 @@ public:
     void read(const dynamic::Map* src);
     /* serializing inventory */
     std::unique_ptr<dynamic::Map> write() const;
+
+    static void convert(dynamic::Map* data, const ContentLUT* lut);
 
     static const size_t npos;
 };

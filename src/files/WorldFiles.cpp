@@ -531,29 +531,7 @@ bool WorldFiles::readWorldInfo(World* world) {
 }
 
 void WorldFiles::writePlayer(Player* player) {
-	glm::vec3 position = player->hitbox->position;
-	dynamic::Map root;
-	auto& posarr = root.putList("position");
-	posarr.put(position.x);
-	posarr.put(position.y);
-	posarr.put(position.z);
-
-	auto& rotarr = root.putList("rotation");
-	rotarr.put(player->cam.x);
-	rotarr.put(player->cam.y);
-
-	auto& sparr = root.putList("spawnpoint");
-	glm::vec3 spawnpoint = player->getSpawnPoint();
-	sparr.put(spawnpoint.x);
-	sparr.put(spawnpoint.y);
-	sparr.put(spawnpoint.z);
-
-	root.put("flight", player->flight);
-	root.put("noclip", player->noclip);
-    root.put("chosen-slot", player->getChosenSlot());
-    root.put("inventory", player->getInventory()->write().release());
-
-	files::write_json(getPlayerFile(), &root);
+	files::write_json(getPlayerFile(), player->write().release());
 }
 
 bool WorldFiles::readPlayer(Player* player) {

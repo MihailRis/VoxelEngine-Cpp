@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "../content/ContentLUT.h"
 #include "../physics/Hitbox.h"
 #include "../physics/PhysicsSolver.h"
 #include "../voxels/Chunks.h"
@@ -166,4 +167,35 @@ void Player::setSpawnPoint(glm::vec3 spawnpoint) {
 
 glm::vec3 Player::getSpawnPoint() const {
 	return spawnpoint;
+}
+
+std::unique_ptr<dynamic::Map> Player::write() const {
+	glm::vec3 position = hitbox->position;
+	auto root = std::make_unique<dynamic::Map>();
+	auto& posarr = root->putList("position");
+	posarr.put(position.x);
+	posarr.put(position.y);
+	posarr.put(position.z);
+
+	auto& rotarr = root->putList("rotation");
+	rotarr.put(cam.x);
+	rotarr.put(cam.y);
+
+	auto& sparr = root->putList("spawnpoint");
+	sparr.put(spawnpoint.x);
+	sparr.put(spawnpoint.y);
+	sparr.put(spawnpoint.z);
+
+	root->put("flight", flight);
+	root->put("noclip", noclip);
+    root->put("chosen-slot", chosenSlot);
+    root->put("inventory", inventory->write().release());
+    return root;
+}
+
+void Player::convert(dynamic::Map* data, const ContentLUT* lut) {
+    auto inventory = data->map("inventory");
+    if (inventory) {
+        Inventory::convert(inventory, lut);
+    }
 }

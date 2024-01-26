@@ -76,7 +76,6 @@ class WorldFiles {
 	void writeWorldInfo(const World* world);
 	fs::path getLightsFolder() const;
 	fs::path getRegionFilename(int x, int y) const;
-	fs::path getPlayerFile() const;
 	fs::path getWorldFile() const;
 	fs::path getIndicesFile() const;
 	fs::path getPacksFile() const;
@@ -114,6 +113,7 @@ class WorldFiles {
 public:
     static bool parseRegionFilename(const std::string& name, int& x, int& y);
     fs::path getRegionsFolder() const;
+    fs::path getPlayerFile() const;
 
 	regionsmap regions;
 	regionsmap lights;
