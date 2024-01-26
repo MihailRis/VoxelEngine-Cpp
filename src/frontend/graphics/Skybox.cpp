@@ -74,7 +74,7 @@ void Skybox::drawBackground(Camera* camera, Assets* assets, int width, int heigh
     unbind();
 }
 
-void Skybox::drawStars(Camera* camera, float angle, float opacity) {
+void Skybox::drawStars(float angle, float opacity) {
     batch3d->texture(nullptr);
     random.setSeed(STARS_SEED);
     for (int i = 0; i < STARS_COUNT; i++) {
@@ -90,7 +90,7 @@ void Skybox::drawStars(Camera* camera, float angle, float opacity) {
 
         sopacity *= (0.2f+sqrt(cos(angle))*0.5) - 0.05;
         glm::vec4 tint (1,1,1, sopacity * opacity);
-        batch3d->point(camera->position + glm::vec3(x, y, z), tint);
+        batch3d->point(glm::vec3(x, y, z), tint);
     }
     batch3d->flushPoints();
 }
@@ -113,7 +113,7 @@ void Skybox::draw(
 
     Shader* shader = assets->getShader("ui3d");
     shader->use();
-    shader->uniformMatrix("u_projview", camera->getProjView());
+    shader->uniformMatrix("u_projview", camera->getProjView(false));
     shader->uniformMatrix("u_apply", glm::mat4(1.0f));
     batch3d->begin();
 
@@ -132,11 +132,11 @@ void Skybox::draw(
         if (!sprite.emissive) {
             tint *= 0.6f+cos(angle)*0.4;
         }
-        batch3d->sprite(camera->position+pos, glm::vec3(0, 0, 1), 
+        batch3d->sprite(pos, glm::vec3(0, 0, 1), 
                         up, 1, 1, UVRegion(), tint);
     }
 
-    drawStars(camera, angle, opacity);
+    drawStars(angle, opacity);
 }
 
 void Skybox::refresh(const GfxContext& pctx, float t, float mie, uint quality) {

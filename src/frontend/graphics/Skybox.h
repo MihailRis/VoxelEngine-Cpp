@@ -33,7 +33,7 @@ class Skybox {
     std::unique_ptr<Batch3D> batch3d;
     std::vector<skysprite> sprites;
 
-    void drawStars(Camera* camera, float angle, float opacity);
+    void drawStars(float angle, float opacity);
     void drawBackground(Camera* camera, Assets* assets, int width, int height);
 public:
     Skybox(uint size, Shader* shader);
