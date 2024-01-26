@@ -67,7 +67,16 @@ ContentPack ContentPack::read(fs::path folder) {
     root->str("id", pack.id);
     root->str("title", pack.title);
     root->str("version", pack.version);
+    root->str("creator", pack.creator);
+    root->str("description", pack.description);
     pack.folder = folder;
+
+    auto dependencies = root->list("dependencies");
+    if (dependencies) {
+        for (size_t i = 0; i < dependencies->size(); i++) {
+            pack.dependencies.push_back(dependencies->str(i));
+        }
+    }
 
     if (pack.id == "none")
         throw contentpack_error(pack.id, folder, 
@@ -92,6 +101,12 @@ void ContentPack::scan(fs::path rootfolder,
     }
 }
 
+void ContentPack::scan(EnginePaths* paths,
+                       std::vector<ContentPack>& packs) {
+    scan(paths->getResources()/fs::path("content"), packs);
+    scan(paths->getWorldFolder()/fs::path("content"), packs);
+}
+
 std::vector<std::string> ContentPack::worldPacksList(fs::path folder) {
     fs::path listfile = folder / fs::path("packs.list");
     if (!fs::is_regular_file(listfile)) {
@@ -111,8 +126,7 @@ fs::path ContentPack::findPack(const EnginePaths* paths, fs::path worldDir, std:
     if (fs::is_directory(folder)) {
         return folder;
     }
-    throw contentpack_error(name, folder, 
-                            "could not to find pack '"+name+"'");
+    return folder;
 }
 
 void ContentPack::readPacks(const EnginePaths* paths,
@@ -121,6 +135,10 @@ void ContentPack::readPacks(const EnginePaths* paths,
                             fs::path worldDir) {
     for (const auto& name : packnames) {
         fs::path packfolder = ContentPack::findPack(paths, worldDir, name);
+        if (!fs::is_directory(packfolder)) {
+            throw contentpack_error(name, packfolder, 
+                                    "could not to find pack '"+name+"'");
+        }
         packs.push_back(ContentPack::read(packfolder));
     }
 }

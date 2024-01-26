@@ -43,6 +43,10 @@ fs::path EnginePaths::getWorldsFolder() {
     return userfiles/fs::path("worlds");
 }
 
+fs::path EnginePaths::getWorldFolder() {
+    return worldFolder;
+}
+
 std::vector<fs::path> EnginePaths::scanForWorlds() {
     std::vector<fs::path> folders;
 

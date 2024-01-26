@@ -4,6 +4,7 @@
 #include <memory>
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 #include <filesystem>
 #include <glm/glm.hpp>
 
@@ -11,6 +12,8 @@
 #include "gui/panels.h"
 #include "gui/controls.h"
 #include "screens.h"
+
+#include "../coders/png.h"
 #include "../util/stringutil.h"
 #include "../files/engine_paths.h"
 #include "../files/WorldConverter.h"
@@ -92,6 +95,25 @@ void show_content_missing(Engine* engine, const Content* content,
             namelabel->color(vec4(1.0f, 0.2f, 0.2f, 0.5f));
 
             Label* typelabel = new Label(L"[block]");
+            typelabel->color(vec4(0.5f));
+            hpanel->add(typelabel);
+            hpanel->add(namelabel);
+            subpanel->add(hpanel);
+        }
+    }
+
+    for (size_t i = 0; i < lut->countItems(); i++) {
+        // missing block
+        if (lut->getItemId(i) == ITEM_VOID) {
+            auto name = lut->getItemName(i);
+            Panel* hpanel = new Panel(vec2(500, 30));
+            hpanel->color(vec4(0.0f));
+            hpanel->orientation(Orientation::horizontal);
+            
+            Label* namelabel = new Label(util::str2wstr_utf8(name));
+            namelabel->color(vec4(1.0f, 0.2f, 0.2f, 0.5f));
+
+            Label* typelabel = new Label(L"[item]");
             typelabel->color(vec4(0.5f));
             hpanel->add(typelabel);
             hpanel->add(namelabel);
@@ -248,10 +270,109 @@ void create_main_menu_panel(Engine* engine, PagesControl* menu) {
     }));
 }
 
+typedef std::function<void(const ContentPack& pack)> packconsumer;
+
+std::shared_ptr<Panel> create_packs_panel(const std::vector<ContentPack>& packs, Engine* engine, bool backbutton, packconsumer callback) {
+    auto assets = engine->getAssets();
+    auto panel = std::make_shared<Panel>(vec2(400, 200), vec4(5.0f));
+    panel->color(vec4(1.0f, 1.0f, 1.0f, 0.07f));
+    panel->maxLength(400);
+    panel->scrollable(true);
+
+    for (auto& pack : packs) {
+        auto packpanel = std::make_shared<RichButton>(vec2(390, 80));
+        if (callback) {
+            packpanel->listenAction([=](GUI*) {
+                callback(pack);
+            });
+        }
+        auto idlabel = std::make_shared<Label>("["+pack.id+"]");
+        idlabel->color(vec4(1, 1, 1, 0.5f));
+        packpanel->add(idlabel, vec2(360-idlabel->size().x, 2));
+
+        auto titlelabel = std::make_shared<Label>(pack.title);
+        packpanel->add(titlelabel, vec2(78, 6));
+
+        std::string icon = pack.id+".icon";
+        if (assets->getTexture(icon) == nullptr) {
+            auto iconfile = pack.folder/fs::path("icon.png");
+            if (fs::is_regular_file(iconfile)) {
+                assets->store(png::load_texture(iconfile), icon);
+            } else {
+                icon = "gui/no_icon";
+            }
+        }
+
+        if (!pack.creator.empty()) {
+            auto creatorlabel = std::make_shared<Label>("@"+pack.creator);
+            creatorlabel->color(vec4(0.8f, 1.0f, 0.9f, 0.7f));
+            packpanel->add(creatorlabel, vec2(360-creatorlabel->size().x, 60));
+        }
+
+        auto descriptionlabel = std::make_shared<Label>(pack.description);
+        descriptionlabel->color(vec4(1, 1, 1, 0.7f));
+        packpanel->add(descriptionlabel, vec2(80, 28));
+
+        packpanel->add(std::make_shared<Image>(icon, glm::vec2(64)), vec2(8));
+
+        packpanel->color(vec4(0.06f, 0.12f, 0.18f, 0.7f));
+        panel->add(packpanel);
+    }
+    if (backbutton)
+        panel->add(guiutil::backButton(engine->getGUI()->getMenu()));
+    return panel;
+}
+
+// TODO: refactor
 void create_content_panel(Engine* engine, PagesControl* menu) {
-    auto panel = create_page(engine, "content", 400, 0.0f, 5);
-    panel->add(new Label(L"work in progress"));
-    panel->add(guiutil::backButton(menu));
+    auto paths = engine->getPaths();
+    auto mainPanel = create_page(engine, "content", 400, 0.0f, 5);
+
+    std::vector<ContentPack> scanned;
+    ContentPack::scan(engine->getPaths(), scanned);
+    for (const auto& pack : engine->getContentPacks()) {
+        for (size_t i = 0; i < scanned.size(); i++) {
+            if (scanned[i].id == pack.id) {
+                scanned.erase(scanned.begin()+i);
+                i--;
+            }
+        }
+    }
+
+    auto panel = create_packs_panel(engine->getContentPacks(), engine, false, nullptr);
+    mainPanel->add(panel);
+    mainPanel->add(create_button(
+    langs::get(L"Add", L"content"), vec4(10.0f), vec4(1), [=](GUI* gui) {
+        auto panel = create_packs_panel(scanned, engine, true, 
+        [=](const ContentPack& pack) {
+            auto screen = dynamic_cast<LevelScreen*>(engine->getScreen().get());
+            auto level = screen->getLevel();
+            auto world = level->getWorld();
+
+            auto worldFolder = paths->getWorldFolder();
+            for (const auto& dependency : pack.dependencies) {
+                fs::path folder = ContentPack::findPack(paths, worldFolder, dependency);
+                if (!fs::is_directory(folder)) {
+                    guiutil::alert(gui, langs::get(L"error.dependency-not-found")+
+                                   L": "+util::str2wstr_utf8(dependency));
+                    return;
+                }
+                if (!world->hasPack(dependency)) {
+                    world->wfile->addPack(dependency);
+                }
+            }
+            
+            world->wfile->addPack(pack.id);
+
+            std::string wname = world->getName();
+            engine->setScreen(nullptr);
+            engine->setScreen(std::make_shared<MenuScreen>(engine));
+            open_world(wname, engine);
+        });
+        menu->add("content-packs", panel);
+        menu->set("content-packs");
+    }));
+    mainPanel->add(guiutil::backButton(menu));
 }
 
 inline uint64_t str2seed(std::wstring seedstr) {
@@ -476,7 +597,10 @@ void create_pause_panel(Engine* engine, PagesControl* menu) {
     panel->add(create_button(L"Continue", vec4(10.0f), vec4(1), [=](GUI*){
         menu->reset();
     }));
-    panel->add(guiutil::gotoButton(L"Content", "content", menu));
+    panel->add(create_button(L"Content", vec4(10.0f), vec4(1), [=](GUI*) {
+        create_content_panel(engine, menu);
+        menu->set("content");
+    }));
     panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
 
     panel->add(create_button(L"Save and Quit to Menu", vec4(10.f), vec4(1), [=](GUI*){
@@ -493,7 +617,6 @@ void menus::create_menus(Engine* engine, PagesControl* menu) {
     create_controls_panel(engine, menu);
     create_pause_panel(engine, menu);
     create_languages_panel(engine, menu);
-    create_content_panel(engine, menu);
     create_main_menu_panel(engine, menu);
 }
 

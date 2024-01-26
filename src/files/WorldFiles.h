@@ -146,6 +146,8 @@ public:
 	void write(const World* world, const Content* content);
 	void writePacks(const World* world);
 	void writeIndices(const ContentIndices* indices);
+    /* Append pack to packs.list without duplicate check */
+    void addPack(const std::string& id);
 
     static const char* WORLD_FILE;
 };

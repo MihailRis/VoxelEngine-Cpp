@@ -53,6 +53,8 @@ public:
 
     void update(float delta) override;
     void draw(float delta) override;
+
+    Level* getLevel() const;
 };
 
 #endif // FRONTEND_SCREENS_H_

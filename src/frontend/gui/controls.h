@@ -32,6 +32,7 @@ namespace gui {
         std::string fontName_;
         wstringsupplier supplier = nullptr;
     public:
+        Label(std::string text, std::string fontName="normal");
         Label(std::wstring text, std::string fontName="normal");
 
         virtual Label& text(std::wstring text);
@@ -40,6 +41,9 @@ namespace gui {
         virtual void draw(Batch2D* batch, Assets* assets) override;
 
         virtual Label* textSupplier(wstringsupplier supplier);
+        virtual glm::vec2 size() const override {
+            return UINode::size();
+        }
         virtual void size(glm::vec2 size) override;
     };
 

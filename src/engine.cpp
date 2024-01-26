@@ -176,7 +176,7 @@ void Engine::loadWorldContent(const fs::path& folder) {
 void Engine::loadAllPacks() {
 	auto resdir = paths->getResources();
 	contentPacks.clear();
-	ContentPack::scan(resdir/fs::path("content"), contentPacks);
+	ContentPack::scan(paths, contentPacks);
 }
 
 void Engine::setScreen(std::shared_ptr<Screen> screen) {
@@ -211,4 +211,8 @@ std::vector<ContentPack>& Engine::getContentPacks() {
 
 EnginePaths* Engine::getPaths() {
 	return paths;
+}
+
+std::shared_ptr<Screen> Engine::getScreen() {
+    return screen;
 }

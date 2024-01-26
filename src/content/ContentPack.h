@@ -24,7 +24,10 @@ struct ContentPack {
     std::string id = "none";
     std::string title = "untitled";
     std::string version = "0.0";
+    std::string creator = "";
+    std::string description = "no description";
     std::filesystem::path folder;
+    std::vector<std::string> dependencies;
 
     std::filesystem::path getContentFile() const;
 
@@ -36,8 +39,12 @@ struct ContentPack {
 
     static bool is_pack(std::filesystem::path folder);
     static ContentPack read(std::filesystem::path folder);
+
     static void scan(std::filesystem::path folder, 
                      std::vector<ContentPack>& packs);
+    static void scan(EnginePaths* paths, 
+                     std::vector<ContentPack>& packs);
+    
     static std::vector<std::string> worldPacksList(std::filesystem::path folder);
 
     static std::filesystem::path findPack(

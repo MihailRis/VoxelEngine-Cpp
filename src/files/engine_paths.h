@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 class EnginePaths {
     fs::path userfiles {"."};
     fs::path resources {"res"}; 
-    fs::path worldFolder {""};
+    fs::path worldFolder;
     std::vector<ContentPack>* contentPacks = nullptr;
 public:
     fs::path getUserfiles() const;
@@ -20,6 +20,7 @@ public:
     
     fs::path getScreenshotFile(std::string ext);
     fs::path getWorldsFolder();
+    fs::path getWorldFolder();
     bool isWorldNameUsed(std::string name);
 
     void setUserfiles(fs::path folder);

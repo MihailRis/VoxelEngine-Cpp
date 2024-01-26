@@ -104,6 +104,7 @@ LevelScreen::~LevelScreen() {
     auto world = level->getWorld();
     world->write(level.get());
     controller->onWorldQuit();
+    engine->getPaths()->setWorldFolder(fs::path());
 }
 
 void LevelScreen::updateHotkeys() {
@@ -162,4 +163,8 @@ void LevelScreen::draw(float delta) {
             hud->drawDebug(1 / delta);
         }
     }
+}
+
+Level* LevelScreen::getLevel() const {
+    return level.get();
 }

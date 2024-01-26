@@ -45,6 +45,7 @@ class Camera;
 
 namespace gui {
     typedef std::function<void()> runnable;
+    typedef std::function<void(const std::string&)> stringconsumer;
 
     class UINode;
     class Container;

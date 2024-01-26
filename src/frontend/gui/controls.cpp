@@ -22,6 +22,13 @@ const uint KEY_BACKSPACE = 259;
 
 using namespace gui;
 
+Label::Label(string text, string fontName) 
+     : UINode(vec2(), vec2(text.length() * 8, 15)), 
+       text_(util::str2wstr_utf8(text)), 
+       fontName_(fontName) {
+}
+
+
 Label::Label(wstring text, string fontName) 
      : UINode(vec2(), vec2(text.length() * 8, 15)), 
        text_(text), 
@@ -64,6 +71,7 @@ void Label::size(vec2 sizenew) {
 
 // ================================= Image ====================================
 Image::Image(string texture, vec2 size) : UINode(vec2(), size), texture(texture) {
+    setInteractive(false);
 }
 
 void Image::draw(Batch2D* batch, Assets* assets) {

@@ -37,8 +37,6 @@
 using glm::vec3;
 using glm::vec4;
 using glm::mat4;
-using std::string;
-using std::shared_ptr;
 
 WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend) 
 	: engine(engine), 
@@ -76,7 +74,7 @@ bool WorldRenderer::drawChunk(size_t index,
 	if (!chunk->isLighted()) {
 		return false;
 	}
-	shared_ptr<Mesh> mesh = renderer->getOrRender(chunk.get());
+	auto mesh = renderer->getOrRender(chunk.get());
 	if (mesh == nullptr) {
 		return false;
 	}
@@ -102,16 +100,15 @@ void WorldRenderer::drawChunks(Chunks* chunks,
 							   Shader* shader) {
 	std::vector<size_t> indices;
 	for (size_t i = 0; i < chunks->volume; i++){
-		shared_ptr<Chunk> chunk = chunks->chunks[i];
-		if (chunk == nullptr)
+		if (chunks->chunks[i] == nullptr)
 			continue;
 		indices.push_back(i);
 	}
 	float px = camera->position.x / (float)CHUNK_W;
 	float pz = camera->position.z / (float)CHUNK_D;
 	std::sort(indices.begin(), indices.end(), [this, chunks, px, pz](size_t i, size_t j) {
-		shared_ptr<Chunk> a = chunks->chunks[i];
-		shared_ptr<Chunk> b = chunks->chunks[j];
+		auto a = chunks->chunks[i];
+		auto b = chunks->chunks[j];
 		return ((a->x + 0.5f - px)*(a->x + 0.5f - px) + 
 				(a->z + 0.5f - pz)*(a->z + 0.5f - pz)
 				>
