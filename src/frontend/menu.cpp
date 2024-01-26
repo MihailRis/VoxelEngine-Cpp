@@ -196,11 +196,8 @@ Panel* create_worlds_panel(Engine* engine) {
     panel->maxLength(400);
 
     auto paths = engine->getPaths();
-
-    auto folders = paths->scanForWorlds();
-
-    fs::path worldsFolder = paths->getWorldsFolder();
-    for (auto folder : folders) {
+    
+    for (auto folder : paths->scanForWorlds()) {
         auto name = folder.filename().u8string();
         auto namews = util::str2wstr_utf8(name);
 

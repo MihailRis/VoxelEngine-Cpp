@@ -132,8 +132,8 @@ void Skybox::draw(
         if (!sprite.emissive) {
             tint *= 0.6f+cos(angle)*0.4;
         }
-        batch3d->sprite(camera->position+pos, up, 
-                        glm::vec3(0, 0, -1), 1, 1, UVRegion(), tint);
+        batch3d->sprite(camera->position+pos, glm::vec3(0, 0, 1), 
+                        up, 1, 1, UVRegion(), tint);
     }
 
     drawStars(camera, angle, opacity);
