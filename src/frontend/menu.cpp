@@ -196,7 +196,7 @@ Panel* create_worlds_panel(Engine* engine) {
     panel->maxLength(400);
 
     auto paths = engine->getPaths();
-    
+
     for (auto folder : paths->scanForWorlds()) {
         auto name = folder.filename().u8string();
         auto namews = util::str2wstr_utf8(name);
@@ -316,7 +316,6 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
                         L": "+util::str2wstr_utf8(error.what()));
             return;
         }
-        fs::create_directories(folder);
 
         Level* level = World::create(
             nameutf8, folder, seed, 
@@ -478,6 +477,9 @@ void create_pause_panel(Engine* engine, PagesControl* menu) {
     panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
 
     panel->add(create_button(L"Save and Quit to Menu", vec4(10.f), vec4(1), [=](GUI*){
+        // save world and destroy LevelScreen
+        engine->setScreen(nullptr);
+        // create and go to menu screen
         engine->setScreen(std::make_shared<MenuScreen>(engine));
     }));
 }

@@ -313,6 +313,7 @@ void HudRenderer::update(bool visible) {
     auto player = level->player;
     auto menu = gui->getMenu();
 
+    debugPanel->visible(player->debug && visible);
     menu->visible(pause);
 
     if (!visible && inventoryOpen) {
@@ -393,7 +394,6 @@ void HudRenderer::draw(const GfxContext& ctx){
     const uint height = viewport.getHeight();
 
     Player* player = level->player;
-    debugPanel->visible(player->debug);
 
     uicamera->setFov(height);
 

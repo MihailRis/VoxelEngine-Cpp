@@ -50,8 +50,8 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     menu->set("main");
 
     uicamera.reset(new Camera(glm::vec3(), Window::height));
-	uicamera->perspective = false;
-	uicamera->flipped = true;
+    uicamera->perspective = false;
+    uicamera->flipped = true;
 }
 
 MenuScreen::~MenuScreen() {
@@ -65,9 +65,9 @@ void MenuScreen::draw(float delta) {
     Window::setBgColor(glm::vec3(0.2f));
 
     uicamera->setFov(Window::height);
-	Shader* uishader = engine->getAssets()->getShader("ui");
-	uishader->use();
-	uishader->uniformMatrix("u_projview", uicamera->getProjView());
+    Shader* uishader = engine->getAssets()->getShader("ui");
+    uishader->use();
+    uishader->uniformMatrix("u_projview", uicamera->getProjView());
 
     uint width = Window::width;
     uint height = Window::height;
@@ -99,9 +99,9 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
 }
 
 LevelScreen::~LevelScreen() {
-	std::cout << "-- writing world" << std::endl;
+    std::cout << "-- writing world" << std::endl;
     auto world = level->getWorld();
-	world->write(level.get());
+    world->write(level.get());
 }
 
 void LevelScreen::updateHotkeys() {
