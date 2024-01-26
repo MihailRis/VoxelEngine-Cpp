@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <lua.hpp>
 
+#include "../../content/ContentPack.h"
 #include "../../files/engine_paths.h"
 #include "../../files/files.h"
 #include "../../util/timeutil.h"
@@ -105,9 +106,40 @@ void scripting::on_world_load(Level* level, BlocksController* blocks) {
     scripting::content = level->content;
     scripting::blocks = blocks;
     load_script("world.lua");
+
+    for (auto& pack : scripting::engine->getContentPacks()) {
+        std::string name = pack.id+".worldopen";
+        lua_getglobal(L, name.c_str());
+        if (lua_isnil(L, lua_gettop(L))) {
+            lua_pop(L, lua_gettop(L));
+            continue;
+        }
+        call_func(L, 0, name);
+    }
+}
+
+void scripting::on_world_save() {
+    for (auto& pack : scripting::engine->getContentPacks()) {
+        std::string name = pack.id+".worldsave";
+        lua_getglobal(L, name.c_str());
+        if (lua_isnil(L, lua_gettop(L))) {
+            lua_pop(L, lua_gettop(L));
+            continue;
+        }
+        call_func(L, 0, name);
+    }
 }
 
 void scripting::on_world_quit() {
+    for (auto& pack : scripting::engine->getContentPacks()) {
+        std::string name = pack.id+".worldquit";
+        lua_getglobal(L, name.c_str());
+        if (lua_isnil(L, lua_gettop(L))) {
+            lua_pop(L, lua_gettop(L));
+            continue;
+        }
+        call_func(L, 0, name);
+    }
     scripting::level = nullptr;
     scripting::content = nullptr;
 }
@@ -209,6 +241,20 @@ void scripting::load_item_script(std::string prefix, fs::path file, item_funcs_s
     funcsset->init=rename_global(L, "init", (prefix+".init").c_str());
     funcsset->on_use_on_block=rename_global(L, "on_use_on_block", (prefix+".useon").c_str());
     funcsset->on_block_break_by=rename_global(L, "on_block_break_by", (prefix+".blockbreakby").c_str());
+}
+
+void scripting::load_world_script(std::string prefix, fs::path file) {
+    std::string src = files::read_string(file);
+    std::cout << "loading script " << file.u8string() << std::endl;
+    if (luaL_loadbuffer(L, src.c_str(), src.size(), file.string().c_str())) {
+        handleError(L);
+        return;
+    }
+    call_func(L, 0, "<script>");
+    rename_global(L, "init", (prefix+".init").c_str());
+    rename_global(L, "on_world_open", (prefix+".worldopen").c_str());
+    rename_global(L, "on_world_save", (prefix+".worldsave").c_str());
+    rename_global(L, "on_world_quit", (prefix+".worldquit").c_str());
 }
 
 void scripting::close() {

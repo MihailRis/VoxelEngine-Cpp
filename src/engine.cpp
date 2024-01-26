@@ -123,8 +123,8 @@ void Engine::mainloop() {
 }
 
 Engine::~Engine() {
-    scripting::close();
 	screen = nullptr;
+    scripting::close();
 
 	Audio::finalize();
 
