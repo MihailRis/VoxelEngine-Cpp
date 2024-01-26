@@ -63,6 +63,8 @@ public:
 
 	bool isInventoryOpen() const;
 	bool isPause() const;
+
+    void closeInventory();
 };
 
 #endif /* SRC_HUD_H_ */

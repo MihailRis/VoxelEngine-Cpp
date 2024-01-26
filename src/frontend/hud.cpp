@@ -317,7 +317,7 @@ void HudRenderer::update(bool visible) {
     menu->visible(pause);
 
     if (!visible && inventoryOpen) {
-        inventoryOpen = false;
+        closeInventory();
     }
     if (pause && menu->current().panel == nullptr) {
         pause = false;
@@ -327,7 +327,7 @@ void HudRenderer::update(bool visible) {
             pause = false;
             menu->reset();
         } else if (inventoryOpen) {
-            inventoryOpen = false;
+            closeInventory();
         } else {
             pause = true;
             menu->set("pause");
@@ -335,7 +335,11 @@ void HudRenderer::update(bool visible) {
     }
     if (visible && Events::jactive(BIND_HUD_INVENTORY)) {
         if (!pause) {
-            inventoryOpen = !inventoryOpen;
+            if (inventoryOpen) {
+                closeInventory();
+            } else {
+                inventoryOpen = true;
+            }
         }
     }
     if ((pause || inventoryOpen) == Events::_cursor_locked) {
@@ -364,6 +368,12 @@ void HudRenderer::update(bool visible) {
         }
         player->setChosenSlot(slot);
     }
+}
+
+void HudRenderer::closeInventory() {
+    inventoryOpen = false;
+    ItemStack& grabbed = interaction->getGrabbedItem();
+    grabbed.clear();
 }
 
 void HudRenderer::drawOverlay(const GfxContext& ctx) {
