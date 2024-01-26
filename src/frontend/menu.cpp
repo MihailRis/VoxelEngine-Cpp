@@ -165,6 +165,7 @@ void open_world(std::string name, Engine* engine) {
                        L": "+util::str2wstr_utf8(error.what()));
         return;
     }
+    paths->setWorldFolder(folder);
 
     auto& packs = engine->getContentPacks();
     auto* content = engine->getContent();
@@ -303,6 +304,7 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
         try {
             engine->loadAllPacks();
             engine->loadContent();
+            paths->setWorldFolder(folder);
         } catch (const contentpack_error& error) {
             guiutil::alert(engine->getGUI(),
                         langs::get(L"Content Error", L"menu")+

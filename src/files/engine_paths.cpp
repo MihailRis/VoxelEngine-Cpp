@@ -76,6 +76,10 @@ void EnginePaths::setResources(fs::path folder) {
     this->resources = folder;
 }
 
+void EnginePaths::setWorldFolder(fs::path folder) {
+    this->worldFolder = folder;
+}
+
 void EnginePaths::setContentPacks(std::vector<ContentPack>* contentPacks) {
     this->contentPacks = contentPacks;
 }
@@ -94,6 +98,10 @@ fs::path EnginePaths::resolve(std::string path) {
 
     if (prefix == "user") {
         return userfiles/fs::path(filename);
+    }
+
+    if (prefix == "world") {
+        return worldFolder/fs::path(filename);
     }
 
     if (contentPacks) {
