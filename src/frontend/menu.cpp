@@ -277,7 +277,7 @@ std::shared_ptr<Panel> create_packs_panel(const std::vector<ContentPack>& packs,
         if (assets->getTexture(icon) == nullptr) {
             auto iconfile = pack.folder/fs::path("icon.png");
             if (fs::is_regular_file(iconfile)) {
-                assets->store(png::load_texture(iconfile), icon);
+                assets->store(png::load_texture(iconfile.string()), icon);
             } else {
                 icon = "gui/no_icon";
             }
@@ -485,7 +485,7 @@ void create_settings_panel(Engine* engine, PagesControl* menu) {
             return engine->getSettings().chunks.loadDistance;
         });
         trackbar->consumer([=](double value) {
-            engine->getSettings().chunks.loadDistance = value;
+            engine->getSettings().chunks.loadDistance = static_cast<uint>(value);
         });
         panel->add(trackbar);
     }
@@ -501,7 +501,7 @@ void create_settings_panel(Engine* engine, PagesControl* menu) {
             return engine->getSettings().chunks.loadSpeed;
         });
         trackbar->consumer([=](double value) {
-            engine->getSettings().chunks.loadSpeed = value;
+            engine->getSettings().chunks.loadSpeed = static_cast<uint>(value);
         });
         panel->add(trackbar);
     }
