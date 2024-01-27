@@ -138,6 +138,7 @@ void Engine::loadContent() {
     auto resdir = paths->getResources();
     ContentBuilder contentBuilder;
     setup_definitions(&contentBuilder);
+    paths->setContentPacks(&contentPacks);
     
     std::vector<fs::path> resRoots;
     for (auto& pack : contentPacks) {
@@ -163,7 +164,7 @@ void Engine::loadContent() {
 	}
     assets->extend(*new_assets.get());
 
-    paths->setContentPacks(&contentPacks);
+
 }
 
 void Engine::loadWorldContent(const fs::path& folder) {
