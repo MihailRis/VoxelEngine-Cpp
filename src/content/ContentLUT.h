@@ -8,9 +8,14 @@
 #include "../typedefs.h"
 #include "../constants.h"
 
+#include "Content.h"
+
 namespace fs = std::filesystem;
 
-class Content;
+struct contententry {
+    contenttype type;
+    std::string name;
+};
 
 // TODO: make it unified for all types of content
 
@@ -84,6 +89,8 @@ public:
     inline size_t countItems() const {
         return items.size();
     }
+
+    std::vector<contententry> getMissingContent() const;
 };
 
 #endif // CONTENT_CONTENT_LUT_H_

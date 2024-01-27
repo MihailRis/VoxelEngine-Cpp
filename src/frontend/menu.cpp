@@ -83,42 +83,20 @@ void show_content_missing(Engine* engine, const Content* content,
     Panel* subpanel = new Panel(vec2(500, 100));
     subpanel->color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
 
-    for (size_t i = 0; i < lut->countBlocks(); i++) {
-        // missing block
-        if (lut->getBlockId(i) == BLOCK_VOID) {
-            auto name = lut->getBlockName(i);
-            Panel* hpanel = new Panel(vec2(500, 30));
-            hpanel->color(vec4(0.0f));
-            hpanel->orientation(Orientation::horizontal);
-            
-            Label* namelabel = new Label(util::str2wstr_utf8(name));
-            namelabel->color(vec4(1.0f, 0.2f, 0.2f, 0.5f));
+    for (auto& entry : lut->getMissingContent()) {
+         Panel* hpanel = new Panel(vec2(500, 30));
+        hpanel->color(vec4(0.0f));
+        hpanel->orientation(Orientation::horizontal);
+        
+        Label* namelabel = new Label(util::str2wstr_utf8(entry.name));
+        namelabel->color(vec4(1.0f, 0.2f, 0.2f, 0.5f));
 
-            Label* typelabel = new Label(L"[block]");
-            typelabel->color(vec4(0.5f));
-            hpanel->add(typelabel);
-            hpanel->add(namelabel);
-            subpanel->add(hpanel);
-        }
-    }
-
-    for (size_t i = 0; i < lut->countItems(); i++) {
-        // missing block
-        if (lut->getItemId(i) == ITEM_VOID) {
-            auto name = lut->getItemName(i);
-            Panel* hpanel = new Panel(vec2(500, 30));
-            hpanel->color(vec4(0.0f));
-            hpanel->orientation(Orientation::horizontal);
-            
-            Label* namelabel = new Label(util::str2wstr_utf8(name));
-            namelabel->color(vec4(1.0f, 0.2f, 0.2f, 0.5f));
-
-            Label* typelabel = new Label(L"[item]");
-            typelabel->color(vec4(0.5f));
-            hpanel->add(typelabel);
-            hpanel->add(namelabel);
-            subpanel->add(hpanel);
-        }
+        auto contentname = util::str2wstr_utf8(contenttype_name(entry.type));
+        Label* typelabel = new Label(L"["+contentname+L"]");
+        typelabel->color(vec4(0.5f));
+        hpanel->add(typelabel);
+        hpanel->add(namelabel);
+        subpanel->add(hpanel);
     }
     subpanel->maxLength(400);
     panel->add(subpanel);
