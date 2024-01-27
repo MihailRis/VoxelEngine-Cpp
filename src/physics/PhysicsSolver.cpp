@@ -86,6 +86,17 @@ void PhysicsSolver::colisionCalc(
 	// step size (smaller - more accurate, but slower)
 	float s = 2.0f/BLOCK_AABB_GRID;
 
+    if (stepHeight > 0.0f) {
+        for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
+            for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
+                if (chunks->isObstacleAt(x, pos.y+half.y+stepHeight, z)) {
+                    stepHeight = 0.0f;
+                    break;
+                }
+            }
+        }
+    }
+
 	const AABB* aabb;
 	
 	if (vel.x < 0.0f){
