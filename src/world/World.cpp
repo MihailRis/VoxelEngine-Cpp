@@ -108,6 +108,14 @@ void World::setName(const std::string& name) {
     this->name = name;
 }
 
+bool World::hasPack(const std::string& id) const {
+    for (auto& pack : packs) {
+        if (pack.id == id)
+            return true;
+    }
+    return false;
+}
+
 void World::setSeed(uint64_t seed) {
     this->seed = seed;
 }

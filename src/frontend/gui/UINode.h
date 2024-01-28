@@ -81,7 +81,7 @@ namespace gui {
         virtual glm::vec2 contentOffset() {return glm::vec2(0.0f);};
         glm::vec2 calcCoord() const;
         virtual void setCoord(glm::vec2 coord);
-        glm::vec2 size() const;
+        virtual glm::vec2 size() const;
         virtual void size(glm::vec2 size);
         void _size(glm::vec2 size);
         virtual void refresh() {};

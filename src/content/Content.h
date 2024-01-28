@@ -19,6 +19,16 @@ enum class contenttype {
     none, block, item
 };
 
+inline const char* contenttype_name(contenttype type) {
+    switch (type) {
+        case contenttype::none: return "none";
+        case contenttype::block: return "block";
+        case contenttype::item: return "item";
+        default:
+            return "unknown";
+    }
+}
+
 class namereuse_error: public std::runtime_error {
     contenttype type;
 public:

@@ -58,8 +58,8 @@ mat4 Camera::getView(bool pos){
 	}
 }
 
-mat4 Camera::getProjView(){
-	return getProjection()*getView();
+mat4 Camera::getProjView(bool pos){
+	return getProjection()*getView(pos);
 }
 
 void Camera::setFov(float fov) {

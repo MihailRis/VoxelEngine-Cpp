@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "Lighting.h"
 #include "LightSolver.h"
 #include "Lightmap.h"
@@ -8,24 +10,18 @@
 #include "../voxels/Block.h"
 #include "../constants.h"
 #include "../typedefs.h"
-
-#include <memory>
-#include <iostream>
+#include "../util/timeutil.h"
 
 Lighting::Lighting(const Content* content, Chunks* chunks) 
 	     : content(content), chunks(chunks) {
 	auto indices = content->getIndices();
-	solverR = new LightSolver(indices, chunks, 0);
-	solverG = new LightSolver(indices, chunks, 1);
-	solverB = new LightSolver(indices, chunks, 2);
-	solverS = new LightSolver(indices, chunks, 3);
+	solverR = std::make_unique<LightSolver>(indices, chunks, 0);
+	solverG = std::make_unique<LightSolver>(indices, chunks, 1);
+	solverB = std::make_unique<LightSolver>(indices, chunks, 2);
+	solverS = std::make_unique<LightSolver>(indices, chunks, 3);
 }
 
 Lighting::~Lighting(){
-	delete solverR;
-	delete solverG;
-	delete solverB;
-	delete solverS;
 }
 
 void Lighting::clear(){
@@ -46,10 +42,9 @@ void Lighting::prebuildSkyLight(Chunk* chunk, const ContentIndices* indices){
 	int highestPoint = 0;
 	for (int z = 0; z < CHUNK_D; z++){
 		for (int x = 0; x < CHUNK_W; x++){
-			for (int y = CHUNK_H-1;;y--){
-				if (y < 0)
-					break;
-				voxel& vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
+			for (int y = CHUNK_H-1; y >= 0; y--){
+                int index = (y * CHUNK_D + z) * CHUNK_W + x;
+				voxel& vox = chunk->voxels[index];
 				const Block* block = blockDefs[vox.id];
 				if (!block->skyLightPassing) {
 					if (highestPoint < y)
@@ -93,6 +88,11 @@ void Lighting::buildSkyLight(int cx, int cz){
 }
 
 void Lighting::onChunkLoaded(int cx, int cz, bool expand){
+    LightSolver* solverR = this->solverR.get();
+    LightSolver* solverG = this->solverG.get();
+    LightSolver* solverB = this->solverB.get();
+    LightSolver* solverS = this->solverS.get();
+
 	const Block* const* blockDefs = content->getIndices()->getBlockDefs();
 	const Chunk* chunk = chunks->getChunk(cx, cz);
 
@@ -150,7 +150,7 @@ void Lighting::onChunkLoaded(int cx, int cz, bool expand){
 	solverS->solve();
 }
 
-void Lighting::onBlockSet(int x, int y, int z, int const id){
+void Lighting::onBlockSet(int x, int y, int z, blockid_t id){
 	Block* block = content->getIndices()->getBlockDef(id);
 	if (id == 0){
 		solverR->remove(x,y,z);

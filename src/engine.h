@@ -63,6 +63,8 @@ public:
     void loadContent();
     void loadWorldContent(const fs::path& folder);
 	void loadAllPacks();
+
+    std::shared_ptr<Screen> getScreen();
 };
 
 #endif // SRC_ENGINE_H_

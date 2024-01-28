@@ -167,6 +167,17 @@ int Window::initialize(DisplaySettings& settings){
 	return 0;
 }
 
+void Window::setBlendMode(blendmode mode) {
+    switch (mode) {
+        case blendmode::normal:
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+        case blendmode::addition:
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            break;
+    }
+}
+
 void Window::clear() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

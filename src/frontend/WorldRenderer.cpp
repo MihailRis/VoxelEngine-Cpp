@@ -5,13 +5,14 @@
 #include <memory>
 #include <assert.h>
 
-#include "../content/Content.h"
-#include "../graphics/ChunksRenderer.h"
 #include "../window/Window.h"
 #include "../window/Camera.h"
+#include "../content/Content.h"
+#include "../graphics/ChunksRenderer.h"
 #include "../graphics/Mesh.h"
 #include "../graphics/Atlas.h"
 #include "../graphics/Shader.h"
+#include "../graphics/Batch3D.h"
 #include "../graphics/Texture.h"
 #include "../graphics/LineBatch.h"
 #include "../voxels/Chunks.h"
@@ -36,8 +37,6 @@
 using glm::vec3;
 using glm::vec4;
 using glm::mat4;
-using std::string;
-using std::shared_ptr;
 
 WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend) 
 	: engine(engine), 
@@ -46,7 +45,8 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend)
 	  lineBatch(new LineBatch()),
 	  renderer(new ChunksRenderer(level, 
                 frontend->getContentGfxCache(), 
-                engine->getSettings())) {
+                engine->getSettings())),
+      batch3d(new Batch3D(4096)) {
 
 	auto& settings = engine->getSettings();
 	level->events->listen(EVT_CHUNK_HIDDEN, 
@@ -74,7 +74,7 @@ bool WorldRenderer::drawChunk(size_t index,
 	if (!chunk->isLighted()) {
 		return false;
 	}
-	shared_ptr<Mesh> mesh = renderer->getOrRender(chunk.get());
+	auto mesh = renderer->getOrRender(chunk.get());
 	if (mesh == nullptr) {
 		return false;
 	}
@@ -100,16 +100,15 @@ void WorldRenderer::drawChunks(Chunks* chunks,
 							   Shader* shader) {
 	std::vector<size_t> indices;
 	for (size_t i = 0; i < chunks->volume; i++){
-		shared_ptr<Chunk> chunk = chunks->chunks[i];
-		if (chunk == nullptr)
+		if (chunks->chunks[i] == nullptr)
 			continue;
 		indices.push_back(i);
 	}
 	float px = camera->position.x / (float)CHUNK_W;
 	float pz = camera->position.z / (float)CHUNK_D;
 	std::sort(indices.begin(), indices.end(), [this, chunks, px, pz](size_t i, size_t j) {
-		shared_ptr<Chunk> a = chunks->chunks[i];
-		shared_ptr<Chunk> b = chunks->chunks[j];
+		auto a = chunks->chunks[i];
+		auto b = chunks->chunks[j];
 		return ((a->x + 0.5f - px)*(a->x + 0.5f - px) + 
 				(a->z + 0.5f - pz)*(a->z + 0.5f - pz)
 				>
@@ -129,31 +128,24 @@ void WorldRenderer::drawChunks(Chunks* chunks,
 
 
 void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible){
+    Window::clearDepth();
 	EngineSettings& settings = engine->getSettings();
-	skybox->refresh(level->world->daytime, 
-					1.0f+fog*2.0f, 4);
+	skybox->refresh(pctx, level->world->daytime, 1.0f+fog*2.0f, 4);
 
 	const Content* content = level->content;
 	auto indices = content->getIndices();
 	Assets* assets = engine->getAssets();
 	Atlas* atlas = assets->getAtlas("blocks");
 	Shader* shader = assets->getShader("main");
-	Shader* linesShader = assets->getShader("lines");
 
 	const Viewport& viewport = pctx.getViewport();
 	int displayWidth = viewport.getWidth();
 	int displayHeight = viewport.getHeight();
-	Window::clearDepth();
-	Window::viewport(0, 0, displayWidth, displayHeight);
 
 	// Drawing background sky plane
-	Shader* backShader = assets->getShader("background");
-	backShader->use();
-	backShader->uniformMatrix("u_view", camera->getView(false));
-	backShader->uniform1f("u_zoom", camera->zoom*camera->getFov()/(3.141592*0.5f));
-	backShader->uniform1f("u_ar", float(displayWidth)/float(displayHeight));
-	skybox->draw(backShader);
+	skybox->draw(pctx, camera, assets, level->getWorld()->daytime, fog);
 
+	Shader* linesShader = assets->getShader("lines");
 	{
 		GfxContext ctx = pctx.sub();
 		ctx.depthTest(true);

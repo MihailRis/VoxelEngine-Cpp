@@ -50,8 +50,8 @@ MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     menu->set("main");
 
     uicamera.reset(new Camera(glm::vec3(), Window::height));
-	uicamera->perspective = false;
-	uicamera->flipped = true;
+    uicamera->perspective = false;
+    uicamera->flipped = true;
 }
 
 MenuScreen::~MenuScreen() {
@@ -65,26 +65,26 @@ void MenuScreen::draw(float delta) {
     Window::setBgColor(glm::vec3(0.2f));
 
     uicamera->setFov(Window::height);
-	Shader* uishader = engine->getAssets()->getShader("ui");
-	uishader->use();
-	uishader->uniformMatrix("u_projview", uicamera->getProjView());
+    Shader* uishader = engine->getAssets()->getShader("ui");
+    uishader->use();
+    uishader->uniformMatrix("u_projview", uicamera->getProjView());
 
     uint width = Window::width;
     uint height = Window::height;
 
     batch->begin();
     batch->texture(engine->getAssets()->getTexture("gui/menubg"));
-    batch->rect(0, 0, 
-                width, height, 0, 0, 0, 
-                UVRegion(0, 0, width/64, height/64), 
+    batch->rect(0, 0,
+                width, height, 0, 0, 0,
+                UVRegion(0, 0, width/64, height/64),
                 false, false, glm::vec4(1.0f));
     batch->render();
 }
 
 static bool backlight;
 
-LevelScreen::LevelScreen(Engine* engine, Level* level) 
-    : Screen(engine), 
+LevelScreen::LevelScreen(Engine* engine, Level* level)
+    : Screen(engine),
       level(level),
       frontend(std::make_unique<LevelFrontend>(level, engine->getAssets())),
       hud(std::make_unique<HudRenderer>(engine, frontend.get())),
@@ -99,9 +99,12 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
 }
 
 LevelScreen::~LevelScreen() {
-	std::cout << "-- writing world" << std::endl;
+    std::cout << "-- writing world" << std::endl;
+    controller->onWorldSave();
     auto& world = level->getWorld();
-	world.write(level.get());
+    world.write(level.get());
+    controller->onWorldQuit();
+    engine->getPaths()->setWorldFolder(fs::path());
 }
 
 void LevelScreen::updateHotkeys() {
@@ -122,9 +125,9 @@ void LevelScreen::updateHotkeys() {
 
 void LevelScreen::update(float delta) {
     gui::GUI* gui = engine->getGUI();
-    
-    bool inputLocked = hud->isPause() || 
-                       hud->isInventoryOpen() || 
+
+    bool inputLocked = hud->isPause() ||
+                       hud->isInventoryOpen() ||
                        gui->isFocusCaught();
     if (!gui->isFocusCaught()) {
         updateHotkeys();
@@ -154,11 +157,14 @@ void LevelScreen::draw(float delta) {
 
     worldRenderer->draw(ctx, camera.get(), hudVisible);
 
-    hud->drawOverlay(ctx);
     if (hudVisible) {
         hud->draw(ctx);
         if (level->player->debug) {
             hud->drawDebug(1 / delta);
         }
     }
+}
+
+Level* LevelScreen::getLevel() const {
+    return level.get();
 }

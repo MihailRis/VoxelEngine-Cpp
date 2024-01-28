@@ -14,6 +14,10 @@ class ImageData;
 struct DisplaySettings;
 struct GLFWmonitor;
 
+enum class blendmode {
+    normal, addition
+};
+
 class Window {
 	static GLFWwindow* window;
 	static DisplaySettings* settings;
@@ -52,6 +56,8 @@ public:
 	static double time();
     static const char* getClipboardText();
 	static DisplaySettings* getSettings();
+
+    static void setBlendMode(blendmode mode);
 
 	static glm::vec2 size() {
 		return glm::vec2(width, height);

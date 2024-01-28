@@ -45,6 +45,7 @@ class Camera;
 
 namespace gui {
     typedef std::function<void()> runnable;
+    typedef std::function<void(const std::string&)> stringconsumer;
 
     class UINode;
     class Container;
@@ -71,6 +72,7 @@ namespace gui {
 
         void act(float delta);
         void draw(Batch2D* batch, Assets* assets);
+        void addBack(std::shared_ptr<UINode> panel);
         void add(std::shared_ptr<UINode> panel);
         void remove(std::shared_ptr<UINode> panel);
         void store(std::string name, std::shared_ptr<UINode> node);

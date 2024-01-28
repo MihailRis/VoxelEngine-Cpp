@@ -1,5 +1,7 @@
 #include "Inventory.h"
 
+#include "../content/ContentLUT.h"
+
 Inventory::Inventory(size_t size) : slots(size) {
 }
 
@@ -69,6 +71,15 @@ std::unique_ptr<dynamic::Map> Inventory::write() const {
         }
     }
     return map;
+}
+
+void Inventory::convert(dynamic::Map* data, const ContentLUT* lut) {
+    auto slotsarr = data->list("slots");
+    for (size_t i = 0; i < slotsarr->size(); i++) {
+        auto item = slotsarr->map(i);
+        itemid_t id = item->getInt("id", ITEM_EMPTY);
+        item->put("id", lut->getItemId(id));
+    }
 }
 
 const size_t Inventory::npos = -1;

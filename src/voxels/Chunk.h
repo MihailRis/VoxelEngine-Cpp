@@ -25,7 +25,6 @@ public:
 	voxel* voxels;
 	Lightmap* lightmap;
 	int flags = 0;
-	int surrounding = 0;
 
 	Chunk(int x, int z);
 	~Chunk();

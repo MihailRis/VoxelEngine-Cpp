@@ -21,6 +21,7 @@ namespace scripting {
 
     void initialize(Engine* engine);
     void on_world_load(Level* level, BlocksController* blocks);
+    void on_world_save();
     void on_world_quit();
     void on_blocks_tick(const Block* block, int tps);
     void update_block(const Block* block, int x, int y, int z);
@@ -32,5 +33,6 @@ namespace scripting {
     bool on_item_break_block(Player* player, const ItemDef* item, int x, int y, int z);
     void load_block_script(std::string prefix, fs::path file, block_funcs_set* funcsset);
     void load_item_script(std::string prefix, fs::path file, item_funcs_set* funcsset);
+    void load_world_script(std::string prefix, fs::path file);
     void close();
 }

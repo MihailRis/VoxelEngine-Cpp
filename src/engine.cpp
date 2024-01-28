@@ -123,8 +123,8 @@ void Engine::mainloop() {
 }
 
 Engine::~Engine() {
-    scripting::close();
 	screen = nullptr;
+    scripting::close();
 
 	Audio::finalize();
 
@@ -138,6 +138,7 @@ void Engine::loadContent() {
     auto resdir = paths->getResources();
     ContentBuilder contentBuilder;
     setup_definitions(&contentBuilder);
+    paths->setContentPacks(&contentPacks);
     
     std::vector<fs::path> resRoots;
     for (auto& pack : contentPacks) {
@@ -162,6 +163,8 @@ void Engine::loadContent() {
 		}
 	}
     assets->extend(*new_assets.get());
+
+
 }
 
 void Engine::loadWorldContent(const fs::path& folder) {
@@ -174,7 +177,7 @@ void Engine::loadWorldContent(const fs::path& folder) {
 void Engine::loadAllPacks() {
 	auto resdir = paths->getResources();
 	contentPacks.clear();
-	ContentPack::scan(resdir/fs::path("content"), contentPacks);
+	ContentPack::scan(paths, contentPacks);
 }
 
 void Engine::setScreen(std::shared_ptr<Screen> screen) {
@@ -209,4 +212,8 @@ std::vector<ContentPack>& Engine::getContentPacks() {
 
 EnginePaths* Engine::getPaths() {
 	return paths;
+}
+
+std::shared_ptr<Screen> Engine::getScreen() {
+    return screen;
 }

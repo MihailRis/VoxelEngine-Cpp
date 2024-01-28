@@ -161,8 +161,11 @@ void Chunks::set(int x, int y, int z, int id, uint8_t states){
 		return;
 	int lx = x - cx * CHUNK_W;
 	int lz = z - cz * CHUNK_D;
-	chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx].id = id;
-	chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx].states = states;
+    
+    voxel& vox = chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx]; 
+	vox.id = id;
+	vox.states = states;
+
 	chunk->setUnsaved(true);
 	chunk->setModified(true);
 

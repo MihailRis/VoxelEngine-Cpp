@@ -25,7 +25,7 @@ public:
 
 	glm::mat4 getProjection();
 	glm::mat4 getView(bool position=true);
-	glm::mat4 getProjView();
+	glm::mat4 getProjView(bool position=true);
 
 	void setFov(float fov);
 	float getFov() const;

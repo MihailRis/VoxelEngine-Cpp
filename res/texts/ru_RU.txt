@@ -5,8 +5,10 @@ Ok=Ок
 Cancel=Отмена
 Back=Назад
 Continue=Продолжить
+Add=Добавить
 
 error.pack-not-found=Не удалось найти пакет
+error.dependency-not-found=Используемая зависимость не найдена
 
 # Меню
 menu.New World=Новый Мир

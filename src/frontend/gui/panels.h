@@ -37,6 +37,7 @@ namespace gui {
         virtual void drawBackground(Batch2D* batch, Assets* assets) {};
         virtual void draw(Batch2D* batch, Assets* assets) override;
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
+        virtual void addBack(std::shared_ptr<UINode> node);
         virtual void add(std::shared_ptr<UINode> node);
         virtual void add(UINode* node);
         virtual void add(std::shared_ptr<UINode> node, glm::vec2 coord);

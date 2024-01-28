@@ -125,9 +125,9 @@ void BlocksController::randomTick(int tickid, int parts) {
                 continue;
             for (int s = 0; s < segments; s++) {
                 for (int i = 0; i < 4; i++) {
-                    int bx = fastmaths::rand() % CHUNK_W;
-                    int by = fastmaths::rand() % segheight + s * segheight;
-                    int bz = fastmaths::rand() % CHUNK_D;
+                    int bx = random.rand() % CHUNK_W;
+                    int by = random.rand() % segheight + s * segheight;
+                    int bz = random.rand() % CHUNK_D;
                     const voxel& vox = chunk->voxels[(by * CHUNK_D + bz) * CHUNK_W + bx];
                     Block* block = indices->getBlockDef(vox.id);
                     if (block->rt.funcsset.randupdate) {

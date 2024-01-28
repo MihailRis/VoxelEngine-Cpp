@@ -46,6 +46,13 @@ ImageData* Texture::readData() {
     return new ImageData(ImageFormat::rgba8888, width, height, data.release());
 }
 
+void Texture::setNearestFilter() {
+    bind();
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 Texture* Texture::from(const ImageData* image) {
     uint width = image->getWidth();
     uint height = image->getHeight();

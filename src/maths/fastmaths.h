@@ -1,17 +1,23 @@
 #ifndef MATHS_FASTMATHS_H_
 #define MATHS_FASTMATHS_H_
 
-namespace fastmaths {
-    static unsigned int g_seed;
+#include "../typedefs.h"
 
-    inline void srand(int seed) {
-        g_seed = seed;
+class FastRandom {
+    uint seed;
+public:
+    inline void setSeed(uint seed) {
+        this->seed = seed;
     }
 
-    inline int rand(void) {
-        g_seed = (214013*g_seed+2531011);
-        return (g_seed>>16)&0x7FFF;
+    inline int rand() {
+        seed = (214013 * seed + 2531011);
+        return (seed>>16) & 0x7FFF;   
     }
-}
+
+    inline float randFloat() {
+        return rand() / float(0x7FFF);
+    }
+};
 
 #endif // MATHS_FASTMATHS_H_

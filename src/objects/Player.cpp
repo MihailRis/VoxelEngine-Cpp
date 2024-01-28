@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "../content/ContentLUT.h"
 #include "../physics/Hitbox.h"
 #include "../physics/PhysicsSolver.h"
 #include "../voxels/Chunks.h"
@@ -20,12 +21,13 @@ const float JUMP_FORCE = 8.0f;
 Player::Player(glm::vec3 position, float speed) :
 		speed(speed),
 		chosenSlot(0),
+		inventory(new Inventory(40)),
 	    camera(new Camera(position, glm::radians(90.0f))),
 	    spCamera(new Camera(position, glm::radians(90.0f))),
 	    tpCamera(new Camera(position, glm::radians(90.0f))),
         currentCamera(camera),
-	    hitbox(new Hitbox(position, glm::vec3(0.3f,0.9f,0.3f))),
-        inventory(new Inventory(40)) {
+	    hitbox(new Hitbox(position, glm::vec3(0.3f,0.9f,0.3f)))
+{
 }
 
 Player::~Player() {
@@ -166,4 +168,35 @@ void Player::setSpawnPoint(glm::vec3 spawnpoint) {
 
 glm::vec3 Player::getSpawnPoint() const {
 	return spawnpoint;
+}
+
+std::unique_ptr<dynamic::Map> Player::write() const {
+	glm::vec3 position = hitbox->position;
+	auto root = std::make_unique<dynamic::Map>();
+	auto& posarr = root->putList("position");
+	posarr.put(position.x);
+	posarr.put(position.y);
+	posarr.put(position.z);
+
+	auto& rotarr = root->putList("rotation");
+	rotarr.put(cam.x);
+	rotarr.put(cam.y);
+
+	auto& sparr = root->putList("spawnpoint");
+	sparr.put(spawnpoint.x);
+	sparr.put(spawnpoint.y);
+	sparr.put(spawnpoint.z);
+
+	root->put("flight", flight);
+	root->put("noclip", noclip);
+    root->put("chosen-slot", chosenSlot);
+    root->put("inventory", inventory->write().release());
+    return root;
+}
+
+void Player::convert(dynamic::Map* data, const ContentLUT* lut) {
+    auto inventory = data->map("inventory");
+    if (inventory) {
+        Inventory::convert(inventory, lut);
+    }
 }

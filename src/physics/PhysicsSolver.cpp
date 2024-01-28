@@ -25,7 +25,8 @@ void PhysicsSolver::step(
 	float dt = delta / float(substeps);
 	float linear_damping = hitbox->linear_damping;
 	float s = 2.0f/BLOCK_AABB_GRID;
-
+    
+    bool prevGrounded = hitbox->grounded;
 	hitbox->grounded = false;
 	for (uint i = 0; i < substeps; i++) {
 		vec3& pos = hitbox->position;
@@ -37,7 +38,7 @@ void PhysicsSolver::step(
 		vel += gravity * dt * gravityScale;
 		if (collisions) {
 			colisionCalc(chunks, hitbox, vel, pos, half, 
-                         (gravityScale > 0.0f) ? 0.5f : 0.0f);
+                         (prevGrounded && gravityScale > 0.0f) ? 0.5f : 0.0f);
 		}
 		vel.x *= glm::max(0.0f, 1.0f - dt * linear_damping);
 		vel.z *= glm::max(0.0f, 1.0f - dt * linear_damping);
@@ -84,6 +85,17 @@ void PhysicsSolver::colisionCalc(
 {
 	// step size (smaller - more accurate, but slower)
 	float s = 2.0f/BLOCK_AABB_GRID;
+
+    if (stepHeight > 0.0f) {
+        for (float x = (pos.x-half.x+E); x <= (pos.x+half.x-E); x+=s){
+            for (float z = (pos.z-half.z+E); z <= (pos.z+half.z-E); z+=s){
+                if (chunks->isObstacleAt(x, pos.y+half.y+stepHeight, z)) {
+                    stepHeight = 0.0f;
+                    break;
+                }
+            }
+        }
+    }
 
 	const AABB* aabb;
 	

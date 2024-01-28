@@ -70,6 +70,7 @@ public:
     void setName(const std::string& name);
     void setSeed(uint64_t seed);
     
+    bool hasPack(const std::string& id) const;
     std::string getName() const;
     uint64_t getSeed() const;
     const std::vector<ContentPack>& getPacks() const;

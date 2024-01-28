@@ -2,6 +2,7 @@
 #define WORLD_RENDERER_CPP
 
 #include <vector>
+#include <memory>
 #include <algorithm>
 #include <GL/glew.h>
 #include <string>
@@ -14,6 +15,7 @@
 
 class Level;
 class Camera;
+class Batch3D;
 class LineBatch;
 class ChunksRenderer;
 class Shader;
@@ -31,6 +33,7 @@ class WorldRenderer {
 	LineBatch* lineBatch;
 	ChunksRenderer* renderer;
 	Skybox* skybox;
+    std::unique_ptr<Batch3D> batch3d;
 	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool culling);
 	void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
 public:

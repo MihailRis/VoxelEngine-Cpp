@@ -44,15 +44,27 @@ int64_t List::integer(size_t index) const {
 }
 
 Map* List::map(size_t index) const {
+    if (values[index]->type != valtype::map) {
+        throw std::runtime_error("type error");
+    }
     return values[index]->value.map;
 }
 
 List* List::list(size_t index) const {
+    if (values[index]->type != valtype::list) {
+        throw std::runtime_error("type error");
+    }
     return values[index]->value.list;
 }
 
 bool List::flag(size_t index) const {
-    return values[index]->value.boolean;
+    const auto& val = values[index];
+    switch (val->type) {
+        case valtype::integer: return val->value.integer;
+        case valtype::boolean: return val->value.boolean;
+        default:
+            throw std::runtime_error("type error");
+    }
 }
 
 List& List::put(std::string value) {
@@ -180,9 +192,14 @@ int64_t Map::getInt(std::string key, int64_t def) const {
 
 bool Map::getBool(std::string key, bool def) const {
     auto found = values.find(key);
-    if (found != values.end())
-        return found->second->value.boolean;
-    return def;
+    if (found == values.end())
+        return def;
+    auto& val = found->second;
+    switch (val->type) {
+        case valtype::integer: return val->value.integer;
+        case valtype::boolean: return val->value.boolean;
+        default: throw std::runtime_error("type error");
+    }
 }
 
 void Map::num(std::string key, double& dst) const {
@@ -232,9 +249,7 @@ List* Map::list(std::string key) const {
 }
 
 void Map::flag(std::string key, bool& dst) const {
-    auto found = values.find(key);
-    if (found != values.end())
-        dst = found->second->value.boolean;
+    dst = getBool(key, dst);
 }
 
 Map& Map::put(std::string key, uint value) {
@@ -246,11 +261,9 @@ Map& Map::put(std::string key, int value) {
 }
 
 Map& Map::put(std::string key, int64_t value) {
-    auto found = values.find(key);
-    if (found != values.end())  found->second;
     valvalue val;
     val.integer = value;
-    values.insert(std::make_pair(key, new Value(valtype::integer, val)));
+    values[key] = std::make_unique<Value>(valtype::integer, val);
     return *this;
 }
 
@@ -265,14 +278,14 @@ Map& Map::put(std::string key, float value) {
 Map& Map::put(std::string key, double value) {
     valvalue val;
     val.decimal = value;
-    values.insert(std::make_pair(key, new Value(valtype::number, val)));
+    values[key] = std::make_unique<Value>(valtype::number, val);
     return *this;
 }
 
 Map& Map::put(std::string key, std::string value){
     valvalue val;
     val.str = new std::string(value);
-    values.insert(std::make_pair(key, new Value(valtype::string, val)));
+    values[key] = std::make_unique<Value>(valtype::string, val);
     return *this;
 }
 
@@ -283,21 +296,21 @@ Map& Map::put(std::string key, const char* value) {
 Map& Map::put(std::string key, Map* value){
     valvalue val;
     val.map = value;
-    values.insert(std::make_pair(key, new Value(valtype::map, val)));
+    values[key] = std::make_unique<Value>(valtype::map, val);
     return *this;
 }
 
 Map& Map::put(std::string key, List* value){
     valvalue val;
     val.list = value;
-    values.insert(std::make_pair(key, new Value(valtype::list, val)));
+    values[key] = std::make_unique<Value>(valtype::list, val);
     return *this;
 }
 
 Map& Map::put(std::string key, bool value){
     valvalue val;
     val.boolean = value;
-    values.insert(std::make_pair(key, new Value(valtype::boolean, val)));
+    values[key] = std::make_unique<Value>(valtype::boolean, val);
     return *this;
 }
 

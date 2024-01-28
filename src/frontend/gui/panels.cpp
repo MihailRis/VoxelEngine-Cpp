@@ -22,7 +22,9 @@ shared_ptr<UINode> Container::getAt(vec2 pos, shared_ptr<UINode> self) {
         return nullptr;
     }
     if (!isInside(pos)) return nullptr;
-    for (auto node : nodes) {
+
+    for (int i = nodes.size()-1; i >= 0; i--) {
+        auto& node = nodes[i];
         if (!node->visible())
             continue;
         auto hover = node->getAt(pos, node);
@@ -89,6 +91,12 @@ void Container::draw(Batch2D* batch, Assets* assets) {
     }
     batch->render();
     Window::popScissor();
+}
+
+void Container::addBack(shared_ptr<UINode> node) {
+    nodes.insert(nodes.begin(), node);
+    node->setParent(this);
+    refresh();
 }
 
 void Container::add(shared_ptr<UINode> node) {
