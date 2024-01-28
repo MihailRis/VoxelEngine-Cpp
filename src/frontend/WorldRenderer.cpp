@@ -143,7 +143,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
 	int displayHeight = viewport.getHeight();
 
 	// Drawing background sky plane
-	skybox->draw(pctx, camera, assets, level->getWorld()->daytime, fog);
+	skybox->draw(pctx, camera, assets, level->getWorld().daytime, fog);
 
 	Shader* linesShader = assets->getShader("lines");
 	{

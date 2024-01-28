@@ -327,7 +327,7 @@ void create_content_panel(Engine* engine, PagesControl* menu) {
         [=](const ContentPack& pack) {
             auto screen = dynamic_cast<LevelScreen*>(engine->getScreen().get());
             auto level = screen->getLevel();
-            auto world = level->getWorld();
+            auto& world = level->getWorld();
 
             auto worldFolder = paths->getWorldFolder();
             for (const auto& dependency : pack.dependencies) {
@@ -337,14 +337,14 @@ void create_content_panel(Engine* engine, PagesControl* menu) {
                                    L": "+util::str2wstr_utf8(dependency));
                     return;
                 }
-                if (!world->hasPack(dependency)) {
-                    world->wfile->addPack(dependency);
+                if (!world.hasPack(dependency)) {
+                    world.wfile->addPack(dependency);
                 }
             }
-            
-            world->wfile->addPack(pack.id);
 
-            std::string wname = world->getName();
+            world.wfile->addPack(pack.id);
+
+            std::string wname = world.getName();
             engine->setScreen(nullptr);
             engine->setScreen(std::make_shared<MenuScreen>(engine));
             open_world(wname, engine);
