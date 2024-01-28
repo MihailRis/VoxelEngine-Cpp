@@ -6,6 +6,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <filesystem>
+#include <unordered_set>
 #define GLEW_STATIC
 
 #include "audio/Audio.h"
@@ -134,33 +135,9 @@ Engine::~Engine() {
 	std::cout << "-- engine finished" << std::endl;
 }
 
-size_t npos = std::numeric_limits<size_t>::max();
-
-inline size_t findPack(const std::string& id, const std::vector<ContentPack>& packs) {
-    for (size_t i = 0; i < packs.size(); i++) {
-        if (packs[i].id == id) {
-            return i;
-        }
-    }
-    return npos;
-}
-
-inline void addPack(
-    const ContentPack& pack, 
-    const std::vector<ContentPack>& srcPacks,
-    std::vector<ContentPack>& contentPacks
-) {
-    if (findPack(pack.id, contentPacks) != npos) {
-        return;
-    }
-    for (auto& dependecy : pack.dependencies) {
-        size_t index = findPack(dependecy, srcPacks);
-        if (index == npos)
-            throw contentpack_error(pack.id, pack.folder, 
-                                    "missing dependency '"+dependecy+"'");
-        addPack(srcPacks[index], srcPacks, contentPacks);
-    }
-    contentPacks.push_back(pack);
+inline const std::string checkPacks(const std::unordered_set<std::string>& packs, const std::vector<std::string>& dependencies) {
+    for (const std::string& str : dependencies) if (packs.find(str) == packs.end()) return str;
+    return "";
 }
 
 void Engine::loadContent() {
@@ -173,21 +150,23 @@ void Engine::loadContent() {
     std::vector<ContentPack> srcPacks = contentPacks;
     contentPacks.clear();
 
-    for (auto& pack : srcPacks) {
-        if (pack.dependencies.empty())
-            continue;
-        ContentLoader loader(&pack);
-        loader.load(&contentBuilder);
-        resRoots.push_back(pack.folder);
-        addPack(pack, srcPacks, contentPacks);
-    }
-    for (auto& pack : srcPacks) {
-        if (!pack.dependencies.empty())
-            continue;
-        ContentLoader loader(&pack);
-        loader.load(&contentBuilder);
-        resRoots.push_back(pack.folder);
-        addPack(pack, srcPacks, contentPacks);
+	std::string missingDependency;
+	std::unordered_set<std::string> loadedPacks, existingPacks;
+	for (const auto& item : srcPacks) { existingPacks.insert(item.id); }
+
+	while(existingPacks.size() > loadedPacks.size()) {
+		for (auto& pack : srcPacks) {
+			if(loadedPacks.find(pack.id) != loadedPacks.end()) continue;
+			missingDependency = checkPacks(existingPacks, pack.dependencies);
+			if(!missingDependency.empty()) throw contentpack_error(pack.id, pack.folder, "missing dependency '"+missingDependency+"'");
+			if(pack.dependencies.empty() || checkPacks(loadedPacks, pack.dependencies).empty()) {
+				loadedPacks.insert(pack.id);
+				resRoots.push_back(pack.folder);
+				contentPacks.push_back(pack);
+				ContentLoader loader(&pack);
+				loader.load(&contentBuilder);
+			}
+		}
     }
     
     content.reset(contentBuilder.build());
