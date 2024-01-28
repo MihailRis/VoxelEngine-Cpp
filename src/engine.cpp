@@ -134,18 +134,62 @@ Engine::~Engine() {
 	std::cout << "-- engine finished" << std::endl;
 }
 
+size_t npos = std::numeric_limits<size_t>::max();
+
+inline size_t findPack(const std::string& id, const std::vector<ContentPack>& packs) {
+    for (size_t i = 0; i < packs.size(); i++) {
+        if (packs[i].id == id) {
+            return i;
+        }
+    }
+    return npos;
+}
+
+inline void addPack(
+    const ContentPack& pack, 
+    const std::vector<ContentPack>& srcPacks,
+    std::vector<ContentPack>& contentPacks
+) {
+    if (findPack(pack.id, contentPacks) != npos) {
+        return;
+    }
+    for (auto& dependecy : pack.dependencies) {
+        size_t index = findPack(dependecy, srcPacks);
+        if (index == npos)
+            throw contentpack_error(pack.id, pack.folder, 
+                                    "missing dependency '"+dependecy+"'");
+        addPack(srcPacks[index], srcPacks, contentPacks);
+    }
+    contentPacks.push_back(pack);
+}
+
 void Engine::loadContent() {
     auto resdir = paths->getResources();
     ContentBuilder contentBuilder;
     setup_definitions(&contentBuilder);
     paths->setContentPacks(&contentPacks);
-    
+
     std::vector<fs::path> resRoots;
-    for (auto& pack : contentPacks) {
+    std::vector<ContentPack> srcPacks = contentPacks;
+    contentPacks.clear();
+
+    for (auto& pack : srcPacks) {
+        if (pack.dependencies.empty())
+            continue;
         ContentLoader loader(&pack);
         loader.load(&contentBuilder);
         resRoots.push_back(pack.folder);
+        addPack(pack, srcPacks, contentPacks);
     }
+    for (auto& pack : srcPacks) {
+        if (!pack.dependencies.empty())
+            continue;
+        ContentLoader loader(&pack);
+        loader.load(&contentBuilder);
+        resRoots.push_back(pack.folder);
+        addPack(pack, srcPacks, contentPacks);
+    }
+    
     content.reset(contentBuilder.build());
     resPaths.reset(new ResPaths(resdir, resRoots));
 
@@ -163,13 +207,12 @@ void Engine::loadContent() {
 		}
 	}
     assets->extend(*new_assets.get());
-
-
 }
 
 void Engine::loadWorldContent(const fs::path& folder) {
     contentPacks.clear();
     auto packNames = ContentPack::worldPacksList(folder);
+    std::cout << folder << " " << packNames.size() << std::endl;
     ContentPack::readPacks(paths, contentPacks, packNames, folder);
     loadContent();
 }
