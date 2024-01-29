@@ -6,6 +6,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <filesystem>
+#include <unordered_set>
 #define GLEW_STATIC
 
 #include "audio/Audio.h"
@@ -134,18 +135,40 @@ Engine::~Engine() {
 	std::cout << "-- engine finished" << std::endl;
 }
 
+inline const std::string checkPacks(const std::unordered_set<std::string>& packs, const std::vector<std::string>& dependencies) {
+    for (const std::string& str : dependencies) if (packs.find(str) == packs.end()) return str;
+    return "";
+}
+
 void Engine::loadContent() {
     auto resdir = paths->getResources();
     ContentBuilder contentBuilder;
     setup_definitions(&contentBuilder);
     paths->setContentPacks(&contentPacks);
-    
+
     std::vector<fs::path> resRoots;
-    for (auto& pack : contentPacks) {
-        ContentLoader loader(&pack);
-        loader.load(&contentBuilder);
-        resRoots.push_back(pack.folder);
+    std::vector<ContentPack> srcPacks = contentPacks;
+    contentPacks.clear();
+
+	std::string missingDependency;
+	std::unordered_set<std::string> loadedPacks, existingPacks;
+	for (const auto& item : srcPacks) { existingPacks.insert(item.id); }
+
+	while(existingPacks.size() > loadedPacks.size()) {
+		for (auto& pack : srcPacks) {
+			if(loadedPacks.find(pack.id) != loadedPacks.end()) continue;
+			missingDependency = checkPacks(existingPacks, pack.dependencies);
+			if(!missingDependency.empty()) throw contentpack_error(pack.id, pack.folder, "missing dependency '"+missingDependency+"'");
+			if(pack.dependencies.empty() || checkPacks(loadedPacks, pack.dependencies).empty()) {
+				loadedPacks.insert(pack.id);
+				resRoots.push_back(pack.folder);
+				contentPacks.push_back(pack);
+				ContentLoader loader(&pack);
+				loader.load(&contentBuilder);
+			}
+		}
     }
+    
     content.reset(contentBuilder.build());
     resPaths.reset(new ResPaths(resdir, resRoots));
 
@@ -163,13 +186,12 @@ void Engine::loadContent() {
 		}
 	}
     assets->extend(*new_assets.get());
-
-
 }
 
 void Engine::loadWorldContent(const fs::path& folder) {
     contentPacks.clear();
     auto packNames = ContentPack::worldPacksList(folder);
+    std::cout << folder << " " << packNames.size() << std::endl;
     ContentPack::readPacks(paths, contentPacks, packNames, folder);
     loadContent();
 }

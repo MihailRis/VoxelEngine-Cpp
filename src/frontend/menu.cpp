@@ -401,7 +401,6 @@ void create_new_world_panel(Engine* engine, PagesControl* menu) {
         std::cout << "world seed: " << seed << std::endl;
 
         auto folder = paths->getWorldsFolder()/fs::u8path(nameutf8);
-
         try {
             engine->loadAllPacks();
             engine->loadContent();

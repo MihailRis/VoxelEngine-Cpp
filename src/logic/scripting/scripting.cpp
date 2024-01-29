@@ -181,12 +181,15 @@ void scripting::on_block_broken(Player* player, const Block* block, int x, int y
     call_func(L, 4, name);
 }
 
-void scripting::on_block_interact(Player* player, const Block* block, int x, int y, int z) {
+bool scripting::on_block_interact(Player* player, const Block* block, int x, int y, int z) {
     std::string name = block->name+".oninteract";
     lua_getglobal(L, name.c_str());
     lua_pushivec3(L, x, y, z);
     lua_pushinteger(L, 1);
-    call_func(L, 4, name);
+    if (call_func(L, 4, name)) {
+        return lua_toboolean(L, -1);
+    }
+    return false;
 }
 
 bool scripting::on_item_use_on_block(Player* player, const ItemDef* item, int x, int y, int z) {
