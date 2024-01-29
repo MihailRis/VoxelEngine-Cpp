@@ -317,7 +317,7 @@ void PlayerController::updateInteraction(){
             Block* block = indices->getBlockDef(chunks->get(x,y,z)->id);
 			itemid_t id = block->rt.pickingItem;
 			auto inventory = player->getInventory();
-			size_t slotid = inventory->findSlotByItem(id);
+			size_t slotid = inventory->findSlotByItem(id, 0, 10);
 			if (slotid == Inventory::npos) {
 				slotid = player->getChosenSlot();
 			} else {
