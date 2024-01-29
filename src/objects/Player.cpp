@@ -142,7 +142,7 @@ void Player::attemptToFindSpawnpoint(Level* level) {
 	if (level->chunks->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
 		headvox == nullptr || headvox->id != 0)
 		return;
-	spawnpoint = newpos;
+	spawnpoint = newpos + glm::vec3(0.5f, 0.0f, 0.5f);
 	teleport(spawnpoint);
 }
 
