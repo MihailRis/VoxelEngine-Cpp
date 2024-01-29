@@ -55,7 +55,7 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
 	int iz = floor(z);
 	voxel* v = get(ix,iy,iz);
 	if (v == nullptr)
-		return nullptr;
+		return &contentIds->getBlockDef(0)->hitbox;
 	const Block* def = contentIds->getBlockDef(v->id);
 	if (def->obstacle) {
 		const AABB& hitbox = def->rotatable 
