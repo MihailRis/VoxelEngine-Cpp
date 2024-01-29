@@ -36,5 +36,24 @@ bool parse_cmdline(int argc, char** argv, EnginePaths& paths) {
 			std::cerr << "unexpected token" << std::endl;
 		}
 	}
+
+	// Specifying 'default' userfiles path
+	if (paths.getUserfiles() == ".") {
+		#ifdef __linux__
+			std::string userfiles_dir = std::getenv("HOME");
+			userfiles_dir += "/.local/share/VoxelEngine-Cpp";
+		#elif __win32__
+			// TODO: This should works, but I can't check it my self.
+			// So, someone with Windows, please, test it.
+			std::string userfiles_dir = std::getenv("APPDATA");
+			userfiles_dir += "Roaming\\VoxelEngine-Cpp";
+		#endif
+
+		if (!fs::is_directory(fs::path(userfiles_dir))) {
+			fs::create_directories(fs::path(userfiles_dir));
+		}
+		paths.setUserfiles(fs::path(userfiles_dir));
+	}
+	
 	return true;
 }
