@@ -286,7 +286,7 @@ void PlayerController::updateInteraction(){
         }
 		if (def && rclick){
             if (!input.shift && target->rt.funcsset.oninteract) {
-                if (!scripting::on_block_interact(player, target, x, y, z))
+                if (scripting::on_block_interact(player, target, x, y, z))
                     return;
             }
 			if (!target->replaceable){
