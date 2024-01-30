@@ -1,30 +1,23 @@
 #include "Chunk.h"
 
-#include <memory>
-
 #include "voxel.h"
+
+#include "../items/Inventory.h"
 #include "../content/ContentLUT.h"
 #include "../lighting/Lightmap.h"
 
 Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos){
 	bottom = 0;
 	top = CHUNK_H;
-	voxels = new voxel[CHUNK_VOL];
-	for (size_t i = 0; i < CHUNK_VOL; i++) {
+	for (uint i = 0; i < CHUNK_VOL; i++) {
 		voxels[i].id = 2;
 		voxels[i].states = 0;
 	}
-	lightmap = new Lightmap();
-}
-
-Chunk::~Chunk(){
-	delete lightmap;
-	delete[] voxels;
 }
 
 bool Chunk::isEmpty(){
 	int id = -1;
-	for (size_t i = 0; i < CHUNK_VOL; i++){
+	for (uint i = 0; i < CHUNK_VOL; i++){
 		if (voxels[i].id != id){
 			if (id != -1)
 				return false;
@@ -36,13 +29,12 @@ bool Chunk::isEmpty(){
 }
 
 void Chunk::updateHeights() {
-	for (size_t i = 0; i < CHUNK_VOL; i++) {
+	for (uint i = 0; i < CHUNK_VOL; i++) {
 		if (voxels[i].id != 0) {
 			bottom = i / (CHUNK_D * CHUNK_W);
 			break;
 		}
 	}
-
 	for (int i = CHUNK_VOL - 1; i >= 0; i--) {
 		if (voxels[i].id != 0) {
 			top = i / (CHUNK_D * CHUNK_W) + 1;
@@ -51,11 +43,28 @@ void Chunk::updateHeights() {
 	}
 }
 
-Chunk* Chunk::clone() const {
-	Chunk* other = new Chunk(x,z);
-	for (size_t i = 0; i < CHUNK_VOL; i++)
+void Chunk::addBlockInventory(std::shared_ptr<Inventory> inventory, 
+                              uint x, uint y, uint z) {
+    inventories[vox_index(x, y, z)] = inventory;
+    setUnsaved(true);
+}
+
+std::shared_ptr<Inventory> Chunk::getBlockInventory(uint x, uint y, uint z) const {
+    if (x >= CHUNK_W || y >= CHUNK_H || z >= CHUNK_D)
+        return nullptr;
+    const auto& found = inventories.find(vox_index(x, y, z));
+    if (found == inventories.end()) {
+        return nullptr;
+    }
+    return found->second;
+}
+
+std::unique_ptr<Chunk> Chunk::clone() const {
+	auto other = std::make_unique<Chunk>(x,z);
+	for (uint i = 0; i < CHUNK_VOL; i++) {
 		other->voxels[i] = voxels[i];
-	other->lightmap->set(lightmap);
+    }
+	other->lightmap.set(&lightmap);
 	return other;
 }
 
@@ -75,7 +84,7 @@ Chunk* Chunk::clone() const {
 */
 ubyte* Chunk::encode() const {
 	ubyte* buffer = new ubyte[CHUNK_DATA_LEN];
-	for (size_t i = 0; i < CHUNK_VOL; i++) {
+	for (uint i = 0; i < CHUNK_VOL; i++) {
 		buffer[i] = voxels[i].id >> 8;
         buffer[CHUNK_VOL+i] = voxels[i].id & 0xFF;
 		buffer[CHUNK_VOL*2 + i] = voxels[i].states >> 8;
@@ -84,11 +93,8 @@ ubyte* Chunk::encode() const {
 	return buffer;
 }
 
-/**
- * @return true if all is fine
- **/
 bool Chunk::decode(ubyte* data) {
-	for (size_t i = 0; i < CHUNK_VOL; i++) {
+	for (uint i = 0; i < CHUNK_VOL; i++) {
 		voxel& vox = voxels[i];
 
         ubyte bid1 = data[i];
@@ -104,7 +110,7 @@ bool Chunk::decode(ubyte* data) {
 }
 
 void Chunk::convert(ubyte* data, const ContentLUT* lut) {
-    for (size_t i = 0; i < CHUNK_VOL; i++) {
+    for (uint i = 0; i < CHUNK_VOL; i++) {
         // see encode method to understand what the hell is going on here
         blockid_t id = ((blockid_t(data[i]) << 8) | 
                          blockid_t(data[CHUNK_VOL+i]));

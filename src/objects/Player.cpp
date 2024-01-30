@@ -21,7 +21,7 @@ const float JUMP_FORCE = 8.0f;
 Player::Player(glm::vec3 position, float speed) :
 		speed(speed),
 		chosenSlot(0),
-		inventory(new Inventory(40)),
+		inventory(new Inventory(0, 40)),
 	    camera(new Camera(position, glm::radians(90.0f))),
 	    spCamera(new Camera(position, glm::radians(90.0f))),
 	    tpCamera(new Camera(position, glm::radians(90.0f))),

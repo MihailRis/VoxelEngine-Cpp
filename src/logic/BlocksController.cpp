@@ -5,10 +5,12 @@
 #include "../voxels/Chunk.h"
 #include "../voxels/Chunks.h"
 #include "../world/Level.h"
+#include "../world/World.h"
 #include "../content/Content.h"
 #include "../lighting/Lighting.h"
 #include "../util/timeutil.h"
 #include "../maths/fastmaths.h"
+#include "../items/Inventory.h"
 
 #include "scripting/scripting.h"
 

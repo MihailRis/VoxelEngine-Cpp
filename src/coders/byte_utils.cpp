@@ -121,21 +121,21 @@ void ByteReader::checkMagic(const char* data, size_t size) {
 
 ubyte ByteReader::get() {
     if (pos == size) {
-        throw std::underflow_error("buffer underflow");
+        throw std::runtime_error("buffer underflow");
     }
     return data[pos++];
 }
 
 ubyte ByteReader::peek() {
     if (pos == size) {
-        throw std::underflow_error("buffer underflow");
+        throw std::runtime_error("buffer underflow");
     }
     return data[pos]; 
 }
 
 int16_t ByteReader::getInt16() {
     if (pos+2 > size) {
-        throw std::underflow_error("unexpected end");
+        throw std::runtime_error("buffer underflow");
     }
     pos += 2;
     return (static_cast<int16_t>(data[pos - 1]) << 8) |
@@ -144,7 +144,7 @@ int16_t ByteReader::getInt16() {
 
 int32_t ByteReader::getInt32() {
     if (pos+4 > size) {
-        throw std::underflow_error("unexpected end");
+        throw std::runtime_error("buffer underflow");
     }
     pos += 4;
     return (static_cast<int32_t>(data[pos - 1]) << 24) |
@@ -155,7 +155,7 @@ int32_t ByteReader::getInt32() {
 
 int64_t ByteReader::getInt64() {
     if (pos+8 > size) {
-        throw std::underflow_error("unexpected end");
+        throw std::runtime_error("buffer underflow");
     }
     pos += 8;
     return (static_cast<int64_t>(data[pos - 1]) << 56) |
@@ -191,7 +191,7 @@ const char* ByteReader::getCString() {
 std::string ByteReader::getString() {
     uint32_t length = (uint32_t)getInt32();
     if (pos+length > size) {
-        throw std::underflow_error("unexpected end");
+        throw std::runtime_error("buffer underflow");
     }
     pos += length;
     return std::string(reinterpret_cast<const char*>(data+pos-length), length);

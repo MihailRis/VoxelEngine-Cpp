@@ -107,7 +107,7 @@ ubyte Chunks::getLight(int x, int y, int z, int channel){
 	int lx = x - cx * CHUNK_W;
 	int ly = y - cy * CHUNK_H;
 	int lz = z - cz * CHUNK_D;
-	return chunk->lightmap->get(lx,ly,lz, channel);
+	return chunk->lightmap.get(lx,ly,lz, channel);
 }
 
 light_t Chunks::getLight(int x, int y, int z){
@@ -124,7 +124,7 @@ light_t Chunks::getLight(int x, int y, int z){
 	int lx = x - cx * CHUNK_W;
 	int ly = y - cy * CHUNK_H;
 	int lz = z - cz * CHUNK_D;
-	return chunk->lightmap->get(lx,ly,lz);
+	return chunk->lightmap.get(lx,ly,lz);
 }
 
 Chunk* Chunks::getChunkByVoxel(int x, int y, int z){

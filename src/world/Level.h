@@ -10,6 +10,7 @@ class Content;
 class World;
 class Player;
 class Chunks;
+class Inventory;
 class LevelEvents;
 class Lighting;
 class PhysicsSolver;

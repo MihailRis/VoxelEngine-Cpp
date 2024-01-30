@@ -99,10 +99,7 @@ bool files::write_json(fs::path filename, const dynamic::Map* obj, bool nice) {
 }
 
 bool files::write_binary_json(fs::path filename, const dynamic::Map* obj, bool compression) {
-    auto bytes = json::to_binary(obj);
-    if (compression) {
-        bytes = gzip::compress(bytes.data(), bytes.size());
-    }
+    auto bytes = json::to_binary(obj, compression);
     return files::write_bytes(filename, bytes.data(), bytes.size());
 }
 

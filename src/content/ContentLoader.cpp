@@ -173,6 +173,7 @@ void ContentLoader::loadBlock(Block* def, std::string name, fs::path file) {
     root->num("draw-group", def->drawGroup);
     root->str("picking-item", def->pickingItem);
     root->str("script-name", def->scriptName);
+    root->num("inventory-size", def->inventorySize);
 }
 
 void ContentLoader::loadCustomBlockModel(Block* def, dynamic::Map* primitives) {

@@ -97,6 +97,7 @@ public:
 	BlockRotProfile rotations;
     std::string pickingItem = name+BLOCK_ITEM_SUFFIX;
     std::string scriptName = name.substr(name.find(':')+1);
+    uint inventorySize = 0;
 
 	struct {
 		blockid_t id;

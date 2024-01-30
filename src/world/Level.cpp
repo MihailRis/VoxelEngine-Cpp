@@ -9,6 +9,7 @@
 #include "../physics/Hitbox.h"
 #include "../physics/PhysicsSolver.h"
 #include "../objects/Player.h"
+#include "../items/Inventory.h"
 
 Level::Level(World* world, const Content* content, Player* player, EngineSettings& settings)
 	  : world(world),
@@ -16,7 +17,8 @@ Level::Level(World* world, const Content* content, Player* player, EngineSetting
 		player(player),
 		chunksStorage(new ChunksStorage(this)),
 		events(new LevelEvents()) ,
-		settings(settings) {
+		settings(settings) 
+{
     physics = new PhysicsSolver(glm::vec3(0, -22.6f, 0));
 
     uint matrixSize = (settings.chunks.loadDistance+

@@ -29,9 +29,9 @@ void Lighting::clear(){
 		auto chunk = chunks->chunks[index];
 		if (chunk == nullptr)
 			continue;
-		Lightmap* lightmap = chunk->lightmap;
+		Lightmap& lightmap = chunk->lightmap;
 		for (int i = 0; i < CHUNK_VOL; i++){
-			lightmap->map[i] = 0;
+			lightmap.map[i] = 0;
 		}
 	}
 }
@@ -51,13 +51,13 @@ void Lighting::prebuildSkyLight(Chunk* chunk, const ContentIndices* indices){
 						highestPoint = y;
 					break;
 				}
-				chunk->lightmap->setS(x,y,z, 15);
+				chunk->lightmap.setS(x,y,z, 15);
 			}
 		}
 	}
 	if (highestPoint < CHUNK_H-1)
 		highestPoint++;
-	chunk->lightmap->highestPoint = highestPoint;
+	chunk->lightmap.highestPoint = highestPoint;
 }
 
 void Lighting::buildSkyLight(int cx, int cz){
@@ -66,13 +66,13 @@ void Lighting::buildSkyLight(int cx, int cz){
 	Chunk* chunk = chunks->getChunk(cx, cz);
 	for (int z = 0; z < CHUNK_D; z++){
 		for (int x = 0; x < CHUNK_W; x++){
-			for (int y = chunk->lightmap->highestPoint; y >= 0; y--){
+			for (int y = chunk->lightmap.highestPoint; y >= 0; y--){
 				int gx = x + cx * CHUNK_W;
 				int gz = z + cz * CHUNK_D;
 				while (y > 0 && !blockDefs[chunk->voxels[vox_index(x, y, z)].id]->lightPassing) {
 					y--;
 				}
-				if (chunk->lightmap->getS(x, y, z) != 15) {
+				if (chunk->lightmap.getS(x, y, z) != 15) {
 					solverS->add(gx,y+1,gz);
 					for (; y >= 0; y--){
 						solverS->add(gx+1,y,gz);
@@ -99,7 +99,7 @@ void Lighting::onChunkLoaded(int cx, int cz, bool expand){
 	for (uint y = 0; y < CHUNK_H; y++){
 		for (uint z = 0; z < CHUNK_D; z++){
 			for (uint x = 0; x < CHUNK_W; x++){
-				voxel& vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
+				const voxel& vox = chunk->voxels[(y * CHUNK_D + z) * CHUNK_W + x];
 				const Block* block = blockDefs[vox.id];
 				int gx = x + cx * CHUNK_W;
 				int gz = z + cz * CHUNK_D;
@@ -118,7 +118,7 @@ void Lighting::onChunkLoaded(int cx, int cz, bool expand){
 				for (int z = 0; z < CHUNK_D; z++) {
 					int gx = x + cx * CHUNK_W;
 					int gz = z + cz * CHUNK_D;
-					int rgbs = chunk->lightmap->get(x, y, z);
+					int rgbs = chunk->lightmap.get(x, y, z);
 					if (rgbs){
 						solverR->add(gx,y,gz, Lightmap::extract(rgbs, 0));
 						solverG->add(gx,y,gz, Lightmap::extract(rgbs, 1));
@@ -133,7 +133,7 @@ void Lighting::onChunkLoaded(int cx, int cz, bool expand){
 				for (int x = 0; x < CHUNK_W; x++) {
 					int gx = x + cx * CHUNK_W;
 					int gz = z + cz * CHUNK_D;
-					int rgbs = chunk->lightmap->get(x, y, z);
+					int rgbs = chunk->lightmap.get(x, y, z);
 					if (rgbs){
 						solverR->add(gx,y,gz, Lightmap::extract(rgbs, 0));
 						solverG->add(gx,y,gz, Lightmap::extract(rgbs, 1));
