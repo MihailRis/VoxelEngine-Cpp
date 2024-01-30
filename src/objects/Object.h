@@ -15,7 +15,7 @@ public:
     bool shouldUpdate = true;
 
 public:
-    virtual ~Object() { destroyed(); }
+    ~Object() { destroyed(); }
 
 public:
     virtual void spawned() { }
