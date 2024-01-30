@@ -170,7 +170,7 @@ glm::vec3 Player::getSpawnPoint() const {
 	return spawnpoint;
 }
 
-std::unique_ptr<dynamic::Map> Player::write() const {
+std::unique_ptr<dynamic::Map> Player::serialize() const {
 	glm::vec3 position = hitbox->position;
 	auto root = std::make_unique<dynamic::Map>();
 	auto& posarr = root->putList("position");
@@ -190,9 +190,44 @@ std::unique_ptr<dynamic::Map> Player::write() const {
 	root->put("flight", flight);
 	root->put("noclip", noclip);
     root->put("chosen-slot", chosenSlot);
-    root->put("inventory", inventory->write().release());
+    root->put("inventory", inventory->serialize().release());
     return root;
 }
+
+void Player::deserialize(dynamic::Map *src) {
+
+	auto posarr = src->list("position");
+	glm::vec3& position = hitbox->position;
+	position.x = posarr->num(0);
+	position.y = posarr->num(1);
+	position.z = posarr->num(2);
+	camera->position = position;
+
+	auto rotarr = src->list("rotation");
+	cam.x = rotarr->num(0);
+	cam.y = rotarr->num(1);
+
+	if (src->has("spawnpoint")) {
+		auto sparr = src->list("spawnpoint");
+		setSpawnPoint(glm::vec3(
+			sparr->num(0),
+			sparr->num(1),
+			sparr->num(2)
+		));
+	} else {
+		setSpawnPoint(position);
+	}
+
+	src->flag("flight", flight);
+	src->flag("noclip", noclip);
+    setChosenSlot(src->getInt("chosen-slot", getChosenSlot()));
+
+    auto invmap = src->map("inventory");
+    if (invmap) {
+        getInventory()->deserialize(invmap);
+    }
+}
+
 
 void Player::convert(dynamic::Map* data, const ContentLUT* lut) {
     auto inventory = data->map("inventory");

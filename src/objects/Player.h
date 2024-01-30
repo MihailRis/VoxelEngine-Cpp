@@ -7,6 +7,7 @@
 #include "../data/dynamic.h"
 #include "../voxels/voxel.h"
 #include "../settings.h"
+#include "../interfaces/Serializable.h"
 
 class Camera;
 class Hitbox;
@@ -31,7 +32,7 @@ struct PlayerInput {
     bool flight;
 };
 
-class Player {
+class Player : Serializable {
     float speed;
     int chosenSlot;
     glm::vec3 spawnpoint {};
@@ -65,7 +66,8 @@ public:
     void setSpawnPoint(glm::vec3 point);
     glm::vec3 getSpawnPoint() const;
 
-    std::unique_ptr<dynamic::Map> write() const;
+    std::unique_ptr<dynamic::Map> serialize() const override;
+    void deserialize(dynamic::Map *src) override;
 
     static void convert(dynamic::Map* data, const ContentLUT* lut);
 };
