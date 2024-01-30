@@ -19,7 +19,7 @@ void ByteBuilder::putCStr(const char* str) {
 void ByteBuilder::put(const std::string& s) {
     size_t len = s.length();
     putInt32(len);
-    put((const ubyte*)s.data(), len);
+    put(reinterpret_cast<const ubyte*>(s.data()), len);
 }
 
 void ByteBuilder::put(const ubyte* arr, size_t size) {
@@ -30,46 +30,40 @@ void ByteBuilder::put(const ubyte* arr, size_t size) {
 }
 
 void ByteBuilder::putInt16(int16_t val) {
-    buffer.push_back((char) (val >> 0 & 255));
-    buffer.push_back((char) (val >> 8 & 255));
+    buffer.push_back(static_cast<ubyte>(val >> 0 & 255));
+    buffer.push_back(static_cast<ubyte>(val >> 8 & 255));
 }
 
 void ByteBuilder::putInt32(int32_t val) {
     buffer.reserve(buffer.size() + 4);
-    buffer.push_back((char) (val >> 0 & 255));
-    buffer.push_back((char) (val >> 8 & 255));
-    buffer.push_back((char) (val >> 16 & 255));
-    buffer.push_back((char) (val >> 24 & 255));
+    buffer.push_back(static_cast<ubyte>(val >> 0 & 255));
+    buffer.push_back(static_cast<ubyte> (val >> 8 & 255));
+    buffer.push_back(static_cast<ubyte> (val >> 16 & 255));
+    buffer.push_back(static_cast<ubyte> (val >> 24 & 255));
 }
 
 void ByteBuilder::putInt64(int64_t val) {
     buffer.reserve(buffer.size() + 8);
-    buffer.push_back((char) (val >> 0 & 255));
-    buffer.push_back((char) (val >> 8 & 255));
-    buffer.push_back((char) (val >> 16 & 255));
-    buffer.push_back((char) (val >> 24 & 255));
-    buffer.push_back((char) (val >> 32 & 255));
-    buffer.push_back((char) (val >> 40 & 255));
-    buffer.push_back((char) (val >> 48 & 255));
-    buffer.push_back((char) (val >> 56 & 255));
+    buffer.push_back(static_cast<ubyte> (val >> 0 & 255));
+    buffer.push_back(static_cast<ubyte> (val >> 8 & 255));
+    buffer.push_back(static_cast<ubyte> (val >> 16 & 255));
+    buffer.push_back(static_cast<ubyte> (val >> 24 & 255));
+    buffer.push_back(static_cast<ubyte> (val >> 32 & 255));
+    buffer.push_back(static_cast<ubyte> (val >> 40 & 255));
+    buffer.push_back(static_cast<ubyte> (val >> 48 & 255));
+    buffer.push_back(static_cast<ubyte> (val >> 56 & 255));
 }
 
 void ByteBuilder::putFloat32(float val) {
-    union {
-        int32_t vali32;
-        float valfloat;
-    } value;
-    value.valfloat = val;
-    putInt32(value.vali32);
+    int32_t i32_val;
+    std::memcpy(&i32_val, &val, sizeof(int32_t));
+    putInt32(i32_val);
 }
 
 void ByteBuilder::putFloat64(double val) {
-    union {
-        int64_t vali64;
-        double valfloat;
-    } value;
-    value.valfloat = val;
-    putInt64(value.vali64);
+    int64_t i64_val;
+    std::memcpy(&i64_val, &val, sizeof(int64_t));
+    putInt64(i64_val);
 }
 
 void ByteBuilder::set(size_t position, ubyte val) {
@@ -144,8 +138,8 @@ int16_t ByteReader::getInt16() {
         throw std::underflow_error("unexpected end");
     }
     pos += 2;
-    return (data[pos - 1] << 8) | 
-           (data[pos - 2]);
+    return (static_cast<int16_t>(data[pos - 1]) << 8) |
+           (static_cast<int16_t>(data[pos - 2]));
 }
 
 int32_t ByteReader::getInt32() {
@@ -153,10 +147,10 @@ int32_t ByteReader::getInt32() {
         throw std::underflow_error("unexpected end");
     }
     pos += 4;
-    return (data[pos - 1] << 24) | 
-           (data[pos - 2] << 16) | 
-           (data[pos - 3] << 8) | 
-           (data[pos - 4]);
+    return (static_cast<int32_t>(data[pos - 1]) << 24) |
+           (static_cast<int32_t>(data[pos - 2]) << 16) |
+           (static_cast<int32_t>(data[pos - 3]) << 8) |
+           (static_cast<int32_t>(data[pos - 4]));
 }
 
 int64_t ByteReader::getInt64() {
@@ -164,36 +158,32 @@ int64_t ByteReader::getInt64() {
         throw std::underflow_error("unexpected end");
     }
     pos += 8;
-    return ((int64_t)data[pos - 1] << 56) | 
-           ((int64_t)data[pos - 2] << 48) | 
-           ((int64_t)data[pos - 3] << 40) | 
-           ((int64_t)data[pos - 4] << 32) | 
-           ((int64_t)data[pos - 5] << 24) | 
-           ((int64_t)data[pos - 6] << 16) | 
-           ((int64_t)data[pos - 7] << 8) | 
-           ((int64_t)data[pos - 8]);
+    return (static_cast<int64_t>(data[pos - 1]) << 56) |
+           (static_cast<int64_t>(data[pos - 2]) << 48) |
+           (static_cast<int64_t>(data[pos - 3]) << 40) |
+           (static_cast<int64_t>(data[pos - 4]) << 32) |
+           (static_cast<int64_t>(data[pos - 5]) << 24) |
+           (static_cast<int64_t>(data[pos - 6]) << 16) |
+           (static_cast<int64_t>(data[pos - 7]) << 8) |
+           (static_cast<int64_t>(data[pos - 8]));
 }
 
 float ByteReader::getFloat32() {
-    union {
-        int32_t vali32;
-        float valfloat;
-    } value;
-    value.vali32 = getInt32();
-    return value.valfloat;
+    int32_t i32_val = getInt32();
+    float val;
+    std::memcpy(&val, &i32_val, sizeof(float));
+    return val;
 }
 
 double ByteReader::getFloat64() {
-    union {
-        int64_t vali64;
-        double valfloat;
-    } value;
-    value.vali64 = getInt64();
-    return value.valfloat;
+    int64_t i64_val = getInt64();
+    double val;
+    std::memcpy(&val, &i64_val, sizeof(double));
+    return val;
 }
 
 const char* ByteReader::getCString() {
-    const char* cstr = (const char*)(data+pos);
+    const char* cstr = reinterpret_cast<const char*>(data+pos);
     pos += strlen(cstr) + 1;
     return cstr;
 }
@@ -204,7 +194,7 @@ std::string ByteReader::getString() {
         throw std::underflow_error("unexpected end");
     }
     pos += length;
-    return std::string((const char*)(data+pos-length), length);
+    return std::string(reinterpret_cast<const char*>(data+pos-length), length);
 }
 
 bool ByteReader::hasNext() const {
