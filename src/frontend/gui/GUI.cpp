@@ -62,6 +62,7 @@ void GUI::actMouse(float delta) {
             if (focus != pressed) {
                 focus = pressed;
                 focus->focus(this);
+                return;
             }
         }
         if (this->hover == nullptr && focus) {
