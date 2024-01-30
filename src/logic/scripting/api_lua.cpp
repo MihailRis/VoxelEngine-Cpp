@@ -396,12 +396,12 @@ static int l_print(lua_State* L) {
         if (s == NULL)
             return luaL_error(L, LUA_QL("tostring") " must return a string to "
                                  LUA_QL("print"));
-        if (i>1) fputs("\t", stdout);
-        fputs(s, stdout);
+        if (i > 1)
+            std::cout << "\t";
+        std::cout << s;
         lua_pop(L, 1);  /* pop result */
     }
-    fputs("\n", stdout);
-    fflush(stdout); /* Added flush */
+    std::cout << std::endl;
     return 0;
 }
 
