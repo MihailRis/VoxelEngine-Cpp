@@ -8,12 +8,13 @@
 
 #include "../typedefs.h"
 #include "../data/dynamic.h"
+#include "../interfaces/Serializable.h"
 
 class ContentLUT;
 class ContentIndices;
 
 // TODO: items indices fix
-class Inventory {
+class Inventory : Serializable {
     std::vector<ItemStack> slots;
 public:
     Inventory(size_t size);
@@ -33,9 +34,9 @@ public:
         size_t end=-1);
 
     /* deserializing inventory */
-    void read(const dynamic::Map* src);
+    void deserialize(dynamic::Map* src) override;
     /* serializing inventory */
-    std::unique_ptr<dynamic::Map> write() const;
+    std::unique_ptr<dynamic::Map> serialize() const override;
 
     static void convert(dynamic::Map* data, const ContentLUT* lut);
 
