@@ -10,6 +10,7 @@
 #include "../physics/PhysicsSolver.h"
 #include "../objects/Object.h"
 #include "../objects/Player.h"
+#include "../items/Inventory.h"
 
 
 const float DEF_PLAYER_Y = 100.0f;
@@ -20,7 +21,8 @@ Level::Level(World* world, const Content* content, EngineSettings& settings)
 	    content(content),
 		chunksStorage(new ChunksStorage(this)),
 		events(new LevelEvents()) ,
-		settings(settings) {
+		settings(settings) 
+{
     physics = new PhysicsSolver(glm::vec3(0, -22.6f, 0));
 
 	player = spawnObjectOfClass<Player>(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);

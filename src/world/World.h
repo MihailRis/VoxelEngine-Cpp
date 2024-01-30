@@ -8,7 +8,8 @@
 #include "../typedefs.h"
 #include "../settings.h"
 #include "../util/timeutil.h"
-
+#include "../data/dynamic.h"
+#include "../interfaces/Serializable.h"
 #include "../content/ContentPack.h"
 
 class Content;
@@ -25,12 +26,14 @@ public:
     world_load_error(std::string message);
 };
 
-class World {
+class World : Serializable {
     std::string name;
     uint64_t seed;
     EngineSettings& settings;
     const Content* const content;
     std::vector<ContentPack> packs;
+
+    uint nextInventoryId = 1;
 public:
     WorldFiles* wfile;
 
@@ -74,6 +77,13 @@ public:
     std::string getName() const;
     uint64_t getSeed() const;
     const std::vector<ContentPack>& getPacks() const;
+
+    std::unique_ptr<dynamic::Map> serialize() const override;
+    void deserialize(dynamic::Map *src) override;
+    
+    uint getNextInventoryId() {
+        return nextInventoryId++;
+    }
 };
 
 #endif /* WORLD_WORLD_H_ */

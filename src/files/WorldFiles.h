@@ -16,8 +16,11 @@
 #include "../settings.h"
 
 const uint REGION_HEADER_SIZE = 10;
+
 const uint REGION_LAYER_VOXELS = 0;
 const uint REGION_LAYER_LIGHTS = 1;
+const uint REGION_LAYER_STORAGES = 2;
+
 const uint REGION_SIZE_BIT = 5;
 const uint REGION_SIZE = (1 << (REGION_SIZE_BIT));
 const uint REGION_CHUNKS_COUNT = ((REGION_SIZE) * (REGION_SIZE));
@@ -74,8 +77,7 @@ class WorldFiles {
     std::unordered_map<glm::ivec3, std::unique_ptr<regfile>> openRegFiles;
 
 	void writeWorldInfo(const World* world);
-	fs::path getLightsFolder() const;
-	fs::path getRegionFilename(int x, int y) const;
+    fs::path getRegionFilename(int x, int y) const;
 	fs::path getWorldFile() const;
 	fs::path getIndicesFile() const;
 	fs::path getPacksFile() const;
@@ -110,12 +112,16 @@ class WorldFiles {
 				   int x, int z, int layer);
     
     regfile* getRegFile(glm::ivec3 coord, const fs::path& folder);
+
+    fs::path getLightsFolder() const;
+	fs::path getInventoriesFolder() const;
 public:
     static bool parseRegionFilename(const std::string& name, int& x, int& y);
     fs::path getRegionsFolder() const;
     fs::path getPlayerFile() const;
 
 	regionsmap regions;
+    regionsmap storages;
 	regionsmap lights;
 	fs::path directory;
 	std::unique_ptr<ubyte[]> compressionBuffer;
@@ -147,7 +153,7 @@ public:
 	void writePacks(const World* world);
 	void writeIndices(const ContentIndices* indices);
     /* Append pack to packs.list without duplicate check */
-    void addPack(const std::string& id);
+    void addPack(const World* world, const std::string& id);
 
     static const char* WORLD_FILE;
 };

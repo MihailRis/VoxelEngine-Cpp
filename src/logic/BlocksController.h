@@ -46,6 +46,7 @@ public:
     void update(float delta);
     void randomTick(int tickid, int parts);
     void onBlocksTick(int tickid, int parts);
+    uint createBlockInventory(int x, int y, int z);
 };
 
 #endif // LOGIC_BLOCKS_CONTROLLER_H_

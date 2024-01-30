@@ -1,6 +1,7 @@
 #include "World.h"
 
 #include <memory>
+#include <iostream>
 #include <glm/glm.hpp>
 
 #include "Level.h"
@@ -68,17 +69,9 @@ Level* World::create(std::string name,
                      EngineSettings& settings, 
                      const Content* content,
                      const std::vector<ContentPack>& packs) {
-    World* world = new World(name, directory, seed, settings, content, packs);
-    return new Level(world, content, settings);
-}
 
-ContentLUT* World::checkIndices(const fs::path& directory, 
-                                const Content* content) {
-    fs::path indicesFile = directory/fs::path("indices.json");
-    if (fs::is_regular_file(indicesFile)) {
-        return ContentLUT::create(indicesFile, content);
-    }
-    return nullptr;
+    auto world = new World(name, directory, seed, settings, content, packs);
+    return new Level(world, content, settings);
 }
 
 Level* World::load(fs::path directory,
@@ -94,11 +87,21 @@ Level* World::load(fs::path directory,
         throw world_load_error("could not to find world.json");
     }
 
-    Level* level = new Level(world.get(), content, settings);
+
+    auto level = new Level(world.get(), content, settings);
     wfile->readPlayer(level->player);
 
     world.release();
     return level;
+}
+
+ContentLUT* World::checkIndices(const fs::path& directory, 
+                                const Content* content) {
+    fs::path indicesFile = directory/fs::path("indices.json");
+    if (fs::is_regular_file(indicesFile)) {
+        return ContentLUT::create(indicesFile, content);
+    }
+    return nullptr;
 }
 
 void World::setName(const std::string& name) {
@@ -127,4 +130,45 @@ uint64_t World::getSeed() const {
 
 const std::vector<ContentPack>& World::getPacks() const {
     return packs;
+}
+
+void World::deserialize(dynamic::Map* root) {
+    name = root->getStr("name", name);
+    seed = root->getInt("seed", seed);
+
+	auto verobj = root->map("version");
+	if (verobj) {
+		int major=0, minor=-1;
+		verobj->num("major", major);
+		verobj->num("minor", minor);
+		std::cout << "world version: " << major << "." << minor << std::endl;
+	}
+
+	auto timeobj = root->map("time");
+	if (timeobj) {
+		timeobj->num("day-time", daytime);
+		timeobj->num("day-time-speed", daytimeSpeed);
+        timeobj->num("total-time", totalTime);
+	}
+    
+    nextInventoryId = root->getNum("next-inventory-id", 2);
+}
+
+std::unique_ptr<dynamic::Map> World::serialize() const {
+	auto root = std::make_unique<dynamic::Map>();
+
+	auto& versionobj = root->putMap("version");
+	versionobj.put("major", ENGINE_VERSION_MAJOR);
+	versionobj.put("minor", ENGINE_VERSION_MINOR);
+
+	root->put("name", name);
+	root->put("seed", seed);
+	
+    auto& timeobj = root->putMap("time");
+	timeobj.put("day-time", daytime);
+	timeobj.put("day-time-speed", daytimeSpeed);
+    timeobj.put("total-time", totalTime);
+
+    root->put("next-inventory-id", nextInventoryId);
+    return root;
 }

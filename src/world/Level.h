@@ -12,6 +12,7 @@ class World;
 class Player;
 class Object;
 class Chunks;
+class Inventory;
 class LevelEvents;
 class Lighting;
 class PhysicsSolver;

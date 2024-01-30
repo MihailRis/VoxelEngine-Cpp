@@ -252,7 +252,12 @@ typedef std::function<void(const ContentPack& pack)> packconsumer;
 
 const int PACKS_PANEL_WIDTH = 550;
 
-std::shared_ptr<Panel> create_packs_panel(const std::vector<ContentPack>& packs, Engine* engine, bool backbutton, packconsumer callback) {
+std::shared_ptr<Panel> create_packs_panel(
+    const std::vector<ContentPack>& packs, 
+    Engine* engine, 
+    bool backbutton, 
+    packconsumer callback) 
+{
     auto assets = engine->getAssets();
     auto panel = std::make_shared<Panel>(vec2(PACKS_PANEL_WIDTH, 200), vec4(5.0f));
     panel->color(vec4(1.0f, 1.0f, 1.0f, 0.07f));
@@ -298,8 +303,9 @@ std::shared_ptr<Panel> create_packs_panel(const std::vector<ContentPack>& packs,
         packpanel->color(vec4(0.06f, 0.12f, 0.18f, 0.7f));
         panel->add(packpanel);
     }
-    if (backbutton)
+    if (backbutton) {
         panel->add(guiutil::backButton(engine->getGUI()->getMenu()));
+    }
     return panel;
 }
 
@@ -338,11 +344,11 @@ void create_content_panel(Engine* engine, PagesControl* menu) {
                     return;
                 }
                 if (!world->hasPack(dependency)) {
-                    world->wfile->addPack(dependency);
+                    world->wfile->addPack(world, dependency);
                 }
             }
             
-            world->wfile->addPack(pack.id);
+            world->wfile->addPack(world, pack.id);
 
             std::string wname = world->getName();
             engine->setScreen(nullptr);
