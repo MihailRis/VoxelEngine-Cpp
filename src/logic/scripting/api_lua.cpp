@@ -2,6 +2,7 @@
 #include "scripting.h"
 
 #include <glm/glm.hpp>
+#include <iostream>
 
 #include "../../files/files.h"
 #include "../../physics/Hitbox.h"
@@ -383,6 +384,27 @@ static int l_is_replaceable_at(lua_State* L) {
     return 1;
 }
 
+// Modified version of luaB_print from lbaselib.c
+static int l_print(lua_State* L) {
+    int n = lua_gettop(L);  /* number of arguments */
+    lua_getglobal(L, "tostring");
+    for (int i=1; i<=n; i++) {
+        lua_pushvalue(L, -1);  /* function to be called */
+        lua_pushvalue(L, i);   /* value to print */
+        lua_call(L, 1, 1);
+        const char* s = lua_tostring(L, -1);  /* get result */
+        if (s == NULL)
+            return luaL_error(L, LUA_QL("tostring") " must return a string to "
+                                 LUA_QL("print"));
+        if (i>1) fputs("\t", stdout);
+        fputs(s, stdout);
+        lua_pop(L, 1);  /* pop result */
+    }
+    fputs("\n", stdout);
+    fflush(stdout); /* Added flush */
+    return 0;
+}
+
 #define lua_addfunc(L, FUNC, NAME) (lua_pushcfunction(L, FUNC),\
                                     lua_setglobal(L, NAME))
 
@@ -393,6 +415,7 @@ void apilua::create_funcs(lua_State* L) {
     luaL_openlib(L, "time", timelib, 0);
     luaL_openlib(L, "file", filelib, 0);
 
+    lua_addfunc(L, l_print, "print");
     lua_addfunc(L, l_block_index, "block_index");
     lua_addfunc(L, l_block_name, "block_name");
     lua_addfunc(L, l_blocks_count, "blocks_count");
