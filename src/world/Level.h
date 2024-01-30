@@ -5,10 +5,12 @@
 
 #include "../typedefs.h"
 #include "../settings.h"
+#include <list>
 
 class Content;
 class World;
 class Player;
+class Object;
 class Chunks;
 class LevelEvents;
 class Lighting;
@@ -19,6 +21,7 @@ class Level {
 public:
 	std::unique_ptr<World> world;
 	const Content* const content;
+	std::list<Object*> objects;
 	Player* player;
 	Chunks* chunks;
 	ChunksStorage* chunksStorage;
@@ -31,13 +34,15 @@ public:
 
 	Level(World* world, 
 		  const Content* content,
-	      Player* player, 
 	      EngineSettings& settings);
 	~Level();
 
 	void update();
     
     World* getWorld();
+
+	template<class T, typename... Args>
+	T* spawnObjectOfClass(Args&&... args);
 };
 
 #endif /* WORLD_LEVEL_H_ */

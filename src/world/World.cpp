@@ -62,9 +62,6 @@ void World::write(Level* level) {
     wfile->writePlayer(level->player);
 }
 
-const float DEF_PLAYER_Y = 100.0f;
-const float DEF_PLAYER_SPEED = 4.0f;
-
 Level* World::create(std::string name, 
                      fs::path directory, 
                      uint64_t seed,
@@ -72,8 +69,7 @@ Level* World::create(std::string name,
                      const Content* content,
                      const std::vector<ContentPack>& packs) {
     World* world = new World(name, directory, seed, settings, content, packs);
-    Player* player = new Player(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
-    return new Level(world, content, player, settings);
+    return new Level(world, content, settings);
 }
 
 ContentLUT* World::checkIndices(const fs::path& directory, 
@@ -98,9 +94,8 @@ Level* World::load(fs::path directory,
         throw world_load_error("could not to find world.json");
     }
 
-    Player* player = new Player(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
-    Level* level = new Level(world.get(), content, player, settings);
-    wfile->readPlayer(player);
+    Level* level = new Level(world.get(), content, settings);
+    wfile->readPlayer(level->player);
 
     world.release();
     return level;

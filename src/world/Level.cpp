@@ -8,16 +8,23 @@
 #include "../voxels/ChunksStorage.h"
 #include "../physics/Hitbox.h"
 #include "../physics/PhysicsSolver.h"
+#include "../objects/Object.h"
 #include "../objects/Player.h"
 
-Level::Level(World* world, const Content* content, Player* player, EngineSettings& settings)
+
+const float DEF_PLAYER_Y = 100.0f;
+const float DEF_PLAYER_SPEED = 4.0f;
+
+Level::Level(World* world, const Content* content, EngineSettings& settings)
 	  : world(world),
 	    content(content),
-		player(player),
 		chunksStorage(new ChunksStorage(this)),
 		events(new LevelEvents()) ,
 		settings(settings) {
     physics = new PhysicsSolver(glm::vec3(0, -22.6f, 0));
+
+	player = spawnObjectOfClass<Player>(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
+
 
     uint matrixSize = (settings.chunks.loadDistance+
 					   settings.chunks.padding) * 2;
@@ -52,4 +59,20 @@ void Level::update() {
 
 World* Level::getWorld() {
     return world.get();
+}
+
+// Spawns object of class T and returns pointer to it.
+// @param T class that derives the Object class
+// @param args pass arguments needed for T class constructor
+template<class T, typename... Args>
+T* Level::spawnObjectOfClass(Args&&... args)
+{
+	static_assert(std::is_base_of<Object, T>::value, "T must be a derived of Object class");
+	T* tObj = new T(args...);
+	Object* obj = reinterpret_cast<Object*>(tObj);
+	objects.push_back(obj);
+	obj->objectUID = std::rand();
+	obj->setLevel(this);
+	obj->spawned();
+	return tObj;
 }

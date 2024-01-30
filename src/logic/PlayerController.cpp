@@ -202,7 +202,7 @@ void PlayerController::resetKeyboard() {
 }
 
 void PlayerController::updateControls(float delta){
-	player->update(level, input, delta);
+	player->updateInput(level, input, delta);
 }
 
 void PlayerController::updateInteraction(){

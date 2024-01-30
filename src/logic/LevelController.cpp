@@ -6,6 +6,7 @@
 #include "ChunksController.h"
 
 #include "scripting/scripting.h"
+#include "../objects/Object.h"
 
 LevelController::LevelController(EngineSettings& settings, Level* level) 
     : settings(settings), level(level) {
@@ -24,6 +25,19 @@ void LevelController::update(float delta, bool input, bool pause) {
     level->update();
     chunks->update(settings.chunks.loadSpeed);
     blocks->update(delta);
+
+    // erease null pointers
+    level->objects.remove_if([](Object* obj) { return obj == nullptr; });
+
+    // update all objects that needed
+	for(Object *obj : level->objects)
+	{
+		if(obj) {
+            if(obj->shouldUpdate) {
+                obj->update(delta);
+            }
+		}
+	}
 }
 
 void LevelController::onWorldSave() {

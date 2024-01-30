@@ -33,7 +33,7 @@ Player::Player(glm::vec3 position, float speed) :
 Player::~Player() {
 }
 
-void Player::update(
+void Player::updateInput(
 		Level* level,
 		PlayerInput& input, 
 		float delta) {
