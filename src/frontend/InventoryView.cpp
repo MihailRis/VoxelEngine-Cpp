@@ -296,6 +296,10 @@ void SlotView::clicked(gui::GUI* gui, int button) {
     }
 }
 
+void SlotView::focus(gui::GUI* gui) {
+    clicked(gui, 0);
+}
+
 InventoryView::InventoryView(
             const Content* content,
             LevelFrontend* frontend,

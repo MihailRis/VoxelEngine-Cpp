@@ -108,6 +108,7 @@ public:
     bool isHighlighted() const;
 
     virtual void clicked(gui::GUI*, int) override;
+    virtual void focus(gui::GUI*) override;
 };
 
 class InventoryView : public gui::Container {
