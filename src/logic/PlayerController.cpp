@@ -293,7 +293,11 @@ void PlayerController::updateInteraction(){
 				x = (iend.x)+(norm.x);
 				y = (iend.y)+(norm.y);
 				z = (iend.z)+(norm.z);
-			}
+			} else {
+                if (def->rotations.name == "pipe") {
+                    states = BLOCK_DIR_UP;
+                }
+            }
 			vox = chunks->get(x, y, z);
             blockid_t chosenBlock = def->rt.id;
 			if (vox && (target = indices->getBlockDef(vox->id))->replaceable) {
