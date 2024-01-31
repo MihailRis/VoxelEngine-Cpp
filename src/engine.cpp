@@ -37,7 +37,7 @@
 #include "frontend/locale/langs.h"
 #include "logic/scripting/scripting.h"
 
-#include "definitions.h"
+#include "core_defs.h"
 
 namespace fs = std::filesystem;
 
@@ -148,7 +148,7 @@ inline const std::string checkPacks(const std::unordered_set<std::string>& packs
 void Engine::loadContent() {
     auto resdir = paths->getResources();
     ContentBuilder contentBuilder;
-    setup_definitions(&contentBuilder);
+    corecontent::setup(&contentBuilder);
     paths->setContentPacks(&contentPacks);
 
     std::vector<fs::path> resRoots;

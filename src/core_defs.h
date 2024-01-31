@@ -3,7 +3,6 @@
 
 #include <string>
 
-
 const std::string TEXTURE_NOTFOUND = "notfound";
 
 /* bindings used in engine code */
@@ -23,5 +22,12 @@ const std::string BIND_PLAYER_ATTACK = "player.attack";
 const std::string BIND_PLAYER_BUILD = "player.build";
 const std::string BIND_PLAYER_PICK = "player.pick";
 const std::string BIND_HUD_INVENTORY = "hud.inventory";
+
+class ContentBuilder;
+
+namespace corecontent {
+    extern void setup_bindings();
+    extern void setup(ContentBuilder* builder);
+}
 
 #endif // SRC_CORE_DEFS_H_
