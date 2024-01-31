@@ -1,5 +1,6 @@
 #include "xml.h"
 
+#include <charconv>
 #include <stdexcept>
 #include <sstream>
 #include "../util/stringutil.h"
@@ -24,7 +25,9 @@ int64_t Attribute::asInt() const {
 }
 
 double Attribute::asFloat() const {
-    return std::stod(text);
+    double value;
+    std::from_chars(text.data(), text.data()+text.size(), value);
+    return value;
 }
 
 bool Attribute::asBool() const {
