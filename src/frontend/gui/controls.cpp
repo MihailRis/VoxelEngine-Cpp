@@ -91,10 +91,12 @@ Button::Button(std::shared_ptr<UINode> content, glm::vec4 padding)
     scrollable(false);
 }
 
-Button::Button(std::wstring text, glm::vec4 padding, glm::vec4 margin) 
+Button::Button(std::wstring text, glm::vec4 padding, onaction action) 
  : Panel(vec2(32,32), padding, 0) 
 {
-    setMargin(margin);
+    if (action) {
+        listenAction(action);
+    }
     scrollable(false);
 
     label = std::make_shared<Label>(text);

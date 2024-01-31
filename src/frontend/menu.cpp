@@ -77,9 +77,9 @@ static std::shared_ptr<Button> create_button(
     gui::onaction action
 ) {
     auto btn = std::make_shared<Button>(
-        langs::get(text, L"menu"), padding, margin
+        langs::get(text, L"menu"), padding, action
     );
-    btn->listenAction(action);
+    btn->setMargin(margin);
     return btn;
 }
 
@@ -115,13 +115,11 @@ static void show_content_missing(
     subpanel->maxLength(400);
     panel->add(subpanel);
 
-    auto button = std::make_shared<Button>(
-        langs::get(L"Back to Main Menu", L"menu"), vec4(8.0f)
-    );
-    button->listenAction([=](GUI*){
-        menu->back();
-    });
-    panel->add(button);
+    panel->add(std::make_shared<Button>(
+        langs::get(L"Back to Main Menu", L"menu"), vec4(8.0f), [=](GUI*){
+            menu->back();
+        }
+    ));
     menu->set("missing-content");
 }
 
@@ -157,12 +155,13 @@ void create_languages_panel(Engine* engine) {
         std::string& fullName = locale.name;
 
         auto button = std::make_shared<Button>(
-            util::str2wstr_utf8(fullName), vec4(10.f)
+            util::str2wstr_utf8(fullName), 
+            vec4(10.f),
+            [=](GUI*) {
+                engine->setLanguage(name);
+                menu->back();
+            }
         );
-        button->listenAction([=](GUI*) {
-            engine->setLanguage(name);
-            menu->back();
-        });
         panel->add(button);
     }
     panel->add(guiutil::backButton(menu));
@@ -260,13 +259,11 @@ void create_main_menu_panel(Engine* engine) {
     panel->add(create_worlds_panel(engine));
     panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
 
-    auto quitbtn = std::make_shared<Button>(
-        langs::get(L"Quit", L"menu"), vec4(10.f)
-    );
-    quitbtn->listenAction([](GUI* gui) {
-        Window::setShouldClose(true);
-    });
-    panel->add(quitbtn);
+    panel->add(std::make_shared<Button>(
+        langs::get(L"Quit", L"menu"), vec4(10.f), [](GUI*) {
+            Window::setShouldClose(true);
+        }
+    ));
 }
 
 typedef std::function<void(const ContentPack& pack)> packconsumer;
