@@ -98,6 +98,18 @@ void BasicParser::skipWhitespace() {
     }
 }
 
+void BasicParser::skip(size_t n) {
+    n = std::min(n, source.length()-pos);
+
+    for (size_t i = 0; i < n; i++) {
+        char next = source[pos++];
+        if (next == '\n') {
+            line++;
+            linestart = pos;
+        }
+    }
+}
+
 void BasicParser::skipLine() {
     while (hasNext()) {
         if (source[pos] == '\n') {
@@ -110,8 +122,26 @@ void BasicParser::skipLine() {
     }
 }
 
+bool BasicParser::skipTo(const std::string& substring) {
+    size_t idx = source.find(substring, pos);
+    if (idx == std::string::npos) {
+        skip(source.length()-pos);
+        return false;
+    } else {
+        skip(idx-pos);
+        return true;
+    }
+}
+
 bool BasicParser::hasNext() {
     return pos < source.length();
+}
+
+bool BasicParser::isNext(const std::string& substring) {
+    if (source.length() - pos < substring.length()) {
+        return false;
+    }
+    return source.substr(pos, substring.length()) == substring;
 }
 
 char BasicParser::nextChar() {
@@ -129,6 +159,17 @@ void BasicParser::expect(char expected) {
     pos++;
 }
 
+void BasicParser::expect(const std::string& substring) {
+    if (substring.empty())
+        return;
+    for (uint i = 0; i < substring.length(); i++) {
+        if (source.length() <= pos + i || source[pos+i] != substring[i]) {
+            throw error(escape_string(substring)+" expected");
+        }
+    }
+    pos += substring.length();
+}
+
 void BasicParser::expectNewLine() {
     while (hasNext()) {
         char next = source[pos];
@@ -143,6 +184,10 @@ void BasicParser::expectNewLine() {
             throw error("line separator expected");
         }
     }
+}
+
+void BasicParser::goBack() {
+    if (pos) pos--;
 }
 
 char BasicParser::peek() {
