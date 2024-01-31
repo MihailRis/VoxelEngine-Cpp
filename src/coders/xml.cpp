@@ -26,7 +26,10 @@ int64_t Attribute::asInt() const {
 
 double Attribute::asFloat() const {
     double value;
-    std::from_chars(text.data(), text.data()+text.size(), value);
+    auto res = std::from_chars(text.data(), text.data()+text.size(), value);
+    if (res.ptr != text.data()+text.size()) {
+        throw std::runtime_error("invalid number format "+escape_string(text));
+    }
     return value;
 }
 
