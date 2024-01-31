@@ -30,10 +30,10 @@ fs::path EnginePaths::getScreenshotFile(std::string ext) {
     ss << std::put_time(&tm, format);
     std::string datetimestr = ss.str();
 
-    fs::path filename = folder/fs::path("screenshot-"+datetimestr+"."+ext);
+    fs::path filename = folder/fs::u8path("screenshot-"+datetimestr+"."+ext);
     uint index = 0;
     while (fs::exists(filename)) {
-        filename = folder/fs::path("screenshot-"+datetimestr+"-"+std::to_string(index)+"."+ext);
+        filename = folder/fs::u8path("screenshot-"+datetimestr+"-"+std::to_string(index)+"."+ext);
         index++;
     }
     return filename;
@@ -59,7 +59,7 @@ std::vector<fs::path> EnginePaths::scanForWorlds() {
             continue;
         }
         fs::path worldFolder = entry.path();
-        fs::path worldFile = worldFolder/fs::path(WorldFiles::WORLD_FILE);
+        fs::path worldFile = worldFolder/fs::u8path(WorldFiles::WORLD_FILE);
         if (!fs::is_regular_file(worldFile)) {
             continue;
         }
@@ -125,19 +125,19 @@ ResPaths::ResPaths(fs::path mainRoot, std::vector<fs::path> roots)
 fs::path ResPaths::find(const std::string& filename) const {
     for (int i = roots.size()-1; i >= 0; i--) {
         auto& root = roots[i];
-        fs::path file = root / fs::path(filename);
+        fs::path file = root / fs::u8path(filename);
         if (fs::exists(file)) {
             return file;
         }
     }
-    return mainRoot / fs::path(filename);
+    return mainRoot / fs::u8path(filename);
 }
 
 std::vector<fs::path> ResPaths::listdir(const std::string& folderName) const {
     std::vector<fs::path> entries;
     for (int i = roots.size()-1; i >= 0; i--) {
         auto& root = roots[i];
-        fs::path folder = root / fs::path(folderName);
+        fs::path folder = root / fs::u8path(folderName);
         if (!fs::is_directory(folder))
             continue;
         for (const auto& entry : fs::directory_iterator(folder)) {
@@ -145,7 +145,7 @@ std::vector<fs::path> ResPaths::listdir(const std::string& folderName) const {
         }
     }
     {
-        fs::path folder = mainRoot / fs::path(folderName);
+        fs::path folder = mainRoot / fs::u8path(folderName);
         if (!fs::is_directory(folder))
             return entries;
         for (const auto& entry : fs::directory_iterator(folder)) {
