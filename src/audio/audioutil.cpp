@@ -15,21 +15,23 @@
 #endif
 
 bool is_big_endian(void){
-    union {
-        uint32_t i;
-        char c[4];
-    } bint = {0x01020304};
+    uint32_t ui32_v = 0x01020304;
+    char bytes[sizeof(uint32_t)];
+    std::memcpy(bytes, &ui32_v, sizeof(uint32_t));
 
-    return bint.c[0] == 1;
+    return bytes[0] == 1;
 }
 
 std::int32_t convert_to_int(char* buffer, std::size_t len){
     std::int32_t a = 0;
-    if(!is_big_endian())
+    if (!is_big_endian()) {
         std::memcpy(&a, buffer, len);
-    else
-        for(std::size_t i = 0; i < len; ++i)
+    }
+    else {
+        for (std::size_t i = 0; i < len; ++i) {
             reinterpret_cast<char*>(&a)[3 - i] = buffer[i];
+        }
+    }
     return a;
 }
 
