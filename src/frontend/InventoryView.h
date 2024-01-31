@@ -11,7 +11,6 @@
 #include "../items/ItemStack.h"
 #include "../typedefs.h"
 
-class Batch2D;
 class Assets;
 class GfxContext;
 class Content;
@@ -102,7 +101,7 @@ public:
              const Content* content,
              SlotLayout layout);
 
-    virtual void draw(Batch2D* batch, Assets* assets) override;
+    virtual void draw(const GfxContext* pctx, Assets* assets) override;
 
     void setHighlighted(bool flag);
     bool isHighlighted() const;
@@ -135,7 +134,7 @@ public:
 
     void build();
 
-    virtual void drawBackground(Batch2D* batch, Assets* assets) override;
+    virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
 
     void setInventory(std::shared_ptr<Inventory> inventory);
 

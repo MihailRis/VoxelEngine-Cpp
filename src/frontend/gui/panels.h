@@ -34,8 +34,8 @@ namespace gui {
         Container(glm::vec2 coord, glm::vec2 size);
 
         virtual void act(float delta) override;
-        virtual void drawBackground(Batch2D* batch, Assets* assets) {};
-        virtual void draw(Batch2D* batch, Assets* assets) override;
+        virtual void drawBackground(const GfxContext* pctx, Assets* assets) {};
+        virtual void draw(const GfxContext* pctx, Assets* assets) override;
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
         virtual void addBack(std::shared_ptr<UINode> node);
         virtual void add(std::shared_ptr<UINode> node);
@@ -59,13 +59,12 @@ namespace gui {
         Panel(glm::vec2 size, glm::vec4 padding=glm::vec4(2.0f), float interval=2.0f, bool resizing=true);
         virtual ~Panel();
 
-        virtual void drawBackground(Batch2D* batch, Assets* assets) override;
+        virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
 
         virtual void orientation(Orientation orientation);
         Orientation orientation() const;
 
         virtual void refresh() override;
-        virtual void lock() override;
 
         virtual void maxLength(int value);
         int maxLength() const;

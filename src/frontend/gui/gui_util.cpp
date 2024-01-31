@@ -29,7 +29,7 @@ Button* guiutil::gotoButton(
 void guiutil::alert(GUI* gui, const std::wstring& text, gui::runnable on_hidden) {
     PagesControl* menu = gui->getMenu();
     Panel* panel = new Panel(vec2(500, 200), vec4(8.0f), 8.0f);
-    panel->color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    panel->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
     
     // TODO: implement built-in text wrapping
     const int wrap_length = 60;
@@ -70,10 +70,10 @@ void guiutil::confirm(
 
     PagesControl* menu = gui->getMenu();
     Panel* panel = new Panel(vec2(600, 200), vec4(8.0f), 8.0f);
-    panel->color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    panel->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
     panel->add(new Label(text));
     Panel* subpanel = new Panel(vec2(600, 53));
-    subpanel->color(vec4(0));
+    subpanel->setColor(vec4(0));
     subpanel->add((new Button(yestext, vec4(8.0f)))->listenAction([=](GUI*){
         if (on_confirm)
             on_confirm();

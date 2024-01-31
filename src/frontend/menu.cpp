@@ -53,12 +53,12 @@ std::shared_ptr<Panel> create_page(
         float opacity, 
         int interval) {
     PagesControl* menu = engine->getGUI()->getMenu();
-    Panel* panel = new Panel(vec2(width, 200), vec4(8.0f), interval);
-    panel->color(vec4(0.0f, 0.0f, 0.0f, opacity));
-
-    std::shared_ptr<Panel> ptr (panel);
-    menu->add(name, ptr);
-    return ptr;
+    auto panel = std::make_shared<Panel>(
+        vec2(width, 200), vec4(8.0f), interval
+    );
+    panel->setColor(vec4(0.0f, 0.0f, 0.0f, opacity));
+    menu->add(name, panel);
+    return panel;
 }
 
 Button* create_button(std::wstring text, 
@@ -81,19 +81,19 @@ void show_content_missing(Engine* engine, const Content* content,
     panel->add(new Label(langs::get(L"menu.missing-content")));
 
     Panel* subpanel = new Panel(vec2(500, 100));
-    subpanel->color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    subpanel->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
 
     for (auto& entry : lut->getMissingContent()) {
          Panel* hpanel = new Panel(vec2(500, 30));
-        hpanel->color(vec4(0.0f));
+        hpanel->setColor(vec4(0.0f));
         hpanel->orientation(Orientation::horizontal);
         
         Label* namelabel = new Label(util::str2wstr_utf8(entry.name));
-        namelabel->color(vec4(1.0f, 0.2f, 0.2f, 0.5f));
+        namelabel->setColor(vec4(1.0f, 0.2f, 0.2f, 0.5f));
 
         auto contentname = util::str2wstr_utf8(contenttype_name(entry.type));
         Label* typelabel = new Label(L"["+contentname+L"]");
-        typelabel->color(vec4(0.5f));
+        typelabel->setColor(vec4(0.5f));
         hpanel->add(typelabel);
         hpanel->add(namelabel);
         subpanel->add(hpanel);
@@ -193,7 +193,7 @@ void open_world(std::string name, Engine* engine) {
 
 Panel* create_worlds_panel(Engine* engine) {
     auto panel = new Panel(vec2(390, 200), vec4(5.0f));
-    panel->color(vec4(1.0f, 1.0f, 1.0f, 0.07f));
+    panel->setColor(vec4(1.0f, 1.0f, 1.0f, 0.07f));
     panel->maxLength(400);
 
     auto paths = engine->getPaths();
@@ -203,7 +203,7 @@ Panel* create_worlds_panel(Engine* engine) {
         auto namews = util::str2wstr_utf8(name);
 
         auto btn = std::make_shared<RichButton>(vec2(390, 46));
-        btn->color(vec4(1.0f, 1.0f, 1.0f, 0.1f));
+        btn->setColor(vec4(1.0f, 1.0f, 1.0f, 0.1f));
         btn->setHoverColor(vec4(1.0f, 1.0f, 1.0f, 0.17f));
 
         auto label = std::make_shared<Label>(namews);
@@ -214,10 +214,10 @@ Panel* create_worlds_panel(Engine* engine) {
         });
 
         auto image = std::make_shared<Image>("gui/delete_icon", vec2(32, 32));
-        image->color(vec4(1, 1, 1, 0.5f));
+        image->setColor(vec4(1, 1, 1, 0.5f));
 
         auto delbtn = std::make_shared<Button>(image, vec4(2));
-        delbtn->color(vec4(0.0f));
+        delbtn->setColor(vec4(0.0f));
         delbtn->setHoverColor(vec4(1.0f, 1.0f, 1.0f, 0.17f));
         
         btn->add(delbtn, vec2(330, 3));
@@ -260,7 +260,7 @@ std::shared_ptr<Panel> create_packs_panel(
 {
     auto assets = engine->getAssets();
     auto panel = std::make_shared<Panel>(vec2(PACKS_PANEL_WIDTH, 200), vec4(5.0f));
-    panel->color(vec4(1.0f, 1.0f, 1.0f, 0.07f));
+    panel->setColor(vec4(1.0f, 1.0f, 1.0f, 0.07f));
     panel->maxLength(400);
     panel->scrollable(true);
 
@@ -272,8 +272,8 @@ std::shared_ptr<Panel> create_packs_panel(
             });
         }
         auto idlabel = std::make_shared<Label>("["+pack.id+"]");
-        idlabel->color(vec4(1, 1, 1, 0.5f));
-        packpanel->add(idlabel, vec2(PACKS_PANEL_WIDTH-40-idlabel->size().x, 2));
+        idlabel->setColor(vec4(1, 1, 1, 0.5f));
+        packpanel->add(idlabel, vec2(PACKS_PANEL_WIDTH-40-idlabel->getSize().x, 2));
 
         auto titlelabel = std::make_shared<Label>(pack.title);
         packpanel->add(titlelabel, vec2(78, 6));
@@ -290,17 +290,17 @@ std::shared_ptr<Panel> create_packs_panel(
 
         if (!pack.creator.empty()) {
             auto creatorlabel = std::make_shared<Label>("@"+pack.creator);
-            creatorlabel->color(vec4(0.8f, 1.0f, 0.9f, 0.7f));
-            packpanel->add(creatorlabel, vec2(PACKS_PANEL_WIDTH-40-creatorlabel->size().x, 60));
+            creatorlabel->setColor(vec4(0.8f, 1.0f, 0.9f, 0.7f));
+            packpanel->add(creatorlabel, vec2(PACKS_PANEL_WIDTH-40-creatorlabel->getSize().x, 60));
         }
 
         auto descriptionlabel = std::make_shared<Label>(pack.description);
-        descriptionlabel->color(vec4(1, 1, 1, 0.7f));
+        descriptionlabel->setColor(vec4(1, 1, 1, 0.7f));
         packpanel->add(descriptionlabel, vec2(80, 28));
 
         packpanel->add(std::make_shared<Image>(icon, glm::vec2(64)), vec2(8));
 
-        packpanel->color(vec4(0.06f, 0.12f, 0.18f, 0.7f));
+        packpanel->setColor(vec4(0.06f, 0.12f, 0.18f, 0.7f));
         panel->add(packpanel);
     }
     if (backbutton) {
@@ -456,19 +456,19 @@ void create_controls_panel(Engine* engine, PagesControl* menu) {
     }
 
     Panel* scrollPanel = new Panel(vec2(400, 200), vec4(2.0f), 1.0f);
-    scrollPanel->color(vec4(0.0f, 0.0f, 0.0f, 0.3f));
+    scrollPanel->setColor(vec4(0.0f, 0.0f, 0.0f, 0.3f));
     scrollPanel->maxLength(400);
     for (auto& entry : Events::bindings){
         std::string bindname = entry.first;
         
         Panel* subpanel = new Panel(vec2(400, 40), vec4(5.0f), 1.0f);
-        subpanel->color(vec4(0.0f));
+        subpanel->setColor(vec4(0.0f));
         subpanel->orientation(Orientation::horizontal);
 
         InputBindBox* bindbox = new InputBindBox(entry.second);
         subpanel->add(bindbox);
         Label* label = new Label(langs::get(util::str2wstr_utf8(bindname)));
-        label->margin(vec4(6.0f));
+        label->setMargin(vec4(6.0f));
         subpanel->add(label);
         scrollPanel->add(subpanel);
     }

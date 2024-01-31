@@ -6,7 +6,7 @@
 #include <memory>
 #include <functional>
 
-class Batch2D;
+class GfxContext;
 class Assets;
 
 namespace gui {
@@ -22,52 +22,51 @@ namespace gui {
     class UINode {
     protected:
         glm::vec2 coord;
-        glm::vec2 size_;
-        glm::vec4 color_ {1.0f};
-        glm::vec4 margin_ {1.0f};
-        bool isvisible = true;
-        bool sizelock = false;
-        bool hover_ = false;
-        bool pressed_ = false;
-        bool focused_ = false;
+        glm::vec2 size;
+        glm::vec4 color {1.0f};
+        glm::vec4 margin {1.0f};
+        bool visible = true;
+        bool hover = false;
+        bool pressed = false;
+        bool focused = false;
         bool interactive = true;
-        Align align_ = Align::left;
+        Align align = Align::left;
         UINode* parent = nullptr;
         UINode(glm::vec2 coord, glm::vec2 size);
     public:
         virtual ~UINode();
         virtual void act(float delta) {};
-        virtual void draw(Batch2D* batch, Assets* assets) = 0;
+        virtual void draw(const GfxContext* pctx, Assets* assets) = 0;
 
-        virtual void visible(bool flag);
-        bool visible() const;
+        virtual void setVisible(bool flag);
+        bool isVisible() const;
 
-        virtual void align(Align align);
-        Align align() const;
+        virtual void setAlign(Align align);
+        Align getAlign() const;
 
-        virtual void hover(bool flag);
-        bool hover() const;
+        virtual void setHover(bool flag);
+        bool isHover() const;
 
         virtual void setParent(UINode* node);
         UINode* getParent() const;
 
-        virtual void color(glm::vec4 newColor);
-        glm::vec4 color() const;
+        virtual void setColor(glm::vec4 newColor);
+        glm::vec4 getColor() const;
 
-        virtual void margin(glm::vec4 margin);
-        glm::vec4 margin() const;
+        virtual void setMargin(glm::vec4 margin);
+        glm::vec4 getMargin() const;
 
-        virtual void focus(GUI*) {focused_ = true;}
+        virtual void focus(GUI*) {focused = true;}
         virtual void click(GUI*, int x, int y);
         virtual void clicked(GUI*, int button) {}
         virtual void mouseMove(GUI*, int x, int y) {};
         virtual void mouseRelease(GUI*, int x, int y);
         virtual void scrolled(int value);
 
-        bool ispressed() const;
+        bool isPressed() const;
         void defocus();
-        bool isfocused() const; 
-        virtual bool isfocuskeeper() const {return false;}
+        bool isFocused() const; 
+        virtual bool isFocuskeeper() const {return false;}
 
         virtual void typed(unsigned int codepoint) {};
         virtual void keyPressed(int key) {};
@@ -79,11 +78,10 @@ namespace gui {
         virtual void setInteractive(bool flag);
 
         virtual glm::vec2 contentOffset() {return glm::vec2(0.0f);};
-        glm::vec2 calcCoord() const;
+        virtual glm::vec2 calcCoord() const;
         virtual void setCoord(glm::vec2 coord);
-        virtual glm::vec2 size() const;
-        virtual void size(glm::vec2 size);
-        void _size(glm::vec2 size);
+        virtual glm::vec2 getSize() const;
+        virtual void setSize(glm::vec2 size);
         virtual void refresh() {};
         virtual void lock();
     };

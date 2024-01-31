@@ -17,6 +17,7 @@
 #include "window/Camera.h"
 #include "window/input.h"
 #include "graphics/Batch2D.h"
+#include "graphics/GfxContext.h"
 #include "graphics/Shader.h"
 #include "graphics/ImageData.h"
 #include "frontend/gui/GUI.h"
@@ -113,7 +114,11 @@ void Engine::mainloop() {
 
         if (!Window::isIconified()) {
 		    screen->draw(delta);
-		    gui->draw(&batch, assets.get());
+
+            Viewport viewport(Window::width, Window::height);
+            GfxContext ctx(nullptr, viewport, &batch);
+		    gui->draw(&ctx, assets.get());
+            
 		    Window::swapInterval(settings.display.swapInterval);
         } else {
             Window::swapInterval(1);
