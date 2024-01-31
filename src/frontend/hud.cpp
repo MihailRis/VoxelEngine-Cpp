@@ -97,18 +97,18 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
     }));
 
     for (int ax = 0; ax < 3; ax++){
-        Panel* sub = new Panel(vec2(10, 27), vec4(0.0f));
+        auto sub = std::make_shared<Panel>(vec2(10, 27), vec4(0.0f));
         sub->orientation(Orientation::horizontal);
 
         std::wstring str = L"x: ";
         str[0] += ax;
-        Label* label = new Label(str);
+        auto label = std::make_shared<Label>(str);
         label->setMargin(vec4(2, 3, 2, 3));
         sub->add(label);
         sub->setColor(vec4(0.0f));
 
         // Coord input
-        TextBox* box = new TextBox(L"");
+        auto box = std::make_shared<TextBox>(L"");
         box->textSupplier([=]() {
             Hitbox* hitbox = level->player->hitbox.get();
             return util::to_wstring(hitbox->position[ax], 2);
@@ -139,19 +139,21 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
         return L"time: "+timeString;
     }));
     {
-        TrackBar* bar = new TrackBar(0.0f, 1.0f, 1.0f, 0.005f, 8);
+        auto bar = std::make_shared<TrackBar>(0.0f, 1.0f, 1.0f, 0.005f, 8);
         bar->supplier([=]() {return level->world->daytime;});
         bar->consumer([=](double val) {level->world->daytime = val;});
         panel->add(bar);
     }
     {
-        TrackBar* bar = new TrackBar(0.0f, 1.0f, 0.0f, 0.005f, 8);
+        auto bar = std::make_shared<TrackBar>(0.0f, 1.0f, 0.0f, 0.005f, 8);
         bar->supplier([=]() {return WorldRenderer::fog;});
         bar->consumer([=](double val) {WorldRenderer::fog = val;});
         panel->add(bar);
     }
     {
-        auto checkbox = new FullCheckBox(L"Show Chunk Borders", vec2(400, 32));
+        auto checkbox = std::make_shared<FullCheckBox>(
+            L"Show Chunk Borders", vec2(400, 32)
+        );
         checkbox->supplier([=]() {
             return engine->getSettings().debug.showChunkBorders;
         });

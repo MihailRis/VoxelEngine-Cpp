@@ -108,10 +108,6 @@ void Container::add(std::shared_ptr<UINode> node) {
     refresh();
 }
 
-void Container::add(UINode* node) {
-    add(std::shared_ptr<UINode>(node));
-}
-
 void Container::add(std::shared_ptr<UINode> node, glm::vec2 coord) {
     node->setCoord(coord);
     add(node);

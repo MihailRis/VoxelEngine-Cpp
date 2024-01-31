@@ -59,13 +59,13 @@ namespace gui {
         std::unordered_map<std::string, std::shared_ptr<UINode>> storage;
 
         Camera* uicamera;
-        PagesControl* menu;
+        std::shared_ptr<PagesControl> menu;
         void actMouse(float delta);
     public:
         GUI();
         ~GUI();
 
-        PagesControl* getMenu();
+        std::shared_ptr<PagesControl> getMenu();
 
         std::shared_ptr<UINode> getFocused() const;
         bool isFocusCaught() const;

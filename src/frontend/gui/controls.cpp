@@ -20,6 +20,7 @@ Label::Label(std::string text, std::string fontName)
      : UINode(vec2(), vec2(text.length() * 8, 15)), 
        text(util::str2wstr_utf8(text)), 
        fontName_(fontName) {
+    setInteractive(false);
 }
 
 
@@ -27,6 +28,7 @@ Label::Label(std::wstring text, std::string fontName)
      : UINode(vec2(), vec2(text.length() * 8, 15)), 
        text(text), 
        fontName_(fontName) {
+    setInteractive(false);
 }
 
 void Label::setText(std::wstring text) {
@@ -314,7 +316,7 @@ void TextBox::text(std::wstring value) {
 InputBindBox::InputBindBox(Binding& binding, vec4 padding) 
     : Panel(vec2(100,32), padding, 0, false),
       binding(binding) {
-    label = new Label(L"");
+    label = std::make_shared<Label>(L"");
     add(label);
     scrollable(false);
 }

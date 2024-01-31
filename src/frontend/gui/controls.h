@@ -137,7 +137,7 @@ namespace gui {
     protected:
         glm::vec4 hoverColor {0.05f, 0.1f, 0.2f, 0.75f};
         glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
-        Label* label;
+        std::shared_ptr<Label> label;
         Binding& binding;
     public:
         InputBindBox(Binding& binding, glm::vec4 padding=glm::vec4(6.0f));
