@@ -91,31 +91,31 @@ void EnginePaths::setContentPacks(std::vector<ContentPack>* contentPacks) {
 fs::path EnginePaths::resolve(std::string path) {
     size_t separator = path.find(':');
     if (separator == std::string::npos) {
-        return fs::path(path);
+        return fs::u8path(path);
     }
     std::string prefix = path.substr(0, separator);
     std::string filename = path.substr(separator+1);
 
     if (prefix == "res" || prefix == "core") {
-        return resources/fs::path(filename);
+        return resources/fs::u8path(filename);
     }
 
     if (prefix == "user") {
-        return userfiles/fs::path(filename);
+        return userfiles/fs::u8path(filename);
     }
 
     if (prefix == "world") {
-        return worldFolder/fs::path(filename);
+        return worldFolder/fs::u8path(filename);
     }
 
     if (contentPacks) {
         for (auto& pack : *contentPacks) {
             if (pack.id == prefix) {
-                return pack.folder/fs::path(filename);
+                return pack.folder/fs::u8path(filename);
             }
         }
     }
-    return fs::path("./"+filename);
+    return fs::u8path("./"+filename);
 }
 
 ResPaths::ResPaths(fs::path mainRoot, std::vector<fs::path> roots) 
