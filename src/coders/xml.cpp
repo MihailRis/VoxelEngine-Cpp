@@ -115,7 +115,7 @@ Parser::Parser(std::string filename, std::string source)
 }
 
 xmlelement Parser::parseOpenTag() {
-    std::string tag = parseName();
+    std::string tag = parseXMLName();
     auto node = std::make_shared<Node>(tag);
 
     char c;
@@ -124,7 +124,7 @@ xmlelement Parser::parseOpenTag() {
         c = peek();
         if (c == '/' || c == '>' || c == '?')
             break;
-        std::string attrname = parseName();
+        std::string attrname = parseXMLName();
         std::string attrtext = "";
         skipWhitespace();
         if (peek() == '=') {
@@ -177,6 +177,26 @@ std::string Parser::parseText() {
             break;
         }
         nextChar();
+    }
+    return source.substr(start, pos-start);
+}
+
+inline bool is_xml_identifier_start(char c) {
+    return is_identifier_start(c) || c == ':';
+}
+
+inline bool is_xml_identifier_part(char c) {
+    return is_identifier_part(c) || c == '-' || c == '.'  || c == ':';
+}
+
+std::string Parser::parseXMLName() {
+    char c = peek();
+    if (!is_xml_identifier_start(c)) {
+        throw error("identifier expected");
+    }
+    int start = pos;
+    while (hasNext() && is_xml_identifier_part(source[pos])) {
+        pos++;
     }
     return source.substr(start, pos-start);
 }
@@ -235,7 +255,12 @@ xmlelement Parser::parseElement() {
 
 xmldocument Parser::parse() {
     parseDeclaration();
-    document->setRoot(parseElement());
+
+    xmlelement root = nullptr;
+    while (root == nullptr) {
+        root = parseElement();
+    }
+    document->setRoot(root);
     return document;
 }
 

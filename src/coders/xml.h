@@ -105,6 +105,7 @@ namespace xml {
         void parseDeclaration();
         void parseComment();
         std::string parseText();
+        std::string parseXMLName();
     public:
         Parser(std::string filename, std::string source);
 
