@@ -13,7 +13,7 @@ struct AABB;
 class Content;
 class ContentIndices;
 class Chunk;
-class voxel;
+struct voxel;
 class WorldFiles;
 class LevelEvents;
 

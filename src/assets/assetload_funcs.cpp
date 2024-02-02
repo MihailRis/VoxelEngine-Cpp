@@ -135,7 +135,6 @@ bool assetload::animation(Assets* assets,
 
 			auto frameArr = root->list("frames");
 
-			Frame temp;
 			float frameDuration = DEFAULT_FRAME_DURATION;
 			std::string frameName;
 

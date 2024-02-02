@@ -120,8 +120,6 @@ class InventoryView : public gui::Container {
     InventoryInteraction* interaction;
 
     std::vector<SlotView*> slots;
-
-    int scroll = 0;
 public:
     InventoryView(
         const Content* content, 

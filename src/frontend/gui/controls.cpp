@@ -89,6 +89,7 @@ Button::Button(std::shared_ptr<UINode> content, glm::vec4 padding)
                                     padding[1]+padding[3]+margin[1]+margin[3]));
     add(content);
     scrollable(false);
+    setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
 }
 
 Button::Button(std::wstring text, glm::vec4 padding, onaction action) 
@@ -102,6 +103,7 @@ Button::Button(std::wstring text, glm::vec4 padding, onaction action)
     label = std::make_shared<Label>(text);
     label->setAlign(Align::center);
     add(label);
+    setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
 }
 
 void Button::setText(std::wstring text) {
@@ -122,10 +124,6 @@ Button* Button::textSupplier(wstringsupplier supplier) {
         label->textSupplier(supplier);
     }
     return this;
-}
-
-void Button::setHoverColor(glm::vec4 color) {
-    hoverColor = color;
 }
 
 void Button::drawBackground(const GfxContext* pctx, Assets* assets) {
@@ -163,6 +161,7 @@ void Button::textAlign(Align align) {
 
 // ============================== RichButton ==================================
 RichButton::RichButton(vec2 size) : Container(vec2(), size) {
+    setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
 }
 
 void RichButton::mouseRelease(GUI* gui, int x, int y) {
@@ -177,10 +176,6 @@ void RichButton::mouseRelease(GUI* gui, int x, int y) {
 RichButton* RichButton::listenAction(onaction action) {
     actions.push_back(action);
     return this;
-}
-
-void RichButton::setHoverColor(glm::vec4 color) {
-    hoverColor = color;
 }
 
 void RichButton::drawBackground(const GfxContext* pctx, Assets* assets) {
@@ -198,6 +193,7 @@ TextBox::TextBox(std::wstring placeholder, vec4 padding)
       placeholder(placeholder) {
     label = std::make_shared<Label>(L"");
     add(label);
+    setHoverColor(glm::vec4(0.05f, 0.1f, 0.2f, 0.75f));
 }
 
 void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {

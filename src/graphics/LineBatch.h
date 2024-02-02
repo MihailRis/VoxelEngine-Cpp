@@ -1,13 +1,14 @@
 #ifndef GRAPHICS_LINEBATCH_H_
 #define GRAPHICS_LINEBATCH_H_
 
+#include <memory>
 #include <stdlib.h>
 #include <glm/glm.hpp>
 
 class Mesh;
 
 class LineBatch {
-	Mesh* mesh;
+	std::unique_ptr<Mesh> mesh;
 	float* buffer;
 	size_t index;
 	size_t capacity;

@@ -3,7 +3,7 @@
 
 #include "../typedefs.h"
 
-class voxel;
+struct voxel;
 class Content;
 
 class WorldGenerator {
