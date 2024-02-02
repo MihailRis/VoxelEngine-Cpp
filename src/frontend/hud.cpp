@@ -68,7 +68,7 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
     });
     panel->setCoord(vec2(10, 10));
     panel->add(create_label([this](){ return L"fps: "+this->fpsString;}));
-    panel->add(create_label([this](){
+    panel->add(create_label([](){
         return L"meshes: " + std::to_wstring(Mesh::meshesCount);
     }));
     panel->add(create_label([=](){
@@ -336,7 +336,7 @@ void HudRenderer::update(bool visible) {
             closeInventory();
         } else {
             pause = true;
-            menu->set("pause");
+            menu->setPage("pause");
         }
     }
     if (visible && Events::jactive(BIND_HUD_INVENTORY)) {

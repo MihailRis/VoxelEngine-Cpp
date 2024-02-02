@@ -66,7 +66,7 @@ static std::shared_ptr<Panel> create_page(
         vec2(width, 200), vec4(8.0f), interval
     );
     panel->setColor(vec4(0.0f, 0.0f, 0.0f, opacity));
-    menu->add(name, panel);
+    menu->addPage(name, panel);
     return panel;
 }
 
@@ -120,7 +120,7 @@ static void show_content_missing(
             menu->back();
         }
     ));
-    menu->set("missing-content");
+    menu->setPage("missing-content");
 }
 
 void show_convert_request(
@@ -372,8 +372,8 @@ void create_content_panel(Engine* engine) {
             engine->setScreen(std::make_shared<MenuScreen>(engine));
             open_world(wname, engine);
         });
-        menu->add("content-packs", panel);
-        menu->set("content-packs");
+        menu->addPage("content-packs", panel);
+        menu->setPage("content-packs");
     }));
     mainPanel->add(guiutil::backButton(menu));
 }
@@ -611,7 +611,7 @@ void create_pause_panel(Engine* engine) {
     }));
     panel->add(create_button(L"Content", vec4(10.0f), vec4(1), [=](GUI*) {
         create_content_panel(engine);
-        menu->set("content");
+        menu->setPage("content");
     }));
     panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
 

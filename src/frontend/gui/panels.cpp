@@ -213,8 +213,6 @@ void Panel::refresh() {
             node->setCoord(vec2(x, y+margin.y));
             x += nodesize.x + margin.z + interval;
             
-            float height = size.y - padding.y - padding.w - margin.y - margin.w;
-            //node->setSize(vec2(nodesize.x, height));
             node->refresh();
             maxh = fmax(maxh, y+margin.y+node->getSize().y+margin.w+padding.w);
         }
@@ -243,15 +241,11 @@ bool PagesControl::has(std::string name) {
     return pages.find(name) != pages.end();
 }
 
-void PagesControl::add(std::string name, std::shared_ptr<UINode> panel) {
+void PagesControl::addPage(std::string name, std::shared_ptr<UINode> panel) {
     pages[name] = Page{panel};
 }
 
-void PagesControl::add(std::string name, UINode* panel) {
-    add(name, std::shared_ptr<UINode>(panel));
-}
-
-void PagesControl::set(std::string name, bool history) {
+void PagesControl::setPage(std::string name, bool history) {
     auto found = pages.find(name);
     if (found == pages.end()) {
         throw std::runtime_error("no page found");
@@ -273,7 +267,7 @@ void PagesControl::back() {
         return;
     std::string name = pageStack.top();
     pageStack.pop();
-    set(name, false);
+    setPage(name, false);
 }
 
 Page& PagesControl::current() {
