@@ -20,12 +20,14 @@ bool assetload::texture(Assets* assets,
                         const ResPaths* paths,
                         const std::string filename, 
                         const std::string name) {
-	Texture* texture = png::load_texture(paths->find(filename).string());
+	std::unique_ptr<Texture> texture(
+        png::load_texture(paths->find(filename).string())
+    );
 	if (texture == nullptr) {
 		std::cerr << "failed to load texture '" << name << "'" << std::endl;
 		return false;
 	}
-	assets->store(texture, name);
+	assets->store(texture.release(), name);
 	return true;
 }
 
@@ -163,7 +165,7 @@ bool assetload::animation(Assets* assets,
 			if (!appendAtlas(builder, file)) continue;
 		}
 
-		Atlas* srcAtlas = builder.build(2);
+		std::unique_ptr<Atlas> srcAtlas (builder.build(2));
 
 		Texture* srcTex = srcAtlas->getTexture();
 		Texture* dstTex = dstAtlas->getTexture();
@@ -195,7 +197,7 @@ bool assetload::animation(Assets* assets,
 			}
 		}
 
-		assets->store(srcAtlas, name + "_animation");
+		assets->store(srcAtlas.release(), name + "_animation");
 		assets->store(animation);
 
 		return true;

@@ -56,7 +56,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     assets.reset(new Assets());
 	AssetsLoader loader(assets.get(), resPaths.get());
 	AssetsLoader::createDefaults(loader);
-	AssetsLoader::addDefaults(loader, true);
+	AssetsLoader::addDefaults(loader, false);
 
     Shader::preprocessor->setPaths(resPaths.get());
 	while (loader.hasNext()) {
@@ -183,7 +183,7 @@ void Engine::loadContent() {
 	std::cout << "-- loading assets" << std::endl;
 	AssetsLoader loader(new_assets.get(), resPaths.get());
     AssetsLoader::createDefaults(loader);
-    AssetsLoader::addDefaults(loader, false);
+    AssetsLoader::addDefaults(loader, true);
 	while (loader.hasNext()) {
 		if (!loader.loadNext()) {
 			new_assets.reset();
