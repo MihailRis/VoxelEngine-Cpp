@@ -3,43 +3,40 @@
 
 #include "../constants.h"
 #include "../typedefs.h"
-#include "../voxels/Chunk.h"
 
 const int LIGHTMAP_DATA_LEN = CHUNK_VOL/2;
 
 // Lichtkarte
 class Lightmap {
 public:
-	light_t* map;
+	light_t map[CHUNK_VOL] {};
 	int highestPoint = 0;
-	Lightmap();
-	~Lightmap();
 
 	void set(const Lightmap* lightmap);
 
-	void set(light_t* map);
+	void set(const light_t* map);
 
-	inline unsigned short get(int x, int y, int z){
+	inline unsigned short get(int x, int y, int z) const {
 		return (map[y*CHUNK_D*CHUNK_W+z*CHUNK_W+x]);
 	}
 
-	inline unsigned char get(int x, int y, int z, int channel){
+	inline unsigned char get(int x, int y, int z, int channel) const {
 		return (map[y*CHUNK_D*CHUNK_W+z*CHUNK_W+x] >> (channel << 2)) & 0xF;
 	}
 
-	inline unsigned char getR(int x, int y, int z){
+	inline unsigned char getR(int x, int y, int z) const {
 		return map[y*CHUNK_D*CHUNK_W+z*CHUNK_W+x] & 0xF;
 	}
 
-	inline unsigned char getG(int x, int y, int z){
+	inline unsigned char getG(int x, int y, int z) const {
 		return (map[y*CHUNK_D*CHUNK_W+z*CHUNK_W+x] >> 4) & 0xF;
 	}
 
-	inline unsigned char getB(int x, int y, int z){
+	inline unsigned char getB(int x, int y, int z) const {
 		return (map[y*CHUNK_D*CHUNK_W+z*CHUNK_W+x] >> 8) & 0xF;
 	}
 
-	inline unsigned char getS(int x, int y, int z){
+	inline unsigned char getS(int x, int y, int z) const {
 		return (map[y*CHUNK_D*CHUNK_W+z*CHUNK_W+x] >> 12) & 0xF;
 	}
 

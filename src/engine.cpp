@@ -17,6 +17,7 @@
 #include "window/Camera.h"
 #include "window/input.h"
 #include "graphics/Batch2D.h"
+#include "graphics/GfxContext.h"
 #include "graphics/Shader.h"
 #include "graphics/ImageData.h"
 #include "frontend/gui/GUI.h"
@@ -36,7 +37,7 @@
 #include "frontend/locale/langs.h"
 #include "logic/scripting/scripting.h"
 
-#include "definitions.h"
+#include "core_defs.h"
 
 namespace fs = std::filesystem;
 
@@ -113,7 +114,11 @@ void Engine::mainloop() {
 
         if (!Window::isIconified()) {
 		    screen->draw(delta);
-		    gui->draw(&batch, assets.get());
+
+            Viewport viewport(Window::width, Window::height);
+            GfxContext ctx(nullptr, viewport, &batch);
+		    gui->draw(&ctx, assets.get());
+            
 		    Window::swapInterval(settings.display.swapInterval);
         } else {
             Window::swapInterval(1);
@@ -143,7 +148,7 @@ inline const std::string checkPacks(const std::unordered_set<std::string>& packs
 void Engine::loadContent() {
     auto resdir = paths->getResources();
     ContentBuilder contentBuilder;
-    setup_definitions(&contentBuilder);
+    corecontent::setup(&contentBuilder);
     paths->setContentPacks(&contentPacks);
 
     std::vector<fs::path> resRoots;
@@ -209,7 +214,7 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
 void Engine::setLanguage(std::string locale) {
 	settings.ui.language = locale;
 	langs::setup(paths->getResources(), locale, contentPacks);
-	menus::create_menus(this, gui->getMenu());
+	menus::create_menus(this);
 }
 
 gui::GUI* Engine::getGUI() {

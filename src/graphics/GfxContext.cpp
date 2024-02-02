@@ -9,8 +9,13 @@ GfxContext::GfxContext(const GfxContext* parent, Viewport& viewport, Batch2D* g2
 }
 
 GfxContext::~GfxContext() {
+    while (scissorsCount--) {
+        Window::popScissor();
+    }
+
     if (parent == nullptr)
         return;
+        
     if (depthMask_ != parent->depthMask_) {
         glDepthMask(parent->depthMask_);
     }
@@ -76,4 +81,9 @@ void GfxContext::blendMode(blendmode mode) {
         return;
     blendMode_ = mode;
     Window::setBlendMode(mode);
+}
+
+void GfxContext::scissors(glm::vec4 area) {
+    Window::pushScissor(area);
+    scissorsCount++;
 }

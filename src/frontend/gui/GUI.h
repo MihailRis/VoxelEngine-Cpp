@@ -8,7 +8,7 @@
 #include <functional>
 #include <unordered_map>
 
-class Batch2D;
+class GfxContext;
 class Assets;
 class Camera;
 
@@ -59,19 +59,19 @@ namespace gui {
         std::unordered_map<std::string, std::shared_ptr<UINode>> storage;
 
         Camera* uicamera;
-        PagesControl* menu;
+        std::shared_ptr<PagesControl> menu;
         void actMouse(float delta);
     public:
         GUI();
         ~GUI();
 
-        PagesControl* getMenu();
+        std::shared_ptr<PagesControl> getMenu();
 
         std::shared_ptr<UINode> getFocused() const;
         bool isFocusCaught() const;
 
         void act(float delta);
-        void draw(Batch2D* batch, Assets* assets);
+        void draw(const GfxContext* pctx, Assets* assets);
         void addBack(std::shared_ptr<UINode> panel);
         void add(std::shared_ptr<UINode> panel);
         void remove(std::shared_ptr<UINode> panel);

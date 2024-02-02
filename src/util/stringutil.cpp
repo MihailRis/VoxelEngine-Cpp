@@ -252,3 +252,18 @@ std::vector<ubyte> util::base64_decode(const char* str, size_t size) {
 std::vector<ubyte> util::base64_decode(const std::string& str) {
     return base64_decode(str.c_str(), str.size());
 }
+
+int util::replaceAll(std::string& str, const std::string& from, const std::string& to) {
+    int count = 0;
+    size_t offset = 0;
+    while (true) {
+        size_t start_pos = str.find(from, offset);
+        if(start_pos == std::string::npos)
+            break;
+        str.replace(start_pos, from.length(), to);
+        offset = start_pos + to.length();
+        count++;
+        break;
+    }
+    return count;
+}

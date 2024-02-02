@@ -5,7 +5,7 @@
 #include "typedefs.h"
 
 const int ENGINE_VERSION_MAJOR = 0;
-const int ENGINE_VERSION_MINOR = 18;
+const int ENGINE_VERSION_MINOR = 19;
 
 const int BLOCK_AIR = 0;
 const int ITEM_EMPTY = 0;
@@ -28,7 +28,7 @@ const itemid_t ITEM_VOID = std::numeric_limits<itemid_t>::max();
 
 const blockid_t MAX_BLOCKS = BLOCK_VOID;
 
-inline uint vox_index(int x, int y, int z, int w=CHUNK_W, int d=CHUNK_D) {
+constexpr uint vox_index(uint x, uint y, uint z, uint w=CHUNK_W, uint d=CHUNK_D) {
 	return (y * d + z) * w + x;
 }
 

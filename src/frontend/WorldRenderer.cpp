@@ -209,7 +209,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
 		skybox->unbind();
 	}
 
-	if (level->player->debug) {
+	if (hudVisible && level->player->debug) {
 		GfxContext ctx = pctx.sub();
 		ctx.depthTest(true);
 

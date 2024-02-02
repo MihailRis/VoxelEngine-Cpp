@@ -8,6 +8,7 @@
 #include "../../assets/Assets.h"
 #include "../../graphics/Batch2D.h"
 #include "../../graphics/Shader.h"
+#include "../../graphics/GfxContext.h"
 #include "../../window/Events.h"
 #include "../../window/input.h"
 #include "../../window/Camera.h"
@@ -25,7 +26,7 @@ GUI::GUI() {
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 
-    menu = new PagesControl();
+    menu = std::make_shared<PagesControl>();
     container->add(menu);
     container->scrollable(false);
 }
@@ -35,17 +36,17 @@ GUI::~GUI() {
     delete container;
 }
 
-PagesControl* GUI::getMenu() {
+std::shared_ptr<PagesControl> GUI::getMenu() {
     return menu;
 }
 
 void GUI::actMouse(float delta) {
     auto hover = container->getAt(Events::cursor, nullptr);
     if (this->hover && this->hover != hover) {
-        this->hover->hover(false);
+        this->hover->setHover(false);
     }
     if (hover) {
-        hover->hover(true);
+        hover->setHover(true);
         if (Events::scroll) {
             hover->scrolled(Events::scroll);
         }
@@ -62,6 +63,7 @@ void GUI::actMouse(float delta) {
             if (focus != pressed) {
                 focus = pressed;
                 focus->focus(this);
+                return;
             }
         }
         if (this->hover == nullptr && focus) {
@@ -83,7 +85,7 @@ void GUI::actMouse(float delta) {
 } 
 
 void GUI::act(float delta) {
-    container->size(vec2(Window::width, Window::height));
+    container->setSize(vec2(Window::width, Window::height));
     container->act(delta);
     auto prevfocus = focus;
 
@@ -110,21 +112,24 @@ void GUI::act(float delta) {
             }
         }
     }
-    if (focus && !focus->isfocused()) {
+    if (focus && !focus->isFocused()) {
         focus = nullptr;
     }
 }
 
-void GUI::draw(Batch2D* batch, Assets* assets) {
-    menu->setCoord((Window::size() - menu->size()) / 2.0f);
-    uicamera->setFov(Window::height);
+void GUI::draw(const GfxContext* pctx, Assets* assets) {
+    auto& viewport = pctx->getViewport();
+    glm::vec2 wsize = viewport.size();
+
+    menu->setCoord((wsize - menu->getSize()) / 2.0f);
+    uicamera->setFov(wsize.y);
 
 	Shader* uishader = assets->getShader("ui");
 	uishader->use();
 	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
 
-    batch->begin();
-    container->draw(batch, assets);
+    pctx->getBatch2D()->begin();
+    container->draw(pctx, assets);
 }
 
 shared_ptr<UINode> GUI::getFocused() const {
@@ -132,7 +137,7 @@ shared_ptr<UINode> GUI::getFocused() const {
 }
 
 bool GUI::isFocusCaught() const {
-    return focus && focus->isfocuskeeper();
+    return focus && focus->isFocuskeeper();
 }
 
 void GUI::addBack(std::shared_ptr<UINode> panel) {

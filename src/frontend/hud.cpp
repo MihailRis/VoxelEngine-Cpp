@@ -51,18 +51,17 @@ using glm::vec3;
 using glm::vec4;
 using namespace gui;
 
-inline std::shared_ptr<Label> create_label(gui::wstringsupplier supplier) {
+static std::shared_ptr<Label> create_label(gui::wstringsupplier supplier) {
     auto label = std::make_shared<Label>(L"-");
     label->textSupplier(supplier);
     return label;
 }
 
-void HudRenderer::createDebugPanel(Engine* engine) {
+std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
     auto level = frontend->getLevel();
 
-    Panel* panel = new Panel(vec2(250, 200), vec4(5.0f), 1.0f);
-    debugPanel = std::shared_ptr<UINode>(panel);
-    panel->listenInterval(1.0f, [this]() {
+    auto panel = std::make_shared<Panel>(vec2(250, 200), vec4(5.0f), 1.0f);
+    panel->listenInterval(0.5f, [this]() {
         fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
         fpsMin = fps;
         fpsMax = fps;
@@ -98,18 +97,18 @@ void HudRenderer::createDebugPanel(Engine* engine) {
     }));
 
     for (int ax = 0; ax < 3; ax++){
-        Panel* sub = new Panel(vec2(10, 27), vec4(0.0f));
+        auto sub = std::make_shared<Panel>(vec2(10, 27), vec4(0.0f));
         sub->orientation(Orientation::horizontal);
 
         std::wstring str = L"x: ";
         str[0] += ax;
-        Label* label = new Label(str);
-        label->margin(vec4(2, 3, 2, 3));
+        auto label = std::make_shared<Label>(str);
+        label->setMargin(vec4(2, 3, 2, 3));
         sub->add(label);
-        sub->color(vec4(0.0f));
+        sub->setColor(vec4(0.0f));
 
         // Coord input
-        TextBox* box = new TextBox(L"");
+        auto box = std::make_shared<TextBox>(L"");
         box->textSupplier([=]() {
             Hitbox* hitbox = level->player->hitbox.get();
             return util::to_wstring(hitbox->position[ax], 2);
@@ -140,19 +139,21 @@ void HudRenderer::createDebugPanel(Engine* engine) {
         return L"time: "+timeString;
     }));
     {
-        TrackBar* bar = new TrackBar(0.0f, 1.0f, 1.0f, 0.005f, 8);
+        auto bar = std::make_shared<TrackBar>(0.0f, 1.0f, 1.0f, 0.005f, 8);
         bar->supplier([=]() {return level->world->daytime;});
         bar->consumer([=](double val) {level->world->daytime = val;});
         panel->add(bar);
     }
     {
-        TrackBar* bar = new TrackBar(0.0f, 1.0f, 0.0f, 0.005f, 8);
+        auto bar = std::make_shared<TrackBar>(0.0f, 1.0f, 0.0f, 0.005f, 8);
         bar->supplier([=]() {return WorldRenderer::fog;});
         bar->consumer([=](double val) {WorldRenderer::fog = val;});
         panel->add(bar);
     }
     {
-        auto checkbox = new FullCheckBox(L"Show Chunk Borders", vec2(400, 32));
+        auto checkbox = std::make_shared<FullCheckBox>(
+            L"Show Chunk Borders", vec2(400, 32)
+        );
         checkbox->supplier([=]() {
             return engine->getSettings().debug.showChunkBorders;
         });
@@ -162,6 +163,7 @@ void HudRenderer::createDebugPanel(Engine* engine) {
         panel->add(checkbox);
     }
     panel->refresh();
+    return panel;
 }
 
 std::shared_ptr<InventoryView> HudRenderer::createContentAccess() {
@@ -172,7 +174,7 @@ std::shared_ptr<InventoryView> HudRenderer::createContentAccess() {
     auto inventory = player->getInventory();
 
     int itemsCount = indices->countItemDefs();
-    auto accessInventory = std::make_shared<Inventory>(itemsCount);
+    auto accessInventory = std::make_shared<Inventory>(0, itemsCount);
     for (int id = 1; id < itemsCount; id++) {
         accessInventory->getSlot(id-1).set(ItemStack(id, 1));
     }
@@ -265,14 +267,14 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
         frontend->getLevel()->content,
         SlotLayout(glm::vec2(), false, false, nullptr, nullptr)
     );
-    grabbedItemView->color(glm::vec4());
+    grabbedItemView->setColor(glm::vec4());
     grabbedItemView->setInteractive(false);
 
     contentAccess = createContentAccess();
     contentAccessPanel = std::make_shared<Panel>(
-        contentAccess->size(), vec4(0.0f), 0.0f
+        contentAccess->getSize(), vec4(0.0f), 0.0f
     );
-    contentAccessPanel->color(glm::vec4());
+    contentAccessPanel->setColor(glm::vec4());
     contentAccessPanel->add(contentAccess);
     contentAccessPanel->scrollable(true);
 
@@ -280,13 +282,13 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
     inventoryView = createInventory();
 
     darkOverlay = std::make_unique<Panel>(glm::vec2(4000.0f));
-    darkOverlay->color(glm::vec4(0, 0, 0, 0.5f));
+    darkOverlay->setColor(glm::vec4(0, 0, 0, 0.5f));
 
-    uicamera = new Camera(vec3(), 1);
+    uicamera = std::make_unique<Camera>(vec3(), 1);
     uicamera->perspective = false;
     uicamera->flipped = true;
 
-    createDebugPanel(engine);
+    debugPanel = createDebugPanel(engine);
     menu->reset();
     
     gui->addBack(darkOverlay);
@@ -304,7 +306,6 @@ HudRenderer::~HudRenderer() {
     gui->remove(darkOverlay);
     gui->remove(contentAccessPanel);
     gui->remove(debugPanel);
-    delete uicamera;
 }
 
 void HudRenderer::drawDebug(int fps){
@@ -318,8 +319,8 @@ void HudRenderer::update(bool visible) {
     auto player = level->player;
     auto menu = gui->getMenu();
 
-    debugPanel->visible(player->debug && visible);
-    menu->visible(pause);
+    debugPanel->setVisible(player->debug && visible);
+    menu->setVisible(pause);
 
     if (!visible && inventoryOpen) {
         closeInventory();
@@ -351,11 +352,11 @@ void HudRenderer::update(bool visible) {
         Events::toggleCursor();
     }
 
-    glm::vec2 invSize = contentAccessPanel->size();
-    inventoryView->visible(inventoryOpen);
-    contentAccessPanel->visible(inventoryOpen);
-    contentAccessPanel->size(glm::vec2(invSize.x, Window::height));
-    hotbarView->visible(visible);
+    vec2 invSize = contentAccessPanel->getSize();
+    inventoryView->setVisible(inventoryOpen);
+    contentAccessPanel->setVisible(inventoryOpen);
+    contentAccessPanel->setSize(vec2(invSize.x, Window::height));
+    hotbarView->setVisible(visible);
 
     for (int i = keycode::NUM_1; i <= keycode::NUM_9; i++) {
         if (Events::jpressed(i)) {
@@ -374,7 +375,7 @@ void HudRenderer::update(bool visible) {
         player->setChosenSlot(slot);
     }
 
-    darkOverlay->visible(pause);
+    darkOverlay->setVisible(pause);
 }
 
 void HudRenderer::closeInventory() {

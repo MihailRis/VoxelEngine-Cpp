@@ -28,7 +28,7 @@ namespace gui {
 
 class HudRenderer {
     Assets* assets;
-	Camera* uicamera;
+	std::unique_ptr<Camera> uicamera;
 
 	int fps = 60;
 	int fpsMin = 60;
@@ -48,7 +48,7 @@ class HudRenderer {
 	gui::GUI* gui;
 	LevelFrontend* frontend;
 
-    void createDebugPanel(Engine* engine);
+    std::shared_ptr<gui::UINode> createDebugPanel(Engine* engine);
 
     std::shared_ptr<InventoryView> createContentAccess();
     std::shared_ptr<InventoryView> createHotbar();

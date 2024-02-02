@@ -10,26 +10,29 @@ using namespace gui;
 using glm::vec2;
 using glm::vec4;
 
-Button* guiutil::backButton(PagesControl* menu) {
-    return (new Button(langs::get(L"Back"), vec4(10.f)))->listenAction([=](GUI* gui) {
-        menu->back();
-    });
+std::shared_ptr<Button> guiutil::backButton(std::shared_ptr<PagesControl> menu) {
+    return std::make_shared<Button>(
+        langs::get(L"Back"), vec4(10.f), [=](GUI*) {
+            menu->back();
+        }
+    );
 }
 
-Button* guiutil::gotoButton(
-        std::wstring text, 
-        const std::string& page, 
-        PagesControl* menu) {
+std::shared_ptr<Button> guiutil::gotoButton(
+    std::wstring text, 
+    const std::string& page, 
+    std::shared_ptr<PagesControl> menu
+) {
     text = langs::get(text, L"menu");
-    return (new Button(text, vec4(10.f)))->listenAction([=](GUI* gui) {
+    return std::make_shared<Button>(text, vec4(10.f), [=](GUI* gui) {
         menu->set(page);
     });
 }
 
 void guiutil::alert(GUI* gui, const std::wstring& text, gui::runnable on_hidden) {
-    PagesControl* menu = gui->getMenu();
+    auto menu = gui->getMenu();
     Panel* panel = new Panel(vec2(500, 200), vec4(8.0f), 8.0f);
-    panel->color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    panel->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
     
     // TODO: implement built-in text wrapping
     const int wrap_length = 60;
@@ -43,17 +46,21 @@ void guiutil::alert(GUI* gui, const std::wstring& text, gui::runnable on_hidden)
             }
             extra = std::min(extra, wrap_length);
             std::wstring part = text.substr(offset, extra);
-            panel->add(new Label(part));
+            panel->add(std::make_shared<Label>(part));
             offset += extra;
         }
     } else {
-        panel->add(new Label(text));
+        panel->add(std::make_shared<Label>(text));
     }
-    panel->add((new Button(langs::get(L"Ok"), vec4(10.f)))->listenAction([=](GUI* gui) {
-        if (on_hidden)
-            on_hidden();
-        menu->back();
-    }));
+    panel->add(std::make_shared<Button>(
+        langs::get(L"Ok"), vec4(10.f), 
+        [=](GUI* gui) {
+            if (on_hidden) {
+                on_hidden();
+            }
+            menu->back();
+        }
+    ));
     panel->refresh();
     menu->add("<alert>", panel);
     menu->set("<alert>");
@@ -68,20 +75,23 @@ void guiutil::confirm(
     if (yestext.empty()) yestext = langs::get(L"Yes");
     if (notext.empty()) notext = langs::get(L"No");
 
-    PagesControl* menu = gui->getMenu();
-    Panel* panel = new Panel(vec2(600, 200), vec4(8.0f), 8.0f);
-    panel->color(vec4(0.0f, 0.0f, 0.0f, 0.5f));
-    panel->add(new Label(text));
-    Panel* subpanel = new Panel(vec2(600, 53));
-    subpanel->color(vec4(0));
-    subpanel->add((new Button(yestext, vec4(8.0f)))->listenAction([=](GUI*){
+    auto menu = gui->getMenu();
+    auto panel = std::make_shared<Panel>(vec2(600, 200), vec4(8.0f), 8.0f);
+    panel->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    panel->add(std::make_shared<Label>(text));
+    auto subpanel = std::make_shared<Panel>(vec2(600, 53));
+    subpanel->setColor(vec4(0));
+
+    subpanel->add(std::make_shared<Button>(yestext, vec4(8.f), [=](GUI*){
         if (on_confirm)
             on_confirm();
         menu->back();
     }));
-    subpanel->add((new Button(notext, vec4(8.0f)))->listenAction([=](GUI*){
+
+    subpanel->add(std::make_shared<Button>(notext, vec4(8.f), [=](GUI*){
         menu->back();
     }));
+
     panel->add(subpanel);
 
     panel->refresh();

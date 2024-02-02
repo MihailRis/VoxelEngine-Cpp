@@ -61,9 +61,9 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
         verifyLoadedChunk(level->content->getIndices(), chunk.get());
 	}
 
-	light_t* lights = wfile->getLights(chunk->x, chunk->z);
+	std::unique_ptr<light_t[]> lights (wfile->getLights(chunk->x, chunk->z));
 	if (lights) {
-		chunk->lightmap->set(lights);
+		chunk->lightmap.set(lights.get());
 		chunk->setLoadedLights(true);
 	}
 	return chunk;
@@ -114,7 +114,7 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 			} else {
 				auto& chunk = found->second;
 				const voxel* cvoxels = chunk->voxels;
-				const light_t* clights = chunk->lightmap->getLights();
+				const light_t* clights = chunk->lightmap.getLights();
 				for (int ly = y; ly < y + h; ly++) {
 					for (int lz = max(z, cz * CHUNK_D);
 						lz < min(z + d, (cz + 1) * CHUNK_D);

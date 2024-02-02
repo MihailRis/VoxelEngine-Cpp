@@ -70,12 +70,17 @@ protected:
     uint linestart = 0;
 
     virtual void skipWhitespace();
+    void skip(size_t n);
     void skipLine();
+    bool skipTo(const std::string& substring);
     void expect(char expected);
+    void expect(const std::string& substring);
     char peek();
     char nextChar();
     bool hasNext();
+    bool isNext(const std::string& substring);
     void expectNewLine();
+    void goBack();
 
     std::string parseName();
     int64_t parseSimpleInt(int base);

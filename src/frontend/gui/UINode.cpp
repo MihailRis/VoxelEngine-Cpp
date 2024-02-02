@@ -2,42 +2,40 @@
 
 #include "../../graphics/Batch2D.h"
 
-using std::shared_ptr;
-
 using gui::UINode;
 using gui::Align;
 
 using glm::vec2;
 using glm::vec4;
 
-UINode::UINode(vec2 coord, vec2 size) : coord(coord), size_(size) {
+UINode::UINode(vec2 coord, vec2 size) : coord(coord), size(size) {
 }
 
 UINode::~UINode() {
 }
 
-bool UINode::visible() const {
-    return isvisible;
+bool UINode::isVisible() const {
+    return visible;
 }
 
-void UINode::visible(bool flag) {
-    isvisible = flag;
+void UINode::setVisible(bool flag) {
+    visible = flag;
 }
 
-Align UINode::align() const {
-    return align_;
+Align UINode::getAlign() const {
+    return align;
 }
 
-void UINode::align(Align align) {
-    align_ = align;
+void UINode::setAlign(Align align) {
+    this->align = align;
 }
 
-void UINode::hover(bool flag) {
-    hover_ = flag;
+void UINode::setHover(bool flag) {
+    hover = flag;
 }
 
-bool UINode::hover() const {
-    return hover_;
+bool UINode::isHover() const {
+    return hover;
 }
 
 void UINode::setParent(UINode* node) {
@@ -49,33 +47,33 @@ UINode* UINode::getParent() const {
 }
 
 void UINode::click(GUI*, int x, int y) {
-    pressed_ = true;
+    pressed = true;
 }
 
 void UINode::mouseRelease(GUI*, int x, int y) {
-    pressed_ = false;
+    pressed = false;
 }
 
-bool UINode::ispressed() const {
-    return pressed_;
+bool UINode::isPressed() const {
+    return pressed;
 }
 
 void UINode::defocus() {
-    focused_ = false;
+    focused = false;
 }
 
-bool UINode::isfocused() const {
-    return focused_;
+bool UINode::isFocused() const {
+    return focused;
 }
 
 bool UINode::isInside(glm::vec2 pos) {
     vec2 coord = calcCoord();
-    vec2 size = this->size();
+    vec2 size = getSize();
     return (pos.x >= coord.x && pos.y >= coord.y && 
             pos.x < coord.x + size.x && pos.y < coord.y + size.y);
 }
 
-shared_ptr<UINode> UINode::getAt(vec2 pos, shared_ptr<UINode> self) {
+std::shared_ptr<UINode> UINode::getAt(vec2 pos, std::shared_ptr<UINode> self) {
     if (!interactive) {
         return nullptr;
     }
@@ -83,7 +81,7 @@ shared_ptr<UINode> UINode::getAt(vec2 pos, shared_ptr<UINode> self) {
 }
 
 bool UINode::isInteractive() const {
-    return interactive && visible();
+    return interactive && isVisible();
 }
 
 void UINode::setInteractive(bool flag) {
@@ -107,36 +105,28 @@ void UINode::setCoord(vec2 coord) {
     this->coord = coord;
 }
 
-vec2 UINode::size() const {
-    return size_;
+vec2 UINode::getSize() const {
+    return size;
 }
 
-void UINode::size(vec2 size) {
-    if (sizelock)
-        return;
-    this->size_ = size;
+void UINode::setSize(vec2 size) {
+    this->size = size;
 }
 
-void UINode::_size(vec2 size) {
-    if (sizelock)
-        return;
-    this->size_ = size;
+void UINode::setColor(vec4 color) {
+    this->color = color;
 }
 
-void UINode::color(vec4 color) {
-    this->color_ = color;
+vec4 UINode::getColor() const {
+    return color;
 }
 
-vec4 UINode::color() const {
-    return color_;
+void UINode::setMargin(vec4 margin) {
+    this->margin = margin;
 }
 
-void UINode::margin(vec4 margin) {
-    this->margin_ = margin;
-}
-
-vec4 UINode::margin() const {
-    return margin_;
+vec4 UINode::getMargin() const {
+    return margin;
 }
 
 void UINode::lock() {

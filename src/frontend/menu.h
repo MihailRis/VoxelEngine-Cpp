@@ -3,13 +3,9 @@
 
 class Engine;
 
-namespace gui {
-    class PagesControl;
-}
-
 namespace menus {
-    void create_menus(Engine* engine, gui::PagesControl* menu);
-    void refresh_menus(Engine* engine, gui::PagesControl* menu);
+    void create_menus(Engine* engine);
+    void refresh_menus(Engine* engine);
 }
 
 #endif // FRONTEND_MENU_H_
