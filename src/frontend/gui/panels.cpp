@@ -193,7 +193,7 @@ void Panel::refresh() {
             y += nodesize.y + margin.w + interval;
 
             float width = size.x - padding.x - padding.z - margin.x - margin.z;
-            //node->setSize(vec2(width, nodesize.y));;
+            node->setSize(vec2(width, nodesize.y));;
             node->refresh();
             maxw = fmax(maxw, ex+node->getSize().x+margin.z+padding.z);
         }
