@@ -255,7 +255,7 @@ bool TextBox::isValid() const {
     return valid;
 }
 
-void TextBox::setOnEditStart(gui::runnable oneditstart) {
+void TextBox::setOnEditStart(runnable oneditstart) {
     onEditStart = oneditstart;
 }
 

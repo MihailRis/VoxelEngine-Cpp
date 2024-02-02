@@ -4,19 +4,6 @@
 #include <stdexcept>
 #include <math.h>
 
-inline int char2int(int c) {
-    if (c >= '0' && c <= '9') {
-        return c - '0';
-    }
-    if (c >= 'a' && c <= 'f') {
-        return 10 + c - 'a';
-    }
-    if (c >= 'A' && c <= 'F') {
-        return 10 + c - 'A';
-    }
-    return -1;
-}
-
 inline double power(double base, int64_t power) {
     double result = 1.0;
     for (int64_t i = 0; i < power; i++) {
@@ -216,7 +203,7 @@ std::string BasicParser::parseName() {
 
 int64_t BasicParser::parseSimpleInt(int base) {
     char c = peek();
-    int index = char2int(c);
+    int index = hexchar2int(c);
     if (index == -1 || index >= base) {
         throw error("invalid number literal");
     }
@@ -227,7 +214,7 @@ int64_t BasicParser::parseSimpleInt(int base) {
         while (c == '_') {
             c = source[++pos];
         }
-        index = char2int(c);
+        index = hexchar2int(c);
         if (index == -1 || index >= base) {
             return value;
         }

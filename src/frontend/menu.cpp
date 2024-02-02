@@ -584,7 +584,7 @@ void create_settings_panel(Engine* engine) {
             langs::get(L"Backlight", L"settings"), vec2(400, 32)
         );
         checkbox->supplier([=]() {
-            return engine->getSettings().graphics.backlight != 0;
+            return engine->getSettings().graphics.backlight;
         });
         checkbox->consumer([=](bool checked) {
             engine->getSettings().graphics.backlight = checked;

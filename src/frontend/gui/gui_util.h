@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include "GUI.h"
+#include "../../delegates.h"
 
 namespace gui {
     class Button;
@@ -23,13 +24,13 @@ namespace guiutil {
     void alert(
         gui::GUI* gui, 
         const std::wstring& text, 
-        gui::runnable on_hidden=nullptr
+        runnable on_hidden=nullptr
     );
 
     void confirm(
         gui::GUI* gui, 
         const std::wstring& text, 
-        gui::runnable on_confirm=nullptr,
+        runnable on_confirm=nullptr,
         std::wstring yestext=L"", 
         std::wstring notext=L"");
 }

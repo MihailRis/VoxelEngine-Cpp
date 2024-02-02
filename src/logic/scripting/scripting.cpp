@@ -101,6 +101,20 @@ void scripting::initialize(Engine* engine) {
     load_script(fs::path("stdlib.lua"));
 }
 
+// todo: luaL state check
+runnable scripting::create_runnable(
+    const std::string& filename,
+    const std::string& src
+) {
+    return [=](){
+        if (luaL_loadbuffer(L, src.c_str(), src.length(), filename.c_str())) {
+            handleError(L);
+            return;
+        }
+        call_func(L, 0, filename);
+    };
+}
+
 void scripting::on_world_load(Level* level, BlocksController* blocks) {
     scripting::level = level;
     scripting::content = level->content;

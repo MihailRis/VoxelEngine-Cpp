@@ -14,6 +14,7 @@ using glm::vec4;
 
 Container::Container(vec2 coord, vec2 size) : UINode(coord, size) {
     actualLength = size.y;
+    setColor(glm::vec4());
 }
 
 std::shared_ptr<UINode> Container::getAt(vec2 pos, std::shared_ptr<UINode> self) {
@@ -96,6 +97,17 @@ void Container::draw(const GfxContext* pctx, Assets* assets) {
     }
 }
 
+void Container::drawBackground(const GfxContext* pctx, Assets* assets) {
+    if (color.a <= 0.0f)
+        return;
+    vec2 coord = calcCoord();
+
+    auto batch = pctx->getBatch2D();
+    batch->texture(nullptr);
+    batch->color = color;
+    batch->rect(coord.x, coord.y, size.x, size.y);
+}
+
 void Container::addBack(std::shared_ptr<UINode> node) {
     nodes.insert(nodes.begin(), node);
     node->setParent(this);
@@ -138,21 +150,20 @@ Panel::Panel(vec2 size, glm::vec4 padding, float interval, bool resizing)
 Panel::~Panel() {
 }
 
-void Panel::drawBackground(const GfxContext* pctx, Assets* assets) {
-    vec2 coord = calcCoord();
-
-    auto batch = pctx->getBatch2D();
-    batch->texture(nullptr);
-    batch->color = color;
-    batch->rect(coord.x, coord.y, size.x, size.y);
-}
-
 void Panel::maxLength(int value) {
     maxLength_ = value;
 }
 
 int Panel::maxLength() const {
     return maxLength_;
+}
+
+void Panel::setPadding(glm::vec4 padding) {
+    this->padding = padding;
+}
+
+glm::vec4 Panel::getPadding() const {
+    return padding;
 }
 
 void Panel::refresh() {
@@ -182,7 +193,7 @@ void Panel::refresh() {
             y += nodesize.y + margin.w + interval;
 
             float width = size.x - padding.x - padding.z - margin.x - margin.z;
-            node->setSize(vec2(width, nodesize.y));;
+            //node->setSize(vec2(width, nodesize.y));;
             node->refresh();
             maxw = fmax(maxw, ex+node->getSize().x+margin.z+padding.z);
         }
@@ -203,7 +214,7 @@ void Panel::refresh() {
             x += nodesize.x + margin.z + interval;
             
             float height = size.y - padding.y - padding.w - margin.y - margin.w;
-            node->setSize(vec2(nodesize.x, height));
+            //node->setSize(vec2(nodesize.x, height));
             node->refresh();
             maxh = fmax(maxh, y+margin.y+node->getSize().y+margin.w+padding.w);
         }

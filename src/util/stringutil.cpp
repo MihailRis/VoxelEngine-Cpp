@@ -267,3 +267,15 @@ int util::replaceAll(std::string& str, const std::string& from, const std::strin
     }
     return count;
 }
+
+// replace it with std::from_chars in the far far future
+double util::parse_double(const std::string& str) {
+    std::istringstream ss(str);
+    ss.imbue(std::locale("C"));
+    double d;
+    ss >> d;
+    if (ss.fail()) {
+        throw std::runtime_error("invalid number format");
+    }
+    return d;    
+}

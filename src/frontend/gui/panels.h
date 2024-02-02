@@ -34,7 +34,7 @@ namespace gui {
         Container(glm::vec2 coord, glm::vec2 size);
 
         virtual void act(float delta) override;
-        virtual void drawBackground(const GfxContext* pctx, Assets* assets) {};
+        virtual void drawBackground(const GfxContext* pctx, Assets* assets);
         virtual void draw(const GfxContext* pctx, Assets* assets) override;
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
         virtual void addBack(std::shared_ptr<UINode> node);
@@ -55,10 +55,13 @@ namespace gui {
         bool resizing_;
         int maxLength_ = 0;
     public:
-        Panel(glm::vec2 size, glm::vec4 padding=glm::vec4(2.0f), float interval=2.0f, bool resizing=true);
+        Panel(
+            glm::vec2 size, 
+            glm::vec4 padding=glm::vec4(2.0f), 
+            float interval=2.0f, 
+            bool resizing=true
+        );
         virtual ~Panel();
-
-        virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
 
         virtual void orientation(Orientation orientation);
         Orientation orientation() const;
@@ -67,6 +70,9 @@ namespace gui {
 
         virtual void maxLength(int value);
         int maxLength() const;
+
+        virtual void setPadding(glm::vec4 padding);
+        glm::vec4 getPadding() const;
     };
 
     struct Page {

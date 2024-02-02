@@ -6,10 +6,12 @@
 #include <vector>
 #include <functional>
 #include <glm/glm.hpp>
+
 #include "GUI.h"
 #include "UINode.h"
 #include "panels.h"
 #include "../../window/input.h"
+#include "../../delegates.h"
 
 class Batch2D;
 class Assets;
@@ -60,7 +62,9 @@ namespace gui {
         std::vector<onaction> actions;
         std::shared_ptr<Label> label = nullptr;
     public:
-        Button(std::shared_ptr<UINode> content, glm::vec4 padding=glm::vec4(2.0f));
+        Button(std::shared_ptr<UINode> content, 
+               glm::vec4 padding=glm::vec4(2.0f));
+               
         Button(std::wstring text, 
                glm::vec4 padding,
                onaction action);

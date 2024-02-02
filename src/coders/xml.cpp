@@ -25,12 +25,7 @@ int64_t Attribute::asInt() const {
 }
 
 double Attribute::asFloat() const {
-    double value;
-    auto res = std::from_chars(text.data(), text.data()+text.size(), value);
-    if (res.ptr != text.data()+text.size()) {
-        throw std::runtime_error("invalid number format "+escape_string(text));
-    }
-    return value;
+    return util::parse_double(text);
 }
 
 bool Attribute::asBool() const {
@@ -45,7 +40,7 @@ void Node::add(xmlelement element) {
 }
 
 void Node::set(std::string name, std::string text) {
-    attrs.insert_or_assign(name, Attribute(name, text));
+    attrs[name] = Attribute(name, text);
 }
 
 const std::string& Node::getTag() const {
