@@ -102,6 +102,8 @@ void ContentPack::scan(fs::path rootfolder,
         } catch (const contentpack_error& err) {
             std::cerr << "package.json error at " << err.getFolder().u8string();
             std::cerr << ": " << err.what() << std::endl;
+        } catch (const std::runtime_error& err) {
+            std::cerr << err.what() << std::endl;
         }
     }
 }
