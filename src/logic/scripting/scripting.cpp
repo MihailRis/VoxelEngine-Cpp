@@ -74,7 +74,11 @@ void load_script(fs::path name) {
     call_func(L, 0, file.u8string());
 }
 
-void configure_lua_package(lua_State *L) {
+void custom_luaopen_package(lua_State *L) {
+    lua_pushcfunction(L, luaopen_package);
+    lua_pushstring(L, LUA_LOADLIBNAME);
+    lua_call(L, 1, 0);
+
     lua_getglobal(L, "package");
     lua_pushstring(L, "./res/scripts/?.lua;./res/content/?.lua");
     lua_setfield(L, -2, "path");
@@ -113,12 +117,11 @@ void scripting::initialize(Engine* engine) {
     luaopen_math(L);
     luaopen_string(L);
     luaopen_table(L);
-    luaopen_package(L);
     luaopen_debug(L);
     luaopen_io(L);
     luaopen_os(L);
+    custom_luaopen_package(L);
 
-    configure_lua_package(L);
 #ifndef LUA_UNSAFE
     remove_lua_functions(L, "package", { "loadlib" });
     remove_lua_functions(L, "io", { "popen" });
