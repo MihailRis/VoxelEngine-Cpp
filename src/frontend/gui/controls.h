@@ -81,6 +81,8 @@ namespace gui {
         virtual std::wstring getText() const;
 
         virtual Button* textSupplier(wstringsupplier supplier);
+
+        virtual void setSize(glm::vec2 size) override;
     };
 
     class RichButton : public Container {

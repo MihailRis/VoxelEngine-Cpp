@@ -94,21 +94,21 @@ bool assetload::font(Assets* assets,
                      const ResPaths* paths,
                      const std::string filename, 
                      const std::string name) {
-	std::vector<Texture*> pages;
+	std::vector<std::unique_ptr<Texture>> pages;
 	for (size_t i = 0; i <= 4; i++) {
         std::string name = filename + "_" + std::to_string(i) + ".png"; 
         name = paths->find(name).string();
-		Texture* texture = png::load_texture(name);
+		std::unique_ptr<Texture> texture (png::load_texture(name));
 		if (texture == nullptr) {
 			std::cerr << "failed to load bitmap font '" << name;
             std::cerr << "' (missing page " << std::to_string(i) << ")";
             std::cerr << std::endl;
 			return false;
 		}
-		pages.push_back(texture);
+		pages.push_back(std::move(texture));
 	}
-	Font* font = new Font(pages, pages[0]->height / 16);
-	assets->store(font, name);
+    int res = pages[0]->height / 16;
+	assets->store(new Font(std::move(pages), res, 4), name);
 	return true;
 }
 

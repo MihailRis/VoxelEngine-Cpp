@@ -48,7 +48,10 @@ void Label::draw(const GfxContext* pctx, Assets* assets) {
     batch->color = getColor();
     Font* font = assets->getFont(fontName_);
     vec2 size = getSize();
-    vec2 newsize = vec2(font->calcWidth(text), font->lineHeight());
+    vec2 newsize = vec2(
+        font->calcWidth(text), 
+        font->getLineHeight()+font->getYOffset()
+    );
 
     vec2 coord = calcCoord();
     switch (align) {
@@ -61,7 +64,7 @@ void Label::draw(const GfxContext* pctx, Assets* assets) {
             coord.x += size.x-newsize.x;
             break;
     }
-
+    coord.y += (size.y-newsize.y)*0.5f;
     font->draw(batch, text, coord.x, coord.y);
 }
 
@@ -103,10 +106,12 @@ Button::Button(
     vec2 size
 ) : Panel(size, padding, 0) 
 {
-    size = vec2(
-        glm::max(padding.x + padding.z + text.length()*8, size.x),
-        glm::max(padding.y + padding.w + 16, size.y)
-    );
+    if (size.y < 0.0f) {
+        size = vec2(
+            glm::max(padding.x + padding.z + text.length()*8, size.x),
+            glm::max(padding.y + padding.w + 16, size.y)
+        );
+    }
     setSize(size);
 
     if (action) {
@@ -139,6 +144,13 @@ Button* Button::textSupplier(wstringsupplier supplier) {
         label->textSupplier(supplier);
     }
     return this;
+}
+
+void Button::setSize(glm::vec2 size) {
+    Panel::setSize(size);
+    if (label) {
+        label->setSize(size-vec2(padding.z+padding.x, padding.w+padding.y));
+    }
 }
 
 void Button::drawBackground(const GfxContext* pctx, Assets* assets) {
