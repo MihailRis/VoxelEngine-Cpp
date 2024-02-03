@@ -13,16 +13,11 @@
 #include "../../window/input.h"
 #include "../../window/Camera.h"
 
-using glm::vec2;
-using glm::vec3;
-using std::string;
-using std::shared_ptr;
 using namespace gui;
 
 GUI::GUI() {
-    container = new Container(vec2(0, 0), vec2(1000));
-
-    uicamera = new Camera(vec3(), Window::height);
+    container = std::make_shared<Container>(glm::vec2(0, 0), glm::vec2(1000));
+    uicamera = std::make_unique<Camera>(glm::vec3(), Window::height);
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 
@@ -32,8 +27,6 @@ GUI::GUI() {
 }
 
 GUI::~GUI() {
-    delete uicamera;
-    delete container;
 }
 
 std::shared_ptr<PagesControl> GUI::getMenu() {
@@ -85,7 +78,7 @@ void GUI::actMouse(float delta) {
 } 
 
 void GUI::act(float delta) {
-    container->setSize(vec2(Window::width, Window::height));
+    container->setSize(glm::vec2(Window::width, Window::height));
     container->act(delta);
     auto prevfocus = focus;
 
@@ -132,7 +125,7 @@ void GUI::draw(const GfxContext* pctx, Assets* assets) {
     container->draw(pctx, assets);
 }
 
-shared_ptr<UINode> GUI::getFocused() const {
+std::shared_ptr<UINode> GUI::getFocused() const {
     return focus;
 }
 
@@ -144,19 +137,19 @@ void GUI::addBack(std::shared_ptr<UINode> panel) {
     container->addBack(panel);
 }
 
-void GUI::add(shared_ptr<UINode> panel) {
+void GUI::add(std::shared_ptr<UINode> panel) {
     container->add(panel);
 }
 
-void GUI::remove(shared_ptr<UINode> panel) {
+void GUI::remove(std::shared_ptr<UINode> panel) {
     container->remove(panel);
 }
 
-void GUI::store(string name, shared_ptr<UINode> node) {
+void GUI::store(std::string name, std::shared_ptr<UINode> node) {
     storage[name] = node;
 }
 
-shared_ptr<UINode> GUI::get(string name) {
+std::shared_ptr<UINode> GUI::get(std::string name) {
     auto found = storage.find(name);
     if (found == storage.end()) {
         return nullptr;
@@ -164,11 +157,11 @@ shared_ptr<UINode> GUI::get(string name) {
     return found->second;
 }
 
-void GUI::remove(string name) {
+void GUI::remove(std::string name) {
     storage.erase(name);
 }
 
-void GUI::setFocus(shared_ptr<UINode> node) {
+void GUI::setFocus(std::shared_ptr<UINode> node) {
     if (focus) {
         focus->defocus();
     }

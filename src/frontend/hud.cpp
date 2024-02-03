@@ -98,7 +98,7 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
 
     for (int ax = 0; ax < 3; ax++){
         auto sub = std::make_shared<Panel>(vec2(10, 27), vec4(0.0f));
-        sub->orientation(Orientation::horizontal);
+        sub->setOrientation(Orientation::horizontal);
 
         std::wstring str = L"x: ";
         str[0] += ax;

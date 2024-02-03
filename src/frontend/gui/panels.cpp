@@ -139,23 +139,27 @@ void Container::listenInterval(float interval, ontimeout callback, int repeat) {
     intervalEvents.push_back({callback, interval, 0.0f, repeat});
 }
 
-Panel::Panel(vec2 size, glm::vec4 padding, float interval, bool resizing)
+void Container::setSize(glm::vec2 size) {
+    UINode::setSize(size);
+    refresh();
+}
+
+Panel::Panel(vec2 size, glm::vec4 padding, float interval)
     : Container(vec2(), size), 
       padding(padding), 
-      interval(interval), 
-      resizing_(resizing) {
+      interval(interval) {
     setColor(vec4(0.0f, 0.0f, 0.0f, 0.75f));
 }
 
 Panel::~Panel() {
 }
 
-void Panel::maxLength(int value) {
-    maxLength_ = value;
+void Panel::setMaxLength(int value) {
+    maxLength = value;
 }
 
-int Panel::maxLength() const {
-    return maxLength_;
+int Panel::getMaxLength() const {
+    return maxLength;
 }
 
 void Panel::setPadding(glm::vec4 padding) {
@@ -166,42 +170,41 @@ glm::vec4 Panel::getPadding() const {
     return padding;
 }
 
+void Panel::cropToContent() {
+    if (maxLength > 0.0f) {
+        setSize(vec2(getSize().x, glm::min(maxLength, actualLength)));
+    } else {
+        setSize(vec2(getSize().x, actualLength));
+    }
+}
+
+void Panel::add(std::shared_ptr<UINode> node) {
+    Container::add(node);
+    refresh();
+    cropToContent();
+}
+
 void Panel::refresh() {
     float x = padding.x;
     float y = padding.y;
     vec2 size = getSize();
-    if (orientation_ == Orientation::vertical) {
+    if (orientation == Orientation::vertical) {
         float maxw = size.x;
         for (auto& node : nodes) {
             vec2 nodesize = node->getSize();
             const vec4 margin = node->getMargin();
             y += margin.y;
             
-            float ex;
-            float spacex = size.x - margin.z - padding.z;
-            switch (node->getAlign()) {
-                case Align::center:
-                    ex = x + fmax(0.0f, spacex - nodesize.x) / 2.0f;
-                    break;
-                case Align::right:
-                    ex = x + spacex - nodesize.x;
-                    break;
-                default:
-                    ex = x + margin.x;
-            }
+            float ex = x + margin.x;
             node->setCoord(vec2(ex, y));
             y += nodesize.y + margin.w + interval;
 
             float width = size.x - padding.x - padding.z - margin.x - margin.z;
-            node->setSize(vec2(width, nodesize.y));;
+            if (node->isResizing()) {
+                node->setSize(vec2(width, nodesize.y));
+            }
             node->refresh();
             maxw = fmax(maxw, ex+node->getSize().x+margin.z+padding.z);
-        }
-        if (resizing_) {
-            if (maxLength_)
-                setSize(vec2(size.x, glm::min(maxLength_, (int)(y+padding.w))));
-            else
-                setSize(vec2(size.x, y+padding.w));
         }
         actualLength = y + padding.w;
     } else {
@@ -216,22 +219,16 @@ void Panel::refresh() {
             node->refresh();
             maxh = fmax(maxh, y+margin.y+node->getSize().y+margin.w+padding.w);
         }
-        if (resizing_) {
-            if (maxLength_)
-                setSize(vec2(glm::min(maxLength_, (int)(x+padding.z)), size.y));
-            else
-                setSize(vec2(x+padding.z, size.y));
-        }
         actualLength = size.y;
     }
 }
 
-void Panel::orientation(Orientation orientation) {
-    this->orientation_ = orientation;
+void Panel::setOrientation(Orientation orientation) {
+    this->orientation = orientation;
 }
 
-Orientation Panel::orientation() const {
-    return orientation_;
+Orientation Panel::getOrientation() const {
+    return orientation;
 }
 
 PagesControl::PagesControl() : Container(vec2(), vec2(1)){

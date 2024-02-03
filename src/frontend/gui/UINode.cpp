@@ -88,6 +88,14 @@ void UINode::setInteractive(bool flag) {
     interactive = flag;
 }
 
+void UINode::setResizing(bool flag) {
+    resizing = flag;
+}
+
+bool UINode::isResizing() const {
+    return resizing;
+}
+
 vec2 UINode::calcCoord() const {
     if (parent) {
         return coord + parent->calcCoord() + parent->contentOffset();

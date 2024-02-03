@@ -72,8 +72,8 @@ static std::shared_ptr<Panel> create_page(
 
 static std::shared_ptr<Button> create_button(
     std::wstring text, 
-    glm::vec4 padding, 
-    glm::vec4 margin, 
+    vec4 padding, 
+    vec4 margin, 
     gui::onaction action
 ) {
     auto btn = std::make_shared<Button>(
@@ -100,7 +100,7 @@ static void show_content_missing(
     for (auto& entry : lut->getMissingContent()) {
         auto hpanel = std::make_shared<Panel>(vec2(500, 30));
         hpanel->setColor(vec4(0.0f));
-        hpanel->orientation(Orientation::horizontal);
+        hpanel->setOrientation(Orientation::horizontal);
         
         auto namelabel = std::make_shared<Label>(util::str2wstr_utf8(entry.name));
         namelabel->setColor(vec4(1.0f, 0.2f, 0.2f, 0.5f));
@@ -112,7 +112,7 @@ static void show_content_missing(
         hpanel->add(namelabel);
         subpanel->add(hpanel);
     }
-    subpanel->maxLength(400);
+    subpanel->setMaxLength(400);
     panel->add(subpanel);
 
     panel->add(std::make_shared<Button>(
@@ -213,7 +213,7 @@ void open_world(std::string name, Engine* engine) {
 std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
     auto panel = std::make_shared<Panel>(vec2(390, 200), vec4(5.0f));
     panel->setColor(vec4(1.0f, 1.0f, 1.0f, 0.07f));
-    panel->maxLength(400);
+    panel->setMaxLength(400);
 
     auto paths = engine->getPaths();
 
@@ -277,7 +277,7 @@ std::shared_ptr<Panel> create_packs_panel(
     auto assets = engine->getAssets();
     auto panel = std::make_shared<Panel>(vec2(PACKS_PANEL_WIDTH, 200), vec4(5.0f));
     panel->setColor(vec4(1.0f, 1.0f, 1.0f, 0.07f));
-    panel->maxLength(400);
+    panel->setMaxLength(400);
     panel->scrollable(true);
 
     for (auto& pack : packs) {
@@ -314,7 +314,7 @@ std::shared_ptr<Panel> create_packs_panel(
         descriptionlabel->setColor(vec4(1, 1, 1, 0.7f));
         packpanel->add(descriptionlabel, vec2(80, 28));
 
-        packpanel->add(std::make_shared<Image>(icon, glm::vec2(64)), vec2(8));
+        packpanel->add(std::make_shared<Image>(icon, vec2(64)), vec2(8));
 
         packpanel->setColor(vec4(0.06f, 0.12f, 0.18f, 0.7f));
         panel->add(packpanel);
@@ -479,13 +479,13 @@ void create_controls_panel(Engine* engine) {
 
     auto scrollPanel = std::make_shared<Panel>(vec2(400, 200), vec4(2.0f), 1.0f);
     scrollPanel->setColor(vec4(0.0f, 0.0f, 0.0f, 0.3f));
-    scrollPanel->maxLength(400);
+    scrollPanel->setMaxLength(400);
     for (auto& entry : Events::bindings){
         std::string bindname = entry.first;
         
         auto subpanel = std::make_shared<Panel>(vec2(400, 40), vec4(5.0f), 1.0f);
         subpanel->setColor(vec4(0.0f));
-        subpanel->orientation(Orientation::horizontal);
+        subpanel->setOrientation(Orientation::horizontal);
         subpanel->add(std::make_shared<InputBindBox>(entry.second));
 
         auto label = std::make_shared<Label>(langs::get(util::str2wstr_utf8(bindname)));

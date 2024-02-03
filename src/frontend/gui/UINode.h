@@ -13,12 +13,13 @@ namespace gui {
     class UINode;
     class GUI;
 
-    typedef std::function<void(GUI*)> onaction;
-    typedef std::function<void(GUI*, double)> onnumberchange;
+    using onaction = std::function<void(GUI*)>;
+    using onnumberchange = std::function<void(GUI*, double)>;
     
     enum class Align {
         left, center, right
     };
+
     class UINode {
     protected:
         glm::vec2 coord;
@@ -31,6 +32,7 @@ namespace gui {
         bool pressed = false;
         bool focused = false;
         bool interactive = true;
+        bool resizing = true;
         Align align = Align::left;
         UINode* parent = nullptr;
         UINode(glm::vec2 coord, glm::vec2 size);
@@ -95,6 +97,9 @@ namespace gui {
         virtual bool isInteractive() const;
         /* Make the element opaque (true) or transparent (false) for cursor */
         virtual void setInteractive(bool flag);
+
+        virtual void setResizing(bool flag);
+        virtual bool isResizing() const;
 
         /* Get inner content offset. Used for scroll */
         virtual glm::vec2 contentOffset() {return glm::vec2(0.0f);};

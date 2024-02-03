@@ -12,7 +12,8 @@ class Batch2D;
 class Assets;
 
 namespace gui {
-    typedef std::function<void()> ontimeout;
+    using ontimeout = std::function<void()>;
+
     struct IntervalEvent {
         ontimeout callback;
         float interval;
@@ -45,31 +46,34 @@ namespace gui {
         virtual void scrollable(bool flag);
         void listenInterval(float interval, ontimeout callback, int repeat=-1);
         virtual glm::vec2 contentOffset() override {return glm::vec2(0.0f, scroll);};
+        virtual void setSize(glm::vec2 size);
     };
 
     class Panel : public Container {
     protected:
-        Orientation orientation_ = Orientation::vertical;
+        Orientation orientation = Orientation::vertical;
         glm::vec4 padding {2.0f};
         float interval = 2.0f;
-        bool resizing_;
-        int maxLength_ = 0;
+        int maxLength = 0;
     public:
         Panel(
             glm::vec2 size, 
             glm::vec4 padding=glm::vec4(2.0f), 
-            float interval=2.0f, 
-            bool resizing=true
+            float interval=2.0f
         );
         virtual ~Panel();
 
-        virtual void orientation(Orientation orientation);
-        Orientation orientation() const;
+        virtual void cropToContent();
+
+        virtual void setOrientation(Orientation orientation);
+        Orientation getOrientation() const;
+
+        virtual void add(std::shared_ptr<UINode> node) override;
 
         virtual void refresh() override;
 
-        virtual void maxLength(int value);
-        int maxLength() const;
+        virtual void setMaxLength(int value);
+        int getMaxLength() const;
 
         virtual void setPadding(glm::vec4 padding);
         glm::vec4 getPadding() const;

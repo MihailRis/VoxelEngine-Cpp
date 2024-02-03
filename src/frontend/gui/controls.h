@@ -17,16 +17,16 @@ class Batch2D;
 class Assets;
 
 namespace gui {
-    typedef std::function<std::wstring()> wstringsupplier;
-    typedef std::function<void(std::wstring)> wstringconsumer;
+    using wstringsupplier = std::function<std::wstring()>;
+    using wstringconsumer = std::function<void(std::wstring)>;
 
-    typedef std::function<double()> doublesupplier;
-    typedef std::function<void(double)> doubleconsumer;
+    using doublesupplier = std::function<double()>;
+    using doubleconsumer = std::function<void(double)>;
 
-    typedef std::function<bool()> boolsupplier;
-    typedef std::function<void(bool)> boolconsumer;
+    using boolsupplier = std::function<bool()>;
+    using boolconsumer = std::function<void(bool)>;
 
-    typedef std::function<bool(const std::wstring&)> wstringchecker;
+    using wstringchecker = std::function<bool(const std::wstring&)>;
 
     class Label : public UINode {
     protected:
@@ -43,7 +43,6 @@ namespace gui {
         virtual void draw(const GfxContext* pctx, Assets* assets) override;
 
         virtual Label* textSupplier(wstringsupplier supplier);
-        virtual void setSize(glm::vec2 size) override;
     };
 
     class Image : public UINode {
@@ -66,7 +65,8 @@ namespace gui {
                
         Button(std::wstring text, 
                glm::vec4 padding,
-               onaction action);
+               onaction action,
+               glm::vec2 size=glm::vec2(-1));
 
         virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
 
@@ -85,7 +85,6 @@ namespace gui {
 
     class RichButton : public Container {
     protected:
-        
         glm::vec4 pressedColor {0.0f, 0.0f, 0.0f, 0.95f};
         std::vector<onaction> actions;
     public:
