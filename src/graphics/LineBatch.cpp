@@ -8,17 +8,23 @@ const uint LB_VERTEX_SIZE = (3+4);
 LineBatch::LineBatch(size_t capacity) : capacity(capacity) {
 	const vattr attrs[] = { {3},{4}, {0} };
 	buffer = new float[capacity * LB_VERTEX_SIZE * 2];
-	mesh = new Mesh(buffer, 0, attrs);
+	mesh = std::make_unique<Mesh>(buffer, 0, attrs);
 	index = 0;
 }
 
 LineBatch::~LineBatch(){
 	delete[] buffer;
-	delete mesh;
 }
 
-void LineBatch::line(float x1, float y1, float z1, float x2, float y2, float z2,
-		float r, float g, float b, float a) {
+void LineBatch::line(
+	float x1, float y1, 
+	float z1, float x2, 
+	float y2, float z2,
+	float r, float g, float b, float a
+) {
+	if (index + LB_VERTEX_SIZE * 2 >= capacity) {
+		render();
+	}
 	buffer[index] = x1;
 	buffer[index+1] = y1;
 	buffer[index+2] = z1;

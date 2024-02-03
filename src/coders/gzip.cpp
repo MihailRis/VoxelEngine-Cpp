@@ -34,7 +34,7 @@ std::vector<ubyte> gzip::compress(const ubyte* src, size_t size) {
 
 std::vector<ubyte> gzip::decompress(const ubyte* src, size_t size) {
     // getting uncompressed data length from gzip footer
-    size_t decompressed_size = *(uint32_t*)(src+size-4);
+    size_t decompressed_size = *reinterpret_cast<const uint32_t*>(src+size-4);
     std::vector<ubyte> buffer;
     buffer.resize(decompressed_size);
 

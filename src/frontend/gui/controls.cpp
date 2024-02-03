@@ -20,6 +20,7 @@ Label::Label(std::string text, std::string fontName)
      : UINode(vec2(), vec2(text.length() * 8, 15)), 
        text(util::str2wstr_utf8(text)), 
        fontName_(fontName) {
+    setInteractive(false);
 }
 
 
@@ -27,6 +28,7 @@ Label::Label(std::wstring text, std::string fontName)
      : UINode(vec2(), vec2(text.length() * 8, 15)), 
        text(text), 
        fontName_(fontName) {
+    setInteractive(false);
 }
 
 void Label::setText(std::wstring text) {
@@ -46,22 +48,29 @@ void Label::draw(const GfxContext* pctx, Assets* assets) {
     batch->color = getColor();
     Font* font = assets->getFont(fontName_);
     vec2 size = getSize();
-    vec2 newsize = vec2(font->calcWidth(text), font->lineHeight());
-    if (newsize.x > size.x) {
-        setSize(newsize);
-        size = newsize;
-    }
+    vec2 newsize = vec2(
+        font->calcWidth(text), 
+        font->getLineHeight()+font->getYOffset()
+    );
+
     vec2 coord = calcCoord();
+    switch (align) {
+        case Align::left:
+            break;
+        case Align::center:
+            coord.x += (size.x-newsize.x)*0.5f;
+            break;
+        case Align::right:
+            coord.x += size.x-newsize.x;
+            break;
+    }
+    coord.y += (size.y-newsize.y)*0.5f;
     font->draw(batch, text, coord.x, coord.y);
 }
 
 Label* Label::textSupplier(wstringsupplier supplier) {
     this->supplier = supplier;
     return this;
-}
-
-void Label::setSize(vec2 sizenew) {
-    UINode::setSize(vec2(UINode::getSize().x, sizenew.y));
 }
 
 // ================================= Image ====================================
@@ -87,17 +96,34 @@ Button::Button(std::shared_ptr<UINode> content, glm::vec4 padding)
                                     padding[1]+padding[3]+margin[1]+margin[3]));
     add(content);
     scrollable(false);
+    setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
 }
 
-Button::Button(std::wstring text, glm::vec4 padding, glm::vec4 margin) 
- : Panel(vec2(32,32), padding, 0) 
+Button::Button(
+    std::wstring text, 
+    vec4 padding, 
+    onaction action,
+    vec2 size
+) : Panel(size, padding, 0) 
 {
-    setMargin(margin);
+    if (size.y < 0.0f) {
+        size = vec2(
+            glm::max(padding.x + padding.z + text.length()*8, size.x),
+            glm::max(padding.y + padding.w + 16, size.y)
+        );
+    }
+    setSize(size);
+
+    if (action) {
+        listenAction(action);
+    }
     scrollable(false);
 
     label = std::make_shared<Label>(text);
     label->setAlign(Align::center);
+    label->setSize(size-vec2(padding.z+padding.x, padding.w+padding.y));
     add(label);
+    setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
 }
 
 void Button::setText(std::wstring text) {
@@ -120,8 +146,11 @@ Button* Button::textSupplier(wstringsupplier supplier) {
     return this;
 }
 
-void Button::setHoverColor(glm::vec4 color) {
-    hoverColor = color;
+void Button::refresh() {
+    Panel::refresh();
+    if (label) {
+        label->setSize(size-vec2(padding.z+padding.x, padding.w+padding.y));
+    }
 }
 
 void Button::drawBackground(const GfxContext* pctx, Assets* assets) {
@@ -159,6 +188,7 @@ void Button::textAlign(Align align) {
 
 // ============================== RichButton ==================================
 RichButton::RichButton(vec2 size) : Container(vec2(), size) {
+    setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
 }
 
 void RichButton::mouseRelease(GUI* gui, int x, int y) {
@@ -175,10 +205,6 @@ RichButton* RichButton::listenAction(onaction action) {
     return this;
 }
 
-void RichButton::setHoverColor(glm::vec4 color) {
-    hoverColor = color;
-}
-
 void RichButton::drawBackground(const GfxContext* pctx, Assets* assets) {
     vec2 coord = calcCoord();
     auto batch = pctx->getBatch2D();
@@ -189,11 +215,12 @@ void RichButton::drawBackground(const GfxContext* pctx, Assets* assets) {
 
 // ================================ TextBox ===================================
 TextBox::TextBox(std::wstring placeholder, vec4 padding) 
-    : Panel(vec2(200,32), padding, 0, false), 
+    : Panel(vec2(200,32), padding, 0), 
       input(L""),
       placeholder(placeholder) {
     label = std::make_shared<Label>(L"");
     add(label);
+    setHoverColor(glm::vec4(0.05f, 0.1f, 0.2f, 0.75f));
 }
 
 void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
@@ -251,7 +278,7 @@ bool TextBox::isValid() const {
     return valid;
 }
 
-void TextBox::setOnEditStart(gui::runnable oneditstart) {
+void TextBox::setOnEditStart(runnable oneditstart) {
     onEditStart = oneditstart;
 }
 
@@ -312,9 +339,9 @@ void TextBox::text(std::wstring value) {
 
 // ============================== InputBindBox ================================
 InputBindBox::InputBindBox(Binding& binding, vec4 padding) 
-    : Panel(vec2(100,32), padding, 0, false),
+    : Panel(vec2(100,32), padding, 0),
       binding(binding) {
-    label = new Label(L"");
+    label = std::make_shared<Label>(L"");
     add(label);
     scrollable(false);
 }
@@ -437,7 +464,7 @@ FullCheckBox::FullCheckBox(std::wstring text, glm::vec2 size, bool checked)
     : Panel(size), 
       checkbox(std::make_shared<CheckBox>(checked)){
     setColor(vec4(0.0f));
-    orientation(Orientation::horizontal);
+    setOrientation(Orientation::horizontal);
 
     add(checkbox);
 

@@ -37,7 +37,7 @@
 #include "frontend/locale/langs.h"
 #include "logic/scripting/scripting.h"
 
-#include "definitions.h"
+#include "core_defs.h"
 
 namespace fs = std::filesystem;
 
@@ -56,7 +56,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     assets.reset(new Assets());
 	AssetsLoader loader(assets.get(), resPaths.get());
 	AssetsLoader::createDefaults(loader);
-	AssetsLoader::addDefaults(loader, true);
+	AssetsLoader::addDefaults(loader, false);
 
     Shader::preprocessor->setPaths(resPaths.get());
 	while (loader.hasNext()) {
@@ -148,7 +148,7 @@ inline const std::string checkPacks(const std::unordered_set<std::string>& packs
 void Engine::loadContent() {
     auto resdir = paths->getResources();
     ContentBuilder contentBuilder;
-    setup_definitions(&contentBuilder);
+    corecontent::setup(&contentBuilder);
     paths->setContentPacks(&contentPacks);
 
     std::vector<fs::path> resRoots;
@@ -183,7 +183,7 @@ void Engine::loadContent() {
 	std::cout << "-- loading assets" << std::endl;
 	AssetsLoader loader(new_assets.get(), resPaths.get());
     AssetsLoader::createDefaults(loader);
-    AssetsLoader::addDefaults(loader, false);
+    AssetsLoader::addDefaults(loader, true);
 	while (loader.hasNext()) {
 		if (!loader.loadNext()) {
 			new_assets.reset();
@@ -214,7 +214,7 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
 void Engine::setLanguage(std::string locale) {
 	settings.ui.language = locale;
 	langs::setup(paths->getResources(), locale, contentPacks);
-	menus::create_menus(this, gui->getMenu());
+	menus::create_menus(this);
 }
 
 gui::GUI* Engine::getGUI() {

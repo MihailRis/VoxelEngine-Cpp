@@ -44,28 +44,25 @@ class Camera;
 */
 
 namespace gui {
-    typedef std::function<void()> runnable;
-    typedef std::function<void(const std::string&)> stringconsumer;
-
     class UINode;
     class Container;
     class PagesControl;
 
     class GUI {
-        Container* container;
+        std::shared_ptr<Container> container;
         std::shared_ptr<UINode> hover = nullptr;
         std::shared_ptr<UINode> pressed = nullptr;
         std::shared_ptr<UINode> focus = nullptr;
         std::unordered_map<std::string, std::shared_ptr<UINode>> storage;
 
-        Camera* uicamera;
-        PagesControl* menu;
+        std::unique_ptr<Camera> uicamera;
+        std::shared_ptr<PagesControl> menu;
         void actMouse(float delta);
     public:
         GUI();
         ~GUI();
 
-        PagesControl* getMenu();
+        std::shared_ptr<PagesControl> getMenu();
 
         std::shared_ptr<UINode> getFocused() const;
         bool isFocusCaught() const;

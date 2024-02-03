@@ -84,6 +84,10 @@ public:
     uint getNextInventoryId() {
         return nextInventoryId++;
     }
+
+    const Content* getContent() const {
+        return content;
+    }
 };
 
 #endif /* WORLD_WORLD_H_ */

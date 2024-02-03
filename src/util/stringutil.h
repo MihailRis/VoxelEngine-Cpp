@@ -26,6 +26,10 @@ namespace util {
     extern std::string base64_encode(const ubyte* data, size_t size);
     extern std::vector<ubyte> base64_decode(const char* str, size_t size);
     extern std::vector<ubyte> base64_decode(const std::string& str);
+
+    extern int replaceAll(std::string& str, const std::string& from, const std::string& to);
+
+    extern double parse_double(const std::string& str);
 }
 
 #endif // UTIL_STRINGUTIL_H_

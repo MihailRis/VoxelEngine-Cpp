@@ -25,7 +25,7 @@ inline int lua_pushivec3(lua_State* L, int x, int y, int z) {
     return 3;
 }
 
-inline void luaL_openlib(lua_State* L, const char* name, const luaL_Reg* libfuncs, int nup) {
+inline void openlib(lua_State* L, const char* name, const luaL_Reg* libfuncs, int nup) {
     lua_newtable(L);
     luaL_setfuncs(L, libfuncs, nup);
     lua_setglobal(L, name);
@@ -409,11 +409,11 @@ static int l_print(lua_State* L) {
                                     lua_setglobal(L, NAME))
 
 void apilua::create_funcs(lua_State* L) {
-    luaL_openlib(L, "pack", packlib, 0);
-    luaL_openlib(L, "world", worldlib, 0);
-    luaL_openlib(L, "player", playerlib, 0);
-    luaL_openlib(L, "time", timelib, 0);
-    luaL_openlib(L, "file", filelib, 0);
+    openlib(L, "pack", packlib, 0);
+    openlib(L, "world", worldlib, 0);
+    openlib(L, "player", playerlib, 0);
+    openlib(L, "time", timelib, 0);
+    openlib(L, "file", filelib, 0);
 
     lua_addfunc(L, l_print, "print");
     lua_addfunc(L, l_block_index, "block_index");

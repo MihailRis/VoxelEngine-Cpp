@@ -8,7 +8,7 @@ namespace fs = std::filesystem;
 
 class Block;
 class ItemDef;
-class ContentPack;
+struct ContentPack;
 class ContentBuilder;
 
 namespace dynamic {

@@ -41,6 +41,19 @@ inline bool is_identifier_part(int c) {
     return is_identifier_start(c) || is_digit(c);
 }
 
+inline int hexchar2int(int c) {
+    if (c >= '0' && c <= '9') {
+        return c - '0';
+    }
+    if (c >= 'a' && c <= 'f') {
+        return 10 + c - 'a';
+    }
+    if (c >= 'A' && c <= 'F') {
+        return 10 + c - 'A';
+    }
+    return -1;
+}
+
 extern std::string escape_string(std::string s);
 
 class parsing_error : public std::runtime_error {
@@ -70,12 +83,17 @@ protected:
     uint linestart = 0;
 
     virtual void skipWhitespace();
+    void skip(size_t n);
     void skipLine();
+    bool skipTo(const std::string& substring);
     void expect(char expected);
+    void expect(const std::string& substring);
     char peek();
     char nextChar();
     bool hasNext();
+    bool isNext(const std::string& substring);
     void expectNewLine();
+    void goBack();
 
     std::string parseName();
     int64_t parseSimpleInt(int base);

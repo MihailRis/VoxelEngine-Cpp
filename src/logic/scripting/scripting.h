@@ -1,6 +1,8 @@
 #include <string>
 #include <filesystem>
 
+#include "../../delegates.h"
+
 namespace fs = std::filesystem;
 
 class Engine;
@@ -20,6 +22,12 @@ namespace scripting {
     extern BlocksController* blocks;
 
     void initialize(Engine* engine);
+
+    runnable create_runnable(
+        const std::string& filename,
+        const std::string& source
+    );
+
     void on_world_load(Level* level, BlocksController* blocks);
     void on_world_save();
     void on_world_quit();

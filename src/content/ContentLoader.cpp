@@ -74,7 +74,7 @@ void ContentLoader::fixPackIndices() {
 
     std::unique_ptr<dynamic::Map> root;
     if (fs::is_regular_file(indexFile)) {
-        root = std::move(files::read_json(indexFile));
+        root = files::read_json(indexFile);
     } else {
         root.reset(new dynamic::Map());
     }
