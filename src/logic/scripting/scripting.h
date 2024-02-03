@@ -3,6 +3,8 @@
 
 #include "../../delegates.h"
 
+//#define LUA_UNSAFE // Uncomment to allow dangerous lua functionality
+
 namespace fs = std::filesystem;
 
 class Engine;

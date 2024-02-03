@@ -74,6 +74,32 @@ void load_script(fs::path name) {
     call_func(L, 0, file.u8string());
 }
 
+void configure_lua_package(lua_State *L) {
+    lua_getglobal(L, "package");
+    lua_pushstring(L, "./res/scripts/?.lua;./res/content/?.lua");
+    lua_setfield(L, -2, "path");
+#ifndef LUA_UNSAFE
+    lua_pushstring(L, "");
+#else
+#ifdef _WIN32
+    lua_pushstring(L, "./res/scripts/?.dll;./res/content/?.dll");
+#else
+    lua_pushstring(L, "./res/scripts/?.so;./res/content/?.so");
+#endif
+#endif
+    lua_setfield(L, -2, "cpath");
+    lua_pop(L, 1);
+}
+
+void remove_lua_functions(lua_State* L, const std::string& lib, const std::vector<std::string>& funcs) {
+    lua_getglobal(L, lib.c_str());
+    for (const std::string& func : funcs) {
+        lua_pushnil(L);
+        lua_setfield(L, -2, func.c_str());
+    }
+    lua_pop(L, 1);
+}
+
 void scripting::initialize(Engine* engine) {
     scripting::engine = engine;
 
@@ -82,19 +108,33 @@ void scripting::initialize(Engine* engine) {
         throw std::runtime_error("could not to initialize Lua");
     }
     
-    // Allowed standard libraries
+    // Standard libraries
     luaopen_base(L);
     luaopen_math(L);
     luaopen_string(L);
     luaopen_table(L);
+    luaopen_package(L);
+    luaopen_debug(L);
+    luaopen_io(L);
+    luaopen_os(L);
 
-    // io-manipulations will be implemented via api functions
+    configure_lua_package(L);
+#ifndef LUA_UNSAFE
+    remove_lua_functions(L, "package", { "loadlib" });
+    remove_lua_functions(L, "io", { "popen" });
+    remove_lua_functions(L, "os", { "execute" });
+#endif
     
     std::cout << LUA_VERSION << std::endl;
-#   ifdef LUAJIT_VERSION
-        luaopen_jit(L);
-        std::cout << LUAJIT_VERSION << std::endl;
-#   endif // LUAJIT_VERSION
+#ifdef LUAJIT_VERSION
+    luaopen_jit(L);
+    luaopen_bit(L);
+    luaopen_string_buffer(L);
+#ifdef LUA_UNSAFE
+    luaopen_ffi(L);
+#endif
+    std::cout << LUAJIT_VERSION << std::endl;
+#endif // LUAJIT_VERSION
 
     apilua::create_funcs(L);
 
