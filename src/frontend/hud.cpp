@@ -60,7 +60,7 @@ static std::shared_ptr<Label> create_label(gui::wstringsupplier supplier) {
 std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
     auto level = frontend->getLevel();
 
-    auto panel = std::make_shared<Panel>(vec2(250, 200), vec4(5.0f), 1.0f);
+    auto panel = std::make_shared<Panel>(vec2(250, 200), vec4(5.0f), 2.0f);
     panel->listenInterval(0.5f, [this]() {
         fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
         fpsMin = fps;
@@ -152,7 +152,7 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
     }
     {
         auto checkbox = std::make_shared<FullCheckBox>(
-            L"Show Chunk Borders", vec2(400, 32)
+            L"Show Chunk Borders", vec2(400, 24)
         );
         checkbox->supplier([=]() {
             return engine->getSettings().debug.showChunkBorders;

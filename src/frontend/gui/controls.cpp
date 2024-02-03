@@ -146,8 +146,8 @@ Button* Button::textSupplier(wstringsupplier supplier) {
     return this;
 }
 
-void Button::setSize(glm::vec2 size) {
-    Panel::setSize(size);
+void Button::refresh() {
+    Panel::refresh();
     if (label) {
         label->setSize(size-vec2(padding.z+padding.x, padding.w+padding.y));
     }

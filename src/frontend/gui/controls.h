@@ -82,7 +82,7 @@ namespace gui {
 
         virtual Button* textSupplier(wstringsupplier supplier);
 
-        virtual void setSize(glm::vec2 size) override;
+        virtual void refresh() override;
     };
 
     class RichButton : public Container {
@@ -112,7 +112,7 @@ namespace gui {
         bool valid = true;
     public:
         TextBox(std::wstring placeholder, 
-                glm::vec4 padding=glm::vec4(2.0f));
+                glm::vec4 padding=glm::vec4(4.0f));
 
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 

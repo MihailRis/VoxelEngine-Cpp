@@ -164,6 +164,7 @@ int Panel::getMaxLength() const {
 
 void Panel::setPadding(glm::vec4 padding) {
     this->padding = padding;
+    refresh();
 }
 
 glm::vec4 Panel::getPadding() const {
