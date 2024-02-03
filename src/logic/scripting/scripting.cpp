@@ -129,7 +129,6 @@ void scripting::initialize(Engine* engine) {
 #ifdef LUAJIT_VERSION
     luaopen_jit(L);
     luaopen_bit(L);
-    luaopen_string_buffer(L);
 #ifdef LUA_UNSAFE
     luaopen_ffi(L);
 #endif
