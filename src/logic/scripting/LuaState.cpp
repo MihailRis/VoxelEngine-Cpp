@@ -1,6 +1,41 @@
 #include "LuaState.h"
 
 #include "api_lua.h"
+#include "../../util/stringutil.h"
+
+lua::luaerror::luaerror(const std::string& message) : std::runtime_error(message) {
+}
+
+lua::LuaState::LuaState() {
+    L = luaL_newstate();
+    if (L == nullptr) {
+        throw lua::luaerror("could not to initialize Lua");
+    }
+    // Allowed standard libraries
+    luaopen_base(L);
+    luaopen_math(L);
+    luaopen_string(L);
+    luaopen_table(L);
+
+    std::cout << LUA_VERSION << std::endl;
+#   ifdef LUAJIT_VERSION
+        luaopen_jit(L);
+        std::cout << LUAJIT_VERSION << std::endl;
+#   endif // LUAJIT_VERSION
+
+    createFuncs();
+
+    lua_getglobal(L, "_G");
+    lua_setglobal(L, ":G");
+}
+
+lua::LuaState::~LuaState() {
+    lua_close(L);
+}
+
+void lua::LuaState::logError(const std::string& text) {
+    std::cerr << text << std::endl;
+}
 
 void lua::LuaState::addfunc(const std::string& name, lua_CFunction func) {
     lua_pushcfunction(L, func);
@@ -64,37 +99,6 @@ void lua::LuaState::createFuncs() {
     addfunc("set_block_user_bits", l_set_block_user_bits);
 }
 
-lua::luaerror::luaerror(const std::string& message) : std::runtime_error(message) {
-}
-
-lua::LuaState::LuaState() {
-    L = luaL_newstate();
-    if (L == nullptr) {
-        throw lua::luaerror("could not to initialize Lua");
-    }
-    // Allowed standard libraries
-    luaopen_base(L);
-    luaopen_math(L);
-    luaopen_string(L);
-    luaopen_table(L);
-
-    std::cout << LUA_VERSION << std::endl;
-#   ifdef LUAJIT_VERSION
-        luaopen_jit(L);
-        std::cout << LUAJIT_VERSION << std::endl;
-#   endif // LUAJIT_VERSION
-
-    createFuncs();
-}
-
-lua::LuaState::~LuaState() {
-    lua_close(L);
-}
-
-void lua::LuaState::logError(const std::string& text) {
-    std::cerr << text << std::endl;
-}
-
 void lua::LuaState::loadbuffer(const std::string& src, const std::string& file) {
     if (luaL_loadbuffer(L, src.c_str(), src.length(), file.c_str())) {
         throw lua::luaerror(lua_tostring(L, -1));
@@ -120,6 +124,11 @@ int lua::LuaState::eval(const std::string& src, const std::string& file) {
     auto srcText = "return ("+src+")";
     loadbuffer(srcText, file);
     return call(0);
+}
+
+int lua::LuaState::execute(const std::string& src, const std::string& file) {
+    loadbuffer(src, file);
+    return callNoThrow(0);
 }
 
 int lua::LuaState::gettop() const {
@@ -162,7 +171,42 @@ void lua::LuaState::openlib(const std::string& name, const luaL_Reg* libfuncs, i
 
 const std::string lua::LuaState::storeAnonymous() {
     auto funcId = uintptr_t(lua_topointer(L, lua_gettop(L)));
-    auto funcName = "F$"+std::to_string(funcId);
+    auto funcName = "F$"+util::mangleid(funcId);
     lua_setglobal(L, funcName.c_str());
     return funcName;
+}
+
+void lua::LuaState::initNamespace() {
+    lua_getglobal(L, "_G");
+    lua_setfield(L, -1, ":G");
+}
+
+int lua::LuaState::createNamespace() {
+    int id = nextNamespace++;
+
+    if (currentNamespace != 0) {
+        setNamespace(0);
+    }
+
+    lua_createtable(L, 0, 0);
+    initNamespace();
+    setglobal("_N"+util::mangleid(id));
+
+    setNamespace(id);
+    return id;
+}
+
+void lua::LuaState::setNamespace(int id) {
+    if (id == 0) {
+        getglobal(":G");
+        lua_setfenv(L, -1);
+    } else {
+        getglobal(":G");
+        lua_getfield(L, -1, ("_N"+util::mangleid(id)).c_str());
+        if (lua_isnil(L, -1)) {
+            lua_pop(L, -1);
+            throw luaerror("namespace "+std::to_string(id)+" was not found");
+        }
+        lua_setfenv(L, -1);
+    }
 }

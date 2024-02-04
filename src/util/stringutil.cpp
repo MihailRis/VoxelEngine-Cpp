@@ -228,6 +228,14 @@ std::string util::base64_encode(const ubyte* data, size_t size) {
     return ss.str();
 }
 
+std::string util::mangleid(uint64_t value) {
+    // todo: use base64
+    std::stringstream ss;
+    ss << std::hex << value;
+    std::string result(ss.str());
+    return ss.str();
+}
+
 std::vector<ubyte> util::base64_decode(const char* str, size_t size) {
     std::vector<ubyte> bytes((size/4)*3);
     ubyte* dst = bytes.data();

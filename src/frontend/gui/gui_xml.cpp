@@ -33,7 +33,6 @@ static void readUINode(xml::xmlelement element, UINode& node) {
     if (element->has("margin")) {
         node.setMargin(element->attr("margin").asVec4());
     }
-
     std::string alignName = element->attr("align", "").getText();
     node.setAlign(align_from_string(alignName, node.getAlign()));
 }
@@ -41,6 +40,9 @@ static void readUINode(xml::xmlelement element, UINode& node) {
 static void _readContainer(UiXmlReader& reader, xml::xmlelement element, Container& container) {
     readUINode(element, container);
 
+    if (element->has("scrollable")) {
+        container.setScrollable(element->attr("scrollable").asBool());
+    }
     for (auto& sub : element->getElements()) {
         if (sub->isText())
             continue;
@@ -54,11 +56,12 @@ static void _readPanel(UiXmlReader& reader, xml::xmlelement element, Panel& pane
     if (element->has("padding")) {
         panel.setPadding(element->attr("padding").asVec4());
     }
-
     if (element->has("size")) {
         panel.setResizing(false);
     }
-
+    if (element->has("max-length")) {
+        panel.setMaxLength(element->attr("max-length").asInt());
+    }
     for (auto& sub : element->getElements()) {
         if (sub->isText())
             continue;

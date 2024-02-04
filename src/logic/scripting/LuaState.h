@@ -16,8 +16,11 @@ namespace lua {
 
     class LuaState {
         lua_State* L;
+        int nextNamespace = 1;
+        int currentNamespace = 0;
 
         void logError(const std::string& text);
+        void initNamespace();
     public:
         LuaState();
         ~LuaState();
@@ -32,6 +35,7 @@ namespace lua {
         luaint tointeger(int index);
         int call(int argc);
         int callNoThrow(int argc);
+        int execute(const std::string& src, const std::string& file="<string>");
         int eval(const std::string& src, const std::string& file="<eval>");
         void openlib(const std::string& name, const luaL_Reg* libfuncs, int nup);
         void addfunc(const std::string& name, lua_CFunction func);
@@ -40,6 +44,8 @@ namespace lua {
         bool rename(const std::string& from, const std::string& to);
         void remove(const std::string& name);;
         void createFuncs();
+        int createNamespace();
+        void setNamespace(int id);
 
         const std::string storeAnonymous();
     };

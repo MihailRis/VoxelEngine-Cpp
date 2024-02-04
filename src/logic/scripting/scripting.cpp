@@ -32,9 +32,7 @@ void load_script(fs::path name) {
     fs::path file = paths->getResources()/fs::path("scripts")/name;
 
     std::string src = files::read_string(file);
-
-    state->loadbuffer(src, file.u8string());
-    state->callNoThrow(0);
+    state->execute(src, file.u8string());
 }
 
 void scripting::initialize(Engine* engine) {
@@ -51,8 +49,7 @@ runnable scripting::create_runnable(
     const std::string& src
 ) {
     return [=](){
-        state->loadbuffer(src, file);
-        state->callNoThrow(0);
+        state->execute(src, file);
     };
 }
 
@@ -189,9 +186,7 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
 void scripting::load_block_script(std::string prefix, fs::path file, block_funcs_set* funcsset) {
     std::string src = files::read_string(file);
     std::cout << "loading script " << file.u8string() << std::endl;
-
-    state->loadbuffer(src, file.u8string());
-    state->callNoThrow(0);
+    state->execute(src, file.u8string());
 
     funcsset->init=state->rename("init", prefix+".init");
     funcsset->update=state->rename("on_update", prefix+".update");
@@ -205,8 +200,7 @@ void scripting::load_block_script(std::string prefix, fs::path file, block_funcs
 void scripting::load_item_script(std::string prefix, fs::path file, item_funcs_set* funcsset) {
     std::string src = files::read_string(file);
     std::cout << "loading script " << file.u8string() << std::endl;
-    state->loadbuffer(src, file.u8string());
-    state->callNoThrow(0);
+    state->execute(src, file.u8string());
     funcsset->init=state->rename("init", prefix+".init");
     funcsset->on_use_on_block=state->rename("on_use_on_block", prefix+".useon");
     funcsset->on_block_break_by=state->rename("on_block_break_by", prefix+".blockbreakby");
