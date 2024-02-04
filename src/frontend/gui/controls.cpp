@@ -95,7 +95,7 @@ Button::Button(std::shared_ptr<UINode> content, glm::vec4 padding)
     setSize(content->getSize()+vec2(padding[0]+padding[2]+margin[0]+margin[2],
                                     padding[1]+padding[3]+margin[1]+margin[3]));
     add(content);
-    scrollable(false);
+    setScrollable(false);
     setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
 }
 
@@ -117,7 +117,7 @@ Button::Button(
     if (action) {
         listenAction(action);
     }
-    scrollable(false);
+    setScrollable(false);
 
     label = std::make_shared<Label>(text);
     label->setAlign(Align::center);
@@ -253,7 +253,7 @@ void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
         label->setColor(vec4(1.0f));
         label->setText(input);
     }
-    scrollable(false);
+    setScrollable(false);
 }
 
 void TextBox::typed(unsigned int codepoint) {
@@ -343,7 +343,7 @@ InputBindBox::InputBindBox(Binding& binding, vec4 padding)
       binding(binding) {
     label = std::make_shared<Label>(L"");
     add(label);
-    scrollable(false);
+    setScrollable(false);
 }
 
 void InputBindBox::drawBackground(const GfxContext* pctx, Assets* assets) {

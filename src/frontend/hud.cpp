@@ -276,7 +276,7 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
     );
     contentAccessPanel->setColor(glm::vec4());
     contentAccessPanel->add(contentAccess);
-    contentAccessPanel->scrollable(true);
+    contentAccessPanel->setScrollable(true);
 
     hotbarView = createHotbar();
     inventoryView = createInventory();

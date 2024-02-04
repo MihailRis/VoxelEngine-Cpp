@@ -62,7 +62,7 @@ void Container::act(float delta) {
 
 void Container::scrolled(int value) {
     int diff = (actualLength-getSize().y);
-    if (diff > 0 && scrollable_) {
+    if (diff > 0 && scrollable) {
         scroll += value * 40;
         if (scroll > 0)
             scroll = 0;
@@ -74,8 +74,8 @@ void Container::scrolled(int value) {
     }
 }
 
-void Container::scrollable(bool flag) {
-    scrollable_ = flag;
+void Container::setScrollable(bool flag) {
+    scrollable = flag;
 }
 
 void Container::draw(const GfxContext* pctx, Assets* assets) {

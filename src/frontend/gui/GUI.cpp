@@ -23,7 +23,7 @@ GUI::GUI() {
 
     menu = std::make_shared<PagesControl>();
     container->add(menu);
-    container->scrollable(false);
+    container->setScrollable(false);
 }
 
 GUI::~GUI() {
