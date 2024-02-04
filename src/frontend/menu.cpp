@@ -417,8 +417,8 @@ void create_new_world_panel(Engine* engine) {
         if (!nameInput->validate())
             return;
 
-        std::string name = util::wstr2str_utf8(nameInput->text());
-        uint64_t seed = str2seed(seedInput->text());
+        std::string name = util::wstr2str_utf8(nameInput->getText());
+        uint64_t seed = str2seed(seedInput->getText());
         std::cout << "world seed: " << seed << std::endl;
 
         EnginePaths* paths = engine->getPaths();
