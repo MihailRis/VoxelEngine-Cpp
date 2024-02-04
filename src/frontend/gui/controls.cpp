@@ -95,8 +95,9 @@ Button::Button(std::shared_ptr<UINode> content, glm::vec4 padding)
     setSize(content->getSize()+vec2(padding[0]+padding[2]+margin[0]+margin[2],
                                     padding[1]+padding[3]+margin[1]+margin[3]));
     add(content);
-    scrollable(false);
+    setScrollable(false);
     setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
+    content->setInteractive(false);
 }
 
 Button::Button(
@@ -117,11 +118,12 @@ Button::Button(
     if (action) {
         listenAction(action);
     }
-    scrollable(false);
+    setScrollable(false);
 
     label = std::make_shared<Label>(text);
     label->setAlign(Align::center);
     label->setSize(size-vec2(padding.z+padding.x, padding.w+padding.y));
+    label->setInteractive(false);
     add(label);
     setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
 }
@@ -159,10 +161,6 @@ void Button::drawBackground(const GfxContext* pctx, Assets* assets) {
     batch->texture(nullptr);
     batch->color = (isPressed() ? pressedColor : (hover ? hoverColor : color));
     batch->rect(coord.x, coord.y, size.x, size.y);
-}
-
-std::shared_ptr<UINode> Button::getAt(vec2 pos, std::shared_ptr<UINode> self) {
-    return UINode::getAt(pos, self);
 }
 
 void Button::mouseRelease(GUI* gui, int x, int y) {
@@ -219,6 +217,7 @@ TextBox::TextBox(std::wstring placeholder, vec4 padding)
       input(L""),
       placeholder(placeholder) {
     label = std::make_shared<Label>(L"");
+    label->setSize(size-vec2(padding.z+padding.x, padding.w+padding.y));
     add(label);
     setHoverColor(glm::vec4(0.05f, 0.1f, 0.2f, 0.75f));
 }
@@ -253,7 +252,7 @@ void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
         label->setColor(vec4(1.0f));
         label->setText(input);
     }
-    scrollable(false);
+    setScrollable(false);
 }
 
 void TextBox::typed(unsigned int codepoint) {
@@ -287,6 +286,11 @@ void TextBox::focus(GUI* gui) {
     if (onEditStart){
         onEditStart();
     }
+}
+
+void TextBox::refresh() {
+    Panel::refresh();
+    label->setSize(size-vec2(padding.z+padding.x, padding.w+padding.y));
 }
 
 void TextBox::keyPressed(int key) {
@@ -327,13 +331,13 @@ void TextBox::textValidator(wstringchecker validator) {
     this->validator = validator;
 }
 
-std::wstring TextBox::text() const {
+std::wstring TextBox::getText() const {
     if (input.empty())
         return placeholder;
     return input;
 }
 
-void TextBox::text(std::wstring value) {
+void TextBox::setText(std::wstring value) {
     this->input = value;
 }
 
@@ -343,7 +347,7 @@ InputBindBox::InputBindBox(Binding& binding, vec4 padding)
       binding(binding) {
     label = std::make_shared<Label>(L"");
     add(label);
-    scrollable(false);
+    setScrollable(false);
 }
 
 void InputBindBox::drawBackground(const GfxContext* pctx, Assets* assets) {

@@ -30,7 +30,7 @@ namespace gui {
         std::vector<IntervalEvent> intervalEvents;
         int scroll = 0;
         int actualLength = 0;
-        bool scrollable_ = true;
+        bool scrollable = true;
     public:
         Container(glm::vec2 coord, glm::vec2 size);
 
@@ -43,7 +43,7 @@ namespace gui {
         virtual void add(std::shared_ptr<UINode> node, glm::vec2 coord);
         virtual void remove(std::shared_ptr<UINode> node);
         virtual void scrolled(int value) override;
-        virtual void scrollable(bool flag);
+        virtual void setScrollable(bool flag);
         void listenInterval(float interval, ontimeout callback, int repeat=-1);
         virtual glm::vec2 contentOffset() override {return glm::vec2(0.0f, scroll);};
         virtual void setSize(glm::vec2 size);

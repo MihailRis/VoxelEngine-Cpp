@@ -123,7 +123,7 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
         });
         box->setOnEditStart([=](){
             Hitbox* hitbox = level->player->hitbox.get();
-            box->text(std::to_wstring(int(hitbox->position[ax])));
+            box->setText(std::to_wstring(int(hitbox->position[ax])));
         });
 
         sub->add(box);
@@ -276,7 +276,7 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
     );
     contentAccessPanel->setColor(glm::vec4());
     contentAccessPanel->add(contentAccess);
-    contentAccessPanel->scrollable(true);
+    contentAccessPanel->setScrollable(true);
 
     hotbarView = createHotbar();
     inventoryView = createInventory();

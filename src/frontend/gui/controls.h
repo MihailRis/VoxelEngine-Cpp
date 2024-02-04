@@ -70,8 +70,6 @@ namespace gui {
 
         virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
 
-        virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
-
         virtual void mouseRelease(GUI*, int x, int y) override;
         virtual Button* listenAction(onaction action);
 
@@ -123,13 +121,14 @@ namespace gui {
         virtual void textConsumer(wstringconsumer consumer);
         virtual void textValidator(wstringchecker validator);
         virtual bool isFocuskeeper() const override {return true;}
-        virtual std::wstring text() const;
-        virtual void text(std::wstring value);
+        virtual std::wstring getText() const;
+        virtual void setText(std::wstring value);
         virtual bool validate();
         virtual void setValid(bool valid);
         virtual bool isValid() const;
         virtual void setOnEditStart(runnable oneditstart);
         virtual void focus(GUI*) override;
+        virtual void refresh() override;
     };
 
     class InputBindBox : public Panel {

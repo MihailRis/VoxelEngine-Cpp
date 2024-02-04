@@ -97,7 +97,14 @@ void ContentPack::scan(fs::path rootfolder,
             continue;
         if (!is_pack(folder))
             continue;
-        packs.push_back(read(folder));
+        try {
+            packs.push_back(read(folder));
+        } catch (const contentpack_error& err) {
+            std::cerr << "package.json error at " << err.getFolder().u8string();
+            std::cerr << ": " << err.what() << std::endl;
+        } catch (const std::runtime_error& err) {
+            std::cerr << err.what() << std::endl;
+        }
     }
 }
 

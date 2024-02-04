@@ -96,6 +96,9 @@ static void show_content_missing(
 
     auto subpanel = std::make_shared<Panel>(vec2(500, 100));
     subpanel->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    subpanel->setScrollable(true);
+    subpanel->setMaxLength(400);
+    panel->add(subpanel);
 
     for (auto& entry : lut->getMissingContent()) {
         auto hpanel = std::make_shared<Panel>(vec2(500, 30));
@@ -112,8 +115,7 @@ static void show_content_missing(
         hpanel->add(namelabel);
         subpanel->add(hpanel);
     }
-    subpanel->setMaxLength(400);
-    panel->add(subpanel);
+
 
     panel->add(std::make_shared<Button>(
         langs::get(L"Back to Main Menu", L"menu"), vec4(8.0f), [=](GUI*){
@@ -143,7 +145,7 @@ void show_convert_request(
 void create_languages_panel(Engine* engine) {
     auto menu = engine->getGUI()->getMenu();
     auto panel = create_page(engine, "languages", 400, 0.5f, 1);
-    panel->scrollable(true);
+    panel->setScrollable(true);
 
     std::vector<std::string> locales;
     for (auto& entry : langs::locales_info) {
@@ -211,7 +213,7 @@ void open_world(std::string name, Engine* engine) {
 }
 
 std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
-    auto panel = std::make_shared<Panel>(vec2(390, 200), vec4(5.0f));
+    auto panel = std::make_shared<Panel>(vec2(390, 0), vec4(5.0f));
     panel->setColor(vec4(1.0f, 1.0f, 1.0f, 0.07f));
     panel->setMaxLength(400);
 
@@ -278,7 +280,7 @@ std::shared_ptr<Panel> create_packs_panel(
     auto panel = std::make_shared<Panel>(vec2(PACKS_PANEL_WIDTH, 200), vec4(5.0f));
     panel->setColor(vec4(1.0f, 1.0f, 1.0f, 0.07f));
     panel->setMaxLength(400);
-    panel->scrollable(true);
+    panel->setScrollable(true);
 
     for (auto& pack : packs) {
         auto packpanel = std::make_shared<RichButton>(vec2(390, 80));
@@ -415,8 +417,8 @@ void create_new_world_panel(Engine* engine) {
         if (!nameInput->validate())
             return;
 
-        std::string name = util::wstr2str_utf8(nameInput->text());
-        uint64_t seed = str2seed(seedInput->text());
+        std::string name = util::wstr2str_utf8(nameInput->getText());
+        uint64_t seed = str2seed(seedInput->getText());
         std::cout << "world seed: " << seed << std::endl;
 
         EnginePaths* paths = engine->getPaths();
