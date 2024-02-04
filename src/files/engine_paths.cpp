@@ -65,6 +65,11 @@ std::vector<fs::path> EnginePaths::scanForWorlds() {
         }
         folders.push_back(worldFolder);
     }
+    std::sort(folders.begin(), folders.end(), [](fs::path a, fs::path b) {
+        a = a/fs::u8path(WorldFiles::WORLD_FILE);
+        b = b/fs::u8path(WorldFiles::WORLD_FILE);
+        return fs::last_write_time(a) > fs::last_write_time(b);
+    });
     return folders;
 }
 
