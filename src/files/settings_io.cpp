@@ -32,6 +32,7 @@ toml::Wrapper* create_wrapper(EngineSettings& settings) {
 	camera.add("sensitivity", &settings.camera.sensitivity);
 
 	toml::Section& graphics = wrapper->add("graphics");
+    graphics.add("gamma", &settings.graphics.gamma);
 	graphics.add("fog-curve", &settings.graphics.fogCurve);
 	graphics.add("backlight", &settings.graphics.backlight);
 	graphics.add("frustum-culling", &settings.graphics.frustumCulling);
