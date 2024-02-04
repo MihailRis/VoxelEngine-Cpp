@@ -5,6 +5,8 @@
 
 namespace fs = std::filesystem;
 
+class LuaState;
+
 class Engine;
 class Content;
 class Level;
@@ -26,6 +28,11 @@ namespace scripting {
     runnable create_runnable(
         const std::string& filename,
         const std::string& source
+    );
+    
+    wstringconsumer create_wstring_consumer(
+        const std::string& src,
+        const std::string& file="<string>"
     );
 
     void on_world_load(Level* level, BlocksController* blocks);

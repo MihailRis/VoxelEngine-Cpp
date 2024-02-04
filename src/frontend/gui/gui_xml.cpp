@@ -12,92 +12,6 @@
 
 using namespace gui;
 
-static double readDouble(const std::string& str, size_t offset, size_t len) {
-    double value;
-    auto res = std::from_chars(str.data()+offset, str.data()+offset+len, value);
-    if (res.ptr != str.data()+offset+len) {
-        throw std::runtime_error("invalid number format "+escape_string(str));
-    }
-    return value;
-}
-
-/* Read 2d vector formatted `x,y`*/
-static glm::vec2 readVec2(const std::string& str) {
-    size_t pos = str.find(',');
-    if (pos == std::string::npos) {
-        throw std::runtime_error("invalid vec2 value "+escape_string(str));
-    }
-    return glm::vec2(
-        readDouble(str, 0, pos),
-        readDouble(str, pos+1, str.length()-pos-1)
-    );
-}
-
-/* Read 3d vector formatted `x,y,z`*/
-[[maybe_unused]]
-static glm::vec3 readVec3(const std::string& str) {
-    size_t pos1 = str.find(',');
-    if (pos1 == std::string::npos) {
-        throw std::runtime_error("invalid vec3 value "+escape_string(str));
-    }
-    size_t pos2 = str.find(',', pos1+1);
-    if (pos2 == std::string::npos) {
-        throw std::runtime_error("invalid vec3 value "+escape_string(str));
-    }
-    return glm::vec3(
-        readDouble(str, 0, pos1),
-        readDouble(str, pos1+1, pos2),
-        readDouble(str, pos2+1, str.length()-pos2-1)
-    );
-}
-
-/* Read 4d vector formatted `x,y,z,w`*/
-static glm::vec4 readVec4(const std::string& str) {
-    size_t pos1 = str.find(',');
-    if (pos1 == std::string::npos) {
-        throw std::runtime_error("invalid vec4 value "+escape_string(str));
-    }
-    size_t pos2 = str.find(',', pos1+1);
-    if (pos2 == std::string::npos) {
-        throw std::runtime_error("invalid vec4 value "+escape_string(str));
-    }
-    size_t pos3 = str.find(',', pos2+1);
-    if (pos3 == std::string::npos) {
-        throw std::runtime_error("invalid vec4 value "+escape_string(str));
-    }
-    return glm::vec4(
-        readDouble(str, 0, pos1),
-        readDouble(str, pos1+1, pos2-pos1-1),
-        readDouble(str, pos2+1, pos3-pos2-1),
-        readDouble(str, pos3+1, str.length()-pos3-1)
-    );
-}
-
-/* Read RGBA color. Supported formats:
-   - "#RRGGBB" or "#RRGGBBAA" hex color */
-static glm::vec4 readColor(const std::string& str) {
-    if (str[0] == '#') {
-        if (str.length() != 7 && str.length() != 9) {
-            throw std::runtime_error("#RRGGBB or #RRGGBBAA required");
-        }
-        int a = 255;
-        int r = (hexchar2int(str[1]) << 4) | hexchar2int(str[2]);
-        int g = (hexchar2int(str[3]) << 4) | hexchar2int(str[4]);
-        int b = (hexchar2int(str[5]) << 4) | hexchar2int(str[6]);
-        if (str.length() == 9) {
-            a = (hexchar2int(str[7]) << 4) | hexchar2int(str[8]);
-        }
-        return glm::vec4(
-            r / 255.f,
-            g / 255.f,
-            b / 255.f,
-            a / 255.f
-        );
-    } else {
-        throw std::runtime_error("hex colors are only supported");
-    }
-}
-
 static Align align_from_string(const std::string& str, Align def) {
     if (str == "left") return Align::left;
     if (str == "center") return Align::center;
@@ -108,16 +22,16 @@ static Align align_from_string(const std::string& str, Align def) {
 /* Read basic UINode properties */
 static void readUINode(xml::xmlelement element, UINode& node) {
     if (element->has("coord")) {
-        node.setCoord(readVec2(element->attr("coord").getText()));
+        node.setCoord(element->attr("coord").asVec2());
     }
     if (element->has("size")) {
-        node.setSize(readVec2(element->attr("size").getText()));
+        node.setSize(element->attr("size").asVec2());
     }
     if (element->has("color")) {
-        node.setColor(readColor(element->attr("color").getText()));
+        node.setColor(element->attr("color").asColor());
     }
     if (element->has("margin")) {
-        node.setMargin(readVec4(element->attr("margin").getText()));
+        node.setMargin(element->attr("margin").asVec4());
     }
 
     std::string alignName = element->attr("align", "").getText();
@@ -138,7 +52,7 @@ static void _readPanel(UiXmlReader& reader, xml::xmlelement element, Panel& pane
     readUINode(element, panel);
 
     if (element->has("padding")) {
-        panel.setPadding(readVec4(element->attr("padding").getText()));
+        panel.setPadding(element->attr("padding").asVec4());
     }
 
     if (element->has("size")) {
@@ -185,7 +99,7 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement e
     _readPanel(reader, element, *button);
 
     if (element->has("onclick")) {
-        runnable callback = scripting::create_runnable("<onclick>", element->attr("onclick").getText());
+        auto callback = scripting::create_runnable("<onclick>", element->attr("onclick").getText());
         button->listenAction([callback](GUI*) {
             callback();
         });
@@ -202,6 +116,14 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
     auto textbox = std::make_shared<TextBox>(placeholder, glm::vec4(0.0f));
     _readPanel(reader, element, *textbox);
     textbox->setText(text);
+
+    if (element->has("consumer")) {
+        auto consumer = scripting::create_wstring_consumer(
+            element->attr("consumer").getText(),
+            reader.getFilename()
+        );
+        textbox->textConsumer(consumer);
+    }
     return textbox;
 }
 
@@ -230,7 +152,12 @@ std::shared_ptr<UINode> UiXmlReader::readXML(
     const std::string& filename,
     const std::string& source
 ) {
+    this->filename = filename;
     auto document = xml::parse(filename, source);
     auto root = document->getRoot();
     return readUINode(root);
+}
+
+const std::string& UiXmlReader::getFilename() const {
+    return filename;
 }

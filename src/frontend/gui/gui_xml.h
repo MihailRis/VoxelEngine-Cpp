@@ -14,6 +14,7 @@ namespace gui {
 
     class UiXmlReader {
         std::unordered_map<std::string, uinode_reader> readers;
+        std::string filename;
     public:
         UiXmlReader();
 
@@ -25,6 +26,8 @@ namespace gui {
             const std::string& filename,
             const std::string& source
         );
+
+        const std::string& getFilename() const;
     };
 }
 

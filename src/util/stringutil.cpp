@@ -279,3 +279,7 @@ double util::parse_double(const std::string& str) {
     }
     return d;    
 }
+
+double util::parse_double(const std::string& str, size_t offset, size_t len) {
+    return parse_double(str.substr(offset, len));
+}
