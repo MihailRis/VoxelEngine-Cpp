@@ -98,6 +98,13 @@ static glm::vec4 readColor(const std::string& str) {
     }
 }
 
+static Align align_from_string(const std::string& str, Align def) {
+    if (str == "left") return Align::left;
+    if (str == "center") return Align::center;
+    if (str == "right") return Align::right;
+    return def;
+}
+
 /* Read basic UINode properties */
 static void readUINode(xml::xmlelement element, UINode& node) {
     if (element->has("coord")) {
@@ -109,6 +116,12 @@ static void readUINode(xml::xmlelement element, UINode& node) {
     if (element->has("color")) {
         node.setColor(readColor(element->attr("color").getText()));
     }
+    if (element->has("margin")) {
+        node.setMargin(readVec4(element->attr("margin").getText()));
+    }
+
+    std::string alignName = element->attr("align", "").getText();
+    node.setAlign(align_from_string(alignName, node.getAlign()));
 }
 
 static void _readContainer(UiXmlReader& reader, xml::xmlelement element, Container& container) {
@@ -128,10 +141,6 @@ static void _readPanel(UiXmlReader& reader, xml::xmlelement element, Panel& pane
         panel.setPadding(readVec4(element->attr("padding").getText()));
     }
 
-    if (element->has("margin")) {
-        panel.setMargin(readVec4(element->attr("margin").getText()));
-    }
-
     if (element->has("size")) {
         panel.setResizing(false);
     }
@@ -147,7 +156,9 @@ static void _readPanel(UiXmlReader& reader, xml::xmlelement element, Panel& pane
 static std::wstring readAndProcessInnerText(xml::xmlelement element) {
     std::wstring text = L"";
     if (element->size() == 1) {
-        text = util::str2wstr_utf8(element->sub(0)->attr("#").getText()); 
+        std::string source = element->sub(0)->attr("#").getText();
+        util::trim(source);
+        text = util::str2wstr_utf8(source); 
         if (text[0] == '@') {
             text = langs::get(text.substr(1));
         }
@@ -178,6 +189,9 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement e
         button->listenAction([callback](GUI*) {
             callback();
         });
+    }
+    if (element->has("text-align")) {
+        button->setTextAlign(align_from_string(element->attr("text-align").getText(), button->getTextAlign()));
     }
     return button;
 }

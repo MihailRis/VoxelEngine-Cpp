@@ -73,7 +73,8 @@ namespace gui {
         virtual void mouseRelease(GUI*, int x, int y) override;
         virtual Button* listenAction(onaction action);
 
-        virtual void textAlign(Align align);
+        virtual Align getTextAlign() const;
+        virtual void setTextAlign(Align align);
 
         virtual void setText(std::wstring text);
         virtual std::wstring getText() const;
