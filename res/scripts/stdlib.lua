@@ -136,3 +136,7 @@ function toml.parse(s)
     end
     return output
 end
+
+function pack.is_installed(packid)
+    return file.isfile(packid..":package.json")
+end
