@@ -16,11 +16,11 @@ namespace lua {
 
     class LuaState {
         lua_State* L;
-        int nextNamespace = 1;
-        int currentNamespace = 0;
+        int nextEnvironment = 1;
+        int currentEnvironment = 0;
 
         void logError(const std::string& text);
-        void initNamespace();
+        void initEnvironment();
     public:
         LuaState();
         ~LuaState();
@@ -44,8 +44,8 @@ namespace lua {
         bool rename(const std::string& from, const std::string& to);
         void remove(const std::string& name);;
         void createFuncs();
-        int createNamespace();
-        void setNamespace(int id);
+        int createEnvironment();
+        void setEnvironment(int id);
 
         const std::string storeAnonymous();
     };

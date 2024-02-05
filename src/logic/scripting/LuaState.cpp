@@ -176,27 +176,27 @@ const std::string lua::LuaState::storeAnonymous() {
     return funcName;
 }
 
-void lua::LuaState::initNamespace() {
+void lua::LuaState::initEnvironment() {
     lua_getglobal(L, "_G");
     lua_setfield(L, -1, ":G");
 }
 
-int lua::LuaState::createNamespace() {
-    int id = nextNamespace++;
+int lua::LuaState::createEnvironment() {
+    int id = nextEnvironment++;
 
-    if (currentNamespace != 0) {
-        setNamespace(0);
+    if (currentEnvironment != 0) {
+        setEnvironment(0);
     }
 
     lua_createtable(L, 0, 0);
-    initNamespace();
+    initEnvironment();
     setglobal("_N"+util::mangleid(id));
 
-    setNamespace(id);
+    setEnvironment(id);
     return id;
 }
 
-void lua::LuaState::setNamespace(int id) {
+void lua::LuaState::setEnvironment(int id) {
     if (id == 0) {
         getglobal(":G");
         lua_setfenv(L, -1);
@@ -205,7 +205,7 @@ void lua::LuaState::setNamespace(int id) {
         lua_getfield(L, -1, ("_N"+util::mangleid(id)).c_str());
         if (lua_isnil(L, -1)) {
             lua_pop(L, -1);
-            throw luaerror("namespace "+std::to_string(id)+" was not found");
+            throw luaerror("environment "+std::to_string(id)+" was not found");
         }
         lua_setfenv(L, -1);
     }

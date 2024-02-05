@@ -37,8 +37,6 @@ using glm::vec4;
 namespace fs = std::filesystem;
 using namespace gui;
 
-const int PACKS_PANEL_WIDTH = 550;
-
 inline uint64_t randU64() {
     srand(time(NULL));
     return rand() ^ (rand() << 8) ^ 
@@ -224,8 +222,8 @@ std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
         auto namews = util::str2wstr_utf8(name);
 
         auto btn = std::make_shared<RichButton>(vec2(390, 46));
-        btn->setColor(vec4(1.0f, 1.0f, 1.0f, 0.1f));
-        btn->setHoverColor(vec4(1.0f, 1.0f, 1.0f, 0.17f));
+        btn->setColor(vec4(0.06f, 0.12f, 0.18f, 0.7f));
+        btn->setHoverColor(vec4(0.09f, 0.17f, 0.2f, 0.6f));
         btn->listenAction([=](GUI*) {
             open_world(name, engine);
         });
@@ -277,13 +275,14 @@ std::shared_ptr<Panel> create_packs_panel(
     packconsumer callback
 ){
     auto assets = engine->getAssets();
-    auto panel = std::make_shared<Panel>(vec2(PACKS_PANEL_WIDTH, 200), vec4(5.0f));
+    auto panel = std::make_shared<Panel>(vec2(550, 200), vec4(5.0f));
     panel->setColor(vec4(1.0f, 1.0f, 1.0f, 0.07f));
     panel->setMaxLength(400);
     panel->setScrollable(true);
 
     for (auto& pack : packs) {
-        auto packpanel = std::make_shared<RichButton>(vec2(390, 80));
+        auto packpanel = std::make_shared<RichButton>(vec2(540, 80));
+        packpanel->setColor(vec4(0.06f, 0.12f, 0.18f, 0.7f));
         if (callback) {
             packpanel->listenAction([=](GUI*) {
                 callback(pack);
@@ -291,7 +290,9 @@ std::shared_ptr<Panel> create_packs_panel(
         }
         auto idlabel = std::make_shared<Label>("["+pack.id+"]");
         idlabel->setColor(vec4(1, 1, 1, 0.5f));
-        packpanel->add(idlabel, vec2(PACKS_PANEL_WIDTH-40-idlabel->getSize().x, 2));
+        idlabel->setSize(vec2(300, 25));
+        idlabel->setAlign(Align::right);
+        packpanel->add(idlabel, vec2(215, 2));
 
         auto titlelabel = std::make_shared<Label>(pack.title);
         packpanel->add(titlelabel, vec2(78, 6));
@@ -309,7 +310,9 @@ std::shared_ptr<Panel> create_packs_panel(
         if (!pack.creator.empty()) {
             auto creatorlabel = std::make_shared<Label>("@"+pack.creator);
             creatorlabel->setColor(vec4(0.8f, 1.0f, 0.9f, 0.7f));
-            packpanel->add(creatorlabel, vec2(PACKS_PANEL_WIDTH-40-creatorlabel->getSize().x, 60));
+            creatorlabel->setSize(vec2(300, 20));
+            creatorlabel->setAlign(Align::right);
+            packpanel->add(creatorlabel, vec2(215, 60));
         }
 
         auto descriptionlabel = std::make_shared<Label>(pack.description);
@@ -317,8 +320,6 @@ std::shared_ptr<Panel> create_packs_panel(
         packpanel->add(descriptionlabel, vec2(80, 28));
 
         packpanel->add(std::make_shared<Image>(icon, vec2(64)), vec2(8));
-
-        packpanel->setColor(vec4(0.06f, 0.12f, 0.18f, 0.7f));
         panel->add(packpanel);
     }
     if (backbutton) {
@@ -331,7 +332,7 @@ std::shared_ptr<Panel> create_packs_panel(
 void create_content_panel(Engine* engine) {
     auto menu = engine->getGUI()->getMenu();
     auto paths = engine->getPaths();
-    auto mainPanel = create_page(engine, "content", PACKS_PANEL_WIDTH, 0.0f, 5);
+    auto mainPanel = create_page(engine, "content", 550, 0.0f, 5);
 
     std::vector<ContentPack> scanned;
     ContentPack::scan(engine->getPaths(), scanned);
