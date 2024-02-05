@@ -9,6 +9,7 @@ class LuaState;
 
 class Engine;
 class Content;
+class ContentIndices;
 class Level;
 class Block;
 class Player;
@@ -20,6 +21,7 @@ class BlocksController;
 namespace scripting {
     extern Engine* engine;
     extern const Content* content;
+    extern const ContentIndices* indices;
     extern Level* level;
     extern BlocksController* blocks;
 
