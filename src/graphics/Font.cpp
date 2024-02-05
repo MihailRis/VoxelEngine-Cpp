@@ -4,16 +4,19 @@
 
 using glm::vec4;
 
-Font::Font(std::vector<Texture*> pages, int lineHeight) : lineHeight_(lineHeight), pages(pages) {
+Font::Font(std::vector<std::unique_ptr<Texture>> pages, int lineHeight, int yoffset) 
+    : lineHeight(lineHeight), yoffset(yoffset), pages(std::move(pages)) {
 }
 
 Font::~Font(){
-	for (Texture* texture : pages)
-		delete texture;
 }
 
-int Font::lineHeight() const {
-	return lineHeight_;
+int Font::getYOffset() const {
+    return yoffset;
+}
+
+int Font::getLineHeight() const {
+	return lineHeight;
 }
 
 bool Font::isPrintableChar(int c) {
@@ -48,11 +51,11 @@ void Font::draw(Batch2D* batch, std::wstring text, int x, int y, int style) {
 			if (isPrintableChar(c)){
 				int charpage = c >> 8;
 				if (charpage == page){
-				    Texture* texture = pages[charpage];
+				    Texture* texture = pages[charpage].get();
 				    if (texture == nullptr){
-				        texture = pages[0];
+				        texture = pages[0].get();
 				    }
-					batch->texture(pages[charpage]);
+					batch->texture(texture);
 
 					switch (style){
 						case STYLE_SHADOW:

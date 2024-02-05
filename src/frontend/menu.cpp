@@ -37,8 +37,6 @@ using glm::vec4;
 namespace fs = std::filesystem;
 using namespace gui;
 
-const int PACKS_PANEL_WIDTH = 550;
-
 inline uint64_t randU64() {
     srand(time(NULL));
     return rand() ^ (rand() << 8) ^
@@ -66,14 +64,14 @@ static std::shared_ptr<Panel> create_page(
         vec2(width, 200), vec4(8.0f), interval
     );
     panel->setColor(vec4(0.0f, 0.0f, 0.0f, opacity));
-    menu->add(name, panel);
+    menu->addPage(name, panel);
     return panel;
 }
 
 static std::shared_ptr<Button> create_button(
-    std::wstring text,
-    glm::vec4 padding,
-    glm::vec4 margin,
+    std::wstring text, 
+    vec4 padding, 
+    vec4 margin, 
     gui::onaction action
 ) {
     auto btn = std::make_shared<Button>(
@@ -96,12 +94,15 @@ static void show_content_missing(
 
     auto subpanel = std::make_shared<Panel>(vec2(500, 100));
     subpanel->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    subpanel->setScrollable(true);
+    subpanel->setMaxLength(400);
+    panel->add(subpanel);
 
     for (auto& entry : lut->getMissingContent()) {
         auto hpanel = std::make_shared<Panel>(vec2(500, 30));
         hpanel->setColor(vec4(0.0f));
-        hpanel->orientation(Orientation::horizontal);
-
+        hpanel->setOrientation(Orientation::horizontal);
+        
         auto namelabel = std::make_shared<Label>(util::str2wstr_utf8(entry.name));
         namelabel->setColor(vec4(1.0f, 0.2f, 0.2f, 0.5f));
 
@@ -112,15 +113,14 @@ static void show_content_missing(
         hpanel->add(namelabel);
         subpanel->add(hpanel);
     }
-    subpanel->maxLength(400);
-    panel->add(subpanel);
+
 
     panel->add(std::make_shared<Button>(
         langs::get(L"Back to Main Menu", L"menu"), vec4(8.0f), [=](GUI*){
             menu->back();
         }
     ));
-    menu->set("missing-content");
+    menu->setPage("missing-content");
 }
 
 void show_convert_request(
@@ -143,7 +143,7 @@ void show_convert_request(
 void create_languages_panel(Engine* engine) {
     auto menu = engine->getGUI()->getMenu();
     auto panel = create_page(engine, "languages", 400, 0.5f, 1);
-    panel->scrollable(true);
+    panel->setScrollable(true);
 
     std::vector<std::string> locales;
     for (auto& entry : langs::locales_info) {
@@ -211,9 +211,9 @@ void open_world(std::string name, Engine* engine) {
 }
 
 std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
-    auto panel = std::make_shared<Panel>(vec2(390, 200), vec4(5.0f));
+    auto panel = std::make_shared<Panel>(vec2(390, 0), vec4(5.0f));
     panel->setColor(vec4(1.0f, 1.0f, 1.0f, 0.07f));
-    panel->maxLength(400);
+    panel->setMaxLength(400);
 
     auto paths = engine->getPaths();
 
@@ -222,8 +222,8 @@ std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
         auto namews = util::str2wstr_utf8(name);
 
         auto btn = std::make_shared<RichButton>(vec2(390, 46));
-        btn->setColor(vec4(1.0f, 1.0f, 1.0f, 0.1f));
-        btn->setHoverColor(vec4(1.0f, 1.0f, 1.0f, 0.17f));
+        btn->setColor(vec4(0.06f, 0.12f, 0.18f, 0.7f));
+        btn->setHoverColor(vec4(0.09f, 0.17f, 0.2f, 0.6f));
         btn->listenAction([=](GUI*) {
             open_world(name, engine);
         });
@@ -275,13 +275,14 @@ std::shared_ptr<Panel> create_packs_panel(
     packconsumer callback
 ){
     auto assets = engine->getAssets();
-    auto panel = std::make_shared<Panel>(vec2(PACKS_PANEL_WIDTH, 200), vec4(5.0f));
+    auto panel = std::make_shared<Panel>(vec2(550, 200), vec4(5.0f));
     panel->setColor(vec4(1.0f, 1.0f, 1.0f, 0.07f));
-    panel->maxLength(400);
-    panel->scrollable(true);
+    panel->setMaxLength(400);
+    panel->setScrollable(true);
 
     for (auto& pack : packs) {
-        auto packpanel = std::make_shared<RichButton>(vec2(390, 80));
+        auto packpanel = std::make_shared<RichButton>(vec2(540, 80));
+        packpanel->setColor(vec4(0.06f, 0.12f, 0.18f, 0.7f));
         if (callback) {
             packpanel->listenAction([=](GUI*) {
                 callback(pack);
@@ -289,7 +290,9 @@ std::shared_ptr<Panel> create_packs_panel(
         }
         auto idlabel = std::make_shared<Label>("["+pack.id+"]");
         idlabel->setColor(vec4(1, 1, 1, 0.5f));
-        packpanel->add(idlabel, vec2(PACKS_PANEL_WIDTH-40-idlabel->getSize().x, 2));
+        idlabel->setSize(vec2(300, 25));
+        idlabel->setAlign(Align::right);
+        packpanel->add(idlabel, vec2(215, 2));
 
         auto titlelabel = std::make_shared<Label>(pack.title);
         packpanel->add(titlelabel, vec2(78, 6));
@@ -307,16 +310,16 @@ std::shared_ptr<Panel> create_packs_panel(
         if (!pack.creator.empty()) {
             auto creatorlabel = std::make_shared<Label>("@"+pack.creator);
             creatorlabel->setColor(vec4(0.8f, 1.0f, 0.9f, 0.7f));
-            packpanel->add(creatorlabel, vec2(PACKS_PANEL_WIDTH-40-creatorlabel->getSize().x, 60));
+            creatorlabel->setSize(vec2(300, 20));
+            creatorlabel->setAlign(Align::right);
+            packpanel->add(creatorlabel, vec2(215, 60));
         }
 
         auto descriptionlabel = std::make_shared<Label>(pack.description);
         descriptionlabel->setColor(vec4(1, 1, 1, 0.7f));
         packpanel->add(descriptionlabel, vec2(80, 28));
 
-        packpanel->add(std::make_shared<Image>(icon, glm::vec2(64)), vec2(8));
-
-        packpanel->setColor(vec4(0.06f, 0.12f, 0.18f, 0.7f));
+        packpanel->add(std::make_shared<Image>(icon, vec2(64)), vec2(8));
         panel->add(packpanel);
     }
     if (backbutton) {
@@ -329,7 +332,7 @@ std::shared_ptr<Panel> create_packs_panel(
 void create_content_panel(Engine* engine) {
     auto menu = engine->getGUI()->getMenu();
     auto paths = engine->getPaths();
-    auto mainPanel = create_page(engine, "content", PACKS_PANEL_WIDTH, 0.0f, 5);
+    auto mainPanel = create_page(engine, "content", 550, 0.0f, 5);
 
     std::vector<ContentPack> scanned;
     ContentPack::scan(engine->getPaths(), scanned);
@@ -372,8 +375,8 @@ void create_content_panel(Engine* engine) {
             engine->setScreen(std::make_shared<MenuScreen>(engine));
             open_world(wname, engine);
         });
-        menu->add("content-packs", panel);
-        menu->set("content-packs");
+        menu->addPage("content-packs", panel);
+        menu->setPage("content-packs");
     }));
     mainPanel->add(guiutil::backButton(menu));
 }
@@ -415,8 +418,8 @@ void create_new_world_panel(Engine* engine) {
         if (!nameInput->validate())
             return;
 
-        std::string name = util::wstr2str_utf8(nameInput->text());
-        uint64_t seed = str2seed(seedInput->text());
+        std::string name = util::wstr2str_utf8(nameInput->getText());
+        uint64_t seed = str2seed(seedInput->getText());
         std::cout << "world seed: " << seed << std::endl;
 
         EnginePaths* paths = engine->getPaths();
@@ -479,13 +482,13 @@ void create_controls_panel(Engine* engine) {
 
     auto scrollPanel = std::make_shared<Panel>(vec2(400, 200), vec4(2.0f), 1.0f);
     scrollPanel->setColor(vec4(0.0f, 0.0f, 0.0f, 0.3f));
-    scrollPanel->maxLength(400);
+    scrollPanel->setMaxLength(400);
     for (auto& entry : Events::bindings){
         std::string bindname = entry.first;
 
         auto subpanel = std::make_shared<Panel>(vec2(400, 40), vec4(5.0f), 1.0f);
         subpanel->setColor(vec4(0.0f));
-        subpanel->orientation(Orientation::horizontal);
+        subpanel->setOrientation(Orientation::horizontal);
         subpanel->add(std::make_shared<InputBindBox>(entry.second));
 
         auto label = std::make_shared<Label>(langs::get(util::str2wstr_utf8(bindname)));
@@ -584,7 +587,7 @@ void create_settings_panel(Engine* engine) {
             langs::get(L"Backlight", L"settings"), vec2(400, 32)
         );
         checkbox->supplier([=]() {
-            return engine->getSettings().graphics.backlight != 0;
+            return engine->getSettings().graphics.backlight;
         });
         checkbox->consumer([=](bool checked) {
             engine->getSettings().graphics.backlight = checked;
@@ -611,7 +614,7 @@ void create_pause_panel(Engine* engine) {
     }));
     panel->add(create_button(L"Content", vec4(10.0f), vec4(1), [=](GUI*) {
         create_content_panel(engine);
-        menu->set("content");
+        menu->setPage("content");
     }));
     panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
 

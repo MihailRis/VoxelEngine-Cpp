@@ -289,10 +289,11 @@ void SlotView::clicked(gui::GUI* gui, int button) {
             if (stack.isEmpty()) {
                 stack.set(grabbed);
                 stack.setCount(1);
-            } else {
+                grabbed.setCount(grabbed.getCount()-1);
+            } else if (stack.accepts(grabbed)){
                 stack.setCount(stack.getCount()+1);
+                grabbed.setCount(grabbed.getCount()-1);
             }
-            grabbed.setCount(grabbed.getCount()-1);
         }
     }
 }

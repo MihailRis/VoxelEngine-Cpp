@@ -25,16 +25,82 @@ int64_t Attribute::asInt() const {
 }
 
 double Attribute::asFloat() const {
-    double value;
-    auto res = std::from_chars(text.data(), text.data()+text.size(), value);
-    if (res.ptr != text.data()+text.size()) {
-        throw std::runtime_error("invalid number format "+escape_string(text));
-    }
-    return value;
+    return util::parse_double(text);
 }
 
 bool Attribute::asBool() const {
     return text == "true" || text == "1";
+}
+
+/* Read 2d vector formatted `x,y`*/
+glm::vec2 Attribute::asVec2() const {
+    size_t pos = text.find(',');
+    if (pos == std::string::npos) {
+        throw std::runtime_error("invalid vec2 value "+escape_string(text));
+    }
+    return glm::vec2(
+        util::parse_double(text, 0, pos),
+        util::parse_double(text, pos+1, text.length()-pos-1)
+    );
+}
+
+/* Read 3d vector formatted `x,y,z`*/
+glm::vec3 Attribute::asVec3() const {
+    size_t pos1 = text.find(',');
+    if (pos1 == std::string::npos) {
+        throw std::runtime_error("invalid vec3 value "+escape_string(text));
+    }
+    size_t pos2 = text.find(',', pos1+1);
+    if (pos2 == std::string::npos) {
+        throw std::runtime_error("invalid vec3 value "+escape_string(text));
+    }
+    return glm::vec3(
+        util::parse_double(text, 0, pos1),
+        util::parse_double(text, pos1+1, pos2),
+        util::parse_double(text, pos2+1, text.length()-pos2-1)
+    );
+}
+
+/* Read 4d vector formatted `x,y,z,w`*/
+glm::vec4 Attribute::asVec4() const {
+    size_t pos1 = text.find(',');
+    if (pos1 == std::string::npos) {
+        throw std::runtime_error("invalid vec4 value "+escape_string(text));
+    }
+    size_t pos2 = text.find(',', pos1+1);
+    if (pos2 == std::string::npos) {
+        throw std::runtime_error("invalid vec4 value "+escape_string(text));
+    }
+    size_t pos3 = text.find(',', pos2+1);
+    if (pos3 == std::string::npos) {
+        throw std::runtime_error("invalid vec4 value "+escape_string(text));
+    }
+    return glm::vec4(
+        util::parse_double(text, 0, pos1),
+        util::parse_double(text, pos1+1, pos2-pos1-1),
+        util::parse_double(text, pos2+1, pos3-pos2-1),
+        util::parse_double(text, pos3+1, text.length()-pos3-1)
+    );
+}
+
+/* Read RGBA color. Supported formats:
+   - "#RRGGBB" or "#RRGGBBAA" hex color */
+glm::vec4 Attribute::asColor() const {
+    if (text[0] == '#') {
+        if (text.length() != 7 && text.length() != 9) {
+            throw std::runtime_error("#RRGGBB or #RRGGBBAA required");
+        }
+        int a = 255;
+        int r = (hexchar2int(text[1]) << 4) | hexchar2int(text[2]);
+        int g = (hexchar2int(text[3]) << 4) | hexchar2int(text[4]);
+        int b = (hexchar2int(text[5]) << 4) | hexchar2int(text[6]);
+        if (text.length() == 9) {
+            a = (hexchar2int(text[7]) << 4) | hexchar2int(text[8]);
+        }
+        return glm::vec4(r / 255.f, g / 255.f, b / 255.f, a / 255.f);
+    } else {
+        throw std::runtime_error("hex colors are only supported");
+    }
 }
 
 Node::Node(std::string tag) : tag(tag) {
@@ -45,7 +111,7 @@ void Node::add(xmlelement element) {
 }
 
 void Node::set(std::string name, std::string text) {
-    attrs.insert_or_assign(name, Attribute(name, text));
+    attrs[name] = Attribute(name, text);
 }
 
 const std::string& Node::getTag() const {

@@ -9,7 +9,7 @@
 #include <set>
 #include "../typedefs.h"
 
-typedef std::set<unsigned char> DrawGroups;
+using DrawGroups = std::set<unsigned char>;
 
 class Block;
 class ItemDef;

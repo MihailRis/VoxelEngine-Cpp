@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <glm/glm.hpp>
 #include <unordered_map>
 
 #include "commons.h"
@@ -22,6 +23,7 @@ namespace xml {
         std::string name;
         std::string text;
     public:
+        Attribute() {};
         Attribute(std::string name, std::string text);
 
         const std::string& getName() const;
@@ -29,6 +31,10 @@ namespace xml {
         int64_t asInt() const;
         double asFloat() const;
         bool asBool() const;
+        glm::vec2 asVec2() const;
+        glm::vec3 asVec3() const;
+        glm::vec4 asVec4() const;
+        glm::vec4 asColor() const;
     };
 
     /* XML element class. Text element has tag 'text' and attribute 'text' */

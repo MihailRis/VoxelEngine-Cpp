@@ -19,9 +19,6 @@ private:
     uint padding;
     std::unique_ptr<WorldGenerator> generator;
 
-    /* Average measured microseconds duration of loadVisible call */
-    int64_t avgDurationMcs = 1000;
-
     /* Process one chunk: load it or calculate lights for it */
     bool loadVisible();
     bool buildLights(std::shared_ptr<Chunk> chunk);

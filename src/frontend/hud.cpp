@@ -60,7 +60,7 @@ static std::shared_ptr<Label> create_label(gui::wstringsupplier supplier) {
 std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
     auto level = frontend->getLevel();
 
-    auto panel = std::make_shared<Panel>(vec2(250, 200), vec4(5.0f), 1.0f);
+    auto panel = std::make_shared<Panel>(vec2(250, 200), vec4(5.0f), 2.0f);
     panel->listenInterval(0.5f, [this]() {
         fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
         fpsMin = fps;
@@ -68,7 +68,7 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
     });
     panel->setCoord(vec2(10, 10));
     panel->add(create_label([this](){ return L"fps: "+this->fpsString;}));
-    panel->add(create_label([this](){
+    panel->add(create_label([](){
         return L"meshes: " + std::to_wstring(Mesh::meshesCount);
     }));
     panel->add(create_label([=](){
@@ -98,7 +98,7 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
 
     for (int ax = 0; ax < 3; ax++){
         auto sub = std::make_shared<Panel>(vec2(10, 27), vec4(0.0f));
-        sub->orientation(Orientation::horizontal);
+        sub->setOrientation(Orientation::horizontal);
 
         std::wstring str = L"x: ";
         str[0] += ax;
@@ -123,7 +123,7 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
         });
         box->setOnEditStart([=](){
             Hitbox* hitbox = level->player->hitbox.get();
-            box->text(std::to_wstring(int(hitbox->position[ax])));
+            box->setText(std::to_wstring(int(hitbox->position[ax])));
         });
 
         sub->add(box);
@@ -152,7 +152,7 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
     }
     {
         auto checkbox = std::make_shared<FullCheckBox>(
-            L"Show Chunk Borders", vec2(400, 32)
+            L"Show Chunk Borders", vec2(400, 24)
         );
         checkbox->supplier([=]() {
             return engine->getSettings().debug.showChunkBorders;
@@ -276,7 +276,7 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
     );
     contentAccessPanel->setColor(glm::vec4());
     contentAccessPanel->add(contentAccess);
-    contentAccessPanel->scrollable(true);
+    contentAccessPanel->setScrollable(true);
 
     hotbarView = createHotbar();
     inventoryView = createInventory();
@@ -336,7 +336,7 @@ void HudRenderer::update(bool visible) {
             closeInventory();
         } else {
             pause = true;
-            menu->set("pause");
+            menu->setPage("pause");
         }
     }
     if (visible && Events::jactive(BIND_HUD_INVENTORY)) {

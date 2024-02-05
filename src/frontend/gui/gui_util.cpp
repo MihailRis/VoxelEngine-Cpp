@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "../locale/langs.h"
+#include "../../delegates.h"
 
 using namespace gui;
 using glm::vec2;
@@ -25,13 +26,13 @@ std::shared_ptr<Button> guiutil::gotoButton(
 ) {
     text = langs::get(text, L"menu");
     return std::make_shared<Button>(text, vec4(10.f), [=](GUI* gui) {
-        menu->set(page);
+        menu->setPage(page);
     });
 }
 
-void guiutil::alert(GUI* gui, const std::wstring& text, gui::runnable on_hidden) {
+void guiutil::alert(GUI* gui, const std::wstring& text, runnable on_hidden) {
     auto menu = gui->getMenu();
-    Panel* panel = new Panel(vec2(500, 200), vec4(8.0f), 8.0f);
+    auto panel = std::make_shared<Panel>(vec2(500, 200), vec4(8.0f), 8.0f);
     panel->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
     
     // TODO: implement built-in text wrapping
@@ -62,14 +63,14 @@ void guiutil::alert(GUI* gui, const std::wstring& text, gui::runnable on_hidden)
         }
     ));
     panel->refresh();
-    menu->add("<alert>", panel);
-    menu->set("<alert>");
+    menu->addPage("<alert>", panel);
+    menu->setPage("<alert>");
 }
 
 void guiutil::confirm(
         GUI* gui, 
         const std::wstring& text, 
-        gui::runnable on_confirm,
+        runnable on_confirm,
         std::wstring yestext, 
         std::wstring notext) {
     if (yestext.empty()) yestext = langs::get(L"Yes");
@@ -95,6 +96,6 @@ void guiutil::confirm(
     panel->add(subpanel);
 
     panel->refresh();
-    menu->add("<confirm>", panel);
-    menu->set("<confirm>");
+    menu->addPage("<confirm>", panel);
+    menu->setPage("<confirm>");
 }

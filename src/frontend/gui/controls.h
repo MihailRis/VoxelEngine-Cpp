@@ -6,25 +6,27 @@
 #include <vector>
 #include <functional>
 #include <glm/glm.hpp>
+
 #include "GUI.h"
 #include "UINode.h"
 #include "panels.h"
 #include "../../window/input.h"
+#include "../../delegates.h"
 
 class Batch2D;
 class Assets;
 
 namespace gui {
-    typedef std::function<std::wstring()> wstringsupplier;
-    typedef std::function<void(std::wstring)> wstringconsumer;
+    using wstringsupplier = std::function<std::wstring()>;
+    using wstringconsumer = std::function<void(std::wstring)>;
 
-    typedef std::function<double()> doublesupplier;
-    typedef std::function<void(double)> doubleconsumer;
+    using doublesupplier = std::function<double()>;
+    using doubleconsumer = std::function<void(double)>;
 
-    typedef std::function<bool()> boolsupplier;
-    typedef std::function<void(bool)> boolconsumer;
+    using boolsupplier = std::function<bool()>;
+    using boolconsumer = std::function<void(bool)>;
 
-    typedef std::function<bool(const std::wstring&)> wstringchecker;
+    using wstringchecker = std::function<bool(const std::wstring&)>;
 
     class Label : public UINode {
     protected:
@@ -41,7 +43,6 @@ namespace gui {
         virtual void draw(const GfxContext* pctx, Assets* assets) override;
 
         virtual Label* textSupplier(wstringsupplier supplier);
-        virtual void setSize(glm::vec2 size) override;
     };
 
     class Image : public UINode {
@@ -55,36 +56,36 @@ namespace gui {
 
     class Button : public Panel {
     protected:
-        glm::vec4 hoverColor {0.05f, 0.1f, 0.15f, 0.75f};
         glm::vec4 pressedColor {0.0f, 0.0f, 0.0f, 0.95f};
         std::vector<onaction> actions;
         std::shared_ptr<Label> label = nullptr;
     public:
-        Button(std::shared_ptr<UINode> content, glm::vec4 padding=glm::vec4(2.0f));
+        Button(std::shared_ptr<UINode> content, 
+               glm::vec4 padding=glm::vec4(2.0f));
+               
         Button(std::wstring text, 
                glm::vec4 padding,
-               onaction action);
+               onaction action,
+               glm::vec2 size=glm::vec2(-1));
 
         virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
-
-        virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
         virtual void mouseRelease(GUI*, int x, int y) override;
         virtual Button* listenAction(onaction action);
 
-        virtual void textAlign(Align align);
+        virtual Align getTextAlign() const;
+        virtual void setTextAlign(Align align);
 
         virtual void setText(std::wstring text);
         virtual std::wstring getText() const;
 
         virtual Button* textSupplier(wstringsupplier supplier);
 
-        virtual void setHoverColor(glm::vec4 color);
+        virtual void refresh() override;
     };
 
     class RichButton : public Container {
     protected:
-        glm::vec4 hoverColor {0.05f, 0.1f, 0.15f, 0.75f};
         glm::vec4 pressedColor {0.0f, 0.0f, 0.0f, 0.95f};
         std::vector<onaction> actions;
     public:
@@ -94,13 +95,10 @@ namespace gui {
 
         virtual void mouseRelease(GUI*, int x, int y) override;
         virtual RichButton* listenAction(onaction action);
-
-        virtual void setHoverColor(glm::vec4 color);
     };
 
     class TextBox : public Panel {
     protected:
-        glm::vec4 hoverColor {0.05f, 0.1f, 0.2f, 0.75f};
         glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
         glm::vec4 invalidColor {0.1f, 0.05f, 0.03f, 1.0f};
         std::shared_ptr<Label> label;
@@ -113,7 +111,7 @@ namespace gui {
         bool valid = true;
     public:
         TextBox(std::wstring placeholder, 
-                glm::vec4 padding=glm::vec4(2.0f));
+                glm::vec4 padding=glm::vec4(4.0f));
 
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
@@ -124,13 +122,14 @@ namespace gui {
         virtual void textConsumer(wstringconsumer consumer);
         virtual void textValidator(wstringchecker validator);
         virtual bool isFocuskeeper() const override {return true;}
-        virtual std::wstring text() const;
-        virtual void text(std::wstring value);
+        virtual std::wstring getText() const;
+        virtual void setText(std::wstring value);
         virtual bool validate();
         virtual void setValid(bool valid);
         virtual bool isValid() const;
         virtual void setOnEditStart(runnable oneditstart);
         virtual void focus(GUI*) override;
+        virtual void refresh() override;
     };
 
     class InputBindBox : public Panel {
