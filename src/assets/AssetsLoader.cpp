@@ -58,6 +58,8 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, bool world) {
     loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/menubg.png", "gui/menubg");
     loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/delete_icon.png", "gui/delete_icon");
     loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/no_icon.png", "gui/no_icon");
+    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/warning.png", "gui/warning");
+    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/error.png", "gui/error");
     if (world) {
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui3d", "ui3d");
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/background", "background");
