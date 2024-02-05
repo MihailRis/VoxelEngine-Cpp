@@ -269,7 +269,7 @@ void TextBox::typed(unsigned int codepoint) {
 
 bool TextBox::validate() {
     if (validator) {
-        valid = validator(input);
+        valid = validator(getText());
     } else {
         valid = true;
     }
