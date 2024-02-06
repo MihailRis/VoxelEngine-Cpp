@@ -19,65 +19,34 @@
 #include "../maths/voxmaths.h"
 #include "../objects/Player.h"
 #include "../voxels/Block.h"
+#include "../frontend/gui/panels.h"
 #include "../frontend/gui/controls.h"
 #include "../util/stringutil.h"
-
-InventoryLayout::InventoryLayout(glm::vec2 size) : size(size) {}
-
-void InventoryLayout::add(SlotLayout slot) {
-    slots.push_back(slot);
-}
-
-void InventoryLayout::add(InventoryPanel panel) {
-    panels.push_back(panel);
-}
-
-void InventoryLayout::setSize(glm::vec2 size) {
-    this->size = size;
-}
-
-void InventoryLayout::setOrigin(glm::vec2 origin) {
-    this->origin = origin;
-}
-
-glm::vec2 InventoryLayout::getSize() const {
-    return size;
-}
-
-glm::vec2 InventoryLayout::getOrigin() const {
-    return origin;
-}
-
-std::vector<SlotLayout>& InventoryLayout::getSlots() {
-    return slots;
-}
-
-std::vector<InventoryPanel>& InventoryLayout::getPanels() {
-    return panels;
-}
+#include "../world/Level.h"
 
 SlotLayout::SlotLayout(
+    int index,
     glm::vec2 position,
     bool background,
     bool itemSource,
     itemsharefunc shareFunc,
     slotcallback rightClick
 ) 
-    : position(position),
+    : index(index),
+      position(position),
       background(background),
       itemSource(itemSource),
       shareFunc(shareFunc),
       rightClick(rightClick) {}
 
-InventoryPanel::InventoryPanel(
-    glm::vec2 position,
-    glm::vec2 size,
-    glm::vec4 color)
-    : position(position), size(size), color(color) {}
-
-InventoryBuilder::InventoryBuilder() 
-    : layout(std::make_unique<InventoryLayout>(glm::vec2()))
-{}
+InventoryBuilder::InventoryBuilder(
+    LevelFrontend* frontend, 
+    InventoryInteraction& interaction
+) : frontend(frontend), 
+    interaction(interaction) 
+{
+    view = std::make_shared<InventoryView>(frontend, interaction);
+}
 
 void InventoryBuilder::addGrid(
     int cols, int count, 
@@ -94,14 +63,20 @@ void InventoryBuilder::addGrid(
     uint width =  cols * (slotSize + interval) - interval + padding*2;
     uint height = rows * (slotSize + interval) - interval + padding*2;
     
-    auto lsize = layout->getSize();
-    if (coord.x + width > lsize.x) {
-        lsize.x = coord.x + width;
+    glm::vec2 vsize = view->getSize();
+    if (coord.x + width > vsize.x) {
+        vsize.x = coord.x + width;
     }
-    if (coord.y + height > lsize.y) {
-        lsize.y = coord.y + height;
+    if (coord.y + height > vsize.y) {
+        vsize.y = coord.y + height;
     }
-    layout->setSize(lsize);
+    view->setSize(vsize);
+
+    if (addpanel) {
+        auto panel = std::make_shared<gui::Container>(coord, glm::vec2(width, height));
+        view->setColor(glm::vec4(0, 0, 0, 0.5f));
+        view->add(panel);
+    }
 
     for (int row = 0; row < rows; row++) {
         for (int col = 0; col < cols; col++) {
@@ -112,59 +87,39 @@ void InventoryBuilder::addGrid(
                 row * (slotSize + interval) + padding
             );
             auto builtSlot = slotLayout;
+            builtSlot.index = row * cols + col;
             builtSlot.position = position;
-            layout->add(builtSlot);
+            view->addSlot(builtSlot);
         }
     }
-
-    if (addpanel) {
-        add(InventoryPanel(
-            coord, 
-            glm::vec2(width, height), 
-            glm::vec4(0, 0, 0, 0.5f)));
-    }
 }
 
-void InventoryBuilder::add(SlotLayout slotLayout) {
-    uint width =  InventoryView::SLOT_SIZE;
-    uint height = InventoryView::SLOT_SIZE;
-
-    auto coord = slotLayout.position;
-    auto lsize = layout->getSize();
-    if (coord.x + width > lsize.x) {
-        lsize.x = coord.x + width;
-    }
-    if (coord.y + height > lsize.y) {
-        lsize.y = coord.y + height;
-    }
-    layout->add(slotLayout);
+void InventoryBuilder::add(SlotLayout layout) {
+    view->addSlot(layout);
 }
 
-void InventoryBuilder::add(InventoryPanel panel) {
-    layout->add(panel);
-}
-
-std::unique_ptr<InventoryLayout> InventoryBuilder::build() {
-    return std::unique_ptr<InventoryLayout>(layout.release());
+std::shared_ptr<InventoryView> InventoryBuilder::build() {
+    return view;
 }
 
 SlotView::SlotView(
-    ItemStack& stack, 
     LevelFrontend* frontend,
-    InventoryInteraction* interaction,
-    const Content* content,
-    SlotLayout layout) 
-    : UINode(glm::vec2(), glm::vec2(InventoryView::SLOT_SIZE)), 
-      frontend(frontend),
-      interaction(interaction),
-      content(content),
-      stack(stack),
-      layout(layout) {
+    InventoryInteraction& interaction,
+    SlotLayout layout
+) : UINode(glm::vec2(), glm::vec2(InventoryView::SLOT_SIZE)), 
+    frontend(frontend),
+    interaction(interaction),
+    content(frontend->getLevel()->content),
+    layout(layout)
+{
     setColor(glm::vec4(0, 0, 0, 0.2f));
 }
 
-// performance disaster
 void SlotView::draw(const GfxContext* pctx, Assets* assets) {
+    if (bound == nullptr)
+        throw std::runtime_error("unbound slot");
+    ItemStack& stack = *bound;
+
     glm::vec2 coord = calcCoord();
 
     int slotSize = InventoryView::SLOT_SIZE;
@@ -250,7 +205,12 @@ bool SlotView::isHighlighted() const {
 }
 
 void SlotView::clicked(gui::GUI* gui, int button) {
-    ItemStack& grabbed = interaction->getGrabbedItem();
+    if (bound == nullptr)
+        throw std::runtime_error("unbound slot");
+
+    ItemStack& grabbed = interaction.getGrabbedItem();
+    ItemStack& stack = *bound;
+    
     if (button == mousecode::BUTTON_1) {
         if (Events::pressed(keycode::LEFT_SHIFT)) {
             if (layout.shareFunc) {
@@ -302,42 +262,56 @@ void SlotView::focus(gui::GUI* gui) {
     clicked(gui, 0);
 }
 
+void SlotView::bind(ItemStack& stack) {
+    bound = &stack;
+}
+
+const SlotLayout& SlotView::getLayout() const {
+    return layout;
+}
+
 InventoryView::InventoryView(
-            const Content* content,
             LevelFrontend* frontend,
-            InventoryInteraction* interaction,
-            std::shared_ptr<Inventory> inventory,
-            std::unique_ptr<InventoryLayout> layout) 
-            : Container(glm::vec2(), glm::vec2()),
-              content(content),
-              indices(content->getIndices()), 
-              inventory(inventory),
-              layout(std::move(layout)),
-              frontend(frontend),
-              interaction(interaction) {
-    setSize(this->layout->getSize());
+            InventoryInteraction& interaction
+) : Container(glm::vec2(), glm::vec2()),
+    frontend(frontend),
+    interaction(interaction) 
+{
+    content = frontend->getLevel()->content;
+    indices = content->getIndices();
     setColor(glm::vec4(0, 0, 0, 0.0f));
 }
 
 InventoryView::~InventoryView() {}
 
-void InventoryView::build() {
-    size_t index = 0;
-    for (auto& slot : layout->getSlots()) {
-        if (index >= inventory->size())
-            break;
 
-        ItemStack& item = inventory->getSlot(index);
+void InventoryView::addSlot(SlotLayout layout) {
+    uint width =  InventoryView::SLOT_SIZE;
+    uint height = InventoryView::SLOT_SIZE;
 
-        auto view = std::make_shared<SlotView>(
-            item, frontend, interaction, content, slot
-        );
-        if (!slot.background) {
-            view->setColor(glm::vec4());
-        }
-        slots.push_back(view.get());
-        add(view, slot.position);
-        index++;
+    auto coord = layout.position;
+    auto vsize = getSize();
+    if (coord.x + width > vsize.x) {
+        vsize.x = coord.x + width;
+    }
+    if (coord.y + height > vsize.y) {
+        vsize.y = coord.y + height;
+    }
+
+    auto slot = std::make_shared<SlotView>(
+        frontend, interaction, layout
+    );
+    if (!layout.background) {
+        slot->setColor(glm::vec4());
+    }
+    add(slot, layout.position);
+    slots.push_back(slot.get());
+}
+
+void InventoryView::bind(std::shared_ptr<Inventory> inventory) {
+    this->inventory = inventory;
+    for (auto slot : slots) {
+        slot->bind(inventory->getSlot(slot->getLayout().index));
     }
 }
 
@@ -349,27 +323,17 @@ void InventoryView::setSelected(int index) {
 }
 
 void InventoryView::setCoord(glm::vec2 coord) {
-    Container::setCoord(coord - layout->getOrigin());
+    Container::setCoord(coord - origin);
+}
+
+void InventoryView::setOrigin(glm::vec2 origin) {
+    this->origin = origin;
+}
+
+glm::vec2 InventoryView::getOrigin() const {
+    return origin;
 }
 
 void InventoryView::setInventory(std::shared_ptr<Inventory> inventory) {
     this->inventory = inventory;
-}
-
-InventoryLayout* InventoryView::getLayout() const {
-    return layout.get();
-}
-
-void InventoryView::drawBackground(const GfxContext* pctx, Assets* assets) {
-    glm::vec2 coord = calcCoord();
-    auto batch = pctx->getBatch2D();
-
-    batch->texture(nullptr);
-
-    for (auto& panel : layout->getPanels()) {
-        glm::vec2 size = panel.size;
-        glm::vec2 pos = coord + panel.position;
-        batch->color = panel.color;
-        batch->rect(pos.x-1, pos.y-1, size.x+2, size.y+2);
-    }
 }
