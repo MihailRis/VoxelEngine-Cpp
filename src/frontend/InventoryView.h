@@ -98,7 +98,14 @@ public:
 
     void bind(std::shared_ptr<Inventory> inventory);
 
-    void addSlot(SlotLayout layout);
+    std::shared_ptr<SlotView> addSlot(SlotLayout layout);
+
+    static std::shared_ptr<InventoryView> readXML(
+        LevelFrontend* frontend, 
+        InventoryInteraction& interaction,
+        const std::string& src,
+        const std::string& file
+    );
 
     static const int SLOT_INTERVAL = 4;
     static const int SLOT_SIZE = ITEM_ICON_SIZE;
@@ -116,7 +123,8 @@ public:
         glm::vec2 coord, 
         int padding,
         bool addpanel,
-        SlotLayout slotLayout);
+        SlotLayout slotLayout
+    );
     
     void add(SlotLayout slotLayout);
     std::shared_ptr<InventoryView> build();

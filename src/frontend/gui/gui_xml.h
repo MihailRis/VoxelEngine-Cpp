@@ -21,10 +21,27 @@ namespace gui {
         void add(const std::string& tag, uinode_reader reader);
         
         std::shared_ptr<UINode> readUINode(xml::xmlelement element);
+        
+        void readUINode(
+            UiXmlReader& reader, 
+            xml::xmlelement element, 
+            UINode& node
+        );
+
+        void readUINode(
+            UiXmlReader& reader, 
+            xml::xmlelement element, 
+            Container& container
+        );
 
         std::shared_ptr<UINode> readXML(
             const std::string& filename,
             const std::string& source
+        );
+
+        std::shared_ptr<UINode> readXML(
+            const std::string& filename,
+            xml::xmlelement root
         );
 
         const std::string& getFilename() const;

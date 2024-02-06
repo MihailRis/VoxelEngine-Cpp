@@ -89,13 +89,13 @@ void InventoryBuilder::addGrid(
             auto builtSlot = slotLayout;
             builtSlot.index = row * cols + col;
             builtSlot.position = position;
-            view->addSlot(builtSlot);
+            add(builtSlot);
         }
     }
 }
 
 void InventoryBuilder::add(SlotLayout layout) {
-    view->addSlot(layout);
+    view->add(view->addSlot(layout), layout.position);
 }
 
 std::shared_ptr<InventoryView> InventoryBuilder::build() {
@@ -285,7 +285,7 @@ InventoryView::InventoryView(
 InventoryView::~InventoryView() {}
 
 
-void InventoryView::addSlot(SlotLayout layout) {
+std::shared_ptr<SlotView> InventoryView::addSlot(SlotLayout layout) {
     uint width =  InventoryView::SLOT_SIZE;
     uint height = InventoryView::SLOT_SIZE;
 
@@ -297,6 +297,7 @@ void InventoryView::addSlot(SlotLayout layout) {
     if (coord.y + height > vsize.y) {
         vsize.y = coord.y + height;
     }
+    setSize(vsize);
 
     auto slot = std::make_shared<SlotView>(
         frontend, interaction, layout
@@ -304,8 +305,8 @@ void InventoryView::addSlot(SlotLayout layout) {
     if (!layout.background) {
         slot->setColor(glm::vec4());
     }
-    add(slot, layout.position);
     slots.push_back(slot.get());
+    return slot;
 }
 
 void InventoryView::bind(std::shared_ptr<Inventory> inventory) {
@@ -336,4 +337,42 @@ glm::vec2 InventoryView::getOrigin() const {
 
 void InventoryView::setInventory(std::shared_ptr<Inventory> inventory) {
     this->inventory = inventory;
+}
+
+#include "../coders/xml.h"
+#include "gui/gui_xml.h"
+
+std::shared_ptr<InventoryView> InventoryView::readXML(
+    LevelFrontend* frontend,
+    InventoryInteraction& interaction,
+    const std::string& src,
+    const std::string& file
+) {
+    auto view = std::make_shared<InventoryView>(frontend, interaction);
+
+    gui::UiXmlReader reader;
+    reader.add("inventory", [=](gui::UiXmlReader& reader, xml::xmlelement element) {
+        reader.readUINode(reader, element, *view);
+        return view;
+    });
+
+    reader.add("slot", [=](gui::UiXmlReader& reader, xml::xmlelement element) {
+        int index = element->attr("index", "0").asInt();
+        bool itemSource = element->attr("item-source", "false").asBool();
+        SlotLayout layout(index, glm::vec2(), true, itemSource, nullptr, nullptr);
+        if (element->has("coord")) {
+            layout.position = element->attr("coord").asVec2();
+        }
+        auto slot = view->addSlot(layout);
+        reader.readUINode(reader, element, *slot);
+        return slot;
+    });
+
+    auto document = xml::parse(file, src);
+    auto root = document->getRoot();
+    if (root->getTag() != "inventory") {
+        throw std::runtime_error("'inventory' element expected");
+    }
+    reader.readXML(file, root);
+    return view;
 }

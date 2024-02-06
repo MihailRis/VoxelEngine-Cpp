@@ -20,7 +20,7 @@ static Align align_from_string(const std::string& str, Align def) {
 }
 
 /* Read basic UINode properties */
-static void readUINode(xml::xmlelement element, UINode& node) {
+static void _readUINode(xml::xmlelement element, UINode& node) {
     if (element->has("coord")) {
         node.setCoord(element->attr("coord").asVec2());
     }
@@ -37,8 +37,9 @@ static void readUINode(xml::xmlelement element, UINode& node) {
     node.setAlign(align_from_string(alignName, node.getAlign()));
 }
 
+
 static void _readContainer(UiXmlReader& reader, xml::xmlelement element, Container& container) {
-    readUINode(element, container);
+    _readUINode(element, container);
 
     if (element->has("scrollable")) {
         container.setScrollable(element->attr("scrollable").asBool());
@@ -50,8 +51,16 @@ static void _readContainer(UiXmlReader& reader, xml::xmlelement element, Contain
     }
 }
 
+void UiXmlReader::readUINode(UiXmlReader& reader, xml::xmlelement element, Container& container) {
+    _readContainer(reader, element, container);
+}
+
+void UiXmlReader::readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& node) {
+    _readUINode(element, node);
+}
+
 static void _readPanel(UiXmlReader& reader, xml::xmlelement element, Panel& panel) {
-    readUINode(element, panel);
+    _readUINode(element, panel);
 
     if (element->has("padding")) {
         panel.setPadding(element->attr("padding").asVec4());
@@ -86,7 +95,7 @@ static std::wstring readAndProcessInnerText(xml::xmlelement element) {
 static std::shared_ptr<UINode> readLabel(UiXmlReader& reader, xml::xmlelement element) {
     std::wstring text = readAndProcessInnerText(element);
     auto label = std::make_shared<Label>(text);
-    readUINode(element, *label);
+    _readUINode(element, *label);
     return label;
 }
 
@@ -158,6 +167,14 @@ std::shared_ptr<UINode> UiXmlReader::readXML(
     this->filename = filename;
     auto document = xml::parse(filename, source);
     auto root = document->getRoot();
+    return readUINode(root);
+}
+
+std::shared_ptr<UINode> UiXmlReader::readXML(
+    const std::string& filename,
+    xml::xmlelement root
+) {
+    this->filename = filename;
     return readUINode(root);
 }
 
