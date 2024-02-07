@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <memory>
+#include <string>
 #include <functional>
 
 class GfxContext;
