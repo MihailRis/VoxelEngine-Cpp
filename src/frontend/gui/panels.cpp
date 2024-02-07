@@ -144,6 +144,10 @@ void Container::setSize(glm::vec2 size) {
     refresh();
 }
 
+const std::vector<std::shared_ptr<UINode>>& Container::getNodes() const {
+    return nodes;
+}
+
 Panel::Panel(vec2 size, glm::vec4 padding, float interval)
     : Container(vec2(), size), 
       padding(padding), 

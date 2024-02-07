@@ -255,7 +255,7 @@ void ContentLoader::loadBlock(Block* def, std::string full, std::string name) {
 
     fs::path scriptfile = folder/fs::path("scripts/"+def->scriptName+".lua");
     if (fs::is_regular_file(scriptfile)) {
-        scripting::load_block_script(full, scriptfile, &def->rt.funcsset);
+        scripting::load_block_script(full, scriptfile, def->rt.funcsset);
     }
 }
 
@@ -267,7 +267,7 @@ void ContentLoader::loadItem(ItemDef* def, std::string full, std::string name) {
 
     fs::path scriptfile = folder/fs::path("scripts/"+def->scriptName+".lua");
     if (fs::is_regular_file(scriptfile)) {
-        scripting::load_item_script(full, scriptfile, &def->rt.funcsset);
+        scripting::load_item_script(full, scriptfile, def->rt.funcsset);
     }
 }
 

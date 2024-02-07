@@ -18,6 +18,10 @@ class ContentIndices;
 class LevelFrontend;
 class Inventory;
 
+namespace scripting {
+    class Environment;
+}
+
 using itemsharefunc = std::function<void(ItemStack&)>;
 using slotcallback = std::function<void(ItemStack&, ItemStack&)>;
 
@@ -105,7 +109,8 @@ public:
         LevelFrontend* frontend, 
         InventoryInteraction& interaction,
         const std::string& src,
-        const std::string& file
+        const std::string& file,
+        const scripting::Environment& env
     );
 
     static const int SLOT_INTERVAL = 4;

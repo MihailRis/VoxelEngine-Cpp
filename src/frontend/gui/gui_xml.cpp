@@ -21,6 +21,9 @@ static Align align_from_string(const std::string& str, Align def) {
 
 /* Read basic UINode properties */
 static void _readUINode(xml::xmlelement element, UINode& node) {
+    if (element->has("id")) {
+        node.setId(element->attr("id").getText());
+    }
     if (element->has("coord")) {
         node.setCoord(element->attr("coord").asVec2());
     }
@@ -111,7 +114,7 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement e
     _readPanel(reader, element, *button);
 
     if (element->has("onclick")) {
-        auto callback = scripting::create_runnable("<onclick>", element->attr("onclick").getText());
+        auto callback = scripting::create_runnable("<onclick>", element->attr("onclick").getText(), reader.getEnvironment());
         button->listenAction([callback](GUI*) {
             callback();
         });
@@ -139,7 +142,7 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
     return textbox;
 }
 
-UiXmlReader::UiXmlReader() {
+UiXmlReader::UiXmlReader(const scripting::Environment& env) : env(env) {
     add("label", readLabel);
     add("button", readButton);
     add("textbox", readTextBox);
@@ -180,4 +183,8 @@ std::shared_ptr<UINode> UiXmlReader::readXML(
 
 const std::string& UiXmlReader::getFilename() const {
     return filename;
+}
+
+const scripting::Environment& UiXmlReader::getEnvironment() const {
+    return env;
 }

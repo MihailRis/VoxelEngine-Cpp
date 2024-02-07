@@ -21,6 +21,7 @@ namespace gui {
     };
 
     class UINode {
+        std::string id = "";
     protected:
         glm::vec2 coord;
         glm::vec2 size;
@@ -110,6 +111,9 @@ namespace gui {
         virtual void setSize(glm::vec2 size);
         virtual void refresh() {};
         virtual void lock();
+
+        void setId(const std::string& id);
+        const std::string& getId() const;
     };
 }
 

@@ -51,6 +51,16 @@ bool lua::LuaState::getglobal(const std::string& name) {
     return true;
 }
 
+bool lua::LuaState::hasglobal(const std::string& name) {
+    lua_getglobal(L, name.c_str());
+    if (lua_isnil(L, lua_gettop(L))) {
+        lua_pop(L, lua_gettop(L));
+        return false;
+    }
+    lua_pop(L, lua_gettop(L));
+    return true;
+}
+
 void lua::LuaState::setglobal(const std::string& name) {
     lua_setglobal(L, name.c_str());
 }
@@ -194,6 +204,18 @@ int lua::LuaState::createEnvironment() {
 
     setEnvironment(id);
     return id;
+}
+
+void lua::LuaState::removeEnvironment(int id) {
+    if (currentEnvironment == id) {
+        setEnvironment(0);
+    }
+    lua_pushnil(L);
+    setglobal("_N"+util::mangleid(id));
+}
+
+int lua::LuaState::getEnvironment() const {
+    return currentEnvironment;
 }
 
 void lua::LuaState::setEnvironment(int id) {

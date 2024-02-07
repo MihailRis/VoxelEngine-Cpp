@@ -41,10 +41,13 @@ namespace lua {
         void addfunc(const std::string& name, lua_CFunction func);
         bool getglobal(const std::string& name);
         void setglobal(const std::string& name);
+        bool hasglobal(const std::string& name);
         bool rename(const std::string& from, const std::string& to);
         void remove(const std::string& name);;
         void createFuncs();
         int createEnvironment();
+        void removeEnvironment(int id);
+        int getEnvironment() const;
         void setEnvironment(int id);
 
         const std::string storeAnonymous();

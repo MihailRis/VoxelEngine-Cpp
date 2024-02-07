@@ -344,11 +344,12 @@ std::shared_ptr<InventoryView> InventoryView::readXML(
     LevelFrontend* frontend,
     InventoryInteraction& interaction,
     const std::string& src,
-    const std::string& file
+    const std::string& file,
+    const scripting::Environment& env
 ) {
     auto view = std::make_shared<InventoryView>(frontend, interaction);
 
-    gui::UiXmlReader reader;
+    gui::UiXmlReader reader(env);
     reader.add("inventory", [=](gui::UiXmlReader& reader, xml::xmlelement element) {
         reader.readUINode(reader, element, *view);
         return view;

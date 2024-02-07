@@ -31,6 +31,7 @@
 #include "../objects/Player.h"
 #include "../physics/Hitbox.h"
 #include "../maths/voxmaths.h"
+#include "../files/files.h"
 #include "gui/controls.h"
 #include "gui/panels.h"
 #include "gui/UINode.h"
@@ -172,7 +173,7 @@ std::shared_ptr<InventoryView> HudRenderer::createContentAccess() {
     auto indices = content->getIndices();
     auto player = level->player;
     auto inventory = player->getInventory();
-
+    
     int itemsCount = indices->countItemDefs();
     auto accessInventory = std::make_shared<Inventory>(0, itemsCount);
     for (int id = 1; id < itemsCount; id++) {
@@ -376,7 +377,6 @@ void HudRenderer::draw(const GfxContext& ctx){
     uishader->use();
     uishader->uniformMatrix("u_projview", uicamera->getProjView());
     
-    // Draw selected item preview
     hotbarView->setCoord(glm::vec2(width/2, height-65));
     hotbarView->setSelected(player->getChosenSlot());
 

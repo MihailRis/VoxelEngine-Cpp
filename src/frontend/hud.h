@@ -49,7 +49,6 @@ class HudRenderer {
 	LevelFrontend* frontend;
 
     std::shared_ptr<gui::UINode> createDebugPanel(Engine* engine);
-
     std::shared_ptr<InventoryView> createContentAccess();
     std::shared_ptr<InventoryView> createHotbar();
     std::shared_ptr<InventoryView> createInventory();
