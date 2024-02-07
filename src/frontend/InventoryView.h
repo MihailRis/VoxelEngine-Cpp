@@ -38,6 +38,7 @@ struct SlotLayout {
     bool itemSource;
     itemsharefunc shareFunc;
     slotcallback rightClick;
+    int padding = 0;
 
     SlotLayout(int index,
                glm::vec2 position, 
@@ -113,8 +114,6 @@ public:
 
 class InventoryBuilder {
     std::shared_ptr<InventoryView> view;
-    LevelFrontend* frontend;
-    InventoryInteraction& interaction;
 public:
     InventoryBuilder(LevelFrontend* frontend, InventoryInteraction& interaction);
 

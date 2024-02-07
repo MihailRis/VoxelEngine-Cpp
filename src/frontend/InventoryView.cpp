@@ -42,9 +42,7 @@ SlotLayout::SlotLayout(
 InventoryBuilder::InventoryBuilder(
     LevelFrontend* frontend, 
     InventoryInteraction& interaction
-) : frontend(frontend), 
-    interaction(interaction) 
-{
+) {
     view = std::make_shared<InventoryView>(frontend, interaction);
 }
 
@@ -286,8 +284,8 @@ InventoryView::~InventoryView() {}
 
 
 std::shared_ptr<SlotView> InventoryView::addSlot(SlotLayout layout) {
-    uint width =  InventoryView::SLOT_SIZE;
-    uint height = InventoryView::SLOT_SIZE;
+    uint width =  InventoryView::SLOT_SIZE + layout.padding;
+    uint height = InventoryView::SLOT_SIZE + layout.padding;
 
     auto coord = layout.position;
     auto vsize = getSize();
@@ -366,6 +364,58 @@ std::shared_ptr<InventoryView> InventoryView::readXML(
         auto slot = view->addSlot(layout);
         reader.readUINode(reader, element, *slot);
         return slot;
+    });
+
+    reader.add("slots-grid", [=](gui::UiXmlReader& reader, xml::xmlelement element) {
+        int startIndex = element->attr("start-index", "0").asInt();
+        int rows = element->attr("rows", "0").asInt();
+        int cols = element->attr("cols", "0").asInt();
+        int count = element->attr("count", "0").asInt();
+        const int slotSize = InventoryView::SLOT_SIZE;
+        int interval = element->attr("interval", "-1").asInt();
+        if (interval < 0) {
+            interval = InventoryView::SLOT_INTERVAL;
+        }
+        int padding = element->attr("padding", "-1").asInt();
+        if (padding < 0) {
+            padding = interval;
+        }
+        if (rows == 0) {
+            rows = ceildiv(count, cols);
+        } else if (cols == 0) {
+            cols = ceildiv(count, rows);
+        } else if (count == 0) {
+            count = rows * cols;
+        }
+        bool itemSource = element->attr("item-source", "false").asBool();
+        SlotLayout layout(-1, glm::vec2(), true, itemSource, nullptr, nullptr);
+        if (element->has("coord")) {
+            layout.position = element->attr("coord").asVec2();
+        }
+        layout.padding = padding;
+
+        glm::vec2 size (
+            cols * slotSize + (cols - 1) * interval + padding * 2,
+            rows * slotSize + (rows - 1) * interval + padding * 2
+        );
+        auto container = std::make_shared<Container>(layout.position, size);
+        int idx = 0;
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++, idx++) {
+                if (idx >= count) {
+                    return container;
+                }
+                SlotLayout slotLayout = layout;
+                slotLayout.index = startIndex + idx;
+                slotLayout.position = glm::vec2(
+                    padding + col * (slotSize + interval),
+                    padding + row * (slotSize + interval)
+                );
+                auto slot = view->addSlot(slotLayout);
+                container->add(slot, slotLayout.position);
+            }
+        }
+        return container;
     });
 
     auto document = xml::parse(file, src);
