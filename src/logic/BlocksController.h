@@ -25,6 +25,7 @@ public:
     int getParts() const;
     int getPart() const;
     int getTickRate() const;
+    int getTickId() const;
 };
 
 class BlocksController {

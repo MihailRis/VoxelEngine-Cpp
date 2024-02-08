@@ -169,7 +169,7 @@ void Engine::loadContent() {
 				resRoots.push_back(pack.folder);
 				contentPacks.push_back(pack);
 				ContentLoader loader(&pack);
-				loader.load(&contentBuilder);
+				loader.load(contentBuilder);
 			}
 		}
     }

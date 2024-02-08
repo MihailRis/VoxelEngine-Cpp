@@ -17,7 +17,7 @@ struct ChunkFlag {
 	static const int UNSAVED = 0x10;
 	static const int LOADED_LIGHTS = 0x20;
 };
-#define CHUNK_DATA_LEN (CHUNK_VOL*4)
+constexpr int CHUNK_DATA_LEN = CHUNK_VOL*4;
 
 class Lightmap;
 class ContentLUT;
@@ -88,7 +88,7 @@ public:
     /**
      * @return true if all is fine
      **/
-	bool decode(ubyte* data);
+	bool decode(const ubyte* data);
 
     static void convert(ubyte* data, const ContentLUT* lut);
 };

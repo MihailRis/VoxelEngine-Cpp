@@ -149,3 +149,6 @@ void ContentPack::readPacks(const EnginePaths* paths,
         packs.push_back(ContentPack::read(packfolder));
     }
 }
+
+ContentPackRuntime::ContentPackRuntime(ContentPack info) : info(info) {
+}

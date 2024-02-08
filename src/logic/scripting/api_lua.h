@@ -245,7 +245,7 @@ static int l_blocks_count(lua_State* L) {
 
 static int l_block_index(lua_State* L) {
     auto name = lua_tostring(L, 1);
-    lua_pushinteger(L, scripting::content->requireBlock(name)->rt.id);
+    lua_pushinteger(L, scripting::content->requireBlock(name).rt.id);
     return 1;
 }
 

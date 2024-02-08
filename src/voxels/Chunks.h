@@ -19,7 +19,6 @@ class LevelEvents;
 
 /* Player-centred chunks matrix */
 class Chunks {
-	const Content* const content;
 	const ContentIndices* const contentIds;
 public:
 	std::vector<std::shared_ptr<Chunk>> chunks;

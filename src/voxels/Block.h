@@ -110,6 +110,7 @@ public:
 
 	Block(std::string name);
 	Block(std::string name, std::string texture);
+	Block(const Block&) = delete;
 };
 
 #endif /* VOXELS_BLOCK_H_ */

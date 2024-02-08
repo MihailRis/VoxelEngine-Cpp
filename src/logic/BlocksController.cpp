@@ -46,6 +46,10 @@ int Clock::getTickRate() const {
     return tickRate;
 }
 
+int Clock::getTickId() const {
+    return tickId;
+}
+
 BlocksController::BlocksController(Level* level, uint padding) 
     : level(level), 
 	  chunks(level->chunks), 

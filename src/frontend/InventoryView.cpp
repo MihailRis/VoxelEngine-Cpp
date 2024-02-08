@@ -150,10 +150,10 @@ void SlotView::draw(const GfxContext* pctx, Assets* assets) {
         case item_icon_type::none:
             break;
         case item_icon_type::block: {
-            Block* cblock = content->requireBlock(item->icon);
+            const Block& cblock = content->requireBlock(item->icon);
             batch->texture(previews->getTexture());
 
-            UVRegion region = previews->get(cblock->name);
+            UVRegion region = previews->get(cblock.name);
             batch->rect(
                 coord.x, coord.y, slotSize, slotSize, 
                 0, 0, 0, region, false, true, tint);

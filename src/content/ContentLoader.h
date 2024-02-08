@@ -18,9 +18,9 @@ namespace dynamic {
 class ContentLoader {
     const ContentPack* pack;
 
-    void loadBlock(Block* def, std::string full, std::string name);
-    void loadCustomBlockModel(Block* def, dynamic::Map* primitives);
-    void loadItem(ItemDef* def, std::string full, std::string name);
+    void loadBlock(Block& def, std::string full, std::string name);
+    void loadCustomBlockModel(Block& def, dynamic::Map* primitives);
+    void loadItem(ItemDef& def, std::string full, std::string name);
 public:
     ContentLoader(ContentPack* pack);
 
@@ -28,9 +28,9 @@ public:
                         dynamic::Map* indicesRoot,
                         std::string contentSection);
     void fixPackIndices();
-    void loadBlock(Block* def, std::string name, fs::path file);
-    void loadItem(ItemDef* def, std::string name, fs::path file);
-    void load(ContentBuilder* builder);
+    void loadBlock(Block& def, std::string name, fs::path file);
+    void loadItem(ItemDef& def, std::string name, fs::path file);
+    void load(ContentBuilder& builder);
 };
 
 #endif // CONTENT_CONTENT_LOADER_H_
