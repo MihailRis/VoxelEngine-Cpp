@@ -17,7 +17,6 @@ namespace lua {
     class LuaState {
         lua_State* L;
         int nextEnvironment = 1;
-        int currentEnvironment = 0;
 
         void logError(const std::string& text);
         void initEnvironment();
@@ -25,7 +24,8 @@ namespace lua {
         LuaState();
         ~LuaState();
 
-        void loadbuffer(const std::string& src, const std::string& file);
+        const std::string envName(int env) const;
+        void loadbuffer(int env, const std::string& src, const std::string& file);
         int gettop() const;
         int pushivec3(luaint x, luaint y, luaint z);
         int pushinteger(luaint x);
@@ -35,8 +35,8 @@ namespace lua {
         luaint tointeger(int index);
         int call(int argc);
         int callNoThrow(int argc);
-        int execute(const std::string& src, const std::string& file="<string>");
-        int eval(const std::string& src, const std::string& file="<eval>");
+        int execute(int env, const std::string& src, const std::string& file="<string>");
+        int eval(int env, const std::string& src, const std::string& file="<eval>");
         void openlib(const std::string& name, const luaL_Reg* libfuncs, int nup);
         void addfunc(const std::string& name, lua_CFunction func);
         bool getglobal(const std::string& name);
@@ -47,9 +47,6 @@ namespace lua {
         void createFuncs();
         int createEnvironment();
         void removeEnvironment(int id);
-        int getEnvironment() const;
-        void setEnvironment(int id);
-
         const std::string storeAnonymous();
     };
 }

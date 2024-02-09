@@ -1,3 +1,4 @@
-<inventory color="#00000080">
+<inventory color="#00000080" size="400,100">
     <slots-grid cols="4" count="40"/>
+    <button coord="300,10">Test</button>
 </inventory>

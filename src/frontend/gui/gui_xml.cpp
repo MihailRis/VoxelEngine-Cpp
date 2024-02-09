@@ -117,7 +117,11 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement e
     _readPanel(reader, element, *button);
 
     if (element->has("onclick")) {
-        auto callback = scripting::create_runnable("<onclick>", element->attr("onclick").getText(), reader.getEnvironment());
+        auto callback = scripting::create_runnable(
+            reader.getEnvironment().getId(),
+            "<onclick>", 
+            element->attr("onclick").getText()
+        );
         button->listenAction([callback](GUI*) {
             callback();
         });
@@ -137,6 +141,7 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
 
     if (element->has("consumer")) {
         auto consumer = scripting::create_wstring_consumer(
+            reader.getEnvironment().getId(),
             element->attr("consumer").getText(),
             reader.getFilename()
         );

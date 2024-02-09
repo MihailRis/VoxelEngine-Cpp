@@ -25,8 +25,13 @@ class UiDocument {
     uidocscript script;
     uinodes_map map;
     std::shared_ptr<gui::UINode> root;
+    int env;
 public:
-    UiDocument(std::string namesp, uidocscript script, std::shared_ptr<gui::UINode> root);
+    UiDocument(
+        std::string namesp, 
+        uidocscript script, 
+        std::shared_ptr<gui::UINode> root, 
+        int env);
 
     const uinodes_map& getMap() const;
     const std::string& getNamespace() const;

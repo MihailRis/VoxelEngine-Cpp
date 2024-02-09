@@ -47,7 +47,7 @@ void load_script(fs::path name) {
     fs::path file = paths->getResources()/fs::path("scripts")/name;
 
     std::string src = files::read_string(file);
-    state->execute(src, file.u8string());
+    state->execute(0, src, file.u8string());
 }
 
 void scripting::initialize(Engine* engine) {
@@ -58,35 +58,23 @@ void scripting::initialize(Engine* engine) {
     load_script(fs::path("stdlib.lua"));
 }
 
-// todo: luaL state check
 runnable scripting::create_runnable(
+    int env,
     const std::string& file,
     const std::string& src
 ) {
     return [=](){
-        state->execute(src, file);
-    };
-}
-
-runnable scripting::create_runnable(
-    const std::string& file,
-    const std::string& src,
-    const Environment& env
-) {
-    return [=](){
-        int previous = state->getEnvironment();
-        state->setEnvironment(env.getId());
-        state->execute(src, file);
-        state->setEnvironment(previous);
+        state->execute(env, src, file);
     };
 }
 
 wstringconsumer scripting::create_wstring_consumer(
+    int env,
     const std::string& src,
     const std::string& file
 ) {
     try {
-        if (state->eval(src, file) == 0)
+        if (state->eval(env, src, file) == 0)
             return [](const std::wstring& _) {};
     } catch (const lua::luaerror& err) {
         std::cerr << err.what() << std::endl;
@@ -220,7 +208,7 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
 void scripting::load_block_script(std::string prefix, fs::path file, block_funcs_set& funcsset) {
     std::string src = files::read_string(file);
     std::cout << "loading script " << file.u8string() << std::endl;
-    state->execute(src, file.u8string());
+    state->execute(0, src, file.u8string());
 
     funcsset.init=state->rename("init", prefix+".init");
     funcsset.update=state->rename("on_update", prefix+".update");
@@ -234,7 +222,7 @@ void scripting::load_block_script(std::string prefix, fs::path file, block_funcs
 void scripting::load_item_script(std::string prefix, fs::path file, item_funcs_set& funcsset) {
     std::string src = files::read_string(file);
     std::cout << "loading script " << file.u8string() << std::endl;
-    state->execute(src, file.u8string());
+    state->execute(0, src, file.u8string());
     funcsset.init=state->rename("init", prefix+".init");
     funcsset.on_use_on_block=state->rename("on_use_on_block", prefix+".useon");
     funcsset.on_block_break_by=state->rename("on_block_break_by", prefix+".blockbreakby");
@@ -244,7 +232,7 @@ void scripting::load_world_script(std::string prefix, fs::path file) {
     std::string src = files::read_string(file);
     std::cout << "loading script " << file.u8string() << std::endl;
 
-    state->loadbuffer(src, file.u8string());
+    state->loadbuffer(0, src, file.u8string());
     state->callNoThrow(0);
 
     state->rename("init", prefix+".init");
@@ -253,12 +241,12 @@ void scripting::load_world_script(std::string prefix, fs::path file) {
     state->rename("on_world_quit", prefix+".worldquit");
 }
 
-void scripting::load_layout_script(fs::path file, uidocscript& script) {
+void scripting::load_layout_script(int env, fs::path file, uidocscript& script) {
     std::string src = files::read_string(file);
     std::cout << "loading script " << file.u8string() << std::endl;
 
-    script.environment = state->createEnvironment();
-    state->loadbuffer(src, file.u8string());
+    script.environment = env;
+    state->loadbuffer(env, src, file.u8string());
     state->callNoThrow(0);
     script.onopen = state->hasglobal("on_open");
     script.onclose = state->hasglobal("on_close");

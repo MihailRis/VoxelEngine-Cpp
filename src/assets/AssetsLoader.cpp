@@ -66,6 +66,8 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, bool world) {
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/sun.png", "misc/sun");
 
         for (fs::path& file : loader.getPaths()->listdir(LAYOUTS_FOLDER)) {
+            if (file.extension().u8string() != ".xml")
+                continue;
             std::string packName = file.parent_path().parent_path().filename();
             if (packName == "res") {
                 packName = "core";

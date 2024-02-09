@@ -10,8 +10,9 @@
 UiDocument::UiDocument(
     std::string namesp, 
     uidocscript script, 
-    std::shared_ptr<gui::UINode> root
-) : namesp(namesp), script(script), root(root) {
+    std::shared_ptr<gui::UINode> root,
+    int env
+) : namesp(namesp), script(script), root(root), env(env) {
     collect(map, root);
 }
 
@@ -53,7 +54,7 @@ std::unique_ptr<UiDocument> UiDocument::read(std::string namesp, fs::path file) 
     uidocscript script {};
     auto scriptFile = fs::path(file.u8string()+".lua");
     if (fs::is_regular_file(scriptFile)) {
-        scripting::load_layout_script(scriptFile, script);
+        scripting::load_layout_script(env->getId(), scriptFile, script);
     }
-    return std::make_unique<UiDocument>(namesp, script, view);
+    return std::make_unique<UiDocument>(namesp, script, view, env.release()->getId());
 }

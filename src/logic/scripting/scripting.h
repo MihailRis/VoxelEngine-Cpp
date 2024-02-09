@@ -38,17 +38,13 @@ namespace scripting {
     void initialize(Engine* engine);
 
     runnable create_runnable(
+        int env,
         const std::string& filename,
         const std::string& source
     );
-
-    runnable create_runnable(
-        const std::string& filename,
-        const std::string& source,
-        const Environment& env
-    );
     
     wstringconsumer create_wstring_consumer(
+        int env,
         const std::string& src,
         const std::string& file="<string>"
     );
@@ -69,6 +65,6 @@ namespace scripting {
     void load_block_script(std::string prefix, fs::path file, block_funcs_set& funcsset);
     void load_item_script(std::string prefix, fs::path file, item_funcs_set& funcsset);
     void load_world_script(std::string prefix, fs::path file);
-    void load_layout_script(fs::path file, uidocscript& script);
+    void load_layout_script(int env, fs::path file, uidocscript& script);
     void close();
 }

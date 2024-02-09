@@ -25,8 +25,12 @@ lua::LuaState::LuaState() {
 
     createFuncs();
 
-    lua_getglobal(L, "_G");
-    lua_setglobal(L, ":G");
+    lua_pushvalue(L, LUA_GLOBALSINDEX);
+    setglobal(envName(0));
+}
+
+const std::string lua::LuaState::envName(int env) const {
+    return "_ENV"+util::mangleid(env);
 }
 
 lua::LuaState::~LuaState() {
@@ -109,9 +113,12 @@ void lua::LuaState::createFuncs() {
     addfunc("set_block_user_bits", l_set_block_user_bits);
 }
 
-void lua::LuaState::loadbuffer(const std::string& src, const std::string& file) {
+void lua::LuaState::loadbuffer(int env, const std::string& src, const std::string& file) {
     if (luaL_loadbuffer(L, src.c_str(), src.length(), file.c_str())) {
         throw lua::luaerror(lua_tostring(L, -1));
+    }
+    if (env && getglobal(envName(env))) {
+        lua_setfenv(L, -2);
     }
 }
 
@@ -130,14 +137,14 @@ int lua::LuaState::callNoThrow(int argc) {
     return 1;
 }
 
-int lua::LuaState::eval(const std::string& src, const std::string& file) {
+int lua::LuaState::eval(int env, const std::string& src, const std::string& file) {
     auto srcText = "return ("+src+")";
-    loadbuffer(srcText, file);
+    loadbuffer(env, srcText, file);
     return call(0);
 }
 
-int lua::LuaState::execute(const std::string& src, const std::string& file) {
-    loadbuffer(src, file);
+int lua::LuaState::execute(int env, const std::string& src, const std::string& file) {
+    loadbuffer(env, src, file);
     return callNoThrow(0);
 }
 
@@ -186,49 +193,24 @@ const std::string lua::LuaState::storeAnonymous() {
     return funcName;
 }
 
-void lua::LuaState::initEnvironment() {
-    lua_getglobal(L, "_G");
-    lua_setfield(L, -1, ":G");
-}
-
 int lua::LuaState::createEnvironment() {
     int id = nextEnvironment++;
+    // globals table
+    lua_createtable(L, 0, 1);
+    
+    // metatable
+    lua_createtable(L, 0, 1);
 
-    if (currentEnvironment != 0) {
-        setEnvironment(0);
-    }
+    lua_pushvalue(L, LUA_GLOBALSINDEX);
+    lua_setfield(L, -2, "__index");
+    lua_setmetatable(L, -2);
 
-    lua_createtable(L, 0, 0);
-    initEnvironment();
-    setglobal("_N"+util::mangleid(id));
-
-    setEnvironment(id);
+    setglobal(envName(id));
     return id;
 }
 
+
 void lua::LuaState::removeEnvironment(int id) {
-    if (currentEnvironment == id) {
-        setEnvironment(0);
-    }
     lua_pushnil(L);
-    setglobal("_N"+util::mangleid(id));
-}
-
-int lua::LuaState::getEnvironment() const {
-    return currentEnvironment;
-}
-
-void lua::LuaState::setEnvironment(int id) {
-    if (id == 0) {
-        getglobal(":G");
-        lua_setfenv(L, -1);
-    } else {
-        getglobal(":G");
-        lua_getfield(L, -1, ("_N"+util::mangleid(id)).c_str());
-        if (lua_isnil(L, -1)) {
-            lua_pop(L, -1);
-            throw luaerror("environment "+std::to_string(id)+" was not found");
-        }
-        lua_setfenv(L, -1);
-    }
+    setglobal(envName(id));
 }
