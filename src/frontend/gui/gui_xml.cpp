@@ -69,7 +69,13 @@ static void _readPanel(UiXmlReader& reader, xml::xmlelement element, Panel& pane
     _readUINode(element, panel);
 
     if (element->has("padding")) {
-        panel.setPadding(element->attr("padding").asVec4());
+        glm::vec4 padding = element->attr("padding").asVec4();
+        panel.setPadding(padding);
+        glm::vec2 size = panel.getSize();
+        panel.setSize(glm::vec2(
+            size.x + padding.x + padding.z,
+            size.y + padding.y + padding.w
+        ));
     }
     if (element->has("size")) {
         panel.setResizing(false);
