@@ -260,6 +260,7 @@ void SlotView::bind(
     bound = &stack;
     content = frontend->getLevel()->content;
     this->frontend = frontend;
+    this->interaction = interaction;
 }
 
 const SlotLayout& SlotView::getLayout() const {

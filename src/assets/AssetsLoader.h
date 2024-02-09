@@ -15,7 +15,7 @@ const short ASSET_LAYOUT = 5;
 class ResPaths;
 class Assets;
 
-typedef std::function<bool(Assets*, const ResPaths*, const std::string&, const std::string&)> aloader_func;
+using aloader_func = std::function<bool(Assets*, const ResPaths*, const std::string&, const std::string&)>;
 
 struct aloader_entry {
 	int tag;

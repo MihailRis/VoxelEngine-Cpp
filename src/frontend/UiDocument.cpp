@@ -11,8 +11,21 @@ UiDocument::UiDocument(
     std::string namesp, 
     uidocscript script, 
     std::shared_ptr<gui::UINode> root
-) {
+) : namesp(namesp), script(script), root(root) {
     collect(map, root);
+}
+
+
+const uinodes_map& UiDocument::getMap() const {
+    return map;
+}
+
+const std::string& UiDocument::getNamespace() const {
+    return namesp;
+}
+
+const std::shared_ptr<gui::UINode> UiDocument::getRoot() const {
+    return root;
 }
 
 void UiDocument::collect(uinodes_map& map, std::shared_ptr<gui::UINode> node) {

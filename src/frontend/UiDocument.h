@@ -30,6 +30,7 @@ public:
 
     const uinodes_map& getMap() const;
     const std::string& getNamespace() const;
+    const std::shared_ptr<gui::UINode> getRoot() const;
 
     /* Collect map of all uinodes having identifiers */
     static void collect(uinodes_map& map, std::shared_ptr<gui::UINode> node);

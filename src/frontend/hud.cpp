@@ -31,7 +31,6 @@
 #include "../objects/Player.h"
 #include "../physics/Hitbox.h"
 #include "../maths/voxmaths.h"
-#include "../files/files.h"
 #include "gui/controls.h"
 #include "gui/panels.h"
 #include "gui/UINode.h"
@@ -42,6 +41,7 @@
 #include "BlocksPreview.h"
 #include "InventoryView.h"
 #include "LevelFrontend.h"
+#include "UiDocument.h"
 #include "../engine.h"
 #include "../core_defs.h"
 #include "../items/ItemDef.h"
@@ -217,15 +217,24 @@ std::shared_ptr<InventoryView> HudRenderer::createInventory() {
     auto player = level->player;
     auto inventory = player->getInventory();
 
-    SlotLayout slotLayout(-1, glm::vec2(), true, false, [=](ItemStack& stack) {
-        stack.clear();
-    }, nullptr);
+    auto layout = assets->getLayout("core:inventory");
+    if (layout) {
+        std::cout << "custom layout used" << std::endl;
+        auto view = std::dynamic_pointer_cast<InventoryView>(layout->getRoot());
+        view->bind(inventory, frontend, interaction.get());
+        return view;
+    } else {
+        std::cout << "generated layout used" << std::endl;
+        SlotLayout slotLayout(-1, glm::vec2(), true, false, [=](ItemStack& stack) {
+            stack.clear();
+        }, nullptr);
 
-    InventoryBuilder builder;
-    builder.addGrid(10, inventory->size(), glm::vec2(), 4, true, slotLayout);
-    auto view = builder.build();
-    view->bind(inventory, frontend, interaction.get());
-    return view;
+        InventoryBuilder builder;
+        builder.addGrid(10, inventory->size(), glm::vec2(), 4, true, slotLayout);
+        auto view = builder.build();
+        view->bind(inventory, frontend, interaction.get());
+        return view;
+    }
 }
 
 HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend) 

@@ -9,9 +9,6 @@
 #include "../constants.h"
 #include "../files/engine_paths.h"
 
-using std::filesystem::path;
-using std::unique_ptr;
-
 AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths) 
 	: assets(assets), paths(paths) {
 }
