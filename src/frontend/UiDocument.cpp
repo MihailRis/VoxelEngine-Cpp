@@ -5,6 +5,7 @@
 #include "InventoryView.h"
 #include "../logic/scripting/scripting.h"
 #include "../files/files.h"
+#include "../frontend/gui/gui_xml.h"
 
 UiDocument::UiDocument(
     std::string namesp, 
@@ -27,16 +28,14 @@ void UiDocument::collect(uinodes_map& map, std::shared_ptr<gui::UINode> node) {
     }
 }
 
-std::unique_ptr<UiDocument> UiDocument::readInventory(
-    std::string namesp,
-    fs::path file,
-    LevelFrontend* frontend,
-    InventoryInteraction& interaction
-) {
+std::unique_ptr<UiDocument> UiDocument::read(std::string namesp, fs::path file) {
     const std::string text = files::read_string(file);
+    auto xmldoc = xml::parse(file.u8string(), text);
     auto env = scripting::create_environment();
-    auto view = InventoryView::readXML(
-        frontend, interaction, text, file.u8string(), *env
+    gui::UiXmlReader reader(*env);
+    InventoryView::createReaders(reader);
+    auto view = reader.readXML(
+        file.u8string(), xmldoc->getRoot()
     );
     uidocscript script {};
     auto scriptFile = fs::path(file.u8string()+".lua");

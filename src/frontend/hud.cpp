@@ -189,10 +189,10 @@ std::shared_ptr<InventoryView> HudRenderer::createContentAccess() {
         inventory->getSlot(player->getChosenSlot()).set(item);
     });
 
-    InventoryBuilder builder(frontend, *interaction);
+    InventoryBuilder builder;
     builder.addGrid(8, itemsCount-1, glm::vec2(), 8, true, slotLayout);
     auto view = builder.build();
-    view->bind(accessInventory);
+    view->bind(accessInventory, frontend, interaction.get());
     return view;
 }
 
@@ -202,12 +202,12 @@ std::shared_ptr<InventoryView> HudRenderer::createHotbar() {
     auto inventory = player->getInventory();
 
     SlotLayout slotLayout(-1, glm::vec2(), false, false, nullptr, nullptr);
-    InventoryBuilder builder(frontend, *interaction);
+    InventoryBuilder builder;
     builder.addGrid(10, 10, glm::vec2(), 4, true, slotLayout);
     auto view = builder.build();
 
     view->setOrigin(glm::vec2(view->getSize().x/2, 0));
-    view->bind(inventory);
+    view->bind(inventory, frontend, interaction.get());
     view->setInteractive(false);
     return view;
 }
@@ -221,10 +221,10 @@ std::shared_ptr<InventoryView> HudRenderer::createInventory() {
         stack.clear();
     }, nullptr);
 
-    InventoryBuilder builder(frontend, *interaction);
+    InventoryBuilder builder;
     builder.addGrid(10, inventory->size(), glm::vec2(), 4, true, slotLayout);
     auto view = builder.build();
-    view->bind(inventory);
+    view->bind(inventory, frontend, interaction.get());
     return view;
 }
 
@@ -237,11 +237,13 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
 
     interaction = std::make_unique<InventoryInteraction>();
     grabbedItemView = std::make_shared<SlotView>(
-        frontend,
-        *interaction,
         SlotLayout(-1, glm::vec2(), false, false, nullptr, nullptr)
     );
-    grabbedItemView->bind(interaction->getGrabbedItem());
+    grabbedItemView->bind(
+        interaction->getGrabbedItem(), 
+        frontend, 
+        interaction.get()
+    );
     grabbedItemView->setColor(glm::vec4());
     grabbedItemView->setInteractive(false);
 

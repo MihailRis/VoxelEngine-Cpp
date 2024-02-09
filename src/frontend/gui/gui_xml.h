@@ -24,6 +24,7 @@ namespace gui {
         UiXmlReader(const scripting::Environment& env);
 
         void add(const std::string& tag, uinode_reader reader);
+        bool hasReader(const std::string& tag) const;
         
         std::shared_ptr<UINode> readUINode(xml::xmlelement element);
         
@@ -36,7 +37,8 @@ namespace gui {
         void readUINode(
             UiXmlReader& reader, 
             xml::xmlelement element, 
-            Container& container
+            Container& container,
+            bool ignoreUnknown=false
         );
 
         std::shared_ptr<UINode> readXML(

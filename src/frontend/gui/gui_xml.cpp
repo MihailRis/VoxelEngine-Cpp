@@ -41,7 +41,7 @@ static void _readUINode(xml::xmlelement element, UINode& node) {
 }
 
 
-static void _readContainer(UiXmlReader& reader, xml::xmlelement element, Container& container) {
+static void _readContainer(UiXmlReader& reader, xml::xmlelement element, Container& container, bool ignoreUnknown) {
     _readUINode(element, container);
 
     if (element->has("scrollable")) {
@@ -50,12 +50,15 @@ static void _readContainer(UiXmlReader& reader, xml::xmlelement element, Contain
     for (auto& sub : element->getElements()) {
         if (sub->isText())
             continue;
+        if (ignoreUnknown && !reader.hasReader(sub->getTag())) {
+            continue;
+        }
         container.add(reader.readUINode(sub));
     }
 }
 
-void UiXmlReader::readUINode(UiXmlReader& reader, xml::xmlelement element, Container& container) {
-    _readContainer(reader, element, container);
+void UiXmlReader::readUINode(UiXmlReader& reader, xml::xmlelement element, Container& container, bool ignoreUnknown) {
+    _readContainer(reader, element, container, ignoreUnknown);
 }
 
 void UiXmlReader::readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& node) {
@@ -104,7 +107,7 @@ static std::shared_ptr<UINode> readLabel(UiXmlReader& reader, xml::xmlelement el
 
 static std::shared_ptr<UINode> readContainer(UiXmlReader& reader, xml::xmlelement element) {
     auto container = std::make_shared<Container>(glm::vec2(), glm::vec2());
-    _readContainer(reader, element, *container);
+    _readContainer(reader, element, *container, false);
     return container;
 }
 
@@ -151,6 +154,10 @@ UiXmlReader::UiXmlReader(const scripting::Environment& env) : env(env) {
 
 void UiXmlReader::add(const std::string& tag, uinode_reader reader) {
     readers[tag] = reader;
+}
+
+bool UiXmlReader::hasReader(const std::string& tag) const {
+    return readers.find(tag) != readers.end();
 }
 
 std::shared_ptr<UINode> UiXmlReader::readUINode(xml::xmlelement element) {

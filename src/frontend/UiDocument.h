@@ -12,9 +12,6 @@ namespace gui {
     class UINode;
 }
 
-class InventoryInteraction;
-class LevelFrontend;
-
 struct uidocscript {
     int environment;
     bool onopen : 1;
@@ -37,13 +34,7 @@ public:
     /* Collect map of all uinodes having identifiers */
     static void collect(uinodes_map& map, std::shared_ptr<gui::UINode> node);
 
-    /* @return root node is always an InventoryView */
-    static std::unique_ptr<UiDocument> readInventory (
-        std::string namesp,
-        fs::path file,
-        LevelFrontend* frontend,
-        InventoryInteraction& interaction
-    );
+    static std::unique_ptr<UiDocument> read (std::string namesp, fs::path file);
 };
 
 #endif // FRONTEND_UI_DOCUMENT_H_

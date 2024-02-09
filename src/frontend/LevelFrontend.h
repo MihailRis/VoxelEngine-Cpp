@@ -24,5 +24,4 @@ public:
     Atlas* getBlocksAtlas() const;
 };
 
-
 #endif // FRONTEND_LEVEL_FRONTEND_H_

@@ -196,7 +196,6 @@ void Engine::loadContent() {
 void Engine::loadWorldContent(const fs::path& folder) {
     contentPacks.clear();
     auto packNames = ContentPack::worldPacksList(folder);
-    std::cout << folder << " " << packNames.size() << std::endl;
     ContentPack::readPacks(paths, contentPacks, packNames, folder);
     loadContent();
 }

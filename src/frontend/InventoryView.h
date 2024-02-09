@@ -18,6 +18,10 @@ class ContentIndices;
 class LevelFrontend;
 class Inventory;
 
+namespace gui {
+    class UiXmlReader;
+}
+
 namespace scripting {
     class Environment;
 }
@@ -53,17 +57,15 @@ struct SlotLayout {
 };
 
 class SlotView : public gui::UINode {
-    LevelFrontend* frontend;
-    InventoryInteraction& interaction;
-    const Content* const content;
+    LevelFrontend* frontend = nullptr;
+    InventoryInteraction* interaction = nullptr;
+    const Content* content;
     SlotLayout layout;
     bool highlighted = false;
 
     ItemStack* bound = nullptr;
 public:
-    SlotView(LevelFrontend* frontend,
-             InventoryInteraction& interaction,
-             SlotLayout layout);
+    SlotView(SlotLayout layout);
 
     virtual void draw(const GfxContext* pctx, Assets* assets) override;
 
@@ -73,7 +75,11 @@ public:
     virtual void clicked(gui::GUI*, int) override;
     virtual void focus(gui::GUI*) override;
 
-    void bind(ItemStack& stack);
+    void bind(
+        ItemStack& stack,
+        LevelFrontend* frontend, 
+        InventoryInteraction* interaction
+    );
 
     const SlotLayout& getLayout() const;
 };
@@ -83,13 +89,13 @@ class InventoryView : public gui::Container {
     const ContentIndices* indices;
     
     std::shared_ptr<Inventory> inventory;
-    LevelFrontend* frontend;
-    InventoryInteraction& interaction;
+    LevelFrontend* frontend = nullptr;
+    InventoryInteraction* interaction = nullptr;
 
     std::vector<SlotView*> slots;
     glm::vec2 origin {};
 public:
-    InventoryView(LevelFrontend* frontend, InventoryInteraction& interaction);
+    InventoryView();
     virtual ~InventoryView();
 
     void setInventory(std::shared_ptr<Inventory> inventory);
@@ -101,17 +107,21 @@ public:
 
     void setSelected(int index);
 
-    void bind(std::shared_ptr<Inventory> inventory);
+    void bind(
+        std::shared_ptr<Inventory> inventory,
+        LevelFrontend* frontend, 
+        InventoryInteraction* interaction
+    );
 
     std::shared_ptr<SlotView> addSlot(SlotLayout layout);
 
     static std::shared_ptr<InventoryView> readXML(
-        LevelFrontend* frontend, 
-        InventoryInteraction& interaction,
         const std::string& src,
         const std::string& file,
         const scripting::Environment& env
     );
+
+    static void createReaders(gui::UiXmlReader& reader);
 
     static const int SLOT_INTERVAL = 4;
     static const int SLOT_SIZE = ITEM_ICON_SIZE;
@@ -120,7 +130,7 @@ public:
 class InventoryBuilder {
     std::shared_ptr<InventoryView> view;
 public:
-    InventoryBuilder(LevelFrontend* frontend, InventoryInteraction& interaction);
+    InventoryBuilder();
 
     void addGrid(
         int cols, int count, 

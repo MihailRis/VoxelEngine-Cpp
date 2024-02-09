@@ -12,12 +12,14 @@ class Texture;
 class Shader;
 class Font;
 class Atlas;
+class UiDocument;
 
 class Assets {
 	std::unordered_map<std::string, std::shared_ptr<Texture>> textures;
 	std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
 	std::unordered_map<std::string, std::shared_ptr<Font>> fonts;
 	std::unordered_map<std::string, std::shared_ptr<Atlas>> atlases;
+	std::unordered_map<std::string, std::shared_ptr<UiDocument>> layouts;
 	std::vector<TextureAnimation> animations;
 public:
 	~Assets();
@@ -35,6 +37,9 @@ public:
 
 	const std::vector<TextureAnimation>& getAnimations();
 	void store(const TextureAnimation& animation);
+
+	UiDocument* getLayout(std::string name) const;
+	void store(UiDocument* layout, std::string name);
 
     void extend(const Assets& assets);
 };

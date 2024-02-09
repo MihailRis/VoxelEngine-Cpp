@@ -67,6 +67,10 @@ public:
     inline const std::string& getId() {
         return info.id;
     }
+
+    inline const ContentPack& getInfo() const {
+        return info;
+    }
 };
 
 #endif // CONTENT_CONTENT_PACK_H_

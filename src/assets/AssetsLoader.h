@@ -10,6 +10,7 @@ const short ASSET_TEXTURE = 1;
 const short ASSET_SHADER = 2;
 const short ASSET_FONT = 3;
 const short ASSET_ATLAS = 4;
+const short ASSET_LAYOUT = 5;
 
 class ResPaths;
 class Assets;

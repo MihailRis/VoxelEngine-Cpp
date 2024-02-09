@@ -28,6 +28,8 @@ public:
     }
 
     std::shared_ptr<UiDocument> getLayout(const std::string& id);
+    
+    const Content* getContent() const;
 };
 
 #endif // FRONTEND_BLOCKS_GFX_CACHE_H_

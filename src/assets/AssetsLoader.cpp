@@ -48,6 +48,7 @@ void AssetsLoader::createDefaults(AssetsLoader& loader) {
 	loader.addLoader(ASSET_TEXTURE, assetload::texture);
 	loader.addLoader(ASSET_FONT, assetload::font);
 	loader.addLoader(ASSET_ATLAS, assetload::atlas);
+    loader.addLoader(ASSET_LAYOUT, assetload::layout);
 }
 
 void AssetsLoader::addDefaults(AssetsLoader& loader, bool world) {
@@ -66,6 +67,14 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, bool world) {
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/skybox_gen", "skybox_gen");
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/moon.png", "misc/moon");
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/sun.png", "misc/sun");
+
+        for (fs::path& file : loader.getPaths()->listdir(LAYOUTS_FOLDER)) {
+            std::string packName = file.parent_path().parent_path().filename();
+            if (packName == "res") {
+                packName = "core";
+            }
+            loader.add(ASSET_LAYOUT, file.u8string(), packName+":"+file.stem().u8string());
+        }
     }
     loader.add(ASSET_ATLAS, TEXTURES_FOLDER"/blocks", "blocks");
     loader.add(ASSET_ATLAS, TEXTURES_FOLDER"/items", "items");
