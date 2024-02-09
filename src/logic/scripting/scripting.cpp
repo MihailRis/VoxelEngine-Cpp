@@ -205,51 +205,70 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
     return false;
 }
 
-void scripting::load_block_script(std::string prefix, fs::path file, block_funcs_set& funcsset) {
-    std::string src = files::read_string(file);
-    std::cout << "loading script " << file.u8string() << std::endl;
-    state->execute(0, src, file.u8string());
+bool register_event(int env, const std::string& name, const std::string& id) {
+    std::cout << "register " << name << " -> " << id << std::endl;
+    if (state->pushenv(env) == 0) {
+        state->pushglobals();
+    }
+    if (state->getfield(name)) {
+        // remove previous name
+        state->pushnil();
+        state->setfield(name, -3);
 
-    funcsset.init=state->rename("init", prefix+".init");
-    funcsset.update=state->rename("on_update", prefix+".update");
-    funcsset.randupdate=state->rename("on_random_update", prefix+".randupdate");
-    funcsset.onbroken=state->rename("on_broken", prefix+".broken");
-    funcsset.onplaced=state->rename("on_placed", prefix+".placed");
-    funcsset.oninteract=state->rename("on_interact", prefix+".oninteract");
-    funcsset.onblockstick=state->rename("on_blocks_tick", prefix+".blockstick");
+        std::cout << id << std::endl;
+        // add new global name
+        state->setglobal(id);
+        state->pop();
+        return true;
+    }
+    return false;
 }
 
-void scripting::load_item_script(std::string prefix, fs::path file, item_funcs_set& funcsset) {
+void scripting::load_block_script(int env, std::string prefix, fs::path file, block_funcs_set& funcsset) {
     std::string src = files::read_string(file);
     std::cout << "loading script " << file.u8string() << std::endl;
-    state->execute(0, src, file.u8string());
-    funcsset.init=state->rename("init", prefix+".init");
-    funcsset.on_use_on_block=state->rename("on_use_on_block", prefix+".useon");
-    funcsset.on_block_break_by=state->rename("on_block_break_by", prefix+".blockbreakby");
+    state->execute(env, src, file.u8string());
+    funcsset.init = register_event(env, "init", prefix+".init");
+    funcsset.update = register_event(env, "on_update", prefix+".update");
+    funcsset.randupdate = register_event(env, "on_random_update", prefix+".randupdate");
+    funcsset.onbroken = register_event(env, "on_broken", prefix+".broken");
+    funcsset.onplaced = register_event(env, "on_placed", prefix+".placed");
+    funcsset.oninteract = register_event(env, "on_interact", prefix+".interact");
+    funcsset.onblockstick = register_event(env, "on_blocks_tick", prefix+".blockstick");
 }
 
-void scripting::load_world_script(std::string prefix, fs::path file) {
+void scripting::load_item_script(int env, std::string prefix, fs::path file, item_funcs_set& funcsset) {
+    std::string src = files::read_string(file);
+    std::cout << "loading script " << file.u8string() << std::endl;
+    state->execute(env, src, file.u8string());
+
+    funcsset.init = register_event(env, "init", prefix+".init");
+    funcsset.on_use_on_block = register_event(env, "on_use_on_block", prefix+".useon");
+    funcsset.on_block_break_by = register_event(env, "on_block_break_by", prefix+".blockbreakby");
+}
+
+void scripting::load_world_script(int env, std::string prefix, fs::path file) {
     std::string src = files::read_string(file);
     std::cout << "loading script " << file.u8string() << std::endl;
 
-    state->loadbuffer(0, src, file.u8string());
+    state->loadbuffer(env, src, file.u8string());
     state->callNoThrow(0);
 
-    state->rename("init", prefix+".init");
-    state->rename("on_world_open", prefix+".worldopen");
-    state->rename("on_world_save", prefix+".worldsave");
-    state->rename("on_world_quit", prefix+".worldquit");
+    register_event(env, "init", prefix+".init");
+    register_event(env, "on_world_open", prefix+".worldopen");
+    register_event(env, "on_world_save", prefix+".worldsave");
+    register_event(env, "on_world_quit", prefix+".worldquit");
 }
 
-void scripting::load_layout_script(int env, fs::path file, uidocscript& script) {
+void scripting::load_layout_script(int env, std::string prefix, fs::path file, uidocscript& script) {
     std::string src = files::read_string(file);
     std::cout << "loading script " << file.u8string() << std::endl;
 
     script.environment = env;
     state->loadbuffer(env, src, file.u8string());
     state->callNoThrow(0);
-    script.onopen = state->hasglobal("on_open");
-    script.onclose = state->hasglobal("on_close");
+    script.onopen = register_event(env, "on_open", prefix+".open");
+    script.onclose = register_event(env, "on_close", prefix+".close");
 }
 
 void scripting::close() {

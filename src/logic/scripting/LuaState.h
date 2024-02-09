@@ -31,6 +31,12 @@ namespace lua {
         int pushinteger(luaint x);
         int pushnumber(luanumber x);
         int pushstring(const std::string& str);
+        int pushenv(int env);
+        int pushnil();
+        int pushglobals();
+        void pop(int n=1);
+        bool getfield(const std::string& name);
+        void setfield(const std::string& name, int idx=-2);
         bool toboolean(int index);
         luaint tointeger(int index);
         int call(int argc);

@@ -130,6 +130,7 @@ void Engine::mainloop() {
 
 Engine::~Engine() {
 	screen = nullptr;
+	content.reset();
     scripting::close();
 
 	Audio::finalize();

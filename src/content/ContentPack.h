@@ -10,6 +10,10 @@ class EnginePaths;
 
 namespace fs = std::filesystem;
 
+namespace scripting {
+    class Environment;
+}
+
 class contentpack_error : public std::runtime_error {
     std::string packId;
     fs::path folder;
@@ -52,17 +56,25 @@ struct ContentPack {
     static fs::path findPack(
         const EnginePaths* paths, 
         fs::path worldDir, 
-        std::string name);
-    static void readPacks(const EnginePaths* paths,
-                          std::vector<ContentPack>& packs, 
-                          const std::vector<std::string>& names,
-                          fs::path worldDir);
+        std::string name
+    );
+
+    static void readPacks(
+        const EnginePaths* paths,
+        std::vector<ContentPack>& packs, 
+        const std::vector<std::string>& names,
+        fs::path worldDir
+    );
 };
 
 class ContentPackRuntime {
     ContentPack info;
+    std::unique_ptr<scripting::Environment> env;
 public:
-    ContentPackRuntime(ContentPack info);
+    ContentPackRuntime(
+        ContentPack info, 
+        std::unique_ptr<scripting::Environment> env
+    );
 
     inline const std::string& getId() {
         return info.id;
@@ -70,6 +82,10 @@ public:
 
     inline const ContentPack& getInfo() const {
         return info;
+    }
+
+    inline scripting::Environment* getEnvironment() const {
+        return env.get();
     }
 };
 

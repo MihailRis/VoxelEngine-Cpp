@@ -255,7 +255,7 @@ void ContentLoader::loadBlock(Block& def, std::string full, std::string name) {
 
     fs::path scriptfile = folder/fs::path("scripts/"+def.scriptName+".lua");
     if (fs::is_regular_file(scriptfile)) {
-        scripting::load_block_script(full, scriptfile, def.rt.funcsset);
+        scripting::load_block_script(env, full, scriptfile, def.rt.funcsset);
     }
 }
 
@@ -267,13 +267,16 @@ void ContentLoader::loadItem(ItemDef& def, std::string full, std::string name) {
 
     fs::path scriptfile = folder/fs::path("scripts/"+def.scriptName+".lua");
     if (fs::is_regular_file(scriptfile)) {
-        scripting::load_item_script(full, scriptfile, def.rt.funcsset);
+        scripting::load_item_script(env, full, scriptfile, def.rt.funcsset);
     }
 }
 
 void ContentLoader::load(ContentBuilder& builder) {
     std::cout << "-- loading pack [" << pack->id << "]" << std::endl;
-    builder.add(new ContentPackRuntime(*pack));
+
+    auto runtime = new ContentPackRuntime(*pack, scripting::create_environment());
+    builder.add(runtime);
+    env = runtime->getEnvironment()->getId();
 
     fixPackIndices();
 
@@ -281,7 +284,7 @@ void ContentLoader::load(ContentBuilder& builder) {
 
     fs::path scriptFile = folder/fs::path("scripts/world.lua");
     if (fs::is_regular_file(scriptFile)) {
-        scripting::load_world_script(pack->id, scriptFile);
+        scripting::load_world_script(env, pack->id, scriptFile);
     }
 
     if (!fs::is_regular_file(pack->getContentFile()))

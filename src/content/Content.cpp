@@ -8,6 +8,7 @@
 #include "../items/ItemDef.h"
 
 #include "ContentPack.h"
+#include "../logic/scripting/scripting.h"
 
 ContentBuilder::~ContentBuilder() {
 }

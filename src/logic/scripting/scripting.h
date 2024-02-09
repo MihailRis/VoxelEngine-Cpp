@@ -62,9 +62,9 @@ namespace scripting {
     bool on_block_interact(Player* player, const Block* block, int x, int y, int z);
     bool on_item_use_on_block(Player* player, const ItemDef* item, int x, int y, int z);
     bool on_item_break_block(Player* player, const ItemDef* item, int x, int y, int z);
-    void load_block_script(std::string prefix, fs::path file, block_funcs_set& funcsset);
-    void load_item_script(std::string prefix, fs::path file, item_funcs_set& funcsset);
-    void load_world_script(std::string prefix, fs::path file);
-    void load_layout_script(int env, fs::path file, uidocscript& script);
+    void load_block_script(int env, std::string prefix, fs::path file, block_funcs_set& funcsset);
+    void load_item_script(int env, std::string prefix, fs::path file, item_funcs_set& funcsset);
+    void load_world_script(int env, std::string prefix, fs::path file);
+    void load_layout_script(int env, std::string prefix, fs::path file, uidocscript& script);
     void close();
 }

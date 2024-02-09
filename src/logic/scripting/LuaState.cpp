@@ -172,6 +172,40 @@ int lua::LuaState::pushstring(const std::string& str) {
     return 1;
 }
 
+int lua::LuaState::pushenv(int env) {
+    if (getglobal(envName(env))) {
+        return 1;
+    }
+    return 0;
+}
+
+int lua::LuaState::pushglobals() {
+    lua_pushvalue(L, LUA_GLOBALSINDEX);
+    return 1;
+}
+
+void lua::LuaState::pop(int n) {
+    lua_pop(L, n);
+}
+
+int lua::LuaState::pushnil() {
+    lua_pushnil(L);
+    return 1;
+}
+
+bool lua::LuaState::getfield(const std::string& name) {
+    lua_getfield(L, -1, name.c_str());
+    if (lua_isnil(L, -1)) {
+        lua_pop(L, -1);
+        return false;
+    }
+    return true;
+}
+
+void lua::LuaState::setfield(const std::string& name, int idx) {
+    lua_setfield(L, idx, name.c_str());
+}
+
 bool lua::LuaState::toboolean(int index) {
     return lua_toboolean(L, index);
 }
@@ -195,16 +229,17 @@ const std::string lua::LuaState::storeAnonymous() {
 
 int lua::LuaState::createEnvironment() {
     int id = nextEnvironment++;
-    // globals table
+
+    // local env = {}
     lua_createtable(L, 0, 1);
     
-    // metatable
+    // setmetatable(env, {__index=_G})
     lua_createtable(L, 0, 1);
-
     lua_pushvalue(L, LUA_GLOBALSINDEX);
     lua_setfield(L, -2, "__index");
     lua_setmetatable(L, -2);
 
+    // envname = env
     setglobal(envName(id));
     return id;
 }

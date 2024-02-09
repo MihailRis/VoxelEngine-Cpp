@@ -54,7 +54,7 @@ std::unique_ptr<UiDocument> UiDocument::read(std::string namesp, fs::path file) 
     uidocscript script {};
     auto scriptFile = fs::path(file.u8string()+".lua");
     if (fs::is_regular_file(scriptFile)) {
-        scripting::load_layout_script(env->getId(), scriptFile, script);
+        scripting::load_layout_script(env->getId(), namesp, scriptFile, script);
     }
     return std::make_unique<UiDocument>(namesp, script, view, env.release()->getId());
 }
