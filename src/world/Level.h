@@ -2,7 +2,6 @@
 #define WORLD_LEVEL_H_
 
 #include <memory>
-
 #include "../typedefs.h"
 #include "../settings.h"
 
@@ -30,15 +29,15 @@ public:
 
 	const EngineSettings& settings;
 
-	Level(World* world, 
-		  const Content* content,
-	      Player* player, 
+    Level(std::unique_ptr<World>&& world,
+	      const Content* content,
+	      Player* player,
 	      EngineSettings& settings);
 	~Level();
 
 	void update();
-    
-    World* getWorld();
+
+    World& getWorld();
 };
 
 #endif /* WORLD_LEVEL_H_ */

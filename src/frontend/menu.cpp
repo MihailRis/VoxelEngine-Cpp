@@ -39,9 +39,9 @@ using namespace gui;
 
 inline uint64_t randU64() {
     srand(time(NULL));
-    return rand() ^ (rand() << 8) ^ 
+    return rand() ^ (rand() << 8) ^
         (rand() << 16) ^ (rand() << 24) ^
-        ((uint64_t)rand() << 32) ^ 
+        ((uint64_t)rand() << 32) ^
         ((uint64_t)rand() << 40) ^
         ((uint64_t)rand() << 56);
 }
@@ -53,10 +53,10 @@ static std::shared_ptr<Label> create_label(gui::wstringsupplier supplier) {
 }
 
 static std::shared_ptr<Panel> create_page(
-    Engine* engine, 
-    std::string name, 
-    int width, 
-    float opacity, 
+    Engine* engine,
+    std::string name,
+    int width,
+    float opacity,
     int interval
 ) {
     auto menu = engine->getGUI()->getMenu();
@@ -82,8 +82,8 @@ static std::shared_ptr<Button> create_button(
 }
 
 static void show_content_missing(
-    Engine* engine, 
-    const Content* content, 
+    Engine* engine,
+    const Content* content,
     std::shared_ptr<ContentLUT> lut
 ) {
     auto* gui = engine->getGUI();
@@ -124,8 +124,8 @@ static void show_content_missing(
 }
 
 void show_convert_request(
-        Engine* engine, 
-        const Content* content, 
+        Engine* engine,
+        const Content* content,
         std::shared_ptr<ContentLUT> lut,
         fs::path folder
 ) {
@@ -155,7 +155,7 @@ void create_languages_panel(Engine* engine) {
         std::string& fullName = locale.name;
 
         auto button = std::make_shared<Button>(
-            util::str2wstr_utf8(fullName), 
+            util::str2wstr_utf8(fullName),
             vec4(10.f),
             [=](GUI*) {
                 engine->setLanguage(name);
@@ -174,7 +174,7 @@ void open_world(std::string name, Engine* engine) {
         engine->loadWorldContent(folder);
     } catch (const contentpack_error& error) {
         // could not to find or read pack
-        guiutil::alert(engine->getGUI(), 
+        guiutil::alert(engine->getGUI(),
                        langs::get(L"error.pack-not-found")+
                        L": "+util::str2wstr_utf8(error.getPackId()));
         return;
@@ -202,7 +202,7 @@ void open_world(std::string name, Engine* engine) {
             Level* level = World::load(folder, settings, content, packs);
             engine->setScreen(std::make_shared<LevelScreen>(engine, level));
         } catch (const world_load_error& error) {
-            guiutil::alert(engine->getGUI(), 
+            guiutil::alert(engine->getGUI(),
                         langs::get(L"Error")+
                         L": "+util::str2wstr_utf8(error.what()));
             return;
@@ -237,7 +237,7 @@ std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
         delbtn->setHoverColor(vec4(1.0f, 1.0f, 1.0f, 0.17f));
         delbtn->listenAction([=](GUI* gui) {
             guiutil::confirm(gui, langs::get(L"delete-confirm", L"world")+
-            L" ("+util::str2wstr_utf8(folder.u8string())+L")", [=]() 
+            L" ("+util::str2wstr_utf8(folder.u8string())+L")", [=]()
             {
                 std::cout << "deleting " << folder.u8string() << std::endl;
                 fs::remove_all(folder);
@@ -269,9 +269,9 @@ void create_main_menu_panel(Engine* engine) {
 typedef std::function<void(const ContentPack& pack)> packconsumer;
 
 std::shared_ptr<Panel> create_packs_panel(
-    const std::vector<ContentPack>& packs, 
-    Engine* engine, 
-    bool backbutton, 
+    const std::vector<ContentPack>& packs,
+    Engine* engine,
+    bool backbutton,
     packconsumer callback
 ){
     auto assets = engine->getAssets();
@@ -349,11 +349,11 @@ void create_content_panel(Engine* engine) {
     mainPanel->add(panel);
     mainPanel->add(create_button(
     langs::get(L"Add", L"content"), vec4(10.0f), vec4(1), [=](GUI* gui) {
-        auto panel = create_packs_panel(scanned, engine, true, 
+        auto panel = create_packs_panel(scanned, engine, true,
         [=](const ContentPack& pack) {
             auto screen = dynamic_cast<LevelScreen*>(engine->getScreen().get());
             auto level = screen->getLevel();
-            auto world = level->getWorld();
+            auto& world = level->getWorld();
 
             auto worldFolder = paths->getWorldFolder();
             for (const auto& dependency : pack.dependencies) {
@@ -363,14 +363,14 @@ void create_content_panel(Engine* engine) {
                                    L": "+util::str2wstr_utf8(dependency));
                     return;
                 }
-                if (!world->hasPack(dependency)) {
-                    world->wfile->addPack(world, dependency);
+                if (!world.hasPack(dependency)) {
+                    world.wfile->addPack(&world, dependency);
                 }
             }
-            
-            world->wfile->addPack(world, pack.id);
 
-            std::string wname = world->getName();
+            world.wfile->addPack(&world, pack.id);
+
+            std::string wname = world.getName();
             engine->setScreen(nullptr);
             engine->setScreen(std::make_shared<MenuScreen>(engine));
             open_world(wname, engine);
@@ -403,7 +403,7 @@ void create_new_world_panel(Engine* engine) {
     nameInput->textValidator([=](const std::wstring& text) {
         EnginePaths* paths = engine->getPaths();
         std::string textutf8 = util::wstr2str_utf8(text);
-        return util::is_valid_filename(text) && 
+        return util::is_valid_filename(text) &&
                 !paths->isWorldNameUsed(textutf8);
     });
     panel->add(nameInput);
@@ -413,7 +413,7 @@ void create_new_world_panel(Engine* engine) {
     auto seedInput = std::make_shared<TextBox>(seedstr, vec4(6.0f));
     panel->add(seedInput);
 
-    panel->add(create_button( L"Create World", vec4(10), vec4(1, 20, 1, 1), 
+    panel->add(create_button( L"Create World", vec4(10), vec4(1, 20, 1, 1),
     [=](GUI*) {
         if (!nameInput->validate())
             return;
@@ -449,8 +449,8 @@ void create_new_world_panel(Engine* engine) {
         }
 
         Level* level = World::create(
-            name, folder, seed, 
-            engine->getSettings(), 
+            name, folder, seed,
+            engine->getSettings(),
             engine->getContent(),
             engine->getContentPacks()
         );
@@ -485,7 +485,7 @@ void create_controls_panel(Engine* engine) {
     scrollPanel->setMaxLength(400);
     for (auto& entry : Events::bindings){
         std::string bindname = entry.first;
-        
+
         auto subpanel = std::make_shared<Panel>(vec2(400, 40), vec4(5.0f), 1.0f);
         subpanel->setColor(vec4(0.0f));
         subpanel->setOrientation(Orientation::horizontal);
@@ -506,7 +506,7 @@ void create_settings_panel(Engine* engine) {
 
     /* Load Distance setting track bar */{
         panel->add(create_label([=]() {
-            return langs::get(L"Load Distance", L"settings")+L": " + 
+            return langs::get(L"Load Distance", L"settings")+L": " +
                 std::to_wstring(engine->getSettings().chunks.loadDistance);
         }));
 
@@ -522,7 +522,7 @@ void create_settings_panel(Engine* engine) {
 
     /* Load Speed setting track bar */{
         panel->add(create_label([=]() {
-            return langs::get(L"Load Speed", L"settings")+L": " + 
+            return langs::get(L"Load Speed", L"settings")+L": " +
                 std::to_wstring(engine->getSettings().chunks.loadSpeed);
         }));
 
@@ -598,7 +598,7 @@ void create_settings_panel(Engine* engine) {
     std::string langName = langs::locales_info.at(langs::current->getId()).name;
     panel->add(guiutil::gotoButton(
         langs::get(L"Language", L"settings")+L": "+
-        util::str2wstr_utf8(langName), 
+        util::str2wstr_utf8(langName),
         "languages", menu));
 
     panel->add(guiutil::gotoButton(L"Controls", "controls", menu));

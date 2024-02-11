@@ -74,17 +74,17 @@ void MenuScreen::draw(float delta) {
 
     batch->begin();
     batch->texture(engine->getAssets()->getTexture("gui/menubg"));
-    batch->rect(0, 0, 
-                width, height, 0, 0, 0, 
-                UVRegion(0, 0, width/64, height/64), 
+    batch->rect(0, 0,
+                width, height, 0, 0, 0,
+                UVRegion(0, 0, width/64, height/64),
                 false, false, glm::vec4(1.0f));
     batch->render();
 }
 
 static bool backlight;
 
-LevelScreen::LevelScreen(Engine* engine, Level* level) 
-    : Screen(engine), 
+LevelScreen::LevelScreen(Engine* engine, Level* level)
+    : Screen(engine),
       level(level),
       frontend(std::make_unique<LevelFrontend>(level, engine->getAssets())),
       hud(std::make_unique<HudRenderer>(engine, frontend.get())),
@@ -101,8 +101,8 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
 LevelScreen::~LevelScreen() {
     std::cout << "-- writing world" << std::endl;
     controller->onWorldSave();
-    auto world = level->getWorld();
-    world->write(level.get());
+    auto& world = level->getWorld();
+    world.write(level.get());
     controller->onWorldQuit();
     engine->getPaths()->setWorldFolder(fs::path());
 }
@@ -125,9 +125,9 @@ void LevelScreen::updateHotkeys() {
 
 void LevelScreen::update(float delta) {
     gui::GUI* gui = engine->getGUI();
-    
-    bool inputLocked = hud->isPause() || 
-                       hud->isInventoryOpen() || 
+
+    bool inputLocked = hud->isPause() ||
+                       hud->isInventoryOpen() ||
                        gui->isFocusCaught();
     if (!gui->isFocusCaught()) {
         updateHotkeys();

@@ -14,20 +14,20 @@
 #include "../objects/Player.h"
 #include "../window/Camera.h"
 
-world_load_error::world_load_error(std::string message) 
+world_load_error::world_load_error(std::string message)
     : std::runtime_error(message) {
 }
 
 World::World(
-    std::string name, 
-    fs::path directory, 
-    uint64_t seed, 
+    std::string name,
+    fs::path directory,
+    uint64_t seed,
     EngineSettings& settings,
     const Content* content,
-    const std::vector<ContentPack> packs) 
+    const std::vector<ContentPack> packs)
     : name(name),
       seed(seed),
-      settings(settings), 
+      settings(settings),
       content(content),
       packs(packs) {
     wfile = new WorldFiles(directory, settings.debug);
@@ -52,7 +52,7 @@ void World::write(Level* level) {
         auto chunk = chunks->chunks[i];
         if (chunk == nullptr || !chunk->isLighted())
             continue;
-        bool lightsUnsaved = !chunk->isLoadedLights() && 
+        bool lightsUnsaved = !chunk->isLoadedLights() &&
                               settings.debug.doWriteLights;
         if (!chunk->isUnsaved() && !lightsUnsaved)
             continue;
@@ -66,15 +66,15 @@ void World::write(Level* level) {
 const float DEF_PLAYER_Y = 100.0f;
 const float DEF_PLAYER_SPEED = 4.0f;
 
-Level* World::create(std::string name, 
-                     fs::path directory, 
+Level* World::create(std::string name,
+                     fs::path directory,
                      uint64_t seed,
-                     EngineSettings& settings, 
+                     EngineSettings& settings,
                      const Content* content,
                      const std::vector<ContentPack>& packs) {
-    auto world = new World(name, directory, seed, settings, content, packs);
+    auto world = std::make_unique<World>(name, directory, seed, settings, content, packs);
     auto player = new Player(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
-    return new Level(world, content, player, settings);
+    return new Level(std::move(world), content, player, settings);
 }
 
 Level* World::load(fs::path directory,
@@ -91,14 +91,12 @@ Level* World::load(fs::path directory,
     }
 
     auto player = new Player(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
-    auto level = new Level(world.get(), content, player, settings);
     wfile->readPlayer(player);
 
-    world.release();
-    return level;
+    return new Level(std::move(world), content, player, settings);
 }
 
-ContentLUT* World::checkIndices(const fs::path& directory, 
+ContentLUT* World::checkIndices(const fs::path& directory,
                                 const Content* content) {
     fs::path indicesFile = directory/fs::path("indices.json");
     if (fs::is_regular_file(indicesFile)) {
@@ -153,7 +151,7 @@ void World::deserialize(dynamic::Map* root) {
 		timeobj->num("day-time-speed", daytimeSpeed);
         timeobj->num("total-time", totalTime);
 	}
-    
+
     nextInventoryId = root->getNum("next-inventory-id", 2);
 }
 
@@ -166,7 +164,7 @@ std::unique_ptr<dynamic::Map> World::serialize() const {
 
 	root->put("name", name);
 	root->put("seed", seed);
-	
+
     auto& timeobj = root->putMap("time");
 	timeobj.put("day-time", daytime);
 	timeobj.put("day-time-speed", daytimeSpeed);

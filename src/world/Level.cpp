@@ -11,8 +11,8 @@
 #include "../objects/Player.h"
 #include "../items/Inventory.h"
 
-Level::Level(World* world, const Content* content, Player* player, EngineSettings& settings)
-	  : world(world),
+Level::Level(std::unique_ptr<World>&& world, const Content* content, Player* player, EngineSettings& settings)
+      : world(std::forward<std::unique_ptr<World>>(world)),
 	    content(content),
 		player(player),
 		chunksStorage(new ChunksStorage(this)),
@@ -23,8 +23,8 @@ Level::Level(World* world, const Content* content, Player* player, EngineSetting
 
     uint matrixSize = (settings.chunks.loadDistance+
 					   settings.chunks.padding) * 2;
-    chunks = new Chunks(matrixSize, matrixSize, 0, 0, 
-						world->wfile, events, content);
+    chunks = new Chunks(matrixSize, matrixSize, 0, 0,
+						this->world->wfile, events, content);
 	lighting = new Lighting(content, chunks);
 
 	events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
@@ -52,6 +52,6 @@ void Level::update() {
 	}
 }
 
-World* Level::getWorld() {
-    return world.get();
+World& Level::getWorld() {
+    return *world;
 }
