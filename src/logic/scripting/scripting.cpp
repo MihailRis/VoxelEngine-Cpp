@@ -10,6 +10,7 @@
 #include "../../world/Level.h"
 #include "../../voxels/Block.h"
 #include "../../items/ItemDef.h"
+#include "../../items/Inventory.h"
 #include "../../logic/BlocksController.h"
 #include "../../frontend/UiDocument.h"
 #include "../../engine.h"
@@ -208,14 +209,16 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
 void scripting::on_ui_open(UiDocument* layout, Inventory* inventory) {
     std::string name = layout->getId()+".open";
     if (state->getglobal(name)) {
-        state->callNoThrow(0);
+        state->pushinteger(inventory->getId());
+        state->callNoThrow(1);
     }
 }
 
 void scripting::on_ui_close(UiDocument* layout, Inventory* inventory) {
     std::string name = layout->getId()+".close";
     if (state->getglobal(name)) {
-        state->callNoThrow(0);
+        state->pushinteger(inventory->getId());
+        state->callNoThrow(1);
     }
 }
 

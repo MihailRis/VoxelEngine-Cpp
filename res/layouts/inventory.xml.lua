@@ -1,7 +1,7 @@
-function on_open()
-    print("OPEN")
+function on_open(inv)
+    print("OPEN", inv)
 end
 
-function on_close()
-    print("CLOSE")
+function on_close(inv)
+    print("CLOSE", inv)
 end

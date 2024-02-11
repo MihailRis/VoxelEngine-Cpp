@@ -86,16 +86,6 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
             fs::path folder = info.folder / fs::path("layouts");
             addLayouts(pack->getEnvironment()->getId(), info.id, folder, loader);
         }
-
-        for (fs::path& file : loader.getPaths()->listdir(LAYOUTS_FOLDER)) {
-            if (file.extension().u8string() != ".xml")
-                continue;
-            std::string packName = file.parent_path().parent_path().filename();
-            if (packName == "res") {
-                packName = "core";
-            }
-            //loader.add(ASSET_LAYOUT, file.u8string(), packName+":"+file.stem().u8string());
-        }
     }
     loader.add(ASSET_ATLAS, TEXTURES_FOLDER"/blocks", "blocks");
     loader.add(ASSET_ATLAS, TEXTURES_FOLDER"/items", "items");
