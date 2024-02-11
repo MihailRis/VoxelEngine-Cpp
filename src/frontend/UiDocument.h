@@ -12,6 +12,10 @@ namespace gui {
     class UINode;
 }
 
+namespace scripting {
+    class Environment;
+}
+
 struct uidocscript {
     int environment;
     bool onopen : 1;
@@ -25,13 +29,13 @@ class UiDocument {
     uidocscript script;
     uinodes_map map;
     std::shared_ptr<gui::UINode> root;
-    int env;
+    std::unique_ptr<scripting::Environment> env;
 public:
     UiDocument(
         std::string id, 
         uidocscript script, 
         std::shared_ptr<gui::UINode> root, 
-        int env
+        std::unique_ptr<scripting::Environment> env
     );
 
     const std::string& getId() const;

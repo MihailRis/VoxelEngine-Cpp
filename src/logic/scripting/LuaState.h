@@ -51,7 +51,7 @@ namespace lua {
         bool rename(const std::string& from, const std::string& to);
         void remove(const std::string& name);;
         void createFuncs();
-        int createEnvironment();
+        int createEnvironment(int parent);
         void removeEnvironment(int id);
         const std::string storeAnonymous();
     };

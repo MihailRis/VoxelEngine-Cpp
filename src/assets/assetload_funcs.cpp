@@ -14,6 +14,7 @@
 #include "../graphics/Font.h"
 #include "../graphics/TextureAnimation.h"
 #include "../frontend/UiDocument.h"
+#include "../logic/scripting/scripting.h"
 
 namespace fs = std::filesystem;
 

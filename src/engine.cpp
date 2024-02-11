@@ -131,12 +131,12 @@ void Engine::mainloop() {
 Engine::~Engine() {
 	screen = nullptr;
 	content.reset();
-    scripting::close();
 
 	Audio::finalize();
 
 	std::cout << "-- shutting down" << std::endl;
     assets.reset();
+    scripting::close();
 	Window::terminate();
 	std::cout << "-- engine finished" << std::endl;
 }

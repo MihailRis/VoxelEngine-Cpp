@@ -91,8 +91,8 @@ wstringconsumer scripting::create_wstring_consumer(
     };
 }
 
-std::unique_ptr<Environment> scripting::create_environment() {
-    return std::make_unique<Environment>(state->createEnvironment());
+std::unique_ptr<Environment> scripting::create_environment(int parent) {
+    return std::make_unique<Environment>(state->createEnvironment(parent));
 }
 
 void scripting::on_world_load(Level* level, BlocksController* blocks) {

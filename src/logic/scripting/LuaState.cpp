@@ -228,7 +228,7 @@ const std::string lua::LuaState::storeAnonymous() {
     return funcName;
 }
 
-int lua::LuaState::createEnvironment() {
+int lua::LuaState::createEnvironment(int parent) {
     int id = nextEnvironment++;
 
     // local env = {}
@@ -236,7 +236,13 @@ int lua::LuaState::createEnvironment() {
     
     // setmetatable(env, {__index=_G})
     lua_createtable(L, 0, 1);
-    lua_pushvalue(L, LUA_GLOBALSINDEX);
+    if (parent == 0 || true) {
+        lua_pushvalue(L, LUA_GLOBALSINDEX);
+    } else {
+        if (pushenv(parent) == 0) {
+            lua_pushvalue(L, LUA_GLOBALSINDEX);
+        }
+    }
     lua_setfield(L, -2, "__index");
     lua_setmetatable(L, -2);
 

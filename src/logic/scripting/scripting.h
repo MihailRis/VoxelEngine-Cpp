@@ -51,7 +51,7 @@ namespace scripting {
         const std::string& file="<string>"
     );
 
-    std::unique_ptr<Environment> create_environment();
+    std::unique_ptr<Environment> create_environment(int parent=0);
 
     void on_world_load(Level* level, BlocksController* blocks);
     void on_world_save();

@@ -5,6 +5,7 @@
 #include "../graphics/Atlas.h"
 #include "../graphics/Font.h"
 #include "../frontend/UiDocument.h"
+#include "../logic/scripting/scripting.h"
 
 Assets::~Assets() {
 }
