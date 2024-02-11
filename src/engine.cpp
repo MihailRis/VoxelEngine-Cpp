@@ -42,7 +42,8 @@
 namespace fs = std::filesystem;
 
 Engine::Engine(EngineSettings& settings, EnginePaths* paths) 
-	   : settings(settings), paths(paths) {    
+    : settings(settings), paths(paths) 
+{    
 	if (Window::initialize(settings.display)){
 		throw initialize_error("could not initialize window");
 	}
@@ -52,18 +53,21 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 
 	std::cout << "-- loading assets" << std::endl;
     std::vector<fs::path> roots {resdir};
-    resPaths.reset(new ResPaths(resdir, roots));
-    assets.reset(new Assets());
+
+    resPaths = std::make_unique<ResPaths>(resdir, roots);
+    assets = std::make_unique<Assets>();
+
+
 	AssetsLoader loader(assets.get(), resPaths.get());
-	AssetsLoader::createDefaults(loader);
 	AssetsLoader::addDefaults(loader, nullptr);
 
     Shader::preprocessor->setPaths(resPaths.get());
 	while (loader.hasNext()) {
 		if (!loader.loadNext()) {
 			assets.reset();
+            scripting::close();
 			Window::terminate();
-			throw initialize_error("could not to initialize assets");
+			throw initialize_error("could not to load assets");
 		}
 	}
 
@@ -73,7 +77,6 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
         settings.ui.language = langs::locale_by_envlocale(platform::detect_locale(), paths->getResources());
     }
     setLanguage(settings.ui.language);
-	std::cout << "-- initializing finished" << std::endl;
 }
 
 void Engine::updateTimers() {
@@ -98,12 +101,11 @@ void Engine::updateHotkeys() {
 
 void Engine::mainloop() {
     setScreen(std::make_shared<MenuScreen>(this));
-	
-	std::cout << "-- preparing systems" << std::endl;
 
 	Batch2D batch(1024);
 	lastTime = Window::time();
 
+    std::cout << "-- initialized" << std::endl;
 	while (!Window::isShouldClose()){
 		assert(screen != nullptr);
 		updateTimers();
@@ -129,12 +131,11 @@ void Engine::mainloop() {
 }
 
 Engine::~Engine() {
-	screen = nullptr;
+    std::cout << "-- shutting down" << std::endl;
+	screen.reset();
 	content.reset();
 
 	Audio::finalize();
-
-	std::cout << "-- shutting down" << std::endl;
     assets.reset();
     scripting::close();
 	Window::terminate();
@@ -184,7 +185,6 @@ void Engine::loadContent() {
     std::unique_ptr<Assets> new_assets(new Assets());
 	std::cout << "-- loading assets" << std::endl;
 	AssetsLoader loader(new_assets.get(), resPaths.get());
-    AssetsLoader::createDefaults(loader);
     AssetsLoader::addDefaults(loader, content.get());
 	while (loader.hasNext()) {
 		if (!loader.loadNext()) {

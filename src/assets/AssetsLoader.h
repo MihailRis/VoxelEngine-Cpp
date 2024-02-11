@@ -44,7 +44,6 @@ public:
 	bool hasNext() const;
 	bool loadNext();
 
-	static void createDefaults(AssetsLoader& loader);
 	static void addDefaults(AssetsLoader& loader, const Content* content);
 
 	const ResPaths* getPaths() const;

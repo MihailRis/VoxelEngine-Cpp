@@ -13,6 +13,11 @@
 
 AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths) 
 	: assets(assets), paths(paths) {
+	addLoader(ASSET_SHADER, assetload::shader);
+	addLoader(ASSET_TEXTURE, assetload::texture);
+	addLoader(ASSET_FONT, assetload::font);
+	addLoader(ASSET_ATLAS, assetload::atlas);
+    addLoader(ASSET_LAYOUT, assetload::layout);
 }
 
 void AssetsLoader::addLoader(int tag, aloader_func func) {
@@ -40,14 +45,6 @@ bool AssetsLoader::loadNext() {
 	bool status = loader(assets, paths, entry.filename, entry.alias, entry.config);
 	entries.pop();
 	return status;
-}
-
-void AssetsLoader::createDefaults(AssetsLoader& loader) {
-	loader.addLoader(ASSET_SHADER, assetload::shader);
-	loader.addLoader(ASSET_TEXTURE, assetload::texture);
-	loader.addLoader(ASSET_FONT, assetload::font);
-	loader.addLoader(ASSET_ATLAS, assetload::atlas);
-    loader.addLoader(ASSET_LAYOUT, assetload::layout);
 }
 
 void addLayouts(int env, const std::string& prefix, const fs::path& folder, AssetsLoader& loader) {
