@@ -21,26 +21,28 @@ struct uidocscript {
 using uinodes_map = std::unordered_map<std::string, std::shared_ptr<gui::UINode>>;
 
 class UiDocument {
-    std::string namesp;
+    std::string id;
     uidocscript script;
     uinodes_map map;
     std::shared_ptr<gui::UINode> root;
     int env;
 public:
     UiDocument(
-        std::string namesp, 
+        std::string id, 
         uidocscript script, 
         std::shared_ptr<gui::UINode> root, 
-        int env);
+        int env
+    );
 
+    const std::string& getId() const;
     const uinodes_map& getMap() const;
-    const std::string& getNamespace() const;
     const std::shared_ptr<gui::UINode> getRoot() const;
-
+    const uidocscript& getScript() const;
+    int getEnvironment() const;
     /* Collect map of all uinodes having identifiers */
     static void collect(uinodes_map& map, std::shared_ptr<gui::UINode> node);
 
-    static std::unique_ptr<UiDocument> read (std::string namesp, fs::path file);
+    static std::unique_ptr<UiDocument> read(int env, std::string namesp, fs::path file);
 };
 
 #endif // FRONTEND_UI_DOCUMENT_H_

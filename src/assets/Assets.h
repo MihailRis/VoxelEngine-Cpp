@@ -14,6 +14,12 @@ class Font;
 class Atlas;
 class UiDocument;
 
+struct LayoutCfg {
+    int env;
+
+    LayoutCfg(int env) : env(env) {}
+};
+
 class Assets {
 	std::unordered_map<std::string, std::shared_ptr<Texture>> textures;
 	std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;

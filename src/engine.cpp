@@ -56,7 +56,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     assets.reset(new Assets());
 	AssetsLoader loader(assets.get(), resPaths.get());
 	AssetsLoader::createDefaults(loader);
-	AssetsLoader::addDefaults(loader, false);
+	AssetsLoader::addDefaults(loader, nullptr);
 
     Shader::preprocessor->setPaths(resPaths.get());
 	while (loader.hasNext()) {
@@ -164,7 +164,8 @@ void Engine::loadContent() {
 		for (auto& pack : srcPacks) {
 			if(loadedPacks.find(pack.id) != loadedPacks.end()) continue;
 			missingDependency = checkPacks(existingPacks, pack.dependencies);
-			if(!missingDependency.empty()) throw contentpack_error(pack.id, pack.folder, "missing dependency '"+missingDependency+"'");
+			if(!missingDependency.empty()) 
+                throw contentpack_error(pack.id, pack.folder, "missing dependency '"+missingDependency+"'");
 			if(pack.dependencies.empty() || checkPacks(loadedPacks, pack.dependencies).empty()) {
 				loadedPacks.insert(pack.id);
 				resRoots.push_back(pack.folder);
@@ -184,7 +185,7 @@ void Engine::loadContent() {
 	std::cout << "-- loading assets" << std::endl;
 	AssetsLoader loader(new_assets.get(), resPaths.get());
     AssetsLoader::createDefaults(loader);
-    AssetsLoader::addDefaults(loader, true);
+    AssetsLoader::addDefaults(loader, content.get());
 	while (loader.hasNext()) {
 		if (!loader.loadNext()) {
 			new_assets.reset();

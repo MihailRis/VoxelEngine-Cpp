@@ -296,6 +296,10 @@ std::shared_ptr<SlotView> InventoryView::addSlot(SlotLayout layout) {
     return slot;
 }
 
+std::shared_ptr<Inventory> InventoryView::getInventory() const {
+    return inventory;
+}
+
 void InventoryView::bind(
     std::shared_ptr<Inventory> inventory,
     LevelFrontend* frontend, 

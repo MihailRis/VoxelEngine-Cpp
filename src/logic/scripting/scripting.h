@@ -14,6 +14,8 @@ class Level;
 class Block;
 class Player;
 class ItemDef;
+class Inventory;
+class UiDocument;
 struct block_funcs_set;
 struct item_funcs_set;
 struct uidocscript;
@@ -39,8 +41,8 @@ namespace scripting {
 
     runnable create_runnable(
         int env,
-        const std::string& filename,
-        const std::string& source
+        const std::string& src,
+        const std::string& file="<string>"
     );
     
     wstringconsumer create_wstring_consumer(
@@ -62,6 +64,8 @@ namespace scripting {
     bool on_block_interact(Player* player, const Block* block, int x, int y, int z);
     bool on_item_use_on_block(Player* player, const ItemDef* item, int x, int y, int z);
     bool on_item_break_block(Player* player, const ItemDef* item, int x, int y, int z);
+    void on_ui_open(UiDocument* layout, Inventory* inventory);
+    void on_ui_close(UiDocument* layout, Inventory* inventory);
     void load_block_script(int env, std::string prefix, fs::path file, block_funcs_set& funcsset);
     void load_item_script(int env, std::string prefix, fs::path file, item_funcs_set& funcsset);
     void load_world_script(int env, std::string prefix, fs::path file);

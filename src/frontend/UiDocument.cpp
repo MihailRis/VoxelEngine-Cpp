@@ -8,11 +8,11 @@
 #include "../frontend/gui/gui_xml.h"
 
 UiDocument::UiDocument(
-    std::string namesp, 
+    std::string id, 
     uidocscript script, 
     std::shared_ptr<gui::UINode> root,
     int env
-) : namesp(namesp), script(script), root(root), env(env) {
+) : id(id), script(script), root(root), env(env) {
     collect(map, root);
 }
 
@@ -21,12 +21,20 @@ const uinodes_map& UiDocument::getMap() const {
     return map;
 }
 
-const std::string& UiDocument::getNamespace() const {
-    return namesp;
+const std::string& UiDocument::getId() const {
+    return id;
 }
 
 const std::shared_ptr<gui::UINode> UiDocument::getRoot() const {
     return root;
+}
+
+const uidocscript& UiDocument::getScript() const {
+    return script;
+}
+
+int UiDocument::getEnvironment() const {
+    return env;
 }
 
 void UiDocument::collect(uinodes_map& map, std::shared_ptr<gui::UINode> node) {
@@ -42,11 +50,10 @@ void UiDocument::collect(uinodes_map& map, std::shared_ptr<gui::UINode> node) {
     }
 }
 
-std::unique_ptr<UiDocument> UiDocument::read(std::string namesp, fs::path file) {
+std::unique_ptr<UiDocument> UiDocument::read(int env, std::string namesp, fs::path file) {
     const std::string text = files::read_string(file);
     auto xmldoc = xml::parse(file.u8string(), text);
-    auto env = scripting::create_environment();
-    gui::UiXmlReader reader(*env);
+    gui::UiXmlReader reader(env);
     InventoryView::createReaders(reader);
     auto view = reader.readXML(
         file.u8string(), xmldoc->getRoot()
@@ -54,7 +61,7 @@ std::unique_ptr<UiDocument> UiDocument::read(std::string namesp, fs::path file) 
     uidocscript script {};
     auto scriptFile = fs::path(file.u8string()+".lua");
     if (fs::is_regular_file(scriptFile)) {
-        scripting::load_layout_script(env->getId(), namesp, scriptFile, script);
+        scripting::load_layout_script(env, namesp, scriptFile, script);
     }
-    return std::make_unique<UiDocument>(namesp, script, view, env.release()->getId());
+    return std::make_unique<UiDocument>(namesp, script, view, env);
 }

@@ -18,6 +18,7 @@ class Engine;
 class SlotView;
 class InventoryView;
 class LevelFrontend;
+class UiDocument;
 class InventoryInteraction;
 
 namespace gui {
@@ -40,7 +41,6 @@ class HudRenderer {
     std::shared_ptr<gui::Panel> contentAccessPanel;
     std::shared_ptr<InventoryView> contentAccess;
     std::shared_ptr<InventoryView> hotbarView;
-    std::shared_ptr<InventoryView> inventoryView;
 	std::shared_ptr<gui::UINode> debugPanel;
     std::shared_ptr<gui::Panel> darkOverlay;
     std::unique_ptr<InventoryInteraction> interaction;
@@ -48,10 +48,12 @@ class HudRenderer {
 	gui::GUI* gui;
 	LevelFrontend* frontend;
 
+    std::shared_ptr<InventoryView> inventoryView = nullptr;
+    UiDocument* inventoryDocument = nullptr;
+
     std::shared_ptr<gui::UINode> createDebugPanel(Engine* engine);
     std::shared_ptr<InventoryView> createContentAccess();
     std::shared_ptr<InventoryView> createHotbar();
-    std::shared_ptr<InventoryView> createInventory();
 public:
 	HudRenderer(Engine* engine, LevelFrontend* frontend);
 	~HudRenderer();
@@ -63,6 +65,7 @@ public:
 	bool isInventoryOpen() const;
 	bool isPause() const;
 
+    void openInventory();
     void closeInventory();
 };
 

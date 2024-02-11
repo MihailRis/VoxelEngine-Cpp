@@ -60,8 +60,8 @@ void scripting::initialize(Engine* engine) {
 
 runnable scripting::create_runnable(
     int env,
-    const std::string& file,
-    const std::string& src
+    const std::string& src,
+    const std::string& file
 ) {
     return [=](){
         state->execute(env, src, file);
@@ -170,7 +170,7 @@ void scripting::on_block_broken(Player* player, const Block* block, int x, int y
 }
 
 bool scripting::on_block_interact(Player* player, const Block* block, int x, int y, int z) {
-    std::string name = block->name+".oninteract";
+    std::string name = block->name+".interact";
     if (state->getglobal(name)) {
         state->pushivec3(x, y, z);
         state->pushinteger(1); // playerid placeholder
@@ -205,8 +205,21 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
     return false;
 }
 
+void scripting::on_ui_open(UiDocument* layout, Inventory* inventory) {
+    std::string name = layout->getId()+".open";
+    if (state->getglobal(name)) {
+        state->callNoThrow(0);
+    }
+}
+
+void scripting::on_ui_close(UiDocument* layout, Inventory* inventory) {
+    std::string name = layout->getId()+".close";
+    if (state->getglobal(name)) {
+        state->callNoThrow(0);
+    }
+}
+
 bool register_event(int env, const std::string& name, const std::string& id) {
-    std::cout << "register " << name << " -> " << id << std::endl;
     if (state->pushenv(env) == 0) {
         state->pushglobals();
     }

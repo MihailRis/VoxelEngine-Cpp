@@ -115,6 +115,8 @@ public:
 
     std::shared_ptr<SlotView> addSlot(SlotLayout layout);
 
+    std::shared_ptr<Inventory> getInventory() const;
+
     static std::shared_ptr<InventoryView> readXML(
         const std::string& src,
         const std::string& file,

@@ -2,6 +2,7 @@
 #define ASSETS_ASSETS_LOADER_H
 
 #include <string>
+#include <memory>
 #include <functional>
 #include <map>
 #include <queue>
@@ -14,13 +15,15 @@ const short ASSET_LAYOUT = 5;
 
 class ResPaths;
 class Assets;
+class Content;
 
-using aloader_func = std::function<bool(Assets*, const ResPaths*, const std::string&, const std::string&)>;
+using aloader_func = std::function<bool(Assets*, const ResPaths*, const std::string&, const std::string&, std::shared_ptr<void>)>;
 
 struct aloader_entry {
 	int tag;
 	const std::string filename;
 	const std::string alias;
+    std::shared_ptr<void> config;
 };
 
 class AssetsLoader {
@@ -31,13 +34,18 @@ class AssetsLoader {
 public:
 	AssetsLoader(Assets* assets, const ResPaths* paths);
 	void addLoader(int tag, aloader_func func);
-	void add(int tag, const std::string filename, const std::string alias);
+	void add(
+        int tag, 
+        const std::string filename, 
+        const std::string alias, 
+        std::shared_ptr<void> settings=nullptr
+    );
 
 	bool hasNext() const;
 	bool loadNext();
 
 	static void createDefaults(AssetsLoader& loader);
-	static void addDefaults(AssetsLoader& loader, bool world);
+	static void addDefaults(AssetsLoader& loader, const Content* content);
 
 	const ResPaths* getPaths() const;
 };

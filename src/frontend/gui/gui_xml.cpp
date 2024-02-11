@@ -125,8 +125,8 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement e
     if (element->has("onclick")) {
         auto callback = scripting::create_runnable(
             reader.getEnvironment().getId(),
-            "<onclick>", 
-            element->attr("onclick").getText()
+            element->attr("onclick").getText(),
+            "<onclick>"
         );
         button->listenAction([callback](GUI*) {
             callback();

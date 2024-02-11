@@ -16,6 +16,7 @@ lua::LuaState::LuaState() {
     luaopen_math(L);
     luaopen_string(L);
     luaopen_table(L);
+    luaopen_debug(L);
 
     std::cout << LUA_VERSION << std::endl;
 #   ifdef LUAJIT_VERSION

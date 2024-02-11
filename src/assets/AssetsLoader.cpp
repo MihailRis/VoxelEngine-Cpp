@@ -8,6 +8,8 @@
 
 #include "../constants.h"
 #include "../files/engine_paths.h"
+#include "../content/Content.h"
+#include "../logic/scripting/scripting.h"
 
 AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths) 
 	: assets(assets), paths(paths) {
@@ -17,8 +19,8 @@ void AssetsLoader::addLoader(int tag, aloader_func func) {
 	loaders[tag] = func;
 }
 
-void AssetsLoader::add(int tag, const std::string filename, const std::string alias) {
-	entries.push(aloader_entry{ tag, filename, alias });
+void AssetsLoader::add(int tag, const std::string filename, const std::string alias, std::shared_ptr<void> settings) {
+	entries.push(aloader_entry{ tag, filename, alias, settings});
 }
 
 bool AssetsLoader::hasNext() const {
@@ -35,7 +37,7 @@ bool AssetsLoader::loadNext() {
 		return false;
 	}
 	aloader_func loader = found->second;
-	bool status = loader(assets, paths, entry.filename, entry.alias);
+	bool status = loader(assets, paths, entry.filename, entry.alias, entry.config);
 	entries.pop();
 	return status;
 }
@@ -48,7 +50,20 @@ void AssetsLoader::createDefaults(AssetsLoader& loader) {
     loader.addLoader(ASSET_LAYOUT, assetload::layout);
 }
 
-void AssetsLoader::addDefaults(AssetsLoader& loader, bool world) {
+void addLayouts(int env, const std::string& prefix, const fs::path& folder, AssetsLoader& loader) {
+    if (!fs::is_directory(folder)) {
+        return;
+    }
+    for (auto& entry : fs::directory_iterator(folder)) {
+        const fs::path file = entry.path();
+        if (file.extension().u8string() != ".xml")
+            continue;
+        std::string name = prefix+":"+file.stem().u8string();
+        loader.add(ASSET_LAYOUT, file.u8string(), name, std::make_shared<LayoutCfg>(env));
+    }
+}
+
+void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
     loader.add(ASSET_FONT, FONTS_FOLDER"/font", "normal");
     loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui", "ui");
     loader.add(ASSET_SHADER, SHADERS_FOLDER"/main", "main");
@@ -58,12 +73,19 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, bool world) {
     loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/no_icon.png", "gui/no_icon");
     loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/warning.png", "gui/warning");
     loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/error.png", "gui/error");
-    if (world) {
+    if (content) {
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui3d", "ui3d");
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/background", "background");
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/skybox_gen", "skybox_gen");
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/moon.png", "misc/moon");
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/sun.png", "misc/sun");
+
+        addLayouts(0, "core", loader.getPaths()->getMainRoot()/fs::path("layouts"), loader);
+        for (auto& pack : content->getPacks()) {
+            auto& info = pack->getInfo();
+            fs::path folder = info.folder / fs::path("layouts");
+            addLayouts(pack->getEnvironment()->getId(), info.id, folder, loader);
+        }
 
         for (fs::path& file : loader.getPaths()->listdir(LAYOUTS_FOLDER)) {
             if (file.extension().u8string() != ".xml")
@@ -72,7 +94,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, bool world) {
             if (packName == "res") {
                 packName = "core";
             }
-            loader.add(ASSET_LAYOUT, file.u8string(), packName+":"+file.stem().u8string());
+            //loader.add(ASSET_LAYOUT, file.u8string(), packName+":"+file.stem().u8string());
         }
     }
     loader.add(ASSET_ATLAS, TEXTURES_FOLDER"/blocks", "blocks");

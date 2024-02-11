@@ -20,7 +20,9 @@ namespace fs = std::filesystem;
 bool assetload::texture(Assets* assets,
                         const ResPaths* paths,
                         const std::string filename, 
-                        const std::string name) {
+                        const std::string name,
+                        std::shared_ptr<void>
+) {
     std::unique_ptr<Texture> texture(
         png::load_texture(paths->find(filename).u8string())
     );
@@ -35,7 +37,9 @@ bool assetload::texture(Assets* assets,
 bool assetload::shader(Assets* assets,
                        const ResPaths* paths,
                        const std::string filename, 
-                       const std::string name) {
+                       const std::string name,
+                       std::shared_ptr<void>
+) {
     fs::path vertexFile = paths->find(filename+".glslv");
     fs::path fragmentFile = paths->find(filename+".glslf");
 
@@ -78,7 +82,9 @@ static bool appendAtlas(AtlasBuilder& atlas, const fs::path& file) {
 bool assetload::atlas(Assets* assets, 
                       const ResPaths* paths,
                       const std::string directory, 
-                      const std::string name) {
+                      const std::string name,
+                      std::shared_ptr<void>
+) {
     AtlasBuilder builder;
     for (const auto& file : paths->listdir(directory)) {
         if (!appendAtlas(builder, file)) continue;
@@ -94,7 +100,9 @@ bool assetload::atlas(Assets* assets,
 bool assetload::font(Assets* assets, 
                      const ResPaths* paths,
                      const std::string filename, 
-                     const std::string name) {
+                     const std::string name,
+                     std::shared_ptr<void>
+) {
     std::vector<std::unique_ptr<Texture>> pages;
     for (size_t i = 0; i <= 4; i++) {
         std::string name = filename + "_" + std::to_string(i) + ".png"; 
@@ -112,6 +120,26 @@ bool assetload::font(Assets* assets,
     assets->store(new Font(std::move(pages), res, 4), name);
     return true;
 }
+
+bool assetload::layout(
+    Assets* assets,
+    const ResPaths* paths,
+    const std::string file,
+    const std::string name,
+    std::shared_ptr<void> config
+) {
+    try {
+        LayoutCfg* cfg = reinterpret_cast<LayoutCfg*>(config.get());
+        auto document = UiDocument::read(cfg->env, name, file);
+        assets->store(document.release(), name);
+        return true;
+    } catch (const parsing_error& err) {
+        std::cerr << "failed to parse layout XML '" << file << "'" << std::endl;
+        std::cerr << err.errorLog() << std::endl;
+        return false;
+    }
+}
+
 
 bool assetload::animation(Assets* assets, 
                         const ResPaths* paths, 
@@ -205,21 +233,4 @@ bool assetload::animation(Assets* assets,
         return true;
     }
     return true;
-}
-
-bool assetload::layout(
-    Assets* assets,
-    const ResPaths* paths,
-    const std::string file,
-    const std::string name
-) {
-    try {
-        auto document = UiDocument::read(name, file);
-        assets->store(document.release(), name);
-        return true;
-    } catch (const parsing_error& err) {
-        std::cerr << "failed to parse layout XML '" << file << "'" << std::endl;
-        std::cerr << err.errorLog() << std::endl;
-        return false;
-    }
 }
