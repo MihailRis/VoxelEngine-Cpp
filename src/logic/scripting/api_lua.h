@@ -16,6 +16,8 @@
 #include "../../voxels/Block.h"
 #include "../../voxels/Chunks.h"
 #include "../../voxels/voxel.h"
+#include "../../items/ItemDef.h"
+#include "../../items/Inventory.h"
 #include "../../lighting/Lighting.h"
 #include "../../logic/BlocksController.h"
 #include "../../window/Window.h"
@@ -189,8 +191,8 @@ static int l_player_set_rot(lua_State* L) {
     int playerid = lua_tointeger(L, 1);
     if (playerid != 1)
         return 0;
-    double x = lua_tonumber(L, 2);
-    double y = lua_tonumber(L, 3);
+    lua::luanumber x = lua_tonumber(L, 2);
+    lua::luanumber y = lua_tonumber(L, 3);
     glm::vec2& cam = scripting::level->player->cam;
     cam.x = x;
     cam.y = y;
@@ -201,11 +203,21 @@ static int l_player_set_pos(lua_State* L) {
     int playerid = lua_tointeger(L, 1);
     if (playerid != 1)
         return 0;
-    double x = lua_tonumber(L, 2);
-    double y = lua_tonumber(L, 3);
-    double z = lua_tonumber(L, 4);
+    lua::luanumber x = lua_tonumber(L, 2);
+    lua::luanumber y = lua_tonumber(L, 3);
+    lua::luanumber z = lua_tonumber(L, 4);
     scripting::level->player->hitbox->position = glm::vec3(x, y, z);
     return 0;
+}
+
+static int l_player_get_inv(lua_State* L) {
+    int playerid = lua_tointeger(L, 1);
+    if (playerid != 1)
+        return 0;
+    Player* player = scripting::level->player;
+    lua_pushinteger(L, player->getInventory()->getId());
+    lua_pushinteger(L, player->getChosenSlot());
+    return 2;
 }
 
 static const luaL_Reg playerlib [] = {
@@ -213,6 +225,49 @@ static const luaL_Reg playerlib [] = {
     {"set_pos", l_player_set_pos},
     {"get_rot", l_player_get_rot},
     {"set_rot", l_player_set_rot},
+    {"get_inventory", l_player_get_inv},
+    {NULL, NULL}
+};
+
+/* == items-related functions == */
+static int l_item_name(lua_State* L) {
+    auto indices = scripting::content->getIndices();
+    lua::luaint id = lua_tointeger(L, 1);
+    if (id < 0 || size_t(id) >= indices->countItemDefs()) {
+        return 0;
+    }
+    auto def = indices->getItemDef(id);
+    lua_pushstring(L, def->name.c_str());
+    return 1;
+}
+
+static int l_item_index(lua_State* L) {
+    auto name = lua_tostring(L, 1);
+    lua_pushinteger(L, scripting::content->requireItem(name).rt.id);
+    return 1;
+}
+
+static int l_item_stack_size(lua_State* L) {
+    auto indices = scripting::content->getIndices();
+    lua::luaint id = lua_tointeger(L, 1);
+    if (id < 0 || size_t(id) >= indices->countItemDefs()) {
+        return 0;
+    }
+    auto def = indices->getItemDef(id);
+    lua_pushinteger(L, def->stackSize);
+    return 1;
+}
+
+static int l_item_defs_count(lua_State* L) {
+    lua_pushinteger(L, scripting::indices->countItemDefs());
+    return 1;
+}
+
+static const luaL_Reg itemlib [] = {
+    {"index", l_item_index},
+    {"name", l_item_name},
+    {"stack_size", l_item_stack_size},
+    {"defs_count", l_item_defs_count},
     {NULL, NULL}
 };
 
@@ -221,8 +276,7 @@ static int l_block_name(lua_State* L) {
     auto indices = scripting::content->getIndices();
     lua::luaint id = lua_tointeger(L, 1);
     if (id < 0 || size_t(id) >= indices->countBlockDefs()) {
-        lua_pushnil(L);
-        return 1;
+        return 0;
     }
     auto def = indices->getBlockDef(id);
     lua_pushstring(L, def->name.c_str());

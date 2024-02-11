@@ -94,6 +94,7 @@ void lua::LuaState::createFuncs() {
     openlib("pack", packlib, 0);
     openlib("world", worldlib, 0);
     openlib("player", playerlib, 0);
+    openlib("item", itemlib, 0);
     openlib("time", timelib, 0);
     openlib("file", filelib, 0);
 
