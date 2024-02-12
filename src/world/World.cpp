@@ -81,6 +81,7 @@ Level* World::create(std::string name,
     );
     auto level = new Level(world, content, player, settings);
     level->inventories->store(player->getInventory());
+    return level;
 }
 
 Level* World::load(fs::path directory,
