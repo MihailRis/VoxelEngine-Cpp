@@ -274,7 +274,7 @@ void ContentLoader::loadItem(ItemDef& def, std::string full, std::string name) {
 void ContentLoader::load(ContentBuilder& builder) {
     std::cout << "-- loading pack [" << pack->id << "]" << std::endl;
 
-    auto runtime = new ContentPackRuntime(*pack, scripting::create_environment());
+    auto runtime = new ContentPackRuntime(*pack, scripting::create_pack_environment(*pack));
     builder.add(runtime);
     env = runtime->getEnvironment()->getId();
 

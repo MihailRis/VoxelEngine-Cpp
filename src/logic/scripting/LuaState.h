@@ -32,6 +32,7 @@ namespace lua {
         int pushnumber(luanumber x);
         int pushstring(const std::string& str);
         int pushenv(int env);
+        int pushvalue(int idx);
         int pushnil();
         int pushglobals();
         void pop(int n=1);

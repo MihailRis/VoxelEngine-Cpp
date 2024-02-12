@@ -181,6 +181,11 @@ int lua::LuaState::pushenv(int env) {
     return 0;
 }
 
+int lua::LuaState::pushvalue(int idx) {
+    lua_pushvalue(L, idx);
+    return 1;
+}
+
 int lua::LuaState::pushglobals() {
     lua_pushvalue(L, LUA_GLOBALSINDEX);
     return 1;

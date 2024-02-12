@@ -9,6 +9,7 @@ class LuaState;
 
 class Engine;
 class Content;
+class ContentPack;
 class ContentIndices;
 class Level;
 class Block;
@@ -52,6 +53,7 @@ namespace scripting {
     );
 
     std::unique_ptr<Environment> create_environment(int parent=0);
+    std::unique_ptr<Environment> create_pack_environment(const ContentPack& pack);
 
     void on_world_load(Level* level, BlocksController* blocks);
     void on_world_save();

@@ -95,6 +95,16 @@ std::unique_ptr<Environment> scripting::create_environment(int parent) {
     return std::make_unique<Environment>(state->createEnvironment(parent));
 }
 
+std::unique_ptr<Environment> scripting::create_pack_environment(const ContentPack& pack) {
+    int id = state->createEnvironment(0);
+    state->pushenv(id);
+    state->pushvalue(-1);
+    state->setfield("PACK_ENV");
+    state->pushstring(pack.id);
+    state->setfield("PACK_ID");
+    return std::make_unique<Environment>(id);
+}
+
 void scripting::on_world_load(Level* level, BlocksController* blocks) {
     scripting::level = level;
     scripting::content = level->content;
@@ -230,8 +240,6 @@ bool register_event(int env, const std::string& name, const std::string& id) {
         // remove previous name
         state->pushnil();
         state->setfield(name, -3);
-
-        std::cout << id << std::endl;
         // add new global name
         state->setglobal(id);
         state->pop();
