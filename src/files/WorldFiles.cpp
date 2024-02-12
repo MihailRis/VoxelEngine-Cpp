@@ -29,6 +29,8 @@
 #include <sstream>
 #include <cstring>
 
+const size_t BUFFER_SIZE_UNKNOWN = -1;
+
 regfile::regfile(fs::path filename) : file(filename) {
     if (file.length() < REGION_HEADER_SIZE)
         throw std::runtime_error("incomplete region file header");
@@ -217,7 +219,7 @@ void WorldFiles::put(Chunk* chunk){
         for (auto& entry : inventories) {
             builder.putInt32(entry.first);
             auto map = entry.second->serialize();
-            auto bytes = json::to_binary(map.get(), true);
+            auto bytes = json::to_binary(map.get(), false);
             builder.putInt32(bytes.size());
             builder.put(bytes.data(), bytes.size());
         }   
@@ -226,8 +228,8 @@ void WorldFiles::put(Chunk* chunk){
 
         auto datavec = builder.data();
         uint datasize = builder.size();
-        auto data = std::make_unique<ubyte[]>(builder.size());
-        for (uint i = 0; i < builder.size(); i++) {
+        auto data = std::make_unique<ubyte[]>(datasize);
+        for (uint i = 0; i < datasize; i++) {
             data[i] = datavec[i];
         }
         region->put(localX, localZ, data.release(), datasize);
@@ -289,20 +291,39 @@ fs::path WorldFiles::getPacksFile() const {
 }
 
 ubyte* WorldFiles::getChunk(int x, int z){
-	return getData(regions, getRegionsFolder(), x, z, REGION_LAYER_VOXELS);
+	return getData(regions, getRegionsFolder(), x, z, REGION_LAYER_VOXELS, true);
 }
 
 /* Get cached lights for chunk at x,z 
  * @return lights data or nullptr */
 light_t* WorldFiles::getLights(int x, int z) {
-	std::unique_ptr<ubyte> data (getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS));
+	std::unique_ptr<ubyte[]> data (getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS, true));
 	if (data == nullptr)
 		return nullptr;
 	return Lightmap::decode(data.get());
 }
 
+chunk_inventories_map WorldFiles::fetchInventories(int x, int z) {
+	chunk_inventories_map inventories;
+	const ubyte* data = getData(storages, getInventoriesFolder(), x, z, REGION_LAYER_INVENTORIES, false);
+	if (data == nullptr)
+		return inventories;
+	ByteReader reader(data, BUFFER_SIZE_UNKNOWN);
+	int count = reader.getInt32();
+	for (int i = 0; i < count; i++) {
+		uint index = reader.getInt32();
+		uint size = reader.getInt32();
+		auto map = json::from_binary(reader.pointer(), size);
+		reader.skip(size);
+		auto inv = std::make_shared<Inventory>(0, 0);
+		inv->deserialize(map.get());
+		inventories[index] = inv;
+	}
+	return inventories;
+}
+
 ubyte* WorldFiles::getData(regionsmap& regions, const fs::path& folder, 
-                           int x, int z, int layer) {
+                           int x, int z, int layer, bool compression) {
 	int regionX = floordiv(x, REGION_SIZE);
 	int regionZ = floordiv(z, REGION_SIZE);
 
@@ -320,7 +341,10 @@ ubyte* WorldFiles::getData(regionsmap& regions, const fs::path& folder,
 	}
 	if (data != nullptr) {
         size_t size = region->getChunkDataSize(localX, localZ);
-		return decompress(data, size, CHUNK_DATA_LEN);
+		if (compression) {
+			return decompress(data, size, CHUNK_DATA_LEN);
+		}
+		return data;
 	}
 	return nullptr;
 }
@@ -372,17 +396,16 @@ ubyte* WorldFiles::readChunkData(int x,
 	file.seekg(table_offset + chunkIndex * 4);
 	file.read((char*)(&offset), 4);
 	offset = dataio::read_int32_big((const ubyte*)(&offset), 0);
+
 	if (offset == 0){
 		return nullptr;
 	}
+
 	file.seekg(offset);
 	file.read((char*)(&offset), 4);
 	length = dataio::read_int32_big((const ubyte*)(&offset), 0);
-	ubyte* data = new ubyte[length];
+	ubyte* data = new ubyte[length]{};
 	file.read((char*)data, length);
-	if (data == nullptr) {
-		std::cerr << "ERROR: failed to read data of chunk x("<< x <<"), z("<< z <<")" << std::endl;
-	}
 	return data;
 }
 
@@ -482,7 +505,7 @@ void WorldFiles::write(const World* world, const Content* content) {
 	writeIndices(content->getIndices());
 	writeRegions(regions, regionsFolder, REGION_LAYER_VOXELS);
 	writeRegions(lights, lightsFolder, REGION_LAYER_LIGHTS);
-    writeRegions(storages, inventoriesFolder, REGION_LAYER_STORAGES);
+    writeRegions(storages, inventoriesFolder, REGION_LAYER_INVENTORIES);
 }
 
 void WorldFiles::writePacks(const World* world) {

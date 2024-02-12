@@ -299,11 +299,21 @@ static int l_inventory_add(lua_State* L) {
     return 1;
 }
 
+static int l_inventory_get_block(lua_State* L) {
+    lua::luaint x = lua_tointeger(L, 1);
+    lua::luaint y = lua_tointeger(L, 2);
+    lua::luaint z = lua_tointeger(L, 3);
+    int64_t id = scripting::blocks->createBlockInventory(x, y, z);
+    lua_pushinteger(L, id);
+    return 1;
+}
+
 static const luaL_Reg inventorylib [] = {
     {"get", l_inventory_get},
     {"set", l_inventory_set},
     {"size", l_inventory_size},
     {"add", l_inventory_add},
+    {"get_block", l_inventory_get_block},
     {NULL, NULL}
 };
 

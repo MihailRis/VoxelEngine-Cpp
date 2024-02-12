@@ -15,11 +15,13 @@
 #include "../typedefs.h"
 #include "../settings.h"
 
+#include "../voxels/Chunk.h"
+
 const uint REGION_HEADER_SIZE = 10;
 
 const uint REGION_LAYER_VOXELS = 0;
 const uint REGION_LAYER_LIGHTS = 1;
-const uint REGION_LAYER_STORAGES = 2;
+const uint REGION_LAYER_INVENTORIES = 2;
 
 const uint REGION_SIZE_BIT = 5;
 const uint REGION_SIZE = (1 << (REGION_SIZE_BIT));
@@ -32,7 +34,6 @@ const uint MAX_OPEN_REGION_FILES = 16;
 #define WORLD_FORMAT_MAGIC ".VOXWLD"
 
 class Player;
-class Chunk;
 class Content;
 class ContentIndices;
 class World;
@@ -109,7 +110,7 @@ class WorldFiles {
 
 	ubyte* getData(regionsmap& regions,
 				   const fs::path& folder,
-				   int x, int z, int layer);
+				   int x, int z, int layer, bool compression);
     
     regfile* getRegFile(glm::ivec3 coord, const fs::path& folder);
 
@@ -139,6 +140,7 @@ public:
 
 	ubyte* getChunk(int x, int z);
 	light_t* getLights(int x, int z);
+	chunk_inventories_map fetchInventories(int x, int z);
 
 	bool readWorldInfo(World* world);
 	bool readPlayer(Player* player);
