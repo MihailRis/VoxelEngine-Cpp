@@ -182,7 +182,7 @@ std::shared_ptr<InventoryView> HudRenderer::createContentAccess() {
     }
 
     SlotLayout slotLayout(-1, glm::vec2(), false, true, 
-    [=](ItemStack& item) {
+    [=](uint, ItemStack& item) {
         auto copy = ItemStack(item);
         inventory->move(copy, indices);
     }, 

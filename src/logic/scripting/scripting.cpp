@@ -74,20 +74,37 @@ wstringconsumer scripting::create_wstring_consumer(
     const std::string& src,
     const std::string& file
 ) {
-    try {
-        if (state->eval(env, src, file) == 0)
-            return [](const std::wstring& _) {};
-    } catch (const lua::luaerror& err) {
-        std::cerr << err.what() << std::endl;
-        return [](const std::wstring& _) {};
-    }
-
     auto funcName = state->storeAnonymous();
     return [=](const std::wstring& x){
-        if (state->getglobal(funcName)) {
-            state->pushstring(util::wstr2str_utf8(x));
-            state->callNoThrow(1);
+        try {
+            if (state->eval(env, src, file) == 0)
+                return;
+        } catch (lua::luaerror err) {
+            std::cerr << err.what() << std::endl;
+            return;
         }
+        state->pushstring(util::wstr2str_utf8(x));
+        state->callNoThrow(1);
+    };
+}
+
+int_array_consumer scripting::create_int_array_consumer(
+    int env,
+    const std::string& src, 
+    const std::string& file
+) {
+    return [=](const int arr[], size_t len){
+        try {
+            if (state->eval(env, src, file) == 0)
+                return;
+        } catch (lua::luaerror err) {
+            std::cerr << err.what() << std::endl;
+            return;
+        }
+        for (uint i = 0; i < len; i++) {
+            state->pushinteger(arr[i]);
+        }
+        state->callNoThrow(len);
     };
 }
 

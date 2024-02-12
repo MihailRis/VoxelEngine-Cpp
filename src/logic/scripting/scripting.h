@@ -23,6 +23,8 @@ struct uidocscript;
 class BlocksController;
 
 namespace scripting {
+    using int_array_consumer = std::function<void(const int[], size_t)>;
+
     extern Engine* engine;
     extern const Content* content;
     extern const ContentIndices* indices;
@@ -52,6 +54,12 @@ namespace scripting {
         const std::string& src,
         const std::string& file="<string>"
     );
+
+    int_array_consumer create_int_array_consumer(
+        int env,
+        const std::string& src, 
+        const std::string& file="<string>"
+    ); 
 
     std::unique_ptr<Environment> create_environment(int parent=0);
     std::unique_ptr<Environment> create_pack_environment(const ContentPack& pack);

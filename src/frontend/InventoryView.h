@@ -26,7 +26,7 @@ namespace scripting {
     class Environment;
 }
 
-using itemsharefunc = std::function<void(ItemStack&)>;
+using itemsharefunc = std::function<void(uint, ItemStack&)>;
 using slotcallback = std::function<void(ItemStack&, ItemStack&)>;
 
 class InventoryInteraction {

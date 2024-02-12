@@ -1,4 +1,3 @@
 <inventory color="#1F1F1FE0" size="400,0">
-    <slots-grid cols="4" count="40"/>
-    <button padding="10,10,10,10" coord="300,10">Test</button>
+    <slots-grid rows="4" count="40" sharefunc="inventory_share_func"/>
 </inventory>

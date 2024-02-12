@@ -23,6 +23,7 @@
 #include "../frontend/gui/controls.h"
 #include "../util/stringutil.h"
 #include "../world/Level.h"
+#include "../logic/scripting/scripting.h"
 
 SlotLayout::SlotLayout(
     int index,
@@ -204,7 +205,7 @@ void SlotView::clicked(gui::GUI* gui, int button) {
     if (button == mousecode::BUTTON_1) {
         if (Events::pressed(keycode::LEFT_SHIFT)) {
             if (layout.shareFunc) {
-                layout.shareFunc(stack);
+                layout.shareFunc(layout.index, stack);
             }
             return;
         }
@@ -344,12 +345,26 @@ void InventoryView::setInventory(std::shared_ptr<Inventory> inventory) {
 #include "../coders/xml.h"
 #include "gui/gui_xml.h"
 
+static itemsharefunc readShareFunc(InventoryView* view, gui::UiXmlReader& reader, xml::xmlelement& element) {
+    auto consumer = scripting::create_int_array_consumer(
+        reader.getEnvironment().getId(), 
+        element->attr("sharefunc").getText()
+    );
+    return [=](uint slot, ItemStack& stack) {
+        int args[] {int(view->getInventory()->getId()), int(slot)};
+        consumer(args, 2);
+    };
+}
+
 static void readSlot(InventoryView* view, gui::UiXmlReader& reader, xml::xmlelement element) {
     int index = element->attr("index", "0").asInt();
     bool itemSource = element->attr("item-source", "false").asBool();
     SlotLayout layout(index, glm::vec2(), true, itemSource, nullptr, nullptr);
     if (element->has("coord")) {
         layout.position = element->attr("coord").asVec2();
+    }
+    if (element->has("sharefunc")) {
+        layout.shareFunc = readShareFunc(view, reader, element);
     }
     auto slot = view->addSlot(layout);
     reader.readUINode(reader, element, *slot);
@@ -381,6 +396,9 @@ static void readSlotsGrid(InventoryView* view, gui::UiXmlReader& reader, xml::xm
     SlotLayout layout(-1, glm::vec2(), true, itemSource, nullptr, nullptr);
     if (element->has("coord")) {
         layout.position = element->attr("coord").asVec2();
+    }
+    if (element->has("sharefunc")) {
+        layout.shareFunc = readShareFunc(view, reader, element);
     }
     layout.padding = padding;
 
