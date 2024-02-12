@@ -11,6 +11,7 @@ class World;
 class Player;
 class Chunks;
 class Inventory;
+class Inventories;
 class LevelEvents;
 class Lighting;
 class PhysicsSolver;
@@ -23,6 +24,7 @@ public:
 	Player* player;
 	Chunks* chunks;
 	ChunksStorage* chunksStorage;
+	std::unique_ptr<Inventories> inventories;
 
 	PhysicsSolver* physics;
 	Lighting* lighting;

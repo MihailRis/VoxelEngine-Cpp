@@ -48,7 +48,7 @@ public:
 
     glm::vec2 cam = {};
 
-    Player(glm::vec3 position, float speed);
+    Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv);
     ~Player();
 
     void teleport(glm::vec3 position);

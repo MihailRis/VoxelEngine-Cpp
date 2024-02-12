@@ -2,7 +2,7 @@
 
 #include "../content/ContentLUT.h"
 
-Inventory::Inventory(uint id, size_t size) : id(id), slots(size) {
+Inventory::Inventory(int64_t id, size_t size) : id(id), slots(size) {
 }
 
 ItemStack& Inventory::getSlot(size_t index) {

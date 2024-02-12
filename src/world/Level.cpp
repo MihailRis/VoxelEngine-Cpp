@@ -10,6 +10,7 @@
 #include "../physics/PhysicsSolver.h"
 #include "../objects/Player.h"
 #include "../items/Inventory.h"
+#include "../items/Inventories.h"
 
 Level::Level(World* world, const Content* content, Player* player, EngineSettings& settings)
 	  : world(world),
@@ -30,6 +31,8 @@ Level::Level(World* world, const Content* content, Player* player, EngineSetting
 	events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
 		this->chunksStorage->remove(chunk->x, chunk->z);
 	});
+
+	inventories = std::make_unique<Inventories>(*this);
 }
 
 Level::~Level(){
