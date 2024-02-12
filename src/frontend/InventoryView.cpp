@@ -396,7 +396,7 @@ static void readSlotsGrid(InventoryView* view, gui::UiXmlReader& reader, xml::xm
             }
             SlotLayout slotLayout = layout;
             slotLayout.index = startIndex + idx;
-            slotLayout.position = glm::vec2(
+            slotLayout.position += glm::vec2(
                 padding + col * (slotSize + interval),
                 padding + row * (slotSize + interval)
             );
