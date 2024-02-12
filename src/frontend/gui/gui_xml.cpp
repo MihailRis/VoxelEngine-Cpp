@@ -6,6 +6,7 @@
 #include "panels.h"
 #include "controls.h"
 
+#include "../../assets/AssetsLoader.h"
 #include "../locale/langs.h"
 #include "../../logic/scripting/scripting.h"
 #include "../../util/stringutil.h"
@@ -41,7 +42,7 @@ static void _readUINode(xml::xmlelement element, UINode& node) {
 }
 
 
-static void _readContainer(UiXmlReader& reader, xml::xmlelement element, Container& container, bool ignoreUnknown) {
+static void _readContainer(UiXmlReader& reader, xml::xmlelement element, Container& container) {
     _readUINode(element, container);
 
     if (element->has("scrollable")) {
@@ -50,15 +51,15 @@ static void _readContainer(UiXmlReader& reader, xml::xmlelement element, Contain
     for (auto& sub : element->getElements()) {
         if (sub->isText())
             continue;
-        if (ignoreUnknown && !reader.hasReader(sub->getTag())) {
-            continue;
+        auto subnode = reader.readUINode(sub);
+        if (subnode) {
+            container.add(subnode);
         }
-        container.add(reader.readUINode(sub));
     }
 }
 
-void UiXmlReader::readUINode(UiXmlReader& reader, xml::xmlelement element, Container& container, bool ignoreUnknown) {
-    _readContainer(reader, element, container, ignoreUnknown);
+void UiXmlReader::readUINode(UiXmlReader& reader, xml::xmlelement element, Container& container) {
+    _readContainer(reader, element, container);
 }
 
 void UiXmlReader::readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& node) {
@@ -86,7 +87,10 @@ static void _readPanel(UiXmlReader& reader, xml::xmlelement element, Panel& pane
     for (auto& sub : element->getElements()) {
         if (sub->isText())
             continue;
-        panel.add(reader.readUINode(sub));
+        auto subnode = reader.readUINode(sub);
+        if (subnode) {
+            panel.add(subnode);
+        }
     }
 }
 
@@ -113,7 +117,7 @@ static std::shared_ptr<UINode> readLabel(UiXmlReader& reader, xml::xmlelement el
 
 static std::shared_ptr<UINode> readContainer(UiXmlReader& reader, xml::xmlelement element) {
     auto container = std::make_shared<Container>(glm::vec2(), glm::vec2());
-    _readContainer(reader, element, *container, false);
+    _readContainer(reader, element, *container);
     return container;
 }
 
@@ -156,7 +160,18 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
     return textbox;
 }
 
-UiXmlReader::UiXmlReader(const scripting::Environment& env) : env(env) {
+static std::shared_ptr<UINode> readImage(UiXmlReader& reader, xml::xmlelement element) {
+    std::string src = element->attr("src", "").getText();
+    auto image = std::make_shared<Image>(src);
+    _readUINode(element, *image);
+    reader.getAssetsLoader().add(ASSET_TEXTURE, "textures/"+src+".png", src, nullptr);
+    return image;
+}
+
+UiXmlReader::UiXmlReader(const scripting::Environment& env, AssetsLoader& assetsLoader) 
+: env(env), assetsLoader(assetsLoader)
+{
+    add("image", readImage);
     add("label", readLabel);
     add("button", readButton);
     add("textbox", readTextBox);
@@ -171,11 +186,18 @@ bool UiXmlReader::hasReader(const std::string& tag) const {
     return readers.find(tag) != readers.end();
 }
 
+void UiXmlReader::addIgnore(const std::string& tag) {
+    ignored.insert(tag);
+}
+
 std::shared_ptr<UINode> UiXmlReader::readUINode(xml::xmlelement element) {
     const std::string& tag = element->getTag();
 
     auto found = readers.find(tag);
     if (found == readers.end()) {
+        if (ignored.find(tag) != ignored.end()) {
+            return nullptr;
+        }
         throw std::runtime_error("unsupported element '"+tag+"'");
     }
     return found->second(*this, element);
@@ -205,4 +227,8 @@ const std::string& UiXmlReader::getFilename() const {
 
 const scripting::Environment& UiXmlReader::getEnvironment() const {
     return env;
+}
+
+AssetsLoader& UiXmlReader::getAssetsLoader() {
+    return assetsLoader;
 }

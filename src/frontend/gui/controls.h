@@ -49,7 +49,7 @@ namespace gui {
     protected:
         std::string texture;
     public:
-        Image(std::string texture, glm::vec2 size);
+        Image(std::string texture, glm::vec2 size=glm::vec2(32,32));
 
         virtual void draw(const GfxContext* pctx, Assets* assets) override;
     };

@@ -6,39 +6,45 @@
 
 class ResPaths;
 class Assets;
+class AssetsLoader;
 class Atlas;
 
 namespace assetload {
     bool texture(
-        Assets* assets, 
+        AssetsLoader&,
+        Assets*, 
         const ResPaths* paths,
         const std::string filename, 
         const std::string name,
         std::shared_ptr<void> settings
     );
     bool shader(
-        Assets* assets,
+        AssetsLoader&,
+        Assets*,
         const ResPaths* paths,
         const std::string filename, 
         const std::string name,
         std::shared_ptr<void> settings
     );
     bool atlas(
-        Assets* assets,
+        AssetsLoader&,
+        Assets*,
         const ResPaths* paths, 
         const std::string directory, 
         const std::string name,
         std::shared_ptr<void> settings
     );
     bool font(
-        Assets* assets, 
+        AssetsLoader&,
+        Assets*, 
         const ResPaths* paths,
         const std::string filename, 
         const std::string name,
         std::shared_ptr<void> settings
     );
     bool layout(
-        Assets* assets,
+        AssetsLoader&,
+        Assets*,
         const ResPaths* paths,
         const std::string file,
         const std::string name,
@@ -46,7 +52,7 @@ namespace assetload {
     );
 
     bool animation(
-        Assets* assets,
+        Assets*,
         const ResPaths* paths,
         const std::string directory,
         const std::string name,

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <filesystem>
 #include "Assets.h"
+#include "AssetsLoader.h"
 #include "../files/files.h"
 #include "../files/engine_paths.h"
 #include "../coders/png.h"
@@ -18,11 +19,13 @@
 
 namespace fs = std::filesystem;
 
-bool assetload::texture(Assets* assets,
-                        const ResPaths* paths,
-                        const std::string filename, 
-                        const std::string name,
-                        std::shared_ptr<void>
+bool assetload::texture(
+    AssetsLoader&,
+    Assets* assets,
+    const ResPaths* paths,
+    const std::string filename, 
+    const std::string name,
+    std::shared_ptr<void>
 ) {
     std::unique_ptr<Texture> texture(
         png::load_texture(paths->find(filename).u8string())
@@ -35,11 +38,13 @@ bool assetload::texture(Assets* assets,
     return true;
 }
 
-bool assetload::shader(Assets* assets,
-                       const ResPaths* paths,
-                       const std::string filename, 
-                       const std::string name,
-                       std::shared_ptr<void>
+bool assetload::shader(
+    AssetsLoader&,
+    Assets* assets,
+    const ResPaths* paths,
+    const std::string filename, 
+    const std::string name,
+    std::shared_ptr<void>
 ) {
     fs::path vertexFile = paths->find(filename+".glslv");
     fs::path fragmentFile = paths->find(filename+".glslf");
@@ -80,11 +85,13 @@ static bool appendAtlas(AtlasBuilder& atlas, const fs::path& file) {
     return true;
 }
 
-bool assetload::atlas(Assets* assets, 
-                      const ResPaths* paths,
-                      const std::string directory, 
-                      const std::string name,
-                      std::shared_ptr<void>
+bool assetload::atlas(
+    AssetsLoader&,
+    Assets* assets, 
+    const ResPaths* paths,
+    const std::string directory, 
+    const std::string name,
+    std::shared_ptr<void>
 ) {
     AtlasBuilder builder;
     for (const auto& file : paths->listdir(directory)) {
@@ -98,11 +105,13 @@ bool assetload::atlas(Assets* assets,
     return true;
 }
 
-bool assetload::font(Assets* assets, 
-                     const ResPaths* paths,
-                     const std::string filename, 
-                     const std::string name,
-                     std::shared_ptr<void>
+bool assetload::font(
+    AssetsLoader&,
+    Assets* assets, 
+    const ResPaths* paths,
+    const std::string filename, 
+    const std::string name,
+    std::shared_ptr<void>
 ) {
     std::vector<std::unique_ptr<Texture>> pages;
     for (size_t i = 0; i <= 4; i++) {
@@ -123,6 +132,7 @@ bool assetload::font(Assets* assets,
 }
 
 bool assetload::layout(
+    AssetsLoader& loader,
     Assets* assets,
     const ResPaths* paths,
     const std::string file,
@@ -131,7 +141,7 @@ bool assetload::layout(
 ) {
     try {
         LayoutCfg* cfg = reinterpret_cast<LayoutCfg*>(config.get());
-        auto document = UiDocument::read(cfg->env, name, file);
+        auto document = UiDocument::read(loader, cfg->env, name, file);
         assets->store(document.release(), name);
         return true;
     } catch (const parsing_error& err) {
@@ -140,7 +150,6 @@ bool assetload::layout(
         return false;
     }
 }
-
 
 bool assetload::animation(Assets* assets, 
                         const ResPaths* paths, 

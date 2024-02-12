@@ -51,12 +51,12 @@ void UiDocument::collect(uinodes_map& map, std::shared_ptr<gui::UINode> node) {
     }
 }
 
-std::unique_ptr<UiDocument> UiDocument::read(int penv, std::string namesp, fs::path file) {
+std::unique_ptr<UiDocument> UiDocument::read(AssetsLoader& loader, int penv, std::string namesp, fs::path file) {
     const std::string text = files::read_string(file);
     auto xmldoc = xml::parse(file.u8string(), text);
 
     auto env = scripting::create_environment(penv);
-    gui::UiXmlReader reader(*env);
+    gui::UiXmlReader reader(*env, loader);
     InventoryView::createReaders(reader);
     auto view = reader.readXML(
         file.u8string(), xmldoc->getRoot()

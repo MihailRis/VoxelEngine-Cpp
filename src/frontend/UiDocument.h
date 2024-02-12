@@ -24,6 +24,8 @@ struct uidocscript {
 
 using uinodes_map = std::unordered_map<std::string, std::shared_ptr<gui::UINode>>;
 
+class AssetsLoader;
+
 class UiDocument {
     std::string id;
     uidocscript script;
@@ -46,7 +48,7 @@ public:
     /* Collect map of all uinodes having identifiers */
     static void collect(uinodes_map& map, std::shared_ptr<gui::UINode> node);
 
-    static std::unique_ptr<UiDocument> read(int env, std::string namesp, fs::path file);
+    static std::unique_ptr<UiDocument> read(AssetsLoader& loader, int env, std::string namesp, fs::path file);
 };
 
 #endif // FRONTEND_UI_DOCUMENT_H_

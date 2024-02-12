@@ -117,12 +117,6 @@ public:
 
     std::shared_ptr<Inventory> getInventory() const;
 
-    static std::shared_ptr<InventoryView> readXML(
-        const std::string& src,
-        const std::string& file,
-        const scripting::Environment& env
-    );
-
     static void createReaders(gui::UiXmlReader& reader);
 
     static const int SLOT_INTERVAL = 4;

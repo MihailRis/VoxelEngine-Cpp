@@ -424,28 +424,11 @@ static void readSlotsGrid(InventoryView* view, gui::UiXmlReader& reader, xml::xm
     }
 }
 
-std::shared_ptr<InventoryView> InventoryView::readXML(
-    const std::string& src,
-    const std::string& file,
-    const scripting::Environment& env
-) {
-    auto view = std::make_shared<InventoryView>();
-
-    gui::UiXmlReader reader(env);
-    createReaders(reader);
-
-    auto document = xml::parse(file, src);
-    auto root = document->getRoot();
-    if (root->getTag() != "inventory") {
-        throw std::runtime_error("'inventory' element expected");
-    }
-    return std::dynamic_pointer_cast<InventoryView>(reader.readXML(file, root));
-}
-
 void InventoryView::createReaders(gui::UiXmlReader& reader) {
     reader.add("inventory", [=](gui::UiXmlReader& reader, xml::xmlelement element) {
         auto view = std::make_shared<InventoryView>();
-        reader.readUINode(reader, element, *view, true);
+        reader.addIgnore("slots-grid");
+        reader.readUINode(reader, element, *view);
 
         for (auto& sub : element->getElements()) {
             if (sub->getTag() == "slot") {

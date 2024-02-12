@@ -15,9 +15,10 @@ const short ASSET_LAYOUT = 5;
 
 class ResPaths;
 class Assets;
+class AssetsLoader;
 class Content;
 
-using aloader_func = std::function<bool(Assets*, const ResPaths*, const std::string&, const std::string&, std::shared_ptr<void>)>;
+using aloader_func = std::function<bool(AssetsLoader&, Assets*, const ResPaths*, const std::string&, const std::string&, std::shared_ptr<void>)>;
 
 struct aloader_entry {
 	int tag;
@@ -40,6 +41,7 @@ public:
         const std::string alias, 
         std::shared_ptr<void> settings=nullptr
     );
+	
 
 	bool hasNext() const;
 	bool loadNext();

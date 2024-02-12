@@ -42,7 +42,7 @@ bool AssetsLoader::loadNext() {
 		return false;
 	}
 	aloader_func loader = found->second;
-	bool status = loader(assets, paths, entry.filename, entry.alias, entry.config);
+	bool status = loader(*this, assets, paths, entry.filename, entry.alias, entry.config);
 	entries.pop();
 	return status;
 }
