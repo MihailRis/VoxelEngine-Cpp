@@ -24,6 +24,7 @@
 #include "../window/Window.h"
 #include "../engine.h"
 #include "../settings.h"
+#include "../delegates.h"
 #include "../content/Content.h"
 #include "../content/ContentLUT.h"
 #include "../content/ContentPack.h"
@@ -46,7 +47,7 @@ inline uint64_t randU64() {
         ((uint64_t)rand() << 56);
 }
 
-static std::shared_ptr<Label> create_label(gui::wstringsupplier supplier) {
+static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
     auto label = std::make_shared<Label>(L"-");
     label->textSupplier(supplier);
     return label;

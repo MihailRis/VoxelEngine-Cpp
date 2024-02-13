@@ -133,7 +133,7 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement e
         auto callback = scripting::create_runnable(
             reader.getEnvironment().getId(),
             element->attr("onclick").getText(),
-            "<onclick>"
+            reader.getFilename()+".lua"
         );
         button->listenAction([callback](GUI*) {
             callback();
@@ -156,7 +156,7 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
         auto consumer = scripting::create_wstring_consumer(
             reader.getEnvironment().getId(),
             element->attr("consumer").getText(),
-            reader.getFilename()
+            reader.getFilename()+"lua"
         );
         textbox->textConsumer(consumer);
     }

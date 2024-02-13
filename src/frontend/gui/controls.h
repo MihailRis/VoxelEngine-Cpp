@@ -17,9 +17,6 @@ class Batch2D;
 class Assets;
 
 namespace gui {
-    using wstringsupplier = std::function<std::wstring()>;
-    using wstringconsumer = std::function<void(std::wstring)>;
-
     using doublesupplier = std::function<double()>;
     using doubleconsumer = std::function<void(double)>;
 

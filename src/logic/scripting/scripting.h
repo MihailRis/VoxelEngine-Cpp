@@ -63,6 +63,7 @@ namespace scripting {
 
     std::unique_ptr<Environment> create_environment(int parent=0);
     std::unique_ptr<Environment> create_pack_environment(const ContentPack& pack);
+    std::unique_ptr<Environment> create_doc_environment(int parent, const std::string& name);
 
     void on_world_load(Level* level, BlocksController* blocks);
     void on_world_save();

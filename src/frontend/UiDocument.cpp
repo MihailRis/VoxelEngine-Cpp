@@ -55,7 +55,7 @@ std::unique_ptr<UiDocument> UiDocument::read(AssetsLoader& loader, int penv, std
     const std::string text = files::read_string(file);
     auto xmldoc = xml::parse(file.u8string(), text);
 
-    auto env = scripting::create_environment(penv);
+    auto env = scripting::create_doc_environment(penv, namesp);
     gui::UiXmlReader reader(*env, loader);
     InventoryView::createReaders(reader);
     auto view = reader.readXML(

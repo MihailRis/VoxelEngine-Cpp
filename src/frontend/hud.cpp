@@ -43,6 +43,7 @@
 #include "LevelFrontend.h"
 #include "UiDocument.h"
 #include "../engine.h"
+#include "../delegates.h"
 #include "../core_defs.h"
 #include "../items/ItemDef.h"
 #include "../items/Inventory.h"
@@ -53,7 +54,7 @@ using glm::vec3;
 using glm::vec4;
 using namespace gui;
 
-static std::shared_ptr<Label> create_label(gui::wstringsupplier supplier) {
+static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
     auto label = std::make_shared<Label>(L"-");
     label->textSupplier(supplier);
     return label;

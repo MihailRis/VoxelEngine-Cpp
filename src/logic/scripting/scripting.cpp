@@ -74,7 +74,6 @@ wstringconsumer scripting::create_wstring_consumer(
     const std::string& src,
     const std::string& file
 ) {
-    auto funcName = state->storeAnonymous();
     return [=](const std::wstring& x){
         try {
             if (state->eval(env, src, file) == 0)
@@ -119,6 +118,18 @@ std::unique_ptr<Environment> scripting::create_pack_environment(const ContentPac
     state->setfield("PACK_ENV");
     state->pushstring(pack.id);
     state->setfield("PACK_ID");
+    state->pop();
+    return std::make_unique<Environment>(id);
+}
+
+std::unique_ptr<Environment> scripting::create_doc_environment(int parent, const std::string& name) {
+    int id = state->createEnvironment(parent);
+    state->pushenv(id);
+    state->pushvalue(-1);
+    state->setfield("DOC_ENV");
+    state->pushstring(name.c_str());
+    state->setfield("DOC_NAME");
+    state->pop();
     return std::make_unique<Environment>(id);
 }
 
