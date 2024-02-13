@@ -1,6 +1,3 @@
-local Document = require("core:document")
-document = Document.new(DOC_NAME)
-
 function on_open(invid)
     print("OPEN", invid)
 end

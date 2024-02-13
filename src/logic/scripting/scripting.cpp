@@ -130,6 +130,16 @@ std::unique_ptr<Environment> scripting::create_doc_environment(int parent, const
     state->setfield("DOC_ENV");
     state->pushstring(name.c_str());
     state->setfield("DOC_NAME");
+    
+    if (state->getglobal("Document")) {
+        if (state->getfield("new")) {
+            state->pushstring(name.c_str());
+            if (state->callNoThrow(1)) {
+                state->setfield("document", -3);
+            }
+        }
+        state->pop();
+    }
     state->pop();
     return std::make_unique<Environment>(id);
 }
@@ -246,7 +256,6 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
 }
 
 void scripting::on_ui_open(UiDocument* layout, Inventory* inventory) {
-    timeutil::ScopeLogTimer log(555);
     std::string name = layout->getId()+".open";
     if (state->getglobal(name)) {
         state->pushinteger(inventory->getId());

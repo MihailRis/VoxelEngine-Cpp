@@ -33,11 +33,31 @@ static bool getattr(lua_State* L, gui::Button* button, const std::string& attr) 
     return false;
 }
 
+static bool getattr(lua_State* L, gui::Label* label, const std::string& attr) {
+    if (label == nullptr)
+        return false;
+    if (attr == "text") {
+        lua_pushstring(L, util::wstr2str_utf8(label->getText()).c_str());
+        return true;
+    }
+    return false;
+}
+
 static bool setattr(lua_State* L, gui::Button* button, const std::string& attr) {
     if (button == nullptr)
         return false;
     if (attr == "text") {
         button->setText(util::str2wstr_utf8(lua_tostring(L, 4)));
+        return true;
+    }
+    return false;
+}
+
+static bool setattr(lua_State* L, gui::Label* label, const std::string& attr) {
+    if (label == nullptr)
+        return false;
+    if (attr == "text") {
+        label->setText(util::str2wstr_utf8(lua_tostring(L, 4)));
         return true;
     }
     return false;
@@ -59,6 +79,8 @@ int l_gui_getattr(lua_State* L) {
 
     if (getattr(L, dynamic_cast<gui::Button*>(node), attr))
         return 1;
+    if (getattr(L, dynamic_cast<gui::Label*>(node), attr))
+        return 1;
 
     return 0;
 }
@@ -71,6 +93,8 @@ int l_gui_setattr(lua_State* L) {
     auto node = getDocumentNode(L, docname, element);
 
     if (setattr(L, dynamic_cast<gui::Button*>(node), attr))
+        return 0;
+    if (setattr(L, dynamic_cast<gui::Label*>(node), attr))
         return 0;
 
     return 0;
