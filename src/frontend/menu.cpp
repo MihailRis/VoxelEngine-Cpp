@@ -472,10 +472,10 @@ void create_controls_panel(Engine* engine) {
         }));
 
         auto trackbar = std::make_shared<TrackBar>(0.1, 10.0, 2.0, 0.1, 4);
-        trackbar->supplier([=]() {
+        trackbar->setSupplier([=]() {
             return engine->getSettings().camera.sensitivity;
         });
-        trackbar->consumer([=](double value) {
+        trackbar->setConsumer([=](double value) {
             engine->getSettings().camera.sensitivity = value;
         });
         panel->add(trackbar);
@@ -512,10 +512,10 @@ void create_settings_panel(Engine* engine) {
         }));
 
         auto trackbar = std::make_shared<TrackBar>(3, 66, 10, 1, 3);
-        trackbar->supplier([=]() {
+        trackbar->setSupplier([=]() {
             return engine->getSettings().chunks.loadDistance;
         });
-        trackbar->consumer([=](double value) {
+        trackbar->setConsumer([=](double value) {
             engine->getSettings().chunks.loadDistance = static_cast<uint>(value);
         });
         panel->add(trackbar);
@@ -528,10 +528,10 @@ void create_settings_panel(Engine* engine) {
         }));
 
         auto trackbar = std::make_shared<TrackBar>(1, 32, 10, 1, 1);
-        trackbar->supplier([=]() {
+        trackbar->setSupplier([=]() {
             return engine->getSettings().chunks.loadSpeed;
         });
-        trackbar->consumer([=](double value) {
+        trackbar->setConsumer([=](double value) {
             engine->getSettings().chunks.loadSpeed = static_cast<uint>(value);
         });
         panel->add(trackbar);
@@ -545,10 +545,10 @@ void create_settings_panel(Engine* engine) {
         }));
 
         auto trackbar = std::make_shared<TrackBar>(1.0, 6.0, 1.0, 0.1, 2);
-        trackbar->supplier([=]() {
+        trackbar->setSupplier([=]() {
             return engine->getSettings().graphics.fogCurve;
         });
-        trackbar->consumer([=](double value) {
+        trackbar->setConsumer([=](double value) {
             engine->getSettings().graphics.fogCurve = value;
         });
         panel->add(trackbar);
@@ -561,10 +561,10 @@ void create_settings_panel(Engine* engine) {
         }));
 
         auto trackbar = std::make_shared<TrackBar>(30.0, 120.0, 90, 1, 4);
-        trackbar->supplier([=]() {
+        trackbar->setSupplier([=]() {
             return engine->getSettings().camera.fov;
         });
-        trackbar->consumer([=](double value) {
+        trackbar->setConsumer([=](double value) {
             engine->getSettings().camera.fov = value;
         });
         panel->add(trackbar);
@@ -574,10 +574,10 @@ void create_settings_panel(Engine* engine) {
         auto checkbox = std::make_shared<FullCheckBox>(
             langs::get(L"V-Sync", L"settings"), vec2(400, 32)
         );
-        checkbox->supplier([=]() {
+        checkbox->setSupplier([=]() {
             return engine->getSettings().display.swapInterval != 0;
         });
-        checkbox->consumer([=](bool checked) {
+        checkbox->setConsumer([=](bool checked) {
             engine->getSettings().display.swapInterval = checked;
         });
         panel->add(checkbox);
@@ -587,10 +587,10 @@ void create_settings_panel(Engine* engine) {
         auto checkbox = std::make_shared<FullCheckBox>(
             langs::get(L"Backlight", L"settings"), vec2(400, 32)
         );
-        checkbox->supplier([=]() {
+        checkbox->setSupplier([=]() {
             return engine->getSettings().graphics.backlight;
         });
-        checkbox->consumer([=](bool checked) {
+        checkbox->setConsumer([=](bool checked) {
             engine->getSettings().graphics.backlight = checked;
         });
         panel->add(checkbox);

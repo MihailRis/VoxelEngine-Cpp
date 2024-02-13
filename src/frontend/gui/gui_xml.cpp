@@ -192,7 +192,7 @@ static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, xml::xmlelement
             element->attr("consumer").getText(),
             reader.getFilename()+".lua"
         );
-        bar->consumer(consumer);
+        bar->setConsumer(consumer);
     }
     return bar;
 }

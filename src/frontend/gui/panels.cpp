@@ -9,15 +9,12 @@
 
 using namespace gui;
 
-using glm::vec2;
-using glm::vec4;
-
-Container::Container(vec2 coord, vec2 size) : UINode(coord, size) {
+Container::Container(glm::vec2 coord, glm::vec2 size) : UINode(coord, size) {
     actualLength = size.y;
     setColor(glm::vec4());
 }
 
-std::shared_ptr<UINode> Container::getAt(vec2 pos, std::shared_ptr<UINode> self) {
+std::shared_ptr<UINode> Container::getAt(glm::vec2 pos, std::shared_ptr<UINode> self) {
     if (!interactive) {
         return nullptr;
     }
@@ -79,8 +76,8 @@ void Container::setScrollable(bool flag) {
 }
 
 void Container::draw(const GfxContext* pctx, Assets* assets) {
-    vec2 coord = calcCoord();
-    vec2 size = getSize();
+    glm::vec2 coord = calcCoord();
+    glm::vec2 size = getSize();
     drawBackground(pctx, assets);
 
     auto batch = pctx->getBatch2D();
@@ -88,7 +85,7 @@ void Container::draw(const GfxContext* pctx, Assets* assets) {
     batch->render();
     {
         GfxContext ctx = pctx->sub();
-        ctx.scissors(vec4(coord.x, coord.y, size.x, size.y));
+        ctx.scissors(glm::vec4(coord.x, coord.y, size.x, size.y));
         for (auto node : nodes) {
             if (node->isVisible())
                 node->draw(pctx, assets);
@@ -100,7 +97,7 @@ void Container::draw(const GfxContext* pctx, Assets* assets) {
 void Container::drawBackground(const GfxContext* pctx, Assets* assets) {
     if (color.a <= 0.0f)
         return;
-    vec2 coord = calcCoord();
+    glm::vec2 coord = calcCoord();
 
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
@@ -154,11 +151,11 @@ const std::vector<std::shared_ptr<UINode>>& Container::getNodes() const {
     return nodes;
 }
 
-Panel::Panel(vec2 size, glm::vec4 padding, float interval)
-    : Container(vec2(), size), 
+Panel::Panel(glm::vec2 size, glm::vec4 padding, float interval)
+    : Container(glm::vec2(), size), 
       padding(padding), 
       interval(interval) {
-    setColor(vec4(0.0f, 0.0f, 0.0f, 0.75f));
+    setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.75f));
 }
 
 Panel::~Panel() {
@@ -183,9 +180,9 @@ glm::vec4 Panel::getPadding() const {
 
 void Panel::cropToContent() {
     if (maxLength > 0.0f) {
-        setSize(vec2(getSize().x, glm::min(maxLength, actualLength)));
+        setSize(glm::vec2(getSize().x, glm::min(maxLength, actualLength)));
     } else {
-        setSize(vec2(getSize().x, actualLength));
+        setSize(glm::vec2(getSize().x, actualLength));
     }
 }
 
@@ -199,21 +196,21 @@ void Panel::refresh() {
     UINode::refresh();
     float x = padding.x;
     float y = padding.y;
-    vec2 size = getSize();
+    glm::vec2 size = getSize();
     if (orientation == Orientation::vertical) {
         float maxw = size.x;
         for (auto& node : nodes) {
-            vec2 nodesize = node->getSize();
-            const vec4 margin = node->getMargin();
+            glm::vec2 nodesize = node->getSize();
+            const glm::vec4 margin = node->getMargin();
             y += margin.y;
             
             float ex = x + margin.x;
-            node->setCoord(vec2(ex, y));
+            node->setCoord(glm::vec2(ex, y));
             y += nodesize.y + margin.w + interval;
 
             float width = size.x - padding.x - padding.z - margin.x - margin.z;
             if (node->isResizing()) {
-                node->setSize(vec2(width, nodesize.y));
+                node->setSize(glm::vec2(width, nodesize.y));
             }
             node->refresh();
             maxw = fmax(maxw, ex+node->getSize().x+margin.z+padding.z);
@@ -222,10 +219,10 @@ void Panel::refresh() {
     } else {
         float maxh = size.y;
         for (auto& node : nodes) {
-            vec2 nodesize = node->getSize();
-            const vec4 margin = node->getMargin();
+            glm::vec2 nodesize = node->getSize();
+            const glm::vec4 margin = node->getMargin();
             x += margin.x;
-            node->setCoord(vec2(x, y+margin.y));
+            node->setCoord(glm::vec2(x, y+margin.y));
             x += nodesize.x + margin.z + interval;
             
             node->refresh();
@@ -243,7 +240,7 @@ Orientation Panel::getOrientation() const {
     return orientation;
 }
 
-PagesControl::PagesControl() : Container(vec2(), vec2(1)){
+PagesControl::PagesControl() : Container(glm::vec2(), glm::vec2(1)){
 }
 
 bool PagesControl::has(std::string name) {
@@ -259,16 +256,16 @@ void PagesControl::setPage(std::string name, bool history) {
     if (found == pages.end()) {
         throw std::runtime_error("no page found");
     }
-    if (current_.panel) {
-        Container::remove(current_.panel);
+    if (current.panel) {
+        Container::remove(current.panel);
     }
     if (history) {
-        pageStack.push(curname_);
+        pageStack.push(curname);
     }
-    curname_ = name;
-    current_ = found->second;
-    Container::add(current_.panel);
-    setSize(current_.panel->getSize());
+    curname = name;
+    current = found->second;
+    Container::add(current.panel);
+    setSize(current.panel->getSize());
 }
 
 void PagesControl::back() {
@@ -279,8 +276,8 @@ void PagesControl::back() {
     setPage(name, false);
 }
 
-Page& PagesControl::current() {
-    return current_;
+Page& PagesControl::getCurrent() {
+    return current;
 }
 
 void PagesControl::clearHistory() {
@@ -289,9 +286,9 @@ void PagesControl::clearHistory() {
 
 void PagesControl::reset() {
     clearHistory();
-    if (current_.panel) {
-        curname_ = "";
-        Container::remove(current_.panel);
-        current_ = Page{nullptr};
+    if (current.panel) {
+        curname = "";
+        Container::remove(current.panel);
+        current = Page{nullptr};
     }
 }

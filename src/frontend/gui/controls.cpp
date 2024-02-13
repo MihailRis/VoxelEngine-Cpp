@@ -10,24 +10,20 @@
 #include "../../util/stringutil.h"
 #include "GUI.h"
 
-using glm::vec2;
-using glm::vec3;
-using glm::vec4;
-
 using namespace gui;
 
 Label::Label(std::string text, std::string fontName) 
-     : UINode(vec2(), vec2(text.length() * 8, 15)), 
+     : UINode(glm::vec2(), glm::vec2(text.length() * 8, 15)), 
        text(util::str2wstr_utf8(text)), 
-       fontName_(fontName) {
+       fontName(fontName) {
     setInteractive(false);
 }
 
 
 Label::Label(std::wstring text, std::string fontName) 
-     : UINode(vec2(), vec2(text.length() * 8, 15)), 
+     : UINode(glm::vec2(), glm::vec2(text.length() * 8, 15)), 
        text(text), 
-       fontName_(fontName) {
+       fontName(fontName) {
     setInteractive(false);
 }
 
@@ -46,14 +42,14 @@ void Label::draw(const GfxContext* pctx, Assets* assets) {
 
     auto batch = pctx->getBatch2D();
     batch->color = getColor();
-    Font* font = assets->getFont(fontName_);
-    vec2 size = getSize();
-    vec2 newsize = vec2(
+    Font* font = assets->getFont(fontName);
+    glm::vec2 size = getSize();
+    glm::vec2 newsize (
         font->calcWidth(text), 
         font->getLineHeight()+font->getYOffset()
     );
 
-    vec2 coord = calcCoord();
+    glm::vec2 coord = calcCoord();
     switch (align) {
         case Align::left:
             break;
@@ -74,13 +70,13 @@ Label* Label::textSupplier(wstringsupplier supplier) {
 }
 
 // ================================= Image ====================================
-Image::Image(std::string texture, vec2 size) : UINode(vec2(), size), texture(texture) {
+Image::Image(std::string texture, glm::vec2 size) : UINode(glm::vec2(), size), texture(texture) {
     setInteractive(false);
 }
 
 void Image::draw(const GfxContext* pctx, Assets* assets) {
-    vec2 coord = calcCoord();
-    vec4 color = getColor();
+    glm::vec2 coord = calcCoord();
+    glm::vec4 color = getColor();
     auto batch = pctx->getBatch2D();
     batch->texture(assets->getTexture(texture));
     batch->color = color;
@@ -90,10 +86,11 @@ void Image::draw(const GfxContext* pctx, Assets* assets) {
 
 // ================================= Button ===================================
 Button::Button(std::shared_ptr<UINode> content, glm::vec4 padding)
-    : Panel(vec2(), padding, 0) {
-    vec4 margin = getMargin();
-    setSize(content->getSize()+vec2(padding[0]+padding[2]+margin[0]+margin[2],
-                                    padding[1]+padding[3]+margin[1]+margin[3]));
+    : Panel(glm::vec2(), padding, 0) {
+    glm::vec4 margin = getMargin();
+    setSize(content->getSize()+
+            glm::vec2(padding[0]+padding[2]+margin[0]+margin[2],
+                      padding[1]+padding[3]+margin[1]+margin[3]));
     add(content);
     setScrollable(false);
     setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
@@ -102,13 +99,13 @@ Button::Button(std::shared_ptr<UINode> content, glm::vec4 padding)
 
 Button::Button(
     std::wstring text, 
-    vec4 padding, 
+    glm::vec4 padding, 
     onaction action,
-    vec2 size
+    glm::vec2 size
 ) : Panel(size, padding, 0) 
 {
     if (size.y < 0.0f) {
-        size = vec2(
+        size = glm::vec2(
             glm::max(padding.x + padding.z + text.length()*8, size.x),
             glm::max(padding.y + padding.w + 16, size.y)
         );
@@ -122,7 +119,7 @@ Button::Button(
 
     label = std::make_shared<Label>(text);
     label->setAlign(Align::center);
-    label->setSize(size-vec2(padding.z+padding.x, padding.w+padding.y));
+    label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
     label->setInteractive(false);
     add(label);
     setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
@@ -151,12 +148,12 @@ Button* Button::textSupplier(wstringsupplier supplier) {
 void Button::refresh() {
     Panel::refresh();
     if (label) {
-        label->setSize(size-vec2(padding.z+padding.x, padding.w+padding.y));
+        label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
     }
 }
 
 void Button::drawBackground(const GfxContext* pctx, Assets* assets) {
-    vec2 coord = calcCoord();
+    glm::vec2 coord = calcCoord();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
     batch->color = (isPressed() ? pressedColor : (hover ? hoverColor : color));
@@ -165,7 +162,7 @@ void Button::drawBackground(const GfxContext* pctx, Assets* assets) {
 
 void Button::mouseRelease(GUI* gui, int x, int y) {
     UINode::mouseRelease(gui, x, y);
-    if (isInside(vec2(x, y))) {
+    if (isInside(glm::vec2(x, y))) {
         for (auto callback : actions) {
             callback(gui);
         }
@@ -192,13 +189,13 @@ Align Button::getTextAlign() const {
 }
 
 // ============================== RichButton ==================================
-RichButton::RichButton(vec2 size) : Container(vec2(), size) {
+RichButton::RichButton(glm::vec2 size) : Container(glm::vec2(), size) {
     setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
 }
 
 void RichButton::mouseRelease(GUI* gui, int x, int y) {
     UINode::mouseRelease(gui, x, y);
-    if (isInside(vec2(x, y))) {
+    if (isInside(glm::vec2(x, y))) {
         for (auto callback : actions) {
             callback(gui);
         }
@@ -211,7 +208,7 @@ RichButton* RichButton::listenAction(onaction action) {
 }
 
 void RichButton::drawBackground(const GfxContext* pctx, Assets* assets) {
-    vec2 coord = calcCoord();
+    glm::vec2 coord = calcCoord();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
     batch->color = (isPressed() ? pressedColor : (hover ? hoverColor : color));
@@ -219,18 +216,18 @@ void RichButton::drawBackground(const GfxContext* pctx, Assets* assets) {
 }
 
 // ================================ TextBox ===================================
-TextBox::TextBox(std::wstring placeholder, vec4 padding) 
-    : Panel(vec2(200,32), padding, 0), 
+TextBox::TextBox(std::wstring placeholder, glm::vec4 padding) 
+    : Panel(glm::vec2(200,32), padding, 0), 
       input(L""),
       placeholder(placeholder) {
     label = std::make_shared<Label>(L"");
-    label->setSize(size-vec2(padding.z+padding.x, padding.w+padding.y));
+    label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
     add(label);
     setHoverColor(glm::vec4(0.05f, 0.1f, 0.2f, 0.75f));
 }
 
 void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
-    vec2 coord = calcCoord();
+    glm::vec2 coord = calcCoord();
 
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
@@ -253,10 +250,10 @@ void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
     }
 
     if (input.empty()) {
-        label->setColor(vec4(0.5f));
+        label->setColor(glm::vec4(0.5f));
         label->setText(placeholder);
     } else {
-        label->setColor(vec4(1.0f));
+        label->setColor(glm::vec4(1.0f));
         label->setText(input);
     }
     setScrollable(false);
@@ -297,7 +294,7 @@ void TextBox::focus(GUI* gui) {
 
 void TextBox::refresh() {
     Panel::refresh();
-    label->setSize(size-vec2(padding.z+padding.x, padding.w+padding.y));
+    label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
 }
 
 void TextBox::keyPressed(int key) {
@@ -322,7 +319,7 @@ void TextBox::keyPressed(int key) {
     }
 }
 
-std::shared_ptr<UINode> TextBox::getAt(vec2 pos, std::shared_ptr<UINode> self) {
+std::shared_ptr<UINode> TextBox::getAt(glm::vec2 pos, std::shared_ptr<UINode> self) {
     return UINode::getAt(pos, self);
 }
 
@@ -349,8 +346,8 @@ void TextBox::setText(std::wstring value) {
 }
 
 // ============================== InputBindBox ================================
-InputBindBox::InputBindBox(Binding& binding, vec4 padding) 
-    : Panel(vec2(100,32), padding, 0),
+InputBindBox::InputBindBox(Binding& binding, glm::vec4 padding) 
+    : Panel(glm::vec2(100,32), padding, 0),
       binding(binding) {
     label = std::make_shared<Label>(L"");
     add(label);
@@ -358,7 +355,7 @@ InputBindBox::InputBindBox(Binding& binding, vec4 padding)
 }
 
 void InputBindBox::drawBackground(const GfxContext* pctx, Assets* assets) {
-    vec2 coord = calcCoord();
+    glm::vec2 coord = calcCoord();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
     batch->color = (isFocused() ? focusedColor : (hover ? hoverColor : color));
@@ -386,20 +383,20 @@ TrackBar::TrackBar(double min,
                    double value, 
                    double step, 
                    int trackWidth)
-    : UINode(vec2(), vec2(26)), 
+    : UINode(glm::vec2(), glm::vec2(26)), 
       min(min), 
       max(max), 
       value(value), 
       step(step), 
       trackWidth(trackWidth) {
-    setColor(vec4(0.f, 0.f, 0.f, 0.4f));
+    setColor(glm::vec4(0.f, 0.f, 0.f, 0.4f));
 }
 
 void TrackBar::draw(const GfxContext* pctx, Assets* assets) {
-    if (supplier_) {
-        value = supplier_();
+    if (supplier) {
+        value = supplier();
     }
-    vec2 coord = calcCoord();
+    glm::vec2 coord = calcCoord();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
     batch->color = (hover ? hoverColor : color);
@@ -413,16 +410,16 @@ void TrackBar::draw(const GfxContext* pctx, Assets* assets) {
     batch->rect(coord.x + width * t, coord.y, actualWidth, size.y);
 }
 
-void TrackBar::supplier(doublesupplier supplier) {
-    this->supplier_ = supplier;
+void TrackBar::setSupplier(doublesupplier supplier) {
+    this->supplier = supplier;
 }
 
-void TrackBar::consumer(doubleconsumer consumer) {
-    this->consumer_ = consumer;
+void TrackBar::setConsumer(doubleconsumer consumer) {
+    this->consumer = consumer;
 }
 
 void TrackBar::mouseMove(GUI*, int x, int y) {
-    vec2 coord = calcCoord();
+    glm::vec2 coord = calcCoord();
     value = x;
     value -= coord.x;
     value = (value)/size.x * (max-min+trackWidth*step);
@@ -430,56 +427,56 @@ void TrackBar::mouseMove(GUI*, int x, int y) {
     value = (value > max) ? max : value;
     value = (value < min) ? min : value;
     value = (int)(value / step) * step;
-    if (consumer_) {
-        consumer_(value);
+    if (consumer) {
+        consumer(value);
     }
 }
 
 // ================================ CheckBox ==================================
-CheckBox::CheckBox(bool checked) : UINode(vec2(), vec2(32.0f)), checked_(checked) {
-    setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+CheckBox::CheckBox(bool checked) : UINode(glm::vec2(), glm::vec2(32.0f)), checked(checked) {
+    setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
 }
 
 void CheckBox::draw(const GfxContext* pctx, Assets* assets) {
-    if (supplier_) {
-        checked_ = supplier_();
+    if (supplier) {
+        checked = supplier();
     }
-    vec2 coord = calcCoord();
+    glm::vec2 coord = calcCoord();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
-    batch->color = checked_ ? checkColor : (hover ? hoverColor : color);
+    batch->color = checked ? checkColor : (hover ? hoverColor : color);
     batch->rect(coord.x, coord.y, size.x, size.y);
 }
 
 void CheckBox::mouseRelease(GUI*, int x, int y) {
-    checked_ = !checked_;
-    if (consumer_) {
-        consumer_(checked_);
+    checked = !checked;
+    if (consumer) {
+        consumer(checked);
     }
 }
 
-void CheckBox::supplier(boolsupplier supplier) {
-    supplier_ = supplier;
+void CheckBox::setSupplier(boolsupplier supplier) {
+    this->supplier = supplier;
 }
 
-void CheckBox::consumer(boolconsumer consumer) {
-    consumer_ = consumer;
+void CheckBox::setConsumer(boolconsumer consumer) {
+    this->consumer = consumer;
 }
 
-CheckBox* CheckBox::checked(bool flag) {
-    checked_ = flag;
+CheckBox* CheckBox::setChecked(bool flag) {
+    checked = flag;
     return this;
 }
 
 FullCheckBox::FullCheckBox(std::wstring text, glm::vec2 size, bool checked)
     : Panel(size), 
       checkbox(std::make_shared<CheckBox>(checked)){
-    setColor(vec4(0.0f));
+    setColor(glm::vec4(0.0f));
     setOrientation(Orientation::horizontal);
 
     add(checkbox);
 
     auto label = std::make_shared<Label>(text); 
-    label->setMargin(vec4(5.f, 5.f, 0.f, 0.f));
+    label->setMargin(glm::vec4(5.f, 5.f, 0.f, 0.f));
     add(label);
 }

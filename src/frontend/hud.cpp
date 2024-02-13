@@ -100,13 +100,13 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
     }));
 
     for (int ax = 0; ax < 3; ax++){
-        auto sub = std::make_shared<Panel>(vec2(10, 27), vec4(0.0f));
-        sub->setOrientation(Orientation::horizontal);
+        auto sub = std::make_shared<Container>(vec2(), vec2(250, 27));
 
         std::wstring str = L"x: ";
         str[0] += ax;
         auto label = std::make_shared<Label>(str);
         label->setMargin(vec4(2, 3, 2, 3));
+        label->setSize(vec2(20, 27));
         sub->add(label);
         sub->setColor(vec4(0.0f));
 
@@ -128,8 +128,9 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
             Hitbox* hitbox = level->player->hitbox.get();
             box->setText(std::to_wstring(int(hitbox->position[ax])));
         });
+        box->setSize(vec2(230, 27));
 
-        sub->add(box);
+        sub->add(box, vec2(20, 0));
         panel->add(sub);
     }
     panel->add(create_label([=](){
@@ -143,24 +144,24 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
     }));
     {
         auto bar = std::make_shared<TrackBar>(0.0f, 1.0f, 1.0f, 0.005f, 8);
-        bar->supplier([=]() {return level->world->daytime;});
-        bar->consumer([=](double val) {level->world->daytime = val;});
+        bar->setSupplier([=]() {return level->world->daytime;});
+        bar->setConsumer([=](double val) {level->world->daytime = val;});
         panel->add(bar);
     }
     {
         auto bar = std::make_shared<TrackBar>(0.0f, 1.0f, 0.0f, 0.005f, 8);
-        bar->supplier([=]() {return WorldRenderer::fog;});
-        bar->consumer([=](double val) {WorldRenderer::fog = val;});
+        bar->setSupplier([=]() {return WorldRenderer::fog;});
+        bar->setConsumer([=](double val) {WorldRenderer::fog = val;});
         panel->add(bar);
     }
     {
         auto checkbox = std::make_shared<FullCheckBox>(
             L"Show Chunk Borders", vec2(400, 24)
         );
-        checkbox->supplier([=]() {
+        checkbox->setSupplier([=]() {
             return engine->getSettings().debug.showChunkBorders;
         });
-        checkbox->consumer([=](bool checked) {
+        checkbox->setConsumer([=](bool checked) {
             engine->getSettings().debug.showChunkBorders = checked;
         });
         panel->add(checkbox);
@@ -291,7 +292,7 @@ void HudRenderer::update(bool visible) {
     if (!visible && inventoryOpen) {
         closeInventory();
     }
-    if (pause && menu->current().panel == nullptr) {
+    if (pause && menu->getCurrent().panel == nullptr) {
         pause = false;
     }
     if (Events::jpressed(keycode::ESCAPE) && !gui->isFocusCaught()) {
