@@ -11,6 +11,7 @@
 #include "../util/timeutil.h"
 #include "../maths/fastmaths.h"
 #include "../items/Inventory.h"
+#include "../items/Inventories.h"
 
 #include "scripting/scripting.h"
 
@@ -44,6 +45,10 @@ int Clock::getPart() const {
 
 int Clock::getTickRate() const {
     return tickRate;
+}
+
+int Clock::getTickId() const {
+    return tickId;
 }
 
 BlocksController::BlocksController(Level* level, uint padding) 
@@ -142,4 +147,25 @@ void BlocksController::randomTick(int tickid, int parts) {
             }
         }
 	}
+}
+
+int64_t BlocksController::createBlockInventory(int x, int y, int z) {
+	auto chunk = chunks->getChunkByVoxel(x, y, z);
+	if (chunk == nullptr) {
+		return 0;
+	}
+	int lx = x - chunk->x * CHUNK_W;
+	int lz = z - chunk->z * CHUNK_D;
+	auto inv = chunk->getBlockInventory(lx, y, lz);
+	if (inv == nullptr) {
+        auto indices = level->content->getIndices();
+        auto def = indices->getBlockDef(chunk->voxels[vox_index(lx, y, lz)].id);
+        int invsize = def->inventorySize;
+        if (invsize == 0) {
+            return 0;
+        }
+		inv = level->inventories->create(invsize);
+        chunk->addBlockInventory(inv, lx, y, lz);
+	}
+    return inv->getId();
 }

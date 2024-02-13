@@ -57,6 +57,8 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 	std::unique_ptr<ubyte[]> data(wfile->getChunk(chunk->x, chunk->z));
 	if (data) {
 		chunk->decode(data.get());
+		auto invs = wfile->fetchInventories(chunk->x, chunk->z);
+		chunk->setBlockInventories(std::move(invs));
 		chunk->setLoaded(true);
         verifyLoadedChunk(level->content->getIndices(), chunk.get());
 	}

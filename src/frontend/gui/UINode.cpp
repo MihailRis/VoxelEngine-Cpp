@@ -5,10 +5,7 @@
 using gui::UINode;
 using gui::Align;
 
-using glm::vec2;
-using glm::vec4;
-
-UINode::UINode(vec2 coord, vec2 size) : coord(coord), size(size) {
+UINode::UINode(glm::vec2 coord, glm::vec2 size) : coord(coord), size(size) {
 }
 
 UINode::~UINode() {
@@ -67,13 +64,13 @@ bool UINode::isFocused() const {
 }
 
 bool UINode::isInside(glm::vec2 pos) {
-    vec2 coord = calcCoord();
-    vec2 size = getSize();
+    glm::vec2 coord = calcCoord();
+    glm::vec2 size = getSize();
     return (pos.x >= coord.x && pos.y >= coord.y && 
             pos.x < coord.x + size.x && pos.y < coord.y + size.y);
 }
 
-std::shared_ptr<UINode> UINode::getAt(vec2 pos, std::shared_ptr<UINode> self) {
+std::shared_ptr<UINode> UINode::getAt(glm::vec2 pos, std::shared_ptr<UINode> self) {
     if (!interactive) {
         return nullptr;
     }
@@ -96,7 +93,7 @@ bool UINode::isResizing() const {
     return resizing;
 }
 
-vec2 UINode::calcCoord() const {
+glm::vec2 UINode::calcCoord() const {
     if (parent) {
         return coord + parent->calcCoord() + parent->contentOffset();
     }
@@ -109,19 +106,19 @@ void UINode::scrolled(int value) {
     }
 }
 
-void UINode::setCoord(vec2 coord) {
+void UINode::setCoord(glm::vec2 coord) {
     this->coord = coord;
 }
 
-vec2 UINode::getSize() const {
+glm::vec2 UINode::getSize() const {
     return size;
 }
 
-void UINode::setSize(vec2 size) {
+void UINode::setSize(glm::vec2 size) {
     this->size = size;
 }
 
-void UINode::setColor(vec4 color) {
+void UINode::setColor(glm::vec4 color) {
     this->color = color;
     this->hoverColor = color;
 }
@@ -134,17 +131,33 @@ glm::vec4 UINode::getHoverColor() const {
     return hoverColor;
 }
 
-vec4 UINode::getColor() const {
+glm::vec4 UINode::getColor() const {
     return color;
 }
 
-void UINode::setMargin(vec4 margin) {
+void UINode::setMargin(glm::vec4 margin) {
     this->margin = margin;
 }
 
-vec4 UINode::getMargin() const {
+glm::vec4 UINode::getMargin() const {
     return margin;
 }
 
+void UINode::setZIndex(int zindex) {
+    this->zindex = zindex;
+}
+
+int UINode::getZIndex() const {
+    return zindex;
+}
+
 void UINode::lock() {
+}
+
+void UINode::setId(const std::string& id) {
+    this->id = id;
+}
+
+const std::string& UINode::getId() const {
+    return id;
 }

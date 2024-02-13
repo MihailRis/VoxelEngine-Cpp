@@ -9,18 +9,18 @@
 
 // All in-game definitions (blocks, items, etc..)
 void corecontent::setup(ContentBuilder* builder) {
-	Block* block = builder->createBlock("core:air");
-	block->replaceable = true;
-	block->drawGroup = 1;
-	block->lightPassing = true;
-	block->skyLightPassing = true;
-	block->obstacle = false;
-	block->selectable = false;
-	block->model = BlockModel::none;
-    block->pickingItem = "core:empty";
+	Block& block = builder->createBlock("core:air");
+	block.replaceable = true;
+	block.drawGroup = 1;
+	block.lightPassing = true;
+	block.skyLightPassing = true;
+	block.obstacle = false;
+	block.selectable = false;
+	block.model = BlockModel::none;
+    block.pickingItem = "core:empty";
 
-    ItemDef* item = builder->createItem("core:empty");
-    item->iconType = item_icon_type::none;
+    ItemDef& item = builder->createItem("core:empty");
+    item.iconType = item_icon_type::none;
 }
 
 void corecontent::setup_bindings() {

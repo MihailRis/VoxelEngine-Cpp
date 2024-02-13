@@ -7,6 +7,7 @@
 #include "../files/files.h"
 #include "../files/engine_paths.h"
 #include "../data/dynamic.h"
+#include "../logic/scripting/scripting.h"
 
 namespace fs = std::filesystem;
 
@@ -148,4 +149,11 @@ void ContentPack::readPacks(const EnginePaths* paths,
         }
         packs.push_back(ContentPack::read(packfolder));
     }
+}
+
+ContentPackRuntime::ContentPackRuntime(
+    ContentPack info, 
+    std::unique_ptr<scripting::Environment> env
+) : info(info), env(std::move(env))
+{
 }

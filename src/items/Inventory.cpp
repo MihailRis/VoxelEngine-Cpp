@@ -2,7 +2,7 @@
 
 #include "../content/ContentLUT.h"
 
-Inventory::Inventory(uint id, size_t size) : id(id), slots(size) {
+Inventory::Inventory(int64_t id, size_t size) : id(id), slots(size) {
 }
 
 ItemStack& Inventory::getSlot(size_t index) {
@@ -47,7 +47,10 @@ void Inventory::move(
 void Inventory::deserialize(dynamic::Map* src) {
     id = src->getNum("id", 1);
     auto slotsarr = src->list("slots");
-    size_t slotscount = std::min(slotsarr->size(), slots.size());
+    size_t slotscount = slotsarr->size();
+    while (slots.size() < slotscount) {
+        slots.push_back(ItemStack());
+    }
     for (size_t i = 0; i < slotscount; i++) {
         auto item = slotsarr->map(i);
         itemid_t id = item->getInt("id", ITEM_EMPTY);

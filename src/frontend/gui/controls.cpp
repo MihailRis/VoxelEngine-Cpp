@@ -177,11 +177,18 @@ Button* Button::listenAction(onaction action) {
     return this;
 }
 
-void Button::textAlign(Align align) {
+void Button::setTextAlign(Align align) {
     if (label) {
         label->setAlign(align);
         refresh();
     }
+}
+
+Align Button::getTextAlign() const {
+    if (label) {
+        return label->getAlign();
+    }
+    return Align::left;
 }
 
 // ============================== RichButton ==================================
@@ -262,7 +269,7 @@ void TextBox::typed(unsigned int codepoint) {
 
 bool TextBox::validate() {
     if (validator) {
-        valid = validator(input);
+        valid = validator(getText());
     } else {
         valid = true;
     }

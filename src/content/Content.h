@@ -14,6 +14,7 @@ using DrawGroups = std::set<unsigned char>;
 class Block;
 class ItemDef;
 class Content;
+class ContentPackRuntime;
 
 enum class contenttype {
     none, block, item
@@ -46,14 +47,17 @@ class ContentBuilder {
 
     std::unordered_map<std::string, ItemDef*> itemDefs;
     std::vector<std::string> itemIds;
+
+    std::vector<std::unique_ptr<ContentPackRuntime>> packs;
 public:
     ~ContentBuilder();
 
     void add(Block* def);
     void add(ItemDef* def);
+    void add(ContentPackRuntime* pack);
 
-    Block* createBlock(std::string id);
-    ItemDef* createItem(std::string id);
+    Block& createBlock(std::string id);
+    ItemDef& createItem(std::string id);
 
     void checkIdentifier(std::string id);
     contenttype checkContentType(std::string id);
@@ -104,12 +108,15 @@ class Content {
     std::unordered_map<std::string, Block*> blockDefs;
     std::unordered_map<std::string, ItemDef*> itemDefs;
     std::unique_ptr<ContentIndices> indices;
+    std::vector<std::unique_ptr<ContentPackRuntime>> packs;
 public:
-    DrawGroups* const drawGroups;
+    std::unique_ptr<DrawGroups> const drawGroups;
 
-    Content(ContentIndices* indices, DrawGroups* drawGroups,
+    Content(ContentIndices* indices, 
+            std::unique_ptr<DrawGroups> drawGroups,
             std::unordered_map<std::string, Block*> blockDefs,
-            std::unordered_map<std::string, ItemDef*> itemDefs);
+            std::unordered_map<std::string, ItemDef*> itemDefs,
+            std::vector<std::unique_ptr<ContentPackRuntime>> packs);
     ~Content();
 
     inline ContentIndices* getIndices() const {
@@ -117,10 +124,12 @@ public:
     }
     
     Block* findBlock(std::string id) const;
-    Block* requireBlock(std::string id) const;
+    Block& requireBlock(std::string id) const;
 
     ItemDef* findItem(std::string id) const;
-    ItemDef* requireItem(std::string id) const;
+    ItemDef& requireItem(std::string id) const;
+
+    const std::vector<std::unique_ptr<ContentPackRuntime>>& getPacks() const;
 };
 
 #endif // CONTENT_CONTENT_H_

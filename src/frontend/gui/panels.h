@@ -46,7 +46,10 @@ namespace gui {
         virtual void setScrollable(bool flag);
         void listenInterval(float interval, ontimeout callback, int repeat=-1);
         virtual glm::vec2 contentOffset() override {return glm::vec2(0.0f, scroll);};
-        virtual void setSize(glm::vec2 size);
+        virtual void setSize(glm::vec2 size) override;
+        virtual void refresh() override;
+
+        const std::vector<std::shared_ptr<UINode>>& getNodes() const;
     };
 
     class Panel : public Container {

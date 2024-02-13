@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <memory>
+#include <string>
 #include <functional>
 
 class GfxContext;
@@ -21,6 +22,7 @@ namespace gui {
     };
 
     class UINode {
+        std::string id = "";
     protected:
         glm::vec2 coord;
         glm::vec2 size;
@@ -33,6 +35,7 @@ namespace gui {
         bool focused = false;
         bool interactive = true;
         bool resizing = true;
+        int zindex = 0;
         Align align = Align::left;
         UINode* parent = nullptr;
         UINode(glm::vec2 coord, glm::vec2 size);
@@ -65,6 +68,9 @@ namespace gui {
 
         virtual void setMargin(glm::vec4 margin);
         glm::vec4 getMargin() const;
+
+        virtual void setZIndex(int idx);
+        int getZIndex() const;
 
         virtual void focus(GUI*) {focused = true;}
         virtual void click(GUI*, int x, int y);
@@ -110,6 +116,9 @@ namespace gui {
         virtual void setSize(glm::vec2 size);
         virtual void refresh() {};
         virtual void lock();
+
+        void setId(const std::string& id);
+        const std::string& getId() const;
     };
 }
 

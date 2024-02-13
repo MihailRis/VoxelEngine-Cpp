@@ -159,3 +159,7 @@ std::vector<fs::path> ResPaths::listdir(const std::string& folderName) const {
     }
     return entries;
 }
+
+const fs::path& ResPaths::getMainRoot() const {
+    return mainRoot;
+}

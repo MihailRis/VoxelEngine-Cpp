@@ -200,3 +200,11 @@ std::string ByteReader::getString() {
 bool ByteReader::hasNext() const {
     return pos < size;
 }
+
+const ubyte* ByteReader::pointer() const {
+    return data + pos;
+}
+
+void ByteReader::skip(size_t n) {
+    pos += n;
+}

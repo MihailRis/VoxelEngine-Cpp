@@ -37,9 +37,13 @@ function load_script(path, nocache)
     if not nocache and __cached_scripts[fullpath] ~= nil then
         return __cached_results[fullpath]
     end
-    local script = loadfile(fullpath)
-    if script == nil then
+    if not file.isfile(fullpath) then
         error("script '"..filename.."' not found in '"..packname.."'")
+    end
+
+    local script, err = loadfile(fullpath)
+    if script == nil then
+        error(err)
     end
     local result = script()
     if not nocache then
@@ -47,6 +51,16 @@ function load_script(path, nocache)
         __cached_results[fullpath] = result
     end
     return result
+end
+
+function require(path)
+    local prefix, file = parse_path(path)
+    return load_script(prefix..":modules/"..file..".lua")
+end
+
+function __reset_scripts_cache()
+    __cached_scripts = {}
+    __cached_results = {}
 end
 
 function sleep(timesec)
@@ -72,4 +86,8 @@ function dofile(path)
         end
     end
     return _dofile(path)
+end
+
+function pack.is_installed(packid)
+    return file.isfile(packid..":package.json")
 end

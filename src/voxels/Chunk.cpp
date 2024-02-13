@@ -49,6 +49,16 @@ void Chunk::addBlockInventory(std::shared_ptr<Inventory> inventory,
     setUnsaved(true);
 }
 
+void Chunk::removeBlockInventory(uint x, uint y, uint z) {
+	if (inventories.erase(vox_index(x, y, z))) {
+		setUnsaved(true);
+	}
+}
+
+void Chunk::setBlockInventories(chunk_inventories_map map) {
+	inventories = map;
+}
+
 std::shared_ptr<Inventory> Chunk::getBlockInventory(uint x, uint y, uint z) const {
     if (x >= CHUNK_W || y >= CHUNK_H || z >= CHUNK_D)
         return nullptr;
@@ -93,7 +103,7 @@ ubyte* Chunk::encode() const {
 	return buffer;
 }
 
-bool Chunk::decode(ubyte* data) {
+bool Chunk::decode(const ubyte* data) {
 	for (uint i = 0; i < CHUNK_VOL; i++) {
 		voxel& vox = voxels[i];
 

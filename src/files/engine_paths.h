@@ -42,6 +42,8 @@ public:
     
     fs::path find(const std::string& filename) const;
     std::vector<fs::path> listdir(const std::string& folder) const;
+
+    const fs::path& getMainRoot() const;
 };
 
 #endif // FILES_ENGINE_PATHS_H_

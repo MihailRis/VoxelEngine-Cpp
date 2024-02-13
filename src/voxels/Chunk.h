@@ -17,11 +17,13 @@ struct ChunkFlag {
 	static const int UNSAVED = 0x10;
 	static const int LOADED_LIGHTS = 0x20;
 };
-#define CHUNK_DATA_LEN (CHUNK_VOL*4)
+constexpr int CHUNK_DATA_LEN = CHUNK_VOL*4;
 
 class Lightmap;
 class ContentLUT;
 class Inventory;
+
+using chunk_inventories_map = std::unordered_map<uint, std::shared_ptr<Inventory>>;
 
 class Chunk {
 public:
@@ -32,7 +34,7 @@ public:
 	int flags = 0;
 
     /* Block inventories map where key is index of block in voxels array */
-    std::unordered_map<uint, std::shared_ptr<Inventory>> inventories;
+    chunk_inventories_map inventories;
 
 	Chunk(int x, int z);
 
@@ -55,6 +57,8 @@ public:
        @return inventory id or 0 if block does not exists */
     void addBlockInventory(std::shared_ptr<Inventory> inventory, 
                            uint x, uint y, uint z);
+	void removeBlockInventory(uint x, uint y, uint z);
+	void setBlockInventories(chunk_inventories_map map);
 
     /* @return inventory bound to the given block or nullptr */
     std::shared_ptr<Inventory> getBlockInventory(uint x, uint y, uint z) const;
@@ -88,7 +92,7 @@ public:
     /**
      * @return true if all is fine
      **/
-	bool decode(ubyte* data);
+	bool decode(const ubyte* data);
 
     static void convert(ubyte* data, const ContentLUT* lut);
 };

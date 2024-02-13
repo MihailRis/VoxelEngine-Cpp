@@ -18,10 +18,10 @@ const float FLIGHT_SPEED_MUL = 4.0f;
 const float CHEAT_SPEED_MUL = 5.0f;
 const float JUMP_FORCE = 8.0f;
 
-Player::Player(glm::vec3 position, float speed) :
+Player::Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv) :
 		speed(speed),
 		chosenSlot(0),
-		inventory(new Inventory(0, 40)),
+		inventory(inv),
 	    camera(new Camera(position, glm::radians(90.0f))),
 	    spCamera(new Camera(position, glm::radians(90.0f))),
 	    tpCamera(new Camera(position, glm::radians(90.0f))),
@@ -195,7 +195,6 @@ std::unique_ptr<dynamic::Map> Player::serialize() const {
 }
 
 void Player::deserialize(dynamic::Map *src) {
-
 	auto posarr = src->list("position");
 	glm::vec3& position = hitbox->position;
 	position.x = posarr->num(0);

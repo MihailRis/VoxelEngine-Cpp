@@ -13,6 +13,7 @@
 #include "../voxels/ChunksStorage.h"
 #include "../objects/Player.h"
 #include "../window/Camera.h"
+#include "../items/Inventories.h"
 
 world_load_error::world_load_error(std::string message) 
     : std::runtime_error(message) {
@@ -65,6 +66,7 @@ void World::write(Level* level) {
 
 const float DEF_PLAYER_Y = 100.0f;
 const float DEF_PLAYER_SPEED = 4.0f;
+const int DEF_PLAYER_INVENTORY_SIZE = 40;
 
 Level* World::create(std::string name, 
                      fs::path directory, 
@@ -73,8 +75,13 @@ Level* World::create(std::string name,
                      const Content* content,
                      const std::vector<ContentPack>& packs) {
     auto world = new World(name, directory, seed, settings, content, packs);
-    auto player = new Player(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
-    return new Level(world, content, player, settings);
+    auto inv = std::make_shared<Inventory>(world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE);
+    auto player = new Player(
+        glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv
+    );
+    auto level = new Level(world, content, player, settings);
+    level->inventories->store(player->getInventory());
+    return level;
 }
 
 Level* World::load(fs::path directory,
@@ -90,10 +97,13 @@ Level* World::load(fs::path directory,
         throw world_load_error("could not to find world.json");
     }
 
-    auto player = new Player(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
+    auto inv = std::make_shared<Inventory>(0, DEF_PLAYER_INVENTORY_SIZE);
+    auto player = new Player(
+        glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv
+    );
     auto level = new Level(world.get(), content, player, settings);
     wfile->readPlayer(player);
-
+    level->inventories->store(player->getInventory());
     world.release();
     return level;
 }

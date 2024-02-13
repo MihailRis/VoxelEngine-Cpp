@@ -71,6 +71,9 @@ public:
     const char* getCString();
     std::string getString();
     bool hasNext() const;
+
+    const ubyte* pointer() const;
+    void skip(size_t n);
 };
 
 #endif // CODERS_BYTE_UTILS_H_

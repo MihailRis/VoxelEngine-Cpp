@@ -41,17 +41,20 @@
 #include "BlocksPreview.h"
 #include "InventoryView.h"
 #include "LevelFrontend.h"
+#include "UiDocument.h"
 #include "../engine.h"
+#include "../delegates.h"
 #include "../core_defs.h"
 #include "../items/ItemDef.h"
 #include "../items/Inventory.h"
+#include "../logic/scripting/scripting.h"
 
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 using namespace gui;
 
-static std::shared_ptr<Label> create_label(gui::wstringsupplier supplier) {
+static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
     auto label = std::make_shared<Label>(L"-");
     label->textSupplier(supplier);
     return label;
@@ -172,15 +175,15 @@ std::shared_ptr<InventoryView> HudRenderer::createContentAccess() {
     auto indices = content->getIndices();
     auto player = level->player;
     auto inventory = player->getInventory();
-
+    
     int itemsCount = indices->countItemDefs();
     auto accessInventory = std::make_shared<Inventory>(0, itemsCount);
     for (int id = 1; id < itemsCount; id++) {
         accessInventory->getSlot(id-1).set(ItemStack(id, 1));
     }
 
-    SlotLayout slotLayout(glm::vec2(), false, true, 
-    [=](ItemStack& item) {
+    SlotLayout slotLayout(-1, glm::vec2(), false, true, 
+    [=](uint, ItemStack& item) {
         auto copy = ItemStack(item);
         inventory->move(copy, indices);
     }, 
@@ -190,65 +193,24 @@ std::shared_ptr<InventoryView> HudRenderer::createContentAccess() {
 
     InventoryBuilder builder;
     builder.addGrid(8, itemsCount-1, glm::vec2(), 8, true, slotLayout);
-    auto layout = builder.build();
-
-    auto contentAccess = std::make_shared<InventoryView>(
-        content, 
-        frontend, 
-        interaction.get(), 
-        accessInventory, 
-        std::move(layout)
-    );
-    contentAccess->build();
-    return contentAccess;
+    auto view = builder.build();
+    view->bind(accessInventory, frontend, interaction.get());
+    return view;
 }
 
 std::shared_ptr<InventoryView> HudRenderer::createHotbar() {
     auto level = frontend->getLevel();
     auto player = level->player;
     auto inventory = player->getInventory();
-    auto content = level->content;
 
-    SlotLayout slotLayout(glm::vec2(), false, false, nullptr, nullptr);
+    SlotLayout slotLayout(-1, glm::vec2(), false, false, nullptr, nullptr);
     InventoryBuilder builder;
     builder.addGrid(10, 10, glm::vec2(), 4, true, slotLayout);
-    auto layout = builder.build();
+    auto view = builder.build();
 
-    layout->setOrigin(glm::vec2(layout->getSize().x/2, 0));
-    auto view = std::make_shared<InventoryView>(
-        content, 
-        frontend, 
-        interaction.get(), 
-        inventory, 
-        std::move(layout)
-    );
-    view->build();
+    view->setOrigin(glm::vec2(view->getSize().x/2, 0));
+    view->bind(inventory, frontend, interaction.get());
     view->setInteractive(false);
-    return view;
-}
-
-std::shared_ptr<InventoryView> HudRenderer::createInventory() {
-    auto level = frontend->getLevel();
-    auto player = level->player;
-    auto inventory = player->getInventory();
-    auto content = level->content;
-
-    SlotLayout slotLayout(glm::vec2(), true, false, [=](ItemStack& stack) {
-        stack.clear();
-    }, nullptr);
-
-    InventoryBuilder builder;
-    builder.addGrid(10, inventory->size(), glm::vec2(), 4, true, slotLayout);
-    auto layout = builder.build();
-
-    auto view = std::make_shared<InventoryView>(
-        content,
-        frontend,
-        interaction.get(),
-        inventory,
-        std::move(layout)
-    );
-    view->build();
     return view;
 }
 
@@ -261,14 +223,16 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
 
     interaction = std::make_unique<InventoryInteraction>();
     grabbedItemView = std::make_shared<SlotView>(
+        SlotLayout(-1, glm::vec2(), false, false, nullptr, nullptr)
+    );
+    grabbedItemView->bind(
         interaction->getGrabbedItem(), 
-        frontend,
-        interaction.get(),
-        frontend->getLevel()->content,
-        SlotLayout(glm::vec2(), false, false, nullptr, nullptr)
+        frontend, 
+        interaction.get()
     );
     grabbedItemView->setColor(glm::vec4());
     grabbedItemView->setInteractive(false);
+    grabbedItemView->setZIndex(1);
 
     contentAccess = createContentAccess();
     contentAccessPanel = std::make_shared<Panel>(
@@ -279,10 +243,9 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
     contentAccessPanel->setScrollable(true);
 
     hotbarView = createHotbar();
-    inventoryView = createInventory();
-
     darkOverlay = std::make_unique<Panel>(glm::vec2(4000.0f));
     darkOverlay->setColor(glm::vec4(0, 0, 0, 0.5f));
+    darkOverlay->setZIndex(-1);
 
     uicamera = std::make_unique<Camera>(vec3(), 1);
     uicamera->perspective = false;
@@ -290,18 +253,21 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
 
     debugPanel = createDebugPanel(engine);
     menu->reset();
+
+    debugPanel->setZIndex(2);
     
     gui->addBack(darkOverlay);
     gui->addBack(hotbarView);
     gui->add(debugPanel);
     gui->add(contentAccessPanel);
-    gui->add(inventoryView);
     gui->add(grabbedItemView);
 }
 
 HudRenderer::~HudRenderer() {
     gui->remove(grabbedItemView);
-    gui->remove(inventoryView);
+    if (inventoryView) {
+        gui->remove(inventoryView);
+    }
     gui->remove(hotbarView);
     gui->remove(darkOverlay);
     gui->remove(contentAccessPanel);
@@ -344,7 +310,7 @@ void HudRenderer::update(bool visible) {
             if (inventoryOpen) {
                 closeInventory();
             } else {
-                inventoryOpen = true;
+                openInventory();
             }
         }
     }
@@ -353,7 +319,6 @@ void HudRenderer::update(bool visible) {
     }
 
     vec2 invSize = contentAccessPanel->getSize();
-    inventoryView->setVisible(inventoryOpen);
     contentAccessPanel->setVisible(inventoryOpen);
     contentAccessPanel->setSize(vec2(invSize.x, Window::height));
     hotbarView->setVisible(visible);
@@ -378,10 +343,29 @@ void HudRenderer::update(bool visible) {
     darkOverlay->setVisible(pause);
 }
 
+void HudRenderer::openInventory() {
+    auto level = frontend->getLevel();
+    auto player = level->player;
+    auto inventory = player->getInventory();
+
+    inventoryOpen = true;
+
+    inventoryDocument = assets->getLayout("core:inventory");
+    inventoryView = std::dynamic_pointer_cast<InventoryView>(inventoryDocument->getRoot());
+    inventoryView->bind(inventory, frontend, interaction.get());
+    scripting::on_ui_open(inventoryDocument, inventory.get());
+
+    gui->add(inventoryView);
+}
+
 void HudRenderer::closeInventory() {
+    scripting::on_ui_close(inventoryDocument, inventoryView->getInventory().get());
     inventoryOpen = false;
     ItemStack& grabbed = interaction->getGrabbedItem();
     grabbed.clear();
+    gui->remove(inventoryView);
+    inventoryView = nullptr;
+    inventoryDocument = nullptr;
 }
 
 void HudRenderer::draw(const GfxContext& ctx){
@@ -402,7 +386,6 @@ void HudRenderer::draw(const GfxContext& ctx){
     uishader->use();
     uishader->uniformMatrix("u_projview", uicamera->getProjView());
     
-    // Draw selected item preview
     hotbarView->setCoord(glm::vec2(width/2, height-65));
     hotbarView->setSelected(player->getChosenSlot());
 
@@ -416,11 +399,24 @@ void HudRenderer::draw(const GfxContext& ctx){
         batch->line(width/2+5, height/2-5, width/2-5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
     }
 
+    if (level->player->debug) {
+        const int dmwidth = 256;
+        const float dmscale = 4000.0f;
+        static float deltameter[dmwidth]{};
+        static int index=0;
+        index = index + 1 % dmwidth;
+        deltameter[index%dmwidth] = glm::min(0.2f, 1.f/fps)*dmscale;
+        batch->lineWidth(1);
+        for (int i = index+1; i < index+dmwidth; i++) {
+            int j = i % dmwidth;
+            batch->line(width-dmwidth+i-index, height-deltameter[j], 
+                        width-dmwidth+i-index, height, 1.0f, 1.0f, 1.0f, 0.2f);
+        }
+    }
+
     if (inventoryOpen) {
-        auto caLayout = contentAccess->getLayout();
-        auto invLayout = inventoryView->getLayout();
-        float caWidth = caLayout->getSize().x;
-        glm::vec2 invSize = invLayout->getSize();
+        float caWidth = contentAccess->getSize().x;
+        glm::vec2 invSize = inventoryView->getSize();
 
         float width = viewport.getWidth();
 
