@@ -208,6 +208,10 @@ void Engine::loadAllPacks() {
 	ContentPack::scan(paths, contentPacks);
 }
 
+double Engine::getDelta() const {
+    return delta;
+}
+
 void Engine::setScreen(std::shared_ptr<Screen> screen) {
 	this->screen = screen;
 }

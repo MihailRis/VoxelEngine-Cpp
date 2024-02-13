@@ -63,6 +63,7 @@ public:
     void loadContent();
     void loadWorldContent(const fs::path& folder);
 	void loadAllPacks();
+    double getDelta() const;
 
     std::shared_ptr<Screen> getScreen();
 };

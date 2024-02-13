@@ -108,8 +108,14 @@ static int l_time_uptime(lua_State* L) {
     return 1;
 }
 
+static int l_time_delta(lua_State* L) {
+    lua_pushnumber(L, scripting::engine->getDelta());
+    return 1;
+}
+
 static const luaL_Reg timelib [] = {
     {"uptime", l_time_uptime},
+    {"delta", l_time_delta},
     {NULL, NULL}
 };
  

@@ -17,9 +17,6 @@ class Batch2D;
 class Assets;
 
 namespace gui {
-    using doublesupplier = std::function<double()>;
-    using doubleconsumer = std::function<void(double)>;
-
     using boolsupplier = std::function<bool()>;
     using boolconsumer = std::function<void(bool)>;
 

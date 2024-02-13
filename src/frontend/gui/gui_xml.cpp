@@ -124,6 +124,13 @@ static std::shared_ptr<UINode> readContainer(UiXmlReader& reader, xml::xmlelemen
     return container;
 }
 
+static std::shared_ptr<UINode> readPanel(UiXmlReader& reader, xml::xmlelement element) {
+    float interval = element->attr("interval", "2").asFloat();
+    auto panel = std::make_shared<Panel>(glm::vec2(), glm::vec4(), interval);
+    _readPanel(reader, element, *panel);
+    return panel;
+}
+
 static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement element) {
     std::wstring text = readAndProcessInnerText(element);
     auto button = std::make_shared<Button>(text, glm::vec4(0.0f), nullptr);
@@ -156,7 +163,7 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
         auto consumer = scripting::create_wstring_consumer(
             reader.getEnvironment().getId(),
             element->attr("consumer").getText(),
-            reader.getFilename()+"lua"
+            reader.getFilename()+".lua"
         );
         textbox->textConsumer(consumer);
     }
@@ -171,13 +178,34 @@ static std::shared_ptr<UINode> readImage(UiXmlReader& reader, xml::xmlelement el
     return image;
 }
 
+static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, xml::xmlelement element) {
+    float min = element->attr("min", "0.0").asFloat();
+    float max = element->attr("max", "1.0").asFloat();
+    float def = element->attr("value", "0.0").asFloat();
+    float step = element->attr("step", "1.0").asFloat();
+    int trackWidth = element->attr("track-width", "1.0").asInt();
+    auto bar = std::make_shared<TrackBar>(min, max, def, step, trackWidth);
+    _readUINode(element, *bar);
+    if (element->has("consumer")) {
+        auto consumer = scripting::create_number_consumer(
+            reader.getEnvironment().getId(),
+            element->attr("consumer").getText(),
+            reader.getFilename()+".lua"
+        );
+        bar->consumer(consumer);
+    }
+    return bar;
+}
+
 UiXmlReader::UiXmlReader(const scripting::Environment& env, AssetsLoader& assetsLoader) 
 : env(env), assetsLoader(assetsLoader)
 {
     add("image", readImage);
     add("label", readLabel);
+    add("panel", readPanel);
     add("button", readButton);
     add("textbox", readTextBox);
+    add("trackbar", readTrackBar);
     add("container", readContainer);
 }
 
