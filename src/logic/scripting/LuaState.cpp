@@ -1,5 +1,7 @@
 #include "LuaState.h"
 
+#include <iostream>
+#include "lua_util.h"
 #include "api/api_lua.h"
 #include "api/libgui.h"
 #include "../../util/stringutil.h"
