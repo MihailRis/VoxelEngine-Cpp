@@ -16,6 +16,7 @@
 #include "../../engine.h"
 #include "LuaState.h"
 #include "../../util/stringutil.h"
+#include "../../util/timeutil.h"
 
 using namespace scripting;
 
@@ -245,6 +246,7 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
 }
 
 void scripting::on_ui_open(UiDocument* layout, Inventory* inventory) {
+    timeutil::ScopeLogTimer log(555);
     std::string name = layout->getId()+".open";
     if (state->getglobal(name)) {
         state->pushinteger(inventory->getId());

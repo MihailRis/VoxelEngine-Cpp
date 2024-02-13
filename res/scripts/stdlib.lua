@@ -91,3 +91,23 @@ end
 function pack.is_installed(packid)
     return file.isfile(packid..":package.json")
 end
+
+vec2_mt = {}
+function vec2_mt.__tostring(self)
+    return "vec2("..self[1]..", "..self[2]..")"
+end
+
+vec3_mt = {}
+function vec3_mt.__tostring(self)
+    return "vec3("..self[1]..", "..self[2]..", "..self[3]..")"
+end
+
+vec4_mt = {}
+function vec4_mt.__tostring(self)
+    return "vec4("..self[1]..", "..self[2]..", "..self[3]..", "..self[4]..")"
+end
+
+color_mt = {}
+function color_mt.__tostring(self)
+    return "rgba("..self[1]..", "..self[2]..", "..self[3]..", "..self[4]..")"
+end

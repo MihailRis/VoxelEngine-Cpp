@@ -1,29 +1,29 @@
 #ifndef LOGIC_SCRIPTING_API_LUA_H_
 #define LOGIC_SCRIPTING_API_LUA_H_
 
-#include "scripting.h"
-#include "lua_util.h"
+#include "../scripting.h"
+#include "../lua_util.h"
 
 #include <glm/glm.hpp>
 #include <iostream>
 
-#include "../../files/files.h"
-#include "../../physics/Hitbox.h"
-#include "../../objects/Player.h"
-#include "../../world/Level.h"
-#include "../../world/World.h"
-#include "../../content/Content.h"
-#include "../../voxels/Block.h"
-#include "../../voxels/Chunks.h"
-#include "../../voxels/voxel.h"
-#include "../../items/ItemDef.h"
-#include "../../items/ItemStack.h"
-#include "../../items/Inventory.h"
-#include "../../items/Inventories.h"
-#include "../../lighting/Lighting.h"
-#include "../../logic/BlocksController.h"
-#include "../../window/Window.h"
-#include "../../engine.h"
+#include "../../../files/files.h"
+#include "../../../physics/Hitbox.h"
+#include "../../../objects/Player.h"
+#include "../../../world/Level.h"
+#include "../../../world/World.h"
+#include "../../../content/Content.h"
+#include "../../../voxels/Block.h"
+#include "../../../voxels/Chunks.h"
+#include "../../../voxels/voxel.h"
+#include "../../../items/ItemDef.h"
+#include "../../../items/ItemStack.h"
+#include "../../../items/Inventory.h"
+#include "../../../items/Inventories.h"
+#include "../../../lighting/Lighting.h"
+#include "../../../logic/BlocksController.h"
+#include "../../../window/Window.h"
+#include "../../../engine.h"
 
 /* == file library == */
 static int l_file_resolve(lua_State* L) {

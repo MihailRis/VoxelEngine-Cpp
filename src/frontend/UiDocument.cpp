@@ -30,6 +30,14 @@ const std::shared_ptr<gui::UINode> UiDocument::getRoot() const {
     return root;
 }
 
+const std::shared_ptr<gui::UINode> UiDocument::get(const std::string& id) const {
+    auto found = map.find(id);
+    if (found == map.end()) {
+        return nullptr;
+    }
+    return found->second;
+}
+
 const uidocscript& UiDocument::getScript() const {
     return script;
 }

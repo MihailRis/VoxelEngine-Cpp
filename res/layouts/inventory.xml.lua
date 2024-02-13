@@ -1,9 +1,12 @@
-function on_open(inv)
-    print("OPEN", inv)
+local Document = require("core:document")
+document = Document.new(DOC_NAME)
+
+function on_open(invid)
+    print("OPEN", invid)
 end
 
-function on_close(inv)
-    print("CLOSE", inv)
+function on_close(invid)
+    print("CLOSE", invid)
 end
 
 function inventory_share_func(invid, slotid)

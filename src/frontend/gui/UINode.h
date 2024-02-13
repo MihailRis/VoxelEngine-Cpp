@@ -112,6 +112,7 @@ namespace gui {
         /* Calculate screen position of the element */
         virtual glm::vec2 calcCoord() const;
         virtual void setCoord(glm::vec2 coord);
+        glm::vec2 getCoord() const;
         virtual glm::vec2 getSize() const;
         virtual void setSize(glm::vec2 size);
         virtual void refresh() {};

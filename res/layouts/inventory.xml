@@ -1,3 +1,10 @@
-<inventory color="#1F1F1FE0" size="400,0">
+<inventory color="#1F1F1FE0" size="0,400">
     <slots-grid rows="4" count="40" sharefunc="inventory_share_func"/>
+    <button id="btn" 
+            coord="8,300" 
+            size="140,30" 
+            z-index="1" 
+            onclick="document.btn.text = tostring(time.uptime())">
+            -----
+    </button>
 </inventory>
