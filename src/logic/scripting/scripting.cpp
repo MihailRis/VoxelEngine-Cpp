@@ -77,7 +77,7 @@ static bool processCallback(
 ) {
     try {
         return state->eval(env, src, file) != 0;
-    } catch (lua::luaerror err) {
+    } catch (lua::luaerror& err) {
         std::cerr << err.what() << std::endl;
         return false;
     }
