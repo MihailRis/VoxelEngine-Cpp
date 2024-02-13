@@ -250,6 +250,8 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
 
     debugPanel = createDebugPanel(engine);
     menu->reset();
+
+    debugPanel->setZIndex(1);
     
     gui->addBack(darkOverlay);
     gui->addBack(hotbarView);

@@ -143,6 +143,14 @@ glm::vec4 UINode::getMargin() const {
     return margin;
 }
 
+void UINode::setZIndex(int zindex) {
+    this->zindex = zindex;
+}
+
+int UINode::getZIndex() const {
+    return zindex;
+}
+
 void UINode::lock() {
 }
 

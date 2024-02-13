@@ -37,6 +37,9 @@ static void _readUINode(xml::xmlelement element, UINode& node) {
     if (element->has("margin")) {
         node.setMargin(element->attr("margin").asVec4());
     }
+    if (element->has("z-index")) {
+        node.setZIndex(element->attr("z-index").asInt());
+    }
     std::string alignName = element->attr("align", "").getText();
     node.setAlign(align_from_string(alignName, node.getAlign()));
 }

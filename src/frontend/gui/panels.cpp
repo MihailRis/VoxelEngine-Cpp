@@ -144,6 +144,12 @@ void Container::setSize(glm::vec2 size) {
     refresh();
 }
 
+void Container::refresh() {
+    std::stable_sort(nodes.begin(), nodes.end(), [](const auto& a, const auto& b) {
+        return a->getZIndex() < b->getZIndex();
+    });
+}
+
 const std::vector<std::shared_ptr<UINode>>& Container::getNodes() const {
     return nodes;
 }
@@ -190,6 +196,7 @@ void Panel::add(std::shared_ptr<UINode> node) {
 }
 
 void Panel::refresh() {
+    UINode::refresh();
     float x = padding.x;
     float y = padding.y;
     vec2 size = getSize();

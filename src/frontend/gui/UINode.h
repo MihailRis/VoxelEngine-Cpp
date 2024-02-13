@@ -35,6 +35,7 @@ namespace gui {
         bool focused = false;
         bool interactive = true;
         bool resizing = true;
+        int zindex = 0;
         Align align = Align::left;
         UINode* parent = nullptr;
         UINode(glm::vec2 coord, glm::vec2 size);
@@ -67,6 +68,9 @@ namespace gui {
 
         virtual void setMargin(glm::vec4 margin);
         glm::vec4 getMargin() const;
+
+        virtual void setZIndex(int idx);
+        int getZIndex() const;
 
         virtual void focus(GUI*) {focused = true;}
         virtual void click(GUI*, int x, int y);
