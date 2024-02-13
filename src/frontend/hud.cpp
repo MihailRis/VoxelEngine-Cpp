@@ -231,6 +231,7 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
     );
     grabbedItemView->setColor(glm::vec4());
     grabbedItemView->setInteractive(false);
+    grabbedItemView->setZIndex(1);
 
     contentAccess = createContentAccess();
     contentAccessPanel = std::make_shared<Panel>(
@@ -243,6 +244,7 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
     hotbarView = createHotbar();
     darkOverlay = std::make_unique<Panel>(glm::vec2(4000.0f));
     darkOverlay->setColor(glm::vec4(0, 0, 0, 0.5f));
+    darkOverlay->setZIndex(-1);
 
     uicamera = std::make_unique<Camera>(vec3(), 1);
     uicamera->perspective = false;
@@ -251,7 +253,7 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
     debugPanel = createDebugPanel(engine);
     menu->reset();
 
-    debugPanel->setZIndex(1);
+    debugPanel->setZIndex(2);
     
     gui->addBack(darkOverlay);
     gui->addBack(hotbarView);
@@ -346,7 +348,6 @@ void HudRenderer::openInventory() {
     auto inventory = player->getInventory();
 
     inventoryOpen = true;
-    gui->remove(grabbedItemView);
 
     inventoryDocument = assets->getLayout("core:inventory");
     inventoryView = std::dynamic_pointer_cast<InventoryView>(inventoryDocument->getRoot());
@@ -354,7 +355,6 @@ void HudRenderer::openInventory() {
     scripting::on_ui_open(inventoryDocument, inventory.get());
 
     gui->add(inventoryView);
-    gui->add(grabbedItemView);
 }
 
 void HudRenderer::closeInventory() {
