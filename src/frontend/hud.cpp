@@ -396,6 +396,21 @@ void HudRenderer::draw(const GfxContext& ctx){
         batch->line(width/2+5, height/2-5, width/2-5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
     }
 
+    if (level->player->debug) {
+        const int dmwidth = 256;
+        const float dmscale = 4000.0f;
+        static float deltameter[dmwidth]{};
+        static int index=0;
+        index = index + 1 % dmwidth;
+        deltameter[index%dmwidth] = glm::min(0.2f, 1.f/fps)*dmscale;
+        batch->lineWidth(1);
+        for (int i = index+1; i < index+dmwidth; i++) {
+            int j = i % dmwidth;
+            batch->line(width-dmwidth+i-index, height-deltameter[j], 
+                        width-dmwidth+i-index, height, 1.0f, 1.0f, 1.0f, 0.2f);
+        }
+    }
+
     if (inventoryOpen) {
         float caWidth = contentAccess->getSize().x;
         glm::vec2 invSize = inventoryView->getSize();
