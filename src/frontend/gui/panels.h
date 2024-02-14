@@ -94,8 +94,8 @@ namespace gui {
     protected:
         std::unordered_map<std::string, Page> pages;
         std::stack<std::string> pageStack;
-        Page current_;
-        std::string curname_ = "";
+        Page current;
+        std::string curname = "";
     public:
         PagesControl();
 
@@ -106,7 +106,7 @@ namespace gui {
         void clearHistory();
         void reset();
     
-        Page& current();
+        Page& getCurrent();
     };
 }
 #endif // FRONTEND_GUI_PANELS_H_

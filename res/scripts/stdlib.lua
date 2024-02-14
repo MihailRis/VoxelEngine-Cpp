@@ -91,3 +91,46 @@ end
 function pack.is_installed(packid)
     return file.isfile(packid..":package.json")
 end
+
+vec2_mt = {}
+function vec2_mt.__tostring(self)
+    return "vec2("..self[1]..", "..self[2]..")"
+end
+
+vec3_mt = {}
+function vec3_mt.__tostring(self)
+    return "vec3("..self[1]..", "..self[2]..", "..self[3]..")"
+end
+
+vec4_mt = {}
+function vec4_mt.__tostring(self)
+    return "vec4("..self[1]..", "..self[2]..", "..self[3]..", "..self[4]..")"
+end
+
+color_mt = {}
+function color_mt.__tostring(self)
+    return "rgba("..self[1]..", "..self[2]..", "..self[3]..", "..self[4]..")"
+end
+
+-- class designed for simple UI-nodes access via properties syntax
+local Element = {}
+function Element.new(docname, name)
+    return setmetatable({docname=docname, name=name}, {
+        __index=function(self, k)
+            return gui.getattr(self.docname, self.name, k)
+        end,
+        __newindex=function(self, k, v)
+            gui.setattr(self.docname, self.name, k, v)
+        end
+    })
+end
+
+-- the engine automatically creates an instance for every ui document (layout)
+Document = {}
+function Document.new(docname)
+    return setmetatable({name=docname}, {
+        __index=function(self, k)
+            return Element.new(self.name, k)
+        end
+    })
+end

@@ -110,6 +110,10 @@ void UINode::setCoord(glm::vec2 coord) {
     this->coord = coord;
 }
 
+glm::vec2 UINode::getCoord() const {
+    return coord;
+}
+
 glm::vec2 UINode::getSize() const {
     return size;
 }

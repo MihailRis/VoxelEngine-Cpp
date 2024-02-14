@@ -1,6 +1,9 @@
 #include "LuaState.h"
 
-#include "api_lua.h"
+#include <iostream>
+#include "lua_util.h"
+#include "api/api_lua.h"
+#include "api/libgui.h"
 #include "../../util/stringutil.h"
 
 lua::luaerror::luaerror(const std::string& message) : std::runtime_error(message) {
@@ -98,6 +101,7 @@ void lua::LuaState::createFuncs() {
     openlib("item", itemlib, 0);
     openlib("time", timelib, 0);
     openlib("file", filelib, 0);
+    openlib("gui", guilib, 0);
 
     addfunc("print", l_print);
 

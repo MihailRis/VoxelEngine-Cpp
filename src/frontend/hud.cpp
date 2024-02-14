@@ -49,9 +49,6 @@
 #include "../items/Inventory.h"
 #include "../logic/scripting/scripting.h"
 
-using glm::vec2;
-using glm::vec3;
-using glm::vec4;
 using namespace gui;
 
 static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
@@ -63,13 +60,13 @@ static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
 std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
     auto level = frontend->getLevel();
 
-    auto panel = std::make_shared<Panel>(vec2(250, 200), vec4(5.0f), 2.0f);
+    auto panel = std::make_shared<Panel>(glm::vec2(250, 200), glm::vec4(5.0f), 2.0f);
     panel->listenInterval(0.5f, [this]() {
         fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
         fpsMin = fps;
         fpsMax = fps;
     });
-    panel->setCoord(vec2(10, 10));
+    panel->setCoord(glm::vec2(10, 10));
     panel->add(create_label([this](){ return L"fps: "+this->fpsString;}));
     panel->add(create_label([](){
         return L"meshes: " + std::to_wstring(Mesh::meshesCount);
@@ -100,15 +97,15 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
     }));
 
     for (int ax = 0; ax < 3; ax++){
-        auto sub = std::make_shared<Panel>(vec2(10, 27), vec4(0.0f));
-        sub->setOrientation(Orientation::horizontal);
+        auto sub = std::make_shared<Container>(glm::vec2(), glm::vec2(250, 27));
 
         std::wstring str = L"x: ";
         str[0] += ax;
         auto label = std::make_shared<Label>(str);
-        label->setMargin(vec4(2, 3, 2, 3));
+        label->setMargin(glm::vec4(2, 3, 2, 3));
+        label->setSize(glm::vec2(20, 27));
         sub->add(label);
-        sub->setColor(vec4(0.0f));
+        sub->setColor(glm::vec4(0.0f));
 
         // Coord input
         auto box = std::make_shared<TextBox>(L"");
@@ -118,7 +115,7 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
         });
         box->textConsumer([=](std::wstring text) {
             try {
-                vec3 position = level->player->hitbox->position;
+                glm::vec3 position = level->player->hitbox->position;
                 position[ax] = std::stoi(text);
                 level->player->teleport(position);
             } catch (std::invalid_argument& _){
@@ -128,8 +125,9 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
             Hitbox* hitbox = level->player->hitbox.get();
             box->setText(std::to_wstring(int(hitbox->position[ax])));
         });
+        box->setSize(glm::vec2(230, 27));
 
-        sub->add(box);
+        sub->add(box, glm::vec2(20, 0));
         panel->add(sub);
     }
     panel->add(create_label([=](){
@@ -143,24 +141,24 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
     }));
     {
         auto bar = std::make_shared<TrackBar>(0.0f, 1.0f, 1.0f, 0.005f, 8);
-        bar->supplier([=]() {return level->world->daytime;});
-        bar->consumer([=](double val) {level->world->daytime = val;});
+        bar->setSupplier([=]() {return level->world->daytime;});
+        bar->setConsumer([=](double val) {level->world->daytime = val;});
         panel->add(bar);
     }
     {
         auto bar = std::make_shared<TrackBar>(0.0f, 1.0f, 0.0f, 0.005f, 8);
-        bar->supplier([=]() {return WorldRenderer::fog;});
-        bar->consumer([=](double val) {WorldRenderer::fog = val;});
+        bar->setSupplier([=]() {return WorldRenderer::fog;});
+        bar->setConsumer([=](double val) {WorldRenderer::fog = val;});
         panel->add(bar);
     }
     {
         auto checkbox = std::make_shared<FullCheckBox>(
-            L"Show Chunk Borders", vec2(400, 24)
+            L"Show Chunk Borders", glm::vec2(400, 24)
         );
-        checkbox->supplier([=]() {
+        checkbox->setSupplier([=]() {
             return engine->getSettings().debug.showChunkBorders;
         });
-        checkbox->consumer([=](bool checked) {
+        checkbox->setConsumer([=](bool checked) {
             engine->getSettings().debug.showChunkBorders = checked;
         });
         panel->add(checkbox);
@@ -236,7 +234,7 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
 
     contentAccess = createContentAccess();
     contentAccessPanel = std::make_shared<Panel>(
-        contentAccess->getSize(), vec4(0.0f), 0.0f
+        contentAccess->getSize(), glm::vec4(0.0f), 0.0f
     );
     contentAccessPanel->setColor(glm::vec4());
     contentAccessPanel->add(contentAccess);
@@ -246,8 +244,9 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
     darkOverlay = std::make_unique<Panel>(glm::vec2(4000.0f));
     darkOverlay->setColor(glm::vec4(0, 0, 0, 0.5f));
     darkOverlay->setZIndex(-1);
+    darkOverlay->setVisible(false);
 
-    uicamera = std::make_unique<Camera>(vec3(), 1);
+    uicamera = std::make_unique<Camera>(glm::vec3(), 1);
     uicamera->perspective = false;
     uicamera->flipped = true;
 
@@ -264,6 +263,7 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
 }
 
 HudRenderer::~HudRenderer() {
+    // removing all controlled ui
     gui->remove(grabbedItemView);
     if (inventoryView) {
         gui->remove(inventoryView);
@@ -286,23 +286,20 @@ void HudRenderer::update(bool visible) {
     auto menu = gui->getMenu();
 
     debugPanel->setVisible(player->debug && visible);
-    menu->setVisible(pause);
 
     if (!visible && inventoryOpen) {
         closeInventory();
     }
-    if (pause && menu->current().panel == nullptr) {
-        pause = false;
+    if (pause && menu->getCurrent().panel == nullptr) {
+        setPause(false);
     }
     if (Events::jpressed(keycode::ESCAPE) && !gui->isFocusCaught()) {
         if (pause) {
-            pause = false;
-            menu->reset();
+            setPause(false);
         } else if (inventoryOpen) {
             closeInventory();
         } else {
-            pause = true;
-            menu->setPage("pause");
+            setPause(true);
         }
     }
     if (visible && Events::jactive(BIND_HUD_INVENTORY)) {
@@ -318,9 +315,9 @@ void HudRenderer::update(bool visible) {
         Events::toggleCursor();
     }
 
-    vec2 invSize = contentAccessPanel->getSize();
+    glm::vec2 invSize = contentAccessPanel->getSize();
     contentAccessPanel->setVisible(inventoryOpen);
-    contentAccessPanel->setSize(vec2(invSize.x, Window::height));
+    contentAccessPanel->setSize(glm::vec2(invSize.x, Window::height));
     hotbarView->setVisible(visible);
 
     for (int i = keycode::NUM_1; i <= keycode::NUM_9; i++) {
@@ -339,10 +336,11 @@ void HudRenderer::update(bool visible) {
         }
         player->setChosenSlot(slot);
     }
-
-    darkOverlay->setVisible(pause);
 }
 
+/** 
+ * Show inventory on the screen and turn on inventory mode blocking movement
+ */
 void HudRenderer::openInventory() {
     auto level = frontend->getLevel();
     auto player = level->player;
@@ -358,6 +356,9 @@ void HudRenderer::openInventory() {
     gui->add(inventoryView);
 }
 
+/**
+ * Hide inventory and turn off inventory mode
+ */
 void HudRenderer::closeInventory() {
     scripting::on_ui_close(inventoryDocument, inventoryView->getInventory().get());
     inventoryOpen = false;
@@ -370,12 +371,11 @@ void HudRenderer::closeInventory() {
 
 void HudRenderer::draw(const GfxContext& ctx){
     auto level = frontend->getLevel();
+    auto player = level->player;
 
     const Viewport& viewport = ctx.getViewport();
     const uint width = viewport.getWidth();
     const uint height = viewport.getHeight();
-
-    Player* player = level->player;
 
     uicamera->setFov(height);
 
@@ -390,16 +390,21 @@ void HudRenderer::draw(const GfxContext& ctx){
     hotbarView->setSelected(player->getChosenSlot());
 
     // Crosshair
-    batch->begin();
     if (!pause && Events::_cursor_locked && !level->player->debug) {
-        batch->lineWidth(2);
-        batch->line(width/2, height/2-6, width/2, height/2+6, 0.2f, 0.2f, 0.2f, 1.0f);
-        batch->line(width/2+6, height/2, width/2-6, height/2, 0.2f, 0.2f, 0.2f, 1.0f);
-        batch->line(width/2-5, height/2-5, width/2+5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
-        batch->line(width/2+5, height/2-5, width/2-5, height/2+5, 0.9f, 0.9f, 0.9f, 1.0f);
+        GfxContext chctx = ctx.sub();
+        chctx.blendMode(blendmode::inversion);
+        batch->texture(assets->getTexture("gui/crosshair"));
+        int chsize = 16;
+        batch->rect(
+            (width-chsize)/2, (height-chsize)/2, 
+            chsize, chsize, 0,0, 1,1, 1,1,1,1
+        );
+        batch->render();
     }
 
+    // Delta-time visualizer
     if (level->player->debug) {
+        batch->texture(nullptr);
         const int dmwidth = 256;
         const float dmscale = 4000.0f;
         static float deltameter[dmwidth]{};
@@ -416,15 +421,13 @@ void HudRenderer::draw(const GfxContext& ctx){
 
     if (inventoryOpen) {
         float caWidth = contentAccess->getSize().x;
+        contentAccessPanel->setCoord(glm::vec2(width-caWidth, 0));
+
         glm::vec2 invSize = inventoryView->getSize();
-
-        float width = viewport.getWidth();
-
         inventoryView->setCoord(glm::vec2(
             glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x), 
             height/2-invSize.y/2
         ));
-        contentAccessPanel->setCoord(glm::vec2(width-caWidth, 0));
     }
     grabbedItemView->setCoord(glm::vec2(Events::cursor));
     batch->render();
@@ -436,4 +439,20 @@ bool HudRenderer::isInventoryOpen() const {
 
 bool HudRenderer::isPause() const {
     return pause;
+}
+
+void HudRenderer::setPause(bool pause) {
+    if (this->pause == pause) {
+        return;
+    }
+    this->pause = pause;
+    
+    auto menu = gui->getMenu();
+    if (pause) {
+        menu->setPage("pause");
+    } else {
+        menu->reset();
+    }
+    darkOverlay->setVisible(pause);
+    menu->setVisible(pause);
 }

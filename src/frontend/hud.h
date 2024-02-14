@@ -64,6 +64,7 @@ public:
 
 	bool isInventoryOpen() const;
 	bool isPause() const;
+    void setPause(bool pause);
 
     void openInventory();
     void closeInventory();

@@ -1,39 +1,38 @@
-#ifndef LOGIC_SCRIPTING_API_LUA_H_
-#define LOGIC_SCRIPTING_API_LUA_H_
+#include "api_lua.h"
 
-#include "scripting.h"
-#include "lua_util.h"
+#include "../scripting.h"
+#include "../lua_util.h"
 
 #include <glm/glm.hpp>
 #include <iostream>
 
-#include "../../files/files.h"
-#include "../../physics/Hitbox.h"
-#include "../../objects/Player.h"
-#include "../../world/Level.h"
-#include "../../world/World.h"
-#include "../../content/Content.h"
-#include "../../voxels/Block.h"
-#include "../../voxels/Chunks.h"
-#include "../../voxels/voxel.h"
-#include "../../items/ItemDef.h"
-#include "../../items/ItemStack.h"
-#include "../../items/Inventory.h"
-#include "../../items/Inventories.h"
-#include "../../lighting/Lighting.h"
-#include "../../logic/BlocksController.h"
-#include "../../window/Window.h"
-#include "../../engine.h"
+#include "../../../files/files.h"
+#include "../../../physics/Hitbox.h"
+#include "../../../objects/Player.h"
+#include "../../../world/Level.h"
+#include "../../../world/World.h"
+#include "../../../content/Content.h"
+#include "../../../voxels/Block.h"
+#include "../../../voxels/Chunks.h"
+#include "../../../voxels/voxel.h"
+#include "../../../items/ItemDef.h"
+#include "../../../items/ItemStack.h"
+#include "../../../items/Inventory.h"
+#include "../../../items/Inventories.h"
+#include "../../../lighting/Lighting.h"
+#include "../../../logic/BlocksController.h"
+#include "../../../window/Window.h"
+#include "../../../engine.h"
 
 /* == file library == */
-static int l_file_resolve(lua_State* L) {
+int l_file_resolve(lua_State* L) {
     std::string path = lua_tostring(L, 1);
     fs::path resolved = scripting::engine->getPaths()->resolve(path);
     lua_pushstring(L, resolved.u8string().c_str());
     return 1;
 }
 
-static int l_file_read(lua_State* L) {
+int l_file_read(lua_State* L) {
     auto paths = scripting::engine->getPaths();
     fs::path path = paths->resolve(lua_tostring(L, 1));
     if (fs::is_regular_file(path)) {
@@ -43,7 +42,7 @@ static int l_file_read(lua_State* L) {
     return luaL_error(L, "file does not exists '%s'", path.u8string().c_str());
 }
 
-static int l_file_write(lua_State* L) {
+int l_file_write(lua_State* L) {
     auto paths = scripting::engine->getPaths();
     fs::path path = paths->resolve(lua_tostring(L, 1));
     const char* text = lua_tostring(L, 2);
@@ -51,28 +50,28 @@ static int l_file_write(lua_State* L) {
     return 1;    
 }
 
-static int l_file_exists(lua_State* L) {
+int l_file_exists(lua_State* L) {
     auto paths = scripting::engine->getPaths();
     fs::path path = paths->resolve(lua_tostring(L, 1));
     lua_pushboolean(L, fs::exists(path));
     return 1;
 }
 
-static int l_file_isfile(lua_State* L) {
+int l_file_isfile(lua_State* L) {
     auto paths = scripting::engine->getPaths();
     fs::path path = paths->resolve(lua_tostring(L, 1));
     lua_pushboolean(L, fs::is_regular_file(path));
     return 1;
 }
 
-static int l_file_isdir(lua_State* L) {
+int l_file_isdir(lua_State* L) {
     auto paths = scripting::engine->getPaths();
     fs::path path = paths->resolve(lua_tostring(L, 1));
     lua_pushboolean(L, fs::is_directory(path));
     return 1;
 }
 
-static int l_file_length(lua_State* L) {
+int l_file_length(lua_State* L) {
     auto paths = scripting::engine->getPaths();
     fs::path path = paths->resolve(lua_tostring(L, 1));
     if (fs::exists(path)){
@@ -83,38 +82,26 @@ static int l_file_length(lua_State* L) {
     return 1;
 }
 
-static int l_file_mkdir(lua_State* L) {
+int l_file_mkdir(lua_State* L) {
     auto paths = scripting::engine->getPaths();
     fs::path path = paths->resolve(lua_tostring(L, 1));
     lua_pushboolean(L, fs::create_directory(path));
     return 1;    
 }
 
-static const luaL_Reg filelib [] = {
-    {"resolve", l_file_resolve},
-    {"read", l_file_read},
-    {"write", l_file_write},
-    {"exists", l_file_exists},
-    {"isfile", l_file_isfile},
-    {"isdir", l_file_isdir},
-    {"length", l_file_length},
-    {"mkdir", l_file_mkdir},
-    {NULL, NULL}
-};
-
 /* == time library == */
-static int l_time_uptime(lua_State* L) {
+int l_time_uptime(lua_State* L) {
     lua_pushnumber(L, Window::time());
     return 1;
 }
 
-static const luaL_Reg timelib [] = {
-    {"uptime", l_time_uptime},
-    {NULL, NULL}
-};
- 
+int l_time_delta(lua_State* L) {
+    lua_pushnumber(L, scripting::engine->getDelta());
+    return 1;
+}
+
 /* == pack library == */
-static int l_pack_get_folder(lua_State* L) {
+int l_pack_get_folder(lua_State* L) {
     std::string packName = lua_tostring(L, 1);
     if (packName == "core") {
         auto folder = scripting::engine->getPaths()
@@ -132,43 +119,30 @@ static int l_pack_get_folder(lua_State* L) {
     return 1;
 }
 
-static const luaL_Reg packlib [] = {
-    {"get_folder", l_pack_get_folder},
-    {NULL, NULL}
-};
-
 /* == world library == */
-static int l_world_get_total_time(lua_State* L) {
+int l_world_get_total_time(lua_State* L) {
     lua_pushnumber(L, scripting::level->world->totalTime);
     return 1;
 }
 
-static int l_world_get_day_time(lua_State* L) {
+int l_world_get_day_time(lua_State* L) {
     lua_pushnumber(L, scripting::level->world->daytime);
     return 1;
 }
 
-static int l_world_set_day_time(lua_State* L) {
+int l_world_set_day_time(lua_State* L) {
     double value = lua_tonumber(L, 1);
     scripting::level->world->daytime = fmod(value, 1.0);
     return 0;
 }
 
-static int l_world_get_seed(lua_State* L) {
+int l_world_get_seed(lua_State* L) {
     lua_pushinteger(L, scripting::level->world->getSeed());
     return 1;
 }
 
-static const luaL_Reg worldlib [] = {
-    {"get_total_time", l_world_get_total_time},
-    {"get_day_time", l_world_get_day_time},
-    {"set_day_time", l_world_set_day_time},
-    {"get_seed", l_world_get_seed},
-    {NULL, NULL}
-};
-
 /* == player library ==*/
-static int l_player_get_pos(lua_State* L) {
+int l_player_get_pos(lua_State* L) {
     int playerid = lua_tointeger(L, 1);
     if (playerid != 1)
         return 0;
@@ -179,7 +153,7 @@ static int l_player_get_pos(lua_State* L) {
     return 3;
 }
 
-static int l_player_get_rot(lua_State* L) {
+int l_player_get_rot(lua_State* L) {
     int playerid = lua_tointeger(L, 1);
     if (playerid != 1)
         return 0;
@@ -189,7 +163,7 @@ static int l_player_get_rot(lua_State* L) {
     return 2;
 }
 
-static int l_player_set_rot(lua_State* L) {
+int l_player_set_rot(lua_State* L) {
     int playerid = lua_tointeger(L, 1);
     if (playerid != 1)
         return 0;
@@ -201,7 +175,7 @@ static int l_player_set_rot(lua_State* L) {
     return 0;
 }
 
-static int l_player_set_pos(lua_State* L) {
+int l_player_set_pos(lua_State* L) {
     int playerid = lua_tointeger(L, 1);
     if (playerid != 1)
         return 0;
@@ -212,7 +186,7 @@ static int l_player_set_pos(lua_State* L) {
     return 0;
 }
 
-static int l_player_get_inv(lua_State* L) {
+int l_player_get_inv(lua_State* L) {
     int playerid = lua_tointeger(L, 1);
     if (playerid != 1)
         return 0;
@@ -222,15 +196,6 @@ static int l_player_get_inv(lua_State* L) {
     return 2;
 }
 
-static const luaL_Reg playerlib [] = {
-    {"get_pos", l_player_get_pos},
-    {"set_pos", l_player_set_pos},
-    {"get_rot", l_player_get_rot},
-    {"set_rot", l_player_set_rot},
-    {"get_inventory", l_player_get_inv},
-    {NULL, NULL}
-};
-
 static void validate_itemid(lua_State* L, itemid_t id) {
     if (id >= scripting::indices->countItemDefs()) {
         luaL_error(L, "invalid item id");
@@ -238,7 +203,7 @@ static void validate_itemid(lua_State* L, itemid_t id) {
 }
 
 /* == inventory library == */
-static int l_inventory_get(lua_State* L) {
+int l_inventory_get(lua_State* L) {
     lua::luaint invid = lua_tointeger(L, 1);
     lua::luaint slotid = lua_tointeger(L, 2);
     auto inv = scripting::level->inventories->get(invid);
@@ -254,7 +219,7 @@ static int l_inventory_get(lua_State* L) {
     return 2;
 }
 
-static int l_inventory_set(lua_State* L) {
+int l_inventory_set(lua_State* L) {
     lua::luaint invid = lua_tointeger(L, 1);
     lua::luaint slotid = lua_tointeger(L, 2);
     lua::luaint itemid = lua_tointeger(L, 3);
@@ -273,7 +238,7 @@ static int l_inventory_set(lua_State* L) {
     return 0;
 }
 
-static int l_inventory_size(lua_State* L) {
+int l_inventory_size(lua_State* L) {
     lua::luaint invid = lua_tointeger(L, 1);
     auto inv = scripting::level->inventories->get(invid);
     if (inv == nullptr) {
@@ -283,7 +248,7 @@ static int l_inventory_size(lua_State* L) {
     return 1;
 }
 
-static int l_inventory_add(lua_State* L) {
+int l_inventory_add(lua_State* L) {
     lua::luaint invid = lua_tointeger(L, 1);
     lua::luaint itemid = lua_tointeger(L, 2);
     lua::luaint count = lua_tointeger(L, 3);
@@ -299,7 +264,7 @@ static int l_inventory_add(lua_State* L) {
     return 1;
 }
 
-static int l_inventory_get_block(lua_State* L) {
+int l_inventory_get_block(lua_State* L) {
     lua::luaint x = lua_tointeger(L, 1);
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
@@ -308,17 +273,8 @@ static int l_inventory_get_block(lua_State* L) {
     return 1;
 }
 
-static const luaL_Reg inventorylib [] = {
-    {"get", l_inventory_get},
-    {"set", l_inventory_set},
-    {"size", l_inventory_size},
-    {"add", l_inventory_add},
-    {"get_block", l_inventory_get_block},
-    {NULL, NULL}
-};
-
 /* == item library == */
-static int l_item_name(lua_State* L) {
+int l_item_name(lua_State* L) {
     auto indices = scripting::content->getIndices();
     lua::luaint id = lua_tointeger(L, 1);
     if (id < 0 || size_t(id) >= indices->countItemDefs()) {
@@ -329,13 +285,13 @@ static int l_item_name(lua_State* L) {
     return 1;
 }
 
-static int l_item_index(lua_State* L) {
+int l_item_index(lua_State* L) {
     auto name = lua_tostring(L, 1);
     lua_pushinteger(L, scripting::content->requireItem(name).rt.id);
     return 1;
 }
 
-static int l_item_stack_size(lua_State* L) {
+int l_item_stack_size(lua_State* L) {
     auto indices = scripting::content->getIndices();
     lua::luaint id = lua_tointeger(L, 1);
     if (id < 0 || size_t(id) >= indices->countItemDefs()) {
@@ -346,21 +302,13 @@ static int l_item_stack_size(lua_State* L) {
     return 1;
 }
 
-static int l_item_defs_count(lua_State* L) {
+int l_item_defs_count(lua_State* L) {
     lua_pushinteger(L, scripting::indices->countItemDefs());
     return 1;
 }
 
-static const luaL_Reg itemlib [] = {
-    {"index", l_item_index},
-    {"name", l_item_name},
-    {"stack_size", l_item_stack_size},
-    {"defs_count", l_item_defs_count},
-    {NULL, NULL}
-};
-
 /* == blocks-related functions == */
-static int l_block_name(lua_State* L) {
+int l_block_name(lua_State* L) {
     auto indices = scripting::content->getIndices();
     lua::luaint id = lua_tointeger(L, 1);
     if (id < 0 || size_t(id) >= indices->countBlockDefs()) {
@@ -371,7 +319,7 @@ static int l_block_name(lua_State* L) {
     return 1;
 }
 
-static int l_is_solid_at(lua_State* L) {
+int l_is_solid_at(lua_State* L) {
     lua::luaint x = lua_tointeger(L, 1);
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
@@ -380,18 +328,18 @@ static int l_is_solid_at(lua_State* L) {
     return 1;
 }
 
-static int l_blocks_count(lua_State* L) {
+int l_blocks_count(lua_State* L) {
     lua_pushinteger(L, scripting::indices->countBlockDefs());
     return 1;
 }
 
-static int l_block_index(lua_State* L) {
+int l_block_index(lua_State* L) {
     auto name = lua_tostring(L, 1);
     lua_pushinteger(L, scripting::content->requireBlock(name).rt.id);
     return 1;
 }
 
-static int l_set_block(lua_State* L) {
+int l_set_block(lua_State* L) {
     lua::luaint x = lua_tointeger(L, 1);
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
@@ -408,7 +356,7 @@ static int l_set_block(lua_State* L) {
     return 0;
 }
 
-static int l_get_block(lua_State* L) {
+int l_get_block(lua_State* L) {
     lua::luaint x = lua_tointeger(L, 1);
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
@@ -418,7 +366,7 @@ static int l_get_block(lua_State* L) {
     return 1;
 }
 
-static int l_get_block_x(lua_State* L) {
+int l_get_block_x(lua_State* L) {
     lua::luaint x = lua_tointeger(L, 1);
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
@@ -435,7 +383,7 @@ static int l_get_block_x(lua_State* L) {
     }
 }
 
-static int l_get_block_y(lua_State* L) {
+int l_get_block_y(lua_State* L) {
     lua::luaint x = lua_tointeger(L, 1);
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
@@ -452,7 +400,7 @@ static int l_get_block_y(lua_State* L) {
     }
 }
 
-static int l_get_block_z(lua_State* L) {
+int l_get_block_z(lua_State* L) {
     lua::luaint x = lua_tointeger(L, 1);
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
@@ -469,7 +417,7 @@ static int l_get_block_z(lua_State* L) {
     }
 }
 
-static int l_get_block_states(lua_State* L) {
+int l_get_block_states(lua_State* L) {
     lua::luaint x = lua_tointeger(L, 1);
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
@@ -479,7 +427,7 @@ static int l_get_block_states(lua_State* L) {
     return 1;
 }
 
-static int l_get_block_user_bits(lua_State* L) {
+int l_get_block_user_bits(lua_State* L) {
     lua::luaint x = lua_tointeger(L, 1);
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
@@ -497,7 +445,7 @@ static int l_get_block_user_bits(lua_State* L) {
     return 1;
 }
 
-static int l_set_block_user_bits(lua_State* L) {
+int l_set_block_user_bits(lua_State* L) {
     lua::luaint x = lua_tointeger(L, 1);
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
@@ -515,7 +463,7 @@ static int l_set_block_user_bits(lua_State* L) {
     return 0;
 }
 
-static int l_is_replaceable_at(lua_State* L) {
+int l_is_replaceable_at(lua_State* L) {
     int x = lua_tointeger(L, 1);
     int y = lua_tointeger(L, 2);
     int z = lua_tointeger(L, 3);
@@ -524,8 +472,7 @@ static int l_is_replaceable_at(lua_State* L) {
     return 1;
 }
 
-// Modified version of luaB_print from lbaselib.c
-static int l_print(lua_State* L) {
+int l_print(lua_State* L) {
     int n = lua_gettop(L);  /* number of arguments */
     lua_getglobal(L, "tostring");
     for (int i=1; i<=n; i++) {
@@ -544,5 +491,3 @@ static int l_print(lua_State* L) {
     std::cout << std::endl;
     return 0;
 }
-
-#endif // LOGIC_SCRIPTING_API_LUA_H_

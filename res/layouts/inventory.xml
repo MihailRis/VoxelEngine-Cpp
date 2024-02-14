@@ -1,3 +1,26 @@
-<inventory color="#1F1F1FE0" size="400,0">
+<inventory color="#1F1F1FE0" size="0,600">
     <slots-grid rows="4" count="40" sharefunc="inventory_share_func"/>
+    <panel coord="10,230" padding="4,4,4,4" size="300,100">
+        <label>fps: 62 / 59</label>
+        <label>meshes: 4143</label>
+        <label>frustum-culling: on</label>
+        <label>chunks: 3206 visible: 1153</label>
+        <label>block: 0 0 (core:air)</label>
+        <label>seed: 42</label>
+        <container size="200,30">
+            <label size="100,30">x:</label>
+            <textbox coord="40,0">4321.40</textbox>
+        </container>
+        <container size="200,30">
+            <label size="100,30">y:</label>
+            <textbox coord="40,0">120.0</textbox>
+        </container>
+        <container size="200,30">
+            <label size="100,30">z:</label>
+            <textbox coord="40,0">-424.10</textbox>
+        </container>
+        <label>time: 19:50</label>
+        <trackbar min="0.0" max="1.0" step="0.005f" track-width="8" consumer="time_change"/>
+        <trackbar min="0.0" max="1.0" step="0.005f" value="0.5" track-width="8"/>
+    </panel>
 </inventory>

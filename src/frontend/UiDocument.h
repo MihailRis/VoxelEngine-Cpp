@@ -43,6 +43,7 @@ public:
     const std::string& getId() const;
     const uinodes_map& getMap() const;
     const std::shared_ptr<gui::UINode> getRoot() const;
+    const std::shared_ptr<gui::UINode> get(const std::string& id) const;
     const uidocscript& getScript() const;
     int getEnvironment() const;
     /* Collect map of all uinodes having identifiers */
