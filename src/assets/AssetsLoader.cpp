@@ -76,6 +76,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/skybox_gen", "skybox_gen");
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/moon.png", "misc/moon");
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/sun.png", "misc/sun");
+        loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/crosshair.png", "gui/crosshair");
 
         addLayouts(0, "core", loader.getPaths()->getMainRoot()/fs::path("layouts"), loader);
         for (auto& pack : content->getPacks()) {
