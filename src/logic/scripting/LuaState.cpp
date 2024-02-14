@@ -20,12 +20,11 @@ lua::LuaState::LuaState() {
     luaopen_string(L);
     luaopen_table(L);
     luaopen_debug(L);
+    luaopen_jit(L);
+    luaopen_bit(L);
 
     std::cout << LUA_VERSION << std::endl;
-#   ifdef LUAJIT_VERSION
-        luaopen_jit(L);
-        std::cout << LUAJIT_VERSION << std::endl;
-#   endif // LUAJIT_VERSION
+    std::cout << LUAJIT_VERSION << std::endl;
 
     createFuncs();
 

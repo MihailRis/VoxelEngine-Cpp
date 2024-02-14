@@ -5,6 +5,10 @@
 #include <string>
 #include <stdexcept>
 
+#ifndef LUAJIT_VERSION
+#error LuaJIT required
+#endif
+
 namespace lua {
     using luaint = lua_Integer;
     using luanumber = lua_Number;
