@@ -596,6 +596,19 @@ void create_settings_panel(Engine* engine) {
         panel->add(checkbox);
     }
 
+    /* Camera shaking checkbox */ {
+        auto checkbox = std::make_shared<FullCheckBox>(
+            langs::get(L"Camera Shaking", L"settings"), vec2(400, 32)
+            );
+        checkbox->setSupplier([=]() {
+            return engine->getSettings().camera.shaking;
+            });
+        checkbox->setConsumer([=](bool checked) {
+            engine->getSettings().camera.shaking = checked;
+            });
+        panel->add(checkbox);
+    }
+
     std::string langName = langs::locales_info.at(langs::current->getId()).name;
     panel->add(guiutil::gotoButton(
         langs::get(L"Language", L"settings")+L": "+
