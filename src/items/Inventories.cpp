@@ -1,4 +1,7 @@
 #include "Inventories.h"
+
+#include <algorithm>
+
 #include "../world/Level.h"
 #include "../world/World.h"
 
@@ -18,7 +21,7 @@ std::shared_ptr<Inventory> Inventories::create(size_t size) {
 std::shared_ptr<Inventory> Inventories::createVirtual(size_t size) {
     int64_t id;
     do {
-        id = -std::max(1L, std::abs(random.rand64()));
+        id = -std::max(1LL, std::abs(random.rand64()));
     } while (map.find(id) != map.end());
 
     auto inv = std::make_shared<Inventory>(id, size);

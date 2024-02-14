@@ -1,6 +1,7 @@
 #include "panels.h"
 
 #include <stdexcept>
+#include <algorithm>
 
 #include "../../window/Window.h"
 #include "../../assets/Assets.h"
