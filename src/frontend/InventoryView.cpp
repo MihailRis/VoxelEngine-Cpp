@@ -44,6 +44,15 @@ InventoryBuilder::InventoryBuilder() {
     view = std::make_shared<InventoryView>();
 }
 
+/** Add slots grid to inventory view 
+ * @param cols grid columns
+ * @param count total number of grid slots
+ * @param coord position of the first slot of the grid
+ * @param padding additional space around the grid
+ * @param addpanel automatically create panel behind the grid
+ * with size including padding
+ * @param slotLayout slot settings (index and position are ignored)
+ */
 void InventoryBuilder::addGrid(
     int cols, int count, 
     glm::vec2 coord, 
@@ -70,7 +79,7 @@ void InventoryBuilder::addGrid(
 
     if (addpanel) {
         auto panel = std::make_shared<gui::Container>(coord, glm::vec2(width, height));
-        view->setColor(glm::vec4(0, 0, 0, 0.5f));
+        view->setColor(glm::vec4(0.122f, 0.122f, 0.122f, 0.878f));
         view->add(panel);
     }
 
@@ -416,7 +425,7 @@ static void readSlotsGrid(InventoryView* view, gui::UiXmlReader& reader, xml::xm
             slotLayout.index = startIndex + idx;
             slotLayout.position += glm::vec2(
                 padding + col * (slotSize + interval),
-                padding + row * (slotSize + interval)
+                padding + (rows-row-1) * (slotSize + interval)
             );
             auto slot = view->addSlot(slotLayout);
             view->add(slot, slotLayout.position);

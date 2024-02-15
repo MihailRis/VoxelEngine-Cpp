@@ -3,6 +3,8 @@
 
 #include "../../delegates.h"
 
+#include "scripting_functional.h"
+
 namespace fs = std::filesystem;
 
 class LuaState;
@@ -23,8 +25,6 @@ struct uidocscript;
 class BlocksController;
 
 namespace scripting {
-    using int_array_consumer = std::function<void(const int[], size_t)>;
-
     extern Engine* engine;
     extern const Content* content;
     extern const ContentIndices* indices;
@@ -43,30 +43,6 @@ namespace scripting {
 
     void initialize(Engine* engine);
 
-    runnable create_runnable(
-        int env,
-        const std::string& src,
-        const std::string& file="<string>"
-    );
-    
-    wstringconsumer create_wstring_consumer(
-        int env,
-        const std::string& src,
-        const std::string& file="<string>"
-    );
-
-    doubleconsumer create_number_consumer(
-        int env,
-        const std::string& src,
-        const std::string& file="<string>"
-    );
-
-    int_array_consumer create_int_array_consumer(
-        int env,
-        const std::string& src, 
-        const std::string& file="<string>"
-    ); 
-
     std::unique_ptr<Environment> create_environment(int parent=0);
     std::unique_ptr<Environment> create_pack_environment(const ContentPack& pack);
     std::unique_ptr<Environment> create_doc_environment(int parent, const std::string& name);
@@ -81,10 +57,10 @@ namespace scripting {
     void on_block_broken(Player* player, const Block* block, int x, int y, int z);
     bool on_block_interact(Player* player, const Block* block, int x, int y, int z);
 
-    /* Called on RMB click on block with the item selected 
+    /** Called on RMB click on block with the item selected 
        @return true if prevents default action */
     bool on_item_use_on_block(Player* player, const ItemDef* item, int x, int y, int z);
-    /* Called on LMB click on block with the item selected 
+    /** Called on LMB click on block with the item selected 
        @return true if prevents default action */
     bool on_item_break_block(Player* player, const ItemDef* item, int x, int y, int z);
 

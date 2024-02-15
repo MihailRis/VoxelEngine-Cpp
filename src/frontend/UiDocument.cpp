@@ -69,6 +69,7 @@ std::unique_ptr<UiDocument> UiDocument::read(AssetsLoader& loader, int penv, std
     auto view = reader.readXML(
         file.u8string(), xmldoc->getRoot()
     );
+    view->setId("root");
     uidocscript script {};
     auto scriptFile = fs::path(file.u8string()+".lua");
     if (fs::is_regular_file(scriptFile)) {

@@ -217,12 +217,16 @@ void lua::LuaState::setfield(const std::string& name, int idx) {
     lua_setfield(L, idx, name.c_str());
 }
 
-bool lua::LuaState::toboolean(int index) {
-    return lua_toboolean(L, index);
+bool lua::LuaState::toboolean(int idx) {
+    return lua_toboolean(L, idx);
 }
 
-lua::luaint lua::LuaState::tointeger(int index) {
-    return lua_tointeger(L, index);
+lua::luaint lua::LuaState::tointeger(int idx) {
+    return lua_tointeger(L, idx);
+}
+
+lua::luanumber lua::LuaState::tonumber(int idx) {
+    return lua_tonumber(L, idx);
 }
 
 void lua::LuaState::openlib(const std::string& name, const luaL_Reg* libfuncs, int nup) {

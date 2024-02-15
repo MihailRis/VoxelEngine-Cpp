@@ -85,6 +85,11 @@ int l_gui_getattr(lua_State* L) {
     return 0;
 }
 
+int l_gui_getviewport(lua_State* L) {
+    lua::pushvec2_arr(L, scripting::engine->getGUI()->getContainer()->getSize());
+    return 1;
+}
+
 int l_gui_setattr(lua_State* L) {
     auto docname = lua_tostring(L, 1);
     auto element = lua_tostring(L, 2);

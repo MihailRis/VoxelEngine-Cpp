@@ -119,7 +119,18 @@ glm::vec2 UINode::getSize() const {
 }
 
 void UINode::setSize(glm::vec2 size) {
-    this->size = size;
+    this->size = glm::vec2(
+        glm::max(minSize.x, size.x), glm::max(minSize.y, size.y)
+    );
+}
+
+glm::vec2 UINode::getMinSize() const {
+    return minSize;
+}
+
+void UINode::setMinSize(glm::vec2 minSize) {
+    this->minSize = minSize;
+    setSize(getSize());
 }
 
 void UINode::setColor(glm::vec4 color) {
@@ -158,10 +169,24 @@ int UINode::getZIndex() const {
 void UINode::lock() {
 }
 
+vec2supplier UINode::getPositionFunc() const {
+    return positionfunc;
+}
+
+void UINode::setPositionFunc(vec2supplier func) {
+    positionfunc = func;
+}
+
 void UINode::setId(const std::string& id) {
     this->id = id;
 }
 
 const std::string& UINode::getId() const {
     return id;
+}
+
+void UINode::reposition() {
+    if (positionfunc) {
+        setCoord(positionfunc());
+    }
 }

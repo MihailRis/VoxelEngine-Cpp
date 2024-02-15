@@ -6,6 +6,7 @@
 #include "../../assets/Assets.h"
 #include "../../graphics/Batch2D.h"
 #include "../../graphics/Font.h"
+#include "../../graphics/Texture.h"
 #include "../../graphics/GfxContext.h"
 #include "../../util/stringutil.h"
 #include "GUI.h"
@@ -64,9 +65,8 @@ void Label::draw(const GfxContext* pctx, Assets* assets) {
     font->draw(batch, text, coord.x, coord.y);
 }
 
-Label* Label::textSupplier(wstringsupplier supplier) {
+void Label::textSupplier(wstringsupplier supplier) {
     this->supplier = supplier;
-    return this;
 }
 
 // ================================= Image ====================================
@@ -78,10 +78,22 @@ void Image::draw(const GfxContext* pctx, Assets* assets) {
     glm::vec2 coord = calcCoord();
     glm::vec4 color = getColor();
     auto batch = pctx->getBatch2D();
-    batch->texture(assets->getTexture(texture));
+    
+    auto texture = assets->getTexture(this->texture);
+    if (texture && autoresize) {
+        setSize(glm::vec2(texture->width, texture->height));
+    }
+    batch->texture(texture);
     batch->color = color;
     batch->rect(coord.x, coord.y, size.x, size.y, 
                 0, 0, 0, UVRegion(), false, true, color);
+}
+
+void Image::setAutoResize(bool flag) {
+    autoresize = flag;
+}
+bool Image::isAutoResize() const {
+    return autoresize;
 }
 
 // ================================= Button ===================================

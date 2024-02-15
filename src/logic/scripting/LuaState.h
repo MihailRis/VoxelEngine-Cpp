@@ -42,8 +42,9 @@ namespace lua {
         void pop(int n=1);
         bool getfield(const std::string& name);
         void setfield(const std::string& name, int idx=-2);
-        bool toboolean(int index);
-        luaint tointeger(int index);
+        bool toboolean(int idx);
+        luaint tointeger(int idx);
+        luanumber tonumber(int idx);
         int call(int argc);
         int callNoThrow(int argc);
         int execute(int env, const std::string& src, const std::string& file="<string>");

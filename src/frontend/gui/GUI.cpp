@@ -170,3 +170,7 @@ void GUI::setFocus(std::shared_ptr<UINode> node) {
         focus->focus(this);
     }
 }
+
+std::shared_ptr<Container> GUI::getContainer() const {
+    return container;
+}

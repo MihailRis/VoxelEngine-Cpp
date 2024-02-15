@@ -31,16 +31,20 @@ namespace gui {
 
         virtual void draw(const GfxContext* pctx, Assets* assets) override;
 
-        virtual Label* textSupplier(wstringsupplier supplier);
+        virtual void textSupplier(wstringsupplier supplier);
     };
 
     class Image : public UINode {
     protected:
         std::string texture;
+        bool autoresize = false;
     public:
         Image(std::string texture, glm::vec2 size=glm::vec2(32,32));
 
         virtual void draw(const GfxContext* pctx, Assets* assets) override;
+
+        virtual void setAutoResize(bool flag);
+        virtual bool isAutoResize() const;
     };
 
     class Button : public Panel {

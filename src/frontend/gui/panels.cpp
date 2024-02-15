@@ -115,6 +115,7 @@ void Container::addBack(std::shared_ptr<UINode> node) {
 void Container::add(std::shared_ptr<UINode> node) {
     nodes.push_back(node);
     node->setParent(this);
+    node->reposition();
     refresh();
 }
 
@@ -138,8 +139,15 @@ void Container::listenInterval(float interval, ontimeout callback, int repeat) {
 }
 
 void Container::setSize(glm::vec2 size) {
+    if (size == getSize()) {
+        refresh();
+        return;
+    }
     UINode::setSize(size);
     refresh();
+    for (auto& node : nodes) {
+        node->reposition();
+    }
 }
 
 void Container::refresh() {

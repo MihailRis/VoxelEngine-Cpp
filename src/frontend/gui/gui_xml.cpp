@@ -21,7 +21,7 @@ static Align align_from_string(const std::string& str, Align def) {
 }
 
 /* Read basic UINode properties */
-static void _readUINode(xml::xmlelement element, UINode& node) {
+static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& node) {
     if (element->has("id")) {
         node.setId(element->attr("id").getText());
     }
@@ -40,13 +40,21 @@ static void _readUINode(xml::xmlelement element, UINode& node) {
     if (element->has("z-index")) {
         node.setZIndex(element->attr("z-index").asInt());
     }
+    if (element->has("position-func")) {
+        auto supplier = scripting::create_vec2_supplier(
+            reader.getEnvironment().getId(),
+            element->attr("position-func").getText(),
+            reader.getFilename()+".lua"
+        );
+        node.setPositionFunc(supplier);
+    }
     std::string alignName = element->attr("align", "").getText();
     node.setAlign(align_from_string(alignName, node.getAlign()));
 }
 
 
 static void _readContainer(UiXmlReader& reader, xml::xmlelement element, Container& container) {
-    _readUINode(element, container);
+    _readUINode(reader, element, container);
 
     if (element->has("scrollable")) {
         container.setScrollable(element->attr("scrollable").asBool());
@@ -66,11 +74,11 @@ void UiXmlReader::readUINode(UiXmlReader& reader, xml::xmlelement element, Conta
 }
 
 void UiXmlReader::readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& node) {
-    _readUINode(element, node);
+    _readUINode(reader, element, node);
 }
 
 static void _readPanel(UiXmlReader& reader, xml::xmlelement element, Panel& panel) {
-    _readUINode(element, panel);
+    _readUINode(reader, element, panel);
 
     if (element->has("padding")) {
         glm::vec4 padding = element->attr("padding").asVec4();
@@ -114,7 +122,7 @@ static std::wstring readAndProcessInnerText(xml::xmlelement element) {
 static std::shared_ptr<UINode> readLabel(UiXmlReader& reader, xml::xmlelement element) {
     std::wstring text = readAndProcessInnerText(element);
     auto label = std::make_shared<Label>(text);
-    _readUINode(element, *label);
+    _readUINode(reader, element, *label);
     return label;
 }
 
@@ -173,7 +181,7 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
 static std::shared_ptr<UINode> readImage(UiXmlReader& reader, xml::xmlelement element) {
     std::string src = element->attr("src", "").getText();
     auto image = std::make_shared<Image>(src);
-    _readUINode(element, *image);
+    _readUINode(reader, element, *image);
     reader.getAssetsLoader().add(ASSET_TEXTURE, "textures/"+src+".png", src, nullptr);
     return image;
 }
@@ -185,7 +193,7 @@ static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, xml::xmlelement
     float step = element->attr("step", "1.0").asFloat();
     int trackWidth = element->attr("track-width", "1.0").asInt();
     auto bar = std::make_shared<TrackBar>(min, max, def, step, trackWidth);
-    _readUINode(element, *bar);
+    _readUINode(reader, element, *bar);
     if (element->has("consumer")) {
         auto consumer = scripting::create_number_consumer(
             reader.getEnvironment().getId(),
