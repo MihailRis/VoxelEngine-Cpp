@@ -37,7 +37,7 @@ function load_script(path, nocache)
     if not nocache and __cached_scripts[fullpath] ~= nil then
         return __cached_results[fullpath]
     end
-    if not file.isfile(fullpath) then
+    if not file.isfile(path) then
         error("script '"..filename.."' not found in '"..packname.."'")
     end
 

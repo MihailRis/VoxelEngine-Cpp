@@ -94,8 +94,6 @@ void EnginePaths::setContentPacks(std::vector<ContentPack>* contentPacks) {
     this->contentPacks = contentPacks;
 }
 
-#include <iostream>
-
 static fs::path toCanonic(fs::path path) {
     std::stack<std::string> parts;
     path = path.lexically_normal();
