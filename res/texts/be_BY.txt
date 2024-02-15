@@ -34,6 +34,7 @@ settings.Load Speed=Хуткасць Загрузкі
 settings.Fog Curve=Крывая Туману
 settings.Backlight=Падсветка
 settings.V-Sync=Вертыкальная Сінхранізацыя
+settings.Camera Shaking=Труска Камеры
 
 settings.FOV=Поле Зроку
 settings.Mouse Sensitivity=Адчувальнасць Мышы
