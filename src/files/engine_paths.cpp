@@ -1,12 +1,13 @@
 #include "engine_paths.h"
 
-#include <filesystem>
+#include <stack>
 #include <sstream>
+#include <filesystem>
 
 #include "../typedefs.h"
 #include "WorldFiles.h"
 
-#define SCREENSHOTS_FOLDER "screenshots"
+const fs::path SCREENSHOTS_FOLDER {"screenshots"};
 
 fs::path EnginePaths::getUserfiles() const {
     return userfiles;
@@ -93,22 +94,48 @@ void EnginePaths::setContentPacks(std::vector<ContentPack>* contentPacks) {
     this->contentPacks = contentPacks;
 }
 
+#include <iostream>
+
+static fs::path toCanonic(fs::path path) {
+    std::stack<std::string> parts;
+    path = path.lexically_normal();
+    while (true) {
+        parts.push(path.filename().u8string());
+        path = path.parent_path();
+        if (path.empty())
+            break;
+    }
+    path = fs::u8path("");
+    while (!parts.empty()) {
+        const std::string part = parts.top();
+        parts.pop();
+        if (part == ".") {
+            continue;
+        }
+        if (part == "..") {
+            throw files_access_error("entry point reached");
+        }
+
+        path = path / fs::path(part);
+    }
+    return path;
+}
+
 fs::path EnginePaths::resolve(std::string path) {
     size_t separator = path.find(':');
     if (separator == std::string::npos) {
-        return fs::u8path(path);
+        throw files_access_error("no entry point specified");
     }
     std::string prefix = path.substr(0, separator);
     std::string filename = path.substr(separator+1);
+    filename = toCanonic(fs::u8path(filename)).u8string();
 
     if (prefix == "res" || prefix == "core") {
         return resources/fs::u8path(filename);
     }
-
     if (prefix == "user") {
         return userfiles/fs::u8path(filename);
     }
-
     if (prefix == "world") {
         return worldFolder/fs::u8path(filename);
     }
@@ -120,7 +147,7 @@ fs::path EnginePaths::resolve(std::string path) {
             }
         }
     }
-    return fs::u8path("./"+filename);
+    throw files_access_error("unknown entry point '"+prefix+"'");
 }
 
 ResPaths::ResPaths(fs::path mainRoot, std::vector<fs::path> roots) 

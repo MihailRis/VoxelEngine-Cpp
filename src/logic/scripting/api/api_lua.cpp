@@ -24,17 +24,23 @@
 #include "../../../window/Window.h"
 #include "../../../engine.h"
 
+fs::path resolve_path(lua_State* L, const std::string& path) {
+    try {
+        return scripting::engine->getPaths()->resolve(path);
+    } catch (const files_access_error& err) {
+        luaL_error(L, err.what());
+    }
+}
+
 /* == file library == */
 int l_file_resolve(lua_State* L) {
-    std::string path = lua_tostring(L, 1);
-    fs::path resolved = scripting::engine->getPaths()->resolve(path);
-    lua_pushstring(L, resolved.u8string().c_str());
+    fs::path path = resolve_path(L, lua_tostring(L, 1));
+    lua_pushstring(L, path.u8string().c_str());
     return 1;
 }
 
 int l_file_read(lua_State* L) {
-    auto paths = scripting::engine->getPaths();
-    fs::path path = paths->resolve(lua_tostring(L, 1));
+    fs::path path = resolve_path(L, lua_tostring(L, 1));
     if (fs::is_regular_file(path)) {
         lua_pushstring(L, files::read_string(path).c_str());
         return 1;
@@ -43,37 +49,32 @@ int l_file_read(lua_State* L) {
 }
 
 int l_file_write(lua_State* L) {
-    auto paths = scripting::engine->getPaths();
-    fs::path path = paths->resolve(lua_tostring(L, 1));
+    fs::path path = resolve_path(L, lua_tostring(L, 1));
     const char* text = lua_tostring(L, 2);
     files::write_string(path, text);
     return 1;    
 }
 
 int l_file_exists(lua_State* L) {
-    auto paths = scripting::engine->getPaths();
-    fs::path path = paths->resolve(lua_tostring(L, 1));
+    fs::path path = resolve_path(L, lua_tostring(L, 1));
     lua_pushboolean(L, fs::exists(path));
     return 1;
 }
 
 int l_file_isfile(lua_State* L) {
-    auto paths = scripting::engine->getPaths();
-    fs::path path = paths->resolve(lua_tostring(L, 1));
+    fs::path path = resolve_path(L, lua_tostring(L, 1));
     lua_pushboolean(L, fs::is_regular_file(path));
     return 1;
 }
 
 int l_file_isdir(lua_State* L) {
-    auto paths = scripting::engine->getPaths();
-    fs::path path = paths->resolve(lua_tostring(L, 1));
+    fs::path path = resolve_path(L, lua_tostring(L, 1));
     lua_pushboolean(L, fs::is_directory(path));
     return 1;
 }
 
 int l_file_length(lua_State* L) {
-    auto paths = scripting::engine->getPaths();
-    fs::path path = paths->resolve(lua_tostring(L, 1));
+    fs::path path = resolve_path(L, lua_tostring(L, 1));
     if (fs::exists(path)){
         lua_pushinteger(L, fs::file_size(path));
     } else {
@@ -83,8 +84,7 @@ int l_file_length(lua_State* L) {
 }
 
 int l_file_mkdir(lua_State* L) {
-    auto paths = scripting::engine->getPaths();
-    fs::path path = paths->resolve(lua_tostring(L, 1));
+    fs::path path = resolve_path(L, lua_tostring(L, 1));
     lua_pushboolean(L, fs::create_directory(path));
     return 1;    
 }

@@ -3,11 +3,17 @@
 
 #include <string>
 #include <vector>
+#include <stdexcept>
 #include <filesystem>
 
 #include "../content/ContentPack.h"
 
 namespace fs = std::filesystem;
+
+class files_access_error : public std::runtime_error {
+public:
+    files_access_error(const std::string& msg) : std::runtime_error(msg) {}
+};
 
 class EnginePaths {
     fs::path userfiles {"."};
