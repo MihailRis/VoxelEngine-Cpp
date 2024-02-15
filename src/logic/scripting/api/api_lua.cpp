@@ -29,6 +29,7 @@ fs::path resolve_path(lua_State* L, const std::string& path) {
         return scripting::engine->getPaths()->resolve(path);
     } catch (const files_access_error& err) {
         luaL_error(L, err.what());
+        abort(); // unreachable
     }
 }
 
