@@ -33,6 +33,9 @@ std::shared_ptr<PagesControl> GUI::getMenu() {
     return menu;
 }
 
+/** Mouse related input and logic handling 
+ * @param delta delta time
+*/
 void GUI::actMouse(float delta) {
     auto hover = container->getAt(Events::cursor, nullptr);
     if (this->hover && this->hover != hover) {
@@ -77,6 +80,9 @@ void GUI::actMouse(float delta) {
     }
 } 
 
+/** Processing user input and UI logic 
+ * @param delta delta time
+*/
 void GUI::act(float delta) {
     container->setSize(glm::vec2(Window::width, Window::height));
     container->act(delta);
@@ -133,23 +139,19 @@ bool GUI::isFocusCaught() const {
     return focus && focus->isFocuskeeper();
 }
 
-void GUI::addBack(std::shared_ptr<UINode> panel) {
-    container->addBack(panel);
+void GUI::add(std::shared_ptr<UINode> node) {
+    container->add(node);
 }
 
-void GUI::add(std::shared_ptr<UINode> panel) {
-    container->add(panel);
-}
-
-void GUI::remove(std::shared_ptr<UINode> panel) {
-    container->remove(panel);
+void GUI::remove(std::shared_ptr<UINode> node) noexcept {
+    container->remove(node);
 }
 
 void GUI::store(std::string name, std::shared_ptr<UINode> node) {
     storage[name] = node;
 }
 
-std::shared_ptr<UINode> GUI::get(std::string name) {
+std::shared_ptr<UINode> GUI::get(std::string name) noexcept {
     auto found = storage.find(name);
     if (found == storage.end()) {
         return nullptr;
@@ -157,7 +159,7 @@ std::shared_ptr<UINode> GUI::get(std::string name) {
     return found->second;
 }
 
-void GUI::remove(std::string name) {
+void GUI::remove(std::string name) noexcept {
     storage.erase(name);
 }
 

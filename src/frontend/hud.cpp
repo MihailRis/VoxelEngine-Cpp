@@ -294,8 +294,8 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend)
 
     debugPanel->setZIndex(2);
     
-    gui->addBack(darkOverlay);
-    gui->addBack(hotbarView);
+    gui->add(darkOverlay);
+    gui->add(hotbarView);
     gui->add(debugPanel);
     gui->add(contentAccessPanel);
     gui->add(grabbedItemView);
@@ -425,6 +425,7 @@ void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inven
         blockinv = level->inventories->createVirtual(blockUI->getSlotsCount());
     }
     blockUI->bind(blockinv, frontend, interaction.get());
+    currentblock = block;
     add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
 }
 
