@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "LuaState.h"
+#include "lua/LuaState.h"
 #include "../../util/stringutil.h"
 
 namespace scripting {

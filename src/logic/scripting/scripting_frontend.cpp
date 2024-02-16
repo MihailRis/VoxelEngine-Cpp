@@ -1,8 +1,8 @@
 #include "scripting_frontend.h"
 #include "scripting.h"
 
-#include "api/libhud.h"
-#include "LuaState.h"
+#include "lua/libhud.h"
+#include "lua/LuaState.h"
 
 namespace scripting {
     extern lua::LuaState* state;

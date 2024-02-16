@@ -420,6 +420,8 @@ void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inven
     }
     openInventory();
     if (blockinv == nullptr) {
+        Events::toggleCursor();
+        abort();
         blockinv = level->inventories->createVirtual(blockUI->getSlotsCount());
     }
     blockUI->bind(blockinv, frontend, interaction.get());

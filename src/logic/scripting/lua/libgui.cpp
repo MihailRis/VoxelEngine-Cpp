@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include "../scripting.h"
-#include "../lua_util.h"
+#include "lua_util.h"
 
 #include "../../../engine.h"
 #include "../../../assets/Assets.h"

@@ -2,9 +2,9 @@
 
 #include <iostream>
 #include "lua_util.h"
-#include "api/api_lua.h"
-#include "api/libgui.h"
-#include "../../util/stringutil.h"
+#include "api_lua.h"
+#include "libgui.h"
+#include "../../../util/stringutil.h"
 
 lua::luaerror::luaerror(const std::string& message) : std::runtime_error(message) {
 }

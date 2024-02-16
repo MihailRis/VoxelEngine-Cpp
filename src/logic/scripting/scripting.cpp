@@ -14,7 +14,7 @@
 #include "../../logic/BlocksController.h"
 #include "../../frontend/UiDocument.h"
 #include "../../engine.h"
-#include "LuaState.h"
+#include "lua/LuaState.h"
 #include "../../util/stringutil.h"
 #include "../../util/timeutil.h"
 

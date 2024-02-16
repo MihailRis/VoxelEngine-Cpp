@@ -12,6 +12,7 @@
 #include "../world/World.h"
 #include "../maths/voxmaths.h"
 #include "../lighting/Lightmap.h"
+#include "../items/Inventories.h"
 #include "../typedefs.h"
 
 ChunksStorage::ChunksStorage(Level* level) : level(level) {
@@ -60,6 +61,9 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 		auto invs = wfile->fetchInventories(chunk->x, chunk->z);
 		chunk->setBlockInventories(std::move(invs));
 		chunk->setLoaded(true);
+		for(auto& entry : chunk->inventories) {
+			level->inventories->store(entry.second);
+		}
         verifyLoadedChunk(level->content->getIndices(), chunk.get());
 	}
 

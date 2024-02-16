@@ -1,7 +1,7 @@
 #include "api_lua.h"
 
 #include "../scripting.h"
-#include "../lua_util.h"
+#include "lua_util.h"
 
 #include <glm/glm.hpp>
 #include <iostream>
