@@ -21,6 +21,7 @@
 #include "../objects/Player.h"
 #include "../logic/ChunksController.h"
 #include "../logic/LevelController.h"
+#include "../logic/scripting/scripting_frontend.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/Chunk.h"
 #include "../engine.h"
@@ -87,7 +88,7 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
     : Screen(engine), 
       level(level),
       frontend(std::make_unique<LevelFrontend>(level, engine->getAssets())),
-      hud(std::make_unique<HudRenderer>(engine, frontend.get())),
+      hud(std::make_unique<Hud>(engine, frontend.get())),
       worldRenderer(std::make_unique<WorldRenderer>(engine, frontend.get())),
       controller(std::make_unique<LevelController>(engine->getSettings(), level)) {
 
@@ -96,6 +97,7 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
 
     animator.reset(new TextureAnimator());
     animator->addAnimations(engine->getAssets()->getAnimations());
+    scripting::on_frontend_init(hud.get());
 }
 
 LevelScreen::~LevelScreen() {

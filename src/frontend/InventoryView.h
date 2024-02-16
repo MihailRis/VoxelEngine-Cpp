@@ -117,6 +117,8 @@ public:
 
     std::shared_ptr<Inventory> getInventory() const;
 
+    size_t getSlotsCount() const;
+
     static void createReaders(gui::UiXmlReader& reader);
 
     static const int SLOT_INTERVAL = 4;

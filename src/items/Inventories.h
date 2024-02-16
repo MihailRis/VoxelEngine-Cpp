@@ -30,6 +30,9 @@ public:
     /* Store inventory */
     void store(std::shared_ptr<Inventory> inv);
 
+    /* Remove inventory from map */
+    void remove(int64_t id);
+
     /* Get inventory by id (works with both real and virtual)*/
     std::shared_ptr<Inventory> get(int64_t id);
 

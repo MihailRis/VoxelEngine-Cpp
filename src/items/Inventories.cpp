@@ -33,6 +33,10 @@ void Inventories::store(std::shared_ptr<Inventory> inv) {
     map[inv->getId()] = inv;
 }
 
+void Inventories::remove(int64_t id) {
+    map.erase(id);
+}
+
 std::shared_ptr<Inventory> Inventories::get(int64_t id) {
     auto found = map.find(id);
     if (found == map.end())

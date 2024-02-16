@@ -16,6 +16,7 @@ class Player;
 class Level;
 class Engine;
 class SlotView;
+class Inventory;
 class InventoryView;
 class LevelFrontend;
 class UiDocument;
@@ -59,7 +60,7 @@ public:
 	}
 };
 
-class HudRenderer {
+class Hud {
     Assets* assets;
 	std::unique_ptr<Camera> uicamera;
 
@@ -83,13 +84,15 @@ class HudRenderer {
 	std::vector<HudElement> elements;
 
     std::shared_ptr<InventoryView> inventoryView = nullptr;
+	std::shared_ptr<InventoryView> blockUI = nullptr;
+	glm::ivec3 currentblock {};
 
     std::shared_ptr<gui::UINode> createDebugPanel(Engine* engine);
     std::shared_ptr<InventoryView> createContentAccess();
     std::shared_ptr<InventoryView> createHotbar();
 public:
-	HudRenderer(Engine* engine, LevelFrontend* frontend);
-	~HudRenderer();
+	Hud(Engine* engine, LevelFrontend* frontend);
+	~Hud();
 
 	void update(bool hudVisible);
 	void draw(const GfxContext& context);
@@ -100,6 +103,7 @@ public:
     void setPause(bool pause);
 
     void openInventory();
+	void openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inventory> blockInv);
     void closeInventory();
 
 	void add(HudElement element);

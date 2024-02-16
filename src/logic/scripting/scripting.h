@@ -7,8 +7,6 @@
 
 namespace fs = std::filesystem;
 
-class LuaState;
-
 class Engine;
 class Content;
 struct ContentPack;

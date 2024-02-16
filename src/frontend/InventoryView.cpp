@@ -310,6 +310,11 @@ std::shared_ptr<Inventory> InventoryView::getInventory() const {
     return inventory;
 }
 
+
+size_t InventoryView::getSlotsCount() const {
+    return slots.size();
+}
+
 void InventoryView::bind(
     std::shared_ptr<Inventory> inventory,
     LevelFrontend* frontend, 

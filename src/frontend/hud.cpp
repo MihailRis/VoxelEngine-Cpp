@@ -48,6 +48,7 @@
 #include "../core_defs.h"
 #include "../items/ItemDef.h"
 #include "../items/Inventory.h"
+#include "../items/Inventories.h"
 #include "../logic/scripting/scripting.h"
 
 using namespace gui;
@@ -94,7 +95,7 @@ std::shared_ptr<gui::UINode> HudElement::getNode() const {
     return node;
 }
 
-std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
+std::shared_ptr<UINode> Hud::createDebugPanel(Engine* engine) {
     auto level = frontend->getLevel();
 
     auto panel = std::make_shared<Panel>(glm::vec2(250, 200), glm::vec4(5.0f), 2.0f);
@@ -204,7 +205,7 @@ std::shared_ptr<UINode> HudRenderer::createDebugPanel(Engine* engine) {
     return panel;
 }
 
-std::shared_ptr<InventoryView> HudRenderer::createContentAccess() {
+std::shared_ptr<InventoryView> Hud::createContentAccess() {
     auto level = frontend->getLevel();
     auto content = level->content;
     auto indices = content->getIndices();
@@ -234,7 +235,7 @@ std::shared_ptr<InventoryView> HudRenderer::createContentAccess() {
     return view;
 }
 
-std::shared_ptr<InventoryView> HudRenderer::createHotbar() {
+std::shared_ptr<InventoryView> Hud::createHotbar() {
     auto level = frontend->getLevel();
     auto player = level->player;
     auto inventory = player->getInventory();
@@ -250,7 +251,7 @@ std::shared_ptr<InventoryView> HudRenderer::createHotbar() {
     return view;
 }
 
-HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend) 
+Hud::Hud(Engine* engine, LevelFrontend* frontend) 
     : assets(engine->getAssets()), 
       gui(engine->getGUI()),
       frontend(frontend)
@@ -300,7 +301,7 @@ HudRenderer::HudRenderer(Engine* engine, LevelFrontend* frontend)
     gui->add(grabbedItemView);
 }
 
-HudRenderer::~HudRenderer() {
+Hud::~Hud() {
     // removing all controlled ui
     gui->remove(grabbedItemView);
     for (auto& element : elements) {
@@ -312,13 +313,13 @@ HudRenderer::~HudRenderer() {
     gui->remove(debugPanel);
 }
 
-void HudRenderer::drawDebug(int fps){
+void Hud::drawDebug(int fps){
     this->fps = fps;
     fpsMin = min(fps, fpsMin);
     fpsMax = max(fps, fpsMax);
 }
 
-void HudRenderer::update(bool visible) {
+void Hud::update(bool visible) {
     auto level = frontend->getLevel();
     auto player = level->player;
     auto menu = gui->getMenu();
@@ -391,7 +392,7 @@ void HudRenderer::update(bool visible) {
 /** 
  * Show inventory on the screen and turn on inventory mode blocking movement
  */
-void HudRenderer::openInventory() {
+void Hud::openInventory() {
     auto level = frontend->getLevel();
     auto player = level->player;
     auto inventory = player->getInventory();
@@ -405,16 +406,47 @@ void HudRenderer::openInventory() {
 }
 
 /**
+ * Show player inventory + block UI
+ * @param block world position of the open block
+ * @param doc block UI document (root element must be an InventoryView)
+ * @param blockinv block inventory. 
+ * In case of nullptr a new virtual inventory will be created
+ */
+void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inventory> blockinv) {
+    auto level = frontend->getLevel();
+    blockUI = std::dynamic_pointer_cast<InventoryView>(doc->getRoot());
+    if (blockUI == nullptr) {
+        throw std::runtime_error("block UI root element must be 'inventory'");
+    }
+    openInventory();
+    if (blockinv == nullptr) {
+        blockinv = level->inventories->createVirtual(blockUI->getSlotsCount());
+    }
+    blockUI->bind(blockinv, frontend, interaction.get());
+    add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
+}
+
+/**
  * Hide inventory and turn off inventory mode
  */
-void HudRenderer::closeInventory() {
+void Hud::closeInventory() {
+    auto level = frontend->getLevel();
+
     inventoryOpen = false;
     ItemStack& grabbed = interaction->getGrabbedItem();
     grabbed.clear();
     inventoryView = nullptr;
+    if (blockUI) {
+        auto blockinv = blockUI->getInventory();
+        // todo: do it automatically
+        if (blockinv->isVirtual()) {
+            level->inventories->remove(blockinv->getId());   
+        }
+        blockUI = nullptr;
+    }
 }
 
-void HudRenderer::add(HudElement element) {
+void Hud::add(HudElement element) {
     gui->add(element.getNode());
     auto invview = std::dynamic_pointer_cast<InventoryView>(element.getNode());
     auto document = element.getDocument();
@@ -429,7 +461,7 @@ void HudRenderer::add(HudElement element) {
     elements.push_back(element);
 }
 
-void HudRenderer::remove(HudElement& element) {
+void Hud::remove(HudElement& element) {
     auto document = element.getDocument();
     if (document) {
         Inventory* inventory = nullptr;
@@ -442,7 +474,7 @@ void HudRenderer::remove(HudElement& element) {
     gui->remove(element.getNode());
 }
 
-void HudRenderer::draw(const GfxContext& ctx){
+void Hud::draw(const GfxContext& ctx){
     auto level = frontend->getLevel();
     auto player = level->player;
 
@@ -499,24 +531,24 @@ void HudRenderer::draw(const GfxContext& ctx){
         contentAccessPanel->setCoord(glm::vec2(width-caWidth, 0));
 
         glm::vec2 invSize = inventoryView->getSize();
-        //inventoryView->setCoord(glm::vec2(
-        //    glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x), 
-        //    height/2-invSize.y/2
-        //));
+        inventoryView->setCoord(glm::vec2(
+            glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x), 
+            height/2-invSize.y/2
+        ));
     }
     grabbedItemView->setCoord(glm::vec2(Events::cursor));
     batch->render();
 }
 
-bool HudRenderer::isInventoryOpen() const {
+bool Hud::isInventoryOpen() const {
     return inventoryOpen;
 }
 
-bool HudRenderer::isPause() const {
+bool Hud::isPause() const {
     return pause;
 }
 
-void HudRenderer::setPause(bool pause) {
+void Hud::setPause(bool pause) {
     if (this->pause == pause) {
         return;
     }
