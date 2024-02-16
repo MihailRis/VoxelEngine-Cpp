@@ -63,3 +63,14 @@ int l_hud_open_block(lua_State* L) {
     lua_pushstring(L, def->uiLayout.c_str());
     return 2;
 }
+
+int l_hud_open_permanent(lua_State* L) {
+    auto assets = scripting::engine->getAssets();
+    auto name = lua_tostring(L, 1);
+    auto layout = assets->getLayout(name);
+    if (layout == nullptr) {
+        luaL_error(L, "layout '%s' is not found", name);
+    }
+    scripting::hud->openPermanent(layout);
+    return 0;
+}

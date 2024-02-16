@@ -55,6 +55,10 @@ public:
 	UiDocument* getDocument() const;
 	std::shared_ptr<gui::UINode> getNode() const;
 
+    void setRemoved() {
+        removed = true;
+    }
+
 	bool isRemoved() const {
 		return removed;
 	}
@@ -90,6 +94,8 @@ class Hud {
     std::shared_ptr<gui::UINode> createDebugPanel(Engine* engine);
     std::shared_ptr<InventoryView> createContentAccess();
     std::shared_ptr<InventoryView> createHotbar();
+
+    void cleanup();
 public:
 	Hud(Engine* engine, LevelFrontend* frontend);
 	~Hud();
@@ -105,9 +111,11 @@ public:
     void openInventory();
 	void openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inventory> blockInv);
     void closeInventory();
+    void openPermanent(UiDocument* doc);
 
 	void add(HudElement element);
 	void remove(HudElement& element);
+    void remove(std::shared_ptr<gui::UINode> node);
 };
 
 #endif /* SRC_HUD_H_ */

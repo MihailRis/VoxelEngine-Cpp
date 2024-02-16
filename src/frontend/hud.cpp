@@ -319,6 +319,16 @@ void Hud::drawDebug(int fps){
     fpsMax = max(fps, fpsMax);
 }
 
+/**
+ * Remove all elements marked as removed
+ */
+void Hud::cleanup() {
+    auto it = std::remove_if(elements.begin(), elements.end(), [](const HudElement& e) {
+        return e.isRemoved();
+    });
+    elements.erase(it, elements.end());
+} 
+
 void Hud::update(bool visible) {
     auto level = frontend->getLevel();
     auto player = level->player;
@@ -383,10 +393,7 @@ void Hud::update(bool visible) {
             remove(element);
         }
     }
-    auto it = std::remove_if(elements.begin(), elements.end(), [](const HudElement& e) {
-        return e.isRemoved();
-    });
-    elements.erase(it, elements.end());
+    cleanup();
 }
 
 /** 
@@ -427,6 +434,15 @@ void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inven
     blockUI->bind(blockinv, frontend, interaction.get());
     currentblock = block;
     add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
+}
+
+/** 
+ * Add element as permanent overlay
+ * @param doc element layout document
+ */
+void Hud::openPermanent(UiDocument* doc) {
+    remove(doc->getRoot());
+    add(HudElement(hud_element_mode::permanent, doc, doc->getRoot(), false));
 }
 
 /**
@@ -475,6 +491,17 @@ void Hud::remove(HudElement& element) {
         scripting::on_ui_close(document, inventory);
     }
     gui->remove(element.getNode());
+}
+
+// todo: refactor this garbage
+void Hud::remove(std::shared_ptr<UINode> node) {
+    for (auto& element : elements) {
+        if (element.getNode() == node) {
+            element.setRemoved();
+            remove(element);
+        }
+    }
+    cleanup();
 }
 
 void Hud::draw(const GfxContext& ctx){
