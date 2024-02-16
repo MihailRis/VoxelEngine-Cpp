@@ -3,7 +3,7 @@
 #include <charconv>
 #include <stdexcept>
 
-#include "panels.h"
+#include "containers.h"
 #include "controls.h"
 
 #include "../../assets/AssetsLoader.h"
@@ -173,7 +173,7 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
             element->attr("consumer").getText(),
             reader.getFilename()+".lua"
         );
-        textbox->textConsumer(consumer);
+        textbox->setTextConsumer(consumer);
     }
     return textbox;
 }

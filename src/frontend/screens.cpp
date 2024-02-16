@@ -32,7 +32,7 @@
 #include "ContentGfxCache.h"
 #include "LevelFrontend.h"
 #include "gui/GUI.h"
-#include "gui/panels.h"
+#include "gui/containers.h"
 #include "menu.h"
 
 #include "../content/Content.h"

@@ -33,7 +33,7 @@
 #include "../physics/Hitbox.h"
 #include "../maths/voxmaths.h"
 #include "gui/controls.h"
-#include "gui/panels.h"
+#include "gui/containers.h"
 #include "gui/UINode.h"
 #include "gui/GUI.h"
 #include "ContentGfxCache.h"
@@ -147,11 +147,11 @@ std::shared_ptr<UINode> Hud::createDebugPanel(Engine* engine) {
 
         // Coord input
         auto box = std::make_shared<TextBox>(L"");
-        box->textSupplier([=]() {
+        box->setTextSupplier([=]() {
             Hitbox* hitbox = level->player->hitbox.get();
             return util::to_wstring(hitbox->position[ax], 2);
         });
-        box->textConsumer([=](std::wstring text) {
+        box->setTextConsumer([=](std::wstring text) {
             try {
                 glm::vec3 position = level->player->hitbox->position;
                 position[ax] = std::stoi(text);

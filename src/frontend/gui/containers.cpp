@@ -1,4 +1,4 @@
-#include "panels.h"
+#include "containers.h"
 
 #include <stdexcept>
 #include <algorithm>
@@ -301,3 +301,4 @@ void PagesControl::reset() {
         current = Page{nullptr};
     }
 }
+

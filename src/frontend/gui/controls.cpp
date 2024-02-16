@@ -335,15 +335,15 @@ std::shared_ptr<UINode> TextBox::getAt(glm::vec2 pos, std::shared_ptr<UINode> se
     return UINode::getAt(pos, self);
 }
 
-void TextBox::textSupplier(wstringsupplier supplier) {
+void TextBox::setTextSupplier(wstringsupplier supplier) {
     this->supplier = supplier;
 }
 
-void TextBox::textConsumer(wstringconsumer consumer) {
+void TextBox::setTextConsumer(wstringconsumer consumer) {
     this->consumer = consumer;
 }
 
-void TextBox::textValidator(wstringchecker validator) {
+void TextBox::setTextValidator(wstringchecker validator) {
     this->validator = validator;
 }
 

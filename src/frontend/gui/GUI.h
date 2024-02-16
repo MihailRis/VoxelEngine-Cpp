@@ -48,6 +48,7 @@ namespace gui {
     class Container;
     class PagesControl;
 
+    /** The main UI controller */
     class GUI {
         std::shared_ptr<Container> container;
         std::shared_ptr<UINode> hover = nullptr;

@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "../frontend/gui/UINode.h"
-#include "../frontend/gui/panels.h"
+#include "../frontend/gui/containers.h"
 #include "../frontend/gui/controls.h"
 #include "../items/ItemStack.h"
 #include "../typedefs.h"

@@ -19,7 +19,7 @@
 #include "../maths/voxmaths.h"
 #include "../objects/Player.h"
 #include "../voxels/Block.h"
-#include "../frontend/gui/panels.h"
+#include "../frontend/gui/containers.h"
 #include "../frontend/gui/controls.h"
 #include "../util/stringutil.h"
 #include "../world/Level.h"
@@ -416,10 +416,6 @@ static void readSlotsGrid(InventoryView* view, gui::UiXmlReader& reader, xml::xm
     }
     layout.padding = padding;
 
-    glm::vec2 size (
-        cols * slotSize + (cols - 1) * interval + padding * 2,
-        rows * slotSize + (rows - 1) * interval + padding * 2
-    );
     int idx = 0;
     for (int row = 0; row < rows; row++) {
         for (int col = 0; col < cols; col++, idx++) {

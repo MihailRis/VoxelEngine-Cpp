@@ -9,7 +9,7 @@
 
 #include "GUI.h"
 #include "UINode.h"
-#include "panels.h"
+#include "containers.h"
 #include "../../window/input.h"
 #include "../../delegates.h"
 
@@ -111,11 +111,13 @@ namespace gui {
         virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
         virtual void typed(unsigned int codepoint) override; 
         virtual void keyPressed(int key) override;
-        virtual void textSupplier(wstringsupplier supplier);
-        virtual void textConsumer(wstringconsumer consumer);
-        virtual void textValidator(wstringchecker validator);
+        virtual void setTextSupplier(wstringsupplier supplier);
+        virtual void setTextConsumer(wstringconsumer consumer);
+        virtual void setTextValidator(wstringchecker validator);
         virtual bool isFocuskeeper() const override {return true;}
+        /* Get TextBox content text or placeholder if empty */
         virtual std::wstring getText() const;
+        /* Set TextBox content text */
         virtual void setText(std::wstring value);
         virtual bool validate();
         virtual void setValid(bool valid);

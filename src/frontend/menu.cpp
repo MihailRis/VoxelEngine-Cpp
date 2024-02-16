@@ -9,7 +9,7 @@
 #include <glm/glm.hpp>
 
 #include "gui/GUI.h"
-#include "gui/panels.h"
+#include "gui/containers.h"
 #include "gui/controls.h"
 #include "screens.h"
 
@@ -401,7 +401,7 @@ void create_new_world_panel(Engine* engine) {
 
     panel->add(std::make_shared<Label>(langs::get(L"Name", L"world")));
     auto nameInput = std::make_shared<TextBox>(L"New World", vec4(6.0f));
-    nameInput->textValidator([=](const std::wstring& text) {
+    nameInput->setTextValidator([=](const std::wstring& text) {
         EnginePaths* paths = engine->getPaths();
         std::string textutf8 = util::wstr2str_utf8(text);
         return util::is_valid_filename(text) && 

@@ -23,6 +23,9 @@ namespace gui {
     };
 
     class UINode {
+        /** 
+         * element identifier used for direct access in UiDocument
+        */
         std::string id = "";
     protected:
         glm::vec2 coord;
@@ -44,6 +47,9 @@ namespace gui {
         UINode(glm::vec2 coord, glm::vec2 size);
     public:
         virtual ~UINode();
+        /** Called every frame for all visible elements 
+         * @param delta delta time
+        */
         virtual void act(float delta) {};
         virtual void draw(const GfxContext* pctx, Assets* assets) = 0;
 
@@ -59,11 +65,11 @@ namespace gui {
         virtual void setParent(UINode* node);
         UINode* getParent() const;
 
-        /* Set element color (doesn't affect inner elements).
+        /** Set element color (doesn't affect inner elements).
            Also replaces hover color to avoid adding extra properties. */
         virtual void setColor(glm::vec4 newColor);
 
-        /* Get element color */
+        /** Get element color (float R,G,B,A in range [0.0, 1.0])*/
         glm::vec4 getColor() const;
 
         virtual void setHoverColor(glm::vec4 newColor);
@@ -72,6 +78,8 @@ namespace gui {
         virtual void setMargin(glm::vec4 margin);
         glm::vec4 getMargin() const;
 
+        /** Influences container elements sort order 
+            Doesn't work in Panel */
         virtual void setZIndex(int idx);
         int getZIndex() const;
 
@@ -86,20 +94,20 @@ namespace gui {
         void defocus();
         bool isFocused() const; 
 
-        /* Check if elements catches all user input when focused */
+        /** Check if element catches all user input when focused */
         virtual bool isFocuskeeper() const {return false;}
 
         virtual void typed(unsigned int codepoint) {};
         virtual void keyPressed(int key) {};
 
-        /* Check if screen position is inside of the element 
-           @param pos screen position */
+        /** Check if screen position is inside of the element 
+          * @param pos screen position */
         virtual bool isInside(glm::vec2 pos);
 
-        /* Get element under the cursor.
-           @param pos cursor screen position
-           @param self shared pointer to element
-           @return self, sub-element or nullptr if element is not interractive */
+        /** Get element under the cursor.
+         *  @param pos cursor screen position
+         *  @param self shared pointer to element
+         *  @return self, sub-element or nullptr if element is not interractive */
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self);
 
         /* Check if element is opaque for cursor */
@@ -120,6 +128,7 @@ namespace gui {
         virtual void setSize(glm::vec2 size);
         virtual glm::vec2 getMinSize() const;
         virtual void setMinSize(glm::vec2 size);
+        /* Called in containers when new element added */
         virtual void refresh() {};
         virtual void lock();
 

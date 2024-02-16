@@ -1,6 +1,6 @@
 #include "gui_util.h"
 #include "controls.h"
-#include "panels.h"
+#include "containers.h"
 
 #include <glm/glm.hpp>
 
