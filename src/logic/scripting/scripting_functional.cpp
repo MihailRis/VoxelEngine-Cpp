@@ -60,6 +60,21 @@ doubleconsumer scripting::create_number_consumer(
     };
 }
 
+doublesupplier scripting::create_number_supplier(
+    int env,
+    const std::string& src,
+    const std::string& file
+) {
+    return [=](){
+        if (processCallback(env, src, file)) {
+            state->callNoThrow(0);
+            lua::luanumber x = state->tonumber(-1); state->pop();
+            return x;
+        }
+        return 0.0;
+    };
+}
+
 int_array_consumer scripting::create_int_array_consumer(
     int env,
     const std::string& src, 

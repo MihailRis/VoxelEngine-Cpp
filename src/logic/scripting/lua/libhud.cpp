@@ -15,6 +15,7 @@
 #include "../../../logic/BlocksController.h"
 #include "../../../items/Inventories.h"
 #include "../../../engine.h"
+#include "../../../frontend/UiDocument.h"
 
 namespace scripting {
     extern Hud* hud;
@@ -64,13 +65,23 @@ int l_hud_open_block(lua_State* L) {
     return 2;
 }
 
-int l_hud_open_permanent(lua_State* L) {
+UiDocument* require_layout(lua_State* L, const char* name) {
     auto assets = scripting::engine->getAssets();
-    auto name = lua_tostring(L, 1);
     auto layout = assets->getLayout(name);
     if (layout == nullptr) {
         luaL_error(L, "layout '%s' is not found", name);
     }
+    return layout;
+}
+
+int l_hud_open_permanent(lua_State* L) {
+    auto layout = require_layout(L, lua_tostring(L, 1));
     scripting::hud->openPermanent(layout);
+    return 0;
+}
+
+int l_hud_close(lua_State* L) {
+    auto layout = require_layout(L, lua_tostring(L, 1));
+    scripting::hud->remove(layout->getRoot());
     return 0;
 }

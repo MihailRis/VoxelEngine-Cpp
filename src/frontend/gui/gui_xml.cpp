@@ -40,6 +40,12 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
     if (element->has("z-index")) {
         node.setZIndex(element->attr("z-index").asInt());
     }
+    if (element->has("interactive")) {
+        node.setInteractive(element->attr("interactive").asBool());
+    }
+    if (element->has("visible")) {
+        node.setVisible(element->attr("visible").asBool());
+    }
     if (element->has("position-func")) {
         auto supplier = scripting::create_vec2_supplier(
             reader.getEnvironment().getId(),
@@ -201,6 +207,14 @@ static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, xml::xmlelement
             reader.getFilename()+".lua"
         );
         bar->setConsumer(consumer);
+    }
+    if (element->has("supplier")) {
+        auto supplier = scripting::create_number_supplier(
+            reader.getEnvironment().getId(),
+            element->attr("supplier").getText(),
+            reader.getFilename()+".lua"
+        );
+        bar->setSupplier(supplier);
     }
     return bar;
 }

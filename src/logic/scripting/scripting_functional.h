@@ -24,6 +24,12 @@ namespace scripting {
         const std::string& file="<string>"
     );
 
+    doublesupplier create_number_supplier(
+        int env,
+        const std::string& src,
+        const std::string& file="<string>"
+    );
+
     int_array_consumer create_int_array_consumer(
         int env,
         const std::string& src, 
