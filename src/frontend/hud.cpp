@@ -420,6 +420,9 @@ void Hud::openInventory() {
  * In case of nullptr a new virtual inventory will be created
  */
 void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inventory> blockinv) {
+    if (isInventoryOpen()) {
+        closeInventory();
+    }
     auto level = frontend->getLevel();
     blockUI = std::dynamic_pointer_cast<InventoryView>(doc->getRoot());
     if (blockUI == nullptr) {
@@ -570,10 +573,24 @@ void Hud::draw(const GfxContext& ctx){
         contentAccessPanel->setCoord(glm::vec2(width-caWidth, 0));
 
         glm::vec2 invSize = inventoryView->getSize();
-        inventoryView->setCoord(glm::vec2(
-            glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x),  
-            height/2-invSize.y/2
-        ));
+        if (blockUI == nullptr) {
+            inventoryView->setCoord(glm::vec2(
+                glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x),
+                height/2-invSize.y/2
+            ));
+        } else {
+            glm::vec2 blockInvSize = blockUI->getSize();
+            int interval = 5;
+            float totalHeight = invSize.y + blockInvSize.y + interval;
+            inventoryView->setCoord(glm::vec2(
+                glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x),
+                height/2+totalHeight/2-invSize.y
+            ));
+            blockUI->setCoord(glm::vec2(
+                glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x),
+                height/2-totalHeight/2
+            ));
+        }
     }
     grabbedItemView->setCoord(glm::vec2(Events::cursor));
     batch->render();

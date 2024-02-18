@@ -433,9 +433,7 @@ int l_set_block_rotation(lua_State* L) {
     lua::luaint x = lua_tointeger(L, 1);
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
-
     lua::luaint value = lua_tointeger(L, 4);
-    
     voxel* vox = scripting::level->chunks->get(x, y, z);
     if (vox == nullptr) {
         return 0;

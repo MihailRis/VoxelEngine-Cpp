@@ -60,7 +60,7 @@ int l_hud_open_block(lua_State* L) {
             x, y, z
         );
     }
-    
+
     scripting::hud->openInventory(
         glm::ivec3(x, y, z), layout, scripting::level->inventories->get(id)
     );
