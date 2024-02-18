@@ -24,7 +24,7 @@ struct voxel {
 	}
 
     inline void setRotation(uint8_t rotation) {
-        states = (states & (~BLOCK_ROT_MASK)) | rotation & BLOCK_ROT_MASK;
+        states = (states & (~BLOCK_ROT_MASK)) | (rotation & BLOCK_ROT_MASK);
     }
 };
 
