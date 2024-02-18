@@ -15,6 +15,7 @@
 #include "../../../voxels/Block.h"
 #include "../../../voxels/Chunks.h"
 #include "../../../voxels/voxel.h"
+#include "../../../voxels/Chunk.h"
 #include "../../../items/ItemDef.h"
 #include "../../../items/ItemStack.h"
 #include "../../../items/Inventory.h"
@@ -426,6 +427,22 @@ int l_get_block_states(lua_State* L) {
     int states = vox == nullptr ? 0 : vox->states;
     lua_pushinteger(L, states);
     return 1;
+}
+
+int l_set_block_states(lua_State* L) {
+    lua::luaint x = lua_tointeger(L, 1);
+    lua::luaint y = lua_tointeger(L, 2);
+    lua::luaint z = lua_tointeger(L, 3);
+    lua::luaint states = lua_tointeger(L, 4);
+
+    Chunk* chunk = scripting::level->chunks->getChunkByVoxel(x, y, z);
+    if (chunk == nullptr) {
+        return 0;
+    }
+    voxel* vox = scripting::level->chunks->get(x, y, z);
+    vox->states = states;
+    chunk->setModified(true);
+    return 0;
 }
 
 int l_get_block_user_bits(lua_State* L) {
