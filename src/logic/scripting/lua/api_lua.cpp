@@ -434,13 +434,14 @@ int l_set_block_rotation(lua_State* L) {
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
 
-    lua::luaint value = lua_tointeger(L, 4) & BLOCK_ROT_MASK;
+    lua::luaint value = lua_tointeger(L, 4);
     
     voxel* vox = scripting::level->chunks->get(x, y, z);
     if (vox == nullptr) {
         return 0;
     }
-    vox->states = (vox->states & (~BLOCK_ROT_MASK)) | value;
+    vox->setRotation(value);
+    scripting::level->chunks->getChunkByVoxel(x, y, z)->setModified(true);
     return 0;
 }
 

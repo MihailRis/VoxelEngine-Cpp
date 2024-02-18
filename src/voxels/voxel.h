@@ -22,6 +22,10 @@ struct voxel {
 	inline uint8_t rotation() const {
 		return states & BLOCK_ROT_MASK;
 	}
+
+    inline void setRotation(uint8_t rotation) {
+        states = (states & (~BLOCK_ROT_MASK)) | rotation & BLOCK_ROT_MASK;
+    }
 };
 
 #endif /* VOXELS_VOXEL_H_ */
