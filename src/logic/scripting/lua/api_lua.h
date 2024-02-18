@@ -133,6 +133,8 @@ extern int l_get_block_y(lua_State* L);
 extern int l_get_block_z(lua_State* L);
 extern int l_get_block_states(lua_State* L);
 extern int l_set_block_states(lua_State* L);
+extern int l_get_block_rotation(lua_State* L);
+extern int l_set_block_rotation(lua_State* L);
 extern int l_get_block_user_bits(lua_State* L);
 extern int l_set_block_user_bits(lua_State* L);
 extern int l_is_replaceable_at(lua_State* L);

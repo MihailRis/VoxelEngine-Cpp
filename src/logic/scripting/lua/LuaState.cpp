@@ -116,6 +116,8 @@ void lua::LuaState::createFuncs() {
     addfunc("get_block_Z", lua_wrap_errors<l_get_block_z>);
     addfunc("get_block_states", lua_wrap_errors<l_get_block_states>);
     addfunc("set_block_states", lua_wrap_errors<l_set_block_states>);
+    addfunc("get_block_rotation", lua_wrap_errors<l_get_block_rotation>);
+    addfunc("set_block_rotation", lua_wrap_errors<l_set_block_rotation>);
     addfunc("get_block_user_bits", lua_wrap_errors<l_get_block_user_bits>);
     addfunc("set_block_user_bits", lua_wrap_errors<l_set_block_user_bits>);
 }
