@@ -87,12 +87,14 @@ ContentPack ContentPack::read(fs::path folder) {
     return pack;
 }
 
-void ContentPack::scan(fs::path rootfolder,
-                       std::vector<ContentPack>& packs) {
-    if (!fs::is_directory(rootfolder)) {
+void ContentPack::scanFolder(
+    fs::path folder,
+    std::vector<ContentPack>& packs
+) {
+    if (!fs::is_directory(folder)) {
         return;
     }
-    for (auto entry : fs::directory_iterator(rootfolder)) {
+    for (auto entry : fs::directory_iterator(folder)) {
         fs::path folder = entry.path();
         if (!fs::is_directory(folder))
             continue;
@@ -109,10 +111,19 @@ void ContentPack::scan(fs::path rootfolder,
     }
 }
 
+void ContentPack::scan(
+    fs::path rootfolder,
+    EnginePaths* paths,
+    std::vector<ContentPack>& packs
+) {
+    scanFolder(paths->getResources()/fs::path("content"), packs);
+    scanFolder(paths->getUserfiles()/fs::path("content"), packs);
+    scanFolder(rootfolder, packs);
+}
+
 void ContentPack::scan(EnginePaths* paths,
                        std::vector<ContentPack>& packs) {
-    scan(paths->getResources()/fs::path("content"), packs);
-    scan(paths->getWorldFolder()/fs::path("content"), packs);
+    scan(paths->getWorldFolder()/fs::path("content"), paths, packs);
 }
 
 std::vector<std::string> ContentPack::worldPacksList(fs::path folder) {
