@@ -223,7 +223,7 @@ std::shared_ptr<InventoryView> Hud::createContentAccess() {
         auto copy = ItemStack(item);
         inventory->move(copy, indices);
     }, 
-    [=](ItemStack& item, ItemStack& grabbed) {
+    [=](uint, ItemStack& item) {
         inventory->getSlot(player->getChosenSlot()).set(item);
     });
 
@@ -263,6 +263,7 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend)
         SlotLayout(-1, glm::vec2(), false, false, nullptr, nullptr)
     );
     grabbedItemView->bind(
+        0,
         interaction->getGrabbedItem(), 
         frontend, 
         interaction.get()

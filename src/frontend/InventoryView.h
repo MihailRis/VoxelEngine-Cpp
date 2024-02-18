@@ -26,8 +26,7 @@ namespace scripting {
     class Environment;
 }
 
-using itemsharefunc = std::function<void(uint, ItemStack&)>;
-using slotcallback = std::function<void(ItemStack&, ItemStack&)>;
+using slotcallback = std::function<void(uint, ItemStack&)>;
 
 class InventoryInteraction {
     ItemStack grabbedItem;
@@ -44,7 +43,7 @@ struct SlotLayout {
     glm::vec2 position;
     bool background;
     bool itemSource;
-    itemsharefunc shareFunc;
+    slotcallback shareFunc;
     slotcallback rightClick;
     int padding = 0;
 
@@ -52,7 +51,7 @@ struct SlotLayout {
                glm::vec2 position, 
                bool background,
                bool itemSource,
-               itemsharefunc shareFunc,
+               slotcallback shareFunc,
                slotcallback rightClick);
 };
 
@@ -63,6 +62,7 @@ class SlotView : public gui::UINode {
     SlotLayout layout;
     bool highlighted = false;
 
+    int64_t inventoryid = 0;
     ItemStack* bound = nullptr;
 public:
     SlotView(SlotLayout layout);
@@ -76,6 +76,7 @@ public:
     virtual void focus(gui::GUI*) override;
 
     void bind(
+        int64_t inventoryid,
         ItemStack& stack,
         LevelFrontend* frontend, 
         InventoryInteraction* interaction

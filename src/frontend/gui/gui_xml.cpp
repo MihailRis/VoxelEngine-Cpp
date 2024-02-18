@@ -172,7 +172,7 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
     auto textbox = std::make_shared<TextBox>(placeholder, glm::vec4(0.0f));
     _readPanel(reader, element, *textbox);
     textbox->setText(text);
-
+    
     if (element->has("consumer")) {
         auto consumer = scripting::create_wstring_consumer(
             reader.getEnvironment().getId(),
