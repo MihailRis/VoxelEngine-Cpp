@@ -571,7 +571,7 @@ void Hud::draw(const GfxContext& ctx){
 
         glm::vec2 invSize = inventoryView->getSize();
         inventoryView->setCoord(glm::vec2(
-            glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x), 
+            glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x),  
             height/2-invSize.y/2
         ));
     }

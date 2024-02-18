@@ -71,7 +71,7 @@ int l_gui_getattr(lua_State* L) {
 
     if (attr == "color") {
         return lua::pushcolor_arr(L, node->getColor());
-    } else if (attr == "coord") {
+    } else if (attr == "pos") {
         return lua::pushvec2_arr(L, node->getCoord());
     } else if (attr == "size") {
         return lua::pushvec2_arr(L, node->getSize());
@@ -96,11 +96,15 @@ int l_gui_setattr(lua_State* L) {
     const std::string attr = lua_tostring(L, 3);
 
     auto node = getDocumentNode(L, docname, element);
-
-    if (setattr(L, dynamic_cast<gui::Button*>(node), attr))
-        return 0;
-    if (setattr(L, dynamic_cast<gui::Label*>(node), attr))
-        return 0;
-
+    if (attr == "pos") {
+        node->setCoord(lua::tovec2(L, 1));
+    } else if (attr == "size") {
+        node->setSize(lua::tovec2(L, 1));
+    } else {
+        if (setattr(L, dynamic_cast<gui::Button*>(node), attr))
+            return 0;
+        if (setattr(L, dynamic_cast<gui::Label*>(node), attr))
+            return 0;
+    }
     return 0;
 }
