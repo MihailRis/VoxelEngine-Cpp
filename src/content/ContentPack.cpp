@@ -141,6 +141,10 @@ fs::path ContentPack::findPack(const EnginePaths* paths, fs::path worldDir, std:
     if (fs::is_directory(folder)) {
         return folder;
     }
+    folder = paths->getUserfiles() / fs::path("content") / fs::path(name);
+    if (fs::is_directory(folder)) {
+        return folder;
+    }
     folder = paths->getResources() / fs::path("content") / fs::path(name);
     if (fs::is_directory(folder)) {
         return folder;
