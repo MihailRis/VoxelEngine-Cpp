@@ -409,8 +409,8 @@ static void readSlotsGrid(InventoryView* view, gui::UiXmlReader& reader, xml::xm
     }
     bool itemSource = element->attr("item-source", "false").asBool();
     SlotLayout layout(-1, glm::vec2(), true, itemSource, nullptr, nullptr);
-    if (element->has("coord")) {
-        layout.position = element->attr("coord").asVec2();
+    if (element->has("pos")) {
+        layout.position = element->attr("pos").asVec2();
     }
     if (element->has("sharefunc")) {
         layout.shareFunc = readShareFunc(view, reader, element);
