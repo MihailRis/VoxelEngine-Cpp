@@ -41,6 +41,8 @@ namespace scripting {
 
     void initialize(Engine* engine);
 
+    extern bool register_event(int env, const std::string& name, const std::string& id);
+
     std::unique_ptr<Environment> create_environment(int parent=0);
     std::unique_ptr<Environment> create_pack_environment(const ContentPack& pack);
     std::unique_ptr<Environment> create_doc_environment(int parent, const std::string& name);
@@ -62,20 +64,27 @@ namespace scripting {
        @return true if prevents default action */
     bool on_item_break_block(Player* player, const ItemDef* item, int x, int y, int z);
 
-    /* Called on UI view show */
+    /** Called on UI view show */
     void on_ui_open(UiDocument* layout, Inventory* inventory);
-    /* Called on UI view close*/
+    /** Called on UI view close*/
     void on_ui_close(UiDocument* layout, Inventory* inventory);
 
-    /* Load script associated with a Block */
+    /** Load script associated with a Block */
     void load_block_script(int env, std::string prefix, fs::path file, block_funcs_set& funcsset);
-    /* Load script associated with an Item */
+    /** Load script associated with an Item */
     void load_item_script(int env, std::string prefix, fs::path file, item_funcs_set& funcsset);
-    /* Load package-specific world script */
-    void load_world_script(int env, std::string prefix, fs::path file);
-    /* Load script associated with an UiDocument */
-    void load_layout_script(int env, std::string prefix, fs::path file, uidocscript& script);
-    /* Finalize lua state. Using scripting after will lead to Lua panic */
 
+    /** 
+     * Load package-specific world script 
+     * @param env environment id
+     * @param packid content-pack id
+     * @param file script file path
+     */
+    void load_world_script(int env, std::string packid, fs::path file);
+
+    /** Load script associated with an UiDocument */
+    void load_layout_script(int env, std::string prefix, fs::path file, uidocscript& script);
+
+    /** Finalize lua state. Using scripting after will lead to Lua panic */
     void close();
 }

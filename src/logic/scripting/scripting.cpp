@@ -223,7 +223,7 @@ void scripting::on_ui_close(UiDocument* layout, Inventory* inventory) {
     }
 }
 
-bool register_event(int env, const std::string& name, const std::string& id) {
+bool scripting::register_event(int env, const std::string& name, const std::string& id) {
     if (state->pushenv(env) == 0) {
         state->pushglobals();
     }
