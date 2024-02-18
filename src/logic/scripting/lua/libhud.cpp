@@ -16,6 +16,7 @@
 #include "../../../items/Inventories.h"
 #include "../../../engine.h"
 #include "../../../frontend/UiDocument.h"
+#include "../../../frontend/InventoryView.h"
 
 namespace scripting {
     extern Hud* hud;
@@ -76,6 +77,10 @@ UiDocument* require_layout(lua_State* L, const char* name) {
 
 int l_hud_open_permanent(lua_State* L) {
     auto layout = require_layout(L, lua_tostring(L, 1));
+    auto invview = std::dynamic_pointer_cast<InventoryView>(layout->getRoot());
+    if (invview) {
+        luaL_error(L, "layout must not contain 'inventory' element");
+    }
     scripting::hud->openPermanent(layout);
     return 0;
 }

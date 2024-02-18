@@ -117,7 +117,8 @@ SlotView::SlotView(
 
 void SlotView::draw(const GfxContext* pctx, Assets* assets) {
     if (bound == nullptr)
-        throw std::runtime_error("unbound slot");
+        return;
+
     ItemStack& stack = *bound;
 
     glm::vec2 coord = calcCoord();
@@ -206,7 +207,7 @@ bool SlotView::isHighlighted() const {
 
 void SlotView::clicked(gui::GUI* gui, int button) {
     if (bound == nullptr)
-        throw std::runtime_error("unbound slot");
+        return;
 
     ItemStack& grabbed = interaction->getGrabbedItem();
     ItemStack& stack = *bound;
