@@ -23,12 +23,16 @@ namespace scripting {
 }
 
 int l_hud_open_inventory(lua_State* L) {
-    scripting::hud->openInventory();
+    if (!scripting::hud->isInventoryOpen()) {
+        scripting::hud->openInventory();
+    }
     return 0;
 }
 
 int l_hud_close_inventory(lua_State* L) {
-    scripting::hud->closeInventory();
+    if (scripting::hud->isInventoryOpen()) {
+        scripting::hud->closeInventory();
+    }
     return 0;
 }
 
@@ -77,10 +81,6 @@ UiDocument* require_layout(lua_State* L, const char* name) {
 
 int l_hud_open_permanent(lua_State* L) {
     auto layout = require_layout(L, lua_tostring(L, 1));
-    auto invview = std::dynamic_pointer_cast<InventoryView>(layout->getRoot());
-    if (invview) {
-        luaL_error(L, "layout must not contain 'inventory' element");
-    }
     scripting::hud->openPermanent(layout);
     return 0;
 }

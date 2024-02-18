@@ -441,7 +441,16 @@ void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inven
  * @param doc element layout document
  */
 void Hud::openPermanent(UiDocument* doc) {
-    remove(doc->getRoot());
+    auto root = doc->getRoot();
+    remove(root);
+
+    auto invview = std::dynamic_pointer_cast<InventoryView>(root);
+    if (invview) {
+        auto level = frontend->getLevel();
+        auto player = level->player;
+        auto inventory = player->getInventory();
+        invview->bind(inventory, frontend, interaction.get());
+    }
     add(HudElement(hud_element_mode::permanent, doc, doc->getRoot(), false));
 }
 
