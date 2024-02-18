@@ -219,7 +219,7 @@ void WorldFiles::put(Chunk* chunk){
         for (auto& entry : inventories) {
             builder.putInt32(entry.first);
             auto map = entry.second->serialize();
-            auto bytes = json::to_binary(map.get(), false);
+            auto bytes = json::to_binary(map.get(), true);
             builder.putInt32(bytes.size());
             builder.put(bytes.data(), bytes.size());
         }   
