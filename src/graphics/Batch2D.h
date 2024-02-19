@@ -1,6 +1,7 @@
 #ifndef SRC_GRAPHICS_BATCH2D_H_
 #define SRC_GRAPHICS_BATCH2D_H_
 
+#include <memory>
 #include <stdlib.h>
 #include <glm/glm.hpp>
 
@@ -13,8 +14,7 @@ class Sprite;
 class Batch2D {
 	float* buffer;
 	size_t capacity;
-	size_t offset;
-	Mesh* mesh;
+	std::unique_ptr<Mesh> mesh;
 	size_t index;
 
 	Texture* blank;

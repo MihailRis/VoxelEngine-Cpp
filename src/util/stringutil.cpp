@@ -228,6 +228,14 @@ std::string util::base64_encode(const ubyte* data, size_t size) {
     return ss.str();
 }
 
+std::string util::mangleid(uint64_t value) {
+    // todo: use base64
+    std::stringstream ss;
+    ss << std::hex << value;
+    std::string result(ss.str());
+    return ss.str();
+}
+
 std::vector<ubyte> util::base64_decode(const char* str, size_t size) {
     std::vector<ubyte> bytes((size/4)*3);
     ubyte* dst = bytes.data();
@@ -251,4 +259,35 @@ std::vector<ubyte> util::base64_decode(const char* str, size_t size) {
 
 std::vector<ubyte> util::base64_decode(const std::string& str) {
     return base64_decode(str.c_str(), str.size());
+}
+
+int util::replaceAll(std::string& str, const std::string& from, const std::string& to) {
+    int count = 0;
+    size_t offset = 0;
+    while (true) {
+        size_t start_pos = str.find(from, offset);
+        if(start_pos == std::string::npos)
+            break;
+        str.replace(start_pos, from.length(), to);
+        offset = start_pos + to.length();
+        count++;
+        break;
+    }
+    return count;
+}
+
+// replace it with std::from_chars in the far far future
+double util::parse_double(const std::string& str) {
+    std::istringstream ss(str);
+    ss.imbue(std::locale("C"));
+    double d;
+    ss >> d;
+    if (ss.fail()) {
+        throw std::runtime_error("invalid number format");
+    }
+    return d;    
+}
+
+double util::parse_double(const std::string& str, size_t offset, size_t len) {
+    return parse_double(str.substr(offset, len));
 }

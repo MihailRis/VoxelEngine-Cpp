@@ -13,8 +13,7 @@ using glm::vec3;
 using glm::vec4;
 
 Batch3D::Batch3D(size_t capacity) 
-	: capacity(capacity), 
-	  offset(0) {
+	: capacity(capacity) {
 	const vattr attrs[] = {
 		{3}, {2}, {4}, {0}
 	};

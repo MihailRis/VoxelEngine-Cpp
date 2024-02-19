@@ -12,7 +12,6 @@ class Texture;
 class Batch3D {
 	float* buffer;
 	size_t capacity;
-	size_t offset;
 	Mesh* mesh;
 	size_t index;
 

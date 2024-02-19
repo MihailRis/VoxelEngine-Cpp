@@ -13,13 +13,12 @@ struct AABB;
 class Content;
 class ContentIndices;
 class Chunk;
-class voxel;
+struct voxel;
 class WorldFiles;
 class LevelEvents;
 
 /* Player-centred chunks matrix */
 class Chunks {
-	const Content* const content;
 	const ContentIndices* const contentIds;
 public:
 	std::vector<std::shared_ptr<Chunk>> chunks;

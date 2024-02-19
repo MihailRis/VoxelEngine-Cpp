@@ -40,6 +40,7 @@ public:
     } rt;
 
     ItemDef(std::string name);
+    ItemDef(const ItemDef&) = delete;
 };
 
 #endif //CONTENT_ITEMS_ITEM_DEF_H_

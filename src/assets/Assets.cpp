@@ -4,6 +4,8 @@
 #include "../graphics/Shader.h"
 #include "../graphics/Atlas.h"
 #include "../graphics/Font.h"
+#include "../frontend/UiDocument.h"
+#include "../logic/scripting/scripting.h"
 
 Assets::~Assets() {
 }
@@ -62,6 +64,17 @@ void Assets::store(const TextureAnimation& animation) {
 	animations.emplace_back(animation);
 }
 
+UiDocument* Assets::getLayout(std::string name) const {
+	auto found = layouts.find(name);
+	if (found == layouts.end())
+		return nullptr;
+	return found->second.get();
+}
+
+void Assets::store(UiDocument* layout, std::string name) {
+	layouts[name].reset(layout);
+}
+
 void Assets::extend(const Assets& assets) {
     for (auto entry : assets.textures) {
         textures[entry.first] = entry.second;
@@ -75,6 +88,9 @@ void Assets::extend(const Assets& assets) {
     for (auto entry : assets.atlases) {
         atlases[entry.first] = entry.second;
     }
+	for (auto entry : assets.layouts) {
+		layouts[entry.first] = entry.second;
+	}
     animations.clear();
 	for (auto entry : assets.animations) {
 		animations.emplace_back(entry);

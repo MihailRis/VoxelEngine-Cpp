@@ -1,6 +1,6 @@
 #include "GUI.h"
 #include "UINode.h"
-#include "panels.h"
+#include "containers.h"
 
 #include <iostream>
 #include <algorithm>
@@ -8,44 +8,41 @@
 #include "../../assets/Assets.h"
 #include "../../graphics/Batch2D.h"
 #include "../../graphics/Shader.h"
+#include "../../graphics/GfxContext.h"
 #include "../../window/Events.h"
 #include "../../window/input.h"
 #include "../../window/Camera.h"
 
-using glm::vec2;
-using glm::vec3;
-using std::string;
-using std::shared_ptr;
 using namespace gui;
 
 GUI::GUI() {
-    container = new Container(vec2(0, 0), vec2(1000));
-
-    uicamera = new Camera(vec3(), Window::height);
+    container = std::make_shared<Container>(glm::vec2(0, 0), glm::vec2(1000));
+    uicamera = std::make_unique<Camera>(glm::vec3(), Window::height);
 	uicamera->perspective = false;
 	uicamera->flipped = true;
 
-    menu = new PagesControl();
+    menu = std::make_shared<PagesControl>();
     container->add(menu);
-    container->scrollable(false);
+    container->setScrollable(false);
 }
 
 GUI::~GUI() {
-    delete uicamera;
-    delete container;
 }
 
-PagesControl* GUI::getMenu() {
+std::shared_ptr<PagesControl> GUI::getMenu() {
     return menu;
 }
 
+/** Mouse related input and logic handling 
+ * @param delta delta time
+*/
 void GUI::actMouse(float delta) {
     auto hover = container->getAt(Events::cursor, nullptr);
     if (this->hover && this->hover != hover) {
-        this->hover->hover(false);
+        this->hover->setHover(false);
     }
     if (hover) {
-        hover->hover(true);
+        hover->setHover(true);
         if (Events::scroll) {
             hover->scrolled(Events::scroll);
         }
@@ -83,8 +80,11 @@ void GUI::actMouse(float delta) {
     }
 } 
 
+/** Processing user input and UI logic 
+ * @param delta delta time
+*/
 void GUI::act(float delta) {
-    container->size(vec2(Window::width, Window::height));
+    container->setSize(glm::vec2(Window::width, Window::height));
     container->act(delta);
     auto prevfocus = focus;
 
@@ -111,48 +111,47 @@ void GUI::act(float delta) {
             }
         }
     }
-    if (focus && !focus->isfocused()) {
+    if (focus && !focus->isFocused()) {
         focus = nullptr;
     }
 }
 
-void GUI::draw(Batch2D* batch, Assets* assets) {
-    menu->setCoord((Window::size() - menu->size()) / 2.0f);
-    uicamera->setFov(Window::height);
+void GUI::draw(const GfxContext* pctx, Assets* assets) {
+    auto& viewport = pctx->getViewport();
+    glm::vec2 wsize = viewport.size();
+
+    menu->setCoord((wsize - menu->getSize()) / 2.0f);
+    uicamera->setFov(wsize.y);
 
 	Shader* uishader = assets->getShader("ui");
 	uishader->use();
 	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
 
-    batch->begin();
-    container->draw(batch, assets);
+    pctx->getBatch2D()->begin();
+    container->draw(pctx, assets);
 }
 
-shared_ptr<UINode> GUI::getFocused() const {
+std::shared_ptr<UINode> GUI::getFocused() const {
     return focus;
 }
 
 bool GUI::isFocusCaught() const {
-    return focus && focus->isfocuskeeper();
+    return focus && focus->isFocuskeeper();
 }
 
-void GUI::addBack(std::shared_ptr<UINode> panel) {
-    container->addBack(panel);
+void GUI::add(std::shared_ptr<UINode> node) {
+    container->add(node);
 }
 
-void GUI::add(shared_ptr<UINode> panel) {
-    container->add(panel);
+void GUI::remove(std::shared_ptr<UINode> node) noexcept {
+    container->remove(node);
 }
 
-void GUI::remove(shared_ptr<UINode> panel) {
-    container->remove(panel);
-}
-
-void GUI::store(string name, shared_ptr<UINode> node) {
+void GUI::store(std::string name, std::shared_ptr<UINode> node) {
     storage[name] = node;
 }
 
-shared_ptr<UINode> GUI::get(string name) {
+std::shared_ptr<UINode> GUI::get(std::string name) noexcept {
     auto found = storage.find(name);
     if (found == storage.end()) {
         return nullptr;
@@ -160,11 +159,11 @@ shared_ptr<UINode> GUI::get(string name) {
     return found->second;
 }
 
-void GUI::remove(string name) {
+void GUI::remove(std::string name) noexcept {
     storage.erase(name);
 }
 
-void GUI::setFocus(shared_ptr<UINode> node) {
+void GUI::setFocus(std::shared_ptr<UINode> node) {
     if (focus) {
         focus->defocus();
     }
@@ -172,4 +171,8 @@ void GUI::setFocus(shared_ptr<UINode> node) {
     if (focus) {
         focus->focus(this);
     }
+}
+
+std::shared_ptr<Container> GUI::getContainer() const {
+    return container;
 }

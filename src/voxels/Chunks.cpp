@@ -21,8 +21,7 @@ Chunks::Chunks(int w, int d,
 			   WorldFiles* wfile, 
 			   LevelEvents* events, 
 			   const Content* content) 
-		: content(content),
-		  contentIds(content->getIndices()), 
+		: contentIds(content->getIndices()), 
           chunks(w*d),
           chunksSecond(w*d),
 		  w(w), d(d), ox(ox), oz(oz), 
@@ -107,7 +106,7 @@ ubyte Chunks::getLight(int x, int y, int z, int channel){
 	int lx = x - cx * CHUNK_W;
 	int ly = y - cy * CHUNK_H;
 	int lz = z - cz * CHUNK_D;
-	return chunk->lightmap->get(lx,ly,lz, channel);
+	return chunk->lightmap.get(lx,ly,lz, channel);
 }
 
 light_t Chunks::getLight(int x, int y, int z){
@@ -124,7 +123,7 @@ light_t Chunks::getLight(int x, int y, int z){
 	int lx = x - cx * CHUNK_W;
 	int ly = y - cy * CHUNK_H;
 	int lz = z - cz * CHUNK_D;
-	return chunk->lightmap->get(lx,ly,lz);
+	return chunk->lightmap.get(lx,ly,lz);
 }
 
 Chunk* Chunks::getChunkByVoxel(int x, int y, int z){
@@ -163,6 +162,9 @@ void Chunks::set(int x, int y, int z, int id, uint8_t states){
 	int lz = z - cz * CHUNK_D;
     
     voxel& vox = chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx]; 
+	auto def = contentIds->getBlockDef(vox.id);
+	if (def->inventorySize == 0)
+		chunk->removeBlockInventory(lx, y, lz);
 	vox.id = id;
 	vox.states = states;
 

@@ -3,11 +3,17 @@
 
 #include <string>
 #include <vector>
+#include <stdexcept>
 #include <filesystem>
 
 #include "../content/ContentPack.h"
 
 namespace fs = std::filesystem;
+
+class files_access_error : public std::runtime_error {
+public:
+    files_access_error(const std::string& msg) : std::runtime_error(msg) {}
+};
 
 class EnginePaths {
     fs::path userfiles {"."};
@@ -42,6 +48,8 @@ public:
     
     fs::path find(const std::string& filename) const;
     std::vector<fs::path> listdir(const std::string& folder) const;
+
+    const fs::path& getMainRoot() const;
 };
 
 #endif // FILES_ENGINE_PATHS_H_

@@ -7,6 +7,7 @@
 #include "../files/files.h"
 #include "../files/engine_paths.h"
 #include "../data/dynamic.h"
+#include "../logic/scripting/scripting.h"
 
 namespace fs = std::filesystem;
 
@@ -86,25 +87,43 @@ ContentPack ContentPack::read(fs::path folder) {
     return pack;
 }
 
-void ContentPack::scan(fs::path rootfolder,
-                       std::vector<ContentPack>& packs) {
-    if (!fs::is_directory(rootfolder)) {
+void ContentPack::scanFolder(
+    fs::path folder,
+    std::vector<ContentPack>& packs
+) {
+    if (!fs::is_directory(folder)) {
         return;
     }
-    for (auto entry : fs::directory_iterator(rootfolder)) {
+    for (auto entry : fs::directory_iterator(folder)) {
         fs::path folder = entry.path();
         if (!fs::is_directory(folder))
             continue;
         if (!is_pack(folder))
             continue;
-        packs.push_back(read(folder));
+        try {
+            packs.push_back(read(folder));
+        } catch (const contentpack_error& err) {
+            std::cerr << "package.json error at " << err.getFolder().u8string();
+            std::cerr << ": " << err.what() << std::endl;
+        } catch (const std::runtime_error& err) {
+            std::cerr << err.what() << std::endl;
+        }
     }
+}
+
+void ContentPack::scan(
+    fs::path rootfolder,
+    EnginePaths* paths,
+    std::vector<ContentPack>& packs
+) {
+    scanFolder(paths->getResources()/fs::path("content"), packs);
+    scanFolder(paths->getUserfiles()/fs::path("content"), packs);
+    scanFolder(rootfolder, packs);
 }
 
 void ContentPack::scan(EnginePaths* paths,
                        std::vector<ContentPack>& packs) {
-    scan(paths->getResources()/fs::path("content"), packs);
-    scan(paths->getWorldFolder()/fs::path("content"), packs);
+    scan(paths->getWorldFolder()/fs::path("content"), paths, packs);
 }
 
 std::vector<std::string> ContentPack::worldPacksList(fs::path folder) {
@@ -119,6 +138,10 @@ std::vector<std::string> ContentPack::worldPacksList(fs::path folder) {
 
 fs::path ContentPack::findPack(const EnginePaths* paths, fs::path worldDir, std::string name) {
     fs::path folder = worldDir / fs::path("content") / fs::path(name);
+    if (fs::is_directory(folder)) {
+        return folder;
+    }
+    folder = paths->getUserfiles() / fs::path("content") / fs::path(name);
     if (fs::is_directory(folder)) {
         return folder;
     }
@@ -141,4 +164,11 @@ void ContentPack::readPacks(const EnginePaths* paths,
         }
         packs.push_back(ContentPack::read(packfolder));
     }
+}
+
+ContentPackRuntime::ContentPackRuntime(
+    ContentPack info, 
+    std::unique_ptr<scripting::Environment> env
+) : info(info), env(std::move(env))
+{
 }

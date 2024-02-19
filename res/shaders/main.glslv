@@ -26,6 +26,7 @@ uniform float u_torchlightDistance;
 void main(){
     vec3 pos3d = (u_model * vec4(v_position, 1.0)).xyz-u_cameraPos.xyz;
 	vec4 modelpos = u_model * vec4(v_position, 1.0);
+    modelpos.y -= pow(length(pos3d.xz)*0.002, 3.0);
 	vec4 viewmodelpos = u_view * modelpos;
 	vec4 decomp_light = decompress_light(v_light);
 	vec3 light = decomp_light.rgb;

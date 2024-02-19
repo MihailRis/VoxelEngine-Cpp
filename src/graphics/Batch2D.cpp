@@ -11,17 +11,17 @@ using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 
-Batch2D::Batch2D(size_t capacity) : capacity(capacity), offset(0), color(1.0f, 1.0f, 1.0f, 1.0f){
+Batch2D::Batch2D(size_t capacity) : capacity(capacity), color(1.0f){
 	const vattr attrs[] = {
 		{2}, {2}, {4}, {0}
 	};
 
 	buffer = new float[capacity * B2D_VERTEX_SIZE];
-	mesh = new Mesh(buffer, 0, attrs);
+	mesh = std::make_unique<Mesh>(buffer, 0, attrs);
 	index = 0;
 
-	unsigned char pixels[] = {
-			255, 255, 255, 255,
+	ubyte pixels[] = {
+		0xFF, 0xFF, 0xFF, 0xFF
 	};
 	blank = new Texture(pixels, 1, 1, GL_RGBA);
 	_texture = nullptr;
@@ -30,7 +30,6 @@ Batch2D::Batch2D(size_t capacity) : capacity(capacity), offset(0), color(1.0f, 1
 Batch2D::~Batch2D(){
 	delete blank;
 	delete[] buffer;
-	delete mesh;
 }
 
 void Batch2D::begin(){

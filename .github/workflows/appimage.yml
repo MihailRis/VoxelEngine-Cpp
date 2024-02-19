@@ -9,7 +9,12 @@ on:
 jobs:
   build-appimage:
 
-    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2

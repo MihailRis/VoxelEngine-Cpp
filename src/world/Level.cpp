@@ -10,20 +10,25 @@
 #include "../physics/PhysicsSolver.h"
 #include "../objects/Object.h"
 #include "../objects/Player.h"
+#include "../items/Inventory.h"
+#include "../items/Inventories.h"
 
 
 const float DEF_PLAYER_Y = 100.0f;
 const float DEF_PLAYER_SPEED = 4.0f;
+const int DEF_PLAYER_INVENTORY_SIZE = 40;
 
 Level::Level(World* world, const Content* content, EngineSettings& settings)
 	  : world(world),
 	    content(content),
 		chunksStorage(new ChunksStorage(this)),
 		events(new LevelEvents()) ,
-		settings(settings) {
+		settings(settings) 
+{
     physics = new PhysicsSolver(glm::vec3(0, -22.6f, 0));
 
-	player = spawnObjectOfClass<Player>(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED);
+	auto inv = std::make_shared<Inventory>(0, DEF_PLAYER_INVENTORY_SIZE);
+	player = spawnObjectOfClass<Player>(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv);
 
 
     uint matrixSize = (settings.chunks.loadDistance+
@@ -35,6 +40,8 @@ Level::Level(World* world, const Content* content, EngineSettings& settings)
 	events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
 		this->chunksStorage->remove(chunk->x, chunk->z);
 	});
+
+	inventories = std::make_unique<Inventories>(*this);
 }
 
 Level::~Level(){

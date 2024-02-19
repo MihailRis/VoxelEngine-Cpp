@@ -21,6 +21,8 @@
 #include "../objects/Player.h"
 #include "../logic/ChunksController.h"
 #include "../logic/LevelController.h"
+#include "../logic/scripting/scripting.h"
+#include "../logic/scripting/scripting_frontend.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/Chunk.h"
 #include "../engine.h"
@@ -31,7 +33,7 @@
 #include "ContentGfxCache.h"
 #include "LevelFrontend.h"
 #include "gui/GUI.h"
-#include "gui/panels.h"
+#include "gui/containers.h"
 #include "menu.h"
 
 #include "../content/Content.h"
@@ -45,9 +47,9 @@ Screen::~Screen() {
 
 MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     auto menu = engine->getGUI()->getMenu();
-    menus::refresh_menus(engine, menu);
+    menus::refresh_menus(engine);
     menu->reset();
-    menu->set("main");
+    menu->setPage("main");
 
     uicamera.reset(new Camera(glm::vec3(), Window::height));
     uicamera->perspective = false;
@@ -87,7 +89,7 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
     : Screen(engine), 
       level(level),
       frontend(std::make_unique<LevelFrontend>(level, engine->getAssets())),
-      hud(std::make_unique<HudRenderer>(engine, frontend.get())),
+      hud(std::make_unique<Hud>(engine, frontend.get())),
       worldRenderer(std::make_unique<WorldRenderer>(engine, frontend.get())),
       controller(std::make_unique<LevelController>(engine->getSettings(), level)) {
 
@@ -96,10 +98,21 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
 
     animator.reset(new TextureAnimator());
     animator->addAnimations(engine->getAssets()->getAnimations());
+
+    auto content = level->content;
+    for (auto& pack : content->getPacks()) {
+        const ContentPack& info = pack->getInfo();
+        fs::path scriptFile = info.folder/fs::path("scripts/hud.lua");
+        if (fs::is_regular_file(scriptFile)) {
+            scripting::load_hud_script(pack->getEnvironment()->getId(), info.id, scriptFile);
+        }
+    }
+    scripting::on_frontend_init(hud.get());
 }
 
 LevelScreen::~LevelScreen() {
     std::cout << "-- writing world" << std::endl;
+    scripting::on_frontend_close();
     controller->onWorldSave();
     auto world = level->getWorld();
     world->write(level.get());

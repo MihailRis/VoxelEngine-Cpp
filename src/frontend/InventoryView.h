@@ -6,12 +6,11 @@
 #include <glm/glm.hpp>
 
 #include "../frontend/gui/UINode.h"
-#include "../frontend/gui/panels.h"
+#include "../frontend/gui/containers.h"
 #include "../frontend/gui/controls.h"
 #include "../items/ItemStack.h"
 #include "../typedefs.h"
 
-class Batch2D;
 class Assets;
 class GfxContext;
 class Content;
@@ -19,134 +18,15 @@ class ContentIndices;
 class LevelFrontend;
 class Inventory;
 
-typedef std::function<void(ItemStack&)> itemsharefunc;
-typedef std::function<void(ItemStack&, ItemStack&)> slotcallback;
+namespace gui {
+    class UiXmlReader;
+}
 
-class InventoryInteraction;
+namespace scripting {
+    class Environment;
+}
 
-struct SlotLayout {
-    glm::vec2 position;
-    bool background;
-    bool itemSource;
-    itemsharefunc shareFunc;
-    slotcallback rightClick;
-
-    SlotLayout(glm::vec2 position, 
-               bool background,
-               bool itemSource,
-               itemsharefunc shareFunc,
-               slotcallback rightClick);
-};
-
-// temporary unused
-struct InventoryPanel {
-    glm::vec2 position;
-    glm::vec2 size;
-    glm::vec4 color;
-
-    InventoryPanel(glm::vec2 position,
-                   glm::vec2 size,
-                   glm::vec4 color);
-};
-
-class InventoryLayout {
-    glm::vec2 size {};
-    glm::vec2 origin {};
-    std::vector<SlotLayout> slots;
-    std::vector<InventoryPanel> panels;
-public:
-    InventoryLayout(glm::vec2 size);
-
-    void add(SlotLayout slot);
-    void add(InventoryPanel panel);
-    void setSize(glm::vec2 size);
-    void setOrigin(glm::vec2 origin);
-
-    glm::vec2 getSize() const;
-    glm::vec2 getOrigin() const;
-
-    std::vector<SlotLayout>& getSlots();
-    std::vector<InventoryPanel>& getPanels();
-};
-
-class InventoryBuilder {
-    std::unique_ptr<InventoryLayout> layout;
-public:
-    InventoryBuilder();
-
-    void addGrid(
-        int cols, int count, 
-        glm::vec2 coord, 
-        int padding,
-        bool addpanel,
-        SlotLayout slotLayout);
-    
-    void add(SlotLayout slotLayout);
-    void add(InventoryPanel panel);
-
-    std::unique_ptr<InventoryLayout> build();
-};
-
-class SlotView : public gui::UINode {
-    LevelFrontend* frontend;
-    InventoryInteraction* interaction;
-    const Content* const content;
-    ItemStack& stack;
-    bool highlighted = false;
-
-    SlotLayout layout;
-public:
-    SlotView(ItemStack& stack, 
-             LevelFrontend* frontend,
-             InventoryInteraction* interaction, 
-             const Content* content,
-             SlotLayout layout);
-
-    virtual void draw(Batch2D* batch, Assets* assets) override;
-
-    void setHighlighted(bool flag);
-    bool isHighlighted() const;
-
-    virtual void clicked(gui::GUI*, int) override;
-};
-
-class InventoryView : public gui::Container {
-    const Content* content;
-    const ContentIndices* indices;
-    
-    std::shared_ptr<Inventory> inventory;
-    std::unique_ptr<InventoryLayout> layout;
-    LevelFrontend* frontend;
-    InventoryInteraction* interaction;
-
-    std::vector<SlotView*> slots;
-
-    int scroll = 0;
-public:
-    InventoryView(
-        const Content* content, 
-        LevelFrontend* frontend,
-        InventoryInteraction* interaction,
-        std::shared_ptr<Inventory> inventory,
-        std::unique_ptr<InventoryLayout> layout);
-
-    virtual ~InventoryView();
-
-    void build();
-
-    virtual void drawBackground(Batch2D* batch, Assets* assets) override;
-
-    void setInventory(std::shared_ptr<Inventory> inventory);
-
-    virtual void setCoord(glm::vec2 coord) override;
-
-    InventoryLayout* getLayout() const;
-
-    void setSelected(int index);
-
-    static const int SLOT_INTERVAL = 4;
-    static const int SLOT_SIZE = ITEM_ICON_SIZE;
-};
+using slotcallback = std::function<void(uint, ItemStack&)>;
 
 class InventoryInteraction {
     ItemStack grabbedItem;
@@ -156,6 +36,111 @@ public:
     ItemStack& getGrabbedItem() {
         return grabbedItem;
     }
+};
+
+struct SlotLayout {
+    int index;
+    glm::vec2 position;
+    bool background;
+    bool itemSource;
+    slotcallback shareFunc;
+    slotcallback rightClick;
+    int padding = 0;
+
+    SlotLayout(int index,
+               glm::vec2 position, 
+               bool background,
+               bool itemSource,
+               slotcallback shareFunc,
+               slotcallback rightClick);
+};
+
+class SlotView : public gui::UINode {
+    LevelFrontend* frontend = nullptr;
+    InventoryInteraction* interaction = nullptr;
+    const Content* content;
+    SlotLayout layout;
+    bool highlighted = false;
+
+    int64_t inventoryid = 0;
+    ItemStack* bound = nullptr;
+public:
+    SlotView(SlotLayout layout);
+
+    virtual void draw(const GfxContext* pctx, Assets* assets) override;
+
+    void setHighlighted(bool flag);
+    bool isHighlighted() const;
+
+    virtual void clicked(gui::GUI*, int) override;
+    virtual void focus(gui::GUI*) override;
+
+    void bind(
+        int64_t inventoryid,
+        ItemStack& stack,
+        LevelFrontend* frontend, 
+        InventoryInteraction* interaction
+    );
+
+    const SlotLayout& getLayout() const;
+};
+
+class InventoryView : public gui::Container {
+    const Content* content;
+    const ContentIndices* indices;
+    
+    std::shared_ptr<Inventory> inventory;
+    LevelFrontend* frontend = nullptr;
+    InventoryInteraction* interaction = nullptr;
+
+    std::vector<SlotView*> slots;
+    glm::vec2 origin {};
+public:
+    InventoryView();
+    virtual ~InventoryView();
+
+    void setInventory(std::shared_ptr<Inventory> inventory);
+
+    virtual void setCoord(glm::vec2 coord) override;
+
+    void setOrigin(glm::vec2 origin);
+    glm::vec2 getOrigin() const;
+
+    void setSelected(int index);
+
+    void bind(
+        std::shared_ptr<Inventory> inventory,
+        LevelFrontend* frontend, 
+        InventoryInteraction* interaction
+    );
+
+    std::shared_ptr<SlotView> addSlot(SlotLayout layout);
+
+    std::shared_ptr<Inventory> getInventory() const;
+
+    size_t getSlotsCount() const;
+
+    static void createReaders(gui::UiXmlReader& reader);
+
+    static const int SLOT_INTERVAL = 4;
+    static const int SLOT_SIZE = ITEM_ICON_SIZE;
+};
+
+class InventoryBuilder {
+    std::shared_ptr<InventoryView> view;
+public:
+    InventoryBuilder();
+
+    void addGrid(
+        int cols, int count, 
+        glm::vec2 coord, 
+        int padding,
+        bool addpanel,
+        SlotLayout slotLayout
+    );
+    
+    void add(SlotLayout slotLayout);
+    std::shared_ptr<InventoryView> build();
 };
 
 #endif // FRONTEND_INVENTORY_VIEW_H_

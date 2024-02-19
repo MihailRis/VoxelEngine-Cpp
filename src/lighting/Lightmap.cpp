@@ -3,26 +3,14 @@
 
 #include "../util/data_io.h"
 
-Lightmap::Lightmap(){
-	map = new light_t[CHUNK_VOL];
-	for (uint i = 0; i < CHUNK_VOL; i++){
-		map[i] = 0x0000;
-	}
-}
-
-Lightmap::~Lightmap(){
-	delete[] map;
-}
-
 void Lightmap::set(const Lightmap* lightmap) {
-	for (unsigned int i = 0; i < CHUNK_VOL; i++){
-		map[i] = lightmap->map[i];
-	}
+	set(lightmap->map);
 }
 
-void Lightmap::set(light_t* map) {
-	delete[] this->map;
-	this->map = map;
+void Lightmap::set(const light_t* map) {
+	for (size_t i = 0; i < CHUNK_VOL; i++) {
+        this->map[i] = map[i];
+    }
 }
 
 static_assert(sizeof(light_t) == 2, "replace dataio calls to new light_t");

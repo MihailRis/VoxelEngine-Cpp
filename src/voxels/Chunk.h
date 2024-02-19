@@ -1,8 +1,13 @@
 #ifndef VOXELS_CHUNK_H_
 #define VOXELS_CHUNK_H_
 
+#include <memory>
 #include <stdlib.h>
+#include <unordered_map>
+
 #include "../constants.h"
+#include "voxel.h"
+#include "../lighting/Lightmap.h"
 
 struct ChunkFlag {
 	static const int MODIFIED = 0x1;
@@ -12,28 +17,33 @@ struct ChunkFlag {
 	static const int UNSAVED = 0x10;
 	static const int LOADED_LIGHTS = 0x20;
 };
-#define CHUNK_DATA_LEN (CHUNK_VOL*4)
+constexpr int CHUNK_DATA_LEN = CHUNK_VOL*4;
 
-struct voxel;
 class Lightmap;
 class ContentLUT;
+class Inventory;
+
+using chunk_inventories_map = std::unordered_map<uint, std::shared_ptr<Inventory>>;
 
 class Chunk {
 public:
 	int x, z;
 	int bottom, top;
-	voxel* voxels;
-	Lightmap* lightmap;
+	voxel voxels[CHUNK_VOL];
+	Lightmap lightmap;
 	int flags = 0;
 
+    /* Block inventories map where key is index of block in voxels array */
+    chunk_inventories_map inventories;
+
 	Chunk(int x, int z);
-	~Chunk();
 
 	bool isEmpty();
 
 	void updateHeights();
 
-	Chunk* clone() const;
+    // unused
+	std::unique_ptr<Chunk> clone() const;
 
 	// flags getters/setters below
 	inline void setFlags(int mask, bool value){
@@ -42,6 +52,16 @@ public:
 		else
 			flags &= ~(mask);
 	}
+
+    /* Creates new block inventory given size
+       @return inventory id or 0 if block does not exists */
+    void addBlockInventory(std::shared_ptr<Inventory> inventory, 
+                           uint x, uint y, uint z);
+	void removeBlockInventory(uint x, uint y, uint z);
+	void setBlockInventories(chunk_inventories_map map);
+
+    /* @return inventory bound to the given block or nullptr */
+    std::shared_ptr<Inventory> getBlockInventory(uint x, uint y, uint z) const;
 
 	inline bool isUnsaved() const {return flags & ChunkFlag::UNSAVED;}
 
@@ -68,7 +88,11 @@ public:
 	inline void setReady(bool newState) {setFlags(ChunkFlag::READY, newState);}
 
 	ubyte* encode() const;
-	bool decode(ubyte* data);
+
+    /**
+     * @return true if all is fine
+     **/
+	bool decode(const ubyte* data);
 
     static void convert(ubyte* data, const ContentLUT* lut);
 };

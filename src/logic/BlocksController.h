@@ -25,6 +25,7 @@ public:
     int getParts() const;
     int getPart() const;
     int getTickRate() const;
+    int getTickId() const;
 };
 
 class BlocksController {
@@ -46,6 +47,9 @@ public:
     void update(float delta);
     void randomTick(int tickid, int parts);
     void onBlocksTick(int tickid, int parts);
+    int64_t createBlockInventory(int x, int y, int z);
+    void bindInventory(int64_t invid, int x, int y, int z);
+    void unbindInventory(int x, int y, int z);
 };
 
 #endif // LOGIC_BLOCKS_CONTROLLER_H_

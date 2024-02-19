@@ -12,6 +12,7 @@
 #include "../world/World.h"
 #include "../maths/voxmaths.h"
 #include "../lighting/Lightmap.h"
+#include "../items/Inventories.h"
 #include "../typedefs.h"
 
 ChunksStorage::ChunksStorage(Level* level) : level(level) {
@@ -57,13 +58,18 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 	std::unique_ptr<ubyte[]> data(wfile->getChunk(chunk->x, chunk->z));
 	if (data) {
 		chunk->decode(data.get());
+		auto invs = wfile->fetchInventories(chunk->x, chunk->z);
+		chunk->setBlockInventories(std::move(invs));
 		chunk->setLoaded(true);
+		for(auto& entry : chunk->inventories) {
+			level->inventories->store(entry.second);
+		}
         verifyLoadedChunk(level->content->getIndices(), chunk.get());
 	}
 
-	light_t* lights = wfile->getLights(chunk->x, chunk->z);
+	std::unique_ptr<light_t[]> lights (wfile->getLights(chunk->x, chunk->z));
 	if (lights) {
-		chunk->lightmap->set(lights);
+		chunk->lightmap.set(lights.get());
 		chunk->setLoadedLights(true);
 	}
 	return chunk;
@@ -114,7 +120,7 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 			} else {
 				auto& chunk = found->second;
 				const voxel* cvoxels = chunk->voxels;
-				const light_t* clights = chunk->lightmap->getLights();
+				const light_t* clights = chunk->lightmap.getLights();
 				for (int ly = y; ly < y + h; ly++) {
 					for (int lz = max(z, cz * CHUNK_D);
 						lz < min(z + d, (cz + 1) * CHUNK_D);

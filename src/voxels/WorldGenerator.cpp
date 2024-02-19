@@ -15,6 +15,7 @@
 
 #include "../content/Content.h"
 #include "../maths/voxmaths.h"
+#include "../maths/util.h"
 #include "../core_defs.h"
 
 // TODO: do something with long conditions + move magic numbers to constants
@@ -62,36 +63,6 @@ public:
     }
 };
 
-class PseudoRandom {
-    unsigned short seed;
-public:
-    PseudoRandom(){
-        seed = (unsigned short)time(0);
-    }
-
-    int rand(){
-        seed = (seed + 0x7ed5 + (seed << 6));
-        seed = (seed ^ 0xc23c ^ (seed >> 9));
-        seed = (seed + 0x1656 + (seed << 3));
-        seed = ((seed + 0xa264) ^ (seed << 4));
-        seed = (seed + 0xfd70 - (seed << 3));
-        seed = (seed ^ 0xba49 ^ (seed >> 8));
-
-        return (int)seed;
-    }
-
-    void setSeed(int number){
-        seed = ((unsigned short)(number*23729) ^ (unsigned short)(number+16786));
-        rand();
-    }
-    void setSeed(int number1,int number2){
-        seed = (((unsigned short)(number1*23729) | (unsigned short)(number2%16786)) ^ (unsigned short)(number2*number1));
-        rand();
-    }
-};
-
-
-
 float calc_height(fnl_state *noise, int cur_x, int cur_z){
     float height = 0;
 
@@ -110,16 +81,16 @@ float calc_height(fnl_state *noise, int cur_x, int cur_z){
 }
 
 WorldGenerator::WorldGenerator(const Content* content)
-               : idStone(content->requireBlock("base:stone")->rt.id),
-                 idDirt(content->requireBlock("base:dirt")->rt.id),
-                 idGrassBlock(content->requireBlock("base:grass_block")->rt.id),
-                 idSand(content->requireBlock("base:sand")->rt.id),
-                 idWater(content->requireBlock("base:water")->rt.id),
-                 idWood(content->requireBlock("base:wood")->rt.id),
-                 idLeaves(content->requireBlock("base:leaves")->rt.id),
-                 idGrass(content->requireBlock("base:grass")->rt.id),
-                 idFlower(content->requireBlock("base:flower")->rt.id),
-                 idBazalt(content->requireBlock("base:bazalt")->rt.id) {}
+               : idStone(content->requireBlock("base:stone").rt.id),
+                 idDirt(content->requireBlock("base:dirt").rt.id),
+                 idGrassBlock(content->requireBlock("base:grass_block").rt.id),
+                 idSand(content->requireBlock("base:sand").rt.id),
+                 idWater(content->requireBlock("base:water").rt.id),
+                 idWood(content->requireBlock("base:wood").rt.id),
+                 idLeaves(content->requireBlock("base:leaves").rt.id),
+                 idGrass(content->requireBlock("base:grass").rt.id),
+                 idFlower(content->requireBlock("base:flower").rt.id),
+                 idBazalt(content->requireBlock("base:bazalt").rt.id) {}
 
 int generate_tree(fnl_state *noise, 
                   PseudoRandom* random, 

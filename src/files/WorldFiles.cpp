@@ -13,6 +13,7 @@
 #include "../world/World.h"
 #include "../lighting/Lightmap.h"
 
+#include "../coders/byte_utils.h"
 #include "../util/data_io.h"
 #include "../coders/json.h"
 #include "../constants.h"
@@ -27,6 +28,8 @@
 #include <fstream>
 #include <sstream>
 #include <cstring>
+
+const size_t BUFFER_SIZE_UNKNOWN = -1;
 
 regfile::regfile(fs::path filename) : file(filename) {
     if (file.length() < REGION_HEADER_SIZE)
@@ -189,7 +192,7 @@ void WorldFiles::put(Chunk* chunk){
 	int localX = chunk->x - (regionX * REGION_SIZE);
 	int localZ = chunk->z - (regionZ * REGION_SIZE);
 
-	/* Writing Voxels */ {
+	/* Writing voxels */ {
         size_t compressedSize;
         std::unique_ptr<ubyte[]> chunk_data (chunk->encode());
 		ubyte* data = compress(chunk_data.get(), CHUNK_DATA_LEN, compressedSize);
@@ -198,15 +201,39 @@ void WorldFiles::put(Chunk* chunk){
 		region->setUnsaved(true);
 		region->put(localX, localZ, data, compressedSize);
 	}
+    /* Writing lights cache */
 	if (doWriteLights && chunk->isLighted()) {
         size_t compressedSize;
-        std::unique_ptr<ubyte[]> light_data (chunk->lightmap->encode());
+        std::unique_ptr<ubyte[]> light_data (chunk->lightmap.encode());
 		ubyte* data = compress(light_data.get(), LIGHTMAP_DATA_LEN, compressedSize);
 
 		WorldRegion* region = getOrCreateRegion(lights, regionX, regionZ);
 		region->setUnsaved(true);
 		region->put(localX, localZ, data, compressedSize);
 	}
+    /* Writing block inventories */
+    if (!chunk->inventories.empty()){
+        auto& inventories = chunk->inventories;
+        ByteBuilder builder;
+        builder.putInt32(inventories.size());
+        for (auto& entry : inventories) {
+            builder.putInt32(entry.first);
+            auto map = entry.second->serialize();
+            auto bytes = json::to_binary(map.get(), true);
+            builder.putInt32(bytes.size());
+            builder.put(bytes.data(), bytes.size());
+        }   
+        WorldRegion* region = getOrCreateRegion(storages, regionX, regionZ);
+        region->setUnsaved(true);
+
+        auto datavec = builder.data();
+        uint datasize = builder.size();
+        auto data = std::make_unique<ubyte[]>(datasize);
+        for (uint i = 0; i < datasize; i++) {
+            data[i] = datavec[i];
+        }
+        region->put(localX, localZ, data.release(), datasize);
+    }
 }
 
 fs::path WorldFiles::getRegionsFolder() const {
@@ -215,6 +242,10 @@ fs::path WorldFiles::getRegionsFolder() const {
 
 fs::path WorldFiles::getLightsFolder() const {
 	return directory/fs::path("lights");
+}
+
+fs::path WorldFiles::getInventoriesFolder() const {
+	return directory/fs::path("inventories");
 }
 
 fs::path WorldFiles::getRegionFilename(int x, int z) const {
@@ -260,20 +291,39 @@ fs::path WorldFiles::getPacksFile() const {
 }
 
 ubyte* WorldFiles::getChunk(int x, int z){
-	return getData(regions, getRegionsFolder(), x, z, REGION_LAYER_VOXELS);
+	return getData(regions, getRegionsFolder(), x, z, REGION_LAYER_VOXELS, true);
 }
 
 /* Get cached lights for chunk at x,z 
  * @return lights data or nullptr */
 light_t* WorldFiles::getLights(int x, int z) {
-	std::unique_ptr<ubyte> data (getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS));
+	std::unique_ptr<ubyte[]> data (getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS, true));
 	if (data == nullptr)
 		return nullptr;
 	return Lightmap::decode(data.get());
 }
 
+chunk_inventories_map WorldFiles::fetchInventories(int x, int z) {
+	chunk_inventories_map inventories;
+	const ubyte* data = getData(storages, getInventoriesFolder(), x, z, REGION_LAYER_INVENTORIES, false);
+	if (data == nullptr)
+		return inventories;
+	ByteReader reader(data, BUFFER_SIZE_UNKNOWN);
+	int count = reader.getInt32();
+	for (int i = 0; i < count; i++) {
+		uint index = reader.getInt32();
+		uint size = reader.getInt32();
+		auto map = json::from_binary(reader.pointer(), size);
+		reader.skip(size);
+		auto inv = std::make_shared<Inventory>(0, 0);
+		inv->deserialize(map.get());
+		inventories[index] = inv;
+	}
+	return inventories;
+}
+
 ubyte* WorldFiles::getData(regionsmap& regions, const fs::path& folder, 
-                           int x, int z, int layer) {
+                           int x, int z, int layer, bool compression) {
 	int regionX = floordiv(x, REGION_SIZE);
 	int regionZ = floordiv(z, REGION_SIZE);
 
@@ -291,7 +341,10 @@ ubyte* WorldFiles::getData(regionsmap& regions, const fs::path& folder,
 	}
 	if (data != nullptr) {
         size_t size = region->getChunkDataSize(localX, localZ);
-		return decompress(data, size, CHUNK_DATA_LEN);
+		if (compression) {
+			return decompress(data, size, CHUNK_DATA_LEN);
+		}
+		return data;
 	}
 	return nullptr;
 }
@@ -343,17 +396,16 @@ ubyte* WorldFiles::readChunkData(int x,
 	file.seekg(table_offset + chunkIndex * 4);
 	file.read((char*)(&offset), 4);
 	offset = dataio::read_int32_big((const ubyte*)(&offset), 0);
+
 	if (offset == 0){
 		return nullptr;
 	}
+
 	file.seekg(offset);
 	file.read((char*)(&offset), 4);
 	length = dataio::read_int32_big((const ubyte*)(&offset), 0);
-	ubyte* data = new ubyte[length];
+	ubyte* data = new ubyte[length]{};
 	file.read((char*)data, length);
-	if (data == nullptr) {
-		std::cerr << "ERROR: failed to read data of chunk x("<< x <<"), z("<< z <<")" << std::endl;
-	}
 	return data;
 }
 
@@ -436,20 +488,24 @@ void WorldFiles::writeRegions(regionsmap& regions, const fs::path& folder, int l
 void WorldFiles::write(const World* world, const Content* content) {
 	fs::path regionsFolder = getRegionsFolder();
 	fs::path lightsFolder = getLightsFolder();
+    fs::path inventoriesFolder = getInventoriesFolder();
 
 	fs::create_directories(regionsFolder);
+    fs::create_directories(inventoriesFolder);
 	fs::create_directories(lightsFolder);
 
     if (world) {
 	    writeWorldInfo(world);
 		writePacks(world);
 	}
-	if (generatorTestMode)
+	if (generatorTestMode) {
 		return;
+    }
 		
 	writeIndices(content->getIndices());
 	writeRegions(regions, regionsFolder, REGION_LAYER_VOXELS);
 	writeRegions(lights, lightsFolder, REGION_LAYER_LIGHTS);
+    writeRegions(storages, inventoriesFolder, REGION_LAYER_INVENTORIES);
 }
 
 void WorldFiles::writePacks(const World* world) {
@@ -488,21 +544,7 @@ void WorldFiles::writeIndices(const ContentIndices* indices) {
 }
 
 void WorldFiles::writeWorldInfo(const World* world) {
-	dynamic::Map root;
-
-	auto& versionobj = root.putMap("version");
-	versionobj.put("major", ENGINE_VERSION_MAJOR);
-	versionobj.put("minor", ENGINE_VERSION_MINOR);
-
-	root.put("name", world->getName());
-	root.put("seed", world->getSeed());
-	
-    auto& timeobj = root.putMap("time");
-	timeobj.put("day-time", world->daytime);
-	timeobj.put("day-time-speed", world->daytimeSpeed);
-    timeobj.put("total-time", world->totalTime);
-
-	files::write_json(getWorldFile(), &root);
+	files::write_json(getWorldFile(), world->serialize().get());
 }
 
 bool WorldFiles::readWorldInfo(World* world) {
@@ -513,25 +555,7 @@ bool WorldFiles::readWorldInfo(World* world) {
 	}
 
 	auto root = files::read_json(file);
-    
-    world->setName(root->getStr("name", world->getName()));
-    world->setSeed(root->getInt("seed", world->getSeed()));
-
-	auto verobj = root->map("version");
-	if (verobj) {
-		int major=0, minor=-1;
-		verobj->num("major", major);
-		verobj->num("minor", minor);
-		std::cout << "world version: " << major << "." << minor << std::endl;
-	}
-
-	auto timeobj = root->map("time");
-	if (timeobj) {
-		timeobj->num("day-time", world->daytime);
-		timeobj->num("day-time-speed", world->daytimeSpeed);
-        timeobj->num("total-time", world->totalTime);
-	}
-
+    world->deserialize(root.get());
 	return true;
 }
 
@@ -550,8 +574,15 @@ bool WorldFiles::readPlayer(Player* player) {
 	return true;
 }
 
-void WorldFiles::addPack(const std::string& id) {
-    auto packs = files::read_list(getPacksFile());
+void WorldFiles::addPack(const World* world, const std::string& id) {
+    fs::path file = getPacksFile();
+    if (!fs::is_regular_file(file)) {
+        if (!fs::is_directory(directory)) {
+            fs::create_directories(directory);
+        }
+        writePacks(world);
+    }
+    auto packs = files::read_list(file);
     packs.push_back(id);
 
 	std::stringstream ss;
@@ -559,5 +590,5 @@ void WorldFiles::addPack(const std::string& id) {
 	for (const auto& pack : packs) {
 		ss << pack << "\n";
 	}
-	files::write_string(getPacksFile(), ss.str());
+	files::write_string(file, ss.str());
 }

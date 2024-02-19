@@ -15,7 +15,7 @@ struct DisplaySettings;
 struct GLFWmonitor;
 
 enum class blendmode {
-    normal, addition
+    normal, addition, inversion
 };
 
 class Window {

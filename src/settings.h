@@ -47,6 +47,7 @@ struct GraphicsSettings {
 	/* Fog opacity is calculated as `pow(depth*k, fogCurve)` where k depends on chunksLoadDistance.
 	   Use values in range [1.0 - 2.0] where 1.0 is linear, 2.0 is quadratic */
 	float fogCurve = 1.6f;
+    float gamma = 1.0f;
 	/* Enable blocks backlight to prevent complete darkness */
 	bool backlight = true;
 	/* Enable chunks frustum culling */

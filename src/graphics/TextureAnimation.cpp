@@ -49,9 +49,30 @@ void TextureAnimator::update(float delta) {
 
             float srcPosY = elem.srcTexture->height - frame.size.y - frame.srcPos.y; // vertical flip
 
-            glBlitFramebuffer(frame.srcPos.x, srcPosY,			frame.srcPos.x + frame.size.x,	srcPosY + frame.size.y,
-                              frame.dstPos.x, frame.dstPos.y,	frame.dstPos.x + frame.size.x,	frame.dstPos.y + frame.size.y,
-                              GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            // Extensions
+            const int ext = 2;
+            for (int y = -1; y <= 1; y++) {
+                for (int x = -1; x <= 1; x++) {
+                    if (x == 0 && y == 0)
+                        continue;
+                    glBlitFramebuffer(
+                        frame.srcPos.x, srcPosY, frame.srcPos.x + frame.size.x, srcPosY + frame.size.y,
+                        frame.dstPos.x+x*ext, frame.dstPos.y+y*ext,	
+                        frame.dstPos.x + frame.size.x+x*ext, frame.dstPos.y + frame.size.y+y*ext,
+                        GL_COLOR_BUFFER_BIT, GL_NEAREST
+                    );
+                }
+            }
+
+            glBlitFramebuffer(
+                frame.srcPos.x, srcPosY,
+                frame.srcPos.x + frame.size.x,	
+                srcPosY + frame.size.y,
+                frame.dstPos.x, frame.dstPos.y,	
+                frame.dstPos.x + frame.size.x,
+                frame.dstPos.y + frame.size.y,
+                GL_COLOR_BUFFER_BIT, GL_NEAREST
+            );
         }
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);

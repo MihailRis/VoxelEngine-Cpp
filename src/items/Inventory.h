@@ -13,11 +13,11 @@
 class ContentLUT;
 class ContentIndices;
 
-// TODO: items indices fix
 class Inventory : Serializable {
+    int64_t id;
     std::vector<ItemStack> slots;
 public:
-    Inventory(size_t size);
+    Inventory(int64_t id, size_t size);
 
     ItemStack& getSlot(size_t index);
     size_t findEmptySlot(size_t begin=0, size_t end=-1) const;
@@ -39,6 +39,18 @@ public:
     std::unique_ptr<dynamic::Map> serialize() const override;
 
     static void convert(dynamic::Map* data, const ContentLUT* lut);
+
+    inline void setId(int64_t id) {
+        this->id = id;
+    }
+
+    inline int64_t getId() const {
+        return id;
+    }
+
+    inline bool isVirtual() const {
+        return id < 0;
+    }
 
     static const size_t npos;
 };

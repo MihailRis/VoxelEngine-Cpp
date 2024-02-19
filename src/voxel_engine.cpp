@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <stdexcept>
 
-#include "definitions.h"
+#include "core_defs.h"
 #include "engine.h"
 #include "util/platform.h"
 #include "coders/toml.h"
@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 			toml::Reader reader(wrapper.get(), settings_file.string(), text);
 			reader.read();
 		}
-        setup_bindings();
+        corecontent::setup_bindings();
 		Engine engine(settings, &paths);
 		if (fs::is_regular_file(controls_file)) {
 			std::cout << "-- loading controls" << std::endl;

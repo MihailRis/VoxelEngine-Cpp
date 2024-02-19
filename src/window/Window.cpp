@@ -6,15 +6,10 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-using glm::vec4;
-using std::cout;
-using std::cerr;
-using std::endl;
-
 GLFWwindow* Window::window = nullptr;
 DisplaySettings* Window::settings = nullptr;
-std::stack<vec4> Window::scissorStack;
-vec4 Window::scissorArea;
+std::stack<glm::vec4> Window::scissorStack;
+glm::vec4 Window::scissorArea;
 uint Window::width = 0;
 uint Window::height = 0;
 int Window::posX = 0;
@@ -97,10 +92,10 @@ const char* glfwErrorName(int error) {
 }
 
 void error_callback(int error, const char* description) {
-	cerr << "GLFW error [0x" << std::hex << error << "]: ";
-	cerr << glfwErrorName(error) << endl;
+	std::cerr << "GLFW error [0x" << std::hex << error << "]: ";
+	std::cerr << glfwErrorName(error) << std::endl;
 	if (description) {
-		cerr << description << endl;
+		std::cerr << description << std::endl;
 	}
 }
 
@@ -111,7 +106,7 @@ int Window::initialize(DisplaySettings& settings){
 
 	glfwSetErrorCallback(error_callback);
 	if (glfwInit() == GLFW_FALSE) {
-		cerr << "Failed to initialize GLFW" << endl;
+		std::cerr << "Failed to initialize GLFW" << std::endl;
 		return -1;
 	}
 
@@ -129,7 +124,7 @@ int Window::initialize(DisplaySettings& settings){
 
 	window = glfwCreateWindow(width, height, settings.title.c_str(), nullptr, nullptr);
 	if (window == nullptr){
-		cerr << "Failed to create GLFW Window" << endl;
+		std::cerr << "Failed to create GLFW Window" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
@@ -138,8 +133,8 @@ int Window::initialize(DisplaySettings& settings){
 	glewExperimental = GL_TRUE;
 	GLenum glewErr = glewInit();
 	if (glewErr != GLEW_OK){
-		cerr << "Failed to initialize GLEW: " << std::endl;
-		cerr << glewGetErrorString(glewErr) << std::endl;
+		std::cerr << "Failed to initialize GLEW: " << std::endl;
+		std::cerr << glewGetErrorString(glewErr) << std::endl;
 		return -1;
 	}
 
@@ -162,8 +157,9 @@ int Window::initialize(DisplaySettings& settings){
 	glfwSwapInterval(settings.swapInterval);
 	const GLubyte* vendor = glGetString(GL_VENDOR);
 	const GLubyte* renderer = glGetString(GL_RENDERER);
-	cout << "GL Vendor: " << (char*)vendor << endl;
-	cout << "GL Renderer: " << (char*)renderer << endl;
+	std::cout << "GL Vendor: " << (char*)vendor << std::endl;
+	std::cout << "GL Renderer: " << (char*)renderer << std::endl;
+    std::cout << "GLFW: " << glfwGetVersionString() << std::endl;
 	return 0;
 }
 
@@ -174,6 +170,9 @@ void Window::setBlendMode(blendmode mode) {
             break;
         case blendmode::addition:
             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            break;
+        case blendmode::inversion:
+            glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
             break;
     }
 }
@@ -203,12 +202,12 @@ void Window::setCursorMode(int mode){
 }
 
 void Window::resetScissor() {
-	scissorArea = vec4(0.0f, 0.0f, width, height);
-	scissorStack = std::stack<vec4>();
+	scissorArea = glm::vec4(0.0f, 0.0f, width, height);
+	scissorStack = std::stack<glm::vec4>();
 	glDisable(GL_SCISSOR_TEST);
 }
 
-void Window::pushScissor(vec4 area) {
+void Window::pushScissor(glm::vec4 area) {
 	if (scissorStack.empty()) {
 		glEnable(GL_SCISSOR_TEST);
 	}
@@ -238,7 +237,7 @@ void Window::popScissor() {
 		std::cerr << "warning: extra Window::popScissor call" << std::endl;
 		return;
 	}
-	vec4 area = scissorStack.top();
+	glm::vec4 area = scissorStack.top();
 	scissorStack.pop();
 	if (area.z < 0.0f || area.w < 0.0f) {
 		glScissor(0, 0, 0, 0);

@@ -24,20 +24,22 @@ void LevelController::update(float delta, bool input, bool pause) {
     player->update(delta, input, pause);
     level->update();
     chunks->update(settings.chunks.loadSpeed);
-    blocks->update(delta);
 
     // erease null pointers
     level->objects.remove_if([](Object* obj) { return obj == nullptr; });
 
-    // update all objects that needed
-	for(Object *obj : level->objects)
-	{
-		if(obj) {
-            if(obj->shouldUpdate) {
-                obj->update(delta);
+    if (!pause) {
+        // update all objects that needed
+        for(Object *obj : level->objects)
+        {
+            if(obj) {
+                if(obj->shouldUpdate) {
+                    obj->update(delta);
+                }
             }
-		}
-	}
+        }
+        blocks->update(delta);
+    }
 }
 
 void LevelController::onWorldSave() {
