@@ -90,6 +90,7 @@ class Hud {
     std::shared_ptr<InventoryView> inventoryView = nullptr;
 	std::shared_ptr<InventoryView> blockUI = nullptr;
 	glm::ivec3 currentblock {};
+    blockid_t currentblockid = 0;
 
     std::shared_ptr<gui::UINode> createDebugPanel(Engine* engine);
     std::shared_ptr<InventoryView> createContentAccess();

@@ -1,5 +1,7 @@
 #include "hud.h"
 
+// TODO: refactor this garbage
+
 #include <iostream>
 #include <sstream>
 #include <memory>
@@ -365,11 +367,17 @@ void Hud::update(bool visible) {
         Events::toggleCursor();
     }
 
+    if (blockUI) {
+        voxel* vox = level->chunks->get(currentblock.x, currentblock.y, currentblock.z);
+        if (vox == nullptr || vox->id != currentblockid) {
+            closeInventory();
+        }
+    }
+
     glm::vec2 invSize = contentAccessPanel->getSize();
     contentAccessPanel->setVisible(inventoryOpen);
     contentAccessPanel->setSize(glm::vec2(invSize.x, Window::height));
     contentAccess->setMinSize(glm::vec2(1, Window::height));
-    // hotbarView->setVisible(visible && !inventoryOpen);
 
     for (int i = keycode::NUM_1; i <= keycode::NUM_9; i++) {
         if (Events::jpressed(i)) {
@@ -437,6 +445,7 @@ void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inven
     }
     blockUI->bind(blockinv, frontend, interaction.get());
     currentblock = block;
+    currentblockid = level->chunks->get(block.x, block.y, block.z)->id;
     add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
 }
 
