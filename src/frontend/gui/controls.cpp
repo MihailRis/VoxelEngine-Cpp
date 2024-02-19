@@ -150,6 +150,14 @@ std::wstring Button::getText() const {
     return L"";
 }
 
+glm::vec4 Button::getPressedColor() const {
+    return pressedColor;
+}
+
+void Button::setPressedColor(glm::vec4 color) {
+    pressedColor = color;
+}
+
 Button* Button::textSupplier(wstringsupplier supplier) {
     if (label) {
         label->textSupplier(supplier);
@@ -402,6 +410,7 @@ TrackBar::TrackBar(double min,
       step(step), 
       trackWidth(trackWidth) {
     setColor(glm::vec4(0.f, 0.f, 0.f, 0.4f));
+    setHoverColor(glm::vec4(0.01f, 0.02f, 0.03f, 0.5f));
 }
 
 void TrackBar::draw(const GfxContext* pctx, Assets* assets) {
@@ -442,6 +451,55 @@ void TrackBar::mouseMove(GUI*, int x, int y) {
     if (consumer) {
         consumer(value);
     }
+}
+
+
+double TrackBar::getValue() const {
+    return value;
+}
+
+double TrackBar::getMin() const {
+    return min;
+}
+
+double TrackBar::getMax() const {
+    return max;
+}
+
+double TrackBar::getStep() const {
+    return step;
+}
+
+int TrackBar::getTrackWidth() const {
+    return trackWidth;
+}
+
+glm::vec4 TrackBar::getTrackColor() const {
+    return trackColor;
+}
+
+void TrackBar::setValue(double x) {
+    value = x;
+}
+
+void TrackBar::setMin(double x) {
+    min = x;
+}
+
+void TrackBar::setMax(double x) {
+    max = x;
+}
+
+void TrackBar::setStep(double x) {
+    step = x;
+}
+
+void TrackBar::setTrackWidth(int width) {
+    trackWidth = width;
+}
+
+void TrackBar::setTrackColor(glm::vec4 color) {
+    trackColor = color;
 }
 
 // ================================ CheckBox ==================================

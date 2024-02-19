@@ -24,12 +24,61 @@ static gui::UINode* getDocumentNode(lua_State* L, const std::string& name, const
     return node.get();
 }
 
+static bool getattr(lua_State* L, gui::TrackBar* bar, const std::string& attr) {
+    if (bar == nullptr)
+        return false;
+    if (attr == "value") {
+        lua_pushnumber(L, bar->getValue()); return true;
+    } else if (attr == "min") {
+        lua_pushnumber(L, bar->getMin()); return true;
+    } else if (attr == "max") {
+        lua_pushnumber(L, bar->getMax()); 
+        return true;
+    } else if (attr == "step") {
+        lua_pushnumber(L, bar->getStep()); 
+        return true;
+    } else if (attr == "trackWidth") {
+        lua_pushnumber(L, bar->getTrackWidth()); 
+        return true;
+    } else if (attr == "trackColor") {
+        return lua::pushcolor_arr(L, bar->getTrackColor());
+    }
+    return false;
+}
+
+static bool setattr(lua_State* L, gui::TrackBar* bar, const std::string& attr) {
+    if (bar == nullptr)
+        return false;
+    if (attr == "value") {
+        bar->setValue(lua_tonumber(L, 4));
+        return true;
+    } else if (attr == "min") {
+        bar->setMin(lua_tonumber(L, 4));
+        return true;
+    } else if (attr == "max") {
+        bar->setMax(lua_tonumber(L, 4));
+        return true;
+    } else if (attr == "step") {
+        bar->setStep(lua_tonumber(L, 4));
+        return true;
+    } else if (attr == "trackWidth") {
+        bar->setTrackWidth(lua_tonumber(L, 4));
+        return true;
+    } else if (attr == "trackColor") {
+        bar->setTrackColor(lua::tocolor(L, 4));
+        return true;
+    }
+    return false;
+}
+
 static bool getattr(lua_State* L, gui::Button* button, const std::string& attr) {
     if (button == nullptr)
         return false;
     if (attr == "text") {
         lua_pushstring(L, util::wstr2str_utf8(button->getText()).c_str());
         return true;
+    } else if (attr == "pressedColor") {
+        return lua::pushcolor_arr(L, button->getPressedColor());
     }
     return false;
 }
@@ -50,6 +99,8 @@ static bool setattr(lua_State* L, gui::Button* button, const std::string& attr) 
     if (attr == "text") {
         button->setText(util::str2wstr_utf8(lua_tostring(L, 4)));
         return true;
+    } else if (attr == "pressedColor") {
+        button->setPressedColor(lua::tocolor(L, 4));
     }
     return false;
 }
@@ -76,11 +127,21 @@ int l_gui_getattr(lua_State* L) {
         return lua::pushvec2_arr(L, node->getCoord());
     } else if (attr == "size") {
         return lua::pushvec2_arr(L, node->getSize());
+    } else if (attr == "hoverColor") {
+        return lua::pushcolor_arr(L, node->getHoverColor());
+    } else if (attr == "interactive") {
+        lua_pushboolean(L, node->isInteractive());
+        return 1;
+    } else if (attr == "visible") {
+        lua_pushboolean(L, node->isVisible());
+        return 1;
     }
 
     if (getattr(L, dynamic_cast<gui::Button*>(node), attr))
         return 1;
     if (getattr(L, dynamic_cast<gui::Label*>(node), attr))
+        return 1;
+    if (getattr(L, dynamic_cast<gui::TrackBar*>(node), attr))
         return 1;
 
     return 0;
@@ -101,10 +162,20 @@ int l_gui_setattr(lua_State* L) {
         node->setCoord(lua::tovec2(L, 4));
     } else if (attr == "size") {
         node->setSize(lua::tovec2(L, 4));
+    } else if (attr == "color") {
+        node->setColor(lua::tocolor(L, 4));
+    } else if (attr == "hoverColor") {
+        node->setHoverColor(lua::tocolor(L, 4));
+    } else if (attr == "interactive") {
+        node->setInteractive(lua_toboolean(L, 4));
+    } else if (attr == "visible") {
+        node->setVisible(lua_toboolean(L, 4));
     } else {
         if (setattr(L, dynamic_cast<gui::Button*>(node), attr))
             return 0;
         if (setattr(L, dynamic_cast<gui::Label*>(node), attr))
+            return 0;
+        if (setattr(L, dynamic_cast<gui::TrackBar*>(node), attr))
             return 0;
     }
     return 0;

@@ -32,7 +32,13 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
         node.setSize(element->attr("size").asVec2());
     }
     if (element->has("color")) {
-        node.setColor(element->attr("color").asColor());
+        glm::vec4 color = element->attr("color").asColor();
+        glm::vec4 hoverColor = color;
+        if (element->has("hover-color")) {
+            hoverColor = node.getHoverColor();
+        }
+        node.setColor(color);
+        node.setHoverColor(hoverColor);
     }
     if (element->has("margin")) {
         node.setMargin(element->attr("margin").asVec4());
@@ -53,6 +59,9 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
             reader.getFilename()+".lua"
         );
         node.setPositionFunc(supplier);
+    }
+    if (element->has("hover-color")) {
+        node.setHoverColor(element->attr("hover-color").asColor());
     }
     std::string alignName = element->attr("align", "").getText();
     node.setAlign(align_from_string(alignName, node.getAlign()));
@@ -163,6 +172,9 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement e
     if (element->has("text-align")) {
         button->setTextAlign(align_from_string(element->attr("text-align").getText(), button->getTextAlign()));
     }
+    if (element->has("pressed-color")) {
+        button->setPressedColor(element->attr("pressed-color").asColor());
+    }
     return button;
 }
 
@@ -215,6 +227,9 @@ static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, xml::xmlelement
             reader.getFilename()+".lua"
         );
         bar->setSupplier(supplier);
+    }
+    if (element->has("track-color")) {
+        bar->setTrackColor(element->attr("track-color").asColor());
     }
     return bar;
 }
