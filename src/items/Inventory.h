@@ -13,7 +13,7 @@
 class ContentLUT;
 class ContentIndices;
 
-class Inventory : Serializable {
+class Inventory : public Serializable {
     int64_t id;
     std::vector<ItemStack> slots;
 public:

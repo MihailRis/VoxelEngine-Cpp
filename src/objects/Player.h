@@ -33,7 +33,7 @@ struct PlayerInput {
     bool flight;
 };
 
-class Player : Object, Serializable {
+class Player : public Object, public Serializable {
     float speed;
     int chosenSlot;
     glm::vec3 spawnpoint {};
