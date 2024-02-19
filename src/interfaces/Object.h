@@ -17,9 +17,9 @@ public:
     ~Object() { destroyed(); }
 
 public:
-    virtual void spawned() { }
+    virtual void spawned() {  }
     virtual void update(float delta) { }
-    virtual void destroyed() { }
+    virtual void destroyed() {  }
 };
 
 #endif /* OBJECT_H */
