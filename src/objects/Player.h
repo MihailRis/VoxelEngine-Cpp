@@ -8,7 +8,7 @@
 #include "../voxels/voxel.h"
 #include "../settings.h"
 #include "../interfaces/Serializable.h"
-#include "../objects/Object.h"
+#include "../interfaces/Object.h"
 
 class Camera;
 class Hitbox;

@@ -8,10 +8,9 @@ class Level;
 
 class Object {
 private:
-    Level* level;
 
 public:
-    int64_t objectUID;    
+    uint64_t objectUID;    
     bool shouldUpdate = true;
 
 public:
@@ -21,10 +20,6 @@ public:
     virtual void spawned() { }
     virtual void update(float delta) { }
     virtual void destroyed() { }
-
-public:
-    Level* getLevel() { return level; }
-    void setLevel(Level* lvl) { level = lvl; }
 };
 
 #endif /* OBJECT_H */

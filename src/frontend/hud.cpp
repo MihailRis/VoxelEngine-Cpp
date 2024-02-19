@@ -630,5 +630,5 @@ void Hud::setPause(bool pause) {
 }
 
 Player* Hud::getPlayer() const {
-    return frontend->getLevel()->player;
+    return frontend->getLevel()->player.get();
 }

@@ -61,9 +61,8 @@ void World::write(Level* level) {
     }
 
     wfile->write(this, content);
-    wfile->writePlayer(level->player);
+    wfile->writePlayer(level->player.get());
 }
-
 
 Level* World::create(std::string name, 
                      fs::path directory, 
@@ -71,10 +70,8 @@ Level* World::create(std::string name,
                      EngineSettings& settings, 
                      const Content* content,
                      const std::vector<ContentPack>& packs) {
-
     auto world = new World(name, directory, seed, settings, content, packs);
     auto level = new Level(world, content, settings);
-    level->inventories->store(level->player->getInventory());
     return level;
 }
 
@@ -91,9 +88,8 @@ Level* World::load(fs::path directory,
         throw world_load_error("could not to find world.json");
     }
 
-    Level* level = new Level(world.get(), content, settings);
-    wfile->readPlayer(level->player);
-    level->inventories->store(level->player->getInventory());
+    auto level = new Level(world.get(), content, settings);
+    wfile->readPlayer(level->player.get());
     world.release();
     return level;
 }

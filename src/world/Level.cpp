@@ -8,7 +8,7 @@
 #include "../voxels/ChunksStorage.h"
 #include "../physics/Hitbox.h"
 #include "../physics/PhysicsSolver.h"
-#include "../objects/Object.h"
+#include "../interfaces/Object.h"
 #include "../objects/Player.h"
 #include "../items/Inventory.h"
 #include "../items/Inventories.h"
@@ -25,11 +25,10 @@ Level::Level(World* world, const Content* content, EngineSettings& settings)
 		events(new LevelEvents()) ,
 		settings(settings) 
 {
+	objCounter = 0;
     physics = new PhysicsSolver(glm::vec3(0, -22.6f, 0));
-
-	auto inv = std::make_shared<Inventory>(0, DEF_PLAYER_INVENTORY_SIZE);
-	player = spawnObjectOfClass<Player>(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv);
-
+	auto inv = std::make_shared<Inventory>(world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE);
+	player = spawnObject<Player>(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv);
 
     uint matrixSize = (settings.chunks.loadDistance+
 					   settings.chunks.padding) * 2;
@@ -42,15 +41,20 @@ Level::Level(World* world, const Content* content, EngineSettings& settings)
 	});
 
 	inventories = std::make_unique<Inventories>(*this);
+	inventories->store(player->getInventory());
 }
 
 Level::~Level(){
 	delete chunks;
 	delete events;
 	delete physics;
-	delete player;
 	delete lighting;
 	delete chunksStorage;
+
+	for(auto obj : objects)
+	{
+		obj.reset();
+	}
 }
 
 void Level::update() {
@@ -68,18 +72,17 @@ World* Level::getWorld() {
     return world.get();
 }
 
-// Spawns object of class T and returns pointer to it.
-// @param T class that derives the Object class
-// @param args pass arguments needed for T class constructor
+
 template<class T, typename... Args>
-T* Level::spawnObjectOfClass(Args&&... args)
+std::shared_ptr<T> Level::spawnObject(Args&&... args)
 {
 	static_assert(std::is_base_of<Object, T>::value, "T must be a derived of Object class");
-	T* tObj = new T(args...);
-	Object* obj = reinterpret_cast<Object*>(tObj);
+	std::shared_ptr<T> tObj = std::make_shared<T>(args...);
+	
+	std::shared_ptr<Object> obj = std::dynamic_pointer_cast<Object, T>(tObj);
 	objects.push_back(obj);
-	obj->objectUID = std::rand();
-	obj->setLevel(this);
+	obj->objectUID = objCounter;
 	obj->spawned();
+	objCounter += 1;
 	return tObj;
 }

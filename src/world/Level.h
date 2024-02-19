@@ -6,6 +6,8 @@
 #include "../typedefs.h"
 #include "../settings.h"
 #include <list>
+#include <vector>
+#include <chrono>
 
 class Content;
 class World;
@@ -20,11 +22,13 @@ class PhysicsSolver;
 class ChunksStorage;
 
 class Level {
+private:
+	int objCounter;
 public:
 	std::unique_ptr<World> world;
 	const Content* const content;
-	std::list<Object*> objects;
-	Player* player;
+	std::list<std::shared_ptr<Object>> objects;
+	std::shared_ptr<Player> player;
 	Chunks* chunks;
 	ChunksStorage* chunksStorage;
 	std::unique_ptr<Inventories> inventories;
@@ -45,7 +49,7 @@ public:
     World* getWorld();
 
 	template<class T, typename... Args>
-	T* spawnObjectOfClass(Args&&... args);
+	std::shared_ptr<T> spawnObject(Args&&... args);
 };
 
 #endif /* WORLD_LEVEL_H_ */
