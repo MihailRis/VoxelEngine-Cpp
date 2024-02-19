@@ -40,6 +40,10 @@ public:
 
     static void convert(dynamic::Map* data, const ContentLUT* lut);
 
+    inline void setId(int64_t id) {
+        this->id = id;
+    }
+
     inline int64_t getId() const {
         return id;
     }

@@ -101,3 +101,14 @@ int l_inventory_unbind_block(lua_State* L) {
     scripting::blocks->unbindInventory(x, y, z);
     return 0;
 }
+
+int l_inventory_clone(lua_State* L) {
+    lua::luaint id = lua_tointeger(L, 1);
+    auto clone = scripting::level->inventories->clone(id);
+    if (clone == nullptr) {
+        lua_pushinteger(L, 0);
+        return 1;
+    }
+    lua_pushinteger(L, clone->getId());
+    return 1;
+}

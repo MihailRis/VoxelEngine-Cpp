@@ -10,6 +10,7 @@ extern int l_inventory_add(lua_State* L);
 extern int l_inventory_get_block(lua_State* L);
 extern int l_inventory_bind_block(lua_State* L);
 extern int l_inventory_unbind_block(lua_State* L);
+extern int l_inventory_clone(lua_State* L);
 
 static const luaL_Reg inventorylib [] = {
     {"get", lua_wrap_errors<l_inventory_get>},
@@ -19,6 +20,7 @@ static const luaL_Reg inventorylib [] = {
     {"get_block", lua_wrap_errors<l_inventory_get_block>},
     {"bind_block", lua_wrap_errors<l_inventory_bind_block>},
     {"unbind_block", lua_wrap_errors<l_inventory_unbind_block>},
+    {"clone", lua_wrap_errors<l_inventory_clone>},
     {NULL, NULL}
 };
 

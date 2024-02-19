@@ -44,6 +44,16 @@ std::shared_ptr<Inventory> Inventories::get(int64_t id) {
     return found->second;
 }
 
+std::shared_ptr<Inventory> Inventories::clone(int64_t id) {
+    auto original = get(id);
+    if (original == nullptr)
+        return nullptr;
+    auto origptr = reinterpret_cast<const Inventory*>(original.get());
+    auto clone = std::make_shared<Inventory>(*origptr);
+    clone->setId(level.getWorld()->getNextInventoryId());
+    return clone;
+}
+
 const inventories_map& Inventories::getMap() const {
     return map;
 }

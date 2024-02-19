@@ -36,6 +36,8 @@ public:
     /* Get inventory by id (works with both real and virtual)*/
     std::shared_ptr<Inventory> get(int64_t id);
 
+    std::shared_ptr<Inventory> clone(int64_t id);
+
     const inventories_map& getMap() const;
 };
 
