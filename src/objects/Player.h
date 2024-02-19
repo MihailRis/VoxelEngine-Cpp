@@ -70,6 +70,10 @@ public:
     void deserialize(dynamic::Map *src) override;
 
     static void convert(dynamic::Map* data, const ContentLUT* lut);
+
+    inline int getId() const {
+        return 1;
+    }
 };
 
 #endif /* SRC_OBJECTS_PLAYER_H_ */

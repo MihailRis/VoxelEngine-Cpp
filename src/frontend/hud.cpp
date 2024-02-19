@@ -628,3 +628,7 @@ void Hud::setPause(bool pause) {
     darkOverlay->setVisible(pause);
     menu->setVisible(pause);
 }
+
+Player* Hud::getPlayer() const {
+    return frontend->getLevel()->player;
+}

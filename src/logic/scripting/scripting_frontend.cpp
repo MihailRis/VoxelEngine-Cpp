@@ -4,6 +4,8 @@
 #include "lua/libhud.h"
 #include "lua/LuaState.h"
 
+#include "../../frontend/hud.h"
+#include "../../objects/Player.h"
 #include "../../files/files.h"
 #include "../../engine.h"
 
@@ -21,7 +23,8 @@ void scripting::on_frontend_init(Hud* hud) {
 
     for (auto& pack : scripting::engine->getContentPacks()) {
         if (state->getglobal(pack.id+".hudopen")) {
-            state->callNoThrow(0);
+            state->pushinteger(hud->getPlayer()->getId());
+            state->callNoThrow(1);
         }
     }
 }
@@ -30,7 +33,8 @@ void scripting::on_frontend_close() {
     scripting::hud = nullptr;
     for (auto& pack : scripting::engine->getContentPacks()) {
         if (state->getglobal(pack.id+".hudclose")) {
-            state->callNoThrow(0);
+            state->pushinteger(hud->getPlayer()->getId());
+            state->callNoThrow(1);
         }
     }
 }
