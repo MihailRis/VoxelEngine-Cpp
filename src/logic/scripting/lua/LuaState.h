@@ -31,6 +31,7 @@ namespace lua {
         int pushivec3(luaint x, luaint y, luaint z);
         int pushinteger(luaint x);
         int pushnumber(luanumber x);
+        int pushboolean(bool x);
         int pushstring(const std::string& str);
         int pushenv(int env);
         int pushvalue(int idx);
@@ -42,6 +43,7 @@ namespace lua {
         bool toboolean(int idx);
         luaint tointeger(int idx);
         luanumber tonumber(int idx);
+        const char* tostring(int idx);
         int call(int argc);
         int callNoThrow(int argc);
         int execute(int env, const std::string& src, const std::string& file="<string>");

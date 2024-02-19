@@ -178,6 +178,32 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement e
     return button;
 }
 
+static std::shared_ptr<UINode> readCheckBox(UiXmlReader& reader, xml::xmlelement element) {
+    auto text = readAndProcessInnerText(element);
+    bool checked = element->attr("checked", "false").asBool();
+    auto checkbox = std::make_shared<FullCheckBox>(text, glm::vec2(), checked);
+    _readPanel(reader, element, *checkbox);
+
+    if (element->has("consumer")) {
+        auto consumer = scripting::create_bool_consumer(
+            reader.getEnvironment().getId(),
+            element->attr("consumer").getText(),
+            reader.getFilename()+".lua"
+        );
+        checkbox->setConsumer(consumer);
+    }
+
+    if (element->has("supplier")) {
+        auto supplier = scripting::create_bool_supplier(
+            reader.getEnvironment().getId(),
+            element->attr("supplier").getText(),
+            reader.getFilename()+".lua"
+        );
+        checkbox->setSupplier(supplier);
+    }
+    return checkbox;
+}
+
 static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement element) {
     auto placeholder = util::str2wstr_utf8(element->attr("placeholder", "").getText());
     auto text = readAndProcessInnerText(element);
@@ -192,6 +218,15 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
             reader.getFilename()+".lua"
         );
         textbox->setTextConsumer(consumer);
+    }
+
+    if (element->has("supplier")) {
+        auto supplier = scripting::create_wstring_supplier(
+            reader.getEnvironment().getId(),
+            element->attr("consumer").getText(),
+            reader.getFilename()+".lua"
+        );
+        textbox->setTextSupplier(supplier);
     }
     return textbox;
 }
@@ -242,6 +277,7 @@ UiXmlReader::UiXmlReader(const scripting::Environment& env, AssetsLoader& assets
     add("panel", readPanel);
     add("button", readButton);
     add("textbox", readTextBox);
+    add("chackbox", readCheckBox);
     add("trackbar", readTrackBar);
     add("container", readContainer);
 }

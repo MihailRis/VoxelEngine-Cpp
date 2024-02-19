@@ -4,6 +4,7 @@
 #include "lua_util.h"
 #include "api_lua.h"
 #include "libgui.h"
+#include "libplayer.h"
 #include "libinventory.h"
 #include "../../../util/stringutil.h"
 
@@ -172,6 +173,11 @@ int lua::LuaState::pushnumber(luanumber x) {
     return 1;
 }
 
+int lua::LuaState::pushboolean(bool x) {
+    lua_pushboolean(L, x);
+    return 1;
+}
+
 int lua::LuaState::pushivec3(luaint x, luaint y, luaint z) {
     lua::pushivec3(L, x, y, z);
     return 3;
@@ -231,6 +237,10 @@ lua::luaint lua::LuaState::tointeger(int idx) {
 
 lua::luanumber lua::LuaState::tonumber(int idx) {
     return lua_tonumber(L, idx);
+}
+
+const char* lua::LuaState::tostring(int idx) {
+    return lua_tostring(L, idx);
 }
 
 void lua::LuaState::openlib(const std::string& name, const luaL_Reg* libfuncs, int nup) {

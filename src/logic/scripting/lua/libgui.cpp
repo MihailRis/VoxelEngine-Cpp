@@ -93,6 +93,16 @@ static bool getattr(lua_State* L, gui::Label* label, const std::string& attr) {
     return false;
 }
 
+static bool getattr(lua_State* L, gui::FullCheckBox* box, const std::string& attr) {
+    if (box == nullptr)
+        return false;
+    if (attr == "checked") {
+        lua_pushboolean(L, box->isChecked());
+        return true;
+    }
+    return false;
+}
+
 static bool setattr(lua_State* L, gui::Button* button, const std::string& attr) {
     if (button == nullptr)
         return false;
@@ -101,6 +111,16 @@ static bool setattr(lua_State* L, gui::Button* button, const std::string& attr) 
         return true;
     } else if (attr == "pressedColor") {
         button->setPressedColor(lua::tocolor(L, 4));
+    }
+    return false;
+}
+
+static bool setattr(lua_State* L, gui::FullCheckBox* box, const std::string& attr) {
+    if (box == nullptr)
+        return false;
+    if (attr == "checked") {
+        box->setChecked(lua_toboolean(L, 4));
+        return true;
     }
     return false;
 }
@@ -143,6 +163,8 @@ int l_gui_getattr(lua_State* L) {
         return 1;
     if (getattr(L, dynamic_cast<gui::TrackBar*>(node), attr))
         return 1;
+    if (getattr(L, dynamic_cast<gui::FullCheckBox*>(node), attr))
+        return 1;
 
     return 0;
 }
@@ -176,6 +198,8 @@ int l_gui_setattr(lua_State* L) {
         if (setattr(L, dynamic_cast<gui::Label*>(node), attr))
             return 0;
         if (setattr(L, dynamic_cast<gui::TrackBar*>(node), attr))
+            return 0;
+        if (setattr(L, dynamic_cast<gui::FullCheckBox*>(node), attr))
             return 0;
     }
     return 0;

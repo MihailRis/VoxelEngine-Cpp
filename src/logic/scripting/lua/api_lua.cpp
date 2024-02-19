@@ -142,61 +142,6 @@ int l_world_get_seed(lua_State* L) {
     return 1;
 }
 
-/* == player library ==*/
-int l_player_get_pos(lua_State* L) {
-    int playerid = lua_tointeger(L, 1);
-    if (playerid != 1)
-        return 0;
-    glm::vec3 pos = scripting::level->player->hitbox->position;
-    lua_pushnumber(L, pos.x);
-    lua_pushnumber(L, pos.y);
-    lua_pushnumber(L, pos.z);
-    return 3;
-}
-
-int l_player_get_rot(lua_State* L) {
-    int playerid = lua_tointeger(L, 1);
-    if (playerid != 1)
-        return 0;
-    glm::vec2 rot = scripting::level->player->cam;
-    lua_pushnumber(L, rot.x);
-    lua_pushnumber(L, rot.y);
-    return 2;
-}
-
-int l_player_set_rot(lua_State* L) {
-    int playerid = lua_tointeger(L, 1);
-    if (playerid != 1)
-        return 0;
-    lua::luanumber x = lua_tonumber(L, 2);
-    lua::luanumber y = lua_tonumber(L, 3);
-    glm::vec2& cam = scripting::level->player->cam;
-    cam.x = x;
-    cam.y = y;
-    return 0;
-}
-
-int l_player_set_pos(lua_State* L) {
-    int playerid = lua_tointeger(L, 1);
-    if (playerid != 1)
-        return 0;
-    lua::luanumber x = lua_tonumber(L, 2);
-    lua::luanumber y = lua_tonumber(L, 3);
-    lua::luanumber z = lua_tonumber(L, 4);
-    scripting::level->player->hitbox->position = glm::vec3(x, y, z);
-    return 0;
-}
-
-int l_player_get_inv(lua_State* L) {
-    int playerid = lua_tointeger(L, 1);
-    if (playerid != 1)
-        return 0;
-    Player* player = scripting::level->player;
-    lua_pushinteger(L, player->getInventory()->getId());
-    lua_pushinteger(L, player->getChosenSlot());
-    return 2;
-}
-
 /* == item library == */
 int l_item_name(lua_State* L) {
     auto indices = scripting::content->getIndices();
