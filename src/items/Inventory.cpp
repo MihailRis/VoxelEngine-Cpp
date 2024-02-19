@@ -5,6 +5,10 @@
 Inventory::Inventory(int64_t id, size_t size) : id(id), slots(size) {
 }
 
+Inventory::Inventory(const Inventory& orig) {
+    this->slots = orig.slots;
+}
+
 ItemStack& Inventory::getSlot(size_t index) {
     return slots.at(index);
 }

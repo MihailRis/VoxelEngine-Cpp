@@ -17,7 +17,11 @@ runnable scripting::create_runnable(
     const std::string& file
 ) {
     return [=](){
-        state->execute(env, src, file);
+        try {
+            state->execute(env, src, file);
+        } catch (const lua::luaerror& err) {
+            std::cerr << err.what() << std::endl;
+        }
     };
 }
 

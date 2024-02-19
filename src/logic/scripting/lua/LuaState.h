@@ -25,7 +25,7 @@ namespace lua {
         LuaState();
         ~LuaState();
 
-        const std::string envName(int env) const;
+        static const std::string envName(int env);
         void loadbuffer(int env, const std::string& src, const std::string& file);
         int gettop() const;
         int pushivec3(luaint x, luaint y, luaint z);

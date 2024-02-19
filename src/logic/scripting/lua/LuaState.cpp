@@ -33,7 +33,7 @@ lua::LuaState::LuaState() {
     setglobal(envName(0));
 }
 
-const std::string lua::LuaState::envName(int env) const {
+const std::string lua::LuaState::envName(int env) {
     return "_ENV"+util::mangleid(env);
 }
 

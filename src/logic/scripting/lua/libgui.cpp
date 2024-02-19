@@ -3,6 +3,7 @@
 #include <iostream>
 #include "../scripting.h"
 #include "lua_util.h"
+#include "LuaState.h"
 
 #include "../../../engine.h"
 #include "../../../assets/Assets.h"
@@ -97,9 +98,9 @@ int l_gui_setattr(lua_State* L) {
 
     auto node = getDocumentNode(L, docname, element);
     if (attr == "pos") {
-        node->setCoord(lua::tovec2(L, 1));
+        node->setCoord(lua::tovec2(L, 4));
     } else if (attr == "size") {
-        node->setSize(lua::tovec2(L, 1));
+        node->setSize(lua::tovec2(L, 4));
     } else {
         if (setattr(L, dynamic_cast<gui::Button*>(node), attr))
             return 0;
@@ -107,4 +108,14 @@ int l_gui_setattr(lua_State* L) {
             return 0;
     }
     return 0;
+}
+
+int l_gui_get_env(lua_State* L) {
+    auto name = lua_tostring(L, 1);
+    auto doc = scripting::engine->getAssets()->getLayout(name);
+    if (doc == nullptr) {
+        luaL_error(L, "document '%s' not found", name);
+    }
+    lua_getglobal(L, lua::LuaState::envName(doc->getEnvironment()).c_str());
+    return 1;
 }
