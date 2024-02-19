@@ -17,7 +17,6 @@
 #include "../../../voxels/voxel.h"
 #include "../../../voxels/Chunk.h"
 #include "../../../items/ItemDef.h"
-#include "../../../items/ItemStack.h"
 #include "../../../items/Inventory.h"
 #include "../../../items/Inventories.h"
 #include "../../../lighting/Lighting.h"
@@ -196,83 +195,6 @@ int l_player_get_inv(lua_State* L) {
     lua_pushinteger(L, player->getInventory()->getId());
     lua_pushinteger(L, player->getChosenSlot());
     return 2;
-}
-
-static void validate_itemid(lua_State* L, itemid_t id) {
-    if (id >= scripting::indices->countItemDefs()) {
-        luaL_error(L, "invalid item id");
-    }
-}
-
-/* == inventory library == */
-int l_inventory_get(lua_State* L) {
-    lua::luaint invid = lua_tointeger(L, 1);
-    lua::luaint slotid = lua_tointeger(L, 2);
-    auto inv = scripting::level->inventories->get(invid);
-    if (inv == nullptr) {
-        luaL_error(L, "inventory does not exists in runtime: %d", invid);
-    }
-    if (slotid < 0 || uint64_t(slotid) >= inv->size()) {
-        luaL_error(L, "slot index is out of range [0, inventory.size(invid)]");
-    }
-    ItemStack& item = inv->getSlot(slotid);
-    lua_pushinteger(L, item.getItemId());
-    lua_pushinteger(L, item.getCount());
-    return 2;
-}
-
-int l_inventory_set(lua_State* L) {
-    lua::luaint invid = lua_tointeger(L, 1);
-    lua::luaint slotid = lua_tointeger(L, 2);
-    lua::luaint itemid = lua_tointeger(L, 3);
-    lua::luaint count = lua_tointeger(L, 4);
-    validate_itemid(L, itemid);
-
-    auto inv = scripting::level->inventories->get(invid);
-    if (inv == nullptr) {
-        luaL_error(L, "inventory does not exists in runtime: %d", invid);
-    }
-    if (slotid < 0 || uint64_t(slotid) >= inv->size()) {
-        luaL_error(L, "slot index is out of range [0, inventory.size(invid)]");
-    }
-    ItemStack& item = inv->getSlot(slotid);
-    item.set(ItemStack(itemid, count));
-    return 0;
-}
-
-int l_inventory_size(lua_State* L) {
-    lua::luaint invid = lua_tointeger(L, 1);
-    auto inv = scripting::level->inventories->get(invid);
-    if (inv == nullptr) {
-        luaL_error(L, "inventory does not exists in runtime: %d", invid);
-    }
-    lua_pushinteger(L, inv->size());
-    return 1;
-}
-
-int l_inventory_add(lua_State* L) {
-    lua::luaint invid = lua_tointeger(L, 1);
-    lua::luaint itemid = lua_tointeger(L, 2);
-    lua::luaint count = lua_tointeger(L, 3);
-    validate_itemid(L, itemid);
-
-    auto inv = scripting::level->inventories->get(invid);
-    if (inv == nullptr) {
-        luaL_error(L, "inventory does not exists in runtime: %d", invid);
-    }
-    ItemStack item(itemid, count);
-    inv->move(item, scripting::indices);
-    lua_pushinteger(L, item.getCount());
-    return 1;
-}
-
-int l_inventory_get_block(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
-    int64_t id = scripting::blocks->createBlockInventory(x, y, z);
-    lua_pushinteger(L, id);
-    return 1;
 }
 
 /* == item library == */

@@ -1,7 +1,7 @@
 #ifndef LOGIC_SCRIPTING_LUA_STATE_H_
 #define LOGIC_SCRIPTING_LUA_STATE_H_
 
-#include <lua.hpp>
+#include "lua_commons.h"
 #include <string>
 #include <stdexcept>
 
@@ -10,9 +10,6 @@
 #endif
 
 namespace lua {
-    using luaint = lua_Integer;
-    using luanumber = lua_Number;
-
     class luaerror : public std::runtime_error {
     public:
         luaerror(const std::string& message);

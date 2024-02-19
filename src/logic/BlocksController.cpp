@@ -169,3 +169,26 @@ int64_t BlocksController::createBlockInventory(int x, int y, int z) {
 	}
     return inv->getId();
 }
+
+void BlocksController::bindInventory(int64_t invid, int x, int y, int z) {
+    auto chunk = chunks->getChunkByVoxel(x, y, z);
+	if (chunk == nullptr) {
+		throw std::runtime_error("block does not exists");
+	}
+    if (invid <= 0) {
+        throw std::runtime_error("unable to bind virtual inventory");
+    }
+	int lx = x - chunk->x * CHUNK_W;
+	int lz = z - chunk->z * CHUNK_D;
+    chunk->addBlockInventory(level->inventories->get(invid), lx, y, lz);
+}
+
+void BlocksController::unbindInventory(int x, int y, int z) {
+    auto chunk = chunks->getChunkByVoxel(x, y, z);
+	if (chunk == nullptr) {
+		throw std::runtime_error("block does not exists");
+	}
+    int lx = x - chunk->x * CHUNK_W;
+	int lz = z - chunk->z * CHUNK_D;
+    chunk->removeBlockInventory(lx, y, lz);
+}

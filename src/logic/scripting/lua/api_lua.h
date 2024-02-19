@@ -2,24 +2,7 @@
 #define LOGIC_SCRIPTING_API_LUA_H_
 
 #include <exception>
-#include <lua.hpp>
-
-template <lua_CFunction func> int lua_wrap_errors(lua_State *L) {
-  int result = 0;
-  try {
-    result = func(L);
-  }
-  // transform exception with description into lua_error
-  catch (std::exception &e) {
-    luaL_error(L, e.what());
-  }
-  // Rethrow any other exception (lua error for example)
-  catch (...) {
-    throw;
-  }
-
-  return result;
-}
+#include "lua_commons.h"
 
 /* == file library == */
 extern int l_file_resolve(lua_State* L);
@@ -88,22 +71,6 @@ static const luaL_Reg playerlib [] = {
     {"get_rot", lua_wrap_errors<l_player_get_rot>},
     {"set_rot", lua_wrap_errors<l_player_set_rot>},
     {"get_inventory", lua_wrap_errors<l_player_get_inv>},
-    {NULL, NULL}
-};
-
-/* == inventory library == */
-extern int l_inventory_get(lua_State* L);
-extern int l_inventory_set(lua_State* L);
-extern int l_inventory_size(lua_State* L);
-extern int l_inventory_add(lua_State* L);
-extern int l_inventory_get_block(lua_State* L);
-
-static const luaL_Reg inventorylib [] = {
-    {"get", lua_wrap_errors<l_inventory_get>},
-    {"set", lua_wrap_errors<l_inventory_set>},
-    {"size", lua_wrap_errors<l_inventory_size>},
-    {"add", lua_wrap_errors<l_inventory_add>},
-    {"get_block", lua_wrap_errors<l_inventory_get_block>},
     {NULL, NULL}
 };
 

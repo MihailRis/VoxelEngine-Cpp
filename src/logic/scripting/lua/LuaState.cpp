@@ -4,6 +4,7 @@
 #include "lua_util.h"
 #include "api_lua.h"
 #include "libgui.h"
+#include "libinventory.h"
 #include "../../../util/stringutil.h"
 
 lua::luaerror::luaerror(const std::string& message) : std::runtime_error(message) {
