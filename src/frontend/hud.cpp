@@ -485,9 +485,17 @@ void Hud::add(HudElement element) {
     if (document) {
         if (invview) {
             auto inventory = invview->getInventory();
-            scripting::on_ui_open(element.getDocument(), inventory.get());
+            scripting::on_ui_open(
+                element.getDocument(), 
+                inventory.get(), 
+                currentblock
+            );
         } else {
-            scripting::on_ui_open(element.getDocument(), nullptr);
+            scripting::on_ui_open(
+                element.getDocument(), 
+                nullptr, 
+                currentblock
+            );
         }
     }
     elements.push_back(element);

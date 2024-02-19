@@ -1,5 +1,6 @@
 #include <string>
 #include <filesystem>
+#include <glm/glm.hpp>
 
 #include "../../delegates.h"
 
@@ -65,7 +66,7 @@ namespace scripting {
     bool on_item_break_block(Player* player, const ItemDef* item, int x, int y, int z);
 
     /** Called on UI view show */
-    void on_ui_open(UiDocument* layout, Inventory* inventory);
+    void on_ui_open(UiDocument* layout, Inventory* inventory, glm::ivec3 blockcoord);
     /** Called on UI view close*/
     void on_ui_close(UiDocument* layout, Inventory* inventory);
 

@@ -207,11 +207,12 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
     return false;
 }
 
-void scripting::on_ui_open(UiDocument* layout, Inventory* inventory) {
+void scripting::on_ui_open(UiDocument* layout, Inventory* inventory, glm::ivec3 blockcoord) {
     std::string name = layout->getId()+".open";
     if (state->getglobal(name)) {
         state->pushinteger(inventory == nullptr ? 0 : inventory->getId());
-        state->callNoThrow(1);
+        state->pushivec3(blockcoord.x, blockcoord.y, blockcoord.z);
+        state->callNoThrow(4);
     }
 }
 
