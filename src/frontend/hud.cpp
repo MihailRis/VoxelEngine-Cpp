@@ -29,6 +29,7 @@
 #include "../window/input.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/Block.h"
+#include "../voxels/Chunk.h"
 #include "../world/World.h"
 #include "../world/Level.h"
 #include "../objects/Player.h"
@@ -450,6 +451,7 @@ void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inven
         abort();
         blockinv = level->inventories->createVirtual(blockUI->getSlotsCount());
     }
+    level->chunks->getChunkByVoxel(block.x, block.y, block.z)->setUnsaved(true);
     blockUI->bind(blockinv, frontend, interaction.get());
     currentblock = block;
     currentblockid = level->chunks->get(block.x, block.y, block.z)->id;
