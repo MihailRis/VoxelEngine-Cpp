@@ -53,13 +53,6 @@ int l_hud_open_block(lua_State* L) {
     }
 
     auto id = scripting::blocks->createBlockInventory(x, y, z);
-    if (id == 0) {
-        luaL_error(L, 
-            "block '%s' at %d %d %d has no inventory",
-            def->name.c_str(),
-            x, y, z
-        );
-    }
 
     scripting::hud->openInventory(
         glm::ivec3(x, y, z), layout, scripting::level->inventories->get(id)
