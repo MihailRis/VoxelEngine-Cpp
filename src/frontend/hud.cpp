@@ -374,10 +374,15 @@ void Hud::update(bool visible) {
         }
     }
 
+    for (auto& element : elements) {
+        element.getNode()->setVisible(visible);
+    }
+
     glm::vec2 invSize = contentAccessPanel->getSize();
     contentAccessPanel->setVisible(inventoryOpen);
     contentAccessPanel->setSize(glm::vec2(invSize.x, Window::height));
     contentAccess->setMinSize(glm::vec2(1, Window::height));
+    hotbarView->setVisible(visible);
 
     for (int i = keycode::NUM_1; i <= keycode::NUM_9; i++) {
         if (Events::jpressed(i)) {
@@ -396,10 +401,12 @@ void Hud::update(bool visible) {
         player->setChosenSlot(slot);
     }
 
-    for (auto& element : elements) {
-        element.update(pause, inventoryOpen, player->debug);
-        if (element.isRemoved()) {
-            remove(element);
+    if (visible) {
+        for (auto& element : elements) {
+            element.update(pause, inventoryOpen, player->debug);
+            if (element.isRemoved()) {
+                remove(element);
+            }
         }
     }
     cleanup();
