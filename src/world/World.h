@@ -26,7 +26,7 @@ public:
     world_load_error(std::string message);
 };
 
-class World : Serializable {
+class World : public Serializable {
     std::string name;
     std::string type;
     uint64_t seed;

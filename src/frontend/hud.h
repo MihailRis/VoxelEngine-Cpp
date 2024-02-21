@@ -118,7 +118,7 @@ public:
 	void remove(HudElement& element);
     void remove(std::shared_ptr<gui::UINode> node);
 
-    Player* getPlayer() const;
+    std::shared_ptr<Player> getPlayer() const;
 };
 
 #endif /* SRC_HUD_H_ */

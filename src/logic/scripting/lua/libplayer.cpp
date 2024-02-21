@@ -57,7 +57,7 @@ int l_player_get_inv(lua_State* L) {
     int playerid = lua_tointeger(L, 1);
     if (playerid != 1)
         return 0;
-    Player* player = scripting::level->player;
+    auto player = scripting::level->player;
     lua_pushinteger(L, player->getInventory()->getId());
     lua_pushinteger(L, player->getChosenSlot());
     return 2;

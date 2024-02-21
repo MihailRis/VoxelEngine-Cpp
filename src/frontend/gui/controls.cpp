@@ -361,8 +361,16 @@ std::wstring TextBox::getText() const {
     return input;
 }
 
-void TextBox::setText(std::wstring value) {
+void TextBox::setText(const std::wstring value) {
     this->input = value;
+}
+
+std::wstring TextBox::getPlaceholder() const {
+    return placeholder;
+}
+
+void TextBox::setPlaceholder(const std::wstring& placeholder) {
+    this->placeholder = placeholder;
 }
 
 // ============================== InputBindBox ================================
