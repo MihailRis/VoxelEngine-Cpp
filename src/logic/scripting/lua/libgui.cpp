@@ -103,6 +103,29 @@ static bool getattr(lua_State* L, gui::FullCheckBox* box, const std::string& att
     return false;
 }
 
+static bool getattr(lua_State* L, gui::TextBox* box, const std::string& attr) {
+    if (box == nullptr)
+        return false;
+    if (attr == "text") {
+        lua_pushstring(L, util::wstr2str_utf8(box->getText()).c_str());
+        return true;
+    } else if (attr == "placeholder") {
+        lua_pushstring(L, util::wstr2str_utf8(box->getPlaceholder()).c_str());
+        return true;
+    }
+    return false;
+}
+
+static bool setattr(lua_State* L, gui::FullCheckBox* box, const std::string& attr) {
+    if (box == nullptr)
+        return false;
+    if (attr == "checked") {
+        box->setChecked(lua_toboolean(L, 4));
+        return true;
+    }
+    return false;
+}
+
 static bool setattr(lua_State* L, gui::Button* button, const std::string& attr) {
     if (button == nullptr)
         return false;
@@ -115,11 +138,14 @@ static bool setattr(lua_State* L, gui::Button* button, const std::string& attr) 
     return false;
 }
 
-static bool setattr(lua_State* L, gui::FullCheckBox* box, const std::string& attr) {
+static bool setattr(lua_State* L, gui::TextBox* box, const std::string& attr) {
     if (box == nullptr)
         return false;
-    if (attr == "checked") {
-        box->setChecked(lua_toboolean(L, 4));
+    if (attr == "text") {
+        box->setText(util::str2wstr_utf8(lua_tostring(L, 4)));
+        return true;
+    } else if (attr == "placeholder") {
+        box->setPlaceholder(util::str2wstr_utf8(lua_tostring(L, 4)));
         return true;
     }
     return false;
@@ -161,6 +187,8 @@ int l_gui_getattr(lua_State* L) {
         return 1;
     if (getattr(L, dynamic_cast<gui::Label*>(node), attr))
         return 1;
+    if (getattr(L, dynamic_cast<gui::TextBox*>(node), attr))
+        return 1;
     if (getattr(L, dynamic_cast<gui::TrackBar*>(node), attr))
         return 1;
     if (getattr(L, dynamic_cast<gui::FullCheckBox*>(node), attr))
@@ -196,6 +224,8 @@ int l_gui_setattr(lua_State* L) {
         if (setattr(L, dynamic_cast<gui::Button*>(node), attr))
             return 0;
         if (setattr(L, dynamic_cast<gui::Label*>(node), attr))
+            return 0;
+        if (setattr(L, dynamic_cast<gui::TextBox*>(node), attr))
             return 0;
         if (setattr(L, dynamic_cast<gui::TrackBar*>(node), attr))
             return 0;
