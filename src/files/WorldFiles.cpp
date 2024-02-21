@@ -559,11 +559,11 @@ bool WorldFiles::readWorldInfo(World* world) {
 	return true;
 }
 
-void WorldFiles::writePlayer(Player* player) {
+void WorldFiles::writePlayer(std::shared_ptr<Player> player) {
 	files::write_json(getPlayerFile(), player->serialize().release());
 }
 
-bool WorldFiles::readPlayer(Player* player) {
+bool WorldFiles::readPlayer(std::shared_ptr<Player> player) {
 	fs::path file = getPlayerFile();
 	if (!fs::is_regular_file(file)) {
 		std::cerr << "warning: player.json does not exists" << std::endl;

@@ -61,7 +61,7 @@ void World::write(Level* level) {
     }
 
     wfile->write(this, content);
-    wfile->writePlayer(level->player.get());
+    wfile->writePlayer(level->player);
 }
 
 Level* World::create(std::string name, 
@@ -89,7 +89,7 @@ Level* World::load(fs::path directory,
     }
 
     auto level = new Level(world.get(), content, settings);
-    wfile->readPlayer(level->player.get());
+    wfile->readPlayer(level->player);
     world.release();
     return level;
 }
