@@ -27,7 +27,7 @@ Level::Level(World* world, const Content* content, EngineSettings& settings)
 {
 	objCounter = 0;
     physics = new PhysicsSolver(glm::vec3(0, -22.6f, 0));
-	auto inv = std::make_shared<Inventory>(world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE);
+	auto inv = std::make_shared<Inventory>(0, DEF_PLAYER_INVENTORY_SIZE);
 	player = spawnObject<Player>(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv);
 
     uint matrixSize = (settings.chunks.loadDistance+
