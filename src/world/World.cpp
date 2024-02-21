@@ -64,10 +64,6 @@ void World::write(Level* level) {
     wfile->writePlayer(level->player);
 }
 
-const float DEF_PLAYER_Y = 100.0f;
-const float DEF_PLAYER_SPEED = 4.0f;
-const int DEF_PLAYER_INVENTORY_SIZE = 40;
-
 Level* World::create(std::string name, 
                      fs::path directory, 
                      uint64_t seed,
@@ -75,12 +71,7 @@ Level* World::create(std::string name,
                      const Content* content,
                      const std::vector<ContentPack>& packs) {
     auto world = new World(name, directory, seed, settings, content, packs);
-    auto inv = std::make_shared<Inventory>(world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE);
-    auto player = new Player(
-        glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv
-    );
-    auto level = new Level(world, content, player, settings);
-    level->inventories->store(player->getInventory());
+    auto level = new Level(world, content, settings);
     return level;
 }
 
@@ -97,13 +88,8 @@ Level* World::load(fs::path directory,
         throw world_load_error("could not to find world.json");
     }
 
-    auto inv = std::make_shared<Inventory>(0, DEF_PLAYER_INVENTORY_SIZE);
-    auto player = new Player(
-        glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv
-    );
-    auto level = new Level(world.get(), content, player, settings);
-    wfile->readPlayer(player);
-    level->inventories->store(player->getInventory());
+    auto level = new Level(world.get(), content, settings);
+    wfile->readPlayer(level->player);
     world.release();
     return level;
 }

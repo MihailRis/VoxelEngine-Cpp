@@ -645,6 +645,6 @@ void Hud::setPause(bool pause) {
     menu->setVisible(pause);
 }
 
-Player* Hud::getPlayer() const {
+std::shared_ptr<Player> Hud::getPlayer() const {
     return frontend->getLevel()->player;
 }

@@ -31,7 +31,7 @@ const float C_ZOOM = 0.1f;
 const float CROUCH_SHIFT_Y = -0.2f;
 
 
-CameraControl::CameraControl(Player* player, const CameraSettings& settings) 
+CameraControl::CameraControl(std::shared_ptr<Player> player, const CameraSettings& settings) 
 	: player(player), 
 	  camera(player->camera), 
 	  currentViewCamera(player->currentCamera),
@@ -202,13 +202,13 @@ void PlayerController::resetKeyboard() {
 }
 
 void PlayerController::updateControls(float delta){
-	player->update(level, input, delta);
+	player->updateInput(level, input, delta);
 }
 
 void PlayerController::updateInteraction(){
 	auto indices = level->content->getIndices();
 	Chunks* chunks = level->chunks;
-	Player* player = level->player;
+	Player* player = level->player.get();
 	Lighting* lighting = level->lighting;
 	Camera* camera = player->camera.get();
 	glm::vec3 end;

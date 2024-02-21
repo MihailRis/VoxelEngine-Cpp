@@ -12,7 +12,7 @@ class Level;
 class BlocksController;
 
 class CameraControl {
-	Player* player;
+	std::shared_ptr<Player> player;
 	std::shared_ptr<Camera> camera, currentViewCamera;
 	const CameraSettings& settings;
 	glm::vec3 offset;
@@ -20,7 +20,7 @@ class CameraControl {
 	float shakeTimer = 0.0f;
 	glm::vec3 interpVel {0.0f};
 public:
-	CameraControl(Player* player, const CameraSettings& settings);
+	CameraControl(std::shared_ptr<Player> player, const CameraSettings& settings);
 	void updateMouse(PlayerInput& input);
 	void update(PlayerInput& input, float delta, Chunks* chunks);
 	void refresh();
@@ -28,7 +28,7 @@ public:
 
 class PlayerController {
 	Level* level;
-	Player* player;
+	std::shared_ptr<Player> player;
 	PlayerInput input;
 	CameraControl camControl;
     BlocksController* blocksController;
