@@ -9,9 +9,9 @@
 
 #include <glm/glm.hpp>
 
-class GLFWwindow;
 class ImageData;
 struct DisplaySettings;
+struct GLFWwindow;
 struct GLFWmonitor;
 
 enum class blendmode {

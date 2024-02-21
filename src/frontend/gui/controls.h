@@ -122,6 +122,8 @@ namespace gui {
         virtual std::wstring getText() const;
         /* Set TextBox content text */
         virtual void setText(std::wstring value);
+        virtual std::wstring getPlaceholder() const;
+        virtual void setPlaceholder(const std::wstring&);
         virtual bool validate();
         virtual void setValid(bool valid);
         virtual bool isValid() const;
