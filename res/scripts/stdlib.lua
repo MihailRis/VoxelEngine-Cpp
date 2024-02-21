@@ -42,7 +42,7 @@ function load_script(path, nocache)
         error("script '"..filename.."' not found in '"..packname.."'")
     end
 
-    local script, err = loadfile(file.resolve(path))
+    local script, err = load(file.read(path), path)
     if script == nil then
         error(err)
     end
