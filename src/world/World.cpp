@@ -6,6 +6,7 @@
 
 #include "Level.h"
 #include "../files/WorldFiles.h"
+#include "../world/WorldTypes.h"
 #include "../content/Content.h"
 #include "../content/ContentLUT.h"
 #include "../voxels/Chunk.h"
@@ -27,6 +28,23 @@ World::World(
     const Content* content,
     const std::vector<ContentPack> packs) 
     : name(name),
+      seed(seed),
+      settings(settings), 
+      content(content),
+      packs(packs) {
+    wfile = new WorldFiles(directory, settings.debug);
+}
+
+World::World(
+    std::string name, 
+    std::string type,
+    fs::path directory, 
+    uint64_t seed, 
+    EngineSettings& settings,
+    const Content* content,
+    const std::vector<ContentPack> packs) 
+    : name(name),
+      type(type),
       seed(seed),
       settings(settings), 
       content(content),
@@ -69,12 +87,13 @@ const float DEF_PLAYER_SPEED = 4.0f;
 const int DEF_PLAYER_INVENTORY_SIZE = 40;
 
 Level* World::create(std::string name, 
+                     std::string type,
                      fs::path directory, 
                      uint64_t seed,
                      EngineSettings& settings, 
                      const Content* content,
                      const std::vector<ContentPack>& packs) {
-    auto world = new World(name, directory, seed, settings, content, packs);
+    auto world = new World(name, type, directory, seed, settings, content, packs);
     auto inv = std::make_shared<Inventory>(world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE);
     auto player = new Player(
         glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv
@@ -141,45 +160,55 @@ uint64_t World::getSeed() const {
     return seed;
 }
 
+std::string World::getType() const {
+    return type;
+}
+
 const std::vector<ContentPack>& World::getPacks() const {
     return packs;
 }
 
 void World::deserialize(dynamic::Map* root) {
     name = root->getStr("name", name);
+    type = root->getStr("type", type);
     seed = root->getInt("seed", seed);
 
-	auto verobj = root->map("version");
-	if (verobj) {
-		int major=0, minor=-1;
-		verobj->num("major", major);
-		verobj->num("minor", minor);
-		std::cout << "world version: " << major << "." << minor << std::endl;
-	}
+    if(type == "") {
+        type = WorldTypes::getDefaultWorldType();
+    }
 
-	auto timeobj = root->map("time");
-	if (timeobj) {
-		timeobj->num("day-time", daytime);
-		timeobj->num("day-time-speed", daytimeSpeed);
+    auto verobj = root->map("version");
+    if (verobj) {
+        int major=0, minor=-1;
+        verobj->num("major", major);
+        verobj->num("minor", minor);
+        std::cout << "world version: " << major << "." << minor << std::endl;
+    }
+
+    auto timeobj = root->map("time");
+    if (timeobj) {
+        timeobj->num("day-time", daytime);
+        timeobj->num("day-time-speed", daytimeSpeed);
         timeobj->num("total-time", totalTime);
-	}
+    }
     
     nextInventoryId = root->getNum("next-inventory-id", 2);
 }
 
 std::unique_ptr<dynamic::Map> World::serialize() const {
-	auto root = std::make_unique<dynamic::Map>();
+    auto root = std::make_unique<dynamic::Map>();
 
-	auto& versionobj = root->putMap("version");
-	versionobj.put("major", ENGINE_VERSION_MAJOR);
-	versionobj.put("minor", ENGINE_VERSION_MINOR);
+    auto& versionobj = root->putMap("version");
+    versionobj.put("major", ENGINE_VERSION_MAJOR);
+    versionobj.put("minor", ENGINE_VERSION_MINOR);
 
-	root->put("name", name);
-	root->put("seed", seed);
-	
+    root->put("name", name);
+    root->put("type", type);
+    root->put("seed", seed);
+    
     auto& timeobj = root->putMap("time");
-	timeobj.put("day-time", daytime);
-	timeobj.put("day-time-speed", daytimeSpeed);
+    timeobj.put("day-time", daytime);
+    timeobj.put("day-time-speed", daytimeSpeed);
     timeobj.put("total-time", totalTime);
 
     root->put("next-inventory-id", nextInventoryId);

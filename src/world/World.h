@@ -28,6 +28,7 @@ public:
 
 class World : Serializable {
     std::string name;
+    std::string type;
     uint64_t seed;
     EngineSettings& settings;
     const Content* const content;
@@ -52,6 +53,15 @@ public:
           EngineSettings& settings,
           const Content* content,
           std::vector<ContentPack> packs);
+
+    World(std::string name, 
+          std::string type,
+          fs::path directory, 
+          uint64_t seed, 
+          EngineSettings& settings,
+          const Content* content,
+          std::vector<ContentPack> packs);
+
     ~World();
 
     /** 
@@ -77,6 +87,7 @@ public:
      * Create new world
      * @param name internal world name
      * @param directory root world directory
+     * @param type of the world
      * @param seed world generation seed
      * @param settings current engine settings
      * @param content current engine Content instance 
@@ -85,6 +96,7 @@ public:
      * @return Level instance containing World instance
      */
     static Level* create(std::string name, 
+                         std::string type,
                          fs::path directory, 
                          uint64_t seed, 
                          EngineSettings& settings, 
@@ -124,6 +136,8 @@ public:
     /** Get world generation seed */
     uint64_t getSeed() const;
 
+    /** Get world type */
+    std::string getType() const;
     /**
      * Get vector of all content-packs installed in world
      */
