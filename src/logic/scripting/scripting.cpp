@@ -124,6 +124,9 @@ void scripting::on_world_quit() {
             state->callNoThrow(0);
         }
     }
+    if (state->getglobal("__scripts_cleanup")) {
+        state->callNoThrow(0);
+    }
     scripting::level = nullptr;
     scripting::content = nullptr;
     scripting::indices = nullptr;

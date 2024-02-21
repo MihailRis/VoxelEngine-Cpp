@@ -19,6 +19,8 @@ class Inventory : public Serializable {
 public:
     Inventory(int64_t id, size_t size);
 
+    Inventory(const Inventory& orig);
+
     ItemStack& getSlot(size_t index);
     size_t findEmptySlot(size_t begin=0, size_t end=-1) const;
     size_t findSlotByItem(itemid_t id, size_t begin=0, size_t end=-1);

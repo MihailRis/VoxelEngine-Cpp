@@ -17,7 +17,11 @@ runnable scripting::create_runnable(
     const std::string& file
 ) {
     return [=](){
-        state->execute(env, src, file);
+        try {
+            state->execute(env, src, file);
+        } catch (const lua::luaerror& err) {
+            std::cerr << err.what() << std::endl;
+        }
     };
 }
 
@@ -44,6 +48,49 @@ wstringconsumer scripting::create_wstring_consumer(
             state->pushstring(util::wstr2str_utf8(x));
             state->callNoThrow(1);
         }
+    };
+}
+
+wstringsupplier scripting::create_wstring_supplier(
+    int env,
+    const std::string& src,
+    const std::string& file
+) {
+    return [=](){
+        if (processCallback(env, src, file)) {
+            state->callNoThrow(0);
+            auto str = state->tostring(-1); state->pop();
+            return util::str2wstr_utf8(str);
+        }
+        return std::wstring(L"");
+    };
+}
+
+boolconsumer scripting::create_bool_consumer(
+    int env,
+    const std::string& src,
+    const std::string& file
+) {
+    return [=](bool x){
+        if (processCallback(env, src, file)) {
+            state->pushboolean(x);
+            state->callNoThrow(1);
+        }
+    };
+}
+
+boolsupplier scripting::create_bool_supplier(
+    int env,
+    const std::string& src,
+    const std::string& file
+) {
+    return [=](){
+        if (processCallback(env, src, file)) {
+            state->callNoThrow(0);
+            bool x = state->toboolean(-1); state->pop();
+            return x;
+        }
+        return false;
     };
 }
 

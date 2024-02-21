@@ -102,13 +102,9 @@ void BlocksRenderer::face(const vec3& coord,
 void BlocksRenderer::vertex(const vec3& coord, 
 							float u, float v,
 							const vec4& tint,
-							const vec3& X,
-							const vec3& Y,
-							const vec3& Z) {
-    // TODO: optimize
-    vec3 axisX = glm::normalize(X);
-    vec3 axisY = glm::normalize(Y);
-    vec3 axisZ = glm::normalize(Z);
+							const vec3& axisX,
+							const vec3& axisY,
+							const vec3& axisZ) {
     vec3 pos = coord+axisZ*0.5f+(axisX+axisY)*0.5f;
 	vec4 light = pickSoftLight(ivec3(round(pos.x), round(pos.y), round(pos.z)), axisX, axisY);
 	vertex(coord, u, v, light * tint);
@@ -130,11 +126,15 @@ void BlocksRenderer::face(const vec3& coord,
         float d = glm::dot(Z, SUN_VECTOR);
         d = 0.8f + d * 0.2f;
 
+        vec3 axisX = glm::normalize(X);
+        vec3 axisY = glm::normalize(Y);
+        vec3 axisZ = glm::normalize(Z);
+
         vec4 tint(d);
-        vertex(coord + (-X - Y + Z) * s, region.u1, region.v1, tint, X, Y, Z);
-        vertex(coord + ( X - Y + Z) * s, region.u2, region.v1, tint, X, Y, Z);
-        vertex(coord + ( X + Y + Z) * s, region.u2, region.v2, tint, X, Y, Z);
-        vertex(coord + (-X + Y + Z) * s, region.u1, region.v2, tint, X, Y, Z);
+        vertex(coord + (-X - Y + Z) * s, region.u1, region.v1, tint, axisX, axisY, axisZ);
+        vertex(coord + ( X - Y + Z) * s, region.u2, region.v1, tint, axisX, axisY, axisZ);
+        vertex(coord + ( X + Y + Z) * s, region.u2, region.v2, tint, axisX, axisY, axisZ);
+        vertex(coord + (-X + Y + Z) * s, region.u1, region.v2, tint, axisX, axisY, axisZ);
     } else {
         vec4 tint(1.0f);
         vertex(coord + (-X - Y + Z) * s, region.u1, region.v1, tint);
@@ -142,7 +142,7 @@ void BlocksRenderer::face(const vec3& coord,
         vertex(coord + ( X + Y + Z) * s, region.u2, region.v2, tint);
         vertex(coord + (-X + Y + Z) * s, region.u1, region.v2, tint);
     }
-	index(0, 1, 2, 0, 2, 3);
+    index(0, 1, 2, 0, 2, 3);
 }
 
 void BlocksRenderer::tetragonicFace(const vec3& coord, const vec3& p1,

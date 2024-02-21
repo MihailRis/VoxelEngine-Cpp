@@ -87,11 +87,30 @@ namespace lua {
     }
 
     inline glm::vec2 tovec2(lua_State* L, int idx) {
-        lua_rawgeti(L, idx, 1);
+        lua_pushvalue(L, idx);
+        lua_rawgeti(L, -1, 1);
         lua::luanumber x = lua_tonumber(L, -1); lua_pop(L, -1);
-        lua_rawgeti(L, idx, 1);
+        lua_rawgeti(L, -2, 2);
         lua::luanumber y = lua_tonumber(L, -1); lua_pop(L, -1);
+        lua_pop(L, -1);
         return glm::vec2(x, y);
+    }
+
+    inline glm::vec4 tocolor(lua_State* L, int idx) {
+        lua_pushvalue(L, idx);
+        if (!lua_istable(L, -1)) {
+            luaL_error(L, "RGBA array required");
+        }
+        lua_rawgeti(L, -1, 1);
+        lua::luanumber r = lua_tonumber(L, -1); lua_pop(L, -1);
+        lua_rawgeti(L, -2, 2);
+        lua::luanumber g = lua_tonumber(L, -1); lua_pop(L, -1);
+        lua_rawgeti(L, -3, 3);
+        lua::luanumber b = lua_tonumber(L, -1); lua_pop(L, -1);
+        lua_rawgeti(L, -4, 4);
+        lua::luanumber a = lua_tonumber(L, -1); lua_pop(L, -1);
+        lua_pop(L, -1);
+        return glm::vec4(r/255, g/255, b/255, a/255);
     }
 }
 

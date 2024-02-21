@@ -72,6 +72,9 @@ namespace gui {
         virtual void setText(std::wstring text);
         virtual std::wstring getText() const;
 
+        virtual glm::vec4 getPressedColor() const;
+        virtual void setPressedColor(glm::vec4 color);
+
         virtual Button* textSupplier(wstringsupplier supplier);
 
         virtual void refresh() override;
@@ -144,7 +147,6 @@ namespace gui {
 
     class TrackBar : public UINode {
     protected:
-        glm::vec4 hoverColor {0.01f, 0.02f, 0.03f, 0.5f};
         glm::vec4 trackColor {1.0f, 1.0f, 1.0f, 0.4f};
         doublesupplier supplier = nullptr;
         doubleconsumer consumer = nullptr;
@@ -165,6 +167,20 @@ namespace gui {
         virtual void setConsumer(doubleconsumer consumer);
 
         virtual void mouseMove(GUI*, int x, int y) override;
+
+        virtual double getValue() const;
+        virtual double getMin() const;
+        virtual double getMax() const;
+        virtual double getStep() const;
+        virtual int getTrackWidth() const;
+        virtual glm::vec4 getTrackColor() const;
+
+        virtual void setValue(double);
+        virtual void setMin(double);
+        virtual void setMax(double);
+        virtual void setStep(double);
+        virtual void setTrackWidth(int);
+        virtual void setTrackColor(glm::vec4);
     };
 
     class CheckBox : public UINode {

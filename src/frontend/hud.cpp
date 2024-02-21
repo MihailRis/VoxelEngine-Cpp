@@ -1,5 +1,7 @@
 #include "hud.h"
 
+// TODO: refactor this garbage
+
 #include <iostream>
 #include <sstream>
 #include <memory>
@@ -27,6 +29,7 @@
 #include "../window/input.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/Block.h"
+#include "../voxels/Chunk.h"
 #include "../world/World.h"
 #include "../world/Level.h"
 #include "../objects/Player.h"
@@ -365,11 +368,22 @@ void Hud::update(bool visible) {
         Events::toggleCursor();
     }
 
+    if (blockUI) {
+        voxel* vox = level->chunks->get(currentblock.x, currentblock.y, currentblock.z);
+        if (vox == nullptr || vox->id != currentblockid) {
+            closeInventory();
+        }
+    }
+
+    for (auto& element : elements) {
+        element.getNode()->setVisible(visible);
+    }
+
     glm::vec2 invSize = contentAccessPanel->getSize();
     contentAccessPanel->setVisible(inventoryOpen);
     contentAccessPanel->setSize(glm::vec2(invSize.x, Window::height));
     contentAccess->setMinSize(glm::vec2(1, Window::height));
-    // hotbarView->setVisible(visible && !inventoryOpen);
+    hotbarView->setVisible(visible);
 
     for (int i = keycode::NUM_1; i <= keycode::NUM_9; i++) {
         if (Events::jpressed(i)) {
@@ -388,10 +402,12 @@ void Hud::update(bool visible) {
         player->setChosenSlot(slot);
     }
 
-    for (auto& element : elements) {
-        element.update(pause, inventoryOpen, player->debug);
-        if (element.isRemoved()) {
-            remove(element);
+    if (visible) {
+        for (auto& element : elements) {
+            element.update(pause, inventoryOpen, player->debug);
+            if (element.isRemoved()) {
+                remove(element);
+            }
         }
     }
     cleanup();
@@ -431,12 +447,12 @@ void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inven
     }
     openInventory();
     if (blockinv == nullptr) {
-        Events::toggleCursor();
-        abort();
         blockinv = level->inventories->createVirtual(blockUI->getSlotsCount());
     }
+    level->chunks->getChunkByVoxel(block.x, block.y, block.z)->setUnsaved(true);
     blockUI->bind(blockinv, frontend, interaction.get());
     currentblock = block;
+    currentblockid = level->chunks->get(block.x, block.y, block.z)->id;
     add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
 }
 

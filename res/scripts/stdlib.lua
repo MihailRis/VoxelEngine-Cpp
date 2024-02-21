@@ -20,8 +20,10 @@ function parse_path(path)
     return string.sub(path, 1, index-1), string.sub(path, index+1, -1)
 end
 
+package = {
+    loaded={}
+}
 local __cached_scripts = {}
-local __cached_results = {}
 
 -- Load script with caching
 --
@@ -31,36 +33,42 @@ local __cached_results = {}
 -- nocache - ignore cached script, load anyway
 function load_script(path, nocache)
     local packname, filename = parse_path(path)
-    local fullpath = file.resolve(path);
 
     -- __cached_scripts used in condition because cached result may be nil
-    if not nocache and __cached_scripts[fullpath] ~= nil then
-        return __cached_results[fullpath]
+    if not nocache and __cached_scripts[path] ~= nil then
+        return package.loaded[path]
     end
     if not file.isfile(path) then
         error("script '"..filename.."' not found in '"..packname.."'")
     end
 
-    local script, err = loadfile(fullpath)
+    local script, err = loadfile(file.resolve(path))
     if script == nil then
         error(err)
     end
     local result = script()
     if not nocache then
-        __cached_scripts[fullpath] = script
-        __cached_results[fullpath] = result
+        __cached_scripts[path] = script
+        package.loaded[path] = result
     end
     return result
+end
+
+function __scripts_cleanup()
+    print("cleaning scripts cache")
+    for k, v in pairs(__cached_scripts) do
+        local packname, _ = parse_path(k)
+        if packname ~= "core" then
+            print("unloaded "..k)
+            __cached_scripts[k] = nil
+            package.loaded[k] = nil
+        end
+    end
 end
 
 function require(path)
     local prefix, file = parse_path(path)
     return load_script(prefix..":modules/"..file..".lua")
-end
-
-function __reset_scripts_cache()
-    __cached_scripts = {}
-    __cached_results = {}
 end
 
 function sleep(timesec)
