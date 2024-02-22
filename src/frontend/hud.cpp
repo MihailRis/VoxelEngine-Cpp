@@ -385,13 +385,15 @@ void Hud::update(bool visible) {
     contentAccess->setMinSize(glm::vec2(1, Window::height));
     hotbarView->setVisible(visible);
 
-    for (int i = keycode::NUM_1; i <= keycode::NUM_9; i++) {
-        if (Events::jpressed(i)) {
-            player->setChosenSlot(i - keycode::NUM_1);
+    if (!gui->isFocusCaught() && !pause) {
+        for (int i = keycode::NUM_1; i <= keycode::NUM_9; i++) {
+            if (Events::jpressed(i)) {
+                player->setChosenSlot(i - keycode::NUM_1);
+            }
         }
-    }
-    if (Events::jpressed(keycode::NUM_0)) {
-        player->setChosenSlot(9);
+        if (Events::jpressed(keycode::NUM_0)) {
+            player->setChosenSlot(9);
+        }
     }
     if (!pause && !inventoryOpen && Events::scroll) {
         int slot = player->getChosenSlot();

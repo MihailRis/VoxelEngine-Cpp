@@ -29,6 +29,9 @@ namespace gui {
         virtual void setText(std::wstring text);
         std::wstring getText() const;
 
+        virtual void setFontName(std::string name);
+        const std::string& getFontName() const;
+
         virtual void draw(const GfxContext* pctx, Assets* assets) override;
 
         virtual void textSupplier(wstringsupplier supplier);
@@ -105,12 +108,18 @@ namespace gui {
         wstringchecker validator = nullptr;
         runnable onEditStart = nullptr;
         bool valid = true;
+        /// @brief text input pointer, value may be greather than text length
+        uint caret = 0;
+        double caretLastMove = 0.0;
+
+        void paste(const std::wstring& text);
     public:
         TextBox(std::wstring placeholder, 
                 glm::vec4 padding=glm::vec4(4.0f));
 
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
 
+        virtual void draw(const GfxContext* pctx, Assets* assets) override;
         virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
         virtual void typed(unsigned int codepoint) override; 
         virtual void keyPressed(int key) override;
@@ -128,6 +137,8 @@ namespace gui {
         virtual void setText(std::wstring value);
         virtual std::wstring getPlaceholder() const;
         virtual void setPlaceholder(const std::wstring&);
+        virtual uint getCaret() const;
+        virtual void setCaret(uint position);
         virtual bool validate();
         virtual void setValid(bool valid);
         virtual bool isValid() const;

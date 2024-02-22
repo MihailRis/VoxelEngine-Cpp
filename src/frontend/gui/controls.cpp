@@ -36,6 +36,14 @@ std::wstring Label::getText() const {
     return text;
 }
 
+void Label::setFontName(std::string name) {
+    this->fontName = name;
+}
+
+const std::string& Label::getFontName() const {
+    return fontName;
+}
+
 void Label::draw(const GfxContext* pctx, Assets* assets) {
     if (supplier) {
         setText(supplier());
@@ -246,6 +254,24 @@ TextBox::TextBox(std::wstring placeholder, glm::vec4 padding)
     setHoverColor(glm::vec4(0.05f, 0.1f, 0.2f, 0.75f));
 }
 
+void TextBox::draw(const GfxContext* pctx, Assets* assets) {
+    Panel::draw(pctx, assets);
+
+    if (!isFocused())
+        return;
+
+    if (int((Window::time() - caretLastMove) * 2) % 2 == 0) {
+        auto batch = pctx->getBatch2D();
+        batch->texture(nullptr);
+        batch->color = glm::vec4(1.0f);
+
+        glm::vec2 lcoord = label->calcCoord();
+        auto font = assets->getFont(label->getFontName());
+        int width = font->calcWidth(input.substr(0, caret));
+        batch->rect(lcoord.x + width, lcoord.y, 2, font->getLineHeight());
+    }
+}
+
 void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
     glm::vec2 coord = calcCoord();
 
@@ -279,9 +305,20 @@ void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
     setScrollable(false);
 }
 
-void TextBox::typed(unsigned int codepoint) {
-    input += std::wstring({(wchar_t)codepoint});
+void TextBox::paste(const std::wstring& text) {
+    if (caret >= input.length()) {
+        input += text;
+    } else {
+        auto left = input.substr(0, caret);
+        auto right = input.substr(caret);
+        input = left + text + right;
+    }
+    caret += text.length();
     validate();
+}
+
+void TextBox::typed(unsigned int codepoint) {
+    paste(std::wstring({(wchar_t)codepoint}));
 }
 
 bool TextBox::validate() {
@@ -308,6 +345,7 @@ void TextBox::setOnEditStart(runnable oneditstart) {
 void TextBox::focus(GUI* gui) {
     Panel::focus(gui);
     if (onEditStart){
+        caret = input.size();
         onEditStart();
     }
 }
@@ -319,22 +357,39 @@ void TextBox::refresh() {
 
 void TextBox::keyPressed(int key) {
     if (key == keycode::BACKSPACE) {
-        if (!input.empty()){
-            input = input.substr(0, input.length()-1);
+        if (caret > 0 && input.length() > 0) {
+            if (caret > input.length()) {
+                caret = input.length();
+            }
+            input = input.substr(0, caret-1) + input.substr(caret);
+            caret--;
             validate();
         }
     } else if (key == keycode::ENTER) {
         if (validate() && consumer) {
             consumer(label->getText());
         }
-        defocus();        
+        defocus();
+    } else if (key == keycode::LEFT) {
+        if (caret > 0) {
+            if (caret > input.length()) {
+                caret = input.length()-1;
+            } else {
+                caret--;
+            }
+            caretLastMove = Window::time();
+        }
+    } else if (key == keycode::RIGHT) {
+        if (caret < input.length()) {
+            caret++;
+            caretLastMove = Window::time();
+        }
     }
     // Pasting text from clipboard
     if (key == keycode::V && Events::pressed(keycode::LEFT_CONTROL)) {
         const char* text = Window::getClipboardText();
         if (text) {
-            input += util::str2wstr_utf8(text);
-            validate();
+            paste(util::str2wstr_utf8(text));
         }
     }
 }
@@ -387,6 +442,14 @@ std::wstring TextBox::getPlaceholder() const {
 
 void TextBox::setPlaceholder(const std::wstring& placeholder) {
     this->placeholder = placeholder;
+}
+
+uint TextBox::getCaret() const {
+    return caret;
+}
+
+void TextBox::setCaret(uint position) {
+    this->caret = position;
 }
 
 // ============================== InputBindBox ================================
