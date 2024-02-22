@@ -355,6 +355,22 @@ void TextBox::setTextValidator(wstringchecker validator) {
     this->validator = validator;
 }
 
+void TextBox::setFocusedColor(glm::vec4 color) {
+    this->focusedColor = color;
+}
+
+glm::vec4 TextBox::getFocusedColor() const {
+    return focusedColor;
+}
+
+void TextBox::setErrorColor(glm::vec4 color) {
+    this->invalidColor = color;
+}
+
+glm::vec4 TextBox::getErrorColor() const {
+    return invalidColor;
+}
+
 std::wstring TextBox::getText() const {
     if (input.empty())
         return placeholder;

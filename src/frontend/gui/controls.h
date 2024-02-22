@@ -118,6 +118,10 @@ namespace gui {
         virtual void setTextConsumer(wstringconsumer consumer);
         virtual void setTextValidator(wstringchecker validator);
         virtual bool isFocuskeeper() const override {return true;}
+        virtual void setFocusedColor(glm::vec4 color);
+        virtual glm::vec4 getFocusedColor() const;
+        virtual void setErrorColor(glm::vec4 color);
+        virtual glm::vec4 getErrorColor() const;
         /* Get TextBox content text or placeholder if empty */
         virtual std::wstring getText() const;
         /* Set TextBox content text */
