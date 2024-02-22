@@ -2,10 +2,13 @@
 #define SRC_CONSTANTS_H_
 
 #include <limits>
+#include <string>
 #include "typedefs.h"
 
 const int ENGINE_VERSION_MAJOR = 0;
-const int ENGINE_VERSION_MINOR = 19;
+const int ENGINE_VERSION_MINOR = 20;
+const bool ENGINE_VERSION_INDEV = true;
+#define ENGINE_VERSION_STRING "0.20"
 
 const int BLOCK_AIR = 0;
 const int ITEM_EMPTY = 0;

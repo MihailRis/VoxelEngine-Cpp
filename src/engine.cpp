@@ -76,6 +76,9 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     if (settings.ui.language == "auto") {
         settings.ui.language = langs::locale_by_envlocale(platform::detect_locale(), paths->getResources());
     }
+	if (ENGINE_VERSION_INDEV) {
+		menus::create_version_label(this);
+    }
     setLanguage(settings.ui.language);
 }
 
