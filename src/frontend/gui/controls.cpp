@@ -511,6 +511,17 @@ void TextBox::keyPressed(int key) {
                 paste(util::str2wstr_utf8(text));
             }
         }
+        // Select/deselect all
+        if (key == keycode::A) {
+            if (selectionStart == selectionEnd) {
+                selectionStart = 0;
+                selectionEnd = input.length();
+                selectionOrigin = 0;
+                setCaret(selectionEnd);
+            } else {
+                resetSelection();
+            }
+        }
     }
 }
 

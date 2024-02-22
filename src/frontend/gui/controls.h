@@ -148,9 +148,9 @@ namespace gui {
         virtual glm::vec4 getFocusedColor() const;
         virtual void setErrorColor(glm::vec4 color);
         virtual glm::vec4 getErrorColor() const;
-        /* Get TextBox content text or placeholder if empty */
+        /// @brief Get TextBox content text or placeholder if empty
         virtual std::wstring getText() const;
-        /* Set TextBox content text */
+        /// @brief Set TextBox content text
         virtual void setText(std::wstring value);
         virtual std::wstring getPlaceholder() const;
         virtual void setPlaceholder(const std::wstring&);
