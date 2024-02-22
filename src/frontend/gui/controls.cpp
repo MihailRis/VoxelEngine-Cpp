@@ -365,6 +365,11 @@ void TextBox::keyPressed(int key) {
             caret--;
             validate();
         }
+    } else if (key == keycode::DELETE) {
+        if (caret < input.length()) {
+            input = input.substr(0, caret) + input.substr(caret + 1);
+            validate();
+        }
     } else if (key == keycode::ENTER) {
         if (validate() && consumer) {
             consumer(label->getText());
