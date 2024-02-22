@@ -157,6 +157,7 @@ namespace gui {
         virtual std::wstring getSelection() const;
         virtual uint getCaret() const;
         virtual void setCaret(uint position);
+        virtual void select(int start, int end);
         virtual bool validate();
         virtual void setValid(bool valid);
         virtual bool isValid() const;

@@ -514,15 +514,25 @@ void TextBox::keyPressed(int key) {
         // Select/deselect all
         if (key == keycode::A) {
             if (selectionStart == selectionEnd) {
-                selectionStart = 0;
-                selectionEnd = input.length();
-                selectionOrigin = 0;
-                setCaret(selectionEnd);
+                select(0, input.length());
             } else {
                 resetSelection();
             }
         }
     }
+}
+
+void TextBox::select(int start, int end) {
+    if (end < start) {
+        std::swap(start, end);
+    }
+    start = normalizeIndex(start);
+    end = normalizeIndex(end);
+
+    selectionStart = start;
+    selectionEnd = end;
+    selectionOrigin = start;
+    setCaret(selectionEnd);
 }
 
 std::shared_ptr<UINode> TextBox::getAt(glm::vec2 pos, std::shared_ptr<UINode> self) {
