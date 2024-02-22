@@ -252,6 +252,8 @@ TextBox::TextBox(std::wstring placeholder, glm::vec4 padding)
     label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
     add(label);
     setHoverColor(glm::vec4(0.05f, 0.1f, 0.2f, 0.75f));
+
+    textInitX = label->getCoord().x;
 }
 
 void TextBox::draw(const GfxContext* pctx, Assets* assets) {
@@ -318,6 +320,11 @@ void TextBox::paste(const std::wstring& text) {
     validate();
 }
 
+void TextBox::setTextOffset(uint x) {
+    label->setCoord(glm::vec2(textInitX - int(x), label->getCoord().y));
+    textOffset = x;
+}
+
 void TextBox::typed(unsigned int codepoint) {
     paste(std::wstring({(wchar_t)codepoint}));
 }
@@ -354,10 +361,6 @@ void TextBox::focus(GUI* gui) {
 void TextBox::refresh() {
     Panel::refresh();
     label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
-}
-
-void TextBox::clicked(GUI*, int button) {
-
 }
 
 void TextBox::mouseMove(GUI*, int x, int y) {
@@ -471,6 +474,14 @@ uint TextBox::getCaret() const {
 void TextBox::setCaret(uint position) {
     this->caret = position;
     caretLastMove = Window::time();
+
+    int width = label->getSize().x;
+    int realoffset = font->calcWidth(input, caret)-int(textOffset);
+    if (realoffset-width > 0) {
+        setTextOffset(textOffset + realoffset-width);
+    } else if (realoffset < 0) {
+        setTextOffset(std::max(textOffset + realoffset, 0U));
+    }
 }
 
 // ============================== InputBindBox ================================

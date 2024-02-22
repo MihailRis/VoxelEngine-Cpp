@@ -112,10 +112,13 @@ namespace gui {
         bool valid = true;
         /// @brief text input pointer, value may be greather than text length
         uint caret = 0;
+        uint textOffset = 0;
+        int textInitX;
         double caretLastMove = 0.0;
         Font* font = nullptr;
 
         void paste(const std::wstring& text);
+        void setTextOffset(uint x);
     public:
         TextBox(std::wstring placeholder, 
                 glm::vec4 padding=glm::vec4(4.0f));
@@ -148,7 +151,6 @@ namespace gui {
         virtual void setOnEditStart(runnable oneditstart);
         virtual void focus(GUI*) override;
         virtual void refresh() override;
-        virtual void clicked(GUI*, int button) override;
         virtual void mouseMove(GUI*, int x, int y) override;
     };
 
