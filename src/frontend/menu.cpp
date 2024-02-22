@@ -194,7 +194,7 @@ void create_world_types_panel(Engine* engine) {
     std::vector<std::string> worldTypes = WorldTypes::getWorldTypes();
     std::sort(worldTypes.begin(), worldTypes.end());
     for (std::string& type : worldTypes) {
-        std::string& fullName = util::wstr2str_utf8(langs::get(util::str2wstr_utf8(type), L"world.types"));
+        const std::string& fullName = util::wstr2str_utf8(langs::get(util::str2wstr_utf8(type), L"world.types"));
         auto button = std::make_shared<Button>(
             util::str2wstr_utf8(fullName), 
             vec4(10.f),
