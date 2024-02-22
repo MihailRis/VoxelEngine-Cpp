@@ -257,6 +257,8 @@ TextBox::TextBox(std::wstring placeholder, glm::vec4 padding)
 void TextBox::draw(const GfxContext* pctx, Assets* assets) {
     Panel::draw(pctx, assets);
 
+    font = assets->getFont(label->getFontName());
+
     if (!isFocused())
         return;
 
@@ -266,7 +268,6 @@ void TextBox::draw(const GfxContext* pctx, Assets* assets) {
         batch->color = glm::vec4(1.0f);
 
         glm::vec2 lcoord = label->calcCoord();
-        auto font = assets->getFont(label->getFontName());
         int width = font->calcWidth(input.substr(0, caret));
         batch->rect(lcoord.x + width, lcoord.y, 2, font->getLineHeight());
     }
@@ -313,7 +314,7 @@ void TextBox::paste(const std::wstring& text) {
         auto right = input.substr(caret);
         input = left + text + right;
     }
-    caret += text.length();
+    setCaret(caret + text.length());
     validate();
 }
 
@@ -345,7 +346,7 @@ void TextBox::setOnEditStart(runnable oneditstart) {
 void TextBox::focus(GUI* gui) {
     Panel::focus(gui);
     if (onEditStart){
-        caret = input.size();
+        setCaret(input.size());
         onEditStart();
     }
 }
@@ -355,6 +356,21 @@ void TextBox::refresh() {
     label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
 }
 
+void TextBox::clicked(GUI*, int button) {
+
+}
+
+void TextBox::mouseMove(GUI*, int x, int y) {
+    if (font == nullptr)
+        return;
+    glm::vec2 lcoord = label->calcCoord();
+    uint offset = 0;
+    while (lcoord.x + font->calcWidth(input, offset) < x && offset <= input.length()) {
+        offset++;
+    }
+    setCaret(offset);
+}
+
 void TextBox::keyPressed(int key) {
     if (key == keycode::BACKSPACE) {
         if (caret > 0 && input.length() > 0) {
@@ -362,7 +378,7 @@ void TextBox::keyPressed(int key) {
                 caret = input.length();
             }
             input = input.substr(0, caret-1) + input.substr(caret);
-            caret--;
+            setCaret(caret-1);
             validate();
         }
     } else if (key == keycode::DELETE) {
@@ -378,15 +394,14 @@ void TextBox::keyPressed(int key) {
     } else if (key == keycode::LEFT) {
         if (caret > 0) {
             if (caret > input.length()) {
-                caret = input.length()-1;
+                setCaret(input.length()-1);
             } else {
-                caret--;
+                setCaret(caret-1);
             }
-            caretLastMove = Window::time();
         }
     } else if (key == keycode::RIGHT) {
         if (caret < input.length()) {
-            caret++;
+            setCaret(caret+1);
             caretLastMove = Window::time();
         }
     }
@@ -455,6 +470,7 @@ uint TextBox::getCaret() const {
 
 void TextBox::setCaret(uint position) {
     this->caret = position;
+    caretLastMove = Window::time();
 }
 
 // ============================== InputBindBox ================================

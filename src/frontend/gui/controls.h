@@ -15,6 +15,7 @@
 
 class Batch2D;
 class Assets;
+class Font;
 
 namespace gui {
     class Label : public UINode {
@@ -111,6 +112,7 @@ namespace gui {
         /// @brief text input pointer, value may be greather than text length
         uint caret = 0;
         double caretLastMove = 0.0;
+        Font* font = nullptr;
 
         void paste(const std::wstring& text);
     public:
@@ -145,6 +147,8 @@ namespace gui {
         virtual void setOnEditStart(runnable oneditstart);
         virtual void focus(GUI*) override;
         virtual void refresh() override;
+        virtual void clicked(GUI*, int button) override;
+        virtual void mouseMove(GUI*, int x, int y) override;
     };
 
     class InputBindBox : public Panel {
