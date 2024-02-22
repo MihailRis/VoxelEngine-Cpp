@@ -66,6 +66,21 @@ wstringsupplier scripting::create_wstring_supplier(
     };
 }
 
+wstringchecker scripting::create_wstring_validator(
+    int env,
+    const std::string& src,
+    const std::string& file
+) {
+    return [=](const std::wstring& x){
+        if (processCallback(env, src, file)) {
+            state->pushstring(util::wstr2str_utf8(x));
+            if (state->callNoThrow(1))
+                return state->toboolean(-1);
+        }
+        return false;
+    };
+}
+
 boolconsumer scripting::create_bool_consumer(
     int env,
     const std::string& src,

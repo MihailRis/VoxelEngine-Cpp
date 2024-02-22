@@ -4,6 +4,7 @@
 class Engine;
 
 namespace menus {
+    void create_version_label(Engine* engine);
     void create_menus(Engine* engine);
     void refresh_menus(Engine* engine);
 }

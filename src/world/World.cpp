@@ -91,7 +91,9 @@ Level* World::create(std::string name,
                      const std::vector<ContentPack>& packs) {
     auto world = new World(name, type, directory, seed, settings, content, packs);
     auto level = new Level(world, content, settings);
-
+    auto inventory = level->player->getInventory();
+    inventory->setId(world->getNextInventoryId());
+    level->inventories->store(inventory);
     return level;
 }
 
@@ -110,6 +112,7 @@ Level* World::load(fs::path directory,
 
     auto level = new Level(world.get(), content, settings);
     wfile->readPlayer(level->player);
+    level->inventories->store(level->player->getInventory());
     world.release();
     return level;
 }

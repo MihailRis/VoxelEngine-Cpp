@@ -380,18 +380,20 @@ void Hud::update(bool visible) {
     }
 
     glm::vec2 invSize = contentAccessPanel->getSize();
-    contentAccessPanel->setVisible(inventoryOpen);
+    contentAccessPanel->setVisible(inventoryView != nullptr);
     contentAccessPanel->setSize(glm::vec2(invSize.x, Window::height));
     contentAccess->setMinSize(glm::vec2(1, Window::height));
     hotbarView->setVisible(visible);
 
-    for (int i = keycode::NUM_1; i <= keycode::NUM_9; i++) {
-        if (Events::jpressed(i)) {
-            player->setChosenSlot(i - keycode::NUM_1);
+    if (!gui->isFocusCaught() && !pause) {
+        for (int i = keycode::NUM_1; i <= keycode::NUM_9; i++) {
+            if (Events::jpressed(i)) {
+                player->setChosenSlot(i - keycode::NUM_1);
+            }
         }
-    }
-    if (Events::jpressed(keycode::NUM_0)) {
-        player->setChosenSlot(9);
+        if (Events::jpressed(keycode::NUM_0)) {
+            player->setChosenSlot(9);
+        }
     }
     if (!pause && !inventoryOpen && Events::scroll) {
         int slot = player->getChosenSlot();
@@ -436,7 +438,7 @@ void Hud::openInventory() {
  * @param blockinv block inventory. 
  * In case of nullptr a new virtual inventory will be created
  */
-void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inventory> blockinv) {
+void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inventory> blockinv, bool playerInventory) {
     if (isInventoryOpen()) {
         closeInventory();
     }
@@ -445,7 +447,11 @@ void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inven
     if (blockUI == nullptr) {
         throw std::runtime_error("block UI root element must be 'inventory'");
     }
-    openInventory();
+    if (playerInventory) {
+        openInventory();
+    } else {
+        inventoryOpen = true;
+    }
     if (blockinv == nullptr) {
         blockinv = level->inventories->createVirtual(blockUI->getSlotsCount());
     }
@@ -594,25 +600,30 @@ void Hud::draw(const GfxContext& ctx){
     }
 
     if (inventoryOpen) {
-        float caWidth = contentAccess->getSize().x;
+        float caWidth = inventoryView ? contentAccess->getSize().x : 0.0f;
         contentAccessPanel->setCoord(glm::vec2(width-caWidth, 0));
 
-        glm::vec2 invSize = inventoryView->getSize();
+        glm::vec2 invSize = inventoryView ? inventoryView->getSize() : glm::vec2();
         if (blockUI == nullptr) {
-            inventoryView->setCoord(glm::vec2(
-                glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x),
-                height/2-invSize.y/2
-            ));
+            if (inventoryView) {
+                inventoryView->setCoord(glm::vec2(
+                    glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x),
+                    height/2-invSize.y/2
+                ));
+            }
         } else {
             glm::vec2 blockInvSize = blockUI->getSize();
-            int interval = 5;
+            float invwidth = glm::max(invSize.x, blockInvSize.x);
+            int interval = invSize.y > 0.0 ? 5 : 0;
             float totalHeight = invSize.y + blockInvSize.y + interval;
-            inventoryView->setCoord(glm::vec2(
-                glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x),
-                height/2+totalHeight/2-invSize.y
-            ));
+            if (inventoryView) {
+                inventoryView->setCoord(glm::vec2(
+                    glm::min(width/2-invwidth/2, width-caWidth-10-invwidth),
+                    height/2+totalHeight/2-invSize.y
+                ));
+            }
             blockUI->setCoord(glm::vec2(
-                glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x),
+                glm::min(width/2-invwidth/2, width-caWidth-10-invwidth),
                 height/2-totalHeight/2
             ));
         }

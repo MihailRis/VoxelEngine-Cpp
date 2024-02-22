@@ -87,6 +87,20 @@ static std::shared_ptr<Button> create_button(
     return btn;
 }
 
+
+void menus::create_version_label(Engine* engine) {
+    auto gui = engine->getGUI();
+    auto vlabel = std::make_shared<gui::Label>(
+        util::str2wstr_utf8(ENGINE_VERSION_STRING " development build ")
+    );
+    vlabel->setZIndex(1000);
+    vlabel->setColor(glm::vec4(1, 1, 1, 0.5f));
+    vlabel->setPositionFunc([=]() {
+        return glm::vec2(Window::width-vlabel->getSize().x, 2);
+    });
+    gui->add(vlabel);
+}
+
 static void show_content_missing(
     Engine* engine, 
     const Content* content, 

@@ -11,7 +11,19 @@
 lua::luaerror::luaerror(const std::string& message) : std::runtime_error(message) {
 }
 
+void lua::LuaState::removeLibFuncs(const char* libname, const char* funcs[]) {
+    if (getglobal(libname)) {
+        for (uint i = 0; funcs[i]; i++) {
+            pushnil();
+            setfield(funcs[i], -2);
+        }
+    }
+}
+
 lua::LuaState::LuaState() {
+    std::cout << LUA_VERSION << std::endl;
+    std::cout << LUAJIT_VERSION << std::endl;
+
     L = luaL_newstate();
     if (L == nullptr) {
         throw lua::luaerror("could not to initialize Lua");
@@ -25,10 +37,19 @@ lua::LuaState::LuaState() {
     luaopen_jit(L);
     luaopen_bit(L);
 
-    std::cout << LUA_VERSION << std::endl;
-    std::cout << LUAJIT_VERSION << std::endl;
+    luaopen_os(L);
+    const char* removed_os[] {
+        "execute",
+        "exit",
+        "remove",
+        "rename",
+        "setlocale",
+        "tmpname",
+        nullptr
+    };
+    removeLibFuncs("os", removed_os);
 
-    createFuncs();
+    createLibs();
 
     lua_pushvalue(L, LUA_GLOBALSINDEX);
     setglobal(envName(0));
@@ -94,7 +115,7 @@ void lua::LuaState::remove(const std::string& name) {
     lua_setglobal(L, name.c_str());
 }
 
-void lua::LuaState::createFuncs() {
+void lua::LuaState::createLibs() {
     openlib("pack", packlib, 0);
     openlib("world", worldlib, 0);
     openlib("player", playerlib, 0);

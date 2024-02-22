@@ -40,6 +40,7 @@ int l_hud_open_block(lua_State* L) {
     lua::luaint x = lua_tointeger(L, 1);
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
+    bool playerInventory = !lua_toboolean(L, 4);
 
     voxel* vox = scripting::level->chunks->get(x, y, z);
     if (vox == nullptr) {
@@ -55,7 +56,7 @@ int l_hud_open_block(lua_State* L) {
     auto id = scripting::blocks->createBlockInventory(x, y, z);
 
     scripting::hud->openInventory(
-        glm::ivec3(x, y, z), layout, scripting::level->inventories->get(id)
+        glm::ivec3(x, y, z), layout, scripting::level->inventories->get(id), playerInventory
     );
 
     lua_pushinteger(L, id);

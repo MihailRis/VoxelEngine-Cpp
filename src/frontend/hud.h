@@ -110,7 +110,7 @@ public:
     void setPause(bool pause);
 
     void openInventory();
-	void openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inventory> blockInv);
+	void openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inventory> blockInv, bool playerInventory);
     void closeInventory();
     void openPermanent(UiDocument* doc);
 

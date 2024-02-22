@@ -23,7 +23,7 @@ public:
 
 	int getLineHeight() const;
     int getYOffset() const;
-	int calcWidth(std::wstring text);
+	int calcWidth(std::wstring text, size_t length=-1);
 	// int getGlyphWidth(char c);
 	bool isPrintableChar(int c);
 	void draw(Batch2D* batch, std::wstring text, int x, int y);
