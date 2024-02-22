@@ -12,6 +12,7 @@
 #include "containers.h"
 #include "../../window/input.h"
 #include "../../delegates.h"
+#include "../../typedefs.h"
 
 class Batch2D;
 class Assets;
