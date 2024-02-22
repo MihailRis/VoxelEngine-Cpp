@@ -318,6 +318,10 @@ const char* Window::getClipboardText() {
     return glfwGetClipboardString(window);
 }
 
+void Window::setClipboardText(const char* text) {
+    glfwSetClipboardString(window, text);
+}
+
 bool Window::tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor) {
 	glm::ivec4 windowFrame(0);
 	glm::ivec4 workArea(0);

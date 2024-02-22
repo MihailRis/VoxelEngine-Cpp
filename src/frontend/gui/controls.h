@@ -117,8 +117,19 @@ namespace gui {
         double caretLastMove = 0.0;
         Font* font = nullptr;
 
+        size_t selectionStart = 0;
+        size_t selectionEnd = 0;
+        size_t selectionOrigin = 0;
+
+        size_t normalizeIndex(int index);
+
+        int calcIndexAt(int x) const;
         void paste(const std::wstring& text);
         void setTextOffset(uint x);
+        void erase(size_t start, size_t length);
+        bool eraseSelected();
+        void resetSelection();
+        void extendSelection(int index);
     public:
         TextBox(std::wstring placeholder, 
                 glm::vec4 padding=glm::vec4(4.0f));
@@ -143,6 +154,7 @@ namespace gui {
         virtual void setText(std::wstring value);
         virtual std::wstring getPlaceholder() const;
         virtual void setPlaceholder(const std::wstring&);
+        virtual std::wstring getSelection() const;
         virtual uint getCaret() const;
         virtual void setCaret(uint position);
         virtual bool validate();
@@ -151,6 +163,7 @@ namespace gui {
         virtual void setOnEditStart(runnable oneditstart);
         virtual void focus(GUI*) override;
         virtual void refresh() override;
+        virtual void click(GUI*, int, int) override;
         virtual void mouseMove(GUI*, int x, int y) override;
     };
 

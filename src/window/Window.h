@@ -55,6 +55,7 @@ public:
     static void setBgColor(glm::vec4 color);
 	static double time();
     static const char* getClipboardText();
+    static void setClipboardText(const char* text);
 	static DisplaySettings* getSettings();
 
     static void setBlendMode(blendmode mode);

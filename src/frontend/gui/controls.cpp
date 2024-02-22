@@ -264,14 +264,22 @@ void TextBox::draw(const GfxContext* pctx, Assets* assets) {
     if (!isFocused())
         return;
 
+    const int yoffset = 2;
+    const int lineHeight = font->getLineHeight();
+    glm::vec2 lcoord = label->calcCoord();
+    auto batch = pctx->getBatch2D();
+    batch->texture(nullptr);
     if (int((Window::time() - caretLastMove) * 2) % 2 == 0) {
-        auto batch = pctx->getBatch2D();
-        batch->texture(nullptr);
         batch->color = glm::vec4(1.0f);
 
-        glm::vec2 lcoord = label->calcCoord();
-        int width = font->calcWidth(input.substr(0, caret));
-        batch->rect(lcoord.x + width, lcoord.y, 2, font->getLineHeight());
+        int width = font->calcWidth(input, caret);
+        batch->rect(lcoord.x + width, lcoord.y+yoffset, 2, lineHeight);
+    }
+    if (selectionStart != selectionEnd) {
+        batch->color = glm::vec4(0.8f, 0.9f, 1.0f, 0.5f);
+        int start = font->calcWidth(input, selectionStart);
+        int end = font->calcWidth(input, selectionEnd);
+        batch->rect(lcoord.x + start, lcoord.y+yoffset, end-start, lineHeight);
     }
 }
 
@@ -298,17 +306,15 @@ void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
         input = supplier();
     }
 
-    if (input.empty()) {
-        label->setColor(glm::vec4(0.5f));
-        label->setText(placeholder);
-    } else {
-        label->setColor(glm::vec4(1.0f));
-        label->setText(input);
-    }
+    label->setColor(glm::vec4(input.empty() ? 0.5f : 1.0f));
+    label->setText(getText());
     setScrollable(false);
 }
 
+/// @brief Insert text at the caret. Also selected text will be erased
+/// @param text Inserting text
 void TextBox::paste(const std::wstring& text) {
+    eraseSelected();
     if (caret >= input.length()) {
         input += text;
     } else {
@@ -320,6 +326,44 @@ void TextBox::paste(const std::wstring& text) {
     validate();
 }
 
+/// @brief Remove part of the text and move caret to start of the part
+/// @param start start of the part
+/// @param length length of part that will be removed
+void TextBox::erase(size_t start, size_t length) {
+    size_t end = start + length;
+    if (caret > start) {
+        setCaret(caret - length);
+    }
+    auto left = input.substr(0, start);
+    auto right = input.substr(end);
+    input = left + right;
+}
+
+/// @brief Remove all selected text and reset selection
+/// @return true if erased anything
+bool TextBox::eraseSelected() {
+    if (selectionStart == selectionEnd) {
+        return false;
+    }
+    erase(selectionStart, selectionEnd-selectionStart);
+    resetSelection();
+    return true;
+}
+
+void TextBox::resetSelection() {
+    selectionOrigin = 0;
+    selectionStart = 0;
+    selectionEnd = 0;
+}
+
+void TextBox::extendSelection(int index) {
+    size_t normalized = normalizeIndex(index);
+    selectionStart = std::min(selectionOrigin, normalized);
+    selectionEnd = std::max(selectionOrigin, normalized);
+}
+
+/// @brief Set scroll offset
+/// @param x scroll offset
 void TextBox::setTextOffset(uint x) {
     label->setCoord(glm::vec2(textInitX - int(x), label->getCoord().y));
     textOffset = x;
@@ -363,20 +407,45 @@ void TextBox::refresh() {
     label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
 }
 
-void TextBox::mouseMove(GUI*, int x, int y) {
+/// @brief Clamp index to range [0, input.length()]
+/// @param index non-normalized index
+/// @return normalized index
+size_t TextBox::normalizeIndex(int index) {
+    return std::min(input.length(), static_cast<size_t>(std::max(0, index)));
+}
+
+/// @brief Calculate index of character at defined screen X position
+/// @param x screen X position
+/// @return non-normalized character index
+int TextBox::calcIndexAt(int x) const {
     if (font == nullptr)
-        return;
+        return 0;
     glm::vec2 lcoord = label->calcCoord();
     uint offset = 0;
     while (lcoord.x + font->calcWidth(input, offset) < x && offset <= input.length()) {
         offset++;
     }
-    setCaret(offset);
+    return offset;
+}
+
+void TextBox::click(GUI*, int x, int) {
+    int index = normalizeIndex(calcIndexAt(x));
+    selectionStart = index;
+    selectionEnd = index;
+    selectionOrigin = index;
+}
+
+void TextBox::mouseMove(GUI*, int x, int y) {
+    int index = calcIndexAt(x);
+    setCaret(index);
+    extendSelection(index);
 }
 
 void TextBox::keyPressed(int key) {
+    bool shiftPressed = Events::pressed(keycode::LEFT_SHIFT);
+    uint previousCaret = caret;
     if (key == keycode::BACKSPACE) {
-        if (caret > 0 && input.length() > 0) {
+        if (!eraseSelected() && caret > 0 && input.length() > 0) {
             if (caret > input.length()) {
                 caret = input.length();
             }
@@ -385,7 +454,7 @@ void TextBox::keyPressed(int key) {
             validate();
         }
     } else if (key == keycode::DELETE) {
-        if (caret < input.length()) {
+        if (!eraseSelected() && caret < input.length()) {
             input = input.substr(0, caret) + input.substr(caret + 1);
             validate();
         }
@@ -401,18 +470,46 @@ void TextBox::keyPressed(int key) {
             } else {
                 setCaret(caret-1);
             }
+            if (shiftPressed) {
+                if (selectionStart == selectionEnd) {
+                    selectionOrigin = previousCaret;
+                }
+                extendSelection(caret);
+            } else {
+                resetSelection();
+            }
         }
     } else if (key == keycode::RIGHT) {
         if (caret < input.length()) {
             setCaret(caret+1);
             caretLastMove = Window::time();
+            if (shiftPressed) {
+                if (selectionStart == selectionEnd) {
+                    selectionOrigin = previousCaret;
+                }
+                extendSelection(caret);
+            } else {
+                resetSelection();
+            }
         }
     }
-    // Pasting text from clipboard
-    if (key == keycode::V && Events::pressed(keycode::LEFT_CONTROL)) {
-        const char* text = Window::getClipboardText();
-        if (text) {
-            paste(util::str2wstr_utf8(text));
+    if (Events::pressed(keycode::LEFT_CONTROL)) {
+        // Copy selected text to clipboard
+        if (key == keycode::C || key == keycode::X) {
+            std::string text = util::wstr2str_utf8(getSelection());
+            if (!text.empty()) {
+                Window::setClipboardText(text.c_str());
+            }
+            if (key == keycode::X) {
+                eraseSelected();
+            }
+        }
+        // Paste text from clipboard
+        if (key == keycode::V) {
+            const char* text = Window::getClipboardText();
+            if (text) {
+                paste(util::str2wstr_utf8(text));
+            }
         }
     }
 }
@@ -465,6 +562,10 @@ std::wstring TextBox::getPlaceholder() const {
 
 void TextBox::setPlaceholder(const std::wstring& placeholder) {
     this->placeholder = placeholder;
+}
+
+std::wstring TextBox::getSelection() const {
+    return input.substr(selectionStart, selectionEnd-selectionStart);
 }
 
 uint TextBox::getCaret() const {
