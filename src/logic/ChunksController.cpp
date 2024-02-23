@@ -10,7 +10,6 @@
 #include "../voxels/Chunks.h"
 #include "../voxels/ChunksStorage.h"
 #include "../voxels/WorldGenerator.h"
-#include "../world/WorldTypes.h"
 #include "../graphics/Mesh.h"
 #include "../lighting/Lighting.h"
 #include "../files/WorldFiles.h"
@@ -27,7 +26,7 @@ ChunksController::ChunksController(Level* level, uint padding)
 	  chunks(level->chunks), 
 	  lighting(level->lighting), 
 	  padding(padding), 
-	  generator(WorldTypes::createWorldGenerator(level->getWorld()->getType(), level->content)) {
+	  generator(new WorldGenerator(level->content)) {
 }
 
 ChunksController::~ChunksController(){
