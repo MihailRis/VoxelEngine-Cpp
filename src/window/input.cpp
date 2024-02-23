@@ -20,16 +20,17 @@ void Binding::reset(mousecode code) {
 
 namespace input_util {
 
-   std::string to_string(keycode code) {
+    std::string to_string(keycode code) {
+        int icode_repr = static_cast<int>(code);
 #ifdef _WIN32
         char name[64];
-        int result = GetKeyNameTextA(glfwGetKeyScancode(static_cast<int>(code)) << 16, name, 64);
+        int result = GetKeyNameTextA(glfwGetKeyScancode(icode_repr) << 16, name, 64);
         if (result == NULL) return "Unknown";
         return std::string(name);
 #else
-        const char* name = glfwGetKeyName(code, glfwGetKeyScancode(code));
+        const char* name = glfwGetKeyName(icode_repr, glfwGetKeyScancode(icode_repr));
         if (name == nullptr) {
-            switch (code) {
+            switch (icode_repr) {
             case GLFW_KEY_TAB: return "Tab";
             case GLFW_KEY_LEFT_CONTROL: return "Left Ctrl";
             case GLFW_KEY_RIGHT_CONTROL: return "Right Ctrl";
