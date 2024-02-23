@@ -101,7 +101,7 @@ void GUI::act(float delta) {
                 focus->typed(codepoint);
             }
             for (auto key : Events::pressedKeys) {
-                focus->keyPressed(static_cast<keycode>(key)); // temporary solution
+                focus->keyPressed(key);
             }
 
             if (!Events::_cursor_locked) {

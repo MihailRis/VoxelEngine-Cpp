@@ -24,7 +24,7 @@ public:
     static bool cursor_drag;
 	static bool _cursor_locked;
 	static std::vector<uint> codepoints;
-	static std::vector<int> pressedKeys;
+	static std::vector<keycode> pressedKeys;
 	static std::unordered_map<std::string, Binding> bindings;
 
 	static void pollEvents();
