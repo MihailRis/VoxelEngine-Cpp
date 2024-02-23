@@ -7,11 +7,15 @@
 #include <glm/glm.hpp>
 #include <filesystem>
 #include <unordered_set>
+#include <functional>
 #define GLEW_STATIC
 
 #include "audio/Audio.h"
 #include "assets/Assets.h"
 #include "assets/AssetsLoader.h"
+#include "world/WorldGenerators.h"
+#include "voxels/DefaultWorldGenerator.h"
+#include "voxels/FlatWorldGenerator.h"
 #include "window/Window.h"
 #include "window/Events.h"
 #include "window/Camera.h"
@@ -40,6 +44,11 @@
 #include "core_defs.h"
 
 namespace fs = std::filesystem;
+
+void addWorldGenerators() {
+	WorldGenerators::addGenerator<DefaultWorldGenerator>("core:default");
+	WorldGenerators::addGenerator<FlatWorldGenerator>("core:flat");
+}
 
 Engine::Engine(EngineSettings& settings, EnginePaths* paths) 
     : settings(settings), paths(paths) 
@@ -80,6 +89,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 		menus::create_version_label(this);
     }
     setLanguage(settings.ui.language);
+    addWorldGenerators();
 }
 
 void Engine::updateTimers() {

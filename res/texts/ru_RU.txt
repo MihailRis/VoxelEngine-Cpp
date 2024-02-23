@@ -23,6 +23,10 @@ menu.Settings=Настройки
 menu.Content=Контент
 world.Seed=Зерно
 world.Name=Название
+
+world.World generator=Генератор мира
+world.generators.default=Обычный
+world.generators.flat=Плоский
 menu.Create World=Создать Мир
 
 world.convert-request=Есть изменения в индексах! Конвертировать мир?
