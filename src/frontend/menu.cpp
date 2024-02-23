@@ -19,7 +19,6 @@
 #include "../files/WorldConverter.h"
 #include "../files/WorldFiles.h"
 #include "../world/World.h"
-#include "../world/WorldTypes.h"
 #include "../world/Level.h"
 #include "../window/Events.h"
 #include "../window/Window.h"
@@ -38,10 +37,6 @@ using glm::vec4;
 
 namespace fs = std::filesystem;
 using namespace gui;
-
-namespace menus {
-    std::string worldType;
-}
 
 inline uint64_t randU64() {
     srand(time(NULL));
@@ -86,6 +81,7 @@ static std::shared_ptr<Button> create_button(
     btn->setMargin(margin);
     return btn;
 }
+
 
 void menus::create_version_label(Engine* engine) {
     auto gui = engine->getGUI();
@@ -178,28 +174,6 @@ void create_languages_panel(Engine* engine) {
             vec4(10.f),
             [=](GUI*) {
                 engine->setLanguage(name);
-                menu->back();
-            }
-        );
-        panel->add(button);
-    }
-    panel->add(guiutil::backButton(menu));
-}
-
-void create_world_types_panel(Engine* engine) {
-    auto menu = engine->getGUI()->getMenu();
-    auto panel = create_page(engine, "world_types", 400, 0.5f, 1);
-    panel->setScrollable(true);
-
-    std::vector<std::string> worldTypes = WorldTypes::getWorldTypes();
-    std::sort(worldTypes.begin(), worldTypes.end());
-    for (std::string& type : worldTypes) {
-        const std::string& fullName = util::wstr2str_utf8(langs::get(util::str2wstr_utf8(type), L"world.types"));
-        auto button = std::make_shared<Button>(
-            util::str2wstr_utf8(fullName), 
-            vec4(10.f),
-            [=](GUI*) {
-                menus::worldType = type;
                 menu->back();
             }
         );
@@ -454,8 +428,6 @@ void create_new_world_panel(Engine* engine) {
     auto seedInput = std::make_shared<TextBox>(seedstr, vec4(6.0f));
     panel->add(seedInput);
 
-    panel->add(guiutil::gotoButton(langs::get(L"World type", L"world"), "world_types", engine->getGUI()->getMenu()));
-
     panel->add(create_button( L"Create World", vec4(10), vec4(1, 20, 1, 1), 
     [=](GUI*) {
         if (!nameInput->validate())
@@ -492,12 +464,11 @@ void create_new_world_panel(Engine* engine) {
         }
 
         Level* level = World::create(
-            name, menus::worldType, folder, seed, 
+            name, folder, seed, 
             engine->getSettings(), 
             engine->getContent(),
             engine->getContentPacks()
         );
-        menus::worldType = WorldTypes::getDefaultWorldType();
         engine->setScreen(std::make_shared<LevelScreen>(engine, level));
     }));
     panel->add(guiutil::backButton(engine->getGUI()->getMenu()));
@@ -684,18 +655,15 @@ void create_pause_panel(Engine* engine) {
 }
 
 void menus::create_menus(Engine* engine) {
-    menus::worldType = WorldTypes::getDefaultWorldType();
     create_new_world_panel(engine);
     create_settings_panel(engine);
     create_controls_panel(engine);
     create_pause_panel(engine);
     create_languages_panel(engine);
-    create_world_types_panel(engine);
     create_main_menu_panel(engine);
 }
 
 void menus::refresh_menus(Engine* engine) {
     create_main_menu_panel(engine);
     create_new_world_panel(engine);
-    create_world_types_panel(engine);
 }

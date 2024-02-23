@@ -112,10 +112,24 @@ namespace gui {
         bool valid = true;
         /// @brief text input pointer, value may be greather than text length
         uint caret = 0;
+        uint textOffset = 0;
+        int textInitX;
         double caretLastMove = 0.0;
         Font* font = nullptr;
 
+        size_t selectionStart = 0;
+        size_t selectionEnd = 0;
+        size_t selectionOrigin = 0;
+
+        size_t normalizeIndex(int index);
+
+        int calcIndexAt(int x) const;
         void paste(const std::wstring& text);
+        void setTextOffset(uint x);
+        void erase(size_t start, size_t length);
+        bool eraseSelected();
+        void resetSelection();
+        void extendSelection(int index);
     public:
         TextBox(std::wstring placeholder, 
                 glm::vec4 padding=glm::vec4(4.0f));
@@ -134,21 +148,23 @@ namespace gui {
         virtual glm::vec4 getFocusedColor() const;
         virtual void setErrorColor(glm::vec4 color);
         virtual glm::vec4 getErrorColor() const;
-        /* Get TextBox content text or placeholder if empty */
+        /// @brief Get TextBox content text or placeholder if empty
         virtual std::wstring getText() const;
-        /* Set TextBox content text */
+        /// @brief Set TextBox content text
         virtual void setText(std::wstring value);
         virtual std::wstring getPlaceholder() const;
         virtual void setPlaceholder(const std::wstring&);
+        virtual std::wstring getSelection() const;
         virtual uint getCaret() const;
         virtual void setCaret(uint position);
+        virtual void select(int start, int end);
         virtual bool validate();
         virtual void setValid(bool valid);
         virtual bool isValid() const;
         virtual void setOnEditStart(runnable oneditstart);
         virtual void focus(GUI*) override;
         virtual void refresh() override;
-        virtual void clicked(GUI*, int button) override;
+        virtual void click(GUI*, int, int) override;
         virtual void mouseMove(GUI*, int x, int y) override;
     };
 
