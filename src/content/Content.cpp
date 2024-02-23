@@ -87,6 +87,12 @@ Content* ContentBuilder::build() {
                 AABB aabb = hitbox;
                 def->rotations.variants[i].transform(aabb);
                 def->rt.hitboxes[i] = aabb;
+
+                def->rt.modelBoxes[i].reserve(def->modelBoxes.size());
+                for (AABB aabb : def->modelBoxes) {
+                    def->rotations.variants[i].transform(aabb);
+                    def->rt.modelBoxes[i].push_back(aabb);
+                }
             }
         }
 
