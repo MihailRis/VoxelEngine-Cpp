@@ -27,13 +27,13 @@ void key_callback(GLFWwindow*, int key, int scancode, int action, int /*mode*/) 
 	if (key == GLFW_KEY_UNKNOWN) return;
 	if (action == GLFW_PRESS) {
         Events::setKey(key, true);
-		Events::pressedKeys.push_back(key);
+		Events::pressedKeys.push_back(static_cast<keycode>(key));
 	}
 	else if (action == GLFW_RELEASE) {
         Events::setKey(key, false);
 	}
 	else if (action == GLFW_REPEAT) {
-		Events::pressedKeys.push_back(key);
+		Events::pressedKeys.push_back(static_cast<keycode>(key));
 	}
 }
 

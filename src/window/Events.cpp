@@ -13,7 +13,7 @@ glm::vec2 Events::cursor = {};
 bool Events::cursor_drag = false;
 bool Events::_cursor_locked = false;
 std::vector<uint> Events::codepoints;
-std::vector<int> Events::pressedKeys;
+std::vector<keycode> Events::pressedKeys;
 std::unordered_map<std::string, Binding> Events::bindings;
 
 bool Events::pressed(keycode keycode) {
