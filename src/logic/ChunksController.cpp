@@ -27,7 +27,7 @@ ChunksController::ChunksController(Level* level, uint padding)
 	  chunks(level->chunks), 
 	  lighting(level->lighting), 
 	  padding(padding), 
-	  generator(WorldGenerators::createWorldGenerator(level->getWorld()->getGenerator(), level->content)) {
+	  generator(WorldGenerators::createGenerator(level->getWorld()->getGenerator(), level->content)) {
 }
 
 ChunksController::~ChunksController(){

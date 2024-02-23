@@ -186,6 +186,18 @@ void create_languages_panel(Engine* engine) {
     panel->add(guiutil::backButton(menu));
 }
 
+std::string translate_generator_id(std::string& id) {
+    int delimiterPosition = id.find(":");
+    std::string pack = id.substr(0, delimiterPosition);
+    std::string generator = id.substr(delimiterPosition + 1);
+
+    if(pack == "core") {
+        return util::wstr2str_utf8(langs::get(util::str2wstr_utf8(generator), L"world.generators"));
+    } else {
+        return id;
+    }
+}
+
 void create_world_generators_panel(Engine* engine) {
     auto menu = engine->getGUI()->getMenu();
     auto panel = create_page(engine, "world_generators", 400, 0.5f, 1);
@@ -193,13 +205,30 @@ void create_world_generators_panel(Engine* engine) {
 
     std::vector<std::string> generatorsIDs = WorldGenerators::getGeneratorsIDs();
     std::sort(generatorsIDs.begin(), generatorsIDs.end());
-    for (std::string& type : generatorsIDs) {
-        const std::string& fullName = util::wstr2str_utf8(langs::get(util::str2wstr_utf8(type), L"world.generators"));
-        auto button = std::make_shared<Button>(
+    for (std::string& id : generatorsIDs) {
+        const std::string& fullName = translate_generator_id(id);
+        /*auto button = std::make_shared<Button>(
             util::str2wstr_utf8(fullName), 
             vec4(10.f),
             [=](GUI*) {
-                menus::generatorID = type;
+                menus::generatorID = id;
+                menu->back();
+            }
+        );*/
+        auto button = std::make_shared<RichButton>(vec2(80, 30));
+
+        auto idlabel = std::make_shared<Label>("["+id+"]");
+        idlabel->setColor(vec4(1, 1, 1, 0.5f));
+        idlabel->setSize(vec2(300, 25));
+        idlabel->setAlign(Align::right);
+
+        button->add(idlabel, vec2(80, 4));
+
+        button->add(std::make_shared<Label>(fullName), vec2(0, 8));
+
+        button->listenAction(
+            [=](GUI*) {
+                menus::generatorID = id;
                 menu->back();
             }
         );
@@ -497,7 +526,7 @@ void create_new_world_panel(Engine* engine) {
             engine->getContent(),
             engine->getContentPacks()
         );
-        menus::generatorID = WorldGenerators::getDefaultWorldGeneratorID();
+        menus::generatorID = WorldGenerators::getDefaultGeneratorID();
         engine->setScreen(std::make_shared<LevelScreen>(engine, level));
     }));
     panel->add(guiutil::backButton(engine->getGUI()->getMenu()));
@@ -684,7 +713,7 @@ void create_pause_panel(Engine* engine) {
 }
 
 void menus::create_menus(Engine* engine) {
-    menus::generatorID = WorldGenerators::getDefaultWorldGeneratorID();
+    menus::generatorID = WorldGenerators::getDefaultGeneratorID();
     create_new_world_panel(engine);
     create_settings_panel(engine);
     create_controls_panel(engine);

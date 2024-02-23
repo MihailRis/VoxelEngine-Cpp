@@ -1,5 +1,4 @@
 #include "DefaultWorldGenerator.h"
-#include "WorldGenerator.h"
 #include "voxel.h"
 #include "Chunk.h"
 #include "Block.h"
@@ -120,7 +119,7 @@ int generate_tree(fnl_state *noise,
     return 0;
 }
 
-void WorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
+void DefaultWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
     const int treesTile = 12;
     fnl_state noise = fnlCreateState();
     noise.noise_type = FNL_NOISE_OPENSIMPLEX2;

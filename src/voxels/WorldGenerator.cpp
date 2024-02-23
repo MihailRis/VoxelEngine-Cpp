@@ -1,4 +1,7 @@
 #include "WorldGenerator.h"
+#include "voxel.h"
+#include "Chunk.h"
+#include "Block.h"
 
 #include "../content/Content.h"
 

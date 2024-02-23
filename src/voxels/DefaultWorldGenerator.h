@@ -1,18 +1,18 @@
-#ifndef VOXELS_WORLDGENERATOR_H_
-#define VOXELS_WORLDGENERATOR_H_
+#ifndef VOXELS_DEFAULTWORLDGENERATOR_H_
+#define VOXELS_DEFAULTWORLDGENERATOR_H_
 
 #include "../typedefs.h"
 #include "../voxels/WorldGenerator.h"
-#include <string>
 
 struct voxel;
 class Content;
 
 class DefaultWorldGenerator : WorldGenerator {
 public:
+
 	DefaultWorldGenerator(const Content* content) : WorldGenerator(content) {}
 
-	void generate(voxel* voxels, int x, int z, int seed) override;
+	void generate(voxel* voxels, int x, int z, int seed);
 };
 
-#endif /* VOXELS_WORLDGENERATOR_H_ */
+#endif /* VOXELS_DEFAULTWORLDGENERATOR_H_ */

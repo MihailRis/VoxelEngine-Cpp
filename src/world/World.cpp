@@ -6,7 +6,6 @@
 
 #include "Level.h"
 #include "../files/WorldFiles.h"
-#include "../world/WorldTypes.h"
 #include "../content/Content.h"
 #include "../world/WorldGenerators.h"
 #include "../content/ContentLUT.h"
@@ -116,7 +115,7 @@ void World::setName(const std::string& name) {
     this->name = name;
 }
 
-void world::setGenerator(const std::string& generator) {
+void World::setGenerator(const std::string& generator) {
     this->generator = generator;
 }
 

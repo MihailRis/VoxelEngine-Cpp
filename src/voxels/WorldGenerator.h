@@ -22,7 +22,7 @@ protected:
 public:
 	WorldGenerator(const Content* content);
 
-	virtual void generate(voxel* voxels, int x, int z, int seed);
+	virtual void generate(voxel* voxels, int x, int z, int seed) = 0;
 };
 
 #endif /* VOXELS_WORLDGENERATOR_H_ */

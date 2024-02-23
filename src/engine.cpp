@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <filesystem>
 #include <unordered_set>
+#include <functional>
 #define GLEW_STATIC
 
 #include "audio/Audio.h"
@@ -43,6 +44,11 @@
 #include "core_defs.h"
 
 namespace fs = std::filesystem;
+
+void addWorldGenerators() {
+	WorldGenerators::addGenerator<DefaultWorldGenerator>("core:default");
+	WorldGenerators::addGenerator<FlatWorldGenerator>("core:flat");
+}
 
 Engine::Engine(EngineSettings& settings, EnginePaths* paths) 
     : settings(settings), paths(paths) 
@@ -84,11 +90,6 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     }
     setLanguage(settings.ui.language);
     addWorldGenerators();
-}
-
-void addWorldGenerators() {
-	WorldGenerators::addWorldGenerator<DefaultWorldGenerator>("core:default");
-	WorldGenerators::addWorldGenerator<FlatWorldGenerator>("core:flat");
 }
 
 void Engine::updateTimers() {

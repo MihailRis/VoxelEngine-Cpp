@@ -12,7 +12,7 @@ public:
 
 	FlatWorldGenerator(const Content* content) : WorldGenerator(content) {}
 
-	void generate(voxel* voxels, int x, int z, int seed) override;
+	void generate(voxel* voxels, int x, int z, int seed);
 };
 
 #endif /* VOXELS_FLATWORLDGENERATOR_H_ */

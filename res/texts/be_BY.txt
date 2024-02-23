@@ -25,6 +25,9 @@ world.Seed=Зерне
 world.Name=Назва
 menu.Create World=Стварыць Свет
 
+world.World generator=Генератар свету
+world.generators.default=Звычайны
+world.generators.flat=Плоскі
 world.convert-request=Ёсць змены ў індэксах! Канвертаваць свет?
 world.delete-confirm=Выдаліць свет незваротна?
 
