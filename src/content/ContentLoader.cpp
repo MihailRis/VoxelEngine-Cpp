@@ -151,6 +151,15 @@ void ContentLoader::loadBlock(Block& def, std::string name, fs::path file) {
         aabb.a = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
         aabb.b = glm::vec3(boxarr->num(3), boxarr->num(4), boxarr->num(5));
         aabb.b += aabb.a;
+        def.hitboxExplicit = true;
+    } else if (def.modelBoxes.empty()) {
+        def.hitboxExplicit = true;
+    } else {
+        def.hitbox = def.modelBoxes[0];
+        for (const auto& box : def.modelBoxes) {
+            def.hitbox.a = glm::min(def.hitbox.a, box.a);
+            def.hitbox.b = glm::max(def.hitbox.b, box.b);
+        }
     }
 
     // block light emission [r, g, b] where r,g,b in range [0..15]

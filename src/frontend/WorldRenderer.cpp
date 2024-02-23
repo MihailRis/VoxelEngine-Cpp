@@ -190,20 +190,30 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
 			const vec3 pos = PlayerController::selectedBlockPosition;
 			const vec3 point = PlayerController::selectedPointPosition;
 			const vec3 norm = PlayerController::selectedBlockNormal;
-			AABB hitbox = block->hitbox;
+
+            std::vector<AABB> hitboxes;
+            if (!block->hitboxExplicit) {
+                hitboxes = block->modelBoxes;
+            } else {
+                hitboxes = { block->hitbox };
+            }
 			if (block->rotatable) {
-				auto states = PlayerController::selectedBlockStates;
-				block->rotations.variants[states].transform(hitbox);
+                auto states = PlayerController::selectedBlockStates;
+                for (auto& hitbox: hitboxes) {
+                    block->rotations.variants[states].transform(hitbox);
+                }
 			}
 
-			const vec3 center = pos + hitbox.center();
-			const vec3 size = hitbox.size();
-			linesShader->use();
-			linesShader->uniformMatrix("u_projview", camera->getProjView());
-			lineBatch->lineWidth(2.0f);
-			lineBatch->box(center, size + vec3(0.02), vec4(0.f, 0.f, 0.f, 0.5f));
-			if (level->player->debug)
-				lineBatch->line(point, point+norm*0.5f, vec4(1.0f, 0.0f, 1.0f, 1.0f));
+            linesShader->use();
+            linesShader->uniformMatrix("u_projview", camera->getProjView());
+            lineBatch->lineWidth(2.0f);
+            for (auto& hitbox: hitboxes) {
+                const vec3 center = pos + hitbox.center();
+                const vec3 size = hitbox.size();
+                lineBatch->box(center, size + vec3(0.02), vec4(0.f, 0.f, 0.f, 0.5f));
+                if (level->player->debug)
+                    lineBatch->line(point, point+norm*0.5f, vec4(1.0f, 0.0f, 1.0f, 1.0f));
+            }
 			lineBatch->render();
 		}
 		skybox->unbind();

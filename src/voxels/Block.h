@@ -94,6 +94,7 @@ public:
     bool grounded = false;
     bool hidden = false;
 	AABB hitbox;
+    bool hitboxExplicit = false;
 	BlockRotProfile rotations;
     std::string pickingItem = name+BLOCK_ITEM_SUFFIX;
     std::string scriptName = name.substr(name.find(':')+1);

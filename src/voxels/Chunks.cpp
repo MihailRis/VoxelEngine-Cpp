@@ -15,6 +15,7 @@
 
 #include <math.h>
 #include <limits.h>
+#include <vector>
 
 Chunks::Chunks(int w, int d, 
 			   int ox, int oz, 
@@ -52,7 +53,7 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
 	int ix = floor(x);
 	int iy = floor(y);
 	int iz = floor(z);
-	voxel* v = get(ix,iy,iz);
+	voxel* v = get(ix, iy, iz);
 	if (v == nullptr)
 		return &contentIds->getBlockDef(0)->hitbox;
 	const Block* def = contentIds->getBlockDef(v->id);
@@ -62,10 +63,14 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
 							 : def->hitbox;
 		if (def->rt.solid) {
 			return &hitbox;
-		} else {
-			if (hitbox.contains({x - ix, y - iy, z - iz}))
-				return &hitbox;
-			return nullptr;
+		} else if (def->hitboxExplicit) {
+            if (hitbox.contains({x - ix, y - iy, z - iz}))
+                return &hitbox;
+        } else {
+            for (const auto& hitbox : def->modelBoxes) {
+			    if (hitbox.contains({x - ix, y - iy, z - iz}))
+                    return &hitbox;
+            }
 		}
 	}
 	return nullptr;
