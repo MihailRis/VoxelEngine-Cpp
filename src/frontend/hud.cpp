@@ -386,9 +386,9 @@ void Hud::update(bool visible) {
     hotbarView->setVisible(visible);
 
     if (!gui->isFocusCaught() && !pause) {
-        for (int i = keycode::NUM_1; i <= keycode::NUM_9; i++) {
+        for (int i = static_cast<int>(keycode::NUM_1); i <= static_cast<int>(keycode::NUM_9); i++) {
             if (Events::jpressed(i)) {
-                player->setChosenSlot(i - keycode::NUM_1);
+                player->setChosenSlot(i - static_cast<int>(keycode::NUM_1));
             }
         }
         if (Events::jpressed(keycode::NUM_0)) {

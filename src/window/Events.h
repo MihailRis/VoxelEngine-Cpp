@@ -29,14 +29,20 @@ public:
 
 	static void pollEvents();
 
+	static bool pressed(keycode keycode);
 	static bool pressed(int keycode);
+	static bool jpressed(keycode keycode);
 	static bool jpressed(int keycode);
 
+	static bool clicked(mousecode button);
 	static bool clicked(int button);
+	static bool jclicked(mousecode button);
 	static bool jclicked(int button);
 
 	static void toggleCursor();
 
+	static void bind(std::string name, inputtype type, keycode code);
+	static void bind(std::string name, inputtype type, mousecode code);
 	static void bind(std::string name, inputtype type, int code);
 	static bool active(std::string name);
 	static bool jactive(std::string name);
