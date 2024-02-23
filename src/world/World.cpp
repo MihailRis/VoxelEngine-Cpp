@@ -7,6 +7,7 @@
 #include "Level.h"
 #include "../files/WorldFiles.h"
 #include "../content/Content.h"
+#include "../world/WorldGenerators.h"
 #include "../content/ContentLUT.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/Chunks.h"
@@ -21,12 +22,14 @@ world_load_error::world_load_error(std::string message)
 
 World::World(
     std::string name, 
+    std::string generator,
     fs::path directory, 
     uint64_t seed, 
     EngineSettings& settings,
     const Content* content,
     const std::vector<ContentPack> packs) 
     : name(name),
+      generator(generator),
       seed(seed),
       settings(settings), 
       content(content),
@@ -65,12 +68,13 @@ void World::write(Level* level) {
 }
 
 Level* World::create(std::string name, 
+                     std::string generator,
                      fs::path directory, 
                      uint64_t seed,
                      EngineSettings& settings, 
                      const Content* content,
                      const std::vector<ContentPack>& packs) {
-    auto world = new World(name, directory, seed, settings, content, packs);
+    auto world = new World(name, generator, directory, seed, settings, content, packs);
     auto level = new Level(world, content, settings);
     auto inventory = level->player->getInventory();
     inventory->setId(world->getNextInventoryId());
@@ -83,7 +87,7 @@ Level* World::load(fs::path directory,
                    const Content* content,
                    const std::vector<ContentPack>& packs) {
     auto world = std::make_unique<World>(
-        ".", directory, 0, settings, content, packs
+        ".", WorldGenerators::getDefaultGeneratorID(), directory, 0, settings, content, packs
     );
     auto& wfile = world->wfile;
 
@@ -111,6 +115,10 @@ void World::setName(const std::string& name) {
     this->name = name;
 }
 
+void World::setGenerator(const std::string& generator) {
+    this->generator = generator;
+}
+
 bool World::hasPack(const std::string& id) const {
     for (auto& pack : packs) {
         if (pack.id == id)
@@ -131,45 +139,55 @@ uint64_t World::getSeed() const {
     return seed;
 }
 
+std::string World::getGenerator() const {
+    return generator;
+}
+
 const std::vector<ContentPack>& World::getPacks() const {
     return packs;
 }
 
 void World::deserialize(dynamic::Map* root) {
     name = root->getStr("name", name);
+    generator = root->getStr("generator", generator);
     seed = root->getInt("seed", seed);
 
-	auto verobj = root->map("version");
-	if (verobj) {
-		int major=0, minor=-1;
-		verobj->num("major", major);
-		verobj->num("minor", minor);
-		std::cout << "world version: " << major << "." << minor << std::endl;
-	}
+    if(generator == "") {
+        generator = WorldGenerators::getDefaultGeneratorID();
+    }
 
-	auto timeobj = root->map("time");
-	if (timeobj) {
-		timeobj->num("day-time", daytime);
-		timeobj->num("day-time-speed", daytimeSpeed);
+    auto verobj = root->map("version");
+    if (verobj) {
+        int major=0, minor=-1;
+        verobj->num("major", major);
+        verobj->num("minor", minor);
+        std::cout << "world version: " << major << "." << minor << std::endl;
+    }
+
+    auto timeobj = root->map("time");
+    if (timeobj) {
+        timeobj->num("day-time", daytime);
+        timeobj->num("day-time-speed", daytimeSpeed);
         timeobj->num("total-time", totalTime);
-	}
+    }
     
     nextInventoryId = root->getNum("next-inventory-id", 2);
 }
 
 std::unique_ptr<dynamic::Map> World::serialize() const {
-	auto root = std::make_unique<dynamic::Map>();
+    auto root = std::make_unique<dynamic::Map>();
 
-	auto& versionobj = root->putMap("version");
-	versionobj.put("major", ENGINE_VERSION_MAJOR);
-	versionobj.put("minor", ENGINE_VERSION_MINOR);
+    auto& versionobj = root->putMap("version");
+    versionobj.put("major", ENGINE_VERSION_MAJOR);
+    versionobj.put("minor", ENGINE_VERSION_MINOR);
 
-	root->put("name", name);
-	root->put("seed", seed);
-	
+    root->put("name", name);
+    root->put("generator", generator);
+    root->put("seed", seed);
+    
     auto& timeobj = root->putMap("time");
-	timeobj.put("day-time", daytime);
-	timeobj.put("day-time-speed", daytimeSpeed);
+    timeobj.put("day-time", daytime);
+    timeobj.put("day-time-speed", daytimeSpeed);
     timeobj.put("total-time", totalTime);
 
     root->put("next-inventory-id", nextInventoryId);

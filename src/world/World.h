@@ -26,8 +26,9 @@ public:
     world_load_error(std::string message);
 };
 
-class World : public Serializable {
+class World : Serializable {
     std::string name;
+    std::string generator;
     uint64_t seed;
     EngineSettings& settings;
     const Content* const content;
@@ -47,11 +48,13 @@ public:
     double totalTime = 0.0;
 
     World(std::string name, 
+          std::string generator,
           fs::path directory, 
           uint64_t seed, 
           EngineSettings& settings,
           const Content* content,
           std::vector<ContentPack> packs);
+
     ~World();
 
     /** 
@@ -77,6 +80,7 @@ public:
      * Create new world
      * @param name internal world name
      * @param directory root world directory
+     * @param type of the world
      * @param seed world generation seed
      * @param settings current engine settings
      * @param content current engine Content instance 
@@ -85,6 +89,7 @@ public:
      * @return Level instance containing World instance
      */
     static Level* create(std::string name, 
+                         std::string generator,
                          fs::path directory, 
                          uint64_t seed, 
                          EngineSettings& settings, 
@@ -108,7 +113,8 @@ public:
 
     void setName(const std::string& name);
     void setSeed(uint64_t seed);
-    
+    void setGenerator(const std::string& generator);
+
     /** 
      * Check if world has content-pack installed 
      * @param id content-pack id
@@ -124,6 +130,8 @@ public:
     /** Get world generation seed */
     uint64_t getSeed() const;
 
+    /** Get world generator id */
+    std::string getGenerator() const;
     /**
      * Get vector of all content-packs installed in world
      */

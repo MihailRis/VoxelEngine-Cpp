@@ -23,6 +23,9 @@ menu.Seed=Siemen
 menu.Name=Nimi
 menu.Create World=Luo Maailma
 
+world.World generator=Valon generaattori
+world.generators.default=Äärimmäinen
+world.generators.flat=Tasainen
 world.convert-request=Indeksit vaihdettu! Lataa maailma uudeleen?
 world.delete-confirm=Poistetaanko maailma ikuisesti?
 
