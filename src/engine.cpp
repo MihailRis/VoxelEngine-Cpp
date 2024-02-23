@@ -100,14 +100,14 @@ void Engine::updateTimers() {
 }
 
 void Engine::updateHotkeys() {
-	if (Events::jpressed(static_cast<int>(keycode::F2))) {
+	if (Events::jpressed(keycode::F2)) {
 		std::unique_ptr<ImageData> image(Window::takeScreenshot());
 		image->flipY();
 		fs::path filename = paths->getScreenshotFile("png");
 		png::write_image(filename.string(), image.get());
 		std::cout << "saved screenshot as " << filename << std::endl;
 	}
-	if (Events::jpressed(static_cast<int>(keycode::F11))) {
+	if (Events::jpressed(keycode::F11)) {
 		Window::toggleFullscreen();
 	}
 }
