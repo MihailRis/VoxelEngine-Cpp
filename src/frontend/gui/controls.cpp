@@ -441,7 +441,7 @@ void TextBox::mouseMove(GUI*, int x, int y) {
     extendSelection(index);
 }
 
-void TextBox::keyPressed(int key) {
+void TextBox::keyPressed(keycode key) {
     bool shiftPressed = Events::pressed(keycode::LEFT_SHIFT);
     uint previousCaret = caret;
     if (key == keycode::BACKSPACE) {
@@ -624,16 +624,14 @@ void InputBindBox::drawBackground(const GfxContext* pctx, Assets* assets) {
     label->setText(util::str2wstr_utf8(binding.text()));
 }
 
-void InputBindBox::clicked(GUI*, int button) {
-    binding.type = inputtype::mouse;
-    binding.code = button;
+void InputBindBox::clicked(GUI*, mousecode button) {
+    binding.reset(button);
     defocus();
 }
 
-void InputBindBox::keyPressed(int key) {
+void InputBindBox::keyPressed(keycode key) {
     if (key != keycode::ESCAPE) {
-        binding.type = inputtype::keyboard;
-        binding.code = key;
+        binding.reset(key);
     }
     defocus();
 }

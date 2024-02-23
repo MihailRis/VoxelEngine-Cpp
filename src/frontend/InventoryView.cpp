@@ -205,7 +205,7 @@ bool SlotView::isHighlighted() const {
     return highlighted;
 }
 
-void SlotView::clicked(gui::GUI* gui, int button) {
+void SlotView::clicked(gui::GUI* gui, mousecode button) {
     if (bound == nullptr)
         return;
 
@@ -260,7 +260,7 @@ void SlotView::clicked(gui::GUI* gui, int button) {
 }
 
 void SlotView::focus(gui::GUI* gui) {
-    clicked(gui, 0);
+    clicked(gui, mousecode::BUTTON_1);
 }
 
 void SlotView::bind(

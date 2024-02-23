@@ -71,10 +71,10 @@ void GUI::actMouse(float delta) {
         pressed = nullptr;
     }
 
-    if (hover) {
-        for (int i = mousecode::BUTTON_1; i < mousecode::BUTTON_1+12; i++) {
+    if (hover) {//WTF?! FIXME 
+        for (int i = static_cast<int>(mousecode::BUTTON_1); i < static_cast<int>(mousecode::BUTTON_1)+12; i++) {
             if (Events::jclicked(i)) {
-                hover->clicked(this, i);
+                hover->clicked(this, static_cast<mousecode>(i));
             }
         }
     }
@@ -101,7 +101,7 @@ void GUI::act(float delta) {
                 focus->typed(codepoint);
             }
             for (auto key : Events::pressedKeys) {
-                focus->keyPressed(key);
+                focus->keyPressed(static_cast<keycode>(key)); // temporary solution
             }
 
             if (!Events::_cursor_locked) {

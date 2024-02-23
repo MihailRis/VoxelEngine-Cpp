@@ -72,7 +72,7 @@ public:
     void setHighlighted(bool flag);
     bool isHighlighted() const;
 
-    virtual void clicked(gui::GUI*, int) override;
+    virtual void clicked(gui::GUI*, mousecode) override;
     virtual void focus(gui::GUI*) override;
 
     void bind(
