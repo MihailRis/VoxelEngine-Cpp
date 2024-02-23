@@ -12,6 +12,9 @@
 #include "audio/Audio.h"
 #include "assets/Assets.h"
 #include "assets/AssetsLoader.h"
+#include "world/WorldGenerators.h"
+#include "voxels/DefaultWorldGenerator.h"
+#include "voxels/FlatWorldGenerator.h"
 #include "window/Window.h"
 #include "window/Events.h"
 #include "window/Camera.h"
@@ -80,6 +83,12 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 		menus::create_version_label(this);
     }
     setLanguage(settings.ui.language);
+    addWorldGenerators();
+}
+
+void addWorldGenerators() {
+	WorldGenerators::addWorldGenerator<DefaultWorldGenerator>("core:default");
+	WorldGenerators::addWorldGenerator<FlatWorldGenerator>("core:flat");
 }
 
 void Engine::updateTimers() {
