@@ -82,16 +82,11 @@ Content* ContentBuilder::build() {
         def->rt.solid = def->model == BlockModel::block;
 
         if (def->rotatable) {
-            const AABB& hitbox = def->hitbox;
             for (uint i = 0; i < BlockRotProfile::MAX_COUNT; i++) {
-                AABB aabb = hitbox;
-                def->rotations.variants[i].transform(aabb);
-                def->rt.hitboxes[i] = aabb;
-
-                def->rt.modelBoxes[i].reserve(def->modelBoxes.size());
-                for (AABB aabb : def->modelBoxes) {
+                def->rt.hitboxes[i].reserve(def->hitboxes.size());
+                for (AABB aabb : def->hitboxes) {
                     def->rotations.variants[i].transform(aabb);
-                    def->rt.modelBoxes[i].push_back(aabb);
+                    def->rt.hitboxes[i].push_back(aabb);
                 }
             }
         }

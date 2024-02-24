@@ -191,18 +191,9 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
 			const vec3 point = PlayerController::selectedPointPosition;
 			const vec3 norm = PlayerController::selectedBlockNormal;
 
-            std::vector<AABB> hitboxes;
-            if (!block->hitboxExplicit) {
-                hitboxes = block->modelBoxes;
-            } else {
-                hitboxes = { block->hitbox };
-            }
-			if (block->rotatable) {
-                auto states = PlayerController::selectedBlockStates;
-                for (auto& hitbox: hitboxes) {
-                    block->rotations.variants[states].transform(hitbox);
-                }
-			}
+            std::vector<AABB>& hitboxes = block->rotatable
+                ? block->rt.hitboxes[PlayerController::selectedBlockStates]
+                : block->hitboxes;
 
             linesShader->use();
             linesShader->uniformMatrix("u_projview", camera->getProjView());

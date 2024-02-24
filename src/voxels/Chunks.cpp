@@ -54,27 +54,19 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
 	int iy = floor(y);
 	int iz = floor(z);
 	voxel* v = get(ix, iy, iz);
-	if (v == nullptr)
-		return &contentIds->getBlockDef(0)->hitbox;
+	if (v == nullptr) {
+        static const AABB empty;
+		return &empty;
+    }
 	const Block* def = contentIds->getBlockDef(v->id);
 	if (def->obstacle) {
-		const AABB& hitbox = def->rotatable 
-							 ? def->rt.hitboxes[v->rotation()] 
-							 : def->hitbox;
-		if (def->rt.solid) {
-			return &hitbox;
-		} else if (def->hitboxExplicit) {
+        const auto& boxes = def->rotatable 
+                         ? def->rt.hitboxes[v->rotation()] 
+                         : def->hitboxes;
+        for (const auto& hitbox : boxes) {
             if (hitbox.contains({x - ix, y - iy, z - iz}))
                 return &hitbox;
-        } else {
-            const auto& boxes = def->rotatable 
-							 ? def->rt.modelBoxes[v->rotation()] 
-							 : def->modelBoxes;
-            for (const auto& hitbox : boxes) {
-			    if (hitbox.contains({x - ix, y - iy, z - iz}))
-                    return &hitbox;
-            }
-		}
+        }
 	}
 	return nullptr;
 }
@@ -247,28 +239,27 @@ voxel* Chunks::rayCast(glm::vec3 start,
 					iend.z = iz;
 			
 			if (!def->rt.solid) {
-                std::vector<AABB> hitboxes;
-                if (def->hitboxExplicit) {
-                    hitboxes = {
-                        def->rotatable
-                            ? def->rt.hitboxes[voxel->rotation()]
-                            : def->hitbox
-                    };
-                } else {
-                    hitboxes = def->rotatable
-                        ? def->rt.modelBoxes[voxel->rotation()]
-                        : def->modelBoxes;
-                }
+                const std::vector<AABB>& hitboxes = def->rotatable
+                        ? def->rt.hitboxes[voxel->rotation()]
+                        : def->hitboxes;
 
-                scalar_t distance;
+                scalar_t distance = maxDist;
                 Ray ray(start, dir);
 
+                bool hit = false;
+
                 for (const auto& box : hitboxes) {
-                    if (ray.intersectAABB(iend, box, maxDist, norm, distance) > RayRelation::None) {
+                    scalar_t boxDistance;
+					glm::ivec3 boxNorm;
+                    if (ray.intersectAABB(iend, box, maxDist, boxNorm, boxDistance) > RayRelation::None && boxDistance < distance) {
+                        hit = true;
+                        distance = boxDistance;
+                        norm = boxNorm;
                         end = start + (dir * glm::vec3(distance));
-                        return voxel;
                     }
                 }
+
+                if (hit) return voxel;
 			} else {
 				iend.x = ix;
 				iend.y = iy;
@@ -357,18 +348,9 @@ glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDis
 		const Block* def = contentIds->getBlockDef(voxel->id);
 		if (def->obstacle) {
 			if (!def->rt.solid) {
-                std::vector<AABB> hitboxes;
-                if (def->hitboxExplicit) {
-                    hitboxes = {
-                        def->rotatable
-                            ? def->rt.hitboxes[voxel->rotation()]
-                            : def->hitbox
-                    };
-                } else {
-                    hitboxes = def->rotatable
-                        ? def->rt.modelBoxes[voxel->rotation()]
-                        : def->modelBoxes;
-                }
+                const std::vector<AABB>& hitboxes = def->rotatable
+                    ? def->rt.hitboxes[voxel->rotation()]
+                    : def->modelBoxes;
 
                 scalar_t distance;
                 glm::ivec3 norm;

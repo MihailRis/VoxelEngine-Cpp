@@ -145,20 +145,27 @@ void ContentLoader::loadBlock(Block& def, std::string name, fs::path file) {
     }
     
     // block hitbox AABB [x, y, z, width, height, depth]
-    auto boxarr = root->list("hitbox");
+    auto boxarr = root->list("hitboxes");
     if (boxarr) {
-        AABB& aabb = def.hitbox;
-        aabb.a = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
-        aabb.b = glm::vec3(boxarr->num(3), boxarr->num(4), boxarr->num(5));
-        aabb.b += aabb.a;
-        def.hitboxExplicit = true;
-    } else if (def.modelBoxes.empty()) {
-        def.hitboxExplicit = true;
+        def.hitboxes.resize(boxarr->size());
+        for (uint i = 0; i < boxarr->size(); i++) {
+            auto box = boxarr->list(i);
+            def.hitboxes[i].a = glm::vec3(box->num(0), box->num(1), box->num(2));
+            def.hitboxes[i].b = glm::vec3(box->num(3), box->num(4), box->num(5));
+            def.hitboxes[i].b += def.hitboxes[i].a;
+        }
     } else {
-        def.hitbox = def.modelBoxes[0];
-        for (const auto& box : def.modelBoxes) {
-            def.hitbox.a = glm::min(def.hitbox.a, box.a);
-            def.hitbox.b = glm::max(def.hitbox.b, box.b);
+        boxarr = root->list("hitbox");
+        if (boxarr) {
+            AABB aabb;
+            aabb.a = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
+            aabb.b = glm::vec3(boxarr->num(3), boxarr->num(4), boxarr->num(5));
+            aabb.b += aabb.a;
+            def.hitboxes = { aabb };
+        } else if (!def.modelBoxes.empty()) {
+            def.hitboxes = def.modelBoxes;
+        } else {
+            def.hitboxes = { AABB() };
         }
     }
 
