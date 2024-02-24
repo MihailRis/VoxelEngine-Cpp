@@ -15,6 +15,7 @@
 
 #include <math.h>
 #include <limits.h>
+#include <vector>
 
 Chunks::Chunks(int w, int d, 
 			   int ox, int oz, 
@@ -52,7 +53,7 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
 	int ix = floor(x);
 	int iy = floor(y);
 	int iz = floor(z);
-	voxel* v = get(ix,iy,iz);
+	voxel* v = get(ix, iy, iz);
 	if (v == nullptr)
 		return &contentIds->getBlockDef(0)->hitbox;
 	const Block* def = contentIds->getBlockDef(v->id);
@@ -62,10 +63,17 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
 							 : def->hitbox;
 		if (def->rt.solid) {
 			return &hitbox;
-		} else {
-			if (hitbox.contains({x - ix, y - iy, z - iz}))
-				return &hitbox;
-			return nullptr;
+		} else if (def->hitboxExplicit) {
+            if (hitbox.contains({x - ix, y - iy, z - iz}))
+                return &hitbox;
+        } else {
+            const auto& boxes = def->rotatable 
+							 ? def->rt.modelBoxes[v->rotation()] 
+							 : def->modelBoxes;
+            for (const auto& hitbox : boxes) {
+			    if (hitbox.contains({x - ix, y - iy, z - iz}))
+                    return &hitbox;
+            }
 		}
 	}
 	return nullptr;
@@ -239,16 +247,28 @@ voxel* Chunks::rayCast(glm::vec3 start,
 					iend.z = iz;
 			
 			if (!def->rt.solid) {
-				const AABB& box = def->rotatable 
-								  ? def->rt.hitboxes[voxel->rotation()] 
-								  : def->hitbox;
-				scalar_t distance;
-				Ray ray(start, dir);
-				if (ray.intersectAABB(iend, box, maxDist, norm, distance) > RayRelation::None){
-					end = start + (dir * glm::vec3(distance));
-					return voxel;
-				}
+                std::vector<AABB> hitboxes;
+                if (def->hitboxExplicit) {
+                    hitboxes = {
+                        def->rotatable
+                            ? def->rt.hitboxes[voxel->rotation()]
+                            : def->hitbox
+                    };
+                } else {
+                    hitboxes = def->rotatable
+                        ? def->rt.modelBoxes[voxel->rotation()]
+                        : def->modelBoxes;
+                }
 
+                scalar_t distance;
+                Ray ray(start, dir);
+
+                for (const auto& box : hitboxes) {
+                    if (ray.intersectAABB(iend, box, maxDist, norm, distance) > RayRelation::None) {
+                        end = start + (dir * glm::vec3(distance));
+                        return voxel;
+                    }
+                }
 			} else {
 				iend.x = ix;
 				iend.y = iy;
@@ -337,16 +357,29 @@ glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDis
 		const Block* def = contentIds->getBlockDef(voxel->id);
 		if (def->obstacle) {
 			if (!def->rt.solid) {
-				const AABB& box = def->rotatable
-					? def->rt.hitboxes[voxel->rotation()]
-					: def->hitbox;
-				scalar_t distance;
-				glm::ivec3 norm;
-				Ray ray(start, dir);
-				// norm is dummy now, can be inefficient
-				if (ray.intersectAABB(glm::ivec3(ix, iy, iz), box, maxDist, norm, distance) > RayRelation::None) {
-					return start + (dir * glm::vec3(distance));
-				}
+                std::vector<AABB> hitboxes;
+                if (def->hitboxExplicit) {
+                    hitboxes = {
+                        def->rotatable
+                            ? def->rt.hitboxes[voxel->rotation()]
+                            : def->hitbox
+                    };
+                } else {
+                    hitboxes = def->rotatable
+                        ? def->rt.modelBoxes[voxel->rotation()]
+                        : def->modelBoxes;
+                }
+
+                scalar_t distance;
+                glm::ivec3 norm;
+                Ray ray(start, dir);
+
+                for (const auto& box : hitboxes) {
+                    // norm is dummy now, can be inefficient
+                    if (ray.intersectAABB(glm::ivec3(ix, iy, iz), box, maxDist, norm, distance) > RayRelation::None) {
+                        return start + (dir * glm::vec3(distance));
+                    }
+                }
 			}
 			else {
 				return glm::vec3(px + t * dx, py + t * dy, pz + t * dz);
