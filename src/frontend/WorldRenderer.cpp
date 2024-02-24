@@ -8,7 +8,6 @@
 #include "../window/Window.h"
 #include "../window/Camera.h"
 #include "../content/Content.h"
-#include "../graphics/ChunksRenderer.h"
 #include "../graphics/Mesh.h"
 #include "../graphics/Atlas.h"
 #include "../graphics/Shader.h"
@@ -33,6 +32,7 @@
 #include "../items/Inventory.h"
 #include "LevelFrontend.h"
 #include "graphics/Skybox.h"
+#include "graphics/ChunksRenderer.h"
 
 using glm::vec3;
 using glm::vec4;
@@ -74,7 +74,11 @@ bool WorldRenderer::drawChunk(size_t index,
 	if (!chunk->isLighted()) {
 		return false;
 	}
-	auto mesh = renderer->getOrRender(chunk.get());
+    float distance = glm::distance(
+        camera->position, 
+        glm::vec3((chunk->x + 0.5f) * CHUNK_W, camera->position.y, (chunk->z + 0.5f) * CHUNK_D)
+    );
+	auto mesh = renderer->getOrRender(chunk, distance < CHUNK_W*1.5f);
 	if (mesh == nullptr) {
 		return false;
 	}
@@ -98,6 +102,7 @@ bool WorldRenderer::drawChunk(size_t index,
 void WorldRenderer::drawChunks(Chunks* chunks, 
 							   Camera* camera, 
 							   Shader* shader) {
+    renderer->update();
 	std::vector<size_t> indices;
 	for (size_t i = 0; i < chunks->volume; i++){
 		if (chunks->chunks[i] == nullptr)

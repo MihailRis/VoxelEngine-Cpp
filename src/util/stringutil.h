@@ -33,6 +33,9 @@ namespace util {
 
     extern double parse_double(const std::string& str);
     extern double parse_double(const std::string& str, size_t offset, size_t len);
+
+    extern std::vector<std::string> split(const std::string& str, char delimiter);
+    extern std::vector<std::wstring> split(const std::wstring& str, char delimiter);
 }
 
 #endif // UTIL_STRINGUTIL_H_

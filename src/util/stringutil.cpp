@@ -291,3 +291,23 @@ double util::parse_double(const std::string& str) {
 double util::parse_double(const std::string& str, size_t offset, size_t len) {
     return parse_double(str.substr(offset, len));
 }
+
+std::vector<std::string> util::split(const std::string& str, char delimiter) {
+    std::vector<std::string> result;
+    std::stringstream ss(str);
+    std::string tmp;
+    while (std::getline(ss, tmp, delimiter)) {
+        result.push_back(tmp);
+    }
+    return result;
+}
+
+std::vector<std::wstring> util::split(const std::wstring& str, char delimiter) {
+    std::vector<std::wstring> result;
+    std::wstringstream ss(str);
+    std::wstring tmp;
+    while (std::getline(ss, tmp, static_cast<wchar_t>(delimiter))) {
+        result.push_back(tmp);
+    }
+    return result;
+}

@@ -21,6 +21,7 @@ protected:
 	blockid_t const idBazalt;
 public:
 	WorldGenerator(const Content* content);
+    virtual ~WorldGenerator() = default;
 
 	virtual void generate(voxel* voxels, int x, int z, int seed) = 0;
 };

@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include <vector>
 #include <glm/glm.hpp>
-#include "UVRegion.h"
-#include "../typedefs.h"
-#include "../voxels/voxel.h"
-#include "../settings.h"
+#include "../../graphics/UVRegion.h"
+#include "../../voxels/voxel.h"
+#include "../../typedefs.h"
+#include "../../settings.h"
 
 class Content;
 class Mesh;
@@ -93,7 +93,9 @@ public:
 	BlocksRenderer(size_t capacity, const Content* content, const ContentGfxCache* cache, const EngineSettings& settings);
 	virtual ~BlocksRenderer();
 
+    void build(const Chunk* chunk, const ChunksStorage* chunks);
 	Mesh* render(const Chunk* chunk, const ChunksStorage* chunks);
+    Mesh* createMesh();
 	VoxelsVolume* getVoxelsBuffer() const;
 };
 
