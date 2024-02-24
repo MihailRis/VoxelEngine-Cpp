@@ -247,16 +247,28 @@ voxel* Chunks::rayCast(glm::vec3 start,
 					iend.z = iz;
 			
 			if (!def->rt.solid) {
-				const AABB& box = def->rotatable 
-								  ? def->rt.hitboxes[voxel->rotation()] 
-								  : def->hitbox;
-				scalar_t distance;
-				Ray ray(start, dir);
-				if (ray.intersectAABB(iend, box, maxDist, norm, distance) > RayRelation::None){
-					end = start + (dir * glm::vec3(distance));
-					return voxel;
-				}
+                std::vector<AABB> hitboxes;
+                if (def->hitboxExplicit) {
+                    hitboxes = {
+                        def->rotatable
+                            ? def->rt.hitboxes[voxel->rotation()]
+                            : def->hitbox
+                    };
+                } else {
+                    hitboxes = def->rotatable
+                        ? def->rt.modelBoxes[voxel->rotation()]
+                        : def->modelBoxes;
+                }
 
+                scalar_t distance;
+                Ray ray(start, dir);
+
+                for (const auto& box : hitboxes) {
+                    if (ray.intersectAABB(iend, box, maxDist, norm, distance) > RayRelation::None) {
+                        end = start + (dir * glm::vec3(distance));
+                        return voxel;
+                    }
+                }
 			} else {
 				iend.x = ix;
 				iend.y = iy;
