@@ -260,15 +260,23 @@ voxel* Chunks::rayCast(glm::vec3 start,
                         : def->modelBoxes;
                 }
 
-                scalar_t distance;
+                scalar_t distance = maxDist;
                 Ray ray(start, dir);
 
+                bool hit = false;
+
                 for (const auto& box : hitboxes) {
-                    if (ray.intersectAABB(iend, box, maxDist, norm, distance) > RayRelation::None) {
+                    scalar_t boxDistance;
+					glm::ivec3 boxNorm;
+                    if (ray.intersectAABB(iend, box, maxDist, boxNorm, boxDistance) > RayRelation::None && boxDistance < distance) {
+                        hit = true;
+                        distance = boxDistance;
+                        norm = boxNorm;
                         end = start + (dir * glm::vec3(distance));
-                        return voxel;
                     }
                 }
+
+                if (hit) return voxel;
 			} else {
 				iend.x = ix;
 				iend.y = iy;
