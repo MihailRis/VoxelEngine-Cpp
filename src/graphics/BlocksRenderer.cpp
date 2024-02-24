@@ -220,9 +220,17 @@ void BlocksRenderer::blockAABB(const ivec3& icoord,
 							   const UVRegion(&texfaces)[6], 
 							   const Block* block, ubyte rotation,
                                bool lights) {
-	AABB hitbox = block->hitbox;
-	vec3 size = hitbox.size();
+    if (block->hitboxes.empty()) {
+        return;
+    }
 
+	AABB hitbox = block->hitboxes[0];
+    for (const auto& box : block->hitboxes) {
+        hitbox.a = glm::min(hitbox.a, box.a);
+        hitbox.b = glm::max(hitbox.b, box.b);
+    }
+
+	vec3 size = hitbox.size();
 	vec3 X(1, 0, 0);
 	vec3 Y(0, 1, 0);
 	vec3 Z(0, 0, 1);

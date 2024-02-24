@@ -93,8 +93,7 @@ public:
 	bool rotatable = false;
     bool grounded = false;
     bool hidden = false;
-	AABB hitbox;
-    bool hitboxExplicit = false;
+    std::vector<AABB> hitboxes;
 	BlockRotProfile rotations;
     std::string pickingItem = name+BLOCK_ITEM_SUFFIX;
     std::string scriptName = name.substr(name.find(':')+1);
@@ -105,8 +104,7 @@ public:
 		blockid_t id;
 		bool solid = true;
 		bool emissive = false;
-        AABB hitboxes[BlockRotProfile::MAX_COUNT];
-        std::vector<AABB> modelBoxes[BlockRotProfile::MAX_COUNT];
+        std::vector<AABB> hitboxes[BlockRotProfile::MAX_COUNT];
 		block_funcs_set funcsset {};
         itemid_t pickingItem = 0;
 	} rt;

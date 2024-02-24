@@ -39,8 +39,13 @@ ImageData* BlocksPreview::draw(
                              glm::vec4(1.0f), !def->rt.emissive);
             break;
         case BlockModel::aabb:
-            batch->blockCube(def->hitbox.size() * glm::vec3(size * 0.63f), 
-                             texfaces, glm::vec4(1.0f), !def->rt.emissive);
+            {
+                glm::vec3 hitbox = glm::vec3();
+                for (const auto& box : def->hitboxes)
+                    hitbox = glm::max(hitbox, box.size());
+                batch->blockCube(hitbox * glm::vec3(size * 0.63f), 
+                                 texfaces, glm::vec4(1.0f), !def->rt.emissive);
+            }
             break;
         case BlockModel::custom:
         case BlockModel::xsprite: {
@@ -99,7 +104,10 @@ std::unique_ptr<Atlas> BlocksPreview::build(
 
         glm::vec3 offset(0.1f, 0.5f, 0.1f);
         if (def->model == BlockModel::aabb) {
-            offset.y += (1.0f - def->hitbox.size()).y * 0.5f;
+            glm::vec3 size = glm::vec3(0, 0, 0);
+            for (const auto& box : def->hitboxes)
+                size = glm::max(size, box.size());
+            offset.y += (1.0f - size).y * 0.5f;
         }
         atlas->getTexture()->bind();
         shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), offset));
