@@ -52,10 +52,11 @@ bool assetload::shader(
     std::string vertexSource = files::read_string(vertexFile);
     std::string fragmentSource = files::read_string(fragmentFile);
 
-    Shader* shader = Shader::loadShader(
+    Shader* shader = Shader::create(
         vertexFile.string(),
         fragmentFile.string(),
-        vertexSource, fragmentSource);
+        vertexSource, fragmentSource
+    );
 
     if (shader == nullptr) {
         std::cerr << "failed to load shader '" << name << "'" << std::endl;
