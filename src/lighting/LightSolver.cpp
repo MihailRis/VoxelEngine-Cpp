@@ -58,9 +58,11 @@ void LightSolver::solve(){
 		remqueue.pop();
 
 		for (int i = 0; i < 6; i++) {
-			int x = entry.x+coords[i*3+0];
-			int y = entry.y+coords[i*3+1];
-			int z = entry.z+coords[i*3+2];
+			int imul3 = i*3;
+			int x = entry.x+coords[imul3];
+			int y = entry.y+coords[imul3+1];
+			int z = entry.z+coords[imul3+2];
+			
 			Chunk* chunk = chunks->getChunkByVoxel(x,y,z);
 			if (chunk) {
 				int lx = x - chunk->x * CHUNK_W;
@@ -85,9 +87,11 @@ void LightSolver::solve(){
 		addqueue.pop();
 
 		for (int i = 0; i < 6; i++) {
-			int x = entry.x+coords[i*3+0];
-			int y = entry.y+coords[i*3+1];
-			int z = entry.z+coords[i*3+2];
+			int imul3 = i*3;
+			int x = entry.x+coords[imul3];
+			int y = entry.y+coords[imul3+1];
+			int z = entry.z+coords[imul3+2];
+
 			Chunk* chunk = chunks->getChunkByVoxel(x,y,z);
 			if (chunk) {
 				int lx = x - chunk->x * CHUNK_W;
