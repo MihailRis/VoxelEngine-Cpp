@@ -1,5 +1,7 @@
 #include "controls.h"
 
+#include <queue>
+#include <sstream>
 #include <iostream>
 
 #include "../../window/Events.h"
@@ -30,9 +32,16 @@ Label::Label(std::wstring text, std::string fontName)
 
 void Label::setText(std::wstring text) {
     this->text = text;
+    lines = 1;
+    for (size_t i = 0; i < text.length(); i++) {
+        if (text[i] == L'\n') {
+            lines++;
+        }
+    }
+    lines = std::max(lines, 1U);
 }
 
-std::wstring Label::getText() const {
+const std::wstring& Label::getText() const {
     return text;
 }
 
@@ -44,18 +53,45 @@ const std::string& Label::getFontName() const {
     return fontName;
 }
 
+void Label::setVerticalAlign(Align align) {
+    this->valign = align;
+}
+
+Align Label::getVerticalAlign() const {
+    return valign;
+}
+
+float Label::getLineInterval() const {
+    return lineInterval;
+}
+
+void Label::setLineInterval(float interval) {
+    lineInterval = interval;
+}
+
+int Label::getTextYOffset() const {
+    return textYOffset;
+}
+
+int Label::getLineYOffset(uint line) const {
+    return line * totalLineHeight + textYOffset;
+}
+
 void Label::draw(const GfxContext* pctx, Assets* assets) {
     if (supplier) {
         setText(supplier());
     }
 
     auto batch = pctx->getBatch2D();
+    auto font = assets->getFont(fontName);
+
     batch->color = getColor();
-    Font* font = assets->getFont(fontName);
+
+    uint lineHeight = font->getLineHeight();
     glm::vec2 size = getSize();
     glm::vec2 newsize (
         font->calcWidth(text), 
-        font->getLineHeight()+font->getYOffset()
+        (lines == 1 ? lineHeight : lineHeight*lineInterval)*lines + font->getYOffset()
     );
 
     glm::vec2 coord = calcCoord();
@@ -69,12 +105,46 @@ void Label::draw(const GfxContext* pctx, Assets* assets) {
             coord.x += size.x-newsize.x;
             break;
     }
-    coord.y += (size.y-newsize.y)*0.5f;
-    font->draw(batch, text, coord.x, coord.y);
+    switch (valign) {
+        case Align::top:
+            break;
+        case Align::center:
+            coord.y += (size.y-newsize.y)*0.5f;
+            break;
+        case Align::bottom:
+            coord.y += size.y-newsize.y;
+            break;
+    }
+    textYOffset = coord.y;
+    totalLineHeight = lineHeight * lineInterval;
+
+    if (multiline) {
+        size_t offset = 0;
+        for (uint i = 0; i < lines; i++) {
+            std::wstring_view view(text.c_str()+offset, text.length()-offset);
+            size_t end = view.find(L'\n');
+            if (end != std::wstring::npos) {
+                view = std::wstring_view(text.c_str()+offset, end);
+                offset += end + 1;
+            }
+            font->draw(batch, view, coord.x, coord.y + i * totalLineHeight, FontStyle::none);
+        }
+    } else {
+        font->draw(batch, text, coord.x, coord.y, FontStyle::none);
+    }
 }
 
 void Label::textSupplier(wstringsupplier supplier) {
     this->supplier = supplier;
+}
+
+
+void Label::setMultiline(bool multiline) {
+    this->multiline = multiline;
+}
+
+bool Label::isMultiline() const {
+    return multiline;
 }
 
 // ================================= Image ====================================
@@ -264,7 +334,7 @@ void TextBox::draw(const GfxContext* pctx, Assets* assets) {
     if (!isFocused())
         return;
 
-    const int yoffset = 2;
+    const int yoffset = 0;
     const int lineHeight = font->getLineHeight();
     glm::vec2 lcoord = label->calcCoord();
     auto batch = pctx->getBatch2D();
@@ -388,6 +458,16 @@ void TextBox::setValid(bool valid) {
 
 bool TextBox::isValid() const {
     return valid;
+}
+
+void TextBox::setMultiline(bool multiline) {
+    this->multiline = multiline;
+    label->setMultiline(multiline);
+    label->setVerticalAlign(multiline ? Align::top : Align::center);
+}
+
+bool TextBox::isMultiline() const {
+    return multiline;
 }
 
 void TextBox::setOnEditStart(runnable oneditstart) {

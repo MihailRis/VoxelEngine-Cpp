@@ -292,6 +292,10 @@ double util::parse_double(const std::string& str, size_t offset, size_t len) {
     return parse_double(str.substr(offset, len));
 }
 
+/// @brief Split string by delimiter
+/// @param str source string
+/// @param delimiter split delimiter size
+/// @return vector of string parts, containing at least one string
 std::vector<std::string> util::split(const std::string& str, char delimiter) {
     std::vector<std::string> result;
     std::stringstream ss(str);
@@ -299,15 +303,25 @@ std::vector<std::string> util::split(const std::string& str, char delimiter) {
     while (std::getline(ss, tmp, delimiter)) {
         result.push_back(tmp);
     }
+    if (result.empty()) {
+        result.push_back("");
+    }
     return result;
 }
 
+/// @brief Split wstring by delimiter
+/// @param str source string
+/// @param delimiter split delimiter size
+/// @return vector of string parts, containing at least one string
 std::vector<std::wstring> util::split(const std::wstring& str, char delimiter) {
     std::vector<std::wstring> result;
     std::wstringstream ss(str);
     std::wstring tmp;
     while (std::getline(ss, tmp, static_cast<wchar_t>(delimiter))) {
         result.push_back(tmp);
+    }
+    if (result.empty()) {
+        result.push_back(L"");
     }
     return result;
 }

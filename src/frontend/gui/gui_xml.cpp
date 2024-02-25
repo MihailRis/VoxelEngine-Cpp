@@ -17,6 +17,8 @@ static Align align_from_string(const std::string& str, Align def) {
     if (str == "left") return Align::left;
     if (str == "center") return Align::center;
     if (str == "right") return Align::right;
+    if (str == "top") return Align::top;
+    if (str == "bottom") return Align::bottom;
     return def;
 }
 
@@ -138,6 +140,11 @@ static std::shared_ptr<UINode> readLabel(UiXmlReader& reader, xml::xmlelement el
     std::wstring text = readAndProcessInnerText(element);
     auto label = std::make_shared<Label>(text);
     _readUINode(reader, element, *label);
+    if (element->has("valign")) {
+        label->setVerticalAlign(
+            align_from_string(element->attr("valign").getText(), label->getVerticalAlign())
+        );
+    }
     return label;
 }
 
@@ -163,7 +170,7 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement e
         auto callback = scripting::create_runnable(
             reader.getEnvironment().getId(),
             element->attr("onclick").getText(),
-            reader.getFilename()+".lua"
+            reader.getFilename()
         );
         button->listenAction([callback](GUI*) {
             callback();
@@ -188,7 +195,7 @@ static std::shared_ptr<UINode> readCheckBox(UiXmlReader& reader, xml::xmlelement
         auto consumer = scripting::create_bool_consumer(
             reader.getEnvironment().getId(),
             element->attr("consumer").getText(),
-            reader.getFilename()+".lua"
+            reader.getFilename()
         );
         checkbox->setConsumer(consumer);
     }
@@ -197,7 +204,7 @@ static std::shared_ptr<UINode> readCheckBox(UiXmlReader& reader, xml::xmlelement
         auto supplier = scripting::create_bool_supplier(
             reader.getEnvironment().getId(),
             element->attr("supplier").getText(),
-            reader.getFilename()+".lua"
+            reader.getFilename()
         );
         checkbox->setSupplier(supplier);
     }
@@ -210,12 +217,16 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
     auto textbox = std::make_shared<TextBox>(placeholder, glm::vec4(0.0f));
     _readPanel(reader, element, *textbox);
     textbox->setText(text);
+
+    if (element->has("multiline")) {
+        textbox->setMultiline(element->attr("multiline").asBool());
+    }
     
     if (element->has("consumer")) {
         auto consumer = scripting::create_wstring_consumer(
             reader.getEnvironment().getId(),
             element->attr("consumer").getText(),
-            reader.getFilename()+".lua"
+            reader.getFilename()
         );
         textbox->setTextConsumer(consumer);
     }
@@ -224,7 +235,7 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
         auto supplier = scripting::create_wstring_supplier(
             reader.getEnvironment().getId(),
             element->attr("consumer").getText(),
-            reader.getFilename()+".lua"
+            reader.getFilename()
         );
         textbox->setTextSupplier(supplier);
     }
@@ -238,7 +249,7 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
         auto validator  = scripting::create_wstring_validator(
             reader.getEnvironment().getId(),
             element->attr("validator").getText(),
-            reader.getFilename()+".lua"
+            reader.getFilename()
         );
         textbox->setTextValidator(validator);
     }
@@ -265,7 +276,7 @@ static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, xml::xmlelement
         auto consumer = scripting::create_number_consumer(
             reader.getEnvironment().getId(),
             element->attr("consumer").getText(),
-            reader.getFilename()+".lua"
+            reader.getFilename()
         );
         bar->setConsumer(consumer);
     }
@@ -273,7 +284,7 @@ static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, xml::xmlelement
         auto supplier = scripting::create_number_supplier(
             reader.getEnvironment().getId(),
             element->attr("supplier").getText(),
-            reader.getFilename()+".lua"
+            reader.getFilename()
         );
         bar->setSupplier(supplier);
     }

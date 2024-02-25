@@ -20,7 +20,8 @@ namespace gui {
     using onnumberchange = std::function<void(GUI*, double)>;
     
     enum class Align {
-        left, center, right
+        left, center, right,
+        top=left, bottom=right,
     };
 
     class UINode {

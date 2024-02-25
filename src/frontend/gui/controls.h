@@ -24,19 +24,40 @@ namespace gui {
         std::wstring text;
         std::string fontName;
         wstringsupplier supplier = nullptr;
+        uint lines = 1;
+        float lineInterval = 1.5f;
+        Align valign = Align::center;
+
+        bool multiline = false;
+
+        // runtime values
+        int textYOffset = 0;
+        int totalLineHeight = 1;
     public:
         Label(std::string text, std::string fontName="normal");
         Label(std::wstring text, std::string fontName="normal");
 
         virtual void setText(std::wstring text);
-        std::wstring getText() const;
+        const std::wstring& getText() const;
 
         virtual void setFontName(std::string name);
-        const std::string& getFontName() const;
+        virtual const std::string& getFontName() const;
+
+        virtual void setVerticalAlign(Align align);
+        virtual Align getVerticalAlign() const;
+
+        virtual float getLineInterval() const;
+        virtual void setLineInterval(float interval);
+
+        virtual int getTextYOffset() const;
+        virtual int getLineYOffset(uint line) const;
 
         virtual void draw(const GfxContext* pctx, Assets* assets) override;
 
         virtual void textSupplier(wstringsupplier supplier);
+
+        virtual void setMultiline(bool multiline);
+        virtual bool isMultiline() const;
     };
 
     class Image : public UINode {
@@ -121,6 +142,8 @@ namespace gui {
         size_t selectionEnd = 0;
         size_t selectionOrigin = 0;
 
+        bool multiline = false;
+
         size_t normalizeIndex(int index);
 
         int calcIndexAt(int x) const;
@@ -134,16 +157,9 @@ namespace gui {
         TextBox(std::wstring placeholder, 
                 glm::vec4 padding=glm::vec4(4.0f));
 
-        virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
-
-        virtual void draw(const GfxContext* pctx, Assets* assets) override;
-        virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
-        virtual void typed(unsigned int codepoint) override; 
-        virtual void keyPressed(keycode key) override;
         virtual void setTextSupplier(wstringsupplier supplier);
         virtual void setTextConsumer(wstringconsumer consumer);
         virtual void setTextValidator(wstringchecker validator);
-        virtual bool isFocuskeeper() const override {return true;}
         virtual void setFocusedColor(glm::vec4 color);
         virtual glm::vec4 getFocusedColor() const;
         virtual void setErrorColor(glm::vec4 color);
@@ -161,11 +177,22 @@ namespace gui {
         virtual bool validate();
         virtual void setValid(bool valid);
         virtual bool isValid() const;
+
+        // multiline mode is in development
+        virtual void setMultiline(bool multiline);
+        virtual bool isMultiline() const;
         virtual void setOnEditStart(runnable oneditstart);
+
         virtual void focus(GUI*) override;
         virtual void refresh() override;
         virtual void click(GUI*, int, int) override;
         virtual void mouseMove(GUI*, int x, int y) override;
+        virtual bool isFocuskeeper() const override {return true;}
+        virtual void draw(const GfxContext* pctx, Assets* assets) override;
+        virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
+        virtual void typed(unsigned int codepoint) override; 
+        virtual void keyPressed(keycode key) override;
+        virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
     };
 
     class InputBindBox : public Panel {
