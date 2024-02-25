@@ -15,18 +15,19 @@ class Content;
 class ContentGfxCache;
 
 class BlocksPreview {
-public:
     static ImageData* draw(
         const ContentGfxCache* cache,
         Framebuffer* framebuffer,
         Batch3D* batch,
         const Block* block, 
-        int size);
-
+        int size
+    );
+public:
     static std::unique_ptr<Atlas> build(
         const ContentGfxCache* cache,
         Assets* assets, 
-        const Content* content);
+        const Content* content
+    );
 };
 
 #endif // FRONTEND_BLOCKS_PREVIEW_H_

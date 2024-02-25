@@ -106,7 +106,7 @@ int l_file_read_bytes(lua_State* L) {
         lua_createtable(L, length, 0);
         int newTable = lua_gettop(L);
 
-        for(int i = 0;i < length;i++) {
+        for(size_t i = 0; i < length; i++) {
             lua_pushnumber(L, bytes[i]);
             lua_rawseti(L, newTable, i+1);
         }

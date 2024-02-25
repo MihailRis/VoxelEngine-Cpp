@@ -11,14 +11,14 @@
 
 #define BLOCK_ITEM_SUFFIX ".item"
 
-const uint FACE_MX = 0;
-const uint FACE_PX = 1;
-const uint FACE_MY = 2;
-const uint FACE_PY = 3;
-const uint FACE_MZ = 4;
-const uint FACE_PZ = 5;
+inline constexpr uint FACE_MX = 0;
+inline constexpr uint FACE_PX = 1;
+inline constexpr uint FACE_MY = 2;
+inline constexpr uint FACE_PY = 3;
+inline constexpr uint FACE_MZ = 4;
+inline constexpr uint FACE_PZ = 5;
 
-const uint BLOCK_AABB_GRID = 16;
+inline constexpr uint BLOCK_AABB_GRID = 16;
 
 struct block_funcs_set {
 	bool init: 1;

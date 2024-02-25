@@ -27,24 +27,24 @@ class LevelFrontend;
 class Skybox;
 
 class WorldRenderer {
-	Engine* engine;
-	Level* level;
-	Frustum* frustumCulling;
-	LineBatch* lineBatch;
-	ChunksRenderer* renderer;
-	Skybox* skybox;
+    Engine* engine;
+    Level* level;
+    std::unique_ptr<Frustum> frustumCulling;
+    std::unique_ptr<LineBatch> lineBatch;
+    std::unique_ptr<ChunksRenderer> renderer;
+    std::unique_ptr<Skybox> skybox;
     std::unique_ptr<Batch3D> batch3d;
-	bool drawChunk(size_t index, Camera* camera, Shader* shader, bool culling);
-	void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
+    bool drawChunk(size_t index, Camera* camera, Shader* shader, bool culling);
+    void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
 public:
-	WorldRenderer(Engine* engine, LevelFrontend* frontend);
-	~WorldRenderer();
+    WorldRenderer(Engine* engine, LevelFrontend* frontend);
+    ~WorldRenderer();
 
-	void draw(const GfxContext& context, Camera* camera, bool hudVisible);
-	void drawDebug(const GfxContext& context, Camera* camera);
-	void drawBorders(int sx, int sy, int sz, int ex, int ey, int ez);
+    void draw(const GfxContext& context, Camera* camera, bool hudVisible);
+    void drawDebug(const GfxContext& context, Camera* camera);
+    void drawBorders(int sx, int sy, int sz, int ex, int ey, int ez);
 
-	static float fog;
+    static float fog;
 };
 
 
