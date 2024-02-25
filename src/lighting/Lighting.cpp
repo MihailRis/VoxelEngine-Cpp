@@ -152,10 +152,11 @@ void Lighting::onChunkLoaded(int cx, int cz, bool expand){
 
 void Lighting::onBlockSet(int x, int y, int z, blockid_t id){
 	Block* block = content->getIndices()->getBlockDef(id);
+	solverR->remove(x,y,z);
+	solverG->remove(x,y,z);
+	solverB->remove(x,y,z);
+
 	if (id == 0){
-		solverR->remove(x,y,z);
-		solverG->remove(x,y,z);
-		solverB->remove(x,y,z);
 		solverR->solve();
 		solverG->solve();
 		solverB->solve();
@@ -178,9 +179,6 @@ void Lighting::onBlockSet(int x, int y, int z, blockid_t id){
 		solverB->solve();
 		solverS->solve();
 	} else {
-		solverR->remove(x,y,z);
-		solverG->remove(x,y,z);
-		solverB->remove(x,y,z);
 		if (!block->skyLightPassing){
 			solverS->remove(x,y,z);
 			for (int i = y-1; i >= 0; i--){

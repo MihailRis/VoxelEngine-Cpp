@@ -90,6 +90,78 @@ int l_file_mkdir(lua_State* L) {
     return 1;    
 }
 
+int l_file_mkdirs(lua_State* L) {
+    fs::path path = resolve_path(L, lua_tostring(L, 1));
+    lua_pushboolean(L, fs::create_directories(path));
+    return 1;    
+}
+
+int l_file_read_bytes(lua_State* L) {
+    fs::path path = resolve_path(L, lua_tostring(L, 1));
+    if (fs::is_regular_file(path)) {
+        size_t length = (size_t) fs::file_size(path);
+
+        ubyte* bytes = files::read_bytes(path, length);
+
+        lua_createtable(L, length, 0);
+        int newTable = lua_gettop(L);
+
+        for(int i = 0;i < length;i++) {
+            lua_pushnumber(L, bytes[i]);
+            lua_rawseti(L, newTable, i+1);
+        }
+        return 1;
+    }
+    return luaL_error(L, "file does not exists '%s'", path.u8string().c_str());   
+}
+
+int l_file_write_bytes(lua_State* L) {
+    int pathIndex = 1;
+
+    if(!lua_isstring(L, pathIndex)) {
+        return luaL_error(L, "string expected");
+    }
+
+    fs::path path = resolve_path(L, lua_tostring(L, pathIndex));
+
+    std::vector<ubyte> bytes;
+
+    size_t len = lua_objlen(L, 2);
+
+    int bytesIndex = -1;
+
+    if(!lua_istable(L, bytesIndex)) {
+        return luaL_error(L, "table expected");
+    } else {
+        lua_pushnil(L);
+
+        bytesIndex--;
+
+        int i = 1;
+
+        while(lua_next(L, bytesIndex) != 0) {
+            if(lua_isnumber(L, -1)) {
+                const int byte = lua_tointeger(L, -1);
+
+                if(byte < 0 || byte > 255) {
+                    return luaL_error(L, "byte '%i' at index '%i' is less than 0 or greater than 255", byte, i);
+                }
+
+                bytes.push_back(byte);
+                
+                lua_pop(L, 1);
+
+                i++;
+            } else {
+                return luaL_error(L, "number expected at index '%i'", i);
+            }
+        }
+
+        lua_pushboolean(L, files::write_bytes(path, &bytes[0], len));
+        return 1;
+    }
+}
+
 /* == time library == */
 int l_time_uptime(lua_State* L) {
     lua_pushnumber(L, Window::time());
