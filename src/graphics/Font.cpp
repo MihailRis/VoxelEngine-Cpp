@@ -44,6 +44,8 @@ void Font::draw(Batch2D* batch, std::wstring text, int x, int y) {
 
 static inline void drawGlyph(Batch2D* batch, int x, int y, uint c, FontStyle style) {
     switch (style){
+        case FontStyle::none:
+            break;
         case FontStyle::shadow:
             batch->sprite(x+1, y+1, GLYPH_SIZE, GLYPH_SIZE, 16, c, SHADOW_TINT);
             break;
@@ -57,7 +59,7 @@ static inline void drawGlyph(Batch2D* batch, int x, int y, uint c, FontStyle sty
             }
             break;
     }
-    batch->sprite(x, y, GLYPH_SIZE, GLYPH_SIZE, 16, c, batch->color);
+    batch->sprite(x, y, GLYPH_SIZE, GLYPH_SIZE, 16, c, batch->getColor());
 }
 
 void Font::draw(Batch2D* batch, std::wstring text, int x, int y, FontStyle style) {
@@ -74,7 +76,7 @@ void Font::draw(Batch2D* batch, std::wstring_view text, int x, int y, FontStyle 
                 x += 8;
                 continue;
             }
-            int charpage = c >> 8;
+            uint charpage = c >> 8;
             if (charpage == page){
                 Texture* texture = pages[charpage].get();
                 if (texture == nullptr){

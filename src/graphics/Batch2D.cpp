@@ -5,120 +5,125 @@
 
 #include <GL/glew.h>
 
-const uint B2D_VERTEX_SIZE = 8;
-
-using glm::vec2;
-using glm::vec3;
-using glm::vec4;
+inline constexpr uint B2D_VERTEX_SIZE = 8;
 
 Batch2D::Batch2D(size_t capacity) : capacity(capacity), color(1.0f){
-	const vattr attrs[] = {
-		{2}, {2}, {4}, {0}
-	};
+    const vattr attrs[] = {
+        {2}, {2}, {4}, {0}
+    };
 
-	buffer = new float[capacity * B2D_VERTEX_SIZE];
-	mesh = std::make_unique<Mesh>(buffer, 0, attrs);
-	index = 0;
+    buffer = new float[capacity * B2D_VERTEX_SIZE];
+    mesh = std::make_unique<Mesh>(buffer, 0, attrs);
+    index = 0;
 
-	ubyte pixels[] = {
-		0xFF, 0xFF, 0xFF, 0xFF
-	};
-	blank = new Texture(pixels, 1, 1, GL_RGBA);
-	_texture = nullptr;
+    ubyte pixels[] = {
+        0xFF, 0xFF, 0xFF, 0xFF
+    };
+    blank = new Texture(pixels, 1, 1, GL_RGBA);
+    _texture = nullptr;
 }
 
 Batch2D::~Batch2D(){
-	delete blank;
-	delete[] buffer;
+    delete blank;
+    delete[] buffer;
 }
 
 void Batch2D::begin(){
-	_texture = nullptr;
-	blank->bind();
-	color = vec4(1.0f);
+    _texture = nullptr;
+    blank->bind();
+    color = glm::vec4(1.0f);
 }
 
-void Batch2D::vertex(float x, float y,
-		float u, float v,
-		float r, float g, float b, float a) {
-	buffer[index++] = x;
-	buffer[index++] = y;
-	buffer[index++] = u;
-	buffer[index++] = v;
-	buffer[index++] = r;
-	buffer[index++] = g;
-	buffer[index++] = b;
-	buffer[index++] = a;
+void Batch2D::vertex(
+    float x, float y,
+    float u, float v,
+    float r, float g, float b, float a
+) {
+    buffer[index++] = x;
+    buffer[index++] = y;
+    buffer[index++] = u;
+    buffer[index++] = v;
+    buffer[index++] = r;
+    buffer[index++] = g;
+    buffer[index++] = b;
+    buffer[index++] = a;
 }
-void Batch2D::vertex(vec2 point,
-					vec2 uvpoint,
-					float r, float g, float b, float a) {
-	buffer[index++] = point.x;
-	buffer[index++] = point.y;
-	buffer[index++] = uvpoint.x;
-	buffer[index++] = uvpoint.y;
-	buffer[index++] = r;
-	buffer[index++] = g;
-	buffer[index++] = b;
-	buffer[index++] = a;
+void Batch2D::vertex(
+    glm::vec2 point,
+    glm::vec2 uvpoint,
+    float r, float g, float b, float a
+) {
+    buffer[index++] = point.x;
+    buffer[index++] = point.y;
+    buffer[index++] = uvpoint.x;
+    buffer[index++] = uvpoint.y;
+    buffer[index++] = r;
+    buffer[index++] = g;
+    buffer[index++] = b;
+    buffer[index++] = a;
 }
 
 void Batch2D::texture(Texture* new_texture){
-	if (_texture == new_texture)
-		return;
-	render(GL_TRIANGLES);
-	_texture = new_texture;
-	if (new_texture == nullptr)
-		blank->bind();
-	else
-		new_texture->bind();
+    if (_texture == new_texture)
+        return;
+    flush(GL_TRIANGLES);
+    _texture = new_texture;
+    if (new_texture == nullptr)
+        blank->bind();
+    else
+        new_texture->bind();
+}
+
+void Batch2D::untexture() {
+    texture(nullptr);
 }
 
 void Batch2D::point(float x, float y, float r, float g, float b, float a){
-	if (index + 6*B2D_VERTEX_SIZE >= capacity)
-		render(GL_TRIANGLES);
+    if (index + 6*B2D_VERTEX_SIZE >= capacity)
+        flush(GL_TRIANGLES);
 
-	vertex(x, y, 0, 0, r,g,b,a);
-	render(GL_POINTS);
+    vertex(x, y, 0, 0, r,g,b,a);
+    flush(GL_POINTS);
 }
 
 void Batch2D::line(float x1, float y1, float x2, float y2, float r, float g, float b, float a){
-	if (index + 6*B2D_VERTEX_SIZE >= capacity)
-		render(GL_TRIANGLES);
+    if (index + 6*B2D_VERTEX_SIZE >= capacity)
+        flush(GL_TRIANGLES);
 
-	vertex(x1, y1, 0, 0, r,g,b,a);
-	vertex(x2, y2, 1, 1, r,g,b,a);
-	render(GL_LINES);
+    vertex(x1, y1, 0, 0, r,g,b,a);
+    vertex(x2, y2, 1, 1, r,g,b,a);
+    flush(GL_LINES);
 }
 
 void Batch2D::rect(float x, float y, float w, float h){
-	const float r = color.r;
-	const float g = color.g;
-	const float b = color.b;
-	const float a = color.a;
-	if (index + 6*B2D_VERTEX_SIZE >= capacity)
-		render(GL_TRIANGLES);
+    const float r = color.r;
+    const float g = color.g;
+    const float b = color.b;
+    const float a = color.a;
+    if (index + 6*B2D_VERTEX_SIZE >= capacity)
+        flush(GL_TRIANGLES);
 
-	vertex(x, y, 0, 0, r,g,b,a);
-	vertex(x, y+h, 0, 1, r,g,b,a);
-	vertex(x+w, y+h, 1, 1, r,g,b,a);
+    vertex(x, y, 0, 0, r,g,b,a);
+    vertex(x, y+h, 0, 1, r,g,b,a);
+    vertex(x+w, y+h, 1, 1, r,g,b,a);
 
-	vertex(x, y, 0, 0, r,g,b,a);
-	vertex(x+w, y+h, 1, 1, r,g,b,a);
-	vertex(x+w, y, 1, 0, r,g,b,a);
+    vertex(x, y, 0, 0, r,g,b,a);
+    vertex(x+w, y+h, 1, 1, r,g,b,a);
+    vertex(x+w, y, 1, 0, r,g,b,a);
 }
 
 void Batch2D::rect(
-		float x, float y,
-		float w, float h,
-		float ox, float oy,
-		float angle,
-		UVRegion region,
-		bool flippedX,
-		bool flippedY,
-		vec4 tint) {
-	if (index + 6*B2D_VERTEX_SIZE >= capacity)
-		render(GL_TRIANGLES);
+    float x, float y,
+    float w, float h,
+    float ox, float oy,
+    float angle,
+    UVRegion region,
+    bool flippedX,
+    bool flippedY,
+    glm::vec4 tint
+) {
+    if (index + 6*B2D_VERTEX_SIZE >= capacity)
+        flush(GL_TRIANGLES);
 
     float centerX = w*ox;
     float centerY = h*oy;
@@ -202,108 +207,113 @@ void Batch2D::rect(
     vertex(x4, y4, u4, v4, tint.r, tint.g, tint.b, tint.a);
 }
 
-void Batch2D::rect(float x, float y, float w, float h,
-		float u, float v, float tx, float ty,
-		float r, float g, float b, float a){
-	if (index + 6*B2D_VERTEX_SIZE >= capacity)
-		render(GL_TRIANGLES);
-	vertex(x, y, u, v+ty, r,g,b,a);
-	vertex(x+w, y+h, u+tx, v, r,g,b,a);
-	vertex(x, y+h, u, v, r,g,b,a);
+void Batch2D::rect(
+    float x, float y, float w, float h,
+    float u, float v, float tx, float ty,
+    float r, float g, float b, float a
+){
+    if (index + 6*B2D_VERTEX_SIZE >= capacity)
+        flush(GL_TRIANGLES);
+    vertex(x, y, u, v+ty, r,g,b,a);
+    vertex(x+w, y+h, u+tx, v, r,g,b,a);
+    vertex(x, y+h, u, v, r,g,b,a);
 
-	vertex(x, y, u, v+ty, r,g,b,a);
-	vertex(x+w, y, u+tx, v+ty, r,g,b,a);
-	vertex(x+w, y+h, u+tx, v, r,g,b,a);
+    vertex(x, y, u, v+ty, r,g,b,a);
+    vertex(x+w, y, u+tx, v+ty, r,g,b,a);
+    vertex(x+w, y+h, u+tx, v, r,g,b,a);
 }
 
-void Batch2D::rect(float x, float y, float w, float h,
-		float r0, float g0, float b0,
-		float r1, float g1, float b1,
-		float r2, float g2, float b2,
-		float r3, float g3, float b3,
-		float r4, float g4, float b4, int sh){
-	if (index + 30*B2D_VERTEX_SIZE >= capacity)
-		render(GL_TRIANGLES);
-	vec2 v0 = vec2(x+h/2,y+h/2);
-	vec2 v1 = vec2(x+w-sh,y);
-	vec2 v2 = vec2(x+sh,y);
-	vec2 v3 = vec2(x,y+sh);
-	vec2 v4 = vec2(x,y+h-sh);
-	vec2 v5 = vec2(x+sh,y+h);
-	vec2 v6 = vec2(x+w-h/2,y+h/2);
-	vec2 v7 = vec2(x+w-sh,y+h);
-	vec2 v8 = vec2(x+w,y+h-sh);
-	vec2 v9 = vec2(x+w,y+sh);
+void Batch2D::rect(
+    float x, float y, float w, float h,
+    float r0, float g0, float b0,
+    float r1, float g1, float b1,
+    float r2, float g2, float b2,
+    float r3, float g3, float b3,
+    float r4, float g4, float b4, int sh
+){
+    if (index + 30*B2D_VERTEX_SIZE >= capacity)
+        flush(GL_TRIANGLES);
+    glm::vec2 v0(x+h/2,y+h/2);
+    glm::vec2 v1(x+w-sh,y);
+    glm::vec2 v2(x+sh,y);
+    glm::vec2 v3(x,y+sh);
+    glm::vec2 v4(x,y+h-sh);
+    glm::vec2 v5(x+sh,y+h);
+    glm::vec2 v6(x+w-h/2,y+h/2);
+    glm::vec2 v7(x+w-sh,y+h);
+    glm::vec2 v8(x+w,y+h-sh);
+    glm::vec2 v9(x+w,y+sh);
 
-	vertex(v0, vec2(0, 0), r1,g1,b1,1.0f);
-	vertex(v6, vec2(0, 0), r1,g1,b1,1.0f);
-	vertex(v1, vec2(0, 0), r1,g1,b1,1.0f);
+    vertex(v0, glm::vec2(0, 0), r1,g1,b1,1.0f);
+    vertex(v6, glm::vec2(0, 0), r1,g1,b1,1.0f);
+    vertex(v1, glm::vec2(0, 0), r1,g1,b1,1.0f);
 
-	vertex(v0, vec2(0, 0), r1,g1,b1,1.0f);
-	vertex(v1, vec2(0, 0), r1,g1,b1,1.0f);
-	vertex(v2, vec2(0, 0), r1,g1,b1,1.0f);
+    vertex(v0, glm::vec2(0, 0), r1,g1,b1,1.0f);
+    vertex(v1, glm::vec2(0, 0), r1,g1,b1,1.0f);
+    vertex(v2, glm::vec2(0, 0), r1,g1,b1,1.0f);
 
-	vertex(v0, vec2(0, 0), r0,g0,b0,1.0f);
-	vertex(v2, vec2(0, 0), r0,g0,b0,1.0f);
-	vertex(v3, vec2(0, 0), r0,g0,b0,1.0f);
+    vertex(v0, glm::vec2(0, 0), r0,g0,b0,1.0f);
+    vertex(v2, glm::vec2(0, 0), r0,g0,b0,1.0f);
+    vertex(v3, glm::vec2(0, 0), r0,g0,b0,1.0f);
 
-	vertex(v0, vec2(0, 0), r1,g1,b1,1.0f);
-	vertex(v3, vec2(0, 0), r1,g1,b1,1.0f);
-	vertex(v4, vec2(0, 0), r1,g1,b1,1.0f);
+    vertex(v0, glm::vec2(0, 0), r1,g1,b1,1.0f);
+    vertex(v3, glm::vec2(0, 0), r1,g1,b1,1.0f);
+    vertex(v4, glm::vec2(0, 0), r1,g1,b1,1.0f);
 
-	vertex(v0, vec2(0, 0), r2,g2,b2,1.0f);
-	vertex(v4, vec2(0, 0), r2,g2,b2,1.0f);
-	vertex(v5, vec2(0, 0), r2,g2,b2,1.0f);
+    vertex(v0, glm::vec2(0, 0), r2,g2,b2,1.0f);
+    vertex(v4, glm::vec2(0, 0), r2,g2,b2,1.0f);
+    vertex(v5, glm::vec2(0, 0), r2,g2,b2,1.0f);
 
-	vertex(v0, vec2(0, 0), r3,g3,b3,1.0f);
-	vertex(v5, vec2(0, 0), r3,g3,b3,1.0f);
-	vertex(v6, vec2(0, 0), r3,g3,b3,1.0f);
+    vertex(v0, glm::vec2(0, 0), r3,g3,b3,1.0f);
+    vertex(v5, glm::vec2(0, 0), r3,g3,b3,1.0f);
+    vertex(v6, glm::vec2(0, 0), r3,g3,b3,1.0f);
 
-	vertex(v6, vec2(0, 0), r3,g3,b3,1.0f);
-	vertex(v5, vec2(0, 0), r3,g3,b3,1.0f);
-	vertex(v7, vec2(0, 0), r3,g3,b3,1.0f);
+    vertex(v6, glm::vec2(0, 0), r3,g3,b3,1.0f);
+    vertex(v5, glm::vec2(0, 0), r3,g3,b3,1.0f);
+    vertex(v7, glm::vec2(0, 0), r3,g3,b3,1.0f);
 
-	vertex(v6, vec2(0, 0), r4,g4,b4,1.0f);
-	vertex(v7, vec2(0, 0), r4,g4,b4,1.0f);
-	vertex(v8, vec2(0, 0), r4,g4,b4,1.0f);
+    vertex(v6, glm::vec2(0, 0), r4,g4,b4,1.0f);
+    vertex(v7, glm::vec2(0, 0), r4,g4,b4,1.0f);
+    vertex(v8, glm::vec2(0, 0), r4,g4,b4,1.0f);
 
-	vertex(v6, vec2(0, 0), r3,g3,b3,1.0f);
-	vertex(v8, vec2(0, 0), r3,g3,b3,1.0f);
-	vertex(v9, vec2(0, 0), r3,g3,b3,1.0f);
+    vertex(v6, glm::vec2(0, 0), r3,g3,b3,1.0f);
+    vertex(v8, glm::vec2(0, 0), r3,g3,b3,1.0f);
+    vertex(v9, glm::vec2(0, 0), r3,g3,b3,1.0f);
 
-	vertex(v6, vec2(0, 0), r2,g2,b2,1.0f);
-	vertex(v9, vec2(0, 0), r2,g2,b2,1.0f);
-	vertex(v1, vec2(0, 0), r2,g2,b2,1.0f);
+    vertex(v6, glm::vec2(0, 0), r2,g2,b2,1.0f);
+    vertex(v9, glm::vec2(0, 0), r2,g2,b2,1.0f);
+    vertex(v1, glm::vec2(0, 0), r2,g2,b2,1.0f);
 }
 
 void Batch2D::sprite(Sprite* sprite) {
-	vec2 position = sprite->position;
-	vec2 size = sprite->size;
-	vec2 origin = sprite->origin;
-	texture(sprite->texture);
-	rect(
-		position.x, position.y,
-		size.x, size.y,
-		origin.x, origin.y,
-		sprite->angle,
-		sprite->region,
-		sprite->flippedX,
-		sprite->flippedY,
-		sprite->color);
+    glm::vec2 position = sprite->position;
+    glm::vec2 size = sprite->size;
+    glm::vec2 origin = sprite->origin;
+    texture(sprite->texture);
+    rect(
+        position.x, position.y,
+        size.x, size.y,
+        origin.x, origin.y,
+        sprite->angle,
+        sprite->region,
+        sprite->flippedX,
+        sprite->flippedY,
+        sprite->color
+    );
 }
 
-void Batch2D::sprite(float x, float y, float w, float h, const UVRegion& region, vec4 tint){
-	rect(x, y, w, h, region.u1, region.v1, region.u2-region.u1, region.v2-region.v1, tint.r, tint.g, tint.b, tint.a);
+void Batch2D::sprite(float x, float y, float w, float h, const UVRegion& region, glm::vec4 tint){
+    rect(x, y, w, h, region.u1, region.v1, region.u2-region.u1, region.v2-region.v1, tint.r, tint.g, tint.b, tint.a);
 }
 
-void Batch2D::sprite(float x, float y, float w, float h, int atlasRes, int index, vec4 tint){
-	float scale = 1.0f / (float)atlasRes;
-	float u = (index % atlasRes) * scale;
-	float v = 1.0f - ((index / atlasRes) * scale) - scale;
-	rect(x, y, w, h, u, v, scale, scale, tint.r, tint.g, tint.b, tint.a);
+void Batch2D::sprite(float x, float y, float w, float h, int atlasRes, int index, glm::vec4 tint){
+    float scale = 1.0f / (float)atlasRes;
+    float u = (index % atlasRes) * scale;
+    float v = 1.0f - ((index / atlasRes) * scale) - scale;
+    rect(x, y, w, h, u, v, scale, scale, tint.r, tint.g, tint.b, tint.a);
 }
 
-void Batch2D::render(unsigned int gl_primitive) {
+void Batch2D::flush(unsigned int gl_primitive) {
     if (index == 0)
         return;
     mesh->reload(buffer, index / B2D_VERTEX_SIZE);
@@ -311,10 +321,10 @@ void Batch2D::render(unsigned int gl_primitive) {
     index = 0;
 }
 
-void Batch2D::render() {
-	render(GL_TRIANGLES);
+void Batch2D::flush() {
+    flush(GL_TRIANGLES);
 }
 
 void Batch2D::lineWidth(float width) {
-	glLineWidth(width);
+    glLineWidth(width);
 }

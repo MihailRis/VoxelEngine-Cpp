@@ -25,7 +25,15 @@ public:
 
     int getLineHeight() const;
     int getYOffset() const;
+    
+    /// @brief Calculate text width in pixels
+    /// @param text selected text
+    /// @param length max text chunk length (default: no limit)
+    /// @return pixel width of the text 
     int calcWidth(std::wstring text, size_t length=-1);
+
+    /// @brief Check if character is visible (non-whitespace)
+    /// @param codepoint character unicode codepoint
     bool isPrintableChar(uint codepoint) const;
     void draw(Batch2D* batch, std::wstring text, int x, int y);
     void draw(Batch2D* batch, std::wstring text, int x, int y, FontStyle style);

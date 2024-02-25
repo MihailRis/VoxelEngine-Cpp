@@ -85,7 +85,7 @@ void Label::draw(const GfxContext* pctx, Assets* assets) {
     auto batch = pctx->getBatch2D();
     auto font = assets->getFont(fontName);
 
-    batch->color = getColor();
+    batch->setColor(getColor());
 
     uint lineHeight = font->getLineHeight();
     glm::vec2 size = getSize();
@@ -162,7 +162,7 @@ void Image::draw(const GfxContext* pctx, Assets* assets) {
         setSize(glm::vec2(texture->width, texture->height));
     }
     batch->texture(texture);
-    batch->color = color;
+    batch->setColor(color);
     batch->rect(coord.x, coord.y, size.x, size.y, 
                 0, 0, 0, UVRegion(), false, true, color);
 }
@@ -254,7 +254,7 @@ void Button::drawBackground(const GfxContext* pctx, Assets* assets) {
     glm::vec2 coord = calcCoord();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
-    batch->color = (isPressed() ? pressedColor : (hover ? hoverColor : color));
+    batch->setColor(isPressed() ? pressedColor : (hover ? hoverColor : color));
     batch->rect(coord.x, coord.y, size.x, size.y);
 }
 
@@ -309,7 +309,7 @@ void RichButton::drawBackground(const GfxContext* pctx, Assets* assets) {
     glm::vec2 coord = calcCoord();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
-    batch->color = (isPressed() ? pressedColor : (hover ? hoverColor : color));
+    batch->setColor(isPressed() ? pressedColor : (hover ? hoverColor : color));
     batch->rect(coord.x, coord.y, size.x, size.y);
 }
 
@@ -340,13 +340,13 @@ void TextBox::draw(const GfxContext* pctx, Assets* assets) {
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
     if (int((Window::time() - caretLastMove) * 2) % 2 == 0) {
-        batch->color = glm::vec4(1.0f);
+        batch->setColor(glm::vec4(1.0f));
 
         int width = font->calcWidth(input, caret);
         batch->rect(lcoord.x + width, lcoord.y+yoffset, 2, lineHeight);
     }
     if (selectionStart != selectionEnd) {
-        batch->color = glm::vec4(0.8f, 0.9f, 1.0f, 0.5f);
+        batch->setColor(glm::vec4(0.8f, 0.9f, 1.0f, 0.5f));
         int start = font->calcWidth(input, selectionStart);
         int end = font->calcWidth(input, selectionEnd);
         batch->rect(lcoord.x + start, lcoord.y+yoffset, end-start, lineHeight);
@@ -361,14 +361,14 @@ void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
 
     if (valid) {
         if (isFocused()) {
-            batch->color = focusedColor;
+            batch->setColor(focusedColor);
         } else if (hover) {
-            batch->color = hoverColor;
+            batch->setColor(hoverColor);
         } else {
-            batch->color = color;
+            batch->setColor(color);
         }
     } else {
-        batch->color = invalidColor;
+        batch->setColor(invalidColor);
     }
 
     batch->rect(coord.x, coord.y, size.x, size.y);
@@ -699,7 +699,7 @@ void InputBindBox::drawBackground(const GfxContext* pctx, Assets* assets) {
     glm::vec2 coord = calcCoord();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
-    batch->color = (isFocused() ? focusedColor : (hover ? hoverColor : color));
+    batch->setColor(isFocused() ? focusedColor : (hover ? hoverColor : color));
     batch->rect(coord.x, coord.y, size.x, size.y);
     label->setText(util::str2wstr_utf8(binding.text()));
 }
@@ -739,13 +739,13 @@ void TrackBar::draw(const GfxContext* pctx, Assets* assets) {
     glm::vec2 coord = calcCoord();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
-    batch->color = (hover ? hoverColor : color);
+    batch->setColor(hover ? hoverColor : color);
     batch->rect(coord.x, coord.y, size.x, size.y);
 
     float width = size.x;
     float t = (value - min) / (max-min+trackWidth*step);
 
-    batch->color = trackColor;
+    batch->setColor(trackColor);
     int actualWidth = size.x * (trackWidth / (max-min+trackWidth*step) * step);
     batch->rect(coord.x + width * t, coord.y, actualWidth, size.y);
 }
@@ -833,7 +833,7 @@ void CheckBox::draw(const GfxContext* pctx, Assets* assets) {
     glm::vec2 coord = calcCoord();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
-    batch->color = checked ? checkColor : (hover ? hoverColor : color);
+    batch->setColor(checked ? checkColor : (hover ? hoverColor : color));
     batch->rect(coord.x, coord.y, size.x, size.y);
 }
 

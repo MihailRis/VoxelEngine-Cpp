@@ -579,7 +579,7 @@ void Hud::draw(const GfxContext& ctx){
             (width-chsizex)/2, (height-chsizey)/2, 
             chsizex, chsizey, 0,0, 1,1, 1,1,1,1
         );
-        batch->render();
+        batch->flush();
     }
 
     // Delta-time visualizer
@@ -629,7 +629,7 @@ void Hud::draw(const GfxContext& ctx){
         }
     }
     grabbedItemView->setCoord(glm::vec2(Events::cursor));
-    batch->render();
+    batch->flush();
 }
 
 bool Hud::isInventoryOpen() const {

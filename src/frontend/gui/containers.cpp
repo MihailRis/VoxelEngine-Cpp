@@ -83,7 +83,7 @@ void Container::draw(const GfxContext* pctx, Assets* assets) {
 
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
-    batch->render();
+    batch->flush();
     {
         GfxContext ctx = pctx->sub();
         ctx.scissors(glm::vec4(coord.x, coord.y, size.x, size.y));
@@ -91,7 +91,7 @@ void Container::draw(const GfxContext* pctx, Assets* assets) {
             if (node->isVisible())
                 node->draw(pctx, assets);
         }
-        batch->render();
+        batch->flush();
     }
 }
 
@@ -102,7 +102,7 @@ void Container::drawBackground(const GfxContext* pctx, Assets* assets) {
 
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
-    batch->color = color;
+    batch->setColor(color);
     batch->rect(coord.x, coord.y, size.x, size.y);
 }
 
