@@ -13,6 +13,9 @@ extern int l_file_isfile(lua_State* L);
 extern int l_file_isdir(lua_State* L);
 extern int l_file_length(lua_State* L);
 extern int l_file_mkdir(lua_State* L);
+extern int l_file_mkdirs(lua_State* L);
+extern int l_file_read_bytes(lua_State* L);
+extern int l_file_write_bytes(lua_State* L);
 
 static const luaL_Reg filelib [] = {
     {"resolve", lua_wrap_errors<l_file_resolve>},
@@ -23,6 +26,9 @@ static const luaL_Reg filelib [] = {
     {"isdir", lua_wrap_errors<l_file_isdir>},
     {"length", lua_wrap_errors<l_file_length>},
     {"mkdir", lua_wrap_errors<l_file_mkdir>},
+    {"mkdirs", lua_wrap_errors<l_file_mkdirs>},
+    {"read_bytes", lua_wrap_errors<l_file_read_bytes>},
+    {"write_bytes", lua_wrap_errors<l_file_write_bytes>},
     {NULL, NULL}
 };
 
