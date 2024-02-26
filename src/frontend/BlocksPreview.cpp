@@ -4,7 +4,6 @@
 
 #include "../assets/Assets.h"
 #include "../graphics/Viewport.h"
-#include "../graphics/Shader.h"
 #include "../graphics/Texture.h"
 #include "../graphics/Atlas.h"
 #include "../graphics/Batch3D.h"
@@ -19,6 +18,7 @@
 
 ImageData* BlocksPreview::draw(
     const ContentGfxCache* cache,
+    Shader* shader,
     Framebuffer* fbo,
     Batch3D* batch,
     const Block* def, 
@@ -30,24 +30,52 @@ ImageData* BlocksPreview::draw(
                                cache->getRegion(id, 2), cache->getRegion(id, 3),
                                cache->getRegion(id, 4), cache->getRegion(id, 5)};
 
+    glm::vec3 offset(0.1f, 0.5f, 0.1f);
     switch (def->model) {
         case BlockModel::none:
             // something went wrong...
             break;
         case BlockModel::block:
+            shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), offset));
             batch->blockCube(glm::vec3(size * 0.63f), texfaces, 
                              glm::vec4(1.0f), !def->rt.emissive);
+            batch->flush();
             break;
         case BlockModel::aabb:
             {
                 glm::vec3 hitbox = glm::vec3();
                 for (const auto& box : def->hitboxes)
                     hitbox = glm::max(hitbox, box.size());
+                offset.y += (1.0f - hitbox).y * 0.5f;
+                shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), offset));
                 batch->blockCube(hitbox * glm::vec3(size * 0.63f), 
                                  texfaces, glm::vec4(1.0f), !def->rt.emissive);
             }
+            batch->flush();
             break;
         case BlockModel::custom:
+            {
+                glm::vec3 hitbox = glm::vec3();
+                for (const auto& box : def->modelBoxes)
+                    hitbox = glm::max(hitbox, box.size());
+                offset.y += (1.0f - hitbox).y * 0.5f;
+                for (size_t i = 0; i < def->modelBoxes.size(); i++) {
+                    shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), offset + def->modelBoxes[i].a));
+                    
+                    const UVRegion (&texfaces)[6] = {
+                        def->modelUVs[i * 6],
+                        def->modelUVs[i * 6 + 1],
+                        def->modelUVs[i * 6 + 2],
+                        def->modelUVs[i * 6 + 3],
+                        def->modelUVs[i * 6 + 4],
+                        def->modelUVs[i * 6 + 5]
+                    };
+                    batch->blockCube(def->modelBoxes[i].size() * glm::vec3(size * 0.63f), 
+                                     texfaces, glm::vec4(1.0f), !def->rt.emissive);
+                    batch->flush();
+                }
+            }
+            break;
         case BlockModel::xsprite: {
             glm::vec3 right = glm::normalize(glm::vec3(1.f, 0.f, -1.f));
             batch->sprite(right*float(size)*0.43f+glm::vec3(0, size*0.4f, 0), 
@@ -56,10 +84,10 @@ ImageData* BlocksPreview::draw(
                           size*0.5f, size*0.6f, 
                           texfaces[0], 
                           glm::vec4(1.0f));
+            batch->flush();
             break;
         }
     }
-    batch->flush();
     return fbo->texture->readData();
 }
 
@@ -101,18 +129,8 @@ std::unique_ptr<Atlas> BlocksPreview::build(
     fbo.bind();
     for (size_t i = 0; i < count; i++) {
         auto def = indices->getBlockDef(i);
-
-        glm::vec3 offset(0.1f, 0.5f, 0.1f);
-        if (def->model == BlockModel::aabb) {
-            glm::vec3 size = glm::vec3(0, 0, 0);
-            for (const auto& box : def->hitboxes)
-                size = glm::max(size, box.size());
-            offset.y += (1.0f - size).y * 0.5f;
-        }
         atlas->getTexture()->bind();
-        shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), offset));
-
-        builder.add(def->name, draw(cache, &fbo, &batch, def, iconSize));
+        builder.add(def->name, draw(cache, shader, &fbo, &batch, def, iconSize));
     }
     fbo.unbind();
 
