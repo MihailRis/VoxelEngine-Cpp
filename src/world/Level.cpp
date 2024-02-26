@@ -33,7 +33,7 @@ Level::Level(World* world, const Content* content, EngineSettings& settings)
     uint matrixSize = (settings.chunks.loadDistance+
 					   settings.chunks.padding) * 2;
     chunks = new Chunks(matrixSize, matrixSize, 0, 0, 
-						world->wfile, events, content);
+						world->wfile.get(), events, content);
 	lighting = new Lighting(content, chunks);
 
 	events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {

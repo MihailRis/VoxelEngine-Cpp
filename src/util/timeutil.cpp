@@ -19,10 +19,6 @@ timeutil::ScopeLogTimer::~ScopeLogTimer() {
     std::cout << "Scope "<< scopeid_ <<" finished in "<< ScopeLogTimer::stop() << " micros. \n";
 }
 
-float timeutil::time_value(float hour, float minute, float second) {
-    return (hour + (minute + second / 60.0f) / 60.0f) / 24.0f;
-}
-
 void timeutil::from_value(float value, int& hour, int& minute, int& second) {
     value *= 24;
     hour = value;

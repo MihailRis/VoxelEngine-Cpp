@@ -12,12 +12,14 @@ namespace timeutil {
         int64_t stop();
     };
 
-/*  Timer that stops and prints time when destructor called
- *  @example:
- *      {                                     // some scope (custom, function, if/else, cycle etc.)
- *      timeutil::ScopeLogTimer scopeclock();
- *      ...
- *      } */
+    /** 
+     * Timer that stops and prints time when destructor called
+     * @example:
+     *     {    // some scope (custom, function, if/else, cycle etc.)
+     *     timeutil::ScopeLogTimer scopeclock();
+     *     ...
+     *     } 
+     */
     class ScopeLogTimer : public Timer{
             long long scopeid_;
         public:
@@ -25,7 +27,10 @@ namespace timeutil {
             ~ScopeLogTimer();
     };
 
-    float time_value(float hour, float minute, float second);
+    inline constexpr float time_value(float hour, float minute, float second) {
+        return (hour + (minute + second / 60.0f) / 60.0f) / 24.0f;
+    }
+    
     void from_value(float value, int& hour, int& minute, int& second);
 }
 

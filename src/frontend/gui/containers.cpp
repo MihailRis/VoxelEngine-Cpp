@@ -60,8 +60,11 @@ void Container::act(float delta) {
 
 void Container::scrolled(int value) {
     int diff = (actualLength-getSize().y);
+    if (scroll < 0 && diff <= 0) {
+        scroll = 0;
+    }
     if (diff > 0 && scrollable) {
-        scroll += value * 40;
+        scroll += value * scrollStep;
         if (scroll > 0)
             scroll = 0;
         if (-scroll > diff) {

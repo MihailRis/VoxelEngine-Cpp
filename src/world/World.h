@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <filesystem>
 #include <stdexcept>
 #include "../typedefs.h"
@@ -36,7 +37,7 @@ class World : Serializable {
 
     int64_t nextInventoryId = 1;
 public:
-    WorldFiles* wfile;
+    std::unique_ptr<WorldFiles> wfile;
 
     /** 
      * Day/night loop timer in range 0..1 

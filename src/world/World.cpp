@@ -27,18 +27,18 @@ World::World(
     uint64_t seed, 
     EngineSettings& settings,
     const Content* content,
-    const std::vector<ContentPack> packs) 
-    : name(name),
-      generator(generator),
-      seed(seed),
-      settings(settings), 
-      content(content),
-      packs(packs) {
-    wfile = new WorldFiles(directory, settings.debug);
+    const std::vector<ContentPack> packs
+) : name(name),
+    generator(generator),
+    seed(seed),
+    settings(settings), 
+    content(content),
+    packs(packs) 
+{
+    wfile = std::make_unique<WorldFiles>(directory, settings.debug);
 }
 
 World::~World(){
-    delete wfile;
 }
 
 void World::updateTimers(float delta) {
@@ -73,7 +73,8 @@ Level* World::create(std::string name,
                      uint64_t seed,
                      EngineSettings& settings, 
                      const Content* content,
-                     const std::vector<ContentPack>& packs) {
+                     const std::vector<ContentPack>& packs
+) {
     auto world = new World(name, generator, directory, seed, settings, content, packs);
     auto level = new Level(world, content, settings);
     auto inventory = level->player->getInventory();
