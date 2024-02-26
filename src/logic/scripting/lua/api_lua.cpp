@@ -140,6 +140,10 @@ int l_file_write_bytes(lua_State* L) {
         int i = 1;
 
         while(lua_next(L, bytesIndex) != 0) {
+            if(i == len) {
+                break;
+            }
+
             if(lua_isnumber(L, -1)) {
                 const int byte = lua_tointeger(L, -1);
 
@@ -153,7 +157,7 @@ int l_file_write_bytes(lua_State* L) {
 
                 i++;
             } else {
-                return luaL_error(L, "number expected at index '%i'", i);
+                return luaL_error(L, "number expected at index '%i' (got %s)", i, lua_typename(L, lua_type(L, -1)));
             }
         }
 
