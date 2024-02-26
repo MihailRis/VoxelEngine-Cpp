@@ -6,4 +6,5 @@ uniform sampler2D u_texture;
 
 void main(){
 	f_color = a_color * texture(u_texture, a_textureCoord);
+    if (f_color.a == 0.0) discard;
 }
