@@ -2,6 +2,7 @@
 #define FRONTEND_BLOCKS_PREVIEW_H_
 
 #include "../typedefs.h"
+#include "../graphics/Shader.h"
 #include <glm/glm.hpp>
 #include <memory>
 
@@ -17,6 +18,7 @@ class ContentGfxCache;
 class BlocksPreview {
     static ImageData* draw(
         const ContentGfxCache* cache,
+        Shader* shader,
         Framebuffer* framebuffer,
         Batch3D* batch,
         const Block* block, 
