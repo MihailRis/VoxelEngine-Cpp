@@ -11,6 +11,14 @@ namespace audio {
     /// @brief duration unit is second
     using duration_t = float;
 
+    class Speaker;
+
+    enum class State {
+        playing,
+        paused,
+        stopped
+    };
+
     /// @brief Pulse-code modulation data
     struct PCM {
         /// @brief May contain 8 bit and 16 bit PCM data
@@ -46,20 +54,78 @@ namespace audio {
         /// @brief Create new sound instance
         /// @param priority instance priority. High priority instance can 
         /// take out speaker from low priority instance
-        /// @return new speaker id with sound bound or 0 
+        /// @return new speaker with sound bound or nullptr 
         /// if all speakers are in use
-        virtual speakerid_t newInstance(int priority) const = 0;
+        virtual Speaker* newInstance(int priority) const = 0;
+    };
+
+    /// @brief Audio source controller interface
+    class Speaker {
+    public:
+        virtual ~Speaker() {}
+
+        /// @brief Get current speaker state
+        /// @return speaker state
+        virtual State getState() const = 0;
+
+        /// @brief Get speaker audio gain
+        /// @return speaker audio gain value
+        virtual float getVolume() const = 0;
+
+        /// @brief Set speaker audio gain (must be positive)
+        /// @param volume new gain value
+        virtual void setVolume(float volume) = 0;
+
+        /// @brief Get speaker pitch multiplier
+        /// @return pitch multiplier
+        virtual float getPitch() const = 0;
+
+        /// @brief Set speaker pitch multiplier
+        /// @param pitch new pitch multiplier (must be positive)
+        virtual void setPitch(float pitch) = 0;
+
+        /// @brief Play, replay or resume audio
+        virtual void play() = 0;
+
+        /// @brief Pause playing audio and keep speaker alive
+        virtual void pause() = 0;
+
+        /// @brief Stop and destroy speaker
+        virtual void stop() = 0;
+        
+        /// @brief Get current time position of playing audio
+        /// @return time position in seconds
+        virtual duration_t getTime() const = 0;
+
+        /// @brief Set playing audio time position
+        /// @param time time position in seconds
+        virtual void setTime(duration_t time) = 0;
+
+        /// @brief Set speaker 3D position in the world
+        /// @param pos new position
+        virtual void setPosition(glm::vec3 pos) = 0;
+
+        /// @brief Get speaker 3D position in the world
+        /// @return position
+        virtual glm::vec3 getPosition() const = 0;
+
+        /// @brief Set speaker movement velocity used for Doppler effect
+        /// @param vel velocity vector
+        virtual void setVelocity(glm::vec3 vel) = 0;
+
+        /// @brief Get speaker movement velocity used for Doppler effect
+        /// @return velocity vector
+        virtual glm::vec3 getVelocity() const = 0;
+
+        /// @brief Get speaker priority
+        /// @return speaker priority value
+        virtual int getPriority() const = 0;
     };
 
     class Backend {
     public:
         virtual ~Backend() {};
 
-        /// @brief Create new sound from PCM data
-        /// @param pcm PCM data
-        /// @param keepPCM store PCM data in sound to make it accessible with 
-        /// Sound::getPCM
-        /// @return new Sound instance 
         virtual Sound* createSound(std::shared_ptr<PCM> pcm, bool keepPCM) = 0;
 
         virtual void setListener(
@@ -68,13 +134,20 @@ namespace audio {
             glm::vec3 lookAt, 
             glm::vec3 up
         ) = 0;
-    };
 
-    extern Backend* backend;
+        virtual void update(double delta) = 0;
+    };
 
     /// @brief Initialize audio system or use no audio mode
     /// @param enabled try to initialize actual audio
     extern void initialize(bool enabled);
+
+    /// @brief Create new sound from PCM data
+    /// @param pcm PCM data
+    /// @param keepPCM store PCM data in sound to make it accessible with 
+    /// Sound::getPCM
+    /// @return new Sound instance 
+    extern Sound* createSound(std::shared_ptr<PCM> pcm, bool keepPCM);
 
     /// @brief Configure 3D listener
     /// @param position listener position
@@ -87,6 +160,11 @@ namespace audio {
         glm::vec3 lookAt, 
         glm::vec3 up
     );
+    
+    /// @brief Update audio streams and sound instanced
+    /// @param delta time since the last update (seconds)
+    extern void update(double delta);
+    
     /// @brief Finalize audio system
     extern void close();
 };

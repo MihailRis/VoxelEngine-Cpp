@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
+#include <unordered_map>
 
 #ifdef __APPLE__
 #include <OpenAL/al.h>
@@ -18,36 +19,70 @@
 
 namespace audio {
     struct ALBuffer;
+    class ALAudio;
 
-    struct ALSource {
-        uint id;
-        ALSource(uint id) : id(id) {}
+    class ALSound : public Sound {
+        ALAudio* al;
+        uint buffer;
+        std::shared_ptr<PCM> pcm;
+        duration_t duration;
+    public:
+        ALSound(ALAudio* al, uint buffer, std::shared_ptr<PCM> pcm, bool keepPCM);
+        ~ALSound();
 
-        bool isPlaying();
-        bool setPosition(glm::vec3 position);
-        bool setVelocity(glm::vec3 velocity);
-        bool setBuffer(ALBuffer* buffer);
-        bool setLoop(bool loop);
-        bool setGain(float gain);
-        bool setPitch(float pitch);
-        bool play();
+        duration_t getDuration() const override {
+            return duration;
+        }
+
+        std::shared_ptr<PCM> getPCM() const override {
+            return pcm;
+        }
+
+        Speaker* newInstance(int priority) const override;
     };
 
-    struct ALBuffer {
-        uint id;
-        ALBuffer(uint id) : id(id) {}
-        bool load(int format, const char* data, int size, int freq);
+    /// @brief AL source adapter
+    class ALSpeaker : public Speaker {
+        ALAudio* al;
+        uint source;
+        int priority;
+    public:
+        ALSpeaker(ALAudio* al, uint source, int priority);
+        ~ALSpeaker();
+
+        State getState() const override;
+
+        float getVolume() const override;
+        void setVolume(float volume) override;
+
+        float getPitch() const override;
+        void setPitch(float pitch) override;
+
+        void play() override;
+        void pause() override;
+        void stop() override;
+
+        duration_t getTime() const override;
+        void setTime(duration_t time) override;
+
+        void setPosition(glm::vec3 pos) override;
+        glm::vec3 getPosition() const override;
+
+        void setVelocity(glm::vec3 vel) override;
+        glm::vec3 getVelocity() const override;
+
+        int getPriority() const override;
     };
 
     class ALAudio : public Backend {
         ALCdevice* device;
         ALCcontext* context;
 
-        std::vector<ALSource*> allsources;
-        std::vector<ALSource*> freesources;
+        std::vector<uint> allsources;
+        std::vector<uint> freesources;
 
-        std::vector<ALBuffer*> allbuffers;
-        std::vector<ALBuffer*> freebuffers;
+        std::vector<uint> allbuffers;
+        std::vector<uint> freebuffers;
 
         uint maxSources;
         uint maxBuffers;
@@ -56,10 +91,10 @@ namespace audio {
     public:
         ~ALAudio();
 
-        ALSource* getFreeSource();
-        ALBuffer* getFreeBuffer();
-        void freeSource(ALSource* source);
-        void freeBuffer(ALBuffer* buffer);
+        uint getFreeSource();
+        uint getFreeBuffer();
+        void freeSource(uint source);
+        void freeBuffer(uint buffer);
 
         std::vector<std::string> getAvailableDevices() const;
 
@@ -71,6 +106,8 @@ namespace audio {
             glm::vec3 lookAt,
             glm::vec3 up
         ) override;
+
+        void update(double delta) override;
 
         static ALAudio* create();
     };

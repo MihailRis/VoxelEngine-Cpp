@@ -5,6 +5,10 @@
 #include "ALAudio.h"
 #include "NoAudio.h"
 
+namespace audio {
+    extern Backend* backend;
+}
+
 audio::Backend* audio::backend = nullptr;
 
 void audio::initialize(bool enabled) {
@@ -24,6 +28,10 @@ void audio::setListener(
     glm::vec3 up
 ) {
     audio::backend->setListener(position, velocity, lookAt, up);
+}
+
+void audio::update(double delta) {
+    audio::backend->update(delta);
 }
 
 void audio::close() {

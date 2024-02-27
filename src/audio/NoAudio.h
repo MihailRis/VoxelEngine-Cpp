@@ -19,8 +19,8 @@ namespace audio {
             return pcm;
         }
 
-        speakerid_t newInstance(int priority) const override {
-            return 0;
+        Speaker* newInstance(int priority) const override {
+            return nullptr;
         }
     };
 
@@ -36,6 +36,8 @@ namespace audio {
             glm::vec3 at,
             glm::vec3 up
         ) override {}
+
+        void update(double delta) override {}
 
         static NoAudio* create();
     };

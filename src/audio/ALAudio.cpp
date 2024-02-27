@@ -5,6 +5,105 @@
 
 using namespace audio;
 
+ALSound::ALSound(ALAudio* al, uint buffer, std::shared_ptr<PCM> pcm, bool keepPCM) 
+: al(al), buffer(buffer) 
+{
+    duration = pcm->getDuration();
+    if (keepPCM) {
+        this->pcm = pcm;
+    }
+}
+
+ALSound::~ALSound() {
+    al->freeBuffer(buffer);
+    buffer = 0;
+}
+
+Speaker* ALSound::newInstance(int priority) const {
+    uint source = al->getFreeSource();
+    if (source == 0) {
+        return nullptr;
+    }
+    return new ALSpeaker(al, source, priority);
+}
+
+ALSpeaker::ALSpeaker(ALAudio* al, uint source, int priority) : al(al), source(source), priority(priority) {
+}
+
+ALSpeaker::~ALSpeaker() {
+    if (source) {
+        stop();
+    }
+}
+
+State ALSpeaker::getState() const {
+    int state = AL::getSourcei(source, AL_SOURCE_STATE, AL_STOPPED);
+    switch (state) {
+        case AL_PLAYING: return State::playing;
+        case AL_PAUSED: return State::paused;
+        default: return State::stopped;
+    }
+}
+
+float ALSpeaker::getVolume() const {
+    return AL::getSourcef(source, AL_GAIN);
+}
+
+void ALSpeaker::setVolume(float volume) {
+    AL_CHECK(alSourcef(source, AL_GAIN, volume));
+}
+
+float ALSpeaker::getPitch() const {
+    return AL::getSourcef(source, AL_PITCH);
+}
+
+void ALSpeaker::setPitch(float pitch) {
+    AL_CHECK(alSourcef(source, AL_PITCH, pitch));
+}
+
+void ALSpeaker::play() {
+    AL_CHECK(alSourcePlay(source));
+}
+
+void ALSpeaker::pause() {
+    AL_CHECK(alSourcePause(source));
+}
+
+void ALSpeaker::stop() {
+    AL_CHECK(alSourceStop(source));
+    al->freeSource(source);
+    source = 0;
+}
+
+duration_t ALSpeaker::getTime() const {
+    return static_cast<duration_t>(AL::getSourcef(source, AL_SEC_OFFSET));
+}
+
+void ALSpeaker::setTime(duration_t time) {
+    AL_CHECK(alSourcef(source, AL_SEC_OFFSET, static_cast<float>(time)));
+}
+
+void ALSpeaker::setPosition(glm::vec3 pos) {
+    AL_CHECK(alSource3f(source, AL_POSITION, pos.x, pos.y, pos.z));
+}
+
+glm::vec3 ALSpeaker::getPosition() const {
+    return AL::getSource3f(source, AL_POSITION);
+}
+
+void ALSpeaker::setVelocity(glm::vec3 vel) {
+    AL_CHECK(alSource3f(source, AL_VELOCITY, vel.x, vel.y, vel.z));
+}
+
+glm::vec3 ALSpeaker::getVelocity() const {
+    return AL::getSource3f(source, AL_VELOCITY);
+}
+
+int ALSpeaker::getPriority() const {
+    return priority;
+}
+
+
 ALAudio::ALAudio(ALCdevice* device, ALCcontext* context)
 : device(device), context(context)
 {
@@ -26,74 +125,25 @@ ALAudio::ALAudio(ALCdevice* device, ALCcontext* context)
 }
 
 ALAudio::~ALAudio() {
-    for (ALSource* source : allsources) {
-        if (source->isPlaying()){
-            alSourceStop(source->id);
-            alCheckErrorsMacro();
+    for (uint source : allsources) {
+        int state = AL::getSourcei(source, AL_SOURCE_STATE);
+        if (state == AL_PLAYING || state == AL_PAUSED) {
+            AL_CHECK(alSourceStop(source));
         }
-        alDeleteSources(1, &source->id); 
-        alCheckErrorsMacro();
+        AL_CHECK(alDeleteSources(1, &source));
     }
 
-    for (ALBuffer* buffer : allbuffers){
-        alDeleteBuffers(1, &buffer->id); 
-        alCheckErrorsMacro();
+    for (uint buffer : allbuffers){
+        AL_CHECK(alDeleteBuffers(1, &buffer));
     }
 
-    alcMakeContextCurrent(context);
-    alcDestroyContext(context);
+    AL_CHECK(alcMakeContextCurrent(context));
+    AL_CHECK(alcDestroyContext(context));
     if (!alcCloseDevice(device)) {
         std::cerr << "AL: device not closed!" << std::endl;
     }
     device = nullptr;
     context = nullptr;
-}
-
-bool ALSource::setBuffer(ALBuffer* buffer) {
-    alSourcei(id, AL_BUFFER, buffer->id);
-    return alCheckErrorsMacro();
-}
-
-bool ALSource::play(){
-    alSourcePlay(id);
-    return alCheckErrorsMacro();
-}
-
-bool ALSource::isPlaying() {
-    int state;
-    alGetSourcei(id, AL_SOURCE_STATE, &state);
-    return state == AL_PLAYING;
-}
-
-bool ALSource::setPosition(glm::vec3 position) {
-    alSource3f(id, AL_POSITION, position.x, position.y, position.z);
-    return alCheckErrorsMacro();
-}
-
-bool ALSource::setVelocity(glm::vec3 velocity) {
-    alSource3f(id, AL_VELOCITY, velocity.x, velocity.y, velocity.z);
-    return alCheckErrorsMacro();
-}
-
-bool ALSource::setLoop(bool loop) {
-    alSourcei(id, AL_LOOPING, AL_TRUE ? loop : AL_FALSE);
-    return alCheckErrorsMacro();
-}
-
-bool ALSource::setGain(float gain) {
-    alSourcef(id, AL_GAIN, gain);
-    return alCheckErrorsMacro();
-}
-
-
-bool ALSource::setPitch(float pitch) {
-    alSourcef(id, AL_PITCH, pitch);
-    return alCheckErrorsMacro();
-}
-
-bool ALBuffer::load(int format, const char* data, int size, int freq) {
-    alBufferData(id, format, data, size, freq);
-    return alCheckErrorsMacro();
 }
 
 Sound* ALAudio::createSound(std::shared_ptr<PCM> pcm, bool keepPCM) {
@@ -110,59 +160,55 @@ ALAudio* ALAudio::create() {
         alcCloseDevice(device);
         return nullptr;
     }
-    if (!alCheckErrorsMacro()) {
-        return nullptr;
-    }
+    AL_CHECK();
     std::cout << "AL: initialized" << std::endl;
     return new ALAudio(device, context);
 }
 
-ALSource* ALAudio::getFreeSource(){
+uint ALAudio::getFreeSource(){
     if (!freesources.empty()){
-        ALSource* source = freesources.back();
+        uint source = freesources.back();
         freesources.pop_back();
         return source;
     }
     if (allsources.size() == maxSources){
         std::cerr << "attempted to create new source, but limit is " << maxSources << std::endl;
-        return nullptr;
+        return 0;
     }
     ALuint id;
     alGenSources(1, &id);
-    if (!alCheckErrorsMacro())
-        return nullptr;
+    if (!AL_GET_ERORR())
+        return 0;
 
-    ALSource* source = new ALSource(id);
-    allsources.push_back(source);
-    return source;
+    allsources.push_back(id);
+    return id;
 }
 
-ALBuffer* ALAudio::getFreeBuffer(){
+uint ALAudio::getFreeBuffer(){
     if (!freebuffers.empty()){
-        ALBuffer* buffer = freebuffers.back();
+        uint buffer = freebuffers.back();
         freebuffers.pop_back();
         return buffer;
     }
     if (allbuffers.size() == maxBuffers){
         std::cerr << "attempted to create new ALbuffer, but limit is " << maxBuffers << std::endl;
-        return nullptr;
+        return 0;
     }
     ALuint id;
     alGenBuffers(1, &id);
-    if (!alCheckErrorsMacro()) {
-        return nullptr;
+    if (!AL_GET_ERORR()) {
+        return 0;
     }
 
-    ALBuffer* buffer = new ALBuffer(id);
-    allbuffers.push_back(buffer);
-    return buffer;
+    allbuffers.push_back(id);
+    return id;
 }
 
-void ALAudio::freeSource(ALSource* source){
+void ALAudio::freeSource(uint source){
     freesources.push_back(source);
 }
 
-void ALAudio::freeBuffer(ALBuffer* buffer){
+void ALAudio::freeBuffer(uint buffer){
     freebuffers.push_back(buffer);
 }
 
@@ -171,7 +217,7 @@ std::vector<std::string> ALAudio::getAvailableDevices() const {
 
     const ALCchar* devices;
     devices = alcGetString(device, ALC_DEVICE_SPECIFIER);
-    if (!alCheckErrorsMacro()) {
+    if (!AL_GET_ERORR()) {
         return devicesVec;
     }
 
@@ -188,10 +234,11 @@ std::vector<std::string> ALAudio::getAvailableDevices() const {
 void ALAudio::setListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 at, glm::vec3 up){
     ALfloat listenerOri[] = { at.x, at.y, at.z, up.x, up.y, up.z };
 
-    alListener3f(AL_POSITION, position.x, position.y, position.z);
-    alCheckErrorsMacro();
-    alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z);
-    alCheckErrorsMacro();
-    alListenerfv(AL_ORIENTATION, listenerOri);
-    alCheckErrorsMacro();
+    AL_CHECK(alListener3f(AL_POSITION, position.x, position.y, position.z));
+    AL_CHECK(alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z));
+    AL_CHECK(alListenerfv(AL_ORIENTATION, listenerOri));
+}
+
+void ALAudio::update(double delta) {
+
 }

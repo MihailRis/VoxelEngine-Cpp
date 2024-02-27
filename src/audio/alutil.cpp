@@ -35,7 +35,7 @@ std::int32_t convert_to_int(char* buffer, std::size_t len){
     return a;
 }
 
-bool check_al_errors(const std::string& filename, const std::uint_fast32_t line){
+bool AL::check_errors(const std::string& filename, const std::uint_fast32_t line){
     ALenum error = alGetError();
     if(error != AL_NO_ERROR){
         std::cerr << "OpenAL ERROR (" << filename << ": " << line << ")\n" ;
