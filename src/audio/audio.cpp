@@ -39,6 +39,7 @@ void audio::setListener(
 void remove_lower_priority_speaker(int priority) {
     for (auto it = speakers.begin(); it != speakers.end();) {
         if (it->second->getPriority() < priority && it->second->isPaused()) {
+            it->second->stop();
             speakers.erase(it);
             return;
         }
@@ -46,6 +47,7 @@ void remove_lower_priority_speaker(int priority) {
     }
     for (auto it = speakers.begin(); it != speakers.end();) {
         if (it->second->getPriority() < priority) {
+            it->second->stop();
             speakers.erase(it);
             return;
         }
