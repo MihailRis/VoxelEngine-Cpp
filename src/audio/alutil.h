@@ -16,23 +16,6 @@
 #define AL_CHECK(STATEMENT) STATEMENT; AL::check_errors(__FILE__, __LINE__)
 #define AL_GET_ERORR() AL::check_errors(__FILE__, __LINE__)
 
-bool load_wav_file_header(
-    std::ifstream& file,
-    std::uint8_t& channels,
-    std::int32_t& sampleRate,
-    std::uint8_t& bitsPerSample,
-    ALsizei& size
-);
-
-char* load_wav(
-    const std::string& filename,
-    std::uint8_t& channels,
-    std::int32_t& sampleRate,
-    std::uint8_t& bitsPerSample,
-    ALsizei& size
-);
-
-
 namespace AL {
     bool check_errors(const std::string& filename, const std::uint_fast32_t line);
 
@@ -69,10 +52,10 @@ namespace AL {
         return value;
     }
 
-    static inline ALenum to_al_format(short channels, short samples){
+    static inline ALenum to_al_format(short channels, short bitsPerSample){
         bool stereo = (channels > 1);
 
-        switch (samples) {
+        switch (bitsPerSample) {
         case 16:
             if (stereo)
                 return AL_FORMAT_STEREO16;

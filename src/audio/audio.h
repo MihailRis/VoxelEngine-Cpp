@@ -3,8 +3,11 @@
 
 #include <vector>
 #include <memory>
+#include <filesystem>
 #include <glm/glm.hpp>
 #include "../typedefs.h"
+
+namespace fs = std::filesystem;
 
 namespace audio {
     using speakerid_t = int64_t;
@@ -32,12 +35,23 @@ namespace audio {
         uint8_t bitsPerSample;
         uint sampleRate;
 
+        PCM(
+            std::vector<char> data,
+            uint8_t channels,
+            uint8_t bitsPerSample,
+            uint sampleRate
+        ) : data(std::move(data)), 
+            channels(channels), 
+            bitsPerSample(bitsPerSample),
+            sampleRate(sampleRate) {}
+
         constexpr inline size_t countSamples() const {
             return data.size() / channels / (bitsPerSample / 8);
         }
 
         constexpr inline duration_t getDuration() const {
-            return countSamples() / static_cast<duration_t>(sampleRate);
+            return static_cast<duration_t>(countSamples()) / 
+                   static_cast<duration_t>(sampleRate);
         }
     };
 
@@ -157,16 +171,33 @@ namespace audio {
         ) = 0;
 
         virtual void update(double delta) = 0;
+
+        /// @brief Check if backend is an abstraction that does not internally
+        /// work with actual audio data or play anything
+        virtual bool isDummy() const = 0;
     };
 
     /// @brief Initialize audio system or use no audio mode
     /// @param enabled try to initialize actual audio
     extern void initialize(bool enabled);
 
+    /// @brief Load audio file info and PCM data
+    /// @param file audio file
+    /// @param headerOnly read header only
+    /// @throws std::runtime_error if I/O error ocurred or format is unknown 
+    /// @return PCM audio data
+    extern PCM* loadPCM(const fs::path& file, bool headerOnly);
+
+    /// @brief Load sound from file
+    /// @param file audio file path
+    /// @param keepPCM store PCM data in sound to make it accessible with Sound::getPCM
+    /// @throws std::runtime_error if I/O error ocurred or format is unknown 
+    /// @return new Sound instance
+    extern Sound* loadSound(const fs::path& file, bool keepPCM);
+
     /// @brief Create new sound from PCM data
     /// @param pcm PCM data
-    /// @param keepPCM store PCM data in sound to make it accessible with 
-    /// Sound::getPCM
+    /// @param keepPCM store PCM data in sound to make it accessible with Sound::getPCM
     /// @return new Sound instance 
     extern Sound* createSound(std::shared_ptr<PCM> pcm, bool keepPCM);
 
@@ -200,6 +231,9 @@ namespace audio {
         int priority
     );
 
+    /// @brief Get speaker by id
+    /// @param id speaker id
+    /// @return speaker or nullptr
     extern Speaker* get(speakerid_t id);
     
     /// @brief Update audio streams and sound instanced

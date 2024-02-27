@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <stdexcept>
 
+#include "../audio/audio.h"
 #include "../window/Camera.h"
 #include "../window/Events.h"
 #include "../window/input.h"
@@ -19,6 +20,7 @@
 #include "../world/Level.h"
 #include "../world/World.h"
 #include "../objects/Player.h"
+#include "../physics/Hitbox.h"
 #include "../logic/ChunksController.h"
 #include "../logic/LevelController.h"
 #include "../logic/scripting/scripting.h"
@@ -147,6 +149,14 @@ void LevelScreen::update(float delta) {
     if (!gui->isFocusCaught()) {
         updateHotkeys();
     }
+
+    auto camera = level->player->camera;
+    audio::setListener(
+        camera->position, 
+        level->player->hitbox->velocity,
+        camera->position+camera->dir, 
+        camera->up
+    );
 
     // TODO: subscribe for setting change
     EngineSettings& settings = engine->getSettings();

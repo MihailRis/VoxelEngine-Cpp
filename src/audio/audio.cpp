@@ -1,9 +1,12 @@
 #include "audio.h"
 
 #include <iostream>
+#include <stdexcept>
 
 #include "ALAudio.h"
 #include "NoAudio.h"
+
+#include "../coders/wav.h"
 
 namespace audio {
     static speakerid_t nextId = 1;
@@ -23,6 +26,19 @@ void audio::initialize(bool enabled) {
     }
 }
 
+PCM* audio::loadPCM(const fs::path& file, bool headerOnly) {
+    std::string ext = file.extension().u8string();
+    if (ext == ".wav" || ext == ".WAV") {
+        return wav::load_pcm(file, headerOnly);
+    } // TODO: OGG support
+    throw std::runtime_error("unsupported audio format");
+}
+
+Sound* audio::loadSound(const fs::path& file, bool keepPCM) {
+    std::shared_ptr<PCM> pcm(loadPCM(file, !keepPCM && backend->isDummy()));
+    return backend->createSound(pcm, keepPCM);
+}
+
 Sound* audio::createSound(std::shared_ptr<PCM> pcm, bool keepPCM) {
     return backend->createSound(pcm, keepPCM);
 }
@@ -40,7 +56,7 @@ void remove_lower_priority_speaker(int priority) {
     for (auto it = speakers.begin(); it != speakers.end();) {
         if (it->second->getPriority() < priority && it->second->isPaused()) {
             it->second->stop();
-            speakers.erase(it);
+            it = speakers.erase(it);
             return;
         }
         it++;
@@ -48,7 +64,7 @@ void remove_lower_priority_speaker(int priority) {
     for (auto it = speakers.begin(); it != speakers.end();) {
         if (it->second->getPriority() < priority) {
             it->second->stop();
-            speakers.erase(it);
+            it = speakers.erase(it);
             return;
         }
         it++;
@@ -72,7 +88,7 @@ speakerid_t audio::play(
         return 0;
     }
     speakerid_t id = nextId++;
-    speakers[id].reset(speaker);
+    speakers.emplace(id, speaker);
     speaker->setPosition(position);
     speaker->setVolume(volume);
     speaker->setPitch(pitch);
@@ -94,7 +110,7 @@ void audio::update(double delta) {
 
     for (auto it = speakers.begin(); it != speakers.end();) {
         if (it->second->isStopped()) {
-            speakers.erase(it);
+            it = speakers.erase(it);
         } else {
             it++;
         }

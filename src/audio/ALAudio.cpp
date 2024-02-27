@@ -24,6 +24,7 @@ Speaker* ALSound::newInstance(int priority) const {
     if (source == 0) {
         return nullptr;
     }
+    AL_CHECK(alSourcei(source, AL_BUFFER, buffer));
     return new ALSpeaker(al, source, priority);
 }
 
@@ -146,7 +147,7 @@ ALAudio::~ALAudio() {
     }
 
     AL_CHECK(alcMakeContextCurrent(context));
-    AL_CHECK(alcDestroyContext(context));
+    alcDestroyContext(context);
     if (!alcCloseDevice(device)) {
         std::cerr << "AL: device not closed!" << std::endl;
     }
@@ -155,8 +156,10 @@ ALAudio::~ALAudio() {
 }
 
 Sound* ALAudio::createSound(std::shared_ptr<PCM> pcm, bool keepPCM) {
-    // TODO: implement
-    return nullptr;
+    auto format = AL::to_al_format(pcm->channels, pcm->bitsPerSample);
+    uint buffer = getFreeBuffer();
+    AL_CHECK(alBufferData(buffer, format, pcm->data.data(), pcm->data.size(), pcm->sampleRate));
+    return new ALSound(this, buffer, pcm, keepPCM);
 }
 
 ALAudio* ALAudio::create() {
@@ -187,7 +190,6 @@ uint ALAudio::getFreeSource(){
     alGenSources(1, &id);
     if (!AL_GET_ERORR())
         return 0;
-
     allsources.push_back(id);
     return id;
 }
