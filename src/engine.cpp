@@ -121,6 +121,8 @@ void Engine::mainloop() {
 		assert(screen != nullptr);
 		updateTimers();
 		updateHotkeys();
+        
+        audio::update(delta);
 
 		gui->act(delta);
 		screen->update(delta);

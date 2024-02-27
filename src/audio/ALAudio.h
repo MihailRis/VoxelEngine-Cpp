@@ -58,6 +58,9 @@ namespace audio {
         float getPitch() const override;
         void setPitch(float pitch) override;
 
+        bool isLoop() const override;
+        void setLoop(bool loop) override;
+
         void play() override;
         void pause() override;
         void stop() override;

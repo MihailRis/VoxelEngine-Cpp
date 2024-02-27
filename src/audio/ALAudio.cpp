@@ -61,6 +61,14 @@ void ALSpeaker::setPitch(float pitch) {
     AL_CHECK(alSourcef(source, AL_PITCH, pitch));
 }
 
+bool ALSpeaker::isLoop() const {
+    return AL::getSourcei(source, AL_LOOPING) == AL_TRUE;
+}
+
+void ALSpeaker::setLoop(bool loop) {
+    AL_CHECK(alSourcei(source, AL_LOOPING, loop ? AL_TRUE : AL_FALSE));
+}
+
 void ALSpeaker::play() {
     AL_CHECK(alSourcePlay(source));
 }
@@ -240,5 +248,4 @@ void ALAudio::setListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 at, 
 }
 
 void ALAudio::update(double delta) {
-
 }

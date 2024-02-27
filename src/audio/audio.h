@@ -11,8 +11,13 @@ namespace audio {
     /// @brief duration unit is second
     using duration_t = float;
 
+    constexpr inline int PRIORITY_LOW = 0;
+    constexpr inline int PRIORITY_NORMAL = 5;
+    constexpr inline int PRIORITY_HIGH = 10;
+
     class Speaker;
 
+    /// @brief Audio speaker states
     enum class State {
         playing,
         paused,
@@ -84,6 +89,14 @@ namespace audio {
         /// @param pitch new pitch multiplier (must be positive)
         virtual void setPitch(float pitch) = 0;
 
+        /// @brief Check if speaker audio is in loop
+        /// @return true if audio is in loop
+        virtual bool isLoop() const = 0;
+
+        /// @brief Enable/disable audio loop
+        /// @param loop loop mode
+        virtual void setLoop(bool loop) = 0;
+
         /// @brief Play, replay or resume audio
         virtual void play() = 0;
 
@@ -120,6 +133,14 @@ namespace audio {
         /// @brief Get speaker priority
         /// @return speaker priority value
         virtual int getPriority() const = 0;
+
+        inline constexpr bool isPaused() const {
+            return getState() == State::paused;
+        }
+
+        inline constexpr bool isStopped() const {
+            return getState() == State::stopped;
+        }
     };
 
     class Backend {
@@ -160,6 +181,26 @@ namespace audio {
         glm::vec3 lookAt, 
         glm::vec3 up
     );
+
+    /// @brief Play 3D sound in the world
+    /// @param sound target sound
+    /// @param position sound world position
+    /// @param volume sound volume [0.0-1.0]
+    /// @param pitch sound pitch multiplier [0.0-...]
+    /// @param loop loop sound
+    /// @param priority sound priority 
+    /// (PRIORITY_LOW, PRIORITY_NORMAL, PRIORITY_HIGH)
+    /// @return speaker id or 0
+    extern speakerid_t play(
+        Sound* sound,
+        glm::vec3 position,
+        float volume,
+        float pitch,
+        bool loop,
+        int priority
+    );
+
+    extern Speaker* get(speakerid_t id);
     
     /// @brief Update audio streams and sound instanced
     /// @param delta time since the last update (seconds)
