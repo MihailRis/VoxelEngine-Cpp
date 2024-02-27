@@ -45,11 +45,11 @@ namespace audio {
             bitsPerSample(bitsPerSample),
             sampleRate(sampleRate) {}
 
-        constexpr inline size_t countSamples() const {
+        inline size_t countSamples() const {
             return data.size() / channels / (bitsPerSample / 8);
         }
 
-        constexpr inline duration_t getDuration() const {
+        inline duration_t getDuration() const {
             return static_cast<duration_t>(countSamples()) / 
                    static_cast<duration_t>(sampleRate);
         }
@@ -148,11 +148,11 @@ namespace audio {
         /// @return speaker priority value
         virtual int getPriority() const = 0;
 
-        inline constexpr bool isPaused() const {
+        inline bool isPaused() const {
             return getState() == State::paused;
         }
 
-        inline constexpr bool isStopped() const {
+        inline bool isStopped() const {
             return getState() == State::stopped;
         }
     };
