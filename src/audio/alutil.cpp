@@ -1,4 +1,4 @@
-#include "audioutil.h"
+#include "alutil.h"
 
 #include <iostream>
 #include <fstream>
@@ -180,11 +180,13 @@ bool load_wav_file_header(std::ifstream& file,
 }
 
 // after that user must free returned memory by himself!
-char* load_wav(const std::string& filename,
-               std::uint8_t& channels,
-               std::int32_t& sampleRate,
-               std::uint8_t& bitsPerSample,
-               ALsizei& size){
+char* load_wav(
+    const std::string& filename,
+    std::uint8_t& channels,
+    std::int32_t& sampleRate,
+    std::uint8_t& bitsPerSample,
+    ALsizei& size
+){
     std::ifstream in(filename, std::ios::binary);
     if(!in.is_open()){
         std::cerr << "ERROR: Could not open \"" << filename << "\"" << std::endl;
