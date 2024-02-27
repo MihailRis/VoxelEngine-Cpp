@@ -4,8 +4,6 @@ local MAX_UINT16 = 65535
 local MIN_UINT16 = 0
 local MAX_UINT32 = 4294967295
 local MIN_UINT32 = 0
-local MAX_UINT64 = 18446744073709551615
-local MIN_UINT64 = 0
 
 local MAX_INT16 = 32767
 local MIN_INT16 = -32768
@@ -30,7 +28,7 @@ function bit_converter.string_to_bytes(str)
 
 	local len = string.len(str)
 
-	local lenBytes = bit_converter.int32_to_bytes(len)
+	local lenBytes = bit_converter.uint16_to_bytes(len)
 
 	for i = 1, #lenBytes do
 		bytes[i] = lenBytes[i]
@@ -127,23 +125,6 @@ function bit_converter.double_to_bytes(double)
 	return floatOrDoubleToBytes(double, 'd')
 end
 
-function bit_converter.int64_to_bytes(int)
-	if int > MAX_INT64 or int < MIN_INT64 then
-		error("invalid int64")
-	end
-
-	return {
-		intToByte(bit.rshift(int, 56)),
-		intToByte(bit.rshift(int, 48)),
-		intToByte(bit.rshift(int, 40)),
-		intToByte(bit.rshift(int, 32)),
-		intToByte(bit.rshift(int, 24)),
-		intToByte(bit.rshift(int, 16)),
-		intToByte(bit.rshift(int, 8)),
-		intToByte(int)
-	}
-end
-
 function bit_converter.uint32_to_bytes(int)
 	if int > MAX_UINT32 or int < MIN_UINT32 then
 		error("invalid uint32")
@@ -163,6 +144,23 @@ function bit_converter.uint16_to_bytes(int)
 	end
 
 	return {
+		intToByte(bit.rshift(int, 8)),
+		intToByte(int)
+	}
+end
+
+function bit_converter.int64_to_bytes(int)
+	if int > MAX_INT64 or int < MIN_INT64 then
+		error("invalid int64")
+	end
+
+	return {
+		intToByte(bit.rshift(int, 56)),
+		intToByte(bit.rshift(int, 48)),
+		intToByte(bit.rshift(int, 40)),
+		intToByte(bit.rshift(int, 32)),
+		intToByte(bit.rshift(int, 24)),
+		intToByte(bit.rshift(int, 16)),
 		intToByte(bit.rshift(int, 8)),
 		intToByte(int)
 	}
@@ -193,7 +191,7 @@ function bit_converter.bytes_to_double(bytes)
 end
 
 function bit_converter.bytes_to_string(bytes)
-	local len = bit_converter.bytes_to_int32({ bytes[1], bytes[2], bytes[3], bytes[4]})
+	local len = bit_converter.bytes_to_uint16({ bytes[1], bytes[2] })
 
 	local str = ""
 
@@ -213,27 +211,6 @@ function bit_converter.bytes_to_float(bytes)
 		error("eof")
 	end
 	error("unsupported operation")
-end
-
-function bit_converter.bytes_to_int64(bytes)
-	if #bytes < 8 then
-		error("eof")
-	end
-     return
-     bit.bor(
-     bit.bor(
-     bit.bor(
-     bit.bor(
-     bit.bor(
-     bit.bor(
-     bit.bor(
-     bit.lshift(bytes[1], 56),
-     bit.lshift(bytes[2], 48)),
-     bit.lshift(bytes[3], 40)),
-     bit.lshift(bytes[4], 32)),
-     bit.lshift(bytes[5], 24)),
-     bit.lshift(bit.band(bytes[6], 0xFF), 16)),
-     bit.lshift(bit.band(bytes[7], 0xFF), 8)),bit.band(bytes[8], 0xFF))
 end
 
 function bit_converter.bytes_to_uint32(bytes)
@@ -257,6 +234,27 @@ function bit_converter.bytes_to_uint16(bytes)
      bit.bor(
      bit.lshift(bytes[1], 8),
      bytes[2], 0)
+end
+
+function bit_converter.bytes_to_int64(bytes)
+	if #bytes < 8 then
+		error("eof")
+	end
+     return
+     bit.bor(
+     bit.bor(
+     bit.bor(
+     bit.bor(
+     bit.bor(
+     bit.bor(
+     bit.bor(
+     bit.lshift(bytes[1], 56),
+     bit.lshift(bytes[2], 48)),
+     bit.lshift(bytes[3], 40)),
+     bit.lshift(bytes[4], 32)),
+     bit.lshift(bytes[5], 24)),
+     bit.lshift(bit.band(bytes[6], 0xFF), 16)),
+     bit.lshift(bit.band(bytes[7], 0xFF), 8)),bit.band(bytes[8], 0xFF))
 end
 
 function bit_converter.bytes_to_int32(bytes)

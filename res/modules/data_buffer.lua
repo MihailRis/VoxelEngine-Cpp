@@ -1,5 +1,25 @@
 local bit_converter = require "core:bit_converter"
 
+local MAX_UINT16 = 65535
+local MIN_UINT16 = 0
+local MAX_UINT32 = 4294967295
+local MIN_UINT32 = 0
+
+local MAX_INT16 = 32767
+local MIN_INT16 = -32768
+local MAX_INT32 = 2147483647
+local MIN_INT32 = -2147483648
+local MAX_INT64 = 9223372036854775807
+local MIN_INT64 = -9223372036854775808
+
+local TYPE_ZERO = 0
+local TYPE_UINT16 = 1
+local TYPE_UINT32 = 2
+local TYPE_INT16 = 3
+local TYPE_INT32 = 4
+local TYPE_INT64 = 5
+local TYPE_DOUBLE = 6
+
 -- Data buffer
 
 local data_buffer = { }
@@ -62,12 +82,72 @@ function data_buffer:put_int64(int64)
 	self:put_bytes(bit_converter.int64_to_bytes(int64))
 end
 
+function data_buffer:put_number(num)
+	local bytes
+	local type
+
+	if math.floor(num) ~= num then
+		type = TYPE_DOUBLE
+		bytes = bit_converter.double_to_bytes(num)
+	elseif num == 0 then
+		type = TYPE_ZERO
+		bytes = { }
+	elseif num > 0 then
+		if num <= MAX_UINT16 then
+			type = TYPE_UINT16
+			bytes = bit_converter.uint16_to_bytes(num)
+		elseif num <= MAX_UINT32 then
+			type = TYPE_UINT32
+			bytes = bit_converter.uint32_to_bytes(num)
+		elseif num <= MAX_INT64 then
+			type = TYPE_INT64
+			bytes = bit_converter.int64_to_bytes(num)
+		end
+	elseif num < 0 then
+		if num >= MIN_INT16 then
+			type = TYPE_INT16
+			bytes = bit_converter.int16_to_bytes(num)
+		elseif num >= MIN_INT32 then
+			type = TYPE_INT32
+			bytes = bit_converter.int32_to_bytes(num)
+		elseif num >= MIN_INT64 then
+			type = TYPE_INT64
+			bytes = bit_converter.int64_to_bytes(num)
+		end
+	end
+
+	self:put_byte(type)
+	self:put_bytes(bytes)
+end
+
 -- Get functions
 
 function data_buffer:get_byte()
 	local byte = self.bytes[self.pos]
 	self.pos = self.pos + 1
 	return byte
+end
+
+function data_buffer:get_number()
+	local type = self:get_byte()
+
+	if type == TYPE_ZERO then
+		return 0
+	elseif type == TYPE_UINT16 then
+		return self:get_uint16()
+	elseif type == TYPE_UINT32 then
+		return self:get_uint32()
+	elseif type == TYPE_INT16 then 
+		return self:get_int16()
+	elseif type == TYPE_INT32 then 
+		return self:get_int32()
+	elseif type == TYPE_INT64 then 
+		return self:get_int64()
+	elseif type == TYPE_DOUBLE then
+		return self:get_double()
+	else
+		error("unknown lua number type: "..type)
+	end
 end
 
 function data_buffer:get_single()
@@ -79,8 +159,8 @@ function data_buffer:get_double()
 end
 
 function data_buffer:get_string()
-	local len = self:get_bytes(4)
-	local str = self:get_bytes(bit_converter.bytes_to_int32(len))
+	local len = self:get_bytes(2)
+	local str = self:get_bytes(bit_converter.bytes_to_uint16(len))
 	local bytes = { }
 
 	for i = 1, #len do
@@ -96,6 +176,14 @@ end
 
 function data_buffer:get_bool()
 	return bit_converter.byte_to_bool(self:get_byte())
+end
+
+function data_buffer:get_uint16()
+	return bit_converter.bytes_to_uint16(self:get_bytes(2))
+end
+
+function data_buffer:get_uint32()
+	return bit_converter.bytes_to_uint32(self:get_bytes(4))
 end
 
 function data_buffer:get_int16()
@@ -114,8 +202,8 @@ function data_buffer:size()
 	return #self.bytes
 end
 
-function data_buffer:get_bytes(len)
-	if len == nil then
+function data_buffer:get_bytes(n)
+	if n == nil then
 		return self.bytes
 	else
 		local bytes = { }
