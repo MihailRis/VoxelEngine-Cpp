@@ -140,25 +140,21 @@ int l_file_write_bytes(lua_State* L) {
         int i = 1;
 
         while(lua_next(L, bytesIndex) != 0) {
-            if(i == len) {
+            if(i >= len) {
                 break;
             }
 
-            if(lua_isnumber(L, -1)) {
-                const int byte = lua_tointeger(L, -1);
+            const int byte = lua_tointeger(L, -1);
 
-                if(byte < 0 || byte > 255) {
-                    return luaL_error(L, "byte '%i' at index '%i' is less than 0 or greater than 255", byte, i);
-                }
-
-                bytes.push_back(byte);
-                
-                lua_pop(L, 1);
-
-                i++;
-            } else {
-                return luaL_error(L, "number expected at index '%i' (got %s)", i, lua_typename(L, lua_type(L, -1)));
+            if(byte < 0 || byte > 255) {
+                return luaL_error(L, "byte '%i' at index '%i' is less than 0 or greater than 255", byte, i);
             }
+
+            bytes.push_back(byte);
+                
+            lua_pop(L, 1);
+
+            i++;
         }
 
         lua_pushboolean(L, files::write_bytes(path, &bytes[0], len));
