@@ -89,6 +89,7 @@ if (WIN32)
       find_package(glfw3 REQUIRED)
       find_package(spng REQUIRED)
       find_package(glm REQUIRED)
+      find_package(libogg REQUIRED)
       set(PNGLIB spng::spng)
     else()
       find_package(Lua REQUIRED)
@@ -118,7 +119,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 include_directories(${LUA_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ZLIB::ZLIB ${PNGLIB} ${LUA_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ZLIB::ZLIB vorbis vorbisfile ${PNGLIB} ${LUA_LIBRARIES} ${CMAKE_DL_LIBS})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 

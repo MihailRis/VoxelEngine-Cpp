@@ -7,6 +7,7 @@
 #include "NoAudio.h"
 
 #include "../coders/wav.h"
+#include "../coders/ogg.h"
 
 namespace audio {
     static speakerid_t nextId = 1;
@@ -30,7 +31,9 @@ PCM* audio::loadPCM(const fs::path& file, bool headerOnly) {
     std::string ext = file.extension().u8string();
     if (ext == ".wav" || ext == ".WAV") {
         return wav::load_pcm(file, headerOnly);
-    } // TODO: OGG support
+    } else if (ext == ".ogg" || ext == ".OGG") {
+        return ogg::load_pcm(file, headerOnly);
+    }
     throw std::runtime_error("unsupported audio format");
 }
 
