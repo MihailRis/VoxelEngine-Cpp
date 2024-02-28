@@ -3,8 +3,8 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "ALAudio.h"
 #include "NoAudio.h"
+#include "AL/ALAudio.h"
 
 #include "../coders/wav.h"
 #include "../coders/ogg.h"

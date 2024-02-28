@@ -14,8 +14,8 @@
 #include <AL/alc.h>
 #endif
 
-#include "audio.h"
-#include "../typedefs.h"
+#include "../audio.h"
+#include "../../typedefs.h"
 
 namespace audio {
     struct ALBuffer;
