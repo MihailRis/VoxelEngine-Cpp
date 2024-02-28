@@ -15,7 +15,7 @@
 #include "../typedefs.h"
 
 #define AL_CHECK(STATEMENT) STATEMENT; AL::check_errors(__FILE__, __LINE__)
-#define AL_GET_ERORR() AL::check_errors(__FILE__, __LINE__)
+#define AL_GET_ERROR() AL::check_errors(__FILE__, __LINE__)
 
 namespace AL {
     bool check_errors(const std::string& filename, const std::uint_fast32_t line);

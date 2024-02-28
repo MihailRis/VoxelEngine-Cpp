@@ -188,7 +188,7 @@ uint ALAudio::getFreeSource(){
     }
     ALuint id;
     alGenSources(1, &id);
-    if (!AL_GET_ERORR())
+    if (!AL_GET_ERROR())
         return 0;
     allsources.push_back(id);
     return id;
@@ -200,13 +200,9 @@ uint ALAudio::getFreeBuffer(){
         freebuffers.pop_back();
         return buffer;
     }
-    if (allbuffers.size() == maxBuffers){
-        std::cerr << "attempted to create new ALbuffer, but limit is " << maxBuffers << std::endl;
-        return 0;
-    }
     ALuint id;
     alGenBuffers(1, &id);
-    if (!AL_GET_ERORR()) {
+    if (!AL_GET_ERROR()) {
         return 0;
     }
 
@@ -227,7 +223,7 @@ std::vector<std::string> ALAudio::getAvailableDevices() const {
 
     const ALCchar* devices;
     devices = alcGetString(device, ALC_DEVICE_SPECIFIER);
-    if (!AL_GET_ERORR()) {
+    if (!AL_GET_ERROR()) {
         return devicesVec;
     }
 

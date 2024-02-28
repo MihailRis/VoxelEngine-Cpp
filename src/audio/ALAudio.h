@@ -88,7 +88,6 @@ namespace audio {
         std::vector<uint> freebuffers;
 
         uint maxSources;
-        uint maxBuffers;
 
         ALAudio(ALCdevice* device, ALCcontext* context);
     public:

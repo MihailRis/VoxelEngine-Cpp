@@ -26,7 +26,6 @@ audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
     if ((code = ov_fopen(file.u8string().c_str(), &vf))) {
         throw std::runtime_error(vorbis_error_message(code));
     }
-    
     std::vector<char> data;
 
     vorbis_info* info = ov_info(&vf, -1);
@@ -52,5 +51,5 @@ audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
     }
     
     ov_clear(&vf);
-    return new audio::PCM(data, channels, 16, sampleRate);
+    return new audio::PCM(std::move(data), channels, 16, sampleRate);
 }
