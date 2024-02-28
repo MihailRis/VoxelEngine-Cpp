@@ -29,8 +29,9 @@ AppDir:
     - libopengl0
     - libasound2
     - libglx0
-    - libogg
-    - libvorbis
+    - libogg0
+    - libvorbis0a
+    - libvorbisfile3
     exclude:
       - hicolor-icon-theme
       - sound-theme-freedesktop
