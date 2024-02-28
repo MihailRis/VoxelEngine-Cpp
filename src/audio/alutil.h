@@ -12,6 +12,7 @@
 #endif
 
 #include <glm/glm.hpp>
+#include "../typedefs.h"
 
 #define AL_CHECK(STATEMENT) STATEMENT; AL::check_errors(__FILE__, __LINE__)
 #define AL_GET_ERORR() AL::check_errors(__FILE__, __LINE__)

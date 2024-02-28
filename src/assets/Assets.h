@@ -14,11 +14,9 @@ class Font;
 class Atlas;
 class UiDocument;
 
-struct LayoutCfg {
-    int env;
-
-    LayoutCfg(int env) : env(env) {}
-};
+namespace audio {
+	class Sound;
+}
 
 class Assets {
 	std::unordered_map<std::string, std::shared_ptr<Texture>> textures;
@@ -26,6 +24,7 @@ class Assets {
 	std::unordered_map<std::string, std::shared_ptr<Font>> fonts;
 	std::unordered_map<std::string, std::shared_ptr<Atlas>> atlases;
 	std::unordered_map<std::string, std::shared_ptr<UiDocument>> layouts;
+	std::unordered_map<std::string, std::shared_ptr<audio::Sound>> sounds;
 	std::vector<TextureAnimation> animations;
 public:
 	~Assets();
@@ -40,6 +39,9 @@ public:
 
 	Atlas* getAtlas(std::string name) const;
 	void store(Atlas* atlas, std::string name);
+
+	audio::Sound* getSound(std::string name) const;
+	void store(audio::Sound* sound, std::string name);
 
 	const std::vector<TextureAnimation>& getAnimations();
 	void store(const TextureAnimation& animation);

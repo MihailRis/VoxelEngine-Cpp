@@ -55,6 +55,20 @@ namespace audio {
         }
     };
 
+    /// @brief PCM data streaming interface 
+    class PCMStream {
+    public:
+        virtual ~PCMStream() {};
+        virtual size_t read(char* buffer, size_t bufferSize, bool loop)=0;
+        virtual void close()=0;
+
+        virtual size_t getTotalSamples() const=0;
+        virtual duration_t getTotalDuration() const=0;
+        virtual uint getChannels() const=0;
+        virtual uint getSampleRate() const=0;
+        virtual uint getBitsPerSample() const=0;
+    };
+
     /// @brief Sound is an audio asset that supposed to support many 
     /// simultaneously playing instances with different sources.
     /// So it's audio data is stored in memory.

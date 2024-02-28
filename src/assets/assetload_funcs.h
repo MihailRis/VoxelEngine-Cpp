@@ -8,6 +8,7 @@ class ResPaths;
 class Assets;
 class AssetsLoader;
 class Atlas;
+struct AssetCfg;
 
 namespace assetload {
     bool texture(
@@ -16,7 +17,7 @@ namespace assetload {
         const ResPaths* paths,
         const std::string filename, 
         const std::string name,
-        std::shared_ptr<void> settings
+        std::shared_ptr<AssetCfg> settings
     );
     bool shader(
         AssetsLoader&,
@@ -24,7 +25,7 @@ namespace assetload {
         const ResPaths* paths,
         const std::string filename, 
         const std::string name,
-        std::shared_ptr<void> settings
+        std::shared_ptr<AssetCfg> settings
     );
     bool atlas(
         AssetsLoader&,
@@ -32,7 +33,7 @@ namespace assetload {
         const ResPaths* paths, 
         const std::string directory, 
         const std::string name,
-        std::shared_ptr<void> settings
+        std::shared_ptr<AssetCfg> settings
     );
     bool font(
         AssetsLoader&,
@@ -40,7 +41,7 @@ namespace assetload {
         const ResPaths* paths,
         const std::string filename, 
         const std::string name,
-        std::shared_ptr<void> settings
+        std::shared_ptr<AssetCfg> settings
     );
     bool layout(
         AssetsLoader&,
@@ -48,7 +49,16 @@ namespace assetload {
         const ResPaths* paths,
         const std::string file,
         const std::string name,
-        std::shared_ptr<void> settings
+        std::shared_ptr<AssetCfg> settings
+    );
+
+    bool sound(
+        AssetsLoader&,
+        Assets*,
+        const ResPaths* paths,
+        const std::string file,
+        const std::string name,
+        std::shared_ptr<AssetCfg> settings
     );
 
     bool animation(
