@@ -69,6 +69,29 @@ namespace audio {
         virtual uint getBitsPerSample() const=0;
     };
 
+    /// @brief Audio streaming interface
+    class Stream {
+    public:
+        virtual ~Stream() {};
+
+        /// @brief Create new speaker bound to the Stream 
+        /// and having high priority
+        /// @return speaker id or 0
+        virtual speakerid_t createSpeaker() = 0;
+
+        /// @brief Get id of the bound speaker
+        /// @return speaker id or 0 if no speaker bound
+        virtual speakerid_t getSpeaker() const = 0;
+
+        /// @brief Update stream state (preload samples if needed)
+        /// @param delta time elapsed since the last update
+        virtual void update(double delta) = 0;
+
+        /// @brief Set playhead to the selected time
+        /// @param time selected time
+        virtual void setTime(duration_t time) = 0;
+    };
+
     /// @brief Sound is an audio asset that supposed to support many 
     /// simultaneously playing instances with different sources.
     /// So it's audio data is stored in memory.
@@ -251,7 +274,7 @@ namespace audio {
     extern Speaker* get(speakerid_t id);
     
     /// @brief Update audio streams and sound instanced
-    /// @param delta time since the last update (seconds)
+    /// @param delta time elapsed since the last update (seconds)
     extern void update(double delta);
     
     /// @brief Finalize audio system
