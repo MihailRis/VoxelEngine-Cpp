@@ -5,6 +5,7 @@
 
 namespace audio {
     struct PCM;
+    class Stream;
 }
 
 namespace ogg {

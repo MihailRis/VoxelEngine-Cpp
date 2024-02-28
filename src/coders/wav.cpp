@@ -27,8 +27,6 @@ std::int32_t convert_to_int(char* buffer, std::size_t len){
     return a;
 }
 
-#include <iostream>
-
 audio::PCM* wav::load_pcm(const std::filesystem::path& file, bool headerOnly) {
     std::ifstream in(file, std::ios::binary);
     if(!in.is_open()){
@@ -85,7 +83,6 @@ audio::PCM* wav::load_pcm(const std::filesystem::path& file, bool headerOnly) {
         throw std::runtime_error("could not read bits per sample");
     }
     int bitsPerSample = convert_to_int(buffer, 2);
-    std::cout << "CHANN " << channels << std::endl;
 
     // data chunk header "data"
     if(!in.read(buffer, 4)){
@@ -110,11 +107,12 @@ audio::PCM* wav::load_pcm(const std::filesystem::path& file, bool headerOnly) {
     }
 
     std::vector<char> data;
+    size_t totalSamples = size / (bitsPerSample / 8);
     if (!headerOnly) {
         data.resize(size);
         if (!in.read(data.data(), size)) {
             throw std::runtime_error("could not load wav data of '"+file.u8string()+"'");
         }
     }
-    return new audio::PCM(std::move(data), channels, bitsPerSample, sampleRate);
+    return new audio::PCM(std::move(data), totalSamples, channels, bitsPerSample, sampleRate);
 }

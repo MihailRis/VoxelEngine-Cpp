@@ -31,6 +31,7 @@ audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
     vorbis_info* info = ov_info(&vf, -1);
     uint channels = info->channels;
     uint sampleRate = info->rate;
+    size_t totalSamples = ov_pcm_total(&vf, -1);
 
     if (!headerOnly) {
         const int bufferSize = 4096;
@@ -51,5 +52,5 @@ audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
     }
     
     ov_clear(&vf);
-    return new audio::PCM(std::move(data), channels, 16, sampleRate);
+    return new audio::PCM(std::move(data), totalSamples, channels, 16, sampleRate);
 }

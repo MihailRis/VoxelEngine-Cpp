@@ -31,26 +31,29 @@ namespace audio {
     struct PCM {
         /// @brief May contain 8 bit and 16 bit PCM data
         std::vector<char> data;
+        size_t totalSamples;
         uint8_t channels;
         uint8_t bitsPerSample;
         uint sampleRate;
 
-        PCM(
+        PCM(  
             std::vector<char> data,
+            size_t totalSamples,
             uint8_t channels,
             uint8_t bitsPerSample,
             uint sampleRate
-        ) : data(std::move(data)), 
+        ) : data(std::move(data)),
+            totalSamples(totalSamples),
             channels(channels), 
             bitsPerSample(bitsPerSample),
             sampleRate(sampleRate) {}
 
-        inline size_t countSamples() const {
-            return data.size() / channels / (bitsPerSample / 8);
+        inline size_t countSamplesMono() const {
+            return totalSamples / channels;
         }
 
         inline duration_t getDuration() const {
-            return static_cast<duration_t>(countSamples()) / 
+            return static_cast<duration_t>(countSamplesMono()) / 
                    static_cast<duration_t>(sampleRate);
         }
     };
