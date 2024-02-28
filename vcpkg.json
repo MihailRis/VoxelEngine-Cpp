@@ -9,6 +9,7 @@
       "glm",
       "libspng",
       "zlib",
-      "luajit"
+      "luajit",
+      "libvorbis"
     ]
   }
