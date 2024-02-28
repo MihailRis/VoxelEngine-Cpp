@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 namespace audio {
     using speakerid_t = int64_t;
     /// @brief duration unit is second
-    using duration_t = float;
+    using duration_t = double;
 
     constexpr inline int PRIORITY_LOW = 0;
     constexpr inline int PRIORITY_NORMAL = 5;
@@ -58,18 +58,46 @@ namespace audio {
         }
     };
 
-    /// @brief PCM data streaming interface 
+    /// @brief audio::PCMStream is a data source for audio::Stream
     class PCMStream {
     public:
         virtual ~PCMStream() {};
+
+        /// @brief Read samples data to buffer
+        /// @param buffer destination buffer
+        /// @param bufferSize destination buffer size
+        /// @param loop loop stream (seek to start when end reached)
+        /// @return size of data received 
+        /// (always equals bufferSize if seekable and looped)
         virtual size_t read(char* buffer, size_t bufferSize, bool loop)=0;
+        
+        /// @brief Close stream
         virtual void close()=0;
 
+        /// @brief Get total samples number if seekable or 0
         virtual size_t getTotalSamples() const=0;
+
+        /// @brief Get total audio track duration if seekable or 0.0
         virtual duration_t getTotalDuration() const=0;
+
+        /// @brief Get number of audio channels
+        /// @return 1 if mono, 2 if stereo
         virtual uint getChannels() const=0;
+
+        /// @brief Get audio sampling frequency
+        /// @return number of mono samples per second
         virtual uint getSampleRate() const=0;
+
+        /// @brief Get number of bits per mono sample
+        /// @return 8 or 16
         virtual uint getBitsPerSample() const=0;
+
+        /// @brief Check if the stream does support seek feature
+        virtual bool isSeekable() const=0;
+
+        /// @brief Move playhead to the selected sample number
+        /// @param position selected sample number
+        virtual void seek(size_t position) = 0;
     };
 
     /// @brief Audio streaming interface
@@ -240,6 +268,12 @@ namespace audio {
     /// @param keepPCM store PCM data in sound to make it accessible with Sound::getPCM
     /// @return new Sound instance 
     extern Sound* createSound(std::shared_ptr<PCM> pcm, bool keepPCM);
+
+    /// @brief Open new PCM stream from file
+    /// @param file audio file path
+    /// @throws std::runtime_error if I/O error ocurred or format is unknown
+    /// @return new PCMStream instance
+    extern PCMStream* openPCMStream(const fs::path& file);
 
     /// @brief Configure 3D listener
     /// @param position listener position

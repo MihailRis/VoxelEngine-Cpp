@@ -7,6 +7,8 @@
 #include "../audio/audio.h"
 #include "../typedefs.h"
 
+using namespace audio;
+
 static inline const char* vorbis_error_message(int code) {
     switch (code) {
         case 0: return "no error";
@@ -31,7 +33,7 @@ audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
     vorbis_info* info = ov_info(&vf, -1);
     uint channels = info->channels;
     uint sampleRate = info->rate;
-    size_t totalSamples = ov_pcm_total(&vf, -1);
+    size_t totalSamples = ov_seekable(&vf) ? ov_pcm_total(&vf, -1) : 0;
 
     if (!headerOnly) {
         const int bufferSize = 4096;
@@ -49,8 +51,104 @@ audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
                 data.insert(data.end(), std::begin(buffer), std::begin(buffer)+ret);
             }
         }
+        totalSamples = data.size();
     }
-    
     ov_clear(&vf);
-    return new audio::PCM(std::move(data), totalSamples, channels, 16, sampleRate);
+    return new PCM(std::move(data), totalSamples, channels, 16, sampleRate);
+}
+
+class OggStream : public PCMStream {
+    OggVorbis_File vf;
+    bool closed = false;
+    uint channels;
+    uint sampleRate;
+    size_t totalSamples = 0;
+    bool seekable;
+public:
+    OggStream(OggVorbis_File vf) : vf(std::move(vf)) {
+        vorbis_info* info = ov_info(&vf, -1);
+        channels = info->channels;
+        sampleRate = info->rate;
+        seekable = ov_seekable(&vf);
+        if (seekable) {
+            totalSamples = ov_pcm_total(&vf, -1);
+        }
+    }
+
+    ~OggStream() {
+        if (!closed) {
+            close();
+        }
+    }
+
+    size_t read(char* buffer, size_t bufferSize, bool loop) {
+        int bitstream;
+        long bytes = 0;
+        size_t size = 0;
+        do {
+            do {
+                bytes = ov_read(&vf, buffer, bufferSize, 0, 2, true, &bitstream);
+                if (bytes < 0) {
+                    std::cerr << vorbis_error_message(bytes) << std::endl;
+                    continue;
+                }
+                size += bytes;
+                bufferSize -= bytes;
+                buffer += bytes;
+            } while (bytes > 0);
+
+            if (loop) {
+                seek(0);
+            }
+            if (bufferSize == 0) {
+                return size;
+            }
+        } while (loop);
+        return size;
+    }
+
+    void close() {
+        ov_clear(&vf);
+        closed = true;
+    }
+
+    size_t getTotalSamples() const {
+        return totalSamples;
+    }
+
+    duration_t getTotalDuration() const {
+        return static_cast<duration_t>(totalSamples) /
+               static_cast<duration_t>(sampleRate);
+    }
+
+    uint getChannels() const {
+        return channels;
+    }
+
+    uint getSampleRate() const {
+        return sampleRate;
+    }
+
+    uint getBitsPerSample() const {
+        return 16;
+    }
+
+    bool isSeekable() const {
+        return seekable;
+    }
+
+    void seek(size_t position) {
+        if (seekable) {
+            ov_raw_seek(&vf, position);
+        }
+    }
+};
+
+PCMStream* ogg::create_stream(const std::filesystem::path& file) {
+    OggVorbis_File vf;
+    int code;
+    if ((code = ov_fopen(file.u8string().c_str(), &vf))) {
+        throw std::runtime_error(vorbis_error_message(code));
+    }
+    return new OggStream(std::move(vf));
 }

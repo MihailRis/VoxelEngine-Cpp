@@ -46,6 +46,14 @@ Sound* audio::createSound(std::shared_ptr<PCM> pcm, bool keepPCM) {
     return backend->createSound(pcm, keepPCM);
 }
 
+PCMStream* audio::openPCMStream(const fs::path& file) {
+    std::string ext = file.extension().u8string();
+    if (ext == ".ogg" || ext == ".OGG") {
+        return ogg::create_stream(file);
+    }
+    throw std::runtime_error("unsupported audio stream format");
+}
+
 void audio::setListener(
     glm::vec3 position, 
     glm::vec3 velocity, 
@@ -121,6 +129,7 @@ void audio::update(double delta) {
 }
 
 void audio::close() {
+    speakers.clear();
     delete backend;
     backend = nullptr;
 }
