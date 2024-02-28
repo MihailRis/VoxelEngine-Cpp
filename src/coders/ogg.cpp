@@ -45,7 +45,7 @@ audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
             } else if (ret < 0) {
                 std::cerr << "ogg::load_pcm: " << vorbis_error_message(ret) << std::endl;
             } else {
-                data.insert(data.end(), std::begin(buffer), std::end(buffer));
+                data.insert(data.end(), std::begin(buffer), std::begin(buffer)+ret);
             }
         }
     }
