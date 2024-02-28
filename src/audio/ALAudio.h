@@ -112,7 +112,7 @@ namespace audio {
         void update(double delta) override;
         
         bool isDummy() const override {
-            return true;
+            return false;
         }
 
         static ALAudio* create();
