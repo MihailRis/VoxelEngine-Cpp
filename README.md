@@ -33,7 +33,7 @@ cmake --build .
 
 #### Debian-based distro:
 ```sh
-sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev
+sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev libvorbis-dev
 ```
 
 CMake missing LUA_INCLUDE_DIR and LUA_LIBRARIES fix:
@@ -44,7 +44,7 @@ sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
 
 #### RHEL-based distro:
 ```sh
-sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel openal-devel
+sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-devel openal-devel
 ```
 
 \+ install LuaJIT
@@ -52,12 +52,12 @@ sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel openal-devel
 #### Arch-based distro:
 If you use X11
 ```sh
-sudo pacman -S glfw-x11 glew glm libpng openal
+sudo pacman -S glfw-x11 glew glm libpng libvorbis openal
 ```
 
 If you use Wayland
 ```sh
-sudo pacman -S glfw-wayland glew glm libpng openal
+sudo pacman -S glfw-wayland glew glm libpng libvorbis openal
 ```
 
 \+ install LuaJIT
@@ -72,7 +72,7 @@ make && sudo make install INSTALL_INC=/usr/include/lua
 #### macOS:
 
 ```
-brew install glfw3 glew glm libpng lua luajit openal-soft
+brew install glfw3 glew glm libpng libvorbis lua luajit openal-soft
 ```
 
 If homebrew for some reason could not install the necessary packages: ```lua luajit openal-soft```, then download, install and compile them manually (Lua, LuaJIT and OpenAL).
