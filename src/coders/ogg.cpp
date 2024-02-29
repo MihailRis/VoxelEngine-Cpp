@@ -17,6 +17,7 @@ static inline const char* vorbis_error_message(int code) {
         case OV_EVERSION: return "vorbis version mismatch";
         case OV_EBADHEADER: return "invalid Vorbis bitstream header";
         case OV_EFAULT: return "internal logic fault";
+        case OV_EINVAL: return "header couldn't be read or are corrupt";
         default:
             return "unknown";
     }
@@ -86,20 +87,24 @@ public:
         if (closed) {
             return 0;
         }
-        int bitstream;
+        int bitstream = 0;
         long bytes = 0;
         size_t size = 0;
         do {
             do {
                 bytes = ov_read(&vf, buffer, bufferSize, 0, 2, true, &bitstream);
                 if (bytes < 0) {
-                    std::cerr << vorbis_error_message(bytes) << std::endl;
+                    std::cerr << "ogg::load_pcm: " << vorbis_error_message(bytes) << " " << bytes << std::endl;
                     continue;
                 }
                 size += bytes;
                 bufferSize -= bytes;
                 buffer += bytes;
-            } while (bytes > 0);
+            } while (bytes > 0 && bufferSize > 0);
+
+            if (bufferSize == 0) {
+                break;
+            }
 
             if (loop) {
                 seek(0);

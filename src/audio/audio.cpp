@@ -13,6 +13,7 @@ namespace audio {
     static speakerid_t nextId = 1;
     static Backend* backend;
     static std::unordered_map<speakerid_t, std::unique_ptr<Speaker>> speakers;
+    static std::unordered_map<speakerid_t, std::shared_ptr<Stream>> streams;
 }
 
 using namespace audio;
@@ -200,6 +201,34 @@ speakerid_t audio::play(
     return id;
 }
 
+speakerid_t audio::play(
+    std::shared_ptr<Stream> stream,
+    glm::vec3 position,
+    float volume,
+    float pitch,
+    bool loop
+) {
+    Speaker* speaker = stream->createSpeaker(loop);
+    if (speaker == nullptr) {
+        remove_lower_priority_speaker(PRIORITY_HIGH);
+        speaker = stream->createSpeaker(loop);
+    }
+    if (speaker == nullptr) {
+        return 0;
+    }
+    speakerid_t id = nextId++;
+    streams.emplace(id, stream);
+    speakers.emplace(id, speaker);
+    stream->bindSpeaker(id);
+
+    speaker->setPosition(position);
+    speaker->setVolume(volume);
+    speaker->setPitch(pitch);
+    speaker->setLoop(false);
+    speaker->play();
+    return id;
+}
+
 Speaker* audio::get(speakerid_t id) {
     auto found = speakers.find(id);
     if (found == speakers.end()) {
@@ -210,6 +239,10 @@ Speaker* audio::get(speakerid_t id) {
 
 void audio::update(double delta) {
     backend->update(delta);
+
+    for (auto& entry : streams) {
+        entry.second->update(delta);
+    }
 
     for (auto it = speakers.begin(); it != speakers.end();) {
         if (it->second->isStopped()) {

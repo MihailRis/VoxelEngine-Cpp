@@ -118,8 +118,9 @@ namespace audio {
 
         /// @brief Create new speaker bound to the Stream 
         /// and having high priority
+        /// @param loop is stream looped (required for correct buffers preload)
         /// @return speaker id or 0
-        virtual Speaker* createSpeaker() = 0;
+        virtual Speaker* createSpeaker(bool loop) = 0;
 
         /// @brief Unbind previous speaker and bind new speaker to the stream
         /// @param speaker speaker id or 0 if all you need is unbind speaker
@@ -329,6 +330,21 @@ namespace audio {
         float pitch,
         bool loop,
         int priority
+    );
+
+    /// @brief Play stream in the world
+    /// @param stream target stream
+    /// @param position stream world position
+    /// @param volume stream volume [0.0-1.0]
+    /// @param pitch stream pitch multiplier [0.0-...]
+    /// @param loop loop stream
+    /// @return speaker id or 0
+    extern speakerid_t play(
+        std::shared_ptr<Stream> stream,
+        glm::vec3 position,
+        float volume,
+        float pitch,
+        bool loop
     );
 
     /// @brief Get speaker by id

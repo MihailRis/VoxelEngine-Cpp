@@ -35,25 +35,25 @@ namespace audio {
             }
         }
 
-        std::shared_ptr<PCMStream> getSource() const {
+        std::shared_ptr<PCMStream> getSource() const override {
             return source;
         }
 
-        void bindSpeaker(speakerid_t speaker) {
+        void bindSpeaker(speakerid_t speaker) override {
         }
 
-        Speaker* createSpeaker() {
+        Speaker* createSpeaker(bool loop) override{
             return nullptr;
         }
 
-        speakerid_t getSpeaker() const {
+        speakerid_t getSpeaker() const override {
             return 0;
         }
 
-        void update(double delta) {
+        void update(double delta) override {
         }
 
-        void setTime(duration_t time) {
+        void setTime(duration_t time) override {
         }
     };
 

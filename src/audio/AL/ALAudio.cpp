@@ -45,9 +45,28 @@ std::shared_ptr<PCMStream> ALStream::getSource() const {
     }
 }
 
-Speaker* ALStream::createSpeaker() {
+bool ALStream::preloadBuffer(uint buffer, bool loop) {
+    size_t read = source->read(this->buffer, BUFFER_SIZE, loop);
+    if (!read)
+        return false;
+    ALenum format = AL::to_al_format(source->getChannels(), source->getBitsPerSample());
+    AL_CHECK(alBufferData(buffer, format, this->buffer, read, source->getSampleRate()));
+    return true;
+}
+
+Speaker* ALStream::createSpeaker(bool loop) {
+    this->loop = loop;
     uint source = al->getFreeSource();
-    // TODO: prepare source and enqueue buffers
+    if (source == 0) {
+        return nullptr;
+    }
+    for (uint i = 0; i < ALStream::STREAM_BUFFERS; i++) {
+        uint buffer = al->getFreeBuffer();
+        if (!preloadBuffer(buffer, loop)) {
+            break;
+        }
+        AL_CHECK(alSourceQueueBuffers(source, 1, &buffer));
+    }
     return new ALSpeaker(al, source, PRIORITY_HIGH);
 }
 
@@ -65,14 +84,40 @@ speakerid_t ALStream::getSpeaker() const {
 }
 
 void ALStream::update(double delta) {
-    // TODO: implement
+    if (this->speaker == 0) {
+        return;
+    }
+    Speaker* speaker = audio::get(this->speaker);
+    if (speaker == nullptr) {
+        speaker = 0;
+        return;
+    }
+    ALSpeaker* alspeaker = dynamic_cast<ALSpeaker*>(speaker);
+    uint source = alspeaker->source;
+    uint processed = AL::getSourcei(source, AL_BUFFERS_PROCESSED);
+
+    while (processed--) {
+        uint buffer;
+        AL_CHECK(alSourceUnqueueBuffers(source, 1, &buffer));
+        unusedBuffers.push(buffer);
+        std::cout << "unqueue " << buffer << std::endl;
+    }
+
+    if (!unusedBuffers.empty()) {
+        uint buffer = unusedBuffers.front();
+        if (preloadBuffer(buffer, loop)) {
+            unusedBuffers.pop();
+            std::cout << "queue " << buffer << std::endl;
+            AL_CHECK(alSourceQueueBuffers(source, 1, &buffer));
+        }
+    }
 }
 
 void ALStream::setTime(duration_t time) {
     // TODO: implement
 }
 
-ALSpeaker::ALSpeaker(ALAudio* al, uint source, int priority) : al(al), source(source), priority(priority) {
+ALSpeaker::ALSpeaker(ALAudio* al, uint source, int priority) : al(al), priority(priority), source(source) {
 }
 
 ALSpeaker::~ALSpeaker() {

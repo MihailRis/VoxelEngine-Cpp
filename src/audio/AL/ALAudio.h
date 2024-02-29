@@ -1,6 +1,7 @@
 #ifndef SRC_AUDIO_AUDIO_H_
 #define SRC_AUDIO_AUDIO_H_
 
+#include <queue>
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
@@ -43,28 +44,38 @@ namespace audio {
     };
 
     class ALStream : public Stream {
+        static inline constexpr size_t BUFFER_SIZE = 44100;
+        
         ALAudio* al;
         std::shared_ptr<PCMStream> source;
+        std::queue<uint> unusedBuffers;
         speakerid_t speaker = 0;
         bool keepSource;
+        char buffer[BUFFER_SIZE];
+        bool loop = false;
+
+        bool preloadBuffer(uint buffer, bool loop);
     public:
         ALStream(ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSource);
         ~ALStream();
 
         std::shared_ptr<PCMStream> getSource() const override;
         void bindSpeaker(speakerid_t speaker) override;
-        Speaker* createSpeaker() override;
+        Speaker* createSpeaker(bool loop) override;
         speakerid_t getSpeaker() const override;
         void update(double delta) override;
-        void setTime(duration_t time) override;        
+        void setTime(duration_t time) override;       
+
+        static inline constexpr uint STREAM_BUFFERS = 3; 
     };
 
     /// @brief AL source adapter
     class ALSpeaker : public Speaker {
         ALAudio* al;
-        uint source;
         int priority;
     public:
+        uint source;
+
         ALSpeaker(ALAudio* al, uint source, int priority);
         ~ALSpeaker();
 
