@@ -48,7 +48,7 @@ class ContentBuilder {
     std::unordered_map<std::string, ItemDef*> itemDefs;
     std::vector<std::string> itemIds;
 
-    std::vector<std::unique_ptr<ContentPackRuntime>> packs;
+    std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs;
 public:
     ~ContentBuilder();
 
@@ -108,7 +108,7 @@ class Content {
     std::unordered_map<std::string, Block*> blockDefs;
     std::unordered_map<std::string, ItemDef*> itemDefs;
     std::unique_ptr<ContentIndices> indices;
-    std::vector<std::unique_ptr<ContentPackRuntime>> packs;
+    std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs;
 public:
     std::unique_ptr<DrawGroups> const drawGroups;
 
@@ -116,7 +116,7 @@ public:
             std::unique_ptr<DrawGroups> drawGroups,
             std::unordered_map<std::string, Block*> blockDefs,
             std::unordered_map<std::string, ItemDef*> itemDefs,
-            std::vector<std::unique_ptr<ContentPackRuntime>> packs);
+            std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs);
     ~Content();
 
     inline ContentIndices* getIndices() const {
@@ -129,7 +129,9 @@ public:
     ItemDef* findItem(std::string id) const;
     ItemDef& requireItem(std::string id) const;
 
-    const std::vector<std::unique_ptr<ContentPackRuntime>>& getPacks() const;
+    const ContentPackRuntime* getPackRuntime(std::string id) const;
+
+    const std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>>& getPacks() const;
 };
 
 #endif // CONTENT_CONTENT_H_

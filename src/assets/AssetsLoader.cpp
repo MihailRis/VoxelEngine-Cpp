@@ -70,6 +70,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
     loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/no_icon.png", "gui/no_icon");
     loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/warning.png", "gui/warning");
     loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/error.png", "gui/error");
+    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/cross.png", "gui/cross");
     if (content) {
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui3d", "ui3d");
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/background", "background");
@@ -79,7 +80,8 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/crosshair.png", "gui/crosshair");
 
         addLayouts(0, "core", loader.getPaths()->getMainRoot()/fs::path("layouts"), loader);
-        for (auto& pack : content->getPacks()) {
+        for (auto& entry : content->getPacks()) {
+            auto pack = entry.second.get();
             auto& info = pack->getInfo();
             fs::path folder = info.folder / fs::path("layouts");
             addLayouts(pack->getEnvironment()->getId(), info.id, folder, loader);

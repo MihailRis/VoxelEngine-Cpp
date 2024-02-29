@@ -1,6 +1,7 @@
 # Menu
 menu.missing-content=Missing Content!
 world.convert-request=Content indices have changed! Convert world files?
+pack.remove-confirm=Do you want to erase all pack content from the world forever?
 error.pack-not-found=Could not to find pack
 error.dependency-not-found=Dependency pack is not found
 world.delete-confirm=Do you want to delete world forever?

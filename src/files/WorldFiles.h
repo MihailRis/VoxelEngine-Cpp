@@ -47,22 +47,22 @@ public:
 };
 
 class WorldRegion {
-	ubyte** chunksData;
-	uint32_t* sizes;
-	bool unsaved = false;
+    ubyte** chunksData;
+    uint32_t* sizes;
+    bool unsaved = false;
 public:
-	WorldRegion();
-	~WorldRegion();
+    WorldRegion();
+    ~WorldRegion();
 
-	void put(uint x, uint z, ubyte* data, uint32_t size);
-	ubyte* getChunkData(uint x, uint z);
-	uint getChunkDataSize(uint x, uint z);
+    void put(uint x, uint z, ubyte* data, uint32_t size);
+    ubyte* getChunkData(uint x, uint z);
+    uint getChunkDataSize(uint x, uint z);
 
-	void setUnsaved(bool unsaved);
-	bool isUnsaved() const;
+    void setUnsaved(bool unsaved);
+    bool isUnsaved() const;
 
-	ubyte** getChunks() const;
-	uint32_t* getSizes() const;
+    ubyte** getChunks() const;
+    uint32_t* getSizes() const;
 };
 
 struct regfile {
@@ -77,85 +77,94 @@ typedef std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>> regionsmap;
 class WorldFiles {
     std::unordered_map<glm::ivec3, std::unique_ptr<regfile>> openRegFiles;
 
-	void writeWorldInfo(const World* world);
+    void writeWorldInfo(const World* world);
     fs::path getRegionFilename(int x, int y) const;
-	fs::path getWorldFile() const;
-	fs::path getIndicesFile() const;
-	fs::path getPacksFile() const;
-	
-	WorldRegion* getRegion(regionsmap& regions, int x, int z);
-	WorldRegion* getOrCreateRegion(regionsmap& regions, int x, int z);
+    fs::path getWorldFile() const;
+    fs::path getIndicesFile() const;
+    fs::path getPacksFile() const;
+    
+    WorldRegion* getRegion(regionsmap& regions, int x, int z);
+    WorldRegion* getOrCreateRegion(regionsmap& regions, int x, int z);
 
-	/* Compress buffer with extrle
-	   @param src source buffer
-	   @param srclen length of source buffer
-	   @param len (out argument) length of result buffer */
-	ubyte* compress(const ubyte* src, size_t srclen, size_t& len);
+    /// @brief Compress buffer with extrle
+    /// @param src source buffer
+    /// @param srclen length of the source buffer
+    /// @param len (out argument) length of result buffer
+    /// @return compressed bytes array
+    ubyte* compress(const ubyte* src, size_t srclen, size_t& len);
 
-	/* Decompress buffer with extrle
-	   @param src compressed buffer
-	   @param srclen length of compressed buffer
-	   @param dstlen max expected length of source buffer */
-	ubyte* decompress(const ubyte* src, size_t srclen, size_t dstlen);
+    /// @brief Decompress buffer with extrle
+    /// @param src compressed buffer
+    /// @param srclen length of compressed buffer
+    /// @param dstlen max expected length of source buffer
+    /// @return decompressed bytes array
+    ubyte* decompress(const ubyte* src, size_t srclen, size_t dstlen);
 
-	ubyte* readChunkData(int x, int y, 
-						 uint32_t& length, 
-						 fs::path folder,
-                         int layer);
-    void fetchChunks(WorldRegion* region, int x, int y, 
-                     fs::path folder, int layer);
+    ubyte* readChunkData(int x, int y, uint32_t& length, fs::path folder, int layer);
 
-	void writeRegions(regionsmap& regions,
-					  const fs::path& folder, int layer);
+    void fetchChunks(WorldRegion* region, int x, int y, fs::path folder, int layer);
 
-	ubyte* getData(regionsmap& regions,
-				   const fs::path& folder,
-				   int x, int z, int layer, bool compression);
+    void writeRegions(regionsmap& regions, const fs::path& folder, int layer);
+
+    ubyte* getData(regionsmap& regions, const fs::path& folder, int x, int z, int layer, bool compression);
     
     regfile* getRegFile(glm::ivec3 coord, const fs::path& folder);
 
     fs::path getLightsFolder() const;
-	fs::path getInventoriesFolder() const;
+    fs::path getInventoriesFolder() const;
 public:
     static bool parseRegionFilename(const std::string& name, int& x, int& y);
     fs::path getRegionsFolder() const;
     fs::path getPlayerFile() const;
 
-	regionsmap regions;
+    regionsmap regions;
     regionsmap storages;
-	regionsmap lights;
-	fs::path directory;
-	std::unique_ptr<ubyte[]> compressionBuffer;
-	bool generatorTestMode;
-	bool doWriteLights;
+    regionsmap lights;
+    fs::path directory;
+    std::unique_ptr<ubyte[]> compressionBuffer;
+    bool generatorTestMode;
+    bool doWriteLights;
 
-	WorldFiles(fs::path directory, const DebugSettings& settings);
-	~WorldFiles();
+    WorldFiles(fs::path directory, const DebugSettings& settings);
+    ~WorldFiles();
 
-	void put(Chunk* chunk);
+    void put(Chunk* chunk);
     void put(int x, int z, const ubyte* voxelData);
 
     int getVoxelRegionVersion(int x, int z);
     int getVoxelRegionsVersion();
 
-	ubyte* getChunk(int x, int z);
-	light_t* getLights(int x, int z);
-	chunk_inventories_map fetchInventories(int x, int z);
+    ubyte* getChunk(int x, int z);
+    light_t* getLights(int x, int z);
+    chunk_inventories_map fetchInventories(int x, int z);
 
-	bool readWorldInfo(World* world);
-	bool readPlayer(std::shared_ptr<Player> player);
+    bool readWorldInfo(World* world);
+    bool readPlayer(std::shared_ptr<Player> player);
 
-	void writeRegion(int x, int y, 
-					 WorldRegion* entry, 
-					 fs::path file,
-                     int layer);
-	void writePlayer(std::shared_ptr<Player> player);
-    /* @param world world info to save (nullable) */
-	void write(const World* world, const Content* content);
-	void writePacks(const World* world);
-	void writeIndices(const ContentIndices* indices);
-    /* Append pack to packs.list without duplicate check */
+    void writeRegion(int x, int y, WorldRegion* entry, fs::path file, int layer);
+
+    /// @brief Write player data to world files
+    /// @param player target player
+    void writePlayer(std::shared_ptr<Player> player);
+
+    /// @brief Write all unsaved data to world files
+    /// @param world target world
+    /// @param content world content
+    void write(const World* world, const Content* content);
+
+    void writePacks(const World* world);
+    void writeIndices(const ContentIndices* indices);
+
+    /// @brief Append pack to the packs list without duplicate check and
+    /// dependencies resolve
+    /// @param world target world
+    /// @param id pack id
     void addPack(const World* world, const std::string& id);
+    
+    /// @brief Remove pack from the list (does not remove indices)
+    /// @param world target world
+    /// @param id pack id
+    void removePack(const World* world, const std::string& id);
 
     static const char* WORLD_FILE;
 };

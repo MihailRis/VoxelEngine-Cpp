@@ -26,7 +26,7 @@ void ContentBuilder::add(ItemDef* def) {
 }
 
 void ContentBuilder::add(ContentPackRuntime* pack) {
-    packs.push_back(std::unique_ptr<ContentPackRuntime>(pack));
+    packs.emplace(pack->getId(), pack);
 }
 
 Block& ContentBuilder::createBlock(std::string id) {
@@ -136,7 +136,7 @@ Content::Content(ContentIndices* indices,
                  std::unique_ptr<DrawGroups> drawGroups,
                  std::unordered_map<std::string, Block*> blockDefs,
                  std::unordered_map<std::string, ItemDef*> itemDefs,
-                 std::vector<std::unique_ptr<ContentPackRuntime>> packs)
+                 std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs)
         : blockDefs(blockDefs),
           itemDefs(itemDefs),
           indices(indices),
@@ -179,6 +179,14 @@ ItemDef& Content::requireItem(std::string id) const {
     return *found->second;
 }
 
-const std::vector<std::unique_ptr<ContentPackRuntime>>& Content::getPacks() const {
+const ContentPackRuntime* Content::getPackRuntime(std::string id) const {
+    auto found = packs.find(id);
+    if (found == packs.end()) {
+        return nullptr;
+    }
+    return found->second.get();
+}
+
+const std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>>& Content::getPacks() const {
     return packs;
 }

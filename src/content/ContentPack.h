@@ -77,14 +77,32 @@ struct ContentPack {
     );
 };
 
+struct ContentPackStats {
+    size_t totalBlocks;
+    size_t totalItems;
+
+    inline bool hasSavingContent() const {
+        return totalBlocks + totalItems > 0;
+    }
+};
+
 class ContentPackRuntime {
     ContentPack info;
+    ContentPackStats stats {};
     std::unique_ptr<scripting::Environment> env;
 public:
     ContentPackRuntime(
-        ContentPack info, 
+        ContentPack info,
         std::unique_ptr<scripting::Environment> env
     );
+
+    inline const ContentPackStats& getStats() const {
+        return stats;
+    }
+
+    inline ContentPackStats& getStatsWriteable() {
+        return stats;
+    }
 
     inline const std::string& getId() {
         return info.id;
