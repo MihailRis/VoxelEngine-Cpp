@@ -167,7 +167,7 @@ void ContentPack::readPacks(const EnginePaths* paths,
 }
 
 ContentPackRuntime::ContentPackRuntime(
-    ContentPack info, 
+    ContentPack info,
     std::unique_ptr<scripting::Environment> env
 ) : info(info), env(std::move(env))
 {

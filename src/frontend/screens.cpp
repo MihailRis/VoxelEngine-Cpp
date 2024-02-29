@@ -87,22 +87,25 @@ void MenuScreen::draw(float delta) {
 
 static bool backlight;
 
-LevelScreen::LevelScreen(Engine* engine, Level* level) 
-    : Screen(engine), 
-      level(level),
-      frontend(std::make_unique<LevelFrontend>(level, engine->getAssets())),
-      hud(std::make_unique<Hud>(engine, frontend.get())),
-      worldRenderer(std::make_unique<WorldRenderer>(engine, frontend.get())),
-      controller(std::make_unique<LevelController>(engine->getSettings(), level)) {
-
+LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine), level(level){
+    menus::create_pause_panel(engine, level);
+    
     auto& settings = engine->getSettings();
+    auto assets = engine->getAssets();
+
+    controller = std::make_unique<LevelController>(settings, level);
+    frontend = std::make_unique<LevelFrontend>(level, assets);
+    worldRenderer = std::make_unique<WorldRenderer>(engine, frontend.get());
+    hud = std::make_unique<Hud>(engine, frontend.get());
+    
     backlight = settings.graphics.backlight;
 
-    animator.reset(new TextureAnimator());
-    animator->addAnimations(engine->getAssets()->getAnimations());
+    animator = std::make_unique<TextureAnimator>();
+    animator->addAnimations(assets->getAnimations());
 
     auto content = level->content;
-    for (auto& pack : content->getPacks()) {
+    for (auto& entry : content->getPacks()) {
+        auto pack = entry.second.get();
         const ContentPack& info = pack->getInfo();
         fs::path scriptFile = info.folder/fs::path("scripts/hud.lua");
         if (fs::is_regular_file(scriptFile)) {

@@ -342,7 +342,8 @@ std::shared_ptr<Panel> create_packs_panel(
     const std::vector<ContentPack>& packs, 
     Engine* engine, 
     bool backbutton, 
-    packconsumer callback
+    packconsumer callback,
+    packconsumer remover
 ){
     auto assets = engine->getAssets();
     auto panel = std::make_shared<Panel>(vec2(550, 200), vec4(5.0f));
@@ -358,7 +359,12 @@ std::shared_ptr<Panel> create_packs_panel(
                 callback(pack);
             });
         }
-        auto idlabel = std::make_shared<Label>("["+pack.id+"]");
+        auto runtime = engine->getContent()->getPackRuntime(pack.id);
+        auto idlabel = std::make_shared<Label>(
+            (runtime && runtime->getStats().hasSavingContent()) 
+            ? "*["+pack.id+"]" 
+            :  "["+pack.id+"]"
+        );
         idlabel->setColor(vec4(1, 1, 1, 0.5f));
         idlabel->setSize(vec2(300, 25));
         idlabel->setAlign(Align::right);
@@ -390,6 +396,19 @@ std::shared_ptr<Panel> create_packs_panel(
         packpanel->add(descriptionlabel, vec2(80, 28));
 
         packpanel->add(std::make_shared<Image>(icon, vec2(64)), vec2(8));
+
+        if (remover && pack.id != "base") {
+            auto remimg = std::make_shared<Image>("gui/cross", vec2(32));
+            remimg->setColor(vec4(1.f, 1.f, 1.f, 0.5f));
+            auto rembtn = std::make_shared<Button>(remimg, vec4(2));
+            rembtn->setColor(vec4(0.0f));
+            rembtn->setHoverColor(vec4(1.0f, 1.0f, 1.0f, 0.17f));
+            rembtn->listenAction([=](GUI* gui) {
+                remover(pack);
+            });
+            packpanel->add(rembtn, vec2(470, 22));
+        }
+
         panel->add(packpanel);
     }
     if (backbutton) {
@@ -398,8 +417,15 @@ std::shared_ptr<Panel> create_packs_panel(
     return panel;
 }
 
+static void reopen_world(Engine* engine, World* world) {
+    std::string wname = world->getName();
+    engine->setScreen(nullptr);
+    engine->setScreen(std::make_shared<MenuScreen>(engine));
+    open_world(wname, engine);
+}
+
 // TODO: refactor
-void create_content_panel(Engine* engine) {
+void create_content_panel(Engine* engine, Level* level) {
     auto menu = engine->getGUI()->getMenu();
     auto paths = engine->getPaths();
     auto mainPanel = create_page(engine, "content", 550, 0.0f, 5);
@@ -415,16 +441,29 @@ void create_content_panel(Engine* engine) {
         }
     }
 
-    auto panel = create_packs_panel(engine->getContentPacks(), engine, false, nullptr);
+    auto panel = create_packs_panel(
+        engine->getContentPacks(), engine, false, nullptr, 
+        [=](const ContentPack& pack) {
+            auto runtime = engine->getContent()->getPackRuntime(pack.id);
+            if (runtime->getStats().hasSavingContent()) {
+                guiutil::confirm(engine->getGUI(), langs::get(L"remove-confirm", L"pack")+
+                L" ("+util::str2wstr_utf8(pack.id)+L")", [=]() {
+                    // FIXME: work in progress
+                });
+            } else {
+                auto world = level->getWorld();
+                world->wfile->removePack(world, pack.id);
+
+                reopen_world(engine, world);
+            }
+        }
+    );
     mainPanel->add(panel);
     mainPanel->add(create_button(
     langs::get(L"Add", L"content"), vec4(10.0f), vec4(1), [=](GUI* gui) {
         auto panel = create_packs_panel(scanned, engine, true, 
         [=](const ContentPack& pack) {
-            auto screen = dynamic_cast<LevelScreen*>(engine->getScreen().get());
-            auto level = screen->getLevel();
             auto world = level->getWorld();
-
             auto worldFolder = paths->getWorldFolder();
             for (const auto& dependency : pack.dependencies) {
                 fs::path folder = ContentPack::findPack(paths, worldFolder, dependency);
@@ -437,14 +476,9 @@ void create_content_panel(Engine* engine) {
                     world->wfile->addPack(world, dependency);
                 }
             }
-            
             world->wfile->addPack(world, pack.id);
-
-            std::string wname = world->getName();
-            engine->setScreen(nullptr);
-            engine->setScreen(std::make_shared<MenuScreen>(engine));
-            open_world(wname, engine);
-        });
+            reopen_world(engine, world);
+        }, nullptr);
         menu->addPage("content-packs", panel);
         menu->setPage("content-packs");
     }));
@@ -691,7 +725,7 @@ void create_settings_panel(Engine* engine) {
     panel->add(guiutil::backButton(menu));
 }
 
-void create_pause_panel(Engine* engine) {
+void menus::create_pause_panel(Engine* engine, Level* level) {
     auto menu = engine->getGUI()->getMenu();
     auto panel = create_page(engine, "pause", 400, 0.0f, 1);
 
@@ -699,7 +733,7 @@ void create_pause_panel(Engine* engine) {
         menu->reset();
     }));
     panel->add(create_button(L"Content", vec4(10.0f), vec4(1), [=](GUI*) {
-        create_content_panel(engine);
+        create_content_panel(engine, level);
         menu->setPage("content");
     }));
     panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
@@ -717,10 +751,9 @@ void menus::create_menus(Engine* engine) {
     create_new_world_panel(engine);
     create_settings_panel(engine);
     create_controls_panel(engine);
-    create_pause_panel(engine);
     create_languages_panel(engine);
-    create_world_generators_panel(engine);
     create_main_menu_panel(engine);
+    create_world_generators_panel(engine);
 }
 
 void menus::refresh_menus(Engine* engine) {

@@ -1,4 +1,5 @@
-// Example of a GLSL library
+#define PI 3.1415926535897932384626433832795
+#define PI2 (PI*2)
 
 vec4 decompress_light(float compressed_light) {
 	vec4 result;

@@ -10,6 +10,8 @@ Add=Добавить
 error.pack-not-found=Не удалось найти пакет
 error.dependency-not-found=Используемая зависимость не найдена
 
+pack.remove-confirm=Удалить весь поставляемый паком контент из мира (безвозвратно)?
+
 # Меню
 menu.New World=Новый Мир
 menu.Quit=Выход
