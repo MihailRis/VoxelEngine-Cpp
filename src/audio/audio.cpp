@@ -17,6 +17,75 @@ namespace audio {
 
 using namespace audio;
 
+/// @brief pcm source that does not initialize buffer
+class PCMVoidSource : public PCMStream {
+    size_t totalSamples;
+    size_t remain;
+    uint sampleRate;
+    bool seekable;
+    bool closed = false;
+public:
+    PCMVoidSource(size_t totalSamples, uint sampleRate, bool seekable) 
+    : totalSamples(totalSamples), 
+      remain(totalSamples), 
+      sampleRate(sampleRate),
+      seekable(seekable) 
+    {}
+
+    size_t read(char* buffer, size_t bufferSize, bool loop) override {
+        if (closed) {
+            return 0;
+        }
+        if (!seekable || loop) {
+            return bufferSize;
+        }
+        size_t n = std::min(bufferSize, totalSamples);
+        remain -= n;
+        return n;
+    }
+
+    void close() override {
+        closed = true;
+    }
+
+    bool isOpen() const override {
+        return !closed;
+    }
+
+    size_t getTotalSamples() const override {
+        return totalSamples;
+    }
+
+    duration_t getTotalDuration() const {
+        return static_cast<duration_t>(totalSamples) / 
+               static_cast<duration_t>(sampleRate);
+    }
+
+    uint getChannels() const override {
+        return 1;
+    }
+
+    uint getSampleRate() const override {
+        return sampleRate;
+    }
+
+    uint getBitsPerSample() const override {
+        return 8;
+    }
+
+    bool isSeekable() const override {
+        return seekable;
+    }
+
+    void seek(size_t position) override {
+        if (closed || !seekable) {
+            return;
+        }
+        position %= totalSamples;
+        remain = totalSamples - position;
+    }
+};
+
 void audio::initialize(bool enabled) {
     if (enabled) {
         backend = ALAudio::create();
@@ -28,6 +97,9 @@ void audio::initialize(bool enabled) {
 }
 
 PCM* audio::loadPCM(const fs::path& file, bool headerOnly) {
+    if (!fs::exists(file)) {
+        throw std::runtime_error("file not found '"+file.u8string()+"'");
+    }
     std::string ext = file.extension().u8string();
     if (ext == ".wav" || ext == ".WAV") {
         return wav::load_pcm(file, headerOnly);
@@ -39,7 +111,7 @@ PCM* audio::loadPCM(const fs::path& file, bool headerOnly) {
 
 Sound* audio::loadSound(const fs::path& file, bool keepPCM) {
     std::shared_ptr<PCM> pcm(loadPCM(file, !keepPCM && backend->isDummy()));
-    return backend->createSound(pcm, keepPCM);
+    return createSound(pcm, keepPCM);
 }
 
 Sound* audio::createSound(std::shared_ptr<PCM> pcm, bool keepPCM) {
@@ -53,6 +125,26 @@ PCMStream* audio::openPCMStream(const fs::path& file) {
     }
     throw std::runtime_error("unsupported audio stream format");
 }
+
+Stream* audio::openStream(const fs::path& file, bool keepSource) {
+    if (!keepSource && backend->isDummy()) {
+        auto header = loadPCM(file, true);
+        // using void source sized as audio instead of actual audio file
+        return openStream(
+            std::make_shared<PCMVoidSource>(header->totalSamples, header->sampleRate, header->seekable), 
+            keepSource
+        );
+    }
+    return openStream(
+        std::shared_ptr<PCMStream>(openPCMStream(file)),
+        keepSource
+    );
+}
+
+Stream* audio::openStream(std::shared_ptr<PCMStream> stream, bool keepSource) {
+    return backend->openStream(stream, keepSource);
+}
+
 
 void audio::setListener(
     glm::vec3 position, 

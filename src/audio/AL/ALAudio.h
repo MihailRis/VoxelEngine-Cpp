@@ -20,6 +20,7 @@
 namespace audio {
     struct ALBuffer;
     class ALAudio;
+    class PCMStream;
 
     class ALSound : public Sound {
         ALAudio* al;
@@ -39,6 +40,23 @@ namespace audio {
         }
 
         Speaker* newInstance(int priority) const override;
+    };
+
+    class ALStream : public Stream {
+        ALAudio* al;
+        std::shared_ptr<PCMStream> source;
+        speakerid_t speaker = 0;
+        bool keepSource;
+    public:
+        ALStream(ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSource);
+        ~ALStream();
+
+        std::shared_ptr<PCMStream> getSource() const override;
+        void bindSpeaker(speakerid_t speaker) override;
+        Speaker* createSpeaker() override;
+        speakerid_t getSpeaker() const override;
+        void update(double delta) override;
+        void setTime(duration_t time) override;        
     };
 
     /// @brief AL source adapter
@@ -101,6 +119,7 @@ namespace audio {
         std::vector<std::string> getAvailableDevices() const;
 
         Sound* createSound(std::shared_ptr<PCM> pcm, bool keepPCM) override;
+        Stream* openStream(std::shared_ptr<PCMStream> stream, bool keepSource) override;
 
         void setListener(
             glm::vec3 position,

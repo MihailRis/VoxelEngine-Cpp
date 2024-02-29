@@ -28,6 +28,50 @@ Speaker* ALSound::newInstance(int priority) const {
     return new ALSpeaker(al, source, priority);
 }
 
+ALStream::ALStream(ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSource)
+: al(al), source(source), keepSource(keepSource) {
+}
+
+ALStream::~ALStream() {
+    bindSpeaker(0);
+    source = nullptr;
+}
+
+std::shared_ptr<PCMStream> ALStream::getSource() const {
+    if (keepSource) {
+        return source;
+    } else {
+        return nullptr;
+    }
+}
+
+Speaker* ALStream::createSpeaker() {
+    uint source = al->getFreeSource();
+    // TODO: prepare source and enqueue buffers
+    return new ALSpeaker(al, source, PRIORITY_HIGH);
+}
+
+
+void ALStream::bindSpeaker(speakerid_t speaker) {
+    auto sp = audio::get(this->speaker);
+    if (sp) {
+        sp->stop();
+    }
+    this->speaker = speaker;
+}
+
+speakerid_t ALStream::getSpeaker() const {
+    return speaker;
+}
+
+void ALStream::update(double delta) {
+    // TODO: implement
+}
+
+void ALStream::setTime(duration_t time) {
+    // TODO: implement
+}
+
 ALSpeaker::ALSpeaker(ALAudio* al, uint source, int priority) : al(al), source(source), priority(priority) {
 }
 
@@ -160,6 +204,10 @@ Sound* ALAudio::createSound(std::shared_ptr<PCM> pcm, bool keepPCM) {
     uint buffer = getFreeBuffer();
     AL_CHECK(alBufferData(buffer, format, pcm->data.data(), pcm->data.size(), pcm->sampleRate));
     return new ALSound(this, buffer, pcm, keepPCM);
+}
+
+Stream* ALAudio::openStream(std::shared_ptr<PCMStream> stream, bool keepSource) {
+    return new ALStream(this, stream, keepSource);
 }
 
 ALAudio* ALAudio::create() {

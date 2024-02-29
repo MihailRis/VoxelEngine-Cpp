@@ -24,11 +24,45 @@ namespace audio {
         }
     };
 
+    class NoStream : public Stream {
+        std::shared_ptr<PCMStream> source;
+        duration_t duration;
+    public:
+        NoStream(std::shared_ptr<PCMStream> source, bool keepSource) {
+            duration = source->getTotalDuration();
+            if (keepSource) {
+                this->source = source;
+            }
+        }
+
+        std::shared_ptr<PCMStream> getSource() const {
+            return source;
+        }
+
+        void bindSpeaker(speakerid_t speaker) {
+        }
+
+        Speaker* createSpeaker() {
+            return nullptr;
+        }
+
+        speakerid_t getSpeaker() const {
+            return 0;
+        }
+
+        void update(double delta) {
+        }
+
+        void setTime(duration_t time) {
+        }
+    };
+
     class NoAudio : public Backend {
     public:
         ~NoAudio() {}
 
         Sound* createSound(std::shared_ptr<PCM> pcm, bool keepPCM) override;
+        Stream* openStream(std::shared_ptr<PCMStream> stream, bool keepSource) override;
 
         void setListener(
             glm::vec3 position,

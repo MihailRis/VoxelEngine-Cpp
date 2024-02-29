@@ -114,5 +114,5 @@ audio::PCM* wav::load_pcm(const std::filesystem::path& file, bool headerOnly) {
             throw std::runtime_error("could not load wav data of '"+file.u8string()+"'");
         }
     }
-    return new audio::PCM(std::move(data), totalSamples, channels, bitsPerSample, sampleRate);
+    return new audio::PCM(std::move(data), totalSamples, channels, bitsPerSample, sampleRate, true);
 }

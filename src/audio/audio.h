@@ -35,18 +35,21 @@ namespace audio {
         uint8_t channels;
         uint8_t bitsPerSample;
         uint sampleRate;
+        bool seekable;
 
         PCM(  
             std::vector<char> data,
             size_t totalSamples,
             uint8_t channels,
             uint8_t bitsPerSample,
-            uint sampleRate
+            uint sampleRate,
+            bool seekable
         ) : data(std::move(data)),
             totalSamples(totalSamples),
             channels(channels), 
             bitsPerSample(bitsPerSample),
-            sampleRate(sampleRate) {}
+            sampleRate(sampleRate),
+            seekable(seekable) {}
 
         inline size_t countSamplesMono() const {
             return totalSamples / channels;
@@ -73,6 +76,9 @@ namespace audio {
         
         /// @brief Close stream
         virtual void close()=0;
+
+        /// @brief Check if stream is open
+        virtual bool isOpen() const=0;
 
         /// @brief Get total samples number if seekable or 0
         virtual size_t getTotalSamples() const=0;
@@ -105,10 +111,19 @@ namespace audio {
     public:
         virtual ~Stream() {};
 
+        /// @brief Get pcm data source
+        /// @return PCM stream or nullptr if audio::openStream 
+        /// keepSource argument is set to false
+        virtual std::shared_ptr<PCMStream> getSource() const = 0;
+
         /// @brief Create new speaker bound to the Stream 
         /// and having high priority
         /// @return speaker id or 0
-        virtual speakerid_t createSpeaker() = 0;
+        virtual Speaker* createSpeaker() = 0;
+
+        /// @brief Unbind previous speaker and bind new speaker to the stream
+        /// @param speaker speaker id or 0 if all you need is unbind speaker
+        virtual void bindSpeaker(speakerid_t speaker) = 0;
 
         /// @brief Get id of the bound speaker
         /// @return speaker id or 0 if no speaker bound
@@ -230,14 +245,13 @@ namespace audio {
         virtual ~Backend() {};
 
         virtual Sound* createSound(std::shared_ptr<PCM> pcm, bool keepPCM) = 0;
-
+        virtual Stream* openStream(std::shared_ptr<PCMStream> stream, bool keepSource) = 0;
         virtual void setListener(
             glm::vec3 position, 
             glm::vec3 velocity, 
             glm::vec3 lookAt, 
             glm::vec3 up
         ) = 0;
-
         virtual void update(double delta) = 0;
 
         /// @brief Check if backend is an abstraction that does not internally
@@ -274,6 +288,18 @@ namespace audio {
     /// @throws std::runtime_error if I/O error ocurred or format is unknown
     /// @return new PCMStream instance
     extern PCMStream* openPCMStream(const fs::path& file);
+
+    /// @brief Open new audio stream from file
+    /// @param file audio file path
+    /// @param keepSource store PCMStream in stream to make it accessible with Stream::getSource
+    /// @return new Stream instance
+    extern Stream* openStream(const fs::path& file, bool keepSource);
+
+    /// @brief Open new audio stream from source
+    /// @param stream PCM data source
+    /// @param keepSource store PCMStream in stream to make it accessible with Stream::getSource
+    /// @return new Stream instance
+    extern Stream* openStream(std::shared_ptr<PCMStream> stream, bool keepSource);
 
     /// @brief Configure 3D listener
     /// @param position listener position

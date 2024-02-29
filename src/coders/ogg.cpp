@@ -33,7 +33,8 @@ audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
     vorbis_info* info = ov_info(&vf, -1);
     uint channels = info->channels;
     uint sampleRate = info->rate;
-    size_t totalSamples = ov_seekable(&vf) ? ov_pcm_total(&vf, -1) : 0;
+    bool seekable = ov_seekable(&vf);
+    size_t totalSamples = seekable ? ov_pcm_total(&vf, -1) : 0;
 
     if (!headerOnly) {
         const int bufferSize = 4096;
@@ -54,7 +55,7 @@ audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
         totalSamples = data.size();
     }
     ov_clear(&vf);
-    return new PCM(std::move(data), totalSamples, channels, 16, sampleRate);
+    return new PCM(std::move(data), totalSamples, channels, 16, sampleRate, seekable);
 }
 
 class OggStream : public PCMStream {
@@ -82,6 +83,9 @@ public:
     }
 
     size_t read(char* buffer, size_t bufferSize, bool loop) {
+        if (closed) {
+            return 0;
+        }
         int bitstream;
         long bytes = 0;
         size_t size = 0;
@@ -108,8 +112,14 @@ public:
     }
 
     void close() {
-        ov_clear(&vf);
-        closed = true;
+        if (!closed) {
+            ov_clear(&vf);
+            closed = true;
+        }
+    }
+
+    bool isOpen() const {
+        return !closed;
     }
 
     size_t getTotalSamples() const {
@@ -138,7 +148,7 @@ public:
     }
 
     void seek(size_t position) {
-        if (seekable) {
+        if (!closed && seekable) {
             ov_raw_seek(&vf, position);
         }
     }
