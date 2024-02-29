@@ -137,7 +137,7 @@ int l_file_write_bytes(lua_State* L) {
 
         bytesIndex--;
 
-        int i = 1;
+        size_t i = 1;
 
         while(lua_next(L, bytesIndex) != 0) {
             if(i >= len) {
