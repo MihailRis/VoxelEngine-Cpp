@@ -197,6 +197,14 @@ glm::vec3 ALSpeaker::getVelocity() const {
     return AL::getSource3f(source, AL_VELOCITY);
 }
 
+void ALSpeaker::setRelative(bool relative) {
+    AL_CHECK(alSourcei(source, AL_SOURCE_RELATIVE, relative ? AL_TRUE : AL_FALSE));    
+}
+
+bool ALSpeaker::isRelative() const {
+    return AL::getSourcei(source, AL_SOURCE_RELATIVE) == AL_TRUE;
+}
+
 int ALSpeaker::getPriority() const {
     return priority;
 }

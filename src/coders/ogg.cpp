@@ -17,7 +17,7 @@ static inline const char* vorbis_error_message(int code) {
         case OV_EVERSION: return "vorbis version mismatch";
         case OV_EBADHEADER: return "invalid Vorbis bitstream header";
         case OV_EFAULT: return "internal logic fault";
-        case OV_EINVAL: return "header couldn't be read or are corrupt";
+        case OV_EINVAL: return "invalid read operation";
         default:
             return "unknown";
     }

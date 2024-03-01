@@ -234,10 +234,24 @@ namespace audio {
         /// @return speaker priority value
         virtual int getPriority() const = 0;
 
+        /// @brief Determines if the position is relative to the listener
+        /// @param relative true - relative to the listener (default: false)
+        virtual void setRelative(bool relative) = 0;
+
+        /// @brief Determines if the position is relative to the listener
+        virtual bool isRelative() const = 0;
+
+        /// @brief Check if speaker is playing 
+        inline bool isPlaying() const {
+            return getState() == State::playing;
+        }
+
+        /// @brief Check if speaker is paused 
         inline bool isPaused() const {
             return getState() == State::paused;
         }
 
+        /// @brief Check if speaker is stopped 
         inline bool isStopped() const {
             return getState() == State::stopped;
         }
@@ -319,6 +333,7 @@ namespace audio {
     /// @brief Play 3D sound in the world
     /// @param sound target sound
     /// @param position sound world position
+    /// @param relative position speaker relative to listener
     /// @param volume sound volume [0.0-1.0]
     /// @param pitch sound pitch multiplier [0.0-...]
     /// @param loop loop sound
@@ -328,15 +343,17 @@ namespace audio {
     extern speakerid_t play(
         Sound* sound,
         glm::vec3 position,
+        bool relative,
         float volume,
         float pitch,
         bool loop,
         int priority
     );
 
-    /// @brief Play stream in the world
+    /// @brief Play stream
     /// @param stream target stream
     /// @param position stream world position
+    /// @param relative position speaker relative to listener
     /// @param volume stream volume [0.0-1.0]
     /// @param pitch stream pitch multiplier [0.0-...]
     /// @param loop loop stream
@@ -344,6 +361,25 @@ namespace audio {
     extern speakerid_t play(
         std::shared_ptr<Stream> stream,
         glm::vec3 position,
+        bool relative,
+        float volume,
+        float pitch,
+        bool loop
+    );
+
+    /// @brief Play stream from file
+    /// @param file audio file path
+    /// @param position stream world position
+    /// @param relative position speaker relative to listener
+    /// @param volume stream volume [0.0-1.0]
+    /// @param pitch stream pitch multiplier [0.0-...]
+    /// @param loop loop stream
+    /// @return speaker id or 0
+    /// @return 
+    extern speakerid_t playStream(
+        const fs::path& file,
+        glm::vec3 position,
+        bool relative,
         float volume,
         float pitch,
         bool loop

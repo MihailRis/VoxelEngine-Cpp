@@ -103,6 +103,9 @@ namespace audio {
         void setVelocity(glm::vec3 vel) override;
         glm::vec3 getVelocity() const override;
 
+        void setRelative(bool relative) override;
+        bool isRelative() const override;
+
         int getPriority() const override;
     };
 

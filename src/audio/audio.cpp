@@ -208,6 +208,7 @@ void remove_lower_priority_speaker(int priority) {
 speakerid_t audio::play(
     Sound* sound,
     glm::vec3 position,
+    bool relative,
     float volume,
     float pitch,
     bool loop,
@@ -227,6 +228,7 @@ speakerid_t audio::play(
     speaker->setVolume(volume);
     speaker->setPitch(pitch);
     speaker->setLoop(loop);
+    speaker->setRelative(relative);
     speaker->play();
     return id;
 }
@@ -234,6 +236,7 @@ speakerid_t audio::play(
 speakerid_t audio::play(
     std::shared_ptr<Stream> stream,
     glm::vec3 position,
+    bool relative,
     float volume,
     float pitch,
     bool loop
@@ -255,8 +258,21 @@ speakerid_t audio::play(
     speaker->setVolume(volume);
     speaker->setPitch(pitch);
     speaker->setLoop(false);
+    speaker->setRelative(relative);
     speaker->play();
     return id;
+}
+
+speakerid_t audio::playStream(
+    const fs::path& file,
+    glm::vec3 position,
+    bool relative,
+    float volume,
+    float pitch,
+    bool loop
+) {
+    std::shared_ptr<Stream> stream (openStream(file, false));
+    return play(stream, position, relative, volume, pitch, loop);
 }
 
 Speaker* audio::get(speakerid_t id) {
