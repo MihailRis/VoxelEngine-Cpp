@@ -27,6 +27,9 @@ size_t PCMStream::readFully(char* buffer, size_t bufferSize, bool loop) {
     do {
         do {
             bytes = read(buffer, bufferSize);
+            if (bytes < 0) {
+                return size;
+            }
             size += bytes;
             bufferSize -= bytes;
             buffer += bytes;

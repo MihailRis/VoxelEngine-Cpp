@@ -43,15 +43,16 @@ public:
         uint channels, 
         uint bitsPerSample,
         uint sampleRate,
-        size_t size
-    ) : in(std::move(in)), 
+        size_t size,
+        size_t initialPosition
+    ) : in(std::move(in)),
         channels(channels), 
         bytesPerSample(bitsPerSample/8),
         sampleRate(sampleRate),
         totalSize(size) 
     {
         totalSamples = totalSize / channels / bytesPerSample;
-        initialPosition = in.tellg();
+        this->initialPosition = initialPosition;
     }
 
     size_t read(char* buffer, size_t bufferSize) override {
@@ -59,9 +60,12 @@ public:
             return 0;
         }
         in.read(buffer, bufferSize);
-        if (in.failbit) {
-            std::cerr << "Wav::load_pcm: I/O error ocurred" << std::endl;
+        if (in.eof()) {
             return 0;
+        }
+        if (in.fail()) {
+            std::cerr << "Wav::load_pcm: I/O error ocurred" << std::endl;
+            return -1;
         }
         return in.gcount();
     }
@@ -104,7 +108,8 @@ public:
         if (!isOpen())
             return;
         position %= totalSamples;
-        in.seekg(initialPosition + position * channels * bytesPerSample);
+        in.clear();
+        in.seekg(initialPosition + position * channels * bytesPerSample, std::ios_base::beg);
     }
 };
 
@@ -114,7 +119,7 @@ audio::PCMStream* wav::create_stream(const std::filesystem::path& file) {
         throw std::runtime_error("could not to open file '"+file.u8string()+"'");
     }
 
-    char buffer[4];
+    char buffer[6];
     // the RIFF
     if(!in.read(buffer, 4)){
         throw std::runtime_error("could not to read RIFF");
@@ -164,12 +169,34 @@ audio::PCMStream* wav::create_stream(const std::filesystem::path& file) {
         throw std::runtime_error("could not read bits per sample");
     }
     int bitsPerSample = convert_to_int(buffer, 2);
+    if (bitsPerSample >= 24) {
+        throw std::runtime_error(std::to_string(bitsPerSample)+" bit depth is not supported by OpenAL");
+    }
 
     // data chunk header "data"
     if(!in.read(buffer, 4)){
         throw std::runtime_error("could not read data chunk header");
     }
+
+    size_t initialOffset = 44;
+    // skip garbage in WAV
+    if (std::strncmp(buffer, "LIST", 4) == 0) {
+        // chunk size
+        if(!in.read(buffer, 4)){
+            throw std::runtime_error("could not read comment chunk size");
+        }
+        int chunkSize = convert_to_int(buffer, 4);
+        in.seekg(chunkSize, std::ios_base::cur);
+
+        initialOffset += chunkSize + 4;
+
+        if(!in.read(buffer, 4)){
+            throw std::runtime_error("could not read data chunk header");
+        }
+    }
+
     if(std::strncmp(buffer, "data", 4) != 0){
+        std::cerr << buffer << std::endl;
         throw std::runtime_error("file is not a valid WAVE file (doesn't have 'data' tag)");
     }
 
@@ -186,7 +213,7 @@ audio::PCMStream* wav::create_stream(const std::filesystem::path& file) {
     if(in.fail()){
         throw std::runtime_error("fail state set on the file");
     }
-    return new WavStream(std::move(in), channels, bitsPerSample, sampleRate, size);
+    return new WavStream(std::move(in), channels, bitsPerSample, sampleRate, size, initialOffset);
 }
 
 audio::PCM* wav::load_pcm(const std::filesystem::path& file, bool headerOnly) {
