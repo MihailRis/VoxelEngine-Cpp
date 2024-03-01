@@ -92,3 +92,7 @@ void WorldConverter::write() {
     std::cout << "writing world" << std::endl;
     wfile->write(nullptr, content);
 }
+
+uint WorldConverter::getTotalTasks() const {
+    return tasks.size();
+}

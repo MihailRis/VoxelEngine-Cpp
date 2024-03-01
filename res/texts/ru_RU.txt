@@ -6,10 +6,10 @@ Cancel=Отмена
 Back=Назад
 Continue=Продолжить
 Add=Добавить
+Converting world...=Выполняется конвертация мира...
 
 error.pack-not-found=Не удалось найти пакет
 error.dependency-not-found=Используемая зависимость не найдена
-
 pack.remove-confirm=Удалить весь поставляемый паком контент из мира (безвозвратно)?
 
 # Меню

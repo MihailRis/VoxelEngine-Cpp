@@ -84,6 +84,12 @@ void GUI::actMouse(float delta) {
  * @param delta delta time
 */
 void GUI::act(float delta) {
+    while (!postRunnables.empty()) {
+        runnable callback = postRunnables.back();
+        postRunnables.pop();
+        callback();
+    }
+
     container->setSize(glm::vec2(Window::width, Window::height));
     container->act(delta);
     auto prevfocus = focus;
@@ -175,4 +181,8 @@ void GUI::setFocus(std::shared_ptr<UINode> node) {
 
 std::shared_ptr<Container> GUI::getContainer() const {
     return container;
+}
+
+void GUI::postRunnable(runnable callback) {
+    postRunnables.push(callback);
 }
