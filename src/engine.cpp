@@ -26,7 +26,7 @@
 #include "graphics/ImageData.h"
 #include "frontend/gui/GUI.h"
 #include "frontend/screens.h"
-#include "frontend/menu.h"
+#include "frontend/menu/menu.h"
 #include "util/platform.h"
 
 #include "coders/json.h"

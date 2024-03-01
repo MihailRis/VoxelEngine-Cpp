@@ -39,7 +39,6 @@ namespace gui {
         virtual void drawBackground(const GfxContext* pctx, Assets* assets);
         virtual void draw(const GfxContext* pctx, Assets* assets) override;
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
-        virtual void addBack(std::shared_ptr<UINode> node);
         virtual void add(std::shared_ptr<UINode> node);
         virtual void add(std::shared_ptr<UINode> node, glm::vec2 coord);
         virtual void remove(std::shared_ptr<UINode> node);

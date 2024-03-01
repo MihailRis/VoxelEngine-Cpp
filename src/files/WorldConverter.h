@@ -4,6 +4,7 @@
 #include <queue>
 #include <memory>
 #include <filesystem>
+#include "../typedefs.h"
 
 namespace fs = std::filesystem;
 
@@ -37,6 +38,8 @@ public:
     void convertNext();
 
     void write();
+
+    uint getTotalTasks() const;
 };
 
 #endif // FILES_WORLD_CONVERTER_H_

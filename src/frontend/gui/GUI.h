@@ -1,12 +1,15 @@
 #ifndef FRONTEND_GUI_GUI_H_
 #define FRONTEND_GUI_GUI_H_
 
+#include <queue>
 #include <memory>
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
 #include <functional>
 #include <unordered_map>
+
+#include "../../delegates.h"
 
 class GfxContext;
 class Assets;
@@ -58,6 +61,7 @@ namespace gui {
 
         std::unique_ptr<Camera> uicamera;
         std::shared_ptr<PagesControl> menu;
+        std::queue<runnable> postRunnables;
         void actMouse(float delta);
     public:
         GUI();
@@ -113,6 +117,8 @@ namespace gui {
 
         /** Get the main container */
         std::shared_ptr<Container> getContainer() const;
+
+        void postRunnable(runnable callback);
     };
 }
 

@@ -34,7 +34,7 @@
 #include "LevelFrontend.h"
 #include "gui/GUI.h"
 #include "gui/containers.h"
-#include "menu.h"
+#include "menu/menu.h"
 
 #include "../content/Content.h"
 #include "../voxels/Block.h"
