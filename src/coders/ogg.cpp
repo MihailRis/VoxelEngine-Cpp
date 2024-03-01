@@ -83,37 +83,17 @@ public:
         }
     }
 
-    size_t read(char* buffer, size_t bufferSize, bool loop) {
+    size_t read(char* buffer, size_t bufferSize) override {
         if (closed) {
             return 0;
         }
         int bitstream = 0;
-        long bytes = 0;
-        size_t size = 0;
-        do {
-            do {
-                bytes = ov_read(&vf, buffer, bufferSize, 0, 2, true, &bitstream);
-                if (bytes < 0) {
-                    std::cerr << "ogg::load_pcm: " << vorbis_error_message(bytes) << " " << bytes << std::endl;
-                    continue;
-                }
-                size += bytes;
-                bufferSize -= bytes;
-                buffer += bytes;
-            } while (bytes > 0 && bufferSize > 0);
-
-            if (bufferSize == 0) {
-                break;
-            }
-
-            if (loop) {
-                seek(0);
-            }
-            if (bufferSize == 0) {
-                return size;
-            }
-        } while (loop);
-        return size;
+        long bytes = ov_read(&vf, buffer, bufferSize, 0, 2, true, &bitstream);
+        if (bytes < 0) {
+            std::cerr << "ogg::load_pcm: " << vorbis_error_message(bytes) << " " << bytes << std::endl;
+            return 0;
+        }
+        return bytes;
     }
 
     void close() {

@@ -18,6 +18,34 @@ namespace audio {
 
 using namespace audio;
 
+size_t PCMStream::readFully(char* buffer, size_t bufferSize, bool loop) {
+    if (!isOpen()) {
+        return 0;
+    }
+    long bytes = 0;
+    size_t size = 0;
+    do {
+        do {
+            bytes = read(buffer, bufferSize);
+            size += bytes;
+            bufferSize -= bytes;
+            buffer += bytes;
+        } while (bytes > 0 && bufferSize > 0);
+
+        if (bufferSize == 0) {
+            break;
+        }
+
+        if (loop) {
+            seek(0);
+        }
+        if (bufferSize == 0) {
+            return size;
+        }
+    } while (loop);
+    return size;
+}
+
 /// @brief pcm source that does not initialize buffer
 class PCMVoidSource : public PCMStream {
     size_t totalSamples;
@@ -33,11 +61,11 @@ public:
       seekable(seekable) 
     {}
 
-    size_t read(char* buffer, size_t bufferSize, bool loop) override {
+    size_t read(char* buffer, size_t bufferSize) override {
         if (closed) {
             return 0;
         }
-        if (!seekable || loop) {
+        if (!seekable) {
             return bufferSize;
         }
         size_t n = std::min(bufferSize, totalSamples);

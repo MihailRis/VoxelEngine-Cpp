@@ -46,7 +46,7 @@ std::shared_ptr<PCMStream> ALStream::getSource() const {
 }
 
 bool ALStream::preloadBuffer(uint buffer, bool loop) {
-    size_t read = source->read(this->buffer, BUFFER_SIZE, loop);
+    size_t read = source->readFully(this->buffer, BUFFER_SIZE, loop);
     if (!read)
         return false;
     ALenum format = AL::to_al_format(source->getChannels(), source->getBitsPerSample());

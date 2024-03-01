@@ -54,37 +54,16 @@ public:
         initialPosition = in.tellg();
     }
 
-    size_t read(char* buffer, size_t bufferSize, bool loop) override {
+    size_t read(char* buffer, size_t bufferSize) override {
         if (!isOpen()) {
             return 0;
         }
-        long bytes = 0;
-        size_t size = 0;
-        do {
-            do {
-                in.read(buffer, bufferSize);
-                if (in.failbit) {
-                    std::cerr << "Wav::load_pcm: I/O error ocurred" << std::endl;
-                    continue;
-                }
-                bytes = in.gcount();
-                size += bytes;
-                bufferSize -= bytes;
-                buffer += bytes;
-            } while (bytes > 0 && bufferSize > 0);
-
-            if (bufferSize == 0) {
-                break;
-            }
-
-            if (loop) {
-                seek(0);
-            }
-            if (bufferSize == 0) {
-                return size;
-            }
-        } while (loop);
-        return size;
+        in.read(buffer, bufferSize);
+        if (in.failbit) {
+            std::cerr << "Wav::load_pcm: I/O error ocurred" << std::endl;
+            return 0;
+        }
+        return in.gcount();
     }
     
     void close() override {
@@ -224,7 +203,7 @@ audio::PCM* wav::load_pcm(const std::filesystem::path& file, bool headerOnly) {
                       (stream->getBitsPerSample()/8) *
                       stream->getChannels();
         data.resize(size);
-        stream->read(data.data(), size, false);
+        stream->readFully(data.data(), size, false);
     }
     return new audio::PCM(std::move(data), totalSamples, channels, bitsPerSample, sampleRate, true);
 }

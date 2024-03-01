@@ -72,8 +72,10 @@ namespace audio {
         /// @param loop loop stream (seek to start when end reached)
         /// @return size of data received 
         /// (always equals bufferSize if seekable and looped)
-        virtual size_t read(char* buffer, size_t bufferSize, bool loop)=0;
-        
+        virtual size_t readFully(char* buffer, size_t bufferSize, bool loop);
+
+        virtual size_t read(char* buffer, size_t bufferSize) = 0;
+
         /// @brief Close stream
         virtual void close()=0;
 
