@@ -121,7 +121,9 @@ Sound* audio::createSound(std::shared_ptr<PCM> pcm, bool keepPCM) {
 
 PCMStream* audio::openPCMStream(const fs::path& file) {
     std::string ext = file.extension().u8string();
-    if (ext == ".ogg" || ext == ".OGG") {
+    if (ext == ".wav" || ext == ".WAV") {
+        return wav::create_stream(file);
+    } else if (ext == ".ogg" || ext == ".OGG") {
         return ogg::create_stream(file);
     }
     throw std::runtime_error("unsupported audio stream format");

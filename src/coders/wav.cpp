@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstring>
 #include <fstream>
+#include <iostream>
 #include <stdexcept>
 
 #include "../audio/audio.h"
@@ -27,7 +28,108 @@ std::int32_t convert_to_int(char* buffer, std::size_t len){
     return a;
 }
 
-audio::PCM* wav::load_pcm(const std::filesystem::path& file, bool headerOnly) {
+/// @brief Seekable WAV-file PCM stream
+class WavStream : public audio::PCMStream {
+    std::ifstream in;
+    uint channels;
+    uint bytesPerSample;
+    uint sampleRate;
+    size_t totalSize;
+    size_t totalSamples;
+    size_t initialPosition;
+public:
+    WavStream(
+        std::ifstream in, 
+        uint channels, 
+        uint bitsPerSample,
+        uint sampleRate,
+        size_t size
+    ) : in(std::move(in)), 
+        channels(channels), 
+        bytesPerSample(bitsPerSample/8),
+        sampleRate(sampleRate),
+        totalSize(size) 
+    {
+        totalSamples = totalSize / channels / bytesPerSample;
+        initialPosition = in.tellg();
+    }
+
+    size_t read(char* buffer, size_t bufferSize, bool loop) override {
+        if (!isOpen()) {
+            return 0;
+        }
+        long bytes = 0;
+        size_t size = 0;
+        do {
+            do {
+                in.read(buffer, bufferSize);
+                if (in.failbit) {
+                    std::cerr << "Wav::load_pcm: I/O error ocurred" << std::endl;
+                    continue;
+                }
+                bytes = in.gcount();
+                size += bytes;
+                bufferSize -= bytes;
+                buffer += bytes;
+            } while (bytes > 0 && bufferSize > 0);
+
+            if (bufferSize == 0) {
+                break;
+            }
+
+            if (loop) {
+                seek(0);
+            }
+            if (bufferSize == 0) {
+                return size;
+            }
+        } while (loop);
+        return size;
+    }
+    
+    void close() override {
+        if (!isOpen())
+            return;
+        in.close();
+    }
+
+    bool isOpen() const override {
+        return in.is_open();
+    }
+
+    size_t getTotalSamples() const override {
+        return totalSamples;
+    }
+
+    audio::duration_t getTotalDuration() const override {
+        return totalSamples / static_cast<audio::duration_t>(sampleRate);
+    }
+
+    uint getChannels() const override {
+        return channels;
+    }
+
+    uint getSampleRate() const override {
+        return sampleRate;
+    }
+
+    uint getBitsPerSample() const override {
+        return bytesPerSample * 8;
+    }
+
+    bool isSeekable() const override {
+        return true;
+    }
+
+    void seek(size_t position) override {
+        if (!isOpen())
+            return;
+        position %= totalSamples;
+        in.seekg(initialPosition + position * channels * bytesPerSample);
+    }
+};
+
+audio::PCMStream* wav::create_stream(const std::filesystem::path& file) {
     std::ifstream in(file, std::ios::binary);
     if(!in.is_open()){
         throw std::runtime_error("could not to open file '"+file.u8string()+"'");
@@ -105,14 +207,24 @@ audio::PCM* wav::load_pcm(const std::filesystem::path& file, bool headerOnly) {
     if(in.fail()){
         throw std::runtime_error("fail state set on the file");
     }
+    return new WavStream(std::move(in), channels, bitsPerSample, sampleRate, size);
+}
+
+audio::PCM* wav::load_pcm(const std::filesystem::path& file, bool headerOnly) {
+    std::unique_ptr<audio::PCMStream> stream(wav::create_stream(file));
+
+    size_t totalSamples = stream->getTotalSamples();
+    uint channels = stream->getChannels();
+    uint bitsPerSample = stream->getBitsPerSample();
+    uint sampleRate = stream->getSampleRate();
 
     std::vector<char> data;
-    size_t totalSamples = size / (bitsPerSample / 8);
     if (!headerOnly) {
+        size_t size = stream->getTotalSamples() * 
+                      (stream->getBitsPerSample()/8) *
+                      stream->getChannels();
         data.resize(size);
-        if (!in.read(data.data(), size)) {
-            throw std::runtime_error("could not load wav data of '"+file.u8string()+"'");
-        }
+        stream->read(data.data(), size, false);
     }
     return new audio::PCM(std::move(data), totalSamples, channels, bitsPerSample, sampleRate, true);
 }
