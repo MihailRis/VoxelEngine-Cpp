@@ -28,12 +28,13 @@ ChunksController::ChunksController(Level* level, uint padding)
 	  lighting(level->lighting), 
 	  padding(padding), 
 	  generator(WorldGenerators::createGenerator(level->getWorld()->getGenerator(), level->content)) {
+	shouldUpdate = false;
 }
 
 ChunksController::~ChunksController(){
 }
 
-void ChunksController::update(int64_t maxDuration) {
+void ChunksController::updateChunks(int64_t maxDuration) {
     int64_t mcstotal = 0;
 
     for (uint i = 0; i < MAX_WORK_PER_FRAME; i++) {

@@ -2,6 +2,7 @@
 #define LOGIC_LEVEL_CONTROLLER_H_
 
 #include <memory>
+#include "../interfaces/Object.h"
 #include "../settings.h"
 
 class Level;
@@ -10,13 +11,13 @@ class ChunksController;
 class PlayerController;
 
 /* LevelController manages other controllers */
-class LevelController {
+class LevelController : public Object {
     EngineSettings& settings;
     Level* level;
     // Sub-controllers
-    std::unique_ptr<BlocksController> blocks;
-    std::unique_ptr<ChunksController> chunks;
-    std::unique_ptr<PlayerController> player;
+    std::shared_ptr<BlocksController> blocks;
+    std::shared_ptr<ChunksController> chunks;
+    std::shared_ptr<PlayerController> player;
 public:
     LevelController(EngineSettings& settings, Level* level);
     ~LevelController();
@@ -26,7 +27,7 @@ public:
     @param input is user input allowed to be handled
     @param pause is world and player simulation paused
     */
-    void update(float delta, 
+    void updateLevel(float delta, 
                 bool input, 
                 bool pause);
 

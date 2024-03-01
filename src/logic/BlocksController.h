@@ -3,6 +3,7 @@
 
 #include "../typedefs.h"
 #include "../maths/fastmaths.h"
+#include "../interfaces/Object.h"
 
 class Player;
 class Block;
@@ -28,7 +29,7 @@ public:
     int getTickId() const;
 };
 
-class BlocksController {
+class BlocksController : public Object {
     Level* level;
 	Chunks* chunks;
 	Lighting* lighting;
