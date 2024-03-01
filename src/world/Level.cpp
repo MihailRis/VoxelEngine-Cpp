@@ -8,7 +8,6 @@
 #include "../voxels/ChunksStorage.h"
 #include "../physics/Hitbox.h"
 #include "../physics/PhysicsSolver.h"
-#include "../interfaces/Object.h"
 #include "../objects/Player.h"
 #include "../items/Inventory.h"
 #include "../items/Inventories.h"
@@ -70,19 +69,4 @@ void Level::update() {
 
 World* Level::getWorld() {
     return world.get();
-}
-
-
-template<class T, typename... Args>
-std::shared_ptr<T> Level::spawnObject(Args&&... args)
-{
-	static_assert(std::is_base_of<Object, T>::value, "T must be a derived of Object class");
-	std::shared_ptr<T> tObj = std::make_shared<T>(args...);
-	
-	std::shared_ptr<Object> obj = std::dynamic_pointer_cast<Object, T>(tObj);
-	objects.push_back(obj);
-	obj->objectUID = objCounter;
-	obj->spawned();
-	objCounter += 1;
-	return tObj;
 }

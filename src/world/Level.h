@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "../typedefs.h"
+#include "../interfaces/Object.h"
 #include "../settings.h"
 #include <list>
 #include <vector>
@@ -54,5 +55,21 @@ public:
 	template<class T, typename... Args>
 	std::shared_ptr<T> spawnObject(Args&&... args);
 };
+
+
+template<class T, typename... Args>
+std::shared_ptr<T> Level::spawnObject(Args&&... args)
+{
+	static_assert(std::is_base_of<Object, T>::value, "T must be a derived of Object class");
+	std::shared_ptr<T> tObj = std::make_shared<T>(args...);
+	
+	std::shared_ptr<Object> obj = std::dynamic_pointer_cast<Object, T>(tObj);
+	objects.push_back(obj);
+	obj->objectUID = objCounter;
+	obj->spawned();
+	objCounter += 1;
+	return tObj;
+}
+
 
 #endif /* WORLD_LEVEL_H_ */
