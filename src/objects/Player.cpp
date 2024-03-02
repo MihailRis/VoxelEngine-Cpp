@@ -78,7 +78,7 @@ void Player::updateInput(
     float vel = std::max(glm::length(hitbox->velocity * 0.25f), 1.0f);
 	int substeps = int(delta * vel * 1000);
 	substeps = std::min(100, std::max(1, substeps));
-	level->physics->step(level->chunks, hitbox.get(), 
+	level->physics->step(level->chunks.get(), hitbox.get(), 
 						 delta,  substeps, 
 						 crouch, flight ? 0.0f : 1.0f, 
 						 !noclip);

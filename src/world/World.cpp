@@ -50,7 +50,7 @@ void World::updateTimers(float delta) {
 void World::write(Level* level) {
     const Content* content = level->content;
 
-    Chunks* chunks = level->chunks;
+    Chunks* chunks = level->chunks.get();
 
     for (size_t i = 0; i < chunks->volume; i++) {
         auto chunk = chunks->chunks[i];
@@ -64,7 +64,11 @@ void World::write(Level* level) {
     }
 
     wfile->write(this, content);
-    wfile->writePlayer(level->player);
+    for (auto object : level->objects) {
+        if (std::shared_ptr<Player> player = std::dynamic_pointer_cast<Player>(object)) {
+            wfile->writePlayer(player);
+        }
+    }
 }
 
 Level* World::create(std::string name, 
@@ -77,9 +81,6 @@ Level* World::create(std::string name,
 ) {
     auto world = new World(name, generator, directory, seed, settings, content, packs);
     auto level = new Level(world, content, settings);
-    auto inventory = level->player->getInventory();
-    inventory->setId(world->getNextInventoryId());
-    level->inventories->store(inventory);
     return level;
 }
 
@@ -97,9 +98,13 @@ Level* World::load(fs::path directory,
     }
 
     auto level = new Level(world.get(), content, settings);
-    wfile->readPlayer(level->player);
-    level->inventories->store(level->player->getInventory());
-    world.release();
+    for (auto object : level->objects) {
+        if (std::shared_ptr<Player> player = std::dynamic_pointer_cast<Player>(object)) {
+            wfile->readPlayer(player);
+            level->inventories->store(player->getInventory());
+        }
+    }
+    (void)world.release();
     return level;
 }
 

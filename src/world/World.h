@@ -27,6 +27,7 @@ public:
     world_load_error(std::string message);
 };
 
+/* World - holds all world data except the level (chunks and objects)  */
 class World : Serializable {
     std::string name;
     std::string generator;

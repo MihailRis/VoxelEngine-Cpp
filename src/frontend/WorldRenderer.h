@@ -14,6 +14,7 @@
 #include "../graphics/GfxContext.h"
 
 class Level;
+class Player;
 class Camera;
 class Batch3D;
 class LineBatch;
@@ -29,6 +30,7 @@ class Skybox;
 class WorldRenderer {
     Engine* engine;
     Level* level;
+    Player* player;
     std::unique_ptr<Frustum> frustumCulling;
     std::unique_ptr<LineBatch> lineBatch;
     std::unique_ptr<ChunksRenderer> renderer;
@@ -37,7 +39,7 @@ class WorldRenderer {
     bool drawChunk(size_t index, Camera* camera, Shader* shader, bool culling);
     void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
 public:
-    WorldRenderer(Engine* engine, LevelFrontend* frontend);
+    WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* player);
     ~WorldRenderer();
 
     void draw(const GfxContext& context, Camera* camera, bool hudVisible);

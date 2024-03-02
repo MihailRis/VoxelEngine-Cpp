@@ -24,8 +24,8 @@ const uint MIN_SURROUNDING = 9;
 
 ChunksController::ChunksController(Level* level, uint padding) 
     : level(level), 
-	  chunks(level->chunks), 
-	  lighting(level->lighting), 
+	  chunks(level->chunks.get()), 
+	  lighting(level->lighting.get()), 
 	  padding(padding), 
 	  generator(WorldGenerators::createGenerator(level->getWorld()->getGenerator(), level->content)) {
 }

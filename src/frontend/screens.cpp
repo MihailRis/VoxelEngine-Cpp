@@ -87,17 +87,15 @@ void MenuScreen::draw(float delta) {
 
 static bool backlight;
 
-LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine), level(level){
-    menus::create_pause_panel(engine, level);
-    
+LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
     auto& settings = engine->getSettings();
     auto assets = engine->getAssets();
 
     controller = std::make_unique<LevelController>(settings, level);
     frontend = std::make_unique<LevelFrontend>(level, assets);
-    worldRenderer = std::make_unique<WorldRenderer>(engine, frontend.get());
-    hud = std::make_unique<Hud>(engine, frontend.get());
-    
+    worldRenderer = std::make_unique<WorldRenderer>(engine, frontend.get(), controller->getPlayer());
+    hud = std::make_unique<Hud>(engine, frontend.get(), controller->getPlayer());
+
     backlight = settings.graphics.backlight;
 
     animator = std::make_unique<TextureAnimator>();
@@ -119,8 +117,8 @@ LevelScreen::~LevelScreen() {
     std::cout << "-- writing world" << std::endl;
     scripting::on_frontend_close();
     controller->onWorldSave();
-    auto world = level->getWorld();
-    world->write(level.get());
+    auto world = controller->getLevel()->getWorld();
+    world->write(controller->getLevel());
     controller->onWorldQuit();
     engine->getPaths()->setWorldFolder(fs::path());
 }
@@ -134,10 +132,10 @@ void LevelScreen::updateHotkeys() {
         hudVisible = !hudVisible;
     }
     if (Events::jpressed(keycode::F3)) {
-        level->player->debug = !level->player->debug;
+        controller->getPlayer()->debug = !controller->getPlayer()->debug;
     }
     if (Events::jpressed(keycode::F5)) {
-        level->chunks->saveAndClear();
+        controller->getLevel()->chunks->saveAndClear();
     }
 }
 
@@ -153,14 +151,14 @@ void LevelScreen::update(float delta) {
 
     // TODO: subscribe for setting change
     EngineSettings& settings = engine->getSettings();
-    level->player->camera->setFov(glm::radians(settings.camera.fov));
+    controller->getPlayer()->camera->setFov(glm::radians(settings.camera.fov));
     if (settings.graphics.backlight != backlight) {
-        level->chunks->saveAndClear();
+        controller->getLevel()->chunks->saveAndClear();
         backlight = settings.graphics.backlight;
     }
 
     if (!hud->isPause()) {
-        level->world->updateTimers(delta);
+        controller->getLevel()->world->updateTimers(delta);
         animator->update(delta);
     }
     controller->update(delta, !inputLocked, hud->isPause());
@@ -168,7 +166,7 @@ void LevelScreen::update(float delta) {
 }
 
 void LevelScreen::draw(float delta) {
-    auto camera = level->player->currentCamera;
+    auto camera = controller->getPlayer()->currentCamera;
 
     Viewport viewport(Window::width, Window::height);
     GfxContext ctx(nullptr, viewport, batch.get());
@@ -177,12 +175,8 @@ void LevelScreen::draw(float delta) {
 
     if (hudVisible) {
         hud->draw(ctx);
-        if (level->player->debug) {
+        if (controller->getPlayer()->debug) {
             hud->drawDebug(1 / delta);
         }
     }
-}
-
-Level* LevelScreen::getLevel() const {
-    return level.get();
 }

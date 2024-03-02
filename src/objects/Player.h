@@ -73,7 +73,7 @@ public:
     static void convert(dynamic::Map* data, const ContentLUT* lut);
 
     inline int getId() const {
-        return 1;
+        return objectUID;
     }
 };
 

@@ -4,22 +4,23 @@
 #include <memory>
 #include "../settings.h"
 
+#include "PlayerController.h"
+#include "BlocksController.h"
+#include "ChunksController.h"
+
 class Level;
-class BlocksController;
-class ChunksController;
-class PlayerController;
+class Player;
 
 /* LevelController manages other controllers */
 class LevelController {
     EngineSettings& settings;
-    Level* level;
+    std::unique_ptr<Level> level;
     // Sub-controllers
     std::unique_ptr<BlocksController> blocks;
     std::unique_ptr<ChunksController> chunks;
     std::unique_ptr<PlayerController> player;
 public:
     LevelController(EngineSettings& settings, Level* level);
-    ~LevelController();
 
     /* 
     @param delta time elapsed since the last update
@@ -32,6 +33,9 @@ public:
 
     void onWorldSave();
     void onWorldQuit();
+
+    Level* getLevel();
+    Player* getPlayer();
 };
 
 #endif // LOGIC_LEVEL_CONTROLLER_H_
