@@ -139,13 +139,8 @@ public:
     chunk_inventories_map fetchInventories(int x, int z);
 
     bool readWorldInfo(World* world);
-    bool readPlayer(std::shared_ptr<Player> player);
 
     void writeRegion(int x, int y, WorldRegion* entry, fs::path file, int layer);
-
-    /// @brief Write player data to world files
-    /// @param player target player
-    void writePlayer(std::shared_ptr<Player> player);
 
     /// @brief Write all unsaved data to world files
     /// @param world target world

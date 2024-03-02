@@ -12,11 +12,6 @@
 #include "../items/Inventory.h"
 #include "../items/Inventories.h"
 
-
-const float DEF_PLAYER_Y = 100.0f;
-const float DEF_PLAYER_SPEED = 4.0f;
-const int DEF_PLAYER_INVENTORY_SIZE = 40;
-
 Level::Level(World* world, const Content* content, EngineSettings& settings)
 	  : world(world),
 	    content(content),
@@ -25,7 +20,7 @@ Level::Level(World* world, const Content* content, EngineSettings& settings)
         events(std::make_unique<LevelEvents>()),
 		settings(settings) 
 {
-	auto inv = std::make_shared<Inventory>(0, DEF_PLAYER_INVENTORY_SIZE);
+	auto inv = std::make_shared<Inventory>(world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE);
 	auto player = spawnObject<Player>(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv);
 
     uint matrixSize = (settings.chunks.loadDistance + settings.chunks.padding) * 2;

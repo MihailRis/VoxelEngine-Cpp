@@ -36,7 +36,7 @@ class World : Serializable {
     const Content* const content;
     std::vector<ContentPack> packs;
 
-    int64_t nextInventoryId = 1;
+    int64_t nextInventoryId = 0;
 public:
     std::unique_ptr<WorldFiles> wfile;
 
