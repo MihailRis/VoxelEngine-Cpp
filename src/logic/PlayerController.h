@@ -49,6 +49,8 @@ public:
                      const EngineSettings& settings,
                      BlocksController* blocksController);
 	void update(float delta, bool input, bool pause);
+
+    Player* getPlayer();
 };
 
 #endif /* PLAYER_CONTROL_H_ */

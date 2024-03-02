@@ -17,8 +17,8 @@
 #include <limits.h>
 #include <vector>
 
-Chunks::Chunks(int w, int d, 
-			   int ox, int oz, 
+Chunks::Chunks(uint32_t w, uint32_t d, 
+			   int32_t ox, int32_t oz, 
 			   WorldFiles* wfile, 
 			   LevelEvents* events, 
 			   const Content* content) 
@@ -32,7 +32,7 @@ Chunks::Chunks(int w, int d,
 	chunksCount = 0;
 }
 
-voxel* Chunks::get(int x, int y, int z){
+voxel* Chunks::get(int32_t x, int32_t y, int32_t z) {
 	x -= ox * CHUNK_W; 
 	z -= oz * CHUNK_D;
 	int cx = floordiv(x, CHUNK_W);
@@ -71,28 +71,28 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
 	return nullptr;
 }
 
-bool Chunks::isSolidBlock(int x, int y, int z) {
+bool Chunks::isSolidBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
     if (v == nullptr)
         return false;
     return contentIds->getBlockDef(v->id)->rt.solid;
 }
 
-bool Chunks::isReplaceableBlock(int x, int y, int z) {
+bool Chunks::isReplaceableBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
     if (v == nullptr)
         return false;
     return contentIds->getBlockDef(v->id)->replaceable;
 }
 
-bool Chunks::isObstacleBlock(int x, int y, int z) {
+bool Chunks::isObstacleBlock(int32_t x, int32_t y, int32_t z) {
 	voxel* v = get(x, y, z);
 	if (v == nullptr)
 		return false;
 	return contentIds->getBlockDef(v->id)->obstacle;
 }
 
-ubyte Chunks::getLight(int x, int y, int z, int channel){
+ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel){
 	x -= ox * CHUNK_W;
 	z -= oz * CHUNK_D;
 	int cx = floordiv(x, CHUNK_W);
@@ -106,10 +106,10 @@ ubyte Chunks::getLight(int x, int y, int z, int channel){
 	int lx = x - cx * CHUNK_W;
 	int ly = y - cy * CHUNK_H;
 	int lz = z - cz * CHUNK_D;
-	return chunk->lightmap.get(lx,ly,lz, channel);
+	return chunk->lightmap.get(lx, ly, lz, channel);
 }
 
-light_t Chunks::getLight(int x, int y, int z){
+light_t Chunks::getLight(int32_t x, int32_t y, int32_t z){
 	x -= ox * CHUNK_W;
 	z -= oz * CHUNK_D;
 	int cx = floordiv(x, CHUNK_W);
@@ -126,7 +126,7 @@ light_t Chunks::getLight(int x, int y, int z){
 	return chunk->lightmap.get(lx,ly,lz);
 }
 
-Chunk* Chunks::getChunkByVoxel(int x, int y, int z){
+Chunk* Chunks::getChunkByVoxel(int32_t x, int32_t y, int32_t z){
 	if (y < 0 || y >= CHUNK_H)
 		return nullptr;
 	x -= ox * CHUNK_W;
@@ -146,7 +146,7 @@ Chunk* Chunks::getChunk(int x, int z){
 	return chunks[z * w + x].get();
 }
 
-void Chunks::set(int x, int y, int z, int id, uint8_t states){
+void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, uint8_t states){
 	if (y < 0 || y >= CHUNK_H)
 		return;
 	x -= ox * CHUNK_W;
@@ -396,7 +396,7 @@ glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDis
 }
 
 
-void Chunks::setCenter(int x, int z) {
+void Chunks::setCenter(int32_t x, int32_t z) {
 	int cx = floordiv(x, CHUNK_W);
 	int cz = floordiv(z, CHUNK_D);
 	cx -= ox + w / 2;
@@ -406,7 +406,7 @@ void Chunks::setCenter(int x, int z) {
 	}
 }
 
-void Chunks::translate(int dx, int dz){
+void Chunks::translate(int32_t dx, int32_t dz) {
 	for (uint i = 0; i < volume; i++){
 		chunksSecond[i] = nullptr;
 	}
@@ -433,7 +433,7 @@ void Chunks::translate(int dx, int dz){
 	oz += dz;
 }
 
-void Chunks::resize(int newW, int newD) {
+void Chunks::resize(uint32_t newW, uint32_t newD) {
 	if (newW < w) {
 		int delta = w - newW;
 		translate(delta / 2, 0);
@@ -461,7 +461,7 @@ void Chunks::resize(int newW, int newD) {
     chunksSecond = std::move(newChunksSecond);
 }
 
-void Chunks::_setOffset(int x, int z){
+void Chunks::_setOffset(int32_t x, int32_t z) {
 	ox = x;
 	oz = z;
 }

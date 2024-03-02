@@ -26,23 +26,23 @@ public:
 	size_t volume;
 	size_t chunksCount;
 	size_t visible;
-	int w,d;
-	int ox,oz;
+	uint32_t w, d;
+	int32_t ox, oz;
 	WorldFiles* worldFiles;
 	LevelEvents* events;
 
-	Chunks(int w, int d, int ox, int oz, 
+	Chunks(uint32_t w, uint32_t d, int32_t ox, int32_t oz, 
 		   WorldFiles* worldFiles, LevelEvents* events, const Content* content);
 	~Chunks() = default;
 
 	bool putChunk(std::shared_ptr<Chunk> chunk);
 
-	Chunk* getChunk(int x, int z);
-	Chunk* getChunkByVoxel(int x, int y, int z);
-	voxel* get(int x, int y, int z);
-	light_t getLight(int x, int y, int z);
-	ubyte getLight(int x, int y, int z, int channel);
-	void set(int x, int y, int z, int id, uint8_t states);
+	Chunk* getChunk(int32_t x, int32_t z);
+	Chunk* getChunkByVoxel(int32_t x, int32_t y, int32_t z);
+	voxel* get(int32_t x, int32_t y, int32_t z);
+	light_t getLight(int32_t x, int32_t y, int32_t z);
+	ubyte getLight(int32_t x, int32_t y, int32_t z, int channel);
+	void set(int32_t x, int32_t y, int32_t z, uint32_t id, uint8_t states);
 
 	voxel* rayCast(glm::vec3 start, 
 				   glm::vec3 dir, 
@@ -54,16 +54,16 @@ public:
 	glm::vec3 rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDist);
 
 	const AABB* isObstacleAt(float x, float y, float z);
-    bool isSolidBlock(int x, int y, int z);
-    bool isReplaceableBlock(int x, int y, int z);
-	bool isObstacleBlock(int x, int y, int z);
+    bool isSolidBlock(int32_t x, int32_t y, int32_t z);
+    bool isReplaceableBlock(int32_t x, int32_t y, int32_t z);
+	bool isObstacleBlock(int32_t x, int32_t y, int32_t z);
 
 	// does not move chunks inside
-	void _setOffset(int x, int z);
+	void _setOffset(int32_t x, int32_t z);
 
-	void setCenter(int x, int z);
-	void translate(int x, int z);
-	void resize(int newW, int newD);
+	void setCenter(int32_t x, int32_t z);
+	void translate(int32_t x, int32_t z);
+	void resize(uint32_t newW, uint32_t newD);
 
 	void saveAndClear();
 };

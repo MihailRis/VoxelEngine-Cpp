@@ -34,9 +34,10 @@
 #include "graphics/Skybox.h"
 #include "graphics/ChunksRenderer.h"
 
-WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend) 
+WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* player) 
     : engine(engine), 
-      level(frontend->getLevel())
+      level(frontend->getLevel()),
+      player(player)
 {
     frustumCulling = std::make_unique<Frustum>();
     lineBatch = std::make_unique<LineBatch>();
@@ -174,7 +175,6 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
         shader->uniform3f("u_cameraPos", camera->position);
         shader->uniform1i("u_cubemap", 1);
         {
-            auto player = level->player;
             auto inventory = player->getInventory();
             ItemStack& stack = inventory->getSlot(player->getChosenSlot());
             ItemDef* item = indices->getItemDef(stack.getItemId());
@@ -191,7 +191,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
         skybox->bind();
         atlas->getTexture()->bind();
 
-        drawChunks(level->chunks, camera, shader);
+        drawChunks(level->chunks.get(), camera, shader);
 
         // Selected block
         if (PlayerController::selectedBlockId != -1 && hudVisible){
@@ -213,7 +213,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
                 const glm::vec3 center = pos + hitbox.center();
                 const glm::vec3 size = hitbox.size();
                 lineBatch->box(center, size + glm::vec3(0.02), glm::vec4(0.f, 0.f, 0.f, 0.5f));
-                if (level->player->debug) {
+                if (player->debug) {
                     lineBatch->line(point, point+norm*0.5f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
                 }
             }
@@ -222,7 +222,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
         skybox->unbind();
     }
 
-    if (hudVisible && level->player->debug) {
+    if (hudVisible && player->debug) {
         GfxContext ctx = pctx.sub();
         ctx.depthTest(true);
 
@@ -230,7 +230,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
 
         if (settings.debug.showChunkBorders){
             linesShader->uniformMatrix("u_projview", camera->getProjView());
-            glm::vec3 coord = level->player->camera->position;
+            glm::vec3 coord = player->camera->position;
             if (coord.x < 0) coord.x--;
             if (coord.z < 0) coord.z--;
             int cx = floordiv((int)coord.x, CHUNK_W);

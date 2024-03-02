@@ -53,8 +53,8 @@ int Clock::getTickId() const {
 
 BlocksController::BlocksController(Level* level, uint padding) 
     : level(level), 
-	  chunks(level->chunks), 
-	  lighting(level->lighting),
+	  chunks(level->chunks.get()), 
+	  lighting(level->lighting.get()),
       randTickClock(20, 3),
       blocksTickClock(20, 1),
       padding(padding) {
