@@ -64,11 +64,16 @@ void World::write(Level* level) {
     }
 
     wfile->write(this, content);
-    for (auto object : level->objects) {
-        if (std::shared_ptr<Player> player = std::dynamic_pointer_cast<Player>(object)) {
-            wfile->writePlayer(player);
+	auto playerFile = dynamic::Map();
+    {
+        auto& players = playerFile.putList("players");
+        for (auto object : level->objects) {
+            if (std::shared_ptr<Player> player = std::dynamic_pointer_cast<Player>(object)) {
+                players.put(player->serialize().release());
+            }
         }
     }
+    files::write_json(wfile->getPlayerFile(), &playerFile);
 }
 
 Level* World::create(std::string name, 
@@ -98,10 +103,25 @@ Level* World::load(fs::path directory,
     }
 
     auto level = new Level(world.get(), content, settings);
-    for (auto object : level->objects) {
-        if (std::shared_ptr<Player> player = std::dynamic_pointer_cast<Player>(object)) {
-            wfile->readPlayer(player);
-            level->inventories->store(player->getInventory());
+    {
+        fs::path file = wfile->getPlayerFile();
+        if (!fs::is_regular_file(file)) {
+            std::cerr << "warning: player.json does not exists" << std::endl;
+        } else {
+            auto playerFile = files::read_json(file);
+            if (playerFile->has("players")) {
+                level->objects.clear();
+                auto players = playerFile->list("players");
+                for (size_t i = 0; i < players->size(); i++) {
+                    auto player = level->spawnObject<Player>(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, level->inventories->create(DEF_PLAYER_INVENTORY_SIZE));
+                    player->deserialize(players->map(i));
+                    level->inventories->store(player->getInventory());
+                }
+            } else {
+	            auto player = level->getObject<Player>(0);
+                player->deserialize(playerFile.get());
+                level->inventories->store(player->getInventory());
+            }
         }
     }
     (void)world.release();

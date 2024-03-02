@@ -7,6 +7,10 @@
 #include "../interfaces/Object.h"
 #include <vector>
 
+const float DEF_PLAYER_Y = 100.0f;
+const float DEF_PLAYER_SPEED = 4.0f;
+const int DEF_PLAYER_INVENTORY_SIZE = 40;
+
 class Content;
 class World;
 class Player;
