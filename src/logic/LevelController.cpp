@@ -10,20 +10,20 @@
 
 LevelController::LevelController(EngineSettings& settings, Level* level) 
     : settings(settings), level(level) {
-    blocks = std::make_unique<BlocksController>(level, settings.chunks.padding);
-    chunks = std::make_unique<ChunksController>(level, settings.chunks.padding);
-    player = std::make_unique<PlayerController>(level, settings, blocks.get());
-
+    blocks = level->spawnObject<BlocksController>(level, settings.chunks.padding);
+    chunks = level->spawnObject<ChunksController>(level, settings.chunks.padding);
+    player = level->spawnObject<PlayerController>(level, settings, blocks.get());
+    shouldUpdate = false;
     scripting::on_world_load(level, blocks.get());
 }
 
 LevelController::~LevelController() {
 }
 
-void LevelController::update(float delta, bool input, bool pause) {
-    player->update(delta, input, pause);
+void LevelController::updateLevel(float delta, bool input, bool pause) {
+    player->updateInput(delta, input, pause);
     level->update();
-    chunks->update(settings.chunks.loadSpeed);
+    chunks->updateChunks(settings.chunks.loadSpeed);
 
     // erease null pointers
     level->objects.remove_if([](auto obj) { return obj == nullptr; });

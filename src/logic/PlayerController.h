@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "../settings.h"
+#include "../interfaces/Object.h"
 #include "../objects/Player.h"
 
 class Camera;
@@ -26,7 +27,7 @@ public:
 	void refresh();
 };
 
-class PlayerController {
+class PlayerController : public Object {
 	Level* level;
 	std::shared_ptr<Player> player;
 	PlayerInput input;
@@ -48,7 +49,7 @@ public:
 	PlayerController(Level* level, 
                      const EngineSettings& settings,
                      BlocksController* blocksController);
-	void update(float delta, bool input, bool pause);
+	void updateInput(float delta, bool input, bool pause);
 };
 
 #endif /* PLAYER_CONTROL_H_ */

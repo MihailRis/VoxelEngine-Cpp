@@ -2,6 +2,7 @@
 #define VOXELS_CHUNKSCONTROLLER_H_
 
 #include <memory>
+#include "../interfaces/Object.h"
 #include "../typedefs.h"
 
 class Level;
@@ -11,7 +12,7 @@ class Lighting;
 class WorldGenerator;
 
 /* ChunksController manages chunks dynamic loading/unloading */
-class ChunksController {
+class ChunksController : public Object {
 private:
     Level* level;
     Chunks* chunks;
@@ -28,7 +29,7 @@ public:
     ~ChunksController();
 
     /* @param maxDuration milliseconds reserved for chunks loading */
-    void update(int64_t maxDuration);
+    void updateChunks(int64_t maxDuration);
 };
 
 #endif /* VOXELS_CHUNKSCONTROLLER_H_ */

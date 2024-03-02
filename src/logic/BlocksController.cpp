@@ -58,6 +58,7 @@ BlocksController::BlocksController(Level* level, uint padding)
       randTickClock(20, 3),
       blocksTickClock(20, 1),
       padding(padding) {
+        shouldUpdate = false;
 }
 
 void BlocksController::updateSides(int x, int y, int z) {

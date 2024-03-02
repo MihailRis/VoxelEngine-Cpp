@@ -145,9 +145,10 @@ PlayerController::PlayerController(
 	  player(level->player), 
 	  camControl(level->player, settings.camera),
       blocksController(blocksController) {
+	shouldUpdate = false;
 }
 
-void PlayerController::update(float delta, bool input, bool pause) {
+void PlayerController::updateInput(float delta, bool input, bool pause) {
 	if (!pause) {
 		if (input) {
 			updateKeyboard();
