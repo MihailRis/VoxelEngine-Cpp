@@ -14,10 +14,10 @@ namespace xml {
     class Attribute;
     class Document;
 
-    typedef Attribute xmlattribute;
-    typedef std::shared_ptr<Node> xmlelement;
-    typedef std::shared_ptr<Document> xmldocument;
-    typedef std::unordered_map<std::string, xmlattribute> xmlelements_map;
+    using xmlattribute = Attribute;
+    using xmlelement = std::shared_ptr<Node>;
+    using xmldocument = std::shared_ptr<Document>;
+    using xmlelements_map = std::unordered_map<std::string, xmlattribute>;
 
     class Attribute {
         std::string name;
@@ -37,7 +37,7 @@ namespace xml {
         glm::vec4 asColor() const;
     };
 
-    /* XML element class. Text element has tag 'text' and attribute 'text' */
+    /// @brief XML element class. Text element has tag 'text' and attribute 'text'
     class Node {
         std::string tag;
         std::unordered_map<std::string, xmlattribute> attrs;
@@ -45,13 +45,15 @@ namespace xml {
     public:
         Node(std::string tag);
 
-        /* Add sub-element */
+        /// @brief Add sub-element
         void add(xmlelement element);
-        
-        /* Set attribute value. Creates attribute if does not exists */
-        void set(std::string name, std::string text);
 
-        /* Get element tag */
+        /// @brief Set attribute value. Creates attribute if does not exists
+        /// @param name attribute name
+        /// @param text attribute value
+        void set(std::string name, std::string text);
+        
+        /// @brief Get element tag
         const std::string& getTag() const;
 
         inline bool isText() const {
@@ -62,27 +64,30 @@ namespace xml {
             return attr("#").getText();
         }
 
-        /* Get attribute by name
-           @param name attribute name
-           @throws std::runtime_error if element has no attribute 
-           @return xmlattribute - {name, value} */
+        /// @brief Get attribute by name
+        /// @param name attribute name
+        /// @throws std::runtime_error if element has no attribute 
+        /// @return xmlattribute - {name, value}
         const xmlattribute attr(const std::string& name) const;
-        /* Get attribute by name
-           @param name name
-           @param def default value will be returned wrapped in xmlattribute 
-           if element has no attribute 
-           @return xmlattribute - {name, value} or {name, def} if not found*/
+        
+        /// @brief Get attribute by name
+        /// @param name attribute name
+        /// @param def default value will be returned wrapped in xmlattribute
+        /// if element has no attribute 
+        /// @return xmlattribute - {name, value} or {name, def} if not found*/
         const xmlattribute attr(const std::string& name, const std::string& def) const;
 
-        /* Check if element has attribute
-           @param name attribute name */
+        /// @brief Check if element has attribute
+        /// @param name attribute name
         bool has(const std::string& name) const;
 
-        /* Get sub-element by index
-           @throws std::out_of_range if an invalid index given */
+        /// @brief Get sub-element by index
+        /// @param index sub-element index
+        /// @throws std::out_of_range if an invalid index given
+        /// @return sub-element
         xmlelement sub(size_t index);
 
-        /* Get number of sub-elements */
+        /// @brief Get number of sub-elements
         size_t size() const;
 
         const std::vector<xmlelement>& getElements() const;
@@ -118,21 +123,21 @@ namespace xml {
         xmldocument parse();
     };
 
-    /* Serialize XML Document to string 
-       @param document serializing document
-       @param nice use human readable format 
-       (with indents and line-separators)
-       @param indentStr indentation characters sequence
-       (default - 4 spaces)*/
+    /// @brief Serialize XML Document to string 
+    /// @param document serializing document
+    /// @param nice use human readable format (with indents and line-separators)
+    /// @param indentStr indentation characters sequence (default - 4 spaces)
+    /// @return XML string
     extern std::string stringify(
         const xmldocument document,
         bool nice=true,
         const std::string& indentStr="    "
     );
-
-    /* Read XML Document from string
-       @param filename file name will be shown in error messages
-       @param source xml source code string */
+    
+    /// @brief Read XML Document from string
+    /// @param filename file name will be shown in error messages
+    /// @param source xml source code string
+    /// @return xml document
     extern xmldocument parse(std::string filename, std::string source);
 }
 

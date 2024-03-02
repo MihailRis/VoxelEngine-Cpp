@@ -23,11 +23,11 @@ public:
     void undefine(std::string name);
     void addHeader(std::string name, std::string source);
 
-    const std::string& getHeader(const std::string name) const;
-    const std::string getDefine(const std::string name) const;
+    const std::string& getHeader(const std::string& name) const;
+    const std::string getDefine(const std::string& name) const;
 
-    bool hasHeader(const std::string name) const;
-    bool hasDefine(const std::string name) const;
+    bool hasHeader(const std::string& name) const;
+    bool hasDefine(const std::string& name) const;
 
     const std::string process(const std::filesystem::path file, const std::string& source);
 };
