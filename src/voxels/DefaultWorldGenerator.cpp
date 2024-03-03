@@ -73,10 +73,10 @@ float calc_height(fnl_state *noise, int cur_x, int cur_z){
                             cur_x*0.2f*8 + fnlGetNoise2D(noise, cur_x*0.1f*8-23557,cur_z*0.1f*8-6568)*50,
                             cur_z*0.2f*8 + fnlGetNoise2D(noise, cur_x*0.1f*8+4363,cur_z*0.1f*8+4456)*50
                             ) * fnlGetNoise2D(noise, cur_x*0.01f-834176,cur_z*0.01f+23678) * 0.25;
-    height += fnlGetNoise2D(noise, cur_x*0.1f*8-3465,cur_z*0.1f*8+4534)*0.125f;
+    height += fnlGetNoise2D(noise, cur_x*0.1f*8-3465,cur_z*0.1f*8+4534)*0.2f;
     height *= fnlGetNoise2D(noise, cur_x*0.1f+1000,cur_z*0.1f+1000)*0.5f+0.5f;
     height += 1.0f;
-    height *= 64.0f;
+    height *= 60.0f;
     return height;
 }
 
