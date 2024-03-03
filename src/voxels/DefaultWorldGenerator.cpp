@@ -126,6 +126,7 @@ void DefaultWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
     noise.seed = seed * 60617077 % 25896307;
     PseudoRandom randomtree;
     PseudoRandom randomgrass;
+    PseudoRandom randomcliffdirt;
 
     int padding = 8;
     Map2D heights(cx * CHUNK_W - padding, 
@@ -167,8 +168,13 @@ void DefaultWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
                     id = idGrassBlock;
                 } else if (cur_y < (height - 6)){
                     id = idStone;
-                } else if (cur_y < height){
+                } else if (cur_y < height) {
                     id = idDirt;
+                } else if (height >= 100 && cur_y > 100) {
+                    id = idStone;
+
+                    randomcliffdirt.setSeed(cur_x, cur_z);
+                    if(((unsigned short)randomcliffdirt.rand() > 65500 + cur_y)) id = idDirt;
                 } else {
                     int tree = generate_tree(
                         &noise, &randomtree, heights, 
