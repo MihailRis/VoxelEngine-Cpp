@@ -53,7 +53,7 @@ audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
                 data.insert(data.end(), std::begin(buffer), std::begin(buffer)+ret);
             }
         }
-        totalSamples = data.size();
+        totalSamples = data.size() / channels / 2;
     }
     ov_clear(&vf);
     return new PCM(std::move(data), totalSamples, channels, 16, sampleRate, seekable);

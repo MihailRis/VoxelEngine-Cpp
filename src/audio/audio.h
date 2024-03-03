@@ -10,12 +10,19 @@
 namespace fs = std::filesystem;
 
 namespace audio {
+    /// @brief playing speaker uid
     using speakerid_t = int64_t;
-    /// @brief duration unit is second
+
+    /// @brief duration unit is a second
     using duration_t = double;
 
+    /// @brief not important sounds (steps, random noises)
     constexpr inline int PRIORITY_LOW = 0;
+
+    /// @brief default sounds priority
     constexpr inline int PRIORITY_NORMAL = 5;
+
+    /// @brief streams and important sounds
     constexpr inline int PRIORITY_HIGH = 10;
 
     class Speaker;
@@ -31,10 +38,16 @@ namespace audio {
     struct PCM {
         /// @brief May contain 8 bit and 16 bit PCM data
         std::vector<char> data;
+        /// @brief Total number of mono samples (sampleRate per second)
         size_t totalSamples;
+        /// @brief Track channels number (1 - mono, 2 - stereo)
         uint8_t channels;
+        /// @brief Sample bit depth (8 and 16 supported)
+        /// does not depend on the channels number
         uint8_t bitsPerSample;
+        /// @brief Number of mono samples per second (example: 44100)
         uint sampleRate;
+        /// @brief Audio source is seekable
         bool seekable;
 
         PCM(  
@@ -51,12 +64,8 @@ namespace audio {
             sampleRate(sampleRate),
             seekable(seekable) {}
 
-        inline size_t countSamplesMono() const {
-            return totalSamples / channels;
-        }
-
         inline duration_t getDuration() const {
-            return static_cast<duration_t>(countSamplesMono()) / 
+            return static_cast<duration_t>(totalSamples) / 
                    static_cast<duration_t>(sampleRate);
         }
     };
@@ -142,7 +151,7 @@ namespace audio {
     };
 
     /// @brief Sound is an audio asset that supposed to support many 
-    /// simultaneously playing instances with different sources.
+    /// simultaneously playing instances (speakers).
     /// So it's audio data is stored in memory.
     class Sound {
     public:
