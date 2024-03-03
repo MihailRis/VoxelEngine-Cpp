@@ -19,13 +19,13 @@ ALSound::~ALSound() {
     buffer = 0;
 }
 
-Speaker* ALSound::newInstance(int priority) const {
+Speaker* ALSound::newInstance(int priority, int channel) const {
     uint source = al->getFreeSource();
     if (source == 0) {
         return nullptr;
     }
     AL_CHECK(alSourcei(source, AL_BUFFER, buffer));
-    return new ALSpeaker(al, source, priority);
+    return new ALSpeaker(al, source, priority, channel);
 }
 
 ALStream::ALStream(ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSource)
@@ -54,7 +54,7 @@ bool ALStream::preloadBuffer(uint buffer, bool loop) {
     return true;
 }
 
-Speaker* ALStream::createSpeaker(bool loop) {
+Speaker* ALStream::createSpeaker(bool loop, int channel) {
     this->loop = loop;
     uint source = al->getFreeSource();
     if (source == 0) {
@@ -67,7 +67,7 @@ Speaker* ALStream::createSpeaker(bool loop) {
         }
         AL_CHECK(alSourceQueueBuffers(source, 1, &buffer));
     }
-    return new ALSpeaker(al, source, PRIORITY_HIGH);
+    return new ALSpeaker(al, source, PRIORITY_HIGH, channel);
 }
 
 
@@ -111,7 +111,7 @@ void ALStream::update(double delta) {
             AL_CHECK(alSourceQueueBuffers(source, 1, &buffer));
         }
     }
-    if (speaker->isStopped() && !speaker->isStoppedManually()) {
+    if (speaker->isStopped() && !alspeaker->stopped) {
         if (preloaded) {
             speaker->play();
         } else {
@@ -124,13 +124,31 @@ void ALStream::setTime(duration_t time) {
     // TODO: implement
 }
 
-ALSpeaker::ALSpeaker(ALAudio* al, uint source, int priority) : al(al), priority(priority), source(source) {
+ALSpeaker::ALSpeaker(ALAudio* al, uint source, int priority, int channel) 
+: al(al), priority(priority), channel(channel), source(source) {
 }
 
 ALSpeaker::~ALSpeaker() {
     if (source) {
         stop();
     }
+}
+
+void ALSpeaker::update(const Channel* channel, float masterVolume) {
+    float gain = this->volume * channel->getVolume()*masterVolume;
+    AL_CHECK(alSourcef(source, AL_GAIN, gain));
+    
+    if (!paused) {
+        if (isPaused() && !channel->isPaused()) {
+            play();
+        } else if (isPlaying() && channel->isPaused()) {
+            AL_CHECK(alSourcePause(source));
+        }
+    }
+}
+
+int ALSpeaker::getChannel() const {
+    return channel;
 }
 
 State ALSpeaker::getState() const {
@@ -147,7 +165,7 @@ float ALSpeaker::getVolume() const {
 }
 
 void ALSpeaker::setVolume(float volume) {
-    AL_CHECK(alSourcef(source, AL_GAIN, volume));
+    this->volume = volume;
 }
 
 float ALSpeaker::getPitch() const {
@@ -167,25 +185,23 @@ void ALSpeaker::setLoop(bool loop) {
 }
 
 void ALSpeaker::play() {
-    stoppedManually = false;
+    paused = false;
+    stopped = false;
     AL_CHECK(alSourcePlay(source));
 }
 
 void ALSpeaker::pause() {
+    paused = true;
     AL_CHECK(alSourcePause(source));
 }
 
 void ALSpeaker::stop() {
-    stoppedManually = true;
+    stopped = true;
     if (source) {
         AL_CHECK(alSourceStop(source));
         al->freeSource(source);
         source = 0;
     }
-}
-
-bool ALSpeaker::isStoppedManually() const {
-    return stoppedManually;
 }
 
 duration_t ALSpeaker::getTime() const {

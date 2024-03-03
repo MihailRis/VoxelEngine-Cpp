@@ -162,7 +162,7 @@ bool assetload::sound(
     std::shared_ptr<AssetCfg> config
 ) {
     auto cfg = dynamic_cast<SoundCfg*>(config.get());
-    auto sound = audio::loadSound(paths->find(file), cfg->keepPCM);
+    auto sound = audio::load_sound(paths->find(file), cfg->keepPCM);
     if (sound == nullptr) {
         std::cerr << "failed to load sound '" << name << "' from '";
         std::cerr << file << "'" << std::endl;
@@ -172,11 +172,13 @@ bool assetload::sound(
     return true;
 }
 
-bool assetload::animation(Assets* assets, 
-                        const ResPaths* paths, 
-                        const std::string directory, 
-                        const std::string name,
-                        Atlas* dstAtlas) {
+bool assetload::animation(
+    Assets* assets, 
+    const ResPaths* paths, 
+    const std::string directory, 
+    const std::string name,
+    Atlas* dstAtlas
+) {
     std::string animsDir = directory + "/animations";
     std::string blocksDir = directory + "/blocks";
 

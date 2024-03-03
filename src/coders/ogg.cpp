@@ -91,7 +91,7 @@ public:
         long bytes = ov_read(&vf, buffer, bufferSize, 0, 2, true, &bitstream);
         if (bytes < 0) {
             std::cerr << "ogg::load_pcm: " << vorbis_error_message(bytes) << " " << bytes << std::endl;
-            return 0;
+            return PCMStream::ERROR;
         }
         return bytes;
     }

@@ -40,7 +40,7 @@ namespace audio {
             return pcm;
         }
 
-        Speaker* newInstance(int priority) const override;
+        Speaker* newInstance(int priority, int channel) const override;
     };
 
     class ALStream : public Stream {
@@ -61,7 +61,7 @@ namespace audio {
 
         std::shared_ptr<PCMStream> getSource() const override;
         void bindSpeaker(speakerid_t speaker) override;
-        Speaker* createSpeaker(bool loop) override;
+        Speaker* createSpeaker(bool loop, int channel) override;
         speakerid_t getSpeaker() const override;
         void update(double delta) override;
         void setTime(duration_t time) override;       
@@ -73,12 +73,18 @@ namespace audio {
     class ALSpeaker : public Speaker {
         ALAudio* al;
         int priority;
-        bool stoppedManually = false;
+        int channel;
+        float volume = 0.0f;
     public:
+        bool stopped = true;
+        bool paused = false;
         uint source;
 
-        ALSpeaker(ALAudio* al, uint source, int priority);
+        ALSpeaker(ALAudio* al, uint source, int priority, int channel);
         ~ALSpeaker();
+
+        void update(const Channel* channel, float masterVolume) override;
+        int getChannel() const override;
 
         State getState() const override;
 
@@ -94,7 +100,6 @@ namespace audio {
         void play() override;
         void pause() override;
         void stop() override;
-        bool isStoppedManually() const override;
 
         duration_t getTime() const override;
         void setTime(duration_t time) override;

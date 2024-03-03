@@ -19,7 +19,7 @@ namespace audio {
             return pcm;
         }
 
-        Speaker* newInstance(int priority) const override {
+        Speaker* newInstance(int priority, int channel) const override {
             return nullptr;
         }
     };
@@ -42,7 +42,7 @@ namespace audio {
         void bindSpeaker(speakerid_t speaker) override {
         }
 
-        Speaker* createSpeaker(bool loop) override{
+        Speaker* createSpeaker(bool loop, int channel) override{
             return nullptr;
         }
 

@@ -34,6 +34,37 @@ namespace audio {
         stopped
     };
 
+    /// @brief Mixer channel controls speakers volume and effects
+    /// There is main channel 'master' and sub-channels like 'regular', 'music', 'ambient'...
+    class Channel {
+        /// @brief Channel name
+        std::string name;
+        /// @brief Channel volume setting
+        float volume = 1.0f;
+        bool paused = false;
+    public:
+        Channel(std::string name);
+
+        /// @brief Get channel volume 
+        float getVolume() const;
+
+        /// @brief Set channel volume
+        /// @param volume value in range [0.0, 1.0]
+        void setVolume(float volume);
+
+        /// @brief Get channel name
+        const std::string& getName() const;
+
+        /// @brief Pause all speakers in channel
+        void pause();
+
+        /// @brief Unpause all speakers paused by this channel
+        void resume();
+
+        /// @brief Check if the channel is paused
+        bool isPaused() const;
+    };
+
     /// @brief Pulse-code modulation data
     struct PCM {
         /// @brief May contain 8 bit and 16 bit PCM data
@@ -64,6 +95,8 @@ namespace audio {
             sampleRate(sampleRate),
             seekable(seekable) {}
 
+        /// @brief Get total audio duration
+        /// @return duration in seconds 
         inline duration_t getDuration() const {
             return static_cast<duration_t>(totalSamples) / 
                    static_cast<duration_t>(sampleRate);
@@ -115,6 +148,9 @@ namespace audio {
         /// @brief Move playhead to the selected sample number
         /// @param position selected sample number
         virtual void seek(size_t position) = 0;
+
+        /// @brief Value returning by read(...) in case of error
+        static const size_t ERROR = -1;
     };
 
     /// @brief Audio streaming interface
@@ -130,8 +166,9 @@ namespace audio {
         /// @brief Create new speaker bound to the Stream 
         /// and having high priority
         /// @param loop is stream looped (required for correct buffers preload)
+        /// @param channel channel index
         /// @return speaker id or 0
-        virtual Speaker* createSpeaker(bool loop) = 0;
+        virtual Speaker* createSpeaker(bool loop, int channel) = 0;
 
         /// @brief Unbind previous speaker and bind new speaker to the stream
         /// @param speaker speaker id or 0 if all you need is unbind speaker
@@ -168,15 +205,25 @@ namespace audio {
         /// @brief Create new sound instance
         /// @param priority instance priority. High priority instance can 
         /// take out speaker from low priority instance
+        /// @param channel channel index
         /// @return new speaker with sound bound or nullptr 
         /// if all speakers are in use
-        virtual Speaker* newInstance(int priority) const = 0;
+        virtual Speaker* newInstance(int priority, int channel) const = 0;
     };
 
-    /// @brief Audio source controller interface
+    /// @brief Audio source controller interface.
+    /// @attention Speaker is not supposed to be reused
     class Speaker {
     public:
         virtual ~Speaker() {}
+
+        /// @brief Synchronize the speaker with channel settings
+        /// @param channel speaker channel
+        /// @param masterVolume volume of the master channel
+        virtual void update(const Channel* channel, float masterVolume) = 0;
+
+        /// @brief Check speaker channel index
+        virtual int getChannel() const = 0;
 
         /// @brief Get current speaker state
         /// @return speaker state
@@ -214,9 +261,6 @@ namespace audio {
 
         /// @brief Stop and destroy speaker
         virtual void stop() = 0;
-
-        /// @brief Check if the speaker has stopped by calling stop()
-        virtual bool isStoppedManually() const = 0;
         
         /// @brief Get current time position of playing audio
         /// @return time position in seconds
@@ -297,45 +341,45 @@ namespace audio {
     /// @param headerOnly read header only
     /// @throws std::runtime_error if I/O error ocurred or format is unknown 
     /// @return PCM audio data
-    extern PCM* loadPCM(const fs::path& file, bool headerOnly);
+    extern PCM* load_PCM(const fs::path& file, bool headerOnly);
 
     /// @brief Load sound from file
     /// @param file audio file path
     /// @param keepPCM store PCM data in sound to make it accessible with Sound::getPCM
     /// @throws std::runtime_error if I/O error ocurred or format is unknown 
     /// @return new Sound instance
-    extern Sound* loadSound(const fs::path& file, bool keepPCM);
+    extern Sound* load_sound(const fs::path& file, bool keepPCM);
 
     /// @brief Create new sound from PCM data
     /// @param pcm PCM data
     /// @param keepPCM store PCM data in sound to make it accessible with Sound::getPCM
     /// @return new Sound instance 
-    extern Sound* createSound(std::shared_ptr<PCM> pcm, bool keepPCM);
+    extern Sound* create_sound(std::shared_ptr<PCM> pcm, bool keepPCM);
 
     /// @brief Open new PCM stream from file
     /// @param file audio file path
     /// @throws std::runtime_error if I/O error ocurred or format is unknown
     /// @return new PCMStream instance
-    extern PCMStream* openPCMStream(const fs::path& file);
+    extern PCMStream* open_PCM_stream(const fs::path& file);
 
     /// @brief Open new audio stream from file
     /// @param file audio file path
     /// @param keepSource store PCMStream in stream to make it accessible with Stream::getSource
     /// @return new Stream instance
-    extern Stream* openStream(const fs::path& file, bool keepSource);
+    extern Stream* open_stream(const fs::path& file, bool keepSource);
 
     /// @brief Open new audio stream from source
     /// @param stream PCM data source
     /// @param keepSource store PCMStream in stream to make it accessible with Stream::getSource
     /// @return new Stream instance
-    extern Stream* openStream(std::shared_ptr<PCMStream> stream, bool keepSource);
+    extern Stream* open_stream(std::shared_ptr<PCMStream> stream, bool keepSource);
 
     /// @brief Configure 3D listener
     /// @param position listener position
     /// @param velocity listener velocity (used for Doppler effect)
     /// @param lookAt point the listener look at
     /// @param up camera up vector
-    extern void setListener(
+    extern void set_listener(
         glm::vec3 position, 
         glm::vec3 velocity, 
         glm::vec3 lookAt, 
@@ -351,6 +395,7 @@ namespace audio {
     /// @param loop loop sound
     /// @param priority sound priority 
     /// (PRIORITY_LOW, PRIORITY_NORMAL, PRIORITY_HIGH)
+    /// @param channel channel index
     /// @return speaker id or 0
     extern speakerid_t play(
         Sound* sound,
@@ -359,7 +404,8 @@ namespace audio {
         float volume,
         float pitch,
         bool loop,
-        int priority
+        int priority,
+        int channel
     );
 
     /// @brief Play stream
@@ -369,6 +415,7 @@ namespace audio {
     /// @param volume stream volume [0.0-1.0]
     /// @param pitch stream pitch multiplier [0.0-...]
     /// @param loop loop stream
+    /// @param channel channel index
     /// @return speaker id or 0
     extern speakerid_t play(
         std::shared_ptr<Stream> stream,
@@ -376,7 +423,8 @@ namespace audio {
         bool relative,
         float volume,
         float pitch,
-        bool loop
+        bool loop,
+        int channel
     );
 
     /// @brief Play stream from file
@@ -386,25 +434,48 @@ namespace audio {
     /// @param volume stream volume [0.0-1.0]
     /// @param pitch stream pitch multiplier [0.0-...]
     /// @param loop loop stream
+    /// @param channel channel index
     /// @return speaker id or 0
-    /// @return 
-    extern speakerid_t playStream(
+    extern speakerid_t play_stream(
         const fs::path& file,
         glm::vec3 position,
         bool relative,
         float volume,
         float pitch,
-        bool loop
+        bool loop,
+        int channel
     );
 
     /// @brief Get speaker by id
     /// @param id speaker id
     /// @return speaker or nullptr
     extern Speaker* get(speakerid_t id);
-    
+
+    /// @brief Create new channel. 
+    /// All non-builtin channels will be destroyed on audio::reset() call
+    /// @param name channel name
+    /// @return new channel index
+    extern int create_channel(const std::string& name);
+
+    /// @brief Get channel index by name
+    /// @param name channel name
+    /// @return channel index or -1
+    extern int get_channel_index(const std::string& name);
+
+    /// @brief Get channel by index. 0 - is master channel
+    /// @param name channel index
+    /// @return channel or nullptr
+    extern Channel* get_channel(int index);
+
+    /// @brief Get volume of the master channel
+    extern float get_master_volume();
+
     /// @brief Update audio streams and sound instanced
     /// @param delta time elapsed since the last update (seconds)
     extern void update(double delta);
+
+    /// @brief Stop all playing audio, destroy all non-builtin channels
+    extern void reset();
     
     /// @brief Finalize audio system
     extern void close();
