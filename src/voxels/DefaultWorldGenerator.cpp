@@ -170,7 +170,7 @@ void DefaultWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
                     id = idStone;
                 } else if (cur_y < height) {
                     id = idDirt;
-                } else if (height >= 100 && cur_y > 100) {
+                } else if (height >= 100 && cur_y > 100 && cur_y <= height) {
                     id = idStone;
 
                     randomcliffdirt.setSeed(cur_x, cur_z);
