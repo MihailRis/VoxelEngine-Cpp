@@ -147,7 +147,7 @@ void DefaultWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
                 float h2 = abs(height-SEA_LEVEL + 0.04);
                 float h = (h1 + h2)*100;
                 height += (h * w);
-                if(height > 100) height *= (cos(height) + 1);
+                if(height > 100) height += (cos(height) * 1.2);
 
             heights.set(MAPS::HEIGHT, cur_x, cur_z, height);
             heights.set(MAPS::TREE, cur_x, cur_z, hum);
