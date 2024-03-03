@@ -140,7 +140,7 @@ void DefaultWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
             float height = calc_height(&noise, cur_x, cur_z);
             float hum = fnlGetNoise2D(&noise, cur_x * 0.3 + 633, cur_z * 0.3);
             float sand = fnlGetNoise2D(&noise, cur_x * 0.1 - 633, cur_z * 0.1 + 1000);
-                float cliff = pow((sand + abs(sand)) / 2, 2);
+                float cliff = pow((sand + abs(sand)) / 2, 3);
                 float w = pow(fmax(-abs(height-SEA_LEVEL)+4,0)/6,2) * cliff;
                 float h1 = -abs(height-SEA_LEVEL - 0.03);
                 float h2 = abs(height-SEA_LEVEL + 0.04);
