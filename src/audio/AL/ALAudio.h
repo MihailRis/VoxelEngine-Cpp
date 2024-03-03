@@ -73,6 +73,7 @@ namespace audio {
     class ALSpeaker : public Speaker {
         ALAudio* al;
         int priority;
+        bool stoppedManually = false;
     public:
         uint source;
 
@@ -93,6 +94,7 @@ namespace audio {
         void play() override;
         void pause() override;
         void stop() override;
+        bool isStoppedManually() const override;
 
         duration_t getTime() const override;
         void setTime(duration_t time) override;

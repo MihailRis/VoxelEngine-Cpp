@@ -205,6 +205,9 @@ namespace audio {
 
         /// @brief Stop and destroy speaker
         virtual void stop() = 0;
+
+        /// @brief Check if the speaker has stopped by calling stop()
+        virtual bool isStoppedManually() const = 0;
         
         /// @brief Get current time position of playing audio
         /// @return time position in seconds

@@ -294,7 +294,8 @@ void audio::update(double delta) {
     }
 
     for (auto it = speakers.begin(); it != speakers.end();) {
-        if (it->second->isStopped()) {
+        if (it->second->isStoppedManually()) {
+            streams.erase(it->first);
             it = speakers.erase(it);
         } else {
             it++;

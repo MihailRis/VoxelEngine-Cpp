@@ -103,12 +103,23 @@ void ALStream::update(double delta) {
         std::cout << "unqueue " << buffer << std::endl;
     }
 
+    uint preloaded = 0;
     if (!unusedBuffers.empty()) {
         uint buffer = unusedBuffers.front();
         if (preloadBuffer(buffer, loop)) {
+            preloaded++;
             unusedBuffers.pop();
             std::cout << "queue " << buffer << std::endl;
             AL_CHECK(alSourceQueueBuffers(source, 1, &buffer));
+        }
+    }
+    if (speaker->isStopped() && !speaker->isStoppedManually()) {
+        std::cout << "preloaded " << preloaded << std::endl;
+        if (preloaded) {
+            speaker->play();
+            std::cout << "speaker restored" << std::endl;
+        } else {
+            speaker->stop();
         }
     }
 }
@@ -160,6 +171,7 @@ void ALSpeaker::setLoop(bool loop) {
 }
 
 void ALSpeaker::play() {
+    stoppedManually = false;
     AL_CHECK(alSourcePlay(source));
 }
 
@@ -168,9 +180,16 @@ void ALSpeaker::pause() {
 }
 
 void ALSpeaker::stop() {
-    AL_CHECK(alSourceStop(source));
-    al->freeSource(source);
-    source = 0;
+    stoppedManually = true;
+    if (source) {
+        AL_CHECK(alSourceStop(source));
+        al->freeSource(source);
+        source = 0;
+    }
+}
+
+bool ALSpeaker::isStoppedManually() const {
+    return stoppedManually;
 }
 
 duration_t ALSpeaker::getTime() const {
