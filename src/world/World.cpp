@@ -50,7 +50,7 @@ void World::updateTimers(float delta) {
 void World::write(Level* level) {
     const Content* content = level->content;
 
-    Chunks* chunks = level->chunks;
+    Chunks* chunks = level->chunks.get();
 
     for (size_t i = 0; i < chunks->volume; i++) {
         auto chunk = chunks->chunks[i];
@@ -64,7 +64,16 @@ void World::write(Level* level) {
     }
 
     wfile->write(this, content);
-    wfile->writePlayer(level->player);
+	auto playerFile = dynamic::Map();
+    {
+        auto& players = playerFile.putList("players");
+        for (auto object : level->objects) {
+            if (std::shared_ptr<Player> player = std::dynamic_pointer_cast<Player>(object)) {
+                players.put(player->serialize().release());
+            }
+        }
+    }
+    files::write_json(wfile->getPlayerFile(), &playerFile);
 }
 
 Level* World::create(std::string name, 
@@ -77,9 +86,6 @@ Level* World::create(std::string name,
 ) {
     auto world = new World(name, generator, directory, seed, settings, content, packs);
     auto level = new Level(world, content, settings);
-    auto inventory = level->player->getInventory();
-    inventory->setId(world->getNextInventoryId());
-    level->inventories->store(inventory);
     return level;
 }
 
@@ -97,9 +103,28 @@ Level* World::load(fs::path directory,
     }
 
     auto level = new Level(world.get(), content, settings);
-    wfile->readPlayer(level->player);
-    level->inventories->store(level->player->getInventory());
-    world.release();
+    {
+        fs::path file = wfile->getPlayerFile();
+        if (!fs::is_regular_file(file)) {
+            std::cerr << "warning: player.json does not exists" << std::endl;
+        } else {
+            auto playerFile = files::read_json(file);
+            if (playerFile->has("players")) {
+                level->objects.clear();
+                auto players = playerFile->list("players");
+                for (size_t i = 0; i < players->size(); i++) {
+                    auto player = level->spawnObject<Player>(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, level->inventories->create(DEF_PLAYER_INVENTORY_SIZE));
+                    player->deserialize(players->map(i));
+                    level->inventories->store(player->getInventory());
+                }
+            } else {
+	            auto player = level->getObject<Player>(0);
+                player->deserialize(playerFile.get());
+                level->inventories->store(player->getInventory());
+            }
+        }
+    }
+    (void)world.release();
     return level;
 }
 

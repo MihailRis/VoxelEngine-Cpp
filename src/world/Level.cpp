@@ -8,33 +8,25 @@
 #include "../voxels/ChunksStorage.h"
 #include "../physics/Hitbox.h"
 #include "../physics/PhysicsSolver.h"
-#include "../interfaces/Object.h"
 #include "../objects/Player.h"
 #include "../items/Inventory.h"
 #include "../items/Inventories.h"
 
-
-const float DEF_PLAYER_Y = 100.0f;
-const float DEF_PLAYER_SPEED = 4.0f;
-const int DEF_PLAYER_INVENTORY_SIZE = 40;
-
 Level::Level(World* world, const Content* content, EngineSettings& settings)
 	  : world(world),
 	    content(content),
-		chunksStorage(new ChunksStorage(this)),
-		events(new LevelEvents()) ,
+		chunksStorage(std::make_unique<ChunksStorage>(this)),
+		physics(std::make_unique<PhysicsSolver>(glm::vec3(0, -22.6f, 0))),
+        events(std::make_unique<LevelEvents>()),
 		settings(settings) 
 {
-	objCounter = 0;
-    physics = new PhysicsSolver(glm::vec3(0, -22.6f, 0));
-	auto inv = std::make_shared<Inventory>(0, DEF_PLAYER_INVENTORY_SIZE);
-	player = spawnObject<Player>(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv);
+	auto inv = std::make_shared<Inventory>(world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE);
+	auto player = spawnObject<Player>(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv);
 
-    uint matrixSize = (settings.chunks.loadDistance+
-					   settings.chunks.padding) * 2;
-    chunks = new Chunks(matrixSize, matrixSize, 0, 0, 
-						world->wfile.get(), events, content);
-	lighting = new Lighting(content, chunks);
+    uint matrixSize = (settings.chunks.loadDistance + settings.chunks.padding) * 2;
+    chunks = std::make_unique<Chunks>(matrixSize, matrixSize, 0, 0, 
+						world->wfile.get(), events.get(), content);
+	lighting = std::make_unique<Lighting>(content, chunks.get());
 
 	events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
 		this->chunksStorage->remove(chunk->x, chunk->z);
@@ -45,26 +37,16 @@ Level::Level(World* world, const Content* content, EngineSettings& settings)
 }
 
 Level::~Level(){
-	delete chunks;
-	delete events;
-	delete physics;
-	delete lighting;
-	delete chunksStorage;
-
-	for(auto obj : objects)
-	{
+	for(auto obj : objects) {
 		obj.reset();
 	}
 }
 
-void Level::update() {
-	glm::vec3 position = player->hitbox->position;
-	chunks->setCenter(position.x, position.z);
-
-	int matrixSize = (settings.chunks.loadDistance+
-					  settings.chunks.padding) * 2;
-	if (chunks->w != matrixSize) {
-		chunks->resize(matrixSize, matrixSize);
+void Level::loadMatrix(int32_t x, int32_t z, uint32_t radius) {
+	chunks->setCenter(x, z);
+    radius = std::min(radius, settings.chunks.loadDistance + settings.chunks.padding * 2);
+	if (chunks->w != radius) {
+		chunks->resize(radius, radius);
 	}
 }
 
@@ -72,17 +54,3 @@ World* Level::getWorld() {
     return world.get();
 }
 
-
-template<class T, typename... Args>
-std::shared_ptr<T> Level::spawnObject(Args&&... args)
-{
-	static_assert(std::is_base_of<Object, T>::value, "T must be a derived of Object class");
-	std::shared_ptr<T> tObj = std::make_shared<T>(args...);
-	
-	std::shared_ptr<Object> obj = std::dynamic_pointer_cast<Object, T>(tObj);
-	objects.push_back(obj);
-	obj->objectUID = objCounter;
-	obj->spawned();
-	objCounter += 1;
-	return tObj;
-}

@@ -27,6 +27,7 @@ public:
     world_load_error(std::string message);
 };
 
+/* World - holds all world data except the level (chunks and objects)  */
 class World : Serializable {
     std::string name;
     std::string generator;
@@ -35,7 +36,7 @@ class World : Serializable {
     const Content* const content;
     std::vector<ContentPack> packs;
 
-    int64_t nextInventoryId = 1;
+    int64_t nextInventoryId = 0;
 public:
     std::unique_ptr<WorldFiles> wfile;
 

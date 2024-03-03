@@ -38,7 +38,6 @@ public:
 };
 
 class LevelScreen : public Screen {
-    std::unique_ptr<Level> level;
     std::unique_ptr<LevelFrontend> frontend;
     std::unique_ptr<Hud> hud;
     std::unique_ptr<WorldRenderer> worldRenderer;
@@ -53,8 +52,6 @@ public:
 
     void update(float delta) override;
     void draw(float delta) override;
-
-    Level* getLevel() const;
 };
 
 #endif // FRONTEND_SCREENS_H_

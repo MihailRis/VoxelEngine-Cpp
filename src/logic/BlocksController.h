@@ -28,6 +28,7 @@ public:
     int getTickId() const;
 };
 
+/* BlocksController manages block updates and block data (aka inventories) */
 class BlocksController {
     Level* level;
 	Chunks* chunks;
