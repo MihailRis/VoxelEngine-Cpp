@@ -96,43 +96,43 @@ public:
         return bytes;
     }
 
-    void close() {
+    void close() override {
         if (!closed) {
             ov_clear(&vf);
             closed = true;
         }
     }
 
-    bool isOpen() const {
+    bool isOpen() const override {
         return !closed;
     }
 
-    size_t getTotalSamples() const {
+    size_t getTotalSamples() const override {
         return totalSamples;
     }
 
-    duration_t getTotalDuration() const {
+    duration_t getTotalDuration() const override {
         return static_cast<duration_t>(totalSamples) /
                static_cast<duration_t>(sampleRate);
     }
 
-    uint getChannels() const {
+    uint getChannels() const override {
         return channels;
     }
 
-    uint getSampleRate() const {
+    uint getSampleRate() const override {
         return sampleRate;
     }
 
-    uint getBitsPerSample() const {
+    uint getBitsPerSample() const override {
         return 16;
     }
 
-    bool isSeekable() const {
+    bool isSeekable() const override {
         return seekable;
     }
 
-    void seek(size_t position) {
+    void seek(size_t position) override {
         if (!closed && seekable) {
             ov_raw_seek(&vf, position);
         }

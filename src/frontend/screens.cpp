@@ -150,10 +150,10 @@ void LevelScreen::update(float delta) {
         updateHotkeys();
     }
 
-    auto camera = level->player->camera;
+    auto camera = this->level->player->camera;
     audio::setListener(
         camera->position, 
-        level->player->hitbox->velocity,
+        this->level->player->hitbox->velocity,
         camera->position+camera->dir, 
         camera->up
     );

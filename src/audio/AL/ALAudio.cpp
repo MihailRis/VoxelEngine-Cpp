@@ -100,7 +100,6 @@ void ALStream::update(double delta) {
         uint buffer;
         AL_CHECK(alSourceUnqueueBuffers(source, 1, &buffer));
         unusedBuffers.push(buffer);
-        std::cout << "unqueue " << buffer << std::endl;
     }
 
     uint preloaded = 0;
@@ -109,15 +108,12 @@ void ALStream::update(double delta) {
         if (preloadBuffer(buffer, loop)) {
             preloaded++;
             unusedBuffers.pop();
-            std::cout << "queue " << buffer << std::endl;
             AL_CHECK(alSourceQueueBuffers(source, 1, &buffer));
         }
     }
     if (speaker->isStopped() && !speaker->isStoppedManually()) {
-        std::cout << "preloaded " << preloaded << std::endl;
         if (preloaded) {
             speaker->play();
-            std::cout << "speaker restored" << std::endl;
         } else {
             speaker->stop();
         }

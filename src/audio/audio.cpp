@@ -88,7 +88,7 @@ public:
         return totalSamples;
     }
 
-    duration_t getTotalDuration() const {
+    duration_t getTotalDuration() const override {
         return static_cast<duration_t>(totalSamples) / 
                static_cast<duration_t>(sampleRate);
     }
