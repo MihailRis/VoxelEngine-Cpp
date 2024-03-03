@@ -160,16 +160,22 @@ void DefaultWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
             int cur_x = x + cx * CHUNK_W;
             float height = heights.get(MAPS::HEIGHT, cur_x, cur_z);
 
-            for (int cur_y = 0; cur_y < CHUNK_H; cur_y++){
+            for (int cur_y = 0; cur_y < CHUNK_H; cur_y++) {
                 // int cur_y = y;
                 int id = cur_y < SEA_LEVEL ? idWater : BLOCK_AIR;
                 int states = 0;
                 if ((cur_y == (int)height) && (SEA_LEVEL-2 < cur_y)) {
                     id = idGrassBlock;
+                    if(height >= 100 && cur_z) {
+                        id = idStone;
+                    }
                 } else if (cur_y < (height - 6)){
                     id = idStone;
                 } else if (cur_y < height) {
                     id = idDirt;
+                    if(height >= 100 && cur_z) {
+                        id = idStone;
+                    }
                 } else {
                     int tree = generate_tree(
                         &noise, &randomtree, heights, 
@@ -179,13 +185,6 @@ void DefaultWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
                         id = tree;
                         states = BLOCK_DIR_UP;
                     }
-                }
-
-                if (height >= 100 && 100 < cur_y < height) {
-                    id = idStone;
-
-                    randomcliffdirt.setSeed(cur_x, cur_z);
-                    if(((unsigned short)randomcliffdirt.rand()) > (64000 + cur_y * 100)) id = idDirt;
                 }
 
                 float sand = fmax(heights.get(MAPS::SAND, cur_x, cur_z), heights.get(MAPS::CLIFF, cur_x, cur_z));
