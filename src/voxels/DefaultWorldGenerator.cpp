@@ -147,6 +147,8 @@ void DefaultWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
                 float h2 = abs(height-SEA_LEVEL + 0.04);
                 float h = (h1 + h2)*100;
                 height += (h * w);
+                if(height > 100) height *= (cos(height) + 1);
+
             heights.set(MAPS::HEIGHT, cur_x, cur_z, height);
             heights.set(MAPS::TREE, cur_x, cur_z, hum);
             heights.set(MAPS::SAND, cur_x, cur_z, sand);
@@ -197,13 +199,13 @@ void DefaultWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
                     id = idBazalt;
 
                 randomgrass.setSeed(cur_x,cur_z);
-                if ((id == 0) && ((height > SEA_LEVEL+0.4) || (sand > 0.1)) && ((int)(height + 1) == cur_y) && ((unsigned short)randomgrass.rand() > 56000)){
+                if ((id == 0) && ((height > SEA_LEVEL+0.4) || (sand > 0.1)) && ((int)(height + 1) == cur_y) && cur_y < 100 && ((unsigned short)randomgrass.rand() > 56000)){
                     id = idGrass;
                 }
-                if ((id == 0) && (height > SEA_LEVEL+0.4) && ((int)(height + 1) == cur_y) && ((unsigned short)randomgrass.rand() > 65000)){
+                if ((id == 0) && (height > SEA_LEVEL+0.4) && ((int)(height + 1) == cur_y) && cur_y < 100 && ((unsigned short)randomgrass.rand() > 65000)){
                     id = idFlower;
                 }
-                if ((height > SEA_LEVEL+1) && ((int)(height + 1) == cur_y) && ((unsigned short)randomgrass.rand() > 65533)){
+                if ((height > SEA_LEVEL+1) && ((int)(height + 1) == cur_y) && cur_y < 100 && ((unsigned short)randomgrass.rand() > 65533)){
                     id = idWood;
                     states = BLOCK_DIR_UP;
                 }
