@@ -10,7 +10,7 @@
 #include <functional>
 #define GLEW_STATIC
 
-#include "audio/Audio.h"
+#include "audio/audio.h"
 #include "assets/Assets.h"
 #include "assets/AssetsLoader.h"
 #include "world/WorldGenerators.h"
@@ -56,6 +56,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 	if (Window::initialize(settings.display)){
 		throw initialize_error("could not initialize window");
 	}
+    audio::initialize(true);
 
     auto resdir = paths->getResources();
     scripting::initialize(this);
@@ -65,7 +66,6 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 
     resPaths = std::make_unique<ResPaths>(resdir, roots);
     assets = std::make_unique<Assets>();
-
 
 	AssetsLoader loader(assets.get(), resPaths.get());
 	AssetsLoader::addDefaults(loader, nullptr);
@@ -79,8 +79,6 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 			throw initialize_error("could not to load assets");
 		}
 	}
-
-	Audio::initialize();
 	gui = std::make_unique<gui::GUI>();
     if (settings.ui.language == "auto") {
         settings.ui.language = langs::locale_by_envlocale(platform::detect_locale(), paths->getResources());
@@ -123,6 +121,8 @@ void Engine::mainloop() {
 		assert(screen != nullptr);
 		updateTimers();
 		updateHotkeys();
+        
+        audio::update(delta);
 
 		gui->act(delta);
 		screen->update(delta);
@@ -148,7 +148,7 @@ Engine::~Engine() {
 	screen.reset();
 	content.reset();
 
-	Audio::finalize();
+	audio::close();
     assets.reset();
     scripting::close();
 	Window::terminate();

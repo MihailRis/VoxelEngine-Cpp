@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libpng-dev \
     libopenal-dev \
     libluajit-5.1-dev \
+    libvorbis-dev \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 

@@ -7,24 +7,41 @@
 #include <map>
 #include <queue>
 
-const short ASSET_TEXTURE = 1;
-const short ASSET_SHADER = 2;
-const short ASSET_FONT = 3;
-const short ASSET_ATLAS = 4;
-const short ASSET_LAYOUT = 5;
+inline constexpr short ASSET_TEXTURE = 1;
+inline constexpr short ASSET_SHADER = 2;
+inline constexpr short ASSET_FONT = 3;
+inline constexpr short ASSET_ATLAS = 4;
+inline constexpr short ASSET_LAYOUT = 5;
+inline constexpr short ASSET_SOUND = 6;
 
 class ResPaths;
 class Assets;
 class AssetsLoader;
 class Content;
 
-using aloader_func = std::function<bool(AssetsLoader&, Assets*, const ResPaths*, const std::string&, const std::string&, std::shared_ptr<void>)>;
+struct AssetCfg {
+	virtual ~AssetCfg() {}
+};
+
+struct LayoutCfg : AssetCfg {
+    int env;
+
+    LayoutCfg(int env) : env(env) {}
+};
+
+struct SoundCfg : AssetCfg {
+	bool keepPCM;
+	
+	SoundCfg(bool keepPCM) : keepPCM(keepPCM) {}
+};
+
+using aloader_func = std::function<bool(AssetsLoader&, Assets*, const ResPaths*, const std::string&, const std::string&, std::shared_ptr<AssetCfg>)>;
 
 struct aloader_entry {
 	int tag;
 	const std::string filename;
 	const std::string alias;
-    std::shared_ptr<void> config;
+    std::shared_ptr<AssetCfg> config;
 };
 
 class AssetsLoader {
@@ -39,7 +56,7 @@ public:
         int tag, 
         const std::string filename, 
         const std::string alias, 
-        std::shared_ptr<void> settings=nullptr
+        std::shared_ptr<AssetCfg> settings=nullptr
     );
 	
 

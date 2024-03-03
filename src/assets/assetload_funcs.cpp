@@ -4,6 +4,7 @@
 #include <filesystem>
 #include "Assets.h"
 #include "AssetsLoader.h"
+#include "../audio/audio.h"
 #include "../files/files.h"
 #include "../files/engine_paths.h"
 #include "../coders/png.h"
@@ -25,7 +26,7 @@ bool assetload::texture(
     const ResPaths* paths,
     const std::string filename, 
     const std::string name,
-    std::shared_ptr<void>
+    std::shared_ptr<AssetCfg>
 ) {
     std::unique_ptr<Texture> texture(
         png::load_texture(paths->find(filename).u8string())
@@ -44,7 +45,7 @@ bool assetload::shader(
     const ResPaths* paths,
     const std::string filename, 
     const std::string name,
-    std::shared_ptr<void>
+    std::shared_ptr<AssetCfg>
 ) {
     fs::path vertexFile = paths->find(filename+".glslv");
     fs::path fragmentFile = paths->find(filename+".glslf");
@@ -92,7 +93,7 @@ bool assetload::atlas(
     const ResPaths* paths,
     const std::string directory, 
     const std::string name,
-    std::shared_ptr<void>
+    std::shared_ptr<AssetCfg>
 ) {
     AtlasBuilder builder;
     for (const auto& file : paths->listdir(directory)) {
@@ -112,7 +113,7 @@ bool assetload::font(
     const ResPaths* paths,
     const std::string filename, 
     const std::string name,
-    std::shared_ptr<void>
+    std::shared_ptr<AssetCfg>
 ) {
     std::vector<std::unique_ptr<Texture>> pages;
     for (size_t i = 0; i <= 4; i++) {
@@ -138,10 +139,10 @@ bool assetload::layout(
     const ResPaths* paths,
     const std::string file,
     const std::string name,
-    std::shared_ptr<void> config
+    std::shared_ptr<AssetCfg> config
 ) {
     try {
-        LayoutCfg* cfg = reinterpret_cast<LayoutCfg*>(config.get());
+        auto cfg = dynamic_cast<LayoutCfg*>(config.get());
         auto document = UiDocument::read(loader, cfg->env, name, file);
         assets->store(document.release(), name);
         return true;
@@ -150,6 +151,25 @@ bool assetload::layout(
         std::cerr << err.errorLog() << std::endl;
         return false;
     }
+}
+
+bool assetload::sound(
+    AssetsLoader& loader,
+    Assets* assets,
+    const ResPaths* paths,
+    const std::string file,
+    const std::string name,
+    std::shared_ptr<AssetCfg> config
+) {
+    auto cfg = dynamic_cast<SoundCfg*>(config.get());
+    auto sound = audio::loadSound(paths->find(file), cfg->keepPCM);
+    if (sound == nullptr) {
+        std::cerr << "failed to load sound '" << name << "' from '";
+        std::cerr << file << "'" << std::endl;
+        return false;
+    }
+    assets->store(sound, name);
+    return true;
 }
 
 bool assetload::animation(Assets* assets, 
