@@ -200,7 +200,6 @@ void ALSpeaker::stop() {
     if (source) {
         AL_CHECK(alSourceStop(source));
         al->freeSource(source);
-        source = 0;
     }
 }
 

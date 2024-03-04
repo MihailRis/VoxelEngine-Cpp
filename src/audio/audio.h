@@ -467,8 +467,8 @@ namespace audio {
     /// @return channel or nullptr
     extern Channel* get_channel(int index);
 
-    /// @brief Get volume of the master channel
-    extern float get_master_volume();
+    /// @brief Get alive speakers number (including paused)
+    extern size_t count_speakers();
 
     /// @brief Update audio streams and sound instanced
     /// @param delta time elapsed since the last update (seconds)

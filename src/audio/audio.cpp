@@ -351,8 +351,8 @@ Channel* audio::get_channel(int index) {
     return channels.at(index).get();
 }
 
-float audio::get_master_volume() {
-    return channels.at(0)->getVolume();
+size_t audio::count_speakers() {
+    return speakers.size();
 }
 
 void audio::update(double delta) {
@@ -362,7 +362,7 @@ void audio::update(double delta) {
         entry.second->update(delta);
     }
 
-    float masterVolume = get_master_volume();
+    float masterVolume = channels.at(0)->getVolume();
     for (auto it = speakers.begin(); it != speakers.end();) {
         auto speaker = it->second.get();
         int speakerChannel = speaker->getChannel();
