@@ -79,7 +79,6 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/moon.png", "misc/moon");
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/sun.png", "misc/sun");
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/crosshair.png", "gui/crosshair");
-        loader.add(ASSET_SOUND, SOUNDS_FOLDER"/steps/grass.ogg", "steps/grass");
 
         addLayouts(0, "core", loader.getPaths()->getMainRoot()/fs::path("layouts"), loader);
         for (auto& entry : content->getPacks()) {

@@ -192,6 +192,7 @@ namespace audio {
     /// So it's audio data is stored in memory.
     class Sound {
     public:
+        /// @brief Sound variants will be chosen randomly to play
         std::vector<std::shared_ptr<Sound>> variants;
 
         virtual ~Sound() {}
