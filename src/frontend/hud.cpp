@@ -353,8 +353,9 @@ void Hud::update(bool visible) {
             setPause(true);
         }
     }
-    if (visible && !gui->isFocusCaught() && Events::jactive(BIND_HUD_INVENTORY)) {
-        if (!pause) {
+
+    if (visible && !gui->isFocusCaught() && !pause) {
+        if (Events::jactive(BIND_HUD_INVENTORY)) {
             if (inventoryOpen) {
                 closeInventory();
             } else {
