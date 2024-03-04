@@ -57,6 +57,10 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 		throw initialize_error("could not initialize window");
 	}
     audio::initialize(true);
+    audio::create_channel("regular");
+    audio::create_channel("music");
+    audio::create_channel("ambient");
+    audio::create_channel("ui");
 
     auto resdir = paths->getResources();
     scripting::initialize(this);
@@ -238,7 +242,8 @@ double Engine::getDelta() const {
 }
 
 void Engine::setScreen(std::shared_ptr<Screen> screen) {
-    audio::reset();
+    audio::reset_channel(audio::get_channel_index("regular"));
+    audio::reset_channel(audio::get_channel_index("ambient"));
 	this->screen = screen;
 }
 

@@ -474,8 +474,8 @@ namespace audio {
     /// @param delta time elapsed since the last update (seconds)
     extern void update(double delta);
 
-    /// @brief Stop all playing audio, destroy all non-builtin channels
-    extern void reset();
+    /// @brief Stop all playing audio in channel, reset channel state
+    extern void reset_channel(int channel);
     
     /// @brief Finalize audio system
     extern void close();

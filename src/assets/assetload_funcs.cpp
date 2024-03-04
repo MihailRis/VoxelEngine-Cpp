@@ -20,6 +20,14 @@
 
 namespace fs = std::filesystem;
 
+static bool animation(
+    Assets* assets, 
+    const ResPaths* paths, 
+    const std::string directory, 
+    const std::string name,
+    Atlas* dstAtlas
+);
+
 bool assetload::texture(
     AssetsLoader&,
     Assets* assets,
@@ -102,7 +110,7 @@ bool assetload::atlas(
     Atlas* atlas = builder.build(2);
     assets->store(atlas, name);
     for (const auto& file : builder.getNames()) {
-        assetload::animation(assets, paths, "textures", file, atlas);
+        animation(assets, paths, "textures", file, atlas);
     }
     return true;
 }
@@ -172,7 +180,7 @@ bool assetload::sound(
     return true;
 }
 
-bool assetload::animation(
+static bool animation(
     Assets* assets, 
     const ResPaths* paths, 
     const std::string directory, 

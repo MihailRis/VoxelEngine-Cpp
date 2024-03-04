@@ -10,6 +10,7 @@ class AssetsLoader;
 class Atlas;
 struct AssetCfg;
 
+/// @brief see AssetsLoader.h: aloader_func
 namespace assetload {
     bool texture(
         AssetsLoader&,
@@ -59,14 +60,6 @@ namespace assetload {
         const std::string file,
         const std::string name,
         std::shared_ptr<AssetCfg> settings
-    );
-
-    bool animation(
-        Assets*,
-        const ResPaths* paths,
-        const std::string directory,
-        const std::string name,
-        Atlas* dstAtlas
     );
 }
 
