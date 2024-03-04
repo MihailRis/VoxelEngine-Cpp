@@ -169,8 +169,6 @@ bool assetload::sound(
     std::shared_ptr<AssetCfg> config
 ) {
     auto cfg = dynamic_cast<SoundCfg*>(config.get());
-    auto soundFile = paths->find(file);
-
     bool keepPCM = cfg ? cfg->keepPCM : false;
 
     size_t lastindex = file.find_last_of("."); 
@@ -178,13 +176,19 @@ bool assetload::sound(
     std::string extensionless = file.substr(0, lastindex);
     try {
         std::unique_ptr<audio::Sound> baseSound = nullptr;
+
+        // looking for 'sound_name' as base sound
+        auto soundFile = paths->find(file);
         if (fs::exists(soundFile)) {
             baseSound.reset(audio::load_sound(soundFile, keepPCM));
         }
+        // looking for 'sound_name_0' as base sound
         auto variantFile = paths->find(extensionless+"_0"+extension);
         if (fs::exists(variantFile)) {
             baseSound.reset(audio::load_sound(variantFile, keepPCM));
         }
+
+        // loading sound variants
         for (uint i = 1; ; i++) {
             auto variantFile = paths->find(extensionless+"_"+std::to_string(i)+extension);
             if (!fs::exists(variantFile)) {
@@ -196,6 +200,7 @@ bool assetload::sound(
     } 
     catch (std::runtime_error& err) {
         std::cerr << err.what() << std::endl;
+        return false;
     }
     return true;
 }
