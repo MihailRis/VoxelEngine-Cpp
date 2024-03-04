@@ -192,6 +192,8 @@ namespace audio {
     /// So it's audio data is stored in memory.
     class Sound {
     public:
+        std::vector<std::shared_ptr<Sound>> variants;
+
         virtual ~Sound() {}
 
         /// @brief Get sound duration

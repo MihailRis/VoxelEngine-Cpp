@@ -151,9 +151,8 @@ Engine::~Engine() {
     std::cout << "-- shutting down" << std::endl;
 	screen.reset();
 	content.reset();
-
-	audio::close();
     assets.reset();
+	audio::close();
     scripting::close();
 	Window::terminate();
 	std::cout << "-- engine finished" << std::endl;

@@ -18,6 +18,7 @@ AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths)
 	addLoader(ASSET_FONT, assetload::font);
 	addLoader(ASSET_ATLAS, assetload::atlas);
     addLoader(ASSET_LAYOUT, assetload::layout);
+    addLoader(ASSET_SOUND, assetload::sound);
 }
 
 void AssetsLoader::addLoader(int tag, aloader_func func) {
@@ -78,6 +79,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/moon.png", "misc/moon");
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/sun.png", "misc/sun");
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/crosshair.png", "gui/crosshair");
+        loader.add(ASSET_SOUND, SOUNDS_FOLDER"/steps/grass.ogg", "steps/grass");
 
         addLayouts(0, "core", loader.getPaths()->getMainRoot()/fs::path("layouts"), loader);
         for (auto& entry : content->getPacks()) {

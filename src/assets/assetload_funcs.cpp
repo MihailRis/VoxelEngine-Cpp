@@ -160,7 +160,6 @@ bool assetload::layout(
         return false;
     }
 }
-
 bool assetload::sound(
     AssetsLoader& loader,
     Assets* assets,
@@ -170,13 +169,34 @@ bool assetload::sound(
     std::shared_ptr<AssetCfg> config
 ) {
     auto cfg = dynamic_cast<SoundCfg*>(config.get());
-    auto sound = audio::load_sound(paths->find(file), cfg->keepPCM);
-    if (sound == nullptr) {
-        std::cerr << "failed to load sound '" << name << "' from '";
-        std::cerr << file << "'" << std::endl;
-        return false;
+    auto soundFile = paths->find(file);
+
+    bool keepPCM = cfg ? cfg->keepPCM : false;
+
+    size_t lastindex = file.find_last_of("."); 
+    std::string extension = file.substr(lastindex);
+    std::string extensionless = file.substr(0, lastindex);
+    try {
+        std::unique_ptr<audio::Sound> baseSound = nullptr;
+        if (fs::exists(soundFile)) {
+            baseSound.reset(audio::load_sound(soundFile, keepPCM));
+        }
+        auto variantFile = paths->find(extensionless+"_0"+extension);
+        if (fs::exists(variantFile)) {
+            baseSound.reset(audio::load_sound(variantFile, keepPCM));
+        }
+        for (uint i = 1; ; i++) {
+            auto variantFile = paths->find(extensionless+"_"+std::to_string(i)+extension);
+            if (!fs::exists(variantFile)) {
+                break;
+            }
+            baseSound->variants.emplace_back(audio::load_sound(variantFile, keepPCM));
+        }
+        assets->store(baseSound.release(), name);
+    } 
+    catch (std::runtime_error& err) {
+        std::cerr << err.what() << std::endl;
     }
-    assets->store(sound, name);
     return true;
 }
 
