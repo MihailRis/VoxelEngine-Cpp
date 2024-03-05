@@ -1,4 +1,5 @@
-#include "libhud.h"
+#include "lua_commons.h"
+#include "api_lua.h"
 #include "LuaState.h"
 
 #include <iostream>
@@ -22,21 +23,21 @@ namespace scripting {
     extern Hud* hud;
 }
 
-int l_hud_open_inventory(lua_State* L) {
+static int l_hud_open_inventory(lua_State* L) {
     if (!scripting::hud->isInventoryOpen()) {
         scripting::hud->openInventory();
     }
     return 0;
 }
 
-int l_hud_close_inventory(lua_State* L) {
+static int l_hud_close_inventory(lua_State* L) {
     if (scripting::hud->isInventoryOpen()) {
         scripting::hud->closeInventory();
     }
     return 0;
 }
 
-int l_hud_open_block(lua_State* L) {
+static int l_hud_open_block(lua_State* L) {
     lua::luaint x = lua_tointeger(L, 1);
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
@@ -64,7 +65,7 @@ int l_hud_open_block(lua_State* L) {
     return 2;
 }
 
-UiDocument* require_layout(lua_State* L, const char* name) {
+static UiDocument* require_layout(lua_State* L, const char* name) {
     auto assets = scripting::engine->getAssets();
     auto layout = assets->getLayout(name);
     if (layout == nullptr) {
@@ -73,14 +74,23 @@ UiDocument* require_layout(lua_State* L, const char* name) {
     return layout;
 }
 
-int l_hud_open_permanent(lua_State* L) {
+static int l_hud_open_permanent(lua_State* L) {
     auto layout = require_layout(L, lua_tostring(L, 1));
     scripting::hud->openPermanent(layout);
     return 0;
 }
 
-int l_hud_close(lua_State* L) {
+static int l_hud_close(lua_State* L) {
     auto layout = require_layout(L, lua_tostring(L, 1));
     scripting::hud->remove(layout->getRoot());
     return 0;
 }
+
+const luaL_Reg hudlib [] = {
+    {"open_inventory", lua_wrap_errors<l_hud_open_inventory>},
+    {"close_inventory", lua_wrap_errors<l_hud_close_inventory>},
+    {"open_block", lua_wrap_errors<l_hud_open_block>},
+    {"open_permanent", lua_wrap_errors<l_hud_open_permanent>},
+    {"close", lua_wrap_errors<l_hud_close>},
+    {NULL, NULL}
+};
