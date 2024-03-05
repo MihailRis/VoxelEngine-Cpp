@@ -191,7 +191,7 @@ bool scripting::on_item_use(Player* player, const ItemDef* item) {
     std::string name = item->name+".use";
     if (state->getglobal(name)) {
         state->pushinteger(player->getId());
-        if (state->callNoThrow(4)) {
+        if (state->callNoThrow(1)) {
             return state->toboolean(-1);
         }
     }
