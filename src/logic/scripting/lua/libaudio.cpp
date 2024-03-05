@@ -36,8 +36,96 @@ inline audio::speakerid_t play_sound(
     }
 
     return audio::play(
-        sound, glm::vec3(x, y, z), false, volume, pitch, false, audio::PRIORITY_NORMAL, channel
+        sound, 
+        glm::vec3(
+            static_cast<float>(x), 
+            static_cast<float>(y), 
+            static_cast<float>(z)
+        ), 
+        false, 
+        volume, 
+        pitch, 
+        false, 
+        audio::PRIORITY_NORMAL, 
+        channel
     );
+}
+
+inline audio::speakerid_t play_stream(
+    const char* filename,
+    bool relative,
+    lua::luanumber x,
+    lua::luanumber y,
+    lua::luanumber z,
+    lua::luanumber volume,
+    lua::luanumber pitch,
+    bool loop,
+    int channel
+) {
+    if (channel == -1)
+        return 0;
+    auto paths = scripting::engine->getResPaths();
+    fs::path file = paths->find(fs::path(filename));
+    return audio::play_stream(
+        file, 
+        glm::vec3(
+            static_cast<float>(x), 
+            static_cast<float>(y), 
+            static_cast<float>(z)
+        ), 
+        relative, 
+        volume, 
+        pitch, 
+        loop, 
+        channel
+    );
+}
+
+/// @brief audio.play_stream(
+///            name: string,
+///            x: number, 
+///            y: number, 
+///            z: number, 
+///            volume: number,
+///            pitch: number,
+///            channel: string = "regular",
+///            loop: bool = false)
+static int l_audio_play_stream(lua_State* L) {
+    lua_pushinteger(L, static_cast<lua::luaint>(
+        play_stream(
+            lua_tostring(L, 1),
+            false,
+            lua_tonumber(L, 2),
+            lua_tonumber(L, 3),
+            lua_tonumber(L, 4),
+            lua_tonumber(L, 5),
+            lua_tonumber(L, 6),
+            lua_toboolean(L, 8),
+            extract_channel_index(L, 7)
+        )
+    ));
+    return 1;
+}
+
+/// @brief audio.play_stream_2d(
+///            name: string,
+///            volume: number,
+///            pitch: number,
+///            channel: string = "regular",
+///            loop: bool = false)
+static int l_audio_play_stream_2d(lua_State* L) {
+    lua_pushinteger(L, static_cast<lua::luaint>(
+        play_stream(
+            lua_tostring(L, 1),
+            true,
+            0.0, 0.0, 0.0,
+            lua_tonumber(L, 2),
+            lua_tonumber(L, 3),
+            lua_toboolean(L, 5),
+            extract_channel_index(L, 4)
+        )
+    ));
+    return 1;
 }
 
 /// @brief audio.play_sound(
@@ -271,6 +359,8 @@ static int l_audio_get_velocity(lua_State* L) {
 const luaL_Reg audiolib [] = {
     {"play_sound", lua_wrap_errors<l_audio_play_sound>},
     {"play_sound_2d", lua_wrap_errors<l_audio_play_sound_2d>},
+    {"play_stream", lua_wrap_errors<l_audio_play_stream>},
+    {"play_stream_2d", lua_wrap_errors<l_audio_play_stream_2d>},
     {"stop", lua_wrap_errors<l_audio_stop>},
     {"pause", lua_wrap_errors<l_audio_pause>},
     {"resume", lua_wrap_errors<l_audio_resume>},
