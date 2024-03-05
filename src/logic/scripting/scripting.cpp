@@ -187,6 +187,17 @@ bool scripting::on_block_interact(Player* player, const Block* block, int x, int
     return false;
 }
 
+bool scripting::on_item_use(Player* player, const ItemDef* item) {
+    std::string name = item->name+".use";
+    if (state->getglobal(name)) {
+        state->pushinteger(player->getId());
+        if (state->callNoThrow(4)) {
+            return state->toboolean(-1);
+        }
+    }
+    return false;
+}
+
 bool scripting::on_item_use_on_block(Player* player, const ItemDef* item, int x, int y, int z) {
     std::string name = item->name+".useon";
     if (state->getglobal(name)) {
@@ -263,6 +274,7 @@ void scripting::load_item_script(int env, std::string prefix, fs::path file, ite
     state->execute(env, src, file.u8string());
 
     funcsset.init = register_event(env, "init", prefix+".init");
+    funcsset.on_use = register_event(env, "on_use", prefix+".use");
     funcsset.on_use_on_block = register_event(env, "on_use_on_block", prefix+".useon");
     funcsset.on_block_break_by = register_event(env, "on_block_break_by", prefix+".blockbreakby");
 }

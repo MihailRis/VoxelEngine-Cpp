@@ -205,14 +205,52 @@ void PlayerController::updateControls(float delta){
 	player->updateInput(level, input, delta);
 }
 
+static int determine_rotation(Block* def, glm::ivec3& norm, glm::vec3& camDir) {
+    if (def && def->rotatable){
+        const std::string& name = def->rotations.name;
+        if (name == "pipe") {
+            if (norm.x < 0.0f) return BLOCK_DIR_WEST;
+            else if (norm.x > 0.0f) return BLOCK_DIR_EAST;
+            else if (norm.y > 0.0f) return BLOCK_DIR_UP;
+            else if (norm.y < 0.0f) return BLOCK_DIR_DOWN;
+            else if (norm.z > 0.0f) return BLOCK_DIR_NORTH;
+            else if (norm.z < 0.0f) return BLOCK_DIR_SOUTH;
+        } 
+        else if (name == "pane") {
+            if (abs(camDir.x) > abs(camDir.z)){
+                if (camDir.x > 0.0f) return BLOCK_DIR_EAST;
+                if (camDir.x < 0.0f) return BLOCK_DIR_WEST;
+            }
+            if (abs(camDir.x) < abs(camDir.z)){
+                if (camDir.z > 0.0f) return BLOCK_DIR_SOUTH;
+                if (camDir.z < 0.0f) return BLOCK_DIR_NORTH;
+            }
+        }
+    }
+    return 0;
+}
+
+static void pick_block(ContentIndices* indices, Chunks* chunks, Player* player, int x, int y, int z) {
+    Block* block = indices->getBlockDef(chunks->get(x,y,z)->id);
+    itemid_t id = block->rt.pickingItem;
+    auto inventory = player->getInventory();
+    size_t slotid = inventory->findSlotByItem(id, 0, 10);
+    if (slotid == Inventory::npos) {
+        slotid = player->getChosenSlot();
+    } else {
+        player->setChosenSlot(slotid);
+    }
+    ItemStack& stack = inventory->getSlot(slotid);
+    if (stack.getItemId() != id) {
+        stack.set(ItemStack(id, 1));
+    }
+}
+
 void PlayerController::updateInteraction(){
 	auto indices = level->content->getIndices();
 	Chunks* chunks = level->chunks.get();
 	Lighting* lighting = level->lighting.get();
 	Camera* camera = player->camera.get();
-	glm::vec3 end;
-	glm::ivec3 iend;
-	glm::ivec3 norm;
 
 	bool xkey = Events::pressed(keycode::X);
 	bool lclick = Events::jactive(BIND_PLAYER_ATTACK) || 
@@ -223,11 +261,19 @@ void PlayerController::updateInteraction(){
 	if (xkey) {
 		maxDistance *= 20.0f;
 	}
+    auto inventory = player->getInventory();
+    ItemStack& stack = inventory->getSlot(player->getChosenSlot());
+    ItemDef* item = indices->getItemDef(stack.getItemId());
 
-	voxel* vox = chunks->rayCast(camera->position, 
-								 camera->front, 
-								 maxDistance, 
-								 end, norm, iend);
+	glm::vec3 end;
+	glm::ivec3 iend;
+	glm::ivec3 norm;
+	voxel* vox = chunks->rayCast(
+        camera->position, 
+        camera->front, 
+        maxDistance, 
+        end, norm, iend
+    );
 	if (vox != nullptr){
 		player->selectedVoxel = *vox;
 		selectedBlockId = vox->id;
@@ -238,50 +284,31 @@ void PlayerController::updateInteraction(){
 		int x = iend.x;
 		int y = iend.y;
 		int z = iend.z;
-		uint8_t states = 0;
 
-        auto inventory = player->getInventory();
-        ItemStack& stack = inventory->getSlot(player->getChosenSlot());
-        ItemDef* item = indices->getItemDef(stack.getItemId());
 		Block* def = indices->getBlockDef(item->rt.placingBlock);
-		if (def && def->rotatable){
-			const std::string& name = def->rotations.name;
-			if (name == "pipe") {
-				if (norm.x < 0.0f) states = BLOCK_DIR_WEST;
-				else if (norm.x > 0.0f) states = BLOCK_DIR_EAST;
-				else if (norm.y > 0.0f) states = BLOCK_DIR_UP;
-				else if (norm.y < 0.0f) states = BLOCK_DIR_DOWN;
-				else if (norm.z > 0.0f) states = BLOCK_DIR_NORTH;
-				else if (norm.z < 0.0f) states = BLOCK_DIR_SOUTH;
-			} else if (name == "pane") {
-				glm::vec3 vec = camera->dir;
-				if (abs(vec.x) > abs(vec.z)){
-					if (vec.x > 0.0f) states = BLOCK_DIR_EAST;
-					if (vec.x < 0.0f) states = BLOCK_DIR_WEST;
-				}
-				if (abs(vec.x) < abs(vec.z)){
-					if (vec.z > 0.0f) states = BLOCK_DIR_SOUTH;
-					if (vec.z < 0.0f) states = BLOCK_DIR_NORTH;
-				}
-			}
-		}
+		uint8_t states = determine_rotation(def, norm, camera->dir);
 		
-        if (lclick) {
-            if (!input.shift && item->rt.funcsset.on_block_break_by) {
-                if (scripting::on_item_break_block(player.get(), item, x, y, z))
-                    return;
-            } 
+        if (lclick && !input.shift && item->rt.funcsset.on_block_break_by) {
+            if (scripting::on_item_break_block(player.get(), item, x, y, z))
+                return;
         }
 
 		Block* target = indices->getBlockDef(vox->id);
 		if (lclick && target->breakable){
             blocksController->breakBlock(player.get(), target, x, y, z);
 		}
-        if (rclick) {
-            if (!input.shift && item->rt.funcsset.on_use_on_block) {
-                if (scripting::on_item_use_on_block(player.get(), item, x, y, z))
-                    return;
-            } 
+        if (rclick && !input.shift) {
+            bool preventDefault = false;
+
+            if (item->rt.funcsset.on_use) {
+                preventDefault |= scripting::on_item_use(player.get(), item);
+            }
+            if (item->rt.funcsset.on_use_on_block) {
+                preventDefault |= scripting::on_item_use_on_block(player.get(), item, x, y, z);
+            }
+            if (preventDefault) {
+                return;
+            }
         }
 		if (def && rclick){
             if (!input.shift && target->rt.funcsset.oninteract) {
@@ -316,25 +343,18 @@ void PlayerController::updateInteraction(){
 				}
 			}
 		}
-		if (Events::jactive(BIND_PLAYER_PICK)){
-            Block* block = indices->getBlockDef(chunks->get(x,y,z)->id);
-			itemid_t id = block->rt.pickingItem;
-			auto inventory = player->getInventory();
-			size_t slotid = inventory->findSlotByItem(id, 0, 10);
-			if (slotid == Inventory::npos) {
-				slotid = player->getChosenSlot();
-			} else {
-				player->setChosenSlot(slotid);
-			}
-			ItemStack& stack = inventory->getSlot(slotid);
-			if (stack.getItemId() != id) {
-				stack.set(ItemStack(id, 1));
-			}
+		if (Events::jactive(BIND_PLAYER_PICK)) {
+            pick_block(indices, chunks, player.get(), x, y, z);
 		}
 	} else {
 		selectedBlockId = -1;
 		selectedBlockStates = 0;
 	}
+    if (rclick) {
+        if (item->rt.funcsset.on_use) {
+            scripting::on_item_use(player.get(), item);
+        } 
+    }
 }
 
 Player* PlayerController::getPlayer() {
