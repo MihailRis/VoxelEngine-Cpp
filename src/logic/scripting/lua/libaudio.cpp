@@ -8,6 +8,38 @@
 
 inline const char* DEFAULT_CHANNEL = "regular";
 
+inline int extract_channel_index(lua_State* L, int idx) {
+    const char* channel = DEFAULT_CHANNEL;
+    if (!lua_isnoneornil(L, idx)) {
+        channel = lua_tostring(L, idx);
+    }
+    return audio::get_channel_index(channel);
+}
+
+inline audio::speakerid_t play_sound(
+    const char* name,
+    bool relative,
+    lua::luanumber x,
+    lua::luanumber y,
+    lua::luanumber z,
+    lua::luanumber volume,
+    lua::luanumber pitch,
+    bool loop,
+    int channel
+) {
+    if (channel == -1)
+        return 0;
+    auto assets = scripting::engine->getAssets();
+    auto sound = assets->getSound(name);
+    if (sound == nullptr) {
+        return 0;
+    }
+
+    return audio::play(
+        sound, glm::vec3(x, y, z), false, volume, pitch, false, audio::PRIORITY_NORMAL, channel
+    );
+}
+
 /// @brief audio.play_sound(
 ///            name: string, 
 ///            x: number, 
@@ -15,33 +47,43 @@ inline const char* DEFAULT_CHANNEL = "regular";
 ///            z: number, 
 ///            volume: number,
 ///            pitch: number,
-///            channel: string = "regular"
-///        )
+///            channel: string = "regular",
+///            loop: bool = false)
 static int l_audio_play_sound(lua_State* L) {
-    const char* name = lua_tostring(L, 1);
-    lua::luanumber x = lua_tonumber(L, 2);
-    lua::luanumber y = lua_tonumber(L, 3);
-    lua::luanumber z = lua_tonumber(L, 4);
-    lua::luanumber volume = lua_tonumber(L, 5);
-    lua::luanumber pitch = lua_tonumber(L, 6);
-    const char* channel = DEFAULT_CHANNEL;
-    if (!lua_isnoneornil(L, 7)) {
-        channel = lua_tostring(L, 7);
-    }
-    int channel_index = audio::get_channel_index(channel);
-    if (channel_index == -1) {
-        return 0;
-    }
-    
-    auto assets = scripting::engine->getAssets();
-    auto sound = assets->getSound(name);
-    if (sound == nullptr) {
-        return 0;
-    }
-    audio::speakerid_t id = audio::play(
-        sound, glm::vec3(x, y, z), false, volume, pitch, false, audio::PRIORITY_NORMAL, channel_index
-    );
-    lua_pushinteger(L, static_cast<lua::luaint>(id));
+    lua_pushinteger(L, static_cast<lua::luaint>(
+        play_sound(
+            lua_tostring(L, 1),
+            false,
+            lua_tonumber(L, 2),
+            lua_tonumber(L, 3),
+            lua_tonumber(L, 4),
+            lua_tonumber(L, 5),
+            lua_tonumber(L, 6),
+            lua_toboolean(L, 8),
+            extract_channel_index(L, 7)
+        )
+    ));
+    return 1;
+}
+
+/// @brief audio.play_sound_2d(
+///            name: string, 
+///            volume: number,
+///            pitch: number,
+///            channel: string = "regular",
+///            loop: bool = false)
+static int l_audio_play_sound_2d(lua_State* L) {
+    lua_pushinteger(L, static_cast<lua::luaint>(
+        play_sound(
+            lua_tostring(L, 1),
+            true,
+            0.0, 0.0, 0.0,
+            lua_tonumber(L, 2),
+            lua_tonumber(L, 3),
+            lua_toboolean(L, 5),
+            extract_channel_index(L, 4)
+        )
+    ));
     return 1;
 }
 
@@ -228,6 +270,7 @@ static int l_audio_get_velocity(lua_State* L) {
 
 const luaL_Reg audiolib [] = {
     {"play_sound", lua_wrap_errors<l_audio_play_sound>},
+    {"play_sound_2d", lua_wrap_errors<l_audio_play_sound_2d>},
     {"stop", lua_wrap_errors<l_audio_stop>},
     {"pause", lua_wrap_errors<l_audio_pause>},
     {"resume", lua_wrap_errors<l_audio_resume>},
