@@ -322,9 +322,7 @@ void Hud::drawDebug(int fps){
     fpsMax = max(fps, fpsMax);
 }
 
-/**
- * Remove all elements marked as removed
- */
+/// @brief Remove all elements marked as removed
 void Hud::cleanup() {
     auto it = std::remove_if(elements.begin(), elements.end(), [](const HudElement& e) {
         return e.isRemoved();
@@ -414,9 +412,7 @@ void Hud::update(bool visible) {
     cleanup();
 }
 
-/** 
- * Show inventory on the screen and turn on inventory mode blocking movement
- */
+/// @brief Show inventory on the screen and turn on inventory mode blocking movement
 void Hud::openInventory() {
     auto inventory = player->getInventory();
 
@@ -428,13 +424,11 @@ void Hud::openInventory() {
     add(HudElement(hud_element_mode::inventory_bound, inventoryDocument, inventoryView, false));
 }
 
-/**
- * Show player inventory + block UI
- * @param block world position of the open block
- * @param doc block UI document (root element must be an InventoryView)
- * @param blockinv block inventory. 
- * In case of nullptr a new virtual inventory will be created
- */
+/// @brief Show player inventory + block UI
+/// @param block world position of the open block
+/// @param doc block UI document (root element must be an InventoryView)
+/// @param blockinv block inventory. 
+/// If blockinv is nullptr a new virtual inventory will be created
 void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inventory> blockinv, bool playerInventory) {
     if (isInventoryOpen()) {
         closeInventory();
@@ -458,11 +452,9 @@ void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inven
     currentblockid = level->chunks->get(block.x, block.y, block.z)->id;
     add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
 }
-
-/** 
- * Add element as permanent overlay
- * @param doc element layout document
- */
+ 
+/// @brief Add element as permanent overlay
+/// @param doc element layout document
 void Hud::openPermanent(UiDocument* doc) {
     auto root = doc->getRoot();
     remove(root);
@@ -475,9 +467,7 @@ void Hud::openPermanent(UiDocument* doc) {
     add(HudElement(hud_element_mode::permanent, doc, doc->getRoot(), false));
 }
 
-/**
- * Hide inventory and turn off inventory mode
- */
+/// @brief Hide inventory and turn off inventory mode
 void Hud::closeInventory() {
     auto level = frontend->getLevel();
 
