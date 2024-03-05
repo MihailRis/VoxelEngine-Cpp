@@ -1,15 +1,11 @@
 #include "hud.h"
 
-// TODO: refactor this garbage
-
 #include <iostream>
 #include <sstream>
 #include <memory>
 #include <string>
 #include <assert.h>
 #include <stdexcept>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
 #include "../typedefs.h"
 #include "../content/Content.h"
@@ -55,14 +51,6 @@
 #include "../items/Inventories.h"
 #include "../logic/scripting/scripting.h"
 
-using namespace gui;
-
-static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
-    auto label = std::make_shared<Label>(L"-");
-    label->textSupplier(supplier);
-    return label;
-}
-
 HudElement::HudElement(
     hud_element_mode mode, 
     UiDocument* document, 
@@ -97,115 +85,6 @@ UiDocument* HudElement::getDocument() const {
 
 std::shared_ptr<gui::UINode> HudElement::getNode() const {
     return node;
-}
-
-std::shared_ptr<UINode> Hud::createDebugPanel(Engine* engine) {
-    auto level = frontend->getLevel();
-
-    auto panel = std::make_shared<Panel>(glm::vec2(250, 200), glm::vec4(5.0f), 2.0f);
-    panel->listenInterval(0.5f, [this]() {
-        fpsString = std::to_wstring(fpsMax)+L" / "+std::to_wstring(fpsMin);
-        fpsMin = fps;
-        fpsMax = fps;
-    });
-    panel->setCoord(glm::vec2(10, 10));
-    panel->add(create_label([this](){ return L"fps: "+this->fpsString;}));
-    panel->add(create_label([](){
-        return L"meshes: " + std::to_wstring(Mesh::meshesCount);
-    }));
-    panel->add(create_label([=](){
-        auto& settings = engine->getSettings();
-        bool culling = settings.graphics.frustumCulling;
-        return L"frustum-culling: "+std::wstring(culling ? L"on" : L"off");
-    }));
-    panel->add(create_label([=]() {
-        return L"chunks: "+std::to_wstring(level->chunks->chunksCount)+
-               L" visible: "+std::to_wstring(level->chunks->visible);
-    }));
-    panel->add(create_label([=](){
-        auto* indices = level->content->getIndices();
-        auto def = indices->getBlockDef(player->selectedVoxel.id);
-        std::wstringstream stream;
-        stream << std::hex << player->selectedVoxel.states;
-        if (def) {
-            stream << L" (" << util::str2wstr_utf8(def->name) << L")";
-        }
-        return L"block: "+std::to_wstring(player->selectedVoxel.id)+
-               L" "+stream.str();
-    }));
-    panel->add(create_label([=](){
-        return L"seed: "+std::to_wstring(level->world->getSeed());
-    }));
-
-    for (int ax = 0; ax < 3; ax++) {
-        auto sub = std::make_shared<Container>(glm::vec2(), glm::vec2(250, 27));
-
-        std::wstring str = L"x: ";
-        str[0] += ax;
-        auto label = std::make_shared<Label>(str);
-        label->setMargin(glm::vec4(2, 3, 2, 3));
-        label->setSize(glm::vec2(20, 27));
-        sub->add(label);
-        sub->setColor(glm::vec4(0.0f));
-
-        // Coord input
-        auto box = std::make_shared<TextBox>(L"");
-        box->setTextSupplier([=]() {
-            Hitbox* hitbox = player->hitbox.get();
-            return util::to_wstring(hitbox->position[ax], 2);
-        });
-        box->setTextConsumer([=](std::wstring text) {
-            try {
-                glm::vec3 position = player->hitbox->position;
-                position[ax] = std::stoi(text);
-                player->teleport(position);
-            } catch (std::invalid_argument& _){
-            }
-        });
-        box->setOnEditStart([=](){
-            Hitbox* hitbox = player->hitbox.get();
-            box->setText(std::to_wstring(int(hitbox->position[ax])));
-        });
-        box->setSize(glm::vec2(230, 27));
-
-        sub->add(box, glm::vec2(20, 0));
-        panel->add(sub);
-    }
-    panel->add(create_label([=](){
-        int hour, minute, second;
-        timeutil::from_value(level->world->daytime, hour, minute, second);
-
-        std::wstring timeString = 
-                     util::lfill(std::to_wstring(hour), 2, L'0') + L":" +
-                     util::lfill(std::to_wstring(minute), 2, L'0');
-        return L"time: "+timeString;
-    }));
-    {
-        auto bar = std::make_shared<TrackBar>(0.0f, 1.0f, 1.0f, 0.005f, 8);
-        bar->setSupplier([=]() {return level->world->daytime;});
-        bar->setConsumer([=](double val) {level->world->daytime = val;});
-        panel->add(bar);
-    }
-    {
-        auto bar = std::make_shared<TrackBar>(0.0f, 1.0f, 0.0f, 0.005f, 8);
-        bar->setSupplier([=]() {return WorldRenderer::fog;});
-        bar->setConsumer([=](double val) {WorldRenderer::fog = val;});
-        panel->add(bar);
-    }
-    {
-        auto checkbox = std::make_shared<FullCheckBox>(
-            L"Show Chunk Borders", glm::vec2(400, 24)
-        );
-        checkbox->setSupplier([=]() {
-            return engine->getSettings().debug.showChunkBorders;
-        });
-        checkbox->setConsumer([=](bool checked) {
-            engine->getSettings().debug.showChunkBorders = checked;
-        });
-        panel->add(checkbox);
-    }
-    panel->refresh();
-    return panel;
 }
 
 std::shared_ptr<InventoryView> Hud::createContentAccess() {
@@ -251,12 +130,18 @@ std::shared_ptr<InventoryView> Hud::createHotbar() {
     return view;
 }
 
+extern std::shared_ptr<gui::UINode> create_debug_panel(
+    Engine* engine, 
+    Level* level, 
+    Player* player
+);
+
 Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player) 
-    : engine(engine),
-      assets(engine->getAssets()), 
-      gui(engine->getGUI()),
-      frontend(frontend),
-      player(player)
+  : engine(engine),
+    assets(engine->getAssets()), 
+    gui(engine->getGUI()),
+    frontend(frontend),
+    player(player)
 {
     auto menu = gui->getMenu();
 
@@ -275,7 +160,7 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     grabbedItemView->setZIndex(1);
 
     contentAccess = createContentAccess();
-    contentAccessPanel = std::make_shared<Panel>(
+    contentAccessPanel = std::make_shared<gui::Panel>(
         contentAccess->getSize(), glm::vec4(0.0f), 0.0f
     );
     contentAccessPanel->setColor(glm::vec4());
@@ -283,7 +168,7 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     contentAccessPanel->setScrollable(true);
 
     hotbarView = createHotbar();
-    darkOverlay = std::make_unique<Panel>(glm::vec2(4000.0f));
+    darkOverlay = std::make_unique<gui::Panel>(glm::vec2(4000.0f));
     darkOverlay->setColor(glm::vec4(0, 0, 0, 0.5f));
     darkOverlay->setZIndex(-1);
     darkOverlay->setVisible(false);
@@ -292,7 +177,7 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     uicamera->perspective = false;
     uicamera->flipped = true;
 
-    debugPanel = createDebugPanel(engine);
+    debugPanel = create_debug_panel(engine, frontend->getLevel(), player);
     menu->reset();
 
     debugPanel->setZIndex(2);
@@ -314,12 +199,6 @@ Hud::~Hud() {
     gui->remove(darkOverlay);
     gui->remove(contentAccessPanel);
     gui->remove(debugPanel);
-}
-
-void Hud::drawDebug(int fps){
-    this->fps = fps;
-    fpsMin = min(fps, fpsMin);
-    fpsMax = max(fps, fpsMax);
 }
 
 /// @brief Remove all elements marked as removed
@@ -414,10 +293,8 @@ void Hud::update(bool visible) {
 
 /// @brief Show inventory on the screen and turn on inventory mode blocking movement
 void Hud::openInventory() {
-    auto inventory = player->getInventory();
-
     inventoryOpen = true;
-
+    auto inventory = player->getInventory();
     auto inventoryDocument = assets->getLayout("core:inventory");
     inventoryView = std::dynamic_pointer_cast<InventoryView>(inventoryDocument->getRoot());
     inventoryView->bind(inventory, frontend, interaction.get());
@@ -429,7 +306,12 @@ void Hud::openInventory() {
 /// @param doc block UI document (root element must be an InventoryView)
 /// @param blockinv block inventory. 
 /// If blockinv is nullptr a new virtual inventory will be created
-void Hud::openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inventory> blockinv, bool playerInventory) {
+void Hud::openInventory(
+    glm::ivec3 block, 
+    UiDocument* doc, 
+    std::shared_ptr<Inventory> blockinv, 
+    bool playerInventory
+) {
     if (isInventoryOpen()) {
         closeInventory();
     }
@@ -522,7 +404,7 @@ void Hud::remove(HudElement& element) {
 }
 
 // todo: refactor this garbage
-void Hud::remove(std::shared_ptr<UINode> node) {
+void Hud::remove(std::shared_ptr<gui::UINode> node) {
     for (auto& element : elements) {
         if (element.getNode() == node) {
             element.setRemoved();
@@ -570,14 +452,17 @@ void Hud::draw(const GfxContext& ctx){
         const int dmwidth = 256;
         const float dmscale = 4000.0f;
         static float deltameter[dmwidth]{};
-        static int index=0;
+        static int index = 0;
         index = index + 1 % dmwidth;
-        deltameter[index%dmwidth] = glm::min(0.2f, 1.f/fps)*dmscale;
+        float delta = static_cast<float>(engine->getDelta());
+        deltameter[index%dmwidth] = glm::min(0.2f, delta)*dmscale;
         batch->lineWidth(1);
         for (int i = index+1; i < index+dmwidth; i++) {
             int j = i % dmwidth;
-            batch->line(width-dmwidth+i-index, height-deltameter[j], 
-                        width-dmwidth+i-index, height, 1.0f, 1.0f, 1.0f, 0.2f);
+            batch->line(
+                width-dmwidth+i-index, height-deltameter[j], 
+                width-dmwidth+i-index, height, 1.0f, 1.0f, 1.0f, 0.2f
+            );
         }
     }
 

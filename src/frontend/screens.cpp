@@ -186,8 +186,5 @@ void LevelScreen::draw(float delta) {
 
     if (hudVisible) {
         hud->draw(ctx);
-        if (controller->getPlayer()->debug) {
-            hud->drawDebug(1 / delta);
-        }
     }
 }

@@ -9,11 +9,9 @@
 #include "../graphics/GfxContext.h"
 
 class Camera;
-class Level;
 class Block;
 class Assets;
 class Player;
-class Level;
 class Engine;
 class SlotView;
 class Inventory;
@@ -68,11 +66,10 @@ class Hud {
     Engine* engine;
     Assets* assets;
     std::unique_ptr<Camera> uicamera;
+    gui::GUI* gui;
+    LevelFrontend* frontend;
+    Player* player;
 
-    int fps = 60;
-    int fpsMin = 60;
-    int fpsMax = 60;
-    std::wstring fpsString;
     bool inventoryOpen = false;
     bool pause = false;
 
@@ -83,18 +80,13 @@ class Hud {
     std::shared_ptr<gui::Panel> darkOverlay;
     std::unique_ptr<InventoryInteraction> interaction;
     std::shared_ptr<SlotView> grabbedItemView;
-    gui::GUI* gui;
-    LevelFrontend* frontend;
-    Player* player;
-
     std::vector<HudElement> elements;
 
     std::shared_ptr<InventoryView> inventoryView = nullptr;
     std::shared_ptr<InventoryView> blockUI = nullptr;
     glm::ivec3 currentblock {};
     blockid_t currentblockid = 0;
-
-    std::shared_ptr<gui::UINode> createDebugPanel(Engine* engine);
+    
     std::shared_ptr<InventoryView> createContentAccess();
     std::shared_ptr<InventoryView> createHotbar();
 
@@ -105,7 +97,6 @@ public:
 
     void update(bool hudVisible);
     void draw(const GfxContext& context);
-    void drawDebug(int fps);
 
     bool isInventoryOpen() const;
     bool isPause() const;
