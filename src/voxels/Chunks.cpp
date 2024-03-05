@@ -55,8 +55,12 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
 	int iz = floor(z);
 	voxel* v = get(ix, iy, iz);
 	if (v == nullptr) {
-        static const AABB empty;
-		return &empty;
+		if (iy >= CHUNK_H) {
+			return nullptr;
+		} else {
+        	static const AABB empty;
+			return &empty;
+		}
     }
 	const Block* def = contentIds->getBlockDef(v->id);
 	if (def->obstacle) {
