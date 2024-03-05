@@ -205,6 +205,17 @@ static int l_audio_resume(lua_State* L) {
     return 0;
 }
 
+/// @brief audio.set_loop(speakerid: integer, value: bool) -> nil 
+static int l_audio_set_loop(lua_State* L) {
+    lua::luaint id = lua_tonumber(L, 1);
+    auto speaker = audio::get_speaker(id);
+    if (speaker != nullptr) {
+        bool value = lua_toboolean(L, 2);
+        speaker->setLoop(value);
+    }
+    return 0;
+}
+
 /// @brief audio.set_volume(speakerid: integer, value: number) -> nil 
 static int l_audio_set_volume(lua_State* L) {
     lua::luaint id = lua_tonumber(L, 1);
@@ -296,6 +307,18 @@ static int l_audio_is_paused(lua_State* L) {
     return 1;
 }
 
+/// @brief audio.is_loop(speakerid: integer) -> bool
+static int l_audio_is_loop(lua_State* L) {
+    lua::luaint id = lua_tonumber(L, 1);
+    auto speaker = audio::get_speaker(id);
+    if (speaker != nullptr) {
+        lua_pushboolean(L, speaker->isLoop());
+        return 1;
+    }
+    lua_pushboolean(L, false);
+    return 1;
+}
+
 /// @brief audio.get_volume(speakerid: integer) -> number
 static int l_audio_get_volume(lua_State* L) {
     lua::luaint id = lua_tonumber(L, 1);
@@ -364,6 +387,7 @@ const luaL_Reg audiolib [] = {
     {"stop", lua_wrap_errors<l_audio_stop>},
     {"pause", lua_wrap_errors<l_audio_pause>},
     {"resume", lua_wrap_errors<l_audio_resume>},
+    {"set_loop", lua_wrap_errors<l_audio_set_loop>},
     {"set_volume", lua_wrap_errors<l_audio_set_volume>},
     {"set_pitch", lua_wrap_errors<l_audio_set_pitch>},
     {"set_time", lua_wrap_errors<l_audio_set_time>},
@@ -371,6 +395,7 @@ const luaL_Reg audiolib [] = {
     {"set_velocity", lua_wrap_errors<l_audio_set_velocity>},
     {"is_playing", lua_wrap_errors<l_audio_is_playing>},
     {"is_paused", lua_wrap_errors<l_audio_is_paused>},
+    {"is_loop", lua_wrap_errors<l_audio_is_loop>},
     {"get_volume", lua_wrap_errors<l_audio_get_volume>},
     {"get_pitch", lua_wrap_errors<l_audio_get_pitch>},
     {"get_time", lua_wrap_errors<l_audio_get_time>},
