@@ -72,7 +72,7 @@ Speaker* ALStream::createSpeaker(bool loop, int channel) {
 
 
 void ALStream::bindSpeaker(speakerid_t speaker) {
-    auto sp = audio::get(this->speaker);
+    auto sp = audio::get_speaker(this->speaker);
     if (sp) {
         sp->stop();
     }
@@ -87,7 +87,7 @@ void ALStream::update(double delta) {
     if (this->speaker == 0) {
         return;
     }
-    Speaker* speaker = audio::get(this->speaker);
+    auto speaker = audio::get_speaker(this->speaker);
     if (speaker == nullptr) {
         speaker = 0;
         return;

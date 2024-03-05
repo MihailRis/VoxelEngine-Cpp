@@ -452,7 +452,7 @@ namespace audio {
     /// @brief Get speaker by id
     /// @param id speaker id
     /// @return speaker or nullptr
-    extern Speaker* get(speakerid_t id);
+    extern Speaker* get_speaker(speakerid_t id);
 
     /// @brief Create new channel. 
     /// All non-builtin channels will be destroyed on audio::reset() call

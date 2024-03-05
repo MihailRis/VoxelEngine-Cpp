@@ -312,7 +312,7 @@ speakerid_t audio::play_stream(
     return play(stream, position, relative, volume, pitch, loop, channel);
 }
 
-Speaker* audio::get(speakerid_t id) {
+Speaker* audio::get_speaker(speakerid_t id) {
     auto found = speakers.find(id);
     if (found == speakers.end()) {
         return nullptr;
