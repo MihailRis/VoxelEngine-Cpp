@@ -142,3 +142,21 @@ function Document.new(docname)
         end
     })
 end
+
+-- Deprecated functions
+block_index = block.index
+block_name = block.name
+blocks_count = block.defs_count
+is_solid_at = block.is_solid_at
+is_replaceable_at = block.is_replaceable_at
+set_block = block.set
+get_block = block.get
+get_block_X = block.get_X
+get_block_Y = block.get_Y
+get_block_Z = block.get_Z
+get_block_states = block.get_states
+set_block_states = block.set_states
+get_block_rotation = block.get_rotation
+set_block_rotation = block.set_rotation
+get_block_user_bits = block.get_user_bits
+set_block_user_bits = block.set_user_bits

@@ -1,7 +1,7 @@
 #include "scripting_frontend.h"
 #include "scripting.h"
 
-#include "lua/libhud.h"
+#include "lua/api_lua.h"
 #include "lua/LuaState.h"
 
 #include "../../frontend/hud.h"

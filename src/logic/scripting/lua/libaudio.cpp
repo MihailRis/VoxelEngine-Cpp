@@ -1,4 +1,5 @@
-#include "libaudio.h"
+#include "api_lua.h"
+#include "lua_commons.h"
 
 #include "../../../audio/audio.h"
 #include "../../../engine.h"
