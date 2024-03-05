@@ -34,7 +34,6 @@ void Assets::store(Shader* shader, std::string name){
 	shaders.emplace(name, shader);
 }
 
-
 Font* Assets::getFont(std::string name) const {
 	auto found = fonts.find(name);
 	if (found == fonts.end())

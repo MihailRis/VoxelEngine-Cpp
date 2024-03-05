@@ -40,5 +40,6 @@ inline constexpr uint vox_index(uint x, uint y, uint z, uint w=CHUNK_W, uint d=C
 #define TEXTURES_FOLDER "textures"
 #define FONTS_FOLDER "fonts"
 #define LAYOUTS_FOLDER "layouts"
+#define SOUNDS_FOLDER "sounds"
 
 #endif // SRC_CONSTANTS_H_

@@ -192,6 +192,9 @@ namespace audio {
     /// So it's audio data is stored in memory.
     class Sound {
     public:
+        /// @brief Sound variants will be chosen randomly to play
+        std::vector<std::shared_ptr<Sound>> variants;
+
         virtual ~Sound() {}
 
         /// @brief Get sound duration
@@ -474,8 +477,8 @@ namespace audio {
     /// @param delta time elapsed since the last update (seconds)
     extern void update(double delta);
 
-    /// @brief Stop all playing audio, destroy all non-builtin channels
-    extern void reset();
+    /// @brief Stop all playing audio in channel, reset channel state
+    extern void reset_channel(int channel);
     
     /// @brief Finalize audio system
     extern void close();

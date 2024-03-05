@@ -445,12 +445,12 @@ void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
     if (isFocused() && multiline) {
         batch->setColor(glm::vec4(1, 1, 1, 0.1f));
         glm::vec2 lcoord = label->calcCoord();
-        lcoord.y -= 4;
+        lcoord.y -= 2;
         uint line = label->getLineByTextIndex(caret);
         int lineY = label->getLineYOffset(line);
         int lineHeight = font->getLineHeight() * label->getLineInterval();
         batch->rect(lcoord.x, lcoord.y+lineY, label->getSize().x, 1);
-        batch->rect(lcoord.x, lcoord.y+lineY+lineHeight, label->getSize().x, 1);
+        batch->rect(lcoord.x, lcoord.y+lineY+lineHeight-2, label->getSize().x, 1);
     }
 
     label->setColor(glm::vec4(input.empty() ? 0.5f : 1.0f));

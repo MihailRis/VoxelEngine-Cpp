@@ -52,6 +52,12 @@ class AssetsLoader {
 public:
 	AssetsLoader(Assets* assets, const ResPaths* paths);
 	void addLoader(int tag, aloader_func func);
+
+	/// @brief Enqueue asset load
+	/// @param tag asset type
+	/// @param filename asset file path
+	/// @param alias internal asset name
+	/// @param settings asset loading settings (based on asset type)
 	void add(
         int tag, 
         const std::string filename, 
@@ -59,10 +65,12 @@ public:
         std::shared_ptr<AssetCfg> settings=nullptr
     );
 	
-
 	bool hasNext() const;
 	bool loadNext();
 
+	/// @brief Enqueue core and content assets
+	/// @param loader target loader
+	/// @param content engine content
 	static void addDefaults(AssetsLoader& loader, const Content* content);
 
 	const ResPaths* getPaths() const;

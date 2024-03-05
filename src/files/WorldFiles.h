@@ -17,18 +17,18 @@
 
 #include "../voxels/Chunk.h"
 
-const uint REGION_HEADER_SIZE = 10;
+inline constexpr uint REGION_HEADER_SIZE = 10;
 
-const uint REGION_LAYER_VOXELS = 0;
-const uint REGION_LAYER_LIGHTS = 1;
-const uint REGION_LAYER_INVENTORIES = 2;
+inline constexpr uint REGION_LAYER_VOXELS = 0;
+inline constexpr uint REGION_LAYER_LIGHTS = 1;
+inline constexpr uint REGION_LAYER_INVENTORIES = 2;
 
-const uint REGION_SIZE_BIT = 5;
-const uint REGION_SIZE = (1 << (REGION_SIZE_BIT));
-const uint REGION_CHUNKS_COUNT = ((REGION_SIZE) * (REGION_SIZE));
-const uint REGION_FORMAT_VERSION = 2;
-const uint WORLD_FORMAT_VERSION = 1;
-const uint MAX_OPEN_REGION_FILES = 16;
+inline constexpr uint REGION_SIZE_BIT = 5;
+inline constexpr uint REGION_SIZE = (1 << (REGION_SIZE_BIT));
+inline constexpr uint REGION_CHUNKS_COUNT = ((REGION_SIZE) * (REGION_SIZE));
+inline constexpr uint REGION_FORMAT_VERSION = 2;
+inline constexpr uint WORLD_FORMAT_VERSION = 1;
+inline constexpr uint MAX_OPEN_REGION_FILES = 16;
 
 #define REGION_FORMAT_MAGIC ".VOXREG"
 #define WORLD_FORMAT_MAGIC ".VOXWLD"

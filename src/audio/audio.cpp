@@ -157,10 +157,6 @@ void audio::initialize(bool enabled) {
         backend = NoAudio::create();
     }
     create_channel("master");
-    create_channel("regular");
-    create_channel("music");
-    create_channel("ambient");
-    create_channel("ui");
 }
 
 PCM* audio::load_PCM(const fs::path& file, bool headerOnly) {
@@ -379,20 +375,32 @@ void audio::update(double delta) {
     }
 }
 
-void audio::reset() {
+void audio::reset_channel(int index) {
+    auto channel = get_channel(index);
+    if (channel == nullptr) {
+        return;
+    }
     for (auto& entry : speakers) {
-        entry.second->stop();
+        if (entry.second->getChannel() == index) {
+            entry.second->stop();
+        }
     }
     for (auto& entry : streams) {
         entry.second->update(0.0f);
     }
-    for (auto& channel : channels) {
-        if (channel->isPaused()) {
-            channel->resume();
+    for (auto it = speakers.begin(); it != speakers.end();) {
+        auto speaker = it->second.get();
+        int speakerChannel = speaker->getChannel();
+        if (speakerChannel == index) {
+            streams.erase(it->first);
+            it = speakers.erase(it);
+        } else {
+            it++;
         }
     }
-    streams.clear();
-    speakers.clear();
+    if (channel->isPaused()) {
+        channel->resume();
+    }
 }
 
 void audio::close() {

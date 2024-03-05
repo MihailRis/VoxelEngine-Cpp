@@ -20,6 +20,14 @@
 
 namespace fs = std::filesystem;
 
+static bool animation(
+    Assets* assets, 
+    const ResPaths* paths, 
+    const std::string directory, 
+    const std::string name,
+    Atlas* dstAtlas
+);
+
 bool assetload::texture(
     AssetsLoader&,
     Assets* assets,
@@ -102,7 +110,7 @@ bool assetload::atlas(
     Atlas* atlas = builder.build(2);
     assets->store(atlas, name);
     for (const auto& file : builder.getNames()) {
-        assetload::animation(assets, paths, "textures", file, atlas);
+        animation(assets, paths, "textures", file, atlas);
     }
     return true;
 }
@@ -152,7 +160,6 @@ bool assetload::layout(
         return false;
     }
 }
-
 bool assetload::sound(
     AssetsLoader& loader,
     Assets* assets,
@@ -162,17 +169,43 @@ bool assetload::sound(
     std::shared_ptr<AssetCfg> config
 ) {
     auto cfg = dynamic_cast<SoundCfg*>(config.get());
-    auto sound = audio::load_sound(paths->find(file), cfg->keepPCM);
-    if (sound == nullptr) {
-        std::cerr << "failed to load sound '" << name << "' from '";
-        std::cerr << file << "'" << std::endl;
+    bool keepPCM = cfg ? cfg->keepPCM : false;
+
+    size_t lastindex = file.find_last_of("."); 
+    std::string extension = file.substr(lastindex);
+    std::string extensionless = file.substr(0, lastindex);
+    try {
+        std::unique_ptr<audio::Sound> baseSound = nullptr;
+
+        // looking for 'sound_name' as base sound
+        auto soundFile = paths->find(file);
+        if (fs::exists(soundFile)) {
+            baseSound.reset(audio::load_sound(soundFile, keepPCM));
+        }
+        // looking for 'sound_name_0' as base sound
+        auto variantFile = paths->find(extensionless+"_0"+extension);
+        if (fs::exists(variantFile)) {
+            baseSound.reset(audio::load_sound(variantFile, keepPCM));
+        }
+
+        // loading sound variants
+        for (uint i = 1; ; i++) {
+            auto variantFile = paths->find(extensionless+"_"+std::to_string(i)+extension);
+            if (!fs::exists(variantFile)) {
+                break;
+            }
+            baseSound->variants.emplace_back(audio::load_sound(variantFile, keepPCM));
+        }
+        assets->store(baseSound.release(), name);
+    } 
+    catch (std::runtime_error& err) {
+        std::cerr << err.what() << std::endl;
         return false;
     }
-    assets->store(sound, name);
     return true;
 }
 
-bool assetload::animation(
+static bool animation(
     Assets* assets, 
     const ResPaths* paths, 
     const std::string directory, 

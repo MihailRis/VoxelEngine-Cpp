@@ -18,6 +18,7 @@ AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths)
 	addLoader(ASSET_FONT, assetload::font);
 	addLoader(ASSET_ATLAS, assetload::atlas);
     addLoader(ASSET_LAYOUT, assetload::layout);
+    addLoader(ASSET_SOUND, assetload::sound);
 }
 
 void AssetsLoader::addLoader(int tag, aloader_func func) {
