@@ -1,5 +1,6 @@
 #include "api_lua.h"
 #include "lua_commons.h"
+#include "lua_util.h"
 
 #include "../../../audio/audio.h"
 #include "../../../engine.h"
@@ -96,6 +97,17 @@ static int l_audio_set_pitch(lua_State* L) {
     return 0;
 }
 
+/// @brief audio.set_time(speakerid: integer, value: number) -> nil 
+static int l_audio_set_time(lua_State* L) {
+    lua::luaint id = lua_tonumber(L, 1);
+    auto speaker = audio::get_speaker(id);
+    if (speaker != nullptr) {
+        lua::luanumber value = lua_tonumber(L, 2);
+        speaker->setTime(static_cast<audio::duration_t>(value));
+    }
+    return 0;
+}
+
 /// @brief audio.set_position(speakerid: integer, x: number, y: number, z: number) -> nil
 static int l_audio_set_position(lua_State* L) {
     lua::luaint id = lua_tonumber(L, 1);
@@ -130,6 +142,90 @@ static int l_audio_set_velocity(lua_State* L) {
     return 0;
 }
 
+/// @brief audio.is_playing(speakerid: integer) -> bool 
+static int l_audio_is_playing(lua_State* L) {
+    lua::luaint id = lua_tonumber(L, 1);
+    auto speaker = audio::get_speaker(id);
+    if (speaker != nullptr) {
+        lua_pushboolean(L, speaker->isPlaying());
+        return 1;
+    }
+    lua_pushboolean(L, false);
+    return 1;
+}
+
+/// @brief audio.is_paused(speakerid: integer) -> bool 
+static int l_audio_is_paused(lua_State* L) {
+    lua::luaint id = lua_tonumber(L, 1);
+    auto speaker = audio::get_speaker(id);
+    if (speaker != nullptr) {
+        lua_pushboolean(L, speaker->isPaused());
+        return 1;
+    }
+    lua_pushboolean(L, false);
+    return 1;
+}
+
+/// @brief audio.get_volume(speakerid: integer) -> number
+static int l_audio_get_volume(lua_State* L) {
+    lua::luaint id = lua_tonumber(L, 1);
+    auto speaker = audio::get_speaker(id);
+    if (speaker != nullptr) {
+        lua_pushnumber(L, speaker->getVolume());
+        return 1;
+    }
+    lua_pushnumber(L, 0.0);
+    return 1;
+}
+
+/// @brief audio.get_pitch(speakerid: integer) -> number
+static int l_audio_get_pitch(lua_State* L) {
+    lua::luaint id = lua_tonumber(L, 1);
+    auto speaker = audio::get_speaker(id);
+    if (speaker != nullptr) {
+        lua_pushnumber(L, speaker->getPitch());
+        return 1;
+    }
+    lua_pushnumber(L, 1.0);
+    return 1;
+}
+
+/// @brief audio.get_time(speakerid: integer) -> number
+static int l_audio_get_time(lua_State* L) {
+    lua::luaint id = lua_tonumber(L, 1);
+    auto speaker = audio::get_speaker(id);
+    if (speaker != nullptr) {
+        lua_pushnumber(L, speaker->getTime());
+        return 1;
+    }
+    lua_pushnumber(L, 0.0);
+    return 1;
+}
+
+/// @brief audio.get_position(speakerid: integer) -> number, number, number
+static int l_audio_get_position(lua_State* L) {
+    lua::luaint id = lua_tonumber(L, 1);
+    auto speaker = audio::get_speaker(id);
+    if (speaker != nullptr) {
+        auto vec = speaker->getPosition();
+        lua::pushvec3(L, vec);
+        return 1;
+    }
+    return 0;
+}
+
+/// @brief audio.get_velocity(speakerid: integer) -> number, number, number
+static int l_audio_get_velocity(lua_State* L) {
+    lua::luaint id = lua_tonumber(L, 1);
+    auto speaker = audio::get_speaker(id);
+    if (speaker != nullptr) {
+        auto vec = speaker->getVelocity();
+        lua::pushvec3(L, vec);
+        return 1;
+    }
+    return 0;
+}
+
 const luaL_Reg audiolib [] = {
     {"play_sound", lua_wrap_errors<l_audio_play_sound>},
     {"stop", lua_wrap_errors<l_audio_stop>},
@@ -137,7 +233,15 @@ const luaL_Reg audiolib [] = {
     {"resume", lua_wrap_errors<l_audio_resume>},
     {"set_volume", lua_wrap_errors<l_audio_set_volume>},
     {"set_pitch", lua_wrap_errors<l_audio_set_pitch>},
+    {"set_time", lua_wrap_errors<l_audio_set_time>},
     {"set_position", lua_wrap_errors<l_audio_set_position>},
     {"set_velocity", lua_wrap_errors<l_audio_set_velocity>},
+    {"is_playing", lua_wrap_errors<l_audio_is_playing>},
+    {"is_paused", lua_wrap_errors<l_audio_is_paused>},
+    {"get_volume", lua_wrap_errors<l_audio_get_volume>},
+    {"get_pitch", lua_wrap_errors<l_audio_get_pitch>},
+    {"get_time", lua_wrap_errors<l_audio_get_time>},
+    {"get_position", lua_wrap_errors<l_audio_get_position>},
+    {"get_velocity", lua_wrap_errors<l_audio_get_velocity>},
     {NULL, NULL}
 };
