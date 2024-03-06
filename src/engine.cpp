@@ -276,6 +276,10 @@ EnginePaths* Engine::getPaths() {
 	return paths;
 }
 
+ResPaths* Engine::getResPaths() {
+    return resPaths.get();
+}
+
 std::shared_ptr<Screen> Engine::getScreen() {
     return screen;
 }

@@ -182,6 +182,9 @@ namespace audio {
         /// @param delta time elapsed since the last update
         virtual void update(double delta) = 0;
 
+        /// @brief Get current stream time
+        virtual duration_t getTime() const = 0;
+
         /// @brief Set playhead to the selected time
         /// @param time selected time
         virtual void setTime(duration_t time) = 0;
@@ -268,6 +271,9 @@ namespace audio {
         /// @brief Get current time position of playing audio
         /// @return time position in seconds
         virtual duration_t getTime() const = 0;
+
+        /// @brief Get playing audio total duration
+        virtual duration_t getDuration() const = 0;
 
         /// @brief Set playing audio time position
         /// @param time time position in seconds
@@ -469,6 +475,11 @@ namespace audio {
     /// @param name channel index
     /// @return channel or nullptr
     extern Channel* get_channel(int index);
+
+    /// @brief Get stream associated with speaker
+    /// @param id speaker id
+    /// @return stream or nullptr
+    extern std::shared_ptr<Stream> get_associated_stream(speakerid_t id);
 
     /// @brief Get alive speakers number (including paused)
     extern size_t count_speakers();

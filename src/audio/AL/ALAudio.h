@@ -55,7 +55,11 @@ namespace audio {
         bool loop = false;
 
         bool preloadBuffer(uint buffer, bool loop);
+        void unqueueBuffers(uint alsource);
+        uint enqueueBuffers(uint alsource);
     public:
+        size_t totalPlayedSamples = 0;
+
         ALStream(ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSource);
         ~ALStream();
 
@@ -64,6 +68,8 @@ namespace audio {
         Speaker* createSpeaker(bool loop, int channel) override;
         speakerid_t getSpeaker() const override;
         void update(double delta) override;
+        
+        duration_t getTime() const override;
         void setTime(duration_t time) override;       
 
         static inline constexpr uint STREAM_BUFFERS = 3; 
@@ -76,9 +82,11 @@ namespace audio {
         int channel;
         float volume = 0.0f;
     public:
+        ALStream* stream = nullptr;
         bool stopped = true;
         bool paused = false;
         uint source;
+        duration_t duration = 0.0f;
 
         ALSpeaker(ALAudio* al, uint source, int priority, int channel);
         ~ALSpeaker();
@@ -102,6 +110,7 @@ namespace audio {
         void stop() override;
 
         duration_t getTime() const override;
+        duration_t getDuration() const override;
         void setTime(duration_t time) override;
 
         void setPosition(glm::vec3 pos) override;

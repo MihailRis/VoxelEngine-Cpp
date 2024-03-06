@@ -106,6 +106,9 @@ public:
     /** Get engine filesystem paths source */
 	EnginePaths* getPaths();
 
+    /** Get engine resource paths controller */ 
+    ResPaths* getResPaths();
+
     /** Get current Content instance */
 	const Content* getContent() const;
 

@@ -25,7 +25,10 @@ Speaker* ALSound::newInstance(int priority, int channel) const {
         return nullptr;
     }
     AL_CHECK(alSourcei(source, AL_BUFFER, buffer));
-    return new ALSpeaker(al, source, priority, channel);
+
+    auto speaker = new ALSpeaker(al, source, priority, channel);
+    speaker->duration = duration;
+    return speaker;
 }
 
 ALStream::ALStream(ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSource)
@@ -77,10 +80,49 @@ void ALStream::bindSpeaker(speakerid_t speaker) {
         sp->stop();
     }
     this->speaker = speaker;
+    sp = audio::get_speaker(speaker);
+    if (sp) {
+        auto alspeaker = dynamic_cast<ALSpeaker*>(sp);
+        alspeaker->stream = this;
+        alspeaker->duration = source->getTotalDuration();
+    }
 }
 
 speakerid_t ALStream::getSpeaker() const {
     return speaker;
+}
+
+void ALStream::unqueueBuffers(uint alsource) {
+    uint processed = AL::getSourcei(alsource, AL_BUFFERS_PROCESSED);
+
+    while (processed--) {
+        uint buffer;
+        AL_CHECK(alSourceUnqueueBuffers(alsource, 1, &buffer));
+        unusedBuffers.push(buffer);
+
+        uint bps = source->getBitsPerSample()/8;
+        uint channels = source->getChannels();
+
+        ALint bufferSize;
+        alGetBufferi(buffer, AL_SIZE, &bufferSize);
+        totalPlayedSamples += bufferSize / bps / channels;
+        if (source->isSeekable()) {
+            totalPlayedSamples %= source->getTotalSamples();
+        }
+    }
+}
+
+uint ALStream::enqueueBuffers(uint alsource) {
+    uint preloaded = 0;
+    if (!unusedBuffers.empty()) {
+        uint buffer = unusedBuffers.front();
+        if (preloadBuffer(buffer, loop)) {
+            preloaded++;
+            unusedBuffers.pop();
+            AL_CHECK(alSourceQueueBuffers(alsource, 1, &buffer));
+        }
+    }
+    return preloaded;
 }
 
 void ALStream::update(double delta) {
@@ -93,24 +135,11 @@ void ALStream::update(double delta) {
         return;
     }
     ALSpeaker* alspeaker = dynamic_cast<ALSpeaker*>(speaker);
-    uint source = alspeaker->source;
-    uint processed = AL::getSourcei(source, AL_BUFFERS_PROCESSED);
-
-    while (processed--) {
-        uint buffer;
-        AL_CHECK(alSourceUnqueueBuffers(source, 1, &buffer));
-        unusedBuffers.push(buffer);
-    }
-
-    uint preloaded = 0;
-    if (!unusedBuffers.empty()) {
-        uint buffer = unusedBuffers.front();
-        if (preloadBuffer(buffer, loop)) {
-            preloaded++;
-            unusedBuffers.pop();
-            AL_CHECK(alSourceQueueBuffers(source, 1, &buffer));
-        }
-    }
+    uint alsource = alspeaker->source;
+    
+    unqueueBuffers(alsource);
+    uint preloaded = enqueueBuffers(alsource);
+    
     if (speaker->isStopped() && !alspeaker->stopped) {
         if (preloaded) {
             speaker->play();
@@ -120,8 +149,38 @@ void ALStream::update(double delta) {
     }
 }
 
+duration_t ALStream::getTime() const {
+    uint total = totalPlayedSamples;
+    auto alspeaker = dynamic_cast<ALSpeaker*>(audio::get_speaker(this->speaker));
+    if (alspeaker) {
+        uint alsource = alspeaker->source;
+        total += static_cast<duration_t>(AL::getSourcef(alsource, AL_SAMPLE_OFFSET));
+        if (source->isSeekable()) {
+            total %= source->getTotalSamples();
+        }
+    }
+    return total / static_cast<duration_t>(source->getSampleRate());
+}
+
 void ALStream::setTime(duration_t time) {
-    // TODO: implement
+    if (!source->isSeekable())
+        return;
+    uint sample = time * source->getSampleRate();
+    source->seek(sample);
+    auto alspeaker = dynamic_cast<ALSpeaker*>(audio::get_speaker(this->speaker));
+    if (alspeaker) {
+        bool paused = alspeaker->isPaused();
+        AL_CHECK(alSourceStop(alspeaker->source));
+        unqueueBuffers(alspeaker->source);
+        totalPlayedSamples = sample;
+        enqueueBuffers(alspeaker->source);
+        AL_CHECK(alSourcePlay(alspeaker->source));
+        if (paused) {
+            AL_CHECK(alSourcePause(alspeaker->source));
+        }
+    } else {
+        totalPlayedSamples = sample;
+    }
 }
 
 ALSpeaker::ALSpeaker(ALAudio* al, uint source, int priority, int channel) 
@@ -199,15 +258,32 @@ void ALSpeaker::stop() {
     stopped = true;
     if (source) {
         AL_CHECK(alSourceStop(source));
+
+        uint processed = AL::getSourcei(source, AL_BUFFERS_PROCESSED);
+        while (processed--) {
+            uint buffer;
+            AL_CHECK(alSourceUnqueueBuffers(source, 1, &buffer));
+            al->freeBuffer(buffer);
+        }
         al->freeSource(source);
     }
 }
 
 duration_t ALSpeaker::getTime() const {
+    if (stream) {
+        return stream->getTime();
+    }
     return static_cast<duration_t>(AL::getSourcef(source, AL_SEC_OFFSET));
 }
 
+duration_t ALSpeaker::getDuration() const {
+    return duration;
+}
+
 void ALSpeaker::setTime(duration_t time) {
+    if (stream) {
+        return stream->setTime(time);
+    }
     AL_CHECK(alSourcef(source, AL_SEC_OFFSET, static_cast<float>(time)));
 }
 

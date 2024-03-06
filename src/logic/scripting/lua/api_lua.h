@@ -15,6 +15,7 @@ extern const luaL_Reg playerlib [];
 extern const luaL_Reg inventorylib [];
 extern const luaL_Reg guilib [];
 extern const luaL_Reg hudlib [];
+extern const luaL_Reg audiolib [];
 
 
 // Lua Overrides
