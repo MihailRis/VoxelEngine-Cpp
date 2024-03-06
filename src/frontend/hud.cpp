@@ -351,8 +351,6 @@ void Hud::showOverlay(UiDocument* doc, bool playerInventory) {
     add(HudElement(hud_element_mode::inventory_bound, doc, secondUI, false));
 }
 
-/// @brief Add element as permanent overlay
-/// @param doc element layout document
 void Hud::openPermanent(UiDocument* doc) {
     auto root = doc->getRoot();
     remove(root);
@@ -365,7 +363,6 @@ void Hud::openPermanent(UiDocument* doc) {
     add(HudElement(hud_element_mode::permanent, doc, doc->getRoot(), false));
 }
 
-/// @brief Hide inventory and turn off inventory mode
 void Hud::closeInventory() {
     auto level = frontend->getLevel();
 
@@ -431,6 +428,11 @@ void Hud::remove(std::shared_ptr<gui::UINode> node) {
     cleanup();
 }
 
+class DeltaGrapher : gui::UINode {
+
+public:
+};
+
 void Hud::draw(const GfxContext& ctx){
     const Viewport& viewport = ctx.getViewport();
     const uint width = viewport.getWidth();
@@ -445,7 +447,7 @@ void Hud::draw(const GfxContext& ctx){
     uishader->use();
     uishader->uniformMatrix("u_projview", uicamera->getProjView());
     
-    hotbarView->setCoord(glm::vec2(width/2, height-65));
+    hotbarView->setPos(glm::vec2(width/2, height-65));
     hotbarView->setSelected(player->getChosenSlot());
 
     // Crosshair
@@ -485,12 +487,12 @@ void Hud::draw(const GfxContext& ctx){
 
     if (inventoryOpen) {
         float caWidth = inventoryView ? contentAccess->getSize().x : 0.0f;
-        contentAccessPanel->setCoord(glm::vec2(width-caWidth, 0));
+        contentAccessPanel->setPos(glm::vec2(width-caWidth, 0));
 
         glm::vec2 invSize = inventoryView ? inventoryView->getSize() : glm::vec2();
         if (secondUI == nullptr) {
             if (inventoryView) {
-                inventoryView->setCoord(glm::vec2(
+                inventoryView->setPos(glm::vec2(
                     glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x),
                     height/2-invSize.y/2
                 ));
@@ -501,18 +503,18 @@ void Hud::draw(const GfxContext& ctx){
             int interval = invSize.y > 0.0 ? 5 : 0;
             float totalHeight = invSize.y + blockInvSize.y + interval;
             if (inventoryView) {
-                inventoryView->setCoord(glm::vec2(
+                inventoryView->setPos(glm::vec2(
                     glm::min(width/2-invwidth/2, width-caWidth-10-invwidth),
                     height/2+totalHeight/2-invSize.y
                 ));
             }
-            secondUI->setCoord(glm::vec2(
+            secondUI->setPos(glm::vec2(
                 glm::min(width/2-invwidth/2, width-caWidth-10-invwidth),
                 height/2-totalHeight/2
             ));
         }
     }
-    grabbedItemView->setCoord(glm::vec2(Events::cursor));
+    grabbedItemView->setPos(glm::vec2(Events::cursor));
     batch->flush();
 }
 

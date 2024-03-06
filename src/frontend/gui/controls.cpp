@@ -139,28 +139,28 @@ void Label::draw(const GfxContext* pctx, Assets* assets) {
         (lines == 1 ? lineHeight : lineHeight*lineInterval)*lines + font->getYOffset()
     );
 
-    glm::vec2 coord = calcCoord();
+    glm::vec2 pos = calcPos();
     switch (align) {
         case Align::left:
             break;
         case Align::center:
-            coord.x += (size.x-newsize.x)*0.5f;
+            pos.x += (size.x-newsize.x)*0.5f;
             break;
         case Align::right:
-            coord.x += size.x-newsize.x;
+            pos.x += size.x-newsize.x;
             break;
     }
     switch (valign) {
         case Align::top:
             break;
         case Align::center:
-            coord.y += (size.y-newsize.y)*0.5f;
+            pos.y += (size.y-newsize.y)*0.5f;
             break;
         case Align::bottom:
-            coord.y += size.y-newsize.y;
+            pos.y += size.y-newsize.y;
             break;
     }
-    textYOffset = coord.y-calcCoord().y;
+    textYOffset = pos.y-calcPos().y;
     totalLineHeight = lineHeight * lineInterval;
 
     if (multiline) {
@@ -172,10 +172,10 @@ void Label::draw(const GfxContext* pctx, Assets* assets) {
                 view = std::wstring_view(text.c_str()+offset, end);
                 offset += end + 1;
             }
-            font->draw(batch, view, coord.x, coord.y + i * totalLineHeight, FontStyle::none);
+            font->draw(batch, view, pos.x, pos.y + i * totalLineHeight, FontStyle::none);
         }
     } else {
-        font->draw(batch, text, coord.x, coord.y, FontStyle::none);
+        font->draw(batch, text, pos.x, pos.y, FontStyle::none);
     }
 }
 
@@ -198,7 +198,7 @@ Image::Image(std::string texture, glm::vec2 size) : UINode(size), texture(textur
 }
 
 void Image::draw(const GfxContext* pctx, Assets* assets) {
-    glm::vec2 coord = calcCoord();
+    glm::vec2 pos = calcPos();
     glm::vec4 color = getColor();
     auto batch = pctx->getBatch2D();
     
@@ -208,7 +208,7 @@ void Image::draw(const GfxContext* pctx, Assets* assets) {
     }
     batch->texture(texture);
     batch->setColor(color);
-    batch->rect(coord.x, coord.y, size.x, size.y, 
+    batch->rect(pos.x, pos.y, size.x, size.y, 
                 0, 0, 0, UVRegion(), false, true, color);
 }
 
@@ -296,11 +296,11 @@ void Button::refresh() {
 }
 
 void Button::drawBackground(const GfxContext* pctx, Assets* assets) {
-    glm::vec2 coord = calcCoord();
+    glm::vec2 pos = calcPos();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
     batch->setColor(isPressed() ? pressedColor : (hover ? hoverColor : color));
-    batch->rect(coord.x, coord.y, size.x, size.y);
+    batch->rect(pos.x, pos.y, size.x, size.y);
 }
 
 void Button::mouseRelease(GUI* gui, int x, int y) {
@@ -351,11 +351,11 @@ RichButton* RichButton::listenAction(onaction action) {
 }
 
 void RichButton::drawBackground(const GfxContext* pctx, Assets* assets) {
-    glm::vec2 coord = calcCoord();
+    glm::vec2 pos = calcPos();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
     batch->setColor(isPressed() ? pressedColor : (hover ? hoverColor : color));
-    batch->rect(coord.x, coord.y, size.x, size.y);
+    batch->rect(pos.x, pos.y, size.x, size.y);
 }
 
 // ================================ TextBox ===================================
@@ -368,7 +368,7 @@ TextBox::TextBox(std::wstring placeholder, glm::vec4 padding)
     add(label);
     setHoverColor(glm::vec4(0.05f, 0.1f, 0.2f, 0.75f));
 
-    textInitX = label->getCoord().x;
+    textInitX = label->getPos().x;
 }
 
 void TextBox::draw(const GfxContext* pctx, Assets* assets) {
@@ -379,14 +379,14 @@ void TextBox::draw(const GfxContext* pctx, Assets* assets) {
     if (!isFocused())
         return;
 
-    glm::vec2 coord = calcCoord();
+    glm::vec2 pos = calcPos();
     glm::vec2 size = getSize();
 
     auto subctx = pctx->sub();
-    subctx.scissors(glm::vec4(coord.x, coord.y, size.x, size.y));
+    subctx.scissors(glm::vec4(pos.x, pos.y, size.x, size.y));
 
     const int lineHeight = font->getLineHeight() * label->getLineInterval();
-    glm::vec2 lcoord = label->calcCoord();
+    glm::vec2 lcoord = label->calcPos();
     lcoord.y -= 2;
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
@@ -422,7 +422,7 @@ void TextBox::draw(const GfxContext* pctx, Assets* assets) {
 }
 
 void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
-    glm::vec2 coord = calcCoord();
+    glm::vec2 pos = calcPos();
 
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
@@ -439,14 +439,14 @@ void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
         batch->setColor(invalidColor);
     }
 
-    batch->rect(coord.x, coord.y, size.x, size.y);
+    batch->rect(pos.x, pos.y, size.x, size.y);
     if (!isFocused() && supplier) {
         input = supplier();
     }
 
     if (isFocused() && multiline) {
         batch->setColor(glm::vec4(1, 1, 1, 0.1f));
-        glm::vec2 lcoord = label->calcCoord();
+        glm::vec2 lcoord = label->calcPos();
         lcoord.y -= 2;
         uint line = label->getLineByTextIndex(caret);
         int lineY = label->getLineYOffset(line);
@@ -538,7 +538,7 @@ size_t TextBox::getSelectionLength() const {
 /// @brief Set scroll offset
 /// @param x scroll offset
 void TextBox::setTextOffset(uint x) {
-    label->setCoord(glm::vec2(textInitX - int(x), label->getCoord().y));
+    label->setPos(glm::vec2(textInitX - int(x), label->getPos().y));
     textOffset = x;
 }
 
@@ -613,7 +613,7 @@ size_t TextBox::normalizeIndex(int index) {
 int TextBox::calcIndexAt(int x, int y) const {
     if (font == nullptr)
         return 0;
-    glm::vec2 lcoord = label->calcCoord();
+    glm::vec2 lcoord = label->calcPos();
     uint line = label->getLineByYOffset(y-lcoord.y);
     line = std::min(line, label->getLinesNumber()-1);
     size_t lineLength = getLineLength(line);
@@ -885,11 +885,11 @@ InputBindBox::InputBindBox(Binding& binding, glm::vec4 padding)
 }
 
 void InputBindBox::drawBackground(const GfxContext* pctx, Assets* assets) {
-    glm::vec2 coord = calcCoord();
+    glm::vec2 pos = calcPos();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
     batch->setColor(isFocused() ? focusedColor : (hover ? hoverColor : color));
-    batch->rect(coord.x, coord.y, size.x, size.y);
+    batch->rect(pos.x, pos.y, size.x, size.y);
     label->setText(util::str2wstr_utf8(binding.text()));
 }
 
@@ -927,18 +927,18 @@ void TrackBar::draw(const GfxContext* pctx, Assets* assets) {
     if (supplier) {
         value = supplier();
     }
-    glm::vec2 coord = calcCoord();
+    glm::vec2 pos = calcPos();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
     batch->setColor(hover ? hoverColor : color);
-    batch->rect(coord.x, coord.y, size.x, size.y);
+    batch->rect(pos.x, pos.y, size.x, size.y);
 
     float width = size.x;
     float t = (value - min) / (max-min+trackWidth*step);
 
     batch->setColor(trackColor);
     int actualWidth = size.x * (trackWidth / (max-min+trackWidth*step) * step);
-    batch->rect(coord.x + width * t, coord.y, actualWidth, size.y);
+    batch->rect(pos.x + width * t, pos.y, actualWidth, size.y);
 }
 
 void TrackBar::setSupplier(doublesupplier supplier) {
@@ -950,9 +950,9 @@ void TrackBar::setConsumer(doubleconsumer consumer) {
 }
 
 void TrackBar::mouseMove(GUI*, int x, int y) {
-    glm::vec2 coord = calcCoord();
+    glm::vec2 pos = calcPos();
     value = x;
-    value -= coord.x;
+    value -= pos.x;
     value = (value)/size.x * (max-min+trackWidth*step);
     value += min;
     value = (value > max) ? max : value;
@@ -1021,11 +1021,11 @@ void CheckBox::draw(const GfxContext* pctx, Assets* assets) {
     if (supplier) {
         checked = supplier();
     }
-    glm::vec2 coord = calcCoord();
+    glm::vec2 pos = calcPos();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
     batch->setColor(checked ? checkColor : (hover ? hoverColor : color));
-    batch->rect(coord.x, coord.y, size.x, size.y);
+    batch->rect(pos.x, pos.y, size.x, size.y);
 }
 
 void CheckBox::mouseRelease(GUI*, int x, int y) {

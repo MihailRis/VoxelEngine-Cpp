@@ -30,7 +30,7 @@ namespace gui {
         */
         std::string id = "";
     protected:
-        glm::vec2 coord {0.0f};
+        glm::vec2 pos {0.0f};
         glm::vec2 size;
         glm::vec2 minSize {1.0f};
         glm::vec4 color {1.0f};
@@ -123,9 +123,9 @@ namespace gui {
         /* Get inner content offset. Used for scroll */
         virtual glm::vec2 contentOffset() {return glm::vec2(0.0f);};
         /* Calculate screen position of the element */
-        virtual glm::vec2 calcCoord() const;
-        virtual void setCoord(glm::vec2 coord);
-        virtual glm::vec2 getCoord() const;
+        virtual glm::vec2 calcPos() const;
+        virtual void setPos(glm::vec2 pos);
+        virtual glm::vec2 getPos() const;
         virtual glm::vec2 getSize() const;
         virtual void setSize(glm::vec2 size);
         virtual glm::vec2 getMinSize() const;
@@ -140,7 +140,7 @@ namespace gui {
         void setId(const std::string& id);
         const std::string& getId() const;
 
-        /* Fetch coord from positionfunc if assigned */
+        /* Fetch pos from positionfunc if assigned */
         void reposition();
     };
 }

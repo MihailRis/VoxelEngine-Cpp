@@ -28,7 +28,7 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
         node.setId(element->attr("id").getText());
     }
     if (element->has("pos")) {
-        node.setCoord(element->attr("pos").asVec2());
+        node.setPos(element->attr("pos").asVec2());
     }
     if (element->has("size")) {
         node.setSize(element->attr("size").asVec2());

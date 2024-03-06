@@ -126,7 +126,7 @@ void GUI::draw(const GfxContext* pctx, Assets* assets) {
     auto& viewport = pctx->getViewport();
     glm::vec2 wsize = viewport.size();
 
-    menu->setCoord((wsize - menu->getSize()) / 2.0f);
+    menu->setPos((wsize - menu->getSize()) / 2.0f);
     uicamera->setFov(wsize.y);
 
 	Shader* uishader = assets->getShader("ui");

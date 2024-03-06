@@ -79,7 +79,7 @@ void Container::setScrollable(bool flag) {
 }
 
 void Container::draw(const GfxContext* pctx, Assets* assets) {
-    glm::vec2 coord = calcCoord();
+    glm::vec2 pos = calcPos();
     glm::vec2 size = getSize();
     drawBackground(pctx, assets);
 
@@ -88,7 +88,7 @@ void Container::draw(const GfxContext* pctx, Assets* assets) {
     batch->flush();
     {
         GfxContext ctx = pctx->sub();
-        ctx.scissors(glm::vec4(coord.x, coord.y, size.x, size.y));
+        ctx.scissors(glm::vec4(pos.x, pos.y, size.x, size.y));
         for (auto node : nodes) {
             if (node->isVisible())
                 node->draw(pctx, assets);
@@ -100,12 +100,12 @@ void Container::draw(const GfxContext* pctx, Assets* assets) {
 void Container::drawBackground(const GfxContext* pctx, Assets* assets) {
     if (color.a <= 0.0f)
         return;
-    glm::vec2 coord = calcCoord();
+    glm::vec2 pos = calcPos();
 
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
     batch->setColor(color);
-    batch->rect(coord.x, coord.y, size.x, size.y);
+    batch->rect(pos.x, pos.y, size.x, size.y);
 }
 
 void Container::add(std::shared_ptr<UINode> node) {
@@ -115,8 +115,8 @@ void Container::add(std::shared_ptr<UINode> node) {
     refresh();
 }
 
-void Container::add(std::shared_ptr<UINode> node, glm::vec2 coord) {
-    node->setCoord(coord);
+void Container::add(std::shared_ptr<UINode> node, glm::vec2 pos) {
+    node->setPos(pos);
     add(node);
 }
 
@@ -211,7 +211,7 @@ void Panel::refresh() {
             y += margin.y;
             
             float ex = x + margin.x;
-            node->setCoord(glm::vec2(ex, y));
+            node->setPos(glm::vec2(ex, y));
             y += nodesize.y + margin.w + interval;
 
             float width = size.x - padding.x - padding.z - margin.x - margin.z;
@@ -228,7 +228,7 @@ void Panel::refresh() {
             glm::vec2 nodesize = node->getSize();
             const glm::vec4 margin = node->getMargin();
             x += margin.x;
-            node->setCoord(glm::vec2(x, y+margin.y));
+            node->setPos(glm::vec2(x, y+margin.y));
             x += nodesize.x + margin.z + interval;
             
             node->refresh();

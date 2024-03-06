@@ -101,7 +101,7 @@ public:
 
     void setInventory(std::shared_ptr<Inventory> inventory);
 
-    virtual void setCoord(glm::vec2 coord) override;
+    virtual void setPos(glm::vec2 pos) override;
 
     void setOrigin(glm::vec2 origin);
     glm::vec2 getOrigin() const;
@@ -133,7 +133,7 @@ public:
 
     void addGrid(
         int cols, int count, 
-        glm::vec2 coord, 
+        glm::vec2 pos, 
         int padding,
         bool addpanel,
         SlotLayout slotLayout

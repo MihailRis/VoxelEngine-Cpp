@@ -29,7 +29,7 @@ std::shared_ptr<UINode> create_debug_panel(
     Player* player
 ) {
     auto panel = std::make_shared<Panel>(glm::vec2(250, 200), glm::vec4(5.0f), 2.0f);
-    panel->setCoord(glm::vec2(10, 10));
+    panel->setPos(glm::vec2(10, 10));
 
     static int fps = 0;
     static int fpsMin = fps;

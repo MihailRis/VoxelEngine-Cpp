@@ -63,18 +63,18 @@ bool UINode::isFocused() const {
     return focused;
 }
 
-bool UINode::isInside(glm::vec2 pos) {
-    glm::vec2 coord = calcCoord();
+bool UINode::isInside(glm::vec2 point) {
+    glm::vec2 pos = calcPos();
     glm::vec2 size = getSize();
-    return (pos.x >= coord.x && pos.y >= coord.y && 
-            pos.x < coord.x + size.x && pos.y < coord.y + size.y);
+    return (point.x >= pos.x && point.y >= pos.y && 
+            point.x < pos.x + size.x && point.y < pos.y + size.y);
 }
 
-std::shared_ptr<UINode> UINode::getAt(glm::vec2 pos, std::shared_ptr<UINode> self) {
+std::shared_ptr<UINode> UINode::getAt(glm::vec2 point, std::shared_ptr<UINode> self) {
     if (!interactive) {
         return nullptr;
     }
-    return isInside(pos) ? self : nullptr;
+    return isInside(point) ? self : nullptr;
 }
 
 bool UINode::isInteractive() const {
@@ -93,11 +93,11 @@ bool UINode::isResizing() const {
     return resizing;
 }
 
-glm::vec2 UINode::calcCoord() const {
+glm::vec2 UINode::calcPos() const {
     if (parent) {
-        return coord + parent->calcCoord() + parent->contentOffset();
+        return pos + parent->calcPos() + parent->contentOffset();
     }
-    return coord;
+    return pos;
 }
 
 void UINode::scrolled(int value) {
@@ -106,12 +106,12 @@ void UINode::scrolled(int value) {
     }
 }
 
-void UINode::setCoord(glm::vec2 coord) {
-    this->coord = coord;
+void UINode::setPos(glm::vec2 pos) {
+    this->pos = pos;
 }
 
-glm::vec2 UINode::getCoord() const {
-    return coord;
+glm::vec2 UINode::getPos() const {
+    return pos;
 }
 
 glm::vec2 UINode::getSize() const {
@@ -187,6 +187,6 @@ const std::string& UINode::getId() const {
 
 void UINode::reposition() {
     if (positionfunc) {
-        setCoord(positionfunc());
+        setPos(positionfunc());
     }
 }
