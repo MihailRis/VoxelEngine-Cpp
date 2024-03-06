@@ -107,6 +107,7 @@ class Hud {
     std::shared_ptr<InventoryView> createContentAccess();
     std::shared_ptr<InventoryView> createHotbar();
 
+    void updateElementsPosition(const Viewport& viewport);
     void cleanup();
 public:
     Hud(Engine* engine, LevelFrontend* frontend, Player* player);

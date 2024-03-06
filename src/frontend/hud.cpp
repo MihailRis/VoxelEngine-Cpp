@@ -478,6 +478,8 @@ void Hud::draw(const GfxContext& ctx){
     const uint width = viewport.getWidth();
     const uint height = viewport.getHeight();
 
+    updateElementsPosition(viewport);
+
     uicamera->setFov(height);
 
     auto batch = ctx.getBatch2D();
@@ -486,12 +488,9 @@ void Hud::draw(const GfxContext& ctx){
     Shader* uishader = assets->getShader("ui");
     uishader->use();
     uishader->uniformMatrix("u_projview", uicamera->getProjView());
-    
-    hotbarView->setPos(glm::vec2(width/2, height-65));
-    hotbarView->setSelected(player->getChosenSlot());
 
     // Crosshair
-    if (!pause && Events::_cursor_locked && !player->debug) {
+    if (!pause && !inventoryOpen && !player->debug) {
         GfxContext chctx = ctx.sub();
         chctx.blendMode(blendmode::inversion);
         auto texture = assets->getTexture("gui/crosshair");
@@ -504,7 +503,13 @@ void Hud::draw(const GfxContext& ctx){
         );
         batch->flush();
     }
+    batch->flush();
+}
 
+void Hud::updateElementsPosition(const Viewport& viewport) {
+    const uint width = viewport.getWidth();
+    const uint height = viewport.getHeight();
+    
     if (inventoryOpen) {
         float caWidth = inventoryView ? contentAccess->getSize().x : 0.0f;
         contentAccessPanel->setPos(glm::vec2(width-caWidth, 0));
@@ -518,10 +523,10 @@ void Hud::draw(const GfxContext& ctx){
                 ));
             }
         } else {
-            glm::vec2 blockInvSize = secondUI->getSize();
-            float invwidth = glm::max(invSize.x, blockInvSize.x);
+            glm::vec2 secondUISize = secondUI->getSize();
+            float invwidth = glm::max(invSize.x, secondUISize.x);
             int interval = invSize.y > 0.0 ? 5 : 0;
-            float totalHeight = invSize.y + blockInvSize.y + interval;
+            float totalHeight = invSize.y + secondUISize.y + interval;
             if (inventoryView) {
                 inventoryView->setPos(glm::vec2(
                     glm::min(width/2-invwidth/2, width-caWidth-10-invwidth),
@@ -535,7 +540,8 @@ void Hud::draw(const GfxContext& ctx){
         }
     }
     grabbedItemView->setPos(glm::vec2(Events::cursor));
-    batch->flush();
+    hotbarView->setPos(glm::vec2(width/2, height-65));
+    hotbarView->setSelected(player->getChosenSlot());
 }
 
 bool Hud::isInventoryOpen() const {
