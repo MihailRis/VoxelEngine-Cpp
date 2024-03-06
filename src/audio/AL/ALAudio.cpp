@@ -169,11 +169,15 @@ void ALStream::setTime(duration_t time) {
     source->seek(sample);
     auto alspeaker = dynamic_cast<ALSpeaker*>(audio::get_speaker(this->speaker));
     if (alspeaker) {
+        bool paused = alspeaker->isPaused();
         AL_CHECK(alSourceStop(alspeaker->source));
         unqueueBuffers(alspeaker->source);
         totalPlayedSamples = sample;
         enqueueBuffers(alspeaker->source);
         AL_CHECK(alSourcePlay(alspeaker->source));
+        if (paused) {
+            AL_CHECK(alSourcePause(alspeaker->source));
+        }
     } else {
         totalPlayedSamples = sample;
     }
