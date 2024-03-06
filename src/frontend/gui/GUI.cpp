@@ -58,7 +58,7 @@ void GUI::actMouse(float delta) {
             }
             if (focus != pressed) {
                 focus = pressed;
-                focus->focus(this);
+                focus->onFocus(this);
                 return;
             }
         }
@@ -175,7 +175,7 @@ void GUI::setFocus(std::shared_ptr<UINode> node) {
     }
     focus = node;
     if (focus) {
-        focus->focus(this);
+        focus->onFocus(this);
     }
 }
 

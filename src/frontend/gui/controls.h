@@ -272,7 +272,7 @@ namespace gui {
         /// @brief Set runnable called on textbox focus
         virtual void setOnEditStart(runnable oneditstart);
 
-        virtual void focus(GUI*) override;
+        virtual void onFocus(GUI*) override;
         virtual void refresh() override;
         virtual void click(GUI*, int, int) override;
         virtual void mouseMove(GUI*, int x, int y) override;

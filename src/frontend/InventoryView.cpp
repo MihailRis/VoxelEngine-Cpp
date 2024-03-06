@@ -259,7 +259,7 @@ void SlotView::clicked(gui::GUI* gui, mousecode button) {
     }
 }
 
-void SlotView::focus(gui::GUI* gui) {
+void SlotView::onFocus(gui::GUI* gui) {
     clicked(gui, mousecode::BUTTON_1);
 }
 

@@ -73,7 +73,7 @@ public:
     bool isHighlighted() const;
 
     virtual void clicked(gui::GUI*, mousecode) override;
-    virtual void focus(gui::GUI*) override;
+    virtual void onFocus(gui::GUI*) override;
 
     void bind(
         int64_t inventoryid,

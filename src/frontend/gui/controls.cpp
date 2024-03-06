@@ -585,8 +585,8 @@ void TextBox::setOnEditStart(runnable oneditstart) {
     onEditStart = oneditstart;
 }
 
-void TextBox::focus(GUI* gui) {
-    Panel::focus(gui);
+void TextBox::onFocus(GUI* gui) {
+    Panel::onFocus(gui);
     if (onEditStart){
         setCaret(input.size());
         onEditStart();
