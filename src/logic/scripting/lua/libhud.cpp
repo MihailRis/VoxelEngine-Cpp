@@ -65,6 +65,19 @@ static int l_hud_open_block(lua_State* L) {
     return 2;
 }
 
+static int l_hud_show_overlay(lua_State* L) {
+    const char* name = lua_tostring(L, 1);
+    bool playerInventory = lua_toboolean(L, 2);
+
+    auto assets = scripting::engine->getAssets();
+    auto layout = assets->getLayout(name);
+    if (layout == nullptr) {
+        luaL_error(L, "there is no ui layout '%s'", name);
+    }
+    scripting::hud->showOverlay(layout, playerInventory);
+    return 0;
+}
+
 static UiDocument* require_layout(lua_State* L, const char* name) {
     auto assets = scripting::engine->getAssets();
     auto layout = assets->getLayout(name);
@@ -91,6 +104,7 @@ const luaL_Reg hudlib [] = {
     {"close_inventory", lua_wrap_errors<l_hud_close_inventory>},
     {"open_block", lua_wrap_errors<l_hud_open_block>},
     {"open_permanent", lua_wrap_errors<l_hud_open_permanent>},
+    {"show_overlay", lua_wrap_errors<l_hud_show_overlay>},
     {"close", lua_wrap_errors<l_hud_close>},
     {NULL, NULL}
 };

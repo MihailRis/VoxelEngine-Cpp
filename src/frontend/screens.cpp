@@ -92,6 +92,8 @@ static bool backlight;
 LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
     auto& settings = engine->getSettings();
     auto assets = engine->getAssets();
+    auto menu = engine->getGUI()->getMenu();
+    menu->reset();
 
     controller = std::make_unique<LevelController>(settings, level);
     frontend = std::make_unique<LevelFrontend>(level, assets);
@@ -186,8 +188,5 @@ void LevelScreen::draw(float delta) {
 
     if (hudVisible) {
         hud->draw(ctx);
-        if (controller->getPlayer()->debug) {
-            hud->drawDebug(1 / delta);
-        }
     }
 }
