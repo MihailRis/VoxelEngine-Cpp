@@ -240,7 +240,7 @@ Hud::~Hud() {
     // removing all controlled ui
     gui->remove(grabbedItemView);
     for (auto& element : elements) {
-        remove(element);
+        onRemove(element);
     }
     gui->remove(hotbarView);
     gui->remove(darkOverlay);
@@ -331,7 +331,7 @@ void Hud::update(bool visible) {
         for (auto& element : elements) {
             element.update(pause, inventoryOpen, player->debug);
             if (element.isRemoved()) {
-                remove(element);
+                onRemove(element);
             }
         }
     }
@@ -440,7 +440,7 @@ void Hud::add(HudElement element) {
     elements.push_back(element);
 }
 
-void Hud::remove(HudElement& element) {
+void Hud::onRemove(HudElement& element) {
     auto document = element.getDocument();
     if (document) {
         Inventory* inventory = nullptr;
@@ -456,12 +456,11 @@ void Hud::remove(HudElement& element) {
     gui->remove(element.getNode());
 }
 
-// todo: refactor this garbage
 void Hud::remove(std::shared_ptr<gui::UINode> node) {
     for (auto& element : elements) {
         if (element.getNode() == node) {
             element.setRemoved();
-            remove(element);
+            onRemove(element);
         }
     }
     cleanup();
