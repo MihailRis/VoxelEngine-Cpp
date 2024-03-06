@@ -33,14 +33,14 @@ namespace gui {
         int actualLength = 0;
         bool scrollable = true;
     public:
-        Container(glm::vec2 coord, glm::vec2 size);
+        Container(glm::vec2 size);
 
         virtual void act(float delta) override;
         virtual void drawBackground(const GfxContext* pctx, Assets* assets);
         virtual void draw(const GfxContext* pctx, Assets* assets) override;
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
         virtual void add(std::shared_ptr<UINode> node);
-        virtual void add(std::shared_ptr<UINode> node, glm::vec2 coord);
+        virtual void add(std::shared_ptr<UINode> node, glm::vec2 pos);
         virtual void remove(std::shared_ptr<UINode> node);
         virtual void scrolled(int value) override;
         virtual void setScrollable(bool flag);

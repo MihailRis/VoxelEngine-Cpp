@@ -24,34 +24,66 @@ namespace gui {
         top=left, bottom=right,
     };
 
+    enum class Gravity {
+        none,
+        
+        top_left,
+        top_center,
+        top_right,
+
+        center_left,
+        center_center,
+        center_right,
+
+        bottom_left,
+        bottom_center,
+        bottom_right
+    };
+
+    /// @brief Base abstract class for all UI elements
     class UINode {
-        /** 
-         * element identifier used for direct access in UiDocument
-        */
+        /// @brief element identifier used for direct access in UiDocument
         std::string id = "";
     protected:
-        glm::vec2 coord;
+        /// @brief element position within the parent element
+        glm::vec2 pos {0.0f};
+        /// @brief element size (width, height)
         glm::vec2 size;
+        /// @brief minimal element size
         glm::vec2 minSize {1.0f};
+        /// @brief element primary color (background-color or text-color if label)
         glm::vec4 color {1.0f};
+        /// @brief element color when mouse is over it
         glm::vec4 hoverColor {1.0f};
+        /// @brief element margin (only supported for Panel sub-nodes)
         glm::vec4 margin {1.0f};
+        /// @brief is element visible
         bool visible = true;
+        /// @brief is mouse over the element
         bool hover = false;
+        /// @brief is mouse has been pressed over the element and not released yet
         bool pressed = false;
+        /// @brief is element focused
         bool focused = false;
+        /// @brief is element opaque for cursor interaction
         bool interactive = true;
+        /// @brief does the element support resizing by parent elements
         bool resizing = true;
+        /// @brief z-index property specifies the stack order of an element
         int zindex = 0;
+        /// @brief element content alignment (supported by Label only)
         Align align = Align::left;
+        /// @brief parent element
         UINode* parent = nullptr;
+        /// @brief position supplier for the element (called on parent element size update)
         vec2supplier positionfunc = nullptr;
-        UINode(glm::vec2 coord, glm::vec2 size);
+
+        UINode(glm::vec2 size);
     public:
         virtual ~UINode();
-        /** Called every frame for all visible elements 
-         * @param delta delta time
-        */
+
+        /// @brief Called every frame for all visible elements 
+        /// @param delta delta timУ
         virtual void act(float delta) {};
         virtual void draw(const GfxContext* pctx, Assets* assets) = 0;
 
@@ -67,11 +99,12 @@ namespace gui {
         virtual void setParent(UINode* node);
         UINode* getParent() const;
 
-        /** Set element color (doesn't affect inner elements).
-           Also replaces hover color to avoid adding extra properties. */
+        /// @brief Set element color (doesn't affect inner elements).
+        /// Also replaces hover color to avoid adding extra properties
         virtual void setColor(glm::vec4 newColor);
 
-        /** Get element color (float R,G,B,A in range [0.0, 1.0])*/
+        /// @brief Get element color 
+        /// @return (float R,G,B,A in range [0.0, 1.0])
         glm::vec4 getColor() const;
 
         virtual void setHoverColor(glm::vec4 newColor);
@@ -80,12 +113,14 @@ namespace gui {
         virtual void setMargin(glm::vec4 margin);
         glm::vec4 getMargin() const;
 
-        /** Influences container elements sort order 
-            Doesn't work in Panel */
+        /// @brief Specifies the stack order of an element
+        /// @attention Is not supported by Panel
         virtual void setZIndex(int idx);
+        
+        /// @brief Get element z-index
         int getZIndex() const;
 
-        virtual void focus(GUI*) {focused = true;}
+        virtual void onFocus(GUI*) {focused = true;}
         virtual void click(GUI*, int x, int y);
         virtual void clicked(GUI*, mousecode button) {}
         virtual void mouseMove(GUI*, int x, int y) {};
@@ -123,9 +158,9 @@ namespace gui {
         /* Get inner content offset. Used for scroll */
         virtual glm::vec2 contentOffset() {return glm::vec2(0.0f);};
         /* Calculate screen position of the element */
-        virtual glm::vec2 calcCoord() const;
-        virtual void setCoord(glm::vec2 coord);
-        virtual glm::vec2 getCoord() const;
+        virtual glm::vec2 calcPos() const;
+        virtual void setPos(glm::vec2 pos);
+        virtual glm::vec2 getPos() const;
         virtual glm::vec2 getSize() const;
         virtual void setSize(glm::vec2 size);
         virtual glm::vec2 getMinSize() const;
@@ -140,8 +175,10 @@ namespace gui {
         void setId(const std::string& id);
         const std::string& getId() const;
 
-        /* Fetch coord from positionfunc if assigned */
+        /* Fetch pos from positionfunc if assigned */
         void reposition();
+
+        virtual void setGravity(Gravity gravity);
     };
 }
 

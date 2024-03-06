@@ -15,10 +15,9 @@ class Batch2D {
     float* buffer;
     size_t capacity;
     std::unique_ptr<Mesh> mesh;
+    std::unique_ptr<Texture> blank;
     size_t index;
     glm::vec4 color;
-
-    Texture* blank;
     Texture* _texture;
 
     void vertex(
