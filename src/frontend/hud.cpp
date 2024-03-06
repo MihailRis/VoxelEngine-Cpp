@@ -183,8 +183,6 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     frontend(frontend),
     player(player)
 {
-    auto menu = gui->getMenu();
-
     interaction = std::make_unique<InventoryInteraction>();
     grabbedItemView = std::make_shared<SlotView>(
         SlotLayout(-1, glm::vec2(), false, false, nullptr, nullptr)
@@ -218,8 +216,6 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     uicamera->flipped = true;
 
     debugPanel = create_debug_panel(engine, frontend->getLevel(), player);
-    menu->reset();
-
     debugPanel->setZIndex(2);
     
     gui->add(darkOverlay);
