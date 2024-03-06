@@ -56,6 +56,8 @@ namespace audio {
 
         bool preloadBuffer(uint buffer, bool loop);
     public:
+        size_t totalPlayedSamples = 0;
+
         ALStream(ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSource);
         ~ALStream();
 
@@ -64,6 +66,8 @@ namespace audio {
         Speaker* createSpeaker(bool loop, int channel) override;
         speakerid_t getSpeaker() const override;
         void update(double delta) override;
+        
+        duration_t getTime() const override;
         void setTime(duration_t time) override;       
 
         static inline constexpr uint STREAM_BUFFERS = 3; 
@@ -76,6 +80,7 @@ namespace audio {
         int channel;
         float volume = 0.0f;
     public:
+        ALStream* stream = nullptr;
         bool stopped = true;
         bool paused = false;
         uint source;

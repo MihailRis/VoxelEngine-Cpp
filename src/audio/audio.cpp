@@ -347,6 +347,14 @@ Channel* audio::get_channel(int index) {
     return channels.at(index).get();
 }
 
+std::shared_ptr<Stream> audio::get_associated_stream(speakerid_t id) {
+    auto found = streams.find(id);
+    if (found != streams.end()) {
+        return found->second;
+    }
+    return nullptr;
+}
+
 size_t audio::count_speakers() {
     return speakers.size();
 }

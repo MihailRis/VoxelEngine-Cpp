@@ -53,6 +53,10 @@ namespace audio {
         void update(double delta) override {
         }
 
+        duration_t getTime() const override {
+            return 0.0;
+        }
+
         void setTime(duration_t time) override {
         }
     };

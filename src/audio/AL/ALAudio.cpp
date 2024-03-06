@@ -83,6 +83,7 @@ void ALStream::bindSpeaker(speakerid_t speaker) {
     sp = audio::get_speaker(speaker);
     if (sp) {
         auto alspeaker = dynamic_cast<ALSpeaker*>(sp);
+        alspeaker->stream = this;
         alspeaker->duration = source->getTotalDuration();
     }
 }
@@ -101,13 +102,23 @@ void ALStream::update(double delta) {
         return;
     }
     ALSpeaker* alspeaker = dynamic_cast<ALSpeaker*>(speaker);
-    uint source = alspeaker->source;
-    uint processed = AL::getSourcei(source, AL_BUFFERS_PROCESSED);
+    uint alsource = alspeaker->source;
+    uint processed = AL::getSourcei(alsource, AL_BUFFERS_PROCESSED);
 
     while (processed--) {
         uint buffer;
-        AL_CHECK(alSourceUnqueueBuffers(source, 1, &buffer));
+        AL_CHECK(alSourceUnqueueBuffers(alsource, 1, &buffer));
         unusedBuffers.push(buffer);
+
+        uint bps = source->getBitsPerSample()/8;
+        uint channels = source->getChannels();
+
+        ALint bufferSize;
+        alGetBufferi(buffer, AL_SIZE, &bufferSize);
+        totalPlayedSamples += bufferSize / bps / channels;
+        if (source->isSeekable()) {
+            totalPlayedSamples %= source->getTotalSamples();
+        }
     }
 
     uint preloaded = 0;
@@ -116,7 +127,7 @@ void ALStream::update(double delta) {
         if (preloadBuffer(buffer, loop)) {
             preloaded++;
             unusedBuffers.pop();
-            AL_CHECK(alSourceQueueBuffers(source, 1, &buffer));
+            AL_CHECK(alSourceQueueBuffers(alsource, 1, &buffer));
         }
     }
     if (speaker->isStopped() && !alspeaker->stopped) {
@@ -126,6 +137,19 @@ void ALStream::update(double delta) {
             speaker->stop();
         }
     }
+}
+
+duration_t ALStream::getTime() const {
+    uint total = totalPlayedSamples;
+    auto alspeaker = dynamic_cast<ALSpeaker*>(audio::get_speaker(this->speaker));
+    if (alspeaker) {
+        uint alsource = alspeaker->source;
+        total += static_cast<duration_t>(AL::getSourcef(alsource, AL_SAMPLE_OFFSET));
+        if (source->isSeekable()) {
+            total %= source->getTotalSamples();
+        }
+    }
+    return total / static_cast<duration_t>(source->getSampleRate());
 }
 
 void ALStream::setTime(duration_t time) {
@@ -212,6 +236,9 @@ void ALSpeaker::stop() {
 }
 
 duration_t ALSpeaker::getTime() const {
+    if (stream) {
+        return stream->getTime();
+    }
     return static_cast<duration_t>(AL::getSourcef(source, AL_SEC_OFFSET));
 }
 
