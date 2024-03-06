@@ -92,17 +92,7 @@ speakerid_t ALStream::getSpeaker() const {
     return speaker;
 }
 
-void ALStream::update(double delta) {
-    if (this->speaker == 0) {
-        return;
-    }
-    auto speaker = audio::get_speaker(this->speaker);
-    if (speaker == nullptr) {
-        speaker = 0;
-        return;
-    }
-    ALSpeaker* alspeaker = dynamic_cast<ALSpeaker*>(speaker);
-    uint alsource = alspeaker->source;
+void ALStream::unqueueBuffers(uint alsource) {
     uint processed = AL::getSourcei(alsource, AL_BUFFERS_PROCESSED);
 
     while (processed--) {
@@ -120,7 +110,9 @@ void ALStream::update(double delta) {
             totalPlayedSamples %= source->getTotalSamples();
         }
     }
+}
 
+uint ALStream::enqueueBuffers(uint alsource) {
     uint preloaded = 0;
     if (!unusedBuffers.empty()) {
         uint buffer = unusedBuffers.front();
@@ -130,6 +122,24 @@ void ALStream::update(double delta) {
             AL_CHECK(alSourceQueueBuffers(alsource, 1, &buffer));
         }
     }
+    return preloaded;
+}
+
+void ALStream::update(double delta) {
+    if (this->speaker == 0) {
+        return;
+    }
+    auto speaker = audio::get_speaker(this->speaker);
+    if (speaker == nullptr) {
+        speaker = 0;
+        return;
+    }
+    ALSpeaker* alspeaker = dynamic_cast<ALSpeaker*>(speaker);
+    uint alsource = alspeaker->source;
+    
+    unqueueBuffers(alsource);
+    uint preloaded = enqueueBuffers(alsource);
+    
     if (speaker->isStopped() && !alspeaker->stopped) {
         if (preloaded) {
             speaker->play();
@@ -153,7 +163,20 @@ duration_t ALStream::getTime() const {
 }
 
 void ALStream::setTime(duration_t time) {
-    // TODO: implement
+    if (!source->isSeekable())
+        return;
+    uint sample = time * source->getSampleRate();
+    source->seek(sample);
+    auto alspeaker = dynamic_cast<ALSpeaker*>(audio::get_speaker(this->speaker));
+    if (alspeaker) {
+        AL_CHECK(alSourceStop(alspeaker->source));
+        unqueueBuffers(alspeaker->source);
+        totalPlayedSamples = sample;
+        enqueueBuffers(alspeaker->source);
+        AL_CHECK(alSourcePlay(alspeaker->source));
+    } else {
+        totalPlayedSamples = sample;
+    }
 }
 
 ALSpeaker::ALSpeaker(ALAudio* al, uint source, int priority, int channel) 
@@ -247,6 +270,9 @@ duration_t ALSpeaker::getDuration() const {
 }
 
 void ALSpeaker::setTime(duration_t time) {
+    if (stream) {
+        return stream->setTime(time);
+    }
     AL_CHECK(alSourcef(source, AL_SEC_OFFSET, static_cast<float>(time)));
 }
 

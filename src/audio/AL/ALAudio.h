@@ -55,6 +55,8 @@ namespace audio {
         bool loop = false;
 
         bool preloadBuffer(uint buffer, bool loop);
+        void unqueueBuffers(uint alsource);
+        uint enqueueBuffers(uint alsource);
     public:
         size_t totalPlayedSamples = 0;
 
