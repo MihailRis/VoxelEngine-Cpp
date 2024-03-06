@@ -16,6 +16,7 @@
 #include "../content/Content.h"
 #include "../items/ItemDef.h"
 #include "../items/Inventory.h"
+#include "../items/Inventories.h"
 #include "../maths/voxmaths.h"
 #include "../objects/Player.h"
 #include "../voxels/Block.h"
@@ -334,6 +335,12 @@ void InventoryView::bind(
             inventory->getSlot(slot->getLayout().index),
             frontend, interaction
         );
+    }
+}
+
+void InventoryView::unbind() {
+    if (inventory->isVirtual()) {
+        frontend->getLevel()->inventories->remove(inventory->getId());   
     }
 }
 

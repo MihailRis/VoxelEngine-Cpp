@@ -113,6 +113,8 @@ public:
         LevelFrontend* frontend, 
         InventoryInteraction* interaction
     );
+    
+    void unbind();
 
     std::shared_ptr<SlotView> addSlot(SlotLayout layout);
 

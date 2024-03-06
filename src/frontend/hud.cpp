@@ -409,20 +409,11 @@ void Hud::openPermanent(UiDocument* doc) {
 }
 
 void Hud::closeInventory() {
-    auto level = frontend->getLevel();
-
     inventoryOpen = false;
     ItemStack& grabbed = interaction->getGrabbedItem();
     grabbed.clear();
     inventoryView = nullptr;
-    if (blockUI) {
-        auto blockinv = blockUI->getInventory();
-        // todo: do it automatically
-        if (blockinv->isVirtual()) {
-            level->inventories->remove(blockinv->getId());   
-        }
-        blockUI = nullptr;
-    }
+    blockUI = nullptr;
     secondUI = nullptr;
 }
 
@@ -458,6 +449,9 @@ void Hud::remove(HudElement& element) {
             inventory = invview->getInventory().get();
         }
         scripting::on_ui_close(document, inventory);
+        if (invview) {
+            invview->unbind();
+        }
     }
     gui->remove(element.getNode());
 }
