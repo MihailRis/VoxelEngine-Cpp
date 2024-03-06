@@ -269,6 +269,9 @@ namespace audio {
         /// @return time position in seconds
         virtual duration_t getTime() const = 0;
 
+        /// @brief Get playing audio total duration
+        virtual duration_t getDuration() const = 0;
+
         /// @brief Set playing audio time position
         /// @param time time position in seconds
         virtual void setTime(duration_t time) = 0;

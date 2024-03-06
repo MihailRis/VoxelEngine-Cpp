@@ -25,7 +25,10 @@ Speaker* ALSound::newInstance(int priority, int channel) const {
         return nullptr;
     }
     AL_CHECK(alSourcei(source, AL_BUFFER, buffer));
-    return new ALSpeaker(al, source, priority, channel);
+
+    auto speaker = new ALSpeaker(al, source, priority, channel);
+    speaker->duration = duration;
+    return speaker;
 }
 
 ALStream::ALStream(ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSource)
@@ -77,6 +80,11 @@ void ALStream::bindSpeaker(speakerid_t speaker) {
         sp->stop();
     }
     this->speaker = speaker;
+    sp = audio::get_speaker(speaker);
+    if (sp) {
+        auto alspeaker = dynamic_cast<ALSpeaker*>(sp);
+        alspeaker->duration = source->getTotalDuration();
+    }
 }
 
 speakerid_t ALStream::getSpeaker() const {
@@ -205,6 +213,10 @@ void ALSpeaker::stop() {
 
 duration_t ALSpeaker::getTime() const {
     return static_cast<duration_t>(AL::getSourcef(source, AL_SEC_OFFSET));
+}
+
+duration_t ALSpeaker::getDuration() const {
+    return duration;
 }
 
 void ALSpeaker::setTime(duration_t time) {

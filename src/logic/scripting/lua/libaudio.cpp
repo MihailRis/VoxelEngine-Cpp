@@ -355,6 +355,18 @@ static int l_audio_get_time(lua_State* L) {
     return 1;
 }
 
+/// @brief audio.get_duration(speakerid: integer) -> number
+static int l_audio_get_duration(lua_State* L) {
+    lua::luaint id = lua_tonumber(L, 1);
+    auto speaker = audio::get_speaker(id);
+    if (speaker != nullptr) {
+        lua_pushnumber(L, speaker->getDuration());
+        return 1;
+    }
+    lua_pushnumber(L, 0.0);
+    return 1;
+}
+
 /// @brief audio.get_position(speakerid: integer) -> number, number, number
 static int l_audio_get_position(lua_State* L) {
     lua::luaint id = lua_tonumber(L, 1);
@@ -399,6 +411,7 @@ const luaL_Reg audiolib [] = {
     {"get_volume", lua_wrap_errors<l_audio_get_volume>},
     {"get_pitch", lua_wrap_errors<l_audio_get_pitch>},
     {"get_time", lua_wrap_errors<l_audio_get_time>},
+    {"get_duration", lua_wrap_errors<l_audio_get_duration>},
     {"get_position", lua_wrap_errors<l_audio_get_position>},
     {"get_velocity", lua_wrap_errors<l_audio_get_velocity>},
     {NULL, NULL}

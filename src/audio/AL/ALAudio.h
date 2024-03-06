@@ -79,6 +79,7 @@ namespace audio {
         bool stopped = true;
         bool paused = false;
         uint source;
+        duration_t duration = 0.0f;
 
         ALSpeaker(ALAudio* al, uint source, int priority, int channel);
         ~ALSpeaker();
@@ -102,6 +103,7 @@ namespace audio {
         void stop() override;
 
         duration_t getTime() const override;
+        duration_t getDuration() const override;
         void setTime(duration_t time) override;
 
         void setPosition(glm::vec3 pos) override;
