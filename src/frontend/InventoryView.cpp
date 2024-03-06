@@ -339,7 +339,7 @@ void InventoryView::bind(
 }
 
 void InventoryView::unbind() {
-    if (inventory->isVirtual()) {
+    if (inventory && inventory->isVirtual()) {
         frontend->getLevel()->inventories->remove(inventory->getId());   
     }
 }
