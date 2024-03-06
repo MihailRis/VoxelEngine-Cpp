@@ -51,6 +51,14 @@
 #include "../items/Inventories.h"
 #include "../logic/scripting/scripting.h"
 
+
+// implemented in debug_panel.cpp
+extern std::shared_ptr<gui::UINode> create_debug_panel(
+    Engine* engine, 
+    Level* level, 
+    Player* player
+);
+
 HudElement::HudElement(
     hud_element_mode mode, 
     UiDocument* document, 
@@ -129,12 +137,6 @@ std::shared_ptr<InventoryView> Hud::createHotbar() {
     view->setInteractive(false);
     return view;
 }
-
-extern std::shared_ptr<gui::UINode> create_debug_panel(
-    Engine* engine, 
-    Level* level, 
-    Player* player
-);
 
 Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player) 
   : engine(engine),
@@ -320,6 +322,7 @@ void Hud::openInventory(
     if (blockUI == nullptr) {
         throw std::runtime_error("block UI root element must be 'inventory'");
     }
+    secondUI = blockUI;
     if (playerInventory) {
         openInventory();
     } else {
@@ -334,7 +337,20 @@ void Hud::openInventory(
     currentblockid = level->chunks->get(block.x, block.y, block.z)->id;
     add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
 }
- 
+
+void Hud::showOverlay(UiDocument* doc, bool playerInventory) {
+    if (isInventoryOpen()) {
+        closeInventory();
+    }
+    secondUI = doc->getRoot();
+    if (playerInventory) {
+        openInventory();
+    } else {
+        inventoryOpen = true;
+    }
+    add(HudElement(hud_element_mode::inventory_bound, doc, secondUI, false));
+}
+
 /// @brief Add element as permanent overlay
 /// @param doc element layout document
 void Hud::openPermanent(UiDocument* doc) {
@@ -365,6 +381,7 @@ void Hud::closeInventory() {
         }
         blockUI = nullptr;
     }
+    secondUI = nullptr;
 }
 
 void Hud::add(HudElement element) {
@@ -471,7 +488,7 @@ void Hud::draw(const GfxContext& ctx){
         contentAccessPanel->setCoord(glm::vec2(width-caWidth, 0));
 
         glm::vec2 invSize = inventoryView ? inventoryView->getSize() : glm::vec2();
-        if (blockUI == nullptr) {
+        if (secondUI == nullptr) {
             if (inventoryView) {
                 inventoryView->setCoord(glm::vec2(
                     glm::min(width/2-invSize.x/2, width-caWidth-10-invSize.x),
@@ -479,7 +496,7 @@ void Hud::draw(const GfxContext& ctx){
                 ));
             }
         } else {
-            glm::vec2 blockInvSize = blockUI->getSize();
+            glm::vec2 blockInvSize = secondUI->getSize();
             float invwidth = glm::max(invSize.x, blockInvSize.x);
             int interval = invSize.y > 0.0 ? 5 : 0;
             float totalHeight = invSize.y + blockInvSize.y + interval;
@@ -489,7 +506,7 @@ void Hud::draw(const GfxContext& ctx){
                     height/2+totalHeight/2-invSize.y
                 ));
             }
-            blockUI->setCoord(glm::vec2(
+            secondUI->setCoord(glm::vec2(
                 glm::min(width/2-invwidth/2, width-caWidth-10-invwidth),
                 height/2-totalHeight/2
             ));
