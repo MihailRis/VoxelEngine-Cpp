@@ -112,7 +112,11 @@ void GUI::act(float delta) {
 
             if (!Events::_cursor_locked) {
                 if (Events::clicked(mousecode::BUTTON_1)) {
-                    focus->mouseMove(this, Events::cursor.x, Events::cursor.y);
+                    if (Events::jclicked(mousecode::BUTTON_1) ||
+                        Events::delta.x || Events::delta.y)
+                    {
+                        focus->mouseMove(this, Events::cursor.x, Events::cursor.y);
+                    }
                 }
             }
         }
