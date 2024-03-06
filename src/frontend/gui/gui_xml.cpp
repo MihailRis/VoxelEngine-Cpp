@@ -22,6 +22,25 @@ static Align align_from_string(const std::string& str, Align def) {
     return def;
 }
 
+static Gravity gravity_from_string(const std::string& str) {
+    static const std::unordered_map<std::string, Gravity> gravity_names {
+        {"top-left", Gravity::top_left},
+        {"top-center", Gravity::top_center},
+        {"top-right", Gravity::top_right},
+        {"center-left", Gravity::center_left},
+        {"center-center", Gravity::center_center},
+        {"center-right", Gravity::center_right},
+        {"bottom-left", Gravity::bottom_left},
+        {"bottom-center", Gravity::bottom_center},
+        {"bottom-right", Gravity::bottom_right},
+    };
+    auto found = gravity_names.find(str);
+    if (found == gravity_names.end()) {
+        return found->second;
+    }
+    return Gravity::none;
+}
+
 /* Read basic UINode properties */
 static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& node) {
     if (element->has("id")) {
@@ -67,6 +86,12 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
     }
     std::string alignName = element->attr("align", "").getText();
     node.setAlign(align_from_string(alignName, node.getAlign()));
+
+    if (element->has("gravity")) {
+        node.setGravity(gravity_from_string(
+            element->attr("gravity").getText()
+        ));
+    }
 }
 
 

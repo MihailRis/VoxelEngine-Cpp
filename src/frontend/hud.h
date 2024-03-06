@@ -97,7 +97,7 @@ class Hud {
     /// @brief Block inventory view
     std::shared_ptr<InventoryView> blockUI = nullptr;
     /// @brief Position of the block open
-    glm::ivec3 currentblock {};
+    glm::ivec3 blockPos {};
     /// @brief Id of the block open (used to detect block destruction or replacement)
     blockid_t currentblockid = 0;
 
@@ -107,6 +107,7 @@ class Hud {
     std::shared_ptr<InventoryView> createContentAccess();
     std::shared_ptr<InventoryView> createHotbar();
 
+    void processInput(bool visible);
     void updateElementsPosition(const Viewport& viewport);
     void cleanup();
 public:

@@ -229,10 +229,7 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     gui->add(grabbedItemView);
 
     auto dgrapher = std::make_shared<DeltaGrapher>(350, 250, 2000);
-    dgrapher->setPositionFunc([=]() {
-        glm::vec2 size = dgrapher->getSize();
-        return glm::vec2(Window::width-size.x, Window::height-size.y);
-    });
+    dgrapher->setGravity(gui::Gravity::bottom_right);
     add(HudElement(hud_element_mode::permanent, nullptr, dgrapher, true));
 }
 
@@ -254,7 +251,49 @@ void Hud::cleanup() {
         return e.isRemoved();
     });
     elements.erase(it, elements.end());
-} 
+}
+
+void Hud::processInput(bool visible) {
+    if (Events::jpressed(keycode::ESCAPE)) {
+        if (pause) {
+            setPause(false);
+        } else if (inventoryOpen) {
+            closeInventory();
+        } else {
+            setPause(true);
+        }
+    }
+
+    if (visible && Events::jactive(BIND_HUD_INVENTORY)) {
+        if (inventoryOpen) {
+            closeInventory();
+        } else {
+            openInventory();
+        }
+    }
+    if (!pause) {
+        if (!inventoryOpen && Events::scroll) {
+            int slot = player->getChosenSlot();
+            slot = (slot - Events::scroll) % 10;
+            if (slot < 0) {
+                slot += 10;
+            }
+            player->setChosenSlot(slot);
+        }
+        for (
+            int i = static_cast<int>(keycode::NUM_1); 
+            i <= static_cast<int>(keycode::NUM_9); 
+            i++
+        ) {
+            if (Events::jpressed(i)) {
+                player->setChosenSlot(i - static_cast<int>(keycode::NUM_1));
+            }
+        }
+        if (Events::jpressed(keycode::NUM_0)) {
+            player->setChosenSlot(9);
+        }
+    }
+}
 
 void Hud::update(bool visible) {
     auto level = frontend->getLevel();
@@ -268,31 +307,16 @@ void Hud::update(bool visible) {
     if (pause && menu->getCurrent().panel == nullptr) {
         setPause(false);
     }
-    if (Events::jpressed(keycode::ESCAPE) && !gui->isFocusCaught()) {
-        if (pause) {
-            setPause(false);
-        } else if (inventoryOpen) {
-            closeInventory();
-        } else {
-            setPause(true);
-        }
-    }
 
-    if (visible && !gui->isFocusCaught() && !pause) {
-        if (Events::jactive(BIND_HUD_INVENTORY)) {
-            if (inventoryOpen) {
-                closeInventory();
-            } else {
-                openInventory();
-            }
-        }
+    if (!gui->isFocusCaught()) {
+        processInput(visible);
     }
     if ((pause || inventoryOpen) == Events::_cursor_locked) {
         Events::toggleCursor();
     }
 
     if (blockUI) {
-        voxel* vox = level->chunks->get(currentblock.x, currentblock.y, currentblock.z);
+        voxel* vox = level->chunks->get(blockPos.x, blockPos.y, blockPos.z);
         if (vox == nullptr || vox->id != currentblockid) {
             closeInventory();
         }
@@ -307,25 +331,6 @@ void Hud::update(bool visible) {
     contentAccessPanel->setSize(glm::vec2(invSize.x, Window::height));
     contentAccess->setMinSize(glm::vec2(1, Window::height));
     hotbarView->setVisible(visible);
-
-    if (!gui->isFocusCaught() && !pause) {
-        for (int i = static_cast<int>(keycode::NUM_1); i <= static_cast<int>(keycode::NUM_9); i++) {
-            if (Events::jpressed(i)) {
-                player->setChosenSlot(i - static_cast<int>(keycode::NUM_1));
-            }
-        }
-        if (Events::jpressed(keycode::NUM_0)) {
-            player->setChosenSlot(9);
-        }
-    }
-    if (!pause && !inventoryOpen && Events::scroll) {
-        int slot = player->getChosenSlot();
-        slot = (slot - Events::scroll) % 10;
-        if (slot < 0) {
-            slot += 10;
-        }
-        player->setChosenSlot(slot);
-    }
 
     if (visible) {
         for (auto& element : elements) {
@@ -348,11 +353,6 @@ void Hud::openInventory() {
     add(HudElement(hud_element_mode::inventory_bound, inventoryDocument, inventoryView, false));
 }
 
-/// @brief Show player inventory + block UI
-/// @param block world position of the open block
-/// @param doc block UI document (root element must be an InventoryView)
-/// @param blockinv block inventory. 
-/// If blockinv is nullptr a new virtual inventory will be created
 void Hud::openInventory(
     glm::ivec3 block, 
     UiDocument* doc, 
@@ -378,7 +378,7 @@ void Hud::openInventory(
     }
     level->chunks->getChunkByVoxel(block.x, block.y, block.z)->setUnsaved(true);
     blockUI->bind(blockinv, frontend, interaction.get());
-    currentblock = block;
+    blockPos = block;
     currentblockid = level->chunks->get(block.x, block.y, block.z)->id;
     add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
 }
@@ -427,13 +427,13 @@ void Hud::add(HudElement element) {
             scripting::on_ui_open(
                 element.getDocument(), 
                 inventory.get(), 
-                currentblock
+                blockPos
             );
         } else {
             scripting::on_ui_open(
                 element.getDocument(), 
                 nullptr, 
-                currentblock
+                blockPos
             );
         }
     }

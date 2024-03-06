@@ -24,6 +24,22 @@ namespace gui {
         top=left, bottom=right,
     };
 
+    enum class Gravity {
+        none,
+        
+        top_left,
+        top_center,
+        top_right,
+
+        center_left,
+        center_center,
+        center_right,
+
+        bottom_left,
+        bottom_center,
+        bottom_right
+    };
+
     /// @brief Base abstract class for all UI elements
     class UINode {
         /// @brief element identifier used for direct access in UiDocument
@@ -161,6 +177,8 @@ namespace gui {
 
         /* Fetch pos from positionfunc if assigned */
         void reposition();
+
+        virtual void setGravity(Gravity gravity);
     };
 }
 

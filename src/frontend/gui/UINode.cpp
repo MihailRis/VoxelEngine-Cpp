@@ -190,3 +190,50 @@ void UINode::reposition() {
         setPos(positionfunc());
     }
 }
+
+void UINode::setGravity(Gravity gravity) {
+    if (gravity == Gravity::none) {
+        setPositionFunc(nullptr);
+        return;
+    }
+    setPositionFunc([this, gravity](){
+        auto parent = getParent();
+        if (parent == nullptr) {
+            return getPos();
+        }
+        glm::vec4 margin = getMargin();
+        glm::vec2 size = getSize();
+        glm::vec2 parentSize = parent->getSize();
+
+        float x = 0.0f, y = 0.0f;
+        switch (gravity) {
+            case Gravity::top_left:
+            case Gravity::center_left:
+            case Gravity::bottom_left: x = parentSize.x+margin.x; break;
+            case Gravity::top_center:
+            case Gravity::center_center:
+            case Gravity::bottom_center: x = (parentSize.x-size.x)/2.0f; break;
+            case Gravity::top_right:
+            case Gravity::center_right:
+            case Gravity::bottom_right: x = parentSize.x-size.x-margin.z; break;
+            default: break;
+        }
+        switch (gravity) {
+            case Gravity::top_left:
+            case Gravity::top_center:
+            case Gravity::top_right: y = parentSize.y+margin.y; break;
+            case Gravity::center_left:
+            case Gravity::center_center:
+            case Gravity::center_right: y = (parentSize.y-size.y)/2.0f; break;
+            case Gravity::bottom_left:
+            case Gravity::bottom_center:
+            case Gravity::bottom_right: y = parentSize.y-size.y-margin.w; break;
+            default: break;
+        }
+        return glm::vec2(x, y);
+    });
+
+    if (parent) {
+        reposition();
+    }
+}
