@@ -59,6 +59,43 @@ extern std::shared_ptr<gui::UINode> create_debug_panel(
     Player* player
 );
 
+class DeltaGrapher : public gui::UINode {
+    std::unique_ptr<int[]> points;
+    float multiplier;
+    int index = 0;
+    int dmwidth;
+    int dmheight;
+public:
+    DeltaGrapher(uint width, uint height, float multiplier) 
+      : gui::UINode(glm::vec2(width, height)), 
+        multiplier(multiplier),
+        dmwidth(width),
+        dmheight(height)
+    {
+        points = std::make_unique<int[]>(width);
+    }
+
+    void act(float delta) override {
+        index = index + 1 % dmwidth;
+        int value = static_cast<int>(delta * multiplier);
+        points[index % dmwidth] = std::min(value, dmheight);
+    }
+
+    void draw(const GfxContext* pctx, Assets* assets) override {
+        glm::vec2 pos = calcPos();
+        auto batch = pctx->getBatch2D();
+        batch->texture(nullptr);
+        batch->lineWidth(1);
+        for (int i = index+1; i < index+dmwidth; i++) {
+            int j = i % dmwidth;
+            batch->line(
+                pos.x + i - index, pos.y + size.y - points[j], 
+                pos.x + i - index, pos.y + size.y, 1.0f, 1.0f, 1.0f, 0.2f
+            );
+        }
+    }
+};
+
 HudElement::HudElement(
     hud_element_mode mode, 
     UiDocument* document, 
@@ -70,6 +107,7 @@ HudElement::HudElement(
 void HudElement::update(bool pause, bool inventoryOpen, bool debugMode) {
     if (debug && !debugMode) {
         node->setVisible(false);
+        return;
     }
     switch (mode) {
         case hud_element_mode::permanent:
@@ -189,6 +227,13 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     gui->add(debugPanel);
     gui->add(contentAccessPanel);
     gui->add(grabbedItemView);
+
+    auto dgrapher = std::make_shared<DeltaGrapher>(350, 250, 2000);
+    dgrapher->setPositionFunc([=]() {
+        glm::vec2 size = dgrapher->getSize();
+        return glm::vec2(Window::width-size.x, Window::height-size.y);
+    });
+    add(HudElement(hud_element_mode::permanent, nullptr, dgrapher, true));
 }
 
 Hud::~Hud() {
@@ -428,11 +473,6 @@ void Hud::remove(std::shared_ptr<gui::UINode> node) {
     cleanup();
 }
 
-class DeltaGrapher : gui::UINode {
-
-public:
-};
-
 void Hud::draw(const GfxContext& ctx){
     const Viewport& viewport = ctx.getViewport();
     const uint width = viewport.getWidth();
@@ -463,26 +503,6 @@ void Hud::draw(const GfxContext& ctx){
             chsizex, chsizey, 0,0, 1,1, 1,1,1,1
         );
         batch->flush();
-    }
-
-    // Delta-time visualizer
-    if (player->debug) {
-        batch->texture(nullptr);
-        const int dmwidth = 256;
-        const float dmscale = 4000.0f;
-        static float deltameter[dmwidth]{};
-        static int index = 0;
-        index = index + 1 % dmwidth;
-        float delta = static_cast<float>(engine->getDelta());
-        deltameter[index%dmwidth] = glm::min(0.2f, delta)*dmscale;
-        batch->lineWidth(1);
-        for (int i = index+1; i < index+dmwidth; i++) {
-            int j = i % dmwidth;
-            batch->line(
-                width-dmwidth+i-index, height-deltameter[j], 
-                width-dmwidth+i-index, height, 1.0f, 1.0f, 1.0f, 0.2f
-            );
-        }
     }
 
     if (inventoryOpen) {
