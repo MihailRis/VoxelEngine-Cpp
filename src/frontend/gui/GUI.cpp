@@ -16,7 +16,7 @@
 using namespace gui;
 
 GUI::GUI() {
-    container = std::make_shared<Container>(glm::vec2(0, 0), glm::vec2(1000));
+    container = std::make_shared<Container>(glm::vec2(1000));
     uicamera = std::make_unique<Camera>(glm::vec3(), Window::height);
 	uicamera->perspective = false;
 	uicamera->flipped = true;

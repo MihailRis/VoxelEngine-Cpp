@@ -30,7 +30,7 @@ namespace gui {
         */
         std::string id = "";
     protected:
-        glm::vec2 coord;
+        glm::vec2 coord {0.0f};
         glm::vec2 size;
         glm::vec2 minSize {1.0f};
         glm::vec4 color {1.0f};
@@ -46,7 +46,7 @@ namespace gui {
         Align align = Align::left;
         UINode* parent = nullptr;
         vec2supplier positionfunc = nullptr;
-        UINode(glm::vec2 coord, glm::vec2 size);
+        UINode(glm::vec2 size);
     public:
         virtual ~UINode();
         /** Called every frame for all visible elements 

@@ -78,9 +78,9 @@ void InventoryBuilder::addGrid(
     view->setSize(vsize);
 
     if (addpanel) {
-        auto panel = std::make_shared<gui::Container>(coord, glm::vec2(width, height));
+        auto panel = std::make_shared<gui::Container>(glm::vec2(width, height));
         view->setColor(glm::vec4(0.122f, 0.122f, 0.122f, 0.878f));
-        view->add(panel);
+        view->add(panel, coord);
     }
 
     for (int row = 0; row < rows; row++) {
@@ -109,7 +109,7 @@ std::shared_ptr<InventoryView> InventoryBuilder::build() {
 
 SlotView::SlotView(
     SlotLayout layout
-) : UINode(glm::vec2(), glm::vec2(InventoryView::SLOT_SIZE)),
+) : UINode(glm::vec2(InventoryView::SLOT_SIZE)),
     layout(layout)
 {
     setColor(glm::vec4(0, 0, 0, 0.2f));
@@ -280,7 +280,7 @@ const SlotLayout& SlotView::getLayout() const {
     return layout;
 }
 
-InventoryView::InventoryView() : Container(glm::vec2(), glm::vec2()) {
+InventoryView::InventoryView() : Container(glm::vec2()) {
     setColor(glm::vec4(0, 0, 0, 0.0f));
 }
 

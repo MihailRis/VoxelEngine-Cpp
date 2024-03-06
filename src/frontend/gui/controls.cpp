@@ -17,17 +17,19 @@
 using namespace gui;
 
 Label::Label(std::string text, std::string fontName) 
-     : UINode(glm::vec2(), glm::vec2(text.length() * 8, 15)), 
-       text(util::str2wstr_utf8(text)), 
-       fontName(fontName) {
+  : UINode(glm::vec2(text.length() * 8, 15)), 
+    text(util::str2wstr_utf8(text)), 
+    fontName(fontName) 
+{
     setInteractive(false);
 }
 
 
 Label::Label(std::wstring text, std::string fontName) 
-     : UINode(glm::vec2(), glm::vec2(text.length() * 8, 15)), 
-       text(text), 
-       fontName(fontName) {
+  : UINode(glm::vec2(text.length() * 8, 15)), 
+    text(text), 
+    fontName(fontName) 
+{
     setInteractive(false);
 }
 
@@ -191,7 +193,7 @@ bool Label::isMultiline() const {
 }
 
 // ================================= Image ====================================
-Image::Image(std::string texture, glm::vec2 size) : UINode(glm::vec2(), size), texture(texture) {
+Image::Image(std::string texture, glm::vec2 size) : UINode(size), texture(texture) {
     setInteractive(false);
 }
 
@@ -330,7 +332,7 @@ Align Button::getTextAlign() const {
 }
 
 // ============================== RichButton ==================================
-RichButton::RichButton(glm::vec2 size) : Container(glm::vec2(), size) {
+RichButton::RichButton(glm::vec2 size) : Container(size) {
     setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
 }
 
@@ -904,17 +906,19 @@ void InputBindBox::keyPressed(keycode key) {
 }
 
 // ================================ TrackBar ==================================
-TrackBar::TrackBar(double min, 
-                   double max, 
-                   double value, 
-                   double step, 
-                   int trackWidth)
-    : UINode(glm::vec2(), glm::vec2(26)), 
-      min(min), 
-      max(max), 
-      value(value), 
-      step(step), 
-      trackWidth(trackWidth) {
+TrackBar::TrackBar(
+    double min, 
+    double max, 
+    double value, 
+    double step, 
+    int trackWidth
+) : UINode(glm::vec2(26)), 
+    min(min), 
+    max(max), 
+    value(value), 
+    step(step), 
+    trackWidth(trackWidth) 
+{
     setColor(glm::vec4(0.f, 0.f, 0.f, 0.4f));
     setHoverColor(glm::vec4(0.01f, 0.02f, 0.03f, 0.5f));
 }
@@ -1009,7 +1013,7 @@ void TrackBar::setTrackColor(glm::vec4 color) {
 }
 
 // ================================ CheckBox ==================================
-CheckBox::CheckBox(bool checked) : UINode(glm::vec2(), glm::vec2(32.0f)), checked(checked) {
+CheckBox::CheckBox(bool checked) : UINode(glm::vec2(32.0f)), checked(checked) {
     setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
 }
 

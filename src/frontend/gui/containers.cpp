@@ -10,7 +10,7 @@
 
 using namespace gui;
 
-Container::Container(glm::vec2 coord, glm::vec2 size) : UINode(coord, size) {
+Container::Container(glm::vec2 size) : UINode(size) {
     actualLength = size.y;
     setColor(glm::vec4());
 }
@@ -157,9 +157,10 @@ const std::vector<std::shared_ptr<UINode>>& Container::getNodes() const {
 }
 
 Panel::Panel(glm::vec2 size, glm::vec4 padding, float interval)
-    : Container(glm::vec2(), size), 
-      padding(padding), 
-      interval(interval) {
+  : Container(size), 
+    padding(padding), 
+    interval(interval) 
+{
     setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.75f));
 }
 
@@ -245,7 +246,7 @@ Orientation Panel::getOrientation() const {
     return orientation;
 }
 
-PagesControl::PagesControl() : Container(glm::vec2(), glm::vec2(1)){
+PagesControl::PagesControl() : Container(glm::vec2(1)){
 }
 
 bool PagesControl::has(std::string name) {

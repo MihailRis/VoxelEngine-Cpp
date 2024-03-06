@@ -33,7 +33,7 @@ namespace gui {
         int actualLength = 0;
         bool scrollable = true;
     public:
-        Container(glm::vec2 coord, glm::vec2 size);
+        Container(glm::vec2 size);
 
         virtual void act(float delta) override;
         virtual void drawBackground(const GfxContext* pctx, Assets* assets);

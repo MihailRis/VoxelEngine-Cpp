@@ -5,7 +5,7 @@
 using gui::UINode;
 using gui::Align;
 
-UINode::UINode(glm::vec2 coord, glm::vec2 size) : coord(coord), size(size) {
+UINode::UINode(glm::vec2 size) : size(size) {
 }
 
 UINode::~UINode() {

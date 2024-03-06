@@ -77,7 +77,7 @@ std::shared_ptr<UINode> create_debug_panel(
     }));
 
     for (int ax = 0; ax < 3; ax++) {
-        auto sub = std::make_shared<Container>(glm::vec2(), glm::vec2(250, 27));
+        auto sub = std::make_shared<Container>(glm::vec2(250, 27));
 
         std::wstring str = L"x: ";
         str[0] += ax;

@@ -149,7 +149,7 @@ static std::shared_ptr<UINode> readLabel(UiXmlReader& reader, xml::xmlelement el
 }
 
 static std::shared_ptr<UINode> readContainer(UiXmlReader& reader, xml::xmlelement element) {
-    auto container = std::make_shared<Container>(glm::vec2(), glm::vec2());
+    auto container = std::make_shared<Container>(glm::vec2());
     _readContainer(reader, element, *container);
     return container;
 }
