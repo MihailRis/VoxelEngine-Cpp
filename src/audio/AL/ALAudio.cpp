@@ -254,6 +254,13 @@ void ALSpeaker::stop() {
     stopped = true;
     if (source) {
         AL_CHECK(alSourceStop(source));
+
+        uint processed = AL::getSourcei(source, AL_BUFFERS_PROCESSED);
+        while (processed--) {
+            uint buffer;
+            AL_CHECK(alSourceUnqueueBuffers(source, 1, &buffer));
+            al->freeBuffer(buffer);
+        }
         al->freeSource(source);
     }
 }
