@@ -1,10 +1,12 @@
 #ifndef GRAPHICS_BATCH3D_H_
 #define GRAPHICS_BATCH3D_H_
 
-#include <stdlib.h>
-#include <glm/glm.hpp>
 #include "UVRegion.h"
 #include "../typedefs.h"
+
+#include <memory>
+#include <stdlib.h>
+#include <glm/glm.hpp>
 
 class Mesh;
 class Texture;
@@ -12,10 +14,10 @@ class Texture;
 class Batch3D {
 	float* buffer;
 	size_t capacity;
-	Mesh* mesh;
+	std::unique_ptr<Mesh> mesh;
+	std::unique_ptr<Texture> blank;
 	size_t index;
-
-	Texture* blank;
+	
 	Texture* _texture;
 
 	void vertex(float x, float y, float z,

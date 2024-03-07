@@ -3,8 +3,7 @@
 
 #include <string>
 #include "../typedefs.h"
-
-class ImageData;
+#include "ImageData.h"
 
 class Texture {
 protected:
@@ -13,10 +12,11 @@ protected:
     uint height;
 public:
     Texture(uint id, uint width, uint height);
-    Texture(ubyte* data, uint width, uint height, uint format);
+    Texture(ubyte* data, uint width, uint height, ImageFormat format);
     virtual ~Texture();
 
     virtual void bind();
+    virtual void unbind();
     virtual void reload(ubyte* data);
 
     void setNearestFilter();

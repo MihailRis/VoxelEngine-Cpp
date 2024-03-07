@@ -24,7 +24,6 @@ struct skysprite {
 
 class Skybox {
     std::unique_ptr<Framebuffer> fbo;
-    uint cubemap;
     uint size;
     Shader* shader;
     bool ready = false;
