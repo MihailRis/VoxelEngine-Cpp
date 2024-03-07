@@ -10,8 +10,7 @@
 #include "ContentPack.h"
 #include "../logic/scripting/scripting.h"
 
-ContentBuilder::~ContentBuilder() {
-}
+ContentBuilder::~ContentBuilder() {}
 
 void ContentBuilder::add(Block* def) {
     checkIdentifier(def->name);
@@ -127,25 +126,25 @@ Content* ContentBuilder::build() {
 
 ContentIndices::ContentIndices(
     std::vector<Block*> blockDefs, 
-    std::vector<ItemDef*> itemDefs)
-    : blockDefs(blockDefs), 
-      itemDefs(itemDefs) {
-}
+    std::vector<ItemDef*> itemDefs
+) : blockDefs(blockDefs), 
+    itemDefs(itemDefs) 
+{}
 
-Content::Content(ContentIndices* indices, 
-                 std::unique_ptr<DrawGroups> drawGroups,
-                 std::unordered_map<std::string, Block*> blockDefs,
-                 std::unordered_map<std::string, ItemDef*> itemDefs,
-                 std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs)
-        : blockDefs(blockDefs),
-          itemDefs(itemDefs),
-          indices(indices),
-          packs(std::move(packs)),
-          drawGroups(std::move(drawGroups)) {
-}
+Content::Content(
+    ContentIndices* indices, 
+    std::unique_ptr<DrawGroups> drawGroups,
+    std::unordered_map<std::string, Block*> blockDefs,
+    std::unordered_map<std::string, ItemDef*> itemDefs,
+    std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs
+) : blockDefs(blockDefs),
+    itemDefs(itemDefs),
+    indices(indices),
+    packs(std::move(packs)),
+    drawGroups(std::move(drawGroups)) 
+{}
 
-Content::~Content() {
-}
+Content::~Content() {}
 
 Block* Content::findBlock(std::string id) const {
     auto found = blockDefs.find(id);

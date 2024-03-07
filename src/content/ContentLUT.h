@@ -19,9 +19,9 @@ struct contententry {
 
 // TODO: make it unified for all types of content
 
-/* Content indices lookup table or report 
-   used to convert world with different indices
-   Building with indices.json */
+/// @brief Content indices lookup table or report 
+/// used to convert world with different indices
+/// Building with indices.json
 class ContentLUT {
     std::vector<blockid_t> blocks;
     std::vector<std::string> blockNames;

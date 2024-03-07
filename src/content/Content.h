@@ -65,13 +65,15 @@ public:
     Content* build();
 };
 
-/* Runtime defs cache: indices */
+/// @brief Runtime defs cache: indices
 class ContentIndices {
     std::vector<Block*> blockDefs;
     std::vector<ItemDef*> itemDefs;
 public:
-    ContentIndices(std::vector<Block*> blockDefs,
-                   std::vector<ItemDef*> itemDefs);
+    ContentIndices(
+        std::vector<Block*> blockDefs, 
+        std::vector<ItemDef*> itemDefs
+    );
 
     inline Block* getBlockDef(blockid_t id) const {
         if (id >= blockDefs.size())
@@ -112,11 +114,13 @@ class Content {
 public:
     std::unique_ptr<DrawGroups> const drawGroups;
 
-    Content(ContentIndices* indices, 
-            std::unique_ptr<DrawGroups> drawGroups,
-            std::unordered_map<std::string, Block*> blockDefs,
-            std::unordered_map<std::string, ItemDef*> itemDefs,
-            std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs);
+    Content(
+        ContentIndices* indices, 
+        std::unique_ptr<DrawGroups> drawGroups,
+        std::unordered_map<std::string, Block*> blockDefs,
+        std::unordered_map<std::string, ItemDef*> itemDefs,
+        std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs
+    );
     ~Content();
 
     inline ContentIndices* getIndices() const {
