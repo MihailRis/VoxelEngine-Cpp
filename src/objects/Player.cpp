@@ -19,14 +19,14 @@ const float CHEAT_SPEED_MUL = 5.0f;
 const float JUMP_FORCE = 8.0f;
 
 Player::Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv) :
-        speed(speed),
-        chosenSlot(0),
-        inventory(inv),
-        camera(new Camera(position, glm::radians(90.0f))),
-        spCamera(new Camera(position, glm::radians(90.0f))),
-        tpCamera(new Camera(position, glm::radians(90.0f))),
-        currentCamera(camera),
-        hitbox(new Hitbox(position, glm::vec3(0.3f,0.9f,0.3f)))
+    speed(speed),
+    chosenSlot(0),
+    inventory(inv),
+    camera(std::make_shared<Camera>(position, glm::radians(90.0f))),
+    spCamera(std::make_shared<Camera>(position, glm::radians(90.0f))),
+    tpCamera(std::make_shared<Camera>(position, glm::radians(90.0f))),
+    currentCamera(camera),
+    hitbox(std::make_unique<Hitbox>(position, glm::vec3(0.3f,0.9f,0.3f)))
 {
 }
 
@@ -78,10 +78,15 @@ void Player::updateInput(
     float vel = std::max(glm::length(hitbox->velocity * 0.25f), 1.0f);
     int substeps = int(delta * vel * 1000);
     substeps = std::min(100, std::max(1, substeps));
-    level->physics->step(level->chunks.get(), hitbox.get(), 
-                         delta,  substeps, 
-                         crouch, flight ? 0.0f : 1.0f, 
-                         !noclip);
+    level->physics->step(
+        level->chunks.get(), 
+        hitbox.get(), 
+        delta, 
+        substeps, 
+        crouch, 
+        flight ? 0.0f : 1.0f, 
+        !noclip
+    );
                          
     if (flight && hitbox->grounded) {
         flight = false;
@@ -131,9 +136,11 @@ void Player::teleport(glm::vec3 position) {
 
 void Player::attemptToFindSpawnpoint(Level* level) {
     glm::vec3 ppos = hitbox->position;
-    glm::vec3 newpos {ppos.x + (rand() % 200 - 100),
-                      rand() % 80 + 100,
-                      ppos.z + (rand() % 200 - 100)};
+    glm::vec3 newpos (
+        ppos.x + (rand() % 200 - 100),
+        rand() % 80 + 100,
+        ppos.z + (rand() % 200 - 100)
+    );
     while (newpos.y > 0 && !level->chunks->isObstacleBlock(newpos.x, newpos.y-2, newpos.z)) {
         newpos.y--;
     }
