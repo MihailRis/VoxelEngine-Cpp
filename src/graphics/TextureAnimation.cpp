@@ -35,19 +35,23 @@ void TextureAnimator::update(float delta) {
             frame = elem.frames[elem.currentFrame];
         }
         if (frameNum != elem.currentFrame){
-            if (changedTextures.find(elem.dstTexture->id) == changedTextures.end()) changedTextures.insert(elem.dstTexture->id);
+            uint elemDstId = elem.dstTexture->getId();
+            uint elemSrcId = elem.srcTexture->getId();
+
+            if (changedTextures.find(elemDstId) == changedTextures.end()) 
+                changedTextures.insert(elemDstId);
 
             glBindFramebuffer(GL_FRAMEBUFFER, fboD);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, elem.dstTexture->id, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, elemDstId, 0);
 
             glBindFramebuffer(GL_FRAMEBUFFER, fboR);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, elem.srcTexture->id, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, elemSrcId, 0);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboD);
             glBindFramebuffer(GL_READ_FRAMEBUFFER, fboR);
 
-            float srcPosY = elem.srcTexture->height - frame.size.y - frame.srcPos.y; // vertical flip
+            float srcPosY = elem.srcTexture->getHeight() - frame.size.y - frame.srcPos.y; // vertical flip
 
             // Extensions
             const int ext = 2;

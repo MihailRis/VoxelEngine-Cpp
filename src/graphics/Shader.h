@@ -3,13 +3,14 @@
 
 #include <string>
 #include <glm/glm.hpp>
+#include "../typedefs.h"
 
 class GLSLExtension;
 
 class Shader {
+    uint id;
 public:
     static GLSLExtension* preprocessor;
-    unsigned int id;
 
     Shader(unsigned int id);
     ~Shader();

@@ -481,18 +481,16 @@ void Hud::draw(const GfxContext& ctx){
     // Crosshair
     if (!pause && !inventoryOpen && !player->debug) {
         GfxContext chctx = ctx.sub();
-        chctx.blendMode(blendmode::inversion);
+        chctx.setBlendMode(blendmode::inversion);
         auto texture = assets->getTexture("gui/crosshair");
         batch->texture(texture);
-        int chsizex = texture != nullptr ? texture->width : 16;
-        int chsizey = texture != nullptr ? texture->height : 16;
+        int chsizex = texture != nullptr ? texture->getWidth() : 16;
+        int chsizey = texture != nullptr ? texture->getHeight() : 16;
         batch->rect(
             (width-chsizex)/2, (height-chsizey)/2, 
             chsizex, chsizey, 0,0, 1,1, 1,1,1,1
         );
-        batch->flush();
     }
-    batch->flush();
 }
 
 void Hud::updateElementsPosition(const Viewport& viewport) {

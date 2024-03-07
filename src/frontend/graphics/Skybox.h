@@ -13,6 +13,7 @@ class Shader;
 class Assets;
 class Camera;
 class Batch3D;
+class Framebuffer;
 
 struct skysprite {
     std::string texture;
@@ -22,7 +23,7 @@ struct skysprite {
 };
 
 class Skybox {
-    uint fbo;
+    std::unique_ptr<Framebuffer> fbo;
     uint cubemap;
     uint size;
     Shader* shader;
@@ -44,7 +45,8 @@ public:
         Camera* camera, 
         Assets* assets, 
         float daytime,
-        float fog);
+        float fog
+    );
 
     void refresh(const GfxContext& pctx, float t, float mie, uint quality);
     void bind() const;

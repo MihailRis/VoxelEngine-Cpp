@@ -88,12 +88,11 @@ void Container::draw(const GfxContext* pctx, Assets* assets) {
     batch->flush();
     {
         GfxContext ctx = pctx->sub();
-        ctx.scissors(glm::vec4(pos.x, pos.y, size.x, size.y));
+        ctx.setScissors(glm::vec4(pos.x, pos.y, size.x, size.y));
         for (auto node : nodes) {
             if (node->isVisible())
                 node->draw(pctx, assets);
         }
-        batch->flush();
     }
 }
 

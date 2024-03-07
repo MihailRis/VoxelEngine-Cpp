@@ -95,7 +95,7 @@ ImageData* BlocksPreview::draw(
             break;
         }
     }
-    return fbo->texture->readData();
+    return fbo->getTexture()->readData();
 }
 
 std::unique_ptr<Atlas> BlocksPreview::build(
@@ -113,8 +113,8 @@ std::unique_ptr<Atlas> BlocksPreview::build(
     Viewport viewport(iconSize, iconSize);
     GfxContext pctx(nullptr, viewport, nullptr);
     GfxContext ctx = pctx.sub();
-    ctx.cullFace(true);
-    ctx.depthTest(true);
+    ctx.setCullFace(true);
+    ctx.setDepthTest(true);
 
     Framebuffer fbo(iconSize, iconSize, true);
     Batch3D batch(1024);

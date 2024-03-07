@@ -8,6 +8,8 @@
 #include "../../graphics/Shader.h"
 #include "../../graphics/Mesh.h"
 #include "../../graphics/Batch3D.h"
+#include "../../graphics/Texture.h"
+#include "../../graphics/Framebuffer.h"
 #include "../../window/Window.h"
 #include "../../window/Camera.h"
 
@@ -19,9 +21,9 @@ const int STARS_COUNT = 3000;
 const int STARS_SEED = 632;
 
 Skybox::Skybox(uint size, Shader* shader) 
-    : size(size), 
-      shader(shader), 
-      batch3d(new Batch3D(4096)) 
+  : size(size), 
+    shader(shader), 
+    batch3d(std::make_unique<Batch3D>(4096)) 
 {
     glGenTextures(1, &cubemap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
@@ -33,7 +35,10 @@ Skybox::Skybox(uint size, Shader* shader)
     for (uint face = 0; face < 6; face++) {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_RGB, size, size, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     }
-    glGenFramebuffers(1, &fbo);
+
+    uint fboid;
+    glGenFramebuffers(1, &fboid);
+    fbo = std::make_unique<Framebuffer>(fboid, 0, (std::unique_ptr<Texture>)nullptr);
 
     float vertices[] {
         -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
@@ -59,7 +64,6 @@ Skybox::Skybox(uint size, Shader* shader)
 
 Skybox::~Skybox() {
     glDeleteTextures(1, &cubemap);
-    glDeleteFramebuffers(1, &fbo);
 }
 
 void Skybox::drawBackground(Camera* camera, Assets* assets, int width, int height) {
@@ -109,7 +113,7 @@ void Skybox::draw(
     drawBackground(camera, assets, width, height);
 
     GfxContext ctx = pctx.sub();
-    ctx.blendMode(blendmode::addition);
+    ctx.setBlendMode(blendmode::addition);
 
     Shader* shader = assets->getShader("ui3d");
     shader->use();
@@ -141,15 +145,15 @@ void Skybox::draw(
 
 void Skybox::refresh(const GfxContext& pctx, float t, float mie, uint quality) {
     GfxContext ctx = pctx.sub();
-    ctx.depthMask(false);
-    ctx.depthTest(false);
+    ctx.setDepthMask(false);
+    ctx.setDepthTest(false);
+    ctx.setFramebuffer(fbo.get());
+    ctx.setViewport(Viewport(size, size));
 
     ready = true;
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
     shader->use();
-    Window::viewport(0,0, size, size);
 
     const glm::vec3 xaxs[] = {
         {0.0f, 0.0f, -1.0f},
@@ -194,8 +198,6 @@ void Skybox::refresh(const GfxContext& pctx, float t, float mie, uint quality) {
     }
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     glActiveTexture(GL_TEXTURE0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    Window::viewport(0, 0, Window::width, Window::height);
 }
 
 void Skybox::bind() const {

@@ -7,20 +7,26 @@
 class ImageData;
 
 class Texture {
-public:
+protected:
     uint id;
-    int width;
-    int height;
-    Texture(uint id, int width, int height);
-    Texture(ubyte* data, int width, int height, uint format);
-    ~Texture();
+    uint width;
+    uint height;
+public:
+    Texture(uint id, uint width, uint height);
+    Texture(ubyte* data, uint width, uint height, uint format);
+    virtual ~Texture();
 
-    void bind();
-    void reload(ubyte* data);
+    virtual void bind();
+    virtual void reload(ubyte* data);
 
     void setNearestFilter();
 
-    ImageData* readData();
+    virtual ImageData* readData();
+
+    virtual uint getWidth() const;
+    virtual uint getHeight() const;
+
+    virtual uint getId() const;
 
     static Texture* from(const ImageData* image);
 };

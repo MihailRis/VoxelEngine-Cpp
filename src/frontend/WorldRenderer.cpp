@@ -159,8 +159,8 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
     Shader* linesShader = assets->getShader("lines");
     {
         GfxContext ctx = pctx.sub();
-        ctx.depthTest(true);
-        ctx.cullFace(true);
+        ctx.setDepthTest(true);
+        ctx.setCullFace(true);
 
         float fogFactor = 15.0f / ((float)settings.chunks.loadDistance-2);
 
@@ -224,7 +224,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
 
     if (hudVisible && player->debug) {
         GfxContext ctx = pctx.sub();
-        ctx.depthTest(true);
+        ctx.setDepthTest(true);
 
         linesShader->use();
 
@@ -248,14 +248,14 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
                 0.f, (float)displayHeight,
                 -length, length) * model * glm::inverse(camera->rotation));
 
-        ctx.depthTest(false);
+        ctx.setDepthTest(false);
         lineBatch->lineWidth(4.0f);
         lineBatch->line(0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f);
         lineBatch->line(0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 0.f, 1.f);
         lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 1.f);
         lineBatch->render();
 
-        ctx.depthTest(true);
+        ctx.setDepthTest(true);
         lineBatch->lineWidth(2.0f);
         lineBatch->line(0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f);
         lineBatch->line(0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 0.f, 1.f);
