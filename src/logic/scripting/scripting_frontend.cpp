@@ -30,13 +30,13 @@ void scripting::on_frontend_init(Hud* hud) {
 }
 
 void scripting::on_frontend_close() {
-    scripting::hud = nullptr;
     for (auto& pack : scripting::engine->getContentPacks()) {
         emit_event(pack.id + ".hudclose", [&] (lua::LuaState* state) {
             state->pushinteger(hud->getPlayer()->getId());
             return 1;            
         });
     }
+    scripting::hud = nullptr;
 }
 
 void scripting::load_hud_script(int env, std::string packid, fs::path file) {
