@@ -22,20 +22,20 @@ void scripting::on_frontend_init(Hud* hud) {
     scripting::state->openlib("hud", hudlib, 0);
 
     for (auto& pack : scripting::engine->getContentPacks()) {
-        if (state->getglobal(pack.id+".hudopen")) {
+        emit_event(pack.id + ".hudopen", [&] (lua::LuaState* state) {
             state->pushinteger(hud->getPlayer()->getId());
-            state->callNoThrow(1);
-        }
+            return 1;            
+        });
     }
 }
 
 void scripting::on_frontend_close() {
     scripting::hud = nullptr;
     for (auto& pack : scripting::engine->getContentPacks()) {
-        if (state->getglobal(pack.id+".hudclose")) {
+        emit_event(pack.id + ".hudclose", [&] (lua::LuaState* state) {
             state->pushinteger(hud->getPlayer()->getId());
-            state->callNoThrow(1);
-        }
+            return 1;            
+        });
     }
 }
 

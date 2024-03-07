@@ -1,5 +1,6 @@
 #include "LuaState.h"
 
+#include <iomanip>
 #include <iostream>
 #include "lua_util.h"
 #include "api_lua.h"
@@ -217,8 +218,8 @@ int lua::LuaState::pushnil() {
     return 1;
 }
 
-bool lua::LuaState::getfield(const std::string& name) {
-    lua_getfield(L, -1, name.c_str());
+bool lua::LuaState::getfield(const std::string& name, int idx) {
+    lua_getfield(L, idx, name.c_str());
     if (lua_isnil(L, -1)) {
         lua_pop(L, -1);
         return false;
@@ -286,4 +287,29 @@ int lua::LuaState::createEnvironment(int parent) {
 void lua::LuaState::removeEnvironment(int id) {
     lua_pushnil(L);
     setglobal(envName(id));
+}
+
+void lua::LuaState::dumpStack() {
+    int top = gettop();
+    for (int i = 1; i <= top; i++) {
+        std::cout << std::setw(3) << i << std::setw(20) << luaL_typename(L, i) << std::setw(30);
+        switch (lua_type(L, i)) {
+            case LUA_TNUMBER:
+                std::cout << tonumber(i);
+                break;
+            case LUA_TSTRING:
+                std::cout << tostring(i);
+                break;
+            case LUA_TBOOLEAN:
+                std::cout << (toboolean(i) ? "true" : "false");
+                break;
+            case LUA_TNIL:
+                std::cout << "nil";
+                break;
+            default:
+                std::cout << lua_topointer(L, i);
+                break;
+        }
+        std::cout << std::endl;
+    }
 }
