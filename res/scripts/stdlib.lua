@@ -120,6 +120,26 @@ function color_mt.__tostring(self)
     return "rgba("..self[1]..", "..self[2]..", "..self[3]..", "..self[4]..")"
 end
 
+-- events
+events = {
+    handlers = {}
+}
+
+function events.on(event, func)
+    events.handlers[event] = events.handlers[event] or {}
+    table.insert(events.handlers[event], func)
+end
+
+function events.emit(event, ...)
+    result = nil
+    if events.handlers[event] then
+        for _, func in ipairs(events.handlers[event]) do
+            result = result or func(...)
+        end
+    end
+    return result
+end
+
 -- class designed for simple UI-nodes access via properties syntax
 local Element = {}
 function Element.new(docname, name)

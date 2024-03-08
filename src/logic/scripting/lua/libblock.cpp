@@ -228,6 +228,8 @@ const luaL_Reg blocklib [] = {
     {"get_Z", lua_wrap_errors<l_get_block_z>},
     {"get_states", lua_wrap_errors<l_get_block_states>},
     {"set_states", lua_wrap_errors<l_set_block_states>},
+    {"get_rotation", lua_wrap_errors<l_get_block_rotation>},
+    {"set_rotation", lua_wrap_errors<l_set_block_rotation>},
     {"get_user_bits", lua_wrap_errors<l_get_block_user_bits>},
     {"set_user_bits", lua_wrap_errors<l_set_block_user_bits>},
     {NULL, NULL}
