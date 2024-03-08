@@ -20,17 +20,18 @@ class Batch3D;
 class LineBatch;
 class ChunksRenderer;
 class Shader;
-class Texture;
 class Frustum;
 class Engine;
 class Chunks;
 class LevelFrontend;
 class Skybox;
+class PostProcessing;
 
 class WorldRenderer {
     Engine* engine;
     Level* level;
     Player* player;
+    std::unique_ptr<PostProcessing> postProcessing;
     std::unique_ptr<Frustum> frustumCulling;
     std::unique_ptr<LineBatch> lineBatch;
     std::unique_ptr<ChunksRenderer> renderer;

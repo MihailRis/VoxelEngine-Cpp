@@ -23,7 +23,7 @@ Framebuffer::Framebuffer(uint width, uint height, bool alpha)
 
     // Setup color attachment (texture)
     GLuint tex;
-    GLuint format = alpha ? GL_RGBA : GL_RGB;
+    format = alpha ? GL_RGBA : GL_RGB;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
@@ -53,6 +53,16 @@ void Framebuffer::bind() {
 
 void Framebuffer::unbind() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Framebuffer::resize(uint width, uint height) {
+    if (this->width == width && this->height == height) {
+        return;
+    }
+    GLuint texid = texture->getId();
+    texture->bind();
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
+    texture->unbind(); 
 }
 
 Texture* Framebuffer::getTexture() const {

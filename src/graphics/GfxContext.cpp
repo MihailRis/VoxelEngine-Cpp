@@ -31,7 +31,7 @@ GfxContext::~GfxContext() {
             fbo->unbind();
         }
         if (parent->fbo) {
-            fbo->bind();
+            parent->fbo->bind();
         }
     }
 
