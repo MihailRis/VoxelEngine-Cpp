@@ -226,6 +226,8 @@ void PlayerController::updateFootsteps(float delta) {
             stepsTimer = fmod(stepsTimer, M_PI);
             onFootstep();
         }
+    } else {
+        stepsTimer = M_PI;
     }
 }
 
