@@ -1,3 +1,4 @@
 {
-    "texture": "planks"
+    "texture": "planks",
+    "material": "base:wood"
 }

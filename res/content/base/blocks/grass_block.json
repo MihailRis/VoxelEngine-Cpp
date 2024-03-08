@@ -1,4 +1,5 @@
 {
+    "material": "base:grass",
     "texture-faces": [
         "grass_side",
         "grass_side",

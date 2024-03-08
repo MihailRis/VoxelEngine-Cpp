@@ -1,16 +1,45 @@
 #include "LevelFrontend.h"
 
-#include "../world/Level.h"
-#include "../assets/Assets.h"
-#include "../graphics/Atlas.h"
 #include "BlocksPreview.h"
 #include "ContentGfxCache.h"
+
+#include "../audio/audio.h"
+#include "../world/Level.h"
+#include "../voxels/Block.h"
+#include "../assets/Assets.h"
+#include "../graphics/Atlas.h"
+
+#include "../logic/LevelController.h"
+#include "../logic/PlayerController.h"
 
 LevelFrontend::LevelFrontend(Level* level, Assets* assets) 
 : level(level),
   assets(assets),
   contentCache(std::make_unique<ContentGfxCache>(level->content, assets)),
   blocksAtlas(BlocksPreview::build(contentCache.get(), assets, level->content)) {
+}
+
+void LevelFrontend::observe(LevelController* controller) {
+    controller->getPlayerController()->listenBlockInteraction(
+        [=](Player*, glm::ivec3 pos, const Block* def, BlockInteraction type) {
+            if (type != BlockInteraction::step) {
+                return;
+            }
+            // (test code)
+            // TODO: replace with BlockMaterial properties access
+            auto sound = assets->getSound("steps/"+def->material.substr(def->material.find(':')+1));
+            audio::play(
+                sound, 
+                glm::vec3(), 
+                true, 
+                0.333f, 
+                1.0f, 
+                false,
+                audio::PRIORITY_LOW,
+                audio::get_channel_index("regular")
+            );
+        }
+    );
 }
 
 LevelFrontend::~LevelFrontend() {

@@ -20,6 +20,8 @@ inline constexpr uint FACE_PZ = 5;
 
 inline constexpr uint BLOCK_AABB_GRID = 16;
 
+inline std::string DEFAULT_MATERIAL = "base:stone";
+
 struct block_funcs_set {
 	bool init: 1;
 	bool update: 1;
@@ -95,6 +97,8 @@ public:
 	std::vector<BoxModel> modelBoxes = {};
 	std::vector<glm::vec3> modelExtraPoints = {}; //initially made for tetragons
 	std::vector<UVRegion> modelUVs = {}; // boxes' tex-UVs also there
+
+    std::string material = DEFAULT_MATERIAL;
 
 	/// @brief Light emission R, G, B, S (sky lights: sun, moon, radioactive clouds)
 	uint8_t emission[4] {0, 0, 0, 0};

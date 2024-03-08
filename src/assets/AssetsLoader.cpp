@@ -80,7 +80,13 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/moon.png", "misc/moon");
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/sun.png", "misc/sun");
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/crosshair.png", "gui/crosshair");
+
+        // (test code)
+        // TODO: remove
         loader.add(ASSET_SOUND, SOUNDS_FOLDER"/steps/grass.ogg", "steps/grass");
+        loader.add(ASSET_SOUND, SOUNDS_FOLDER"/steps/stone.ogg", "steps/stone");
+        loader.add(ASSET_SOUND, SOUNDS_FOLDER"/steps/wood.ogg", "steps/wood");
+        loader.add(ASSET_SOUND, SOUNDS_FOLDER"/steps/ground.ogg", "steps/ground");
 
         addLayouts(0, "core", loader.getPaths()->getMainRoot()/fs::path("layouts"), loader);
         for (auto& entry : content->getPacks()) {

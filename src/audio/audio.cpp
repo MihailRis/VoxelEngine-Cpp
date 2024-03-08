@@ -249,6 +249,9 @@ speakerid_t audio::play(
     int priority,
     int channel
 ) {
+    if (sound == nullptr) {
+        return 0;
+    }
     if (!sound->variants.empty()) {
         size_t index = rand() % (sound->variants.size() + 1);
         if (index < sound->variants.size()) {

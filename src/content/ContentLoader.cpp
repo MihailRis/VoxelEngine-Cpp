@@ -144,6 +144,8 @@ void ContentLoader::loadBlock(Block& def, std::string name, fs::path file) {
         def.model = BlockModel::none;
     }
 
+    root->str("material", def.material);
+
     // rotation profile
     std::string profile = "none";
     root->str("rotation", profile);
