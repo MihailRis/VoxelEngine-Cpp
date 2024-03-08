@@ -59,7 +59,6 @@ void Framebuffer::resize(uint width, uint height) {
     if (this->width == width && this->height == height) {
         return;
     }
-    GLuint texid = texture->getId();
     texture->bind();
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
     texture->unbind(); 

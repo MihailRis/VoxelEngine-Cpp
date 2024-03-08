@@ -4,6 +4,7 @@ out vec2 v_coord;
 
 uniform ivec2 u_screenSize;
 uniform float u_timer;
+uniform float u_dayTime;
 
 void main(){
 	v_coord = v_position * 0.5 + 0.5;
