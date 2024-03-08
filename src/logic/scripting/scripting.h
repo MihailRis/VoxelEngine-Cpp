@@ -45,7 +45,7 @@ namespace scripting {
 
     extern bool register_event(int env, const std::string& name, const std::string& id);
 
-    static int noargs(lua::LuaState *) { return 0; }
+    static inline int noargs(lua::LuaState *) { return 0; }
     extern bool emit_event(const std::string& name, std::function<int(lua::LuaState* state)> args = noargs);
 
     std::unique_ptr<Environment> create_environment(int parent=0);
