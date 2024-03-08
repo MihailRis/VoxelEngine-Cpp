@@ -100,6 +100,25 @@ LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
     worldRenderer = std::make_unique<WorldRenderer>(engine, frontend.get(), controller->getPlayer());
     hud = std::make_unique<Hud>(engine, frontend.get(), controller->getPlayer());
 
+    controller->getPlayerController()->listenBlockInteraction(
+        [=](Player*, glm::ivec3 pos, const Block* def, BlockInteraction type) {
+            if (type != BlockInteraction::step) {
+                return;
+            }
+            auto sound = assets->getSound("steps/grass");
+            audio::play(
+                sound, 
+                glm::vec3(), 
+                true, 
+                1.0f, 
+                1.0f, 
+                false,
+                audio::PRIORITY_LOW,
+                audio::get_channel_index("regular")
+            );
+        }
+    );
+
     backlight = settings.graphics.backlight;
 
     animator = std::make_unique<TextureAnimator>();
