@@ -74,6 +74,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
     loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/cross.png", "gui/cross");
     if (content) {
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui3d", "ui3d");
+        loader.add(ASSET_SHADER, SHADERS_FOLDER"/screen", "screen");
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/background", "background");
         loader.add(ASSET_SHADER, SHADERS_FOLDER"/skybox_gen", "skybox_gen");
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/moon.png", "misc/moon");

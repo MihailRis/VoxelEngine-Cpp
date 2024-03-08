@@ -8,6 +8,9 @@
 #include "../../graphics/Shader.h"
 #include "../../graphics/Mesh.h"
 #include "../../graphics/Batch3D.h"
+#include "../../graphics/Texture.h"
+#include "../../graphics/Cubemap.h"
+#include "../../graphics/Framebuffer.h"
 #include "../../window/Window.h"
 #include "../../window/Camera.h"
 
@@ -19,21 +22,15 @@ const int STARS_COUNT = 3000;
 const int STARS_SEED = 632;
 
 Skybox::Skybox(uint size, Shader* shader) 
-    : size(size), 
-      shader(shader), 
-      batch3d(new Batch3D(4096)) 
+  : size(size), 
+    shader(shader), 
+    batch3d(std::make_unique<Batch3D>(4096)) 
 {
-    glGenTextures(1, &cubemap);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
-    glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    for (uint face = 0; face < 6; face++) {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_RGB, size, size, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    }
-    glGenFramebuffers(1, &fbo);
+    auto cubemap = std::make_unique<Cubemap>(size, size, ImageFormat::rgb888);
+
+    uint fboid;
+    glGenFramebuffers(1, &fboid);
+    fbo = std::make_unique<Framebuffer>(fboid, 0, std::move(cubemap));
 
     float vertices[] {
         -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
@@ -58,8 +55,6 @@ Skybox::Skybox(uint size, Shader* shader)
 }
 
 Skybox::~Skybox() {
-    glDeleteTextures(1, &cubemap);
-    glDeleteFramebuffers(1, &fbo);
 }
 
 void Skybox::drawBackground(Camera* camera, Assets* assets, int width, int height) {
@@ -109,7 +104,7 @@ void Skybox::draw(
     drawBackground(camera, assets, width, height);
 
     GfxContext ctx = pctx.sub();
-    ctx.blendMode(blendmode::addition);
+    ctx.setBlendMode(blendmode::addition);
 
     Shader* shader = assets->getShader("ui3d");
     shader->use();
@@ -141,15 +136,17 @@ void Skybox::draw(
 
 void Skybox::refresh(const GfxContext& pctx, float t, float mie, uint quality) {
     GfxContext ctx = pctx.sub();
-    ctx.depthMask(false);
-    ctx.depthTest(false);
+    ctx.setDepthMask(false);
+    ctx.setDepthTest(false);
+    ctx.setFramebuffer(fbo.get());
+    ctx.setViewport(Viewport(size, size));
+
+    auto cubemap = dynamic_cast<Cubemap*>(fbo->getTexture());
 
     ready = true;
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
+    cubemap->bind();
     shader->use();
-    Window::viewport(0,0, size, size);
 
     const glm::vec3 xaxs[] = {
         {0.0f, 0.0f, -1.0f},
@@ -186,26 +183,24 @@ void Skybox::refresh(const GfxContext& pctx, float t, float mie, uint quality) {
     shader->uniform1f("u_fog", mie - 1.0f);
     shader->uniform3f("u_lightDir", glm::normalize(glm::vec3(sin(t), -cos(t), 0.0f)));
     for (uint face = 0; face < 6; face++) {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, cubemap, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, cubemap->getId(), 0);
         shader->uniform3f("u_xaxis", xaxs[face]);
         shader->uniform3f("u_yaxis", yaxs[face]);
         shader->uniform3f("u_zaxis", zaxs[face]);
-        mesh->draw(GL_TRIANGLES);
+        mesh->draw();
     }
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    cubemap->unbind();
     glActiveTexture(GL_TEXTURE0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    Window::viewport(0, 0, Window::width, Window::height);
 }
 
 void Skybox::bind() const {
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
+    fbo->getTexture()->bind();
     glActiveTexture(GL_TEXTURE0);
 }
 
 void Skybox::unbind() const {
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    fbo->getTexture()->unbind();
     glActiveTexture(GL_TEXTURE0);
 }

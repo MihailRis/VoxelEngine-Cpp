@@ -3,24 +3,30 @@
 
 #include <string>
 #include "../typedefs.h"
-
-class ImageData;
+#include "ImageData.h"
 
 class Texture {
-public:
+protected:
     uint id;
-    int width;
-    int height;
-    Texture(uint id, int width, int height);
-    Texture(ubyte* data, int width, int height, uint format);
-    ~Texture();
+    uint width;
+    uint height;
+public:
+    Texture(uint id, uint width, uint height);
+    Texture(ubyte* data, uint width, uint height, ImageFormat format);
+    virtual ~Texture();
 
-    void bind();
-    void reload(ubyte* data);
+    virtual void bind();
+    virtual void unbind();
+    virtual void reload(ubyte* data);
 
     void setNearestFilter();
 
-    ImageData* readData();
+    virtual ImageData* readData();
+
+    virtual uint getWidth() const;
+    virtual uint getHeight() const;
+
+    virtual uint getId() const;
 
     static Texture* from(const ImageData* image);
 };
