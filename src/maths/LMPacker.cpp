@@ -19,15 +19,16 @@ LMPacker::LMPacker(const uint32_t sizes[], size_t length) {
 }
 
 LMPacker::~LMPacker() {
+    cleanup();
+}
+
+void LMPacker::cleanup() {
     if (matrix) {
         for (unsigned int y = 0; y < (height >> mbit); y++) {
             delete[] matrix[y];
         }
         delete[] matrix;
     }
-}
-
-void LMPacker::cleanup() {
     placed.clear();
 }
 
@@ -41,6 +42,7 @@ bool LMPacker::build(uint32_t width, uint32_t height,
 
     const unsigned int mwidth = width >> mbit;
     const unsigned int mheight = height >> mbit;
+
     matrix = new rectangle**[mheight];
     for (unsigned int y = 0; y < mheight; y++) {
         matrix[y] = new rectangle*[mwidth];
@@ -48,6 +50,7 @@ bool LMPacker::build(uint32_t width, uint32_t height,
             matrix[y][x] = nullptr;
         }
     }
+
     for (unsigned int i = 0; i < rects.size(); i++) {
         rectangle& rect = rects[i];
         rect = rectangle(rect.idx, 0, 0, rect.width, rect.height);
