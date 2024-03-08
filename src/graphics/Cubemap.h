@@ -3,6 +3,7 @@
 
 #include "Texture.h"
 
+/// @brief Cubemap texture
 class Cubemap : public Texture {
 public:
     Cubemap(uint width, uint height, ImageFormat format);

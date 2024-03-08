@@ -148,6 +148,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
     Assets* assets = engine->getAssets();
     Atlas* atlas = assets->getAtlas("blocks");
     Shader* shader = assets->getShader("main");
+    Shader* linesShader = assets->getShader("lines");
 
     const Viewport& viewport = pctx.getViewport();
     int displayWidth = viewport.getWidth();
@@ -155,8 +156,8 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
 
     // Drawing background sky plane
     skybox->draw(pctx, camera, assets, level->getWorld()->daytime, fog);
-
-    Shader* linesShader = assets->getShader("lines");
+    
+    // Actually world render with depth buffer on
     {
         GfxContext ctx = pctx.sub();
         ctx.setDepthTest(true);
@@ -174,16 +175,18 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
         shader->uniform1f("u_dayTime", level->world->daytime);
         shader->uniform3f("u_cameraPos", camera->position);
         shader->uniform1i("u_cubemap", 1);
+
+        // Light emission when an emissive item is chosen
         {
             auto inventory = player->getInventory();
             ItemStack& stack = inventory->getSlot(player->getChosenSlot());
-            ItemDef* item = indices->getItemDef(stack.getItemId());
-            assert(item != nullptr);
+            auto item = indices->getItemDef(stack.getItemId());
             float multiplier = 0.5f;
             shader->uniform3f("u_torchlightColor",  
-                    item->emission[0] / 15.0f * multiplier,
-                    item->emission[1] / 15.0f * multiplier,
-                    item->emission[2] / 15.0f * multiplier);
+                item->emission[0] / 15.0f * multiplier,
+                item->emission[1] / 15.0f * multiplier,
+                item->emission[2] / 15.0f * multiplier
+            );
             shader->uniform1f("u_torchlightDistance", 6.0f);
         }
 
@@ -196,8 +199,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
         // Selected block
         if (PlayerController::selectedBlockId != -1 && hudVisible){
             blockid_t id = PlayerController::selectedBlockId;
-            Block* block = indices->getBlockDef(id);
-            assert(block != nullptr);
+            auto block = indices->getBlockDef(id);
             const glm::vec3 pos = PlayerController::selectedBlockPosition;
             const glm::vec3 point = PlayerController::selectedPointPosition;
             const glm::vec3 norm = PlayerController::selectedBlockNormal;
