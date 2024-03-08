@@ -31,8 +31,8 @@ void ContentBuilder::add(ContentPackRuntime* pack) {
 Block& ContentBuilder::createBlock(std::string id) {
     auto found = blockDefs.find(id);
     if (found != blockDefs.end()) {
-        //return found->second;
-        throw namereuse_error("name "+id+" is already used", contenttype::item);
+        return *found->second;
+        // throw namereuse_error("name "+id+" is already used", contenttype::item);
     }
     Block* block = new Block(id);
     add(block);
@@ -42,10 +42,10 @@ Block& ContentBuilder::createBlock(std::string id) {
 ItemDef& ContentBuilder::createItem(std::string id) {
     auto found = itemDefs.find(id);
     if (found != itemDefs.end()) {
-        if (found->second->generated) {
-            return *found->second;
-        }
-        throw namereuse_error("name "+id+" is already used", contenttype::item);
+        // if (found->second->generated) {
+        return *found->second;
+        // }
+        // throw namereuse_error("name "+id+" is already used", contenttype::item);
     }
     ItemDef* item = new ItemDef(id);
     add(item);

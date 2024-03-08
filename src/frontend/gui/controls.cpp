@@ -204,7 +204,7 @@ void Image::draw(const GfxContext* pctx, Assets* assets) {
     
     auto texture = assets->getTexture(this->texture);
     if (texture && autoresize) {
-        setSize(glm::vec2(texture->width, texture->height));
+        setSize(glm::vec2(texture->getWidth(), texture->getHeight()));
     }
     batch->texture(texture);
     batch->setColor(color);
@@ -383,7 +383,7 @@ void TextBox::draw(const GfxContext* pctx, Assets* assets) {
     glm::vec2 size = getSize();
 
     auto subctx = pctx->sub();
-    subctx.scissors(glm::vec4(pos.x, pos.y, size.x, size.y));
+    subctx.setScissors(glm::vec4(pos.x, pos.y, size.x, size.y));
 
     const int lineHeight = font->getLineHeight() * label->getLineInterval();
     glm::vec2 lcoord = label->calcPos();
@@ -418,7 +418,6 @@ void TextBox::draw(const GfxContext* pctx, Assets* assets) {
             batch->rect(lcoord.x, lcoord.y+label->getLineYOffset(endLine), end, lineHeight);
         }
     }
-    batch->flush();
 }
 
 void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {

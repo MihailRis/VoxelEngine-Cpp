@@ -19,20 +19,18 @@ Batch3D::Batch3D(size_t capacity)
 	};
 
 	buffer = new float[capacity * B3D_VERTEX_SIZE];
-	mesh = new Mesh(buffer, 0, attrs);
+	mesh = std::make_unique<Mesh>(buffer, 0, attrs);
 	index = 0;
 
 	ubyte pixels[] = {
 		255, 255, 255, 255,
 	};
-	blank = new Texture(pixels, 1, 1, GL_RGBA);
+	blank = std::make_unique<Texture>(pixels, 1, 1, ImageFormat::rgba8888);
 	_texture = nullptr;
 }
 
 Batch3D::~Batch3D(){
-	delete blank;
 	delete[] buffer;
-	delete mesh;
 }
 
 void Batch3D::begin(){

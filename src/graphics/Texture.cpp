@@ -4,18 +4,23 @@
 #include <memory>
 
 #include "ImageData.h"
+#include "gl_util.h"
 
-Texture::Texture(uint id, int width, int height) 
+Texture::Texture(uint id, uint width, uint height) 
     : id(id), width(width), height(height) {
 }
 
-Texture::Texture(ubyte* data, int width, int height, uint format) 
+Texture::Texture(ubyte* data, uint width, uint height, ImageFormat imageFormat) 
     : width(width), height(height) {
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0,
-        format, GL_UNSIGNED_BYTE, (GLvoid *) data);
+
+    GLenum format = gl::to_gl_format(imageFormat);
+    glTexImage2D(
+        GL_TEXTURE_2D, 0, format, width, height, 0,
+        format, GL_UNSIGNED_BYTE, (GLvoid *) data
+    );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -29,6 +34,10 @@ Texture::~Texture() {
 
 void Texture::bind(){
     glBindTexture(GL_TEXTURE_2D, id);
+}
+
+void Texture::unbind() {
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::reload(ubyte* data){
@@ -56,13 +65,18 @@ void Texture::setNearestFilter() {
 Texture* Texture::from(const ImageData* image) {
     uint width = image->getWidth();
     uint height = image->getHeight();
-    uint format;
     const void* data = image->getData();
-    switch (image->getFormat())	{
-        case ImageFormat::rgb888: format = GL_RGB; break;
-        case ImageFormat::rgba8888: format = GL_RGBA; break;
-        default:
-            throw std::runtime_error("unsupported image data format");
-    }
-    return new Texture((ubyte*)data, width, height, format);
+    return new Texture((ubyte*)data, width, height, image->getFormat());
+}
+
+uint Texture::getWidth() const {
+    return width;
+}
+
+uint Texture::getHeight() const {
+    return height;
+}
+
+uint Texture::getId() const {
+    return id;
 }

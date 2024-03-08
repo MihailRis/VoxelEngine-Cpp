@@ -19,7 +19,7 @@ Batch2D::Batch2D(size_t capacity) : capacity(capacity), color(1.0f){
     ubyte pixels[] = {
         0xFF, 0xFF, 0xFF, 0xFF
     };
-    blank = std::make_unique<Texture>(pixels, 1, 1, GL_RGBA);
+    blank = std::make_unique<Texture>(pixels, 1, 1, ImageFormat::rgba8888);
     _texture = nullptr;
 }
 

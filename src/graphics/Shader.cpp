@@ -52,6 +52,11 @@ void Shader::uniform2f(std::string name, glm::vec2 xy){
     glUniform2f(transformLoc, xy.x, xy.y);
 }
 
+void Shader::uniform2i(std::string name, glm::ivec2 xy){
+    GLuint transformLoc = glGetUniformLocation(id, name.c_str());
+    glUniform2i(transformLoc, xy.x, xy.y);
+}
+
 void Shader::uniform3f(std::string name, float x, float y, float z){
     GLuint transformLoc = glGetUniformLocation(id, name.c_str());
     glUniform3f(transformLoc, x,y,z);

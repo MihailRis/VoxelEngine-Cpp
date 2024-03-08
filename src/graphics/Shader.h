@@ -3,13 +3,14 @@
 
 #include <string>
 #include <glm/glm.hpp>
+#include "../typedefs.h"
 
 class GLSLExtension;
 
 class Shader {
+    uint id;
 public:
     static GLSLExtension* preprocessor;
-    unsigned int id;
 
     Shader(unsigned int id);
     ~Shader();
@@ -20,6 +21,7 @@ public:
     void uniform1f(std::string name, float x);
     void uniform2f(std::string name, float x, float y);
     void uniform2f(std::string name, glm::vec2 xy);
+    void uniform2i(std::string name, glm::ivec2 xy);
     void uniform3f(std::string name, float x, float y, float z);
     void uniform3f(std::string name, glm::vec3 xyz);
 

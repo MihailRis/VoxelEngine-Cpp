@@ -136,7 +136,7 @@ bool assetload::font(
         }
         pages.push_back(std::move(texture));
     }
-    int res = pages[0]->height / 16;
+    int res = pages[0]->getHeight() / 16;
     assets->store(new Font(std::move(pages), res, 4), name);
     return true;
 }
@@ -270,13 +270,19 @@ static bool animation(
         Frame frame;
         UVRegion region = dstAtlas->get(name);
 
-        frame.dstPos = glm::ivec2(region.u1 * dstTex->width, region.v1 * dstTex->height);
-        frame.size = glm::ivec2(region.u2 * dstTex->width, region.v2 * dstTex->height) - frame.dstPos;
+        uint dstWidth = dstTex->getWidth();
+        uint dstHeight = dstTex->getHeight();
+
+        uint srcWidth = srcTex->getWidth();
+        uint srcHeight = srcTex->getHeight();
+
+        frame.dstPos = glm::ivec2(region.u1 * dstWidth, region.v1 * dstHeight);
+        frame.size = glm::ivec2(region.u2 * dstWidth, region.v2 * dstHeight) - frame.dstPos;
 
         if (frameList.empty()) {
             for (const auto& elem : builder.getNames()) {
                 region = srcAtlas->get(elem);
-                frame.srcPos = glm::ivec2(region.u1 * srcTex->width, srcTex->height - region.v2 * srcTex->height);
+                frame.srcPos = glm::ivec2(region.u1 * srcWidth, srcHeight - region.v2 * srcHeight);
                 animation.addFrame(frame);
             }
         }
@@ -288,7 +294,7 @@ static bool animation(
                 }
                 region = srcAtlas->get(elem.first);
                 frame.duration = elem.second;
-                frame.srcPos = glm::ivec2(region.u1 * srcTex->width, srcTex->height - region.v2 * srcTex->height);
+                frame.srcPos = glm::ivec2(region.u1 * srcWidth, srcHeight - region.v2 * srcHeight);
                 animation.addFrame(frame);
             }
         }
