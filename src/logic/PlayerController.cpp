@@ -298,17 +298,12 @@ void PlayerController::updateInteraction(){
             blocksController->breakBlock(player.get(), target, x, y, z);
         }
         if (rclick && !input.shift) {
-            bool preventDefault = false;
-
-            if (item->rt.funcsset.on_use) {
-                preventDefault |= scripting::on_item_use(player.get(), item);
-            }
             if (item->rt.funcsset.on_use_on_block) {
-                preventDefault |= scripting::on_item_use_on_block(player.get(), item, x, y, z);
-            }
-            if (preventDefault) {
-                return;
-            }
+                scripting::on_item_use_on_block(player.get(), item, x, y, z);
+            } else
+            if (item->rt.funcsset.on_use) {
+                scripting::on_item_use(player.get(), item);
+            } else return;
         }
         if (def && rclick){
             if (!input.shift && target->rt.funcsset.oninteract) {
