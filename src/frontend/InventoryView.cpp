@@ -31,6 +31,7 @@ SlotLayout::SlotLayout(
     glm::vec2 position,
     bool background,
     bool itemSource,
+    slotcallback updateFunc,
     slotcallback shareFunc,
     slotcallback rightClick
 ) 
@@ -38,6 +39,7 @@ SlotLayout::SlotLayout(
       position(position),
       background(background),
       itemSource(itemSource),
+      updateFunc(updateFunc),
       shareFunc(shareFunc),
       rightClick(rightClick) {}
 
@@ -218,6 +220,9 @@ void SlotView::clicked(gui::GUI* gui, mousecode button) {
             if (layout.shareFunc) {
                 layout.shareFunc(layout.index, stack);
             }
+            if (layout.updateFunc) {
+                layout.updateFunc(layout.index, stack);
+            }
             return;
         }
         if (!layout.itemSource && stack.accepts(grabbed)) {
@@ -236,6 +241,9 @@ void SlotView::clicked(gui::GUI* gui, mousecode button) {
     } else if (button == mousecode::BUTTON_2) {
         if (layout.rightClick) {
             layout.rightClick(inventoryid, stack);
+            if (layout.updateFunc) {
+                layout.updateFunc(layout.index, stack);
+            }
             return;
         }
         if (layout.itemSource)
@@ -257,6 +265,9 @@ void SlotView::clicked(gui::GUI* gui, mousecode button) {
                 grabbed.setCount(grabbed.getCount()-1);
             }
         }
+    }
+    if (layout.updateFunc) {
+        layout.updateFunc(layout.index, stack);
     }
 }
 
@@ -384,9 +395,12 @@ static slotcallback readSlotFunc(InventoryView* view, gui::UiXmlReader& reader, 
 static void readSlot(InventoryView* view, gui::UiXmlReader& reader, xml::xmlelement element) {
     int index = element->attr("index", "0").asInt();
     bool itemSource = element->attr("item-source", "false").asBool();
-    SlotLayout layout(index, glm::vec2(), true, itemSource, nullptr, nullptr);
+    SlotLayout layout(index, glm::vec2(), true, itemSource, nullptr, nullptr, nullptr);
     if (element->has("pos")) {
         layout.position = element->attr("pos").asVec2();
+    }
+    if (element->has("updatefunc")) {
+        layout.updateFunc = readSlotFunc(view, reader, element, "updatefunc");
     }
     if (element->has("sharefunc")) {
         layout.shareFunc = readSlotFunc(view, reader, element, "sharefunc");
@@ -421,9 +435,12 @@ static void readSlotsGrid(InventoryView* view, gui::UiXmlReader& reader, xml::xm
         count = rows * cols;
     }
     bool itemSource = element->attr("item-source", "false").asBool();
-    SlotLayout layout(-1, glm::vec2(), true, itemSource, nullptr, nullptr);
+    SlotLayout layout(-1, glm::vec2(), true, itemSource, nullptr, nullptr, nullptr);
     if (element->has("pos")) {
         layout.position = element->attr("pos").asVec2();
+    }
+    if (element->has("updatefunc")) {
+        layout.updateFunc = readSlotFunc(view, reader, element, "updatefunc");
     }
     if (element->has("sharefunc")) {
         layout.shareFunc = readSlotFunc(view, reader, element, "sharefunc");
