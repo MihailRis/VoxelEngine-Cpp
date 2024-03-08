@@ -59,6 +59,13 @@ void Framebuffer::resize(uint width, uint height) {
     if (this->width == width && this->height == height) {
         return;
     }
+    this->width = width;
+    this->height = height;
+
+    glBindRenderbuffer(GL_RENDERBUFFER, depth);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     texture->bind();
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
     texture->unbind(); 
