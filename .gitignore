@@ -39,3 +39,6 @@ appimage-build/
 *.DS_Store
 
 *~
+
+/res/content/*
+!/res/content/base
