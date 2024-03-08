@@ -32,11 +32,11 @@ const float CROUCH_SHIFT_Y = -0.2f;
 
 
 CameraControl::CameraControl(std::shared_ptr<Player> player, const CameraSettings& settings) 
-    : player(player), 
-      camera(player->camera), 
-      currentViewCamera(player->currentCamera),
-      settings(settings),
-      offset(0.0f, 0.7f, 0.0f) {
+  : player(player), 
+    camera(player->camera), 
+    currentViewCamera(player->currentCamera),
+    settings(settings),
+    offset(0.0f, 0.7f, 0.0f) {
 }
 
 void CameraControl::refresh() {
