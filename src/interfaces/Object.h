@@ -1,7 +1,8 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include "stdlib.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include <iostream>
 
 class Level;
