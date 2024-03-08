@@ -29,7 +29,7 @@ void PostProcessing::use(GfxContext& context) {
     context.setFramebuffer(fbo.get());
 }
 
-void PostProcessing::render(GfxContext& context, Shader* screenShader) {
+void PostProcessing::render(const GfxContext& context, Shader* screenShader) {
     if (fbo == nullptr) {
         throw std::runtime_error("'use(...)' was never called");
     }
