@@ -23,25 +23,46 @@ LevelFrontend::LevelFrontend(Level* level, Assets* assets)
 void LevelFrontend::observe(LevelController* controller) {
     controller->getPlayerController()->listenBlockInteraction(
         [=](Player*, glm::ivec3 pos, const Block* def, BlockInteraction type) {
-            if (type != BlockInteraction::step) {
-                return;
-            }
             auto material = level->content->findBlockMaterial(def->material);
             if (material == nullptr) {
                 return;
             }
 
-            auto sound = assets->getSound(material->stepsSound);
-            audio::play(
-                sound, 
-                glm::vec3(), 
-                true, 
-                0.333f, 
-                1.0f, 
-                false,
-                audio::PRIORITY_LOW,
-                audio::get_channel_index("regular")
-            );
+            if (type == BlockInteraction::step) {
+                auto sound = assets->getSound(material->stepsSound);
+                audio::play(
+                    sound, 
+                    glm::vec3(), 
+                    true, 
+                    0.333f, 
+                    1.0f + (rand() % 6 - 3) * 0.05f, 
+                    false,
+                    audio::PRIORITY_LOW,
+                    audio::get_channel_index("regular")
+                );
+            } else {
+                audio::Sound* sound = nullptr;
+                switch (type) {
+                    case BlockInteraction::placing:
+                        sound = assets->getSound(material->placeSound);
+                        break;
+                    case BlockInteraction::destruction:
+                        sound = assets->getSound(material->breakSound);
+                        break; 
+                    case BlockInteraction::step:
+                        break;   
+                }
+                audio::play(
+                    sound, 
+                    glm::vec3(pos.x, pos.y, pos.z) + 0.5f, 
+                    false, 
+                    1.0f,
+                    1.0f + (rand() % 6 - 3) * 0.05f, 
+                    false,
+                    audio::PRIORITY_NORMAL,
+                    audio::get_channel_index("regular")
+                );
+            }
         }
     );
 }

@@ -374,10 +374,6 @@ void PlayerController::updateInteraction(){
         uint8_t states = determine_rotation(def, norm, camera->dir);
         
         if (lclick && !input.shift && item->rt.funcsset.on_block_break_by) {
-            onBlockInteraction(
-                glm::ivec3(x, y, z), def,
-                BlockInteraction::destruction
-            );
             // TODO: move scripting to interaction callbacks
             if (scripting::on_item_break_block(player.get(), item, x, y, z))
                 return;
@@ -385,6 +381,10 @@ void PlayerController::updateInteraction(){
 
         Block* target = indices->getBlockDef(vox->id);
         if (lclick && target->breakable){
+            onBlockInteraction(
+                glm::ivec3(x, y, z), def,
+                BlockInteraction::destruction
+            );
             blocksController->breakBlock(player.get(), target, x, y, z);
         }
         if (rclick && !input.shift) {
@@ -421,13 +421,13 @@ void PlayerController::updateInteraction(){
                         chosenBlock = 0;
                     }
                     if (chosenBlock != vox->id && chosenBlock) {
+                        onBlockInteraction(
+                            glm::ivec3(x, y, z), def,
+                            BlockInteraction::placing
+                        );
                         chunks->set(x, y, z, chosenBlock, states);
                         lighting->onBlockSet(x,y,z, chosenBlock);
                         if (def->rt.funcsset.onplaced) {
-                            onBlockInteraction(
-                                glm::ivec3(x, y, z), def,
-                                BlockInteraction::placing
-                            );
                             // TODO: move scripting to interaction callbacks
                             scripting::on_block_placed(player.get(), def, x, y, z);
                         }

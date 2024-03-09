@@ -160,7 +160,7 @@ void LevelScreen::update(float delta) {
     audio::set_listener(
         camera->position, 
         player->hitbox->velocity,
-        camera->position+camera->dir, 
+        camera->dir, 
         camera->up
     );
 
