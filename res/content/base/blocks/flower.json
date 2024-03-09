@@ -1,5 +1,6 @@
 {
     "texture": "flower",
+    "material": "base:grass",
     "draw-group": 1,
     "light-passing": true,
     "obstacle": false,

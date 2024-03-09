@@ -382,7 +382,7 @@ void PlayerController::updateInteraction(){
         Block* target = indices->getBlockDef(vox->id);
         if (lclick && target->breakable){
             onBlockInteraction(
-                glm::ivec3(x, y, z), def,
+                glm::ivec3(x, y, z), target,
                 BlockInteraction::destruction
             );
             blocksController->breakBlock(player.get(), target, x, y, z);

@@ -17,7 +17,8 @@
 #define AL_CHECK(STATEMENT) STATEMENT; AL::check_errors(__FILE__, __LINE__)
 #define AL_GET_ERROR() AL::check_errors(__FILE__, __LINE__)
 
-namespace AL {
+namespace AL { 
+    /// @return true if no errors 
     bool check_errors(const std::string& filename, const std::uint_fast32_t line);
 
     /// @brief alGetSourcef wrapper
@@ -27,6 +28,8 @@ namespace AL {
     /// @return field value or default
     inline float getSourcef(uint source, ALenum field, float def=0.0f) {
         float value = def;
+        if (source == 0)
+            return def;
         AL_CHECK(alGetSourcef(source, field, &value));
         return value;
     }
@@ -38,6 +41,8 @@ namespace AL {
     /// @return field value or default
     inline glm::vec3 getSource3f(uint source, ALenum field, glm::vec3 def={}) {
         glm::vec3 value = def;
+        if (source == 0)
+            return def;
         AL_CHECK(alGetSource3f(source, field, &value.x, &value.y, &value.z));
         return value;
     }
@@ -49,6 +54,8 @@ namespace AL {
     /// @return field value or default
     inline float getSourcei(uint source, ALenum field, int def=0) {
         int value = def;
+        if (source == 0)
+            return def;
         AL_CHECK(alGetSourcei(source, field, &value));
         return value;
     }

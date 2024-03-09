@@ -38,6 +38,11 @@ ALStream::ALStream(ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSour
 ALStream::~ALStream() {
     bindSpeaker(0);
     source = nullptr;
+
+    while (!unusedBuffers.empty()) {
+        al->freeBuffer(unusedBuffers.front());
+        unusedBuffers.pop();
+    }
 }
 
 std::shared_ptr<PCMStream> ALStream::getSource() const {
@@ -135,6 +140,11 @@ void ALStream::update(double delta) {
         return;
     }
     ALSpeaker* alspeaker = dynamic_cast<ALSpeaker*>(speaker);
+    if (alspeaker->stopped) {
+        speaker = 0;
+        return;
+    }
+
     uint alsource = alspeaker->source;
     
     unqueueBuffers(alsource);
@@ -194,6 +204,8 @@ ALSpeaker::~ALSpeaker() {
 }
 
 void ALSpeaker::update(const Channel* channel, float masterVolume) {
+    if (source == 0)
+        return;
     float gain = this->volume * channel->getVolume()*masterVolume;
     AL_CHECK(alSourcef(source, AL_GAIN, gain));
     
@@ -265,7 +277,9 @@ void ALSpeaker::stop() {
             AL_CHECK(alSourceUnqueueBuffers(source, 1, &buffer));
             al->freeBuffer(buffer);
         }
+        AL_CHECK(alSourcei(source, AL_BUFFER, 0));
         al->freeSource(source);
+        source = 0;
     }
 }
 
@@ -395,8 +409,9 @@ uint ALAudio::getFreeSource(){
     }
     ALuint id;
     alGenSources(1, &id);
-    if (!AL_GET_ERROR())
+    if (!AL_GET_ERROR()) {
         return 0;
+    }
     allsources.push_back(id);
     return id;
 }

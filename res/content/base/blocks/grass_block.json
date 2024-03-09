@@ -1,5 +1,5 @@
 {
-    "material": "base:grass",
+    "material": "base:grass_block",
     "texture-faces": [
         "grass_side",
         "grass_side",

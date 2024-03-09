@@ -368,6 +368,10 @@ size_t audio::count_speakers() {
     return speakers.size();
 }
 
+size_t audio::count_streams() {
+    return streams.size();
+}
+
 void audio::update(double delta) {
     backend->update(delta);
 
