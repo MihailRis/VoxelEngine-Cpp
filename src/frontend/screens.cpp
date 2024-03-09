@@ -158,7 +158,7 @@ void LevelScreen::update(float delta) {
     auto player = controller->getPlayer();
     auto camera = player->camera;
     audio::set_listener(
-        camera->position, 
+        camera->position-camera->dir, 
         player->hitbox->velocity,
         camera->dir, 
         camera->up
