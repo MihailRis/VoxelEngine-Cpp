@@ -61,6 +61,14 @@ void addLayouts(int env, const std::string& prefix, const fs::path& folder, Asse
     }
 }
 
+void AssetsLoader::tryAddSound(std::string name) {
+    if (name.empty()) {
+        return;
+    }
+    fs::path file = SOUNDS_FOLDER"/"+name+".ogg";
+    add(ASSET_SOUND, file, name);
+}
+
 void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
     loader.add(ASSET_FONT, FONTS_FOLDER"/font", "normal");
     loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui", "ui");
@@ -81,12 +89,12 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/sun.png", "misc/sun");
         loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/crosshair.png", "gui/crosshair");
 
-        // (test code)
-        // TODO: remove
-        loader.add(ASSET_SOUND, SOUNDS_FOLDER"/steps/grass.ogg", "steps/grass");
-        loader.add(ASSET_SOUND, SOUNDS_FOLDER"/steps/stone.ogg", "steps/stone");
-        loader.add(ASSET_SOUND, SOUNDS_FOLDER"/steps/wood.ogg", "steps/wood");
-        loader.add(ASSET_SOUND, SOUNDS_FOLDER"/steps/ground.ogg", "steps/ground");
+        for (auto& entry : content->getBlockMaterials()) {
+            auto& material = entry.second;
+            loader.tryAddSound(material.stepsSound);
+            loader.tryAddSound(material.placeSound);
+            loader.tryAddSound(material.breakSound);
+        }
 
         addLayouts(0, "core", loader.getPaths()->getMainRoot()/fs::path("layouts"), loader);
         for (auto& entry : content->getPacks()) {

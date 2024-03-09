@@ -303,6 +303,15 @@ void ContentLoader::loadItem(ItemDef& def, std::string full, std::string name) {
     }
 }
 
+BlockMaterial ContentLoader::loadBlockMaterial(fs::path file, std::string full) {
+    auto root = files::read_json(file);
+    BlockMaterial material {full};
+    root->str("steps-sound", material.stepsSound);
+    root->str("place-sound", material.placeSound);
+    root->str("break-sound", material.breakSound);
+    return material;
+}
+
 void ContentLoader::load(ContentBuilder& builder) {
     std::cout << "-- loading pack [" << pack->id << "]" << std::endl;
 
@@ -361,6 +370,15 @@ void ContentLoader::load(ContentBuilder& builder) {
             if (colon != std::string::npos) def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
             loadItem(def, full, name);
             stats.totalItems++;
+        }
+    }
+
+    fs::path materialsDir = folder / fs::u8path("block_materials");
+    if (fs::is_directory(materialsDir)) {
+        for (auto entry : fs::directory_iterator(materialsDir)) {
+            fs::path file = entry.path();
+            std::string name = pack->id+":"+file.stem().u8string();
+            builder.add(loadBlockMaterial(file, name));
         }
     }
 }

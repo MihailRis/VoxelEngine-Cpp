@@ -8,10 +8,10 @@
 #include <unordered_map>
 #include <set>
 #include "../typedefs.h"
+#include "../voxels/Block.h"
 
 using DrawGroups = std::set<ubyte>;
 
-class Block;
 class ItemDef;
 class Content;
 class ContentPackRuntime;
@@ -48,6 +48,8 @@ class ContentBuilder {
     std::unordered_map<std::string, ItemDef*> itemDefs;
     std::vector<std::string> itemIds;
 
+    std::unordered_map<std::string, BlockMaterial> blockMaterials;
+
     std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs;
 public:
     ~ContentBuilder();
@@ -55,6 +57,7 @@ public:
     void add(Block* def);
     void add(ItemDef* def);
     void add(ContentPackRuntime* pack);
+    void add(BlockMaterial material);
 
     Block& createBlock(std::string id);
     ItemDef& createItem(std::string id);
@@ -111,6 +114,7 @@ class Content {
     std::unordered_map<std::string, ItemDef*> itemDefs;
     std::unique_ptr<ContentIndices> indices;
     std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs;
+    std::unordered_map<std::string, BlockMaterial> blockMaterials;
 public:
     std::unique_ptr<DrawGroups> const drawGroups;
 
@@ -119,7 +123,8 @@ public:
         std::unique_ptr<DrawGroups> drawGroups,
         std::unordered_map<std::string, Block*> blockDefs,
         std::unordered_map<std::string, ItemDef*> itemDefs,
-        std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs
+        std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs,
+        std::unordered_map<std::string, BlockMaterial> blockMaterials
     );
     ~Content();
 
@@ -133,8 +138,11 @@ public:
     ItemDef* findItem(std::string id) const;
     ItemDef& requireItem(std::string id) const;
 
+    const BlockMaterial* findBlockMaterial(std::string id) const;
+
     const ContentPackRuntime* getPackRuntime(std::string id) const;
 
+    const std::unordered_map<std::string, BlockMaterial>& getBlockMaterials() const;
     const std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>>& getPacks() const;
 };
 

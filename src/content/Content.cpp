@@ -28,6 +28,10 @@ void ContentBuilder::add(ContentPackRuntime* pack) {
     packs.emplace(pack->getId(), pack);
 }
 
+void ContentBuilder::add(BlockMaterial material) {
+    blockMaterials.emplace(material.name, material);
+}
+
 Block& ContentBuilder::createBlock(std::string id) {
     auto found = blockDefs.find(id);
     if (found != blockDefs.end()) {
@@ -109,7 +113,12 @@ Content* ContentBuilder::build() {
     auto indices = new ContentIndices(blockDefsIndices, itemDefsIndices);
 
     auto content = std::make_unique<Content>(
-        indices, std::move(groups), blockDefs, itemDefs, std::move(packs)
+        indices, 
+        std::move(groups), 
+        blockDefs, 
+        itemDefs, 
+        std::move(packs), 
+        std::move(blockMaterials)
     );
 
     // Now, it's time to resolve foreign keys
@@ -136,11 +145,13 @@ Content::Content(
     std::unique_ptr<DrawGroups> drawGroups,
     std::unordered_map<std::string, Block*> blockDefs,
     std::unordered_map<std::string, ItemDef*> itemDefs,
-    std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs
+    std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs,
+    std::unordered_map<std::string, BlockMaterial> blockMaterials
 ) : blockDefs(blockDefs),
     itemDefs(itemDefs),
     indices(indices),
     packs(std::move(packs)),
+    blockMaterials(std::move(blockMaterials)),
     drawGroups(std::move(drawGroups)) 
 {}
 
@@ -178,12 +189,24 @@ ItemDef& Content::requireItem(std::string id) const {
     return *found->second;
 }
 
+const BlockMaterial* Content::findBlockMaterial(std::string id) const {
+    auto found = blockMaterials.find(id);
+    if (found == blockMaterials.end()) {
+        return nullptr;
+    }
+    return &found->second;
+}
+
 const ContentPackRuntime* Content::getPackRuntime(std::string id) const {
     auto found = packs.find(id);
     if (found == packs.end()) {
         return nullptr;
     }
     return found->second.get();
+}
+
+const std::unordered_map<std::string, BlockMaterial>& Content::getBlockMaterials() const {
+    return blockMaterials;
 }
 
 const std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>>& Content::getPacks() const {
