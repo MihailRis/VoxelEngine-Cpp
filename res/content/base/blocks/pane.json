@@ -7,6 +7,7 @@
         "pane",
         "pane"
     ],
+    "material": "base:wood",
     "model": "aabb",
     "hitbox": [0.0, 0.0, 0.0, 1.0, 1.0, 0.2],
     "light-passing": true,

@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "gui/controls.h"
+#include "../audio/audio.h"
 #include "../graphics/Mesh.h"
 #include "../objects/Player.h"
 #include "../physics/Hitbox.h"
@@ -51,6 +52,10 @@ std::shared_ptr<UINode> create_debug_panel(
    
     panel->add(create_label([](){
         return L"meshes: " + std::to_wstring(Mesh::meshesCount);
+    }));
+    panel->add(create_label([](){
+        return L"speakers: " + std::to_wstring(audio::count_speakers())+
+               L" streams: " + std::to_wstring(audio::count_streams());
     }));
     panel->add(create_label([=](){
         auto& settings = engine->getSettings();

@@ -10,8 +10,7 @@
 #include "ContentPack.h"
 #include "../logic/scripting/scripting.h"
 
-ContentBuilder::~ContentBuilder() {
-}
+ContentBuilder::~ContentBuilder() {}
 
 void ContentBuilder::add(Block* def) {
     checkIdentifier(def->name);
@@ -27,6 +26,10 @@ void ContentBuilder::add(ItemDef* def) {
 
 void ContentBuilder::add(ContentPackRuntime* pack) {
     packs.emplace(pack->getId(), pack);
+}
+
+void ContentBuilder::add(BlockMaterial material) {
+    blockMaterials.emplace(material.name, material);
 }
 
 Block& ContentBuilder::createBlock(std::string id) {
@@ -110,7 +113,12 @@ Content* ContentBuilder::build() {
     auto indices = new ContentIndices(blockDefsIndices, itemDefsIndices);
 
     auto content = std::make_unique<Content>(
-        indices, std::move(groups), blockDefs, itemDefs, std::move(packs)
+        indices, 
+        std::move(groups), 
+        blockDefs, 
+        itemDefs, 
+        std::move(packs), 
+        std::move(blockMaterials)
     );
 
     // Now, it's time to resolve foreign keys
@@ -127,25 +135,27 @@ Content* ContentBuilder::build() {
 
 ContentIndices::ContentIndices(
     std::vector<Block*> blockDefs, 
-    std::vector<ItemDef*> itemDefs)
-    : blockDefs(blockDefs), 
-      itemDefs(itemDefs) {
-}
+    std::vector<ItemDef*> itemDefs
+) : blockDefs(blockDefs), 
+    itemDefs(itemDefs) 
+{}
 
-Content::Content(ContentIndices* indices, 
-                 std::unique_ptr<DrawGroups> drawGroups,
-                 std::unordered_map<std::string, Block*> blockDefs,
-                 std::unordered_map<std::string, ItemDef*> itemDefs,
-                 std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs)
-        : blockDefs(blockDefs),
-          itemDefs(itemDefs),
-          indices(indices),
-          packs(std::move(packs)),
-          drawGroups(std::move(drawGroups)) {
-}
+Content::Content(
+    ContentIndices* indices, 
+    std::unique_ptr<DrawGroups> drawGroups,
+    std::unordered_map<std::string, Block*> blockDefs,
+    std::unordered_map<std::string, ItemDef*> itemDefs,
+    std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs,
+    std::unordered_map<std::string, BlockMaterial> blockMaterials
+) : blockDefs(blockDefs),
+    itemDefs(itemDefs),
+    indices(indices),
+    packs(std::move(packs)),
+    blockMaterials(std::move(blockMaterials)),
+    drawGroups(std::move(drawGroups)) 
+{}
 
-Content::~Content() {
-}
+Content::~Content() {}
 
 Block* Content::findBlock(std::string id) const {
     auto found = blockDefs.find(id);
@@ -179,12 +189,24 @@ ItemDef& Content::requireItem(std::string id) const {
     return *found->second;
 }
 
+const BlockMaterial* Content::findBlockMaterial(std::string id) const {
+    auto found = blockMaterials.find(id);
+    if (found == blockMaterials.end()) {
+        return nullptr;
+    }
+    return &found->second;
+}
+
 const ContentPackRuntime* Content::getPackRuntime(std::string id) const {
     auto found = packs.find(id);
     if (found == packs.end()) {
         return nullptr;
     }
     return found->second.get();
+}
+
+const std::unordered_map<std::string, BlockMaterial>& Content::getBlockMaterials() const {
+    return blockMaterials;
 }
 
 const std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>>& Content::getPacks() const {

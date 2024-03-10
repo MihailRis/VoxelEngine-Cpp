@@ -1,0 +1,5 @@
+{
+    "steps-sound": "steps/sand",
+    "steps-sound": "blocks/ground_place",
+    "break-sound": "blocks/ground_break"
+}

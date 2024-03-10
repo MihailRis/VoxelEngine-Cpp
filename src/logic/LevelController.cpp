@@ -57,3 +57,7 @@ Level* LevelController::getLevel() {
 Player* LevelController::getPlayer() {
     return player->getPlayer();
 }
+
+PlayerController* LevelController::getPlayerController() {
+    return player.get();
+}

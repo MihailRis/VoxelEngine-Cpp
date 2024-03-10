@@ -1,3 +1,4 @@
 {
-    "texture": "dirt"
+    "texture": "dirt",
+    "material": "base:ground"
 }

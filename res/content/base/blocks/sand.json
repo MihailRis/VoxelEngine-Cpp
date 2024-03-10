@@ -1,3 +1,4 @@
 {
-    "texture": "sand"
+    "texture": "sand",
+    "material": "base:sand"
 }

@@ -49,6 +49,8 @@ class AssetsLoader {
 	std::map<int, aloader_func> loaders;
 	std::queue<aloader_entry> entries;
 	const ResPaths* paths;
+
+    void tryAddSound(std::string name);
 public:
 	AssetsLoader(Assets* assets, const ResPaths* paths);
 	void addLoader(int tag, aloader_func func);

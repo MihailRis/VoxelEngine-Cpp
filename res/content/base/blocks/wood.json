@@ -1,4 +1,5 @@
 {
+    "material": "base:wood",
     "texture-faces": [
         "wood",
         "wood",

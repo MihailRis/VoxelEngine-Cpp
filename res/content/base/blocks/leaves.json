@@ -1,3 +1,4 @@
 {
-    "texture": "leaves"
+    "texture": "leaves",
+    "material": "base:grass"
 }

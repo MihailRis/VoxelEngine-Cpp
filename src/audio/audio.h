@@ -484,6 +484,9 @@ namespace audio {
     /// @brief Get alive speakers number (including paused)
     extern size_t count_speakers();
 
+    /// @brief Get playing streams number (including paused) 
+    extern size_t count_streams();
+
     /// @brief Update audio streams and sound instanced
     /// @param delta time elapsed since the last update (seconds)
     extern void update(double delta);

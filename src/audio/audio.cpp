@@ -249,6 +249,15 @@ speakerid_t audio::play(
     int priority,
     int channel
 ) {
+    if (sound == nullptr) {
+        return 0;
+    }
+    if (!sound->variants.empty()) {
+        size_t index = rand() % (sound->variants.size() + 1);
+        if (index < sound->variants.size()) {
+            sound = sound->variants.at(index).get();
+        }
+    }
     Speaker* speaker = sound->newInstance(priority, channel);
     if (speaker == nullptr) {
         remove_lower_priority_speaker(priority);
@@ -357,6 +366,10 @@ std::shared_ptr<Stream> audio::get_associated_stream(speakerid_t id) {
 
 size_t audio::count_speakers() {
     return speakers.size();
+}
+
+size_t audio::count_streams() {
+    return streams.size();
 }
 
 void audio::update(double delta) {

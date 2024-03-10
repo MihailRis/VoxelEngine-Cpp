@@ -8,6 +8,7 @@ class Level;
 class Assets;
 class BlocksPreview;
 class ContentGfxCache;
+class LevelController;
 
 class LevelFrontend {
     Level* level;
@@ -17,6 +18,8 @@ class LevelFrontend {
 public:
     LevelFrontend(Level* level, Assets* assets);
     ~LevelFrontend();
+
+    void observe(LevelController* controller);
 
     Level* getLevel() const;
     Assets* getAssets() const;
