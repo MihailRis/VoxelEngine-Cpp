@@ -9,7 +9,6 @@
 
 class Mesh;
 class Texture;
-class Sprite;
 
 class Batch2D {
     float* buffer;
@@ -40,7 +39,6 @@ public:
     void texture(Texture* texture);
     void untexture();
     void sprite(float x, float y, float w, float h, const UVRegion& region, glm::vec4 tint);
-    void sprite(Sprite* sprite);
     void sprite(float x, float y, float w, float h, int atlasRes, int index, glm::vec4 tint);
     void point(float x, float y, float r, float g, float b, float a);
     

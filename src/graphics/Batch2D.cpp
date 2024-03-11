@@ -1,7 +1,6 @@
 #include "Batch2D.h"
 #include "Mesh.h"
 #include "Texture.h"
-#include "Sprite.h"
 
 #include <GL/glew.h>
 
@@ -282,23 +281,6 @@ void Batch2D::rect(
     vertex(v6, glm::vec2(0, 0), r2,g2,b2,1.0f);
     vertex(v9, glm::vec2(0, 0), r2,g2,b2,1.0f);
     vertex(v1, glm::vec2(0, 0), r2,g2,b2,1.0f);
-}
-
-void Batch2D::sprite(Sprite* sprite) {
-    glm::vec2 position = sprite->position;
-    glm::vec2 size = sprite->size;
-    glm::vec2 origin = sprite->origin;
-    texture(sprite->texture);
-    rect(
-        position.x, position.y,
-        size.x, size.y,
-        origin.x, origin.y,
-        sprite->angle,
-        sprite->region,
-        sprite->flippedX,
-        sprite->flippedY,
-        sprite->color
-    );
 }
 
 void Batch2D::sprite(float x, float y, float w, float h, const UVRegion& region, glm::vec4 tint){
