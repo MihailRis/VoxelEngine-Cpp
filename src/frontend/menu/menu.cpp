@@ -181,7 +181,7 @@ void create_languages_panel(Engine* engine) {
     panel->add(guiutil::backButton(menu));
 }
 
-std::string translate_generator_id(std::string& id) {
+static std::string translate_generator_id(std::string& id) {
     int delimiterPosition = id.find(":");
     std::string pack = id.substr(0, delimiterPosition);
     std::string generator = id.substr(delimiterPosition + 1);
@@ -241,12 +241,11 @@ void menus::open_world(std::string name, Engine* engine, bool confirmConvert) {
         );
         return;
     }
-    paths->setWorldFolder(folder);
 
     auto& packs = engine->getContentPacks();
     auto* content = engine->getContent();
     auto& settings = engine->getSettings();
-    fs::create_directories(folder);
+
     std::shared_ptr<ContentLUT> lut (World::checkIndices(folder, content));
     if (lut) {
         if (lut->hasMissingContent()) {
@@ -265,6 +264,7 @@ void menus::open_world(std::string name, Engine* engine, bool confirmConvert) {
     } else {
         try {
             Level* level = World::load(folder, settings, content, packs);
+            level->world->wfile->createDirectories();
             engine->setScreen(std::make_shared<LevelScreen>(engine, level));
         } catch (const world_load_error& error) {
             guiutil::alert(
@@ -365,7 +365,7 @@ void create_new_world_panel(Engine* engine) {
 
     panel->add(guiutil::gotoButton(langs::get(L"World generator", L"world"), "world_generators", engine->getGUI()->getMenu()));
 
-    panel->add(menus::create_button( L"Create World", glm::vec4(10), glm::vec4(1, 20, 1, 1), 
+    panel->add(menus::create_button(L"Create World", glm::vec4(10), glm::vec4(1, 20, 1, 1), 
     [=](GUI*) {
         if (!nameInput->validate())
             return;
@@ -406,6 +406,7 @@ void create_new_world_panel(Engine* engine) {
             engine->getContent(),
             engine->getContentPacks()
         );
+        level->world->wfile->createDirectories();
         menus::generatorID = WorldGenerators::getDefaultGeneratorID();
         engine->setScreen(std::make_shared<LevelScreen>(engine, level));
     }));

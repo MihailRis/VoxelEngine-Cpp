@@ -104,7 +104,6 @@ static void reopen_world(Engine* engine, World* world) {
     menus::open_world(wname, engine, true);
 }
 
-// TODO: refactor
 void create_content_panel(Engine* engine, LevelController* controller) {
     auto level = controller->getLevel();
     auto menu = engine->getGUI()->getMenu();

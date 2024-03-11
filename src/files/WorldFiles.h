@@ -125,6 +125,8 @@ public:
     WorldFiles(fs::path directory, const DebugSettings& settings);
     ~WorldFiles();
 
+    void createDirectories();
+
     void put(Chunk* chunk);
     void put(int x, int z, const ubyte* voxelData);
 

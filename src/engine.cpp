@@ -230,6 +230,7 @@ void Engine::loadWorldContent(const fs::path& folder) {
     contentPacks.clear();
     auto packNames = ContentPack::worldPacksList(folder);
     ContentPack::readPacks(paths, contentPacks, packNames, folder);
+	paths->setWorldFolder(folder);
     loadContent();
 }
 

@@ -95,13 +95,19 @@ uint WorldRegion::getChunkDataSize(uint x, uint z) {
 }
 
 WorldFiles::WorldFiles(fs::path directory, const DebugSettings& settings) 
-    : directory(directory), 
-      generatorTestMode(settings.generatorTestMode),
-      doWriteLights(settings.doWriteLights) {
-    compressionBuffer.reset(new ubyte[CHUNK_DATA_LEN * 2]);
+  : directory(directory), 
+    generatorTestMode(settings.generatorTestMode),
+    doWriteLights(settings.doWriteLights) 
+{
+    compressionBuffer = std::make_unique<ubyte[]>(CHUNK_DATA_LEN * 2);
 }
 
-WorldFiles::~WorldFiles(){
+WorldFiles::~WorldFiles() {
+}
+
+void WorldFiles::createDirectories() {
+    fs::create_directories(directory / fs::path("data"));
+    fs::create_directories(directory / fs::path("content"));
 }
 
 WorldRegion* WorldFiles::getRegion(regionsmap& regions, int x, int z) {

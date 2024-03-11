@@ -20,8 +20,6 @@ namespace lua {
         int nextEnvironment = 1;
 
         void logError(const std::string& text);
-        void initEnvironment();
-
         void removeLibFuncs(const char* libname, const char* funcs[]);
         void createLibs();
     public:
