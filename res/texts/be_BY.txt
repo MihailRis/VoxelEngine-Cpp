@@ -6,9 +6,11 @@ Cancel=Скасаваць
 Back=Назад
 Continue=Працягнуть
 Add=Дадаць
+Converting world...=Выконваецца канвертацыя свету...
 
 error.pack-not-found=Не ўдалося знайсці пакет
 error.dependency-not-found=Выкарыстоўваная залежнасць не знойдзена
+pack.remove-confirm=Выдаліць увесь кантэнт які пастаўляецца пакам са свету (беззваротна)?
 
 # Меню
 menu.New World=Новы Свет
@@ -23,11 +25,12 @@ menu.Settings=Налады
 menu.Content=Кантэнт
 world.Seed=Зерне
 world.Name=Назва
-menu.Create World=Стварыць Свет
 
 world.World generator=Генератар свету
 world.generators.default=Звычайны
 world.generators.flat=Плоскі
+menu.Create World=Стварыць Свет
+
 world.convert-request=Ёсць змены ў індэксах! Канвертаваць свет?
 world.delete-confirm=Выдаліць свет незваротна?
 
