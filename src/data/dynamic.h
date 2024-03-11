@@ -77,6 +77,11 @@ namespace dynamic {
         std::unordered_map<std::string, std::unique_ptr<Value>> values;
         ~Map();
 
+        std::string getStr(std::string key) const;
+        double getNum(std::string key) const;
+        int64_t getInt(std::string key) const;
+        bool getBool(std::string key) const;
+
         std::string getStr(std::string key, const std::string& def) const;
         double getNum(std::string key, double def) const;
         int64_t getInt(std::string key, int64_t def) const;

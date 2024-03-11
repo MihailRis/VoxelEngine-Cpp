@@ -3,16 +3,24 @@
 
 #include <string>
 #include <memory>
+#include <filesystem>
 #include <functional>
 #include <map>
 #include <queue>
 
-inline constexpr short ASSET_TEXTURE = 1;
-inline constexpr short ASSET_SHADER = 2;
-inline constexpr short ASSET_FONT = 3;
-inline constexpr short ASSET_ATLAS = 4;
-inline constexpr short ASSET_LAYOUT = 5;
-inline constexpr short ASSET_SOUND = 6;
+namespace dynamic {
+	class Map;
+	class List;
+}
+
+enum class AssetType {
+	texture,
+	shader,
+	font,
+	atlas,
+	layout,
+	sound
+};
 
 class ResPaths;
 class Assets;
@@ -38,7 +46,7 @@ struct SoundCfg : AssetCfg {
 using aloader_func = std::function<bool(AssetsLoader&, Assets*, const ResPaths*, const std::string&, const std::string&, std::shared_ptr<AssetCfg>)>;
 
 struct aloader_entry {
-	int tag;
+	AssetType tag;
 	const std::string filename;
 	const std::string alias;
     std::shared_ptr<AssetCfg> config;
@@ -46,14 +54,19 @@ struct aloader_entry {
 
 class AssetsLoader {
 	Assets* assets;
-	std::map<int, aloader_func> loaders;
+	std::map<AssetType, aloader_func> loaders;
 	std::queue<aloader_entry> entries;
 	const ResPaths* paths;
 
     void tryAddSound(std::string name);
+
+	void processPreload(AssetType tag, const std::string& name, dynamic::Map* map);
+	void processPreloadList(AssetType tag, dynamic::List* list);
+	void processPreloadConfig(std::filesystem::path file);
+	void processPreloadConfigs(const Content* content);
 public:
 	AssetsLoader(Assets* assets, const ResPaths* paths);
-	void addLoader(int tag, aloader_func func);
+	void addLoader(AssetType tag, aloader_func func);
 
 	/// @brief Enqueue asset load
 	/// @param tag asset type
@@ -61,7 +74,7 @@ public:
 	/// @param alias internal asset name
 	/// @param settings asset loading settings (based on asset type)
 	void add(
-        int tag, 
+        AssetType tag, 
         const std::string filename, 
         const std::string alias, 
         std::shared_ptr<AssetCfg> settings=nullptr
