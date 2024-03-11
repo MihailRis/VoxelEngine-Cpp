@@ -10,7 +10,7 @@ class Chunks;
 class Lighting;
 class WorldGenerator;
 
-/* ChunksController manages chunks dynamic loading/unloading */
+/// @brief ChunksController manages chunks dynamic loading/unloading
 class ChunksController {
 private:
     Level* level;
@@ -19,7 +19,7 @@ private:
     uint padding;
     std::unique_ptr<WorldGenerator> generator;
 
-    /* Process one chunk: load it or calculate lights for it */
+    /// @brief Process one chunk: load it or calculate lights for it
     bool loadVisible();
     bool buildLights(std::shared_ptr<Chunk> chunk);
     void createChunk(int x, int y);
@@ -27,7 +27,7 @@ public:
     ChunksController(Level* level, uint padding);
     ~ChunksController();
 
-    /* @param maxDuration milliseconds reserved for chunks loading */
+    /// @param maxDuration milliseconds reserved for chunks loading
     void update(int64_t maxDuration);
 };
 

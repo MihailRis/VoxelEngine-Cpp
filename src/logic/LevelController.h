@@ -31,7 +31,8 @@ public:
         bool pause
     );
 
-    void onWorldSave();
+    void saveWorld();
+    
     void onWorldQuit();
 
     Level* getLevel();

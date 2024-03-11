@@ -96,11 +96,11 @@ LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
     menu->reset();
 
     controller = std::make_unique<LevelController>(settings, level);
-    frontend = std::make_unique<LevelFrontend>(level, assets);
+    frontend = std::make_unique<LevelFrontend>(controller.get(), assets);
+
     worldRenderer = std::make_unique<WorldRenderer>(engine, frontend.get(), controller->getPlayer());
     hud = std::make_unique<Hud>(engine, frontend.get(), controller->getPlayer());
-
-    frontend->observe(controller.get());
+    
 
     backlight = settings.graphics.backlight;
 
@@ -120,11 +120,7 @@ LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
 }
 
 LevelScreen::~LevelScreen() {
-    std::cout << "-- writing world" << std::endl;
     scripting::on_frontend_close();
-    controller->onWorldSave();
-    auto world = controller->getLevel()->getWorld();
-    world->write(controller->getLevel());
     controller->onWorldQuit();
     engine->getPaths()->setWorldFolder(fs::path());
 }
@@ -191,4 +187,12 @@ void LevelScreen::draw(float delta) {
     if (hudVisible) {
         hud->draw(ctx);
     }
+}
+
+void LevelScreen::onEngineShutdown() {
+    controller->saveWorld();
+}
+
+LevelController* LevelScreen::getLevelController() const {
+    return controller.get();
 }

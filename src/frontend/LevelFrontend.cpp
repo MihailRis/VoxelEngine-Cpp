@@ -13,14 +13,13 @@
 #include "../logic/LevelController.h"
 #include "../logic/PlayerController.h"
 
-LevelFrontend::LevelFrontend(Level* level, Assets* assets) 
-  : level(level),
+LevelFrontend::LevelFrontend(LevelController* controller, Assets* assets) 
+  : level(controller->getLevel()),
+    controller(controller),
     assets(assets),
     contentCache(std::make_unique<ContentGfxCache>(level->content, assets)),
     blocksAtlas(BlocksPreview::build(contentCache.get(), assets, level->content)) 
-{}
-
-void LevelFrontend::observe(LevelController* controller) {
+{
     controller->getPlayerController()->listenBlockInteraction(
         [=](Player*, glm::ivec3 pos, const Block* def, BlockInteraction type) {
             auto material = level->content->findBlockMaterial(def->material);
@@ -84,4 +83,8 @@ ContentGfxCache* LevelFrontend::getContentGfxCache() const {
 
 Atlas* LevelFrontend::getBlocksAtlas() const {
     return blocksAtlas.get();
+}
+
+LevelController* LevelFrontend::getController() const {
+    return controller;
 }

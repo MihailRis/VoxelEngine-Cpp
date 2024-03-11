@@ -29,6 +29,9 @@
 #include <sstream>
 #include <cstring>
 
+#define REGION_FORMAT_MAGIC ".VOXREG"
+#define WORLD_FORMAT_MAGIC ".VOXWLD"
+
 const size_t BUFFER_SIZE_UNKNOWN = -1;
 
 regfile::regfile(fs::path filename) : file(filename) {
@@ -90,8 +93,6 @@ ubyte* WorldRegion::getChunkData(uint x, uint z) {
 uint WorldRegion::getChunkDataSize(uint x, uint z) {
     return sizes[z * REGION_SIZE + x];
 }
-
-const char* WorldFiles::WORLD_FILE = "world.json";
 
 WorldFiles::WorldFiles(fs::path directory, const DebugSettings& settings) 
     : directory(directory), 
@@ -161,11 +162,10 @@ int WorldFiles::getVoxelRegionsVersion() {
     return REGION_FORMAT_VERSION;
 }
 
-/* 
- * Compress and store chunk voxels data in region 
- * @param x chunk.x
- * @param z chunk.z
- */
+
+/// @brief Compress and store chunk voxels data in region 
+/// @param x chunk.x
+/// @param z chunk.z
 void WorldFiles::put(int x, int z, const ubyte* voxelData) {
     int regionX = floordiv(x, REGION_SIZE);
     int regionZ = floordiv(z, REGION_SIZE);
@@ -181,9 +181,7 @@ void WorldFiles::put(int x, int z, const ubyte* voxelData) {
     }
 }
 
-/*
- * Store chunk (voxels and lights) in region (existing or new)
- */
+/// @brief Store chunk (voxels and lights) in region (existing or new)
 void WorldFiles::put(Chunk* chunk){
     assert(chunk != nullptr);
 
@@ -201,7 +199,7 @@ void WorldFiles::put(Chunk* chunk){
         region->setUnsaved(true);
         region->put(localX, localZ, data, compressedSize);
     }
-    /* Writing lights cache */
+    // Writing lights cache
     if (doWriteLights && chunk->isLighted()) {
         size_t compressedSize;
         std::unique_ptr<ubyte[]> light_data (chunk->lightmap.encode());
@@ -211,7 +209,7 @@ void WorldFiles::put(Chunk* chunk){
         region->setUnsaved(true);
         region->put(localX, localZ, data, compressedSize);
     }
-    /* Writing block inventories */
+    // Writing block inventories
     if (!chunk->inventories.empty()){
         auto& inventories = chunk->inventories;
         ByteBuilder builder;
@@ -252,13 +250,11 @@ fs::path WorldFiles::getRegionFilename(int x, int z) const {
     return fs::path(std::to_string(x) + "_" + std::to_string(z) + ".bin");
 }
 
-/* 
- * Extract X and Z from 'X_Z.bin' region file name.
- * @param name source region file name
- * @param x parsed X destination
- * @param z parsed Z destination
- * @return false if std::invalid_argument or std::out_of_range occurred
- */
+/// @brief Extract X and Z from 'X_Z.bin' region file name.
+/// @param name source region file name
+/// @param x parsed X destination
+/// @param z parsed Z destination
+/// @return false if std::invalid_argument or std::out_of_range occurred
 bool WorldFiles::parseRegionFilename(const std::string& name, int& x, int& z) {
     size_t sep = name.find('_');
     if (sep == std::string::npos || sep == 0 || sep == name.length()-1)
@@ -294,8 +290,8 @@ ubyte* WorldFiles::getChunk(int x, int z){
     return getData(regions, getRegionsFolder(), x, z, REGION_LAYER_VOXELS, true);
 }
 
-/* Get cached lights for chunk at x,z 
- * @return lights data or nullptr */
+/// @brief Get cached lights for chunk at x,z 
+/// @return lights data or nullptr
 light_t* WorldFiles::getLights(int x, int z) {
     std::unique_ptr<ubyte[]> data (getData(lights, getLightsFolder(), x, z, REGION_LAYER_LIGHTS, true));
     if (data == nullptr)
@@ -409,10 +405,9 @@ ubyte* WorldFiles::readChunkData(int x,
     return data;
 }
 
-/* Read missing chunks data (null pointers) from region file 
- * @param layer used as third part of openRegFiles map key 
- * (see REGION_LAYER_* constants)
- */
+/// @brief Read missing chunks data (null pointers) from region file 
+/// @param layer used as third part of openRegFiles map key 
+/// (see REGION_LAYER_* constants)
 void WorldFiles::fetchChunks(WorldRegion* region, int x, int z, fs::path folder, int layer) {
     ubyte** chunks = region->getChunks();
     uint32_t* sizes = region->getSizes();
@@ -426,12 +421,11 @@ void WorldFiles::fetchChunks(WorldRegion* region, int x, int z, fs::path folder,
     }
 }
 
-/* Write or rewrite region file
- * @param x region X
- * @param z region Z
- * @param layer used as third part of openRegFiles map key 
- * (see REGION_LAYER_* constants)
- */
+/// @brief Write or rewrite region file
+/// @param x region X
+/// @param z region Z
+/// @param layer used as third part of openRegFiles map key 
+/// (see REGION_LAYER_* constants)
 void WorldFiles::writeRegion(int x, int z, WorldRegion* entry, fs::path folder, int layer){
     fs::path filename = folder/getRegionFilename(x, z);
 
@@ -501,7 +495,7 @@ void WorldFiles::write(const World* world, const Content* content) {
     if (generatorTestMode) {
         return;
     }
-        
+    
     writeIndices(content->getIndices());
     writeRegions(regions, regionsFolder, REGION_LAYER_VOXELS);
     writeRegions(lights, lightsFolder, REGION_LAYER_LIGHTS);
@@ -598,4 +592,26 @@ void WorldFiles::removePack(const World* world, const std::string& id) {
         ss << pack << "\n";
     }
     files::write_string(file, ss.str());
+
+    // erase invalid indices
+    auto prefix = id+":";
+    auto root = files::read_json(getIndicesFile());
+    auto blocks = root->list("blocks");
+    for (uint i = 0; i < blocks->size(); i++) {
+        auto name = blocks->str(i);
+        if (name.find(prefix) != 0)
+            continue;
+        auto value = blocks->getValueWriteable(i);
+        *value->value.str = "core:air";
+    }
+
+    auto items = root->list("items");
+    for (uint i = 0; i < items->size(); i++) {
+        auto name = items->str(i);
+        if (name.find(prefix) != 0)
+            continue;
+        auto value = items->getValueWriteable(i);
+        *value->value.str = "core:empty";
+    }
+    files::write_json(getIndicesFile(), root.get());
 }

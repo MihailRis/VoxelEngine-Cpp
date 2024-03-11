@@ -149,6 +149,9 @@ void Engine::mainloop() {
 
 Engine::~Engine() {
     std::cout << "-- shutting down" << std::endl;
+	if (screen) {
+		screen->onEngineShutdown();
+	}
 	screen.reset();
 	content.reset();
     assets.reset();

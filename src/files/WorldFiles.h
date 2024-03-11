@@ -30,9 +30,6 @@ inline constexpr uint REGION_FORMAT_VERSION = 2;
 inline constexpr uint WORLD_FORMAT_VERSION = 1;
 inline constexpr uint MAX_OPEN_REGION_FILES = 16;
 
-#define REGION_FORMAT_MAGIC ".VOXREG"
-#define WORLD_FORMAT_MAGIC ".VOXWLD"
-
 class Player;
 class Content;
 class ContentIndices;
@@ -161,7 +158,7 @@ public:
     /// @param id pack id
     void removePack(const World* world, const std::string& id);
 
-    static const char* WORLD_FILE;
+    static const inline std::string WORLD_FILE = "world.json";
 };
 
 #endif /* FILES_WORLDFILES_H_ */

@@ -8,7 +8,7 @@
 inline constexpr int ENGINE_VERSION_MAJOR = 0;
 inline constexpr int ENGINE_VERSION_MINOR = 20;
 inline constexpr bool ENGINE_VERSION_INDEV = true;
-#define ENGINE_VERSION_STRING "0.20"
+inline const std::string ENGINE_VERSION_STRING = "0.20";
 
 inline constexpr int BLOCK_AIR = 0;
 inline constexpr int ITEM_EMPTY = 0;
@@ -35,11 +35,10 @@ inline constexpr uint vox_index(uint x, uint y, uint z, uint w=CHUNK_W, uint d=C
 	return (y * d + z) * w + x;
 }
 
-//cannot replace defines with const while used for substitution
-#define SHADERS_FOLDER "shaders" 
-#define TEXTURES_FOLDER "textures"
-#define FONTS_FOLDER "fonts"
-#define LAYOUTS_FOLDER "layouts"
-#define SOUNDS_FOLDER "sounds"
+inline const std::string SHADERS_FOLDER = "shaders";
+inline const std::string TEXTURES_FOLDER = "textures";
+inline const std::string FONTS_FOLDER = "fonts";
+inline const std::string LAYOUTS_FOLDER = "layouts";
+inline const std::string SOUNDS_FOLDER = "sounds";
 
 #endif // SRC_CONSTANTS_H_

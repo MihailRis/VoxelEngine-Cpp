@@ -54,7 +54,7 @@ inline uint64_t randU64() {
 void menus::create_version_label(Engine* engine) {
     auto gui = engine->getGUI();
     auto vlabel = std::make_shared<gui::Label>(
-        util::str2wstr_utf8(ENGINE_VERSION_STRING " development build ")
+        util::str2wstr_utf8(ENGINE_VERSION_STRING+" development build ")
     );
     vlabel->setZIndex(1000);
     vlabel->setColor(glm::vec4(1, 1, 1, 0.5f));
@@ -210,9 +210,7 @@ void create_world_generators_panel(Engine* engine) {
         idlabel->setAlign(Align::right);
 
         button->add(idlabel, glm::vec2(80, 4));
-
         button->add(std::make_shared<Label>(fullName), glm::vec2(0, 8));
-
         button->listenAction(
             [=](GUI*) {
                 menus::generatorID = id;
@@ -224,21 +222,23 @@ void create_world_generators_panel(Engine* engine) {
     panel->add(guiutil::backButton(menu));
 }
 
-void menus::open_world(std::string name, Engine* engine) {
+void menus::open_world(std::string name, Engine* engine, bool confirmConvert) {
     auto paths = engine->getPaths();
     auto folder = paths->getWorldsFolder()/fs::u8path(name);
     try {
         engine->loadWorldContent(folder);
     } catch (const contentpack_error& error) {
         // could not to find or read pack
-        guiutil::alert(engine->getGUI(), 
-                       langs::get(L"error.pack-not-found")+
-                       L": "+util::str2wstr_utf8(error.getPackId()));
+        guiutil::alert(
+            engine->getGUI(), langs::get(L"error.pack-not-found")+L": "+
+            util::str2wstr_utf8(error.getPackId())
+        );
         return;
     } catch (const std::runtime_error& error) {
-        guiutil::alert(engine->getGUI(),
-                       langs::get(L"Content Error", L"menu")+
-                       L": "+util::str2wstr_utf8(error.what()));
+        guiutil::alert(
+            engine->getGUI(), langs::get(L"Content Error", L"menu")+L": "+
+            util::str2wstr_utf8(error.what())
+        );
         return;
     }
     paths->setWorldFolder(folder);
@@ -252,18 +252,25 @@ void menus::open_world(std::string name, Engine* engine) {
         if (lut->hasMissingContent()) {
             show_content_missing(engine, content, lut);
         } else {
-            show_convert_request(engine, content, lut, folder, [=](){
-                open_world(name, engine);
-            });
+            if (confirmConvert) {
+                show_process_panel(engine, std::make_shared<WorldConverter>(folder, content, lut), [=](){
+                    open_world(name, engine, false);
+                });
+            } else {
+                show_convert_request(engine, content, lut, folder, [=](){
+                    open_world(name, engine, false);
+                });
+            }
         }
     } else {
         try {
             Level* level = World::load(folder, settings, content, packs);
             engine->setScreen(std::make_shared<LevelScreen>(engine, level));
         } catch (const world_load_error& error) {
-            guiutil::alert(engine->getGUI(), 
-                        langs::get(L"Error")+
-                        L": "+util::str2wstr_utf8(error.what()));
+            guiutil::alert(
+                engine->getGUI(), langs::get(L"Error")+L": "+
+                util::str2wstr_utf8(error.what())
+            );
             return;
         }
     }
@@ -284,7 +291,7 @@ std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
         btn->setColor(glm::vec4(0.06f, 0.12f, 0.18f, 0.7f));
         btn->setHoverColor(glm::vec4(0.09f, 0.17f, 0.2f, 0.6f));
         btn->listenAction([=](GUI*) {
-            menus::open_world(name, engine);
+            menus::open_world(name, engine, false);
         });
         btn->add(std::make_shared<Label>(namews), glm::vec2(8, 8));
 
@@ -296,8 +303,7 @@ std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
         delbtn->setHoverColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.17f));
         delbtn->listenAction([=](GUI* gui) {
             guiutil::confirm(gui, langs::get(L"delete-confirm", L"world")+
-            L" ("+util::str2wstr_utf8(folder.u8string())+L")", [=]() 
-            {
+            L" ("+util::str2wstr_utf8(folder.u8string())+L")", [=]() {
                 std::cout << "deleting " << folder.u8string() << std::endl;
                 fs::remove_all(folder);
                 menus::refresh_menus(engine);

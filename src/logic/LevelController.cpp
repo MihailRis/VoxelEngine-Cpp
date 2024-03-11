@@ -1,9 +1,12 @@
 #include "LevelController.h"
 #include "../world/Level.h"
+#include "../world/World.h"
 #include "../physics/Hitbox.h"
 
 #include "scripting/scripting.h"
 #include "../interfaces/Object.h"
+
+#include <iostream>
 
 LevelController::LevelController(EngineSettings& settings, Level* level) 
     : settings(settings), level(level),
@@ -42,8 +45,10 @@ void LevelController::update(float delta, bool input, bool pause) {
     }
 }
 
-void LevelController::onWorldSave() {
+void LevelController::saveWorld() {
+    std::cout << "-- writing world" << std::endl;
     scripting::on_world_save();
+    level->getWorld()->write(level.get());
 }
 
 void LevelController::onWorldQuit() {

@@ -65,29 +65,29 @@ void AssetsLoader::tryAddSound(std::string name) {
     if (name.empty()) {
         return;
     }
-    fs::path file = SOUNDS_FOLDER"/"+name+".ogg";
+    fs::path file = SOUNDS_FOLDER+"/"+name+".ogg";
     add(ASSET_SOUND, file, name);
 }
 
 void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
-    loader.add(ASSET_FONT, FONTS_FOLDER"/font", "normal");
-    loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui", "ui");
-    loader.add(ASSET_SHADER, SHADERS_FOLDER"/main", "main");
-    loader.add(ASSET_SHADER, SHADERS_FOLDER"/lines", "lines");
-    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/menubg.png", "gui/menubg");
-    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/delete_icon.png", "gui/delete_icon");
-    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/no_icon.png", "gui/no_icon");
-    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/warning.png", "gui/warning");
-    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/error.png", "gui/error");
-    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/cross.png", "gui/cross");
+    loader.add(ASSET_FONT, FONTS_FOLDER+"/font", "normal");
+    loader.add(ASSET_SHADER, SHADERS_FOLDER+"/ui", "ui");
+    loader.add(ASSET_SHADER, SHADERS_FOLDER+"/main", "main");
+    loader.add(ASSET_SHADER, SHADERS_FOLDER+"/lines", "lines");
+    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER+"/gui/menubg.png", "gui/menubg");
+    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER+"/gui/delete_icon.png", "gui/delete_icon");
+    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER+"/gui/no_icon.png", "gui/no_icon");
+    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER+"/gui/warning.png", "gui/warning");
+    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER+"/gui/error.png", "gui/error");
+    loader.add(ASSET_TEXTURE, TEXTURES_FOLDER+"/gui/cross.png", "gui/cross");
     if (content) {
-        loader.add(ASSET_SHADER, SHADERS_FOLDER"/ui3d", "ui3d");
-        loader.add(ASSET_SHADER, SHADERS_FOLDER"/screen", "screen");
-        loader.add(ASSET_SHADER, SHADERS_FOLDER"/background", "background");
-        loader.add(ASSET_SHADER, SHADERS_FOLDER"/skybox_gen", "skybox_gen");
-        loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/moon.png", "misc/moon");
-        loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/misc/sun.png", "misc/sun");
-        loader.add(ASSET_TEXTURE, TEXTURES_FOLDER"/gui/crosshair.png", "gui/crosshair");
+        loader.add(ASSET_SHADER, SHADERS_FOLDER+"/ui3d", "ui3d");
+        loader.add(ASSET_SHADER, SHADERS_FOLDER+"/screen", "screen");
+        loader.add(ASSET_SHADER, SHADERS_FOLDER+"/background", "background");
+        loader.add(ASSET_SHADER, SHADERS_FOLDER+"/skybox_gen", "skybox_gen");
+        loader.add(ASSET_TEXTURE, TEXTURES_FOLDER+"/misc/moon.png", "misc/moon");
+        loader.add(ASSET_TEXTURE, TEXTURES_FOLDER+"/misc/sun.png", "misc/sun");
+        loader.add(ASSET_TEXTURE, TEXTURES_FOLDER+"/gui/crosshair.png", "gui/crosshair");
 
         for (auto& entry : content->getBlockMaterials()) {
             auto& material = entry.second;
@@ -104,8 +104,8 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
             addLayouts(pack->getEnvironment()->getId(), info.id, folder, loader);
         }
     }
-    loader.add(ASSET_ATLAS, TEXTURES_FOLDER"/blocks", "blocks");
-    loader.add(ASSET_ATLAS, TEXTURES_FOLDER"/items", "items");
+    loader.add(ASSET_ATLAS, TEXTURES_FOLDER+"/blocks", "blocks");
+    loader.add(ASSET_ATLAS, TEXTURES_FOLDER+"/items", "items");
 }
 
 const ResPaths* AssetsLoader::getPaths() const {

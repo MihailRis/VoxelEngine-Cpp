@@ -13,10 +13,12 @@
 
 namespace fs = std::filesystem;
 
-WorldConverter::WorldConverter(fs::path folder, 
-                               const Content* content, 
-                               std::shared_ptr<ContentLUT> lut) 
-    : lut(lut), content(content) {
+WorldConverter::WorldConverter(
+    fs::path folder, 
+    const Content* content, 
+    std::shared_ptr<ContentLUT> lut
+) : lut(lut), content(content) 
+{
     DebugSettings settings;
     wfile = new WorldFiles(folder, settings);
 

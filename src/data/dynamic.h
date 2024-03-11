@@ -40,7 +40,7 @@ namespace dynamic {
 
         std::string str(size_t index) const;
         double num(size_t index) const;
-        int64_t integer(size_t num) const;
+        int64_t integer(size_t index) const;
         Map* map(size_t index) const;
         List* list(size_t index) const;
         bool flag(size_t index) const;
@@ -63,6 +63,8 @@ namespace dynamic {
         List& put(Map* value);
         List& put(List* value);
         List& put(bool value);
+
+        Value* getValueWriteable(size_t index) const;
 
         List& putList();
         Map& putMap();

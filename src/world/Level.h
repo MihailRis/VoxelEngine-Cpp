@@ -1,15 +1,15 @@
 #ifndef WORLD_LEVEL_H_
 #define WORLD_LEVEL_H_
 
-#include <memory>
-
 #include "../settings.h"
 #include "../interfaces/Object.h"
+
+#include <memory>
 #include <vector>
 
-const float DEF_PLAYER_Y = 100.0f;
-const float DEF_PLAYER_SPEED = 4.0f;
-const int DEF_PLAYER_INVENTORY_SIZE = 40;
+inline constexpr float DEF_PLAYER_Y = 100.0f;
+inline constexpr float DEF_PLAYER_SPEED = 4.0f;
+inline constexpr int DEF_PLAYER_INVENTORY_SIZE = 40;
 
 class Content;
 class World;
@@ -22,36 +22,34 @@ class Lighting;
 class PhysicsSolver;
 class ChunksStorage;
 
-/* A level, contains chunks and objects */
+/// @brief A level, contains chunks and objects
 class Level {
 public:
-	std::unique_ptr<World> world;
-	const Content* const content;
-	std::vector<std::shared_ptr<Object>> objects;
+    std::unique_ptr<World> world;
+    const Content* const content;
+    std::vector<std::shared_ptr<Object>> objects;
     std::unique_ptr<Chunks> chunks;
     std::unique_ptr<ChunksStorage> chunksStorage;
-	std::unique_ptr<Inventories> inventories;
+    std::unique_ptr<Inventories> inventories;
 
     std::unique_ptr<PhysicsSolver> physics;
     std::unique_ptr<Lighting> lighting;
     std::unique_ptr<LevelEvents> events;
 
-	const EngineSettings& settings;
+    const EngineSettings& settings;
 
-	Level(World* world, 
-		  const Content* content,
-	      EngineSettings& settings);
-	~Level();
+    Level(World* world, const Content* content, EngineSettings& settings);
+    ~Level();
 
-	void loadMatrix(int32_t x, int32_t z, uint32_t radius);
+    void loadMatrix(int32_t x, int32_t z, uint32_t radius);
     
     World* getWorld();
 
-	// Spawns object of class T and returns pointer to it.
-	// @param T class that derives the Object class
-	// @param args pass arguments needed for T class constructor
-	template<class T, typename... Args>
-	std::shared_ptr<T> spawnObject(Args&&... args) {
+    /// Spawns object of class T and returns pointer to it.
+    /// @param T class that derives the Object class
+    /// @param args pass arguments needed for T class constructor
+    template<class T, typename... Args>
+    std::shared_ptr<T> spawnObject(Args&&... args) {
         static_assert(std::is_base_of<Object, T>::value, "T must be a derived of Object class");
         std::shared_ptr<T> tObj = std::make_shared<T>(args...);
         

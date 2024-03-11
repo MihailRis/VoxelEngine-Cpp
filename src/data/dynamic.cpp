@@ -67,6 +67,13 @@ bool List::flag(size_t index) const {
     }
 }
 
+Value* List::getValueWriteable(size_t index) const {
+    if (index > values.size()) {
+        throw std::runtime_error("index error");
+    }
+    return values.at(index).get();
+}
+
 List& List::put(std::string value) {
     valvalue val;
     val.str = new std::string(value);

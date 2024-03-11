@@ -236,8 +236,20 @@ void Player::deserialize(dynamic::Map *src) {
 
 
 void Player::convert(dynamic::Map* data, const ContentLUT* lut) {
-    auto inventory = data->map("inventory");
-    if (inventory) {
-        Inventory::convert(inventory, lut);
+    auto players = data->list("players");
+    if (players) {
+        for (uint i = 0; i < players->size(); i++) {
+            auto playerData = players->map(i);
+            auto inventory = playerData->map("inventory");
+            if (inventory) {
+                Inventory::convert(inventory, lut);
+            }
+        }
+    
+    } else {
+        auto inventory = data->map("inventory");
+        if (inventory) {
+            Inventory::convert(inventory, lut);
+        }
     }
 }
