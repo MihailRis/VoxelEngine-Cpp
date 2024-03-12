@@ -1,3 +1,6 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "PlayerController.h"
 
 #include "../objects/Player.h"
@@ -19,9 +22,6 @@
 #include "BlocksController.h"
 
 #include "../core_defs.h"
-
-#define _USE_MATH_DEFINES
-#include <cmath>
 
 const float CAM_SHAKE_OFFSET = 0.025f;
 const float CAM_SHAKE_OFFSET_Y = 0.031f;

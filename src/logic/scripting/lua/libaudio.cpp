@@ -65,7 +65,7 @@ inline audio::speakerid_t play_stream(
     if (channel == -1)
         return 0;
     auto paths = scripting::engine->getResPaths();
-    fs::path file = paths->find(fs::path(filename));
+    fs::path file = paths->find(filename);
     return audio::play_stream(
         file, 
         glm::vec3(

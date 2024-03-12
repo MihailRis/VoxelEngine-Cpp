@@ -1,5 +1,6 @@
 #include <string>
 #include <memory>
+#include <sstream>
 
 #include "gui/controls.h"
 #include "../audio/audio.h"
