@@ -331,6 +331,7 @@ static void pick_block(ContentIndices* indices, Chunks* chunks, Player* player, 
     }
 }
 
+// TODO: refactor this nesting nest
 void PlayerController::updateInteraction(){
     auto indices = level->content->getIndices();
     Chunks* chunks = level->chunks.get();
@@ -374,7 +375,6 @@ void PlayerController::updateInteraction(){
         uint8_t states = determine_rotation(def, norm, camera->dir);
         
         if (lclick && !input.shift && item->rt.funcsset.on_block_break_by) {
-            // TODO: move scripting to interaction callbacks
             if (scripting::on_item_break_block(player.get(), item, x, y, z))
                 return;
         }
@@ -428,7 +428,6 @@ void PlayerController::updateInteraction(){
                         chunks->set(x, y, z, chosenBlock, states);
                         lighting->onBlockSet(x,y,z, chosenBlock);
                         if (def->rt.funcsset.onplaced) {
-                            // TODO: move scripting to interaction callbacks
                             scripting::on_block_placed(player.get(), def, x, y, z);
                         }
                         blocksController->updateSides(x, y, z);

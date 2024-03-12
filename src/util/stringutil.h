@@ -34,6 +34,11 @@ namespace util {
     extern double parse_double(const std::string& str);
     extern double parse_double(const std::string& str, size_t offset, size_t len);
 
+    extern std::wstring lower_case(const std::wstring& str);
+    extern std::wstring upper_case(const std::wstring& str);
+    extern std::wstring capitalized(const std::wstring& str);
+    extern std::wstring pascal_case(const std::wstring& str);
+
     extern std::vector<std::string> split(const std::string& str, char delimiter);
     extern std::vector<std::wstring> split(const std::wstring& str, char delimiter);
 }

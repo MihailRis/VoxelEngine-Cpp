@@ -292,6 +292,49 @@ double util::parse_double(const std::string& str, size_t offset, size_t len) {
     return parse_double(str.substr(offset, len));
 }
 
+std::wstring util::lower_case(const std::wstring& str) {
+    std::wstring result = str;
+    static const std::locale loc("");
+    for (uint i = 0; i < result.length(); i++) {
+        result[i] = static_cast<wchar_t>(std::tolower(str[i], loc));
+    }
+    return result;
+}
+
+std::wstring util::upper_case(const std::wstring& str) {
+    std::wstring result = str;
+    static const std::locale loc("");
+    for (uint i = 0; i < result.length(); i++) {
+        result[i] = static_cast<wchar_t>(std::toupper(str[i], loc));
+    }
+    return result;
+}
+
+std::wstring util::capitalized(const std::wstring& str) {
+    if (str.empty())
+        return str;
+    static const std::locale loc("");
+    return std::wstring({static_cast<wchar_t>(std::toupper(str[0], loc))}) + str.substr(1);
+}
+
+std::wstring util::pascal_case(const std::wstring& str) {
+    if (str.empty())
+        return str;
+    static const std::locale loc("");
+    std::wstring result = str;
+    bool upper = true;
+    for (uint i = 0; i < result.length(); i++) {
+        auto c = result[i];
+        if (c <= ' ') {
+            upper = true;
+        } else if (upper) {
+            result[i] = static_cast<wchar_t>(std::toupper(str[i], loc));
+            upper = false;
+        }
+    }
+    return result;
+}
+
 /// @brief Split string by delimiter
 /// @param str source string
 /// @param delimiter split delimiter size

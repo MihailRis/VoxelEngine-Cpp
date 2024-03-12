@@ -104,7 +104,6 @@ void ContentLoader::fixPackIndices() {
     }
 }
 
-// TODO: add basic validation and logging
 void ContentLoader::loadBlock(Block& def, std::string name, fs::path file) {
     auto root = files::read_json(file);
 
