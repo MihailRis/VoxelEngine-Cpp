@@ -34,35 +34,25 @@ SlotLayout::SlotLayout(
     slotcallback updateFunc,
     slotcallback shareFunc,
     slotcallback rightClick
-) 
-    : index(index),
-      position(position),
-      background(background),
-      itemSource(itemSource),
-      updateFunc(updateFunc),
-      shareFunc(shareFunc),
-      rightClick(rightClick) {}
+) : index(index),
+    position(position),
+    background(background),
+    itemSource(itemSource),
+    updateFunc(updateFunc),
+    shareFunc(shareFunc),
+    rightClick(rightClick) {}
 
 InventoryBuilder::InventoryBuilder() {
     view = std::make_shared<InventoryView>();
 }
 
-/** Add slots grid to inventory view 
- * @param cols grid columns
- * @param count total number of grid slots
- * @param pos position of the first slot of the grid
- * @param padding additional space around the grid
- * @param addpanel automatically create panel behind the grid
- * with size including padding
- * @param slotLayout slot settings (index and position are ignored)
- */
 void InventoryBuilder::addGrid(
     int cols, int count, 
     glm::vec2 pos, 
     int padding,
     bool addpanel,
-    SlotLayout slotLayout) 
-{
+    SlotLayout slotLayout
+) {
     const int slotSize = InventoryView::SLOT_SIZE;
     const int interval = InventoryView::SLOT_INTERVAL;
 
@@ -88,8 +78,9 @@ void InventoryBuilder::addGrid(
 
     for (int row = 0; row < rows; row++) {
         for (int col = 0; col < cols; col++) {
-            if (row * cols + col >= count)
+            if (row * cols + col >= count) {
                 break;
+            }
             glm::vec2 position (
                 col * (slotSize + interval) + padding,
                 row * (slotSize + interval) + padding
@@ -122,14 +113,13 @@ void SlotView::draw(const GfxContext* pctx, Assets* assets) {
     if (bound == nullptr)
         return;
 
+    const int slotSize = InventoryView::SLOT_SIZE;
+
     ItemStack& stack = *bound;
-
-    glm::vec2 pos = calcPos();
-
-    int slotSize = InventoryView::SLOT_SIZE;
-
     glm::vec4 tint(1.0f);
+    glm::vec2 pos = calcPos();
     glm::vec4 color = getColor();
+    
     if (hover || highlighted) {
         tint *= 1.333f;
         color = glm::vec4(1, 1, 1, 0.2f);

@@ -48,13 +48,15 @@ struct SlotLayout {
     slotcallback rightClick;
     int padding = 0;
 
-    SlotLayout(int index,
-               glm::vec2 position, 
-               bool background,
-               bool itemSource,
-               slotcallback updateFunc,
-               slotcallback shareFunc,
-               slotcallback rightClick);
+    SlotLayout(
+        int index,
+        glm::vec2 position, 
+        bool background,
+        bool itemSource,
+        slotcallback updateFunc,
+        slotcallback shareFunc,
+        slotcallback rightClick
+    );
 };
 
 class SlotView : public gui::UINode {
@@ -135,6 +137,14 @@ class InventoryBuilder {
 public:
     InventoryBuilder();
 
+    /// @brief Add slots grid to inventory view 
+    /// @param cols grid columns
+    /// @param count total number of grid slots
+    /// @param pos position of the first slot of the grid
+    /// @param padding additional space around the grid
+    /// @param addpanel automatically create panel behind the grid
+    /// with size including padding
+    /// @param slotLayout slot settings (index and position are ignored)
     void addGrid(
         int cols, int count, 
         glm::vec2 pos, 

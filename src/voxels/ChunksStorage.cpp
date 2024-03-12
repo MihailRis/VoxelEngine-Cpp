@@ -75,7 +75,7 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 	return chunk;
 }
 
-// some magic code
+// reduce nesting on next modification
 void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 	const Content* content = level->content;
 	auto indices = content->getIndices();
