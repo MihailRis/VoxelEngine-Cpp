@@ -153,6 +153,10 @@ void LevelScreen::update(float delta) {
 
     auto player = controller->getPlayer();
     auto camera = player->camera;
+
+    bool paused = hud->isPause();
+    audio::get_channel("regular")->setPaused(paused);
+    audio::get_channel("ambient")->setPaused(paused);
     audio::set_listener(
         camera->position-camera->dir, 
         player->hitbox->velocity,

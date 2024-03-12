@@ -114,6 +114,19 @@ void Engine::updateHotkeys() {
     }
 }
 
+inline constexpr float sqr(float x) {
+    return x*x;
+}
+
+static void updateAudio(double delta, const AudioSettings& settings) {
+    audio::get_channel("master")->setVolume(sqr(settings.volumeMaster));
+    audio::get_channel("regular")->setVolume(sqr(settings.volumeRegular));
+    audio::get_channel("ui")->setVolume(sqr(settings.volumeUI));
+    audio::get_channel("ambient")->setVolume(sqr(settings.volumeAmbient));
+    audio::get_channel("music")->setVolume(sqr(settings.volumeMusic));
+    audio::update(delta);
+}
+
 void Engine::mainloop() {
     setScreen(std::make_shared<MenuScreen>(this));
 
@@ -125,8 +138,7 @@ void Engine::mainloop() {
         assert(screen != nullptr);
         updateTimers();
         updateHotkeys();
-        
-        audio::update(delta);
+        updateAudio(delta, settings.audio);
 
         gui->act(delta);
         screen->update(delta);

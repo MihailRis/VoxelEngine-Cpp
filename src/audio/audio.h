@@ -55,6 +55,16 @@ namespace audio {
         /// @brief Get channel name
         const std::string& getName() const;
 
+        inline void setPaused(bool flag) {
+            if (flag == paused)
+                return;
+            if (flag) {
+                pause();
+            } else {
+                resume();
+            }
+        }
+
         /// @brief Pause all speakers in channel
         void pause();
 
@@ -472,9 +482,14 @@ namespace audio {
     extern int get_channel_index(const std::string& name);
 
     /// @brief Get channel by index. 0 - is master channel
-    /// @param name channel index
+    /// @param index channel index
     /// @return channel or nullptr
     extern Channel* get_channel(int index);
+
+    /// @brief Get channel by name.
+    /// @param name channel name
+    /// @return channel or nullptr
+    extern Channel* get_channel(const std::string& name);
 
     /// @brief Get stream associated with speaker
     /// @param id speaker id

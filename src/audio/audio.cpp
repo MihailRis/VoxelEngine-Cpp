@@ -356,6 +356,10 @@ Channel* audio::get_channel(int index) {
     return channels.at(index).get();
 }
 
+Channel* audio::get_channel(const std::string& name) {
+    return get_channel(get_channel_index(name));
+}
+
 std::shared_ptr<Stream> audio::get_associated_stream(speakerid_t id) {
     auto found = streams.find(id);
     if (found != streams.end()) {

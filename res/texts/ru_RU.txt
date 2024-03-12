@@ -23,6 +23,7 @@ menu.Controls=Управление
 menu.Back to Main Menu=Вернуться в Меню
 menu.Settings=Настройки
 menu.Content=Контент
+menu.Audio=Звук
 world.Seed=Зерно
 world.Name=Название
 
@@ -41,6 +42,11 @@ settings.Fog Curve=Кривая Тумана
 settings.Backlight=Подсветка
 settings.V-Sync=Вертикальная Синхронизация
 settings.Camera Shaking=Тряска Камеры
+settings.Master Volume=Общая Громкость
+settings.Regular Sounds=Обычные Звуки
+settings.UI Sounds=Звуки Интерфейса
+settings.Ambient=Фон
+settings.Music=Музыка
 
 settings.FOV=Поле Зрения
 settings.Mouse Sensitivity=Чувствительность Мыши
