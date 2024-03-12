@@ -6,6 +6,17 @@
 #include "constants.h"
 #include "typedefs.h"
 
+struct AudioSettings {
+    /// @brief try to initialize AL backend
+    bool enabled = true;
+    
+    float volumeMaster = 1.0f;
+    float volumeRegular = 1.0f;
+    float volumeUI = 1.0f;
+    float volumeAmbient = 1.0f;
+    float volumeMusic = 1.0f;
+};
+
 struct DisplaySettings {
     /// @brief Is window in full screen mode
     bool fullscreen = false;
@@ -67,6 +78,7 @@ struct UiSettings {
 };
 
 struct EngineSettings {
+    AudioSettings audio;
     DisplaySettings display;
     ChunksSettings chunks;
     CameraSettings camera;

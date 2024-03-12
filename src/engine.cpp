@@ -56,7 +56,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     if (Window::initialize(settings.display)){
         throw initialize_error("could not initialize window");
     }
-    audio::initialize(true);
+    audio::initialize(settings.audio.enabled);
     audio::create_channel("regular");
     audio::create_channel("music");
     audio::create_channel("ambient");
