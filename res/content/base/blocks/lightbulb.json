@@ -1,4 +1,5 @@
 {
+    "caption": "light bulb",
     "texture": "lightbulb",
     "emission": [15, 14, 13],
     "model": "aabb",

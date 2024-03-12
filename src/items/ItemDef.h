@@ -21,7 +21,11 @@ enum class item_icon_type {
 
 class ItemDef {
 public:
+    /// @brief Item string id (with prefix included)
     std::string const name;
+
+    /// @brief Item name will shown in inventory
+    std::string caption;
 
     itemcount_t stackSize = 64;
     bool generated = false;

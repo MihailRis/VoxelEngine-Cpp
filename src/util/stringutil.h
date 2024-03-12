@@ -39,6 +39,12 @@ namespace util {
     extern std::wstring capitalized(const std::wstring& str);
     extern std::wstring pascal_case(const std::wstring& str);
 
+    /// @brief Convert `any_prefix:some_data_id` to `some data id`. Leaves
+    /// '_' characters at end of the id.
+    /// @param id source id
+    /// @return resulting caption or empty string if there's nothing but prefix
+    extern std::string id_to_caption(const std::string& id);
+
     extern std::vector<std::string> split(const std::string& str, char delimiter);
     extern std::vector<std::wstring> split(const std::wstring& str, char delimiter);
 }

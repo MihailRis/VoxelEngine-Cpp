@@ -1,6 +1,7 @@
 #include "Block.h"
 
 #include "../core_defs.h"
+#include "../util/stringutil.h"
 
 CoordSystem::CoordSystem(glm::ivec3 axisX, glm::ivec3 axisY, glm::ivec3 axisZ)
   : axisX(axisX), axisY(axisY), axisZ(axisZ)
@@ -42,6 +43,7 @@ Block::Block(std::string name)
 	  textureFaces {TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,
 	  			    TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,TEXTURE_NOTFOUND} {
 	rotations = BlockRotProfile::PIPE;
+    caption = util::id_to_caption(name);
 }
 
 Block::Block(std::string name, std::string texture) : name(name),

@@ -107,6 +107,8 @@ void ContentLoader::fixPackIndices() {
 void ContentLoader::loadBlock(Block& def, std::string name, fs::path file) {
     auto root = files::read_json(file);
 
+    root->str("caption", def.caption);
+
     // block texturing
     if (root->has("texture")) {
         std::string texture;
@@ -253,6 +255,8 @@ void ContentLoader::loadCustomBlockModel(Block& def, dynamic::Map* primitives) {
 
 void ContentLoader::loadItem(ItemDef& def, std::string name, fs::path file) {
     auto root = files::read_json(file);
+    root->str("caption", def.caption);
+
     std::string iconTypeStr = "";
     root->str("icon-type", iconTypeStr);
     if (iconTypeStr == "none") {
@@ -346,6 +350,7 @@ void ContentLoader::load(ContentBuilder& builder) {
             if (!def.hidden) {
                 auto& item = builder.createItem(full+BLOCK_ITEM_SUFFIX);
                 item.generated = true;
+                item.caption = def.caption;
                 item.iconType = item_icon_type::block;
                 item.icon = full;
                 item.placingBlock = full;

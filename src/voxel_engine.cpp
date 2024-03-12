@@ -7,11 +7,11 @@
 
 #include "core_defs.h"
 #include "engine.h"
-#include "util/platform.h"
 #include "coders/toml.h"
 #include "files/files.h"
 #include "files/settings_io.h"
 #include "files/engine_paths.h"
+#include "util/platform.h"
 #include "util/command_line.h"
 
 #define SETTINGS_FILE "settings.toml"

@@ -93,6 +93,8 @@ class Block {
 public:
 	/// @brief Block string id (with prefix included)
 	std::string const name;
+
+	std::string caption;
 	
     /// @brief Textures set applied to block sides
 	std::string textureFaces[6]; // -x,x, -y,y, -z,z

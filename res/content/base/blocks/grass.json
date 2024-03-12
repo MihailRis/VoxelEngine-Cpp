@@ -1,4 +1,5 @@
 {
+    "caption": "tall grass",
     "texture": "grass",
     "material": "base:grass",
     "draw-group": 1,
