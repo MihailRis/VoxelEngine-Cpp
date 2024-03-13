@@ -7,7 +7,7 @@
 
 inline constexpr int ENGINE_VERSION_MAJOR = 0;
 inline constexpr int ENGINE_VERSION_MINOR = 20;
-inline constexpr bool ENGINE_VERSION_INDEV = true;
+inline constexpr bool ENGINE_VERSION_INDEV = false;
 inline const std::string ENGINE_VERSION_STRING = "0.20";
 
 inline constexpr int BLOCK_AIR = 0;
