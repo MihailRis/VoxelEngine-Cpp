@@ -5,6 +5,9 @@
 #include <functional>
 #include <string>
 
+template<class T> using consumer = std::function<void(T)>;
+template<class T> using supplier = std::function<T()>;
+
 using runnable = std::function<void()>;
 
 // data sources

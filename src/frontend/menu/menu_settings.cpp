@@ -5,6 +5,7 @@
 #include "../gui/GUI.h"
 #include "../gui/gui_util.h"
 #include "../../engine.h"
+#include "../../data/observables.h"
 #include "../../util/stringutil.h"
 
 #include <glm/glm.hpp>
@@ -14,7 +15,7 @@ using namespace gui;
 static void create_volume_trackbar(
     std::shared_ptr<Panel> panel,
     const std::wstring& name,
-    float* field
+    observable<float>* field
 ) {
     panel->add(menus::create_label([=]() {
         return langs::get(name, L"settings")+L": " + 
