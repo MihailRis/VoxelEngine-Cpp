@@ -51,7 +51,7 @@ void CameraControl::updateMouse(PlayerInput& input) {
 
     float sensitivity = (input.zoom 
         ? settings.sensitivity / 4.f 
-        : settings.sensitivity);
+        : float(settings.sensitivity));
 
     cam -= glm::degrees(Events::delta / (float)Window::height * sensitivity);
 

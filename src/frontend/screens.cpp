@@ -163,15 +163,6 @@ void LevelScreen::update(float delta) {
         camera->dir, 
         camera->up
     );
-
-    // TODO: subscribe for setting change
-    EngineSettings& settings = engine->getSettings();
-    controller->getPlayer()->camera->setFov(glm::radians(settings.camera.fov));
-    if (settings.graphics.backlight != backlight) {
-        controller->getLevel()->chunks->saveAndClear();
-        backlight = settings.graphics.backlight;
-    }
-
     if (!hud->isPause()) {
         controller->getLevel()->world->updateTimers(delta);
         animator->update(delta);

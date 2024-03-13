@@ -40,6 +40,9 @@
 #include "content/ContentLoader.h"
 #include "frontend/locale/langs.h"
 #include "logic/scripting/scripting.h"
+#include "logic/LevelController.h"
+#include "world/Level.h"
+#include "voxels/Chunks.h"
 
 #include "core_defs.h"
 
@@ -48,6 +51,16 @@ namespace fs = std::filesystem;
 void addWorldGenerators() {
     WorldGenerators::addGenerator<DefaultWorldGenerator>("core:default");
     WorldGenerators::addGenerator<FlatWorldGenerator>("core:flat");
+}
+
+inline constexpr float sqr(float x) {
+    return x*x;
+}
+
+inline void observeAudioVolume(observable<float>* volume, const std::string& channel) {
+    volume->observe([=](auto observer, float v) {
+        audio::get_channel(channel)->setVolume(sqr(v));
+    });
 }
 
 Engine::Engine(EngineSettings& settings, EnginePaths* paths) 
@@ -61,6 +74,17 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     audio::create_channel("music");
     audio::create_channel("ambient");
     audio::create_channel("ui");
+    observeAudioVolume(&settings.audio.volumeMaster, "master");
+    observeAudioVolume(&settings.audio.volumeRegular, "regular");
+    observeAudioVolume(&settings.audio.volumeUI, "ui");
+    observeAudioVolume(&settings.audio.volumeAmbient, "ambient");
+    observeAudioVolume(&settings.audio.volumeMusic, "music");
+    settings.graphics.backlight.observe([=](auto observer, bool flag) {
+        auto levelscreen = std::dynamic_pointer_cast<LevelScreen>(screen);
+        if (levelscreen) {
+            levelscreen->getLevelController()->getLevel()->chunks->saveAndClear();
+        }
+    });
 
     auto resdir = paths->getResources();
     scripting::initialize(this);
@@ -114,19 +138,6 @@ void Engine::updateHotkeys() {
     }
 }
 
-inline constexpr float sqr(float x) {
-    return x*x;
-}
-
-static void updateAudio(double delta, const AudioSettings& settings) {
-    audio::get_channel("master")->setVolume(sqr(settings.volumeMaster));
-    audio::get_channel("regular")->setVolume(sqr(settings.volumeRegular));
-    audio::get_channel("ui")->setVolume(sqr(settings.volumeUI));
-    audio::get_channel("ambient")->setVolume(sqr(settings.volumeAmbient));
-    audio::get_channel("music")->setVolume(sqr(settings.volumeMusic));
-    audio::update(delta);
-}
-
 void Engine::mainloop() {
     setScreen(std::make_shared<MenuScreen>(this));
 
@@ -138,7 +149,7 @@ void Engine::mainloop() {
         assert(screen != nullptr);
         updateTimers();
         updateHotkeys();
-        updateAudio(delta, settings.audio);
+        audio::update(delta);
 
         gui->act(delta);
         screen->update(delta);

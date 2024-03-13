@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include "commons.h"
+#include "../data/observables.h"
 
 namespace toml {
     enum class fieldtype {
@@ -28,11 +29,11 @@ namespace toml {
         void add(std::string name, Field field);
     public:
         Section(std::string name);
-        void add(std::string name, bool* ptr);
-        void add(std::string name, int* ptr);
-        void add(std::string name, uint* ptr);
-        void add(std::string name, float* ptr);
-        void add(std::string name, std::string* ptr);
+        void add(std::string name, observable<bool>* ptr);
+        void add(std::string name, observable<int>* ptr);
+        void add(std::string name, observable<uint>* ptr);
+        void add(std::string name, observable<float>* ptr);
+        void add(std::string name, observable<std::string>* ptr);
 
         const Field* field(std::string name) const;
 

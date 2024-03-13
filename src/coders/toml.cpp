@@ -7,11 +7,9 @@
 #include <sstream>
 #include <assert.h>
 
-using std::string;
-
 using namespace toml;
 
-Section::Section(string name) : name(name) {
+Section::Section(std::string name) : name(name) {
 }
 
 void Section::add(std::string name, Field field) {
@@ -22,27 +20,27 @@ void Section::add(std::string name, Field field) {
     keyOrder.push_back(name);
 }
 
-void Section::add(string name, bool* ptr) {
-    add(name, {fieldtype::ftbool, ptr});
+void Section::add(std::string name, observable<bool>* ptr) {
+    add(name, Field{fieldtype::ftbool, ptr});
 }
 
-void Section::add(string name, int* ptr) {
-    add(name, {fieldtype::ftint, ptr});
+void Section::add(std::string name, observable<int>* ptr) {
+    add(name, Field{fieldtype::ftint, ptr});
 }
 
-void Section::add(string name, uint* ptr) {
-    add(name, {fieldtype::ftuint, ptr});
+void Section::add(std::string name, observable<uint>* ptr) {
+    add(name, Field{fieldtype::ftuint, ptr});
 }
 
-void Section::add(string name, float* ptr) {
-    add(name, {fieldtype::ftfloat, ptr});
+void Section::add(std::string name, observable<float>* ptr) {
+    add(name, Field{fieldtype::ftfloat, ptr});
 }
 
-void Section::add(string name, string* ptr) {
-    add(name, {fieldtype::ftstring, ptr});
+void Section::add(std::string name, observable<std::string>* ptr) {
+    add(name, Field{fieldtype::ftstring, ptr});
 }
 
-string Section::getName() const {
+std::string Section::getName() const {
     return name;
 }
 
@@ -84,22 +82,22 @@ Section* Wrapper::section(std::string name) {
 
 std::string Wrapper::write() const {
     std::stringstream ss;
-    for (string key : keyOrder) {
+    for (std::string key : keyOrder) {
         const Section* section = sections.at(key);
         ss << "[" << key << "]\n";
-        for (const string& key : section->keys()) {
+        for (const std::string& key : section->keys()) {
             ss << key << " = ";
             const Field* field = section->field(key);
             assert(field != nullptr);
             switch (field->type) {
                 case fieldtype::ftbool:
-                    ss << (*((bool*)field->ptr) ? "true" : "false");
+                    ss << (*((observable<bool>*)field->ptr) ? "true" : "false");
                     break;
-                case fieldtype::ftint: ss << *((int*)field->ptr); break;
-                case fieldtype::ftuint: ss << *((uint*)field->ptr); break;
-                case fieldtype::ftfloat: ss << *((float*)field->ptr); break;
+                case fieldtype::ftint: ss << *((observable<int>*)field->ptr); break;
+                case fieldtype::ftuint: ss << *((observable<uint>*)field->ptr); break;
+                case fieldtype::ftfloat: ss << *((observable<float>*)field->ptr); break;
                 case fieldtype::ftstring: 
-                    ss << escape_string(*((const string*)field->ptr)); 
+                    ss << escape_string(*((const observable<std::string>*)field->ptr)); 
                     break;
             }
             ss << "\n";
@@ -109,8 +107,9 @@ std::string Wrapper::write() const {
     return ss.str();
 }
 
-Reader::Reader(Wrapper* wrapper, string file, string source) : BasicParser(file, source), wrapper(wrapper) {
-}
+Reader::Reader(Wrapper* wrapper, std::string file, std::string source) 
+: BasicParser(file, source), wrapper(wrapper) 
+{}
 
 void Reader::skipWhitespace() {
     BasicParser::skipWhitespace();
@@ -134,17 +133,17 @@ inline bool is_numeric_type(fieldtype type) {
     return type == fieldtype::ftint || type == fieldtype::ftfloat;
 }
 
-void Section::set(string name, double value) {
+void Section::set(std::string name, double value) {
     const Field* field = this->field(name);
     if (field == nullptr) {
         std::cerr << "warning: unknown key '" << name << "'" << std::endl;
     } else {
         switch (field->type) {
-        case fieldtype::ftbool: *(bool*)(field->ptr) = fabs(value) > 0.0; break;
-        case fieldtype::ftint: *(int*)(field->ptr) = value; break;
-        case fieldtype::ftuint: *(uint*)(field->ptr) = value; break;
-        case fieldtype::ftfloat: *(float*)(field->ptr) = value; break;
-        case fieldtype::ftstring: *(string*)(field->ptr) = std::to_string(value); break;
+        case fieldtype::ftbool: *(observable<bool>*)(field->ptr) = fabs(value) > 0.0; break;
+        case fieldtype::ftint: *(observable<int>*)(field->ptr) = value; break;
+        case fieldtype::ftuint: *(observable<uint>*)(field->ptr) = value; break;
+        case fieldtype::ftfloat: *(observable<float>*)(field->ptr) = value; break;
+        case fieldtype::ftstring: *(observable<std::string>*)(field->ptr) = std::to_string(value); break;
         default:
             std::cerr << "error: type error for key '" << name << "'" << std::endl;
         }
@@ -157,11 +156,11 @@ void Section::set(std::string name, bool value) {
         std::cerr << "warning: unknown key '" << name << "'" << std::endl;
     } else {
         switch (field->type) {
-        case fieldtype::ftbool: *(bool*)(field->ptr) = value; break;
-        case fieldtype::ftint: *(int*)(field->ptr) = (int)value; break;
-        case fieldtype::ftuint: *(uint*)(field->ptr) = (uint)value; break;
-        case fieldtype::ftfloat: *(float*)(field->ptr) = (float)value; break;
-        case fieldtype::ftstring: *(string*)(field->ptr) = value ? "true" : "false"; break;
+        case fieldtype::ftbool: *(observable<bool>*)(field->ptr) = value; break;
+        case fieldtype::ftint: *(observable<int>*)(field->ptr) = (int)value; break;
+        case fieldtype::ftuint: *(observable<uint>*)(field->ptr) = (uint)value; break;
+        case fieldtype::ftfloat: *(observable<float>*)(field->ptr) = (float)value; break;
+        case fieldtype::ftstring: *(observable<std::string>*)(field->ptr) = value ? "true" : "false"; break;
         default:
             std::cerr << "error: type error for key '" << name << "'" << std::endl;
         }
@@ -174,7 +173,7 @@ void Section::set(std::string name, std::string value) {
         std::cerr << "warning: unknown key '" << name << "'" << std::endl;
     } else {
         switch (field->type) {
-        case fieldtype::ftstring: *(string*)(field->ptr) = value; break;
+        case fieldtype::ftstring: *(observable<std::string>*)(field->ptr) = value; break;
         default:
             std::cerr << "error: type error for key '" << name << "'" << std::endl;
         }
@@ -189,14 +188,14 @@ void Reader::readSection(Section* section /*nullable*/) {
         }
         char c = nextChar();
         if (c == '[') {
-            string name = parseName();
+            std::string name = parseName();
             Section* section = wrapper->section(name);
             pos++;
             readSection(section);
             return;
         }
         pos--;
-        string name = parseName();
+        std::string name = parseName();
         expect('=');
         c = peek();
         if (is_digit(c)) {
@@ -220,7 +219,7 @@ void Reader::readSection(Section* section /*nullable*/) {
                     section->set(name, num.fval);
             }
         } else if (is_identifier_start(c)) {
-            string identifier = parseName();
+            std::string identifier = parseName();
             if (identifier == "true" || identifier == "false") {
                 bool flag = identifier == "true";
                 if (section) {
@@ -237,7 +236,7 @@ void Reader::readSection(Section* section /*nullable*/) {
             }
         } else if (c == '"' || c == '\'') {
             pos++;
-            string str = parseString(c);
+            std::string str = parseString(c);
             if (section) {
                 section->set(name, str);
             }
