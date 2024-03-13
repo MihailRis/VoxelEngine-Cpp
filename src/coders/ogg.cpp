@@ -1,5 +1,6 @@
 #include "ogg.h"
 
+#include <string>
 #include <iostream>
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
