@@ -362,8 +362,16 @@ void create_new_world_panel(Engine* engine) {
     auto seedstr = std::to_wstring(randU64());
     auto seedInput = std::make_shared<TextBox>(seedstr, glm::vec4(6.0f));
     panel->add(seedInput);
-
+    
     panel->add(guiutil::gotoButton(langs::get(L"World generator", L"world"), "world_generators", engine->getGUI()->getMenu()));
+
+    panel->add(menus::create_button(L"Content", glm::vec4(10), glm::vec4(1), [=](GUI* gui) {
+        engine->loadAllPacks();
+        auto panel = menus::create_packs_panel(engine->getContentPacks(), engine, false, nullptr, nullptr);
+        auto menu = gui->getMenu();
+        menu->addPage("content-packs", panel);
+        menu->setPage("content-packs");
+    }));
 
     panel->add(menus::create_button(L"Create World", glm::vec4(10), glm::vec4(1, 20, 1, 1), 
     [=](GUI*) {
