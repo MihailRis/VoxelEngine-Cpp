@@ -16,9 +16,7 @@
 
 using namespace gui;
 
-using packconsumer = std::function<void(const ContentPack& pack)>;
-
-std::shared_ptr<Panel> create_packs_panel(
+std::shared_ptr<Panel> menus::create_packs_panel(
     const std::vector<ContentPack>& packs, 
     Engine* engine, 
     bool backbutton, 
@@ -39,7 +37,7 @@ std::shared_ptr<Panel> create_packs_panel(
                 callback(pack);
             });
         }
-        auto runtime = engine->getContent()->getPackRuntime(pack.id);
+        auto runtime = engine->getContent() ? engine->getContent()->getPackRuntime(pack.id) : nullptr;
         auto idlabel = std::make_shared<Label>(
             (runtime && runtime->getStats().hasSavingContent()) 
             ? "*["+pack.id+"]" 
@@ -121,7 +119,7 @@ void create_content_panel(Engine* engine, LevelController* controller) {
         }
     }
 
-    auto panel = create_packs_panel(
+    auto panel = menus::create_packs_panel(
         engine->getContentPacks(), engine, false, nullptr, 
         [=](const ContentPack& pack) {
             auto world = level->getWorld();
@@ -143,7 +141,7 @@ void create_content_panel(Engine* engine, LevelController* controller) {
     mainPanel->add(panel);
     mainPanel->add(menus::create_button(
     langs::get(L"Add", L"content"), glm::vec4(10.0f), glm::vec4(1), [=](GUI* gui) {
-        auto panel = create_packs_panel(scanned, engine, true, 
+        auto panel = menus::create_packs_panel(scanned, engine, true, 
         [=](const ContentPack& pack) {
             auto world = level->getWorld();
             auto worldFolder = paths->getWorldFolder();
