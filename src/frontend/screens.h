@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "../settings.h"
+#include "../interfaces/Disposable.h"
 
 class Assets;
 class Level;
@@ -20,6 +21,7 @@ class Screen {
 protected:
     Engine* engine;
     std::unique_ptr<Batch2D> batch;
+    std::vector<Disposable*> disposables;
 public:
     Screen(Engine* engine);
     virtual ~Screen();

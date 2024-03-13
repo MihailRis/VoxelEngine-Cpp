@@ -2,8 +2,9 @@
 #define DATA_OBSERVABLES_H_
 
 #include "../delegates.h"
+#include "../interfaces/Disposable.h"
 
-#include <vector>
+#include <list>
 
 template<class T>
 class Observer;
@@ -12,7 +13,7 @@ template<class T>
 using observer_func = std::function<void(Observer<T>*, T)>;
 
 template<class T>
-class Observer {
+class Observer : public Disposable {
     bool attached = true;
     observer_func<T> callback;
 public:
@@ -29,13 +30,15 @@ public:
     void detach() {
         attached = false;
     }
+
+    void dispose() override {detach();};
 };
 
 template<class T>
 class observable {
 protected:
     T value;
-    std::vector<Observer<T>> observers;
+    std::list<Observer<T>> observers;
 public:
     observable() : value() {}
     observable(T value) : value(value) {}
@@ -71,12 +74,14 @@ public:
         return value;
     }
 
-    virtual void observe(observer_func<T> callback) {
+    virtual Observer<T>* observe(observer_func<T> callback) {
         Observer observer(callback);
         observer.update(value);
         if (observer.isAttached()) {
-            observers.push_back(observer);
+            observers.emplace_back(observer);
+            return &observers.back();
         }
+        return nullptr;
     }
 };
 

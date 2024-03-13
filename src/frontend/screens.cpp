@@ -45,6 +45,9 @@ Screen::Screen(Engine* engine) : engine(engine), batch(new Batch2D(1024)) {
 }
 
 Screen::~Screen() {
+    for (Disposable* disposable : disposables) {
+        disposable->dispose();
+    }
 }
 
 MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
@@ -117,6 +120,10 @@ LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
         }
     }
     scripting::on_frontend_init(hud.get());
+
+    disposables.push_back(settings.graphics.backlight.observe([=](auto observer, bool flag) {
+        level->chunks->saveAndClear();
+    }));
 }
 
 LevelScreen::~LevelScreen() {

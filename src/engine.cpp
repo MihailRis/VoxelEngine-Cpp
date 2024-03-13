@@ -79,12 +79,6 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     observeAudioVolume(&settings.audio.volumeUI, "ui");
     observeAudioVolume(&settings.audio.volumeAmbient, "ambient");
     observeAudioVolume(&settings.audio.volumeMusic, "music");
-    settings.graphics.backlight.observe([=](auto observer, bool flag) {
-        auto levelscreen = std::dynamic_pointer_cast<LevelScreen>(screen);
-        if (levelscreen) {
-            levelscreen->getLevelController()->getLevel()->chunks->saveAndClear();
-        }
-    });
 
     auto resdir = paths->getResources();
     scripting::initialize(this);
