@@ -39,16 +39,7 @@ namespace fs = std::filesystem;
 using namespace gui;
 
 namespace menus {
-    std::string generatorID;
-}
-
-inline uint64_t randU64() {
-    srand(time(NULL));
-    return rand() ^ (rand() << 8) ^ 
-        (rand() << 16) ^ (rand() << 24) ^
-        ((uint64_t)rand() << 32) ^ 
-        ((uint64_t)rand() << 40) ^
-        ((uint64_t)rand() << 56);
+    extern std::string generatorID;
 }
 
 void menus::create_version_label(Engine* engine) {
@@ -181,47 +172,6 @@ void create_languages_panel(Engine* engine) {
     panel->add(guiutil::backButton(menu));
 }
 
-static std::string translate_generator_id(std::string& id) {
-    int delimiterPosition = id.find(":");
-    std::string pack = id.substr(0, delimiterPosition);
-    std::string generator = id.substr(delimiterPosition + 1);
-
-    if(pack == "core") {
-        return util::wstr2str_utf8(langs::get(util::str2wstr_utf8(generator), L"world.generators"));
-    } else {
-        return id;
-    }
-}
-
-void create_world_generators_panel(Engine* engine) {
-    auto menu = engine->getGUI()->getMenu();
-    auto panel = menus::create_page(engine, "world_generators", 400, 0.5f, 1);
-    panel->setScrollable(true);
-
-    std::vector<std::string> generatorsIDs = WorldGenerators::getGeneratorsIDs();
-    std::sort(generatorsIDs.begin(), generatorsIDs.end());
-    for (std::string& id : generatorsIDs) {
-        const std::string& fullName = translate_generator_id(id);
-        auto button = std::make_shared<RichButton>(glm::vec2(80, 30));
-
-        auto idlabel = std::make_shared<Label>("["+id+"]");
-        idlabel->setColor(glm::vec4(1, 1, 1, 0.5f));
-        idlabel->setSize(glm::vec2(300, 25));
-        idlabel->setAlign(Align::right);
-
-        button->add(idlabel, glm::vec2(80, 4));
-        button->add(std::make_shared<Label>(fullName), glm::vec2(0, 8));
-        button->listenAction(
-            [=](GUI*) {
-                menus::generatorID = id;
-                menu->back();
-            }
-        );
-        panel->add(button);
-    }
-    panel->add(guiutil::backButton(menu));
-}
-
 void menus::open_world(std::string name, Engine* engine, bool confirmConvert) {
     auto paths = engine->getPaths();
     auto folder = paths->getWorldsFolder()/fs::u8path(name);
@@ -331,134 +281,10 @@ void create_main_menu_panel(Engine* engine) {
     ));
 }
 
-inline uint64_t str2seed(std::wstring seedstr) {
-    if (util::is_integer(seedstr)) {
-        try {
-            return std::stoull(seedstr);
-        } catch (const std::out_of_range& err) {
-            std::hash<std::wstring> hash;
-            return hash(seedstr);
-        }
-    } else {
-        std::hash<std::wstring> hash;
-        return hash(seedstr);
-    }
-}
-
-void create_new_world_panel(Engine* engine) {
-    auto panel = menus::create_page(engine, "new-world", 400, 0.0f, 1);
-
-    panel->add(std::make_shared<Label>(langs::get(L"Name", L"world")));
-    auto nameInput = std::make_shared<TextBox>(L"New World", glm::vec4(6.0f));
-    nameInput->setTextValidator([=](const std::wstring& text) {
-        EnginePaths* paths = engine->getPaths();
-        std::string textutf8 = util::wstr2str_utf8(text);
-        return util::is_valid_filename(text) && 
-                !paths->isWorldNameUsed(textutf8);
-    });
-    panel->add(nameInput);
-
-    panel->add(std::make_shared<Label>(langs::get(L"Seed", L"world")));
-    auto seedstr = std::to_wstring(randU64());
-    auto seedInput = std::make_shared<TextBox>(seedstr, glm::vec4(6.0f));
-    panel->add(seedInput);
-
-    panel->add(guiutil::gotoButton(langs::get(L"World generator", L"world"), "world_generators", engine->getGUI()->getMenu()));
-
-    panel->add(menus::create_button(L"Create World", glm::vec4(10), glm::vec4(1, 20, 1, 1), 
-    [=](GUI*) {
-        if (!nameInput->validate())
-            return;
-
-        std::string name = util::wstr2str_utf8(nameInput->getText());
-        uint64_t seed = str2seed(seedInput->getText());
-        std::cout << "world seed: " << seed << std::endl;
-
-        EnginePaths* paths = engine->getPaths();
-        auto folder = paths->getWorldsFolder()/fs::u8path(name);
-        try {
-            engine->loadAllPacks();
-            engine->loadContent();
-            paths->setWorldFolder(folder);
-        } catch (const contentpack_error& error) {
-            guiutil::alert(
-                engine->getGUI(),
-                langs::get(L"Content Error", L"menu")+L":\n"+
-                util::str2wstr_utf8(
-                    std::string(error.what())+
-                    "\npack '"+error.getPackId()+"' from "+
-                    error.getFolder().u8string()
-                )
-            );
-            return;
-        } catch (const std::runtime_error& error) {
-            guiutil::alert(
-                engine->getGUI(),
-                langs::get(L"Content Error", L"menu")+
-                L": "+util::str2wstr_utf8(error.what())
-            );
-            return;
-        }
-
-        Level* level = World::create(
-            name, menus::generatorID, folder, seed, 
-            engine->getSettings(), 
-            engine->getContent(),
-            engine->getContentPacks()
-        );
-        level->world->wfile->createDirectories();
-        menus::generatorID = WorldGenerators::getDefaultGeneratorID();
-        engine->setScreen(std::make_shared<LevelScreen>(engine, level));
-    }));
-    panel->add(guiutil::backButton(engine->getGUI()->getMenu()));
-}
-
-void create_controls_panel(Engine* engine) {
-    auto menu = engine->getGUI()->getMenu();
-    auto panel = menus::create_page(engine, "controls", 400, 0.0f, 1);
-
-    /* Camera sensitivity setting track bar */{
-        panel->add(menus::create_label([=]() {
-            float s = engine->getSettings().camera.sensitivity;
-            return langs::get(L"Mouse Sensitivity", L"settings")+L": "+
-                   util::to_wstring(s, 1);
-        }));
-
-        auto trackbar = std::make_shared<TrackBar>(0.1, 10.0, 2.0, 0.1, 4);
-        trackbar->setSupplier([=]() {
-            return engine->getSettings().camera.sensitivity;
-        });
-        trackbar->setConsumer([=](double value) {
-            engine->getSettings().camera.sensitivity = value;
-        });
-        panel->add(trackbar);
-    }
-
-    auto scrollPanel = std::make_shared<Panel>(glm::vec2(400, 200), glm::vec4(2.0f), 1.0f);
-    scrollPanel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.3f));
-    scrollPanel->setMaxLength(400);
-    for (auto& entry : Events::bindings){
-        std::string bindname = entry.first;
-        
-        auto subpanel = std::make_shared<Panel>(glm::vec2(400, 40), glm::vec4(5.0f), 1.0f);
-        subpanel->setColor(glm::vec4(0.0f));
-        subpanel->setOrientation(Orientation::horizontal);
-        subpanel->add(std::make_shared<InputBindBox>(entry.second));
-
-        auto label = std::make_shared<Label>(langs::get(util::str2wstr_utf8(bindname)));
-        label->setMargin(glm::vec4(6.0f));
-        subpanel->add(label);
-        scrollPanel->add(subpanel);
-    }
-    panel->add(scrollPanel);
-    panel->add(guiutil::backButton(menu));
-}
-
 void menus::create_menus(Engine* engine) {
     menus::generatorID = WorldGenerators::getDefaultGeneratorID();
     create_new_world_panel(engine);
     create_settings_panel(engine);
-    create_controls_panel(engine);
     create_languages_panel(engine);
     create_main_menu_panel(engine);
     create_world_generators_panel(engine);
