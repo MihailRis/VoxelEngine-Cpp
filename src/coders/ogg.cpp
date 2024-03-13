@@ -9,17 +9,24 @@
 
 using namespace audio;
 
-static inline const char* vorbis_error_message(int code) {
+static inline std::string vorbis_error_message(int code) {
     switch (code) {
         case 0: return "no error";
         case OV_EREAD: return "a read from media returned an error";
-        case OV_ENOTVORBIS: return "bitstream does not contain any Vorbis data";
+        case OV_ENOTVORBIS: return "the given file/data was not recognized as Ogg Vorbis data";
         case OV_EVERSION: return "vorbis version mismatch";
         case OV_EBADHEADER: return "invalid Vorbis bitstream header";
         case OV_EFAULT: return "internal logic fault";
         case OV_EINVAL: return "invalid read operation";
+        case OV_EBADLINK: 
+            return "the given link exists in the Vorbis data stream,"
+                   " but is not decipherable due to garbacge or corruption";
+        case OV_ENOSEEK:
+            return "the given stream is not seekable";
+        case OV_EIMPL:
+            return "feature not implemented";
         default:
-            return "unknown";
+            return "unknown error ["+std::to_string(code)+"]";
     }
 }
 
@@ -27,7 +34,7 @@ audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
     OggVorbis_File vf;
     int code;
     if ((code = ov_fopen(file.u8string().c_str(), &vf))) {
-        throw std::runtime_error(vorbis_error_message(code));
+        throw std::runtime_error("vorbis: "+vorbis_error_message(code));
     }
     std::vector<char> data;
 
@@ -143,7 +150,7 @@ PCMStream* ogg::create_stream(const std::filesystem::path& file) {
     OggVorbis_File vf;
     int code;
     if ((code = ov_fopen(file.u8string().c_str(), &vf))) {
-        throw std::runtime_error(vorbis_error_message(code));
+        throw std::runtime_error("vorbis: "+vorbis_error_message(code));
     }
     return new OggStream(std::move(vf));
 }
