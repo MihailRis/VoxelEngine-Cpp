@@ -58,6 +58,19 @@ function vector2:len()
     return math.sqrt(self.x * self.x + self.y * self.y)
 end
 
+-- angle between 2 vec2
+-- @param vector {ve2}
+-- @return {number} -> radians - angle between the 2 vec
+function vector2:abtw(vector)
+    local dot_product = self:dot(vector)
+    local len_product = self:len() * vector:len()
+    if len_product == 0 then
+        return 0
+    end
+    local radians = math.acos(dot_product / len_product)
+    return radians
+end
+
 
 -- Normalize vec2
 -- @return {vector2} - The normalized vector2
@@ -74,6 +87,31 @@ function vector2:norm()
 end
 
 
+-- project vec2
+-- @param vector {vec2} 
+-- @return {vec2} project
+function vector2:proj(vector)
+    if type(vector) == "number" then
+        print("\n(( TypeError : proj(vec2) ))\nType arg proj(vec2)")
+        error("Invalid input argument. Expected a vector2 object")
+    end
+    local dot_product = self:dot(vector)
+    return vector:new(dot_product * (vector.x / vector:len()^2), dot_product * (vector.y / vector:len()^2))
+end
+
+
+-- exclude vector2
+-- @param vector {vec2}
+-- @return {vec2}
+function vector2:vxld(vector)
+    if type(vector) == "number" then
+        print("\n(( TypeError : vxld(vec2) ))\nType arg vxld(vec2, vec2)")
+        error("Invalid input argument. Expected a vector2 object\n")
+    end
+    return vector2:new(self.x - vector.x, self.y - vector.y)
+end
+
+
 -- vec2 dot product
 -- @param vector {vec2} 
 -- @return {number}
@@ -87,6 +125,7 @@ end
 --              print(v1:dot(v1)) -- Output: (-0.83205029433784, 0.55470019622523)
 function vector2:dot(vector)
     if type(vector) == "number" then
+        print("\n(( TypeError : dot(vec2) ))\nType arg dot(vec2)")
         error("Invalid input argument. Expected a vector2 object")
     end
     return self.x * vector.x + self.y * vector.y
@@ -98,14 +137,30 @@ end
 -- @param t {number} - (0 <= t <= 1) the interpolation factor
 -- @return {vector2} - The interpolated vector2
 function vector2:lerp(b, t)
-    if type(b) ~= "vector2" then
-        error("Invalid input argument. Expected a vector2 object")
+    if type(b) ~= "table" then
+        print("\n(( TypeError : lerp(vec2) ))\nType arg lerp(vec2, number)")
+        error("Invalid input argument. Expected a vector2 object\n")
     end
     if type(t) ~= "number" or t < 0 or t > 1 then
-        error("Invalid input argument. Expected a number between 0 and 1")
+        error("Invalid input argument. Expected a number between 0 and 1 .. (0 <= t <= 1)")
     end
     return vector2:new(self.x + t * (b.x - self.x), self.y + t * (b.y - self.y));
 end
+
+
+-- Dist btw 2 vec2
+-- @param vector {vector2}
+-- @return {number} - distance between the 2 vect2
+function vector2:dist(vector)
+    if type(vector) ~= "table" then
+        print("\n(( TypeError : dist(vec2) ))\nType arg dist(vec2)")
+        error("Invalid input argument. Expected a vec2 object or a table with two numbers.")
+    end
+    local dx = self.x - vector.x
+    local dy = self.y - vector.y
+    local result = vec2(dx, dy)
+    return result:len()
+  end
 
 -- rotate vec2
 -- @param angle {number}
@@ -299,7 +354,17 @@ function vector3:len()
     return math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
 end
 
-
+-- project vec3
+-- @param vector {vec3} - The direction vector
+-- @return {vec3} - The projected vector3
+function vector3:proj(vector)
+    if type(vector) == "number" then
+        print("\n(( TypeError : proj(vec3) ))\nType arg proj(vector3)")
+        error("Invalid input argument. Expected a vector3 object\n")
+    end
+    local dot_product = self:dot(vector)
+    return vector:new(dot_product * (vector.x / vector:len()^2), dot_product * (vector.y / vector:len()^2), dot_product * (vector.z / vector:len()^2))
+end
 
 -- normalize vector
 -- @return {number}
@@ -317,13 +382,58 @@ end
 -- @param t {number} - (0 <= t <= 1) the interpolation factor
 -- @return {vec3}
 function vector3:lerp(b, t)
-    if type(b) ~= "vector3" then
-        error("Invalid input argument. Expected a vector3 object")
+    if type(b) ~= "table" then
+        print("\n(( TypeError : lerp(vec3) ))\nType arg lerp(vec3, number)")
+        error("Invalid input argument. Expected a vector3 object\n")
     end
     if type(t) ~= "number" or t < 0 or t > 1 then
-        error("Invalid input argument. Expected a number between 0 and 1")
+        error("Invalid input argument. Expected a number between 0 and 1 .. (0 <= t <= 1)\n")
     end
     return vector3:new(self.x + t * (b.x - self.x), self.y + t * (b.y - self.y), self.z + t * (b.z - self.z));
+end
+
+-- distance to line vec3
+-- @param point1 {vec3} - The first point on the line
+-- @param point2 {vec3} - The second point on the line
+-- @return {number} - The shortest distance from the point to the line
+function vector3:dist2line(point1, point2)
+    if type(point1) ~= "table" or type(point2) ~= "table" then
+        print("\n(( TypeError : dist2line(vec3) ))\nType arg dist2line(vector3 , vector3)")
+        error("Invalid input argument. Expected two vector3 objects\n")
+    end
+    local line_vector = point2 - point1
+    local point_to_line = self - point1
+    local projection = point_to_line - line_vector:proj(point_to_line)
+    return projection:len()
+end
+
+
+-- angle between vec3
+-- @param vector {vec3} - The other vector3
+-- @return {number} -> rad .. angle between 2 vectors
+function vector3:abtw(vector)
+    if type(vector) == "number" then
+        print("\n(( TypeError : abtw(vec3) ))\nType arg abtw(vector3)")
+        error("Invalid input argument. Expected a vector3 object\n")
+    end
+    local dot_prod = self:dot(vector)
+    local len_prod = self:len() * vector:len()
+    if len_prod == 0 then
+        return 0
+    end
+    return math.acos(dot_prod / len_prod)
+end
+
+
+-- exclude vector3
+-- @param vector {vec3}
+-- @return {vec3}
+function vector3:vxld(vector)
+    if type(vector) == "number" then
+        print("\n(( TypeError : vxld(vec3) ))\nType arg vxld(vec3, vec3)")
+        error("Invalid input argument. Expected a vector3 object")
+    end
+    return vector3:new(self.x - vector.x, self.y - vector.y, self.z - vector.z)
 end
 
 
@@ -504,3 +614,109 @@ function vector3.__tostring(vcrt3)
     return vcrt3:strvec3()
 end
 
+
+
+
+-----------------------------------------( test func)-----------------------------
+-- local v1 = vec2(1, 2)
+-- print(v1.x, v1.y) -- Output: 1, 2
+
+
+-- local v1 = vec2(1.2345, 6.7890)
+-- print(v1:round())  -- prints "(1, 7)"
+
+-- local v2 = vec2(3.14159, 2.71828)
+-- print(v2:round(2))  -- prints "(3.14, 2.72)"
+
+
+-- local v1 = vec2(3, 4)
+-- print(v1:len())  -- prints 5
+
+-- local v2 = vec2(1, -1)
+-- print(v2:len())  -- prints 1.4142135623731
+
+
+-- local v1 = vec2(1, 0)
+-- local v2 = vec2(0, 1)
+-- print(v1:abtw(v2))  -- prints 1.5707963267949
+
+-- local v3 = vec2(-1, 1)
+-- local v4 = vec2(1, 1)
+-- print(v3:abtw(v4))  -- prints 0.78539816339745
+
+-- local v1 = vec2(4, 3)
+-- print(v1:norm()) -- Output: (0.6, 0.8)
+
+
+-- local v1 = vec2(1, 2)
+-- local v2 = vec2(3, 4)
+-- print(v1:proj(v2)) -- Output: (0.6, 0.8)
+
+
+-- local v1 = vec2(1, 2)
+-- local v2 = vec2(3, 4)
+-- print(v1:vxld(v2)) -- Output: (-2, -2)
+
+-- local v1 = vec2(1, 2)
+-- local v2 = vec2(3, 4)
+-- print(v1:dot(v2)) -- Output: 11
+
+
+-- local v1 = vec2(1, 2)
+-- local v2 = vec2(3, 4)
+-- print(v1:lerp(v2, 0.5)) -- Output: (2, 3)
+
+
+-- local v1 = vec2(1, 2)
+-- local v2 = vec2(3, 4)
+-- print(v1:dist(v2)) -- Output: 2.8284271247462
+
+-- local v1 = vec2(1, 0)
+-- print(v1:rot(90, "x")) -- Output: (0, 1)
+-- print(v1:rot(90, "y")) -- Output: (-1, 0)
+-- print(v1:rot(90, "z")) -- Output: (0, -1)
+-- print(v1:rot(90)) -- Output: (0, -1)
+
+
+
+-- local v = vec3(1, 2, 3)
+-- print(v)  -- Output: (1, 2, 3)
+
+-- local v1 = vec3(1, 2, 3)
+-- local v2 = vec3(4, 5, 6)
+-- print(v1:dot(v2))  -- Output: 32
+
+-- local v1 = vec3(1, 2, 3)
+-- local v2 = vec3(4, 5, 6)
+-- local v3 = v1:cross(v2)
+-- print(v3)  -- Output: (−3, 6, −3)
+
+-- local v = vec3(1.6, 2.4, 3.2)
+-- v:round()
+-- print(v)  -- Output: (2, 2, 3)
+
+
+-- local v1 = vec3(1, 0, 0)
+-- local v2 = vec3(2, 0, 0)
+-- print(v1:isParallel(v2))  -- Output: true
+
+-- local v = vec3(1, 2, 3)
+-- print(v:len())  -- Output: 3.7416573867739413
+
+-- local v1 = vec3(1, 2, 3)
+-- local v2 = vec3(4, 5, 6)
+-- local v3 = v1:proj(v2)
+-- print(v3)  -- Output: (2.6., 4, 5.3.)
+
+-- local v = vec3(1, 2, 3)
+-- print(v:norm())  -- Output: (0.2672612419124244, 0.5345224838248487, 0.8017837257372731)
+
+-- local v1 = vec3(1, 2, 3)
+-- local v2 = vec3(4, 5, 6)
+-- local v3 = v1:lerp(v2, 0.5)
+-- print(v3)  -- Output: (2.5, 3.5, 4.5)
+
+-- local v = vec3(1, 2, 3)
+-- local line_point1 = vec3(0, 0, 0)
+-- local line_point2 = vec3(2, 2, 2)
+-- print(v:dist2line(line_point1, line_point2))
