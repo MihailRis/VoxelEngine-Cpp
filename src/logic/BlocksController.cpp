@@ -57,6 +57,7 @@ BlocksController::BlocksController(Level* level, uint padding)
 	  lighting(level->lighting.get()),
       randTickClock(20, 3),
       blocksTickClock(20, 1),
+      worldTickClock(20, 1),
       padding(padding) {
 }
 
@@ -98,6 +99,9 @@ void BlocksController::update(float delta) {
     }
     if (blocksTickClock.update(delta)) {
         onBlocksTick(blocksTickClock.getPart(), blocksTickClock.getParts());
+    }
+    if (worldTickClock.update(delta)) {
+        scripting::on_world_tick();
     }
 }
 

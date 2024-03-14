@@ -35,6 +35,7 @@ class BlocksController {
 	Lighting* lighting;
     Clock randTickClock;
     Clock blocksTickClock;
+    Clock worldTickClock;
     uint padding;
     FastRandom random;
 public:

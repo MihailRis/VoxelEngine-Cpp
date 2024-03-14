@@ -109,6 +109,12 @@ void scripting::on_world_load(Level* level, BlocksController* blocks) {
     }
 }
 
+void scripting::on_world_tick() {
+    for (auto& pack : scripting::engine->getContentPacks()) {
+        emit_event(pack.id + ".worldtick");
+    }
+}
+
 void scripting::on_world_save() {
     for (auto& pack : scripting::engine->getContentPacks()) {
         emit_event(pack.id + ".worldsave");
@@ -285,6 +291,7 @@ void scripting::load_world_script(int env, std::string prefix, fs::path file) {
 
     register_event(env, "init", prefix+".init");
     register_event(env, "on_world_open", prefix+".worldopen");
+    register_event(env, "on_world_tick", prefix+".worldtick");
     register_event(env, "on_world_save", prefix+".worldsave");
     register_event(env, "on_world_quit", prefix+".worldquit");
 }

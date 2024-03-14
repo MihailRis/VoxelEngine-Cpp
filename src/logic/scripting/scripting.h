@@ -53,6 +53,7 @@ namespace scripting {
     std::unique_ptr<Environment> create_doc_environment(int parent, const std::string& name);
 
     void on_world_load(Level* level, BlocksController* blocks);
+    void on_world_tick();
     void on_world_save();
     void on_world_quit();
     void on_blocks_tick(const Block* block, int tps);
