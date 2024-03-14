@@ -232,7 +232,7 @@ State ALSpeaker::getState() const {
 }
 
 float ALSpeaker::getVolume() const {
-    return AL::getSourcef(source, AL_GAIN);
+    return volume;
 }
 
 void ALSpeaker::setVolume(float volume) {
@@ -258,6 +258,8 @@ void ALSpeaker::setLoop(bool loop) {
 void ALSpeaker::play() {
     paused = false;
     stopped = false;
+    auto channel = get_channel(this->channel);
+    AL_CHECK(alSourcef(source, AL_GAIN, volume * channel->getVolume()));
     AL_CHECK(alSourcePlay(source));
 }
 
