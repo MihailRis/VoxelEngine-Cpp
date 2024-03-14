@@ -196,7 +196,7 @@ function bit_converter.bytes_to_string(bytes)
 	local str = ""
 
 	for i = 1, len do
-		str = str..string.char(bytes[i])
+		str = str..string.char(bytes[i + 2])
 	end
 
 	return str
