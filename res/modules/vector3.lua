@@ -160,19 +160,6 @@ function vector3:abtw(vector)
     return math.acos(dot_prod / len_prod)
 end
 
-
--- exclude vector3
--- @param vector {vec3}
--- @return {vec3}
-function vector3:vxld(vector)
-    if type(vector) == "number" then
-        print("\n(( TypeError : vxld(vec3) ))\nType arg vxld(vec3, vec3)")
-        error("Invalid input argument. Expected a vector3 object")
-    end
-    return vector3:new(self.x - vector.x, self.y - vector.y, self.z - vector.z)
-end
-
-
 -- rot vec3
 -- @param angle {number} -> float || int
 -- @param axis {string}  .. if nil => rot axis z
