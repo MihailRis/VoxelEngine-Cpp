@@ -260,7 +260,7 @@ void Hud::processInput(bool visible) {
         }
     }
 
-    if (visible && Events::jactive(BIND_HUD_INVENTORY)) {
+    if (!pause && visible && Events::jactive(BIND_HUD_INVENTORY)) {
         if (inventoryOpen) {
             closeInventory();
         } else {
