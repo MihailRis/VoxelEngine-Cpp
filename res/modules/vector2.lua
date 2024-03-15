@@ -163,21 +163,6 @@ function vector2:dist(vector)
     return result:len()
 end
 
--- cross product for vec2 (in 3D space)
--- @param {vec2} v - The other vec2
--- @return {number} -> float || integer
--- @usage
---     local v1 = vec2(10, 15)
---     local v2 = vec2(15, 10)
---     print(v1:cross(v2)) -- Output: -125
-function vector2:cross(v)
-    if type(v) == "number" then
-        print("\n(( TypeError : cross ))\nType arg cross(vec2)")
-        error("Invalid input argument. Expected a vec2 object.\n")
-    end
-    return self.x * v.y - self.y * v.x
-end
-
 -- rotate vec2
 -- @param angle {number}
 -- @param axis {string} - axis rotate around (x, y, or z)
