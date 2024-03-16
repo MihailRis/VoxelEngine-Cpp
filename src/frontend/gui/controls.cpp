@@ -426,6 +426,9 @@ void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
 
+    auto subctx = pctx->sub();
+    subctx.setScissors(glm::vec4(pos.x, pos.y, size.x, size.y));
+
     if (valid) {
         if (isFocused() && !multiline) {
             batch->setColor(focusedColor);
