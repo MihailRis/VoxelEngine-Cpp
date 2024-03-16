@@ -15,16 +15,16 @@ GfxContext::GfxContext(
 {}
 
 GfxContext::~GfxContext() {
+    if (g2d) {
+        g2d->flush();
+    }
+
     while (scissorsCount--) {
         Window::popScissor();
     }
 
     if (parent == nullptr)
         return;
-    
-    if (g2d) {
-        g2d->flush();
-    }
 
     if (fbo != parent->fbo) {
         if (fbo) {
