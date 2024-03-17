@@ -160,6 +160,7 @@ function vector3:abtw(vector)
     return math.acos(dot_prod / len_prod)
 end
 
+
 -- rot vec3
 -- @param angle {number} -> float || int
 -- @param axis {string}  .. if nil => rot axis z
