@@ -1,8 +1,6 @@
 # Run with compiled executable file:
 
-[Windows 64 bit](https://github.com/MihailRis/VoxelEngine-Cpp/releases/download/v19/voxelengine_v19_win64.zip)
-
-[Linux x86_64 (.AppImage)](https://github.com/MihailRis/VoxelEngine-Cpp/releases/download/v19/VoxelEngine-0.19-x86_64.AppImage)
+[Download | Скачать](https://github.com/MihailRis/VoxelEngine-Cpp/releases/tag/v20.0)
 
 
 # Controls:

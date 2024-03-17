@@ -42,7 +42,7 @@ inline audio::speakerid_t play_sound(
             static_cast<float>(y), 
             static_cast<float>(z)
         ), 
-        false, 
+        relative, 
         volume, 
         pitch, 
         false, 
