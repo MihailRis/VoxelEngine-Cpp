@@ -2,8 +2,8 @@
 
 #include <glm/glm.hpp>
 
-#include "../../graphics/core/Mesh.h"
-#include "../../graphics/core/UVRegion.h"
+#include "../core/Mesh.h"
+#include "../core/UVRegion.h"
 #include "../../constants.h"
 #include "../../content/Content.h"
 #include "../../voxels/Block.h"
@@ -20,17 +20,19 @@ using glm::vec4;
 const uint BlocksRenderer::VERTEX_SIZE = 6;
 const vec3 BlocksRenderer::SUN_VECTOR (0.411934f, 0.863868f, -0.279161f);
 
-BlocksRenderer::BlocksRenderer(size_t capacity,
+BlocksRenderer::BlocksRenderer(
+    size_t capacity,
     const Content* content,
     const ContentGfxCache* cache,
-    const EngineSettings& settings)
-    : content(content),
+    const EngineSettings& settings
+) : content(content),
     vertexOffset(0),
     indexOffset(0),
     indexSize(0),
     capacity(capacity),
     cache(cache),
-    settings(settings) {
+    settings(settings) 
+{
     vertexBuffer = new float[capacity];
     indexBuffer = new int[capacity];
     voxelsBuffer = new VoxelsVolume(CHUNK_W + 2, CHUNK_H, CHUNK_D + 2);

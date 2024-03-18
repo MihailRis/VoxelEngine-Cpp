@@ -1,5 +1,5 @@
-#ifndef SRC_GRAPHICS_CHUNKSRENDERER_H_
-#define SRC_GRAPHICS_CHUNKSRENDERER_H_
+#ifndef GRAPHICS_RENDER_CHUNKSRENDERER_H_
+#define GRAPHICS_RENDER_CHUNKSRENDERER_H_
 
 #include <queue>
 #include <mutex>
@@ -64,4 +64,4 @@ public:
     void update();
 };
 
-#endif // SRC_GRAPHICS_CHUNKSRENDERER_H_
+#endif // GRAPHICS_RENDER_CHUNKSRENDERER_H_
