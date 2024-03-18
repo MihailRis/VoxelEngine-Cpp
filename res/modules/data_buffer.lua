@@ -38,7 +38,7 @@ function data_buffer:new(bytes)
 
     self.__index = self
     setmetatable(obj, self)
-    print("asg")
+
     return obj
 end
 
