@@ -5,51 +5,42 @@
 #include "Texture.h"
 #include "ImageData.h"
 
-using std::vector;
-using std::string;
-using std::unique_ptr;
-using std::shared_ptr;
-using std::unordered_map;
-
-Atlas::Atlas(ImageData* image, 
-             unordered_map<string, UVRegion> regions)
-      : texture(Texture::from(image)),
-        image(image),
-        regions(regions) {        
+Atlas::Atlas(ImageData* image, std::unordered_map<std::string, UVRegion> regions)
+  : texture(Texture::from(image)),
+    image(image),
+    regions(regions) {        
 }
 
 Atlas::~Atlas() {
-    delete image;
-    delete texture;
 }
 
-bool Atlas::has(string name) const {
+bool Atlas::has(const std::string& name) const {
     return regions.find(name) != regions.end();
 }
 
-const UVRegion& Atlas::get(string name) const {
+const UVRegion& Atlas::get(const std::string& name) const {
     return regions.at(name);
 }
 
 Texture* Atlas::getTexture() const {
-    return texture;
+    return texture.get();
 }
 
 ImageData* Atlas::getImage() const {
-    return image;
+    return image.get();
 }
 
-void AtlasBuilder::add(string name, ImageData* image) {
-    entries.push_back(atlasentry{name, shared_ptr<ImageData>(image)});
+void AtlasBuilder::add(std::string name, ImageData* image) {
+    entries.push_back(atlasentry{name, std::shared_ptr<ImageData>(image)});
     names.insert(name);
 }
 
-bool AtlasBuilder::has(string name) const {
+bool AtlasBuilder::has(const std::string& name) const {
     return names.find(name) != names.end();
 }
 
 Atlas* AtlasBuilder::build(uint extrusion, uint maxResolution) {
-    unique_ptr<uint[]> sizes (new uint[entries.size() * 2]);
+    auto sizes = std::make_unique<uint[]>(entries.size() * 2);
     uint index = 0;
     for (auto& entry : entries) {
         auto image = entry.image;
@@ -73,9 +64,9 @@ Atlas* AtlasBuilder::build(uint extrusion, uint maxResolution) {
         }
     }
 
-    unordered_map<string, UVRegion> regions;
-    unique_ptr<ImageData> canvas (new ImageData(ImageFormat::rgba8888, width, height));
-    vector<rectangle> rects = packer.getResult();
+    auto canvas = std::make_unique<ImageData>(ImageFormat::rgba8888, width, height);
+    std::unordered_map<std::string, UVRegion> regions;
+    std::vector<rectangle> rects = packer.getResult();
     for (uint i = 0; i < entries.size(); i++) {
         const rectangle& rect = rects[i];
         const atlasentry& entry = entries[rect.idx];

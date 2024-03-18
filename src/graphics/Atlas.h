@@ -13,15 +13,15 @@ class ImageData;
 class Texture;
 
 class Atlas {
-    Texture* texture;
-    ImageData* image;
+    std::unique_ptr<Texture> texture;
+    std::unique_ptr<ImageData> image;
     std::unordered_map<std::string, UVRegion> regions;
 public:
     Atlas(ImageData* image, std::unordered_map<std::string, UVRegion> regions);
     ~Atlas();
 
-    bool has(std::string name) const;
-    const UVRegion& get(std::string name) const;
+    bool has(const std::string& name) const;
+    const UVRegion& get(const std::string& name) const;
 
     Texture* getTexture() const;
     ImageData* getImage() const;
@@ -39,7 +39,7 @@ class AtlasBuilder {
 public:
     AtlasBuilder() {}
     void add(std::string name, ImageData* image);
-    bool has(std::string name) const;
+    bool has(const std::string& name) const;
     const std::set<std::string>& getNames() { return names; };
 
     Atlas* build(uint extrusion, uint maxResolution=8192);
