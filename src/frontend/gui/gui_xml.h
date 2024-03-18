@@ -12,8 +12,6 @@ namespace scripting {
     class Environment;
 }
 
-class AssetsLoader;
-
 namespace gui {
     class UiXmlReader;
 
@@ -24,10 +22,8 @@ namespace gui {
         std::unordered_set<std::string> ignored;
         std::string filename;
         const scripting::Environment& env;
-        AssetsLoader& assetsLoader;
-        
     public:
-        UiXmlReader(const scripting::Environment& env, AssetsLoader& assetsLoader);
+        UiXmlReader(const scripting::Environment& env);
 
         void add(const std::string& tag, uinode_reader reader);
         bool hasReader(const std::string& tag) const;
@@ -59,8 +55,6 @@ namespace gui {
 
         const scripting::Environment& getEnvironment() const;
         const std::string& getFilename() const;
-
-        AssetsLoader& getAssetsLoader();
     };
 }
 

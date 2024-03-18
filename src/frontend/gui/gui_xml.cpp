@@ -6,7 +6,6 @@
 #include "containers.h"
 #include "controls.h"
 
-#include "../../assets/AssetsLoader.h"
 #include "../locale/langs.h"
 #include "../../logic/scripting/scripting.h"
 #include "../../util/stringutil.h"
@@ -289,7 +288,6 @@ static std::shared_ptr<UINode> readImage(UiXmlReader& reader, xml::xmlelement el
     std::string src = element->attr("src", "").getText();
     auto image = std::make_shared<Image>(src);
     _readUINode(reader, element, *image);
-    reader.getAssetsLoader().add(AssetType::texture, "textures/"+src, src, nullptr);
     return image;
 }
 
@@ -323,9 +321,7 @@ static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, xml::xmlelement
     return bar;
 }
 
-UiXmlReader::UiXmlReader(const scripting::Environment& env, AssetsLoader& assetsLoader) 
-: env(env), assetsLoader(assetsLoader)
-{
+UiXmlReader::UiXmlReader(const scripting::Environment& env) : env(env) {
     add("image", readImage);
     add("label", readLabel);
     add("panel", readPanel);
@@ -385,8 +381,4 @@ const std::string& UiXmlReader::getFilename() const {
 
 const scripting::Environment& UiXmlReader::getEnvironment() const {
     return env;
-}
-
-AssetsLoader& UiXmlReader::getAssetsLoader() {
-    return assetsLoader;
 }

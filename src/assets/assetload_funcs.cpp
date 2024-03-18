@@ -151,7 +151,7 @@ bool assetload::layout(
 ) {
     try {
         auto cfg = dynamic_cast<LayoutCfg*>(config.get());
-        auto document = UiDocument::read(loader, cfg->env, name, file);
+        auto document = UiDocument::read(cfg->env, name, file);
         assets->store(document.release(), name);
         return true;
     } catch (const parsing_error& err) {
