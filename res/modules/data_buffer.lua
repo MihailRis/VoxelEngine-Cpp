@@ -22,10 +22,24 @@ local TYPE_DOUBLE = 6
 
 -- Data buffer
 
-local data_buffer = { }
+local data_buffer =
+{
+	__call =
+	function(data_buffer, bytes)
+		return data_buffer:new(bytes)
+	end
+}
 
-function data_buffer.__call(bytes)
-	return setmetatable({ pos = 1, bytes = bytes or { } }, { __index = data_buffer })
+function data_buffer:new(bytes)
+    local obj = {
+        pos = 1,
+        bytes = bytes or { }
+    }
+
+    self.__index = self
+    setmetatable(obj, self)
+    print("asg")
+    return obj
 end
 
 -- Push functions
