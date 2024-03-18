@@ -105,6 +105,7 @@ std::shared_ptr<UINode> create_debug_panel(
                 position[ax] = std::stoi(text);
                 player->teleport(position);
             } catch (std::invalid_argument& _){
+            } catch (std::out_of_range & _) {
             }
         });
         box->setOnEditStart([=](){
