@@ -29,9 +29,9 @@ struct mesh_entry {
 };
 
 class ChunksRenderer {
-	std::unique_ptr<BlocksRenderer> renderer;
-	Level* level;
-	std::unordered_map<glm::ivec2, std::shared_ptr<Mesh>> meshes;
+    std::unique_ptr<BlocksRenderer> renderer;
+    Level* level;
+    std::unordered_map<glm::ivec2, std::shared_ptr<Mesh>> meshes;
     std::unordered_map<glm::ivec2, bool> inwork;
     std::vector<std::thread> threads;
 
@@ -50,16 +50,16 @@ class ChunksRenderer {
     void threadLoop(int index);
     void process(std::shared_ptr<Chunk> chunk, BlocksRenderer& renderer);
 public:
-	ChunksRenderer(Level* level, 
-				   const ContentGfxCache* cache, 
-				   const EngineSettings& settings);
-	virtual ~ChunksRenderer();
+    ChunksRenderer(Level* level, 
+                   const ContentGfxCache* cache, 
+                   const EngineSettings& settings);
+    virtual ~ChunksRenderer();
 
-	std::shared_ptr<Mesh> render(std::shared_ptr<Chunk> chunk, bool important);
-	void unload(Chunk* chunk);
+    std::shared_ptr<Mesh> render(std::shared_ptr<Chunk> chunk, bool important);
+    void unload(Chunk* chunk);
 
-	std::shared_ptr<Mesh> getOrRender(std::shared_ptr<Chunk> chunk, bool important);
-	std::shared_ptr<Mesh> get(Chunk* chunk);
+    std::shared_ptr<Mesh> getOrRender(std::shared_ptr<Chunk> chunk, bool important);
+    std::shared_ptr<Mesh> get(Chunk* chunk);
 
     void update();
 };

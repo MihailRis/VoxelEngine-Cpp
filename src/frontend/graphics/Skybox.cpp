@@ -60,9 +60,9 @@ Skybox::~Skybox() {
 void Skybox::drawBackground(Camera* camera, Assets* assets, int width, int height) {
     Shader* backShader = assets->getShader("background");
     backShader->use();
-	backShader->uniformMatrix("u_view", camera->getView(false));
-	backShader->uniform1f("u_zoom", camera->zoom*camera->getFov()/(M_PI*0.5f));
-	backShader->uniform1f("u_ar", float(width)/float(height));
+    backShader->uniformMatrix("u_view", camera->getView(false));
+    backShader->uniform1f("u_zoom", camera->zoom*camera->getFov()/(M_PI*0.5f));
+    backShader->uniform1f("u_ar", float(width)/float(height));
     backShader->uniform1i("u_cubemap", 1);
     bind();
     mesh->draw();
@@ -99,7 +99,7 @@ void Skybox::draw(
 {
     const Viewport& viewport = pctx.getViewport();
     int width = viewport.getWidth();
-	int height = viewport.getHeight();
+    int height = viewport.getHeight();
 
     drawBackground(camera, assets, width, height);
 

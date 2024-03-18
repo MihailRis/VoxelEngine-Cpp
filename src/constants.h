@@ -32,7 +32,7 @@ inline constexpr itemid_t ITEM_VOID = std::numeric_limits<itemid_t>::max();
 inline constexpr blockid_t MAX_BLOCKS = BLOCK_VOID;
 
 inline constexpr uint vox_index(uint x, uint y, uint z, uint w=CHUNK_W, uint d=CHUNK_D) {
-	return (y * d + z) * w + x;
+    return (y * d + z) * w + x;
 }
 
 inline const std::string SHADERS_FOLDER = "shaders";

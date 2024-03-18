@@ -11,8 +11,8 @@
 
 ChunksRenderer::ChunksRenderer(Level* level, const ContentGfxCache* cache, const EngineSettings& settings) 
 : level(level), cache(cache), settings(settings) {
-	const int MAX_FULL_CUBES = 3000;
-	renderer = std::make_unique<BlocksRenderer>(
+    const int MAX_FULL_CUBES = 3000;
+    renderer = std::make_unique<BlocksRenderer>(
         9 * 6 * 6 * MAX_FULL_CUBES, level->content, cache, settings
     );
 
@@ -88,7 +88,7 @@ void ChunksRenderer::process(std::shared_ptr<Chunk> chunk, BlocksRenderer& rende
 }
 
 std::shared_ptr<Mesh> ChunksRenderer::render(std::shared_ptr<Chunk> chunk, bool important) {
-	chunk->setModified(false);
+    chunk->setModified(false);
 
     if (important) {
         Mesh* mesh = renderer->render(chunk.get(), level->chunksStorage.get());
@@ -111,29 +111,29 @@ std::shared_ptr<Mesh> ChunksRenderer::render(std::shared_ptr<Chunk> chunk, bool 
 }
 
 void ChunksRenderer::unload(Chunk* chunk) {
-	auto found = meshes.find(glm::ivec2(chunk->x, chunk->z));
-	if (found != meshes.end()) {
-		meshes.erase(found);
-	}
+    auto found = meshes.find(glm::ivec2(chunk->x, chunk->z));
+    if (found != meshes.end()) {
+        meshes.erase(found);
+    }
 }
 
 std::shared_ptr<Mesh> ChunksRenderer::getOrRender(std::shared_ptr<Chunk> chunk, bool important) {
-	auto found = meshes.find(glm::ivec2(chunk->x, chunk->z));
-	if (found != meshes.end()){
+    auto found = meshes.find(glm::ivec2(chunk->x, chunk->z));
+    if (found != meshes.end()){
         if (chunk->isModified()) {
             render(chunk, important);
         }
-		return found->second;
-	}
-	return render(chunk, important);
+        return found->second;
+    }
+    return render(chunk, important);
 }
 
 std::shared_ptr<Mesh> ChunksRenderer::get(Chunk* chunk) {
-	auto found = meshes.find(glm::ivec2(chunk->x, chunk->z));
-	if (found != meshes.end()) {
-		return found->second;
-	}
-	return nullptr;
+    auto found = meshes.find(glm::ivec2(chunk->x, chunk->z));
+    if (found != meshes.end()) {
+        return found->second;
+    }
+    return nullptr;
 }
 
 void ChunksRenderer::update() {

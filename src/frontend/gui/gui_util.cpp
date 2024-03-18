@@ -8,12 +8,10 @@
 #include "../../delegates.h"
 
 using namespace gui;
-using glm::vec2;
-using glm::vec4;
 
 std::shared_ptr<Button> guiutil::backButton(std::shared_ptr<PagesControl> menu) {
     return std::make_shared<Button>(
-        langs::get(L"Back"), vec4(10.f), [=](GUI*) {
+        langs::get(L"Back"), glm::vec4(10.f), [=](GUI*) {
             menu->back();
         }
     );
@@ -25,15 +23,15 @@ std::shared_ptr<Button> guiutil::gotoButton(
     std::shared_ptr<PagesControl> menu
 ) {
     text = langs::get(text, L"menu");
-    return std::make_shared<Button>(text, vec4(10.f), [=](GUI* gui) {
+    return std::make_shared<Button>(text, glm::vec4(10.f), [=](GUI* gui) {
         menu->setPage(page);
     });
 }
 
 void guiutil::alert(GUI* gui, const std::wstring& text, runnable on_hidden) {
     auto menu = gui->getMenu();
-    auto panel = std::make_shared<Panel>(vec2(500, 200), vec4(8.0f), 8.0f);
-    panel->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    auto panel = std::make_shared<Panel>(glm::vec2(500, 200), glm::vec4(8.0f), 8.0f);
+    panel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
     
     // TODO: implement built-in text wrapping
     const int wrap_length = 60;
@@ -54,7 +52,7 @@ void guiutil::alert(GUI* gui, const std::wstring& text, runnable on_hidden) {
         panel->add(std::make_shared<Label>(text));
     }
     panel->add(std::make_shared<Button>(
-        langs::get(L"Ok"), vec4(10.f), 
+        langs::get(L"Ok"), glm::vec4(10.f), 
         [=](GUI* gui) {
             if (on_hidden) {
                 on_hidden();
@@ -77,19 +75,19 @@ void guiutil::confirm(
     if (notext.empty()) notext = langs::get(L"No");
 
     auto menu = gui->getMenu();
-    auto panel = std::make_shared<Panel>(vec2(600, 200), vec4(8.0f), 8.0f);
-    panel->setColor(vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    auto panel = std::make_shared<Panel>(glm::vec2(600, 200), glm::vec4(8.0f), 8.0f);
+    panel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
     panel->add(std::make_shared<Label>(text));
-    auto subpanel = std::make_shared<Panel>(vec2(600, 53));
-    subpanel->setColor(vec4(0));
+    auto subpanel = std::make_shared<Panel>(glm::vec2(600, 53));
+    subpanel->setColor(glm::vec4(0));
 
-    subpanel->add(std::make_shared<Button>(yestext, vec4(8.f), [=](GUI*){
+    subpanel->add(std::make_shared<Button>(yestext, glm::vec4(8.f), [=](GUI*){
         if (on_confirm)
             on_confirm();
         menu->back();
     }));
 
-    subpanel->add(std::make_shared<Button>(notext, vec4(8.f), [=](GUI*){
+    subpanel->add(std::make_shared<Button>(notext, glm::vec4(8.f), [=](GUI*){
         menu->back();
     }));
 

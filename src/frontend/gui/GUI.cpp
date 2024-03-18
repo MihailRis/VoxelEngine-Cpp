@@ -18,8 +18,8 @@ using namespace gui;
 GUI::GUI() {
     container = std::make_shared<Container>(glm::vec2(1000));
     uicamera = std::make_unique<Camera>(glm::vec3(), Window::height);
-	uicamera->perspective = false;
-	uicamera->flipped = true;
+    uicamera->perspective = false;
+    uicamera->flipped = true;
 
     menu = std::make_shared<PagesControl>();
     container->add(menu);
@@ -133,9 +133,9 @@ void GUI::draw(const GfxContext* pctx, Assets* assets) {
     menu->setPos((wsize - menu->getSize()) / 2.0f);
     uicamera->setFov(wsize.y);
 
-	Shader* uishader = assets->getShader("ui");
-	uishader->use();
-	uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
+    Shader* uishader = assets->getShader("ui");
+    uishader->use();
+    uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
 
     pctx->getBatch2D()->begin();
     container->draw(pctx, assets);
