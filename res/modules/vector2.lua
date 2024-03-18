@@ -232,6 +232,28 @@ function vector2.__add(value_1, value_2)
 end
 
 
+-- sub vec 
+function vector2.__sub(value_1, value_2)
+    if type(value_1) == "number" then 
+        if value_1 == 0 then 
+            return vector2:new(value_2.x, value_2.y)
+        else 
+            return vector2:new(value_2.x - value_1, value_2.y - value_1)
+        end
+    else
+        if type(value_2) == "number" then
+            if value_2 == 0 then
+                return vector2:new(value_1.x, value_1.y)
+            else
+                return vector2:new(value_1.x - value_2, value_1.y - value_2)
+            end
+        else
+            return vector2:new(value_1.x - value_2.x, value_1.y - value_2.y)
+        end
+    end
+end
+
+
 
 -- mul vec
 function vector2.__mul(value_1, value_2)
