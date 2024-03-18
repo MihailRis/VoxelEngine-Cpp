@@ -7,6 +7,7 @@
 #include "../engine.h"
 #include "../graphics/core/Mesh.h"
 #include "../graphics/ui/elements/controls.h"
+#include "../graphics/render/WorldRenderer.h"
 #include "../objects/Player.h"
 #include "../physics/Hitbox.h"
 #include "../util/stringutil.h"
@@ -14,8 +15,6 @@
 #include "../voxels/Chunks.h"
 #include "../world/Level.h"
 #include "../world/World.h"
-
-#include "WorldRenderer.h"
 
 using namespace gui;
 

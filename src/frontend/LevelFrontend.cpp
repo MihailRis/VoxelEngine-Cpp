@@ -1,17 +1,15 @@
 #include "LevelFrontend.h"
 
-#include "BlocksPreview.h"
-#include "ContentGfxCache.h"
-
-#include "../audio/audio.h"
-#include "../world/Level.h"
-#include "../voxels/Block.h"
 #include "../assets/Assets.h"
-#include "../graphics/core/Atlas.h"
+#include "../audio/audio.h"
 #include "../content/Content.h"
-
+#include "../graphics/core/Atlas.h"
+#include "../graphics/render/BlocksPreview.h"
 #include "../logic/LevelController.h"
 #include "../logic/PlayerController.h"
+#include "../voxels/Block.h"
+#include "../world/Level.h"
+#include "ContentGfxCache.h"
 
 LevelFrontend::LevelFrontend(LevelController* controller, Assets* assets) 
   : level(controller->getLevel()),

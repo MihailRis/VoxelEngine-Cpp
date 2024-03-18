@@ -1,7 +1,8 @@
-#ifndef FRONTEND_BLOCKS_PREVIEW_H_
-#define FRONTEND_BLOCKS_PREVIEW_H_
+#ifndef GRAPHICS_RENDER_BLOCKS_PREVIEW_H_
+#define GRAPHICS_RENDER_BLOCKS_PREVIEW_H_
 
-#include "../typedefs.h"
+#include "../../typedefs.h"
+
 #include <glm/glm.hpp>
 #include <memory>
 
@@ -32,4 +33,4 @@ public:
     );
 };
 
-#endif // FRONTEND_BLOCKS_PREVIEW_H_
+#endif // GRAPHICS_RENDER_BLOCKS_PREVIEW_H_

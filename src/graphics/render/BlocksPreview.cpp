@@ -2,20 +2,20 @@
 
 #include <glm/ext.hpp>
 
-#include "../assets/Assets.h"
-#include "../graphics/core/Viewport.h"
-#include "../graphics/core/Texture.h"
-#include "../graphics/core/Atlas.h"
-#include "../graphics/core/Batch3D.h"
-#include "../graphics/core/Framebuffer.h"
-#include "../graphics/core/GfxContext.h"
-#include "../graphics/core/Shader.h"
-#include "../window/Window.h"
-#include "../window/Camera.h"
-#include "../voxels/Block.h"
-#include "../content/Content.h"
-#include "../constants.h"
-#include "ContentGfxCache.h"
+#include "../../assets/Assets.h"
+#include "../../constants.h"
+#include "../../content/Content.h"
+#include "../../frontend/ContentGfxCache.h"
+#include "../../voxels/Block.h"
+#include "../../window/Camera.h"
+#include "../../window/Window.h"
+#include "../core/Atlas.h"
+#include "../core/Batch3D.h"
+#include "../core/Framebuffer.h"
+#include "../core/GfxContext.h"
+#include "../core/Shader.h"
+#include "../core/Texture.h"
+#include "../core/Viewport.h"
 
 ImageData* BlocksPreview::draw(
     const ContentGfxCache* cache,

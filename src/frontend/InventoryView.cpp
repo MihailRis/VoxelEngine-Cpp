@@ -10,6 +10,7 @@
 #include "../graphics/core/Font.h"
 #include "../graphics/core/GfxContext.h"
 #include "../graphics/core/Shader.h"
+#include "../graphics/render/BlocksPreview.h"
 #include "../graphics/ui/elements/containers.h"
 #include "../graphics/ui/elements/controls.h"
 #include "../items/Inventories.h"
@@ -23,7 +24,6 @@
 #include "../window/Events.h"
 #include "../window/input.h"
 #include "../world/Level.h"
-#include "BlocksPreview.h"
 #include "LevelFrontend.h"
 
 SlotLayout::SlotLayout(

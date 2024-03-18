@@ -1,5 +1,5 @@
-#ifndef WORLD_RENDERER_CPP
-#define WORLD_RENDERER_CPP
+#ifndef GRAPHICS_RENDER_WORLD_RENDERER_H_
+#define GRAPHICS_RENDER_WORLD_RENDERER_H_
 
 #include <vector>
 #include <memory>
@@ -77,4 +77,4 @@ public:
 };
 
 
-#endif // WORLD_RENDERER_CPP
+#endif // GRAPHICS_RENDER_WORLD_RENDERER_H_

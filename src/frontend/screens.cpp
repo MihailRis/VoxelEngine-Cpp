@@ -9,6 +9,7 @@
 #include "../graphics/core/GfxContext.h"
 #include "../graphics/core/Shader.h"
 #include "../graphics/core/TextureAnimation.h"
+#include "../graphics/render/WorldRenderer.h"
 #include "../graphics/ui/elements/containers.h"
 #include "../graphics/ui/GUI.h"
 #include "../logic/ChunksController.h"
@@ -31,7 +32,6 @@
 #include "hud.h"
 #include "LevelFrontend.h"
 #include "menu/menu.h"
-#include "WorldRenderer.h"
 
 #include <filesystem>
 #include <glm/glm.hpp>
