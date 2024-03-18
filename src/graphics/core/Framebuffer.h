@@ -1,7 +1,7 @@
-#ifndef SRC_GRAPHICS_FRAMEBUFFER_H_
-#define SRC_GRAPHICS_FRAMEBUFFER_H_
+#ifndef GRAPHICS_CORE_FRAMEBUFFER_H_
+#define GRAPHICS_CORE_FRAMEBUFFER_H_
 
-#include "../typedefs.h"
+#include "../../typedefs.h"
 
 #include <memory>
 
@@ -39,4 +39,4 @@ public:
     uint getHeight() const;
 };
 
-#endif /* SRC_GRAPHICS_FRAMEBUFFER_H_ */
+#endif // GRAPHICS_CORE_FRAMEBUFFER_H_

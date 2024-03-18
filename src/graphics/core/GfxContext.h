@@ -1,9 +1,9 @@
-#ifndef GRAPHICS_GFX_CONTEXT_H_
-#define GRAPHICS_GFX_CONTEXT_H_
+#ifndef GRAPHICS_CORE_GFX_CONTEXT_H_
+#define GRAPHICS_CORE_GFX_CONTEXT_H_
 
-#include "../typedefs.h"
 #include "Viewport.h"
-#include "../window/Window.h"
+#include "../../window/Window.h"
+#include "../../typedefs.h"
 
 class Batch2D;
 class Framebuffer;
@@ -35,4 +35,4 @@ public:
     void setScissors(glm::vec4 area);
 };
 
-#endif // GRAPHICS_GFX_CONTEXT_H_
+#endif // GRAPHICS_CORE_GFX_CONTEXT_H_

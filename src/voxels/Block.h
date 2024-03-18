@@ -4,7 +4,9 @@
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
-#include "../graphics/UVRegion.h"
+
+// :<
+#include "../graphics/core/UVRegion.h"
 
 #include "../maths/aabb.h"
 #include "../typedefs.h"

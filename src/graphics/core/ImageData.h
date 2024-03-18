@@ -1,7 +1,7 @@
-#ifndef GRAPHICS_IMAGE_DATA_H_
-#define GRAPHICS_IMAGE_DATA_H_
+#ifndef GRAPHICS_CORE_IMAGE_DATA_H_
+#define GRAPHICS_CORE_IMAGE_DATA_H_
 
-#include "../typedefs.h"
+#include "../../typedefs.h"
 
 enum class ImageFormat {
     rgb888,
@@ -46,4 +46,4 @@ public:
 
 extern ImageData* add_atlas_margins(ImageData* image, int grid_size);
 
-#endif // GRAPHICS_IMAGE_DATA_H_
+#endif // GRAPHICS_CORE_IMAGE_DATA_H_

@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <vector>
 #include <glm/glm.hpp>
-#include "../../graphics/UVRegion.h"
 #include "../../voxels/voxel.h"
 #include "../../typedefs.h"
 #include "../../settings.h"
@@ -17,6 +16,7 @@ class Chunks;
 class VoxelsVolume;
 class ChunksStorage;
 class ContentGfxCache;
+class UVRegion;
 
 class BlocksRenderer {
     static const glm::vec3 SUN_VECTOR;

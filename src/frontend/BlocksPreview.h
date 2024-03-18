@@ -2,7 +2,6 @@
 #define FRONTEND_BLOCKS_PREVIEW_H_
 
 #include "../typedefs.h"
-#include "../graphics/Shader.h"
 #include <glm/glm.hpp>
 #include <memory>
 
@@ -13,6 +12,7 @@ class Framebuffer;
 class Batch3D;
 class Block;
 class Content;
+class Shader;
 class ContentGfxCache;
 
 class BlocksPreview {

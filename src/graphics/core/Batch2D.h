@@ -1,5 +1,5 @@
-#ifndef SRC_GRAPHICS_BATCH2D_H_
-#define SRC_GRAPHICS_BATCH2D_H_
+#ifndef GRAPHICS_CORE_BATCH2D_H_
+#define GRAPHICS_CORE_BATCH2D_H_
 
 #include <memory>
 #include <stdlib.h>
@@ -87,4 +87,4 @@ public:
     void lineWidth(float width);
 };
 
-#endif /* SRC_GRAPHICS_BATCH2D_H_ */
+#endif // GRAPHICS_CORE_BATCH2D_H_

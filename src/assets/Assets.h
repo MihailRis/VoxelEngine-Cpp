@@ -1,7 +1,7 @@
 #ifndef ASSETS_ASSETS_H_
 #define ASSETS_ASSETS_H_
 
-#include "../graphics/TextureAnimation.h"
+#include "../graphics/core/TextureAnimation.h"
 
 #include <string>
 #include <memory>

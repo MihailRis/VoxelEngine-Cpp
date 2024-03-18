@@ -1,8 +1,8 @@
-#ifndef GRAPHICS_BATCH3D_H_
-#define GRAPHICS_BATCH3D_H_
+#ifndef GRAPHICS_CORE_BATCH3D_H_
+#define GRAPHICS_CORE_BATCH3D_H_
 
 #include "UVRegion.h"
-#include "../typedefs.h"
+#include "../../typedefs.h"
 
 #include <memory>
 #include <stdlib.h>
@@ -51,4 +51,4 @@ public:
     void flushPoints();
 };
 
-#endif /* GRAPHICS_BATCH3D_H_ */
+#endif // GRAPHICS_CORE_BATCH3D_H_

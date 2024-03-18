@@ -1,9 +1,9 @@
-#ifndef GRAPHICS_VIEWPORT_H_
-#define GRAPHICS_VIEWPORT_H_
+#ifndef GRAPHICS_CORE_VIEWPORT_H_
+#define GRAPHICS_CORE_VIEWPORT_H_
 
 #include <glm/glm.hpp>
 
-#include "../typedefs.h"
+#include "../../typedefs.h"
 
 class Viewport {
     uint width;

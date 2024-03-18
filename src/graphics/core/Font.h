@@ -1,10 +1,10 @@
-#ifndef GRAPHICS_FONT_H_
-#define GRAPHICS_FONT_H_
+#ifndef GRAPHICS_CORE_FONT_H_
+#define GRAPHICS_CORE_FONT_H_
 
 #include <memory>
 #include <string>
 #include <vector>
-#include "../typedefs.h"
+#include "../../typedefs.h"
 
 class Texture;
 class Batch2D;
@@ -40,4 +40,4 @@ public:
     void draw(Batch2D* batch, std::wstring_view text, int x, int y, FontStyle style);
 };
 
-#endif /* GRAPHICS_FONT_H_ */
+#endif // GRAPHICS_CORE_FONT_H_

@@ -2,8 +2,8 @@
 
 #include <glm/glm.hpp>
 
-#include "../../graphics/Mesh.h"
-#include "../../graphics/UVRegion.h"
+#include "../../graphics/core/Mesh.h"
+#include "../../graphics/core/UVRegion.h"
 #include "../../constants.h"
 #include "../../content/Content.h"
 #include "../../voxels/Block.h"

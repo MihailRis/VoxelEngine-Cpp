@@ -1,9 +1,9 @@
-#ifndef GRAPHICS_SHADER_H_
-#define GRAPHICS_SHADER_H_
+#ifndef GRAPHICS_CORE_SHADER_H_
+#define GRAPHICS_CORE_SHADER_H_
 
 #include <string>
 #include <glm/glm.hpp>
-#include "../typedefs.h"
+#include "../../typedefs.h"
 
 class GLSLExtension;
 
@@ -33,4 +33,4 @@ public:
     );
 };
 
-#endif /* GRAPHICS_SHADER_H_ */
+#endif // GRAPHICS_SHADER_H_

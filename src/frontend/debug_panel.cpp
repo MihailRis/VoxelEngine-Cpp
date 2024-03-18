@@ -4,7 +4,7 @@
 
 #include "gui/controls.h"
 #include "../audio/audio.h"
-#include "../graphics/Mesh.h"
+#include "../graphics/core/Mesh.h"
 #include "../objects/Player.h"
 #include "../physics/Hitbox.h"
 #include "../world/Level.h"

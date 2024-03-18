@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_POST_PROCESSING_H_
-#define GRAPHICS_POST_PROCESSING_H_
+#ifndef GRAPHICS_CORE_POST_PROCESSING_H_
+#define GRAPHICS_CORE_POST_PROCESSING_H_
 
 #include "Viewport.h"
 #include "GfxContext.h"
@@ -34,4 +34,4 @@ public:
     void render(const GfxContext& context, Shader* screenShader);
 };
 
-#endif // GRAPHICS_POST_PROCESSING_H_
+#endif // GRAPHICS_CORE_POST_PROCESSING_H_

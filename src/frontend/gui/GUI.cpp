@@ -6,9 +6,9 @@
 #include <algorithm>
 
 #include "../../assets/Assets.h"
-#include "../../graphics/Batch2D.h"
-#include "../../graphics/Shader.h"
-#include "../../graphics/GfxContext.h"
+#include "../../graphics/core/Batch2D.h"
+#include "../../graphics/core/Shader.h"
+#include "../../graphics/core/GfxContext.h"
 #include "../../window/Events.h"
 #include "../../window/input.h"
 #include "../../window/Camera.h"

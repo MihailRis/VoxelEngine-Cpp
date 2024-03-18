@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_CUBEMAP_H_
-#define GRAPHICS_CUBEMAP_H_
+#ifndef GRAPHICS_CORE_CUBEMAP_H_
+#define GRAPHICS_CORE_CUBEMAP_H_
 
 #include "Texture.h"
 
@@ -12,4 +12,4 @@ public:
     virtual void unbind() override;
 };
 
-#endif // GRAPHICS_CUBEMAP_H_
+#endif // GRAPHICS_CORE_CUBEMAP_H_

@@ -4,12 +4,12 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include "../graphics/UVRegion.h"
 #include "../typedefs.h"
 
 class Content;
 class Assets;
 class UiDocument;
+class UVRegion;
 
 using uidocuments_map = std::unordered_map<std::string, std::shared_ptr<UiDocument>>;
 

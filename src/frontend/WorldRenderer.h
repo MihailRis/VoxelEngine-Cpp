@@ -11,8 +11,6 @@
 #include <glm/ext.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../graphics/GfxContext.h"
-
 class Level;
 class Player;
 class Camera;
@@ -26,6 +24,8 @@ class Chunks;
 class LevelFrontend;
 class Skybox;
 class PostProcessing;
+class GfxContext;
+struct EngineSettings;
 
 class WorldRenderer {
     Engine* engine;

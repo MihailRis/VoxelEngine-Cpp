@@ -1,5 +1,5 @@
-#ifndef SRC_GRAPHICS_UVREGION_H_
-#define SRC_GRAPHICS_UVREGION_H_
+#ifndef GRAPHICS_CORE_UVREGION_H_
+#define GRAPHICS_CORE_UVREGION_H_
 
 class UVRegion {
 public:
@@ -14,4 +14,4 @@ public:
 	UVRegion() : u1(0.0f), v1(0.0f), u2(1.0f), v2(1.0f){}
 };
 
-#endif /* SRC_GRAPHICS_UVREGION_H_ */
+#endif // SRC_GRAPHICS_UVREGION_H_

@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_GL_UTIL_H_
-#define GRAPHICS_GL_UTIL_H_
+#ifndef GRAPHICS_CORE_GL_UTIL_H_
+#define GRAPHICS_CORE_GL_UTIL_H_
 
 #include <GL/glew.h>
 
@@ -16,4 +16,4 @@ namespace gl {
     }
 }
 
-#endif // GRAPHICS_GL_UTIL_H_
+#endif // GRAPHICS_CORE_GL_UTIL_H_

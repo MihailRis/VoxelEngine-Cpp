@@ -1,6 +1,6 @@
 #include "UINode.h"
 
-#include "../../graphics/Batch2D.h"
+#include "../../graphics/core/Batch2D.h"
 
 using gui::UINode;
 using gui::Align;

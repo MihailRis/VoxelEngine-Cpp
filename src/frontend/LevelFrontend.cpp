@@ -7,7 +7,7 @@
 #include "../world/Level.h"
 #include "../voxels/Block.h"
 #include "../assets/Assets.h"
-#include "../graphics/Atlas.h"
+#include "../graphics/core/Atlas.h"
 #include "../content/Content.h"
 
 #include "../logic/LevelController.h"

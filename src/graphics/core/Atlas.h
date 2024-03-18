@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_ATLAS_H_
-#define GRAPHICS_ATLAS_H_
+#ifndef GRAPHICS_CORE_ATLAS_H_
+#define GRAPHICS_CORE_ATLAS_H_
 
 #include <set>
 #include <string>
@@ -7,7 +7,7 @@
 #include <vector>
 #include <unordered_map>
 #include "UVRegion.h"
-#include "../typedefs.h"
+#include "../../typedefs.h"
 
 class ImageData;
 class Texture;
@@ -45,4 +45,4 @@ public:
     Atlas* build(uint extrusion, uint maxResolution=8192);
 };
 
-#endif // GRAPHICS_ATLAS_H_
+#endif // GRAPHICS_CORE_ATLAS_H_

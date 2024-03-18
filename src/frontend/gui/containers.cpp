@@ -5,8 +5,8 @@
 
 #include "../../window/Window.h"
 #include "../../assets/Assets.h"
-#include "../../graphics/Batch2D.h"
-#include "../../graphics/GfxContext.h"
+#include "../../graphics/core/Batch2D.h"
+#include "../../graphics/core/GfxContext.h"
 
 using namespace gui;
 

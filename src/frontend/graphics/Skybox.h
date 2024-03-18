@@ -6,7 +6,6 @@
 #include <vector>
 #include "../../typedefs.h"
 #include "../../maths/fastmaths.h"
-#include "../../graphics/GfxContext.h"
 
 class Mesh;
 class Shader;
@@ -14,6 +13,7 @@ class Assets;
 class Camera;
 class Batch3D;
 class Framebuffer;
+class GfxContext;
 
 struct skysprite {
     std::string texture;

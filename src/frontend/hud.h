@@ -1,12 +1,12 @@
 #ifndef SRC_HUD_H_
 #define SRC_HUD_H_
 
+#include "../typedefs.h"
+
 #include <string>
 #include <memory>
-
+#include <vector>
 #include <glm/glm.hpp>
-
-#include "../graphics/GfxContext.h"
 
 class Camera;
 class Block;
@@ -19,6 +19,8 @@ class InventoryView;
 class LevelFrontend;
 class UiDocument;
 class InventoryInteraction;
+class GfxContext;
+class Viewport;
 
 namespace gui {
     class GUI;

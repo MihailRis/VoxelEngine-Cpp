@@ -1,8 +1,8 @@
-#ifndef GRAPHICS_TEXTURE_H_
-#define GRAPHICS_TEXTURE_H_
+#ifndef GRAPHICS_CORE_TEXTURE_H_
+#define GRAPHICS_CORE_TEXTURE_H_
 
 #include <string>
-#include "../typedefs.h"
+#include "../../typedefs.h"
 #include "ImageData.h"
 
 class Texture {
@@ -31,4 +31,4 @@ public:
     static Texture* from(const ImageData* image);
 };
 
-#endif /* GRAPHICS_TEXTURE_H_ */
+#endif // GRAPHICS_CORE_TEXTURE_H_

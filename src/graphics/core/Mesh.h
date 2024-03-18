@@ -1,8 +1,8 @@
-#ifndef GRAPHICS_MESH_H_
-#define GRAPHICS_MESH_H_
+#ifndef GRAPHICS_CORE_MESH_H_
+#define GRAPHICS_CORE_MESH_H_
 
 #include <stdlib.h>
-#include "../typedefs.h"
+#include "../../typedefs.h"
 
 struct vattr {
 	ubyte size;
@@ -39,4 +39,4 @@ public:
 	static int meshesCount;
 };
 
-#endif /* GRAPHICS_MESH_H_ */
+#endif // GRAPHICS_CORE_MESH_H_

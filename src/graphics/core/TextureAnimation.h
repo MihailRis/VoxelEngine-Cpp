@@ -1,7 +1,7 @@
-#ifndef TEXTURE_ANIMATION_H
-#define TEXTURE_ANIMATION_H
+#ifndef GRAPHICS_CORE_TEXTURE_ANIMATION_H_
+#define GRAPHICS_CORE_TEXTURE_ANIMATION_H_
 
-#include "../typedefs.h"
+#include "../../typedefs.h"
 
 #include <glm/glm.hpp>
 #include <vector>
@@ -49,4 +49,4 @@ private:
     std::vector<TextureAnimation> animations;
 };
 
-#endif // !TEXTURE_ANIMATION_H
+#endif // GRAPHICS_CORE_TEXTURE_ANIMATION_H_

@@ -7,10 +7,10 @@
 
 #include "../../window/Events.h"
 #include "../../assets/Assets.h"
-#include "../../graphics/Batch2D.h"
-#include "../../graphics/Font.h"
-#include "../../graphics/Texture.h"
-#include "../../graphics/GfxContext.h"
+#include "../../graphics/core/Batch2D.h"
+#include "../../graphics/core/Font.h"
+#include "../../graphics/core/Texture.h"
+#include "../../graphics/core/GfxContext.h"
 #include "../../util/stringutil.h"
 #include "GUI.h"
 

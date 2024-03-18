@@ -1,7 +1,7 @@
 #include "Atlas.h"
 
 #include <stdexcept>
-#include "../maths/LMPacker.h"
+#include "../../maths/LMPacker.h"
 #include "Texture.h"
 #include "ImageData.h"
 

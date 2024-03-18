@@ -1,6 +1,6 @@
 #include "ChunksRenderer.h"
 
-#include "../../graphics/Mesh.h"
+#include "../../graphics/core/Mesh.h"
 #include "BlocksRenderer.h"
 #include "../../voxels/Chunk.h"
 #include "../../world/Level.h"
