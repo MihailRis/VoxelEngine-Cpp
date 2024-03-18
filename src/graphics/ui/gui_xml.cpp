@@ -3,10 +3,10 @@
 #include <charconv>
 #include <stdexcept>
 
-#include "containers.h"
-#include "controls.h"
+#include "elements/containers.h"
+#include "elements/controls.h"
 
-#include "../locale/langs.h"
+#include "../../frontend/locale/langs.h"
 #include "../../logic/scripting/scripting.h"
 #include "../../util/stringutil.h"
 

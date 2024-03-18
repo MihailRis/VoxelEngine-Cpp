@@ -3,10 +3,10 @@
 #include <stdexcept>
 #include <algorithm>
 
-#include "../../window/Window.h"
-#include "../../assets/Assets.h"
-#include "../../graphics/core/Batch2D.h"
-#include "../../graphics/core/GfxContext.h"
+#include "../../../window/Window.h"
+#include "../../../assets/Assets.h"
+#include "../../core/Batch2D.h"
+#include "../../core/GfxContext.h"
 
 using namespace gui;
 

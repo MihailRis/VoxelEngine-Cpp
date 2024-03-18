@@ -1,7 +1,7 @@
 #include "menu_commons.h"
 
 #include "../../engine.h"
-#include "../gui/containers.h"
+#include "../../graphics/ui/elements/containers.h"
 #include "../locale/langs.h"
 
 using namespace gui;

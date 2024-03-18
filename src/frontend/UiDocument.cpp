@@ -1,12 +1,11 @@
 #include "UiDocument.h"
 
-#include <iostream>
-#include "gui/UINode.h"
-#include "gui/containers.h"
-#include "InventoryView.h"
-#include "../logic/scripting/scripting.h"
 #include "../files/files.h"
-#include "../frontend/gui/gui_xml.h"
+#include "../graphics/ui/elements/containers.h"
+#include "../graphics/ui/elements/UINode.h"
+#include "../graphics/ui/gui_xml.h"
+#include "../logic/scripting/scripting.h"
+#include "InventoryView.h"
 
 UiDocument::UiDocument(
     std::string id, 

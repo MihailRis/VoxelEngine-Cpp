@@ -1,19 +1,19 @@
 #ifndef FRONTEND_MENU_MENU_CREATE_WORLD_H_
 #define FRONTEND_MENU_MENU_CREATE_WORLD_H_
 
-#include "menu.h"
-#include "menu_commons.h"
-#include "../gui/controls.h"
-#include "../gui/containers.h"
-#include "../gui/gui_util.h"
+#include "../../engine.h"
+#include "../../files/WorldFiles.h"
+#include "../../graphics/ui/elements/containers.h"
+#include "../../graphics/ui/elements/controls.h"
+#include "../../graphics/ui/gui_util.h"
+#include "../../util/stringutil.h"
+#include "../../world/Level.h"
+#include "../../world/World.h"
+#include "../../world/WorldGenerators.h"
 #include "../locale/langs.h"
 #include "../screens.h"
-#include "../../world/WorldGenerators.h"
-#include "../../files/WorldFiles.h"
-#include "../../world/World.h"
-#include "../../world/Level.h"
-#include "../../util/stringutil.h"
-#include "../../engine.h"
+#include "menu_commons.h"
+#include "menu.h"
 
 #include <iostream>
 

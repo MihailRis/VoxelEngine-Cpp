@@ -8,9 +8,10 @@
 #include <filesystem>
 #include <glm/glm.hpp>
 
-#include "../gui/GUI.h"
-#include "../gui/containers.h"
-#include "../gui/controls.h"
+#include "../../graphics/ui/GUI.h"
+#include "../../graphics/ui/gui_util.h"
+#include "../../graphics/ui/elements/containers.h"
+#include "../../graphics/ui/elements/controls.h"
 #include "../screens.h"
 
 #include "../../coders/png.h"
@@ -29,8 +30,6 @@
 #include "../../content/Content.h"
 #include "../../content/ContentLUT.h"
 #include "../../content/ContentPack.h"
-
-#include "../gui/gui_util.h"
 #include "../locale/langs.h"
 
 #include "menu_commons.h"

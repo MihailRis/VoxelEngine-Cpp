@@ -1,45 +1,45 @@
 #include "screens.h"
 
+#include "../assets/Assets.h"
+#include "../audio/audio.h"
+#include "../content/Content.h"
+#include "../core_defs.h"
+#include "../engine.h"
+#include "../graphics/core/Batch2D.h"
+#include "../graphics/core/GfxContext.h"
+#include "../graphics/core/Shader.h"
+#include "../graphics/core/TextureAnimation.h"
+#include "../graphics/ui/elements/containers.h"
+#include "../graphics/ui/GUI.h"
+#include "../logic/ChunksController.h"
+#include "../logic/LevelController.h"
+#include "../logic/scripting/scripting_frontend.h"
+#include "../logic/scripting/scripting.h"
+#include "../objects/Player.h"
+#include "../physics/Hitbox.h"
+#include "../util/stringutil.h"
+#include "../voxels/Block.h"
+#include "../voxels/Chunk.h"
+#include "../voxels/Chunks.h"
+#include "../window/Camera.h"
+#include "../window/Events.h"
+#include "../window/input.h"
+#include "../world/Level.h"
+#include "../world/World.h"
+
+#include "ContentGfxCache.h"
+#include "hud.h"
+#include "LevelFrontend.h"
+#include "menu/menu.h"
+#include "WorldRenderer.h"
+
+#include <filesystem>
+#include <glm/glm.hpp>
 #include <iomanip>
 #include <iostream>
 #include <memory>
 #include <sstream>
-#include <glm/glm.hpp>
-#include <filesystem>
 #include <stdexcept>
-
-#include "../audio/audio.h"
-#include "../window/Camera.h"
-#include "../window/Events.h"
-#include "../window/input.h"
-#include "../graphics/core/Shader.h"
-#include "../graphics/core/Batch2D.h"
-#include "../graphics/core/GfxContext.h"
-#include "../graphics/core/TextureAnimation.h"
-#include "../assets/Assets.h"
-#include "../world/Level.h"
-#include "../world/World.h"
-#include "../objects/Player.h"
-#include "../physics/Hitbox.h"
-#include "../logic/ChunksController.h"
-#include "../logic/LevelController.h"
-#include "../logic/scripting/scripting.h"
-#include "../logic/scripting/scripting_frontend.h"
-#include "../voxels/Chunks.h"
-#include "../voxels/Chunk.h"
-#include "../engine.h"
-#include "../util/stringutil.h"
-#include "../core_defs.h"
-#include "WorldRenderer.h"
-#include "hud.h"
-#include "ContentGfxCache.h"
-#include "LevelFrontend.h"
-#include "gui/GUI.h"
-#include "gui/containers.h"
-#include "menu/menu.h"
-
-#include "../content/Content.h"
-#include "../voxels/Block.h"
 
 Screen::Screen(Engine* engine) : engine(engine), batch(new Batch2D(1024)) {
 }

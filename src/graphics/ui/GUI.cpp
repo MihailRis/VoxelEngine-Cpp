@@ -1,6 +1,6 @@
 #include "GUI.h"
-#include "UINode.h"
-#include "containers.h"
+#include "elements/UINode.h"
+#include "elements/containers.h"
 
 #include <iostream>
 #include <algorithm>

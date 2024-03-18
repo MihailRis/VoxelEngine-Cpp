@@ -3,28 +3,28 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
-#include "BlocksPreview.h"
-#include "LevelFrontend.h"
-#include "../window/Events.h"
-#include "../window/input.h"
 #include "../assets/Assets.h"
-#include "../graphics/core/Atlas.h"
-#include "../graphics/core/Shader.h"
-#include "../graphics/core/Batch2D.h"
-#include "../graphics/core/GfxContext.h"
-#include "../graphics/core/Font.h"
 #include "../content/Content.h"
-#include "../items/ItemDef.h"
-#include "../items/Inventory.h"
+#include "../graphics/core/Atlas.h"
+#include "../graphics/core/Batch2D.h"
+#include "../graphics/core/Font.h"
+#include "../graphics/core/GfxContext.h"
+#include "../graphics/core/Shader.h"
+#include "../graphics/ui/elements/containers.h"
+#include "../graphics/ui/elements/controls.h"
 #include "../items/Inventories.h"
+#include "../items/Inventory.h"
+#include "../items/ItemDef.h"
+#include "../logic/scripting/scripting.h"
 #include "../maths/voxmaths.h"
 #include "../objects/Player.h"
-#include "../voxels/Block.h"
-#include "../frontend/gui/containers.h"
-#include "../frontend/gui/controls.h"
 #include "../util/stringutil.h"
+#include "../voxels/Block.h"
+#include "../window/Events.h"
+#include "../window/input.h"
 #include "../world/Level.h"
-#include "../logic/scripting/scripting.h"
+#include "BlocksPreview.h"
+#include "LevelFrontend.h"
 
 SlotLayout::SlotLayout(
     int index,
@@ -369,7 +369,7 @@ void InventoryView::setInventory(std::shared_ptr<Inventory> inventory) {
 }
 
 #include "../coders/xml.h"
-#include "gui/gui_xml.h"
+#include "../graphics/ui/gui_xml.h"
 
 static slotcallback readSlotFunc(InventoryView* view, gui::UiXmlReader& reader, xml::xmlelement& element, const std::string& attr) {
     auto consumer = scripting::create_int_array_consumer(

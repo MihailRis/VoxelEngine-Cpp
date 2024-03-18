@@ -5,9 +5,9 @@
 #include <functional>
 #include <glm/glm.hpp>
 
-#include "../frontend/gui/UINode.h"
-#include "../frontend/gui/containers.h"
-#include "../frontend/gui/controls.h"
+#include "../graphics/ui/elements/UINode.h"
+#include "../graphics/ui/elements/containers.h"
+#include "../graphics/ui/elements/controls.h"
 #include "../items/ItemStack.h"
 #include "../typedefs.h"
 

@@ -5,14 +5,14 @@
 #include <iostream>
 #include <algorithm>
 
-#include "../../window/Events.h"
-#include "../../assets/Assets.h"
-#include "../../graphics/core/Batch2D.h"
-#include "../../graphics/core/Font.h"
-#include "../../graphics/core/Texture.h"
-#include "../../graphics/core/GfxContext.h"
-#include "../../util/stringutil.h"
-#include "GUI.h"
+#include "../../../window/Events.h"
+#include "../../../assets/Assets.h"
+#include "../../core/Batch2D.h"
+#include "../../core/Font.h"
+#include "../../core/Texture.h"
+#include "../../core/GfxContext.h"
+#include "../../../util/stringutil.h"
+#include "../GUI.h"
 
 using namespace gui;
 

@@ -1,10 +1,10 @@
 #include "gui_util.h"
-#include "controls.h"
-#include "containers.h"
+#include "elements/controls.h"
+#include "elements/containers.h"
 
 #include <glm/glm.hpp>
 
-#include "../locale/langs.h"
+#include "../../frontend/locale/langs.h"
 #include "../../delegates.h"
 
 using namespace gui;

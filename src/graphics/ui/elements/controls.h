@@ -1,5 +1,5 @@
-#ifndef FRONTEND_GUI_CONTROLS_H_
-#define FRONTEND_GUI_CONTROLS_H_
+#ifndef GRAPHICS_UI_ELEMENTS_CONTROLS_H_
+#define GRAPHICS_UI_ELEMENTS_CONTROLS_H_
 
 #include <string>
 #include <memory>
@@ -7,12 +7,12 @@
 #include <functional>
 #include <glm/glm.hpp>
 
-#include "GUI.h"
+#include "../GUI.h"
 #include "UINode.h"
 #include "containers.h"
-#include "../../window/input.h"
-#include "../../delegates.h"
-#include "../../typedefs.h"
+#include "../../../window/input.h"
+#include "../../../delegates.h"
+#include "../../../typedefs.h"
 
 class Batch2D;
 class Assets;
@@ -387,4 +387,4 @@ namespace gui {
     };
 }
 
-#endif // FRONTEND_GUI_CONTROLS_H_
+#endif // GRAPHICS_UI_ELEMENTS_CONTROLS_H_

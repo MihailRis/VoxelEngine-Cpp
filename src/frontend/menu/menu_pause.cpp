@@ -1,16 +1,17 @@
 #include "menu.h"
 #include "menu_commons.h"
-#include "../locale/langs.h"
-#include "../gui/gui_util.h"
-#include "../screens.h"
+
+#include "../../coders/png.h"
+#include "../../content/ContentLUT.h"
 #include "../../engine.h"
+#include "../../files/WorldFiles.h"
+#include "../../graphics/ui/gui_util.h"
+#include "../../logic/LevelController.h"
+#include "../../util/stringutil.h"
 #include "../../world/Level.h"
 #include "../../world/World.h"
-#include "../../coders/png.h"
-#include "../../util/stringutil.h"
-#include "../../files/WorldFiles.h"
-#include "../../content/ContentLUT.h"
-#include "../../logic/LevelController.h"
+#include "../locale/langs.h"
+#include "../screens.h"
 
 #include <glm/glm.hpp>
 

@@ -1,13 +1,13 @@
-#ifndef FRONTEND_GUI_UINODE_H_
-#define FRONTEND_GUI_UINODE_H_
+#ifndef GRAPHICS_UI_ELEMENTS_UINODE_H_
+#define GRAPHICS_UI_ELEMENTS_UINODE_H_
 
 #include <glm/glm.hpp>
 #include <vector>
 #include <memory>
 #include <string>
 #include <functional>
-#include "../../delegates.h"
-#include "../../window/input.h"
+#include "../../../delegates.h"
+#include "../../../window/input.h"
 
 class GfxContext;
 class Assets;
@@ -182,4 +182,4 @@ namespace gui {
     };
 }
 
-#endif // FRONTEND_GUI_UINODE_H_
+#endif // GRAPHICS_UI_ELEMENTS_UINODE_H_

@@ -8,8 +8,8 @@
 
 #include "../../../engine.h"
 #include "../../../assets/Assets.h"
-#include "../../../frontend/gui/UINode.h"
-#include "../../../frontend/gui/controls.h"
+#include "../../../graphics/ui/elements/UINode.h"
+#include "../../../graphics/ui/elements/controls.h"
 #include "../../../frontend/UiDocument.h"
 #include "../../../util/stringutil.h"
 

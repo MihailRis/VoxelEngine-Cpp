@@ -24,7 +24,7 @@
 #include "graphics/core/GfxContext.h"
 #include "graphics/core/Shader.h"
 #include "graphics/core/ImageData.h"
-#include "frontend/gui/GUI.h"
+#include "graphics/ui/GUI.h"
 #include "frontend/screens.h"
 #include "frontend/menu/menu.h"
 #include "util/platform.h"
