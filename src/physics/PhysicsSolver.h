@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include "../typedefs.h"
+#include "../voxels/Block.h"
 
 class Hitbox;
 class Chunks;
@@ -26,6 +27,7 @@ public:
             const glm::vec3 half,
             float stepHeight);
     bool isBlockInside(int x, int y, int z, Hitbox* hitbox);
+    bool isBlockInside(int x, int y, int z, Block* def, blockstate_t states, Hitbox* hitbox);
 };
 
 #endif /* PHYSICS_PHYSICSSOLVER_H_ */
