@@ -118,7 +118,7 @@ void UiXmlReader::readUINode(UiXmlReader& reader, xml::xmlelement element, UINod
     _readUINode(reader, element, node);
 }
 
-static void _readPanel(UiXmlReader& reader, xml::xmlelement element, Panel& panel) {
+static void _readPanel(UiXmlReader& reader, xml::xmlelement element, Panel& panel, bool subnodes=true) {
     _readUINode(reader, element, panel);
 
     if (element->has("padding")) {
@@ -136,12 +136,14 @@ static void _readPanel(UiXmlReader& reader, xml::xmlelement element, Panel& pane
     if (element->has("max-length")) {
         panel.setMaxLength(element->attr("max-length").asInt());
     }
-    for (auto& sub : element->getElements()) {
-        if (sub->isText())
-            continue;
-        auto subnode = reader.readUINode(sub);
-        if (subnode) {
-            panel.add(subnode);
+    if (subnodes) {
+        for (auto& sub : element->getElements()) {
+            if (sub->isText())
+                continue;
+            auto subnode = reader.readUINode(sub);
+            if (subnode) {
+                panel.add(subnode);
+            }
         }
     }
 }
@@ -197,9 +199,16 @@ static std::shared_ptr<UINode> readPanel(UiXmlReader& reader, xml::xmlelement el
 }
 
 static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement element) {
-    std::wstring text = readAndProcessInnerText(element, reader.getContext());
-    auto button = std::make_shared<Button>(text, glm::vec4(0.0f), nullptr);
-    _readPanel(reader, element, *button);
+    std::shared_ptr<Button> button;
+    if (!element->getElements().empty()) {
+        glm::vec4 padding = element->attr("padding", "0,0,0,0").asVec4();
+        button = std::make_shared<Button>(reader.readUINode(element->getElements().at(0)), padding);
+        _readPanel(reader, element, *button, false);
+    } else {
+        std::wstring text = readAndProcessInnerText(element, reader.getContext());
+        button = std::make_shared<Button>(text, glm::vec4(0.0f), nullptr);
+        _readPanel(reader, element, *button, true);
+    }
 
     if (element->has("onclick")) {
         auto callback = scripting::create_runnable(

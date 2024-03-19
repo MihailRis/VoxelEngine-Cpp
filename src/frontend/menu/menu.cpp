@@ -244,12 +244,11 @@ std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
         });
         btn->add(std::make_shared<Label>(namews), glm::vec2(8, 8));
 
-        auto image = std::make_shared<Image>("gui/delete_icon", glm::vec2(32, 32));
-        image->setColor(glm::vec4(1, 1, 1, 0.5f));
-
-        auto delbtn = std::make_shared<Button>(image, glm::vec4(2));
-        delbtn->setColor(glm::vec4(0.0f));
-        delbtn->setHoverColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.17f));
+        auto delbtn = std::dynamic_pointer_cast<Button>(guiutil::create(
+            "<button color='#00000000' hover-color='#FFFFFF2B' padding='2,2,2,2'>"
+            "    <image src='gui/delete_icon' size='32,32' color='#FFFFFF80'/>"
+            "</button>"
+        ));
         delbtn->listenAction([=](GUI* gui) {
             guiutil::confirm(gui, langs::get(L"delete-confirm", L"world")+
             L" ("+util::str2wstr_utf8(folder.u8string())+L")", [=]() {
@@ -281,8 +280,7 @@ void create_main_menu_panel(Engine* engine) {
 }
 
 void create_404_page(Engine* engine) {
-        auto menu = engine->getGUI()->getMenu();
-
+    auto menu = engine->getGUI()->getMenu();
     auto panel = menus::create_page(engine, "404", 400, 0.0f, 8);
     panel->add(guiutil::create("<label context='menu'>@Page does not exists</label>"));
     panel->add(guiutil::backButton(menu));
