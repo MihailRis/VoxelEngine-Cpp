@@ -8,6 +8,7 @@ class Player;
 class Block;
 class Level;
 class Chunks;
+class ChunksStorage;
 class Lighting;
 
 class Clock {
@@ -32,6 +33,7 @@ public:
 class BlocksController {
     Level* level;
 	Chunks* chunks;
+	ChunksStorage* chunksStorage;
 	Lighting* lighting;
     Clock randTickClock;
     Clock blocksTickClock;

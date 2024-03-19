@@ -9,6 +9,7 @@
 #include "../../../assets/Assets.h"
 #include "../../../frontend/hud.h"
 #include "../../../world/Level.h"
+#include "../../../voxels/ChunksStorage.h"
 #include "../../../voxels/Chunks.h"
 #include "../../../voxels/voxel.h"
 #include "../../../voxels/Block.h"
@@ -43,7 +44,7 @@ static int l_hud_open_block(lua_State* L) {
     lua::luaint z = lua_tointeger(L, 3);
     bool playerInventory = !lua_toboolean(L, 4);
 
-    voxel* vox = scripting::level->chunks->get(x, y, z);
+    voxel* vox = scripting::level->chunksStorage->getVoxel(x, y, z);
     if (vox == nullptr) {
         luaL_error(L, "block does not exists at %d %d %d", x, y, z);
     }

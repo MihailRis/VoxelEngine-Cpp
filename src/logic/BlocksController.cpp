@@ -4,6 +4,7 @@
 #include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/Chunks.h"
+#include "../voxels/ChunksStorage.h"
 #include "../world/Level.h"
 #include "../world/World.h"
 #include "../content/Content.h"
@@ -54,6 +55,7 @@ int Clock::getTickId() const {
 BlocksController::BlocksController(Level* level, uint padding) 
     : level(level), 
 	  chunks(level->chunks.get()), 
+	  chunksStorage(level->chunksStorage.get()), 
 	  lighting(level->lighting.get()),
       randTickClock(20, 3),
       blocksTickClock(20, 1),
@@ -71,7 +73,7 @@ void BlocksController::updateSides(int x, int y, int z) {
 }
 
 void BlocksController::breakBlock(Player* player, const Block* def, int x, int y, int z) {
-    chunks->set(x,y,z, 0, 0);
+    chunksStorage->setVoxel(x,y,z, 0, 0);
     lighting->onBlockSet(x,y,z, 0);
     if (def->rt.funcsset.onbroken) {
         scripting::on_block_broken(player, def, x, y, z);
@@ -80,7 +82,7 @@ void BlocksController::breakBlock(Player* player, const Block* def, int x, int y
 }
 
 void BlocksController::updateBlock(int x, int y, int z) {
-    voxel* vox = chunks->get(x, y, z);
+    voxel* vox = chunksStorage->getVoxel(x, y, z);
     if (vox == nullptr)
         return;
     const Block* def = level->content->getIndices()->getBlockDef(vox->id);

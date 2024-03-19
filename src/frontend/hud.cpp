@@ -23,6 +23,7 @@
 #include "../window/Window.h"
 #include "../window/Events.h"
 #include "../window/input.h"
+#include "../voxels/ChunksStorage.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
@@ -312,7 +313,7 @@ void Hud::update(bool visible) {
     }
 
     if (blockUI) {
-        voxel* vox = level->chunks->get(blockPos.x, blockPos.y, blockPos.z);
+        voxel* vox = level->chunksStorage->getVoxel(blockPos.x, blockPos.y, blockPos.z);
         if (vox == nullptr || vox->id != currentblockid) {
             closeInventory();
         }
@@ -375,7 +376,7 @@ void Hud::openInventory(
     level->chunks->getChunkByVoxel(block.x, block.y, block.z)->setUnsaved(true);
     blockUI->bind(blockinv, frontend, interaction.get());
     blockPos = block;
-    currentblockid = level->chunks->get(block.x, block.y, block.z)->id;
+    currentblockid = level->chunksStorage->getVoxel(block.x, block.y, block.z)->id;
     add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
 }
 

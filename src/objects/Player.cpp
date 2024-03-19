@@ -2,6 +2,7 @@
 #include "../content/ContentLUT.h"
 #include "../physics/Hitbox.h"
 #include "../physics/PhysicsSolver.h"
+#include "../voxels/ChunksStorage.h"
 #include "../voxels/Chunks.h"
 #include "../world/Level.h"
 #include "../window/Events.h"
@@ -145,7 +146,7 @@ void Player::attemptToFindSpawnpoint(Level* level) {
         newpos.y--;
     }
 
-    voxel* headvox = level->chunks->get(newpos.x, newpos.y+1, newpos.z);
+    voxel* headvox = level->chunksStorage->getVoxel(newpos.x, newpos.y+1, newpos.z);
     if (level->chunks->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
         headvox == nullptr || headvox->id != 0)
         return;

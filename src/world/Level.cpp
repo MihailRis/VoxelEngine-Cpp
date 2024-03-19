@@ -27,7 +27,7 @@ Level::Level(World* world, const Content* content, EngineSettings& settings)
     chunks = std::make_unique<Chunks>(
 		matrixSize, matrixSize, 0, 0, world->wfile.get(), events.get(), content
 	);
-	lighting = std::make_unique<Lighting>(content, chunks.get());
+	lighting = std::make_unique<Lighting>(content, chunks.get(), chunksStorage.get());
 
 	events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type type, Chunk* chunk) {
 		this->chunksStorage->remove(chunk->x, chunk->z);

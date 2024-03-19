@@ -4,6 +4,7 @@
 #include "LightSolver.h"
 #include "Lightmap.h"
 #include "../content/Content.h"
+#include "../voxels/ChunksStorage.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/voxel.h"
@@ -12,8 +13,8 @@
 #include "../typedefs.h"
 #include "../util/timeutil.h"
 
-Lighting::Lighting(const Content* content, Chunks* chunks) 
-	     : content(content), chunks(chunks) {
+Lighting::Lighting(const Content* content, Chunks* chunks, ChunksStorage* chunksStorage) 
+	     : content(content), chunks(chunks), chunksStorage(chunksStorage) {
 	auto indices = content->getIndices();
 	solverR = std::make_unique<LightSolver>(indices, chunks, 0);
 	solverG = std::make_unique<LightSolver>(indices, chunks, 1);
@@ -162,7 +163,7 @@ void Lighting::onBlockSet(int x, int y, int z, blockid_t id){
 		solverB->solve();
 		if (chunks->getLight(x,y+1,z, 3) == 0xF){
 			for (int i = y; i >= 0; i--){
-				voxel* vox = chunks->get(x,i,z);
+				voxel* vox = chunksStorage->getVoxel(x,i,z);
 				if ((vox == nullptr || vox->id != 0) && block->skyLightPassing)
 					break;
 				solverS->add(x,i,z, 0xF);
@@ -183,7 +184,7 @@ void Lighting::onBlockSet(int x, int y, int z, blockid_t id){
 			solverS->remove(x,y,z);
 			for (int i = y-1; i >= 0; i--){
 				solverS->remove(x,i,z);
-				if (i == 0 || chunks->get(x,i-1,z)->id != 0){
+				if (i == 0 || chunksStorage->getVoxel(x,i-1,z)->id != 0){
 					break;
 				}
 			}

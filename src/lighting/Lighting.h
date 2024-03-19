@@ -7,17 +7,19 @@ class Content;
 class ContentIndices;
 class Chunk;
 class Chunks;
+class ChunksStorage;
 class LightSolver;
 
 class Lighting {
 	const Content* const content;
 	Chunks* chunks;
+	ChunksStorage* chunksStorage;
 	std::unique_ptr<LightSolver> solverR;
 	std::unique_ptr<LightSolver> solverG;
 	std::unique_ptr<LightSolver> solverB;
 	std::unique_ptr<LightSolver> solverS;
 public:
-	Lighting(const Content* content, Chunks* chunks);
+	Lighting(const Content* content, Chunks* chunks, ChunksStorage* chunksStorage);
 	~Lighting();
 
 	void clear();
