@@ -391,6 +391,18 @@ static int l_audio_get_velocity(lua_State* L) {
     return 0;
 }
 
+// @brief audio.count_speakers() -> integer
+static int l_audio_count_speakers(lua_State* L) {
+    lua_pushinteger(L, audio::count_speakers());
+    return 1;
+}
+
+// @brief audio.count_streams() -> integer
+static int l_audio_count_streams(lua_State* L) {
+    lua_pushinteger(L, audio::count_streams());
+    return 1;
+}
+
 const luaL_Reg audiolib [] = {
     {"play_sound", lua_wrap_errors<l_audio_play_sound>},
     {"play_sound_2d", lua_wrap_errors<l_audio_play_sound_2d>},
@@ -414,5 +426,7 @@ const luaL_Reg audiolib [] = {
     {"get_duration", lua_wrap_errors<l_audio_get_duration>},
     {"get_position", lua_wrap_errors<l_audio_get_position>},
     {"get_velocity", lua_wrap_errors<l_audio_get_velocity>},
+    {"count_speakers", lua_wrap_errors<l_audio_count_speakers>},
+    {"count_streams", lua_wrap_errors<l_audio_count_streams>},
     {NULL, NULL}
 };

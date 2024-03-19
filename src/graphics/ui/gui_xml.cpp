@@ -169,6 +169,14 @@ static std::shared_ptr<UINode> readLabel(UiXmlReader& reader, xml::xmlelement el
             align_from_string(element->attr("valign").getText(), label->getVerticalAlign())
         );
     }
+    if (element->has("supplier")) {
+        auto supplier = scripting::create_wstring_supplier(
+            reader.getEnvironment().getId(),
+            element->attr("supplier").getText(),
+            reader.getFilename()
+        );
+        label->textSupplier(supplier);
+    }
     return label;
 }
 
