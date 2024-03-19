@@ -58,7 +58,9 @@ wstringsupplier scripting::create_wstring_supplier(
 ) {
     return [=](){
         if (processCallback(env, src, file)) {
-            state->callNoThrow(0);
+            if (state->isfunction(-1)) {
+                state->callNoThrow(0);
+            }
             auto str = state->tostring(-1); state->pop();
             return util::str2wstr_utf8(str);
         }
@@ -101,7 +103,9 @@ boolsupplier scripting::create_bool_supplier(
 ) {
     return [=](){
         if (processCallback(env, src, file)) {
-            state->callNoThrow(0);
+            if (state->isfunction(-1)) {
+                state->callNoThrow(0);
+            }
             bool x = state->toboolean(-1); state->pop();
             return x;
         }
@@ -129,7 +133,9 @@ doublesupplier scripting::create_number_supplier(
 ) {
     return [=](){
         if (processCallback(env, src, file)) {
-            state->callNoThrow(0);
+            if (state->isfunction(-1)) {
+                state->callNoThrow(0);
+            }
             lua::luanumber x = state->tonumber(-1); state->pop();
             return x;
         }
@@ -159,7 +165,9 @@ vec2supplier scripting::create_vec2_supplier(
 ) {
     return [=](){
         if (processCallback(env, src, file)) {
-            state->callNoThrow(0);
+            if (state->isfunction(-1)) {
+                state->callNoThrow(0);
+            }
             lua::luanumber y = state->tonumber(-1); state->pop();
             lua::luanumber x = state->tonumber(-1); state->pop();
             return glm::vec2(x, y);

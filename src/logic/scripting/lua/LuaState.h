@@ -45,6 +45,8 @@ namespace lua {
         luaint tointeger(int idx);
         luanumber tonumber(int idx);
         const char* tostring(int idx);
+        bool isstring(int idx);
+        bool isfunction(int idx);
         int call(int argc);
         int callNoThrow(int argc);
         int execute(int env, const std::string& src, const std::string& file="<string>");
