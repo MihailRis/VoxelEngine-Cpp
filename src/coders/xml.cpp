@@ -196,8 +196,13 @@ xmlelement Parser::parseOpenTag() {
         if (peek() == '=') {
             nextChar();
             skipWhitespace();
-            expect('"');
-            attrtext = parseString('"');
+            
+            char quote = peek();
+            if (quote != '\'' && quote != '"') {
+                throw error("string literal expected");
+            }
+            skip(1);
+            attrtext = parseString(quote);
         }
         node->set(attrname, attrtext);
     }

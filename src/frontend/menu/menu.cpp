@@ -284,9 +284,7 @@ void create_404_page(Engine* engine) {
         auto menu = engine->getGUI()->getMenu();
 
     auto panel = menus::create_page(engine, "404", 400, 0.0f, 8);
-    panel->add(std::make_shared<Label>(
-        langs::get(L"Page does not exists", L"menu"))
-    );
+    panel->add(guiutil::create("<label context='menu'>@Page does not exists</label>"));
     panel->add(guiutil::backButton(menu));
 }
 

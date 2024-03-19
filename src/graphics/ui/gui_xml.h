@@ -2,6 +2,7 @@
 #define FRONTEND_GUI_GUI_XML_H_
 
 #include <memory>
+#include <stack>
 #include <unordered_set>
 #include <unordered_map>
 
@@ -20,6 +21,7 @@ namespace gui {
     class UiXmlReader {
         std::unordered_map<std::string, uinode_reader> readers;
         std::unordered_set<std::string> ignored;
+        std::stack<std::string> contextStack;
         std::string filename;
         const scripting::Environment& env;
     public:
@@ -53,6 +55,7 @@ namespace gui {
             xml::xmlelement root
         );
 
+        const std::string& getContext() const;
         const scripting::Environment& getEnvironment() const;
         const std::string& getFilename() const;
     };

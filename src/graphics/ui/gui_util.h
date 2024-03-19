@@ -21,6 +21,10 @@ namespace guiutil {
         std::shared_ptr<gui::PagesControl> menu
     );
 
+    /// @brief Create element from XML
+    /// @param source XML
+    std::shared_ptr<gui::UINode> create(const std::string& source);
+
     void alert(
         gui::GUI* gui, 
         const std::wstring& text, 

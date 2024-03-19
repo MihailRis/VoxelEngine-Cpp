@@ -1,9 +1,11 @@
 #include "gui_util.h"
 #include "elements/controls.h"
 #include "elements/containers.h"
+#include "gui_xml.h"
 
 #include <glm/glm.hpp>
 
+#include "../../logic/scripting/scripting.h"
 #include "../../frontend/locale/langs.h"
 #include "../../delegates.h"
 
@@ -30,6 +32,12 @@ std::shared_ptr<Button> guiutil::gotoButton(
             menu->setPage("404");
         }
     });
+}
+
+std::shared_ptr<gui::UINode> guiutil::create(const std::string& source) {
+    scripting::Environment env(0);
+    UiXmlReader reader(env);
+    return reader.readXML("<string>", source);
 }
 
 void guiutil::alert(GUI* gui, const std::wstring& text, runnable on_hidden) {

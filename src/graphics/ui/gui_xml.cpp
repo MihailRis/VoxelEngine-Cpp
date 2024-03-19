@@ -146,22 +146,25 @@ static void _readPanel(UiXmlReader& reader, xml::xmlelement element, Panel& pane
     }
 }
 
-
-static std::wstring readAndProcessInnerText(xml::xmlelement element) {
+static std::wstring readAndProcessInnerText(xml::xmlelement element, const std::string& context) {
     std::wstring text = L"";
     if (element->size() == 1) {
         std::string source = element->sub(0)->attr("#").getText();
         util::trim(source);
         text = util::str2wstr_utf8(source); 
         if (text[0] == '@') {
-            text = langs::get(text.substr(1));
+            if (context.empty()) {
+                text = langs::get(text.substr(1));
+            } else {
+                text = langs::get(text.substr(1), util::str2wstr_utf8(context));
+            }
         }
     }
     return text;
 }
 
 static std::shared_ptr<UINode> readLabel(UiXmlReader& reader, xml::xmlelement element) {
-    std::wstring text = readAndProcessInnerText(element);
+    std::wstring text = readAndProcessInnerText(element, reader.getContext());
     auto label = std::make_shared<Label>(text);
     _readUINode(reader, element, *label);
     if (element->has("valign")) {
@@ -194,7 +197,7 @@ static std::shared_ptr<UINode> readPanel(UiXmlReader& reader, xml::xmlelement el
 }
 
 static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement element) {
-    std::wstring text = readAndProcessInnerText(element);
+    std::wstring text = readAndProcessInnerText(element, reader.getContext());
     auto button = std::make_shared<Button>(text, glm::vec4(0.0f), nullptr);
     _readPanel(reader, element, *button);
 
@@ -218,7 +221,7 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement e
 }
 
 static std::shared_ptr<UINode> readCheckBox(UiXmlReader& reader, xml::xmlelement element) {
-    auto text = readAndProcessInnerText(element);
+    auto text = readAndProcessInnerText(element, reader.getContext());
     bool checked = element->attr("checked", "false").asBool();
     auto checkbox = std::make_shared<FullCheckBox>(text, glm::vec2(), checked);
     _readPanel(reader, element, *checkbox);
@@ -245,7 +248,7 @@ static std::shared_ptr<UINode> readCheckBox(UiXmlReader& reader, xml::xmlelement
 
 static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement element) {
     auto placeholder = util::str2wstr_utf8(element->attr("placeholder", "").getText());
-    auto text = readAndProcessInnerText(element);
+    auto text = readAndProcessInnerText(element, reader.getContext());
     auto textbox = std::make_shared<TextBox>(placeholder, glm::vec4(0.0f));
     _readPanel(reader, element, *textbox);
     textbox->setText(text);
@@ -330,6 +333,7 @@ static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, xml::xmlelement
 }
 
 UiXmlReader::UiXmlReader(const scripting::Environment& env) : env(env) {
+    contextStack.push("");
     add("image", readImage);
     add("label", readLabel);
     add("panel", readPanel);
@@ -354,7 +358,6 @@ void UiXmlReader::addIgnore(const std::string& tag) {
 
 std::shared_ptr<UINode> UiXmlReader::readUINode(xml::xmlelement element) {
     const std::string& tag = element->getTag();
-
     auto found = readers.find(tag);
     if (found == readers.end()) {
         if (ignored.find(tag) != ignored.end()) {
@@ -362,7 +365,16 @@ std::shared_ptr<UINode> UiXmlReader::readUINode(xml::xmlelement element) {
         }
         throw std::runtime_error("unsupported element '"+tag+"'");
     }
-    return found->second(*this, element);
+
+    bool hascontext = element->has("context");
+    if (hascontext) {
+        contextStack.push(element->attr("context").getText());
+    }
+    auto node = found->second(*this, element);
+    if (hascontext) {
+        contextStack.pop();
+    }
+    return node;
 }
 
 std::shared_ptr<UINode> UiXmlReader::readXML(
@@ -381,6 +393,10 @@ std::shared_ptr<UINode> UiXmlReader::readXML(
 ) {
     this->filename = filename;
     return readUINode(root);
+}
+
+const std::string& UiXmlReader::getContext() const {
+    return contextStack.top();
 }
 
 const std::string& UiXmlReader::getFilename() const {
