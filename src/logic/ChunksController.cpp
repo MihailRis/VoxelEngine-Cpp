@@ -25,6 +25,7 @@ const uint MIN_SURROUNDING = 9;
 ChunksController::ChunksController(Level* level, uint padding) 
     : level(level), 
 	  chunks(level->chunks.get()), 
+	  chunksStorage(level->chunksStorage.get()), 
 	  lighting(level->lighting.get()), 
 	  padding(padding), 
 	  generator(WorldGenerators::createGenerator(level->getWorld()->getGenerator(), level->content)) {
@@ -95,7 +96,7 @@ bool ChunksController::buildLights(std::shared_ptr<Chunk> chunk) {
     int surrounding = 0;
     for (int oz = -1; oz <= 1; oz++){
         for (int ox = -1; ox <= 1; ox++){
-            if (chunks->getChunk(chunk->x+ox, chunk->z+oz))
+            if (chunksStorage->getChunk(chunk->x+ox, chunk->z+oz))
                 surrounding++;
         }
     }

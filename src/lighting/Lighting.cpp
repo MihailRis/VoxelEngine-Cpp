@@ -16,10 +16,10 @@
 Lighting::Lighting(const Content* content, Chunks* chunks, ChunksStorage* chunksStorage) 
 	     : content(content), chunks(chunks), chunksStorage(chunksStorage) {
 	auto indices = content->getIndices();
-	solverR = std::make_unique<LightSolver>(indices, chunks, 0);
-	solverG = std::make_unique<LightSolver>(indices, chunks, 1);
-	solverB = std::make_unique<LightSolver>(indices, chunks, 2);
-	solverS = std::make_unique<LightSolver>(indices, chunks, 3);
+	solverR = std::make_unique<LightSolver>(indices, chunksStorage, 0);
+	solverG = std::make_unique<LightSolver>(indices, chunksStorage, 1);
+	solverB = std::make_unique<LightSolver>(indices, chunksStorage, 2);
+	solverS = std::make_unique<LightSolver>(indices, chunksStorage, 3);
 }
 
 Lighting::~Lighting(){
@@ -64,7 +64,7 @@ void Lighting::prebuildSkyLight(Chunk* chunk, const ContentIndices* indices){
 void Lighting::buildSkyLight(int cx, int cz){
 	const Block* const* blockDefs = content->getIndices()->getBlockDefs();
 
-	Chunk* chunk = chunks->getChunk(cx, cz);
+	Chunk* chunk = chunksStorage->getChunk(cx, cz);
 	for (int z = 0; z < CHUNK_D; z++){
 		for (int x = 0; x < CHUNK_W; x++){
 			for (int y = chunk->lightmap.highestPoint; y >= 0; y--){
@@ -95,7 +95,7 @@ void Lighting::onChunkLoaded(int cx, int cz, bool expand){
     LightSolver* solverS = this->solverS.get();
 
 	const Block* const* blockDefs = content->getIndices()->getBlockDefs();
-	const Chunk* chunk = chunks->getChunk(cx, cz);
+	const Chunk* chunk = chunksStorage->getChunk(cx, cz);
 
 	for (uint y = 0; y < CHUNK_H; y++){
 		for (uint z = 0; z < CHUNK_D; z++){

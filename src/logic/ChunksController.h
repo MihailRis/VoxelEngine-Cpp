@@ -7,6 +7,7 @@
 class Level;
 class Chunk;
 class Chunks;
+class ChunksStorage;
 class Lighting;
 class WorldGenerator;
 
@@ -15,6 +16,7 @@ class ChunksController {
 private:
     Level* level;
     Chunks* chunks;
+    ChunksStorage* chunksStorage;
     Lighting* lighting;
     uint padding;
     std::unique_ptr<WorldGenerator> generator;

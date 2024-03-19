@@ -9,7 +9,6 @@
 #include "../world/World.h"
 #include "../content/Content.h"
 #include "../lighting/Lighting.h"
-#include "../util/timeutil.h"
 #include "../maths/fastmaths.h"
 #include "../items/Inventory.h"
 #include "../items/Inventories.h"
@@ -156,7 +155,7 @@ void BlocksController::randomTick(int tickid, int parts) {
 }
 
 int64_t BlocksController::createBlockInventory(int x, int y, int z) {
-	auto chunk = chunks->getChunkByVoxel(x, y, z);
+	auto chunk = chunksStorage->getChunkByVoxel(x, y, z);
 	if (chunk == nullptr) {
 		return 0;
 	}
@@ -177,7 +176,7 @@ int64_t BlocksController::createBlockInventory(int x, int y, int z) {
 }
 
 void BlocksController::bindInventory(int64_t invid, int x, int y, int z) {
-    auto chunk = chunks->getChunkByVoxel(x, y, z);
+    auto chunk = chunksStorage->getChunkByVoxel(x, y, z);
 	if (chunk == nullptr) {
 		throw std::runtime_error("block does not exists");
 	}
@@ -190,7 +189,7 @@ void BlocksController::bindInventory(int64_t invid, int x, int y, int z) {
 }
 
 void BlocksController::unbindInventory(int x, int y, int z) {
-    auto chunk = chunks->getChunkByVoxel(x, y, z);
+    auto chunk = chunksStorage->getChunkByVoxel(x, y, z);
 	if (chunk == nullptr) {
 		throw std::runtime_error("block does not exists");
 	}
