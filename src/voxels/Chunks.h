@@ -22,6 +22,8 @@ class Chunks {
 	const ContentIndices* const contentIds;
 	voxel* get(int32_t x, int32_t y, int32_t z);
 	void set(int32_t x, int32_t y, int32_t z, uint32_t id, uint8_t states);
+	Chunk* getChunk(int32_t x, int32_t z);
+	Chunk* getChunkByVoxel(int32_t x, int32_t y, int32_t z);
 public:
 	std::vector<std::shared_ptr<Chunk>> chunks;
 	std::vector<std::shared_ptr<Chunk>> chunksSecond;
@@ -39,8 +41,6 @@ public:
 
 	bool putChunk(std::shared_ptr<Chunk> chunk);
 
-	Chunk* getChunk(int32_t x, int32_t z);
-	Chunk* getChunkByVoxel(int32_t x, int32_t y, int32_t z);
 	light_t getLight(int32_t x, int32_t y, int32_t z);
 	ubyte getLight(int32_t x, int32_t y, int32_t z, int channel);
 

@@ -3,7 +3,7 @@
 
 #include <queue>
 
-class Chunks;
+class ChunksStorage;
 class ContentIndices;
 
 struct lightentry {
@@ -17,10 +17,10 @@ class LightSolver {
 	std::queue<lightentry> addqueue;
 	std::queue<lightentry> remqueue;
 	const ContentIndices* const contentIds;
-	Chunks* chunks;
+	ChunksStorage* chunksStorage;
 	int channel;
 public:
-	LightSolver(const ContentIndices* contentIds, Chunks* chunks, int channel);
+	LightSolver(const ContentIndices* contentIds, ChunksStorage* chunks, int channel);
 
 	void add(int x, int y, int z);
 	void add(int x, int y, int z, int emission);
