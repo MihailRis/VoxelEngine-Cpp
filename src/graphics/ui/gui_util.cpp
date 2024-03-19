@@ -24,7 +24,11 @@ std::shared_ptr<Button> guiutil::gotoButton(
 ) {
     text = langs::get(text, L"menu");
     return std::make_shared<Button>(text, glm::vec4(10.f), [=](GUI* gui) {
-        menu->setPage(page);
+        if (menu->has(page)) {
+            menu->setPage(page);
+        } else {
+            menu->setPage("404");
+        }
     });
 }
 

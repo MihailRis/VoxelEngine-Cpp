@@ -18,6 +18,7 @@ menu.Quit=Выход
 menu.Continue=Продолжить
 menu.Save and Quit to Menu=Сохранить и Выйти в Меню
 menu.missing-content=Отсутствует Контент!
+menu.Page does not exists=Страница не существует
 menu.Content Error=Ошибка Контента
 menu.Controls=Управление
 menu.Back to Main Menu=Вернуться в Меню

@@ -248,7 +248,7 @@ Orientation Panel::getOrientation() const {
 PagesControl::PagesControl() : Container(glm::vec2(1)){
 }
 
-bool PagesControl::has(std::string name) {
+bool PagesControl::has(const std::string& name) {
     return pages.find(name) != pages.end();
 }
 

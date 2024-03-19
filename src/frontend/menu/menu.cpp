@@ -280,6 +280,16 @@ void create_main_menu_panel(Engine* engine) {
     ));
 }
 
+void create_404_page(Engine* engine) {
+        auto menu = engine->getGUI()->getMenu();
+
+    auto panel = menus::create_page(engine, "404", 400, 0.0f, 8);
+    panel->add(std::make_shared<Label>(
+        langs::get(L"Page does not exists", L"menu"))
+    );
+    panel->add(guiutil::backButton(menu));
+}
+
 void menus::create_menus(Engine* engine) {
     menus::generatorID = WorldGenerators::getDefaultGeneratorID();
     create_new_world_panel(engine);
@@ -287,10 +297,12 @@ void menus::create_menus(Engine* engine) {
     create_languages_panel(engine);
     create_main_menu_panel(engine);
     create_world_generators_panel(engine);
+    create_404_page(engine);
 }
 
 void menus::refresh_menus(Engine* engine) {
     create_main_menu_panel(engine);
     create_new_world_panel(engine);
     create_world_generators_panel(engine);
+    create_404_page(engine);
 }
