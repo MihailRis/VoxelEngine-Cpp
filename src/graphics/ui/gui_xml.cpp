@@ -200,7 +200,8 @@ static std::shared_ptr<UINode> readPanel(UiXmlReader& reader, xml::xmlelement el
 
 static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement element) {
     std::shared_ptr<Button> button;
-    if (!element->getElements().empty()) {
+    auto& elements = element->getElements();
+    if (!elements.empty() && elements.at(0)->getTag() != "#") {
         glm::vec4 padding = element->attr("padding", "0,0,0,0").asVec4();
         button = std::make_shared<Button>(reader.readUINode(element->getElements().at(0)), padding);
         _readPanel(reader, element, *button, false);
