@@ -184,6 +184,21 @@ _GUI_ROOT = Document.new("core:root")
 _MENU = _GUI_ROOT.menu
 menu = _MENU
 
+local __post_runnables = {}
+
+function __process_post_runnables()
+    if #__post_runnables then
+        for _, func in ipairs(__post_runnables) do
+            func()
+        end
+        __post_runnables = {}
+    end
+end
+
+function time.post_runnable(runnable)
+    table.insert(__post_runnables, runnable)
+end
+
 -- Deprecated functions
 block_index = block.index
 block_name = block.name

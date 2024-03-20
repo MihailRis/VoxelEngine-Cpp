@@ -97,6 +97,12 @@ std::unique_ptr<Environment> scripting::create_doc_environment(int parent, const
     return std::make_unique<Environment>(id);
 }
 
+void scripting::process_post_runnables() {
+    if (state->getglobal("__process_post_runnables")) {
+        state->callNoThrow(0);
+    }
+}
+
 void scripting::on_world_load(Level* level, BlocksController* blocks) {
     scripting::level = level;
     scripting::content = level->content;

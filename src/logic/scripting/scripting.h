@@ -52,6 +52,8 @@ namespace scripting {
     std::unique_ptr<Environment> create_pack_environment(const ContentPack& pack);
     std::unique_ptr<Environment> create_doc_environment(int parent, const std::string& name);
 
+    void process_post_runnables();
+
     void on_world_load(Level* level, BlocksController* blocks);
     void on_world_tick();
     void on_world_save();

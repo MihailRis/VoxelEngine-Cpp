@@ -170,6 +170,7 @@ void Engine::mainloop() {
             postRunnables.front()();
             postRunnables.pop();
         }
+        scripting::process_post_runnables();
 
         Window::swapBuffers();
         Events::pollEvents();
