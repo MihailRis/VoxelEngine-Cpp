@@ -6,13 +6,13 @@
 #include "../voxels/Block.h"
 
 class Hitbox;
-class Chunks;
+class ChunksStorage;
 
 class PhysicsSolver {
     glm::vec3 gravity;
 public:
     PhysicsSolver(glm::vec3 gravity);
-    void step(Chunks* chunks,
+    void step(ChunksStorage* chunks,
             Hitbox* hitbox,
             float delta,
             uint substeps,
@@ -20,7 +20,7 @@ public:
             float gravityScale,
             bool collisions);
     void colisionCalc(
-            Chunks* chunks, 
+            ChunksStorage* chunks, 
             Hitbox* hitbox, 
             glm::vec3& vel, 
             glm::vec3& pos, 

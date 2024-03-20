@@ -80,7 +80,7 @@ void Player::updateInput(
     int substeps = int(delta * vel * 1000);
     substeps = std::min(100, std::max(1, substeps));
     level->physics->step(
-        level->chunks.get(), 
+        level->chunksStorage.get(), 
         hitbox.get(), 
         delta, 
         substeps, 
@@ -142,12 +142,12 @@ void Player::attemptToFindSpawnpoint(Level* level) {
         rand() % 80 + 100,
         ppos.z + (rand() % 200 - 100)
     );
-    while (newpos.y > 0 && !level->chunks->isObstacleBlock(newpos.x, newpos.y-2, newpos.z)) {
+    while (newpos.y > 0 && !level->chunksStorage->isObstacleBlock(newpos.x, newpos.y-2, newpos.z)) {
         newpos.y--;
     }
 
     voxel* headvox = level->chunksStorage->getVoxel(newpos.x, newpos.y+1, newpos.z);
-    if (level->chunks->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
+    if (level->chunksStorage->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
         headvox == nullptr || headvox->id != 0)
         return;
     spawnpoint = newpos + glm::vec3(0.5f, 0.0f, 0.5f);

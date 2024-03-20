@@ -137,7 +137,7 @@ void CameraControl::switchCamera() {
     }
 }
 
-void CameraControl::update(PlayerInput& input, float delta, Chunks* chunks) {
+void CameraControl::update(PlayerInput& input, float delta, ChunksStorage* chunks) {
     offset = glm::vec3(0.0f, 0.7f, 0.0f);
 
     if (settings.shaking && !input.cheat) {
@@ -272,7 +272,7 @@ void PlayerController::updateCamera(float delta, bool movement) {
     if (movement) {
         camControl.updateMouse(input);
     }
-    camControl.update(input, delta, level->chunks.get());
+    camControl.update(input, delta, level->chunksStorage.get());
 }
 
 void PlayerController::resetKeyboard() {

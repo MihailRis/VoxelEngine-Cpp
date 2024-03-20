@@ -24,23 +24,6 @@ class Chunks {
 	void set(int32_t x, int32_t y, int32_t z, uint32_t id, uint8_t states);
 	Chunk* getChunk(int32_t x, int32_t z);
 	Chunk* getChunkByVoxel(int32_t x, int32_t y, int32_t z);
-public:
-	std::vector<std::shared_ptr<Chunk>> chunks;
-	std::vector<std::shared_ptr<Chunk>> chunksSecond;
-	size_t volume;
-	size_t chunksCount;
-	size_t visible;
-	uint32_t w, d;
-	int32_t ox, oz;
-	WorldFiles* worldFiles;
-	LevelEvents* events;
-
-	Chunks(uint32_t w, uint32_t d, int32_t ox, int32_t oz, 
-		   WorldFiles* worldFiles, LevelEvents* events, const Content* content);
-	~Chunks() = default;
-
-	bool putChunk(std::shared_ptr<Chunk> chunk);
-
 	light_t getLight(int32_t x, int32_t y, int32_t z);
 	ubyte getLight(int32_t x, int32_t y, int32_t z, int channel);
 
@@ -57,6 +40,22 @@ public:
     bool isSolidBlock(int32_t x, int32_t y, int32_t z);
     bool isReplaceableBlock(int32_t x, int32_t y, int32_t z);
 	bool isObstacleBlock(int32_t x, int32_t y, int32_t z);
+public:
+	std::vector<std::shared_ptr<Chunk>> chunks;
+	std::vector<std::shared_ptr<Chunk>> chunksSecond;
+	size_t volume;
+	size_t chunksCount;
+	size_t visible;
+	uint32_t w, d;
+	int32_t ox, oz;
+	WorldFiles* worldFiles;
+	LevelEvents* events;
+
+	Chunks(uint32_t w, uint32_t d, int32_t ox, int32_t oz, 
+		   WorldFiles* worldFiles, LevelEvents* events, const Content* content);
+	~Chunks() = default;
+
+	bool putChunk(std::shared_ptr<Chunk> chunk);
 
 	// does not move chunks inside
 	void _setOffset(int32_t x, int32_t z);
