@@ -7,7 +7,6 @@
 #include <functional>
 #include "../../content/ContentPack.h"
 
-
 namespace gui {
     class Panel;
 }

@@ -31,12 +31,13 @@ public:
 };
 
 class Engine {
+    EngineSettings& settings;
+    EnginePaths* paths;
+
     std::unique_ptr<Assets> assets = nullptr;
     std::shared_ptr<Screen> screen = nullptr;
     std::vector<ContentPack> contentPacks;
-    EngineSettings& settings;
     std::unique_ptr<Content> content = nullptr;
-    EnginePaths* paths;
     std::unique_ptr<ResPaths> resPaths = nullptr;
 
     uint64_t frame = 0;

@@ -71,18 +71,17 @@ void GUI::actMouse(float delta) {
         pressed = nullptr;
     }
 
-    if (hover) {//WTF?! FIXME 
-        for (int i = static_cast<int>(mousecode::BUTTON_1); i < static_cast<int>(mousecode::BUTTON_1)+12; i++) {
-            if (Events::jclicked(i)) {
-                hover->clicked(this, static_cast<mousecode>(i));
+    if (hover) {
+        for (mousecode code : MOUSECODES_ALL) {
+            if (Events::jclicked(code)) {
+                hover->clicked(this, code);
             }
         }
     }
 } 
 
-/** Processing user input and UI logic 
- * @param delta delta time
-*/
+/// @brief Processing user input and UI logic 
+/// @param delta delta time
 void GUI::act(float delta) {
     while (!postRunnables.empty()) {
         runnable callback = postRunnables.back();

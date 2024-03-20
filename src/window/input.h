@@ -3,9 +3,7 @@
 
 #include <string>
 
-/**
-* @brief Represents glfw3 keycode values.
-*/
+/// @brief Represents glfw3 keycode values.
 enum class keycode : int {
 	ENTER = 257,
 	TAB = 258,
@@ -88,21 +86,25 @@ enum class keycode : int {
 };
 
 
-/**
-* @brief Represents glfw3 mouse button IDs.
-* @details There is a subset of glfw3 mouse button IDs.
-*/
+
+/// @brief Represents glfw3 mouse button IDs.
+/// @details There is a subset of glfw3 mouse button IDs.
 enum class mousecode : int {
 	BUTTON_1 = 0, // Left mouse button
 	BUTTON_2 = 1, // Right mouse button
 	BUTTON_3 = 2, // Middle mouse button
 };
 
+inline mousecode MOUSECODES_ALL[] {
+	mousecode::BUTTON_1,
+	mousecode::BUTTON_2,
+	mousecode::BUTTON_3
+};
 
 namespace input_util {
-	// @return Key label by keycode
+	/// @return Key label by keycode
 	std::string to_string(keycode code);
-	// @return Mouse button label by keycode
+	/// @return Mouse button label by keycode
 	std::string to_string(mousecode code);
 }
 
