@@ -415,7 +415,7 @@ void PlayerController::updateInteraction(){
             vox = chunks->get(x, y, z);
             blockid_t chosenBlock = def->rt.id;
             if (vox && (target = indices->getBlockDef(vox->id))->replaceable) {
-                if (!level->physics->isBlockInside(x,y,z, player->hitbox.get()) 
+                if (!level->physics->isBlockInside(x,y,z,def,states, player->hitbox.get()) 
                     || !def->obstacle){
                     if (def->grounded && !chunks->isSolidBlock(x, y-1, z)) {
                         chosenBlock = 0;

@@ -4,6 +4,7 @@
 #include "../maths/aabb.h"
 #include "../voxels/Block.h"
 #include "../voxels/Chunks.h"
+#include "../voxels/voxel.h"
 
 const double E = 0.03;
 const double MAX_FIX = 0.1;
@@ -218,3 +219,22 @@ bool PhysicsSolver::isBlockInside(int x, int y, int z, Hitbox* hitbox) {
 			y >= floor(pos.y-half.y) && y <= floor(pos.y+half.y);
 }
 
+bool PhysicsSolver::isBlockInside(int x, int y, int z, Block* def, blockstate_t states, Hitbox* hitbox) {
+	vec3& pos = hitbox->position;
+	vec3& half = hitbox->halfsize;
+  voxel v;
+  v.states = states;
+  const auto& boxes = def->rotatable 
+                    ? def->rt.hitboxes[v.rotation()] 
+                    : def->hitboxes;
+  for (const auto& block_hitbox : boxes) {
+      vec3 min = block_hitbox.min();
+      vec3 max = block_hitbox.max();
+      // 0.00001 - inaccuracy
+      if (min.x < pos.x+half.x-x-0.00001 && max.x > pos.x-half.x-x+0.00001 &&
+          min.z < pos.z+half.z-z-0.00001 && max.z > pos.z-half.z-z+0.00001 &&
+          min.y < pos.y+half.y-y-0.00001 && max.y > pos.y-half.y-y+0.00001)
+          return true;
+  }
+	return false;
+}
