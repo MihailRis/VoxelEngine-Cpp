@@ -50,7 +50,7 @@ void UiDocument::collect(uinodes_map& map, std::shared_ptr<gui::UINode> node) {
     if (!id.empty()) {
         map[id] = node;
     }
-    auto container = dynamic_cast<gui::Container*>(node.get());
+    auto container = std::dynamic_pointer_cast<gui::Container>(node);
     if (container) {
         for (auto subnode : container->getNodes()) {
             collect(map, subnode);
