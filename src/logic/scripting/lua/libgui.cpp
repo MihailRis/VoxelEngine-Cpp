@@ -104,16 +104,6 @@ static bool getattr(lua_State* L, gui::FullCheckBox* box, const std::string& att
     return false;
 }
 
-static bool getattr(lua_State* L, gui::PagesControl* menu, const std::string& attr) {
-    if (menu == nullptr)
-        return false;
-    if (attr == "page") {
-        lua_pushstring(L, menu->getCurrentName().c_str());
-        return true;
-    }
-    return false;
-}
-
 static bool getattr(lua_State* L, gui::TextBox* box, const std::string& attr) {
     if (box == nullptr)
         return false;
@@ -122,6 +112,32 @@ static bool getattr(lua_State* L, gui::TextBox* box, const std::string& attr) {
         return true;
     } else if (attr == "placeholder") {
         lua_pushstring(L, util::wstr2str_utf8(box->getPlaceholder()).c_str());
+        return true;
+    }
+    return false;
+}
+
+static int menu_back(lua_State* L) {
+    lua_getfield(L, 1, "docname");
+    lua_getfield(L, 1, "name");
+    auto docname = lua_tostring(L, -2);
+    auto name = lua_tostring(L, -1);
+    auto node = getDocumentNode(L, docname, name);
+    lua_pop(L, 2);
+
+    auto menu = dynamic_cast<gui::PagesControl*>(node);
+    menu->back();
+    return 0;
+}
+
+static bool getattr(lua_State* L, gui::PagesControl* menu, const std::string& attr) {
+    if (menu == nullptr)
+        return false;
+    if (attr == "page") {
+        lua_pushstring(L, menu->getCurrentName().c_str());
+        return true;
+    } else if (attr == "back") {
+        lua_pushcfunction(L, menu_back);
         return true;
     }
     return false;

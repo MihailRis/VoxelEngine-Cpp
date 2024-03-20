@@ -99,6 +99,16 @@ static int l_hud_close(lua_State* L) {
     return 0;
 }
 
+static int l_hud_pause(lua_State* L) {
+    scripting::hud->setPause(true);
+    return 0;
+}
+
+static int l_hud_resume(lua_State* L) {
+    scripting::hud->setPause(false);
+    return 0;
+}
+
 const luaL_Reg hudlib [] = {
     {"open_inventory", lua_wrap_errors<l_hud_open_inventory>},
     {"close_inventory", lua_wrap_errors<l_hud_close_inventory>},
@@ -106,5 +116,7 @@ const luaL_Reg hudlib [] = {
     {"open_permanent", lua_wrap_errors<l_hud_open_permanent>},
     {"show_overlay", lua_wrap_errors<l_hud_show_overlay>},
     {"close", lua_wrap_errors<l_hud_close>},
+    {"pause", lua_wrap_errors<l_hud_pause>},
+    {"resume", lua_wrap_errors<l_hud_resume>},
     {NULL, NULL}
 };

@@ -545,6 +545,10 @@ void Hud::setPause(bool pause) {
         return;
     }
     this->pause = pause;
+
+    if (inventoryOpen) {
+        closeInventory();
+    }
     
     auto menu = gui->getMenu();
     if (pause) {
