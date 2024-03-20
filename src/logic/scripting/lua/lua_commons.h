@@ -2,7 +2,7 @@
 #define LOGIC_SCRIPTING_LUA_H_
 
 #ifdef __linux__ 
-#include <lua/lua.hpp>
+#include <luajit-2.1/lua.hpp>
 #undef luaconf_h
 #include <luaconf.h>
 #else
