@@ -50,12 +50,12 @@ sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-dev
 #### Arch-based distro:
 If you use X11
 ```sh
-sudo pacman -S glfw-x11 glew glm libpng libvorbis openal
+sudo pacman -S glfw-x11 glew glm libpng libvorbis openal lua
 ```
 
 If you use Wayland
 ```sh
-sudo pacman -S glfw-wayland glew glm libpng libvorbis openal
+sudo pacman -S glfw-wayland glew glm libpng libvorbis openal lua
 ```
 
 \+ install LuaJIT

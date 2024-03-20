@@ -1,7 +1,13 @@
 #ifndef LOGIC_SCRIPTING_LUA_H_
 #define LOGIC_SCRIPTING_LUA_H_
 
+#ifdef __linux__ 
+#include <lua/lua.hpp>
+#undef luaconf_h
+#include <luaconf.h>
+#else
 #include <lua.hpp>
+#endif
 #include <exception>
 
 namespace lua {
