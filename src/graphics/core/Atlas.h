@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
-#include "UVRegion.h"
+#include "../../maths/UVRegion.h"
 #include "../../typedefs.h"
 
 class ImageData;

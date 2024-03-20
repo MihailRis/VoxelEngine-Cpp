@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_CORE_BATCH3D_H_
 #define GRAPHICS_CORE_BATCH3D_H_
 
-#include "UVRegion.h"
+#include "../../maths/UVRegion.h"
 #include "../../typedefs.h"
 
 #include <memory>
