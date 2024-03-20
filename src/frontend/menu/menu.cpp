@@ -73,10 +73,10 @@ static void show_content_missing(
 
     panel->add(std::make_shared<Label>(langs::get(L"menu.missing-content")));
 
-    auto subpanel = std::make_shared<Panel>(glm::vec2(500, 100));
-    subpanel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
-    subpanel->setScrollable(true);
-    subpanel->setMaxLength(400);
+    auto subpanel = std::dynamic_pointer_cast<Panel>(guiutil::create(
+        "<panel size='500,100' color='00000080' scrollable='true' max-length='400'>"
+        "</panel>"
+    ));
     panel->add(subpanel);
 
     for (auto& entry : lut->getMissingContent()) {
@@ -234,23 +234,24 @@ void menus::open_world(std::string name, Engine* engine, bool confirmConvert) {
 }
 
 std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
-    auto panel = std::make_shared<Panel>(glm::vec2(390, 0), glm::vec4(5.0f));
-    panel->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.07f));
-    panel->setMaxLength(400);
-
+    auto panel = std::dynamic_pointer_cast<Panel>(guiutil::create(
+        "<panel size='370' padding='5' color='#FFFFFF11' max-length='400'>"
+        "</panel>"
+    ));
     auto paths = engine->getPaths();
 
     for (auto folder : paths->scanForWorlds()) {
         auto name = folder.filename().u8string();
         auto namews = util::str2wstr_utf8(name);
 
-        auto btn = std::make_shared<Container>(glm::vec2(390, 46));
-        btn->setColor(glm::vec4(0.06f, 0.12f, 0.18f, 0.7f));
-        btn->setHoverColor(glm::vec4(0.09f, 0.17f, 0.2f, 0.6f));
+        auto btn = std::dynamic_pointer_cast<Container>(guiutil::create(
+            "<container size='380,46' color='#0F1E2DB2' hover-color='#162B3399'>"
+                "<label pos='8,8'>"+name+"</label>"
+            "</container>"
+        ));
         btn->listenAction([=](GUI*) {
             menus::open_world(name, engine, false);
         });
-        btn->add(std::make_shared<Label>(namews), glm::vec2(8, 8));
 
         auto delbtn = guiutil::create(
             "<button color='#00000000' hover-color='#FFFFFF2B' padding='2,2,2,2'>"
@@ -269,6 +270,7 @@ std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
 
         panel->add(btn);
     }
+    panel->refresh();
     return panel;
 }
 
