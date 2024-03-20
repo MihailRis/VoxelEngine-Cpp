@@ -165,6 +165,12 @@ void Engine::mainloop() {
         } else {
             Window::swapInterval(1);
         }
+
+        while (!postRunnables.empty()) {
+            postRunnables.front()();
+            postRunnables.pop();
+        }
+
         Window::swapBuffers();
         Events::pollEvents();
     }
@@ -310,4 +316,8 @@ ResPaths* Engine::getResPaths() {
 
 std::shared_ptr<Screen> Engine::getScreen() {
     return screen;
+}
+
+void Engine::postRunnable(runnable callback) {
+    postRunnables.push(callback);
 }

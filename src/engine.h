@@ -1,18 +1,21 @@
 #ifndef SRC_ENGINE_H_
 #define SRC_ENGINE_H_
 
-#include <string>
-#include <memory>
-#include <vector>
-#include <stdexcept>
-#include <filesystem>
-#include "typedefs.h"
+#include "delegates.h"
 #include "settings.h"
+#include "typedefs.h"
 
 #include "assets/Assets.h"
 #include "content/Content.h"
 #include "content/ContentPack.h"
 #include "files/engine_paths.h"
+
+#include <filesystem>
+#include <memory>
+#include <queue>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 class Level;
 class Screen;
@@ -39,6 +42,7 @@ class Engine {
     std::vector<ContentPack> contentPacks;
     std::unique_ptr<Content> content = nullptr;
     std::unique_ptr<ResPaths> resPaths = nullptr;
+    std::queue<runnable> postRunnables;
 
     uint64_t frame = 0;
     double lastTime = 0.0;
@@ -106,6 +110,8 @@ public:
 
     /// @brief Get current screen
     std::shared_ptr<Screen> getScreen();
+
+    void postRunnable(runnable callback);
 };
 
 #endif // SRC_ENGINE_H_
