@@ -161,7 +161,7 @@ void Lighting::onBlockSet(int x, int y, int z, blockid_t id){
 		solverR->solve();
 		solverG->solve();
 		solverB->solve();
-		if (chunks->getLight(x,y+1,z, 3) == 0xF){
+		if (chunksStorage->getLight(x,y+1,z, 3) == 0xF){
 			for (int i = y; i >= 0; i--){
 				voxel* vox = chunksStorage->getVoxel(x,i,z);
 				if ((vox == nullptr || vox->id != 0) && block->skyLightPassing)

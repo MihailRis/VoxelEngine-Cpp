@@ -28,7 +28,7 @@ int l_is_solid_at(lua_State* L) {
     lua::luaint y = lua_tointeger(L, 2);
     lua::luaint z = lua_tointeger(L, 3);
 
-    lua_pushboolean(L, scripting::level->chunks->isSolidBlock(x, y, z));
+    lua_pushboolean(L, scripting::level->chunksStorage->isSolidBlock(x, y, z));
     return 1;
 }
 
@@ -212,7 +212,7 @@ int l_is_replaceable_at(lua_State* L) {
     int y = lua_tointeger(L, 2);
     int z = lua_tointeger(L, 3);
 
-    lua_pushboolean(L, scripting::level->chunks->isReplaceableBlock(x, y, z));
+    lua_pushboolean(L, scripting::level->chunksStorage->isReplaceableBlock(x, y, z));
     return 1;
 }
 
