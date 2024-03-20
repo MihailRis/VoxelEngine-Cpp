@@ -1,34 +1,29 @@
 #include "ChunksController.h"
 
-#include <limits.h>
 #include <memory>
-#include <iostream>
 
 #include "../content/Content.h"
-#include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/ChunksMatrix.h"
 #include "../voxels/ChunksStorage.h"
 #include "../voxels/WorldGenerator.h"
 #include "../world/WorldGenerators.h"
-#include "../graphics/Mesh.h"
 #include "../lighting/Lighting.h"
 #include "../files/WorldFiles.h"
 #include "../world/Level.h"
 #include "../world/World.h"
-#include "../maths/voxmaths.h"
 #include "../util/timeutil.h"
 
 const uint MAX_WORK_PER_FRAME = 64;
 const uint MIN_SURROUNDING = 9;
 
-ChunksController::ChunksController(Level* level, uint padding) 
+ChunksController::ChunksController(Level* level, ChunksMatrix* chunks, uint padding) 
     : level(level), 
-	  chunks(level->chunks.get()), 
+	  chunks(chunks), 
 	  chunksStorage(level->chunksStorage.get()), 
 	  lighting(level->lighting.get()), 
-	  padding(padding), 
-	  generator(WorldGenerators::createGenerator(level->getWorld()->getGenerator(), level->content)) {
+	  generator(WorldGenerators::createGenerator(level->getWorld()->getGenerator(), level->content)), 
+	  padding(padding) {
 }
 
 ChunksController::~ChunksController(){

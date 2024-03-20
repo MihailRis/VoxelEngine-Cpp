@@ -42,6 +42,9 @@ public:
     std::shared_ptr<Camera> camera, spCamera, tpCamera;
     std::shared_ptr<Camera> currentCamera;
     std::unique_ptr<Hitbox> hitbox;
+    std::unique_ptr<ChunksMatrix> chunksMatrix;
+    const EngineSettings& settings;
+    uint32_t radius = 0;
     bool flight = false;
     bool noclip = false;
     bool debug = false;
@@ -49,11 +52,12 @@ public:
 
     glm::vec2 cam = {};
 
-    Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv);
+    Player(Level* level, glm::vec3 position, float speed, std::shared_ptr<Inventory> inv, const EngineSettings& settings);
     ~Player();
 
     void teleport(glm::vec3 position);
     void updateInput(Level* level, PlayerInput& input, float delta);
+    void update(float delta) override;
 
     void attemptToFindSpawnpoint(Level* level);
 

@@ -36,10 +36,9 @@ class BlocksController {
     Clock randTickClock;
     Clock blocksTickClock;
     Clock worldTickClock;
-    uint padding;
     FastRandom random;
 public:
-    BlocksController(Level* level, uint padding);
+    BlocksController(Level* level);
 
     void updateSides(int x, int y, int z);
     void updateBlock(int x, int y, int z);

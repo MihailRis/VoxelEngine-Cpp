@@ -64,8 +64,8 @@ std::shared_ptr<UINode> create_debug_panel(
         bool culling = settings.graphics.frustumCulling;
         return L"frustum-culling: "+std::wstring(culling ? L"on" : L"off");
     }));
-    panel->add(create_label([=]() { return L"chunks: "+std::to_wstring(level->chunks->chunksCount); }));
-    panel->add(create_label([=]() { return L"visible chunks: "+std::to_wstring(level->chunks->visible); }));
+    panel->add(create_label([=]() { return L"chunks: "+std::to_wstring(player->chunksMatrix->chunksCount); }));
+    panel->add(create_label([=]() { return L"visible chunks: "+std::to_wstring(player->chunksMatrix->visible); }));
     panel->add(create_label([=]() { return L"chunks on local server: "+std::to_wstring(level->chunksStorage->loadedChunksCount()); }));
     panel->add(create_label([=](){
         auto* indices = level->content->getIndices();

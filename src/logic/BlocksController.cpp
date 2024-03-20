@@ -50,14 +50,13 @@ int Clock::getTickId() const {
     return tickId;
 }
 
-BlocksController::BlocksController(Level* level, uint padding) 
+BlocksController::BlocksController(Level* level)
     : level(level), 
 	  chunksStorage(level->chunksStorage.get()), 
 	  lighting(level->lighting.get()),
       randTickClock(20, 3),
       blocksTickClock(20, 1),
-      worldTickClock(20, 1),
-      padding(padding) {
+      worldTickClock(20, 1) {
 }
 
 void BlocksController::updateSides(int x, int y, int z) {

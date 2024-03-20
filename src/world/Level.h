@@ -28,7 +28,6 @@ public:
     std::unique_ptr<World> world;
     const Content* const content;
     std::vector<std::shared_ptr<Object>> objects;
-    std::unique_ptr<ChunksMatrix> chunks;
     std::unique_ptr<ChunksStorage> chunksStorage;
     std::unique_ptr<Inventories> inventories;
 

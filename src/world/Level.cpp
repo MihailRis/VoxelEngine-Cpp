@@ -19,11 +19,9 @@ Level::Level(World* world, const Content* content, EngineSettings& settings)
 	settings(settings)
 {
 	auto inv = std::make_shared<Inventory>(world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE);
-	auto player = spawnObject<Player>(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv);
+	auto player = spawnObject<Player>(this, glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv, settings);
 
-    uint matrixSize = (settings.chunks.loadDistance + settings.chunks.padding) * 2;
-    chunks = std::make_unique<ChunksMatrix>(matrixSize, matrixSize, 0, 0);
-	lighting = std::make_unique<Lighting>(content, chunks.get(), chunksStorage.get());
+	lighting = std::make_unique<Lighting>(content, player->chunksMatrix.get(), chunksStorage.get());
 
 	inventories = std::make_unique<Inventories>(*this);
 	inventories->store(player->getInventory());
@@ -32,14 +30,6 @@ Level::Level(World* world, const Content* content, EngineSettings& settings)
 Level::~Level(){
 	for(auto obj : objects) {
 		obj.reset();
-	}
-}
-
-void Level::loadMatrix(int32_t x, int32_t z, uint32_t radius) {
-	chunks->setCenter(x, z);
-    uint32_t diameter = std::min(radius*2, (settings.chunks.loadDistance + settings.chunks.padding) * 2);
-	if (chunks->w != diameter) {
-		chunks->resize(diameter, diameter);
 	}
 }
 
