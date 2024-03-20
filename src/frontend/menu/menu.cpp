@@ -13,6 +13,7 @@
 #include "../../graphics/ui/elements/containers.h"
 #include "../../graphics/ui/elements/controls.h"
 #include "../screens.h"
+#include "../UiDocument.h"
 
 #include "../../coders/png.h"
 #include "../../util/stringutil.h"
@@ -281,12 +282,7 @@ void create_main_menu_panel(Engine* engine) {
 
 void create_404_page(Engine* engine) {
     auto menu = engine->getGUI()->getMenu();
-    menu->addPage("404", guiutil::create(
-        "<panel size='400' padding='8' interval='8' color='0'>"
-            "<label context='menu'>@Page does not exists</label>"
-            "<button padding='10' onclick='menu:back()'>@Back</button>"
-        "</panel>"
-    ));
+    menu->addPage("404", UiDocument::readElement(engine->getResPaths()->find("layouts/404.xml")));
 }
 
 void menus::create_menus(Engine* engine) {
