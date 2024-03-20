@@ -27,7 +27,7 @@ std::shared_ptr<Button> guiutil::gotoButton(
 ) {
     text = langs::get(text, L"menu");
     return std::dynamic_pointer_cast<Button>(create(
-        "<button onclick='menu.page=\""+page+"\"' padding='10,10,10,10'>"+
+        "<button onclick='menu.page=\""+page+"\"' padding='10'>"+
             util::wstr2str_utf8(text)+
         "</button>"
     ));

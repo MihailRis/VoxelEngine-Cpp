@@ -36,7 +36,7 @@ bool Attribute::asBool() const {
 glm::vec2 Attribute::asVec2() const {
     size_t pos = text.find(',');
     if (pos == std::string::npos) {
-        throw std::runtime_error("invalid vec2 value "+escape_string(text));
+        return glm::vec2(util::parse_double(text, 0, text.length()));
     }
     return glm::vec2(
         util::parse_double(text, 0, pos),
@@ -48,7 +48,7 @@ glm::vec2 Attribute::asVec2() const {
 glm::vec3 Attribute::asVec3() const {
     size_t pos1 = text.find(',');
     if (pos1 == std::string::npos) {
-        throw std::runtime_error("invalid vec3 value "+escape_string(text));
+        return glm::vec3(util::parse_double(text, 0, text.length()));
     }
     size_t pos2 = text.find(',', pos1+1);
     if (pos2 == std::string::npos) {
@@ -65,7 +65,7 @@ glm::vec3 Attribute::asVec3() const {
 glm::vec4 Attribute::asVec4() const {
     size_t pos1 = text.find(',');
     if (pos1 == std::string::npos) {
-        throw std::runtime_error("invalid vec4 value "+escape_string(text));
+        return glm::vec4(util::parse_double(text, 0, text.length()));
     }
     size_t pos2 = text.find(',', pos1+1);
     if (pos2 == std::string::npos) {
@@ -99,7 +99,7 @@ glm::vec4 Attribute::asColor() const {
         }
         return glm::vec4(r / 255.f, g / 255.f, b / 255.f, a / 255.f);
     } else {
-        throw std::runtime_error("hex colors are only supported");
+        return asVec4() / 255.f;
     }
 }
 
