@@ -281,9 +281,12 @@ void create_main_menu_panel(Engine* engine) {
 
 void create_404_page(Engine* engine) {
     auto menu = engine->getGUI()->getMenu();
-    auto panel = menus::create_page(engine, "404", 400, 0.0f, 8);
-    panel->add(guiutil::create("<label context='menu'>@Page does not exists</label>"));
-    panel->add(guiutil::backButton(menu));
+    menu->addPage("404", guiutil::create(
+        "<panel size='400' padding='8' interval='8' color='0'>"
+            "<label context='menu'>@Page does not exists</label>"
+            "<button padding='10' onclick='menu:back()'>@Back</button>"
+        "</panel>"
+    ));
 }
 
 void menus::create_menus(Engine* engine) {

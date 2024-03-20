@@ -13,11 +13,9 @@
 using namespace gui;
 
 std::shared_ptr<Button> guiutil::backButton(std::shared_ptr<PagesControl> menu) {
-    return std::make_shared<Button>(
-        langs::get(L"Back"), glm::vec4(10.f), [=](GUI*) {
-            menu->back();
-        }
-    );
+    return std::dynamic_pointer_cast<Button>(create(
+        "<button padding='10' onclick='menu:back()'>@Back</button>"
+    ));
 }
 
 std::shared_ptr<Button> guiutil::gotoButton(
