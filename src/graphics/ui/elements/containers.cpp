@@ -285,6 +285,10 @@ Page& PagesControl::getCurrent() {
     return current;
 }
 
+const std::string& PagesControl::getCurrentName() const {
+    return curname;
+}
+
 void PagesControl::clearHistory() {
     pageStack = std::stack<std::string>();
 }

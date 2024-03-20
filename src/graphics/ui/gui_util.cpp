@@ -7,6 +7,7 @@
 
 #include "../../logic/scripting/scripting.h"
 #include "../../frontend/locale/langs.h"
+#include "../../util/stringutil.h"
 #include "../../delegates.h"
 
 using namespace gui;
@@ -25,13 +26,11 @@ std::shared_ptr<Button> guiutil::gotoButton(
     std::shared_ptr<PagesControl> menu
 ) {
     text = langs::get(text, L"menu");
-    return std::make_shared<Button>(text, glm::vec4(10.f), [=](GUI* gui) {
-        if (menu->has(page)) {
-            menu->setPage(page);
-        } else {
-            menu->setPage("404");
-        }
-    });
+    return std::dynamic_pointer_cast<Button>(create(
+        "<button onclick='menu.page=\""+page+"\"' padding='10,10,10,10'>"+
+            util::wstr2str_utf8(text)+
+        "</button>"
+    ));
 }
 
 std::shared_ptr<gui::UINode> guiutil::create(const std::string& source) {

@@ -1,5 +1,40 @@
 #include "engine.h"
 
+#define GLEW_STATIC
+
+#include "assets/Assets.h"
+#include "assets/AssetsLoader.h"
+#include "audio/audio.h"
+#include "coders/GLSLExtension.h"
+#include "coders/json.h"
+#include "coders/png.h"
+#include "content/Content.h"
+#include "content/ContentLoader.h"
+#include "content/ContentPack.h"
+#include "core_defs.h"
+#include "files/engine_paths.h"
+#include "files/files.h"
+#include "frontend/locale/langs.h"
+#include "frontend/menu/menu.h"
+#include "frontend/screens.h"
+#include "frontend/UiDocument.h"
+#include "graphics/core/Batch2D.h"
+#include "graphics/core/GfxContext.h"
+#include "graphics/core/ImageData.h"
+#include "graphics/core/Shader.h"
+#include "graphics/ui/GUI.h"
+#include "graphics/ui/elements/UINode.h"
+#include "graphics/ui/elements/containers.h"
+#include "logic/scripting/scripting.h"
+#include "util/platform.h"
+#include "voxels/DefaultWorldGenerator.h"
+#include "voxels/FlatWorldGenerator.h"
+#include "window/Camera.h"
+#include "window/Events.h"
+#include "window/input.h"
+#include "window/Window.h"
+#include "world/WorldGenerators.h"
+
 #include <memory>
 #include <iostream>
 #include <assert.h>
@@ -8,40 +43,6 @@
 #include <filesystem>
 #include <unordered_set>
 #include <functional>
-#define GLEW_STATIC
-
-#include "audio/audio.h"
-#include "assets/Assets.h"
-#include "assets/AssetsLoader.h"
-#include "world/WorldGenerators.h"
-#include "voxels/DefaultWorldGenerator.h"
-#include "voxels/FlatWorldGenerator.h"
-#include "window/Window.h"
-#include "window/Events.h"
-#include "window/Camera.h"
-#include "window/input.h"
-#include "graphics/core/Batch2D.h"
-#include "graphics/core/GfxContext.h"
-#include "graphics/core/Shader.h"
-#include "graphics/core/ImageData.h"
-#include "graphics/ui/GUI.h"
-#include "frontend/screens.h"
-#include "frontend/menu/menu.h"
-#include "util/platform.h"
-
-#include "coders/json.h"
-#include "coders/png.h"
-#include "coders/GLSLExtension.h"
-#include "files/files.h"
-#include "files/engine_paths.h"
-
-#include "content/Content.h"
-#include "content/ContentPack.h"
-#include "content/ContentLoader.h"
-#include "frontend/locale/langs.h"
-#include "logic/scripting/scripting.h"
-
-#include "core_defs.h"
 
 namespace fs = std::filesystem;
 
@@ -63,8 +64,6 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     audio::create_channel("ui");
 
     auto resdir = paths->getResources();
-    scripting::initialize(this);
-
     std::cout << "-- loading assets" << std::endl;
     std::vector<fs::path> roots {resdir};
 
@@ -92,6 +91,18 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     }
     setLanguage(settings.ui.language);
     addWorldGenerators();
+    onAssetsLoaded();
+    
+    scripting::initialize(this);
+}
+
+void Engine::onAssetsLoaded() {
+    assets->store(new UiDocument(
+        "core:root", 
+        uidocscript {}, 
+        std::dynamic_pointer_cast<gui::UINode>(gui->getContainer()), 
+        nullptr
+    ), "core:root");
 }
 
 void Engine::updateTimers() {
@@ -236,6 +247,7 @@ void Engine::loadContent() {
         }
     }
     assets->extend(*new_assets.get());
+    onAssetsLoaded();
 }
 
 void Engine::loadWorldContent(const fs::path& folder) {

@@ -22,6 +22,7 @@ GUI::GUI() {
     uicamera->flipped = true;
 
     menu = std::make_shared<PagesControl>();
+    menu->setId("menu");
     container->add(menu);
     container->setScrollable(false);
 }

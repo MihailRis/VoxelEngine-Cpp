@@ -107,6 +107,7 @@ namespace gui {
         void reset();
     
         Page& getCurrent();
+        const std::string& getCurrentName() const;
     };
 }
 #endif // GRAPHICS_UI_ELEMENTS_CONTAINERS_H_

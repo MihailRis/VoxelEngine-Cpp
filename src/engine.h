@@ -56,6 +56,8 @@ public:
     /// Automatically sets MenuScreen
     void mainloop();
 
+    /// @brief Called after assets loading when all engine systems are initialized
+    void onAssetsLoaded();
     
     /// @brief Set screen (scene).
     /// nullptr may be used to delete previous screen before creating new one,

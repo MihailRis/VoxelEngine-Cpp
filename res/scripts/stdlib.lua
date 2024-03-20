@@ -180,6 +180,10 @@ function Document.new(docname)
     })
 end
 
+_GUI_ROOT = Document.new("core:root")
+_MENU = _GUI_ROOT.menu
+menu = _MENU
+
 -- Deprecated functions
 block_index = block.index
 block_name = block.name
