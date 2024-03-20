@@ -39,8 +39,6 @@ public:
     Level(World* world, const Content* content, EngineSettings& settings);
     ~Level();
 
-    void loadMatrix(int32_t x, int32_t z, uint32_t radius);
-    
     World* getWorld();
 
     /// Spawns object of class T and returns pointer to it.
