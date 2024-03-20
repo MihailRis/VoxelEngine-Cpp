@@ -17,7 +17,6 @@ private:
     Level* level;
     ChunksMatrix* chunks;
     ChunksStorage* chunksStorage;
-    Lighting* lighting;
     std::unique_ptr<WorldGenerator> generator;
 
     /// @brief Process one chunk: load it or calculate lights for it
