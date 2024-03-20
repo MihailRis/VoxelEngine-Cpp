@@ -99,6 +99,17 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
             element->attr("gravity").getText()
         ));
     }
+
+    if (element->has("onclick")) {
+        auto callback = scripting::create_runnable(
+            reader.getEnvironment().getId(),
+            element->attr("onclick").getText(),
+            reader.getFilename()
+        );
+        node.listenAction([callback](GUI*) {
+            callback();
+        });
+    }
 }
 
 
@@ -223,17 +234,6 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement e
         std::wstring text = readAndProcessInnerText(element, reader.getContext());
         button = std::make_shared<Button>(text, glm::vec4(0.0f), nullptr);
         _readPanel(reader, element, *button, true);
-    }
-
-    if (element->has("onclick")) {
-        auto callback = scripting::create_runnable(
-            reader.getEnvironment().getId(),
-            element->attr("onclick").getText(),
-            reader.getFilename()
-        );
-        button->listenAction([callback](GUI*) {
-            callback();
-        });
     }
     if (element->has("text-align")) {
         button->setTextAlign(align_from_string(element->attr("text-align").getText(), button->getTextAlign()));
