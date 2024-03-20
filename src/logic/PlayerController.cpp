@@ -11,7 +11,6 @@
 #include "../content/Content.h"
 #include "../voxels/Block.h"
 #include "../voxels/voxel.h"
-#include "../voxels/Chunks.h"
 #include "../voxels/ChunksStorage.h"
 #include "../window/Camera.h"
 #include "../window/Events.h"

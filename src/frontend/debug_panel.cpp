@@ -9,7 +9,8 @@
 #include "../physics/Hitbox.h"
 #include "../world/Level.h"
 #include "../world/World.h"
-#include "../voxels/Chunks.h"
+#include "../voxels/ChunksMatrix.h"
+#include "../voxels/ChunksStorage.h"
 #include "../voxels/Block.h"
 #include "../util/stringutil.h"
 #include "../delegates.h"
@@ -30,7 +31,7 @@ std::shared_ptr<UINode> create_debug_panel(
     Level* level, 
     Player* player
 ) {
-    auto panel = std::make_shared<Panel>(glm::vec2(250, 200), glm::vec4(5.0f), 2.0f);
+    auto panel = std::make_shared<Panel>(glm::vec2(350, 200), glm::vec4(5.0f), 2.0f);
     panel->setPos(glm::vec2(10, 10));
 
     static int fps = 0;
@@ -63,10 +64,9 @@ std::shared_ptr<UINode> create_debug_panel(
         bool culling = settings.graphics.frustumCulling;
         return L"frustum-culling: "+std::wstring(culling ? L"on" : L"off");
     }));
-    panel->add(create_label([=]() {
-        return L"chunks: "+std::to_wstring(level->chunks->chunksCount)+
-               L" visible: "+std::to_wstring(level->chunks->visible);
-    }));
+    panel->add(create_label([=]() { return L"chunks: "+std::to_wstring(level->chunks->chunksCount); }));
+    panel->add(create_label([=]() { return L"visible chunks: "+std::to_wstring(level->chunks->visible); }));
+    panel->add(create_label([=]() { return L"chunks on local server: "+std::to_wstring(level->chunksStorage->loadedChunksCount()); }));
     panel->add(create_label([=](){
         auto* indices = level->content->getIndices();
         auto def = indices->getBlockDef(player->selectedVoxel.id);

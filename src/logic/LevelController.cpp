@@ -1,6 +1,7 @@
 #include "LevelController.h"
 #include "../world/Level.h"
 #include "../world/World.h"
+#include "../voxels/ChunksStorage.h"
 #include "../physics/Hitbox.h"
 
 #include "scripting/scripting.h"
@@ -20,6 +21,7 @@ LevelController::LevelController(EngineSettings& settings, Level* level)
 void LevelController::update(float delta, bool input, bool pause) {
     player->update(delta, input, pause);
 	glm::vec3 position = player->getPlayer()->hitbox->position;
+    level->chunksStorage->unloadUnused();
     level->loadMatrix(position.x, position.z, settings.chunks.loadDistance + settings.chunks.padding * 2);
     chunks->update(settings.chunks.loadSpeed);
 

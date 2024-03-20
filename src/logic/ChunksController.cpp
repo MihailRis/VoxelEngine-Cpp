@@ -7,7 +7,7 @@
 #include "../content/Content.h"
 #include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
-#include "../voxels/Chunks.h"
+#include "../voxels/ChunksMatrix.h"
 #include "../voxels/ChunksStorage.h"
 #include "../voxels/WorldGenerator.h"
 #include "../world/WorldGenerators.h"

@@ -18,7 +18,8 @@
 
 ChunksStorage::ChunksStorage(Level* level)
       : level(level),
-        contentIds(level->content->getIndices()) {
+        contentIds(level->content->getIndices()),
+        events(std::make_unique<LevelEvents>()) {
 }
 
 void ChunksStorage::store(std::shared_ptr<Chunk> chunk) {
@@ -148,16 +149,16 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 
 void ChunksStorage::save(){
 	for (auto [_, chunk] : chunksMap) {
-        // level->world->wfile->put(chunk);
+        level->world->wfile->put(chunk.get());
 	}
 }
 
 void ChunksStorage::unloadUnused() {
-	// for (auto it = begin(); it != end();) {
-		// if (it->second->uses == 0) {
-            // level->world->wfile->put(it->second);
-			// level->events->trigger(EVT_CHUNK_HIDDEN, *it->second);
-            // it = chunksMap.erase(it);
-		// } else it++;
-	// }
+	for (auto it = begin(); it != end();) {
+		if (it->second->uses == 0) {
+            level->world->wfile->put(it->second.get());
+			events->trigger(EVT_CHUNK_HIDDEN, it->second.get());
+            it = chunksMap.erase(it);
+		} else it++;
+	}
 } 

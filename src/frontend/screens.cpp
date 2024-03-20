@@ -25,7 +25,8 @@
 #include "../logic/LevelController.h"
 #include "../logic/scripting/scripting.h"
 #include "../logic/scripting/scripting_frontend.h"
-#include "../voxels/Chunks.h"
+#include "../voxels/ChunksMatrix.h"
+#include "../voxels/ChunksStorage.h"
 #include "../voxels/Chunk.h"
 #include "../engine.h"
 #include "../util/stringutil.h"
@@ -137,7 +138,9 @@ void LevelScreen::updateHotkeys() {
         controller->getPlayer()->debug = !controller->getPlayer()->debug;
     }
     if (Events::jpressed(keycode::F5)) {
-        controller->getLevel()->chunks->saveAndClear();
+        auto level = controller->getLevel();
+        level->chunks->clear();
+        level->chunksStorage->unloadUnused();
     }
 }
 
@@ -168,7 +171,8 @@ void LevelScreen::update(float delta) {
     EngineSettings& settings = engine->getSettings();
     controller->getPlayer()->camera->setFov(glm::radians(settings.camera.fov));
     if (settings.graphics.backlight != backlight) {
-        controller->getLevel()->chunks->saveAndClear();
+        controller->getLevel()->chunks->clear();
+        controller->getLevel()->chunksStorage->unloadUnused();
         backlight = settings.graphics.backlight;
     }
 

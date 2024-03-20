@@ -3,7 +3,6 @@
 #include "../voxels/voxel.h"
 #include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
-#include "../voxels/Chunks.h"
 #include "../voxels/ChunksStorage.h"
 #include "../world/Level.h"
 #include "../world/World.h"
@@ -53,7 +52,6 @@ int Clock::getTickId() const {
 
 BlocksController::BlocksController(Level* level, uint padding) 
     : level(level), 
-	  chunks(level->chunks.get()), 
 	  chunksStorage(level->chunksStorage.get()), 
 	  lighting(level->lighting.get()),
       randTickClock(20, 3),
@@ -121,37 +119,33 @@ void BlocksController::onBlocksTick(int tickid, int parts) {
 }
 
 void BlocksController::randomTick(int tickid, int parts) {
-    const int w = chunks->w;
-    const int d = chunks->d;
     int segments = 4;
     int segheight = CHUNK_H / segments;
     auto indices = level->content->getIndices();
     
-    for (uint z = padding; z < d-padding; z++){
-        for (uint x = padding; x < w-padding; x++){
-            int index = z * w + x;
-            if ((index + tickid) % parts != 0)
-                continue;
-            auto chunk = chunks->chunks[index];
-            if (chunk == nullptr || !chunk->isLighted())
-                continue;
-            for (int s = 0; s < segments; s++) {
-                for (int i = 0; i < 4; i++) {
-                    int bx = random.rand() % CHUNK_W;
-                    int by = random.rand() % segheight + s * segheight;
-                    int bz = random.rand() % CHUNK_D;
-                    const voxel& vox = chunk->voxels[(by * CHUNK_D + bz) * CHUNK_W + bx];
-                    Block* block = indices->getBlockDef(vox.id);
-                    if (block->rt.funcsset.randupdate) {
-                        scripting::random_update_block(
-                            block, 
-                            chunk->x * CHUNK_W + bx, by, 
-                            chunk->z * CHUNK_D + bz);
-                    }
+    uint32_t index = 0;
+    for (auto [_, chunk] : *chunksStorage) {
+        if ((index + tickid) % parts != 0)
+            continue;
+        index++;
+        if (chunk == nullptr || !chunk->isLighted())
+            continue;
+        for (int s = 0; s < segments; s++) {
+            for (int i = 0; i < 4; i++) {
+                int bx = random.rand() % CHUNK_W;
+                int by = random.rand() % segheight + s * segheight;
+                int bz = random.rand() % CHUNK_D;
+                const voxel& vox = chunk->voxels[(by * CHUNK_D + bz) * CHUNK_W + bx];
+                Block* block = indices->getBlockDef(vox.id);
+                if (block->rt.funcsset.randupdate) {
+                    scripting::random_update_block(
+                        block, 
+                        chunk->x * CHUNK_W + bx, by, 
+                        chunk->z * CHUNK_D + bz);
                 }
             }
         }
-	}
+    }
 }
 
 int64_t BlocksController::createBlockInventory(int x, int y, int z) {

@@ -5,15 +5,14 @@
 #include "Lightmap.h"
 #include "../content/Content.h"
 #include "../voxels/ChunksStorage.h"
-#include "../voxels/Chunks.h"
+#include "../voxels/ChunksMatrix.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/voxel.h"
 #include "../voxels/Block.h"
 #include "../constants.h"
 #include "../typedefs.h"
-#include "../util/timeutil.h"
 
-Lighting::Lighting(const Content* content, Chunks* chunks, ChunksStorage* chunksStorage) 
+Lighting::Lighting(const Content* content, ChunksMatrix* chunks, ChunksStorage* chunksStorage) 
 	     : content(content), chunks(chunks), chunksStorage(chunksStorage) {
 	auto indices = content->getIndices();
 	solverR = std::make_unique<LightSolver>(indices, chunksStorage, 0);
