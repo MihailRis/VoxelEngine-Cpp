@@ -23,7 +23,8 @@ class ChunksStorage {
 	const ContentIndices* const contentIds;
 	ChunkMap chunksMap;
 public:
-	LevelEvents* events;
+    /// @brief Events here are global to all chunks on the server
+    std::unique_ptr<LevelEvents> events;
 
 	ChunksStorage(Level* level);
 	~ChunksStorage() = default;
@@ -37,6 +38,7 @@ public:
 
     inline ChunkMap::iterator begin() { return chunksMap.begin(); }
     inline ChunkMap::iterator end() { return chunksMap.end(); }
+    inline size_t loadedChunksCount() const { return chunksMap.size(); }
 
 	Chunk* getChunk(int32_t x, int32_t z) const;
     Chunk* getChunkByVoxel(int32_t x, int32_t y, int32_t z) const;

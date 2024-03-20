@@ -15,7 +15,7 @@ class Hitbox;
 class Inventory;
 class ContentLUT;
 class PhysicsSolver;
-class Chunks;
+class ChunksMatrix;
 class Level;
 
 struct PlayerInput {

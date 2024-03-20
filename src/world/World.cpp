@@ -10,10 +10,8 @@
 #include "../world/WorldGenerators.h"
 #include "../content/ContentLUT.h"
 #include "../voxels/Chunk.h"
-#include "../voxels/Chunks.h"
 #include "../voxels/ChunksStorage.h"
 #include "../objects/Player.h"
-#include "../window/Camera.h"
 #include "../items/Inventories.h"
 
 world_load_error::world_load_error(std::string message) 
@@ -50,11 +48,8 @@ void World::updateTimers(float delta) {
 void World::write(Level* level) {
     const Content* content = level->content;
 
-    Chunks* chunks = level->chunks.get();
-
-    for (size_t i = 0; i < chunks->volume; i++) {
-        auto chunk = chunks->chunks[i];
-        if (chunk == nullptr || !chunk->isLighted())
+    for (auto [_, chunk] : *level->chunksStorage) {
+        if (!chunk->isLighted())
             continue;
         bool lightsUnsaved = !chunk->isLoadedLights() && 
                               settings.debug.doWriteLights;

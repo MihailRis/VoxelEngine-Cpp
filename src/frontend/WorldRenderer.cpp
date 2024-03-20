@@ -1,9 +1,7 @@
 #include "WorldRenderer.h"
 
-#include <iostream>
 #include <GL/glew.h>
 #include <memory>
-#include <assert.h>
 
 #include "../window/Window.h"
 #include "../window/Camera.h"
@@ -15,7 +13,7 @@
 #include "../graphics/Texture.h"
 #include "../graphics/LineBatch.h"
 #include "../graphics/PostProcessing.h"
-#include "../voxels/Chunks.h"
+#include "../voxels/ChunksMatrix.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/Block.h"
 #include "../world/World.h"
@@ -51,7 +49,7 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* pl
     batch3d = std::make_unique<Batch3D>(4096);
 
     auto& settings = engine->getSettings();
-    level->events->listen(EVT_CHUNK_HIDDEN, 
+    level->chunks->events->listen(EVT_CHUNK_HIDDEN, 
         [this](lvl_event_type type, Chunk* chunk) {
             renderer->unload(chunk);
         }
@@ -108,7 +106,7 @@ bool WorldRenderer::drawChunk(
     return true;
 }
 
-void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
+void WorldRenderer::drawChunks(ChunksMatrix* chunks, Camera* camera, Shader* shader) {
     renderer->update();
     std::vector<size_t> indices;
     for (size_t i = 0; i < chunks->volume; i++){

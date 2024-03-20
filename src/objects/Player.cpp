@@ -3,9 +3,7 @@
 #include "../physics/Hitbox.h"
 #include "../physics/PhysicsSolver.h"
 #include "../voxels/ChunksStorage.h"
-#include "../voxels/Chunks.h"
 #include "../world/Level.h"
-#include "../window/Events.h"
 #include "../window/Camera.h"
 #include "../items/Inventory.h"
 

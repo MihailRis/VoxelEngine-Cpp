@@ -32,6 +32,7 @@ public:
 	voxel voxels[CHUNK_VOL];
 	Lightmap lightmap;
 	int flags = 0;
+    uint32_t uses = 0;
 
     /* Block inventories map where key is index of block in voxels array */
     chunk_inventories_map inventories;

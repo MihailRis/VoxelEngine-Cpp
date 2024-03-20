@@ -15,7 +15,6 @@
 
 class Content;
 class WorldFiles;
-class Chunks;
 class Level;
 class Player;
 class ContentLUT;

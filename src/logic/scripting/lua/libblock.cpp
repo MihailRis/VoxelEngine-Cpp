@@ -4,7 +4,6 @@
 #include "../scripting.h"
 #include "../../../world/Level.h"
 #include "../../../voxels/ChunksStorage.h"
-#include "../../../voxels/Chunks.h"
 #include "../../../voxels/Chunk.h"
 #include "../../../voxels/Block.h"
 #include "../../../voxels/voxel.h"

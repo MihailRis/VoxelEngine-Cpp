@@ -6,7 +6,7 @@
 
 class Level;
 class Chunk;
-class Chunks;
+class ChunksMatrix;
 class ChunksStorage;
 class Lighting;
 class WorldGenerator;
@@ -15,7 +15,7 @@ class WorldGenerator;
 class ChunksController {
 private:
     Level* level;
-    Chunks* chunks;
+    ChunksMatrix* chunks;
     ChunksStorage* chunksStorage;
     Lighting* lighting;
     uint padding;

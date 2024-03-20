@@ -24,7 +24,6 @@
 #include "../window/Events.h"
 #include "../window/input.h"
 #include "../voxels/ChunksStorage.h"
-#include "../voxels/Chunks.h"
 #include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
 #include "../world/World.h"

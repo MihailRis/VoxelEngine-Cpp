@@ -7,7 +7,6 @@
 class Player;
 class Block;
 class Level;
-class Chunks;
 class ChunksStorage;
 class Lighting;
 
@@ -32,7 +31,6 @@ public:
 /* BlocksController manages block updates and block data (aka inventories) */
 class BlocksController {
     Level* level;
-	Chunks* chunks;
 	ChunksStorage* chunksStorage;
 	Lighting* lighting;
     Clock randTickClock;

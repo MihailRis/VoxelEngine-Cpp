@@ -10,7 +10,6 @@
 #include "../../../frontend/hud.h"
 #include "../../../world/Level.h"
 #include "../../../voxels/ChunksStorage.h"
-#include "../../../voxels/Chunks.h"
 #include "../../../voxels/voxel.h"
 #include "../../../voxels/Block.h"
 #include "../../../content/Content.h"
