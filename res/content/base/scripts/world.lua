@@ -1,7 +1,7 @@
 local stream_id
 
 function on_world_open()
-	stream_id = audio.play_stream_2d("sounds/musics/Subwoofer.ogg", 1, 1, "music", true)
+	stream_id = audio.play_stream_2d("sounds/musics/", 1, 1, "music", true)
 	print("All ok")
 end
 
