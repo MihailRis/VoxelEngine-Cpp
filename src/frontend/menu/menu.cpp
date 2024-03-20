@@ -42,6 +42,13 @@ namespace menus {
     extern std::string generatorID;
 }
 
+static void load_page(Engine* engine, const std::string& name) {
+    auto menu = engine->getGUI()->getMenu();
+    auto file = engine->getResPaths()->find("layouts/pages/"+name+".xml");
+    auto node = UiDocument::readElement(file);
+    menu->addPage(name, node);
+}
+
 void menus::create_version_label(Engine* engine) {
     auto gui = engine->getGUI();
     auto vlabel = std::make_shared<gui::Label>(
@@ -237,7 +244,7 @@ std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
         auto name = folder.filename().u8string();
         auto namews = util::str2wstr_utf8(name);
 
-        auto btn = std::make_shared<RichButton>(glm::vec2(390, 46));
+        auto btn = std::make_shared<Container>(glm::vec2(390, 46));
         btn->setColor(glm::vec4(0.06f, 0.12f, 0.18f, 0.7f));
         btn->setHoverColor(glm::vec4(0.09f, 0.17f, 0.2f, 0.6f));
         btn->listenAction([=](GUI*) {
@@ -245,11 +252,11 @@ std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
         });
         btn->add(std::make_shared<Label>(namews), glm::vec2(8, 8));
 
-        auto delbtn = std::dynamic_pointer_cast<Button>(guiutil::create(
+        auto delbtn = guiutil::create(
             "<button color='#00000000' hover-color='#FFFFFF2B' padding='2,2,2,2'>"
             "    <image src='gui/delete_icon' size='32,32' color='#FFFFFF80'/>"
             "</button>"
-        ));
+        );
         delbtn->listenAction([=](GUI* gui) {
             guiutil::confirm(gui, langs::get(L"delete-confirm", L"world")+
             L" ("+util::str2wstr_utf8(folder.u8string())+L")", [=]() {
@@ -280,11 +287,6 @@ void create_main_menu_panel(Engine* engine) {
     ));
 }
 
-void create_404_page(Engine* engine) {
-    auto menu = engine->getGUI()->getMenu();
-    menu->addPage("404", UiDocument::readElement(engine->getResPaths()->find("layouts/404.xml")));
-}
-
 void menus::create_menus(Engine* engine) {
     menus::generatorID = WorldGenerators::getDefaultGeneratorID();
     create_new_world_panel(engine);
@@ -292,12 +294,12 @@ void menus::create_menus(Engine* engine) {
     create_languages_panel(engine);
     create_main_menu_panel(engine);
     create_world_generators_panel(engine);
-    create_404_page(engine);
+    load_page(engine, "404");
 }
 
 void menus::refresh_menus(Engine* engine) {
     create_main_menu_panel(engine);
     create_new_world_panel(engine);
     create_world_generators_panel(engine);
-    create_404_page(engine);
+    load_page(engine, "404");
 }

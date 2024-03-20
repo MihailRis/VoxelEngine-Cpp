@@ -69,7 +69,7 @@ void menus::create_world_generators_panel(Engine* engine) {
     std::sort(generatorsIDs.begin(), generatorsIDs.end());
     for (std::string& id : generatorsIDs) {
         const std::string& fullName = translate_generator_id(id);
-        auto button = std::make_shared<RichButton>(glm::vec2(80, 30));
+        auto button = std::make_shared<Container>(glm::vec2(80, 30));
 
         auto idlabel = std::make_shared<Label>("["+id+"]");
         idlabel->setColor(glm::vec4(1, 1, 1, 0.5f));

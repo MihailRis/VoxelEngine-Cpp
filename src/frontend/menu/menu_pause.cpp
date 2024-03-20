@@ -31,7 +31,7 @@ std::shared_ptr<Panel> menus::create_packs_panel(
     panel->setScrollable(true);
 
     for (auto& pack : packs) {
-        auto packpanel = std::make_shared<RichButton>(glm::vec2(540, 80));
+        auto packpanel = std::make_shared<Container>(glm::vec2(540, 80));
         packpanel->setColor(glm::vec4(0.06f, 0.12f, 0.18f, 0.7f));
         if (callback) {
             packpanel->listenAction([=](GUI*) {
@@ -77,11 +77,11 @@ std::shared_ptr<Panel> menus::create_packs_panel(
         packpanel->add(std::make_shared<Image>(icon, glm::vec2(64)), glm::vec2(8));
 
         if (remover && pack.id != "base") {
-            auto rembtn = std::dynamic_pointer_cast<Button>(guiutil::create(
+            auto rembtn = guiutil::create(
                 "<button color='#00000000' hover-color='#FFFFFF2B'>"
                 "    <image src='gui/cross' size='32,32'/>"
                 "</button>"
-            ));
+            );
             rembtn->listenAction([=](GUI* gui) {
                 remover(pack);
             });

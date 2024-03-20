@@ -55,6 +55,8 @@ namespace gui {
         glm::vec4 color {1.0f};
         /// @brief element color when mouse is over it
         glm::vec4 hoverColor {1.0f};
+        /// @brief element color when clicked
+        glm::vec4 pressedColor {1.0f};
         /// @brief element margin (only supported for Panel sub-nodes)
         glm::vec4 margin {1.0f};
         /// @brief is element visible
@@ -77,6 +79,8 @@ namespace gui {
         UINode* parent = nullptr;
         /// @brief position supplier for the element (called on parent element size update)
         vec2supplier positionfunc = nullptr;
+        /// @brief 'onclick' callbacks
+        std::vector<onaction> actions;
 
         UINode(glm::vec2 size);
     public:
@@ -110,6 +114,9 @@ namespace gui {
         virtual void setHoverColor(glm::vec4 newColor);
         glm::vec4 getHoverColor() const;
 
+        virtual glm::vec4 getPressedColor() const;
+        virtual void setPressedColor(glm::vec4 color);
+
         virtual void setMargin(glm::vec4 margin);
         glm::vec4 getMargin() const;
 
@@ -119,6 +126,8 @@ namespace gui {
         
         /// @brief Get element z-index
         int getZIndex() const;
+
+        virtual UINode* listenAction(onaction action);
 
         virtual void onFocus(GUI*) {focused = true;}
         virtual void click(GUI*, int x, int y);

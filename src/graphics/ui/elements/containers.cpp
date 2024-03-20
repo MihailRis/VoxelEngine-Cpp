@@ -97,7 +97,8 @@ void Container::draw(const GfxContext* pctx, Assets* assets) {
 }
 
 void Container::drawBackground(const GfxContext* pctx, Assets* assets) {
-    if (color.a <= 0.0f)
+    glm::vec4 color = isPressed() ? pressedColor : (hover ? hoverColor : this->color);
+    if (color.a <= 0.001f)
         return;
     glm::vec2 pos = calcPos();
 

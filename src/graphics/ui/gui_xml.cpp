@@ -54,11 +54,16 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
     if (element->has("color")) {
         glm::vec4 color = element->attr("color").asColor();
         glm::vec4 hoverColor = color;
+        glm::vec4 pressedColor = color;
         if (element->has("hover-color")) {
             hoverColor = node.getHoverColor();
         }
+        if (element->has("pressed-color")) {
+            pressedColor = node.getPressedColor();
+        }
         node.setColor(color);
         node.setHoverColor(hoverColor);
+        node.setPressedColor(pressedColor);
     }
     if (element->has("margin")) {
         node.setMargin(element->attr("margin").asVec4());
@@ -82,6 +87,9 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
     }
     if (element->has("hover-color")) {
         node.setHoverColor(element->attr("hover-color").asColor());
+    }
+    if (element->has("pressed-color")) {
+        node.setPressedColor(element->attr("pressed-color").asColor());
     }
     std::string alignName = element->attr("align", "").getText();
     node.setAlign(align_from_string(alignName, node.getAlign()));
@@ -229,9 +237,6 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement e
     }
     if (element->has("text-align")) {
         button->setTextAlign(align_from_string(element->attr("text-align").getText(), button->getTextAlign()));
-    }
-    if (element->has("pressed-color")) {
-        button->setPressedColor(element->attr("pressed-color").asColor());
     }
     return button;
 }

@@ -104,8 +104,6 @@ namespace gui {
 
     class Button : public Panel {
     protected:
-        glm::vec4 pressedColor {0.0f, 0.0f, 0.0f, 0.95f};
-        std::vector<onaction> actions;
         std::shared_ptr<Label> label = nullptr;
     public:
         Button(std::shared_ptr<UINode> content, 
@@ -118,36 +116,17 @@ namespace gui {
 
         virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
 
-        virtual void mouseRelease(GUI*, int x, int y) override;
-        virtual Button* listenAction(onaction action);
-
         virtual Align getTextAlign() const;
         virtual void setTextAlign(Align align);
 
         virtual void setText(std::wstring text);
         virtual std::wstring getText() const;
 
-        virtual glm::vec4 getPressedColor() const;
-        virtual void setPressedColor(glm::vec4 color);
-
         virtual Button* textSupplier(wstringsupplier supplier);
 
         virtual void refresh() override;
     };
-
-    class RichButton : public Container {
-    protected:
-        glm::vec4 pressedColor {0.0f, 0.0f, 0.0f, 0.95f};
-        std::vector<onaction> actions;
-    public:
-        RichButton(glm::vec2 size);
-
-        virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
-
-        virtual void mouseRelease(GUI*, int x, int y) override;
-        virtual RichButton* listenAction(onaction action);
-    };
-
+    
     class TextBox : public Panel {
     protected:
         glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};

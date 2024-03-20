@@ -43,12 +43,22 @@ UINode* UINode::getParent() const {
     return parent;
 }
 
+UINode* UINode::listenAction(onaction action) {
+    actions.push_back(action);
+    return this;
+}
+
 void UINode::click(GUI*, int x, int y) {
     pressed = true;
 }
 
-void UINode::mouseRelease(GUI*, int x, int y) {
+void UINode::mouseRelease(GUI* gui, int x, int y) {
     pressed = false;
+    if (isInside(glm::vec2(x, y))) {
+        for (auto callback : actions) {
+            callback(gui);
+        }
+    }
 }
 
 bool UINode::isPressed() const {
@@ -136,6 +146,7 @@ void UINode::setMinSize(glm::vec2 minSize) {
 void UINode::setColor(glm::vec4 color) {
     this->color = color;
     this->hoverColor = color;
+    this->pressedColor = color;
 }
 
 void UINode::setHoverColor(glm::vec4 newColor) {
@@ -148,6 +159,14 @@ glm::vec4 UINode::getHoverColor() const {
 
 glm::vec4 UINode::getColor() const {
     return color;
+}
+
+glm::vec4 UINode::getPressedColor() const {
+    return pressedColor;
+}
+
+void UINode::setPressedColor(glm::vec4 color) {
+    pressedColor = color;
 }
 
 void UINode::setMargin(glm::vec4 margin) {
