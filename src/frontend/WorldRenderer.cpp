@@ -49,7 +49,7 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* pl
     batch3d = std::make_unique<Batch3D>(4096);
 
     auto& settings = engine->getSettings();
-    level->chunks->events->listen(EVT_CHUNK_HIDDEN, 
+    player->chunksMatrix->events->listen(EVT_CHUNK_HIDDEN, 
         [this](lvl_event_type type, Chunk* chunk) {
             renderer->unload(chunk);
         }
@@ -70,7 +70,7 @@ bool WorldRenderer::drawChunk(
     Shader* shader, 
     bool culling
 ){
-    auto chunk = level->chunks->chunks[index];
+    auto chunk = player->chunksMatrix->chunks[index];
     if (!chunk->isLighted()) {
         return false;
     }
@@ -177,7 +177,7 @@ void WorldRenderer::renderLevel(
     skybox->bind();
     atlas->getTexture()->bind();
 
-    drawChunks(level->chunks.get(), camera, shader);
+    drawChunks(player->chunksMatrix.get(), camera, shader);
 
     skybox->unbind();
 }

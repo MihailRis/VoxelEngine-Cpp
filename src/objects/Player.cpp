@@ -3,6 +3,9 @@
 #include "../physics/Hitbox.h"
 #include "../physics/PhysicsSolver.h"
 #include "../voxels/ChunksStorage.h"
+#include "../voxels/ChunksMatrix.h"
+#include "../logic/ChunksController.h"
+#include "../world/LevelEvents.h"
 #include "../world/Level.h"
 #include "../window/Camera.h"
 #include "../items/Inventory.h"
@@ -17,7 +20,7 @@ const float FLIGHT_SPEED_MUL = 4.0f;
 const float CHEAT_SPEED_MUL = 5.0f;
 const float JUMP_FORCE = 8.0f;
 
-Player::Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv) :
+Player::Player(Level* level, glm::vec3 position, float speed, std::shared_ptr<Inventory> inv, const EngineSettings& settings) :
     speed(speed),
     chosenSlot(0),
     inventory(inv),
@@ -25,9 +28,9 @@ Player::Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv) 
     spCamera(std::make_shared<Camera>(position, glm::radians(90.0f))),
     tpCamera(std::make_shared<Camera>(position, glm::radians(90.0f))),
     currentCamera(camera),
-    hitbox(std::make_unique<Hitbox>(position, glm::vec3(0.3f,0.9f,0.3f)))
-{
-}
+    hitbox(std::make_unique<Hitbox>(position, glm::vec3(0.3f,0.9f,0.3f))),
+    chunksMatrix(std::make_unique<ChunksMatrix>(level, 0, 0, 0, 0, settings)),
+    settings(settings) {}
 
 Player::~Player() {
 }
@@ -127,6 +130,15 @@ void Player::updateInput(
     if (spawnpoint.y <= 0.1) {
         attemptToFindSpawnpoint(level);
     }
+}
+
+void Player::update(float delta) {
+	chunksMatrix->setCenter(hitbox->position.x, hitbox->position.z);
+    uint32_t diameter = (std::min(radius, settings.chunks.loadDistance) + chunksMatrix->getPadding()) * 2;
+	if (chunksMatrix->w != diameter) {
+		chunksMatrix->resize(diameter, diameter);
+	}
+    chunksMatrix->update();
 }
 
 void Player::teleport(glm::vec3 position) {

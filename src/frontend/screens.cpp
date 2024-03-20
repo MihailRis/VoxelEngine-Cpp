@@ -1,12 +1,8 @@
 #include "screens.h"
 
-#include <iomanip>
-#include <iostream>
 #include <memory>
-#include <sstream>
 #include <glm/glm.hpp>
 #include <filesystem>
-#include <stdexcept>
 
 #include "../audio/audio.h"
 #include "../window/Camera.h"
@@ -27,10 +23,7 @@
 #include "../logic/scripting/scripting_frontend.h"
 #include "../voxels/ChunksMatrix.h"
 #include "../voxels/ChunksStorage.h"
-#include "../voxels/Chunk.h"
 #include "../engine.h"
-#include "../util/stringutil.h"
-#include "../core_defs.h"
 #include "WorldRenderer.h"
 #include "hud.h"
 #include "ContentGfxCache.h"
@@ -40,7 +33,6 @@
 #include "menu/menu.h"
 
 #include "../content/Content.h"
-#include "../voxels/Block.h"
 
 Screen::Screen(Engine* engine) : engine(engine), batch(new Batch2D(1024)) {
 }
@@ -138,9 +130,8 @@ void LevelScreen::updateHotkeys() {
         controller->getPlayer()->debug = !controller->getPlayer()->debug;
     }
     if (Events::jpressed(keycode::F5)) {
-        auto level = controller->getLevel();
-        level->chunks->clear();
-        level->chunksStorage->unloadUnused();
+        controller->getPlayer()->chunksMatrix->clear();
+        controller->getLevel()->chunksStorage->unloadUnused();
     }
 }
 
@@ -171,7 +162,7 @@ void LevelScreen::update(float delta) {
     EngineSettings& settings = engine->getSettings();
     controller->getPlayer()->camera->setFov(glm::radians(settings.camera.fov));
     if (settings.graphics.backlight != backlight) {
-        controller->getLevel()->chunks->clear();
+        controller->getPlayer()->chunksMatrix->clear();
         controller->getLevel()->chunksStorage->unloadUnused();
         backlight = settings.graphics.backlight;
     }

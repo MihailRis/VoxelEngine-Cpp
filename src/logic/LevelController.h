@@ -17,7 +17,6 @@ class LevelController {
     std::unique_ptr<Level> level;
     // Sub-controllers
     std::unique_ptr<BlocksController> blocks;
-    std::unique_ptr<ChunksController> chunks;
     std::unique_ptr<PlayerController> player;
 public:
     LevelController(EngineSettings& settings, Level* level);

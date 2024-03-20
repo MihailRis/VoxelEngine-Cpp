@@ -1,14 +1,17 @@
 #include "ChunksMatrix.h"
 #include "Chunk.h"
 #include "../world/LevelEvents.h"
+#include "../logic/ChunksController.h"
 
 #include "../maths/voxmaths.h"
 #include <vector>
 
-ChunksMatrix::ChunksMatrix(uint32_t w, uint32_t d, int32_t ox, int32_t oz) 
-		: chunks(w*d),
+ChunksMatrix::ChunksMatrix(Level* level, uint32_t w, uint32_t d, int32_t ox, int32_t oz, const EngineSettings& settings)
+		: controller(std::make_unique<ChunksController>(level, this, settings.chunks.padding)),
+          chunks(w*d),
           chunksSecond(w*d),
 		  w(w), d(d), ox(ox), oz(oz), 
+          settings(settings),
 		  events(std::make_unique<LevelEvents>()) {
 	volume = (size_t)w*(size_t)d;
 	chunksCount = 0;
@@ -78,6 +81,10 @@ void ChunksMatrix::resize(uint32_t newW, uint32_t newD) {
     chunksSecond = std::move(newChunksSecond);
 }
 
+void ChunksMatrix::update() {
+    controller->update(settings.chunks.loadSpeed);
+}
+
 void ChunksMatrix::_setOffset(int32_t x, int32_t z) {
 	ox = x;
 	oz = z;
@@ -106,4 +113,8 @@ void ChunksMatrix::clear(){
 		chunks[i] = nullptr;
 	}
 	chunksCount = 0;
+}
+
+uint32_t ChunksMatrix::getPadding() const {
+    return controller->padding;
 }
