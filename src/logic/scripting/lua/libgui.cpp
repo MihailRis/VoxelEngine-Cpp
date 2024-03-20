@@ -8,6 +8,7 @@
 
 #include "../../../engine.h"
 #include "../../../assets/Assets.h"
+#include "../../../graphics/ui/gui_util.h"
 #include "../../../graphics/ui/elements/UINode.h"
 #include "../../../graphics/ui/elements/controls.h"
 #include "../../../frontend/UiDocument.h"
@@ -117,14 +118,18 @@ static bool getattr(lua_State* L, gui::TextBox* box, const std::string& attr) {
     return false;
 }
 
-static int menu_back(lua_State* L) {
+static gui::UINode* getDocumentNode(lua_State* L) {
     lua_getfield(L, 1, "docname");
     lua_getfield(L, 1, "name");
     auto docname = lua_tostring(L, -2);
     auto name = lua_tostring(L, -1);
     auto node = getDocumentNode(L, docname, name);
     lua_pop(L, 2);
+    return node;
+}
 
+static int menu_back(lua_State* L) {
+    auto node = getDocumentNode(L);
     auto menu = dynamic_cast<gui::PagesControl*>(node);
     menu->back();
     return 0;
@@ -203,6 +208,24 @@ static bool setattr(lua_State* L, gui::PagesControl* menu, const std::string& at
     return false;
 }
 
+static int container_add(lua_State* L) {
+    auto node = dynamic_cast<gui::Container*>(getDocumentNode(L));
+    auto xmlsrc = lua_tostring(L, 2);
+    node->add(guiutil::create(xmlsrc));
+    return 0;
+}
+
+static bool getattr(lua_State* L, gui::Container* container, const std::string& attr) {
+    if (container == nullptr)
+        return false;
+    
+    if (attr == "add") {
+        lua_pushcfunction(L, container_add);
+        return true;
+    }
+    return false;
+}
+
 static int l_gui_getattr(lua_State* L) {
     auto docname = lua_tostring(L, 1);
     auto element = lua_tostring(L, 2);
@@ -225,6 +248,8 @@ static int l_gui_getattr(lua_State* L) {
         return 1;
     }
 
+    if (getattr(L, dynamic_cast<gui::Container*>(node), attr))
+        return 1;
     if (getattr(L, dynamic_cast<gui::Button*>(node), attr))
         return 1;
     if (getattr(L, dynamic_cast<gui::Label*>(node), attr))
