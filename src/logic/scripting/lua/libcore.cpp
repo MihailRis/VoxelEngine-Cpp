@@ -4,6 +4,7 @@
 #include "../../../engine.h"
 #include "../../../files/engine_paths.h"
 #include "../../../frontend/menu/menu.h"
+#include "../../../window/Window.h"
 #include "../scripting.h"
 
 #include <vector>
@@ -27,8 +28,14 @@ static int l_open_world(lua_State* L) {
     return 0;
 }
 
+static int l_quit(lua_State* L) {
+    Window::setShouldClose(true);
+    return 0;
+}
+
 const luaL_Reg corelib [] = {
     {"get_worlds_list", lua_wrap_errors<l_get_worlds_list>},
     {"open_world", lua_wrap_errors<l_open_world>},
+    {"quit", lua_wrap_errors<l_quit>},
     {NULL, NULL}
 };
