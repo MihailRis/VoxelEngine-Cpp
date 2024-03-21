@@ -247,6 +247,14 @@ const char* lua::LuaState::tostring(int idx) {
     return lua_tostring(L, idx);
 }
 
+bool lua::LuaState::isstring(int idx) {
+    return lua_isstring(L, idx);
+}
+
+bool lua::LuaState::isfunction(int idx) {
+    return lua_isfunction(L, idx);
+}
+
 void lua::LuaState::openlib(const std::string& name, const luaL_Reg* libfuncs, int nup) {
     lua_newtable(L);
     luaL_setfuncs(L, libfuncs, nup);

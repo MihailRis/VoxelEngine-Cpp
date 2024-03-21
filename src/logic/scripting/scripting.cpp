@@ -125,6 +125,15 @@ void scripting::on_world_quit() {
     for (auto& pack : scripting::engine->getContentPacks()) {
         emit_event(pack.id + ".worldquit");
     }
+
+    state->getglobal("pack");
+    for (auto& pack : scripting::engine->getContentPacks()) {
+        state->getfield("unload");
+        state->pushstring(pack.id);
+        state->callNoThrow(1);   
+    }
+    state->pop();
+    
     if (state->getglobal("__scripts_cleanup")) {
         state->callNoThrow(0);
     }
