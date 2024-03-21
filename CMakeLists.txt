@@ -82,8 +82,6 @@ find_package(GLEW REQUIRED)
 find_package(OpenAL REQUIRED)
 find_package(ZLIB REQUIRED)
 
-set(LIBS "")
-
 if (WIN32)
     if(VOXELENGINE_BUILD_WINDOWS_VCPKG)
       set(LUA_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/packages/luajit_x64-windows/lib/lua51.lib")
@@ -112,6 +110,8 @@ endif()
 if (APPLE)
     find_package(glfw3 3.3 REQUIRED)
 endif ()
+
+set(LIBS "")
 
 if(UNIX)
     find_package(Threads REQUIRED)
