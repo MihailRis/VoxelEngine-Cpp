@@ -13,6 +13,7 @@
 #include "../files/files.h"
 #include "../coders/json.h"
 #include "../typedefs.h"
+#include "../core_defs.h"
 #include "../data/dynamic.h"
 
 #include "ContentPack.h"
@@ -207,6 +208,10 @@ void ContentLoader::loadBlock(Block& def, std::string name, fs::path file) {
     root->str("script-name", def.scriptName);
     root->str("ui-layout", def.uiLayout);
     root->num("inventory-size", def.inventorySize);
+
+    if (def.hidden && def.pickingItem == def.name+BLOCK_ITEM_SUFFIX) {
+        def.pickingItem = CORE_EMPTY;
+    }
 }
 
 void ContentLoader::loadCustomBlockModel(Block& def, dynamic::Map* primitives) {
