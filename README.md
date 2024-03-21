@@ -31,7 +31,7 @@ cmake --build .
 
 #### Debian-based distro:
 ```sh
-sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev libvorbis-dev lua5.4
+sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev libvorbis-dev
 ```
 
 CMake missing LUA_INCLUDE_DIR and LUA_LIBRARIES fix:
@@ -42,18 +42,18 @@ sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
 
 #### RHEL-based distro:
 ```sh
-sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-devel openal-devel lua luajit
+sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-devel openal-devel luajit
 ```
 
 #### Arch-based distro:
 If you use X11
 ```sh
-sudo pacman -S glfw-x11 glew glm libpng libvorbis openal lua luajit
+sudo pacman -S glfw-x11 glew glm libpng libvorbis openal luajit
 ```
 
 If you use Wayland
 ```sh
-sudo pacman -S glfw-wayland glew glm libpng libvorbis openal lua luajit
+sudo pacman -S glfw-wayland glew glm libpng libvorbis openal luajit
 ```
 
 #### macOS:
