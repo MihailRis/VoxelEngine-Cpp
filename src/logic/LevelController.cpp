@@ -18,6 +18,11 @@ LevelController::LevelController(EngineSettings& settings, Level* level)
 void LevelController::update(float delta, bool input, bool pause) {
     player->getPlayer()->radius = settings.chunks.loadDistance;
     player->update(delta, input, pause);
+    for(auto obj : level->objects) {
+        if (auto player = std::dynamic_pointer_cast<Player>(obj)) {
+            player->loadChunks();
+        }
+    }
     level->chunksStorage->unloadUnused();
 
     // erease null pointers

@@ -57,7 +57,7 @@ public:
 
     void teleport(glm::vec3 position);
     void updateInput(Level* level, PlayerInput& input, float delta);
-    void update(float delta) override;
+    void loadChunks();
 
     void attemptToFindSpawnpoint(Level* level);
 
