@@ -257,10 +257,22 @@ void PagesControl::addPage(std::string name, std::shared_ptr<UINode> panel) {
     pages[name] = Page{panel};
 }
 
+void PagesControl::addSupplier(std::string name, supplier<std::shared_ptr<UINode>> pageSupplier) {
+    pageSuppliers[name] = pageSupplier;
+}
+
 void PagesControl::setPage(std::string name, bool history) {
     auto found = pages.find(name);
+    Page page;
     if (found == pages.end()) {
-        throw std::runtime_error("no page found");
+        auto supplier = pageSuppliers.find(name);
+        if (supplier == pageSuppliers.end()) {
+            throw std::runtime_error("no page found");
+        } else {
+            page.panel = supplier->second();
+        }
+    } else {
+        page = found->second;
     }
     if (current.panel) {
         Container::remove(current.panel);
@@ -269,7 +281,7 @@ void PagesControl::setPage(std::string name, bool history) {
         pageStack.push(curname);
     }
     curname = name;
-    current = found->second;
+    current = page;
     Container::add(current.panel);
     setSize(current.panel->getSize());
 }

@@ -1,12 +1,14 @@
 #ifndef GRAPHICS_UI_ELEMENTS_CONTAINERS_H_
 #define GRAPHICS_UI_ELEMENTS_CONTAINERS_H_
 
+#include "UINode.h"
+#include "../../../delegates.h"
+
 #include <glm/glm.hpp>
 #include <vector>
 #include <stack>
 #include <string>
 #include <memory>
-#include "UINode.h"
 
 class Batch2D;
 class Assets;
@@ -96,12 +98,14 @@ namespace gui {
         std::stack<std::string> pageStack;
         Page current;
         std::string curname = "";
+        std::unordered_map<std::string, supplier<std::shared_ptr<UINode>>> pageSuppliers;
     public:
         PagesControl();
 
         bool has(const std::string& name);
         void setPage(std::string name, bool history=true);
         void addPage(std::string name, std::shared_ptr<UINode> panel);
+        void addSupplier(std::string name, supplier<std::shared_ptr<UINode>> pageSupplier);
         void back();
         void clearHistory();
         void reset();
