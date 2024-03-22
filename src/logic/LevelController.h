@@ -38,6 +38,7 @@ public:
     Level* getLevel();
     Player* getPlayer();
 
+    BlocksController* getBlocksController();
     PlayerController* getPlayerController();
 };
 
