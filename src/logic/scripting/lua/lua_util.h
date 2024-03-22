@@ -1,7 +1,12 @@
 #ifndef LOGIC_SCRIPTING_LUA_UTIL_H_
 #define LOGIC_SCRIPTING_LUA_UTIL_H_
 
+#ifdef __linux__ 
+#include <luajit-2.1/luaconf.h>
+#include <luajit-2.1/lua.hpp>
+#else
 #include <lua.hpp>
+#endif
 #include <glm/glm.hpp>
 #include "LuaState.h"
 
