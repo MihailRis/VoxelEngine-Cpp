@@ -244,62 +244,6 @@ void menus::delete_world(std::string name, Engine* engine) {
     });
 }
 
-std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
-    auto panel = std::dynamic_pointer_cast<Panel>(guiutil::create(
-        "<panel size='370' padding='5' color='#FFFFFF11' max-length='400'>"
-        "</panel>"
-    ));
-    auto paths = engine->getPaths();
-
-    for (auto folder : paths->scanForWorlds()) {
-        auto name = folder.filename().u8string();
-        auto namews = util::str2wstr_utf8(name);
-
-        auto btn = std::dynamic_pointer_cast<Container>(guiutil::create(
-            "<container size='380,46' color='#0F1E2DB2' hover-color='#162B3399'>"
-                "<label pos='8,8'>"+name+"</label>"
-            "</container>"
-        ));
-        btn->listenAction([=](GUI*) {
-            menus::open_world(name, engine, false);
-        });
-
-        auto delbtn = guiutil::create(
-            "<button color='#00000000' hover-color='#FFFFFF2B' padding='2,2,2,2'>"
-            "    <image src='gui/delete_icon' size='32,32' color='#FFFFFF80'/>"
-            "</button>"
-        );
-        delbtn->listenAction([=](GUI* gui) {
-            guiutil::confirm(gui, langs::get(L"delete-confirm", L"world")+
-            L" ("+util::str2wstr_utf8(folder.u8string())+L")", [=]() {
-                std::cout << "deleting " << folder.u8string() << std::endl;
-                fs::remove_all(folder);
-                menus::refresh_menus(engine);
-            });
-        });
-        btn->add(delbtn, glm::vec2(330, 3));
-
-        panel->add(btn);
-    }
-    panel->refresh();
-    return panel;
-}
-
-void create_main_menu_panel(Engine* engine) {
-    auto menu = engine->getGUI()->getMenu();
-
-    auto panel = menus::create_page(engine, "main", 400, 0.0f, 1);
-    panel->add(guiutil::gotoButton(L"New World", "new-world", menu));
-    panel->add(create_worlds_panel(engine));
-    panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
-
-    panel->add(std::make_shared<Button>(
-        langs::get(L"Quit", L"menu"), glm::vec4(10.f), [](GUI*) {
-            Window::setShouldClose(true);
-        }
-    ));
-}
-
 static void add_page_loader(Engine* engine, const std::string& name) {
     auto menu = engine->getGUI()->getMenu();
     auto file = engine->getResPaths()->find("layouts/pages/"+name+".xml");
@@ -317,14 +261,12 @@ void menus::create_menus(Engine* engine) {
     create_new_world_panel(engine);
     create_settings_panel(engine);
     create_languages_panel(engine);
-    //create_main_menu_panel(engine);
     create_world_generators_panel(engine);
     add_page_loader(engine, "main");
     load_page(engine, "404");
 }
 
 void menus::refresh_menus(Engine* engine) {
-    //create_main_menu_panel(engine);
     create_new_world_panel(engine);
     create_world_generators_panel(engine);
     add_page_loader(engine, "main");

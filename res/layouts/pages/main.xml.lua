@@ -9,10 +9,9 @@ function on_open()
                 "onclick='core.open_world(\""..name.."\")'"..
             ">"..
                 "<label pos='8,8'>"..name.."</label>"..
-                "<button pos='330,3' "..
+                "<button pos='350,5' "..
                         "color='#00000000' "..
                         "hover-color='#FFFFFF2B' "..
-                        "padding='2,2,2,2' "..
                         "onclick='core.delete_world(\""..name.."\")'>"..
                     "<image src='gui/delete_icon' size='32,32' color='#FFFFFF80'/>"..
                 "</button>"..
