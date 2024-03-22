@@ -81,6 +81,28 @@ void GUI::actMouse(float delta) {
     }
 } 
 
+void GUI::actFocused() {
+    if (Events::jpressed(keycode::ESCAPE)) {
+        focus->defocus();
+        focus = nullptr;
+        return;
+    }
+    for (auto codepoint : Events::codepoints) {
+        focus->typed(codepoint);
+    }
+    for (auto key : Events::pressedKeys) {
+        focus->keyPressed(key);
+    }
+
+    if (!Events::_cursor_locked) {
+        if (Events::clicked(mousecode::BUTTON_1) && 
+            (Events::jclicked(mousecode::BUTTON_1) || Events::delta.x || Events::delta.y))
+        {
+            focus->mouseMove(this, Events::cursor.x, Events::cursor.y);
+        }
+    }
+}
+
 /// @brief Processing user input and UI logic 
 /// @param delta delta time
 void GUI::act(float delta) {
@@ -99,27 +121,7 @@ void GUI::act(float delta) {
     }
     
     if (focus) {
-        if (Events::jpressed(keycode::ESCAPE)) {
-            focus->defocus();
-            focus = nullptr;
-        } else {
-            for (auto codepoint : Events::codepoints) {
-                focus->typed(codepoint);
-            }
-            for (auto key : Events::pressedKeys) {
-                focus->keyPressed(key);
-            }
-
-            if (!Events::_cursor_locked) {
-                if (Events::clicked(mousecode::BUTTON_1)) {
-                    if (Events::jclicked(mousecode::BUTTON_1) ||
-                        Events::delta.x || Events::delta.y)
-                    {
-                        focus->mouseMove(this, Events::cursor.x, Events::cursor.y);
-                    }
-                }
-            }
-        }
+        actFocused();
     }
     if (focus && !focus->isFocused()) {
         focus = nullptr;

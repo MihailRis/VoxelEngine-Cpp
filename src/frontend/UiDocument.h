@@ -47,7 +47,7 @@ public:
     /* Collect map of all uinodes having identifiers */
     static void collect(uinodes_map& map, std::shared_ptr<gui::UINode> node);
 
-    static std::unique_ptr<UiDocument> read(int env, std::string namesp, fs::path file);
+    static std::unique_ptr<UiDocument> read(int env, std::string name, fs::path file);
     static std::shared_ptr<gui::UINode> readElement(fs::path file);
 };
 

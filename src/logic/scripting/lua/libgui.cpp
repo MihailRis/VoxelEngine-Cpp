@@ -139,7 +139,7 @@ static bool getattr(lua_State* L, gui::Menu* menu, const std::string& attr) {
     if (menu == nullptr)
         return false;
     if (attr == "page") {
-        lua_pushstring(L, menu->getCurrentName().c_str());
+        lua_pushstring(L, menu->getCurrent().name.c_str());
         return true;
     } else if (attr == "back") {
         lua_pushcfunction(L, menu_back);
@@ -211,7 +211,11 @@ static bool setattr(lua_State* L, gui::Menu* menu, const std::string& attr) {
 static int container_add(lua_State* L) {
     auto node = dynamic_cast<gui::Container*>(getDocumentNode(L));
     auto xmlsrc = lua_tostring(L, 2);
-    node->add(guiutil::create(xmlsrc));
+    try {
+        node->add(guiutil::create(xmlsrc));
+    } catch (const std::exception& err) {
+        luaL_error(L, err.what());
+    }
     return 0;
 }
 

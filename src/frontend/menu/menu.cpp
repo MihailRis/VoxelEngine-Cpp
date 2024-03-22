@@ -14,6 +14,7 @@
 #include "../../graphics/ui/elements/controls.h"
 #include "../screens.h"
 #include "../UiDocument.h"
+#include "../../logic/scripting/scripting.h"
 
 #include "../../coders/png.h"
 #include "../../util/stringutil.h"
@@ -289,19 +290,33 @@ void create_main_menu_panel(Engine* engine) {
     ));
 }
 
+static void add_page_loader(Engine* engine, const std::string& name) {
+    auto menu = engine->getGUI()->getMenu();
+    auto file = engine->getResPaths()->find("layouts/pages/"+name+".xml");
+    auto fullname = "core:pages/"+name;
+    menu->addSupplier(name, [=]() {
+        auto document = UiDocument::read(0, fullname, file).release();
+        engine->getAssets()->store(document, fullname);
+        scripting::on_ui_open(document, nullptr, glm::ivec3());
+        return document->getRoot();
+    });
+}
+
 void menus::create_menus(Engine* engine) {
     menus::generatorID = WorldGenerators::getDefaultGeneratorID();
     create_new_world_panel(engine);
     create_settings_panel(engine);
     create_languages_panel(engine);
-    create_main_menu_panel(engine);
+    //create_main_menu_panel(engine);
     create_world_generators_panel(engine);
+    add_page_loader(engine, "main");
     load_page(engine, "404");
 }
 
 void menus::refresh_menus(Engine* engine) {
-    create_main_menu_panel(engine);
+    //create_main_menu_panel(engine);
     create_new_world_panel(engine);
     create_world_generators_panel(engine);
+    add_page_loader(engine, "main");
     load_page(engine, "404");
 }

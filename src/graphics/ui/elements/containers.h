@@ -76,6 +76,7 @@ namespace gui {
         virtual void add(std::shared_ptr<UINode> node) override;
 
         virtual void refresh() override;
+        virtual void fullRefresh() override;
 
         virtual void setMaxLength(int value);
         int getMaxLength() const;
@@ -85,6 +86,7 @@ namespace gui {
     };
 
     struct Page {
+        std::string name;
         std::shared_ptr<UINode> panel = nullptr;
 
         ~Page() {
@@ -95,9 +97,8 @@ namespace gui {
     class Menu : public Container {
     protected:
         std::unordered_map<std::string, Page> pages;
-        std::stack<std::string> pageStack;
+        std::stack<Page> pageStack;
         Page current;
-        std::string curname = "";
         std::unordered_map<std::string, supplier<std::shared_ptr<UINode>>> pageSuppliers;
     public:
         Menu();
@@ -110,6 +111,7 @@ namespace gui {
         /// @param name page or page supplier name
         /// @param history previous page will not be saved in history if false
         void setPage(std::string name, bool history=true);
+        void setPage(Page page, bool history=true);
         void addPage(std::string name, std::shared_ptr<UINode> panel);
 
         /// @brief Add page supplier used if page is not found
@@ -128,9 +130,6 @@ namespace gui {
     
         /// @brief Get current page
         Page& getCurrent();
-
-        /// @brief Get current page name
-        const std::string& getCurrentName() const;
     };
 }
 #endif // GRAPHICS_UI_ELEMENTS_CONTAINERS_H_

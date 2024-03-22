@@ -63,6 +63,7 @@ namespace gui {
         std::shared_ptr<Menu> menu;
         std::queue<runnable> postRunnables;
         void actMouse(float delta);
+        void actFocused();
     public:
         GUI();
         ~GUI();

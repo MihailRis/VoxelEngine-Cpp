@@ -192,10 +192,15 @@ void Panel::cropToContent() {
     }
 }
 
-void Panel::add(std::shared_ptr<UINode> node) {
-    Container::add(node);
+void Panel::fullRefresh() {
     refresh();
     cropToContent();
+    Container::fullRefresh();
+}
+
+void Panel::add(std::shared_ptr<UINode> node) {
+    Container::add(node);
+    fullRefresh();
 }
 
 void Panel::refresh() {
@@ -255,7 +260,7 @@ bool Menu::has(const std::string& name) {
 }
 
 void Menu::addPage(std::string name, std::shared_ptr<UINode> panel) {
-    pages[name] = Page{panel};
+    pages[name] = Page{name, panel};
 }
 
 void Menu::addSupplier(std::string name, supplier<std::shared_ptr<UINode>> pageSupplier) {
@@ -276,13 +281,16 @@ void Menu::setPage(std::string name, bool history) {
     } else {
         page = found->second;
     }
+    setPage(page, history);
+}
+
+void Menu::setPage(Page page, bool history) {
     if (current.panel) {
         Container::remove(current.panel);
     }
     if (history) {
-        pageStack.push(curname);
+        pageStack.push(current);
     }
-    curname = name;
     current = page;
     Container::add(current.panel);
     setSize(current.panel->getSize());
@@ -291,29 +299,24 @@ void Menu::setPage(std::string name, bool history) {
 void Menu::back() {
     if (pageStack.empty())
         return;
-    std::string name = pageStack.top();
+    Page page = pageStack.top();
     pageStack.pop();
-    setPage(name, false);
+    setPage(page, false);
 }
 
 Page& Menu::getCurrent() {
     return current;
 }
 
-const std::string& Menu::getCurrentName() const {
-    return curname;
-}
-
 void Menu::clearHistory() {
-    pageStack = std::stack<std::string>();
+    pageStack = std::stack<Page>();
 }
 
 void Menu::reset() {
     clearHistory();
     if (current.panel) {
-        curname = "";
         Container::remove(current.panel);
-        current = Page{nullptr};
+        current = Page{"", nullptr};
     }
 }
 

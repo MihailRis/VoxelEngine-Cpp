@@ -58,13 +58,13 @@ void UiDocument::collect(uinodes_map& map, std::shared_ptr<gui::UINode> node) {
     }
 }
 
-std::unique_ptr<UiDocument> UiDocument::read(int penv, std::string namesp, fs::path file) {
+std::unique_ptr<UiDocument> UiDocument::read(int penv, std::string name, fs::path file) {
     const std::string text = files::read_string(file);
     auto xmldoc = xml::parse(file.u8string(), text);
 
     auto env = penv == -1 
         ? std::make_unique<scripting::Environment>(0) 
-        : scripting::create_doc_environment(penv, namesp);
+        : scripting::create_doc_environment(penv, name);
 
     gui::UiXmlReader reader(*env);
     InventoryView::createReaders(reader);
@@ -75,9 +75,9 @@ std::unique_ptr<UiDocument> UiDocument::read(int penv, std::string namesp, fs::p
     uidocscript script {};
     auto scriptFile = fs::path(file.u8string()+".lua");
     if (fs::is_regular_file(scriptFile)) {
-        scripting::load_layout_script(env->getId(), namesp, scriptFile, script);
+        scripting::load_layout_script(env->getId(), name, scriptFile, script);
     }
-    return std::make_unique<UiDocument>(namesp, script, view, std::move(env));
+    return std::make_unique<UiDocument>(name, script, view, std::move(env));
 }
 
 std::shared_ptr<gui::UINode> UiDocument::readElement(fs::path file) {

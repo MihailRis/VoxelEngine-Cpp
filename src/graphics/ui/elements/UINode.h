@@ -176,6 +176,11 @@ namespace gui {
         virtual void setMinSize(glm::vec2 size);
         /* Called in containers when new element added */
         virtual void refresh() {};
+        virtual void fullRefresh() {
+            if (parent) {
+                parent->fullRefresh();
+            }
+        };
         virtual void lock();
 
         virtual vec2supplier getPositionFunc() const;
