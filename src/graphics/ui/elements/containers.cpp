@@ -267,20 +267,26 @@ void Menu::addSupplier(std::string name, supplier<std::shared_ptr<UINode>> pageS
     pageSuppliers[name] = pageSupplier;
 }
 
-void Menu::setPage(std::string name, bool history) {
+std::shared_ptr<UINode> Menu::fetchPage(std::string name) {
     auto found = pages.find(name);
-    Page page {name, nullptr};
     if (found == pages.end()) {
         auto supplier = pageSuppliers.find(name);
         if (supplier == pageSuppliers.end()) {
-            throw std::runtime_error("no page found");
+            return nullptr;
         } else {
-            page.panel = supplier->second();
-            // pages[name] = page;
+            return supplier->second();
             // supplied pages caching is not implemented
         }
     } else {
-        page = found->second;
+        return found->second.panel;
+    }
+}
+
+
+void Menu::setPage(std::string name, bool history) {
+    Page page {name, fetchPage(name)};
+    if (page.panel == nullptr) {
+        throw std::runtime_error("no page found");
     }
     setPage(page, history);
 }
@@ -302,6 +308,12 @@ void Menu::back() {
         return;
     Page page = pageStack.top();
     pageStack.pop();
+    
+    auto updated = fetchPage(page.name);
+    if (updated) {
+        page.panel = updated;
+    }
+
     setPage(page, false);
 }
 

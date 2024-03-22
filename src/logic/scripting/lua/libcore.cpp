@@ -28,6 +28,12 @@ static int l_open_world(lua_State* L) {
     return 0;
 }
 
+static int l_delete_world(lua_State* L) {
+    auto name = lua_tostring(L, 1);
+    menus::delete_world(name, scripting::engine);
+    return 0;
+}
+
 static int l_quit(lua_State* L) {
     Window::setShouldClose(true);
     return 0;
@@ -36,6 +42,7 @@ static int l_quit(lua_State* L) {
 const luaL_Reg corelib [] = {
     {"get_worlds_list", lua_wrap_errors<l_get_worlds_list>},
     {"open_world", lua_wrap_errors<l_open_world>},
+    {"delete_world", lua_wrap_errors<l_delete_world>},
     {"quit", lua_wrap_errors<l_quit>},
     {NULL, NULL}
 };

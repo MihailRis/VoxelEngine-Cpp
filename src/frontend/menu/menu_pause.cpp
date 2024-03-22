@@ -106,7 +106,6 @@ static void reopen_world(Engine* engine, World* world) {
 // FIXME
 static bool try_add_dependency(Engine* engine, World* world, const ContentPack& pack, std::string& missing) {
     auto paths = engine->getPaths();
-    auto gui = engine->getGUI();
     for (const auto& dependency : pack.dependencies) {
         fs::path folder = ContentPack::findPack(
             paths, 
@@ -128,7 +127,6 @@ static bool try_add_dependency(Engine* engine, World* world, const ContentPack& 
 void create_content_panel(Engine* engine, LevelController* controller) {
     auto level = controller->getLevel();
     auto menu = engine->getGUI()->getMenu();
-    auto paths = engine->getPaths();
     auto mainPanel = menus::create_page(engine, "content", 550, 0.0f, 5);
 
     std::vector<ContentPack> scanned;
