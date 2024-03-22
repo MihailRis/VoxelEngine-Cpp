@@ -181,11 +181,13 @@ void menus::create_pause_panel(Engine* engine, LevelController* controller) {
     panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
 
     panel->add(create_button(L"Save and Quit to Menu", glm::vec4(10.f), glm::vec4(1), [=](GUI*){
-        // save world
-        controller->saveWorld();
-        // destroy LevelScreen and run quit callbacks
-        engine->setScreen(nullptr);
-        // create and go to menu screen
-        engine->setScreen(std::make_shared<MenuScreen>(engine));
+        engine->postRunnable([=]() {
+            // save world
+            controller->saveWorld();
+            // destroy LevelScreen and run quit callbacks
+            engine->setScreen(nullptr);
+            // create and go to menu screen
+            engine->setScreen(std::make_shared<MenuScreen>(engine));
+        });
     }));
 }

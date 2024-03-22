@@ -49,8 +49,8 @@ Screen::~Screen() {
 
 MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     auto menu = engine->getGUI()->getMenu();
-    menus::refresh_menus(engine);
     menu->reset();
+    menus::refresh_menus(engine);
     menu->setPage("main");
 
     uicamera.reset(new Camera(glm::vec3(), Window::height));

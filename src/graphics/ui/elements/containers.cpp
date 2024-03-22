@@ -269,13 +269,14 @@ void Menu::addSupplier(std::string name, supplier<std::shared_ptr<UINode>> pageS
 
 void Menu::setPage(std::string name, bool history) {
     auto found = pages.find(name);
-    Page page;
+    Page page {name, nullptr};
     if (found == pages.end()) {
         auto supplier = pageSuppliers.find(name);
         if (supplier == pageSuppliers.end()) {
             throw std::runtime_error("no page found");
         } else {
             page.panel = supplier->second();
+            // pages[name] = page;
             // supplied pages caching is not implemented
         }
     } else {
@@ -319,4 +320,3 @@ void Menu::reset() {
         current = Page{"", nullptr};
     }
 }
-

@@ -83,7 +83,7 @@ UiDocument* Assets::getLayout(std::string name) const {
 }
 
 void Assets::store(UiDocument* layout, std::string name) {
-	layouts.emplace(name, layout);
+	layouts[name] = std::shared_ptr<UiDocument>(layout);
 }
 
 void Assets::extend(const Assets& assets) {
