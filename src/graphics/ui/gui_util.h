@@ -12,13 +12,13 @@ namespace gui {
 
 namespace guiutil {
     std::shared_ptr<gui::Button> backButton(
-        std::shared_ptr<gui::PagesControl> menu
+        std::shared_ptr<gui::Menu> menu
     );
 
     std::shared_ptr<gui::Button> gotoButton(
         std::wstring text, 
         const std::string& page, 
-        std::shared_ptr<gui::PagesControl> menu
+        std::shared_ptr<gui::Menu> menu
     );
 
     /// @brief Create element from XML

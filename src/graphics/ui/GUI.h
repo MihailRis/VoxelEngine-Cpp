@@ -49,7 +49,7 @@ class Camera;
 namespace gui {
     class UINode;
     class Container;
-    class PagesControl;
+    class Menu;
 
     /// @brief The main UI controller
     class GUI {
@@ -60,15 +60,15 @@ namespace gui {
         std::unordered_map<std::string, std::shared_ptr<UINode>> storage;
 
         std::unique_ptr<Camera> uicamera;
-        std::shared_ptr<PagesControl> menu;
+        std::shared_ptr<Menu> menu;
         std::queue<runnable> postRunnables;
         void actMouse(float delta);
     public:
         GUI();
         ~GUI();
 
-        /// @brief Get the main menu (PagesControl) node
-        std::shared_ptr<PagesControl> getMenu();
+        /// @brief Get the main menu (Menu) node
+        std::shared_ptr<Menu> getMenu();
 
         /// @brief Get current focused node 
         /// @return focused node or nullptr

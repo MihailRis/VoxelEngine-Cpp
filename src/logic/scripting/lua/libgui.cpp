@@ -130,12 +130,12 @@ static gui::UINode* getDocumentNode(lua_State* L) {
 
 static int menu_back(lua_State* L) {
     auto node = getDocumentNode(L);
-    auto menu = dynamic_cast<gui::PagesControl*>(node);
+    auto menu = dynamic_cast<gui::Menu*>(node);
     menu->back();
     return 0;
 }
 
-static bool getattr(lua_State* L, gui::PagesControl* menu, const std::string& attr) {
+static bool getattr(lua_State* L, gui::Menu* menu, const std::string& attr) {
     if (menu == nullptr)
         return false;
     if (attr == "page") {
@@ -193,7 +193,7 @@ static bool setattr(lua_State* L, gui::Label* label, const std::string& attr) {
     return false;
 }
 
-static bool setattr(lua_State* L, gui::PagesControl* menu, const std::string& attr) {
+static bool setattr(lua_State* L, gui::Menu* menu, const std::string& attr) {
     if (menu == nullptr)
         return false;
     if (attr == "page") {
@@ -260,7 +260,7 @@ static int l_gui_getattr(lua_State* L) {
         return 1;
     if (getattr(L, dynamic_cast<gui::FullCheckBox*>(node), attr))
         return 1;
-    if (getattr(L, dynamic_cast<gui::PagesControl*>(node), attr))
+    if (getattr(L, dynamic_cast<gui::Menu*>(node), attr))
         return 1;
 
     return 0;
@@ -300,7 +300,7 @@ static int l_gui_setattr(lua_State* L) {
             return 0;
         if (setattr(L, dynamic_cast<gui::FullCheckBox*>(node), attr))
             return 0;
-        if (setattr(L, dynamic_cast<gui::PagesControl*>(node), attr))
+        if (setattr(L, dynamic_cast<gui::Menu*>(node), attr))
             return 0;
     }
     return 0;

@@ -246,22 +246,23 @@ Orientation Panel::getOrientation() const {
     return orientation;
 }
 
-PagesControl::PagesControl() : Container(glm::vec2(1)){
+Menu::Menu() : Container(glm::vec2(1)){
 }
 
-bool PagesControl::has(const std::string& name) {
-    return pages.find(name) != pages.end();
+bool Menu::has(const std::string& name) {
+    return pages.find(name) != pages.end() ||
+           pageSuppliers.find(name) != pageSuppliers.end();
 }
 
-void PagesControl::addPage(std::string name, std::shared_ptr<UINode> panel) {
+void Menu::addPage(std::string name, std::shared_ptr<UINode> panel) {
     pages[name] = Page{panel};
 }
 
-void PagesControl::addSupplier(std::string name, supplier<std::shared_ptr<UINode>> pageSupplier) {
+void Menu::addSupplier(std::string name, supplier<std::shared_ptr<UINode>> pageSupplier) {
     pageSuppliers[name] = pageSupplier;
 }
 
-void PagesControl::setPage(std::string name, bool history) {
+void Menu::setPage(std::string name, bool history) {
     auto found = pages.find(name);
     Page page;
     if (found == pages.end()) {
@@ -270,6 +271,7 @@ void PagesControl::setPage(std::string name, bool history) {
             throw std::runtime_error("no page found");
         } else {
             page.panel = supplier->second();
+            // supplied pages caching is not implemented
         }
     } else {
         page = found->second;
@@ -286,7 +288,7 @@ void PagesControl::setPage(std::string name, bool history) {
     setSize(current.panel->getSize());
 }
 
-void PagesControl::back() {
+void Menu::back() {
     if (pageStack.empty())
         return;
     std::string name = pageStack.top();
@@ -294,19 +296,19 @@ void PagesControl::back() {
     setPage(name, false);
 }
 
-Page& PagesControl::getCurrent() {
+Page& Menu::getCurrent() {
     return current;
 }
 
-const std::string& PagesControl::getCurrentName() const {
+const std::string& Menu::getCurrentName() const {
     return curname;
 }
 
-void PagesControl::clearHistory() {
+void Menu::clearHistory() {
     pageStack = std::stack<std::string>();
 }
 
-void PagesControl::reset() {
+void Menu::reset() {
     clearHistory();
     if (current.panel) {
         curname = "";

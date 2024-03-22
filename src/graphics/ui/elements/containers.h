@@ -92,7 +92,7 @@ namespace gui {
         }
     };
 
-    class PagesControl : public Container {
+    class Menu : public Container {
     protected:
         std::unordered_map<std::string, Page> pages;
         std::stack<std::string> pageStack;
@@ -100,17 +100,36 @@ namespace gui {
         std::string curname = "";
         std::unordered_map<std::string, supplier<std::shared_ptr<UINode>>> pageSuppliers;
     public:
-        PagesControl();
+        Menu();
 
+        /// @brief Check menu have page or page supplier
+        /// @param name page name
         bool has(const std::string& name);
+
+        /// @brief Set current page to specified one.
+        /// @param name page or page supplier name
+        /// @param history previous page will not be saved in history if false
         void setPage(std::string name, bool history=true);
         void addPage(std::string name, std::shared_ptr<UINode> panel);
+
+        /// @brief Add page supplier used if page is not found
+        /// @param name page name
+        /// @param pageSupplier page supplier function
         void addSupplier(std::string name, supplier<std::shared_ptr<UINode>> pageSupplier);
+
+        /// @brief Set page to previous saved in history
         void back();
+
+        /// @brief Clear pages history
         void clearHistory();
+
+        /// @brief Clear history and remove and set page to null
         void reset();
     
+        /// @brief Get current page
         Page& getCurrent();
+
+        /// @brief Get current page name
         const std::string& getCurrentName() const;
     };
 }

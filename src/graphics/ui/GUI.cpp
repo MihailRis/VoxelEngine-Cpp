@@ -21,7 +21,7 @@ GUI::GUI() {
     uicamera->perspective = false;
     uicamera->flipped = true;
 
-    menu = std::make_shared<PagesControl>();
+    menu = std::make_shared<Menu>();
     menu->setId("menu");
     container->add(menu);
     container->setScrollable(false);
@@ -30,7 +30,7 @@ GUI::GUI() {
 GUI::~GUI() {
 }
 
-std::shared_ptr<PagesControl> GUI::getMenu() {
+std::shared_ptr<Menu> GUI::getMenu() {
     return menu;
 }
 
