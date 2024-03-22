@@ -27,6 +27,7 @@ public:
     fs::path getScreenshotFile(std::string ext);
     fs::path getWorldsFolder();
     fs::path getWorldFolder();
+    fs::path getWorldFolder(const std::string& name);
     bool isWorldNameUsed(std::string name);
 
     void setUserfiles(fs::path folder);

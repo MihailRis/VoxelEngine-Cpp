@@ -234,6 +234,16 @@ void menus::open_world(std::string name, Engine* engine, bool confirmConvert) {
     }
 }
 
+void menus::delete_world(std::string name, Engine* engine) {
+    fs::path folder = engine->getPaths()->getWorldFolder(name);
+    guiutil::confirm(engine->getGUI(), langs::get(L"delete-confirm", L"world")+
+    L" ("+util::str2wstr_utf8(folder.u8string())+L")", [=]() {
+        std::cout << "deleting " << folder.u8string() << std::endl;
+        fs::remove_all(folder);
+        menus::refresh_menus(engine);
+    });
+}
+
 std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
     auto panel = std::dynamic_pointer_cast<Panel>(guiutil::create(
         "<panel size='370' padding='5' color='#FFFFFF11' max-length='400'>"
