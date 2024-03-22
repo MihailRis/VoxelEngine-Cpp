@@ -43,6 +43,7 @@ static int l_close_world(lua_State* L) {
     scripting::engine->setScreen(nullptr);
     // create and go to menu screen
     scripting::engine->setScreen(std::make_shared<MenuScreen>(scripting::engine));
+    return 0;
 }
 
 static int l_delete_world(lua_State* L) {

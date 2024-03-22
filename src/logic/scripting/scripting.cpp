@@ -32,6 +32,7 @@ Level* scripting::level = nullptr;
 const Content* scripting::content = nullptr;
 const ContentIndices* scripting::indices = nullptr;
 BlocksController* scripting::blocks = nullptr;
+LevelController* scripting::controller = nullptr;
 
 Environment::Environment(int env) : env(env) {
 }
