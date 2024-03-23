@@ -42,29 +42,18 @@ sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
 
 #### RHEL-based distro:
 ```sh
-sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-devel openal-devel
+sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-devel openal-devel luajit
 ```
-
-\+ install LuaJIT
 
 #### Arch-based distro:
 If you use X11
 ```sh
-sudo pacman -S glfw-x11 glew glm libpng libvorbis openal
+sudo pacman -S glfw-x11 glew glm libpng libvorbis openal luajit
 ```
 
 If you use Wayland
 ```sh
-sudo pacman -S glfw-wayland glew glm libpng libvorbis openal
-```
-
-\+ install LuaJIT
-
-#### LuaJIT installation:
-```sh
-git clone https://luajit.org/git/luajit.git
-cd luajit
-make && sudo make install INSTALL_INC=/usr/include/lua
+sudo pacman -S glfw-wayland glew glm libpng libvorbis openal luajit
 ```
 
 #### macOS:
