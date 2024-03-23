@@ -25,7 +25,18 @@ static int l_pack_get_folder(lua_State* L) {
     return 1;
 }
 
+static int l_pack_get_installed(lua_State* L) {
+    auto& packs = scripting::engine->getContentPacks();
+    lua_createtable(L, packs.size(), 0);
+    for (size_t i = 0; i < packs.size(); i++) {
+        lua_pushstring(L, packs[i].id.c_str());
+        lua_rawseti(L, -2, i + 1);
+    }
+    return 1;
+}
+
 const luaL_Reg packlib [] = {
     {"get_folder", lua_wrap_errors<l_pack_get_folder>},
+    {"get_installed", lua_wrap_errors<l_pack_get_installed>},
     {NULL, NULL}
 };
