@@ -60,6 +60,14 @@ void Label::setVerticalAlign(Align align) {
     this->valign = align;
 }
 
+void gui::Label::setTextOffset(glm::vec2 offset) {
+    textOffset = offset;
+}
+
+glm::vec2 gui::Label::getTextOffset() const {
+    return textOffset;
+}
+
 Align Label::getVerticalAlign() const {
     return valign;
 }
@@ -70,10 +78,6 @@ float Label::getLineInterval() const {
 
 void Label::setLineInterval(float interval) {
     lineInterval = interval;
-}
-
-int Label::getTextYOffset() const {
-    return textYOffset;
 }
 
 size_t Label::getTextLineOffset(uint line) const {
@@ -91,14 +95,14 @@ size_t Label::getTextLineOffset(uint line) const {
 }
 
 int Label::getLineYOffset(uint line) const {
-    return line * totalLineHeight + textYOffset;
+    return line * totalLineHeight + textOffset.y;
 }
 
 uint Label::getLineByYOffset(int offset) const {
-    if (offset < textYOffset) {
+    if (offset < textOffset.y) {
         return 0;
     }
-    return (offset - textYOffset) / totalLineHeight;
+    return (offset - textOffset.y) / totalLineHeight;
 }
 
 uint Label::getLineByTextIndex(size_t index) const {
@@ -139,7 +143,7 @@ void Label::draw(const GfxContext* pctx, Assets* assets) {
         (lines == 1 ? lineHeight : lineHeight*lineInterval)*lines + font->getYOffset()
     );
 
-    glm::vec2 pos = calcPos();
+    glm::vec2 pos = calcPos() + textOffset;
     switch (align) {
         case Align::left:
             break;
@@ -160,7 +164,7 @@ void Label::draw(const GfxContext* pctx, Assets* assets) {
             pos.y += size.y-newsize.y;
             break;
     }
-    textYOffset = pos.y-calcPos().y;
+
     totalLineHeight = lineHeight * lineInterval;
 
     if (multiline) {
@@ -367,7 +371,7 @@ TextBox::TextBox(std::wstring placeholder, glm::vec4 padding)
     label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
     add(label);
     setHoverColor(glm::vec4(0.05f, 0.1f, 0.2f, 0.75f));
-
+    scrollable = false;
     textInitX = label->getPos().x;
 }
 
@@ -381,13 +385,14 @@ void TextBox::draw(const GfxContext* pctx, Assets* assets) {
 
     glm::vec2 pos = calcPos();
     glm::vec2 size = getSize();
-
+    
     auto subctx = pctx->sub();
     subctx.setScissors(glm::vec4(pos.x, pos.y, size.x, size.y));
 
     const int lineHeight = font->getLineHeight() * label->getLineInterval();
     glm::vec2 lcoord = label->calcPos();
     lcoord.y -= 2;
+    lcoord.x += label->getTextOffset().x;
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
     if (editable && int((Window::time() - caretLastMove) * 2) % 2 == 0) {
@@ -411,9 +416,12 @@ void TextBox::draw(const GfxContext* pctx, Assets* assets) {
         if (startLine == endLine) {
             batch->rect(lcoord.x + start, lcoord.y+startY, end-start, lineHeight);
         } else {
-            batch->rect(lcoord.x + start, lcoord.y+endY, label->getSize().x-start-padding.z-padding.x-2, lineHeight);
+            int width = font->calcWidth(input.substr(selectionStart, label->getTextLineOffset(startLine + 1) - selectionStart-1));
+
+            batch->rect(lcoord.x + start, lcoord.y+endY, width, lineHeight);
             for (uint i = startLine+1; i < endLine; i++) {
-                batch->rect(lcoord.x, lcoord.y+label->getLineYOffset(i), label->getSize().x-padding.z-padding.x-2, lineHeight);
+                width = font->calcWidth(input.substr(label->getTextLineOffset(i), label->getTextLineOffset(i+1) - label->getTextLineOffset(i)-1));
+                batch->rect(lcoord.x, lcoord.y+label->getLineYOffset(i), width, lineHeight);
             }
             batch->rect(lcoord.x, lcoord.y+label->getLineYOffset(endLine), end, lineHeight);
         }
@@ -443,7 +451,7 @@ void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
 
     batch->rect(pos.x, pos.y, size.x, size.y);
     if (!isFocused() && supplier) {
-        input = supplier();
+        setText(supplier());
     }
 
     if (isFocused() && multiline) {
@@ -459,14 +467,6 @@ void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
 
     label->setColor(glm::vec4(input.empty() ? 0.5f : 1.0f));
     label->setText(getText());
-    if (multiline && font) {
-        setScrollable(true);
-        uint height = label->getLinesNumber() * font->getLineHeight() * label->getLineInterval();
-        label->setSize(glm::vec2(label->getSize().x, height));
-        actualLength = height;
-    } else {
-        setScrollable(false);
-    }
 }
 
 /// @brief Insert text at the caret. Also selected text will be erased
@@ -500,6 +500,7 @@ void TextBox::erase(size_t start, size_t length) {
     auto left = input.substr(0, start);
     auto right = input.substr(end);
     input = left + right;
+    validate();
 }
 
 /// @brief Remove all selected text and reset selection
@@ -537,13 +538,6 @@ size_t TextBox::getSelectionLength() const {
     return selectionEnd - selectionStart;
 }
 
-/// @brief Set scroll offset
-/// @param x scroll offset
-void TextBox::setTextOffset(uint x) {
-    label->setPos(glm::vec2(textInitX - int(x), label->getPos().y));
-    textOffset = x;
-}
-
 void TextBox::typed(unsigned int codepoint) {
     paste(std::wstring({(wchar_t)codepoint}));
 }
@@ -566,7 +560,7 @@ bool TextBox::isValid() const {
 }
 
 void TextBox::setMultiline(bool multiline) {
-    this->multiline = multiline;
+    this->multiline = scrollable = multiline;
     label->setMultiline(multiline);
     label->setVerticalAlign(multiline ? Align::top : Align::center);
 }
@@ -596,11 +590,6 @@ void TextBox::onFocus(GUI* gui) {
     }
 }
 
-void TextBox::refresh() {
-    Panel::refresh();
-    label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
-}
-
 /// @brief Clamp index to range [0, input.length()]
 /// @param index non-normalized index
 /// @return normalized index
@@ -616,6 +605,7 @@ int TextBox::calcIndexAt(int x, int y) const {
     if (font == nullptr)
         return 0;
     glm::vec2 lcoord = label->calcPos();
+    lcoord.x += label->getTextOffset().x;
     uint line = label->getLineByYOffset(y-lcoord.y);
     line = std::min(line, label->getLinesNumber()-1);
     size_t lineLength = getLineLength(line);
@@ -640,6 +630,14 @@ void TextBox::mouseMove(GUI*, int x, int y) {
     resetMaxLocalCaret();
 }
 
+void gui::TextBox::scrolled(int value) {
+    if (!scrollable || font == nullptr) return;
+    float lineHeight = font->getLineHeight() * label->getLineInterval();
+    glm::vec2 offset = label->getTextOffset();
+    offset.y = std::clamp(offset.y + value * lineHeight, -std::max(lineHeight * label->getLinesNumber() - label->getSize().y, 0.f), 0.f);
+    label->setTextOffset(offset);
+}
+
 void TextBox::resetMaxLocalCaret() {
     maxLocalCaret = caret - label->getTextLineOffset(label->getLineByTextIndex(caret));
 }
@@ -655,12 +653,10 @@ void TextBox::performEditingKeyboardEvents(keycode key) {
             }
             input = input.substr(0, caret-1) + input.substr(caret);
             setCaret(caret-1);
-            validate();
         }
     } else if (key == keycode::DELETE) {
         if (!eraseSelected() && caret < input.length()) {
             input = input.substr(0, caret) + input.substr(caret + 1);
-            validate();
         }
     } else if (key == keycode::ENTER) {
         if (multiline) {
@@ -860,20 +856,22 @@ void TextBox::setCaret(uint position) {
 
     int width = label->getSize().x;
     uint line = label->getLineByTextIndex(caret);
-    int offset = label->getLineYOffset(line) + contentOffset().y;
+    int offset = label->getLineYOffset(line);
     uint lineHeight = font->getLineHeight()*label->getLineInterval();
-    scrollStep = lineHeight;
-    if (offset < 0) {
-        scrolled(1);
-    } else if (offset >= getSize().y) {
-        scrolled(-1);
+    glm::vec2 textOffset = label->getTextOffset();
+
+    if (offset >= label->getSize().y) {
+        label->setTextOffset(glm::vec2(textOffset.x, std::min(0.f, textOffset.y - lineHeight)));
+    } else if (offset < 0) {
+        label->setTextOffset(glm::vec2(textOffset.x, std::min(0.f, textOffset.y + lineHeight)));
     }
+    textOffset = label->getTextOffset();
     uint lcaret = caret - label->getTextLineOffset(line);
-    int realoffset = font->calcWidth(input, lcaret)-int(textOffset)+2;
-    if (realoffset-width > 0) {
-        setTextOffset(textOffset + realoffset-width);
+    int realoffset = font->calcWidth(input, lcaret)+textOffset.x+2;
+    if (realoffset > width) {
+        label->setTextOffset(glm::vec2(textOffset.x - (realoffset - width), textOffset.y));
     } else if (realoffset < 0) {
-        setTextOffset(std::max(textOffset + realoffset, 0U));
+        label->setTextOffset(glm::vec2(textOffset.x - realoffset, textOffset.y));
     }
 }
 

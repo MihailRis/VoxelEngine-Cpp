@@ -32,9 +32,9 @@ namespace gui {
 
         // runtime values
         
-        /// @brief Text Y offset relative to label position
+        /// @brief Text offset relative to label position
         /// (last calculated alignment)
-        int textYOffset = 0;
+        glm::vec2 textOffset{ 0.f, 0.f };
 
         /// @brief Text line height multiplied by line interval
         int totalLineHeight = 1;
@@ -60,9 +60,11 @@ namespace gui {
         /// @brief Set line height multiplier used for multiline labels
         virtual void setLineInterval(float interval);
 
-        /// @brief Get Y position of the text relative to label position
-        /// @return Y offset
-        virtual int getTextYOffset() const;
+        virtual void setTextOffset(glm::vec2 offset);
+
+        /// @brief Get position of the text relative to label position
+        /// @return offset
+        virtual glm::vec2 getTextOffset() const;
 
         /// @brief Get Y position of the line relative to label position
         /// @param line target line index
@@ -164,7 +166,6 @@ namespace gui {
         uint caret = 0;
         /// @brief actual local (line) position of the caret on vertical move
         uint maxLocalCaret = 0;
-        uint textOffset = 0;
         int textInitX;
         /// @brief last time of the caret was moved (used for blink animation)
         double caretLastMove = 0.0;
@@ -181,7 +182,6 @@ namespace gui {
 
         int calcIndexAt(int x, int y) const;
         void paste(const std::wstring& text);
-        void setTextOffset(uint x);
         void erase(size_t start, size_t length);
         bool eraseSelected();
         void resetSelection();
@@ -273,9 +273,9 @@ namespace gui {
         virtual void setOnEditStart(runnable oneditstart);
 
         virtual void onFocus(GUI*) override;
-        virtual void refresh() override;
         virtual void click(GUI*, int, int) override;
         virtual void mouseMove(GUI*, int x, int y) override;
+        virtual void scrolled(int value) override;
         virtual bool isFocuskeeper() const override {return true;}
         virtual void draw(const GfxContext* pctx, Assets* assets) override;
         virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
