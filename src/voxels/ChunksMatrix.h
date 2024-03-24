@@ -10,14 +10,18 @@
 
 class VoxelRenderer;
 
+struct AABB;
+struct voxel;
 class Chunk;
 class Level;
 class WorldFiles;
 class LevelEvents;
 class ChunksController;
+class ContentIndices;
 
 /// @brief Chunk matrix loads chunks around it's center in certain radius
 class ChunksMatrix {
+    const ContentIndices* const contentIds;
 public:
     std::unique_ptr<ChunksController> controller;
 	std::vector<std::shared_ptr<Chunk>> chunks;
@@ -36,6 +40,26 @@ public:
 
 	bool putChunk(std::shared_ptr<Chunk> chunk);
 
+	Chunk* getChunk(int32_t x, int32_t z);
+	Chunk* getChunkByVoxel(int32_t x, int32_t y, int32_t z);
+	voxel* getVoxel(int32_t x, int32_t y, int32_t z);
+	light_t getLight(int32_t x, int32_t y, int32_t z);
+	ubyte getLight(int32_t x, int32_t y, int32_t z, int channel);
+	void setVoxel(int32_t x, int32_t y, int32_t z, uint32_t id, uint8_t states);
+
+	voxel* rayCast(glm::vec3 start, 
+				   glm::vec3 dir, 
+				   float maxLength, 
+				   glm::vec3& end, 
+				   glm::ivec3& norm, 
+				   glm::ivec3& iend);
+
+	glm::vec3 rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDist);
+
+	const AABB* isObstacleAt(float x, float y, float z);
+    bool isSolidBlock(int32_t x, int32_t y, int32_t z);
+    bool isReplaceableBlock(int32_t x, int32_t y, int32_t z);
+	bool isObstacleBlock(int32_t x, int32_t y, int32_t z);
 	// does not move chunks inside
 	void _setOffset(int32_t x, int32_t z);
 
