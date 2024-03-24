@@ -12,7 +12,6 @@
 class Camera;
 class Level;
 class Block;
-class ChunksStorage;
 class BlocksController;
 
 class CameraControl {
@@ -39,7 +38,7 @@ class CameraControl {
 public:
     CameraControl(std::shared_ptr<Player> player, const CameraSettings& settings);
     void updateMouse(PlayerInput& input);
-    void update(PlayerInput& input, float delta, ChunksStorage* chunks);
+    void update(PlayerInput& input, float delta, ChunksMatrix* chunks);
     void refresh();
 };
 
