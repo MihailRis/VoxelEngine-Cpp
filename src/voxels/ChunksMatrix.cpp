@@ -1,13 +1,16 @@
 #include "ChunksMatrix.h"
 #include "Chunk.h"
+#include "../world/Level.h"
 #include "../world/LevelEvents.h"
+#include "../content/Content.h"
 #include "../logic/ChunksController.h"
 
 #include "../maths/voxmaths.h"
 #include <vector>
 
 ChunksMatrix::ChunksMatrix(Level* level, uint32_t w, uint32_t d, int32_t ox, int32_t oz, const EngineSettings& settings)
-		: controller(std::make_unique<ChunksController>(level, this, settings.chunks.padding)),
+		: contentIds(level->content->getIndices()),
+          controller(std::make_unique<ChunksController>(level, this, settings.chunks.padding)),
           chunks(w*d),
           chunksSecond(w*d),
 		  w(w), d(d), ox(ox), oz(oz), 
