@@ -21,7 +21,6 @@ class Lighting;
 class PhysicsSolver;
 class ChunksStorage;
 
-class ChunksMatrix;
 /// @brief A level, contains chunks and objects
 class Level {
 public:
