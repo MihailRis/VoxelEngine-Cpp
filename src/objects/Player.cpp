@@ -152,12 +152,12 @@ void Player::attemptToFindSpawnpoint(Level* level) {
         rand() % 80 + 100,
         ppos.z + (rand() % 200 - 100)
     );
-    while (newpos.y > 0 && !level->chunksStorage->isObstacleBlock(newpos.x, newpos.y-2, newpos.z)) {
+    while (newpos.y > 0 && !chunksMatrix->isObstacleBlock(newpos.x, newpos.y-2, newpos.z)) {
         newpos.y--;
     }
 
-    voxel* headvox = level->chunksStorage->getVoxel(newpos.x, newpos.y+1, newpos.z);
-    if (level->chunksStorage->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
+    voxel* headvox = chunksMatrix->getVoxel(newpos.x, newpos.y+1, newpos.z);
+    if (chunksMatrix->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
         headvox == nullptr || headvox->id != 0)
         return;
     spawnpoint = newpos + glm::vec3(0.5f, 0.0f, 0.5f);
