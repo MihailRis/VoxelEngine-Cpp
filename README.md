@@ -42,7 +42,7 @@ sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
 
 #### RHEL-based distro:
 ```sh
-sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-devel openal-devel luajit
+sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-devel openal-devel luajit-devel
 ```
 
 #### Arch-based distro:
