@@ -41,8 +41,8 @@ public:
 class LevelScreen : public Screen {
     std::unique_ptr<LevelFrontend> frontend;
     std::unique_ptr<Hud> hud;
-    std::unique_ptr<WorldRenderer> worldRenderer;
     std::unique_ptr<LevelController> controller;
+    std::unique_ptr<WorldRenderer> worldRenderer;
     std::unique_ptr<TextureAnimator> animator;
 
     bool hudVisible = true;
