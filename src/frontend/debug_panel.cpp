@@ -2,20 +2,19 @@
 #include <memory>
 #include <sstream>
 
-#include "gui/controls.h"
 #include "../audio/audio.h"
-#include "../graphics/Mesh.h"
-#include "../objects/Player.h"
-#include "../physics/Hitbox.h"
-#include "../world/Level.h"
-#include "../world/World.h"
-#include "../voxels/Chunks.h"
-#include "../voxels/Block.h"
-#include "../util/stringutil.h"
 #include "../delegates.h"
 #include "../engine.h"
-
-#include "WorldRenderer.h"
+#include "../graphics/core/Mesh.h"
+#include "../graphics/ui/elements/controls.h"
+#include "../graphics/render/WorldRenderer.h"
+#include "../objects/Player.h"
+#include "../physics/Hitbox.h"
+#include "../util/stringutil.h"
+#include "../voxels/Block.h"
+#include "../voxels/Chunks.h"
+#include "../world/Level.h"
+#include "../world/World.h"
 
 using namespace gui;
 

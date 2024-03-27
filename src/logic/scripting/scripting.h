@@ -23,6 +23,7 @@ struct block_funcs_set;
 struct item_funcs_set;
 struct uidocscript;
 class BlocksController;
+class LevelController;
 
 namespace scripting {
     extern Engine* engine;
@@ -30,6 +31,7 @@ namespace scripting {
     extern const ContentIndices* indices;
     extern Level* level;
     extern BlocksController* blocks;
+    extern LevelController* controller;
 
     /// @brief Lua environment wrapper for automatic deletion
     class Environment {
@@ -52,7 +54,9 @@ namespace scripting {
     std::unique_ptr<Environment> create_pack_environment(const ContentPack& pack);
     std::unique_ptr<Environment> create_doc_environment(int parent, const std::string& name);
 
-    void on_world_load(Level* level, BlocksController* blocks);
+    void process_post_runnables();
+
+    void on_world_load(LevelController* controller);
     void on_world_tick();
     void on_world_save();
     void on_world_quit();

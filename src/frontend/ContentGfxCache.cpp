@@ -5,9 +5,10 @@
 #include "../assets/Assets.h"
 #include "../content/Content.h"
 #include "../content/ContentPack.h"
-#include "../graphics/Atlas.h"
-#include "../voxels/Block.h"
 #include "../core_defs.h"
+#include "../graphics/core/Atlas.h"
+#include "../maths/UVRegion.h"
+#include "../voxels/Block.h"
 #include "UiDocument.h"
 
 ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets) : content(content) {

@@ -1,16 +1,17 @@
 #include "menu.h"
 #include "menu_commons.h"
-#include "../locale/langs.h"
-#include "../gui/gui_util.h"
-#include "../screens.h"
+
+#include "../../coders/png.h"
+#include "../../content/ContentLUT.h"
 #include "../../engine.h"
+#include "../../files/WorldFiles.h"
+#include "../../graphics/ui/gui_util.h"
+#include "../../logic/LevelController.h"
+#include "../../util/stringutil.h"
 #include "../../world/Level.h"
 #include "../../world/World.h"
-#include "../../coders/png.h"
-#include "../../util/stringutil.h"
-#include "../../files/WorldFiles.h"
-#include "../../content/ContentLUT.h"
-#include "../../logic/LevelController.h"
+#include "../locale/langs.h"
+#include "../screens.h"
 
 #include <glm/glm.hpp>
 
@@ -30,7 +31,7 @@ std::shared_ptr<Panel> menus::create_packs_panel(
     panel->setScrollable(true);
 
     for (auto& pack : packs) {
-        auto packpanel = std::make_shared<RichButton>(glm::vec2(540, 80));
+        auto packpanel = std::make_shared<Container>(glm::vec2(540, 80));
         packpanel->setColor(glm::vec4(0.06f, 0.12f, 0.18f, 0.7f));
         if (callback) {
             packpanel->listenAction([=](GUI*) {
@@ -62,11 +63,11 @@ std::shared_ptr<Panel> menus::create_packs_panel(
         }
 
         if (!pack.creator.empty()) {
-            auto creatorlabel = std::make_shared<Label>("@"+pack.creator);
-            creatorlabel->setColor(glm::vec4(0.8f, 1.0f, 0.9f, 0.7f));
-            creatorlabel->setSize(glm::vec2(300, 20));
-            creatorlabel->setAlign(Align::right);
-            packpanel->add(creatorlabel, glm::vec2(215, 60));
+            packpanel->add(guiutil::create(
+                "<label color='#CCFFE5B2' size='300,20' align='right' pos='215,60'>"+
+                pack.creator+
+                "</label>"
+            ));
         }
 
         auto descriptionlabel = std::make_shared<Label>(pack.description);
@@ -76,11 +77,11 @@ std::shared_ptr<Panel> menus::create_packs_panel(
         packpanel->add(std::make_shared<Image>(icon, glm::vec2(64)), glm::vec2(8));
 
         if (remover && pack.id != "base") {
-            auto remimg = std::make_shared<Image>("gui/cross", glm::vec2(32));
-            remimg->setColor(glm::vec4(1.f, 1.f, 1.f, 0.5f));
-            auto rembtn = std::make_shared<Button>(remimg, glm::vec4(2));
-            rembtn->setColor(glm::vec4(0.0f));
-            rembtn->setHoverColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.17f));
+            auto rembtn = guiutil::create(
+                "<button color='#00000000' hover-color='#FFFFFF2B'>"
+                "    <image src='gui/cross' size='32,32'/>"
+                "</button>"
+            );
             rembtn->listenAction([=](GUI* gui) {
                 remover(pack);
             });
@@ -102,10 +103,30 @@ static void reopen_world(Engine* engine, World* world) {
     menus::open_world(wname, engine, true);
 }
 
+// FIXME
+static bool try_add_dependency(Engine* engine, World* world, const ContentPack& pack, std::string& missing) {
+    auto paths = engine->getPaths();
+    for (const auto& dependency : pack.dependencies) {
+        fs::path folder = ContentPack::findPack(
+            paths, 
+            world->wfile->directory, 
+            dependency
+        );
+        if (!fs::is_directory(folder)) {
+            missing = dependency;
+            return true;
+        }
+        if (!world->hasPack(dependency)) {
+            world->wfile->addPack(world, dependency);
+        }
+    }
+    world->wfile->addPack(world, pack.id);
+    return false;
+}
+
 void create_content_panel(Engine* engine, LevelController* controller) {
     auto level = controller->getLevel();
     auto menu = engine->getGUI()->getMenu();
-    auto paths = engine->getPaths();
     auto mainPanel = menus::create_page(engine, "content", 550, 0.0f, 5);
 
     std::vector<ContentPack> scanned;
@@ -144,17 +165,13 @@ void create_content_panel(Engine* engine, LevelController* controller) {
         auto panel = menus::create_packs_panel(scanned, engine, true, 
         [=](const ContentPack& pack) {
             auto world = level->getWorld();
-            auto worldFolder = paths->getWorldFolder();
-            for (const auto& dependency : pack.dependencies) {
-                fs::path folder = ContentPack::findPack(paths, worldFolder, dependency);
-                if (!fs::is_directory(folder)) {
-                    guiutil::alert(gui, langs::get(L"error.dependency-not-found")+
-                                   L": "+util::str2wstr_utf8(dependency));
-                    return;
-                }
-                if (!world->hasPack(dependency)) {
-                    world->wfile->addPack(world, dependency);
-                }
+            std::string missing;
+            if (try_add_dependency(engine, world, pack, missing)) {
+                guiutil::alert(
+                    gui, langs::get(L"error.dependency-not-found")+
+                    L": "+util::str2wstr_utf8(missing)
+                );
+                return;
             }
             world->wfile->addPack(world, pack.id);
             controller->saveWorld();
@@ -180,11 +197,13 @@ void menus::create_pause_panel(Engine* engine, LevelController* controller) {
     panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
 
     panel->add(create_button(L"Save and Quit to Menu", glm::vec4(10.f), glm::vec4(1), [=](GUI*){
-        // save world
-        controller->saveWorld();
-        // destroy LevelScreen and run quit callbacks
-        engine->setScreen(nullptr);
-        // create and go to menu screen
-        engine->setScreen(std::make_shared<MenuScreen>(engine));
+        engine->postRunnable([=]() {
+            // save world
+            controller->saveWorld();
+            // destroy LevelScreen and run quit callbacks
+            engine->setScreen(nullptr);
+            // create and go to menu screen
+            engine->setScreen(std::make_shared<MenuScreen>(engine));
+        });
     }));
 }

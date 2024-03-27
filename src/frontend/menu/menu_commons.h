@@ -5,7 +5,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#include "../gui/controls.h"
+#include "../../graphics/ui/elements/controls.h"
 
 class Engine;
 

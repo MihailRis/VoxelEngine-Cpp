@@ -6,6 +6,7 @@
 #include <string>
 
 using runnable = std::function<void()>;
+template<class T> using supplier = std::function<T()>;
 
 // data sources
 using wstringsupplier = std::function<std::wstring()>;

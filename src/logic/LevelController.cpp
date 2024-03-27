@@ -14,7 +14,7 @@ LevelController::LevelController(EngineSettings& settings, Level* level)
     chunks(std::make_unique<ChunksController>(level, settings.chunks.padding)),
     player(std::make_unique<PlayerController>(level, settings, blocks.get())) {
 
-    scripting::on_world_load(level, blocks.get());
+    scripting::on_world_load(this);
 }
 
 void LevelController::update(float delta, bool input, bool pause) {
@@ -33,12 +33,9 @@ void LevelController::update(float delta, bool input, bool pause) {
     
     if (!pause) {
         // update all objects that needed
-        for(auto obj : level->objects)
-        {
-            if(obj) {
-                if(obj->shouldUpdate) {
-                    obj->update(delta);
-                }
+        for (auto obj : level->objects) {
+            if (obj && obj->shouldUpdate) {
+                obj->update(delta);
             }
         }
         blocks->update(delta);
@@ -61,6 +58,10 @@ Level* LevelController::getLevel() {
 
 Player* LevelController::getPlayer() {
     return player->getPlayer();
+}
+
+BlocksController* LevelController::getBlocksController() {
+    return blocks.get();
 }
 
 PlayerController* LevelController::getPlayerController() {

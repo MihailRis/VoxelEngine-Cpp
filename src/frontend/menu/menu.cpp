@@ -8,10 +8,13 @@
 #include <filesystem>
 #include <glm/glm.hpp>
 
-#include "../gui/GUI.h"
-#include "../gui/containers.h"
-#include "../gui/controls.h"
+#include "../../graphics/ui/GUI.h"
+#include "../../graphics/ui/gui_util.h"
+#include "../../graphics/ui/elements/containers.h"
+#include "../../graphics/ui/elements/controls.h"
 #include "../screens.h"
+#include "../UiDocument.h"
+#include "../../logic/scripting/scripting.h"
 
 #include "../../coders/png.h"
 #include "../../util/stringutil.h"
@@ -29,8 +32,6 @@
 #include "../../content/Content.h"
 #include "../../content/ContentLUT.h"
 #include "../../content/ContentPack.h"
-
-#include "../gui/gui_util.h"
 #include "../locale/langs.h"
 
 #include "menu_commons.h"
@@ -40,6 +41,13 @@ using namespace gui;
 
 namespace menus {
     extern std::string generatorID;
+}
+
+static void load_page(Engine* engine, const std::string& name) {
+    auto menu = engine->getGUI()->getMenu();
+    auto file = engine->getResPaths()->find("layouts/pages/"+name+".xml");
+    auto node = UiDocument::readElement(file);
+    menu->addPage(name, node);
 }
 
 void menus::create_version_label(Engine* engine) {
@@ -66,10 +74,10 @@ static void show_content_missing(
 
     panel->add(std::make_shared<Label>(langs::get(L"menu.missing-content")));
 
-    auto subpanel = std::make_shared<Panel>(glm::vec2(500, 100));
-    subpanel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
-    subpanel->setScrollable(true);
-    subpanel->setMaxLength(400);
+    auto subpanel = std::dynamic_pointer_cast<Panel>(guiutil::create(
+        "<panel size='500,100' color='00000080' scrollable='true' max-length='400'>"
+        "</panel>"
+    ));
     panel->add(subpanel);
 
     for (auto& entry : lut->getMissingContent()) {
@@ -226,59 +234,26 @@ void menus::open_world(std::string name, Engine* engine, bool confirmConvert) {
     }
 }
 
-std::shared_ptr<Panel> create_worlds_panel(Engine* engine) {
-    auto panel = std::make_shared<Panel>(glm::vec2(390, 0), glm::vec4(5.0f));
-    panel->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.07f));
-    panel->setMaxLength(400);
-
-    auto paths = engine->getPaths();
-
-    for (auto folder : paths->scanForWorlds()) {
-        auto name = folder.filename().u8string();
-        auto namews = util::str2wstr_utf8(name);
-
-        auto btn = std::make_shared<RichButton>(glm::vec2(390, 46));
-        btn->setColor(glm::vec4(0.06f, 0.12f, 0.18f, 0.7f));
-        btn->setHoverColor(glm::vec4(0.09f, 0.17f, 0.2f, 0.6f));
-        btn->listenAction([=](GUI*) {
-            menus::open_world(name, engine, false);
-        });
-        btn->add(std::make_shared<Label>(namews), glm::vec2(8, 8));
-
-        auto image = std::make_shared<Image>("gui/delete_icon", glm::vec2(32, 32));
-        image->setColor(glm::vec4(1, 1, 1, 0.5f));
-
-        auto delbtn = std::make_shared<Button>(image, glm::vec4(2));
-        delbtn->setColor(glm::vec4(0.0f));
-        delbtn->setHoverColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.17f));
-        delbtn->listenAction([=](GUI* gui) {
-            guiutil::confirm(gui, langs::get(L"delete-confirm", L"world")+
-            L" ("+util::str2wstr_utf8(folder.u8string())+L")", [=]() {
-                std::cout << "deleting " << folder.u8string() << std::endl;
-                fs::remove_all(folder);
-                menus::refresh_menus(engine);
-            });
-        });
-        btn->add(delbtn, glm::vec2(330, 3));
-
-        panel->add(btn);
-    }
-    return panel;
+void menus::delete_world(std::string name, Engine* engine) {
+    fs::path folder = engine->getPaths()->getWorldFolder(name);
+    guiutil::confirm(engine->getGUI(), langs::get(L"delete-confirm", L"world")+
+    L" ("+util::str2wstr_utf8(folder.u8string())+L")", [=]() {
+        std::cout << "deleting " << folder.u8string() << std::endl;
+        fs::remove_all(folder);
+        menus::refresh_menus(engine);
+    });
 }
 
-void create_main_menu_panel(Engine* engine) {
+static void add_page_loader(Engine* engine, const std::string& name) {
     auto menu = engine->getGUI()->getMenu();
-
-    auto panel = menus::create_page(engine, "main", 400, 0.0f, 1);
-    panel->add(guiutil::gotoButton(L"New World", "new-world", menu));
-    panel->add(create_worlds_panel(engine));
-    panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
-
-    panel->add(std::make_shared<Button>(
-        langs::get(L"Quit", L"menu"), glm::vec4(10.f), [](GUI*) {
-            Window::setShouldClose(true);
-        }
-    ));
+    auto file = engine->getResPaths()->find("layouts/pages/"+name+".xml");
+    auto fullname = "core:pages/"+name;
+    menu->addSupplier(name, [=]() {
+        auto document = UiDocument::read(0, fullname, file).release();
+        engine->getAssets()->store(document, fullname);
+        scripting::on_ui_open(document, nullptr, glm::ivec3());
+        return document->getRoot();
+    });
 }
 
 void menus::create_menus(Engine* engine) {
@@ -286,12 +261,14 @@ void menus::create_menus(Engine* engine) {
     create_new_world_panel(engine);
     create_settings_panel(engine);
     create_languages_panel(engine);
-    create_main_menu_panel(engine);
     create_world_generators_panel(engine);
+    add_page_loader(engine, "main");
+    load_page(engine, "404");
 }
 
 void menus::refresh_menus(Engine* engine) {
-    create_main_menu_panel(engine);
     create_new_world_panel(engine);
     create_world_generators_panel(engine);
+    add_page_loader(engine, "main");
+    load_page(engine, "404");
 }

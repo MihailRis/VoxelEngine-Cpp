@@ -4,8 +4,8 @@
 #include <memory>
 #include <GL/glew.h>
 
-#include "../graphics/ImageData.h"
-#include "../graphics/Texture.h"
+#include "../graphics/core/ImageData.h"
+#include "../graphics/core/Texture.h"
 #include "../files/files.h"
 
 #ifndef _WIN32

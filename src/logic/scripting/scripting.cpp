@@ -13,6 +13,7 @@
 #include "../../items/ItemDef.h"
 #include "../../items/Inventory.h"
 #include "../../logic/BlocksController.h"
+#include "../../logic/LevelController.h"
 #include "../../frontend/UiDocument.h"
 #include "../../engine.h"
 #include "lua/LuaState.h"
@@ -31,6 +32,7 @@ Level* scripting::level = nullptr;
 const Content* scripting::content = nullptr;
 const ContentIndices* scripting::indices = nullptr;
 BlocksController* scripting::blocks = nullptr;
+LevelController* scripting::controller = nullptr;
 
 Environment::Environment(int env) : env(env) {
 }
@@ -97,11 +99,18 @@ std::unique_ptr<Environment> scripting::create_doc_environment(int parent, const
     return std::make_unique<Environment>(id);
 }
 
-void scripting::on_world_load(Level* level, BlocksController* blocks) {
-    scripting::level = level;
+void scripting::process_post_runnables() {
+    if (state->getglobal("__process_post_runnables")) {
+        state->callNoThrow(0);
+    }
+}
+
+void scripting::on_world_load(LevelController* controller) {
+    scripting::level = controller->getLevel();
     scripting::content = level->content;
     scripting::indices = level->content->getIndices();
-    scripting::blocks = blocks;
+    scripting::blocks = controller->getBlocksController();
+    scripting::controller = controller;
     load_script("world.lua");
 
     for (auto& pack : scripting::engine->getContentPacks()) {
@@ -140,6 +149,8 @@ void scripting::on_world_quit() {
     scripting::level = nullptr;
     scripting::content = nullptr;
     scripting::indices = nullptr;
+    scripting::blocks = nullptr;
+    scripting::controller = nullptr;
 }
 
 void scripting::on_blocks_tick(const Block* block, int tps) {

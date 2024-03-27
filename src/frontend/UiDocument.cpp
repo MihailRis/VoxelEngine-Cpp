@@ -1,12 +1,11 @@
 #include "UiDocument.h"
 
-#include <iostream>
-#include "gui/UINode.h"
-#include "gui/containers.h"
-#include "InventoryView.h"
-#include "../logic/scripting/scripting.h"
 #include "../files/files.h"
-#include "../frontend/gui/gui_xml.h"
+#include "../graphics/ui/elements/containers.h"
+#include "../graphics/ui/elements/UINode.h"
+#include "../graphics/ui/gui_xml.h"
+#include "../logic/scripting/scripting.h"
+#include "InventoryView.h"
 
 UiDocument::UiDocument(
     std::string id, 
@@ -51,7 +50,7 @@ void UiDocument::collect(uinodes_map& map, std::shared_ptr<gui::UINode> node) {
     if (!id.empty()) {
         map[id] = node;
     }
-    auto container = dynamic_cast<gui::Container*>(node.get());
+    auto container = std::dynamic_pointer_cast<gui::Container>(node);
     if (container) {
         for (auto subnode : container->getNodes()) {
             collect(map, subnode);
@@ -59,12 +58,15 @@ void UiDocument::collect(uinodes_map& map, std::shared_ptr<gui::UINode> node) {
     }
 }
 
-std::unique_ptr<UiDocument> UiDocument::read(AssetsLoader& loader, int penv, std::string namesp, fs::path file) {
+std::unique_ptr<UiDocument> UiDocument::read(int penv, std::string name, fs::path file) {
     const std::string text = files::read_string(file);
     auto xmldoc = xml::parse(file.u8string(), text);
 
-    auto env = scripting::create_doc_environment(penv, namesp);
-    gui::UiXmlReader reader(*env, loader);
+    auto env = penv == -1 
+        ? std::make_unique<scripting::Environment>(0) 
+        : scripting::create_doc_environment(penv, name);
+
+    gui::UiXmlReader reader(*env);
     InventoryView::createReaders(reader);
     auto view = reader.readXML(
         file.u8string(), xmldoc->getRoot()
@@ -73,7 +75,12 @@ std::unique_ptr<UiDocument> UiDocument::read(AssetsLoader& loader, int penv, std
     uidocscript script {};
     auto scriptFile = fs::path(file.u8string()+".lua");
     if (fs::is_regular_file(scriptFile)) {
-        scripting::load_layout_script(env->getId(), namesp, scriptFile, script);
+        scripting::load_layout_script(env->getId(), name, scriptFile, script);
     }
-    return std::make_unique<UiDocument>(namesp, script, view, std::move(env));
+    return std::make_unique<UiDocument>(name, script, view, std::move(env));
+}
+
+std::shared_ptr<gui::UINode> UiDocument::readElement(fs::path file) {
+    auto document = read(-1, file.filename().u8string(), file);
+    return document->getRoot();
 }

@@ -155,7 +155,14 @@ Content::Content(
     drawGroups(std::move(drawGroups)) 
 {}
 
-Content::~Content() {}
+Content::~Content() {
+    for (auto& entry : blockDefs) {
+        delete entry.second;
+    }
+    for (auto& entry : itemDefs) {
+        delete entry.second;
+    }
+}
 
 Block* Content::findBlock(std::string id) const {
     auto found = blockDefs.find(id);

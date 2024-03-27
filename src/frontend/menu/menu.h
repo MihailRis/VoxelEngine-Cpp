@@ -7,7 +7,6 @@
 #include <functional>
 #include "../../content/ContentPack.h"
 
-
 namespace gui {
     class Panel;
 }
@@ -42,6 +41,11 @@ namespace menus {
     /// @param engine engine instance
     /// @param confirmConvert automatically confirm convert if requested
     void open_world(std::string name, Engine* engine, bool confirmConvert);
+
+    /// @brief Show world removal confirmation dialog
+    /// @param name world name
+    /// @param engine engine instance
+    void delete_world(std::string name, Engine* engine);
 
     /// @brief Create development version label at the top-right screen corner
     void create_version_label(Engine* engine);

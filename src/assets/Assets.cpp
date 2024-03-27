@@ -1,10 +1,10 @@
 #include "Assets.h"
 
 #include "../audio/audio.h"
-#include "../graphics/Texture.h"
-#include "../graphics/Shader.h"
-#include "../graphics/Atlas.h"
-#include "../graphics/Font.h"
+#include "../graphics/core/Texture.h"
+#include "../graphics/core/Shader.h"
+#include "../graphics/core/Atlas.h"
+#include "../graphics/core/Font.h"
 #include "../frontend/UiDocument.h"
 #include "../logic/scripting/scripting.h"
 
@@ -83,7 +83,7 @@ UiDocument* Assets::getLayout(std::string name) const {
 }
 
 void Assets::store(UiDocument* layout, std::string name) {
-	layouts.emplace(name, layout);
+	layouts[name] = std::shared_ptr<UiDocument>(layout);
 }
 
 void Assets::extend(const Assets& assets) {

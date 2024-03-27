@@ -1,19 +1,19 @@
 #ifndef FRONTEND_MENU_MENU_CREATE_WORLD_H_
 #define FRONTEND_MENU_MENU_CREATE_WORLD_H_
 
-#include "menu.h"
-#include "menu_commons.h"
-#include "../gui/controls.h"
-#include "../gui/containers.h"
-#include "../gui/gui_util.h"
+#include "../../engine.h"
+#include "../../files/WorldFiles.h"
+#include "../../graphics/ui/elements/containers.h"
+#include "../../graphics/ui/elements/controls.h"
+#include "../../graphics/ui/gui_util.h"
+#include "../../util/stringutil.h"
+#include "../../world/Level.h"
+#include "../../world/World.h"
+#include "../../world/WorldGenerators.h"
 #include "../locale/langs.h"
 #include "../screens.h"
-#include "../../world/WorldGenerators.h"
-#include "../../files/WorldFiles.h"
-#include "../../world/World.h"
-#include "../../world/Level.h"
-#include "../../util/stringutil.h"
-#include "../../engine.h"
+#include "menu_commons.h"
+#include "menu.h"
 
 #include <iostream>
 
@@ -69,7 +69,7 @@ void menus::create_world_generators_panel(Engine* engine) {
     std::sort(generatorsIDs.begin(), generatorsIDs.end());
     for (std::string& id : generatorsIDs) {
         const std::string& fullName = translate_generator_id(id);
-        auto button = std::make_shared<RichButton>(glm::vec2(80, 30));
+        auto button = std::make_shared<Container>(glm::vec2(80, 30));
 
         auto idlabel = std::make_shared<Label>("["+id+"]");
         idlabel->setColor(glm::vec4(1, 1, 1, 0.5f));

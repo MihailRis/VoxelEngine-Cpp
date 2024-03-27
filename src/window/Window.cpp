@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Window.h"
 #include "Events.h"
-#include "../graphics/ImageData.h"
+#include "../graphics/core/ImageData.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

@@ -48,6 +48,10 @@ fs::path EnginePaths::getWorldFolder() {
     return worldFolder;
 }
 
+fs::path EnginePaths::getWorldFolder(const std::string& name) {
+    return getWorldsFolder()/fs::path(name);
+}
+
 std::vector<fs::path> EnginePaths::scanForWorlds() {
     std::vector<fs::path> folders;
 

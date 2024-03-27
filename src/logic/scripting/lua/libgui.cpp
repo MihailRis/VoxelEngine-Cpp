@@ -8,9 +8,11 @@
 
 #include "../../../engine.h"
 #include "../../../assets/Assets.h"
-#include "../../../frontend/gui/UINode.h"
-#include "../../../frontend/gui/controls.h"
+#include "../../../graphics/ui/gui_util.h"
+#include "../../../graphics/ui/elements/UINode.h"
+#include "../../../graphics/ui/elements/controls.h"
 #include "../../../frontend/UiDocument.h"
+#include "../../../frontend/locale/langs.h"
 #include "../../../util/stringutil.h"
 
 static gui::UINode* getDocumentNode(lua_State* L, const std::string& name, const std::string& nodeName) {
@@ -117,6 +119,36 @@ static bool getattr(lua_State* L, gui::TextBox* box, const std::string& attr) {
     return false;
 }
 
+static gui::UINode* getDocumentNode(lua_State* L) {
+    lua_getfield(L, 1, "docname");
+    lua_getfield(L, 1, "name");
+    auto docname = lua_tostring(L, -2);
+    auto name = lua_tostring(L, -1);
+    auto node = getDocumentNode(L, docname, name);
+    lua_pop(L, 2);
+    return node;
+}
+
+static int menu_back(lua_State* L) {
+    auto node = getDocumentNode(L);
+    auto menu = dynamic_cast<gui::Menu*>(node);
+    menu->back();
+    return 0;
+}
+
+static bool getattr(lua_State* L, gui::Menu* menu, const std::string& attr) {
+    if (menu == nullptr)
+        return false;
+    if (attr == "page") {
+        lua_pushstring(L, menu->getCurrent().name.c_str());
+        return true;
+    } else if (attr == "back") {
+        lua_pushcfunction(L, menu_back);
+        return true;
+    }
+    return false;
+}
+
 static bool setattr(lua_State* L, gui::FullCheckBox* box, const std::string& attr) {
     if (box == nullptr)
         return false;
@@ -162,6 +194,43 @@ static bool setattr(lua_State* L, gui::Label* label, const std::string& attr) {
     return false;
 }
 
+static bool setattr(lua_State* L, gui::Menu* menu, const std::string& attr) {
+    if (menu == nullptr)
+        return false;
+    if (attr == "page") {
+        auto page = lua_tostring(L, 4);
+        if (menu->has(page)) {
+            menu->setPage(page);
+        } else {
+            menu->setPage("404");
+        }
+        return true;
+    }
+    return false;
+}
+
+static int container_add(lua_State* L) {
+    auto node = dynamic_cast<gui::Container*>(getDocumentNode(L));
+    auto xmlsrc = lua_tostring(L, 2);
+    try {
+        node->add(guiutil::create(xmlsrc));
+    } catch (const std::exception& err) {
+        luaL_error(L, err.what());
+    }
+    return 0;
+}
+
+static bool getattr(lua_State* L, gui::Container* container, const std::string& attr) {
+    if (container == nullptr)
+        return false;
+    
+    if (attr == "add") {
+        lua_pushcfunction(L, container_add);
+        return true;
+    }
+    return false;
+}
+
 static int l_gui_getattr(lua_State* L) {
     auto docname = lua_tostring(L, 1);
     auto element = lua_tostring(L, 2);
@@ -184,6 +253,8 @@ static int l_gui_getattr(lua_State* L) {
         return 1;
     }
 
+    if (getattr(L, dynamic_cast<gui::Container*>(node), attr))
+        return 1;
     if (getattr(L, dynamic_cast<gui::Button*>(node), attr))
         return 1;
     if (getattr(L, dynamic_cast<gui::Label*>(node), attr))
@@ -193,6 +264,8 @@ static int l_gui_getattr(lua_State* L) {
     if (getattr(L, dynamic_cast<gui::TrackBar*>(node), attr))
         return 1;
     if (getattr(L, dynamic_cast<gui::FullCheckBox*>(node), attr))
+        return 1;
+    if (getattr(L, dynamic_cast<gui::Menu*>(node), attr))
         return 1;
 
     return 0;
@@ -232,6 +305,8 @@ static int l_gui_setattr(lua_State* L) {
             return 0;
         if (setattr(L, dynamic_cast<gui::FullCheckBox*>(node), attr))
             return 0;
+        if (setattr(L, dynamic_cast<gui::Menu*>(node), attr))
+            return 0;
     }
     return 0;
 }
@@ -246,10 +321,22 @@ static int l_gui_get_env(lua_State* L) {
     return 1;
 }
 
+static int l_gui_str(lua_State* L) {
+    auto text = util::str2wstr_utf8(lua_tostring(L, 1));
+    if (!lua_isnoneornil(L, 2)) {
+        auto context = util::str2wstr_utf8(lua_tostring(L, 2));
+        lua_pushstring(L, util::wstr2str_utf8(langs::get(text, context)).c_str());
+    } else {
+        lua_pushstring(L, util::wstr2str_utf8(langs::get(text)).c_str());
+    }
+    return 1;
+}
+
 const luaL_Reg guilib [] = {
     {"get_viewport", lua_wrap_errors<l_gui_getviewport>},
     {"getattr", lua_wrap_errors<l_gui_getattr>},
     {"setattr", lua_wrap_errors<l_gui_setattr>},
     {"get_env", lua_wrap_errors<l_gui_get_env>},
+    {"str", lua_wrap_errors<l_gui_str>},
     {NULL, NULL}
 };

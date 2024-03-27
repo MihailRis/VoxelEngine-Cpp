@@ -9,12 +9,12 @@
 #include "../files/engine_paths.h"
 #include "../coders/png.h"
 #include "../coders/json.h"
-#include "../graphics/Shader.h"
-#include "../graphics/Texture.h"
-#include "../graphics/ImageData.h"
-#include "../graphics/Atlas.h"
-#include "../graphics/Font.h"
-#include "../graphics/TextureAnimation.h"
+#include "../graphics/core/Shader.h"
+#include "../graphics/core/Texture.h"
+#include "../graphics/core/ImageData.h"
+#include "../graphics/core/Atlas.h"
+#include "../graphics/core/Font.h"
+#include "../graphics/core/TextureAnimation.h"
 #include "../frontend/UiDocument.h"
 #include "../logic/scripting/scripting.h"
 
@@ -151,7 +151,7 @@ bool assetload::layout(
 ) {
     try {
         auto cfg = dynamic_cast<LayoutCfg*>(config.get());
-        auto document = UiDocument::read(loader, cfg->env, name, file);
+        auto document = UiDocument::read(cfg->env, name, file);
         assets->store(document.release(), name);
         return true;
     } catch (const parsing_error& err) {

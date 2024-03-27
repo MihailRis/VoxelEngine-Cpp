@@ -7,32 +7,32 @@
 #include "../files/engine_paths.h"
 
 class ArgsReader {
-	int argc;
-	char** argv;
-	int pos = 0;
-	const char* last = "";
+    int argc;
+    char** argv;
+    int pos = 0;
+    const char* last = "";
 public:
-	ArgsReader(int argc, char** argv) : argc(argc), argv(argv) {}
+    ArgsReader(int argc, char** argv) : argc(argc), argv(argv) {}
 
-	void skip() {
-		pos++;
-	}
+    void skip() {
+        pos++;
+    }
 
-	bool hasNext() const {
-		return pos < argc;
-	}
+    bool hasNext() const {
+        return pos < argc;
+    }
 
-	bool isKeywordArg() const {
-		return last[0] == '-';
-	}
+    bool isKeywordArg() const {
+        return last[0] == '-';
+    }
 
-	std::string next() {
-		if (pos >= argc) {
-			throw std::runtime_error("unexpected end");
-		}
-		last = argv[pos];
-		return argv[pos++];
-	}
+    std::string next() {
+        if (pos >= argc) {
+            throw std::runtime_error("unexpected end");
+        }
+        last = argv[pos];
+        return argv[pos++];
+    }
 };
 
 /* @return false if engine start can*/

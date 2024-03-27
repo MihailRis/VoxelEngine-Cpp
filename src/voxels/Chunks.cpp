@@ -7,8 +7,7 @@
 #include "../lighting/Lightmap.h"
 #include "../files/WorldFiles.h"
 #include "../world/LevelEvents.h"
-
-#include "../graphics/Mesh.h"
+#include "../graphics/core/Mesh.h"
 #include "../maths/voxmaths.h"
 #include "../maths/aabb.h"
 #include "../maths/rays.h"

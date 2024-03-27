@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
-#include "../graphics/UVRegion.h"
 
 #include "../maths/aabb.h"
+#include "../maths/UVRegion.h"
 #include "../typedefs.h"
 
 #define BLOCK_ITEM_SUFFIX ".item"
