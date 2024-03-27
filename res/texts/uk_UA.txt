@@ -5,8 +5,12 @@ Ok=Гаразд
 Cancel=Скасувати
 Back=Назад
 Continue=Продовжити
+Add=Додати
+Converting world...=Виконується конвертація світу...
 
 error.pack-not-found=Не вдалося знайти пакет
+error.dependency-not-found=Використовувана залежність не знайдена
+pack.remove-confirm=Видалити назавжди весь контент, що постачається паком, зі світу?
 
 # Меню
 menu.New World=Новий Світ
@@ -18,14 +22,16 @@ menu.Controls=Керування
 menu.Back to Main Menu=Повернутися до Меню
 menu.Settings=Налаштування
 menu.Content=Контент
+menu.Audio=Звук
 world.Seed=Зерно
 world.Name=Назва
 menu.Create World=Створити Світ
 
 world.World generator=Генератор світу
-world.generators.default=Звичайні
-world.generators.flat=Плоскі
+world.generators.default=Звичайний
+world.generators.flat=Плоский
 world.convert-request=Є зміни в індексах! Конвертувати світ?
+world.delete-confirm=Видалити світ назавжди?
 
 # Налаштування
 settings.Load Distance=Дистанція Завантаження
@@ -33,6 +39,12 @@ settings.Load Speed=Швидкість Завантаження
 settings.Fog Curve=Крива Туману
 settings.Backlight=Підсвічування
 settings.V-Sync=Вертикальна Синхронізація
+settings.Camera Shaking=Коливання Камери
+settings.Master Volume=Загальна Гучність
+settings.Regular Sounds=Звичайні Звуки
+settings.UI Sounds=Звуки Інтерфейсу
+settings.Ambient=Середовище
+settings.Music=Музика
 
 settings.FOV=Поле зору
 settings.Mouse Sensitivity=Чутливість Миші

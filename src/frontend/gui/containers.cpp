@@ -90,7 +90,10 @@ void Container::draw(const GfxContext* pctx, Assets* assets) {
         GfxContext ctx = pctx->sub();
         ctx.setScissors(glm::vec4(pos.x, pos.y, size.x, size.y));
         for (auto node : nodes) {
-            if (node->isVisible())
+            glm::vec2 nodePos = node->calcPos();
+            glm::vec2 nodeSize = node->getSize();
+            if (node->isVisible() && (nodePos.y + nodeSize.y > pos.y && nodePos.y < pos.y + size.y &&
+                                      nodePos.x + nodeSize.x > pos.x && nodePos.x < pos.x + size.x))
                 node->draw(pctx, assets);
         }
     }
@@ -121,11 +124,7 @@ void Container::add(std::shared_ptr<UINode> node, glm::vec2 pos) {
 
 void Container::remove(std::shared_ptr<UINode> selected) {
     selected->setParent(nullptr);
-    nodes.erase(std::remove_if(nodes.begin(), nodes.end(), 
-        [selected](const std::shared_ptr<UINode> node) {
-            return node == selected;
-        }
-    ), nodes.end());
+    nodes.erase(std::remove(nodes.begin(), nodes.end(), selected), nodes.end());
     refresh();
 }
 
@@ -143,6 +142,7 @@ void Container::setSize(glm::vec2 size) {
     for (auto& node : nodes) {
         node->reposition();
     }
+    scrolled(0);
 }
 
 void Container::refresh() {
