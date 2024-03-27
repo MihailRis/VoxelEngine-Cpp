@@ -13,7 +13,11 @@ inline int extract_channel_index(lua_State* L, int idx) {
     if (!lua_isnoneornil(L, idx)) {
         channel = lua_tostring(L, idx);
     }
-    return audio::get_channel_index(channel);
+    int index = audio::get_channel_index(channel);
+    if (index == 0) {
+        return -1;
+    }
+    return index;
 }
 
 inline audio::speakerid_t play_sound(
