@@ -66,9 +66,10 @@ static void create_controls_panel(Engine* engine) {
         panel->add(trackbar);
     }
 
-    auto scrollPanel = std::make_shared<Panel>(glm::vec2(400, 200), glm::vec4(2.0f), 1.0f);
-    scrollPanel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.3f));
-    scrollPanel->setMaxLength(400);
+    auto scrollPanel = std::dynamic_pointer_cast<Panel>(guiutil::create(
+        "<panel size='400,200' padding='2' interval='1' max-length='400' color='#0000004C'>"
+        "</panel>"
+    ));
     for (auto& entry : Events::bindings){
         std::string bindname = entry.first;
         

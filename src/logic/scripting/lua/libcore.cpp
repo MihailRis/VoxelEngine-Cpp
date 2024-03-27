@@ -6,6 +6,7 @@
 #include "../../../frontend/menu/menu.h"
 #include "../../../frontend/screens.h"
 #include "../../../logic/LevelController.h"
+#include "../../../window/Events.h"
 #include "../../../window/Window.h"
 #include "../scripting.h"
 
@@ -52,6 +53,19 @@ static int l_delete_world(lua_State* L) {
     return 0;
 }
 
+static int l_get_bindings(lua_State* L) {
+    auto& bindings = Events::bindings;
+    lua_createtable(L, bindings.size(), 0);
+
+    int i = 0;
+    for (auto& entry : bindings) {
+        lua_pushstring(L, entry.first.c_str());
+        lua_rawseti(L, -2, i + 1);
+        i++;
+    }
+    return 1;
+}
+
 static int l_quit(lua_State* L) {
     Window::setShouldClose(true);
     return 0;
@@ -62,6 +76,7 @@ const luaL_Reg corelib [] = {
     {"open_world", lua_wrap_errors<l_open_world>},
     {"close_world", lua_wrap_errors<l_close_world>},
     {"delete_world", lua_wrap_errors<l_delete_world>},
+    {"get_bindings", lua_wrap_errors<l_get_bindings>},
     {"quit", lua_wrap_errors<l_quit>},
     {NULL, NULL}
 };
