@@ -12,6 +12,7 @@
 #include "../../../graphics/ui/elements/UINode.h"
 #include "../../../graphics/ui/elements/controls.h"
 #include "../../../frontend/UiDocument.h"
+#include "../../../frontend/locale/langs.h"
 #include "../../../util/stringutil.h"
 
 static gui::UINode* getDocumentNode(lua_State* L, const std::string& name, const std::string& nodeName) {
@@ -320,10 +321,22 @@ static int l_gui_get_env(lua_State* L) {
     return 1;
 }
 
+static int l_gui_str(lua_State* L) {
+    auto text = util::str2wstr_utf8(lua_tostring(L, 1));
+    if (!lua_isnoneornil(L, 2)) {
+        auto context = util::str2wstr_utf8(lua_tostring(L, 2));
+        lua_pushstring(L, util::wstr2str_utf8(langs::get(text, context)).c_str());
+    } else {
+        lua_pushstring(L, util::wstr2str_utf8(langs::get(text)).c_str());
+    }
+    return 1;
+}
+
 const luaL_Reg guilib [] = {
     {"get_viewport", lua_wrap_errors<l_gui_getviewport>},
     {"getattr", lua_wrap_errors<l_gui_getattr>},
     {"setattr", lua_wrap_errors<l_gui_setattr>},
     {"get_env", lua_wrap_errors<l_gui_get_env>},
+    {"str", lua_wrap_errors<l_gui_str>},
     {NULL, NULL}
 };

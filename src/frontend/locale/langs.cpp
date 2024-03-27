@@ -128,7 +128,7 @@ void langs::load(const fs::path& resdir,
         if (fs::is_regular_file(file)) {
             std::string text = files::read_string(file);
             Reader reader(file.string(), text);
-            reader.read(lang, pack.id+":");
+            reader.read(lang, "");
         }
     }
 }

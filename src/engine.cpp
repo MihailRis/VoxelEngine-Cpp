@@ -243,6 +243,8 @@ void Engine::loadContent() {
 
     Shader::preprocessor->setPaths(resPaths.get());
 
+    langs::setup(resdir, langs::current->getId(), contentPacks);
+
     std::unique_ptr<Assets> new_assets(new Assets());
     std::cout << "-- loading assets" << std::endl;
     AssetsLoader loader(new_assets.get(), resPaths.get());
