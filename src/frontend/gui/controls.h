@@ -62,6 +62,10 @@ namespace gui {
 
         virtual void setTextOffset(glm::vec2 offset);
 
+        /// @return the difference between the height of the text 
+        // and the height of the label depending on the alignment
+        virtual float getVerticalAlignmentOffset() const;
+
         /// @brief Get position of the text relative to label position
         /// @return offset
         virtual glm::vec2 getTextOffset() const;
