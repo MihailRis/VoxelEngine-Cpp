@@ -259,7 +259,7 @@ void ALSpeaker::play() {
     paused = false;
     stopped = false;
     auto channel = get_channel(this->channel);
-    AL_CHECK(alSourcef(source, AL_GAIN, volume * channel->getVolume()));
+    AL_CHECK(alSourcef(source, AL_GAIN, volume * channel->getVolume() * get_channel(0)->getVolume()));
     AL_CHECK(alSourcePlay(source));
 }
 
