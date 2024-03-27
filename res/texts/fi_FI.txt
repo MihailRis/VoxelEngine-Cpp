@@ -1,33 +1,39 @@
 # Общее
 Yes=Joo
 No=Ei
-Ok = Kyllä
-Cancel= Hylää
-Back = Takaisin
+Ok=Ok
+Cancel=Hylää
+Back=Takaisin
 Continue=Jatka
+Add=lisätä
+Converting world...=Maailman muuttuminen on käynnissä...
 
 error.pack-not-found=Pakettia ei löytynyt!
+error.dependency-not-found=Käytetty riippuvuutta ei löytynyt
+pack.remove-confirm=Poistetaanko kaikki pakettien sisältö maailmasta (peruuttamattomasti)?
 
 # Меню
-menu.New World = Uusi Maailma
+menu.New World=Uusi Maailma
 menu.Quit=Poistu
 menu.Continue=Jatka
 menu.Save and Quit to Menu=Tallenna ja poistu valikkoon
-menu.missing-content=Puuttuu lisäosia!
-menu.Content Error=Lisäosa virhe!
+menu.missing-content=Ei ole sisältöä!
+menu.Content Error=Sisältövirhe
 menu.Controls=Ohjaus
 menu.Back to Main Menu=Takaisin Valikoon
 menu.Settings=Asetukset
-menu.Content=Lisäosat
-menu.Seed=Siemen
-menu.Name=Nimi
+menu.Content=Sisältö
+menu.Audio=Audio
+world.Seed=Siemen
+world.Name=Nimi
+
+world.World generator=Maailman generaattori
+world.generators.default=Tavallinen
+world.generators.flat=Tasainen
 menu.Create World=Luo Maailma
 
-world.World generator=Valon generaattori
-world.generators.default=Äärimmäinen
-world.generators.flat=Tasainen
-world.convert-request=Indeksit vaihdettu! Lataa maailma uudeleen?
-world.delete-confirm=Poistetaanko maailma ikuisesti?
+world.convert-request=Indeksit ovat muuttuneet! Luodaanko maailma uudeleen?
+world.delete-confirm=Poistetaanko maailma peruuttamattomasti?
 
 # Настройки
 settings.Load Distance=Latausalue
@@ -35,6 +41,12 @@ settings.Load Speed=Latausnopeus
 settings.Fog Curve=Sumun tiheys
 settings.Backlight=Taustavalo
 settings.V-Sync=Pystytahdistus
+settings.Camera Shaking=Kameran tärähdys
+settings.Master Volume=Pää-äänekkyys
+settings.Regular Sounds=Tavalliset äänet
+settings.UI Sounds=Käyttöliittymän äänet
+settings.Ambient=Tausta
+settings.Music=Musiikki
 
 settings.FOV=Näkökenttä
 settings.Mouse Sensitivity=Hiiren nopeus
