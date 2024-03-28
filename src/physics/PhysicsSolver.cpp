@@ -3,7 +3,7 @@
 
 #include "../maths/aabb.h"
 #include "../voxels/Block.h"
-#include "../voxels/Chunks.h"
+#include "../voxels/ChunksStorage.h"
 #include "../voxels/voxel.h"
 
 const double E = 0.03;
@@ -15,7 +15,7 @@ PhysicsSolver::PhysicsSolver(vec3 gravity) : gravity(gravity) {
 }
 
 void PhysicsSolver::step(
-		Chunks* chunks, 
+		ChunksStorage* chunks, 
 		Hitbox* hitbox, 
 		float delta, 
 		uint substeps, 
@@ -77,7 +77,7 @@ void PhysicsSolver::step(
 }
 
 void PhysicsSolver::colisionCalc(
-		Chunks* chunks, 
+		ChunksStorage* chunks, 
 		Hitbox* hitbox, 
 		vec3& vel, 
 		vec3& pos, 

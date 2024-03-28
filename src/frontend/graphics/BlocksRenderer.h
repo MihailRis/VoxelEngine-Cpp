@@ -13,7 +13,7 @@ class Content;
 class Mesh;
 class Block;
 class Chunk;
-class Chunks;
+class ChunksMatrix;
 class VoxelsVolume;
 class ChunksStorage;
 class ContentGfxCache;

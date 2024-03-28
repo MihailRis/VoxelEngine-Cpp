@@ -1,6 +1,2 @@
 mkdir build
-cd build
-cmake -DCMAKE_BUILD_TYPE=Release ../
-make
-cd ..
-build/VoxelEngine
+cmake -DCMAKE_BUILD_TYPE=Release -Bbuild && cmake --build build && ./build/VoxelEngine

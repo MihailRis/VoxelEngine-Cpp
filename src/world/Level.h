@@ -14,7 +14,6 @@ inline constexpr int DEF_PLAYER_INVENTORY_SIZE = 40;
 class Content;
 class World;
 class Player;
-class Chunks;
 class Inventory;
 class Inventories;
 class LevelEvents;
@@ -28,21 +27,17 @@ public:
     std::unique_ptr<World> world;
     const Content* const content;
     std::vector<std::shared_ptr<Object>> objects;
-    std::unique_ptr<Chunks> chunks;
     std::unique_ptr<ChunksStorage> chunksStorage;
     std::unique_ptr<Inventories> inventories;
 
     std::unique_ptr<PhysicsSolver> physics;
     std::unique_ptr<Lighting> lighting;
-    std::unique_ptr<LevelEvents> events;
 
     const EngineSettings& settings;
 
     Level(World* world, const Content* content, EngineSettings& settings);
     ~Level();
 
-    void loadMatrix(int32_t x, int32_t z, uint32_t radius);
-    
     World* getWorld();
 
     /// Spawns object of class T and returns pointer to it.

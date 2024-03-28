@@ -2,9 +2,11 @@
 #include "../content/ContentLUT.h"
 #include "../physics/Hitbox.h"
 #include "../physics/PhysicsSolver.h"
-#include "../voxels/Chunks.h"
+#include "../voxels/ChunksStorage.h"
+#include "../voxels/ChunksMatrix.h"
+#include "../logic/ChunksController.h"
+#include "../world/LevelEvents.h"
 #include "../world/Level.h"
-#include "../window/Events.h"
 #include "../window/Camera.h"
 #include "../items/Inventory.h"
 
@@ -18,7 +20,7 @@ const float FLIGHT_SPEED_MUL = 4.0f;
 const float CHEAT_SPEED_MUL = 5.0f;
 const float JUMP_FORCE = 8.0f;
 
-Player::Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv) :
+Player::Player(Level* level, glm::vec3 position, float speed, std::shared_ptr<Inventory> inv, const EngineSettings& settings) :
     speed(speed),
     chosenSlot(0),
     inventory(inv),
@@ -26,9 +28,9 @@ Player::Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv) 
     spCamera(std::make_shared<Camera>(position, glm::radians(90.0f))),
     tpCamera(std::make_shared<Camera>(position, glm::radians(90.0f))),
     currentCamera(camera),
-    hitbox(std::make_unique<Hitbox>(position, glm::vec3(0.3f,0.9f,0.3f)))
-{
-}
+    hitbox(std::make_unique<Hitbox>(position, glm::vec3(0.3f,0.9f,0.3f))),
+    chunksMatrix(std::make_unique<ChunksMatrix>(level, 0, 0, 0, 0, settings)),
+    settings(settings) {}
 
 Player::~Player() {
 }
@@ -79,7 +81,7 @@ void Player::updateInput(
     int substeps = int(delta * vel * 1000);
     substeps = std::min(100, std::max(1, substeps));
     level->physics->step(
-        level->chunks.get(), 
+        level->chunksStorage.get(), 
         hitbox.get(), 
         delta, 
         substeps, 
@@ -130,6 +132,15 @@ void Player::updateInput(
     }
 }
 
+void Player::loadChunks() {
+	chunksMatrix->setCenter(hitbox->position.x, hitbox->position.z);
+    uint32_t diameter = (std::min(radius, settings.chunks.loadDistance) + chunksMatrix->getPadding()) * 2;
+	if (chunksMatrix->w != diameter) {
+		chunksMatrix->resize(diameter, diameter);
+	}
+    chunksMatrix->update();
+}
+
 void Player::teleport(glm::vec3 position) {
     hitbox->position = position;
 }
@@ -141,12 +152,12 @@ void Player::attemptToFindSpawnpoint(Level* level) {
         rand() % 80 + 100,
         ppos.z + (rand() % 200 - 100)
     );
-    while (newpos.y > 0 && !level->chunks->isObstacleBlock(newpos.x, newpos.y-2, newpos.z)) {
+    while (newpos.y > 0 && !chunksMatrix->isObstacleBlock(newpos.x, newpos.y-2, newpos.z)) {
         newpos.y--;
     }
 
-    voxel* headvox = level->chunks->get(newpos.x, newpos.y+1, newpos.z);
-    if (level->chunks->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
+    voxel* headvox = chunksMatrix->getVoxel(newpos.x, newpos.y+1, newpos.z);
+    if (chunksMatrix->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
         headvox == nullptr || headvox->id != 0)
         return;
     spawnpoint = newpos + glm::vec3(0.5f, 0.0f, 0.5f);

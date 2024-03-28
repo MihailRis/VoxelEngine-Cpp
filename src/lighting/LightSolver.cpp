@@ -1,16 +1,15 @@
-#include <iostream>
 #include <assert.h>
 #include "LightSolver.h"
 #include "Lightmap.h"
 #include "../content/Content.h"
-#include "../voxels/Chunks.h"
+#include "../voxels/ChunksStorage.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/voxel.h"
 #include "../voxels/Block.h"
 
-LightSolver::LightSolver(const ContentIndices* contentIds, Chunks* chunks, int channel) 
+LightSolver::LightSolver(const ContentIndices* contentIds, ChunksStorage* chunksStorage, int channel) 
 	: contentIds(contentIds), 
-	  chunks(chunks), 
+	  chunksStorage(chunksStorage), 
 	  channel(channel) {
 }
 
@@ -20,18 +19,18 @@ void LightSolver::add(int x, int y, int z, int emission) {
 
 	addqueue.push(lightentry {x, y, z, ubyte(emission)});
 
-	Chunk* chunk = chunks->getChunkByVoxel(x, y, z);
+	Chunk* chunk = chunksStorage->getChunkByVoxel(x, y, z);
 	chunk->setModified(true);
 	chunk->lightmap.set(x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, channel, emission);
 }
 
 void LightSolver::add(int x, int y, int z) {
 	assert (chunks != nullptr);
-	add(x,y,z, chunks->getLight(x,y,z, channel));
+	add(x,y,z, chunksStorage->getLight(x,y,z, channel));
 }
 
 void LightSolver::remove(int x, int y, int z) {
-	Chunk* chunk = chunks->getChunkByVoxel(x, y, z);
+	Chunk* chunk = chunksStorage->getChunkByVoxel(x, y, z);
 	if (chunk == nullptr)
 		return;
 
@@ -63,7 +62,7 @@ void LightSolver::solve(){
 			int y = entry.y+coords[imul3+1];
 			int z = entry.z+coords[imul3+2];
 			
-			Chunk* chunk = chunks->getChunkByVoxel(x,y,z);
+			Chunk* chunk = chunksStorage->getChunkByVoxel(x,y,z);
 			if (chunk) {
 				int lx = x - chunk->x * CHUNK_W;
 				int lz = z - chunk->z * CHUNK_D;
@@ -92,7 +91,7 @@ void LightSolver::solve(){
 			int y = entry.y+coords[imul3+1];
 			int z = entry.z+coords[imul3+2];
 
-			Chunk* chunk = chunks->getChunkByVoxel(x,y,z);
+			Chunk* chunk = chunksStorage->getChunkByVoxel(x,y,z);
 			if (chunk) {
 				int lx = x - chunk->x * CHUNK_W;
 				int lz = z - chunk->z * CHUNK_D;

@@ -38,7 +38,7 @@ class CameraControl {
 public:
     CameraControl(std::shared_ptr<Player> player, const CameraSettings& settings);
     void updateMouse(PlayerInput& input);
-    void update(PlayerInput& input, float delta, Chunks* chunks);
+    void update(PlayerInput& input, float delta, ChunksMatrix* chunks);
     void refresh();
 };
 

@@ -4,21 +4,21 @@
 #include "LightSolver.h"
 #include "Lightmap.h"
 #include "../content/Content.h"
-#include "../voxels/Chunks.h"
+#include "../voxels/ChunksStorage.h"
+#include "../voxels/ChunksMatrix.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/voxel.h"
 #include "../voxels/Block.h"
 #include "../constants.h"
 #include "../typedefs.h"
-#include "../util/timeutil.h"
 
-Lighting::Lighting(const Content* content, Chunks* chunks) 
-	     : content(content), chunks(chunks) {
+Lighting::Lighting(const Content* content, ChunksMatrix* chunks, ChunksStorage* chunksStorage) 
+	     : content(content), chunks(chunks), chunksStorage(chunksStorage) {
 	auto indices = content->getIndices();
-	solverR = std::make_unique<LightSolver>(indices, chunks, 0);
-	solverG = std::make_unique<LightSolver>(indices, chunks, 1);
-	solverB = std::make_unique<LightSolver>(indices, chunks, 2);
-	solverS = std::make_unique<LightSolver>(indices, chunks, 3);
+	solverR = std::make_unique<LightSolver>(indices, chunksStorage, 0);
+	solverG = std::make_unique<LightSolver>(indices, chunksStorage, 1);
+	solverB = std::make_unique<LightSolver>(indices, chunksStorage, 2);
+	solverS = std::make_unique<LightSolver>(indices, chunksStorage, 3);
 }
 
 Lighting::~Lighting(){
@@ -63,7 +63,7 @@ void Lighting::prebuildSkyLight(Chunk* chunk, const ContentIndices* indices){
 void Lighting::buildSkyLight(int cx, int cz){
 	const Block* const* blockDefs = content->getIndices()->getBlockDefs();
 
-	Chunk* chunk = chunks->getChunk(cx, cz);
+	Chunk* chunk = chunksStorage->getChunk(cx, cz);
 	for (int z = 0; z < CHUNK_D; z++){
 		for (int x = 0; x < CHUNK_W; x++){
 			for (int y = chunk->lightmap.highestPoint; y >= 0; y--){
@@ -94,7 +94,7 @@ void Lighting::onChunkLoaded(int cx, int cz, bool expand){
     LightSolver* solverS = this->solverS.get();
 
 	const Block* const* blockDefs = content->getIndices()->getBlockDefs();
-	const Chunk* chunk = chunks->getChunk(cx, cz);
+	const Chunk* chunk = chunksStorage->getChunk(cx, cz);
 
 	for (uint y = 0; y < CHUNK_H; y++){
 		for (uint z = 0; z < CHUNK_D; z++){
@@ -160,9 +160,9 @@ void Lighting::onBlockSet(int x, int y, int z, blockid_t id){
 		solverR->solve();
 		solverG->solve();
 		solverB->solve();
-		if (chunks->getLight(x,y+1,z, 3) == 0xF){
+		if (chunksStorage->getLight(x,y+1,z, 3) == 0xF){
 			for (int i = y; i >= 0; i--){
-				voxel* vox = chunks->get(x,i,z);
+				voxel* vox = chunksStorage->getVoxel(x,i,z);
 				if ((vox == nullptr || vox->id != 0) && block->skyLightPassing)
 					break;
 				solverS->add(x,i,z, 0xF);
@@ -183,7 +183,7 @@ void Lighting::onBlockSet(int x, int y, int z, blockid_t id){
 			solverS->remove(x,y,z);
 			for (int i = y-1; i >= 0; i--){
 				solverS->remove(x,i,z);
-				if (i == 0 || chunks->get(x,i-1,z)->id != 0){
+				if (i == 0 || chunksStorage->getVoxel(x,i-1,z)->id != 0){
 					break;
 				}
 			}
