@@ -292,7 +292,6 @@ void Hud::processInput(bool visible) {
 }
 
 void Hud::update(bool visible) {
-    auto level = frontend->getLevel();
     auto menu = gui->getMenu();
 
     debugPanel->setVisible(player->debug && visible);
