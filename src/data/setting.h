@@ -7,28 +7,14 @@ enum class setting_format {
     simple, percent
 };
 
-template<class T>
 class Setting {
 protected:
-    T value;
     setting_format format;
 public:
-    Setting(T value, setting_format format) : value(value), format(format) {
+    Setting(setting_format format) : format(format) {
     }
 
     virtual ~Setting() {}
-
-    T& operator*() {
-        return value;
-    }
-
-    virtual const T& get() const {
-        return value;
-    }
-
-    virtual void set(const T& value) {
-        this->value = value;
-    }
 
     virtual setting_format getFormat() const {
         return format;
@@ -37,33 +23,43 @@ public:
     virtual std::string toString() const = 0;
 };
 
-class NumberSetting : public Setting<double> {
+template<class T>
+class NumberSetting : public Setting {
 protected:
-    double min;
-    double max;
+    T value;
+    T min;
+    T max;
 public:
-    NumberSetting(double value, double min, double max, setting_format format)
-    : Setting(value, format), min(min), max(max) {}
+    NumberSetting(T value, T min, T max, setting_format format)
+    : Setting(format), value(value), min(min), max(max) {}
 
-    double& operator*() {
+    T& operator*() {
         return value;
     }
 
-    double getMin() const {
+    T get() const {
+        return value;
+    }
+
+    void set(T value) {
+        this->value = value;
+    }
+
+    T getMin() const {
         return min;
     }
 
-    double getMax() const {
+    T getMax() const {
         return max;
     }
 
-    double getT() const {
+    T getT() const {
         return (value - min) / (max - min);
     }
 
     virtual std::string toString() const override;
 
-    static inline NumberSetting createPercent(double def) {
+    static inline NumberSetting createPercent(T def) {
         return NumberSetting(def, 0.0, 1.0, setting_format::percent);
     }
 };

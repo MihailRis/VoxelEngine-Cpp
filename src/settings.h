@@ -11,11 +11,11 @@ struct AudioSettings {
     /// @brief try to initialize AL backend
     bool enabled = true;
     
-    NumberSetting volumeMaster = NumberSetting::createPercent(1.0);
-    NumberSetting volumeRegular = NumberSetting::createPercent(1.0);
-    NumberSetting volumeUI = NumberSetting::createPercent(1.0);
-    NumberSetting volumeAmbient = NumberSetting::createPercent(1.0);
-    NumberSetting volumeMusic = NumberSetting::createPercent(1.0);
+    NumberSetting<float> volumeMaster {1.0f, 0.0f, 1.0f, setting_format::percent};
+    NumberSetting<float> volumeRegular {1.0f, 0.0f, 1.0f, setting_format::percent};
+    NumberSetting<float> volumeUI {1.0f, 0.0f, 1.0f, setting_format::percent};
+    NumberSetting<float> volumeAmbient {1.0f, 0.0f, 1.0f, setting_format::percent};
+    NumberSetting<float> volumeMusic {1.0f, 0.0f, 1.0f, setting_format::percent};
 };
 
 struct DisplaySettings {

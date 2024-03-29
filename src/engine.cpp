@@ -84,7 +84,10 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     }
     gui = std::make_unique<gui::GUI>();
     if (settings.ui.language == "auto") {
-        settings.ui.language = langs::locale_by_envlocale(platform::detect_locale(), paths->getResources());
+        settings.ui.language = langs::locale_by_envlocale(
+            platform::detect_locale(),
+            paths->getResources()
+        );
     }
     if (ENGINE_VERSION_INDEV) {
         menus::create_version_label(this);
