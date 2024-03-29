@@ -164,6 +164,12 @@ void util::trim(std::string &s) {
     ltrim(s);
 }
 
+std::string util::to_string(double x) {
+    std::stringstream ss;
+    ss << x;
+    return ss.str(); 
+}
+
 std::wstring util::to_wstring(double x, int precision) {
     std::wstringstream ss;
     ss << std::fixed << std::setprecision(precision) << x;

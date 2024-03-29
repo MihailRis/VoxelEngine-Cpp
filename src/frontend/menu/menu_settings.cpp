@@ -15,19 +15,19 @@ using namespace gui;
 static void create_volume_trackbar(
     std::shared_ptr<Panel> panel,
     const std::wstring& name,
-    float* field
+    NumberSetting* field
 ) {
     panel->add(menus::create_label([=]() {
         return langs::get(name, L"settings")+L": " + 
-            std::to_wstring(int(*field*100))+L"%";
+            util::str2wstr_utf8(field->toString());
     }));
 
     auto trackbar = std::make_shared<TrackBar>(0.0, 1.0, 1.0, 0.01, 5);
     trackbar->setSupplier([=]() {
-        return *field;
+        return field->get();
     });
     trackbar->setConsumer([=](double value) {
-        *field = value; 
+        field->set(value); 
     });
     panel->add(trackbar);
 }

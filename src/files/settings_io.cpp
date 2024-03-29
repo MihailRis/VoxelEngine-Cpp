@@ -16,11 +16,11 @@ toml::Wrapper* create_wrapper(EngineSettings& settings) {
 
     toml::Section& audio = wrapper->add("audio");
     audio.add("enabled", &settings.audio.enabled);
-    audio.add("volume-master", &settings.audio.volumeMaster);
-    audio.add("volume-regular", &settings.audio.volumeRegular);
-    audio.add("volume-ui", &settings.audio.volumeUI);
-    audio.add("volume-ambient", &settings.audio.volumeAmbient);
-    audio.add("volume-music", &settings.audio.volumeMusic);
+    audio.add("volume-master", &*settings.audio.volumeMaster);
+    audio.add("volume-regular", &*settings.audio.volumeRegular);
+    audio.add("volume-ui", &*settings.audio.volumeUI);
+    audio.add("volume-ambient", &*settings.audio.volumeAmbient);
+    audio.add("volume-music", &*settings.audio.volumeMusic);
 
     toml::Section& display = wrapper->add("display");
     display.add("fullscreen", &settings.display.fullscreen);

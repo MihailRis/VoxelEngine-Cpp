@@ -13,6 +13,7 @@ namespace toml {
         ftint,
         ftuint,
         ftfloat,
+        ftdouble,
         ftstring,
     };
 
@@ -32,6 +33,7 @@ namespace toml {
         void add(std::string name, int* ptr);
         void add(std::string name, uint* ptr);
         void add(std::string name, float* ptr);
+        void add(std::string name, double* ptr);
         void add(std::string name, std::string* ptr);
 
         const Field* field(std::string name) const;

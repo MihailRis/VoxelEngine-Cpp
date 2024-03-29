@@ -38,6 +38,10 @@ void Section::add(string name, float* ptr) {
     add(name, {fieldtype::ftfloat, ptr});
 }
 
+void Section::add(string name, double* ptr) {
+    add(name, {fieldtype::ftdouble, ptr});
+}
+
 void Section::add(string name, string* ptr) {
     add(name, {fieldtype::ftstring, ptr});
 }
@@ -98,6 +102,7 @@ std::string Wrapper::write() const {
                 case fieldtype::ftint: ss << *((int*)field->ptr); break;
                 case fieldtype::ftuint: ss << *((uint*)field->ptr); break;
                 case fieldtype::ftfloat: ss << *((float*)field->ptr); break;
+                case fieldtype::ftdouble: ss << *((double*)field->ptr); break;
                 case fieldtype::ftstring: 
                     ss << escape_string(*((const string*)field->ptr)); 
                     break;
@@ -130,10 +135,6 @@ void Reader::read() {
     readSection(nullptr);
 }
 
-inline bool is_numeric_type(fieldtype type) {
-    return type == fieldtype::ftint || type == fieldtype::ftfloat;
-}
-
 void Section::set(string name, double value) {
     const Field* field = this->field(name);
     if (field == nullptr) {
@@ -144,6 +145,7 @@ void Section::set(string name, double value) {
         case fieldtype::ftint: *(int*)(field->ptr) = value; break;
         case fieldtype::ftuint: *(uint*)(field->ptr) = value; break;
         case fieldtype::ftfloat: *(float*)(field->ptr) = value; break;
+        case fieldtype::ftdouble: *(double*)(field->ptr) = value; break;
         case fieldtype::ftstring: *(string*)(field->ptr) = std::to_string(value); break;
         default:
             std::cerr << "error: type error for key '" << name << "'" << std::endl;
@@ -161,6 +163,7 @@ void Section::set(std::string name, bool value) {
         case fieldtype::ftint: *(int*)(field->ptr) = (int)value; break;
         case fieldtype::ftuint: *(uint*)(field->ptr) = (uint)value; break;
         case fieldtype::ftfloat: *(float*)(field->ptr) = (float)value; break;
+        case fieldtype::ftdouble: *(double*)(field->ptr) = (double)value; break;
         case fieldtype::ftstring: *(string*)(field->ptr) = value ? "true" : "false"; break;
         default:
             std::cerr << "error: type error for key '" << name << "'" << std::endl;

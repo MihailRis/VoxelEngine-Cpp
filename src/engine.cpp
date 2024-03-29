@@ -130,11 +130,11 @@ inline constexpr float sqr(float x) {
 }
 
 static void updateAudio(double delta, const AudioSettings& settings) {
-    audio::get_channel("master")->setVolume(sqr(settings.volumeMaster));
-    audio::get_channel("regular")->setVolume(sqr(settings.volumeRegular));
-    audio::get_channel("ui")->setVolume(sqr(settings.volumeUI));
-    audio::get_channel("ambient")->setVolume(sqr(settings.volumeAmbient));
-    audio::get_channel("music")->setVolume(sqr(settings.volumeMusic));
+    audio::get_channel("master")->setVolume(sqr(settings.volumeMaster.get()));
+    audio::get_channel("regular")->setVolume(sqr(settings.volumeRegular.get()));
+    audio::get_channel("ui")->setVolume(sqr(settings.volumeUI.get()));
+    audio::get_channel("ambient")->setVolume(sqr(settings.volumeAmbient.get()));
+    audio::get_channel("music")->setVolume(sqr(settings.volumeMusic.get()));
     audio::update(delta);
 }
 

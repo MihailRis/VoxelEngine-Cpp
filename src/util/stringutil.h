@@ -21,6 +21,7 @@ namespace util {
     extern void rtrim(std::string &s);
     extern void trim(std::string &s);
 
+    extern std::string to_string(double x);
     extern std::wstring to_wstring(double x, int precision);
 
     extern std::string base64_encode(const ubyte* data, size_t size);

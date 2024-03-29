@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "data/setting.h"
 #include "constants.h"
 #include "typedefs.h"
 
@@ -10,11 +11,11 @@ struct AudioSettings {
     /// @brief try to initialize AL backend
     bool enabled = true;
     
-    float volumeMaster = 1.0f;
-    float volumeRegular = 1.0f;
-    float volumeUI = 1.0f;
-    float volumeAmbient = 1.0f;
-    float volumeMusic = 1.0f;
+    NumberSetting volumeMaster = NumberSetting::createPercent(1.0);
+    NumberSetting volumeRegular = NumberSetting::createPercent(1.0);
+    NumberSetting volumeUI = NumberSetting::createPercent(1.0);
+    NumberSetting volumeAmbient = NumberSetting::createPercent(1.0);
+    NumberSetting volumeMusic = NumberSetting::createPercent(1.0);
 };
 
 struct DisplaySettings {
