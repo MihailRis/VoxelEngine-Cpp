@@ -16,11 +16,13 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <mutex>
 
 class Level;
 class Screen;
 class EnginePaths;
 class ResPaths;
+class Batch2D;
 
 namespace fs = std::filesystem;
 
@@ -43,6 +45,7 @@ class Engine {
     std::unique_ptr<Content> content = nullptr;
     std::unique_ptr<ResPaths> resPaths = nullptr;
     std::queue<runnable> postRunnables;
+    std::recursive_mutex postRunnablesMutex;
 
     uint64_t frame = 0;
     double lastTime = 0.0;
@@ -52,6 +55,8 @@ class Engine {
     
     void updateTimers();
     void updateHotkeys();
+    void renderFrame(Batch2D& batch);
+    void processPostRunnables();
 public:
     Engine(EngineSettings& settings, EnginePaths* paths);
     ~Engine();

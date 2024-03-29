@@ -155,26 +155,32 @@ void Engine::mainloop() {
         screen->update(delta);
 
         if (!Window::isIconified()) {
-            screen->draw(delta);
-
-            Viewport viewport(Window::width, Window::height);
-            GfxContext ctx(nullptr, viewport, &batch);
-            gui->draw(&ctx, assets.get());
-            
-            Window::swapInterval(settings.display.swapInterval);
-        } else {
-            Window::swapInterval(1);
+            renderFrame(batch);
         }
+        Window::swapInterval(Window::isIconified() ? 1 : settings.display.swapInterval);
 
-        while (!postRunnables.empty()) {
-            postRunnables.front()();
-            postRunnables.pop();
-        }
-        scripting::process_post_runnables();
+        processPostRunnables();
 
         Window::swapBuffers();
         Events::pollEvents();
     }
+}
+
+void Engine::renderFrame(Batch2D& batch) {
+    screen->draw(delta);
+
+    Viewport viewport(Window::width, Window::height);
+    GfxContext ctx(nullptr, viewport, &batch);
+    gui->draw(&ctx, assets.get());
+}
+
+void Engine::processPostRunnables() {
+    std::lock_guard<std::recursive_mutex> lock(postRunnablesMutex);
+    while (!postRunnables.empty()) {
+        postRunnables.front()();
+        postRunnables.pop();
+    }
+    scripting::process_post_runnables();
 }
 
 Engine::~Engine() {
@@ -203,6 +209,7 @@ inline const std::string checkPacks(
     return "";
 }
 
+// TODO: refactor this
 void Engine::loadContent() {
     auto resdir = paths->getResources();
     ContentBuilder contentBuilder;
@@ -322,5 +329,6 @@ std::shared_ptr<Screen> Engine::getScreen() {
 }
 
 void Engine::postRunnable(runnable callback) {
+    std::lock_guard<std::recursive_mutex> lock(postRunnablesMutex);
     postRunnables.push(callback);
 }
