@@ -9,6 +9,7 @@
 #include "content/Content.h"
 #include "content/ContentPack.h"
 #include "files/engine_paths.h"
+#include "files/settings_io.h"
 
 #include <filesystem>
 #include <memory>
@@ -37,6 +38,7 @@ public:
 
 class Engine {
     EngineSettings& settings;
+    SettingsHandler settingsHandler;
     EnginePaths* paths;
 
     std::unique_ptr<Assets> assets = nullptr;
@@ -118,6 +120,8 @@ public:
 
     /// @brief Enqueue function call to the end of current frame in draw thread
     void postRunnable(runnable callback);
+
+    SettingsHandler& getSettingsHandler();
 };
 
 #endif // SRC_ENGINE_H_

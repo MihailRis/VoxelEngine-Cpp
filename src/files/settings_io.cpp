@@ -9,7 +9,33 @@
 #include "../coders/toml.h"
 #include "../coders/json.h"
 
-#include "../data/dynamic.h"
+SettingsHandler::SettingsHandler(EngineSettings& settings) {
+    map.emplace("audio.volume-master", &settings.audio.volumeMaster);
+    map.emplace("audio.volume-regular", &settings.audio.volumeRegular);
+    map.emplace("audio.volume-ui", &settings.audio.volumeUI);
+    map.emplace("audio.volume-ambient", &settings.audio.volumeAmbient);
+    map.emplace("audio.volume-music", &settings.audio.volumeMusic);
+
+    map.emplace("camera.sensitivity", &settings.camera.sensitivity);
+}
+
+dynamic::Value SettingsHandler::getValue(std::string name) const {
+    using dynamic::valtype;
+
+    auto found = map.find(name);
+    if (found == map.end()) {
+        return dynamic::Value(valtype::none, 0);
+    }
+    auto setting = found->second;
+    if (auto number = dynamic_cast<NumberSetting<float>*>(setting)) {
+        return dynamic::Value(valtype::number, number->get());
+    } else if (auto number = dynamic_cast<NumberSetting<double>*>(setting)) {
+        return dynamic::Value(valtype::number, number->get());
+    }
+
+    return dynamic::Value(valtype::none, 0);
+}
+
 
 toml::Wrapper* create_wrapper(EngineSettings& settings) {
     std::unique_ptr<toml::Wrapper> wrapper (new toml::Wrapper());
@@ -38,7 +64,7 @@ toml::Wrapper* create_wrapper(EngineSettings& settings) {
     camera.add("fov-effects", &settings.camera.fovEvents);
     camera.add("fov", &settings.camera.fov);
     camera.add("shaking", &settings.camera.shaking);
-    camera.add("sensitivity", &settings.camera.sensitivity);
+    camera.add("sensitivity", &*settings.camera.sensitivity);
 
     toml::Section& graphics = wrapper->add("graphics");
     graphics.add("gamma", &settings.graphics.gamma);

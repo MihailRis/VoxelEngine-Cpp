@@ -608,7 +608,7 @@ void WorldFiles::removePack(const World* world, const std::string& id) {
         if (name.find(prefix) != 0)
             continue;
         auto value = blocks->getValueWriteable(i);
-        *value->value.str = "core:air";
+        value->value = "core:air";
     }
 
     auto items = root->list("items");
@@ -617,7 +617,7 @@ void WorldFiles::removePack(const World* world, const std::string& id) {
         if (name.find(prefix) != 0)
             continue;
         auto value = items->getValueWriteable(i);
-        *value->value.str = "core:empty";
+        value->value = "core:empty";
     }
     files::write_json(getIndicesFile(), root.get());
 }

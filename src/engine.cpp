@@ -52,7 +52,7 @@ void addWorldGenerators() {
 }
 
 Engine::Engine(EngineSettings& settings, EnginePaths* paths) 
-    : settings(settings), paths(paths) 
+    : settings(settings), settingsHandler(settings), paths(paths) 
 {    
     if (Window::initialize(settings.display)){
         throw initialize_error("could not initialize window");
@@ -334,4 +334,8 @@ std::shared_ptr<Screen> Engine::getScreen() {
 void Engine::postRunnable(runnable callback) {
     std::lock_guard<std::recursive_mutex> lock(postRunnablesMutex);
     postRunnables.push(callback);
+}
+
+SettingsHandler& Engine::getSettingsHandler() {
+    return settingsHandler;
 }

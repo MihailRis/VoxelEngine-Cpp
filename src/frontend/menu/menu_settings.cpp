@@ -51,14 +51,14 @@ static void create_controls_panel(Engine* engine) {
 
     /* Camera sensitivity setting track bar */{
         panel->add(menus::create_label([=]() {
-            float s = engine->getSettings().camera.sensitivity;
+            float s = engine->getSettings().camera.sensitivity.get();
             return langs::get(L"Mouse Sensitivity", L"settings")+L": "+
                    util::to_wstring(s, 1);
         }));
 
         auto trackbar = std::make_shared<TrackBar>(0.1, 10.0, 2.0, 0.1, 4);
         trackbar->setSupplier([=]() {
-            return engine->getSettings().camera.sensitivity;
+            return engine->getSettings().camera.sensitivity.get();
         });
         trackbar->setConsumer([=](double value) {
             engine->getSettings().camera.sensitivity = value;

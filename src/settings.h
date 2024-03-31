@@ -2,6 +2,7 @@
 #define SRC_SETTINGS_H_
 
 #include <string>
+#include <unordered_map>
 
 #include "data/setting.h"
 #include "constants.h"
@@ -52,7 +53,7 @@ struct CameraSettings {
     /// @brief Camera field of view
     float fov = 90.0f;
     /// @brief Camera sensitivity
-    float sensitivity = 2.0f;
+    NumberSetting<float> sensitivity {2.0f, 0.1f, 10.0f};
 };
 
 struct GraphicsSettings {
@@ -62,7 +63,7 @@ struct GraphicsSettings {
     float gamma = 1.0f;
     /// @brief Enable blocks backlight to prevent complete darkness
     bool backlight = true;
-    /// @brief Enable chunks frustum culling */
+    /// @brief Enable chunks frustum culling
     bool frustumCulling = true;
     int skyboxResolution = 64 + 32;
 };

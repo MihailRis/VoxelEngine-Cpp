@@ -42,10 +42,11 @@ void stringify(const Value* value,
                const std::string& indentstr, 
                bool nice) {
     if (value->type == valtype::map) {
-        stringifyObj(value->value.map, ss, indent, indentstr, nice);
+        auto map = std::get<Map*>(value->value);
+        stringifyObj(map, ss, indent, indentstr, nice);
     }
     else if (value->type == valtype::list) {
-        auto list = value->value.list;
+        auto list = std::get<List*>(value->value);
         if (list->size() == 0) {
             ss << "[]";
             return;
@@ -66,14 +67,14 @@ void stringify(const Value* value,
         }
         ss << ']';
     } else if (value->type == valtype::boolean) {
-        ss << (value->value.boolean ? "true" : "false");
+        ss << (std::get<bool>(value->value) ? "true" : "false");
     } else if (value->type == valtype::number) {
         ss << std::setprecision(15);
-        ss << value->value.decimal;
+        ss << std::get<number_t>(value->value);
     } else if (value->type == valtype::integer) {
-        ss << value->value.integer;
+        ss << std::get<integer_t>(value->value);
     } else if (value->type == valtype::string) {
-        ss << escape_string(*value->value.str);
+        ss << escape_string(std::get<std::string>(value->value));
     }
 }
 
@@ -189,10 +190,10 @@ Value* Parser::parseValue() {
         number_u num;
         valtype type;
         if (parseNumber(next == '-' ? -1 : 1, num)) {
-            val.integer = num.ival;
+            val = num.ival;
             type = valtype::integer;
         } else {
-            val.decimal = num.fval;
+            val = num.fval;
             type = valtype::number;
         }
         return new Value(type, val);
@@ -200,43 +201,43 @@ Value* Parser::parseValue() {
     if (is_identifier_start(next)) {
         std::string literal = parseName();
         if (literal == "true") {
-            val.boolean = true;
+            val = true;
             return new Value(valtype::boolean, val);
         } else if (literal == "false") {
-            val.boolean = false;
+            val = false;
             return new Value(valtype::boolean, val);
         } else if (literal == "inf") {
-            val.decimal = INFINITY;
+            val = INFINITY;
             return new Value(valtype::number, val);
         } else if (literal == "nan") {
-            val.decimal = NAN;
+            val = NAN;
             return new Value(valtype::number, val);
         }
         throw error("invalid literal ");
     }
     if (next == '{') {
-        val.map = parseObject();
+        val = parseObject();
         return new Value(valtype::map, val);
     }
     if (next == '[') {
-        val.list = parseList();
+        val = parseList();
         return new Value(valtype::list, val);
     }
     if (is_digit(next)) {
         number_u num;
         valtype type;
         if (parseNumber(1, num)) {
-            val.integer = num.ival;
+            val = num.ival;
             type = valtype::integer;
         } else {
-            val.decimal = num.fval;
+            val = num.fval;
             type = valtype::number;
         }
         return new Value(type, val);  
     }
     if (next == '"' || next == '\'') {
         pos++;
-        val.str = new std::string(parseString(next));
+        val = parseString(next);
         return new Value(valtype::string, val);
     }
     throw error("unexpected character '"+std::string({next})+"'");

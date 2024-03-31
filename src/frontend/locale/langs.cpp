@@ -78,7 +78,7 @@ void langs::loadLocalesInfo(const fs::path& resdir, std::string& fallback) {
 
             std::string name;
             if (langInfo->type == dynamic::valtype::map) {
-                name = langInfo->value.map->getStr("name", "none");
+                name = std::get<dynamic::Map*>(langInfo->value)->getStr("name", "none");
             } else {
                 continue;
             }
