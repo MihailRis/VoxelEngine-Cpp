@@ -13,9 +13,6 @@ namespace dynamic {
     class List;
     class Value;
 
-    using number_t = double;
-    using integer_t = int64_t;
-
     enum class valtype {
         none, map, list, number, integer, string, boolean
     };
@@ -35,6 +32,8 @@ namespace dynamic {
         valvalue value;
         Value(valtype type, valvalue value);
         ~Value();
+
+        static Value of(number_u value);
     };
 
     class List {

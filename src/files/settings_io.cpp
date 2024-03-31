@@ -19,26 +19,8 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     map.emplace("camera.sensitivity", &settings.camera.sensitivity);
 }
 
-dynamic::Value SettingsHandler::getValue(std::string name) const {
-    using dynamic::valtype;
-
-    auto found = map.find(name);
-    if (found == map.end()) {
-        return dynamic::Value(valtype::none, 0);
-    }
-    auto setting = found->second;
-    if (auto number = dynamic_cast<NumberSetting<float>*>(setting)) {
-        return dynamic::Value(valtype::number, number->get());
-    } else if (auto number = dynamic_cast<NumberSetting<double>*>(setting)) {
-        return dynamic::Value(valtype::number, number->get());
-    }
-
-    return dynamic::Value(valtype::none, 0);
-}
-
-
 toml::Wrapper* create_wrapper(EngineSettings& settings) {
-    std::unique_ptr<toml::Wrapper> wrapper (new toml::Wrapper());
+    auto wrapper = std::make_unique<toml::Wrapper>();
 
     toml::Section& audio = wrapper->add("audio");
     audio.add("enabled", &settings.audio.enabled);

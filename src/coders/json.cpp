@@ -190,10 +190,10 @@ Value* Parser::parseValue() {
         number_u num;
         valtype type;
         if (parseNumber(next == '-' ? -1 : 1, num)) {
-            val = num.ival;
+            val = std::get<integer_t>(num);
             type = valtype::integer;
         } else {
-            val = num.fval;
+            val = std::get<number_t>(num);
             type = valtype::number;
         }
         return new Value(type, val);
@@ -227,10 +227,10 @@ Value* Parser::parseValue() {
         number_u num;
         valtype type;
         if (parseNumber(1, num)) {
-            val = num.ival;
+            val = std::get<integer_t>(num);
             type = valtype::integer;
         } else {
-            val = num.fval;
+            val = std::get<number_t>(num);
             type = valtype::number;
         }
         return new Value(type, val);  

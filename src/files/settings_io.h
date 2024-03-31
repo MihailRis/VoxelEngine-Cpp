@@ -15,7 +15,8 @@ class SettingsHandler {
 public:
     SettingsHandler(EngineSettings& settings);
 
-    dynamic::Value getValue(std::string name) const;
+    dynamic::Value getValue(const std::string& name) const;
+    void setValue(const std::string& name, dynamic::Value value);
 };
 
 extern std::string write_controls();

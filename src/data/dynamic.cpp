@@ -352,3 +352,11 @@ Value::~Value() {
             break;
     }
 }
+
+Value Value::of(number_u value) {
+    if (std::holds_alternative<integer_t>(value)) {
+        return Value(valtype::integer, std::get<integer_t>(value));
+    } else {
+        return Value(valtype::number, std::get<number_t>(value));
+    }
+}

@@ -5,11 +5,6 @@
 #include <stdexcept>
 #include "../typedefs.h"
 
-union number_u {
-    double fval;
-    int64_t ival;
-};
-
 inline int is_box(int c) {
     switch (c) {
         case 'B':

@@ -206,10 +206,10 @@ void Reader::readSection(Section* section /*nullable*/) {
             number_u num;
             if (parseNumber(1, num)) {
                 if (section)
-                    section->set(name, (double)num.ival);
+                    section->set(name, (double)std::get<integer_t>(num));
             } else {
                 if (section)
-                    section->set(name, num.fval);
+                    section->set(name, std::get<number_t>(num));
             }
         } else if (c == '-' || c == '+') {
             int sign = c == '-' ? -1 : 1;
@@ -217,10 +217,10 @@ void Reader::readSection(Section* section /*nullable*/) {
             number_u num;
             if (parseNumber(sign, num)) {
                 if (section)
-                    section->set(name, (double)num.ival);
+                    section->set(name, (double)std::get<integer_t>(num));
             } else {
                 if (section)
-                    section->set(name, num.fval);
+                    section->set(name, std::get<number_t>(num));
             }
         } else if (is_identifier_start(c)) {
             string identifier = parseName();
