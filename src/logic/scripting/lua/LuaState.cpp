@@ -205,6 +205,32 @@ int lua::LuaState::pushvalue(int idx) {
     return 1;
 }
 
+int lua::LuaState::pushvalue(const dynamic::Value& value) {
+    using dynamic::valtype;
+    switch (value.type) {
+        case valtype::boolean:
+            pushboolean(std::get<bool>(value.value));
+            break;
+        case valtype::integer:
+            pushinteger(std::get<integer_t>(value.value));
+            break;
+        case valtype::number:
+            pushnumber(std::get<number_t>(value.value));
+            break;
+        case valtype::string:
+            pushstring(std::get<std::string>(value.value).c_str());
+            break;
+        case valtype::none:
+            pushnil();
+            break;
+        case valtype::list:
+            throw std::runtime_error("type 'list' is not implemented");
+        case valtype::map:
+            throw std::runtime_error("type 'map' is not implemented");
+    }
+    return 1;
+}
+
 int lua::LuaState::pushglobals() {
     lua_pushvalue(L, LUA_GLOBALSINDEX);
     return 1;
@@ -246,6 +272,31 @@ lua::luanumber lua::LuaState::tonumber(int idx) {
 
 const char* lua::LuaState::tostring(int idx) {
     return lua_tostring(L, idx);
+}
+
+dynamic::Value lua::LuaState::tovalue(int idx) {
+    using dynamic::valtype;
+    auto type = lua_type(L, idx);
+    switch (type) {
+        case LUA_TNIL:
+        case LUA_TNONE:
+            return dynamic::Value(valtype::none, 0);
+        case LUA_TBOOLEAN:
+            return dynamic::Value::of(lua_toboolean(L, idx) == 1);
+        case LUA_TNUMBER: {
+            auto number = lua_tonumber(L, idx);
+            auto integer = lua_tointeger(L, idx);
+            if (number == (lua_Number)integer) {
+                return dynamic::Value::of(integer);
+            } else {
+                return dynamic::Value::of(number);
+            }
+        }
+        case LUA_TSTRING:
+            return dynamic::Value::of(lua_tostring(L, idx));
+        default:
+            throw std::runtime_error("lua type "+std::to_string(type)+" is not supported");
+    }
 }
 
 bool lua::LuaState::isstring(int idx) {

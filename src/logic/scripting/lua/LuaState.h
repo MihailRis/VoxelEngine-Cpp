@@ -5,6 +5,8 @@
 #include <string>
 #include <stdexcept>
 
+#include "../../../data/dynamic.h"
+
 #ifndef LUAJIT_VERSION
 #error LuaJIT required
 #endif
@@ -36,6 +38,7 @@ namespace lua {
         int pushstring(const std::string& str);
         int pushenv(int env);
         int pushvalue(int idx);
+        int pushvalue(const dynamic::Value& value);
         int pushnil();
         int pushglobals();
         void pop(int n=1);
@@ -44,6 +47,7 @@ namespace lua {
         bool toboolean(int idx);
         luaint tointeger(int idx);
         luanumber tonumber(int idx);
+        dynamic::Value tovalue(int idx);
         const char* tostring(int idx);
         bool isstring(int idx);
         bool isfunction(int idx);

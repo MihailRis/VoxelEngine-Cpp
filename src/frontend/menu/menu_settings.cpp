@@ -15,7 +15,7 @@ using namespace gui;
 static void create_volume_trackbar(
     std::shared_ptr<Panel> panel,
     const std::wstring& name,
-    NumberSetting<float>* field
+    NumberSetting* field
 ) {
     panel->add(menus::create_label([=]() {
         return langs::get(name, L"settings")+L": " + 

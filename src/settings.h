@@ -12,11 +12,11 @@ struct AudioSettings {
     /// @brief try to initialize AL backend
     bool enabled = true;
     
-    NumberSetting<float> volumeMaster {1.0f, 0.0f, 1.0f, setting_format::percent};
-    NumberSetting<float> volumeRegular {1.0f, 0.0f, 1.0f, setting_format::percent};
-    NumberSetting<float> volumeUI {1.0f, 0.0f, 1.0f, setting_format::percent};
-    NumberSetting<float> volumeAmbient {1.0f, 0.0f, 1.0f, setting_format::percent};
-    NumberSetting<float> volumeMusic {1.0f, 0.0f, 1.0f, setting_format::percent};
+    NumberSetting volumeMaster {1.0f, 0.0f, 1.0f, setting_format::percent};
+    NumberSetting volumeRegular {1.0f, 0.0f, 1.0f, setting_format::percent};
+    NumberSetting volumeUI {1.0f, 0.0f, 1.0f, setting_format::percent};
+    NumberSetting volumeAmbient {1.0f, 0.0f, 1.0f, setting_format::percent};
+    NumberSetting volumeMusic {1.0f, 0.0f, 1.0f, setting_format::percent};
 };
 
 struct DisplaySettings {
@@ -53,7 +53,7 @@ struct CameraSettings {
     /// @brief Camera field of view
     float fov = 90.0f;
     /// @brief Camera sensitivity
-    NumberSetting<float> sensitivity {2.0f, 0.1f, 10.0f};
+    NumberSetting sensitivity {2.0f, 0.1f, 10.0f};
 };
 
 struct GraphicsSettings {

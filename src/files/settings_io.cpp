@@ -19,6 +19,41 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     map.emplace("camera.sensitivity", &settings.camera.sensitivity);
 }
 
+dynamic::Value SettingsHandler::getValue(const std::string& name) const {
+    auto found = map.find(name);
+    if (found == map.end()) {
+        throw std::runtime_error("setting '"+name+"' does not exist");
+    }
+    auto setting = found->second;
+    if (auto number = dynamic_cast<NumberSetting*>(setting)) {
+        return dynamic::Value::of((number_t)number->get());
+    } else {
+        throw std::runtime_error("type is not implemented for '"+name+"'");
+    }
+}
+
+void SettingsHandler::setValue(const std::string& name, dynamic::Value value) {
+    auto found = map.find(name);
+    if (found == map.end()) {
+        throw std::runtime_error("setting '"+name+"' does not exist");
+    }
+    auto setting = found->second;
+    if (auto number = dynamic_cast<NumberSetting*>(setting)) {
+        switch (value.type) {
+            case dynamic::valtype::integer:
+                number->set(std::get<integer_t>(value.value));
+                break;
+            case dynamic::valtype::number:
+                number->set(std::get<number_t>(value.value));
+                break;
+            default:
+                throw std::runtime_error("type error, numeric value expected");
+        }
+    } else {
+        throw std::runtime_error("type is not implement - setting '"+name+"'");
+    }
+}
+
 toml::Wrapper* create_wrapper(EngineSettings& settings) {
     auto wrapper = std::make_unique<toml::Wrapper>();
 

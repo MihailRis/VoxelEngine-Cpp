@@ -4,6 +4,8 @@
 #include <limits>
 #include <string>
 
+#include "../typedefs.h"
+
 enum class setting_format {
     simple, percent
 };
@@ -26,47 +28,46 @@ public:
     virtual std::string toString() const = 0;
 };
 
-template<class T>
 class NumberSetting : public Setting {
 protected:
-    T initial;
-    T value;
-    T min;
-    T max;
+    number_t initial;
+    number_t value;
+    number_t min;
+    number_t max;
 public:
     NumberSetting(
-        T value, 
-        T min=std::numeric_limits<T>::min(), 
-        T max=std::numeric_limits<T>::max(),
+        number_t value, 
+        number_t min=std::numeric_limits<number_t>::min(), 
+        number_t max=std::numeric_limits<number_t>::max(),
         setting_format format=setting_format::simple
     ) : Setting(format), 
         initial(value), 
         value(value), 
         min(min), 
-        max(max) 
+        max(max)
     {}
 
-    T& operator*() {
+    number_t& operator*() {
         return value;
     }
 
-    T get() const {
+    number_t get() const {
         return value;
     }
 
-    void set(T value) {
+    void set(number_t value) {
         this->value = value;
     }
 
-    T getMin() const {
+    number_t getMin() const {
         return min;
     }
 
-    T getMax() const {
+    number_t getMax() const {
         return max;
     }
 
-    T getT() const {
+    number_t getT() const {
         return (value - min) / (max - min);
     }
 
@@ -76,7 +77,7 @@ public:
 
     virtual std::string toString() const override;
 
-    static inline NumberSetting createPercent(T def) {
+    static inline NumberSetting createPercent(number_t def) {
         return NumberSetting(def, 0.0, 1.0, setting_format::percent);
     }
 };

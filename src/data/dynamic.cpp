@@ -353,10 +353,18 @@ Value::~Value() {
     }
 }
 
+Value Value::of(bool value) {
+    return Value(valtype::boolean, value);
+}
+
 Value Value::of(number_u value) {
     if (std::holds_alternative<integer_t>(value)) {
         return Value(valtype::integer, std::get<integer_t>(value));
     } else {
         return Value(valtype::number, std::get<number_t>(value));
     }
+}
+
+Value Value::of(const std::string& value) {
+    return Value(valtype::string, value);
 }
