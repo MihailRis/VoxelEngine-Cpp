@@ -1,6 +1,7 @@
 #ifndef DATA_SETTING_H_
 #define DATA_SETTING_H_
 
+#include <limits>
 #include <string>
 
 enum class setting_format {
@@ -16,6 +17,8 @@ public:
 
     virtual ~Setting() {}
 
+    virtual void resetToDefault() = 0;
+
     virtual setting_format getFormat() const {
         return format;
     }
@@ -26,12 +29,22 @@ public:
 template<class T>
 class NumberSetting : public Setting {
 protected:
+    T initial;
     T value;
     T min;
     T max;
 public:
-    NumberSetting(T value, T min, T max, setting_format format)
-    : Setting(format), value(value), min(min), max(max) {}
+    NumberSetting(
+        T value, 
+        T min=std::numeric_limits<T>::min(), 
+        T max=std::numeric_limits<T>::max(),
+        setting_format format=setting_format::simple
+    ) : Setting(format), 
+        initial(value), 
+        value(value), 
+        min(min), 
+        max(max) 
+    {}
 
     T& operator*() {
         return value;
@@ -55,6 +68,10 @@ public:
 
     T getT() const {
         return (value - min) / (max - min);
+    }
+
+    virtual void resetToDefault() override {
+        value = initial;
     }
 
     virtual std::string toString() const override;
