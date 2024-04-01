@@ -3,8 +3,10 @@
 
 #include <limits>
 #include <string>
+#include <vector>
 
 #include "../typedefs.h"
+#include "../delegates.h"
 
 enum class setting_format {
     simple, percent
@@ -34,6 +36,7 @@ protected:
     number_t value;
     number_t min;
     number_t max;
+    std::vector<consumer<number_t>> consumers;
 public:
     NumberSetting(
         number_t value, 
@@ -56,7 +59,13 @@ public:
     }
 
     void set(number_t value) {
+        if (value == this->value) {
+            return;
+        }
         this->value = value;
+        for (auto& callback : consumers) {
+            callback(value);
+        }
     }
 
     number_t getMin() const {
@@ -69,6 +78,10 @@ public:
 
     number_t getT() const {
         return (value - min) / (max - min);
+    }
+
+    void observe(consumer<number_t> callback) {
+        consumers.push_back(callback);
     }
 
     virtual void resetToDefault() override {

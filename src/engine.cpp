@@ -63,6 +63,22 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     audio::create_channel("ambient");
     audio::create_channel("ui");
 
+    settings.audio.volumeMaster.observe([=](auto value) {
+        audio::get_channel("master")->setVolume(value*value);
+    });
+    settings.audio.volumeRegular.observe([=](auto value) {
+        audio::get_channel("regular")->setVolume(value*value);
+    });
+    settings.audio.volumeUI.observe([=](auto value) {
+        audio::get_channel("ui")->setVolume(value*value);
+    });
+    settings.audio.volumeAmbient.observe([=](auto value) {
+        audio::get_channel("ambient")->setVolume(value*value);
+    });
+    settings.audio.volumeMusic.observe([=](auto value) {
+        audio::get_channel("music")->setVolume(value*value);
+    });
+
     auto resdir = paths->getResources();
     std::cout << "-- loading assets" << std::endl;
     std::vector<fs::path> roots {resdir};
@@ -128,19 +144,6 @@ void Engine::updateHotkeys() {
     }
 }
 
-inline constexpr float sqr(float x) {
-    return x*x;
-}
-
-static void updateAudio(double delta, const AudioSettings& settings) {
-    audio::get_channel("master")->setVolume(sqr(settings.volumeMaster.get()));
-    audio::get_channel("regular")->setVolume(sqr(settings.volumeRegular.get()));
-    audio::get_channel("ui")->setVolume(sqr(settings.volumeUI.get()));
-    audio::get_channel("ambient")->setVolume(sqr(settings.volumeAmbient.get()));
-    audio::get_channel("music")->setVolume(sqr(settings.volumeMusic.get()));
-    audio::update(delta);
-}
-
 void Engine::mainloop() {
     setScreen(std::make_shared<MenuScreen>(this));
 
@@ -152,7 +155,7 @@ void Engine::mainloop() {
         assert(screen != nullptr);
         updateTimers();
         updateHotkeys();
-        updateAudio(delta, settings.audio);
+        audio::update(delta);
 
         gui->act(delta);
         screen->update(delta);
