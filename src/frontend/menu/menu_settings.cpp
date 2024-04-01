@@ -12,39 +12,6 @@
 
 using namespace gui;
 
-static void create_volume_trackbar(
-    std::shared_ptr<Panel> panel,
-    const std::wstring& name,
-    NumberSetting* field
-) {
-    panel->add(menus::create_label([=]() {
-        return langs::get(name, L"settings")+L": " + 
-            util::str2wstr_utf8(field->toString());
-    }));
-
-    auto trackbar = std::make_shared<TrackBar>(0.0, 1.0, 1.0, 0.01, 5);
-    trackbar->setSupplier([=]() {
-        return field->get();
-    });
-    trackbar->setConsumer([=](double value) {
-        field->set(value); 
-    });
-    panel->add(trackbar);
-}
-
-void create_audio_settings_panel(Engine* engine) {
-    auto menu = engine->getGUI()->getMenu();
-    auto panel = menus::create_page(engine, "settings-audio", 400, 0.0f, 1);
-
-    auto& settings = engine->getSettings().audio;
-    create_volume_trackbar(panel, L"Master Volume", &settings.volumeMaster);
-    create_volume_trackbar(panel, L"Regular Sounds", &settings.volumeRegular);
-    create_volume_trackbar(panel, L"UI Sounds", &settings.volumeUI);
-    create_volume_trackbar(panel, L"Ambient", &settings.volumeAmbient);
-    create_volume_trackbar(panel, L"Music", &settings.volumeMusic);
-    panel->add(guiutil::backButton(menu));
-}
-
 static void create_controls_panel(Engine* engine) {
     auto menu = engine->getGUI()->getMenu();
     auto panel = menus::create_page(engine, "controls", 400, 0.0f, 1);
@@ -88,7 +55,7 @@ static void create_controls_panel(Engine* engine) {
 }
 
 void menus::create_settings_panel(Engine* engine) {
-    create_audio_settings_panel(engine);
+    //create_audio_settings_panel(engine);
     create_controls_panel(engine);
 
     auto menu = engine->getGUI()->getMenu();

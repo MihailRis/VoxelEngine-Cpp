@@ -32,6 +32,15 @@ dynamic::Value SettingsHandler::getValue(const std::string& name) const {
     }
 }
 
+std::string SettingsHandler::toString(const std::string& name) const {
+    auto found = map.find(name);
+    if (found == map.end()) {
+        throw std::runtime_error("setting '"+name+"' does not exist");
+    }
+    auto setting = found->second;
+    return setting->toString();
+}
+
 void SettingsHandler::setValue(const std::string& name, dynamic::Value value) {
     auto found = map.find(name);
     if (found == map.end()) {

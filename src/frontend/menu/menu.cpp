@@ -271,4 +271,5 @@ void menus::refresh_menus(Engine* engine) {
     create_world_generators_panel(engine);
     add_page_loader(engine, "main");
     load_page(engine, "404");
+    add_page_loader(engine, "settings-audio");
 }
