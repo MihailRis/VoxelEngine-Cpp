@@ -77,6 +77,13 @@ static int l_get_setting(lua_State* L) {
     return 1;
 }
 
+static int l_set_setting(lua_State* L) {
+    auto name = lua_tostring(L, 1);
+    const auto value = scripting::state->tovalue(2);
+    scripting::engine->getSettingsHandler().setValue(name, value);
+    return 0;
+}
+
 static int l_quit(lua_State* L) {
     Window::setShouldClose(true);
     return 0;
@@ -89,6 +96,7 @@ const luaL_Reg corelib [] = {
     {"delete_world", lua_wrap_errors<l_delete_world>},
     {"get_bindings", lua_wrap_errors<l_get_bindings>},
     {"get_setting", lua_wrap_errors<l_get_setting>},
+    {"set_setting", lua_wrap_errors<l_set_setting>},
     {"quit", lua_wrap_errors<l_quit>},
     {NULL, NULL}
 };
