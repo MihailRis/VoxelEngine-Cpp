@@ -353,7 +353,7 @@ Value::~Value() {
     }
 }
 
-Value Value::of(bool value) {
+Value Value::boolean(bool value) {
     return Value(valtype::boolean, value);
 }
 

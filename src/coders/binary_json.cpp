@@ -98,15 +98,15 @@ static Value* value_from_binary(ByteReader& reader) {
             break;
         case BJSON_TYPE_BYTE:
             type = valtype::integer;
-            val = reader.get();
+            val = static_cast<integer_t>(reader.get());
             break;
         case BJSON_TYPE_INT16:
             type = valtype::integer;
-            val = reader.getInt16();
+            val = static_cast<integer_t>(reader.getInt16());
             break;
         case BJSON_TYPE_INT32:
             type = valtype::integer;
-            val = reader.getInt32();
+            val = static_cast<integer_t>(reader.getInt32());
             break;
         case BJSON_TYPE_INT64:
             type = valtype::integer;
@@ -119,7 +119,7 @@ static Value* value_from_binary(ByteReader& reader) {
         case BJSON_TYPE_FALSE:
         case BJSON_TYPE_TRUE:
             type = valtype::boolean;
-            val = typecode - BJSON_TYPE_FALSE;
+            val = (typecode - BJSON_TYPE_FALSE) != 0;
             break;
         case BJSON_TYPE_STRING:
             type = valtype::string;

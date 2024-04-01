@@ -13,6 +13,10 @@
 #include <vector>
 #include <memory>
 
+namespace scripting {
+    extern lua::LuaState* state;
+}
+
 static int l_get_worlds_list(lua_State* L) {
     auto paths = scripting::engine->getPaths();
     auto worlds = paths->scanForWorlds();
@@ -66,6 +70,13 @@ static int l_get_bindings(lua_State* L) {
     return 1;
 }
 
+static int l_get_setting(lua_State* L) {
+    auto name = lua_tostring(L, 1);
+    const auto value = scripting::engine->getSettingsHandler().getValue(name);
+    scripting::state->pushvalue(value);
+    return 1;
+}
+
 static int l_quit(lua_State* L) {
     Window::setShouldClose(true);
     return 0;
@@ -77,6 +88,7 @@ const luaL_Reg corelib [] = {
     {"close_world", lua_wrap_errors<l_close_world>},
     {"delete_world", lua_wrap_errors<l_delete_world>},
     {"get_bindings", lua_wrap_errors<l_get_bindings>},
+    {"get_setting", lua_wrap_errors<l_get_setting>},
     {"quit", lua_wrap_errors<l_quit>},
     {NULL, NULL}
 };

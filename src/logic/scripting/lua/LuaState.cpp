@@ -280,9 +280,9 @@ dynamic::Value lua::LuaState::tovalue(int idx) {
     switch (type) {
         case LUA_TNIL:
         case LUA_TNONE:
-            return dynamic::Value(valtype::none, 0);
+            return dynamic::Value(valtype::none, (integer_t)0);
         case LUA_TBOOLEAN:
-            return dynamic::Value::of(lua_toboolean(L, idx) == 1);
+            return dynamic::Value::boolean(lua_toboolean(L, idx) == 1);
         case LUA_TNUMBER: {
             auto number = lua_tonumber(L, idx);
             auto integer = lua_tointeger(L, idx);

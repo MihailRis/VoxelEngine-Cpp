@@ -33,7 +33,7 @@ namespace dynamic {
         Value(valtype type, valvalue value);
         ~Value();
 
-        static Value of(bool value);
+        static Value boolean(bool value);
         static Value of(number_u value);
         static Value of(const std::string& value);
     };
