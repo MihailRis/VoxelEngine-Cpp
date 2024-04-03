@@ -131,7 +131,9 @@ events = {
 }
 
 function events.on(event, func)
-    events.handlers[event] = events.handlers[event] or {}
+    -- why an array? length is always = 1
+    -- FIXME: temporary fixed
+    events.handlers[event] = {} -- events.handlers[event] or {}
     table.insert(events.handlers[event], func)
 end
 
