@@ -42,12 +42,11 @@ public:
 
     const std::string& getId() const;
     const uinodes_map& getMap() const;
+    uinodes_map& getMapWriteable();
     const std::shared_ptr<gui::UINode> getRoot() const;
     const std::shared_ptr<gui::UINode> get(const std::string& id) const;
     const uidocscript& getScript() const;
     int getEnvironment() const;
-    // @brief Collect map of all uinodes having identifiers
-    static void buildIndices(uinodes_map& map, std::shared_ptr<gui::UINode> node);
 
     static std::unique_ptr<UiDocument> read(int env, std::string name, fs::path file);
     static std::shared_ptr<gui::UINode> readElement(fs::path file);

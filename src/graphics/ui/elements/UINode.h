@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <functional>
+#include <unordered_map>
 #include "../../../delegates.h"
 #include "../../../window/input.h"
 
@@ -193,6 +194,12 @@ namespace gui {
         void reposition();
 
         virtual void setGravity(Gravity gravity);
+
+        // @brief collect all nodes having id
+        static void getIndices(
+            std::shared_ptr<UINode> node,
+            std::unordered_map<std::string, std::shared_ptr<UINode>>& map
+        );
     };
 }
 

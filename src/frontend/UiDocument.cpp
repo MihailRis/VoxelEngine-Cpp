@@ -13,14 +13,18 @@ UiDocument::UiDocument(
     std::shared_ptr<gui::UINode> root,
     std::unique_ptr<scripting::Environment> env
 ) : id(id), script(script), root(root), env(std::move(env)) {
-    buildIndices(map, root);
+    gui::UINode::getIndices(root, map);
 }
 
 void UiDocument::rebuildIndices() {
-    buildIndices(map, root);
+    gui::UINode::getIndices(root, map);
 }
 
 const uinodes_map& UiDocument::getMap() const {
+    return map;
+}
+
+uinodes_map& UiDocument::getMapWriteable() {
     return map;
 }
 
@@ -46,19 +50,6 @@ const uidocscript& UiDocument::getScript() const {
 
 int UiDocument::getEnvironment() const {
     return env->getId();
-}
-
-void UiDocument::buildIndices(uinodes_map& map, std::shared_ptr<gui::UINode> node) {
-    const std::string& id = node->getId();
-    if (!id.empty()) {
-        map[id] = node;
-    }
-    auto container = std::dynamic_pointer_cast<gui::Container>(node);
-    if (container) {
-        for (auto subnode : container->getNodes()) {
-            buildIndices(map, subnode);
-        }
-    }
 }
 
 std::unique_ptr<UiDocument> UiDocument::read(int penv, std::string name, fs::path file) {

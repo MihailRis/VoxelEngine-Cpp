@@ -219,7 +219,9 @@ static int container_add(lua_State* L) {
     auto node = dynamic_cast<gui::Container*>(docnode.node);
     auto xmlsrc = lua_tostring(L, 2);
     try {
-        node->add(guiutil::create(xmlsrc, docnode.document->getEnvironment()));
+        auto subnode = guiutil::create(xmlsrc, docnode.document->getEnvironment());
+        node->add(subnode);
+        gui::UINode::getIndices(subnode, docnode.document->getMapWriteable());
     } catch (const std::exception& err) {
         luaL_error(L, err.what());
     }
