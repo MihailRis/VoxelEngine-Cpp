@@ -17,6 +17,74 @@
 
 using namespace gui;
 
+std::shared_ptr<Container> create_pack_panel(
+    const ContentPack& pack,
+    Engine* engine,
+    packconsumer callback,
+    packconsumer remover
+) {
+    auto assets = engine->getAssets();
+    auto packpanel = std::dynamic_pointer_cast<Container>(guiutil::create(
+        "<container size='540,80' color='#0F1E2DB2'>"
+        "</container>"
+    ));
+    if (callback) {
+        packpanel->listenAction([=](GUI*) {
+            callback(pack);
+        });
+    }
+    auto runtime = engine->getContent() ? engine->getContent()->getPackRuntime(pack.id) : nullptr;
+    auto idtext = (runtime && runtime->getStats().hasSavingContent()) 
+        ? "*["+pack.id+"]" 
+        :  "["+pack.id+"]";
+
+    packpanel->add(guiutil::create(
+        "<label pos='215,2' color='#FFFFFF80' size='300,25' align='right'>" +
+        idtext +
+        "</label>"
+    ));
+
+    auto titlelabel = std::make_shared<Label>(pack.title);
+    packpanel->add(titlelabel, glm::vec2(78, 6));
+
+    std::string icon = pack.id+".icon";
+    if (assets->getTexture(icon) == nullptr) {
+        auto iconfile = pack.folder/fs::path("icon.png");
+        if (fs::is_regular_file(iconfile)) {
+            assets->store(png::load_texture(iconfile.string()), icon);
+        } else {
+            icon = "gui/no_icon";
+        }
+    }
+
+    if (!pack.creator.empty()) {
+        packpanel->add(guiutil::create(
+            "<label color='#CCFFE5B2' size='300,20' align='right' pos='215,60'>"+
+            pack.creator+
+            "</label>"
+        ));
+    }
+
+    auto descriptionlabel = std::make_shared<Label>(pack.description);
+    descriptionlabel->setColor(glm::vec4(1, 1, 1, 0.7f));
+    packpanel->add(descriptionlabel, glm::vec2(80, 28));
+
+    packpanel->add(std::make_shared<Image>(icon, glm::vec2(64)), glm::vec2(8));
+
+    if (remover && pack.id != "base") {
+        auto rembtn = guiutil::create(
+            "<button color='#00000000' hover-color='#FFFFFF2B'>"
+            "    <image src='gui/cross' size='32,32'/>"
+            "</button>"
+        );
+        rembtn->listenAction([=](GUI* gui) {
+            remover(pack);
+        });
+        packpanel->add(rembtn, glm::vec2(470, 22));
+    }
+    return packpanel;
+}
+
 std::shared_ptr<Panel> menus::create_packs_panel(
     const std::vector<ContentPack>& packs, 
     Engine* engine, 
@@ -24,71 +92,13 @@ std::shared_ptr<Panel> menus::create_packs_panel(
     packconsumer callback,
     packconsumer remover
 ){
-    auto assets = engine->getAssets();
     auto panel = std::make_shared<Panel>(glm::vec2(550, 200), glm::vec4(5.0f));
     panel->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.07f));
     panel->setMaxLength(400);
     panel->setScrollable(true);
 
     for (auto& pack : packs) {
-        auto packpanel = std::make_shared<Container>(glm::vec2(540, 80));
-        packpanel->setColor(glm::vec4(0.06f, 0.12f, 0.18f, 0.7f));
-        if (callback) {
-            packpanel->listenAction([=](GUI*) {
-                callback(pack);
-            });
-        }
-        auto runtime = engine->getContent() ? engine->getContent()->getPackRuntime(pack.id) : nullptr;
-        auto idlabel = std::make_shared<Label>(
-            (runtime && runtime->getStats().hasSavingContent()) 
-            ? "*["+pack.id+"]" 
-            :  "["+pack.id+"]"
-        );
-        idlabel->setColor(glm::vec4(1, 1, 1, 0.5f));
-        idlabel->setSize(glm::vec2(300, 25));
-        idlabel->setAlign(Align::right);
-        packpanel->add(idlabel, glm::vec2(215, 2));
-
-        auto titlelabel = std::make_shared<Label>(pack.title);
-        packpanel->add(titlelabel, glm::vec2(78, 6));
-
-        std::string icon = pack.id+".icon";
-        if (assets->getTexture(icon) == nullptr) {
-            auto iconfile = pack.folder/fs::path("icon.png");
-            if (fs::is_regular_file(iconfile)) {
-                assets->store(png::load_texture(iconfile.string()), icon);
-            } else {
-                icon = "gui/no_icon";
-            }
-        }
-
-        if (!pack.creator.empty()) {
-            packpanel->add(guiutil::create(
-                "<label color='#CCFFE5B2' size='300,20' align='right' pos='215,60'>"+
-                pack.creator+
-                "</label>"
-            ));
-        }
-
-        auto descriptionlabel = std::make_shared<Label>(pack.description);
-        descriptionlabel->setColor(glm::vec4(1, 1, 1, 0.7f));
-        packpanel->add(descriptionlabel, glm::vec2(80, 28));
-
-        packpanel->add(std::make_shared<Image>(icon, glm::vec2(64)), glm::vec2(8));
-
-        if (remover && pack.id != "base") {
-            auto rembtn = guiutil::create(
-                "<button color='#00000000' hover-color='#FFFFFF2B'>"
-                "    <image src='gui/cross' size='32,32'/>"
-                "</button>"
-            );
-            rembtn->listenAction([=](GUI* gui) {
-                remover(pack);
-            });
-            packpanel->add(rembtn, glm::vec2(470, 22));
-        }
-
-        panel->add(packpanel);
+        panel->add(create_pack_panel(pack, engine, callback, remover));
     }
     if (backbutton) {
         panel->add(guiutil::backButton(engine->getGUI()->getMenu()));

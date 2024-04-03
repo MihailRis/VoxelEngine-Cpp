@@ -141,6 +141,13 @@ static int menu_back(lua_State* L) {
     return 0;
 }
 
+static int menu_reset(lua_State* L) {
+    auto node = getDocumentNode(L);
+    auto menu = dynamic_cast<gui::Menu*>(node.node);
+    menu->reset();
+    return 0;
+}
+
 static bool getattr(lua_State* L, gui::Menu* menu, const std::string& attr) {
     if (menu == nullptr)
         return false;
@@ -149,6 +156,9 @@ static bool getattr(lua_State* L, gui::Menu* menu, const std::string& attr) {
         return true;
     } else if (attr == "back") {
         lua_pushcfunction(L, menu_back);
+        return true;
+    } else if (attr == "reset") {
+        lua_pushcfunction(L, menu_reset);
         return true;
     }
     return false;
