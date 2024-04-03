@@ -15,7 +15,12 @@
 #include "../../../frontend/locale/langs.h"
 #include "../../../util/stringutil.h"
 
-static gui::UINode* getDocumentNode(lua_State* L, const std::string& name, const std::string& nodeName) {
+struct DocumentNode {
+    UiDocument* document;
+    gui::UINode* node;
+};
+
+static DocumentNode getDocumentNode(lua_State* L, const std::string& name, const std::string& nodeName) {
     auto doc = scripting::engine->getAssets()->getLayout(name);
     if (doc == nullptr) {
         luaL_error(L, "document '%s' not found", name.c_str());
@@ -24,7 +29,7 @@ static gui::UINode* getDocumentNode(lua_State* L, const std::string& name, const
     if (node == nullptr) {
         luaL_error(L, "document '%s' has no element with id '%s'", name.c_str(), nodeName.c_str());
     }
-    return node.get();
+    return {doc, node.get()};
 }
 
 static bool getattr(lua_State* L, gui::TrackBar* bar, const std::string& attr) {
@@ -119,7 +124,7 @@ static bool getattr(lua_State* L, gui::TextBox* box, const std::string& attr) {
     return false;
 }
 
-static gui::UINode* getDocumentNode(lua_State* L) {
+static DocumentNode getDocumentNode(lua_State* L) {
     lua_getfield(L, 1, "docname");
     lua_getfield(L, 1, "name");
     auto docname = lua_tostring(L, -2);
@@ -131,7 +136,7 @@ static gui::UINode* getDocumentNode(lua_State* L) {
 
 static int menu_back(lua_State* L) {
     auto node = getDocumentNode(L);
-    auto menu = dynamic_cast<gui::Menu*>(node);
+    auto menu = dynamic_cast<gui::Menu*>(node.node);
     menu->back();
     return 0;
 }
@@ -210,10 +215,11 @@ static bool setattr(lua_State* L, gui::Menu* menu, const std::string& attr) {
 }
 
 static int container_add(lua_State* L) {
-    auto node = dynamic_cast<gui::Container*>(getDocumentNode(L));
+    auto docnode = getDocumentNode(L);
+    auto node = dynamic_cast<gui::Container*>(docnode.node);
     auto xmlsrc = lua_tostring(L, 2);
     try {
-        node->add(guiutil::create(xmlsrc));
+        node->add(guiutil::create(xmlsrc, docnode.document->getEnvironment()));
     } catch (const std::exception& err) {
         luaL_error(L, err.what());
     }
@@ -235,7 +241,8 @@ static int l_gui_getattr(lua_State* L) {
     auto docname = lua_tostring(L, 1);
     auto element = lua_tostring(L, 2);
     const std::string attr = lua_tostring(L, 3);
-    auto node = getDocumentNode(L, docname, element);
+    auto docnode = getDocumentNode(L, docname, element);
+    auto node = docnode.node;
 
     if (attr == "color") {
         return lua::pushcolor_arr(L, node->getColor());
@@ -281,7 +288,8 @@ static int l_gui_setattr(lua_State* L) {
     auto element = lua_tostring(L, 2);
     const std::string attr = lua_tostring(L, 3);
 
-    auto node = getDocumentNode(L, docname, element);
+    auto docnode = getDocumentNode(L, docname, element);
+    auto node = docnode.node;
     if (attr == "pos") {
         node->setPos(lua::tovec2(L, 4));
     } else if (attr == "size") {
@@ -332,11 +340,22 @@ static int l_gui_str(lua_State* L) {
     return 1;
 }
 
+static int l_gui_reindex(lua_State* L) {
+    auto name = lua_tostring(L, 1);
+    auto doc = scripting::engine->getAssets()->getLayout(name);
+    if (doc == nullptr) {
+        luaL_error(L, "document '%s' not found", name);
+    }
+    doc->rebuildIndices();
+    return 0;
+}
+
 const luaL_Reg guilib [] = {
     {"get_viewport", lua_wrap_errors<l_gui_getviewport>},
     {"getattr", lua_wrap_errors<l_gui_getattr>},
     {"setattr", lua_wrap_errors<l_gui_setattr>},
     {"get_env", lua_wrap_errors<l_gui_get_env>},
     {"str", lua_wrap_errors<l_gui_str>},
+    {"reindex", lua_wrap_errors<l_gui_reindex>},
     {NULL, NULL}
 };

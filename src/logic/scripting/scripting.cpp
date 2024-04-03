@@ -47,6 +47,10 @@ int Environment::getId() const {
     return env;
 }
 
+void Environment::release() {
+    env = 0;
+}
+
 void load_script(fs::path name) {
     auto paths = scripting::engine->getPaths();
     fs::path file = paths->getResources()/fs::path("scripts")/name;

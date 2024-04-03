@@ -31,10 +31,12 @@ std::shared_ptr<Button> guiutil::gotoButton(
     ));
 }
 
-std::shared_ptr<gui::UINode> guiutil::create(const std::string& source) {
-    scripting::Environment env(0);
+std::shared_ptr<gui::UINode> guiutil::create(const std::string& source, int envid) {
+    scripting::Environment env(envid);
     UiXmlReader reader(env);
-    return reader.readXML("<string>", source);
+    auto node = reader.readXML("<string>", source);
+    env.release();
+    return node;
 }
 
 void guiutil::alert(GUI* gui, const std::wstring& text, runnable on_hidden) {

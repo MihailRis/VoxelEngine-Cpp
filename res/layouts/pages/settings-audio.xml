@@ -1,23 +1,6 @@
 <panel size='400' color='0' interval='1'>
-    <label id='l_master'>-</label>
-    <trackbar min='0' max='1' value='1' step='0.01' track-width='5' 
-        consumer='on_master_change'
-        supplier='core.get_setting("audio.volume-master")'/>
-    <label id='l_regular'>-</label>
-    <trackbar min='0' max='1' value='1' step='0.01' track-width='5' 
-        consumer='on_regular_change'
-        supplier='core.get_setting("audio.volume-regular")'/>
-    <label id='l_ui'>-</label>
-    <trackbar min='0' max='1' value='1' step='0.01' track-width='5' 
-        consumer='on_ui_change'
-        supplier='core.get_setting("audio.volume-ui")'/>
-    <label id='l_ambient'>-</label>
-    <trackbar min='0' max='1' value='1' step='0.01' track-width='5' 
-        consumer='on_ambient_change'
-        supplier='core.get_setting("audio.volume-ambient")'/>
-    <label id='l_music'>-</label>
-    <trackbar min='0' max='1' value='1' step='0.01' track-width='5' 
-        consumer='on_music_change'
-        supplier='core.get_setting("audio.volume-music")'/>
+    <panel id='tracks_panel' size='400' color='0' interval='1'>
+        <!-- content is generated in script -->
+    </panel>
     <button padding='10' onclick='menu:back()'>@Back</button>
 </panel>
