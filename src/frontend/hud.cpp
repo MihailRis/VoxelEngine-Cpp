@@ -564,3 +564,10 @@ void Hud::setPause(bool pause) {
 Player* Hud::getPlayer() const {
     return player;
 }
+
+std::shared_ptr<Inventory> Hud::getBlockInventory() {
+    if (blockUI == nullptr) {
+        return nullptr;
+    }
+    return blockUI->getInventory();
+}
