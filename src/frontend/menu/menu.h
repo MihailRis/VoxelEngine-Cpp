@@ -47,6 +47,12 @@ namespace menus {
     /// @param engine engine instance
     void delete_world(std::string name, Engine* engine);
 
+    void remove_packs(
+        Engine* engine, 
+        LevelController* controller, 
+        std::vector<std::string> packs
+    );
+
     /// @brief Create development version label at the top-right screen corner
     void create_version_label(Engine* engine);
     void create_menus(Engine* engine);

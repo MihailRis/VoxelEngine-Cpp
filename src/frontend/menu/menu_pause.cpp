@@ -60,21 +60,23 @@ std::shared_ptr<Container> create_pack_panel(
     if (!pack.creator.empty()) {
         packpanel->add(guiutil::create(
             "<label color='#CCFFE5B2' size='300,20' align='right' pos='215,60'>"+
-            pack.creator+
+                pack.creator+
             "</label>"
         ));
     }
 
-    auto descriptionlabel = std::make_shared<Label>(pack.description);
-    descriptionlabel->setColor(glm::vec4(1, 1, 1, 0.7f));
-    packpanel->add(descriptionlabel, glm::vec2(80, 28));
+    packpanel->add(guiutil::create(
+        "<label pos='80,28' color='#FFFFFFB2'>" +
+            pack.description +
+        "</label>"
+    ));
 
     packpanel->add(std::make_shared<Image>(icon, glm::vec2(64)), glm::vec2(8));
 
     if (remover && pack.id != "base") {
         auto rembtn = guiutil::create(
             "<button color='#00000000' hover-color='#FFFFFF2B'>"
-            "    <image src='gui/cross' size='32,32'/>"
+                "<image src='gui/cross' size='32,32'/>"
             "</button>"
         );
         rembtn->listenAction([=](GUI* gui) {
@@ -134,6 +136,46 @@ static bool try_add_dependency(Engine* engine, World* world, const ContentPack& 
     return false;
 }
 
+void menus::remove_packs(
+    Engine* engine,
+    LevelController* controller,
+    std::vector<std::string> packsToRemove
+) {
+    auto content = engine->getContent();
+    auto world = controller->getLevel()->getWorld();
+    bool hasIndices = false;
+
+    std::stringstream ss;
+    for (const auto& id : packsToRemove) {
+        if (content->getPackRuntime(id)->getStats().hasSavingContent()) {
+            if (hasIndices) {
+                ss << ", ";
+            }
+            hasIndices = true;
+            ss << id;
+        }
+    }
+
+    runnable removeFunc = [=]() {
+        controller->saveWorld();
+        for (const auto& id : packsToRemove) {
+            world->wfile->removePack(world, id);
+        }
+        reopen_world(engine, world);
+    };
+
+    if (hasIndices) {
+        guiutil::confirm(
+            engine->getGUI(), 
+            langs::get(L"remove-confirm", L"pack")+
+            L" ("+util::str2wstr_utf8(ss.str())+L")", 
+            [=]() {removeFunc();}
+        );
+    } else {
+        removeFunc();
+    }
+}
+
 void create_content_panel(Engine* engine, LevelController* controller) {
     auto level = controller->getLevel();
     auto menu = engine->getGUI()->getMenu();
@@ -149,24 +191,11 @@ void create_content_panel(Engine* engine, LevelController* controller) {
             }
         }
     }
-
     auto panel = menus::create_packs_panel(
         engine->getContentPacks(), engine, false, nullptr, 
         [=](const ContentPack& pack) {
-            auto world = level->getWorld();
-            auto runtime = engine->getContent()->getPackRuntime(pack.id);
-            if (runtime->getStats().hasSavingContent()) {
-                guiutil::confirm(engine->getGUI(), langs::get(L"remove-confirm", L"pack")+
-                L" ("+util::str2wstr_utf8(pack.id)+L")", [=]() {
-                    controller->saveWorld();
-                    world->wfile->removePack(world, pack.id);
-                    reopen_world(engine, world);
-                });
-            } else {
-                controller->saveWorld();
-                world->wfile->removePack(world, pack.id);
-                reopen_world(engine, world);
-            }
+            std::vector<std::string> packsToRemove {pack.id};
+            menus::remove_packs(engine, controller, packsToRemove);
         }
     );
     mainPanel->add(panel);
