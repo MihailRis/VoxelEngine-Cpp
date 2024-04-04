@@ -12,89 +12,47 @@
 
 static debug::Logger logger("chunks-render");
 
-ChunksRenderer::ChunksRenderer(Level* level, const ContentGfxCache* cache, const EngineSettings& settings) 
-: level(level), cache(cache), settings(settings) {
-    const int MAX_FULL_CUBES = 3000;
-    renderer = std::make_unique<BlocksRenderer>(
-        9 * 6 * 6 * MAX_FULL_CUBES, level->content, cache, settings
-    );
+const uint RENDERER_CAPACITY = 9 * 6 * 6 * 3000;
 
-    const uint num_threads = std::thread::hardware_concurrency();
-    for (uint i = 0; i < num_threads; i++) {
-        threads.emplace_back(&ChunksRenderer::threadLoop, this, i);
-        workersBlocked.emplace_back();
+class RendererWorker : public util::Worker<std::shared_ptr<Chunk>, RendererResult> {
+    Level* level;
+    std::shared_ptr<BlocksRenderer> renderer;
+public:
+    RendererWorker(
+        Level* level, 
+        const ContentGfxCache* cache, 
+        const EngineSettings& settings
+    ) : level(level) 
+    {
+        renderer = std::make_shared<BlocksRenderer>(
+            RENDERER_CAPACITY, level->content, cache, settings
+        );
     }
-    logger.info() << "created " << num_threads << " rendering threads";
+
+    RendererResult operator()(const std::shared_ptr<Chunk>& chunk) override {
+        renderer->build(chunk.get(), level->chunksStorage.get());
+        return RendererResult {glm::ivec2(chunk->x, chunk->z), renderer};
+    }
+};
+
+ChunksRenderer::ChunksRenderer(
+    Level* level, 
+    const ContentGfxCache* cache, 
+    const EngineSettings& settings
+) : level(level),
+    threadPool(
+        [=](){return std::make_shared<RendererWorker>(level, cache, settings);}, 
+        [=](RendererResult& mesh){
+            meshes[mesh.key] = std::shared_ptr<Mesh>(mesh.renderer->createMesh());
+            inwork.erase(mesh.key);
+        })
+{
+    renderer = std::make_unique<BlocksRenderer>(
+        RENDERER_CAPACITY, level->content, cache, settings
+    );
 }
 
 ChunksRenderer::~ChunksRenderer() {
-    {
-        std::unique_lock<std::mutex> lock(jobsMutex);
-        working = false;
-    }
-
-    resultsMutex.lock();
-    while (!results.empty()) {
-        Result entry = results.front();
-        results.pop();
-        entry.locked = false;
-        entry.variable.notify_all();
-    }
-    resultsMutex.unlock();
-
-    jobsMutexCondition.notify_all();
-    for (auto& thread : threads) {
-        thread.join();
-    }
-}
-
-void ChunksRenderer::threadLoop(int index) {
-    const int MAX_FULL_CUBES = 3000;
-    BlocksRenderer renderer(
-        9 * 6 * 6 * MAX_FULL_CUBES, level->content, cache, settings
-    );
-
-    std::condition_variable variable;
-    std::mutex mutex;
-    bool locked = false;
-    while (working) {
-        std::shared_ptr<Chunk> chunk;
-        {
-            std::unique_lock<std::mutex> lock(jobsMutex);
-            jobsMutexCondition.wait(lock, [this] {
-                return !jobs.empty() || !working;
-            });
-            if (!working) {
-                break;
-            }
-            chunk = jobs.front();
-            jobs.pop();
-        }
-        process(chunk, renderer);
-        {
-            resultsMutex.lock();
-            results.push(Result {variable, index, locked, {renderer, glm::ivec2(chunk->x, chunk->z)}});
-            locked = true;
-            resultsMutex.unlock();
-        }
-        {
-            std::unique_lock<std::mutex> lock(mutex);
-            variable.wait(lock, [&] {
-                return !working || !locked;
-            });
-        }
-    }
-}
-
-void ChunksRenderer::process(std::shared_ptr<Chunk> chunk, BlocksRenderer& renderer) {
-    renderer.build(chunk.get(), level->chunksStorage.get());
-}
-
-void ChunksRenderer::enqueueJob(std::shared_ptr<Chunk> job) {
-    jobsMutex.lock();
-    jobs.push(job);
-    jobsMutex.unlock();
-    jobsMutexCondition.notify_one();
 }
 
 std::shared_ptr<Mesh> ChunksRenderer::render(std::shared_ptr<Chunk> chunk, bool important) {
@@ -113,7 +71,7 @@ std::shared_ptr<Mesh> ChunksRenderer::render(std::shared_ptr<Chunk> chunk, bool 
     }
 
     inwork[key] = true;
-    enqueueJob(chunk);
+    threadPool.enqueueJob(chunk);
     return nullptr;
 }
 
@@ -144,15 +102,5 @@ std::shared_ptr<Mesh> ChunksRenderer::get(Chunk* chunk) {
 }
 
 void ChunksRenderer::update() {
-    resultsMutex.lock();
-    while (!results.empty()) {
-        Result entry = results.front();
-        mesh_entry mesh = entry.entry;
-        results.pop();
-        meshes[mesh.key] = std::shared_ptr<Mesh>(mesh.renderer.createMesh());
-        inwork.erase(mesh.key);
-        entry.locked = false;
-        entry.variable.notify_all();
-    }
-    resultsMutex.unlock();
+    threadPool.update();
 }
