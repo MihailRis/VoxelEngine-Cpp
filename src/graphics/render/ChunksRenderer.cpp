@@ -90,6 +90,13 @@ void ChunksRenderer::process(std::shared_ptr<Chunk> chunk, BlocksRenderer& rende
     renderer.build(chunk.get(), level->chunksStorage.get());
 }
 
+void ChunksRenderer::enqueueJob(std::shared_ptr<Chunk> job) {
+    jobsMutex.lock();
+    jobs.push(job);
+    jobsMutex.unlock();
+    jobsMutexCondition.notify_one();
+}
+
 std::shared_ptr<Mesh> ChunksRenderer::render(std::shared_ptr<Chunk> chunk, bool important) {
     chunk->setModified(false);
 
@@ -106,10 +113,7 @@ std::shared_ptr<Mesh> ChunksRenderer::render(std::shared_ptr<Chunk> chunk, bool 
     }
 
     inwork[key] = true;
-    jobsMutex.lock();
-    jobs.push(chunk);
-    jobsMutex.unlock();
-    jobsMutexCondition.notify_one();
+    enqueueJob(chunk);
     return nullptr;
 }
 

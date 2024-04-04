@@ -51,6 +51,7 @@ class ChunksRenderer {
     const EngineSettings& settings;
     std::vector<std::unique_lock<std::mutex>> workersBlocked;
 
+    void enqueueJob(std::shared_ptr<Chunk> chunk);
     void threadLoop(int index);
     void process(std::shared_ptr<Chunk> chunk, BlocksRenderer& renderer);
 public:
