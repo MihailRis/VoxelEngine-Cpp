@@ -20,7 +20,7 @@ class ContentGfxCache;
 
 struct RendererResult {
     glm::ivec2 key;
-    std::shared_ptr<BlocksRenderer> renderer;
+    BlocksRenderer* renderer;
 };
 
 class ChunksRenderer {
@@ -39,7 +39,7 @@ public:
     virtual ~ChunksRenderer();
 
     std::shared_ptr<Mesh> render(std::shared_ptr<Chunk> chunk, bool important);
-    void unload(Chunk* chunk);
+    void unload(const Chunk* chunk);
 
     std::shared_ptr<Mesh> getOrRender(std::shared_ptr<Chunk> chunk, bool important);
     std::shared_ptr<Mesh> get(Chunk* chunk);

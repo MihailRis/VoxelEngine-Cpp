@@ -16,22 +16,19 @@ const uint RENDERER_CAPACITY = 9 * 6 * 6 * 3000;
 
 class RendererWorker : public util::Worker<std::shared_ptr<Chunk>, RendererResult> {
     Level* level;
-    std::shared_ptr<BlocksRenderer> renderer;
+    BlocksRenderer renderer;
 public:
     RendererWorker(
         Level* level, 
         const ContentGfxCache* cache, 
         const EngineSettings& settings
-    ) : level(level) 
-    {
-        renderer = std::make_shared<BlocksRenderer>(
-            RENDERER_CAPACITY, level->content, cache, settings
-        );
-    }
+    ) : level(level), 
+        renderer(RENDERER_CAPACITY, level->content, cache, settings)
+    {}
 
     RendererResult operator()(const std::shared_ptr<Chunk>& chunk) override {
-        renderer->build(chunk.get(), level->chunksStorage.get());
-        return RendererResult {glm::ivec2(chunk->x, chunk->z), renderer};
+        renderer.build(chunk.get(), level->chunksStorage.get());
+        return RendererResult {glm::ivec2(chunk->x, chunk->z), &renderer};
     }
 };
 
@@ -59,10 +56,9 @@ std::shared_ptr<Mesh> ChunksRenderer::render(std::shared_ptr<Chunk> chunk, bool 
     chunk->setModified(false);
 
     if (important) {
-        Mesh* mesh = renderer->render(chunk.get(), level->chunksStorage.get());
-        auto sptr = std::shared_ptr<Mesh>(mesh);
-        meshes[glm::ivec2(chunk->x, chunk->z)] = sptr;
-        return sptr;
+        std::shared_ptr<Mesh> mesh (renderer->render(chunk.get(), level->chunksStorage.get()));
+        meshes[glm::ivec2(chunk->x, chunk->z)] = mesh;
+        return mesh;
     }
 
     glm::ivec2 key(chunk->x, chunk->z);
@@ -75,7 +71,7 @@ std::shared_ptr<Mesh> ChunksRenderer::render(std::shared_ptr<Chunk> chunk, bool 
     return nullptr;
 }
 
-void ChunksRenderer::unload(Chunk* chunk) {
+void ChunksRenderer::unload(const Chunk* chunk) {
     auto found = meshes.find(glm::ivec2(chunk->x, chunk->z));
     if (found != meshes.end()) {
         meshes.erase(found);
@@ -84,13 +80,13 @@ void ChunksRenderer::unload(Chunk* chunk) {
 
 std::shared_ptr<Mesh> ChunksRenderer::getOrRender(std::shared_ptr<Chunk> chunk, bool important) {
     auto found = meshes.find(glm::ivec2(chunk->x, chunk->z));
-    if (found != meshes.end()){
-        if (chunk->isModified()) {
-            render(chunk, important);
-        }
-        return found->second;
+    if (found == meshes.end()) {
+        return render(chunk, important);
     }
-    return render(chunk, important);
+    if (chunk->isModified()) {
+        render(chunk, important);
+    }
+    return found->second;
 }
 
 std::shared_ptr<Mesh> ChunksRenderer::get(Chunk* chunk) {
