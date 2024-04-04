@@ -14,7 +14,7 @@
 #include "../graphics/ui/GUI.h"
 #include "../logic/ChunksController.h"
 #include "../logic/LevelController.h"
-#include "../logic/scripting/scripting_frontend.h"
+#include "../logic/scripting/scripting_hud.h"
 #include "../logic/scripting/scripting.h"
 #include "../objects/Player.h"
 #include "../physics/Hitbox.h"

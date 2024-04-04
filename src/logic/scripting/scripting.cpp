@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "../../debug/Logger.h"
 #include "../../content/ContentPack.h"
 #include "../../files/engine_paths.h"
 #include "../../files/files.h"
@@ -25,6 +26,8 @@ using namespace scripting;
 namespace scripting {
     extern lua::LuaState* state;
 }
+
+static debug::Logger logger("scripting");
 
 Engine* scripting::engine = nullptr;
 lua::LuaState* scripting::state = nullptr;
@@ -284,7 +287,7 @@ bool scripting::emit_event(const std::string &name, std::function<int(lua::LuaSt
 
 void scripting::load_block_script(int env, std::string prefix, fs::path file, block_funcs_set& funcsset) {
     std::string src = files::read_string(file);
-    std::cout << "loading script " << file.u8string() << std::endl;
+    logger.info() << "script (block) " << file.u8string();
     state->execute(env, src, file.u8string());
     funcsset.init = register_event(env, "init", prefix+".init");
     funcsset.update = register_event(env, "on_update", prefix+".update");
@@ -297,7 +300,7 @@ void scripting::load_block_script(int env, std::string prefix, fs::path file, bl
 
 void scripting::load_item_script(int env, std::string prefix, fs::path file, item_funcs_set& funcsset) {
     std::string src = files::read_string(file);
-    std::cout << "loading script " << file.u8string() << std::endl;
+    logger.info() << "script (item) " << file.u8string();
     state->execute(env, src, file.u8string());
 
     funcsset.init = register_event(env, "init", prefix+".init");
@@ -308,7 +311,7 @@ void scripting::load_item_script(int env, std::string prefix, fs::path file, ite
 
 void scripting::load_world_script(int env, std::string prefix, fs::path file) {
     std::string src = files::read_string(file);
-    std::cout << "loading script " << file.u8string() << std::endl;
+    logger.info() << "loading world script for " << prefix;
 
     state->loadbuffer(env, src, file.u8string());
     state->callNoThrow(0);
@@ -322,7 +325,7 @@ void scripting::load_world_script(int env, std::string prefix, fs::path file) {
 
 void scripting::load_layout_script(int env, std::string prefix, fs::path file, uidocscript& script) {
     std::string src = files::read_string(file);
-    std::cout << "loading script " << file.u8string() << std::endl;
+    logger.info() << "loading script " << file.u8string();
 
     script.environment = env;
     state->loadbuffer(env, src, file.u8string());

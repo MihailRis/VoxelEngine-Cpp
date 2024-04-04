@@ -3,6 +3,10 @@
 #include <string>
 #include <iostream>
 
+#include "../../debug/Logger.h"
+
+static debug::Logger logger("al-audio");
+
 using namespace audio;
 
 ALSound::ALSound(ALAudio* al, uint buffer, std::shared_ptr<PCM> pcm, bool keepPCM) 
@@ -341,14 +345,14 @@ ALAudio::ALAudio(ALCdevice* device, ALCcontext* context)
     alcGetIntegerv(device, ALC_ALL_ATTRIBUTES, size, &attrs[0]);
     for (size_t i = 0; i < attrs.size(); ++i){
        if (attrs[i] == ALC_MONO_SOURCES) {
-          std::cout << "AL: max mono sources: " << attrs[i+1] << std::endl;
+          logger.info() << "max mono sources: " << attrs[i+1];
           maxSources = attrs[i+1];
        }
     }
     auto devices = getAvailableDevices();
-    std::cout << "AL devices:" << std::endl;
+    logger.info() << "devices:";
     for (auto& name : devices) {
-        std::cout << "  " << name << std::endl;
+        logger.info() << "  " << name;
     }
 }
 
@@ -368,7 +372,7 @@ ALAudio::~ALAudio() {
     AL_CHECK(alcMakeContextCurrent(context));
     alcDestroyContext(context);
     if (!alcCloseDevice(device)) {
-        std::cerr << "AL: device not closed!" << std::endl;
+        logger.error() << "device not closed!";
     }
     device = nullptr;
     context = nullptr;
@@ -395,7 +399,7 @@ ALAudio* ALAudio::create() {
         return nullptr;
     }
     AL_CHECK();
-    std::cout << "AL: initialized" << std::endl;
+    logger.info() << "initialized";
     return new ALAudio(device, context);
 }
 
@@ -406,7 +410,7 @@ uint ALAudio::getFreeSource(){
         return source;
     }
     if (allsources.size() == maxSources){
-        std::cerr << "attempted to create new source, but limit is " << maxSources << std::endl;
+        logger.error() << "attempted to create new source, but limit is " << maxSources;
         return 0;
     }
     ALuint id;

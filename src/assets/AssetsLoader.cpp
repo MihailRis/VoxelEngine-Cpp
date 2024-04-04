@@ -8,11 +8,14 @@
 
 #include "../constants.h"
 #include "../data/dynamic.h"
+#include "../debug/Logger.h"
 #include "../files/files.h"
 #include "../files/engine_paths.h"
 #include "../content/Content.h"
 #include "../content/ContentPack.h"
 #include "../logic/scripting/scripting.h"
+
+static debug::Logger logger("assets-loader");
 
 AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths) 
   : assets(assets), paths(paths) 
@@ -39,11 +42,10 @@ bool AssetsLoader::hasNext() const {
 
 bool AssetsLoader::loadNext() {
 	const aloader_entry& entry = entries.front();
-	std::cout << "    loading " << entry.filename << " as " << entry.alias << std::endl;
-	std::cout.flush();
+	logger.info() << "loading " << entry.filename << " as " << entry.alias;
 	auto found = loaders.find(entry.tag);
 	if (found == loaders.end()) {
-		std::cerr << "unknown asset tag " << static_cast<int>(entry.tag) << std::endl;
+		logger.error() << "unknown asset tag " << static_cast<int>(entry.tag);
 		return false;
 	}
 	aloader_func loader = found->second;

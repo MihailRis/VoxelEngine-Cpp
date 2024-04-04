@@ -1,10 +1,13 @@
 #include <iostream>
 #include "Window.h"
 #include "Events.h"
+#include "../debug/Logger.h"
 #include "../graphics/core/ImageData.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+static debug::Logger logger("window");
 
 GLFWwindow* Window::window = nullptr;
 DisplaySettings* Window::settings = nullptr;
@@ -106,7 +109,7 @@ int Window::initialize(DisplaySettings& settings){
 
     glfwSetErrorCallback(error_callback);
     if (glfwInit() == GLFW_FALSE) {
-        std::cerr << "Failed to initialize GLFW" << std::endl;
+        logger.error() << "failed to initialize GLFW";
         return -1;
     }
 
@@ -124,7 +127,7 @@ int Window::initialize(DisplaySettings& settings){
 
     window = glfwCreateWindow(width, height, settings.title.c_str(), nullptr, nullptr);
     if (window == nullptr){
-        std::cerr << "Failed to create GLFW Window" << std::endl;
+        logger.error() << "failed to create GLFW window";
         glfwTerminate();
         return -1;
     }
@@ -133,8 +136,7 @@ int Window::initialize(DisplaySettings& settings){
     glewExperimental = GL_TRUE;
     GLenum glewErr = glewInit();
     if (glewErr != GLEW_OK){
-        std::cerr << "Failed to initialize GLEW: " << std::endl;
-        std::cerr << glewGetErrorString(glewErr) << std::endl;
+        logger.error() << "failed to initialize GLEW:\n" << glewGetErrorString(glewErr);
         return -1;
     }
 
@@ -157,9 +159,9 @@ int Window::initialize(DisplaySettings& settings){
     glfwSwapInterval(settings.swapInterval);
     const GLubyte* vendor = glGetString(GL_VENDOR);
     const GLubyte* renderer = glGetString(GL_RENDERER);
-    std::cout << "GL Vendor: " << (char*)vendor << std::endl;
-    std::cout << "GL Renderer: " << (char*)renderer << std::endl;
-    std::cout << "GLFW: " << glfwGetVersionString() << std::endl;
+    logger.info() << "GL Vendor: " << (char*)vendor;
+    logger.info() << "GL Renderer: " << (char*)renderer;
+    logger.info() << "GLFW: " << glfwGetVersionString();
     return 0;
 }
 
@@ -234,7 +236,7 @@ void Window::pushScissor(glm::vec4 area) {
 
 void Window::popScissor() {
     if (scissorStack.empty()) {
-        std::cerr << "warning: extra Window::popScissor call" << std::endl;
+        logger.warning() << "extra Window::popScissor call";
         return;
     }
     glm::vec4 area = scissorStack.top();

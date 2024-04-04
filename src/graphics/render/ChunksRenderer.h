@@ -22,10 +22,14 @@ class ContentGfxCache;
 
 struct mesh_entry {
     BlocksRenderer& renderer;
+    glm::ivec2 key;
+};
+
+struct Result {
     std::condition_variable& variable;
     int workerIndex;
     bool& locked;
-    glm::ivec2 key;
+    mesh_entry entry;
 };
 
 class ChunksRenderer {
@@ -35,7 +39,7 @@ class ChunksRenderer {
     std::unordered_map<glm::ivec2, bool> inwork;
     std::vector<std::thread> threads;
 
-    std::queue<mesh_entry> results;
+    std::queue<Result> results;
     std::mutex resultsMutex;
 
     std::queue<std::shared_ptr<Chunk>> jobs;

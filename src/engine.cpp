@@ -44,6 +44,10 @@
 #include <unordered_set>
 #include <functional>
 
+#include "debug/Logger.h"
+
+static debug::Logger logger("engine");
+
 namespace fs = std::filesystem;
 
 void addWorldGenerators() {
@@ -80,7 +84,8 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     });
 
     auto resdir = paths->getResources();
-    std::cout << "-- loading assets" << std::endl;
+
+    logger.info() << "loading assets";
     std::vector<fs::path> roots {resdir};
 
     resPaths = std::make_unique<ResPaths>(resdir, roots);
@@ -150,7 +155,7 @@ void Engine::mainloop() {
     Batch2D batch(1024);
     lastTime = Window::time();
 
-    std::cout << "-- initialized" << std::endl;
+    logger.info() << "initialized";
     while (!Window::isShouldClose()){
         assert(screen != nullptr);
         updateTimers();
@@ -190,7 +195,7 @@ void Engine::processPostRunnables() {
 }
 
 Engine::~Engine() {
-    std::cout << "-- shutting down" << std::endl;
+    logger.info() << "shutting down";
     if (screen) {
         screen->onEngineShutdown();
     }
@@ -200,7 +205,7 @@ Engine::~Engine() {
     audio::close();
     scripting::close();
     Window::terminate();
-    std::cout << "-- engine finished" << std::endl;
+    logger.info() << "engine finished";
 }
 
 inline const std::string checkPacks(
@@ -257,7 +262,7 @@ void Engine::loadContent() {
 
     langs::setup(resdir, langs::current->getId(), contentPacks);
 
-    std::cout << "-- loading assets" << std::endl;
+    logger.info() << "loading assets";
 
     auto new_assets = std::make_unique<Assets>();
     Shader::preprocessor->setPaths(resPaths.get());

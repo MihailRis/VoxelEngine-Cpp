@@ -1,5 +1,6 @@
 #include "ChunksRenderer.h"
 
+#include "../../debug/Logger.h"
 #include "../../graphics/core/Mesh.h"
 #include "BlocksRenderer.h"
 #include "../../voxels/Chunk.h"
@@ -8,6 +9,8 @@
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+
+static debug::Logger logger("chunks-render");
 
 ChunksRenderer::ChunksRenderer(Level* level, const ContentGfxCache* cache, const EngineSettings& settings) 
 : level(level), cache(cache), settings(settings) {
@@ -21,7 +24,7 @@ ChunksRenderer::ChunksRenderer(Level* level, const ContentGfxCache* cache, const
         threads.emplace_back(&ChunksRenderer::threadLoop, this, i);
         workersBlocked.emplace_back();
     }
-    std::cout << "created " << num_threads << " chunks rendering threads" << std::endl;
+    logger.info() << "created " << num_threads << " rendering threads";
 }
 
 ChunksRenderer::~ChunksRenderer() {
@@ -32,7 +35,7 @@ ChunksRenderer::~ChunksRenderer() {
 
     resultsMutex.lock();
     while (!results.empty()) {
-        mesh_entry entry = results.front();
+        Result entry = results.front();
         results.pop();
         entry.locked = false;
         entry.variable.notify_all();
@@ -70,7 +73,7 @@ void ChunksRenderer::threadLoop(int index) {
         process(chunk, renderer);
         {
             resultsMutex.lock();
-            results.push(mesh_entry {renderer, variable, index, locked, glm::ivec2(chunk->x, chunk->z)});
+            results.push(Result {variable, index, locked, {renderer, glm::ivec2(chunk->x, chunk->z)}});
             locked = true;
             resultsMutex.unlock();
         }
@@ -139,10 +142,11 @@ std::shared_ptr<Mesh> ChunksRenderer::get(Chunk* chunk) {
 void ChunksRenderer::update() {
     resultsMutex.lock();
     while (!results.empty()) {
-        mesh_entry entry = results.front();
+        Result entry = results.front();
+        mesh_entry mesh = entry.entry;
         results.pop();
-        meshes[entry.key] = std::shared_ptr<Mesh>(entry.renderer.createMesh());
-        inwork.erase(entry.key);
+        meshes[mesh.key] = std::shared_ptr<Mesh>(mesh.renderer.createMesh());
+        inwork.erase(mesh.key);
         entry.locked = false;
         entry.variable.notify_all();
     }

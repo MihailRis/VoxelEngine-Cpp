@@ -1,9 +1,10 @@
-#include "scripting_frontend.h"
+#include "scripting_hud.h"
 #include "scripting.h"
 
 #include "lua/api_lua.h"
 #include "lua/LuaState.h"
 
+#include "../../debug/Logger.h"
 #include "../../frontend/hud.h"
 #include "../../objects/Player.h"
 #include "../../files/files.h"
@@ -14,6 +15,8 @@
 namespace scripting {
     extern lua::LuaState* state;
 }
+
+static debug::Logger logger("scripting-hud");
 
 Hud* scripting::hud = nullptr;
 
@@ -41,7 +44,7 @@ void scripting::on_frontend_close() {
 
 void scripting::load_hud_script(int env, std::string packid, fs::path file) {
     std::string src = files::read_string(file);
-    std::cout << "loading script " << file.u8string() << std::endl;
+    logger.info() << "loading script " << file.u8string();
 
     state->loadbuffer(env, src, file.u8string());
     state->callNoThrow(0);

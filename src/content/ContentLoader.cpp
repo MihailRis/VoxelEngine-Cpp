@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "Content.h"
+#include "../debug/Logger.h"
 #include "../items/ItemDef.h"
 #include "../util/listutil.h"
 #include "../voxels/Block.h"
@@ -20,6 +21,8 @@
 #include "../logic/scripting/scripting.h"
 
 namespace fs = std::filesystem;
+
+static debug::Logger logger("content-loader");
 
 ContentLoader::ContentLoader(ContentPack* pack) : pack(pack) {
 }
@@ -100,7 +103,6 @@ void ContentLoader::fixPackIndices() {
 
     if (modified){
         // rewrite modified json
-        std::cout << indexFile << std::endl;
         files::write_json(indexFile, root.get());
     }
 }
@@ -321,7 +323,7 @@ BlockMaterial ContentLoader::loadBlockMaterial(fs::path file, std::string full) 
 }
 
 void ContentLoader::load(ContentBuilder& builder) {
-    std::cout << "-- loading pack [" << pack->id << "]" << std::endl;
+    logger.info() << "loading pack [" << pack->id << "]";
 
     auto runtime = new ContentPackRuntime(*pack, scripting::create_pack_environment(*pack));
     builder.add(runtime);

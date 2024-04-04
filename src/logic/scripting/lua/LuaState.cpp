@@ -4,7 +4,10 @@
 #include <iostream>
 #include "lua_util.h"
 #include "api_lua.h"
+#include "../../../debug/Logger.h"
 #include "../../../util/stringutil.h"
+
+static debug::Logger logger("lua-state");
 
 lua::luaerror::luaerror(const std::string& message) : std::runtime_error(message) {
 }
@@ -19,8 +22,8 @@ void lua::LuaState::removeLibFuncs(const char* libname, const char* funcs[]) {
 }
 
 lua::LuaState::LuaState() {
-    std::cout << LUA_VERSION << std::endl;
-    std::cout << LUAJIT_VERSION << std::endl;
+    logger.info() << LUA_VERSION;
+    logger.info() << LUAJIT_VERSION;
 
     L = luaL_newstate();
     if (L == nullptr) {
