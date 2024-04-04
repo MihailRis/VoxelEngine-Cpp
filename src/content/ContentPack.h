@@ -26,6 +26,19 @@ public:
     fs::path getFolder() const;
 };
 
+enum class DependencyLevel {
+    required, // dependency must be installed
+    optional, // dependency will be installed if found
+    weak, // dependency will not be installed automatically
+};
+
+
+/// @brief Content-pack that should be installed before the dependent
+struct DependencyPack {
+    DependencyLevel level;
+    std::string id;
+};
+
 struct ContentPack {
     std::string id = "none";
     std::string title = "untitled";
@@ -33,7 +46,7 @@ struct ContentPack {
     std::string creator = "";
     std::string description = "no description";
     fs::path folder;
-    std::vector<std::string> dependencies;
+    std::vector<DependencyPack> dependencies;
 
     fs::path getContentFile() const;
 

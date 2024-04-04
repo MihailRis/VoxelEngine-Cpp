@@ -115,21 +115,21 @@ static void reopen_world(Engine* engine, World* world) {
     menus::open_world(wname, engine, true);
 }
 
-// FIXME
+// FIXME: dependency levels
 static bool try_add_dependency(Engine* engine, World* world, const ContentPack& pack, std::string& missing) {
     auto paths = engine->getPaths();
     for (const auto& dependency : pack.dependencies) {
         fs::path folder = ContentPack::findPack(
             paths, 
             world->wfile->directory, 
-            dependency
+            dependency.id
         );
         if (!fs::is_directory(folder)) {
-            missing = dependency;
+            missing = dependency.id;
             return true;
         }
-        if (!world->hasPack(dependency)) {
-            world->wfile->addPack(world, dependency);
+        if (!world->hasPack(dependency.id)) {
+            world->wfile->addPack(world, dependency.id);
         }
     }
     world->wfile->addPack(world, pack.id);

@@ -75,7 +75,9 @@ ContentPack ContentPack::read(fs::path folder) {
     auto dependencies = root->list("dependencies");
     if (dependencies) {
         for (size_t i = 0; i < dependencies->size(); i++) {
-            pack.dependencies.push_back(dependencies->str(i));
+            pack.dependencies.push_back(
+                {DependencyLevel::required, dependencies->str(i)}
+            );
         }
     }
 
