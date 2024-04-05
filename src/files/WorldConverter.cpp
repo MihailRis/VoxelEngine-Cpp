@@ -77,6 +77,7 @@ void WorldConverter::convertNext() {
     }
     convert_task task = tasks.front();
     tasks.pop();
+    tasksDone++;
 
     if (!fs::is_regular_file(task.file))
         return;
@@ -95,6 +96,10 @@ void WorldConverter::write() {
     wfile->write(nullptr, content);
 }
 
-uint WorldConverter::getTotalTasks() const {
+uint WorldConverter::getWorkRemaining() const {
     return tasks.size();
+}
+
+uint WorldConverter::getWorkDone() const {
+    return tasksDone;
 }

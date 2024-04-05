@@ -10,6 +10,7 @@
 
 #include "../delegates.h"
 #include "../debug/Logger.h"
+#include "../interfaces/Task.h"
 
 namespace util {
     
@@ -30,7 +31,7 @@ public:
 };
 
 template<class T, class R>
-class ThreadPool {
+class ThreadPool : public Task {
     debug::Logger logger;
     std::queue<T> jobs;
     std::queue<ThreadPoolResult<R>> results;
@@ -43,6 +44,7 @@ class ThreadPool {
     consumer<T&> onJobFailed = nullptr;
     runnable onComplete = nullptr;
     std::atomic<int> busyWorkers = 0;
+    std::atomic<uint> jobsDone = 0;
     bool working = true;
 
     void threadLoop(int index, std::shared_ptr<Worker<T, R>> worker) {
@@ -79,11 +81,13 @@ class ThreadPool {
                     });
                 }
             } catch (std::exception& err) {
+                busyWorkers--;
                 if (onJobFailed) {
                     onJobFailed(job);
                 }
                 logger.error() << "uncaught exception: " << err.what();
             }
+            jobsDone++;
         }
     }
 public:
@@ -102,7 +106,7 @@ public:
         terminate();
     }
 
-    void terminate() {
+    void terminate() override {
         if (!working) {
             return;
         }
@@ -126,7 +130,7 @@ public:
         }
     }
 
-    void update() {
+    void update() override {
         std::lock_guard<std::mutex> lock(resultsMutex);
         while (!results.empty()) {
             ThreadPoolResult<R> entry = results.front();
@@ -160,6 +164,14 @@ public:
 
     void setOnComplete(runnable callback) {
         this->onComplete = callback;
+    }
+
+    uint getWorkRemaining() const override {
+        return jobs.size();
+    }
+
+    uint getWorkDone() const override {
+        return jobsDone;
     }
 };
 

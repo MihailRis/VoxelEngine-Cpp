@@ -4,7 +4,10 @@
 #include <queue>
 #include <memory>
 #include <filesystem>
+
 #include "../typedefs.h"
+#include "../delegates.h"
+#include "../interfaces/Task.h"
 
 namespace fs = std::filesystem;
 
@@ -21,25 +24,45 @@ struct convert_task {
     fs::path file;
 };
 
-class WorldConverter {
+class WorldConverter : public Task {
     WorldFiles* wfile;
     std::shared_ptr<ContentLUT> const lut;
     const Content* const content;
     std::queue<convert_task> tasks;
+    runnable onComplete;
+    uint tasksDone = 0;
 
     void convertPlayer(fs::path file);
     void convertRegion(fs::path file);
 public:
-    WorldConverter(fs::path folder, const Content* content, 
-                   std::shared_ptr<ContentLUT> lut);
+    WorldConverter(
+        fs::path folder, const Content* content, 
+        std::shared_ptr<ContentLUT> lut
+    );
     ~WorldConverter();
 
     bool hasNext() const;
     void convertNext();
 
+    void setOnComplete(runnable callback) {
+        this->onComplete = callback;
+    }
+
+    void update() override {
+        convertNext();
+        if (onComplete && !hasNext()) {
+            onComplete();
+        }
+    }
+
+    void terminate() override {
+        tasks = {};
+    }
+
     void write();
 
-    uint getTotalTasks() const;
+    uint getWorkRemaining() const override;
+    uint getWorkDone() const override;
 };
 
 #endif // FILES_WORLD_CONVERTER_H_
