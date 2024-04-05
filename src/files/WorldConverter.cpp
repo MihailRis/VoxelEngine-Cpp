@@ -37,10 +37,6 @@ WorldConverter::~WorldConverter() {
     delete wfile;
 }
 
-bool WorldConverter::hasNext() const {
-    return !tasks.empty();
-}
-
 void WorldConverter::convertRegion(fs::path file) {
     int x, z;
     std::string name = file.stem().string();
@@ -72,7 +68,7 @@ void WorldConverter::convertPlayer(fs::path file) {
 }
 
 void WorldConverter::convertNext() {
-    if (!hasNext()) {
+    if (tasks.empty()) {
         throw std::runtime_error("no more regions to convert");
     }
     convert_task task = tasks.front();

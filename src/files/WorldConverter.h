@@ -41,7 +41,6 @@ public:
     );
     ~WorldConverter();
 
-    bool hasNext() const;
     void convertNext();
 
     void setOnComplete(runnable callback) {
@@ -50,7 +49,7 @@ public:
 
     void update() override {
         convertNext();
-        if (onComplete && !hasNext()) {
+        if (onComplete && tasks.empty()) {
             onComplete();
         }
     }

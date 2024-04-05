@@ -46,6 +46,7 @@ class ThreadPool : public Task {
     std::atomic<int> busyWorkers = 0;
     std::atomic<uint> jobsDone = 0;
     bool working = true;
+    bool standaloneResults = true;
 
     void threadLoop(int index, std::shared_ptr<Worker<T, R>> worker) {
         std::condition_variable variable;
@@ -71,10 +72,12 @@ class ThreadPool : public Task {
                 {
                     std::lock_guard<std::mutex> lock(resultsMutex);
                     results.push(ThreadPoolResult<R> {variable, index, locked, result});
-                    locked = true;
+                    if (!standaloneResults) {
+                        locked = true;
+                    }
                     busyWorkers--;
                 }
-                {
+                if (!standaloneResults){
                     std::unique_lock<std::mutex> lock(mutex);
                     variable.wait(lock, [&] {
                         return !working || !locked;
@@ -119,8 +122,10 @@ public:
             while (!results.empty()) {
                 ThreadPoolResult<R> entry = results.front();
                 results.pop();
-                entry.locked = false;
-                entry.variable.notify_all();
+                if (!standaloneResults) {
+                    entry.locked = false;
+                    entry.variable.notify_all();
+                }
             }
         }
 
@@ -138,8 +143,10 @@ public:
 
             resultConsumer(entry.entry);
 
-            entry.locked = false;
-            entry.variable.notify_all();
+            if (!standaloneResults) {
+                entry.locked = false;
+                entry.variable.notify_all();
+            }
         }
 
         if (onComplete && busyWorkers == 0) {
@@ -158,10 +165,19 @@ public:
         jobsMutexCondition.notify_one();
     }
 
+    /// @brief If false: worker will be blocked until it's result performed 
+    void setStandaloneResults(bool flag) {
+        standaloneResults = flag;
+    }
+
+    /// @brief onJobFailed called on exception thrown in worker thread.
+    /// Use engine.postRunnable when calling terminate()
     void setOnJobFailed(consumer<T&> callback) {
         this->onJobFailed = callback;
     }
 
+    /// @brief onComplete called in ThreadPool.update() when all jobs done 
+    /// if ThreadPool was not terminated
     void setOnComplete(runnable callback) {
         this->onComplete = callback;
     }
