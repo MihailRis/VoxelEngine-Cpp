@@ -9,7 +9,7 @@ using namespace debug;
 std::ofstream Logger::file;
 std::mutex Logger::mutex;
 std::string Logger::utcOffset = "";
-unsigned Logger::moduleLen = 16;
+unsigned Logger::moduleLen = 20;
 
 LogMessage::~LogMessage() {
     logger->log(level, ss.str());

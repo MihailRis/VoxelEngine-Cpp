@@ -38,9 +38,10 @@ ChunksRenderer::ChunksRenderer(
     const EngineSettings& settings
 ) : level(level),
     threadPool(
+        "chunks-render-pool",
         [=](){return std::make_shared<RendererWorker>(level, cache, settings);}, 
         [=](RendererResult& mesh){
-            meshes[mesh.key] = std::shared_ptr<Mesh>(mesh.renderer->createMesh());
+            meshes[mesh.key].reset(mesh.renderer->createMesh());
             inwork.erase(mesh.key);
         })
 {
