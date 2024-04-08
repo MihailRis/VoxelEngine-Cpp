@@ -49,8 +49,6 @@ inline int hexchar2int(int c) {
     return -1;
 }
 
-extern std::string escape_string(std::string s);
-
 class parsing_error : public std::runtime_error {
 public:
     std::string filename;
@@ -59,13 +57,14 @@ public:
     uint line;
     uint linestart;
 
-    parsing_error(std::string message, 
-                    std::string filename, 
-                    std::string source, 
-                    uint pos, 
-                    uint line, 
-                    uint linestart);
-
+    parsing_error(
+        std::string message, 
+        std::string filename, 
+        std::string source, 
+        uint pos, 
+        uint line, 
+        uint linestart
+    );
     std::string errorLog() const;
 };
 

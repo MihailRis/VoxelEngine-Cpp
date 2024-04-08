@@ -1,5 +1,6 @@
 #include "toml.h"
 #include "commons.h"
+#include "../util/stringutil.h"
 
 #include <math.h>
 #include <iostream>
@@ -7,11 +8,9 @@
 #include <sstream>
 #include <assert.h>
 
-using std::string;
-
 using namespace toml;
 
-Section::Section(string name) : name(name) {
+Section::Section(std::string name) : name(name) {
 }
 
 void Section::add(std::string name, Field field) {
@@ -22,35 +21,35 @@ void Section::add(std::string name, Field field) {
     keyOrder.push_back(name);
 }
 
-void Section::add(string name, bool* ptr) {
+void Section::add(std::string name, bool* ptr) {
     add(name, {fieldtype::ftbool, ptr});
 }
 
-void Section::add(string name, int* ptr) {
+void Section::add(std::string name, int* ptr) {
     add(name, {fieldtype::ftint, ptr});
 }
 
-void Section::add(string name, uint* ptr) {
+void Section::add(std::string name, uint* ptr) {
     add(name, {fieldtype::ftuint, ptr});
 }
 
-void Section::add(string name, float* ptr) {
+void Section::add(std::string name, float* ptr) {
     add(name, {fieldtype::ftfloat, ptr});
 }
 
-void Section::add(string name, double* ptr) {
+void Section::add(std::string name, double* ptr) {
     add(name, {fieldtype::ftdouble, ptr});
 }
 
-void Section::add(string name, string* ptr) {
+void Section::add(std::string name, std::string* ptr) {
     add(name, {fieldtype::ftstring, ptr});
 }
 
-string Section::getName() const {
+const std::string& Section::getName() const {
     return name;
 }
 
-const Field* Section::field(std::string name) const {
+const Field* Section::field(const std::string& name) const {
     auto found = fields.find(name);
     if (found == fields.end()) {
         return nullptr;
@@ -88,10 +87,10 @@ Section* Wrapper::section(std::string name) {
 
 std::string Wrapper::write() const {
     std::stringstream ss;
-    for (string key : keyOrder) {
+    for (const std::string& key : keyOrder) {
         const Section* section = sections.at(key);
         ss << "[" << key << "]\n";
-        for (const string& key : section->keys()) {
+        for (const std::string& key : section->keys()) {
             ss << key << " = ";
             const Field* field = section->field(key);
             assert(field != nullptr);
@@ -104,7 +103,7 @@ std::string Wrapper::write() const {
                 case fieldtype::ftfloat: ss << *((float*)field->ptr); break;
                 case fieldtype::ftdouble: ss << *((double*)field->ptr); break;
                 case fieldtype::ftstring: 
-                    ss << escape_string(*((const string*)field->ptr)); 
+                    ss << util::escape(*((const std::string*)field->ptr)); 
                     break;
             }
             ss << "\n";
@@ -114,7 +113,8 @@ std::string Wrapper::write() const {
     return ss.str();
 }
 
-Reader::Reader(Wrapper* wrapper, string file, string source) : BasicParser(file, source), wrapper(wrapper) {
+Reader::Reader(Wrapper* wrapper, std::string file, std::string source) 
+: BasicParser(file, source), wrapper(wrapper) {
 }
 
 void Reader::skipWhitespace() {
@@ -135,7 +135,7 @@ void Reader::read() {
     readSection(nullptr);
 }
 
-void Section::set(string name, double value) {
+void Section::set(const std::string& name, double value) {
     const Field* field = this->field(name);
     if (field == nullptr) {
         std::cerr << "warning: unknown key '" << name << "'" << std::endl;
@@ -146,14 +146,14 @@ void Section::set(string name, double value) {
         case fieldtype::ftuint: *(uint*)(field->ptr) = value; break;
         case fieldtype::ftfloat: *(float*)(field->ptr) = value; break;
         case fieldtype::ftdouble: *(double*)(field->ptr) = value; break;
-        case fieldtype::ftstring: *(string*)(field->ptr) = std::to_string(value); break;
+        case fieldtype::ftstring: *(std::string*)(field->ptr) = std::to_string(value); break;
         default:
             std::cerr << "error: type error for key '" << name << "'" << std::endl;
         }
     }
 }
 
-void Section::set(std::string name, bool value) {
+void Section::set(const std::string& name, bool value) {
     const Field* field = this->field(name);
     if (field == nullptr) {
         std::cerr << "warning: unknown key '" << name << "'" << std::endl;
@@ -164,20 +164,20 @@ void Section::set(std::string name, bool value) {
         case fieldtype::ftuint: *(uint*)(field->ptr) = (uint)value; break;
         case fieldtype::ftfloat: *(float*)(field->ptr) = (float)value; break;
         case fieldtype::ftdouble: *(double*)(field->ptr) = (double)value; break;
-        case fieldtype::ftstring: *(string*)(field->ptr) = value ? "true" : "false"; break;
+        case fieldtype::ftstring: *(std::string*)(field->ptr) = value ? "true" : "false"; break;
         default:
             std::cerr << "error: type error for key '" << name << "'" << std::endl;
         }
     }
 }
 
-void Section::set(std::string name, std::string value) {
+void Section::set(const std::string& name, std::string value) {
     const Field* field = this->field(name);
     if (field == nullptr) {
         std::cerr << "warning: unknown key '" << name << "'" << std::endl;
     } else {
         switch (field->type) {
-        case fieldtype::ftstring: *(string*)(field->ptr) = value; break;
+        case fieldtype::ftstring: *(std::string*)(field->ptr) = value; break;
         default:
             std::cerr << "error: type error for key '" << name << "'" << std::endl;
         }
@@ -192,14 +192,14 @@ void Reader::readSection(Section* section /*nullable*/) {
         }
         char c = nextChar();
         if (c == '[') {
-            string name = parseName();
+            std::string name = parseName();
             Section* section = wrapper->section(name);
             pos++;
             readSection(section);
             return;
         }
         pos--;
-        string name = parseName();
+        std::string name = parseName();
         expect('=');
         c = peek();
         if (is_digit(c)) {
@@ -223,7 +223,7 @@ void Reader::readSection(Section* section /*nullable*/) {
                     section->set(name, std::get<number_t>(num));
             }
         } else if (is_identifier_start(c)) {
-            string identifier = parseName();
+            std::string identifier = parseName();
             if (identifier == "true" || identifier == "false") {
                 bool flag = identifier == "true";
                 if (section) {
@@ -240,7 +240,7 @@ void Reader::readSection(Section* section /*nullable*/) {
             }
         } else if (c == '"' || c == '\'') {
             pos++;
-            string str = parseString(c);
+            std::string str = parseString(c);
             if (section) {
                 section->set(name, str);
             }

@@ -7,6 +7,7 @@
 
 #include "commons.h"
 #include "../data/dynamic.h"
+#include "../util/stringutil.h"
 
 using namespace json;
 using namespace dynamic;
@@ -74,7 +75,7 @@ void stringify(const Value* value,
     } else if (value->type == valtype::integer) {
         ss << std::get<integer_t>(value->value);
     } else if (value->type == valtype::string) {
-        ss << escape_string(std::get<std::string>(value->value));
+        ss << util::escape(std::get<std::string>(value->value));
     }
 }
 
@@ -95,7 +96,7 @@ void stringifyObj(const Map* obj,
             newline(ss, nice, indent, indentstr);
         }
         Value* value = entry.second.get();
-        ss << escape_string(key) << ": ";
+        ss << util::escape(key) << ": ";
         stringify(value, ss, indent+1, indentstr, nice);
         index++;
         if (index < obj->values.size()) {

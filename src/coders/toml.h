@@ -36,13 +36,13 @@ namespace toml {
         void add(std::string name, double* ptr);
         void add(std::string name, std::string* ptr);
 
-        const Field* field(std::string name) const;
+        const Field* field(const std::string& name) const;
 
-        void set(std::string name, double value);
-        void set(std::string name, bool value);
-        void set(std::string name, std::string value);
+        void set(const std::string& name, double value);
+        void set(const std::string& name, bool value);
+        void set(const std::string& name, std::string value);
     
-        std::string getName() const;
+        const std::string& getName() const;
         const std::vector<std::string>& keys() const;
     };
 

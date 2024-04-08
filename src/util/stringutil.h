@@ -6,6 +6,12 @@
 #include "../typedefs.h"
 
 namespace util {
+    /// @brief Function used for string serialization in text formats 
+    extern std::string escape(const std::string& s);
+
+    /// @brief Function used for error messages
+    extern std::string quote(const std::string& s);
+
     extern std::wstring lfill(std::wstring s, uint length, wchar_t c);
     extern std::wstring rfill(std::wstring s, uint length, wchar_t c);
 

@@ -7,6 +7,36 @@
 #include <stdexcept>
 #include <algorithm>
 
+// TODO: finish 
+std::string util::escape(const std::string& s) {
+    std::stringstream ss;
+    ss << '"';
+    for (char c : s) {
+        switch (c) {
+            case '\n': ss << "\\n"; break;
+            case '\r': ss << "\\r"; break;
+            case '\t': ss << "\\t"; break;
+            case '\f': ss << "\\f"; break;
+            case '\b': ss << "\\b"; break;
+            case '"': ss << "\\\""; break;
+            case '\\': ss << "\\\\"; break;
+            default:
+                if (c < ' ') {
+                    ss << "\\" << std::oct << uint(ubyte(c));
+                    break;
+                }
+                ss << c;
+                break;
+        }
+    }
+    ss << '"';
+    return ss.str();
+}
+
+std::string util::quote(const std::string& s) {
+    return escape(s);
+}
+
 std::wstring util::lfill(std::wstring s, uint length, wchar_t c) {
     if (s.length() >= length) {
         return s;
@@ -62,7 +92,7 @@ struct utf_t {
 };
 
 const utf_t utf[] = {
-	/*             mask        lead        beg      end       bits */
+	/* mask             lead              beg      end     bits */
 	{(char)0b00111111, (char)0b10000000, 0,       0,        6},
 	{(char)0b01111111, (char)0b00000000, 0000,    0177,     7},
 	{(char)0b00011111, (char)0b11000000, 0200,    03777,    5},

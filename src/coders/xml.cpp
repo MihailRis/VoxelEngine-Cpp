@@ -52,7 +52,7 @@ glm::vec3 Attribute::asVec3() const {
     }
     size_t pos2 = text.find(',', pos1+1);
     if (pos2 == std::string::npos) {
-        throw std::runtime_error("invalid vec3 value "+escape_string(text));
+        throw std::runtime_error("invalid vec3 value "+util::quote(text));
     }
     return glm::vec3(
         util::parse_double(text, 0, pos1),
@@ -69,11 +69,11 @@ glm::vec4 Attribute::asVec4() const {
     }
     size_t pos2 = text.find(',', pos1+1);
     if (pos2 == std::string::npos) {
-        throw std::runtime_error("invalid vec4 value "+escape_string(text));
+        throw std::runtime_error("invalid vec4 value "+util::quote(text));
     }
     size_t pos3 = text.find(',', pos2+1);
     if (pos3 == std::string::npos) {
-        throw std::runtime_error("invalid vec4 value "+escape_string(text));
+        throw std::runtime_error("invalid vec4 value "+util::quote(text));
     }
     return glm::vec4(
         util::parse_double(text, 0, pos1),
@@ -382,7 +382,7 @@ static void stringifyElement(
             auto attr = entry.second;
             ss << attr.getName();
             if (!attr.getText().empty()) {
-                ss << "=" << escape_string(attr.getText());
+                ss << "=" << util::escape(attr.getText());
             }
             if (count + 1 < int(attrs.size())) {
                 ss << " ";

@@ -1,5 +1,7 @@
 #include "commons.h"
 
+#include "../util/stringutil.h"
+
 #include <sstream>
 #include <stdexcept>
 #include <math.h>
@@ -37,32 +39,6 @@ std::string parsing_error::errorLog() const {
         ss << " ";
     }
     ss << "^";
-    return ss.str();
-
-}
-
-std::string escape_string(std::string s) {
-    std::stringstream ss;
-    ss << '"';
-    for (char c : s) {
-        switch (c) {
-            case '\n': ss << "\\n"; break;
-            case '\r': ss << "\\r"; break;
-            case '\t': ss << "\\t"; break;
-            case '\f': ss << "\\f"; break;
-            case '\b': ss << "\\b"; break;
-            case '"': ss << "\\\""; break;
-            case '\\': ss << "\\\\"; break;
-            default:
-                if (c < ' ') {
-                    ss << "\\" << std::oct << uint(ubyte(c));
-                    break;
-                }
-                ss << c;
-                break;
-        }
-    }
-    ss << '"';
     return ss.str();
 }
 
@@ -151,7 +127,7 @@ void BasicParser::expect(const std::string& substring) {
         return;
     for (uint i = 0; i < substring.length(); i++) {
         if (source.length() <= pos + i || source[pos+i] != substring[i]) {
-            throw error(escape_string(substring)+" expected");
+            throw error(util::quote(substring)+" expected");
         }
     }
     pos += substring.length();
