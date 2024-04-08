@@ -23,14 +23,19 @@ public:
     void scan();
 
     /// @brief Get all found packs
-    std::vector<std::string> getAllNames();
+    std::vector<std::string> getAllNames() const;
+
+    /// @brief Get packs by names (id)
+    /// @param names pack names
+    /// @throws contentpack_error if pack not found
+    std::vector<ContentPack> getAll(const std::vector<std::string>& names) const;
 
     /// @brief Resolve all dependencies and fix packs order
     /// @param names required packs (method can add extra packs)
     /// @return resulting ordered vector of pack names
     /// @throws contentpack_error if required dependency not found or
     /// circular dependency detected
-    std::vector<std::string> assembly(const std::vector<std::string>& names);
+    std::vector<std::string> assembly(const std::vector<std::string>& names) const;
 };
 
 #endif // CONTENT_PACKS_MANAGER_H_

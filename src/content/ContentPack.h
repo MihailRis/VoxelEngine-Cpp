@@ -63,16 +63,6 @@ struct ContentPack {
         fs::path folder,
         std::vector<ContentPack>& packs
     );
-
-    static void scan(
-        fs::path folder,
-        EnginePaths* paths,
-        std::vector<ContentPack>& packs
-    );
-    static void scan(
-        EnginePaths* paths, 
-        std::vector<ContentPack>& packs
-    );
     
     static std::vector<std::string> worldPacksList(fs::path folder);
 
@@ -80,13 +70,6 @@ struct ContentPack {
         const EnginePaths* paths, 
         fs::path worldDir, 
         std::string name
-    );
-
-    static void readPacks(
-        const EnginePaths* paths,
-        std::vector<ContentPack>& packs, 
-        const std::vector<std::string>& names,
-        fs::path worldDir
     );
 };
 

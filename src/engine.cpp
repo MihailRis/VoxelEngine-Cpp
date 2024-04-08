@@ -11,6 +11,7 @@
 #include "content/Content.h"
 #include "content/ContentLoader.h"
 #include "content/ContentPack.h"
+#include "content/PacksManager.h"
 #include "core_defs.h"
 #include "files/engine_paths.h"
 #include "files/files.h"
@@ -27,6 +28,7 @@
 #include "graphics/ui/elements/containers.h"
 #include "logic/scripting/scripting.h"
 #include "util/platform.h"
+#include "util/listutil.h"
 #include "voxels/DefaultWorldGenerator.h"
 #include "voxels/FlatWorldGenerator.h"
 #include "window/Camera.h"
@@ -227,6 +229,22 @@ void Engine::loadContent() {
     corecontent::setup(&contentBuilder);
     paths->setContentPacks(&contentPacks);
 
+    std::vector<std::string> names;
+    for (auto& pack : contentPacks) {
+        names.push_back(pack.id);
+    }
+
+    // ---------------------------------------------
+    PacksManager manager;
+    manager.setSources({
+        paths->getWorldFolder()/fs::path("content"),
+        paths->getUserfiles()/fs::path("content"),
+        paths->getResources()/fs::path("content")
+    });
+    manager.scan();
+    auto allnames = manager.getAllNames();
+    // ---------------------------------------------
+
     std::vector<fs::path> resRoots;
     std::vector<ContentPack> srcPacks = contentPacks;
     contentPacks.clear();
@@ -281,15 +299,28 @@ void Engine::loadContent() {
 void Engine::loadWorldContent(const fs::path& folder) {
     contentPacks.clear();
     auto packNames = ContentPack::worldPacksList(folder);
-    ContentPack::readPacks(paths, contentPacks, packNames, folder);
+    PacksManager manager;
+    manager.setSources({
+        folder/fs::path("content"),
+        paths->getUserfiles()/fs::path("content"),
+        paths->getResources()/fs::path("content")
+    });
+    manager.scan();
+    contentPacks = manager.getAll(manager.assembly(packNames));
     paths->setWorldFolder(folder);
     loadContent();
 }
 
 void Engine::loadAllPacks() {
-    auto resdir = paths->getResources();
-    contentPacks.clear();
-    ContentPack::scan(paths, contentPacks);
+    PacksManager manager;
+    manager.setSources({
+        paths->getWorldFolder()/fs::path("content"),
+        paths->getUserfiles()/fs::path("content"),
+        paths->getResources()/fs::path("content")
+    });
+    manager.scan();
+    auto allnames = manager.getAllNames();
+    contentPacks = manager.getAll(manager.assembly(allnames));
 }
 
 double Engine::getDelta() const {

@@ -3,6 +3,7 @@
 
 #include "../../engine.h"
 #include "../../files/WorldFiles.h"
+#include "../../content/PacksManager.h"
 #include "../../graphics/ui/elements/containers.h"
 #include "../../graphics/ui/elements/controls.h"
 #include "../../graphics/ui/gui_util.h"

@@ -24,7 +24,7 @@ void PacksManager::scan() {
     }
 }
 
-std::vector<std::string> PacksManager::getAllNames() {
+std::vector<std::string> PacksManager::getAllNames() const {
     std::vector<std::string> names;
     for (auto& entry : packs) {
         names.push_back(entry.first);
@@ -32,8 +32,20 @@ std::vector<std::string> PacksManager::getAllNames() {
     return names;
 }
 
-static contentpack_error on_circular_dependency(std::queue<ContentPack*>& queue) {
-    ContentPack* lastPack = queue.back();
+std::vector<ContentPack> PacksManager::getAll(const std::vector<std::string>& names) const {
+    std::vector<ContentPack> packsList;
+    for (auto& name : names) {
+        auto found = packs.find(name);
+        if (found == packs.end()) {
+            throw contentpack_error(name, fs::path(""), "pack not found");
+        }
+        packsList.push_back(found->second);
+    }
+    return packsList;
+}
+
+static contentpack_error on_circular_dependency(std::queue<const ContentPack*>& queue) {
+    const ContentPack* lastPack = queue.back();
     // circular dependency
     std::stringstream ss;
     ss << "circular dependency: " << lastPack->id;
@@ -55,11 +67,11 @@ static contentpack_error on_circular_dependency(std::queue<ContentPack*>& queue)
 /// @return true if all dependencies are already added or not found (optional/weak)
 /// @throws contentpack_error if required dependency is not found
 static bool resolve_dependencies (
-    ContentPack* pack,
-    std::unordered_map<std::string, ContentPack>& packs,
+    const ContentPack* pack,
+    const std::unordered_map<std::string, ContentPack>& packs,
     std::vector<std::string>& allNames,
     std::vector<std::string>& added,
-    std::queue<ContentPack*>& queue,
+    std::queue<const ContentPack*>& queue,
     bool resolveWeaks
 ) {
     bool satisfied = true;
@@ -91,11 +103,11 @@ static bool resolve_dependencies (
     return satisfied;
 }
 
-std::vector<std::string> PacksManager::assembly(const std::vector<std::string>& names) {
+std::vector<std::string> PacksManager::assembly(const std::vector<std::string>& names) const {
     std::vector<std::string> allNames = names;
     std::vector<std::string> added;
-    std::queue<ContentPack*> queue;
-    std::queue<ContentPack*> queue2;
+    std::queue<const ContentPack*> queue;
+    std::queue<const ContentPack*> queue2;
 
     for (auto& name : names) {
         auto found = packs.find(name);

@@ -113,21 +113,6 @@ void ContentPack::scanFolder(
     }
 }
 
-void ContentPack::scan(
-    fs::path rootfolder,
-    EnginePaths* paths,
-    std::vector<ContentPack>& packs
-) {
-    scanFolder(paths->getResources()/fs::path("content"), packs);
-    scanFolder(paths->getUserfiles()/fs::path("content"), packs);
-    scanFolder(rootfolder, packs);
-}
-
-void ContentPack::scan(EnginePaths* paths,
-                       std::vector<ContentPack>& packs) {
-    scan(paths->getWorldFolder()/fs::path("content"), paths, packs);
-}
-
 std::vector<std::string> ContentPack::worldPacksList(fs::path folder) {
     fs::path listfile = folder / fs::path("packs.list");
     if (!fs::is_regular_file(listfile)) {
@@ -152,20 +137,6 @@ fs::path ContentPack::findPack(const EnginePaths* paths, fs::path worldDir, std:
         return folder;
     }
     return folder;
-}
-
-void ContentPack::readPacks(const EnginePaths* paths,
-                            std::vector<ContentPack>& packs, 
-                            const std::vector<std::string>& packnames,
-                            fs::path worldDir) {
-    for (const auto& name : packnames) {
-        fs::path packfolder = ContentPack::findPack(paths, worldDir, name);
-        if (!fs::is_directory(packfolder)) {
-            throw contentpack_error(name, packfolder, 
-                                    "could not to find pack '"+name+"'");
-        }
-        packs.push_back(ContentPack::read(packfolder));
-    }
 }
 
 ContentPackRuntime::ContentPackRuntime(

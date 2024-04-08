@@ -11,10 +11,7 @@ namespace util {
         return std::find(vec.begin(), vec.end(), value) != vec.end();
     }
 
-    template<class T>
-    bool contains(const std::queue<T>& queue, const T& value) {
-        return std::find(queue.begin(), queue.end(), value) != queue.end();
-    }
+    std::string to_string(const std::vector<std::string>& vec);
 }
 
 #endif // UTIL_LISTUTIL_H_
