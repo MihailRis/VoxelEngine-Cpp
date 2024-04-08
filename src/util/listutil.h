@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <string>
 #include <queue>
 
 namespace util {
