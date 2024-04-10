@@ -20,13 +20,14 @@ public:
     Atlas(ImageData* image, std::unordered_map<std::string, UVRegion> regions);
     ~Atlas();
 
+    void prepare();
+
     bool has(const std::string& name) const;
     const UVRegion& get(const std::string& name) const;
 
     Texture* getTexture() const;
     ImageData* getImage() const;
 };
-
 
 struct atlasentry {
     std::string name;

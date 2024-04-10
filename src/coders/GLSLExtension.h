@@ -29,7 +29,10 @@ public:
     bool hasHeader(const std::string& name) const;
     bool hasDefine(const std::string& name) const;
 
-    const std::string process(const std::filesystem::path file, const std::string& source);
+    const std::string process(
+        const std::filesystem::path& file, 
+        const std::string& source
+    );
 };
 
 #endif // CODERS_GLSL_EXTESION_H_

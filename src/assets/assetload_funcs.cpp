@@ -1,6 +1,7 @@
 #include "assetload_funcs.h"
 
 #include <iostream>
+#include <stdexcept>
 #include <filesystem>
 #include "Assets.h"
 #include "AssetsLoader.h"
@@ -9,6 +10,7 @@
 #include "../files/engine_paths.h"
 #include "../coders/png.h"
 #include "../coders/json.h"
+#include "../coders/GLSLExtension.h"
 #include "../graphics/core/Shader.h"
 #include "../graphics/core/Texture.h"
 #include "../graphics/core/ImageData.h"
@@ -28,7 +30,7 @@ static bool animation(
     Atlas* dstAtlas
 );
 
-bool assetload::texture(
+assetload::postfunc assetload::texture(
     AssetsLoader&,
     Assets* assets,
     const ResPaths* paths,
@@ -36,18 +38,15 @@ bool assetload::texture(
     const std::string name,
     std::shared_ptr<AssetCfg>
 ) {
-    std::unique_ptr<Texture> texture(
-        png::load_texture(paths->find(filename+".png").u8string())
+    std::shared_ptr<ImageData> image (
+        png::load_image(paths->find(filename+".png").u8string())
     );
-    if (texture == nullptr) {
-        std::cerr << "failed to load texture '" << name << "'" << std::endl;
-        return false;
-    }
-    assets->store(texture.release(), name);
-    return true;
+    return [name, image](auto assets) {
+        assets->store(Texture::from(image.get()), name);
+    };
 }
 
-bool assetload::shader(
+assetload::postfunc assetload::shader(
     AssetsLoader&,
     Assets* assets,
     const ResPaths* paths,
@@ -61,18 +60,16 @@ bool assetload::shader(
     std::string vertexSource = files::read_string(vertexFile);
     std::string fragmentSource = files::read_string(fragmentFile);
 
-    Shader* shader = Shader::create(
-        vertexFile.string(),
-        fragmentFile.string(),
-        vertexSource, fragmentSource
-    );
+    vertexSource = Shader::preprocessor->process(vertexFile, vertexSource);
+    fragmentSource = Shader::preprocessor->process(fragmentFile, fragmentSource);
 
-    if (shader == nullptr) {
-        std::cerr << "failed to load shader '" << name << "'" << std::endl;
-        return false;
-    }
-    assets->store(shader, name);
-    return true;
+    return [=](auto assets) {
+        assets->store(Shader::create(
+            vertexFile.u8string(),
+            fragmentFile.u8string(),
+            vertexSource, fragmentSource
+        ), name);
+    };
 }
 
 static bool appendAtlas(AtlasBuilder& atlas, const fs::path& file) {
@@ -85,17 +82,13 @@ static bool appendAtlas(AtlasBuilder& atlas, const fs::path& file) {
         return false;
     }
     std::unique_ptr<ImageData> image(png::load_image(file.string()));
-    if (image == nullptr) {
-        std::cerr << "could not to load " << file.string() << std::endl;
-        return false;
-    }
     image->fixAlphaColor();
     atlas.add(name, image.release());
 
     return true;
 }
 
-bool assetload::atlas(
+assetload::postfunc assetload::atlas(
     AssetsLoader&,
     Assets* assets, 
     const ResPaths* paths,
@@ -105,17 +98,23 @@ bool assetload::atlas(
 ) {
     AtlasBuilder builder;
     for (const auto& file : paths->listdir(directory)) {
-        if (!appendAtlas(builder, file)) continue;
+        if (!appendAtlas(builder, file))
+            continue;
     }
+    std::set<std::string> names = builder.getNames();
     Atlas* atlas = builder.build(2);
-    assets->store(atlas, name);
-    for (const auto& file : builder.getNames()) {
-        animation(assets, paths, "textures", file, atlas);
-    }
-    return true;
+    return [=](auto assets) {
+        atlas->prepare();
+        assets->store(atlas, name);
+
+        // FIXME
+        for (const auto& file : names) {
+            animation(assets, paths, "textures", file, atlas);
+        }
+    };
 }
 
-bool assetload::font(
+assetload::postfunc assetload::font(
     AssetsLoader&,
     Assets* assets, 
     const ResPaths* paths,
@@ -123,25 +122,24 @@ bool assetload::font(
     const std::string name,
     std::shared_ptr<AssetCfg>
 ) {
-    std::vector<std::unique_ptr<Texture>> pages;
+    auto pages = std::make_shared<std::vector<std::unique_ptr<ImageData>>>();
     for (size_t i = 0; i <= 4; i++) {
         std::string name = filename + "_" + std::to_string(i) + ".png"; 
         name = paths->find(name).string();
-        std::unique_ptr<Texture> texture (png::load_texture(name));
-        if (texture == nullptr) {
-            std::cerr << "failed to load bitmap font '" << name;
-            std::cerr << "' (missing page " << std::to_string(i) << ")";
-            std::cerr << std::endl;
-            return false;
-        }
-        pages.push_back(std::move(texture));
+        std::unique_ptr<ImageData> image (png::load_image(name));
+        pages->push_back(std::move(image));
     }
-    int res = pages[0]->getHeight() / 16;
-    assets->store(new Font(std::move(pages), res, 4), name);
-    return true;
+    return [=](auto assets) {
+        int res = pages->at(0)->getHeight() / 16;
+        std::vector<std::unique_ptr<Texture>> textures;
+        for (auto& page : *pages) {
+            textures.emplace_back(Texture::from(page.get()));
+        }
+        assets->store(new Font(std::move(textures), res, 4), name);
+    };
 }
 
-bool assetload::layout(
+assetload::postfunc assetload::layout(
     AssetsLoader& loader,
     Assets* assets,
     const ResPaths* paths,
@@ -149,18 +147,19 @@ bool assetload::layout(
     const std::string name,
     std::shared_ptr<AssetCfg> config
 ) {
-    try {
-        auto cfg = dynamic_cast<LayoutCfg*>(config.get());
-        auto document = UiDocument::read(cfg->env, name, file);
-        assets->store(document.release(), name);
-        return true;
-    } catch (const parsing_error& err) {
-        std::cerr << "failed to parse layout XML '" << file << "'" << std::endl;
-        std::cerr << err.errorLog() << std::endl;
-        return false;
-    }
+    return [=](auto assets) {
+        try {
+            auto cfg = dynamic_cast<LayoutCfg*>(config.get());
+            auto document = UiDocument::read(cfg->env, name, file);
+            assets->store(document.release(), name);
+        } catch (const parsing_error& err) {
+            throw std::runtime_error(
+                "failed to parse layout XML '"+file+"':\n"+err.errorLog()
+            );
+        }
+    };
 }
-bool assetload::sound(
+assetload::postfunc assetload::sound(
     AssetsLoader& loader,
     Assets* assets,
     const ResPaths* paths,
@@ -172,37 +171,35 @@ bool assetload::sound(
     bool keepPCM = cfg ? cfg->keepPCM : false;
 
     std::string extension = ".ogg";
-    try {
-        std::unique_ptr<audio::Sound> baseSound = nullptr;
+    std::unique_ptr<audio::Sound> baseSound = nullptr;
 
-        // looking for 'sound_name' as base sound
-        auto soundFile = paths->find(file+extension);
-        if (fs::exists(soundFile)) {
-            baseSound.reset(audio::load_sound(soundFile, keepPCM));
-        }
-        // looking for 'sound_name_0' as base sound
-        auto variantFile = paths->find(file+"_0"+extension);
-        if (fs::exists(variantFile)) {
-            baseSound.reset(audio::load_sound(variantFile, keepPCM));
-        }
-
-        // loading sound variants
-        for (uint i = 1; ; i++) {
-            auto variantFile = paths->find(file+"_"+std::to_string(i)+extension);
-            if (!fs::exists(variantFile)) {
-                break;
-            }
-            baseSound->variants.emplace_back(audio::load_sound(variantFile, keepPCM));
-        }
-        assets->store(baseSound.release(), name);
-    } 
-    catch (std::runtime_error& err) {
-        std::cerr << err.what() << std::endl;
-        return false;
+    // looking for 'sound_name' as base sound
+    auto soundFile = paths->find(file+extension);
+    if (fs::exists(soundFile)) {
+        baseSound.reset(audio::load_sound(soundFile, keepPCM));
     }
-    return true;
+    // looking for 'sound_name_0' as base sound
+    auto variantFile = paths->find(file+"_0"+extension);
+    if (fs::exists(variantFile)) {
+        baseSound.reset(audio::load_sound(variantFile, keepPCM));
+    }
+
+    // loading sound variants
+    for (uint i = 1; ; i++) {
+        auto variantFile = paths->find(file+"_"+std::to_string(i)+extension);
+        if (!fs::exists(variantFile)) {
+            break;
+        }
+        baseSound->variants.emplace_back(audio::load_sound(variantFile, keepPCM));
+    }
+
+    auto sound = baseSound.release();
+    return [=](auto assets) {
+        assets->store(sound, name);
+    };
 }
 
+// TODO: integrate
 static bool animation(
     Assets* assets, 
     const ResPaths* paths, 
@@ -256,10 +253,12 @@ static bool animation(
                 }
                 if (!contains) continue;
             }
-            if (!appendAtlas(builder, file)) continue;
+            if (!appendAtlas(builder, file)) 
+                continue;
         }
 
         std::unique_ptr<Atlas> srcAtlas (builder.build(2));
+        srcAtlas->prepare();
 
         Texture* srcTex = srcAtlas->getTexture();
         Texture* dstTex = dstAtlas->getTexture();

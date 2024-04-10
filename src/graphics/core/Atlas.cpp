@@ -6,12 +6,16 @@
 #include "ImageData.h"
 
 Atlas::Atlas(ImageData* image, std::unordered_map<std::string, UVRegion> regions)
-  : texture(Texture::from(image)),
+  : texture(nullptr),
     image(image),
     regions(regions) {        
 }
 
 Atlas::~Atlas() {
+}
+
+void Atlas::prepare() {
+    texture.reset(Texture::from(image.get()));
 }
 
 bool Atlas::has(const std::string& name) const {
@@ -80,8 +84,9 @@ Atlas* AtlasBuilder::build(uint extrusion, uint maxResolution) {
         }
         float unitX = 1.0f / width;
         float unitY = 1.0f / height;
-        regions[entry.name] = UVRegion(unitX * x, unitY * y, 
-                                       unitX * (x + w), unitY * (y + h));
+        regions[entry.name] = UVRegion(
+            unitX * x, unitY * y, unitX * (x + w), unitY * (y + h)
+        );
     }
     return new Atlas(canvas.release(), regions);
 }

@@ -109,7 +109,12 @@ void menus::create_new_world_panel(Engine* engine) {
     auto seedInput = std::make_shared<TextBox>(seedstr, glm::vec4(6.0f));
     panel->add(seedInput);
     
-    generatorTypeButton = guiutil::gotoButton(langs::get(L"World generator", L"world") + (L": ") + util::str2wstr_utf8(translate_generator_id(menus::generatorID)), "world_generators", engine->getGUI()->getMenu());
+    generatorTypeButton = guiutil::gotoButton(
+        langs::get(L"World generator", L"world") + L": " + 
+        util::str2wstr_utf8(translate_generator_id(menus::generatorID)), 
+        "world_generators", 
+        engine->getGUI()->getMenu()
+    );
     panel->add(generatorTypeButton);
 
     panel->add(menus::create_button(L"Create World", glm::vec4(10), glm::vec4(1, 20, 1, 1), 
@@ -153,7 +158,7 @@ void menus::create_new_world_panel(Engine* engine) {
             engine->getContent(),
             engine->getContentPacks()
         );
-        level->world->wfile->createDirectories();
+        level->getWorld()->wfile->createDirectories();
         menus::generatorID = WorldGenerators::getDefaultGeneratorID();
         engine->setScreen(std::make_shared<LevelScreen>(engine, level));
     }));

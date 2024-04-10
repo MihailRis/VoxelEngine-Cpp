@@ -1,6 +1,8 @@
 #ifndef ASSETS_ASSETS_LOADER_H
 #define ASSETS_ASSETS_LOADER_H
 
+#include "Assets.h"
+
 #include <string>
 #include <memory>
 #include <filesystem>
@@ -23,7 +25,6 @@ enum class AssetType {
 };
 
 class ResPaths;
-class Assets;
 class AssetsLoader;
 class Content;
 
@@ -43,7 +44,14 @@ struct SoundCfg : AssetCfg {
 	SoundCfg(bool keepPCM) : keepPCM(keepPCM) {}
 };
 
-using aloader_func = std::function<bool(AssetsLoader&, Assets*, const ResPaths*, const std::string&, const std::string&, std::shared_ptr<AssetCfg>)>;
+using aloader_func = std::function<assetload::postfunc(
+    AssetsLoader&, 
+    Assets*, 
+    const ResPaths*, 
+    const std::string&, 
+    const std::string&, 
+    std::shared_ptr<AssetCfg>)
+>;
 
 struct aloader_entry {
 	AssetType tag;

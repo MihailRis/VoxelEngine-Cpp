@@ -49,9 +49,16 @@ bool AssetsLoader::loadNext() {
 		return false;
 	}
 	aloader_func loader = found->second;
-	bool status = loader(*this, assets, paths, entry.filename, entry.alias, entry.config);
-	entries.pop();
-	return status;
+    try {
+    	auto postfunc = loader(*this, assets, paths, entry.filename, entry.alias, entry.config);
+        postfunc(assets);
+        entries.pop();
+        return true;
+    } catch (std::runtime_error& err) {
+        logger.error() << err.what();
+        entries.pop();
+        return false;
+    }
 }
 
 void addLayouts(int env, const std::string& prefix, const fs::path& folder, AssetsLoader& loader) {

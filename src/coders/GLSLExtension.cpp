@@ -81,7 +81,7 @@ inline void source_line(std::stringstream& ss, uint linenum) {
     ss << "#line " << linenum << "\n";
 }
 
-const std::string GLSLExtension::process(const fs::path file, const std::string& source) {
+const std::string GLSLExtension::process(const fs::path& file, const std::string& source) {
     std::stringstream ss;
     size_t pos = 0;
     uint linenum = 1;

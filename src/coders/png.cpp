@@ -343,18 +343,13 @@ ImageData* _png_load(const char* file){
 ImageData* png::load_image(std::string filename) {
 	ImageData* image (_png_load(filename.c_str()));
 	if (image == nullptr) {
-		std::cerr << "Could not load image " << filename << std::endl;
-		return nullptr;
+		throw std::runtime_error("could not load image "+filename);
 	}
     return image;
 }
 
 Texture* png::load_texture(std::string filename) {
-	std::unique_ptr<ImageData> image (_png_load(filename.c_str()));
-	if (image == nullptr){
-		std::cerr << "Could not load texture " << filename << std::endl;
-		return nullptr;
-	}
+	std::unique_ptr<ImageData> image (load_image(filename));
 	auto texture = Texture::from(image.get());
     texture->setNearestFilter();
     return texture;

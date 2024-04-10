@@ -1,6 +1,8 @@
 #ifndef ASSETS_ASSET_LOADERS_H_
 #define ASSETS_ASSET_LOADERS_H_
 
+#include "Assets.h"
+
 #include <string>
 #include <memory>
 
@@ -12,7 +14,7 @@ struct AssetCfg;
 
 /// @brief see AssetsLoader.h: aloader_func
 namespace assetload {
-    bool texture(
+    postfunc texture(
         AssetsLoader&,
         Assets*, 
         const ResPaths* paths,
@@ -20,7 +22,7 @@ namespace assetload {
         const std::string name,
         std::shared_ptr<AssetCfg> settings
     );
-    bool shader(
+    postfunc shader(
         AssetsLoader&,
         Assets*,
         const ResPaths* paths,
@@ -28,7 +30,7 @@ namespace assetload {
         const std::string name,
         std::shared_ptr<AssetCfg> settings
     );
-    bool atlas(
+    postfunc atlas(
         AssetsLoader&,
         Assets*,
         const ResPaths* paths, 
@@ -36,7 +38,7 @@ namespace assetload {
         const std::string name,
         std::shared_ptr<AssetCfg> settings
     );
-    bool font(
+    postfunc font(
         AssetsLoader&,
         Assets*, 
         const ResPaths* paths,
@@ -44,7 +46,7 @@ namespace assetload {
         const std::string name,
         std::shared_ptr<AssetCfg> settings
     );
-    bool layout(
+    postfunc layout(
         AssetsLoader&,
         Assets*,
         const ResPaths* paths,
@@ -53,7 +55,7 @@ namespace assetload {
         std::shared_ptr<AssetCfg> settings
     );
 
-    bool sound(
+    postfunc sound(
         AssetsLoader&,
         Assets*,
         const ResPaths* paths,

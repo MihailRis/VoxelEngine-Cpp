@@ -5,6 +5,7 @@
 
 #include <string>
 #include <memory>
+#include <functional>
 #include <unordered_map>
 #include <vector>
 
@@ -12,10 +13,16 @@ class Texture;
 class Shader;
 class Font;
 class Atlas;
+class Assets;
 class UiDocument;
 
 namespace audio {
 	class Sound;
+}
+
+namespace assetload {
+    /// @brief final work to do in the main thread
+    using postfunc = std::function<void(Assets*)>;
 }
 
 class Assets {
