@@ -207,10 +207,10 @@ ALSpeaker::~ALSpeaker() {
     }
 }
 
-void ALSpeaker::update(const Channel* channel, float masterVolume) {
+void ALSpeaker::update(const Channel* channel) {
     if (source == 0)
         return;
-    float gain = this->volume * channel->getVolume()*masterVolume;
+    float gain = this->volume * channel->getVolume();
     AL_CHECK(alSourcef(source, AL_GAIN, gain));
     
     if (!paused) {
@@ -471,6 +471,7 @@ void ALAudio::setListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 at, 
     AL_CHECK(alListener3f(AL_POSITION, position.x, position.y, position.z));
     AL_CHECK(alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z));
     AL_CHECK(alListenerfv(AL_ORIENTATION, listenerOri));
+    AL_CHECK(alListenerf(AL_GAIN, get_channel(0)->getVolume()));
 }
 
 void ALAudio::update(double delta) {

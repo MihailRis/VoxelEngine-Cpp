@@ -235,8 +235,7 @@ namespace audio {
 
         /// @brief Synchronize the speaker with channel settings
         /// @param channel speaker channel
-        /// @param masterVolume volume of the master channel
-        virtual void update(const Channel* channel, float masterVolume) = 0;
+        virtual void update(const Channel* channel) = 0;
 
         /// @brief Check speaker channel index
         virtual int getChannel() const = 0;
