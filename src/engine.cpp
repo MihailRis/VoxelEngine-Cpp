@@ -2,18 +2,13 @@
 
 #define GLEW_STATIC
 
-#include "assets/Assets.h"
 #include "assets/AssetsLoader.h"
 #include "audio/audio.h"
 #include "coders/GLSLExtension.h"
 #include "coders/json.h"
 #include "coders/png.h"
-#include "content/Content.h"
 #include "content/ContentLoader.h"
-#include "content/ContentPack.h"
-#include "content/PacksManager.h"
 #include "core_defs.h"
-#include "files/engine_paths.h"
 #include "files/files.h"
 #include "frontend/locale/langs.h"
 #include "frontend/menu/menu.h"
@@ -91,20 +86,18 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     std::vector<fs::path> roots {resdir};
 
     resPaths = std::make_unique<ResPaths>(resdir, roots);
-    assets = std::make_unique<Assets>();
+    try {
+        loadAssets();
+    } catch (std::runtime_error& err) {
+        logger.error() << "fatal error occurred while loading assets";
 
-    AssetsLoader loader(assets.get(), resPaths.get());
-    AssetsLoader::addDefaults(loader, nullptr);
-
-    Shader::preprocessor->setPaths(resPaths.get());
-    while (loader.hasNext()) {
-        if (!loader.loadNext()) {
-            assets.reset();
-            scripting::close();
-            Window::terminate();
-            throw initialize_error("could not to load assets");
-        }
+        assets.reset();
+        scripting::close();
+        audio::close();
+        Window::terminate();
+        throw initialize_error(err.what());
     }
+
     gui = std::make_unique<gui::GUI>();
     if (settings.ui.language == "auto") {
         settings.ui.language = langs::locale_by_envlocale(
@@ -210,6 +203,36 @@ Engine::~Engine() {
     logger.info() << "engine finished";
 }
 
+PacksManager Engine::createPacksManager(const fs::path& worldFolder) {
+    PacksManager manager;
+    manager.setSources({
+        worldFolder/fs::path("content"),
+        paths->getUserfiles()/fs::path("content"),
+        paths->getResources()/fs::path("content")
+    });
+    return manager;
+}
+
+void Engine::loadAssets() {
+    logger.info() << "loading assets";
+    Shader::preprocessor->setPaths(resPaths.get());
+
+    auto new_assets = std::make_unique<Assets>();
+    AssetsLoader loader(new_assets.get(), resPaths.get());
+    AssetsLoader::addDefaults(loader, content.get());
+    while (loader.hasNext()) {
+        if (!loader.loadNext()) {
+            new_assets.reset();
+            throw std::runtime_error("could not to load assets");
+        }
+    }
+    if (assets) {
+        assets->extend(*new_assets);
+    } else {
+        assets.reset(new_assets.release());
+    }
+}
+
 // TODO: refactor this
 void Engine::loadContent() {
     auto resdir = paths->getResources();
@@ -221,12 +244,7 @@ void Engine::loadContent() {
     for (auto& pack : contentPacks) {
         names.push_back(pack.id);
     }
-    PacksManager manager;
-    manager.setSources({
-        paths->getWorldFolder()/fs::path("content"),
-        paths->getUserfiles()/fs::path("content"),
-        paths->getResources()/fs::path("content")
-    });
+    PacksManager manager = createPacksManager(paths->getWorldFolder());
     manager.scan();
     names = manager.assembly(names);
     contentPacks = manager.getAll(names);
@@ -238,25 +256,11 @@ void Engine::loadContent() {
         ContentLoader loader(&pack);
         loader.load(contentBuilder);
     }
-    
     content.reset(contentBuilder.build());
     resPaths = std::make_unique<ResPaths>(resdir, resRoots);
 
     langs::setup(resdir, langs::current->getId(), contentPacks);
-
-    logger.info() << "loading assets";
-
-    auto new_assets = std::make_unique<Assets>();
-    Shader::preprocessor->setPaths(resPaths.get());
-    AssetsLoader loader(new_assets.get(), resPaths.get());
-    AssetsLoader::addDefaults(loader, content.get());
-    while (loader.hasNext()) {
-        if (!loader.loadNext()) {
-            new_assets.reset();
-            throw std::runtime_error("could not to load assets");
-        }
-    }
-    assets->extend(*new_assets);
+    loadAssets();
     onAssetsLoaded();
 }
 

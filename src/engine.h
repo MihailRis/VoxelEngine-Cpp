@@ -8,6 +8,7 @@
 #include "assets/Assets.h"
 #include "content/Content.h"
 #include "content/ContentPack.h"
+#include "content/PacksManager.h"
 #include "files/engine_paths.h"
 #include "files/settings_io.h"
 
@@ -59,6 +60,7 @@ class Engine {
     void updateHotkeys();
     void renderFrame(Batch2D& batch);
     void processPostRunnables();
+    void loadAssets();
 public:
     Engine(EngineSettings& settings, EnginePaths* paths);
     ~Engine();
@@ -120,6 +122,8 @@ public:
 
     /// @brief Enqueue function call to the end of current frame in draw thread
     void postRunnable(runnable callback);
+
+    PacksManager createPacksManager(const fs::path& worldFolder);
 
     SettingsHandler& getSettingsHandler();
 };
