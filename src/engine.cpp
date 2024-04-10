@@ -210,18 +210,6 @@ Engine::~Engine() {
     logger.info() << "engine finished";
 }
 
-inline const std::string checkPacks(
-    const std::unordered_set<std::string>& packs, 
-    const std::vector<DependencyPack>& dependencies
-) {
-    for (const auto& dependency : dependencies) { 
-        if (packs.find(dependency.id) == packs.end()) {
-            return dependency.id;
-        }
-    }
-    return "";
-}
-
 // TODO: refactor this
 void Engine::loadContent() {
     auto resdir = paths->getResources();
@@ -233,8 +221,6 @@ void Engine::loadContent() {
     for (auto& pack : contentPacks) {
         names.push_back(pack.id);
     }
-
-    // ---------------------------------------------
     PacksManager manager;
     manager.setSources({
         paths->getWorldFolder()/fs::path("content"),
@@ -242,37 +228,15 @@ void Engine::loadContent() {
         paths->getResources()/fs::path("content")
     });
     manager.scan();
-    auto allnames = manager.getAllNames();
-    // ---------------------------------------------
+    names = manager.assembly(names);
+    contentPacks = manager.getAll(names);
 
     std::vector<fs::path> resRoots;
-    std::vector<ContentPack> srcPacks = contentPacks;
-    contentPacks.clear();
+    for (auto& pack : contentPacks) {
+        resRoots.push_back(pack.folder);
 
-    std::string missingDependency;
-    std::unordered_set<std::string> loadedPacks, existingPacks;
-    for (const auto& item : srcPacks) {
-         existingPacks.insert(item.id);
-    }
-
-    // FIXME: dependency levels
-    while (existingPacks.size() > loadedPacks.size()) {
-        for (auto& pack : srcPacks) {
-            if(loadedPacks.find(pack.id) != loadedPacks.end()) {
-                continue;
-            }
-            missingDependency = checkPacks(existingPacks, pack.dependencies);
-            if (!missingDependency.empty()) { 
-                throw contentpack_error(pack.id, pack.folder, "missing dependency '"+missingDependency+"'");
-            }
-            if (pack.dependencies.empty() || checkPacks(loadedPacks, pack.dependencies).empty()) {
-                loadedPacks.insert(pack.id);
-                resRoots.push_back(pack.folder);
-                contentPacks.push_back(pack);
-                ContentLoader loader(&pack);
-                loader.load(contentBuilder);
-            }
-        }
+        ContentLoader loader(&pack);
+        loader.load(contentBuilder);
     }
     
     content.reset(contentBuilder.build());

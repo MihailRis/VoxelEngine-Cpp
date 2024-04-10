@@ -125,6 +125,9 @@ std::vector<std::string> PacksManager::assembly(const std::vector<std::string>& 
             queue.pop();
             
             if (resolve_dependencies(pack, packs, allNames, added, queue, resolveWeaks)) {
+                if (util::contains(added, pack->id)) {
+                    throw contentpack_error(pack->id, pack->folder, "pack duplication");
+                }
                 added.push_back(pack->id);
                 addedInIteration++;
             } else {
