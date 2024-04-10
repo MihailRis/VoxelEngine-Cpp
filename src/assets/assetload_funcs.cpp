@@ -102,7 +102,7 @@ assetload::postfunc assetload::atlas(
             continue;
     }
     std::set<std::string> names = builder.getNames();
-    Atlas* atlas = builder.build(2);
+    Atlas* atlas = builder.build(2, false);
     return [=](auto assets) {
         atlas->prepare();
         assets->store(atlas, name);

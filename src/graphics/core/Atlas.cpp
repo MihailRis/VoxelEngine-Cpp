@@ -5,10 +5,17 @@
 #include "Texture.h"
 #include "ImageData.h"
 
-Atlas::Atlas(ImageData* image, std::unordered_map<std::string, UVRegion> regions)
-  : texture(nullptr),
-    image(image),
-    regions(regions) {        
+Atlas::Atlas(
+    std::unique_ptr<ImageData> image, 
+    std::unordered_map<std::string, UVRegion> regions,
+    bool prepare
+) : texture(nullptr),
+    image(std::move(image)),
+    regions(regions) 
+{        
+    if (prepare) {
+        this->prepare();
+    }
 }
 
 Atlas::~Atlas() {
@@ -43,7 +50,10 @@ bool AtlasBuilder::has(const std::string& name) const {
     return names.find(name) != names.end();
 }
 
-Atlas* AtlasBuilder::build(uint extrusion, uint maxResolution) {
+Atlas* AtlasBuilder::build(uint extrusion, bool prepare, uint maxResolution) {
+    if (maxResolution == 0) {
+        maxResolution = Texture::MAX_RESOLUTION;
+    }
     auto sizes = std::make_unique<uint[]>(entries.size() * 2);
     uint index = 0;
     for (auto& entry : entries) {
@@ -63,8 +73,9 @@ Atlas* AtlasBuilder::build(uint extrusion, uint maxResolution) {
             width *= 2;
         }
         if (width > maxResolution || height > maxResolution) {
-            throw std::runtime_error("max atlas resolution "+
-                                     std::to_string(maxResolution)+" exceeded");
+            throw std::runtime_error(
+                "max atlas resolution "+std::to_string(maxResolution)+" exceeded"
+            );
         }
     }
 
@@ -88,5 +99,5 @@ Atlas* AtlasBuilder::build(uint extrusion, uint maxResolution) {
             unitX * x, unitY * y, unitX * (x + w), unitY * (y + h)
         );
     }
-    return new Atlas(canvas.release(), regions);
+    return new Atlas(std::move(canvas), regions, prepare);
 }

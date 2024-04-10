@@ -3,6 +3,7 @@
 #include "Events.h"
 #include "../debug/Logger.h"
 #include "../graphics/core/ImageData.h"
+#include "../graphics/core/Texture.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -144,6 +145,13 @@ int Window::initialize(DisplaySettings& settings){
     glClearColor(0.0f,0.0f,0.0f, 1);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    GLint maxTextureSize[1]{static_cast<GLint>(Texture::MAX_RESOLUTION)};
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, maxTextureSize);
+    if (maxTextureSize[0] > 0) {
+        Texture::MAX_RESOLUTION = maxTextureSize[0];
+        logger.info() << "max texture size is " << Texture::MAX_RESOLUTION;
+    }
 
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);

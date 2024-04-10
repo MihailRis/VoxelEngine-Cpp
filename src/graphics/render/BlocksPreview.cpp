@@ -143,6 +143,5 @@ std::unique_ptr<Atlas> BlocksPreview::build(
 
     Window::viewport(0, 0, Window::width, Window::height);
     auto newAtlas = std::unique_ptr<Atlas>(builder.build(2));
-    newAtlas->prepare();
     return newAtlas;
 }

@@ -6,6 +6,8 @@
 #include "ImageData.h"
 #include "gl_util.h"
 
+uint Texture::MAX_RESOLUTION = 1024; // Window.initialize overrides it
+
 Texture::Texture(uint id, uint width, uint height) 
     : id(id), width(width), height(height) {
 }

@@ -17,7 +17,14 @@ class Atlas {
     std::unique_ptr<ImageData> image;
     std::unordered_map<std::string, UVRegion> regions;
 public:
-    Atlas(ImageData* image, std::unordered_map<std::string, UVRegion> regions);
+    /// @param image atlas raster
+    /// @param regions atlas regions
+    /// @param prepare generate texture (.prepare())
+    Atlas(
+        std::unique_ptr<ImageData> image, 
+        std::unordered_map<std::string, UVRegion> regions, 
+        bool prepare
+    );
     ~Atlas();
 
     void prepare();
@@ -43,7 +50,12 @@ public:
     bool has(const std::string& name) const;
     const std::set<std::string>& getNames() { return names; };
 
-    Atlas* build(uint extrusion, uint maxResolution=8192);
+    /// @brief Build atlas from all added images
+    /// @param extrusion textures extrusion pixels 
+    /// (greather is less mip-mapping artifacts)
+    /// @param prepare generate atlas texture (calls .prepare()) 
+    /// @param maxResolution max atlas resolution
+    Atlas* build(uint extrusion, bool prepare=true, uint maxResolution=0);
 };
 
 #endif // GRAPHICS_CORE_ATLAS_H_

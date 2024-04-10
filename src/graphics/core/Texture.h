@@ -11,6 +11,8 @@ protected:
     uint width;
     uint height;
 public:
+    static uint MAX_RESOLUTION;
+
     Texture(uint id, uint width, uint height);
     Texture(ubyte* data, uint width, uint height, ImageFormat format);
     virtual ~Texture();
