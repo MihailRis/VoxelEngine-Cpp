@@ -19,6 +19,7 @@
 
 #include "ContentPack.h"
 #include "../logic/scripting/scripting.h"
+#include "../logic/scripting/Environment.h"
 
 namespace fs = std::filesystem;
 

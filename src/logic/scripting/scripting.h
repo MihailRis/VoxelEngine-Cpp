@@ -33,18 +33,7 @@ namespace scripting {
     extern BlocksController* blocks;
     extern LevelController* controller;
 
-    /// @brief Lua environment wrapper for automatic deletion
-    class Environment {
-        int env;
-    public:
-        Environment(int env);
-        ~Environment();
-
-        int getId() const;
-
-        // @brief Release namespace control
-        void release();
-    };
+    class Environment;
 
     void initialize(Engine* engine);
 

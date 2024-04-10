@@ -1,6 +1,8 @@
 #ifndef FRONTEND_UI_DOCUMENT_H_
 #define FRONTEND_UI_DOCUMENT_H_
 
+#include "../logic/scripting/Environment.h"
+
 #include <string>
 #include <memory>
 #include <filesystem>

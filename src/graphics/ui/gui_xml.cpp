@@ -8,6 +8,7 @@
 
 #include "../../frontend/locale/langs.h"
 #include "../../logic/scripting/scripting.h"
+#include "../../logic/scripting/Environment.h"
 #include "../../util/stringutil.h"
 
 using namespace gui;

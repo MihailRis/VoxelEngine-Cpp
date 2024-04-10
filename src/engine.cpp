@@ -13,17 +13,14 @@
 #include "frontend/locale/langs.h"
 #include "frontend/menu/menu.h"
 #include "frontend/screens.h"
-#include "frontend/UiDocument.h"
 #include "graphics/core/Batch2D.h"
 #include "graphics/core/GfxContext.h"
 #include "graphics/core/ImageData.h"
 #include "graphics/core/Shader.h"
 #include "graphics/ui/GUI.h"
-#include "graphics/ui/elements/UINode.h"
-#include "graphics/ui/elements/containers.h"
 #include "logic/scripting/scripting.h"
-#include "util/platform.h"
 #include "util/listutil.h"
+#include "util/platform.h"
 #include "voxels/DefaultWorldGenerator.h"
 #include "voxels/FlatWorldGenerator.h"
 #include "window/Camera.h"
@@ -32,12 +29,9 @@
 #include "window/Window.h"
 #include "world/WorldGenerators.h"
 
-#include <memory>
 #include <iostream>
 #include <assert.h>
-#include <vector>
 #include <glm/glm.hpp>
-#include <filesystem>
 #include <unordered_set>
 #include <functional>
 
@@ -116,12 +110,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 }
 
 void Engine::onAssetsLoaded() {
-    assets->store(new UiDocument(
-        "core:root", 
-        uidocscript {}, 
-        std::dynamic_pointer_cast<gui::UINode>(gui->getContainer()), 
-        nullptr
-    ), "core:root");
+    gui->onAssetsLoad(assets.get());
 }
 
 void Engine::updateTimers() {
@@ -145,12 +134,13 @@ void Engine::updateHotkeys() {
 }
 
 void Engine::mainloop() {
+    logger.info() << "starting menu screen";
     setScreen(std::make_shared<MenuScreen>(this));
 
     Batch2D batch(1024);
     lastTime = Window::time();
-
-    logger.info() << "initialized";
+    
+    logger.info() << "engine started";
     while (!Window::isShouldClose()){
         assert(screen != nullptr);
         updateTimers();

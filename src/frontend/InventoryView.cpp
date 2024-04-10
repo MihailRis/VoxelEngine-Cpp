@@ -17,6 +17,7 @@
 #include "../items/Inventory.h"
 #include "../items/ItemDef.h"
 #include "../logic/scripting/scripting.h"
+#include "../logic/scripting/Environment.h"
 #include "../maths/voxmaths.h"
 #include "../objects/Player.h"
 #include "../util/stringutil.h"

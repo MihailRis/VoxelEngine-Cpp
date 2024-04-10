@@ -17,6 +17,7 @@
 #include "../../logic/LevelController.h"
 #include "../../frontend/UiDocument.h"
 #include "../../engine.h"
+#include "Environment.h"
 #include "lua/LuaState.h"
 #include "../../util/stringutil.h"
 #include "../../util/timeutil.h"

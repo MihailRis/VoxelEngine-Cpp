@@ -122,6 +122,8 @@ namespace gui {
         /// @deprecated
         std::shared_ptr<Container> getContainer() const;
 
+        void onAssetsLoad(Assets* assets);
+
         void postRunnable(runnable callback);
     };
 }

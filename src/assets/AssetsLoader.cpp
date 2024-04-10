@@ -14,6 +14,7 @@
 #include "../content/Content.h"
 #include "../content/ContentPack.h"
 #include "../logic/scripting/scripting.h"
+#include "../logic/scripting/Environment.h"
 
 static debug::Logger logger("assets-loader");
 

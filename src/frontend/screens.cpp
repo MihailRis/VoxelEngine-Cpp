@@ -16,6 +16,7 @@
 #include "../logic/LevelController.h"
 #include "../logic/scripting/scripting_hud.h"
 #include "../logic/scripting/scripting.h"
+#include "../logic/scripting/Environment.h"
 #include "../objects/Player.h"
 #include "../physics/Hitbox.h"
 #include "../util/stringutil.h"

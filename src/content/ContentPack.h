@@ -91,6 +91,7 @@ public:
         ContentPack info,
         std::unique_ptr<scripting::Environment> env
     );
+    ~ContentPackRuntime();
 
     inline const ContentPackStats& getStats() const {
         return stats;

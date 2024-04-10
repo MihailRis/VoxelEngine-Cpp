@@ -7,7 +7,7 @@
 #include "../files/files.h"
 #include "../files/engine_paths.h"
 #include "../data/dynamic.h"
-#include "../logic/scripting/scripting.h"
+#include "../logic/scripting/Environment.h"
 
 namespace fs = std::filesystem;
 
@@ -144,4 +144,7 @@ ContentPackRuntime::ContentPackRuntime(
     std::unique_ptr<scripting::Environment> env
 ) : info(info), env(std::move(env))
 {
+}
+
+ContentPackRuntime::~ContentPackRuntime() {
 }

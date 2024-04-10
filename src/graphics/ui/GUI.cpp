@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "../../assets/Assets.h"
+#include "../../frontend/UiDocument.h"
 #include "../../graphics/core/Batch2D.h"
 #include "../../graphics/core/Shader.h"
 #include "../../graphics/core/GfxContext.h"
@@ -32,6 +33,15 @@ GUI::~GUI() {
 
 std::shared_ptr<Menu> GUI::getMenu() {
     return menu;
+}
+
+void GUI::onAssetsLoad(Assets* assets) {
+    assets->store(new UiDocument(
+        "core:root", 
+        uidocscript {}, 
+        std::dynamic_pointer_cast<gui::UINode>(container), 
+        nullptr
+    ), "core:root");
 }
 
 /** Mouse related input and logic handling 
