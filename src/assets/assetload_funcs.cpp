@@ -91,6 +91,8 @@ assetload::postfunc assetload::atlas(
 ) {
     AtlasBuilder builder;
     for (const auto& file : paths->listdir(directory)) {
+        if (fs::is_directory(file))
+            continue;
         if (!appendAtlas(builder, file))
             continue;
     }
