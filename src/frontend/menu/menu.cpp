@@ -201,6 +201,7 @@ void menus::open_world(std::string name, Engine* engine, bool confirmConvert) {
     try {
         engine->loadWorldContent(folder);
     } catch (const contentpack_error& error) {
+        engine->setScreen(std::make_shared<MenuScreen>(engine));
         // could not to find or read pack
         guiutil::alert(
             engine->getGUI(), langs::get(L"error.pack-not-found")+L": "+
@@ -208,6 +209,7 @@ void menus::open_world(std::string name, Engine* engine, bool confirmConvert) {
         );
         return;
     } catch (const std::runtime_error& error) {
+        engine->setScreen(std::make_shared<MenuScreen>(engine));
         guiutil::alert(
             engine->getGUI(), langs::get(L"Content Error", L"menu")+L": "+
             util::str2wstr_utf8(error.what())

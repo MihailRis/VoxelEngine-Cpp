@@ -6,7 +6,7 @@
 #include "audio/audio.h"
 #include "coders/GLSLExtension.h"
 #include "coders/json.h"
-#include "coders/png.h"
+#include "coders/imageio.h"
 #include "content/ContentLoader.h"
 #include "core_defs.h"
 #include "files/files.h"
@@ -70,7 +70,6 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
 
     auto resdir = paths->getResources();
 
-    logger.info() << "loading assets";
     std::vector<fs::path> roots {resdir};
     resPaths = std::make_unique<ResPaths>(resdir, roots);
     try {
@@ -115,15 +114,19 @@ void Engine::updateTimers() {
 
 void Engine::updateHotkeys() {
     if (Events::jpressed(keycode::F2)) {
-        std::unique_ptr<ImageData> image(Window::takeScreenshot());
-        image->flipY();
-        fs::path filename = paths->getScreenshotFile("png");
-        png::write_image(filename.string(), image.get());
-        std::cout << "saved screenshot as " << filename << std::endl;
+        saveScreenshot();
     }
     if (Events::jpressed(keycode::F11)) {
         Window::toggleFullscreen();
     }
+}
+
+void Engine::saveScreenshot() {
+    std::unique_ptr<ImageData> image(Window::takeScreenshot());
+    image->flipY();
+    fs::path filename = paths->getScreenshotFile("png");
+    imageio::write(filename.string(), image.get());
+    logger.info() << "saved screenshot as "+filename.u8string();
 }
 
 void Engine::mainloop() {
@@ -203,10 +206,17 @@ void Engine::loadAssets() {
     auto new_assets = std::make_unique<Assets>();
     AssetsLoader loader(new_assets.get(), resPaths.get());
     AssetsLoader::addDefaults(loader, content.get());
-    while (loader.hasNext()) {
-        if (!loader.loadNext()) {
-            new_assets.reset();
-            throw std::runtime_error("could not to load assets");
+
+    bool threading = false;
+    if (threading) {
+        auto task = loader.startTask([=](){});
+        task->waitForEnd();
+    } else {
+        while (loader.hasNext()) {
+            if (!loader.loadNext()) {
+                new_assets.reset();
+                throw std::runtime_error("could not to load assets");
+            }
         }
     }
     if (assets) {
@@ -216,7 +226,6 @@ void Engine::loadAssets() {
     }
 }
 
-// TODO: refactor this
 void Engine::loadContent() {
     auto resdir = paths->getResources();
     ContentBuilder contentBuilder;
@@ -263,12 +272,7 @@ void Engine::loadWorldContent(const fs::path& folder) {
 }
 
 void Engine::loadAllPacks() {
-    PacksManager manager;
-    manager.setSources({
-        paths->getWorldFolder()/fs::path("content"),
-        paths->getUserfiles()/fs::path("content"),
-        paths->getResources()/fs::path("content")
-    });
+    PacksManager manager = createPacksManager(paths->getWorldFolder());
     manager.scan();
     auto allnames = manager.getAllNames();
     contentPacks = manager.getAll(manager.assembly(allnames));

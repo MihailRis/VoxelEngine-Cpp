@@ -2,6 +2,8 @@
 #define ASSETS_ASSETS_LOADER_H
 
 #include "Assets.h"
+#include "../interfaces/Task.h"
+#include "../delegates.h"
 
 #include <string>
 #include <memory>
@@ -45,8 +47,7 @@ struct SoundCfg : AssetCfg {
 };
 
 using aloader_func = std::function<assetload::postfunc(
-    AssetsLoader&, 
-    Assets*, 
+    AssetsLoader*, 
     const ResPaths*, 
     const std::string&, 
     const std::string&, 
@@ -96,7 +97,10 @@ public:
 	/// @param content engine content
 	static void addDefaults(AssetsLoader& loader, const Content* content);
 
+    std::shared_ptr<Task> startTask(runnable onDone);
+
 	const ResPaths* getPaths() const;
+    aloader_func getLoader(AssetType tag);
 };
 
 #endif // ASSETS_ASSETS_LOADER_H

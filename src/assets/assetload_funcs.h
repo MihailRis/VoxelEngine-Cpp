@@ -15,40 +15,35 @@ struct AssetCfg;
 /// @brief see AssetsLoader.h: aloader_func
 namespace assetload {
     postfunc texture(
-        AssetsLoader&,
-        Assets*, 
+        AssetsLoader*,
         const ResPaths* paths,
         const std::string filename, 
         const std::string name,
         std::shared_ptr<AssetCfg> settings
     );
     postfunc shader(
-        AssetsLoader&,
-        Assets*,
+        AssetsLoader*,
         const ResPaths* paths,
         const std::string filename, 
         const std::string name,
         std::shared_ptr<AssetCfg> settings
     );
     postfunc atlas(
-        AssetsLoader&,
-        Assets*,
+        AssetsLoader*,
         const ResPaths* paths, 
         const std::string directory, 
         const std::string name,
         std::shared_ptr<AssetCfg> settings
     );
     postfunc font(
-        AssetsLoader&,
-        Assets*, 
+        AssetsLoader*,
         const ResPaths* paths,
         const std::string filename, 
         const std::string name,
         std::shared_ptr<AssetCfg> settings
     );
     postfunc layout(
-        AssetsLoader&,
-        Assets*,
+        AssetsLoader*,
         const ResPaths* paths,
         const std::string file,
         const std::string name,
@@ -56,8 +51,7 @@ namespace assetload {
     );
 
     postfunc sound(
-        AssetsLoader&,
-        Assets*,
+        AssetsLoader*,
         const ResPaths* paths,
         const std::string file,
         const std::string name,

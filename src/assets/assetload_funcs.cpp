@@ -8,7 +8,7 @@
 #include "../audio/audio.h"
 #include "../files/files.h"
 #include "../files/engine_paths.h"
-#include "../coders/png.h"
+#include "../coders/imageio.h"
 #include "../coders/json.h"
 #include "../coders/GLSLExtension.h"
 #include "../graphics/core/Shader.h"
@@ -30,15 +30,14 @@ static bool animation(
 );
 
 assetload::postfunc assetload::texture(
-    AssetsLoader&,
-    Assets* assets,
+    AssetsLoader*,
     const ResPaths* paths,
     const std::string filename, 
     const std::string name,
     std::shared_ptr<AssetCfg>
 ) {
     std::shared_ptr<ImageData> image (
-        png::load_image(paths->find(filename+".png").u8string())
+        imageio::read(paths->find(filename+".png").u8string()).release()
     );
     return [name, image](auto assets) {
         assets->store(Texture::from(image.get()), name);
@@ -46,8 +45,7 @@ assetload::postfunc assetload::texture(
 }
 
 assetload::postfunc assetload::shader(
-    AssetsLoader&,
-    Assets* assets,
+    AssetsLoader*,
     const ResPaths* paths,
     const std::string filename, 
     const std::string name,
@@ -72,15 +70,12 @@ assetload::postfunc assetload::shader(
 }
 
 static bool appendAtlas(AtlasBuilder& atlas, const fs::path& file) {
-    // png is only supported format
-    if (file.extension() != ".png")
-        return false;
     std::string name = file.stem().string();
     // skip duplicates
     if (atlas.has(name)) {
         return false;
     }
-    std::unique_ptr<ImageData> image(png::load_image(file.string()));
+    auto image = imageio::read(file.string());
     image->fixAlphaColor();
     atlas.add(name, image.release());
 
@@ -88,8 +83,7 @@ static bool appendAtlas(AtlasBuilder& atlas, const fs::path& file) {
 }
 
 assetload::postfunc assetload::atlas(
-    AssetsLoader&,
-    Assets* assets, 
+    AssetsLoader*,
     const ResPaths* paths,
     const std::string directory, 
     const std::string name,
@@ -114,8 +108,7 @@ assetload::postfunc assetload::atlas(
 }
 
 assetload::postfunc assetload::font(
-    AssetsLoader&,
-    Assets* assets, 
+    AssetsLoader*,
     const ResPaths* paths,
     const std::string filename, 
     const std::string name,
@@ -125,8 +118,7 @@ assetload::postfunc assetload::font(
     for (size_t i = 0; i <= 4; i++) {
         std::string name = filename + "_" + std::to_string(i) + ".png"; 
         name = paths->find(name).string();
-        std::unique_ptr<ImageData> image (png::load_image(name));
-        pages->push_back(std::move(image));
+        pages->push_back(std::move(imageio::read(name)));
     }
     return [=](auto assets) {
         int res = pages->at(0)->getHeight() / 16;
@@ -139,8 +131,7 @@ assetload::postfunc assetload::font(
 }
 
 assetload::postfunc assetload::layout(
-    AssetsLoader& loader,
-    Assets* assets,
+    AssetsLoader*,
     const ResPaths* paths,
     const std::string file,
     const std::string name,
@@ -159,8 +150,7 @@ assetload::postfunc assetload::layout(
     };
 }
 assetload::postfunc assetload::sound(
-    AssetsLoader& loader,
-    Assets* assets,
+    AssetsLoader*,
     const ResPaths* paths,
     const std::string file,
     const std::string name,

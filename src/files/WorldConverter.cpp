@@ -92,6 +92,12 @@ void WorldConverter::write() {
     wfile->write(nullptr, content);
 }
 
+void WorldConverter::waitForEnd() {
+    while (isActive()) {
+        update();
+    }
+}
+
 uint WorldConverter::getWorkRemaining() const {
     return tasks.size();
 }

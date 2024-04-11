@@ -123,6 +123,8 @@ public:
     /// @brief Enqueue function call to the end of current frame in draw thread
     void postRunnable(runnable callback);
 
+    void saveScreenshot();
+
     PacksManager createPacksManager(const fs::path& worldFolder);
 
     SettingsHandler& getSettingsHandler();

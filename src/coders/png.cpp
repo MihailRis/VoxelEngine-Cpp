@@ -340,7 +340,7 @@ ImageData* _png_load(const char* file){
 }
 #endif
 
-ImageData* png::load_image(std::string filename) {
+ImageData* png::load_image(const std::string& filename) {
 	ImageData* image (_png_load(filename.c_str()));
 	if (image == nullptr) {
 		throw std::runtime_error("could not load image "+filename);
@@ -348,13 +348,13 @@ ImageData* png::load_image(std::string filename) {
     return image;
 }
 
-Texture* png::load_texture(std::string filename) {
+Texture* png::load_texture(const std::string& filename) {
 	std::unique_ptr<ImageData> image (load_image(filename));
 	auto texture = Texture::from(image.get());
     texture->setNearestFilter();
     return texture;
 }
 
-void png::write_image(std::string filename, const ImageData* image) {
+void png::write_image(const std::string& filename, const ImageData* image) {
     _png_write(filename.c_str(), image->getWidth(), image->getHeight(), (const ubyte*)image->getData(), image->getFormat() == ImageFormat::rgba8888);
 }

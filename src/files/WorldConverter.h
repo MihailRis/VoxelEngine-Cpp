@@ -58,6 +58,11 @@ public:
         tasks = {};
     }
 
+    bool isActive() const override {
+        return !tasks.empty();
+    }
+
+    void waitForEnd() override;
     void write();
 
     uint getWorkRemaining() const override;

@@ -6,6 +6,8 @@
 #include <iostream>
 #include <memory>
 
+#include "../util/ThreadPool.h"
+
 #include "../constants.h"
 #include "../data/dynamic.h"
 #include "../debug/Logger.h"
@@ -21,37 +23,42 @@ static debug::Logger logger("assets-loader");
 AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths) 
   : assets(assets), paths(paths) 
 {
-	addLoader(AssetType::shader, assetload::shader);
-	addLoader(AssetType::texture, assetload::texture);
-	addLoader(AssetType::font, assetload::font);
-	addLoader(AssetType::atlas, assetload::atlas);
+    addLoader(AssetType::shader, assetload::shader);
+    addLoader(AssetType::texture, assetload::texture);
+    addLoader(AssetType::font, assetload::font);
+    addLoader(AssetType::atlas, assetload::atlas);
     addLoader(AssetType::layout, assetload::layout);
     addLoader(AssetType::sound, assetload::sound);
 }
 
 void AssetsLoader::addLoader(AssetType tag, aloader_func func) {
-	loaders[tag] = func;
+    loaders[tag] = func;
 }
 
 void AssetsLoader::add(AssetType tag, const std::string filename, const std::string alias, std::shared_ptr<AssetCfg> settings) {
-	entries.push(aloader_entry{tag, filename, alias, settings});
+    entries.push(aloader_entry{tag, filename, alias, settings});
 }
 
 bool AssetsLoader::hasNext() const {
-	return !entries.empty();
+    return !entries.empty();
+}
+
+aloader_func AssetsLoader::getLoader(AssetType tag) {
+    auto found = loaders.find(tag);
+    if (found == loaders.end()) {
+        throw std::runtime_error(
+            "unknown asset tag "+std::to_string(static_cast<int>(tag))
+        );
+    }
+    return found->second;
 }
 
 bool AssetsLoader::loadNext() {
-	const aloader_entry& entry = entries.front();
-	logger.info() << "loading " << entry.filename << " as " << entry.alias;
-	auto found = loaders.find(entry.tag);
-	if (found == loaders.end()) {
-		logger.error() << "unknown asset tag " << static_cast<int>(entry.tag);
-		return false;
-	}
-	aloader_func loader = found->second;
+    const aloader_entry& entry = entries.front();
+    logger.info() << "loading " << entry.filename << " as " << entry.alias;
     try {
-    	auto postfunc = loader(*this, assets, paths, entry.filename, entry.alias, entry.config);
+        aloader_func loader = getLoader(entry.tag);
+        auto postfunc = loader(this, paths, entry.filename, entry.alias, entry.config);
         postfunc(assets);
         entries.pop();
         return true;
@@ -198,5 +205,37 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
 }
 
 const ResPaths* AssetsLoader::getPaths() const {
-	return paths;
+    return paths;
+}
+
+class LoaderWorker : public util::Worker<std::shared_ptr<aloader_entry>, assetload::postfunc> {
+    AssetsLoader* loader;
+public:
+    LoaderWorker(AssetsLoader* loader) : loader(loader) {
+    }
+
+    assetload::postfunc operator()(const std::shared_ptr<aloader_entry>& entry) override {
+        aloader_func loadfunc = loader->getLoader(entry->tag);
+        return loadfunc(loader, loader->getPaths(), entry->filename, entry->alias, entry->config);
+    }
+};
+
+std::shared_ptr<Task> AssetsLoader::startTask(runnable onDone) {
+    auto pool = std::make_shared<
+        util::ThreadPool<std::shared_ptr<aloader_entry>, assetload::postfunc>
+    >(
+        "assets-loader-pool", 
+        [=](){return std::make_shared<LoaderWorker>(this);},
+        [=](assetload::postfunc& func) {
+            func(assets);
+        }
+    );
+    pool->setOnComplete(onDone);
+    while (!entries.empty()) {
+        const aloader_entry& entry = entries.front();
+        auto ptr = std::make_shared<aloader_entry>(entry);
+        pool->enqueueJob(ptr);
+        entries.pop();
+    }
+    return pool;
 }
