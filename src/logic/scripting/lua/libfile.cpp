@@ -100,6 +100,28 @@ static int l_file_read_bytes(lua_State* L) {
     return luaL_error(L, "file does not exists '%s'", path.u8string().c_str());   
 }
 
+static int read_bytes_from_table(lua_State* L, int tableIndex, std::vector<ubyte>& bytes) {
+    if(!lua_istable(L, tableIndex)) {
+        return luaL_error(L, "table expected");
+    } else {
+        lua_pushnil(L);
+
+        while(lua_next(L, tableIndex - 1) != 0) {
+            const int byte = lua_tointeger(L, -1);
+
+            if(byte < 0 || byte > 255) {
+                return luaL_error(L, "invalid byte '%i'", byte);
+            }
+
+            bytes.push_back(byte);
+                
+            lua_pop(L, 1);
+        }
+
+        return 1;
+    }
+}
+
 static int l_file_write_bytes(lua_State* L) {
     int pathIndex = 1;
 
@@ -111,38 +133,12 @@ static int l_file_write_bytes(lua_State* L) {
 
     std::vector<ubyte> bytes;
 
-    size_t len = lua_objlen(L, 2);
+    int result = read_bytes_from_table(L, -1, bytes);
 
-    int bytesIndex = -1;
-
-    if(!lua_istable(L, bytesIndex)) {
-        return luaL_error(L, "table expected");
+    if(result != 1) {
+        return result;
     } else {
-        lua_pushnil(L);
-
-        bytesIndex--;
-
-        size_t i = 1;
-
-        while(lua_next(L, bytesIndex) != 0) {
-            if(i >= len) {
-                break;
-            }
-
-            const int byte = lua_tointeger(L, -1);
-
-            if(byte < 0 || byte > 255) {
-                return luaL_error(L, "byte '%i' at index '%i' is less than 0 or greater than 255", byte, i);
-            }
-
-            bytes.push_back(byte);
-                
-            lua_pop(L, 1);
-
-            i++;
-        }
-
-        lua_pushboolean(L, files::write_bytes(path, &bytes[0], len));
+        lua_pushboolean(L, files::write_bytes(path, bytes.data(), bytes.size()));
         return 1;
     }
 }
