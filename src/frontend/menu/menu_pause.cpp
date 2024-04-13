@@ -118,27 +118,6 @@ static void reopen_world(Engine* engine, World* world) {
     menus::open_world(wname, engine, true);
 }
 
-// FIXME: dependency levels
-static bool try_add_dependency(Engine* engine, World* world, const ContentPack& pack, std::string& missing) {
-    auto paths = engine->getPaths();
-    for (const auto& dependency : pack.dependencies) {
-        fs::path folder = ContentPack::findPack(
-            paths, 
-            world->wfile->directory, 
-            dependency.id
-        );
-        if (!fs::is_directory(folder)) {
-            missing = dependency.id;
-            return true;
-        }
-        if (!world->hasPack(dependency.id)) {
-            world->wfile->addPack(world, dependency.id);
-        }
-    }
-    world->wfile->addPack(world, pack.id);
-    return false;
-}
-
 void menus::remove_packs(
     Engine* engine,
     LevelController* controller,
@@ -161,9 +140,16 @@ void menus::remove_packs(
 
     runnable removeFunc = [=]() {
         controller->saveWorld();
+        auto manager = engine->createPacksManager(world->wfile->directory);;
+        manager.scan();
+
+        auto names = PacksManager::getNames(world->getPacks());
         for (const auto& id : packsToRemove) {
-            world->wfile->removePack(world, id);
+            manager.exclude(id);
+            names.erase(std::find(names.begin(), names.end(), id));
         }
+        world->wfile->removeIndices(packsToRemove);
+        world->wfile->writePacks(manager.getAll(names));
         reopen_world(engine, world);
     };
 
@@ -210,15 +196,21 @@ void create_content_panel(Engine* engine, LevelController* controller) {
         auto panel = menus::create_packs_panel(scanned, engine, true, 
         [=](const ContentPack& pack) {
             auto world = level->getWorld();
-            std::string missing;
-            if (try_add_dependency(engine, world, pack, missing)) {
+            auto new_packs = PacksManager::getNames(world->getPacks());
+            new_packs.push_back(pack.id);
+
+            auto manager = engine->createPacksManager(world->wfile->directory);
+            manager.scan();
+            try {
+                new_packs = manager.assembly(new_packs);
+            } catch (const contentpack_error& err) {
                 guiutil::alert(
                     gui, langs::get(L"error.dependency-not-found")+
-                    L": "+util::str2wstr_utf8(missing)
+                    L": "+util::str2wstr_utf8(err.getPackId())
                 );
                 return;
             }
-            world->wfile->addPack(world, pack.id);
+            world->wfile->writePacks(manager.getAll(new_packs));
             controller->saveWorld();
             reopen_world(engine, world);
         }, nullptr);

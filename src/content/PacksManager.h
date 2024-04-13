@@ -22,6 +22,9 @@ public:
     /// Scanning order depends on sources order
     void scan();
 
+    /// @brief Remove pack from manager to make it invisible for assembly(...)
+    void exclude(const std::string& id);
+
     /// @brief Get all found packs
     std::vector<std::string> getAllNames() const;
 
@@ -36,6 +39,9 @@ public:
     /// @throws contentpack_error if required dependency not found or
     /// circular dependency detected
     std::vector<std::string> assembly(const std::vector<std::string>& names) const;
+
+    /// @brief Collect all pack names (identifiers) into a new vector
+    static std::vector<std::string> getNames(const std::vector<ContentPack>& packs);
 };
 
 #endif // CONTENT_PACKS_MANAGER_H_

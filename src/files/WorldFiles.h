@@ -1,7 +1,14 @@
 #ifndef FILES_WORLDFILES_H_
 #define FILES_WORLDFILES_H_
 
+#include "files.h"
+#include "../typedefs.h"
+#include "../settings.h"
+#include "../content/ContentPack.h"
+#include "../voxels/Chunk.h"
+
 #include <map>
+#include <vector>
 #include <string>
 #include <memory>
 #include <unordered_map>
@@ -10,12 +17,6 @@
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/hash.hpp"
-
-#include "files.h"
-#include "../typedefs.h"
-#include "../settings.h"
-
-#include "../voxels/Chunk.h"
 
 inline constexpr uint REGION_HEADER_SIZE = 10;
 
@@ -146,19 +147,10 @@ public:
     /// @param content world content
     void write(const World* world, const Content* content);
 
-    void writePacks(const World* world);
+    void writePacks(const std::vector<ContentPack>& packs);
     void writeIndices(const ContentIndices* indices);
 
-    /// @brief Append pack to the packs list without duplicate check and
-    /// dependencies resolve
-    /// @param world target world
-    /// @param id pack id
-    void addPack(const World* world, const std::string& id);
-    
-    /// @brief Remove pack from the list (does not remove indices)
-    /// @param world target world
-    /// @param id pack id
-    void removePack(const World* world, const std::string& id);
+    void removeIndices(const std::vector<std::string>& packs);
 
     static const inline std::string WORLD_FILE = "world.json";
 };

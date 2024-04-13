@@ -24,6 +24,10 @@ void PacksManager::scan() {
     }
 }
 
+void PacksManager::exclude(const std::string& id) {
+    packs.erase(id);
+}
+
 std::vector<std::string> PacksManager::getAllNames() const {
     std::vector<std::string> names;
     for (auto& entry : packs) {
@@ -82,7 +86,7 @@ static bool resolve_dependencies (
         auto found = packs.find(dep.id);
         bool exists = found != packs.end();
         if (!exists && dep.level == DependencyLevel::required) {
-            throw contentpack_error(pack->id, pack->folder, "missing dependency '"+dep.id+"'");
+            throw contentpack_error(dep.id, fs::path(), "dependency of '"+pack->id+"'");
         }
         if (!exists) {
             // ignored for optional or weak dependencies
@@ -143,4 +147,12 @@ std::vector<std::string> PacksManager::assembly(const std::vector<std::string>& 
         resolveWeaks = true;
     }
     return added;
+}
+
+std::vector<std::string> PacksManager::getNames(const std::vector<ContentPack>& packs) {
+    std::vector<std::string> result;
+    for (const auto& pack : packs) {
+        result.push_back(pack.id);
+    }
+    return result;
 }
