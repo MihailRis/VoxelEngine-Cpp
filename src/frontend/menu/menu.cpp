@@ -168,33 +168,6 @@ void show_convert_request(
     }, L"", langs::get(L"Cancel"));
 }
 
-void create_languages_panel(Engine* engine) {
-    auto menu = engine->getGUI()->getMenu();
-    auto panel = menus::create_page(engine, "languages", 400, 0.5f, 1);
-    panel->setScrollable(true);
-
-    std::vector<std::string> locales;
-    for (auto& entry : langs::locales_info) {
-        locales.push_back(entry.first);
-    }
-    std::sort(locales.begin(), locales.end());
-    for (std::string& name : locales) {
-        auto& locale = langs::locales_info.at(name);
-        std::string& fullName = locale.name;
-
-        auto button = std::make_shared<Button>(
-            util::str2wstr_utf8(fullName), 
-            glm::vec4(10.f),
-            [=](GUI*) {
-                engine->setLanguage(name);
-                menu->back();
-            }
-        );
-        panel->add(button);
-    }
-    panel->add(guiutil::backButton(menu));
-}
-
 void menus::open_world(std::string name, Engine* engine, bool confirmConvert) {
     auto paths = engine->getPaths();
     auto folder = paths->getWorldsFolder()/fs::u8path(name);
@@ -239,7 +212,7 @@ void menus::open_world(std::string name, Engine* engine, bool confirmConvert) {
     } else {
         try {
             Level* level = World::load(folder, settings, content, packs);
-            level->world->wfile->createDirectories();
+            level->getWorld()->wfile->createDirectories();
             engine->setScreen(std::make_shared<LevelScreen>(engine, level));
         } catch (const world_load_error& error) {
             guiutil::alert(
@@ -277,7 +250,7 @@ void menus::create_menus(Engine* engine) {
     menus::generatorID = WorldGenerators::getDefaultGeneratorID();
     create_new_world_panel(engine);
     create_settings_panel(engine);
-    create_languages_panel(engine);
+    add_page_loader(engine, "languages");
     create_world_generators_panel(engine);
     add_page_loader(engine, "main");
     load_page(engine, "404");

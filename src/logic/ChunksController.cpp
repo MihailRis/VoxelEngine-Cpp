@@ -118,7 +118,7 @@ void ChunksController::createChunk(int x, int z) {
 	if (!chunk->isLoaded()) {
 		generator->generate(
             chunk->voxels, x, z, 
-            level->world->getSeed()
+            level->getWorld()->getSeed()
         );
 		chunk->setUnsaved(true);
 	}

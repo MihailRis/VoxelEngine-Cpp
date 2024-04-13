@@ -174,7 +174,7 @@ void LevelScreen::update(float delta) {
     }
 
     if (!hud->isPause()) {
-        controller->getLevel()->world->updateTimers(delta);
+        controller->getLevel()->getWorld()->updateTimers(delta);
         animator->update(delta);
     }
     controller->update(delta, !inputLocked, hud->isPause());

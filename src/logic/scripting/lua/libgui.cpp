@@ -362,6 +362,32 @@ static int l_gui_reindex(lua_State* L) {
     return 0;
 }
 
+/// @brief gui.get_locales_info() -> table of tables 
+static int l_gui_get_locales_info(lua_State* L) {
+    auto& locales = langs::locales_info;
+    lua_createtable(L, 0, locales.size());
+    for (auto& entry : locales) {
+        lua_createtable(L, 0, 1);
+        lua_pushstring(L, entry.second.name.c_str());
+        lua_setfield(L, -2, "name");
+        lua_setfield(L, -2, entry.first.c_str());
+    }
+    return 1;
+}
+
+/// @brief gui.get_locale() -> string 
+static int l_gui_get_locale(lua_State* L) {
+    lua_pushstring(L, langs::current->getId().c_str());
+    return 1;
+}
+
+/// @brief gui.set_locale(locale: string) -> nil
+static int l_gui_set_locale(lua_State* L) {
+    auto locale = lua_tostring(L, 1);
+    scripting::engine->setLanguage(locale);
+    return 0;
+}
+
 const luaL_Reg guilib [] = {
     {"get_viewport", lua_wrap_errors<l_gui_getviewport>},
     {"getattr", lua_wrap_errors<l_gui_getattr>},
@@ -369,5 +395,8 @@ const luaL_Reg guilib [] = {
     {"get_env", lua_wrap_errors<l_gui_get_env>},
     {"str", lua_wrap_errors<l_gui_str>},
     {"reindex", lua_wrap_errors<l_gui_reindex>},
+    {"get_locale", lua_wrap_errors<l_gui_get_locale>},
+    {"set_locale", lua_wrap_errors<l_gui_set_locale>},
+    {"get_locales_info", lua_wrap_errors<l_gui_get_locales_info>},
     {NULL, NULL}
 };

@@ -91,7 +91,7 @@ assetload::postfunc assetload::atlas(
 ) {
     AtlasBuilder builder;
     for (const auto& file : paths->listdir(directory)) {
-        if (fs::is_directory(file))
+        if (!imageio::is_read_supported(file.extension()))
             continue;
         if (!appendAtlas(builder, file))
             continue;
@@ -141,7 +141,7 @@ assetload::postfunc assetload::layout(
 ) {
     return [=](auto assets) {
         try {
-            auto cfg = dynamic_cast<LayoutCfg*>(config.get());
+            auto cfg = std::dynamic_pointer_cast<LayoutCfg>(config);
             auto document = UiDocument::read(cfg->env, name, file);
             assets->store(document.release(), name);
         } catch (const parsing_error& err) {
@@ -158,7 +158,7 @@ assetload::postfunc assetload::sound(
     const std::string name,
     std::shared_ptr<AssetCfg> config
 ) {
-    auto cfg = dynamic_cast<SoundCfg*>(config.get());
+    auto cfg = std::dynamic_pointer_cast<SoundCfg>(config);
     bool keepPCM = cfg ? cfg->keepPCM : false;
 
     std::string extension = ".ogg";

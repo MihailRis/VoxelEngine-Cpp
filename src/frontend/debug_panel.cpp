@@ -78,7 +78,7 @@ std::shared_ptr<UINode> create_debug_panel(
                L" "+stream.str();
     }));
     panel->add(create_label([=](){
-        return L"seed: "+std::to_wstring(level->world->getSeed());
+        return L"seed: "+std::to_wstring(level->getWorld()->getSeed());
     }));
 
     for (int ax = 0; ax < 3; ax++) {
@@ -118,7 +118,7 @@ std::shared_ptr<UINode> create_debug_panel(
     }
     panel->add(create_label([=](){
         int hour, minute, second;
-        timeutil::from_value(level->world->daytime, hour, minute, second);
+        timeutil::from_value(level->getWorld()->daytime, hour, minute, second);
 
         std::wstring timeString = 
                      util::lfill(std::to_wstring(hour), 2, L'0') + L":" +
@@ -127,8 +127,8 @@ std::shared_ptr<UINode> create_debug_panel(
     }));
     {
         auto bar = std::make_shared<TrackBar>(0.0f, 1.0f, 1.0f, 0.005f, 8);
-        bar->setSupplier([=]() {return level->world->daytime;});
-        bar->setConsumer([=](double val) {level->world->daytime = val;});
+        bar->setSupplier([=]() {return level->getWorld()->daytime;});
+        bar->setConsumer([=](double val) {level->getWorld()->daytime = val;});
         panel->add(bar);
     }
     {

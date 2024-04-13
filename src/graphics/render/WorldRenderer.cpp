@@ -159,7 +159,7 @@ void WorldRenderer::renderLevel(
     shader->uniform1f("u_gamma", settings.graphics.gamma);
     shader->uniform1f("u_fogFactor", fogFactor);
     shader->uniform1f("u_fogCurve", settings.graphics.fogCurve);
-    shader->uniform1f("u_dayTime", level->world->daytime);
+    shader->uniform1f("u_dayTime", level->getWorld()->daytime);
     shader->uniform3f("u_cameraPos", camera->position);
     shader->uniform1i("u_cubemap", 1);
 
@@ -267,7 +267,7 @@ void WorldRenderer::renderDebugLines(
 
 void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible){
     EngineSettings& settings = engine->getSettings();
-    skybox->refresh(pctx, level->world->daytime, 1.0f+fog*2.0f, 4);
+    skybox->refresh(pctx, level->getWorld()->daytime, 1.0f+fog*2.0f, 4);
 
     Assets* assets = engine->getAssets();
     Shader* linesShader = assets->getShader("lines");
@@ -303,7 +303,7 @@ void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible
     auto screenShader = assets->getShader("screen");
     screenShader->use();
     screenShader->uniform1f("u_timer", Window::time());
-    screenShader->uniform1f("u_dayTime", level->world->daytime);
+    screenShader->uniform1f("u_dayTime", level->getWorld()->daytime);
     postProcessing->render(pctx, screenShader);
 }
 

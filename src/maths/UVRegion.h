@@ -1,8 +1,7 @@
 #ifndef MATHS_UVREGION_H_
 #define MATHS_UVREGION_H_
 
-class UVRegion {
-public:
+struct UVRegion {
 	float u1;
 	float v1;
 	float u2;

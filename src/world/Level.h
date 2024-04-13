@@ -24,8 +24,8 @@ class ChunksStorage;
 
 /// @brief A level, contains chunks and objects
 class Level {
-public:
     std::unique_ptr<World> world;
+public:
     const Content* const content;
     std::vector<std::shared_ptr<Object>> objects;
     std::unique_ptr<Chunks> chunks;
