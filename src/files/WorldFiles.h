@@ -117,6 +117,7 @@ class WorldFiles {
     /// @param dstlen max expected length of source buffer
     /// @return decompressed bytes array
     std::unique_ptr<ubyte[]> decompress(const ubyte* src, size_t srclen, size_t dstlen);
+    
     std::unique_ptr<ubyte[]> readChunkData(int x, int y, uint32_t& length, regfile* file);
 
     void fetchChunks(WorldRegion* region, int x, int y, regfile* file);

@@ -598,9 +598,10 @@ void WorldFiles::processRegionVoxels(int x, int z, regionproc func) {
             int gx = cx + x * REGION_SIZE;
             int gz = cz + z * REGION_SIZE;
             uint32_t length;
-            std::unique_ptr<ubyte[]> data (readChunkData(gx, gz, length, regfile.get()));
+            auto data = readChunkData(gx, gz, length, regfile.get());
             if (data == nullptr)
                 continue;
+            data = decompress(data.get(), length, CHUNK_DATA_LEN);
             if (func(data.get())) {
                 put(gx, gz, REGION_LAYER_VOXELS, std::move(data), CHUNK_DATA_LEN, true);
             }
