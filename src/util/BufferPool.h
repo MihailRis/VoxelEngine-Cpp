@@ -9,6 +9,8 @@
 #include <memory>
 
 namespace util {
+    /// @brief Thread-safe pool of same-sized buffers
+    /// @tparam T array type
     template<class T>
     class BufferPool {
         std::vector<std::unique_ptr<T[]>> buffers;
@@ -19,6 +21,8 @@ namespace util {
         BufferPool(size_t bufferSize) : bufferSize(bufferSize) {
         }
 
+        /// @brief Retrieve a buffer for use
+        /// @return pointer that brings buffer back to the pool when destroyed
         std::shared_ptr<T[]> get() {
             std::lock_guard lock(mutex);
             if (freeBuffers.empty()) {
@@ -28,6 +32,7 @@ namespace util {
             auto* buffer = freeBuffers.front();
             freeBuffers.pop();
             return std::shared_ptr<T[]>(buffer, [this](T* ptr) {
+                std::lock_guard lock(mutex);
                 freeBuffers.push(ptr);
             });
         }
