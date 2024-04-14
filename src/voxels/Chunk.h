@@ -87,7 +87,7 @@ public:
 
 	inline void setReady(bool newState) {setFlags(ChunkFlag::READY, newState);}
 
-	ubyte* encode() const;
+	std::unique_ptr<ubyte[]> encode() const;
 
     /**
      * @return true if all is fine

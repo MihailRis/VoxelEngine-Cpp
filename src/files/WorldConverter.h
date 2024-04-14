@@ -25,7 +25,7 @@ struct convert_task {
 };
 
 class WorldConverter : public Task {
-    WorldFiles* wfile;
+    std::unique_ptr<WorldFiles> wfile;
     std::shared_ptr<ContentLUT> const lut;
     const Content* const content;
     std::queue<convert_task> tasks;

@@ -73,12 +73,22 @@ struct regfile {
     regfile(fs::path filename);
 };
 
-typedef std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>> regionsmap;
+using regionsmap = std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>>;
+using regionproc = std::function<bool(ubyte*)>;
+
+struct RegionsLayer {
+    int layer;
+    fs::path folder;
+    regionsmap regions;
+    std::mutex mutex;
+};
 
 class WorldFiles {
     std::unordered_map<glm::ivec3, std::unique_ptr<regfile>> openRegFiles;
     std::mutex regFilesMutex;
     std::condition_variable regFilesCv;
+
+    RegionsLayer layers[3] {};
 
     void writeWorldInfo(const World* world);
     fs::path getRegionFilename(int x, int y) const;
@@ -86,46 +96,39 @@ class WorldFiles {
     fs::path getIndicesFile() const;
     fs::path getPacksFile() const;
     
-    WorldRegion* getRegion(regionsmap& regions, int x, int z);
-    WorldRegion* getOrCreateRegion(regionsmap& regions, int x, int z);
+    WorldRegion* getRegion(int x, int z, int layer);
+    WorldRegion* getOrCreateRegion(int x, int z, int layer);
 
     /// @brief Compress buffer with extrle
     /// @param src source buffer
     /// @param srclen length of the source buffer
     /// @param len (out argument) length of result buffer
     /// @return compressed bytes array
-    ubyte* compress(const ubyte* src, size_t srclen, size_t& len);
+    std::unique_ptr<ubyte[]> compress(const ubyte* src, size_t srclen, size_t& len);
 
     /// @brief Decompress buffer with extrle
     /// @param src compressed buffer
     /// @param srclen length of compressed buffer
     /// @param dstlen max expected length of source buffer
     /// @return decompressed bytes array
-    ubyte* decompress(const ubyte* src, size_t srclen, size_t dstlen);
+    std::unique_ptr<ubyte[]> decompress(const ubyte* src, size_t srclen, size_t dstlen);
 
     ubyte* readChunkData(int x, int y, uint32_t& length, regfile* file);
 
     void fetchChunks(WorldRegion* region, int x, int y, regfile* file);
 
-    void writeRegions(regionsmap& regions, const fs::path& folder, int layer);
+    void writeRegions(int layer);
 
-    ubyte* getData(regionsmap& regions, const fs::path& folder, int x, int z, int layer, bool compression);
+    ubyte* getData(int x, int z, int layer, uint32_t& size);
     
-    std::shared_ptr<regfile> getRegFile(glm::ivec3 coord, const fs::path& folder);
+    std::shared_ptr<regfile> getRegFile(glm::ivec3 coord);
     void closeRegFile(glm::ivec3 coord);
     std::shared_ptr<regfile> useRegFile(glm::ivec3 coord);
-    std::shared_ptr<regfile> createRegFile(glm::ivec3 coord, const fs::path& folder);
-
-    fs::path getLightsFolder() const;
-    fs::path getInventoriesFolder() const;
+    std::shared_ptr<regfile> createRegFile(glm::ivec3 coord);
 public:
     static bool parseRegionFilename(const std::string& name, int& x, int& y);
-    fs::path getRegionsFolder() const;
     fs::path getPlayerFile() const;
 
-    regionsmap regions;
-    regionsmap storages;
-    regionsmap lights;
     fs::path directory;
     std::unique_ptr<ubyte[]> compressionBuffer;
     bool generatorTestMode;
@@ -137,15 +140,15 @@ public:
     void createDirectories();
 
     void put(Chunk* chunk);
-    void put(int x, int z, const ubyte* voxelData);
+    void put(int x, int z, int layer, std::unique_ptr<ubyte[]> data, size_t size, bool rle);
 
-    ubyte* getChunk(int x, int z);
-    light_t* getLights(int x, int z);
+    std::unique_ptr<ubyte[]> getChunk(int x, int z);
+    std::unique_ptr<light_t[]> getLights(int x, int z);
     chunk_inventories_map fetchInventories(int x, int z);
 
     bool readWorldInfo(World* world);
 
-    void writeRegion(int x, int y, WorldRegion* entry, fs::path file, int layer);
+    void writeRegion(int x, int y, int layer, WorldRegion* entry);
 
     /// @brief Write all unsaved data to world files
     /// @param world target world
@@ -157,7 +160,13 @@ public:
 
     void removeIndices(const std::vector<std::string>& packs);
 
+    void processRegionVoxels(int x, int z, regionproc func);
+
     static const inline std::string WORLD_FILE = "world.json";
+
+    fs::path getRegionsFolder(int layer) {
+        return layers[layer].folder;
+    }
 };
 
 #endif /* FILES_WORLDFILES_H_ */

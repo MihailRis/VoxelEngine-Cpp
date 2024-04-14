@@ -92,8 +92,8 @@ std::unique_ptr<Chunk> Chunk::clone() const {
 
     Total size: (CHUNK_VOL * 4) bytes
 */
-ubyte* Chunk::encode() const {
-	ubyte* buffer = new ubyte[CHUNK_DATA_LEN];
+std::unique_ptr<ubyte[]> Chunk::encode() const {
+	auto buffer = std::make_unique<ubyte[]>(CHUNK_DATA_LEN);
 	for (uint i = 0; i < CHUNK_VOL; i++) {
 		buffer[i] = voxels[i].id >> 8;
         buffer[CHUNK_VOL+i] = voxels[i].id & 0xFF;

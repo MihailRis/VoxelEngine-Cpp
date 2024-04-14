@@ -4,6 +4,8 @@
 #include "../constants.h"
 #include "../typedefs.h"
 
+#include <memory>
+
 inline constexpr int LIGHTMAP_DATA_LEN = CHUNK_VOL/2;
 
 // Lichtkarte
@@ -81,8 +83,8 @@ public:
         return (light >> (channel << 2)) & 0xF;
     }
 
-    ubyte* encode() const;
-    static light_t* decode(ubyte* buffer);
+    std::unique_ptr<ubyte[]> encode() const;
+    static std::unique_ptr<light_t[]> decode(ubyte* buffer);
 };
 
 #endif /* LIGHTING_LIGHTMAP_H_ */
