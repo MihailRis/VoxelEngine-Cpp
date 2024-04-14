@@ -12,6 +12,7 @@
 #include "../physics/Hitbox.h"
 #include "../util/stringutil.h"
 #include "../voxels/Block.h"
+#include "../voxels/Chunk.h"
 #include "../voxels/Chunks.h"
 #include "../world/Level.h"
 #include "../world/World.h"

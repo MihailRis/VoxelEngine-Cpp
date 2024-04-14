@@ -54,6 +54,8 @@ namespace util {
 
     extern std::vector<std::string> split(const std::string& str, char delimiter);
     extern std::vector<std::wstring> split(const std::wstring& str, char delimiter);
+
+    extern std::string format_data_size(size_t size);
 }
 
 #endif // UTIL_STRINGUTIL_H_

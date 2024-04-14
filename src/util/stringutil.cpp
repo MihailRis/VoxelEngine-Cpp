@@ -1,5 +1,6 @@
 #include "stringutil.h"
 
+#include <cmath>
 #include <vector>
 #include <locale>
 #include <iomanip>
@@ -423,4 +424,23 @@ std::vector<std::wstring> util::split(const std::wstring& str, char delimiter) {
         result.push_back(L"");
     }
     return result;
+}
+
+std::string util::format_data_size(size_t size) {
+    if (size < 1024) {
+        return std::to_string(size)+" B";
+    }
+    const std::string postfixes[] {
+        " B", " KiB", " MiB", " GiB", " TiB", " EiB", " PiB"
+    };
+    int group = 0;
+    size_t remainder;
+    while (size >= 1024) {
+        group++;
+        remainder = size % 1024;
+        size /= 1024;
+    }
+    return std::to_string(size)+"."+
+           std::to_string(static_cast<int>(round(remainder/1024.0f)))+
+           postfixes[group];
 }
