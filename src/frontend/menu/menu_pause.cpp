@@ -140,7 +140,7 @@ void menus::remove_packs(
 
     runnable removeFunc = [=]() {
         controller->saveWorld();
-        auto manager = engine->createPacksManager(world->wfile->directory);;
+        auto manager = engine->createPacksManager(world->wfile->directory);
         manager.scan();
 
         auto names = PacksManager::getNames(world->getPacks());

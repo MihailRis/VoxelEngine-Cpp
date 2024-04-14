@@ -318,7 +318,10 @@ ubyte* WorldFiles::getData(
     ubyte* data = region->getChunkData(localX, localZ);
     if (data == nullptr) {
         uint32_t size;
-        data = readChunkData(x, z, size, folder, layer);
+        auto regfile = getRegFile(glm::ivec3(regionX, regionZ, layer), folder);
+        if (regfile != nullptr) {
+            data = readChunkData(x, z, size, regfile.get());
+        }
         if (data != nullptr) {
             region->put(localX, localZ, data, size);
         }
@@ -397,8 +400,7 @@ ubyte* WorldFiles::readChunkData(
     int x, 
     int z, 
     uint32_t& length, 
-    fs::path folder, 
-    int layer
+    regfile* rfile
 ){
     if (generatorTestMode)
         return nullptr;
@@ -406,12 +408,7 @@ ubyte* WorldFiles::readChunkData(
     int regionX, regionZ, localX, localZ;
     calc_reg_coords(x, z, regionX, regionZ, localX, localZ);
     int chunkIndex = localZ * REGION_SIZE + localX;
- 
-    glm::ivec3 coord(regionX, regionZ, layer);
-    auto rfile = getRegFile(coord, folder);
-    if (rfile == nullptr) {
-        return nullptr;
-    }
+
     files::rafile& file = rfile->file;
 
     size_t file_size = file.length();
@@ -434,9 +431,7 @@ ubyte* WorldFiles::readChunkData(
 }
 
 /// @brief Read missing chunks data (null pointers) from region file 
-/// @param layer used as third part of openRegFiles map key 
-/// (see REGION_LAYER_* constants)
-void WorldFiles::fetchChunks(WorldRegion* region, int x, int z, fs::path folder, int layer) {
+void WorldFiles::fetchChunks(WorldRegion* region, int x, int z, regfile* file) {
     ubyte** chunks = region->getChunks();
     uint32_t* sizes = region->getSizes();
 
@@ -444,7 +439,7 @@ void WorldFiles::fetchChunks(WorldRegion* region, int x, int z, fs::path folder,
         int chunk_x = (i % REGION_SIZE) + x * REGION_SIZE;
         int chunk_z = (i / REGION_SIZE) + z * REGION_SIZE;
         if (chunks[i] == nullptr) {
-            chunks[i] = readChunkData(chunk_x, chunk_z, sizes[i], folder, layer);
+            chunks[i] = readChunkData(chunk_x, chunk_z, sizes[i], file);
         }
     }
 }
@@ -458,12 +453,11 @@ void WorldFiles::writeRegion(int x, int z, WorldRegion* entry, fs::path folder, 
     fs::path filename = folder/getRegionFilename(x, z);
 
     glm::ivec3 regcoord(x, z, layer);
-    if (getRegFile(regcoord, folder)) {
-        fetchChunks(entry, x, z, folder, layer);
-        {
-            std::lock_guard lock(regFilesMutex);
-            closeRegFile(regcoord);
-        }
+    if (auto regfile = getRegFile(regcoord, folder)) {
+        fetchChunks(entry, x, z, regfile.get());
+
+        std::lock_guard lock(regFilesMutex);
+        closeRegFile(regcoord);
     }
     
     char header[REGION_HEADER_SIZE] = REGION_FORMAT_MAGIC;

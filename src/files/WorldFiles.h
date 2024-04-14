@@ -103,9 +103,9 @@ class WorldFiles {
     /// @return decompressed bytes array
     ubyte* decompress(const ubyte* src, size_t srclen, size_t dstlen);
 
-    ubyte* readChunkData(int x, int y, uint32_t& length, fs::path folder, int layer);
+    ubyte* readChunkData(int x, int y, uint32_t& length, regfile* file);
 
-    void fetchChunks(WorldRegion* region, int x, int y, fs::path folder, int layer);
+    void fetchChunks(WorldRegion* region, int x, int y, regfile* file);
 
     void writeRegions(regionsmap& regions, const fs::path& folder, int layer);
 
