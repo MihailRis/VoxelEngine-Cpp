@@ -2,6 +2,7 @@
 
 #include "../coders/byte_utils.h"
 #include "../coders/json.h"
+#include "../coders/rle.h"
 #include "../constants.h"
 #include "../content/Content.h"
 #include "../core_defs.h"
@@ -19,7 +20,6 @@
 #include "../voxels/voxel.h"
 #include "../window/Camera.h"
 #include "../world/World.h"
-#include "rle.h"
 
 #include <cassert>
 #include <iostream>
