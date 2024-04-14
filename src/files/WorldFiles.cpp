@@ -1,27 +1,25 @@
 #include "WorldFiles.h"
 
-#include "rle.h"
-#include "../window/Camera.h"
-#include "../content/Content.h"
-#include "../objects/Player.h"
-#include "../physics/Hitbox.h"
-#include "../voxels/voxel.h"
-#include "../voxels/Block.h"
-#include "../voxels/Chunk.h"
-#include "../typedefs.h"
-#include "../maths/voxmaths.h"
-#include "../world/World.h"
-#include "../lighting/Lightmap.h"
-
 #include "../coders/byte_utils.h"
-#include "../util/data_io.h"
 #include "../coders/json.h"
 #include "../constants.h"
-#include "../items/ItemDef.h"
-#include "../items/Inventory.h"
-
-#include "../data/dynamic.h"
+#include "../content/Content.h"
 #include "../core_defs.h"
+#include "../data/dynamic.h"
+#include "../items/Inventory.h"
+#include "../items/ItemDef.h"
+#include "../lighting/Lightmap.h"
+#include "../maths/voxmaths.h"
+#include "../objects/Player.h"
+#include "../physics/Hitbox.h"
+#include "../typedefs.h"
+#include "../util/data_io.h"
+#include "../voxels/Block.h"
+#include "../voxels/Chunk.h"
+#include "../voxels/voxel.h"
+#include "../window/Camera.h"
+#include "../world/World.h"
+#include "rle.h"
 
 #include <cassert>
 #include <iostream>
@@ -48,7 +46,8 @@ regfile::regfile(fs::path filename) : file(filename) {
     version = header[8];
     if (uint(version) > REGION_FORMAT_VERSION) {
         throw illegal_region_format(
-            "region format "+std::to_string(version)+" is not supported");
+            "region format "+std::to_string(version)+" is not supported"
+        );
     }
 }
 
@@ -95,19 +94,20 @@ uint WorldRegion::getChunkDataSize(uint x, uint z) {
     return sizes[z * REGION_SIZE + x];
 }
 
-WorldFiles::WorldFiles(fs::path directory, const DebugSettings& settings) 
-  : directory(directory), 
-    generatorTestMode(settings.generatorTestMode),
-    doWriteLights(settings.doWriteLights) 
-{
-    compressionBuffer = std::make_unique<ubyte[]>(CHUNK_DATA_LEN * 2);
-    // just ignore this
+WorldFiles::WorldFiles(fs::path directory) : directory(directory) {
     for (uint i = 0; i < sizeof(layers)/sizeof(RegionsLayer); i++) {
         layers[i].layer = i;
     }
     layers[REGION_LAYER_VOXELS].folder = directory/fs::path("regions");
     layers[REGION_LAYER_LIGHTS].folder = directory/fs::path("lights");
     layers[REGION_LAYER_INVENTORIES].folder = directory/fs::path("inventories");
+}
+
+WorldFiles::WorldFiles(fs::path directory, const DebugSettings& settings) 
+  : WorldFiles(directory) 
+{
+    generatorTestMode = settings.generatorTestMode;
+    doWriteLights = settings.doWriteLights;
 }
 
 WorldFiles::~WorldFiles() {
@@ -139,12 +139,13 @@ WorldRegion* WorldFiles::getOrCreateRegion(int x, int z, int layer) {
 }
 
 std::unique_ptr<ubyte[]> WorldFiles::compress(const ubyte* src, size_t srclen, size_t& len) {
-    ubyte* buffer = this->compressionBuffer.get();
+    auto buffer = bufferPool.get();
+    ubyte* bytes = buffer.get();
     
-    len = extrle::encode(src, srclen, buffer);
+    len = extrle::encode(src, srclen, bytes);
     auto data = std::make_unique<ubyte[]>(len);
     for (size_t i = 0; i < len; i++) {
-        data[i] = buffer[i];
+        data[i] = bytes[i];
     }
     return data;
 }
@@ -164,10 +165,6 @@ inline void calc_reg_coords(
     localZ = z - (regionZ * REGION_SIZE);
 }
 
-
-/// @brief Store chunk voxels data in region 
-/// @param x chunk.x
-/// @param z chunk.z
 void WorldFiles::put(int x, int z, int layer, std::unique_ptr<ubyte[]> data, size_t size, bool rle) {
     if (rle) {
         size_t compressedSize;
@@ -318,7 +315,7 @@ ubyte* WorldFiles::getData(
     if (data == nullptr) {
         auto regfile = getRegFile(glm::ivec3(regionX, regionZ, layer));
         if (regfile != nullptr) {
-            data = readChunkData(x, z, size, regfile.get());
+            data = readChunkData(x, z, size, regfile.get()).release();
         }
         if (data != nullptr) {
             region->put(localX, localZ, data, size);
@@ -391,7 +388,7 @@ std::shared_ptr<regfile> WorldFiles::createRegFile(glm::ivec3 coord) {
     }
 }
 
-ubyte* WorldFiles::readChunkData(
+std::unique_ptr<ubyte[]> WorldFiles::readChunkData(
     int x, 
     int z, 
     uint32_t& length, 
@@ -405,7 +402,6 @@ ubyte* WorldFiles::readChunkData(
     int chunkIndex = localZ * REGION_SIZE + localX;
 
     files::rafile& file = rfile->file;
-
     size_t file_size = file.length();
     size_t table_offset = file_size - REGION_CHUNKS_COUNT * 4;
 
@@ -420,8 +416,8 @@ ubyte* WorldFiles::readChunkData(
     file.seekg(offset);
     file.read((char*)(&offset), 4);
     length = dataio::read_int32_big((const ubyte*)(&offset), 0);
-    ubyte* data = new ubyte[length]{};
-    file.read((char*)data, length);
+    auto data = std::make_unique<ubyte[]>(length);
+    file.read((char*)data.get(), length);
     return data;
 }
 
@@ -434,16 +430,11 @@ void WorldFiles::fetchChunks(WorldRegion* region, int x, int z, regfile* file) {
         int chunk_x = (i % REGION_SIZE) + x * REGION_SIZE;
         int chunk_z = (i / REGION_SIZE) + z * REGION_SIZE;
         if (chunks[i] == nullptr) {
-            chunks[i] = readChunkData(chunk_x, chunk_z, sizes[i], file);
+            chunks[i] = readChunkData(chunk_x, chunk_z, sizes[i], file).release();
         }
     }
 }
 
-/// @brief Write or rewrite region file
-/// @param x region X
-/// @param z region Z
-/// @param layer used as third part of openRegFiles map key 
-/// (see REGION_LAYER_* constants)
 void WorldFiles::writeRegion(int x, int z, int layer, WorldRegion* entry){
     fs::path filename = layers[layer].folder/getRegionFilename(x, z);
 
@@ -615,4 +606,12 @@ void WorldFiles::processRegionVoxels(int x, int z, regionproc func) {
             }
         }
     }
+}
+
+fs::path WorldFiles::getFolder() const {
+    return directory;
+}
+
+fs::path WorldFiles::getRegionsFolder(int layer) const {
+    return layers[layer].folder;
 }

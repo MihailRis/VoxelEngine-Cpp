@@ -6,6 +6,7 @@
 #include "../settings.h"
 #include "../content/ContentPack.h"
 #include "../voxels/Chunk.h"
+#include "../util/BufferPool.h"
 
 #include <map>
 #include <mutex>
@@ -84,13 +85,17 @@ struct RegionsLayer {
 };
 
 class WorldFiles {
+    fs::path directory;
     std::unordered_map<glm::ivec3, std::unique_ptr<regfile>> openRegFiles;
     std::mutex regFilesMutex;
     std::condition_variable regFilesCv;
-
     RegionsLayer layers[3] {};
+    bool generatorTestMode = false;
+    bool doWriteLights = true;
+    util::BufferPool<ubyte> bufferPool {
+        std::max(CHUNK_DATA_LEN, LIGHTMAP_DATA_LEN) * 2
+    };
 
-    void writeWorldInfo(const World* world);
     fs::path getRegionFilename(int x, int y) const;
     fs::path getWorldFile() const;
     fs::path getIndicesFile() const;
@@ -112,12 +117,13 @@ class WorldFiles {
     /// @param dstlen max expected length of source buffer
     /// @return decompressed bytes array
     std::unique_ptr<ubyte[]> decompress(const ubyte* src, size_t srclen, size_t dstlen);
-
-    ubyte* readChunkData(int x, int y, uint32_t& length, regfile* file);
+    std::unique_ptr<ubyte[]> readChunkData(int x, int y, uint32_t& length, regfile* file);
 
     void fetchChunks(WorldRegion* region, int x, int y, regfile* file);
 
+    void writeWorldInfo(const World* world);
     void writeRegions(int layer);
+    void writeIndices(const ContentIndices* indices);
 
     ubyte* getData(int x, int z, int layer, uint32_t& size);
     
@@ -126,20 +132,23 @@ class WorldFiles {
     std::shared_ptr<regfile> useRegFile(glm::ivec3 coord);
     std::shared_ptr<regfile> createRegFile(glm::ivec3 coord);
 public:
-    static bool parseRegionFilename(const std::string& name, int& x, int& y);
-    fs::path getPlayerFile() const;
-
-    fs::path directory;
-    std::unique_ptr<ubyte[]> compressionBuffer;
-    bool generatorTestMode;
-    bool doWriteLights;
-
+    WorldFiles(fs::path directory);
     WorldFiles(fs::path directory, const DebugSettings& settings);
     ~WorldFiles();
 
+    fs::path getPlayerFile() const;
     void createDirectories();
 
+    /// @brief Put all chunk data to regions
     void put(Chunk* chunk);
+
+    /// @brief Store data in specified region 
+    /// @param x chunk.x
+    /// @param z chunk.z
+    /// @param layer regions layer
+    /// @param data target data
+    /// @param size data size
+    /// @param rle compress with ext-RLE
     void put(int x, int z, int layer, std::unique_ptr<ubyte[]> data, size_t size, bool rle);
 
     std::unique_ptr<ubyte[]> getChunk(int x, int z);
@@ -148,6 +157,10 @@ public:
 
     bool readWorldInfo(World* world);
 
+    /// @brief Write or rewrite region file
+    /// @param x region X
+    /// @param z region Z
+    /// @param layer regions layer
     void writeRegion(int x, int y, int layer, WorldRegion* entry);
 
     /// @brief Write all unsaved data to world files
@@ -156,17 +169,17 @@ public:
     void write(const World* world, const Content* content);
 
     void writePacks(const std::vector<ContentPack>& packs);
-    void writeIndices(const ContentIndices* indices);
 
     void removeIndices(const std::vector<std::string>& packs);
 
     void processRegionVoxels(int x, int z, regionproc func);
 
-    static const inline std::string WORLD_FILE = "world.json";
+    /// @return world folder
+    fs::path getFolder() const;
+    fs::path getRegionsFolder(int layer) const;
 
-    fs::path getRegionsFolder(int layer) {
-        return layers[layer].folder;
-    }
+    static const inline std::string WORLD_FILE = "world.json";
+    static bool parseRegionFilename(const std::string& name, int& x, int& y);
 };
 
 #endif /* FILES_WORLDFILES_H_ */

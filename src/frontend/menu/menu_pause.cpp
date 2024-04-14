@@ -112,7 +112,7 @@ std::shared_ptr<Panel> menus::create_packs_panel(
 }
 
 static void reopen_world(Engine* engine, World* world) {
-    std::string wname = world->wfile->directory.stem().u8string();
+    std::string wname = world->wfile->getFolder().stem().u8string();
     engine->setScreen(nullptr);
     engine->setScreen(std::make_shared<MenuScreen>(engine));
     menus::open_world(wname, engine, true);
@@ -140,7 +140,7 @@ void menus::remove_packs(
 
     runnable removeFunc = [=]() {
         controller->saveWorld();
-        auto manager = engine->createPacksManager(world->wfile->directory);
+        auto manager = engine->createPacksManager(world->wfile->getFolder());
         manager.scan();
 
         auto names = PacksManager::getNames(world->getPacks());
@@ -199,7 +199,7 @@ void create_content_panel(Engine* engine, LevelController* controller) {
             auto new_packs = PacksManager::getNames(world->getPacks());
             new_packs.push_back(pack.id);
 
-            auto manager = engine->createPacksManager(world->wfile->directory);
+            auto manager = engine->createPacksManager(world->wfile->getFolder());
             manager.scan();
             try {
                 new_packs = manager.assembly(new_packs);
