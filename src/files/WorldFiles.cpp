@@ -144,29 +144,13 @@ ubyte* WorldFiles::decompress(const ubyte* src, size_t srclen, size_t dstlen) {
     return decompressed;
 }
 
-int WorldFiles::getVoxelRegionVersion(int x, int z) {
-    regfile* rf = getRegFile(glm::ivec3(x, z, REGION_LAYER_VOXELS), getRegionsFolder());
-    if (rf == nullptr) {
-        return 0;
-    }
-    return rf->version;
-}
-
-int WorldFiles::getVoxelRegionsVersion() {
-    fs::path regionsFolder = getRegionsFolder();
-    if (!fs::is_directory(regionsFolder)) {
-        return REGION_FORMAT_VERSION;
-    }
-    for (auto file : fs::directory_iterator(regionsFolder)) {
-        int x;
-        int z;
-        if (!parseRegionFilename(file.path().stem().string(), x, z)) {
-            continue;
-        }
-        regfile* rf = getRegFile(glm::ivec3(x, z, REGION_LAYER_VOXELS), regionsFolder);
-        return rf->version;
-    }
-    return REGION_FORMAT_VERSION;
+inline void calc_reg_coords(
+    int x, int z, int& regionX, int& regionZ, int& localX, int& localZ
+) {
+    regionX = floordiv(x, REGION_SIZE);
+    regionZ = floordiv(z, REGION_SIZE);
+    localX = x - (regionX * REGION_SIZE);
+    localZ = z - (regionZ * REGION_SIZE);
 }
 
 
@@ -174,10 +158,8 @@ int WorldFiles::getVoxelRegionsVersion() {
 /// @param x chunk.x
 /// @param z chunk.z
 void WorldFiles::put(int x, int z, const ubyte* voxelData) {
-    int regionX = floordiv(x, REGION_SIZE);
-    int regionZ = floordiv(z, REGION_SIZE);
-    int localX = x - (regionX * REGION_SIZE);
-    int localZ = z - (regionZ * REGION_SIZE);
+    int regionX, regionZ, localX, localZ;
+    calc_reg_coords(x, z, regionX, regionZ, localX, localZ);
 
     /* Writing Voxels */ {
         WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
@@ -192,10 +174,8 @@ void WorldFiles::put(int x, int z, const ubyte* voxelData) {
 void WorldFiles::put(Chunk* chunk){
     assert(chunk != nullptr);
 
-    int regionX = floordiv(chunk->x, REGION_SIZE);
-    int regionZ = floordiv(chunk->z, REGION_SIZE);
-    int localX = chunk->x - (regionX * REGION_SIZE);
-    int localZ = chunk->z - (regionZ * REGION_SIZE);
+    int regionX, regionZ, localX, localZ;
+    calc_reg_coords(chunk->x, chunk->z, regionX, regionZ, localX, localZ);
 
     /* Writing voxels */ {
         size_t compressedSize;
@@ -325,13 +305,14 @@ chunk_inventories_map WorldFiles::fetchInventories(int x, int z) {
     return inventories;
 }
 
-ubyte* WorldFiles::getData(regionsmap& regions, const fs::path& folder, 
-                           int x, int z, int layer, bool compression) {
-    int regionX = floordiv(x, REGION_SIZE);
-    int regionZ = floordiv(z, REGION_SIZE);
-
-    int localX = x - (regionX * REGION_SIZE);
-    int localZ = z - (regionZ * REGION_SIZE);
+ubyte* WorldFiles::getData(
+    regionsmap& regions, 
+    const fs::path& folder, 
+    int x, int z, int layer, 
+    bool compression
+) {
+    int regionX, regionZ, localX, localZ;
+    calc_reg_coords(x, z, regionX, regionZ, localX, localZ);
 
     WorldRegion* region = getOrCreateRegion(regions, regionX, regionZ);
     ubyte* data = region->getChunkData(localX, localZ);
@@ -352,41 +333,82 @@ ubyte* WorldFiles::getData(regionsmap& regions, const fs::path& folder,
     return nullptr;
 }
 
-
-regfile* WorldFiles::getRegFile(glm::ivec3 coord, const fs::path& folder) {
-    const auto found = openRegFiles.find(coord);
-    if (found != openRegFiles.end()) {
-        return found->second.get();
-    }
-    if (openRegFiles.size() == MAX_OPEN_REGION_FILES) {
-        // [todo] replace with closing the most unused region
-        auto iter = std::next(openRegFiles.begin(), rand() % openRegFiles.size());
-        openRegFiles.erase(iter);
-    }
-    fs::path filename = folder / getRegionFilename(coord[0], coord[1]);
-    if (!fs::is_regular_file(filename)) {
-        return nullptr;
-    }
-    openRegFiles[coord] = std::make_unique<regfile>(filename);
-    return openRegFiles[coord].get();
+std::shared_ptr<regfile> WorldFiles::useRegFile(glm::ivec3 coord) {
+    return std::shared_ptr<regfile>(openRegFiles[coord].get(), [this](regfile* ptr) {
+        ptr->inUse = false;
+        regFilesCv.notify_one();
+    });
 }
 
-ubyte* WorldFiles::readChunkData(int x, 
-                                 int z, 
-                                 uint32_t& length, 
-                                 fs::path folder, 
-                                 int layer){
+void WorldFiles::closeRegFile(glm::ivec3 coord) {
+    openRegFiles.erase(coord);
+    regFilesCv.notify_one();
+}
+
+// Marks regfile as used and unmarks when shared_ptr dies
+std::shared_ptr<regfile> WorldFiles::getRegFile(glm::ivec3 coord, const fs::path& folder) {
+    {
+        std::lock_guard lock(regFilesMutex);
+        const auto found = openRegFiles.find(coord);
+        if (found != openRegFiles.end()) {
+            if (found->second->inUse) {
+                throw std::runtime_error("regfile is currently in use");
+            }
+            found->second->inUse = true;
+            return useRegFile(found->first);
+        }
+    }
+    return createRegFile(coord, folder);
+}
+
+std::shared_ptr<regfile> WorldFiles::createRegFile(glm::ivec3 coord, const fs::path& folder) {
+    fs::path file = folder / getRegionFilename(coord[0], coord[1]);
+    if (!fs::exists(file)) {
+        return nullptr;
+    }
+    if (openRegFiles.size() == MAX_OPEN_REGION_FILES) {
+        std::unique_lock lock(regFilesMutex);
+        while (true) {
+            bool closed = false;
+            // FIXME: bad choosing algorithm
+            for (auto& entry : openRegFiles) {
+                if (!entry.second->inUse) {
+                    closeRegFile(entry.first);
+                    closed = true;
+                    break;
+                }
+            }
+            if (closed) {
+                break;
+            }
+            // notified when any regfile gets out of use or closed
+            regFilesCv.wait(lock);
+        }
+        openRegFiles[coord] = std::make_unique<regfile>(file);
+        return useRegFile(coord);
+    } else {
+        std::lock_guard lock(regFilesMutex);
+        openRegFiles[coord] = std::make_unique<regfile>(file);
+        return useRegFile(coord);
+    }
+}
+
+ubyte* WorldFiles::readChunkData(
+    int x, 
+    int z, 
+    uint32_t& length, 
+    fs::path folder, 
+    int layer
+){
     if (generatorTestMode)
         return nullptr;
         
-    int regionX = floordiv(x, REGION_SIZE);
-    int regionZ = floordiv(z, REGION_SIZE);
-    int localX = x - (regionX * REGION_SIZE);
-    int localZ = z - (regionZ * REGION_SIZE);
+    int regionX, regionZ, localX, localZ;
+    calc_reg_coords(x, z, regionX, regionZ, localX, localZ);
     int chunkIndex = localZ * REGION_SIZE + localX;
  
     glm::ivec3 coord(regionX, regionZ, layer);
-    regfile* rfile = WorldFiles::getRegFile(coord, folder);
+    auto rfile = getRegFile(coord, folder);
     if (rfile == nullptr) {
         return nullptr;
     }
@@ -399,7 +421,6 @@ ubyte* WorldFiles::readChunkData(int x,
     file.seekg(table_offset + chunkIndex * 4);
     file.read((char*)(&offset), 4);
     offset = dataio::read_int32_big((const ubyte*)(&offset), 0);
-
     if (offset == 0){
         return nullptr;
     }
@@ -439,7 +460,10 @@ void WorldFiles::writeRegion(int x, int z, WorldRegion* entry, fs::path folder, 
     glm::ivec3 regcoord(x, z, layer);
     if (getRegFile(regcoord, folder)) {
         fetchChunks(entry, x, z, folder, layer);
-        openRegFiles.erase(regcoord);
+        {
+            std::lock_guard lock(regFilesMutex);
+            closeRegFile(regcoord);
+        }
     }
     
     char header[REGION_HEADER_SIZE] = REGION_FORMAT_MAGIC;

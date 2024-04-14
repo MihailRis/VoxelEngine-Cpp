@@ -8,11 +8,13 @@
 #include "../voxels/Chunk.h"
 
 #include <map>
+#include <mutex>
 #include <vector>
 #include <string>
 #include <memory>
 #include <unordered_map>
 #include <filesystem>
+#include <condition_variable>
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -66,6 +68,7 @@ public:
 struct regfile {
     files::rafile file;
     int version;
+    bool inUse = false;
 
     regfile(fs::path filename);
 };
@@ -74,6 +77,8 @@ typedef std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>> regionsmap;
 
 class WorldFiles {
     std::unordered_map<glm::ivec3, std::unique_ptr<regfile>> openRegFiles;
+    std::mutex regFilesMutex;
+    std::condition_variable regFilesCv;
 
     void writeWorldInfo(const World* world);
     fs::path getRegionFilename(int x, int y) const;
@@ -106,7 +111,10 @@ class WorldFiles {
 
     ubyte* getData(regionsmap& regions, const fs::path& folder, int x, int z, int layer, bool compression);
     
-    regfile* getRegFile(glm::ivec3 coord, const fs::path& folder);
+    std::shared_ptr<regfile> getRegFile(glm::ivec3 coord, const fs::path& folder);
+    void closeRegFile(glm::ivec3 coord);
+    std::shared_ptr<regfile> useRegFile(glm::ivec3 coord);
+    std::shared_ptr<regfile> createRegFile(glm::ivec3 coord, const fs::path& folder);
 
     fs::path getLightsFolder() const;
     fs::path getInventoriesFolder() const;
@@ -130,9 +138,6 @@ public:
 
     void put(Chunk* chunk);
     void put(int x, int z, const ubyte* voxelData);
-
-    int getVoxelRegionVersion(int x, int z);
-    int getVoxelRegionsVersion();
 
     ubyte* getChunk(int x, int z);
     light_t* getLights(int x, int z);
