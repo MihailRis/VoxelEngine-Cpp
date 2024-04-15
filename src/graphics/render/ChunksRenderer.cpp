@@ -14,7 +14,7 @@ static debug::Logger logger("chunks-render");
 
 const uint RENDERER_CAPACITY = 9 * 6 * 6 * 3000;
 
-class RendererWorker : public util::Worker<std::shared_ptr<Chunk>, RendererResult> {
+class RendererWorker : public util::Worker<Chunk, RendererResult> {
     Level* level;
     BlocksRenderer renderer;
 public:

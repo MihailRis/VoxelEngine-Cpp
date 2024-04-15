@@ -17,7 +17,7 @@ namespace util {
     
 template<class J, class T>
 struct ThreadPoolResult {
-    J job;
+    std::shared_ptr<J> job;
     std::condition_variable& variable;
     int workerIndex;
     bool& locked;
@@ -29,13 +29,13 @@ class Worker {
 public:
     Worker() {}
     virtual ~Worker() {}
-    virtual R operator()(const T&) = 0;
+    virtual R operator()(const std::shared_ptr<T>&) = 0;
 };
 
 template<class T, class R>
 class ThreadPool : public Task {
     debug::Logger logger;
-    std::queue<T> jobs;
+    std::queue<std::shared_ptr<T>> jobs;
     std::queue<ThreadPoolResult<T, R>> results;
     std::mutex resultsMutex;
     std::vector<std::thread> threads;
@@ -43,7 +43,7 @@ class ThreadPool : public Task {
     std::mutex jobsMutex;
     std::vector<std::unique_lock<std::mutex>> workersBlocked;
     consumer<R&> resultConsumer;
-    consumer<T&> onJobFailed = nullptr;
+    consumer<std::shared_ptr<T>&> onJobFailed = nullptr;
     runnable onComplete = nullptr;
     std::atomic<int> busyWorkers = 0;
     std::atomic<uint> jobsDone = 0;
@@ -57,7 +57,7 @@ class ThreadPool : public Task {
         std::mutex mutex;
         bool locked = false;
         while (working) {
-            T job;
+            std::shared_ptr<T> job;
             {
                 std::unique_lock<std::mutex> lock(jobsMutex);
                 jobsMutexCondition.wait(lock, [this] {
@@ -199,7 +199,7 @@ public:
         }
     }
 
-    void enqueueJob(T job) {
+    void enqueueJob(std::shared_ptr<T> job) {
         {
             std::lock_guard<std::mutex> lock(jobsMutex);
             jobs.push(job);
@@ -228,8 +228,8 @@ public:
         this->onComplete = callback;
     }
 
-    uint getWorkRemaining() const override {
-        return jobs.size();
+    uint getWorkTotal() const override {
+        return jobs.size()+jobsDone+busyWorkers;
     }
 
     uint getWorkDone() const override {

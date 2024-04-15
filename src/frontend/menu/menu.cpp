@@ -116,7 +116,7 @@ void show_process_panel(Engine* engine, std::shared_ptr<Task> task, std::wstring
     auto label = std::make_shared<Label>(L"0%");
     panel->add(label);
 
-    uint initialWork = task->getWorkRemaining();
+    uint initialWork = task->getWorkTotal();
 
     panel->listenInterval(0.01f, [=]() {
         task->update();
@@ -134,25 +134,21 @@ void show_process_panel(Engine* engine, std::shared_ptr<Task> task, std::wstring
     menu->setPage("process", false);
 }
 
-std::shared_ptr<WorldConverter> create_converter(
+std::shared_ptr<Task> create_converter(
     Engine* engine,
     fs::path folder, 
     const Content* content, 
     std::shared_ptr<ContentLUT> lut, 
     runnable postRunnable)
 {
-    auto converter = std::make_shared<WorldConverter>(folder, content, lut);
-    converter->setOnComplete([=](){
-        converter->write();
-
+    return WorldConverter::startTask(folder, content, lut, [=](){
         auto menu = engine->getGUI()->getMenu();
         menu->reset();
         menu->setPage("main", false);
         engine->getGUI()->postRunnable([=]() {
             postRunnable();
         });
-    });
-    return converter;
+    }, true);
 }
 
 void show_convert_request(

@@ -207,7 +207,7 @@ ubyte* WorldRegions::getData(
 std::shared_ptr<regfile> WorldRegions::useRegFile(glm::ivec3 coord) {
     auto* file = openRegFiles[coord].get();
     file->inUse = true;
-    return std::shared_ptr<regfile>(openRegFiles[coord].get(), [this](regfile* ptr) {
+    return std::shared_ptr<regfile>(file, [this](regfile* ptr) {
         ptr->inUse = false;
         regFilesCv.notify_one();
     });
