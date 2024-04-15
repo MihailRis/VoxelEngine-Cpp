@@ -205,6 +205,8 @@ ubyte* WorldRegions::getData(
 }
 
 std::shared_ptr<regfile> WorldRegions::useRegFile(glm::ivec3 coord) {
+    auto* file = openRegFiles[coord].get();
+    file->inUse = true;
     return std::shared_ptr<regfile>(openRegFiles[coord].get(), [this](regfile* ptr) {
         ptr->inUse = false;
         regFilesCv.notify_one();
@@ -225,7 +227,6 @@ std::shared_ptr<regfile> WorldRegions::getRegFile(glm::ivec3 coord) {
             if (found->second->inUse) {
                 throw std::runtime_error("regfile is currently in use");
             }
-            found->second->inUse = true;
             return useRegFile(found->first);
         }
     }
