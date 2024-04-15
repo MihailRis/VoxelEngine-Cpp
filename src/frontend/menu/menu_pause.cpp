@@ -45,9 +45,9 @@ std::shared_ptr<Container> create_pack_panel(
         idtext +
         "</label>"
     ));
-
-    auto titlelabel = std::make_shared<Label>(pack.title);
-    packpanel->add(titlelabel, glm::vec2(78, 6));
+    packpanel->add(guiutil::create(
+        "<label pos='78,6'>"+pack.title+"</label>"
+    ));
 
     std::string icon = pack.id+".icon";
     if (assets->getTexture(icon) == nullptr) {
@@ -62,15 +62,15 @@ std::shared_ptr<Container> create_pack_panel(
 
     if (!pack.creator.empty()) {
         packpanel->add(guiutil::create(
-            "<label color='#CCFFE5B2' size='300,20' align='right' pos='215,60'>"+
-                pack.creator+
+            "<label color='#CCFFE5B2' size='300,20' align='right' pos='215,60'>"
+                +pack.creator+
             "</label>"
         ));
     }
 
     packpanel->add(guiutil::create(
-        "<label pos='80,28' color='#FFFFFFB2'>" +
-            pack.description +
+        "<label pos='80,28' color='#FFFFFFB2'>" 
+            +pack.description+
         "</label>"
     ));
 
@@ -97,11 +97,10 @@ std::shared_ptr<Panel> menus::create_packs_panel(
     packconsumer callback,
     packconsumer remover
 ){
-    auto panel = std::make_shared<Panel>(glm::vec2(550, 200), glm::vec4(5.0f));
-    panel->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.07f));
-    panel->setMaxLength(400);
-    panel->setScrollable(true);
-
+    auto panel = std::dynamic_pointer_cast<Panel>(guiutil::create(
+        "<panel size='550,200' interval='5' color='#FFFFFF11' max-length='400' scrollable='true'>"
+        "</panel>"
+    ));
     for (auto& pack : packs) {
         panel->add(create_pack_panel(pack, engine, callback, remover));
     }
