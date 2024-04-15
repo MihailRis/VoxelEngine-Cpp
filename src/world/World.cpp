@@ -49,8 +49,8 @@ void World::updateTimers(float delta) {
 
 void World::write(Level* level) {
     const Content* content = level->content;
-
     Chunks* chunks = level->chunks.get();
+    auto& regions = wfile->getRegions();
 
     for (size_t i = 0; i < chunks->volume; i++) {
         auto chunk = chunks->chunks[i];
@@ -60,7 +60,7 @@ void World::write(Level* level) {
                               settings.debug.doWriteLights;
         if (!chunk->isUnsaved() && !lightsUnsaved)
             continue;
-        wfile->put(chunk.get());
+        regions.put(chunk.get());
     }
 
     wfile->write(this, content);

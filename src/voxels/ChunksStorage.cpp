@@ -51,14 +51,14 @@ static void verifyLoadedChunk(ContentIndices* indices, Chunk* chunk) {
 
 std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 	World* world = level->getWorld();
-    WorldFiles* wfile = world->wfile.get();
+    auto& regions = world->wfile.get()->getRegions();
 
     auto chunk = std::make_shared<Chunk>(x, z);
 	store(chunk);
-	auto data = wfile->getChunk(chunk->x, chunk->z);
+	auto data = regions.getChunk(chunk->x, chunk->z);
 	if (data) {
 		chunk->decode(data.get());
-		auto invs = wfile->fetchInventories(chunk->x, chunk->z);
+		auto invs = regions.fetchInventories(chunk->x, chunk->z);
 		chunk->setBlockInventories(std::move(invs));
 		chunk->setLoaded(true);
 		for(auto& entry : chunk->inventories) {
@@ -67,7 +67,7 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
         verifyLoadedChunk(level->content->getIndices(), chunk.get());
 	}
 
-	auto lights = wfile->getLights(chunk->x, chunk->z);
+	auto lights = regions.getLights(chunk->x, chunk->z);
 	if (lights) {
 		chunk->lightmap.set(lights.get());
 		chunk->setLoadedLights(true);

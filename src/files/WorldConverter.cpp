@@ -24,7 +24,7 @@ WorldConverter::WorldConverter(
     lut(lut), 
     content(content) 
 {
-    fs::path regionsFolder = wfile->getRegionsFolder(REGION_LAYER_VOXELS);
+    fs::path regionsFolder = wfile->getRegions().getRegionsFolder(REGION_LAYER_VOXELS);
     if (!fs::is_directory(regionsFolder)) {
         logger.error() << "nothing to convert";
         return;
@@ -46,7 +46,7 @@ void WorldConverter::convertRegion(fs::path file) {
         return;
     }
     logger.info() << "converting region " << name;
-    wfile->processRegionVoxels(x, z, [=](ubyte* data) {
+    wfile->getRegions().processRegionVoxels(x, z, [=](ubyte* data) {
         if (lut) {
             Chunk::convert(data, lut.get());
         }
