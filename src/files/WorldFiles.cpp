@@ -29,8 +29,6 @@
 
 #define WORLD_FORMAT_MAGIC ".VOXWLD"
 
-const size_t BUFFER_SIZE_UNKNOWN = -1;
-
 WorldFiles::WorldFiles(fs::path directory) : directory(directory), regions(directory) {
 }
 
@@ -49,26 +47,6 @@ WorldFiles::~WorldFiles() {
 void WorldFiles::createDirectories() {
     fs::create_directories(directory / fs::path("data"));
     fs::create_directories(directory / fs::path("content"));
-}
-
-/// @brief Extract X and Z from 'X_Z.bin' region file name.
-/// @param name source region file name
-/// @param x parsed X destination
-/// @param z parsed Z destination
-/// @return false if std::invalid_argument or std::out_of_range occurred
-bool WorldFiles::parseRegionFilename(const std::string& name, int& x, int& z) {
-    size_t sep = name.find('_');
-    if (sep == std::string::npos || sep == 0 || sep == name.length()-1)
-        return false;
-    try {
-        x = std::stoi(name.substr(0, sep));
-        z = std::stoi(name.substr(sep+1));
-    } catch (std::invalid_argument& err) {
-        return false;
-    } catch (std::out_of_range& err) {
-        return false;
-    }
-    return true;
 }
 
 fs::path WorldFiles::getPlayerFile() const {

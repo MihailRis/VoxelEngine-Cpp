@@ -120,7 +120,7 @@ assetload::postfunc assetload::font(
     for (size_t i = 0; i <= 4; i++) {
         std::string name = filename + "_" + std::to_string(i) + ".png"; 
         name = paths->find(name).string();
-        pages->push_back(std::move(imageio::read(name)));
+        pages->push_back(imageio::read(name));
     }
     return [=](auto assets) {
         int res = pages->at(0)->getHeight() / 16;

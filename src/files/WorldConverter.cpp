@@ -41,7 +41,7 @@ WorldConverter::~WorldConverter() {
 void WorldConverter::convertRegion(fs::path file) {
     int x, z;
     std::string name = file.stem().string();
-    if (!WorldFiles::parseRegionFilename(name, x, z)) {
+    if (!WorldRegions::parseRegionFilename(name, x, z)) {
         logger.error() << "could not parse name " << name;
         return;
     }

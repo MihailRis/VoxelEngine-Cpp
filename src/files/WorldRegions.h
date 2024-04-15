@@ -62,6 +62,9 @@ struct regfile {
     bool inUse = false;
 
     regfile(fs::path filename);
+    regfile(const regfile&) = delete;
+
+    std::unique_ptr<ubyte[]> read(int index, uint32_t& length);
 };
 
 using regionsmap = std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>>;
@@ -150,6 +153,13 @@ public:
     fs::path getRegionsFolder(int layer) const;
 
     void write();
+
+    /// @brief Extract X and Z from 'X_Z.bin' region file name.
+    /// @param name source region file name
+    /// @param x parsed X destination
+    /// @param z parsed Z destination
+    /// @return false if std::invalid_argument or std::out_of_range occurred
+    static bool parseRegionFilename(const std::string& name, int& x, int& y);
 };
 
 #endif // FILES_WORLD_REGIONS_H_

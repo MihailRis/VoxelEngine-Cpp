@@ -63,7 +63,6 @@ public:
     fs::path getFolder() const;
 
     static const inline std::string WORLD_FILE = "world.json";
-    static bool parseRegionFilename(const std::string& name, int& x, int& y);
 
     WorldRegions& getRegions() {
         return regions;

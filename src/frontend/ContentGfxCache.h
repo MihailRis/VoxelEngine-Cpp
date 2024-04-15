@@ -9,7 +9,7 @@
 class Content;
 class Assets;
 class UiDocument;
-class UVRegion;
+struct UVRegion;
 
 using uidocuments_map = std::unordered_map<std::string, std::shared_ptr<UiDocument>>;
 

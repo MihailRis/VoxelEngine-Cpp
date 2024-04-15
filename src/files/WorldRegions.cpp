@@ -28,6 +28,26 @@ regfile::regfile(fs::path filename) : file(filename) {
     }
 }
 
+std::unique_ptr<ubyte[]> regfile::read(int index, uint32_t& length) {
+    size_t file_size = file.length();
+    size_t table_offset = file_size - REGION_CHUNKS_COUNT * 4;
+
+    uint32_t offset;
+    file.seekg(table_offset + index * 4);
+    file.read((char*)(&offset), 4);
+    offset = dataio::read_int32_big((const ubyte*)(&offset), 0);
+    if (offset == 0){
+        return nullptr;
+    }
+
+    file.seekg(offset);
+    file.read((char*)(&offset), 4);
+    length = dataio::read_int32_big((const ubyte*)(&offset), 0);
+    auto data = std::make_unique<ubyte[]>(length);
+    file.read((char*)data.get(), length);
+    return data;
+}
+
 WorldRegion::WorldRegion() {
     chunksData = new ubyte*[REGION_CHUNKS_COUNT]{};
     sizes = new uint32_t[REGION_CHUNKS_COUNT]{};
@@ -136,31 +156,10 @@ std::unique_ptr<ubyte[]> WorldRegions::readChunkData(
     uint32_t& length, 
     regfile* rfile
 ){
-    if (generatorTestMode)
-        return nullptr;
-        
     int regionX, regionZ, localX, localZ;
     calc_reg_coords(x, z, regionX, regionZ, localX, localZ);
     int chunkIndex = localZ * REGION_SIZE + localX;
-
-    files::rafile& file = rfile->file;
-    size_t file_size = file.length();
-    size_t table_offset = file_size - REGION_CHUNKS_COUNT * 4;
-
-    uint32_t offset;
-    file.seekg(table_offset + chunkIndex * 4);
-    file.read((char*)(&offset), 4);
-    offset = dataio::read_int32_big((const ubyte*)(&offset), 0);
-    if (offset == 0){
-        return nullptr;
-    }
-
-    file.seekg(offset);
-    file.read((char*)(&offset), 4);
-    length = dataio::read_int32_big((const ubyte*)(&offset), 0);
-    auto data = std::make_unique<ubyte[]>(length);
-    file.read((char*)data.get(), length);
-    return data;
+    return rfile->read(chunkIndex, length);
 }
 
 /// @brief Read missing chunks data (null pointers) from region file 
@@ -181,6 +180,9 @@ ubyte* WorldRegions::getData(
     int x, int z, int layer, 
     uint32_t& size
 ) {
+    if (generatorTestMode) {
+        return nullptr;
+    }
     int regionX, regionZ, localX, localZ;
     calc_reg_coords(x, z, regionX, regionZ, localX, localZ);
 
@@ -453,4 +455,19 @@ void WorldRegions::write() {
         fs::create_directories(layer.folder);
         writeRegions(layer.layer);
     }
+}
+
+bool WorldRegions::parseRegionFilename(const std::string& name, int& x, int& z) {
+    size_t sep = name.find('_');
+    if (sep == std::string::npos || sep == 0 || sep == name.length()-1)
+        return false;
+    try {
+        x = std::stoi(name.substr(0, sep));
+        z = std::stoi(name.substr(sep+1));
+    } catch (std::invalid_argument& err) {
+        return false;
+    } catch (std::out_of_range& err) {
+        return false;
+    }
+    return true;
 }

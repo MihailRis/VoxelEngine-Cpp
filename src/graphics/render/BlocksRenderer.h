@@ -16,7 +16,7 @@ class Chunks;
 class VoxelsVolume;
 class ChunksStorage;
 class ContentGfxCache;
-class UVRegion;
+struct UVRegion;
 
 class BlocksRenderer {
     static const glm::vec3 SUN_VECTOR;
