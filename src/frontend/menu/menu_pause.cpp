@@ -164,16 +164,18 @@ void menus::remove_packs(
     }
 }
 
-void menus::add_pack_to_world(
-    const ContentPack& pack,
+void menus::add_packs(
     Engine* engine,
-    LevelController* controller
+    LevelController* controller,
+    std::vector<std::string> packs
 ) {
     auto level = controller->getLevel();
     auto gui = engine->getGUI();
     auto world = level->getWorld();
     auto new_packs = PacksManager::getNames(world->getPacks());
-    new_packs.push_back(pack.id);
+    for (auto& id : packs) {
+        new_packs.push_back(id);
+    }
 
     auto manager = engine->createPacksManager(world->wfile->getFolder());
     manager.scan();
@@ -220,7 +222,7 @@ void create_content_panel(Engine* engine, LevelController* controller) {
     langs::get(L"Add", L"content"), glm::vec4(10.0f), glm::vec4(1), [=](GUI* gui) {
         auto panel = menus::create_packs_panel(scanned, engine, true, 
         [=](const ContentPack& pack) {
-            menus::add_pack_to_world(pack, engine, controller);
+            menus::add_packs(engine, controller, {pack.id});
         }, nullptr);
         menu->addPage("content-packs", panel);
         menu->setPage("content-packs");
