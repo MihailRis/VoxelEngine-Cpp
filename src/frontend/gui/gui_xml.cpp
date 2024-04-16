@@ -35,7 +35,7 @@ static Gravity gravity_from_string(const std::string& str) {
         {"bottom-right", Gravity::bottom_right},
     };
     auto found = gravity_names.find(str);
-    if (found == gravity_names.end()) {
+    if (found != gravity_names.end()) {
         return found->second;
     }
     return Gravity::none;

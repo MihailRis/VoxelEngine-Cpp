@@ -192,6 +192,7 @@ void Panel::cropToContent() {
 }
 
 void Panel::add(std::shared_ptr<UINode> node) {
+    node->setResizing(true);
     Container::add(node);
     refresh();
     cropToContent();
