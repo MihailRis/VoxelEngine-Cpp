@@ -53,6 +53,12 @@ namespace menus {
         std::vector<std::string> packs
     );
 
+    void add_pack_to_world(
+        const ContentPack& pack,
+        Engine* engine,
+        LevelController* controller
+    );
+
     /// @brief Create development version label at the top-right screen corner
     void create_version_label(Engine* engine);
     void create_menus(Engine* engine);

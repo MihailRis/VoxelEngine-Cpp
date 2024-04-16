@@ -164,13 +164,39 @@ void menus::remove_packs(
     }
 }
 
+void menus::add_pack_to_world(
+    const ContentPack& pack,
+    Engine* engine,
+    LevelController* controller
+) {
+    auto level = controller->getLevel();
+    auto gui = engine->getGUI();
+    auto world = level->getWorld();
+    auto new_packs = PacksManager::getNames(world->getPacks());
+    new_packs.push_back(pack.id);
+
+    auto manager = engine->createPacksManager(world->wfile->getFolder());
+    manager.scan();
+    try {
+        new_packs = manager.assembly(new_packs);
+    } catch (const contentpack_error& err) {
+        guiutil::alert(
+            gui, langs::get(L"error.dependency-not-found")+
+            L": "+util::str2wstr_utf8(err.getPackId())
+        );
+        return;
+    }
+    world->wfile->writePacks(manager.getAll(new_packs));
+    controller->saveWorld();
+    reopen_world(engine, world);
+}
+
 void create_content_panel(Engine* engine, LevelController* controller) {
     auto level = controller->getLevel();
     auto menu = engine->getGUI()->getMenu();
     auto mainPanel = menus::create_page(engine, "content", 550, 0.0f, 5);
 
-    auto paths = engine->getPaths();
-    PacksManager manager = engine->createPacksManager(paths->getWorldFolder());
+    PacksManager manager = engine->createPacksManager(level->getWorld()->wfile->getFolder());
     manager.scan();
 
     std::vector<ContentPack> scanned = manager.getAll(manager.getAllNames());
@@ -194,24 +220,7 @@ void create_content_panel(Engine* engine, LevelController* controller) {
     langs::get(L"Add", L"content"), glm::vec4(10.0f), glm::vec4(1), [=](GUI* gui) {
         auto panel = menus::create_packs_panel(scanned, engine, true, 
         [=](const ContentPack& pack) {
-            auto world = level->getWorld();
-            auto new_packs = PacksManager::getNames(world->getPacks());
-            new_packs.push_back(pack.id);
-
-            auto manager = engine->createPacksManager(world->wfile->getFolder());
-            manager.scan();
-            try {
-                new_packs = manager.assembly(new_packs);
-            } catch (const contentpack_error& err) {
-                guiutil::alert(
-                    gui, langs::get(L"error.dependency-not-found")+
-                    L": "+util::str2wstr_utf8(err.getPackId())
-                );
-                return;
-            }
-            world->wfile->writePacks(manager.getAll(new_packs));
-            controller->saveWorld();
-            reopen_world(engine, world);
+            menus::add_pack_to_world(pack, engine, controller);
         }, nullptr);
         menu->addPage("content-packs", panel);
         menu->setPage("content-packs");
