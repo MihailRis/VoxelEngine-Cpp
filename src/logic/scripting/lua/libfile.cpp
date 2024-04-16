@@ -19,6 +19,27 @@ static fs::path resolve_path(lua_State* L, const std::string& path) {
     }
 }
 
+// TODO: move to ResPaths
+static int l_file_find(lua_State* L) {
+    std::string path = lua_tostring(L, 1);
+
+    auto& packs = scripting::engine->getContentPacks();
+    for (int i = packs.size()-1; i >= 0; i--) {
+        auto& pack = packs[i];
+        if (fs::exists(pack.folder / fs::path(path))) {
+            lua_pushstring(L, (pack.id+":"+path).c_str());
+            return 1;
+        }
+    }
+    auto resDir = scripting::engine->getResPaths()->getMainRoot();
+    if (fs::exists(resDir / fs::path(path))) {
+        lua_pushstring(L, ("core:"+path).c_str());
+        return 1;
+    }
+    luaL_error(L, "file not found %q", path.c_str());
+    return 0;
+}
+
 static int l_file_resolve(lua_State* L) {
     fs::path path = resolve_path(L, lua_tostring(L, 1));
     lua_pushstring(L, path.u8string().c_str());
@@ -145,6 +166,7 @@ static int l_file_write_bytes(lua_State* L) {
 
 const luaL_Reg filelib [] = {
     {"resolve", lua_wrap_errors<l_file_resolve>},
+    {"find", lua_wrap_errors<l_file_find>},
     {"read", lua_wrap_errors<l_file_read>},
     {"write", lua_wrap_errors<l_file_write>},
     {"exists", lua_wrap_errors<l_file_exists>},

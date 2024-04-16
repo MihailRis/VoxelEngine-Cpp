@@ -1,0 +1,15 @@
+<container onclick='%{callback}' size='540,80' color='#0F1E2DB2'>
+    <label pos='215,2' color='#FFFFFF80' size='300,25' align='right'>
+        [%{id}]
+    </label>
+    <label pos='78,6'>%{title}</label>
+    <label if='%{creator}' color='#CCFFE5B2' size='300,20' align='right' pos='215,60'>
+        %{creator}
+    </label>
+    <label pos='80,28' color='#FFFFFFB2'>
+        %{description}
+    </label>
+    <button if='%{remover}' onclick='%{remover}' color='0' hover-color='#FFFFFF2B'>
+        <image src='gui/cross' size='32,32'/>
+    </button>
+</container>

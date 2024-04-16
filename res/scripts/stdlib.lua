@@ -201,6 +201,19 @@ function time.post_runnable(runnable)
     table.insert(__post_runnables, runnable)
 end
 
+function gui.template(name, params)
+    local text = file.read(file.find("layouts/templates/"..name..".xml"))
+    for k,v in pairs(params) do
+        text = text:gsub("(%%{"..k.."})", tostring(v))
+    end
+    text = text:gsub("if%s*=%s*'%%{%w+}'", "if=''")
+    text = text:gsub("if%s*=%s*\"%%{%w+}\"", "if=\"\"")
+    -- remove unsolved properties: attr='%{var}'
+    text = text:gsub("%w+%s*=%s*'%%{%w+}'%s?", "")
+    text = text:gsub("%w+%s*=%s*\"%%{%w+}\"%s?", "")
+    return text
+end
+
 -- Deprecated functions
 block_index = block.index
 block_name = block.name
