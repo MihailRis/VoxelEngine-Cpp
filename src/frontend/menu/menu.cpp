@@ -239,6 +239,7 @@ void menus::create_menus(Engine* engine) {
     create_world_generators_panel(engine);
     add_page_loader(engine, "main");
     add_page_loader(engine, "404");
+    add_page_loader(engine, "content");
 }
 
 void menus::refresh_menus(Engine* engine) {

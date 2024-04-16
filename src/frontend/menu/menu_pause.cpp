@@ -27,8 +27,7 @@ std::shared_ptr<Container> create_pack_panel(
 ) {
     auto assets = engine->getAssets();
     auto packpanel = std::dynamic_pointer_cast<Container>(guiutil::create(
-        "<container size='540,80' color='#0F1E2DB2'>"
-        "</container>"
+        "<container size='540,80' color='#0F1E2DB2'></container>"
     ));
     if (callback) {
         packpanel->listenAction([=](GUI*) {
@@ -41,24 +40,13 @@ std::shared_ptr<Container> create_pack_panel(
         :  "["+pack.id+"]";
 
     packpanel->add(guiutil::create(
-        "<label pos='215,2' color='#FFFFFF80' size='300,25' align='right'>" +
-        idtext +
+        "<label pos='215,2' color='#FFFFFF80' size='300,25' align='right'>"
+            +idtext+
         "</label>"
     ));
     packpanel->add(guiutil::create(
         "<label pos='78,6'>"+pack.title+"</label>"
     ));
-
-    std::string icon = pack.id+".icon";
-    if (assets->getTexture(icon) == nullptr) {
-        auto iconfile = pack.folder/fs::path("icon.png");
-        if (fs::is_regular_file(iconfile)) {
-            auto image = imageio::read(iconfile.string());
-            assets->store(Texture::from(image.get()), icon);
-        } else {
-            icon = "gui/no_icon";
-        }
-    }
 
     if (!pack.creator.empty()) {
         packpanel->add(guiutil::create(
@@ -74,6 +62,16 @@ std::shared_ptr<Container> create_pack_panel(
         "</label>"
     ));
 
+    std::string icon = pack.id+".icon";
+    if (assets->getTexture(icon) == nullptr) {
+        auto iconfile = pack.folder/fs::path("icon.png");
+        if (fs::is_regular_file(iconfile)) {
+            auto image = imageio::read(iconfile.string());
+            assets->store(Texture::from(image.get()), icon);
+        } else {
+            icon = "gui/no_icon";
+        }
+    }
     packpanel->add(std::make_shared<Image>(icon, glm::vec2(64)), glm::vec2(8));
 
     if (remover && pack.id != "base") {
@@ -238,7 +236,7 @@ void menus::create_pause_panel(Engine* engine, LevelController* controller) {
         menu->reset();
     }));
     panel->add(create_button(L"Content", glm::vec4(10.0f), glm::vec4(1), [=](GUI*) {
-        create_content_panel(engine, controller);
+        //create_content_panel(engine, controller);
         menu->setPage("content");
     }));
     panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
