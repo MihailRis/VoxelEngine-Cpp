@@ -35,7 +35,7 @@ static Gravity gravity_from_string(const std::string& str) {
         {"bottom-right", Gravity::bottom_right},
     };
     auto found = gravity_names.find(str);
-    if (found == gravity_names.end()) {
+    if (found != gravity_names.end()) {
         return found->second;
     }
     return Gravity::none;
@@ -229,7 +229,12 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement e
     auto& elements = element->getElements();
     if (!elements.empty() && elements.at(0)->getTag() != "#") {
         glm::vec4 padding = element->attr("padding", "0,0,0,0").asVec4();
-        button = std::make_shared<Button>(reader.readUINode(element->getElements().at(0)), padding);
+        auto inner = reader.readUINode(element->getElements().at(0));
+        if (inner != nullptr) {
+            button = std::make_shared<Button>(inner, padding);
+        } else {
+            button = std::make_shared<Button>(L"", glm::vec4(0.0f), nullptr);
+        }
         _readPanel(reader, element, *button, false);
     } else {
         std::wstring text = readAndProcessInnerText(element, reader.getContext());
@@ -379,6 +384,13 @@ void UiXmlReader::addIgnore(const std::string& tag) {
 }
 
 std::shared_ptr<UINode> UiXmlReader::readUINode(xml::xmlelement element) {
+    if (element->has("if")) {
+        const auto& cond = element->attr("if").getText();
+        if (cond.empty() || cond == "false") {
+            return nullptr;
+        }
+    }
+
     const std::string& tag = element->getTag();
     auto found = readers.find(tag);
     if (found == readers.end()) {

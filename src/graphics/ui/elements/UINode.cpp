@@ -229,7 +229,7 @@ void UINode::setGravity(Gravity gravity) {
         switch (gravity) {
             case Gravity::top_left:
             case Gravity::center_left:
-            case Gravity::bottom_left: x = parentSize.x+margin.x; break;
+            case Gravity::bottom_left: x = margin.x; break;
             case Gravity::top_center:
             case Gravity::center_center:
             case Gravity::bottom_center: x = (parentSize.x-size.x)/2.0f; break;
@@ -241,7 +241,7 @@ void UINode::setGravity(Gravity gravity) {
         switch (gravity) {
             case Gravity::top_left:
             case Gravity::top_center:
-            case Gravity::top_right: y = parentSize.y+margin.y; break;
+            case Gravity::top_right: y = margin.y; break;
             case Gravity::center_left:
             case Gravity::center_center:
             case Gravity::center_right: y = (parentSize.y-size.y)/2.0f; break;
