@@ -3,6 +3,9 @@
     	"be_BY": {
             "name": "Беларуская"
         },
+	"de_DE": {
+            "name": "Deutsch"
+        },
         "en_US": {
             "name": "English"
         },
