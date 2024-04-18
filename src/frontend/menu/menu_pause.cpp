@@ -19,95 +19,6 @@
 
 using namespace gui;
 
-std::shared_ptr<Container> create_pack_panel(
-    const ContentPack& pack,
-    Engine* engine,
-    packconsumer callback,
-    packconsumer remover
-) {
-    auto assets = engine->getAssets();
-    auto packpanel = std::dynamic_pointer_cast<Container>(guiutil::create(
-        "<container size='540,80' color='#0F1E2DB2'></container>"
-    ));
-    if (callback) {
-        packpanel->listenAction([=](GUI*) {
-            callback(pack);
-        });
-    }
-    auto runtime = engine->getContent() ? engine->getContent()->getPackRuntime(pack.id) : nullptr;
-    auto idtext = (runtime && runtime->getStats().hasSavingContent()) 
-        ? "*["+pack.id+"]" 
-        :  "["+pack.id+"]";
-
-    packpanel->add(guiutil::create(
-        "<label pos='215,2' color='#FFFFFF80' size='300,25' align='right'>"
-            +idtext+
-        "</label>"
-    ));
-    packpanel->add(guiutil::create(
-        "<label pos='78,6'>"+pack.title+"</label>"
-    ));
-
-    if (!pack.creator.empty()) {
-        packpanel->add(guiutil::create(
-            "<label color='#CCFFE5B2' size='300,20' align='right' pos='215,60'>"
-                +pack.creator+
-            "</label>"
-        ));
-    }
-
-    packpanel->add(guiutil::create(
-        "<label pos='80,28' color='#FFFFFFB2'>" 
-            +pack.description+
-        "</label>"
-    ));
-
-    std::string icon = pack.id+".icon";
-    if (assets->getTexture(icon) == nullptr) {
-        auto iconfile = pack.folder/fs::path("icon.png");
-        if (fs::is_regular_file(iconfile)) {
-            auto image = imageio::read(iconfile.string());
-            assets->store(Texture::from(image.get()), icon);
-        } else {
-            icon = "gui/no_icon";
-        }
-    }
-    packpanel->add(std::make_shared<Image>(icon, glm::vec2(64)), glm::vec2(8));
-
-    if (remover && pack.id != "base") {
-        auto rembtn = guiutil::create(
-            "<button color='#00000000' hover-color='#FFFFFF2B'>"
-                "<image src='gui/cross' size='32,32'/>"
-            "</button>"
-        );
-        rembtn->listenAction([=](GUI* gui) {
-            remover(pack);
-        });
-        packpanel->add(rembtn, glm::vec2(470, 22));
-    }
-    return packpanel;
-}
-
-std::shared_ptr<Panel> menus::create_packs_panel(
-    const std::vector<ContentPack>& packs, 
-    Engine* engine, 
-    bool backbutton, 
-    packconsumer callback,
-    packconsumer remover
-){
-    auto panel = std::dynamic_pointer_cast<Panel>(guiutil::create(
-        "<panel size='550,200' interval='5' color='#FFFFFF11' max-length='400' scrollable='true'>"
-        "</panel>"
-    ));
-    for (auto& pack : packs) {
-        panel->add(create_pack_panel(pack, engine, callback, remover));
-    }
-    if (backbutton) {
-        panel->add(guiutil::backButton(engine->getGUI()->getMenu()));
-    }
-    return panel;
-}
-
 static void reopen_world(Engine* engine, World* world) {
     std::string wname = world->wfile->getFolder().stem().u8string();
     engine->setScreen(nullptr);
@@ -191,43 +102,6 @@ void menus::add_packs(
     reopen_world(engine, world);
 }
 
-void create_content_panel(Engine* engine, LevelController* controller) {
-    auto level = controller->getLevel();
-    auto menu = engine->getGUI()->getMenu();
-    auto mainPanel = menus::create_page(engine, "content", 550, 0.0f, 5);
-
-    PacksManager manager = engine->createPacksManager(level->getWorld()->wfile->getFolder());
-    manager.scan();
-
-    std::vector<ContentPack> scanned = manager.getAll(manager.getAllNames());
-    for (const auto& pack : engine->getContentPacks()) {
-        for (size_t i = 0; i < scanned.size(); i++) {
-            if (scanned[i].id == pack.id) {
-                scanned.erase(scanned.begin()+i);
-                i--;
-            }
-        }
-    }
-    auto panel = menus::create_packs_panel(
-        engine->getContentPacks(), engine, false, nullptr, 
-        [=](const ContentPack& pack) {
-            std::vector<std::string> packsToRemove {pack.id};
-            menus::remove_packs(engine, controller, packsToRemove);
-        }
-    );
-    mainPanel->add(panel);
-    mainPanel->add(menus::create_button(
-    langs::get(L"Add", L"content"), glm::vec4(10.0f), glm::vec4(1), [=](GUI* gui) {
-        auto panel = menus::create_packs_panel(scanned, engine, true, 
-        [=](const ContentPack& pack) {
-            menus::add_packs(engine, controller, {pack.id});
-        }, nullptr);
-        menu->addPage("content-packs", panel);
-        menu->setPage("content-packs");
-    }));
-    mainPanel->add(guiutil::backButton(menu));
-}
-
 void menus::create_pause_panel(Engine* engine, LevelController* controller) {
     auto menu = engine->getGUI()->getMenu();
     auto panel = create_page(engine, "pause", 400, 0.0f, 1);
@@ -236,7 +110,6 @@ void menus::create_pause_panel(Engine* engine, LevelController* controller) {
         menu->reset();
     }));
     panel->add(create_button(L"Content", glm::vec4(10.0f), glm::vec4(1), [=](GUI*) {
-        //create_content_panel(engine, controller);
         menu->setPage("content");
     }));
     panel->add(guiutil::gotoButton(L"Settings", "settings", menu));

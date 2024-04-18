@@ -204,7 +204,8 @@ end
 function gui.template(name, params)
     local text = file.read(file.find("layouts/templates/"..name..".xml"))
     for k,v in pairs(params) do
-        text = text:gsub("(%%{"..k.."})", tostring(v))
+        local arg = tostring(v):gsub("'", "\\'"):gsub('"', '\\"')
+        text = text:gsub("(%%{"..k.."})", arg)
     end
     text = text:gsub("if%s*=%s*'%%{%w+}'", "if=''")
     text = text:gsub("if%s*=%s*\"%%{%w+}\"", "if=\"\"")

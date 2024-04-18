@@ -214,11 +214,7 @@ static bool setattr(lua_State* L, gui::Menu* menu, const std::string& attr) {
         return false;
     if (attr == "page") {
         auto page = lua_tostring(L, 4);
-        if (menu->has(page)) {
-            menu->setPage(page);
-        } else {
-            menu->setPage("404");
-        }
+        menu->setPage(page);
         return true;
     }
     return false;

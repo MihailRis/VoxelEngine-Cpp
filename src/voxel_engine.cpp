@@ -59,10 +59,12 @@ int main(int argc, char** argv) {
     catch (const initialize_error& err) {
         logger.error() << "could not to initialize engine\n" << err.what();
     }
+#ifdef NDEBUG
     catch (const std::exception& err) {
         logger.error() << "uncaught exception: " << err.what();
         debug::Logger::flush();
         throw;
     }
+#endif
     return EXIT_SUCCESS;
 }

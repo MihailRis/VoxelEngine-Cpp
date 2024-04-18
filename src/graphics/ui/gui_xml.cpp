@@ -102,17 +102,19 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
     }
 
     if (element->has("onclick")) {
-        auto callback = scripting::create_runnable(
-            reader.getEnvironment().getId(),
-            element->attr("onclick").getText(),
-            reader.getFilename()
-        );
-        node.listenAction([callback](GUI*) {
-            callback();
-        });
+        std::string text = element->attr("onclick").getText();
+        if (!text.empty()) {
+            auto callback = scripting::create_runnable(
+                reader.getEnvironment().getId(),
+                text,
+                reader.getFilename()
+            );
+            node.listenAction([callback](GUI*) {
+                callback();
+            });
+        }
     }
 }
-
 
 static void _readContainer(UiXmlReader& reader, xml::xmlelement element, Container& container) {
     _readUINode(reader, element, container);

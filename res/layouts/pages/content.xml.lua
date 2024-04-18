@@ -1,12 +1,15 @@
 function add_pack(packid, packinfo)
-    document.packs_panel:add(gui.template("pack", {
-        id=packid,
-        title=packinfo.title,
-        description=packinfo.description,
-        icon="gui/no_icon",
-        creator=packinfo.creator,
-        remover='0'
-    }))
+    local remover = ''
+    if packid ~= "base" then
+        remover = string.format('core.remove_packs({%q})', packid)
+    end
+    if packinfo.has_indices then
+        packid = packid.."*"
+    end
+    packinfo.id = packid
+    packinfo.remover = remover
+    packinfo.icon = "gui/no_icon"
+    document.packs_panel:add(gui.template("pack", packinfo))
 end
 
 function on_open()

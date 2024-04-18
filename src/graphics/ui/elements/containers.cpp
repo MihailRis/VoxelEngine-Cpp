@@ -268,11 +268,14 @@ void Menu::addSupplier(std::string name, supplier<std::shared_ptr<UINode>> pageS
     pageSuppliers[name] = pageSupplier;
 }
 
-std::shared_ptr<UINode> Menu::fetchPage(std::string name) {
+std::shared_ptr<UINode> Menu::fetchPage(const std::string& name) {
     auto found = pages.find(name);
     if (found == pages.end()) {
         auto supplier = pageSuppliers.find(name);
         if (supplier == pageSuppliers.end()) {
+            if (pagesLoader) {
+                return pagesLoader(name);
+            }
             return nullptr;
         } else {
             return supplier->second();
@@ -316,6 +319,10 @@ void Menu::back() {
     }
 
     setPage(page, false);
+}
+
+void Menu::setPageLoader(page_loader_func loader) {
+    pagesLoader = loader;
 }
 
 Page& Menu::getCurrent() {

@@ -72,6 +72,21 @@ static int l_remove_packs(lua_State* L) {
     return 0;
 }
 
+static int l_add_packs(lua_State* L) {
+    if (!lua_istable(L, 1)) {
+        luaL_error(L, "strings array expected as an argument");
+    }
+    std::vector<std::string> packs;
+    int len = lua_objlen(L, 1);
+    for (int i = 0; i < len; i++) {
+        lua_rawgeti(L, -1, i+1);
+        packs.push_back(lua_tostring(L, -1));
+        lua_pop(L, 1);
+    }
+    menus::add_packs(scripting::engine, scripting::controller, packs);
+    return 0;
+}
+
 static int l_get_bindings(lua_State* L) {
     auto& bindings = Events::bindings;
     lua_createtable(L, bindings.size(), 0);
@@ -116,6 +131,7 @@ const luaL_Reg corelib [] = {
     {"open_world", lua_wrap_errors<l_open_world>},
     {"close_world", lua_wrap_errors<l_close_world>},
     {"delete_world", lua_wrap_errors<l_delete_world>},
+    {"add_packs", lua_wrap_errors<l_add_packs>},
     {"remove_packs", lua_wrap_errors<l_remove_packs>},
     {"get_bindings", lua_wrap_errors<l_get_bindings>},
     {"get_setting", lua_wrap_errors<l_get_setting>},

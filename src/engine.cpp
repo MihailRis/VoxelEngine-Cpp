@@ -179,8 +179,8 @@ Engine::~Engine() {
     logger.info() << "shutting down";
     if (screen) {
         screen->onEngineShutdown();
+        screen.reset();
     }
-    screen.reset();
     content.reset();
     assets.reset();
     audio::close();
