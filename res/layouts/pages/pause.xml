@@ -1,0 +1,8 @@
+<panel size='400' color='0' interval='1' context='menu'>
+    <button onclick='menu:reset()' padding='10'>@Continue</button>
+    <button onclick='menu.page="content"' padding='10'>@Content</button>
+    <button onclick='menu.page="settings"' padding='10'>@Settings</button>
+    <button onclick='core.close_world(true)' padding='10'>
+        @Save and Quit to Menu
+    </button>
+</panel>

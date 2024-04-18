@@ -178,8 +178,7 @@ std::shared_ptr<InventoryView> Hud::createHotbar() {
 }
 
 Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player) 
-  : engine(engine),
-    assets(engine->getAssets()), 
+  : assets(engine->getAssets()), 
     gui(engine->getGUI()),
     frontend(frontend),
     player(player)
@@ -552,7 +551,6 @@ void Hud::setPause(bool pause) {
     
     auto menu = gui->getMenu();
     if (pause) {
-        menus::create_pause_panel(engine, frontend->getController());
         menu->setPage("pause");
     } else {
         menu->reset();

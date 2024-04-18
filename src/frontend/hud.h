@@ -65,7 +65,6 @@ public:
 };
 
 class Hud {
-    Engine* engine;
     Assets* assets;
     std::unique_ptr<Camera> uicamera;
     gui::GUI* gui;

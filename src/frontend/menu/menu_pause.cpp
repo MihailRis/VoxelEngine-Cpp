@@ -101,27 +101,3 @@ void menus::add_packs(
     controller->saveWorld();
     reopen_world(engine, world);
 }
-
-void menus::create_pause_panel(Engine* engine, LevelController* controller) {
-    auto menu = engine->getGUI()->getMenu();
-    auto panel = create_page(engine, "pause", 400, 0.0f, 1);
-
-    panel->add(create_button(L"Continue", glm::vec4(10.0f), glm::vec4(1), [=](GUI*){
-        menu->reset();
-    }));
-    panel->add(create_button(L"Content", glm::vec4(10.0f), glm::vec4(1), [=](GUI*) {
-        menu->setPage("content");
-    }));
-    panel->add(guiutil::gotoButton(L"Settings", "settings", menu));
-
-    panel->add(create_button(L"Save and Quit to Menu", glm::vec4(10.f), glm::vec4(1), [=](GUI*){
-        engine->postRunnable([=]() {
-            // save world
-            controller->saveWorld();
-            // destroy LevelScreen and run quit callbacks
-            engine->setScreen(nullptr);
-            // create and go to menu screen
-            engine->setScreen(std::make_shared<MenuScreen>(engine));
-        });
-    }));
-}
