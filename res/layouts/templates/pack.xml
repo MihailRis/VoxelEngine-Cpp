@@ -1,4 +1,4 @@
-<container onclick='%{callback}' size='540,80' color='#0F1E2DB2'>
+<container onclick='%{callback}' size='540,80' color='#0F1E2DB2' hover-color='#0F1E2DF0'>
     <label color='#FFFFFF80' size='300,25' align='right' gravity='top-right'>
         [%{id}]
     </label>
@@ -12,7 +12,7 @@
     </label>
     <button if='%{remover}' onclick='%{remover}' color='0' hover-color='#FFFFFF2B' 
             gravity='center-right' margin='10'>
-        <image src='gui/cross' size='32,32'/>
+        <image src='gui/cross' size='32,32' color='#FFFFFF80'/>
     </button>
     <image pos='8,8' src='%{icon}' size='64'></image>
 </container>
