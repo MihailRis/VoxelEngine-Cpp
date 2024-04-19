@@ -7,7 +7,7 @@
     </textbox>
     <label>@Seed</label>
     <textbox id='seed_box' placeholder='-' padding='4'></textbox>
-    <button onclick='menu.page="world_generators"' id='generator_btn' padding='10'>
+    <button onclick='menu.page="generators"' id='generator_btn' padding='10'>
         @World generator
     </button>
     <button onclick='create_world()' padding='10' margin='1,20,1,1'>

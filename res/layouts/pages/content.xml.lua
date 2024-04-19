@@ -8,7 +8,6 @@ function add_pack(packid, packinfo)
     end
     packinfo.id = packid
     packinfo.remover = remover
-    packinfo.icon = "gui/no_icon"
     document.packs_panel:add(gui.template("pack", packinfo))
 end
 
