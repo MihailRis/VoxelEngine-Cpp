@@ -42,12 +42,15 @@ public:
 
 class ResPaths {
     fs::path mainRoot;
-    std::vector<fs::path> roots;
+    std::vector<std::pair<std::string, fs::path>> roots;
 public:
-    ResPaths(fs::path mainRoot,
-             std::vector<fs::path> roots);
+    ResPaths(
+        fs::path mainRoot,
+        std::vector<std::pair<std::string, fs::path>> roots
+    );
     
     fs::path find(const std::string& filename) const;
+    std::string findRaw(const std::string& filename) const;
     std::vector<fs::path> listdir(const std::string& folder) const;
 
     const fs::path& getMainRoot() const;
