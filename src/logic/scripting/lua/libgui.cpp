@@ -120,6 +120,9 @@ static bool getattr(lua_State* L, gui::TextBox* box, const std::string& attr) {
     } else if (attr == "placeholder") {
         lua_pushstring(L, util::wstr2str_utf8(box->getPlaceholder()).c_str());
         return true;
+    } else if (attr == "valid") {
+        lua_pushboolean(L, box->validate());
+        return true;
     }
     return false;
 }

@@ -1,0 +1,4 @@
+<container onclick='%{callback}' size='80,30' hover-color='#FFFFFF10'>
+    <label pos='80,4' size='300,25' color='#FFFFFF80' align='right'>[%{id}]</label>
+    <label pos='0,8'>%{name}</label>
+</container>

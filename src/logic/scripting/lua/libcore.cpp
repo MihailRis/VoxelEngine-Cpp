@@ -8,6 +8,7 @@
 #include "../../../logic/LevelController.h"
 #include "../../../window/Events.h"
 #include "../../../window/Window.h"
+#include "../../../world/WorldGenerators.h"
 #include "../scripting.h"
 
 #include <vector>
@@ -27,6 +28,14 @@ static int l_get_worlds_list(lua_State* L) {
         lua_rawseti(L, -2, i + 1);
     }
     return 1;
+}
+
+static int l_new_world(lua_State* L) {
+    auto name = lua_tostring(L, 1);
+    auto seed = lua_tostring(L, 2);
+    auto generator = lua_tostring(L, 3);
+    menus::create_world(scripting::engine, name, seed, generator);
+    return 0;
 }
 
 static int l_open_world(lua_State* L) {
@@ -126,8 +135,27 @@ static int l_quit(lua_State* L) {
     return 0;
 }
 
+static int l_get_default_generator(lua_State* L) {
+    lua_pushstring(L, WorldGenerators::getDefaultGeneratorID().c_str());
+    return 1;
+}
+
+static int l_get_generators(lua_State* L) {
+    const auto& generators = WorldGenerators::getGeneratorsIDs();
+    lua_createtable(L, generators.size(), 0);
+
+    int i = 0;
+    for (auto& id : generators) {
+        lua_pushstring(L, id.c_str());
+        lua_rawseti(L, -2, i + 1);
+        i++;
+    }
+    return 1;
+}
+
 const luaL_Reg corelib [] = {
     {"get_worlds_list", lua_wrap_errors<l_get_worlds_list>},
+    {"new_world", lua_wrap_errors<l_new_world>},
     {"open_world", lua_wrap_errors<l_open_world>},
     {"close_world", lua_wrap_errors<l_close_world>},
     {"delete_world", lua_wrap_errors<l_delete_world>},
@@ -138,5 +166,7 @@ const luaL_Reg corelib [] = {
     {"set_setting", lua_wrap_errors<l_set_setting>},
     {"str_setting", lua_wrap_errors<l_str_setting>},
     {"quit", lua_wrap_errors<l_quit>},
+    {"get_default_generator", lua_wrap_errors<l_get_default_generator>},
+    {"get_generators", lua_wrap_errors<l_get_generators>},
     {NULL, NULL}
 };

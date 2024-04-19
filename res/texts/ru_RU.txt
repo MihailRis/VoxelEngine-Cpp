@@ -31,7 +31,7 @@ world.Name=Название
 world.World generator=Генератор мира
 world.generators.default=Обычный
 world.generators.flat=Плоский
-menu.Create World=Создать Мир
+world.Create World=Создать Мир
 
 world.convert-request=Есть изменения в индексах! Конвертировать мир?
 world.delete-confirm=Удалить мир безвозвратно?

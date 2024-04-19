@@ -20,7 +20,7 @@
 using namespace gui;
 
 static void reopen_world(Engine* engine, World* world) {
-    std::string wname = world->wfile->getFolder().stem().u8string();
+    std::string wname = world->wfile->getFolder().filename().u8string();
     engine->setScreen(nullptr);
     engine->setScreen(std::make_shared<MenuScreen>(engine));
     menus::open_world(wname, engine, true);

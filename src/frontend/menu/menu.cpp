@@ -40,10 +40,6 @@
 namespace fs = std::filesystem;
 using namespace gui;
 
-namespace menus {
-    extern std::string generatorID;
-}
-
 void menus::create_version_label(Engine* engine) {
     auto gui = engine->getGUI();
     auto vlabel = std::make_shared<gui::Label>(
@@ -220,10 +216,7 @@ void menus::delete_world(std::string name, Engine* engine) {
 }
 
 void menus::create_menus(Engine* engine) {
-    menus::generatorID = WorldGenerators::getDefaultGeneratorID();
-    create_new_world_panel(engine);
     create_settings_panel(engine);
-    create_world_generators_panel(engine);
 
     auto menu = engine->getGUI()->getMenu();
     menu->setPageLoader([=](auto name) {
@@ -238,6 +231,4 @@ void menus::create_menus(Engine* engine) {
 }
 
 void menus::refresh_menus(Engine* engine) {
-    create_new_world_panel(engine);
-    create_world_generators_panel(engine);
 }

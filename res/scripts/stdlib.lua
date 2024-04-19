@@ -215,6 +215,23 @@ function gui.template(name, params)
     return text
 end
 
+session = {
+    entries={}
+}
+
+function session.get_entry(name)
+    local entry = session.entries[name]
+    if entry == nil then
+        entry = {}
+        session.entries[name] = entry
+    end
+    return entry
+end
+
+function session.reset_entry(name)
+    session.entries[name] = nil
+end
+
 -- Deprecated functions
 block_index = block.index
 block_name = block.name
