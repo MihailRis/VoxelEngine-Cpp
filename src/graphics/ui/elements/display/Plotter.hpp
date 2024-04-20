@@ -1,8 +1,8 @@
 #ifndef GRAPHICS_UI_ELEMENTS_PLOTTER_HPP_
 #define GRAPHICS_UI_ELEMENTS_PLOTTER_HPP_
 
-#include "UINode.h"
-#include "../../../typedefs.h"
+#include "../UINode.h"
+#include "../../../../typedefs.h"
 
 #include <memory>
 #include <glm/glm.hpp>

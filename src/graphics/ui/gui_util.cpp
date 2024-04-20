@@ -1,6 +1,7 @@
 #include "gui_util.h"
-#include "elements/controls.h"
-#include "elements/Menu.hpp"
+#include "elements/display/Label.hpp"
+#include "elements/layout/Menu.hpp"
+#include "elements/control/Button.hpp"
 #include "gui_xml.h"
 
 #include <glm/glm.hpp>

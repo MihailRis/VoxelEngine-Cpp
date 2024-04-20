@@ -10,7 +10,7 @@
 #include "../graphics/core/Shader.h"
 #include "../graphics/core/TextureAnimation.h"
 #include "../graphics/render/WorldRenderer.h"
-#include "../graphics/ui/elements/Menu.hpp"
+#include "../graphics/ui/elements/layout/Menu.hpp"
 #include "../graphics/ui/GUI.h"
 #include "../logic/ChunksController.h"
 #include "../logic/LevelController.h"

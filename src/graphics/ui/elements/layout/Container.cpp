@@ -1,7 +1,7 @@
 #include "Container.hpp"
 
-#include "../../core/GfxContext.h"
-#include "../../core/Batch2D.h"
+#include "../../../core/GfxContext.h"
+#include "../../../core/Batch2D.h"
 
 using namespace gui;
 
