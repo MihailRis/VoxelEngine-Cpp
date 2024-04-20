@@ -1,6 +1,8 @@
 #ifndef GRAPHICS_UI_ELEMENTS_CONTROLS_H_
 #define GRAPHICS_UI_ELEMENTS_CONTROLS_H_
 
+// TODO: move elements to different files
+
 #include <string>
 #include <memory>
 #include <vector>

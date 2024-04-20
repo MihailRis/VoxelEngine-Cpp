@@ -90,7 +90,7 @@ void SettingsHandler::setValue(const std::string& name, dynamic::Value value) {
     if (auto number = dynamic_cast<NumberSetting*>(setting)) {
         set_numeric_value(number, value);
     } else if (auto integer = dynamic_cast<IntegerSetting*>(setting)) {
-        set_numeric_value(number, value);
+        set_numeric_value(integer, value);
     } else if (auto flag = dynamic_cast<FlagSetting*>(setting)) {
         set_numeric_value(flag, value);
     } else {

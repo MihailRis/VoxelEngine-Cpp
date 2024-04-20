@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <glm/glm.hpp>
 
+#include "commons.h"
 #include "../../maths/UVRegion.h"
 
 class Mesh;
@@ -18,6 +19,9 @@ class Batch2D {
     size_t index;
     glm::vec4 color;
     Texture* _texture;
+    DrawPrimitive primitive = DrawPrimitive::triangle;
+
+    void setPrimitive(DrawPrimitive primitive);
 
     void vertex(
         float x, float y,
@@ -55,6 +59,8 @@ public:
         float r, float g, float b, float a
     );
 
+    void lineRect(float x, float y, float w, float h);
+
     void rect(
         float x, float y,
         float w, float h,
@@ -81,7 +87,6 @@ public:
         float r4, float g4, float b4, int sh
     );
 
-    void flush(unsigned int gl_primitive);
     void flush();
 
     void lineWidth(float width);

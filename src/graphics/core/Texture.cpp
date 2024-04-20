@@ -18,7 +18,7 @@ Texture::Texture(ubyte* data, uint width, uint height, ImageFormat imageFormat)
     glBindTexture(GL_TEXTURE_2D, id);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    GLenum format = gl::to_gl_format(imageFormat);
+    GLenum format = gl::to_glenum(imageFormat);
     glTexImage2D(
         GL_TEXTURE_2D, 0, format, width, height, 0,
         format, GL_UNSIGNED_BYTE, (GLvoid *) data
