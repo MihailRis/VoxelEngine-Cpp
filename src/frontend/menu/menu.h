@@ -61,7 +61,6 @@ namespace menus {
     /// @brief Create development version label at the top-right screen corner
     void create_version_label(Engine* engine);
     void create_menus(Engine* engine);
-    void refresh_menus(Engine* engine);
 }
 
 #endif // FRONTEND_MENU_MENU_H_

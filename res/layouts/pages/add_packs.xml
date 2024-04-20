@@ -2,5 +2,5 @@
     <panel id='packs_panel' size='540,10' color='0,0,0,50' max-length='400'>
         <!-- content is generated in script -->
     </panel>
-    <button onclick='menu:back()' padding='10'>@Back</button>
+    <button onclick='menu:back()'>@Back</button>
 </panel>

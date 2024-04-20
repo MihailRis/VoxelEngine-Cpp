@@ -11,7 +11,7 @@
         %{description}
     </label>
     <button if='%{remover}' onclick='%{remover}' color='0' hover-color='#FFFFFF2B' 
-            gravity='center-right' margin='10'>
+            gravity='center-right' margin='10' padding='0'>
         <image src='gui/cross' size='32,32' color='#FFFFFF80'/>
     </button>
     <image pos='8,8' src='%{icon}' size='64'></image>

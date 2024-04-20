@@ -13,75 +13,8 @@
 using namespace gui;
 
 void menus::create_settings_panel(Engine* engine) {
-    //create_controls_panel(engine);
-
     auto menu = engine->getGUI()->getMenu();
     auto panel = menus::create_page(engine, "settings", 400, 0.0f, 1);
-
-    /* Load Distance setting track bar */{
-        panel->add(menus::create_label([=]() {
-            return langs::get(L"Load Distance", L"settings")+L": " + 
-                std::to_wstring(engine->getSettings().chunks.loadDistance);
-        }));
-
-        auto trackbar = std::make_shared<TrackBar>(3, 66, 10, 1, 3);
-        trackbar->setSupplier([=]() {
-            return engine->getSettings().chunks.loadDistance;
-        });
-        trackbar->setConsumer([=](double value) {
-            engine->getSettings().chunks.loadDistance = static_cast<uint>(value);
-        });
-        panel->add(trackbar);
-    }
-
-    /* Load Speed setting track bar */{
-        panel->add(menus::create_label([=]() {
-            return langs::get(L"Load Speed", L"settings")+L": " + 
-                std::to_wstring(engine->getSettings().chunks.loadSpeed);
-        }));
-
-        auto trackbar = std::make_shared<TrackBar>(1, 32, 10, 1, 1);
-        trackbar->setSupplier([=]() {
-            return engine->getSettings().chunks.loadSpeed;
-        });
-        trackbar->setConsumer([=](double value) {
-            engine->getSettings().chunks.loadSpeed = static_cast<uint>(value);
-        });
-        panel->add(trackbar);
-    }
-
-    /* Fog Curve setting track bar */{
-        panel->add(menus::create_label([=]() {
-            float value = engine->getSettings().graphics.fogCurve;
-            return langs::get(L"Fog Curve", L"settings")+L": " +
-                   util::to_wstring(value, 1);
-        }));
-
-        auto trackbar = std::make_shared<TrackBar>(1.0, 6.0, 1.0, 0.1, 2);
-        trackbar->setSupplier([=]() {
-            return engine->getSettings().graphics.fogCurve;
-        });
-        trackbar->setConsumer([=](double value) {
-            engine->getSettings().graphics.fogCurve = value;
-        });
-        panel->add(trackbar);
-    }
-
-    /* Fov setting track bar */{
-        panel->add(menus::create_label([=]() {
-            int fov = (int)engine->getSettings().camera.fov;
-            return langs::get(L"FOV", L"settings")+L": "+std::to_wstring(fov)+L"°";
-        }));
-
-        auto trackbar = std::make_shared<TrackBar>(30.0, 120.0, 90, 1, 4);
-        trackbar->setSupplier([=]() {
-            return engine->getSettings().camera.fov;
-        });
-        trackbar->setConsumer([=](double value) {
-            engine->getSettings().camera.fov = value;
-        });
-        panel->add(trackbar);
-    }
 
     /* V-Sync checkbox */{
         auto checkbox = std::make_shared<FullCheckBox>(
@@ -128,7 +61,7 @@ void menus::create_settings_panel(Engine* engine) {
         util::str2wstr_utf8(langName), 
         "languages", menu));
 
-    panel->add(guiutil::gotoButton(L"Audio", "settings-audio", menu));
+    panel->add(guiutil::gotoButton(L"Audio", "settings_audio", menu));
     panel->add(guiutil::gotoButton(L"Controls", "controls", menu));
     panel->add(guiutil::backButton(menu));
 }

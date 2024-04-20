@@ -12,6 +12,7 @@ namespace toml {
         ftbool,
         ftint,
         ftuint,
+        ftint64,
         ftfloat,
         ftdouble,
         ftstring,
@@ -31,6 +32,7 @@ namespace toml {
         Section(std::string name);
         void add(std::string name, bool* ptr);
         void add(std::string name, int* ptr);
+        void add(std::string name, int64_t* ptr);
         void add(std::string name, uint* ptr);
         void add(std::string name, float* ptr);
         void add(std::string name, double* ptr);

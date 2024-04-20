@@ -51,7 +51,6 @@ Screen::~Screen() {
 MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
     auto menu = engine->getGUI()->getMenu();
     menu->reset();
-    menus::refresh_menus(engine);
     menu->setPage("main");
 
     uicamera.reset(new Camera(glm::vec3(), Window::height));
@@ -167,7 +166,7 @@ void LevelScreen::update(float delta) {
 
     // TODO: subscribe for setting change
     EngineSettings& settings = engine->getSettings();
-    controller->getPlayer()->camera->setFov(glm::radians(settings.camera.fov));
+    controller->getPlayer()->camera->setFov(glm::radians(settings.camera.fov.get()));
     if (settings.graphics.backlight != backlight) {
         controller->getLevel()->chunks->saveAndClear();
         backlight = settings.graphics.backlight;

@@ -10,6 +10,7 @@
 #include "../coders/json.h"
 
 SettingsHandler::SettingsHandler(EngineSettings& settings) {
+    // public settings
     map.emplace("audio.volume-master", &settings.audio.volumeMaster);
     map.emplace("audio.volume-regular", &settings.audio.volumeRegular);
     map.emplace("audio.volume-ui", &settings.audio.volumeUI);
@@ -17,6 +18,12 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     map.emplace("audio.volume-music", &settings.audio.volumeMusic);
 
     map.emplace("camera.sensitivity", &settings.camera.sensitivity);
+    map.emplace("camera.fov", &settings.camera.fov);
+
+    map.emplace("chunks.load-distance", &settings.chunks.loadDistance);
+    map.emplace("chunks.load-speed", &settings.chunks.loadSpeed);
+
+    map.emplace("graphics.fog-curve", &settings.graphics.fogCurve);
 }
 
 dynamic::Value SettingsHandler::getValue(const std::string& name) const {
@@ -27,6 +34,8 @@ dynamic::Value SettingsHandler::getValue(const std::string& name) const {
     auto setting = found->second;
     if (auto number = dynamic_cast<NumberSetting*>(setting)) {
         return dynamic::Value::of((number_t)number->get());
+    } else if (auto integer = dynamic_cast<IntegerSetting*>(setting)) {
+        return dynamic::Value::of((integer_t)integer->get());
     } else {
         throw std::runtime_error("type is not implemented for '"+name+"'");
     }
@@ -39,6 +48,14 @@ std::string SettingsHandler::toString(const std::string& name) const {
     }
     auto setting = found->second;
     return setting->toString();
+}
+
+Setting* SettingsHandler::getSetting(const std::string& name) const {
+    auto found = map.find(name);
+    if (found == map.end()) {
+        throw std::runtime_error("setting '"+name+"' does not exist");
+    }
+    return found->second;
 }
 
 void SettingsHandler::setValue(const std::string& name, dynamic::Value value) {
@@ -54,6 +71,17 @@ void SettingsHandler::setValue(const std::string& name, dynamic::Value value) {
                 break;
             case dynamic::valtype::number:
                 number->set(std::get<number_t>(value.value));
+                break;
+            default:
+                throw std::runtime_error("type error, numeric value expected");
+        }
+    } else if (auto integer = dynamic_cast<IntegerSetting*>(setting)) {
+        switch (value.type) {
+            case dynamic::valtype::integer:
+                integer->set(std::get<integer_t>(value.value));
+                break;
+            case dynamic::valtype::number:
+                integer->set(std::get<number_t>(value.value));
                 break;
             default:
                 throw std::runtime_error("type error, numeric value expected");
@@ -82,19 +110,19 @@ toml::Wrapper* create_wrapper(EngineSettings& settings) {
     display.add("swap-interval", &settings.display.swapInterval);
 
     toml::Section& chunks = wrapper->add("chunks");
-    chunks.add("load-distance", &settings.chunks.loadDistance);
-    chunks.add("load-speed", &settings.chunks.loadSpeed);
-    chunks.add("padding", &settings.chunks.padding);
+    chunks.add("load-distance", &*settings.chunks.loadDistance);
+    chunks.add("load-speed", &*settings.chunks.loadSpeed);
+    chunks.add("padding", &*settings.chunks.padding);
     
     toml::Section& camera = wrapper->add("camera");
     camera.add("fov-effects", &settings.camera.fovEvents);
-    camera.add("fov", &settings.camera.fov);
+    camera.add("fov", &*settings.camera.fov);
     camera.add("shaking", &settings.camera.shaking);
     camera.add("sensitivity", &*settings.camera.sensitivity);
 
     toml::Section& graphics = wrapper->add("graphics");
     graphics.add("gamma", &settings.graphics.gamma);
-    graphics.add("fog-curve", &settings.graphics.fogCurve);
+    graphics.add("fog-curve", &*settings.graphics.fogCurve);
     graphics.add("backlight", &settings.graphics.backlight);
     graphics.add("frustum-culling", &settings.graphics.frustumCulling);
     graphics.add("skybox-resolution", &settings.graphics.skyboxResolution);

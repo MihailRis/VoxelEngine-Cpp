@@ -11,8 +11,8 @@ static debug::Logger logger("level-control");
 
 LevelController::LevelController(EngineSettings& settings, Level* level) 
     : settings(settings), level(level),
-    blocks(std::make_unique<BlocksController>(level, settings.chunks.padding)),
-    chunks(std::make_unique<ChunksController>(level, settings.chunks.padding)),
+    blocks(std::make_unique<BlocksController>(level, settings.chunks.padding.get())),
+    chunks(std::make_unique<ChunksController>(level, settings.chunks.padding.get())),
     player(std::make_unique<PlayerController>(level, settings, blocks.get())) {
 
     scripting::on_world_load(this);
@@ -21,8 +21,10 @@ LevelController::LevelController(EngineSettings& settings, Level* level)
 void LevelController::update(float delta, bool input, bool pause) {
     player->update(delta, input, pause);
 	glm::vec3 position = player->getPlayer()->hitbox->position;
-    level->loadMatrix(position.x, position.z, settings.chunks.loadDistance + settings.chunks.padding * 2);
-    chunks->update(settings.chunks.loadSpeed);
+    level->loadMatrix(position.x, position.z, 
+        settings.chunks.loadDistance.get() + 
+        settings.chunks.padding.get() * 2);
+    chunks->update(settings.chunks.loadSpeed.get());
 
     // erease null pointers
     level->objects.erase(

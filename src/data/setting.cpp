@@ -12,3 +12,14 @@ std::string NumberSetting::toString() const {
             return "invalid format";
     }
 }
+
+std::string IntegerSetting::toString() const {
+    switch (getFormat()) {
+        case setting_format::simple:
+            return util::to_string(value);
+        case setting_format::percent:
+            return std::to_string(value) + "%";
+        default:
+            return "invalid format";
+    }
+}

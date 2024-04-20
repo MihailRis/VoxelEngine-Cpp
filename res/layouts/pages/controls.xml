@@ -7,5 +7,5 @@
     <panel id='bindings_panel' size='380,200' padding='2' interval='1' max-length='400' color='#0000004C'>
         <!-- content is generated in script -->
     </panel>
-    <button padding='10' onclick='menu:back()'>@Back</button>
+    <button onclick='menu:back()'>@Back</button>
 </panel>

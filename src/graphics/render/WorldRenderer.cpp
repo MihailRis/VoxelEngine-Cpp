@@ -150,7 +150,7 @@ void WorldRenderer::renderLevel(
     Shader* shader = assets->getShader("main");
     auto indices = level->content->getIndices();
 
-    float fogFactor = 15.0f / ((float)settings.chunks.loadDistance-2);
+    float fogFactor = 15.0f / ((float)settings.chunks.loadDistance.get()-2);
 
     // Setting up main shader
     shader->use();
@@ -158,7 +158,7 @@ void WorldRenderer::renderLevel(
     shader->uniformMatrix("u_view", camera->getView());
     shader->uniform1f("u_gamma", settings.graphics.gamma);
     shader->uniform1f("u_fogFactor", fogFactor);
-    shader->uniform1f("u_fogCurve", settings.graphics.fogCurve);
+    shader->uniform1f("u_fogCurve", settings.graphics.fogCurve.get());
     shader->uniform1f("u_dayTime", level->getWorld()->daytime);
     shader->uniform3f("u_cameraPos", camera->position);
     shader->uniform1i("u_cubemap", 1);

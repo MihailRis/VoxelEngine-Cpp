@@ -95,4 +95,65 @@ public:
     }
 };
 
+class IntegerSetting : public Setting {
+protected:
+    integer_t initial;
+    integer_t value;
+    integer_t min;
+    integer_t max;
+    std::vector<consumer<integer_t>> consumers;
+public:
+    IntegerSetting(
+        integer_t value, 
+        integer_t min=std::numeric_limits<integer_t>::min(), 
+        integer_t max=std::numeric_limits<integer_t>::max(),
+        setting_format format=setting_format::simple
+    ) : Setting(format), 
+        initial(value), 
+        value(value), 
+        min(min), 
+        max(max)
+    {}
+
+    integer_t& operator*() {
+        return value;
+    }
+
+    integer_t get() const {
+        return value;
+    }
+
+    void set(integer_t value) {
+        if (value == this->value) {
+            return;
+        }
+        this->value = value;
+        for (auto& callback : consumers) {
+            callback(value);
+        }
+    }
+
+    integer_t getMin() const {
+        return min;
+    }
+
+    integer_t getMax() const {
+        return max;
+    }
+
+    integer_t getT() const {
+        return (value - min) / (max - min);
+    }
+
+    void observe(consumer<integer_t> callback) {
+        consumers.push_back(callback);
+    }
+
+    virtual void resetToDefault() override {
+        value = initial;
+    }
+
+    virtual std::string toString() const override;
+};
+
 #endif // DATA_SETTING_H_

@@ -38,11 +38,11 @@ struct DisplaySettings {
 
 struct ChunksSettings {
     /// @brief Max milliseconds that engine uses for chunks loading only
-    uint loadSpeed = 4;
+    IntegerSetting loadSpeed = {4, 1, 32};
     /// @brief Radius of chunks loading zone (chunk is unit) 
-    uint loadDistance = 22;
+    IntegerSetting loadDistance = {22, 3, 66};
     /// @brief Buffer zone where chunks are not unloading (chunk is unit)
-    uint padding = 2;
+    IntegerSetting padding = {2, 1, 8};
 };
 
 struct CameraSettings {
@@ -51,15 +51,15 @@ struct CameraSettings {
     /// @brief Camera movement shake
     bool shaking = true;
     /// @brief Camera field of view
-    float fov = 90.0f;
+    NumberSetting fov {90.0f, 10, 120};
     /// @brief Camera sensitivity
     NumberSetting sensitivity {2.0f, 0.1f, 10.0f};
 };
 
 struct GraphicsSettings {
     /// @brief Fog opacity is calculated as `pow(depth*k, fogCurve)` where k depends on chunksLoadDistance.
-    /// Use values in range [1.0 - 2.0] where 1.0 is linear, 2.0 is quadratic
-    float fogCurve = 1.6f;
+    /// 1.0 is linear, 2.0 is quadratic
+    NumberSetting fogCurve {1.6f, 1.0f, 6.0f};
     float gamma = 1.0f;
     /// @brief Enable blocks backlight to prevent complete darkness
     bool backlight = true;

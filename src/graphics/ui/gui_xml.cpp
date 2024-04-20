@@ -228,20 +228,21 @@ static std::shared_ptr<UINode> readPanel(UiXmlReader& reader, xml::xmlelement el
 }
 
 static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement element) {
+    glm::vec4 padding = element->attr("padding", "10").asVec4();
+
     std::shared_ptr<Button> button;
     auto& elements = element->getElements();
     if (!elements.empty() && elements.at(0)->getTag() != "#") {
-        glm::vec4 padding = element->attr("padding", "0,0,0,0").asVec4();
         auto inner = reader.readUINode(element->getElements().at(0));
         if (inner != nullptr) {
             button = std::make_shared<Button>(inner, padding);
         } else {
-            button = std::make_shared<Button>(L"", glm::vec4(0.0f), nullptr);
+            button = std::make_shared<Button>(L"", padding, nullptr);
         }
         _readPanel(reader, element, *button, false);
     } else {
         std::wstring text = readAndProcessInnerText(element, reader.getContext());
-        button = std::make_shared<Button>(text, glm::vec4(0.0f), nullptr);
+        button = std::make_shared<Button>(text, padding, nullptr);
         _readPanel(reader, element, *button, true);
     }
     if (element->has("text-align")) {

@@ -19,15 +19,6 @@
 
 using namespace gui;
 
-inline uint64_t randU64() {
-    srand(time(NULL));
-    return rand() ^ (rand() << 8) ^ 
-        (rand() << 16) ^ (rand() << 24) ^
-        ((uint64_t)rand() << 32) ^ 
-        ((uint64_t)rand() << 40) ^
-        ((uint64_t)rand() << 56);
-}
-
 inline uint64_t str2seed(const std::string& seedstr) {
     if (util::is_integer(seedstr)) {
         try {

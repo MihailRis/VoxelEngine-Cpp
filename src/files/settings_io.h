@@ -18,6 +18,7 @@ public:
     dynamic::Value getValue(const std::string& name) const;
     void setValue(const std::string& name, dynamic::Value value);
     std::string toString(const std::string& name) const;
+    Setting* getSetting(const std::string& name) const;
 };
 
 extern std::string write_controls();

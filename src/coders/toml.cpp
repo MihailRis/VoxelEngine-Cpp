@@ -33,6 +33,10 @@ void Section::add(std::string name, uint* ptr) {
     add(name, {fieldtype::ftuint, ptr});
 }
 
+void Section::add(std::string name, int64_t* ptr) {
+    add(name, {fieldtype::ftint64, ptr});
+}
+
 void Section::add(std::string name, float* ptr) {
     add(name, {fieldtype::ftfloat, ptr});
 }
@@ -100,6 +104,7 @@ std::string Wrapper::write() const {
                     break;
                 case fieldtype::ftint: ss << *((int*)field->ptr); break;
                 case fieldtype::ftuint: ss << *((uint*)field->ptr); break;
+                case fieldtype::ftint64: ss << *((int64_t*)field->ptr); break;
                 case fieldtype::ftfloat: ss << *((float*)field->ptr); break;
                 case fieldtype::ftdouble: ss << *((double*)field->ptr); break;
                 case fieldtype::ftstring: 
@@ -144,6 +149,7 @@ void Section::set(const std::string& name, double value) {
         case fieldtype::ftbool: *(bool*)(field->ptr) = fabs(value) > 0.0; break;
         case fieldtype::ftint: *(int*)(field->ptr) = value; break;
         case fieldtype::ftuint: *(uint*)(field->ptr) = value; break;
+        case fieldtype::ftint64: *(int64_t*)(field->ptr) = value; break;
         case fieldtype::ftfloat: *(float*)(field->ptr) = value; break;
         case fieldtype::ftdouble: *(double*)(field->ptr) = value; break;
         case fieldtype::ftstring: *(std::string*)(field->ptr) = std::to_string(value); break;
@@ -162,6 +168,7 @@ void Section::set(const std::string& name, bool value) {
         case fieldtype::ftbool: *(bool*)(field->ptr) = value; break;
         case fieldtype::ftint: *(int*)(field->ptr) = (int)value; break;
         case fieldtype::ftuint: *(uint*)(field->ptr) = (uint)value; break;
+        case fieldtype::ftint64: *(int64_t*)(field->ptr) = (int64_t)value; break;
         case fieldtype::ftfloat: *(float*)(field->ptr) = (float)value; break;
         case fieldtype::ftdouble: *(double*)(field->ptr) = (double)value; break;
         case fieldtype::ftstring: *(std::string*)(field->ptr) = value ? "true" : "false"; break;

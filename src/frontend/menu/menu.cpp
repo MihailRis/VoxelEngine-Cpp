@@ -211,12 +211,11 @@ void menus::delete_world(std::string name, Engine* engine) {
     L" ("+util::str2wstr_utf8(folder.u8string())+L")", [=]() {
         std::cout << "deleting " << folder.u8string() << std::endl;
         fs::remove_all(folder);
-        menus::refresh_menus(engine);
     });
 }
 
 void menus::create_menus(Engine* engine) {
-    create_settings_panel(engine);
+    // create_settings_panel(engine);
 
     auto menu = engine->getGUI()->getMenu();
     menu->setPageLoader([=](auto name) {
@@ -228,7 +227,4 @@ void menus::create_menus(Engine* engine) {
         scripting::on_ui_open(document, nullptr, glm::ivec3());
         return document->getRoot();
     });
-}
-
-void menus::refresh_menus(Engine* engine) {
 }
