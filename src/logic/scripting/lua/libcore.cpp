@@ -3,7 +3,7 @@
 
 #include "../../../engine.h"
 #include "../../../files/engine_paths.h"
-#include "../../../frontend/menu/menu.hpp"
+#include "../../../frontend/menu.hpp"
 #include "../../../frontend/screens.h"
 #include "../../../logic/LevelController.h"
 #include "../../../logic/EngineController.hpp"

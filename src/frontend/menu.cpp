@@ -5,18 +5,18 @@
 #include <filesystem>
 #include <glm/glm.hpp>
 
-#include "../../delegates.h"
-#include "../../engine.h"
-#include "../../files/engine_paths.h"
-#include "../../graphics/ui/elements/display/Label.hpp"
-#include "../../graphics/ui/elements/layout/Menu.hpp"
-#include "../../graphics/ui/gui_util.h"
-#include "../../graphics/ui/GUI.h"
-#include "../../logic/scripting/scripting.h"
-#include "../../settings.h"
-#include "../../util/stringutil.h"
-#include "../../window/Window.h"
-#include "../UiDocument.h"
+#include "../delegates.h"
+#include "../engine.h"
+#include "../files/engine_paths.h"
+#include "../graphics/ui/elements/display/Label.hpp"
+#include "../graphics/ui/elements/layout/Menu.hpp"
+#include "../graphics/ui/gui_util.h"
+#include "../graphics/ui/GUI.h"
+#include "../logic/scripting/scripting.h"
+#include "../settings.h"
+#include "../util/stringutil.h"
+#include "../window/Window.h"
+#include "UiDocument.h"
 
 namespace fs = std::filesystem;
 using namespace gui;

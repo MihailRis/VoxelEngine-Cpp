@@ -32,7 +32,7 @@
 #include "ContentGfxCache.h"
 #include "hud.h"
 #include "LevelFrontend.h"
-#include "menu/menu.hpp"
+#include "menu.hpp"
 
 #include <filesystem>
 #include <glm/glm.hpp>

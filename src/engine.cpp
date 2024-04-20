@@ -11,7 +11,7 @@
 #include "core_defs.h"
 #include "files/files.h"
 #include "frontend/locale/langs.h"
-#include "frontend/menu/menu.hpp"
+#include "frontend/menu.hpp"
 #include "frontend/screens.h"
 #include "graphics/core/Batch2D.h"
 #include "graphics/core/GfxContext.h"
