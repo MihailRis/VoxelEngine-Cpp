@@ -5,19 +5,20 @@
 #include "assets/AssetsLoader.h"
 #include "audio/audio.h"
 #include "coders/GLSLExtension.h"
-#include "coders/json.h"
 #include "coders/imageio.h"
+#include "coders/json.h"
 #include "content/ContentLoader.h"
 #include "core_defs.h"
 #include "files/files.h"
 #include "frontend/locale/langs.h"
-#include "frontend/menu/menu.h"
+#include "frontend/menu/menu.hpp"
 #include "frontend/screens.h"
 #include "graphics/core/Batch2D.h"
 #include "graphics/core/GfxContext.h"
 #include "graphics/core/ImageData.h"
 #include "graphics/core/Shader.h"
 #include "graphics/ui/GUI.h"
+#include "logic/EngineController.hpp"
 #include "logic/scripting/scripting.h"
 #include "util/listutil.h"
 #include "util/platform.h"
@@ -57,7 +58,8 @@ inline void create_channel(std::string name, NumberSetting& setting) {
 
 Engine::Engine(EngineSettings& settings, EnginePaths* paths) 
     : settings(settings), settingsHandler(settings), paths(paths) 
-{    
+{
+    controller = std::make_unique<EngineController>(this);
     if (Window::initialize(settings.display)){
         throw initialize_error("could not initialize window");
     }
@@ -187,6 +189,10 @@ Engine::~Engine() {
     scripting::close();
     Window::terminate();
     logger.info() << "engine finished";
+}
+
+EngineController* Engine::getController() {
+    return controller.get();
 }
 
 PacksManager Engine::createPacksManager(const fs::path& worldFolder) {

@@ -42,7 +42,7 @@
 #include "ContentGfxCache.h"
 #include "InventoryView.h"
 #include "LevelFrontend.h"
-#include "menu/menu.h"
+#include "menu/menu.hpp"
 #include "screens.h"
 #include "UiDocument.h"
 

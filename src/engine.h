@@ -25,6 +25,7 @@ class Screen;
 class EnginePaths;
 class ResPaths;
 class Batch2D;
+class EngineController;
 
 namespace fs = std::filesystem;
 
@@ -49,6 +50,7 @@ class Engine {
     std::unique_ptr<ResPaths> resPaths = nullptr;
     std::queue<runnable> postRunnables;
     std::recursive_mutex postRunnablesMutex;
+    std::unique_ptr<EngineController> controller;
 
     uint64_t frame = 0;
     double lastTime = 0.0;
@@ -124,6 +126,8 @@ public:
     void postRunnable(runnable callback);
 
     void saveScreenshot();
+
+    EngineController* getController();
 
     PacksManager createPacksManager(const fs::path& worldFolder);
 
