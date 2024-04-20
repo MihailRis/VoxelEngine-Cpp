@@ -17,14 +17,6 @@ class LevelController;
 using packconsumer = std::function<void(const ContentPack& pack)>;
 
 namespace menus {
-    extern std::shared_ptr<gui::Panel> create_packs_panel(
-        const std::vector<ContentPack>& packs, 
-        Engine* engine, 
-        bool backbutton, 
-        packconsumer callback,
-        packconsumer remover
-    );
-
     /// @brief Load world, convert if required and set to LevelScreen.
     /// @param name world name
     /// @param engine engine instance
