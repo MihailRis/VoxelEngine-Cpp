@@ -23,3 +23,12 @@ std::string IntegerSetting::toString() const {
             return "invalid format";
     }
 }
+
+std::string FlagSetting::toString() const {
+    switch (getFormat()) {
+        case setting_format::simple:
+            return value ? "true" : "false";
+        default:
+            return "invalid format";
+    }
+}

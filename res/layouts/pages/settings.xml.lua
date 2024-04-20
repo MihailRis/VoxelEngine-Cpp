@@ -23,9 +23,23 @@ function update_setting(x, id, name, postfix)
     )
 end
 
+function create_checkbox(id, name)
+    document.settings_panel:add(string.format(
+        "<checkbox consumer='function(x) core.set_setting(\"%s\", x) end' checked='%s'>%s</checkbox>", 
+        id, core.str_setting(id), gui.str(name, "settings")
+    ))
+end
+
 function on_open()
     create_setting("chunks.load-distance", "Load Distance", 1, 3)
     create_setting("chunks.load-speed", "Load Speed", 1, 1)
     create_setting("graphics.fog-curve", "Fog Curve", 0.1, 2)
     create_setting("camera.fov", "FOV", 1, 4, "°")
+    create_checkbox("display.vsync", "V-Sync")
+    create_checkbox("graphics.backlight", "Backlight")
+    create_checkbox("camera.shaking", "Camera Shaking")
+    document.langs_btn.text = string.format(
+        "%s: %s", gui.str("Language", "settings"),
+        gui.get_locales_info()[gui.get_locale()].name
+    )
 end

@@ -254,7 +254,7 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, xml::xmlelement e
 static std::shared_ptr<UINode> readCheckBox(UiXmlReader& reader, xml::xmlelement element) {
     auto text = readAndProcessInnerText(element, reader.getContext());
     bool checked = element->attr("checked", "false").asBool();
-    auto checkbox = std::make_shared<FullCheckBox>(text, glm::vec2(), checked);
+    auto checkbox = std::make_shared<FullCheckBox>(text, glm::vec2(32), checked);
     _readPanel(reader, element, *checkbox);
 
     if (element->has("consumer")) {

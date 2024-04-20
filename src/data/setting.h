@@ -156,4 +156,47 @@ public:
     virtual std::string toString() const override;
 };
 
+class FlagSetting : public Setting {
+protected:
+    bool initial;
+    bool value;
+    std::vector<consumer<bool>> consumers;
+public:
+    FlagSetting(
+        bool value,
+        setting_format format=setting_format::simple
+    ) : Setting(format),
+        initial(value),
+        value(value)
+    {}
+
+    bool& operator*() {
+        return value;
+    }
+
+    bool get() const {
+        return value;
+    }
+
+    void set(bool value) {
+        if (value == this->value) {
+            return;
+        }
+        this->value = value;
+        for (auto& callback : consumers) {
+            callback(value);
+        }
+    }
+
+    void observe(consumer<bool> callback) {
+        consumers.push_back(callback);
+    }
+
+    virtual void resetToDefault() override {
+        value = initial;
+    }
+
+    virtual std::string toString() const override;
+};
+
 #endif // DATA_SETTING_H_

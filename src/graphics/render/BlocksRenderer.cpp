@@ -449,7 +449,7 @@ void BlocksRenderer::render(const voxel* voxels) {
 void BlocksRenderer::build(const Chunk* chunk, const ChunksStorage* chunks) {
     this->chunk = chunk;
     voxelsBuffer->setPosition(chunk->x * CHUNK_W - 1, 0, chunk->z * CHUNK_D - 1);
-    chunks->getVoxels(voxelsBuffer, settings.graphics.backlight);
+    chunks->getVoxels(voxelsBuffer, settings.graphics.backlight.get());
     overflow = false;
     vertexOffset = 0;
     indexOffset = indexSize = 0;

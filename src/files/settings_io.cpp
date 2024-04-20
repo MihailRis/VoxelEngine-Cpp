@@ -17,13 +17,17 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     map.emplace("audio.volume-ambient", &settings.audio.volumeAmbient);
     map.emplace("audio.volume-music", &settings.audio.volumeMusic);
 
+    map.emplace("display.vsync", &settings.display.vsync);
+
     map.emplace("camera.sensitivity", &settings.camera.sensitivity);
     map.emplace("camera.fov", &settings.camera.fov);
+    map.emplace("camera.shaking", &settings.camera.shaking);
 
     map.emplace("chunks.load-distance", &settings.chunks.loadDistance);
     map.emplace("chunks.load-speed", &settings.chunks.loadSpeed);
 
     map.emplace("graphics.fog-curve", &settings.graphics.fogCurve);
+    map.emplace("graphics.backlight", &settings.graphics.backlight);
 }
 
 dynamic::Value SettingsHandler::getValue(const std::string& name) const {
@@ -36,6 +40,8 @@ dynamic::Value SettingsHandler::getValue(const std::string& name) const {
         return dynamic::Value::of((number_t)number->get());
     } else if (auto integer = dynamic_cast<IntegerSetting*>(setting)) {
         return dynamic::Value::of((integer_t)integer->get());
+    } else if (auto flag = dynamic_cast<FlagSetting*>(setting)) {
+        return dynamic::Value::boolean(flag->get());
     } else {
         throw std::runtime_error("type is not implemented for '"+name+"'");
     }
@@ -58,6 +64,23 @@ Setting* SettingsHandler::getSetting(const std::string& name) const {
     return found->second;
 }
 
+template<class T>
+static void set_numeric_value(T* setting, dynamic::Value& value) {
+    switch (value.type) {
+        case dynamic::valtype::integer:
+            setting->set(std::get<integer_t>(value.value));
+            break;
+        case dynamic::valtype::number:
+            setting->set(std::get<number_t>(value.value));
+            break;
+        case dynamic::valtype::boolean:
+            setting->set(std::get<bool>(value.value));
+            break;
+        default:
+            throw std::runtime_error("type error, numeric value expected");
+    }
+}
+
 void SettingsHandler::setValue(const std::string& name, dynamic::Value value) {
     auto found = map.find(name);
     if (found == map.end()) {
@@ -65,27 +88,11 @@ void SettingsHandler::setValue(const std::string& name, dynamic::Value value) {
     }
     auto setting = found->second;
     if (auto number = dynamic_cast<NumberSetting*>(setting)) {
-        switch (value.type) {
-            case dynamic::valtype::integer:
-                number->set(std::get<integer_t>(value.value));
-                break;
-            case dynamic::valtype::number:
-                number->set(std::get<number_t>(value.value));
-                break;
-            default:
-                throw std::runtime_error("type error, numeric value expected");
-        }
+        set_numeric_value(number, value);
     } else if (auto integer = dynamic_cast<IntegerSetting*>(setting)) {
-        switch (value.type) {
-            case dynamic::valtype::integer:
-                integer->set(std::get<integer_t>(value.value));
-                break;
-            case dynamic::valtype::number:
-                integer->set(std::get<number_t>(value.value));
-                break;
-            default:
-                throw std::runtime_error("type error, numeric value expected");
-        }
+        set_numeric_value(number, value);
+    } else if (auto flag = dynamic_cast<FlagSetting*>(setting)) {
+        set_numeric_value(flag, value);
     } else {
         throw std::runtime_error("type is not implement - setting '"+name+"'");
     }
@@ -107,7 +114,7 @@ toml::Wrapper* create_wrapper(EngineSettings& settings) {
     display.add("width", &settings.display.width);
     display.add("height", &settings.display.height);
     display.add("samples", &settings.display.samples);
-    display.add("swap-interval", &settings.display.swapInterval);
+    display.add("vsync", &*settings.display.vsync);
 
     toml::Section& chunks = wrapper->add("chunks");
     chunks.add("load-distance", &*settings.chunks.loadDistance);
@@ -117,13 +124,13 @@ toml::Wrapper* create_wrapper(EngineSettings& settings) {
     toml::Section& camera = wrapper->add("camera");
     camera.add("fov-effects", &settings.camera.fovEvents);
     camera.add("fov", &*settings.camera.fov);
-    camera.add("shaking", &settings.camera.shaking);
+    camera.add("shaking", &*settings.camera.shaking);
     camera.add("sensitivity", &*settings.camera.sensitivity);
 
     toml::Section& graphics = wrapper->add("graphics");
     graphics.add("gamma", &settings.graphics.gamma);
     graphics.add("fog-curve", &*settings.graphics.fogCurve);
-    graphics.add("backlight", &settings.graphics.backlight);
+    graphics.add("backlight", &*settings.graphics.backlight);
     graphics.add("frustum-culling", &settings.graphics.frustumCulling);
     graphics.add("skybox-resolution", &settings.graphics.skyboxResolution);
 

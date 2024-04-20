@@ -149,7 +149,7 @@ void Engine::mainloop() {
         if (!Window::isIconified()) {
             renderFrame(batch);
         }
-        Window::swapInterval(Window::isIconified() ? 1 : settings.display.swapInterval);
+        Window::swapInterval(Window::isIconified() ? 1 : settings.display.vsync.get());
 
         processPostRunnables();
 

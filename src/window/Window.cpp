@@ -164,7 +164,7 @@ int Window::initialize(DisplaySettings& settings){
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
         glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
     }
-    glfwSwapInterval(settings.swapInterval);
+    glfwSwapInterval(settings.vsync.get());
     const GLubyte* vendor = glGetString(GL_VENDOR);
     const GLubyte* renderer = glGetString(GL_RENDERER);
     logger.info() << "GL Vendor: " << (char*)vendor;

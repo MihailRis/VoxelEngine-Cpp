@@ -1,6 +1,7 @@
 <panel size='400' color='0' interval='1' context='menu'>
     <panel id='settings_panel' color='0'>
     </panel>
+    <button onclick='menu.page="languages"' id='langs_btn'>-</button>
     <button onclick='menu.page="settings_audio"'>@Audio</button>
     <button onclick='menu.page="controls"'>@Controls</button>
     <button onclick='menu:back()'>@Back</button>

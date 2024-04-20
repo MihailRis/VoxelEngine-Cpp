@@ -28,8 +28,8 @@ struct DisplaySettings {
     int height = 720;
     /// @brief Anti-aliasing samples
     int samples = 0;
-    /// @brief GLFW swap interval value, 0 - unlimited fps, 1 - vsync
-    int swapInterval = 1;
+    /// @brief VSync on
+    FlagSetting vsync = {true};
     /// @brief Window title */
     std::string title = "VoxelEngine-Cpp v" + 
         std::to_string(ENGINE_VERSION_MAJOR) + "." +
@@ -49,7 +49,7 @@ struct CameraSettings {
     /// @brief Camera dynamic field of view effects
     bool fovEvents = true;
     /// @brief Camera movement shake
-    bool shaking = true;
+    FlagSetting shaking = {true};
     /// @brief Camera field of view
     NumberSetting fov {90.0f, 10, 120};
     /// @brief Camera sensitivity
@@ -62,7 +62,7 @@ struct GraphicsSettings {
     NumberSetting fogCurve {1.6f, 1.0f, 6.0f};
     float gamma = 1.0f;
     /// @brief Enable blocks backlight to prevent complete darkness
-    bool backlight = true;
+    FlagSetting backlight = {true};
     /// @brief Enable chunks frustum culling
     bool frustumCulling = true;
     int skyboxResolution = 64 + 32;

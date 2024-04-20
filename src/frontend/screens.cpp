@@ -102,7 +102,7 @@ LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
     hud = std::make_unique<Hud>(engine, frontend.get(), controller->getPlayer());
     
 
-    backlight = settings.graphics.backlight;
+    backlight = settings.graphics.backlight.get();
 
     animator = std::make_unique<TextureAnimator>();
     animator->addAnimations(assets->getAnimations());
@@ -167,9 +167,9 @@ void LevelScreen::update(float delta) {
     // TODO: subscribe for setting change
     EngineSettings& settings = engine->getSettings();
     controller->getPlayer()->camera->setFov(glm::radians(settings.camera.fov.get()));
-    if (settings.graphics.backlight != backlight) {
+    if (settings.graphics.backlight.get() != backlight) {
         controller->getLevel()->chunks->saveAndClear();
-        backlight = settings.graphics.backlight;
+        backlight = settings.graphics.backlight.get();
     }
 
     if (!hud->isPause()) {
