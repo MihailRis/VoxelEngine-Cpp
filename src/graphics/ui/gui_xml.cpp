@@ -3,7 +3,7 @@
 #include <charconv>
 #include <stdexcept>
 
-#include "elements/containers.h"
+#include "elements/Panel.hpp"
 #include "elements/controls.h"
 
 #include "../../frontend/locale/langs.h"

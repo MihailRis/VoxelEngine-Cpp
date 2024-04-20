@@ -1,7 +1,6 @@
 #include "UiDocument.h"
 
 #include "../files/files.h"
-#include "../graphics/ui/elements/containers.h"
 #include "../graphics/ui/elements/UINode.h"
 #include "../graphics/ui/gui_xml.h"
 #include "../logic/scripting/scripting.h"

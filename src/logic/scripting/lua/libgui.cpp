@@ -10,6 +10,8 @@
 #include "../../../assets/Assets.h"
 #include "../../../graphics/ui/gui_util.h"
 #include "../../../graphics/ui/elements/UINode.h"
+#include "../../../graphics/ui/elements/Panel.hpp"
+#include "../../../graphics/ui/elements/Menu.hpp"
 #include "../../../graphics/ui/elements/controls.h"
 #include "../../../frontend/UiDocument.h"
 #include "../../../frontend/locale/langs.h"

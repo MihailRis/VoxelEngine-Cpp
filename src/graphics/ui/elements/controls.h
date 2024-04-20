@@ -11,7 +11,7 @@
 
 #include "../GUI.h"
 #include "UINode.h"
-#include "containers.h"
+#include "Panel.hpp"
 #include "../../../window/input.h"
 #include "../../../delegates.h"
 #include "../../../typedefs.h"
