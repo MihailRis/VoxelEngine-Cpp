@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_UI_ELEMENTS_PLOTTER_HPP_
 #define GRAPHICS_UI_ELEMENTS_PLOTTER_HPP_
 
-#include "../UINode.h"
+#include "../UINode.hpp"
 #include "../../../../typedefs.h"
 
 #include <memory>

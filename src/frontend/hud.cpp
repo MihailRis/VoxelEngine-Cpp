@@ -15,7 +15,7 @@
 #include "../graphics/core/Texture.h"
 #include "../graphics/render/BlocksPreview.h"
 #include "../graphics/render/WorldRenderer.h"
-#include "../graphics/ui/elements/UINode.h"
+#include "../graphics/ui/elements/UINode.hpp"
 #include "../graphics/ui/elements/layout/Menu.hpp"
 #include "../graphics/ui/elements/layout/Panel.hpp"
 #include "../graphics/ui/elements/display/Plotter.hpp"

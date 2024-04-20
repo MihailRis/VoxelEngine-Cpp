@@ -1,14 +1,14 @@
 #include "menu.hpp"
 
-#include <string>
-#include <memory>
 #include <filesystem>
 #include <glm/glm.hpp>
 
 #include "../delegates.h"
 #include "../engine.h"
+#include "../interfaces/Task.h"
 #include "../files/engine_paths.h"
 #include "../graphics/ui/elements/display/Label.hpp"
+#include "../graphics/ui/elements/layout/Panel.hpp"
 #include "../graphics/ui/elements/layout/Menu.hpp"
 #include "../graphics/ui/gui_util.h"
 #include "../graphics/ui/GUI.h"
@@ -16,6 +16,7 @@
 #include "../settings.h"
 #include "../util/stringutil.h"
 #include "../window/Window.h"
+#include "locale/langs.h"
 #include "UiDocument.h"
 
 namespace fs = std::filesystem;
@@ -45,4 +46,35 @@ void menus::create_menus(Engine* engine) {
         scripting::on_ui_open(document, nullptr, glm::ivec3());
         return document->getRoot();
     });
+}
+
+void menus::show_process_panel(Engine* engine, std::shared_ptr<Task> task, std::wstring text) {
+    auto menu = engine->getGUI()->getMenu();
+    auto panel = std::dynamic_pointer_cast<gui::Panel>(guiutil::create(
+        "<panel size='400' padding='8' interval='1' color='#00000080/>"
+    ));
+    if (!text.empty()) {
+        panel->add(std::make_shared<gui::Label>(langs::get(text)));
+    }
+
+    auto label = std::make_shared<gui::Label>(L"0%");
+    panel->add(label);
+
+    uint initialWork = task->getWorkTotal();
+
+    panel->listenInterval(0.01f, [=]() {
+        task->update();
+
+        uint tasksDone = task->getWorkDone();
+        float progress = tasksDone/static_cast<float>(initialWork);
+        label->setText(
+            std::to_wstring(tasksDone)+
+            L"/"+std::to_wstring(initialWork)+L" ("+
+            std::to_wstring(static_cast<int>(progress*100))+L"%)"
+        );
+    });
+
+    menu->reset();
+    menu->addPage("process", panel);
+    menu->setPage("process", false);
 }

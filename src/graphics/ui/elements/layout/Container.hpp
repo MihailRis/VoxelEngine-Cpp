@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_UI_ELEMENTS_CONTAINER_HPP_
 #define GRAPHICS_UI_ELEMENTS_CONTAINER_HPP_
 
-#include "../UINode.h"
+#include "../UINode.hpp"
 #include "../commons.hpp"
 
 #include <vector>

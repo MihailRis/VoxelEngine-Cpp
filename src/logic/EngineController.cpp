@@ -7,6 +7,7 @@
 #include "../files/WorldConverter.h"
 #include "../frontend/locale/langs.h"
 #include "../frontend/screens.h"
+#include "../frontend/menu.hpp"
 #include "../graphics/ui/elements/display/Label.hpp"
 #include "../graphics/ui/elements/control/Button.hpp"
 #include "../graphics/ui/elements/layout/Panel.hpp"
@@ -37,51 +38,6 @@ void EngineController::deleteWorld(std::string name) {
     });
 }
 
-static std::shared_ptr<gui::Panel> create_page(
-    Engine* engine, 
-    std::string name, 
-    int width, 
-    float opacity, 
-    int interval
-) {
-    auto menu = engine->getGUI()->getMenu();
-    auto panel = std::make_shared<gui::Panel>(
-        glm::vec2(width, 200), glm::vec4(8.0f), interval
-    );
-    panel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, opacity));
-    menu->addPage(name, panel);
-    return panel;
-}
-
-void show_process_panel(Engine* engine, std::shared_ptr<Task> task, std::wstring text=L"") {
-    auto menu = engine->getGUI()->getMenu();
-    auto panel = create_page(engine, "process", 400, 0.5f, 1);
-
-    if (!text.empty()) {
-        panel->add(std::make_shared<gui::Label>(langs::get(text)));
-    }
-
-    auto label = std::make_shared<gui::Label>(L"0%");
-    panel->add(label);
-
-    uint initialWork = task->getWorkTotal();
-
-    panel->listenInterval(0.01f, [=]() {
-        task->update();
-
-        uint tasksDone = task->getWorkDone();
-        float progress = tasksDone/static_cast<float>(initialWork);
-        label->setText(
-            std::to_wstring(tasksDone)+
-            L"/"+std::to_wstring(initialWork)+L" ("+
-            std::to_wstring(int(progress*100))+L"%)"
-        );
-    });
-
-    menu->reset();
-    menu->setPage("process", false);
-}
-
 std::shared_ptr<Task> create_converter(
     Engine* engine,
     fs::path folder, 
@@ -108,7 +64,7 @@ void show_convert_request(
 ) {
     guiutil::confirm(engine->getGUI(), langs::get(L"world.convert-request"), [=]() {
         auto converter = create_converter(engine, folder, content, lut, postRunnable);
-        show_process_panel(engine, converter, L"Converting world...");
+        menus::show_process_panel(engine, converter, L"Converting world...");
     }, L"", langs::get(L"Cancel"));
 }
 
@@ -119,10 +75,11 @@ static void show_content_missing(
 ) {
     auto* gui = engine->getGUI();
     auto menu = gui->getMenu();
-    auto panel = create_page(engine, "missing-content", 500, 0.5f, 8);
-
-    panel->add(std::make_shared<gui::Label>(langs::get(L"menu.missing-content")));
-
+    auto panel = std::dynamic_pointer_cast<gui::Panel>(guiutil::create(
+        "<panel size='500' color='#00000080' padding='8'>"
+            "<label>@menu.missing-content</label>"
+        "</panel>"
+    ));
     auto subpanel = std::dynamic_pointer_cast<gui::Panel>(guiutil::create(
         "<panel size='480,100' color='#00000080' scrollable='true' max-length='400'>"
         "</panel>"
@@ -131,13 +88,12 @@ static void show_content_missing(
 
     for (auto& entry : lut->getMissingContent()) {
         std::string contentname = contenttype_name(entry.type);
-        auto hpanel = std::dynamic_pointer_cast<gui::Panel>(guiutil::create(
+        subpanel->add(guiutil::create(
             "<panel size='500,20' color='0' orientation='horizontal' padding='2'>"
                 "<label color='#80808080'>["+contentname+"]</label>"
                 "<label color='#FF333380'>"+entry.name+"</label>"
             "</panel>"
         ));
-        subpanel->add(hpanel);
     }
 
     panel->add(std::make_shared<gui::Button>(
@@ -145,6 +101,7 @@ static void show_content_missing(
             menu->back();
         }
     ));
+    menu->addPage("missing-content", panel);
     menu->setPage("missing-content");
 }
 
@@ -181,7 +138,7 @@ void EngineController::openWorld(std::string name, bool confirmConvert) {
             show_content_missing(engine, content, lut);
         } else {
             if (confirmConvert) {
-                show_process_panel(engine, create_converter(engine, folder, content, lut, [=]() {
+                menus::show_process_panel(engine, create_converter(engine, folder, content, lut, [=]() {
                     openWorld(name, false);
                 }), L"Converting world...");
             } else {

@@ -1,5 +1,5 @@
 #include "GUI.h"
-#include "elements/UINode.h"
+#include "elements/UINode.hpp"
 #include "elements/layout/Menu.hpp"
 
 #include <iostream>
