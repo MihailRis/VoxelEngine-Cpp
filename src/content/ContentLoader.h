@@ -18,7 +18,7 @@ namespace dynamic {
 
 class ContentLoader {
     const ContentPack* pack;
-    int env = 0;
+    scriptenv env;
 
     void loadBlock(Block& def, std::string full, std::string name);
     void loadCustomBlockModel(Block& def, dynamic::Map* primitives);

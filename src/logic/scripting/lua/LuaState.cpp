@@ -348,6 +348,9 @@ int lua::LuaState::createEnvironment(int parent) {
 
 
 void lua::LuaState::removeEnvironment(int id) {
+    if (id == 0) {
+        return;
+    }
     lua_pushnil(L);
     setglobal(envName(id));
 }

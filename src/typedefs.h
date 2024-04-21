@@ -1,10 +1,12 @@
-#ifndef VOX_TYPEDEFS_H
-#define VOX_TYPEDEFS_H
+#ifndef TYPEDEFS_H_
+#define TYPEDEFS_H_
 
+#include <memory>
 #include <stdlib.h>
 #include <stdint.h>
 #include <variant>
 
+using scriptenv = std::shared_ptr<int>;
 
 /// @brief dynamic integer type (64 bit signed integer)
 using integer_t = int64_t;
@@ -26,4 +28,4 @@ using itemcount_t = uint32_t;
 using blockstate_t = uint16_t;
 using light_t = uint16_t;
 
-#endif
+#endif // TYPEDEFS_H_

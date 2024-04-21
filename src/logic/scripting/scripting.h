@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <glm/glm.hpp>
 
+#include "../../typedefs.h"
 #include "../../delegates.h"
 
 #include "lua/LuaState.h"
@@ -33,8 +34,6 @@ namespace scripting {
     extern BlocksController* blocks;
     extern LevelController* controller;
 
-    class Environment;
-
     void initialize(Engine* engine);
 
     extern bool register_event(int env, const std::string& name, const std::string& id);
@@ -42,9 +41,9 @@ namespace scripting {
     static inline int noargs(lua::LuaState *) { return 0; }
     extern bool emit_event(const std::string& name, std::function<int(lua::LuaState* state)> args = noargs);
 
-    std::unique_ptr<Environment> create_environment(int parent=0);
-    std::unique_ptr<Environment> create_pack_environment(const ContentPack& pack);
-    std::unique_ptr<Environment> create_doc_environment(int parent, const std::string& name);
+    scriptenv get_root_environment();
+    scriptenv create_pack_environment(const ContentPack& pack);
+    scriptenv create_doc_environment(scriptenv parent, const std::string& name);
 
     void process_post_runnables();
 
@@ -78,31 +77,31 @@ namespace scripting {
     void on_ui_close(UiDocument* layout, Inventory* inventory);
 
     /// @brief Load script associated with a Block
-    /// @param env environment id
+    /// @param env environment
     /// @param prefix pack id
     /// @param file item script file
     /// @param funcsset block callbacks set
-    void load_block_script(int env, std::string prefix, fs::path file, block_funcs_set& funcsset);
+    void load_block_script(scriptenv env, std::string prefix, fs::path file, block_funcs_set& funcsset);
 
     /// @brief Load script associated with an Item
-    /// @param env environment id
+    /// @param env environment
     /// @param prefix pack id
     /// @param file item script file
     /// @param funcsset item callbacks set
-    void load_item_script(int env, std::string prefix, fs::path file, item_funcs_set& funcsset);
+    void load_item_script(scriptenv env, std::string prefix, fs::path file, item_funcs_set& funcsset);
     
     /// @brief Load package-specific world script 
-    /// @param env environment id
+    /// @param env environment
     /// @param packid content-pack id
     /// @param file script file path
-    void load_world_script(int env, std::string packid, fs::path file);
+    void load_world_script(scriptenv env, std::string packid, fs::path file);
 
     /// @brief Load script associated with an UiDocument
-    /// @param env environment id
+    /// @param env environment
     /// @param prefix pack id
     /// @param file item script file
     /// @param script document script info
-    void load_layout_script(int env, std::string prefix, fs::path file, uidocscript& script);
+    void load_layout_script(scriptenv env, std::string prefix, fs::path file, uidocscript& script);
 
     /// @brief Finalize lua state. Using scripting after will lead to Lua panic
     void close();

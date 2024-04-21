@@ -1,6 +1,8 @@
 #ifndef LOGIC_SCRIPTING_SCRIPTING_HUD_H_
 #define LOGIC_SCRIPTING_SCRIPTING_HUD_H_
 
+#include "../../typedefs.h"
+
 #include <string>
 #include <filesystem>
 
@@ -20,7 +22,7 @@ namespace scripting {
      * @param packid content-pack id
      * @param file script file path
      */
-    void load_hud_script(int env, std::string packid, fs::path file);
+    void load_hud_script(scriptenv env, std::string packid, fs::path file);
 }
 
 #endif // LOGIC_SCRIPTING_SCRIPTING_HUD_H_

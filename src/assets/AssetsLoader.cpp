@@ -16,7 +16,6 @@
 #include "../content/Content.h"
 #include "../content/ContentPack.h"
 #include "../logic/scripting/scripting.h"
-#include "../logic/scripting/Environment.h"
 
 static debug::Logger logger("assets-loader");
 
@@ -69,7 +68,7 @@ bool AssetsLoader::loadNext() {
     }
 }
 
-void addLayouts(int env, const std::string& prefix, const fs::path& folder, AssetsLoader& loader) {
+void addLayouts(scriptenv env, const std::string& prefix, const fs::path& folder, AssetsLoader& loader) {
     if (!fs::is_directory(folder)) {
         return;
     }
@@ -197,7 +196,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
             auto pack = entry.second.get();
             auto& info = pack->getInfo();
             fs::path folder = info.folder / fs::path("layouts");
-            addLayouts(pack->getEnvironment()->getId(), info.id, folder, loader);
+            addLayouts(pack->getEnvironment(), info.id, folder, loader);
         }
     }
     loader.add(AssetType::atlas, TEXTURES_FOLDER+"/blocks", "blocks");

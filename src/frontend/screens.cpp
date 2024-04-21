@@ -16,7 +16,6 @@
 #include "../logic/LevelController.h"
 #include "../logic/scripting/scripting_hud.h"
 #include "../logic/scripting/scripting.h"
-#include "../logic/scripting/Environment.h"
 #include "../objects/Player.h"
 #include "../physics/Hitbox.h"
 #include "../util/stringutil.h"
@@ -113,7 +112,7 @@ LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
         const ContentPack& info = pack->getInfo();
         fs::path scriptFile = info.folder/fs::path("scripts/hud.lua");
         if (fs::is_regular_file(scriptFile)) {
-            scripting::load_hud_script(pack->getEnvironment()->getId(), info.id, scriptFile);
+            scripting::load_hud_script(pack->getEnvironment(), info.id, scriptFile);
         }
     }
     scripting::on_frontend_init(hud.get());

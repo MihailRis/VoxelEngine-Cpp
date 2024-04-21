@@ -341,7 +341,7 @@ static int l_gui_get_env(lua_State* L) {
     if (doc == nullptr) {
         luaL_error(L, "document '%s' not found", name);
     }
-    lua_getglobal(L, lua::LuaState::envName(doc->getEnvironment()).c_str());
+    lua_getglobal(L, lua::LuaState::envName(*doc->getEnvironment()).c_str());
     return 1;
 }
 

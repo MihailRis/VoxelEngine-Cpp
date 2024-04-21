@@ -19,7 +19,6 @@
 
 #include "ContentPack.h"
 #include "../logic/scripting/scripting.h"
-#include "../logic/scripting/Environment.h"
 
 namespace fs = std::filesystem;
 
@@ -328,7 +327,7 @@ void ContentLoader::load(ContentBuilder& builder) {
 
     auto runtime = new ContentPackRuntime(*pack, scripting::create_pack_environment(*pack));
     builder.add(runtime);
-    env = runtime->getEnvironment()->getId();
+    env = runtime->getEnvironment();
     ContentPackStats& stats = runtime->getStatsWriteable();
 
     fixPackIndices();

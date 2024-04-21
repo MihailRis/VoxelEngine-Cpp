@@ -7,7 +7,6 @@
 #include "../files/files.h"
 #include "../files/engine_paths.h"
 #include "../data/dynamic.h"
-#include "../logic/scripting/Environment.h"
 
 namespace fs = std::filesystem;
 
@@ -141,7 +140,7 @@ fs::path ContentPack::findPack(const EnginePaths* paths, fs::path worldDir, std:
 
 ContentPackRuntime::ContentPackRuntime(
     ContentPack info,
-    std::unique_ptr<scripting::Environment> env
+    scriptenv env
 ) : info(info), env(std::move(env))
 {
 }

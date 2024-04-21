@@ -1,6 +1,8 @@
 #ifndef CONTENT_CONTENT_PACK_H_
 #define CONTENT_CONTENT_PACK_H_
 
+#include "../typedefs.h"
+
 #include <string>
 #include <vector>
 #include <stdexcept>
@@ -85,11 +87,11 @@ struct ContentPackStats {
 class ContentPackRuntime {
     ContentPack info;
     ContentPackStats stats {};
-    std::unique_ptr<scripting::Environment> env;
+    scriptenv env;
 public:
     ContentPackRuntime(
         ContentPack info,
-        std::unique_ptr<scripting::Environment> env
+        scriptenv env
     );
     ~ContentPackRuntime();
 
@@ -109,8 +111,8 @@ public:
         return info;
     }
 
-    inline scripting::Environment* getEnvironment() const {
-        return env.get();
+    inline scriptenv getEnvironment() const {
+        return env;
     }
 };
 

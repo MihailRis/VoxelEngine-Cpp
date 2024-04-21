@@ -3,6 +3,7 @@
 
 #include "Assets.h"
 #include "../interfaces/Task.h"
+#include "../typedefs.h"
 #include "../delegates.h"
 
 #include <string>
@@ -35,9 +36,9 @@ struct AssetCfg {
 };
 
 struct LayoutCfg : AssetCfg {
-    int env;
+    scriptenv env;
 
-    LayoutCfg(int env) : env(env) {}
+    LayoutCfg(scriptenv env) : env(env) {}
 };
 
 struct SoundCfg : AssetCfg {

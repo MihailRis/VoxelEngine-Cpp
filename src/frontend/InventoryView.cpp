@@ -15,7 +15,6 @@
 #include "../items/Inventory.h"
 #include "../items/ItemDef.h"
 #include "../logic/scripting/scripting.h"
-#include "../logic/scripting/Environment.h"
 #include "../maths/voxmaths.h"
 #include "../objects/Player.h"
 #include "../util/stringutil.h"
@@ -372,7 +371,7 @@ void InventoryView::setInventory(std::shared_ptr<Inventory> inventory) {
 
 static slotcallback readSlotFunc(InventoryView* view, gui::UiXmlReader& reader, xml::xmlelement& element, const std::string& attr) {
     auto consumer = scripting::create_int_array_consumer(
-        reader.getEnvironment().getId(), 
+        reader.getEnvironment(), 
         element->attr(attr).getText()
     );
     return [=](uint slot, ItemStack& stack) {

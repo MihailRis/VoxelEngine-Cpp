@@ -41,7 +41,7 @@ void menus::create_menus(Engine* engine) {
         auto file = engine->getResPaths()->find("layouts/pages/"+name+".xml");
         auto fullname = "core:pages/"+name;
 
-        auto document = UiDocument::read(0, fullname, file).release();
+        auto document = UiDocument::read(scripting::get_root_environment(), fullname, file).release();
         engine->getAssets()->store(document, fullname);
         scripting::on_ui_open(document, nullptr, glm::ivec3());
         return document->getRoot();

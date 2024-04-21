@@ -6,7 +6,7 @@
 
 #include <glm/glm.hpp>
 
-#include "../../logic/scripting/Environment.h"
+#include "../../logic/scripting/scripting.h"
 #include "../../frontend/locale/langs.h"
 #include "../../util/stringutil.h"
 #include "../../delegates.h"
@@ -32,12 +32,12 @@ std::shared_ptr<Button> guiutil::gotoButton(
     ));
 }
 
-std::shared_ptr<gui::UINode> guiutil::create(const std::string& source, int envid) {
-    scripting::Environment env(envid);
+std::shared_ptr<gui::UINode> guiutil::create(const std::string& source, scriptenv env) {
+    if (env == nullptr) {
+        env = scripting::get_root_environment();
+    }
     UiXmlReader reader(env);
-    auto node = reader.readXML("<string>", source);
-    env.release();
-    return node;
+    return reader.readXML("<string>", source);
 }
 
 void guiutil::alert(GUI* gui, const std::wstring& text, runnable on_hidden) {

@@ -10,8 +10,8 @@ UiDocument::UiDocument(
     std::string id, 
     uidocscript script, 
     std::shared_ptr<gui::UINode> root,
-    std::unique_ptr<scripting::Environment> env
-) : id(id), script(script), root(root), env(std::move(env)) {
+    scriptenv env
+) : id(id), script(script), root(root), env(env) {
     gui::UINode::getIndices(root, map);
 }
 
@@ -47,19 +47,19 @@ const uidocscript& UiDocument::getScript() const {
     return script;
 }
 
-int UiDocument::getEnvironment() const {
-    return env->getId();
+scriptenv UiDocument::getEnvironment() const {
+    return env;
 }
 
-std::unique_ptr<UiDocument> UiDocument::read(int penv, std::string name, fs::path file) {
+std::unique_ptr<UiDocument> UiDocument::read(scriptenv penv, std::string name, fs::path file) {
     const std::string text = files::read_string(file);
     auto xmldoc = xml::parse(file.u8string(), text);
 
-    auto env = penv == -1 
-        ? std::make_unique<scripting::Environment>(0) 
+    auto env = penv == nullptr 
+        ? scripting::get_root_environment()
         : scripting::create_doc_environment(penv, name);
 
-    gui::UiXmlReader reader(*env);
+    gui::UiXmlReader reader(env);
     InventoryView::createReaders(reader);
     auto view = reader.readXML(
         file.u8string(), xmldoc->getRoot()
@@ -68,12 +68,12 @@ std::unique_ptr<UiDocument> UiDocument::read(int penv, std::string name, fs::pat
     uidocscript script {};
     auto scriptFile = fs::path(file.u8string()+".lua");
     if (fs::is_regular_file(scriptFile)) {
-        scripting::load_layout_script(env->getId(), name, scriptFile, script);
+        scripting::load_layout_script(env, name, scriptFile, script);
     }
-    return std::make_unique<UiDocument>(name, script, view, std::move(env));
+    return std::make_unique<UiDocument>(name, script, view, env);
 }
 
 std::shared_ptr<gui::UINode> UiDocument::readElement(fs::path file) {
-    auto document = read(-1, file.filename().u8string(), file);
+    auto document = read(nullptr, file.filename().u8string(), file);
     return document->getRoot();
 }

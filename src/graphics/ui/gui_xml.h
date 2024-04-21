@@ -9,10 +9,6 @@
 #include "GUI.h"
 #include "../../coders/xml.h"
 
-namespace scripting {
-    class Environment;
-}
-
 namespace gui {
     class UiXmlReader;
 
@@ -23,9 +19,9 @@ namespace gui {
         std::unordered_set<std::string> ignored;
         std::stack<std::string> contextStack;
         std::string filename;
-        const scripting::Environment& env;
+        const scriptenv& env;
     public:
-        UiXmlReader(const scripting::Environment& env);
+        UiXmlReader(const scriptenv& env);
 
         void add(const std::string& tag, uinode_reader reader);
         bool hasReader(const std::string& tag) const;
@@ -56,7 +52,7 @@ namespace gui {
         );
 
         const std::string& getContext() const;
-        const scripting::Environment& getEnvironment() const;
+        const scriptenv& getEnvironment() const;
         const std::string& getFilename() const;
     };
 }

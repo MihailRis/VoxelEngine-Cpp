@@ -13,7 +13,6 @@
 
 #include "../../frontend/locale/langs.h"
 #include "../../logic/scripting/scripting.h"
-#include "../../logic/scripting/Environment.h"
 #include "../../util/stringutil.h"
 #include "../../window/Events.h"
 
@@ -86,7 +85,7 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
     }
     if (element->has("position-func")) {
         auto supplier = scripting::create_vec2_supplier(
-            reader.getEnvironment().getId(),
+            reader.getEnvironment(),
             element->attr("position-func").getText(),
             reader.getFilename()+".lua"
         );
@@ -111,7 +110,7 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
         std::string text = element->attr("onclick").getText();
         if (!text.empty()) {
             auto callback = scripting::create_runnable(
-                reader.getEnvironment().getId(),
+                reader.getEnvironment(),
                 text,
                 reader.getFilename()
             );
@@ -210,7 +209,7 @@ static std::shared_ptr<UINode> readLabel(UiXmlReader& reader, xml::xmlelement el
     }
     if (element->has("supplier")) {
         auto supplier = scripting::create_wstring_supplier(
-            reader.getEnvironment().getId(),
+            reader.getEnvironment(),
             element->attr("supplier").getText(),
             reader.getFilename()
         );
@@ -264,7 +263,7 @@ static std::shared_ptr<UINode> readCheckBox(UiXmlReader& reader, xml::xmlelement
 
     if (element->has("consumer")) {
         auto consumer = scripting::create_bool_consumer(
-            reader.getEnvironment().getId(),
+            reader.getEnvironment(),
             element->attr("consumer").getText(),
             reader.getFilename()
         );
@@ -273,7 +272,7 @@ static std::shared_ptr<UINode> readCheckBox(UiXmlReader& reader, xml::xmlelement
 
     if (element->has("supplier")) {
         auto supplier = scripting::create_bool_supplier(
-            reader.getEnvironment().getId(),
+            reader.getEnvironment(),
             element->attr("supplier").getText(),
             reader.getFilename()
         );
@@ -299,7 +298,7 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
     
     if (element->has("consumer")) {
         auto consumer = scripting::create_wstring_consumer(
-            reader.getEnvironment().getId(),
+            reader.getEnvironment(),
             element->attr("consumer").getText(),
             reader.getFilename()
         );
@@ -308,7 +307,7 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
 
     if (element->has("supplier")) {
         auto supplier = scripting::create_wstring_supplier(
-            reader.getEnvironment().getId(),
+            reader.getEnvironment(),
             element->attr("supplier").getText(),
             reader.getFilename()
         );
@@ -322,7 +321,7 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
     }
     if (element->has("validator")) {
         auto validator  = scripting::create_wstring_validator(
-            reader.getEnvironment().getId(),
+            reader.getEnvironment(),
             element->attr("validator").getText(),
             reader.getFilename()
         );
@@ -348,7 +347,7 @@ static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, xml::xmlelement
     _readUINode(reader, element, *bar);
     if (element->has("consumer")) {
         auto consumer = scripting::create_number_consumer(
-            reader.getEnvironment().getId(),
+            reader.getEnvironment(),
             element->attr("consumer").getText(),
             reader.getFilename()
         );
@@ -356,7 +355,7 @@ static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, xml::xmlelement
     }
     if (element->has("supplier")) {
         auto supplier = scripting::create_number_supplier(
-            reader.getEnvironment().getId(),
+            reader.getEnvironment(),
             element->attr("supplier").getText(),
             reader.getFilename()
         );
@@ -381,7 +380,7 @@ static std::shared_ptr<UINode> readInputBindBox(UiXmlReader& reader, xml::xmlele
     return bindbox;
 }
 
-UiXmlReader::UiXmlReader(const scripting::Environment& env) : env(env) {
+UiXmlReader::UiXmlReader(const scriptenv& env) : env(env) {
     contextStack.push("");
     add("image", readImage);
     add("label", readLabel);
@@ -460,6 +459,6 @@ const std::string& UiXmlReader::getFilename() const {
     return filename;
 }
 
-const scripting::Environment& UiXmlReader::getEnvironment() const {
+const scriptenv& UiXmlReader::getEnvironment() const {
     return env;
 }

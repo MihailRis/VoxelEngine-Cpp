@@ -12,13 +12,13 @@ namespace scripting {
 using namespace scripting;
 
 runnable scripting::create_runnable(
-    int env,
+    const scriptenv& env,
     const std::string& src,
     const std::string& file
 ) {
     return [=](){
         try {
-            state->execute(env, src, file);
+            state->execute(*env, src, file);
         } catch (const lua::luaerror& err) {
             std::cerr << err.what() << std::endl;
         }
@@ -26,12 +26,12 @@ runnable scripting::create_runnable(
 }
 
 static bool processCallback(
-    int env,
+    const scriptenv& env,
     const std::string& src,
     const std::string& file
 ) {
     try {
-        return state->eval(env, src, file) != 0;
+        return state->eval(*env, src, file) != 0;
     } catch (lua::luaerror& err) {
         std::cerr << err.what() << std::endl;
         return false;
@@ -39,7 +39,7 @@ static bool processCallback(
 }
 
 wstringconsumer scripting::create_wstring_consumer(
-    int env,
+    const scriptenv& env,
     const std::string& src,
     const std::string& file
 ) {
@@ -52,7 +52,7 @@ wstringconsumer scripting::create_wstring_consumer(
 }
 
 wstringsupplier scripting::create_wstring_supplier(
-    int env,
+    const scriptenv& env,
     const std::string& src,
     const std::string& file
 ) {
@@ -69,7 +69,7 @@ wstringsupplier scripting::create_wstring_supplier(
 }
 
 wstringchecker scripting::create_wstring_validator(
-    int env,
+    const scriptenv& env,
     const std::string& src,
     const std::string& file
 ) {
@@ -84,7 +84,7 @@ wstringchecker scripting::create_wstring_validator(
 }
 
 boolconsumer scripting::create_bool_consumer(
-    int env,
+    const scriptenv& env,
     const std::string& src,
     const std::string& file
 ) {
@@ -97,7 +97,7 @@ boolconsumer scripting::create_bool_consumer(
 }
 
 boolsupplier scripting::create_bool_supplier(
-    int env,
+    const scriptenv& env,
     const std::string& src,
     const std::string& file
 ) {
@@ -114,7 +114,7 @@ boolsupplier scripting::create_bool_supplier(
 }
 
 doubleconsumer scripting::create_number_consumer(
-    int env,
+    const scriptenv& env,
     const std::string& src,
     const std::string& file
 ) {
@@ -127,7 +127,7 @@ doubleconsumer scripting::create_number_consumer(
 }
 
 doublesupplier scripting::create_number_supplier(
-    int env,
+    const scriptenv& env,
     const std::string& src,
     const std::string& file
 ) {
@@ -144,7 +144,7 @@ doublesupplier scripting::create_number_supplier(
 }
 
 int_array_consumer scripting::create_int_array_consumer(
-    int env,
+    const scriptenv& env,
     const std::string& src, 
     const std::string& file
 ) {
@@ -159,7 +159,7 @@ int_array_consumer scripting::create_int_array_consumer(
 }
 
 vec2supplier scripting::create_vec2_supplier(
-    int env,
+    const scriptenv& env,
     const std::string& src, 
     const std::string& file
 ) {

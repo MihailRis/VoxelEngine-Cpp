@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include "GUI.h"
+#include "../../typedefs.h"
 #include "../../delegates.h"
 
 namespace gui {
@@ -23,7 +24,7 @@ namespace guiutil {
 
     /// @brief Create element from XML
     /// @param source XML
-    std::shared_ptr<gui::UINode> create(const std::string& source, int env=0);
+    std::shared_ptr<gui::UINode> create(const std::string& source, scriptenv env=0);
 
     void alert(
         gui::GUI* gui, 
