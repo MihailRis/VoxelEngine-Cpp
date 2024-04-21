@@ -1,6 +1,6 @@
 #include "GUI.h"
 #include "elements/UINode.hpp"
-#include "elements/layout/Menu.hpp"
+#include "elements/Menu.hpp"
 
 #include <iostream>
 #include <algorithm>

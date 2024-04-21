@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_UI_ELEMENTS_TRACKBAR_HPP_
 #define GRAPHICS_UI_ELEMENTS_TRACKBAR_HPP_
 
-#include "../UINode.hpp"
+#include "UINode.hpp"
 
 namespace gui {
     class TrackBar : public UINode {

@@ -1,8 +1,8 @@
 #ifndef GRAPHICS_UI_ELEMENTS_TEXTBOX_HPP_
 #define GRAPHICS_UI_ELEMENTS_TEXTBOX_HPP_
 
-#include "../layout/Panel.hpp"
-#include "../display/Label.hpp"
+#include "Panel.hpp"
+#include "Label.hpp"
 
 class Font;
 

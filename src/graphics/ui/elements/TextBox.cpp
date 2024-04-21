@@ -1,12 +1,12 @@
 #include "TextBox.hpp"
 
-#include "../display/Label.hpp"
-#include "../../../core/GfxContext.h"
-#include "../../../core/Batch2D.h"
-#include "../../../core/Font.h"
-#include "../../../../assets/Assets.h"
-#include "../../../../util/stringutil.h"
-#include "../../../../window/Events.h"
+#include "Label.hpp"
+#include "../../core/GfxContext.h"
+#include "../../core/Batch2D.h"
+#include "../../core/Font.h"
+#include "../../../assets/Assets.h"
+#include "../../../util/stringutil.h"
+#include "../../../window/Events.h"
 
 using namespace gui;
 

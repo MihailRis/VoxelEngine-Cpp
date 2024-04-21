@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_UI_ELEMENTS_LABEL_HPP_
 #define GRAPHICS_UI_ELEMENTS_LABEL_HPP_
 
-#include "../UINode.hpp"
+#include "UINode.hpp"
 
 namespace gui {
     class Label : public UINode {

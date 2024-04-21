@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_UI_ELEMENTS_BUTTON_HPP_
 #define GRAPHICS_UI_ELEMENTS_BUTTON_HPP_
 
-#include "../layout/Panel.hpp"
+#include "Panel.hpp"
 
 namespace gui {
     class Label;

@@ -1,8 +1,8 @@
 #include "TrackBar.hpp"
 
-#include "../../../core/GfxContext.h"
-#include "../../../core/Batch2D.h"
-#include "../../../../assets/Assets.h"
+#include "../../core/GfxContext.h"
+#include "../../core/Batch2D.h"
+#include "../../../assets/Assets.h"
 
 using namespace gui;
 

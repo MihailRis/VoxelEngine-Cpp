@@ -115,6 +115,7 @@ namespace dynamic {
         Map& put(std::string key, Map* value);
         Map& put(std::string key, List* value);
         Map& put(std::string key, bool value);
+        Map& put(std::string key, std::unique_ptr<Value> value);
 
         List& putList(std::string key);
         Map& putMap(std::string key);

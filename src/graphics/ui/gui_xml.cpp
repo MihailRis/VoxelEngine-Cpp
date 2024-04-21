@@ -3,13 +3,13 @@
 #include <charconv>
 #include <stdexcept>
 
-#include "elements/layout/Panel.hpp"
-#include "elements/display/Image.hpp"
-#include "elements/control/Button.hpp"
-#include "elements/control/CheckBox.hpp"
-#include "elements/control/TextBox.hpp"
-#include "elements/control/TrackBar.hpp"
-#include "elements/control/InputBindBox.hpp"
+#include "elements/Panel.hpp"
+#include "elements/Image.hpp"
+#include "elements/Button.hpp"
+#include "elements/CheckBox.hpp"
+#include "elements/TextBox.hpp"
+#include "elements/TrackBar.hpp"
+#include "elements/InputBindBox.hpp"
 
 #include "../../frontend/locale/langs.h"
 #include "../../logic/scripting/scripting.h"

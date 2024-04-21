@@ -1,10 +1,10 @@
 #include "Image.hpp"
 
-#include "../../../core/GfxContext.h"
-#include "../../../core/Batch2D.h"
-#include "../../../core/Texture.h"
-#include "../../../../assets/Assets.h"
-#include "../../../../maths/UVRegion.h"
+#include "../../core/GfxContext.h"
+#include "../../core/Batch2D.h"
+#include "../../core/Texture.h"
+#include "../../../assets/Assets.h"
+#include "../../../maths/UVRegion.h"
 
 using namespace gui;
 

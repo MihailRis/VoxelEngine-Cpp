@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_UI_ELEMENTS_CHECKBOX_HPP_
 #define GRAPHICS_UI_ELEMENTS_CHECKBOX_HPP_
 
-#include "../layout/Panel.hpp"
+#include "Panel.hpp"
 
 namespace gui {
     class CheckBox : public UINode {

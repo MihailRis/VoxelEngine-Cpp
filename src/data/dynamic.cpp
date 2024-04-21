@@ -325,6 +325,11 @@ Map& Map::put(std::string key, bool value){
     return *this;
 }
 
+Map& Map::put(std::string key, std::unique_ptr<Value> value) {
+    values.emplace(key, value.release());
+    return *this;
+}
+
 List& Map::putList(std::string key) {
     List* arr = new List();
     put(key, arr);

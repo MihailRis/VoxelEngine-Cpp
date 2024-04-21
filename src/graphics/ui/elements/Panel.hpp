@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_UI_ELEMENTS_PANEL_HPP_
 #define GRAPHICS_UI_ELEMENTS_PANEL_HPP_
 
-#include "../commons.hpp"
+#include "commons.hpp"
 #include "Container.hpp"
 
 namespace gui {

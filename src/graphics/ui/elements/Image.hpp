@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_UI_ELEMENTS_IMAGE_HPP_
 #define GRAPHICS_UI_ELEMENTS_IMAGE_HPP_
 
-#include "../UINode.hpp"
+#include "UINode.hpp"
 
 namespace gui {
     class Image : public UINode {
