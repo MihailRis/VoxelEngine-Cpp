@@ -4,7 +4,7 @@
 #include "../../../engine.h"
 #include "../../../files/engine_paths.h"
 #include "../../../frontend/menu.hpp"
-#include "../../../frontend/screens.h"
+#include "../../../frontend/screens/MenuScreen.hpp"
 #include "../../../logic/LevelController.h"
 #include "../../../logic/EngineController.hpp"
 #include "../../../window/Events.h"

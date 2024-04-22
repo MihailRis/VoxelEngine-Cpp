@@ -1,0 +1,37 @@
+#ifndef FRONTEND_SCREENS_LEVEL_SCREEN_HPP_
+#define FRONTEND_SCREENS_LEVEL_SCREEN_HPP_
+
+#include "Screen.hpp"
+
+#include <memory>
+
+class Engine;
+class LevelFrontend;
+class Hud;
+class LevelController;
+class WorldRenderer;
+class TextureAnimator;
+class Level;
+
+class LevelScreen : public Screen {
+    std::unique_ptr<LevelFrontend> frontend;
+    std::unique_ptr<Hud> hud;
+    std::unique_ptr<LevelController> controller;
+    std::unique_ptr<WorldRenderer> worldRenderer;
+    std::unique_ptr<TextureAnimator> animator;
+
+    bool hudVisible = true;
+    void updateHotkeys();
+public:
+    LevelScreen(Engine* engine, Level* level);
+    ~LevelScreen();
+
+    void update(float delta) override;
+    void draw(float delta) override;
+
+    void onEngineShutdown() override;
+
+    LevelController* getLevelController() const;
+};
+
+#endif // FRONTEND_SCREENS_LEVEL_SCREEN_HPP_
