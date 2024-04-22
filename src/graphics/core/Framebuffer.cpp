@@ -1,7 +1,7 @@
-#include "Framebuffer.h"
+#include "Framebuffer.hpp"
 
 #include <GL/glew.h>
-#include "Texture.h"
+#include "Texture.hpp"
 
 Framebuffer::Framebuffer(uint fbo, uint depth, std::unique_ptr<Texture> texture)
   : fbo(fbo), depth(depth), texture(std::move(texture)) 

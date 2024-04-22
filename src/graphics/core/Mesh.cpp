@@ -1,4 +1,4 @@
-#include "Mesh.h"
+#include "Mesh.hpp"
 #include <GL/glew.h>
 
 int Mesh::meshesCount = 0;

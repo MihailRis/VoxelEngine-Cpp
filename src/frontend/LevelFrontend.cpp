@@ -3,7 +3,7 @@
 #include "../assets/Assets.h"
 #include "../audio/audio.h"
 #include "../content/Content.h"
-#include "../graphics/core/Atlas.h"
+#include "../graphics/core/Atlas.hpp"
 #include "../graphics/render/BlocksPreview.h"
 #include "../logic/LevelController.h"
 #include "../logic/PlayerController.h"

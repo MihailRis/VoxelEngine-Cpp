@@ -1,7 +1,7 @@
 #include "ChunksRenderer.h"
 
 #include "../../debug/Logger.h"
-#include "../../graphics/core/Mesh.h"
+#include "../../graphics/core/Mesh.hpp"
 #include "BlocksRenderer.h"
 #include "../../voxels/Chunk.h"
 #include "../../world/Level.h"

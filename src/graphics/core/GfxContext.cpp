@@ -1,9 +1,9 @@
-#include "GfxContext.h"
+#include "GfxContext.hpp"
 
 #include <GL/glew.h>
 
-#include "Batch2D.h"
-#include "Framebuffer.h"
+#include "Batch2D.hpp"
+#include "Framebuffer.hpp"
 
 GfxContext::GfxContext(
     const GfxContext* parent, 

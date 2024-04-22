@@ -1,7 +1,7 @@
 #include "UINode.hpp"
 
 #include "Container.hpp"
-#include "../../core/Batch2D.h"
+#include "../../core/Batch2D.hpp"
 
 using gui::UINode;
 using gui::Align;

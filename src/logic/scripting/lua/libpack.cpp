@@ -7,7 +7,7 @@
 #include "../../../files/WorldFiles.h"
 #include "../../../world/Level.h"
 #include "../../../world/World.h"
-#include "../../../graphics/core/Texture.h"
+#include "../../../graphics/core/Texture.hpp"
 
 #include <string>
 #include <filesystem>

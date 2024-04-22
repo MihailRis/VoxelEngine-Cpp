@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 #include "../../typedefs.h"
-#include "ImageData.h"
+#include "ImageData.hpp"
 
 class Texture {
 protected:

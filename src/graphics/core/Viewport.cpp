@@ -1,4 +1,4 @@
-#include "Viewport.h"
+#include "Viewport.hpp"
 
 Viewport::Viewport(uint width, uint height) 
     : width(width), height(height) {

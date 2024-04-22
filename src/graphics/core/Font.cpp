@@ -1,6 +1,6 @@
-#include "Font.h"
-#include "Texture.h"
-#include "Batch2D.h"
+#include "Font.hpp"
+#include "Texture.hpp"
+#include "Batch2D.hpp"
 
 inline constexpr uint GLYPH_SIZE = 16;
 inline constexpr uint MAX_CODEPAGES = 10000; // idk ho many codepages unicode has

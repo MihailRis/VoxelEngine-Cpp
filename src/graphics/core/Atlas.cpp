@@ -1,9 +1,9 @@
-#include "Atlas.h"
+#include "Atlas.hpp"
 
 #include <stdexcept>
 #include "../../maths/LMPacker.h"
-#include "Texture.h"
-#include "ImageData.h"
+#include "Texture.hpp"
+#include "ImageData.hpp"
 
 Atlas::Atlas(
     std::unique_ptr<ImageData> image, 

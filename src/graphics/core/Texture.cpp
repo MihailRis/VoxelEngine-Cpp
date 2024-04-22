@@ -1,10 +1,10 @@
-#include "Texture.h"
+#include "Texture.hpp"
+#include "ImageData.hpp"
+#include "gl_util.hpp"
+
 #include <GL/glew.h>
 #include <stdexcept>
 #include <memory>
-
-#include "ImageData.h"
-#include "gl_util.h"
 
 uint Texture::MAX_RESOLUTION = 1024; // Window.initialize overrides it
 

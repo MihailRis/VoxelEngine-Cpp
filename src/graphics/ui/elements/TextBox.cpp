@@ -1,9 +1,9 @@
 #include "TextBox.hpp"
 
 #include "Label.hpp"
-#include "../../core/GfxContext.h"
-#include "../../core/Batch2D.h"
-#include "../../core/Font.h"
+#include "../../core/GfxContext.hpp"
+#include "../../core/Batch2D.hpp"
+#include "../../core/Font.hpp"
 #include "../../../assets/Assets.h"
 #include "../../../util/stringutil.h"
 #include "../../../window/Events.h"

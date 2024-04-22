@@ -1,8 +1,8 @@
 #include "Button.hpp"
 
 #include "Label.hpp"
-#include "../../core/GfxContext.h"
-#include "../../core/Batch2D.h"
+#include "../../core/GfxContext.hpp"
+#include "../../core/Batch2D.hpp"
 
 using namespace gui;
 

@@ -1,8 +1,8 @@
 #ifndef GRAPHICS_CORE_POST_PROCESSING_H_
 #define GRAPHICS_CORE_POST_PROCESSING_H_
 
-#include "Viewport.h"
-#include "GfxContext.h"
+#include "Viewport.hpp"
+#include "GfxContext.hpp"
 
 #include <memory>
 
@@ -35,7 +35,7 @@ public:
 
     /// @brief Make an image from the last rendered frame
     std::unique_ptr<ImageData> toImage();
-    
+
     Framebuffer* getFramebuffer() const;
 };
 

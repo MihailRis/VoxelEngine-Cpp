@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <glm/glm.hpp>
 
-#include "commons.h"
+#include "commons.hpp"
 #include "../../maths/UVRegion.h"
 
 class Mesh;

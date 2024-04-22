@@ -1,6 +1,6 @@
-#include "TextureAnimation.h"
-#include "Texture.h"
-#include "Framebuffer.h"
+#include "TextureAnimation.hpp"
+#include "Texture.hpp"
+#include "Framebuffer.hpp"
 
 #include <GL/glew.h>
 #include <unordered_set>

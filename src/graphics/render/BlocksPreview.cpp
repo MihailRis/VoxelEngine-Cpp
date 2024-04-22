@@ -9,13 +9,13 @@
 #include "../../voxels/Block.h"
 #include "../../window/Camera.h"
 #include "../../window/Window.h"
-#include "../core/Atlas.h"
-#include "../core/Batch3D.h"
-#include "../core/Framebuffer.h"
-#include "../core/GfxContext.h"
-#include "../core/Shader.h"
-#include "../core/Texture.h"
-#include "../core/Viewport.h"
+#include "../core/Atlas.hpp"
+#include "../core/Batch3D.hpp"
+#include "../core/Framebuffer.hpp"
+#include "../core/GfxContext.hpp"
+#include "../core/Shader.hpp"
+#include "../core/Texture.hpp"
+#include "../core/Viewport.hpp"
 
 std::unique_ptr<ImageData> BlocksPreview::draw(
     const ContentGfxCache* cache,

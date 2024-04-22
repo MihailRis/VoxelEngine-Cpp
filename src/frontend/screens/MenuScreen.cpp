@@ -2,8 +2,8 @@
 
 #include "../../graphics/ui/GUI.h"
 #include "../../graphics/ui/elements/Menu.hpp"
-#include "../../graphics/core/Batch2D.h"
-#include "../../graphics/core/Shader.h"
+#include "../../graphics/core/Batch2D.hpp"
+#include "../../graphics/core/Shader.hpp"
 #include "../../window/Window.h"
 #include "../../window/Camera.h"
 #include "../../engine.h"

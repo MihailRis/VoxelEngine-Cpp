@@ -2,8 +2,8 @@
 #include "Window.h"
 #include "Events.h"
 #include "../debug/Logger.h"
-#include "../graphics/core/ImageData.h"
-#include "../graphics/core/Texture.h"
+#include "../graphics/core/ImageData.hpp"
+#include "../graphics/core/Texture.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

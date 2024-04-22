@@ -6,7 +6,7 @@
 #include "../content/Content.h"
 #include "../content/ContentPack.h"
 #include "../core_defs.h"
-#include "../graphics/core/Atlas.h"
+#include "../graphics/core/Atlas.hpp"
 #include "../maths/UVRegion.h"
 #include "../voxels/Block.h"
 #include "UiDocument.h"

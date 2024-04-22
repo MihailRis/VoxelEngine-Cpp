@@ -11,12 +11,12 @@
 #include "../coders/imageio.h"
 #include "../coders/json.h"
 #include "../coders/GLSLExtension.h"
-#include "../graphics/core/Shader.h"
-#include "../graphics/core/Texture.h"
-#include "../graphics/core/ImageData.h"
-#include "../graphics/core/Atlas.h"
-#include "../graphics/core/Font.h"
-#include "../graphics/core/TextureAnimation.h"
+#include "../graphics/core/Shader.hpp"
+#include "../graphics/core/Texture.hpp"
+#include "../graphics/core/ImageData.hpp"
+#include "../graphics/core/Atlas.hpp"
+#include "../graphics/core/Font.hpp"
+#include "../graphics/core/TextureAnimation.hpp"
 #include "../frontend/UiDocument.h"
 
 namespace fs = std::filesystem;

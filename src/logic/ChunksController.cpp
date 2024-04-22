@@ -11,7 +11,7 @@
 #include "../voxels/ChunksStorage.h"
 #include "../voxels/WorldGenerator.h"
 #include "../world/WorldGenerators.h"
-#include "../graphics/core/Mesh.h"
+#include "../graphics/core/Mesh.hpp"
 #include "../lighting/Lighting.h"
 #include "../files/WorldFiles.h"
 #include "../world/Level.h"

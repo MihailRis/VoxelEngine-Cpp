@@ -1,8 +1,8 @@
 #include "PostProcessing.h"
-#include "Mesh.h"
-#include "Shader.h"
-#include "Texture.h"
-#include "Framebuffer.h"
+#include "Mesh.hpp"
+#include "Shader.hpp"
+#include "Texture.hpp"
+#include "Framebuffer.hpp"
 
 #include <stdexcept>
 

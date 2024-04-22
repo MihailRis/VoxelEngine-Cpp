@@ -1,8 +1,8 @@
 #ifndef GRAPHICS_CORE_GL_UTIL_H_
 #define GRAPHICS_CORE_GL_UTIL_H_
 
-#include "commons.h"
-#include "ImageData.h"
+#include "commons.hpp"
+#include "ImageData.hpp"
 
 #include <GL/glew.h>
 

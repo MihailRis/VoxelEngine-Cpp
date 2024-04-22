@@ -1,7 +1,7 @@
 #include "CheckBox.hpp"
 
-#include "../../core/GfxContext.h"
-#include "../../core/Batch2D.h"
+#include "../../core/GfxContext.hpp"
+#include "../../core/Batch2D.hpp"
 #include "Label.hpp"
 
 using namespace gui;

@@ -7,9 +7,9 @@
 
 #include "../../assets/Assets.h"
 #include "../../frontend/UiDocument.h"
-#include "../../graphics/core/Batch2D.h"
-#include "../../graphics/core/Shader.h"
-#include "../../graphics/core/GfxContext.h"
+#include "../../graphics/core/Batch2D.hpp"
+#include "../../graphics/core/Shader.hpp"
+#include "../../graphics/core/GfxContext.hpp"
 #include "../../window/Events.h"
 #include "../../window/input.h"
 #include "../../window/Camera.h"

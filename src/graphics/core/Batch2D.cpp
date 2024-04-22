@@ -1,7 +1,7 @@
-#include "Batch2D.h"
-#include "Mesh.h"
-#include "Texture.h"
-#include "gl_util.h"
+#include "Batch2D.hpp"
+#include "Mesh.hpp"
+#include "Texture.hpp"
+#include "gl_util.hpp"
 
 #include <GL/glew.h>
 

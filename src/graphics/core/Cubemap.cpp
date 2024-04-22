@@ -1,5 +1,5 @@
-#include "Cubemap.h"
-#include "gl_util.h"
+#include "Cubemap.hpp"
+#include "gl_util.hpp"
 
 #include <GL/glew.h>
 

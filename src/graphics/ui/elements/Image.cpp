@@ -1,8 +1,8 @@
 #include "Image.hpp"
 
-#include "../../core/GfxContext.h"
-#include "../../core/Batch2D.h"
-#include "../../core/Texture.h"
+#include "../../core/GfxContext.hpp"
+#include "../../core/Batch2D.hpp"
+#include "../../core/Texture.hpp"
 #include "../../../assets/Assets.h"
 #include "../../../maths/UVRegion.h"
 

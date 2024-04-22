@@ -5,7 +5,7 @@
 #include "../audio/audio.h"
 #include "../delegates.h"
 #include "../engine.h"
-#include "../graphics/core/Mesh.h"
+#include "../graphics/core/Mesh.hpp"
 #include "../graphics/ui/elements/CheckBox.hpp"
 #include "../graphics/ui/elements/TextBox.hpp"
 #include "../graphics/ui/elements/TrackBar.hpp"

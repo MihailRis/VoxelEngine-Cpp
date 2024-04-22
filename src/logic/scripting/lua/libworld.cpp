@@ -3,7 +3,7 @@
 #include "../scripting.h"
 #include "../../../assets/Assets.h"
 #include "../../../coders/imageio.h"
-#include "../../../graphics/core/Texture.h"
+#include "../../../graphics/core/Texture.hpp"
 #include "../../../files/engine_paths.h"
 #include "../../../world/Level.h"
 #include "../../../world/World.h"
@@ -41,7 +41,7 @@ static int l_world_get_list(lua_State* L) {
         }
         lua_pushstring(L, icon.c_str());
         lua_setfield(L, -2, "icon");
-        
+
         lua_rawseti(L, -2, i + 1);
     }
     return 1;

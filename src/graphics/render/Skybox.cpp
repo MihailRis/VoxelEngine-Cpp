@@ -5,13 +5,13 @@
 #include <glm/glm.hpp>
 
 #include "../../assets/Assets.h"
-#include "../../graphics/core/Shader.h"
-#include "../../graphics/core/Mesh.h"
-#include "../../graphics/core/Batch3D.h"
-#include "../../graphics/core/Texture.h"
-#include "../../graphics/core/Cubemap.h"
-#include "../../graphics/core/Framebuffer.h"
-#include "../../graphics/core/GfxContext.h"
+#include "../../graphics/core/Shader.hpp"
+#include "../../graphics/core/Mesh.hpp"
+#include "../../graphics/core/Batch3D.hpp"
+#include "../../graphics/core/Texture.hpp"
+#include "../../graphics/core/Cubemap.hpp"
+#include "../../graphics/core/Framebuffer.hpp"
+#include "../../graphics/core/GfxContext.hpp"
 #include "../../window/Window.h"
 #include "../../window/Camera.h"
 

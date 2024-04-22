@@ -1,7 +1,7 @@
-#include "Batch3D.h"
+#include "Batch3D.hpp"
 
-#include "Mesh.h"
-#include "Texture.h"
+#include "Mesh.hpp"
+#include "Texture.hpp"
 
 #include <GL/glew.h>
 #include "../../typedefs.h"

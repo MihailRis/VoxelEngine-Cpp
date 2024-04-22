@@ -1,4 +1,4 @@
-#include "ImageData.h"
+#include "ImageData.hpp"
 
 #include <assert.h>
 #include <stdexcept>

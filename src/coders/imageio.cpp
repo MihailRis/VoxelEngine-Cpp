@@ -1,7 +1,7 @@
 #include "imageio.h"
 
 #include "png.h"
-#include "../graphics/core/ImageData.h"
+#include "../graphics/core/ImageData.hpp"
 
 #include <filesystem>
 #include <functional>

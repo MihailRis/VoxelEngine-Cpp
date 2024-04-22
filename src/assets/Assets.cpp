@@ -1,10 +1,10 @@
 #include "Assets.h"
 
 #include "../audio/audio.h"
-#include "../graphics/core/Texture.h"
-#include "../graphics/core/Shader.h"
-#include "../graphics/core/Atlas.h"
-#include "../graphics/core/Font.h"
+#include "../graphics/core/Texture.hpp"
+#include "../graphics/core/Shader.hpp"
+#include "../graphics/core/Atlas.hpp"
+#include "../graphics/core/Font.hpp"
 #include "../frontend/UiDocument.h"
 #include "../logic/scripting/scripting.h"
 
