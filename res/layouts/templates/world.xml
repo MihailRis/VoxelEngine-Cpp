@@ -6,11 +6,12 @@
 >
     <image pos='1' src='%{icon}' size='96,64'></image>
     <label pos='104,8'>%{name}</label>
-    <button pos='350,5'
+    <button margin='4'
+            gravity='center-right'
             color='#00000000'
             hover-color='#FFFFFF2B'
             padding='0'
             onclick='core.delete_world("{%{name}}")'>
-        <image src='gui/delete_icon' size='32,32' color='#FFFFFF80'/>
+        <image src='gui/delete_icon' size='32,32' color='#FFFFFF50'/>
     </button>
 </container>
