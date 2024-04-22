@@ -30,7 +30,7 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     map.emplace("graphics.backlight", &settings.graphics.backlight);
 }
 
-dynamic::Value SettingsHandler::getValue(const std::string& name) const {
+std::unique_ptr<dynamic::Value> SettingsHandler::getValue(const std::string& name) const {
     auto found = map.find(name);
     if (found == map.end()) {
         throw std::runtime_error("setting '"+name+"' does not exist");
@@ -65,7 +65,7 @@ Setting* SettingsHandler::getSetting(const std::string& name) const {
 }
 
 template<class T>
-static void set_numeric_value(T* setting, dynamic::Value& value) {
+static void set_numeric_value(T* setting, const dynamic::Value& value) {
     switch (value.type) {
         case dynamic::valtype::integer:
             setting->set(std::get<integer_t>(value.value));
@@ -81,10 +81,10 @@ static void set_numeric_value(T* setting, dynamic::Value& value) {
     }
 }
 
-void SettingsHandler::setValue(const std::string& name, dynamic::Value value) {
+void SettingsHandler::setValue(const std::string& name, const dynamic::Value& value) {
     auto found = map.find(name);
     if (found == map.end()) {
-        throw std::runtime_error("setting '"+name+"' does not exist");
+        throw std::runtime_error("setting '"+name+"' does Pnot exist");
     }
     auto setting = found->second;
     if (auto number = dynamic_cast<NumberSetting*>(setting)) {

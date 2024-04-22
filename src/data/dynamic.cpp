@@ -110,6 +110,11 @@ List& List::put(bool value) {
     return *this;
 }
 
+List& List::put(std::unique_ptr<Value> value) {
+    values.emplace_back(std::move(value));
+    return *this;
+}
+
 List& List::put(Map* value) {
     values.push_back(std::make_unique<Value>(valtype::map, value));
     return *this;
@@ -346,6 +351,10 @@ bool Map::has(std::string key) {
     return values.find(key) != values.end();
 }
 
+size_t Map::size() const {
+    return values.size();
+}
+
 Value::Value(valtype type, valvalue value) : type(type), value(value) {
 }
 
@@ -358,18 +367,18 @@ Value::~Value() {
     }
 }
 
-Value Value::boolean(bool value) {
-    return Value(valtype::boolean, value);
+std::unique_ptr<Value> Value::boolean(bool value) {
+    return std::make_unique<Value>(valtype::boolean, value);
 }
 
-Value Value::of(number_u value) {
+std::unique_ptr<Value> Value::of(number_u value) {
     if (std::holds_alternative<integer_t>(value)) {
-        return Value(valtype::integer, std::get<integer_t>(value));
+        return std::make_unique<Value>(valtype::integer, std::get<integer_t>(value));
     } else {
-        return Value(valtype::number, std::get<number_t>(value));
+        return std::make_unique<Value>(valtype::number, std::get<number_t>(value));
     }
 }
 
-Value Value::of(const std::string& value) {
-    return Value(valtype::string, value);
+std::unique_ptr<Value> Value::of(const std::string& value) {
+    return std::make_unique<Value>(valtype::string, value);
 }

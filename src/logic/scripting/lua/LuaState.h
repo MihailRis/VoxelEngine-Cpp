@@ -47,7 +47,7 @@ namespace lua {
         bool toboolean(int idx);
         luaint tointeger(int idx);
         luanumber tonumber(int idx);
-        dynamic::Value tovalue(int idx);
+        std::unique_ptr<dynamic::Value> tovalue(int idx);
         const char* tostring(int idx);
         bool isstring(int idx);
         bool isfunction(int idx);

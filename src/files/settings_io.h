@@ -2,6 +2,7 @@
 #define FILES_SETTINGS_IO_H_
 
 #include <string>
+#include <memory>
 #include <unordered_map>
 #include "../settings.h"
 #include "../data/dynamic.h"
@@ -15,8 +16,8 @@ class SettingsHandler {
 public:
     SettingsHandler(EngineSettings& settings);
 
-    dynamic::Value getValue(const std::string& name) const;
-    void setValue(const std::string& name, dynamic::Value value);
+    std::unique_ptr<dynamic::Value> getValue(const std::string& name) const;
+    void setValue(const std::string& name, const dynamic::Value& value);
     std::string toString(const std::string& name) const;
     Setting* getSetting(const std::string& name) const;
 };

@@ -118,14 +118,14 @@ static int l_get_bindings(lua_State* L) {
 static int l_get_setting(lua_State* L) {
     auto name = lua_tostring(L, 1);
     const auto value = scripting::engine->getSettingsHandler().getValue(name);
-    scripting::state->pushvalue(value);
+    scripting::state->pushvalue(*value);
     return 1;
 }
 
 static int l_set_setting(lua_State* L) {
     auto name = lua_tostring(L, 1);
     const auto value = scripting::state->tovalue(2);
-    scripting::engine->getSettingsHandler().setValue(name, value);
+    scripting::engine->getSettingsHandler().setValue(name, *value);
     return 0;
 }
 

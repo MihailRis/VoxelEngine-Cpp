@@ -17,6 +17,7 @@ extern const luaL_Reg packlib [];
 extern const luaL_Reg playerlib [];
 extern const luaL_Reg timelib [];
 extern const luaL_Reg worldlib [];
+extern const luaL_Reg jsonlib [];
 
 
 // Lua Overrides
