@@ -67,6 +67,7 @@ scriptenv scripting::create_pack_environment(const ContentPack& pack) {
     state->pop();
     return std::shared_ptr<int>(new int(id), [=](int* id) {
         state->removeEnvironment(*id);
+        delete id;
     });
 }
 
@@ -90,6 +91,7 @@ scriptenv scripting::create_doc_environment(scriptenv parent, const std::string&
     state->pop();
     return std::shared_ptr<int>(new int(id), [=](int* id) {
         state->removeEnvironment(*id);
+        delete id;
     });
 }
 

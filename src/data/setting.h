@@ -43,6 +43,7 @@ public:
         observers.emplace(id, callback);
         return std::shared_ptr<int>(new int(id), [this](int* id) {
             observers.erase(*id);
+            delete id;
         });
     }
 

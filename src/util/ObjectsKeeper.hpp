@@ -5,6 +5,7 @@
 #include <memory>
 
 namespace util {
+    /// @brief Keeps shared pointers alive until destruction
     class ObjectsKeeper {
         std::vector<std::shared_ptr<void>> ptrs;
     public:
