@@ -77,8 +77,7 @@ static bool appendAtlas(AtlasBuilder& atlas, const fs::path& file) {
     }
     auto image = imageio::read(file.string());
     image->fixAlphaColor();
-    atlas.add(name, image.release());
-
+    atlas.add(name, std::move(image));
     return true;
 }
 

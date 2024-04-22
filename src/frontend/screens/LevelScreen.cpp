@@ -2,9 +2,13 @@
 
 #include "../hud.h"
 #include "../LevelFrontend.h"
+#include "../../debug/Logger.h"
 #include "../../audio/audio.h"
+#include "../../coders/imageio.h"
+#include "../../graphics/core/PostProcessing.h"
 #include "../../graphics/core/GfxContext.h"
 #include "../../graphics/core/Viewport.h"
+#include "../../graphics/core/ImageData.h"
 #include "../../graphics/ui/GUI.h"
 #include "../../graphics/ui/elements/Menu.hpp"
 #include "../../graphics/render/WorldRenderer.h"
@@ -18,7 +22,11 @@
 #include "../../window/Events.h"
 #include "../../engine.h"
 
+static debug::Logger logger("level-screen");
+
 LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
+    postProcessing = std::make_unique<PostProcessing>();
+
     auto& settings = engine->getSettings();
     auto assets = engine->getAssets();
     auto menu = engine->getGUI()->getMenu();
@@ -53,9 +61,29 @@ LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
 }
 
 LevelScreen::~LevelScreen() {
+    saveWorldPreview();
     scripting::on_frontend_close();
     controller->onWorldQuit();
     engine->getPaths()->setWorldFolder(fs::path());
+}
+
+void LevelScreen::saveWorldPreview() {
+    try {
+        logger.info() << "saving world preview";
+        auto paths = engine->getPaths();
+        auto player = controller->getPlayer();
+        auto camera = player->camera;
+        auto& settings = engine->getSettings();
+        int previewSize = settings.ui.worldPreviewSize.get();
+        Viewport viewport(previewSize * 1.5, previewSize);
+        GfxContext ctx(nullptr, viewport, batch.get());
+        worldRenderer->draw(ctx, camera.get(), false, postProcessing.get());
+        auto image = postProcessing->toImage();
+        image->flipY();
+        imageio::write(paths->resolve("world:preview.png"), image.get());
+    } catch (const std::exception& err) {
+        logger.error() << err.what();
+    }
 }
 
 void LevelScreen::updateHotkeys() {
@@ -111,7 +139,7 @@ void LevelScreen::draw(float delta) {
     Viewport viewport(Window::width, Window::height);
     GfxContext ctx(nullptr, viewport, batch.get());
 
-    worldRenderer->draw(ctx, camera.get(), hudVisible);
+    worldRenderer->draw(ctx, camera.get(), hudVisible, postProcessing.get());
 
     if (hudVisible) {
         hud->draw(ctx);

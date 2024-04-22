@@ -1,10 +1,11 @@
 <container 
-    size='380,46'
+    size='380,66'
     color='#0F1E2DB2'
     hover-color='#162B3399'
     onclick='core.open_world("%{name}")'
 >
-    <label pos='8,8'>%{name}</label>
+    <image pos='1' src='%{icon}' size='96,64'></image>
+    <label pos='104,8'>%{name}</label>
     <button pos='350,5'
             color='#00000000'
             hover-color='#FFFFFF2B'

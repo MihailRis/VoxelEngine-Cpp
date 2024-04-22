@@ -49,12 +49,12 @@ void Texture::reload(ubyte* data){
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-ImageData* Texture::readData() {
+std::unique_ptr<ImageData> Texture::readData() {
     std::unique_ptr<ubyte[]> data (new ubyte[width * height * 4]);
     glBindTexture(GL_TEXTURE_2D, id);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.get());
     glBindTexture(GL_TEXTURE_2D, 0);
-    return new ImageData(ImageFormat::rgba8888, width, height, data.release());
+    return std::make_unique<ImageData>(ImageFormat::rgba8888, width, height, data.release());
 }
 
 void Texture::setNearestFilter() {

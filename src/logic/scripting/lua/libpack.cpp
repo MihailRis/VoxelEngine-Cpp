@@ -75,12 +75,15 @@ static int l_pack_get_info(lua_State* L, const ContentPack& pack, const Content*
     lua_pushstring(L, pack.version.c_str());
     lua_setfield(L, -2, "version");
 
-    // hmm
+    // FIXME: hmm
     auto assets = scripting::engine->getAssets();
     std::string icon = pack.id+".icon";
     if (assets->getTexture(icon) == nullptr) {
         auto iconfile = pack.folder/fs::path("icon.png");
-        if (fs::is_regular_file(iconfile)) {
+        if (!fs::exists(iconfile)) {
+            iconfile = pack.folder/fs::path("preview.png");
+        }
+        if (fs::exists(iconfile)) {
             auto image = imageio::read(iconfile.string());
             assets->store(Texture::from(image.get()), icon);
         } else {

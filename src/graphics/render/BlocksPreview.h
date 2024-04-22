@@ -17,7 +17,7 @@ class Shader;
 class ContentGfxCache;
 
 class BlocksPreview {
-    static ImageData* draw(
+    static std::unique_ptr<ImageData> draw(
         const ContentGfxCache* cache,
         Shader* shader,
         Framebuffer* framebuffer,

@@ -11,6 +11,7 @@ class Hud;
 class LevelController;
 class WorldRenderer;
 class TextureAnimator;
+class PostProcessing;
 class Level;
 
 class LevelScreen : public Screen {
@@ -19,6 +20,9 @@ class LevelScreen : public Screen {
     std::unique_ptr<LevelController> controller;
     std::unique_ptr<WorldRenderer> worldRenderer;
     std::unique_ptr<TextureAnimator> animator;
+    std::unique_ptr<PostProcessing> postProcessing;
+
+    void saveWorldPreview();
 
     bool hudVisible = true;
     void updateHotkeys();

@@ -42,7 +42,6 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* pl
       level(frontend->getLevel()),
       player(player)
 {
-    postProcessing = std::make_unique<PostProcessing>();
     frustumCulling = std::make_unique<Frustum>();
     lineBatch = std::make_unique<LineBatch>();
     renderer = std::make_unique<ChunksRenderer>(
@@ -148,6 +147,7 @@ void WorldRenderer::renderLevel(
     Assets* assets = engine->getAssets();
     Atlas* atlas = assets->getAtlas("blocks");
     Shader* shader = assets->getShader("main");
+
     auto indices = level->content->getIndices();
 
     float fogFactor = 15.0f / ((float)settings.chunks.loadDistance.get()-2);
@@ -265,7 +265,15 @@ void WorldRenderer::renderDebugLines(
     lineBatch->render();
 }
 
-void WorldRenderer::draw(const GfxContext& pctx, Camera* camera, bool hudVisible){
+void WorldRenderer::draw(
+    const GfxContext& pctx, 
+    Camera* camera, 
+    bool hudVisible, 
+    PostProcessing* postProcessing
+){
+    const Viewport& vp = pctx.getViewport();
+    camera->aspect = vp.getWidth() / static_cast<float>(vp.getHeight());
+
     EngineSettings& settings = engine->getSettings();
     skybox->refresh(pctx, level->getWorld()->daytime, 1.0f+fog*2.0f, 4);
 

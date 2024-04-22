@@ -19,18 +19,6 @@ namespace scripting {
     extern lua::LuaState* state;
 }
 
-static int l_get_worlds_list(lua_State* L) {
-    auto paths = scripting::engine->getPaths();
-    auto worlds = paths->scanForWorlds();
-
-    lua_createtable(L, worlds.size(), 0);
-    for (size_t i = 0; i < worlds.size(); i++) {
-        lua_pushstring(L, worlds[i].filename().u8string().c_str());
-        lua_rawseti(L, -2, i + 1);
-    }
-    return 1;
-}
-
 static int l_new_world(lua_State* L) {
     auto name = lua_tostring(L, 1);
     auto seed = lua_tostring(L, 2);
@@ -183,7 +171,6 @@ static int l_get_generators(lua_State* L) {
 }
 
 const luaL_Reg corelib [] = {
-    {"get_worlds_list", lua_wrap_errors<l_get_worlds_list>},
     {"new_world", lua_wrap_errors<l_new_world>},
     {"open_world", lua_wrap_errors<l_open_world>},
     {"close_world", lua_wrap_errors<l_close_world>},

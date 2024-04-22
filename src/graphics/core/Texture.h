@@ -2,6 +2,7 @@
 #define GRAPHICS_CORE_TEXTURE_H_
 
 #include <string>
+#include <memory>
 #include "../../typedefs.h"
 #include "ImageData.h"
 
@@ -23,7 +24,7 @@ public:
 
     void setNearestFilter();
 
-    virtual ImageData* readData();
+    virtual std::unique_ptr<ImageData> readData();
 
     virtual uint getWidth() const;
     virtual uint getHeight() const;

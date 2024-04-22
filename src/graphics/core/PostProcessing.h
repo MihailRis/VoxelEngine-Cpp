@@ -32,6 +32,11 @@ public:
     /// @param screenShader shader used for fullscreen quad
     /// @throws std::runtime_error if use(...) wasn't called before
     void render(const GfxContext& context, Shader* screenShader);
+
+    /// @brief Make an image from the last rendered frame
+    std::unique_ptr<ImageData> toImage();
+    
+    Framebuffer* getFramebuffer() const;
 };
 
 #endif // GRAPHICS_CORE_POST_PROCESSING_H_

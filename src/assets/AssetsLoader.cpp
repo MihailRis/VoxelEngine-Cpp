@@ -178,6 +178,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
     loader.add(AssetType::texture, TEXTURES_FOLDER+"/gui/menubg", "gui/menubg");
     loader.add(AssetType::texture, TEXTURES_FOLDER+"/gui/delete_icon", "gui/delete_icon");
     loader.add(AssetType::texture, TEXTURES_FOLDER+"/gui/no_icon", "gui/no_icon");
+    loader.add(AssetType::texture, TEXTURES_FOLDER+"/gui/no_world_icon", "gui/no_world_icon");
     loader.add(AssetType::texture, TEXTURES_FOLDER+"/gui/warning", "gui/warning");
     loader.add(AssetType::texture, TEXTURES_FOLDER+"/gui/error", "gui/error");
     loader.add(AssetType::texture, TEXTURES_FOLDER+"/gui/cross", "gui/cross");

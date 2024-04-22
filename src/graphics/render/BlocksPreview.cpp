@@ -17,7 +17,7 @@
 #include "../core/Texture.h"
 #include "../core/Viewport.h"
 
-ImageData* BlocksPreview::draw(
+std::unique_ptr<ImageData> BlocksPreview::draw(
     const ContentGfxCache* cache,
     Shader* shader,
     Framebuffer* fbo,

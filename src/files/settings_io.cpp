@@ -141,6 +141,7 @@ toml::Wrapper* create_wrapper(EngineSettings& settings) {
 
     toml::Section& ui = wrapper->add("ui");
     ui.add("language", &settings.ui.language);
+    ui.add("world-preview-size", &*settings.ui.worldPreviewSize);
     return wrapper.release();
 }
 

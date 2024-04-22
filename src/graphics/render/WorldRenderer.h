@@ -31,7 +31,6 @@ class WorldRenderer {
     Engine* engine;
     Level* level;
     Player* player;
-    std::unique_ptr<PostProcessing> postProcessing;
     std::unique_ptr<Frustum> frustumCulling;
     std::unique_ptr<LineBatch> lineBatch;
     std::unique_ptr<ChunksRenderer> renderer;
@@ -39,16 +38,6 @@ class WorldRenderer {
     std::unique_ptr<Batch3D> batch3d;
     bool drawChunk(size_t index, Camera* camera, Shader* shader, bool culling);
     void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
-
-    /// @brief Render level without diegetic interface
-    /// @param context graphics context
-    /// @param camera active camera
-    /// @param settings engine settings
-    void renderLevel(
-        const GfxContext& context, 
-        Camera* camera, 
-        const EngineSettings& settings
-    );
 
     /// @brief Render block selection lines
     /// @param camera active camera
@@ -70,8 +59,23 @@ public:
     WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* player);
     ~WorldRenderer();
 
-    void draw(const GfxContext& context, Camera* camera, bool hudVisible);
+    void draw(
+        const GfxContext& context, 
+        Camera* camera, 
+        bool hudVisible, 
+        PostProcessing* postProcessing
+    );
     void drawBorders(int sx, int sy, int sz, int ex, int ey, int ez);
+
+    /// @brief Render level without diegetic interface
+    /// @param context graphics context
+    /// @param camera active camera
+    /// @param settings engine settings
+    void renderLevel(
+        const GfxContext& context, 
+        Camera* camera, 
+        const EngineSettings& settings
+    );
 
     static float fog;
 };
