@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "../settings.h"
+#include "../util/ObjectsKeeper.hpp"
 
 class Assets;
 class Level;
@@ -16,7 +17,7 @@ class LevelController;
 class TextureAnimator;
 
 /// @brief Screen is a mainloop state
-class Screen {
+class Screen : public util::ObjectsKeeper {
 protected:
     Engine* engine;
     std::unique_ptr<Batch2D> batch;

@@ -86,8 +86,6 @@ void MenuScreen::draw(float delta) {
     batch->flush();
 }
 
-static bool backlight;
-
 LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
     auto& settings = engine->getSettings();
     auto assets = engine->getAssets();
@@ -100,8 +98,12 @@ LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
     worldRenderer = std::make_unique<WorldRenderer>(engine, frontend.get(), controller->getPlayer());
     hud = std::make_unique<Hud>(engine, frontend.get(), controller->getPlayer());
     
-
-    backlight = settings.graphics.backlight.get();
+    keepAlive(settings.graphics.backlight.observe([=](bool flag) {
+        controller->getLevel()->chunks->saveAndClear();
+    }));
+    keepAlive(settings.camera.fov.observe([=](double value) {
+        controller->getPlayer()->camera->setFov(glm::radians(value));
+    }));
 
     animator = std::make_unique<TextureAnimator>();
     animator->addAnimations(assets->getAnimations());
@@ -162,14 +164,6 @@ void LevelScreen::update(float delta) {
         camera->dir, 
         camera->up
     );
-
-    // TODO: subscribe for setting change
-    EngineSettings& settings = engine->getSettings();
-    controller->getPlayer()->camera->setFov(glm::radians(settings.camera.fov.get()));
-    if (settings.graphics.backlight.get() != backlight) {
-        controller->getLevel()->chunks->saveAndClear();
-        backlight = settings.graphics.backlight.get();
-    }
 
     if (!hud->isPause()) {
         controller->getLevel()->getWorld()->updateTimers(delta);

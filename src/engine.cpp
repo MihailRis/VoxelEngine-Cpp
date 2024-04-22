@@ -47,13 +47,13 @@ void addWorldGenerators() {
     WorldGenerators::addGenerator<FlatWorldGenerator>("core:flat");
 }
 
-inline void create_channel(std::string name, NumberSetting& setting) {
+inline void create_channel(Engine* engine, std::string name, NumberSetting& setting) {
     if (name != "master") {
         audio::create_channel(name);
     }
-    setting.observe([=](auto value) {
+    engine->keepAlive(setting.observe([=](auto value) {
         audio::get_channel(name)->setVolume(value*value);
-    });
+    }));
 }
 
 Engine::Engine(EngineSettings& settings, EnginePaths* paths) 
@@ -64,11 +64,11 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
         throw initialize_error("could not initialize window");
     }
     audio::initialize(settings.audio.enabled);
-    create_channel("master", settings.audio.volumeMaster);
-    create_channel("regular", settings.audio.volumeRegular);
-    create_channel("music", settings.audio.volumeMusic);
-    create_channel("ambient", settings.audio.volumeAmbient);
-    create_channel("ui", settings.audio.volumeUI);
+    create_channel(this, "master", settings.audio.volumeMaster);
+    create_channel(this, "regular", settings.audio.volumeRegular);
+    create_channel(this, "music", settings.audio.volumeMusic);
+    create_channel(this, "ambient", settings.audio.volumeAmbient);
+    create_channel(this, "ui", settings.audio.volumeUI);
 
     auto resdir = paths->getResources();
 

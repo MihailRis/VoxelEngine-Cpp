@@ -4,6 +4,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "../typedefs.h"
 #include "../delegates.h"
@@ -30,13 +31,35 @@ public:
     virtual std::string toString() const = 0;
 };
 
+using observer_handler = std::shared_ptr<int>;
+
+template<class T>
+class Observers {
+    int nextid = 1;
+    std::unordered_map<int, consumer<T>> observers;
+public:
+    observer_handler observe(consumer<T> callback) {
+        const int id = nextid++;
+        observers.emplace(id, callback);
+        return std::shared_ptr<int>(new int(id), [this](int* id) {
+            observers.erase(*id);
+        });
+    }
+
+    void notify(T value) {
+        for (auto& entry : observers) {
+            entry.second(value);
+        }
+    }
+};
+
 class NumberSetting : public Setting {
 protected:
     number_t initial;
     number_t value;
     number_t min;
     number_t max;
-    std::vector<consumer<number_t>> consumers;
+    Observers<number_t> observers;
 public:
     NumberSetting(
         number_t value, 
@@ -63,9 +86,7 @@ public:
             return;
         }
         this->value = value;
-        for (auto& callback : consumers) {
-            callback(value);
-        }
+        observers.notify(value);
     }
 
     number_t getMin() const {
@@ -80,12 +101,12 @@ public:
         return (value - min) / (max - min);
     }
 
-    void observe(consumer<number_t> callback) {
-        consumers.push_back(callback);
+    observer_handler observe(consumer<number_t> callback) {
+        return observers.observe(callback);
     }
 
     virtual void resetToDefault() override {
-        value = initial;
+        set(initial);
     }
 
     virtual std::string toString() const override;
@@ -101,7 +122,7 @@ protected:
     integer_t value;
     integer_t min;
     integer_t max;
-    std::vector<consumer<integer_t>> consumers;
+    Observers<integer_t> observers;
 public:
     IntegerSetting(
         integer_t value, 
@@ -128,9 +149,7 @@ public:
             return;
         }
         this->value = value;
-        for (auto& callback : consumers) {
-            callback(value);
-        }
+        observers.notify(value);
     }
 
     integer_t getMin() const {
@@ -145,12 +164,12 @@ public:
         return (value - min) / (max - min);
     }
 
-    void observe(consumer<integer_t> callback) {
-        consumers.push_back(callback);
+    observer_handler observe(consumer<integer_t> callback) {
+        return observers.observe(callback);
     }
 
     virtual void resetToDefault() override {
-        value = initial;
+        set(initial);
     }
 
     virtual std::string toString() const override;
@@ -160,7 +179,7 @@ class FlagSetting : public Setting {
 protected:
     bool initial;
     bool value;
-    std::vector<consumer<bool>> consumers;
+    Observers<bool> observers;
 public:
     FlagSetting(
         bool value,
@@ -183,17 +202,15 @@ public:
             return;
         }
         this->value = value;
-        for (auto& callback : consumers) {
-            callback(value);
-        }
+        observers.notify(value);
     }
 
-    void observe(consumer<bool> callback) {
-        consumers.push_back(callback);
+    observer_handler observe(consumer<bool> callback) {
+        return observers.observe(callback);
     }
 
     virtual void resetToDefault() override {
-        value = initial;
+        set(initial);
     }
 
     virtual std::string toString() const override;

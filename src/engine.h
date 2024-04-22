@@ -11,6 +11,7 @@
 #include "content/PacksManager.h"
 #include "files/engine_paths.h"
 #include "files/settings_io.h"
+#include "util/ObjectsKeeper.hpp"
 
 #include <filesystem>
 #include <memory>
@@ -38,7 +39,7 @@ public:
     initialize_error(const std::string& message) : std::runtime_error(message) {}
 };
 
-class Engine {
+class Engine : public util::ObjectsKeeper {
     EngineSettings& settings;
     SettingsHandler settingsHandler;
     EnginePaths* paths;
