@@ -74,36 +74,18 @@ static void show_content_missing(
     const Content* content,
     std::shared_ptr<ContentLUT> lut
 ) {
-    auto* gui = engine->getGUI();
-    auto menu = gui->getMenu();
-    auto panel = std::dynamic_pointer_cast<gui::Panel>(guiutil::create(
-        "<panel size='500' color='#00000080' padding='8'>"
-            "<label>@menu.missing-content</label>"
-        "</panel>"
-    ));
-    auto subpanel = std::dynamic_pointer_cast<gui::Panel>(guiutil::create(
-        "<panel size='480,100' color='#00000080' scrollable='true' max-length='400'>"
-        "</panel>"
-    ));
-    panel->add(subpanel);
-
+    using namespace dynamic;
+    auto root = std::make_unique<Map>();
+    auto& contentEntries = root->putList("content");
     for (auto& entry : lut->getMissingContent()) {
-        std::string contentname = contenttype_name(entry.type);
-        subpanel->add(guiutil::create(
-            "<panel size='500,20' color='0' orientation='horizontal' padding='2'>"
-                "<label color='#80808080'>["+contentname+"]</label>"
-                "<label color='#FF333380'>"+entry.name+"</label>"
-            "</panel>"
-        ));
+        std::string contentName = contenttype_name(entry.type);
+        auto& contentEntry = contentEntries.putMap();
+        contentEntry.put("type", contentName);
+        contentEntry.put("name", entry.name);
     }
-
-    panel->add(std::make_shared<gui::Button>(
-        langs::get(L"Back to Main Menu", L"menu"), glm::vec4(8.0f), [=](auto){
-            menu->back();
-        }
-    ));
-    menu->addPage("missing-content", panel);
-    menu->setPage("missing-content");
+    std::vector<std::unique_ptr<dynamic::Value>> args;
+    args.emplace_back(std::make_unique<Value>(valtype::map, root.release()));
+    menus::show(engine, "reports/missing_content", std::move(args));
 }
 
 void EngineController::openWorld(std::string name, bool confirmConvert) {

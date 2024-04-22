@@ -5,6 +5,7 @@
 
 #include "../delegates.h"
 #include "../engine.h"
+#include "../data/dynamic.h"
 #include "../interfaces/Task.h"
 #include "../files/engine_paths.h"
 #include "../graphics/ui/elements/Label.hpp"
@@ -43,9 +44,21 @@ void menus::create_menus(Engine* engine) {
 
         auto document = UiDocument::read(scripting::get_root_environment(), fullname, file).release();
         engine->getAssets()->store(document, fullname);
-        scripting::on_ui_open(document, nullptr, glm::ivec3());
+        scripting::on_ui_open(document, {});
         return document->getRoot();
     });
+}
+
+void menus::show(Engine* engine, const std::string& name, std::vector<std::unique_ptr<dynamic::Value>> args) {
+    auto menu = engine->getGUI()->getMenu();
+    auto file = engine->getResPaths()->find("layouts/"+name+".xml");
+    auto fullname = "core:layouts/"+name;
+
+    auto document = UiDocument::read(scripting::get_root_environment(), fullname, file).release();
+    engine->getAssets()->store(document, fullname);
+    scripting::on_ui_open(document, std::move(args));
+    menu->addPage(name, document->getRoot());
+    menu->setPage(name);
 }
 
 void menus::show_process_panel(Engine* engine, std::shared_ptr<Task> task, std::wstring text) {

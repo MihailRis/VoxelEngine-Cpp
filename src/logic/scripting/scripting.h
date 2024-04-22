@@ -1,12 +1,15 @@
-#include <string>
-#include <filesystem>
-#include <glm/glm.hpp>
-
+#include "../../data/dynamic.h"
 #include "../../typedefs.h"
 #include "../../delegates.h"
 
 #include "lua/LuaState.h"
 #include "scripting_functional.h"
+
+#include <vector>
+#include <string>
+#include <memory>
+#include <filesystem>
+#include <glm/glm.hpp>
 
 namespace fs = std::filesystem;
 
@@ -71,7 +74,10 @@ namespace scripting {
     bool on_item_break_block(Player* player, const ItemDef* item, int x, int y, int z);
 
     /// @brief Called on UI view show
-    void on_ui_open(UiDocument* layout, Inventory* inventory, glm::ivec3 blockcoord);
+    void on_ui_open(
+        UiDocument* layout, 
+        std::vector<std::unique_ptr<dynamic::Value>> args
+    );
 
     /// @brief Called on UI view close
     void on_ui_close(UiDocument* layout, Inventory* inventory);

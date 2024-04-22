@@ -226,12 +226,17 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
     });
 }
 
-void scripting::on_ui_open(UiDocument* layout, Inventory* inventory, glm::ivec3 blockcoord) {
+void scripting::on_ui_open(
+    UiDocument* layout,
+    std::vector<std::unique_ptr<dynamic::Value>> args
+) {
+    auto argsptr = std::make_shared<std::vector<std::unique_ptr<dynamic::Value>>>(std::move(args));
     std::string name = layout->getId() + ".open";
-    emit_event(name, [inventory, blockcoord] (lua::LuaState* state) {
-        state->pushinteger(inventory == nullptr ? 0 : inventory->getId());
-        state->pushivec3(blockcoord.x, blockcoord.y, blockcoord.z);
-        return 4;
+    emit_event(name, [=] (lua::LuaState* state) {
+        for (const auto& value : *argsptr) {
+            state->pushvalue(*value);
+        }
+        return argsptr->size();
     });
 }
 

@@ -1,0 +1,7 @@
+<panel size='500' color='#00000080' padding='8' context='menu'>
+    <label>@missing-content</label>
+    <panel id='content_panel' size='480,100' color='#00000080' scrollable='true' max-length='400'>
+        <!-- content is generated in script -->
+    </panel>
+    <button onclick='menu:back()'>@Back to Main Menu</button>
+</panel>
