@@ -11,7 +11,7 @@
             color='#00000000'
             hover-color='#FFFFFF2B'
             padding='0'
-            onclick='core.delete_world("{%{name}}")'>
+            onclick='core.delete_world("%{name}")'>
         <image src='gui/delete_icon' size='32,32' color='#FFFFFF50'/>
     </button>
 </container>
