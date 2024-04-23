@@ -93,15 +93,21 @@ public:
 	bool hasNext() const;
 	bool loadNext();
 
+    std::shared_ptr<Task> startTask(runnable onDone);
+
+	const ResPaths* getPaths() const;
+    aloader_func getLoader(AssetType tag);
+
 	/// @brief Enqueue core and content assets
 	/// @param loader target loader
 	/// @param content engine content
 	static void addDefaults(AssetsLoader& loader, const Content* content);
 
-    std::shared_ptr<Task> startTask(runnable onDone);
-
-	const ResPaths* getPaths() const;
-    aloader_func getLoader(AssetType tag);
+    static bool loadExternalTexture(
+        Assets* assets,
+        const std::string& name,
+        std::vector<std::filesystem::path> alternatives
+    );
 };
 
 #endif // ASSETS_ASSETS_LOADER_H

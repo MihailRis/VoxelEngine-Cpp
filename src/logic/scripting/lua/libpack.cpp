@@ -2,12 +2,11 @@
 #include "lua_commons.h"
 #include "../scripting.h"
 #include "../../../engine.h"
-#include "../../../coders/imageio.h"
+#include "../../../assets/AssetsLoader.h"
 #include "../../../files/engine_paths.h"
 #include "../../../files/WorldFiles.h"
 #include "../../../world/Level.h"
 #include "../../../world/World.h"
-#include "../../../graphics/core/Texture.hpp"
 
 #include <string>
 #include <filesystem>
@@ -75,21 +74,14 @@ static int l_pack_get_info(lua_State* L, const ContentPack& pack, const Content*
     lua_pushstring(L, pack.version.c_str());
     lua_setfield(L, -2, "version");
 
-    // FIXME: hmm
     auto assets = scripting::engine->getAssets();
     std::string icon = pack.id+".icon";
-    if (assets->getTexture(icon) == nullptr) {
-        auto iconfile = pack.folder/fs::path("icon.png");
-        if (!fs::exists(iconfile)) {
-            iconfile = pack.folder/fs::path("preview.png");
-        }
-        if (fs::exists(iconfile)) {
-            auto image = imageio::read(iconfile.string());
-            assets->store(Texture::from(image.get()), icon);
-        } else {
-            icon = "gui/no_icon";
-        }
+    if (!AssetsLoader::loadExternalTexture(assets, icon, {
+        pack.folder/fs::path("icon.png")
+    })) {
+        icon = "gui/no_icon";
     }
+
     lua_pushstring(L, icon.c_str());
     lua_setfield(L, -2, "icon");
 

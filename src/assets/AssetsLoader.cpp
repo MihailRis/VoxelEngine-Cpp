@@ -11,10 +11,12 @@
 #include "../constants.h"
 #include "../data/dynamic.h"
 #include "../debug/Logger.h"
+#include "../coders/imageio.h"
 #include "../files/files.h"
 #include "../files/engine_paths.h"
 #include "../content/Content.h"
 #include "../content/ContentPack.h"
+#include "../graphics/core/Texture.hpp"
 #include "../logic/scripting/scripting.h"
 
 static debug::Logger logger("assets-loader");
@@ -202,6 +204,26 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
     }
     loader.add(AssetType::atlas, TEXTURES_FOLDER+"/blocks", "blocks");
     loader.add(AssetType::atlas, TEXTURES_FOLDER+"/items", "items");
+}
+
+bool AssetsLoader::loadExternalTexture(
+    Assets* assets,
+    const std::string& name,
+    std::vector<std::filesystem::path> alternatives
+) {
+    for (auto& path : alternatives) {
+        if (fs::exists(path)) {
+            try {
+                auto image = imageio::read(path.string());
+                assets->store(Texture::from(image.get()), name);
+                return true;
+            } catch (const std::exception& err) {
+                logger.error() << "error while loading external " 
+                    << path.u8string() << ": " << err.what();
+            }
+        }
+    }
+    return false;
 }
 
 const ResPaths* AssetsLoader::getPaths() const {

@@ -2,8 +2,7 @@
 #include "api_lua.h"
 #include "../scripting.h"
 #include "../../../assets/Assets.h"
-#include "../../../coders/imageio.h"
-#include "../../../graphics/core/Texture.hpp"
+#include "../../../assets/AssetsLoader.h"
 #include "../../../files/engine_paths.h"
 #include "../../../world/Level.h"
 #include "../../../world/World.h"
@@ -26,18 +25,13 @@ static int l_world_get_list(lua_State* L) {
         lua_pushstring(L, name.c_str());
         lua_setfield(L, -2, "name");
         
-        // FIXME: hmm
         auto assets = scripting::engine->getAssets();
         std::string icon = "world:"+name+".icon";
-
-        if (assets->getTexture(icon) == nullptr) {
-            auto iconfile = worlds[i]/fs::path("preview.png");
-            if (fs::is_regular_file(iconfile)) {
-                auto image = imageio::read(iconfile.string());
-                assets->store(Texture::from(image.get()), icon);
-            } else {
-                icon = "gui/no_world_icon";
-            }
+        if (!AssetsLoader::loadExternalTexture(assets, icon, {
+            worlds[i]/fs::path("icon.png"),
+            worlds[i]/fs::path("preview.png")
+        })) {
+            icon = "gui/no_world_icon";
         }
         lua_pushstring(L, icon.c_str());
         lua_setfield(L, -2, "icon");
