@@ -79,6 +79,8 @@ namespace scripting {
         std::vector<std::unique_ptr<dynamic::Value>> args
     );
 
+    void on_ui_progress(UiDocument* layout, int workDone, int totalWork);
+
     /// @brief Called on UI view close
     void on_ui_close(UiDocument* layout, Inventory* inventory);
 

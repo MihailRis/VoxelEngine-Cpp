@@ -16,6 +16,7 @@ namespace gui {
 
 struct uidocscript {
     bool onopen : 1;
+    bool onprogress : 1;
     bool onclose : 1;
 };
 

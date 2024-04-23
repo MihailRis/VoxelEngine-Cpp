@@ -8,7 +8,10 @@
 #include "../../window/Camera.h"
 #include "../../engine.h"
 
-MenuScreen::MenuScreen(Engine* engine_) : Screen(engine_) {
+MenuScreen::MenuScreen(Engine* engine) : Screen(engine) {
+    engine->getContentPacks().clear();
+    engine->loadContent();
+
     auto menu = engine->getGUI()->getMenu();
     menu->reset();
     menu->setPage("main");

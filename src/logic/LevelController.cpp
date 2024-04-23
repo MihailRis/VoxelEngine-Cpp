@@ -1,4 +1,5 @@
 #include "LevelController.h"
+#include "../files/WorldFiles.h"
 #include "../debug/Logger.h"
 #include "../world/Level.h"
 #include "../world/World.h"
@@ -46,6 +47,7 @@ void LevelController::update(float delta, bool input, bool pause) {
 }
 
 void LevelController::saveWorld() {
+    level->getWorld()->wfile->createDirectories();
     logger.info() << "writing world";
     scripting::on_world_save();
     level->getWorld()->write(level.get());

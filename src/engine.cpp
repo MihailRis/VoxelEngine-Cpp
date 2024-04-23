@@ -227,11 +227,7 @@ void Engine::loadAssets() {
             }
         }
     }
-    if (assets) {
-        assets->extend(*new_assets);
-    } else {
-        assets.reset(new_assets.release());
-    }
+    assets.reset(new_assets.release());
 }
 
 void Engine::loadContent() {

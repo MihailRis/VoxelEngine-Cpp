@@ -49,7 +49,7 @@ void menus::create_menus(Engine* engine) {
     });
 }
 
-void menus::show(Engine* engine, const std::string& name, std::vector<std::unique_ptr<dynamic::Value>> args) {
+UiDocument* menus::show(Engine* engine, const std::string& name, std::vector<std::unique_ptr<dynamic::Value>> args) {
     auto menu = engine->getGUI()->getMenu();
     auto file = engine->getResPaths()->find("layouts/"+name+".xml");
     auto fullname = "core:layouts/"+name;
@@ -59,35 +59,23 @@ void menus::show(Engine* engine, const std::string& name, std::vector<std::uniqu
     scripting::on_ui_open(document, std::move(args));
     menu->addPage(name, document->getRoot());
     menu->setPage(name);
+    return document;
 }
 
 void menus::show_process_panel(Engine* engine, std::shared_ptr<Task> task, std::wstring text) {
-    auto menu = engine->getGUI()->getMenu();
-    auto panel = std::dynamic_pointer_cast<gui::Panel>(guiutil::create(
-        "<panel size='400' padding='8' interval='1' color='#00000080/>"
-    ));
-    if (!text.empty()) {
-        panel->add(std::make_shared<gui::Label>(langs::get(text)));
-    }
-
-    auto label = std::make_shared<gui::Label>(L"0%");
-    panel->add(label);
-
+    using namespace dynamic;
+    
     uint initialWork = task->getWorkTotal();
 
-    panel->listenInterval(0.01f, [=]() {
+    auto menu = engine->getGUI()->getMenu();
+    menu->reset();
+    std::vector<std::unique_ptr<dynamic::Value>> args;
+    args.emplace_back(Value::of(util::wstr2str_utf8(langs::get(text))));
+    auto doc = menus::show(engine, "process", std::move(args));
+    std::dynamic_pointer_cast<Container>(doc->getRoot())->listenInterval(0.01f, [=]() {
         task->update();
 
         uint tasksDone = task->getWorkDone();
-        float progress = tasksDone/static_cast<float>(initialWork);
-        label->setText(
-            std::to_wstring(tasksDone)+
-            L"/"+std::to_wstring(initialWork)+L" ("+
-            std::to_wstring(static_cast<int>(progress*100))+L"%)"
-        );
+        scripting::on_ui_progress(doc, tasksDone, initialWork);
     });
-
-    menu->reset();
-    menu->addPage("process", panel);
-    menu->setPage("process", false);
 }

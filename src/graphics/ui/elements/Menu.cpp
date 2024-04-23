@@ -49,9 +49,9 @@ void Menu::setPage(std::string name, bool history) {
 void Menu::setPage(Page page, bool history) {
     if (current.panel) {
         Container::remove(current.panel);
-    }
-    if (history) {
-        pageStack.push(current);
+        if (history) {
+            pageStack.push(current);
+        }
     }
     current = page;
     Container::add(current.panel);
