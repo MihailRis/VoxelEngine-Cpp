@@ -2,7 +2,7 @@
 
 #include "../files/files.h"
 #include "../graphics/ui/elements/UINode.hpp"
-#include "../graphics/ui/gui_xml.h"
+#include "../graphics/ui/gui_xml.hpp"
 #include "../logic/scripting/scripting.h"
 #include "InventoryView.h"
 

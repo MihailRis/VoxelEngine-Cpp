@@ -19,7 +19,7 @@
 #include "../graphics/ui/elements/Menu.hpp"
 #include "../graphics/ui/elements/Panel.hpp"
 #include "../graphics/ui/elements/Plotter.hpp"
-#include "../graphics/ui/GUI.h"
+#include "../graphics/ui/GUI.hpp"
 #include "../items/Inventories.h"
 #include "../items/Inventory.h"
 #include "../items/ItemDef.h"

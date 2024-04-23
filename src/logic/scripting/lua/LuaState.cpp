@@ -4,7 +4,7 @@
 #include <iostream>
 #include "lua_util.h"
 #include "api_lua.h"
-#include "../../../debug/Logger.h"
+#include "../../../debug/Logger.hpp"
 #include "../../../util/stringutil.h"
 
 static debug::Logger logger("lua-state");

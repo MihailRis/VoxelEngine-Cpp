@@ -1,8 +1,8 @@
-#include "gui_util.h"
+#include "gui_util.hpp"
 #include "elements/Label.hpp"
 #include "elements/Menu.hpp"
 #include "elements/Button.hpp"
-#include "gui_xml.h"
+#include "gui_xml.hpp"
 
 #include <glm/glm.hpp>
 

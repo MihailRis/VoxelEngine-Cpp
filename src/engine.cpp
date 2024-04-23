@@ -2,10 +2,11 @@
 
 #define GLEW_STATIC
 
+#include "debug/Logger.hpp"
 #include "assets/AssetsLoader.h"
 #include "audio/audio.h"
 #include "coders/GLSLExtension.h"
-#include "coders/imageio.h"
+#include "coders/imageio.hpp"
 #include "coders/json.h"
 #include "content/ContentLoader.h"
 #include "core_defs.h"
@@ -18,7 +19,7 @@
 #include "graphics/core/GfxContext.hpp"
 #include "graphics/core/ImageData.hpp"
 #include "graphics/core/Shader.hpp"
-#include "graphics/ui/GUI.h"
+#include "graphics/ui/GUI.hpp"
 #include "logic/EngineController.hpp"
 #include "logic/scripting/scripting.h"
 #include "util/listutil.h"
@@ -36,8 +37,6 @@
 #include <glm/glm.hpp>
 #include <unordered_set>
 #include <functional>
-
-#include "debug/Logger.h"
 
 static debug::Logger logger("engine");
 

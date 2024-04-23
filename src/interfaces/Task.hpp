@@ -1,5 +1,5 @@
-#ifndef INTERFACES_TASK_H_
-#define INTERFACES_TASK_H_
+#ifndef INTERFACES_TASK_HPP_
+#define INTERFACES_TASK_HPP_
 
 #include "../typedefs.h"
 
@@ -17,5 +17,5 @@ public:
     virtual void terminate() = 0;
 };
 
-#endif // INTERFACES_TASK_H_
+#endif // INTERFACES_TASK_HPP_
 

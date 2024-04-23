@@ -8,7 +8,7 @@
 #include "../audio/audio.h"
 #include "../files/files.h"
 #include "../files/engine_paths.h"
-#include "../coders/imageio.h"
+#include "../coders/imageio.hpp"
 #include "../coders/json.h"
 #include "../coders/GLSLExtension.h"
 #include "../graphics/core/Shader.hpp"

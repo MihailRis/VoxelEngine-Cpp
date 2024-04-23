@@ -1,6 +1,6 @@
 #include "MenuScreen.hpp"
 
-#include "../../graphics/ui/GUI.h"
+#include "../../graphics/ui/GUI.hpp"
 #include "../../graphics/ui/elements/Menu.hpp"
 #include "../../graphics/core/Batch2D.hpp"
 #include "../../graphics/core/Shader.hpp"

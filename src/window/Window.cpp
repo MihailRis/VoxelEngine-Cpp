@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Window.h"
 #include "Events.h"
-#include "../debug/Logger.h"
+#include "../debug/Logger.hpp"
 #include "../graphics/core/ImageData.hpp"
 #include "../graphics/core/Texture.hpp"
 

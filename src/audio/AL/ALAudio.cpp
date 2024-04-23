@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 
-#include "../../debug/Logger.h"
+#include "../../debug/Logger.hpp"
 
 static debug::Logger logger("al-audio");
 

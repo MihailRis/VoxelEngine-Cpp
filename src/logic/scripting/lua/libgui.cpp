@@ -8,7 +8,7 @@
 
 #include "../../../engine.h"
 #include "../../../assets/Assets.h"
-#include "../../../graphics/ui/gui_util.h"
+#include "../../../graphics/ui/gui_util.hpp"
 #include "../../../graphics/ui/elements/UINode.hpp"
 #include "../../../graphics/ui/elements/Button.hpp"
 #include "../../../graphics/ui/elements/CheckBox.hpp"

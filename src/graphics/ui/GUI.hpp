@@ -1,5 +1,5 @@
-#ifndef FRONTEND_GUI_GUI_H_
-#define FRONTEND_GUI_GUI_H_
+#ifndef FRONTEND_GUI_GUI_HPP_
+#define FRONTEND_GUI_GUI_HPP_
 
 #include <queue>
 #include <memory>
@@ -128,4 +128,4 @@ namespace gui {
     };
 }
 
-#endif // FRONTEND_GUI_GUI_H_
+#endif // FRONTEND_GUI_GUI_HPP_

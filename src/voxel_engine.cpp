@@ -13,7 +13,7 @@
 #include "files/engine_paths.h"
 #include "util/platform.h"
 #include "util/command_line.h"
-#include "debug/Logger.h"
+#include "debug/Logger.hpp"
 
 #define SETTINGS_FILE "settings.toml"
 #define CONTROLS_FILE "controls.json"

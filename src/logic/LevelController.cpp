@@ -1,6 +1,6 @@
 #include "LevelController.h"
 #include "../files/WorldFiles.h"
-#include "../debug/Logger.h"
+#include "../debug/Logger.hpp"
 #include "../world/Level.h"
 #include "../world/World.h"
 #include "../physics/Hitbox.h"

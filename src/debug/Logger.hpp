@@ -1,5 +1,5 @@
-#ifndef DEBUG_LOGGER_H_
-#define DEBUG_LOGGER_H_
+#ifndef DEBUG_LOGGER_HPP_
+#define DEBUG_LOGGER_HPP_
 
 #include <sstream>
 #include <fstream>
@@ -63,4 +63,4 @@ namespace debug {
     };
 }
 
-#endif // DEBUG_LOGGER_H_
+#endif // DEBUG_LOGGER_HPP_

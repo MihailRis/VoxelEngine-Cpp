@@ -1,12 +1,12 @@
-#ifndef FRONTEND_GUI_GUI_XML_H_
-#define FRONTEND_GUI_GUI_XML_H_
+#ifndef FRONTEND_GUI_GUI_XML_HPP_
+#define FRONTEND_GUI_GUI_XML_HPP_
 
 #include <memory>
 #include <stack>
 #include <unordered_set>
 #include <unordered_map>
 
-#include "GUI.h"
+#include "GUI.hpp"
 #include "../../coders/xml.h"
 
 namespace gui {
@@ -57,4 +57,4 @@ namespace gui {
     };
 }
 
-#endif // FRONTEND_GUI_GUI_XML_H_
+#endif // FRONTEND_GUI_GUI_XML_HPP_

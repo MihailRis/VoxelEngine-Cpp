@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "Content.h"
-#include "../debug/Logger.h"
+#include "../debug/Logger.hpp"
 #include "../items/ItemDef.h"
 #include "../util/listutil.h"
 #include "../voxels/Block.h"

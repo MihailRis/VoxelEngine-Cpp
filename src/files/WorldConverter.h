@@ -7,7 +7,7 @@
 
 #include "../typedefs.h"
 #include "../delegates.h"
-#include "../interfaces/Task.h"
+#include "../interfaces/Task.hpp"
 
 namespace fs = std::filesystem;
 

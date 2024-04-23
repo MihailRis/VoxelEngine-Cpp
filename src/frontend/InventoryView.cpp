@@ -367,7 +367,7 @@ void InventoryView::setInventory(std::shared_ptr<Inventory> inventory) {
 }
 
 #include "../coders/xml.h"
-#include "../graphics/ui/gui_xml.h"
+#include "../graphics/ui/gui_xml.hpp"
 
 static slotcallback readSlotFunc(InventoryView* view, gui::UiXmlReader& reader, xml::xmlelement& element, const std::string& attr) {
     auto consumer = scripting::create_int_array_consumer(

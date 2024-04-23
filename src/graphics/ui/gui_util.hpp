@@ -1,9 +1,9 @@
-#ifndef FRONTEND_GUI_GUI_UTIL_H_
-#define FRONTEND_GUI_GUI_UTIL_H_
+#ifndef FRONTEND_GUI_GUI_UTIL_HPP_
+#define FRONTEND_GUI_GUI_UTIL_HPP_
 
 #include <memory>
 #include <string>
-#include "GUI.h"
+#include "GUI.hpp"
 #include "../../typedefs.h"
 #include "../../delegates.h"
 
@@ -40,4 +40,4 @@ namespace guiutil {
         std::wstring notext=L"");
 }
 
-#endif // FRONTEND_GUI_GUI_UTIL_H_
+#endif // FRONTEND_GUI_GUI_UTIL_HPP_

@@ -10,7 +10,7 @@
 #include "../voxels/Chunk.h"
 #include "../content/ContentLUT.h"
 #include "../objects/Player.h"
-#include "../debug/Logger.h"
+#include "../debug/Logger.hpp"
 #include "../util/ThreadPool.hpp"
 
 namespace fs = std::filesystem;

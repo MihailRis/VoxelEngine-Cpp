@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "../../debug/Logger.h"
+#include "../../debug/Logger.hpp"
 #include "../../content/ContentPack.h"
 #include "../../files/engine_paths.h"
 #include "../../files/files.h"

@@ -10,8 +10,8 @@
 
 #include "../constants.h"
 #include "../data/dynamic.h"
-#include "../debug/Logger.h"
-#include "../coders/imageio.h"
+#include "../debug/Logger.hpp"
+#include "../coders/imageio.hpp"
 #include "../files/files.h"
 #include "../files/engine_paths.h"
 #include "../content/Content.h"

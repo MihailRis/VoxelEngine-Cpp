@@ -1,4 +1,4 @@
-#include "imageio.h"
+#include "imageio.hpp"
 
 #include "png.h"
 #include "../graphics/core/ImageData.hpp"

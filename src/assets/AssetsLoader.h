@@ -2,7 +2,7 @@
 #define ASSETS_ASSETS_LOADER_H
 
 #include "Assets.h"
-#include "../interfaces/Task.h"
+#include "../interfaces/Task.hpp"
 #include "../typedefs.h"
 #include "../delegates.h"
 

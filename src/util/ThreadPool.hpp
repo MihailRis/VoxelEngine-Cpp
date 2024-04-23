@@ -10,8 +10,8 @@
 #include <condition_variable>
 
 #include "../delegates.h"
-#include "../debug/Logger.h"
-#include "../interfaces/Task.h"
+#include "../debug/Logger.hpp"
+#include "../interfaces/Task.hpp"
 
 namespace util {
     
