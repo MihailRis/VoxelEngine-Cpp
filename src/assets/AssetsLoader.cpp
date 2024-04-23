@@ -211,6 +211,9 @@ bool AssetsLoader::loadExternalTexture(
     const std::string& name,
     std::vector<std::filesystem::path> alternatives
 ) {
+    if (assets->getTexture(name) != nullptr) {
+        return true;
+    }
     for (auto& path : alternatives) {
         if (fs::exists(path)) {
             try {
