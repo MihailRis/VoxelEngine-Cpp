@@ -8,8 +8,6 @@
 #include "../data/dynamic.h"
 #include "../interfaces/Task.h"
 #include "../files/engine_paths.h"
-#include "../graphics/ui/elements/Label.hpp"
-#include "../graphics/ui/elements/Panel.hpp"
 #include "../graphics/ui/elements/Menu.hpp"
 #include "../graphics/ui/gui_util.h"
 #include "../graphics/ui/GUI.h"
@@ -25,15 +23,12 @@ using namespace gui;
 
 void menus::create_version_label(Engine* engine) {
     auto gui = engine->getGUI();
-    auto vlabel = std::make_shared<gui::Label>(
-        util::str2wstr_utf8(ENGINE_VERSION_STRING+" development build ")
-    );
-    vlabel->setZIndex(1000);
-    vlabel->setColor(glm::vec4(1, 1, 1, 0.5f));
-    vlabel->setPositionFunc([=]() {
-        return glm::vec2(Window::width-vlabel->getSize().x, 2);
-    });
-    gui->add(vlabel);
+    auto text = ENGINE_VERSION_STRING+" development build";
+    gui->add(guiutil::create(
+        "<label z-index='1000' color='#FFFFFF80' gravity='top-right' margin='4'>"
+        +text+
+        "</label>"
+    ));
 }
 
 void menus::create_menus(Engine* engine) {
