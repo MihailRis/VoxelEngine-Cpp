@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_CORE_BATCH3D_H_
-#define GRAPHICS_CORE_BATCH3D_H_
+#ifndef GRAPHICS_CORE_BATCH3D_HPP_
+#define GRAPHICS_CORE_BATCH3D_HPP_
 
 #include "../../maths/UVRegion.h"
 #include "../../typedefs.h"
@@ -51,4 +51,4 @@ public:
     void flushPoints();
 };
 
-#endif // GRAPHICS_CORE_BATCH3D_H_
+#endif // GRAPHICS_CORE_BATCH3D_HPP_

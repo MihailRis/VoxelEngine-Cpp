@@ -1,9 +1,9 @@
-#ifndef FILES_WORLD_REGIONS_H_
-#define FILES_WORLD_REGIONS_H_
+#ifndef FILES_WORLD_REGIONS_HPP_
+#define FILES_WORLD_REGIONS_HPP_
 
 #include "files.h"
 #include "../typedefs.h"
-#include "../util/BufferPool.h"
+#include "../util/BufferPool.hpp"
 #include "../voxels/Chunk.h"
 
 #include <mutex>
@@ -162,4 +162,4 @@ public:
     static bool parseRegionFilename(const std::string& name, int& x, int& y);
 };
 
-#endif // FILES_WORLD_REGIONS_H_
+#endif // FILES_WORLD_REGIONS_HPP_

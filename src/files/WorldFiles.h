@@ -1,7 +1,7 @@
 #ifndef FILES_WORLD_FILES_H_
 #define FILES_WORLD_FILES_H_
 
-#include "WorldRegions.h"
+#include "WorldRegions.hpp"
 
 #include "files.h"
 #include "../typedefs.h"

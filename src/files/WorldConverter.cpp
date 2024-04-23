@@ -11,7 +11,7 @@
 #include "../content/ContentLUT.h"
 #include "../objects/Player.h"
 #include "../debug/Logger.h"
-#include "../util/ThreadPool.h"
+#include "../util/ThreadPool.hpp"
 
 namespace fs = std::filesystem;
 

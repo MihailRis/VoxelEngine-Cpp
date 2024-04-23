@@ -1,4 +1,4 @@
-#include "WorldRegions.h"
+#include "WorldRegions.hpp"
 
 #include "../coders/rle.h"
 #include "../util/data_io.h"

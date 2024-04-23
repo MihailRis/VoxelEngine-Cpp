@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_CORE_ATLAS_H_
-#define GRAPHICS_CORE_ATLAS_H_
+#ifndef GRAPHICS_CORE_ATLAS_HPP_
+#define GRAPHICS_CORE_ATLAS_HPP_
 
 #include <set>
 #include <string>
@@ -58,4 +58,4 @@ public:
     Atlas* build(uint extrusion, bool prepare=true, uint maxResolution=0);
 };
 
-#endif // GRAPHICS_CORE_ATLAS_H_
+#endif // GRAPHICS_CORE_ATLAS_HPP_

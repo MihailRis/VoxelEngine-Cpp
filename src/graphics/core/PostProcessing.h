@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_CORE_POST_PROCESSING_H_
-#define GRAPHICS_CORE_POST_PROCESSING_H_
+#ifndef GRAPHICS_CORE_POST_PROCESSING_HPP_
+#define GRAPHICS_CORE_POST_PROCESSING_HPP_
 
 #include "Viewport.hpp"
 #include "GfxContext.hpp"
@@ -39,4 +39,4 @@ public:
     Framebuffer* getFramebuffer() const;
 };
 
-#endif // GRAPHICS_CORE_POST_PROCESSING_H_
+#endif // GRAPHICS_CORE_POST_PROCESSING_HPP_

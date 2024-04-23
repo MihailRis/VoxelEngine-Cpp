@@ -6,7 +6,7 @@
 #include <iostream>
 #include <memory>
 
-#include "../util/ThreadPool.h"
+#include "../util/ThreadPool.hpp"
 
 #include "../constants.h"
 #include "../data/dynamic.h"

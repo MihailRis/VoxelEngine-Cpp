@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_CORE_VIEWPORT_H_
-#define GRAPHICS_CORE_VIEWPORT_H_
+#ifndef GRAPHICS_CORE_VIEWPORT_HPP_
+#define GRAPHICS_CORE_VIEWPORT_HPP_
 
 #include <glm/glm.hpp>
 
@@ -19,4 +19,4 @@ public:
     }
 };
 
-#endif // GRAPHICS_VIEWPORT_H_
+#endif // GRAPHICS_VIEWPORT_HPP_

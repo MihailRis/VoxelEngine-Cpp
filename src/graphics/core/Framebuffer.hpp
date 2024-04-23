@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_CORE_FRAMEBUFFER_H_
-#define GRAPHICS_CORE_FRAMEBUFFER_H_
+#ifndef GRAPHICS_CORE_FRAMEBUFFER_HPP_
+#define GRAPHICS_CORE_FRAMEBUFFER_HPP_
 
 #include "../../typedefs.h"
 
@@ -39,4 +39,4 @@ public:
     uint getHeight() const;
 };
 
-#endif // GRAPHICS_CORE_FRAMEBUFFER_H_
+#endif // GRAPHICS_CORE_FRAMEBUFFER_HPP_

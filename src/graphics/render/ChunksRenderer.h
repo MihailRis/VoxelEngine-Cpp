@@ -9,7 +9,7 @@
 
 #include "../../voxels/Block.h"
 #include "../../voxels/ChunksStorage.h"
-#include "../../util/ThreadPool.h"
+#include "../../util/ThreadPool.hpp"
 #include "../../settings.h"
 
 class Mesh;

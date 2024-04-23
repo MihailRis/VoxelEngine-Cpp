@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_CORE_FONT_H_
-#define GRAPHICS_CORE_FONT_H_
+#ifndef GRAPHICS_CORE_FONT_HPP_
+#define GRAPHICS_CORE_FONT_HPP_
 
 #include <memory>
 #include <string>
@@ -40,4 +40,4 @@ public:
     void draw(Batch2D* batch, std::wstring_view text, int x, int y, FontStyle style);
 };
 
-#endif // GRAPHICS_CORE_FONT_H_
+#endif // GRAPHICS_CORE_FONT_HPP_

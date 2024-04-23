@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_CORE_SHADER_H_
-#define GRAPHICS_CORE_SHADER_H_
+#ifndef GRAPHICS_CORE_SHADER_HPP_
+#define GRAPHICS_CORE_SHADER_HPP_
 
 #include "../../typedefs.h"
 
@@ -44,4 +44,4 @@ public:
     );
 };
 
-#endif // GRAPHICS_SHADER_H_
+#endif // GRAPHICS_SHADER_HPP_

@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_CORE_TEXTURE_H_
-#define GRAPHICS_CORE_TEXTURE_H_
+#ifndef GRAPHICS_CORE_TEXTURE_HPP_
+#define GRAPHICS_CORE_TEXTURE_HPP_
 
 #include <string>
 #include <memory>
@@ -34,4 +34,4 @@ public:
     static Texture* from(const ImageData* image);
 };
 
-#endif // GRAPHICS_CORE_TEXTURE_H_
+#endif // GRAPHICS_CORE_TEXTURE_HPP_

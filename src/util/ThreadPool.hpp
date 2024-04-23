@@ -1,5 +1,5 @@
-#ifndef UTIL_THREAD_POOL_H_
-#define UTIL_THREAD_POOL_H_
+#ifndef UTIL_THREAD_POOL_HPP_
+#define UTIL_THREAD_POOL_HPP_
 
 #include <queue>
 #include <atomic>
@@ -247,4 +247,4 @@ public:
 
 } // namespace util
 
-#endif // UTIL_THREAD_POOL_H_
+#endif // UTIL_THREAD_POOL_HPP_

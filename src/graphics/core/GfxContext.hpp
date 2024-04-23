@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_CORE_GFX_CONTEXT_H_
-#define GRAPHICS_CORE_GFX_CONTEXT_H_
+#ifndef GRAPHICS_CORE_GFX_CONTEXT_HPP_
+#define GRAPHICS_CORE_GFX_CONTEXT_HPP_
 
 #include "Viewport.hpp"
 #include "../../window/Window.h"
@@ -35,4 +35,4 @@ public:
     void setScissors(glm::vec4 area);
 };
 
-#endif // GRAPHICS_CORE_GFX_CONTEXT_H_
+#endif // GRAPHICS_CORE_GFX_CONTEXT_HPP_

@@ -1,5 +1,5 @@
-#ifndef UTIL_BUFFER_POOL_H_
-#define UTIL_BUFFER_POOL_H_
+#ifndef UTIL_BUFFER_POOL_HPP_
+#define UTIL_BUFFER_POOL_HPP_
 
 #include "../typedefs.h"
 
@@ -39,4 +39,4 @@ namespace util {
     };
 }
 
-#endif // UTIL_BUFFER_POOL_H_
+#endif // UTIL_BUFFER_POOL_HPP_

@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_CORE_COMMONS_H_
-#define GRAPHICS_CORE_COMMONS_H_
+#ifndef GRAPHICS_CORE_COMMONS_HPP_
+#define GRAPHICS_CORE_COMMONS_HPP_
 
 enum class DrawPrimitive {
     point = 0,
@@ -7,4 +7,4 @@ enum class DrawPrimitive {
     triangle,
 };
 
-#endif // GRAPHICS_CORE_COMMONS_H_
+#endif // GRAPHICS_CORE_COMMONS_HPP_
