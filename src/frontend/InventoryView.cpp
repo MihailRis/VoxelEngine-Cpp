@@ -10,7 +10,7 @@
 #include "../graphics/core/Font.hpp"
 #include "../graphics/core/GfxContext.hpp"
 #include "../graphics/core/Shader.hpp"
-#include "../graphics/render/BlocksPreview.h"
+#include "../graphics/render/BlocksPreview.hpp"
 #include "../items/Inventories.h"
 #include "../items/Inventory.h"
 #include "../items/ItemDef.h"

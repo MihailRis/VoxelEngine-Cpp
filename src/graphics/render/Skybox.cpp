@@ -1,9 +1,4 @@
-#include "Skybox.h"
-
-#include <iostream>
-#include <GL/glew.h>
-#include <glm/glm.hpp>
-
+#include "Skybox.hpp"
 #include "../../assets/Assets.h"
 #include "../../graphics/core/Shader.hpp"
 #include "../../graphics/core/Mesh.hpp"
@@ -14,6 +9,10 @@
 #include "../../graphics/core/GfxContext.hpp"
 #include "../../window/Window.h"
 #include "../../window/Camera.h"
+
+#include <iostream>
+#include <GL/glew.h>
+#include <glm/glm.hpp>
 
 #ifndef M_PI
 #define M_PI 3.141592

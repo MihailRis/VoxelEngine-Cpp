@@ -1,7 +1,4 @@
-#include "BlocksPreview.h"
-
-#include <glm/ext.hpp>
-
+#include "BlocksPreview.hpp"
 #include "../../assets/Assets.h"
 #include "../../constants.h"
 #include "../../content/Content.h"
@@ -16,6 +13,8 @@
 #include "../core/Shader.hpp"
 #include "../core/Texture.hpp"
 #include "../core/Viewport.hpp"
+
+#include <glm/ext.hpp>
 
 std::unique_ptr<ImageData> BlocksPreview::draw(
     const ContentGfxCache* cache,

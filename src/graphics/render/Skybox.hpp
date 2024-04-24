@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_RENDER_SKYBOX_H_
-#define GRAPHICS_RENDER_SKYBOX_H_
+#ifndef GRAPHICS_RENDER_SKYBOX_HPP_
+#define GRAPHICS_RENDER_SKYBOX_HPP_
 
 #include <memory>
 #include <string>
@@ -55,4 +55,4 @@ public:
     }
 };
 
-#endif // GRAPHICS_RENDER_SKYBOX_H_
+#endif // GRAPHICS_RENDER_SKYBOX_HPP_

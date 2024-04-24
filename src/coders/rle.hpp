@@ -1,5 +1,5 @@
-#ifndef CODERS_RLE_H_
-#define CODERS_RLE_H_
+#ifndef CODERS_RLE_HPP_
+#define CODERS_RLE_HPP_
 
 #include "../typedefs.h"
 
@@ -14,4 +14,4 @@ namespace extrle {
     size_t decode(const ubyte* src, size_t length, ubyte* dst);
 }
 
-#endif // CODERS_RLE_H_
+#endif // CODERS_RLE_HPP_

@@ -1,4 +1,4 @@
-#include "rle.h"
+#include "rle.hpp"
 
 size_t rle::decode(const ubyte* src, size_t srclen, ubyte* dst) {
     size_t offset = 0;

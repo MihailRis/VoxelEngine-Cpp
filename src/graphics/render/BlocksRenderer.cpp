@@ -1,7 +1,4 @@
-#include "BlocksRenderer.h"
-
-#include <glm/glm.hpp>
-
+#include "BlocksRenderer.hpp"
 #include "../core/Mesh.hpp"
 #include "../../maths/UVRegion.h"
 #include "../../constants.h"
@@ -12,6 +9,8 @@
 #include "../../voxels/ChunksStorage.h"
 #include "../../lighting/Lightmap.h"
 #include "../../frontend/ContentGfxCache.h"
+
+#include <glm/glm.hpp>
 
 using glm::ivec3;
 using glm::vec3;

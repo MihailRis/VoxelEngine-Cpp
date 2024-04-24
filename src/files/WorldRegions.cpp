@@ -1,6 +1,6 @@
 #include "WorldRegions.hpp"
 
-#include "../coders/rle.h"
+#include "../coders/rle.hpp"
 #include "../util/data_io.h"
 #include "../coders/byte_utils.h"
 #include "../maths/voxmaths.h"

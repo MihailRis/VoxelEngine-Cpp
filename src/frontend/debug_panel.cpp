@@ -10,7 +10,7 @@
 #include "../graphics/ui/elements/TextBox.hpp"
 #include "../graphics/ui/elements/TrackBar.hpp"
 #include "../graphics/ui/elements/InputBindBox.hpp"
-#include "../graphics/render/WorldRenderer.h"
+#include "../graphics/render/WorldRenderer.hpp"
 #include "../objects/Player.h"
 #include "../physics/Hitbox.h"
 #include "../util/stringutil.h"

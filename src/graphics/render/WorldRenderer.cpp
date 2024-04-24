@@ -1,6 +1,6 @@
-#include "WorldRenderer.h"
-
-
+#include "WorldRenderer.hpp"
+#include "ChunksRenderer.hpp"
+#include "Skybox.hpp"
 #include "../../assets/Assets.h"
 #include "../../content/Content.h"
 #include "../../engine.h"
@@ -29,8 +29,6 @@
 #include "../core/PostProcessing.h"
 #include "../core/Shader.hpp"
 #include "../core/Texture.hpp"
-#include "ChunksRenderer.h"
-#include "Skybox.h"
 
 #include <assert.h>
 #include <GL/glew.h>

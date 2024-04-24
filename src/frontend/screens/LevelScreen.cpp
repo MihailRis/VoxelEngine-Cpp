@@ -11,7 +11,7 @@
 #include "../../graphics/core/ImageData.hpp"
 #include "../../graphics/ui/GUI.hpp"
 #include "../../graphics/ui/elements/Menu.hpp"
-#include "../../graphics/render/WorldRenderer.h"
+#include "../../graphics/render/WorldRenderer.hpp"
 #include "../../logic/LevelController.h"
 #include "../../logic/scripting/scripting_hud.h"
 #include "../../physics/Hitbox.h"

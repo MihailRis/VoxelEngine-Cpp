@@ -8,6 +8,8 @@
 #include <sstream>
 #include <assert.h>
 
+// FIXME: refactor this monster
+
 using namespace toml;
 
 Section::Section(std::string name) : name(name) {

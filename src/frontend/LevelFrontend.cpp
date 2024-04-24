@@ -4,7 +4,7 @@
 #include "../audio/audio.h"
 #include "../content/Content.h"
 #include "../graphics/core/Atlas.hpp"
-#include "../graphics/render/BlocksPreview.h"
+#include "../graphics/render/BlocksPreview.hpp"
 #include "../logic/LevelController.h"
 #include "../logic/PlayerController.h"
 #include "../voxels/Block.h"
