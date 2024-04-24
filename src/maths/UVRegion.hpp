@@ -1,5 +1,5 @@
-#ifndef MATHS_UVREGION_H_
-#define MATHS_UVREGION_H_
+#ifndef MATHS_UVREGION_HPP_
+#define MATHS_UVREGION_HPP_
 
 struct UVRegion {
 	float u1;
@@ -13,4 +13,4 @@ struct UVRegion {
 	UVRegion() : u1(0.0f), v1(0.0f), u2(1.0f), v2(1.0f){}
 };
 
-#endif // MATHS_UVREGION_H_
+#endif // MATHS_UVREGION_HPP_

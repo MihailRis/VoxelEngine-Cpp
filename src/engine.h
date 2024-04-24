@@ -8,7 +8,7 @@
 #include "assets/Assets.h"
 #include "content/Content.h"
 #include "content/ContentPack.h"
-#include "content/PacksManager.h"
+#include "content/PacksManager.hpp"
 #include "files/engine_paths.h"
 #include "files/settings_io.h"
 #include "util/ObjectsKeeper.hpp"

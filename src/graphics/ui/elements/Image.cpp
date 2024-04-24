@@ -4,7 +4,7 @@
 #include "../../core/Batch2D.hpp"
 #include "../../core/Texture.hpp"
 #include "../../../assets/Assets.h"
-#include "../../../maths/UVRegion.h"
+#include "../../../maths/UVRegion.hpp"
 
 using namespace gui;
 

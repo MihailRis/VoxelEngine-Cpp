@@ -1,6 +1,6 @@
 #include "BlocksRenderer.hpp"
 #include "../core/Mesh.hpp"
-#include "../../maths/UVRegion.h"
+#include "../../maths/UVRegion.hpp"
 #include "../../constants.h"
 #include "../../content/Content.h"
 #include "../../voxels/Block.h"

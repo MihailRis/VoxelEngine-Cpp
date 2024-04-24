@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "../maths/aabb.h"
-#include "../maths/UVRegion.h"
+#include "../maths/UVRegion.hpp"
 #include "../typedefs.h"
 
 #define BLOCK_ITEM_SUFFIX ".item"

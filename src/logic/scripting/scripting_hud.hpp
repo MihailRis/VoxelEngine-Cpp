@@ -1,5 +1,5 @@
-#ifndef LOGIC_SCRIPTING_SCRIPTING_HUD_H_
-#define LOGIC_SCRIPTING_SCRIPTING_HUD_H_
+#ifndef LOGIC_SCRIPTING_SCRIPTING_HUD_HPP_
+#define LOGIC_SCRIPTING_SCRIPTING_HUD_HPP_
 
 #include "../../typedefs.h"
 
@@ -25,4 +25,4 @@ namespace scripting {
     void load_hud_script(scriptenv env, std::string packid, fs::path file);
 }
 
-#endif // LOGIC_SCRIPTING_SCRIPTING_HUD_H_
+#endif // LOGIC_SCRIPTING_SCRIPTING_HUD_HPP_

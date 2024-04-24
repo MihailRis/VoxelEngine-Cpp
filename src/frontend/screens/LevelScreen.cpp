@@ -13,7 +13,7 @@
 #include "../../graphics/ui/elements/Menu.hpp"
 #include "../../graphics/render/WorldRenderer.hpp"
 #include "../../logic/LevelController.h"
-#include "../../logic/scripting/scripting_hud.h"
+#include "../../logic/scripting/scripting_hud.hpp"
 #include "../../physics/Hitbox.h"
 #include "../../voxels/Chunks.h"
 #include "../../world/Level.h"
