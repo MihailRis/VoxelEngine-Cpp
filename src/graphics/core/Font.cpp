@@ -34,8 +34,12 @@ bool Font::isPrintableChar(uint codepoint) const {
     }
 }
 
-int Font::calcWidth(std::wstring text, size_t length) {
-    return std::min(text.length(), length) * 8;
+int Font::calcWidth(const std::wstring& text, size_t length) {
+    return calcWidth(text, 0, length);
+}
+
+int Font::calcWidth(const std::wstring& text, size_t offset, size_t length) {
+    return std::min(text.length()-offset, length) * 8;
 }
 
 void Font::draw(Batch2D* batch, std::wstring text, int x, int y) {

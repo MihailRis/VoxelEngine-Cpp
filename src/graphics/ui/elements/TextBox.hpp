@@ -124,6 +124,12 @@ namespace gui {
         /// @brief Check if multiline mode is enabled 
         virtual bool isMultiline() const;
 
+        /// @brief Enable/disable text wrapping        
+        virtual void setTextWrapping(bool flag);
+
+        /// @brief Check if text wrapping is enabled 
+        virtual bool isTextWrapping() const;
+
         /// @brief Enable/disable text editing feature
         virtual void setEditable(bool editable);
 

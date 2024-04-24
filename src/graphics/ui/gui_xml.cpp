@@ -215,6 +215,12 @@ static std::shared_ptr<UINode> readLabel(UiXmlReader& reader, xml::xmlelement el
         );
         label->textSupplier(supplier);
     }
+    if (element->has("multiline")) {
+        label->setMultiline(element->attr("multiline").asBool());
+    }
+    if (element->has("text-wrap")) {
+        label->setTextWrapping(element->attr("text-wrap").asBool());
+    }
     return label;
 }
 
@@ -290,6 +296,9 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
 
     if (element->has("multiline")) {
         textbox->setMultiline(element->attr("multiline").asBool());
+    }
+    if (element->has("text-wrap")) {
+        textbox->setTextWrapping(element->attr("text-wrap").asBool());
     }
 
     if (element->has("editable")) {

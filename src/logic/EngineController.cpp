@@ -85,9 +85,10 @@ static void show_content_missing(
     menus::show(engine, "reports/missing_content", std::move(args));
 }
 
-static void loadWorldContent(Engine* engine, fs::path folder) {
+static bool loadWorldContent(Engine* engine, fs::path folder) {
     try {
         engine->loadWorldContent(folder);
+        return true;
     } catch (const contentpack_error& error) {
         engine->setScreen(std::make_shared<MenuScreen>(engine));
         // could not to find or read pack
@@ -95,14 +96,14 @@ static void loadWorldContent(Engine* engine, fs::path folder) {
             engine->getGUI(), langs::get(L"error.pack-not-found")+L": "+
             util::str2wstr_utf8(error.getPackId())
         );
-        return;
+        return false;
     } catch (const std::runtime_error& error) {
         engine->setScreen(std::make_shared<MenuScreen>(engine));
         guiutil::alert(
             engine->getGUI(), langs::get(L"Content Error", L"menu")+L": "+
             util::str2wstr_utf8(error.what())
         );
-        return;
+        return false;
     }
 }
 
@@ -126,7 +127,9 @@ static void loadWorld(Engine* engine, fs::path folder) {
 void EngineController::openWorld(std::string name, bool confirmConvert) {
     auto paths = engine->getPaths();
     auto folder = paths->getWorldsFolder()/fs::u8path(name);
-    loadWorldContent(engine, folder);
+    if (!loadWorldContent(engine, folder)) {
+        return;
+    }
 
     auto* content = engine->getContent();
 

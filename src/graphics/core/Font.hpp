@@ -28,9 +28,16 @@ public:
     
     /// @brief Calculate text width in pixels
     /// @param text selected text
-    /// @param length max text chunk length (default: no limit)
-    /// @return pixel width of the text 
-    int calcWidth(std::wstring text, size_t length=-1);
+    /// @param length max substring length (default: no limit)
+    /// @return pixel width of the substring 
+    int calcWidth(const std::wstring& text, size_t length=-1);
+
+    /// @brief Calculate text width in pixels
+    /// @param text selected text
+    /// @param offset start of the substring
+    /// @param length max substring length
+    /// @return pixel width of the substring
+    int calcWidth(const std::wstring& text, size_t offset, size_t length);
 
     /// @brief Check if character is visible (non-whitespace)
     /// @param codepoint character unicode codepoint

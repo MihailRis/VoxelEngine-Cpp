@@ -42,27 +42,13 @@ std::shared_ptr<gui::UINode> guiutil::create(const std::string& source, scripten
 
 void guiutil::alert(GUI* gui, const std::wstring& text, runnable on_hidden) {
     auto menu = gui->getMenu();
-    auto panel = std::make_shared<Panel>(glm::vec2(500, 200), glm::vec4(8.0f), 8.0f);
+    auto panel = std::make_shared<Panel>(glm::vec2(500, 300), glm::vec4(8.0f), 8.0f);
     panel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
     
-    // TODO: implement built-in text wrapping
-    const int wrap_length = 60;
-    if (text.length() > wrap_length) {
-        size_t offset = 0;
-        int extra;
-        while ((extra = text.length() - offset) > 0) {
-            size_t endline = text.find(L'\n', offset);
-            if (endline != std::string::npos) {
-                extra = std::min(extra, int(endline-offset)+1);
-            }
-            extra = std::min(extra, wrap_length);
-            std::wstring part = text.substr(offset, extra);
-            panel->add(std::make_shared<Label>(part));
-            offset += extra;
-        }
-    } else {
-        panel->add(std::make_shared<Label>(text));
-    }
+    auto label = std::make_shared<Label>(text);
+    label->setMultiline(true);
+    label->setSize(glm::vec2(1, 80));
+    panel->add(label);
     panel->add(std::make_shared<Button>(
         langs::get(L"Ok"), glm::vec4(10.f), 
         [=](GUI* gui) {
