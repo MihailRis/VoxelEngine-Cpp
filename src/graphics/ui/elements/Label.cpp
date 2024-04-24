@@ -1,5 +1,4 @@
 #include "Label.hpp"
-
 #include "../../core/GfxContext.hpp"
 #include "../../core/Batch2D.hpp"
 #include "../../core/Font.hpp"
@@ -8,12 +7,30 @@
 
 using namespace gui;
 
+void LabelCache::update(const std::wstring& text, bool multiline) {
+    resetFlag = false;
+    lines.clear();
+
+    if (multiline) {
+        lines.push_back(LineScheme {0});
+        for (size_t i = 0; i < text.length(); i++) {
+            if (text[i] == L'\n') {
+                lines.push_back(LineScheme {i+1});
+            }
+        }
+    }
+    if (lines.empty()) {
+        lines.push_back(LineScheme {0});
+    }
+}
+
 Label::Label(std::string text, std::string fontName) 
   : UINode(glm::vec2(text.length() * 8, 15)), 
     text(util::str2wstr_utf8(text)), 
     fontName(fontName) 
 {
     setInteractive(false);
+    cache.update(this->text, multiline);
 }
 
 
@@ -23,17 +40,15 @@ Label::Label(std::wstring text, std::string fontName)
     fontName(fontName) 
 {
     setInteractive(false);
+    cache.update(this->text, multiline);
 }
 
 void Label::setText(std::wstring text) {
-    this->text = text;
-    lines = 1;
-    for (size_t i = 0; i < text.length(); i++) {
-        if (text[i] == L'\n') {
-            lines++;
-        }
+    if (text == this->text && !cache.resetFlag) {
+        return;
     }
-    lines = std::max(lines, 1U);
+    this->text = text;
+    cache.update(this->text, multiline);
 }
 
 const std::wstring& Label::getText() const {
@@ -68,18 +83,9 @@ int Label::getTextYOffset() const {
     return textYOffset;
 }
 
-size_t Label::getTextLineOffset(uint line) const {
-    size_t offset = 0;
-    size_t linesCount = 0;
-    while (linesCount < line && offset < text.length()) {
-        size_t endline = text.find(L'\n', offset);
-        if (endline == std::wstring::npos) {
-            break;
-        }
-        offset = endline+1;
-        linesCount++;
-    }
-    return offset;
+size_t Label::getTextLineOffset(size_t line) const {
+    line = std::min(cache.lines.size()-1, line);
+    return cache.lines.at(line).offset;
 }
 
 int Label::getLineYOffset(uint line) const {
@@ -94,24 +100,16 @@ uint Label::getLineByYOffset(int offset) const {
 }
 
 uint Label::getLineByTextIndex(size_t index) const {
-    size_t offset = 0;
-    size_t linesCount = 0;
-    while (offset < index && offset < text.length()) {
-        size_t endline = text.find(L'\n', offset);
-        if (endline == std::wstring::npos) {
-            break;
+    for (size_t i = 0; i < cache.lines.size(); i++) {
+        if (cache.lines.at(i).offset > index) {
+            return i-1;
         }
-        if (endline+1 > index) {
-            break;
-        }
-        offset = endline+1;
-        linesCount++;
     }
-    return linesCount;
+    return cache.lines.size()-1;
 }
 
 uint Label::getLinesNumber() const {
-    return lines;
+    return cache.lines.size();
 }
 
 void Label::draw(const GfxContext* pctx, Assets* assets) {
@@ -125,10 +123,13 @@ void Label::draw(const GfxContext* pctx, Assets* assets) {
     batch->setColor(getColor());
 
     uint lineHeight = font->getLineHeight();
+    if (cache.lines.size() > 1) {
+        lineHeight *= lineInterval;
+    }
     glm::vec2 size = getSize();
     glm::vec2 newsize (
         font->calcWidth(text), 
-        (lines == 1 ? lineHeight : lineHeight*lineInterval)*lines + font->getYOffset()
+        lineHeight * cache.lines.size() + font->getYOffset()
     );
 
     glm::vec2 pos = calcPos();
@@ -153,11 +154,11 @@ void Label::draw(const GfxContext* pctx, Assets* assets) {
             break;
     }
     textYOffset = pos.y-calcPos().y;
-    totalLineHeight = lineHeight * lineInterval;
+    totalLineHeight = lineHeight;
 
     if (multiline) {
         size_t offset = 0;
-        for (uint i = 0; i < lines; i++) {
+        for (uint i = 0; i < cache.lines.size(); i++) {
             std::wstring_view view(text.c_str()+offset, text.length()-offset);
             size_t end = view.find(L'\n');
             if (end != std::wstring::npos) {
@@ -177,7 +178,10 @@ void Label::textSupplier(wstringsupplier supplier) {
 
 
 void Label::setMultiline(bool multiline) {
-    this->multiline = multiline;
+    if (multiline != this->multiline) {
+        this->multiline = multiline;
+        cache.resetFlag = true;
+    }
 }
 
 bool Label::isMultiline() const {

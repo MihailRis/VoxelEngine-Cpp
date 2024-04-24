@@ -4,18 +4,33 @@
 #include "UINode.hpp"
 
 namespace gui {
+    struct LineScheme {
+        size_t offset;
+    };
+
+    struct LabelCache {
+        std::vector<LineScheme> lines;
+        /// @brief Reset cache flag
+        bool resetFlag = true;
+    
+        void update(const std::wstring& text, bool multiline);
+    };
+
     class Label : public UINode {
+        LabelCache cache;
     protected:
         std::wstring text;
         std::string fontName;
         wstringsupplier supplier = nullptr;
-        uint lines = 1;
+        
+        /// @brief Lines interval multiplier
         float lineInterval = 1.5f;
+
+        /// @brief Vertical alignment (only when multiline is set to false)
         Align valign = Align::center;
 
+        /// @brief Line separators will be ignored if set to false
         bool multiline = false;
-
-        // runtime values
         
         /// @brief Text Y offset relative to label position
         /// (last calculated alignment)
@@ -57,7 +72,7 @@ namespace gui {
         /// @brief Get position of line start in the text
         /// @param line target line index
         /// @return position in the text [0..length]
-        virtual size_t getTextLineOffset(uint line) const;
+        virtual size_t getTextLineOffset(size_t line) const;
 
         /// @brief Get line index by its Y offset relative to label position
         /// @param offset target Y offset
