@@ -128,7 +128,7 @@ void Engine::mainloop() {
         updateHotkeys();
         audio::update(delta);
 
-        gui->act(delta);
+        gui->act(delta, Viewport(Window::width, Window::height));
         screen->update(delta);
 
         if (!Window::isIconified()) {

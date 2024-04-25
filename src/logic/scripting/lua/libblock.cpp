@@ -22,6 +22,18 @@ int l_block_name(lua_State* L) {
     return 1;
 }
 
+
+int l_block_material(lua_State* L) {
+    auto indices = scripting::content->getIndices();
+    lua::luaint id = lua_tointeger(L, 1);
+    if (id < 0 || size_t(id) >= indices->countBlockDefs()) {
+        return 0;
+    }
+    auto def = indices->getBlockDef(id);
+    lua_pushstring(L, def->material.c_str());
+    return 1;
+}
+
 int l_is_solid_at(lua_State* L) {
     lua::luaint x = lua_tointeger(L, 1);
     lua::luaint y = lua_tointeger(L, 2);
@@ -218,6 +230,7 @@ int l_is_replaceable_at(lua_State* L) {
 const luaL_Reg blocklib [] = {
     {"index", lua_wrap_errors<l_block_index>},
     {"name", lua_wrap_errors<l_block_name>},
+    {"material", lua_wrap_errors<l_block_material>},
     {"defs_count", lua_wrap_errors<l_blocks_count>},
     {"is_solid_at", lua_wrap_errors<l_is_solid_at>},
     {"is_replaceable_at", lua_wrap_errors<l_is_replaceable_at>},

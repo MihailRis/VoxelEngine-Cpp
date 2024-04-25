@@ -113,16 +113,14 @@ void GUI::actFocused() {
     }
 }
 
-/// @brief Processing user input and UI logic 
-/// @param delta delta time
-void GUI::act(float delta) {
+void GUI::act(float delta, const Viewport& vp) {
     while (!postRunnables.empty()) {
         runnable callback = postRunnables.back();
         postRunnables.pop();
         callback();
     }
 
-    container->setSize(glm::vec2(Window::width, Window::height));
+    container->setSize(vp.size());
     container->act(delta);
     auto prevfocus = focus;
 

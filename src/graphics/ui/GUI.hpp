@@ -11,6 +11,7 @@
 
 #include "../../delegates.h"
 
+class Viewport;
 class GfxContext;
 class Assets;
 class Camera;
@@ -80,7 +81,8 @@ namespace gui {
 
         /// @brief Main input handling and logic update method 
         /// @param delta delta time
-        void act(float delta);
+        /// @param viewport window size
+        void act(float delta, const Viewport& viewport);
 
         /// @brief Draw all visible elements on main container 
         /// @param pctx parent graphics context

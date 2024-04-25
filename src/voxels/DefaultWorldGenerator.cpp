@@ -18,7 +18,7 @@
 #include "../maths/util.h"
 #include "../core_defs.h"
 
-// TODO: do something with long conditions + move magic numbers to constants
+// will be refactored in generators update
 
 const int SEA_LEVEL = 55;
 
