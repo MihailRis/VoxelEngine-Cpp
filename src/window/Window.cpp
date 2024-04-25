@@ -312,11 +312,13 @@ DisplaySettings* Window::getSettings() {
     return settings;
 }
 
-ImageData* Window::takeScreenshot() {
-    ubyte* data = new ubyte[width * height * 3];
+std::unique_ptr<ImageData> Window::takeScreenshot() {
+    auto data = std::make_unique<ubyte[]>(width * height * 3);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
-    return new ImageData(ImageFormat::rgb888, width, height, data);
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data.get());
+    return std::make_unique<ImageData>(
+        ImageFormat::rgb888, width, height, data.release()
+    );
 }
 
 const char* Window::getClipboardText() {

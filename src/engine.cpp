@@ -107,11 +107,11 @@ void Engine::updateHotkeys() {
 }
 
 void Engine::saveScreenshot() {
-    std::unique_ptr<ImageData> image(Window::takeScreenshot());
+    auto image = Window::takeScreenshot();
     image->flipY();
     fs::path filename = paths->getScreenshotFile("png");
     imageio::write(filename.string(), image.get());
-    logger.info() << "saved screenshot as "+filename.u8string();
+    logger.info() << "saved screenshot as " << filename.u8string();
 }
 
 void Engine::mainloop() {

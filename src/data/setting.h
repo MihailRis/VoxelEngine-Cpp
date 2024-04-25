@@ -34,17 +34,34 @@ public:
 using observer_handler = std::shared_ptr<int>;
 
 template<class T>
-class Observers {
+class ObservableSetting : public Setting {
     int nextid = 1;
     std::unordered_map<int, consumer<T>> observers;
+protected:
+    T initial;
+    T value;
 public:
-    observer_handler observe(consumer<T> callback) {
+    ObservableSetting(T value, setting_format format) 
+    : Setting(format), initial(value), value(value) {}
+
+    observer_handler observe(consumer<T> callback, bool callOnStart=false) {
         const int id = nextid++;
         observers.emplace(id, callback);
+        if (callOnStart) {
+            callback(value);
+        }
         return std::shared_ptr<int>(new int(id), [this](int* id) {
             observers.erase(*id);
             delete id;
         });
+    }
+
+    T get() const {
+        return value;
+    }
+
+    T& operator*() {
+        return value;
     }
 
     void notify(T value) {
@@ -52,24 +69,31 @@ public:
             entry.second(value);
         }
     }
+
+    void set(T value) {
+        if (value == this->value) {
+            return;
+        }
+        this->value = value;
+        notify(value);
+    }
+
+    virtual void resetToDefault() override {
+        set(initial);
+    }
 };
 
-class NumberSetting : public Setting {
+class NumberSetting : public ObservableSetting<number_t> {
 protected:
-    number_t initial;
-    number_t value;
     number_t min;
     number_t max;
-    Observers<number_t> observers;
 public:
     NumberSetting(
         number_t value, 
         number_t min=std::numeric_limits<number_t>::min(), 
         number_t max=std::numeric_limits<number_t>::max(),
         setting_format format=setting_format::simple
-    ) : Setting(format), 
-        initial(value), 
-        value(value), 
+    ) : ObservableSetting(value, format), 
         min(min), 
         max(max)
     {}
@@ -80,14 +104,6 @@ public:
 
     number_t get() const {
         return value;
-    }
-
-    void set(number_t value) {
-        if (value == this->value) {
-            return;
-        }
-        this->value = value;
-        observers.notify(value);
     }
 
     number_t getMin() const {
@@ -102,14 +118,6 @@ public:
         return (value - min) / (max - min);
     }
 
-    observer_handler observe(consumer<number_t> callback) {
-        return observers.observe(callback);
-    }
-
-    virtual void resetToDefault() override {
-        set(initial);
-    }
-
     virtual std::string toString() const override;
 
     static inline NumberSetting createPercent(number_t def) {
@@ -117,41 +125,20 @@ public:
     }
 };
 
-class IntegerSetting : public Setting {
+class IntegerSetting : public ObservableSetting<integer_t> {
 protected:
-    integer_t initial;
-    integer_t value;
     integer_t min;
     integer_t max;
-    Observers<integer_t> observers;
 public:
     IntegerSetting(
         integer_t value, 
         integer_t min=std::numeric_limits<integer_t>::min(), 
         integer_t max=std::numeric_limits<integer_t>::max(),
         setting_format format=setting_format::simple
-    ) : Setting(format), 
-        initial(value), 
-        value(value), 
+    ) : ObservableSetting(value, format),
         min(min), 
         max(max)
     {}
-
-    integer_t& operator*() {
-        return value;
-    }
-
-    integer_t get() const {
-        return value;
-    }
-
-    void set(integer_t value) {
-        if (value == this->value) {
-            return;
-        }
-        this->value = value;
-        observers.notify(value);
-    }
 
     integer_t getMin() const {
         return min;
@@ -165,60 +152,19 @@ public:
         return (value - min) / (max - min);
     }
 
-    observer_handler observe(consumer<integer_t> callback) {
-        return observers.observe(callback);
-    }
-
-    virtual void resetToDefault() override {
-        set(initial);
-    }
-
     virtual std::string toString() const override;
 };
 
-class FlagSetting : public Setting {
-protected:
-    bool initial;
-    bool value;
-    Observers<bool> observers;
+class FlagSetting : public ObservableSetting<bool> {
 public:
     FlagSetting(
         bool value,
         setting_format format=setting_format::simple
-    ) : Setting(format),
-        initial(value),
-        value(value)
+    ) : ObservableSetting(value, format)
     {}
-
-    bool& operator*() {
-        return value;
-    }
-
-    bool get() const {
-        return value;
-    }
-
-    void set(bool value) {
-        if (value == this->value) {
-            return;
-        }
-        this->value = value;
-        observers.notify(value);
-    }
 
     void toggle() {
         set(!get());
-    }
-
-    observer_handler observe(consumer<bool> callback, bool callOnStart=false) {
-        if (callOnStart) {
-            callback(value);
-        }
-        return observers.observe(callback);
-    }
-
-    virtual void resetToDefault() override {
-        set(initial);
     }
 
     virtual std::string toString() const override;

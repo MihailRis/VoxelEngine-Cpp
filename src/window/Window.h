@@ -5,7 +5,7 @@
 
 #include <stack>
 #include <vector>
-
+#include <memory>
 #include <glm/glm.hpp>
 
 class ImageData;
@@ -58,7 +58,7 @@ public:
         return glm::vec2(width, height);
     }
 
-    static ImageData* takeScreenshot();
+    static std::unique_ptr<ImageData> takeScreenshot();
 };
 
 #endif /* WINDOW_WINDOW_H_ */
