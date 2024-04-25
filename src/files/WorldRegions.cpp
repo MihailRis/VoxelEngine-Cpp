@@ -219,7 +219,7 @@ void WorldRegions::closeRegFile(glm::ivec3 coord) {
 }
 
 // Marks regfile as used and unmarks when shared_ptr dies
-std::shared_ptr<regfile> WorldRegions::getRegFile(glm::ivec3 coord) {
+std::shared_ptr<regfile> WorldRegions::getRegFile(glm::ivec3 coord, bool create) {
     {
         std::lock_guard lock(regFilesMutex);
         const auto found = openRegFiles.find(coord);
@@ -230,7 +230,10 @@ std::shared_ptr<regfile> WorldRegions::getRegFile(glm::ivec3 coord) {
             return useRegFile(found->first);
         }
     }
-    return createRegFile(coord);
+    if (create) {
+        return createRegFile(coord);
+    }
+    return nullptr;
 }
 
 std::shared_ptr<regfile> WorldRegions::createRegFile(glm::ivec3 coord) {
@@ -273,7 +276,7 @@ void WorldRegions::writeRegion(int x, int z, int layer, WorldRegion* entry){
     fs::path filename = layers[layer].folder/getRegionFilename(x, z);
 
     glm::ivec3 regcoord(x, z, layer);
-    if (auto regfile = getRegFile(regcoord)) {
+    if (auto regfile = getRegFile(regcoord, false)) {
         fetchChunks(entry, x, z, regfile.get());
 
         std::lock_guard lock(regFilesMutex);

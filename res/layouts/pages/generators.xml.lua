@@ -12,5 +12,5 @@ function on_open()
             name=settings.generator_name(k)
         }))
     end
-    panel:add("<button padding='10' onclick='menu:back()'>@Back</button>")
+    panel:add("<button onclick='menu:back()'>@Back</button>")
 end
