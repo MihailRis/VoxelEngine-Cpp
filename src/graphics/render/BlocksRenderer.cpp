@@ -9,6 +9,7 @@
 #include "../../voxels/ChunksStorage.h"
 #include "../../lighting/Lightmap.h"
 #include "../../frontend/ContentGfxCache.h"
+#include "../../settings.h"
 
 #include <glm/glm.hpp>
 
@@ -23,7 +24,7 @@ BlocksRenderer::BlocksRenderer(
     size_t capacity,
     const Content* content,
     const ContentGfxCache* cache,
-    const EngineSettings& settings
+    const EngineSettings* settings
 ) : content(content),
     vertexOffset(0),
     indexOffset(0),
@@ -448,7 +449,7 @@ void BlocksRenderer::render(const voxel* voxels) {
 void BlocksRenderer::build(const Chunk* chunk, const ChunksStorage* chunks) {
     this->chunk = chunk;
     voxelsBuffer->setPosition(chunk->x * CHUNK_W - 1, 0, chunk->z * CHUNK_D - 1);
-    chunks->getVoxels(voxelsBuffer, settings.graphics.backlight.get());
+    chunks->getVoxels(voxelsBuffer, settings->graphics.backlight.get());
     overflow = false;
     vertexOffset = 0;
     indexOffset = indexSize = 0;

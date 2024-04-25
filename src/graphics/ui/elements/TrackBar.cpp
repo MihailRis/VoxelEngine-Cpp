@@ -33,12 +33,11 @@ void TrackBar::draw(const GfxContext* pctx, Assets* assets) {
     batch->setColor(hover ? hoverColor : color);
     batch->rect(pos.x, pos.y, size.x, size.y);
 
-    float width = size.x;
-    float t = (value - min) / (max-min+trackWidth*step);
+    float width = size.x - trackWidth;
+    float t = (value - min) / (max-min);
 
     batch->setColor(trackColor);
-    int actualWidth = size.x * (trackWidth / (max-min+trackWidth*step) * step);
-    batch->rect(pos.x + width * t, pos.y, actualWidth, size.y);
+    batch->rect(pos.x + width * t, pos.y, trackWidth, size.y);
 }
 
 void TrackBar::setSupplier(doublesupplier supplier) {
@@ -51,9 +50,9 @@ void TrackBar::setConsumer(doubleconsumer consumer) {
 
 void TrackBar::mouseMove(GUI*, int x, int y) {
     glm::vec2 pos = calcPos();
-    value = x;
+    value = x - trackWidth/2;
     value -= pos.x;
-    value = (value)/size.x * (max-min+trackWidth*step);
+    value = (value)/(size.x-trackWidth) * (max-min);
     value += min;
     value = (value > max) ? max : value;
     value = (value < min) ? min : value;

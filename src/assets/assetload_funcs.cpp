@@ -101,7 +101,7 @@ assetload::postfunc assetload::atlas(
         atlas->prepare();
         assets->store(atlas, name);
 
-        // FIXME
+        // TODO
         for (const auto& file : names) {
             animation(assets, paths, "textures", file, atlas);
         }

@@ -10,13 +10,13 @@
 #include "../../voxels/Block.h"
 #include "../../voxels/ChunksStorage.h"
 #include "../../util/ThreadPool.hpp"
-#include "../../settings.h"
 
 class Mesh;
 class Chunk;
 class Level;
 class BlocksRenderer;
 class ContentGfxCache;
+struct EngineSettings;
 
 struct RendererResult {
     glm::ivec2 key;
@@ -34,7 +34,7 @@ public:
     ChunksRenderer(
         Level* level, 
         const ContentGfxCache* cache, 
-        const EngineSettings& settings
+        const EngineSettings* settings
     );
     virtual ~ChunksRenderer();
 

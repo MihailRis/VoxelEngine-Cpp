@@ -6,7 +6,6 @@
 #include <glm/glm.hpp>
 #include "../../voxels/voxel.h"
 #include "../../typedefs.h"
-#include "../../settings.h"
 
 class Content;
 class Mesh;
@@ -16,6 +15,7 @@ class Chunks;
 class VoxelsVolume;
 class ChunksStorage;
 class ContentGfxCache;
+struct EngineSettings;
 struct UVRegion;
 
 class BlocksRenderer {
@@ -35,7 +35,7 @@ class BlocksRenderer {
 
     const Block* const* blockDefsCache;
     const ContentGfxCache* const cache;
-    const EngineSettings& settings;
+    const EngineSettings* settings;
 
     void vertex(const glm::vec3& coord, float u, float v, const glm::vec4& light);
     void index(int a, int b, int c, int d, int e, int f);
@@ -90,7 +90,7 @@ class BlocksRenderer {
     glm::vec4 pickSoftLight(float x, float y, float z, const glm::ivec3& right, const glm::ivec3& up) const;
     void render(const voxel* voxels);
 public:
-    BlocksRenderer(size_t capacity, const Content* content, const ContentGfxCache* cache, const EngineSettings& settings);
+    BlocksRenderer(size_t capacity, const Content* content, const ContentGfxCache* cache, const EngineSettings* settings);
     virtual ~BlocksRenderer();
 
     void build(const Chunk* chunk, const ChunksStorage* chunks);
