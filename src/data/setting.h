@@ -206,7 +206,14 @@ public:
         observers.notify(value);
     }
 
-    observer_handler observe(consumer<bool> callback) {
+    void toggle() {
+        set(!get());
+    }
+
+    observer_handler observe(consumer<bool> callback, bool callOnStart=false) {
+        if (callOnStart) {
+            callback(value);
+        }
         return observers.observe(callback);
     }
 

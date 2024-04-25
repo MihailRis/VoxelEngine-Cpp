@@ -63,7 +63,7 @@ std::shared_ptr<UINode> create_debug_panel(
     }));
     panel->add(create_label([=](){
         auto& settings = engine->getSettings();
-        bool culling = settings.graphics.frustumCulling;
+        bool culling = settings.graphics.frustumCulling.get();
         return L"frustum-culling: "+std::wstring(culling ? L"on" : L"off");
     }));
     panel->add(create_label([=]() {

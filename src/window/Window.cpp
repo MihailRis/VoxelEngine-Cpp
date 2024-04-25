@@ -4,6 +4,8 @@
 #include "../debug/Logger.hpp"
 #include "../graphics/core/ImageData.hpp"
 #include "../graphics/core/Texture.hpp"
+#include "../settings.h"
+#include "../util/ObjectsKeeper.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -18,6 +20,9 @@ uint Window::width = 0;
 uint Window::height = 0;
 int Window::posX = 0;
 int Window::posY = 0;
+bool Window::fullscreen = false;
+
+static util::ObjectsKeeper observers_keeper;
 
 void cursor_position_callback(GLFWwindow*, double xpos, double ypos) {
     Events::setPosition(xpos, ypos);
@@ -103,10 +108,10 @@ void error_callback(int error, const char* description) {
     }
 }
 
-int Window::initialize(DisplaySettings& settings){
-    Window::settings = &settings;
-    Window::width = settings.width;
-    Window::height = settings.height;
+int Window::initialize(DisplaySettings* settings){
+    Window::settings = settings;
+    Window::width = settings->width;
+    Window::height = settings->height;
 
     glfwSetErrorCallback(error_callback);
     if (glfwInit() == GLFW_FALSE) {
@@ -124,9 +129,9 @@ int Window::initialize(DisplaySettings& settings){
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 #endif
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-    glfwWindowHint(GLFW_SAMPLES, settings.samples);
+    glfwWindowHint(GLFW_SAMPLES, settings->samples);
 
-    window = glfwCreateWindow(width, height, settings.title.c_str(), nullptr, nullptr);
+    window = glfwCreateWindow(width, height, settings->title.c_str(), nullptr, nullptr);
     if (window == nullptr){
         logger.error() << "failed to create GLFW window";
         glfwTerminate();
@@ -159,32 +164,21 @@ int Window::initialize(DisplaySettings& settings){
     glfwSetWindowSizeCallback(window, window_size_callback);
     glfwSetCharCallback(window, character_callback);
     glfwSetScrollCallback(window, scroll_callback);
-    if (settings.fullscreen) {
-        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-        glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
-    }
-    glfwSwapInterval(settings.vsync.get());
+
+    observers_keeper = util::ObjectsKeeper();
+    observers_keeper.keepAlive(settings->fullscreen.observe([=](bool value) {
+        if (value != isFullscreen()) {
+            toggleFullscreen();
+        }
+    }, true));
+
+    glfwSwapInterval(settings->vsync.get());
     const GLubyte* vendor = glGetString(GL_VENDOR);
     const GLubyte* renderer = glGetString(GL_RENDERER);
     logger.info() << "GL Vendor: " << (char*)vendor;
     logger.info() << "GL Renderer: " << (char*)renderer;
     logger.info() << "GLFW: " << glfwGetVersionString();
     return 0;
-}
-
-void Window::setBlendMode(blendmode mode) {
-    switch (mode) {
-        case blendmode::normal:
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-        case blendmode::addition:
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-            break;
-        case blendmode::inversion:
-            glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-    }
 }
 
 void Window::clear() {
@@ -263,6 +257,7 @@ void Window::popScissor() {
 }
 
 void Window::terminate(){
+    observers_keeper = util::ObjectsKeeper();
     glfwTerminate();
 }
 
@@ -279,14 +274,14 @@ void Window::swapInterval(int interval){
 }
 
 void Window::toggleFullscreen(){
-    settings->fullscreen = !settings->fullscreen;
+    fullscreen = !fullscreen;
 
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
     if (Events::_cursor_locked) Events::toggleCursor();
 
-    if (settings->fullscreen) {
+    if (fullscreen) {
         glfwGetWindowPos(window, &posX, &posY);
         glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
     }
@@ -301,7 +296,7 @@ void Window::toggleFullscreen(){
 }
 
 bool Window::isFullscreen() {
-    return settings->fullscreen;
+    return fullscreen;
 }
 
 void Window::swapBuffers(){

@@ -104,7 +104,7 @@ void Skybox::draw(
     drawBackground(camera, assets, width, height);
 
     GfxContext ctx = pctx.sub();
-    ctx.setBlendMode(blendmode::addition);
+    ctx.setBlendMode(BlendMode::addition);
 
     Shader* shader = assets->getShader("ui3d");
     shader->use();

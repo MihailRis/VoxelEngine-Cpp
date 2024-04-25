@@ -2,7 +2,6 @@
 #define WINDOW_WINDOW_H_
 
 #include "../typedefs.h"
-#include "../settings.h"
 
 #include <stack>
 #include <vector>
@@ -14,15 +13,12 @@ struct DisplaySettings;
 struct GLFWwindow;
 struct GLFWmonitor;
 
-enum class blendmode {
-    normal, addition, inversion
-};
-
 class Window {
     static GLFWwindow* window;
     static DisplaySettings* settings;
     static std::stack<glm::vec4> scissorStack;
     static glm::vec4 scissorArea;
+    static bool fullscreen;
 
     static bool tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor);
 public:
@@ -30,7 +26,7 @@ public:
     static int posY;
     static uint width;
     static uint height;
-    static int initialize(DisplaySettings& settings);
+    static int initialize(DisplaySettings* settings);
     static void terminate();
 
     static void viewport(int x, int y, int width, int height);
@@ -57,8 +53,6 @@ public:
     static const char* getClipboardText();
     static void setClipboardText(const char* text);
     static DisplaySettings* getSettings();
-
-    static void setBlendMode(blendmode mode);
 
     static glm::vec2 size() {
         return glm::vec2(width, height);

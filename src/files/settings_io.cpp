@@ -1,13 +1,14 @@
 #include "settings_io.h"
 
-#include <memory>
-#include <iostream>
-
 #include "../window/Events.h"
 #include "../window/input.h"
-
 #include "../coders/toml.h"
 #include "../coders/json.h"
+#include "../debug/Logger.hpp"
+
+#include <memory>
+
+static debug::Logger logger("settings_io");
 
 SettingsHandler::SettingsHandler(EngineSettings& settings) {
     // public settings
@@ -18,9 +19,11 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     map.emplace("audio.volume-music", &settings.audio.volumeMusic);
 
     map.emplace("display.vsync", &settings.display.vsync);
+    map.emplace("display.fullscreen", &settings.display.fullscreen);
 
     map.emplace("camera.sensitivity", &settings.camera.sensitivity);
     map.emplace("camera.fov", &settings.camera.fov);
+    map.emplace("camera.fov-effects", &settings.camera.fovEffects);
     map.emplace("camera.shaking", &settings.camera.shaking);
 
     map.emplace("chunks.load-distance", &settings.chunks.loadDistance);
@@ -111,7 +114,7 @@ toml::Wrapper* create_wrapper(EngineSettings& settings) {
     audio.add("volume-music", &*settings.audio.volumeMusic);
 
     toml::Section& display = wrapper->add("display");
-    display.add("fullscreen", &settings.display.fullscreen);
+    display.add("fullscreen", &*settings.display.fullscreen);
     display.add("width", &settings.display.width);
     display.add("height", &settings.display.height);
     display.add("samples", &settings.display.samples);
@@ -123,7 +126,7 @@ toml::Wrapper* create_wrapper(EngineSettings& settings) {
     chunks.add("padding", &*settings.chunks.padding);
     
     toml::Section& camera = wrapper->add("camera");
-    camera.add("fov-effects", &settings.camera.fovEvents);
+    camera.add("fov-effects", &*settings.camera.fovEffects);
     camera.add("fov", &*settings.camera.fov);
     camera.add("shaking", &*settings.camera.shaking);
     camera.add("sensitivity", &*settings.camera.sensitivity);
@@ -132,8 +135,8 @@ toml::Wrapper* create_wrapper(EngineSettings& settings) {
     graphics.add("gamma", &*settings.graphics.gamma);
     graphics.add("fog-curve", &*settings.graphics.fogCurve);
     graphics.add("backlight", &*settings.graphics.backlight);
-    graphics.add("frustum-culling", &settings.graphics.frustumCulling);
-    graphics.add("skybox-resolution", &settings.graphics.skyboxResolution);
+    graphics.add("frustum-culling", &*settings.graphics.frustumCulling);
+    graphics.add("skybox-resolution", &*settings.graphics.skyboxResolution);
 
     toml::Section& debug = wrapper->add("debug");
     debug.add("generator-test-mode", &settings.debug.generatorTestMode);
@@ -179,7 +182,7 @@ void load_controls(std::string filename, std::string source) {
         } else if (typestr == "mouse") {
             type = inputtype::mouse;
         } else {
-            std::cerr << "unknown input type '" << typestr << "'" << std::endl;
+            logger.error() << "unknown input type '" << typestr << "'";
             continue;
         }
         binding.type = type;

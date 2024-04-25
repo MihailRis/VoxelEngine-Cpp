@@ -142,7 +142,7 @@ void CameraControl::update(PlayerInput& input, float delta, Chunks* chunks) {
     if (settings.shaking.get() && !input.cheat) {
         offset += updateCameraShaking(delta);
     }
-    if (settings.fovEvents){
+    if (settings.fovEffects.get()){
         updateFovEffects(input, delta);
     }
     if (input.cameraMode) {

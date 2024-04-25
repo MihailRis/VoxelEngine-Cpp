@@ -42,6 +42,7 @@ settings.Load Speed=Скорость Загрузки
 settings.Fog Curve=Кривая Тумана
 settings.Backlight=Подсветка
 settings.Gamma=Гамма
+settings.Fullscreen=Полноэкранный
 settings.V-Sync=Вертикальная Синхронизация
 settings.Camera Shaking=Тряска Камеры
 settings.Master Volume=Общая Громкость

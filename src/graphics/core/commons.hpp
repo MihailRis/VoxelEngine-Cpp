@@ -7,4 +7,8 @@ enum class DrawPrimitive {
     triangle,
 };
 
+enum class BlendMode {
+    normal, addition, inversion
+};
+
 #endif // GRAPHICS_CORE_COMMONS_HPP_

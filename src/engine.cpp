@@ -60,7 +60,7 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     : settings(settings), settingsHandler(settings), paths(paths) 
 {
     controller = std::make_unique<EngineController>(this);
-    if (Window::initialize(settings.display)){
+    if (Window::initialize(&this->settings.display)){
         throw initialize_error("could not initialize window");
     }
     audio::initialize(settings.audio.enabled);
@@ -102,7 +102,7 @@ void Engine::updateHotkeys() {
         saveScreenshot();
     }
     if (Events::jpressed(keycode::F11)) {
-        Window::toggleFullscreen();
+        settings.display.fullscreen.toggle();
     }
 }
 

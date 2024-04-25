@@ -5,6 +5,21 @@
 #include "Batch2D.hpp"
 #include "Framebuffer.hpp"
 
+static void set_blend_mode(BlendMode mode) {
+    switch (mode) {
+        case BlendMode::normal:
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+        case BlendMode::addition:
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            break;
+        case BlendMode::inversion:
+            glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+    }
+}
+
+
 GfxContext::GfxContext(
     const GfxContext* parent, 
     const Viewport& viewport, 
@@ -53,7 +68,7 @@ GfxContext::~GfxContext() {
         else glEnable(GL_CULL_FACE);
     }
     if (blendMode != parent->blendMode) {
-        Window::setBlendMode(parent->blendMode);
+        set_blend_mode(parent->blendMode);
     }
 }
 
@@ -119,11 +134,11 @@ void GfxContext::setCullFace(bool flag) {
     }
 }
 
-void GfxContext::setBlendMode(blendmode mode) {
+void GfxContext::setBlendMode(BlendMode mode) {
     if (blendMode == mode)
         return;
     blendMode = mode;
-    Window::setBlendMode(mode);
+    set_blend_mode(mode);
 }
 
 void GfxContext::setScissors(glm::vec4 area) {

@@ -57,7 +57,7 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* pl
     );
     auto assets = engine->getAssets();
     skybox = std::make_unique<Skybox>(
-        settings.graphics.skyboxResolution, 
+        settings.graphics.skyboxResolution.get(), 
         assets->getShader("skybox_gen")
     );
 }
@@ -127,7 +127,7 @@ void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
                 (b->z + 0.5f - pz)*(b->z + 0.5f - pz));
     });
 
-    bool culling = engine->getSettings().graphics.frustumCulling;
+    bool culling = engine->getSettings().graphics.frustumCulling.get();
     if (culling) {
         frustumCulling->update(camera->getProjView());
     }

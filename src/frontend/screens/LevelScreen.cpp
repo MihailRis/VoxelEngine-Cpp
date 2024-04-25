@@ -93,7 +93,7 @@ void LevelScreen::saveWorldPreview() {
 void LevelScreen::updateHotkeys() {
     auto& settings = engine->getSettings();
     if (Events::jpressed(keycode::O)) {
-        settings.graphics.frustumCulling = !settings.graphics.frustumCulling;
+        settings.graphics.frustumCulling.toggle();
     }
     if (Events::jpressed(keycode::F1)) {
         hudVisible = !hudVisible;
