@@ -387,7 +387,7 @@ void Hud::add(HudElement element) {
         std::vector<std::unique_ptr<Value>> args;
         args.push_back(Value::of(inventory ? inventory.get()->getId() : 0));
         for (int i = 0; i < 3; i++) {
-            args.push_back(Value::of(blockPos[i]));
+            args.push_back(Value::of(static_cast<integer_t>(blockPos[i])));
         }
 
         if (invview) {
