@@ -76,7 +76,7 @@ struct DebugSettings {
 };
 
 struct UiSettings {
-    std::string language = "auto";
+    StringSetting language {"auto"};
     IntegerSetting worldPreviewSize {64, 1, 512};
 };
 

@@ -385,13 +385,6 @@ static int l_gui_get_locale(lua_State* L) {
     return 1;
 }
 
-/// @brief gui.set_locale(locale: string) -> nil
-static int l_gui_set_locale(lua_State* L) {
-    auto locale = lua_tostring(L, 1);
-    scripting::engine->setLanguage(locale);
-    return 0;
-}
-
 const luaL_Reg guilib [] = {
     {"get_viewport", lua_wrap_errors<l_gui_getviewport>},
     {"getattr", lua_wrap_errors<l_gui_getattr>},
@@ -400,7 +393,6 @@ const luaL_Reg guilib [] = {
     {"str", lua_wrap_errors<l_gui_str>},
     {"reindex", lua_wrap_errors<l_gui_reindex>},
     {"get_locale", lua_wrap_errors<l_gui_get_locale>},
-    {"set_locale", lua_wrap_errors<l_gui_set_locale>},
     {"get_locales_info", lua_wrap_errors<l_gui_get_locales_info>},
     {NULL, NULL}
 };

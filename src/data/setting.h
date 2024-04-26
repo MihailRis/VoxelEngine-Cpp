@@ -56,7 +56,7 @@ public:
         });
     }
 
-    T get() const {
+    const T& get() const {
         return value;
     }
 
@@ -160,12 +160,21 @@ public:
     FlagSetting(
         bool value,
         setting_format format=setting_format::simple
-    ) : ObservableSetting(value, format)
-    {}
+    ) : ObservableSetting(value, format) {}
 
     void toggle() {
         set(!get());
     }
+
+    virtual std::string toString() const override;
+};
+
+class StringSetting : public ObservableSetting<std::string> {
+public:
+    StringSetting(
+        std::string value,
+        setting_format format=setting_format::simple
+    ) : ObservableSetting(value, format) {}
 
     virtual std::string toString() const override;
 };

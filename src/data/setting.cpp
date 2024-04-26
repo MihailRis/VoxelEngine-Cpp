@@ -32,3 +32,7 @@ std::string FlagSetting::toString() const {
             return "invalid format";
     }
 }
+
+std::string StringSetting::toString() const {
+    return value;
+}

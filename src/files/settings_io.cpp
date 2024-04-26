@@ -32,6 +32,8 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     map.emplace("graphics.fog-curve", &settings.graphics.fogCurve);
     map.emplace("graphics.backlight", &settings.graphics.backlight);
     map.emplace("graphics.gamma", &settings.graphics.gamma);
+
+    map.emplace("ui.language", &settings.ui.language);
 }
 
 std::unique_ptr<dynamic::Value> SettingsHandler::getValue(const std::string& name) const {
@@ -46,6 +48,8 @@ std::unique_ptr<dynamic::Value> SettingsHandler::getValue(const std::string& nam
         return dynamic::Value::of((integer_t)integer->get());
     } else if (auto flag = dynamic_cast<FlagSetting*>(setting)) {
         return dynamic::Value::boolean(flag->get());
+    } else if (auto string = dynamic_cast<StringSetting*>(setting)) {
+        return dynamic::Value::of(string->get());
     } else {
         throw std::runtime_error("type is not implemented for '"+name+"'");
     }
@@ -88,7 +92,7 @@ static void set_numeric_value(T* setting, const dynamic::Value& value) {
 void SettingsHandler::setValue(const std::string& name, const dynamic::Value& value) {
     auto found = map.find(name);
     if (found == map.end()) {
-        throw std::runtime_error("setting '"+name+"' does Pnot exist");
+        throw std::runtime_error("setting '"+name+"' does not exist");
     }
     auto setting = found->second;
     if (auto number = dynamic_cast<NumberSetting*>(setting)) {
@@ -97,6 +101,23 @@ void SettingsHandler::setValue(const std::string& name, const dynamic::Value& va
         set_numeric_value(integer, value);
     } else if (auto flag = dynamic_cast<FlagSetting*>(setting)) {
         set_numeric_value(flag, value);
+    } else if (auto string = dynamic_cast<StringSetting*>(setting)) {
+        switch (value.type) {
+            case dynamic::valtype::string:
+                string->set(std::get<std::string>(value.value));
+                break;
+            case dynamic::valtype::integer:
+                string->set(std::to_string(std::get<integer_t>(value.value)));
+                break;
+            case dynamic::valtype::number:
+                string->set(std::to_string(std::get<number_t>(value.value)));
+                break;
+            case dynamic::valtype::boolean:
+                string->set(std::to_string(std::get<bool>(value.value)));
+                break;
+            default:
+                throw std::runtime_error("not implemented for type");
+        }
     } else {
         throw std::runtime_error("type is not implement - setting '"+name+"'");
     }
@@ -144,7 +165,7 @@ toml::Wrapper* create_wrapper(EngineSettings& settings) {
     debug.add("do-write-lights", &settings.debug.doWriteLights);
 
     toml::Section& ui = wrapper->add("ui");
-    ui.add("language", &settings.ui.language);
+    ui.add("language", &*settings.ui.language);
     ui.add("world-preview-size", &*settings.ui.worldPreviewSize);
     return wrapper.release();
 }

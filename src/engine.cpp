@@ -71,16 +71,18 @@ Engine::Engine(EngineSettings& settings, EnginePaths* paths)
     create_channel(this, "ui", settings.audio.volumeUI);
 
     gui = std::make_unique<gui::GUI>();
-    if (settings.ui.language == "auto") {
-        settings.ui.language = langs::locale_by_envlocale(
+    if (settings.ui.language.get() == "auto") {
+        settings.ui.language.set(langs::locale_by_envlocale(
             platform::detect_locale(),
             paths->getResources()
-        );
+        ));
     }
     if (ENGINE_VERSION_INDEV) {
         menus::create_version_label(this);
     }
-    setLanguage(settings.ui.language);
+    keepAlive(settings.ui.language.observe([=](auto lang) {
+        setLanguage(lang);
+    }, true));
     addWorldGenerators();
     
     scripting::initialize(this);
@@ -275,7 +277,6 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
 }
 
 void Engine::setLanguage(std::string locale) {
-    settings.ui.language = locale;
     langs::setup(paths->getResources(), locale, contentPacks);
     menus::create_menus(this);
 }
