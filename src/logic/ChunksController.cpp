@@ -1,33 +1,28 @@
 #include "ChunksController.h"
 
-#include <limits.h>
 #include <memory>
-#include <iostream>
 
 #include "../content/Content.h"
-#include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
-#include "../voxels/Chunks.h"
+#include "../voxels/ChunksMatrix.h"
 #include "../voxels/ChunksStorage.h"
 #include "../voxels/WorldGenerator.h"
 #include "../world/WorldGenerators.h"
-#include "../graphics/Mesh.h"
 #include "../lighting/Lighting.h"
 #include "../files/WorldFiles.h"
 #include "../world/Level.h"
 #include "../world/World.h"
-#include "../maths/voxmaths.h"
 #include "../util/timeutil.h"
 
 const uint MAX_WORK_PER_FRAME = 64;
 const uint MIN_SURROUNDING = 9;
 
-ChunksController::ChunksController(Level* level, uint padding) 
+ChunksController::ChunksController(Level* level, ChunksMatrix* chunks, uint padding) 
     : level(level), 
-	  chunks(level->chunks.get()), 
-	  lighting(level->lighting.get()), 
-	  padding(padding), 
-	  generator(WorldGenerators::createGenerator(level->getWorld()->getGenerator(), level->content)) {
+	  chunks(chunks), 
+	  chunksStorage(level->chunksStorage.get()), 
+	  generator(WorldGenerators::createGenerator(level->getWorld()->getGenerator(), level->content)), 
+	  padding(padding) {
 }
 
 ChunksController::~ChunksController(){
@@ -95,16 +90,16 @@ bool ChunksController::buildLights(std::shared_ptr<Chunk> chunk) {
     int surrounding = 0;
     for (int oz = -1; oz <= 1; oz++){
         for (int ox = -1; ox <= 1; ox++){
-            if (chunks->getChunk(chunk->x+ox, chunk->z+oz))
+            if (chunksStorage->getChunk(chunk->x+ox, chunk->z+oz))
                 surrounding++;
         }
     }
     if (surrounding == MIN_SURROUNDING) {
         bool lightsCache = chunk->isLoadedLights();
         if (!lightsCache) {
-            lighting->buildSkyLight(chunk->x, chunk->z);
+            level->lighting->buildSkyLight(chunk->x, chunk->z);
         }
-        lighting->onChunkLoaded(chunk->x, chunk->z, !lightsCache);
+        level->lighting->onChunkLoaded(chunk->x, chunk->z, !lightsCache);
         chunk->setLighted(true);
         return true;
     }

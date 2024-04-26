@@ -7,7 +7,7 @@
 class Player;
 class Block;
 class Level;
-class Chunks;
+class ChunksStorage;
 class Lighting;
 
 class Clock {
@@ -31,15 +31,14 @@ public:
 /* BlocksController manages block updates and block data (aka inventories) */
 class BlocksController {
     Level* level;
-	Chunks* chunks;
+	ChunksStorage* chunksStorage;
 	Lighting* lighting;
     Clock randTickClock;
     Clock blocksTickClock;
     Clock worldTickClock;
-    uint padding;
     FastRandom random;
 public:
-    BlocksController(Level* level, uint padding);
+    BlocksController(Level* level);
 
     void updateSides(int x, int y, int z);
     void updateBlock(int x, int y, int z);

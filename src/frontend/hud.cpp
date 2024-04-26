@@ -23,7 +23,7 @@
 #include "../window/Window.h"
 #include "../window/Events.h"
 #include "../window/input.h"
-#include "../voxels/Chunks.h"
+#include "../voxels/ChunksMatrix.h"
 #include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
 #include "../world/World.h"
@@ -292,7 +292,6 @@ void Hud::processInput(bool visible) {
 }
 
 void Hud::update(bool visible) {
-    auto level = frontend->getLevel();
     auto menu = gui->getMenu();
 
     debugPanel->setVisible(player->debug && visible);
@@ -312,7 +311,7 @@ void Hud::update(bool visible) {
     }
 
     if (blockUI) {
-        voxel* vox = level->chunks->get(blockPos.x, blockPos.y, blockPos.z);
+        voxel* vox = player->chunksMatrix->getVoxel(blockPos.x, blockPos.y, blockPos.z);
         if (vox == nullptr || vox->id != currentblockid) {
             closeInventory();
         }
@@ -372,10 +371,10 @@ void Hud::openInventory(
     if (blockinv == nullptr) {
         blockinv = level->inventories->createVirtual(blockUI->getSlotsCount());
     }
-    level->chunks->getChunkByVoxel(block.x, block.y, block.z)->setUnsaved(true);
+    player->chunksMatrix->getChunkByVoxel(block.x, block.y, block.z)->setUnsaved(true);
     blockUI->bind(blockinv, frontend, interaction.get());
     blockPos = block;
-    currentblockid = level->chunks->get(block.x, block.y, block.z)->id;
+    currentblockid = player->chunksMatrix->getVoxel(block.x, block.y, block.z)->id;
     add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
 }
 

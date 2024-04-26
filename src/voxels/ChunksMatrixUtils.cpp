@@ -1,4 +1,4 @@
-#include "Chunks.h"
+#include "ChunksMatrix.h"
 #include "Chunk.h"
 #include "voxel.h"
 #include "Block.h"
@@ -17,22 +17,7 @@
 #include <limits.h>
 #include <vector>
 
-Chunks::Chunks(uint32_t w, uint32_t d, 
-			   int32_t ox, int32_t oz, 
-			   WorldFiles* wfile, 
-			   LevelEvents* events, 
-			   const Content* content) 
-		: contentIds(content->getIndices()), 
-          chunks(w*d),
-          chunksSecond(w*d),
-		  w(w), d(d), ox(ox), oz(oz), 
-		  worldFiles(wfile), 
-		  events(events) {
-	volume = (size_t)w*(size_t)d;
-	chunksCount = 0;
-}
-
-voxel* Chunks::get(int32_t x, int32_t y, int32_t z) {
+voxel* ChunksMatrix::getVoxel(int32_t x, int32_t y, int32_t z) {
 	x -= ox * CHUNK_W; 
 	z -= oz * CHUNK_D;
 	int cx = floordiv(x, CHUNK_W);
@@ -49,11 +34,11 @@ voxel* Chunks::get(int32_t x, int32_t y, int32_t z) {
 	return &chunk->voxels[(ly * CHUNK_D + lz) * CHUNK_W + lx];
 }
 
-const AABB* Chunks::isObstacleAt(float x, float y, float z){
+const AABB* ChunksMatrix::isObstacleAt(float x, float y, float z){
 	int ix = floor(x);
 	int iy = floor(y);
 	int iz = floor(z);
-	voxel* v = get(ix, iy, iz);
+	voxel* v = getVoxel(ix, iy, iz);
 	if (v == nullptr) {
 		if (iy >= CHUNK_H) {
 			return nullptr;
@@ -75,28 +60,28 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
 	return nullptr;
 }
 
-bool Chunks::isSolidBlock(int32_t x, int32_t y, int32_t z) {
-    voxel* v = get(x, y, z);
+bool ChunksMatrix::isSolidBlock(int32_t x, int32_t y, int32_t z) {
+    voxel* v = getVoxel(x, y, z);
     if (v == nullptr)
         return false;
     return contentIds->getBlockDef(v->id)->rt.solid;
 }
 
-bool Chunks::isReplaceableBlock(int32_t x, int32_t y, int32_t z) {
-    voxel* v = get(x, y, z);
+bool ChunksMatrix::isReplaceableBlock(int32_t x, int32_t y, int32_t z) {
+    voxel* v = getVoxel(x, y, z);
     if (v == nullptr)
         return false;
     return contentIds->getBlockDef(v->id)->replaceable;
 }
 
-bool Chunks::isObstacleBlock(int32_t x, int32_t y, int32_t z) {
-	voxel* v = get(x, y, z);
+bool ChunksMatrix::isObstacleBlock(int32_t x, int32_t y, int32_t z) {
+	voxel* v = getVoxel(x, y, z);
 	if (v == nullptr)
 		return false;
 	return contentIds->getBlockDef(v->id)->obstacle;
 }
 
-ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel){
+ubyte ChunksMatrix::getLight(int32_t x, int32_t y, int32_t z, int channel){
 	x -= ox * CHUNK_W;
 	z -= oz * CHUNK_D;
 	int cx = floordiv(x, CHUNK_W);
@@ -113,7 +98,7 @@ ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel){
 	return chunk->lightmap.get(lx, ly, lz, channel);
 }
 
-light_t Chunks::getLight(int32_t x, int32_t y, int32_t z){
+light_t ChunksMatrix::getLight(int32_t x, int32_t y, int32_t z){
 	x -= ox * CHUNK_W;
 	z -= oz * CHUNK_D;
 	int cx = floordiv(x, CHUNK_W);
@@ -130,7 +115,7 @@ light_t Chunks::getLight(int32_t x, int32_t y, int32_t z){
 	return chunk->lightmap.get(lx,ly,lz);
 }
 
-Chunk* Chunks::getChunkByVoxel(int32_t x, int32_t y, int32_t z){
+Chunk* ChunksMatrix::getChunkByVoxel(int32_t x, int32_t y, int32_t z){
 	if (y < 0 || y >= CHUNK_H)
 		return nullptr;
 	x -= ox * CHUNK_W;
@@ -142,7 +127,7 @@ Chunk* Chunks::getChunkByVoxel(int32_t x, int32_t y, int32_t z){
 	return chunks[cz * w + cx].get();
 }
 
-Chunk* Chunks::getChunk(int x, int z){
+Chunk* ChunksMatrix::getChunk(int x, int z){
 	x -= ox;
 	z -= oz;
 	if (x < 0 || z < 0 || x >= int(w) || z >= int(d))
@@ -150,7 +135,7 @@ Chunk* Chunks::getChunk(int x, int z){
 	return chunks[z * w + x].get();
 }
 
-void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, uint8_t states){
+void ChunksMatrix::setVoxel(int32_t x, int32_t y, int32_t z, uint32_t id, uint8_t states){
 	if (y < 0 || y >= CHUNK_H)
 		return;
 	x -= ox * CHUNK_W;
@@ -164,7 +149,7 @@ void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, uint8_t states){
 		return;
 	int lx = x - cx * CHUNK_W;
 	int lz = z - cz * CHUNK_D;
-    
+
     voxel& vox = chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx]; 
 	auto def = contentIds->getBlockDef(vox.id);
 	if (def->inventorySize == 0)
@@ -190,7 +175,7 @@ void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, uint8_t states){
 		chunk->setModified(true);
 }
 
-voxel* Chunks::rayCast(glm::vec3 start, 
+voxel* ChunksMatrix::rayCast(glm::vec3 start, 
 					   glm::vec3 dir, 
 					   float maxDist, 
 					   glm::vec3& end, 
@@ -228,9 +213,9 @@ voxel* Chunks::rayCast(glm::vec3 start,
 	float tzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
 
 	int steppedIndex = -1;      
-                                
+
 	while (t <= maxDist){       
-		voxel* voxel = get(ix, iy, iz);		
+		voxel* voxel = getVoxel(ix, iy, iz);		
 		if (voxel == nullptr){ return nullptr; }
 
 		const Block* def = contentIds->getBlockDef(voxel->id);
@@ -241,7 +226,7 @@ voxel* Chunks::rayCast(glm::vec3 start,
 					iend.x = ix;
 					iend.y = iy;
 					iend.z = iz;
-			
+
 			if (!def->rt.solid) {
                 const std::vector<AABB>& hitboxes = def->rotatable
                         ? def->rt.hitboxes[voxel->rotation()]
@@ -313,7 +298,7 @@ voxel* Chunks::rayCast(glm::vec3 start,
 	return nullptr;
 }
 
-glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDist) {
+glm::vec3 ChunksMatrix::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDist) {
 	float px = start.x;
 	float py = start.y;
 	float pz = start.z;
@@ -346,7 +331,7 @@ glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDis
 	float tzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
 
 	while (t <= maxDist) {
-		voxel* voxel = get(ix, iy, iz);
+		voxel* voxel = getVoxel(ix, iy, iz);
 		if (voxel == nullptr) { return glm::vec3(px + t * dx, py + t * dy, pz + t * dz); }
 
 		const Block* def = contentIds->getBlockDef(voxel->id);
@@ -397,99 +382,4 @@ glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDis
 		}
 	}
 	return glm::vec3(px + maxDist * dx, py + maxDist * dy, pz + maxDist * dz);
-}
-
-
-void Chunks::setCenter(int32_t x, int32_t z) {
-	int cx = floordiv(x, CHUNK_W);
-	int cz = floordiv(z, CHUNK_D);
-	cx -= ox + w / 2;
-	cz -= oz + d / 2;
-	if (cx | cz) {
-		translate(cx,cz);
-	}
-}
-
-void Chunks::translate(int32_t dx, int32_t dz) {
-	for (uint i = 0; i < volume; i++){
-		chunksSecond[i] = nullptr;
-	}
-	for (uint32_t z = 0; z < d; z++){
-		for (uint32_t x = 0; x < w; x++){
-			auto chunk = chunks[z * w + x];
-			int nx = x - dx;
-			int nz = z - dz;
-			if (chunk == nullptr)
-				continue;
-			if (nx < 0 || nz < 0 || nx >= int(w) || nz >= int(d)){
-				events->trigger(EVT_CHUNK_HIDDEN, chunk.get());
-				if (worldFiles)
-					worldFiles->put(chunk.get());
-				chunksCount--;
-				continue;
-			}
-			chunksSecond[nz * w + nx] = chunk;
-		}
-	}
-	std::swap(chunks, chunksSecond);
-
-	ox += dx;
-	oz += dz;
-}
-
-void Chunks::resize(uint32_t newW, uint32_t newD) {
-	if (newW < w) {
-		int delta = w - newW;
-		translate(delta / 2, 0);
-		translate(-delta, 0);
-		translate(delta, 0);
-	}
-	if (newD < d) {
-		int delta = d - newD;
-		translate(0, delta / 2);
-		translate(0, -delta);
-		translate(0, delta);
-	}
-	const int newVolume = newW * newD;
-    std::vector<std::shared_ptr<Chunk>> newChunks(newVolume);
-    std::vector<std::shared_ptr<Chunk>> newChunksSecond(newVolume);
-	for (int z = 0; z < int(d) && z < int(newD); z++) {
-		for (int x = 0; x < int(w) && x < int(newW); x++) {
-			newChunks[z * newW + x] = chunks[z * w + x];
-		}
-	}
-    w = newW;
-    d = newD;
-    volume = newVolume;
-    chunks = std::move(newChunks);
-    chunksSecond = std::move(newChunksSecond);
-}
-
-void Chunks::_setOffset(int32_t x, int32_t z) {
-	ox = x;
-	oz = z;
-}
-
-bool Chunks::putChunk(std::shared_ptr<Chunk> chunk) {
-	int x = chunk->x;
-	int z = chunk->z;
-	x -= ox;
-	z -= oz;
-	if (x < 0 || z < 0 || x >= int(w) || z >= int(d))
-		return false;
-	chunks[z * w + x] = chunk;
-	chunksCount++;
-	return true;
-}
-
-void Chunks::saveAndClear(){
-	for (size_t i = 0; i < volume; i++){
-		Chunk* chunk = chunks[i].get();
-		if (chunk) {
-			worldFiles->put(chunk);
-			events->trigger(EVT_CHUNK_HIDDEN, chunk);
-		}
-		chunks[i] = nullptr;
-	}
-	chunksCount = 0;
 }

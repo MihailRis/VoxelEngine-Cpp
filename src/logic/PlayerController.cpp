@@ -11,7 +11,7 @@
 #include "../content/Content.h"
 #include "../voxels/Block.h"
 #include "../voxels/voxel.h"
-#include "../voxels/Chunks.h"
+#include "../voxels/ChunksMatrix.h"
 #include "../window/Camera.h"
 #include "../window/Events.h"
 #include "../window/input.h"
@@ -136,7 +136,7 @@ void CameraControl::switchCamera() {
     }
 }
 
-void CameraControl::update(PlayerInput& input, float delta, Chunks* chunks) {
+void CameraControl::update(PlayerInput& input, float delta, ChunksMatrix* chunks) {
     offset = glm::vec3(0.0f, 0.7f, 0.0f);
 
     if (settings.shaking && !input.cheat) {
@@ -200,7 +200,7 @@ void PlayerController::onFootstep() {
             int x = std::floor(pos.x+half.x*offsetX);
             int y = std::floor(pos.y-half.y*1.1f);
             int z = std::floor(pos.z+half.z*offsetZ);
-            auto vox = level->chunks->get(x, y, z);
+            auto vox = player->chunksMatrix->getVoxel(x, y, z);
             if (vox) {
                 auto def = level->content->getIndices()->getBlockDef(vox->id);
                 if (!def->obstacle)
@@ -271,7 +271,7 @@ void PlayerController::updateCamera(float delta, bool movement) {
     if (movement) {
         camControl.updateMouse(input);
     }
-    camControl.update(input, delta, level->chunks.get());
+    camControl.update(input, delta, player->chunksMatrix.get());
 }
 
 void PlayerController::resetKeyboard() {
@@ -315,8 +315,8 @@ static int determine_rotation(Block* def, glm::ivec3& norm, glm::vec3& camDir) {
     return 0;
 }
 
-static void pick_block(ContentIndices* indices, Chunks* chunks, Player* player, int x, int y, int z) {
-    Block* block = indices->getBlockDef(chunks->get(x,y,z)->id);
+static void pick_block(ContentIndices* indices, ChunksMatrix* chunks, Player* player, int x, int y, int z) {
+    Block* block = indices->getBlockDef(chunks->getVoxel(x,y,z)->id);
     itemid_t id = block->rt.pickingItem;
     auto inventory = player->getInventory();
     size_t slotid = inventory->findSlotByItem(id, 0, 10);
@@ -334,7 +334,7 @@ static void pick_block(ContentIndices* indices, Chunks* chunks, Player* player, 
 // TODO: refactor this nesting nest
 void PlayerController::updateInteraction(){
     auto indices = level->content->getIndices();
-    Chunks* chunks = level->chunks.get();
+    ChunksMatrix* chunks = player->chunksMatrix.get();
     Lighting* lighting = level->lighting.get();
     Camera* camera = player->camera.get();
 
@@ -412,7 +412,7 @@ void PlayerController::updateInteraction(){
                     states = BLOCK_DIR_UP;
                 }
             }
-            vox = chunks->get(x, y, z);
+            vox = chunks->getVoxel(x, y, z);
             blockid_t chosenBlock = def->rt.id;
             if (vox && (target = indices->getBlockDef(vox->id))->replaceable) {
                 if (!level->physics->isBlockInside(x,y,z,def,states, player->hitbox.get()) 
@@ -425,7 +425,7 @@ void PlayerController::updateInteraction(){
                             glm::ivec3(x, y, z), def,
                             BlockInteraction::placing
                         );
-                        chunks->set(x, y, z, chosenBlock, states);
+                        chunks->setVoxel(x, y, z, chosenBlock, states);
                         lighting->onBlockSet(x,y,z, chosenBlock);
                         if (def->rt.funcsset.onplaced) {
                             scripting::on_block_placed(player.get(), def, x, y, z);

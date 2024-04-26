@@ -10,10 +10,8 @@
 #include "../world/WorldGenerators.h"
 #include "../content/ContentLUT.h"
 #include "../voxels/Chunk.h"
-#include "../voxels/Chunks.h"
 #include "../voxels/ChunksStorage.h"
 #include "../objects/Player.h"
-#include "../window/Camera.h"
 #include "../items/Inventories.h"
 
 world_load_error::world_load_error(std::string message) 
@@ -50,11 +48,8 @@ void World::updateTimers(float delta) {
 void World::write(Level* level) {
     const Content* content = level->content;
 
-    Chunks* chunks = level->chunks.get();
-
-    for (size_t i = 0; i < chunks->volume; i++) {
-        auto chunk = chunks->chunks[i];
-        if (chunk == nullptr || !chunk->isLighted())
+    for (auto [_, chunk] : *level->chunksStorage) {
+        if (!chunk->isLighted())
             continue;
         bool lightsUnsaved = !chunk->isLoadedLights() && 
                               settings.debug.doWriteLights;
@@ -113,10 +108,16 @@ Level* World::load(fs::path directory,
                 level->objects.clear();
                 auto players = playerFile->list("players");
                 for (size_t i = 0; i < players->size(); i++) {
-                    auto player = level->spawnObject<Player>(glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, level->inventories->create(DEF_PLAYER_INVENTORY_SIZE));
+                    auto player = level->spawnObject<Player>(level, glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, level->inventories->create(DEF_PLAYER_INVENTORY_SIZE), settings);
                     player->deserialize(players->map(i));
                     level->inventories->store(player->getInventory());
                 }
+                // TODO: Player name
+                // auto it = std::find_if(level->objects.begin(), level->objects.end(), [settings](const std::shared_ptr<Object>& object) {
+                //     auto player = std::dynamic_pointer_cast<Player>(object);
+                //     return player && player->name == settings.name;
+                // });
+                // std::rotate(level->objects.begin(), it, it + 1);
             } else {
 	            auto player = level->getObject<Player>(0);
                 player->deserialize(playerFile.get());

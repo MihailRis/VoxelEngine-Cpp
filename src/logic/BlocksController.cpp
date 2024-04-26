@@ -3,12 +3,11 @@
 #include "../voxels/voxel.h"
 #include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
-#include "../voxels/Chunks.h"
+#include "../voxels/ChunksStorage.h"
 #include "../world/Level.h"
 #include "../world/World.h"
 #include "../content/Content.h"
 #include "../lighting/Lighting.h"
-#include "../util/timeutil.h"
 #include "../maths/fastmaths.h"
 #include "../items/Inventory.h"
 #include "../items/Inventories.h"
@@ -51,14 +50,13 @@ int Clock::getTickId() const {
     return tickId;
 }
 
-BlocksController::BlocksController(Level* level, uint padding) 
+BlocksController::BlocksController(Level* level)
     : level(level), 
-	  chunks(level->chunks.get()), 
+	  chunksStorage(level->chunksStorage.get()), 
 	  lighting(level->lighting.get()),
       randTickClock(20, 3),
       blocksTickClock(20, 1),
-      worldTickClock(20, 1),
-      padding(padding) {
+      worldTickClock(20, 1) {
 }
 
 void BlocksController::updateSides(int x, int y, int z) {
@@ -71,7 +69,7 @@ void BlocksController::updateSides(int x, int y, int z) {
 }
 
 void BlocksController::breakBlock(Player* player, const Block* def, int x, int y, int z) {
-    chunks->set(x,y,z, 0, 0);
+    chunksStorage->setVoxel(x,y,z, 0, 0);
     lighting->onBlockSet(x,y,z, 0);
     if (def->rt.funcsset.onbroken) {
         scripting::on_block_broken(player, def, x, y, z);
@@ -80,11 +78,11 @@ void BlocksController::breakBlock(Player* player, const Block* def, int x, int y
 }
 
 void BlocksController::updateBlock(int x, int y, int z) {
-    voxel* vox = chunks->get(x, y, z);
+    voxel* vox = chunksStorage->getVoxel(x, y, z);
     if (vox == nullptr)
         return;
     const Block* def = level->content->getIndices()->getBlockDef(vox->id);
-    if (def->grounded && !chunks->isSolidBlock(x, y-1, z)) {
+    if (def->grounded && !chunksStorage->isSolidBlock(x, y-1, z)) {
         breakBlock(nullptr, def, x, y, z);
         return;
     }
@@ -120,41 +118,37 @@ void BlocksController::onBlocksTick(int tickid, int parts) {
 }
 
 void BlocksController::randomTick(int tickid, int parts) {
-    const int w = chunks->w;
-    const int d = chunks->d;
     int segments = 4;
     int segheight = CHUNK_H / segments;
     auto indices = level->content->getIndices();
     
-    for (uint z = padding; z < d-padding; z++){
-        for (uint x = padding; x < w-padding; x++){
-            int index = z * w + x;
-            if ((index + tickid) % parts != 0)
-                continue;
-            auto chunk = chunks->chunks[index];
-            if (chunk == nullptr || !chunk->isLighted())
-                continue;
-            for (int s = 0; s < segments; s++) {
-                for (int i = 0; i < 4; i++) {
-                    int bx = random.rand() % CHUNK_W;
-                    int by = random.rand() % segheight + s * segheight;
-                    int bz = random.rand() % CHUNK_D;
-                    const voxel& vox = chunk->voxels[(by * CHUNK_D + bz) * CHUNK_W + bx];
-                    Block* block = indices->getBlockDef(vox.id);
-                    if (block->rt.funcsset.randupdate) {
-                        scripting::random_update_block(
-                            block, 
-                            chunk->x * CHUNK_W + bx, by, 
-                            chunk->z * CHUNK_D + bz);
-                    }
+    uint32_t index = 0;
+    for (auto [_, chunk] : *chunksStorage) {
+        if ((index + tickid) % parts != 0)
+            continue;
+        index++;
+        if (chunk == nullptr || !chunk->isLighted())
+            continue;
+        for (int s = 0; s < segments; s++) {
+            for (int i = 0; i < 4; i++) {
+                int bx = random.rand() % CHUNK_W;
+                int by = random.rand() % segheight + s * segheight;
+                int bz = random.rand() % CHUNK_D;
+                const voxel& vox = chunk->voxels[(by * CHUNK_D + bz) * CHUNK_W + bx];
+                Block* block = indices->getBlockDef(vox.id);
+                if (block->rt.funcsset.randupdate) {
+                    scripting::random_update_block(
+                        block, 
+                        chunk->x * CHUNK_W + bx, by, 
+                        chunk->z * CHUNK_D + bz);
                 }
             }
         }
-	}
+    }
 }
 
 int64_t BlocksController::createBlockInventory(int x, int y, int z) {
-	auto chunk = chunks->getChunkByVoxel(x, y, z);
+	auto chunk = chunksStorage->getChunkByVoxel(x, y, z);
 	if (chunk == nullptr) {
 		return 0;
 	}
@@ -175,7 +169,7 @@ int64_t BlocksController::createBlockInventory(int x, int y, int z) {
 }
 
 void BlocksController::bindInventory(int64_t invid, int x, int y, int z) {
-    auto chunk = chunks->getChunkByVoxel(x, y, z);
+    auto chunk = chunksStorage->getChunkByVoxel(x, y, z);
 	if (chunk == nullptr) {
 		throw std::runtime_error("block does not exists");
 	}
@@ -188,7 +182,7 @@ void BlocksController::bindInventory(int64_t invid, int x, int y, int z) {
 }
 
 void BlocksController::unbindInventory(int x, int y, int z) {
-    auto chunk = chunks->getChunkByVoxel(x, y, z);
+    auto chunk = chunksStorage->getChunkByVoxel(x, y, z);
 	if (chunk == nullptr) {
 		throw std::runtime_error("block does not exists");
 	}
