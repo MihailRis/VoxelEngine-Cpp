@@ -86,8 +86,6 @@ public:
     InventoryView();
     virtual ~InventoryView();
 
-    void setInventory(std::shared_ptr<Inventory> inventory);
-
     virtual void setPos(glm::vec2 pos) override;
 
     void setOrigin(glm::vec2 origin);

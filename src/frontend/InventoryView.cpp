@@ -362,10 +362,6 @@ glm::vec2 InventoryView::getOrigin() const {
     return origin;
 }
 
-void InventoryView::setInventory(std::shared_ptr<Inventory> inventory) {
-    this->inventory = inventory;
-}
-
 #include "../coders/xml.h"
 #include "../graphics/ui/gui_xml.hpp"
 

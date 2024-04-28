@@ -13,14 +13,13 @@
 #include "../graphics/core/Mesh.hpp"
 #include "../graphics/core/Shader.hpp"
 #include "../graphics/core/Texture.hpp"
-#include "../graphics/render/BlocksPreview.hpp"
 #include "../graphics/render/WorldRenderer.hpp"
-#include "../graphics/ui/elements/UINode.hpp"
 #include "../graphics/ui/elements/Menu.hpp"
 #include "../graphics/ui/elements/Panel.hpp"
 #include "../graphics/ui/elements/Plotter.hpp"
-#include "../graphics/ui/GUI.hpp"
+#include "../graphics/ui/elements/UINode.hpp"
 #include "../graphics/ui/gui_util.hpp"
+#include "../graphics/ui/GUI.hpp"
 #include "../items/Inventories.h"
 #include "../items/Inventory.h"
 #include "../items/ItemDef.h"
@@ -30,7 +29,6 @@
 #include "../physics/Hitbox.h"
 #include "../typedefs.h"
 #include "../util/stringutil.h"
-#include "../util/timeutil.h"
 #include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/Chunks.h"
@@ -43,13 +41,10 @@
 #include "ContentGfxCache.h"
 #include "InventoryView.h"
 #include "LevelFrontend.h"
-#include "menu.hpp"
 #include "UiDocument.h"
 
 #include <assert.h>
-#include <iostream>
 #include <memory>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 
