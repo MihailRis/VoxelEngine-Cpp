@@ -61,7 +61,7 @@ class Reader : public BasicParser {
                 } else if (identifier == "inf") {
                     handler.setValue(name, *dynamic::Value::of(INFINITY));
                 } else if (identifier == "nan") {
-                handler.setValue(name, *dynamic::Value::of(NAN));
+                    handler.setValue(name, *dynamic::Value::of(NAN));
                 }
             } else if (c == '"' || c == '\'') {
                 pos++;

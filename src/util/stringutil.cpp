@@ -197,6 +197,7 @@ void util::trim(std::string &s) {
 
 std::string util::to_string(double x) {
     std::stringstream ss;
+    ss << std::setprecision(6);
     ss << x;
     return ss.str(); 
 }

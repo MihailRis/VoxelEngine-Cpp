@@ -1,4 +1,4 @@
-#include "setting.h"
+#include "setting.hpp"
 
 #include "../util/stringutil.h"
 

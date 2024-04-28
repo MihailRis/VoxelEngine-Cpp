@@ -12,11 +12,11 @@
 #include "files/settings_io.hpp"
 #include "files/engine_paths.h"
 #include "util/platform.h"
-#include "util/command_line.h"
+#include "util/command_line.hpp"
 #include "debug/Logger.hpp"
 
-#define SETTINGS_FILE "settings.toml"
-#define CONTROLS_FILE "controls.json"
+inline std::string SETTINGS_FILE = "settings.toml";
+inline std::string CONTROLS_FILE = "controls.json";
 
 static debug::Logger logger("main");
 

@@ -1,5 +1,5 @@
-#ifndef UTIL_COMMAND_LINE_H_
-#define UTIL_COMMAND_LINE_H_
+#ifndef UTIL_COMMAND_LINE_HPP_
+#define UTIL_COMMAND_LINE_HPP_
 
 #include <string>
 #include <iostream>
@@ -35,7 +35,7 @@ public:
     }
 };
 
-/* @return false if engine start can*/
-extern bool parse_cmdline(int argc, char** argv, EnginePaths& paths);
+/// @return false if engine start can
+bool parse_cmdline(int argc, char** argv, EnginePaths& paths);
 
-#endif // UTIL_COMMAND_LINE_H_
+#endif // UTIL_COMMAND_LINE_HPP_
