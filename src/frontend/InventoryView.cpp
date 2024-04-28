@@ -326,12 +326,10 @@ size_t InventoryView::getSlotsCount() const {
 
 void InventoryView::bind(
     std::shared_ptr<Inventory> inventory,
-    LevelFrontend* frontend
+    const Content* content
 ) {
-    this->frontend = frontend;
     this->inventory = inventory;
-    content = frontend->getLevel()->content;
-    indices = content->getIndices();
+    this->content = content;
     for (auto slot : slots) {
         slot->bind(
             inventory->getId(),

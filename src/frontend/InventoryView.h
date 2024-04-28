@@ -80,10 +80,8 @@ public:
 
 class InventoryView : public gui::Container {
     const Content* content;
-    const ContentIndices* indices;
     
     std::shared_ptr<Inventory> inventory;
-    LevelFrontend* frontend = nullptr;
 
     std::vector<SlotView*> slots;
     glm::vec2 origin {};
@@ -102,7 +100,7 @@ public:
 
     void bind(
         std::shared_ptr<Inventory> inventory,
-        LevelFrontend* frontend
+        const Content* content
     );
     
     void unbind();

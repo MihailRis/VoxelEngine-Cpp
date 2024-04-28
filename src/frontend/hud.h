@@ -109,6 +109,7 @@ class Hud {
 
     void processInput(bool visible);
     void updateElementsPosition(const Viewport& viewport);
+    void updateHotbarControl();
     void cleanup();
 public:
     Hud(Engine* engine, LevelFrontend* frontend, Player* player);
