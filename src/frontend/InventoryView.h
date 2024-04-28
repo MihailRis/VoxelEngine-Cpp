@@ -27,16 +27,6 @@ namespace scripting {
 
 using slotcallback = std::function<void(uint, ItemStack&)>;
 
-class InventoryInteraction {
-    ItemStack grabbedItem;
-public:
-    InventoryInteraction() = default;
-
-    ItemStack& getGrabbedItem() {
-        return grabbedItem;
-    }
-};
-
 struct SlotLayout {
     int index;
     glm::vec2 position;
@@ -59,7 +49,6 @@ struct SlotLayout {
 };
 
 class SlotView : public gui::UINode {
-    InventoryInteraction* interaction = nullptr;
     const Content* content;
     SlotLayout layout;
     bool highlighted = false;
@@ -80,11 +69,13 @@ public:
     void bind(
         int64_t inventoryid,
         ItemStack& stack,
-        const Content* content, 
-        InventoryInteraction* interaction
+        const Content* content
     );
 
+    ItemStack& getStack();
     const SlotLayout& getLayout() const;
+
+    static inline std::string EXCHANGE_SLOT_NAME = "exchange-slot";
 };
 
 class InventoryView : public gui::Container {
@@ -93,7 +84,6 @@ class InventoryView : public gui::Container {
     
     std::shared_ptr<Inventory> inventory;
     LevelFrontend* frontend = nullptr;
-    InventoryInteraction* interaction = nullptr;
 
     std::vector<SlotView*> slots;
     glm::vec2 origin {};
@@ -112,8 +102,7 @@ public:
 
     void bind(
         std::shared_ptr<Inventory> inventory,
-        LevelFrontend* frontend, 
-        InventoryInteraction* interaction
+        LevelFrontend* frontend
     );
     
     void unbind();

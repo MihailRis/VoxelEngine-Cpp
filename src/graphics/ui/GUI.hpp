@@ -93,11 +93,6 @@ namespace gui {
         /// @param node UI element
         void add(std::shared_ptr<UINode> node);
 
-        /// @brief Add element to the main container
-        /// @param node UI element
-        /// @param coord element position within the main container
-        void add(std::shared_ptr<UINode> node, glm::vec2 coord);
-
         /// @brief Remove node from the main container
         void remove(std::shared_ptr<UINode> node) noexcept;
 

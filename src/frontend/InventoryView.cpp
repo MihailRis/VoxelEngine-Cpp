@@ -10,6 +10,7 @@
 #include "../graphics/core/Font.hpp"
 #include "../graphics/core/GfxContext.hpp"
 #include "../graphics/core/Shader.hpp"
+#include "../graphics/ui/GUI.hpp"
 #include "../graphics/render/BlocksPreview.hpp"
 #include "../items/Inventories.h"
 #include "../items/Inventory.h"
@@ -200,7 +201,11 @@ void SlotView::clicked(gui::GUI* gui, mousecode button) {
     if (bound == nullptr)
         return;
 
-    ItemStack& grabbed = interaction->getGrabbedItem();
+    auto exchangeSlot = std::dynamic_pointer_cast<SlotView>(gui->get(EXCHANGE_SLOT_NAME));
+    if (exchangeSlot == nullptr) {
+        return;
+    }
+    ItemStack& grabbed = exchangeSlot->getStack();
     ItemStack& stack = *bound;
     
     if (button == mousecode::BUTTON_1) {
@@ -266,17 +271,19 @@ void SlotView::onFocus(gui::GUI* gui) {
 void SlotView::bind(
     int64_t inventoryid,
     ItemStack& stack, 
-    const Content* content, 
-    InventoryInteraction* interaction
+    const Content* content
 ) {
     this->inventoryid = inventoryid;
     bound = &stack;
     this->content = content;
-    this->interaction = interaction;
 }
 
 const SlotLayout& SlotView::getLayout() const {
     return layout;
+}
+
+ItemStack& SlotView::getStack() {
+    return *bound;
 }
 
 InventoryView::InventoryView() : Container(glm::vec2()) {
@@ -319,11 +326,9 @@ size_t InventoryView::getSlotsCount() const {
 
 void InventoryView::bind(
     std::shared_ptr<Inventory> inventory,
-    LevelFrontend* frontend, 
-    InventoryInteraction* interaction
+    LevelFrontend* frontend
 ) {
     this->frontend = frontend;
-    this->interaction = interaction;
     this->inventory = inventory;
     content = frontend->getLevel()->content;
     indices = content->getIndices();
@@ -331,7 +336,7 @@ void InventoryView::bind(
         slot->bind(
             inventory->getId(),
             inventory->getSlot(slot->getLayout().index),
-            content, interaction
+            content
         );
     }
 }

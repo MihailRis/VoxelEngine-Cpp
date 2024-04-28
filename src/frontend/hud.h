@@ -18,7 +18,6 @@ class Inventory;
 class InventoryView;
 class LevelFrontend;
 class UiDocument;
-class InventoryInteraction;
 class GfxContext;
 class Viewport;
 
@@ -86,10 +85,10 @@ class Hud {
     std::shared_ptr<gui::UINode> debugPanel;
     /// @brief Overlay used in pause mode
     std::shared_ptr<gui::Panel> darkOverlay;
-    /// @brief Inventories interaction agent (grabbed item and other info)
-    std::unique_ptr<InventoryInteraction> interaction;
-    /// @brief Grabbed item visual element
-    std::shared_ptr<SlotView> grabbedItemView;
+    /// @brief Inventories interaction agent (grabbed item)
+    std::shared_ptr<SlotView> exchangeSlot;
+    /// @brief Exchange slot inventory (1 slot only)
+    std::shared_ptr<Inventory> exchangeSlotInv = nullptr;
     /// @brief List of all controlled hud elements
     std::vector<HudElement> elements;
 
@@ -135,7 +134,12 @@ public:
     /// @param doc block ui layout
     /// @param blockInv block inventory
     /// @param playerInventory show player inventory too
-    void openInventory(glm::ivec3 block, UiDocument* doc, std::shared_ptr<Inventory> blockInv, bool playerInventory);
+    void openInventory(
+        glm::ivec3 block, 
+        UiDocument* doc, 
+        std::shared_ptr<Inventory> blockInv, 
+        bool playerInventory
+    );
 
     /// @brief Show element in inventory-mode
     /// @param doc element layout

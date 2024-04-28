@@ -121,7 +121,7 @@ std::shared_ptr<InventoryView> Hud::createContentAccess() {
     InventoryBuilder builder;
     builder.addGrid(8, itemsCount-1, glm::vec2(), 8, true, slotLayout);
     auto view = builder.build();
-    view->bind(accessInventory, frontend, interaction.get());
+    view->bind(accessInventory, frontend);
     view->setMargin(glm::vec4());
     return view;
 }
@@ -135,7 +135,7 @@ std::shared_ptr<InventoryView> Hud::createHotbar() {
     auto view = builder.build();
 
     view->setOrigin(glm::vec2(view->getSize().x/2, 0));
-    view->bind(inventory, frontend, interaction.get());
+    view->bind(inventory, frontend);
     view->setInteractive(false);
     return view;
 }
@@ -146,20 +146,6 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     frontend(frontend),
     player(player)
 {
-    interaction = std::make_unique<InventoryInteraction>();
-    grabbedItemView = std::make_shared<SlotView>(
-        SlotLayout(-1, glm::vec2(), false, false, nullptr, nullptr, nullptr)
-    );
-    grabbedItemView->bind(
-        0,
-        interaction->getGrabbedItem(), 
-        frontend->getLevel()->content, 
-        interaction.get()
-    );
-    grabbedItemView->setColor(glm::vec4());
-    grabbedItemView->setInteractive(false);
-    grabbedItemView->setZIndex(1);
-
     contentAccess = createContentAccess();
     contentAccessPanel = std::make_shared<gui::Panel>(
         contentAccess->getSize(), glm::vec4(0.0f), 0.0f
@@ -185,7 +171,6 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     gui->add(hotbarView);
     gui->add(debugPanel);
     gui->add(contentAccessPanel);
-    gui->add(grabbedItemView);
 
     auto dplotter = std::make_shared<gui::Plotter>(350, 250, 2000, 16);
     dplotter->setGravity(gui::Gravity::bottom_right);
@@ -194,7 +179,6 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
 
 Hud::~Hud() {
     // removing all controlled ui
-    gui->remove(grabbedItemView);
     for (auto& element : elements) {
         onRemove(element);
     }
@@ -304,12 +288,27 @@ void Hud::update(bool visible) {
 
 /// @brief Show inventory on the screen and turn on inventory mode blocking movement
 void Hud::openInventory() {
+    exchangeSlotInv = frontend->getLevel()->inventories->createVirtual(1);
+    exchangeSlot = std::make_shared<SlotView>(
+        SlotLayout(-1, glm::vec2(), false, false, nullptr, nullptr, nullptr)
+    );
+    exchangeSlot->bind(
+        0,
+        exchangeSlotInv->getSlot(0), 
+        frontend->getLevel()->content
+    );
+    exchangeSlot->setColor(glm::vec4());
+    exchangeSlot->setInteractive(false);
+    exchangeSlot->setZIndex(1);
+    gui->store(SlotView::EXCHANGE_SLOT_NAME, exchangeSlot);
+
     inventoryOpen = true;
     auto inventory = player->getInventory();
     auto inventoryDocument = assets->getLayout("core:inventory");
     inventoryView = std::dynamic_pointer_cast<InventoryView>(inventoryDocument->getRoot());
-    inventoryView->bind(inventory, frontend, interaction.get());
+    inventoryView->bind(inventory, frontend);
     add(HudElement(hud_element_mode::inventory_bound, inventoryDocument, inventoryView, false));
+    add(HudElement(hud_element_mode::inventory_bound, nullptr, exchangeSlot, false));
 }
 
 void Hud::openInventory(
@@ -336,7 +335,7 @@ void Hud::openInventory(
         blockinv = level->inventories->createVirtual(blockUI->getSlotsCount());
     }
     level->chunks->getChunkByVoxel(block.x, block.y, block.z)->setUnsaved(true);
-    blockUI->bind(blockinv, frontend, interaction.get());
+    blockUI->bind(blockinv, frontend);
     blockPos = block;
     currentblockid = level->chunks->get(block.x, block.y, block.z)->id;
     add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
@@ -362,15 +361,16 @@ void Hud::openPermanent(UiDocument* doc) {
     auto invview = std::dynamic_pointer_cast<InventoryView>(root);
     if (invview) {
         auto inventory = player->getInventory();
-        invview->bind(inventory, frontend, interaction.get());
+        invview->bind(inventory, frontend);
     }
     add(HudElement(hud_element_mode::permanent, doc, doc->getRoot(), false));
 }
 
 void Hud::closeInventory() {
+    gui->remove(SlotView::EXCHANGE_SLOT_NAME);
+    exchangeSlot = nullptr;
+    exchangeSlotInv = nullptr;
     inventoryOpen = false;
-    ItemStack& grabbed = interaction->getGrabbedItem();
-    grabbed.clear();
     inventoryView = nullptr;
     blockUI = nullptr;
     secondUI = nullptr;
@@ -495,7 +495,9 @@ void Hud::updateElementsPosition(const Viewport& viewport) {
             ));
         }
     }
-    grabbedItemView->setPos(glm::vec2(Events::cursor));
+    if (exchangeSlot != nullptr) {
+        exchangeSlot->setPos(glm::vec2(Events::cursor));
+    }
     hotbarView->setPos(glm::vec2(width/2, height-65));
     hotbarView->setSelected(player->getChosenSlot());
 }
