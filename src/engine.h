@@ -10,7 +10,6 @@
 #include "content/ContentPack.h"
 #include "content/PacksManager.hpp"
 #include "files/engine_paths.h"
-#include "files/settings_io.h"
 #include "util/ObjectsKeeper.hpp"
 
 #include <filesystem>
@@ -27,6 +26,7 @@ class EnginePaths;
 class ResPaths;
 class Batch2D;
 class EngineController;
+class SettingsHandler;
 
 namespace fs = std::filesystem;
 
@@ -41,7 +41,7 @@ public:
 
 class Engine : public util::ObjectsKeeper {
     EngineSettings& settings;
-    SettingsHandler settingsHandler;
+    SettingsHandler& settingsHandler;
     EnginePaths* paths;
 
     std::unique_ptr<Assets> assets = nullptr;
@@ -65,7 +65,7 @@ class Engine : public util::ObjectsKeeper {
     void processPostRunnables();
     void loadAssets();
 public:
-    Engine(EngineSettings& settings, EnginePaths* paths);
+    Engine(EngineSettings& settings, SettingsHandler& settingsHandler, EnginePaths* paths);
     ~Engine();
  
     /// @brief Start main engine input/update/render loop. 

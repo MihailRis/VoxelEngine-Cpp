@@ -56,6 +56,8 @@ class WorldRenderer {
         const EngineSettings& settings
     );
 public:
+    static bool showChunkBorders;
+
     WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* player);
     ~WorldRenderer();
 

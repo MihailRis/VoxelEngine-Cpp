@@ -10,7 +10,7 @@
 
 struct AudioSettings {
     /// @brief try to initialize AL backend
-    bool enabled = true;
+    FlagSetting enabled {true};
     
     NumberSetting volumeMaster {1.0f, 0.0f, 1.0f, setting_format::percent};
     NumberSetting volumeRegular {1.0f, 0.0f, 1.0f, setting_format::percent};
@@ -23,17 +23,13 @@ struct DisplaySettings {
     /// @brief Is window in full screen mode
     FlagSetting fullscreen {false};
     /// @brief Window width (pixels)
-    int width = 1280;
+    IntegerSetting width {1280};
     /// @brief Window height (pixels)
-    int height = 720;
+    IntegerSetting height {720};
     /// @brief Anti-aliasing samples
-    int samples = 0;
+    IntegerSetting samples {0};
     /// @brief VSync on
     FlagSetting vsync {true};
-    /// @brief Window title
-    std::string title = "VoxelEngine-Cpp v" + 
-        std::to_string(ENGINE_VERSION_MAJOR) + "." +
-        std::to_string(ENGINE_VERSION_MINOR);
 };
 
 struct ChunksSettings {
@@ -60,6 +56,7 @@ struct GraphicsSettings {
     /// @brief Fog opacity is calculated as `pow(depth*k, fogCurve)` where k depends on chunksLoadDistance.
     /// 1.0 is linear, 2.0 is quadratic
     NumberSetting fogCurve {1.6f, 1.0f, 6.0f};
+    /// @brief Lighting gamma
     NumberSetting gamma {1.0f, 0.5f, 2.0f};
     /// @brief Enable blocks backlight to prevent complete darkness
     FlagSetting backlight {true};
@@ -70,9 +67,8 @@ struct GraphicsSettings {
 
 struct DebugSettings {
     /// @brief Turns off chunks saving/loading
-    bool generatorTestMode = false;
-    bool showChunkBorders = false;
-    bool doWriteLights = true;
+    FlagSetting generatorTestMode {false};
+    FlagSetting doWriteLights {true};
 };
 
 struct UiSettings {

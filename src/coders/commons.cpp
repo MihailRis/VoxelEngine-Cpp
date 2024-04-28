@@ -15,11 +15,11 @@ inline double power(double base, int64_t power) {
 }
 
 parsing_error::parsing_error(
-    std::string message, 
-    std::string filename, 
-    std::string source, 
-    uint pos, 
-    uint line, 
+    std::string message,
+    std::string filename,
+    std::string source,
+    uint pos,
+    uint line,
     uint linestart)
     : std::runtime_error(message), filename(filename), source(source), 
       pos(pos), line(line), linestart(linestart) {
@@ -42,7 +42,10 @@ std::string parsing_error::errorLog() const {
     return ss.str();
 }
 
-BasicParser::BasicParser(std::string file, std::string source) : filename(file), source(source) {
+BasicParser::BasicParser(
+    const std::string& file,
+    const std::string& source
+) : filename(file), source(source) {
 }
 
 void BasicParser::skipWhitespace() {

@@ -70,8 +70,8 @@ public:
 
 class BasicParser {
 protected:
-    std::string filename;
-    std::string source;
+    const std::string& filename;
+    const std::string& source;
     uint pos = 0;
     uint line = 1;
     uint linestart = 0;
@@ -96,7 +96,7 @@ protected:
 
     parsing_error error(std::string message);
 
-    BasicParser(std::string filename, std::string source);
+    BasicParser(const std::string& file, const std::string& source);
 };
 
 #endif // CODERS_COMMONS_H_

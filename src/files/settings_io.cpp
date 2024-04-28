@@ -1,4 +1,4 @@
-#include "settings_io.h"
+#include "settings_io.hpp"
 
 #include "../window/Events.h"
 #include "../window/input.h"
@@ -10,30 +10,70 @@
 
 static debug::Logger logger("settings_io");
 
+struct SectionsBuilder {
+    std::unordered_map<std::string, Setting*>& map;
+    std::vector<Section>& sections;
+
+    SectionsBuilder(
+        std::unordered_map<std::string, Setting*>& map,
+        std::vector<Section>& sections
+    ) : map(map), sections(sections) {
+    }
+
+    void section(std::string name) {
+        sections.push_back(Section {name, {}});
+    }
+
+    void add(std::string name, Setting* setting, bool writeable=true) {
+        Section& section = sections.at(sections.size()-1);
+        map[section.name+"."+name] = setting;
+        section.keys.push_back(name);
+    }
+};
+
 SettingsHandler::SettingsHandler(EngineSettings& settings) {
-    // public settings
-    map.emplace("audio.volume-master", &settings.audio.volumeMaster);
-    map.emplace("audio.volume-regular", &settings.audio.volumeRegular);
-    map.emplace("audio.volume-ui", &settings.audio.volumeUI);
-    map.emplace("audio.volume-ambient", &settings.audio.volumeAmbient);
-    map.emplace("audio.volume-music", &settings.audio.volumeMusic);
+    SectionsBuilder builder(map, sections);
 
-    map.emplace("display.vsync", &settings.display.vsync);
-    map.emplace("display.fullscreen", &settings.display.fullscreen);
+    builder.section("audio");
+    builder.add("enabled", &settings.audio.enabled, false);
+    builder.add("volume-master", &settings.audio.volumeMaster);
+    builder.add("volume-regular", &settings.audio.volumeRegular);
+    builder.add("volume-ui", &settings.audio.volumeUI);
+    builder.add("volume-ambient", &settings.audio.volumeAmbient);
+    builder.add("volume-music", &settings.audio.volumeMusic);
 
-    map.emplace("camera.sensitivity", &settings.camera.sensitivity);
-    map.emplace("camera.fov", &settings.camera.fov);
-    map.emplace("camera.fov-effects", &settings.camera.fovEffects);
-    map.emplace("camera.shaking", &settings.camera.shaking);
+    builder.section("display");
+    builder.add("width", &settings.display.width);
+    builder.add("height", &settings.display.height);
+    builder.add("samples", &settings.display.samples);
+    builder.add("vsync", &settings.display.vsync);
+    builder.add("fullscreen", &settings.display.fullscreen);
 
-    map.emplace("chunks.load-distance", &settings.chunks.loadDistance);
-    map.emplace("chunks.load-speed", &settings.chunks.loadSpeed);
+    builder.section("camera");
+    builder.add("sensitivity", &settings.camera.sensitivity);
+    builder.add("fov", &settings.camera.fov);
+    builder.add("fov-effects", &settings.camera.fovEffects);
+    builder.add("shaking", &settings.camera.shaking);
 
-    map.emplace("graphics.fog-curve", &settings.graphics.fogCurve);
-    map.emplace("graphics.backlight", &settings.graphics.backlight);
-    map.emplace("graphics.gamma", &settings.graphics.gamma);
+    builder.section("chunks");
+    builder.add("load-distance", &settings.chunks.loadDistance);
+    builder.add("load-speed", &settings.chunks.loadSpeed);
+    builder.add("padding", &settings.chunks.padding);
 
-    map.emplace("ui.language", &settings.ui.language);
+    builder.section("graphics");
+    builder.add("fog-curve", &settings.graphics.fogCurve);
+    builder.add("backlight", &settings.graphics.backlight);
+    builder.add("gamma", &settings.graphics.gamma);
+    builder.add("frustum-culling", &settings.graphics.frustumCulling);
+    builder.add("skybox-resolution", &settings.graphics.skyboxResolution);
+
+    builder.section("ui");
+    builder.add("language", &settings.ui.language);
+    builder.add("world-preview-size", &settings.ui.worldPreviewSize);
+
+    builder.section("debug");
+    builder.add("generator-test-mode", &settings.debug.generatorTestMode);
+    builder.add("do-write-lights", &settings.debug.doWriteLights);
 }
 
 std::unique_ptr<dynamic::Value> SettingsHandler::getValue(const std::string& name) const {
@@ -123,51 +163,8 @@ void SettingsHandler::setValue(const std::string& name, const dynamic::Value& va
     }
 }
 
-toml::Wrapper* create_wrapper(EngineSettings& settings) {
-    auto wrapper = std::make_unique<toml::Wrapper>();
-
-    toml::Section& audio = wrapper->add("audio");
-    audio.add("enabled", &settings.audio.enabled);
-    audio.add("volume-master", &*settings.audio.volumeMaster);
-    audio.add("volume-regular", &*settings.audio.volumeRegular);
-    audio.add("volume-ui", &*settings.audio.volumeUI);
-    audio.add("volume-ambient", &*settings.audio.volumeAmbient);
-    audio.add("volume-music", &*settings.audio.volumeMusic);
-
-    toml::Section& display = wrapper->add("display");
-    display.add("fullscreen", &*settings.display.fullscreen);
-    display.add("width", &settings.display.width);
-    display.add("height", &settings.display.height);
-    display.add("samples", &settings.display.samples);
-    display.add("vsync", &*settings.display.vsync);
-
-    toml::Section& chunks = wrapper->add("chunks");
-    chunks.add("load-distance", &*settings.chunks.loadDistance);
-    chunks.add("load-speed", &*settings.chunks.loadSpeed);
-    chunks.add("padding", &*settings.chunks.padding);
-    
-    toml::Section& camera = wrapper->add("camera");
-    camera.add("fov-effects", &*settings.camera.fovEffects);
-    camera.add("fov", &*settings.camera.fov);
-    camera.add("shaking", &*settings.camera.shaking);
-    camera.add("sensitivity", &*settings.camera.sensitivity);
-
-    toml::Section& graphics = wrapper->add("graphics");
-    graphics.add("gamma", &*settings.graphics.gamma);
-    graphics.add("fog-curve", &*settings.graphics.fogCurve);
-    graphics.add("backlight", &*settings.graphics.backlight);
-    graphics.add("frustum-culling", &*settings.graphics.frustumCulling);
-    graphics.add("skybox-resolution", &*settings.graphics.skyboxResolution);
-
-    toml::Section& debug = wrapper->add("debug");
-    debug.add("generator-test-mode", &settings.debug.generatorTestMode);
-    debug.add("show-chunk-borders", &settings.debug.showChunkBorders);
-    debug.add("do-write-lights", &settings.debug.doWriteLights);
-
-    toml::Section& ui = wrapper->add("ui");
-    ui.add("language", &*settings.ui.language);
-    ui.add("world-preview-size", &*settings.ui.worldPreviewSize);
-    return wrapper.release();
+std::vector<Section>& SettingsHandler::getSections() {
+    return sections;
 }
 
 std::string write_controls() {

@@ -72,8 +72,8 @@ void window_size_callback(GLFWwindow*, int width, int height) {
         }
 
         if (!Window::isFullscreen() && !Window::isMaximized()) {
-            Window::getSettings()->width = width;
-            Window::getSettings()->height = height;
+            Window::getSettings()->width.set(width);
+            Window::getSettings()->height.set(height);
         }
     }
     Window::resetScissor();
@@ -110,8 +110,12 @@ void error_callback(int error, const char* description) {
 
 int Window::initialize(DisplaySettings* settings){
     Window::settings = settings;
-    Window::width = settings->width;
-    Window::height = settings->height;
+    Window::width = settings->width.get();
+    Window::height = settings->height.get();
+
+    std::string title = "VoxelEngine-Cpp v" + 
+        std::to_string(ENGINE_VERSION_MAJOR) + "." +
+        std::to_string(ENGINE_VERSION_MINOR);
 
     glfwSetErrorCallback(error_callback);
     if (glfwInit() == GLFW_FALSE) {
@@ -129,9 +133,9 @@ int Window::initialize(DisplaySettings* settings){
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 #endif
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-    glfwWindowHint(GLFW_SAMPLES, settings->samples);
+    glfwWindowHint(GLFW_SAMPLES, settings->samples.get());
 
-    window = glfwCreateWindow(width, height, settings->title.c_str(), nullptr, nullptr);
+    window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
     if (window == nullptr){
         logger.error() << "failed to create GLFW window";
         glfwTerminate();
@@ -286,7 +290,11 @@ void Window::toggleFullscreen(){
         glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
     }
     else {
-        glfwSetWindowMonitor(window, nullptr, posX, posY, settings->width, settings->height, GLFW_DONT_CARE);
+        glfwSetWindowMonitor(window, nullptr, 
+            posX, posY, 
+            settings->width.get(), settings->height.get(), 
+            GLFW_DONT_CARE
+        );
         glfwSetWindowAttrib(window, GLFW_MAXIMIZED, GLFW_FALSE);
     }
 

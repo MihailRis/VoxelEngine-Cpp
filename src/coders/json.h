@@ -24,13 +24,13 @@ namespace json {
         dynamic::Map* parseObject();
         dynamic::Value* parseValue();
     public:
-        Parser(std::string filename, std::string source);
+        Parser(const std::string& filename, const std::string& source);
         
         dynamic::Map* parse();
     };
 
-    extern std::unique_ptr<dynamic::Map> parse(std::string filename, std::string source);
-    extern std::unique_ptr<dynamic::Map> parse(std::string source);
+    extern std::unique_ptr<dynamic::Map> parse(const std::string& filename, const std::string& source);
+    extern std::unique_ptr<dynamic::Map> parse(const std::string& source);
 
     extern std::string stringify(
         const dynamic::Map* obj, 

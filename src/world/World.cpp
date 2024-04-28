@@ -57,7 +57,7 @@ void World::write(Level* level) {
         if (chunk == nullptr || !chunk->isLighted())
             continue;
         bool lightsUnsaved = !chunk->isLoadedLights() && 
-                              settings.debug.doWriteLights;
+                              settings.debug.doWriteLights.get();
         if (!chunk->isUnsaved() && !lightsUnsaved)
             continue;
         regions.put(chunk.get());

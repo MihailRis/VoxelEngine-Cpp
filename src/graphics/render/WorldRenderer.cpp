@@ -35,6 +35,8 @@
 #include <iostream>
 #include <memory>
 
+bool WorldRenderer::showChunkBorders = false;
+
 WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* player) 
     : engine(engine), 
       level(frontend->getLevel()),
@@ -225,7 +227,7 @@ void WorldRenderer::renderDebugLines(
 
     linesShader->use();
 
-    if (settings.debug.showChunkBorders){
+    if (showChunkBorders){
         linesShader->uniformMatrix("u_projview", camera->getProjView());
         glm::vec3 coord = player->camera->position;
         if (coord.x < 0) coord.x--;

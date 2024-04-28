@@ -11,6 +11,7 @@
 #include "content/ContentLoader.h"
 #include "core_defs.h"
 #include "files/files.h"
+#include "files/settings_io.hpp"
 #include "frontend/locale/langs.h"
 #include "frontend/menu.hpp"
 #include "frontend/screens/Screen.hpp"
@@ -56,14 +57,14 @@ inline void create_channel(Engine* engine, std::string name, NumberSetting& sett
     }));
 }
 
-Engine::Engine(EngineSettings& settings, EnginePaths* paths) 
-    : settings(settings), settingsHandler(settings), paths(paths) 
+Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, EnginePaths* paths) 
+    : settings(settings), settingsHandler(settingsHandler), paths(paths) 
 {
     controller = std::make_unique<EngineController>(this);
     if (Window::initialize(&this->settings.display)){
         throw initialize_error("could not initialize window");
     }
-    audio::initialize(settings.audio.enabled);
+    audio::initialize(settings.audio.enabled.get());
     create_channel(this, "master", settings.audio.volumeMaster);
     create_channel(this, "regular", settings.audio.volumeRegular);
     create_channel(this, "music", settings.audio.volumeMusic);

@@ -35,8 +35,8 @@ WorldFiles::WorldFiles(fs::path directory) : directory(directory), regions(direc
 WorldFiles::WorldFiles(fs::path directory, const DebugSettings& settings)
   : WorldFiles(directory) 
 {
-    generatorTestMode = settings.generatorTestMode;
-    doWriteLights = settings.doWriteLights;
+    generatorTestMode = settings.generatorTestMode.get();
+    doWriteLights = settings.doWriteLights.get();
     regions.generatorTestMode = generatorTestMode;
     regions.doWriteLights = doWriteLights;
 }

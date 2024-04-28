@@ -2,6 +2,7 @@
 #include "api_lua.h"
 
 #include "../../../engine.h"
+#include "../../../files/settings_io.hpp"
 #include "../../../files/engine_paths.h"
 #include "../../../frontend/menu.hpp"
 #include "../../../frontend/screens/MenuScreen.hpp"

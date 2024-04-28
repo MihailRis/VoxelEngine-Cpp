@@ -176,7 +176,7 @@ const std::string& Document::getEncoding() const {
     return encoding;
 }
 
-Parser::Parser(std::string filename, std::string source) 
+Parser::Parser(const std::string& filename, const std::string& source) 
     : BasicParser(filename, source) {
 }
 

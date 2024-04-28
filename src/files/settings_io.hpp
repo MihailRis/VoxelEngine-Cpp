@@ -1,18 +1,21 @@
-#ifndef FILES_SETTINGS_IO_H_
-#define FILES_SETTINGS_IO_H_
+#ifndef FILES_SETTINGS_IO_HPP_
+#define FILES_SETTINGS_IO_HPP_
 
 #include <string>
 #include <memory>
+#include <vector>
 #include <unordered_map>
 #include "../settings.h"
 #include "../data/dynamic.h"
 
-namespace toml {
-    class Wrapper;
-}
+struct Section {
+    std::string name;
+    std::vector<std::string> keys;
+};
 
 class SettingsHandler {
     std::unordered_map<std::string, Setting*> map;
+    std::vector<Section> sections;
 public:
     SettingsHandler(EngineSettings& settings);
 
@@ -20,10 +23,12 @@ public:
     void setValue(const std::string& name, const dynamic::Value& value);
     std::string toString(const std::string& name) const;
     Setting* getSetting(const std::string& name) const;
+
+    std::vector<Section>& getSections();
 };
 
-extern std::string write_controls();
-extern toml::Wrapper* create_wrapper(EngineSettings& settings);
-extern void load_controls(std::string filename, std::string source);
+std::string write_controls();
 
-#endif // FILES_SETTINGS_IO_H_
+void load_controls(std::string filename, std::string source);
+
+#endif // FILES_SETTINGS_IO_HPP_

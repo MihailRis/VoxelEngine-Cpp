@@ -146,10 +146,10 @@ std::shared_ptr<UINode> create_debug_panel(
             L"Show Chunk Borders", glm::vec2(400, 24)
         );
         checkbox->setSupplier([=]() {
-            return engine->getSettings().debug.showChunkBorders;
+            return WorldRenderer::showChunkBorders;
         });
         checkbox->setConsumer([=](bool checked) {
-            engine->getSettings().debug.showChunkBorders = checked;
+            WorldRenderer::showChunkBorders = checked;
         });
         panel->add(checkbox);
     }

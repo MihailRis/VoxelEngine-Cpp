@@ -118,8 +118,8 @@ std::string json::stringify(
     return ss.str();
 }
 
-Parser::Parser(std::string filename, std::string source) 
-      : BasicParser(filename, source) {    
+Parser::Parser(const std::string& filename, const std::string& source) 
+    : BasicParser(filename, source) {    
 }
 
 Map* Parser::parse() {
@@ -244,11 +244,11 @@ Value* Parser::parseValue() {
     throw error("unexpected character '"+std::string({next})+"'");
 }
 
-std::unique_ptr<Map> json::parse(std::string filename, std::string source) {
+std::unique_ptr<Map> json::parse(const std::string& filename, const std::string& source) {
     Parser parser(filename, source);
     return std::unique_ptr<Map>(parser.parse());
 }
 
-std::unique_ptr<Map> json::parse(std::string source) {
+std::unique_ptr<Map> json::parse(const std::string& source) {
     return parse("<string>", source);
 }
