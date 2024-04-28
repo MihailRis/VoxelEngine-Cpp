@@ -11,8 +11,6 @@
 #include <sstream>
 #include <assert.h>
 
-// FIXME: refactor this monster
-
 using namespace toml;
 
 class Reader : public BasicParser {
