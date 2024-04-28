@@ -84,7 +84,7 @@ class Hud {
     /// @brief Debug info and control panel (F3 key)
     std::shared_ptr<gui::UINode> debugPanel;
     /// @brief Overlay used in pause mode
-    std::shared_ptr<gui::Panel> darkOverlay;
+    std::shared_ptr<gui::UINode> darkOverlay;
     /// @brief Inventories interaction agent (grabbed item)
     std::shared_ptr<SlotView> exchangeSlot;
     /// @brief Exchange slot inventory (1 slot only)

@@ -15,6 +15,7 @@
 #include "../items/Inventories.h"
 #include "../items/Inventory.h"
 #include "../items/ItemDef.h"
+#include "../items/ItemStack.h"
 #include "../logic/scripting/scripting.h"
 #include "../maths/voxmaths.h"
 #include "../objects/Player.h"

@@ -20,6 +20,7 @@
 #include "../graphics/ui/elements/Panel.hpp"
 #include "../graphics/ui/elements/Plotter.hpp"
 #include "../graphics/ui/GUI.hpp"
+#include "../graphics/ui/gui_util.hpp"
 #include "../items/Inventories.h"
 #include "../items/Inventory.h"
 #include "../items/ItemDef.h"
@@ -156,10 +157,9 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     contentAccessPanel->setScrollable(true);
 
     hotbarView = createHotbar();
-    darkOverlay = std::make_unique<gui::Panel>(glm::vec2(4000.0f));
-    darkOverlay->setColor(glm::vec4(0, 0, 0, 0.5f));
-    darkOverlay->setZIndex(-1);
-    darkOverlay->setVisible(false);
+    darkOverlay = guiutil::create(
+        "<container size='4000' color='#00000080' z-index='-1' visible='false'/>"
+    );
 
     uicamera = std::make_unique<Camera>(glm::vec3(), 1);
     uicamera->perspective = false;
@@ -299,11 +299,7 @@ void Hud::openInventory() {
     exchangeSlot = std::make_shared<SlotView>(
         SlotLayout(-1, glm::vec2(), false, false, nullptr, nullptr, nullptr)
     );
-    exchangeSlot->bind(
-        0,
-        exchangeSlotInv->getSlot(0), 
-        content
-    );
+    exchangeSlot->bind(exchangeSlotInv->getId(), exchangeSlotInv->getSlot(0), content);
     exchangeSlot->setColor(glm::vec4());
     exchangeSlot->setInteractive(false);
     exchangeSlot->setZIndex(1);

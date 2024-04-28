@@ -1,28 +1,25 @@
 #ifndef FRONTEND_INVENTORY_VIEW_H_
 #define FRONTEND_INVENTORY_VIEW_H_
 
+#include "../graphics/ui/elements/UINode.hpp"
+#include "../graphics/ui/elements/Container.hpp"
+#include "../typedefs.h"
+#include "../constants.h"
+
 #include <vector>
 #include <functional>
 #include <glm/glm.hpp>
 
-#include "../graphics/ui/elements/UINode.hpp"
-#include "../graphics/ui/elements/Container.hpp"
-#include "../items/ItemStack.h"
-#include "../typedefs.h"
-
 class Assets;
 class GfxContext;
 class Content;
+class ItemStack;
 class ContentIndices;
 class LevelFrontend;
 class Inventory;
 
 namespace gui {
     class UiXmlReader;
-}
-
-namespace scripting {
-    class Environment;
 }
 
 using slotcallback = std::function<void(uint, ItemStack&)>;
