@@ -49,6 +49,9 @@ public:
     static void setButton(int button, bool b);
 
     static void setPosition(float xpos, float ypos);
+
+    static std::string writeBindings();
+    static void loadBindings(const std::string& filename, const std::string& source);
 };
 
 #endif /* WINDOW_EVENTS_H_ */

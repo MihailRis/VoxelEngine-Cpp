@@ -1,7 +1,6 @@
 <panel color='0' context='settings'>
     <label id='%{id}.L'>%{name}: %{value}%{postfix}</label>
     <trackbar 
-        value='%{value}' min='%{min}' max='%{max}' 
-        step='%{step}' track-width="%{track_width}"
+        value='%{value}' min='%{min}' max='%{max}' step='%{step}'
         consumer='function(x) update_setting(x, "%{id}", "%{name}", "%{postfix}") end'/>
 </panel>

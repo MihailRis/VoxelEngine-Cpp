@@ -351,7 +351,7 @@ static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, xml::xmlelement
     float max = element->attr("max", "1.0").asFloat();
     float def = element->attr("value", "0.0").asFloat();
     float step = element->attr("step", "1.0").asFloat();
-    int trackWidth = element->attr("track-width", "1.0").asInt();
+    int trackWidth = element->attr("track-width", "12.0").asInt();
     auto bar = std::make_shared<TrackBar>(min, max, def, step, trackWidth);
     _readUINode(reader, element, *bar);
     if (element->has("consumer")) {

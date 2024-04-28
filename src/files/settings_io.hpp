@@ -1,12 +1,15 @@
 #ifndef FILES_SETTINGS_IO_HPP_
 #define FILES_SETTINGS_IO_HPP_
 
+#include "../data/dynamic.h"
+
 #include <string>
 #include <memory>
 #include <vector>
 #include <unordered_map>
-#include "../settings.h"
-#include "../data/dynamic.h"
+
+class Setting;
+struct EngineSettings;
 
 struct Section {
     std::string name;
@@ -26,9 +29,5 @@ public:
 
     std::vector<Section>& getSections();
 };
-
-std::string write_controls();
-
-void load_controls(std::string filename, std::string source);
 
 #endif // FILES_SETTINGS_IO_HPP_

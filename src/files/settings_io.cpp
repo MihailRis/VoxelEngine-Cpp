@@ -5,6 +5,7 @@
 #include "../coders/toml.h"
 #include "../coders/json.h"
 #include "../debug/Logger.hpp"
+#include "../settings.h"
 
 #include <memory>
 
@@ -165,45 +166,4 @@ void SettingsHandler::setValue(const std::string& name, const dynamic::Value& va
 
 std::vector<Section>& SettingsHandler::getSections() {
     return sections;
-}
-
-std::string write_controls() {
-    dynamic::Map obj;
-    for (auto& entry : Events::bindings) {
-        const auto& binding = entry.second;
-
-        auto& jentry = obj.putMap(entry.first);
-        switch (binding.type) {
-            case inputtype::keyboard: jentry.put("type", "keyboard"); break;
-            case inputtype::mouse: jentry.put("type", "mouse"); break;
-            default: throw std::runtime_error("unsupported control type");
-        }
-        jentry.put("code", binding.code);
-    }
-    return json::stringify(&obj, true, "  ");
-}
-
-void load_controls(std::string filename, std::string source) {
-    auto obj = json::parse(filename, source);
-    for (auto& entry : Events::bindings) {
-        auto& binding = entry.second;
-
-        auto jentry = obj->map(entry.first);
-        if (jentry == nullptr)
-            continue;
-        inputtype type;
-        std::string typestr;
-        jentry->str("type", typestr);
-
-        if (typestr == "keyboard") {
-            type = inputtype::keyboard;
-        } else if (typestr == "mouse") {
-            type = inputtype::mouse;
-        } else {
-            logger.error() << "unknown input type '" << typestr << "'";
-            continue;
-        }
-        binding.type = type;
-        jentry->num("code", binding.code);
-    }
 }

@@ -13,6 +13,7 @@
 #include "files/engine_paths.h"
 #include "util/platform.h"
 #include "util/command_line.hpp"
+#include "window/Events.h"
 #include "debug/Logger.hpp"
 
 inline std::string SETTINGS_FILE = "settings.toml";
@@ -47,13 +48,13 @@ int main(int argc, char** argv) {
         if (fs::is_regular_file(controls_file)) {
             logger.info() << "loading controls";
             std::string text = files::read_string(controls_file);
-            load_controls(controls_file.string(), text);
+            Events::loadBindings(controls_file.string(), text);
         }
         engine.mainloop();
         
         logger.info() << "saving settings";
         files::write_string(settings_file, toml::stringify(handler));
-        files::write_string(controls_file, write_controls());
+        files::write_string(controls_file, Events::writeBindings());
     }
     catch (const initialize_error& err) {
         logger.error() << "could not to initialize engine\n" << err.what();

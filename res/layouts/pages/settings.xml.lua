@@ -10,7 +10,6 @@ function create_setting(id, name, step, postfix)
         min=info.min,
         max=info.max,
         step=step,
-        track_width=12,
         postfix=postfix
     }))
 end

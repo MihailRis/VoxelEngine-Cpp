@@ -1,5 +1,6 @@
 #include "toml.h"
 #include "commons.h"
+#include "../data/setting.hpp"
 #include "../data/dynamic.h"
 #include "../util/stringutil.h"
 #include "../files/settings_io.hpp"

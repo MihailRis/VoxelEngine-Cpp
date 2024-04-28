@@ -11,7 +11,7 @@ function new_volume_control(setting, id, name)
     document.tracks_panel:add("<label id='l_"..id.."'>-</label>")
     -- value track-bar
     document.tracks_panel:add(string.format(
-        "<trackbar id='t_%s' min='0' max='1' value='%s' step='0.01' track-width='5' "..
+        "<trackbar id='t_%s' min='0' max='1' value='%s' step='0.01' "..
         " consumer='function(x) on_volume_change(%q, %q, %q, x) end'/>"
     , id, core.get_setting(setting), setting, id, name))
     refresh_label(setting, id, name)

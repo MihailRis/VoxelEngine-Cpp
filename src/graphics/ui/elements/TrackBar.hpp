@@ -19,7 +19,7 @@ namespace gui {
                  double max, 
                  double value, 
                  double step=1.0, 
-                 int trackWidth=1);
+                 int trackWidth=12);
         virtual void draw(const GfxContext* pctx, Assets* assets) override;
 
         virtual void setSupplier(doublesupplier supplier);
