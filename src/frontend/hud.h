@@ -1,5 +1,5 @@
-#ifndef SRC_HUD_H_
-#define SRC_HUD_H_
+#ifndef FRONTEND_HUD_H_
+#define FRONTEND_HUD_H_
 
 #include "../typedefs.h"
 
@@ -162,4 +162,4 @@ public:
     std::shared_ptr<Inventory> getBlockInventory();
 };
 
-#endif // SRC_HUD_H_
+#endif // FRONTEND_HUD_H_

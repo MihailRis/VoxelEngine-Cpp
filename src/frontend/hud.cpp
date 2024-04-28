@@ -360,8 +360,7 @@ void Hud::openPermanent(UiDocument* doc) {
 
     auto invview = std::dynamic_pointer_cast<InventoryView>(root);
     if (invview) {
-        auto inventory = player->getInventory();
-        invview->bind(inventory, frontend);
+        invview->bind(player->getInventory(), frontend);
     }
     add(HudElement(hud_element_mode::permanent, doc, doc->getRoot(), false));
 }

@@ -380,8 +380,9 @@ void WorldRegions::put(Chunk* chunk){
     // Writing block inventories
     if (!chunk->inventories.empty()){
         uint datasize;
+        auto data = write_inventories(chunk, datasize);
         put(chunk->x, chunk->z, REGION_LAYER_INVENTORIES, 
-            write_inventories(chunk, datasize), datasize, false);
+            std::move(data), datasize, false);
     }
 }
 
