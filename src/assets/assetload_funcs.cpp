@@ -96,7 +96,7 @@ assetload::postfunc assetload::atlas(
             continue;
     }
     std::set<std::string> names = builder.getNames();
-    Atlas* atlas = builder.build(2, false);
+    Atlas* atlas = builder.build(2, false).release();
     return [=](auto assets) {
         atlas->prepare();
         assets->store(atlas, name);
@@ -247,7 +247,7 @@ static bool animation(
                 continue;
         }
 
-        std::unique_ptr<Atlas> srcAtlas (builder.build(2));
+        auto srcAtlas = builder.build(2);
         srcAtlas->prepare();
 
         Texture* srcTex = srcAtlas->getTexture();

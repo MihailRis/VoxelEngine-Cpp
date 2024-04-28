@@ -15,9 +15,12 @@ LevelFrontend::LevelFrontend(LevelController* controller, Assets* assets)
   : level(controller->getLevel()),
     controller(controller),
     assets(assets),
-    contentCache(std::make_unique<ContentGfxCache>(level->content, assets)),
-    blocksAtlas(BlocksPreview::build(contentCache.get(), assets, level->content)) 
+    contentCache(std::make_unique<ContentGfxCache>(level->content, assets)) 
 {
+    assets->store(
+        BlocksPreview::build(contentCache.get(), assets, level->content).release(),
+        "block-previews"
+    );
     controller->getPlayerController()->listenBlockInteraction(
         [=](Player*, glm::ivec3 pos, const Block* def, BlockInteraction type) {
             auto material = level->content->findBlockMaterial(def->material);
@@ -77,10 +80,6 @@ Assets* LevelFrontend::getAssets() const {
 
 ContentGfxCache* LevelFrontend::getContentGfxCache() const {
     return contentCache.get();
-}
-
-Atlas* LevelFrontend::getBlocksAtlas() const {
-    return blocksAtlas.get();
 }
 
 LevelController* LevelFrontend::getController() const {

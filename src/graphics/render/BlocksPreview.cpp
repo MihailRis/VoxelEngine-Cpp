@@ -55,9 +55,11 @@ std::unique_ptr<ImageData> BlocksPreview::draw(
             break;
         case BlockModel::custom:
             {
+                glm::vec3 pmul = glm::vec3(size * 0.63f);
                 glm::vec3 hitbox = glm::vec3();
-                for (const auto& box : def->modelBoxes)
+                for (const auto& box : def->modelBoxes) {
                     hitbox = glm::max(hitbox, box.size());
+                }
                 offset.y += (1.0f - hitbox).y * 0.5f;
                 shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), offset));
                 for (size_t i = 0; i < def->modelBoxes.size(); i++) {
@@ -69,28 +71,39 @@ std::unique_ptr<ImageData> BlocksPreview::draw(
                         def->modelUVs[i * 6 + 4],
                         def->modelUVs[i * 6 + 5]
                     };
-                    batch->cube(def->modelBoxes[i].a * glm::vec3(1.0f, 1.0f, -1.0f) * glm::vec3(size * 0.63f), def->modelBoxes[i].size() * glm::vec3(size * 0.63f), texfaces, glm::vec4(1.0f), !def->rt.emissive);
+                    batch->cube(
+                        def->modelBoxes[i].a * glm::vec3(1.0f, 1.0f, -1.0f) * pmul, 
+                        def->modelBoxes[i].size() * pmul, 
+                        texfaces, glm::vec4(1.0f), !def->rt.emissive
+                    );
                 }
+                
+                auto& points = def->modelExtraPoints;
+                glm::vec3 poff = glm::vec3(0.0f, 0.0f, 1.0f);
+
                 for (size_t i = 0; i < def->modelExtraPoints.size() / 4; i++) {
                     const UVRegion& reg = def->modelUVs[def->modelBoxes.size() * 6 + i];
-                    batch->point((def->modelExtraPoints[i * 4 + 0] - glm::vec3(0.0f, 0.0f, 1.0f)) * glm::vec3(size * 0.63f), glm::vec2(reg.u1, reg.v1), glm::vec4(1.0));
-                    batch->point((def->modelExtraPoints[i * 4 + 1] - glm::vec3(0.0f, 0.0f, 1.0f)) * glm::vec3(size * 0.63f), glm::vec2(reg.u2, reg.v1), glm::vec4(1.0));
-                    batch->point((def->modelExtraPoints[i * 4 + 2] - glm::vec3(0.0f, 0.0f, 1.0f)) * glm::vec3(size * 0.63f), glm::vec2(reg.u2, reg.v2), glm::vec4(1.0));
-                    batch->point((def->modelExtraPoints[i * 4 + 0] - glm::vec3(0.0f, 0.0f, 1.0f)) * glm::vec3(size * 0.63f), glm::vec2(reg.u1, reg.v1), glm::vec4(1.0));
-                    batch->point((def->modelExtraPoints[i * 4 + 2] - glm::vec3(0.0f, 0.0f, 1.0f)) * glm::vec3(size * 0.63f), glm::vec2(reg.u2, reg.v2), glm::vec4(1.0));
-                    batch->point((def->modelExtraPoints[i * 4 + 3] - glm::vec3(0.0f, 0.0f, 1.0f)) * glm::vec3(size * 0.63f), glm::vec2(reg.u1, reg.v2), glm::vec4(1.0));
+                    
+                    batch->point((points[i * 4 + 0] - poff) * pmul, glm::vec2(reg.u1, reg.v1), glm::vec4(1.0));
+                    batch->point((points[i * 4 + 1] - poff) * pmul, glm::vec2(reg.u2, reg.v1), glm::vec4(1.0));
+                    batch->point((points[i * 4 + 2] - poff) * pmul, glm::vec2(reg.u2, reg.v2), glm::vec4(1.0));
+                    batch->point((points[i * 4 + 0] - poff) * pmul, glm::vec2(reg.u1, reg.v1), glm::vec4(1.0));
+                    batch->point((points[i * 4 + 2] - poff) * pmul, glm::vec2(reg.u2, reg.v2), glm::vec4(1.0));
+                    batch->point((points[i * 4 + 3] - poff) * pmul, glm::vec2(reg.u1, reg.v2), glm::vec4(1.0));
                 }
                 batch->flush();
             }
             break;
         case BlockModel::xsprite: {
             glm::vec3 right = glm::normalize(glm::vec3(1.f, 0.f, -1.f));
-            batch->sprite(right*float(size)*0.43f+glm::vec3(0, size*0.4f, 0), 
-                          glm::vec3(0.f, 1.f, 0.f), 
-                          right, 
-                          size*0.5f, size*0.6f, 
-                          texfaces[0], 
-                          glm::vec4(1.0f));
+            batch->sprite(
+                right*float(size)*0.43f+glm::vec3(0, size*0.4f, 0), 
+                glm::vec3(0.f, 1.f, 0.f), 
+                right, 
+                size*0.5f, size*0.6f, 
+                texfaces[0], 
+                glm::vec4(1.0f)
+            );
             batch->flush();
             break;
         }
@@ -141,6 +154,5 @@ std::unique_ptr<Atlas> BlocksPreview::build(
     fbo.unbind();
 
     Window::viewport(0, 0, Window::width, Window::height);
-    auto newAtlas = std::unique_ptr<Atlas>(builder.build(2));
-    return newAtlas;
+    return builder.build(2);
 }

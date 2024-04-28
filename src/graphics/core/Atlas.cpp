@@ -50,7 +50,7 @@ bool AtlasBuilder::has(const std::string& name) const {
     return names.find(name) != names.end();
 }
 
-Atlas* AtlasBuilder::build(uint extrusion, bool prepare, uint maxResolution) {
+std::unique_ptr<Atlas> AtlasBuilder::build(uint extrusion, bool prepare, uint maxResolution) {
     if (maxResolution == 0) {
         maxResolution = Texture::MAX_RESOLUTION;
     }
@@ -99,5 +99,5 @@ Atlas* AtlasBuilder::build(uint extrusion, bool prepare, uint maxResolution) {
             unitX * x, unitY * y, unitX * (x + w), unitY * (y + h)
         );
     }
-    return new Atlas(std::move(canvas), regions, prepare);
+    return std::make_unique<Atlas>(std::move(canvas), regions, prepare);
 }

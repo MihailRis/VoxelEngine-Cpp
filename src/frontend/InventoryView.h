@@ -59,7 +59,6 @@ struct SlotLayout {
 };
 
 class SlotView : public gui::UINode {
-    LevelFrontend* frontend = nullptr;
     InventoryInteraction* interaction = nullptr;
     const Content* content;
     SlotLayout layout;
@@ -81,7 +80,7 @@ public:
     void bind(
         int64_t inventoryid,
         ItemStack& stack,
-        LevelFrontend* frontend, 
+        const Content* content, 
         InventoryInteraction* interaction
     );
 

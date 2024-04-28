@@ -153,7 +153,7 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     grabbedItemView->bind(
         0,
         interaction->getGrabbedItem(), 
-        frontend, 
+        frontend->getLevel()->content, 
         interaction.get()
     );
     grabbedItemView->setColor(glm::vec4());

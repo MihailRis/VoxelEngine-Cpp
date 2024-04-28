@@ -26,7 +26,9 @@ std::shared_ptr<Inventory> Inventories::createVirtual(size_t size) {
 
     auto inv = std::make_shared<Inventory>(id, size);
     store(inv);
-    return inv;
+    return std::shared_ptr<Inventory>(inv.get(), [this](Inventory* ptr) {
+        remove(ptr->getId());
+    });
 }
 
 void Inventories::store(std::shared_ptr<Inventory> inv) {

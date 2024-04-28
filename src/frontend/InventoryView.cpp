@@ -136,7 +136,7 @@ void SlotView::draw(const GfxContext* pctx, Assets* assets) {
     
     batch->setColor(glm::vec4(1.0f));
 
-    auto previews = frontend->getBlocksAtlas();
+    auto previews = assets->getAtlas("block-previews");
     auto indices = content->getIndices();
 
     ItemDef* item = indices->getItemDef(stack.getItemId());
@@ -181,7 +181,7 @@ void SlotView::draw(const GfxContext* pctx, Assets* assets) {
         int x = pos.x+slotSize-text.length()*8;
         int y = pos.y+slotSize-16;
 
-        batch->setColor(glm::vec4(0, 0, 0, 1.0f));
+        batch->setColor({0, 0, 0, 1.0f});
         font->draw(batch, text, x+1, y+1);
         batch->setColor(glm::vec4(1.0f));
         font->draw(batch, text, x, y);
@@ -266,13 +266,12 @@ void SlotView::onFocus(gui::GUI* gui) {
 void SlotView::bind(
     int64_t inventoryid,
     ItemStack& stack, 
-    LevelFrontend* frontend, 
+    const Content* content, 
     InventoryInteraction* interaction
 ) {
     this->inventoryid = inventoryid;
     bound = &stack;
-    content = frontend->getLevel()->content;
-    this->frontend = frontend;
+    this->content = content;
     this->interaction = interaction;
 }
 
@@ -332,21 +331,18 @@ void InventoryView::bind(
         slot->bind(
             inventory->getId(),
             inventory->getSlot(slot->getLayout().index),
-            frontend, interaction
+            content, interaction
         );
     }
 }
 
 void InventoryView::unbind() {
-    if (inventory && inventory->isVirtual()) {
-        frontend->getLevel()->inventories->remove(inventory->getId());   
-    }
+    inventory = nullptr;
 }
 
 void InventoryView::setSelected(int index) {
-    for (int i = 0; i < int(slots.size()); i++) {
-        auto slot = slots[i];
-        slot->setHighlighted(i == index);
+    for (size_t i = 0; i < slots.size(); i++) {
+        slots[i]->setHighlighted(static_cast<int>(i) == index);
     }
 }
 

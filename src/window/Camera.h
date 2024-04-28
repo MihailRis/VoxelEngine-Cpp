@@ -14,8 +14,8 @@ public:
 
     glm::vec3 position;
 
-    float zoom;
-    glm::mat4 rotation;
+    float zoom = 1.0f;
+    glm::mat4 rotation {1.0f};
     bool perspective = true;
     bool flipped = false;
     float aspect = 0.0f;

@@ -3,10 +3,8 @@
 
 #include <memory>
 
-class Atlas;
 class Level;
 class Assets;
-class BlocksPreview;
 class ContentGfxCache;
 class LevelController;
 
@@ -15,7 +13,6 @@ class LevelFrontend {
     LevelController* controller;
     Assets* assets;
     std::unique_ptr<ContentGfxCache> contentCache;
-    std::unique_ptr<Atlas> blocksAtlas;
 public:
     LevelFrontend(LevelController* controller, Assets* assets);
     ~LevelFrontend();
@@ -23,8 +20,6 @@ public:
     Level* getLevel() const;
     Assets* getAssets() const;
     ContentGfxCache* getContentGfxCache() const;
-    Atlas* getBlocksAtlas() const;
-
     LevelController* getController() const;
 };
 
