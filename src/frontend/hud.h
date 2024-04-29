@@ -13,9 +13,7 @@ class Block;
 class Assets;
 class Player;
 class Engine;
-class SlotView;
 class Inventory;
-class InventoryView;
 class LevelFrontend;
 class UiDocument;
 class GfxContext;
@@ -26,6 +24,8 @@ namespace gui {
     class UINode;
     class Panel;
     class Container;
+    class InventoryView;
+    class SlotView;
 }
 
 enum class hud_element_mode {
@@ -78,24 +78,24 @@ class Hud {
     /// @brief Content access panel scroll container
     std::shared_ptr<gui::Container> contentAccessPanel;
     /// @brief Content access panel itself
-    std::shared_ptr<InventoryView> contentAccess;
+    std::shared_ptr<gui::InventoryView> contentAccess;
     /// @brief Player inventory hotbar
-    std::shared_ptr<InventoryView> hotbarView;
+    std::shared_ptr<gui::InventoryView> hotbarView;
     /// @brief Debug info and control panel (F3 key)
     std::shared_ptr<gui::UINode> debugPanel;
     /// @brief Overlay used in pause mode
     std::shared_ptr<gui::UINode> darkOverlay;
     /// @brief Inventories interaction agent (grabbed item)
-    std::shared_ptr<SlotView> exchangeSlot;
+    std::shared_ptr<gui::SlotView> exchangeSlot;
     /// @brief Exchange slot inventory (1 slot only)
     std::shared_ptr<Inventory> exchangeSlotInv = nullptr;
     /// @brief List of all controlled hud elements
     std::vector<HudElement> elements;
 
     /// @brief Player inventory view
-    std::shared_ptr<InventoryView> inventoryView = nullptr;
+    std::shared_ptr<gui::InventoryView> inventoryView = nullptr;
     /// @brief Block inventory view
-    std::shared_ptr<InventoryView> blockUI = nullptr;
+    std::shared_ptr<gui::InventoryView> blockUI = nullptr;
     /// @brief Position of the block open
     glm::ivec3 blockPos {};
     /// @brief Id of the block open (used to detect block destruction or replacement)
@@ -104,8 +104,8 @@ class Hud {
     /// @brief UI element will be dynamicly positioned near to inventory or in screen center
     std::shared_ptr<gui::UINode> secondUI = nullptr;
     
-    std::shared_ptr<InventoryView> createContentAccess();
-    std::shared_ptr<InventoryView> createHotbar();
+    std::shared_ptr<gui::InventoryView> createContentAccess();
+    std::shared_ptr<gui::InventoryView> createHotbar();
 
     void processInput(bool visible);
     void updateElementsPosition(const Viewport& viewport);

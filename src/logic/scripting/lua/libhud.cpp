@@ -1,23 +1,22 @@
 #include "lua_commons.h"
 #include "api_lua.h"
 #include "LuaState.h"
+#include "../../../assets/Assets.h"
+#include "../../../content/Content.h"
+#include "../../../engine.h"
+#include "../../../frontend/hud.h"
+#include "../../../frontend/UiDocument.h"
+#include "../../../graphics/ui/elements/InventoryView.hpp"
+#include "../../../items/Inventories.h"
+#include "../../../logic/BlocksController.h"
+#include "../../../voxels/Block.h"
+#include "../../../voxels/Chunks.h"
+#include "../../../voxels/voxel.h"
+#include "../../../world/Level.h"
+#include "../scripting.h"
 
 #include <iostream>
 #include <glm/glm.hpp>
-
-#include "../scripting.h"
-#include "../../../assets/Assets.h"
-#include "../../../frontend/hud.h"
-#include "../../../world/Level.h"
-#include "../../../voxels/Chunks.h"
-#include "../../../voxels/voxel.h"
-#include "../../../voxels/Block.h"
-#include "../../../content/Content.h"
-#include "../../../logic/BlocksController.h"
-#include "../../../items/Inventories.h"
-#include "../../../engine.h"
-#include "../../../frontend/UiDocument.h"
-#include "../../../frontend/InventoryView.h"
 
 namespace scripting {
     extern Hud* hud;

@@ -4,8 +4,6 @@
 #include "../typedefs.h"
 
 #include <memory>
-#include <string>
-#include <unordered_map>
 
 class Content;
 class Assets;

@@ -1,30 +1,31 @@
-#include "InventoryView.h"
+#include "InventoryView.hpp"
+#include "../../../assets/Assets.h"
+#include "../../../content/Content.h"
+#include "../../../frontend/LevelFrontend.h"
+#include "../../../items/Inventories.h"
+#include "../../../items/Inventory.h"
+#include "../../../items/ItemDef.h"
+#include "../../../items/ItemStack.h"
+#include "../../../logic/scripting/scripting.h"
+#include "../../../maths/voxmaths.h"
+#include "../../../objects/Player.h"
+#include "../../../util/stringutil.h"
+#include "../../../voxels/Block.h"
+#include "../../../window/Events.h"
+#include "../../../window/input.h"
+#include "../../../world/Level.h"
+#include "../../core/Atlas.hpp"
+#include "../../core/Batch2D.hpp"
+#include "../../core/Font.hpp"
+#include "../../core/GfxContext.hpp"
+#include "../../core/Shader.hpp"
+#include "../../render/BlocksPreview.hpp"
+#include "../GUI.hpp"
 
 #include <iostream>
 #include <glm/glm.hpp>
 
-#include "../assets/Assets.h"
-#include "../content/Content.h"
-#include "../graphics/core/Atlas.hpp"
-#include "../graphics/core/Batch2D.hpp"
-#include "../graphics/core/Font.hpp"
-#include "../graphics/core/GfxContext.hpp"
-#include "../graphics/core/Shader.hpp"
-#include "../graphics/ui/GUI.hpp"
-#include "../graphics/render/BlocksPreview.hpp"
-#include "../items/Inventories.h"
-#include "../items/Inventory.h"
-#include "../items/ItemDef.h"
-#include "../items/ItemStack.h"
-#include "../logic/scripting/scripting.h"
-#include "../maths/voxmaths.h"
-#include "../objects/Player.h"
-#include "../util/stringutil.h"
-#include "../voxels/Block.h"
-#include "../window/Events.h"
-#include "../window/input.h"
-#include "../world/Level.h"
-#include "LevelFrontend.h"
+using namespace gui;
 
 SlotLayout::SlotLayout(
     int index,
@@ -360,113 +361,4 @@ void InventoryView::setOrigin(glm::vec2 origin) {
 
 glm::vec2 InventoryView::getOrigin() const {
     return origin;
-}
-
-#include "../coders/xml.h"
-#include "../graphics/ui/gui_xml.hpp"
-
-static slotcallback readSlotFunc(InventoryView* view, gui::UiXmlReader& reader, xml::xmlelement& element, const std::string& attr) {
-    auto consumer = scripting::create_int_array_consumer(
-        reader.getEnvironment(), 
-        element->attr(attr).getText()
-    );
-    return [=](uint slot, ItemStack& stack) {
-        int args[] {int(view->getInventory()->getId()), int(slot)};
-        consumer(args, 2);
-    };
-}
-
-static void readSlot(InventoryView* view, gui::UiXmlReader& reader, xml::xmlelement element) {
-    int index = element->attr("index", "0").asInt();
-    bool itemSource = element->attr("item-source", "false").asBool();
-    SlotLayout layout(index, glm::vec2(), true, itemSource, nullptr, nullptr, nullptr);
-    if (element->has("pos")) {
-        layout.position = element->attr("pos").asVec2();
-    }
-    if (element->has("updatefunc")) {
-        layout.updateFunc = readSlotFunc(view, reader, element, "updatefunc");
-    }
-    if (element->has("sharefunc")) {
-        layout.shareFunc = readSlotFunc(view, reader, element, "sharefunc");
-    }
-    if (element->has("onrightclick")) {
-        layout.rightClick = readSlotFunc(view, reader, element, "onrightclick");
-    }
-    auto slot = view->addSlot(layout);
-    reader.readUINode(reader, element, *slot);
-    view->add(slot);
-}
-
-static void readSlotsGrid(InventoryView* view, gui::UiXmlReader& reader, xml::xmlelement element) {
-    int startIndex = element->attr("start-index", "0").asInt();
-    int rows = element->attr("rows", "0").asInt();
-    int cols = element->attr("cols", "0").asInt();
-    int count = element->attr("count", "0").asInt();
-    const int slotSize = InventoryView::SLOT_SIZE;
-    int interval = element->attr("interval", "-1").asInt();
-    if (interval < 0) {
-        interval = InventoryView::SLOT_INTERVAL;
-    }
-    int padding = element->attr("padding", "-1").asInt();
-    if (padding < 0) {
-        padding = interval;
-    }
-    if (rows == 0) {
-        rows = ceildiv(count, cols);
-    } else if (cols == 0) {
-        cols = ceildiv(count, rows);
-    } else if (count == 0) {
-        count = rows * cols;
-    }
-    bool itemSource = element->attr("item-source", "false").asBool();
-    SlotLayout layout(-1, glm::vec2(), true, itemSource, nullptr, nullptr, nullptr);
-    if (element->has("pos")) {
-        layout.position = element->attr("pos").asVec2();
-    }
-    if (element->has("updatefunc")) {
-        layout.updateFunc = readSlotFunc(view, reader, element, "updatefunc");
-    }
-    if (element->has("sharefunc")) {
-        layout.shareFunc = readSlotFunc(view, reader, element, "sharefunc");
-    }
-    if (element->has("onrightclick")) {
-        layout.rightClick = readSlotFunc(view, reader, element, "onrightclick");
-    }
-    layout.padding = padding;
-
-    int idx = 0;
-    for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++, idx++) {
-            if (idx >= count) {
-                return;
-            }
-            SlotLayout slotLayout = layout;
-            slotLayout.index = startIndex + idx;
-            slotLayout.position += glm::vec2(
-                padding + col * (slotSize + interval),
-                padding + (rows-row-1) * (slotSize + interval)
-            );
-            auto slot = view->addSlot(slotLayout);
-            view->add(slot, slotLayout.position);
-        }
-    }
-}
-
-void InventoryView::createReaders(gui::UiXmlReader& reader) {
-    reader.add("inventory", [=](gui::UiXmlReader& reader, xml::xmlelement element) {
-        auto view = std::make_shared<InventoryView>();
-        view->setColor(glm::vec4(0.122f, 0.122f, 0.122f, 0.878f)); // todo: fixme
-        reader.addIgnore("slot");
-        reader.addIgnore("slots-grid");
-        reader.readUINode(reader, element, *view);
-
-        for (auto& sub : element->getElements()) {
-            if (sub->getTag() == "slot") {
-                readSlot(view.get(), reader, sub);
-            } else if (sub->getTag() == "slots-grid") {
-                readSlotsGrid(view.get(), reader, sub);
-            }
-        }
-        return view;
-    });
 }

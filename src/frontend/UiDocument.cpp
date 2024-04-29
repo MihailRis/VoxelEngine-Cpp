@@ -2,9 +2,9 @@
 
 #include "../files/files.h"
 #include "../graphics/ui/elements/UINode.hpp"
+#include "../graphics/ui/elements/InventoryView.hpp"
 #include "../graphics/ui/gui_xml.hpp"
 #include "../logic/scripting/scripting.h"
-#include "InventoryView.h"
 
 UiDocument::UiDocument(
     std::string id, 
@@ -60,7 +60,6 @@ std::unique_ptr<UiDocument> UiDocument::read(scriptenv penv, std::string name, f
         : scripting::create_doc_environment(penv, name);
 
     gui::UiXmlReader reader(env);
-    InventoryView::createReaders(reader);
     auto view = reader.readXML(
         file.u8string(), xmldoc->getRoot()
     );

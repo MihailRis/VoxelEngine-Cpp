@@ -14,6 +14,7 @@
 #include "../graphics/core/Shader.hpp"
 #include "../graphics/core/Texture.hpp"
 #include "../graphics/render/WorldRenderer.hpp"
+#include "../graphics/ui/elements/InventoryView.hpp"
 #include "../graphics/ui/elements/Menu.hpp"
 #include "../graphics/ui/elements/Panel.hpp"
 #include "../graphics/ui/elements/Plotter.hpp"
@@ -39,7 +40,6 @@
 #include "../world/Level.h"
 #include "../world/World.h"
 #include "ContentGfxCache.h"
-#include "InventoryView.h"
 #include "LevelFrontend.h"
 #include "UiDocument.h"
 
@@ -48,9 +48,10 @@
 #include <stdexcept>
 #include <string>
 
+using namespace gui;
 
 // implemented in debug_panel.cpp
-extern std::shared_ptr<gui::UINode> create_debug_panel(
+extern std::shared_ptr<UINode> create_debug_panel(
     Engine* engine, 
     Level* level, 
     Player* player
@@ -59,7 +60,7 @@ extern std::shared_ptr<gui::UINode> create_debug_panel(
 HudElement::HudElement(
     hud_element_mode mode, 
     UiDocument* document, 
-    std::shared_ptr<gui::UINode> node, 
+    std::shared_ptr<UINode> node, 
     bool debug
 ) : mode(mode), document(document), node(node), debug(debug) {
 }
@@ -89,7 +90,7 @@ UiDocument* HudElement::getDocument() const {
     return document;
 }
 
-std::shared_ptr<gui::UINode> HudElement::getNode() const {
+std::shared_ptr<UINode> HudElement::getNode() const {
     return node;
 }
 
@@ -144,7 +145,7 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     player(player)
 {
     contentAccess = createContentAccess();
-    contentAccessPanel = std::make_shared<gui::Panel>(
+    contentAccessPanel = std::make_shared<Panel>(
         contentAccess->getSize(), glm::vec4(0.0f), 0.0f
     );
     contentAccessPanel->setColor(glm::vec4());
@@ -168,8 +169,8 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     gui->add(debugPanel);
     gui->add(contentAccessPanel);
 
-    auto dplotter = std::make_shared<gui::Plotter>(350, 250, 2000, 16);
-    dplotter->setGravity(gui::Gravity::bottom_right);
+    auto dplotter = std::make_shared<Plotter>(350, 250, 2000, 16);
+    dplotter->setGravity(Gravity::bottom_right);
     add(HudElement(hud_element_mode::permanent, nullptr, dplotter, true));
 }
 
@@ -411,7 +412,7 @@ void Hud::onRemove(HudElement& element) {
     gui->remove(element.getNode());
 }
 
-void Hud::remove(std::shared_ptr<gui::UINode> node) {
+void Hud::remove(std::shared_ptr<UINode> node) {
     for (auto& element : elements) {
         if (element.getNode() == node) {
             element.setRemoved();

@@ -8,6 +8,7 @@
 
 #include "../../../engine.h"
 #include "../../../assets/Assets.h"
+#include "../../../items/Inventories.h"
 #include "../../../graphics/ui/gui_util.hpp"
 #include "../../../graphics/ui/elements/UINode.hpp"
 #include "../../../graphics/ui/elements/Button.hpp"
@@ -16,13 +17,17 @@
 #include "../../../graphics/ui/elements/TrackBar.hpp"
 #include "../../../graphics/ui/elements/Panel.hpp"
 #include "../../../graphics/ui/elements/Menu.hpp"
+#include "../../../graphics/ui/elements/InventoryView.hpp"
 #include "../../../frontend/UiDocument.h"
 #include "../../../frontend/locale/langs.h"
 #include "../../../util/stringutil.h"
+#include "../../../world/Level.h"
+
+using namespace gui;
 
 struct DocumentNode {
     UiDocument* document;
-    gui::UINode* node;
+    UINode* node;
 };
 
 static DocumentNode getDocumentNode(lua_State* L, const std::string& name, const std::string& nodeName) {
@@ -37,7 +42,7 @@ static DocumentNode getDocumentNode(lua_State* L, const std::string& name, const
     return {doc, node.get()};
 }
 
-static bool getattr(lua_State* L, gui::TrackBar* bar, const std::string& attr) {
+static bool getattr(lua_State* L, TrackBar* bar, const std::string& attr) {
     if (bar == nullptr)
         return false;
     if (attr == "value") {
@@ -59,7 +64,7 @@ static bool getattr(lua_State* L, gui::TrackBar* bar, const std::string& attr) {
     return false;
 }
 
-static bool setattr(lua_State* L, gui::TrackBar* bar, const std::string& attr) {
+static bool setattr(lua_State* L, TrackBar* bar, const std::string& attr) {
     if (bar == nullptr)
         return false;
     if (attr == "value") {
@@ -84,7 +89,7 @@ static bool setattr(lua_State* L, gui::TrackBar* bar, const std::string& attr) {
     return false;
 }
 
-static bool getattr(lua_State* L, gui::Button* button, const std::string& attr) {
+static bool getattr(lua_State* L, Button* button, const std::string& attr) {
     if (button == nullptr)
         return false;
     if (attr == "text") {
@@ -96,7 +101,7 @@ static bool getattr(lua_State* L, gui::Button* button, const std::string& attr) 
     return false;
 }
 
-static bool getattr(lua_State* L, gui::Label* label, const std::string& attr) {
+static bool getattr(lua_State* L, Label* label, const std::string& attr) {
     if (label == nullptr)
         return false;
     if (attr == "text") {
@@ -106,7 +111,7 @@ static bool getattr(lua_State* L, gui::Label* label, const std::string& attr) {
     return false;
 }
 
-static bool getattr(lua_State* L, gui::FullCheckBox* box, const std::string& attr) {
+static bool getattr(lua_State* L, FullCheckBox* box, const std::string& attr) {
     if (box == nullptr)
         return false;
     if (attr == "checked") {
@@ -116,7 +121,7 @@ static bool getattr(lua_State* L, gui::FullCheckBox* box, const std::string& att
     return false;
 }
 
-static bool getattr(lua_State* L, gui::TextBox* box, const std::string& attr) {
+static bool getattr(lua_State* L, TextBox* box, const std::string& attr) {
     if (box == nullptr)
         return false;
     if (attr == "text") {
@@ -144,19 +149,19 @@ static DocumentNode getDocumentNode(lua_State* L) {
 
 static int menu_back(lua_State* L) {
     auto node = getDocumentNode(L);
-    auto menu = dynamic_cast<gui::Menu*>(node.node);
+    auto menu = dynamic_cast<Menu*>(node.node);
     menu->back();
     return 0;
 }
 
 static int menu_reset(lua_State* L) {
     auto node = getDocumentNode(L);
-    auto menu = dynamic_cast<gui::Menu*>(node.node);
+    auto menu = dynamic_cast<Menu*>(node.node);
     menu->reset();
     return 0;
 }
 
-static bool getattr(lua_State* L, gui::Menu* menu, const std::string& attr) {
+static bool getattr(lua_State* L, Menu* menu, const std::string& attr) {
     if (menu == nullptr)
         return false;
     if (attr == "page") {
@@ -172,7 +177,7 @@ static bool getattr(lua_State* L, gui::Menu* menu, const std::string& attr) {
     return false;
 }
 
-static bool setattr(lua_State* L, gui::FullCheckBox* box, const std::string& attr) {
+static bool setattr(lua_State* L, FullCheckBox* box, const std::string& attr) {
     if (box == nullptr)
         return false;
     if (attr == "checked") {
@@ -182,7 +187,7 @@ static bool setattr(lua_State* L, gui::FullCheckBox* box, const std::string& att
     return false;
 }
 
-static bool setattr(lua_State* L, gui::Button* button, const std::string& attr) {
+static bool setattr(lua_State* L, Button* button, const std::string& attr) {
     if (button == nullptr)
         return false;
     if (attr == "text") {
@@ -194,7 +199,7 @@ static bool setattr(lua_State* L, gui::Button* button, const std::string& attr) 
     return false;
 }
 
-static bool setattr(lua_State* L, gui::TextBox* box, const std::string& attr) {
+static bool setattr(lua_State* L, TextBox* box, const std::string& attr) {
     if (box == nullptr)
         return false;
     if (attr == "text") {
@@ -207,7 +212,7 @@ static bool setattr(lua_State* L, gui::TextBox* box, const std::string& attr) {
     return false;
 }
 
-static bool setattr(lua_State* L, gui::Label* label, const std::string& attr) {
+static bool setattr(lua_State* L, Label* label, const std::string& attr) {
     if (label == nullptr)
         return false;
     if (attr == "text") {
@@ -217,7 +222,7 @@ static bool setattr(lua_State* L, gui::Label* label, const std::string& attr) {
     return false;
 }
 
-static bool setattr(lua_State* L, gui::Menu* menu, const std::string& attr) {
+static bool setattr(lua_State* L, Menu* menu, const std::string& attr) {
     if (menu == nullptr)
         return false;
     if (attr == "page") {
@@ -228,26 +233,43 @@ static bool setattr(lua_State* L, gui::Menu* menu, const std::string& attr) {
     return false;
 }
 
+static bool setattr(lua_State* L, InventoryView* inventory, const std::string& attr) {
+    if (attr == "inventory") {
+        auto inv = scripting::level->inventories->get(lua_tointeger(L, 1));
+        inventory->bind(inv, scripting::content);
+    }
+    return false;
+}
+
 static int container_add(lua_State* L) {
     auto docnode = getDocumentNode(L);
-    auto node = dynamic_cast<gui::Container*>(docnode.node);
+    auto node = dynamic_cast<Container*>(docnode.node);
     auto xmlsrc = lua_tostring(L, 2);
     try {
         auto subnode = guiutil::create(xmlsrc, docnode.document->getEnvironment());
         node->add(subnode);
-        gui::UINode::getIndices(subnode, docnode.document->getMapWriteable());
+        UINode::getIndices(subnode, docnode.document->getMapWriteable());
     } catch (const std::exception& err) {
         luaL_error(L, err.what());
     }
     return 0;
 }
 
-static bool getattr(lua_State* L, gui::Container* container, const std::string& attr) {
+static bool getattr(lua_State* L, Container* container, const std::string& attr) {
     if (container == nullptr)
         return false;
     
     if (attr == "add") {
         lua_pushcfunction(L, container_add);
+        return true;
+    }
+    return false;
+}
+
+static bool getattr(lua_State* L, InventoryView* inventory, const std::string& attr) {
+    if (attr == "inventory") {
+        auto inv = inventory->getInventory();
+        lua_pushinteger(L, inv ? inv->getId() : 0);
         return true;
     }
     return false;
@@ -276,19 +298,21 @@ static int l_gui_getattr(lua_State* L) {
         return 1;
     }
 
-    if (getattr(L, dynamic_cast<gui::Container*>(node), attr))
+    if (getattr(L, dynamic_cast<Container*>(node), attr))
         return 1;
-    if (getattr(L, dynamic_cast<gui::Button*>(node), attr))
+    if (getattr(L, dynamic_cast<Button*>(node), attr))
         return 1;
-    if (getattr(L, dynamic_cast<gui::Label*>(node), attr))
+    if (getattr(L, dynamic_cast<Label*>(node), attr))
         return 1;
-    if (getattr(L, dynamic_cast<gui::TextBox*>(node), attr))
+    if (getattr(L, dynamic_cast<TextBox*>(node), attr))
         return 1;
-    if (getattr(L, dynamic_cast<gui::TrackBar*>(node), attr))
+    if (getattr(L, dynamic_cast<TrackBar*>(node), attr))
         return 1;
-    if (getattr(L, dynamic_cast<gui::FullCheckBox*>(node), attr))
+    if (getattr(L, dynamic_cast<FullCheckBox*>(node), attr))
         return 1;
-    if (getattr(L, dynamic_cast<gui::Menu*>(node), attr))
+    if (getattr(L, dynamic_cast<Menu*>(node), attr))
+        return 1;
+    if (getattr(L, dynamic_cast<InventoryView*>(node), attr))
         return 1;
 
     return 0;
@@ -319,17 +343,19 @@ static int l_gui_setattr(lua_State* L) {
     } else if (attr == "visible") {
         node->setVisible(lua_toboolean(L, 4));
     } else {
-        if (setattr(L, dynamic_cast<gui::Button*>(node), attr))
+        if (setattr(L, dynamic_cast<Button*>(node), attr))
             return 0;
-        if (setattr(L, dynamic_cast<gui::Label*>(node), attr))
+        if (setattr(L, dynamic_cast<Label*>(node), attr))
             return 0;
-        if (setattr(L, dynamic_cast<gui::TextBox*>(node), attr))
+        if (setattr(L, dynamic_cast<TextBox*>(node), attr))
             return 0;
-        if (setattr(L, dynamic_cast<gui::TrackBar*>(node), attr))
+        if (setattr(L, dynamic_cast<TrackBar*>(node), attr))
             return 0;
-        if (setattr(L, dynamic_cast<gui::FullCheckBox*>(node), attr))
+        if (setattr(L, dynamic_cast<FullCheckBox*>(node), attr))
             return 0;
-        if (setattr(L, dynamic_cast<gui::Menu*>(node), attr))
+        if (setattr(L, dynamic_cast<Menu*>(node), attr))
+            return 0;
+        if (setattr(L, dynamic_cast<InventoryView*>(node), attr))
             return 0;
     }
     return 0;
