@@ -237,7 +237,7 @@ static bool setattr(lua_State* L, InventoryView* inventory, const std::string& a
     if (inventory == nullptr)
         return false;
     if (attr == "inventory") {
-        auto inv = scripting::level->inventories->get(lua_tointeger(L, 1));
+        auto inv = scripting::level->inventories->get(lua_tointeger(L, 4));
         if (inv == nullptr) {
             inventory->unbind();
         } else {
