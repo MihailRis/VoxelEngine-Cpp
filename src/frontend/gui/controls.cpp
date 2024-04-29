@@ -646,7 +646,7 @@ void gui::TextBox::scrolled(int value) {
     glm::vec2 offset = label->getTextOffset();
     float alignmentOffset = std::max(0.f, label->getVerticalAlignmentOffset());
     offset.y = std::clamp(offset.y + value * lineHeight, 
-        -std::max(lineHeight * label->getLinesNumber() - label->getSize().y - alignmentOffset, 0.f), // min (scroll down)
+        -std::max(lineHeight * label->getLinesNumber() - (size.y - (padding.w + padding.y)) - alignmentOffset, 0.f), // min (scroll down)
         alignmentOffset); // max (scroll up)
     label->setTextOffset(offset);
 }
@@ -867,15 +867,15 @@ void TextBox::setCaret(uint position) {
     this->caret = std::min(size_t(position), input.length());
     caretLastMove = Window::time();
 
-    int width = label->getSize().x;
+    glm::vec2 lSize(size - glm::vec2(padding.z + padding.x, padding.w + padding.y));
     uint line = label->getLineByTextIndex(caret);
     glm::vec2 textOffset = label->getTextOffset();
 
     if (scrollable){
         int offset = label->getLineYOffset(line);
         uint lineHeight = font->getLineHeight()*label->getLineInterval();
-        if (offset >= label->getSize().y - lineHeight) { // scroll down
-            label->setTextOffset(glm::vec2(textOffset.x, std::min(0.f, textOffset.y - (offset - label->getSize().y) - lineHeight)));
+        if (offset >= lSize.y - lineHeight) { // scroll down
+            label->setTextOffset(glm::vec2(textOffset.x, std::min(0.f, textOffset.y - (offset - lSize.y) - lineHeight)));
         } else if (offset < 0.f) { // scroll up
             label->setTextOffset(glm::vec2(textOffset.x, std::min(std::max(0.f, label->getVerticalAlignmentOffset()), textOffset.y - offset + lineHeight)));
         }
@@ -883,8 +883,8 @@ void TextBox::setCaret(uint position) {
     }
     uint lcaret = caret - label->getTextLineOffset(line);
     int realoffset = font->calcWidth(input, lcaret)+textOffset.x+2;
-    if (realoffset > width) {
-        label->setTextOffset(glm::vec2(textOffset.x - (realoffset - width), textOffset.y));
+    if (realoffset > lSize.x) {
+        label->setTextOffset(glm::vec2(textOffset.x - (realoffset - lSize.x), textOffset.y));
     } else if (realoffset < 0) {
         label->setTextOffset(glm::vec2(textOffset.x - realoffset, textOffset.y));
     }
