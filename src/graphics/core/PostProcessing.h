@@ -2,7 +2,7 @@
 #define GRAPHICS_CORE_POST_PROCESSING_HPP_
 
 #include "Viewport.hpp"
-#include "GfxContext.hpp"
+#include "DrawContext.hpp"
 
 #include <memory>
 
@@ -24,14 +24,14 @@ public:
 
     /// @brief Prepare and bind framebuffer
     /// @param context graphics context will be modified
-    void use(GfxContext& context);
+    void use(DrawContext& context);
 
     /// @brief Render fullscreen quad using the passed shader 
     /// with framebuffer texture bound
     /// @param context graphics context
     /// @param screenShader shader used for fullscreen quad
     /// @throws std::runtime_error if use(...) wasn't called before
-    void render(const GfxContext& context, Shader* screenShader);
+    void render(const DrawContext& context, Shader* screenShader);
 
     /// @brief Make an image from the last rendered frame
     std::unique_ptr<ImageData> toImage();

@@ -14,7 +14,7 @@ namespace gui {
     public:
         CheckBox(bool checked=false);
 
-        virtual void draw(const GfxContext* pctx, Assets* assets) override;
+        virtual void draw(const DrawContext* pctx, Assets* assets) override;
 
         virtual void mouseRelease(GUI*, int x, int y) override;
 

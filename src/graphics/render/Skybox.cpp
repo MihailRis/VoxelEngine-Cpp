@@ -6,7 +6,7 @@
 #include "../../graphics/core/Texture.hpp"
 #include "../../graphics/core/Cubemap.hpp"
 #include "../../graphics/core/Framebuffer.hpp"
-#include "../../graphics/core/GfxContext.hpp"
+#include "../../graphics/core/DrawContext.hpp"
 #include "../../window/Window.h"
 #include "../../window/Camera.h"
 
@@ -91,7 +91,7 @@ void Skybox::drawStars(float angle, float opacity) {
 }
 
 void Skybox::draw(
-    const GfxContext& pctx, 
+    const DrawContext& pctx, 
     Camera* camera, 
     Assets* assets, 
     float daytime,
@@ -103,7 +103,7 @@ void Skybox::draw(
 
     drawBackground(camera, assets, width, height);
 
-    GfxContext ctx = pctx.sub();
+    DrawContext ctx = pctx.sub();
     ctx.setBlendMode(BlendMode::addition);
 
     Shader* shader = assets->getShader("ui3d");
@@ -134,8 +134,8 @@ void Skybox::draw(
     drawStars(angle, opacity);
 }
 
-void Skybox::refresh(const GfxContext& pctx, float t, float mie, uint quality) {
-    GfxContext ctx = pctx.sub();
+void Skybox::refresh(const DrawContext& pctx, float t, float mie, uint quality) {
+    DrawContext ctx = pctx.sub();
     ctx.setDepthMask(false);
     ctx.setDepthTest(false);
     ctx.setFramebuffer(fbo.get());

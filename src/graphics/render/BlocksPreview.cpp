@@ -9,7 +9,7 @@
 #include "../core/Atlas.hpp"
 #include "../core/Batch3D.hpp"
 #include "../core/Framebuffer.hpp"
-#include "../core/GfxContext.hpp"
+#include "../core/DrawContext.hpp"
 #include "../core/Shader.hpp"
 #include "../core/Texture.hpp"
 #include "../core/Viewport.hpp"
@@ -124,8 +124,8 @@ std::unique_ptr<Atlas> BlocksPreview::build(
     Atlas* atlas = assets->getAtlas("blocks");
 
     Viewport viewport(iconSize, iconSize);
-    GfxContext pctx(nullptr, viewport, nullptr);
-    GfxContext ctx = pctx.sub();
+    DrawContext pctx(nullptr, viewport, nullptr);
+    DrawContext ctx = pctx.sub();
     ctx.setCullFace(true);
     ctx.setDepthTest(true);
 

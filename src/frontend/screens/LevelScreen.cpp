@@ -6,7 +6,7 @@
 #include "../../audio/audio.h"
 #include "../../coders/imageio.hpp"
 #include "../../graphics/core/PostProcessing.h"
-#include "../../graphics/core/GfxContext.hpp"
+#include "../../graphics/core/DrawContext.hpp"
 #include "../../graphics/core/Viewport.hpp"
 #include "../../graphics/core/ImageData.hpp"
 #include "../../graphics/ui/GUI.hpp"
@@ -79,7 +79,7 @@ void LevelScreen::saveWorldPreview() {
         Camera camera = *player->camera;
         camera.setFov(glm::radians(70.0f));
         Viewport viewport(previewSize * 1.5, previewSize);
-        GfxContext ctx(nullptr, viewport, batch.get());
+        DrawContext ctx(nullptr, viewport, batch.get());
         
         worldRenderer->draw(ctx, &camera, false, postProcessing.get());
         auto image = postProcessing->toImage();
@@ -141,7 +141,7 @@ void LevelScreen::draw(float delta) {
     auto camera = controller->getPlayer()->currentCamera;
 
     Viewport viewport(Window::width, Window::height);
-    GfxContext ctx(nullptr, viewport, batch.get());
+    DrawContext ctx(nullptr, viewport, batch.get());
 
     worldRenderer->draw(ctx, camera.get(), hudVisible, postProcessing.get());
 

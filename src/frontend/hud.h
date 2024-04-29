@@ -16,7 +16,7 @@ class Engine;
 class Inventory;
 class LevelFrontend;
 class UiDocument;
-class GfxContext;
+class DrawContext;
 class Viewport;
 
 namespace gui {
@@ -116,7 +116,7 @@ public:
     ~Hud();
 
     void update(bool hudVisible);
-    void draw(const GfxContext& context);
+    void draw(const DrawContext& context);
 
     /// @brief Check if inventory mode on
     bool isInventoryOpen() const;

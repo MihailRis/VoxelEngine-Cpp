@@ -17,7 +17,7 @@
 #include "frontend/screens/Screen.hpp"
 #include "frontend/screens/MenuScreen.hpp"
 #include "graphics/core/Batch2D.hpp"
-#include "graphics/core/GfxContext.hpp"
+#include "graphics/core/DrawContext.hpp"
 #include "graphics/core/ImageData.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/ui/GUI.hpp"
@@ -150,7 +150,7 @@ void Engine::renderFrame(Batch2D& batch) {
     screen->draw(delta);
 
     Viewport viewport(Window::width, Window::height);
-    GfxContext ctx(nullptr, viewport, &batch);
+    DrawContext ctx(nullptr, viewport, &batch);
     gui->draw(&ctx, assets.get());
 }
 

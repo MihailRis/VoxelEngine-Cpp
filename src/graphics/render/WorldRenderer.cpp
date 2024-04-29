@@ -23,7 +23,7 @@
 #include "../../world/World.h"
 #include "../core/Atlas.hpp"
 #include "../core/Batch3D.hpp"
-#include "../core/GfxContext.hpp"
+#include "../core/DrawContext.hpp"
 #include "../core/LineBatch.hpp"
 #include "../core/Mesh.hpp"
 #include "../core/PostProcessing.h"
@@ -140,7 +140,7 @@ void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
 }
 
 void WorldRenderer::renderLevel(
-    const GfxContext& ctx,
+    const DrawContext& ctx,
     Camera* camera, 
     const EngineSettings& settings
 ) {
@@ -213,12 +213,12 @@ void WorldRenderer::renderBlockSelection(Camera* camera, Shader* linesShader) {
 }
 
 void WorldRenderer::renderDebugLines(
-    const GfxContext& pctx, 
+    const DrawContext& pctx, 
     Camera* camera,
     Shader* linesShader,
     const EngineSettings& settings
 ) {
-    GfxContext ctx = pctx.sub();
+    DrawContext ctx = pctx.sub();
     const auto& viewport = ctx.getViewport();
     uint displayWidth = viewport.getWidth();
     uint displayHeight = viewport.getHeight();
@@ -266,7 +266,7 @@ void WorldRenderer::renderDebugLines(
 }
 
 void WorldRenderer::draw(
-    const GfxContext& pctx, 
+    const DrawContext& pctx, 
     Camera* camera, 
     bool hudVisible, 
     PostProcessing* postProcessing
@@ -282,7 +282,7 @@ void WorldRenderer::draw(
     
     // World render scope with diegetic HUD included
     {
-        GfxContext wctx = pctx.sub();
+        DrawContext wctx = pctx.sub();
         postProcessing->use(wctx);
 
         Window::clearDepth();
@@ -292,7 +292,7 @@ void WorldRenderer::draw(
         
         // Actually world render with depth buffer on
         {
-            GfxContext ctx = wctx.sub();
+            DrawContext ctx = wctx.sub();
             ctx.setDepthTest(true);
             ctx.setCullFace(true);
             renderLevel(ctx, camera, settings);

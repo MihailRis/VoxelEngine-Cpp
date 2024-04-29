@@ -9,8 +9,8 @@
 class Batch2D;
 class Framebuffer;
 
-class GfxContext {
-    const GfxContext* parent;
+class DrawContext {
+    const DrawContext* parent;
     Viewport viewport;
     Batch2D* const g2d;
     Framebuffer* fbo = nullptr;
@@ -20,12 +20,12 @@ class GfxContext {
     BlendMode blendMode = BlendMode::normal;
     int scissorsCount = 0;
 public:
-    GfxContext(const GfxContext* parent, const Viewport& viewport, Batch2D* g2d);
-    ~GfxContext();
+    DrawContext(const DrawContext* parent, const Viewport& viewport, Batch2D* g2d);
+    ~DrawContext();
     
     Batch2D* getBatch2D() const;
     const Viewport& getViewport() const;
-    GfxContext sub() const;
+    DrawContext sub() const;
 
     void setViewport(const Viewport& viewport);
     void setFramebuffer(Framebuffer* fbo);

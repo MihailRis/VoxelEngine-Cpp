@@ -13,7 +13,7 @@ class Assets;
 class Camera;
 class Batch3D;
 class Framebuffer;
-class GfxContext;
+class DrawContext;
 
 struct skysprite {
     std::string texture;
@@ -40,14 +40,14 @@ public:
     ~Skybox();
 
     void draw(
-        const GfxContext& pctx, 
+        const DrawContext& pctx, 
         Camera* camera, 
         Assets* assets, 
         float daytime,
         float fog
     );
 
-    void refresh(const GfxContext& pctx, float t, float mie, uint quality);
+    void refresh(const DrawContext& pctx, float t, float mie, uint quality);
     void bind() const;
     void unbind() const;
     bool isReady() const {

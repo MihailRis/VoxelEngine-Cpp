@@ -24,7 +24,7 @@ class Chunks;
 class LevelFrontend;
 class Skybox;
 class PostProcessing;
-class GfxContext;
+class DrawContext;
 struct EngineSettings;
 
 class WorldRenderer {
@@ -50,7 +50,7 @@ class WorldRenderer {
     /// @param linesShader shader used
     /// @param settings engine settings
     void renderDebugLines(
-        const GfxContext& context, 
+        const DrawContext& context, 
         Camera* camera, 
         Shader* linesShader,
         const EngineSettings& settings
@@ -62,7 +62,7 @@ public:
     ~WorldRenderer();
 
     void draw(
-        const GfxContext& context, 
+        const DrawContext& context, 
         Camera* camera, 
         bool hudVisible, 
         PostProcessing* postProcessing
@@ -74,7 +74,7 @@ public:
     /// @param camera active camera
     /// @param settings engine settings
     void renderLevel(
-        const GfxContext& context, 
+        const DrawContext& context, 
         Camera* camera, 
         const EngineSettings& settings
     );

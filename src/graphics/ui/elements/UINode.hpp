@@ -10,7 +10,7 @@
 #include "../../../delegates.h"
 #include "../../../window/input.h"
 
-class GfxContext;
+class DrawContext;
 class Assets;
 
 namespace gui {
@@ -90,7 +90,7 @@ namespace gui {
         /// @brief Called every frame for all visible elements 
         /// @param delta delta timУ
         virtual void act(float delta) {};
-        virtual void draw(const GfxContext* pctx, Assets* assets) = 0;
+        virtual void draw(const DrawContext* pctx, Assets* assets) = 0;
 
         virtual void setVisible(bool flag);
         bool isVisible() const;

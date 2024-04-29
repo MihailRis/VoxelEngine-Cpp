@@ -48,7 +48,7 @@ struct SoundCfg : AssetCfg {
 };
 
 using aloader_func = std::function<assetload::postfunc(
-    AssetsLoader*, 
+    AssetsLoader*, // redundant?
     const ResPaths*, 
     const std::string&, 
     const std::string&, 

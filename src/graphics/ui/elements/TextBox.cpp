@@ -1,7 +1,7 @@
 #include "TextBox.hpp"
 
 #include "Label.hpp"
-#include "../../core/GfxContext.hpp"
+#include "../../core/DrawContext.hpp"
 #include "../../core/Batch2D.hpp"
 #include "../../core/Font.hpp"
 #include "../../../assets/Assets.h"
@@ -22,7 +22,7 @@ TextBox::TextBox(std::wstring placeholder, glm::vec4 padding)
     textInitX = label->getPos().x;
 }
 
-void TextBox::draw(const GfxContext* pctx, Assets* assets) {
+void TextBox::draw(const DrawContext* pctx, Assets* assets) {
     Panel::draw(pctx, assets);
 
     font = assets->getFont(label->getFontName());
@@ -71,7 +71,7 @@ void TextBox::draw(const GfxContext* pctx, Assets* assets) {
     }
 }
 
-void TextBox::drawBackground(const GfxContext* pctx, Assets* assets) {
+void TextBox::drawBackground(const DrawContext* pctx, Assets* assets) {
     glm::vec2 pos = calcPos();
 
     auto batch = pctx->getBatch2D();

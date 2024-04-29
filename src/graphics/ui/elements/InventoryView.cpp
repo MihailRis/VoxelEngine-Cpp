@@ -17,7 +17,7 @@
 #include "../../core/Atlas.hpp"
 #include "../../core/Batch2D.hpp"
 #include "../../core/Font.hpp"
-#include "../../core/GfxContext.hpp"
+#include "../../core/DrawContext.hpp"
 #include "../../core/Shader.hpp"
 #include "../../render/BlocksPreview.hpp"
 #include "../GUI.hpp"
@@ -110,7 +110,7 @@ SlotView::SlotView(
     setColor(glm::vec4(0, 0, 0, 0.2f));
 }
 
-void SlotView::draw(const GfxContext* pctx, Assets* assets) {
+void SlotView::draw(const DrawContext* pctx, Assets* assets) {
     if (bound == nullptr)
         return;
 

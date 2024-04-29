@@ -1,7 +1,7 @@
 #include "Button.hpp"
 
 #include "Label.hpp"
-#include "../../core/GfxContext.hpp"
+#include "../../core/DrawContext.hpp"
 #include "../../core/Batch2D.hpp"
 
 using namespace gui;
@@ -75,7 +75,7 @@ void Button::refresh() {
     }
 }
 
-void Button::drawBackground(const GfxContext* pctx, Assets* assets) {
+void Button::drawBackground(const DrawContext* pctx, Assets* assets) {
     glm::vec2 pos = calcPos();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);

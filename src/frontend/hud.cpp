@@ -9,7 +9,7 @@
 #include "../graphics/core/Batch2D.hpp"
 #include "../graphics/core/Batch3D.hpp"
 #include "../graphics/core/Font.hpp"
-#include "../graphics/core/GfxContext.hpp"
+#include "../graphics/core/DrawContext.hpp"
 #include "../graphics/core/Mesh.hpp"
 #include "../graphics/core/Shader.hpp"
 #include "../graphics/core/Texture.hpp"
@@ -422,7 +422,7 @@ void Hud::remove(std::shared_ptr<UINode> node) {
     cleanup();
 }
 
-void Hud::draw(const GfxContext& ctx){
+void Hud::draw(const DrawContext& ctx){
     const Viewport& viewport = ctx.getViewport();
     const uint width = viewport.getWidth();
     const uint height = viewport.getHeight();
@@ -440,7 +440,7 @@ void Hud::draw(const GfxContext& ctx){
 
     // Crosshair
     if (!pause && !inventoryOpen && !player->debug) {
-        GfxContext chctx = ctx.sub();
+        DrawContext chctx = ctx.sub();
         chctx.setBlendMode(BlendMode::inversion);
         auto texture = assets->getTexture("gui/crosshair");
         batch->texture(texture);

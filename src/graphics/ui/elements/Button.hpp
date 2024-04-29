@@ -18,7 +18,7 @@ namespace gui {
                onaction action,
                glm::vec2 size=glm::vec2(-1));
 
-        virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
+        virtual void drawBackground(const DrawContext* pctx, Assets* assets) override;
 
         virtual Align getTextAlign() const;
         virtual void setTextAlign(Align align);

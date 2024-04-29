@@ -144,8 +144,8 @@ namespace gui {
         virtual void click(GUI*, int, int) override;
         virtual void mouseMove(GUI*, int x, int y) override;
         virtual bool isFocuskeeper() const override {return true;}
-        virtual void draw(const GfxContext* pctx, Assets* assets) override;
-        virtual void drawBackground(const GfxContext* pctx, Assets* assets) override;
+        virtual void draw(const DrawContext* pctx, Assets* assets) override;
+        virtual void drawBackground(const DrawContext* pctx, Assets* assets) override;
         virtual void typed(unsigned int codepoint) override; 
         virtual void keyPressed(keycode key) override;
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;

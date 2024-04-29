@@ -19,7 +19,7 @@ PostProcessing::PostProcessing() {
 PostProcessing::~PostProcessing() {
 }
 
-void PostProcessing::use(GfxContext& context) {
+void PostProcessing::use(DrawContext& context) {
     const auto& vp = context.getViewport();
     if (fbo) {
         fbo->resize(vp.getWidth(), vp.getHeight());
@@ -29,7 +29,7 @@ void PostProcessing::use(GfxContext& context) {
     context.setFramebuffer(fbo.get());
 }
 
-void PostProcessing::render(const GfxContext& context, Shader* screenShader) {
+void PostProcessing::render(const DrawContext& context, Shader* screenShader) {
     if (fbo == nullptr) {
         throw std::runtime_error("'use(...)' was never called");
     }

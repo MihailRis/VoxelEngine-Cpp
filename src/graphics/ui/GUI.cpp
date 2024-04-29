@@ -9,7 +9,7 @@
 #include "../../frontend/UiDocument.h"
 #include "../../graphics/core/Batch2D.hpp"
 #include "../../graphics/core/Shader.hpp"
-#include "../../graphics/core/GfxContext.hpp"
+#include "../../graphics/core/DrawContext.hpp"
 #include "../../window/Events.h"
 #include "../../window/input.h"
 #include "../../window/Camera.h"
@@ -136,7 +136,7 @@ void GUI::act(float delta, const Viewport& vp) {
     }
 }
 
-void GUI::draw(const GfxContext* pctx, Assets* assets) {
+void GUI::draw(const DrawContext* pctx, Assets* assets) {
     auto& viewport = pctx->getViewport();
     glm::vec2 wsize = viewport.size();
 

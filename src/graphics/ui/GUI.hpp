@@ -11,7 +11,7 @@
 #include <unordered_map>
 
 class Viewport;
-class GfxContext;
+class DrawContext;
 class Assets;
 class Camera;
 
@@ -86,7 +86,7 @@ namespace gui {
         /// @brief Draw all visible elements on main container 
         /// @param pctx parent graphics context
         /// @param assets active assets storage
-        void draw(const GfxContext* pctx, Assets* assets);
+        void draw(const DrawContext* pctx, Assets* assets);
 
         /// @brief Add element to the main container
         /// @param node UI element

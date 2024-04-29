@@ -1,4 +1,4 @@
-#include "GfxContext.hpp"
+#include "DrawContext.hpp"
 
 #include <GL/glew.h>
 
@@ -20,8 +20,8 @@ static void set_blend_mode(BlendMode mode) {
 }
 
 
-GfxContext::GfxContext(
-    const GfxContext* parent, 
+DrawContext::DrawContext(
+    const DrawContext* parent, 
     const Viewport& viewport, 
     Batch2D* g2d
 ) : parent(parent), 
@@ -29,7 +29,7 @@ GfxContext::GfxContext(
     g2d(g2d) 
 {}
 
-GfxContext::~GfxContext() {
+DrawContext::~DrawContext() {
     if (g2d) {
         g2d->flush();
     }
@@ -72,22 +72,22 @@ GfxContext::~GfxContext() {
     }
 }
 
-const Viewport& GfxContext::getViewport() const {
+const Viewport& DrawContext::getViewport() const {
     return viewport;
 }
 
-Batch2D* GfxContext::getBatch2D() const {
+Batch2D* DrawContext::getBatch2D() const {
     return g2d;
 }
 
-GfxContext GfxContext::sub() const {
-    auto ctx = GfxContext(this, viewport, g2d);
+DrawContext DrawContext::sub() const {
+    auto ctx = DrawContext(this, viewport, g2d);
     ctx.depthTest = depthTest;
     ctx.cullFace = cullFace;
     return ctx;
 }
 
-void GfxContext::setViewport(const Viewport& viewport) {
+void DrawContext::setViewport(const Viewport& viewport) {
     this->viewport = viewport;
     Window::viewport(
         0, 0,
@@ -96,7 +96,7 @@ void GfxContext::setViewport(const Viewport& viewport) {
     );
 }
 
-void GfxContext::setFramebuffer(Framebuffer* fbo) {
+void DrawContext::setFramebuffer(Framebuffer* fbo) {
     if (this->fbo == fbo)
         return;
     this->fbo = fbo;
@@ -105,14 +105,14 @@ void GfxContext::setFramebuffer(Framebuffer* fbo) {
     }
 }
 
-void GfxContext::setDepthMask(bool flag) {
+void DrawContext::setDepthMask(bool flag) {
     if (depthMask == flag)
         return;
     depthMask = flag;
     glDepthMask(GL_FALSE + flag);
 }
 
-void GfxContext::setDepthTest(bool flag) {
+void DrawContext::setDepthTest(bool flag) {
     if (depthTest == flag)
         return;
     depthTest = flag;
@@ -123,7 +123,7 @@ void GfxContext::setDepthTest(bool flag) {
     }
 }
 
-void GfxContext::setCullFace(bool flag) {
+void DrawContext::setCullFace(bool flag) {
     if (cullFace == flag)
         return;
     cullFace = flag;
@@ -134,14 +134,14 @@ void GfxContext::setCullFace(bool flag) {
     }
 }
 
-void GfxContext::setBlendMode(BlendMode mode) {
+void DrawContext::setBlendMode(BlendMode mode) {
     if (blendMode == mode)
         return;
     blendMode = mode;
     set_blend_mode(mode);
 }
 
-void GfxContext::setScissors(glm::vec4 area) {
+void DrawContext::setScissors(glm::vec4 area) {
     Window::pushScissor(area);
     scissorsCount++;
 }

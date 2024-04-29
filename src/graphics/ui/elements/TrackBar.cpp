@@ -1,6 +1,6 @@
 #include "TrackBar.hpp"
 
-#include "../../core/GfxContext.hpp"
+#include "../../core/DrawContext.hpp"
 #include "../../core/Batch2D.hpp"
 #include "../../../assets/Assets.h"
 
@@ -23,7 +23,7 @@ TrackBar::TrackBar(
     setHoverColor(glm::vec4(0.01f, 0.02f, 0.03f, 0.5f));
 }
 
-void TrackBar::draw(const GfxContext* pctx, Assets* assets) {
+void TrackBar::draw(const DrawContext* pctx, Assets* assets) {
     if (supplier) {
         value = supplier();
     }
