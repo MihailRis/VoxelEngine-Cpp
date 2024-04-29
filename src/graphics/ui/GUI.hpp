@@ -1,15 +1,14 @@
 #ifndef FRONTEND_GUI_GUI_HPP_
 #define FRONTEND_GUI_GUI_HPP_
 
+#include "../../delegates.h"
+
 #include <queue>
 #include <memory>
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
-#include <functional>
 #include <unordered_map>
-
-#include "../../delegates.h"
 
 class Viewport;
 class GfxContext;

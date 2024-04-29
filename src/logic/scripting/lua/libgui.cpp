@@ -236,7 +236,11 @@ static bool setattr(lua_State* L, Menu* menu, const std::string& attr) {
 static bool setattr(lua_State* L, InventoryView* inventory, const std::string& attr) {
     if (attr == "inventory") {
         auto inv = scripting::level->inventories->get(lua_tointeger(L, 1));
-        inventory->bind(inv, scripting::content);
+        if (inv == nullptr) {
+            inventory->unbind();
+        } else {
+            inventory->bind(inv, scripting::content);
+        }
     }
     return false;
 }
