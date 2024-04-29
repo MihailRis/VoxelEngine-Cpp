@@ -172,8 +172,10 @@ Engine::~Engine() {
     content.reset();
     assets.reset();
     gui.reset();
+    logger.info() << "gui finished";
     audio::close();
     scripting::close();
+    logger.info() << "scripting finished";
     Window::terminate();
     logger.info() << "engine finished";
 }

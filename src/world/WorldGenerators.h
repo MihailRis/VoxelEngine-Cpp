@@ -11,7 +11,7 @@ typedef WorldGenerator* (*gen_constructor) (const Content*);
 
 
 class WorldGenerators {
-    static inline std::map<std::string, gen_constructor> generators = *(new std::map<std::string, gen_constructor>);
+    static inline std::map<std::string, gen_constructor> generators;
 
 public:
     template <typename T>
@@ -21,7 +21,9 @@ public:
 
     static std::string getDefaultGeneratorID();
 
-    static WorldGenerator* createGenerator(std::string id, const Content* content);
+    static std::unique_ptr<WorldGenerator> createGenerator(
+        std::string id, const Content* content
+    );
 };
 
 template <typename T>

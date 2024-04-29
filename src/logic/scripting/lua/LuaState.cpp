@@ -396,6 +396,7 @@ void lua::LuaState::removeEnvironment(int id) {
     }
     lua_pushnil(L);
     setglobal(envName(id));
+    logger.info() << "removed environment " << envName(id);
 }
 
 void lua::LuaState::dumpStack() {
