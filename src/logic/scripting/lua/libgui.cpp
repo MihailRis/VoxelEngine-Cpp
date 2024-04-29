@@ -234,6 +234,8 @@ static bool setattr(lua_State* L, Menu* menu, const std::string& attr) {
 }
 
 static bool setattr(lua_State* L, InventoryView* inventory, const std::string& attr) {
+    if (inventory == nullptr)
+        return false;
     if (attr == "inventory") {
         auto inv = scripting::level->inventories->get(lua_tointeger(L, 1));
         if (inv == nullptr) {
@@ -241,6 +243,7 @@ static bool setattr(lua_State* L, InventoryView* inventory, const std::string& a
         } else {
             inventory->bind(inv, scripting::content);
         }
+        return true;
     }
     return false;
 }
@@ -271,6 +274,8 @@ static bool getattr(lua_State* L, Container* container, const std::string& attr)
 }
 
 static bool getattr(lua_State* L, InventoryView* inventory, const std::string& attr) {
+    if (inventory == nullptr)
+        return false;
     if (attr == "inventory") {
         auto inv = inventory->getInventory();
         lua_pushinteger(L, inv ? inv->getId() : 0);
