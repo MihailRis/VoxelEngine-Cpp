@@ -1,11 +1,14 @@
-<container size='658,404' color='#20202020' context='menu'>
+<container size='658,408' color='#FFFFFF10' context='menu'>
     <panel pos='2' size='250' color='0' interval='1'>
-        <button onclick='menu.page="languages"' id='langs_btn'>-</button>
         <button id='s_aud' onclick='set_page("s_aud", "settings_audio")'>@Audio</button>
         <button id='s_gfx' onclick='set_page("s_gfx", "settings_graphics")'>@Graphics</button>
         <button id='s_ctl' onclick='set_page("s_ctl", "settings_controls")'>@Controls</button>
-        <button onclick='menu:back()'>@Back</button>
     </panel>
     <pagebox id='menu' pos='254,0' size='400'>
     </pagebox>
+
+    <panel margin='2' gravity='bottom-left' size='250' color='0' interval='1'>
+        <button onclick='menu.page="languages"' id='langs_btn'>-</button>
+        <button onclick='menu:back()'>@Back</button>
+    </panel>
 </container>
