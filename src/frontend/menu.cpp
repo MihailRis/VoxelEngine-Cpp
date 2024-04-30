@@ -31,9 +31,8 @@ void menus::create_version_label(Engine* engine) {
     ));
 }
 
-void menus::create_menus(Engine* engine) {
-    auto menu = engine->getGUI()->getMenu();
-    menu->setPageLoader([=](auto name) {
+gui::page_loader_func menus::create_page_loader(Engine* engine) {
+    return [=](auto name) {
         auto file = engine->getResPaths()->find("layouts/pages/"+name+".xml");
         auto fullname = "core:pages/"+name;
 
@@ -41,7 +40,7 @@ void menus::create_menus(Engine* engine) {
         engine->getAssets()->store(document, fullname);
         scripting::on_ui_open(document, {});
         return document->getRoot();
-    });
+    };
 }
 
 UiDocument* menus::show(Engine* engine, const std::string& name, std::vector<std::unique_ptr<dynamic::Value>> args) {

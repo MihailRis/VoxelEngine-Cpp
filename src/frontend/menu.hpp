@@ -1,6 +1,8 @@
 #ifndef FRONTEND_MENU_MENU_HPP_
 #define FRONTEND_MENU_MENU_HPP_
 
+#include "../graphics/ui/elements/Menu.hpp"
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -18,7 +20,7 @@ namespace menus {
     /// @brief Create development version label at the top-right screen corner
     void create_version_label(Engine* engine);
 
-    void create_menus(Engine* engine);
+    gui::page_loader_func create_page_loader(Engine* engine);
 
     UiDocument* show(
         Engine* engine, 

@@ -281,7 +281,7 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
 
 void Engine::setLanguage(std::string locale) {
     langs::setup(paths->getResources(), locale, contentPacks);
-    menus::create_menus(this);
+    gui->getMenu()->setPageLoader(menus::create_page_loader(this));
 }
 
 gui::GUI* Engine::getGUI() {

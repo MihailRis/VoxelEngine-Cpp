@@ -2,6 +2,7 @@
 
 #include "elements/Panel.hpp"
 #include "elements/Image.hpp"
+#include "elements/Menu.hpp"
 #include "elements/Button.hpp"
 #include "elements/CheckBox.hpp"
 #include "elements/TextBox.hpp"
@@ -9,6 +10,7 @@
 #include "elements/InputBindBox.hpp"
 #include "elements/InventoryView.hpp"
 
+#include "../../frontend/menu.hpp"
 #include "../../frontend/locale/langs.h"
 #include "../../items/Inventory.h"
 #include "../../logic/scripting/scripting.h"
@@ -486,6 +488,15 @@ static std::shared_ptr<UINode> readInventory(UiXmlReader& reader, xml::xmlelemen
     return view;
 } 
 
+static std::shared_ptr<UINode> readPageBox(UiXmlReader& reader, xml::xmlelement element) {
+    auto menu = std::make_shared<Menu>();
+    // fixme
+    menu->setPageLoader(menus::create_page_loader(scripting::engine));
+    _readContainer(reader, element, *menu);
+
+    return menu;
+}
+
 UiXmlReader::UiXmlReader(const scriptenv& env) : env(env) {
     contextStack.push("");
     add("image", readImage);
@@ -493,6 +504,7 @@ UiXmlReader::UiXmlReader(const scriptenv& env) : env(env) {
     add("panel", readPanel);
     add("button", readButton);
     add("textbox", readTextBox);
+    add("pagebox", readPageBox);
     add("checkbox", readCheckBox);
     add("trackbar", readTrackBar);
     add("container", readContainer);
