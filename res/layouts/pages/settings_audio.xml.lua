@@ -1,34 +1,33 @@
-function on_open()
-    new_volume_control("audio.volume-master", "master", "Master Volume")
-    new_volume_control("audio.volume-regular", "regular", "Regular Sounds")
-    new_volume_control("audio.volume-ui", "ui", "UI Sounds")
-    new_volume_control("audio.volume-ambient", "ambient", "Ambient")
-    new_volume_control("audio.volume-music", "music", "Music")
+function create_setting(id, name, step, postfix)
+    local info = core.get_setting_info(id)
+    postfix = postfix or ""
+    document.root:add(gui.template("track_setting", {
+        id=id,
+        name=gui.str(name, "settings"),
+        value=core.get_setting(id),
+        min=info.min,
+        max=info.max,
+        step=step,
+        postfix=postfix
+    }))
+    update_setting(core.get_setting(id), id, name, postfix)
 end
 
-function new_volume_control(setting, id, name)
-    -- value text label
-    document.tracks_panel:add("<label id='l_"..id.."'>-</label>")
-    -- value track-bar
-    document.tracks_panel:add(string.format(
-        "<trackbar id='t_%s' min='0' max='1' value='%s' step='0.01' "..
-        " consumer='function(x) on_volume_change(%q, %q, %q, x) end'/>"
-    , id, core.get_setting(setting), setting, id, name))
-    refresh_label(setting, id, name)
-end
-
-function refresh_label(setting, id, name)
-    document["l_"..id].text = (
-        gui.str(name, "settings")..": "..
-        core.str_setting(setting)
+function update_setting(x, id, name, postfix)
+    core.set_setting(id, x)
+    -- updating label
+    document[id..".L"].text = string.format(
+        "%s: %s%s", 
+        gui.str(name, "settings"), 
+        core.str_setting(id), 
+        postfix
     )
 end
 
-function on_volume_change(setting, id, name, val)
-    if val ~= nil then
-        core.set_setting(setting, val)
-    else
-        document["t_"..id].value = core.get_setting(setting, val)
-    end
-    refresh_label(setting, id, name)
+function on_open()
+    create_setting("audio.volume-master", "Master Volume", 0.01)
+    create_setting("audio.volume-regular", "Regular Sounds", 0.01)
+    create_setting("audio.volume-ui", "UI Sounds", 0.01)
+    create_setting("audio.volume-ambient", "Ambient", 0.01)
+    create_setting("audio.volume-music", "Music", 0.01)
 end

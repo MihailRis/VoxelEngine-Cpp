@@ -304,6 +304,9 @@ static int l_gui_getattr(lua_State* L) {
     } else if (attr == "visible") {
         lua_pushboolean(L, node->isVisible());
         return 1;
+    } else if (attr == "enabled") {
+        lua_pushboolean(L, node->isEnabled());
+        return 1;
     }
 
     if (getattr(L, dynamic_cast<Container*>(node), attr))
@@ -350,6 +353,8 @@ static int l_gui_setattr(lua_State* L) {
         node->setInteractive(lua_toboolean(L, 4));
     } else if (attr == "visible") {
         node->setVisible(lua_toboolean(L, 4));
+    } else if (attr == "enabled") {
+        node->setEnabled(lua_toboolean(L, 4));
     } else {
         if (setattr(L, dynamic_cast<Button*>(node), attr))
             return 0;

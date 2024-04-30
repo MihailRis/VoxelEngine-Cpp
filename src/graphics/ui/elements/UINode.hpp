@@ -1,14 +1,15 @@
 #ifndef GRAPHICS_UI_ELEMENTS_UINODE_H_
 #define GRAPHICS_UI_ELEMENTS_UINODE_H_
 
+#include "../../../delegates.h"
+#include "../../../window/input.h"
+
 #include <glm/glm.hpp>
 #include <vector>
 #include <memory>
 #include <string>
 #include <functional>
 #include <unordered_map>
-#include "../../../delegates.h"
-#include "../../../window/input.h"
 
 class DrawContext;
 class Assets;
@@ -60,6 +61,8 @@ namespace gui {
         glm::vec4 pressedColor {1.0f};
         /// @brief element margin (only supported for Panel sub-nodes)
         glm::vec4 margin {1.0f};
+        /// @brief element enabled state
+        bool enabled = true;
         /// @brief is element visible
         bool visible = true;
         /// @brief is mouse over the element
@@ -94,6 +97,9 @@ namespace gui {
 
         virtual void setVisible(bool flag);
         bool isVisible() const;
+
+        virtual void setEnabled(bool flag);
+        bool isEnabled() const;
 
         virtual void setAlign(Align align);
         Align getAlign() const;

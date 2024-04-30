@@ -1,6 +1,2 @@
 <panel size='400' color='0' interval='1'>
-    <panel id='tracks_panel' size='400' color='0' interval='1'>
-        <!-- content is generated in script -->
-    </panel>
-    <button onclick='menu:back()'>@Back</button>
 </panel>

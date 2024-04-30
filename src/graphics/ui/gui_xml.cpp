@@ -87,6 +87,9 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
     if (element->has("visible")) {
         node.setVisible(element->attr("visible").asBool());
     }
+    if (element->has("enabled")) {
+        node.setEnabled(element->attr("enabled").asBool());
+    }
     if (element->has("position-func")) {
         node.setPositionFunc(scripting::create_vec2_supplier(
             reader.getEnvironment(),
