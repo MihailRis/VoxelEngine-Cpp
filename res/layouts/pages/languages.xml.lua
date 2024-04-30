@@ -11,9 +11,9 @@ function on_open()
     local panel = document.root
     for _,k in ipairs(names) do
         panel:add(string.format(
-            "<button onclick=%q padding='10'>%s</button>",
+            "<button onclick=%q>%s</button>",
             string.format("core.set_setting('ui.language', %q) menu:back()", invlocales[k]), k
         ))
     end
-    panel:add("<button padding='10' onclick='menu:back()'>@Back</button>")
+    panel:add("<button onclick='menu:back()'>@Back</button>")
 end

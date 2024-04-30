@@ -34,7 +34,10 @@ class Assets {
 	std::unordered_map<std::string, std::shared_ptr<audio::Sound>> sounds;
 	std::vector<TextureAnimation> animations;
 public:
+    Assets() {}
+    Assets(const Assets&) = delete;
 	~Assets();
+    
 	Texture* getTexture(std::string name) const;
 	void store(Texture* texture, std::string name);
 
@@ -55,8 +58,6 @@ public:
 
 	UiDocument* getLayout(std::string name) const;
 	void store(UiDocument* layout, std::string name);
-
-    void extend(const Assets& assets);
 };
 
 #endif /* ASSETS_ASSETS_H_ */

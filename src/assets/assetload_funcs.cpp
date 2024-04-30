@@ -182,6 +182,9 @@ assetload::postfunc assetload::sound(
         baseSound->variants.emplace_back(audio::load_sound(variantFile, keepPCM));
     }
 
+    if (baseSound == nullptr) {
+        throw std::runtime_error("could not to find sound: " + file);
+    }
     auto sound = baseSound.release();
     return [=](auto assets) {
         assets->store(sound, name);

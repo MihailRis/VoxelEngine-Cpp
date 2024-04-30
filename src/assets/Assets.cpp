@@ -85,28 +85,3 @@ UiDocument* Assets::getLayout(std::string name) const {
 void Assets::store(UiDocument* layout, std::string name) {
 	layouts[name] = std::shared_ptr<UiDocument>(layout);
 }
-
-void Assets::extend(const Assets& assets) {
-    for (auto entry : assets.textures) {
-        textures[entry.first] = entry.second;
-    }
-    for (auto entry : assets.shaders) {
-        shaders[entry.first] = entry.second;
-    }
-    for (auto entry : assets.fonts) {
-        fonts[entry.first] = entry.second;
-    }
-    for (auto entry : assets.atlases) {
-        atlases[entry.first] = entry.second;
-    }
-	for (auto entry : assets.layouts) {
-		layouts[entry.first] = entry.second;
-	}
-	for (auto entry : assets.sounds) {
-		sounds[entry.first] = entry.second;
-	}
-    animations.clear();
-	for (auto entry : assets.animations) {
-		animations.emplace_back(entry);
-	}
-}
