@@ -41,7 +41,7 @@ assetload::postfunc assetload::texture(
         imageio::read(paths->find(filename+".png").u8string()).release()
     );
     return [name, image](auto assets) {
-        assets->store(Texture::from(image.get()), name);
+        assets->store(Texture::from(image.get()).release(), name);
     };
 }
 

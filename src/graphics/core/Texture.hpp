@@ -31,7 +31,7 @@ public:
 
     virtual uint getId() const;
 
-    static Texture* from(const ImageData* image);
+    static std::unique_ptr<Texture> from(const ImageData* image);
 };
 
 #endif // GRAPHICS_CORE_TEXTURE_HPP_

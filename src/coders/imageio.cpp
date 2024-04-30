@@ -1,6 +1,6 @@
 #include "imageio.hpp"
 
-#include "png.h"
+#include "png.hpp"
 #include "../graphics/core/ImageData.hpp"
 
 #include <filesystem>
@@ -9,7 +9,7 @@
 
 namespace fs = std::filesystem;
 
-using image_reader = std::function<ImageData*(const std::string&)>;
+using image_reader = std::function<std::unique_ptr<ImageData>(const std::string&)>;
 using image_writer = std::function<void(const std::string&, const ImageData*)>;
 
 static std::unordered_map<std::string, image_reader> readers {

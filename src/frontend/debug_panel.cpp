@@ -98,6 +98,7 @@ std::shared_ptr<UINode> create_debug_panel(
 
         // Coord input
         auto box = std::make_shared<TextBox>(L"");
+        auto boxRef = box.get();
         box->setTextSupplier([=]() {
             Hitbox* hitbox = player->hitbox.get();
             return util::to_wstring(hitbox->position[ax], 2);
@@ -113,7 +114,7 @@ std::shared_ptr<UINode> create_debug_panel(
         });
         box->setOnEditStart([=](){
             Hitbox* hitbox = player->hitbox.get();
-            box->setText(std::to_wstring(int(hitbox->position[ax])));
+            boxRef->setText(std::to_wstring(int(hitbox->position[ax])));
         });
         box->setSize(glm::vec2(230, 27));
 

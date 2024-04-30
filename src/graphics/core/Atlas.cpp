@@ -22,7 +22,7 @@ Atlas::~Atlas() {
 }
 
 void Atlas::prepare() {
-    texture.reset(Texture::from(image.get()));
+    texture = Texture::from(image.get());
 }
 
 bool Atlas::has(const std::string& name) const {
