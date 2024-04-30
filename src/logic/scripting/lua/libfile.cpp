@@ -90,9 +90,9 @@ static int l_file_mkdirs(lua_State* L) {
 static int l_file_read_bytes(lua_State* L) {
     fs::path path = resolve_path(L, lua_tostring(L, 1));
     if (fs::is_regular_file(path)) {
-        size_t length = (size_t) fs::file_size(path);
+        size_t length = static_cast<size_t>(fs::file_size(path));
 
-        ubyte* bytes = files::read_bytes(path, length);
+        auto bytes = files::read_bytes(path, length);
 
         lua_createtable(L, length, 0);
         int newTable = lua_gettop(L);

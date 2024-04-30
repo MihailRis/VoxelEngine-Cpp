@@ -352,52 +352,52 @@ namespace audio {
 
     /// @brief Initialize audio system or use no audio mode
     /// @param enabled try to initialize actual audio
-    extern void initialize(bool enabled);
+    void initialize(bool enabled);
 
     /// @brief Load audio file info and PCM data
     /// @param file audio file
     /// @param headerOnly read header only
     /// @throws std::runtime_error if I/O error ocurred or format is unknown 
     /// @return PCM audio data
-    extern PCM* load_PCM(const fs::path& file, bool headerOnly);
+    PCM* load_PCM(const fs::path& file, bool headerOnly);
 
     /// @brief Load sound from file
     /// @param file audio file path
     /// @param keepPCM store PCM data in sound to make it accessible with Sound::getPCM
     /// @throws std::runtime_error if I/O error ocurred or format is unknown 
     /// @return new Sound instance
-    extern Sound* load_sound(const fs::path& file, bool keepPCM);
+    Sound* load_sound(const fs::path& file, bool keepPCM);
 
     /// @brief Create new sound from PCM data
     /// @param pcm PCM data
     /// @param keepPCM store PCM data in sound to make it accessible with Sound::getPCM
     /// @return new Sound instance 
-    extern Sound* create_sound(std::shared_ptr<PCM> pcm, bool keepPCM);
+    Sound* create_sound(std::shared_ptr<PCM> pcm, bool keepPCM);
 
     /// @brief Open new PCM stream from file
     /// @param file audio file path
     /// @throws std::runtime_error if I/O error ocurred or format is unknown
     /// @return new PCMStream instance
-    extern PCMStream* open_PCM_stream(const fs::path& file);
+    PCMStream* open_PCM_stream(const fs::path& file);
 
     /// @brief Open new audio stream from file
     /// @param file audio file path
     /// @param keepSource store PCMStream in stream to make it accessible with Stream::getSource
     /// @return new Stream instance
-    extern Stream* open_stream(const fs::path& file, bool keepSource);
+    Stream* open_stream(const fs::path& file, bool keepSource);
 
     /// @brief Open new audio stream from source
     /// @param stream PCM data source
     /// @param keepSource store PCMStream in stream to make it accessible with Stream::getSource
     /// @return new Stream instance
-    extern Stream* open_stream(std::shared_ptr<PCMStream> stream, bool keepSource);
+    Stream* open_stream(std::shared_ptr<PCMStream> stream, bool keepSource);
 
     /// @brief Configure 3D listener
     /// @param position listener position
     /// @param velocity listener velocity (used for Doppler effect)
     /// @param lookAt point the listener look at
     /// @param up camera up vector
-    extern void set_listener(
+    void set_listener(
         glm::vec3 position, 
         glm::vec3 velocity, 
         glm::vec3 lookAt, 
@@ -415,7 +415,7 @@ namespace audio {
     /// (PRIORITY_LOW, PRIORITY_NORMAL, PRIORITY_HIGH)
     /// @param channel channel index
     /// @return speaker id or 0
-    extern speakerid_t play(
+    speakerid_t play(
         Sound* sound,
         glm::vec3 position,
         bool relative,
@@ -435,7 +435,7 @@ namespace audio {
     /// @param loop loop stream
     /// @param channel channel index
     /// @return speaker id or 0
-    extern speakerid_t play(
+    speakerid_t play(
         std::shared_ptr<Stream> stream,
         glm::vec3 position,
         bool relative,
@@ -454,7 +454,7 @@ namespace audio {
     /// @param loop loop stream
     /// @param channel channel index
     /// @return speaker id or 0
-    extern speakerid_t play_stream(
+    speakerid_t play_stream(
         const fs::path& file,
         glm::vec3 position,
         bool relative,
@@ -467,49 +467,49 @@ namespace audio {
     /// @brief Get speaker by id
     /// @param id speaker id
     /// @return speaker or nullptr
-    extern Speaker* get_speaker(speakerid_t id);
+    Speaker* get_speaker(speakerid_t id);
 
     /// @brief Create new channel. 
     /// All non-builtin channels will be destroyed on audio::reset() call
     /// @param name channel name
     /// @return new channel index
-    extern int create_channel(const std::string& name);
+    int create_channel(const std::string& name);
 
     /// @brief Get channel index by name
     /// @param name channel name
     /// @return channel index or -1
-    extern int get_channel_index(const std::string& name);
+    int get_channel_index(const std::string& name);
 
     /// @brief Get channel by index. 0 - is master channel
     /// @param index channel index
     /// @return channel or nullptr
-    extern Channel* get_channel(int index);
+    Channel* get_channel(int index);
 
     /// @brief Get channel by name.
     /// @param name channel name
     /// @return channel or nullptr
-    extern Channel* get_channel(const std::string& name);
+    Channel* get_channel(const std::string& name);
 
     /// @brief Get stream associated with speaker
     /// @param id speaker id
     /// @return stream or nullptr
-    extern std::shared_ptr<Stream> get_associated_stream(speakerid_t id);
+    std::shared_ptr<Stream> get_associated_stream(speakerid_t id);
 
     /// @brief Get alive speakers number (including paused)
-    extern size_t count_speakers();
+    size_t count_speakers();
 
     /// @brief Get playing streams number (including paused) 
-    extern size_t count_streams();
+    size_t count_streams();
 
     /// @brief Update audio streams and sound instanced
     /// @param delta time elapsed since the last update (seconds)
-    extern void update(double delta);
+    void update(double delta);
 
     /// @brief Stop all playing audio in channel, reset channel state
-    extern void reset_channel(int channel);
+    void reset_channel(int channel);
     
     /// @brief Finalize audio system
-    extern void close();
+    void close();
 };
 
 #endif // AUDIO_AUDIO_H_

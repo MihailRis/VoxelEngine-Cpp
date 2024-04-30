@@ -413,12 +413,6 @@ static int l_gui_get_locales_info(lua_State* L) {
     return 1;
 }
 
-/// @brief gui.get_locale() -> string 
-static int l_gui_get_locale(lua_State* L) {
-    lua_pushstring(L, langs::current->getId().c_str());
-    return 1;
-}
-
 const luaL_Reg guilib [] = {
     {"get_viewport", lua_wrap_errors<l_gui_getviewport>},
     {"getattr", lua_wrap_errors<l_gui_getattr>},
@@ -426,7 +420,6 @@ const luaL_Reg guilib [] = {
     {"get_env", lua_wrap_errors<l_gui_get_env>},
     {"str", lua_wrap_errors<l_gui_str>},
     {"reindex", lua_wrap_errors<l_gui_reindex>},
-    {"get_locale", lua_wrap_errors<l_gui_get_locale>},
     {"get_locales_info", lua_wrap_errors<l_gui_get_locales_info>},
     {NULL, NULL}
 };

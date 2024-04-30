@@ -1,8 +1,5 @@
 function create_setting(id, name, step, postfix)
     local info = core.get_setting_info(id)
-    if postfix == nil then
-        postfix = ""
-    end
     document.settings_panel:add(gui.template("track_setting", {
         id=id,
         name=gui.str(name, "settings"),
@@ -10,7 +7,7 @@ function create_setting(id, name, step, postfix)
         min=info.min,
         max=info.max,
         step=step,
-        postfix=postfix
+        postfix=postfix or ""
     }))
 end
 
@@ -41,6 +38,6 @@ function on_open()
     create_checkbox("camera.shaking", "Camera Shaking")
     document.langs_btn.text = string.format(
         "%s: %s", gui.str("Language", "settings"),
-        gui.get_locales_info()[gui.get_locale()].name
+        gui.get_locales_info()[core.get_setting("ui.language")].name
     )
 end

@@ -29,8 +29,8 @@ inline const std::string BIND_HUD_INVENTORY = "hud.inventory";
 class ContentBuilder;
 
 namespace corecontent {
-    extern void setup_bindings();
-    extern void setup(ContentBuilder* builder);
+    void setup_bindings();
+    void setup(ContentBuilder* builder);
 }
 
 #endif // CORE_DEFS_H_
