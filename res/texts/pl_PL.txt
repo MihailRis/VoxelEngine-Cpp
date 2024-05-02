@@ -5,38 +5,53 @@ Ok=OK
 Cancel=Anulowanie
 Back=Powrót
 Continue=Kontynuacja
+Add=Dodać
+Converting world...=Konwersja świata w toku...
 
 error.pack-not-found=Nie udało się znaleźć pakietu
 
 # Menu
-menu.New World=Nowy Świat
-menu.Quit=Wyjście
-menu.Continue=Kontynuacja
-menu.Save and Quit to Menu=Zapisz i wyjdź do menu
-menu.missing-content=Brak treści!
-menu.Controls=Zarządzanie
+menu.Apply=Zastosować
+menu.Audio=Dźwięki
 menu.Back to Main Menu=Powrót do menu
-menu.Settings=Ustawienia
 menu.Content=Treść
+menu.Continue=Kontynuacja
+menu.Controls=Zarządzanie
+menu.Graphics=Grafika
+menu.Create World=Stwórz świat
+menu.missing-content=Brakująca treść!
+menu.New World=Nowy Świat
+menu.Page not found=Strona nie znaleziona
+menu.Quit=Wyjście
+menu.Save and Quit to Menu=Zapisz i wyjdź do menu
+menu.Settings=Ustawienia
+
 world.Seed=Ziarno
 world.Name=Nazwa
-menu.Create World=Stwórz świat
-
 world.World generator=Generator światła
 world.generators.default=Ekstremalne
 world.generators.flat=Mieszkanie
+world.Create World=Stwórz świat
 world.convert-request=Szykują się zmiany w indeksach! Przekształcić świat?
+world.delete-confirm=Trwale usunąć świat?
 
 # Ustawienia
+settings.Ambient=Tło
+settings.Backlight=Podświetlenie
+settings.Camera Shaking=Drżąca kamera
+settings.Fog Curve=Krzywa mgły
+settings.FOV=Wzrok
+settings.Fullscreen=Pełny ekran
+settings.Gamma=Gamma
+settings.Language=Język
 settings.Load Distance=Odległość ładowania
 settings.Load Speed=Prędkość pobierania
-settings.Fog Curve=Krzywa mgły
-settings.Backlight=Podświetlenie
-settings.V-Sync=Synchronizacja pionowa
-
-settings.FOV=Wzrok
+settings.Master Volume=Głośność główna
 settings.Mouse Sensitivity=Wrażliwość myszy
-settings.Language=Język
+settings.Music=Muzyka
+settings.Regular Sounds=Normalne dźwięki
+settings.UI Sounds=Dźwięki interfejsu
+settings.V-Sync=Synchronizacja pionowa
 
 # Zarządzanie
 movement.forward=Naprzód

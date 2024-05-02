@@ -1,7 +1,13 @@
-<panel size='550' color='0' padding='8' interval='5'>
-    <panel id='packs_panel' size='540,10' color='0,0,0,50' max-length='400'>
+<container size='767,454' color='#0F1E2DB2' padding='8' interval='5' context='menu'>
+    <panel id='packs_cur' pos='2' size='380,406' color='0' max-length='406'>
         <!-- content is generated in script -->
     </panel>
-    <button onclick='menu.page = "add_packs"'>@Add</button>
-    <button onclick='menu:back()'>@Back</button>
-</panel>
+    <panel id='packs_add' pos='385,2' size='380,406' color='0' max-length='406'>
+        <!-- content is generated in script -->
+    </panel>
+    <button id='apply_btn' pos='2,410' size='380,40' onclick='apply()'>@Apply</button>
+    <button pos='385,410' size='338,40' onclick='menu:back()'>@Cancel</button>
+    <image onclick='refresh()' interactive='true' src='gui/refresh' 
+        size='32' margin='7' gravity='bottom-right'
+        color='#FFFFFF80' hover-color='#FFFFFF10'/>
+</container>

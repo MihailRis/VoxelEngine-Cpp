@@ -17,6 +17,7 @@ class Assets;
 namespace gui {
     class UINode;
     class GUI;
+    class Container;
 
     using onaction = std::function<void(GUI*)>;
     using onnumberchange = std::function<void(GUI*, double)>;
@@ -188,7 +189,10 @@ namespace gui {
                 parent->fullRefresh();
             }
         };
-        virtual void lock();
+        static void moveInto(
+            std::shared_ptr<UINode> node,
+            std::shared_ptr<Container> dest
+        );
 
         virtual vec2supplier getPositionFunc() const;
         virtual void setPositionFunc(vec2supplier);

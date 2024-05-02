@@ -217,8 +217,9 @@ void EngineController::reopenWorld(World* world) {
     openWorld(wname, true);
 }
 
-void EngineController::removePacks(
+void EngineController::reconfigPacks(
     LevelController* controller,
+    std::vector<std::string> packsToAdd,
     std::vector<std::string> packsToRemove
 ) {
     auto content = engine->getContent();
@@ -242,6 +243,9 @@ void EngineController::removePacks(
         manager.scan();
 
         auto names = PacksManager::getNames(world->getPacks());
+        for (const auto& id : packsToAdd) {
+            names.push_back(id);
+        }
         for (const auto& id : packsToRemove) {
             manager.exclude(id);
             names.erase(std::find(names.begin(), names.end(), id));
@@ -261,32 +265,4 @@ void EngineController::removePacks(
     } else {
         removeFunc();
     }
-}
-
-void EngineController::addPacks(
-    LevelController* controller,
-    std::vector<std::string> packs
-) {
-    auto level = controller->getLevel();
-    auto gui = engine->getGUI();
-    auto world = level->getWorld();
-    auto new_packs = PacksManager::getNames(world->getPacks());
-    for (auto& id : packs) {
-        new_packs.push_back(id);
-    }
-
-    auto manager = engine->createPacksManager(world->wfile->getFolder());
-    manager.scan();
-    try {
-        new_packs = manager.assembly(new_packs);
-    } catch (const contentpack_error& err) {
-        guiutil::alert(
-            gui, langs::get(L"error.dependency-not-found")+
-            L": "+util::str2wstr_utf8(err.getPackId())
-        );
-        return;
-    }
-    world->wfile->writePacks(manager.getAll(new_packs));
-    controller->saveWorld();
-    reopenWorld(world);
 }

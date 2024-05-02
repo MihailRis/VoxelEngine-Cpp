@@ -13,44 +13,44 @@ error.dependency-not-found=Die verwendete Abhängigkeit wurde nicht gefunden
 pack.remove-confirm=Alle vom Paket bereitgestellten Inhalte (dauerhaft) aus der Welt löschen?
 
 # Меню
+menu.Apply=Anwenden
+menu.Audio=Klang
+menu.Back to Main Menu=Zurück zum Menü
+menu.Content Error=Inhaltsfehler
+menu.Content=Inhalt
+menu.Continue=Weitermachen
+menu.Controls=Kontrolle
+menu.Create World=Erschaffe eine Welt
+menu.missing-content=Fehlender Inhalt!
 menu.New World=Neue Welt
 menu.Quit=Ausfahrt
-menu.Continue=Weitermachen
 menu.Save and Quit to Menu=Speichern und zum Menü zurückkehren
-menu.missing-content=Fehlender Inhalt!
-menu.Content Error=Inhaltsfehler
-menu.Controls=Kontrolle
-menu.Back to Main Menu=Zurück zum Menü
 menu.Settings=Einstellungen
-menu.Content=Inhalt
-menu.Audio=Klang
+
 world.Seed=Mais
 world.Name=Name
-
 world.World generator=Weltgenerator
 world.generators.default=Normal
 world.generators.flat=Wohnung
-menu.Create World=Erschaffe eine Welt
-
+world.Create World=Welt Erschaffen
 world.convert-request=Es gibt Änderungen in den Indizes! Die Welt bekehren?
 world.delete-confirm=Die Welt dauerhaft löschen?
 
 # Настройки
+settings.Ambient=Hintergrund
+settings.Backlight=Hintergrundbeleuchtung
+settings.Camera Shaking=Wackelnde Kamera
+settings.Fog Curve=Nebelkurve
+settings.FOV=Sichtlinie
+settings.Language=Sprache
 settings.Load Distance=Ladeentfernung
 settings.Load Speed=Download-Geschwindigkeit
-settings.Fog Curve=Nebelkurve
-settings.Backlight=Hintergrundbeleuchtung
-settings.V-Sync=Vertikale Synchronisation
-settings.Camera Shaking=Wackelnde Kamera
 settings.Master Volume=Allgemeine Lautstärke
+settings.Mouse Sensitivity=Maus-Empfindlichkeit
+settings.Music=Musik
 settings.Regular Sounds=Normale Geräusche
 settings.UI Sounds=Interface-Sounds
-settings.Ambient=Hintergrund
-settings.Music=Musik
-
-settings.FOV=Sichtlinie
-settings.Mouse Sensitivity=Maus-Empfindlichkeit
-settings.Language=Sprache
+settings.V-Sync=Vertikale Synchronisation
 
 # Управление
 movement.forward=Vorwärts

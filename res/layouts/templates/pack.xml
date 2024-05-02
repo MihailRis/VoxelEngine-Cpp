@@ -1,6 +1,6 @@
-<container onclick='%{callback}' size='540,80' color='#0F1E2DB2' hover-color='#0F1E2DF0'>
+<container id='pack_%{id}' onclick='%{callback}' size='540,80' color='#00000040' hover-color='#00000080' z-index="%{index}">
     <label color='#FFFFFF80' size='300,25' align='right' gravity='top-right'>
-        [%{id}]
+        [%{id_verbose}]
     </label>
     <label pos='78,6'>%{title}</label>
     <label if='%{creator}' color='#CCFFE5B2' size='300,20' align='right' 
@@ -10,9 +10,5 @@
     <label pos='80,28' color='#FFFFFFB2'>
         %{description}
     </label>
-    <button if='%{remover}' onclick='%{remover}' color='0' hover-color='#FFFFFF2B' 
-            gravity='center-right' margin='10' padding='0'>
-        <image src='gui/cross' size='32,32' color='#FFFFFF80'/>
-    </button>
-    <image pos='8,8' src='%{icon}' size='64'></image>
+    <image pos='8,8' src='%{icon}' size='64'/>
 </container>

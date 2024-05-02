@@ -198,7 +198,18 @@ int UINode::getZIndex() const {
     return zindex;
 }
 
-void UINode::lock() {
+void UINode::moveInto(
+    std::shared_ptr<UINode> node,
+    std::shared_ptr<Container> dest
+) {
+    auto parent = node->getParent();
+    if (auto container = dynamic_cast<Container*>(parent)) {
+        container->remove(node);
+    }
+    if (parent) {
+        parent->scrolled(0);
+    }
+    dest->add(node);
 }
 
 vec2supplier UINode::getPositionFunc() const {

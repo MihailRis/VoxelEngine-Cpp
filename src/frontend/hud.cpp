@@ -203,6 +203,9 @@ void Hud::processInput(bool visible) {
             setPause(true);
         }
     }
+    if (!Window::isFocused() && !pause && !isInventoryOpen()) {
+        setPause(true);
+    }
 
     if (!pause && visible && Events::jactive(BIND_HUD_INVENTORY)) {
         if (inventoryOpen) {

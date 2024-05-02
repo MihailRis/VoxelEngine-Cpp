@@ -52,6 +52,10 @@ void Panel::add(std::shared_ptr<UINode> node) {
 
 void Panel::refresh() {
     UINode::refresh();
+    std::stable_sort(nodes.begin(), nodes.end(), [](auto a, auto b) {
+        return a->getZIndex() < b->getZIndex();
+    });
+
     float x = padding.x;
     float y = padding.y;
     glm::vec2 size = getSize();

@@ -125,6 +125,14 @@ void Container::remove(std::shared_ptr<UINode> selected) {
     refresh();
 }
 
+void Container::clear() {
+    for (auto node : nodes) {
+        node->setParent(nullptr);
+    }
+    nodes.clear();
+    refresh();
+}
+
 void Container::listenInterval(float interval, ontimeout callback, int repeat) {
     intervalEvents.push_back({callback, interval, 0.0f, repeat});
 }

@@ -61,7 +61,7 @@ struct GraphicsSettings {
     /// @brief Enable blocks backlight to prevent complete darkness
     FlagSetting backlight {true};
     /// @brief Enable chunks frustum culling
-    FlagSetting frustumCulling {true}; // redutant?
+    FlagSetting frustumCulling {true};
     IntegerSetting skyboxResolution {64 + 32, 64, 128};
 };
 

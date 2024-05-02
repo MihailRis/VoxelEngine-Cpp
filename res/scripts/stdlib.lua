@@ -232,6 +232,37 @@ function session.reset_entry(name)
     session.entries[name] = nil
 end
 
+function timeit(func, ...)
+    local tm = time.uptime()
+    func(...)
+    print("[time mcs]", (time.uptime()-tm) * 1000000)
+end
+
+function table.has(t, x)
+    for i,v in ipairs(t) do
+        if v == x then
+            return true
+        end
+    end
+    return false
+end
+
+function table.index(t, x)
+    for i,v in ipairs(t) do
+        if v == x then
+            return i
+        end
+    end
+    return -1
+end
+
+function table.remove_value(t, x)
+    local index = table.index(t, x)
+    if index ~= -1 then
+        table.remove(t, index)
+    end
+end
+
 -- Deprecated functions
 block_index = block.index
 block_name = block.name

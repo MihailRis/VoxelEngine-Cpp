@@ -8,6 +8,7 @@
 #include "../../../frontend/screens/MenuScreen.hpp"
 #include "../../../logic/LevelController.h"
 #include "../../../logic/EngineController.hpp"
+#include "../../../world/Level.h"
 #include "../../../window/Events.h"
 #include "../../../window/Window.h"
 #include "../../../world/WorldGenerators.h"
@@ -37,6 +38,12 @@ static int l_open_world(lua_State* L) {
     return 0;
 }
 
+static int l_reopen_world(lua_State* L) {
+    auto controller = scripting::engine->getController();
+    controller->reopenWorld(scripting::level->getWorld());
+    return 0;
+}
+
 static int l_close_world(lua_State* L) {
     if (scripting::controller == nullptr) {
         luaL_error(L, "no world open");
@@ -59,35 +66,30 @@ static int l_delete_world(lua_State* L) {
     return 0;
 }
 
-static int l_remove_packs(lua_State* L) {
+static int l_reconfig_packs(lua_State* L) {
     if (!lua_istable(L, 1)) {
-        luaL_error(L, "strings array expected as an argument");
+        luaL_error(L, "strings array expected as the first argument");
     }
-    std::vector<std::string> packs;
-    int len = lua_objlen(L, 1);
-    for (int i = 0; i < len; i++) {
-        lua_rawgeti(L, -1, i+1);
-        packs.push_back(lua_tostring(L, -1));
+    if (!lua_istable(L, 2)) {
+        luaL_error(L, "strings array expected as the second argument");
+    }
+    std::vector<std::string> addPacks;
+    int addLen = lua_objlen(L, 1);
+    for (int i = 0; i < addLen; i++) {
+        lua_rawgeti(L, 1, i+1);
+        addPacks.push_back(lua_tostring(L, -1));
         lua_pop(L, 1);
     }
-    auto controller = scripting::engine->getController();
-    controller->removePacks(scripting::controller, packs);
-    return 0;
-}
 
-static int l_add_packs(lua_State* L) {
-    if (!lua_istable(L, 1)) {
-        luaL_error(L, "strings array expected as an argument");
-    }
-    std::vector<std::string> packs;
-    int len = lua_objlen(L, 1);
-    for (int i = 0; i < len; i++) {
-        lua_rawgeti(L, -1, i+1);
-        packs.push_back(lua_tostring(L, -1));
+    std::vector<std::string> remPacks;
+    int remLen = lua_objlen(L, 2);
+    for (int i = 0; i < remLen; i++) {
+        lua_rawgeti(L, 2, i+1);
+        remPacks.push_back(lua_tostring(L, -1));
         lua_pop(L, 1);
     }
     auto controller = scripting::engine->getController();
-    controller->addPacks(scripting::controller, packs);
+    controller->reconfigPacks(scripting::controller, addPacks, remPacks);
     return 0;
 }
 
@@ -174,10 +176,10 @@ static int l_get_generators(lua_State* L) {
 const luaL_Reg corelib [] = {
     {"new_world", lua_wrap_errors<l_new_world>},
     {"open_world", lua_wrap_errors<l_open_world>},
+    {"reopen_world", lua_wrap_errors<l_reopen_world>},
     {"close_world", lua_wrap_errors<l_close_world>},
     {"delete_world", lua_wrap_errors<l_delete_world>},
-    {"add_packs", lua_wrap_errors<l_add_packs>},
-    {"remove_packs", lua_wrap_errors<l_remove_packs>},
+    {"reconfig_packs", lua_wrap_errors<l_reconfig_packs>},
     {"get_bindings", lua_wrap_errors<l_get_bindings>},
     {"get_setting", lua_wrap_errors<l_get_setting>},
     {"set_setting", lua_wrap_errors<l_set_setting>},

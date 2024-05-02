@@ -22,14 +22,10 @@ public:
     /// @param name world name
     void deleteWorld(std::string name);
 
-    void removePacks(
-        LevelController* controller, 
-        std::vector<std::string> packs
-    );
-
-    void addPacks(
+    void reconfigPacks(
         LevelController* controller,
-        std::vector<std::string> packs
+        std::vector<std::string> packsToAdd,
+        std::vector<std::string> packsToRemove
     );
 
     void createWorld(

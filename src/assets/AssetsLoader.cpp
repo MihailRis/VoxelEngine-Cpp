@@ -184,6 +184,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
     loader.add(AssetType::texture, TEXTURES_FOLDER+"/gui/warning", "gui/warning");
     loader.add(AssetType::texture, TEXTURES_FOLDER+"/gui/error", "gui/error");
     loader.add(AssetType::texture, TEXTURES_FOLDER+"/gui/cross", "gui/cross");
+    loader.add(AssetType::texture, TEXTURES_FOLDER+"/gui/refresh", "gui/refresh");
     if (content) {
         loader.processPreloadConfigs(content);
 

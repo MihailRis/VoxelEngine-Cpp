@@ -27,7 +27,7 @@ using namespace gui;
 
 struct DocumentNode {
     UiDocument* document;
-    UINode* node;
+    std::shared_ptr<UINode> node;
 };
 
 static DocumentNode getDocumentNode(lua_State* L, const std::string& name, const std::string& nodeName) {
@@ -39,7 +39,7 @@ static DocumentNode getDocumentNode(lua_State* L, const std::string& name, const
     if (node == nullptr) {
         luaL_error(L, "document '%s' has no element with id '%s'", name.c_str(), nodeName.c_str());
     }
-    return {doc, node.get()};
+    return {doc, node};
 }
 
 static bool getattr(lua_State* L, TrackBar* bar, const std::string& attr) {
@@ -137,9 +137,9 @@ static bool getattr(lua_State* L, TextBox* box, const std::string& attr) {
     return false;
 }
 
-static DocumentNode getDocumentNode(lua_State* L) {
-    lua_getfield(L, 1, "docname");
-    lua_getfield(L, 1, "name");
+static DocumentNode getDocumentNode(lua_State* L, int idx=1) {
+    lua_getfield(L, idx, "docname");
+    lua_getfield(L, idx, "name");
     auto docname = lua_tostring(L, -2);
     auto name = lua_tostring(L, -1);
     auto node = getDocumentNode(L, docname, name);
@@ -149,14 +149,14 @@ static DocumentNode getDocumentNode(lua_State* L) {
 
 static int menu_back(lua_State* L) {
     auto node = getDocumentNode(L);
-    auto menu = dynamic_cast<Menu*>(node.node);
+    auto menu = dynamic_cast<Menu*>(node.node.get());
     menu->back();
     return 0;
 }
 
 static int menu_reset(lua_State* L) {
     auto node = getDocumentNode(L);
-    auto menu = dynamic_cast<Menu*>(node.node);
+    auto menu = dynamic_cast<Menu*>(node.node.get());
     menu->reset();
     return 0;
 }
@@ -249,7 +249,7 @@ static bool setattr(lua_State* L, InventoryView* view, const std::string& attr) 
 
 static int container_add(lua_State* L) {
     auto docnode = getDocumentNode(L);
-    auto node = dynamic_cast<Container*>(docnode.node);
+    auto node = dynamic_cast<Container*>(docnode.node.get());
     auto xmlsrc = lua_tostring(L, 2);
     try {
         auto subnode = guiutil::create(xmlsrc, docnode.document->getEnvironment());
@@ -261,12 +261,23 @@ static int container_add(lua_State* L) {
     return 0;
 }
 
+static int container_clear(lua_State* L) {
+    auto node = getDocumentNode(L, 1);
+    if (auto container = std::dynamic_pointer_cast<Container>(node.node)) {
+        container->clear();
+    }
+    return 0;
+}
+
 static bool getattr(lua_State* L, Container* container, const std::string& attr) {
     if (container == nullptr)
         return false;
     
     if (attr == "add") {
         lua_pushcfunction(L, container_add);
+        return true;
+    } else if (attr == "clear") {
+        lua_pushcfunction(L, container_clear);
         return true;
     }
     return false;
@@ -281,6 +292,13 @@ static bool getattr(lua_State* L, InventoryView* inventory, const std::string& a
         return true;
     }
     return false;
+}
+
+static int uinode_move_into(lua_State* L) {
+    auto node = getDocumentNode(L, 1);
+    auto dest = getDocumentNode(L, 2);
+    UINode::moveInto(node.node, std::dynamic_pointer_cast<Container>(dest.node));
+    return 0;
 }
 
 static int l_gui_getattr(lua_State* L) {
@@ -307,23 +325,26 @@ static int l_gui_getattr(lua_State* L) {
     } else if (attr == "enabled") {
         lua_pushboolean(L, node->isEnabled());
         return 1;
+    } else if (attr == "move_into") {
+        lua_pushcfunction(L, uinode_move_into);
+        return 1;
     }
 
-    if (getattr(L, dynamic_cast<Container*>(node), attr))
+    if (getattr(L, dynamic_cast<Container*>(node.get()), attr))
         return 1;
-    if (getattr(L, dynamic_cast<Button*>(node), attr))
+    if (getattr(L, dynamic_cast<Button*>(node.get()), attr))
         return 1;
-    if (getattr(L, dynamic_cast<Label*>(node), attr))
+    if (getattr(L, dynamic_cast<Label*>(node.get()), attr))
         return 1;
-    if (getattr(L, dynamic_cast<TextBox*>(node), attr))
+    if (getattr(L, dynamic_cast<TextBox*>(node.get()), attr))
         return 1;
-    if (getattr(L, dynamic_cast<TrackBar*>(node), attr))
+    if (getattr(L, dynamic_cast<TrackBar*>(node.get()), attr))
         return 1;
-    if (getattr(L, dynamic_cast<FullCheckBox*>(node), attr))
+    if (getattr(L, dynamic_cast<FullCheckBox*>(node.get()), attr))
         return 1;
-    if (getattr(L, dynamic_cast<Menu*>(node), attr))
+    if (getattr(L, dynamic_cast<Menu*>(node.get()), attr))
         return 1;
-    if (getattr(L, dynamic_cast<InventoryView*>(node), attr))
+    if (getattr(L, dynamic_cast<InventoryView*>(node.get()), attr))
         return 1;
 
     return 0;
@@ -356,19 +377,19 @@ static int l_gui_setattr(lua_State* L) {
     } else if (attr == "enabled") {
         node->setEnabled(lua_toboolean(L, 4));
     } else {
-        if (setattr(L, dynamic_cast<Button*>(node), attr))
+        if (setattr(L, dynamic_cast<Button*>(node.get()), attr))
             return 0;
-        if (setattr(L, dynamic_cast<Label*>(node), attr))
+        if (setattr(L, dynamic_cast<Label*>(node.get()), attr))
             return 0;
-        if (setattr(L, dynamic_cast<TextBox*>(node), attr))
+        if (setattr(L, dynamic_cast<TextBox*>(node.get()), attr))
             return 0;
-        if (setattr(L, dynamic_cast<TrackBar*>(node), attr))
+        if (setattr(L, dynamic_cast<TrackBar*>(node.get()), attr))
             return 0;
-        if (setattr(L, dynamic_cast<FullCheckBox*>(node), attr))
+        if (setattr(L, dynamic_cast<FullCheckBox*>(node.get()), attr))
             return 0;
-        if (setattr(L, dynamic_cast<Menu*>(node), attr))
+        if (setattr(L, dynamic_cast<Menu*>(node.get()), attr))
             return 0;
-        if (setattr(L, dynamic_cast<InventoryView*>(node), attr))
+        if (setattr(L, dynamic_cast<InventoryView*>(node.get()), attr))
             return 0;
     }
     return 0;
