@@ -7,7 +7,13 @@
 
 inline constexpr int ENGINE_VERSION_MAJOR = 0;
 inline constexpr int ENGINE_VERSION_MINOR = 21;
-inline constexpr bool ENGINE_VERSION_INDEV = true;
+
+#ifdef NDEBUG
+inline constexpr bool ENGINE_DEBUG_BUILD = false;
+#else
+inline constexpr bool ENGINE_DEBUG_BUILD = true;
+#endif // NDEBUG
+
 inline const std::string ENGINE_VERSION_STRING = "0.21";
 
 inline constexpr int BLOCK_AIR = 0;

@@ -78,7 +78,7 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
             paths->getResources()
         ));
     }
-    if (ENGINE_VERSION_INDEV) {
+    if (ENGINE_DEBUG_BUILD) {
         menus::create_version_label(this);
     }
     keepAlive(settings.ui.language.observe([=](auto lang) {
