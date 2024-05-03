@@ -9,6 +9,7 @@
 #include "../../../world/World.h"
 
 #include <string>
+#include <stdexcept>
 #include <filesystem>
 
 static int l_pack_get_folder(lua_State* L) {
@@ -84,6 +85,23 @@ static int l_pack_get_info(lua_State* L, const ContentPack& pack, const Content*
 
     lua_pushstring(L, icon.c_str());
     lua_setfield(L, -2, "icon");
+
+    if (!pack.dependencies.empty()) {
+        lua_createtable(L, pack.dependencies.size(), 0);
+        for (size_t i = 0; i < pack.dependencies.size(); i++) {
+            auto& dpack = pack.dependencies.at(i);
+            std::string prefix;
+            switch (dpack.level) {
+                case DependencyLevel::required: prefix = "!"; break;
+                case DependencyLevel::optional: prefix = "?"; break;
+                case DependencyLevel::weak: prefix = "~"; break;
+                default: throw std::runtime_error("");
+            }
+            lua_pushfstring(L, "%s%s", prefix.c_str(), dpack.id.c_str());
+            lua_rawseti(L, -2, i+1);
+        }
+        lua_setfield(L, -2, "dependencies");
+    }
 
     auto runtime = content ? content->getPackRuntime(pack.id) : nullptr;
     if (runtime) {
