@@ -149,7 +149,11 @@ void Label::draw(const DrawContext* pctx, Assets* assets) {
         cache.update(text, multiline, textWrap);
     }
 
-    batch->setColor(getColor());
+    if (isEnabled()) {
+        batch->setColor(isPressed() ? pressedColor : (hover ? hoverColor : color));
+    } else {
+        batch->setColor({color.r, color.g, color.b, color.a * 0.5f});
+    }
 
     uint lineHeight = font->getLineHeight();
     if (cache.lines.size() > 1) {

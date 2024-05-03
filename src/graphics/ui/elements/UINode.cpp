@@ -29,6 +29,9 @@ void UINode::setEnabled(bool flag) {
 }
 
 bool UINode::isEnabled() const {
+    if (enabled && parent) {
+        return parent->isEnabled();
+    }
     return enabled;
 }
 

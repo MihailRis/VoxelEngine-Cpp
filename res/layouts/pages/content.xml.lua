@@ -44,11 +44,15 @@ function place_pack(panel, packid, packinfo, callback)
     packinfo.id_verbose = packid
     packinfo.callback = callback
     panel:add(gui.template("pack", packinfo))
+    if callback == "" then
+        document["pack_"..packinfo.id].enabled = false
+    end
 end
 
 function refresh()
     packs_installed = pack.get_installed()
     packs_available = pack.get_available()
+    packs_all = {unpack(packs_installed), unpack(packs_available)}
     
     local packs_cur = document.packs_cur
     local packs_add = document.packs_add
@@ -67,7 +71,19 @@ function refresh()
     for i,id in ipairs(packs_available) do
         local packinfo = pack.get_info(id)
         packinfo.index = i
+        packinfo.missing = ""
         callback = string.format('move_pack("%s")', id)
+        if packinfo.dependencies then
+            for j,dep in ipairs(packinfo.dependencies) do
+                local depid = dep:sub(2,-1)
+                if dep:sub(1,1) == '!' and not table.has(packs_all, depid) then
+                    packinfo.missing = depid
+                    packinfo.description = ""
+                    callback = ''
+                end
+            end
+        end
+        
         place_pack(packs_add, id, packinfo, callback)
     end
 

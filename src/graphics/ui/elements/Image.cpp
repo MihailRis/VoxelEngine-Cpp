@@ -22,7 +22,7 @@ void Image::draw(const DrawContext* pctx, Assets* assets) {
         setSize(glm::vec2(texture->getWidth(), texture->getHeight()));
     }
     batch->texture(texture);
-    if (enabled) {
+    if (isEnabled()) {
         batch->setColor(isPressed() ? pressedColor : (hover ? hoverColor : color));
     } else {
         batch->setColor({color.r, color.g, color.b, color.a * 0.5f});

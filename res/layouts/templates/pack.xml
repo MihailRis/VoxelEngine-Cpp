@@ -7,6 +7,7 @@
            gravity='bottom-right'>
         %{creator}
     </label>
+    <label if='%{missing}' pos='80,28' color='#FF4040'>missing '%{missing}'</label>
     <label pos='80,28' color='#FFFFFFB2'>
         %{description}
     </label>

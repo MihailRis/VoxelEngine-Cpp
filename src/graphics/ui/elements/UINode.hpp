@@ -47,6 +47,8 @@ namespace gui {
     class UINode {
         /// @brief element identifier used for direct access in UiDocument
         std::string id = "";
+        /// @brief element enabled state
+        bool enabled = true;
     protected:
         /// @brief element position within the parent element
         glm::vec2 pos {0.0f};
@@ -62,8 +64,6 @@ namespace gui {
         glm::vec4 pressedColor {1.0f};
         /// @brief element margin (only supported for Panel sub-nodes)
         glm::vec4 margin {1.0f};
-        /// @brief element enabled state
-        bool enabled = true;
         /// @brief is element visible
         bool visible = true;
         /// @brief is mouse over the element

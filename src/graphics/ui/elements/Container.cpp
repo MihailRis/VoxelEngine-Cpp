@@ -11,7 +11,7 @@ Container::Container(glm::vec2 size) : UINode(size) {
 }
 
 std::shared_ptr<UINode> Container::getAt(glm::vec2 pos, std::shared_ptr<UINode> self) {
-    if (!interactive || !enabled) {
+    if (!interactive || !isEnabled()) {
         return nullptr;
     }
     if (!isInside(pos)) return nullptr;
@@ -92,7 +92,12 @@ void Container::draw(const DrawContext* pctx, Assets* assets) {
 }
 
 void Container::drawBackground(const DrawContext* pctx, Assets* assets) {
-    glm::vec4 color = isPressed() ? pressedColor : (hover ? hoverColor : this->color);
+    glm::vec4 color = this->color;
+    if (isEnabled()) {
+        color = (isPressed() ? pressedColor : (hover ? hoverColor : color));
+    } else {
+        color = glm::vec4(color.r, color.g, color.b, color.a * 0.5f);
+    }
     if (color.a <= 0.001f)
         return;
     glm::vec2 pos = calcPos();
