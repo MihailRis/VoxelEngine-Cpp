@@ -63,6 +63,9 @@ static int l_pack_get_available(lua_State* L) {
 static int l_pack_get_info(lua_State* L, const ContentPack& pack, const Content* content) {
     lua_createtable(L, 0, 5);
 
+    lua_pushstring(L, pack.id.c_str());
+    lua_setfield(L, -2, "id");
+
     lua_pushstring(L, pack.title.c_str());
     lua_setfield(L, -2, "title");
 

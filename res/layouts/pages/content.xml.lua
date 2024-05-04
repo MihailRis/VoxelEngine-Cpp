@@ -2,7 +2,6 @@ function on_open()
     refresh()
 end
 
--- // FIXME: dependency checks
 add_packs = {}
 rem_packs = {}
 
@@ -35,15 +34,15 @@ function move_pack(id)
     refresh_changes()
 end
 
-function place_pack(panel, packid, packinfo, callback)
-    packinfo.id = packid
+function place_pack(panel, packinfo, callback)
     if packinfo.error then
         callback = nil
     end
     if packinfo.has_indices then
-        packid = packid.."*"
+        packinfo.id_verbose = packinfo.id.."*"
+    else
+        packinfo.id_verbose = packinfo.id
     end
-    packinfo.id_verbose = packid
     packinfo.callback = callback
     panel:add(gui.template("pack", packinfo))
     if not callback then
@@ -64,8 +63,8 @@ function check_dependencies(packinfo)
                     "%s (%s)", gui.str("error.dependency-not-found"), depid
                 )
             end
-            if document["pack_"..depid] then
-                document["pack_"..depid].enabled = false
+            if table.has(packs_installed, packinfo.id) then
+                table.insert(required, depid)
             end
         end
     end
@@ -76,6 +75,7 @@ function refresh()
     packs_installed = pack.get_installed()
     packs_available = pack.get_available()
     packs_all = {unpack(packs_installed)}
+    required = {}
     for i,k in ipairs(packs_available) do
         table.insert(packs_all, k)
     end
@@ -91,7 +91,7 @@ function refresh()
         packinfo.index = i
         callback = id ~= "base" and string.format('move_pack("%s")', id) or nil
         packinfo.error = check_dependencies(packinfo)
-        place_pack(packs_cur, id, packinfo, callback)
+        place_pack(packs_cur, packinfo, callback)
     end
 
     for i,id in ipairs(packs_available) do
@@ -99,10 +99,20 @@ function refresh()
         packinfo.index = i
         callback = string.format('move_pack("%s")', id)
         packinfo.error = check_dependencies(packinfo)
-        place_pack(packs_add, id, packinfo, callback)
+        place_pack(packs_add, packinfo, callback)
     end
 
-    -- apply packs movements
+    for i,id in ipairs(packs_installed) do
+        if table.has(required, id) then
+            document["pack_"..id].enabled = false
+        end
+    end
+
+    apply_movements(packs_cur, packs_add)
+    refresh_changes()
+end
+
+function apply_movements(packs_cur, packs_add)
     for i,id in ipairs(packs_installed) do
         if table.has(rem_packs, id) then
             document["pack_"..id]:move_into(packs_add)
@@ -113,5 +123,4 @@ function refresh()
             document["pack_"..id]:move_into(packs_cur)
         end
     end
-    refresh_changes()
 end
