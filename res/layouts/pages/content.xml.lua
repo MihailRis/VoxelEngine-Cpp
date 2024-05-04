@@ -37,53 +37,68 @@ end
 
 function place_pack(panel, packid, packinfo, callback)
     packinfo.id = packid
-    callback = callback or ""
+    if packinfo.error then
+        callback = nil
+    end
     if packinfo.has_indices then
         packid = packid.."*"
     end
     packinfo.id_verbose = packid
     packinfo.callback = callback
     panel:add(gui.template("pack", packinfo))
-    if callback == "" then
+    if not callback then
         document["pack_"..packinfo.id].enabled = false
     end
+end
+
+function check_dependencies(packinfo)
+    if packinfo.dependencies == nil then
+        return
+    end
+    for i,dep in ipairs(packinfo.dependencies) do
+        local depid = dep:sub(2,-1)
+        if dep:sub(1,1) == '!' then 
+            if not table.has(packs_all, depid) then
+                packinfo.description = ""
+                return string.format(
+                    "%s (%s)", gui.str("error.dependency-not-found"), depid
+                )
+            end
+            if document["pack_"..depid] then
+                document["pack_"..depid].enabled = false
+            end
+        end
+    end
+    return
 end
 
 function refresh()
     packs_installed = pack.get_installed()
     packs_available = pack.get_available()
-    packs_all = {unpack(packs_installed), unpack(packs_available)}
-    
+    packs_all = {unpack(packs_installed)}
+    for i,k in ipairs(packs_available) do
+        table.insert(packs_all, k)
+    end
+
     local packs_cur = document.packs_cur
     local packs_add = document.packs_add
 
     packs_cur:clear()
     packs_add:clear()
-    refresh_changes()
 
     for i,id in ipairs(packs_installed) do
         local packinfo = pack.get_info(id)
         packinfo.index = i
         callback = id ~= "base" and string.format('move_pack("%s")', id) or nil
+        packinfo.error = check_dependencies(packinfo)
         place_pack(packs_cur, id, packinfo, callback)
     end
 
     for i,id in ipairs(packs_available) do
         local packinfo = pack.get_info(id)
         packinfo.index = i
-        packinfo.missing = ""
         callback = string.format('move_pack("%s")', id)
-        if packinfo.dependencies then
-            for j,dep in ipairs(packinfo.dependencies) do
-                local depid = dep:sub(2,-1)
-                if dep:sub(1,1) == '!' and not table.has(packs_all, depid) then
-                    packinfo.missing = depid
-                    packinfo.description = ""
-                    callback = ''
-                end
-            end
-        end
-        
+        packinfo.error = check_dependencies(packinfo)
         place_pack(packs_add, id, packinfo, callback)
     end
 
@@ -98,4 +113,5 @@ function refresh()
             document["pack_"..id]:move_into(packs_cur)
         end
     end
+    refresh_changes()
 end

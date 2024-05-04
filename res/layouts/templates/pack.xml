@@ -7,7 +7,7 @@
            gravity='bottom-right'>
         %{creator}
     </label>
-    <label if='%{missing}' pos='80,28' color='#FF4040'>missing '%{missing}'</label>
+    <label if='%{error}' pos='80,28' size='290,50' multiline='true' color='#FF4040'>%{error}</label>
     <label pos='80,28' color='#FFFFFFB2'>
         %{description}
     </label>
