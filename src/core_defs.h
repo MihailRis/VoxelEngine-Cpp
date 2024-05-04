@@ -8,7 +8,7 @@ inline const std::string CORE_AIR = "core:air";
 
 inline const std::string TEXTURE_NOTFOUND = "notfound";
 
-/* bindings used in engine code */
+// bindings used in engine code
 inline const std::string BIND_MOVE_FORWARD = "movement.forward";
 inline const std::string BIND_MOVE_BACK = "movement.back";
 inline const std::string BIND_MOVE_LEFT = "movement.left";

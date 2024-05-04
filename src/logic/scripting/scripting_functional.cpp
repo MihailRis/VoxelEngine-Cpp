@@ -3,11 +3,14 @@
 #include <iostream>
 
 #include "lua/LuaState.h"
+#include "../../debug/Logger.hpp"
 #include "../../util/stringutil.h"
 
 namespace scripting {
     extern lua::LuaState* state;
 }
+
+static debug::Logger logger("scripting_func");
 
 using namespace scripting;
 
@@ -16,13 +19,13 @@ runnable scripting::create_runnable(
     const std::string& src,
     const std::string& file
 ) {
-    return [=](){
-        try {
-            state->execute(*env, src, file);
-        } catch (const lua::luaerror& err) {
-            std::cerr << err.what() << std::endl;
-        }
-    };
+    try {
+        state->loadbuffer(*env, src, file);
+        return state->createLambda();
+    } catch (const lua::luaerror& err) {
+        logger.error() << err.what();
+        return [](){};
+    }
 }
 
 static bool processCallback(

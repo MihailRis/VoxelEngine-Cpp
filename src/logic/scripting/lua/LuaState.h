@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "../../../data/dynamic.h"
+#include "../../../delegates.h"
 
 #ifndef LUAJIT_VERSION
 #error LuaJIT required
@@ -62,6 +63,7 @@ namespace lua {
         bool hasglobal(const std::string& name);
         bool rename(const std::string& from, const std::string& to);
         void remove(const std::string& name);;
+        runnable createLambda();
         int createEnvironment(int parent);
         void removeEnvironment(int id);
         const std::string storeAnonymous();
