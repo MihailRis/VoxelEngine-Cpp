@@ -10,6 +10,7 @@
     <button onclick='save_state() menu.page="generators"' id='generator_btn'>
         @World generator
     </button>
+    <button id='content_btn' onclick='save_state() menu.page="content"'/>
     <button onclick='create_world()' margin='1,20,1,1'>
         @Create World
     </button>

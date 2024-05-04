@@ -30,6 +30,9 @@ function create_world()
 end
 
 function on_open()
+    document.content_btn.text = string.format(
+        "%s [%s]", gui.str("Content", "menu"), #pack.get_installed()
+    )
     if settings.generator == nil then
         settings.generator = core.get_default_generator()
     end

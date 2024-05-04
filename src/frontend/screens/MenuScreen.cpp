@@ -10,9 +10,8 @@
 #include "../../engine.h"
 
 MenuScreen::MenuScreen(Engine* engine) : Screen(engine) {
-    engine->getContentPacks().clear();
-    engine->loadContent();
-
+    engine->resetContent();
+    
     auto menu = engine->getGUI()->getMenu();
     menu->reset();
     menu->setPage("main");

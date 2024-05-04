@@ -178,7 +178,6 @@ void EngineController::createWorld(
     EnginePaths* paths = engine->getPaths();
     auto folder = paths->getWorldsFolder()/fs::u8path(name);
     try {
-        engine->loadAllPacks();
         engine->loadContent();
         paths->setWorldFolder(folder);
     } catch (const contentpack_error& error) {
@@ -223,7 +222,6 @@ void EngineController::reconfigPacks(
     std::vector<std::string> packsToRemove
 ) {
     auto content = engine->getContent();
-    auto world = controller->getLevel()->getWorld();
     bool hasIndices = false;
 
     std::stringstream ss;
@@ -238,21 +236,33 @@ void EngineController::reconfigPacks(
     }
 
     runnable removeFunc = [=]() {
-        controller->saveWorld();
-        auto manager = engine->createPacksManager(world->wfile->getFolder());
-        manager.scan();
+        if (controller == nullptr) {
+            auto manager = engine->createPacksManager(fs::path(""));
+            manager.scan();
+            std::vector<std::string> names = engine->getBasePacks();
+            for (auto& name : packsToAdd) {
+                names.push_back(name);
+            }
+            engine->getContentPacks() = manager.getAll(names);
+        } else {
+            auto world = controller->getLevel()->getWorld();
+            auto wfile = world->wfile.get();
+            controller->saveWorld();
+            auto manager = engine->createPacksManager(wfile->getFolder());
+            manager.scan();
 
-        auto names = PacksManager::getNames(world->getPacks());
-        for (const auto& id : packsToAdd) {
-            names.push_back(id);
+            auto names = PacksManager::getNames(world->getPacks());
+            for (const auto& id : packsToAdd) {
+                names.push_back(id);
+            }
+            for (const auto& id : packsToRemove) {
+                manager.exclude(id);
+                names.erase(std::find(names.begin(), names.end(), id));
+            }
+            wfile->removeIndices(packsToRemove);
+            wfile->writePacks(manager.getAll(names));
+            reopenWorld(world);
         }
-        for (const auto& id : packsToRemove) {
-            manager.exclude(id);
-            names.erase(std::find(names.begin(), names.end(), id));
-        }
-        world->wfile->removeIndices(packsToRemove);
-        world->wfile->writePacks(manager.getAll(names));
-        reopenWorld(world);
     };
 
     if (hasIndices) {

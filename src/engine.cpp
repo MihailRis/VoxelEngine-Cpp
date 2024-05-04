@@ -247,6 +247,13 @@ void Engine::loadContent() {
     onAssetsLoaded();
 }
 
+void Engine::resetContent() {
+    auto manager = createPacksManager(fs::path());
+    manager.scan();
+    contentPacks = manager.getAll(basePacks);
+    loadContent();
+}
+
 void Engine::loadWorldContent(const fs::path& folder) {
     contentPacks.clear();
     auto packNames = ContentPack::worldPacksList(folder);
@@ -302,6 +309,10 @@ const Content* Engine::getContent() const {
 
 std::vector<ContentPack>& Engine::getContentPacks() {
     return contentPacks;
+}
+
+std::vector<std::string>& Engine::getBasePacks() {
+    return basePacks;
 }
 
 EnginePaths* Engine::getPaths() {

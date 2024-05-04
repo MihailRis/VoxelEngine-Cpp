@@ -263,6 +263,17 @@ function table.remove_value(t, x)
     end
 end
 
+function table.tostring(t)
+    local s = '['
+    for i,v in ipairs(t) do
+        s = s..tostring(v)
+        if i < #t then
+            s = s..', '
+        end
+    end
+    return s..']'
+end
+
 -- Deprecated functions
 block_index = block.index
 block_name = block.name

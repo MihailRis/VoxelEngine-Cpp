@@ -30,6 +30,7 @@ static int l_pack_get_folder(lua_State* L) {
     return 1;
 }
 
+/// @brief pack.get_installed() -> array<string>
 static int l_pack_get_installed(lua_State* L) {
     auto& packs = scripting::engine->getContentPacks();
     lua_createtable(L, packs.size(), 0);
@@ -40,9 +41,12 @@ static int l_pack_get_installed(lua_State* L) {
     return 1;
 }
 
-/// @brief pack.get_available() -> array<string> 
+/// @brief pack.get_available() -> array<string>
 static int l_pack_get_available(lua_State* L) {
-    auto worldFolder = scripting::level->getWorld()->wfile->getFolder();
+    fs::path worldFolder("");
+    if (scripting::level) {
+        worldFolder = scripting::level->getWorld()->wfile->getFolder();
+    }
     auto manager = scripting::engine->createPacksManager(worldFolder);
     manager.scan();
 
@@ -131,7 +135,10 @@ static int l_pack_get_info(lua_State* L) {
     });
     if (found == packs.end()) {
         // TODO: optimize
-        auto worldFolder = scripting::level->getWorld()->wfile->getFolder();
+        fs::path worldFolder("");
+        if (scripting::level) {
+            worldFolder = scripting::level->getWorld()->wfile->getFolder();
+        }
         auto manager = scripting::engine->createPacksManager(worldFolder);
         manager.scan();
         auto vec = manager.getAll({packid});
@@ -144,10 +151,21 @@ static int l_pack_get_info(lua_State* L) {
     return l_pack_get_info(L, pack, content);
 }
 
+static int l_pack_get_base_packs(lua_State* L) {
+    auto& packs = scripting::engine->getBasePacks();
+    lua_createtable(L, packs.size(), 0);
+    for (size_t i = 0; i < packs.size(); i++) {
+        lua_pushstring(L, packs[i].c_str());
+        lua_rawseti(L, -2, i + 1);
+    }
+    return 1;
+}
+
 const luaL_Reg packlib [] = {
     {"get_folder", lua_wrap_errors<l_pack_get_folder>},
     {"get_installed", lua_wrap_errors<l_pack_get_installed>},
     {"get_available", lua_wrap_errors<l_pack_get_available>},
     {"get_info", lua_wrap_errors<l_pack_get_info>},
+    {"get_base_packs", lua_wrap_errors<l_pack_get_base_packs>},
     {NULL, NULL}
 };

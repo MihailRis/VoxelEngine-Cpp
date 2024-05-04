@@ -52,6 +52,7 @@ class Engine : public util::ObjectsKeeper {
     std::queue<runnable> postRunnables;
     std::recursive_mutex postRunnablesMutex;
     std::unique_ptr<EngineController> controller;
+    std::vector<std::string> basePacks {"base"};
 
     uint64_t frame = 0;
     double lastTime = 0.0;
@@ -87,6 +88,8 @@ public:
 
     /// @brief Load all selected content-packs and reload assets
     void loadContent();
+
+    void resetContent();
     
     /// @brief Collect world content-packs and load content
     /// @see loadContent
@@ -119,6 +122,8 @@ public:
 
     /// @brief Get selected content packs
     std::vector<ContentPack>& getContentPacks();
+
+    std::vector<std::string>& getBasePacks();
 
     /// @brief Get current screen
     std::shared_ptr<Screen> getScreen();

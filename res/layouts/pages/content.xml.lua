@@ -7,6 +7,7 @@ rem_packs = {}
 
 function apply()
     core.reconfig_packs(add_packs, rem_packs)
+    menu:back()
 end
 
 function refresh_changes()
@@ -74,6 +75,7 @@ end
 function refresh()
     packs_installed = pack.get_installed()
     packs_available = pack.get_available()
+    base_packs = pack.get_base_packs()
     packs_all = {unpack(packs_installed)}
     required = {}
     for i,k in ipairs(packs_available) do
@@ -82,14 +84,13 @@ function refresh()
 
     local packs_cur = document.packs_cur
     local packs_add = document.packs_add
-
     packs_cur:clear()
     packs_add:clear()
 
     for i,id in ipairs(packs_installed) do
         local packinfo = pack.get_info(id)
         packinfo.index = i
-        callback = id ~= "base" and string.format('move_pack("%s")', id) or nil
+        callback = not table.has(base_packs, id) and string.format('move_pack("%s")', id) or nil
         packinfo.error = check_dependencies(packinfo)
         place_pack(packs_cur, packinfo, callback)
     end
