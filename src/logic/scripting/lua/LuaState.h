@@ -63,7 +63,7 @@ namespace lua {
         bool hasglobal(const std::string& name);
         bool rename(const std::string& from, const std::string& to);
         void remove(const std::string& name);;
-        runnable createLambda();
+        runnable createRunnable();
         int createEnvironment(int parent);
         void removeEnvironment(int id);
         const std::string storeAnonymous();

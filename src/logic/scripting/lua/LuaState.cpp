@@ -372,7 +372,7 @@ const std::string lua::LuaState::storeAnonymous() {
     return funcName;
 }
 
-runnable lua::LuaState::createLambda() {
+runnable lua::LuaState::createRunnable() {
     auto ptr = reinterpret_cast<ptrdiff_t>(lua_topointer(L, -1));
     auto name = util::mangleid(ptr);
     lua_getglobal(L, LAMBDAS_TABLE.c_str());

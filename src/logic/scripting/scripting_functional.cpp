@@ -21,7 +21,7 @@ runnable scripting::create_runnable(
 ) {
     try {
         state->loadbuffer(*env, src, file);
-        return state->createLambda();
+        return state->createRunnable();
     } catch (const lua::luaerror& err) {
         logger.error() << err.what();
         return [](){};
