@@ -127,13 +127,14 @@ void lua::LuaState::createLibs() {
     openlib("core", corelib, 0);
     openlib("file", filelib, 0);
     openlib("gui", guilib, 0);
+    openlib("input", inputlib, 0);
     openlib("inventory", inventorylib, 0);
     openlib("item", itemlib, 0);
+    openlib("json", jsonlib, 0);
     openlib("pack", packlib, 0);
     openlib("player", playerlib, 0);
     openlib("time", timelib, 0);
     openlib("world", worldlib, 0);
-    openlib("json", jsonlib, 0);
 
     addfunc("print", lua_wrap_errors<l_print>);
 }
@@ -425,6 +426,17 @@ void lua::LuaState::removeEnvironment(int id) {
     setglobal(envName(id));
     logger.debug() << "removed environment " << envName(id);
 }
+
+bool lua::LuaState::emit_event(const std::string &name, std::function<int(lua::LuaState *)> args) {
+    getglobal("events");
+    getfield("emit");
+    pushstring(name);
+    callNoThrow(args(this) + 1);
+    bool result = toboolean(-1);
+    pop(2);
+    return result;
+}
+
 
 void lua::LuaState::dumpStack() {
     int top = gettop();

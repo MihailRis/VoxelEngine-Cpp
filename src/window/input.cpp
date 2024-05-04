@@ -1,9 +1,36 @@
 #include "input.h"
 #include <GLFW/glfw3.h>
+#include <unordered_map>
 
 #ifdef _WIN32
 #include <windows.h>
 #endif // _WIN32
+
+static std::unordered_map<std::string, int> keycodes {
+    {"enter", GLFW_KEY_ENTER},
+    {"space", GLFW_KEY_SPACE},
+    {"backspace", GLFW_KEY_BACKSPACE},
+    {"caps-lock", GLFW_KEY_CAPS_LOCK},
+    {"escape", GLFW_KEY_ESCAPE},
+    {"delete", GLFW_KEY_DELETE},
+    {"home", GLFW_KEY_HOME},
+    {"end", GLFW_KEY_END},
+    {"insert", GLFW_KEY_INSERT},
+    {"page-down", GLFW_KEY_PAGE_DOWN},
+    {"page-up", GLFW_KEY_PAGE_UP},
+    {"left-shift", GLFW_KEY_LEFT_SHIFT},
+    {"right-shift", GLFW_KEY_RIGHT_SHIFT},
+    {"left-ctrl", GLFW_KEY_LEFT_CONTROL},
+    {"right-ctrl", GLFW_KEY_RIGHT_CONTROL},
+    {"left-alt", GLFW_KEY_LEFT_ALT},
+    {"right-alt", GLFW_KEY_RIGHT_ALT},
+    {"left-super", GLFW_KEY_LEFT_SUPER},
+    {"right-super", GLFW_KEY_RIGHT_SUPER},
+    {"left", GLFW_KEY_LEFT},
+    {"right", GLFW_KEY_RIGHT},
+    {"down", GLFW_KEY_DOWN},
+    {"up", GLFW_KEY_UP},
+};
 
 void Binding::reset(inputtype type, int code) {
     this->type = type;
@@ -16,6 +43,26 @@ void Binding::reset(keycode code) {
 
 void Binding::reset(mousecode code) {
     reset(inputtype::mouse, static_cast<int>(code));
+}
+
+void input_util::initialize() {
+    for (int i = 0; i <= 9; i++) {
+        keycodes[std::to_string(i)] = GLFW_KEY_0+i;
+    }
+    for (int i = 0; i < 25; i++) {
+        keycodes["f"+std::to_string(i)] = GLFW_KEY_F1+i;
+    }
+    for (char i = 'a'; i <= 'z'; i++) {
+        keycodes[std::to_string(i)] = GLFW_KEY_A-'a'+i;
+    }
+}
+
+keycode input_util::keycode_from(const std::string& name) {
+    const auto& found = keycodes.find(name);
+    if (found == keycodes.end()) {
+        return keycode::UNKNOWN;
+    }
+    return static_cast<keycode>(found->second);
 }
 
 std::string input_util::to_string(keycode code) {

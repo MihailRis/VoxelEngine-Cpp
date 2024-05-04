@@ -18,7 +18,7 @@ extern const luaL_Reg playerlib [];
 extern const luaL_Reg timelib [];
 extern const luaL_Reg worldlib [];
 extern const luaL_Reg jsonlib [];
-
+extern const luaL_Reg inputlib [];
 
 // Lua Overrides
 extern int l_print(lua_State* L);

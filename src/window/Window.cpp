@@ -182,6 +182,8 @@ int Window::initialize(DisplaySettings* settings){
     logger.info() << "GL Vendor: " << (char*)vendor;
     logger.info() << "GL Renderer: " << (char*)renderer;
     logger.info() << "GLFW: " << glfwGetVersionString();
+
+    input_util::initialize();
     return 0;
 }
 
