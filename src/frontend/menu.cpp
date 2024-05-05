@@ -1,7 +1,7 @@
 #include "menu.hpp"
 
-#include <filesystem>
-#include <glm/glm.hpp>
+#include "locale.hpp"
+#include "UiDocument.hpp"
 
 #include "../delegates.h"
 #include "../engine.h"
@@ -16,8 +16,9 @@
 #include "../coders/commons.h"
 #include "../util/stringutil.h"
 #include "../window/Window.hpp"
-#include "locale/langs.h"
-#include "UiDocument.hpp"
+
+#include <filesystem>
+#include <glm/glm.hpp>
 
 namespace fs = std::filesystem;
 using namespace gui;

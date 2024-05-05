@@ -1,9 +1,7 @@
-/*
-    C++ LMPacker port
-        https://github.com/MihailRis/LMPacker
-*/
-#ifndef LMPACKER_H_
-#define LMPACKER_H_
+///    C++ LMPacker port
+///        https://github.com/MihailRis/LMPacker
+#ifndef LMPACKER_HPP_
+#define LMPACKER_HPP_
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -50,4 +48,4 @@ public:
     }
 };
 
-#endif /* LMPACKER_H_ */
+#endif // LMPACKER_HPP_

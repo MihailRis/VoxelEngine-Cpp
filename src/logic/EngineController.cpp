@@ -5,7 +5,7 @@
 #include "../engine.h"
 #include "../files/WorldFiles.h"
 #include "../files/WorldConverter.h"
-#include "../frontend/locale/langs.h"
+#include "../frontend/locale.hpp"
 #include "../frontend/screens/MenuScreen.hpp"
 #include "../frontend/screens/LevelScreen.hpp"
 #include "../frontend/menu.hpp"

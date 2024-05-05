@@ -1,5 +1,5 @@
-#ifndef FRONTEND_LEVEL_FRONTEND_H_
-#define FRONTEND_LEVEL_FRONTEND_H_
+#ifndef FRONTEND_LEVEL_FRONTEND_HPP_
+#define FRONTEND_LEVEL_FRONTEND_HPP_
 
 #include <memory>
 
@@ -23,4 +23,4 @@ public:
     LevelController* getController() const;
 };
 
-#endif // FRONTEND_LEVEL_FRONTEND_H_
+#endif // FRONTEND_LEVEL_FRONTEND_HPP_

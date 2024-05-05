@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "../../logic/scripting/scripting.h"
-#include "../../frontend/locale/langs.h"
+#include "../../frontend/locale.hpp"
 #include "../../util/stringutil.h"
 #include "../../delegates.h"
 

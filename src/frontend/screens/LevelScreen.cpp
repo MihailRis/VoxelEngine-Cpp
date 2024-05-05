@@ -1,7 +1,7 @@
 #include "LevelScreen.hpp"
 
 #include "../hud.hpp"
-#include "../LevelFrontend.h"
+#include "../LevelFrontend.hpp"
 #include "../../debug/Logger.hpp"
 #include "../../audio/audio.hpp"
 #include "../../coders/imageio.hpp"

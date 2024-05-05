@@ -11,7 +11,7 @@
 #include "elements/InventoryView.hpp"
 
 #include "../../frontend/menu.hpp"
-#include "../../frontend/locale/langs.h"
+#include "../../frontend/locale.hpp"
 #include "../../items/Inventory.h"
 #include "../../logic/scripting/scripting.h"
 #include "../../maths/voxmaths.h"

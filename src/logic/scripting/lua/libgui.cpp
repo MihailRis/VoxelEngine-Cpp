@@ -17,7 +17,7 @@
 #include "../../../graphics/ui/elements/Menu.hpp"
 #include "../../../graphics/ui/elements/InventoryView.hpp"
 #include "../../../frontend/UiDocument.hpp"
-#include "../../../frontend/locale/langs.h"
+#include "../../../frontend/locale.hpp"
 #include "../../../util/stringutil.h"
 #include "../../../world/Level.h"
 

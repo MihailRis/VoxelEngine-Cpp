@@ -1,7 +1,7 @@
 #include "InventoryView.hpp"
 #include "../../../assets/Assets.h"
 #include "../../../content/Content.h"
-#include "../../../frontend/LevelFrontend.h"
+#include "../../../frontend/LevelFrontend.hpp"
 #include "../../../items/Inventories.h"
 #include "../../../items/Inventory.h"
 #include "../../../items/ItemDef.h"

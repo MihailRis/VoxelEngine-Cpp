@@ -1,5 +1,9 @@
 #include "hud.hpp"
 
+#include "ContentGfxCache.hpp"
+#include "LevelFrontend.hpp"
+#include "UiDocument.hpp"
+
 #include "../assets/Assets.h"
 #include "../content/Content.h"
 #include "../core_defs.h"
@@ -39,9 +43,6 @@
 #include "../window/Window.hpp"
 #include "../world/Level.h"
 #include "../world/World.h"
-#include "ContentGfxCache.hpp"
-#include "LevelFrontend.h"
-#include "UiDocument.hpp"
 
 #include <assert.h>
 #include <memory>

@@ -1,13 +1,13 @@
-#ifndef FRONTEND_LOCALE_LANGS_H
-#define FRONTEND_LOCALE_LANGS_H
+#ifndef FRONTEND_LOCALES_HPP_
+#define FRONTEND_LOCALES_HPP_
+
+#include "../content/ContentPack.h"
 
 #include <string>
 #include <vector>
 #include <memory>
 #include <filesystem>
 #include <unordered_map>
-
-#include "../../content/ContentPack.h"
 
 namespace langs {
     const char LANG_FILE_EXT[] = ".txt";
@@ -69,4 +69,4 @@ namespace langs {
                       const std::vector<ContentPack>& packs);
 }
 
-#endif // FRONTEND_LOCALE_LANGS_H
+#endif // FRONTEND_LOCALES_HPP_

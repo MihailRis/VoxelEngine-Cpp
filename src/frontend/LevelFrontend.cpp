@@ -1,4 +1,6 @@
-#include "LevelFrontend.h"
+#include "LevelFrontend.hpp"
+
+#include "ContentGfxCache.hpp"
 
 #include "../assets/Assets.h"
 #include "../audio/audio.hpp"
@@ -9,7 +11,6 @@
 #include "../logic/PlayerController.h"
 #include "../voxels/Block.h"
 #include "../world/Level.h"
-#include "ContentGfxCache.hpp"
 
 LevelFrontend::LevelFrontend(LevelController* controller, Assets* assets) 
   : level(controller->getLevel()),

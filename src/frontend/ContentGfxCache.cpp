@@ -1,5 +1,7 @@
 #include "ContentGfxCache.hpp"
 
+#include "UiDocument.hpp"
+
 #include "../assets/Assets.h"
 #include "../content/Content.h"
 #include "../content/ContentPack.h"
@@ -7,7 +9,6 @@
 #include "../graphics/core/Atlas.hpp"
 #include "../maths/UVRegion.hpp"
 #include "../voxels/Block.h"
-#include "UiDocument.hpp"
 
 #include <string>
 

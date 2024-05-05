@@ -1,13 +1,14 @@
-#include "langs.h"
+#include "locale.hpp"
 
-#include <iostream>
+#include "../coders/json.h"
+#include "../coders/commons.h"
+#include "../content/ContentPack.h"
+#include "../files/files.h"
+#include "../util/stringutil.h"
+#include "../data/dynamic.h"
+#include "../debug/Logger.hpp"
 
-#include "../../coders/json.h"
-#include "../../coders/commons.h"
-#include "../../content/ContentPack.h"
-#include "../../files/files.h"
-#include "../../util/stringutil.h"
-#include "../../data/dynamic.h"
+static debug::Logger logger("locale");
 
 namespace fs = std::filesystem;
 

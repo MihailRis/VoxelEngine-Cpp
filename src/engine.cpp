@@ -13,7 +13,7 @@
 #include "core_defs.h"
 #include "files/files.h"
 #include "files/settings_io.hpp"
-#include "frontend/locale/langs.h"
+#include "frontend/locale.hpp"
 #include "frontend/menu.hpp"
 #include "frontend/screens/Screen.hpp"
 #include "frontend/screens/MenuScreen.hpp"
