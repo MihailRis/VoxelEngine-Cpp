@@ -45,27 +45,35 @@ class Reader : public BasicParser {
             if (is_digit(c)) {
                 number_u num;
                 parseNumber(1, num);
-                handler.setValue(name, *dynamic::Value::of(num));
+                if (handler.has(name)) {
+                    handler.setValue(name, *dynamic::Value::of(num));
+                }
             } else if (c == '-' || c == '+') {
                 int sign = c == '-' ? -1 : 1;
                 pos++;
                 number_u num;
                 parseNumber(sign, num);
-                handler.setValue(name, *dynamic::Value::of(num));
+                if (handler.has(name)) {
+                    handler.setValue(name, *dynamic::Value::of(num));
+                }
             } else if (is_identifier_start(c)) {
                 std::string identifier = parseName();
-                if (identifier == "true" || identifier == "false") {
-                    bool flag = identifier == "true";
-                    handler.setValue(name, *dynamic::Value::boolean(flag));
-                } else if (identifier == "inf") {
-                    handler.setValue(name, *dynamic::Value::of(INFINITY));
-                } else if (identifier == "nan") {
-                    handler.setValue(name, *dynamic::Value::of(NAN));
+                if (handler.has(name)) {
+                    if (identifier == "true" || identifier == "false") {
+                        bool flag = identifier == "true";
+                        handler.setValue(name, *dynamic::Value::boolean(flag));
+                    } else if (identifier == "inf") {
+                        handler.setValue(name, *dynamic::Value::of(INFINITY));
+                    } else if (identifier == "nan") {
+                        handler.setValue(name, *dynamic::Value::of(NAN));
+                    }
                 }
             } else if (c == '"' || c == '\'') {
                 pos++;
                 std::string str = parseString(c);
-                handler.setValue(name, *dynamic::Value::of(str));
+                if (handler.has(name)) {
+                    handler.setValue(name, *dynamic::Value::of(str));
+                }
             } else {
                 throw error("feature is not supported");
             }

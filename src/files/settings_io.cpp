@@ -113,6 +113,10 @@ Setting* SettingsHandler::getSetting(const std::string& name) const {
     return found->second;
 }
 
+bool SettingsHandler::has(const std::string& name) const {
+    return map.find(name) != map.end();
+}
+
 template<class T>
 static void set_numeric_value(T* setting, const dynamic::Value& value) {
     switch (value.type) {
