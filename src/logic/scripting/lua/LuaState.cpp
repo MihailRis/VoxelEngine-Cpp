@@ -260,6 +260,11 @@ int lua::LuaState::pushglobals() {
     return 1;
 }
 
+int lua::LuaState::pushcfunction(lua_CFunction function) {
+    lua_pushcfunction(L, function);
+    return 1;
+}
+
 void lua::LuaState::pop(int n) {
     lua_pop(L, n);
 }
@@ -292,6 +297,14 @@ lua::luaint lua::LuaState::tointeger(int idx) {
 
 lua::luanumber lua::LuaState::tonumber(int idx) {
     return lua_tonumber(L, idx);
+}
+
+glm::vec2 lua::LuaState::tovec2(int idx) {
+    return lua::tovec2(L, idx);
+}
+
+glm::vec4 lua::LuaState::tocolor(int idx) {
+    return lua::tocolor(L, idx);
 }
 
 const char* lua::LuaState::tostring(int idx) {
@@ -461,4 +474,8 @@ void lua::LuaState::dumpStack() {
         }
         std::cout << std::endl;
     }
+}
+
+lua_State* lua::LuaState::getLua() const {
+    return L;
 }

@@ -177,7 +177,9 @@ Document = {}
 function Document.new(docname)
     return setmetatable({name=docname}, {
         __index=function(self, k)
-            return Element.new(self.name, k)
+            local elem = Element.new(self.name, k)
+            rawset(self, k, elem)
+            return elem
         end
     })
 end

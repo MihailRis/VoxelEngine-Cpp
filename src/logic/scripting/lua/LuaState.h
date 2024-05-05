@@ -42,12 +42,15 @@ namespace lua {
         int pushvalue(const dynamic::Value& value);
         int pushnil();
         int pushglobals();
+        int pushcfunction(lua_CFunction function);
         void pop(int n=1);
         bool getfield(const std::string& name, int idx = -1);
         void setfield(const std::string& name, int idx = -2);
         bool toboolean(int idx);
         luaint tointeger(int idx);
         luanumber tonumber(int idx);
+        glm::vec2 tovec2(int idx);
+        glm::vec4 tocolor(int idx);
         std::unique_ptr<dynamic::Value> tovalue(int idx);
         const char* tostring(int idx);
         bool isstring(int idx);
@@ -68,8 +71,8 @@ namespace lua {
         void removeEnvironment(int id);
         const std::string storeAnonymous();
         bool emit_event(const std::string& name, std::function<int(lua::LuaState*)> args=[](auto*){return 0;});
-
         void dumpStack();
+        lua_State* getLua() const;
     };
 }
 
