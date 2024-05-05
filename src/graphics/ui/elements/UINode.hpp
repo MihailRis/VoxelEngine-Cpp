@@ -172,6 +172,8 @@ namespace gui {
         virtual void setResizing(bool flag);
         virtual bool isResizing() const;
 
+        virtual glm::vec4 calcColor() const;
+
         /* Get inner content offset. Used for scroll */
         virtual glm::vec2 contentOffset() {return glm::vec2(0.0f);};
         /* Calculate screen position of the element */

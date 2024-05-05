@@ -19,7 +19,7 @@ void InputBindBox::drawBackground(const DrawContext* pctx, Assets* assets) {
     glm::vec2 pos = calcPos();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
-    batch->setColor(isFocused() ? focusedColor : (hover ? hoverColor : color));
+    batch->setColor(isFocused() ? focusedColor : calcColor());
     batch->rect(pos.x, pos.y, size.x, size.y);
     label->setText(util::str2wstr_utf8(binding.text()));
 }

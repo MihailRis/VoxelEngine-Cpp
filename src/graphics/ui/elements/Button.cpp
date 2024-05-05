@@ -79,11 +79,7 @@ void Button::drawBackground(const DrawContext* pctx, Assets* assets) {
     glm::vec2 pos = calcPos();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
-    if (isEnabled()) {
-        batch->setColor(isPressed() ? pressedColor : (hover ? hoverColor : color));
-    } else {
-        batch->setColor({color.r, color.g, color.b, color.a * 0.5f});
-    }
+    batch->setColor(calcColor());
     batch->rect(pos.x, pos.y, size.x, size.y);
 }
 

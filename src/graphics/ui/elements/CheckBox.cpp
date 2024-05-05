@@ -17,7 +17,7 @@ void CheckBox::draw(const DrawContext* pctx, Assets* assets) {
     glm::vec2 pos = calcPos();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
-    batch->setColor(checked ? checkColor : (hover ? hoverColor : color));
+    batch->setColor(checked ? checkColor : calcColor());
     batch->rect(pos.x, pos.y, size.x, size.y);
 }
 
