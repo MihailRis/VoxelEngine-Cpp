@@ -10,6 +10,8 @@
 #include "WorldFiles.h"
 
 const fs::path SCREENSHOTS_FOLDER {"screenshots"};
+const fs::path CONTROLS_FILE {"controls.json"};
+const fs::path SETTINGS_FILE {"settings.toml"};
 
 fs::path EnginePaths::getUserfiles() const {
     return userfiles;
@@ -52,6 +54,14 @@ fs::path EnginePaths::getWorldFolder() {
 
 fs::path EnginePaths::getWorldFolder(const std::string& name) {
     return getWorldsFolder()/fs::path(name);
+}
+
+fs::path EnginePaths::getControlsFile() {
+    return userfiles/fs::path(CONTROLS_FILE);
+}
+
+fs::path EnginePaths::getSettingsFile() {
+    return userfiles/fs::path(SETTINGS_FILE);
 }
 
 std::vector<fs::path> EnginePaths::scanForWorlds() {

@@ -60,6 +60,8 @@ class Engine : public util::ObjectsKeeper {
 
     std::unique_ptr<gui::GUI> gui;
     
+    void loadSettings();
+    void saveSettings();
     void updateTimers();
     void updateHotkeys();
     void renderFrame(Batch2D& batch);

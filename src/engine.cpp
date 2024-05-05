@@ -8,6 +8,7 @@
 #include "coders/GLSLExtension.h"
 #include "coders/imageio.hpp"
 #include "coders/json.h"
+#include "coders/toml.h"
 #include "content/ContentLoader.h"
 #include "core_defs.h"
 #include "files/files.h"
@@ -41,6 +42,8 @@
 
 static debug::Logger logger("engine");
 
+
+
 namespace fs = std::filesystem;
 
 void addWorldGenerators() {
@@ -60,6 +63,10 @@ inline void create_channel(Engine* engine, std::string name, NumberSetting& sett
 Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, EnginePaths* paths) 
     : settings(settings), settingsHandler(settingsHandler), paths(paths) 
 {
+    corecontent::setup_bindings();
+
+    loadSettings();
+
     controller = std::make_unique<EngineController>(this);
     if (Window::initialize(&this->settings.display)){
         throw initialize_error("could not initialize window");
@@ -87,6 +94,21 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     addWorldGenerators();
     
     scripting::initialize(this);
+}
+
+void Engine::loadSettings() {
+    fs::path settings_file = paths->getSettingsFile();
+    if (fs::is_regular_file(settings_file)) {
+        logger.info() << "loading settings";
+        std::string text = files::read_string(settings_file);
+        toml::parse(settingsHandler, settings_file.string(), text);
+    }
+    fs::path controls_file = paths->getControlsFile();
+    if (fs::is_regular_file(controls_file)) {
+        logger.info() << "loading controls";
+        std::string text = files::read_string(controls_file);
+        Events::loadBindings(controls_file.u8string(), text);
+    }
 }
 
 void Engine::onAssetsLoaded() {
@@ -163,7 +185,14 @@ void Engine::processPostRunnables() {
     scripting::process_post_runnables();
 }
 
+void Engine::saveSettings() {
+    logger.info() << "saving settings";
+    files::write_string(paths->getSettingsFile(), toml::stringify(settingsHandler));
+    files::write_string(paths->getControlsFile(), Events::writeBindings());
+}
+
 Engine::~Engine() {
+    saveSettings();
     logger.info() << "shutting down";
     if (screen) {
         screen->onEngineShutdown();

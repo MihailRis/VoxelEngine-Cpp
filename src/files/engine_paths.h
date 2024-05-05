@@ -28,6 +28,8 @@ public:
     fs::path getWorldsFolder();
     fs::path getWorldFolder();
     fs::path getWorldFolder(const std::string& name);
+    fs::path getControlsFile();
+    fs::path getSettingsFile();
     bool isWorldNameUsed(std::string name);
 
     void setUserfiles(fs::path folder);

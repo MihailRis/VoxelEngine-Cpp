@@ -126,7 +126,7 @@ void LevelScreen::update(float delta) {
         camera->position-camera->dir, 
         player->hitbox->velocity,
         camera->dir, 
-        camera->up
+        glm::vec3(0, 1, 0)
     );
 
     if (!hud->isPause()) {
