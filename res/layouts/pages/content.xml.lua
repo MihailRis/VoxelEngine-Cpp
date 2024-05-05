@@ -1,4 +1,7 @@
-function on_open()
+function on_open(params)
+    if params then
+        mode = params.mode
+    end
     refresh()
 end
 
@@ -6,7 +9,8 @@ add_packs = {}
 rem_packs = {}
 
 function apply()
-    if not core.reconfig_packs(add_packs, rem_packs) then
+    core.reconfig_packs(add_packs, rem_packs)
+    if mode ~= "world" then
         menu:back()
     end
 end

@@ -36,6 +36,7 @@ namespace dynamic {
         static std::unique_ptr<Value> boolean(bool value);
         static std::unique_ptr<Value> of(number_u value);
         static std::unique_ptr<Value> of(const std::string& value);
+        static std::unique_ptr<Value> of(std::unique_ptr<Map> value);
     };
 
     class List {

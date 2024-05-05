@@ -164,6 +164,14 @@ char BasicParser::peek() {
     return source[pos];
 }
 
+std::string BasicParser::readUntil(char c) {
+    int start = pos;
+    while (hasNext() && source[pos] != c) {
+        pos++;
+    }
+    return source.substr(start, pos-start);
+}
+
 std::string BasicParser::parseName() {
     char c = peek();
     if (!is_identifier_start(c)) {
