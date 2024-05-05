@@ -1,8 +1,4 @@
-#include <string>
-#include <memory>
-#include <sstream>
-
-#include "../audio/audio.h"
+#include "../audio/audio.hpp"
 #include "../delegates.h"
 #include "../engine.h"
 #include "../graphics/core/Mesh.hpp"
@@ -19,6 +15,10 @@
 #include "../voxels/Chunks.h"
 #include "../world/Level.h"
 #include "../world/World.h"
+
+#include <string>
+#include <memory>
+#include <sstream>
 
 using namespace gui;
 

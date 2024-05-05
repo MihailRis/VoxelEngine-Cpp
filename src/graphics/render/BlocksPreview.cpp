@@ -1,8 +1,9 @@
 #include "BlocksPreview.hpp"
+
 #include "../../assets/Assets.h"
 #include "../../constants.h"
 #include "../../content/Content.h"
-#include "../../frontend/ContentGfxCache.h"
+#include "../../frontend/ContentGfxCache.hpp"
 #include "../../voxels/Block.h"
 #include "../../window/Camera.hpp"
 #include "../../window/Window.hpp"

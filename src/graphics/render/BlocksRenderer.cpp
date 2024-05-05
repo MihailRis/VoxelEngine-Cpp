@@ -1,4 +1,5 @@
 #include "BlocksRenderer.hpp"
+
 #include "../core/Mesh.hpp"
 #include "../../maths/UVRegion.hpp"
 #include "../../constants.h"
@@ -8,7 +9,7 @@
 #include "../../voxels/VoxelsVolume.h"
 #include "../../voxels/ChunksStorage.h"
 #include "../../lighting/Lightmap.h"
-#include "../../frontend/ContentGfxCache.h"
+#include "../../frontend/ContentGfxCache.hpp"
 #include "../../settings.h"
 
 #include <glm/glm.hpp>

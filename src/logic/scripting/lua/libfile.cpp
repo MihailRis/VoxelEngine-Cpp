@@ -1,5 +1,5 @@
-#include "lua_commons.h"
-#include "api_lua.h"
+#include "lua_commons.hpp"
+#include "api_lua.hpp"
 #include "../scripting.h"
 #include "../../../engine.h"
 #include "../../../files/files.h"

@@ -1,9 +1,9 @@
 #include "LevelScreen.hpp"
 
-#include "../hud.h"
+#include "../hud.hpp"
 #include "../LevelFrontend.h"
 #include "../../debug/Logger.hpp"
-#include "../../audio/audio.h"
+#include "../../audio/audio.hpp"
 #include "../../coders/imageio.hpp"
 #include "../../graphics/core/PostProcessing.h"
 #include "../../graphics/core/DrawContext.hpp"

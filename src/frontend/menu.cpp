@@ -17,7 +17,7 @@
 #include "../util/stringutil.h"
 #include "../window/Window.hpp"
 #include "locale/langs.h"
-#include "UiDocument.h"
+#include "UiDocument.hpp"
 
 namespace fs = std::filesystem;
 using namespace gui;

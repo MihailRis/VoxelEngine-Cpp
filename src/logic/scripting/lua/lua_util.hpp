@@ -1,6 +1,8 @@
 #ifndef LOGIC_SCRIPTING_LUA_UTIL_H_
 #define LOGIC_SCRIPTING_LUA_UTIL_H_
 
+#include "LuaState.hpp"
+
 #ifdef __linux__ 
 #include <luajit-2.1/luaconf.h>
 #include <luajit-2.1/lua.hpp>
@@ -8,7 +10,6 @@
 #include <lua.hpp>
 #endif
 #include <glm/glm.hpp>
-#include "LuaState.h"
 
 namespace lua {
     inline int pushivec3(lua_State* L, luaint x, luaint y, luaint z) {

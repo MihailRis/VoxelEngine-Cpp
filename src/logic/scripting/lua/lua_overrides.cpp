@@ -1,5 +1,5 @@
-#include "api_lua.h"
-#include "lua_commons.h"
+#include "api_lua.hpp"
+#include "lua_commons.hpp"
 
 #include <iostream>
 

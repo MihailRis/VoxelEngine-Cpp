@@ -1,4 +1,6 @@
-#include "wav.h"
+#include "wav.hpp"
+
+#include "../audio/audio.hpp"
 
 #include <vector>
 #include <string>
@@ -6,8 +8,6 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
-
-#include "../audio/audio.h"
 
 bool is_big_endian() {
     uint32_t ui32_v = 0x01020304;

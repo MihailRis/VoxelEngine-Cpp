@@ -1,5 +1,5 @@
-#ifndef CODERS_OGG_H_
-#define CODERS_OGG_H_
+#ifndef CODERS_OGG_HPP_
+#define CODERS_OGG_HPP_
 
 #include <filesystem>
 
@@ -13,4 +13,4 @@ namespace ogg {
     extern audio::PCMStream* create_stream(const std::filesystem::path& file);
 }
 
-#endif // CODERS_OGG_H_
+#endif // CODERS_OGG_HPP_

@@ -1,5 +1,8 @@
-#ifndef SRC_AUDIO_AUDIO_H_
-#define SRC_AUDIO_AUDIO_H_
+#ifndef SRC_AUDIO_AUDIO_HPP_
+#define SRC_AUDIO_AUDIO_HPP_
+
+#include "../audio.hpp"
+#include "../../typedefs.h"
 
 #include <queue>
 #include <vector>
@@ -14,9 +17,6 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 #endif
-
-#include "../audio.h"
-#include "../../typedefs.h"
 
 namespace audio {
     struct ALBuffer;
@@ -168,4 +168,4 @@ namespace audio {
     };
 }
 
-#endif /* SRC_AUDIO_AUDIO_H_ */
+#endif // SRC_AUDIO_AUDIO_HPP_

@@ -1,7 +1,7 @@
-#ifndef AUDIO_NOAUDIO_H_
-#define AUDIO_NOAUDIO_H_
+#ifndef AUDIO_NOAUDIO_HPP_
+#define AUDIO_NOAUDIO_HPP_
 
-#include "audio.h"
+#include "audio.hpp"
 
 namespace audio {
     class NoSound : public Sound {
@@ -85,4 +85,4 @@ namespace audio {
     };
 }
 
-#endif // AUDIO_NOAUDIO_H_
+#endif // AUDIO_NOAUDIO_HPP_

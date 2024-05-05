@@ -1,4 +1,4 @@
-#include "UiDocument.h"
+#include "UiDocument.hpp"
 
 #include "../files/files.h"
 #include "../graphics/ui/elements/UINode.hpp"

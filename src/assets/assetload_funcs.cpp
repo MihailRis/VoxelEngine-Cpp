@@ -1,7 +1,8 @@
-#include "assetload_funcs.h"
+#include "assetload_funcs.hpp"
+
 #include "Assets.h"
 #include "AssetsLoader.h"
-#include "../audio/audio.h"
+#include "../audio/audio.hpp"
 #include "../files/files.h"
 #include "../files/engine_paths.h"
 #include "../coders/imageio.hpp"
@@ -13,7 +14,7 @@
 #include "../graphics/core/Atlas.hpp"
 #include "../graphics/core/Font.hpp"
 #include "../graphics/core/TextureAnimation.hpp"
-#include "../frontend/UiDocument.h"
+#include "../frontend/UiDocument.hpp"
 
 #include <iostream>
 #include <stdexcept>

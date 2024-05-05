@@ -1,8 +1,8 @@
-#include "api_lua.h"
-#include "lua_commons.h"
-#include "lua_util.h"
+#include "api_lua.hpp"
+#include "lua_commons.hpp"
+#include "lua_util.hpp"
 
-#include "../../../audio/audio.h"
+#include "../../../audio/audio.hpp"
 #include "../../../engine.h"
 #include "../scripting.h"
 

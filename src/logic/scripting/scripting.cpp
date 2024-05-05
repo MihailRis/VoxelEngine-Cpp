@@ -1,25 +1,25 @@
 #include "scripting.h"
 
-#include <iostream>
-#include <stdexcept>
-
-#include "../../debug/Logger.hpp"
 #include "../../content/ContentPack.h"
+#include "../../debug/Logger.hpp"
+#include "../../engine.h"
 #include "../../files/engine_paths.h"
 #include "../../files/files.h"
-#include "../../util/timeutil.h"
-#include "../../world/Level.h"
-#include "../../objects/Player.h"
-#include "../../voxels/Block.h"
-#include "../../items/ItemDef.h"
+#include "../../frontend/UiDocument.hpp"
 #include "../../items/Inventory.h"
+#include "../../items/ItemDef.h"
 #include "../../logic/BlocksController.h"
 #include "../../logic/LevelController.h"
-#include "../../frontend/UiDocument.h"
-#include "../../engine.h"
-#include "lua/LuaState.h"
+#include "../../objects/Player.h"
 #include "../../util/stringutil.h"
 #include "../../util/timeutil.h"
+#include "../../util/timeutil.h"
+#include "../../voxels/Block.h"
+#include "../../world/Level.h"
+#include "lua/LuaState.hpp"
+
+#include <iostream>
+#include <stdexcept>
 
 using namespace scripting;
 

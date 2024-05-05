@@ -1,9 +1,10 @@
-#include "xml.h"
+#include "xml.hpp"
+
+#include "../util/stringutil.h"
 
 #include <charconv>
 #include <stdexcept>
 #include <sstream>
-#include "../util/stringutil.h"
 
 using namespace xml;
 

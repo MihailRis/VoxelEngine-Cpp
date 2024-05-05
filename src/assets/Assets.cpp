@@ -1,11 +1,11 @@
 #include "Assets.h"
 
-#include "../audio/audio.h"
+#include "../audio/audio.hpp"
 #include "../graphics/core/Texture.hpp"
 #include "../graphics/core/Shader.hpp"
 #include "../graphics/core/Atlas.hpp"
 #include "../graphics/core/Font.hpp"
-#include "../frontend/UiDocument.h"
+#include "../frontend/UiDocument.hpp"
 #include "../logic/scripting/scripting.h"
 
 Assets::~Assets() {

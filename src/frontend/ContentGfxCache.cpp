@@ -1,6 +1,4 @@
-#include "ContentGfxCache.h"
-
-#include <string>
+#include "ContentGfxCache.hpp"
 
 #include "../assets/Assets.h"
 #include "../content/Content.h"
@@ -9,7 +7,9 @@
 #include "../graphics/core/Atlas.hpp"
 #include "../maths/UVRegion.hpp"
 #include "../voxels/Block.h"
-#include "UiDocument.h"
+#include "UiDocument.hpp"
+
+#include <string>
 
 ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets) : content(content) {
     auto indices = content->getIndices();

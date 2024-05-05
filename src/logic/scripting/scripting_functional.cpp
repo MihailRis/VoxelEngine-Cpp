@@ -1,8 +1,6 @@
 #include "scripting_functional.h"
 
-#include <iostream>
-
-#include "lua/LuaState.h"
+#include "lua/LuaState.hpp"
 #include "../../debug/Logger.hpp"
 #include "../../util/stringutil.h"
 

@@ -1,5 +1,5 @@
-#ifndef FRONTEND_BLOCKS_GFX_CACHE_H_
-#define FRONTEND_BLOCKS_GFX_CACHE_H_
+#ifndef FRONTEND_BLOCKS_GFX_CACHE_HPP_
+#define FRONTEND_BLOCKS_GFX_CACHE_HPP_
 
 #include "../typedefs.h"
 
@@ -24,4 +24,4 @@ public:
     const Content* getContent() const;
 };
 
-#endif // FRONTEND_BLOCKS_GFX_CACHE_H_
+#endif // FRONTEND_BLOCKS_GFX_CACHE_HPP_

@@ -1,5 +1,7 @@
-#ifndef SRC_AUDIO_AUDIOUTIL_H_
-#define SRC_AUDIO_AUDIOUTIL_H_
+#ifndef AUDIO_AUDIOUTIL_HPP_
+#define AUDIO_AUDIOUTIL_HPP_
+
+#include "../../typedefs.h"
 
 #include <string>
 #include <type_traits>
@@ -12,7 +14,6 @@
 #endif
 
 #include <glm/glm.hpp>
-#include "../../typedefs.h"
 
 #define AL_CHECK(STATEMENT) STATEMENT; AL::check_errors(__FILE__, __LINE__)
 #define AL_GET_ERROR() AL::check_errors(__FILE__, __LINE__)
@@ -80,4 +81,4 @@ namespace AL {
     }
 }
 
-#endif /* SRC_AUDIO_AUDIOUTIL_H_ */
+#endif // AUDIO_AUDIOUTIL_HPP_

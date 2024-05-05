@@ -1,13 +1,8 @@
 #include "AssetsLoader.h"
+
 #include "Assets.h"
-
-#include "assetload_funcs.h"
-
-#include <iostream>
-#include <memory>
-
+#include "assetload_funcs.hpp"
 #include "../util/ThreadPool.hpp"
-
 #include "../constants.h"
 #include "../data/dynamic.h"
 #include "../debug/Logger.hpp"
@@ -18,6 +13,9 @@
 #include "../content/ContentPack.h"
 #include "../graphics/core/Texture.hpp"
 #include "../logic/scripting/scripting.h"
+
+#include <iostream>
+#include <memory>
 
 static debug::Logger logger("assets-loader");
 

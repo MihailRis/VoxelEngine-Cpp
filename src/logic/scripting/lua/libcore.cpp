@@ -1,6 +1,6 @@
-#include "lua_commons.h"
-#include "api_lua.h"
-#include "LuaState.h"
+#include "lua_commons.hpp"
+#include "api_lua.hpp"
+#include "LuaState.hpp"
 
 #include "../../../engine.h"
 #include "../../../files/settings_io.hpp"

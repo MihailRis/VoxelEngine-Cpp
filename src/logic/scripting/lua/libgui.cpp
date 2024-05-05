@@ -1,11 +1,9 @@
-#include "lua_commons.h"
-#include "api_lua.h"
+#include "lua_commons.hpp"
+#include "api_lua.hpp"
+#include "lua_util.hpp"
+#include "LuaState.hpp"
 
-#include <iostream>
 #include "../scripting.h"
-#include "lua_util.h"
-#include "LuaState.h"
-
 #include "../../../engine.h"
 #include "../../../assets/Assets.h"
 #include "../../../items/Inventories.h"
@@ -18,7 +16,7 @@
 #include "../../../graphics/ui/elements/Panel.hpp"
 #include "../../../graphics/ui/elements/Menu.hpp"
 #include "../../../graphics/ui/elements/InventoryView.hpp"
-#include "../../../frontend/UiDocument.h"
+#include "../../../frontend/UiDocument.hpp"
 #include "../../../frontend/locale/langs.h"
 #include "../../../util/stringutil.h"
 #include "../../../world/Level.h"

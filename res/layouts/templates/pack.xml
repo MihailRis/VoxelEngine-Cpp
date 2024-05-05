@@ -8,7 +8,7 @@
         %{creator}
     </label>
     <label if='%{error}' pos='80,28' size='355,50' multiline='true' color='#FF4040'>%{error}</label>
-    <label pos='80,28' size='355,50' multiline='true' color='#FFFFFFB2'>
+    <label ifnot='%{error}' pos='80,28' size='355,50' multiline='true' color='#FFFFFFB2'>
         %{description}
     </label>
     <image pos='8,8' src='%{icon}' size='64'/>

@@ -1,5 +1,5 @@
-#ifndef LOGIC_SCRIPTING_LUA_H_
-#define LOGIC_SCRIPTING_LUA_H_
+#ifndef LOGIC_SCRIPTING_LUA_HPP_
+#define LOGIC_SCRIPTING_LUA_HPP_
 
 #ifdef __linux__ 
 #include <luajit-2.1/luaconf.h>
@@ -30,4 +30,4 @@ template <lua_CFunction func> int lua_wrap_errors(lua_State *L) {
     return result;
 }
 
-#endif // LOGIC_SCRIPTING_LUA_H_
+#endif // LOGIC_SCRIPTING_LUA_HPP_

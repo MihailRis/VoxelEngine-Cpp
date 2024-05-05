@@ -1,5 +1,5 @@
-#ifndef FRONTEND_UI_DOCUMENT_H_
-#define FRONTEND_UI_DOCUMENT_H_
+#ifndef FRONTEND_UI_DOCUMENT_HPP_
+#define FRONTEND_UI_DOCUMENT_HPP_
 
 #include "../typedefs.h"
 
@@ -50,4 +50,4 @@ public:
     static std::shared_ptr<gui::UINode> readElement(fs::path file);
 };
 
-#endif // FRONTEND_UI_DOCUMENT_H_
+#endif // FRONTEND_UI_DOCUMENT_HPP_

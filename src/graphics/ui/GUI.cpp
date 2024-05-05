@@ -6,7 +6,7 @@
 #include <algorithm>
 
 #include "../../assets/Assets.h"
-#include "../../frontend/UiDocument.h"
+#include "../../frontend/UiDocument.hpp"
 #include "../../graphics/core/Batch2D.hpp"
 #include "../../graphics/core/Shader.hpp"
 #include "../../graphics/core/DrawContext.hpp"

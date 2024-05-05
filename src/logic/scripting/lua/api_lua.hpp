@@ -1,8 +1,9 @@
-#ifndef LOGIC_SCRIPTING_API_LUA_H_
-#define LOGIC_SCRIPTING_API_LUA_H_
+#ifndef LOGIC_SCRIPTING_API_LUA_HPP_
+#define LOGIC_SCRIPTING_API_LUA_HPP_
+
+#include "lua_commons.hpp"
 
 #include <exception>
-#include "lua_commons.h"
  
 // Libraries
 extern const luaL_Reg audiolib [];
@@ -23,4 +24,4 @@ extern const luaL_Reg inputlib [];
 // Lua Overrides
 extern int l_print(lua_State* L);
 
-#endif // LOGIC_SCRIPTING_API_LUA_H_
+#endif // LOGIC_SCRIPTING_API_LUA_HPP_

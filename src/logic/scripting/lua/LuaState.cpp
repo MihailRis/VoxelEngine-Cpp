@@ -1,11 +1,12 @@
-#include "LuaState.h"
+#include "LuaState.hpp"
+
+#include "lua_util.hpp"
+#include "api_lua.hpp"
+#include "../../../debug/Logger.hpp"
+#include "../../../util/stringutil.h"
 
 #include <iomanip>
 #include <iostream>
-#include "lua_util.h"
-#include "api_lua.h"
-#include "../../../debug/Logger.hpp"
-#include "../../../util/stringutil.h"
 
 inline std::string LAMBDAS_TABLE = "$L";
 

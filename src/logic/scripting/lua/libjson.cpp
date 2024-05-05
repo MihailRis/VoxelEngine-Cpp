@@ -1,7 +1,6 @@
-#include "api_lua.h"
-#include "lua_commons.h"
-
-#include "LuaState.h"
+#include "api_lua.hpp"
+#include "lua_commons.hpp"
+#include "LuaState.hpp"
 
 #include "../../../coders/json.h"
 #include "../../../data/dynamic.h"

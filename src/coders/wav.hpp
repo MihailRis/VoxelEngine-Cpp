@@ -1,5 +1,5 @@
-#ifndef CODERS_WAV_H_
-#define CODERS_WAV_H_
+#ifndef CODERS_WAV_HPP_
+#define CODERS_WAV_HPP_
 
 #include <filesystem>
 
@@ -13,4 +13,4 @@ namespace wav {
     extern audio::PCMStream* create_stream(const std::filesystem::path& file);
 }
 
-#endif // CODERS_WAV_H_
+#endif // CODERS_WAV_HPP_

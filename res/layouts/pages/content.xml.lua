@@ -64,7 +64,6 @@ function check_dependencies(packinfo)
         local depid = dep:sub(2,-1)
         if dep:sub(1,1) == '!' then 
             if not table.has(packs_all, depid) then
-                packinfo.description = ""
                 return string.format(
                     "%s (%s)", gui.str("error.dependency-not-found"), depid
                 )

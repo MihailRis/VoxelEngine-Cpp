@@ -1,5 +1,5 @@
-#ifndef CODERS_XML_H_
-#define CODERS_XML_H_
+#ifndef CODERS_XML_HPP_
+#define CODERS_XML_HPP_
 
 #include <string>
 #include <memory>
@@ -141,4 +141,4 @@ namespace xml {
     extern xmldocument parse(std::string filename, std::string source);
 }
 
-#endif // CODERS_XML_H_
+#endif // CODERS_XML_HPP_

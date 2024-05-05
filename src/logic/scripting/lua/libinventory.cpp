@@ -1,7 +1,6 @@
-#include "lua_commons.h"
-#include "api_lua.h"
-
-#include "lua_util.h"
+#include "lua_commons.hpp"
+#include "api_lua.hpp"
+#include "lua_util.hpp"
 #include "../scripting.h"
 #include "../../../content/Content.h"
 #include "../../../world/Level.h"

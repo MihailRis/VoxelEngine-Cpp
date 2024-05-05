@@ -533,9 +533,13 @@ void UiXmlReader::addIgnore(const std::string& tag) {
 std::shared_ptr<UINode> UiXmlReader::readUINode(xml::xmlelement element) {
     if (element->has("if")) {
         const auto& cond = element->attr("if").getText();
-        if (cond.empty() || cond == "false" || cond == "nil") {
+        if (cond.empty() || cond == "false" || cond == "nil")
             return nullptr;
-        }
+    }
+    if (element->has("ifnot")) {
+        const auto& cond = element->attr("ifnot").getText();
+        if (!(cond.empty() || cond == "false" || cond == "nil"))
+            return nullptr;
     }
 
     const std::string& tag = element->getTag();

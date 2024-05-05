@@ -1,13 +1,13 @@
 #ifndef FRONTEND_GUI_GUI_XML_HPP_
 #define FRONTEND_GUI_GUI_XML_HPP_
 
+#include "GUI.hpp"
+#include "../../coders/xml.hpp"
+
 #include <memory>
 #include <stack>
 #include <unordered_set>
 #include <unordered_map>
-
-#include "GUI.hpp"
-#include "../../coders/xml.h"
 
 namespace gui {
     class UiXmlReader;

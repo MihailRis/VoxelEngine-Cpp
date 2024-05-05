@@ -1,9 +1,7 @@
-#ifndef LOGIC_SCRIPTING_LUA_STATE_H_
-#define LOGIC_SCRIPTING_LUA_STATE_H_
+#ifndef LOGIC_SCRIPTING_LUA_STATE_HPP_
+#define LOGIC_SCRIPTING_LUA_STATE_HPP_
 
-#include "lua_commons.h"
-#include <string>
-#include <stdexcept>
+#include "lua_commons.hpp"
 
 #include "../../../data/dynamic.h"
 #include "../../../delegates.h"
@@ -11,6 +9,9 @@
 #ifndef LUAJIT_VERSION
 #error LuaJIT required
 #endif
+
+#include <string>
+#include <stdexcept>
 
 namespace lua {
     class luaerror : public std::runtime_error {
@@ -76,4 +77,4 @@ namespace lua {
     };
 }
 
-#endif // LOGIC_SCRIPTING_LUA_STATE_H_
+#endif // LOGIC_SCRIPTING_LUA_STATE_HPP_

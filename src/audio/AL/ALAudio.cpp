@@ -1,9 +1,10 @@
-#include "ALAudio.h"
-#include "alutil.h"
+#include "ALAudio.hpp"
+
+#include "alutil.hpp"
+#include "../../debug/Logger.hpp"
+
 #include <string>
 #include <iostream>
-
-#include "../../debug/Logger.hpp"
 
 static debug::Logger logger("al-audio");
 

@@ -4,7 +4,7 @@
 
 #include "debug/Logger.hpp"
 #include "assets/AssetsLoader.h"
-#include "audio/audio.h"
+#include "audio/audio.hpp"
 #include "coders/GLSLExtension.h"
 #include "coders/imageio.hpp"
 #include "coders/json.h"
@@ -42,8 +42,6 @@
 
 static debug::Logger logger("engine");
 
-
-
 namespace fs = std::filesystem;
 
 void addWorldGenerators() {
@@ -64,7 +62,6 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     : settings(settings), settingsHandler(settingsHandler), paths(paths) 
 {
     corecontent::setup_bindings();
-
     loadSettings();
 
     controller = std::make_unique<EngineController>(this);

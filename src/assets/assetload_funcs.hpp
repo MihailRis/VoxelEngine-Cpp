@@ -1,5 +1,5 @@
-#ifndef ASSETS_ASSET_LOADERS_H_
-#define ASSETS_ASSET_LOADERS_H_
+#ifndef ASSETS_ASSET_LOADERS_HPP_
+#define ASSETS_ASSET_LOADERS_HPP_
 
 #include "Assets.h"
 
@@ -59,4 +59,4 @@ namespace assetload {
     );
 }
 
-#endif // ASSETS_ASSET_LOADERS_H_
+#endif // ASSETS_ASSET_LOADERS_HPP_
