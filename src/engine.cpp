@@ -8,7 +8,7 @@
 #include "coders/GLSLExtension.h"
 #include "coders/imageio.hpp"
 #include "coders/json.h"
-#include "coders/toml.h"
+#include "coders/toml.hpp"
 #include "content/ContentLoader.h"
 #include "core_defs.h"
 #include "files/files.h"
@@ -28,10 +28,10 @@
 #include "util/platform.h"
 #include "voxels/DefaultWorldGenerator.h"
 #include "voxels/FlatWorldGenerator.h"
-#include "window/Camera.h"
-#include "window/Events.h"
-#include "window/input.h"
-#include "window/Window.h"
+#include "window/Camera.hpp"
+#include "window/Events.hpp"
+#include "window/input.hpp"
+#include "window/Window.hpp"
 #include "world/WorldGenerators.h"
 
 #include <iostream>

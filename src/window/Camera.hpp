@@ -1,5 +1,5 @@
-#ifndef WINDOW_CAMERA_H_
-#define WINDOW_CAMERA_H_
+#ifndef WINDOW_CAMERA_HPP_
+#define WINDOW_CAMERA_HPP_
 
 #include <glm/glm.hpp>
 
@@ -31,4 +31,4 @@ public:
     float getFov() const;
 };
 
-#endif /* WINDOW_CAMERA_H_ */
+#endif // WINDOW_CAMERA_HPP_

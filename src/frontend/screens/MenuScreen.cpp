@@ -5,8 +5,8 @@
 #include "../../graphics/core/Batch2D.hpp"
 #include "../../graphics/core/Shader.hpp"
 #include "../../graphics/core/Texture.hpp"
-#include "../../window/Window.h"
-#include "../../window/Camera.h"
+#include "../../window/Window.hpp"
+#include "../../window/Camera.hpp"
 #include "../../engine.h"
 
 MenuScreen::MenuScreen(Engine* engine) : Screen(engine) {

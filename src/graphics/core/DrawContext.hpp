@@ -3,7 +3,7 @@
 
 #include "commons.hpp"
 #include "Viewport.hpp"
-#include "../../window/Window.h"
+#include "../../window/Window.hpp"
 #include "../../typedefs.h"
 
 class Batch2D;

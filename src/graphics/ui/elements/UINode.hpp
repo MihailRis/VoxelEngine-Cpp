@@ -2,7 +2,7 @@
 #define GRAPHICS_UI_ELEMENTS_UINODE_H_
 
 #include "../../../delegates.h"
-#include "../../../window/input.h"
+#include "../../../window/input.hpp"
 
 #include <glm/glm.hpp>
 #include <vector>

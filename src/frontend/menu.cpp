@@ -14,7 +14,7 @@
 #include "../logic/scripting/scripting.h"
 #include "../settings.h"
 #include "../util/stringutil.h"
-#include "../window/Window.h"
+#include "../window/Window.hpp"
 #include "locale/langs.h"
 #include "UiDocument.h"
 

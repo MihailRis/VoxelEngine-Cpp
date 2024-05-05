@@ -1,8 +1,3 @@
-#include <iostream>
-#include <cmath>
-#include <stdint.h>
-#include <memory>
-#include <filesystem>
 #include <stdexcept>
 
 #include "core_defs.h"
@@ -12,12 +7,10 @@
 #include "files/engine_paths.h"
 #include "util/platform.h"
 #include "util/command_line.hpp"
-#include "window/Events.h"
+#include "window/Events.hpp"
 #include "debug/Logger.hpp"
 
 static debug::Logger logger("main");
-
-namespace fs = std::filesystem;
 
 int main(int argc, char** argv) {
     debug::Logger::init("latest.log");
@@ -27,7 +20,6 @@ int main(int argc, char** argv) {
         return EXIT_SUCCESS;
 
     platform::configure_encoding();
-    fs::path userfiles = paths.getUserfiles();
     try {
         EngineSettings settings;
         SettingsHandler handler(settings);

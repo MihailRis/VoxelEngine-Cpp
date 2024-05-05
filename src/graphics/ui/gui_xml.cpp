@@ -16,7 +16,7 @@
 #include "../../logic/scripting/scripting.h"
 #include "../../maths/voxmaths.h"
 #include "../../util/stringutil.h"
-#include "../../window/Events.h"
+#include "../../window/Events.hpp"
 
 #include <stdexcept>
 

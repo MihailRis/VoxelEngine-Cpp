@@ -4,7 +4,7 @@
 #include "../../../world/Level.h"
 #include "../../../objects/Player.h"
 #include "../../../physics/Hitbox.h"
-#include "../../../window/Camera.h"
+#include "../../../window/Camera.hpp"
 #include "../../../items/Inventory.h"
 
 #include <glm/glm.hpp>

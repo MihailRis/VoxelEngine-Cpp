@@ -1,4 +1,5 @@
-#include "Events.h"
+#include "Events.hpp"
+#include "Window.hpp"
 #include "../debug/Logger.hpp"
 
 #include <GL/glew.h>

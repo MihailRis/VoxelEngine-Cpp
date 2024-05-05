@@ -17,7 +17,7 @@
 #include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/voxel.h"
-#include "../window/Camera.h"
+#include "../window/Camera.hpp"
 #include "../world/World.h"
 
 #include <cassert>

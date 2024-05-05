@@ -1,5 +1,5 @@
-#ifndef WINDOW_INPUT_H_
-#define WINDOW_INPUT_H_
+#ifndef WINDOW_INPUT_HPP_
+#define WINDOW_INPUT_HPP_
 
 #include "../util/RunnablesList.hpp"
 
@@ -154,4 +154,4 @@ struct Binding {
 };
 
 
-#endif // WINDOW_INPUT_H_
+#endif // WINDOW_INPUT_HPP_

@@ -13,7 +13,7 @@
 #include "../voxels/Chunks.h"
 #include "../voxels/ChunksStorage.h"
 #include "../objects/Player.h"
-#include "../window/Camera.h"
+#include "../window/Camera.hpp"
 #include "../items/Inventories.h"
 
 world_load_error::world_load_error(std::string message) 

@@ -1,8 +1,8 @@
 #include "settings_io.hpp"
 
-#include "../window/Events.h"
-#include "../window/input.h"
-#include "../coders/toml.h"
+#include "../window/Events.hpp"
+#include "../window/input.hpp"
+#include "../coders/toml.hpp"
 #include "../coders/json.h"
 #include "../debug/Logger.hpp"
 #include "../settings.h"

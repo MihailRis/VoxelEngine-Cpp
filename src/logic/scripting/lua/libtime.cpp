@@ -2,7 +2,7 @@
 #include "lua_commons.h"
 #include "../scripting.h"
 #include "../../../engine.h"
-#include "../../../window/Window.h"
+#include "../../../window/Window.hpp"
 
 static int l_time_uptime(lua_State* L) {
     lua_pushnumber(L, Window::time());

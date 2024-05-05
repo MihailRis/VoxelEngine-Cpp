@@ -10,8 +10,8 @@
 #include "../../../logic/LevelController.h"
 #include "../../../logic/EngineController.hpp"
 #include "../../../world/Level.h"
-#include "../../../window/Events.h"
-#include "../../../window/Window.h"
+#include "../../../window/Events.hpp"
+#include "../../../window/Window.hpp"
 #include "../../../world/WorldGenerators.h"
 #include "../scripting.h"
 

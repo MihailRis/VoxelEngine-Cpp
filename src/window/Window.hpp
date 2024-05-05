@@ -1,5 +1,5 @@
-#ifndef WINDOW_WINDOW_H_
-#define WINDOW_WINDOW_H_
+#ifndef WINDOW_WINDOW_HPP_
+#define WINDOW_WINDOW_HPP_
 
 #include "../typedefs.h"
 
@@ -61,4 +61,4 @@ public:
     static std::unique_ptr<ImageData> takeScreenshot();
 };
 
-#endif /* WINDOW_WINDOW_H_ */
+#endif // WINDOW_WINDOW_HPP_

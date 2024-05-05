@@ -7,8 +7,8 @@
 #include "../../graphics/core/Cubemap.hpp"
 #include "../../graphics/core/Framebuffer.hpp"
 #include "../../graphics/core/DrawContext.hpp"
-#include "../../window/Window.h"
-#include "../../window/Camera.h"
+#include "../../window/Window.hpp"
+#include "../../window/Camera.hpp"
 
 #include <iostream>
 #include <GL/glew.h>

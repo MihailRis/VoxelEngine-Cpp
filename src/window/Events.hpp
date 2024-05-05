@@ -1,8 +1,7 @@
-#ifndef WINDOW_EVENTS_H_
-#define WINDOW_EVENTS_H_
+#ifndef WINDOW_EVENTS_HPP_
+#define WINDOW_EVENTS_HPP_
 
-#include "Window.h"
-#include "input.h"
+#include "input.hpp"
 
 #include <string>
 #include <vector>
@@ -54,4 +53,4 @@ public:
     static void loadBindings(const std::string& filename, const std::string& source);
 };
 
-#endif /* WINDOW_EVENTS_H_ */
+#endif // WINDOW_EVENTS_HPP_

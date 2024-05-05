@@ -10,9 +10,9 @@
 #include "../../graphics/core/Batch2D.hpp"
 #include "../../graphics/core/Shader.hpp"
 #include "../../graphics/core/DrawContext.hpp"
-#include "../../window/Events.h"
-#include "../../window/input.h"
-#include "../../window/Camera.h"
+#include "../../window/Events.hpp"
+#include "../../window/input.hpp"
+#include "../../window/Camera.hpp"
 
 using namespace gui;
 

@@ -6,7 +6,7 @@
 #include "../../core/Font.hpp"
 #include "../../../assets/Assets.h"
 #include "../../../util/stringutil.h"
-#include "../../../window/Events.h"
+#include "../../../window/Events.hpp"
 
 using namespace gui;
 

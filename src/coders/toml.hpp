@@ -1,5 +1,5 @@
-#ifndef CODERS_TOML_H_
-#define CODERS_TOML_H_
+#ifndef CODERS_TOML_HPP_
+#define CODERS_TOML_HPP_
 
 #include <string>
 #include <vector>
@@ -19,4 +19,4 @@ namespace toml {
     );
 }
 
-#endif // CODERS_TOML_H_
+#endif // CODERS_TOML_HPP_

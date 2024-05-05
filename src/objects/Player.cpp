@@ -4,8 +4,8 @@
 #include "../physics/PhysicsSolver.h"
 #include "../voxels/Chunks.h"
 #include "../world/Level.h"
-#include "../window/Events.h"
-#include "../window/Camera.h"
+#include "../window/Events.hpp"
+#include "../window/Camera.hpp"
 #include "../items/Inventory.h"
 
 #include <glm/glm.hpp>

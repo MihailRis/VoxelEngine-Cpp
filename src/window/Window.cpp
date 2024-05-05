@@ -1,6 +1,6 @@
 #include <iostream>
-#include "Window.h"
-#include "Events.h"
+#include "Window.hpp"
+#include "Events.hpp"
 #include "../debug/Logger.hpp"
 #include "../graphics/core/ImageData.hpp"
 #include "../graphics/core/Texture.hpp"

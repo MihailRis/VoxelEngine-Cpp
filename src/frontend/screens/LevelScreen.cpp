@@ -18,8 +18,8 @@
 #include "../../voxels/Chunks.h"
 #include "../../world/Level.h"
 #include "../../world/World.h"
-#include "../../window/Camera.h"
-#include "../../window/Events.h"
+#include "../../window/Camera.hpp"
+#include "../../window/Events.hpp"
 #include "../../engine.h"
 
 static debug::Logger logger("level-screen");

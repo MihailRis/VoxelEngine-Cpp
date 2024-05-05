@@ -2,9 +2,9 @@
 
 #include "items/ItemDef.h"
 #include "content/Content.h"
-#include "window/Window.h"
-#include "window/Events.h"
-#include "window/input.h"
+#include "window/Window.hpp"
+#include "window/Events.hpp"
+#include "window/input.hpp"
 #include "voxels/Block.h"
 
 // All in-game definitions (blocks, items, etc..)

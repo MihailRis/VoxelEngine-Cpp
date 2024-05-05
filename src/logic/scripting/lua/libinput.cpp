@@ -2,8 +2,8 @@
 #include "lua_commons.h"
 #include "../scripting.h"
 
-#include "../../../window/input.h"
-#include "../../../window/Events.h"
+#include "../../../window/input.hpp"
+#include "../../../window/Events.hpp"
 #include "../../../frontend/screens/Screen.hpp"
 #include "../../../frontend/hud.h"
 #include "../../../engine.h"
