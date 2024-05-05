@@ -1,6 +1,8 @@
 #ifndef WINDOW_INPUT_H_
 #define WINDOW_INPUT_H_
 
+#include "../util/RunnablesList.hpp"
+
 #include <string>
 
 /// @brief Represents glfw3 keycode values.
@@ -86,8 +88,6 @@ enum class keycode : int {
     UNKNOWN = -1
 };
 
-
-
 /// @brief Represents glfw3 mouse button IDs.
 /// @details There is a subset of glfw3 mouse button IDs.
 enum class mousecode : int {
@@ -104,6 +104,7 @@ inline mousecode MOUSECODES_ALL[] {
 
 namespace input_util {
     void initialize();
+
     keycode keycode_from(const std::string& name);
     /// @return Key label by keycode
     std::string to_string(keycode code);
@@ -117,10 +118,15 @@ enum class inputtype {
 };
 
 struct Binding {
+    util::RunnablesList onactived;
+
     inputtype type;
     int code;
     bool state = false;
     bool justChange = false;
+    
+    Binding(){}
+    Binding(inputtype type, int code) : type(type), code(code) {}
 
     bool active() const {
         return state;

@@ -2,6 +2,7 @@
 #define FRONTEND_HUD_H_
 
 #include "../typedefs.h"
+#include "../util/ObjectsKeeper.hpp"
 
 #include <string>
 #include <memory>
@@ -63,7 +64,7 @@ public:
     }
 };
 
-class Hud {
+class Hud : public util::ObjectsKeeper {
     Assets* assets;
     std::unique_ptr<Camera> uicamera;
     gui::GUI* gui;

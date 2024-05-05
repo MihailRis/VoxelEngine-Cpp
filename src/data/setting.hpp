@@ -31,8 +31,6 @@ public:
     virtual std::string toString() const = 0;
 };
 
-using observer_handler = std::shared_ptr<int>;
-
 template<class T>
 class ObservableSetting : public Setting {
     int nextid = 1;
