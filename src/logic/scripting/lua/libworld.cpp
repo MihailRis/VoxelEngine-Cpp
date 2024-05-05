@@ -1,8 +1,9 @@
 #include "lua_commons.hpp"
 #include "api_lua.hpp"
+
 #include "../scripting.h"
 #include "../../../assets/Assets.h"
-#include "../../../assets/AssetsLoader.h"
+#include "../../../assets/AssetsLoader.hpp"
 #include "../../../files/engine_paths.h"
 #include "../../../world/Level.h"
 #include "../../../world/World.h"

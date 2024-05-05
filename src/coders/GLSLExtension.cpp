@@ -1,11 +1,13 @@
-#include "GLSLExtension.h"
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
+#include "GLSLExtension.hpp"
+
 #include "../util/stringutil.h"
 #include "../typedefs.h"
 #include "../files/files.h"
 #include "../files/engine_paths.h"
+
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
 
 namespace fs = std::filesystem;
 

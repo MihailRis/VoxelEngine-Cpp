@@ -1,5 +1,5 @@
-#ifndef CODERS_GLSL_EXTESION_H_
-#define CODERS_GLSL_EXTESION_H_
+#ifndef CODERS_GLSL_EXTESION_HPP_
+#define CODERS_GLSL_EXTESION_HPP_
 
 #include <string>
 #include <vector>
@@ -35,4 +35,4 @@ public:
     );
 };
 
-#endif // CODERS_GLSL_EXTESION_H_
+#endif // CODERS_GLSL_EXTESION_HPP_

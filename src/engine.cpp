@@ -3,9 +3,9 @@
 #define GLEW_STATIC
 
 #include "debug/Logger.hpp"
-#include "assets/AssetsLoader.h"
+#include "assets/AssetsLoader.hpp"
 #include "audio/audio.hpp"
-#include "coders/GLSLExtension.h"
+#include "coders/GLSLExtension.hpp"
 #include "coders/imageio.hpp"
 #include "coders/json.h"
 #include "coders/toml.hpp"

@@ -1,8 +1,9 @@
 #include "api_lua.hpp"
 #include "lua_commons.hpp"
+
 #include "../scripting.h"
 #include "../../../engine.h"
-#include "../../../assets/AssetsLoader.h"
+#include "../../../assets/AssetsLoader.hpp"
 #include "../../../files/engine_paths.h"
 #include "../../../files/WorldFiles.h"
 #include "../../../world/Level.h"
@@ -15,8 +16,7 @@
 static int l_pack_get_folder(lua_State* L) {
     std::string packName = lua_tostring(L, 1);
     if (packName == "core") {
-        auto folder = scripting::engine->getPaths()
-                                       ->getResources().u8string()+"/";
+        auto folder = scripting::engine->getPaths()->getResources().u8string()+"/";
         lua_pushstring(L, folder.c_str());
         return 1;
     }
