@@ -222,6 +222,9 @@ static std::shared_ptr<UINode> readLabel(UiXmlReader& reader, xml::xmlelement el
     }
     if (element->has("multiline")) {
         label->setMultiline(element->attr("multiline").asBool());
+        if (!element->has("valign")) {
+            label->setVerticalAlign(Align::top);
+        }
     }
     if (element->has("text-wrap")) {
         label->setTextWrapping(element->attr("text-wrap").asBool());

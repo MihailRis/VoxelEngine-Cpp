@@ -437,7 +437,6 @@ void lua::LuaState::removeEnvironment(int id) {
     }
     lua_pushnil(L);
     setglobal(envName(id));
-    logger.debug() << "removed environment " << envName(id);
 }
 
 bool lua::LuaState::emit_event(const std::string &name, std::function<int(lua::LuaState *)> args) {

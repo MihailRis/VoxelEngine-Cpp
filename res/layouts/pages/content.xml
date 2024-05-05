@@ -1,12 +1,12 @@
-<container size='767,454' color='#0F1E2DB2' padding='8' interval='5' context='menu'>
-    <panel id='packs_cur' pos='2' size='380,406' color='0' max-length='406'>
+<container size='887,454' color='#0F1E2DB2' padding='8' interval='5' context='menu'>
+    <panel id='packs_cur' pos='2' size='440,406' color='0' max-length='406'>
         <!-- content is generated in script -->
     </panel>
-    <panel id='packs_add' pos='385,2' size='380,406' color='0' max-length='406'>
+    <panel id='packs_add' pos='445,2' size='440,406' color='0' max-length='406'>
         <!-- content is generated in script -->
     </panel>
-    <button id='apply_btn' pos='2,410' size='380,40' onclick='apply()'>@Apply</button>
-    <button pos='385,410' size='338,40' onclick='menu:back()'>@Cancel</button>
+    <button id='apply_btn' pos='2,410' size='440,40' onclick='apply()'>@Apply</button>
+    <button pos='445,410' size='398,40' onclick='menu:back()'>@Cancel</button>
     <image onclick='refresh()' interactive='true' src='gui/refresh' 
         size='32' margin='7' gravity='bottom-right'
         color='#FFFFFF80' hover-color='#FFFFFF10'/>
