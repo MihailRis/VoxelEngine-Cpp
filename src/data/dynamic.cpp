@@ -335,6 +335,10 @@ Map& Map::put(std::string key, std::unique_ptr<Value> value) {
     return *this;
 }
 
+void Map::remove(const std::string& key) {
+    values.erase(key);
+}
+
 List& Map::putList(std::string key) {
     List* arr = new List();
     put(key, arr);

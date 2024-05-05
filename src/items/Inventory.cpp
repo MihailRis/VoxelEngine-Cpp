@@ -88,7 +88,11 @@ void Inventory::convert(dynamic::Map* data, const ContentLUT* lut) {
     for (size_t i = 0; i < slotsarr->size(); i++) {
         auto item = slotsarr->map(i);
         itemid_t id = item->getInt("id", ITEM_EMPTY);
-        item->put("id", lut->getItemId(id));
+        itemid_t replacement = lut->getItemId(id);
+        item->put("id", replacement);
+        if (replacement == 0 && item->has("count")) {
+            item->remove("count");
+        }
     }
 }
 

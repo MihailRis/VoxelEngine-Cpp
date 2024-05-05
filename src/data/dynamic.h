@@ -118,6 +118,8 @@ namespace dynamic {
         Map& put(std::string key, bool value);
         Map& put(std::string key, std::unique_ptr<Value> value);
 
+        void remove(const std::string& key);
+
         List& putList(std::string key);
         Map& putMap(std::string key);
 
