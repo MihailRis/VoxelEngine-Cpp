@@ -32,7 +32,7 @@
 
 #include <assert.h>
 #include <GL/glew.h>
-#include <iostream>
+#include <algorithm>
 #include <memory>
 
 bool WorldRenderer::showChunkBorders = false;

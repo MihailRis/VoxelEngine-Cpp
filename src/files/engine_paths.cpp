@@ -3,6 +3,7 @@
 #include <stack>
 #include <sstream>
 #include <filesystem>
+#include <algorithm>
 
 #include "../util/stringutil.h"
 #include "../typedefs.h"
