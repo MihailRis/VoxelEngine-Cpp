@@ -1,6 +1,6 @@
 #include "GLSLExtension.hpp"
 
-#include "../util/stringutil.h"
+#include "../util/stringutil.hpp"
 #include "../typedefs.h"
 #include "../files/files.h"
 #include "../files/engine_paths.h"

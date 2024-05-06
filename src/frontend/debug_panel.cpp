@@ -9,7 +9,7 @@
 #include "../graphics/render/WorldRenderer.hpp"
 #include "../objects/Player.h"
 #include "../physics/Hitbox.h"
-#include "../util/stringutil.h"
+#include "../util/stringutil.hpp"
 #include "../voxels/Block.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/Chunks.h"

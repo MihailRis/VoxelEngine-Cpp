@@ -2,7 +2,7 @@
 
 #include "ContentGfxCache.hpp"
 
-#include "../assets/Assets.h"
+#include "../assets/Assets.hpp"
 #include "../audio/audio.hpp"
 #include "../content/Content.h"
 #include "../graphics/core/Atlas.hpp"

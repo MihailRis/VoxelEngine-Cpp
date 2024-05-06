@@ -2,7 +2,7 @@
 #include "api_lua.hpp"
 
 #include "../scripting.h"
-#include "../../../assets/Assets.h"
+#include "../../../assets/Assets.hpp"
 #include "../../../assets/AssetsLoader.hpp"
 #include "../../../files/engine_paths.h"
 #include "../../../world/Level.h"

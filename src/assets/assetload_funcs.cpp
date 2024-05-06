@@ -1,6 +1,6 @@
 #include "assetload_funcs.hpp"
 
-#include "Assets.h"
+#include "Assets.hpp"
 #include "AssetsLoader.hpp"
 #include "../audio/audio.hpp"
 #include "../files/files.h"

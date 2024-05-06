@@ -1,9 +1,9 @@
-#include "binary_json.h"
+#include "binary_json.hpp"
+
+#include "gzip.hpp"
+#include "byte_utils.hpp"
 
 #include <stdexcept>
-
-#include "gzip.h"
-#include "byte_utils.h"
 
 using namespace json;
 using namespace dynamic;

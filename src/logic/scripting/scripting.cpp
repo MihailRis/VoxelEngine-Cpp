@@ -11,7 +11,7 @@
 #include "../../logic/BlocksController.h"
 #include "../../logic/LevelController.h"
 #include "../../objects/Player.h"
-#include "../../util/stringutil.h"
+#include "../../util/stringutil.hpp"
 #include "../../util/timeutil.h"
 #include "../../util/timeutil.h"
 #include "../../voxels/Block.h"

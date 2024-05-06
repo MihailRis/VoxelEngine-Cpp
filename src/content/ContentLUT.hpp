@@ -1,14 +1,14 @@
-#ifndef CONTENT_CONTENT_LUT_H_
-#define CONTENT_CONTENT_LUT_H_
+#ifndef CONTENT_CONTENT_LUT_HPP_
+#define CONTENT_CONTENT_LUT_HPP_
 
-#include <string>
-#include <vector>
-#include <filesystem>
+#include "Content.h"
 
 #include "../typedefs.h"
 #include "../constants.h"
 
-#include "Content.h"
+#include <string>
+#include <vector>
+#include <filesystem>
 
 namespace fs = std::filesystem;
 
@@ -93,4 +93,4 @@ public:
     std::vector<contententry> getMissingContent() const;
 };
 
-#endif // CONTENT_CONTENT_LUT_H_
+#endif // CONTENT_CONTENT_LUT_HPP_

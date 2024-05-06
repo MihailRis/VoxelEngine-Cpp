@@ -1,9 +1,10 @@
-#ifndef UTIL_STRINGUTIL_H_
-#define UTIL_STRINGUTIL_H_
+#ifndef UTIL_STRINGUTIL_HPP_
+#define UTIL_STRINGUTIL_HPP_
+
+#include "../typedefs.h"
 
 #include <string>
 #include <vector>
-#include "../typedefs.h"
 
 namespace util {
     /// @brief Function used for string serialization in text formats 
@@ -58,4 +59,4 @@ namespace util {
     std::string format_data_size(size_t size);
 }
 
-#endif // UTIL_STRINGUTIL_H_
+#endif // UTIL_STRINGUTIL_HPP_

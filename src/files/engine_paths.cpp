@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <algorithm>
 
-#include "../util/stringutil.h"
+#include "../util/stringutil.hpp"
 #include "../typedefs.h"
 #include "WorldFiles.h"
 

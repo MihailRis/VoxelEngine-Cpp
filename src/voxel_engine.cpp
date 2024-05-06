@@ -1,14 +1,14 @@
-#include <stdexcept>
-
-#include "core_defs.h"
+#include "core_defs.hpp"
 #include "engine.h"
 #include "files/files.h"
 #include "files/settings_io.hpp"
 #include "files/engine_paths.h"
-#include "util/platform.h"
+#include "util/platform.hpp"
 #include "util/command_line.hpp"
 #include "window/Events.hpp"
 #include "debug/Logger.hpp"
+
+#include <stdexcept>
 
 static debug::Logger logger("main");
 

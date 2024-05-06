@@ -1,7 +1,7 @@
 #ifndef ASSETS_ASSETS_LOADER_HPP_
 #define ASSETS_ASSETS_LOADER_HPP_
 
-#include "Assets.h"
+#include "Assets.hpp"
 #include "../interfaces/Task.hpp"
 #include "../typedefs.h"
 #include "../delegates.h"

@@ -1,5 +1,5 @@
-#ifndef UTIL_PLATFORM_H_
-#define UTIL_PLATFORM_H_
+#ifndef UTIL_PLATFORM_HPP_
+#define UTIL_PLATFORM_HPP_
 
 #include <string>
 
@@ -9,4 +9,4 @@ namespace platform {
     std::string detect_locale();
 }
 
-#endif // UTIL_PLATFORM_H_
+#endif // UTIL_PLATFORM_HPP_

@@ -5,7 +5,7 @@
 #include "settings.h"
 #include "typedefs.h"
 
-#include "assets/Assets.h"
+#include "assets/Assets.hpp"
 #include "content/Content.h"
 #include "content/ContentPack.h"
 #include "content/PacksManager.hpp"

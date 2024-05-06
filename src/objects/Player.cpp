@@ -1,5 +1,6 @@
 #include "Player.h"
-#include "../content/ContentLUT.h"
+
+#include "../content/ContentLUT.hpp"
 #include "../physics/Hitbox.h"
 #include "../physics/PhysicsSolver.h"
 #include "../voxels/Chunks.h"

@@ -1,15 +1,16 @@
 #include "gui_util.hpp"
+
 #include "elements/Label.hpp"
 #include "elements/Menu.hpp"
 #include "elements/Button.hpp"
 #include "gui_xml.hpp"
 
-#include <glm/glm.hpp>
-
 #include "../../logic/scripting/scripting.h"
 #include "../../frontend/locale.hpp"
-#include "../../util/stringutil.h"
+#include "../../util/stringutil.hpp"
 #include "../../delegates.h"
+
+#include <glm/glm.hpp>
 
 using namespace gui;
 

@@ -1,7 +1,6 @@
-#include "stringutil.h"
+#include "stringutil.hpp"
 
 #include <cmath>
-#include <vector>
 #include <locale>
 #include <iomanip>
 #include <sstream>

@@ -1,10 +1,10 @@
 #include "locale.hpp"
 
 #include "../coders/json.h"
-#include "../coders/commons.h"
+#include "../coders/commons.hpp"
 #include "../content/ContentPack.h"
 #include "../files/files.h"
-#include "../util/stringutil.h"
+#include "../util/stringutil.hpp"
 #include "../data/dynamic.h"
 #include "../debug/Logger.hpp"
 

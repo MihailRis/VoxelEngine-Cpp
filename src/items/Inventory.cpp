@@ -1,6 +1,6 @@
 #include "Inventory.h"
 
-#include "../content/ContentLUT.h"
+#include "../content/ContentLUT.hpp"
 
 Inventory::Inventory(int64_t id, size_t size) : id(id), slots(size) {
 }

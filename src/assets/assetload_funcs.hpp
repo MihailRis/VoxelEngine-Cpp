@@ -1,7 +1,7 @@
 #ifndef ASSETS_ASSET_LOADERS_HPP_
 #define ASSETS_ASSET_LOADERS_HPP_
 
-#include "Assets.h"
+#include "Assets.hpp"
 
 #include <string>
 #include <memory>

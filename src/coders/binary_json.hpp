@@ -1,5 +1,5 @@
-#ifndef CODERS_BINARY_JSON_H_
-#define CODERS_BINARY_JSON_H_
+#ifndef CODERS_BINARY_JSON_HPP_
+#define CODERS_BINARY_JSON_HPP_
 
 #include <vector>
 #include <memory>
@@ -25,4 +25,4 @@ namespace json {
     extern std::unique_ptr<dynamic::Map> from_binary(const ubyte* src, size_t size);
 }
 
-#endif // CODERS_BINARY_JSON_H_
+#endif // CODERS_BINARY_JSON_HPP_

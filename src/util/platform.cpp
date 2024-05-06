@@ -1,11 +1,11 @@
-#include "platform.h"
+#include "platform.hpp"
+
+#include "../typedefs.h"
 
 #include <sstream>
 #include <iomanip>
 #include <time.h>
 #include <iostream>
-
-#include "../typedefs.h"
 
 #ifdef _WIN32
 #include <Windows.h>

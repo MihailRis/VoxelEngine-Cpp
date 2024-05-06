@@ -1,6 +1,6 @@
 #include "EngineController.hpp"
 
-#include "../content/ContentLUT.h"
+#include "../content/ContentLUT.hpp"
 #include "../debug/Logger.hpp"
 #include "../engine.h"
 #include "../files/WorldFiles.h"
@@ -12,7 +12,7 @@
 #include "../graphics/ui/elements/Menu.hpp"
 #include "../graphics/ui/gui_util.hpp"
 #include "../interfaces/Task.hpp"
-#include "../util/stringutil.h"
+#include "../util/stringutil.hpp"
 #include "../world/World.h"
 #include "../world/Level.h"
 #include "LevelController.h"

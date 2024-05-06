@@ -1,6 +1,6 @@
 #include "xml.hpp"
 
-#include "../util/stringutil.h"
+#include "../util/stringutil.hpp"
 
 #include <charconv>
 #include <stdexcept>

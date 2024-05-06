@@ -1,8 +1,8 @@
 #include "WorldRegions.hpp"
 
 #include "../coders/rle.hpp"
-#include "../util/data_io.h"
-#include "../coders/byte_utils.h"
+#include "../util/data_io.hpp"
+#include "../coders/byte_utils.hpp"
 #include "../maths/voxmaths.h"
 #include "../items/Inventory.h"
 

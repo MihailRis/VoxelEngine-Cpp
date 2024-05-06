@@ -1,6 +1,6 @@
 #include "AssetsLoader.hpp"
 
-#include "Assets.h"
+#include "Assets.hpp"
 #include "assetload_funcs.hpp"
 #include "../util/ThreadPool.hpp"
 #include "../constants.h"

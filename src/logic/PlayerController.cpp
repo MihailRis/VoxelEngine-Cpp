@@ -2,6 +2,8 @@
 #include <cmath>
 
 #include "PlayerController.h"
+#include "BlocksController.h"
+#include "scripting/scripting.h"
 
 #include "../objects/Player.h"
 #include "../physics/PhysicsSolver.h"
@@ -19,10 +21,7 @@
 #include "../items/ItemDef.h"
 #include "../items/ItemStack.h"
 #include "../items/Inventory.h"
-#include "scripting/scripting.h"
-#include "BlocksController.h"
-
-#include "../core_defs.h"
+#include "../core_defs.hpp"
 
 const float CAM_SHAKE_OFFSET = 0.025f;
 const float CAM_SHAKE_OFFSET_Y = 0.031f;

@@ -1,9 +1,10 @@
-#ifndef CODERS_BYTE_UTILS_H_
-#define CODERS_BYTE_UTILS_H_
+#ifndef CODERS_BYTE_UTILS_HPP_
+#define CODERS_BYTE_UTILS_HPP_
+
+#include "../typedefs.h"
 
 #include <string>
 #include <vector>
-#include "../typedefs.h"
 
 /* byteorder: little-endian */
 class ByteBuilder {
@@ -44,7 +45,7 @@ public:
     std::vector<ubyte> build();
 };
 
-/* byteorder: little-endian */
+/// byteorder: little-endian
 class ByteReader {
     const ubyte* data;
     size_t size;
@@ -54,26 +55,29 @@ public:
     ByteReader(const ubyte* data);
 
     void checkMagic(const char* data, size_t size);
-    /* Read one byte (unsigned 8 bit integer) */
+    /// @brief Read one byte (unsigned 8 bit integer)
     ubyte get();
-    /* Read one byte (unsigned 8 bit integer) without pointer move */
+    /// @brief Read one byte (unsigned 8 bit integer) without pointer move
     ubyte peek();
-    /* Read signed 16 bit integer */
+    /// @brief Read signed 16 bit integer
     int16_t getInt16();
-    /* Read signed 32 bit integer */
+    /// @brief Read signed 32 bit integer
     int32_t getInt32();
-    /* Read signed 64 bit integer */
+    /// @brief Read signed 64 bit integer
     int64_t getInt64();
-    /* Read 32 bit floating-point number */
+    /// @brief Read 32 bit floating-point number
     float getFloat32();
-    /* Read 64 bit floating-point number */
+    /// @brief Read 64 bit floating-point number
     double getFloat64();
+    /// @brief Read C-String
     const char* getCString();
+    /// @brief Read string with unsigned 32 bit number before (length)
     std::string getString();
+    /// @return true if there is at least one byte remains
     bool hasNext() const;
 
     const ubyte* pointer() const;
     void skip(size_t n);
 };
 
-#endif // CODERS_BYTE_UTILS_H_
+#endif // CODERS_BYTE_UTILS_HPP_

@@ -3,8 +3,8 @@
 #include "../../core/Batch2D.hpp"
 #include "../../core/Font.hpp"
 #include "../../core/DrawContext.hpp"
-#include "../../../assets/Assets.h"
-#include "../../../util/stringutil.h"
+#include "../../../assets/Assets.hpp"
+#include "../../../util/stringutil.hpp"
 
 using namespace gui;
 

@@ -3,7 +3,7 @@
 #include "Label.hpp"
 #include "../../core/DrawContext.hpp"
 #include "../../core/Batch2D.hpp"
-#include "../../../util/stringutil.h"
+#include "../../../util/stringutil.hpp"
 
 using namespace gui;
 

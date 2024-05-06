@@ -1,8 +1,9 @@
 #include "toml.hpp"
-#include "commons.h"
+
+#include "commons.hpp"
 #include "../data/setting.hpp"
 #include "../data/dynamic.h"
-#include "../util/stringutil.h"
+#include "../util/stringutil.hpp"
 #include "../files/settings_io.hpp"
 
 #include <math.h>

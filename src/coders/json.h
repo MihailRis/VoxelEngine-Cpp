@@ -1,16 +1,16 @@
 #ifndef CODERS_JSON_H_
 #define CODERS_JSON_H_
 
+#include "commons.hpp"
+#include "binary_json.hpp"
+
+#include "../typedefs.h"
+
 #include <vector>
 #include <string>
 #include <stdint.h>
 #include <stdexcept>
 #include <unordered_map>
-
-#include "commons.h"
-#include "../typedefs.h"
-
-#include "binary_json.h"
 
 namespace dynamic {
     class Map;

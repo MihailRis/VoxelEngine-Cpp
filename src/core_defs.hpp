@@ -1,5 +1,5 @@
-#ifndef CORE_DEFS_H_
-#define CORE_DEFS_H_
+#ifndef CORE_DEFS_HPP_
+#define CORE_DEFS_HPP_
 
 #include <string>
 
@@ -8,7 +8,7 @@ inline const std::string CORE_AIR = "core:air";
 
 inline const std::string TEXTURE_NOTFOUND = "notfound";
 
-// bindings used in engine code
+// built-in bindings
 inline const std::string BIND_MOVE_FORWARD = "movement.forward";
 inline const std::string BIND_MOVE_BACK = "movement.back";
 inline const std::string BIND_MOVE_LEFT = "movement.left";
@@ -33,4 +33,4 @@ namespace corecontent {
     void setup(ContentBuilder* builder);
 }
 
-#endif // CORE_DEFS_H_
+#endif // CORE_DEFS_HPP_

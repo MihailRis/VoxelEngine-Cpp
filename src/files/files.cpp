@@ -1,14 +1,15 @@
 #include "files.h"
 
+#include "../coders/json.h"
+#include "../coders/gzip.hpp"
+#include "../util/stringutil.hpp"
+#include "../data/dynamic.h"
+
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <stdint.h>
 #include <stdexcept>
-#include "../coders/json.h"
-#include "../coders/gzip.h"
-#include "../util/stringutil.h"
-#include "../data/dynamic.h"
 
 namespace fs = std::filesystem;
 

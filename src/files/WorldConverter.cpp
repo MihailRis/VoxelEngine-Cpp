@@ -1,17 +1,18 @@
 #include "WorldConverter.h"
 
+#include "WorldFiles.h"
+
+#include "../content/ContentLUT.hpp"
+#include "../data/dynamic.h"
+#include "../debug/Logger.hpp"
+#include "../files/files.h"
+#include "../objects/Player.h"
+#include "../util/ThreadPool.hpp"
+#include "../voxels/Chunk.h"
+
 #include <memory>
 #include <iostream>
 #include <stdexcept>
-#include "WorldFiles.h"
-
-#include "../data/dynamic.h"
-#include "../files/files.h"
-#include "../voxels/Chunk.h"
-#include "../content/ContentLUT.h"
-#include "../objects/Player.h"
-#include "../debug/Logger.hpp"
-#include "../util/ThreadPool.hpp"
 
 namespace fs = std::filesystem;
 

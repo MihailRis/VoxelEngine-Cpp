@@ -1,20 +1,20 @@
 #include "World.h"
 
-#include <memory>
-#include <iostream>
-#include <glm/glm.hpp>
-
 #include "Level.h"
-#include "../files/WorldFiles.h"
 #include "../content/Content.h"
-#include "../world/WorldGenerators.h"
-#include "../content/ContentLUT.h"
+#include "../content/ContentLUT.hpp"
+#include "../files/WorldFiles.h"
+#include "../items/Inventories.h"
+#include "../objects/Player.h"
 #include "../voxels/Chunk.h"
 #include "../voxels/Chunks.h"
 #include "../voxels/ChunksStorage.h"
-#include "../objects/Player.h"
 #include "../window/Camera.hpp"
-#include "../items/Inventories.h"
+#include "../world/WorldGenerators.h"
+
+#include <memory>
+#include <iostream>
+#include <glm/glm.hpp>
 
 world_load_error::world_load_error(std::string message) 
     : std::runtime_error(message) {

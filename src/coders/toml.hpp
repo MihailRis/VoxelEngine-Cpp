@@ -1,11 +1,9 @@
 #ifndef CODERS_TOML_HPP_
 #define CODERS_TOML_HPP_
 
-#include <string>
-#include <vector>
-#include <unordered_map>
+#include "commons.hpp"
 
-#include "commons.h"
+#include <string>
 
 class SettingsHandler;
 

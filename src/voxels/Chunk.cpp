@@ -3,7 +3,7 @@
 #include "voxel.h"
 
 #include "../items/Inventory.h"
-#include "../content/ContentLUT.h"
+#include "../content/ContentLUT.hpp"
 #include "../lighting/Lightmap.h"
 
 Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos){

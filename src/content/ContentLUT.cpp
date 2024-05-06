@@ -1,6 +1,4 @@
-#include "ContentLUT.h"
-
-#include <memory>
+#include "ContentLUT.hpp"
 
 #include "Content.h"
 #include "../constants.h"
@@ -8,8 +6,9 @@
 #include "../coders/json.h"
 #include "../voxels/Block.h"
 #include "../items/ItemDef.h"
-
 #include "../data/dynamic.h"
+
+#include <memory>
 
 ContentLUT::ContentLUT(const Content* content, size_t blocksCount, size_t itemsCount) {
     auto* indices = content->getIndices();

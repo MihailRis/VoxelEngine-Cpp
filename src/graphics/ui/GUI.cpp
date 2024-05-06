@@ -2,10 +2,7 @@
 #include "elements/UINode.hpp"
 #include "elements/Menu.hpp"
 
-#include <iostream>
-#include <algorithm>
-
-#include "../../assets/Assets.h"
+#include "../../assets/Assets.hpp"
 #include "../../frontend/UiDocument.hpp"
 #include "../../graphics/core/Batch2D.hpp"
 #include "../../graphics/core/Shader.hpp"
@@ -13,6 +10,9 @@
 #include "../../window/Events.hpp"
 #include "../../window/input.hpp"
 #include "../../window/Camera.hpp"
+
+#include <iostream>
+#include <algorithm>
 
 using namespace gui;
 

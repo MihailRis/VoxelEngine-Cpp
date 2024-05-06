@@ -1,5 +1,5 @@
-#ifndef UTIL_DATA_IO_H_
-#define UTIL_DATA_IO_H_
+#ifndef UTIL_DATA_IO_HPP_
+#define UTIL_DATA_IO_HPP_
 
 #include "../typedefs.h"
 
@@ -53,4 +53,4 @@ namespace dataio {
     }
 }
 
-#endif // UTIL_DATA_IO_H_
+#endif // UTIL_DATA_IO_HPP_

@@ -15,7 +15,7 @@
 #include "../../items/Inventory.h"
 #include "../../logic/scripting/scripting.h"
 #include "../../maths/voxmaths.h"
-#include "../../util/stringutil.h"
+#include "../../util/stringutil.hpp"
 #include "../../window/Events.hpp"
 
 #include <stdexcept>

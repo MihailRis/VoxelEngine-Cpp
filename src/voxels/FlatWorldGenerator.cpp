@@ -3,7 +3,7 @@
 #include "Chunk.h"
 
 #include "../content/Content.h"
-#include "../core_defs.h"
+#include "../core_defs.hpp"
 
 void FlatWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed) {
     for (int z = 0; z < CHUNK_D; z++) {

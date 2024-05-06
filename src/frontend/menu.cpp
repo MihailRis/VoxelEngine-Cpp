@@ -13,8 +13,8 @@
 #include "../graphics/ui/GUI.hpp"
 #include "../logic/scripting/scripting.h"
 #include "../settings.h"
-#include "../coders/commons.h"
-#include "../util/stringutil.h"
+#include "../coders/commons.hpp"
+#include "../util/stringutil.hpp"
 #include "../window/Window.hpp"
 
 #include <filesystem>

@@ -3,6 +3,14 @@
 #include "Chunk.h"
 #include "Block.h"
 
+#define FNL_IMPL
+#include "../maths/FastNoiseLite.h"
+
+#include "../content/Content.h"
+#include "../maths/voxmaths.h"
+#include "../maths/util.h"
+#include "../core_defs.hpp"
+
 #include <iostream>
 #include <vector>
 #include <time.h>
@@ -10,13 +18,6 @@
 #include <math.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/noise.hpp>
-#define FNL_IMPL
-#include "../maths/FastNoiseLite.h"
-
-#include "../content/Content.h"
-#include "../maths/voxmaths.h"
-#include "../maths/util.h"
-#include "../core_defs.h"
 
 // will be refactored in generators update
 

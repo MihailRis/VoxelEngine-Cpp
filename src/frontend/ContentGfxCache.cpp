@@ -2,10 +2,10 @@
 
 #include "UiDocument.hpp"
 
-#include "../assets/Assets.h"
+#include "../assets/Assets.hpp"
 #include "../content/Content.h"
 #include "../content/ContentPack.h"
-#include "../core_defs.h"
+#include "../core_defs.hpp"
 #include "../graphics/core/Atlas.hpp"
 #include "../maths/UVRegion.hpp"
 #include "../voxels/Block.h"

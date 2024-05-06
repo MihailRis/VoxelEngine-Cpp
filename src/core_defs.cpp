@@ -1,4 +1,4 @@
-#include "core_defs.h"
+#include "core_defs.hpp"
 
 #include "items/ItemDef.h"
 #include "content/Content.h"

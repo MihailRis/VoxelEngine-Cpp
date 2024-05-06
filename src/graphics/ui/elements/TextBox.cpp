@@ -4,8 +4,8 @@
 #include "../../core/DrawContext.hpp"
 #include "../../core/Batch2D.hpp"
 #include "../../core/Font.hpp"
-#include "../../../assets/Assets.h"
-#include "../../../util/stringutil.h"
+#include "../../../assets/Assets.hpp"
+#include "../../../util/stringutil.hpp"
 #include "../../../window/Events.hpp"
 
 using namespace gui;

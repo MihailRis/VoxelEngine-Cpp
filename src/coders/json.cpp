@@ -5,9 +5,8 @@
 #include <iomanip>
 #include <memory>
 
-#include "commons.h"
 #include "../data/dynamic.h"
-#include "../util/stringutil.h"
+#include "../util/stringutil.hpp"
 
 using namespace json;
 using namespace dynamic;

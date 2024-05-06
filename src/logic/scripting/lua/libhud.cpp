@@ -2,7 +2,7 @@
 #include "api_lua.hpp"
 #include "LuaState.hpp"
 
-#include "../../../assets/Assets.h"
+#include "../../../assets/Assets.hpp"
 #include "../../../content/Content.h"
 #include "../../../engine.h"
 #include "../../../frontend/hud.hpp"

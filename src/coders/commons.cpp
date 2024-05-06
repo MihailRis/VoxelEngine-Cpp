@@ -1,6 +1,6 @@
-#include "commons.h"
+#include "commons.hpp"
 
-#include "../util/stringutil.h"
+#include "../util/stringutil.hpp"
 
 #include <sstream>
 #include <stdexcept>

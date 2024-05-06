@@ -5,7 +5,7 @@
 
 #include "../scripting.h"
 #include "../../../engine.h"
-#include "../../../assets/Assets.h"
+#include "../../../assets/Assets.hpp"
 #include "../../../items/Inventories.h"
 #include "../../../graphics/ui/gui_util.hpp"
 #include "../../../graphics/ui/elements/UINode.hpp"
@@ -18,7 +18,7 @@
 #include "../../../graphics/ui/elements/InventoryView.hpp"
 #include "../../../frontend/UiDocument.hpp"
 #include "../../../frontend/locale.hpp"
-#include "../../../util/stringutil.h"
+#include "../../../util/stringutil.hpp"
 #include "../../../world/Level.h"
 
 using namespace gui;

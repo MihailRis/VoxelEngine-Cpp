@@ -1,7 +1,8 @@
 #include "Lightmap.h"
-#include <assert.h>
 
-#include "../util/data_io.h"
+#include "../util/data_io.hpp"
+
+#include <assert.h>
 
 void Lightmap::set(const Lightmap* lightmap) {
     set(lightmap->map);

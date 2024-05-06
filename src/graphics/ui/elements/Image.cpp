@@ -3,7 +3,7 @@
 #include "../../core/DrawContext.hpp"
 #include "../../core/Batch2D.hpp"
 #include "../../core/Texture.hpp"
-#include "../../../assets/Assets.h"
+#include "../../../assets/Assets.hpp"
 #include "../../../maths/UVRegion.hpp"
 
 using namespace gui;

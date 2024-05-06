@@ -1,13 +1,13 @@
 #ifndef CODERS_XML_HPP_
 #define CODERS_XML_HPP_
 
+#include "commons.hpp"
+
 #include <string>
 #include <memory>
 #include <vector>
 #include <glm/glm.hpp>
 #include <unordered_map>
-
-#include "commons.h"
 
 namespace xml {
     class Node;

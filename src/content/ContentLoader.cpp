@@ -1,24 +1,23 @@
 #include "ContentLoader.h"
 
+#include "Content.h"
+#include "ContentPack.h"
+#include "../coders/json.h"
+#include "../core_defs.hpp"
+#include "../data/dynamic.h"
+#include "../debug/Logger.hpp"
+#include "../files/files.h"
+#include "../items/ItemDef.h"
+#include "../logic/scripting/scripting.h"
+#include "../typedefs.h"
+#include "../util/listutil.hpp"
+#include "../voxels/Block.h"
+
 #include <iostream>
 #include <string>
 #include <memory>
 #include <algorithm>
 #include <glm/glm.hpp>
-
-#include "Content.h"
-#include "../debug/Logger.hpp"
-#include "../items/ItemDef.h"
-#include "../util/listutil.h"
-#include "../voxels/Block.h"
-#include "../files/files.h"
-#include "../coders/json.h"
-#include "../typedefs.h"
-#include "../core_defs.h"
-#include "../data/dynamic.h"
-
-#include "ContentPack.h"
-#include "../logic/scripting/scripting.h"
 
 namespace fs = std::filesystem;
 

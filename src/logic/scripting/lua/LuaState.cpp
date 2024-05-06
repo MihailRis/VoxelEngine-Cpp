@@ -3,7 +3,7 @@
 #include "lua_util.hpp"
 #include "api_lua.hpp"
 #include "../../../debug/Logger.hpp"
-#include "../../../util/stringutil.h"
+#include "../../../util/stringutil.hpp"
 
 #include <iomanip>
 #include <iostream>
