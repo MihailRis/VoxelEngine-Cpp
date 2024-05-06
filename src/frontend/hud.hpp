@@ -1,7 +1,7 @@
 #ifndef FRONTEND_HUD_HPP_
 #define FRONTEND_HUD_HPP_
 
-#include "../typedefs.h"
+#include "../typedefs.hpp"
 #include "../util/ObjectsKeeper.hpp"
 
 #include <string>

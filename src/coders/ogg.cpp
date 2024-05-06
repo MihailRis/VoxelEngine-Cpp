@@ -2,7 +2,7 @@
 
 #include "../debug/Logger.hpp"
 #include "../audio/audio.hpp"
-#include "../typedefs.h"
+#include "../typedefs.hpp"
 
 #include <string>
 #include <vorbis/codec.h>

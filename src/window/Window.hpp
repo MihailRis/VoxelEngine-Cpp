@@ -1,7 +1,7 @@
 #ifndef WINDOW_WINDOW_HPP_
 #define WINDOW_WINDOW_HPP_
 
-#include "../typedefs.h"
+#include "../typedefs.hpp"
 
 #include <stack>
 #include <vector>

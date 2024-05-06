@@ -1,11 +1,11 @@
 #include "core_defs.hpp"
 
-#include "items/ItemDef.h"
-#include "content/Content.h"
+#include "items/ItemDef.hpp"
+#include "content/Content.hpp"
 #include "window/Window.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"
-#include "voxels/Block.h"
+#include "voxels/Block.hpp"
 
 // All in-game definitions (blocks, items, etc..)
 void corecontent::setup(ContentBuilder* builder) {

@@ -1,7 +1,7 @@
 #ifndef UTIL_BUFFER_POOL_HPP_
 #define UTIL_BUFFER_POOL_HPP_
 
-#include "../typedefs.h"
+#include "../typedefs.hpp"
 
 #include <queue>
 #include <mutex>

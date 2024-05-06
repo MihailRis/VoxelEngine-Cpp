@@ -2,9 +2,9 @@
 
 #include "../content/ContentLUT.hpp"
 #include "../debug/Logger.hpp"
-#include "../engine.h"
-#include "../files/WorldFiles.h"
-#include "../files/WorldConverter.h"
+#include "../engine.hpp"
+#include "../files/WorldFiles.hpp"
+#include "../files/WorldConverter.hpp"
 #include "../frontend/locale.hpp"
 #include "../frontend/screens/MenuScreen.hpp"
 #include "../frontend/screens/LevelScreen.hpp"
@@ -13,9 +13,9 @@
 #include "../graphics/ui/gui_util.hpp"
 #include "../interfaces/Task.hpp"
 #include "../util/stringutil.hpp"
-#include "../world/World.h"
-#include "../world/Level.h"
-#include "LevelController.h"
+#include "../world/World.hpp"
+#include "../world/Level.hpp"
+#include "LevelController.hpp"
 
 #include <memory>
 #include <filesystem>

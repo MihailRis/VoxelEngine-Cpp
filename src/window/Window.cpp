@@ -4,7 +4,7 @@
 #include "../debug/Logger.hpp"
 #include "../graphics/core/ImageData.hpp"
 #include "../graphics/core/Texture.hpp"
-#include "../settings.h"
+#include "../settings.hpp"
 #include "../util/ObjectsKeeper.hpp"
 
 #include <GL/glew.h>

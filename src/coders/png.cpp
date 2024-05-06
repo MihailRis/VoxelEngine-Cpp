@@ -2,7 +2,7 @@
 
 #include "../graphics/core/ImageData.hpp"
 #include "../graphics/core/Texture.hpp"
-#include "../files/files.h"
+#include "../files/files.hpp"
 #include "../debug/Logger.hpp"
 
 #include <iostream>

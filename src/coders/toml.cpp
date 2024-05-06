@@ -2,7 +2,7 @@
 
 #include "commons.hpp"
 #include "../data/setting.hpp"
-#include "../data/dynamic.h"
+#include "../data/dynamic.hpp"
 #include "../util/stringutil.hpp"
 #include "../files/settings_io.hpp"
 

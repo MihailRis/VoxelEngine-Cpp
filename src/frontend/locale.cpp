@@ -1,11 +1,11 @@
 #include "locale.hpp"
 
-#include "../coders/json.h"
+#include "../coders/json.hpp"
 #include "../coders/commons.hpp"
-#include "../content/ContentPack.h"
-#include "../files/files.h"
+#include "../content/ContentPack.hpp"
+#include "../files/files.hpp"
 #include "../util/stringutil.hpp"
-#include "../data/dynamic.h"
+#include "../data/dynamic.hpp"
 #include "../debug/Logger.hpp"
 
 static debug::Logger logger("locale");

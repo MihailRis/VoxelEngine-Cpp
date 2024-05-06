@@ -7,7 +7,7 @@
 #include "../../graphics/core/Texture.hpp"
 #include "../../window/Window.hpp"
 #include "../../window/Camera.hpp"
-#include "../../engine.h"
+#include "../../engine.hpp"
 
 MenuScreen::MenuScreen(Engine* engine) : Screen(engine) {
     engine->resetContent();

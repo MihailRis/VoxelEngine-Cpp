@@ -3,9 +3,9 @@
 #include "../window/Events.hpp"
 #include "../window/input.hpp"
 #include "../coders/toml.hpp"
-#include "../coders/json.h"
+#include "../coders/json.hpp"
 #include "../debug/Logger.hpp"
-#include "../settings.h"
+#include "../settings.hpp"
 
 #include <memory>
 

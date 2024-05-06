@@ -1,9 +1,9 @@
 #include "GLSLExtension.hpp"
 
 #include "../util/stringutil.hpp"
-#include "../typedefs.h"
-#include "../files/files.h"
-#include "../files/engine_paths.h"
+#include "../typedefs.hpp"
+#include "../files/files.hpp"
+#include "../files/engine_paths.hpp"
 
 #include <iostream>
 #include <sstream>

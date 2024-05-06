@@ -1,8 +1,8 @@
-#include "FlatWorldGenerator.h"
-#include "voxel.h"
-#include "Chunk.h"
+#include "FlatWorldGenerator.hpp"
+#include "voxel.hpp"
+#include "Chunk.hpp"
 
-#include "../content/Content.h"
+#include "../content/Content.hpp"
 #include "../core_defs.hpp"
 
 void FlatWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed) {

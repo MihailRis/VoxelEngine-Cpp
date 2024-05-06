@@ -1,10 +1,10 @@
-#ifndef FRONTEND_INVENTORY_VIEW_H_
-#define FRONTEND_INVENTORY_VIEW_H_
+#ifndef FRONTEND_INVENTORY_VIEW_HPP_
+#define FRONTEND_INVENTORY_VIEW_HPP_
 
 #include "UINode.hpp"
 #include "Container.hpp"
-#include "../../../typedefs.h"
-#include "../../../constants.h"
+#include "../../../typedefs.hpp"
+#include "../../../constants.hpp"
 
 #include <vector>
 #include <functional>
@@ -137,4 +137,4 @@ namespace gui {
     };
 }
 
-#endif // FRONTEND_INVENTORY_VIEW_H_
+#endif // FRONTEND_INVENTORY_VIEW_HPP_

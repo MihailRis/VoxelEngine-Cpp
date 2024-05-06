@@ -3,12 +3,12 @@
 #include "UiDocument.hpp"
 
 #include "../assets/Assets.hpp"
-#include "../content/Content.h"
-#include "../content/ContentPack.h"
+#include "../content/Content.hpp"
+#include "../content/ContentPack.hpp"
 #include "../core_defs.hpp"
 #include "../graphics/core/Atlas.hpp"
 #include "../maths/UVRegion.hpp"
-#include "../voxels/Block.h"
+#include "../voxels/Block.hpp"
 
 #include <string>
 

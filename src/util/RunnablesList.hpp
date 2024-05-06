@@ -1,8 +1,8 @@
 #ifndef UTIL_RUNNABLES_LIST_HPP_
 #define UTIL_RUNNABLES_LIST_HPP_
 
-#include "../typedefs.h"
-#include "../delegates.h"
+#include "../typedefs.hpp"
+#include "../delegates.hpp"
 
 #include <memory>
 #include <unordered_map>

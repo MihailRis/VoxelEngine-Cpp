@@ -2,15 +2,15 @@
 
 #include "../core/Mesh.hpp"
 #include "../../maths/UVRegion.hpp"
-#include "../../constants.h"
-#include "../../content/Content.h"
-#include "../../voxels/Block.h"
-#include "../../voxels/Chunk.h"
-#include "../../voxels/VoxelsVolume.h"
-#include "../../voxels/ChunksStorage.h"
-#include "../../lighting/Lightmap.h"
+#include "../../constants.hpp"
+#include "../../content/Content.hpp"
+#include "../../voxels/Block.hpp"
+#include "../../voxels/Chunk.hpp"
+#include "../../voxels/VoxelsVolume.hpp"
+#include "../../voxels/ChunksStorage.hpp"
+#include "../../lighting/Lightmap.hpp"
 #include "../../frontend/ContentGfxCache.hpp"
-#include "../../settings.h"
+#include "../../settings.hpp"
 
 #include <glm/glm.hpp>
 

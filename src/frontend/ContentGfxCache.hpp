@@ -1,7 +1,7 @@
 #ifndef FRONTEND_BLOCKS_GFX_CACHE_HPP_
 #define FRONTEND_BLOCKS_GFX_CACHE_HPP_
 
-#include "../typedefs.h"
+#include "../typedefs.hpp"
 
 #include <memory>
 

@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <vector>
 #include <glm/glm.hpp>
-#include "../../voxels/voxel.h"
-#include "../../typedefs.h"
+#include "../../voxels/voxel.hpp"
+#include "../../typedefs.hpp"
 
 class Content;
 class Mesh;

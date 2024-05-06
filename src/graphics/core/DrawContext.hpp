@@ -4,7 +4,7 @@
 #include "commons.hpp"
 #include "Viewport.hpp"
 #include "../../window/Window.hpp"
-#include "../../typedefs.h"
+#include "../../typedefs.hpp"
 
 class Batch2D;
 class Framebuffer;

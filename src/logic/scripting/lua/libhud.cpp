@@ -3,18 +3,18 @@
 #include "LuaState.hpp"
 
 #include "../../../assets/Assets.hpp"
-#include "../../../content/Content.h"
-#include "../../../engine.h"
+#include "../../../content/Content.hpp"
+#include "../../../engine.hpp"
 #include "../../../frontend/hud.hpp"
 #include "../../../frontend/UiDocument.hpp"
 #include "../../../graphics/ui/elements/InventoryView.hpp"
-#include "../../../items/Inventories.h"
-#include "../../../logic/BlocksController.h"
-#include "../../../voxels/Block.h"
-#include "../../../voxels/Chunks.h"
-#include "../../../voxels/voxel.h"
-#include "../../../world/Level.h"
-#include "../scripting.h"
+#include "../../../items/Inventories.hpp"
+#include "../../../logic/BlocksController.hpp"
+#include "../../../voxels/Block.hpp"
+#include "../../../voxels/Chunks.hpp"
+#include "../../../voxels/voxel.hpp"
+#include "../../../world/Level.hpp"
+#include "../scripting.hpp"
 
 #include <iostream>
 #include <glm/glm.hpp>

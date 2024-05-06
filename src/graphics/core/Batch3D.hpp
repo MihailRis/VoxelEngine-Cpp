@@ -2,7 +2,7 @@
 #define GRAPHICS_CORE_BATCH3D_HPP_
 
 #include "../../maths/UVRegion.hpp"
-#include "../../typedefs.h"
+#include "../../typedefs.hpp"
 
 #include <memory>
 #include <stdlib.h>

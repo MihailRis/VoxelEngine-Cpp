@@ -2,7 +2,7 @@
 #define SRC_AUDIO_AUDIO_HPP_
 
 #include "../audio.hpp"
-#include "../../typedefs.h"
+#include "../../typedefs.hpp"
 
 #include <queue>
 #include <vector>

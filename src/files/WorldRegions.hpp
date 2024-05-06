@@ -1,10 +1,10 @@
 #ifndef FILES_WORLD_REGIONS_HPP_
 #define FILES_WORLD_REGIONS_HPP_
 
-#include "files.h"
-#include "../typedefs.h"
+#include "files.hpp"
+#include "../typedefs.hpp"
 #include "../util/BufferPool.hpp"
-#include "../voxels/Chunk.h"
+#include "../voxels/Chunk.hpp"
 
 #include <mutex>
 #include <memory>

@@ -1,14 +1,14 @@
-#include "Content.h"
+#include "Content.hpp"
 
 #include <memory>
 #include <stdexcept>
 #include <glm/glm.hpp>
 
-#include "../voxels/Block.h"
-#include "../items/ItemDef.h"
+#include "../voxels/Block.hpp"
+#include "../items/ItemDef.hpp"
 
-#include "ContentPack.h"
-#include "../logic/scripting/scripting.h"
+#include "ContentPack.hpp"
+#include "../logic/scripting/scripting.hpp"
 
 ContentBuilder::~ContentBuilder() {}
 

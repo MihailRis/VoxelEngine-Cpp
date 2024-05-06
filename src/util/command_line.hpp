@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 #include <stdexcept>
-#include "../files/engine_paths.h"
+#include "../files/engine_paths.hpp"
 
 class ArgsReader {
     int argc;

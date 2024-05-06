@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_RENDER_BLOCKS_PREVIEW_HPP_
 #define GRAPHICS_RENDER_BLOCKS_PREVIEW_HPP_
 
-#include "../../typedefs.h"
+#include "../../typedefs.hpp"
 
 #include <glm/glm.hpp>
 #include <memory>

@@ -4,8 +4,8 @@
 #include <memory>
 #include <string>
 #include "GUI.hpp"
-#include "../../typedefs.h"
-#include "../../delegates.h"
+#include "../../typedefs.hpp"
+#include "../../delegates.hpp"
 
 namespace gui {
     class Button;

@@ -1,12 +1,12 @@
 #include "ContentLUT.hpp"
 
-#include "Content.h"
-#include "../constants.h"
-#include "../files/files.h"
-#include "../coders/json.h"
-#include "../voxels/Block.h"
-#include "../items/ItemDef.h"
-#include "../data/dynamic.h"
+#include "Content.hpp"
+#include "../constants.hpp"
+#include "../files/files.hpp"
+#include "../coders/json.hpp"
+#include "../voxels/Block.hpp"
+#include "../items/ItemDef.hpp"
+#include "../data/dynamic.hpp"
 
 #include <memory>
 

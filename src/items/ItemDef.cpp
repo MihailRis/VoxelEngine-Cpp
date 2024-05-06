@@ -1,4 +1,4 @@
-#include "ItemDef.h"
+#include "ItemDef.hpp"
 #include "../util/stringutil.hpp"
 
 ItemDef::ItemDef(std::string name) : name(name) {

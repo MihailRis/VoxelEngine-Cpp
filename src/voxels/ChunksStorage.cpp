@@ -1,19 +1,19 @@
-#include "ChunksStorage.h"
+#include "ChunksStorage.hpp"
 
 #include <assert.h>
 #include <iostream>
 
-#include "VoxelsVolume.h"
-#include "Chunk.h"
-#include "Block.h"
-#include "../content/Content.h"
-#include "../files/WorldFiles.h"
-#include "../world/Level.h"
-#include "../world/World.h"
-#include "../maths/voxmaths.h"
-#include "../lighting/Lightmap.h"
-#include "../items/Inventories.h"
-#include "../typedefs.h"
+#include "VoxelsVolume.hpp"
+#include "Chunk.hpp"
+#include "Block.hpp"
+#include "../content/Content.hpp"
+#include "../files/WorldFiles.hpp"
+#include "../world/Level.hpp"
+#include "../world/World.hpp"
+#include "../maths/voxmaths.hpp"
+#include "../lighting/Lightmap.hpp"
+#include "../items/Inventories.hpp"
+#include "../typedefs.hpp"
 
 ChunksStorage::ChunksStorage(Level* level) : level(level) {
 }

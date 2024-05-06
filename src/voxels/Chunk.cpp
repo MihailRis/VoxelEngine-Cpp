@@ -1,10 +1,10 @@
-#include "Chunk.h"
+#include "Chunk.hpp"
 
-#include "voxel.h"
+#include "voxel.hpp"
 
-#include "../items/Inventory.h"
+#include "../items/Inventory.hpp"
 #include "../content/ContentLUT.hpp"
-#include "../lighting/Lightmap.h"
+#include "../lighting/Lightmap.hpp"
 
 Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos){
 	bottom = 0;

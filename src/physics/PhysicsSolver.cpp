@@ -1,10 +1,10 @@
-#include "PhysicsSolver.h"
-#include "Hitbox.h"
+#include "PhysicsSolver.hpp"
+#include "Hitbox.hpp"
 
-#include "../maths/aabb.h"
-#include "../voxels/Block.h"
-#include "../voxels/Chunks.h"
-#include "../voxels/voxel.h"
+#include "../maths/aabb.hpp"
+#include "../voxels/Block.hpp"
+#include "../voxels/Chunks.hpp"
+#include "../voxels/voxel.hpp"
 
 const double E = 0.03;
 const double MAX_FIX = 0.1;

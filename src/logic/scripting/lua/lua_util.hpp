@@ -1,5 +1,5 @@
-#ifndef LOGIC_SCRIPTING_LUA_UTIL_H_
-#define LOGIC_SCRIPTING_LUA_UTIL_H_
+#ifndef LOGIC_SCRIPTING_LUA_UTIL_HPP_
+#define LOGIC_SCRIPTING_LUA_UTIL_HPP_
 
 #include "LuaState.hpp"
 
@@ -120,4 +120,4 @@ namespace lua {
     }
 }
 
-#endif // LOGIC_SCRIPTING_LUA_UTIL_H_
+#endif // LOGIC_SCRIPTING_LUA_UTIL_HPP_

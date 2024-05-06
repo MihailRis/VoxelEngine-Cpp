@@ -1,7 +1,7 @@
 #ifndef FILES_SETTINGS_IO_HPP_
 #define FILES_SETTINGS_IO_HPP_
 
-#include "../data/dynamic.h"
+#include "../data/dynamic.hpp"
 
 #include <string>
 #include <memory>

@@ -1,4 +1,4 @@
-#include "engine.h"
+#include "engine.hpp"
 
 #define GLEW_STATIC
 
@@ -7,11 +7,11 @@
 #include "audio/audio.hpp"
 #include "coders/GLSLExtension.hpp"
 #include "coders/imageio.hpp"
-#include "coders/json.h"
+#include "coders/json.hpp"
 #include "coders/toml.hpp"
-#include "content/ContentLoader.h"
+#include "content/ContentLoader.hpp"
 #include "core_defs.hpp"
-#include "files/files.h"
+#include "files/files.hpp"
 #include "files/settings_io.hpp"
 #include "frontend/locale.hpp"
 #include "frontend/menu.hpp"
@@ -23,16 +23,16 @@
 #include "graphics/core/Shader.hpp"
 #include "graphics/ui/GUI.hpp"
 #include "logic/EngineController.hpp"
-#include "logic/scripting/scripting.h"
+#include "logic/scripting/scripting.hpp"
 #include "util/listutil.hpp"
 #include "util/platform.hpp"
-#include "voxels/DefaultWorldGenerator.h"
-#include "voxels/FlatWorldGenerator.h"
+#include "voxels/DefaultWorldGenerator.hpp"
+#include "voxels/FlatWorldGenerator.hpp"
 #include "window/Camera.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"
 #include "window/Window.hpp"
-#include "world/WorldGenerators.h"
+#include "world/WorldGenerators.hpp"
 
 #include <iostream>
 #include <assert.h>

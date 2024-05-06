@@ -3,16 +3,16 @@
 #include "Assets.hpp"
 #include "assetload_funcs.hpp"
 #include "../util/ThreadPool.hpp"
-#include "../constants.h"
-#include "../data/dynamic.h"
+#include "../constants.hpp"
+#include "../data/dynamic.hpp"
 #include "../debug/Logger.hpp"
 #include "../coders/imageio.hpp"
-#include "../files/files.h"
-#include "../files/engine_paths.h"
-#include "../content/Content.h"
-#include "../content/ContentPack.h"
+#include "../files/files.hpp"
+#include "../files/engine_paths.hpp"
+#include "../content/Content.hpp"
+#include "../content/ContentPack.hpp"
 #include "../graphics/core/Texture.hpp"
-#include "../logic/scripting/scripting.h"
+#include "../logic/scripting/scripting.hpp"
 
 #include <iostream>
 #include <memory>

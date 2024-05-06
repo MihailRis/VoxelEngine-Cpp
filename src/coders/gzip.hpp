@@ -1,7 +1,7 @@
 #ifndef CODERS_GZIP_HPP_
 #define CODERS_GZIP_HPP_
 
-#include "../typedefs.h"
+#include "../typedefs.hpp"
 #include <vector>
 
 namespace gzip {

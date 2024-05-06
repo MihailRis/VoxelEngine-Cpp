@@ -4,13 +4,13 @@
 
 #include "../assets/Assets.hpp"
 #include "../audio/audio.hpp"
-#include "../content/Content.h"
+#include "../content/Content.hpp"
 #include "../graphics/core/Atlas.hpp"
 #include "../graphics/render/BlocksPreview.hpp"
-#include "../logic/LevelController.h"
-#include "../logic/PlayerController.h"
-#include "../voxels/Block.h"
-#include "../world/Level.h"
+#include "../logic/LevelController.hpp"
+#include "../logic/PlayerController.hpp"
+#include "../voxels/Block.hpp"
+#include "../world/Level.hpp"
 
 LevelFrontend::LevelFrontend(LevelController* controller, Assets* assets) 
   : level(controller->getLevel()),

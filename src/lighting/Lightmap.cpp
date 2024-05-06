@@ -1,4 +1,4 @@
-#include "Lightmap.h"
+#include "Lightmap.hpp"
 
 #include "../util/data_io.hpp"
 

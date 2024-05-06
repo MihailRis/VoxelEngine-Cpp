@@ -2,9 +2,9 @@
 #include "BlocksRenderer.hpp"
 #include "../../debug/Logger.hpp"
 #include "../../graphics/core/Mesh.hpp"
-#include "../../voxels/Chunk.h"
-#include "../../world/Level.h"
-#include "../../settings.h"
+#include "../../voxels/Chunk.hpp"
+#include "../../world/Level.hpp"
+#include "../../settings.hpp"
 
 #include <iostream>
 #include <glm/glm.hpp>

@@ -1,4 +1,4 @@
-#include "PostProcessing.h"
+#include "PostProcessing.hpp"
 #include "Mesh.hpp"
 #include "Shader.hpp"
 #include "Texture.hpp"

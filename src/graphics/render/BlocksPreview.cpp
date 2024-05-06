@@ -1,10 +1,10 @@
 #include "BlocksPreview.hpp"
 
 #include "../../assets/Assets.hpp"
-#include "../../constants.h"
-#include "../../content/Content.h"
+#include "../../constants.hpp"
+#include "../../content/Content.hpp"
 #include "../../frontend/ContentGfxCache.hpp"
-#include "../../voxels/Block.h"
+#include "../../voxels/Block.hpp"
 #include "../../window/Camera.hpp"
 #include "../../window/Window.hpp"
 #include "../core/Atlas.hpp"

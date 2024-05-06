@@ -1,9 +1,9 @@
 #include "lua_commons.hpp"
 #include "api_lua.hpp"
-#include "../scripting.h"
-#include "../../../engine.h"
-#include "../../../files/files.h"
-#include "../../../files/engine_paths.h"
+#include "../scripting.hpp"
+#include "../../../engine.hpp"
+#include "../../../files/files.hpp"
+#include "../../../files/engine_paths.hpp"
 
 #include <string>
 #include <filesystem>

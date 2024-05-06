@@ -1,4 +1,4 @@
-#include "Hitbox.h"
+#include "Hitbox.hpp"
 
 Hitbox::Hitbox(glm::vec3 position, glm::vec3 halfsize) 
     : position(position), 

@@ -1,4 +1,4 @@
-#include "engine_paths.h"
+#include "engine_paths.hpp"
 
 #include <stack>
 #include <sstream>
@@ -6,8 +6,8 @@
 #include <algorithm>
 
 #include "../util/stringutil.hpp"
-#include "../typedefs.h"
-#include "WorldFiles.h"
+#include "../typedefs.hpp"
+#include "WorldFiles.hpp"
 
 const fs::path SCREENSHOTS_FOLDER {"screenshots"};
 const fs::path CONTROLS_FILE {"controls.json"};

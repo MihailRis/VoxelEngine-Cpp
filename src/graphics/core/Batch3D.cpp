@@ -4,7 +4,7 @@
 #include "Texture.hpp"
 
 #include <GL/glew.h>
-#include "../../typedefs.h"
+#include "../../typedefs.hpp"
 
 inline constexpr uint B3D_VERTEX_SIZE = 9;
 

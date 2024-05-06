@@ -3,10 +3,10 @@
 #include "lua_util.hpp"
 #include "LuaState.hpp"
 
-#include "../scripting.h"
-#include "../../../engine.h"
+#include "../scripting.hpp"
+#include "../../../engine.hpp"
 #include "../../../assets/Assets.hpp"
-#include "../../../items/Inventories.h"
+#include "../../../items/Inventories.hpp"
 #include "../../../graphics/ui/gui_util.hpp"
 #include "../../../graphics/ui/elements/UINode.hpp"
 #include "../../../graphics/ui/elements/Button.hpp"
@@ -19,7 +19,7 @@
 #include "../../../frontend/UiDocument.hpp"
 #include "../../../frontend/locale.hpp"
 #include "../../../util/stringutil.hpp"
-#include "../../../world/Level.h"
+#include "../../../world/Level.hpp"
 
 using namespace gui;
 

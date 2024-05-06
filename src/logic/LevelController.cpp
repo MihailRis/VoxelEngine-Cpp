@@ -1,12 +1,12 @@
-#include "LevelController.h"
-#include "../files/WorldFiles.h"
+#include "LevelController.hpp"
+#include "../files/WorldFiles.hpp"
 #include "../debug/Logger.hpp"
-#include "../world/Level.h"
-#include "../world/World.h"
-#include "../physics/Hitbox.h"
+#include "../world/Level.hpp"
+#include "../world/World.hpp"
+#include "../physics/Hitbox.hpp"
 
-#include "scripting/scripting.h"
-#include "../interfaces/Object.h"
+#include "scripting/scripting.hpp"
+#include "../interfaces/Object.hpp"
 
 static debug::Logger logger("level-control");
 

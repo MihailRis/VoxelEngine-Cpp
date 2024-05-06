@@ -147,8 +147,8 @@ void Events::setPosition(float xpos, float ypos) {
     Events::cursor.y = ypos;
 }
 
-#include "../data/dynamic.h"
-#include "../coders/json.h"
+#include "../data/dynamic.hpp"
+#include "../coders/json.hpp"
 
 std::string Events::writeBindings() {
     dynamic::Map obj;

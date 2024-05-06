@@ -1,14 +1,14 @@
 #include "scripting_hud.hpp"
-#include "scripting.h"
+#include "scripting.hpp"
 
 #include "lua/api_lua.hpp"
 #include "lua/LuaState.hpp"
 
 #include "../../debug/Logger.hpp"
 #include "../../frontend/hud.hpp"
-#include "../../objects/Player.h"
-#include "../../files/files.h"
-#include "../../engine.h"
+#include "../../objects/Player.hpp"
+#include "../../files/files.hpp"
+#include "../../engine.hpp"
 
 namespace scripting {
     extern lua::LuaState* state;

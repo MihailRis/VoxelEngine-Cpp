@@ -1,13 +1,13 @@
 #include "api_lua.hpp"
 #include "lua_commons.hpp"
 
-#include "../scripting.h"
-#include "../../../engine.h"
+#include "../scripting.hpp"
+#include "../../../engine.hpp"
 #include "../../../assets/AssetsLoader.hpp"
-#include "../../../files/engine_paths.h"
-#include "../../../files/WorldFiles.h"
-#include "../../../world/Level.h"
-#include "../../../world/World.h"
+#include "../../../files/engine_paths.hpp"
+#include "../../../files/WorldFiles.hpp"
+#include "../../../world/Level.hpp"
+#include "../../../world/World.hpp"
 
 #include <string>
 #include <stdexcept>

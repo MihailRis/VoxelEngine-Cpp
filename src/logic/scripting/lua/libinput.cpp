@@ -1,13 +1,13 @@
 #include "api_lua.hpp"
 #include "lua_commons.hpp"
 #include "LuaState.hpp"
-#include "../scripting.h"
+#include "../scripting.hpp"
 
 #include "../../../window/input.hpp"
 #include "../../../window/Events.hpp"
 #include "../../../frontend/screens/Screen.hpp"
 #include "../../../frontend/hud.hpp"
-#include "../../../engine.h"
+#include "../../../engine.hpp"
 
 namespace scripting {
     extern lua::LuaState* state;

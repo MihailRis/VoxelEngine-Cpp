@@ -1,7 +1,7 @@
 #include "api_lua.hpp"
 #include "lua_commons.hpp"
-#include "../scripting.h"
-#include "../../../engine.h"
+#include "../scripting.hpp"
+#include "../../../engine.hpp"
 #include "../../../window/Window.hpp"
 
 static int l_time_uptime(lua_State* L) {

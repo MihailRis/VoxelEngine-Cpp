@@ -2,7 +2,7 @@
 #define GRAPHICS_UI_ELEMENTS_PLOTTER_HPP_
 
 #include "UINode.hpp"
-#include "../../../typedefs.h"
+#include "../../../typedefs.hpp"
 
 #include <memory>
 #include <glm/glm.hpp>

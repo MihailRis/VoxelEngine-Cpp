@@ -1,11 +1,11 @@
 #include "lua_commons.hpp"
 #include "api_lua.hpp"
-#include "../scripting.h"
-#include "../../../world/Level.h"
-#include "../../../objects/Player.h"
-#include "../../../physics/Hitbox.h"
+#include "../scripting.hpp"
+#include "../../../world/Level.hpp"
+#include "../../../objects/Player.hpp"
+#include "../../../physics/Hitbox.hpp"
 #include "../../../window/Camera.hpp"
-#include "../../../items/Inventory.h"
+#include "../../../items/Inventory.hpp"
 
 #include <glm/glm.hpp>
 

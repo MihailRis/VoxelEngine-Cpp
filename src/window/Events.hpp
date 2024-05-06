@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include "../typedefs.h"
+#include "../typedefs.hpp"
 
 inline constexpr short KEYS_BUFFER_SIZE = 1036;
 

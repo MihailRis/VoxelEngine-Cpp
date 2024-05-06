@@ -3,7 +3,7 @@
 
 #include <string>
 #include <memory>
-#include "../../typedefs.h"
+#include "../../typedefs.hpp"
 #include "ImageData.hpp"
 
 class Texture {

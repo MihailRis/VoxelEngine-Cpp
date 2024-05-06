@@ -1,4 +1,4 @@
-#include "scripting_functional.h"
+#include "scripting_functional.hpp"
 
 #include "lua/LuaState.hpp"
 #include "../../debug/Logger.hpp"

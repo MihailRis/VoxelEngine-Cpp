@@ -1,9 +1,9 @@
-#include "WorldGenerator.h"
-#include "voxel.h"
-#include "Chunk.h"
-#include "Block.h"
+#include "WorldGenerator.hpp"
+#include "voxel.hpp"
+#include "Chunk.hpp"
+#include "Block.hpp"
 
-#include "../content/Content.h"
+#include "../content/Content.hpp"
 
 WorldGenerator::WorldGenerator(const Content* content)
                : idStone(content->requireBlock("base:stone").rt.id),

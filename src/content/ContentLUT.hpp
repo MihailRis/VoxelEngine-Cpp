@@ -1,10 +1,10 @@
 #ifndef CONTENT_CONTENT_LUT_HPP_
 #define CONTENT_CONTENT_LUT_HPP_
 
-#include "Content.h"
+#include "Content.hpp"
 
-#include "../typedefs.h"
-#include "../constants.h"
+#include "../typedefs.hpp"
+#include "../constants.hpp"
 
 #include <string>
 #include <vector>

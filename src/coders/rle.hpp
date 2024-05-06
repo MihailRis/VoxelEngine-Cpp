@@ -1,7 +1,7 @@
 #ifndef CODERS_RLE_HPP_
 #define CODERS_RLE_HPP_
 
-#include "../typedefs.h"
+#include "../typedefs.hpp"
 
 namespace rle {
     size_t encode(const ubyte* src, size_t length, ubyte* dst);

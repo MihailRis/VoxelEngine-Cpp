@@ -1,6 +1,6 @@
 
-#include "rays.h"
-#include "aabb.h"
+#include "rays.hpp"
+#include "aabb.hpp"
 
 #include "glm/glm.hpp"
 

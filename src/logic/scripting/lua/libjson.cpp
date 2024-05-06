@@ -2,8 +2,8 @@
 #include "lua_commons.hpp"
 #include "LuaState.hpp"
 
-#include "../../../coders/json.h"
-#include "../../../data/dynamic.h"
+#include "../../../coders/json.hpp"
+#include "../../../data/dynamic.hpp"
 
 namespace scripting {
     extern lua::LuaState* state;

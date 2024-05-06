@@ -1,7 +1,7 @@
 #ifndef AUDIO_AUDIOUTIL_HPP_
 #define AUDIO_AUDIOUTIL_HPP_
 
-#include "../../typedefs.h"
+#include "../../typedefs.hpp"
 
 #include <string>
 #include <type_traits>

@@ -1,14 +1,14 @@
-#include "DefaultWorldGenerator.h"
-#include "voxel.h"
-#include "Chunk.h"
-#include "Block.h"
+#include "DefaultWorldGenerator.hpp"
+#include "voxel.hpp"
+#include "Chunk.hpp"
+#include "Block.hpp"
 
 #define FNL_IMPL
 #include "../maths/FastNoiseLite.h"
 
-#include "../content/Content.h"
-#include "../maths/voxmaths.h"
-#include "../maths/util.h"
+#include "../content/Content.hpp"
+#include "../maths/voxmaths.hpp"
+#include "../maths/util.hpp"
 #include "../core_defs.hpp"
 
 #include <iostream>

@@ -3,8 +3,8 @@
 
 #include "lua_commons.hpp"
 
-#include "../../../data/dynamic.h"
-#include "../../../delegates.h"
+#include "../../../data/dynamic.hpp"
+#include "../../../delegates.hpp"
 
 #ifndef LUAJIT_VERSION
 #error LuaJIT required

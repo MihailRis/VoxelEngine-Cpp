@@ -1,7 +1,7 @@
 #ifndef UTIL_STRINGUTIL_HPP_
 #define UTIL_STRINGUTIL_HPP_
 
-#include "../typedefs.h"
+#include "../typedefs.hpp"
 
 #include <string>
 #include <vector>

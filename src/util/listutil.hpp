@@ -1,5 +1,5 @@
-#ifndef UTIL_LISTUTIL_H_
-#define UTIL_LISTUTIL_H_
+#ifndef UTIL_LISTUTIL_HPP_
+#define UTIL_LISTUTIL_HPP_
 
 #include <algorithm>
 #include <vector>
@@ -15,4 +15,4 @@ namespace util {
     std::string to_string(const std::vector<std::string>& vec);
 }
 
-#endif // UTIL_LISTUTIL_H_
+#endif // UTIL_LISTUTIL_HPP_

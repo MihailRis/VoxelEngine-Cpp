@@ -1,12 +1,12 @@
 #include "lua_commons.hpp"
 #include "api_lua.hpp"
 #include "lua_util.hpp"
-#include "../scripting.h"
-#include "../../../content/Content.h"
-#include "../../../world/Level.h"
-#include "../../../items/ItemStack.h"
-#include "../../../items/Inventories.h"
-#include "../../../logic/BlocksController.h"
+#include "../scripting.hpp"
+#include "../../../content/Content.hpp"
+#include "../../../world/Level.hpp"
+#include "../../../items/ItemStack.hpp"
+#include "../../../items/Inventories.hpp"
+#include "../../../logic/BlocksController.hpp"
 
 static void validate_itemid(lua_State* L, itemid_t id) {
     if (id >= scripting::indices->countItemDefs()) {

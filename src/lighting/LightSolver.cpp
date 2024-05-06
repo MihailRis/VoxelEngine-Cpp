@@ -1,12 +1,12 @@
 #include <iostream>
 #include <assert.h>
-#include "LightSolver.h"
-#include "Lightmap.h"
-#include "../content/Content.h"
-#include "../voxels/Chunks.h"
-#include "../voxels/Chunk.h"
-#include "../voxels/voxel.h"
-#include "../voxels/Block.h"
+#include "LightSolver.hpp"
+#include "Lightmap.hpp"
+#include "../content/Content.hpp"
+#include "../voxels/Chunks.hpp"
+#include "../voxels/Chunk.hpp"
+#include "../voxels/voxel.hpp"
+#include "../voxels/Block.hpp"
 
 LightSolver::LightSolver(const ContentIndices* contentIds, Chunks* chunks, int channel) 
 	: contentIds(contentIds), 

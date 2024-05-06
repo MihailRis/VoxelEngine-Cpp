@@ -1,4 +1,4 @@
-#include "dynamic.h"
+#include "dynamic.hpp"
 
 #include <stdexcept>
 

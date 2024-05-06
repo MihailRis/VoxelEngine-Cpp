@@ -2,7 +2,7 @@
 #define GRAPHICS_CORE_MESH_HPP_
 
 #include <stdlib.h>
-#include "../../typedefs.h"
+#include "../../typedefs.hpp"
 
 struct vattr {
     ubyte size;

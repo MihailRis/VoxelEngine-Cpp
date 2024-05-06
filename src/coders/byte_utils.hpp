@@ -1,7 +1,7 @@
 #ifndef CODERS_BYTE_UTILS_HPP_
 #define CODERS_BYTE_UTILS_HPP_
 
-#include "../typedefs.h"
+#include "../typedefs.hpp"
 
 #include <string>
 #include <vector>

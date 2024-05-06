@@ -4,8 +4,8 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "../../typedefs.h"
-#include "../../maths/fastmaths.h"
+#include "../../typedefs.hpp"
+#include "../../maths/fastmaths.hpp"
 
 class Mesh;
 class Shader;

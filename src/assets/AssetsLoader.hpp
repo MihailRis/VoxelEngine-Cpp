@@ -3,8 +3,8 @@
 
 #include "Assets.hpp"
 #include "../interfaces/Task.hpp"
-#include "../typedefs.h"
-#include "../delegates.h"
+#include "../typedefs.hpp"
+#include "../delegates.hpp"
 
 #include <string>
 #include <memory>

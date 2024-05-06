@@ -1,7 +1,7 @@
 #ifndef FRONTEND_UI_DOCUMENT_HPP_
 #define FRONTEND_UI_DOCUMENT_HPP_
 
-#include "../typedefs.h"
+#include "../typedefs.hpp"
 
 #include <string>
 #include <memory>

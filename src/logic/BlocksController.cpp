@@ -1,19 +1,19 @@
-#include "BlocksController.h"
+#include "BlocksController.hpp"
 
-#include "../voxels/voxel.h"
-#include "../voxels/Block.h"
-#include "../voxels/Chunk.h"
-#include "../voxels/Chunks.h"
-#include "../world/Level.h"
-#include "../world/World.h"
-#include "../content/Content.h"
-#include "../lighting/Lighting.h"
-#include "../util/timeutil.h"
-#include "../maths/fastmaths.h"
-#include "../items/Inventory.h"
-#include "../items/Inventories.h"
+#include "../voxels/voxel.hpp"
+#include "../voxels/Block.hpp"
+#include "../voxels/Chunk.hpp"
+#include "../voxels/Chunks.hpp"
+#include "../world/Level.hpp"
+#include "../world/World.hpp"
+#include "../content/Content.hpp"
+#include "../lighting/Lighting.hpp"
+#include "../util/timeutil.hpp"
+#include "../maths/fastmaths.hpp"
+#include "../items/Inventory.hpp"
+#include "../items/Inventories.hpp"
 
-#include "scripting/scripting.h"
+#include "scripting/scripting.hpp"
 
 Clock::Clock(int tickRate, int tickParts)
     : tickRate(tickRate),

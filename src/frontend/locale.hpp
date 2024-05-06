@@ -1,7 +1,7 @@
 #ifndef FRONTEND_LOCALES_HPP_
 #define FRONTEND_LOCALES_HPP_
 
-#include "../content/ContentPack.h"
+#include "../content/ContentPack.hpp"
 
 #include <string>
 #include <vector>

@@ -7,7 +7,7 @@
 #include <vector>
 #include <unordered_map>
 #include "../../maths/UVRegion.hpp"
-#include "../../typedefs.h"
+#include "../../typedefs.hpp"
 
 class ImageData;
 class Texture;

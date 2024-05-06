@@ -1,13 +1,13 @@
-#ifndef DATA_SETTING_H_
-#define DATA_SETTING_H_
+#ifndef DATA_SETTING_HPP_
+#define DATA_SETTING_HPP_
 
 #include <limits>
 #include <string>
 #include <vector>
 #include <unordered_map>
 
-#include "../typedefs.h"
-#include "../delegates.h"
+#include "../typedefs.hpp"
+#include "../delegates.hpp"
 
 enum class setting_format {
     simple, percent
@@ -177,4 +177,4 @@ public:
     virtual std::string toString() const override;
 };
 
-#endif // DATA_SETTING_H_
+#endif // DATA_SETTING_HPP_

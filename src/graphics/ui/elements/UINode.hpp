@@ -1,7 +1,7 @@
-#ifndef GRAPHICS_UI_ELEMENTS_UINODE_H_
-#define GRAPHICS_UI_ELEMENTS_UINODE_H_
+#ifndef GRAPHICS_UI_ELEMENTS_UINODE_HPP_
+#define GRAPHICS_UI_ELEMENTS_UINODE_HPP_
 
-#include "../../../delegates.h"
+#include "../../../delegates.hpp"
 #include "../../../window/input.hpp"
 
 #include <glm/glm.hpp>
@@ -215,4 +215,4 @@ namespace gui {
     };
 }
 
-#endif // GRAPHICS_UI_ELEMENTS_UINODE_H_
+#endif // GRAPHICS_UI_ELEMENTS_UINODE_HPP_

@@ -1,16 +1,16 @@
-#include "World.h"
+#include "World.hpp"
 
-#include "Level.h"
-#include "../content/Content.h"
+#include "Level.hpp"
+#include "../content/Content.hpp"
 #include "../content/ContentLUT.hpp"
-#include "../files/WorldFiles.h"
-#include "../items/Inventories.h"
-#include "../objects/Player.h"
-#include "../voxels/Chunk.h"
-#include "../voxels/Chunks.h"
-#include "../voxels/ChunksStorage.h"
+#include "../files/WorldFiles.hpp"
+#include "../items/Inventories.hpp"
+#include "../objects/Player.hpp"
+#include "../voxels/Chunk.hpp"
+#include "../voxels/Chunks.hpp"
+#include "../voxels/ChunksStorage.hpp"
 #include "../window/Camera.hpp"
-#include "../world/WorldGenerators.h"
+#include "../world/WorldGenerators.hpp"
 
 #include <memory>
 #include <iostream>

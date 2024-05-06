@@ -1,10 +1,11 @@
 #include "WorldRegions.hpp"
 
-#include "../coders/rle.hpp"
-#include "../util/data_io.hpp"
 #include "../coders/byte_utils.hpp"
-#include "../maths/voxmaths.h"
-#include "../items/Inventory.h"
+#include "../coders/rle.hpp"
+#include "../data/dynamic.hpp"
+#include "../items/Inventory.hpp"
+#include "../maths/voxmaths.hpp"
+#include "../util/data_io.hpp"
 
 #include <cstring>
 

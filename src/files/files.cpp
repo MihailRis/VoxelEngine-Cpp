@@ -1,9 +1,9 @@
-#include "files.h"
+#include "files.hpp"
 
-#include "../coders/json.h"
+#include "../coders/json.hpp"
 #include "../coders/gzip.hpp"
 #include "../util/stringutil.hpp"
-#include "../data/dynamic.h"
+#include "../data/dynamic.hpp"
 
 #include <fstream>
 #include <iostream>

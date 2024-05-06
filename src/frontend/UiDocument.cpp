@@ -1,10 +1,10 @@
 #include "UiDocument.hpp"
 
-#include "../files/files.h"
+#include "../files/files.hpp"
 #include "../graphics/ui/elements/UINode.hpp"
 #include "../graphics/ui/elements/InventoryView.hpp"
 #include "../graphics/ui/gui_xml.hpp"
-#include "../logic/scripting/scripting.h"
+#include "../logic/scripting/scripting.hpp"
 
 UiDocument::UiDocument(
     std::string id, 

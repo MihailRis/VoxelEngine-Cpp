@@ -1,9 +1,14 @@
 #ifndef CODERS_BINARY_JSON_HPP_
 #define CODERS_BINARY_JSON_HPP_
 
+#include "../typedefs.hpp"
+
 #include <vector>
 #include <memory>
-#include "../data/dynamic.h"
+
+namespace dynamic {
+    class Map;
+}
 
 namespace json {
     const int BJSON_END = 0x0;

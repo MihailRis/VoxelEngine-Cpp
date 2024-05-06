@@ -1,7 +1,7 @@
 #ifndef CONTENT_PACKS_MANAGER_HPP_
 #define CONTENT_PACKS_MANAGER_HPP_
 
-#include "ContentPack.h"
+#include "ContentPack.hpp"
 
 #include <vector>
 #include <filesystem>

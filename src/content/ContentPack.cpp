@@ -1,12 +1,12 @@
-#include "ContentPack.h"
+#include "ContentPack.hpp"
 
 #include <iostream>
 #include <algorithm>
 
-#include "../coders/json.h"
-#include "../files/files.h"
-#include "../files/engine_paths.h"
-#include "../data/dynamic.h"
+#include "../coders/json.hpp"
+#include "../files/files.hpp"
+#include "../files/engine_paths.hpp"
+#include "../data/dynamic.hpp"
 
 namespace fs = std::filesystem;
 

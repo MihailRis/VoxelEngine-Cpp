@@ -2,18 +2,18 @@
 #include "api_lua.hpp"
 #include "LuaState.hpp"
 
-#include "../../../engine.h"
+#include "../../../engine.hpp"
 #include "../../../files/settings_io.hpp"
-#include "../../../files/engine_paths.h"
+#include "../../../files/engine_paths.hpp"
 #include "../../../frontend/menu.hpp"
 #include "../../../frontend/screens/MenuScreen.hpp"
-#include "../../../logic/LevelController.h"
+#include "../../../logic/LevelController.hpp"
 #include "../../../logic/EngineController.hpp"
-#include "../../../world/Level.h"
+#include "../../../world/Level.hpp"
 #include "../../../window/Events.hpp"
 #include "../../../window/Window.hpp"
-#include "../../../world/WorldGenerators.h"
-#include "../scripting.h"
+#include "../../../world/WorldGenerators.hpp"
+#include "../scripting.hpp"
 
 #include <vector>
 #include <memory>

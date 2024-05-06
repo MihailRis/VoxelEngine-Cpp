@@ -3,8 +3,8 @@
 #include "lua_util.hpp"
 
 #include "../../../audio/audio.hpp"
-#include "../../../engine.h"
-#include "../scripting.h"
+#include "../../../engine.hpp"
+#include "../scripting.hpp"
 
 inline const char* DEFAULT_CHANNEL = "regular";
 

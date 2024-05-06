@@ -5,10 +5,10 @@
 #include "elements/Button.hpp"
 #include "gui_xml.hpp"
 
-#include "../../logic/scripting/scripting.h"
+#include "../../logic/scripting/scripting.hpp"
 #include "../../frontend/locale.hpp"
 #include "../../util/stringutil.hpp"
-#include "../../delegates.h"
+#include "../../delegates.hpp"
 
 #include <glm/glm.hpp>
 

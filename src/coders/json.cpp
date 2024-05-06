@@ -1,12 +1,12 @@
-#include "json.h"
+#include "json.hpp"
+
+#include "../data/dynamic.hpp"
+#include "../util/stringutil.hpp"
 
 #include <math.h>
 #include <sstream>
 #include <iomanip>
 #include <memory>
-
-#include "../data/dynamic.h"
-#include "../util/stringutil.hpp"
 
 using namespace json;
 using namespace dynamic;

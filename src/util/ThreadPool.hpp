@@ -1,6 +1,10 @@
 #ifndef UTIL_THREAD_POOL_HPP_
 #define UTIL_THREAD_POOL_HPP_
 
+#include "../delegates.hpp"
+#include "../debug/Logger.hpp"
+#include "../interfaces/Task.hpp"
+
 #include <queue>
 #include <atomic>
 #include <thread>
@@ -8,10 +12,6 @@
 #include <iostream>
 #include <functional>
 #include <condition_variable>
-
-#include "../delegates.h"
-#include "../debug/Logger.hpp"
-#include "../interfaces/Task.hpp"
 
 namespace util {
     

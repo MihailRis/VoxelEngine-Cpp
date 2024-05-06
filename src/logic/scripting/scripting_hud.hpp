@@ -1,7 +1,7 @@
 #ifndef LOGIC_SCRIPTING_SCRIPTING_HUD_HPP_
 #define LOGIC_SCRIPTING_SCRIPTING_HUD_HPP_
 
-#include "../../typedefs.h"
+#include "../../typedefs.hpp"
 
 #include <string>
 #include <filesystem>

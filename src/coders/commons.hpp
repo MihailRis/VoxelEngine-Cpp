@@ -1,9 +1,10 @@
-#ifndef CODERS_COMMONS_H_
-#define CODERS_COMMONS_H_
+#ifndef CODERS_COMMONS_HPP_
+#define CODERS_COMMONS_HPP_
+
+#include "../typedefs.hpp"
 
 #include <string>
 #include <stdexcept>
-#include "../typedefs.h"
 
 inline int is_box(int c) {
     switch (c) {
@@ -102,4 +103,4 @@ public:
     BasicParser(const std::string& file, const std::string& source);
 };
 
-#endif // CODERS_COMMONS_H_
+#endif // CODERS_COMMONS_HPP_

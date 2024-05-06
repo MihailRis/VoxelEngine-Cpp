@@ -1,14 +1,14 @@
-#include "WorldConverter.h"
+#include "WorldConverter.hpp"
 
-#include "WorldFiles.h"
+#include "WorldFiles.hpp"
 
 #include "../content/ContentLUT.hpp"
-#include "../data/dynamic.h"
+#include "../data/dynamic.hpp"
 #include "../debug/Logger.hpp"
-#include "../files/files.h"
-#include "../objects/Player.h"
+#include "../files/files.hpp"
+#include "../objects/Player.hpp"
 #include "../util/ThreadPool.hpp"
-#include "../voxels/Chunk.h"
+#include "../voxels/Chunk.hpp"
 
 #include <memory>
 #include <iostream>

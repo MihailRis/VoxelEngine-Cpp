@@ -1,9 +1,9 @@
-#include "Inventories.h"
+#include "Inventories.hpp"
 
 #include <algorithm>
 
-#include "../world/Level.h"
-#include "../world/World.h"
+#include "../world/Level.hpp"
+#include "../world/World.hpp"
 
 Inventories::Inventories(Level& level) : level(level) {
 }

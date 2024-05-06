@@ -1,16 +1,16 @@
 #include <memory>
 
-#include "Lighting.h"
-#include "LightSolver.h"
-#include "Lightmap.h"
-#include "../content/Content.h"
-#include "../voxels/Chunks.h"
-#include "../voxels/Chunk.h"
-#include "../voxels/voxel.h"
-#include "../voxels/Block.h"
-#include "../constants.h"
-#include "../typedefs.h"
-#include "../util/timeutil.h"
+#include "Lighting.hpp"
+#include "LightSolver.hpp"
+#include "Lightmap.hpp"
+#include "../content/Content.hpp"
+#include "../voxels/Chunks.hpp"
+#include "../voxels/Chunk.hpp"
+#include "../voxels/voxel.hpp"
+#include "../voxels/Block.hpp"
+#include "../constants.hpp"
+#include "../typedefs.hpp"
+#include "../util/timeutil.hpp"
 
 Lighting::Lighting(const Content* content, Chunks* chunks) 
 	     : content(content), chunks(chunks) {

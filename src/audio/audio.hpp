@@ -1,7 +1,7 @@
 #ifndef AUDIO_AUDIO_HPP_
 #define AUDIO_AUDIO_HPP_
 
-#include "../typedefs.h"
+#include "../typedefs.hpp"
 
 #include <vector>
 #include <memory>

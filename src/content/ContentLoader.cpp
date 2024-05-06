@@ -1,17 +1,17 @@
-#include "ContentLoader.h"
+#include "ContentLoader.hpp"
 
-#include "Content.h"
-#include "ContentPack.h"
-#include "../coders/json.h"
+#include "Content.hpp"
+#include "ContentPack.hpp"
+#include "../coders/json.hpp"
 #include "../core_defs.hpp"
-#include "../data/dynamic.h"
+#include "../data/dynamic.hpp"
 #include "../debug/Logger.hpp"
-#include "../files/files.h"
-#include "../items/ItemDef.h"
-#include "../logic/scripting/scripting.h"
-#include "../typedefs.h"
+#include "../files/files.hpp"
+#include "../items/ItemDef.hpp"
+#include "../logic/scripting/scripting.hpp"
+#include "../typedefs.hpp"
 #include "../util/listutil.hpp"
-#include "../voxels/Block.h"
+#include "../voxels/Block.hpp"
 
 #include <iostream>
 #include <string>
