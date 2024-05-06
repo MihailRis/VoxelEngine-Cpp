@@ -1,0 +1,4 @@
+<panel size='400,40' padding='4' color='0' orientation='horizontal'>
+    <bindbox binding='%{id}'/>
+    <label margin='6'>%{name}</label>
+</panel>

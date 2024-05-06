@@ -1,12 +1,14 @@
-#include "ogg.h"
+#include "ogg.hpp"
+
+#include "../debug/Logger.hpp"
+#include "../audio/audio.hpp"
+#include "../typedefs.hpp"
 
 #include <string>
-#include <iostream>
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
 
-#include "../audio/audio.h"
-#include "../typedefs.h"
+static debug::Logger logger("ogg");
 
 using namespace audio;
 
@@ -56,7 +58,7 @@ audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
             if (ret == 0) {
                 eof = true;
             } else if (ret < 0) {
-                std::cerr << "ogg::load_pcm: " << vorbis_error_message(ret) << std::endl;
+                logger.error() << "ogg::load_pcm: " << vorbis_error_message(ret);
             } else {
                 data.insert(data.end(), std::begin(buffer), std::begin(buffer)+ret);
             }
@@ -98,7 +100,7 @@ public:
         int bitstream = 0;
         long bytes = ov_read(&vf, buffer, bufferSize, 0, 2, true, &bitstream);
         if (bytes < 0) {
-            std::cerr << "ogg::load_pcm: " << vorbis_error_message(bytes) << " " << bytes << std::endl;
+            logger.error() << "ogg::load_pcm: " << vorbis_error_message(bytes) << " " << bytes;
             return PCMStream::ERROR;
         }
         return bytes;

@@ -1,7 +1,7 @@
-#include "ItemStack.h"
+#include "ItemStack.hpp"
 
-#include "ItemDef.h"
-#include "../content/Content.h"
+#include "ItemDef.hpp"
+#include "../content/Content.hpp"
 
 ItemStack::ItemStack() : item(ITEM_EMPTY), count(0) {
 }

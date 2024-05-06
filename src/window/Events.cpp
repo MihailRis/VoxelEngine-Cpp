@@ -1,8 +1,12 @@
-#include <iostream>
-#include "Events.h"
+#include "Events.hpp"
+#include "Window.hpp"
+#include "../debug/Logger.hpp"
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string.h>
+
+static debug::Logger logger("events");
 
 inline constexpr short _MOUSE_KEYS_OFFSET = 1024;
 
@@ -82,6 +86,7 @@ void Events::pollEvents() {
             if (!binding.state) {
                 binding.state = true;
                 binding.justChange = true;
+                binding.onactived.notify();
             }
         }
         else {
@@ -102,7 +107,7 @@ void Events::bind(std::string name, inputtype type, mousecode code) {
 }
 
 void Events::bind(std::string name, inputtype type, int code) {
-    bindings[name] = { type, code, false, false };
+    bindings[name] = Binding(type, code);
 }
 
 bool Events::active(std::string name) {
@@ -140,4 +145,48 @@ void Events::setPosition(float xpos, float ypos) {
     }
     Events::cursor.x = xpos;
     Events::cursor.y = ypos;
+}
+
+#include "../data/dynamic.hpp"
+#include "../coders/json.hpp"
+
+std::string Events::writeBindings() {
+    dynamic::Map obj;
+    for (auto& entry : Events::bindings) {
+        const auto& binding = entry.second;
+
+        auto& jentry = obj.putMap(entry.first);
+        switch (binding.type) {
+            case inputtype::keyboard: jentry.put("type", "keyboard"); break;
+            case inputtype::mouse: jentry.put("type", "mouse"); break;
+            default: throw std::runtime_error("unsupported control type");
+        }
+        jentry.put("code", binding.code);
+    }
+    return json::stringify(&obj, true, "  ");
+}
+
+void Events::loadBindings(const std::string& filename, const std::string& source) {
+    auto obj = json::parse(filename, source);
+    for (auto& entry : Events::bindings) {
+        auto& binding = entry.second;
+
+        auto jentry = obj->map(entry.first);
+        if (jentry == nullptr)
+            continue;
+        inputtype type;
+        std::string typestr;
+        jentry->str("type", typestr);
+
+        if (typestr == "keyboard") {
+            type = inputtype::keyboard;
+        } else if (typestr == "mouse") {
+            type = inputtype::mouse;
+        } else {
+            logger.error() << "unknown input type '" << typestr << "'";
+            continue;
+        }
+        binding.type = type;
+        jentry->num("code", binding.code);
+    }
 }

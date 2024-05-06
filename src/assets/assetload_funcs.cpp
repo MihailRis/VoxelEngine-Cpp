@@ -1,55 +1,54 @@
-#include "assetload_funcs.h"
+#include "assetload_funcs.hpp"
+
+#include "Assets.hpp"
+#include "AssetsLoader.hpp"
+#include "../data/dynamic.hpp"
+#include "../audio/audio.hpp"
+#include "../files/files.hpp"
+#include "../files/engine_paths.hpp"
+#include "../coders/imageio.hpp"
+#include "../coders/json.hpp"
+#include "../coders/GLSLExtension.hpp"
+#include "../graphics/core/Shader.hpp"
+#include "../graphics/core/Texture.hpp"
+#include "../graphics/core/ImageData.hpp"
+#include "../graphics/core/Atlas.hpp"
+#include "../graphics/core/Font.hpp"
+#include "../graphics/core/TextureAnimation.hpp"
+#include "../frontend/UiDocument.hpp"
 
 #include <iostream>
+#include <stdexcept>
 #include <filesystem>
-#include "Assets.h"
-#include "AssetsLoader.h"
-#include "../audio/audio.h"
-#include "../files/files.h"
-#include "../files/engine_paths.h"
-#include "../coders/png.h"
-#include "../coders/json.h"
-#include "../graphics/Shader.h"
-#include "../graphics/Texture.h"
-#include "../graphics/ImageData.h"
-#include "../graphics/Atlas.h"
-#include "../graphics/Font.h"
-#include "../graphics/TextureAnimation.h"
-#include "../frontend/UiDocument.h"
-#include "../logic/scripting/scripting.h"
 
 namespace fs = std::filesystem;
 
 static bool animation(
-    Assets* assets, 
-    const ResPaths* paths, 
-    const std::string directory, 
-    const std::string name,
+    Assets* assets,
+    const ResPaths* paths,
+    const std::string& atlasName,
+    const std::string& directory,
+    const std::string& name,
     Atlas* dstAtlas
 );
 
-bool assetload::texture(
-    AssetsLoader&,
-    Assets* assets,
+assetload::postfunc assetload::texture(
+    AssetsLoader*,
     const ResPaths* paths,
-    const std::string filename, 
+    const std::string filename,
     const std::string name,
     std::shared_ptr<AssetCfg>
 ) {
-    std::unique_ptr<Texture> texture(
-        png::load_texture(paths->find(filename+".png").u8string())
+    std::shared_ptr<ImageData> image (
+        imageio::read(paths->find(filename+".png").u8string()).release()
     );
-    if (texture == nullptr) {
-        std::cerr << "failed to load texture '" << name << "'" << std::endl;
-        return false;
-    }
-    assets->store(texture.release(), name);
-    return true;
+    return [name, image](auto assets) {
+        assets->store(Texture::from(image.get()).release(), name);
+    };
 }
 
-bool assetload::shader(
-    AssetsLoader&,
-    Assets* assets,
+assetload::postfunc assetload::shader(
+    AssetsLoader*,
     const ResPaths* paths,
     const std::string filename, 
     const std::string name,
@@ -61,43 +60,32 @@ bool assetload::shader(
     std::string vertexSource = files::read_string(vertexFile);
     std::string fragmentSource = files::read_string(fragmentFile);
 
-    Shader* shader = Shader::create(
-        vertexFile.string(),
-        fragmentFile.string(),
-        vertexSource, fragmentSource
-    );
+    vertexSource = Shader::preprocessor->process(vertexFile, vertexSource);
+    fragmentSource = Shader::preprocessor->process(fragmentFile, fragmentSource);
 
-    if (shader == nullptr) {
-        std::cerr << "failed to load shader '" << name << "'" << std::endl;
-        return false;
-    }
-    assets->store(shader, name);
-    return true;
+    return [=](auto assets) {
+        assets->store(Shader::create(
+            vertexFile.u8string(),
+            fragmentFile.u8string(),
+            vertexSource, fragmentSource
+        ), name);
+    };
 }
 
-static bool appendAtlas(AtlasBuilder& atlas, const fs::path& file) {
-    // png is only supported format
-    if (file.extension() != ".png")
-        return false;
+static bool append_atlas(AtlasBuilder& atlas, const fs::path& file) {
     std::string name = file.stem().string();
     // skip duplicates
     if (atlas.has(name)) {
         return false;
     }
-    std::unique_ptr<ImageData> image(png::load_image(file.string()));
-    if (image == nullptr) {
-        std::cerr << "could not to load " << file.string() << std::endl;
-        return false;
-    }
+    auto image = imageio::read(file.string());
     image->fixAlphaColor();
-    atlas.add(name, image.release());
-
+    atlas.add(name, std::move(image));
     return true;
 }
 
-bool assetload::atlas(
-    AssetsLoader&,
-    Assets* assets, 
+assetload::postfunc assetload::atlas(
+    AssetsLoader*,
     const ResPaths* paths,
     const std::string directory, 
     const std::string name,
@@ -105,201 +93,219 @@ bool assetload::atlas(
 ) {
     AtlasBuilder builder;
     for (const auto& file : paths->listdir(directory)) {
-        if (!appendAtlas(builder, file)) continue;
+        if (!imageio::is_read_supported(file.extension().u8string()))
+            continue;
+        if (!append_atlas(builder, file))
+            continue;
     }
-    Atlas* atlas = builder.build(2);
-    assets->store(atlas, name);
-    for (const auto& file : builder.getNames()) {
-        animation(assets, paths, "textures", file, atlas);
-    }
-    return true;
+    std::set<std::string> names = builder.getNames();
+    Atlas* atlas = builder.build(2, false).release();
+    return [=](auto assets) {
+        atlas->prepare();
+        assets->store(atlas, name);
+        for (const auto& file : names) {
+            animation(assets, paths, name, directory, file, atlas);
+        }
+    };
 }
 
-bool assetload::font(
-    AssetsLoader&,
-    Assets* assets, 
+assetload::postfunc assetload::font(
+    AssetsLoader*,
     const ResPaths* paths,
     const std::string filename, 
     const std::string name,
     std::shared_ptr<AssetCfg>
 ) {
-    std::vector<std::unique_ptr<Texture>> pages;
+    auto pages = std::make_shared<std::vector<std::unique_ptr<ImageData>>>();
     for (size_t i = 0; i <= 4; i++) {
         std::string name = filename + "_" + std::to_string(i) + ".png"; 
         name = paths->find(name).string();
-        std::unique_ptr<Texture> texture (png::load_texture(name));
-        if (texture == nullptr) {
-            std::cerr << "failed to load bitmap font '" << name;
-            std::cerr << "' (missing page " << std::to_string(i) << ")";
-            std::cerr << std::endl;
-            return false;
-        }
-        pages.push_back(std::move(texture));
+        pages->push_back(imageio::read(name));
     }
-    int res = pages[0]->getHeight() / 16;
-    assets->store(new Font(std::move(pages), res, 4), name);
-    return true;
+    return [=](auto assets) {
+        int res = pages->at(0)->getHeight() / 16;
+        std::vector<std::unique_ptr<Texture>> textures;
+        for (auto& page : *pages) {
+            textures.emplace_back(Texture::from(page.get()));
+        }
+        assets->store(new Font(std::move(textures), res, 4), name);
+    };
 }
 
-bool assetload::layout(
-    AssetsLoader& loader,
-    Assets* assets,
+assetload::postfunc assetload::layout(
+    AssetsLoader*,
     const ResPaths* paths,
     const std::string file,
     const std::string name,
     std::shared_ptr<AssetCfg> config
 ) {
-    try {
-        auto cfg = dynamic_cast<LayoutCfg*>(config.get());
-        auto document = UiDocument::read(loader, cfg->env, name, file);
-        assets->store(document.release(), name);
-        return true;
-    } catch (const parsing_error& err) {
-        std::cerr << "failed to parse layout XML '" << file << "'" << std::endl;
-        std::cerr << err.errorLog() << std::endl;
-        return false;
-    }
+    return [=](auto assets) {
+        try {
+            auto cfg = std::dynamic_pointer_cast<LayoutCfg>(config);
+            auto document = UiDocument::read(cfg->env, name, file);
+            assets->store(document.release(), name);
+        } catch (const parsing_error& err) {
+            throw std::runtime_error(
+                "failed to parse layout XML '"+file+"':\n"+err.errorLog()
+            );
+        }
+    };
 }
-bool assetload::sound(
-    AssetsLoader& loader,
-    Assets* assets,
+assetload::postfunc assetload::sound(
+    AssetsLoader*,
     const ResPaths* paths,
     const std::string file,
     const std::string name,
     std::shared_ptr<AssetCfg> config
 ) {
-    auto cfg = dynamic_cast<SoundCfg*>(config.get());
+    auto cfg = std::dynamic_pointer_cast<SoundCfg>(config);
     bool keepPCM = cfg ? cfg->keepPCM : false;
 
     std::string extension = ".ogg";
-    try {
-        std::unique_ptr<audio::Sound> baseSound = nullptr;
+    std::unique_ptr<audio::Sound> baseSound = nullptr;
 
-        // looking for 'sound_name' as base sound
-        auto soundFile = paths->find(file+extension);
-        if (fs::exists(soundFile)) {
-            baseSound.reset(audio::load_sound(soundFile, keepPCM));
-        }
-        // looking for 'sound_name_0' as base sound
-        auto variantFile = paths->find(file+"_0"+extension);
-        if (fs::exists(variantFile)) {
-            baseSound.reset(audio::load_sound(variantFile, keepPCM));
-        }
-
-        // loading sound variants
-        for (uint i = 1; ; i++) {
-            auto variantFile = paths->find(file+"_"+std::to_string(i)+extension);
-            if (!fs::exists(variantFile)) {
-                break;
-            }
-            baseSound->variants.emplace_back(audio::load_sound(variantFile, keepPCM));
-        }
-        assets->store(baseSound.release(), name);
-    } 
-    catch (std::runtime_error& err) {
-        std::cerr << err.what() << std::endl;
-        return false;
+    // looking for 'sound_name' as base sound
+    auto soundFile = paths->find(file+extension);
+    if (fs::exists(soundFile)) {
+        baseSound.reset(audio::load_sound(soundFile, keepPCM));
     }
-    return true;
+    // looking for 'sound_name_0' as base sound
+    auto variantFile = paths->find(file+"_0"+extension);
+    if (fs::exists(variantFile)) {
+        baseSound.reset(audio::load_sound(variantFile, keepPCM));
+    }
+
+    // loading sound variants
+    for (uint i = 1; ; i++) {
+        auto variantFile = paths->find(file+"_"+std::to_string(i)+extension);
+        if (!fs::exists(variantFile)) {
+            break;
+        }
+        baseSound->variants.emplace_back(audio::load_sound(variantFile, keepPCM));
+    }
+
+    if (baseSound == nullptr) {
+        throw std::runtime_error("could not to find sound: " + file);
+    }
+    auto sound = baseSound.release();
+    return [=](auto assets) {
+        assets->store(sound, name);
+    };
+}
+
+static void read_anim_file(
+    const std::string& animFile,
+    std::vector<std::pair<std::string, int>>& frameList
+) {
+    auto root = files::read_json(animFile);
+    auto frameArr = root->list("frames");
+    float frameDuration = DEFAULT_FRAME_DURATION;
+    std::string frameName;
+
+    if (frameArr) {
+        for (size_t i = 0; i < frameArr->size(); i++) {
+            auto currentFrame = frameArr->list(i);
+
+            frameName = currentFrame->str(0);
+            if (currentFrame->size() > 1) {
+                frameDuration = currentFrame->integer(1);
+            }
+            frameList.emplace_back(frameName, frameDuration);
+        }
+    }
+}
+
+static TextureAnimation create_animation(
+    Atlas* srcAtlas,
+    Atlas* dstAtlas,
+    const std::string& name,
+    const std::set<std::string>& frameNames,
+    const std::vector<std::pair<std::string, int>>& frameList
+) {
+    Texture* srcTex = srcAtlas->getTexture();
+    Texture* dstTex = dstAtlas->getTexture();
+    UVRegion region = dstAtlas->get(name);
+
+    TextureAnimation animation(srcTex, dstTex);
+    Frame frame;
+
+    uint dstWidth = dstTex->getWidth();
+    uint dstHeight = dstTex->getHeight();
+
+    uint srcWidth = srcTex->getWidth();
+    uint srcHeight = srcTex->getHeight();
+
+    frame.dstPos = glm::ivec2(region.u1 * dstWidth, region.v1 * dstHeight);
+    frame.size = glm::ivec2(region.u2 * dstWidth, region.v2 * dstHeight) - frame.dstPos;
+
+    for (const auto& elem : frameList) {
+        if (!srcAtlas->has(elem.first)) {
+            std::cerr << "Unknown frame name: " << elem.first << std::endl;
+            continue;
+        }
+        region = srcAtlas->get(elem.first);
+        if (elem.second > 0) {
+            frame.duration = static_cast<float>(elem.second) / 1000.0f;
+        }
+        frame.srcPos = glm::ivec2(region.u1 * srcWidth, srcHeight - region.v2 * srcHeight);
+        animation.addFrame(frame);
+    }
+    return animation;
+}
+
+inline bool contains(
+    const std::vector<std::pair<std::string, int>>& frameList,
+    const std::string& frameName
+) {
+    for (const auto& elem : frameList) {
+        if (frameName == elem.first) {
+            return true;
+        }
+    }
+    return false;
 }
 
 static bool animation(
     Assets* assets, 
-    const ResPaths* paths, 
-    const std::string directory, 
-    const std::string name,
+    const ResPaths* paths,
+    const std::string& atlasName, 
+    const std::string& directory, 
+    const std::string& name,
     Atlas* dstAtlas
 ) {
-    std::string animsDir = directory + "/animations";
-    std::string blocksDir = directory + "/blocks";
+    std::string animsDir = directory + "/animation";
 
     for (const auto& folder : paths->listdir(animsDir)) {
         if (!fs::is_directory(folder)) continue;
-        if (folder.filename().string() != name) continue;
+        if (folder.filename().u8string() != name) continue;
         if (fs::is_empty(folder)) continue;
         
         AtlasBuilder builder;
-        appendAtlas(builder, paths->find(blocksDir + "/" + name + ".png"));
+        append_atlas(builder, paths->find(directory + "/" + name + ".png"));
 
-        std::string animFile = folder.string() + "/animation.json";
-
-        std::vector<std::pair<std::string, float>> frameList;
-
+        std::vector<std::pair<std::string, int>> frameList;
+        std::string animFile = folder.u8string() + "/animation.json";
         if (fs::exists(animFile)) {
-            auto root = files::read_json(animFile);
-
-            auto frameArr = root->list("frames");
-
-            float frameDuration = DEFAULT_FRAME_DURATION;
-            std::string frameName;
-
-            if (frameArr) {
-                for (size_t i = 0; i < frameArr->size(); i++) {
-                    auto currentFrame = frameArr->list(i);
-
-                    frameName = currentFrame->str(0);
-                    if (currentFrame->size() > 1) 
-                        frameDuration = static_cast<float>(currentFrame->integer(1)) / 1000;
-
-                    frameList.emplace_back(frameName, frameDuration);
-                }
-            }
+            read_anim_file(animFile, frameList);
         }
         for (const auto& file : paths->listdir(animsDir + "/" + name)) {
-            if (!frameList.empty()) {
-                bool contains = false;
-                for (const auto& elem : frameList) {
-                    if (file.stem() == elem.first) {
-                        contains = true;
-                        break;
-                    }
-                }
-                if (!contains) continue;
+            if (!frameList.empty() && !contains(frameList, file.stem().u8string())) {
+                continue;
             }
-            if (!appendAtlas(builder, file)) continue;
+            if (!append_atlas(builder, file)) 
+                continue;
         }
-
-        std::unique_ptr<Atlas> srcAtlas (builder.build(2));
-
-        Texture* srcTex = srcAtlas->getTexture();
-        Texture* dstTex = dstAtlas->getTexture();
-
-        TextureAnimation animation(srcTex, dstTex);
-        Frame frame;
-        UVRegion region = dstAtlas->get(name);
-
-        uint dstWidth = dstTex->getWidth();
-        uint dstHeight = dstTex->getHeight();
-
-        uint srcWidth = srcTex->getWidth();
-        uint srcHeight = srcTex->getHeight();
-
-        frame.dstPos = glm::ivec2(region.u1 * dstWidth, region.v1 * dstHeight);
-        frame.size = glm::ivec2(region.u2 * dstWidth, region.v2 * dstHeight) - frame.dstPos;
-
+        auto srcAtlas = builder.build(2, true);
         if (frameList.empty()) {
-            for (const auto& elem : builder.getNames()) {
-                region = srcAtlas->get(elem);
-                frame.srcPos = glm::ivec2(region.u1 * srcWidth, srcHeight - region.v2 * srcHeight);
-                animation.addFrame(frame);
+            for (const auto& frameName : builder.getNames()) {
+                frameList.emplace_back(frameName, 0);
             }
         }
-        else {
-            for (const auto& elem : frameList) {
-                if (!srcAtlas->has(elem.first)) {
-                    std::cerr << "Unknown frame name: " << elem.first << std::endl;
-                    continue;
-                }
-                region = srcAtlas->get(elem.first);
-                frame.duration = elem.second;
-                frame.srcPos = glm::ivec2(region.u1 * srcWidth, srcHeight - region.v2 * srcHeight);
-                animation.addFrame(frame);
-            }
-        }
-
-        assets->store(srcAtlas.release(), name + "_animation");
+        auto animation = create_animation(
+            srcAtlas.get(), dstAtlas, name, builder.getNames(), frameList
+        );
+        assets->store(srcAtlas.release(), atlasName + "/" + name + "_animation");
         assets->store(animation);
-
         return true;
     }
     return true;

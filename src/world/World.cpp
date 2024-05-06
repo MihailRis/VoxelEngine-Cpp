@@ -1,20 +1,20 @@
-#include "World.h"
+#include "World.hpp"
+
+#include "Level.hpp"
+#include "../content/Content.hpp"
+#include "../content/ContentLUT.hpp"
+#include "../files/WorldFiles.hpp"
+#include "../items/Inventories.hpp"
+#include "../objects/Player.hpp"
+#include "../voxels/Chunk.hpp"
+#include "../voxels/Chunks.hpp"
+#include "../voxels/ChunksStorage.hpp"
+#include "../window/Camera.hpp"
+#include "../world/WorldGenerators.hpp"
 
 #include <memory>
 #include <iostream>
 #include <glm/glm.hpp>
-
-#include "Level.h"
-#include "../files/WorldFiles.h"
-#include "../content/Content.h"
-#include "../world/WorldGenerators.h"
-#include "../content/ContentLUT.h"
-#include "../voxels/Chunk.h"
-#include "../voxels/Chunks.h"
-#include "../voxels/ChunksStorage.h"
-#include "../objects/Player.h"
-#include "../window/Camera.h"
-#include "../items/Inventories.h"
 
 world_load_error::world_load_error(std::string message) 
     : std::runtime_error(message) {
@@ -49,18 +49,18 @@ void World::updateTimers(float delta) {
 
 void World::write(Level* level) {
     const Content* content = level->content;
-
     Chunks* chunks = level->chunks.get();
+    auto& regions = wfile->getRegions();
 
     for (size_t i = 0; i < chunks->volume; i++) {
         auto chunk = chunks->chunks[i];
         if (chunk == nullptr || !chunk->isLighted())
             continue;
         bool lightsUnsaved = !chunk->isLoadedLights() && 
-                              settings.debug.doWriteLights;
+                              settings.debug.doWriteLights.get();
         if (!chunk->isUnsaved() && !lightsUnsaved)
             continue;
-        wfile->put(chunk.get());
+        regions.put(chunk.get());
     }
 
     wfile->write(this, content);

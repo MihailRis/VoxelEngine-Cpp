@@ -1,10 +1,11 @@
-#include "gzip.h"
+#include "gzip.hpp"
+
+#include "byte_utils.hpp"
 
 #define ZLIB_CONST
 #include <zlib.h>
 #include <math.h>
 #include <memory>
-#include "byte_utils.h"
 
 std::vector<ubyte> gzip::compress(const ubyte* src, size_t size) {
     size_t buffer_size = 23+size*1.01;

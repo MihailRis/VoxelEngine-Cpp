@@ -1,10 +1,16 @@
-#include "LuaState.h"
+#include "LuaState.hpp"
+
+#include "lua_util.hpp"
+#include "api_lua.hpp"
+#include "../../../debug/Logger.hpp"
+#include "../../../util/stringutil.hpp"
 
 #include <iomanip>
 #include <iostream>
-#include "lua_util.h"
-#include "api_lua.h"
-#include "../../../util/stringutil.h"
+
+inline std::string LAMBDAS_TABLE = "$L";
+
+static debug::Logger logger("lua-state");
 
 lua::luaerror::luaerror(const std::string& message) : std::runtime_error(message) {
 }
@@ -19,8 +25,8 @@ void lua::LuaState::removeLibFuncs(const char* libname, const char* funcs[]) {
 }
 
 lua::LuaState::LuaState() {
-    std::cout << LUA_VERSION << std::endl;
-    std::cout << LUAJIT_VERSION << std::endl;
+    logger.info() << LUA_VERSION;
+    logger.info() << LUAJIT_VERSION;
 
     L = luaL_newstate();
     if (L == nullptr) {
@@ -51,6 +57,9 @@ lua::LuaState::LuaState() {
 
     lua_pushvalue(L, LUA_GLOBALSINDEX);
     setglobal(envName(0));
+
+    lua_createtable(L, 0, 0);
+    setglobal(LAMBDAS_TABLE);
 }
 
 const std::string lua::LuaState::envName(int env) {
@@ -62,7 +71,7 @@ lua::LuaState::~LuaState() {
 }
 
 void lua::LuaState::logError(const std::string& text) {
-    std::cerr << text << std::endl;
+    logger.error() << text;
 }
 
 void lua::LuaState::addfunc(const std::string& name, lua_CFunction func) {
@@ -114,16 +123,19 @@ void lua::LuaState::remove(const std::string& name) {
 }
 
 void lua::LuaState::createLibs() {
-    openlib("pack", packlib, 0);
-    openlib("world", worldlib, 0);
-    openlib("player", playerlib, 0);
-    openlib("inventory", inventorylib, 0);
+    openlib("audio", audiolib, 0);
     openlib("block", blocklib, 0);
-    openlib("item", itemlib, 0);
-    openlib("time", timelib, 0);
+    openlib("core", corelib, 0);
     openlib("file", filelib, 0);
     openlib("gui", guilib, 0);
-    openlib("audio", audiolib, 0);
+    openlib("input", inputlib, 0);
+    openlib("inventory", inventorylib, 0);
+    openlib("item", itemlib, 0);
+    openlib("json", jsonlib, 0);
+    openlib("pack", packlib, 0);
+    openlib("player", playerlib, 0);
+    openlib("time", timelib, 0);
+    openlib("world", worldlib, 0);
 
     addfunc("print", lua_wrap_errors<l_print>);
 }
@@ -204,8 +216,53 @@ int lua::LuaState::pushvalue(int idx) {
     return 1;
 }
 
+int lua::LuaState::pushvalue(const dynamic::Value& value) {
+    using dynamic::valtype;
+    switch (value.type) {
+        case valtype::boolean:
+            pushboolean(std::get<bool>(value.value));
+            break;
+        case valtype::integer:
+            pushinteger(std::get<integer_t>(value.value));
+            break;
+        case valtype::number:
+            pushnumber(std::get<number_t>(value.value));
+            break;
+        case valtype::string:
+            pushstring(std::get<std::string>(value.value).c_str());
+            break;
+        case valtype::none:
+            pushnil();
+            break;
+        case valtype::list: {
+            auto list = std::get<dynamic::List*>(value.value);
+            lua_createtable(L, list->size(), 0);
+            for (size_t i = 0; i < list->size(); i++) {
+                pushvalue(*list->get(i));
+                lua_rawseti(L, -2, i+1);
+            }
+            break;
+        }
+        case valtype::map: {
+            auto map = std::get<dynamic::Map*>(value.value);
+            lua_createtable(L, 0, map->size());
+            for (auto& entry : map->values) {
+                pushvalue(*entry.second);
+                lua_setfield(L, -2, entry.first.c_str());
+            }
+            break;
+        }
+    }
+    return 1;
+}
+
 int lua::LuaState::pushglobals() {
     lua_pushvalue(L, LUA_GLOBALSINDEX);
+    return 1;
+}
+
+int lua::LuaState::pushcfunction(lua_CFunction function) {
+    lua_pushcfunction(L, function);
     return 1;
 }
 
@@ -243,8 +300,69 @@ lua::luanumber lua::LuaState::tonumber(int idx) {
     return lua_tonumber(L, idx);
 }
 
+glm::vec2 lua::LuaState::tovec2(int idx) {
+    return lua::tovec2(L, idx);
+}
+
+glm::vec4 lua::LuaState::tocolor(int idx) {
+    return lua::tocolor(L, idx);
+}
+
 const char* lua::LuaState::tostring(int idx) {
     return lua_tostring(L, idx);
+}
+
+std::unique_ptr<dynamic::Value> lua::LuaState::tovalue(int idx) {
+    using namespace dynamic;
+    auto type = lua_type(L, idx);
+    switch (type) {
+        case LUA_TNIL:
+        case LUA_TNONE:
+            return std::make_unique<Value>(valtype::none, (integer_t)0);
+        case LUA_TBOOLEAN:
+            return Value::boolean(lua_toboolean(L, idx) == 1);
+        case LUA_TNUMBER: {
+            auto number = lua_tonumber(L, idx);
+            auto integer = lua_tointeger(L, idx);
+            if (number == (lua_Number)integer) {
+                return Value::of(integer);
+            } else {
+                return Value::of(number);
+            }
+        }
+        case LUA_TSTRING:
+            return Value::of(lua_tostring(L, idx));
+        case LUA_TTABLE: {
+            int len = lua_objlen(L, idx);
+            if (len) {
+                // array
+                auto list = std::make_unique<List>();
+                for (int i = 1; i <= len; i++) {
+                    lua_rawgeti(L, idx, i);
+                    list->put(tovalue(-1));
+                    lua_pop(L, 1);
+                }
+                return std::make_unique<Value>(valtype::list, list.release());
+            } else {
+                // table
+                auto map = std::make_unique<Map>();
+                lua_pushvalue(L, idx);
+                lua_pushnil(L);
+                while (lua_next(L, -2)) {
+                    lua_pushvalue(L, -2);
+                    auto key = lua_tostring(L, -1);
+                    map->put(key, tovalue(-2));
+                    lua_pop(L, 2);
+                }
+                lua_pop(L, 1);
+                return std::make_unique<Value>(valtype::map, map.release());
+            }
+        }
+        default:
+            throw std::runtime_error(
+                "lua type "+std::to_string(type)+" is not supported"
+            );
+    }
 }
 
 bool lua::LuaState::isstring(int idx) {
@@ -266,6 +384,28 @@ const std::string lua::LuaState::storeAnonymous() {
     auto funcName = "F$"+util::mangleid(funcId);
     lua_setglobal(L, funcName.c_str());
     return funcName;
+}
+
+runnable lua::LuaState::createRunnable() {
+    auto ptr = reinterpret_cast<ptrdiff_t>(lua_topointer(L, -1));
+    auto name = util::mangleid(ptr);
+    lua_getglobal(L, LAMBDAS_TABLE.c_str());
+    lua_pushvalue(L, -2);
+    lua_setfield(L, -2, name.c_str());
+    lua_pop(L, 2);
+
+    std::shared_ptr<std::string> funcptr(new std::string(name), [=](auto* name) {
+        lua_getglobal(L, LAMBDAS_TABLE.c_str());
+        lua_pushnil(L);
+        lua_setfield(L, -2, name->c_str());
+        lua_pop(L, 1);
+        delete name;
+    });
+    return [=]() {
+        lua_getglobal(L, LAMBDAS_TABLE.c_str());
+        lua_getfield(L, -1, funcptr->c_str());
+        lua_call(L, 0, LUA_MULTRET);
+    };
 }
 
 int lua::LuaState::createEnvironment(int parent) {
@@ -293,9 +433,23 @@ int lua::LuaState::createEnvironment(int parent) {
 
 
 void lua::LuaState::removeEnvironment(int id) {
+    if (id == 0) {
+        return;
+    }
     lua_pushnil(L);
     setglobal(envName(id));
 }
+
+bool lua::LuaState::emit_event(const std::string &name, std::function<int(lua::LuaState *)> args) {
+    getglobal("events");
+    getfield("emit");
+    pushstring(name);
+    callNoThrow(args(this) + 1);
+    bool result = toboolean(-1);
+    pop(2);
+    return result;
+}
+
 
 void lua::LuaState::dumpStack() {
     int top = gettop();
@@ -320,4 +474,8 @@ void lua::LuaState::dumpStack() {
         }
         std::cout << std::endl;
     }
+}
+
+lua_State* lua::LuaState::getLua() const {
+    return L;
 }

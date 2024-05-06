@@ -1,8 +1,8 @@
-#include "api_lua.h"
-#include "lua_commons.h"
-#include "../scripting.h"
-#include "../../../engine.h"
-#include "../../../window/Window.h"
+#include "api_lua.hpp"
+#include "lua_commons.hpp"
+#include "../scripting.hpp"
+#include "../../../engine.hpp"
+#include "../../../window/Window.hpp"
 
 static int l_time_uptime(lua_State* L) {
     lua_pushnumber(L, Window::time());

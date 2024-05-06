@@ -1,0 +1,4 @@
+<panel size='400' padding='8' interval='8' color='0'>
+    <label context='menu'>@Page not found</label>
+    <button onclick='menu:back()'>@Back</button>
+</panel>

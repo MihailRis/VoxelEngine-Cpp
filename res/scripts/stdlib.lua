@@ -131,7 +131,9 @@ events = {
 }
 
 function events.on(event, func)
-    events.handlers[event] = events.handlers[event] or {}
+    -- why an array? length is always = 1
+    -- FIXME: temporary fixed
+    events.handlers[event] = {} -- events.handlers[event] or {}
     table.insert(events.handlers[event], func)
 end
 
@@ -175,9 +177,103 @@ Document = {}
 function Document.new(docname)
     return setmetatable({name=docname}, {
         __index=function(self, k)
-            return Element.new(self.name, k)
+            local elem = Element.new(self.name, k)
+            rawset(self, k, elem)
+            return elem
         end
     })
+end
+
+_GUI_ROOT = Document.new("core:root")
+_MENU = _GUI_ROOT.menu
+menu = _MENU
+
+local __post_runnables = {}
+
+function __process_post_runnables()
+    if #__post_runnables then
+        for _, func in ipairs(__post_runnables) do
+            func()
+        end
+        __post_runnables = {}
+    end
+end
+
+function time.post_runnable(runnable)
+    table.insert(__post_runnables, runnable)
+end
+
+function gui.template(name, params)
+    local text = file.read(file.find("layouts/templates/"..name..".xml"))
+    for k,v in pairs(params) do
+        local arg = tostring(v):gsub("'", "\\'"):gsub('"', '\\"')
+        text = text:gsub("(%%{"..k.."})", arg)
+    end
+    text = text:gsub("if%s*=%s*'%%{%w+}'", "if=''")
+    text = text:gsub("if%s*=%s*\"%%{%w+}\"", "if=\"\"")
+    -- remove unsolved properties: attr='%{var}'
+    text = text:gsub("%w+%s*=%s*'%%{%w+}'%s?", "")
+    text = text:gsub("%w+%s*=%s*\"%%{%w+}\"%s?", "")
+    return text
+end
+
+session = {
+    entries={}
+}
+
+function session.get_entry(name)
+    local entry = session.entries[name]
+    if entry == nil then
+        entry = {}
+        session.entries[name] = entry
+    end
+    return entry
+end
+
+function session.reset_entry(name)
+    session.entries[name] = nil
+end
+
+function timeit(func, ...)
+    local tm = time.uptime()
+    func(...)
+    print("[time mcs]", (time.uptime()-tm) * 1000000)
+end
+
+function table.has(t, x)
+    for i,v in ipairs(t) do
+        if v == x then
+            return true
+        end
+    end
+    return false
+end
+
+function table.index(t, x)
+    for i,v in ipairs(t) do
+        if v == x then
+            return i
+        end
+    end
+    return -1
+end
+
+function table.remove_value(t, x)
+    local index = table.index(t, x)
+    if index ~= -1 then
+        table.remove(t, index)
+    end
+end
+
+function table.tostring(t)
+    local s = '['
+    for i,v in ipairs(t) do
+        s = s..tostring(v)
+        if i < #t then
+            s = s..', '
+        end
+    end
+    return s..']'
 end
 
 -- Deprecated functions

@@ -1,12 +1,13 @@
-#include "Player.h"
-#include "../content/ContentLUT.h"
-#include "../physics/Hitbox.h"
-#include "../physics/PhysicsSolver.h"
-#include "../voxels/Chunks.h"
-#include "../world/Level.h"
-#include "../window/Events.h"
-#include "../window/Camera.h"
-#include "../items/Inventory.h"
+#include "Player.hpp"
+
+#include "../content/ContentLUT.hpp"
+#include "../physics/Hitbox.hpp"
+#include "../physics/PhysicsSolver.hpp"
+#include "../voxels/Chunks.hpp"
+#include "../world/Level.hpp"
+#include "../window/Events.hpp"
+#include "../window/Camera.hpp"
+#include "../items/Inventory.hpp"
 
 #include <glm/glm.hpp>
 

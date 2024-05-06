@@ -1,11 +1,13 @@
-#include "GLSLExtension.h"
+#include "GLSLExtension.hpp"
+
+#include "../util/stringutil.hpp"
+#include "../typedefs.hpp"
+#include "../files/files.hpp"
+#include "../files/engine_paths.hpp"
+
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include "../util/stringutil.h"
-#include "../typedefs.h"
-#include "../files/files.h"
-#include "../files/engine_paths.h"
 
 namespace fs = std::filesystem;
 
@@ -81,7 +83,7 @@ inline void source_line(std::stringstream& ss, uint linenum) {
     ss << "#line " << linenum << "\n";
 }
 
-const std::string GLSLExtension::process(const fs::path file, const std::string& source) {
+const std::string GLSLExtension::process(const fs::path& file, const std::string& source) {
     std::stringstream ss;
     size_t pos = 0;
     uint linenum = 1;

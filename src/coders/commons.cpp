@@ -1,4 +1,6 @@
-#include "commons.h"
+#include "commons.hpp"
+
+#include "../util/stringutil.hpp"
 
 #include <sstream>
 #include <stdexcept>
@@ -13,11 +15,11 @@ inline double power(double base, int64_t power) {
 }
 
 parsing_error::parsing_error(
-    std::string message, 
-    std::string filename, 
-    std::string source, 
-    uint pos, 
-    uint line, 
+    std::string message,
+    std::string filename,
+    std::string source,
+    uint pos,
+    uint line,
     uint linestart)
     : std::runtime_error(message), filename(filename), source(source), 
       pos(pos), line(line), linestart(linestart) {
@@ -38,35 +40,12 @@ std::string parsing_error::errorLog() const {
     }
     ss << "^";
     return ss.str();
-
 }
 
-std::string escape_string(std::string s) {
-    std::stringstream ss;
-    ss << '"';
-    for (char c : s) {
-        switch (c) {
-            case '\n': ss << "\\n"; break;
-            case '\r': ss << "\\r"; break;
-            case '\t': ss << "\\t"; break;
-            case '\f': ss << "\\f"; break;
-            case '\b': ss << "\\b"; break;
-            case '"': ss << "\\\""; break;
-            case '\\': ss << "\\\\"; break;
-            default:
-                if (c < ' ') {
-                    ss << "\\" << std::oct << uint(ubyte(c));
-                    break;
-                }
-                ss << c;
-                break;
-        }
-    }
-    ss << '"';
-    return ss.str();
-}
-
-BasicParser::BasicParser(std::string file, std::string source) : filename(file), source(source) {
+BasicParser::BasicParser(
+    const std::string& file,
+    const std::string& source
+) : filename(file), source(source) {
 }
 
 void BasicParser::skipWhitespace() {
@@ -151,7 +130,7 @@ void BasicParser::expect(const std::string& substring) {
         return;
     for (uint i = 0; i < substring.length(); i++) {
         if (source.length() <= pos + i || source[pos+i] != substring[i]) {
-            throw error(escape_string(substring)+" expected");
+            throw error(util::quote(substring)+" expected");
         }
     }
     pos += substring.length();
@@ -183,6 +162,14 @@ char BasicParser::peek() {
         throw error("unexpected end");
     }
     return source[pos];
+}
+
+std::string BasicParser::readUntil(char c) {
+    int start = pos;
+    while (hasNext() && source[pos] != c) {
+        pos++;
+    }
+    return source.substr(start, pos-start);
 }
 
 std::string BasicParser::parseName() {
@@ -231,20 +218,20 @@ bool BasicParser::parseNumber(int sign, number_u& out) {
     if (c == '0' && pos + 1 < source.length() && 
           (base = is_box(source[pos+1])) != 10) {
         pos += 2;
-        out.ival = parseSimpleInt(base);
+        out = parseSimpleInt(base);
         return true;
     } else if (c == 'i' && pos + 2 < source.length() && source[pos+1] == 'n' && source[pos+2] == 'f') {
         pos += 3;
-        out.fval = INFINITY * sign;
+        out = INFINITY * sign;
         return false;
     } else if (c == 'n' && pos + 2 < source.length() && source[pos+1] == 'a' && source[pos+2] == 'n') {
         pos += 3;
-        out.fval = NAN * sign;
+        out = NAN * sign;
         return false;
     }
     int64_t value = parseSimpleInt(base);
     if (!hasNext()) {
-        out.ival = value * sign;
+        out = value * sign;
         return true;
     }
     c = source[pos];
@@ -257,7 +244,7 @@ bool BasicParser::parseNumber(int sign, number_u& out) {
         } else if (peek() == '+'){
             pos++;
         }
-        out.fval = sign * value * power(10.0, s * parseSimpleInt(10));
+        out = sign * value * power(10.0, s * parseSimpleInt(10));
         return false;
     }
     if (c == '.') {
@@ -284,13 +271,13 @@ bool BasicParser::parseNumber(int sign, number_u& out) {
             } else if (peek() == '+'){
                 pos++;
             }
-            out.fval = sign * dvalue * power(10.0, s * parseSimpleInt(10));
+            out = sign * dvalue * power(10.0, s * parseSimpleInt(10));
             return false;
         }
-        out.fval = sign * dvalue;
+        out = sign * dvalue;
         return false;
     }
-    out.ival = sign * value;
+    out = sign * value;
     return true;
 }
 

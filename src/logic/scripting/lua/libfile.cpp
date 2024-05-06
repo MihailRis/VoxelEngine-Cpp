@@ -1,9 +1,9 @@
-#include "lua_commons.h"
-#include "api_lua.h"
-#include "../scripting.h"
-#include "../../../engine.h"
-#include "../../../files/files.h"
-#include "../../../files/engine_paths.h"
+#include "lua_commons.hpp"
+#include "api_lua.hpp"
+#include "../scripting.hpp"
+#include "../../../engine.hpp"
+#include "../../../files/files.hpp"
+#include "../../../files/engine_paths.hpp"
 
 #include <string>
 #include <filesystem>
@@ -17,6 +17,12 @@ static fs::path resolve_path(lua_State* L, const std::string& path) {
         luaL_error(L, err.what());
         abort(); // unreachable
     }
+}
+
+static int l_file_find(lua_State* L) {
+    std::string path = lua_tostring(L, 1);
+    lua_pushstring(L, scripting::engine->getResPaths()->findRaw(path).c_str());
+    return 1;
 }
 
 static int l_file_resolve(lua_State* L) {
@@ -84,9 +90,9 @@ static int l_file_mkdirs(lua_State* L) {
 static int l_file_read_bytes(lua_State* L) {
     fs::path path = resolve_path(L, lua_tostring(L, 1));
     if (fs::is_regular_file(path)) {
-        size_t length = (size_t) fs::file_size(path);
+        size_t length = static_cast<size_t>(fs::file_size(path));
 
-        ubyte* bytes = files::read_bytes(path, length);
+        auto bytes = files::read_bytes(path, length);
 
         lua_createtable(L, length, 0);
         int newTable = lua_gettop(L);
@@ -145,6 +151,7 @@ static int l_file_write_bytes(lua_State* L) {
 
 const luaL_Reg filelib [] = {
     {"resolve", lua_wrap_errors<l_file_resolve>},
+    {"find", lua_wrap_errors<l_file_find>},
     {"read", lua_wrap_errors<l_file_read>},
     {"write", lua_wrap_errors<l_file_write>},
     {"exists", lua_wrap_errors<l_file_exists>},

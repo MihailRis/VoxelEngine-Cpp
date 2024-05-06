@@ -1,0 +1,4 @@
+<panel size='400' padding='8' interval='1' color='#00000080'>
+    <label id='title_label'>???</label>
+    <label id='progress_label'>-</label>
+</panel>

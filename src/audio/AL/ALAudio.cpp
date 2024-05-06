@@ -1,7 +1,12 @@
-#include "ALAudio.h"
-#include "alutil.h"
+#include "ALAudio.hpp"
+
+#include "alutil.hpp"
+#include "../../debug/Logger.hpp"
+
 #include <string>
 #include <iostream>
+
+static debug::Logger logger("al-audio");
 
 using namespace audio;
 
@@ -203,10 +208,10 @@ ALSpeaker::~ALSpeaker() {
     }
 }
 
-void ALSpeaker::update(const Channel* channel, float masterVolume) {
+void ALSpeaker::update(const Channel* channel) {
     if (source == 0)
         return;
-    float gain = this->volume * channel->getVolume()*masterVolume;
+    float gain = this->volume * channel->getVolume();
     AL_CHECK(alSourcef(source, AL_GAIN, gain));
     
     if (!paused) {
@@ -341,14 +346,14 @@ ALAudio::ALAudio(ALCdevice* device, ALCcontext* context)
     alcGetIntegerv(device, ALC_ALL_ATTRIBUTES, size, &attrs[0]);
     for (size_t i = 0; i < attrs.size(); ++i){
        if (attrs[i] == ALC_MONO_SOURCES) {
-          std::cout << "AL: max mono sources: " << attrs[i+1] << std::endl;
+          logger.info() << "max mono sources: " << attrs[i+1];
           maxSources = attrs[i+1];
        }
     }
     auto devices = getAvailableDevices();
-    std::cout << "AL devices:" << std::endl;
+    logger.info() << "devices:";
     for (auto& name : devices) {
-        std::cout << "  " << name << std::endl;
+        logger.info() << "  " << name;
     }
 }
 
@@ -368,7 +373,7 @@ ALAudio::~ALAudio() {
     AL_CHECK(alcMakeContextCurrent(context));
     alcDestroyContext(context);
     if (!alcCloseDevice(device)) {
-        std::cerr << "AL: device not closed!" << std::endl;
+        logger.error() << "device not closed!";
     }
     device = nullptr;
     context = nullptr;
@@ -395,7 +400,7 @@ ALAudio* ALAudio::create() {
         return nullptr;
     }
     AL_CHECK();
-    std::cout << "AL: initialized" << std::endl;
+    logger.info() << "initialized";
     return new ALAudio(device, context);
 }
 
@@ -406,7 +411,7 @@ uint ALAudio::getFreeSource(){
         return source;
     }
     if (allsources.size() == maxSources){
-        std::cerr << "attempted to create new source, but limit is " << maxSources << std::endl;
+        logger.error() << "attempted to create new source, but limit is " << maxSources;
         return 0;
     }
     ALuint id;
@@ -467,6 +472,7 @@ void ALAudio::setListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 at, 
     AL_CHECK(alListener3f(AL_POSITION, position.x, position.y, position.z));
     AL_CHECK(alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z));
     AL_CHECK(alListenerfv(AL_ORIENTATION, listenerOri));
+    AL_CHECK(alListenerf(AL_GAIN, get_channel(0)->getVolume()));
 }
 
 void ALAudio::update(double delta) {

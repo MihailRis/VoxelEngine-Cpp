@@ -1,19 +1,19 @@
-#include "ChunksStorage.h"
+#include "ChunksStorage.hpp"
 
 #include <assert.h>
 #include <iostream>
 
-#include "VoxelsVolume.h"
-#include "Chunk.h"
-#include "Block.h"
-#include "../content/Content.h"
-#include "../files/WorldFiles.h"
-#include "../world/Level.h"
-#include "../world/World.h"
-#include "../maths/voxmaths.h"
-#include "../lighting/Lightmap.h"
-#include "../items/Inventories.h"
-#include "../typedefs.h"
+#include "VoxelsVolume.hpp"
+#include "Chunk.hpp"
+#include "Block.hpp"
+#include "../content/Content.hpp"
+#include "../files/WorldFiles.hpp"
+#include "../world/Level.hpp"
+#include "../world/World.hpp"
+#include "../maths/voxmaths.hpp"
+#include "../lighting/Lightmap.hpp"
+#include "../items/Inventories.hpp"
+#include "../typedefs.hpp"
 
 ChunksStorage::ChunksStorage(Level* level) : level(level) {
 }
@@ -51,14 +51,14 @@ static void verifyLoadedChunk(ContentIndices* indices, Chunk* chunk) {
 
 std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 	World* world = level->getWorld();
-    WorldFiles* wfile = world->wfile.get();
+    auto& regions = world->wfile.get()->getRegions();
 
     auto chunk = std::make_shared<Chunk>(x, z);
 	store(chunk);
-	std::unique_ptr<ubyte[]> data(wfile->getChunk(chunk->x, chunk->z));
+	auto data = regions.getChunk(chunk->x, chunk->z);
 	if (data) {
 		chunk->decode(data.get());
-		auto invs = wfile->fetchInventories(chunk->x, chunk->z);
+		auto invs = regions.fetchInventories(chunk->x, chunk->z);
 		chunk->setBlockInventories(std::move(invs));
 		chunk->setLoaded(true);
 		for(auto& entry : chunk->inventories) {
@@ -67,7 +67,7 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
         verifyLoadedChunk(level->content->getIndices(), chunk.get());
 	}
 
-	std::unique_ptr<light_t[]> lights (wfile->getLights(chunk->x, chunk->z));
+	auto lights = regions.getLights(chunk->x, chunk->z);
 	if (lights) {
 		chunk->lightmap.set(lights.get());
 		chunk->setLoadedLights(true);

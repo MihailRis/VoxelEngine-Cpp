@@ -1,17 +1,16 @@
-#include "Chunks.h"
-#include "Chunk.h"
-#include "voxel.h"
-#include "Block.h"
-#include "WorldGenerator.h"
-#include "../content/Content.h"
-#include "../lighting/Lightmap.h"
-#include "../files/WorldFiles.h"
-#include "../world/LevelEvents.h"
-
-#include "../graphics/Mesh.h"
-#include "../maths/voxmaths.h"
-#include "../maths/aabb.h"
-#include "../maths/rays.h"
+#include "Chunks.hpp"
+#include "Chunk.hpp"
+#include "voxel.hpp"
+#include "Block.hpp"
+#include "WorldGenerator.hpp"
+#include "../content/Content.hpp"
+#include "../lighting/Lightmap.hpp"
+#include "../files/WorldFiles.hpp"
+#include "../world/LevelEvents.hpp"
+#include "../graphics/core/Mesh.hpp"
+#include "../maths/voxmaths.hpp"
+#include "../maths/aabb.hpp"
+#include "../maths/rays.hpp"
 
 #include <math.h>
 #include <limits.h>
@@ -411,6 +410,7 @@ void Chunks::setCenter(int32_t x, int32_t z) {
 }
 
 void Chunks::translate(int32_t dx, int32_t dz) {
+    auto& regions = worldFiles->getRegions();
 	for (uint i = 0; i < volume; i++){
 		chunksSecond[i] = nullptr;
 	}
@@ -423,8 +423,9 @@ void Chunks::translate(int32_t dx, int32_t dz) {
 				continue;
 			if (nx < 0 || nz < 0 || nx >= int(w) || nz >= int(d)){
 				events->trigger(EVT_CHUNK_HIDDEN, chunk.get());
-				if (worldFiles)
-					worldFiles->put(chunk.get());
+				if (worldFiles) {
+					regions.put(chunk.get());
+                }
 				chunksCount--;
 				continue;
 			}
@@ -483,13 +484,18 @@ bool Chunks::putChunk(std::shared_ptr<Chunk> chunk) {
 }
 
 void Chunks::saveAndClear(){
+    auto& regions = worldFiles->getRegions();
 	for (size_t i = 0; i < volume; i++){
 		Chunk* chunk = chunks[i].get();
-		if (chunk) {
-			worldFiles->put(chunk);
-			events->trigger(EVT_CHUNK_HIDDEN, chunk);
-		}
 		chunks[i] = nullptr;
+		if (chunk == nullptr || !chunk->isLighted())
+            continue;
+        
+		bool lightsUnsaved = !chunk->isLoadedLights() && 
+                              worldFiles->doesWriteLights();
+        if (!chunk->isUnsaved() && !lightsUnsaved)
+            continue;
+        regions.put(chunk);
 	}
 	chunksCount = 0;
 }

@@ -1,13 +1,12 @@
-#include "lua_commons.h"
-#include "api_lua.h"
-
-#include "lua_util.h"
-#include "../scripting.h"
-#include "../../../content/Content.h"
-#include "../../../world/Level.h"
-#include "../../../items/ItemStack.h"
-#include "../../../items/Inventories.h"
-#include "../../../logic/BlocksController.h"
+#include "lua_commons.hpp"
+#include "api_lua.hpp"
+#include "lua_util.hpp"
+#include "../scripting.hpp"
+#include "../../../content/Content.hpp"
+#include "../../../world/Level.hpp"
+#include "../../../items/ItemStack.hpp"
+#include "../../../items/Inventories.hpp"
+#include "../../../logic/BlocksController.hpp"
 
 static void validate_itemid(lua_State* L, itemid_t id) {
     if (id >= scripting::indices->countItemDefs()) {
@@ -113,11 +112,35 @@ static int l_inventory_clone(lua_State* L) {
     return 1;
 }
 
+static int l_inventory_move(lua_State* L) {
+    lua::luaint invAid = lua_tointeger(L, 1);
+    lua::luaint slotAid = lua_tointeger(L, 2);
+    auto invA = scripting::level->inventories->get(invAid);
+    if (invA == nullptr) {
+        luaL_error(L, "inventory A does not exists in runtime: %d", invAid);
+    }
+
+    lua::luaint invBid = lua_tointeger(L, 3);
+    lua::luaint slotBid = lua_isnil(L, 4) ? -1 : lua_tointeger(L, 4);
+    auto invB = scripting::level->inventories->get(invBid);
+    if (invB == nullptr) {
+        luaL_error(L, "inventory B does not exists in runtime: %d", invBid);
+    }
+    auto& slot = invA->getSlot(slotAid);
+    if (slotBid == -1) {
+        invB->move(slot, scripting::content->getIndices());
+    } else {
+        invB->move(slot, scripting::content->getIndices(), slotBid, slotBid+1);
+    }
+    return 0;
+}
+
 const luaL_Reg inventorylib [] = {
     {"get", lua_wrap_errors<l_inventory_get>},
     {"set", lua_wrap_errors<l_inventory_set>},
     {"size", lua_wrap_errors<l_inventory_size>},
     {"add", lua_wrap_errors<l_inventory_add>},
+    {"move", lua_wrap_errors<l_inventory_move>},
     {"get_block", lua_wrap_errors<l_inventory_get_block>},
     {"bind_block", lua_wrap_errors<l_inventory_bind_block>},
     {"unbind_block", lua_wrap_errors<l_inventory_unbind_block>},

@@ -1,9 +1,10 @@
-#include "xml.h"
+#include "xml.hpp"
+
+#include "../util/stringutil.hpp"
 
 #include <charconv>
 #include <stdexcept>
 #include <sstream>
-#include "../util/stringutil.h"
 
 using namespace xml;
 
@@ -36,7 +37,7 @@ bool Attribute::asBool() const {
 glm::vec2 Attribute::asVec2() const {
     size_t pos = text.find(',');
     if (pos == std::string::npos) {
-        throw std::runtime_error("invalid vec2 value "+escape_string(text));
+        return glm::vec2(util::parse_double(text, 0, text.length()));
     }
     return glm::vec2(
         util::parse_double(text, 0, pos),
@@ -48,11 +49,11 @@ glm::vec2 Attribute::asVec2() const {
 glm::vec3 Attribute::asVec3() const {
     size_t pos1 = text.find(',');
     if (pos1 == std::string::npos) {
-        throw std::runtime_error("invalid vec3 value "+escape_string(text));
+        return glm::vec3(util::parse_double(text, 0, text.length()));
     }
     size_t pos2 = text.find(',', pos1+1);
     if (pos2 == std::string::npos) {
-        throw std::runtime_error("invalid vec3 value "+escape_string(text));
+        throw std::runtime_error("invalid vec3 value "+util::quote(text));
     }
     return glm::vec3(
         util::parse_double(text, 0, pos1),
@@ -65,15 +66,15 @@ glm::vec3 Attribute::asVec3() const {
 glm::vec4 Attribute::asVec4() const {
     size_t pos1 = text.find(',');
     if (pos1 == std::string::npos) {
-        throw std::runtime_error("invalid vec4 value "+escape_string(text));
+        return glm::vec4(util::parse_double(text, 0, text.length()));
     }
     size_t pos2 = text.find(',', pos1+1);
     if (pos2 == std::string::npos) {
-        throw std::runtime_error("invalid vec4 value "+escape_string(text));
+        throw std::runtime_error("invalid vec4 value "+util::quote(text));
     }
     size_t pos3 = text.find(',', pos2+1);
     if (pos3 == std::string::npos) {
-        throw std::runtime_error("invalid vec4 value "+escape_string(text));
+        throw std::runtime_error("invalid vec4 value "+util::quote(text));
     }
     return glm::vec4(
         util::parse_double(text, 0, pos1),
@@ -99,7 +100,7 @@ glm::vec4 Attribute::asColor() const {
         }
         return glm::vec4(r / 255.f, g / 255.f, b / 255.f, a / 255.f);
     } else {
-        throw std::runtime_error("hex colors are only supported");
+        return asVec4() / 255.f;
     }
 }
 
@@ -176,7 +177,7 @@ const std::string& Document::getEncoding() const {
     return encoding;
 }
 
-Parser::Parser(std::string filename, std::string source) 
+Parser::Parser(const std::string& filename, const std::string& source) 
     : BasicParser(filename, source) {
 }
 
@@ -196,8 +197,13 @@ xmlelement Parser::parseOpenTag() {
         if (peek() == '=') {
             nextChar();
             skipWhitespace();
-            expect('"');
-            attrtext = parseString('"');
+            
+            char quote = peek();
+            if (quote != '\'' && quote != '"') {
+                throw error("string literal expected");
+            }
+            skip(1);
+            attrtext = parseString(quote);
         }
         node->set(attrname, attrtext);
     }
@@ -377,7 +383,7 @@ static void stringifyElement(
             auto attr = entry.second;
             ss << attr.getName();
             if (!attr.getText().empty()) {
-                ss << "=" << escape_string(attr.getText());
+                ss << "=" << util::escape(attr.getText());
             }
             if (count + 1 < int(attrs.size())) {
                 ss << " ";

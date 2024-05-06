@@ -1,27 +1,27 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#include "PlayerController.h"
+#include "PlayerController.hpp"
+#include "BlocksController.hpp"
+#include "scripting/scripting.hpp"
 
-#include "../objects/Player.h"
-#include "../physics/PhysicsSolver.h"
-#include "../physics/Hitbox.h"
-#include "../lighting/Lighting.h"
-#include "../world/Level.h"
-#include "../content/Content.h"
-#include "../voxels/Block.h"
-#include "../voxels/voxel.h"
-#include "../voxels/Chunks.h"
-#include "../window/Camera.h"
-#include "../window/Events.h"
-#include "../window/input.h"
-#include "../items/ItemDef.h"
-#include "../items/ItemStack.h"
-#include "../items/Inventory.h"
-#include "scripting/scripting.h"
-#include "BlocksController.h"
-
-#include "../core_defs.h"
+#include "../objects/Player.hpp"
+#include "../physics/PhysicsSolver.hpp"
+#include "../physics/Hitbox.hpp"
+#include "../lighting/Lighting.hpp"
+#include "../world/Level.hpp"
+#include "../content/Content.hpp"
+#include "../voxels/Block.hpp"
+#include "../voxels/voxel.hpp"
+#include "../voxels/Chunks.hpp"
+#include "../window/Camera.hpp"
+#include "../window/Window.hpp"
+#include "../window/Events.hpp"
+#include "../window/input.hpp"
+#include "../items/ItemDef.hpp"
+#include "../items/ItemStack.hpp"
+#include "../items/Inventory.hpp"
+#include "../core_defs.hpp"
 
 const float CAM_SHAKE_OFFSET = 0.025f;
 const float CAM_SHAKE_OFFSET_Y = 0.031f;
@@ -50,8 +50,8 @@ void CameraControl::updateMouse(PlayerInput& input) {
     glm::vec2& cam = player->cam;
 
     float sensitivity = (input.zoom 
-        ? settings.sensitivity / 4.f 
-        : settings.sensitivity);
+        ? settings.sensitivity.get() / 4.f
+        : settings.sensitivity.get());
 
     cam -= glm::degrees(Events::delta / (float)Window::height * sensitivity);
 
@@ -139,10 +139,10 @@ void CameraControl::switchCamera() {
 void CameraControl::update(PlayerInput& input, float delta, Chunks* chunks) {
     offset = glm::vec3(0.0f, 0.7f, 0.0f);
 
-    if (settings.shaking && !input.cheat) {
+    if (settings.shaking.get() && !input.cheat) {
         offset += updateCameraShaking(delta);
     }
-    if (settings.fovEvents){
+    if (settings.fovEffects.get()){
         updateFovEffects(input, delta);
     }
     if (input.cameraMode) {

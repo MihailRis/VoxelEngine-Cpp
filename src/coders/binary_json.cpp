@@ -1,29 +1,32 @@
-#include "binary_json.h"
+#include "binary_json.hpp"
+
+#include "gzip.hpp"
+#include "byte_utils.hpp"
+#include "../data/dynamic.hpp"
 
 #include <stdexcept>
-
-#include "gzip.h"
-#include "byte_utils.h"
 
 using namespace json;
 using namespace dynamic;
 
 static void to_binary(ByteBuilder& builder, const Value* value) {
     switch (value->type) {
+        case valtype::none:
+            throw std::runtime_error("none value is not implemented");
         case valtype::map: {
-            std::vector<ubyte> bytes = to_binary(value->value.map);
+            std::vector<ubyte> bytes = to_binary(std::get<Map*>(value->value));
             builder.put(bytes.data(), bytes.size());
             break;
         }
         case valtype::list:
             builder.put(BJSON_TYPE_LIST);
-            for (auto& element : value->value.list->values) {
+            for (auto& element : std::get<List*>(value->value)->values) {
                 to_binary(builder, element.get());
             }
             builder.put(BJSON_END);
             break;
         case valtype::integer: {
-            int64_t val = value->value.integer;
+            auto val = std::get<integer_t>(value->value);
             if (val >= 0 && val <= 255) {
                 builder.put(BJSON_TYPE_BYTE);
                 builder.put(val);
@@ -41,14 +44,14 @@ static void to_binary(ByteBuilder& builder, const Value* value) {
         }
         case valtype::number:
             builder.put(BJSON_TYPE_NUMBER);
-            builder.putFloat64(value->value.decimal);
+            builder.putFloat64(std::get<number_t>(value->value));
             break;
         case valtype::boolean:
-            builder.put(BJSON_TYPE_FALSE + value->value.boolean);
+            builder.put(BJSON_TYPE_FALSE + std::get<bool>(value->value));
             break;
         case valtype::string:
             builder.put(BJSON_TYPE_STRING);
-            builder.put(*value->value.str);
+            builder.put(std::get<std::string>(value->value));
             break;
     }
 }
@@ -88,40 +91,40 @@ static Value* value_from_binary(ByteReader& reader) {
         case BJSON_TYPE_DOCUMENT:
             type = valtype::map;
             reader.getInt32();
-            val.map = object_from_binary(reader);
+            val = object_from_binary(reader);
             break;
         case BJSON_TYPE_LIST:
             type = valtype::list;
-            val.list = array_from_binary(reader);
+            val = array_from_binary(reader);
             break;
         case BJSON_TYPE_BYTE:
             type = valtype::integer;
-            val.integer = reader.get();
+            val = static_cast<integer_t>(reader.get());
             break;
         case BJSON_TYPE_INT16:
             type = valtype::integer;
-            val.integer = reader.getInt16();
+            val = static_cast<integer_t>(reader.getInt16());
             break;
         case BJSON_TYPE_INT32:
             type = valtype::integer;
-            val.integer = reader.getInt32();
+            val = static_cast<integer_t>(reader.getInt32());
             break;
         case BJSON_TYPE_INT64:
             type = valtype::integer;
-            val.integer = reader.getInt64();
+            val = reader.getInt64();
             break;
         case BJSON_TYPE_NUMBER:
             type = valtype::number;
-            val.decimal = reader.getFloat64();
+            val = reader.getFloat64();
             break;
         case BJSON_TYPE_FALSE:
         case BJSON_TYPE_TRUE:
             type = valtype::boolean;
-            val.boolean = typecode - BJSON_TYPE_FALSE;
+            val = (typecode - BJSON_TYPE_FALSE) != 0;
             break;
         case BJSON_TYPE_STRING:
             type = valtype::string;
-            val.str = new std::string(reader.getString());
+            val = reader.getString();
             break;
         default:
             throw std::runtime_error(
@@ -166,8 +169,8 @@ std::unique_ptr<Map> json::from_binary(const ubyte* src, size_t size) {
         if (value->type != valtype::map) {
             throw std::runtime_error("root value is not an object");
         }
-        std::unique_ptr<Map> obj (value->value.map);
-        value->value.map = nullptr;
+        std::unique_ptr<Map> obj (std::get<Map*>(value->value));
+        value->value = (Map*)nullptr;
         return obj;
     }
 }

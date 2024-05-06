@@ -1,14 +1,16 @@
-#include "ContentGfxCache.h"
+#include "ContentGfxCache.hpp"
+
+#include "UiDocument.hpp"
+
+#include "../assets/Assets.hpp"
+#include "../content/Content.hpp"
+#include "../content/ContentPack.hpp"
+#include "../core_defs.hpp"
+#include "../graphics/core/Atlas.hpp"
+#include "../maths/UVRegion.hpp"
+#include "../voxels/Block.hpp"
 
 #include <string>
-
-#include "../assets/Assets.h"
-#include "../content/Content.h"
-#include "../content/ContentPack.h"
-#include "../graphics/Atlas.h"
-#include "../voxels/Block.h"
-#include "../core_defs.h"
-#include "UiDocument.h"
 
 ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets) : content(content) {
     auto indices = content->getIndices();
@@ -37,14 +39,6 @@ ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets) : conte
 }
 
 ContentGfxCache::~ContentGfxCache() {
-}
-
-std::shared_ptr<UiDocument> ContentGfxCache::getLayout(const std::string& id) {
-    auto found = layouts.find(id);
-    if (found == layouts.end()) {
-        return nullptr;
-    }
-    return found->second;
 }
 
 const Content* ContentGfxCache::getContent() const {

@@ -1,7 +1,15 @@
-#include "DefaultWorldGenerator.h"
-#include "voxel.h"
-#include "Chunk.h"
-#include "Block.h"
+#include "DefaultWorldGenerator.hpp"
+#include "voxel.hpp"
+#include "Chunk.hpp"
+#include "Block.hpp"
+
+#define FNL_IMPL
+#include "../maths/FastNoiseLite.h"
+
+#include "../content/Content.hpp"
+#include "../maths/voxmaths.hpp"
+#include "../maths/util.hpp"
+#include "../core_defs.hpp"
 
 #include <iostream>
 #include <vector>
@@ -10,15 +18,8 @@
 #include <math.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/noise.hpp>
-#define FNL_IMPL
-#include "../maths/FastNoiseLite.h"
 
-#include "../content/Content.h"
-#include "../maths/voxmaths.h"
-#include "../maths/util.h"
-#include "../core_defs.h"
-
-// TODO: do something with long conditions + move magic numbers to constants
+// will be refactored in generators update
 
 const int SEA_LEVEL = 55;
 

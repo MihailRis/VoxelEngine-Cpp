@@ -1,23 +1,23 @@
-#include "ChunksController.h"
+#include "ChunksController.hpp"
+
+#include "../content/Content.hpp"
+#include "../voxels/Block.hpp"
+#include "../voxels/Chunk.hpp"
+#include "../voxels/Chunks.hpp"
+#include "../voxels/ChunksStorage.hpp"
+#include "../voxels/WorldGenerator.hpp"
+#include "../world/WorldGenerators.hpp"
+#include "../graphics/core/Mesh.hpp"
+#include "../lighting/Lighting.hpp"
+#include "../files/WorldFiles.hpp"
+#include "../world/Level.hpp"
+#include "../world/World.hpp"
+#include "../maths/voxmaths.hpp"
+#include "../util/timeutil.hpp"
 
 #include <limits.h>
 #include <memory>
 #include <iostream>
-
-#include "../content/Content.h"
-#include "../voxels/Block.h"
-#include "../voxels/Chunk.h"
-#include "../voxels/Chunks.h"
-#include "../voxels/ChunksStorage.h"
-#include "../voxels/WorldGenerator.h"
-#include "../world/WorldGenerators.h"
-#include "../graphics/Mesh.h"
-#include "../lighting/Lighting.h"
-#include "../files/WorldFiles.h"
-#include "../world/Level.h"
-#include "../world/World.h"
-#include "../maths/voxmaths.h"
-#include "../util/timeutil.h"
 
 const uint MAX_WORK_PER_FRAME = 64;
 const uint MIN_SURROUNDING = 9;
@@ -118,7 +118,7 @@ void ChunksController::createChunk(int x, int z) {
 	if (!chunk->isLoaded()) {
 		generator->generate(
             chunk->voxels, x, z, 
-            level->world->getSeed()
+            level->getWorld()->getSeed()
         );
 		chunk->setUnsaved(true);
 	}

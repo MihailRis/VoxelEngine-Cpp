@@ -1,5 +1,5 @@
-#include "LevelEvents.h"
-#include "../voxels/Chunk.h"
+#include "LevelEvents.hpp"
+#include "../voxels/Chunk.hpp"
 
 using std::vector;
 

@@ -1,0 +1,4 @@
+<panel size='500,20' color='0' orientation='horizontal' padding='2'>
+    <label color='#80808080'>[%{type}]</label>
+    <label color='#FF333380'>"%{name}</label>
+</panel>

@@ -1,6 +1,7 @@
-#include "Inventory.h"
+#include "Inventory.hpp"
 
-#include "../content/ContentLUT.h"
+#include "../data/dynamic.hpp"
+#include "../content/ContentLUT.hpp"
 
 Inventory::Inventory(int64_t id, size_t size) : id(id), slots(size) {
 }
@@ -88,7 +89,11 @@ void Inventory::convert(dynamic::Map* data, const ContentLUT* lut) {
     for (size_t i = 0; i < slotsarr->size(); i++) {
         auto item = slotsarr->map(i);
         itemid_t id = item->getInt("id", ITEM_EMPTY);
-        item->put("id", lut->getItemId(id));
+        itemid_t replacement = lut->getItemId(id);
+        item->put("id", replacement);
+        if (replacement == 0 && item->has("count")) {
+            item->remove("count");
+        }
     }
 }
 
