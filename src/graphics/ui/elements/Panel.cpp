@@ -1,5 +1,7 @@
 #include "Panel.hpp"
 
+#include <algorithm>
+
 using namespace gui;
 
 Panel::Panel(glm::vec2 size, glm::vec4 padding, float interval)

@@ -93,7 +93,7 @@ assetload::postfunc assetload::atlas(
 ) {
     AtlasBuilder builder;
     for (const auto& file : paths->listdir(directory)) {
-        if (!imageio::is_read_supported(file.extension()))
+        if (!imageio::is_read_supported(file.extension().u8string()))
             continue;
         if (!append_atlas(builder, file))
             continue;
@@ -289,7 +289,7 @@ static bool animation(
             read_anim_file(animFile, frameList);
         }
         for (const auto& file : paths->listdir(animsDir + "/" + name)) {
-            if (!frameList.empty() && !contains(frameList, file.stem())) {
+            if (!frameList.empty() && !contains(frameList, file.stem().u8string())) {
                 continue;
             }
             if (!append_atlas(builder, file)) 

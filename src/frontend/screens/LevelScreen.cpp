@@ -84,7 +84,7 @@ void LevelScreen::saveWorldPreview() {
         worldRenderer->draw(ctx, &camera, false, postProcessing.get());
         auto image = postProcessing->toImage();
         image->flipY();
-        imageio::write(paths->resolve("world:preview.png"), image.get());
+        imageio::write(paths->resolve("world:preview.png").u8string(), image.get());
     } catch (const std::exception& err) {
         logger.error() << err.what();
     }

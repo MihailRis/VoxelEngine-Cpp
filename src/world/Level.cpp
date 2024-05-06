@@ -53,8 +53,8 @@ Level::~Level(){
 void Level::loadMatrix(int32_t x, int32_t z, uint32_t radius) {
 	chunks->setCenter(x, z);
     uint32_t diameter = std::min(
-        radius*2L, 
-        (settings.chunks.loadDistance.get() + settings.chunks.padding.get()) * 2
+        radius*2LL,
+        (settings.chunks.loadDistance.get() + settings.chunks.padding.get()) * 2LL
     );
 	if (chunks->w != diameter) {
 		chunks->resize(diameter, diameter);

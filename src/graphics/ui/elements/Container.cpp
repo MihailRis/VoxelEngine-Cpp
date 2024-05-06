@@ -3,6 +3,8 @@
 #include "../../core/DrawContext.hpp"
 #include "../../core/Batch2D.hpp"
 
+#include <algorithm>
+
 using namespace gui;
 
 Container::Container(glm::vec2 size) : UINode(size) {
