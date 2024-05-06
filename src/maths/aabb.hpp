@@ -5,7 +5,7 @@
 
 // Axis Aligned Bounding Box
 struct AABB {
-	glm::vec3 a {0.0f};
+    glm::vec3 a {0.0f};
     glm::vec3 b {1.0f};
 
     /* Get AABB point with minimal x,y,z */

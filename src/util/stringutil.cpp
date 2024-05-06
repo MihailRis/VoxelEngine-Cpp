@@ -84,47 +84,47 @@ uint util::encode_utf8(uint32_t c, ubyte* bytes) {
 }
 
 struct utf_t {
-	char mask;
-	char lead;
-	uint32_t beg;
-	uint32_t end;
-	int bits_stored;
+    char mask;
+    char lead;
+    uint32_t beg;
+    uint32_t end;
+    int bits_stored;
 };
 
 const utf_t utf[] = {
-	/* mask             lead              beg      end     bits */
-	{(char)0b00111111, (char)0b10000000, 0,       0,        6},
-	{(char)0b01111111, (char)0b00000000, 0000,    0177,     7},
-	{(char)0b00011111, (char)0b11000000, 0200,    03777,    5},
-	{(char)0b00001111, (char)0b11100000, 04000,   0177777,  4},
-	{(char)0b00000111, (char)0b11110000, 0200000, 04177777, 3},
-	{0, 0, 0, 0, 0},
+    /* mask             lead              beg      end     bits */
+    {(char)0b00111111, (char)0b10000000, 0,       0,        6},
+    {(char)0b01111111, (char)0b00000000, 0000,    0177,     7},
+    {(char)0b00011111, (char)0b11000000, 0200,    03777,    5},
+    {(char)0b00001111, (char)0b11100000, 04000,   0177777,  4},
+    {(char)0b00000111, (char)0b11110000, 0200000, 04177777, 3},
+    {0, 0, 0, 0, 0},
 };
 
 
 inline uint utf8_len(ubyte cp) {
     uint len = 0;
-	for (const utf_t* u = utf; u->mask; ++u) {
-		if((cp >= u->beg) && (cp <= u->end)) {
-			break;
-		}
-		++len;
-	}
-	if(len > 4) /* Out of bounds */
-		throw std::runtime_error("utf-8 decode error");
+    for (const utf_t* u = utf; u->mask; ++u) {
+        if((cp >= u->beg) && (cp <= u->end)) {
+            break;
+        }
+        ++len;
+    }
+    if(len > 4) /* Out of bounds */
+        throw std::runtime_error("utf-8 decode error");
 
-	return len;
+    return len;
 }
 
 extern uint32_t util::decode_utf8(uint& size, const char* chr) {
-	size = utf8_len(*chr);
-	int shift = utf[0].bits_stored * (size - 1);
-	uint32_t code = (*chr++ & utf[size].mask) << shift;
+    size = utf8_len(*chr);
+    int shift = utf[0].bits_stored * (size - 1);
+    uint32_t code = (*chr++ & utf[size].mask) << shift;
 
-	for(uint i = 1; i < size; ++i, ++chr) {
-		shift -= utf[0].bits_stored;
-		code |= ((char)*chr & utf[0].mask) << shift;
-	}
+    for(uint i = 1; i < size; ++i, ++chr) {
+        shift -= utf[0].bits_stored;
+        code |= ((char)*chr & utf[0].mask) << shift;
+    }
     return code;
 }
 

@@ -25,7 +25,7 @@ Lighting::~Lighting(){
 }
 
 void Lighting::clear(){
-	for (unsigned int index = 0; index < chunks->volume; index++){
+	for (size_t index = 0; index < chunks->volume; index++){
 		auto chunk = chunks->chunks[index];
 		if (chunk == nullptr)
 			continue;

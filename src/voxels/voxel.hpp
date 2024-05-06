@@ -16,12 +16,12 @@ const int BLOCK_ROT_MASK =      0b0000'0111;
 const int BLOCK_RESERVED_MASK = 0b1111'1000;
 
 struct voxel {
-	blockid_t id;
-	blockstate_t states;
+    blockid_t id;
+    blockstate_t states;
 
-	inline uint8_t rotation() const {
-		return states & BLOCK_ROT_MASK;
-	}
+    inline uint8_t rotation() const {
+        return states & BLOCK_ROT_MASK;
+    }
 
     inline void setRotation(uint8_t rotation) {
         states = (states & (~BLOCK_ROT_MASK)) | (rotation & BLOCK_ROT_MASK);
