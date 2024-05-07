@@ -34,12 +34,9 @@ namespace dynamic {
         valvalue value;
         Value(valvalue value);
         ~Value();
-
-        static std::unique_ptr<Value> boolean(bool value);
-        static std::unique_ptr<Value> of(number_u value);
-        static std::unique_ptr<Value> of(const std::string& value);
-        static std::unique_ptr<Value> of(std::unique_ptr<Map> value);
     };
+    std::unique_ptr<Value> value_of(const valvalue& value);
+    std::unique_ptr<Value> value_of(std::unique_ptr<Map> value);
 
     class List {
     public:
@@ -121,7 +118,7 @@ namespace dynamic {
             return put(key, std::make_unique<Value>(value));
         }
         Map& put(std::string key, uint64_t value) {
-            return put(key, Value::of(static_cast<integer_t>(value)));
+            return put(key, value_of(static_cast<integer_t>(value)));
         }
 
         Map& put(std::string key, std::unique_ptr<Value> value);

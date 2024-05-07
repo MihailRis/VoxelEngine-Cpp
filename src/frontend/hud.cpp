@@ -380,7 +380,7 @@ void Hud::closeInventory() {
 }
 
 void Hud::add(HudElement element) {
-    using dynamic::Value;
+    using namespace dynamic;
 
     gui->add(element.getNode());
     auto invview = std::dynamic_pointer_cast<InventoryView>(element.getNode());
@@ -388,9 +388,9 @@ void Hud::add(HudElement element) {
     if (document) {
         auto inventory = invview ? invview->getInventory() : nullptr;
         std::vector<std::unique_ptr<Value>> args;
-        args.push_back(Value::of(inventory ? inventory.get()->getId() : 0));
+        args.push_back(value_of(inventory ? inventory.get()->getId() : 0));
         for (int i = 0; i < 3; i++) {
-            args.push_back(Value::of(static_cast<integer_t>(blockPos[i])));
+            args.push_back(value_of(static_cast<integer_t>(blockPos[i])));
         }
         scripting::on_ui_open(
             element.getDocument(), 

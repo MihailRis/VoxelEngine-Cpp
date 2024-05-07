@@ -84,13 +84,13 @@ std::unique_ptr<dynamic::Value> SettingsHandler::getValue(const std::string& nam
     }
     auto setting = found->second;
     if (auto number = dynamic_cast<NumberSetting*>(setting)) {
-        return dynamic::Value::of((number_t)number->get());
+        return dynamic::value_of((number_t)number->get());
     } else if (auto integer = dynamic_cast<IntegerSetting*>(setting)) {
-        return dynamic::Value::of((integer_t)integer->get());
+        return dynamic::value_of((integer_t)integer->get());
     } else if (auto flag = dynamic_cast<FlagSetting*>(setting)) {
-        return dynamic::Value::boolean(flag->get());
+        return dynamic::value_of(flag->get());
     } else if (auto string = dynamic_cast<StringSetting*>(setting)) {
-        return dynamic::Value::of(string->get());
+        return dynamic::value_of(string->get());
     } else {
         throw std::runtime_error("type is not implemented for '"+name+"'");
     }
@@ -130,7 +130,7 @@ static void set_numeric_value(T* setting, const dynamic::Value& value) {
     }
 }
 
-void SettingsHandler::setValue(const std::string& name, const dynamic::Value& value) {
+void SettingsHandler::setValue(const std::string& name, const dynamic::valvalue& value) {
     auto found = map.find(name);
     if (found == map.end()) {
         throw std::runtime_error("setting '"+name+"' does not exist");
@@ -143,13 +143,13 @@ void SettingsHandler::setValue(const std::string& name, const dynamic::Value& va
     } else if (auto flag = dynamic_cast<FlagSetting*>(setting)) {
         set_numeric_value(flag, value);
     } else if (auto string = dynamic_cast<StringSetting*>(setting)) {
-        if (auto num = std::get_if<integer_t>(&value.value)) {
+        if (auto num = std::get_if<integer_t>(&value)) {
             string->set(std::to_string(*num));
-        } else if (auto num = std::get_if<number_t>(&value.value)) {
+        } else if (auto num = std::get_if<number_t>(&value)) {
             string->set(std::to_string(*num));
-        } else if (auto flag = std::get_if<bool>(&value.value)) {
+        } else if (auto flag = std::get_if<bool>(&value)) {
             string->set(*flag ? "true" : "false");
-        } else if (auto str = std::get_if<std::string>(&value.value)) {
+        } else if (auto str = std::get_if<std::string>(&value)) {
             string->set(*str);
         } else {
             throw std::runtime_error("not implemented for type");

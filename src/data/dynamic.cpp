@@ -246,22 +246,10 @@ Value::~Value() {
     }
 }
 
-std::unique_ptr<Value> Value::boolean(bool value) {
+std::unique_ptr<Value> dynamic::value_of(const valvalue& value) {
     return std::make_unique<Value>(value);
 }
 
-std::unique_ptr<Value> Value::of(number_u value) {
-    if (std::holds_alternative<integer_t>(value)) {
-        return std::make_unique<Value>(std::get<integer_t>(value));
-    } else {
-        return std::make_unique<Value>(std::get<number_t>(value));
-    }
-}
-
-std::unique_ptr<Value> Value::of(const std::string& value) {
-    return std::make_unique<Value>(value);
-}
-
-std::unique_ptr<Value> Value::of(std::unique_ptr<Map> value) {
+std::unique_ptr<Value> dynamic::value_of(std::unique_ptr<Map> value) {
     return std::make_unique<Value>(value.release());
 }

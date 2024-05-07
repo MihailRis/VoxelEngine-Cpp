@@ -311,18 +311,18 @@ std::unique_ptr<dynamic::Value> lua::LuaState::tovalue(int idx) {
         case LUA_TNONE:
             return std::make_unique<Value>(std::monostate());
         case LUA_TBOOLEAN:
-            return Value::boolean(lua_toboolean(L, idx) == 1);
+            return dynamic::value_of(lua_toboolean(L, idx) == 1);
         case LUA_TNUMBER: {
             auto number = lua_tonumber(L, idx);
             auto integer = lua_tointeger(L, idx);
             if (number == (lua_Number)integer) {
-                return Value::of(integer);
+                return dynamic::value_of(integer);
             } else {
-                return Value::of(number);
+                return dynamic::value_of(number);
             }
         }
         case LUA_TSTRING:
-            return Value::of(lua_tostring(L, idx));
+            return dynamic::value_of(lua_tostring(L, idx));
         case LUA_TTABLE: {
             int len = lua_objlen(L, idx);
             if (len) {

@@ -53,7 +53,7 @@ gui::page_loader_func menus::create_page_loader(Engine* engine) {
                 auto value = parser.readUntil('&');
                 map->put(key, value);
             }
-            args.push_back(Value::of(std::move(map)));
+            args.push_back(value_of(std::move(map)));
         } else {
             name = query;
         }
@@ -89,8 +89,8 @@ void menus::show_process_panel(Engine* engine, std::shared_ptr<Task> task, std::
 
     auto menu = engine->getGUI()->getMenu();
     menu->reset();
-    std::vector<std::unique_ptr<dynamic::Value>> args;
-    args.emplace_back(Value::of(util::wstr2str_utf8(langs::get(text))));
+    std::vector<std::unique_ptr<Value>> args;
+    args.emplace_back(value_of(util::wstr2str_utf8(langs::get(text))));
     auto doc = menus::show(engine, "process", std::move(args));
     std::dynamic_pointer_cast<Container>(doc->getRoot())->listenInterval(0.01f, [=]() {
         task->update();

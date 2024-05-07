@@ -207,13 +207,13 @@ std::unique_ptr<Value> Parser::parseValue() {
     if (is_identifier_start(next)) {
         std::string literal = parseName();
         if (literal == "true") {
-            return Value::boolean(true);
+            return dynamic::value_of(true);
         } else if (literal == "false") {
-            return Value::boolean(false);
+            return dynamic::value_of(false);
         } else if (literal == "inf") {
-            return Value::of(INFINITY);
+            return dynamic::value_of(INFINITY);
         } else if (literal == "nan") {
-            return Value::of(NAN);
+            return dynamic::value_of(NAN);
         }
         throw error("invalid literal ");
     }
