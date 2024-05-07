@@ -407,7 +407,7 @@ int lua::LuaState::createEnvironment(int parent) {
     
     // setmetatable(env, {__index=_G})
     lua_createtable(L, 0, 1);
-    if (parent == 0 || true) {
+    if (parent == 0) {
         lua_pushvalue(L, LUA_GLOBALSINDEX);
     } else {
         if (pushenv(parent) == 0) {
