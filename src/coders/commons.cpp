@@ -212,27 +212,23 @@ int64_t BasicParser::parseSimpleInt(int base) {
     return value;
 }
 
-bool BasicParser::parseNumber(int sign, number_u& out) {
+dynamic::Value BasicParser::parseNumber(int sign) {
     char c = peek();
     int base = 10;
     if (c == '0' && pos + 1 < source.length() && 
           (base = is_box(source[pos+1])) != 10) {
         pos += 2;
-        out = parseSimpleInt(base);
-        return true;
+        return parseSimpleInt(base);
     } else if (c == 'i' && pos + 2 < source.length() && source[pos+1] == 'n' && source[pos+2] == 'f') {
         pos += 3;
-        out = INFINITY * sign;
-        return false;
+        return INFINITY * sign;
     } else if (c == 'n' && pos + 2 < source.length() && source[pos+1] == 'a' && source[pos+2] == 'n') {
         pos += 3;
-        out = NAN * sign;
-        return false;
+        return NAN * sign;
     }
     int64_t value = parseSimpleInt(base);
     if (!hasNext()) {
-        out = value * sign;
-        return true;
+        return value * sign;
     }
     c = source[pos];
     if (c == 'e' || c == 'E') {
@@ -244,8 +240,7 @@ bool BasicParser::parseNumber(int sign, number_u& out) {
         } else if (peek() == '+'){
             pos++;
         }
-        out = sign * value * power(10.0, s * parseSimpleInt(10));
-        return false;
+        return sign * value * power(10.0, s * parseSimpleInt(10));
     }
     if (c == '.') {
         pos++;
@@ -271,14 +266,11 @@ bool BasicParser::parseNumber(int sign, number_u& out) {
             } else if (peek() == '+'){
                 pos++;
             }
-            out = sign * dvalue * power(10.0, s * parseSimpleInt(10));
-            return false;
+            return sign * dvalue * power(10.0, s * parseSimpleInt(10));
         }
-        out = sign * dvalue;
-        return false;
+        return sign * dvalue;
     }
-    out = sign * value;
-    return true;
+    return sign * value;
 }
 
 std::string BasicParser::parseString(char quote, bool closeRequired) {

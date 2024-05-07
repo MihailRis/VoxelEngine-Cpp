@@ -1,6 +1,7 @@
 #ifndef CODERS_COMMONS_HPP_
 #define CODERS_COMMONS_HPP_
 
+#include "../data/dynamic.hpp"
 #include "../typedefs.hpp"
 
 #include <string>
@@ -88,7 +89,7 @@ protected:
     void goBack();
 
     int64_t parseSimpleInt(int base);
-    bool parseNumber(int sign, number_u& out);
+    dynamic::Value parseNumber(int sign);
     std::string parseString(char chr, bool closeRequired=true);
 
     parsing_error error(std::string message);

@@ -13,8 +13,6 @@ using observer_handler = std::shared_ptr<int>;
 using integer_t = int64_t;
 /// @brief dynamic floating-point type (64 bit floating point)
 using number_t = double;
-/// @brief dynamic numeric types union (integer and floating-point)
-using number_u = std::variant<integer_t, number_t>;
 
 using uint = unsigned int;
 

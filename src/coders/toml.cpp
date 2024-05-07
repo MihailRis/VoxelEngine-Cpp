@@ -44,26 +44,16 @@ class Reader : public BasicParser {
             expect('=');
             c = peek();
             if (is_digit(c)) {
-                number_u num;
-                parseNumber(1, num);
+                auto num = parseNumber(1);
                 if (handler.has(name)) {
-                    if (std::holds_alternative<integer_t>(num)) {
-                        handler.setValue(name, std::get<integer_t>(num));
-                    } else {
-                        handler.setValue(name, std::get<number_t>(num));
-                    }
+                    handler.setValue(name, num);
                 }
             } else if (c == '-' || c == '+') {
                 int sign = c == '-' ? -1 : 1;
                 pos++;
-                number_u num;
-                parseNumber(sign, num);
+                auto num = parseNumber(sign);
                 if (handler.has(name)) {
-                    if (std::holds_alternative<integer_t>(num)) {
-                        handler.setValue(name, std::get<integer_t>(num));
-                    } else {
-                        handler.setValue(name, std::get<number_t>(num));
-                    }
+                    handler.setValue(name, num);
                 }
             } else if (is_identifier_start(c)) {
                 std::string identifier = parseName();

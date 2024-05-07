@@ -195,12 +195,7 @@ Value Parser::parseValue() {
     char next = peek();
     if (next == '-' || next == '+') {
         pos++;
-        number_u num;
-        if (parseNumber(next == '-' ? -1 : 1, num)) {
-            return std::get<integer_t>(num);
-        } else {
-            return std::get<number_t>(num);
-        }
+        return parseNumber(next == '-' ? -1 : 1);
     }
     if (is_identifier_start(next)) {
         std::string literal = parseName();
@@ -222,12 +217,7 @@ Value Parser::parseValue() {
         return List_sptr(parseList().release());
     }
     if (is_digit(next)) {
-        number_u num;
-        if (parseNumber(1, num)) {
-            return std::get<integer_t>(num);
-        } else {
-            return std::get<number_t>(num);
-        }
+        return parseNumber(1);
     }
     if (next == '"' || next == '\'') {
         pos++;
