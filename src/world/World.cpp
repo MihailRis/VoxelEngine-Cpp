@@ -174,9 +174,9 @@ const std::vector<ContentPack>& World::getPacks() const {
 }
 
 void World::deserialize(dynamic::Map* root) {
-    name = root->getStr("name", name);
-    generator = root->getStr("generator", generator);
-    seed = root->getInt("seed", seed);
+    name = root->get("name", name);
+    generator = root->get("generator", generator);
+    seed = root->get("seed", seed);
 
     if(generator == "") {
         generator = WorldGenerators::getDefaultGeneratorID();
@@ -197,7 +197,7 @@ void World::deserialize(dynamic::Map* root) {
         timeobj->num("total-time", totalTime);
     }
     
-    nextInventoryId = root->getNum("next-inventory-id", 2);
+    nextInventoryId = root->get("next-inventory-id", 2);
 }
 
 std::unique_ptr<dynamic::Map> World::serialize() const {

@@ -119,18 +119,14 @@ bool SettingsHandler::has(const std::string& name) const {
 
 template<class T>
 static void set_numeric_value(T* setting, const dynamic::Value& value) {
-    switch (value.type) {
-        case dynamic::valtype::integer:
-            setting->set(std::get<integer_t>(value.value));
-            break;
-        case dynamic::valtype::number:
-            setting->set(std::get<number_t>(value.value));
-            break;
-        case dynamic::valtype::boolean:
-            setting->set(std::get<bool>(value.value));
-            break;
-        default:
-            throw std::runtime_error("type error, numeric value expected");
+    if (auto num = std::get_if<integer_t>(&value.value)) {
+        setting->set(*num);
+    } else if (auto num = std::get_if<number_t>(&value.value)) {
+        setting->set(*num);
+    } else if (auto flag = std::get_if<bool>(&value.value)) {
+        setting->set(*flag);
+    } else {
+        throw std::runtime_error("type error, numeric value expected");
     }
 }
 
@@ -147,21 +143,16 @@ void SettingsHandler::setValue(const std::string& name, const dynamic::Value& va
     } else if (auto flag = dynamic_cast<FlagSetting*>(setting)) {
         set_numeric_value(flag, value);
     } else if (auto string = dynamic_cast<StringSetting*>(setting)) {
-        switch (value.type) {
-            case dynamic::valtype::string:
-                string->set(std::get<std::string>(value.value));
-                break;
-            case dynamic::valtype::integer:
-                string->set(std::to_string(std::get<integer_t>(value.value)));
-                break;
-            case dynamic::valtype::number:
-                string->set(std::to_string(std::get<number_t>(value.value)));
-                break;
-            case dynamic::valtype::boolean:
-                string->set(std::to_string(std::get<bool>(value.value)));
-                break;
-            default:
-                throw std::runtime_error("not implemented for type");
+        if (auto num = std::get_if<integer_t>(&value.value)) {
+            string->set(std::to_string(*num));
+        } else if (auto num = std::get_if<number_t>(&value.value)) {
+            string->set(std::to_string(*num));
+        } else if (auto flag = std::get_if<bool>(&value.value)) {
+            string->set(*flag ? "true" : "false");
+        } else if (auto str = std::get_if<std::string>(&value.value)) {
+            string->set(*str);
+        } else {
+            throw std::runtime_error("not implemented for type");
         }
     } else {
         throw std::runtime_error("type is not implement - setting '"+name+"'");

@@ -227,7 +227,7 @@ void Player::deserialize(dynamic::Map *src) {
 
     src->flag("flight", flight);
     src->flag("noclip", noclip);
-    setChosenSlot(src->getInt("chosen-slot", getChosenSlot()));
+    setChosenSlot(src->get("chosen-slot", getChosenSlot()));
 
     auto invmap = src->map("inventory");
     if (invmap) {

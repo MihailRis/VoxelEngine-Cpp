@@ -11,6 +11,7 @@
 static debug::Logger logger("locale");
 
 namespace fs = std::filesystem;
+using namespace std::literals;
 
 std::unique_ptr<langs::Lang> langs::current;
 std::unordered_map<std::string, langs::LocaleInfo> langs::locales_info;
@@ -78,12 +79,11 @@ void langs::loadLocalesInfo(const fs::path& resdir, std::string& fallback) {
             auto langInfo = entry.second.get();
 
             std::string name;
-            if (langInfo->type == dynamic::valtype::map) {
-                name = std::get<dynamic::Map*>(langInfo->value)->getStr("name", "none");
+            if (auto mapptr = std::get_if<dynamic::Map*>(&langInfo->value)) {
+                name = (*mapptr)->get("name", "none"s);
             } else {
                 continue;
             }
-
             std::cout << "[" << entry.first << " (" << name << ")] ";
             langs::locales_info[entry.first] = LocaleInfo {entry.first, name};
         } 

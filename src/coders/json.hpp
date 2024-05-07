@@ -20,22 +20,23 @@ namespace dynamic {
 
 namespace json {
     class Parser : public BasicParser {
-        dynamic::List* parseList();
-        dynamic::Map* parseObject();
-        dynamic::Value* parseValue();
+        std::unique_ptr<dynamic::List> parseList();
+        std::unique_ptr<dynamic::Map> parseObject();
+        std::unique_ptr<dynamic::Value> parseValue();
     public:
         Parser(const std::string& filename, const std::string& source);
         
-        dynamic::Map* parse();
+        std::unique_ptr<dynamic::Map> parse();
     };
 
-    extern std::unique_ptr<dynamic::Map> parse(const std::string& filename, const std::string& source);
-    extern std::unique_ptr<dynamic::Map> parse(const std::string& source);
+    std::unique_ptr<dynamic::Map> parse(const std::string& filename, const std::string& source);
+    std::unique_ptr<dynamic::Map> parse(const std::string& source);
 
-    extern std::string stringify(
+    std::string stringify(
         const dynamic::Map* obj, 
         bool nice, 
-        const std::string& indent);
+        const std::string& indent
+    );
 }
 
 #endif // CODERS_JSON_HPP_

@@ -11,9 +11,11 @@
 using namespace json;
 using namespace dynamic;
 
-inline void newline(std::stringstream& ss, 
-                    bool nice, uint indent, 
-                    const std::string& indentstr) {
+inline void newline(
+    std::stringstream& ss, 
+    bool nice, uint indent, 
+    const std::string& indentstr
+) {
     if (nice) {
         ss << "\n";
         for (uint i = 0; i < indent; i++) {
@@ -24,29 +26,34 @@ inline void newline(std::stringstream& ss,
     }
 }
 
-void stringify(const Value* value, 
-               std::stringstream& ss, 
-               int indent, 
-               const std::string& indentstr, 
-               bool nice);
+void stringify(
+    const Value* value, 
+    std::stringstream& ss, 
+    int indent, 
+    const std::string& indentstr, 
+    bool nice
+);
 
-void stringifyObj(const Map* obj, 
-               std::stringstream& ss, 
-               int indent, 
-               const std::string& indentstr, 
-               bool nice);
+void stringifyObj(
+    const Map* obj, 
+    std::stringstream& ss, 
+    int indent, 
+    const std::string& indentstr, 
+    bool nice
+);
 
-void stringify(const Value* value, 
-               std::stringstream& ss, 
-               int indent, 
-               const std::string& indentstr, 
-               bool nice) {
-    if (value->type == valtype::map) {
-        auto map = std::get<Map*>(value->value);
-        stringifyObj(map, ss, indent, indentstr, nice);
+void stringify(
+    const Value* value, 
+    std::stringstream& ss, 
+    int indent, 
+    const std::string& indentstr, 
+    bool nice
+) {
+    if (auto map = std::get_if<Map*>(&value->value)) {
+        stringifyObj(*map, ss, indent, indentstr, nice);
     }
-    else if (value->type == valtype::list) {
-        auto list = std::get<List*>(value->value);
+    else if (auto listptr = std::get_if<List*>(&value->value)) {
+        auto list = *listptr;
         if (list->size() == 0) {
             ss << "[]";
             return;
@@ -66,23 +73,24 @@ void stringify(const Value* value,
             newline(ss, true, indent - 1, indentstr);
         }
         ss << ']';
-    } else if (value->type == valtype::boolean) {
-        ss << (std::get<bool>(value->value) ? "true" : "false");
-    } else if (value->type == valtype::number) {
-        ss << std::setprecision(15);
-        ss << std::get<number_t>(value->value);
-    } else if (value->type == valtype::integer) {
-        ss << std::get<integer_t>(value->value);
-    } else if (value->type == valtype::string) {
-        ss << util::escape(std::get<std::string>(value->value));
+    } else if (auto flag = std::get_if<bool>(&value->value)) {
+        ss << (*flag ? "true" : "false");
+    } else if (auto num = std::get_if<number_t>(&value->value)) {
+        ss << std::setprecision(15) << *num;
+    } else if (auto num = std::get_if<integer_t>(&value->value)) {
+        ss << *num;
+    } else if (auto str = std::get_if<std::string>(&value->value)) {
+        ss << util::escape(*str);
     }
 }
 
-void stringifyObj(const Map* obj, 
-                  std::stringstream& ss, 
-                  int indent, 
-                  const std::string& indentstr, 
-                  bool nice) {
+void stringifyObj(
+    const Map* obj, 
+    std::stringstream& ss, 
+    int indent, 
+    const std::string& indentstr, 
+    bool nice
+) {
     if (obj->values.empty()) {
         ss << "{}";
         return;
@@ -109,9 +117,10 @@ void stringifyObj(const Map* obj,
 }
 
 std::string json::stringify(
-        const Map* obj, 
-        bool nice, 
-        const std::string& indent) {
+    const Map* obj, 
+    bool nice, 
+    const std::string& indent
+) {
     std::stringstream ss;
     stringifyObj(obj, ss, 1, indent, nice);
     return ss.str();
@@ -121,7 +130,7 @@ Parser::Parser(const std::string& filename, const std::string& source)
     : BasicParser(filename, source) {    
 }
 
-Map* Parser::parse() {
+std::unique_ptr<Map> Parser::parse() {
     char next = peek();
     if (next != '{') {
         throw error("'{' expected");
@@ -129,7 +138,7 @@ Map* Parser::parse() {
     return parseObject();
 }
 
-Map* Parser::parseObject() {
+std::unique_ptr<Map> Parser::parseObject() {
     expect('{');
     auto obj = std::make_unique<Map>();
     auto& map = obj->values;
@@ -155,10 +164,10 @@ Map* Parser::parseObject() {
         }
     }
     pos++;
-    return obj.release();
+    return obj;
 }
 
-List* Parser::parseList() {
+std::unique_ptr<List> Parser::parseList() {
     expect('[');
     auto arr = std::make_unique<List>();
     auto& values = arr->values;
@@ -167,7 +176,7 @@ List* Parser::parseList() {
             skipLine();
             continue;
         }
-        values.push_back(std::unique_ptr<Value>(parseValue()));
+        values.push_back(parseValue());
 
         char next = peek();
         if (next == ',') {
@@ -179,73 +188,63 @@ List* Parser::parseList() {
         }
     }
     pos++;
-    return arr.release();
+    return arr;
 }
 
-Value* Parser::parseValue() {
+std::unique_ptr<Value> Parser::parseValue() {
     char next = peek();
     dynamic::valvalue val;
     if (next == '-' || next == '+') {
         pos++;
         number_u num;
-        valtype type;
         if (parseNumber(next == '-' ? -1 : 1, num)) {
             val = std::get<integer_t>(num);
-            type = valtype::integer;
         } else {
             val = std::get<number_t>(num);
-            type = valtype::number;
         }
-        return new Value(type, val);
+        return std::make_unique<Value>(val);
     }
     if (is_identifier_start(next)) {
         std::string literal = parseName();
         if (literal == "true") {
-            val = true;
-            return new Value(valtype::boolean, val);
+            return Value::boolean(true);
         } else if (literal == "false") {
-            val = false;
-            return new Value(valtype::boolean, val);
+            return Value::boolean(false);
         } else if (literal == "inf") {
-            val = INFINITY;
-            return new Value(valtype::number, val);
+            return Value::of(INFINITY);
         } else if (literal == "nan") {
-            val = NAN;
-            return new Value(valtype::number, val);
+            return Value::of(NAN);
         }
         throw error("invalid literal ");
     }
     if (next == '{') {
-        val = parseObject();
-        return new Value(valtype::map, val);
+        val = parseObject().release();
+        return std::make_unique<Value>(val);
     }
     if (next == '[') {
-        val = parseList();
-        return new Value(valtype::list, val);
+        val = parseList().release();
+        return std::make_unique<Value>(val);
     }
     if (is_digit(next)) {
         number_u num;
-        valtype type;
         if (parseNumber(1, num)) {
             val = std::get<integer_t>(num);
-            type = valtype::integer;
         } else {
             val = std::get<number_t>(num);
-            type = valtype::number;
         }
-        return new Value(type, val);  
+        return std::make_unique<Value>(val);  
     }
     if (next == '"' || next == '\'') {
         pos++;
         val = parseString(next);
-        return new Value(valtype::string, val);
+        return std::make_unique<Value>(val);
     }
     throw error("unexpected character '"+std::string({next})+"'");
 }
 
 std::unique_ptr<Map> json::parse(const std::string& filename, const std::string& source) {
     Parser parser(filename, source);
-    return std::unique_ptr<Map>(parser.parse());
+    return parser.parse();
 }
 
 std::unique_ptr<Map> json::parse(const std::string& source) {

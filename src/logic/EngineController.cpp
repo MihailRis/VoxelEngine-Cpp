@@ -81,7 +81,7 @@ static void show_content_missing(
         contentEntry.put("name", entry.name);
     }
     std::vector<std::unique_ptr<dynamic::Value>> args;
-    args.emplace_back(std::make_unique<Value>(valtype::map, root.release()));
+    args.emplace_back(std::make_unique<Value>(root.release()));
     menus::show(engine, "reports/missing_content", std::move(args));
 }
 

@@ -185,6 +185,7 @@ void Engine::processPostRunnables() {
 void Engine::saveSettings() {
     logger.info() << "saving settings";
     files::write_string(paths->getSettingsFile(), toml::stringify(settingsHandler));
+    logger.info() << "saving bindings";
     files::write_string(paths->getControlsFile(), Events::writeBindings());
 }
 

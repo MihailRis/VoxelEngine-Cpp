@@ -217,41 +217,32 @@ int lua::LuaState::pushvalue(int idx) {
 }
 
 int lua::LuaState::pushvalue(const dynamic::Value& value) {
-    using dynamic::valtype;
-    switch (value.type) {
-        case valtype::boolean:
-            pushboolean(std::get<bool>(value.value));
-            break;
-        case valtype::integer:
-            pushinteger(std::get<integer_t>(value.value));
-            break;
-        case valtype::number:
-            pushnumber(std::get<number_t>(value.value));
-            break;
-        case valtype::string:
-            pushstring(std::get<std::string>(value.value).c_str());
-            break;
-        case valtype::none:
-            pushnil();
-            break;
-        case valtype::list: {
-            auto list = std::get<dynamic::List*>(value.value);
-            lua_createtable(L, list->size(), 0);
-            for (size_t i = 0; i < list->size(); i++) {
-                pushvalue(*list->get(i));
-                lua_rawseti(L, -2, i+1);
-            }
-            break;
+    using namespace dynamic;
+
+    if (auto* flag = std::get_if<bool>(&value.value)) {
+        pushboolean(*flag);
+    } else if (auto* num = std::get_if<integer_t>(&value.value)) {
+        pushinteger(*num);
+    } else if (auto* num = std::get_if<number_t>(&value.value)) {
+        pushnumber(*num);
+    } else if (auto* str = std::get_if<std::string>(&value.value)) {
+        pushstring(str->c_str());
+    } else if (List* const* listptr = std::get_if<List*>(&value.value)) {
+        auto list = *listptr;
+        lua_createtable(L, list->size(), 0);
+        for (size_t i = 0; i < list->size(); i++) {
+            pushvalue(*list->get(i));
+            lua_rawseti(L, -2, i+1);
         }
-        case valtype::map: {
-            auto map = std::get<dynamic::Map*>(value.value);
-            lua_createtable(L, 0, map->size());
-            for (auto& entry : map->values) {
-                pushvalue(*entry.second);
-                lua_setfield(L, -2, entry.first.c_str());
-            }
-            break;
+    } else if (Map* const* mapptr = std::get_if<Map*>(&value.value)) {
+        auto map = *mapptr;
+        lua_createtable(L, 0, map->size());
+        for (auto& entry : map->values) {
+            pushvalue(*entry.second);
+            lua_setfield(L, -2, entry.first.c_str());
         }
+    } else {
+        pushnil();
     }
     return 1;
 }
@@ -318,7 +309,7 @@ std::unique_ptr<dynamic::Value> lua::LuaState::tovalue(int idx) {
     switch (type) {
         case LUA_TNIL:
         case LUA_TNONE:
-            return std::make_unique<Value>(valtype::none, (integer_t)0);
+            return std::make_unique<Value>(std::monostate());
         case LUA_TBOOLEAN:
             return Value::boolean(lua_toboolean(L, idx) == 1);
         case LUA_TNUMBER: {
@@ -342,7 +333,7 @@ std::unique_ptr<dynamic::Value> lua::LuaState::tovalue(int idx) {
                     list->put(tovalue(-1));
                     lua_pop(L, 1);
                 }
-                return std::make_unique<Value>(valtype::list, list.release());
+                return std::make_unique<Value>(list.release());
             } else {
                 // table
                 auto map = std::make_unique<Map>();
@@ -355,7 +346,7 @@ std::unique_ptr<dynamic::Value> lua::LuaState::tovalue(int idx) {
                     lua_pop(L, 2);
                 }
                 lua_pop(L, 1);
-                return std::make_unique<Value>(valtype::map, map.release());
+                return std::make_unique<Value>(map.release());
             }
         }
         default:

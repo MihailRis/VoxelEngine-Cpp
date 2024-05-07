@@ -116,7 +116,7 @@ void AssetsLoader::processPreload(
     switch (tag) {
         case AssetType::sound:
             add(tag, path, name, std::make_shared<SoundCfg>(
-                map->getBool("keep-pcm", false)
+                map->get("keep-pcm", false)
             ));
             break;
         default:
@@ -131,13 +131,13 @@ void AssetsLoader::processPreloadList(AssetType tag, dynamic::List* list) {
     }
     for (uint i = 0; i < list->size(); i++) {
         auto value = list->get(i);
-        switch (value->type) {
+        switch (static_cast<dynamic::valtype>(value->value.index())) {
             case dynamic::valtype::string:
                 processPreload(tag, std::get<std::string>(value->value), nullptr);
                 break;
             case dynamic::valtype::map: {
                 auto map = std::get<dynamic::Map*>(value->value);
-                auto name = map->getStr("name");
+                auto name = map->get<std::string>("name");
                 processPreload(tag, name, map);
                 break;
             }
