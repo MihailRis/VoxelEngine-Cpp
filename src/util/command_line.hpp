@@ -2,6 +2,7 @@
 #define UTIL_COMMAND_LINE_HPP_
 
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <stdexcept>
 #include "../files/engine_paths.hpp"
@@ -19,7 +20,7 @@ public:
     }
 
     bool hasNext() const {
-        return pos < argc;
+        return pos < argc && strlen(argv[pos]);
     }
 
     bool isKeywordArg() const {
