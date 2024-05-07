@@ -32,9 +32,6 @@ bool perform_keyword(ArgsReader& reader, const std::string& keyword, EnginePaths
 }
 
 bool parse_cmdline(int argc, char** argv, EnginePaths& paths) {
-    for (int i = 0; i < argc; i++) {
-        std::cout << "arg " << i << "[" << argv[i] << "]" << std::endl;
-    }
     ArgsReader reader(argc, argv);
     reader.skip();
     while (reader.hasNext()) {
