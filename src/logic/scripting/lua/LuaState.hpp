@@ -52,7 +52,7 @@ namespace lua {
         luanumber tonumber(int idx);
         glm::vec2 tovec2(int idx);
         glm::vec4 tocolor(int idx);
-        std::unique_ptr<dynamic::Value> tovalue(int idx);
+        dynamic::Value tovalue(int idx);
         const char* tostring(int idx);
         bool isstring(int idx);
         bool isfunction(int idx);

@@ -228,13 +228,13 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
 
 void scripting::on_ui_open(
     UiDocument* layout,
-    std::vector<std::unique_ptr<dynamic::Value>> args
+    std::vector<dynamic::Value> args
 ) {
-    auto argsptr = std::make_shared<std::vector<std::unique_ptr<dynamic::Value>>>(std::move(args));
+    auto argsptr = std::make_shared<std::vector<dynamic::Value>>(std::move(args));
     std::string name = layout->getId() + ".open";
     state->emit_event(name, [=] (lua::LuaState* state) {
         for (const auto& value : *argsptr) {
-            state->pushvalue(*value);
+            state->pushvalue(value);
         }
         return argsptr->size();
     });

@@ -77,20 +77,20 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     builder.add("do-write-lights", &settings.debug.doWriteLights);
 }
 
-std::unique_ptr<dynamic::Value> SettingsHandler::getValue(const std::string& name) const {
+dynamic::Value SettingsHandler::getValue(const std::string& name) const {
     auto found = map.find(name);
     if (found == map.end()) {
         throw std::runtime_error("setting '"+name+"' does not exist");
     }
     auto setting = found->second;
     if (auto number = dynamic_cast<NumberSetting*>(setting)) {
-        return dynamic::value_of((number_t)number->get());
+        return static_cast<number_t>(number->get());
     } else if (auto integer = dynamic_cast<IntegerSetting*>(setting)) {
-        return dynamic::value_of((integer_t)integer->get());
+        return static_cast<integer_t>(integer->get());
     } else if (auto flag = dynamic_cast<FlagSetting*>(setting)) {
-        return dynamic::value_of(flag->get());
+        return flag->get();
     } else if (auto string = dynamic_cast<StringSetting*>(setting)) {
-        return dynamic::value_of(string->get());
+        return string->get();
     } else {
         throw std::runtime_error("type is not implemented for '"+name+"'");
     }
@@ -119,18 +119,18 @@ bool SettingsHandler::has(const std::string& name) const {
 
 template<class T>
 static void set_numeric_value(T* setting, const dynamic::Value& value) {
-    if (auto num = std::get_if<integer_t>(&value.value)) {
+    if (auto num = std::get_if<integer_t>(&value)) {
         setting->set(*num);
-    } else if (auto num = std::get_if<number_t>(&value.value)) {
+    } else if (auto num = std::get_if<number_t>(&value)) {
         setting->set(*num);
-    } else if (auto flag = std::get_if<bool>(&value.value)) {
+    } else if (auto flag = std::get_if<bool>(&value)) {
         setting->set(*flag);
     } else {
         throw std::runtime_error("type error, numeric value expected");
     }
 }
 
-void SettingsHandler::setValue(const std::string& name, const dynamic::valvalue& value) {
+void SettingsHandler::setValue(const std::string& name, const dynamic::Value& value) {
     auto found = map.find(name);
     if (found == map.end()) {
         throw std::runtime_error("setting '"+name+"' does not exist");

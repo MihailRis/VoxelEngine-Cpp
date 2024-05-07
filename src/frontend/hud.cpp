@@ -387,10 +387,10 @@ void Hud::add(HudElement element) {
     auto document = element.getDocument();
     if (document) {
         auto inventory = invview ? invview->getInventory() : nullptr;
-        std::vector<std::unique_ptr<Value>> args;
-        args.push_back(value_of(inventory ? inventory.get()->getId() : 0));
+        std::vector<Value> args;
+        args.push_back(inventory ? inventory.get()->getId() : 0);
         for (int i = 0; i < 3; i++) {
-            args.push_back(value_of(static_cast<integer_t>(blockPos[i])));
+            args.push_back(static_cast<integer_t>(blockPos[i]));
         }
         scripting::on_ui_open(
             element.getDocument(), 

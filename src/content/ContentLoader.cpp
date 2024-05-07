@@ -88,11 +88,11 @@ void ContentLoader::fixPackIndices() {
     auto blocksFolder = folder/ContentPack::BLOCKS_FOLDER;
     auto itemsFolder = folder/ContentPack::ITEMS_FOLDER;
 
-    std::unique_ptr<dynamic::Map> root;
+    dynamic::Map_sptr root;
     if (fs::is_regular_file(indexFile)) {
         root = files::read_json(indexFile);
     } else {
-        root.reset(new dynamic::Map());
+        root = std::make_shared<dynamic::Map>();
     }
 
     bool modified = false;

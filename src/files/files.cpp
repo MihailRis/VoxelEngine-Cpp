@@ -104,7 +104,7 @@ bool files::write_binary_json(fs::path filename, const dynamic::Map* obj, bool c
     return files::write_bytes(filename, bytes.data(), bytes.size());
 }
 
-std::unique_ptr<dynamic::Map> files::read_json(fs::path filename) {
+std::shared_ptr<dynamic::Map> files::read_json(fs::path filename) {
     std::string text = files::read_string(filename);
     try {
         auto obj = json::parse(filename.string(), text);
@@ -115,12 +115,10 @@ std::unique_ptr<dynamic::Map> files::read_json(fs::path filename) {
     }
 }
 
-std::unique_ptr<dynamic::Map> files::read_binary_json(fs::path file) {
+std::shared_ptr<dynamic::Map> files::read_binary_json(fs::path file) {
     size_t size;
     std::unique_ptr<ubyte[]> bytes (files::read_bytes(file, size));
-    return std::unique_ptr<dynamic::Map>(
-        json::from_binary(bytes.get(), size)
-    );
+    return json::from_binary(bytes.get(), size);
 }
 
 std::vector<std::string> files::read_list(fs::path filename) {

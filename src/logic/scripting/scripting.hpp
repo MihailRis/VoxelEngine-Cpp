@@ -75,7 +75,7 @@ namespace scripting {
     /// @brief Called on UI view show
     void on_ui_open(
         UiDocument* layout, 
-        std::vector<std::unique_ptr<dynamic::Value>> args
+        std::vector<dynamic::Value> args
     );
 
     void on_ui_progress(UiDocument* layout, int workDone, int totalWork);

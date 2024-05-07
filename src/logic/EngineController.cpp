@@ -72,7 +72,7 @@ static void show_content_missing(
     std::shared_ptr<ContentLUT> lut
 ) {
     using namespace dynamic;
-    auto root = std::make_unique<Map>();
+    auto root = std::make_shared<Map>();
     auto& contentEntries = root->putList("content");
     for (auto& entry : lut->getMissingContent()) {
         std::string contentName = contenttype_name(entry.type);
@@ -80,9 +80,7 @@ static void show_content_missing(
         contentEntry.put("type", contentName);
         contentEntry.put("name", entry.name);
     }
-    std::vector<std::unique_ptr<dynamic::Value>> args;
-    args.emplace_back(std::make_unique<Value>(root.release()));
-    menus::show(engine, "reports/missing_content", std::move(args));
+    menus::show(engine, "reports/missing_content", {root});
 }
 
 static bool loadWorldContent(Engine* engine, fs::path folder) {

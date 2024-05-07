@@ -69,7 +69,7 @@ void World::write(Level* level) {
         auto& players = playerFile.putList("players");
         for (auto object : level->objects) {
             if (std::shared_ptr<Player> player = std::dynamic_pointer_cast<Player>(object)) {
-                players.put(player->serialize().release());
+                players.put(player->serialize());
             }
         }
     }
@@ -209,7 +209,7 @@ std::unique_ptr<dynamic::Map> World::serialize() const {
 
     root->put("name", name);
     root->put("generator", generator);
-    root->put("seed", seed);
+    root->put("seed", static_cast<integer_t>(seed));
     
     auto& timeobj = root->putMap("time");
     timeobj.put("day-time", daytime);

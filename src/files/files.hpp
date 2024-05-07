@@ -64,8 +64,8 @@ namespace files {
 
     /// @brief Read JSON or BJSON file
     /// @param file *.json or *.bjson file
-    std::unique_ptr<dynamic::Map> read_json(fs::path file);
-    std::unique_ptr<dynamic::Map> read_binary_json(fs::path file);
+    std::shared_ptr<dynamic::Map> read_json(fs::path file);
+    std::shared_ptr<dynamic::Map> read_binary_json(fs::path file);
     std::vector<std::string> read_list(fs::path file);
 }
 

@@ -134,7 +134,7 @@ static void erase_pack_indices(dynamic::Map* root, const std::string& id) {
         if (name.find(prefix) != 0)
             continue;
         auto value = blocks->getValueWriteable(i);
-        value->value = CORE_AIR;
+        *value = CORE_AIR;
     }
 
     auto items = root->list("items");
@@ -143,7 +143,7 @@ static void erase_pack_indices(dynamic::Map* root, const std::string& id) {
         if (name.find(prefix) != 0)
             continue;
         auto value = items->getValueWriteable(i);
-        value->value = CORE_EMPTY;
+        *value = CORE_EMPTY;
     }
 }
 

@@ -13,35 +13,27 @@
 namespace dynamic {
     class Map;
     class List;
-    class Value;
 
     enum class valtype {
         none=0, map, list, string, number, boolean, integer
     };
 
-    using valvalue = std::variant<
+    using Map_sptr = std::shared_ptr<Map>;
+    using List_sptr = std::shared_ptr<List>;
+
+    using Value = std::variant<
         std::monostate,
-        Map*,
-        List*,
+        Map_sptr,
+        List_sptr,
         std::string,
         number_t,
         bool,
         integer_t
     >;
 
-    class Value {
-    public:
-        valvalue value;
-        Value(valvalue value);
-        ~Value();
-    };
-    std::unique_ptr<Value> value_of(const valvalue& value);
-    std::unique_ptr<Value> value_of(std::unique_ptr<Map> value);
-
     class List {
     public:
-        std::vector<std::unique_ptr<Value>> values;
-        ~List();
+        std::vector<Value> values;
 
         std::string str(size_t index) const;
         number_t num(size_t index) const;
@@ -54,18 +46,19 @@ namespace dynamic {
             return values.size();
         }
 
-        inline Value* get(size_t i) const {
-            return values.at(i).get();
+        inline Value& get(size_t i) {
+            return values.at(i);
         }
 
-        template<typename T>
-        List& put(T value) {
-            return put(std::make_unique<Value>(value));
+        List& put(std::unique_ptr<Map> value) {
+            return put(Map_sptr(value.release()));
         }
+        List& put(std::unique_ptr<List> value) {
+            return put(List_sptr(value.release()));
+        }
+        List& put(const Value& value);
 
-        List& put(std::unique_ptr<Value> value);
-
-        Value* getValueWriteable(size_t index) const;
+        Value* getValueWriteable(size_t index);
 
         List& putList();
         Map& putMap();
@@ -75,8 +68,7 @@ namespace dynamic {
 
     class Map {
     public:
-        std::unordered_map<std::string, std::unique_ptr<Value>> values;
-        ~Map();
+        std::unordered_map<std::string, Value> values;
 
         template<typename T>
         T get(const std::string& key) const {
@@ -101,27 +93,25 @@ namespace dynamic {
             return get(key, static_cast<integer_t>(def));
         }
 
-        void str(std::string key, std::string& dst) const;
-        void num(std::string key, int& dst) const;
-        void num(std::string key, float& dst) const;
-        void num(std::string key, uint& dst) const;
-        void num(std::string key, int64_t& dst) const;
-        void num(std::string key, uint64_t& dst) const;
-        void num(std::string key, ubyte& dst) const;
-        void num(std::string key, double& dst) const;
-        Map* map(std::string key) const;
-        List* list(std::string key) const;
-        void flag(std::string key, bool& dst) const;
+        void str(const std::string& key, std::string& dst) const;
+        void num(const std::string& key, int& dst) const;
+        void num(const std::string& key, float& dst) const;
+        void num(const std::string& key, uint& dst) const;
+        void num(const std::string& key, int64_t& dst) const;
+        void num(const std::string& key, uint64_t& dst) const;
+        void num(const std::string& key, ubyte& dst) const;
+        void num(const std::string& key, double& dst) const;
+        Map* map(const std::string& key) const;
+        List* list(const std::string& key) const;
+        void flag(const std::string& key, bool& dst) const;
 
-        template<typename T>
-        Map& put(std::string key, T value) {
-            return put(key, std::make_unique<Value>(value));
+        Map& put(std::string key, std::unique_ptr<Map> value) {
+            return put(key, Map_sptr(value.release()));
         }
-        Map& put(std::string key, uint64_t value) {
-            return put(key, value_of(static_cast<integer_t>(value)));
+        Map& put(std::string key, std::unique_ptr<List> value) {
+            return put(key, List_sptr(value.release()));
         }
-
-        Map& put(std::string key, std::unique_ptr<Value> value);
+        Map& put(std::string key, const Value& value);
 
         void remove(const std::string& key);
 

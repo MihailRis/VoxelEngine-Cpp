@@ -4,6 +4,7 @@
 #include "commons.hpp"
 #include "binary_json.hpp"
 
+#include "../data/dynamic.hpp"
 #include "../typedefs.hpp"
 
 #include <vector>
@@ -12,17 +13,11 @@
 #include <stdexcept>
 #include <unordered_map>
 
-namespace dynamic {
-    class Map;
-    class List;
-    class Value;
-}
-
 namespace json {
     class Parser : public BasicParser {
         std::unique_ptr<dynamic::List> parseList();
         std::unique_ptr<dynamic::Map> parseObject();
-        std::unique_ptr<dynamic::Value> parseValue();
+        dynamic::Value parseValue();
     public:
         Parser(const std::string& filename, const std::string& source);
         

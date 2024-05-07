@@ -76,10 +76,10 @@ void langs::loadLocalesInfo(const fs::path& resdir, std::string& fallback) {
     if (langs) {
         std::cout << "locales ";
         for (auto& entry : langs->values) {
-            auto langInfo = entry.second.get();
+            auto langInfo = entry.second;
 
             std::string name;
-            if (auto mapptr = std::get_if<dynamic::Map*>(&langInfo->value)) {
+            if (auto mapptr = std::get_if<dynamic::Map_sptr>(&langInfo)) {
                 name = (*mapptr)->get("name", "none"s);
             } else {
                 continue;

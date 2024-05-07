@@ -198,7 +198,7 @@ std::unique_ptr<dynamic::Map> Player::serialize() const {
     root->put("flight", flight);
     root->put("noclip", noclip);
     root->put("chosen-slot", chosenSlot);
-    root->put("inventory", inventory->serialize().release());
+    root->put("inventory", inventory->serialize());
     return root;
 }
 

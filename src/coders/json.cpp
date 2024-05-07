@@ -27,7 +27,7 @@ inline void newline(
 }
 
 void stringify(
-    const Value* value, 
+    const Value& value, 
     std::stringstream& ss, 
     int indent, 
     const std::string& indentstr, 
@@ -43,16 +43,16 @@ void stringifyObj(
 );
 
 void stringify(
-    const Value* value, 
+    const Value& value, 
     std::stringstream& ss, 
     int indent, 
     const std::string& indentstr, 
     bool nice
 ) {
-    if (auto map = std::get_if<Map*>(&value->value)) {
-        stringifyObj(*map, ss, indent, indentstr, nice);
+    if (auto map = std::get_if<Map_sptr>(&value)) {
+        stringifyObj(map->get(), ss, indent, indentstr, nice);
     }
-    else if (auto listptr = std::get_if<List*>(&value->value)) {
+    else if (auto listptr = std::get_if<List_sptr>(&value)) {
         auto list = *listptr;
         if (list->size() == 0) {
             ss << "[]";
@@ -60,7 +60,7 @@ void stringify(
         }
         ss << '[';
         for (uint i = 0; i < list->size(); i++) {
-            Value* value = list->get(i);
+            Value& value = list->get(i);
             if (i > 0 || nice) {
                 newline(ss, nice, indent, indentstr);
             }
@@ -73,13 +73,13 @@ void stringify(
             newline(ss, true, indent - 1, indentstr);
         }
         ss << ']';
-    } else if (auto flag = std::get_if<bool>(&value->value)) {
+    } else if (auto flag = std::get_if<bool>(&value)) {
         ss << (*flag ? "true" : "false");
-    } else if (auto num = std::get_if<number_t>(&value->value)) {
+    } else if (auto num = std::get_if<number_t>(&value)) {
         ss << std::setprecision(15) << *num;
-    } else if (auto num = std::get_if<integer_t>(&value->value)) {
+    } else if (auto num = std::get_if<integer_t>(&value)) {
         ss << *num;
-    } else if (auto str = std::get_if<std::string>(&value->value)) {
+    } else if (auto str = std::get_if<std::string>(&value)) {
         ss << util::escape(*str);
     }
 }
@@ -102,7 +102,7 @@ void stringifyObj(
         if (index > 0 || nice) {
             newline(ss, nice, indent, indentstr);
         }
-        Value* value = entry.second.get();
+        const Value& value = entry.second;
         ss << util::escape(key) << ": ";
         stringify(value, ss, indent+1, indentstr, nice);
         index++;
@@ -191,53 +191,47 @@ std::unique_ptr<List> Parser::parseList() {
     return arr;
 }
 
-std::unique_ptr<Value> Parser::parseValue() {
+Value Parser::parseValue() {
     char next = peek();
-    dynamic::valvalue val;
     if (next == '-' || next == '+') {
         pos++;
         number_u num;
         if (parseNumber(next == '-' ? -1 : 1, num)) {
-            val = std::get<integer_t>(num);
+            return std::get<integer_t>(num);
         } else {
-            val = std::get<number_t>(num);
+            return std::get<number_t>(num);
         }
-        return std::make_unique<Value>(val);
     }
     if (is_identifier_start(next)) {
         std::string literal = parseName();
         if (literal == "true") {
-            return dynamic::value_of(true);
+            return true;
         } else if (literal == "false") {
-            return dynamic::value_of(false);
+            return false;
         } else if (literal == "inf") {
-            return dynamic::value_of(INFINITY);
+            return INFINITY;
         } else if (literal == "nan") {
-            return dynamic::value_of(NAN);
+            return NAN;
         }
         throw error("invalid literal ");
     }
     if (next == '{') {
-        val = parseObject().release();
-        return std::make_unique<Value>(val);
+        return Map_sptr(parseObject().release());
     }
     if (next == '[') {
-        val = parseList().release();
-        return std::make_unique<Value>(val);
+        return List_sptr(parseList().release());
     }
     if (is_digit(next)) {
         number_u num;
         if (parseNumber(1, num)) {
-            val = std::get<integer_t>(num);
+            return std::get<integer_t>(num);
         } else {
-            val = std::get<number_t>(num);
+            return std::get<number_t>(num);
         }
-        return std::make_unique<Value>(val);  
     }
     if (next == '"' || next == '\'') {
         pos++;
-        val = parseString(next);
-        return std::make_unique<Value>(val);
+        return parseString(next);
     }
     throw error("unexpected character '"+std::string({next})+"'");
 }
