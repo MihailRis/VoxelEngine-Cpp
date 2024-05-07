@@ -395,7 +395,7 @@ runnable lua::LuaState::createRunnable() {
     return [=]() {
         lua_getglobal(L, LAMBDAS_TABLE.c_str());
         lua_getfield(L, -1, funcptr->c_str());
-        lua_call(L, 0, LUA_MULTRET);
+        callNoThrow(0);
     };
 }
 
