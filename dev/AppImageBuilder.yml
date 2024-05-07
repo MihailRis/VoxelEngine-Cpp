@@ -26,9 +26,7 @@ AppDir:
     - libglew2.1
     - libpng16-16
     - libopenal1
-    - libopengl0
     - libasound2
-    - libglx0
     - libogg0
     - libvorbis0a
     - libvorbisfile3
