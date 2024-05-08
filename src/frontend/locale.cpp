@@ -35,8 +35,8 @@ const std::string& langs::Lang::getId() const {
     return locale;
 }
 
-/* Language key-value txt files parser */
-class Reader : public BasicParser {
+// @brief Language key-value txt files parser
+class Reader : BasicParser {
     void skipWhitespace() override {
         BasicParser::skipWhitespace();
         if (hasNext() && source[pos] == '#') {
@@ -47,7 +47,7 @@ class Reader : public BasicParser {
         }
     }
 public:
-    Reader(const std::string& file, const std::string& source) : BasicParser(file, source) {
+    Reader(std::string_view file, std::string_view source) : BasicParser(file, source) {
     }
 
     void read(langs::Lang& lang, std::string prefix) {

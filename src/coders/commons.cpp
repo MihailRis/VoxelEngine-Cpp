@@ -16,13 +16,18 @@ inline double power(double base, int64_t power) {
 
 parsing_error::parsing_error(
     std::string message,
-    std::string filename,
-    std::string source,
+    std::string_view filename,
+    std::string_view source,
     uint pos,
     uint line,
     uint linestart)
-    : std::runtime_error(message), filename(filename), source(source), 
+    : std::runtime_error(message), filename(filename), 
       pos(pos), line(line), linestart(linestart) {
+        size_t end = source.find("\n", linestart);
+    if (end == std::string::npos) {
+        end = source.length();
+    }
+    source = source.substr(linestart, end-linestart);
 }
 
 std::string parsing_error::errorLog() const {
@@ -30,11 +35,7 @@ std::string parsing_error::errorLog() const {
     uint linepos = pos - linestart;
     ss << "parsing error in file '" << filename;
     ss << "' at " << (line+1) << ":" << linepos << ": " << this->what() << "\n";
-    size_t end = source.find("\n", linestart);
-    if (end == std::string::npos) {
-        end = source.length();
-    }
-    ss << source.substr(linestart, end-linestart) << "\n";
+    ss << source << "\n";
     for (uint i = 0; i < linepos; i++) {
         ss << " ";
     }
@@ -43,8 +44,8 @@ std::string parsing_error::errorLog() const {
 }
 
 BasicParser::BasicParser(
-    const std::string& file,
-    const std::string& source
+    std::string_view file,
+    std::string_view source
 ) : filename(file), source(source) {
 }
 
@@ -164,7 +165,7 @@ char BasicParser::peek() {
     return source[pos];
 }
 
-std::string BasicParser::readUntil(char c) {
+std::string_view BasicParser::readUntil(char c) {
     int start = pos;
     while (hasNext() && source[pos] != c) {
         pos++;
@@ -185,7 +186,7 @@ std::string BasicParser::parseName() {
     while (hasNext() && is_identifier_part(source[pos])) {
         pos++;
     }
-    return source.substr(start, pos-start);
+    return std::string(source.substr(start, pos-start));
 }
 
 int64_t BasicParser::parseSimpleInt(int base) {
