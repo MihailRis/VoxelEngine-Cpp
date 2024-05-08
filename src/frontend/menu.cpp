@@ -46,11 +46,12 @@ gui::page_loader_func menus::create_page_loader(Engine* engine) {
             name = query.substr(0, index);
             
             auto map = std::make_shared<Map>();
-            BasicParser parser("query for "+name, argstr);
+            auto filename = "query for "+name;
+            BasicParser parser(filename, argstr);
             while (parser.hasNext()) {
-                auto key = parser.readUntil('=');
+                auto key = std::string(parser.readUntil('='));
                 parser.nextChar();
-                auto value = parser.readUntil('&');
+                auto value = std::string(parser.readUntil('&'));
                 map->put(key, value);
             }
             args.push_back(map);

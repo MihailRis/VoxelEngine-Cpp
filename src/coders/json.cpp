@@ -11,6 +11,16 @@
 using namespace json;
 using namespace dynamic;
 
+class Parser : BasicParser {
+    std::unique_ptr<dynamic::List> parseList();
+    std::unique_ptr<dynamic::Map> parseObject();
+    dynamic::Value parseValue();
+public:
+    Parser(std::string_view filename, std::string_view source);
+    
+    std::unique_ptr<dynamic::Map> parse();
+};
+
 inline void newline(
     std::stringstream& ss, 
     bool nice, uint indent, 
@@ -126,7 +136,7 @@ std::string json::stringify(
     return ss.str();
 }
 
-Parser::Parser(const std::string& filename, const std::string& source) 
+Parser::Parser(std::string_view filename, std::string_view source) 
     : BasicParser(filename, source) {    
 }
 

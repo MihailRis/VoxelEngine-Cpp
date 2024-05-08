@@ -14,7 +14,7 @@
 
 using namespace toml;
 
-class Reader : public BasicParser {
+class Reader : BasicParser {
     SettingsHandler& handler;
 
     void skipWhitespace() override {
@@ -83,8 +83,8 @@ class Reader : public BasicParser {
 public:
     Reader(
         SettingsHandler& handler,
-        const std::string& file, 
-        const std::string& source) 
+        std::string_view file, 
+        std::string_view source) 
     : BasicParser(file, source), handler(handler) {
     }
 
