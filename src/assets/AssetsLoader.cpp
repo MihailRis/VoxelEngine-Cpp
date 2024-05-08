@@ -131,11 +131,11 @@ void AssetsLoader::processPreloadList(AssetType tag, dynamic::List* list) {
     }
     for (uint i = 0; i < list->size(); i++) {
         auto value = list->get(i);
-        switch (static_cast<dynamic::valtype>(value.index())) {
-            case dynamic::valtype::string:
+        switch (static_cast<dynamic::Type>(value.index())) {
+            case dynamic::Type::string:
                 processPreload(tag, std::get<std::string>(value), nullptr);
                 break;
-            case dynamic::valtype::map: {
+            case dynamic::Type::map: {
                 auto map = std::get<dynamic::Map_sptr>(value);
                 auto name = map->get<std::string>("name");
                 processPreload(tag, name, map.get());
