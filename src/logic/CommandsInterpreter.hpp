@@ -19,6 +19,7 @@ namespace cmd {
         bool optional;
         dynamic::Value def;
         dynamic::Value origin;
+        std::string enumname;
     };
 
     struct CommandInput {

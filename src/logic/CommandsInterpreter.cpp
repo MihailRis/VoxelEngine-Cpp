@@ -8,7 +8,7 @@
 using namespace cmd;
 
 inline bool is_cmd_identifier_part(char c) {
-    return is_identifier_part(c) || c == '.' || c == '$';
+    return is_identifier_part(c) || c == '.' || c == '$' || c == '@';
 }
 
 class SchemeParser : BasicParser {
@@ -32,7 +32,8 @@ class SchemeParser : BasicParser {
         {"num", ArgType::number},
         {"int", ArgType::integer},
         {"str", ArgType::string},
-        {"selector", ArgType::selector},
+        {"@", ArgType::selector},
+        {"enum", ArgType::enumvalue},
     };
 public:
     SchemeParser(std::string_view filename, std::string_view source) 
@@ -40,6 +41,10 @@ public:
     }
 
     ArgType parseType() {
+        if (peek() == '[') {
+            std::cout << "type.name: enum" << std::endl;
+            return ArgType::enumvalue;
+        }
         std::string name = parseIdentifier();
         std::cout << "type.name: " << name << std::endl;
         auto found = types.find(name);
@@ -72,11 +77,35 @@ public:
         throw error("invalid character '"+std::string({c})+"'");
     }
 
+    std::string parseEnum() {
+        if (peek() == '[') {
+            nextChar();
+            if (peek() == ']') {
+                throw error("empty enumeration is not allowed");
+            }
+            auto enumvalue = std::string(readUntil(']'));
+            if (enumvalue.find(' ') != std::string::npos) {
+                throw error("use '|' as separator, not a space");
+            }
+            nextChar();
+            return enumvalue;
+        } else {
+            expect('$');
+            goBack();
+            return parseIdentifier();
+        }
+    }
+
     Argument parseArgument() {
         std::string name = parseIdentifier();
         expect(':');
         std::cout << "arg.name: " << name << std::endl;
         ArgType type = parseType();
+        std::string enumname = "";
+        if (type == ArgType::enumvalue) {
+            enumname = parseEnum();
+            std::cout << "enum: " << enumname << std::endl;
+        }
         bool optional = false;
         dynamic::Value def {};
         dynamic::Value origin {};
@@ -98,7 +127,7 @@ public:
                     break;
             }
         }
-        return Argument {name, type, optional, def, origin};
+        return Argument {name, type, optional, def, origin, enumname};
     }
 
     Command parse(executor_func executor) {
