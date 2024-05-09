@@ -11,6 +11,10 @@ inline bool is_cmd_identifier_part(char c) {
     return is_identifier_part(c) || c == '.' || c == '$' || c == '@';
 }
 
+inline bool is_cmd_identifier_start(char c) {
+    return is_identifier_start(c) || c == '.' || c == '$' || c == '@';
+}
+
 class CommandParser : BasicParser {
     std::string parseIdentifier() {
         char c = peek();
@@ -57,7 +61,7 @@ public:
 
     dynamic::Value parseValue() {
         char c = peek();
-        if (is_cmd_identifier_part(c)) {
+        if (is_cmd_identifier_start(c)) {
             auto str = parseIdentifier();
             if (str == "true") {
                 return true;
@@ -155,8 +159,20 @@ public:
 
     CommandInput parsePrompt() {
         std::string name = parseIdentifier();
+        auto args = dynamic::create_list();
+        auto kwargs = dynamic::create_map();
 
-        return CommandInput {name, nullptr, nullptr};
+        while (hasNext()) {
+            auto value = parseValue();
+            if (hasNext() && peek() == '=') {
+                auto key = std::get<std::string>(value);
+                nextChar();
+                kwargs->put(key, parseValue());
+            }
+            args->put(value);
+        }
+
+        return CommandInput {name, args, kwargs};
     }
 };
 
