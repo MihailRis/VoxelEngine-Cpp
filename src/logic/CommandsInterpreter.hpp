@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <unordered_map>
 
 namespace cmd {
     enum class ArgType {
@@ -17,6 +18,7 @@ namespace cmd {
         ArgType type;
         bool optional;
         dynamic::Value def;
+        dynamic::Value origin;
     };
 
     struct CommandInput {
@@ -32,19 +34,24 @@ namespace cmd {
     class Command {
         std::string name;
         std::vector<Argument> args;
+        std::unordered_map<std::string, Argument> kwargs;
         executor_func executor;
     public:
         Command(
             std::string name,
             std::vector<Argument> args,
+            std::unordered_map<std::string, Argument> kwargs,
             executor_func executor
-        );
+        ) : name(name), 
+            args(std::move(args)), 
+            kwargs(std::move(kwargs)), 
+            executor(executor) {}
 
         dynamic::Value execute(const CommandInput& input) {
             return executor(input.args, input.kwargs);
         }
 
-        static Command create(std::string_view scheme);
+        static Command create(std::string_view scheme, executor_func);
     };
 
     class CommandsInterpreter {
