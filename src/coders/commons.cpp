@@ -20,14 +20,15 @@ parsing_error::parsing_error(
     std::string_view source,
     uint pos,
     uint line,
-    uint linestart)
-    : std::runtime_error(message), filename(filename), 
-      pos(pos), line(line), linestart(linestart) {
-        size_t end = source.find("\n", linestart);
+    uint linestart
+) : std::runtime_error(message), filename(filename), 
+    pos(pos), line(line), linestart(linestart)
+{
+    size_t end = source.find("\n", linestart);
     if (end == std::string::npos) {
         end = source.length();
     }
-    source = source.substr(linestart, end-linestart);
+    this->source = source.substr(linestart, end-linestart);
 }
 
 std::string parsing_error::errorLog() const {
