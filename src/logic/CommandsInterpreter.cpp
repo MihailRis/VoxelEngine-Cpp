@@ -87,7 +87,7 @@ public:
             if (peek() == ']') {
                 throw error("empty enumeration is not allowed");
             }
-            auto enumvalue = std::string(readUntil(']'));
+            auto enumvalue = "|"+std::string(readUntil(']'))+"|";
             size_t offset = enumvalue.find(' ');
             if (offset != std::string::npos) {
                 goBack(enumvalue.length()-offset);
@@ -157,10 +157,39 @@ public:
         return Command(name, std::move(args), std::move(kwargs), executor);
     }
 
-    CommandInput parsePrompt() {
+    bool typeCheck(Argument* arg, const dynamic::Value& value) {
+        switch (arg->type) {
+            case ArgType::enumvalue: {
+                auto& enumname = arg->enumname;
+                if (auto* string = std::get_if<std::string>(&value)) {
+                    if (enumname.find("|"+*string+"|") == std::string::npos) {
+                        throw error("invalid enumeration value");
+                    }
+                } else {
+                    if (arg->optional) {
+                        return false;
+                    }
+                    throw error("enumeration value expected");
+                }
+                break;
+            }
+            case ArgType::number: {
+                // FIXME
+            }
+        }
+        return true;
+    }
+
+    Prompt parsePrompt(CommandsRepository* repo) {
         std::string name = parseIdentifier();
+        auto command = repo->get(name);
+        if (command == nullptr) {
+            throw error("unknown command "+util::quote(name));
+        }
         auto args = dynamic::create_list();
         auto kwargs = dynamic::create_map();
+
+        int arg_index = 0;
 
         while (hasNext()) {
             auto value = parseValue();
@@ -168,11 +197,24 @@ public:
                 auto key = std::get<std::string>(value);
                 nextChar();
                 kwargs->put(key, parseValue());
+            } else {
+                Argument* arg;
+                do {
+                    arg = command->getArgument(arg_index++);
+                    if (arg == nullptr) {
+                        throw error("extra positional argument");
+                    }
+                } while (!typeCheck(arg, value));
+                args->put(value);
             }
-            args->put(value);
         }
 
-        return CommandInput {name, args, kwargs};
+        while (auto arg = command->getArgument(arg_index++)) {
+            if (!arg->optional) {
+                throw error("missing argument "+util::quote(arg->name));
+            }
+        }
+        return Prompt {command, args, kwargs};
     }
 };
 
@@ -193,6 +235,6 @@ Command* CommandsRepository::get(const std::string& name) {
     return &found->second;
 }
 
-CommandInput CommandsInterpreter::parse(std::string_view text) {
-    return CommandParser("<string>", text).parsePrompt();
+Prompt CommandsInterpreter::parse(std::string_view text) {
+    return CommandParser("<string>", text).parsePrompt(repository.get());
 }

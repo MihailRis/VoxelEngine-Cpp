@@ -22,8 +22,10 @@ namespace cmd {
         std::string enumname;
     };
 
-    struct CommandInput {
-        std::string name; // command name
+    class Command;
+
+    struct Prompt {
+        Command* command;
         dynamic::List_sptr args; // positional arguments list
         dynamic::Map_sptr kwargs; // keyword arguments table
     };
@@ -50,9 +52,15 @@ namespace cmd {
             args(std::move(args)), 
             kwargs(std::move(kwargs)), 
             executor(executor) {}
+        
+        Argument* getArgument(size_t index) {
+            if (index >= args.size())
+                return nullptr;
+            return &args[index];
+        }
 
-        dynamic::Value execute(const CommandInput& input) {
-            return executor(input.args, input.kwargs);
+        dynamic::Value execute(const Prompt& prompt) {
+            return executor(prompt.args, prompt.kwargs);
         }
 
         const std::string& getName() const {
@@ -75,7 +83,11 @@ namespace cmd {
         CommandsInterpreter(std::unique_ptr<CommandsRepository> repository)
         : repository(std::move(repository)){}
 
-        CommandInput parse(std::string_view text);
+        Prompt parse(std::string_view text);
+
+        CommandsRepository* getRepository() const {
+            return repository.get();
+        }
     };
 }
 
