@@ -35,9 +35,15 @@ namespace dynamic {
         integer_t
     >;
 
+    List_sptr create_list(std::initializer_list<Value> values={});
+    Map_sptr create_map(std::initializer_list<std::pair<const std::string, Value>> entries={});
+
     class List {
     public:
         std::vector<Value> values;
+
+        List() {}
+        List(std::vector<Value> values) : values(std::move(values)) {}
 
         std::string str(size_t index) const;
         number_t num(size_t index) const;
@@ -73,6 +79,10 @@ namespace dynamic {
     class Map {
     public:
         std::unordered_map<std::string, Value> values;
+
+        Map() {}
+        Map(std::unordered_map<std::string, Value> values) 
+        : values(std::move(values)) {};
 
         template<typename T>
         T get(const std::string& key) const {
