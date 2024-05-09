@@ -309,7 +309,7 @@ dynamic::Value lua::LuaState::tovalue(int idx) {
     switch (type) {
         case LUA_TNIL:
         case LUA_TNONE:
-            return std::monostate();
+            return dynamic::NONE;
         case LUA_TBOOLEAN:
             return lua_toboolean(L, idx) == 1;
         case LUA_TNUMBER: {

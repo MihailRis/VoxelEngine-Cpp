@@ -21,8 +21,12 @@ namespace dynamic {
     using Map_sptr = std::shared_ptr<Map>;
     using List_sptr = std::shared_ptr<List>;
 
+    struct none {};
+
+    inline constexpr none NONE = {};
+
     using Value = std::variant<
-        std::monostate,
+        none,
         Map_sptr,
         List_sptr,
         std::string,
