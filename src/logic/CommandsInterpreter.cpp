@@ -59,7 +59,7 @@ public:
             } else if (str == "false") {
                 return false;
             } else if (str == "none" || str == "nil" || str == "null") {
-                return std::monostate();
+                return dynamic::NONE;
             }
             return str;
         }
