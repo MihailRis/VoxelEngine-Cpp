@@ -72,7 +72,7 @@ static void show_content_missing(
     std::shared_ptr<ContentLUT> lut
 ) {
     using namespace dynamic;
-    auto root = std::make_shared<Map>();
+    auto root = create_map();
     auto& contentEntries = root->putList("content");
     for (auto& entry : lut->getMissingContent()) {
         std::string contentName = contenttype_name(entry.type);

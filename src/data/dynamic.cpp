@@ -77,13 +77,13 @@ List& List::put(const Value& value) {
 }
 
 List& List::putList() {
-    auto arr = std::make_shared<List>();
+    auto arr = create_list();
     put(arr);
     return *arr;
 }
 
 Map& List::putMap() {
-    auto map = std::make_shared<Map>();
+    auto map = create_map();
     put(map);
     return *map;
 }
@@ -209,13 +209,13 @@ void Map::remove(const std::string& key) {
 }
 
 List& Map::putList(std::string key) {
-    auto arr = std::make_shared<List>();
+    auto arr = create_list();
     put(key, arr);
     return *arr;
 }
 
 Map& Map::putMap(std::string key) {
-    auto obj = std::make_shared<Map>();
+    auto obj = create_map();
     put(key, obj);
     return *obj;
 }
@@ -226,4 +226,12 @@ bool Map::has(const std::string& key) const {
 
 size_t Map::size() const {
     return values.size();
+}
+
+List_sptr dynamic::create_list(std::initializer_list<Value> values) {
+    return std::make_shared<List>(values);
+}
+
+Map_sptr dynamic::create_map(std::initializer_list<std::pair<const std::string, Value>> entries) {
+    return std::make_shared<Map>(entries);
 }
