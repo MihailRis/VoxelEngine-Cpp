@@ -1,6 +1,23 @@
 #include "dynamic.hpp"
 
+#include "../coders/json.hpp"
+
 using namespace dynamic;
+
+std::ostream& operator<<(std::ostream& stream, const dynamic::Value& value) {
+    stream << json::stringify(value, false, " ");
+    return stream;
+}
+
+std::ostream& operator<<(std::ostream& stream, const dynamic::Map_sptr& value) {
+    stream << json::stringify(value, false, " ");
+    return stream;
+}
+
+std::ostream& operator<<(std::ostream& stream, const dynamic::List_sptr& value) {
+    stream << json::stringify(value, false, " ");
+    return stream;
+}
 
 std::string List::str(size_t index) const {
     const auto& value = values[index];

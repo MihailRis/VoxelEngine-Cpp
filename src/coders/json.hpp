@@ -22,6 +22,12 @@ namespace json {
         bool nice, 
         const std::string& indent
     );
+
+    std::string stringify(
+        const dynamic::Value& value,
+        bool nice,
+        const std::string& indent
+    );
 }
 
 #endif // CODERS_JSON_HPP_
