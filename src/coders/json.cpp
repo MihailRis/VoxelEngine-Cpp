@@ -52,7 +52,7 @@ void stringifyObj(
     bool nice
 );
 
-void stringify(
+void stringifyValue(
     const Value& value, 
     std::stringstream& ss, 
     int indent, 
@@ -74,7 +74,7 @@ void stringify(
             if (i > 0 || nice) {
                 newline(ss, nice, indent, indentstr);
             }
-            stringify(value, ss, indent+1, indentstr, nice);
+            stringifyValue(value, ss, indent+1, indentstr, nice);
             if (i + 1 < list->size()) {
                 ss << ',';
             }
@@ -114,7 +114,7 @@ void stringifyObj(
         }
         const Value& value = entry.second;
         ss << util::escape(key) << ": ";
-        stringify(value, ss, indent+1, indentstr, nice);
+        stringifyValue(value, ss, indent+1, indentstr, nice);
         index++;
         if (index < obj->values.size()) {
             ss << ',';
@@ -133,6 +133,16 @@ std::string json::stringify(
 ) {
     std::stringstream ss;
     stringifyObj(obj, ss, 1, indent, nice);
+    return ss.str();
+}
+
+std::string json::stringify(
+    const dynamic::Value& value, 
+    bool nice, 
+    const std::string& indent
+) {
+    std::stringstream ss;
+    stringifyValue(value, ss, 1, indent, nice);
     return ss.str();
 }
 
