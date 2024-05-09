@@ -154,8 +154,13 @@ void BasicParser::expectNewLine() {
     }
 }
 
-void BasicParser::goBack() {
-    if (pos) pos--;
+void BasicParser::goBack(size_t count) {
+    if (pos < count) {
+        throw std::runtime_error("pos < jump");
+    }
+    if (pos) { 
+        pos -= count;
+    }
 }
 
 char BasicParser::peek() {

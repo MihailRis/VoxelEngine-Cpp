@@ -23,6 +23,7 @@ namespace cmd {
     };
 
     struct CommandInput {
+        std::string name; // command name
         dynamic::List_sptr args; // positional arguments list
         dynamic::Map_sptr kwargs; // keyword arguments table
     };
@@ -38,6 +39,8 @@ namespace cmd {
         std::unordered_map<std::string, Argument> kwargs;
         executor_func executor;
     public:
+        Command() {}
+
         Command(
             std::string name,
             std::vector<Argument> args,
@@ -52,10 +55,27 @@ namespace cmd {
             return executor(input.args, input.kwargs);
         }
 
+        const std::string& getName() const {
+            return name;
+        }
+
         static Command create(std::string_view scheme, executor_func);
     };
 
+    class CommandsRepository {
+        std::unordered_map<std::string, Command> commands;
+    public:
+        void add(std::string_view scheme, executor_func);
+        Command* get(const std::string& name);
+    };
+
     class CommandsInterpreter {
+        std::unique_ptr<CommandsRepository> repository;
+    public:
+        CommandsInterpreter(std::unique_ptr<CommandsRepository> repository)
+        : repository(std::move(repository)){}
+
+        CommandInput parse(std::string_view text);
     };
 }
 

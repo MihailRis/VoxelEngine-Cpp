@@ -11,7 +11,7 @@ inline bool is_cmd_identifier_part(char c) {
     return is_identifier_part(c) || c == '.' || c == '$' || c == '@';
 }
 
-class SchemeParser : BasicParser {
+class CommandParser : BasicParser {
     std::string parseIdentifier() {
         char c = peek();
         if (!is_identifier_start(c) && c != '$') {
@@ -36,7 +36,7 @@ class SchemeParser : BasicParser {
         {"enum", ArgType::enumvalue},
     };
 public:
-    SchemeParser(std::string_view filename, std::string_view source) 
+    CommandParser(std::string_view filename, std::string_view source) 
     : BasicParser(filename, source) {
     }
 
@@ -84,7 +84,9 @@ public:
                 throw error("empty enumeration is not allowed");
             }
             auto enumvalue = std::string(readUntil(']'));
-            if (enumvalue.find(' ') != std::string::npos) {
+            size_t offset = enumvalue.find(' ');
+            if (offset != std::string::npos) {
+                goBack(enumvalue.length()-offset);
                 throw error("use '|' as separator, not a space");
             }
             nextChar();
@@ -130,7 +132,7 @@ public:
         return Argument {name, type, optional, def, origin, enumname};
     }
 
-    Command parse(executor_func executor) {
+    Command parseScheme(executor_func executor) {
         std::string name = parseIdentifier();
         std::vector<Argument> args;
         std::unordered_map<std::string, Argument> kwargs;
@@ -150,8 +152,31 @@ public:
         }
         return Command(name, std::move(args), std::move(kwargs), executor);
     }
+
+    CommandInput parsePrompt() {
+        std::string name = parseIdentifier();
+
+        return CommandInput {name, nullptr, nullptr};
+    }
 };
 
 Command Command::create(std::string_view scheme, executor_func executor) {
-    return SchemeParser("<string>", scheme).parse(executor);
+    return CommandParser("<string>", scheme).parseScheme(executor);
+}
+
+void CommandsRepository::add(std::string_view scheme, executor_func executor) {
+    Command command = Command::create(scheme, executor);
+    commands[command.getName()] = command;
+}
+
+Command* CommandsRepository::get(const std::string& name) {
+    auto found = commands.find(name);
+    if (found == commands.end()) {
+        return nullptr;
+    }
+    return &found->second;
+}
+
+CommandInput CommandsInterpreter::parse(std::string_view text) {
+    return CommandParser("<string>", text).parsePrompt();
 }
