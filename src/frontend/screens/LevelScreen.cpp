@@ -38,7 +38,7 @@ LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
     worldRenderer = std::make_unique<WorldRenderer>(engine, frontend.get(), controller->getPlayer());
     hud = std::make_unique<Hud>(engine, frontend.get(), controller->getPlayer());
     
-    keepAlive(settings.graphics.backlight.observe([=](bool flag) {
+    keepAlive(settings.graphics.backlight.observe([=](bool) {
         controller->getLevel()->chunks->saveAndClear();
     }));
     keepAlive(settings.camera.fov.observe([=](double value) {
@@ -137,7 +137,7 @@ void LevelScreen::update(float delta) {
     hud->update(hudVisible);
 }
 
-void LevelScreen::draw(float delta) {
+void LevelScreen::draw(float) {
     auto camera = controller->getPlayer()->currentCamera;
 
     Viewport viewport(Window::width, Window::height);

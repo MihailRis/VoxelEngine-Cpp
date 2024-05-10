@@ -162,7 +162,7 @@ public:
     void openPermanent(UiDocument* doc);
 
     void add(HudElement element);
-    void onRemove(HudElement& element);
+    void onRemove(const HudElement& element);
     void remove(std::shared_ptr<gui::UINode> node);
 
     Player* getPlayer() const;

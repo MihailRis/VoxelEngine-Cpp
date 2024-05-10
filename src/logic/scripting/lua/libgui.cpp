@@ -242,7 +242,7 @@ static int p_is_visible(UINode* node) {
 static int p_is_enabled(UINode* node) {
     return state->pushboolean(node->isEnabled());
 }
-static int p_move_into(UINode* node) {
+static int p_move_into(UINode*) {
     return state->pushcfunction(l_uinode_move_into);
 }
 

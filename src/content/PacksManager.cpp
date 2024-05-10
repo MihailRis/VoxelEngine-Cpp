@@ -74,7 +74,7 @@ static bool resolve_dependencies (
     const ContentPack* pack,
     const std::unordered_map<std::string, ContentPack>& packs,
     std::vector<std::string>& allNames,
-    std::vector<std::string>& added,
+    const std::vector<std::string>& added,
     std::queue<const ContentPack*>& queue,
     bool resolveWeaks
 ) {

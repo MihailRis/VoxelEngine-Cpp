@@ -48,12 +48,10 @@ class WorldRenderer {
     /// @param context graphics context
     /// @param camera active camera
     /// @param linesShader shader used
-    /// @param settings engine settings
     void renderDebugLines(
         const DrawContext& context, 
         Camera* camera, 
-        Shader* linesShader,
-        const EngineSettings& settings
+        Shader* linesShader
     );
 public:
     static bool showChunkBorders;

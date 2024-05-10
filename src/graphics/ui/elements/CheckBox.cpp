@@ -10,7 +10,7 @@ CheckBox::CheckBox(bool checked) : UINode(glm::vec2(32.0f)), checked(checked) {
     setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
 }
 
-void CheckBox::draw(const DrawContext* pctx, Assets* assets) {
+void CheckBox::draw(const DrawContext* pctx, Assets*) {
     if (supplier) {
         checked = supplier();
     }
@@ -21,7 +21,7 @@ void CheckBox::draw(const DrawContext* pctx, Assets* assets) {
     batch->rect(pos.x, pos.y, size.x, size.y);
 }
 
-void CheckBox::mouseRelease(GUI*, int x, int y) {
+void CheckBox::mouseRelease(GUI*, int, int) {
     checked = !checked;
     if (consumer) {
         consumer(checked);

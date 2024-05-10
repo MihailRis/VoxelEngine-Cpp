@@ -23,14 +23,14 @@ namespace scripting {
     extern Hud* hud;
 }
 
-static int l_hud_open_inventory(lua_State* L) {
+static int l_hud_open_inventory(lua_State*) {
     if (!scripting::hud->isInventoryOpen()) {
         scripting::hud->openInventory();
     }
     return 0;
 }
 
-static int l_hud_close_inventory(lua_State* L) {
+static int l_hud_close_inventory(lua_State*) {
     if (scripting::hud->isInventoryOpen()) {
         scripting::hud->closeInventory();
     }
@@ -99,12 +99,12 @@ static int l_hud_close(lua_State* L) {
     return 0;
 }
 
-static int l_hud_pause(lua_State* L) {
+static int l_hud_pause(lua_State*) {
     scripting::hud->setPause(true);
     return 0;
 }
 
-static int l_hud_resume(lua_State* L) {
+static int l_hud_resume(lua_State*) {
     scripting::hud->setPause(false);
     return 0;
 }

@@ -32,7 +32,7 @@ void mouse_button_callback(GLFWwindow*, int button, int action, int) {
     Events::setButton(button, action == GLFW_PRESS);
 }
 
-void key_callback(GLFWwindow*, int key, int scancode, int action, int /*mode*/) {
+void key_callback(GLFWwindow*, int key, int /*scancode*/, int action, int /*mode*/) {
     if (key == GLFW_KEY_UNKNOWN) return;
     if (action == GLFW_PRESS) {
         Events::setKey(key, true);
@@ -79,7 +79,7 @@ void window_size_callback(GLFWwindow*, int width, int height) {
     Window::resetScissor();
 }
 
-void character_callback(GLFWwindow* window, unsigned int codepoint){
+void character_callback(GLFWwindow*, unsigned int codepoint){
     Events::codepoints.push_back(codepoint);
 }
 

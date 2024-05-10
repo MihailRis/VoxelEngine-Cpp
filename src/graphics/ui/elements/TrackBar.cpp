@@ -23,7 +23,7 @@ TrackBar::TrackBar(
     setHoverColor(glm::vec4(0.01f, 0.02f, 0.03f, 0.5f));
 }
 
-void TrackBar::draw(const DrawContext* pctx, Assets* assets) {
+void TrackBar::draw(const DrawContext* pctx, Assets*) {
     if (supplier) {
         value = supplier();
     }
@@ -48,7 +48,7 @@ void TrackBar::setConsumer(doubleconsumer consumer) {
     this->consumer = consumer;
 }
 
-void TrackBar::mouseMove(GUI*, int x, int y) {
+void TrackBar::mouseMove(GUI*, int x, int) {
     glm::vec2 pos = calcPos();
     value = x - trackWidth/2;
     value -= pos.x;

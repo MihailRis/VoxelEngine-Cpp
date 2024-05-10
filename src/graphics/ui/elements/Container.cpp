@@ -93,7 +93,7 @@ void Container::draw(const DrawContext* pctx, Assets* assets) {
     }
 }
 
-void Container::drawBackground(const DrawContext* pctx, Assets* assets) {
+void Container::drawBackground(const DrawContext* pctx, Assets*) {
     glm::vec4 color = calcColor();
     if (color.a <= 0.001f)
         return;

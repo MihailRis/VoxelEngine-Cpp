@@ -24,7 +24,7 @@ static int l_inventory_get(lua_State* L) {
     if (slotid < 0 || uint64_t(slotid) >= inv->size()) {
         luaL_error(L, "slot index is out of range [0, inventory.size(invid)]");
     }
-    ItemStack& item = inv->getSlot(slotid);
+    const ItemStack& item = inv->getSlot(slotid);
     lua_pushinteger(L, item.getItemId());
     lua_pushinteger(L, item.getCount());
     return 2;

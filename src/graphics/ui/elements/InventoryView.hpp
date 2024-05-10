@@ -47,7 +47,7 @@ namespace gui {
     };
 
     class SlotView : public gui::UINode {
-        const Content* content;
+        const Content* content = nullptr;
         SlotLayout layout;
         bool highlighted = false;
 
@@ -77,7 +77,7 @@ namespace gui {
     };
 
     class InventoryView : public gui::Container {
-        const Content* content;
+        const Content* content = nullptr;
         
         std::shared_ptr<Inventory> inventory;
 

@@ -395,7 +395,7 @@ static slotcallback readSlotFunc(InventoryView* view, UiXmlReader& reader, xml::
         reader.getEnvironment(), 
         element->attr(attr).getText()
     );
-    return [=](uint slot, ItemStack& stack) {
+    return [=](uint slot, ItemStack&) {
         int args[] {int(view->getInventory()->getId()), int(slot)};
         consumer(args, 2);
     };

@@ -82,9 +82,6 @@ bool List::flag(size_t index) const {
 }
 
 Value* List::getValueWriteable(size_t index) {
-    if (index > values.size()) {
-        throw std::runtime_error("index error");
-    }
     return &values.at(index);
 }
 

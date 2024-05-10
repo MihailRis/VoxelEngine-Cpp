@@ -44,10 +44,8 @@ void GUI::onAssetsLoad(Assets* assets) {
     ), "core:root");
 }
 
-/** Mouse related input and logic handling 
- * @param delta delta time
-*/
-void GUI::actMouse(float delta) {
+// @brief Mouse related input and logic handling 
+void GUI::actMouse() {
     auto hover = container->getAt(Events::cursor, nullptr);
     if (this->hover && this->hover != hover) {
         this->hover->setHover(false);
@@ -125,7 +123,7 @@ void GUI::act(float delta, const Viewport& vp) {
     auto prevfocus = focus;
 
     if (!Events::_cursor_locked) {
-        actMouse(delta);
+        actMouse();
     }
     
     if (focus) {

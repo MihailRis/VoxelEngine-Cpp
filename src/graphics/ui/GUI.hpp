@@ -62,7 +62,7 @@ namespace gui {
         std::unique_ptr<Camera> uicamera;
         std::shared_ptr<Menu> menu;
         std::queue<runnable> postRunnables;
-        void actMouse(float delta);
+        void actMouse();
         void actFocused();
     public:
         GUI();

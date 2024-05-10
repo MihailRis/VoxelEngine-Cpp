@@ -47,7 +47,7 @@ class ThreadPool : public Task {
     runnable onComplete = nullptr;
     std::atomic<int> busyWorkers = 0;
     std::atomic<uint> jobsDone = 0;
-    bool working = true;
+    std::atomic<bool> working = true;
     bool failed = false;
     bool standaloneResults = true;
     bool stopOnFail = true;
@@ -170,7 +170,7 @@ public:
                         onJobFailed(entry.job);
                     }
                     if (stopOnFail) {
-                        std::lock_guard<std::mutex> lock(jobsMutex);
+                        std::lock_guard<std::mutex> jobsLock(jobsMutex);
                         failed = true;
                         complete = false;
                     }
@@ -184,7 +184,7 @@ public:
             }
 
             if (onComplete && busyWorkers == 0) {
-                std::lock_guard<std::mutex> lock(jobsMutex);
+                std::lock_guard<std::mutex> jobsLock(jobsMutex);
                 if (jobs.empty()) {
                     onComplete();
                     complete = true;

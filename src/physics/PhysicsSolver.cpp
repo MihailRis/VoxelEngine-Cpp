@@ -9,9 +9,7 @@
 const double E = 0.03;
 const double MAX_FIX = 0.1;
 
-using glm::vec3;
-
-PhysicsSolver::PhysicsSolver(vec3 gravity) : gravity(gravity) {
+PhysicsSolver::PhysicsSolver(glm::vec3 gravity) : gravity(gravity) {
 }
 
 void PhysicsSolver::step(
@@ -30,9 +28,9 @@ void PhysicsSolver::step(
     bool prevGrounded = hitbox->grounded;
     hitbox->grounded = false;
     for (uint i = 0; i < substeps; i++) {
-        vec3& pos = hitbox->position;
-        vec3& half = hitbox->halfsize;
-        vec3& vel = hitbox->velocity;
+        glm::vec3& pos = hitbox->position;
+        glm::vec3& half = hitbox->halfsize;
+        glm::vec3& vel = hitbox->velocity;
         float px = pos.x;
         float pz = pos.z;
         
@@ -77,13 +75,13 @@ void PhysicsSolver::step(
 }
 
 void PhysicsSolver::colisionCalc(
-        Chunks* chunks, 
-        Hitbox* hitbox, 
-        vec3& vel, 
-        vec3& pos, 
-        const vec3 half,
-        float stepHeight)
-{
+    Chunks* chunks, 
+    Hitbox* hitbox, 
+    glm::vec3& vel, 
+    glm::vec3& pos, 
+    const glm::vec3 half,
+    float stepHeight
+) {
     // step size (smaller - more accurate, but slower)
     float s = 2.0f/BLOCK_AABB_GRID;
 
@@ -212,29 +210,29 @@ void PhysicsSolver::colisionCalc(
 }
 
 bool PhysicsSolver::isBlockInside(int x, int y, int z, Hitbox* hitbox) {
-    vec3& pos = hitbox->position;
-    vec3& half = hitbox->halfsize;
+    const glm::vec3& pos = hitbox->position;
+    const glm::vec3& half = hitbox->halfsize;
     return x >= floor(pos.x-half.x) && x <= floor(pos.x+half.x) &&
             z >= floor(pos.z-half.z) && z <= floor(pos.z+half.z) &&
             y >= floor(pos.y-half.y) && y <= floor(pos.y+half.y);
 }
 
 bool PhysicsSolver::isBlockInside(int x, int y, int z, Block* def, blockstate_t states, Hitbox* hitbox) {
-    vec3& pos = hitbox->position;
-    vec3& half = hitbox->halfsize;
-  voxel v;
-  v.states = states;
-  const auto& boxes = def->rotatable 
+    const glm::vec3& pos = hitbox->position;
+    const glm::vec3& half = hitbox->halfsize;
+    voxel v {};
+    v.states = states;
+    const auto& boxes = def->rotatable 
                     ? def->rt.hitboxes[v.rotation()] 
                     : def->hitboxes;
-  for (const auto& block_hitbox : boxes) {
-      vec3 min = block_hitbox.min();
-      vec3 max = block_hitbox.max();
-      // 0.00001 - inaccuracy
-      if (min.x < pos.x+half.x-x-0.00001 && max.x > pos.x-half.x-x+0.00001 &&
-          min.z < pos.z+half.z-z-0.00001 && max.z > pos.z-half.z-z+0.00001 &&
-          min.y < pos.y+half.y-y-0.00001 && max.y > pos.y-half.y-y+0.00001)
-          return true;
-  }
+    for (const auto& block_hitbox : boxes) {
+        glm::vec3 min = block_hitbox.min();
+        glm::vec3 max = block_hitbox.max();
+        // 0.00001 - inaccuracy
+        if (min.x < pos.x+half.x-x-0.00001 && max.x > pos.x-half.x-x+0.00001 &&
+            min.z < pos.z+half.z-z-0.00001 && max.z > pos.z-half.z-z+0.00001 &&
+            min.y < pos.y+half.y-y-0.00001 && max.y > pos.y-half.y-y+0.00001)
+            return true;
+    }
     return false;
 }

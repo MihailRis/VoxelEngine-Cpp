@@ -116,7 +116,7 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
 
     const int slotSize = InventoryView::SLOT_SIZE;
 
-    ItemStack& stack = *bound;
+    const ItemStack& stack = *bound;
     glm::vec4 tint(1.0f);
     glm::vec2 pos = calcPos();
     glm::vec4 color = getColor();

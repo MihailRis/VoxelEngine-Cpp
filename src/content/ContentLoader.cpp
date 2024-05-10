@@ -228,15 +228,15 @@ void ContentLoader::loadCustomBlockModel(Block& def, dynamic::Map* primitives) {
             def.modelBoxes.push_back(modelbox);
 
             if (boxarr->size() == 7)
-                for (uint i = 6; i < 12; i++) {
+                for (uint j = 6; j < 12; j++) {
                     def.modelTextures.push_back(boxarr->str(6));
                 }
             else if (boxarr->size() == 12)
-                for (uint i = 6; i < 12; i++) {
-                    def.modelTextures.push_back(boxarr->str(i));
+                for (uint j = 6; j < 12; j++) {
+                    def.modelTextures.push_back(boxarr->str(j));
                 }
             else
-                for (uint i = 6; i < 12; i++) {
+                for (uint j = 6; j < 12; j++) {
                     def.modelTextures.push_back("notfound");
                 }
         }

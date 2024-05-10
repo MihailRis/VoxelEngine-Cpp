@@ -348,7 +348,7 @@ void PlayerController::updateInteraction(){
         maxDistance *= 20.0f;
     }
     auto inventory = player->getInventory();
-    ItemStack& stack = inventory->getSlot(player->getChosenSlot());
+    const ItemStack& stack = inventory->getSlot(player->getChosenSlot());
     ItemDef* item = indices->getItemDef(stack.getItemId());
 
     glm::vec3 end;

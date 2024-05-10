@@ -114,9 +114,9 @@ WorldRegion* WorldRegions::getRegion(int x, int z, int layer) {
 }
 
 WorldRegion* WorldRegions::getOrCreateRegion(int x, int z, int layer) {
-    RegionsLayer& regions = layers[layer];
     WorldRegion* region = getRegion(x, z, layer);
     if (region == nullptr) {
+        RegionsLayer& regions = layers[layer];
         std::lock_guard lock(regions.mutex);
         region = new WorldRegion();
         regions.regions[glm::ivec2(x, z)].reset(region);

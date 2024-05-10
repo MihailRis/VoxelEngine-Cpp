@@ -35,11 +35,10 @@ ImageData::~ImageData() {
 }
 
 void ImageData::flipX() {
-    uint size;
     switch (format) {
         case ImageFormat::rgb888:
         case ImageFormat::rgba8888: {
-            size = (format == ImageFormat::rgba8888) ? 4 : 3;
+            uint size = (format == ImageFormat::rgba8888) ? 4 : 3;
             ubyte* pixels = (ubyte*)data;
             for (uint y = 0; y < height; y++) {
                 for (uint x = 0; x < width/2; x++) {
@@ -58,11 +57,10 @@ void ImageData::flipX() {
 }
 
 void ImageData::flipY() {
-    uint size;
     switch (format) {
         case ImageFormat::rgb888:
         case ImageFormat::rgba8888: {
-            size = (format == ImageFormat::rgba8888) ? 4 : 3;
+            uint size = (format == ImageFormat::rgba8888) ? 4 : 3;
             ubyte* pixels = (ubyte*)data;
             for (uint y = 0; y < height/2; y++) {
                 for (uint x = 0; x < width; x++) {

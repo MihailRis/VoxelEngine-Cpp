@@ -44,7 +44,6 @@ void ChunksController::update(int64_t maxDuration) {
                 mcstotal += mcs;
                 continue;
             }
-            mcstotal += mcs;
         }
         break;
     }
