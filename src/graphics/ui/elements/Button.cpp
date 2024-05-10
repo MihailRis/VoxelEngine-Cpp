@@ -75,7 +75,7 @@ void Button::refresh() {
     }
 }
 
-void Button::drawBackground(const DrawContext* pctx, Assets* assets) {
+void Button::drawBackground(const DrawContext* pctx, Assets*) {
     glm::vec2 pos = calcPos();
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);

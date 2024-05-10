@@ -50,7 +50,7 @@ static int l_pack_get_available(lua_State* L) {
     auto manager = scripting::engine->createPacksManager(worldFolder);
     manager.scan();
 
-    auto& installed = scripting::engine->getContentPacks();
+    const auto& installed = scripting::engine->getContentPacks();
     for (auto& pack : installed) {
         manager.exclude(pack.id);
     }
@@ -130,7 +130,7 @@ static int l_pack_get_info(lua_State* L) {
     
     auto content = scripting::engine->getContent();
     auto& packs = scripting::engine->getContentPacks();
-    auto found = std::find_if(packs.begin(), packs.end(), [packid](auto& pack) {
+    auto found = std::find_if(packs.begin(), packs.end(), [packid](const auto& pack) {
         return pack.id == packid;
     });
     if (found == packs.end()) {

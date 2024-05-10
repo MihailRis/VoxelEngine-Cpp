@@ -95,9 +95,7 @@ Content* ContentBuilder::build() {
         }
 
         blockDefsIndices.push_back(def);
-        if (groups->find(def->drawGroup) == groups->end()) {
-            groups->insert(def->drawGroup);
-        }
+        groups->insert(def->drawGroup);
     }
 
     std::vector<ItemDef*> itemDefsIndices;

@@ -64,7 +64,7 @@ std::unique_ptr<ImageData> BlocksPreview::draw(
                 offset.y += (1.0f - hitbox).y * 0.5f;
                 shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), offset));
                 for (size_t i = 0; i < def->modelBoxes.size(); i++) {
-                    const UVRegion (&texfaces)[6] = {
+                    const UVRegion (&boxtexfaces)[6] = {
                         def->modelUVs[i * 6],
                         def->modelUVs[i * 6 + 1],
                         def->modelUVs[i * 6 + 2],
@@ -75,7 +75,7 @@ std::unique_ptr<ImageData> BlocksPreview::draw(
                     batch->cube(
                         def->modelBoxes[i].a * glm::vec3(1.0f, 1.0f, -1.0f) * pmul, 
                         def->modelBoxes[i].size() * pmul, 
-                        texfaces, glm::vec4(1.0f), !def->rt.emissive
+                        boxtexfaces, glm::vec4(1.0f), !def->rt.emissive
                     );
                 }
                 

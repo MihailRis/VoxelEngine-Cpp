@@ -70,7 +70,7 @@ std::shared_ptr<Task> WorldConverter::startTask(
     auto pool = std::make_shared<util::ThreadPool<convert_task, int>>(
         "converter-pool",
         [=](){return std::make_shared<ConverterWorker>(converter);},
-        [=](int& _) {}
+        [=](int&) {}
     );
     while (!converter->tasks.empty()) {
         const convert_task& task = converter->tasks.front();

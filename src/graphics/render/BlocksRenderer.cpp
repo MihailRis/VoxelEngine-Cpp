@@ -210,10 +210,10 @@ void BlocksRenderer::blockXSprite(int x, int y, int z,
 
     face(vec3(x + xs, y, z + zs), 
         w, size.y, 0, vec3(1, 0, -1), vec3(0, 1, 0), vec3(), 
-        texface1, lights, vec4(tint));
+        texface2, lights, vec4(tint));
     face(vec3(x + xs, y, z + zs), 
         w, size.y, 0, vec3(-1, 0, 1), vec3(0, 1, 0), vec3(), 
-        texface1, lights, vec4(tint));
+        texface2, lights, vec4(tint));
 }
 
 // HINT: texture faces order: {east, west, bottom, top, south, north}

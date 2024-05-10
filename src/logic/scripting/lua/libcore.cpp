@@ -39,7 +39,7 @@ static int l_open_world(lua_State* L) {
     return 0;
 }
 
-static int l_reopen_world(lua_State* L) {
+static int l_reopen_world(lua_State*) {
     auto controller = scripting::engine->getController();
     controller->reopenWorld(scripting::level->getWorld());
     return 0;
@@ -151,7 +151,7 @@ static int l_get_setting_info(lua_State* L) {
     return 0;
 }
 
-static int l_quit(lua_State* L) {
+static int l_quit(lua_State*) {
     Window::setShouldClose(true);
     return 0;
 }

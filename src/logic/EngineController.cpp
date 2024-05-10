@@ -68,7 +68,6 @@ void show_convert_request(
 
 static void show_content_missing(
     Engine* engine,
-    const Content* content,
     std::shared_ptr<ContentLUT> lut
 ) {
     using namespace dynamic;
@@ -135,7 +134,7 @@ void EngineController::openWorld(std::string name, bool confirmConvert) {
     if (lut) {
         if (lut->hasMissingContent()) {
             engine->setScreen(std::make_shared<MenuScreen>(engine));
-            show_content_missing(engine, content, lut);
+            show_content_missing(engine, lut);
         } else {
             if (confirmConvert) {
                 menus::show_process_panel(engine, create_converter(engine, folder, content, lut, [=]() {

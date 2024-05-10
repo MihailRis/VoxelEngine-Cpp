@@ -38,8 +38,7 @@ void TextureAnimator::update(float delta) {
             uint elemDstId = elem.dstTexture->getId();
             uint elemSrcId = elem.srcTexture->getId();
 
-            if (changedTextures.find(elemDstId) == changedTextures.end()) 
-                changedTextures.insert(elemDstId);
+            changedTextures.insert(elemDstId);
 
             glBindFramebuffer(GL_FRAMEBUFFER, fboD);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, elemDstId, 0);

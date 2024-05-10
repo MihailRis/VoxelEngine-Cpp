@@ -56,13 +56,12 @@ void TextBox::draw(const DrawContext* pctx, Assets* assets) {
         batch->setColor(glm::vec4(0.8f, 0.9f, 1.0f, 0.25f));
         int start = font->calcWidth(input, selectionStart-label->getTextLineOffset(startLine));
         int end = font->calcWidth(input, selectionEnd-label->getTextLineOffset(endLine));
-        int startY = label->getLineYOffset(startLine);
-        int endY = label->getLineYOffset(startLine);
+        int lineY = label->getLineYOffset(startLine);
 
         if (startLine == endLine) {
-            batch->rect(lcoord.x + start, lcoord.y+startY, end-start, lineHeight);
+            batch->rect(lcoord.x + start, lcoord.y+lineY, end-start, lineHeight);
         } else {
-            batch->rect(lcoord.x + start, lcoord.y+endY, label->getSize().x-start-padding.z-padding.x-2, lineHeight);
+            batch->rect(lcoord.x + start, lcoord.y+lineY, label->getSize().x-start-padding.z-padding.x-2, lineHeight);
             for (uint i = startLine+1; i < endLine; i++) {
                 batch->rect(lcoord.x, lcoord.y+label->getLineYOffset(i), label->getSize().x-padding.z-padding.x-2, lineHeight);
             }
@@ -71,7 +70,7 @@ void TextBox::draw(const DrawContext* pctx, Assets* assets) {
     }
 }
 
-void TextBox::drawBackground(const DrawContext* pctx, Assets* assets) {
+void TextBox::drawBackground(const DrawContext* pctx, Assets*) {
     glm::vec2 pos = calcPos();
 
     auto batch = pctx->getBatch2D();

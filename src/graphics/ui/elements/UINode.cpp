@@ -64,7 +64,7 @@ UINode* UINode::listenAction(onaction action) {
     return this;
 }
 
-void UINode::click(GUI*, int x, int y) {
+void UINode::click(GUI*, int, int) {
     pressed = true;
 }
 

@@ -269,7 +269,6 @@ std::string util::mangleid(uint64_t value) {
     // todo: use base64
     std::stringstream ss;
     ss << std::hex << value;
-    std::string result(ss.str());
     return ss.str();
 }
 
@@ -434,7 +433,7 @@ std::string util::format_data_size(size_t size) {
         " B", " KiB", " MiB", " GiB", " TiB", " EiB", " PiB"
     };
     int group = 0;
-    size_t remainder;
+    size_t remainder = 0;
     while (size >= 1024) {
         group++;
         remainder = size % 1024;

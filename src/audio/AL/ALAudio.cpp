@@ -475,5 +475,5 @@ void ALAudio::setListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 at, 
     AL_CHECK(alListenerf(AL_GAIN, get_channel(0)->getVolume()));
 }
 
-void ALAudio::update(double delta) {
+void ALAudio::update(double) {
 }

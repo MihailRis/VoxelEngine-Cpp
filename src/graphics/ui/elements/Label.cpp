@@ -26,8 +26,9 @@ void LabelCache::update(const std::wstring& text, bool multiline, bool wrap) {
     if (font == nullptr) {
         wrap = false;
     }
-    size_t len = 0;
+    
     if (multiline) {
+        size_t len = 0;
         for (size_t i = 0; i < text.length(); i++, len++) {
             if (text[i] == L'\n') {
                 lines.push_back(LineScheme {i+1, false});

@@ -72,9 +72,6 @@ size_t PCMStream::readFully(char* buffer, size_t bufferSize, bool loop) {
         if (loop) {
             seek(0);
         }
-        if (bufferSize == 0) {
-            return size;
-        }
     } while (loop);
     return size;
 }
@@ -94,7 +91,7 @@ public:
       seekable(seekable) 
     {}
 
-    size_t read(char* buffer, size_t bufferSize) override {
+    size_t read(char*, size_t bufferSize) override {
         if (closed) {
             return 0;
         }

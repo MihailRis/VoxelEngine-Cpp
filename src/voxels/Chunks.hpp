@@ -25,7 +25,7 @@ public:
 	std::vector<std::shared_ptr<Chunk>> chunksSecond;
 	size_t volume;
 	size_t chunksCount;
-	size_t visible;
+	size_t visible = 0;
 	uint32_t w, d;
 	int32_t ox, oz;
 	WorldFiles* worldFiles;

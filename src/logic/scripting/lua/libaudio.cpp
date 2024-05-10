@@ -48,8 +48,8 @@ inline audio::speakerid_t play_sound(
         ), 
         relative, 
         volume, 
-        pitch, 
-        false, 
+        pitch,
+        loop,
         audio::PRIORITY_NORMAL, 
         channel
     );

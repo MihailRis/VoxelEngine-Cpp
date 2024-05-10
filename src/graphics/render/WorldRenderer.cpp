@@ -42,10 +42,10 @@ bool WorldRenderer::showChunkBorders = false;
 WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* player) 
     : engine(engine), 
       level(frontend->getLevel()),
-      player(player)
+      player(player),
+      frustumCulling(std::make_unique<Frustum>()),
+      lineBatch(std::make_unique<LineBatch>())
 {
-    frustumCulling = std::make_unique<Frustum>();
-    lineBatch = std::make_unique<LineBatch>();
     renderer = std::make_unique<ChunksRenderer>(
         level,
         frontend->getContentGfxCache(),
@@ -55,7 +55,7 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* pl
 
     auto& settings = engine->getSettings();
     level->events->listen(EVT_CHUNK_HIDDEN, 
-        [this](lvl_event_type type, Chunk* chunk) {
+        [this](lvl_event_type, Chunk* chunk) {
             renderer->unload(chunk);
         }
     );
@@ -142,7 +142,7 @@ void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
 }
 
 void WorldRenderer::renderLevel(
-    const DrawContext& ctx,
+    const DrawContext&,
     Camera* camera, 
     const EngineSettings& settings
 ) {
@@ -196,7 +196,7 @@ void WorldRenderer::renderBlockSelection(Camera* camera, Shader* linesShader) {
     const glm::vec3 point = PlayerController::selectedPointPosition;
     const glm::vec3 norm = PlayerController::selectedBlockNormal;
 
-    std::vector<AABB>& hitboxes = block->rotatable
+    const std::vector<AABB>& hitboxes = block->rotatable
         ? block->rt.hitboxes[PlayerController::selectedBlockStates]
         : block->hitboxes;
 
@@ -217,8 +217,7 @@ void WorldRenderer::renderBlockSelection(Camera* camera, Shader* linesShader) {
 void WorldRenderer::renderDebugLines(
     const DrawContext& pctx, 
     Camera* camera,
-    Shader* linesShader,
-    const EngineSettings& settings
+    Shader* linesShader
 ) {
     DrawContext ctx = pctx.sub();
     const auto& viewport = ctx.getViewport();
@@ -276,7 +275,7 @@ void WorldRenderer::draw(
     const Viewport& vp = pctx.getViewport();
     camera->aspect = vp.getWidth() / static_cast<float>(vp.getHeight());
 
-    EngineSettings& settings = engine->getSettings();
+    const EngineSettings& settings = engine->getSettings();
     skybox->refresh(pctx, level->getWorld()->daytime, 1.0f+fog*2.0f, 4);
 
     Assets* assets = engine->getAssets();
@@ -305,7 +304,7 @@ void WorldRenderer::draw(
         }
 
         if (hudVisible && player->debug) {
-            renderDebugLines(wctx, camera, linesShader, settings);
+            renderDebugLines(wctx, camera, linesShader);
         }
     }
 
