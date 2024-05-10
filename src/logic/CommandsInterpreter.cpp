@@ -8,12 +8,12 @@
 using namespace cmd;
 
 inline bool is_cmd_identifier_part(char c, bool allowColon) {
-    return is_identifier_part(c) || c == '.' || c == '$' || c == '@' || 
+    return is_identifier_part(c) || c == '.' || c == '$' || 
            (allowColon && c == ':');
 }
 
 inline bool is_cmd_identifier_start(char c) {
-    return is_identifier_start(c) || c == '.' || c == '$' || c == '@';
+    return is_identifier_start(c) || c == '.' || c == '$';
 }
 
 class CommandParser : BasicParser {
@@ -37,7 +37,7 @@ class CommandParser : BasicParser {
         {"num", ArgType::number},
         {"int", ArgType::integer},
         {"str", ArgType::string},
-        {"@", ArgType::selector},
+        {"sel", ArgType::selector},
         {"enum", ArgType::enumvalue},
     };
 public:
@@ -60,7 +60,7 @@ public:
 
     dynamic::Value parseValue() {
         char c = peek();
-        if (is_cmd_identifier_start(c)) {
+        if (is_cmd_identifier_start(c) || c == '@') {
             auto str = parseIdentifier(true);
             if (str == "true") {
                 return true;
@@ -171,7 +171,7 @@ public:
     }
 
     template<typename T>
-    bool typeCheck(Argument* arg, const dynamic::Value& value, const std::string& tname) {
+    inline bool typeCheck(Argument* arg, const dynamic::Value& value, const std::string& tname) {
         if (!std::holds_alternative<T>(value)) {
             if (arg->optional) {
                 return false;
@@ -180,6 +180,22 @@ public:
             }
         }
         return true;
+    }
+
+    inline bool selectorCheck(Argument* arg, const dynamic::Value& value) {
+        if (auto string = std::get_if<std::string>(&value)) {
+            if ((*string)[0] == '@') {
+                if (!util::is_integer((*string).substr(1))) {
+                    throw argumentError(arg->name, "invalid selector");
+                }
+                return true;
+            }
+        } 
+        if (arg->optional) {
+            return false;
+        } else {
+            throw typeError(arg->name, "selector", value);
+        }
     }
 
     bool typeCheck(Argument* arg, const dynamic::Value& value) {
@@ -208,12 +224,12 @@ public:
                     }
                 }
                 break;
+            case ArgType::selector:
+                return selectorCheck(arg, value);
             case ArgType::integer:
                 return typeCheck<integer_t>(arg, value, "integer");
             case ArgType::string:
                 return typeCheck<std::string>(arg, value, "string");
-            case ArgType::selector:
-                return typeCheck<integer_t>(arg, value, "id");
         }
         return true;
     }
@@ -309,8 +325,20 @@ public:
             }
 
             // positional argument
-            Argument* arg;
+            Argument* arg = nullptr;
             do {
+                if (arg) {
+                    std::cout << "skipped arg " << arg->name << std::endl;
+                    if (auto string = std::get_if<std::string>(&arg->def)) {
+                        if ((*string)[0] == '$') {
+                            args->put((*interpreter)[*string]);
+                        } else {
+                            args->put(arg->def);
+                        }
+                    } else {
+                        args->put(arg->def);
+                    }
+                }
                 arg = command->getArgument(arg_index++);
                 if (arg == nullptr) {
                     throw error("extra positional argument");

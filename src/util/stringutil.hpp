@@ -20,8 +20,8 @@ namespace util {
     uint32_t decode_utf8(uint& size, const char* bytes);
     std::string wstr2str_utf8(const std::wstring ws);
     std::wstring str2wstr_utf8(const std::string s);
-    bool is_integer(std::string text);
-    bool is_integer(std::wstring text);
+    bool is_integer(const std::string& text);
+    bool is_integer(const std::wstring& text);
     bool is_valid_filename(std::wstring name);
 
     void ltrim(std::string &s);

@@ -12,6 +12,10 @@ inline std::string LAMBDAS_TABLE = "$L";
 
 static debug::Logger logger("lua-state");
 
+namespace scripting {
+    extern lua::LuaState* state;
+}
+
 lua::luaerror::luaerror(const std::string& message) : std::runtime_error(message) {
 }
 
@@ -123,19 +127,20 @@ void lua::LuaState::remove(const std::string& name) {
 }
 
 void lua::LuaState::createLibs() {
-    openlib("audio", audiolib, 0);
-    openlib("block", blocklib, 0);
-    openlib("core", corelib, 0);
-    openlib("file", filelib, 0);
-    openlib("gui", guilib, 0);
-    openlib("input", inputlib, 0);
-    openlib("inventory", inventorylib, 0);
-    openlib("item", itemlib, 0);
-    openlib("json", jsonlib, 0);
-    openlib("pack", packlib, 0);
-    openlib("player", playerlib, 0);
-    openlib("time", timelib, 0);
-    openlib("world", worldlib, 0);
+    openlib("audio", audiolib);
+    openlib("block", blocklib);
+    openlib("console", consolelib);
+    openlib("core", corelib);
+    openlib("file", filelib);
+    openlib("gui", guilib);
+    openlib("input", inputlib);
+    openlib("inventory", inventorylib);
+    openlib("item", itemlib);
+    openlib("json", jsonlib);
+    openlib("pack", packlib);
+    openlib("player", playerlib);
+    openlib("time", timelib);
+    openlib("world", worldlib);
 
     addfunc("print", lua_wrap_errors<l_print>);
 }
@@ -364,9 +369,9 @@ bool lua::LuaState::isfunction(int idx) {
     return lua_isfunction(L, idx);
 }
 
-void lua::LuaState::openlib(const std::string& name, const luaL_Reg* libfuncs, int nup) {
+void lua::LuaState::openlib(const std::string& name, const luaL_Reg* libfuncs) {
     lua_newtable(L);
-    luaL_setfuncs(L, libfuncs, nup);
+    luaL_setfuncs(L, libfuncs, 0);
     lua_setglobal(L, name.c_str());
 }
 
@@ -377,7 +382,7 @@ const std::string lua::LuaState::storeAnonymous() {
     return funcName;
 }
 
-runnable lua::LuaState::createRunnable() {
+std::shared_ptr<std::string> lua::LuaState::createLambdaHandler() {
     auto ptr = reinterpret_cast<ptrdiff_t>(lua_topointer(L, -1));
     auto name = util::mangleid(ptr);
     lua_getglobal(L, LAMBDAS_TABLE.c_str());
@@ -385,17 +390,38 @@ runnable lua::LuaState::createRunnable() {
     lua_setfield(L, -2, name.c_str());
     lua_pop(L, 2);
 
-    std::shared_ptr<std::string> funcptr(new std::string(name), [=](auto* name) {
+    return std::shared_ptr<std::string>(new std::string(name), [=](auto* name) {
         lua_getglobal(L, LAMBDAS_TABLE.c_str());
         lua_pushnil(L);
         lua_setfield(L, -2, name->c_str());
         lua_pop(L, 1);
         delete name;
     });
+}
+
+runnable lua::LuaState::createRunnable() {
+    auto funcptr = createLambdaHandler();
     return [=]() {
         lua_getglobal(L, LAMBDAS_TABLE.c_str());
         lua_getfield(L, -1, funcptr->c_str());
         callNoThrow(0);
+    };
+}
+
+scripting::common_func lua::LuaState::createLambda() {
+    auto funcptr = createLambdaHandler();
+    return [=](const std::vector<dynamic::Value>& args) {
+        lua_getglobal(L, LAMBDAS_TABLE.c_str());
+        lua_getfield(L, -1, funcptr->c_str());
+        for (const auto& arg : args) {
+            pushvalue(arg);
+        }
+        if (call(args.size())) {
+            auto result = tovalue(-1);
+            pop(1);
+            return result;
+        }
+        return dynamic::Value(dynamic::NONE);
     };
 }
 

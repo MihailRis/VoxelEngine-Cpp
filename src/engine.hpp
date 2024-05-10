@@ -34,6 +34,10 @@ namespace gui {
     class GUI;
 }
 
+namespace cmd {
+    class CommandsInterpreter;
+}
+
 class initialize_error : public std::runtime_error {
 public:
     initialize_error(const std::string& message) : std::runtime_error(message) {}
@@ -52,6 +56,7 @@ class Engine : public util::ObjectsKeeper {
     std::queue<runnable> postRunnables;
     std::recursive_mutex postRunnablesMutex;
     std::unique_ptr<EngineController> controller;
+    std::unique_ptr<cmd::CommandsInterpreter> interpreter;
     std::vector<std::string> basePacks {"base"};
 
     uint64_t frame = 0;
@@ -136,6 +141,7 @@ public:
     void saveScreenshot();
 
     EngineController* getController();
+    cmd::CommandsInterpreter* getCommandsInterpreter();
 
     PacksManager createPacksManager(const fs::path& worldFolder);
 

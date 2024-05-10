@@ -1,12 +1,16 @@
 #ifndef LOGIC_SCRIPTING_SCRIPTING_FUNCTIONAL_HPP_
 #define LOGIC_SCRIPTING_SCRIPTING_FUNCTIONAL_HPP_
 
-#include <glm/glm.hpp>
-#include <string>
 #include "../../typedefs.hpp"
 #include "../../delegates.hpp"
+#include "../../data/dynamic.hpp"
+
+#include <glm/glm.hpp>
+#include <string>
 
 namespace scripting {
+    using common_func = std::function<dynamic::Value(const std::vector<dynamic::Value>&)>;
+
     runnable create_runnable(
         const scriptenv& env,
         const std::string& src,

@@ -91,6 +91,8 @@ namespace cmd {
         std::unique_ptr<CommandsRepository> repository;
         std::unordered_map<std::string, dynamic::Value> variables;
     public:
+        CommandsInterpreter() : repository(std::make_unique<CommandsRepository>()) {}
+
         CommandsInterpreter(std::unique_ptr<CommandsRepository> repository)
         : repository(std::move(repository)){}
 
