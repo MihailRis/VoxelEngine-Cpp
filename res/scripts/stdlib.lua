@@ -276,6 +276,13 @@ function table.tostring(t)
     return s..']'
 end
 
+console.add_command(
+    "tp obj:sel=$obj.id x:num~pos.x y:num~pos.y z:num~pos.z",
+    function (args, kwargs)
+        player.set_pos(unpack(args))
+    end
+)
+
 -- Deprecated functions
 block_index = block.index
 block_name = block.name
