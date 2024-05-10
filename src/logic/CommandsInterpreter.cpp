@@ -295,11 +295,13 @@ public:
 
         while (hasNext()) {
             bool relative = false;
+            dynamic::Value value = dynamic::NONE;
             if (peek() == '~') {
                 relative = true;
+                value = 0;
                 nextChar();
             }
-            dynamic::Value value = dynamic::NONE;
+            
             if (hasNext() && peekNoJump() != ' ') {
                 value = parseValue();
 
@@ -316,6 +318,9 @@ public:
                 arg = command->getArgument(arg_index++);
                 if (arg == nullptr) {
                     throw error("extra positional argument");
+                }
+                if (arg->origin.index() && relative) {
+                    break;
                 }
             } while (!typeCheck(arg, value));
 
