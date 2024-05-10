@@ -87,11 +87,16 @@ namespace cmd {
 
     class CommandsInterpreter {
         std::unique_ptr<CommandsRepository> repository;
+        std::unordered_map<std::string, dynamic::Value> variables;
     public:
         CommandsInterpreter(std::unique_ptr<CommandsRepository> repository)
         : repository(std::move(repository)){}
 
         Prompt parse(std::string_view text);
+
+        dynamic::Value& operator[](const std::string& name) {
+            return variables[name];
+        }
 
         CommandsRepository* getRepository() const {
             return repository.get();

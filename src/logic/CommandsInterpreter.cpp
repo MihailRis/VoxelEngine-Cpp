@@ -222,9 +222,11 @@ public:
         return true;
     }
 
-    dynamic::Value fetchOrigin(Argument* arg) {
+    dynamic::Value fetchOrigin(CommandsInterpreter* interpreter, Argument* arg) {
         if (dynamic::is_numeric(arg->origin)) {
             return arg->origin;
+        } else if (auto string = std::get_if<std::string>(&arg->origin)) {
+            return (*interpreter)[*string];
         }
         return dynamic::NONE;
     }
@@ -248,12 +250,12 @@ public:
         }
     }
 
-    dynamic::Value parseRelativeValue(Argument* arg) {
+    dynamic::Value parseRelativeValue(CommandsInterpreter* interpreter, Argument* arg) {
         if (arg->type != ArgType::number && arg->type != ArgType::integer) {
             throw error("'~' operator is only allowed for numeric arguments");
         }
         nextChar();
-        auto origin = fetchOrigin(arg);
+        auto origin = fetchOrigin(interpreter, arg);
         if (peekNoJump() == ' ' || !hasNext()) {
             return origin;
         }
@@ -265,11 +267,13 @@ public:
     }
 
     inline dynamic::Value performKeywordArg(
-        Command* command, const std::string& key
+        CommandsInterpreter* interpreter, Command* command, const std::string& key
     ) {
         if (auto arg = command->getArgument(key)) {
             nextChar();
-            auto value = peek() == '~' ? parseRelativeValue(arg) : parseValue();
+            auto value = peek() == '~' 
+                ? parseRelativeValue(interpreter, arg) 
+                : parseValue();
             typeCheck(arg, value);
             return value;
         } else {
@@ -277,7 +281,8 @@ public:
         }
     }
 
-    Prompt parsePrompt(CommandsRepository* repo) {
+    Prompt parsePrompt(CommandsInterpreter* interpreter) {
+        auto repo = interpreter->getRepository();
         std::string name = parseIdentifier();
         auto command = repo->get(name);
         if (command == nullptr) {
@@ -301,7 +306,7 @@ public:
                 // keyword argument
                 if (!relative && hasNext() && peek() == '=') {
                     auto key = std::get<std::string>(value);
-                    kwargs->put(key, performKeywordArg(command, key));
+                    kwargs->put(key, performKeywordArg(interpreter, command, key));
                 }
             }
 
@@ -315,7 +320,7 @@ public:
             } while (!typeCheck(arg, value));
 
             if (relative) {
-                value = applyRelative(arg, value, fetchOrigin(arg));
+                value = applyRelative(arg, value, fetchOrigin(interpreter, arg));
             }
             std::cout << "argument value: " << value << std::endl;
             args->put(value);
@@ -348,5 +353,5 @@ Command* CommandsRepository::get(const std::string& name) {
 }
 
 Prompt CommandsInterpreter::parse(std::string_view text) {
-    return CommandParser("<string>", text).parsePrompt(repository.get());
+    return CommandParser("<string>", text).parsePrompt(this);
 }
