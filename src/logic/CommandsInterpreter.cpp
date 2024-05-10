@@ -47,11 +47,9 @@ public:
 
     ArgType parseType() {
         if (peek() == '[') {
-            std::cout << "type.name: enum" << std::endl;
             return ArgType::enumvalue;
         }
         std::string name = parseIdentifier(false);
-        std::cout << "type.name: " << name << std::endl;
         auto found = types.find(name);
         if (found != types.end()) {
             return found->second;
@@ -107,12 +105,10 @@ public:
     Argument parseArgument() {
         std::string name = parseIdentifier(false);
         expect(':');
-        std::cout << "arg.name: " << name << std::endl;
         ArgType type = parseType();
         std::string enumname = "";
         if (type == ArgType::enumvalue) {
             enumname = parseEnum();
-            std::cout << "enum: " << enumname << std::endl;
         }
         bool optional = false;
         dynamic::Value def {};
@@ -142,8 +138,6 @@ public:
         std::string name = parseIdentifier(true);
         std::vector<Argument> args;
         std::unordered_map<std::string, Argument> kwargs;
-
-        std::cout << "command.name: " << name << std::endl;
         while (hasNext()) {
             if (peek() == '{') {
                 nextChar();
@@ -329,7 +323,6 @@ public:
             if (relative) {
                 value = applyRelative(arg, value, fetchOrigin(interpreter, arg));
             }
-            std::cout << "argument value: " << value << std::endl;
             args->put(value);
         }
 
