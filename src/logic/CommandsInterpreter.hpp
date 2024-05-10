@@ -23,6 +23,7 @@ namespace cmd {
     };
 
     class Command;
+    class CommandsInterpreter;
 
     struct Prompt {
         Command* command;
@@ -31,6 +32,7 @@ namespace cmd {
     };
 
     using executor_func = std::function<dynamic::Value(
+        CommandsInterpreter*,
         dynamic::List_sptr args,
         dynamic::Map_sptr kwargs
     )>;
@@ -67,8 +69,8 @@ namespace cmd {
             return &found->second;
         }
 
-        dynamic::Value execute(const Prompt& prompt) {
-            return executor(prompt.args, prompt.kwargs);
+        dynamic::Value execute(CommandsInterpreter* interpreter, const Prompt& prompt) {
+            return executor(interpreter, prompt.args, prompt.kwargs);
         }
 
         const std::string& getName() const {
@@ -99,7 +101,7 @@ namespace cmd {
         }
 
         dynamic::Value execute(const Prompt& prompt) {
-            return prompt.command->execute(prompt);
+            return prompt.command->execute(this, prompt);
         }
 
         dynamic::Value& operator[](const std::string& name) {
