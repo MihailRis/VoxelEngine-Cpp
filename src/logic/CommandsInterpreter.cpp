@@ -7,8 +7,9 @@
 
 using namespace cmd;
 
-inline bool is_cmd_identifier_part(char c) {
-    return is_identifier_part(c) || c == '.' || c == '$' || c == '@';
+inline bool is_cmd_identifier_part(char c, bool allowColon) {
+    return is_identifier_part(c) || c == '.' || c == '$' || c == '@' || 
+           (allowColon && c == ':');
 }
 
 inline bool is_cmd_identifier_start(char c) {
@@ -16,7 +17,7 @@ inline bool is_cmd_identifier_start(char c) {
 }
 
 class CommandParser : BasicParser {
-    std::string parseIdentifier() {
+    std::string parseIdentifier(bool allowColon) {
         char c = peek();
         if (!is_identifier_start(c) && c != '$') {
             if (c == '"') {
@@ -26,7 +27,7 @@ class CommandParser : BasicParser {
             throw error("identifier expected");
         }
         int start = pos;
-        while (hasNext() && is_cmd_identifier_part(source[pos])) {
+        while (hasNext() && is_cmd_identifier_part(source[pos], allowColon)) {
             pos++;
         }
         return std::string(source.substr(start, pos-start));
@@ -49,7 +50,7 @@ public:
             std::cout << "type.name: enum" << std::endl;
             return ArgType::enumvalue;
         }
-        std::string name = parseIdentifier();
+        std::string name = parseIdentifier(false);
         std::cout << "type.name: " << name << std::endl;
         auto found = types.find(name);
         if (found != types.end()) {
@@ -62,7 +63,7 @@ public:
     dynamic::Value parseValue() {
         char c = peek();
         if (is_cmd_identifier_start(c)) {
-            auto str = parseIdentifier();
+            auto str = parseIdentifier(true);
             if (str == "true") {
                 return true;
             } else if (str == "false") {
@@ -72,8 +73,9 @@ public:
             }
             return str;
         }
-        if (c == '"') {
-            return parseIdentifier();
+        if (c == '"' || c == '\'') {
+            nextChar();
+            return parseString(c);
         }
         if (c == '+' || c == '-' || is_digit(c)) {
             return parseNumber(c == '-' ? -1 : 1);
@@ -98,12 +100,12 @@ public:
         } else {
             expect('$');
             goBack();
-            return parseIdentifier();
+            return parseIdentifier(false);
         }
     }
 
     Argument parseArgument() {
-        std::string name = parseIdentifier();
+        std::string name = parseIdentifier(false);
         expect(':');
         std::cout << "arg.name: " << name << std::endl;
         ArgType type = parseType();
@@ -137,7 +139,7 @@ public:
     }
 
     Command parseScheme(executor_func executor) {
-        std::string name = parseIdentifier();
+        std::string name = parseIdentifier(true);
         std::vector<Argument> args;
         std::unordered_map<std::string, Argument> kwargs;
 
@@ -283,7 +285,7 @@ public:
 
     Prompt parsePrompt(CommandsInterpreter* interpreter) {
         auto repo = interpreter->getRepository();
-        std::string name = parseIdentifier();
+        std::string name = parseIdentifier(true);
         auto command = repo->get(name);
         if (command == nullptr) {
             throw error("unknown command "+util::quote(name));
