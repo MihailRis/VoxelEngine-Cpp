@@ -99,6 +99,7 @@ public:
     std::string parseName();
     bool hasNext();
     char peek();
+    char peekNoJump();
     char nextChar();
 
     BasicParser(std::string_view file, std::string_view source);

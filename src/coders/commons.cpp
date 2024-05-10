@@ -171,6 +171,13 @@ char BasicParser::peek() {
     return source[pos];
 }
 
+char BasicParser::peekNoJump() {
+    if (pos >= source.length()) {
+        throw error("unexpected end");
+    }
+    return source[pos];
+}
+
 std::string_view BasicParser::readUntil(char c) {
     int start = pos;
     while (hasNext() && source[pos] != c) {

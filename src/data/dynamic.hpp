@@ -35,8 +35,16 @@ namespace dynamic {
         integer_t
     >;
 
+    const std::string& type_name(const Value& value);
     List_sptr create_list(std::initializer_list<Value> values={});
     Map_sptr create_map(std::initializer_list<std::pair<const std::string, Value>> entries={});
+    number_t get_number(const Value& value);
+    integer_t get_integer(const Value& value);
+    
+    inline bool is_numeric(const Value& value) {
+        return std::holds_alternative<number_t>(value) ||
+               std::holds_alternative<integer_t>(value);
+    }
 
     class List {
     public:

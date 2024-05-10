@@ -157,27 +157,124 @@ public:
         return Command(name, std::move(args), std::move(kwargs), executor);
     }
 
+    inline parsing_error argumentError(
+        const std::string& argname, 
+        const std::string& message
+    ) {
+        return error("argument "+util::quote(argname)+": "+message);
+    }
+
+    inline parsing_error typeError(
+        const std::string& argname, 
+        const std::string& expected, 
+        const dynamic::Value& value
+    ) {
+        return argumentError(
+            argname, expected+" expected, got "+dynamic::type_name(value)
+        );
+    }
+
+    template<typename T>
+    bool typeCheck(Argument* arg, const dynamic::Value& value, const std::string& tname) {
+        if (!std::holds_alternative<T>(value)) {
+            if (arg->optional) {
+                return false;
+            } else {
+                throw typeError(arg->name, tname, value);
+            }
+        }
+        return true;
+    }
+
     bool typeCheck(Argument* arg, const dynamic::Value& value) {
         switch (arg->type) {
             case ArgType::enumvalue: {
-                auto& enumname = arg->enumname;
                 if (auto* string = std::get_if<std::string>(&value)) {
+                    auto& enumname = arg->enumname;
                     if (enumname.find("|"+*string+"|") == std::string::npos) {
-                        throw error("invalid enumeration value");
+                        throw error("argument "+util::quote(arg->name)+
+                                    ": invalid enumeration value");
                     }
                 } else {
                     if (arg->optional) {
                         return false;
                     }
-                    throw error("enumeration value expected");
+                    throw typeError(arg->name, "enumeration value", value);
                 }
                 break;
             }
-            case ArgType::number: {
-                // FIXME
-            }
+            case ArgType::number:
+                if (!dynamic::is_numeric(value)) {
+                    if (arg->optional) {
+                        return false;
+                    } else {
+                        throw typeError(arg->name, "number", value);
+                    }
+                }
+                break;
+            case ArgType::integer:
+                return typeCheck<integer_t>(arg, value, "integer");
+            case ArgType::string:
+                return typeCheck<std::string>(arg, value, "string");
+            case ArgType::selector:
+                return typeCheck<integer_t>(arg, value, "id");
         }
         return true;
+    }
+
+    dynamic::Value fetchOrigin(Argument* arg) {
+        if (dynamic::is_numeric(arg->origin)) {
+            return arg->origin;
+        }
+        return dynamic::NONE;
+    }
+
+    dynamic::Value applyRelative(
+        Argument* arg, 
+        dynamic::Value value,
+        dynamic::Value origin
+    ) {
+        if (origin.index() == 0) {
+            return value;
+        }
+        try {
+            if (arg->type == ArgType::number) {
+                return dynamic::get_number(origin) + dynamic::get_number(value);
+            } else {
+                return dynamic::get_integer(origin) + dynamic::get_integer(value);
+            }
+        } catch (std::runtime_error& err) {
+            throw argumentError(arg->name, err.what());
+        }
+    }
+
+    dynamic::Value parseRelativeValue(Argument* arg) {
+        if (arg->type != ArgType::number && arg->type != ArgType::integer) {
+            throw error("'~' operator is only allowed for numeric arguments");
+        }
+        nextChar();
+        auto origin = fetchOrigin(arg);
+        if (peekNoJump() == ' ' || !hasNext()) {
+            return origin;
+        }
+        auto value = parseValue();
+        if (origin.index() == 0) {
+            return value;
+        }
+        return applyRelative(arg, value, origin);
+    }
+
+    inline dynamic::Value performKeywordArg(
+        Command* command, const std::string& key
+    ) {
+        if (auto arg = command->getArgument(key)) {
+            nextChar();
+            auto value = peek() == '~' ? parseRelativeValue(arg) : parseValue();
+            typeCheck(arg, value);
+            return value;
+        } else {
+            throw error("unknown keyword "+util::quote(key));
+        }
     }
 
     Prompt parsePrompt(CommandsRepository* repo) {
@@ -192,21 +289,36 @@ public:
         int arg_index = 0;
 
         while (hasNext()) {
-            auto value = parseValue();
-            if (hasNext() && peek() == '=') {
-                auto key = std::get<std::string>(value);
+            bool relative = false;
+            if (peek() == '~') {
+                relative = true;
                 nextChar();
-                kwargs->put(key, parseValue());
-            } else {
-                Argument* arg;
-                do {
-                    arg = command->getArgument(arg_index++);
-                    if (arg == nullptr) {
-                        throw error("extra positional argument");
-                    }
-                } while (!typeCheck(arg, value));
-                args->put(value);
             }
+            dynamic::Value value = dynamic::NONE;
+            if (hasNext() && peekNoJump() != ' ') {
+                value = parseValue();
+
+                // keyword argument
+                if (!relative && hasNext() && peek() == '=') {
+                    auto key = std::get<std::string>(value);
+                    kwargs->put(key, performKeywordArg(command, key));
+                }
+            }
+
+            // positional argument
+            Argument* arg;
+            do {
+                arg = command->getArgument(arg_index++);
+                if (arg == nullptr) {
+                    throw error("extra positional argument");
+                }
+            } while (!typeCheck(arg, value));
+
+            if (relative) {
+                value = applyRelative(arg, value, fetchOrigin(arg));
+            }
+            std::cout << "argument value: " << value << std::endl;
+            args->put(value);
         }
 
         while (auto arg = command->getArgument(arg_index++)) {

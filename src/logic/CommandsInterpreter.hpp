@@ -59,6 +59,14 @@ namespace cmd {
             return &args[index];
         }
 
+        Argument* getArgument(const std::string& keyword) {
+            auto found = kwargs.find(keyword);
+            if (found == kwargs.end()) {
+                return nullptr;
+            }
+            return &found->second;
+        }
+
         dynamic::Value execute(const Prompt& prompt) {
             return executor(prompt.args, prompt.kwargs);
         }
