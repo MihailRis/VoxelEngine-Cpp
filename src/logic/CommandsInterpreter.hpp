@@ -94,6 +94,14 @@ namespace cmd {
 
         Prompt parse(std::string_view text);
 
+        dynamic::Value execute(std::string_view input) {
+            return execute(parse(input));
+        }
+
+        dynamic::Value execute(const Prompt& prompt) {
+            return prompt.command->execute(prompt);
+        }
+
         dynamic::Value& operator[](const std::string& name) {
             return variables[name];
         }
