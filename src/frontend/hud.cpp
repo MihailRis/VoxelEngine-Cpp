@@ -295,15 +295,7 @@ void Hud::update(bool visible) {
 void Hud::openInventory() {
     auto level = frontend->getLevel();
     auto content = level->content;
-    exchangeSlotInv = level->inventories->createVirtual(1);
-    exchangeSlot = std::make_shared<SlotView>(
-        SlotLayout(-1, glm::vec2(), false, false, nullptr, nullptr, nullptr)
-    );
-    exchangeSlot->bind(exchangeSlotInv->getId(), exchangeSlotInv->getSlot(0), content);
-    exchangeSlot->setColor(glm::vec4());
-    exchangeSlot->setInteractive(false);
-    exchangeSlot->setZIndex(1);
-    gui->store(SlotView::EXCHANGE_SLOT_NAME, exchangeSlot);
+    showExchangeSlot();
 
     inventoryOpen = true;
     auto inventory = player->getInventory();
@@ -345,6 +337,21 @@ void Hud::openInventory(
     add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
 }
 
+void Hud::showExchangeSlot() {
+    auto level = frontend->getLevel();
+    auto content = level->content;
+    exchangeSlotInv = level->inventories->createVirtual(1);
+    exchangeSlot = std::make_shared<SlotView>(
+        SlotLayout(-1, glm::vec2(), false, false, nullptr, nullptr, nullptr)
+    );
+    exchangeSlot->bind(exchangeSlotInv->getId(), exchangeSlotInv->getSlot(0), content);
+    exchangeSlot->setColor(glm::vec4());
+    exchangeSlot->setInteractive(false);
+    exchangeSlot->setZIndex(1);
+    gui->store(SlotView::EXCHANGE_SLOT_NAME, exchangeSlot);
+
+}
+
 void Hud::showOverlay(UiDocument* doc, bool playerInventory) {
     if (isInventoryOpen()) {
         closeInventory();
@@ -353,6 +360,7 @@ void Hud::showOverlay(UiDocument* doc, bool playerInventory) {
     if (playerInventory) {
         openInventory();
     } else {
+        showExchangeSlot();
         inventoryOpen = true;
     }
     add(HudElement(hud_element_mode::inventory_bound, doc, secondUI, false));
@@ -377,6 +385,14 @@ void Hud::closeInventory() {
     inventoryView = nullptr;
     blockUI = nullptr;
     secondUI = nullptr;
+
+    for (auto& element : elements) {
+        if (element.isInventoryBound()) {
+            element.setRemoved();
+            onRemove(element);
+        }
+    }
+    cleanup();
 }
 
 void Hud::add(HudElement element) {

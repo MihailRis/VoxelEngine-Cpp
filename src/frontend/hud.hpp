@@ -55,6 +55,10 @@ public:
     UiDocument* getDocument() const;
     std::shared_ptr<gui::UINode> getNode() const;
 
+    bool isInventoryBound() const {
+        return mode == hud_element_mode::inventory_bound;
+    }
+
     void setRemoved() {
         removed = true;
     }
@@ -112,6 +116,8 @@ class Hud : public util::ObjectsKeeper {
     void updateElementsPosition(const Viewport& viewport);
     void updateHotbarControl();
     void cleanup();
+
+    void showExchangeSlot();
 public:
     Hud(Engine* engine, LevelFrontend* frontend, Player* player);
     ~Hud();
