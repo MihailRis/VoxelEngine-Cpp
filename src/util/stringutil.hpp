@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 namespace util {
     /// @brief Function used for string serialization in text formats 

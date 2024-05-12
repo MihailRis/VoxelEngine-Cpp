@@ -11,6 +11,8 @@
 #endif
 #include <glm/glm.hpp>
 
+#include <stdexcept>
+
 namespace lua {
     inline int pushivec3(lua_State* L, luaint x, luaint y, luaint z) {
         lua_pushinteger(L, x);
@@ -94,6 +96,9 @@ namespace lua {
 
     inline glm::vec2 tovec2(lua_State* L, int idx) {
         lua_pushvalue(L, idx);
+        if (!lua_istable(L, idx) || lua_objlen(L, idx) < 2) {
+            throw std::runtime_error("value must be an array of two numbers");
+        }
         lua_rawgeti(L, -1, 1);
         lua::luanumber x = lua_tonumber(L, -1); lua_pop(L, 1);
         lua_rawgeti(L, -1, 2);
@@ -104,8 +109,8 @@ namespace lua {
 
     inline glm::vec4 tocolor(lua_State* L, int idx) {
         lua_pushvalue(L, idx);
-        if (!lua_istable(L, -1)) {
-            luaL_error(L, "RGBA array required");
+        if (!lua_istable(L, -1) || lua_objlen(L, idx) < 4) {
+            throw std::runtime_error("RGBA array required");
         }
         lua_rawgeti(L, -1, 1);
         lua::luanumber r = lua_tonumber(L, -1); lua_pop(L, 1);
