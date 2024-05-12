@@ -204,6 +204,13 @@ static int p_get_text(UINode* node) {
     return 0;
 }
 
+static int p_get_editable(UINode* node) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        return state->pushboolean(box->isEditable());
+    }
+    return 0;
+}
+
 static int p_get_add(UINode* node) {
     if (dynamic_cast<Container*>(node)) {
         return state->pushcfunction(l_container_add);
@@ -268,6 +275,7 @@ static int l_gui_getattr(lua_State* L) {
         {"placeholder", p_get_placeholder},
         {"valid", p_is_valid},
         {"text", p_get_text},
+        {"editable", p_get_editable},
         {"value", p_get_value},
         {"min", p_get_min},
         {"max", p_get_max},
@@ -323,6 +331,11 @@ static void p_set_text(UINode* node, int idx) {
         button->setText(util::str2wstr_utf8(state->tostring(idx)));
     } else if (auto box = dynamic_cast<TextBox*>(node)) {
         box->setText(util::str2wstr_utf8(state->tostring(idx)));
+    }
+}
+static void p_set_editable(UINode* node, int idx) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        box->setEditable(state->toboolean(idx));
     }
 }
 static void p_set_value(UINode* node, int idx) {
@@ -397,6 +410,7 @@ static int l_gui_setattr(lua_State* L) {
         {"enabled", p_set_enabled},
         {"placeholder", p_set_placeholder},
         {"text", p_set_text},
+        {"editable", p_set_editable},
         {"value", p_set_value},
         {"min", p_set_min},
         {"max", p_set_max},
