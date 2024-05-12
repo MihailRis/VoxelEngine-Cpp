@@ -38,7 +38,11 @@ public:
 
     const EngineSettings& settings;
 
-    Level(World* world, const Content* content, EngineSettings& settings);
+    Level(
+        std::unique_ptr<World> world, 
+        const Content* content, 
+        EngineSettings& settings
+    );
     ~Level();
 
     void loadMatrix(int32_t x, int32_t z, uint32_t radius);

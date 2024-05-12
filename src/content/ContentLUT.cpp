@@ -33,8 +33,10 @@ ContentLUT::ContentLUT(const Content* content, size_t blocksCount, size_t itemsC
     }
 }
 
-ContentLUT* ContentLUT::create(const fs::path& filename, 
-                               const Content* content) {
+std::shared_ptr<ContentLUT> ContentLUT::create(
+    const fs::path& filename, 
+    const Content* content
+) {
     auto root = files::read_json(filename);
     auto blocklist = root->list("blocks");
     auto itemlist = root->list("items");
@@ -47,7 +49,7 @@ ContentLUT* ContentLUT::create(const fs::path& filename,
                      ? std::max(itemlist->size(), indices->countItemDefs()) 
                      : indices->countItemDefs();    
 
-    auto lut = std::make_unique<ContentLUT>(content, blocks_c, items_c);
+    auto lut = std::make_shared<ContentLUT>(content, blocks_c, items_c);
 
     if (blocklist) {
         for (size_t i = 0; i < blocklist->size(); i++) {
@@ -74,7 +76,7 @@ ContentLUT* ContentLUT::create(const fs::path& filename,
     }
 
     if (lut->hasContentReorder() || lut->hasMissingContent()) {
-        return lut.release();
+        return lut;
     } else {
         return nullptr;
     }

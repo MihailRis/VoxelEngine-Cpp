@@ -1,10 +1,10 @@
 #ifndef LOGIC_SCRIPTING_SCRIPTING_FUNCTIONAL_HPP_
 #define LOGIC_SCRIPTING_SCRIPTING_FUNCTIONAL_HPP_
 
-#include <glm/glm.hpp>
-#include <string>
 #include "../../typedefs.hpp"
 #include "../../delegates.hpp"
+
+#include <string>
 
 namespace scripting {
     runnable create_runnable(

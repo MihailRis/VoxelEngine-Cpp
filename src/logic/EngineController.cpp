@@ -110,8 +110,8 @@ static void loadWorld(Engine* engine, fs::path folder) {
         auto& packs = engine->getContentPacks();
         auto& settings = engine->getSettings();
 
-        Level* level = World::load(folder, settings, content, packs);
-        engine->setScreen(std::make_shared<LevelScreen>(engine, level));
+        auto level = World::load(folder, settings, content, packs);
+        engine->setScreen(std::make_shared<LevelScreen>(engine, std::move(level)));
     } catch (const world_load_error& error) {
         guiutil::alert(
             engine->getGUI(), langs::get(L"Error")+L": "+
@@ -197,13 +197,13 @@ void EngineController::createWorld(
         return;
     }
 
-    Level* level = World::create(
+    auto level = World::create(
         name, generatorID, folder, seed, 
         engine->getSettings(), 
         engine->getContent(),
         engine->getContentPacks()
     );
-    engine->setScreen(std::make_shared<LevelScreen>(engine, level));
+    engine->setScreen(std::make_shared<LevelScreen>(engine, std::move(level)));
 }
 
 void EngineController::reopenWorld(World* world) {

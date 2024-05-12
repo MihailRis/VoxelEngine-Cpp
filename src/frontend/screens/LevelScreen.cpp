@@ -24,7 +24,7 @@
 
 static debug::Logger logger("level-screen");
 
-LevelScreen::LevelScreen(Engine* engine, Level* level)
+LevelScreen::LevelScreen(Engine* engine, std::unique_ptr<Level> level)
  : Screen(engine), postProcessing(std::make_unique<PostProcessing>()) 
 {
     auto& settings = engine->getSettings();
@@ -32,7 +32,7 @@ LevelScreen::LevelScreen(Engine* engine, Level* level)
     auto menu = engine->getGUI()->getMenu();
     menu->reset();
 
-    controller = std::make_unique<LevelController>(settings, level);
+    controller = std::make_unique<LevelController>(settings, std::move(level));
     frontend = std::make_unique<LevelFrontend>(controller.get(), assets);
 
     worldRenderer = std::make_unique<WorldRenderer>(engine, frontend.get(), controller->getPlayer());

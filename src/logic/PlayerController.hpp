@@ -1,13 +1,13 @@
 #ifndef PLAYER_CONTROL_HPP_
 #define PLAYER_CONTROL_HPP_
 
+#include "../settings.hpp"
+#include "../objects/Player.hpp"
+
 #include <memory>
 #include <vector>
 #include <functional>
 #include <glm/glm.hpp>
-
-#include "../settings.hpp"
-#include "../objects/Player.hpp"
 
 class Camera;
 class Level;
@@ -38,7 +38,7 @@ class CameraControl {
 public:
     CameraControl(std::shared_ptr<Player> player, const CameraSettings& settings);
     void updateMouse(PlayerInput& input);
-    void update(PlayerInput& input, float delta, Chunks* chunks);
+    void update(const PlayerInput& input, float delta, Chunks* chunks);
     void refresh();
 };
 
@@ -55,7 +55,7 @@ using on_block_interaction = std::function<void(
 class PlayerController {
     Level* level;
     std::shared_ptr<Player> player;
-    PlayerInput input;
+    PlayerInput input {};
     CameraControl camControl;
     BlocksController* blocksController;
 

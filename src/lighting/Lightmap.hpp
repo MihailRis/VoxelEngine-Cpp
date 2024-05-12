@@ -87,4 +87,4 @@ public:
     static std::unique_ptr<light_t[]> decode(const ubyte* buffer);
 };
 
-#endif /* LIGHTING_LIGHTMAP_HPP_ */
+#endif // LIGHTING_LIGHTMAP_HPP_

@@ -20,7 +20,7 @@ class LevelController {
     std::unique_ptr<ChunksController> chunks;
     std::unique_ptr<PlayerController> player;
 public:
-    LevelController(EngineSettings& settings, Level* level);
+    LevelController(EngineSettings& settings, std::unique_ptr<Level> level);
 
     /// @param delta time elapsed since the last update
     /// @param input is user input allowed to be handled

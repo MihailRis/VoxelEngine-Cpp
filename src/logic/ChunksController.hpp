@@ -31,4 +31,4 @@ public:
     void update(int64_t maxDuration);
 };
 
-#endif /* VOXELS_CHUNKSCONTROLLER_HPP_ */
+#endif // VOXELS_CHUNKSCONTROLLER_HPP_

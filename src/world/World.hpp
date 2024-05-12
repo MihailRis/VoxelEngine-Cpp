@@ -12,13 +12,10 @@
 #include <vector>
 #include <memory>
 #include <filesystem>
-#include <stdexcept>
 
 class Content;
 class WorldFiles;
-class Chunks;
 class Level;
-class Player;
 class ContentLUT;
 
 namespace fs = std::filesystem;
@@ -75,7 +72,9 @@ public:
     /// @param directory world directory
     /// @param content current Content instance
     /// @return ContentLUT if world convert required else nullptr 
-    static ContentLUT* checkIndices(const fs::path& directory, const Content* content);
+    static std::shared_ptr<ContentLUT> checkIndices(
+        const fs::path& directory, const Content* content
+    );
 
     /// @brief Create new world
     /// @param name internal world name
@@ -87,7 +86,7 @@ public:
     /// with all world content-packs applied
     /// @param packs vector of all world content-packs
     /// @return Level instance containing World instance
-    static Level* create(
+    static std::unique_ptr<Level> create(
         std::string name, 
         std::string generator,
         fs::path directory, 
@@ -105,7 +104,7 @@ public:
     /// @param packs vector of all world content-packs
     /// @return Level instance containing World instance
     /// @throws world_load_error on world.json load error
-    static Level* load(
+    static std::unique_ptr<Level> load(
         fs::path directory,
         EngineSettings& settings,
         const Content* content,
@@ -148,4 +147,4 @@ public:
     void deserialize(dynamic::Map *src) override;
 };
 
-#endif /* WORLD_WORLD_HPP_ */
+#endif // WORLD_WORLD_HPP_

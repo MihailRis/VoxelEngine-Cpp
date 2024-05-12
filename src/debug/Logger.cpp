@@ -3,6 +3,7 @@
 #include <ctime>
 #include <iomanip>
 #include <chrono>
+#include <iostream>
 
 using namespace debug;
 
