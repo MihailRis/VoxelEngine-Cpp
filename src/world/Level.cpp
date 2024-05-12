@@ -12,8 +12,11 @@
 #include "../items/Inventory.hpp"
 #include "../items/Inventories.hpp"
 
-Level::Level(World* world, const Content* content, EngineSettings& settings)
-  : world(world),
+Level::Level(
+    std::unique_ptr<World> world,
+    const Content* content,
+    EngineSettings& settings
+) : world(std::move(world)),
 	content(content),
 	chunksStorage(std::make_unique<ChunksStorage>(this)),
 	physics(std::make_unique<PhysicsSolver>(glm::vec3(0, -22.6f, 0))),
@@ -21,7 +24,7 @@ Level::Level(World* world, const Content* content, EngineSettings& settings)
 	settings(settings)
 {
 	auto inv = std::make_shared<Inventory>(
-        world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE
+        this->world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE
     );
 	auto player = spawnObject<Player>(
         glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv
@@ -32,7 +35,7 @@ Level::Level(World* world, const Content* content, EngineSettings& settings)
         settings.chunks.padding.get()
     ) * 2;
     chunks = std::make_unique<Chunks>(
-		matrixSize, matrixSize, 0, 0, world->wfile.get(), events.get(), content
+		matrixSize, matrixSize, 0, 0, this->world->wfile.get(), events.get(), content
 	);
 	lighting = std::make_unique<Lighting>(content, chunks.get());
 

@@ -34,7 +34,6 @@ const float RUN_ZOOM = 1.1f;
 const float C_ZOOM = 0.1f;
 const float CROUCH_SHIFT_Y = -0.2f;
 
-
 CameraControl::CameraControl(std::shared_ptr<Player> player, const CameraSettings& settings) 
   : player(player), 
     camera(player->camera),
@@ -136,7 +135,7 @@ void CameraControl::switchCamera() {
     }
 }
 
-void CameraControl::update(PlayerInput& input, float delta, Chunks* chunks) {
+void CameraControl::update(const PlayerInput& input, float delta, Chunks* chunks) {
     offset = glm::vec3(0.0f, 0.7f, 0.0f);
 
     if (settings.shaking.get() && !input.cheat) {

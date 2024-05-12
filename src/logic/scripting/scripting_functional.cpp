@@ -34,7 +34,7 @@ static bool processCallback(
     try {
         return state->eval(*env, src, file) != 0;
     } catch (lua::luaerror& err) {
-        std::cerr << err.what() << std::endl;
+        logger.error() << err.what();
         return false;
     }
 }

@@ -74,7 +74,8 @@ void langs::loadLocalesInfo(const fs::path& resdir, std::string& fallback) {
 
     auto langs = root->map("langs");
     if (langs) {
-        std::cout << "locales ";
+        auto logline = logger.info();
+        logline << "locales ";
         for (auto& entry : langs->values) {
             auto langInfo = entry.second;
 
@@ -84,10 +85,10 @@ void langs::loadLocalesInfo(const fs::path& resdir, std::string& fallback) {
             } else {
                 continue;
             }
-            std::cout << "[" << entry.first << " (" << name << ")] ";
+            logline << "[" << entry.first << " (" << name << ")] ";
             langs::locales_info[entry.first] = LocaleInfo {entry.first, name};
         } 
-        std::cout << "added" << std::endl;
+        logline << "added";
     }
 }
 
@@ -97,17 +98,17 @@ std::string langs::locale_by_envlocale(const std::string& envlocale, const fs::p
         loadLocalesInfo(resdir, fallback);
     }
     if (locales_info.find(envlocale) != locales_info.end()) {
-        std::cout << "locale " << envlocale << " is automatically selected" << std::endl;
+        logger.info() << "locale " << envlocale << " is automatically selected";
         return envlocale;
     }
     else {
         for (const auto& loc : locales_info) {
             if (loc.first.find(envlocale.substr(0, 2)) != std::string::npos) {
-                std::cout << "locale " << loc.first << " is automatically selected" << std::endl;
+                logger.info() << "locale " << loc.first << " is automatically selected";
                 return loc.first;
             }
         }
-        std::cout << "locale " << fallback << " is automatically selected" << std::endl;
+        logger.info() << "locale " << fallback << " is automatically selected";
         return fallback;
     }
 }

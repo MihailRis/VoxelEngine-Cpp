@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <string>
 
+#include <string>
+
 namespace scripting {
     using common_func = std::function<dynamic::Value(const std::vector<dynamic::Value>&)>;
 

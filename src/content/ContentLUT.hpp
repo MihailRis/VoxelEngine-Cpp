@@ -70,7 +70,7 @@ public:
         }
     }
 
-    static ContentLUT* create(
+    static std::shared_ptr<ContentLUT> create(
         const fs::path& filename, 
         const Content* content
     );
