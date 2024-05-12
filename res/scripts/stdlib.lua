@@ -276,6 +276,15 @@ function table.tostring(t)
     return s..']'
 end
 
+function file.readlines(path)
+    local str = file.read(path)
+    local lines = {}
+    for s in str:gmatch("[^\r\n]+") do
+        table.insert(lines, s)
+    end
+    return lines
+end
+
 console.add_command(
     "tp obj:sel=$obj.id x:num~pos.x y:num~pos.y z:num~pos.z",
     function (args, kwargs)

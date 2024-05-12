@@ -266,7 +266,7 @@ void Engine::loadContent() {
     names = manager.assembly(names);
     contentPacks = manager.getAll(names);
 
-    std::vector<std::pair<std::string, fs::path>> resRoots;
+    std::vector<PathsRoot> resRoots;
     for (auto& pack : contentPacks) {
         resRoots.push_back({pack.id, pack.folder});
 

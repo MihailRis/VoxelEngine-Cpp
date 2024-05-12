@@ -1,4 +1,5 @@
 #include "api_lua.hpp"
+#include "lua_util.hpp"
 #include "lua_commons.hpp"
 #include "LuaState.hpp"
 #include "../scripting.hpp"
@@ -39,9 +40,14 @@ static int l_add_callback(lua_State* L) {
     return 0;
 }
 
+static int l_get_mouse_pos(lua_State* L) {
+    return lua::pushvec2_arr(L, Events::cursor);
+}
+
 const luaL_Reg inputlib [] = {
     {"keycode", lua_wrap_errors<l_keycode>},
     {"add_callback", lua_wrap_errors<l_add_callback>},
+    {"get_mouse_pos", lua_wrap_errors<l_get_mouse_pos>},
     {NULL, NULL}
 };
 

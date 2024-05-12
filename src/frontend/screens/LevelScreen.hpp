@@ -26,6 +26,7 @@ class LevelScreen : public Screen {
 
     bool hudVisible = true;
     void updateHotkeys();
+    void initializeContent();
 public:
     LevelScreen(Engine* engine, Level* level);
     ~LevelScreen();

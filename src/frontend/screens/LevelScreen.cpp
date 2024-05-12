@@ -24,9 +24,9 @@
 
 static debug::Logger logger("level-screen");
 
-LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
-    postProcessing = std::make_unique<PostProcessing>();
-
+LevelScreen::LevelScreen(Engine* engine, Level* level)
+ : Screen(engine), postProcessing(std::make_unique<PostProcessing>()) 
+{
     auto& settings = engine->getSettings();
     auto assets = engine->getAssets();
     auto menu = engine->getGUI()->getMenu();
@@ -48,7 +48,11 @@ LevelScreen::LevelScreen(Engine* engine, Level* level) : Screen(engine) {
     animator = std::make_unique<TextureAnimator>();
     animator->addAnimations(assets->getAnimations());
 
-    auto content = level->content;
+    initializeContent();
+}
+
+void LevelScreen::initializeContent() {
+    auto content = controller->getLevel()->content;
     for (auto& entry : content->getPacks()) {
         auto pack = entry.second.get();
         const ContentPack& info = pack->getInfo();

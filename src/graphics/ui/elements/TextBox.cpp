@@ -130,7 +130,6 @@ void TextBox::drawBackground(const DrawContext* pctx, Assets*) {
 /// @brief Insert text at the caret. Also selected text will be erased
 /// @param text Inserting text
 void TextBox::paste(const std::wstring& text) {
-    
     eraseSelected();
     if (caret >= input.length()) {
         input += text;
@@ -203,7 +202,9 @@ void TextBox::setTextOffset(uint x) {
 }
 
 void TextBox::typed(unsigned int codepoint) {
-    paste(std::wstring({(wchar_t)codepoint}));
+    if (editable) {
+        paste(std::wstring({(wchar_t)codepoint}));
+    }
 }
 
 bool TextBox::validate() {
