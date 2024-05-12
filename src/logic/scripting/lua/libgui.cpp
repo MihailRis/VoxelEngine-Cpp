@@ -34,14 +34,14 @@ struct DocumentNode {
 
 using namespace scripting;
 
-static DocumentNode getDocumentNode(lua_State* L, const std::string& name, const std::string& nodeName) {
+static DocumentNode getDocumentNode(lua_State*, const std::string& name, const std::string& nodeName) {
     auto doc = engine->getAssets()->getLayout(name);
     if (doc == nullptr) {
-        luaL_error(L, "document '%s' not found", name.c_str());
+        throw std::runtime_error("document '"+name+"' not found");
     }
     auto node = doc->get(nodeName);
     if (node == nullptr) {
-        luaL_error(L, "document '%s' has no element with id '%s'", name.c_str(), nodeName.c_str());
+        throw std::runtime_error("document '"+name+"' has no element with id '"+nodeName+"'");
     }
     return {doc, node};
 }
@@ -79,7 +79,7 @@ static int l_container_add(lua_State* L) {
         node->add(subnode);
         UINode::getIndices(subnode, docnode.document->getMapWriteable());
     } catch (const std::exception& err) {
-        luaL_error(L, err.what());
+        throw std::runtime_error(err.what());
     }
     return 0;
 }
@@ -418,7 +418,7 @@ static int l_gui_get_env(lua_State* L) {
     auto name = lua_tostring(L, 1);
     auto doc = scripting::engine->getAssets()->getLayout(name);
     if (doc == nullptr) {
-        luaL_error(L, "document '%s' not found", name);
+        throw std::runtime_error("document '"+std::string(name)+"' not found");
     }
     lua_getglobal(L, lua::LuaState::envName(*doc->getEnvironment()).c_str());
     return 1;
@@ -439,7 +439,7 @@ static int l_gui_reindex(lua_State* L) {
     auto name = lua_tostring(L, 1);
     auto doc = scripting::engine->getAssets()->getLayout(name);
     if (doc == nullptr) {
-        luaL_error(L, "document '%s' not found", name);
+        throw std::runtime_error("document '"+std::string(name)+"' not found");
     }
     doc->rebuildIndices();
     return 0;

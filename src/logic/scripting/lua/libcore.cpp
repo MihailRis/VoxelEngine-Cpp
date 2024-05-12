@@ -47,7 +47,7 @@ static int l_reopen_world(lua_State*) {
 
 static int l_close_world(lua_State* L) {
     if (scripting::controller == nullptr) {
-        luaL_error(L, "no world open");
+        throw std::runtime_error("no world open");
     }
     bool save_world = lua_toboolean(L, 1);
     if (save_world) {
@@ -69,12 +69,15 @@ static int l_delete_world(lua_State* L) {
 
 static int l_reconfig_packs(lua_State* L) {
     if (!lua_istable(L, 1)) {
-        luaL_error(L, "strings array expected as the first argument");
+        throw std::runtime_error("strings array expected as the first argument");
     }
     if (!lua_istable(L, 2)) {
-        luaL_error(L, "strings array expected as the second argument");
+        throw std::runtime_error("strings array expected as the second argument");
     }
     std::vector<std::string> addPacks;
+    if (!lua_istable(L, 1)) {
+        throw std::runtime_error("an array expected as argument 1");
+    }
     int addLen = lua_objlen(L, 1);
     for (int i = 0; i < addLen; i++) {
         lua_rawgeti(L, 1, i+1);
@@ -83,6 +86,9 @@ static int l_reconfig_packs(lua_State* L) {
     }
 
     std::vector<std::string> remPacks;
+    if (!lua_istable(L, 2)) {
+        throw std::runtime_error("an array expected as argument 2");
+    }
     int remLen = lua_objlen(L, 2);
     for (int i = 0; i < remLen; i++) {
         lua_rawgeti(L, 2, i+1);
@@ -147,8 +153,7 @@ static int l_get_setting_info(lua_State* L) {
         return 1;
     }
     lua_pop(L, 1);
-    luaL_error(L, "unsupported setting type");
-    return 0;
+    throw std::runtime_error("unsupported setting type");
 }
 
 static int l_quit(lua_State*) {

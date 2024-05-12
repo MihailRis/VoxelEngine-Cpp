@@ -5,6 +5,7 @@
 
 #include "../../../window/input.hpp"
 #include "../../../window/Events.hpp"
+#include "../../../util/stringutil.hpp"
 #include "../../../frontend/screens/Screen.hpp"
 #include "../../../frontend/hud.hpp"
 #include "../../../engine.hpp"
@@ -26,7 +27,7 @@ static int l_add_callback(lua_State* L) {
     auto bindname = lua_tostring(L, 1);
     const auto& bind = Events::bindings.find(bindname);
     if (bind == Events::bindings.end()) {
-        luaL_error(L, "unknown binding %q", bindname);
+        throw std::runtime_error("unknown binding "+util::quote(bindname));
     }
     state->pushvalue(2);
     runnable callback = state->createRunnable();
