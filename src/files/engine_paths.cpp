@@ -164,14 +164,14 @@ fs::path EnginePaths::resolve(std::string path) {
     throw files_access_error("unknown entry point '"+prefix+"'");
 }
 
-ResPaths::ResPaths(fs::path mainRoot, std::vector<std::pair<std::string, fs::path>> roots) 
+ResPaths::ResPaths(fs::path mainRoot, std::vector<PathsRoot> roots) 
     : mainRoot(mainRoot), roots(roots) {
 }
 
 fs::path ResPaths::find(const std::string& filename) const {
     for (int i = roots.size()-1; i >= 0; i--) {
         auto& root = roots[i];
-        fs::path file = root.second / fs::u8path(filename);
+        fs::path file = root.path / fs::u8path(filename);
         if (fs::exists(file)) {
             return file;
         }
@@ -182,8 +182,8 @@ fs::path ResPaths::find(const std::string& filename) const {
 std::string ResPaths::findRaw(const std::string& filename) const {
     for (int i = roots.size()-1; i >= 0; i--) {
         auto& root = roots[i];
-        if (fs::exists(root.second / fs::path(filename))) {
-            return root.first+":"+filename;
+        if (fs::exists(root.path / fs::path(filename))) {
+            return root.name + ":" + filename;
         }
     }
     auto resDir = mainRoot;
@@ -193,11 +193,35 @@ std::string ResPaths::findRaw(const std::string& filename) const {
     throw std::runtime_error("could not to find file "+util::quote(filename));
 }
 
+std::vector<std::string> ResPaths::listdirRaw(const std::string& folderName) const {
+    std::vector<std::string> entries;
+    for (int i = roots.size()-1; i >= 0; i--) {
+        auto& root = roots[i];
+        fs::path folder = root.path / fs::u8path(folderName);
+        if (!fs::is_directory(folder))
+            continue;
+        for (const auto& entry : fs::directory_iterator(folder)) {
+            auto name = entry.path().filename().u8string();
+            entries.push_back(root.name+":"+folderName+"/"+name);
+        }
+    }
+    {
+        fs::path folder = mainRoot / fs::u8path(folderName);
+        if (!fs::is_directory(folder))
+            return entries;
+        for (const auto& entry : fs::directory_iterator(folder)) {
+            auto name = entry.path().filename().u8string();
+            entries.push_back("core:"+folderName+"/"+name);
+        }
+    }
+    return entries;
+}
+
 std::vector<fs::path> ResPaths::listdir(const std::string& folderName) const {
     std::vector<fs::path> entries;
     for (int i = roots.size()-1; i >= 0; i--) {
         auto& root = roots[i];
-        fs::path folder = root.second / fs::u8path(folderName);
+        fs::path folder = root.path / fs::u8path(folderName);
         if (!fs::is_directory(folder))
             continue;
         for (const auto& entry : fs::directory_iterator(folder)) {

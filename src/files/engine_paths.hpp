@@ -42,18 +42,24 @@ public:
     fs::path resolve(std::string path);
 };
 
+struct PathsRoot {
+    std::string name;
+    fs::path path;
+};
+
 class ResPaths {
     fs::path mainRoot;
-    std::vector<std::pair<std::string, fs::path>> roots;
+    std::vector<PathsRoot> roots;
 public:
     ResPaths(
         fs::path mainRoot,
-        std::vector<std::pair<std::string, fs::path>> roots
+        std::vector<PathsRoot> roots
     );
     
     fs::path find(const std::string& filename) const;
     std::string findRaw(const std::string& filename) const;
     std::vector<fs::path> listdir(const std::string& folder) const;
+    std::vector<std::string> listdirRaw(const std::string& folder) const;
 
     const fs::path& getMainRoot() const;
 };
