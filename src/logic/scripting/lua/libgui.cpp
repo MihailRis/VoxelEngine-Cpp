@@ -16,6 +16,7 @@
 #include "../../../graphics/ui/elements/Panel.hpp"
 #include "../../../graphics/ui/elements/Menu.hpp"
 #include "../../../graphics/ui/elements/InventoryView.hpp"
+#include "../../../window/Events.hpp"
 #include "../../../frontend/UiDocument.hpp"
 #include "../../../frontend/locale.hpp"
 #include "../../../util/stringutil.hpp"
@@ -459,8 +460,11 @@ static int l_gui_get_locales_info(lua_State* L) {
 }
 
 static int l_gui_getviewport(lua_State* L) {
-    lua::pushvec2_arr(L, scripting::engine->getGUI()->getContainer()->getSize());
-    return 1;
+    return lua::pushvec2_arr(L, scripting::engine->getGUI()->getContainer()->getSize());
+}
+
+static int l_gui_get_mouse_pos(lua_State* L) {
+    return lua::pushvec2_arr(L, Events::cursor);
 }
 
 const luaL_Reg guilib [] = {
@@ -470,6 +474,7 @@ const luaL_Reg guilib [] = {
     {"get_env", lua_wrap_errors<l_gui_get_env>},
     {"str", lua_wrap_errors<l_gui_str>},
     {"reindex", lua_wrap_errors<l_gui_reindex>},
+    {"get_mouse_pos", lua_wrap_errors<l_gui_get_mouse_pos>},
     {"get_locales_info", lua_wrap_errors<l_gui_get_locales_info>},
     {NULL, NULL}
 };
