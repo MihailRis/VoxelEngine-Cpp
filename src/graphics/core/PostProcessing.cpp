@@ -3,6 +3,8 @@
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include "Framebuffer.hpp"
+#include "Viewport.hpp"
+#include "DrawContext.hpp"
 
 #include <stdexcept>
 

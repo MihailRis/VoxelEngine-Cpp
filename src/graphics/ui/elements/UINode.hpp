@@ -84,6 +84,8 @@ namespace gui {
         UINode* parent = nullptr;
         /// @brief position supplier for the element (called on parent element size update)
         vec2supplier positionfunc = nullptr;
+        /// @brief size supplier for the element (called on parent element size update)
+        vec2supplier sizefunc = nullptr;
         /// @brief 'onclick' callbacks
         std::vector<onaction> actions;
 
@@ -148,25 +150,25 @@ namespace gui {
         void defocus();
         bool isFocused() const; 
 
-        /** Check if element catches all user input when focused */
+        /// @brief Check if element catches all user input when focused
         virtual bool isFocuskeeper() const {return false;}
 
         virtual void typed(unsigned int codepoint) {};
         virtual void keyPressed(keycode key) {};
 
-        /** Check if screen position is inside of the element 
-          * @param pos screen position */
+        /// @brief Check if screen position is inside of the element 
+        /// @param pos screen position
         virtual bool isInside(glm::vec2 pos);
 
-        /** Get element under the cursor.
-         *  @param pos cursor screen position
-         *  @param self shared pointer to element
-         *  @return self, sub-element or nullptr if element is not interractive */
+        /// @brief Get element under the cursor.
+        /// @param pos cursor screen position
+        /// @param self shared pointer to element
+        /// @return self, sub-element or nullptr if element is not interractive
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self);
 
-        /* Check if element is opaque for cursor */
+        /// @brief Check if element is opaque for cursor
         virtual bool isInteractive() const;
-        /* Make the element opaque (true) or transparent (false) for cursor */
+        /// @brief Make the element opaque (true) or transparent (false) for cursor
         virtual void setInteractive(bool flag);
 
         virtual void setResizing(bool flag);
@@ -174,9 +176,9 @@ namespace gui {
 
         virtual glm::vec4 calcColor() const;
 
-        /* Get inner content offset. Used for scroll */
+        /// @brief Get inner content offset. Used for scroll
         virtual glm::vec2 contentOffset() {return glm::vec2(0.0f);};
-        /* Calculate screen position of the element */
+        /// @brief Calculate screen position of the element
         virtual glm::vec2 calcPos() const;
         virtual void setPos(glm::vec2 pos);
         virtual glm::vec2 getPos() const;
@@ -184,7 +186,7 @@ namespace gui {
         virtual void setSize(glm::vec2 size);
         virtual glm::vec2 getMinSize() const;
         virtual void setMinSize(glm::vec2 size);
-        /* Called in containers when new element added */
+        /// @brief Called in containers when new element added
         virtual void refresh() {};
         virtual void fullRefresh() {
             if (parent) {
@@ -199,15 +201,18 @@ namespace gui {
         virtual vec2supplier getPositionFunc() const;
         virtual void setPositionFunc(vec2supplier);
 
+        virtual vec2supplier getSizeFunc() const;
+        virtual void setSizeFunc(vec2supplier);
+
         void setId(const std::string& id);
         const std::string& getId() const;
 
-        /* Fetch pos from positionfunc if assigned */
+        /// @brief Fetch pos from positionfunc if assigned
         void reposition();
 
         virtual void setGravity(Gravity gravity);
 
-        // @brief collect all nodes having id
+        /// @brief collect all nodes having id
         static void getIndices(
             std::shared_ptr<UINode> node,
             std::unordered_map<std::string, std::shared_ptr<UINode>>& map

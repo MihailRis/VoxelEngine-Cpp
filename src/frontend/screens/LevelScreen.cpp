@@ -20,6 +20,7 @@
 #include "../../world/World.hpp"
 #include "../../window/Camera.hpp"
 #include "../../window/Events.hpp"
+#include "../../window/Window.hpp"
 #include "../../engine.hpp"
 
 static debug::Logger logger("level-screen");

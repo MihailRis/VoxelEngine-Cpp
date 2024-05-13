@@ -6,10 +6,10 @@
 #include <glm/glm.hpp>
 
 #include "commons.hpp"
-#include "../../maths/UVRegion.hpp"
 
 class Mesh;
 class Texture;
+struct UVRegion;
 
 class Batch2D {
     float* buffer;

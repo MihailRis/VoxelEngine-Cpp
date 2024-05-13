@@ -4,6 +4,7 @@
 
 #include "Batch2D.hpp"
 #include "Framebuffer.hpp"
+#include "../../window/Window.hpp"
 
 static void set_blend_mode(BlendMode mode) {
     switch (mode) {

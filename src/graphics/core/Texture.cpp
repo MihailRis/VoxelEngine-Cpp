@@ -1,5 +1,4 @@
 #include "Texture.hpp"
-#include "ImageData.hpp"
 #include "gl_util.hpp"
 
 #include <GL/glew.h>

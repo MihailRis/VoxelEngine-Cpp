@@ -1,13 +1,13 @@
 #ifndef FRONTEND_LOCALES_HPP_
 #define FRONTEND_LOCALES_HPP_
 
-#include "../content/ContentPack.hpp"
-
 #include <string>
 #include <vector>
 #include <memory>
 #include <filesystem>
 #include <unordered_map>
+
+struct ContentPack;
 
 namespace langs {
     const char LANG_FILE_EXT[] = ".txt";
