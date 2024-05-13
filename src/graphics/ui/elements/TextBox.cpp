@@ -78,7 +78,7 @@ void TextBox::drawBackground(const DrawContext* pctx, Assets*) {
     batch->texture(nullptr);
 
     auto subctx = pctx->sub();
-    subctx.setScissors(glm::vec4(pos.x, pos.y, size.x, size.y));
+    subctx.setScissors(glm::vec4(pos.x, pos.y-0.5, size.x, size.y+1));
 
     if (valid) {
         if (isFocused() && !multiline) {
@@ -334,10 +334,10 @@ void TextBox::performEditingKeyboardEvents(keycode key) {
         if (multiline) {
             paste(L"\n");
         } else {
+            defocus();
             if (validate() && consumer) {
                 consumer(label->getText());
             }
-            defocus();
         }
     } else if (key == keycode::TAB) {
         paste(L"    ");

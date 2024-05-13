@@ -8,6 +8,8 @@ function submit(text)
         document.log.text = document.log.text..tostring(result)..'\n'
     end
     document.prompt.text = ""
+    document.prompt.focused = true
+    print(document.log.pos)
 end
 
 function on_open()

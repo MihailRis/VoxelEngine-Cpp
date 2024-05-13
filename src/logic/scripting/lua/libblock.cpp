@@ -64,6 +64,9 @@ int l_set_block(lua_State* L) {
     if (id < 0 || size_t(id) >= scripting::indices->countBlockDefs()) {
         return 0;
     }
+    if (!scripting::level->chunks->get(x, y, z)) {
+        return 0;
+    }
     scripting::level->chunks->set(x, y, z, id, states);
     scripting::level->lighting->onBlockSet(x,y,z, id);
     if (!noupdate)
