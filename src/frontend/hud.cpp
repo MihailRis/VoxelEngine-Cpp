@@ -501,7 +501,7 @@ void Hud::updateElementsPosition(const Viewport& viewport) {
                 ));
             }
             secondUI->setPos(glm::vec2(
-                glm::min(width/2-invwidth/2, width-caWidth-10-invwidth),
+                glm::min(width/2-invwidth/2, width-caWidth-(inventoryView ? 10 : 0)-invwidth),
                 height/2-totalHeight/2
             ));
         }

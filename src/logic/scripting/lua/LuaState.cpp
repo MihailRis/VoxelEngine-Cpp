@@ -170,7 +170,7 @@ int lua::LuaState::callNoThrow(int argc) {
 }
 
 int lua::LuaState::eval(int env, const std::string& src, const std::string& file) {
-    auto srcText = "return ("+src+")";
+    auto srcText = "return "+src;
     loadbuffer(env, srcText, file);
     return call(0);
 }

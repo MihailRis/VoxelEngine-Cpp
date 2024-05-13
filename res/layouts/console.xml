@@ -1,0 +1,3 @@
+<container size='400' color='#00000080' size-func="unpack(gui.get_viewport())">
+    <textbox id='prompt' margin='0' gravity='bottom-left' size-func="gui.get_viewport()[1],40"></textbox>
+</container>
