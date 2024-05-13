@@ -7,6 +7,7 @@
 #include "../../../window/input.hpp"
 #include "../../../window/Events.hpp"
 #include "../../../util/stringutil.hpp"
+#include "../../../graphics/ui/GUI.hpp"
 #include "../../../frontend/screens/Screen.hpp"
 #include "../../../frontend/hud.hpp"
 #include "../../../engine.hpp"
@@ -31,7 +32,11 @@ static int l_add_callback(lua_State* L) {
         throw std::runtime_error("unknown binding "+util::quote(bindname));
     }
     state->pushvalue(2);
-    runnable callback = state->createRunnable();
+    runnable callback = [=]() {
+        if (!scripting::engine->getGUI()->isFocusCaught()) {
+            state->createRunnable();
+        }
+    };
     if (hud) {
         hud->keepAlive(bind->second.onactived.add(callback));
     } else {
