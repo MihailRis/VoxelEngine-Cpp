@@ -154,8 +154,8 @@ void lua::LuaState::loadbuffer(int env, const std::string& src, const std::strin
     }
 }
 
-int lua::LuaState::call(int argc) {
-    if (lua_pcall(L, argc, LUA_MULTRET, 0)) {
+int lua::LuaState::call(int argc, int nresults) {
+    if (lua_pcall(L, argc, nresults, 0)) {
         throw lua::luaerror(lua_tostring(L, -1));
     }
     return 1;
@@ -416,7 +416,7 @@ scripting::common_func lua::LuaState::createLambda() {
         for (const auto& arg : args) {
             pushvalue(arg);
         }
-        if (call(args.size())) {
+        if (call(args.size(), 1)) {
             auto result = tovalue(-1);
             pop(1);
             return result;

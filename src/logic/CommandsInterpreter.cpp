@@ -229,7 +229,10 @@ public:
             case ArgType::integer:
                 return typeCheck<integer_t>(arg, value, "integer");
             case ArgType::string:
-                return typeCheck<std::string>(arg, value, "string");
+                if (!std::holds_alternative<std::string>(value)) {
+                    return !arg->optional;
+                }
+                break;
         }
         return true;
     }
@@ -316,6 +319,11 @@ public:
             
             if (hasNext() && peekNoJump() != ' ') {
                 value = parseValue();
+                if (auto string = std::get_if<std::string>(&value)) {
+                    if ((*string)[0] == '$') {
+                        value = (*interpreter)[string->substr(1)];
+                    }
+                }
 
                 // keyword argument
                 if (!relative && hasNext() && peek() == '=') {
@@ -328,10 +336,9 @@ public:
             Argument* arg = nullptr;
             do {
                 if (arg) {
-                    std::cout << "skipped arg " << arg->name << std::endl;
                     if (auto string = std::get_if<std::string>(&arg->def)) {
                         if ((*string)[0] == '$') {
-                            args->put((*interpreter)[*string]);
+                            args->put((*interpreter)[string->substr(1)]);
                         } else {
                             args->put(arg->def);
                         }

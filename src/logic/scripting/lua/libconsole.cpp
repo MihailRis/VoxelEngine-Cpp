@@ -36,8 +36,16 @@ static int l_execute(lua_State* L) {
     return 1;
 }
 
+static int l_set(lua_State* L) {
+    auto name = lua_tostring(L, 1);
+    auto value = state->tovalue(2);
+    (*engine->getCommandsInterpreter())[name] = value;
+    return 0;
+}
+
 const luaL_Reg consolelib [] = {
     {"add_command", lua_wrap_errors<l_add_command>},
     {"execute", lua_wrap_errors<l_execute>},
+    {"set", lua_wrap_errors<l_set>},
     {NULL, NULL}
 };

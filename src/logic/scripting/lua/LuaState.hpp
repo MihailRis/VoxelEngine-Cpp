@@ -59,7 +59,7 @@ namespace lua {
         const char* tostring(int idx);
         bool isstring(int idx);
         bool isfunction(int idx);
-        int call(int argc);
+        int call(int argc, int nresults=-1);
         int callNoThrow(int argc);
         int execute(int env, const std::string& src, const std::string& file="<string>");
         int eval(int env, const std::string& src, const std::string& file="<eval>");

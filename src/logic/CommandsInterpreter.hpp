@@ -93,6 +93,8 @@ namespace cmd {
     public:
         CommandsInterpreter() : repository(std::make_unique<CommandsRepository>()) {}
 
+        CommandsInterpreter(const CommandsInterpreter&) = delete;
+
         CommandsInterpreter(std::unique_ptr<CommandsRepository> repository)
         : repository(std::move(repository)){}
 
