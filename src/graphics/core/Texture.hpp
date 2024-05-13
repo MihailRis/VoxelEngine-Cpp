@@ -1,10 +1,11 @@
 #ifndef GRAPHICS_CORE_TEXTURE_HPP_
 #define GRAPHICS_CORE_TEXTURE_HPP_
 
-#include <string>
-#include <memory>
 #include "../../typedefs.hpp"
 #include "ImageData.hpp"
+
+#include <string>
+#include <memory>
 
 class Texture {
 protected:

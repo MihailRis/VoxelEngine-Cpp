@@ -2,9 +2,7 @@
 #define TYPEDEFS_HPP_
 
 #include <memory>
-#include <stdlib.h>
 #include <stdint.h>
-#include <variant>
 
 using scriptenv = std::shared_ptr<int>;
 using observer_handler = std::shared_ptr<int>;

@@ -1,14 +1,13 @@
 #ifndef GRAPHICS_CORE_POST_PROCESSING_HPP_
 #define GRAPHICS_CORE_POST_PROCESSING_HPP_
 
-#include "Viewport.hpp"
-#include "DrawContext.hpp"
-
 #include <memory>
 
 class Mesh;
 class Shader;
 class Framebuffer;
+class DrawContext;
+class ImageData;
 
 /// @brief Framebuffer with blitting with shaders.
 /// @attention Current implementation does not support multiple render passes 
