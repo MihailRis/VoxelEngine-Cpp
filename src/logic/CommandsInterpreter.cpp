@@ -13,7 +13,7 @@ inline bool is_cmd_identifier_part(char c, bool allowColon) {
 }
 
 inline bool is_cmd_identifier_start(char c) {
-    return is_identifier_start(c) || c == '.' || c == '$';
+    return (is_identifier_start(c) || c == '.' || c == '$');
 }
 
 class CommandParser : BasicParser {
@@ -75,8 +75,12 @@ public:
             nextChar();
             return parseString(c);
         }
-        if (c == '+' || c == '-' || is_digit(c)) {
+        if (c == '+' || c == '-') {
+            nextChar();
             return parseNumber(c == '-' ? -1 : 1);
+        }
+        if (is_digit(c)) {
+            return parseNumber(1);
         }
         throw error("invalid character '"+std::string({c})+"'");
     }

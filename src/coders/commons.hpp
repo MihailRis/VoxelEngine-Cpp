@@ -31,11 +31,11 @@ inline bool is_whitespace(int c) {
 }
 
 inline bool is_identifier_start(int c) {
-    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_' || c == '-' || c == '.';
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_' || c == '.';
 }
 
 inline bool is_identifier_part(int c) {
-    return is_identifier_start(c) || is_digit(c);
+    return is_identifier_start(c) || is_digit(c) || c == '-';
 }
 
 inline int hexchar2int(int c) {
