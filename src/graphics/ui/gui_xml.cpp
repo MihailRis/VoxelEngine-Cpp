@@ -313,11 +313,12 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
     if (element->has("text-wrap")) {
         textbox->setTextWrapping(element->attr("text-wrap").asBool());
     }
-
     if (element->has("editable")) {
         textbox->setEditable(element->attr("editable").asBool());
     }
-    
+    if (element->has("autoresize")) {
+        textbox->setAutoResize(element->attr("autoresize").asBool());
+    }
     if (element->has("consumer")) {
         textbox->setTextConsumer(scripting::create_wstring_consumer(
             reader.getEnvironment(),

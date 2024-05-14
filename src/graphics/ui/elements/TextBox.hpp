@@ -37,11 +37,16 @@ namespace gui {
 
         bool multiline = false;
         bool editable = true;
+        bool autoresize = false;
+
+        void stepLeft(bool shiftPressed, bool breakSelection, uint previousCaret);
+        void stepRight(bool shiftPressed, bool breakSelection, uint previousCaret);
+        void stepDown(bool shiftPressed, bool breakSelection, uint previousCaret);
+        void stepUp(bool shiftPressed, bool breakSelection, uint previousCaret);
 
         size_t normalizeIndex(int index);
 
         int calcIndexAt(int x, int y) const;
-        void paste(const std::wstring& text);
         void setTextOffset(uint x);
         void erase(size_t start, size_t length);
         bool eraseSelected();
@@ -61,7 +66,9 @@ namespace gui {
             std::wstring placeholder, 
             glm::vec4 padding=glm::vec4(4.0f)
         );
-
+        
+        void paste(const std::wstring& text);
+            
         virtual void setTextSupplier(wstringsupplier supplier);
 
         /// @brief Consumer called on stop editing text (textbox defocus)
@@ -138,6 +145,9 @@ namespace gui {
 
         /// @brief Set runnable called on textbox focus
         virtual void setOnEditStart(runnable oneditstart);
+
+        virtual void setAutoResize(bool flag);
+        virtual bool isAutoResize() const;
 
         virtual void onFocus(GUI*) override;
         virtual void refresh() override;

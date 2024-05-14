@@ -10,11 +10,15 @@ function submit(text)
     
     local status, result = pcall(function() return console.execute(text) end)
     if result ~= nil then
-        document.log.text = document.log.text..tostring(result)..'\n'
+        local prevtext = document.log.text
+        if #prevtext == 0 then
+            document.log:paste(tostring(result))
+        else
+            document.log:paste('\n'..tostring(result))
+        end
     end
     document.prompt.text = ""
     document.prompt.focused = true
-    print(document.log.pos)
 end
 
 function on_open()

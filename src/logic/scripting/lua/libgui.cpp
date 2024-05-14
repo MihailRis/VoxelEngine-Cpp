@@ -70,6 +70,14 @@ static int l_menu_reset(lua_State* L) {
     return 0;
 }
 
+static int l_textbox_paste(lua_State* L) {
+    auto node = getDocumentNode(L);
+    auto box = dynamic_cast<TextBox*>(node.node.get());
+    auto text = lua_tostring(L, 2);
+    box->paste(util::str2wstr_utf8(text));
+    return 0;
+}
+
 static int l_container_add(lua_State* L) {
     auto docnode = getDocumentNode(L);
     auto node = dynamic_cast<Container*>(docnode.node.get());
@@ -117,6 +125,13 @@ static int p_get_reset(UINode* node) {
 static int p_get_back(UINode* node) {
     if (dynamic_cast<Menu*>(node)) {
         return state->pushcfunction(l_menu_back);
+    }
+    return 0;
+}
+
+static int p_get_paste(UINode* node) {
+    if (dynamic_cast<TextBox*>(node)) {
+        return state->pushcfunction(l_textbox_paste);
     }
     return 0;
 }
@@ -289,6 +304,7 @@ static int l_gui_getattr(lua_State* L) {
         {"page", p_get_page},
         {"back", p_get_back},
         {"reset", p_get_reset},
+        {"paste", p_get_paste},
         {"inventory", p_get_inventory},
         {"focused", p_get_focused},
     };
