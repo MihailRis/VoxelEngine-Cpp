@@ -4,7 +4,7 @@
             id='log' 
             color='0'
             autoresize='true' 
-            margin='0,0,0,40'
+            margin='0'
             editable='false' 
             multiline='true' 
             size-func="gui.get_viewport()[1],40"
