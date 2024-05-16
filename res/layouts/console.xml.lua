@@ -1,3 +1,6 @@
+history = session.get_entry("console_history")
+history_pointer = #history
+
 function setup_variables()
     local x,y,z = player.get_pos(hud.get_player())
     console.set('pos.x', x)
@@ -5,7 +8,29 @@ function setup_variables()
     console.set('pos.z', z)
 end
 
+function on_history_up()
+    if history_pointer == 0 then
+        return
+    end
+    document.prompt.text = history[history_pointer]
+    history_pointer = history_pointer - 1
+end
+
+function on_history_down()
+    if history_pointer == #history-1 then
+        return
+    end
+    history_pointer = history_pointer + 1
+    document.prompt.text = history[history_pointer + 1]
+end
+
+function add_to_history(text)
+    table.insert(history, text)
+    history_pointer = #history
+end
+
 function submit(text)
+    add_to_history(text)
     setup_variables()
     
     local status, result = pcall(function() return console.execute(text) end)

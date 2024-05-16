@@ -11,5 +11,12 @@
             gravity="bottom-left"
         ></textbox>
     </container>
-    <textbox id='prompt' consumer='submit' margin='0' gravity='bottom-left' size-func="gui.get_viewport()[1],40"></textbox>
+    <textbox id='prompt' 
+             consumer='submit' 
+             margin='0' 
+             gravity='bottom-left' 
+             size-func="gui.get_viewport()[1],40"
+             onup="on_history_up()"
+             ondown="on_history_down()">
+    </textbox>
 </container>
