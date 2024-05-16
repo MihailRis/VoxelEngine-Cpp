@@ -1,4 +1,4 @@
-history = session.get_entry("console_history")
+history = session.get_entry("commands_history")
 history_pointer = #history
 
 function setup_variables()

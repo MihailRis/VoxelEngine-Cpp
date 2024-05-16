@@ -38,7 +38,7 @@ void TextBox::draw(const DrawContext* pctx, Assets* assets) {
         static_cast<int>(
             label->getLinesNumber() * 
             label->getLineInterval() * 
-            font->getLineHeight())
+            font->getLineHeight()) + 1
         );
         if (newy != static_cast<int>(size.y)) {
             size.y = newy;
