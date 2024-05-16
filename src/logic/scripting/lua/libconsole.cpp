@@ -14,6 +14,9 @@ namespace scripting {
 using namespace scripting;
 
 static int l_add_command(lua_State* L) {
+    if (!lua_isstring(L, 1) || !lua_isstring(L, 2) || !lua_isfunction(L, 3)) {
+        throw std::runtime_error("invalid argument type");
+    }
     auto scheme = lua_tostring(L, 1);
     auto description = lua_tostring(L, 2);
     lua_pushvalue(L, 3);
@@ -25,7 +28,7 @@ static int l_add_command(lua_State* L) {
             }
         );
     } catch (const parsing_error& err) {
-        luaL_error(L, ("command scheme error:\n"+err.errorLog()).c_str());
+        throw std::runtime_error(("command scheme error:\n"+err.errorLog()).c_str());
     }
     return 0;
 }

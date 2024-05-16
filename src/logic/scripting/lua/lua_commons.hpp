@@ -7,6 +7,7 @@
 #else
 #include <lua.hpp>
 #endif
+#include <string>
 #include <exception>
 
 namespace lua {
