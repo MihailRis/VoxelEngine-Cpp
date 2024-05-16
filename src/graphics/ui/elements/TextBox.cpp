@@ -132,7 +132,10 @@ void TextBox::drawBackground(const DrawContext* pctx, Assets*) {
             line++;
         } while (line < label->getLinesNumber() && label->isFakeLine(line));
     }
+    refreshLabel();
+}
 
+void TextBox::refreshLabel() {
     label->setColor(glm::vec4(input.empty() ? 0.5f : 1.0f));
     label->setText(getText());
     if (multiline && font) {
@@ -157,9 +160,7 @@ void TextBox::paste(const std::wstring& text) {
         input = left + text + right;
     }
     input.erase(std::remove(input.begin(), input.end(), '\r'), input.end());
-    // refresh label lines configuration for correct setCaret work
-    label->setText(input);
-    
+    refreshLabel();
     setCaret(caret + text.length());
     validate();
 }
@@ -600,7 +601,7 @@ uint TextBox::getCaret() const {
 }
 
 void TextBox::setCaret(uint position) {
-    this->caret = std::min(size_t(position), input.length());
+    this->caret = std::min(static_cast<size_t>(position), input.length());
     caretLastMove = Window::time();
 
     int width = label->getSize().x;

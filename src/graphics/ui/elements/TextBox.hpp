@@ -62,6 +62,8 @@ namespace gui {
         void resetMaxLocalCaret();
 
         void performEditingKeyboardEvents(keycode key);
+
+        void refreshLabel();
     public:
         TextBox(
             std::wstring placeholder, 
