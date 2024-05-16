@@ -1,23 +1,65 @@
+local SEPARATOR = "________________"
+SEPARATOR = SEPARATOR..SEPARATOR..SEPARATOR
+
+console.add_command(
+    "help name:str=''",
+    "Show help infomation for the specified command",
+    function (args, kwargs)
+        local name = args[1]
+        if #name == 0 then
+            local commands = console.get_commands_list()
+            table.sort(commands)
+            return "available commands: "..
+                    table.tostring(commands)..
+                    "\nuse 'help [command]'"
+        end
+        local command = console.get_command_info(name)
+        if command == nil then
+            return string.format("command %q not found", name)
+        end
+        local where = ""
+        local str = SEPARATOR.."\n"..command.description.."\n"..name.." "
+        for i,arg in ipairs(command.args) do
+            where = where.."\n  "..arg.name.." - "..arg.type
+            if arg.optional then
+                str = str.."["..arg.name.."] "
+                where = where.." (optional)"
+            else
+                str = str.."<"..arg.name.."> "
+            end
+        end
+        if #command.args then
+            str = str.."\nwhere"..where
+        end
+        
+        return str.."\n"..SEPARATOR
+    end
+)
+
 console.add_command(
     "tp obj:sel=$obj.id x:num~pos.x y:num~pos.y z:num~pos.z",
+    "Teleport object",
     function (args, kwargs)
         player.set_pos(unpack(args))
     end
 )
 console.add_command(
     "echo value:str",
+    "Print value to the console",
     function (args, kwargs)
         return args[1]
     end
 )
 console.add_command(
     "time.set value:num",
+    "Set day time [0..1] where 0 is midnight, 0.5 is noon",
     function (args, kwargs)
         return world.set_day_time(args[1])
     end
 )
 console.add_command(
-    "fill id:str x:num~pos.x y:num~pos.y z:num~pos.z w:int h:int d:int",
+    "blocks.fill id:str x:num~pos.x y:num~pos.y z:num~pos.z w:int h:int d:int",
+    "Fill specified zone with blocks",
     function (args, kwargs)
         local name, x, y, z, w, h, d = unpack(args)
         local id = block.index(name)

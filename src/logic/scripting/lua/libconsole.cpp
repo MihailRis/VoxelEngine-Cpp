@@ -15,11 +15,12 @@ using namespace scripting;
 
 static int l_add_command(lua_State* L) {
     auto scheme = lua_tostring(L, 1);
-    lua_pushvalue(L, 2);
+    auto description = lua_tostring(L, 2);
+    lua_pushvalue(L, 3);
     auto func = state->createLambda();
     try {
         engine->getCommandsInterpreter()->getRepository()->add(
-            scheme, [func](auto, auto args, auto kwargs) {
+            scheme, description, [func](auto, auto args, auto kwargs) {
                 return func({args, kwargs});
             }
         );
@@ -43,9 +44,74 @@ static int l_set(lua_State* L) {
     return 0;
 }
 
+static int l_get_commands_list(lua_State* L) {
+    auto interpreter = engine->getCommandsInterpreter();
+    auto repo = interpreter->getRepository();
+    const auto& commands = repo->getCommands();
+
+    lua_createtable(L, commands.size(), 0);
+    size_t index = 1;
+    for (const auto& entry : commands) {
+        lua_pushstring(L, entry.first.c_str());
+        lua_rawseti(L, -2, index++);
+    }
+    return 1;
+}
+
+static int l_get_command_info(lua_State* L) {
+    auto name = lua_tostring(L, 1);
+    auto interpreter = engine->getCommandsInterpreter();
+    auto repo = interpreter->getRepository();
+    auto command = repo->get(name);
+    const auto& args = command->getArgs();
+    const auto& kwargs = command->getKwArgs();
+    
+    lua_createtable(L, 0, 4);
+
+    lua_pushstring(L, name);
+    lua_setfield(L, -2, "name");
+
+    lua_pushstring(L, command->getDescription().c_str());
+    lua_setfield(L, -2, "description");
+    
+    lua_createtable(L, args.size(), 0);
+    for (size_t i = 0; i < args.size(); i++) {
+        auto& arg = args.at(i);
+        lua_createtable(L, 0, 2);
+        
+        lua_pushstring(L, arg.name.c_str());
+        lua_setfield(L, -2, "name");
+        
+        lua_pushstring(L, cmd::argtype_name(arg.type).c_str());
+        lua_setfield(L, -2, "type");
+
+        if (arg.optional) {
+            lua_pushboolean(L, true);
+            lua_setfield(L, -2, "optional");
+        }
+        lua_rawseti(L, -2, i+1);
+    }
+    lua_setfield(L, -2, "args");
+
+    lua_createtable(L, 0, kwargs.size());
+    for (auto& entry : kwargs) {
+        auto& arg = entry.second;
+        lua_createtable(L, 0, 1);
+
+        lua_pushstring(L, cmd::argtype_name(arg.type).c_str());
+        lua_setfield(L, -2, "type");
+
+        lua_setfield(L, -2, arg.name.c_str());
+    }
+    lua_setfield(L, -2, "kwargs");
+    return 1;
+}
+
 const luaL_Reg consolelib [] = {
     {"add_command", lua_wrap_errors<l_add_command>},
     {"execute", lua_wrap_errors<l_execute>},
     {"set", lua_wrap_errors<l_set>},
+    {"get_commands_list", lua_wrap_errors<l_get_commands_list>},
+    {"get_command_info", lua_wrap_errors<l_get_command_info>},
     {NULL, NULL}
 };

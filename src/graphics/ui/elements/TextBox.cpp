@@ -32,22 +32,6 @@ void TextBox::draw(const DrawContext* pctx, Assets* assets) {
 
     font = assets->getFont(label->getFontName());
 
-    if (autoresize && font) {
-        auto size = getSize();
-        int newy = glm::min(static_cast<int>(parent->getSize().y), 
-        static_cast<int>(
-            label->getLinesNumber() * 
-            label->getLineInterval() * 
-            font->getLineHeight()) + 1
-        );
-        if (newy != static_cast<int>(size.y)) {
-            size.y = newy;
-            setSize(size);
-            if (positionfunc) {
-                pos = positionfunc();
-            }
-        }
-    }
     if (!isFocused()) {
         return;
     }
@@ -141,6 +125,24 @@ void TextBox::drawBackground(const DrawContext* pctx, Assets*) {
 void TextBox::refreshLabel() {
     label->setColor(glm::vec4(input.empty() ? 0.5f : 1.0f));
     label->setText(getText());
+
+    if (autoresize && font) {
+        auto size = getSize();
+        int newy = glm::min(static_cast<int>(parent->getSize().y), 
+        static_cast<int>(
+            label->getLinesNumber() * 
+            label->getLineInterval() * 
+            font->getLineHeight()) + 1
+        );
+        if (newy != static_cast<int>(size.y)) {
+            size.y = newy;
+            setSize(size);
+            if (positionfunc) {
+                pos = positionfunc();
+            }
+        }
+    }
+
     if (multiline && font) {
         setScrollable(true);
         uint height = label->getLinesNumber() * font->getLineHeight() * label->getLineInterval();

@@ -13,6 +13,17 @@ namespace cmd {
         number, integer, enumvalue, selector, string
     };
 
+    inline std::string argtype_name(ArgType type) {
+        switch (type) {
+            case ArgType::number: return "number";
+            case ArgType::integer: return "integer";
+            case ArgType::enumvalue: return "enumeration";
+            case ArgType::selector: return "selector";
+            case ArgType::string: return "string";
+            default: return "<unknown>";
+        }
+    }
+
     struct Argument {
         std::string name;
         ArgType type;
@@ -41,6 +52,7 @@ namespace cmd {
         std::string name;
         std::vector<Argument> args;
         std::unordered_map<std::string, Argument> kwargs;
+        std::string description;
         executor_func executor;
     public:
         Command() {}
@@ -49,10 +61,12 @@ namespace cmd {
             std::string name,
             std::vector<Argument> args,
             std::unordered_map<std::string, Argument> kwargs,
+            std::string description,
             executor_func executor
-        ) : name(name), 
-            args(std::move(args)), 
-            kwargs(std::move(kwargs)), 
+        ) : name(name),
+            args(std::move(args)),
+            kwargs(std::move(kwargs)),
+            description(description),
             executor(executor) {}
         
         Argument* getArgument(size_t index) {
@@ -77,14 +91,38 @@ namespace cmd {
             return name;
         }
 
-        static Command create(std::string_view scheme, executor_func);
+        const std::vector<Argument>& getArgs() const {
+            return args;
+        }
+
+        const std::unordered_map<std::string, Argument>& getKwArgs() const {
+            return kwargs;
+        }
+
+        const std::string& getDescription() const {
+            return description;
+        }
+
+        static Command create(
+            std::string_view scheme, 
+            std::string_view description, 
+            executor_func
+        );
     };
 
     class CommandsRepository {
         std::unordered_map<std::string, Command> commands;
     public:
-        void add(std::string_view scheme, executor_func);
+        void add(
+            std::string_view scheme, 
+            std::string_view description, 
+            executor_func
+        );
         Command* get(const std::string& name);
+
+        const std::unordered_map<std::string, Command> getCommands() const {
+            return commands;
+        }
     };
 
     class CommandsInterpreter {
