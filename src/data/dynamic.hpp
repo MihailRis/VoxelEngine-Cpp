@@ -133,6 +133,9 @@ namespace dynamic {
         Map& put(std::string key, std::unique_ptr<List> value) {
             return put(key, List_sptr(value.release()));
         }
+        Map& put(std::string key, unsigned int value) {
+            return put(key, Value(static_cast<integer_t>(value)));
+        }
         Map& put(std::string key, const Value& value);
 
         void remove(const std::string& key);

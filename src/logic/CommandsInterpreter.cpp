@@ -317,7 +317,7 @@ public:
             dynamic::Value value = dynamic::NONE;
             if (peek() == '~') {
                 relative = true;
-                value = 0;
+                value = 0L;
                 nextChar();
             }
             
