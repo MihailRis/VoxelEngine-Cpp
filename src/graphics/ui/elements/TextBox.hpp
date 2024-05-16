@@ -47,6 +47,7 @@ namespace gui {
         bool eraseSelected();
         void resetSelection();
         void extendSelection(int index);
+        void tokenSelectAt(int index);
         size_t getLineLength(uint line) const;
 
         /// @brief Get total length of the selection 
@@ -141,6 +142,7 @@ namespace gui {
 
         virtual void onFocus(GUI*) override;
         virtual void refresh() override;
+        virtual void doubleClick(GUI*, int x, int y) override;
         virtual void click(GUI*, int, int) override;
         virtual void mouseMove(GUI*, int x, int y) override;
         virtual bool isFocuskeeper() const override {return true;}
