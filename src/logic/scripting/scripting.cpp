@@ -51,6 +51,7 @@ void scripting::initialize(Engine* engine) {
     state = new lua::LuaState();
 
     load_script(fs::path("stdlib.lua"));
+    load_script(fs::path("stdcmd.lua"));
 }
 
 scriptenv scripting::get_root_environment() {
