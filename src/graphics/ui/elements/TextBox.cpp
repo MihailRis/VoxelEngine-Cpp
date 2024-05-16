@@ -12,9 +12,12 @@
 using namespace gui;
 
 TextBox::TextBox(std::wstring placeholder, glm::vec4 padding) 
-    : Panel(glm::vec2(200,32), padding, 0), 
-      input(L""),
-      placeholder(placeholder) {
+  : Panel(glm::vec2(200,32), padding, 0), 
+    input(L""),
+    placeholder(placeholder)
+{
+    setOnUpPressed(nullptr);
+    setOnDownPressed(nullptr);
     label = std::make_shared<Label>(L"");
     label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
     add(label);
@@ -374,7 +377,8 @@ void TextBox::resetMaxLocalCaret() {
     maxLocalCaret = caret - label->getTextLineOffset(label->getLineByTextIndex(caret));
 }
 
-void TextBox::stepLeft(bool shiftPressed, bool breakSelection, uint previousCaret) {
+void TextBox::stepLeft(bool shiftPressed, bool breakSelection) {
+    uint previousCaret = this->caret;
     uint caret = breakSelection ? selectionStart : this->caret;
     if (caret > 0) {
         if (caret > input.length()) {
@@ -397,7 +401,8 @@ void TextBox::stepLeft(bool shiftPressed, bool breakSelection, uint previousCare
     resetMaxLocalCaret();
 }
 
-void TextBox::stepRight(bool shiftPressed, bool breakSelection, uint previousCaret) {
+void TextBox::stepRight(bool shiftPressed, bool breakSelection) {
+    uint previousCaret = this->caret;
     uint caret = breakSelection ? selectionEnd : this->caret;
     if (caret < input.length()) {
         setCaret(caret+1);
@@ -417,7 +422,8 @@ void TextBox::stepRight(bool shiftPressed, bool breakSelection, uint previousCar
     resetMaxLocalCaret();
 }
 
-void TextBox::stepDown(bool shiftPressed, bool breakSelection, uint previousCaret) {
+void TextBox::stepDefaultDown(bool shiftPressed, bool breakSelection) {
+    uint previousCaret = this->caret;
     uint caret = breakSelection ? selectionEnd : this->caret;
     uint caretLine = label->getLineByTextIndex(caret);
     if (caretLine < label->getLinesNumber()-1) {
@@ -436,7 +442,8 @@ void TextBox::stepDown(bool shiftPressed, bool breakSelection, uint previousCare
     }
 }
 
-void TextBox::stepUp(bool shiftPressed, bool breakSelection, uint previousCaret) {
+void TextBox::stepDefaultUp(bool shiftPressed, bool breakSelection) {
+    uint previousCaret = this->caret;
     uint caret = breakSelection ? selectionStart : this->caret;
     uint caretLine = label->getLineByTextIndex(caret);
     if (caretLine > 0) {
@@ -458,7 +465,6 @@ void TextBox::stepUp(bool shiftPressed, bool breakSelection, uint previousCaret)
 void TextBox::performEditingKeyboardEvents(keycode key) {
     bool shiftPressed = Events::pressed(keycode::LEFT_SHIFT);
     bool breakSelection = getSelectionLength() != 0 && !shiftPressed;
-    uint previousCaret = caret;
     if (key == keycode::BACKSPACE) {
         if (!eraseSelected() && caret > 0 && input.length() > 0) {
             if (caret > input.length()) {
@@ -485,13 +491,13 @@ void TextBox::performEditingKeyboardEvents(keycode key) {
     } else if (key == keycode::TAB) {
         paste(L"    ");
     } else if (key == keycode::LEFT) {
-        stepLeft(shiftPressed, breakSelection, previousCaret);
+        stepLeft(shiftPressed, breakSelection);
     } else if (key == keycode::RIGHT) {
-        stepRight(shiftPressed, breakSelection, previousCaret);
-    } else if (key == keycode::UP) {
-        stepUp(shiftPressed, breakSelection, previousCaret);
-    } else if (key == keycode::DOWN) {
-        stepDown(shiftPressed, breakSelection, previousCaret);
+        stepRight(shiftPressed, breakSelection);
+    } else if (key == keycode::UP && onUpPressed) {
+        onUpPressed();
+    } else if (key == keycode::DOWN && onDownPressed) {
+        onDownPressed();
     }
 }
 
@@ -543,6 +549,30 @@ void TextBox::select(int start, int end) {
 
 std::shared_ptr<UINode> TextBox::getAt(glm::vec2 pos, std::shared_ptr<UINode> self) {
     return UINode::getAt(pos, self);
+}
+
+void TextBox::setOnUpPressed(runnable callback) {
+    if (callback == nullptr) {
+        onUpPressed = [this]() {
+            bool shiftPressed = Events::pressed(keycode::LEFT_SHIFT);
+            bool breakSelection = getSelectionLength() != 0 && !shiftPressed;
+            stepDefaultUp(shiftPressed, breakSelection);
+        };
+    } else {
+        onUpPressed = callback;
+    }
+}
+
+void TextBox::setOnDownPressed(runnable callback) {
+    if (callback == nullptr) {
+        onDownPressed = [this]() {
+            bool shiftPressed = Events::pressed(keycode::LEFT_SHIFT);
+            bool breakSelection = getSelectionLength() != 0 && !shiftPressed;
+            stepDefaultDown(shiftPressed, breakSelection);
+        };
+    } else {
+        onDownPressed = callback;
+    }
 }
 
 void TextBox::setTextSupplier(wstringsupplier supplier) {

@@ -20,6 +20,8 @@ namespace gui {
         wstringconsumer consumer = nullptr;
         wstringchecker validator = nullptr;
         runnable onEditStart = nullptr;
+        runnable onUpPressed;
+        runnable onDownPressed;
         bool valid = true;
         /// @brief text input pointer, value may be greather than text length
         uint caret = 0;
@@ -39,10 +41,10 @@ namespace gui {
         bool editable = true;
         bool autoresize = false;
 
-        void stepLeft(bool shiftPressed, bool breakSelection, uint previousCaret);
-        void stepRight(bool shiftPressed, bool breakSelection, uint previousCaret);
-        void stepDown(bool shiftPressed, bool breakSelection, uint previousCaret);
-        void stepUp(bool shiftPressed, bool breakSelection, uint previousCaret);
+        void stepLeft(bool shiftPressed, bool breakSelection);
+        void stepRight(bool shiftPressed, bool breakSelection);
+        void stepDefaultDown(bool shiftPressed, bool breakSelection);
+        void stepDefaultUp(bool shiftPressed, bool breakSelection);
 
         size_t normalizeIndex(int index);
 
@@ -163,6 +165,8 @@ namespace gui {
         virtual void typed(unsigned int codepoint) override; 
         virtual void keyPressed(keycode key) override;
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
+        virtual void setOnUpPressed(runnable callback);
+        virtual void setOnDownPressed(runnable callback);
     };
 }
 

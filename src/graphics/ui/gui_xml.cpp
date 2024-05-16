@@ -50,6 +50,26 @@ static Gravity gravity_from_string(const std::string& str) {
     return Gravity::none;
 }
 
+static runnable create_runnable(UiXmlReader& reader, xml::xmlelement element, const std::string& name) {
+    if (element->has(name)) {
+        std::string text = element->attr(name).getText();
+        if (!text.empty()) {
+            return scripting::create_runnable(
+                reader.getEnvironment(), text, reader.getFilename()
+            );
+        }
+    }
+    return nullptr;
+}
+
+static onaction create_action(UiXmlReader& reader, xml::xmlelement element, const std::string& name) {
+    auto callback = create_runnable(reader, element, name);
+    if (callback == nullptr) {
+        return nullptr;
+    }
+    return [callback](GUI*) {callback();};
+}
+
 /* Read basic UINode properties */
 static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& node) {
     if (element->has("id")) {
@@ -119,28 +139,12 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
         ));
     }
 
-    if (element->has("onclick")) {
-        std::string text = element->attr("onclick").getText();
-        if (!text.empty()) {
-            auto callback = scripting::create_runnable(
-                reader.getEnvironment(), text, reader.getFilename()
-            );
-            node.listenAction([callback](GUI*) {
-                callback();
-            });
-        }
+    if (auto onclick = create_action(reader, element, "onclick")) {
+        node.listenAction(onclick);
     }
 
-    if (element->has("ondoubleclick")) {
-        std::string text = element->attr("ondoubleclick").getText();
-        if (!text.empty()) {
-            auto callback = scripting::create_runnable(
-                reader.getEnvironment(), text, reader.getFilename()
-            );
-            node.listenDoubleClick([callback](GUI*) {
-                callback();
-            });
-        }
+    if (auto ondoubleclick = create_action(reader, element, "ondoubleclick")) {
+        node.listenDoubleClick(ondoubleclick);
     }
 }
 
@@ -336,7 +340,6 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
             reader.getFilename()
         ));
     }
-
     if (element->has("supplier")) {
         textbox->setTextSupplier(scripting::create_wstring_supplier(
             reader.getEnvironment(),
@@ -356,6 +359,12 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, xml::xmlelement 
             element->attr("validator").getText(),
             reader.getFilename()
         ));
+    }
+    if (auto onUpPressed = create_runnable(reader, element, "onup")) {
+        textbox->setOnUpPressed(onUpPressed);
+    }
+    if (auto onDownPressed = create_runnable(reader, element, "ondown")) {
+        textbox->setOnDownPressed(onDownPressed);
     }
     return textbox;
 }
