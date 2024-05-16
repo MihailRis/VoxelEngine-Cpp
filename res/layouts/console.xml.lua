@@ -1,5 +1,5 @@
 function setup_variables()
-    local x,y,z = player.get_pos(0)
+    local x,y,z = player.get_pos(hud.get_player())
     console.set('pos.x', x)
     console.set('pos.y', y)
     console.set('pos.z', z)
