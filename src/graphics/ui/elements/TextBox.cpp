@@ -320,6 +320,41 @@ int TextBox::calcIndexAt(int x, int y) const {
     return std::min(offset+label->getTextLineOffset(line), input.length());
 }
 
+inline std::wstring get_alphabet(wchar_t c) {
+    std::wstring alphabet {c};
+    if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_') {
+        return L"abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    } else if (c >= '0' && c <= '9') {
+        return L"0123456789";
+    }
+    return alphabet;
+}
+
+void TextBox::tokenSelectAt(int index) {
+    int left = index;
+    int right = index;
+    
+    std::wstring alphabet = get_alphabet(input.at(index));
+    while (left >= 0) {
+        if (alphabet.find(input.at(left)) == std::wstring::npos) {
+            break;
+        }
+        left--;
+    }
+    while (static_cast<size_t>(right) < input.length()) {
+        if (alphabet.find(input.at(right)) == std::wstring::npos) {
+            break;
+        }
+        right++;
+    }
+    select(left+1, right);
+}
+
+void TextBox::doubleClick(GUI* gui, int x, int y) {
+    UINode::doubleClick(gui, x, y);
+    tokenSelectAt(normalizeIndex(calcIndexAt(x, y)-1));
+}
+
 void TextBox::click(GUI*, int x, int y) {
     int index = normalizeIndex(calcIndexAt(x, y));
     selectionStart = index;

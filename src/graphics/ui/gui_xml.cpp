@@ -123,11 +123,21 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
         std::string text = element->attr("onclick").getText();
         if (!text.empty()) {
             auto callback = scripting::create_runnable(
-                reader.getEnvironment(),
-                text,
-                reader.getFilename()
+                reader.getEnvironment(), text, reader.getFilename()
             );
             node.listenAction([callback](GUI*) {
+                callback();
+            });
+        }
+    }
+
+    if (element->has("ondoubleclick")) {
+        std::string text = element->attr("ondoubleclick").getText();
+        if (!text.empty()) {
+            auto callback = scripting::create_runnable(
+                reader.getEnvironment(), text, reader.getFilename()
+            );
+            node.listenDoubleClick([callback](GUI*) {
                 callback();
             });
         }

@@ -45,8 +45,11 @@ void GUI::onAssetsLoad(Assets* assets) {
     ), "core:root");
 }
 
-// @brief Mouse related input and logic handling 
-void GUI::actMouse() {
+/// @brief Mouse related input and logic handling 
+void GUI::actMouse(float delta) {
+    doubleClicked = false;
+    doubleClickTimer += delta + glm::length(Events::delta) * 0.1f;
+
     auto hover = container->getAt(Events::cursor, nullptr);
     if (this->hover && this->hover != hover) {
         this->hover->setHover(false);
@@ -62,7 +65,13 @@ void GUI::actMouse() {
     if (Events::jclicked(mousecode::BUTTON_1)) {
         if (pressed == nullptr && this->hover) {
             pressed = hover;
-            pressed->click(this, Events::cursor.x, Events::cursor.y);
+            if (doubleClickTimer < doubleClickDelay) {
+                pressed->doubleClick(this, Events::cursor.x, Events::cursor.y);
+                doubleClicked = true;
+            } else {
+                pressed->click(this, Events::cursor.x, Events::cursor.y);
+            }
+            doubleClickTimer = 0.0f;
             if (focus && focus != pressed) {
                 focus->defocus();
             }
@@ -107,7 +116,9 @@ void GUI::actFocused() {
         if (Events::clicked(mousecode::BUTTON_1) && 
             (Events::jclicked(mousecode::BUTTON_1) || Events::delta.x || Events::delta.y))
         {
-            focus->mouseMove(this, Events::cursor.x, Events::cursor.y);
+            if (!doubleClicked) {
+                focus->mouseMove(this, Events::cursor.x, Events::cursor.y);
+            }
         }
     }
 }
@@ -124,7 +135,7 @@ void GUI::act(float delta, const Viewport& vp) {
     auto prevfocus = focus;
 
     if (!Events::_cursor_locked) {
-        actMouse();
+        actMouse(delta);
     }
     
     if (focus) {
@@ -144,7 +155,7 @@ void GUI::draw(const DrawContext* pctx, Assets* assets) {
 
     Shader* uishader = assets->getShader("ui");
     uishader->use();
-    uishader->uniformMatrix("u_projview", uicamera->getProjection()*uicamera->getView());
+    uishader->uniformMatrix("u_projview", uicamera->getProjView());
 
     pctx->getBatch2D()->begin();
     container->draw(pctx, assets);
@@ -198,4 +209,12 @@ std::shared_ptr<Container> GUI::getContainer() const {
 
 void GUI::postRunnable(runnable callback) {
     postRunnables.push(callback);
+}
+
+void GUI::setDoubleClickDelay(float delay) {
+    doubleClickDelay = delay;
+}
+
+float GUI::getDoubleClickDelay() const {
+    return doubleClickDelay;
 }

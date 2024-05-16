@@ -62,7 +62,12 @@ namespace gui {
         std::unique_ptr<Camera> uicamera;
         std::shared_ptr<Menu> menu;
         std::queue<runnable> postRunnables;
-        void actMouse();
+
+        float doubleClickTimer = 0.0f;
+        float doubleClickDelay = 0.5f;
+        bool doubleClicked = false;
+
+        void actMouse(float delta);
         void actFocused();
     public:
         GUI();
@@ -121,6 +126,9 @@ namespace gui {
         void onAssetsLoad(Assets* assets);
 
         void postRunnable(runnable callback);
+
+        void setDoubleClickDelay(float delay);
+        float getDoubleClickDelay() const;
     };
 }
 

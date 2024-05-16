@@ -88,6 +88,8 @@ namespace gui {
         vec2supplier sizefunc = nullptr;
         /// @brief 'onclick' callbacks
         std::vector<onaction> actions;
+        /// @brief 'ondoubleclick' callbacks
+        std::vector<onaction> doubleClickCallbacks;
 
         UINode(glm::vec2 size);
     public:
@@ -138,8 +140,10 @@ namespace gui {
         int getZIndex() const;
 
         virtual UINode* listenAction(onaction action);
+        virtual UINode* listenDoubleClick(onaction action);
 
         virtual void onFocus(GUI*) {focused = true;}
+        virtual void doubleClick(GUI*, int x, int y);
         virtual void click(GUI*, int x, int y);
         virtual void clicked(GUI*, mousecode button) {}
         virtual void mouseMove(GUI*, int x, int y) {};

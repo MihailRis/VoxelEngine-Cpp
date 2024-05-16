@@ -64,8 +64,22 @@ UINode* UINode::listenAction(onaction action) {
     return this;
 }
 
+UINode* UINode::listenDoubleClick(onaction action) {
+    doubleClickCallbacks.push_back(action);
+    return this;
+}
+
 void UINode::click(GUI*, int, int) {
     pressed = true;
+}
+
+void UINode::doubleClick(GUI* gui, int x, int y) {
+    pressed = true;
+    if (isInside(glm::vec2(x, y))) {
+        for (auto callback : doubleClickCallbacks) {
+            callback(gui);
+        }
+    }
 }
 
 void UINode::mouseRelease(GUI* gui, int x, int y) {

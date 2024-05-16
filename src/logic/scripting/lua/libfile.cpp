@@ -43,6 +43,28 @@ static int l_file_write(lua_State* L) {
     return 1;    
 }
 
+static int l_file_remove(lua_State* L) {
+    std::string rawpath = lua_tostring(L, 1);
+    fs::path path = resolve_path(L, rawpath);
+    auto entryPoint = rawpath.substr(0, rawpath.find(':'));
+    if (entryPoint != "world") {
+        throw std::runtime_error("access denied");
+    }
+    lua_pushboolean(L, fs::remove(path));
+    return 1;
+}
+
+static int l_file_remove_tree(lua_State* L) {
+    std::string rawpath = lua_tostring(L, 1);
+    fs::path path = resolve_path(L, rawpath);
+    auto entryPoint = rawpath.substr(0, rawpath.find(':'));
+    if (entryPoint != "world") {
+        throw std::runtime_error("access denied");
+    }
+    lua_pushinteger(L, fs::remove_all(path));
+    return 1;
+}
+
 static int l_file_exists(lua_State* L) {
     fs::path path = resolve_path(L, lua_tostring(L, 1));
     lua_pushboolean(L, fs::exists(path));
@@ -172,18 +194,20 @@ static int l_file_list(lua_State* L) {
 }
 
 const luaL_Reg filelib [] = {
-    {"resolve", lua_wrap_errors<l_file_resolve>},
-    {"find", lua_wrap_errors<l_file_find>},
-    {"read", lua_wrap_errors<l_file_read>},
-    {"write", lua_wrap_errors<l_file_write>},
     {"exists", lua_wrap_errors<l_file_exists>},
-    {"isfile", lua_wrap_errors<l_file_isfile>},
+    {"find", lua_wrap_errors<l_file_find>},
     {"isdir", lua_wrap_errors<l_file_isdir>},
+    {"isfile", lua_wrap_errors<l_file_isfile>},
     {"length", lua_wrap_errors<l_file_length>},
+    {"list", lua_wrap_errors<l_file_list>},
     {"mkdir", lua_wrap_errors<l_file_mkdir>},
     {"mkdirs", lua_wrap_errors<l_file_mkdirs>},
     {"read_bytes", lua_wrap_errors<l_file_read_bytes>},
+    {"read", lua_wrap_errors<l_file_read>},
+    {"remove", lua_wrap_errors<l_file_remove>},
+    {"remove_tree", lua_wrap_errors<l_file_remove_tree>},
+    {"resolve", lua_wrap_errors<l_file_resolve>},
     {"write_bytes", lua_wrap_errors<l_file_write_bytes>},
-    {"list", lua_wrap_errors<l_file_list>},
+    {"write", lua_wrap_errors<l_file_write>},
     {NULL, NULL}
 };
