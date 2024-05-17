@@ -1,8 +1,43 @@
 #include "command_line.hpp"
 
+#include "../files/engine_paths.hpp"
+
+#include <iostream>
 #include <filesystem>
+#include <string>
+#include <cstring>
+#include <stdexcept>
 
 namespace fs = std::filesystem;
+
+class ArgsReader {
+    int argc;
+    char** argv;
+    int pos = 0;
+    const char* last = "";
+public:
+    ArgsReader(int argc, char** argv) : argc(argc), argv(argv) {}
+
+    void skip() {
+        pos++;
+    }
+
+    bool hasNext() const {
+        return pos < argc && strlen(argv[pos]);
+    }
+
+    bool isKeywordArg() const {
+        return last[0] == '-';
+    }
+
+    std::string next() {
+        if (pos >= argc) {
+            throw std::runtime_error("unexpected end");
+        }
+        last = argv[pos];
+        return argv[pos++];
+    }
+};
 
 bool perform_keyword(ArgsReader& reader, const std::string& keyword, EnginePaths& paths) {
     if (keyword == "--res") {

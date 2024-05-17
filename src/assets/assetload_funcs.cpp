@@ -167,12 +167,12 @@ assetload::postfunc assetload::sound(
     // looking for 'sound_name' as base sound
     auto soundFile = paths->find(file+extension);
     if (fs::exists(soundFile)) {
-        baseSound.reset(audio::load_sound(soundFile, keepPCM));
+        baseSound = audio::load_sound(soundFile, keepPCM);
     }
     // looking for 'sound_name_0' as base sound
     auto variantFile = paths->find(file+"_0"+extension);
     if (fs::exists(variantFile)) {
-        baseSound.reset(audio::load_sound(variantFile, keepPCM));
+        baseSound = audio::load_sound(variantFile, keepPCM);
     }
 
     // loading sound variants

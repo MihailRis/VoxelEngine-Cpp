@@ -179,7 +179,7 @@ namespace audio {
         /// @param loop is stream looped (required for correct buffers preload)
         /// @param channel channel index
         /// @return speaker id or 0
-        virtual Speaker* createSpeaker(bool loop, int channel) = 0;
+        virtual std::unique_ptr<Speaker> createSpeaker(bool loop, int channel) = 0;
 
         /// @brief Unbind previous speaker and bind new speaker to the stream
         /// @param speaker speaker id or 0 if all you need is unbind speaker
@@ -225,7 +225,7 @@ namespace audio {
         /// @param channel channel index
         /// @return new speaker with sound bound or nullptr 
         /// if all speakers are in use
-        virtual Speaker* newInstance(int priority, int channel) const = 0;
+        virtual std::unique_ptr<Speaker> newInstance(int priority, int channel) const = 0;
     };
 
     /// @brief Audio source controller interface.
@@ -336,8 +336,8 @@ namespace audio {
     public:
         virtual ~Backend() {};
 
-        virtual Sound* createSound(std::shared_ptr<PCM> pcm, bool keepPCM) = 0;
-        virtual Stream* openStream(std::shared_ptr<PCMStream> stream, bool keepSource) = 0;
+        virtual std::unique_ptr<Sound> createSound(std::shared_ptr<PCM> pcm, bool keepPCM) = 0;
+        virtual std::unique_ptr<Stream> openStream(std::shared_ptr<PCMStream> stream, bool keepSource) = 0;
         virtual void setListener(
             glm::vec3 position, 
             glm::vec3 velocity, 
@@ -360,38 +360,38 @@ namespace audio {
     /// @param headerOnly read header only
     /// @throws std::runtime_error if I/O error ocurred or format is unknown 
     /// @return PCM audio data
-    PCM* load_PCM(const fs::path& file, bool headerOnly);
+    std::unique_ptr<PCM> load_PCM(const fs::path& file, bool headerOnly);
 
     /// @brief Load sound from file
     /// @param file audio file path
     /// @param keepPCM store PCM data in sound to make it accessible with Sound::getPCM
     /// @throws std::runtime_error if I/O error ocurred or format is unknown 
     /// @return new Sound instance
-    Sound* load_sound(const fs::path& file, bool keepPCM);
+    std::unique_ptr<Sound> load_sound(const fs::path& file, bool keepPCM);
 
     /// @brief Create new sound from PCM data
     /// @param pcm PCM data
     /// @param keepPCM store PCM data in sound to make it accessible with Sound::getPCM
     /// @return new Sound instance 
-    Sound* create_sound(std::shared_ptr<PCM> pcm, bool keepPCM);
+    std::unique_ptr<Sound> create_sound(std::shared_ptr<PCM> pcm, bool keepPCM);
 
     /// @brief Open new PCM stream from file
     /// @param file audio file path
     /// @throws std::runtime_error if I/O error ocurred or format is unknown
     /// @return new PCMStream instance
-    PCMStream* open_PCM_stream(const fs::path& file);
+    std::unique_ptr<PCMStream> open_PCM_stream(const fs::path& file);
 
     /// @brief Open new audio stream from file
     /// @param file audio file path
     /// @param keepSource store PCMStream in stream to make it accessible with Stream::getSource
     /// @return new Stream instance
-    Stream* open_stream(const fs::path& file, bool keepSource);
+    std::unique_ptr<Stream> open_stream(const fs::path& file, bool keepSource);
 
     /// @brief Open new audio stream from source
     /// @param stream PCM data source
     /// @param keepSource store PCMStream in stream to make it accessible with Stream::getSource
     /// @return new Stream instance
-    Stream* open_stream(std::shared_ptr<PCMStream> stream, bool keepSource);
+    std::unique_ptr<Stream> open_stream(std::shared_ptr<PCMStream> stream, bool keepSource);
 
     /// @brief Configure 3D listener
     /// @param position listener position
