@@ -19,15 +19,15 @@
 #include <memory>
 #include <iostream>
 
-const uint MAX_WORK_PER_FRAME = 64;
+const uint MAX_WORK_PER_FRAME = 128;
 const uint MIN_SURROUNDING = 9;
 
 ChunksController::ChunksController(Level* level, uint padding) 
-    : level(level), 
-      chunks(level->chunks.get()), 
-      lighting(level->lighting.get()), 
-      padding(padding), 
-      generator(WorldGenerators::createGenerator(level->getWorld()->getGenerator(), level->content)) {
+  : level(level), 
+    chunks(level->chunks.get()), 
+    lighting(level->lighting.get()), 
+    padding(padding), 
+    generator(WorldGenerators::createGenerator(level->getWorld()->getGenerator(), level->content)) {
 }
 
 ChunksController::~ChunksController(){
@@ -59,7 +59,7 @@ bool ChunksController::loadVisible(){
     for (uint z = padding; z < d-padding; z++){
         for (uint x = padding; x < w-padding; x++){
             int index = z * w + x;
-            auto chunk = chunks->chunks[index];
+            auto& chunk = chunks->chunks[index];
             if (chunk != nullptr){
                 if (chunk->isLoaded() && !chunk->isLighted()) {
                     if (buildLights(chunk)) {
@@ -79,7 +79,7 @@ bool ChunksController::loadVisible(){
         }
     }
 
-    auto chunk = chunks->chunks[nearZ * w + nearX];
+    const auto& chunk = chunks->chunks[nearZ * w + nearX];
     if (chunk != nullptr) {
         return false;
     }
