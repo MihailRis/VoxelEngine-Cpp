@@ -125,8 +125,8 @@ void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
     float px = camera->position.x / (float)CHUNK_W - 0.5f;
     float pz = camera->position.z / (float)CHUNK_D - 0.5f;
     std::sort(indices.begin(), indices.end(), [chunks, px, pz](auto i, auto j) {
-        const auto& a = chunks->chunks[i];
-        const auto& b = chunks->chunks[j];
+        const auto a = chunks->chunks[i].get();
+        const auto b = chunks->chunks[j].get();
         auto adx = (a->x - px);
         auto adz = (a->z - pz);
         auto bdx = (b->x - px);
