@@ -1,8 +1,5 @@
 #include "ChunksStorage.hpp"
 
-#include <assert.h>
-#include <iostream>
-
 #include "VoxelsVolume.hpp"
 #include "Chunk.hpp"
 #include "Block.hpp"
@@ -14,6 +11,9 @@
 #include "../lighting/Lightmap.hpp"
 #include "../items/Inventories.hpp"
 #include "../typedefs.hpp"
+#include "../debug/Logger.hpp"
+
+static debug::Logger logger("chunks-storage");
 
 ChunksStorage::ChunksStorage(Level* level) : level(level) {
 }
@@ -41,10 +41,11 @@ static void verifyLoadedChunk(ContentIndices* indices, Chunk* chunk) {
     for (size_t i = 0; i < CHUNK_VOL; i++) {
         blockid_t id = chunk->voxels[i].id;
         if (indices->getBlockDef(id) == nullptr) {
-            std::cout << "corruped block detected at " << i << " of chunk ";
-            std::cout << chunk->x << "x" << chunk->z;
-            std::cout << " -> " << (int)id << std::endl;
-            chunk->voxels[i].id = 11;
+            auto logline = logger.error();
+            logline << "corruped block detected at " << i << " of chunk ";
+            logline << chunk->x << "x" << chunk->z;
+            logline << " -> " << id;
+            chunk->voxels[i].id = BLOCK_AIR;
         }
     }
 }
@@ -101,7 +102,7 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 	// cw*ch chunks will be scanned
 	for (int cz = scz; cz < scz + ch; cz++) {
 		for (int cx = scx; cx < scx + cw; cx++) {
-			auto found = chunksMap.find(glm::ivec2(cx, cz));
+			const auto& found = chunksMap.find(glm::ivec2(cx, cz));
 			if (found == chunksMap.end()) {
 				// no chunk loaded -> filling with BLOCK_VOID
 				for (int ly = y; ly < y + h; ly++) {

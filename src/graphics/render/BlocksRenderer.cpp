@@ -458,14 +458,13 @@ void BlocksRenderer::build(const Chunk* chunk, const ChunksStorage* chunks) {
     render(voxels);
 }
 
-Mesh* BlocksRenderer::createMesh() {
+std::shared_ptr<Mesh> BlocksRenderer::createMesh() {
     const vattr attrs[]{ {3}, {2}, {1}, {0} };
     size_t vcount = vertexOffset / BlocksRenderer::VERTEX_SIZE;
-    Mesh* mesh = new Mesh(vertexBuffer, vcount, indexBuffer, indexSize, attrs);
-    return mesh;
+    return std::make_shared<Mesh>(vertexBuffer, vcount, indexBuffer, indexSize, attrs);
 }
 
-Mesh* BlocksRenderer::render(const Chunk* chunk, const ChunksStorage* chunks) {
+std::shared_ptr<Mesh> BlocksRenderer::render(const Chunk* chunk, const ChunksStorage* chunks) {
     build(chunk, chunks);
     return createMesh();
 }

@@ -94,8 +94,8 @@ public:
     virtual ~BlocksRenderer();
 
     void build(const Chunk* chunk, const ChunksStorage* chunks);
-    Mesh* render(const Chunk* chunk, const ChunksStorage* chunks);
-    Mesh* createMesh();
+    std::shared_ptr<Mesh> render(const Chunk* chunk, const ChunksStorage* chunks);
+    std::shared_ptr<Mesh> createMesh();
     VoxelsVolume* getVoxelsBuffer() const;
 };
 
