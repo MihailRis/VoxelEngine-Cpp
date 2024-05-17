@@ -13,6 +13,7 @@ function on_history_up()
         return
     end
     document.prompt.text = history[history_pointer]
+    document.prompt.caret = -1
     history_pointer = history_pointer - 1
 end
 
@@ -22,6 +23,7 @@ function on_history_down()
     end
     history_pointer = history_pointer + 1
     document.prompt.text = history[history_pointer + 1]
+    document.prompt.caret = -1
 end
 
 function add_to_history(text)

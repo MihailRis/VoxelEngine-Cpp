@@ -24,10 +24,10 @@ namespace gui {
         runnable onDownPressed;
         bool valid = true;
         /// @brief text input pointer, value may be greather than text length
-        uint caret = 0;
+        size_t caret = 0;
         /// @brief actual local (line) position of the caret on vertical move
-        uint maxLocalCaret = 0;
-        uint textOffset = 0;
+        size_t maxLocalCaret = 0;
+        size_t textOffset = 0;
         int textInitX;
         /// @brief last time of the caret was moved (used for blink animation)
         double caretLastMove = 0.0;
@@ -112,11 +112,15 @@ namespace gui {
 
         /// @brief Get current caret position in text
         /// @return integer in range [0, text.length()]
-        virtual uint getCaret() const;
+        virtual size_t getCaret() const;
 
         /// @brief Set caret position in the text
         /// @param position integer in range [0, text.length()]
-        virtual void setCaret(uint position);
+        virtual void setCaret(size_t position);
+
+        /// @brief Set caret position in the text
+        /// @param position integer in range [-text.length(), text.length()]
+        virtual void setCaret(ssize_t position);
 
         /// @brief Select part of the text
         /// @param start index of the first selected character

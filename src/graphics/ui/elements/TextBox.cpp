@@ -369,7 +369,7 @@ void TextBox::click(GUI*, int x, int y) {
 }
 
 void TextBox::mouseMove(GUI*, int x, int y) {
-    int index = calcIndexAt(x, y);
+    ssize_t index = calcIndexAt(x, y);
     setCaret(index);
     extendSelection(index);
     resetMaxLocalCaret();
@@ -381,7 +381,7 @@ void TextBox::resetMaxLocalCaret() {
 
 void TextBox::stepLeft(bool shiftPressed, bool breakSelection) {
     uint previousCaret = this->caret;
-    uint caret = breakSelection ? selectionStart : this->caret;
+    size_t caret = breakSelection ? selectionStart : this->caret;
     if (caret > 0) {
         if (caret > input.length()) {
             setCaret(input.length()-1);
@@ -405,7 +405,7 @@ void TextBox::stepLeft(bool shiftPressed, bool breakSelection) {
 
 void TextBox::stepRight(bool shiftPressed, bool breakSelection) {
     uint previousCaret = this->caret;
-    uint caret = breakSelection ? selectionEnd : this->caret;
+    size_t caret = breakSelection ? selectionEnd : this->caret;
     if (caret < input.length()) {
         setCaret(caret+1);
         caretLastMove = Window::time();
@@ -452,7 +452,7 @@ void TextBox::stepDefaultUp(bool shiftPressed, bool breakSelection) {
         uint offset = std::min(size_t(maxLocalCaret), getLineLength(caretLine-1)-1);
         setCaret(label->getTextLineOffset(caretLine-1) + offset);
     } else {
-        setCaret(0);
+        setCaret(0UL);
     }
     if (shiftPressed) {
         if (selectionStart == selectionEnd) {
@@ -628,11 +628,11 @@ std::wstring TextBox::getSelection() const {
     return input.substr(selectionStart, selectionEnd-selectionStart);
 }
 
-uint TextBox::getCaret() const {
+size_t TextBox::getCaret() const {
     return caret;
 }
 
-void TextBox::setCaret(uint position) {
+void TextBox::setCaret(size_t position) {
     this->caret = std::min(static_cast<size_t>(position), input.length());
     caretLastMove = Window::time();
 
@@ -652,6 +652,14 @@ void TextBox::setCaret(uint position) {
     if (realoffset-width > 0) {
         setTextOffset(textOffset + realoffset-width);
     } else if (realoffset < 0) {
-        setTextOffset(std::max(textOffset + realoffset, 0U));
+        setTextOffset(std::max(textOffset + realoffset, 0LU));
+    }
+}
+
+void TextBox::setCaret(ssize_t position) {
+    if (position < 0) {
+        setCaret(static_cast<size_t>(input.length() + position + 1));
+    } else {
+        setCaret(static_cast<size_t>(position));
     }
 }
