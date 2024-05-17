@@ -115,22 +115,23 @@ void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
     renderer->update();
 
     // [warning] this whole method is not thread-safe for chunks
+
     std::vector<size_t> indices;
     for (size_t i = 0; i < chunks->volume; i++){
         if (chunks->chunks[i] == nullptr)
             continue;
-        indices.push_back(i);
+        indices.emplace_back(i);
     }
     float px = camera->position.x / (float)CHUNK_W - 0.5f;
     float pz = camera->position.z / (float)CHUNK_D - 0.5f;
     std::sort(indices.begin(), indices.end(), [chunks, px, pz](auto i, auto j) {
         const auto& a = chunks->chunks[i];
         const auto& b = chunks->chunks[j];
-        return ((a->x - px)*(a->x - px) + 
-                (a->z - pz)*(a->z - pz)
-                >
-                (b->x - px)*(b->x - px) + 
-                (b->z - pz)*(b->z - pz));
+        auto adx = (a->x - px);
+        auto adz = (a->z - pz);
+        auto bdx = (b->x - px);
+        auto bdz = (b->z - pz);
+        return (adx*adx + adz*adz > bdx*bdx + bdz*bdz);
     });
     bool culling = engine->getSettings().graphics.frustumCulling.get();
     if (culling) {
