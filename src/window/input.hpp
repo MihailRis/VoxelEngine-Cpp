@@ -7,6 +7,7 @@
 
 /// @brief Represents glfw3 keycode values.
 enum class keycode : int {
+    GRAVE_ACCENT = 96,
     ENTER = 257,
     TAB = 258,
     SPACE = 32,

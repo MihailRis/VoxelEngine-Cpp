@@ -204,6 +204,9 @@ void Hud::processInput(bool visible) {
             setPause(true);
         }
     }
+    if (!pause && Events::active(BIND_DEVTOOLS_CONSOLE)) {
+        showOverlay(assets->getLayout("core:console"), false);
+    }
     if (!Window::isFocused() && !pause && !isInventoryOpen()) {
         setPause(true);
     }
