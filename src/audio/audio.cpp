@@ -255,16 +255,17 @@ speakerid_t audio::play(
             sound = sound->variants.at(index).get();
         }
     }
-    auto speaker = sound->newInstance(priority, channel);
-    if (speaker == nullptr) {
+    auto speaker_ptr = sound->newInstance(priority, channel);
+    if (speaker_ptr == nullptr) {
         remove_lower_priority_speaker(priority);
-        speaker = sound->newInstance(priority, channel);
+        speaker_ptr = sound->newInstance(priority, channel);
     }
-    if (speaker == nullptr) {
+    if (speaker_ptr == nullptr) {
         return 0;
     }
+    auto speaker = speaker_ptr.get();
     speakerid_t id = nextId++;
-    speakers.emplace(id, std::move(speaker));
+    speakers.emplace(id, std::move(speaker_ptr));
     speaker->setPosition(position);
     speaker->setVolume(volume);
     speaker->setPitch(pitch);
