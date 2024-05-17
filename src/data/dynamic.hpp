@@ -35,8 +35,16 @@ namespace dynamic {
         integer_t
     >;
 
+    const std::string& type_name(const Value& value);
     List_sptr create_list(std::initializer_list<Value> values={});
     Map_sptr create_map(std::initializer_list<std::pair<const std::string, Value>> entries={});
+    number_t get_number(const Value& value);
+    integer_t get_integer(const Value& value);
+    
+    inline bool is_numeric(const Value& value) {
+        return std::holds_alternative<number_t>(value) ||
+               std::holds_alternative<integer_t>(value);
+    }
 
     class List {
     public:
@@ -124,6 +132,24 @@ namespace dynamic {
         }
         Map& put(std::string key, std::unique_ptr<List> value) {
             return put(key, List_sptr(value.release()));
+        }
+        Map& put(std::string key, int value) {
+            return put(key, Value(static_cast<integer_t>(value)));
+        }
+        Map& put(std::string key, unsigned int value) {
+            return put(key, Value(static_cast<integer_t>(value)));
+        }
+        Map& put(std::string key, int64_t value) {
+            return put(key, Value(static_cast<integer_t>(value)));
+        }
+        Map& put(std::string key, float value) {
+            return put(key, Value(static_cast<number_t>(value)));
+        }
+        Map& put(std::string key, double value) {
+            return put(key, Value(static_cast<number_t>(value)));
+        }
+        Map& put(std::string key, bool value) {
+            return put(key, Value(static_cast<bool>(value)));
         }
         Map& put(std::string key, const Value& value);
 

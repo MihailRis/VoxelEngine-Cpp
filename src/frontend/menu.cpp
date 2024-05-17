@@ -27,7 +27,7 @@ void menus::create_version_label(Engine* engine) {
     auto gui = engine->getGUI();
     auto text = ENGINE_VERSION_STRING+" debug build";
     gui->add(guiutil::create(
-        "<label z-index='1000' color='#FFFFFF80' gravity='bottom-left' margin='4'>"
+        "<label z-index='1000' color='#FFFFFF80' gravity='top-right' margin='4'>"
         +text+
         "</label>"
     ));

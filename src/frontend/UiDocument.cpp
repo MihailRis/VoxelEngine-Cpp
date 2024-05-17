@@ -56,7 +56,7 @@ std::unique_ptr<UiDocument> UiDocument::read(scriptenv penv, std::string name, f
     auto xmldoc = xml::parse(file.u8string(), text);
 
     auto env = penv == nullptr 
-        ? scripting::get_root_environment()
+        ? scripting::create_doc_environment(scripting::get_root_environment(), name)
         : scripting::create_doc_environment(penv, name);
 
     gui::UiXmlReader reader(env);

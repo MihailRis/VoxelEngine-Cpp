@@ -1,0 +1,22 @@
+<container color='#00000080' size='400' size-func="unpack(gui.get_viewport())">
+    <container size-func="gui.get_viewport()[1],gui.get_viewport()[2]-40">
+        <textbox 
+            id='log' 
+            color='0'
+            autoresize='true' 
+            margin='0'
+            editable='false' 
+            multiline='true' 
+            size-func="gui.get_viewport()[1],40"
+            gravity="bottom-left"
+        ></textbox>
+    </container>
+    <textbox id='prompt' 
+             consumer='submit' 
+             margin='0' 
+             gravity='bottom-left' 
+             size-func="gui.get_viewport()[1],40"
+             onup="on_history_up()"
+             ondown="on_history_down()">
+    </textbox>
+</container>

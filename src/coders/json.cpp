@@ -36,14 +36,6 @@ inline void newline(
     }
 }
 
-void stringify(
-    const Value& value, 
-    std::stringstream& ss, 
-    int indent, 
-    const std::string& indentstr, 
-    bool nice
-);
-
 void stringifyObj(
     const Map* obj, 
     std::stringstream& ss, 
@@ -91,6 +83,8 @@ void stringifyValue(
         ss << *num;
     } else if (auto str = std::get_if<std::string>(&value)) {
         ss << util::escape(*str);
+    } else {
+        ss << "null";
     }
 }
 

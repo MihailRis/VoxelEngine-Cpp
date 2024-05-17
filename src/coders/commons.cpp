@@ -154,12 +154,24 @@ void BasicParser::expectNewLine() {
     }
 }
 
-void BasicParser::goBack() {
-    if (pos) pos--;
+void BasicParser::goBack(size_t count) {
+    if (pos < count) {
+        throw std::runtime_error("pos < jump");
+    }
+    if (pos) { 
+        pos -= count;
+    }
 }
 
 char BasicParser::peek() {
     skipWhitespace();
+    if (pos >= source.length()) {
+        throw error("unexpected end");
+    }
+    return source[pos];
+}
+
+char BasicParser::peekNoJump() {
     if (pos >= source.length()) {
         throw error("unexpected end");
     }

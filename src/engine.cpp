@@ -23,6 +23,7 @@
 #include "graphics/core/Shader.hpp"
 #include "graphics/ui/GUI.hpp"
 #include "logic/EngineController.hpp"
+#include "logic/CommandsInterpreter.hpp"
 #include "logic/scripting/scripting.hpp"
 #include "util/listutil.hpp"
 #include "util/platform.hpp"
@@ -59,7 +60,8 @@ inline void create_channel(Engine* engine, std::string name, NumberSetting& sett
 }
 
 Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, EnginePaths* paths) 
-    : settings(settings), settingsHandler(settingsHandler), paths(paths) 
+    : settings(settings), settingsHandler(settingsHandler), paths(paths),
+      interpreter(std::make_unique<cmd::CommandsInterpreter>())
 {
     corecontent::setup_bindings();
     loadSettings();
@@ -198,6 +200,7 @@ Engine::~Engine() {
     }
     content.reset();
     assets.reset();
+    interpreter.reset();
     gui.reset();
     logger.info() << "gui finished";
     audio::close();
@@ -209,6 +212,10 @@ Engine::~Engine() {
 
 EngineController* Engine::getController() {
     return controller.get();
+}
+
+cmd::CommandsInterpreter* Engine::getCommandsInterpreter() {
+    return interpreter.get();
 }
 
 PacksManager Engine::createPacksManager(const fs::path& worldFolder) {

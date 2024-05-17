@@ -10,6 +10,7 @@
 #include "../../../graphics/ui/elements/InventoryView.hpp"
 #include "../../../items/Inventories.hpp"
 #include "../../../logic/BlocksController.hpp"
+#include "../../../objects/Player.hpp"
 #include "../../../util/stringutil.hpp"
 #include "../../../voxels/Block.hpp"
 #include "../../../voxels/Chunks.hpp"
@@ -121,6 +122,12 @@ static int l_hud_get_block_inventory(lua_State* L) {
     return 1;
 }
 
+static int l_hud_get_player(lua_State* L) {
+    auto player = scripting::hud->getPlayer();
+    lua_pushinteger(L, player->getId());
+    return 1;
+}
+
 const luaL_Reg hudlib [] = {
     {"open_inventory", lua_wrap_errors<l_hud_open_inventory>},
     {"close_inventory", lua_wrap_errors<l_hud_close_inventory>},
@@ -131,5 +138,6 @@ const luaL_Reg hudlib [] = {
     {"close", lua_wrap_errors<l_hud_close>},
     {"pause", lua_wrap_errors<l_hud_pause>},
     {"resume", lua_wrap_errors<l_hud_resume>},
+    {"get_player", lua_wrap_errors<l_hud_get_player>},
     {NULL, NULL}
 };

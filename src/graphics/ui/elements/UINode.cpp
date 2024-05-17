@@ -60,12 +60,12 @@ UINode* UINode::getParent() const {
 }
 
 UINode* UINode::listenAction(onaction action) {
-    actions.push_back(action);
+    actions.listen(action);
     return this;
 }
 
 UINode* UINode::listenDoubleClick(onaction action) {
-    doubleClickCallbacks.push_back(action);
+    doubleClickCallbacks.listen(action);
     return this;
 }
 
@@ -76,18 +76,14 @@ void UINode::click(GUI*, int, int) {
 void UINode::doubleClick(GUI* gui, int x, int y) {
     pressed = true;
     if (isInside(glm::vec2(x, y))) {
-        for (auto callback : doubleClickCallbacks) {
-            callback(gui);
-        }
+        doubleClickCallbacks.notify(gui);
     }
 }
 
 void UINode::mouseRelease(GUI* gui, int x, int y) {
     pressed = false;
     if (isInside(glm::vec2(x, y))) {
-        for (auto callback : actions) {
-            callback(gui);
-        }
+        actions.notify(gui);
     }
 }
 

@@ -9,6 +9,7 @@ world.generators.default=Default
 world.generators.flat=Flat
 
 # Bindings
+devtools.console=Console
 movement.forward=Forward
 movement.back=Back
 movement.left=Left

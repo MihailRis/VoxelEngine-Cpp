@@ -21,6 +21,25 @@ namespace gui {
 
     using onaction = std::function<void(GUI*)>;
     using onnumberchange = std::function<void(GUI*, double)>;
+
+    class ActionsSet {
+        std::unique_ptr<std::vector<onaction>> callbacks;
+    public:
+        void listen(onaction callback) {
+            if (callbacks == nullptr) {
+                callbacks = std::make_unique<std::vector<onaction>>();
+            }
+            callbacks->push_back(callback);
+        }
+
+        void notify(GUI* gui) {
+            if (callbacks) {
+                for (auto& callback : *callbacks) {
+                    callback(gui);
+                }
+            }
+        }
+    };
     
     enum class Align {
         left, center, right,
@@ -87,9 +106,9 @@ namespace gui {
         /// @brief size supplier for the element (called on parent element size update)
         vec2supplier sizefunc = nullptr;
         /// @brief 'onclick' callbacks
-        std::vector<onaction> actions;
+        ActionsSet actions;
         /// @brief 'ondoubleclick' callbacks
-        std::vector<onaction> doubleClickCallbacks;
+        ActionsSet doubleClickCallbacks;
 
         UINode(glm::vec2 size);
     public:

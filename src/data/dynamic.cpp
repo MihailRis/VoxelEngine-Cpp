@@ -242,10 +242,40 @@ size_t Map::size() const {
     return values.size();
 }
 
+static const std::string TYPE_NAMES[] {
+    "none",
+    "map",
+    "list",
+    "string",
+    "number",
+    "bool",
+    "integer",
+};
+
+const std::string& dynamic::type_name(const Value& value) {
+    return TYPE_NAMES[value.index()];
+}
+
 List_sptr dynamic::create_list(std::initializer_list<Value> values) {
     return std::make_shared<List>(values);
 }
 
 Map_sptr dynamic::create_map(std::initializer_list<std::pair<const std::string, Value>> entries) {
     return std::make_shared<Map>(entries);
+}
+
+number_t dynamic::get_number(const Value& value) {
+    if (auto num = std::get_if<number_t>(&value)) {
+        return *num;
+    } else if (auto num = std::get_if<integer_t>(&value)) {
+        return *num;
+    }
+    throw std::runtime_error("cannot cast "+type_name(value)+" to number");
+}
+
+integer_t dynamic::get_integer(const Value& value) {
+    if (auto num = std::get_if<integer_t>(&value)) {
+        return *num;
+    }
+    throw std::runtime_error("cannot cast "+type_name(value)+" to integer");
 }

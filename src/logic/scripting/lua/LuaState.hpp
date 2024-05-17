@@ -3,6 +3,7 @@
 
 #include "lua_commons.hpp"
 
+#include "../scripting_functional.hpp"
 #include "../../../data/dynamic.hpp"
 #include "../../../delegates.hpp"
 
@@ -26,6 +27,8 @@ namespace lua {
         void logError(const std::string& text);
         void removeLibFuncs(const char* libname, const char* funcs[]);
         void createLibs();
+
+        std::shared_ptr<std::string> createLambdaHandler();
     public:
         LuaState();
         ~LuaState();
@@ -56,11 +59,11 @@ namespace lua {
         const char* tostring(int idx);
         bool isstring(int idx);
         bool isfunction(int idx);
-        int call(int argc);
+        int call(int argc, int nresults=-1);
         int callNoThrow(int argc);
         int execute(int env, const std::string& src, const std::string& file="<string>");
         int eval(int env, const std::string& src, const std::string& file="<eval>");
-        void openlib(const std::string& name, const luaL_Reg* libfuncs, int nup);
+        void openlib(const std::string& name, const luaL_Reg* libfuncs);
         void addfunc(const std::string& name, lua_CFunction func);
         bool getglobal(const std::string& name);
         void setglobal(const std::string& name);
@@ -68,6 +71,8 @@ namespace lua {
         bool rename(const std::string& from, const std::string& to);
         void remove(const std::string& name);;
         runnable createRunnable();
+        scripting::common_func createLambda();
+
         int createEnvironment(int parent);
         void removeEnvironment(int id);
         const std::string storeAnonymous();
