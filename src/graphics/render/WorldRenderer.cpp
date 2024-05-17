@@ -113,24 +113,25 @@ bool WorldRenderer::drawChunk(
 
 void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
     renderer->update();
+
+    // [warning] this whole method is not thread-safe for chunks
     std::vector<size_t> indices;
     for (size_t i = 0; i < chunks->volume; i++){
         if (chunks->chunks[i] == nullptr)
             continue;
         indices.push_back(i);
     }
-    float px = camera->position.x / (float)CHUNK_W;
-    float pz = camera->position.z / (float)CHUNK_D;
-    std::sort(indices.begin(), indices.end(), [chunks, px, pz](size_t i, size_t j) {
-        auto a = chunks->chunks[i];
-        auto b = chunks->chunks[j];
-        return ((a->x + 0.5f - px)*(a->x + 0.5f - px) + 
-                (a->z + 0.5f - pz)*(a->z + 0.5f - pz)
+    int px = camera->position.x / (float)CHUNK_W - 0.5f;
+    int pz = camera->position.z / (float)CHUNK_D - 0.5f;
+    std::sort(indices.begin(), indices.end(), [chunks, px, pz](auto i, auto j) {
+        const auto& a = chunks->chunks[i];
+        const auto& b = chunks->chunks[j];
+        return ((a->x - px)*(a->x - px) + 
+                (a->z - pz)*(a->z - pz)
                 >
-                (b->x + 0.5f - px)*(b->x + 0.5f - px) + 
-                (b->z + 0.5f - pz)*(b->z + 0.5f - pz));
+                (b->x - px)*(b->x - px) + 
+                (b->z - pz)*(b->z - pz));
     });
-
     bool culling = engine->getSettings().graphics.frustumCulling.get();
     if (culling) {
         frustumCulling->update(camera->getProjView());
