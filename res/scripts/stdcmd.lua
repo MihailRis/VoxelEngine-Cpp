@@ -1,6 +1,18 @@
 local SEPARATOR = "________________"
 SEPARATOR = SEPARATOR..SEPARATOR..SEPARATOR
 
+function build_scheme(command)
+    local str = command.name.." "
+    for i,arg in ipairs(command.args) do
+        if arg.optional then
+            str = str.."["..arg.name.."] "
+        else
+            str = str.."<"..arg.name.."> "
+        end
+    end
+    return str
+end
+
 console.add_command(
     "help name:str=''",
     "Show help infomation for the specified command",
@@ -9,9 +21,11 @@ console.add_command(
         if #name == 0 then
             local commands = console.get_commands_list()
             table.sort(commands)
-            return "available commands: "..
-                    table.tostring(commands)..
-                    "\nuse 'help [command]'"
+            local str = "Available commands:"
+            for i,k in ipairs(commands) do
+                str = str.."\n  "..build_scheme(console.get_command_info(k))
+            end
+            return str.."\nuse 'help <command>'"
         end
         local command = console.get_command_info(name)
         if command == nil then
@@ -37,7 +51,7 @@ console.add_command(
 )
 
 console.add_command(
-    "tp obj:sel=$obj.id x:num~pos.x y:num~pos.y z:num~pos.z",
+    "obj.tp obj:sel=$obj.id x:num~pos.x y:num~pos.y z:num~pos.z",
     "Teleport object",
     function (args, kwargs)
         player.set_pos(unpack(args))
