@@ -19,7 +19,7 @@ namespace audio {
             return pcm;
         }
 
-        Speaker* newInstance(int priority, int channel) const override {
+        std::unique_ptr<Speaker> newInstance(int priority, int channel) const override {
             return nullptr;
         }
     };
@@ -42,7 +42,7 @@ namespace audio {
         void bindSpeaker(speakerid_t speaker) override {
         }
 
-        Speaker* createSpeaker(bool loop, int channel) override{
+        std::unique_ptr<Speaker> createSpeaker(bool loop, int channel) override {
             return nullptr;
         }
 
@@ -65,8 +65,8 @@ namespace audio {
     public:
         ~NoAudio() {}
 
-        Sound* createSound(std::shared_ptr<PCM> pcm, bool keepPCM) override;
-        Stream* openStream(std::shared_ptr<PCMStream> stream, bool keepSource) override;
+        std::unique_ptr<Sound> createSound(std::shared_ptr<PCM> pcm, bool keepPCM) override;
+        std::unique_ptr<Stream> openStream(std::shared_ptr<PCMStream> stream, bool keepSource) override;
 
         void setListener(
             glm::vec3 position,
