@@ -652,7 +652,7 @@ void TextBox::setCaret(size_t position) {
     if (realoffset-width > 0) {
         setTextOffset(textOffset + realoffset-width);
     } else if (realoffset < 0) {
-        setTextOffset(std::max(textOffset + realoffset, 0LU));
+        setTextOffset(std::max(textOffset + realoffset, static_cast<size_t>(0)));
     }
 }
 
