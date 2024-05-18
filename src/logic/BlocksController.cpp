@@ -131,7 +131,7 @@ void BlocksController::randomTick(int tickid, int parts) {
             int index = z * w + x;
             if ((index + tickid) % parts != 0)
                 continue;
-            auto chunk = chunks->chunks[index];
+            auto& chunk = chunks->chunks[index];
             if (chunk == nullptr || !chunk->isLighted())
                 continue;
             for (int s = 0; s < segments; s++) {

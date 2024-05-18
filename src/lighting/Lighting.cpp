@@ -72,6 +72,7 @@ void Lighting::buildSkyLight(int cx, int cz){
                     y--;
                 }
                 if (chunk->lightmap.getS(x, y, z) != 15) {
+                    solverS->add(gx,y+1,gz);
                     for (; y >= 0; y--){
                         solverS->add(gx+1,y,gz);
                         solverS->add(gx-1,y,gz);

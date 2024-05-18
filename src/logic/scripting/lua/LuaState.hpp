@@ -75,7 +75,6 @@ namespace lua {
 
         int createEnvironment(int parent);
         void removeEnvironment(int id);
-        const std::string storeAnonymous();
         bool emit_event(const std::string& name, std::function<int(lua::LuaState*)> args=[](auto*){return 0;});
         void dumpStack();
         lua_State* getLua() const;

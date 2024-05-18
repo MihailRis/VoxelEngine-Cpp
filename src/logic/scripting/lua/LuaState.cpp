@@ -375,13 +375,6 @@ void lua::LuaState::openlib(const std::string& name, const luaL_Reg* libfuncs) {
     lua_setglobal(L, name.c_str());
 }
 
-const std::string lua::LuaState::storeAnonymous() {
-    auto funcId = uintptr_t(lua_topointer(L, lua_gettop(L)));
-    auto funcName = "F$"+util::mangleid(funcId);
-    lua_setglobal(L, funcName.c_str());
-    return funcName;
-}
-
 std::shared_ptr<std::string> lua::LuaState::createLambdaHandler() {
     auto ptr = reinterpret_cast<ptrdiff_t>(lua_topointer(L, -1));
     auto name = util::mangleid(ptr);
