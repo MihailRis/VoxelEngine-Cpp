@@ -1,5 +1,10 @@
-#include "toml.h"
-#include "commons.h"
+#include "toml.hpp"
+
+#include "commons.hpp"
+#include "../data/setting.hpp"
+#include "../data/dynamic.hpp"
+#include "../util/stringutil.hpp"
+#include "../files/settings_io.hpp"
 
 #include <math.h>
 #include <iostream>
@@ -7,243 +12,122 @@
 #include <sstream>
 #include <assert.h>
 
-using std::string;
-
 using namespace toml;
 
-Section::Section(string name) : name(name) {
-}
+class Reader : BasicParser {
+    SettingsHandler& handler;
 
-void Section::add(std::string name, Field field) {
-    if (fields.find(name) != fields.end()) {
-        throw std::runtime_error("field duplication");
+    void skipWhitespace() override {
+        BasicParser::skipWhitespace();
+        if (hasNext() && source[pos] == '#') {
+            skipLine();
+            if (hasNext() && is_whitespace(peek())) {
+                skipWhitespace();
+            }
+        }
     }
-    fields[name] = field;
-    keyOrder.push_back(name);
-}
-
-void Section::add(string name, bool* ptr) {
-    add(name, {fieldtype::ftbool, ptr});
-}
-
-void Section::add(string name, int* ptr) {
-    add(name, {fieldtype::ftint, ptr});
-}
-
-void Section::add(string name, uint* ptr) {
-    add(name, {fieldtype::ftuint, ptr});
-}
-
-void Section::add(string name, float* ptr) {
-    add(name, {fieldtype::ftfloat, ptr});
-}
-
-void Section::add(string name, string* ptr) {
-    add(name, {fieldtype::ftstring, ptr});
-}
-
-string Section::getName() const {
-    return name;
-}
-
-const Field* Section::field(std::string name) const {
-    auto found = fields.find(name);
-    if (found == fields.end()) {
-        return nullptr;
+    void readSection(const std::string& section) {
+        while (hasNext()) {
+            skipWhitespace();
+            if (!hasNext()) {
+                break;
+            }
+            char c = nextChar();
+            if (c == '[') {
+                std::string name = parseName();
+                pos++;
+                readSection(name);
+                return;
+            }
+            pos--;
+            std::string name = section+"."+parseName();
+            expect('=');
+            c = peek();
+            if (is_digit(c)) {
+                auto num = parseNumber(1);
+                if (handler.has(name)) {
+                    handler.setValue(name, num);
+                }
+            } else if (c == '-' || c == '+') {
+                int sign = c == '-' ? -1 : 1;
+                pos++;
+                auto num = parseNumber(sign);
+                if (handler.has(name)) {
+                    handler.setValue(name, num);
+                }
+            } else if (is_identifier_start(c)) {
+                std::string identifier = parseName();
+                if (handler.has(name)) {
+                    if (identifier == "true" || identifier == "false") {
+                        bool flag = identifier == "true";
+                        handler.setValue(name, flag);
+                    } else if (identifier == "inf") {
+                        handler.setValue(name, INFINITY);
+                    } else if (identifier == "nan") {
+                        handler.setValue(name, NAN);
+                    }
+                }
+            } else if (c == '"' || c == '\'') {
+                pos++;
+                std::string str = parseString(c);
+                if (handler.has(name)) {
+                    handler.setValue(name, str);
+                }
+            } else {
+                throw error("feature is not supported");
+            }
+            expectNewLine();
+        }
     }
-    return &found->second;
-}
 
-const std::vector<std::string>& Section::keys() const {
-    return keyOrder;
-}
-
-Wrapper::~Wrapper() {
-    for (auto entry : sections) {
-        delete entry.second;
+public:
+    Reader(
+        SettingsHandler& handler,
+        std::string_view file, 
+        std::string_view source) 
+    : BasicParser(file, source), handler(handler) {
     }
-}
 
-Section& Wrapper::add(std::string name) {
-    if (sections.find(name) != sections.end()) {
-        throw std::runtime_error("section duplication");
+    void read() {
+        skipWhitespace();
+        if (!hasNext()) {
+            return;
+        }
+        readSection("");
     }
-    Section* section = new Section(name);
-    sections[name] = section;
-    keyOrder.push_back(name);
-    return *section;
+};
+
+void toml::parse(
+    SettingsHandler& handler, 
+    const std::string& file, 
+    const std::string& source
+) {
+    Reader reader(handler, file, source);
+    reader.read();
 }
 
-Section* Wrapper::section(std::string name) {
-    auto found = sections.find(name);
-    if (found == sections.end()) {
-        return nullptr;
-    }
-    return found->second;
-}
+std::string toml::stringify(SettingsHandler& handler) {
+    auto& sections = handler.getSections();
 
-std::string Wrapper::write() const {
     std::stringstream ss;
-    for (string key : keyOrder) {
-        const Section* section = sections.at(key);
-        ss << "[" << key << "]\n";
-        for (const string& key : section->keys()) {
+    for (auto& section : sections) {
+        ss << "[" << section.name << "]\n";
+        for (const std::string& key : section.keys) {
             ss << key << " = ";
-            const Field* field = section->field(key);
-            assert(field != nullptr);
-            switch (field->type) {
-                case fieldtype::ftbool:
-                    ss << (*((bool*)field->ptr) ? "true" : "false");
-                    break;
-                case fieldtype::ftint: ss << *((int*)field->ptr); break;
-                case fieldtype::ftuint: ss << *((uint*)field->ptr); break;
-                case fieldtype::ftfloat: ss << *((float*)field->ptr); break;
-                case fieldtype::ftstring: 
-                    ss << escape_string(*((const string*)field->ptr)); 
-                    break;
+            auto setting = handler.getSetting(section.name+"."+key);
+            assert(setting != nullptr);
+            if (auto integer = dynamic_cast<IntegerSetting*>(setting)) {
+                ss << integer->get();
+            } else if (auto number = dynamic_cast<NumberSetting*>(setting)) {
+                ss << number->get();
+            } else if (auto flag = dynamic_cast<FlagSetting*>(setting)) {
+                ss << (flag->get() ? "true" : "false");
+            } else if (auto string = dynamic_cast<StringSetting*>(setting)) {
+                ss << util::escape(string->get());
             }
             ss << "\n";
         }
         ss << "\n";
     }
     return ss.str();
-}
-
-Reader::Reader(Wrapper* wrapper, string file, string source) : BasicParser(file, source), wrapper(wrapper) {
-}
-
-void Reader::skipWhitespace() {
-    BasicParser::skipWhitespace();
-    if (hasNext() && source[pos] == '#') {
-        skipLine();
-        if (hasNext() && is_whitespace(peek())) {
-            skipWhitespace();
-        }
-    }
-}
-
-void Reader::read() {
-    skipWhitespace();
-    if (!hasNext()) {
-        return;
-    }
-    readSection(nullptr);
-}
-
-inline bool is_numeric_type(fieldtype type) {
-    return type == fieldtype::ftint || type == fieldtype::ftfloat;
-}
-
-void Section::set(string name, double value) {
-    const Field* field = this->field(name);
-    if (field == nullptr) {
-        std::cerr << "warning: unknown key '" << name << "'" << std::endl;
-    } else {
-        switch (field->type) {
-        case fieldtype::ftbool: *(bool*)(field->ptr) = fabs(value) > 0.0; break;
-        case fieldtype::ftint: *(int*)(field->ptr) = value; break;
-        case fieldtype::ftuint: *(uint*)(field->ptr) = value; break;
-        case fieldtype::ftfloat: *(float*)(field->ptr) = value; break;
-        case fieldtype::ftstring: *(string*)(field->ptr) = std::to_string(value); break;
-        default:
-            std::cerr << "error: type error for key '" << name << "'" << std::endl;
-        }
-    }
-}
-
-void Section::set(std::string name, bool value) {
-    const Field* field = this->field(name);
-    if (field == nullptr) {
-        std::cerr << "warning: unknown key '" << name << "'" << std::endl;
-    } else {
-        switch (field->type) {
-        case fieldtype::ftbool: *(bool*)(field->ptr) = value; break;
-        case fieldtype::ftint: *(int*)(field->ptr) = (int)value; break;
-        case fieldtype::ftuint: *(uint*)(field->ptr) = (uint)value; break;
-        case fieldtype::ftfloat: *(float*)(field->ptr) = (float)value; break;
-        case fieldtype::ftstring: *(string*)(field->ptr) = value ? "true" : "false"; break;
-        default:
-            std::cerr << "error: type error for key '" << name << "'" << std::endl;
-        }
-    }
-}
-
-void Section::set(std::string name, std::string value) {
-    const Field* field = this->field(name);
-    if (field == nullptr) {
-        std::cerr << "warning: unknown key '" << name << "'" << std::endl;
-    } else {
-        switch (field->type) {
-        case fieldtype::ftstring: *(string*)(field->ptr) = value; break;
-        default:
-            std::cerr << "error: type error for key '" << name << "'" << std::endl;
-        }
-    }
-}
-
-void Reader::readSection(Section* section /*nullable*/) {
-    while (hasNext()) {
-        skipWhitespace();
-        if (!hasNext()) {
-            break;
-        }
-        char c = nextChar();
-        if (c == '[') {
-            string name = parseName();
-            Section* section = wrapper->section(name);
-            pos++;
-            readSection(section);
-            return;
-        }
-        pos--;
-        string name = parseName();
-        expect('=');
-        c = peek();
-        if (is_digit(c)) {
-            number_u num;
-            if (parseNumber(1, num)) {
-                if (section)
-                    section->set(name, (double)num.ival);
-            } else {
-                if (section)
-                    section->set(name, num.fval);
-            }
-        } else if (c == '-' || c == '+') {
-            int sign = c == '-' ? -1 : 1;
-            pos++;
-            number_u num;
-            if (parseNumber(sign, num)) {
-                if (section)
-                    section->set(name, (double)num.ival);
-            } else {
-                if (section)
-                    section->set(name, num.fval);
-            }
-        } else if (is_identifier_start(c)) {
-            string identifier = parseName();
-            if (identifier == "true" || identifier == "false") {
-                bool flag = identifier == "true";
-                if (section) {
-                    section->set(name, flag);
-                }
-            } else if (identifier == "inf") {
-                if (section) {
-                    section->set(name, INFINITY);
-                }
-            } else if (identifier == "nan") {
-                if (section) {
-                    section->set(name, NAN);
-                }
-            }
-        } else if (c == '"' || c == '\'') {
-            pos++;
-            string str = parseString(c);
-            if (section) {
-                section->set(name, str);
-            }
-        } else {
-            throw error("feature is not supported");
-        }
-        expectNewLine();
-    }
 }

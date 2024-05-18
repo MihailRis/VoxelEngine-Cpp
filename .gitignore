@@ -8,6 +8,7 @@ Debug/voxel_engine
 /screenshots
 /out
 
+/misc
 /world
 /worlds/**/*
 /settings.toml

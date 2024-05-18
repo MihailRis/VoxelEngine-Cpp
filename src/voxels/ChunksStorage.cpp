@@ -1,19 +1,19 @@
-#include "ChunksStorage.h"
+#include "ChunksStorage.hpp"
 
-#include <assert.h>
-#include <iostream>
+#include "VoxelsVolume.hpp"
+#include "Chunk.hpp"
+#include "Block.hpp"
+#include "../content/Content.hpp"
+#include "../files/WorldFiles.hpp"
+#include "../world/Level.hpp"
+#include "../world/World.hpp"
+#include "../maths/voxmaths.hpp"
+#include "../lighting/Lightmap.hpp"
+#include "../items/Inventories.hpp"
+#include "../typedefs.hpp"
+#include "../debug/Logger.hpp"
 
-#include "VoxelsVolume.h"
-#include "Chunk.h"
-#include "Block.h"
-#include "../content/Content.h"
-#include "../files/WorldFiles.h"
-#include "../world/Level.h"
-#include "../world/World.h"
-#include "../maths/voxmaths.h"
-#include "../lighting/Lightmap.h"
-#include "../items/Inventories.h"
-#include "../typedefs.h"
+static debug::Logger logger("chunks-storage");
 
 ChunksStorage::ChunksStorage(Level* level) : level(level) {
 }
@@ -41,24 +41,25 @@ static void verifyLoadedChunk(ContentIndices* indices, Chunk* chunk) {
     for (size_t i = 0; i < CHUNK_VOL; i++) {
         blockid_t id = chunk->voxels[i].id;
         if (indices->getBlockDef(id) == nullptr) {
-            std::cout << "corruped block detected at " << i << " of chunk ";
-            std::cout << chunk->x << "x" << chunk->z;
-            std::cout << " -> " << (int)id << std::endl;
-            chunk->voxels[i].id = 11;
+            auto logline = logger.error();
+            logline << "corruped block detected at " << i << " of chunk ";
+            logline << chunk->x << "x" << chunk->z;
+            logline << " -> " << id;
+            chunk->voxels[i].id = BLOCK_AIR;
         }
     }
 }
 
 std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 	World* world = level->getWorld();
-    WorldFiles* wfile = world->wfile.get();
+    auto& regions = world->wfile.get()->getRegions();
 
     auto chunk = std::make_shared<Chunk>(x, z);
 	store(chunk);
-	std::unique_ptr<ubyte[]> data(wfile->getChunk(chunk->x, chunk->z));
+	auto data = regions.getChunk(chunk->x, chunk->z);
 	if (data) {
 		chunk->decode(data.get());
-		auto invs = wfile->fetchInventories(chunk->x, chunk->z);
+		auto invs = regions.fetchInventories(chunk->x, chunk->z);
 		chunk->setBlockInventories(std::move(invs));
 		chunk->setLoaded(true);
 		for(auto& entry : chunk->inventories) {
@@ -67,7 +68,7 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
         verifyLoadedChunk(level->content->getIndices(), chunk.get());
 	}
 
-	std::unique_ptr<light_t[]> lights (wfile->getLights(chunk->x, chunk->z));
+	auto lights = regions.getLights(chunk->x, chunk->z);
 	if (lights) {
 		chunk->lightmap.set(lights.get());
 		chunk->setLoadedLights(true);
@@ -101,7 +102,7 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 	// cw*ch chunks will be scanned
 	for (int cz = scz; cz < scz + ch; cz++) {
 		for (int cx = scx; cx < scx + cw; cx++) {
-			auto found = chunksMap.find(glm::ivec2(cx, cz));
+			const auto& found = chunksMap.find(glm::ivec2(cx, cz));
 			if (found == chunksMap.end()) {
 				// no chunk loaded -> filling with BLOCK_VOID
 				for (int ly = y; ly < y + h; ly++) {

@@ -1,21 +1,24 @@
+#include "../audio/audio.hpp"
+#include "../delegates.hpp"
+#include "../engine.hpp"
+#include "../graphics/core/Mesh.hpp"
+#include "../graphics/ui/elements/CheckBox.hpp"
+#include "../graphics/ui/elements/TextBox.hpp"
+#include "../graphics/ui/elements/TrackBar.hpp"
+#include "../graphics/ui/elements/InputBindBox.hpp"
+#include "../graphics/render/WorldRenderer.hpp"
+#include "../objects/Player.hpp"
+#include "../physics/Hitbox.hpp"
+#include "../util/stringutil.hpp"
+#include "../voxels/Block.hpp"
+#include "../voxels/Chunk.hpp"
+#include "../voxels/Chunks.hpp"
+#include "../world/Level.hpp"
+#include "../world/World.hpp"
+
 #include <string>
 #include <memory>
 #include <sstream>
-
-#include "gui/controls.h"
-#include "../audio/audio.h"
-#include "../graphics/Mesh.h"
-#include "../objects/Player.h"
-#include "../physics/Hitbox.h"
-#include "../world/Level.h"
-#include "../world/World.h"
-#include "../voxels/Chunks.h"
-#include "../voxels/Block.h"
-#include "../util/stringutil.h"
-#include "../delegates.h"
-#include "../engine.h"
-
-#include "WorldRenderer.h"
 
 using namespace gui;
 
@@ -60,7 +63,7 @@ std::shared_ptr<UINode> create_debug_panel(
     }));
     panel->add(create_label([=](){
         auto& settings = engine->getSettings();
-        bool culling = settings.graphics.frustumCulling;
+        bool culling = settings.graphics.frustumCulling.get();
         return L"frustum-culling: "+std::wstring(culling ? L"on" : L"off");
     }));
     panel->add(create_label([=]() {
@@ -79,7 +82,7 @@ std::shared_ptr<UINode> create_debug_panel(
                L" "+stream.str();
     }));
     panel->add(create_label([=](){
-        return L"seed: "+std::to_wstring(level->world->getSeed());
+        return L"seed: "+std::to_wstring(level->getWorld()->getSeed());
     }));
 
     for (int ax = 0; ax < 3; ax++) {
@@ -95,6 +98,7 @@ std::shared_ptr<UINode> create_debug_panel(
 
         // Coord input
         auto box = std::make_shared<TextBox>(L"");
+        auto boxRef = box.get();
         box->setTextSupplier([=]() {
             Hitbox* hitbox = player->hitbox.get();
             return util::to_wstring(hitbox->position[ax], 2);
@@ -109,7 +113,7 @@ std::shared_ptr<UINode> create_debug_panel(
         });
         box->setOnEditStart([=](){
             Hitbox* hitbox = player->hitbox.get();
-            box->setText(std::to_wstring(int(hitbox->position[ax])));
+            boxRef->setText(std::to_wstring(int(hitbox->position[ax])));
         });
         box->setSize(glm::vec2(230, 27));
 
@@ -118,7 +122,7 @@ std::shared_ptr<UINode> create_debug_panel(
     }
     panel->add(create_label([=](){
         int hour, minute, second;
-        timeutil::from_value(level->world->daytime, hour, minute, second);
+        timeutil::from_value(level->getWorld()->daytime, hour, minute, second);
 
         std::wstring timeString = 
                      util::lfill(std::to_wstring(hour), 2, L'0') + L":" +
@@ -127,8 +131,8 @@ std::shared_ptr<UINode> create_debug_panel(
     }));
     {
         auto bar = std::make_shared<TrackBar>(0.0f, 1.0f, 1.0f, 0.005f, 8);
-        bar->setSupplier([=]() {return level->world->daytime;});
-        bar->setConsumer([=](double val) {level->world->daytime = val;});
+        bar->setSupplier([=]() {return level->getWorld()->daytime;});
+        bar->setConsumer([=](double val) {level->getWorld()->daytime = val;});
         panel->add(bar);
     }
     {
@@ -142,10 +146,10 @@ std::shared_ptr<UINode> create_debug_panel(
             L"Show Chunk Borders", glm::vec2(400, 24)
         );
         checkbox->setSupplier([=]() {
-            return engine->getSettings().debug.showChunkBorders;
+            return WorldRenderer::showChunkBorders;
         });
         checkbox->setConsumer([=](bool checked) {
-            engine->getSettings().debug.showChunkBorders = checked;
+            WorldRenderer::showChunkBorders = checked;
         });
         panel->add(checkbox);
     }

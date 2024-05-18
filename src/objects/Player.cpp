@@ -1,12 +1,13 @@
-#include "Player.h"
-#include "../content/ContentLUT.h"
-#include "../physics/Hitbox.h"
-#include "../physics/PhysicsSolver.h"
-#include "../voxels/Chunks.h"
-#include "../world/Level.h"
-#include "../window/Events.h"
-#include "../window/Camera.h"
-#include "../items/Inventory.h"
+#include "Player.hpp"
+
+#include "../content/ContentLUT.hpp"
+#include "../physics/Hitbox.hpp"
+#include "../physics/PhysicsSolver.hpp"
+#include "../voxels/Chunks.hpp"
+#include "../world/Level.hpp"
+#include "../window/Events.hpp"
+#include "../window/Camera.hpp"
+#include "../items/Inventory.hpp"
 
 #include <glm/glm.hpp>
 
@@ -197,7 +198,7 @@ std::unique_ptr<dynamic::Map> Player::serialize() const {
     root->put("flight", flight);
     root->put("noclip", noclip);
     root->put("chosen-slot", chosenSlot);
-    root->put("inventory", inventory->serialize().release());
+    root->put("inventory", inventory->serialize());
     return root;
 }
 
@@ -226,7 +227,7 @@ void Player::deserialize(dynamic::Map *src) {
 
     src->flag("flight", flight);
     src->flag("noclip", noclip);
-    setChosenSlot(src->getInt("chosen-slot", getChosenSlot()));
+    setChosenSlot(src->get("chosen-slot", getChosenSlot()));
 
     auto invmap = src->map("inventory");
     if (invmap) {

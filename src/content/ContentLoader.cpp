@@ -1,4 +1,17 @@
-#include "ContentLoader.h"
+#include "ContentLoader.hpp"
+
+#include "Content.hpp"
+#include "ContentPack.hpp"
+#include "../coders/json.hpp"
+#include "../core_defs.hpp"
+#include "../data/dynamic.hpp"
+#include "../debug/Logger.hpp"
+#include "../files/files.hpp"
+#include "../items/ItemDef.hpp"
+#include "../logic/scripting/scripting.hpp"
+#include "../typedefs.hpp"
+#include "../util/listutil.hpp"
+#include "../voxels/Block.hpp"
 
 #include <iostream>
 #include <string>
@@ -6,20 +19,9 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 
-#include "Content.h"
-#include "../items/ItemDef.h"
-#include "../util/listutil.h"
-#include "../voxels/Block.h"
-#include "../files/files.h"
-#include "../coders/json.h"
-#include "../typedefs.h"
-#include "../core_defs.h"
-#include "../data/dynamic.h"
-
-#include "ContentPack.h"
-#include "../logic/scripting/scripting.h"
-
 namespace fs = std::filesystem;
+
+static debug::Logger logger("content-loader");
 
 ContentLoader::ContentLoader(ContentPack* pack) : pack(pack) {
 }
@@ -86,11 +88,11 @@ void ContentLoader::fixPackIndices() {
     auto blocksFolder = folder/ContentPack::BLOCKS_FOLDER;
     auto itemsFolder = folder/ContentPack::ITEMS_FOLDER;
 
-    std::unique_ptr<dynamic::Map> root;
+    dynamic::Map_sptr root;
     if (fs::is_regular_file(indexFile)) {
         root = files::read_json(indexFile);
     } else {
-        root.reset(new dynamic::Map());
+        root = dynamic::create_map();
     }
 
     bool modified = false;
@@ -100,7 +102,6 @@ void ContentLoader::fixPackIndices() {
 
     if (modified){
         // rewrite modified json
-        std::cout << indexFile << std::endl;
         files::write_json(indexFile, root.get());
     }
 }
@@ -227,15 +228,15 @@ void ContentLoader::loadCustomBlockModel(Block& def, dynamic::Map* primitives) {
             def.modelBoxes.push_back(modelbox);
 
             if (boxarr->size() == 7)
-                for (uint i = 6; i < 12; i++) {
+                for (uint j = 6; j < 12; j++) {
                     def.modelTextures.push_back(boxarr->str(6));
                 }
             else if (boxarr->size() == 12)
-                for (uint i = 6; i < 12; i++) {
-                    def.modelTextures.push_back(boxarr->str(i));
+                for (uint j = 6; j < 12; j++) {
+                    def.modelTextures.push_back(boxarr->str(j));
                 }
             else
-                for (uint i = 6; i < 12; i++) {
+                for (uint j = 6; j < 12; j++) {
                     def.modelTextures.push_back("notfound");
                 }
         }
@@ -321,11 +322,11 @@ BlockMaterial ContentLoader::loadBlockMaterial(fs::path file, std::string full) 
 }
 
 void ContentLoader::load(ContentBuilder& builder) {
-    std::cout << "-- loading pack [" << pack->id << "]" << std::endl;
+    logger.info() << "loading pack [" << pack->id << "]";
 
     auto runtime = new ContentPackRuntime(*pack, scripting::create_pack_environment(*pack));
     builder.add(runtime);
-    env = runtime->getEnvironment()->getId();
+    env = runtime->getEnvironment();
     ContentPackStats& stats = runtime->getStatsWriteable();
 
     fixPackIndices();

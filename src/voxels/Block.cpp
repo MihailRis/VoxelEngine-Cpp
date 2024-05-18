@@ -1,7 +1,7 @@
-#include "Block.h"
+#include "Block.hpp"
 
-#include "../core_defs.h"
-#include "../util/stringutil.h"
+#include "../core_defs.hpp"
+#include "../util/stringutil.hpp"
 
 CoordSystem::CoordSystem(glm::ivec3 axisX, glm::ivec3 axisY, glm::ivec3 axisZ)
   : axisX(axisX), axisY(axisY), axisZ(axisZ)
@@ -40,13 +40,13 @@ const BlockRotProfile BlockRotProfile::PANE {"pane", {
 
 Block::Block(std::string name) 
 	: name(name), 
+      caption(util::id_to_caption(name)),
 	  textureFaces {TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,
-	  			    TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,TEXTURE_NOTFOUND} {
-	rotations = BlockRotProfile::PIPE;
-    caption = util::id_to_caption(name);
-}
+	  			    TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,TEXTURE_NOTFOUND},
+      rotations(BlockRotProfile::PIPE)
+{}
 
 Block::Block(std::string name, std::string texture) : name(name),
-		textureFaces{texture,texture,texture,texture,texture,texture} {
-	rotations = BlockRotProfile::PIPE;
-}
+		textureFaces{texture,texture,texture,texture,texture,texture},
+        rotations(BlockRotProfile::PIPE)
+{}

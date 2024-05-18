@@ -1,9 +1,9 @@
-#include "Inventories.h"
+#include "Inventories.hpp"
 
 #include <algorithm>
 
-#include "../world/Level.h"
-#include "../world/World.h"
+#include "../world/Level.hpp"
+#include "../world/World.hpp"
 
 Inventories::Inventories(Level& level) : level(level) {
 }
@@ -26,7 +26,9 @@ std::shared_ptr<Inventory> Inventories::createVirtual(size_t size) {
 
     auto inv = std::make_shared<Inventory>(id, size);
     store(inv);
-    return inv;
+    return std::shared_ptr<Inventory>(inv.get(), [this](Inventory* ptr) {
+        remove(ptr->getId());
+    });
 }
 
 void Inventories::store(std::shared_ptr<Inventory> inv) {
@@ -48,8 +50,7 @@ std::shared_ptr<Inventory> Inventories::clone(int64_t id) {
     auto original = get(id);
     if (original == nullptr)
         return nullptr;
-    auto origptr = reinterpret_cast<const Inventory*>(original.get());
-    auto clone = std::make_shared<Inventory>(*origptr);
+    auto clone = std::make_shared<Inventory>(*original);
     clone->setId(level.getWorld()->getNextInventoryId());
     store(clone);
     return clone;

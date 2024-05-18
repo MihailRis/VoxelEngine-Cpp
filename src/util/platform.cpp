@@ -1,20 +1,20 @@
-#include "platform.h"
+#include "platform.hpp"
+
+#include "../typedefs.hpp"
 
 #include <sstream>
 #include <iomanip>
 #include <time.h>
 #include <iostream>
 
-#include "../typedefs.h"
-
 #ifdef _WIN32
 #include <Windows.h>
 
-#include "./stringutil.h"
+#include "./stringutil.hpp"
 
 void platform::configure_encoding() {
-	// set utf-8 encoding to console output
-	SetConsoleOutputCP(CP_UTF8);
+    // set utf-8 encoding to console output
+    SetConsoleOutputCP(CP_UTF8);
     setvbuf(stdout, nullptr, _IOFBF, 1000);
 }
 

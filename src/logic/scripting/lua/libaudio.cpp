@@ -1,10 +1,10 @@
-#include "api_lua.h"
-#include "lua_commons.h"
-#include "lua_util.h"
+#include "api_lua.hpp"
+#include "lua_commons.hpp"
+#include "lua_util.hpp"
 
-#include "../../../audio/audio.h"
-#include "../../../engine.h"
-#include "../scripting.h"
+#include "../../../audio/audio.hpp"
+#include "../../../engine.hpp"
+#include "../scripting.hpp"
 
 inline const char* DEFAULT_CHANNEL = "regular";
 
@@ -13,7 +13,11 @@ inline int extract_channel_index(lua_State* L, int idx) {
     if (!lua_isnoneornil(L, idx)) {
         channel = lua_tostring(L, idx);
     }
-    return audio::get_channel_index(channel);
+    int index = audio::get_channel_index(channel);
+    if (index == 0) {
+        return -1;
+    }
+    return index;
 }
 
 inline audio::speakerid_t play_sound(
@@ -44,8 +48,8 @@ inline audio::speakerid_t play_sound(
         ), 
         relative, 
         volume, 
-        pitch, 
-        false, 
+        pitch,
+        loop,
         audio::PRIORITY_NORMAL, 
         channel
     );

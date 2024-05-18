@@ -1,0 +1,15 @@
+<container id='pack_%{id}' onclick='%{callback}' size='0,80' color='#00000040' hover-color='#00000080' z-index="%{index}">
+    <label color='#FFFFFF80' size='300,25' align='right' gravity='top-right'>
+        [%{id_verbose}]
+    </label>
+    <label pos='78,6'>%{title}</label>
+    <label if='%{creator}' color='#CCFFE5B2' size='300,20' align='right' 
+           gravity='bottom-right'>
+        %{creator}
+    </label>
+    <label if='%{error}' pos='80,28' size='355,50' multiline='true' color='#FF4040'>%{error}</label>
+    <label ifnot='%{error}' pos='80,28' size='355,50' multiline='true' color='#FFFFFFB2'>
+        %{description}
+    </label>
+    <image pos='8,8' src='%{icon}' size='64'/>
+</container>

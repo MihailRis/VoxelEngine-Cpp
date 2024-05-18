@@ -1,0 +1,70 @@
+# Общее
+Yes=Ja
+No=Nein
+Ok=OK
+Cancel=Stornieren
+Back=Zurück
+Continue=Weitermachen
+Add=Hinzufügen
+Converting world...=Weltkonvertierung im Gange...
+
+error.pack-not-found=Paket konnte nicht gefunden werden
+error.dependency-not-found=Die verwendete Abhängigkeit wurde nicht gefunden
+pack.remove-confirm=Alle vom Paket bereitgestellten Inhalte (dauerhaft) aus der Welt löschen?
+
+# Меню
+menu.Apply=Anwenden
+menu.Audio=Klang
+menu.Back to Main Menu=Zurück zum Menü
+menu.Content Error=Inhaltsfehler
+menu.Content=Inhalt
+menu.Continue=Weitermachen
+menu.Controls=Kontrolle
+menu.Create World=Erschaffe eine Welt
+menu.missing-content=Fehlender Inhalt!
+menu.New World=Neue Welt
+menu.Quit=Ausfahrt
+menu.Save and Quit to Menu=Speichern und zum Menü zurückkehren
+menu.Settings=Einstellungen
+
+world.Seed=Mais
+world.Name=Name
+world.World generator=Weltgenerator
+world.generators.default=Normal
+world.generators.flat=Wohnung
+world.Create World=Welt Erschaffen
+world.convert-request=Es gibt Änderungen in den Indizes! Die Welt bekehren?
+world.delete-confirm=Die Welt dauerhaft löschen?
+
+# Настройки
+settings.Ambient=Hintergrund
+settings.Backlight=Hintergrundbeleuchtung
+settings.Camera Shaking=Wackelnde Kamera
+settings.Fog Curve=Nebelkurve
+settings.FOV=Sichtlinie
+settings.Language=Sprache
+settings.Load Distance=Ladeentfernung
+settings.Load Speed=Download-Geschwindigkeit
+settings.Master Volume=Allgemeine Lautstärke
+settings.Mouse Sensitivity=Maus-Empfindlichkeit
+settings.Music=Musik
+settings.Regular Sounds=Normale Geräusche
+settings.UI Sounds=Interface-Sounds
+settings.V-Sync=Vertikale Synchronisation
+
+# Управление
+movement.forward=Vorwärts
+movement.back=Zurück
+movement.left=Links
+movement.right=Rechts
+movement.jump=Prallen
+movement.sprint=Beschleunigung
+movement.crouch=Stehlen
+movement.cheat=Schummeln
+hud.inventory=Inventar
+player.pick=Wählen Sie Blockieren
+player.attack=Angriff / Pause
+player.build=Setzen Sie einen Block
+player.flight=Flug
+camera.zoom=Annäherung
+camera.mode=Kameramodus ändern

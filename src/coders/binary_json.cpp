@@ -1,29 +1,32 @@
-#include "binary_json.h"
+#include "binary_json.hpp"
+
+#include "gzip.hpp"
+#include "byte_utils.hpp"
+#include "../data/dynamic.hpp"
 
 #include <stdexcept>
-
-#include "gzip.h"
-#include "byte_utils.h"
 
 using namespace json;
 using namespace dynamic;
 
-static void to_binary(ByteBuilder& builder, const Value* value) {
-    switch (value->type) {
-        case valtype::map: {
-            std::vector<ubyte> bytes = to_binary(value->value.map);
+static void to_binary(ByteBuilder& builder, const Value& value) {
+    switch (static_cast<Type>(value.index())) {
+        case Type::none:
+            throw std::runtime_error("none value is not implemented");
+        case Type::map: {
+            auto bytes = to_binary(std::get<Map_sptr>(value).get());
             builder.put(bytes.data(), bytes.size());
             break;
         }
-        case valtype::list:
+        case Type::list:
             builder.put(BJSON_TYPE_LIST);
-            for (auto& element : value->value.list->values) {
-                to_binary(builder, element.get());
+            for (auto& element : std::get<List_sptr>(value)->values) {
+                to_binary(builder, element);
             }
             builder.put(BJSON_END);
             break;
-        case valtype::integer: {
-            int64_t val = value->value.integer;
+        case Type::integer: {
+            auto val = std::get<integer_t>(value);
             if (val >= 0 && val <= 255) {
                 builder.put(BJSON_TYPE_BYTE);
                 builder.put(val);
@@ -39,22 +42,22 @@ static void to_binary(ByteBuilder& builder, const Value* value) {
             }
             break;
         }
-        case valtype::number:
+        case Type::number:
             builder.put(BJSON_TYPE_NUMBER);
-            builder.putFloat64(value->value.decimal);
+            builder.putFloat64(std::get<number_t>(value));
             break;
-        case valtype::boolean:
-            builder.put(BJSON_TYPE_FALSE + value->value.boolean);
+        case Type::boolean:
+            builder.put(BJSON_TYPE_FALSE + std::get<bool>(value));
             break;
-        case valtype::string:
+        case Type::string:
             builder.put(BJSON_TYPE_STRING);
-            builder.put(*value->value.str);
+            builder.put(std::get<std::string>(value));
             break;
     }
 }
 
-static List* array_from_binary(ByteReader& reader);
-static Map* object_from_binary(ByteReader& reader);
+static std::unique_ptr<List> array_from_binary(ByteReader& reader);
+static std::unique_ptr<Map> object_from_binary(ByteReader& reader);
 
 std::vector<ubyte> json::to_binary(const Map* obj, bool compress) {
     if (compress) {
@@ -70,7 +73,7 @@ std::vector<ubyte> json::to_binary(const Map* obj, bool compress) {
     // writing entries
     for (auto& entry : obj->values) {
         builder.putCStr(entry.first.c_str());
-        to_binary(builder, entry.second.get());
+        to_binary(builder, entry.second);
     }
     // terminating byte
     builder.put(BJSON_END);
@@ -80,79 +83,56 @@ std::vector<ubyte> json::to_binary(const Map* obj, bool compress) {
     return builder.build();
 }
 
-static Value* value_from_binary(ByteReader& reader) {
+static Value value_from_binary(ByteReader& reader) {
     ubyte typecode = reader.get();
-    valtype type;
-    valvalue val;
     switch (typecode) {
         case BJSON_TYPE_DOCUMENT:
-            type = valtype::map;
             reader.getInt32();
-            val.map = object_from_binary(reader);
-            break;
+            return Map_sptr(object_from_binary(reader).release());
         case BJSON_TYPE_LIST:
-            type = valtype::list;
-            val.list = array_from_binary(reader);
-            break;
+            return List_sptr(array_from_binary(reader).release());
         case BJSON_TYPE_BYTE:
-            type = valtype::integer;
-            val.integer = reader.get();
-            break;
+            return static_cast<integer_t>(reader.get());
         case BJSON_TYPE_INT16:
-            type = valtype::integer;
-            val.integer = reader.getInt16();
-            break;
+            return static_cast<integer_t>(reader.getInt16());
         case BJSON_TYPE_INT32:
-            type = valtype::integer;
-            val.integer = reader.getInt32();
-            break;
+            return static_cast<integer_t>(reader.getInt32());
         case BJSON_TYPE_INT64:
-            type = valtype::integer;
-            val.integer = reader.getInt64();
-            break;
+            return reader.getInt64();
         case BJSON_TYPE_NUMBER:
-            type = valtype::number;
-            val.decimal = reader.getFloat64();
-            break;
+            return reader.getFloat64();
         case BJSON_TYPE_FALSE:
         case BJSON_TYPE_TRUE:
-            type = valtype::boolean;
-            val.boolean = typecode - BJSON_TYPE_FALSE;
-            break;
+            return (typecode - BJSON_TYPE_FALSE) != 0;
         case BJSON_TYPE_STRING:
-            type = valtype::string;
-            val.str = new std::string(reader.getString());
-            break;
+            return reader.getString();
         default:
             throw std::runtime_error(
-                  "type "+std::to_string(typecode)+" is not supported");
+                "type "+std::to_string(typecode)+" is not supported"
+            );
     }
-    return new Value(type, val);
 }
 
-static List* array_from_binary(ByteReader& reader) {
+static std::unique_ptr<List> array_from_binary(ByteReader& reader) {
     auto array = std::make_unique<List>();
-    auto& items = array->values;
     while (reader.peek() != BJSON_END) {
-        items.push_back(std::unique_ptr<Value>(value_from_binary(reader)));
+        array->put(value_from_binary(reader));
     }
     reader.get();
-    return array.release();
+    return array;
 }
 
-static Map* object_from_binary(ByteReader& reader) {
+static std::unique_ptr<Map> object_from_binary(ByteReader& reader) {
     auto obj = std::make_unique<Map>();
-    auto& map = obj->values;
     while (reader.peek() != BJSON_END) {
         const char* key = reader.getCString();
-        Value* value = value_from_binary(reader);
-        map.insert(std::make_pair(key, value));
+        obj->put(key, value_from_binary(reader));
     }
     reader.get();
-    return obj.release();
+    return obj;
 }
 
-std::unique_ptr<Map> json::from_binary(const ubyte* src, size_t size) {
+std::shared_ptr<Map> json::from_binary(const ubyte* src, size_t size) {
     if (size < 2) {
         throw std::runtime_error("bytes length is less than 2");
     }
@@ -162,12 +142,12 @@ std::unique_ptr<Map> json::from_binary(const ubyte* src, size_t size) {
         return from_binary(data.data(), data.size());
     } else {
         ByteReader reader(src, size);
-        std::unique_ptr<Value> value (value_from_binary(reader));
-        if (value->type != valtype::map) {
+        Value value = value_from_binary(reader);
+
+        if (auto map = std::get_if<Map_sptr>(&value)) {
+            return *map;
+        } else {
             throw std::runtime_error("root value is not an object");
         }
-        std::unique_ptr<Map> obj (value->value.map);
-        value->value.map = nullptr;
-        return obj;
     }
 }

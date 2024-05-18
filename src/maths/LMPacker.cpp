@@ -1,4 +1,4 @@
-#include "LMPacker.h"
+#include "LMPacker.hpp"
 
 #include <algorithm>
 

@@ -1,6 +1,6 @@
 # Run with compiled executable file:
 
-[Download | Скачать](https://github.com/MihailRis/VoxelEngine-Cpp/releases/tag/v20.0)
+[Download | Скачать](https://github.com/MihailRis/VoxelEngine-Cpp/releases/latest)
 
 
 # Controls:
@@ -42,7 +42,7 @@ sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
 
 #### RHEL-based distro:
 ```sh
-sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-devel openal-devel luajit
+sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-devel openal-devel luajit-devel
 ```
 
 #### Arch-based distro:

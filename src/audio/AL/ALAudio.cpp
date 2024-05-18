@@ -1,7 +1,11 @@
-#include "ALAudio.h"
-#include "alutil.h"
+#include "ALAudio.hpp"
+
+#include "alutil.hpp"
+#include "../../debug/Logger.hpp"
+
 #include <string>
-#include <iostream>
+
+static debug::Logger logger("al-audio");
 
 using namespace audio;
 
@@ -19,14 +23,14 @@ ALSound::~ALSound() {
     buffer = 0;
 }
 
-Speaker* ALSound::newInstance(int priority, int channel) const {
+std::unique_ptr<Speaker> ALSound::newInstance(int priority, int channel) const {
     uint source = al->getFreeSource();
     if (source == 0) {
         return nullptr;
     }
     AL_CHECK(alSourcei(source, AL_BUFFER, buffer));
 
-    auto speaker = new ALSpeaker(al, source, priority, channel);
+    auto speaker = std::make_unique<ALSpeaker>(al, source, priority, channel);
     speaker->duration = duration;
     return speaker;
 }
@@ -62,7 +66,7 @@ bool ALStream::preloadBuffer(uint buffer, bool loop) {
     return true;
 }
 
-Speaker* ALStream::createSpeaker(bool loop, int channel) {
+std::unique_ptr<Speaker> ALStream::createSpeaker(bool loop, int channel) {
     this->loop = loop;
     uint source = al->getFreeSource();
     if (source == 0) {
@@ -75,7 +79,7 @@ Speaker* ALStream::createSpeaker(bool loop, int channel) {
         }
         AL_CHECK(alSourceQueueBuffers(source, 1, &buffer));
     }
-    return new ALSpeaker(al, source, PRIORITY_HIGH, channel);
+    return std::make_unique<ALSpeaker>(al, source, PRIORITY_HIGH, channel);
 }
 
 
@@ -203,10 +207,10 @@ ALSpeaker::~ALSpeaker() {
     }
 }
 
-void ALSpeaker::update(const Channel* channel, float masterVolume) {
+void ALSpeaker::update(const Channel* channel) {
     if (source == 0)
         return;
-    float gain = this->volume * channel->getVolume()*masterVolume;
+    float gain = this->volume * channel->getVolume();
     AL_CHECK(alSourcef(source, AL_GAIN, gain));
     
     if (!paused) {
@@ -259,7 +263,7 @@ void ALSpeaker::play() {
     paused = false;
     stopped = false;
     auto channel = get_channel(this->channel);
-    AL_CHECK(alSourcef(source, AL_GAIN, volume * channel->getVolume()));
+    AL_CHECK(alSourcef(source, AL_GAIN, volume * channel->getVolume() * get_channel(0)->getVolume()));
     AL_CHECK(alSourcePlay(source));
 }
 
@@ -341,14 +345,14 @@ ALAudio::ALAudio(ALCdevice* device, ALCcontext* context)
     alcGetIntegerv(device, ALC_ALL_ATTRIBUTES, size, &attrs[0]);
     for (size_t i = 0; i < attrs.size(); ++i){
        if (attrs[i] == ALC_MONO_SOURCES) {
-          std::cout << "AL: max mono sources: " << attrs[i+1] << std::endl;
+          logger.info() << "max mono sources: " << attrs[i+1];
           maxSources = attrs[i+1];
        }
     }
     auto devices = getAvailableDevices();
-    std::cout << "AL devices:" << std::endl;
+    logger.info() << "devices:";
     for (auto& name : devices) {
-        std::cout << "  " << name << std::endl;
+        logger.info() << "  " << name;
     }
 }
 
@@ -368,21 +372,21 @@ ALAudio::~ALAudio() {
     AL_CHECK(alcMakeContextCurrent(context));
     alcDestroyContext(context);
     if (!alcCloseDevice(device)) {
-        std::cerr << "AL: device not closed!" << std::endl;
+        logger.error() << "device not closed!";
     }
     device = nullptr;
     context = nullptr;
 }
 
-Sound* ALAudio::createSound(std::shared_ptr<PCM> pcm, bool keepPCM) {
+std::unique_ptr<Sound> ALAudio::createSound(std::shared_ptr<PCM> pcm, bool keepPCM) {
     auto format = AL::to_al_format(pcm->channels, pcm->bitsPerSample);
     uint buffer = getFreeBuffer();
     AL_CHECK(alBufferData(buffer, format, pcm->data.data(), pcm->data.size(), pcm->sampleRate));
-    return new ALSound(this, buffer, pcm, keepPCM);
+    return std::make_unique<ALSound>(this, buffer, pcm, keepPCM);
 }
 
-Stream* ALAudio::openStream(std::shared_ptr<PCMStream> stream, bool keepSource) {
-    return new ALStream(this, stream, keepSource);
+std::unique_ptr<Stream> ALAudio::openStream(std::shared_ptr<PCMStream> stream, bool keepSource) {
+    return std::make_unique<ALStream>(this, stream, keepSource);
 }
 
 ALAudio* ALAudio::create() {
@@ -395,7 +399,7 @@ ALAudio* ALAudio::create() {
         return nullptr;
     }
     AL_CHECK();
-    std::cout << "AL: initialized" << std::endl;
+    logger.info() << "initialized";
     return new ALAudio(device, context);
 }
 
@@ -406,7 +410,7 @@ uint ALAudio::getFreeSource(){
         return source;
     }
     if (allsources.size() == maxSources){
-        std::cerr << "attempted to create new source, but limit is " << maxSources << std::endl;
+        logger.error() << "attempted to create new source, but limit is " << maxSources;
         return 0;
     }
     ALuint id;
@@ -467,7 +471,8 @@ void ALAudio::setListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 at, 
     AL_CHECK(alListener3f(AL_POSITION, position.x, position.y, position.z));
     AL_CHECK(alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z));
     AL_CHECK(alListenerfv(AL_ORIENTATION, listenerOri));
+    AL_CHECK(alListenerf(AL_GAIN, get_channel(0)->getVolume()));
 }
 
-void ALAudio::update(double delta) {
+void ALAudio::update(double) {
 }

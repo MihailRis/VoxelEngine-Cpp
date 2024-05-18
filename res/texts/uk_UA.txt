@@ -9,46 +9,48 @@ Add=Додати
 Converting world...=Виконується конвертація світу...
 
 error.pack-not-found=Не вдалося знайти пакет
-error.dependency-not-found=Використовувана залежність не знайдена
-pack.remove-confirm=Видалити назавжди весь контент, що постачається паком, зі світу?
 
 # Меню
-menu.New World=Новий Світ
-menu.Quit=Вихід
-menu.Continue=Продовжити
-menu.Save and Quit to Menu=Зберегти і Вийти в Меню
-menu.missing-content=Відсутній Контент!
-menu.Controls=Керування
-menu.Back to Main Menu=Повернутися до Меню
-menu.Settings=Налаштування
-menu.Content=Контент
+menu.Apply=Застосувати
 menu.Audio=Звук
+menu.Back to Main Menu=Повернутися до Меню
+menu.Content Error=Помилка Контенту
+menu.Content=Контент
+menu.Continue=Продовжити
+menu.Controls=Керування
+menu.Graphics=Графіка
+menu.missing-content=Відсутній Контент!
+menu.New World=Новий Світ
+menu.Page not found=Сторінка не знайдена
+menu.Quit=Вихід
+menu.Save and Quit to Menu=Зберегти і Вийти в Меню
+menu.Settings=Налаштування
 world.Seed=Зерно
 world.Name=Назва
 menu.Create World=Створити Світ
 
 world.World generator=Генератор світу
-world.generators.default=Звичайний
-world.generators.flat=Плоский
+world.generators.default=Звичайні
+world.generators.flat=Плоскі
 world.convert-request=Є зміни в індексах! Конвертувати світ?
-world.delete-confirm=Видалити світ назавжди?
 
 # Налаштування
+settings.Ambient=Фон
+settings.Backlight=Підсвічування
+settings.Camera Shaking=Тряска Камери
+settings.Fog Curve=Крива Туману
+settings.FOV=Поле зору
+settings.Fullscreen=Повний екран
+settings.Gamma=Гамма
+settings.Language=Мова
 settings.Load Distance=Дистанція Завантаження
 settings.Load Speed=Швидкість Завантаження
-settings.Fog Curve=Крива Туману
-settings.Backlight=Підсвічування
-settings.V-Sync=Вертикальна Синхронізація
-settings.Camera Shaking=Коливання Камери
 settings.Master Volume=Загальна Гучність
-settings.Regular Sounds=Звичайні Звуки
-settings.UI Sounds=Звуки Інтерфейсу
-settings.Ambient=Середовище
-settings.Music=Музика
-
-settings.FOV=Поле зору
 settings.Mouse Sensitivity=Чутливість Миші
-settings.Language=Мова
+settings.Music=Музика
+settings.Regular Sounds=Звичайні Звуки
+settings.UI Sounds=Звуки інтерфейсу
+settings.V-Sync=Вертикальна Синхронізація
 
 # Керування
 movement.forward=Уперед

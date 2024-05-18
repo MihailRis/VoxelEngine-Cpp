@@ -1,13 +1,16 @@
-#include "ogg.h"
+#include "ogg.hpp"
+
+#include "../debug/Logger.hpp"
+#include "../audio/audio.hpp"
+#include "../typedefs.hpp"
 
 #include <string>
-#include <iostream>
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
 
-#include "../audio/audio.h"
-#include "../typedefs.h"
+static debug::Logger logger("ogg");
 
+namespace fs = std::filesystem;
 using namespace audio;
 
 static inline std::string vorbis_error_message(int code) {
@@ -31,7 +34,7 @@ static inline std::string vorbis_error_message(int code) {
     }
 }
 
-audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
+std::unique_ptr<audio::PCM> ogg::load_pcm(const fs::path& file, bool headerOnly) {
     OggVorbis_File vf;
     int code;
     if ((code = ov_fopen(file.u8string().c_str(), &vf))) {
@@ -56,7 +59,7 @@ audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
             if (ret == 0) {
                 eof = true;
             } else if (ret < 0) {
-                std::cerr << "ogg::load_pcm: " << vorbis_error_message(ret) << std::endl;
+                logger.error() << "ogg::load_pcm: " << vorbis_error_message(ret);
             } else {
                 data.insert(data.end(), std::begin(buffer), std::begin(buffer)+ret);
             }
@@ -64,7 +67,9 @@ audio::PCM* ogg::load_pcm(const std::filesystem::path& file, bool headerOnly) {
         totalSamples = data.size() / channels / 2;
     }
     ov_clear(&vf);
-    return new PCM(std::move(data), totalSamples, channels, 16, sampleRate, seekable);
+    return std::make_unique<PCM>(
+        std::move(data), totalSamples, channels, 16, sampleRate, seekable
+    );
 }
 
 class OggStream : public PCMStream {
@@ -98,7 +103,7 @@ public:
         int bitstream = 0;
         long bytes = ov_read(&vf, buffer, bufferSize, 0, 2, true, &bitstream);
         if (bytes < 0) {
-            std::cerr << "ogg::load_pcm: " << vorbis_error_message(bytes) << " " << bytes << std::endl;
+            logger.error() << "ogg::load_pcm: " << vorbis_error_message(bytes) << " " << bytes;
             return PCMStream::ERROR;
         }
         return bytes;
@@ -147,11 +152,11 @@ public:
     }
 };
 
-PCMStream* ogg::create_stream(const std::filesystem::path& file) {
+std::unique_ptr<PCMStream> ogg::create_stream(const fs::path& file) {
     OggVorbis_File vf;
     int code;
     if ((code = ov_fopen(file.u8string().c_str(), &vf))) {
         throw std::runtime_error("vorbis: "+vorbis_error_message(code));
     }
-    return new OggStream(std::move(vf));
+    return std::make_unique<OggStream>(std::move(vf));
 }

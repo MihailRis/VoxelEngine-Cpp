@@ -1,8 +1,8 @@
-#include "lua_commons.h"
-#include "api_lua.h"
-#include "../scripting.h"
-#include "../../../content/Content.h"
-#include "../../../items/ItemDef.h"
+#include "lua_commons.hpp"
+#include "api_lua.hpp"
+#include "../scripting.hpp"
+#include "../../../content/Content.hpp"
+#include "../../../items/ItemDef.hpp"
 
 static int l_item_name(lua_State* L) {
     auto indices = scripting::content->getIndices();

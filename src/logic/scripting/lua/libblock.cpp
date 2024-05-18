@@ -1,15 +1,15 @@
-#include "lua_commons.h"
-#include "api_lua.h"
-#include "lua_util.h"
-#include "../scripting.h"
-#include "../../../world/Level.h"
-#include "../../../voxels/Chunks.h"
-#include "../../../voxels/Chunk.h"
-#include "../../../voxels/Block.h"
-#include "../../../voxels/voxel.h"
-#include "../../../lighting/Lighting.h"
-#include "../../../content/Content.h"
-#include "../../../logic/BlocksController.h"
+#include "lua_commons.hpp"
+#include "api_lua.hpp"
+#include "lua_util.hpp"
+#include "../scripting.hpp"
+#include "../../../world/Level.hpp"
+#include "../../../voxels/Chunks.hpp"
+#include "../../../voxels/Chunk.hpp"
+#include "../../../voxels/Block.hpp"
+#include "../../../voxels/voxel.hpp"
+#include "../../../lighting/Lighting.hpp"
+#include "../../../content/Content.hpp"
+#include "../../../logic/BlocksController.hpp"
 
 int l_block_name(lua_State* L) {
     auto indices = scripting::content->getIndices();
@@ -19,6 +19,18 @@ int l_block_name(lua_State* L) {
     }
     auto def = indices->getBlockDef(id);
     lua_pushstring(L, def->name.c_str());
+    return 1;
+}
+
+
+int l_block_material(lua_State* L) {
+    auto indices = scripting::content->getIndices();
+    lua::luaint id = lua_tointeger(L, 1);
+    if (id < 0 || size_t(id) >= indices->countBlockDefs()) {
+        return 0;
+    }
+    auto def = indices->getBlockDef(id);
+    lua_pushstring(L, def->material.c_str());
     return 1;
 }
 
@@ -50,6 +62,9 @@ int l_set_block(lua_State* L) {
     lua::luaint states = lua_tointeger(L, 5);
     bool noupdate = lua_toboolean(L, 6);
     if (id < 0 || size_t(id) >= scripting::indices->countBlockDefs()) {
+        return 0;
+    }
+    if (!scripting::level->chunks->get(x, y, z)) {
         return 0;
     }
     scripting::level->chunks->set(x, y, z, id, states);
@@ -218,6 +233,7 @@ int l_is_replaceable_at(lua_State* L) {
 const luaL_Reg blocklib [] = {
     {"index", lua_wrap_errors<l_block_index>},
     {"name", lua_wrap_errors<l_block_name>},
+    {"material", lua_wrap_errors<l_block_material>},
     {"defs_count", lua_wrap_errors<l_blocks_count>},
     {"is_solid_at", lua_wrap_errors<l_is_solid_at>},
     {"is_replaceable_at", lua_wrap_errors<l_is_replaceable_at>},

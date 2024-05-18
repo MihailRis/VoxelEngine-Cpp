@@ -10,49 +10,53 @@ Converting world...=Выполняется конвертация мира...
 
 error.pack-not-found=Не удалось найти пакет
 error.dependency-not-found=Используемая зависимость не найдена
-pack.remove-confirm=Удалить весь поставляемый паком контент из мира (безвозвратно)?
+pack.remove-confirm=Удалить весь поставляемый паком/паками контент из мира (безвозвратно)?
 
 # Меню
-menu.New World=Новый Мир
-menu.Quit=Выход
-menu.Continue=Продолжить
-menu.Save and Quit to Menu=Сохранить и Выйти в Меню
-menu.missing-content=Отсутствует Контент!
-menu.Content Error=Ошибка Контента
-menu.Controls=Управление
-menu.Back to Main Menu=Вернуться в Меню
-menu.Settings=Настройки
-menu.Content=Контент
+menu.Apply=Применить
 menu.Audio=Звук
+menu.Back to Main Menu=Вернуться в Меню
+menu.Content Error=Ошибка Контента
+menu.Content=Контент
+menu.Continue=Продолжить
+menu.Controls=Управление
+menu.Graphics=Графика
+menu.missing-content=Отсутствует Контент!
+menu.New World=Новый Мир
+menu.Page not found=Страница не найдена
+menu.Quit=Выход
+menu.Save and Quit to Menu=Сохранить и Выйти в Меню
+menu.Settings=Настройки
+
 world.Seed=Зерно
 world.Name=Название
-
 world.World generator=Генератор мира
 world.generators.default=Обычный
 world.generators.flat=Плоский
-menu.Create World=Создать Мир
-
+world.Create World=Создать Мир
 world.convert-request=Есть изменения в индексах! Конвертировать мир?
 world.delete-confirm=Удалить мир безвозвратно?
 
 # Настройки
+settings.Ambient=Фон
+settings.Backlight=Подсветка
+settings.Camera Shaking=Тряска Камеры
+settings.Fog Curve=Кривая Тумана
+settings.FOV=Поле Зрения
+settings.Fullscreen=Полный экран
+settings.Gamma=Гамма
+settings.Language=Язык
 settings.Load Distance=Дистанция Загрузки
 settings.Load Speed=Скорость Загрузки
-settings.Fog Curve=Кривая Тумана
-settings.Backlight=Подсветка
-settings.V-Sync=Вертикальная Синхронизация
-settings.Camera Shaking=Тряска Камеры
 settings.Master Volume=Общая Громкость
+settings.Mouse Sensitivity=Чувствительность Мыши
+settings.Music=Музыка
 settings.Regular Sounds=Обычные Звуки
 settings.UI Sounds=Звуки Интерфейса
-settings.Ambient=Фон
-settings.Music=Музыка
-
-settings.FOV=Поле Зрения
-settings.Mouse Sensitivity=Чувствительность Мыши
-settings.Language=Язык
+settings.V-Sync=Вертикальная Синхронизация
 
 # Управление
+devtools.console=Консоль
 movement.forward=Вперёд
 movement.back=Назад
 movement.left=Влево

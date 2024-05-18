@@ -1,13 +1,17 @@
-#include "wav.h"
+#include "wav.hpp"
+
+#include "../audio/audio.hpp"
+#include "../debug/Logger.hpp"
 
 #include <vector>
 #include <string>
 #include <cstring>
 #include <fstream>
-#include <iostream>
 #include <stdexcept>
 
-#include "../audio/audio.h"
+namespace fs = std::filesystem;
+
+static debug::Logger logger("wav-coder");
 
 bool is_big_endian() {
     uint32_t ui32_v = 0x01020304;
@@ -65,7 +69,7 @@ public:
             return 0;
         }
         if (in.fail()) {
-            std::cerr << "Wav::load_pcm: I/O error ocurred" << std::endl;
+            logger.error() << "Wav::load_pcm: I/O error ocurred";
             return -1;
         }
         return in.gcount();
@@ -114,7 +118,7 @@ public:
     }
 };
 
-audio::PCMStream* wav::create_stream(const std::filesystem::path& file) {
+std::unique_ptr<audio::PCMStream> wav::create_stream(const fs::path& file) {
     std::ifstream in(file, std::ios::binary);
     if(!in.is_open()){
         throw std::runtime_error("could not to open file '"+file.u8string()+"'");
@@ -197,7 +201,6 @@ audio::PCMStream* wav::create_stream(const std::filesystem::path& file) {
     }
 
     if(std::strncmp(buffer, "data", 4) != 0){
-        std::cerr << buffer << std::endl;
         throw std::runtime_error("file is not a valid WAVE file (doesn't have 'data' tag)");
     }
 
@@ -214,11 +217,13 @@ audio::PCMStream* wav::create_stream(const std::filesystem::path& file) {
     if(in.fail()){
         throw std::runtime_error("fail state set on the file");
     }
-    return new WavStream(std::move(in), channels, bitsPerSample, sampleRate, size, initialOffset);
+    return std::make_unique<WavStream>(
+        std::move(in), channels, bitsPerSample, sampleRate, size, initialOffset
+    );
 }
 
-audio::PCM* wav::load_pcm(const std::filesystem::path& file, bool headerOnly) {
-    std::unique_ptr<audio::PCMStream> stream(wav::create_stream(file));
+std::unique_ptr<audio::PCM> wav::load_pcm(const fs::path& file, bool headerOnly) {
+    auto stream = wav::create_stream(file);
 
     size_t totalSamples = stream->getTotalSamples();
     uint channels = stream->getChannels();
@@ -233,5 +238,7 @@ audio::PCM* wav::load_pcm(const std::filesystem::path& file, bool headerOnly) {
         data.resize(size);
         stream->readFully(data.data(), size, false);
     }
-    return new audio::PCM(std::move(data), totalSamples, channels, bitsPerSample, sampleRate, true);
+    return std::make_unique<audio::PCM>(
+        std::move(data), totalSamples, channels, bitsPerSample, sampleRate, true
+    );
 }

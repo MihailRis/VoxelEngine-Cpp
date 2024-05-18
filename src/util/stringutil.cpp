@@ -1,11 +1,41 @@
-#include "stringutil.h"
+#include "stringutil.hpp"
 
-#include <vector>
+#include <cmath>
 #include <locale>
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
+
+// TODO: finish 
+std::string util::escape(const std::string& s) {
+    std::stringstream ss;
+    ss << '"';
+    for (char c : s) {
+        switch (c) {
+            case '\n': ss << "\\n"; break;
+            case '\r': ss << "\\r"; break;
+            case '\t': ss << "\\t"; break;
+            case '\f': ss << "\\f"; break;
+            case '\b': ss << "\\b"; break;
+            case '"': ss << "\\\""; break;
+            case '\\': ss << "\\\\"; break;
+            default:
+                if (c < ' ') {
+                    ss << "\\" << std::oct << uint(ubyte(c));
+                    break;
+                }
+                ss << c;
+                break;
+        }
+    }
+    ss << '"';
+    return ss.str();
+}
+
+std::string util::quote(const std::string& s) {
+    return escape(s);
+}
 
 std::wstring util::lfill(std::wstring s, uint length, wchar_t c) {
     if (s.length() >= length) {
@@ -54,47 +84,47 @@ uint util::encode_utf8(uint32_t c, ubyte* bytes) {
 }
 
 struct utf_t {
-	char mask;
-	char lead;
-	uint32_t beg;
-	uint32_t end;
-	int bits_stored;
+    char mask;
+    char lead;
+    uint32_t beg;
+    uint32_t end;
+    int bits_stored;
 };
 
 const utf_t utf[] = {
-	/*             mask        lead        beg      end       bits */
-	{(char)0b00111111, (char)0b10000000, 0,       0,        6},
-	{(char)0b01111111, (char)0b00000000, 0000,    0177,     7},
-	{(char)0b00011111, (char)0b11000000, 0200,    03777,    5},
-	{(char)0b00001111, (char)0b11100000, 04000,   0177777,  4},
-	{(char)0b00000111, (char)0b11110000, 0200000, 04177777, 3},
-	{0, 0, 0, 0, 0},
+    /* mask             lead              beg      end     bits */
+    {(char)0b00111111, (char)0b10000000, 0,       0,        6},
+    {(char)0b01111111, (char)0b00000000, 0000,    0177,     7},
+    {(char)0b00011111, (char)0b11000000, 0200,    03777,    5},
+    {(char)0b00001111, (char)0b11100000, 04000,   0177777,  4},
+    {(char)0b00000111, (char)0b11110000, 0200000, 04177777, 3},
+    {0, 0, 0, 0, 0},
 };
 
 
 inline uint utf8_len(ubyte cp) {
     uint len = 0;
-	for (const utf_t* u = utf; u->mask; ++u) {
-		if((cp >= u->beg) && (cp <= u->end)) {
-			break;
-		}
-		++len;
-	}
-	if(len > 4) /* Out of bounds */
-		throw std::runtime_error("utf-8 decode error");
+    for (const utf_t* u = utf; u->mask; ++u) {
+        if((cp >= u->beg) && (cp <= u->end)) {
+            break;
+        }
+        ++len;
+    }
+    if(len > 4) /* Out of bounds */
+        throw std::runtime_error("utf-8 decode error");
 
-	return len;
+    return len;
 }
 
 extern uint32_t util::decode_utf8(uint& size, const char* chr) {
-	size = utf8_len(*chr);
-	int shift = utf[0].bits_stored * (size - 1);
-	uint32_t code = (*chr++ & utf[size].mask) << shift;
+    size = utf8_len(*chr);
+    int shift = utf[0].bits_stored * (size - 1);
+    uint32_t code = (*chr++ & utf[size].mask) << shift;
 
-	for(uint i = 1; i < size; ++i, ++chr) {
-		shift -= utf[0].bits_stored;
-		code |= ((char)*chr & utf[0].mask) << shift;
-	}
+    for(uint i = 1; i < size; ++i, ++chr) {
+        shift -= utf[0].bits_stored;
+        code |= ((char)*chr & utf[0].mask) << shift;
+    }
     return code;
 }
 
@@ -121,7 +151,7 @@ std::wstring util::str2wstr_utf8(const std::string s) {
     return std::wstring(chars.data(), chars.size());
 }
 
-bool util::is_integer(std::string text) {
+bool util::is_integer(const std::string& text) {
     for (char c : text) {
         if (c < '0' || c > '9')
             return false;
@@ -129,7 +159,7 @@ bool util::is_integer(std::string text) {
     return true;
 }
 
-bool util::is_integer(std::wstring text) {
+bool util::is_integer(const std::wstring& text) {
     for (wchar_t c : text) {
         if (c < L'0' || c > L'9')
             return false;
@@ -162,6 +192,13 @@ void util::rtrim(std::string &s) {
 void util::trim(std::string &s) {
     rtrim(s);
     ltrim(s);
+}
+
+std::string util::to_string(double x) {
+    std::stringstream ss;
+    ss << std::setprecision(6);
+    ss << x;
+    return ss.str(); 
 }
 
 std::wstring util::to_wstring(double x, int precision) {
@@ -232,7 +269,6 @@ std::string util::mangleid(uint64_t value) {
     // todo: use base64
     std::stringstream ss;
     ss << std::hex << value;
-    std::string result(ss.str());
     return ss.str();
 }
 
@@ -387,4 +423,23 @@ std::vector<std::wstring> util::split(const std::wstring& str, char delimiter) {
         result.push_back(L"");
     }
     return result;
+}
+
+std::string util::format_data_size(size_t size) {
+    if (size < 1024) {
+        return std::to_string(size)+" B";
+    }
+    const std::string postfixes[] {
+        " B", " KiB", " MiB", " GiB", " TiB", " EiB", " PiB"
+    };
+    int group = 0;
+    size_t remainder = 0;
+    while (size >= 1024) {
+        group++;
+        remainder = size % 1024;
+        size /= 1024;
+    }
+    return std::to_string(size)+"."+
+           std::to_string(static_cast<int>(round(remainder/1024.0f)))+
+           postfixes[group];
 }

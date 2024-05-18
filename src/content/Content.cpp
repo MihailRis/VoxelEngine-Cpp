@@ -1,14 +1,14 @@
-#include "Content.h"
+#include "Content.hpp"
 
 #include <memory>
 #include <stdexcept>
 #include <glm/glm.hpp>
 
-#include "../voxels/Block.h"
-#include "../items/ItemDef.h"
+#include "../voxels/Block.hpp"
+#include "../items/ItemDef.hpp"
 
-#include "ContentPack.h"
-#include "../logic/scripting/scripting.h"
+#include "ContentPack.hpp"
+#include "../logic/scripting/scripting.hpp"
 
 ContentBuilder::~ContentBuilder() {}
 
@@ -95,9 +95,7 @@ Content* ContentBuilder::build() {
         }
 
         blockDefsIndices.push_back(def);
-        if (groups->find(def->drawGroup) == groups->end()) {
-            groups->insert(def->drawGroup);
-        }
+        groups->insert(def->drawGroup);
     }
 
     std::vector<ItemDef*> itemDefsIndices;
@@ -155,7 +153,14 @@ Content::Content(
     drawGroups(std::move(drawGroups)) 
 {}
 
-Content::~Content() {}
+Content::~Content() {
+    for (auto& entry : blockDefs) {
+        delete entry.second;
+    }
+    for (auto& entry : itemDefs) {
+        delete entry.second;
+    }
+}
 
 Block* Content::findBlock(std::string id) const {
     auto found = blockDefs.find(id);
