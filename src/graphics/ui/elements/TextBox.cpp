@@ -452,7 +452,7 @@ void TextBox::stepDefaultUp(bool shiftPressed, bool breakSelection) {
         uint offset = std::min(size_t(maxLocalCaret), getLineLength(caretLine-1)-1);
         setCaret(label->getTextLineOffset(caretLine-1) + offset);
     } else {
-        setCaret(0UL);
+        setCaret(static_cast<size_t>(0));
     }
     if (shiftPressed) {
         if (selectionStart == selectionEnd) {
