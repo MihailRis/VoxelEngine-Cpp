@@ -363,7 +363,7 @@ static void p_set_text(UINode* node, int idx) {
 }
 static void p_set_caret(UINode* node, int idx) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
-        box->setCaret(static_cast<ssize_t>(state->tointeger(idx)));
+        box->setCaret(static_cast<ptrdiff_t>(state->tointeger(idx)));
     }
 }
 static void p_set_editable(UINode* node, int idx) {

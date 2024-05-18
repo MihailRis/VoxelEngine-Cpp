@@ -120,7 +120,7 @@ namespace gui {
 
         /// @brief Set caret position in the text
         /// @param position integer in range [-text.length(), text.length()]
-        virtual void setCaret(ssize_t position);
+        virtual void setCaret(ptrdiff_t position);
 
         /// @brief Select part of the text
         /// @param start index of the first selected character

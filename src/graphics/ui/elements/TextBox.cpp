@@ -369,7 +369,7 @@ void TextBox::click(GUI*, int x, int y) {
 }
 
 void TextBox::mouseMove(GUI*, int x, int y) {
-    ssize_t index = calcIndexAt(x, y);
+    ptrdiff_t index = calcIndexAt(x, y);
     setCaret(index);
     extendSelection(index);
     resetMaxLocalCaret();
@@ -656,7 +656,7 @@ void TextBox::setCaret(size_t position) {
     }
 }
 
-void TextBox::setCaret(ssize_t position) {
+void TextBox::setCaret(ptrdiff_t position) {
     if (position < 0) {
         setCaret(static_cast<size_t>(input.length() + position + 1));
     } else {
