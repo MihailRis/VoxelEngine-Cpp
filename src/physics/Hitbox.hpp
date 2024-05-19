@@ -14,4 +14,4 @@ public:
     Hitbox(glm::vec3 position, glm::vec3 halfsize);
 };
 
-#endif /* PHYSICS_HITBOX_HPP_ */
+#endif // PHYSICS_HITBOX_HPP_

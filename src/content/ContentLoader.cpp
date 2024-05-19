@@ -353,7 +353,9 @@ void ContentLoader::load(ContentBuilder& builder) {
             std::string full = colon == std::string::npos ? pack->id + ":" + name : name;
             if (colon != std::string::npos) name[colon] = '/';
             auto& def = builder.createBlock(full);
-            if (colon != std::string::npos) def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
+            if (colon != std::string::npos) {
+                def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
+            }
             loadBlock(def, full, name);
             stats.totalBlocks++;
             if (!def.hidden) {
