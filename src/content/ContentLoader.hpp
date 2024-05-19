@@ -1,13 +1,15 @@
 #ifndef CONTENT_CONTENT_LOADER_HPP_
 #define CONTENT_CONTENT_LOADER_HPP_
 
-#include "../voxels/Block.hpp"
+#include "../typedefs.hpp"
 
 #include <string>
 #include <filesystem>
 
 namespace fs = std::filesystem;
 
+class Block;
+struct BlockMaterial;
 class ItemDef;
 struct ContentPack;
 class ContentBuilder;
@@ -23,7 +25,7 @@ class ContentLoader {
     void loadBlock(Block& def, std::string full, std::string name);
     void loadCustomBlockModel(Block& def, dynamic::Map* primitives);
     void loadItem(ItemDef& def, std::string full, std::string name);
-    BlockMaterial loadBlockMaterial(fs::path file, std::string full);
+    void loadBlockMaterial(BlockMaterial& def, fs::path file);
 public:
     ContentLoader(ContentPack* pack);
 

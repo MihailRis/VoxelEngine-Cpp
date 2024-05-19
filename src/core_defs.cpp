@@ -2,6 +2,7 @@
 
 #include "items/ItemDef.hpp"
 #include "content/Content.hpp"
+#include "content/ContentBuilder.hpp"
 #include "window/Window.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"

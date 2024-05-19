@@ -389,7 +389,7 @@ std::unique_ptr<Stream> ALAudio::openStream(std::shared_ptr<PCMStream> stream, b
     return std::make_unique<ALStream>(this, stream, keepSource);
 }
 
-ALAudio* ALAudio::create() {
+std::unique_ptr<ALAudio> ALAudio::create() {
     ALCdevice* device = alcOpenDevice(nullptr);
     if (device == nullptr)
         return nullptr;
@@ -400,7 +400,7 @@ ALAudio* ALAudio::create() {
     }
     AL_CHECK();
     logger.info() << "initialized";
-    return new ALAudio(device, context);
+    return std::make_unique<ALAudio>(device, context);
 }
 
 uint ALAudio::getFreeSource(){

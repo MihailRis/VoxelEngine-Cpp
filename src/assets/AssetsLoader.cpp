@@ -11,6 +11,7 @@
 #include "../files/engine_paths.hpp"
 #include "../content/Content.hpp"
 #include "../content/ContentPack.hpp"
+#include "../voxels/Block.hpp"
 #include "../graphics/core/Texture.hpp"
 #include "../logic/scripting/scripting.hpp"
 
@@ -187,7 +188,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
         loader.processPreloadConfigs(content);
 
         for (auto& entry : content->getBlockMaterials()) {
-            auto& material = entry.second;
+            auto& material = *entry.second;
             loader.tryAddSound(material.stepsSound);
             loader.tryAddSound(material.placeSound);
             loader.tryAddSound(material.breakSound);

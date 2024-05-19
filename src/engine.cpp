@@ -9,6 +9,7 @@
 #include "coders/imageio.hpp"
 #include "coders/json.hpp"
 #include "coders/toml.hpp"
+#include "content/ContentBuilder.hpp"
 #include "content/ContentLoader.hpp"
 #include "core_defs.hpp"
 #include "files/files.hpp"
@@ -273,7 +274,7 @@ void Engine::loadContent() {
         ContentLoader loader(&pack);
         loader.load(contentBuilder);
     }
-    content.reset(contentBuilder.build());
+    content = contentBuilder.build();
     resPaths = std::make_unique<ResPaths>(resdir, resRoots);
 
     langs::setup(resdir, langs::current->getId(), contentPacks);

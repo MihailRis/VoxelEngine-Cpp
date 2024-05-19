@@ -17,6 +17,6 @@ std::unique_ptr<Stream> NoAudio::openStream(std::shared_ptr<PCMStream> stream, b
     return std::make_unique<NoStream>(stream, keepSource);
 }
 
-NoAudio* NoAudio::create() {
-    return new NoAudio();
+std::unique_ptr<NoAudio> NoAudio::create() {
+    return std::make_unique<NoAudio>();
 }

@@ -2,6 +2,7 @@
 
 #include "Content.hpp"
 #include "ContentPack.hpp"
+#include "ContentBuilder.hpp"
 #include "../coders/json.hpp"
 #include "../core_defs.hpp"
 #include "../data/dynamic.hpp"
@@ -26,9 +27,11 @@ static debug::Logger logger("content-loader");
 ContentLoader::ContentLoader(ContentPack* pack) : pack(pack) {
 }
 
-bool ContentLoader::fixPackIndices(fs::path folder, 
-                                   dynamic::Map* indicesRoot,
-                                   std::string contentSection) {
+bool ContentLoader::fixPackIndices(
+    fs::path folder, 
+    dynamic::Map* indicesRoot,
+    std::string contentSection
+) {
     std::vector<std::string> detected;
     std::vector<std::string> indexed;
     if (fs::is_directory(folder)) {
@@ -312,22 +315,22 @@ void ContentLoader::loadItem(ItemDef& def, std::string full, std::string name) {
     }
 }
 
-BlockMaterial ContentLoader::loadBlockMaterial(fs::path file, std::string full) {
+void ContentLoader::loadBlockMaterial(BlockMaterial& def, fs::path file) {
     auto root = files::read_json(file);
-    BlockMaterial material {full};
-    root->str("steps-sound", material.stepsSound);
-    root->str("place-sound", material.placeSound);
-    root->str("break-sound", material.breakSound);
-    return material;
+    root->str("steps-sound", def.stepsSound);
+    root->str("place-sound", def.placeSound);
+    root->str("break-sound", def.breakSound);
 }
 
 void ContentLoader::load(ContentBuilder& builder) {
     logger.info() << "loading pack [" << pack->id << "]";
 
-    auto runtime = new ContentPackRuntime(*pack, scripting::create_pack_environment(*pack));
-    builder.add(runtime);
+    auto runtime = std::make_unique<ContentPackRuntime>(
+        *pack, scripting::create_pack_environment(*pack)
+    );
     env = runtime->getEnvironment();
     ContentPackStats& stats = runtime->getStatsWriteable();
+    builder.add(std::move(runtime));
 
     fixPackIndices();
 
@@ -388,7 +391,7 @@ void ContentLoader::load(ContentBuilder& builder) {
         for (auto entry : fs::directory_iterator(materialsDir)) {
             fs::path file = entry.path();
             std::string name = pack->id+":"+file.stem().u8string();
-            builder.add(loadBlockMaterial(file, name));
+            loadBlockMaterial(builder.createBlockMaterial(name), file);
         }
     }
 }
