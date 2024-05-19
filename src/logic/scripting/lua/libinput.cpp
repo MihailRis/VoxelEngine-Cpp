@@ -20,13 +20,13 @@ namespace scripting {
 using namespace scripting;
 
 static int l_keycode(lua_State* L) {
-    const char* name = lua_tostring(L, 1);
+    const char* name = state->requireString(1);
     lua_pushinteger(L, static_cast<int>(input_util::keycode_from(name)));
     return 1;
 }
 
 static int l_add_callback(lua_State* L) {
-    auto bindname = lua_tostring(L, 1);
+    auto bindname = state->requireString(1);
     const auto& bind = Events::bindings.find(bindname);
     if (bind == Events::bindings.end()) {
         throw std::runtime_error("unknown binding "+util::quote(bindname));

@@ -152,6 +152,9 @@ namespace dynamic {
         Map& put(std::string key, bool value) {
             return put(key, Value(static_cast<bool>(value)));
         }
+        Map& put(std::string key, const char* value) {
+            return put(key, Value(value));
+        }
         Map& put(std::string key, const Value& value);
 
         void remove(const std::string& key);

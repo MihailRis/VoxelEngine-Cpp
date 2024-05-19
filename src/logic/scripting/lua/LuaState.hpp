@@ -73,6 +73,8 @@ namespace lua {
         runnable createRunnable();
         scripting::common_func createLambda();
 
+        const char* requireString(int idx);
+
         int createEnvironment(int parent);
         void removeEnvironment(int id);
         bool emit_event(const std::string& name, std::function<int(lua::LuaState*)> args=[](auto*){return 0;});

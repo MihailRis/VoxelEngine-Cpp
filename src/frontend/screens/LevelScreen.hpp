@@ -12,6 +12,7 @@ class LevelController;
 class WorldRenderer;
 class TextureAnimator;
 class PostProcessing;
+class ContentPackRuntime;
 class Level;
 
 class LevelScreen : public Screen {
@@ -27,6 +28,7 @@ class LevelScreen : public Screen {
     bool hudVisible = true;
     void updateHotkeys();
     void initializeContent();
+    void initializePack(ContentPackRuntime* pack);
 public:
     LevelScreen(Engine* engine, std::unique_ptr<Level> level);
     ~LevelScreen();

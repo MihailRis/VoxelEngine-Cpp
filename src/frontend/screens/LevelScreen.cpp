@@ -2,26 +2,26 @@
 
 #include "../hud.hpp"
 #include "../LevelFrontend.hpp"
-#include "../../debug/Logger.hpp"
 #include "../../audio/audio.hpp"
 #include "../../coders/imageio.hpp"
-#include "../../graphics/core/PostProcessing.hpp"
+#include "../../debug/Logger.hpp"
+#include "../../engine.hpp"
 #include "../../graphics/core/DrawContext.hpp"
-#include "../../graphics/core/Viewport.hpp"
 #include "../../graphics/core/ImageData.hpp"
-#include "../../graphics/ui/GUI.hpp"
-#include "../../graphics/ui/elements/Menu.hpp"
+#include "../../graphics/core/PostProcessing.hpp"
+#include "../../graphics/core/Viewport.hpp"
 #include "../../graphics/render/WorldRenderer.hpp"
+#include "../../graphics/ui/elements/Menu.hpp"
+#include "../../graphics/ui/GUI.hpp"
 #include "../../logic/LevelController.hpp"
 #include "../../logic/scripting/scripting_hud.hpp"
 #include "../../physics/Hitbox.hpp"
 #include "../../voxels/Chunks.hpp"
-#include "../../world/Level.hpp"
-#include "../../world/World.hpp"
 #include "../../window/Camera.hpp"
 #include "../../window/Events.hpp"
 #include "../../window/Window.hpp"
-#include "../../engine.hpp"
+#include "../../world/Level.hpp"
+#include "../../world/World.hpp"
 
 static debug::Logger logger("level-screen");
 
@@ -55,14 +55,18 @@ LevelScreen::LevelScreen(Engine* engine, std::unique_ptr<Level> level)
 void LevelScreen::initializeContent() {
     auto content = controller->getLevel()->content;
     for (auto& entry : content->getPacks()) {
-        auto pack = entry.second.get();
-        const ContentPack& info = pack->getInfo();
-        fs::path scriptFile = info.folder/fs::path("scripts/hud.lua");
-        if (fs::is_regular_file(scriptFile)) {
-            scripting::load_hud_script(pack->getEnvironment(), info.id, scriptFile);
-        }
+        initializePack(entry.second.get());
     }
     scripting::on_frontend_init(hud.get());
+}
+
+void LevelScreen::initializePack(ContentPackRuntime* pack) {
+    const ContentPack& info = pack->getInfo();
+    fs::path scriptFile = info.folder/fs::path("scripts/hud.lua");
+    if (fs::is_regular_file(scriptFile)) {
+        scripting::load_hud_script(pack->getEnvironment(), info.id, scriptFile);
+    }
+    auto configFolder = info.folder/fs::path("config");
 }
 
 LevelScreen::~LevelScreen() {

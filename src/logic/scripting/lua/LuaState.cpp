@@ -12,14 +12,16 @@ inline std::string LAMBDAS_TABLE = "$L";
 
 static debug::Logger logger("lua-state");
 
+using namespace lua;
+
 namespace scripting {
-    extern lua::LuaState* state;
+    extern LuaState* state;
 }
 
-lua::luaerror::luaerror(const std::string& message) : std::runtime_error(message) {
+luaerror::luaerror(const std::string& message) : std::runtime_error(message) {
 }
 
-void lua::LuaState::removeLibFuncs(const char* libname, const char* funcs[]) {
+void LuaState::removeLibFuncs(const char* libname, const char* funcs[]) {
     if (getglobal(libname)) {
         for (uint i = 0; funcs[i]; i++) {
             pushnil();
@@ -28,13 +30,13 @@ void lua::LuaState::removeLibFuncs(const char* libname, const char* funcs[]) {
     }
 }
 
-lua::LuaState::LuaState() {
+LuaState::LuaState() {
     logger.info() << LUA_VERSION;
     logger.info() << LUAJIT_VERSION;
 
     L = luaL_newstate();
     if (L == nullptr) {
-        throw lua::luaerror("could not to initialize Lua");
+        throw luaerror("could not to initialize Lua");
     }
     // Allowed standard libraries
     luaopen_base(L);
@@ -66,24 +68,24 @@ lua::LuaState::LuaState() {
     setglobal(LAMBDAS_TABLE);
 }
 
-const std::string lua::LuaState::envName(int env) {
+const std::string LuaState::envName(int env) {
     return "_ENV"+util::mangleid(env);
 }
 
-lua::LuaState::~LuaState() {
+LuaState::~LuaState() {
     lua_close(L);
 }
 
-void lua::LuaState::logError(const std::string& text) {
+void LuaState::logError(const std::string& text) {
     logger.error() << text;
 }
 
-void lua::LuaState::addfunc(const std::string& name, lua_CFunction func) {
+void LuaState::addfunc(const std::string& name, lua_CFunction func) {
     lua_pushcfunction(L, func);
     lua_setglobal(L, name.c_str());
 }
 
-bool lua::LuaState::getglobal(const std::string& name) {
+bool LuaState::getglobal(const std::string& name) {
     lua_getglobal(L, name.c_str());
     if (lua_isnil(L, lua_gettop(L))) {
         lua_pop(L, lua_gettop(L));
@@ -92,7 +94,7 @@ bool lua::LuaState::getglobal(const std::string& name) {
     return true;
 }
 
-bool lua::LuaState::hasglobal(const std::string& name) {
+bool LuaState::hasglobal(const std::string& name) {
     lua_getglobal(L, name.c_str());
     if (lua_isnil(L, lua_gettop(L))) {
         lua_pop(L, lua_gettop(L));
@@ -102,11 +104,11 @@ bool lua::LuaState::hasglobal(const std::string& name) {
     return true;
 }
 
-void lua::LuaState::setglobal(const std::string& name) {
+void LuaState::setglobal(const std::string& name) {
     lua_setglobal(L, name.c_str());
 }
 
-bool lua::LuaState::rename(const std::string& from, const std::string& to) {
+bool LuaState::rename(const std::string& from, const std::string& to) {
     const char* src = from.c_str();
     lua_getglobal(L, src);
     if (lua_isnil(L, lua_gettop(L))) {
@@ -121,12 +123,12 @@ bool lua::LuaState::rename(const std::string& from, const std::string& to) {
     return true;
 }
 
-void lua::LuaState::remove(const std::string& name) {
+void LuaState::remove(const std::string& name) {
     lua_pushnil(L);
     lua_setglobal(L, name.c_str());
 }
 
-void lua::LuaState::createLibs() {
+void LuaState::createLibs() {
     openlib("audio", audiolib);
     openlib("block", blocklib);
     openlib("console", consolelib);
@@ -140,28 +142,29 @@ void lua::LuaState::createLibs() {
     openlib("pack", packlib);
     openlib("player", playerlib);
     openlib("time", timelib);
+    openlib("toml", tomllib);
     openlib("world", worldlib);
 
     addfunc("print", lua_wrap_errors<l_print>);
 }
 
-void lua::LuaState::loadbuffer(int env, const std::string& src, const std::string& file) {
+void LuaState::loadbuffer(int env, const std::string& src, const std::string& file) {
     if (luaL_loadbuffer(L, src.c_str(), src.length(), file.c_str())) {
-        throw lua::luaerror(lua_tostring(L, -1));
+        throw luaerror(lua_tostring(L, -1));
     }
     if (env && getglobal(envName(env))) {
         lua_setfenv(L, -2);
     }
 }
 
-int lua::LuaState::call(int argc, int nresults) {
+int LuaState::call(int argc, int nresults) {
     if (lua_pcall(L, argc, nresults, 0)) {
-        throw lua::luaerror(lua_tostring(L, -1));
+        throw luaerror(lua_tostring(L, -1));
     }
     return 1;
 }
 
-int lua::LuaState::callNoThrow(int argc) {
+int LuaState::callNoThrow(int argc) {
     if (lua_pcall(L, argc, LUA_MULTRET, 0)) {
         logError(lua_tostring(L, -1));
         return 0;
@@ -169,59 +172,59 @@ int lua::LuaState::callNoThrow(int argc) {
     return 1;
 }
 
-int lua::LuaState::eval(int env, const std::string& src, const std::string& file) {
+int LuaState::eval(int env, const std::string& src, const std::string& file) {
     auto srcText = "return "+src;
     loadbuffer(env, srcText, file);
     return call(0);
 }
 
-int lua::LuaState::execute(int env, const std::string& src, const std::string& file) {
+int LuaState::execute(int env, const std::string& src, const std::string& file) {
     loadbuffer(env, src, file);
     return callNoThrow(0);
 }
 
-int lua::LuaState::gettop() const {
+int LuaState::gettop() const {
     return lua_gettop(L);
 }
 
-int lua::LuaState::pushinteger(luaint x) {
+int LuaState::pushinteger(luaint x) {
     lua_pushinteger(L, x);
     return 1;
 }
 
-int lua::LuaState::pushnumber(luanumber x) {
+int LuaState::pushnumber(luanumber x) {
     lua_pushnumber(L, x);
     return 1;
 }
 
-int lua::LuaState::pushboolean(bool x) {
+int LuaState::pushboolean(bool x) {
     lua_pushboolean(L, x);
     return 1;
 }
 
-int lua::LuaState::pushivec3(luaint x, luaint y, luaint z) {
+int LuaState::pushivec3(luaint x, luaint y, luaint z) {
     lua::pushivec3(L, x, y, z);
     return 3;
 }
 
-int lua::LuaState::pushstring(const std::string& str) {
+int LuaState::pushstring(const std::string& str) {
     lua_pushstring(L, str.c_str());
     return 1;
 }
 
-int lua::LuaState::pushenv(int env) {
+int LuaState::pushenv(int env) {
     if (getglobal(envName(env))) {
         return 1;
     }
     return 0;
 }
 
-int lua::LuaState::pushvalue(int idx) {
+int LuaState::pushvalue(int idx) {
     lua_pushvalue(L, idx);
     return 1;
 }
 
-int lua::LuaState::pushvalue(const dynamic::Value& value) {
+int LuaState::pushvalue(const dynamic::Value& value) {
     using namespace dynamic;
 
     if (auto* flag = std::get_if<bool>(&value)) {
@@ -252,26 +255,26 @@ int lua::LuaState::pushvalue(const dynamic::Value& value) {
     return 1;
 }
 
-int lua::LuaState::pushglobals() {
+int LuaState::pushglobals() {
     lua_pushvalue(L, LUA_GLOBALSINDEX);
     return 1;
 }
 
-int lua::LuaState::pushcfunction(lua_CFunction function) {
+int LuaState::pushcfunction(lua_CFunction function) {
     lua_pushcfunction(L, function);
     return 1;
 }
 
-void lua::LuaState::pop(int n) {
+void LuaState::pop(int n) {
     lua_pop(L, n);
 }
 
-int lua::LuaState::pushnil() {
+int LuaState::pushnil() {
     lua_pushnil(L);
     return 1;
 }
 
-bool lua::LuaState::getfield(const std::string& name, int idx) {
+bool LuaState::getfield(const std::string& name, int idx) {
     lua_getfield(L, idx, name.c_str());
     if (lua_isnil(L, -1)) {
         lua_pop(L, -1);
@@ -280,35 +283,35 @@ bool lua::LuaState::getfield(const std::string& name, int idx) {
     return true;
 }
 
-void lua::LuaState::setfield(const std::string& name, int idx) {
+void LuaState::setfield(const std::string& name, int idx) {
     lua_setfield(L, idx, name.c_str());
 }
 
-bool lua::LuaState::toboolean(int idx) {
+bool LuaState::toboolean(int idx) {
     return lua_toboolean(L, idx);
 }
 
-lua::luaint lua::LuaState::tointeger(int idx) {
+luaint LuaState::tointeger(int idx) {
     return lua_tointeger(L, idx);
 }
 
-lua::luanumber lua::LuaState::tonumber(int idx) {
+luanumber LuaState::tonumber(int idx) {
     return lua_tonumber(L, idx);
 }
 
-glm::vec2 lua::LuaState::tovec2(int idx) {
+glm::vec2 LuaState::tovec2(int idx) {
     return lua::tovec2(L, idx);
 }
 
-glm::vec4 lua::LuaState::tocolor(int idx) {
+glm::vec4 LuaState::tocolor(int idx) {
     return lua::tocolor(L, idx);
 }
 
-const char* lua::LuaState::tostring(int idx) {
+const char* LuaState::tostring(int idx) {
     return lua_tostring(L, idx);
 }
 
-dynamic::Value lua::LuaState::tovalue(int idx) {
+dynamic::Value LuaState::tovalue(int idx) {
     using namespace dynamic;
     auto type = lua_type(L, idx);
     switch (type) {
@@ -361,21 +364,21 @@ dynamic::Value lua::LuaState::tovalue(int idx) {
     }
 }
 
-bool lua::LuaState::isstring(int idx) {
+bool LuaState::isstring(int idx) {
     return lua_isstring(L, idx);
 }
 
-bool lua::LuaState::isfunction(int idx) {
+bool LuaState::isfunction(int idx) {
     return lua_isfunction(L, idx);
 }
 
-void lua::LuaState::openlib(const std::string& name, const luaL_Reg* libfuncs) {
+void LuaState::openlib(const std::string& name, const luaL_Reg* libfuncs) {
     lua_newtable(L);
     luaL_setfuncs(L, libfuncs, 0);
     lua_setglobal(L, name.c_str());
 }
 
-std::shared_ptr<std::string> lua::LuaState::createLambdaHandler() {
+std::shared_ptr<std::string> LuaState::createLambdaHandler() {
     auto ptr = reinterpret_cast<ptrdiff_t>(lua_topointer(L, -1));
     auto name = util::mangleid(ptr);
     lua_getglobal(L, LAMBDAS_TABLE.c_str());
@@ -392,7 +395,7 @@ std::shared_ptr<std::string> lua::LuaState::createLambdaHandler() {
     });
 }
 
-runnable lua::LuaState::createRunnable() {
+runnable LuaState::createRunnable() {
     auto funcptr = createLambdaHandler();
     return [=]() {
         lua_getglobal(L, LAMBDAS_TABLE.c_str());
@@ -401,7 +404,7 @@ runnable lua::LuaState::createRunnable() {
     };
 }
 
-scripting::common_func lua::LuaState::createLambda() {
+scripting::common_func LuaState::createLambda() {
     auto funcptr = createLambdaHandler();
     return [=](const std::vector<dynamic::Value>& args) {
         lua_getglobal(L, LAMBDAS_TABLE.c_str());
@@ -418,7 +421,14 @@ scripting::common_func lua::LuaState::createLambda() {
     };
 }
 
-int lua::LuaState::createEnvironment(int parent) {
+const char* LuaState::requireString(int idx) {
+    if (!lua_isstring(L, idx)) {
+        throw luaerror("string expected at "+std::to_string(idx));
+    }
+    return lua_tostring(L, idx);
+}
+
+int LuaState::createEnvironment(int parent) {
     int id = nextEnvironment++;
 
     // local env = {}
@@ -442,7 +452,7 @@ int lua::LuaState::createEnvironment(int parent) {
 }
 
 
-void lua::LuaState::removeEnvironment(int id) {
+void LuaState::removeEnvironment(int id) {
     if (id == 0) {
         return;
     }
@@ -450,7 +460,7 @@ void lua::LuaState::removeEnvironment(int id) {
     setglobal(envName(id));
 }
 
-bool lua::LuaState::emit_event(const std::string &name, std::function<int(lua::LuaState *)> args) {
+bool LuaState::emit_event(const std::string &name, std::function<int(LuaState *)> args) {
     getglobal("events");
     getfield("emit");
     pushstring(name);
@@ -461,7 +471,7 @@ bool lua::LuaState::emit_event(const std::string &name, std::function<int(lua::L
 }
 
 
-void lua::LuaState::dumpStack() {
+void LuaState::dumpStack() {
     int top = gettop();
     for (int i = 1; i <= top; i++) {
         std::cout << std::setw(3) << i << std::setw(20) << luaL_typename(L, i) << std::setw(30);
@@ -486,6 +496,6 @@ void lua::LuaState::dumpStack() {
     }
 }
 
-lua_State* lua::LuaState::getLua() const {
+lua_State* LuaState::getLua() const {
     return L;
 }

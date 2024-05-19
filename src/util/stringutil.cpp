@@ -443,3 +443,14 @@ std::string util::format_data_size(size_t size) {
            std::to_string(static_cast<int>(round(remainder/1024.0f)))+
            postfixes[group];
 }
+
+std::pair<std::string, std::string> util::split_at(std::string_view view, char c) {
+    size_t idx = view.find(c);
+    if (idx == std::string::npos) {
+        throw std::runtime_error(util::quote(std::string({c}))+" not found");
+    }
+    return std::make_pair(
+        std::string(view.substr(0, idx)), 
+        std::string(view.substr(idx+1))
+    );
+}

@@ -32,6 +32,12 @@ static std::unordered_map<std::string, int> keycodes {
     {"up", GLFW_KEY_UP},
 };
 
+static std::unordered_map<std::string, int> mousecodes {
+    {"left", GLFW_MOUSE_BUTTON_1},
+    {"right", GLFW_MOUSE_BUTTON_2},
+    {"middle", GLFW_MOUSE_BUTTON_3},
+};
+
 void Binding::reset(inputtype type, int code) {
     this->type = type;
     this->code = code;
@@ -63,6 +69,14 @@ keycode input_util::keycode_from(const std::string& name) {
         return keycode::UNKNOWN;
     }
     return static_cast<keycode>(found->second);
+}
+
+mousecode input_util::mousecode_from(const std::string& name) {
+    const auto& found = mousecodes.find(name);
+    if (found == mousecodes.end()) {
+        return mousecode::UNKNOWN;
+    }
+    return static_cast<mousecode>(found->second);
 }
 
 std::string input_util::to_string(keycode code) {
