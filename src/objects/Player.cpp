@@ -35,9 +35,10 @@ Player::~Player() {
 }
 
 void Player::updateInput(
-        Level* level,
-        PlayerInput& input, 
-        float delta) {
+    Level* level,
+    PlayerInput& input, 
+    float delta
+) {
     bool crouch = input.shift && hitbox->grounded && !input.sprint;
     float speed = this->speed;
     if (flight){
@@ -76,9 +77,9 @@ void Player::updateInput(
         hitbox->velocity.z += dir.z * speed * delta * 9;
     }
 
-    float vel = std::max(glm::length(hitbox->velocity * 0.25f), 1.0f);
-    int substeps = int(delta * vel * 1000);
-    substeps = std::min(100, std::max(1, substeps));
+    float vel = glm::length(hitbox->velocity);
+    int substeps = int(delta * vel * 20);
+    substeps = std::min(100, std::max(2, substeps));
     level->physics->step(
         level->chunks.get(), 
         hitbox.get(), 

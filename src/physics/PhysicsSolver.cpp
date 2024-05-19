@@ -21,16 +21,17 @@ void PhysicsSolver::step(
     float gravityScale,
     bool collisions
 ) {
-    float dt = delta / float(substeps);
+    float dt = delta / static_cast<float>(substeps);
     float linear_damping = hitbox->linear_damping;
     float s = 2.0f/BLOCK_AABB_GRID;
+
+    const glm::vec3& half = hitbox->halfsize;
+    glm::vec3& pos = hitbox->position;
+    glm::vec3& vel = hitbox->velocity;
     
     bool prevGrounded = hitbox->grounded;
     hitbox->grounded = false;
     for (uint i = 0; i < substeps; i++) {
-        glm::vec3& pos = hitbox->position;
-        glm::vec3& half = hitbox->halfsize;
-        glm::vec3& vel = hitbox->velocity;
         float px = pos.x;
         float pz = pos.z;
         
@@ -41,7 +42,8 @@ void PhysicsSolver::step(
         }
         vel.x *= glm::max(0.0f, 1.0f - dt * linear_damping);
         vel.z *= glm::max(0.0f, 1.0f - dt * linear_damping);
-        pos += vel * dt;
+
+        pos += vel * dt + gravity * gravityScale * dt * dt * 0.5f;
 
         if (shifting && hitbox->grounded){
             float y = (pos.y-half.y-E);
