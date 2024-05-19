@@ -137,16 +137,23 @@ void toml::parse(
     }
 }
 
-std::string toml::stringify(dynamic::Map& root) {
+std::string toml::stringify(dynamic::Map& root, const std::string& name) {
     std::stringstream ss;
-    for (auto& sectionEntry : root.values) {
-        ss << "[" << sectionEntry.first << "]\n";
-        auto sectionMap = std::get_if<dynamic::Map_sptr>(&sectionEntry.second);
-        for (auto& entry : (*sectionMap)->values) {
+    if (!name.empty()) {
+        ss << "[" << name << "]\n";
+    }
+    for (auto& entry : root.values) {
+        if (!std::holds_alternative<dynamic::Map_sptr>(entry.second)) {
             ss << entry.first << " = ";
             ss << entry.second << "\n";
         }
-        ss << "\n";
+    }
+    for (auto& entry : root.values) {
+        if (auto submap = std::get_if<dynamic::Map_sptr>(&entry.second)) {
+            ss << "\n" << toml::stringify(
+                **submap, name.empty() ? entry.first : name+"."+entry.first
+            );
+        }
     }
     return ss.str();
 }
