@@ -6,6 +6,7 @@
 #include "../../coders/imageio.hpp"
 #include "../../debug/Logger.hpp"
 #include "../../engine.hpp"
+#include "../../files/files.hpp"
 #include "../../graphics/core/DrawContext.hpp"
 #include "../../graphics/core/ImageData.hpp"
 #include "../../graphics/core/PostProcessing.hpp"
@@ -15,6 +16,7 @@
 #include "../../graphics/ui/GUI.hpp"
 #include "../../logic/LevelController.hpp"
 #include "../../logic/scripting/scripting_hud.hpp"
+#include "../../util/stringutil.hpp"
 #include "../../physics/Hitbox.hpp"
 #include "../../voxels/Chunks.hpp"
 #include "../../window/Camera.hpp"
@@ -66,7 +68,6 @@ void LevelScreen::initializePack(ContentPackRuntime* pack) {
     if (fs::is_regular_file(scriptFile)) {
         scripting::load_hud_script(pack->getEnvironment(), info.id, scriptFile);
     }
-    auto configFolder = info.folder/fs::path("config");
 }
 
 LevelScreen::~LevelScreen() {

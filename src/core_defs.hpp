@@ -27,11 +27,11 @@ inline const std::string BIND_PLAYER_BUILD = "player.build";
 inline const std::string BIND_PLAYER_PICK = "player.pick";
 inline const std::string BIND_HUD_INVENTORY = "hud.inventory";
 
+class EnginePaths;
 class ContentBuilder;
 
 namespace corecontent {
-    void setup_bindings();
-    void setup(ContentBuilder* builder);
+    void setup(EnginePaths* paths, ContentBuilder* builder);
 }
 
 #endif // CORE_DEFS_HPP_

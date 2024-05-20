@@ -64,7 +64,6 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     : settings(settings), settingsHandler(settingsHandler), paths(paths),
       interpreter(std::make_unique<cmd::CommandsInterpreter>())
 {
-    corecontent::setup_bindings();
     loadSettings();
 
     controller = std::make_unique<EngineController>(this);
@@ -255,7 +254,7 @@ void Engine::loadAssets() {
 void Engine::loadContent() {
     auto resdir = paths->getResources();
     ContentBuilder contentBuilder;
-    corecontent::setup(&contentBuilder);
+    corecontent::setup(paths, &contentBuilder);
     paths->setContentPacks(&contentPacks);
 
     std::vector<std::string> names;
@@ -273,6 +272,14 @@ void Engine::loadContent() {
 
         ContentLoader loader(&pack);
         loader.load(contentBuilder);
+
+        auto configFolder = pack.folder/fs::path("config");
+        auto bindsFile = configFolder/fs::path("bindings.toml");
+        if (fs::is_regular_file(bindsFile)) {
+            Events::loadBindingsToml(
+                bindsFile.u8string(), files::read_string(bindsFile)
+            );
+        }
     }
     content = contentBuilder.build();
     resPaths = std::make_unique<ResPaths>(resdir, resRoots);

@@ -15,6 +15,7 @@ static std::unordered_map<std::string, int> keycodes {
     {"delete", GLFW_KEY_DELETE},
     {"home", GLFW_KEY_HOME},
     {"end", GLFW_KEY_END},
+    {"tab", GLFW_KEY_TAB},
     {"insert", GLFW_KEY_INSERT},
     {"page-down", GLFW_KEY_PAGE_DOWN},
     {"page-up", GLFW_KEY_PAGE_UP},
@@ -26,6 +27,7 @@ static std::unordered_map<std::string, int> keycodes {
     {"right-alt", GLFW_KEY_RIGHT_ALT},
     {"left-super", GLFW_KEY_LEFT_SUPER},
     {"right-super", GLFW_KEY_RIGHT_SUPER},
+    {"grave-accent", GLFW_KEY_GRAVE_ACCENT},
     {"left", GLFW_KEY_LEFT},
     {"right", GLFW_KEY_RIGHT},
     {"down", GLFW_KEY_DOWN},
@@ -59,7 +61,7 @@ void input_util::initialize() {
         keycodes["f"+std::to_string(i)] = GLFW_KEY_F1+i;
     }
     for (char i = 'a'; i <= 'z'; i++) {
-        keycodes[std::to_string(i)] = GLFW_KEY_A-'a'+i;
+        keycodes[std::string({i})] = GLFW_KEY_A-'a'+i;
     }
 }
 

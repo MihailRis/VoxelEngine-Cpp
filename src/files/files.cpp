@@ -2,6 +2,7 @@
 
 #include "../coders/commons.hpp"
 #include "../coders/json.hpp"
+#include "../coders/toml.hpp"
 #include "../coders/gzip.hpp"
 #include "../util/stringutil.hpp"
 #include "../data/dynamic.hpp"
@@ -119,6 +120,10 @@ std::shared_ptr<dynamic::Map> files::read_binary_json(fs::path file) {
     size_t size;
     std::unique_ptr<ubyte[]> bytes (files::read_bytes(file, size));
     return json::from_binary(bytes.get(), size);
+}
+
+std::shared_ptr<dynamic::Map> files::read_toml(fs::path file) {
+    return toml::parse(file.u8string(), files::read_string(file));
 }
 
 std::vector<std::string> files::read_list(fs::path filename) {
