@@ -6,6 +6,7 @@
 #include "../audio/audio.hpp"
 #include "../files/files.hpp"
 #include "../files/engine_paths.hpp"
+#include "../coders/commons.hpp"
 #include "../coders/imageio.hpp"
 #include "../coders/json.hpp"
 #include "../coders/GLSLExtension.hpp"

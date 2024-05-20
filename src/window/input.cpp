@@ -140,9 +140,9 @@ std::string input_util::to_string(keycode code) {
 
 std::string input_util::to_string(mousecode code) {
     switch (code) {
-    case mousecode::BUTTON_1: return "LMB";
-    case mousecode::BUTTON_2: return "RMB";
-    case mousecode::BUTTON_3: return "MMB";
+        case mousecode::BUTTON_1: return "LMB";
+        case mousecode::BUTTON_2: return "RMB";
+        case mousecode::BUTTON_3: return "MMB";
+        default: return "unknown button";
     }
-    return "unknown button";
 }
