@@ -32,6 +32,7 @@ world.Name=Name
 world.World generator=Weltgenerator
 world.generators.default=Normal
 world.generators.flat=Wohnung
+world.generators.ocean=Ozean
 world.Create World=Welt Erschaffen
 world.convert-request=Es gibt Änderungen in den Indizes! Die Welt bekehren?
 world.delete-confirm=Die Welt dauerhaft löschen?
