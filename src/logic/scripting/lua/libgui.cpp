@@ -10,6 +10,7 @@
 #include "../../../graphics/ui/gui_util.hpp"
 #include "../../../graphics/ui/elements/UINode.hpp"
 #include "../../../graphics/ui/elements/Button.hpp"
+#include "../../../graphics/ui/elements/Image.hpp"
 #include "../../../graphics/ui/elements/CheckBox.hpp"
 #include "../../../graphics/ui/elements/TextBox.hpp"
 #include "../../../graphics/ui/elements/TrackBar.hpp"
@@ -233,6 +234,13 @@ static int p_get_editable(UINode* node) {
     return 0;
 }
 
+static int p_get_src(UINode* node) {
+    if (auto image = dynamic_cast<Image*>(node)) {
+        return state->pushstring(image->getTexture());
+    }
+    return 0;
+}
+
 static int p_get_add(UINode* node) {
     if (dynamic_cast<Container*>(node)) {
         return state->pushcfunction(l_container_add);
@@ -302,6 +310,7 @@ static int l_gui_getattr(lua_State* L) {
         {"caret", p_get_caret},
         {"text", p_get_text},
         {"editable", p_get_editable},
+        {"src", p_get_src},
         {"value", p_get_value},
         {"min", p_get_min},
         {"max", p_get_max},
@@ -369,6 +378,11 @@ static void p_set_caret(UINode* node, int idx) {
 static void p_set_editable(UINode* node, int idx) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
         box->setEditable(state->toboolean(idx));
+    }
+}
+static void p_set_src(UINode* node, int idx) {
+    if (auto image = dynamic_cast<Image*>(node)) {
+        image->setTexture(state->requireString(idx));
     }
 }
 static void p_set_value(UINode* node, int idx) {
@@ -451,6 +465,7 @@ static int l_gui_setattr(lua_State* L) {
         {"placeholder", p_set_placeholder},
         {"text", p_set_text},
         {"editable", p_set_editable},
+        {"src", p_set_src},
         {"caret", p_set_caret},
         {"value", p_set_value},
         {"min", p_set_min},

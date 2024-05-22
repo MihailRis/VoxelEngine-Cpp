@@ -15,6 +15,8 @@ namespace gui {
 
         virtual void setAutoResize(bool flag);
         virtual bool isAutoResize() const;
+        virtual const std::string& getTexture() const;
+        virtual void setTexture(const std::string& name);
     };
 }
 

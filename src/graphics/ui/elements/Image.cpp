@@ -33,3 +33,11 @@ void Image::setAutoResize(bool flag) {
 bool Image::isAutoResize() const {
     return autoresize;
 }
+
+const std::string& Image::getTexture() const {
+    return texture;
+}
+
+void Image::setTexture(const std::string& name) {
+    texture = name;
+}
