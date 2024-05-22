@@ -1,9 +1,9 @@
 #ifndef SRC_OBJECTS_PLAYER_HPP_
 #define SRC_OBJECTS_PLAYER_HPP_
 
+#include "../settings.hpp"
 #include "../data/dynamic.hpp"
 #include "../voxels/voxel.hpp"
-#include "../settings.hpp"
 #include "../interfaces/Serializable.hpp"
 #include "../interfaces/Object.hpp"
 
@@ -14,23 +14,22 @@ class Camera;
 class Hitbox;
 class Inventory;
 class ContentLUT;
-class PhysicsSolver;
-class Chunks;
 class Level;
+struct EngineSettings;
 
 struct PlayerInput {
-    bool zoom;
-    bool cameraMode;
-    bool moveForward;
-    bool moveBack;
-    bool moveRight;
-    bool moveLeft;
-    bool sprint;
-    bool shift;
-    bool cheat;
-    bool jump;
-    bool noclip;
-    bool flight;
+    bool zoom : 1;
+    bool cameraMode : 1;
+    bool moveForward : 1;
+    bool moveBack : 1;
+    bool moveRight : 1;
+    bool moveLeft : 1;
+    bool sprint : 1;
+    bool shift : 1;
+    bool cheat : 1;
+    bool jump : 1;
+    bool noclip : 1;
+    bool flight : 1;
 };
 
 class Player : public Object, public Serializable {
@@ -46,8 +45,7 @@ public:
     bool noclip = false;
     bool debug = false;
     voxel selectedVoxel {0, 0};
-
-    glm::vec2 cam = {};
+    glm::vec2 cam {};
 
     Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv);
     ~Player();
@@ -77,4 +75,4 @@ public:
     }
 };
 
-#endif /* SRC_OBJECTS_PLAYER_HPP_ */
+#endif // SRC_OBJECTS_PLAYER_HPP_

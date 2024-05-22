@@ -2,7 +2,6 @@
 #define WORLD_WORLD_HPP_
 
 #include "../typedefs.hpp"
-#include "../settings.hpp"
 #include "../util/timeutil.hpp"
 #include "../data/dynamic.hpp"
 #include "../interfaces/Serializable.hpp"
@@ -17,6 +16,7 @@ class Content;
 class WorldFiles;
 class Level;
 class ContentLUT;
+struct EngineSettings;
 
 namespace fs = std::filesystem;
 

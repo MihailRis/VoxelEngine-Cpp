@@ -35,6 +35,7 @@
 #include "window/input.hpp"
 #include "window/Window.hpp"
 #include "world/WorldGenerators.hpp"
+#include "settings.hpp"
 
 #include <iostream>
 #include <assert.h>

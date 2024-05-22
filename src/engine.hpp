@@ -2,7 +2,6 @@
 #define ENGINE_HPP_
 
 #include "delegates.hpp"
-#include "settings.hpp"
 #include "typedefs.hpp"
 
 #include "assets/Assets.hpp"
@@ -27,6 +26,7 @@ class ResPaths;
 class Batch2D;
 class EngineController;
 class SettingsHandler;
+struct EngineSettings;
 
 namespace fs = std::filesystem;
 

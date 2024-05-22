@@ -1,6 +1,7 @@
 #include "../audio/audio.hpp"
 #include "../delegates.hpp"
 #include "../engine.hpp"
+#include "../settings.hpp"
 #include "../graphics/core/Mesh.hpp"
 #include "../graphics/ui/elements/CheckBox.hpp"
 #include "../graphics/ui/elements/TextBox.hpp"

@@ -22,6 +22,7 @@
 #include "../items/ItemStack.hpp"
 #include "../items/Inventory.hpp"
 #include "../core_defs.hpp"
+#include "../settings.hpp"
 
 const float CAM_SHAKE_OFFSET = 0.025f;
 const float CAM_SHAKE_OFFSET_Y = 0.031f;

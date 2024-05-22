@@ -13,6 +13,7 @@
 #include "../objects/Player.hpp"
 #include "../physics/Hitbox.hpp"
 #include "../typedefs.hpp"
+#include "../settings.hpp"
 #include "../util/data_io.hpp"
 #include "../voxels/Block.hpp"
 #include "../voxels/Chunk.hpp"

@@ -1,7 +1,6 @@
 #ifndef PLAYER_CONTROL_HPP_
 #define PLAYER_CONTROL_HPP_
 
-#include "../settings.hpp"
 #include "../objects/Player.hpp"
 
 #include <memory>
@@ -12,7 +11,9 @@
 class Camera;
 class Level;
 class Block;
+class Chunks;
 class BlocksController;
+struct CameraSettings;
 
 class CameraControl {
     std::shared_ptr<Player> player;

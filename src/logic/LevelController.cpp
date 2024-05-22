@@ -1,4 +1,6 @@
 #include "LevelController.hpp"
+
+#include "../settings.hpp"
 #include "../files/WorldFiles.hpp"
 #include "../debug/Logger.hpp"
 #include "../world/Level.hpp"

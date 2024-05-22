@@ -2,6 +2,7 @@
 
 #include "Level.hpp"
 
+#include "../settings.hpp"
 #include "../content/Content.hpp"
 #include "../content/ContentLUT.hpp"
 #include "../debug/Logger.hpp"
