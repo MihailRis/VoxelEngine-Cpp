@@ -6,7 +6,6 @@
 namespace gui {
     class CheckBox : public UINode {
     protected:
-        glm::vec4 hoverColor {0.05f, 0.1f, 0.2f, 0.75f};
         glm::vec4 checkColor {1.0f, 1.0f, 1.0f, 0.4f};
         boolsupplier supplier = nullptr;
         boolconsumer consumer = nullptr;
