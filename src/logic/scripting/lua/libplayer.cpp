@@ -9,10 +9,15 @@
 
 #include <glm/glm.hpp>
 
+inline std::shared_ptr<Player> get_player(lua_State* L, int idx) {
+    return scripting::level->getObject<Player>(lua_tointeger(L, idx));
+}
+
 static int l_player_get_pos(lua_State* L) {
-    int playerid = lua_tointeger(L, 1);
-    auto player = scripting::level->getObject<Player>(playerid);
-    if (!player) return 0;
+    auto player = get_player(L, 1);
+    if (!player) {
+        return 0;
+    }
     glm::vec3 pos = player->hitbox->position;
     lua_pushnumber(L, pos.x);
     lua_pushnumber(L, pos.y);
@@ -21,19 +26,22 @@ static int l_player_get_pos(lua_State* L) {
 }
 
 static int l_player_set_pos(lua_State* L) {
-    int playerid = lua_tointeger(L, 1);
-    lua::luanumber x = lua_tonumber(L, 2);
-    lua::luanumber y = lua_tonumber(L, 3);
-    lua::luanumber z = lua_tonumber(L, 4);
-    auto player = scripting::level->getObject<Player>(playerid);
-    if (player) player->hitbox->position = glm::vec3(x, y, z);
+    auto player = get_player(L, 1);
+    if (!player) {
+        return 0;
+    }
+    auto x = lua_tonumber(L, 2);
+    auto y = lua_tonumber(L, 3);
+    auto z = lua_tonumber(L, 4);
+    player->hitbox->position = glm::vec3(x, y, z);
     return 0;
 }
 
 static int l_player_get_vel(lua_State* L) {
-    int playerid = lua_tointeger(L, 1);
-    auto player = scripting::level->getObject<Player>(playerid);
-    if (!player) return 0;
+    auto player = get_player(L, 1);
+    if (!player) {
+        return 0;
+    }
     glm::vec3 vel = player->hitbox->velocity;
     lua_pushnumber(L, vel.x);
     lua_pushnumber(L, vel.y);
@@ -42,19 +50,22 @@ static int l_player_get_vel(lua_State* L) {
 }
 
 static int l_player_set_vel(lua_State* L) {
-    int playerid = lua_tointeger(L, 1);
-    lua::luanumber x = lua_tonumber(L, 2);
-    lua::luanumber y = lua_tonumber(L, 3);
-    lua::luanumber z = lua_tonumber(L, 4);
-    auto player = scripting::level->getObject<Player>(playerid);
-    if (player) player->hitbox->velocity = glm::vec3(x, y, z);
+    auto player = get_player(L, 1);
+    if (!player) {
+        return 0;
+    }
+    auto x = lua_tonumber(L, 2);
+    auto y = lua_tonumber(L, 3);
+    auto z = lua_tonumber(L, 4);
+    player->hitbox->velocity = glm::vec3(x, y, z);
     return 0;
 }
 
 static int l_player_get_rot(lua_State* L) {
-    int playerid = lua_tointeger(L, 1);
-    auto player = scripting::level->getObject<Player>(playerid);
-    if (!player) return 0;
+    auto player = get_player(L, 1);
+    if (!player) {
+        return 0;
+    }
     glm::vec2 rot = player->cam;
     lua_pushnumber(L, rot.x);
     lua_pushnumber(L, rot.y);
@@ -62,11 +73,12 @@ static int l_player_get_rot(lua_State* L) {
 }
 
 static int l_player_set_rot(lua_State* L) {
-    int playerid = lua_tointeger(L, 1);
-    auto player = scripting::level->getObject<Player>(playerid);
-    if (!player) return 0;
-    lua::luanumber x = lua_tonumber(L, 2);
-    lua::luanumber y = lua_tonumber(L, 3);
+    auto player = get_player(L, 1);
+    if (!player) {
+        return 0;
+    }
+    auto x = lua_tonumber(L, 2);
+    auto y = lua_tonumber(L, 3);
     glm::vec2& cam = player->cam;
     cam.x = x;
     cam.y = y;
@@ -74,12 +86,43 @@ static int l_player_set_rot(lua_State* L) {
 }
 
 static int l_player_get_inv(lua_State* L) {
-    int playerid = lua_tointeger(L, 1);
-    auto player = scripting::level->getObject<Player>(playerid);
-    if (!player) return 0;
+    auto player = get_player(L, 1);
+    if (!player) {
+        return 0;
+    }
     lua_pushinteger(L, player->getInventory()->getId());
     lua_pushinteger(L, player->getChosenSlot());
     return 2;
+}
+
+static int l_player_is_flight(lua_State* L) {
+    if (auto player = get_player(L, 1)) {
+        lua_pushboolean(L, player->isFlight());
+        return 1;
+    }
+    return 0;
+}
+
+static int l_player_set_flight(lua_State* L) {
+    if (auto player = get_player(L, 1)) {
+        player->setFlight(lua_toboolean(L, 2));
+    }
+    return 0;
+}
+
+static int l_player_is_noclip(lua_State* L) {
+    if (auto player = get_player(L, 1)) {
+        lua_pushboolean(L, player->isNoclip());
+        return 1;
+    }
+    return 0;
+}
+
+static int l_player_set_noclip(lua_State* L) {
+    if (auto player = get_player(L, 1)) {
+        player->setNoclip(lua_toboolean(L, 2));
+    }
+    return 0;
 }
 
 const luaL_Reg playerlib [] = {
@@ -90,5 +133,9 @@ const luaL_Reg playerlib [] = {
     {"get_rot", lua_wrap_errors<l_player_get_rot>},
     {"set_rot", lua_wrap_errors<l_player_set_rot>},
     {"get_inventory", lua_wrap_errors<l_player_get_inv>},
+    {"is_flight", lua_wrap_errors<l_player_is_flight>},
+    {"set_flight", lua_wrap_errors<l_player_set_flight>},
+    {"is_noclip", lua_wrap_errors<l_player_is_noclip>},
+    {"set_noclip", lua_wrap_errors<l_player_set_noclip>},
     {NULL, NULL}
 };

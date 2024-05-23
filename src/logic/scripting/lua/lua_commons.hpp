@@ -7,13 +7,13 @@
 #else
 #include <lua.hpp>
 #endif
+
+#ifndef LUAJIT_VERSION
+#error LuaJIT required
+#endif
+
 #include <string>
 #include <exception>
-
-namespace lua {
-    using luaint = lua_Integer;
-    using luanumber = lua_Number;
-}
 
 template <lua_CFunction func> int lua_wrap_errors(lua_State *L) {
     int result = 0;

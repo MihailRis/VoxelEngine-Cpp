@@ -23,22 +23,22 @@ inline int extract_channel_index(lua_State* L, int idx) {
 inline audio::speakerid_t play_sound(
     const char* name,
     bool relative,
-    lua::luanumber x,
-    lua::luanumber y,
-    lua::luanumber z,
-    lua::luanumber volume,
-    lua::luanumber pitch,
+    lua_Number x,
+    lua_Number y,
+    lua_Number z,
+    lua_Number volume,
+    lua_Number pitch,
     bool loop,
     int channel
 ) {
-    if (channel == -1)
+    if (channel == -1) {
         return 0;
+    }
     auto assets = scripting::engine->getAssets();
     auto sound = assets->getSound(name);
     if (sound == nullptr) {
         return 0;
     }
-
     return audio::play(
         sound, 
         glm::vec3(
@@ -58,20 +58,20 @@ inline audio::speakerid_t play_sound(
 inline audio::speakerid_t play_stream(
     const char* filename,
     bool relative,
-    lua::luanumber x,
-    lua::luanumber y,
-    lua::luanumber z,
-    lua::luanumber volume,
-    lua::luanumber pitch,
+    lua_Number x,
+    lua_Number y,
+    lua_Number z,
+    lua_Number volume,
+    lua_Number pitch,
     bool loop,
     int channel
 ) {
-    if (channel == -1)
+    if (channel == -1) {
         return 0;
+    }
     auto paths = scripting::engine->getResPaths();
-    fs::path file = paths->find(filename);
     return audio::play_stream(
-        file, 
+        paths->find(filename), 
         glm::vec3(
             static_cast<float>(x), 
             static_cast<float>(y), 
@@ -95,7 +95,7 @@ inline audio::speakerid_t play_stream(
 ///            channel: string = "regular",
 ///            loop: bool = false)
 static int l_audio_play_stream(lua_State* L) {
-    lua_pushinteger(L, static_cast<lua::luaint>(
+    lua_pushinteger(L, static_cast<lua_Integer>(
         play_stream(
             lua_tostring(L, 1),
             false,
@@ -118,7 +118,7 @@ static int l_audio_play_stream(lua_State* L) {
 ///            channel: string = "regular",
 ///            loop: bool = false)
 static int l_audio_play_stream_2d(lua_State* L) {
-    lua_pushinteger(L, static_cast<lua::luaint>(
+    lua_pushinteger(L, static_cast<lua_Integer>(
         play_stream(
             lua_tostring(L, 1),
             true,
@@ -142,7 +142,7 @@ static int l_audio_play_stream_2d(lua_State* L) {
 ///            channel: string = "regular",
 ///            loop: bool = false)
 static int l_audio_play_sound(lua_State* L) {
-    lua_pushinteger(L, static_cast<lua::luaint>(
+    lua_pushinteger(L, static_cast<lua_Integer>(
         play_sound(
             lua_tostring(L, 1),
             false,
@@ -165,7 +165,7 @@ static int l_audio_play_sound(lua_State* L) {
 ///            channel: string = "regular",
 ///            loop: bool = false)
 static int l_audio_play_sound_2d(lua_State* L) {
-    lua_pushinteger(L, static_cast<lua::luaint>(
+    lua_pushinteger(L, static_cast<lua_Integer>(
         play_sound(
             lua_tostring(L, 1),
             true,
@@ -181,8 +181,7 @@ static int l_audio_play_sound_2d(lua_State* L) {
 
 /// @brief audio.stop(speakerid: integer) -> nil
 static int l_audio_stop(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
         speaker->stop();
     }
@@ -191,8 +190,7 @@ static int l_audio_stop(lua_State* L) {
 
 /// @brief audio.pause(speakerid: integer) -> nil 
 static int l_audio_pause(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
         speaker->pause();
     }
@@ -201,8 +199,7 @@ static int l_audio_pause(lua_State* L) {
 
 /// @brief audio.resume(speakerid: integer) -> nil 
 static int l_audio_resume(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr && speaker->isPaused()) {
         speaker->play();
     }
@@ -211,8 +208,7 @@ static int l_audio_resume(lua_State* L) {
 
 /// @brief audio.set_loop(speakerid: integer, value: bool) -> nil 
 static int l_audio_set_loop(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
         bool value = lua_toboolean(L, 2);
         speaker->setLoop(value);
@@ -222,45 +218,38 @@ static int l_audio_set_loop(lua_State* L) {
 
 /// @brief audio.set_volume(speakerid: integer, value: number) -> nil 
 static int l_audio_set_volume(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
-        lua::luanumber value = lua_tonumber(L, 2);
-        speaker->setVolume(static_cast<float>(value));
+        speaker->setVolume(static_cast<float>(lua_tonumber(L, 2)));
     }
     return 0;
 }
 
 /// @brief audio.set_pitch(speakerid: integer, value: number) -> nil 
 static int l_audio_set_pitch(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
-        lua::luanumber value = lua_tonumber(L, 2);
-        speaker->setPitch(static_cast<float>(value));
+        speaker->setPitch(static_cast<float>(lua_tonumber(L, 2)));
     }
     return 0;
 }
 
 /// @brief audio.set_time(speakerid: integer, value: number) -> nil 
 static int l_audio_set_time(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
-        lua::luanumber value = lua_tonumber(L, 2);
-        speaker->setTime(static_cast<audio::duration_t>(value));
+        speaker->setTime(static_cast<audio::duration_t>(lua_tonumber(L, 2)));
     }
     return 0;
 }
 
 /// @brief audio.set_position(speakerid: integer, x: number, y: number, z: number) -> nil
 static int l_audio_set_position(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
-        lua::luanumber x = lua_tonumber(L, 2);
-        lua::luanumber y = lua_tonumber(L, 3);
-        lua::luanumber z = lua_tonumber(L, 4);
+        auto x = lua_tonumber(L, 2);
+        auto y = lua_tonumber(L, 3);
+        auto z = lua_tonumber(L, 4);
         speaker->setPosition(glm::vec3(
             static_cast<float>(x),
             static_cast<float>(y),
@@ -272,12 +261,11 @@ static int l_audio_set_position(lua_State* L) {
 
 /// @brief audio.set_velocity(speakerid: integer, x: number, y: number, z: number) -> nil
 static int l_audio_set_velocity(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
-        lua::luanumber x = lua_tonumber(L, 2);
-        lua::luanumber y = lua_tonumber(L, 3);
-        lua::luanumber z = lua_tonumber(L, 4);
+        auto x = lua_tonumber(L, 2);
+        auto y = lua_tonumber(L, 3);
+        auto z = lua_tonumber(L, 4);
         speaker->setVelocity(glm::vec3(
             static_cast<float>(x),
             static_cast<float>(y),
@@ -289,8 +277,7 @@ static int l_audio_set_velocity(lua_State* L) {
 
 /// @brief audio.is_playing(speakerid: integer) -> bool 
 static int l_audio_is_playing(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
         lua_pushboolean(L, speaker->isPlaying());
         return 1;
@@ -301,8 +288,7 @@ static int l_audio_is_playing(lua_State* L) {
 
 /// @brief audio.is_paused(speakerid: integer) -> bool 
 static int l_audio_is_paused(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
         lua_pushboolean(L, speaker->isPaused());
         return 1;
@@ -313,8 +299,7 @@ static int l_audio_is_paused(lua_State* L) {
 
 /// @brief audio.is_loop(speakerid: integer) -> bool
 static int l_audio_is_loop(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
         lua_pushboolean(L, speaker->isLoop());
         return 1;
@@ -325,8 +310,7 @@ static int l_audio_is_loop(lua_State* L) {
 
 /// @brief audio.get_volume(speakerid: integer) -> number
 static int l_audio_get_volume(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
         lua_pushnumber(L, speaker->getVolume());
         return 1;
@@ -337,8 +321,7 @@ static int l_audio_get_volume(lua_State* L) {
 
 /// @brief audio.get_pitch(speakerid: integer) -> number
 static int l_audio_get_pitch(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
         lua_pushnumber(L, speaker->getPitch());
         return 1;
@@ -349,8 +332,7 @@ static int l_audio_get_pitch(lua_State* L) {
 
 /// @brief audio.get_time(speakerid: integer) -> number
 static int l_audio_get_time(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
         lua_pushnumber(L, speaker->getTime());
         return 1;
@@ -361,8 +343,7 @@ static int l_audio_get_time(lua_State* L) {
 
 /// @brief audio.get_duration(speakerid: integer) -> number
 static int l_audio_get_duration(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
         lua_pushnumber(L, speaker->getDuration());
         return 1;
@@ -373,11 +354,9 @@ static int l_audio_get_duration(lua_State* L) {
 
 /// @brief audio.get_position(speakerid: integer) -> number, number, number
 static int l_audio_get_position(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
-        auto vec = speaker->getPosition();
-        lua::pushvec3(L, vec);
+        lua::pushvec3(L, speaker->getPosition());
         return 1;
     }
     return 0;
@@ -385,8 +364,7 @@ static int l_audio_get_position(lua_State* L) {
 
 /// @brief audio.get_velocity(speakerid: integer) -> number, number, number
 static int l_audio_get_velocity(lua_State* L) {
-    lua::luaint id = lua_tonumber(L, 1);
-    auto speaker = audio::get_speaker(id);
+    auto speaker = audio::get_speaker(lua_tointeger(L, 1));
     if (speaker != nullptr) {
         auto vec = speaker->getVelocity();
         lua::pushvec3(L, vec);

@@ -1,7 +1,9 @@
 #include "lua_commons.hpp"
+
 #include "api_lua.hpp"
 #include "lua_util.hpp"
 #include "../scripting.hpp"
+
 #include "../../../world/Level.hpp"
 #include "../../../voxels/Chunks.hpp"
 #include "../../../voxels/Chunk.hpp"
@@ -13,7 +15,7 @@
 
 int l_block_name(lua_State* L) {
     auto indices = scripting::content->getIndices();
-    lua::luaint id = lua_tointeger(L, 1);
+    lua_Integer id = lua_tointeger(L, 1);
     if (id < 0 || size_t(id) >= indices->countBlockDefs()) {
         return 0;
     }
@@ -22,10 +24,9 @@ int l_block_name(lua_State* L) {
     return 1;
 }
 
-
 int l_block_material(lua_State* L) {
     auto indices = scripting::content->getIndices();
-    lua::luaint id = lua_tointeger(L, 1);
+    lua_Integer id = lua_tointeger(L, 1);
     if (id < 0 || size_t(id) >= indices->countBlockDefs()) {
         return 0;
     }
@@ -35,9 +36,9 @@ int l_block_material(lua_State* L) {
 }
 
 int l_is_solid_at(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
 
     lua_pushboolean(L, scripting::level->chunks->isSolidBlock(x, y, z));
     return 1;
@@ -49,17 +50,17 @@ int l_blocks_count(lua_State* L) {
 }
 
 int l_block_index(lua_State* L) {
-    auto name = lua_tostring(L, 1);
+    std::string name = lua_tostring(L, 1);
     lua_pushinteger(L, scripting::content->requireBlock(name).rt.id);
     return 1;
 }
 
 int l_set_block(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
-    lua::luaint id = lua_tointeger(L, 4);    
-    lua::luaint states = lua_tointeger(L, 5);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
+    lua_Integer id = lua_tointeger(L, 4);    
+    lua_Integer states = lua_tointeger(L, 5);
     bool noupdate = lua_toboolean(L, 6);
     if (id < 0 || size_t(id) >= scripting::indices->countBlockDefs()) {
         return 0;
@@ -75,9 +76,9 @@ int l_set_block(lua_State* L) {
 }
 
 int l_get_block(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
     voxel* vox = scripting::level->chunks->get(x, y, z);
     int id = vox == nullptr ? -1 : vox->id;
     lua_pushinteger(L, id);
@@ -85,9 +86,9 @@ int l_get_block(lua_State* L) {
 }
 
 int l_get_block_x(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
     voxel* vox = scripting::level->chunks->get(x, y, z);
     if (vox == nullptr) {
         return lua::pushivec3(L, 1, 0, 0);
@@ -102,9 +103,9 @@ int l_get_block_x(lua_State* L) {
 }
 
 int l_get_block_y(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
     voxel* vox = scripting::level->chunks->get(x, y, z);
     if (vox == nullptr) {
         return lua::pushivec3(L, 0, 1, 0);
@@ -119,9 +120,9 @@ int l_get_block_y(lua_State* L) {
 }
 
 int l_get_block_z(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
     voxel* vox = scripting::level->chunks->get(x, y, z);
     if (vox == nullptr) {
         return lua::pushivec3(L, 0, 0, 1);
@@ -136,9 +137,9 @@ int l_get_block_z(lua_State* L) {
 }
 
 int l_get_block_rotation(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
     voxel* vox = scripting::level->chunks->get(x, y, z);
     int rotation = vox == nullptr ? 0 : vox->rotation();
     lua_pushinteger(L, rotation);
@@ -146,10 +147,10 @@ int l_get_block_rotation(lua_State* L) {
 }
 
 int l_set_block_rotation(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
-    lua::luaint value = lua_tointeger(L, 4);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
+    lua_Integer value = lua_tointeger(L, 4);
     voxel* vox = scripting::level->chunks->get(x, y, z);
     if (vox == nullptr) {
         return 0;
@@ -160,9 +161,9 @@ int l_set_block_rotation(lua_State* L) {
 }
 
 int l_get_block_states(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
     voxel* vox = scripting::level->chunks->get(x, y, z);
     int states = vox == nullptr ? 0 : vox->states;
     lua_pushinteger(L, states);
@@ -170,10 +171,10 @@ int l_get_block_states(lua_State* L) {
 }
 
 int l_set_block_states(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
-    lua::luaint states = lua_tointeger(L, 4);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
+    lua_Integer states = lua_tointeger(L, 4);
 
     Chunk* chunk = scripting::level->chunks->getChunkByVoxel(x, y, z);
     if (chunk == nullptr) {
@@ -186,11 +187,11 @@ int l_set_block_states(lua_State* L) {
 }
 
 int l_get_block_user_bits(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
-    lua::luaint offset = lua_tointeger(L, 4) + VOXEL_USER_BITS_OFFSET;
-    lua::luaint bits = lua_tointeger(L, 5);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
+    lua_Integer offset = lua_tointeger(L, 4) + VOXEL_USER_BITS_OFFSET;
+    lua_Integer bits = lua_tointeger(L, 5);
 
     voxel* vox = scripting::level->chunks->get(x, y, z);
     if (vox == nullptr) {
@@ -204,14 +205,14 @@ int l_get_block_user_bits(lua_State* L) {
 }
 
 int l_set_block_user_bits(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
-    lua::luaint offset = lua_tointeger(L, 4) + VOXEL_USER_BITS_OFFSET;
-    lua::luaint bits = lua_tointeger(L, 5);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
+    lua_Integer offset = lua_tointeger(L, 4) + VOXEL_USER_BITS_OFFSET;
+    lua_Integer bits = lua_tointeger(L, 5);
 
-    uint mask = ((1 << bits) - 1) << offset;
-    lua::luaint value = (lua_tointeger(L, 6) << offset) & mask;
+    size_t mask = ((1 << bits) - 1) << offset;
+    lua_Integer value = (lua_tointeger(L, 6) << offset) & mask;
     
     voxel* vox = scripting::level->chunks->get(x, y, z);
     if (vox == nullptr) {
@@ -222,9 +223,9 @@ int l_set_block_user_bits(lua_State* L) {
 }
 
 int l_is_replaceable_at(lua_State* L) {
-    int x = lua_tointeger(L, 1);
-    int y = lua_tointeger(L, 2);
-    int z = lua_tointeger(L, 3);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
 
     lua_pushboolean(L, scripting::level->chunks->isReplaceableBlock(x, y, z));
     return 1;

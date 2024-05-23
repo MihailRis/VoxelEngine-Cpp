@@ -14,7 +14,7 @@
 #include <stdexcept>
 
 namespace lua {
-    inline int pushivec3(lua_State* L, luaint x, luaint y, luaint z) {
+    inline int pushivec3(lua_State* L, lua_Integer x, lua_Integer y, lua_Integer z) {
         lua_pushinteger(L, x);
         lua_pushinteger(L, y);
         lua_pushinteger(L, z);
@@ -100,9 +100,9 @@ namespace lua {
             throw std::runtime_error("value must be an array of two numbers");
         }
         lua_rawgeti(L, -1, 1);
-        lua::luanumber x = lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_Number x = lua_tonumber(L, -1); lua_pop(L, 1);
         lua_rawgeti(L, -1, 2);
-        lua::luanumber y = lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_Number y = lua_tonumber(L, -1); lua_pop(L, 1);
         lua_pop(L, 1);
         return glm::vec2(x, y);
     }
@@ -113,13 +113,13 @@ namespace lua {
             throw std::runtime_error("RGBA array required");
         }
         lua_rawgeti(L, -1, 1);
-        lua::luanumber r = lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_Number r = lua_tonumber(L, -1); lua_pop(L, 1);
         lua_rawgeti(L, -1, 2);
-        lua::luanumber g = lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_Number g = lua_tonumber(L, -1); lua_pop(L, 1);
         lua_rawgeti(L, -1, 3);
-        lua::luanumber b = lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_Number b = lua_tonumber(L, -1); lua_pop(L, 1);
         lua_rawgeti(L, -1, 4);
-        lua::luanumber a = lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_Number a = lua_tonumber(L, -1); lua_pop(L, 1);
         lua_pop(L, 1);
         return glm::vec4(r/255, g/255, b/255, a/255);
     }

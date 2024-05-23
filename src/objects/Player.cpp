@@ -167,6 +167,22 @@ float Player::getSpeed() const {
     return speed;
 }
 
+bool Player::isFlight() const {
+    return flight;
+}
+
+void Player::setFlight(bool flag) {
+    this->flight = flag;
+}
+
+bool Player::isNoclip() const {
+    return noclip;
+}
+
+void Player::setNoclip(bool flag) {
+    this->noclip = flag;
+}
+
 std::shared_ptr<Inventory> Player::getInventory() const {
     return inventory;
 }

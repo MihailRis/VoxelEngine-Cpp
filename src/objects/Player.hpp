@@ -37,12 +37,12 @@ class Player : public Object, public Serializable {
     int chosenSlot;
     glm::vec3 spawnpoint {};
     std::shared_ptr<Inventory> inventory;
+    bool flight = false;
+    bool noclip = false;
 public:
     std::shared_ptr<Camera> camera, spCamera, tpCamera;
     std::shared_ptr<Camera> currentCamera;
     std::unique_ptr<Hitbox> hitbox;
-    bool flight = false;
-    bool noclip = false;
     bool debug = false;
     voxel selectedVoxel {0, 0};
     glm::vec2 cam {};
@@ -59,6 +59,12 @@ public:
 
     int getChosenSlot() const;
     float getSpeed() const;
+
+    bool isFlight() const;
+    void setFlight(bool flag);
+
+    bool isNoclip() const;
+    void setNoclip(bool flag);
     
     std::shared_ptr<Inventory> getInventory() const;
 

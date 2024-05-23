@@ -40,14 +40,14 @@ static int l_hud_close_inventory(lua_State*) {
 }
 
 static int l_hud_open_block(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
+    auto x = lua_tointeger(L, 1);
+    auto y = lua_tointeger(L, 2);
+    auto z = lua_tointeger(L, 3);
     bool playerInventory = !lua_toboolean(L, 4);
 
     voxel* vox = scripting::level->chunks->get(x, y, z);
     if (vox == nullptr) {
-        throw std::runtime_error("block does not exists at "+
+        throw std::runtime_error("block does not exists at " +
             std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z)
         );
     }

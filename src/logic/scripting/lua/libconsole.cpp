@@ -14,11 +14,11 @@ namespace scripting {
 using namespace scripting;
 
 static int l_add_command(lua_State* L) {
-    if (!lua_isstring(L, 1) || !lua_isstring(L, 2) || !lua_isfunction(L, 3)) {
-        throw std::runtime_error("invalid argument type");
+    if (!lua_isfunction(L, 3)) {
+        throw std::runtime_error("invalid callback");
     }
-    auto scheme = lua_tostring(L, 1);
-    auto description = lua_tostring(L, 2);
+    auto scheme = state->requireString(1);
+    auto description = state->requireString(2);
     lua_pushvalue(L, 3);
     auto func = state->createLambda();
     try {
@@ -33,15 +33,15 @@ static int l_add_command(lua_State* L) {
     return 0;
 }
 
-static int l_execute(lua_State* L) {
-    auto prompt = lua_tostring(L, 1);
+static int l_execute(lua_State*) {
+    auto prompt = state->requireString(1);
     auto result = engine->getCommandsInterpreter()->execute(prompt);
     state->pushvalue(result);
     return 1;
 }
 
-static int l_set(lua_State* L) {
-    auto name = lua_tostring(L, 1);
+static int l_set(lua_State*) {
+    auto name = state->requireString(1);
     auto value = state->tovalue(2);
     (*engine->getCommandsInterpreter())[name] = value;
     return 0;
@@ -62,7 +62,7 @@ static int l_get_commands_list(lua_State* L) {
 }
 
 static int l_get_command_info(lua_State* L) {
-    auto name = lua_tostring(L, 1);
+    auto name = state->requireString(1);
     auto interpreter = engine->getCommandsInterpreter();
     auto repo = interpreter->getRepository();
     auto command = repo->get(name);
