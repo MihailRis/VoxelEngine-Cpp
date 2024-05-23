@@ -66,10 +66,11 @@ static int l_player_get_rot(lua_State* L) {
     if (!player) {
         return 0;
     }
-    glm::vec2 rot = player->cam;
+    const glm::vec3& rot = player->cam;
     lua_pushnumber(L, rot.x);
     lua_pushnumber(L, rot.y);
-    return 2;
+    lua_pushnumber(L, rot.z);
+    return 3;
 }
 
 static int l_player_set_rot(lua_State* L) {
@@ -77,11 +78,17 @@ static int l_player_set_rot(lua_State* L) {
     if (!player) {
         return 0;
     }
-    auto x = lua_tonumber(L, 2);
-    auto y = lua_tonumber(L, 3);
-    glm::vec2& cam = player->cam;
+    glm::vec3& cam = player->cam;
+
+    lua_Number x = lua_tonumber(L, 2);
+    lua_Number y = lua_tonumber(L, 3);
+    lua_Number z = cam.z;
+    if (lua_isnumber(L, 4)) {
+        z = lua_tonumber(L, 4);
+    }
     cam.x = x;
     cam.y = y;
+    cam.z = z;
     return 0;
 }
 

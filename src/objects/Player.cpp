@@ -206,6 +206,7 @@ std::unique_ptr<dynamic::Map> Player::serialize() const {
     auto& rotarr = root->putList("rotation");
     rotarr.put(cam.x);
     rotarr.put(cam.y);
+    rotarr.put(cam.z);
 
     auto& sparr = root->putList("spawnpoint");
     sparr.put(spawnpoint.x);
@@ -230,6 +231,9 @@ void Player::deserialize(dynamic::Map *src) {
     auto rotarr = src->list("rotation");
     cam.x = rotarr->num(0);
     cam.y = rotarr->num(1);
+    if (rotarr->size() > 2) {
+        cam.z = rotarr->num(2);
+    }
 
     if (src->has("spawnpoint")) {
         auto sparr = src->list("spawnpoint");

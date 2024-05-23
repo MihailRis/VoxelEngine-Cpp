@@ -47,14 +47,16 @@ void CameraControl::refresh() {
 }
 
 void CameraControl::updateMouse(PlayerInput& input) {
-    glm::vec2& cam = player->cam;
+    glm::vec3& cam = player->cam;
 
     float sensitivity = (input.zoom 
         ? settings.sensitivity.get() / 4.f
         : settings.sensitivity.get());
 
-    cam -= glm::degrees(Events::delta / (float)Window::height * sensitivity);
-
+    auto d = glm::degrees(Events::delta / (float)Window::height * sensitivity);
+    cam.x -= d.x;
+    cam.y -= d.y;
+    
     if (cam.y < -89.9f) {
         cam.y = -89.9f;
     }
@@ -69,7 +71,7 @@ void CameraControl::updateMouse(PlayerInput& input) {
     }
 
     camera->rotation = glm::mat4(1.0f);
-    camera->rotate(glm::radians(cam.y), glm::radians(cam.x), 0);
+    camera->rotate(glm::radians(cam.y), glm::radians(cam.x), glm::radians(cam.z));
 }
 
 glm::vec3 CameraControl::updateCameraShaking(float delta) {
