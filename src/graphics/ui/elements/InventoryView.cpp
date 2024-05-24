@@ -277,7 +277,7 @@ const std::wstring SlotView::getTooltip() const {
         return str;
     }
     auto def = content->getIndices()->getItemDef(bound->getItemId());
-    return util::capitalized(
+    return util::pascal_case(
         langs::get(util::str2wstr_utf8(def->caption))
     ); // TODO: cache
 }
