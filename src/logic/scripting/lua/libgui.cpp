@@ -264,6 +264,9 @@ static int p_get_hover_color(UINode* node) {
 static int p_get_pressed_color(UINode* node) {
     return lua::pushcolor_arr(state->getLua(), node->getPressedColor());
 }
+static int p_get_tooltip(UINode* node) {
+    return state->pushstring(util::wstr2str_utf8(node->getTooltip()));
+}
 static int p_get_pos(UINode* node) {
     return lua::pushvec2_arr(state->getLua(), node->getPos());
 }
@@ -300,6 +303,7 @@ static int l_gui_getattr(lua_State* L) {
         {"color", p_get_color},
         {"hoverColor", p_get_hover_color},
         {"pressedColor", p_get_pressed_color},
+        {"tooltip", p_get_tooltip},
         {"pos", p_get_pos},
         {"wpos", p_get_wpos},
         {"size", p_get_size},
@@ -344,6 +348,9 @@ static void p_set_hover_color(UINode* node, int idx) {
 }
 static void p_set_pressed_color(UINode* node, int idx) {
     node->setPressedColor(state->tocolor(idx));
+}
+static void p_set_tooltip(UINode* node, int idx) {
+    node->setTooltip(util::str2wstr_utf8(state->tostring(idx)));
 }
 static void p_set_pos(UINode* node, int idx) {
     node->setPos(state->tovec2(idx));
@@ -464,6 +471,7 @@ static int l_gui_setattr(lua_State* L) {
         {"color", p_set_color},
         {"hoverColor", p_set_hover_color},
         {"pressedColor", p_set_pressed_color},
+        {"tooltip", p_set_tooltip},
         {"pos", p_set_pos},
         {"wpos", p_set_wpos},
         {"size", p_set_size},

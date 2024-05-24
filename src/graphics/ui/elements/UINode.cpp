@@ -129,6 +129,14 @@ bool UINode::isResizing() const {
     return resizing;
 }
 
+void UINode::setTooltip(const std::wstring& text) {
+    this->tooltip = text;
+}
+
+const std::wstring UINode::getTooltip() const {
+    return tooltip;
+}
+
 glm::vec2 UINode::calcPos() const {
     if (parent) {
         return pos + parent->calcPos() + parent->contentOffset();
@@ -316,7 +324,7 @@ void UINode::setGravity(Gravity gravity) {
 }
 
 void UINode::getIndices(
-    std::shared_ptr<UINode> node,
+    const std::shared_ptr<UINode> node,
     std::unordered_map<std::string, std::shared_ptr<UINode>>& map
 ) {
     const std::string& id = node->getId();
@@ -329,4 +337,20 @@ void UINode::getIndices(
             getIndices(subnode, map);
         }
     }
+}
+std::shared_ptr<UINode> UINode::find(
+    const std::shared_ptr<UINode> node,
+    const std::string& id
+) {
+    if (node->getId() == id) {
+        return node;
+    }
+    if (auto container = std::dynamic_pointer_cast<Container>(node)) {
+        for (auto subnode : container->getNodes()) {
+            if (auto found = UINode::find(subnode, id)) {
+                return found;
+            }
+        }
+    }
+    return nullptr;
 }

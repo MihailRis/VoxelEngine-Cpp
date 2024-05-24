@@ -143,6 +143,10 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
         ));
     }
 
+    if (element->has("tooltip")) {
+        node.setTooltip(util::str2wstr_utf8(element->attr("tooltip").getText()));
+    }
+
     if (auto onclick = create_action(reader, element, "onclick")) {
         node.listenAction(onclick);
     }
@@ -244,6 +248,9 @@ static std::shared_ptr<UINode> readLabel(UiXmlReader& reader, xml::xmlelement el
             element->attr("supplier").getText(),
             reader.getFilename()
         ));
+    }
+    if (element->has("autoresize")) {
+        label->setAutoResize(element->attr("autoresize").asBool());
     }
     if (element->has("multiline")) {
         label->setMultiline(element->attr("multiline").asBool());

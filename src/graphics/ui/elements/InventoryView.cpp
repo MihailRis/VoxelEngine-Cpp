@@ -1,7 +1,9 @@
 #include "InventoryView.hpp"
+
 #include "../../../assets/Assets.hpp"
 #include "../../../content/Content.hpp"
 #include "../../../frontend/LevelFrontend.hpp"
+#include "../../../frontend/locale.hpp"
 #include "../../../items/Inventories.hpp"
 #include "../../../items/Inventory.hpp"
 #include "../../../items/ItemDef.hpp"
@@ -22,7 +24,6 @@
 #include "../../render/BlocksPreview.hpp"
 #include "../GUI.hpp"
 
-#include <iostream>
 #include <glm/glm.hpp>
 
 using namespace gui;
@@ -268,6 +269,17 @@ void SlotView::clicked(gui::GUI* gui, mousecode button) {
 
 void SlotView::onFocus(gui::GUI* gui) {
     clicked(gui, mousecode::BUTTON_1);
+}
+
+const std::wstring SlotView::getTooltip() const {
+    const auto str = UINode::getTooltip();
+    if (!str.empty() || bound->isEmpty()) {
+        return str;
+    }
+    auto def = content->getIndices()->getItemDef(bound->getItemId());
+    return util::capitalized(
+        langs::get(util::str2wstr_utf8(def->caption))
+    ); // TODO: cache
 }
 
 void SlotView::bind(

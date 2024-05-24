@@ -1,9 +1,14 @@
 #include "GUI.hpp"
+
+#include "gui_util.hpp"
+
 #include "elements/UINode.hpp"
+#include "elements/Label.hpp"
 #include "elements/Menu.hpp"
 
 #include "../../assets/Assets.hpp"
 #include "../../frontend/UiDocument.hpp"
+#include "../../frontend/locale.hpp"
 #include "../../graphics/core/Batch2D.hpp"
 #include "../../graphics/core/Shader.hpp"
 #include "../../graphics/core/DrawContext.hpp"
@@ -27,6 +32,15 @@ GUI::GUI() {
     menu->setId("menu");
     container->add(menu);
     container->setScrollable(false);
+
+    tooltip = guiutil::create(
+        "<container color='#000000A0' interactive='false' z-index='999'>"
+            "<label id='tooltip.label' pos='2' autoresize='true'></label>"
+        "</container>"
+    );
+    store("tooltip", tooltip);
+    store("tooltip.label", UINode::find(tooltip, "tooltip.label"));
+    container->add(tooltip);
 }
 
 GUI::~GUI() {
@@ -45,10 +59,34 @@ void GUI::onAssetsLoad(Assets* assets) {
     ), "core:root");
 }
 
+void GUI::updateTooltip(float delta) {
+    float mouseDelta = glm::length(Events::delta);
+    if ((hover && mouseDelta < 1.0f) || 
+        (hover && hover->isInside(Events::cursor) && tooltipTimer >= tooltipDelay)) {
+        if (tooltipTimer + delta >= tooltipDelay) {
+            auto label = std::dynamic_pointer_cast<gui::Label>(get("tooltip.label"));
+            const auto& text = hover->getTooltip();
+            if (label && !text.empty()) {
+                tooltip->setVisible(true);
+                tooltip->setPos(Events::cursor+glm::vec2(10.0f));
+                label->setText(langs::get(text));
+                tooltip->setSize(label->getSize()+glm::vec2(4.0f));
+            }
+        }
+        tooltipTimer += delta;
+    } else {
+        tooltipTimer = 0.0f;
+        tooltip->setVisible(false);
+    }
+}
+
 /// @brief Mouse related input and logic handling 
 void GUI::actMouse(float delta) {
+    updateTooltip(delta);
+
+    float mouseDelta = glm::length(Events::delta);
     doubleClicked = false;
-    doubleClickTimer += delta + glm::length(Events::delta) * 0.1f;
+    doubleClickTimer += delta + mouseDelta * 0.1f;
 
     auto hover = container->getAt(Events::cursor, nullptr);
     if (this->hover && this->hover != hover) {
