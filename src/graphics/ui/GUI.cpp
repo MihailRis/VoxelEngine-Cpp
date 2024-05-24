@@ -68,9 +68,14 @@ void GUI::updateTooltip(float delta) {
             const auto& text = hover->getTooltip();
             if (label && !text.empty()) {
                 tooltip->setVisible(true);
-                tooltip->setPos(Events::cursor+glm::vec2(10.0f));
                 label->setText(langs::get(text));
-                tooltip->setSize(label->getSize()+glm::vec2(4.0f));
+                auto size = label->getSize()+glm::vec2(4.0f);
+                auto pos = Events::cursor+glm::vec2(10.0f);
+                auto rootSize = container->getSize();
+                pos.x = glm::min(pos.x, rootSize.x-size.x);
+                pos.y = glm::min(pos.y, rootSize.y-size.y);
+                tooltip->setSize(size);
+                tooltip->setPos(pos);
             }
         }
         tooltipTimer += delta;
