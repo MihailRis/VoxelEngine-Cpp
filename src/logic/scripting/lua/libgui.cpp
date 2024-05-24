@@ -101,7 +101,7 @@ static int l_container_clear(lua_State* L) {
     return 0;
 }
 
-static int l_uinode_move_into(lua_State* L) {
+static int l_move_into(lua_State* L) {
     auto node = getDocumentNode(L, 1);
     auto dest = getDocumentNode(L, 2);
     UINode::moveInto(node.node, std::dynamic_pointer_cast<Container>(dest.node));
@@ -267,6 +267,9 @@ static int p_get_pressed_color(UINode* node) {
 static int p_get_pos(UINode* node) {
     return lua::pushvec2_arr(state->getLua(), node->getPos());
 }
+static int p_get_wpos(UINode* node) {
+    return lua::pushvec2_arr(state->getLua(), node->calcPos());
+}
 static int p_get_size(UINode* node) {
     return lua::pushvec2_arr(state->getLua(), node->getSize());
 }
@@ -280,7 +283,7 @@ static int p_is_enabled(UINode* node) {
     return state->pushboolean(node->isEnabled());
 }
 static int p_move_into(UINode*) {
-    return state->pushcfunction(l_uinode_move_into);
+    return state->pushcfunction(l_move_into);
 }
 static int p_get_focused(UINode* node) {
     return state->pushboolean(node->isFocused());
@@ -298,6 +301,7 @@ static int l_gui_getattr(lua_State* L) {
         {"hoverColor", p_get_hover_color},
         {"pressedColor", p_get_pressed_color},
         {"pos", p_get_pos},
+        {"wpos", p_get_wpos},
         {"size", p_get_size},
         {"interactive", p_is_interactive},
         {"visible", p_is_visible},
@@ -343,6 +347,9 @@ static void p_set_pressed_color(UINode* node, int idx) {
 }
 static void p_set_pos(UINode* node, int idx) {
     node->setPos(state->tovec2(idx));
+}
+static void p_set_wpos(UINode* node, int idx) {
+    node->setPos(state->tovec2(idx)-node->calcPos());
 }
 static void p_set_size(UINode* node, int idx) {
     node->setSize(state->tovec2(idx));
@@ -458,6 +465,7 @@ static int l_gui_setattr(lua_State* L) {
         {"hoverColor", p_set_hover_color},
         {"pressedColor", p_set_pressed_color},
         {"pos", p_set_pos},
+        {"wpos", p_set_wpos},
         {"size", p_set_size},
         {"interactive", p_set_interactive},
         {"visible", p_set_visible},
