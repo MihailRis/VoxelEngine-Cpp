@@ -109,6 +109,7 @@ SlotView::SlotView(
     layout(layout)
 {
     setColor(glm::vec4(0, 0, 0, 0.2f));
+    setTooltipDelay(0.05f);
 }
 
 void SlotView::draw(const DrawContext* pctx, Assets* assets) {

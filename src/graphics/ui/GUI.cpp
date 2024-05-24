@@ -62,8 +62,8 @@ void GUI::onAssetsLoad(Assets* assets) {
 void GUI::updateTooltip(float delta) {
     float mouseDelta = glm::length(Events::delta);
     if ((hover && mouseDelta < 1.0f) || 
-        (hover && hover->isInside(Events::cursor) && tooltipTimer >= tooltipDelay)) {
-        if (tooltipTimer + delta >= tooltipDelay) {
+        (hover && hover->isInside(Events::cursor) && tooltipTimer >= hover->getTooltipDelay())) {
+        if (tooltipTimer + delta >= hover->getTooltipDelay()) {
             auto label = std::dynamic_pointer_cast<gui::Label>(get("tooltip.label"));
             const auto& text = hover->getTooltip();
             if (label && !text.empty()) {

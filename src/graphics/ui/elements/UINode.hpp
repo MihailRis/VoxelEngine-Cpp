@@ -111,6 +111,8 @@ namespace gui {
         ActionsSet doubleClickCallbacks;
         /// @brief element tooltip text
         std::wstring tooltip;
+        /// @brief element tooltip delay
+        float tooltipDelay = 0.5f;
 
         UINode(glm::vec2 size);
     public:
@@ -201,6 +203,9 @@ namespace gui {
 
         virtual void setTooltip(const std::wstring& text);
         virtual const std::wstring getTooltip() const;
+
+        virtual void setTooltipDelay(float delay);
+        virtual float getTooltipDelay() const;
 
         virtual glm::vec4 calcColor() const;
 

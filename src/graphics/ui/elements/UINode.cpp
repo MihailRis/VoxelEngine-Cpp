@@ -137,6 +137,15 @@ const std::wstring UINode::getTooltip() const {
     return tooltip;
 }
 
+void UINode::setTooltipDelay(float delay) {
+    tooltipDelay = delay;
+}
+
+float UINode::getTooltipDelay() const {
+    return tooltipDelay;
+}
+
+
 glm::vec2 UINode::calcPos() const {
     if (parent) {
         return pos + parent->calcPos() + parent->contentOffset();

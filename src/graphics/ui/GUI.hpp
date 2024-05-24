@@ -65,7 +65,6 @@ namespace gui {
         std::queue<runnable> postRunnables;
 
         float tooltipTimer = 0.0f;
-        float tooltipDelay = 0.5f;
         float doubleClickTimer = 0.0f;
         float doubleClickDelay = 0.5f;
         bool doubleClicked = false;

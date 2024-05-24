@@ -146,6 +146,9 @@ static void _readUINode(UiXmlReader& reader, xml::xmlelement element, UINode& no
     if (element->has("tooltip")) {
         node.setTooltip(util::str2wstr_utf8(element->attr("tooltip").getText()));
     }
+    if (element->has("tooltip-delay")) {
+        node.setTooltipDelay(element->attr("tooltip-delay").asFloat());
+    }
 
     if (auto onclick = create_action(reader, element, "onclick")) {
         node.listenAction(onclick);
