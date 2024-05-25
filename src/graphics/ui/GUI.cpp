@@ -87,8 +87,6 @@ void GUI::updateTooltip(float delta) {
 
 /// @brief Mouse related input and logic handling 
 void GUI::actMouse(float delta) {
-    updateTooltip(delta);
-
     float mouseDelta = glm::length(Events::delta);
     doubleClicked = false;
     doubleClickTimer += delta + mouseDelta * 0.1f;
@@ -177,8 +175,14 @@ void GUI::act(float delta, const Viewport& vp) {
     container->act(delta);
     auto prevfocus = focus;
 
+    updateTooltip(delta);
     if (!Events::_cursor_locked) {
         actMouse(delta);
+    } else {
+        if (hover) {
+            hover->setHover(false);
+            hover = nullptr;
+        }
     }
     
     if (focus) {

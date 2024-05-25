@@ -13,6 +13,9 @@ UINode::~UINode() {
 }
 
 bool UINode::isVisible() const {
+    if (visible && parent) {
+        return parent->isVisible();
+    }
     return visible;
 }
 
@@ -107,7 +110,7 @@ bool UINode::isInside(glm::vec2 point) {
 }
 
 std::shared_ptr<UINode> UINode::getAt(glm::vec2 point, std::shared_ptr<UINode> self) {
-    if (!interactive || !enabled) {
+    if (!isInteractive() || !enabled) {
         return nullptr;
     }
     return isInside(point) ? self : nullptr;
@@ -144,7 +147,6 @@ void UINode::setTooltipDelay(float delay) {
 float UINode::getTooltipDelay() const {
     return tooltipDelay;
 }
-
 
 glm::vec2 UINode::calcPos() const {
     if (parent) {
@@ -330,6 +332,16 @@ void UINode::setGravity(Gravity gravity) {
     if (parent) {
         reposition();
     }
+}
+
+bool UINode::isSubnodeOf(const UINode* node) {
+    if (parent == nullptr) {
+        return false;
+    }
+    if (parent == node) {
+        return true;
+    }
+    return parent->isSubnodeOf(node);
 }
 
 void UINode::getIndices(

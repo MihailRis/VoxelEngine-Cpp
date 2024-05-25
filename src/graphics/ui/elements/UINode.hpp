@@ -245,6 +245,8 @@ namespace gui {
 
         virtual void setGravity(Gravity gravity);
 
+        bool isSubnodeOf(const UINode* node);
+
         /// @brief collect all nodes having id
         static void getIndices(
             const std::shared_ptr<UINode> node,
