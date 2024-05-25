@@ -62,9 +62,11 @@ gui::page_loader_func menus::create_page_loader(Engine* engine) {
         auto file = engine->getResPaths()->find("layouts/pages/"+name+".xml");
         auto fullname = "core:pages/"+name;
 
-        auto document = UiDocument::read(scripting::get_root_environment(), fullname, file).release();
-        engine->getAssets()->store(document, fullname);
-
+        auto document_ptr = UiDocument::read(
+            scripting::get_root_environment(), fullname, file
+        );
+        auto document = document_ptr.get();
+        engine->getAssets()->store(std::move(document_ptr), fullname);
         scripting::on_ui_open(document, std::move(args));
         return document->getRoot();
     };
@@ -75,8 +77,11 @@ UiDocument* menus::show(Engine* engine, const std::string& name, std::vector<dyn
     auto file = engine->getResPaths()->find("layouts/"+name+".xml");
     auto fullname = "core:layouts/"+name;
 
-    auto document = UiDocument::read(scripting::get_root_environment(), fullname, file).release();
-    engine->getAssets()->store(document, fullname);
+    auto document_ptr = UiDocument::read(
+        scripting::get_root_environment(), fullname, file
+    );
+    auto document = document_ptr.get();
+    engine->getAssets()->store(std::move(document_ptr), fullname);
     scripting::on_ui_open(document, std::move(args));
     menu->addPage(name, document->getRoot());
     menu->setPage(name);

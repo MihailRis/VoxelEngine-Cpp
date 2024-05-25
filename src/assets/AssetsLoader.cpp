@@ -218,7 +218,7 @@ bool AssetsLoader::loadExternalTexture(
         if (fs::exists(path)) {
             try {
                 auto image = imageio::read(path.string());
-                assets->store(Texture::from(image.get()).release(), name);
+                assets->store(Texture::from(image.get()), name);
                 return true;
             } catch (const std::exception& err) {
                 logger.error() << "error while loading external " 

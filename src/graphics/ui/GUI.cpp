@@ -51,7 +51,7 @@ std::shared_ptr<Menu> GUI::getMenu() {
 }
 
 void GUI::onAssetsLoad(Assets* assets) {
-    assets->store(new UiDocument(
+    assets->store(std::make_unique<UiDocument>(
         "core:root", 
         uidocscript {}, 
         std::dynamic_pointer_cast<gui::UINode>(container), 
