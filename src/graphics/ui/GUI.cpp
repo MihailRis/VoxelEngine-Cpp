@@ -59,10 +59,17 @@ void GUI::onAssetsLoad(Assets* assets) {
     ), "core:root");
 }
 
+void GUI::resetTooltip() {
+    tooltipTimer = 0.0f;
+    tooltip->setVisible(false);
+}
+
 void GUI::updateTooltip(float delta) {
+    if (hover == nullptr || !hover->isInside(Events::cursor)) {
+        return resetTooltip();
+    }
     float mouseDelta = glm::length(Events::delta);
-    if ((hover && mouseDelta < 1.0f) || 
-        (hover && hover->isInside(Events::cursor) && tooltipTimer >= hover->getTooltipDelay())) {
+    if (mouseDelta < 1.0f || tooltipTimer >= hover->getTooltipDelay()) {
         if (tooltipTimer + delta >= hover->getTooltipDelay()) {
             auto label = std::dynamic_pointer_cast<gui::Label>(get("tooltip.label"));
             const auto& text = hover->getTooltip();
@@ -80,8 +87,7 @@ void GUI::updateTooltip(float delta) {
         }
         tooltipTimer += delta;
     } else {
-        tooltipTimer = 0.0f;
-        tooltip->setVisible(false);
+        resetTooltip();
     }
 }
 

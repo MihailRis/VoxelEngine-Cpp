@@ -72,6 +72,7 @@ namespace gui {
         void actMouse(float delta);
         void actFocused();
         void updateTooltip(float delta);
+        void resetTooltip();
     public:
         GUI();
         ~GUI();
