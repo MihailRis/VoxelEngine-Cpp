@@ -253,11 +253,12 @@ void SlotView::clicked(gui::GUI* gui, mousecode button) {
                 stack.setCount(halfremain);
             }
         } else {
+            auto stackDef = content->getIndices()->getItemDef(stack.getItemId());
             if (stack.isEmpty()) {
                 stack.set(grabbed);
                 stack.setCount(1);
                 grabbed.setCount(grabbed.getCount()-1);
-            } else if (stack.accepts(grabbed)){
+            } else if (stack.accepts(grabbed) && stack.getCount() < stackDef->stackSize){
                 stack.setCount(stack.getCount()+1);
                 grabbed.setCount(grabbed.getCount()-1);
             }
