@@ -10,9 +10,9 @@ class Content;
 class DefaultWorldGenerator : WorldGenerator {
 public:
 
-	DefaultWorldGenerator(const Content* content) : WorldGenerator(content) {}
+    DefaultWorldGenerator(const Content* content) : WorldGenerator(content) {}
 
-	void generate(voxel* voxels, int x, int z, int seed);
+    void generate(voxel* voxels, int x, int z, int seed);
 };
 
-#endif /* VOXELS_DEFAULTWORLDGENERATOR_HPP_ */
+#endif // VOXELS_DEFAULTWORLDGENERATOR_HPP_
