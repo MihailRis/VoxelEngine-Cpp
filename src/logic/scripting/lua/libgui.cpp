@@ -50,8 +50,8 @@ static DocumentNode getDocumentNode(lua_State*, const std::string& name, const s
 static DocumentNode getDocumentNode(lua_State* L, int idx=1) {
     lua_getfield(L, idx, "docname");
     lua_getfield(L, idx, "name");
-    auto docname = lua_tostring(L, -2);
-    auto name = lua_tostring(L, -1);
+    auto docname = state->requireString(-2);
+    auto name = state->requireString(-1);
     auto node = getDocumentNode(L, docname, name);
     lua_pop(L, 2);
     return node;
@@ -74,7 +74,7 @@ static int l_menu_reset(lua_State* L) {
 static int l_textbox_paste(lua_State* L) {
     auto node = getDocumentNode(L);
     auto box = dynamic_cast<TextBox*>(node.node.get());
-    auto text = lua_tostring(L, 2);
+    auto text = state->requireString(2);
     box->paste(util::str2wstr_utf8(text));
     return 0;
 }
@@ -82,7 +82,7 @@ static int l_textbox_paste(lua_State* L) {
 static int l_container_add(lua_State* L) {
     auto docnode = getDocumentNode(L);
     auto node = dynamic_cast<Container*>(docnode.node.get());
-    auto xmlsrc = lua_tostring(L, 2);
+    auto xmlsrc = state->requireString(2);
     try {
         auto subnode = guiutil::create(xmlsrc, docnode.document->getEnvironment());
         node->add(subnode);
@@ -296,9 +296,9 @@ static int p_get_focused(UINode* node) {
 }
 
 static int l_gui_getattr(lua_State* L) {
-    auto docname = lua_tostring(L, 1);
-    auto element = lua_tostring(L, 2);
-    auto attr = lua_tostring(L, 3);
+    auto docname = state->requireString(1);
+    auto element = state->requireString(2);
+    auto attr = state->requireString(3);
     auto docnode = getDocumentNode(L, docname, element);
     auto node = docnode.node;
 
@@ -354,7 +354,7 @@ static void p_set_pressed_color(UINode* node, int idx) {
     node->setPressedColor(state->tocolor(idx));
 }
 static void p_set_tooltip(UINode* node, int idx) {
-    node->setTooltip(util::str2wstr_utf8(state->tostring(idx)));
+    node->setTooltip(util::str2wstr_utf8(state->requireString(idx)));
 }
 static void p_set_tooltip_delay(UINode* node, int idx) {
     node->setTooltipDelay(state->tonumber(idx));
@@ -379,16 +379,16 @@ static void p_set_enabled(UINode* node, int idx) {
 }
 static void p_set_placeholder(UINode* node, int idx) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
-        box->setPlaceholder(util::str2wstr_utf8(state->tostring(idx)));
+        box->setPlaceholder(util::str2wstr_utf8(state->requireString(idx)));
     }
 }
 static void p_set_text(UINode* node, int idx) {
     if (auto label = dynamic_cast<Label*>(node)) {
-        label->setText(util::str2wstr_utf8(state->tostring(idx)));
+        label->setText(util::str2wstr_utf8(state->requireString(idx)));
     } else if (auto button = dynamic_cast<Button*>(node)) {
-        button->setText(util::str2wstr_utf8(state->tostring(idx)));
+        button->setText(util::str2wstr_utf8(state->requireString(idx)));
     } else if (auto box = dynamic_cast<TextBox*>(node)) {
-        box->setText(util::str2wstr_utf8(state->tostring(idx)));
+        box->setText(util::str2wstr_utf8(state->requireString(idx)));
     }
 }
 static void p_set_caret(UINode* node, int idx) {
@@ -445,7 +445,7 @@ static void p_set_checked(UINode* node, int idx) {
 }
 static void p_set_page(UINode* node, int idx) {
     if (auto menu = dynamic_cast<Menu*>(node)) {
-        menu->setPage(state->tostring(idx));
+        menu->setPage(state->requireString(idx));
     }
 }
 static void p_set_inventory(UINode* node, int idx) {
@@ -467,9 +467,9 @@ static void p_set_focused(std::shared_ptr<UINode> node, int idx) {
 }
 
 static int l_gui_setattr(lua_State* L) {
-    auto docname = lua_tostring(L, 1);
-    auto element = lua_tostring(L, 2);
-    auto attr = lua_tostring(L, 3);
+    auto docname = state->requireString(1);
+    auto element = state->requireString(2);
+    auto attr = state->requireString(3);
 
     auto docnode = getDocumentNode(L, docname, element);
     auto node = docnode.node;
@@ -516,7 +516,7 @@ static int l_gui_setattr(lua_State* L) {
 }
 
 static int l_gui_get_env(lua_State* L) {
-    auto name = lua_tostring(L, 1);
+    auto name = state->requireString(1);
     auto doc = scripting::engine->getAssets()->getLayout(name);
     if (doc == nullptr) {
         throw std::runtime_error("document '"+std::string(name)+"' not found");
@@ -526,9 +526,9 @@ static int l_gui_get_env(lua_State* L) {
 }
 
 static int l_gui_str(lua_State* L) {
-    auto text = util::str2wstr_utf8(lua_tostring(L, 1));
+    auto text = util::str2wstr_utf8(state->requireString(1));
     if (!lua_isnoneornil(L, 2)) {
-        auto context = util::str2wstr_utf8(lua_tostring(L, 2));
+        auto context = util::str2wstr_utf8(state->requireString(2));
         lua_pushstring(L, util::wstr2str_utf8(langs::get(text, context)).c_str());
     } else {
         lua_pushstring(L, util::wstr2str_utf8(langs::get(text)).c_str());
@@ -537,7 +537,7 @@ static int l_gui_str(lua_State* L) {
 }
 
 static int l_gui_reindex(lua_State* L) {
-    auto name = lua_tostring(L, 1);
+    auto name = state->requireString(1);
     auto doc = scripting::engine->getAssets()->getLayout(name);
     if (doc == nullptr) {
         throw std::runtime_error("document '"+std::string(name)+"' not found");
@@ -569,7 +569,7 @@ const luaL_Reg guilib [] = {
     {"setattr", lua_wrap_errors<l_gui_setattr>},
     {"get_env", lua_wrap_errors<l_gui_get_env>},
     {"str", lua_wrap_errors<l_gui_str>},
-    {"reindex", lua_wrap_errors<l_gui_reindex>},
     {"get_locales_info", lua_wrap_errors<l_gui_get_locales_info>},
+    {"__reindex", lua_wrap_errors<l_gui_reindex>},
     {NULL, NULL}
 };

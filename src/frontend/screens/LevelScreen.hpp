@@ -17,11 +17,11 @@ class Level;
 
 class LevelScreen : public Screen {
     std::unique_ptr<LevelFrontend> frontend;
-    std::unique_ptr<Hud> hud;
     std::unique_ptr<LevelController> controller;
     std::unique_ptr<WorldRenderer> worldRenderer;
     std::unique_ptr<TextureAnimator> animator;
     std::unique_ptr<PostProcessing> postProcessing;
+    std::unique_ptr<Hud> hud;
 
     void saveWorldPreview();
 
