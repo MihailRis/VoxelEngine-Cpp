@@ -50,16 +50,11 @@ std::unique_ptr<ubyte[]> regfile::read(int index, uint32_t& length) {
 }
 
 WorldRegion::WorldRegion() {
-    chunksData = new ubyte*[REGION_CHUNKS_COUNT]{};
-    sizes = new uint32_t[REGION_CHUNKS_COUNT]{};
+    chunksData = std::make_unique<std::unique_ptr<ubyte[]>[]>(REGION_CHUNKS_COUNT);
+    sizes = std::make_unique<uint32_t[]>(REGION_CHUNKS_COUNT);
 }
 
 WorldRegion::~WorldRegion() {
-    for (uint i = 0; i < REGION_CHUNKS_COUNT; i++) {
-        delete[] chunksData[i];
-    }
-    delete[] sizes;
-    delete[] chunksData;
 }
 
 void WorldRegion::setUnsaved(bool unsaved) {
@@ -69,23 +64,22 @@ bool WorldRegion::isUnsaved() const {
     return unsaved;
 }
 
-ubyte** WorldRegion::getChunks() const {
-    return chunksData;
+std::unique_ptr<ubyte[]>* WorldRegion::getChunks() const {
+    return chunksData.get();
 }
 
 uint32_t* WorldRegion::getSizes() const {
-    return sizes;
+    return sizes.get();
 }
 
 void WorldRegion::put(uint x, uint z, ubyte* data, uint32_t size) {
     size_t chunk_index = z * REGION_SIZE + x;
-    delete[] chunksData[chunk_index];
-    chunksData[chunk_index] = data;
+    chunksData[chunk_index].reset(data);
     sizes[chunk_index] = size;
 }
 
 ubyte* WorldRegion::getChunkData(uint x, uint z) {
-    return chunksData[z * REGION_SIZE + x];
+    return chunksData[z * REGION_SIZE + x].get();
 }
 
 uint WorldRegion::getChunkDataSize(uint x, uint z) {
@@ -165,14 +159,14 @@ std::unique_ptr<ubyte[]> WorldRegions::readChunkData(
 
 /// @brief Read missing chunks data (null pointers) from region file 
 void WorldRegions::fetchChunks(WorldRegion* region, int x, int z, regfile* file) {
-    ubyte** chunks = region->getChunks();
+    auto* chunks = region->getChunks();
     uint32_t* sizes = region->getSizes();
 
     for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
         int chunk_x = (i % REGION_SIZE) + x * REGION_SIZE;
         int chunk_z = (i / REGION_SIZE) + z * REGION_SIZE;
         if (chunks[i] == nullptr) {
-            chunks[i] = readChunkData(chunk_x, chunk_z, sizes[i], file).release();
+            chunks[i] = readChunkData(chunk_x, chunk_z, sizes[i], file);
         }
     }
 }
@@ -294,11 +288,11 @@ void WorldRegions::writeRegion(int x, int z, int layer, WorldRegion* entry){
     char intbuf[4]{};
     uint offsets[REGION_CHUNKS_COUNT]{};
     
-    ubyte** region = entry->getChunks();
+    auto* region = entry->getChunks();
     uint32_t* sizes = entry->getSizes();
     
     for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
-        ubyte* chunk = region[i];
+        ubyte* chunk = region[i].get();
         if (chunk == nullptr){
             offsets[i] = 0;
         } else {

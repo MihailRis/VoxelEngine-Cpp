@@ -38,8 +38,8 @@ public:
 };
 
 class WorldRegion {
-    ubyte** chunksData;
-    uint32_t* sizes;
+    std::unique_ptr<std::unique_ptr<ubyte[]>[]> chunksData;
+    std::unique_ptr<uint32_t[]> sizes;
     bool unsaved = false;
 public:
     WorldRegion();
@@ -52,7 +52,7 @@ public:
     void setUnsaved(bool unsaved);
     bool isUnsaved() const;
 
-    ubyte** getChunks() const;
+    std::unique_ptr<ubyte[]>* getChunks() const;
     uint32_t* getSizes() const;
 };
 
