@@ -147,10 +147,7 @@ inline void calc_reg_coords(
 }
 
 std::unique_ptr<ubyte[]> WorldRegions::readChunkData(
-    int x, 
-    int z, 
-    uint32_t& length, 
-    regfile* rfile
+    int x, int z, uint32_t& length, regfile* rfile
 ){
     int regionX, regionZ, localX, localZ;
     calc_reg_coords(x, z, regionX, regionZ, localX, localZ);
@@ -352,9 +349,7 @@ static std::unique_ptr<ubyte[]> write_inventories(Chunk* chunk, uint& datasize) 
     auto datavec = builder.data();
     datasize = builder.size();
     auto data = std::make_unique<ubyte[]>(datasize);
-    for (uint i = 0; i < datasize; i++) {
-        data[i] = datavec[i];
-    }
+    std::memcpy(data.get(), datavec, datasize);
     return data;
 }
 
