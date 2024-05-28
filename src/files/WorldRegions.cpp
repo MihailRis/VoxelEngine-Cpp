@@ -49,10 +49,10 @@ std::unique_ptr<ubyte[]> regfile::read(int index, uint32_t& length) {
     return data;
 }
 
-WorldRegion::WorldRegion() {
-    chunksData = std::make_unique<std::unique_ptr<ubyte[]>[]>(REGION_CHUNKS_COUNT);
-    sizes = std::make_unique<uint32_t[]>(REGION_CHUNKS_COUNT);
-}
+WorldRegion::WorldRegion()
+  : chunksData(std::make_unique<std::unique_ptr<ubyte[]>[]>(REGION_CHUNKS_COUNT)),
+    sizes(std::make_unique<uint32_t[]>(REGION_CHUNKS_COUNT))
+{}
 
 WorldRegion::~WorldRegion() {
 }
@@ -108,13 +108,14 @@ WorldRegion* WorldRegions::getRegion(int x, int z, int layer) {
 }
 
 WorldRegion* WorldRegions::getOrCreateRegion(int x, int z, int layer) {
-    WorldRegion* region = getRegion(x, z, layer);
-    if (region == nullptr) {
-        RegionsLayer& regions = layers[layer];
-        std::lock_guard lock(regions.mutex);
-        region = new WorldRegion();
-        regions.regions[glm::ivec2(x, z)].reset(region);
+    if (auto region = getRegion(x, z, layer)) {
+        return region;
     }
+    RegionsLayer& regions = layers[layer];
+    std::lock_guard lock(regions.mutex);
+    auto region_ptr = std::make_unique<WorldRegion>();
+    auto region = region_ptr.get();
+    regions.regions[{x, z}] = std::move(region_ptr);
     return region;
 }
 
@@ -299,7 +300,7 @@ void WorldRegions::writeRegion(int x, int z, int layer, WorldRegion* entry){
             offsets[i] = offset;
 
             size_t compressedSize = sizes[i];
-            dataio::write_int32_big(compressedSize, (ubyte*)intbuf, 0);
+            dataio::write_int32_big(compressedSize, reinterpret_cast<ubyte*>(intbuf), 0);
             offset += 4 + compressedSize;
 
             file.write(intbuf, 4);
@@ -307,7 +308,7 @@ void WorldRegions::writeRegion(int x, int z, int layer, WorldRegion* entry){
         }
     }
     for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
-        dataio::write_int32_big(offsets[i], (ubyte*)intbuf, 0);
+        dataio::write_int32_big(offsets[i], reinterpret_cast<ubyte*>(intbuf), 0);
         file.write(intbuf, 4);
     }
 }
@@ -357,7 +358,7 @@ static std::unique_ptr<ubyte[]> write_inventories(Chunk* chunk, uint& datasize) 
     return data;
 }
 
-/// @brief Store chunk (voxels and lights) in region (existing or new)
+/// @brief Store chunk data (voxels and lights) in region (existing or new)
 void WorldRegions::put(Chunk* chunk){
     assert(chunk != nullptr);
 
