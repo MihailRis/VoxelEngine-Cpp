@@ -83,7 +83,7 @@ void Label::setText(std::wstring text) {
     this->text = text;
     cache.update(this->text, multiline, textWrap);
 
-    if (cache.font) {
+    if (cache.font && autoresize) {
         setSize(calcSize());
     }
 }
