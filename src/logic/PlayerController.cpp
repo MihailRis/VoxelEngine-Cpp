@@ -170,7 +170,7 @@ glm::vec3 PlayerController::selectedBlockPosition;
 glm::vec3 PlayerController::selectedPointPosition;
 glm::ivec3 PlayerController::selectedBlockNormal;
 int PlayerController::selectedBlockId = -1;
-int PlayerController::selectedBlockStates = 0;
+int PlayerController::selectedBlockRotation = 0;
 
 PlayerController::PlayerController(
     Level* level, 
@@ -250,7 +250,7 @@ void PlayerController::update(float delta, bool input, bool pause) {
         updateInteraction();
     } else {
         selectedBlockId = -1;
-        selectedBlockStates = 0;
+        selectedBlockRotation = 0;
     }
 }
 
@@ -365,7 +365,7 @@ void PlayerController::updateInteraction(){
     if (vox != nullptr){
         player->selectedVoxel = *vox;
         selectedBlockId = vox->id;
-        selectedBlockStates = vox->states;
+        selectedBlockRotation = vox->rotation();
         selectedBlockPosition = iend;
         selectedPointPosition = end;
         selectedBlockNormal = norm;
@@ -442,7 +442,7 @@ void PlayerController::updateInteraction(){
         }
     } else {
         selectedBlockId = -1;
-        selectedBlockStates = 0;
+        selectedBlockRotation = 0;
     }
     if (rclick) {
         if (item->rt.funcsset.on_use) {

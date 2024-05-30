@@ -81,7 +81,7 @@ public:
     static glm::ivec3 selectedBlockNormal;
     static glm::vec3 selectedPointPosition;
     static int selectedBlockId;
-    static int selectedBlockStates;
+    static int selectedBlockRotation;
 
     PlayerController(
         Level* level, 

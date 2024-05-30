@@ -199,7 +199,7 @@ void WorldRenderer::renderBlockSelection(Camera* camera, Shader* linesShader) {
     const glm::vec3 norm = PlayerController::selectedBlockNormal;
 
     const std::vector<AABB>& hitboxes = block->rotatable
-        ? block->rt.hitboxes[PlayerController::selectedBlockStates]
+        ? block->rt.hitboxes[PlayerController::selectedBlockRotation]
         : block->hitboxes;
 
     linesShader->use();
