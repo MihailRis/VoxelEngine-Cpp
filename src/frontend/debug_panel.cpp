@@ -139,8 +139,8 @@ std::shared_ptr<UINode> create_debug_panel(
     }
     {
         auto bar = std::make_shared<TrackBar>(0.0f, 1.0f, 0.0f, 0.005f, 8);
-        bar->setSupplier([=]() {return WorldRenderer::fog;});
-        bar->setConsumer([=](double val) {WorldRenderer::fog = val;});
+        bar->setSupplier([=]() {return level->getWorld()->fog;});
+        bar->setConsumer([=](double val) {level->getWorld()->fog = val;});
         panel->add(bar);
     }
     {

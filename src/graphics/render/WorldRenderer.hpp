@@ -76,8 +76,6 @@ public:
         Camera* camera, 
         const EngineSettings& settings
     );
-
-    static float fog;
 };
 
 

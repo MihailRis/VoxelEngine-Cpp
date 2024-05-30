@@ -194,18 +194,19 @@ void World::deserialize(dynamic::Map* root) {
     if (generator == "") {
         generator = WorldGenerators::getDefaultGeneratorID();
     }
-    auto verobj = root->map("version");
-    if (verobj) {
+    if (auto verobj = root->map("version")) {
         int major=0, minor=-1;
         verobj->num("major", major);
         verobj->num("minor", minor);
-        std::cout << "world version: " << major << "." << minor << std::endl;
+        logger.info() << "world version: " << major << "." << minor;
     }
-    auto timeobj = root->map("time");
-    if (timeobj) {
+    if (auto timeobj = root->map("time")) {
         timeobj->num("day-time", daytime);
         timeobj->num("day-time-speed", daytimeSpeed);
         timeobj->num("total-time", totalTime);
+    }
+    if (auto weatherobj = root->map("weather")) {
+        weatherobj->num("fog", fog);
     }
     nextInventoryId = root->get("next-inventory-id", 2);
 }
@@ -225,6 +226,9 @@ std::unique_ptr<dynamic::Map> World::serialize() const {
     timeobj.put("day-time", daytime);
     timeobj.put("day-time-speed", daytimeSpeed);
     timeobj.put("total-time", totalTime);
+
+    auto& weatherobj = root->putMap("weather");
+    weatherobj.put("fog", fog);
 
     root->put("next-inventory-id", nextInventoryId);
     return root;

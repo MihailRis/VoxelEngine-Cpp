@@ -274,11 +274,12 @@ void WorldRenderer::draw(
     bool hudVisible, 
     PostProcessing* postProcessing
 ){
+    auto world = level->getWorld();
     const Viewport& vp = pctx.getViewport();
     camera->aspect = vp.getWidth() / static_cast<float>(vp.getHeight());
 
     const EngineSettings& settings = engine->getSettings();
-    skybox->refresh(pctx, level->getWorld()->daytime, 1.0f+fog*2.0f, 4);
+    skybox->refresh(pctx, world->daytime, 1.0f+world->fog*2.0f, 4);
 
     Assets* assets = engine->getAssets();
     Shader* linesShader = assets->getShader("lines");
@@ -291,7 +292,7 @@ void WorldRenderer::draw(
         Window::clearDepth();
 
         // Drawing background sky plane
-        skybox->draw(pctx, camera, assets, level->getWorld()->daytime, fog);
+        skybox->draw(pctx, camera, assets, world->daytime, world->fog);
         
         // Actually world render with depth buffer on
         {
@@ -355,5 +356,3 @@ void WorldRenderer::drawBorders(int sx, int sy, int sz, int ex, int ey, int ez) 
     }
     lineBatch->render();
 }
-
-float WorldRenderer::fog = 0.0f;
