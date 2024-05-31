@@ -42,12 +42,12 @@ void Chunk::updateHeights() {
 void Chunk::addBlockInventory(std::shared_ptr<Inventory> inventory, 
                               uint x, uint y, uint z) {
     inventories[vox_index(x, y, z)] = inventory;
-    setUnsaved(true);
+    flags.unsaved = true;
 }
 
 void Chunk::removeBlockInventory(uint x, uint y, uint z) {
     if (inventories.erase(vox_index(x, y, z))) {
-        setUnsaved(true);
+        flags.unsaved = true;
     }
 }
 

@@ -186,14 +186,14 @@ void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state)
     else if (id == 0) chunk->updateHeights();
 
     if (lx == 0 && (chunk = getChunk(cx+ox-1, cz+oz)))
-        chunk->setModified(true);
+        chunk->flags.modified = true;
     if (lz == 0 && (chunk = getChunk(cx+ox, cz+oz-1))) 
-        chunk->setModified(true);
+        chunk->flags.modified = true;
 
     if (lx == CHUNK_W-1 && (chunk = getChunk(cx+ox+1, cz+oz))) 
-        chunk->setModified(true);
+        chunk->flags.modified = true;
     if (lz == CHUNK_D-1 && (chunk = getChunk(cx+ox, cz+oz+1))) 
-        chunk->setModified(true);
+        chunk->flags.modified = true;
 }
 
 voxel* Chunks::rayCast(
@@ -497,12 +497,12 @@ void Chunks::saveAndClear(){
     for (size_t i = 0; i < volume; i++){
         Chunk* chunk = chunks[i].get();
         chunks[i] = nullptr;
-        if (chunk == nullptr || !chunk->isLighted())
+        if (chunk == nullptr || !chunk->flags.lighted)
             continue;
         
-        bool lightsUnsaved = !chunk->isLoadedLights() && 
+        bool lightsUnsaved = !chunk->flags.loadedLights && 
                               worldFiles->doesWriteLights();
-        if (!chunk->isUnsaved() && !lightsUnsaved)
+        if (!chunk->flags.unsaved && !lightsUnsaved)
             continue;
         regions.put(chunk);
     }

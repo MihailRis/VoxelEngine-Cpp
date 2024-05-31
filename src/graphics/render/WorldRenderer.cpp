@@ -79,7 +79,7 @@ bool WorldRenderer::drawChunk(
     bool culling
 ){
     auto chunk = level->chunks->chunks[index];
-    if (!chunk->isLighted()) {
+    if (!chunk->flags.lighted) {
         return false;
     }
     float distance = glm::distance(
