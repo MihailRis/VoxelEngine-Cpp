@@ -25,8 +25,8 @@ inline constexpr uint BLOCK_AABB_GRID = 16;
 inline std::string DEFAULT_MATERIAL = "base:stone";
 
 struct block_funcs_set {
-	bool init: 1;
-	bool update: 1;
+    bool init: 1;
+    bool update: 1;
     bool onplaced: 1;
     bool onbroken: 1;
     bool oninteract: 1;
@@ -35,46 +35,46 @@ struct block_funcs_set {
 };
 
 struct CoordSystem {
-	glm::ivec3 axisX;
-	glm::ivec3 axisY;
-	glm::ivec3 axisZ;
+    glm::ivec3 axisX;
+    glm::ivec3 axisY;
+    glm::ivec3 axisZ;
 
-	/// @brief Grid 3d position fix offset (for negative vectors)
-	glm::ivec3 fix;
+    /// @brief Grid 3d position fix offset (for negative vectors)
+    glm::ivec3 fix;
 
-	CoordSystem() = default;
-	CoordSystem(glm::ivec3 axisX, glm::ivec3 axisY, glm::ivec3 axisZ);
+    CoordSystem() = default;
+    CoordSystem(glm::ivec3 axisX, glm::ivec3 axisY, glm::ivec3 axisZ);
 
-	void transform(AABB& aabb) const;
+    void transform(AABB& aabb) const;
 
-	inline bool isVectorHasNegatives(glm::ivec3 vec) {
-		return (vec.x < 0 || vec.y < 0 || vec.z < 0);
-	}
+    inline bool isVectorHasNegatives(glm::ivec3 vec) {
+        return (vec.x < 0 || vec.y < 0 || vec.z < 0);
+    }
 };
 
 struct BlockRotProfile {
-	static const int MAX_COUNT = 8;
-	std::string name;
-	CoordSystem variants[MAX_COUNT];
+    static const int MAX_COUNT = 8;
+    std::string name;
+    CoordSystem variants[MAX_COUNT];
 
-	/// @brief Wood logs, pillars, pipes
-	static const BlockRotProfile PIPE;
+    /// @brief Wood logs, pillars, pipes
+    static const BlockRotProfile PIPE;
 
-	/// @brief Doors, signs and other panes
-	static const BlockRotProfile PANE;
+    /// @brief Doors, signs and other panes
+    static const BlockRotProfile PANE;
 };
 
 enum class BlockModel {
-	/// @brief invisible
-	none,
-	/// @brief default cube shape
-	block,
-	/// @brief X-shape (grass)
-	xsprite,
-	/// @brief box shape sized as block hitbox
-	aabb,
-	/// @brief custom model defined in json
-	custom
+    /// @brief invisible
+    none,
+    /// @brief default cube shape
+    block,
+    /// @brief X-shape (grass)
+    xsprite,
+    /// @brief box shape sized as block hitbox
+    aabb,
+    /// @brief custom model defined in json
+    custom
 };
 
 using BoxModel = AABB;
@@ -82,61 +82,61 @@ using BoxModel = AABB;
 
 /// @brief Common kit of block properties applied to groups of blocks
 struct BlockMaterial {
-	std::string name;
-	std::string stepsSound {""};
-	std::string placeSound {""};
-	std::string breakSound {""};
+    std::string name;
+    std::string stepsSound {""};
+    std::string placeSound {""};
+    std::string breakSound {""};
 };
 
 /// @brief Block properties definition
 class Block {
 public:
-	/// @brief Block string id (with prefix included)
-	std::string const name;
+    /// @brief Block string id (with prefix included)
+    std::string const name;
 
-	std::string caption;
-	
+    std::string caption;
+    
     /// @brief Textures set applied to block sides
-	std::string textureFaces[6]; // -x,x, -y,y, -z,z
-	
-	std::vector<std::string> modelTextures = {};
-	std::vector<BoxModel> modelBoxes = {};
-	std::vector<glm::vec3> modelExtraPoints = {}; //initially made for tetragons
-	std::vector<UVRegion> modelUVs = {}; // boxes' tex-UVs also there
+    std::string textureFaces[6]; // -x,x, -y,y, -z,z
+    
+    std::vector<std::string> modelTextures = {};
+    std::vector<BoxModel> modelBoxes = {};
+    std::vector<glm::vec3> modelExtraPoints = {}; //initially made for tetragons
+    std::vector<UVRegion> modelUVs = {}; // boxes' tex-UVs also there
 
     /// @brief id of used BlockMaterial, may specify non-existing material
     std::string material = DEFAULT_MATERIAL;
 
-	/// @brief Light emission R, G, B, S (sky lights: sun, moon, radioactive clouds)
-	uint8_t emission[4] {0, 0, 0, 0};
+    /// @brief Light emission R, G, B, S (sky lights: sun, moon, radioactive clouds)
+    uint8_t emission[4] {0, 0, 0, 0};
 
-	/// @brief Influences visible block sides for transparent blocks
-	uint8_t drawGroup = 0;
-	
+    /// @brief Influences visible block sides for transparent blocks
+    uint8_t drawGroup = 0;
+    
     /// @brief Block model type
-	BlockModel model = BlockModel::block;
-	
+    BlockModel model = BlockModel::block;
+    
     /// @brief Does the block passing lights into itself
-	bool lightPassing = false;
-	
+    bool lightPassing = false;
+    
     /// @brief Does the block passing top-down sky lights into itself
-	bool skyLightPassing = false;
-	
+    bool skyLightPassing = false;
+    
     /// @brief Is the block a physical obstacle
-	bool obstacle = true;
-	
+    bool obstacle = true;
+    
     /// @brief Can the block be selected
-	bool selectable = true;
-	
+    bool selectable = true;
+    
     /// @brief Can the block be replaced with other. 
-	/// Examples of replaceable blocks: air, flower, water
-	bool replaceable = false;
-	
+    /// Examples of replaceable blocks: air, flower, water
+    bool replaceable = false;
+    
     /// @brief Can player destroy the block
-	bool breakable = true;
-	
+    bool breakable = true;
+    
     /// @brief Can the block be oriented different ways
-	bool rotatable = false;
+    bool rotatable = false;
     
     /// @brief Can the block exist without physical support be a solid block below
     bool grounded = false;
@@ -146,46 +146,46 @@ public:
     
     /// @brief Set of block physical hitboxes
     std::vector<AABB> hitboxes;
-	
+    
     /// @brief Set of available block rotations (coord-systems)
-	BlockRotProfile rotations;
+    BlockRotProfile rotations;
     
     /// @brief Item will be picked on MMB click on the block
     std::string pickingItem = name+BLOCK_ITEM_SUFFIX;
     
     /// @brief Block script name in blocks/ without extension
     std::string scriptName = name.substr(name.find(':')+1);	
-	
+    
     /// @brief Default block layout will be used by hud.open_block(...)
-	std::string uiLayout = name;
+    std::string uiLayout = name;
     
     /// @brief Block inventory size. 0 - no inventory
     uint inventorySize = 0;
 
-	/// @brief Runtime indices (content indexing results)
-	struct {
-		/// @brief block runtime integer id
-		blockid_t id;
-		
+    /// @brief Runtime indices (content indexing results)
+    struct {
+        /// @brief block runtime integer id
+        blockid_t id;
+        
         /// @brief is the block completely opaque for render and raycast
-		bool solid = true;
-		
+        bool solid = true;
+        
         /// @brief does the block emit any lights
-		bool emissive = false;
+        bool emissive = false;
         
         /// @brief set of hitboxes sets with all coord-systems precalculated
         std::vector<AABB> hitboxes[BlockRotProfile::MAX_COUNT];
-		
+        
         /// @brief set of block callbacks flags
-		block_funcs_set funcsset {};
+        block_funcs_set funcsset {};
         
         /// @brief picking item integer id
         itemid_t pickingItem = 0;
-	} rt;
+    } rt;
 
-	Block(std::string name);
-	Block(std::string name, std::string texture);
-	Block(const Block&) = delete;
+    Block(std::string name);
+    Block(std::string name, std::string texture);
+    Block(const Block&) = delete;
 };
 
 #endif /* VOXELS_BLOCK_HPP_ */
