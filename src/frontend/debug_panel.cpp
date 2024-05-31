@@ -73,7 +73,6 @@ std::shared_ptr<UINode> create_debug_panel(
                L" visible: "+std::to_wstring(level->chunks->visible);
     }));
     panel->add(create_label([=](){
-        auto* indices = level->content->getIndices();
         std::wstringstream stream;
         stream << "r:" << player->selectedVoxel.state.rotation << " s:"
                << player->selectedVoxel.state.segment << " u:"
