@@ -12,7 +12,7 @@ inline constexpr int BLOCK_DIR_DOWN = 0x5;
 
 struct blockstate {
     uint8_t rotation : 3;
-    uint8_t segment : 2;
+    uint8_t segment : 2; // planned to 0.22
     uint8_t reserved : 3;
     uint8_t userbits : 8;
 };
@@ -38,5 +38,6 @@ struct voxel {
     blockid_t id;
     blockstate state;
 };
+static_assert(sizeof(voxel) == 4);
 
 #endif // VOXELS_VOXEL_HPP_
