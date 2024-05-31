@@ -41,7 +41,6 @@ public:
     Chunk* getChunk(int32_t x, int32_t z);
     Chunk* getChunkByVoxel(int32_t x, int32_t y, int32_t z);
     voxel* get(int32_t x, int32_t y, int32_t z);
-    light_t getLight(int32_t x, int32_t y, int32_t z);
     ubyte getLight(int32_t x, int32_t y, int32_t z, int channel);
     void set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state);
 
@@ -60,9 +59,6 @@ public:
     bool isSolidBlock(int32_t x, int32_t y, int32_t z);
     bool isReplaceableBlock(int32_t x, int32_t y, int32_t z);
     bool isObstacleBlock(int32_t x, int32_t y, int32_t z);
-
-    // does not move chunks inside
-    void _setOffset(int32_t x, int32_t z);
 
     void setCenter(int32_t x, int32_t z);
     void translate(int32_t x, int32_t z);

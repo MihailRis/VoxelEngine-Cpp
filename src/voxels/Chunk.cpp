@@ -1,6 +1,7 @@
 #include "Chunk.hpp"
 
 #include "voxel.hpp"
+#include "Block.hpp"
 
 #include "../items/Inventory.hpp"
 #include "../content/ContentLUT.hpp"
@@ -115,6 +116,16 @@ bool Chunk::decode(const ubyte* data) {
         vox.state = int2blockstate((blockstate_t(bst1) << 8) | (blockstate_t(bst2)));
     }
     return true;
+}
+
+void Chunk::onLoad(const Content* content) {
+    auto contentIds = content->getIndices();
+    for (uint i = 0; i < CHUNK_VOL; i++) {
+        auto def = contentIds->getBlockDef(voxels[i].id);
+        if (def->rt.funcsset.onblocktick) {
+            updatingBlocks.push_front(i);
+        }
+    }
 }
 
 void Chunk::convert(ubyte* data, const ContentLUT* lut) {

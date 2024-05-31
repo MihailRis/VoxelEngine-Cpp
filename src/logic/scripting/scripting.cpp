@@ -158,6 +158,14 @@ void scripting::on_blocks_tick(const Block* block, int tps) {
     });
 }
 
+void scripting::on_block_tick(const Block* block, int x, int y, int z) {
+    std::string name = block->name + ".blocktick";
+    state->emit_event(name, [x, y, z] (lua::LuaState* state) {
+        state->pushivec3(x, y, z);
+        return 3; 
+    });
+}
+
 void scripting::update_block(const Block* block, int x, int y, int z) {
     std::string name = block->name + ".update";
     state->emit_event(name, [x, y, z] (lua::LuaState* state) {
@@ -290,6 +298,7 @@ void scripting::load_block_script(scriptenv senv, std::string prefix, fs::path f
     funcsset.onbroken = register_event(env, "on_broken", prefix+".broken");
     funcsset.onplaced = register_event(env, "on_placed", prefix+".placed");
     funcsset.oninteract = register_event(env, "on_interact", prefix+".interact");
+    funcsset.onblocktick = register_event(env, "on_block_tick", prefix+".blocktick");
     funcsset.onblockstick = register_event(env, "on_blocks_tick", prefix+".blockstick");
 }
 

@@ -119,25 +119,6 @@ ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel){
     return chunk->lightmap.get(lx, ly, lz, channel);
 }
 
-light_t Chunks::getLight(int32_t x, int32_t y, int32_t z){
-    x -= ox * CHUNK_W;
-    z -= oz * CHUNK_D;
-    int cx = floordiv(x, CHUNK_W);
-    int cy = floordiv(y, CHUNK_H);
-    int cz = floordiv(z, CHUNK_D);
-    if (cx < 0 || cy < 0 || cz < 0 || cx >= int(w) || cy >= 1 || cz >= int(d)) {
-        return 0;
-    }
-    const auto& chunk = chunks[(cy * d + cz) * w + cx];
-    if (chunk == nullptr) {
-        return 0;
-    }
-    int lx = x - cx * CHUNK_W;
-    int ly = y - cy * CHUNK_H;
-    int lz = z - cz * CHUNK_D;
-    return chunk->lightmap.get(lx,ly,lz);
-}
-
 Chunk* Chunks::getChunkByVoxel(int32_t x, int32_t y, int32_t z) {
     if (y < 0 || y >= CHUNK_H)
         return nullptr;
@@ -159,28 +140,45 @@ Chunk* Chunks::getChunk(int x, int z){
 }
 
 void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state) {
-    if (y < 0 || y >= CHUNK_H)
+    if (y < 0 || y >= CHUNK_H) {
         return;
+    }
     x -= ox * CHUNK_W;
     z -= oz * CHUNK_D;
     int cx = floordiv(x, CHUNK_W);
     int cz = floordiv(z, CHUNK_D);
-    if (cx < 0 || cz < 0 || cx >= int(w) || cz >= int(d))
+    if (cx < 0 || cz < 0 || cx >= int(w) || cz >= int(d)) {
         return;
+    }
     Chunk* chunk = chunks[cz * w + cx].get();
     if (chunk == nullptr)
         return;
     int lx = x - cx * CHUNK_W;
     int lz = z - cz * CHUNK_D;
+    int index = vox_index(lx, y, lz);
     
-    voxel& vox = chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx]; 
+    voxel& vox = chunk->voxels[index]; 
+    
+    // finalizing previous block
     auto def = contentIds->getBlockDef(vox.id);
-    if (def->inventorySize == 0)
+    if (def->inventorySize == 0) {
         chunk->removeBlockInventory(lx, y, lz);
+    }
+    if (def->rt.funcsset.onblocktick) {
+        chunk->updatingBlocks.remove(index);
+    }
+
+    // initializing new block
     vox.id = id;
     vox.state = state;
     chunk->setModifiedAndUnsaved();
 
+    auto new_def = contentIds->getBlockDef(id);
+    if (new_def->rt.funcsset.onblocktick) {
+        chunk->updatingBlocks.push_front(index);
+    }
+
+    // updating chunks
     if (y < chunk->bottom) chunk->bottom = y;
     else if (y + 1 > chunk->top) chunk->top = y + 1;
     else if (id == 0) chunk->updateHeights();
@@ -473,11 +471,6 @@ void Chunks::resize(uint32_t newW, uint32_t newD) {
     volume = newVolume;
     chunks = std::move(newChunks);
     chunksSecond = std::move(newChunksSecond);
-}
-
-void Chunks::_setOffset(int32_t x, int32_t z) {
-    ox = x;
-    oz = z;
 }
 
 bool Chunks::putChunk(std::shared_ptr<Chunk> chunk) {

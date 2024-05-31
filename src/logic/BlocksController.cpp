@@ -118,6 +118,37 @@ void BlocksController::onBlocksTick(int tickid, int parts) {
             scripting::on_blocks_tick(def, tickRate / interval);
         }
     }
+    static int gtick = 0;
+    if (tickid == 0) {
+        gtick++;
+    }
+    const int w = chunks->w;
+    const int d = chunks->d;
+    for (uint z = padding; z < d-padding; z++){
+        for (uint x = padding; x < w-padding; x++){
+            int index = z * w + x;
+            if ((index + tickid) % parts != 0)
+                continue;
+            auto& chunk = chunks->chunks[index];
+            if (chunk == nullptr || !chunk->flags.lighted)
+                continue;
+            auto updatingBlocks = chunk->updatingBlocks;
+            for (uint block_index : updatingBlocks) {
+                auto def = indices->getBlockDef(chunk->voxels[block_index].id);
+                if (((gtick + tickid) / parts) % def->tickInterval != 0)
+                    continue;
+                int lx = block_index % CHUNK_W;
+                int lz = (block_index/CHUNK_W) % CHUNK_D;
+                int ly = block_index/CHUNK_W/CHUNK_D;
+                scripting::on_block_tick(
+                    def, 
+                    lx + chunk->x * CHUNK_W, 
+                    ly, 
+                    lz + chunk->z * CHUNK_D
+                );
+            }
+        }
+    }
 }
 
 void BlocksController::randomTick(int tickid, int parts) {

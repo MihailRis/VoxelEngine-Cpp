@@ -31,6 +31,7 @@ struct block_funcs_set {
     bool onbroken: 1;
     bool oninteract: 1;
     bool randupdate: 1;
+    bool onblocktick: 1;
     bool onblockstick: 1;
 };
 

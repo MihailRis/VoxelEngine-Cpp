@@ -54,6 +54,7 @@ namespace scripting {
     void on_world_save();
     void on_world_quit();
     void on_blocks_tick(const Block* block, int tps);
+    void on_block_tick(const Block* block, int x, int y, int z);
     void update_block(const Block* block, int x, int y, int z);
     void random_update_block(const Block* block, int x, int y, int z);
     void on_block_placed(Player* player, const Block* block, int x, int y, int z);

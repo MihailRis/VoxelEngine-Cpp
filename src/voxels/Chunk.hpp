@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <stdlib.h>
+#include <forward_list>
 #include <unordered_map>
 
 #include "../constants.hpp"
@@ -14,6 +15,7 @@ inline constexpr int CHUNK_DATA_LEN = CHUNK_VOL*4;
 class Lightmap;
 class ContentLUT;
 class Inventory;
+class Content;
 
 using chunk_inventories_map = std::unordered_map<uint, std::shared_ptr<Inventory>>;
 
@@ -31,9 +33,10 @@ public:
         bool unsaved: 1;
         bool loadedLights: 1;
     } flags {};
-
-    /* Block inventories map where key is index of block in voxels array */
+    /// @brief Block inventories map where key is index of block in voxels array
     chunk_inventories_map inventories;
+    /// @brief Interval-updating blocks list
+    std::forward_list<uint> updatingBlocks;
 
     Chunk(int x, int z);
 
@@ -44,14 +47,14 @@ public:
     // unused
     std::unique_ptr<Chunk> clone() const;
 
-    /* Creates new block inventory given size
-       @return inventory id or 0 if block does not exists */
+    /// @brief Creates new block inventory given size
+    /// @return inventory id or 0 if block does not exists
     void addBlockInventory(std::shared_ptr<Inventory> inventory, 
                            uint x, uint y, uint z);
     void removeBlockInventory(uint x, uint y, uint z);
     void setBlockInventories(chunk_inventories_map map);
 
-    /* @return inventory bound to the given block or nullptr */
+    /// @return inventory bound to the given block or nullptr
     std::shared_ptr<Inventory> getBlockInventory(uint x, uint y, uint z) const;
 
     inline void setModifiedAndUnsaved() {
@@ -61,12 +64,12 @@ public:
 
     std::unique_ptr<ubyte[]> encode() const;
 
-    /**
-     * @return true if all is fine
-     **/
+    /// @return true if all is fine
     bool decode(const ubyte* data);
+
+    void onLoad(const Content* content);
 
     static void convert(ubyte* data, const ContentLUT* lut);
 };
 
-#endif /* VOXELS_CHUNK_HPP_ */
+#endif // VOXELS_CHUNK_HPP_
