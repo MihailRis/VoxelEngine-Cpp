@@ -20,6 +20,7 @@
 #include <string>
 #include <memory>
 #include <sstream>
+#include <bitset>
 
 using namespace gui;
 
@@ -75,7 +76,9 @@ std::shared_ptr<UINode> create_debug_panel(
         auto* indices = level->content->getIndices();
         auto def = indices->getBlockDef(player->selectedVoxel.id);
         std::wstringstream stream;
-        stream << std::hex << player->selectedVoxel.states;
+        stream << "r:" << player->selectedVoxel.state.rotation << " s:"
+               << player->selectedVoxel.state.segment << " u:"
+               << std::bitset<8>(player->selectedVoxel.state.userbits);
         if (def) {
             stream << L" (" << util::str2wstr_utf8(def->name) << L")";
         }

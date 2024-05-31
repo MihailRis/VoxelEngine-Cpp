@@ -219,10 +219,13 @@ void BlocksRenderer::blockXSprite(int x, int y, int z,
 // HINT: texture faces order: {east, west, bottom, top, south, north}
 
 /* AABB blocks render method */
-void BlocksRenderer::blockAABB(const ivec3& icoord,
-                               const UVRegion(&texfaces)[6], 
-                               const Block* block, ubyte rotation,
-                               bool lights) {
+void BlocksRenderer::blockAABB(
+    const ivec3& icoord,
+    const UVRegion(&texfaces)[6], 
+    const Block* block, 
+    ubyte rotation,
+    bool lights
+) {
     if (block->hitboxes.empty()) {
         return;
     }
@@ -301,11 +304,13 @@ void BlocksRenderer::blockCustomModel(const ivec3& icoord,
 }
 
 /* Fastest solid shaded blocks render method */
-void BlocksRenderer::blockCube(int x, int y, int z, 
-                                     const UVRegion(&texfaces)[6], 
-                                     const Block* block, 
-                                     ubyte states,
-                                     bool lights) {
+void BlocksRenderer::blockCube(
+    int x, int y, int z, 
+    const UVRegion(&texfaces)[6], 
+    const Block* block, 
+    blockstate states,
+    bool lights
+) {
     ubyte group = block->drawGroup;
 
     vec3 X(1, 0, 0);
@@ -314,7 +319,7 @@ void BlocksRenderer::blockCube(int x, int y, int z,
     vec3 coord(x, y, z);
     if (block->rotatable) {
         auto& rotations = block->rotations;
-        auto& orient = rotations.variants[states & BLOCK_ROT_MASK];
+        auto& orient = rotations.variants[states.rotation];
         X = orient.axisX;
         Y = orient.axisY;
         Z = orient.axisZ;
@@ -423,7 +428,7 @@ void BlocksRenderer::render(const voxel* voxels) {
             int z = (i / CHUNK_D) % CHUNK_W;
             switch (def.model) {
             case BlockModel::block:
-                blockCube(x, y, z, texfaces, &def, vox.states, !def.rt.emissive);
+                blockCube(x, y, z, texfaces, &def, vox.state, !def.rt.emissive);
                 break;
             case BlockModel::xsprite: {
                 blockXSprite(x, y, z, vec3(1.0f), 
@@ -431,11 +436,11 @@ void BlocksRenderer::render(const voxel* voxels) {
                 break;
             }
             case BlockModel::aabb: {
-                blockAABB(ivec3(x,y,z), texfaces, &def, vox.rotation(), !def.rt.emissive);
+                blockAABB(ivec3(x,y,z), texfaces, &def, vox.state.rotation, !def.rt.emissive);
                 break;
             }
             case BlockModel::custom: {
-                blockCustomModel(ivec3(x, y, z), &def, vox.rotation(), !def.rt.emissive);
+                blockCustomModel(ivec3(x, y, z), &def, vox.state.rotation, !def.rt.emissive);
                 break;
             }
             default:
