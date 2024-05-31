@@ -179,9 +179,7 @@ void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state)
         chunk->removeBlockInventory(lx, y, lz);
     vox.id = id;
     vox.state = state;
-
-    chunk->setUnsaved(true);
-    chunk->setModified(true);
+    chunk->setModifiedAndUnsaved();
 
     if (y < chunk->bottom) chunk->bottom = y;
     else if (y + 1 > chunk->top) chunk->top = y + 1;

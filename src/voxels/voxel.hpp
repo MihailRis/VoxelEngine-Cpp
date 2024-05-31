@@ -19,10 +19,10 @@ struct blockstate {
 static_assert (sizeof(blockstate) == 2);
 
 inline constexpr blockstate_t blockstate2int(blockstate b) {
-    return b.rotation |
-          (b.segment << 3) |
-          (b.reserved << 5) |
-          (b.userbits << 8);
+    return static_cast<blockstate_t>(b.rotation) |
+           static_cast<blockstate_t>(b.segment) << 3 |
+           static_cast<blockstate_t>(b.reserved) << 5 |
+           static_cast<blockstate_t>(b.userbits) << 8;
 }
 
 inline constexpr blockstate int2blockstate(blockstate_t i) {

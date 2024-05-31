@@ -156,7 +156,7 @@ int l_set_block_rotation(lua_State* L) {
         return 0;
     }
     vox->state.rotation = value;
-    scripting::level->chunks->getChunkByVoxel(x, y, z)->setModified(true);
+    scripting::level->chunks->getChunkByVoxel(x, y, z)->setModifiedAndUnsaved();
     return 0;
 }
 
@@ -182,7 +182,7 @@ int l_set_block_states(lua_State* L) {
     }
     voxel* vox = scripting::level->chunks->get(x, y, z);
     vox->state = int2blockstate(states);
-    chunk->setModified(true);
+    chunk->setModifiedAndUnsaved();
     return 0;
 }
 
@@ -214,12 +214,17 @@ int l_set_block_user_bits(lua_State* L) {
     size_t mask = ((1 << bits) - 1) << offset;
     lua_Integer value = (lua_tointeger(L, 6) << offset) & mask;
     
+    Chunk* chunk = scripting::level->chunks->getChunkByVoxel(x, y, z);
+    if (chunk == nullptr) {
+        return 0;
+    }
     voxel* vox = scripting::level->chunks->get(x, y, z);
     if (vox == nullptr) {
         return 0;
     }
     vox->state.userbits = (vox->state.userbits & (~mask)) | value;
-    return 0;
+    chunk->setModifiedAndUnsaved();
+    return 0; 
 }
 
 int l_is_replaceable_at(lua_State* L) {

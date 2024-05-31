@@ -79,6 +79,11 @@ public:
 
     inline void setModified(bool newState) {setFlags(ChunkFlag::MODIFIED, newState);}
 
+    inline void setModifiedAndUnsaved() {
+        setModified(true);
+        setUnsaved(true);
+    }
+
     inline void setLoaded(bool newState) {setFlags(ChunkFlag::LOADED, newState);}
 
     inline void setLoadedLights(bool newState) {setFlags(ChunkFlag::LOADED_LIGHTS, newState);}
