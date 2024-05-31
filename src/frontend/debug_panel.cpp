@@ -79,8 +79,12 @@ std::shared_ptr<UINode> create_debug_panel(
         if (def) {
             stream << L" (" << util::str2wstr_utf8(def->name) << L")";
         }
-        return L"block: "+std::to_wstring(player->selectedVoxel.id)+
-               L" "+stream.str();
+        if (player->selectedVoxel.id == BLOCK_VOID) {
+            return std::wstring {L"block: none"};
+        } else {
+            return L"block: "+std::to_wstring(player->selectedVoxel.id)+
+                L" "+stream.str();
+        }
     }));
     panel->add(create_label([=](){
         return L"seed: "+std::to_wstring(level->getWorld()->getSeed());

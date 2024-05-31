@@ -12,7 +12,6 @@
 #include "../voxels/Chunk.hpp"
 #include "../voxels/Chunks.hpp"
 #include "../voxels/ChunksStorage.hpp"
-#include "../window/Camera.hpp"
 #include "../world/WorldGenerators.hpp"
 
 #include <memory>
@@ -135,7 +134,6 @@ std::unique_ptr<Level> World::load(
             }
         }
     }
-    (void)world.release();
     return level;
 }
 

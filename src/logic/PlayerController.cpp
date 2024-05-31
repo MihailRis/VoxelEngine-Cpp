@@ -166,7 +166,6 @@ void CameraControl::update(const PlayerInput& input, float delta, Chunks* chunks
     }
 }
 
-glm::vec3 PlayerController::selectedBlockPosition;
 glm::vec3 PlayerController::selectedPointPosition;
 glm::ivec3 PlayerController::selectedBlockNormal;
 int PlayerController::selectedBlockId = -1;
@@ -362,11 +361,11 @@ void PlayerController::updateInteraction(){
         maxDistance, 
         end, norm, iend
     );
-    if (vox != nullptr){
+    if (vox != nullptr) {
         player->selectedVoxel = *vox;
         selectedBlockId = vox->id;
         selectedBlockRotation = vox->rotation();
-        selectedBlockPosition = iend;
+        player->selectedBlockPosition = iend;
         selectedPointPosition = end;
         selectedBlockNormal = norm;
         int x = iend.x;
@@ -443,6 +442,7 @@ void PlayerController::updateInteraction(){
     } else {
         selectedBlockId = -1;
         selectedBlockRotation = 0;
+        player->selectedVoxel.id = BLOCK_VOID;
     }
     if (rclick) {
         if (item->rt.funcsset.on_use) {

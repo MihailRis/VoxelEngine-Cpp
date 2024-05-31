@@ -194,7 +194,7 @@ void WorldRenderer::renderBlockSelection(Camera* camera, Shader* linesShader) {
     auto indices = level->content->getIndices();
     blockid_t id = PlayerController::selectedBlockId;
     auto block = indices->getBlockDef(id);
-    const glm::vec3 pos = PlayerController::selectedBlockPosition;
+    const glm::ivec3 pos = player->selectedBlockPosition;
     const glm::vec3 point = PlayerController::selectedPointPosition;
     const glm::vec3 norm = PlayerController::selectedBlockNormal;
 
@@ -206,7 +206,7 @@ void WorldRenderer::renderBlockSelection(Camera* camera, Shader* linesShader) {
     linesShader->uniformMatrix("u_projview", camera->getProjView());
     lineBatch->lineWidth(2.0f);
     for (auto& hitbox: hitboxes) {
-        const glm::vec3 center = pos + hitbox.center();
+        const glm::vec3 center = glm::vec3(pos) + hitbox.center();
         const glm::vec3 size = hitbox.size();
         lineBatch->box(center, size + glm::vec3(0.02), glm::vec4(0.f, 0.f, 0.f, 0.5f));
         if (player->debug) {

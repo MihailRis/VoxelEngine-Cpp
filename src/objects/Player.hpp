@@ -46,6 +46,7 @@ public:
     bool debug = false;
     voxel selectedVoxel {0, 0};
     glm::vec3 cam {};
+    glm::ivec3 selectedBlockPosition {};
 
     Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv);
     ~Player();
