@@ -53,8 +53,8 @@ int Clock::getTickId() const {
 
 BlocksController::BlocksController(Level* level, uint padding) 
     : level(level), 
-	  chunks(level->chunks.get()), 
-	  lighting(level->lighting.get()),
+      chunks(level->chunks.get()), 
+      lighting(level->lighting.get()),
       randTickClock(20, 3),
       blocksTickClock(20, 1),
       worldTickClock(20, 1),
@@ -150,49 +150,49 @@ void BlocksController::randomTick(int tickid, int parts) {
                 }
             }
         }
-	}
+    }
 }
 
 int64_t BlocksController::createBlockInventory(int x, int y, int z) {
-	auto chunk = chunks->getChunkByVoxel(x, y, z);
-	if (chunk == nullptr) {
-		return 0;
-	}
-	int lx = x - chunk->x * CHUNK_W;
-	int lz = z - chunk->z * CHUNK_D;
-	auto inv = chunk->getBlockInventory(lx, y, lz);
-	if (inv == nullptr) {
+    auto chunk = chunks->getChunkByVoxel(x, y, z);
+    if (chunk == nullptr) {
+        return 0;
+    }
+    int lx = x - chunk->x * CHUNK_W;
+    int lz = z - chunk->z * CHUNK_D;
+    auto inv = chunk->getBlockInventory(lx, y, lz);
+    if (inv == nullptr) {
         auto indices = level->content->getIndices();
         auto def = indices->getBlockDef(chunk->voxels[vox_index(lx, y, lz)].id);
         int invsize = def->inventorySize;
         if (invsize == 0) {
             return 0;
         }
-		inv = level->inventories->create(invsize);
+        inv = level->inventories->create(invsize);
         chunk->addBlockInventory(inv, lx, y, lz);
-	}
+    }
     return inv->getId();
 }
 
 void BlocksController::bindInventory(int64_t invid, int x, int y, int z) {
     auto chunk = chunks->getChunkByVoxel(x, y, z);
-	if (chunk == nullptr) {
-		throw std::runtime_error("block does not exists");
-	}
+    if (chunk == nullptr) {
+        throw std::runtime_error("block does not exists");
+    }
     if (invid <= 0) {
         throw std::runtime_error("unable to bind virtual inventory");
     }
-	int lx = x - chunk->x * CHUNK_W;
-	int lz = z - chunk->z * CHUNK_D;
+    int lx = x - chunk->x * CHUNK_W;
+    int lz = z - chunk->z * CHUNK_D;
     chunk->addBlockInventory(level->inventories->get(invid), lx, y, lz);
 }
 
 void BlocksController::unbindInventory(int x, int y, int z) {
     auto chunk = chunks->getChunkByVoxel(x, y, z);
-	if (chunk == nullptr) {
-		throw std::runtime_error("block does not exists");
-	}
+    if (chunk == nullptr) {
+        throw std::runtime_error("block does not exists");
+    }
     int lx = x - chunk->x * CHUNK_W;
-	int lz = z - chunk->z * CHUNK_D;
+    int lz = z - chunk->z * CHUNK_D;
     chunk->removeBlockInventory(lx, y, lz);
 }
