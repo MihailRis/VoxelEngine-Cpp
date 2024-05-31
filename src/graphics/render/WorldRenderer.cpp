@@ -37,6 +37,9 @@
 #include <algorithm>
 #include <memory>
 
+#include <glm/ext.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 bool WorldRenderer::showChunkBorders = false;
 
 WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* player) 
@@ -160,6 +163,7 @@ void WorldRenderer::renderLevel(
     shader->use();
     shader->uniformMatrix("u_proj", camera->getProjection());
     shader->uniformMatrix("u_view", camera->getView());
+    shader->uniform1f("u_timer", Window::time());
     shader->uniform1f("u_gamma", settings.graphics.gamma.get());
     shader->uniform1f("u_fogFactor", fogFactor);
     shader->uniform1f("u_fogCurve", settings.graphics.fogCurve.get());
