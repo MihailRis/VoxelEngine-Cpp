@@ -10,22 +10,34 @@ inline constexpr int BLOCK_DIR_EAST = 0x3;
 inline constexpr int BLOCK_DIR_UP = 0x4;
 inline constexpr int BLOCK_DIR_DOWN = 0x5;
 
-// limited to 8 block orientations
-inline constexpr int BLOCK_ROT_MASK =      0b0000'0111;
-// reserved bits
-inline constexpr int BLOCK_RESERVED_MASK = 0b1111'1000;
+struct blockstate {
+    uint8_t rotation : 3;
+    uint8_t segment : 2; // planned to 0.22
+    uint8_t reserved : 3;
+    uint8_t userbits : 8;
+};
+static_assert (sizeof(blockstate) == 2);
+
+inline constexpr blockstate_t blockstate2int(blockstate b) {
+    return static_cast<blockstate_t>(b.rotation) |
+           static_cast<blockstate_t>(b.segment) << 3 |
+           static_cast<blockstate_t>(b.reserved) << 5 |
+           static_cast<blockstate_t>(b.userbits) << 8;
+}
+
+inline constexpr blockstate int2blockstate(blockstate_t i) {
+    return {
+        static_cast<uint8_t>(i & 0b111),
+        static_cast<uint8_t>((i >> 3) & 0b11),
+        static_cast<uint8_t>((i >> 5) & 0b111),
+        static_cast<uint8_t>((i >> 8) & 0xFF)
+    };
+}
 
 struct voxel {
     blockid_t id;
-    blockstate_t states;
-
-    inline uint8_t rotation() const {
-        return states & BLOCK_ROT_MASK;
-    }
-
-    inline void setRotation(uint8_t rotation) {
-        states = (states & (~BLOCK_ROT_MASK)) | (rotation & BLOCK_ROT_MASK);
-    }
+    blockstate state;
 };
+static_assert(sizeof(voxel) == 4);
 
 #endif // VOXELS_VOXEL_HPP_

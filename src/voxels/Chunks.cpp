@@ -68,7 +68,7 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
     const Block* def = contentIds->getBlockDef(v->id);
     if (def->obstacle) {
         const auto& boxes = def->rotatable 
-                          ? def->rt.hitboxes[v->rotation()] 
+                          ? def->rt.hitboxes[v->state.rotation] 
                           : def->hitboxes;
         for (const auto& hitbox : boxes) {
             if (hitbox.contains({x - ix, y - iy, z - iz})) {
@@ -158,7 +158,7 @@ Chunk* Chunks::getChunk(int x, int z){
     return chunks[z * w + x].get();
 }
 
-void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, uint8_t states) {
+void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state) {
     if (y < 0 || y >= CHUNK_H)
         return;
     x -= ox * CHUNK_W;
@@ -178,24 +178,22 @@ void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, uint8_t states) {
     if (def->inventorySize == 0)
         chunk->removeBlockInventory(lx, y, lz);
     vox.id = id;
-    vox.states = states;
-
-    chunk->setUnsaved(true);
-    chunk->setModified(true);
+    vox.state = state;
+    chunk->setModifiedAndUnsaved();
 
     if (y < chunk->bottom) chunk->bottom = y;
     else if (y + 1 > chunk->top) chunk->top = y + 1;
     else if (id == 0) chunk->updateHeights();
 
     if (lx == 0 && (chunk = getChunk(cx+ox-1, cz+oz)))
-        chunk->setModified(true);
+        chunk->flags.modified = true;
     if (lz == 0 && (chunk = getChunk(cx+ox, cz+oz-1))) 
-        chunk->setModified(true);
+        chunk->flags.modified = true;
 
     if (lx == CHUNK_W-1 && (chunk = getChunk(cx+ox+1, cz+oz))) 
-        chunk->setModified(true);
+        chunk->flags.modified = true;
     if (lz == CHUNK_D-1 && (chunk = getChunk(cx+ox, cz+oz+1))) 
-        chunk->setModified(true);
+        chunk->flags.modified = true;
 }
 
 voxel* Chunks::rayCast(
@@ -255,7 +253,7 @@ voxel* Chunks::rayCast(
             
             if (!def->rt.solid) {
                 const std::vector<AABB>& hitboxes = def->rotatable
-                        ? def->rt.hitboxes[voxel->rotation()]
+                        ? def->rt.hitboxes[voxel->state.rotation]
                         : def->hitboxes;
 
                 scalar_t distance = maxDist;
@@ -365,7 +363,7 @@ glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDis
         if (def->obstacle) {
             if (!def->rt.solid) {
                 const std::vector<AABB>& hitboxes = def->rotatable
-                    ? def->rt.hitboxes[voxel->rotation()]
+                    ? def->rt.hitboxes[voxel->state.rotation]
                     : def->modelBoxes;
 
                 scalar_t distance;
@@ -499,12 +497,12 @@ void Chunks::saveAndClear(){
     for (size_t i = 0; i < volume; i++){
         Chunk* chunk = chunks[i].get();
         chunks[i] = nullptr;
-        if (chunk == nullptr || !chunk->isLighted())
+        if (chunk == nullptr || !chunk->flags.lighted)
             continue;
         
-        bool lightsUnsaved = !chunk->isLoadedLights() && 
+        bool lightsUnsaved = !chunk->flags.loadedLights && 
                               worldFiles->doesWriteLights();
-        if (!chunk->isUnsaved() && !lightsUnsaved)
+        if (!chunk->flags.unsaved && !lightsUnsaved)
             continue;
         regions.put(chunk);
     }

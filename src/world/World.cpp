@@ -57,11 +57,11 @@ void World::write(Level* level) {
 
     for (size_t i = 0; i < chunks->volume; i++) {
         auto chunk = chunks->chunks[i];
-        if (chunk == nullptr || !chunk->isLighted())
+        if (chunk == nullptr || !chunk->flags.lighted)
             continue;
-        bool lightsUnsaved = !chunk->isLoadedLights() && 
+        bool lightsUnsaved = !chunk->flags.loadedLights && 
                               settings.debug.doWriteLights.get();
-        if (!chunk->isUnsaved() && !lightsUnsaved)
+        if (!chunk->flags.unsaved && !lightsUnsaved)
             continue;
         regions.put(chunk.get());
     }

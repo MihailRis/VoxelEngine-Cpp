@@ -71,7 +71,7 @@ void BlocksController::updateSides(int x, int y, int z) {
 }
 
 void BlocksController::breakBlock(Player* player, const Block* def, int x, int y, int z) {
-    chunks->set(x,y,z, 0, 0);
+    chunks->set(x,y,z, 0, {});
     lighting->onBlockSet(x,y,z, 0);
     if (def->rt.funcsset.onbroken) {
         scripting::on_block_broken(player, def, x, y, z);
@@ -132,7 +132,7 @@ void BlocksController::randomTick(int tickid, int parts) {
             if ((index + tickid) % parts != 0)
                 continue;
             auto& chunk = chunks->chunks[index];
-            if (chunk == nullptr || !chunk->isLighted())
+            if (chunk == nullptr || !chunk->flags.lighted)
                 continue;
             for (int s = 0; s < segments; s++) {
                 for (int i = 0; i < 4; i++) {
