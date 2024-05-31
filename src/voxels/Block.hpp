@@ -162,6 +162,9 @@ public:
     /// @brief Block inventory size. 0 - no inventory
     uint inventorySize = 0;
 
+    // @brief Block tick interval (1 - 20tps, 2 - 10tps)
+    uint tickInterval = 1; 
+
     /// @brief Runtime indices (content indexing results)
     struct {
         /// @brief block runtime integer id

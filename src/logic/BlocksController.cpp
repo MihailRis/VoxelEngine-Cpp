@@ -113,8 +113,9 @@ void BlocksController::onBlocksTick(int tickid, int parts) {
         if ((id + tickid) % parts != 0)
             continue;
         auto def = indices->getBlockDef(id);
-        if (def->rt.funcsset.onblockstick) {
-            scripting::on_blocks_tick(def, tickRate);
+        auto interval = def->tickInterval;
+        if (def->rt.funcsset.onblockstick && tickid / parts % interval == 0) {
+            scripting::on_blocks_tick(def, tickRate / interval);
         }
     }
 }
