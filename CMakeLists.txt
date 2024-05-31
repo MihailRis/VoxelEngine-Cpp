@@ -50,6 +50,9 @@ else()
     -Wformat-nonliteral -Wcast-align
     -Wpointer-arith -Wundef
     -Wwrite-strings -Wno-unused-parameter)
+  if (CMAKE_BUILD_TYPE MATCHES "Debug")
+    target_compile_options(${PROJECT_NAME} PRIVATE -Og)
+  endif()
 endif()
 
 if(VOXELENGINE_BUILD_WINDOWS_VCPKG AND WIN32)
