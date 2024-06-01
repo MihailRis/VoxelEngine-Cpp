@@ -101,6 +101,17 @@ static int l_container_clear(lua_State* L) {
     return 0;
 }
 
+static int l_container_set_interval(lua_State* L) {
+    auto node = getDocumentNode(L, 1);
+    auto interval = state->tointeger(2) / 1000.0f;
+    if (auto container = std::dynamic_pointer_cast<Container>(node.node)) {
+        state->pushvalue(3);
+        auto runnable = state->createRunnable();
+        container->listenInterval(interval, runnable);
+    }
+    return 0;
+}
+
 static int l_move_into(lua_State* L) {
     auto node = getDocumentNode(L, 1);
     auto dest = getDocumentNode(L, 2);
@@ -255,6 +266,13 @@ static int p_get_clear(UINode* node) {
     return 0;
 }
 
+static int p_set_interval(UINode* node) {
+    if (dynamic_cast<Container*>(node)) {
+        return state->pushcfunction(l_container_set_interval);
+    }
+    return 0;
+}
+
 static int p_get_color(UINode* node) {
     return lua::pushcolor_arr(state->getLua(), node->getColor());
 }
@@ -317,6 +335,7 @@ static int l_gui_getattr(lua_State* L) {
         {"move_into", p_move_into},
         {"add", p_get_add},
         {"clear", p_get_clear},
+        {"setInterval", p_set_interval},
         {"placeholder", p_get_placeholder},
         {"valid", p_is_valid},
         {"caret", p_get_caret},
