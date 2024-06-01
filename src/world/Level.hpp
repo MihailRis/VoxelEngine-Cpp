@@ -58,8 +58,8 @@ public:
         std::shared_ptr<T> tObj = std::make_shared<T>(args...);
         
         std::shared_ptr<Object> obj = std::dynamic_pointer_cast<Object, T>(tObj);
-        objects.push_back(obj);
         obj->objectUID = objects.size();
+        objects.push_back(obj);
         obj->spawned();
         return tObj;
     }
