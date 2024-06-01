@@ -444,11 +444,11 @@ void PlayerController::updateInteraction(){
         selectedBlockId = -1;
         selectedBlockRotation = 0;
         player->selectedVoxel.id = BLOCK_VOID;
-    }
-    if (rclick) {
-        if (item->rt.funcsset.on_use) {
-            scripting::on_item_use(player.get(), item);
-        } 
+        if (rclick) {
+            if (item->rt.funcsset.on_use) {
+                scripting::on_item_use(player.get(), item);
+            } 
+        }
     }
 }
 
