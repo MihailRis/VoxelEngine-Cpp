@@ -65,6 +65,7 @@ class Engine : public util::ObjectsKeeper {
 
     std::unique_ptr<gui::GUI> gui;
     
+    void loadControls();
     void loadSettings();
     void saveSettings();
     void updateTimers();

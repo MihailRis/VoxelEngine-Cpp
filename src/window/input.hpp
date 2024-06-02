@@ -122,6 +122,11 @@ namespace input_util {
     std::string to_string(keycode code);
     /// @return Mouse button label by keycode
     std::string to_string(mousecode code);
+
+    /// @return Key name by keycode
+    std::string get_name(keycode code);
+    /// @return Mouse button name by keycode
+    std::string get_name(mousecode code);
 }
 
 enum class inputtype {
