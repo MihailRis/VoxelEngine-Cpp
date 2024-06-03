@@ -93,6 +93,18 @@ static int l_container_add(lua_State* L) {
     return 0;
 }
 
+static int l_node_destruct(lua_State* L) {
+    auto docnode = getDocumentNode(L);
+    auto node = std::dynamic_pointer_cast<Container>(docnode.node);
+    engine->getGUI()->postRunnable([node]() {
+        auto parent = node->getParent();
+        if (auto container = dynamic_cast<Container*>(parent)) {
+            container->remove(node);
+        }
+    });
+    return 0;
+}
+
 static int l_container_clear(lua_State* L) {
     auto node = getDocumentNode(L, 1);
     if (auto container = std::dynamic_pointer_cast<Container>(node.node)) {
@@ -254,21 +266,25 @@ static int p_get_src(UINode* node) {
 
 static int p_get_add(UINode* node) {
     if (dynamic_cast<Container*>(node)) {
-        return state->pushcfunction(l_container_add);
+        return state->pushcfunction(lua_wrap_errors<l_container_add>);
     }
     return 0;
 }
 
+static int p_get_destruct(UINode*) {
+    return state->pushcfunction(lua_wrap_errors<l_node_destruct>);
+}
+
 static int p_get_clear(UINode* node) {
     if (dynamic_cast<Container*>(node)) {
-        return state->pushcfunction(l_container_clear);
+        return state->pushcfunction(lua_wrap_errors<l_container_clear>);
     }
     return 0;
 }
 
 static int p_set_interval(UINode* node) {
     if (dynamic_cast<Container*>(node)) {
-        return state->pushcfunction(l_container_set_interval);
+        return state->pushcfunction(lua_wrap_errors<l_container_set_interval>);
     }
     return 0;
 }
@@ -331,9 +347,10 @@ static int l_gui_getattr(lua_State* L) {
         {"size", p_get_size},
         {"interactive", p_is_interactive},
         {"visible", p_is_visible},
-        {"enabled", p_is_enabled},
+        {"enabled",  p_is_enabled},
         {"move_into", p_move_into},
         {"add", p_get_add},
+        {"destruct", p_get_destruct},
         {"clear", p_get_clear},
         {"setInterval", p_set_interval},
         {"placeholder", p_get_placeholder},
