@@ -23,14 +23,14 @@ static int l_json_stringify(lua_State* L) {
 }
 
 static int l_json_parse(lua_State* L) {
-    auto string = lua_tostring(L, 1);
+    auto string = scripting::state->requireString(1);
     auto element = json::parse("<string>", string);
     scripting::state->pushvalue(element);
     return 1;
 }
 
 const luaL_Reg jsonlib [] = {
-    {"stringify", lua_wrap_errors<l_json_stringify>},
+    {"tostring", lua_wrap_errors<l_json_stringify>},
     {"parse", lua_wrap_errors<l_json_parse>},
     {NULL, NULL}
 };
