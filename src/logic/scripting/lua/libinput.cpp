@@ -55,11 +55,25 @@ static int l_get_mouse_pos(lua_State* L) {
     return lua::pushvec2_arr(L, Events::cursor);
 }
 
+static int l_get_bindings(lua_State* L) {
+    auto& bindings = Events::bindings;
+    lua_createtable(L, bindings.size(), 0);
+
+    int i = 0;
+    for (auto& entry : bindings) {
+        lua_pushstring(L, entry.first.c_str());
+        lua_rawseti(L, -2, i + 1);
+        i++;
+    }
+    return 1;
+}
+
 const luaL_Reg inputlib [] = {
     {"keycode", lua_wrap_errors<l_keycode>},
     {"mousecode", lua_wrap_errors<l_mousecode>},
     {"add_callback", lua_wrap_errors<l_add_callback>},
     {"get_mouse_pos", lua_wrap_errors<l_get_mouse_pos>},
+    {"get_bindings", lua_wrap_errors<l_get_bindings>},
     {NULL, NULL}
 };
 
