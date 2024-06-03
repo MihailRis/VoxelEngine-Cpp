@@ -302,5 +302,3 @@ get_block_rotation = block.get_rotation
 set_block_rotation = block.set_rotation
 get_block_user_bits = block.get_user_bits
 set_block_user_bits = block.set_user_bits
-toml.serialize = toml.tostring
-toml.deserialize = toml.parse
