@@ -25,6 +25,12 @@ static int l_keycode(lua_State* L) {
     return 1;
 }
 
+static int l_mousecode(lua_State* L) {
+    const char* name = state->requireString(1);
+    lua_pushinteger(L, static_cast<int>(input_util::mousecode_from(name)));
+    return 1;
+}
+
 static int l_add_callback(lua_State* L) {
     auto bindname = state->requireString(1);
     const auto& bind = Events::bindings.find(bindname);
@@ -51,6 +57,7 @@ static int l_get_mouse_pos(lua_State* L) {
 
 const luaL_Reg inputlib [] = {
     {"keycode", lua_wrap_errors<l_keycode>},
+    {"mousecode", lua_wrap_errors<l_mousecode>},
     {"add_callback", lua_wrap_errors<l_add_callback>},
     {"get_mouse_pos", lua_wrap_errors<l_get_mouse_pos>},
     {NULL, NULL}

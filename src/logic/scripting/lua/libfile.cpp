@@ -17,8 +17,12 @@ static fs::path resolve_path(lua_State*, const std::string& path) {
 
 static int l_file_find(lua_State* L) {
     std::string path = lua_tostring(L, 1);
-    lua_pushstring(L, scripting::engine->getResPaths()->findRaw(path).c_str());
-    return 1;
+    try {
+        lua_pushstring(L, scripting::engine->getResPaths()->findRaw(path).c_str());
+        return 1;
+    } catch (const std::runtime_error& err) {
+        return 0;
+    }
 }
 
 static int l_file_resolve(lua_State* L) {
