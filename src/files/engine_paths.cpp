@@ -139,7 +139,7 @@ static fs::path toCanonic(fs::path path) {
     return path;
 }
 
-fs::path EnginePaths::resolve(std::string path) {
+fs::path EnginePaths::resolve(std::string path, bool throwErr) {
     size_t separator = path.find(':');
     if (separator == std::string::npos) {
         throw files_access_error("no entry point specified");
@@ -165,7 +165,10 @@ fs::path EnginePaths::resolve(std::string path) {
             }
         }
     }
-    throw files_access_error("unknown entry point '"+prefix+"'");
+    if (throwErr) {
+        throw files_access_error("unknown entry point '"+prefix+"'");
+    }
+    return fs::path(filename);
 }
 
 ResPaths::ResPaths(fs::path mainRoot, std::vector<PathsRoot> roots) 

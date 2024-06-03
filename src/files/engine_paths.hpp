@@ -40,7 +40,7 @@ public:
 
     std::vector<fs::path> scanForWorlds();
 
-    fs::path resolve(std::string path);
+    fs::path resolve(std::string path, bool throwErr=true);
 };
 
 struct PathsRoot {

@@ -26,7 +26,7 @@ static fs::path resolve_path_soft(const std::string& path) {
     if (path.find(':') == std::string::npos) {
         return path;
     }
-    return resolve_path(path);
+    return engine->getPaths()->resolve(path, false);
 }
 
 static int l_file_find(lua_State* L) {
