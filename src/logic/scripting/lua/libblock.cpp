@@ -237,7 +237,7 @@ int l_is_replaceable_at(lua_State* L) {
     return 1;
 }
 
-int l_get_caption(lua_State* L) {
+int l_block_caption(lua_State* L) {
     auto indices = scripting::content->getIndices();
     lua_Integer id = lua_tointeger(L, 1);
     if (static_cast<size_t>(id) >= indices->countBlockDefs()) {
@@ -252,6 +252,7 @@ const luaL_Reg blocklib [] = {
     {"index", lua_wrap_errors<l_block_index>},
     {"name", lua_wrap_errors<l_block_name>},
     {"material", lua_wrap_errors<l_block_material>},
+    {"caption", lua_wrap_errors<l_block_caption>},
     {"defs_count", lua_wrap_errors<l_blocks_count>},
     {"is_solid_at", lua_wrap_errors<l_is_solid_at>},
     {"is_replaceable_at", lua_wrap_errors<l_is_replaceable_at>},
