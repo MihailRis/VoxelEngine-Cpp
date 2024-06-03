@@ -95,6 +95,9 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     addWorldGenerators();
     
     scripting::initialize(this);
+
+    auto resdir = paths->getResources();
+    basePacks = files::read_list(resdir/fs::path("config/builtins.list"));
 }
 
 void Engine::loadSettings() {
