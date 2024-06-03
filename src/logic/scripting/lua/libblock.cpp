@@ -16,7 +16,7 @@
 int l_block_name(lua_State* L) {
     auto indices = scripting::content->getIndices();
     lua_Integer id = lua_tointeger(L, 1);
-    if (id < 0 || size_t(id) >= indices->countBlockDefs()) {
+    if (static_cast<size_t>(id) >= indices->countBlockDefs()) {
         return 0;
     }
     auto def = indices->getBlockDef(id);
@@ -27,7 +27,7 @@ int l_block_name(lua_State* L) {
 int l_block_material(lua_State* L) {
     auto indices = scripting::content->getIndices();
     lua_Integer id = lua_tointeger(L, 1);
-    if (id < 0 || size_t(id) >= indices->countBlockDefs()) {
+    if (static_cast<size_t>(id) >= indices->countBlockDefs()) {
         return 0;
     }
     auto def = indices->getBlockDef(id);
@@ -62,7 +62,7 @@ int l_set_block(lua_State* L) {
     lua_Integer id = lua_tointeger(L, 4);    
     lua_Integer state = lua_tointeger(L, 5);
     bool noupdate = lua_toboolean(L, 6);
-    if (id < 0 || size_t(id) >= scripting::indices->countBlockDefs()) {
+    if (static_cast<size_t>(id) >= scripting::indices->countBlockDefs()) {
         return 0;
     }
     if (!scripting::level->chunks->get(x, y, z)) {
@@ -70,8 +70,9 @@ int l_set_block(lua_State* L) {
     }
     scripting::level->chunks->set(x, y, z, id, int2blockstate(state));
     scripting::level->lighting->onBlockSet(x,y,z, id);
-    if (!noupdate)
+    if (!noupdate) {
         scripting::blocks->updateSides(x, y, z);
+    }
     return 0;
 }
 
@@ -233,6 +234,17 @@ int l_is_replaceable_at(lua_State* L) {
     lua_Integer z = lua_tointeger(L, 3);
 
     lua_pushboolean(L, scripting::level->chunks->isReplaceableBlock(x, y, z));
+    return 1;
+}
+
+int l_get_caption(lua_State* L) {
+    auto indices = scripting::content->getIndices();
+    lua_Integer id = lua_tointeger(L, 1);
+    if (static_cast<size_t>(id) >= indices->countBlockDefs()) {
+        return 0;
+    }
+    auto def = indices->getBlockDef(id);
+    lua_pushstring(L, def->caption.c_str());
     return 1;
 }
 
