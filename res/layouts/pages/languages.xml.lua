@@ -9,10 +9,9 @@ function on_open()
     table.sort(names)
     
     local panel = document.root
-    for _,k in ipairs(names) do
-        panel:add(string.format(
-            "<button onclick=%q>%s</button>",
-            string.format("core.set_setting('ui.language', %q) menu:back()", invlocales[k]), k
+    for _,name in ipairs(names) do
+        panel:add(gui.template(
+            "language",  {id=invlocales[name], name=name}
         ))
     end
     panel:add("<button onclick='menu:back()'>@Back</button>")
