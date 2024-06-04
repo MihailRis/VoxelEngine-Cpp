@@ -1,10 +1,16 @@
-name: MacOs DMG
+name: Macos Build
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_call:
+    inputs:
+      upload_artifacts:
+        description: Should upload artifacts or not
+        type: boolean
+        default: false
 
 jobs:
   build-dmg:
@@ -30,33 +36,17 @@ jobs:
       - name: Build
         run: cmake --build build -t install
 
-      - name: Create macOS app structure
-        run: |
-          mkdir -p VoxelEngine.app/Contents/MacOS
-          mkdir -p VoxelEngine.app/Contents/Resources
-          cp build/VoxelEngine VoxelEngine.app/Contents/MacOS/
-          cp -r res VoxelEngine.app/Contents/Resources/
-          echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" > VoxelEngine.app/Contents/Info.plist
-          echo "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">" >> VoxelEngine.app/Contents/Info.plist
-          echo "<plist version=\"1.0\">" >> VoxelEngine.app/Contents/Info.plist
-          echo "<dict>" >> VoxelEngine.app/Contents/Info.plist
-          echo "  <key>CFBundleExecutable</key>" >> VoxelEngine.app/Contents/Info.plist
-          echo "  <string>VoxelEngine</string>" >> VoxelEngine.app/Contents/Info.plist
-          echo "  <key>CFBundleIdentifier</key>" >> VoxelEngine.app/Contents/Info.plist
-          echo "  <string>com.yourcompany.VoxelEngine</string>" >> VoxelEngine.app/Contents/Info.plist
-          echo "  <key>CFBundleName</key>" >> VoxelEngine.app/Contents/Info.plist
-          echo "  <string>VoxelEngine</string>" >> VoxelEngine.app/Contents/Info.plist
-          echo "  <key>CFBundleVersion</key>" >> VoxelEngine.app/Contents/Info.plist
-          echo "  <string>1.0</string>" >> VoxelEngine.app/Contents/Info.plist
-          echo "</dict>" >> VoxelEngine.app/Contents/Info.plist
-          echo "</plist>" >> VoxelEngine.app/Contents/Info.plist
-
       - name: Create DMG
+        if: ${{ inputs.upload_artifacts }}
         run: |
-          hdiutil create VoxelEngine.dmg -volname "VoxelEngine" -srcfolder VoxelEngine.app -ov -format UDZO
+          mkdir VoxelEngineDmgContent
+          cp -r build/res VoxelEngineDmgContent/
+          cp -r build/VoxelEngine VoxelEngineDmgContent/
+          hdiutil create VoxelEngineMacApp.dmg -volname "VoxelEngine" -srcfolder VoxelEngineDmgContent -ov -format UDZO
 
-      - name: Upload DMG
-        uses: actions/upload-artifact@v2
+      - name: Upload artifacts
+        if: ${{ inputs.upload_artifacts }}
+        uses: actions/upload-artifact@v4
         with:
           name: VoxelEngineMacOs
-          path: VoxelEngine.dmg
+          path: VoxelEngineMacApp.dmg
