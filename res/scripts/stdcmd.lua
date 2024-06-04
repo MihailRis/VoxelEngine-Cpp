@@ -69,18 +69,12 @@ console.add_command(
         player.set_pos(unpack(args))
     end
 )
+
 console.add_command(
     "echo value:str",
     "Print value to the console",
     function (args, kwargs)
         return args[1]
-    end
-)
-console.add_command(
-    "time.set value:num",
-    "Set day time [0..1] where 0 is midnight, 0.5 is noon",
-    function (args, kwargs)
-        return world.set_day_time(args[1])
     end
 )
 
@@ -104,7 +98,7 @@ console.add_command(
 console.add_command(
     "time.get",
     "Get day time [0 .. 1]",
-    function (args, kwargs)
+    function()
         return world.get_day_time()
     end
 )
@@ -112,7 +106,7 @@ console.add_command(
 console.add_command(
     "time.time",
     "Get time elapsed since the engine started",
-    function (args, kwargs)
+    function()
 
         local uptime = time.uptime()
         local years = math.floor(uptime / 31536000)
