@@ -104,7 +104,7 @@ console.add_command(
 )
 
 console.add_command(
-    "time.time",
+    "time.uptime",
     "Get time elapsed since the engine started",
     function()
 
