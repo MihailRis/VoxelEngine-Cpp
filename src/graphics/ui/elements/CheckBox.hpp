@@ -52,6 +52,7 @@ namespace gui {
         }
 
         virtual void setTooltip(const std::wstring& text) override {
+            Panel::setTooltip(text);
             checkbox->setTooltip(text);
         }
     };
