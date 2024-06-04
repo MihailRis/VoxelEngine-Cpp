@@ -12,6 +12,10 @@ error.pack-not-found=Не удалось найти пакет
 error.dependency-not-found=Используемая зависимость не найдена
 pack.remove-confirm=Удалить весь поставляемый паком/паками контент из мира (безвозвратно)?
 
+# Подсказки
+graphics.gamma.tooltip=Кривая яркости освещения
+graphics.backlight.tooltip=Подсветка, предотвращающая полную темноту
+
 # Меню
 menu.Apply=Применить
 menu.Audio=Звук

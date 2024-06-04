@@ -50,6 +50,10 @@ namespace gui {
         virtual bool isChecked() const {
             return checkbox->isChecked();
         }
+
+        virtual void setTooltip(const std::wstring& text) override {
+            checkbox->setTooltip(text);
+        }
     };
 }
 

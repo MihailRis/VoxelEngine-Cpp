@@ -8,6 +8,10 @@ world.delete-confirm=Do you want to delete world forever?
 world.generators.default=Default
 world.generators.flat=Flat
 
+# Tooltips
+graphics.gamma.tooltip=Lighting brightness curve
+graphics.backlight.tooltip=Backlight to prevent total darkness
+
 # Bindings
 devtools.console=Console
 movement.forward=Forward
