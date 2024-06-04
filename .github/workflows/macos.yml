@@ -1,0 +1,40 @@
+name: MacOs zip
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-dmg:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'true'
+
+    - name: Install dependencies from brew
+      run: |
+        brew install glfw3 glew libpng openal-soft luajit libvorbis
+        
+    - name: Install specific version of GLM
+      run: |
+        curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/5c7655a866646aa4b857c002b8ae5465b9d26f65/Formula/g/glm.rb
+        brew install --formula glm.rb
+
+    - name: Configure
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_APPDIR=1
+
+    - name: Build
+      run: cmake --build build -t install
+
+    - name: Zip the build directory
+      run: |
+        zip -r VoxelEngineMacOs.zip build
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: VoxelEngineMacOs
+        path: VoxelEngineMacOs.zip
