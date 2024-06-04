@@ -14,35 +14,18 @@ jobs:
       build_type: Release
       upload_artifacts: true
 
-  build_release_macos:
-    name: Build Release MacOS
-    uses: ./.github/workflows/macos.yml
-    with:
-      upload_artifacts: true
-
   create_release:
-    needs: [build_release, build_release_macos]
+    needs: build_release
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: VoxelEngine
-
-      - name: Download artifacts (MacOS)
-        uses: actions/download-artifact@v4
-        with:
-          name: VoxelEngineMacOs
-
       - name: Pack artifacts
         run: |
           chmod +x VoxelEngine
           zip -r VoxelEngine.zip res VoxelEngine
-          
-      - name: Pack artifacts (MacOS DMG)
-        run: |
-          cp VoxelEngineMacApp.dmg VoxelEngine.dmg
-
       - name: Grab and store version
         run: |
           tag_name=$(echo ${{ github.ref }} | grep -oE "v[^/]+$")
@@ -58,4 +41,3 @@ jobs:
           prerelease: false
           files: |
             VoxelEngine.zip
-            VoxelEngine.dmg

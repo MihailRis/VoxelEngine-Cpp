@@ -5,12 +5,6 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_call:
-    inputs:
-      upload_artifacts:
-        description: Should upload artifacts or not
-        type: boolean
-        default: false
 
 jobs:
   build-dmg:
@@ -37,7 +31,6 @@ jobs:
         run: cmake --build build -t install
 
       - name: Create DMG
-        if: ${{ inputs.upload_artifacts }}
         run: |
           mkdir VoxelEngineDmgContent
           cp -r build/res VoxelEngineDmgContent/
@@ -45,7 +38,6 @@ jobs:
           hdiutil create VoxelEngineMacApp.dmg -volname "VoxelEngine" -srcfolder VoxelEngineDmgContent -ov -format UDZO
 
       - name: Upload artifacts
-        if: ${{ inputs.upload_artifacts }}
         uses: actions/upload-artifact@v4
         with:
           name: VoxelEngineMacOs
