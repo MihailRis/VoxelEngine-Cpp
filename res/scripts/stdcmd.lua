@@ -153,14 +153,6 @@ console.add_command(
 )
 
 console.add_command(
-    "cls",
-    "Clear the console",
-    function ()
-        return string.rep("\n", 1000000)
-    end
-)
-
-console.add_command(
     "pos id_player:sel=$obj.id",
     "Position player",
     function ()
