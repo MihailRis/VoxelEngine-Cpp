@@ -1,0 +1,62 @@
+name: MacOs DMG
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-dmg:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+
+      - name: Install dependencies from brew
+        run: |
+          brew install glfw3 glew libpng openal-soft luajit libvorbis
+
+      - name: Install specific version of GLM
+        run: |
+          curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/5c7655a866646aa4b857c002b8ae5465b9d26f65/Formula/g/glm.rb
+          brew install --formula glm.rb
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_APPDIR=1
+
+      - name: Build
+        run: cmake --build build -t install
+
+      - name: Create macOS app structure
+        run: |
+          mkdir -p VoxelEngine.app/Contents/MacOS
+          mkdir -p VoxelEngine.app/Contents/Resources
+          cp build/VoxelEngine VoxelEngine.app/Contents/MacOS/
+          cp -r res VoxelEngine.app/Contents/Resources/
+          echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" > VoxelEngine.app/Contents/Info.plist
+          echo "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">" >> VoxelEngine.app/Contents/Info.plist
+          echo "<plist version=\"1.0\">" >> VoxelEngine.app/Contents/Info.plist
+          echo "<dict>" >> VoxelEngine.app/Contents/Info.plist
+          echo "  <key>CFBundleExecutable</key>" >> VoxelEngine.app/Contents/Info.plist
+          echo "  <string>VoxelEngine</string>" >> VoxelEngine.app/Contents/Info.plist
+          echo "  <key>CFBundleIdentifier</key>" >> VoxelEngine.app/Contents/Info.plist
+          echo "  <string>com.yourcompany.VoxelEngine</string>" >> VoxelEngine.app/Contents/Info.plist
+          echo "  <key>CFBundleName</key>" >> VoxelEngine.app/Contents/Info.plist
+          echo "  <string>VoxelEngine</string>" >> VoxelEngine.app/Contents/Info.plist
+          echo "  <key>CFBundleVersion</key>" >> VoxelEngine.app/Contents/Info.plist
+          echo "  <string>1.0</string>" >> VoxelEngine.app/Contents/Info.plist
+          echo "</dict>" >> VoxelEngine.app/Contents/Info.plist
+          echo "</plist>" >> VoxelEngine.app/Contents/Info.plist
+
+      - name: Create DMG
+        run: |
+          hdiutil create VoxelEngine.dmg -volname "VoxelEngine" -srcfolder VoxelEngine.app -ov -format UDZO
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v2
+        with:
+          name: VoxelEngineMacOs
+          path: VoxelEngine.dmg
