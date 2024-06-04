@@ -12,47 +12,55 @@ error.pack-not-found=Не ўдалося знайсці пакет
 error.dependency-not-found=Выкарыстоўваная залежнасць не знойдзена
 pack.remove-confirm=Выдаліць увесь кантэнт які пастаўляецца пакам са свету (беззваротна)?
 
+# Подсказки
+graphics.gamma.tooltip=Крывая яркасці асвятлення
+graphics.backlight.tooltip=Падсветка, якая прадухіляе поўную цемру
+
 # Меню
-menu.New World=Новы Свет
-menu.Quit=Выхад
-menu.Continue=Працягнуть
-menu.Save and Quit to Menu=Захаваць і Выйсці ў Меню
-menu.missing-content=Адсутнічае Кантэнт!
-menu.Content Error=Памылка Кантэнту
-menu.Controls=Кіраванне
-menu.Back to Main Menu=Вярнуцца ў Меню
-menu.Settings=Налады
-menu.Content=Кантэнт
+menu.Apply=Ужыць
 menu.Audio=Гук
+menu.Back to Main Menu=Вярнуцца ў Меню
+menu.Content Error=Памылка Кантэнту
+menu.Content=Кантэнт
+menu.Continue=Працягнуть
+menu.Controls=Кіраванне
+menu.Graphics=Графіка
+menu.missing-content=Адсутнічае Кантэнт!
+menu.New World=Новы Свет
+menu.Page not found=Старонка не знойдзена
+menu.Quit=Выхад
+menu.Save and Quit to Menu=Захаваць і Выйсці ў Меню
+menu.Settings=Налады
+
 world.Seed=Зерне
 world.Name=Назва
-
 world.World generator=Генератар свету
 world.generators.default=Звычайны
 world.generators.flat=Плоскі
-menu.Create World=Стварыць Свет
-
+world.Create World=Стварыць Свет
 world.convert-request=Ёсць змены ў індэксах! Канвертаваць свет?
 world.delete-confirm=Выдаліць свет незваротна?
 
 # Настройки
+settings.Ambient=Фон
+settings.Backlight=Падсветка
+settings.Camera Shaking=Труска Камеры
+settings.Fog Curve=Крывая Туману
+settings.FOV=Поле Зроку
+settings.Fullscreen=Поўны экран
+settings.Gamma=Гама
+settings.Language=Мова
 settings.Load Distance=Дыстанцыя Загрузкі
 settings.Load Speed=Хуткасць Загрузкі
-settings.Fog Curve=Крывая Туману
-settings.Backlight=Падсветка
-settings.V-Sync=Вертыкальная Сінхранізацыя
-settings.Camera Shaking=Труска Камеры
 settings.Master Volume=Агульная Гучнасць
+settings.Mouse Sensitivity=Адчувальнасць Мышы
+settings.Music=Музыка
 settings.Regular Sounds=Звычайныя Гукі
 settings.UI Sounds=Гукі Інтэрфейсу
-settings.Ambient=Фон
-settings.Music=Музыка
-
-settings.FOV=Поле Зроку
-settings.Mouse Sensitivity=Адчувальнасць Мышы
-settings.Language=Мова
+settings.V-Sync=Вертыкальная Сінхранізацыя
 
 # Управление
+devtools.console=Кансоль
 movement.forward=Уперад
 movement.back=Назад
 movement.left=Улева
