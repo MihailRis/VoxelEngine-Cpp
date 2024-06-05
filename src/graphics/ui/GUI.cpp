@@ -73,6 +73,9 @@ void GUI::updateTooltip(float delta) {
         if (tooltipTimer + delta >= hover->getTooltipDelay()) {
             auto label = std::dynamic_pointer_cast<gui::Label>(get("tooltip.label"));
             const auto& text = hover->getTooltip();
+            if (text.empty() && tooltip->isVisible()) {
+                return resetTooltip();
+            }
             if (label && !text.empty()) {
                 tooltip->setVisible(true);
                 label->setText(langs::get(text));
