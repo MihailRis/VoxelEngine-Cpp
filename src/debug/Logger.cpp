@@ -51,6 +51,7 @@ void Logger::log(LogLevel level, const std::string& name, std::string message) {
         auto string = ss.str();
         if (file.good()) {
             file << string << '\n';
+            file.flush();
         }
         std::cout << string << std::endl;
     }
