@@ -31,16 +31,17 @@ static int l_mousecode(lua_State* L) {
     return 1;
 }
 
-static int l_add_callback(lua_State* L) {
+static int l_add_callback(lua_State*) {
     auto bindname = state->requireString(1);
     const auto& bind = Events::bindings.find(bindname);
     if (bind == Events::bindings.end()) {
         throw std::runtime_error("unknown binding "+util::quote(bindname));
     }
     state->pushvalue(2);
+    runnable actual_callback = state->createRunnable();
     runnable callback = [=]() {
         if (!scripting::engine->getGUI()->isFocusCaught()) {
-            state->createRunnable();
+            actual_callback();
         }
     };
     if (hud) {
