@@ -13,58 +13,62 @@ error.dependency-not-found=Käytetty riippuvuutta ei löytynyt
 pack.remove-confirm=Poistetaanko kaikki pakettien sisältö maailmasta (peruuttamattomasti)?
 
 # Меню
-menu.New World=Uusi Maailma
-menu.Quit=Poistu
-menu.Continue=Jatka
-menu.Save and Quit to Menu=Tallenna ja poistu valikkoon
-menu.missing-content=Ei ole sisältöä!
-menu.Content Error=Sisältövirhe
-menu.Controls=Ohjaus
-menu.Back to Main Menu=Takaisin Valikoon
-menu.Settings=Asetukset
+menu.Apply=Tallenna
+menu.Audio=Ääni
+menu.Back to Main Menu=Takaisin Valikkoon
+menu.Content Error=Virhe Sisällössä
 menu.Content=Sisältö
-menu.Audio=Audio
+menu.Continue=Jatka
+menu.Controls=Ohjaus
+menu.Graphics=Grafiikka
+menu.missing-content=Sisältö Puuttuu!
+menu.New World=Uusi Maailma
+menu.Page not found=Sivu ei löytynyt!
+menu.Quit=Poistu
+menu.Save and Quit to Menu=Tallenna ja Takaisin Valikkoon
+menu.Settings=Asetukset
+
 world.Seed=Siemen
 world.Name=Nimi
-
-world.World generator=Maailman generaattori
+world.World generator=Maailma Generaatori
 world.generators.default=Tavallinen
 world.generators.flat=Tasainen
-menu.Create World=Luo Maailma
-
-world.convert-request=Indeksit ovat muuttuneet! Luodaanko maailma uudeleen?
-world.delete-confirm=Poistetaanko maailma peruuttamattomasti?
+world.Create World=Luo Maailma
+world.convert-request=Indekseissä on muutoksia! Kääntää maailman?
+world.delete-confirm=Poistetaanko maailma pysyvästi?
 
 # Настройки
-settings.Load Distance=Latausalue
-settings.Load Speed=Latausnopeus
-settings.Fog Curve=Sumun tiheys
-settings.Backlight=Taustavalo
-settings.V-Sync=Pystytahdistus
-settings.Camera Shaking=Kameran tärähdys
-settings.Master Volume=Pää-äänekkyys
-settings.Regular Sounds=Tavalliset äänet
-settings.UI Sounds=Käyttöliittymän äänet
 settings.Ambient=Tausta
-settings.Music=Musiikki
-
-settings.FOV=Näkökenttä
-settings.Mouse Sensitivity=Hiiren nopeus
+settings.Backlight=Taustavalo
+settings.Camera Shaking=Tärisevä kamera
+settings.Fog Curve=Sumukäurä
+settings.FOV=Näkokenttä
+settings.Fullscreen=Koko näyttö
+settings.Gamma=Gamma
 settings.Language=Kieli
+settings.Load Distance=Latausetäisyys
+settings.Load Speed=Latausnopeus
+settings.Master Volume=Yleinen äänen voimakkuus
+settings.Mouse Sensitivity=Hiiren herkkyys
+settings.Music=Musiikki
+settings.Regular Sounds=Tavalliset Äänet
+settings.UI Sounds=Käyttöliittymän äänet
+settings.V-Sync=Pystytahdistus
 
 # Управление
+devtools.console=Konsoli
 movement.forward=Eteenpäin
 movement.back=Taaksepäin
-movement.left=Vaseemalle
+movement.left=Vaseemmalle
 movement.right=Oikealle
 movement.jump=Hyppy
-movement.sprint=Juoksu
+movement.sprint=Kiihtyvyys
 movement.crouch=Hiipiä
 movement.cheat=Huijata
 hud.inventory=Varasto
-player.pick=Ottaa lohko
+player.pick=Valitse lohko
 player.attack=Lyödä / Rikkoa
 player.build=Aseta lohko
 player.flight=Lento
 camera.zoom=Lähentäminen
-camera.mode=Vaihda Kameratila
+camera.mode=Vaihda kameratilaa
