@@ -35,6 +35,7 @@ function submit(text)
     add_to_history(text)
     setup_variables()
     
+    document.log.caret = -1
     local status, result = pcall(function() return console.execute(text) end)
     if result ~= nil then
         local prevtext = document.log.text
