@@ -214,7 +214,7 @@ void Map::flag(const std::string& key, bool& dst) const {
 }
 
 Map& Map::put(std::string key, const Value& value) {
-    values.emplace(key, value);
+    values[key] = value;
     return *this;
 }
 
