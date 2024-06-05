@@ -38,6 +38,7 @@ public:
 
     static void toggleCursor();
 
+    static Binding& getBinding(const std::string& name);
     static void bind(const std::string& name, inputtype type, keycode code);
     static void bind(const std::string& name, inputtype type, mousecode code);
     static void bind(const std::string& name, inputtype type, int code);

@@ -60,6 +60,7 @@ settings.UI Sounds=Звуки Интерфейса
 settings.V-Sync=Вертикальная Синхронизация
 
 # Управление
+chunks.reload=Перезагрузить Чанки
 devtools.console=Консоль
 movement.forward=Вперёд
 movement.back=Назад

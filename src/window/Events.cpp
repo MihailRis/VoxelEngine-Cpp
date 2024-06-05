@@ -98,6 +98,14 @@ void Events::pollEvents() {
     }
 }
 
+Binding& Events::getBinding(const std::string& name) {
+    auto found = bindings.find(name);
+    if (found == bindings.end()) {
+        throw std::runtime_error("binding '"+name+"' does not exists");
+    }
+    return found->second;
+}
+
 void Events::bind(const std::string& name, inputtype type, keycode code) {
     bind(name, type, static_cast<int>(code));
 }

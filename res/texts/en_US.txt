@@ -13,6 +13,7 @@ graphics.gamma.tooltip=Lighting brightness curve
 graphics.backlight.tooltip=Backlight to prevent total darkness
 
 # Bindings
+chunks.reload=Reload Chunks
 devtools.console=Console
 movement.forward=Forward
 movement.back=Back

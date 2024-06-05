@@ -77,7 +77,7 @@ void input_util::initialize() {
         keycodes[std::to_string(i)] = GLFW_KEY_0+i;
     }
     for (int i = 0; i < 25; i++) {
-        keycodes["f"+std::to_string(i)] = GLFW_KEY_F1+i;
+        keycodes["f"+std::to_string(i+1)] = GLFW_KEY_F1+i;
     }
     for (char i = 'a'; i <= 'z'; i++) {
         keycodes[std::string({i})] = GLFW_KEY_A-'a'+i;

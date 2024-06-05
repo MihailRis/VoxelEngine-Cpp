@@ -10,6 +10,7 @@ inline const std::string TEXTURE_NOTFOUND = "notfound";
 
 // built-in bindings
 inline const std::string BIND_DEVTOOLS_CONSOLE = "devtools.console";
+inline const std::string BIND_CHUNKS_RELOAD = "chunks.reload";
 inline const std::string BIND_MOVE_FORWARD = "movement.forward";
 inline const std::string BIND_MOVE_BACK = "movement.back";
 inline const std::string BIND_MOVE_LEFT = "movement.left";

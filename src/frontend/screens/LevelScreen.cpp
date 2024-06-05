@@ -1,5 +1,6 @@
 #include "LevelScreen.hpp"
 
+#include "../../core_defs.hpp"
 #include "../hud.hpp"
 #include "../LevelFrontend.hpp"
 #include "../../audio/audio.hpp"
@@ -46,6 +47,9 @@ LevelScreen::LevelScreen(Engine* engine, std::unique_ptr<Level> level)
     }));
     keepAlive(settings.camera.fov.observe([=](double value) {
         controller->getPlayer()->camera->setFov(glm::radians(value));
+    }));
+    keepAlive(Events::getBinding(BIND_CHUNKS_RELOAD).onactived.add([=](){
+        controller->getLevel()->chunks->saveAndClear();
     }));
 
     animator = std::make_unique<TextureAnimator>();
@@ -113,9 +117,6 @@ void LevelScreen::updateHotkeys() {
     }
     if (Events::jpressed(keycode::F3)) {
         controller->getPlayer()->debug = !controller->getPlayer()->debug;
-    }
-    if (Events::jpressed(keycode::F5)) {
-        controller->getLevel()->chunks->saveAndClear();
     }
 }
 
