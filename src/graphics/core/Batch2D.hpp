@@ -12,13 +12,13 @@ class Texture;
 struct UVRegion;
 
 class Batch2D {
-    float* buffer;
+    std::unique_ptr<float[]> buffer;
     size_t capacity;
     std::unique_ptr<Mesh> mesh;
     std::unique_ptr<Texture> blank;
     size_t index;
     glm::vec4 color;
-    Texture* _texture;
+    Texture* currentTexture;
     DrawPrimitive primitive = DrawPrimitive::triangle;
 
     void setPrimitive(DrawPrimitive primitive);
