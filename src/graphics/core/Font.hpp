@@ -23,8 +23,8 @@ public:
     Font(std::vector<std::unique_ptr<Texture>> pages, int lineHeight, int yoffset);
     ~Font();
 
-    int getLineHeight() const;
-    int getYOffset() const;
+    [[nodiscard]] int getLineHeight() const;
+    [[nodiscard]] int getYOffset() const;
     
     /// @brief Calculate text width in pixels
     /// @param text selected text
@@ -41,7 +41,7 @@ public:
 
     /// @brief Check if character is visible (non-whitespace)
     /// @param codepoint character unicode codepoint
-    bool isPrintableChar(uint codepoint) const;
+    [[nodiscard]] bool isPrintableChar(uint codepoint) const;
     void draw(Batch2D* batch, std::wstring text, int x, int y);
     void draw(Batch2D* batch, std::wstring text, int x, int y, FontStyle style);
     void draw(Batch2D* batch, std::wstring_view text, int x, int y, FontStyle style);

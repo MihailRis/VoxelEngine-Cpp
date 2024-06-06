@@ -69,8 +69,7 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* pl
     );
 }
 
-WorldRenderer::~WorldRenderer() {
-}
+WorldRenderer::~WorldRenderer() = default;
 
 bool WorldRenderer::drawChunk(
     size_t index,
@@ -125,8 +124,8 @@ void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
             continue;
         indices.emplace_back(i);
     }
-    float px = camera->position.x / (float)CHUNK_W - 0.5f;
-    float pz = camera->position.z / (float)CHUNK_D - 0.5f;
+    float px = camera->position.x / static_cast<float>(CHUNK_W) - 0.5f;
+    float pz = camera->position.z / static_cast<float>(CHUNK_D) - 0.5f;
     std::sort(indices.begin(), indices.end(), [chunks, px, pz](auto i, auto j) {
         const auto a = chunks->chunks[i].get();
         const auto b = chunks->chunks[j].get();
@@ -141,8 +140,8 @@ void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
         frustumCulling->update(camera->getProjView());
     }
     chunks->visible = 0;
-    for (size_t i = 0; i < indices.size(); i++){
-        chunks->visible += drawChunk(indices[i], camera, shader, culling);
+    for (unsigned long long indice : indices){
+        chunks->visible += drawChunk(indice, camera, shader, culling);
     }
 }
 

@@ -60,10 +60,10 @@ void BlocksRenderer::vertex(const vec3& coord, float u, float v, const vec4& lig
         uint32_t integer;
     } compressed;
 
-    compressed.integer = (uint32_t(light.r * 255) & 0xff) << 24;
-    compressed.integer |= (uint32_t(light.g * 255) & 0xff) << 16;
-    compressed.integer |= (uint32_t(light.b * 255) & 0xff) << 8;
-    compressed.integer |= (uint32_t(light.a * 255) & 0xff);
+    compressed.integer = (static_cast<uint32_t>(light.r * 255) & 0xff) << 24;
+    compressed.integer |= (static_cast<uint32_t>(light.g * 255) & 0xff) << 16;
+    compressed.integer |= (static_cast<uint32_t>(light.b * 255) & 0xff) << 8;
+    compressed.integer |= (static_cast<uint32_t>(light.a * 255) & 0xff);
 
     vertexBuffer[vertexOffset++] = compressed.floating;
 }
@@ -377,10 +377,10 @@ vec4 BlocksRenderer::pickLight(int x, int y, int z) const {
         light_t light = voxelsBuffer->pickLight(chunk->x * CHUNK_W + x, 
                                                 y, 
                                                 chunk->z * CHUNK_D + z);
-        return vec4(Lightmap::extract(light, 0) / 15.0f,
+        return {Lightmap::extract(light, 0) / 15.0f,
             Lightmap::extract(light, 1) / 15.0f,
             Lightmap::extract(light, 2) / 15.0f,
-            Lightmap::extract(light, 3) / 15.0f);
+            Lightmap::extract(light, 3) / 15.0f};
     }
     else {
         return vec4(0.0f);

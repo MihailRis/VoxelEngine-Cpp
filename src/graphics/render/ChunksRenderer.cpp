@@ -52,8 +52,7 @@ ChunksRenderer::ChunksRenderer(
     );
 }
 
-ChunksRenderer::~ChunksRenderer() {
-}
+ChunksRenderer::~ChunksRenderer() = default;
 
 std::shared_ptr<Mesh> ChunksRenderer::render(std::shared_ptr<Chunk> chunk, bool important) {
     chunk->flags.modified = false;

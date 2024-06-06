@@ -29,11 +29,11 @@ public:
 
     void prepare();
 
-    bool has(const std::string& name) const;
-    const UVRegion& get(const std::string& name) const;
+    [[nodiscard]] bool has(const std::string& name) const;
+    [[nodiscard]] const UVRegion& get(const std::string& name) const;
 
-    Texture* getTexture() const;
-    ImageData* getImage() const;
+    [[nodiscard]] Texture* getTexture() const;
+    [[nodiscard]] ImageData* getImage() const;
 };
 
 struct atlasentry {
@@ -45,9 +45,9 @@ class AtlasBuilder {
     std::vector<atlasentry> entries;
     std::set<std::string> names;
 public:
-    AtlasBuilder() {}
+    AtlasBuilder() = default;
     void add(std::string name, std::unique_ptr<ImageData> image);
-    bool has(const std::string& name) const;
+    [[nodiscard]] bool has(const std::string& name) const;
     const std::set<std::string>& getNames() { return names; };
 
     /// @brief Build atlas from all added images

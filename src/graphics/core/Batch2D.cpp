@@ -24,8 +24,7 @@ Batch2D::Batch2D(size_t capacity) : capacity(capacity), color(1.0f){
     currentTexture = nullptr;
 }
 
-Batch2D::~Batch2D(){
-}
+Batch2D::~Batch2D()= default;
 
 void Batch2D::setPrimitive(DrawPrimitive primitive) {
     if (primitive == this->primitive) {

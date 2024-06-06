@@ -25,8 +25,7 @@ Batch3D::Batch3D(size_t capacity)
     currentTexture = nullptr;
 }
 
-Batch3D::~Batch3D(){
-}
+Batch3D::~Batch3D()= default;
 
 void Batch3D::begin(){
     currentTexture = nullptr;
@@ -168,7 +167,7 @@ void Batch3D::sprite(
 }
 
 inline glm::vec4 do_tint(float value) {
-    return glm::vec4(value, value, value, 1.0f);
+    return {value, value, value, 1.0f};
 }
 
 void Batch3D::xSprite(

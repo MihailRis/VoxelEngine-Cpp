@@ -27,19 +27,19 @@ public:
     void extrude(int x, int y, int w, int h);
     void fixAlphaColor();
 
-    void* getData() const {
+    [[nodiscard]] void* getData() const {
         return data;
     }
 
-    ImageFormat getFormat() const {
+    [[nodiscard]] ImageFormat getFormat() const {
         return format;
     }
 
-    uint getWidth() const {
+    [[nodiscard]] uint getWidth() const {
         return width;
     }
 
-    uint getHeight() const {
+    [[nodiscard]] uint getHeight() const {
         return height;
     }
 };

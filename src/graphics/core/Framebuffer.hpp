@@ -31,12 +31,12 @@ public:
     void resize(uint width, uint height);
 
     /// @brief Get framebuffer color attachment
-    Texture* getTexture() const;
+    [[nodiscard]] Texture* getTexture() const;
 
     /// @brief Get framebuffer width
-    uint getWidth() const;
+    [[nodiscard]] uint getWidth() const;
     /// @brief Get framebuffer height
-    uint getHeight() const;
+    [[nodiscard]] uint getHeight() const;
 };
 
 #endif // GRAPHICS_CORE_FRAMEBUFFER_HPP_

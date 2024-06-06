@@ -35,7 +35,7 @@ public:
     /// @brief Make an image from the last rendered frame
     std::unique_ptr<ImageData> toImage();
 
-    Framebuffer* getFramebuffer() const;
+    [[nodiscard]] Framebuffer* getFramebuffer() const;
 };
 
 #endif // GRAPHICS_CORE_POST_PROCESSING_HPP_

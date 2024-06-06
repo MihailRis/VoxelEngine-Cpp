@@ -23,7 +23,7 @@ Mesh::Mesh(const float* vertexBuffer, size_t vertices, const int* indexBuffer, s
     int offset = 0;
     for (int i = 0; attrs[i].size; i++) {
         int size = attrs[i].size;
-        glVertexAttribPointer(i, size, GL_FLOAT, GL_FALSE, vertexSize * sizeof(float), (GLvoid*)(offset * sizeof(float)));
+        glVertexAttribPointer(i, size, GL_FLOAT, GL_FALSE, vertexSize * sizeof(float), reinterpret_cast<GLvoid *>(offset * sizeof(float)));
         glEnableVertexAttribArray(i);
         offset += size;
     }
@@ -62,7 +62,7 @@ void Mesh::reload(const float* vertexBuffer, size_t vertices, const int* indexBu
 void Mesh::draw(unsigned int primitive){
     glBindVertexArray(vao);
     if (ibo != 0) {
-        glDrawElements(primitive, indices, GL_UNSIGNED_INT, 0);
+        glDrawElements(primitive, indices, GL_UNSIGNED_INT, nullptr);
     }
     else {
         glDrawArrays(primitive, 0, vertices);

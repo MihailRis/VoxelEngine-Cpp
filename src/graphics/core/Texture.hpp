@@ -26,10 +26,10 @@ public:
 
     virtual std::unique_ptr<ImageData> readData();
 
-    virtual uint getWidth() const;
-    virtual uint getHeight() const;
+    [[nodiscard]] virtual uint getWidth() const;
+    [[nodiscard]] virtual uint getHeight() const;
 
-    virtual uint getId() const;
+    [[nodiscard]] virtual uint getId() const;
 
     static std::unique_ptr<Texture> from(const ImageData* image);
 };
