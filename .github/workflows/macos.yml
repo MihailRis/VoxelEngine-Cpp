@@ -30,11 +30,18 @@ jobs:
       - name: Build
         run: cmake --build build -t install
 
+      - name: Make fix_dylibs.sh executable
+        run: chmod +x fix_dylibs.sh
+
+      - name: Fix dylibs
+        run: ./fix_dylibs.sh VoxelEngine Release build
+
       - name: Create DMG
         run: |
           mkdir VoxelEngineDmgContent
           cp -r build/res VoxelEngineDmgContent/
           cp -r build/VoxelEngine VoxelEngineDmgContent/
+          cp -r build/libs VoxelEngineDmgContent/libs
           hdiutil create VoxelEngineMacApp.dmg -volname "VoxelEngine" -srcfolder VoxelEngineDmgContent -ov -format UDZO
 
       - name: Upload artifacts
