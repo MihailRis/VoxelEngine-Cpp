@@ -41,14 +41,14 @@ LevelScreen::LevelScreen(Engine* engine, std::unique_ptr<Level> level)
 
     worldRenderer = std::make_unique<WorldRenderer>(engine, frontend.get(), controller->getPlayer());
     hud = std::make_unique<Hud>(engine, frontend.get(), controller->getPlayer());
-    
-    keepAlive(settings.graphics.backlight.observe([=](bool) {
+
+    ObjectsKeeper::keepAlive(settings.graphics.backlight.observe([=](bool) {
         controller->getLevel()->chunks->saveAndClear();
     }));
-    keepAlive(settings.camera.fov.observe([=](double value) {
+    ObjectsKeeper::keepAlive(settings.camera.fov.observe([=](double value) {
         controller->getPlayer()->camera->setFov(glm::radians(value));
     }));
-    keepAlive(Events::getBinding(BIND_CHUNKS_RELOAD).onactived.add([=](){
+    ObjectsKeeper::keepAlive(Events::getBinding(BIND_CHUNKS_RELOAD).onactived.add([=](){
         controller->getLevel()->chunks->saveAndClear();
     }));
 

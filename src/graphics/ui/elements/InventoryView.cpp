@@ -108,8 +108,8 @@ SlotView::SlotView(
 ) : UINode(glm::vec2(InventoryView::SLOT_SIZE)),
     layout(layout)
 {
-    setColor(glm::vec4(0, 0, 0, 0.2f));
-    setTooltipDelay(0.05f);
+    UINode::setColor(glm::vec4(0, 0, 0, 0.2f));
+    UINode::setTooltipDelay(0.05f);
 }
 
 void SlotView::draw(const DrawContext* pctx, Assets* assets) {
@@ -303,7 +303,7 @@ ItemStack& SlotView::getStack() {
 }
 
 InventoryView::InventoryView() : Container(glm::vec2()) {
-    setColor(glm::vec4(0, 0, 0, 0.0f));
+    UINode::setColor(glm::vec4(0, 0, 0, 0.0f));
 }
 
 InventoryView::~InventoryView() {}

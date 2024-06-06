@@ -9,7 +9,7 @@ Panel::Panel(glm::vec2 size, glm::vec4 padding, float interval)
     padding(padding), 
     interval(interval) 
 {
-    setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.75f));
+    UINode::setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.75f));
 }
 
 Panel::~Panel() {

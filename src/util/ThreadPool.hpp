@@ -114,7 +114,7 @@ public:
         }
     }
     ~ThreadPool(){
-        terminate();
+        ThreadPool<T, R>::terminate();
     }
 
     bool isActive() const override {

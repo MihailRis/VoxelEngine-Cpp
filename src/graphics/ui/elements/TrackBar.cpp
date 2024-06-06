@@ -19,8 +19,8 @@ TrackBar::TrackBar(
     step(step), 
     trackWidth(trackWidth) 
 {
-    setColor(glm::vec4(0.f, 0.f, 0.f, 0.4f));
-    setHoverColor(glm::vec4(0.01f, 0.02f, 0.03f, 0.5f));
+    UINode::setColor(glm::vec4(0.f, 0.f, 0.f, 0.4f));
+    UINode::setHoverColor(glm::vec4(0.01f, 0.02f, 0.03f, 0.5f));
 }
 
 void TrackBar::draw(const DrawContext* pctx, Assets*) {

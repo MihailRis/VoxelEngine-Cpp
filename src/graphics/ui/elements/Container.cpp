@@ -9,7 +9,7 @@ using namespace gui;
 
 Container::Container(glm::vec2 size) : UINode(size) {
     actualLength = size.y;
-    setColor(glm::vec4());
+    UINode::setColor(glm::vec4());
 }
 
 std::shared_ptr<UINode> Container::getAt(glm::vec2 pos, std::shared_ptr<UINode> self) {
