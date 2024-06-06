@@ -51,7 +51,7 @@ console.add_command(
 )
 
 console.add_command(
-    "obj.tp obj:sel=$obj.id x:num~pos.x y:num~pos.y z:num~pos.z",
+    "tp obj:sel=$obj.id x:num~pos.x y:num~pos.y z:num~pos.z",
     "Teleport object",
     function (args, kwargs)
         player.set_pos(unpack(args))

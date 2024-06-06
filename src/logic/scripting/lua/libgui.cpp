@@ -10,6 +10,7 @@
 #include "../../../graphics/ui/gui_util.hpp"
 #include "../../../graphics/ui/elements/UINode.hpp"
 #include "../../../graphics/ui/elements/Button.hpp"
+#include "../../../graphics/ui/elements/Image.hpp"
 #include "../../../graphics/ui/elements/CheckBox.hpp"
 #include "../../../graphics/ui/elements/TextBox.hpp"
 #include "../../../graphics/ui/elements/TrackBar.hpp"
@@ -49,8 +50,8 @@ static DocumentNode getDocumentNode(lua_State*, const std::string& name, const s
 static DocumentNode getDocumentNode(lua_State* L, int idx=1) {
     lua_getfield(L, idx, "docname");
     lua_getfield(L, idx, "name");
-    auto docname = lua_tostring(L, -2);
-    auto name = lua_tostring(L, -1);
+    auto docname = state->requireString(-2);
+    auto name = state->requireString(-1);
     auto node = getDocumentNode(L, docname, name);
     lua_pop(L, 2);
     return node;
@@ -73,7 +74,7 @@ static int l_menu_reset(lua_State* L) {
 static int l_textbox_paste(lua_State* L) {
     auto node = getDocumentNode(L);
     auto box = dynamic_cast<TextBox*>(node.node.get());
-    auto text = lua_tostring(L, 2);
+    auto text = state->requireString(2);
     box->paste(util::str2wstr_utf8(text));
     return 0;
 }
@@ -81,7 +82,7 @@ static int l_textbox_paste(lua_State* L) {
 static int l_container_add(lua_State* L) {
     auto docnode = getDocumentNode(L);
     auto node = dynamic_cast<Container*>(docnode.node.get());
-    auto xmlsrc = lua_tostring(L, 2);
+    auto xmlsrc = state->requireString(2);
     try {
         auto subnode = guiutil::create(xmlsrc, docnode.document->getEnvironment());
         node->add(subnode);
@@ -89,6 +90,18 @@ static int l_container_add(lua_State* L) {
     } catch (const std::exception& err) {
         throw std::runtime_error(err.what());
     }
+    return 0;
+}
+
+static int l_node_destruct(lua_State* L) {
+    auto docnode = getDocumentNode(L);
+    auto node = std::dynamic_pointer_cast<Container>(docnode.node);
+    engine->getGUI()->postRunnable([node]() {
+        auto parent = node->getParent();
+        if (auto container = dynamic_cast<Container*>(parent)) {
+            container->remove(node);
+        }
+    });
     return 0;
 }
 
@@ -100,7 +113,18 @@ static int l_container_clear(lua_State* L) {
     return 0;
 }
 
-static int l_uinode_move_into(lua_State* L) {
+static int l_container_set_interval(lua_State* L) {
+    auto node = getDocumentNode(L, 1);
+    auto interval = state->tointeger(2) / 1000.0f;
+    if (auto container = std::dynamic_pointer_cast<Container>(node.node)) {
+        state->pushvalue(3);
+        auto runnable = state->createRunnable();
+        container->listenInterval(interval, runnable);
+    }
+    return 0;
+}
+
+static int l_move_into(lua_State* L) {
     auto node = getDocumentNode(L, 1);
     auto dest = getDocumentNode(L, 2);
     UINode::moveInto(node.node, std::dynamic_pointer_cast<Container>(dest.node));
@@ -233,16 +257,34 @@ static int p_get_editable(UINode* node) {
     return 0;
 }
 
-static int p_get_add(UINode* node) {
-    if (dynamic_cast<Container*>(node)) {
-        return state->pushcfunction(l_container_add);
+static int p_get_src(UINode* node) {
+    if (auto image = dynamic_cast<Image*>(node)) {
+        return state->pushstring(image->getTexture());
     }
     return 0;
 }
 
+static int p_get_add(UINode* node) {
+    if (dynamic_cast<Container*>(node)) {
+        return state->pushcfunction(lua_wrap_errors<l_container_add>);
+    }
+    return 0;
+}
+
+static int p_get_destruct(UINode*) {
+    return state->pushcfunction(lua_wrap_errors<l_node_destruct>);
+}
+
 static int p_get_clear(UINode* node) {
     if (dynamic_cast<Container*>(node)) {
-        return state->pushcfunction(l_container_clear);
+        return state->pushcfunction(lua_wrap_errors<l_container_clear>);
+    }
+    return 0;
+}
+
+static int p_set_interval(UINode* node) {
+    if (dynamic_cast<Container*>(node)) {
+        return state->pushcfunction(lua_wrap_errors<l_container_set_interval>);
     }
     return 0;
 }
@@ -256,8 +298,17 @@ static int p_get_hover_color(UINode* node) {
 static int p_get_pressed_color(UINode* node) {
     return lua::pushcolor_arr(state->getLua(), node->getPressedColor());
 }
+static int p_get_tooltip(UINode* node) {
+    return state->pushstring(util::wstr2str_utf8(node->getTooltip()));
+}
+static int p_get_tooltip_delay(UINode* node) {
+    return state->pushnumber(node->getTooltipDelay());
+}
 static int p_get_pos(UINode* node) {
     return lua::pushvec2_arr(state->getLua(), node->getPos());
+}
+static int p_get_wpos(UINode* node) {
+    return lua::pushvec2_arr(state->getLua(), node->calcPos());
 }
 static int p_get_size(UINode* node) {
     return lua::pushvec2_arr(state->getLua(), node->getSize());
@@ -272,16 +323,16 @@ static int p_is_enabled(UINode* node) {
     return state->pushboolean(node->isEnabled());
 }
 static int p_move_into(UINode*) {
-    return state->pushcfunction(l_uinode_move_into);
+    return state->pushcfunction(l_move_into);
 }
 static int p_get_focused(UINode* node) {
     return state->pushboolean(node->isFocused());
 }
 
 static int l_gui_getattr(lua_State* L) {
-    auto docname = lua_tostring(L, 1);
-    auto element = lua_tostring(L, 2);
-    auto attr = lua_tostring(L, 3);
+    auto docname = state->requireString(1);
+    auto element = state->requireString(2);
+    auto attr = state->requireString(3);
     auto docnode = getDocumentNode(L, docname, element);
     auto node = docnode.node;
 
@@ -289,19 +340,25 @@ static int l_gui_getattr(lua_State* L) {
         {"color", p_get_color},
         {"hoverColor", p_get_hover_color},
         {"pressedColor", p_get_pressed_color},
+        {"tooltip", p_get_tooltip},
+        {"tooltipDelay", p_get_tooltip_delay},
         {"pos", p_get_pos},
+        {"wpos", p_get_wpos},
         {"size", p_get_size},
         {"interactive", p_is_interactive},
         {"visible", p_is_visible},
-        {"enabled", p_is_enabled},
+        {"enabled",  p_is_enabled},
         {"move_into", p_move_into},
         {"add", p_get_add},
+        {"destruct", p_get_destruct},
         {"clear", p_get_clear},
+        {"setInterval", p_set_interval},
         {"placeholder", p_get_placeholder},
         {"valid", p_is_valid},
         {"caret", p_get_caret},
         {"text", p_get_text},
         {"editable", p_get_editable},
+        {"src", p_get_src},
         {"value", p_get_value},
         {"min", p_get_min},
         {"max", p_get_max},
@@ -332,8 +389,17 @@ static void p_set_hover_color(UINode* node, int idx) {
 static void p_set_pressed_color(UINode* node, int idx) {
     node->setPressedColor(state->tocolor(idx));
 }
+static void p_set_tooltip(UINode* node, int idx) {
+    node->setTooltip(util::str2wstr_utf8(state->requireString(idx)));
+}
+static void p_set_tooltip_delay(UINode* node, int idx) {
+    node->setTooltipDelay(state->tonumber(idx));
+}
 static void p_set_pos(UINode* node, int idx) {
     node->setPos(state->tovec2(idx));
+}
+static void p_set_wpos(UINode* node, int idx) {
+    node->setPos(state->tovec2(idx)-node->calcPos());
 }
 static void p_set_size(UINode* node, int idx) {
     node->setSize(state->tovec2(idx));
@@ -349,26 +415,31 @@ static void p_set_enabled(UINode* node, int idx) {
 }
 static void p_set_placeholder(UINode* node, int idx) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
-        box->setPlaceholder(util::str2wstr_utf8(state->tostring(idx)));
+        box->setPlaceholder(util::str2wstr_utf8(state->requireString(idx)));
     }
 }
 static void p_set_text(UINode* node, int idx) {
     if (auto label = dynamic_cast<Label*>(node)) {
-        label->setText(util::str2wstr_utf8(state->tostring(idx)));
+        label->setText(util::str2wstr_utf8(state->requireString(idx)));
     } else if (auto button = dynamic_cast<Button*>(node)) {
-        button->setText(util::str2wstr_utf8(state->tostring(idx)));
+        button->setText(util::str2wstr_utf8(state->requireString(idx)));
     } else if (auto box = dynamic_cast<TextBox*>(node)) {
-        box->setText(util::str2wstr_utf8(state->tostring(idx)));
+        box->setText(util::str2wstr_utf8(state->requireString(idx)));
     }
 }
 static void p_set_caret(UINode* node, int idx) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
-        box->setCaret(static_cast<ssize_t>(state->tointeger(idx)));
+        box->setCaret(static_cast<ptrdiff_t>(state->tointeger(idx)));
     }
 }
 static void p_set_editable(UINode* node, int idx) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
         box->setEditable(state->toboolean(idx));
+    }
+}
+static void p_set_src(UINode* node, int idx) {
+    if (auto image = dynamic_cast<Image*>(node)) {
+        image->setTexture(state->requireString(idx));
     }
 }
 static void p_set_value(UINode* node, int idx) {
@@ -410,7 +481,7 @@ static void p_set_checked(UINode* node, int idx) {
 }
 static void p_set_page(UINode* node, int idx) {
     if (auto menu = dynamic_cast<Menu*>(node)) {
-        menu->setPage(state->tostring(idx));
+        menu->setPage(state->requireString(idx));
     }
 }
 static void p_set_inventory(UINode* node, int idx) {
@@ -432,9 +503,9 @@ static void p_set_focused(std::shared_ptr<UINode> node, int idx) {
 }
 
 static int l_gui_setattr(lua_State* L) {
-    auto docname = lua_tostring(L, 1);
-    auto element = lua_tostring(L, 2);
-    auto attr = lua_tostring(L, 3);
+    auto docname = state->requireString(1);
+    auto element = state->requireString(2);
+    auto attr = state->requireString(3);
 
     auto docnode = getDocumentNode(L, docname, element);
     auto node = docnode.node;
@@ -443,7 +514,10 @@ static int l_gui_setattr(lua_State* L) {
         {"color", p_set_color},
         {"hoverColor", p_set_hover_color},
         {"pressedColor", p_set_pressed_color},
+        {"tooltip", p_set_tooltip},
+        {"tooltipDelay", p_set_tooltip_delay},
         {"pos", p_set_pos},
+        {"wpos", p_set_wpos},
         {"size", p_set_size},
         {"interactive", p_set_interactive},
         {"visible", p_set_visible},
@@ -451,6 +525,7 @@ static int l_gui_setattr(lua_State* L) {
         {"placeholder", p_set_placeholder},
         {"text", p_set_text},
         {"editable", p_set_editable},
+        {"src", p_set_src},
         {"caret", p_set_caret},
         {"value", p_set_value},
         {"min", p_set_min},
@@ -477,7 +552,7 @@ static int l_gui_setattr(lua_State* L) {
 }
 
 static int l_gui_get_env(lua_State* L) {
-    auto name = lua_tostring(L, 1);
+    auto name = state->requireString(1);
     auto doc = scripting::engine->getAssets()->getLayout(name);
     if (doc == nullptr) {
         throw std::runtime_error("document '"+std::string(name)+"' not found");
@@ -487,9 +562,9 @@ static int l_gui_get_env(lua_State* L) {
 }
 
 static int l_gui_str(lua_State* L) {
-    auto text = util::str2wstr_utf8(lua_tostring(L, 1));
+    auto text = util::str2wstr_utf8(state->requireString(1));
     if (!lua_isnoneornil(L, 2)) {
-        auto context = util::str2wstr_utf8(lua_tostring(L, 2));
+        auto context = util::str2wstr_utf8(state->requireString(2));
         lua_pushstring(L, util::wstr2str_utf8(langs::get(text, context)).c_str());
     } else {
         lua_pushstring(L, util::wstr2str_utf8(langs::get(text)).c_str());
@@ -498,7 +573,7 @@ static int l_gui_str(lua_State* L) {
 }
 
 static int l_gui_reindex(lua_State* L) {
-    auto name = lua_tostring(L, 1);
+    auto name = state->requireString(1);
     auto doc = scripting::engine->getAssets()->getLayout(name);
     if (doc == nullptr) {
         throw std::runtime_error("document '"+std::string(name)+"' not found");
@@ -530,7 +605,7 @@ const luaL_Reg guilib [] = {
     {"setattr", lua_wrap_errors<l_gui_setattr>},
     {"get_env", lua_wrap_errors<l_gui_get_env>},
     {"str", lua_wrap_errors<l_gui_str>},
-    {"reindex", lua_wrap_errors<l_gui_reindex>},
     {"get_locales_info", lua_wrap_errors<l_gui_get_locales_info>},
+    {"__reindex", lua_wrap_errors<l_gui_reindex>},
     {NULL, NULL}
 };

@@ -1,0 +1,4 @@
+<button 
+    onclick='core.set_setting("ui.language", "%{id}") menu:back()'>
+    %{name}
+</button>

@@ -20,7 +20,7 @@ namespace files {
         std::ifstream file;
         size_t filelength;
     public:
-        rafile(std::filesystem::path filename);
+        rafile(fs::path filename);
 
         void seekg(std::streampos pos);
         void read(char* buffer, std::streamsize size);
@@ -44,10 +44,7 @@ namespace files {
 
     /// @brief Write dynamic data to the JSON file
     /// @param nice if true, human readable format will be used, otherwise minimal
-    bool write_json(
-        fs::path filename, 
-        const dynamic::Map* obj, 
-        bool nice=true);
+    bool write_json(fs::path filename, const dynamic::Map* obj, bool nice=true);
 
     /// @brief Write dynamic data to the binary JSON file
     /// (see src/coders/binary_json_spec.md)
@@ -66,6 +63,7 @@ namespace files {
     /// @param file *.json or *.bjson file
     std::shared_ptr<dynamic::Map> read_json(fs::path file);
     std::shared_ptr<dynamic::Map> read_binary_json(fs::path file);
+    std::shared_ptr<dynamic::Map> read_toml(fs::path file);
     std::vector<std::string> read_list(fs::path file);
 }
 

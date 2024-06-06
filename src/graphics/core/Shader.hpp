@@ -4,6 +4,7 @@
 #include "../../typedefs.hpp"
 
 #include <string>
+#include <memory>
 #include <unordered_map>
 #include <glm/glm.hpp>
 
@@ -36,7 +37,7 @@ public:
     /// @param vertexSource vertex shader source code
     /// @param fragmentSource fragment shader source code
     /// @return linked shader program containing vertex and fragment shaders
-    static Shader* create(
+    static std::unique_ptr<Shader> create(
         const std::string& vertexFile, 
         const std::string& fragmentFile,
         const std::string& vertexSource, 

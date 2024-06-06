@@ -374,7 +374,7 @@ void WorldRegions::put(Chunk* chunk){
         chunk->encode(), CHUNK_DATA_LEN, true);
 
     // Writing lights cache
-    if (doWriteLights && chunk->isLighted()) {
+    if (doWriteLights && chunk->flags.lighted) {
         put(chunk->x, chunk->z, REGION_LAYER_LIGHTS, 
             chunk->lightmap.encode(), LIGHTMAP_DATA_LEN, true);
     }

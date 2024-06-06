@@ -37,6 +37,9 @@
 #include <algorithm>
 #include <memory>
 
+#include <glm/ext.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 bool WorldRenderer::showChunkBorders = false;
 
 WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* player) 
@@ -76,7 +79,7 @@ bool WorldRenderer::drawChunk(
     bool culling
 ){
     auto chunk = level->chunks->chunks[index];
-    if (!chunk->isLighted()) {
+    if (!chunk->flags.lighted) {
         return false;
     }
     float distance = glm::distance(
@@ -160,6 +163,7 @@ void WorldRenderer::renderLevel(
     shader->use();
     shader->uniformMatrix("u_proj", camera->getProjection());
     shader->uniformMatrix("u_view", camera->getView());
+    shader->uniform1f("u_timer", Window::time());
     shader->uniform1f("u_gamma", settings.graphics.gamma.get());
     shader->uniform1f("u_fogFactor", fogFactor);
     shader->uniform1f("u_fogCurve", settings.graphics.fogCurve.get());
@@ -194,19 +198,19 @@ void WorldRenderer::renderBlockSelection(Camera* camera, Shader* linesShader) {
     auto indices = level->content->getIndices();
     blockid_t id = PlayerController::selectedBlockId;
     auto block = indices->getBlockDef(id);
-    const glm::vec3 pos = PlayerController::selectedBlockPosition;
+    const glm::ivec3 pos = player->selectedBlockPosition;
     const glm::vec3 point = PlayerController::selectedPointPosition;
     const glm::vec3 norm = PlayerController::selectedBlockNormal;
 
     const std::vector<AABB>& hitboxes = block->rotatable
-        ? block->rt.hitboxes[PlayerController::selectedBlockStates]
+        ? block->rt.hitboxes[PlayerController::selectedBlockRotation]
         : block->hitboxes;
 
     linesShader->use();
     linesShader->uniformMatrix("u_projview", camera->getProjView());
     lineBatch->lineWidth(2.0f);
     for (auto& hitbox: hitboxes) {
-        const glm::vec3 center = pos + hitbox.center();
+        const glm::vec3 center = glm::vec3(pos) + hitbox.center();
         const glm::vec3 size = hitbox.size();
         lineBatch->box(center, size + glm::vec3(0.02), glm::vec4(0.f, 0.f, 0.f, 0.5f));
         if (player->debug) {
@@ -274,11 +278,12 @@ void WorldRenderer::draw(
     bool hudVisible, 
     PostProcessing* postProcessing
 ){
+    auto world = level->getWorld();
     const Viewport& vp = pctx.getViewport();
     camera->aspect = vp.getWidth() / static_cast<float>(vp.getHeight());
 
     const EngineSettings& settings = engine->getSettings();
-    skybox->refresh(pctx, level->getWorld()->daytime, 1.0f+fog*2.0f, 4);
+    skybox->refresh(pctx, world->daytime, 1.0f+world->fog*2.0f, 4);
 
     Assets* assets = engine->getAssets();
     Shader* linesShader = assets->getShader("lines");
@@ -291,7 +296,7 @@ void WorldRenderer::draw(
         Window::clearDepth();
 
         // Drawing background sky plane
-        skybox->draw(pctx, camera, assets, level->getWorld()->daytime, fog);
+        skybox->draw(pctx, camera, assets, world->daytime, world->fog);
         
         // Actually world render with depth buffer on
         {
@@ -355,5 +360,3 @@ void WorldRenderer::drawBorders(int sx, int sy, int sz, int ex, int ey, int ez) 
     }
     lineBatch->render();
 }
-
-float WorldRenderer::fog = 0.0f;

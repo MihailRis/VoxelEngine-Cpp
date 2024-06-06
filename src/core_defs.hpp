@@ -10,6 +10,7 @@ inline const std::string TEXTURE_NOTFOUND = "notfound";
 
 // built-in bindings
 inline const std::string BIND_DEVTOOLS_CONSOLE = "devtools.console";
+inline const std::string BIND_CHUNKS_RELOAD = "chunks.reload";
 inline const std::string BIND_MOVE_FORWARD = "movement.forward";
 inline const std::string BIND_MOVE_BACK = "movement.back";
 inline const std::string BIND_MOVE_LEFT = "movement.left";
@@ -27,11 +28,11 @@ inline const std::string BIND_PLAYER_BUILD = "player.build";
 inline const std::string BIND_PLAYER_PICK = "player.pick";
 inline const std::string BIND_HUD_INVENTORY = "hud.inventory";
 
+class EnginePaths;
 class ContentBuilder;
 
 namespace corecontent {
-    void setup_bindings();
-    void setup(ContentBuilder* builder);
+    void setup(EnginePaths* paths, ContentBuilder* builder);
 }
 
 #endif // CORE_DEFS_HPP_

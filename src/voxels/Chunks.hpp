@@ -5,6 +5,8 @@
 #include <vector>
 #include <memory>
 #include <glm/glm.hpp>
+
+#include "voxel.hpp"
 #include "../typedefs.hpp"
 
 class VoxelRenderer;
@@ -13,7 +15,6 @@ struct AABB;
 class Content;
 class ContentIndices;
 class Chunk;
-struct voxel;
 class WorldFiles;
 class LevelEvents;
 
@@ -42,7 +43,7 @@ public:
     voxel* get(int32_t x, int32_t y, int32_t z);
     light_t getLight(int32_t x, int32_t y, int32_t z);
     ubyte getLight(int32_t x, int32_t y, int32_t z, int channel);
-    void set(int32_t x, int32_t y, int32_t z, uint32_t id, uint8_t states);
+    void set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state);
 
     voxel* rayCast(
         glm::vec3 start, 

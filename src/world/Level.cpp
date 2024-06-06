@@ -1,6 +1,7 @@
 #include "Level.hpp"
 #include "World.hpp"
 #include "LevelEvents.hpp"
+#include "../settings.hpp"
 #include "../content/Content.hpp"
 #include "../lighting/Lighting.hpp"
 #include "../voxels/Chunk.hpp"

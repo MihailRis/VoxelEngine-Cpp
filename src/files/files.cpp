@@ -1,6 +1,8 @@
 #include "files.hpp"
 
+#include "../coders/commons.hpp"
 #include "../coders/json.hpp"
+#include "../coders/toml.hpp"
 #include "../coders/gzip.hpp"
 #include "../util/stringutil.hpp"
 #include "../data/dynamic.hpp"
@@ -107,8 +109,7 @@ bool files::write_binary_json(fs::path filename, const dynamic::Map* obj, bool c
 std::shared_ptr<dynamic::Map> files::read_json(fs::path filename) {
     std::string text = files::read_string(filename);
     try {
-        auto obj = json::parse(filename.string(), text);
-        return obj;
+        return json::parse(filename.string(), text);;
     } catch (const parsing_error& error) {
         std::cerr << error.errorLog() << std::endl;
         throw std::runtime_error("could not to parse "+filename.string());
@@ -119,6 +120,10 @@ std::shared_ptr<dynamic::Map> files::read_binary_json(fs::path file) {
     size_t size;
     std::unique_ptr<ubyte[]> bytes (files::read_bytes(file, size));
     return json::from_binary(bytes.get(), size);
+}
+
+std::shared_ptr<dynamic::Map> files::read_toml(fs::path file) {
+    return toml::parse(file.u8string(), files::read_string(file));
 }
 
 std::vector<std::string> files::read_list(fs::path filename) {

@@ -44,13 +44,14 @@ void Logger::log(LogLevel level, const std::string& name, std::string message) {
     auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()) % 1000;
     ss << " " << std::put_time(std::localtime(&tm), "%Y/%m/%d %T");
     ss << '.' << std::setfill('0') << std::setw(3) << ms.count();
-    ss << utcOffset << " (" << std::setfill(' ') << std::setw(moduleLen) << name << ") ";
+    ss << utcOffset << " [" << std::setfill(' ') << std::setw(moduleLen) << name << "] ";
     ss << message;
     {
         std::lock_guard<std::mutex> lock(mutex);
         auto string = ss.str();
         if (file.good()) {
             file << string << '\n';
+            file.flush();
         }
         std::cout << string << std::endl;
     }

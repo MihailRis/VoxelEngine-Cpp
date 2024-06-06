@@ -223,7 +223,8 @@ void EngineController::reconfigPacks(
 
     std::stringstream ss;
     for (const auto& id : packsToRemove) {
-        if (content->getPackRuntime(id)->getStats().hasSavingContent()) {
+        auto runtime = content->getPackRuntime(id);
+        if (runtime && runtime->getStats().hasSavingContent()) {
             if (hasIndices) {
                 ss << ", ";
             }
@@ -234,13 +235,22 @@ void EngineController::reconfigPacks(
 
     runnable removeFunc = [=]() {
         if (controller == nullptr) {
-            auto manager = engine->createPacksManager(fs::path(""));
-            manager.scan();
-            std::vector<std::string> names = engine->getBasePacks();
-            for (auto& name : packsToAdd) {
-                names.push_back(name);
+            try {
+                auto manager = engine->createPacksManager(fs::path(""));
+                manager.scan();
+                std::vector<std::string> names = PacksManager::getNames(engine->getContentPacks());
+                for (const auto& id : packsToAdd) {
+                    names.push_back(id);
+                }
+                for (const auto& id : packsToRemove) {
+                    manager.exclude(id);
+                    names.erase(std::find(names.begin(), names.end(), id));
+                }
+                names = manager.assembly(names);
+                engine->getContentPacks() = manager.getAll(names);
+            } catch (const contentpack_error& err) {
+                throw std::runtime_error(std::string(err.what())+" ["+err.getPackId()+"]");
             }
-            engine->getContentPacks() = manager.getAll(names);
         } else {
             auto world = controller->getLevel()->getWorld();
             auto wfile = world->wfile.get();

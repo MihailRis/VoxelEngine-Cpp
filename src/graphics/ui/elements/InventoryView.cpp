@@ -1,7 +1,9 @@
 #include "InventoryView.hpp"
+
 #include "../../../assets/Assets.hpp"
 #include "../../../content/Content.hpp"
 #include "../../../frontend/LevelFrontend.hpp"
+#include "../../../frontend/locale.hpp"
 #include "../../../items/Inventories.hpp"
 #include "../../../items/Inventory.hpp"
 #include "../../../items/ItemDef.hpp"
@@ -22,7 +24,6 @@
 #include "../../render/BlocksPreview.hpp"
 #include "../GUI.hpp"
 
-#include <iostream>
 #include <glm/glm.hpp>
 
 using namespace gui;
@@ -108,6 +109,7 @@ SlotView::SlotView(
     layout(layout)
 {
     setColor(glm::vec4(0, 0, 0, 0.2f));
+    setTooltipDelay(0.05f);
 }
 
 void SlotView::draw(const DrawContext* pctx, Assets* assets) {
@@ -251,11 +253,12 @@ void SlotView::clicked(gui::GUI* gui, mousecode button) {
                 stack.setCount(halfremain);
             }
         } else {
+            auto stackDef = content->getIndices()->getItemDef(stack.getItemId());
             if (stack.isEmpty()) {
                 stack.set(grabbed);
                 stack.setCount(1);
                 grabbed.setCount(grabbed.getCount()-1);
-            } else if (stack.accepts(grabbed)){
+            } else if (stack.accepts(grabbed) && stack.getCount() < stackDef->stackSize){
                 stack.setCount(stack.getCount()+1);
                 grabbed.setCount(grabbed.getCount()-1);
             }
@@ -268,6 +271,17 @@ void SlotView::clicked(gui::GUI* gui, mousecode button) {
 
 void SlotView::onFocus(gui::GUI* gui) {
     clicked(gui, mousecode::BUTTON_1);
+}
+
+const std::wstring SlotView::getTooltip() const {
+    const auto str = UINode::getTooltip();
+    if (!str.empty() || bound->isEmpty()) {
+        return str;
+    }
+    auto def = content->getIndices()->getItemDef(bound->getItemId());
+    return util::pascal_case(
+        langs::get(util::str2wstr_utf8(def->caption))
+    ); // TODO: cache
 }
 
 void SlotView::bind(

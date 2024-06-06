@@ -15,6 +15,7 @@ static std::unordered_map<std::string, int> keycodes {
     {"delete", GLFW_KEY_DELETE},
     {"home", GLFW_KEY_HOME},
     {"end", GLFW_KEY_END},
+    {"tab", GLFW_KEY_TAB},
     {"insert", GLFW_KEY_INSERT},
     {"page-down", GLFW_KEY_PAGE_DOWN},
     {"page-up", GLFW_KEY_PAGE_UP},
@@ -26,11 +27,37 @@ static std::unordered_map<std::string, int> keycodes {
     {"right-alt", GLFW_KEY_RIGHT_ALT},
     {"left-super", GLFW_KEY_LEFT_SUPER},
     {"right-super", GLFW_KEY_RIGHT_SUPER},
+    {"grave-accent", GLFW_KEY_GRAVE_ACCENT},
     {"left", GLFW_KEY_LEFT},
     {"right", GLFW_KEY_RIGHT},
     {"down", GLFW_KEY_DOWN},
     {"up", GLFW_KEY_UP},
 };
+
+static std::unordered_map<std::string, int> mousecodes {
+    {"left", GLFW_MOUSE_BUTTON_1},
+    {"right", GLFW_MOUSE_BUTTON_2},
+    {"middle", GLFW_MOUSE_BUTTON_3},
+};
+
+static std::unordered_map<int, std::string> keynames {};
+
+std::string input_util::get_name(mousecode code) {
+    switch (code) {
+        case mousecode::BUTTON_1: return "left";
+        case mousecode::BUTTON_2: return "right";
+        case mousecode::BUTTON_3: return "middle";
+        default: return "unknown";
+    }
+}
+
+std::string input_util::get_name(keycode code) {
+    auto found = keynames.find(static_cast<int>(code));
+    if (found == keynames.end()) {
+        return "unknown";
+    }
+    return found->second;
+}
 
 void Binding::reset(inputtype type, int code) {
     this->type = type;
@@ -50,10 +77,13 @@ void input_util::initialize() {
         keycodes[std::to_string(i)] = GLFW_KEY_0+i;
     }
     for (int i = 0; i < 25; i++) {
-        keycodes["f"+std::to_string(i)] = GLFW_KEY_F1+i;
+        keycodes["f"+std::to_string(i+1)] = GLFW_KEY_F1+i;
     }
     for (char i = 'a'; i <= 'z'; i++) {
-        keycodes[std::to_string(i)] = GLFW_KEY_A-'a'+i;
+        keycodes[std::string({i})] = GLFW_KEY_A-'a'+i;
+    }
+    for (const auto& entry : keycodes) {
+        keynames[entry.second] = entry.first;
     }
 }
 
@@ -63,6 +93,14 @@ keycode input_util::keycode_from(const std::string& name) {
         return keycode::UNKNOWN;
     }
     return static_cast<keycode>(found->second);
+}
+
+mousecode input_util::mousecode_from(const std::string& name) {
+    const auto& found = mousecodes.find(name);
+    if (found == mousecodes.end()) {
+        return mousecode::UNKNOWN;
+    }
+    return static_cast<mousecode>(found->second);
 }
 
 std::string input_util::to_string(keycode code) {
@@ -126,9 +164,9 @@ std::string input_util::to_string(keycode code) {
 
 std::string input_util::to_string(mousecode code) {
     switch (code) {
-    case mousecode::BUTTON_1: return "LMB";
-    case mousecode::BUTTON_2: return "RMB";
-    case mousecode::BUTTON_3: return "MMB";
+        case mousecode::BUTTON_1: return "LMB";
+        case mousecode::BUTTON_2: return "RMB";
+        case mousecode::BUTTON_3: return "MMB";
+        default: return "unknown button";
     }
-    return "unknown button";
 }

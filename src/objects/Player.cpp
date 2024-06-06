@@ -35,9 +35,10 @@ Player::~Player() {
 }
 
 void Player::updateInput(
-        Level* level,
-        PlayerInput& input, 
-        float delta) {
+    Level* level,
+    PlayerInput& input, 
+    float delta
+) {
     bool crouch = input.shift && hitbox->grounded && !input.sprint;
     float speed = this->speed;
     if (flight){
@@ -76,9 +77,9 @@ void Player::updateInput(
         hitbox->velocity.z += dir.z * speed * delta * 9;
     }
 
-    float vel = std::max(glm::length(hitbox->velocity * 0.25f), 1.0f);
-    int substeps = int(delta * vel * 1000);
-    substeps = std::min(100, std::max(1, substeps));
+    float vel = glm::length(hitbox->velocity);
+    int substeps = int(delta * vel * 20);
+    substeps = std::min(100, std::max(2, substeps));
     level->physics->step(
         level->chunks.get(), 
         hitbox.get(), 
@@ -166,6 +167,22 @@ float Player::getSpeed() const {
     return speed;
 }
 
+bool Player::isFlight() const {
+    return flight;
+}
+
+void Player::setFlight(bool flag) {
+    this->flight = flag;
+}
+
+bool Player::isNoclip() const {
+    return noclip;
+}
+
+void Player::setNoclip(bool flag) {
+    this->noclip = flag;
+}
+
 std::shared_ptr<Inventory> Player::getInventory() const {
     return inventory;
 }
@@ -189,6 +206,7 @@ std::unique_ptr<dynamic::Map> Player::serialize() const {
     auto& rotarr = root->putList("rotation");
     rotarr.put(cam.x);
     rotarr.put(cam.y);
+    rotarr.put(cam.z);
 
     auto& sparr = root->putList("spawnpoint");
     sparr.put(spawnpoint.x);
@@ -213,6 +231,9 @@ void Player::deserialize(dynamic::Map *src) {
     auto rotarr = src->list("rotation");
     cam.x = rotarr->num(0);
     cam.y = rotarr->num(1);
+    if (rotarr->size() > 2) {
+        cam.z = rotarr->num(2);
+    }
 
     if (src->has("spawnpoint")) {
         auto sparr = src->list("spawnpoint");

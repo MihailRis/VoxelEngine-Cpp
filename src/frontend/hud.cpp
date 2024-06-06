@@ -333,7 +333,7 @@ void Hud::openInventory(
     if (blockinv == nullptr) {
         blockinv = level->inventories->createVirtual(blockUI->getSlotsCount());
     }
-    level->chunks->getChunkByVoxel(block.x, block.y, block.z)->setUnsaved(true);
+    level->chunks->getChunkByVoxel(block.x, block.y, block.z)->flags.unsaved = true;
     blockUI->bind(blockinv, content);
     blockPos = block;
     currentblockid = level->chunks->get(block.x, block.y, block.z)->id;

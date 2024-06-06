@@ -1,6 +1,8 @@
 #include "lua_commons.hpp"
+
 #include "api_lua.hpp"
 #include "lua_util.hpp"
+
 #include "../scripting.hpp"
 #include "../../../content/Content.hpp"
 #include "../../../world/Level.hpp"
@@ -38,8 +40,8 @@ static void validate_slotid(int slotid, Inventory* inv) {
 }
 
 static int l_inventory_get(lua_State* L) {
-    lua::luaint invid = lua_tointeger(L, 1);
-    lua::luaint slotid = lua_tointeger(L, 2);
+    lua_Integer invid = lua_tointeger(L, 1);
+    lua_Integer slotid = lua_tointeger(L, 2);
     auto inv = get_inventory(invid);
     validate_slotid(slotid, inv.get());
     const ItemStack& item = inv->getSlot(slotid);
@@ -49,10 +51,10 @@ static int l_inventory_get(lua_State* L) {
 }
 
 static int l_inventory_set(lua_State* L) {
-    lua::luaint invid = lua_tointeger(L, 1);
-    lua::luaint slotid = lua_tointeger(L, 2);
-    lua::luaint itemid = lua_tointeger(L, 3);
-    lua::luaint count = lua_tointeger(L, 4);
+    lua_Integer invid = lua_tointeger(L, 1);
+    lua_Integer slotid = lua_tointeger(L, 2);
+    lua_Integer itemid = lua_tointeger(L, 3);
+    lua_Integer count = lua_tointeger(L, 4);
     validate_itemid(itemid);
 
     auto inv = get_inventory(invid);
@@ -64,16 +66,16 @@ static int l_inventory_set(lua_State* L) {
 }
 
 static int l_inventory_size(lua_State* L) {
-    lua::luaint invid = lua_tointeger(L, 1);
+    lua_Integer invid = lua_tointeger(L, 1);
     auto inv = get_inventory(invid);
     lua_pushinteger(L, inv->size());
     return 1;
 }
 
 static int l_inventory_add(lua_State* L) {
-    lua::luaint invid = lua_tointeger(L, 1);
-    lua::luaint itemid = lua_tointeger(L, 2);
-    lua::luaint count = lua_tointeger(L, 3);
+    lua_Integer invid = lua_tointeger(L, 1);
+    lua_Integer itemid = lua_tointeger(L, 2);
+    lua_Integer count = lua_tointeger(L, 3);
     validate_itemid(itemid);
 
     auto inv = get_inventory(invid);
@@ -84,33 +86,33 @@ static int l_inventory_add(lua_State* L) {
 }
 
 static int l_inventory_get_block(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
     int64_t id = scripting::blocks->createBlockInventory(x, y, z);
     lua_pushinteger(L, id);
     return 1;
 }
 
 static int l_inventory_bind_block(lua_State* L) {
-    lua::luaint id = lua_tointeger(L, 1);
-    lua::luaint x = lua_tointeger(L, 2);
-    lua::luaint y = lua_tointeger(L, 3);
-    lua::luaint z = lua_tointeger(L, 4);
+    lua_Integer id = lua_tointeger(L, 1);
+    lua_Integer x = lua_tointeger(L, 2);
+    lua_Integer y = lua_tointeger(L, 3);
+    lua_Integer z = lua_tointeger(L, 4);
     scripting::blocks->bindInventory(id, x, y, z);
     return 0;
 }
 
 static int l_inventory_unbind_block(lua_State* L) {
-    lua::luaint x = lua_tointeger(L, 1);
-    lua::luaint y = lua_tointeger(L, 2);
-    lua::luaint z = lua_tointeger(L, 3);
+    lua_Integer x = lua_tointeger(L, 1);
+    lua_Integer y = lua_tointeger(L, 2);
+    lua_Integer z = lua_tointeger(L, 3);
     scripting::blocks->unbindInventory(x, y, z);
     return 0;
 }
 
 static int l_inventory_clone(lua_State* L) {
-    lua::luaint id = lua_tointeger(L, 1);
+    lua_Integer id = lua_tointeger(L, 1);
     auto clone = scripting::level->inventories->clone(id);
     if (clone == nullptr) {
         lua_pushinteger(L, 0);
@@ -121,13 +123,13 @@ static int l_inventory_clone(lua_State* L) {
 }
 
 static int l_inventory_move(lua_State* L) {
-    lua::luaint invAid = lua_tointeger(L, 1);
-    lua::luaint slotAid = lua_tointeger(L, 2);
+    lua_Integer invAid = lua_tointeger(L, 1);
+    lua_Integer slotAid = lua_tointeger(L, 2);
     auto invA = get_inventory(invAid, 1);
     validate_slotid(slotAid, invA.get());
 
-    lua::luaint invBid = lua_tointeger(L, 3);
-    lua::luaint slotBid = lua_isnil(L, 4) ? -1 : lua_tointeger(L, 4);
+    lua_Integer invBid = lua_tointeger(L, 3);
+    lua_Integer slotBid = lua_isnil(L, 4) ? -1 : lua_tointeger(L, 4);
     auto invB = get_inventory(invBid, 3);
     auto& slot = invA->getSlot(slotAid);
     if (slotBid == -1) {

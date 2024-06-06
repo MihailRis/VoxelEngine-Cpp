@@ -100,19 +100,6 @@ static int l_reconfig_packs(lua_State* L) {
     return 0;
 }
 
-static int l_get_bindings(lua_State* L) {
-    auto& bindings = Events::bindings;
-    lua_createtable(L, bindings.size(), 0);
-
-    int i = 0;
-    for (auto& entry : bindings) {
-        lua_pushstring(L, entry.first.c_str());
-        lua_rawseti(L, -2, i + 1);
-        i++;
-    }
-    return 1;
-}
-
 static int l_get_setting(lua_State* L) {
     auto name = lua_tostring(L, 1);
     const auto value = scripting::engine->getSettingsHandler().getValue(name);
@@ -186,7 +173,6 @@ const luaL_Reg corelib [] = {
     {"close_world", lua_wrap_errors<l_close_world>},
     {"delete_world", lua_wrap_errors<l_delete_world>},
     {"reconfig_packs", lua_wrap_errors<l_reconfig_packs>},
-    {"get_bindings", lua_wrap_errors<l_get_bindings>},
     {"get_setting", lua_wrap_errors<l_get_setting>},
     {"set_setting", lua_wrap_errors<l_set_setting>},
     {"str_setting", lua_wrap_errors<l_str_setting>},

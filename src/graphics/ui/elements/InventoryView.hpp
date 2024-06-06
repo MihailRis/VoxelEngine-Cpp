@@ -63,6 +63,7 @@ namespace gui {
 
         virtual void clicked(gui::GUI*, mousecode) override;
         virtual void onFocus(gui::GUI*) override;
+        virtual const std::wstring getTooltip() const override;
 
         void bind(
             int64_t inventoryid,

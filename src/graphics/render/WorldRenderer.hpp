@@ -8,8 +8,6 @@
 #include <string>
 
 #include <glm/glm.hpp>
-#include <glm/ext.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 class Level;
 class Player;
@@ -76,8 +74,6 @@ public:
         Camera* camera, 
         const EngineSettings& settings
     );
-
-    static float fog;
 };
 
 

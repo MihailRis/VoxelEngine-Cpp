@@ -337,6 +337,9 @@ inline std::wstring get_alphabet(wchar_t c) {
 }
 
 void TextBox::tokenSelectAt(int index) {
+    if (input.empty()) {
+        return;
+    }
     int left = index;
     int right = index;
     
@@ -369,7 +372,7 @@ void TextBox::click(GUI*, int x, int y) {
 }
 
 void TextBox::mouseMove(GUI*, int x, int y) {
-    ssize_t index = calcIndexAt(x, y);
+    ptrdiff_t index = calcIndexAt(x, y);
     setCaret(index);
     extendSelection(index);
     resetMaxLocalCaret();
@@ -452,7 +455,7 @@ void TextBox::stepDefaultUp(bool shiftPressed, bool breakSelection) {
         uint offset = std::min(size_t(maxLocalCaret), getLineLength(caretLine-1)-1);
         setCaret(label->getTextLineOffset(caretLine-1) + offset);
     } else {
-        setCaret(0UL);
+        setCaret(static_cast<size_t>(0));
     }
     if (shiftPressed) {
         if (selectionStart == selectionEnd) {
@@ -652,11 +655,11 @@ void TextBox::setCaret(size_t position) {
     if (realoffset-width > 0) {
         setTextOffset(textOffset + realoffset-width);
     } else if (realoffset < 0) {
-        setTextOffset(std::max(textOffset + realoffset, 0LU));
+        setTextOffset(std::max(textOffset + realoffset, static_cast<size_t>(0)));
     }
 }
 
-void TextBox::setCaret(ssize_t position) {
+void TextBox::setCaret(ptrdiff_t position) {
     if (position < 0) {
         setCaret(static_cast<size_t>(input.length() + position + 1));
     } else {

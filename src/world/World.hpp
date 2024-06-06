@@ -2,7 +2,6 @@
 #define WORLD_WORLD_HPP_
 
 #include "../typedefs.hpp"
-#include "../settings.hpp"
 #include "../util/timeutil.hpp"
 #include "../data/dynamic.hpp"
 #include "../interfaces/Serializable.hpp"
@@ -17,6 +16,7 @@ class Content;
 class WorldFiles;
 class Level;
 class ContentLUT;
+struct EngineSettings;
 
 namespace fs = std::filesystem;
 
@@ -48,6 +48,9 @@ public:
     
     /// @brief total time passed in the world (not depending on daytimeSpeed)
     double totalTime = 0.0;
+
+    /// @brief will be replaced with weather in future 
+    float fog = 0.0f;
 
     World(
         std::string name, 

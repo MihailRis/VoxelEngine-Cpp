@@ -7,10 +7,6 @@
 #include "../../../data/dynamic.hpp"
 #include "../../../delegates.hpp"
 
-#ifndef LUAJIT_VERSION
-#error LuaJIT required
-#endif
-
 #include <string>
 #include <stdexcept>
 
@@ -36,9 +32,9 @@ namespace lua {
         static const std::string envName(int env);
         void loadbuffer(int env, const std::string& src, const std::string& file);
         int gettop() const;
-        int pushivec3(luaint x, luaint y, luaint z);
-        int pushinteger(luaint x);
-        int pushnumber(luanumber x);
+        int pushivec3(lua_Integer x, lua_Integer y, lua_Integer z);
+        int pushinteger(lua_Integer x);
+        int pushnumber(lua_Number x);
         int pushboolean(bool x);
         int pushstring(const std::string& str);
         int pushenv(int env);
@@ -51,8 +47,8 @@ namespace lua {
         bool getfield(const std::string& name, int idx = -1);
         void setfield(const std::string& name, int idx = -2);
         bool toboolean(int idx);
-        luaint tointeger(int idx);
-        luanumber tonumber(int idx);
+        lua_Integer tointeger(int idx);
+        lua_Number tonumber(int idx);
         glm::vec2 tovec2(int idx);
         glm::vec4 tocolor(int idx);
         dynamic::Value tovalue(int idx);
@@ -72,6 +68,8 @@ namespace lua {
         void remove(const std::string& name);;
         runnable createRunnable();
         scripting::common_func createLambda();
+
+        const char* requireString(int idx);
 
         int createEnvironment(int parent);
         void removeEnvironment(int id);

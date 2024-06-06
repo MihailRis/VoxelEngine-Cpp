@@ -109,6 +109,10 @@ namespace gui {
         ActionsSet actions;
         /// @brief 'ondoubleclick' callbacks
         ActionsSet doubleClickCallbacks;
+        /// @brief element tooltip text
+        std::wstring tooltip;
+        /// @brief element tooltip delay
+        float tooltipDelay = 0.5f;
 
         UINode(glm::vec2 size);
     public:
@@ -197,6 +201,12 @@ namespace gui {
         virtual void setResizing(bool flag);
         virtual bool isResizing() const;
 
+        virtual void setTooltip(const std::wstring& text);
+        virtual const std::wstring getTooltip() const;
+
+        virtual void setTooltipDelay(float delay);
+        virtual float getTooltipDelay() const;
+
         virtual glm::vec4 calcColor() const;
 
         /// @brief Get inner content offset. Used for scroll
@@ -235,10 +245,17 @@ namespace gui {
 
         virtual void setGravity(Gravity gravity);
 
+        bool isSubnodeOf(const UINode* node);
+
         /// @brief collect all nodes having id
         static void getIndices(
-            std::shared_ptr<UINode> node,
+            const std::shared_ptr<UINode> node,
             std::unordered_map<std::string, std::shared_ptr<UINode>>& map
+        );
+
+        static std::shared_ptr<UINode> find(
+            const std::shared_ptr<UINode> node,
+            const std::string& id
         );
     };
 }

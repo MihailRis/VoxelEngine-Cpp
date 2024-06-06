@@ -147,11 +147,11 @@ public:
 
 void audio::initialize(bool enabled) {
     if (enabled) {
-        backend = ALAudio::create();
+        backend = ALAudio::create().release();
     }
     if (backend == nullptr) {
         std::cerr << "could not to initialize audio" << std::endl;
-        backend = NoAudio::create();
+        backend = NoAudio::create().release();
     }
     create_channel("master");
 }
@@ -333,7 +333,7 @@ int audio::create_channel(const std::string& name) {
     if (index != -1) {
         return index;
     }
-    channels.emplace_back(new Channel(name));
+    channels.emplace_back(std::make_unique<Channel>(name));
     return channels.size()-1;
 }
 

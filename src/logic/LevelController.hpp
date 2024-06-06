@@ -2,7 +2,6 @@
 #define LOGIC_LEVEL_CONTROLLER_HPP_
 
 #include <memory>
-#include "../settings.hpp"
 
 #include "PlayerController.hpp"
 #include "BlocksController.hpp"
@@ -10,6 +9,7 @@
 
 class Level;
 class Player;
+struct EngineSettings;
 
 /// @brief LevelController manages other controllers
 class LevelController {

@@ -16,7 +16,8 @@ function on_open()
     refresh_sensitivity()
 
     local panel = document.bindings_panel
-    local bindings = core.get_bindings()
+    local bindings = input.get_bindings()
+    table.sort(bindings, function(a, b) return a > b end)
     for i,name in ipairs(bindings) do
         panel:add(gui.template("binding", {
             id=name, name=gui.str(name)

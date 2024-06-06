@@ -163,7 +163,7 @@ void DefaultWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
             for (int cur_y = 0; cur_y < CHUNK_H; cur_y++){
                 // int cur_y = y;
                 int id = cur_y < SEA_LEVEL ? idWater : BLOCK_AIR;
-                int states = 0;
+                blockstate state {};
                 if ((cur_y == (int)height) && (SEA_LEVEL-2 < cur_y)) {
                     id = idGrassBlock;
                 } else if (cur_y < (height - 6)){
@@ -177,7 +177,7 @@ void DefaultWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
                         treesTile, idWood, idLeaves);
                     if (tree) {
                         id = tree;
-                        states = BLOCK_DIR_UP;
+                        state.rotation = BLOCK_DIR_UP;
                     }
                 }
                 float sand = fmax(heights.get(MAPS::SAND, cur_x, cur_z), heights.get(MAPS::CLIFF, cur_x, cur_z));
@@ -198,10 +198,10 @@ void DefaultWorldGenerator::generate(voxel* voxels, int cx, int cz, int seed){
                 }
                 if ((height > SEA_LEVEL+1) && ((int)(height + 1) == cur_y) && ((unsigned short)randomgrass.rand() > 65533)){
                     id = idWood;
-                    states = BLOCK_DIR_UP;
+                    state.rotation = BLOCK_DIR_UP;
                 }
                 voxels[(cur_y * CHUNK_D + z) * CHUNK_W + x].id = id;
-                voxels[(cur_y * CHUNK_D + z) * CHUNK_W + x].states = states;
+                voxels[(cur_y * CHUNK_D + z) * CHUNK_W + x].state = state;
             }
         }
     }

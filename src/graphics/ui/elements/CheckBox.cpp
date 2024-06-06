@@ -7,7 +7,8 @@
 using namespace gui;
 
 CheckBox::CheckBox(bool checked) : UINode(glm::vec2(32.0f)), checked(checked) {
-    setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    setColor({0.0f, 0.0f, 0.0f, 0.5f});
+    setHoverColor({0.05f, 0.1f, 0.2f, 0.75f});
 }
 
 void CheckBox::draw(const DrawContext* pctx, Assets*) {

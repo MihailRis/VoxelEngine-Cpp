@@ -98,7 +98,7 @@ glshader compile_shader(GLenum type, const GLchar* source, const std::string& fi
     return glshader(new GLuint(shader), shader_deleter);
 }
 
-Shader* Shader::create(
+std::unique_ptr<Shader> Shader::create(
     const std::string& vertexFile, 
     const std::string& fragmentFile,
     const std::string& vertexCode,
@@ -125,5 +125,5 @@ Shader* Shader::create(
             "shader program linking failed:\n"+std::string(infoLog)
         );
     }
-    return new Shader(id);
+    return std::make_unique<Shader>(id);
 }

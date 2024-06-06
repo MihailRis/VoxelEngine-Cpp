@@ -12,17 +12,11 @@ class EnginePaths;
 
 namespace fs = std::filesystem;
 
-namespace scripting {
-    class Environment;
-}
-
 class contentpack_error : public std::runtime_error {
     std::string packId;
     fs::path folder;
 public:
-    contentpack_error(std::string packId, 
-                      fs::path folder, 
-                      std::string message);
+    contentpack_error(std::string packId, fs::path folder, std::string message);
 
     std::string getPackId() const;
     fs::path getFolder() const;
@@ -31,11 +25,11 @@ public:
 enum class DependencyLevel {
     required, // dependency must be installed
     optional, // dependency will be installed if found
-    weak, // dependency will not be installed automatically
+    weak, // only affects packs order
 };
 
 
-/// @brief Content-pack that should be installed before the dependent
+/// @brief Content-pack that should be installed earlier the dependent
 struct DependencyPack {
     DependencyLevel level;
     std::string id;

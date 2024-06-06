@@ -136,9 +136,8 @@ namespace audio {
         std::vector<uint> freebuffers;
 
         uint maxSources = 256;
-
-        ALAudio(ALCdevice* device, ALCcontext* context);
     public:
+        ALAudio(ALCdevice* device, ALCcontext* context);
         ~ALAudio();
 
         uint getFreeSource();
@@ -164,7 +163,7 @@ namespace audio {
             return false;
         }
 
-        static ALAudio* create();
+        static std::unique_ptr<ALAudio> create();
     };
 }
 

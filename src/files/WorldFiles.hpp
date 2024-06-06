@@ -5,7 +5,6 @@
 
 #include "files.hpp"
 #include "../typedefs.hpp"
-#include "../settings.hpp"
 #include "../content/ContentPack.hpp"
 #include "../voxels/Chunk.hpp"
 
@@ -24,6 +23,7 @@ class Player;
 class Content;
 class ContentIndices;
 class World;
+struct DebugSettings;
 
 namespace fs = std::filesystem;
 

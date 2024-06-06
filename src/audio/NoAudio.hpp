@@ -81,7 +81,7 @@ namespace audio {
             return true;
         }
 
-        static NoAudio* create();
+        static std::unique_ptr<NoAudio> create();
     };
 }
 

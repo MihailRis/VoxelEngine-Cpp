@@ -10,7 +10,7 @@
 #include "WorldFiles.hpp"
 
 const fs::path SCREENSHOTS_FOLDER {"screenshots"};
-const fs::path CONTROLS_FILE {"controls.json"};
+const fs::path CONTROLS_FILE {"controls.toml"};
 const fs::path SETTINGS_FILE {"settings.toml"};
 
 fs::path EnginePaths::getUserfiles() const {
@@ -58,6 +58,10 @@ fs::path EnginePaths::getWorldFolder(const std::string& name) {
 
 fs::path EnginePaths::getControlsFile() {
     return userfiles/fs::path(CONTROLS_FILE);
+}
+
+fs::path EnginePaths::getControlsFileOld() {
+    return userfiles/fs::path("controls.json");
 }
 
 fs::path EnginePaths::getSettingsFile() {
@@ -135,7 +139,7 @@ static fs::path toCanonic(fs::path path) {
     return path;
 }
 
-fs::path EnginePaths::resolve(std::string path) {
+fs::path EnginePaths::resolve(std::string path, bool throwErr) {
     size_t separator = path.find(':');
     if (separator == std::string::npos) {
         throw files_access_error("no entry point specified");
@@ -161,7 +165,10 @@ fs::path EnginePaths::resolve(std::string path) {
             }
         }
     }
-    throw files_access_error("unknown entry point '"+prefix+"'");
+    if (throwErr) {
+        throw files_access_error("unknown entry point '"+prefix+"'");
+    }
+    return fs::path(filename);
 }
 
 ResPaths::ResPaths(fs::path mainRoot, std::vector<PathsRoot> roots) 

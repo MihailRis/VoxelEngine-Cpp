@@ -56,19 +56,16 @@ ChunksRenderer::~ChunksRenderer() {
 }
 
 std::shared_ptr<Mesh> ChunksRenderer::render(std::shared_ptr<Chunk> chunk, bool important) {
-    chunk->setModified(false);
-
+    chunk->flags.modified = false;
     if (important) {
         auto mesh = renderer->render(chunk.get(), level->chunksStorage.get());
         meshes[glm::ivec2(chunk->x, chunk->z)] = mesh;
         return mesh;
     }
-
     glm::ivec2 key(chunk->x, chunk->z);
     if (inwork.find(key) != inwork.end()) {
         return nullptr;
     }
-
     inwork[key] = true;
     threadPool.enqueueJob(chunk);
     return nullptr;
@@ -86,7 +83,7 @@ std::shared_ptr<Mesh> ChunksRenderer::getOrRender(std::shared_ptr<Chunk> chunk, 
     if (found == meshes.end()) {
         return render(chunk, important);
     }
-    if (chunk->isModified()) {
+    if (chunk->flags.modified) {
         render(chunk, important);
     }
     return found->second;

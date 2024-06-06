@@ -13,6 +13,9 @@ UINode::~UINode() {
 }
 
 bool UINode::isVisible() const {
+    if (visible && parent) {
+        return parent->isVisible();
+    }
     return visible;
 }
 
@@ -107,7 +110,7 @@ bool UINode::isInside(glm::vec2 point) {
 }
 
 std::shared_ptr<UINode> UINode::getAt(glm::vec2 point, std::shared_ptr<UINode> self) {
-    if (!interactive || !enabled) {
+    if (!isInteractive() || !enabled) {
         return nullptr;
     }
     return isInside(point) ? self : nullptr;
@@ -127,6 +130,22 @@ void UINode::setResizing(bool flag) {
 
 bool UINode::isResizing() const {
     return resizing;
+}
+
+void UINode::setTooltip(const std::wstring& text) {
+    this->tooltip = text;
+}
+
+const std::wstring UINode::getTooltip() const {
+    return tooltip;
+}
+
+void UINode::setTooltipDelay(float delay) {
+    tooltipDelay = delay;
+}
+
+float UINode::getTooltipDelay() const {
+    return tooltipDelay;
 }
 
 glm::vec2 UINode::calcPos() const {
@@ -315,8 +334,18 @@ void UINode::setGravity(Gravity gravity) {
     }
 }
 
+bool UINode::isSubnodeOf(const UINode* node) {
+    if (parent == nullptr) {
+        return false;
+    }
+    if (parent == node) {
+        return true;
+    }
+    return parent->isSubnodeOf(node);
+}
+
 void UINode::getIndices(
-    std::shared_ptr<UINode> node,
+    const std::shared_ptr<UINode> node,
     std::unordered_map<std::string, std::shared_ptr<UINode>>& map
 ) {
     const std::string& id = node->getId();
@@ -329,4 +358,20 @@ void UINode::getIndices(
             getIndices(subnode, map);
         }
     }
+}
+std::shared_ptr<UINode> UINode::find(
+    const std::shared_ptr<UINode> node,
+    const std::string& id
+) {
+    if (node->getId() == id) {
+        return node;
+    }
+    if (auto container = std::dynamic_pointer_cast<Container>(node)) {
+        for (auto subnode : container->getNodes()) {
+            if (auto found = UINode::find(subnode, id)) {
+                return found;
+            }
+        }
+    }
+    return nullptr;
 }

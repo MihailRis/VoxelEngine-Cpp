@@ -54,21 +54,25 @@ namespace gui {
     /// @brief The main UI controller
     class GUI {
         std::shared_ptr<Container> container;
-        std::shared_ptr<UINode> hover = nullptr;
-        std::shared_ptr<UINode> pressed = nullptr;
-        std::shared_ptr<UINode> focus = nullptr;
+        std::shared_ptr<UINode> hover;
+        std::shared_ptr<UINode> pressed;
+        std::shared_ptr<UINode> focus;
+        std::shared_ptr<UINode> tooltip;
         std::unordered_map<std::string, std::shared_ptr<UINode>> storage;
 
         std::unique_ptr<Camera> uicamera;
         std::shared_ptr<Menu> menu;
         std::queue<runnable> postRunnables;
 
+        float tooltipTimer = 0.0f;
         float doubleClickTimer = 0.0f;
         float doubleClickDelay = 0.5f;
         bool doubleClicked = false;
 
         void actMouse(float delta);
         void actFocused();
+        void updateTooltip(float delta);
+        void resetTooltip();
     public:
         GUI();
         ~GUI();

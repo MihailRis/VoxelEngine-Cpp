@@ -1,7 +1,6 @@
 #ifndef WORLD_LEVEL_HPP_
 #define WORLD_LEVEL_HPP_
 
-#include "../settings.hpp"
 #include "../interfaces/Object.hpp"
 
 #include <memory>
@@ -21,6 +20,7 @@ class LevelEvents;
 class Lighting;
 class PhysicsSolver;
 class ChunksStorage;
+struct EngineSettings;
 
 /// @brief A level, contains chunks and objects
 class Level {

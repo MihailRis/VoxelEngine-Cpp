@@ -6,6 +6,7 @@
 #include "../audio/audio.hpp"
 #include "../files/files.hpp"
 #include "../files/engine_paths.hpp"
+#include "../coders/commons.hpp"
 #include "../coders/imageio.hpp"
 #include "../coders/json.hpp"
 #include "../coders/GLSLExtension.hpp"
@@ -43,7 +44,7 @@ assetload::postfunc assetload::texture(
         imageio::read(paths->find(filename+".png").u8string()).release()
     );
     return [name, image](auto assets) {
-        assets->store(Texture::from(image.get()).release(), name);
+        assets->store(Texture::from(image.get()), name);
     };
 }
 
@@ -102,7 +103,7 @@ assetload::postfunc assetload::atlas(
     Atlas* atlas = builder.build(2, false).release();
     return [=](auto assets) {
         atlas->prepare();
-        assets->store(atlas, name);
+        assets->store(std::unique_ptr<Atlas>(atlas), name);
         for (const auto& file : names) {
             animation(assets, paths, name, directory, file, atlas);
         }
@@ -128,7 +129,7 @@ assetload::postfunc assetload::font(
         for (auto& page : *pages) {
             textures.emplace_back(Texture::from(page.get()));
         }
-        assets->store(new Font(std::move(textures), res, 4), name);
+        assets->store(std::make_unique<Font>(std::move(textures), res, 4), name);
     };
 }
 
@@ -142,8 +143,7 @@ assetload::postfunc assetload::layout(
     return [=](auto assets) {
         try {
             auto cfg = std::dynamic_pointer_cast<LayoutCfg>(config);
-            auto document = UiDocument::read(cfg->env, name, file);
-            assets->store(document.release(), name);
+            assets->store(UiDocument::read(cfg->env, name, file), name);
         } catch (const parsing_error& err) {
             throw std::runtime_error(
                 "failed to parse layout XML '"+file+"':\n"+err.errorLog()
@@ -189,7 +189,7 @@ assetload::postfunc assetload::sound(
     }
     auto sound = baseSound.release();
     return [=](auto assets) {
-        assets->store(sound, name);
+        assets->store(std::unique_ptr<audio::Sound>(sound), name);
     };
 }
 
@@ -304,7 +304,7 @@ static bool animation(
         auto animation = create_animation(
             srcAtlas.get(), dstAtlas, name, builder.getNames(), frameList
         );
-        assets->store(srcAtlas.release(), atlasName + "/" + name + "_animation");
+        assets->store(std::move(srcAtlas), atlasName + "/" + name + "_animation");
         assets->store(animation);
         return true;
     }

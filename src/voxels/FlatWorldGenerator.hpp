@@ -10,9 +10,9 @@ class Content;
 class FlatWorldGenerator : WorldGenerator {
 public:
 
-	FlatWorldGenerator(const Content* content) : WorldGenerator(content) {}
+    FlatWorldGenerator(const Content* content) : WorldGenerator(content) {}
 
-	void generate(voxel* voxels, int x, int z, int seed);
+    void generate(voxel* voxels, int x, int z, int seed);
 };
 
-#endif /* VOXELS_FLATWORLDGENERATOR_HPP_ */
+#endif // VOXELS_FLATWORLDGENERATOR_HPP_

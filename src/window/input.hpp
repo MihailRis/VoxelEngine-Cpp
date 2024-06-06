@@ -103,6 +103,7 @@ enum class mousecode : int {
     BUTTON_1 = 0, // Left mouse button
     BUTTON_2 = 1, // Right mouse button
     BUTTON_3 = 2, // Middle mouse button
+    UNKNOWN = -1,
 };
 
 inline mousecode MOUSECODES_ALL[] {
@@ -115,10 +116,17 @@ namespace input_util {
     void initialize();
 
     keycode keycode_from(const std::string& name);
+    mousecode mousecode_from(const std::string& name);
+
     /// @return Key label by keycode
     std::string to_string(keycode code);
     /// @return Mouse button label by keycode
     std::string to_string(mousecode code);
+
+    /// @return Key name by keycode
+    std::string get_name(keycode code);
+    /// @return Mouse button name by keycode
+    std::string get_name(mousecode code);
 }
 
 enum class inputtype {
