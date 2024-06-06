@@ -12,15 +12,14 @@ Atlas::Atlas(
     bool prepare
 ) : texture(nullptr),
     image(std::move(image)),
-    regions(regions) 
+    regions(std::move(regions))
 {        
     if (prepare) {
         this->prepare();
     }
 }
 
-Atlas::~Atlas() {
-}
+Atlas::~Atlas() = default;
 
 void Atlas::prepare() {
     texture = Texture::from(image.get());

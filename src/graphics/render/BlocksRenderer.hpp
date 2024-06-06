@@ -98,13 +98,13 @@ class BlocksRenderer {
         bool lights
     );
 
-    bool isOpenForLight(int x, int y, int z) const;
-    bool isOpen(int x, int y, int z, ubyte group) const;
+    [[nodiscard]] bool isOpenForLight(int x, int y, int z) const;
+    [[nodiscard]] bool isOpen(int x, int y, int z, ubyte group) const;
 
-    glm::vec4 pickLight(int x, int y, int z) const;
-    glm::vec4 pickLight(const glm::ivec3& coord) const;
-    glm::vec4 pickSoftLight(const glm::ivec3& coord, const glm::ivec3& right, const glm::ivec3& up) const;
-    glm::vec4 pickSoftLight(float x, float y, float z, const glm::ivec3& right, const glm::ivec3& up) const;
+    [[nodiscard]] glm::vec4 pickLight(int x, int y, int z) const;
+    [[nodiscard]] glm::vec4 pickLight(const glm::ivec3& coord) const;
+    [[nodiscard]] glm::vec4 pickSoftLight(const glm::ivec3& coord, const glm::ivec3& right, const glm::ivec3& up) const;
+    [[nodiscard]] glm::vec4 pickSoftLight(float x, float y, float z, const glm::ivec3& right, const glm::ivec3& up) const;
     void render(const voxel* voxels);
 public:
     BlocksRenderer(size_t capacity, const Content* content, const ContentGfxCache* cache, const EngineSettings* settings);
@@ -113,7 +113,7 @@ public:
     void build(const Chunk* chunk, const ChunksStorage* chunks);
     std::shared_ptr<Mesh> render(const Chunk* chunk, const ChunksStorage* chunks);
     std::shared_ptr<Mesh> createMesh();
-    VoxelsVolume* getVoxelsBuffer() const;
+    [[nodiscard]] VoxelsVolume* getVoxelsBuffer() const;
 };
 
 #endif // GRAPHICS_RENDER_BLOCKS_RENDERER_HPP_

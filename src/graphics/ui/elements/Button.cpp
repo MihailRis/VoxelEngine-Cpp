@@ -9,13 +9,13 @@ using namespace gui;
 Button::Button(std::shared_ptr<UINode> content, glm::vec4 padding)
     : Panel(glm::vec2(), padding, 0) {
     glm::vec4 margin = getMargin();
-    setSize(content->getSize()+
-            glm::vec2(padding[0]+padding[2]+margin[0]+margin[2],
-                      padding[1]+padding[3]+margin[1]+margin[3]));
-    add(content);
-    setScrollable(false);
-    setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
-    setPressedColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.95f));
+    Container::setSize(content->getSize()+
+                       glm::vec2(padding[0]+padding[2]+margin[0]+margin[2],
+                                 padding[1]+padding[3]+margin[1]+margin[3]));
+    Panel::add(content);
+    Container::setScrollable(false);
+    UINode::setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
+    UINode::setPressedColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.95f));
     content->setInteractive(false);
 }
 
@@ -32,20 +32,20 @@ Button::Button(
             glm::max(padding.y + padding.w + 16, size.y)
         );
     }
-    setSize(size);
+    Container::setSize(size);
 
     if (action) {
-        listenAction(action);
+        UINode::listenAction(action);
     }
-    setScrollable(false);
+    Container::setScrollable(false);
 
     label = std::make_shared<Label>(text);
     label->setAlign(Align::center);
     label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
     label->setInteractive(false);
-    add(label);
-    setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
-    setPressedColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.95f));
+    Panel::add(label);
+    UINode::setHoverColor(glm::vec4(0.05f, 0.1f, 0.15f, 0.75f));
+    UINode::setPressedColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.95f));
 }
 
 void Button::setText(std::wstring text) {

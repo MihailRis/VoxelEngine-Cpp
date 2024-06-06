@@ -103,7 +103,7 @@ std::unique_ptr<ImageData> BlocksPreview::draw(
         case BlockModel::xsprite: {
             glm::vec3 right = glm::normalize(glm::vec3(1.f, 0.f, -1.f));
             batch->sprite(
-                right*float(size)*0.43f+glm::vec3(0, size*0.4f, 0), 
+                right*static_cast<float>(size)*0.43f+glm::vec3(0, size*0.4f, 0),
                 glm::vec3(0.f, 1.f, 0.f), 
                 right, 
                 size*0.5f, size*0.6f, 
@@ -141,7 +141,7 @@ std::unique_ptr<Atlas> BlocksPreview::build(
 
     shader->use();
     shader->uniformMatrix("u_projview",
-        glm::ortho(0.0f, float(iconSize), 0.0f, float(iconSize), 
+        glm::ortho(0.0f, static_cast<float>(iconSize), 0.0f, static_cast<float>(iconSize),
                     -100.0f, 100.0f) * 
         glm::lookAt(glm::vec3(0.57735f), 
                     glm::vec3(0.0f), 

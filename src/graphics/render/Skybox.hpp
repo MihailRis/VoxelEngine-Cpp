@@ -50,7 +50,7 @@ public:
     void refresh(const DrawContext& pctx, float t, float mie, uint quality);
     void bind() const;
     void unbind() const;
-    bool isReady() const {
+    [[nodiscard]] bool isReady() const {
         return ready;
     }
 };

@@ -22,9 +22,9 @@ public:
     DrawContext(const DrawContext* parent, const Viewport& viewport, Batch2D* g2d);
     ~DrawContext();
     
-    Batch2D* getBatch2D() const;
-    const Viewport& getViewport() const;
-    DrawContext sub() const;
+    [[nodiscard]] Batch2D* getBatch2D() const;
+    [[nodiscard]] const Viewport& getViewport() const;
+    [[nodiscard]] DrawContext sub() const;
 
     void setViewport(const Viewport& viewport);
     void setFramebuffer(Framebuffer* fbo);

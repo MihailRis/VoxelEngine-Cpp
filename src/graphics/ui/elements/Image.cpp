@@ -9,7 +9,7 @@
 using namespace gui;
 
 Image::Image(std::string texture, glm::vec2 size) : UINode(size), texture(texture) {
-    setInteractive(false);
+    UINode::setInteractive(false);
 }
 
 void Image::draw(const DrawContext* pctx, Assets* assets) {

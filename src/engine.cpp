@@ -89,7 +89,7 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     if (ENGINE_DEBUG_BUILD) {
         menus::create_version_label(this);
     }
-    keepAlive(settings.ui.language.observe([=](auto lang) {
+    ObjectsKeeper::keepAlive(settings.ui.language.observe([=](auto lang) {
         setLanguage(lang);
     }, true));
     addWorldGenerators();

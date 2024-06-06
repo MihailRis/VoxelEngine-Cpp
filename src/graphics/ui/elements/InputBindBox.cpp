@@ -11,8 +11,8 @@ InputBindBox::InputBindBox(Binding& binding, glm::vec4 padding)
     : Panel(glm::vec2(100,32), padding, 0),
       binding(binding) {
     label = std::make_shared<Label>(L"");
-    add(label);
-    setScrollable(false);
+    Panel::add(label);
+    Container::setScrollable(false);
 }
 
 void InputBindBox::drawBackground(const DrawContext* pctx, Assets*) {

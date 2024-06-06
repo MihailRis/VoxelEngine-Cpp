@@ -40,7 +40,7 @@ ALStream::ALStream(ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSour
 }
 
 ALStream::~ALStream() {
-    bindSpeaker(0);
+    ALStream::bindSpeaker(0);
     source = nullptr;
 
     while (!unusedBuffers.empty()) {
@@ -203,7 +203,7 @@ ALSpeaker::ALSpeaker(ALAudio* al, uint source, int priority, int channel)
 
 ALSpeaker::~ALSpeaker() {
     if (source) {
-        stop();
+        ALSpeaker::stop();
     }
 }
 

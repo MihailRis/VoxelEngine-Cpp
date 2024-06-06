@@ -16,12 +16,12 @@ TextBox::TextBox(std::wstring placeholder, glm::vec4 padding)
     input(L""),
     placeholder(placeholder)
 {
-    setOnUpPressed(nullptr);
-    setOnDownPressed(nullptr);
+    TextBox::setOnUpPressed(nullptr);
+    TextBox::setOnDownPressed(nullptr);
     label = std::make_shared<Label>(L"");
     label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
-    add(label);
-    setHoverColor(glm::vec4(0.05f, 0.1f, 0.2f, 0.75f));
+    Panel::add(label);
+    UINode::setHoverColor(glm::vec4(0.05f, 0.1f, 0.2f, 0.75f));
 
     textInitX = label->getPos().x;
     scrollable = true;

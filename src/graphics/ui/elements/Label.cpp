@@ -50,7 +50,7 @@ Label::Label(std::string text, std::string fontName)
     text(util::str2wstr_utf8(text)), 
     fontName(fontName) 
 {
-    setInteractive(false);
+    UINode::setInteractive(false);
     cache.update(this->text, multiline, textWrap);
 }
 
@@ -60,7 +60,7 @@ Label::Label(std::wstring text, std::string fontName)
     text(text), 
     fontName(fontName) 
 {
-    setInteractive(false);
+    UINode::setInteractive(false);
     cache.update(this->text, multiline, textWrap);
 }
 

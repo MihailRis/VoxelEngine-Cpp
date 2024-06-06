@@ -92,7 +92,7 @@ public:
 
     ~OggStream() {
         if (!closed) {
-            close();
+            OggStream::close();
         }
     }
 

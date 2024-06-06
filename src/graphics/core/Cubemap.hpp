@@ -8,8 +8,8 @@ class Cubemap : public Texture {
 public:
     Cubemap(uint width, uint height, ImageFormat format);
 
-    virtual void bind() override;
-    virtual void unbind() override;
+    void bind() override;
+    void unbind() override;
 };
 
 #endif // GRAPHICS_CORE_CUBEMAP_HPP_

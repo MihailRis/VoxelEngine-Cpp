@@ -49,7 +49,7 @@ public:
     inline void setColor(glm::vec4 color) {
         this->color = color;
     }
-    inline glm::vec4 getColor() const {
+    [[nodiscard]] glm::vec4 getColor() const {
         return color;
     }
     
