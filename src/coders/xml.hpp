@@ -23,18 +23,18 @@ namespace xml {
         std::string name;
         std::string text;
     public:
-        Attribute() {};
+        Attribute() = default;
         Attribute(std::string name, std::string text);
 
-        const std::string& getName() const;
-        const std::string& getText() const;
-        int64_t asInt() const;
-        double asFloat() const;
-        bool asBool() const;
-        glm::vec2 asVec2() const;
-        glm::vec3 asVec3() const;
-        glm::vec4 asVec4() const;
-        glm::vec4 asColor() const;
+        [[nodiscard]] const std::string& getName() const;
+        [[nodiscard]] const std::string& getText() const;
+        [[nodiscard]] int64_t asInt() const;
+        [[nodiscard]] double asFloat() const;
+        [[nodiscard]] bool asBool() const;
+        [[nodiscard]] glm::vec2 asVec2() const;
+        [[nodiscard]] glm::vec3 asVec3() const;
+        [[nodiscard]] glm::vec4 asVec4() const;
+        [[nodiscard]] glm::vec4 asColor() const;
     };
 
     /// @brief XML element class. Text element has tag 'text' and attribute 'text'
@@ -54,13 +54,13 @@ namespace xml {
         void set(std::string name, std::string text);
         
         /// @brief Get element tag
-        const std::string& getTag() const;
+        [[nodiscard]] const std::string& getTag() const;
 
-        inline bool isText() const {
+        [[nodiscard]] inline bool isText() const {
             return getTag() == "#";
         }
 
-        inline const std::string& text() const {
+        [[nodiscard]] inline const std::string& text() const {
             return attr("#").getText();
         }
 
@@ -68,18 +68,18 @@ namespace xml {
         /// @param name attribute name
         /// @throws std::runtime_error if element has no attribute 
         /// @return xmlattribute - {name, value}
-        const xmlattribute attr(const std::string& name) const;
+        [[nodiscard]] const xmlattribute attr(const std::string& name) const;
         
         /// @brief Get attribute by name
         /// @param name attribute name
         /// @param def default value will be returned wrapped in xmlattribute
         /// if element has no attribute 
         /// @return xmlattribute - {name, value} or {name, def} if not found*/
-        const xmlattribute attr(const std::string& name, const std::string& def) const;
+        [[nodiscard]] const xmlattribute attr(const std::string& name, const std::string& def) const;
 
         /// @brief Check if element has attribute
         /// @param name attribute name
-        bool has(const std::string& name) const;
+        [[nodiscard]] bool has(const std::string& name) const;
 
         /// @brief Get sub-element by index
         /// @param index sub-element index
@@ -88,10 +88,10 @@ namespace xml {
         xmlelement sub(size_t index);
 
         /// @brief Get number of sub-elements
-        size_t size() const;
+        [[nodiscard]] size_t size() const;
 
-        const std::vector<xmlelement>& getElements() const;
-        const xmlelements_map& getAttributes() const;
+        [[nodiscard]] const std::vector<xmlelement>& getElements() const;
+        [[nodiscard]] const xmlelements_map& getAttributes() const;
     };
 
     class Document {
@@ -102,10 +102,10 @@ namespace xml {
         Document(std::string version, std::string encoding);
 
         void setRoot(xmlelement element);
-        xmlelement getRoot() const;
+        [[nodiscard]] xmlelement getRoot() const;
 
-        const std::string& getVersion() const;
-        const std::string& getEncoding() const;
+        [[nodiscard]] const std::string& getVersion() const;
+        [[nodiscard]] const std::string& getEncoding() const;
     };
 
     class Parser : BasicParser {
