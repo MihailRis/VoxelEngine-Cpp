@@ -212,14 +212,22 @@ static int l_file_gzip_compress(lua_State* L) {
     if (fs::is_regular_file(path)) { 
         size_t length = static_cast<size_t>(fs::file_size(path));
 
-        auto bytesPtr = files::read_bytes(path, length); 
-        std::vector<ubyte> bytes (bytesPtr.get(), bytesPtr.get() + length);
-
-        std::vector<ubyte> compressed_bytes;
-
-        compressed_bytes = gzip::compress(bytes.data(), bytes.size());
+        auto compressed_bytes = gzip::compress(files::read_bytes(path, length).get(), length);
 
         lua_pushboolean(L, files::write_bytes(path, compressed_bytes.data(), compressed_bytes.size()));
+        return 1;
+    } 
+    throw std::runtime_error("file does not exist " + util::quote(path.u8string())); 
+}
+
+static int l_file_gzip_decompress(lua_State* L) { 
+    fs::path path = resolve_path(state->requireString(1)); 
+    if (fs::is_regular_file(path)) { 
+        size_t length = static_cast<size_t>(fs::file_size(path));
+
+        auto decompressed_bytes = gzip::decompress(files::read_bytes(path, length).get(), length);
+
+        lua_pushboolean(L, files::write_bytes(path, decompressed_bytes.data(), decompressed_bytes.size()));
         return 1;
     } 
     throw std::runtime_error("file does not exist " + util::quote(path.u8string())); 
@@ -241,6 +249,7 @@ const luaL_Reg filelib [] = {
     {"resolve", lua_wrap_errors<l_file_resolve>},
     {"write_bytes", lua_wrap_errors<l_file_write_bytes>},
     {"write", lua_wrap_errors<l_file_write>},
-    {"gzip_compress_write", lua_wrap_errors<l_file_gzip_compress>},
+    {"gzip_compress", lua_wrap_errors<l_file_gzip_compress>},
+    {"gzip_decompress", lua_wrap_errors<l_file_gzip_decompress>},
     {NULL, NULL}
 };
