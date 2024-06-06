@@ -25,11 +25,11 @@ public:
 enum class DependencyLevel {
     required, // dependency must be installed
     optional, // dependency will be installed if found
-    weak, // dependency will not be installed automatically
+    weak, // only affects packs order
 };
 
 
-/// @brief Content-pack that should be installed before the dependent
+/// @brief Content-pack that should be installed earlier the dependent
 struct DependencyPack {
     DependencyLevel level;
     std::string id;

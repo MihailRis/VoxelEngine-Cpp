@@ -57,7 +57,7 @@ struct GraphicsSettings {
     /// 1.0 is linear, 2.0 is quadratic
     NumberSetting fogCurve {1.6f, 1.0f, 6.0f};
     /// @brief Lighting gamma
-    NumberSetting gamma {1.0f, 0.5f, 2.0f};
+    NumberSetting gamma {1.0f, 0.4f, 1.0f};
     /// @brief Enable blocks backlight to prevent complete darkness
     FlagSetting backlight {true};
     /// @brief Enable chunks frustum culling

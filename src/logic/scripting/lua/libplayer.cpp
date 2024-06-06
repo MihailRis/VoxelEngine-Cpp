@@ -132,6 +132,20 @@ static int l_player_set_noclip(lua_State* L) {
     return 0;
 }
 
+static int l_player_get_selected_block(lua_State* L) {
+    if (auto player = get_player(L, 1)) {
+        if (player->selectedVoxel.id == BLOCK_VOID) {
+            return 0;
+        }
+        const glm::ivec3 pos = player->selectedBlockPosition;
+        lua_pushinteger(L, pos.x);
+        lua_pushinteger(L, pos.y);
+        lua_pushinteger(L, pos.z);
+        return 3;
+    }
+    return 0;
+}
+
 const luaL_Reg playerlib [] = {
     {"get_pos", lua_wrap_errors<l_player_get_pos>},
     {"set_pos", lua_wrap_errors<l_player_set_pos>},
@@ -144,5 +158,6 @@ const luaL_Reg playerlib [] = {
     {"set_flight", lua_wrap_errors<l_player_set_flight>},
     {"is_noclip", lua_wrap_errors<l_player_is_noclip>},
     {"set_noclip", lua_wrap_errors<l_player_set_noclip>},
+    {"get_selected_block", lua_wrap_errors<l_player_get_selected_block>},
     {NULL, NULL}
 };

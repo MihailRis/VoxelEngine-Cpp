@@ -4,7 +4,6 @@
 #include "../../typedefs.hpp"
 #include "ImageData.hpp"
 
-#include <string>
 #include <memory>
 
 class Texture {

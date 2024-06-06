@@ -57,7 +57,7 @@ class Engine : public util::ObjectsKeeper {
     std::recursive_mutex postRunnablesMutex;
     std::unique_ptr<EngineController> controller;
     std::unique_ptr<cmd::CommandsInterpreter> interpreter;
-    std::vector<std::string> basePacks {"base"};
+    std::vector<std::string> basePacks;
 
     uint64_t frame = 0;
     double lastTime = 0.0;
@@ -65,6 +65,7 @@ class Engine : public util::ObjectsKeeper {
 
     std::unique_ptr<gui::GUI> gui;
     
+    void loadControls();
     void loadSettings();
     void saveSettings();
     void updateTimers();

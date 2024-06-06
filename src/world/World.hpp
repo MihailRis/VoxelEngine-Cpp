@@ -49,6 +49,9 @@ public:
     /// @brief total time passed in the world (not depending on daytimeSpeed)
     double totalTime = 0.0;
 
+    /// @brief will be replaced with weather in future 
+    float fog = 0.0f;
+
     World(
         std::string name, 
         std::string generator,

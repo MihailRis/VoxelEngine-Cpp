@@ -1,4 +1,5 @@
 devtools.console="key:grave-accent"
+chunks.reload="key:f5"
 movement.forward="key:w"
 movement.back="key:s"
 movement.left="key:a"

@@ -27,7 +27,7 @@ void corecontent::setup(EnginePaths* paths, ContentBuilder* builder) {
 
     auto bindsFile = paths->getResources()/fs::path("bindings.toml");
     if (fs::is_regular_file(bindsFile)) {
-        Events::loadBindingsToml(
+        Events::loadBindings(
             bindsFile.u8string(), files::read_string(bindsFile)
         );
     }

@@ -68,27 +68,25 @@ void GUI::updateTooltip(float delta) {
     if (hover == nullptr || !hover->isInside(Events::cursor)) {
         return resetTooltip();
     }
-    float mouseDelta = glm::length(Events::delta);
-    if (mouseDelta < 1.0f || tooltipTimer >= hover->getTooltipDelay()) {
-        if (tooltipTimer + delta >= hover->getTooltipDelay()) {
-            auto label = std::dynamic_pointer_cast<gui::Label>(get("tooltip.label"));
-            const auto& text = hover->getTooltip();
-            if (label && !text.empty()) {
-                tooltip->setVisible(true);
-                label->setText(langs::get(text));
-                auto size = label->getSize()+glm::vec2(4.0f);
-                auto pos = Events::cursor+glm::vec2(10.0f);
-                auto rootSize = container->getSize();
-                pos.x = glm::min(pos.x, rootSize.x-size.x);
-                pos.y = glm::min(pos.y, rootSize.y-size.y);
-                tooltip->setSize(size);
-                tooltip->setPos(pos);
-            }
+    if (tooltipTimer + delta >= hover->getTooltipDelay()) {
+        auto label = std::dynamic_pointer_cast<gui::Label>(get("tooltip.label"));
+        const auto& text = hover->getTooltip();
+        if (text.empty() && tooltip->isVisible()) {
+            return resetTooltip();
         }
-        tooltipTimer += delta;
-    } else {
-        resetTooltip();
+        if (label && !text.empty()) {
+            tooltip->setVisible(true);
+            label->setText(langs::get(text));
+            auto size = label->getSize()+glm::vec2(4.0f);
+            auto pos = Events::cursor+glm::vec2(10.0f);
+            auto rootSize = container->getSize();
+            pos.x = glm::min(pos.x, rootSize.x-size.x);
+            pos.y = glm::min(pos.y, rootSize.y-size.y);
+            tooltip->setSize(size);
+            tooltip->setPos(pos);
+        }
     }
+    tooltipTimer += delta;
 }
 
 /// @brief Mouse related input and logic handling 

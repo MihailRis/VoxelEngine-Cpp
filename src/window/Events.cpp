@@ -98,6 +98,14 @@ void Events::pollEvents() {
     }
 }
 
+Binding& Events::getBinding(const std::string& name) {
+    auto found = bindings.find(name);
+    if (found == bindings.end()) {
+        throw std::runtime_error("binding '"+name+"' does not exists");
+    }
+    return found->second;
+}
+
 void Events::bind(const std::string& name, inputtype type, keycode code) {
     bind(name, type, static_cast<int>(code));
 }
@@ -108,6 +116,10 @@ void Events::bind(const std::string& name, inputtype type, mousecode code) {
 
 void Events::bind(const std::string& name, inputtype type, int code) {
     bindings.emplace(name, Binding(type, code));
+}
+
+void Events::rebind(const std::string& name, inputtype type, int code) {
+    bindings[name] = Binding(type, code);
 }
 
 bool Events::active(const std::string& name) {
@@ -155,19 +167,22 @@ std::string Events::writeBindings() {
     dynamic::Map obj;
     for (auto& entry : Events::bindings) {
         const auto& binding = entry.second;
-
-        auto& jentry = obj.putMap(entry.first);
+        std::string value;
         switch (binding.type) {
-            case inputtype::keyboard: jentry.put("type", "keyboard"); break;
-            case inputtype::mouse: jentry.put("type", "mouse"); break;
+            case inputtype::keyboard: 
+                value = "key:"+input_util::get_name(static_cast<keycode>(binding.code)); 
+                break;
+            case inputtype::mouse: 
+                value = "mouse:"+input_util::get_name(static_cast<mousecode>(binding.code));
+                break;
             default: throw std::runtime_error("unsupported control type");
         }
-        jentry.put("code", binding.code);
+        obj.put(entry.first, value);
     }
-    return json::stringify(&obj, true, "  ");
+    return toml::stringify(obj);
 }
 
-void Events::loadBindings(const std::string& filename, const std::string& source) {
+void Events::loadBindingsOld(const std::string& filename, const std::string& source) {
     auto obj = json::parse(filename, source);
     for (auto& entry : Events::bindings) {
         auto& binding = entry.second;
@@ -192,7 +207,7 @@ void Events::loadBindings(const std::string& filename, const std::string& source
     }
 }
 
-void Events::loadBindingsToml(const std::string& filename, const std::string& source) {
+void Events::loadBindings(const std::string& filename, const std::string& source) {
     auto map = toml::parse(filename, source);
     for (auto& entry : map->values) {
         if (auto value = std::get_if<std::string>(&entry.second)) {

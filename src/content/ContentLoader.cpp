@@ -212,6 +212,10 @@ void ContentLoader::loadBlock(Block& def, std::string name, fs::path file) {
     root->str("script-name", def.scriptName);
     root->str("ui-layout", def.uiLayout);
     root->num("inventory-size", def.inventorySize);
+    root->num("tick-interval", def.tickInterval);
+    if (def.tickInterval == 0) {
+        def.tickInterval = 1;
+    }
 
     if (def.hidden && def.pickingItem == def.name+BLOCK_ITEM_SUFFIX) {
         def.pickingItem = CORE_EMPTY;

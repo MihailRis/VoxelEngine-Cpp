@@ -44,8 +44,9 @@ public:
     std::shared_ptr<Camera> currentCamera;
     std::unique_ptr<Hitbox> hitbox;
     bool debug = false;
-    voxel selectedVoxel {0, 0};
+    voxel selectedVoxel {0, {}};
     glm::vec3 cam {};
+    glm::ivec3 selectedBlockPosition {};
 
     Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv);
     ~Player();

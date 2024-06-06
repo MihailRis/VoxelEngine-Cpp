@@ -58,7 +58,7 @@ inline void create_channel(Engine* engine, std::string name, NumberSetting& sett
     }
     engine->keepAlive(setting.observe([=](auto value) {
         audio::get_channel(name)->setVolume(value*value);
-    }));
+    }, true));
 }
 
 Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, EnginePaths* paths) 
@@ -71,6 +71,7 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     if (Window::initialize(&this->settings.display)){
         throw initialize_error("could not initialize window");
     }
+    loadControls();
     audio::initialize(settings.audio.enabled.get());
     create_channel(this, "master", settings.audio.volumeMaster);
     create_channel(this, "regular", settings.audio.volumeRegular);
@@ -94,6 +95,9 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     addWorldGenerators();
     
     scripting::initialize(this);
+
+    auto resdir = paths->getResources();
+    basePacks = files::read_list(resdir/fs::path("config/builtins.list"));
 }
 
 void Engine::loadSettings() {
@@ -103,11 +107,22 @@ void Engine::loadSettings() {
         std::string text = files::read_string(settings_file);
         toml::parse(settingsHandler, settings_file.string(), text);
     }
+}
+
+void Engine::loadControls() {
     fs::path controls_file = paths->getControlsFile();
     if (fs::is_regular_file(controls_file)) {
         logger.info() << "loading controls";
         std::string text = files::read_string(controls_file);
         Events::loadBindings(controls_file.u8string(), text);
+    } else {
+        controls_file = paths->getControlsFileOld();
+        if (fs::is_regular_file(controls_file)) {
+            logger.info() << "loading controls (old)";
+            std::string text = files::read_string(controls_file);
+            Events::loadBindingsOld(controls_file.u8string(), text);
+            fs::remove(controls_file);
+        }
     }
 }
 
@@ -252,6 +267,16 @@ void Engine::loadAssets() {
     assets.reset(new_assets.release());
 }
 
+static void load_configs(const fs::path& root) {
+    auto configFolder = root/fs::path("config");
+    auto bindsFile = configFolder/fs::path("bindings.toml");
+    if (fs::is_regular_file(bindsFile)) {
+        Events::loadBindings(
+            bindsFile.u8string(), files::read_string(bindsFile)
+        );
+    }
+}
+
 void Engine::loadContent() {
     auto resdir = paths->getResources();
     ContentBuilder contentBuilder;
@@ -274,14 +299,10 @@ void Engine::loadContent() {
         ContentLoader loader(&pack);
         loader.load(contentBuilder);
 
-        auto configFolder = pack.folder/fs::path("config");
-        auto bindsFile = configFolder/fs::path("bindings.toml");
-        if (fs::is_regular_file(bindsFile)) {
-            Events::loadBindingsToml(
-                bindsFile.u8string(), files::read_string(bindsFile)
-            );
-        }
-    }
+        load_configs(pack.folder);
+    } 
+    load_configs(paths->getResources());
+
     content = contentBuilder.build();
     resPaths = std::make_unique<ResPaths>(resdir, resRoots);
 

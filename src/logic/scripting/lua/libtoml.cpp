@@ -31,7 +31,7 @@ static int l_toml_parse(lua_State*) {
 }
 
 const luaL_Reg tomllib [] = {
-    {"serialize", lua_wrap_errors<l_toml_stringify>},
-    {"deserialize", lua_wrap_errors<l_toml_parse>},
+    {"tostring", lua_wrap_errors<l_toml_stringify>},
+    {"parse", lua_wrap_errors<l_toml_parse>},
     {NULL, NULL}
 };

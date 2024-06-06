@@ -2,6 +2,7 @@
 #define PHYSICS_PHYSICSSOLVER_HPP_
 
 #include "../typedefs.hpp"
+#include "../voxels/voxel.hpp"
 
 #include <glm/glm.hpp>
 
@@ -31,7 +32,7 @@ public:
         float stepHeight
     );
     bool isBlockInside(int x, int y, int z, Hitbox* hitbox);
-    bool isBlockInside(int x, int y, int z, Block* def, blockstate_t states, Hitbox* hitbox);
+    bool isBlockInside(int x, int y, int z, Block* def, blockstate state, Hitbox* hitbox);
 };
 
 #endif // PHYSICS_PHYSICSSOLVER_HPP_

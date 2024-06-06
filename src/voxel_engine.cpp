@@ -5,7 +5,6 @@
 #include "util/platform.hpp"
 #include "util/command_line.hpp"
 #include "debug/Logger.hpp"
-#include "objects/Player.hpp"
 
 #include <stdexcept>
 
@@ -13,7 +12,6 @@ static debug::Logger logger("main");
 
 int main(int argc, char** argv) {
     debug::Logger::init("latest.log");
-    std::cout << sizeof(PlayerInput) << std::endl;
 
     EnginePaths paths;
     if (!parse_cmdline(argc, argv, paths))

@@ -20,7 +20,7 @@ namespace files {
         std::ifstream file;
         size_t filelength;
     public:
-        rafile(std::filesystem::path filename);
+        rafile(fs::path filename);
 
         void seekg(std::streampos pos);
         void read(char* buffer, std::streamsize size);

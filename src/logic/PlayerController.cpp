@@ -166,11 +166,10 @@ void CameraControl::update(const PlayerInput& input, float delta, Chunks* chunks
     }
 }
 
-glm::vec3 PlayerController::selectedBlockPosition;
 glm::vec3 PlayerController::selectedPointPosition;
 glm::ivec3 PlayerController::selectedBlockNormal;
 int PlayerController::selectedBlockId = -1;
-int PlayerController::selectedBlockStates = 0;
+int PlayerController::selectedBlockRotation = 0;
 
 PlayerController::PlayerController(
     Level* level, 
@@ -250,7 +249,7 @@ void PlayerController::update(float delta, bool input, bool pause) {
         updateInteraction();
     } else {
         selectedBlockId = -1;
-        selectedBlockStates = 0;
+        selectedBlockRotation = 0;
     }
 }
 
@@ -362,11 +361,11 @@ void PlayerController::updateInteraction(){
         maxDistance, 
         end, norm, iend
     );
-    if (vox != nullptr){
+    if (vox != nullptr) {
         player->selectedVoxel = *vox;
         selectedBlockId = vox->id;
-        selectedBlockStates = vox->states;
-        selectedBlockPosition = iend;
+        selectedBlockRotation = vox->state.rotation;
+        player->selectedBlockPosition = iend;
         selectedPointPosition = end;
         selectedBlockNormal = norm;
         int x = iend.x;
@@ -374,7 +373,8 @@ void PlayerController::updateInteraction(){
         int z = iend.z;
 
         Block* def = indices->getBlockDef(item->rt.placingBlock);
-        uint8_t states = determine_rotation(def, norm, camera->dir);
+        blockstate state {};
+        state.rotation = determine_rotation(def, norm, camera->dir);
         
         if (lclick && !input.shift && item->rt.funcsset.on_block_break_by) {
             if (scripting::on_item_break_block(player.get(), item, x, y, z))
@@ -411,13 +411,13 @@ void PlayerController::updateInteraction(){
                 z = (iend.z)+(norm.z);
             } else {
                 if (def->rotations.name == "pipe") {
-                    states = BLOCK_DIR_UP;
+                    state.rotation = BLOCK_DIR_UP;
                 }
             }
             vox = chunks->get(x, y, z);
             blockid_t chosenBlock = def->rt.id;
             if (vox && (target = indices->getBlockDef(vox->id))->replaceable) {
-                if (!level->physics->isBlockInside(x,y,z,def,states, player->hitbox.get()) 
+                if (!level->physics->isBlockInside(x,y,z,def,state, player->hitbox.get()) 
                     || !def->obstacle){
                     if (def->grounded && !chunks->isSolidBlock(x, y-1, z)) {
                         chosenBlock = 0;
@@ -427,7 +427,7 @@ void PlayerController::updateInteraction(){
                             glm::ivec3(x, y, z), def,
                             BlockInteraction::placing
                         );
-                        chunks->set(x, y, z, chosenBlock, states);
+                        chunks->set(x, y, z, chosenBlock, state);
                         lighting->onBlockSet(x,y,z, chosenBlock);
                         if (def->rt.funcsset.onplaced) {
                             scripting::on_block_placed(player.get(), def, x, y, z);
@@ -442,12 +442,13 @@ void PlayerController::updateInteraction(){
         }
     } else {
         selectedBlockId = -1;
-        selectedBlockStates = 0;
-    }
-    if (rclick) {
-        if (item->rt.funcsset.on_use) {
-            scripting::on_item_use(player.get(), item);
-        } 
+        selectedBlockRotation = 0;
+        player->selectedVoxel.id = BLOCK_VOID;
+        if (rclick) {
+            if (item->rt.funcsset.on_use) {
+                scripting::on_item_use(player.get(), item);
+            } 
+        }
     }
 }
 

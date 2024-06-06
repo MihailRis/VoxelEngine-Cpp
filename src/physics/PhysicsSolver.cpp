@@ -33,6 +33,7 @@ void PhysicsSolver::step(
     hitbox->grounded = false;
     for (uint i = 0; i < substeps; i++) {
         float px = pos.x;
+        float py = pos.y;
         float pz = pos.z;
         
         vel += gravity * dt * gravityScale;
@@ -44,6 +45,9 @@ void PhysicsSolver::step(
         vel.z *= glm::max(0.0f, 1.0f - dt * linear_damping);
 
         pos += vel * dt + gravity * gravityScale * dt * dt * 0.5f;
+        if (hitbox->grounded) {
+            pos.y = py;
+        }
 
         if (shifting && hitbox->grounded){
             float y = (pos.y-half.y-E);
@@ -219,21 +223,19 @@ bool PhysicsSolver::isBlockInside(int x, int y, int z, Hitbox* hitbox) {
            y >= floor(pos.y-half.y) && y <= floor(pos.y+half.y);
 }
 
-bool PhysicsSolver::isBlockInside(int x, int y, int z, Block* def, blockstate_t states, Hitbox* hitbox) {
+bool PhysicsSolver::isBlockInside(int x, int y, int z, Block* def, blockstate state, Hitbox* hitbox) {
+    const float E = 0.001f; // inaccuracy
     const glm::vec3& pos = hitbox->position;
     const glm::vec3& half = hitbox->halfsize;
-    voxel v {};
-    v.states = states;
     const auto& boxes = def->rotatable 
-                      ? def->rt.hitboxes[v.rotation()] 
+                      ? def->rt.hitboxes[state.rotation] 
                       : def->hitboxes;
     for (const auto& block_hitbox : boxes) {
         glm::vec3 min = block_hitbox.min();
         glm::vec3 max = block_hitbox.max();
-        // 0.00001 - inaccuracy
-        if (min.x < pos.x+half.x-x-0.00001f && max.x > pos.x-half.x-x+0.00001f &&
-            min.z < pos.z+half.z-z-0.00001f && max.z > pos.z-half.z-z+0.00001f &&
-            min.y < pos.y+half.y-y-0.00001f && max.y > pos.y-half.y-y+0.00001f)
+        if (min.x < pos.x+half.x-x-E && max.x > pos.x-half.x-x+E &&
+            min.z < pos.z+half.z-z-E && max.z > pos.z-half.z-z+E &&
+            min.y < pos.y+half.y-y-E && max.y > pos.y-half.y-y+E)
             return true;
     }
     return false;
