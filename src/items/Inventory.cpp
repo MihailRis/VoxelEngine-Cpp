@@ -54,7 +54,7 @@ void Inventory::deserialize(dynamic::Map* src) {
     auto slotsarr = src->list("slots");
     size_t slotscount = slotsarr->size();
     while (slots.size() < slotscount) {
-        slots.push_back(ItemStack());
+        slots.emplace_back();
     }
     for (size_t i = 0; i < slotscount; i++) {
         auto item = slotsarr->map(i);

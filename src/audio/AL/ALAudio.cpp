@@ -458,7 +458,7 @@ std::vector<std::string> ALAudio::getAvailableDevices() const {
 
     const char* ptr = devices;
     do {
-        devicesVec.push_back(std::string(ptr));
+        devicesVec.emplace_back(ptr);
         ptr += devicesVec.back().size() + 1;
     }
     while (ptr[0]);
