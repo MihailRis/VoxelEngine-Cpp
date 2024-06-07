@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 
 inline std::shared_ptr<Player> get_player(lua_State* L, int idx) {
-    return scripting::level->getObject<Player>(lua_tointeger(L, idx));
+    return scripting::level->objects.get<Player>(lua_tointeger(L, idx));
 }
 
 static int l_player_get_pos(lua_State* L) {

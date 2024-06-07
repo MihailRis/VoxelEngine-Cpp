@@ -176,7 +176,7 @@ PlayerController::PlayerController(
     const EngineSettings& settings,
     BlocksController* blocksController
 ) : level(level), 
-    player(level->getObject<Player>(0)), 
+    player(level->objects.get<Player>(1)), 
     camControl(player, settings.camera),
     blocksController(blocksController) 
 {}

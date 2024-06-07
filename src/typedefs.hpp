@@ -17,6 +17,8 @@ using uint = unsigned int;
 /// @brief use for bytes arrays
 using ubyte = uint8_t;
 
+using objectid_t = uint64_t;
+
 // content indices
 using itemid_t = uint32_t;
 using blockid_t = uint16_t;

@@ -60,7 +60,8 @@ void World::write(Level* level) {
         }
     }
     wfile->write(this, content);
-    auto playerFile = dynamic::Map();
+    // FIXME
+    /*auto playerFile = dynamic::Map();
 
     auto& players = playerFile.putList("players");
     for (const auto& object : level->objects) {
@@ -68,7 +69,7 @@ void World::write(Level* level) {
             players.put(player->serialize());
         }
     }
-    files::write_json(wfile->getPlayerFile(), &playerFile);
+    files::write_json(wfile->getPlayerFile(), &playerFile);*/
 }
 
 std::unique_ptr<Level> World::create(
@@ -112,16 +113,16 @@ std::unique_ptr<Level> World::load(
                 level->objects.clear();
                 auto players = playerFile->list("players");
                 for (size_t i = 0; i < players->size(); i++) {
-                    auto player = level->spawnObject<Player>(
+                    auto player = level->objects.spawn<Player>(
                         glm::vec3(0, DEF_PLAYER_Y, 0), 
-                        DEF_PLAYER_SPEED, 
+                        DEF_PLAYER_SPEED,
                         level->inventories->create(DEF_PLAYER_INVENTORY_SIZE)
                     );
                     player->deserialize(players->map(i));
                     level->inventories->store(player->getInventory());
                 }
             } else {
-                auto player = level->getObject<Player>(0);
+                auto player = level->objects.get<Player>(0);
                 player->deserialize(playerFile.get());
                 level->inventories->store(player->getInventory());
             }

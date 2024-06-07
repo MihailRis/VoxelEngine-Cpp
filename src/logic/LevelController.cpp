@@ -29,21 +29,8 @@ void LevelController::update(float delta, bool input, bool pause) {
     chunks->update(settings.chunks.loadSpeed.get());
     player->update(delta, input, pause);
 
-    // erease null pointers
-    level->objects.erase(
-        std::remove_if(
-            level->objects.begin(), level->objects.end(),
-            [](auto obj) { return obj == nullptr; }),
-        level->objects.end()
-    );
-    
     if (!pause) {
-        // update all objects that needed
-        for (const auto& obj : level->objects) {
-            if (obj && obj->shouldUpdate) {
-                obj->update(delta);
-            }
-        }
+        level->objects.update(delta);
         blocks->update(delta);
     }
 }

@@ -27,7 +27,7 @@ Level::Level(
 	auto inv = std::make_shared<Inventory>(
         this->world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE
     );
-	auto player = spawnObject<Player>(
+	auto player = objects.spawn<Player>(
         glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv
     );
 
@@ -49,9 +49,7 @@ Level::Level(
 }
 
 Level::~Level(){
-	for(auto obj : objects) {
-		obj.reset();
-	}
+	objects.clear();
 }
 
 void Level::loadMatrix(int32_t x, int32_t z, uint32_t radius) {
