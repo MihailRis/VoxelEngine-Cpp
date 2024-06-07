@@ -103,8 +103,9 @@ WorldRegion* WorldRegions::getRegion(int x, int z, int layer) {
     RegionsLayer& regions = layers[layer];
     std::lock_guard lock(regions.mutex);
     auto found = regions.regions.find(glm::ivec2(x, z));
-    if (found == regions.regions.end())
+    if (found == regions.regions.end()) {
         return nullptr;
+    }
     return found->second.get();
 }
 
@@ -357,6 +358,13 @@ static std::unique_ptr<ubyte[]> write_inventories(Chunk* chunk, uint& datasize) 
 /// @brief Store chunk data (voxels and lights) in region (existing or new)
 void WorldRegions::put(Chunk* chunk){
     assert(chunk != nullptr);
+    if (!chunk->flags.lighted) {
+        return;
+    }
+    bool lightsUnsaved = !chunk->flags.loadedLights && doWriteLights;
+    if (!chunk->flags.unsaved && !lightsUnsaved) {
+        return;
+    }
 
     int regionX, regionZ, localX, localZ;
     calc_reg_coords(chunk->x, chunk->z, regionX, regionZ, localX, localZ);
@@ -399,11 +407,12 @@ std::unique_ptr<light_t[]> WorldRegions::getLights(int x, int z) {
 }
 
 chunk_inventories_map WorldRegions::fetchInventories(int x, int z) {
-    chunk_inventories_map inventories;
+    chunk_inventories_map meta;
     uint32_t bytesSize;
     const ubyte* data = getData(x, z, REGION_LAYER_INVENTORIES, bytesSize);
-    if (data == nullptr)
-        return inventories;
+    if (data == nullptr) {
+        return meta;
+    }
     ByteReader reader(data, bytesSize);
     int count = reader.getInt32();
     for (int i = 0; i < count; i++) {
@@ -413,9 +422,9 @@ chunk_inventories_map WorldRegions::fetchInventories(int x, int z) {
         reader.skip(size);
         auto inv = std::make_shared<Inventory>(0, 0);
         inv->deserialize(map.get());
-        inventories[index] = inv;
+        meta[index] = inv;
     }
-    return inventories;
+    return meta;
 }
 
 void WorldRegions::processRegionVoxels(int x, int z, const regionproc& func) {
@@ -456,8 +465,9 @@ void WorldRegions::write() {
 
 bool WorldRegions::parseRegionFilename(const std::string& name, int& x, int& z) {
     size_t sep = name.find('_');
-    if (sep == std::string::npos || sep == 0 || sep == name.length()-1)
+    if (sep == std::string::npos || sep == 0 || sep == name.length()-1) {
         return false;
+    }
     try {
         x = std::stoi(name.substr(0, sep));
         z = std::stoi(name.substr(sep+1));

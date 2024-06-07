@@ -128,7 +128,7 @@ public:
     bool generatorTestMode = false;
     bool doWriteLights = true;
 
-    WorldRegions(const fs::path &directory);
+    WorldRegions(const fs::path& directory);
     WorldRegions(const WorldRegions&) = delete;
     ~WorldRegions();
 

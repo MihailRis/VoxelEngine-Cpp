@@ -59,8 +59,10 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 	auto data = regions.getChunk(chunk->x, chunk->z);
 	if (data) {
 		chunk->decode(data.get());
+
 		auto invs = regions.fetchInventories(chunk->x, chunk->z);
 		chunk->setBlockInventories(std::move(invs));
+
         chunk->flags.loaded = true;
 		for(auto& entry : chunk->inventories) {
 			level->inventories->store(entry.second);
