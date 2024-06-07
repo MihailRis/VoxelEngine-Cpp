@@ -8,29 +8,30 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 namespace fs = std::filesystem;
 
 void GLSLExtension::setVersion(std::string version) {
-    this->version = version;
+    this->version = std::move(version);
 }
 
 void GLSLExtension::setPaths(const ResPaths* paths) {
     this->paths = paths;
 }
 
-void GLSLExtension::loadHeader(std::string name) {
+void GLSLExtension::loadHeader(const std::string& name) {
     fs::path file = paths->find("shaders/lib/"+name+".glsl");
     std::string source = files::read_string(file);
     addHeader(name, source);
 }
 
-void GLSLExtension::addHeader(std::string name, std::string source) {
-    headers[name] = source;
+void GLSLExtension::addHeader(const std::string& name, std::string source) {
+    headers[name] = std::move(source);
 }
 
-void GLSLExtension::define(std::string name, std::string value) {
-    defines[name] = value;
+void GLSLExtension::define(const std::string& name, std::string value) {
+    defines[name] = std::move(value);
 }
 
 const std::string& GLSLExtension::getHeader(const std::string& name) const {
@@ -57,7 +58,7 @@ bool GLSLExtension::hasHeader(const std::string& name) const {
     return headers.find(name) != headers.end();
 }
 
-void GLSLExtension::undefine(std::string name) {
+void GLSLExtension::undefine(const std::string& name) {
     if (hasDefine(name)) {
         defines.erase(name);
     }
@@ -66,7 +67,7 @@ void GLSLExtension::undefine(std::string name) {
 inline std::runtime_error parsing_error(
         const fs::path& file, 
         uint linenum, 
-        const std::string message) {
+        const std::string& message) {
     return std::runtime_error("file "+file.string()+": "+message+
                           " at line "+std::to_string(linenum));
 }
@@ -74,7 +75,7 @@ inline std::runtime_error parsing_error(
 inline void parsing_warning(
         const fs::path& file, 
         uint linenum, const 
-        std::string message) {
+        std::string& message) {
     std::cerr << "file "+file.string()+": warning: "+message+
             " at line "+std::to_string(linenum) << std::endl;
 }

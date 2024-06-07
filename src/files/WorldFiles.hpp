@@ -41,8 +41,8 @@ class WorldFiles {
     void writeWorldInfo(const World* world);
     void writeIndices(const ContentIndices* indices);
 public:
-    WorldFiles(fs::path directory);
-    WorldFiles(fs::path directory, const DebugSettings& settings);
+    WorldFiles(const fs::path &directory);
+    WorldFiles(const fs::path &directory, const DebugSettings& settings);
     ~WorldFiles();
 
     fs::path getPlayerFile() const;

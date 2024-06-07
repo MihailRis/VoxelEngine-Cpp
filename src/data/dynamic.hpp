@@ -101,7 +101,7 @@ namespace dynamic {
             return get(key, T());
         }
 
-        std::string get(const std::string& key, const std::string def) const;
+        std::string get(const std::string& key, const std::string& def) const;
         number_t get(const std::string& key, double def) const;
         integer_t get(const std::string& key, integer_t def) const;
         bool get(const std::string& key, bool def) const;
@@ -155,12 +155,12 @@ namespace dynamic {
         Map& put(std::string key, const char* value) {
             return put(key, Value(value));
         }
-        Map& put(std::string key, const Value& value);
+        Map& put(const std::string& key, const Value& value);
 
         void remove(const std::string& key);
 
-        List& putList(std::string key);
-        Map& putMap(std::string key);
+        List& putList(const std::string& key);
+        Map& putMap(const std::string& key);
 
         bool has(const std::string& key) const;
         size_t size() const;

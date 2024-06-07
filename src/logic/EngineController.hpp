@@ -16,16 +16,16 @@ public:
     /// @brief Load world, convert if required and set to LevelScreen.
     /// @param name world name
     /// @param confirmConvert automatically confirm convert if requested
-    void openWorld(std::string name, bool confirmConvert);
+    void openWorld(const std::string& name, bool confirmConvert);
 
     /// @brief Show world removal confirmation dialog
     /// @param name world name
-    void deleteWorld(std::string name);
+    void deleteWorld(const std::string& name);
 
     void reconfigPacks(
         LevelController* controller,
-        std::vector<std::string> packsToAdd,
-        std::vector<std::string> packsToRemove
+        const std::vector<std::string>& packsToAdd,
+        const std::vector<std::string>& packsToRemove
     );
 
     void createWorld(

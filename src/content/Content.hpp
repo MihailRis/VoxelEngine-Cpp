@@ -107,15 +107,15 @@ public:
         return indices.get();
     }
     
-    Block* findBlock(std::string id) const;
-    Block& requireBlock(std::string id) const;
+    Block* findBlock(const std::string& id) const;
+    Block& requireBlock(const std::string& id) const;
 
-    ItemDef* findItem(std::string id) const;
-    ItemDef& requireItem(std::string id) const;
+    ItemDef* findItem(const std::string& id) const;
+    ItemDef& requireItem(const std::string& id) const;
 
-    const BlockMaterial* findBlockMaterial(std::string id) const;
+    const BlockMaterial* findBlockMaterial(const std::string& id) const;
 
-    const ContentPackRuntime* getPackRuntime(std::string id) const;
+    const ContentPackRuntime* getPackRuntime(const std::string& id) const;
 
     const std::unordered_map<std::string, std::unique_ptr<BlockMaterial>>& getBlockMaterials() const;
     const std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>>& getPacks() const;

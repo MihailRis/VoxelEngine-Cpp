@@ -3,6 +3,7 @@
 #include <memory>
 #include <stdexcept>
 #include <glm/glm.hpp>
+#include <utility>
 
 #include "../voxels/Block.hpp"
 #include "../items/ItemDef.hpp"
@@ -13,8 +14,8 @@
 ContentIndices::ContentIndices(
     std::vector<Block*> blockDefs, 
     std::vector<ItemDef*> itemDefs
-) : blockDefs(blockDefs), 
-    itemDefs(itemDefs) 
+) : blockDefs(std::move(blockDefs)),
+    itemDefs(std::move(itemDefs))
 {}
 
 Content::Content(
@@ -35,7 +36,7 @@ Content::Content(
 Content::~Content() {
 }
 
-Block* Content::findBlock(std::string id) const {
+Block* Content::findBlock(const std::string& id) const {
     auto found = blockDefs.find(id);
     if (found == blockDefs.end()) {
         return nullptr;
@@ -43,7 +44,7 @@ Block* Content::findBlock(std::string id) const {
     return found->second.get();
 }
 
-Block& Content::requireBlock(std::string id) const {
+Block& Content::requireBlock(const std::string& id) const {
     auto found = blockDefs.find(id);
     if (found == blockDefs.end()) {
         throw std::runtime_error("missing block "+id);
@@ -51,7 +52,7 @@ Block& Content::requireBlock(std::string id) const {
     return *found->second;
 }
 
-ItemDef* Content::findItem(std::string id) const {
+ItemDef* Content::findItem(const std::string& id) const {
     auto found = itemDefs.find(id);
     if (found == itemDefs.end()) {
         return nullptr;
@@ -59,7 +60,7 @@ ItemDef* Content::findItem(std::string id) const {
     return found->second.get();
 }
 
-ItemDef& Content::requireItem(std::string id) const {
+ItemDef& Content::requireItem(const std::string& id) const {
     auto found = itemDefs.find(id);
     if (found == itemDefs.end()) {
         throw std::runtime_error("missing item "+id);
@@ -67,7 +68,7 @@ ItemDef& Content::requireItem(std::string id) const {
     return *found->second;
 }
 
-const BlockMaterial* Content::findBlockMaterial(std::string id) const {
+const BlockMaterial* Content::findBlockMaterial(const std::string& id) const {
     auto found = blockMaterials.find(id);
     if (found == blockMaterials.end()) {
         return nullptr;
@@ -75,7 +76,7 @@ const BlockMaterial* Content::findBlockMaterial(std::string id) const {
     return found->second.get();
 }
 
-const ContentPackRuntime* Content::getPackRuntime(std::string id) const {
+const ContentPackRuntime* Content::getPackRuntime(const std::string& id) const {
     auto found = packs.find(id);
     if (found == packs.end()) {
         return nullptr;

@@ -46,7 +46,7 @@ void Panel::fullRefresh() {
     Container::fullRefresh();
 }
 
-void Panel::add(std::shared_ptr<UINode> node) {
+void Panel::add(const std::shared_ptr<UINode> &node) {
     node->setResizing(true);
     Container::add(node);
     fullRefresh();

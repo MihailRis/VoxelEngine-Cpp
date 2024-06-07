@@ -1,6 +1,8 @@
 #ifndef GRAPHICS_UI_ELEMENTS_CHECKBOX_HPP_
 #define GRAPHICS_UI_ELEMENTS_CHECKBOX_HPP_
 
+#include <utility>
+
 #include "Panel.hpp"
 
 namespace gui {
@@ -33,14 +35,14 @@ namespace gui {
     protected:
         std::shared_ptr<CheckBox> checkbox;
     public:
-        FullCheckBox(std::wstring text, glm::vec2 size, bool checked=false);
+        FullCheckBox(const std::wstring& text, glm::vec2 size, bool checked=false);
 
         virtual void setSupplier(boolsupplier supplier) {
-            checkbox->setSupplier(supplier);
+            checkbox->setSupplier(std::move(supplier));
         }
 
         virtual void setConsumer(boolconsumer consumer) {
-            checkbox->setConsumer(consumer);
+            checkbox->setConsumer(std::move(consumer));
         }
 
         virtual void setChecked(bool flag) {

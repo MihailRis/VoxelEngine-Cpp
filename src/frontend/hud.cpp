@@ -48,6 +48,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 using namespace gui;
 
@@ -63,7 +64,7 @@ HudElement::HudElement(
     UiDocument* document, 
     std::shared_ptr<UINode> node, 
     bool debug
-) : mode(mode), document(document), node(node), debug(debug) {
+) : mode(mode), document(document), node(std::move(node)), debug(debug) {
 }
 
 void HudElement::update(bool pause, bool inventoryOpen, bool debugMode) {
@@ -398,7 +399,7 @@ void Hud::closeInventory() {
     cleanup();
 }
 
-void Hud::add(HudElement element) {
+void Hud::add(const HudElement& element) {
     using namespace dynamic;
 
     gui->add(element.getNode());
@@ -435,7 +436,7 @@ void Hud::onRemove(const HudElement& element) {
     gui->remove(element.getNode());
 }
 
-void Hud::remove(std::shared_ptr<UINode> node) {
+void Hud::remove(const std::shared_ptr<UINode>& node) {
     for (auto& element : elements) {
         if (element.getNode() == node) {
             element.setRemoved();

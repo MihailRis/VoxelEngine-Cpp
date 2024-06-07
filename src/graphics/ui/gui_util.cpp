@@ -22,7 +22,7 @@ std::shared_ptr<gui::UINode> guiutil::create(const std::string& source, scripten
     return reader.readXML("<string>", source);
 }
 
-void guiutil::alert(GUI* gui, const std::wstring& text, runnable on_hidden) {
+void guiutil::alert(GUI* gui, const std::wstring& text, const runnable& on_hidden) {
     auto menu = gui->getMenu();
     auto panel = std::make_shared<Panel>(glm::vec2(500, 300), glm::vec4(8.0f), 8.0f);
     panel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
@@ -48,7 +48,7 @@ void guiutil::alert(GUI* gui, const std::wstring& text, runnable on_hidden) {
 void guiutil::confirm(
         GUI* gui, 
         const std::wstring& text, 
-        runnable on_confirm,
+        const runnable& on_confirm,
         std::wstring yestext, 
         std::wstring notext) {
     if (yestext.empty()) yestext = langs::get(L"Yes");

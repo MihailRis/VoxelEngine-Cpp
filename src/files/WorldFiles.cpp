@@ -27,14 +27,15 @@
 #include <fstream>
 #include <sstream>
 #include <cstring>
+#include <utility>
 
 #define WORLD_FORMAT_MAGIC ".VOXWLD"
 
-WorldFiles::WorldFiles(fs::path directory) : directory(directory), regions(directory) {
+WorldFiles::WorldFiles(const fs::path& directory) : directory(directory), regions(directory) {
 }
 
-WorldFiles::WorldFiles(fs::path directory, const DebugSettings& settings)
-  : WorldFiles(directory) 
+WorldFiles::WorldFiles(const fs::path& directory, const DebugSettings& settings)
+  : WorldFiles(directory)
 {
     generatorTestMode = settings.generatorTestMode.get();
     doWriteLights = settings.doWriteLights.get();

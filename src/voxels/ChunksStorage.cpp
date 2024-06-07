@@ -18,7 +18,7 @@ static debug::Logger logger("chunks-storage");
 ChunksStorage::ChunksStorage(Level* level) : level(level) {
 }
 
-void ChunksStorage::store(std::shared_ptr<Chunk> chunk) {
+void ChunksStorage::store(const std::shared_ptr<Chunk>& chunk) {
 	chunksMap[glm::ivec2(chunk->x, chunk->z)] = chunk;
 }
 

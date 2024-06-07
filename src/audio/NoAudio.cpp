@@ -2,7 +2,7 @@
 
 using namespace audio;
 
-NoSound::NoSound(std::shared_ptr<PCM> pcm, bool keepPCM) {
+NoSound::NoSound(const std::shared_ptr<PCM>& pcm, bool keepPCM) {
     duration = pcm->getDuration();
     if (keepPCM) {
         this->pcm = pcm;

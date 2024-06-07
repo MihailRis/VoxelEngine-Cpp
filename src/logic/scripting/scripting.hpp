@@ -45,7 +45,7 @@ namespace scripting {
 
     scriptenv get_root_environment();
     scriptenv create_pack_environment(const ContentPack& pack);
-    scriptenv create_doc_environment(scriptenv parent, const std::string& name);
+    scriptenv create_doc_environment(const scriptenv& parent, const std::string& name);
 
     void process_post_runnables();
 
@@ -88,27 +88,27 @@ namespace scripting {
     /// @param prefix pack id
     /// @param file item script file
     /// @param funcsset block callbacks set
-    void load_block_script(scriptenv env, std::string prefix, fs::path file, block_funcs_set& funcsset);
+    void load_block_script(const scriptenv& env, const std::string& prefix, const fs::path& file, block_funcs_set& funcsset);
 
     /// @brief Load script associated with an Item
     /// @param env environment
     /// @param prefix pack id
     /// @param file item script file
     /// @param funcsset item callbacks set
-    void load_item_script(scriptenv env, std::string prefix, fs::path file, item_funcs_set& funcsset);
+    void load_item_script(const scriptenv& env, const std::string& prefix, const fs::path& file, item_funcs_set& funcsset);
     
     /// @brief Load package-specific world script 
     /// @param env environment
     /// @param packid content-pack id
     /// @param file script file path
-    void load_world_script(scriptenv env, std::string packid, fs::path file);
+    void load_world_script(const scriptenv& env, const std::string& packid, const fs::path& file);
 
     /// @brief Load script associated with an UiDocument
     /// @param env environment
     /// @param prefix pack id
     /// @param file item script file
     /// @param script document script info
-    void load_layout_script(scriptenv env, std::string prefix, fs::path file, uidocscript& script);
+    void load_layout_script(const scriptenv& env, const std::string& prefix, const fs::path& file, uidocscript& script);
 
     /// @brief Finalize lua state. Using scripting after will lead to Lua panic
     void close();

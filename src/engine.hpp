@@ -137,7 +137,7 @@ public:
     std::shared_ptr<Screen> getScreen();
 
     /// @brief Enqueue function call to the end of current frame in draw thread
-    void postRunnable(runnable callback);
+    void postRunnable(const runnable& callback);
 
     void saveScreenshot();
 

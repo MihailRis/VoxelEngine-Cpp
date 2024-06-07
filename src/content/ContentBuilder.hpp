@@ -24,12 +24,12 @@ public:
 
     void add(std::unique_ptr<ContentPackRuntime> pack);
 
-    Block& createBlock(std::string id);
-    ItemDef& createItem(std::string id);
-    BlockMaterial& createBlockMaterial(std::string id);
+    Block& createBlock(const std::string& id);
+    ItemDef& createItem(const std::string& id);
+    BlockMaterial& createBlockMaterial(const std::string& id);
 
-    void checkIdentifier(std::string id);
-    contenttype checkContentType(std::string id);
+    void checkIdentifier(const std::string& id);
+    contenttype checkContentType(const std::string& id);
 
     std::unique_ptr<Content> build();
 };
