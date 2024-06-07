@@ -403,7 +403,7 @@ std::vector<std::string> util::split(const std::string& str, char delimiter) {
         result.push_back(tmp);
     }
     if (result.empty()) {
-        result.push_back("");
+        result.emplace_back("");
     }
     return result;
 }
@@ -420,7 +420,7 @@ std::vector<std::wstring> util::split(const std::wstring& str, char delimiter) {
         result.push_back(tmp);
     }
     if (result.empty()) {
-        result.push_back(L"");
+        result.emplace_back(L"");
     }
     return result;
 }

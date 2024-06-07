@@ -81,7 +81,7 @@ static int l_reconfig_packs(lua_State* L) {
     int addLen = lua_objlen(L, 1);
     for (int i = 0; i < addLen; i++) {
         lua_rawgeti(L, 1, i+1);
-        addPacks.push_back(lua_tostring(L, -1));
+        addPacks.emplace_back(lua_tostring(L, -1));
         lua_pop(L, 1);
     }
 
@@ -92,7 +92,7 @@ static int l_reconfig_packs(lua_State* L) {
     int remLen = lua_objlen(L, 2);
     for (int i = 0; i < remLen; i++) {
         lua_rawgeti(L, 2, i+1);
-        remPacks.push_back(lua_tostring(L, -1));
+        remPacks.emplace_back(lua_tostring(L, -1));
         lua_pop(L, 1);
     }
     auto controller = scripting::engine->getController();

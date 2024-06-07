@@ -54,7 +54,7 @@ gui::page_loader_func menus::create_page_loader(Engine* engine) {
                 auto value = std::string(parser.readUntil('&'));
                 map->put(key, value);
             }
-            args.push_back(map);
+            args.emplace_back(map);
         } else {
             name = query;
         }

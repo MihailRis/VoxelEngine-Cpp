@@ -546,7 +546,7 @@ static std::shared_ptr<UINode> readPageBox(UiXmlReader& reader, const xml::xmlel
 }
 
 UiXmlReader::UiXmlReader(const scriptenv& env) : env(env) {
-    contextStack.push("");
+    contextStack.emplace("");
     add("image", readImage);
     add("label", readLabel);
     add("panel", readPanel);

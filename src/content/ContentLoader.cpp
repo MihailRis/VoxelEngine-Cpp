@@ -244,7 +244,7 @@ void ContentLoader::loadCustomBlockModel(Block& def, dynamic::Map* primitives) {
                 }
             else
                 for (uint j = 6; j < 12; j++) {
-                    def.modelTextures.push_back("notfound");
+                    def.modelTextures.emplace_back("notfound");
                 }
         }
     }

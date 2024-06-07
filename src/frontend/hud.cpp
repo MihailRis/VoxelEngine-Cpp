@@ -408,9 +408,9 @@ void Hud::add(const HudElement& element) {
     if (document) {
         auto inventory = invview ? invview->getInventory() : nullptr;
         std::vector<Value> args;
-        args.push_back(inventory ? inventory.get()->getId() : 0);
+        args.emplace_back(inventory ? inventory.get()->getId() : 0);
         for (int i = 0; i < 3; i++) {
-            args.push_back(static_cast<integer_t>(blockPos[i]));
+            args.emplace_back(static_cast<integer_t>(blockPos[i]));
         }
         scripting::on_ui_open(
             element.getDocument(), 
