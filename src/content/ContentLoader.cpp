@@ -28,15 +28,15 @@ ContentLoader::ContentLoader(ContentPack* pack) : pack(pack) {
 }
 
 bool ContentLoader::fixPackIndices(
-    fs::path folder, 
+    const fs::path& folder,
     dynamic::Map* indicesRoot,
-    std::string contentSection
+    const std::string& contentSection
 ) {
     std::vector<std::string> detected;
     std::vector<std::string> indexed;
     if (fs::is_directory(folder)) {
-        for (auto entry : fs::directory_iterator(folder)) {
-            fs::path file = entry.path();
+        for (const auto& entry : fs::directory_iterator(folder)) {
+            const fs::path& file = entry.path();
             if (fs::is_regular_file(file) && file.extension() == ".json") {
                 std::string name = file.stem().string();
                 if (name[0] == '_')
@@ -46,8 +46,8 @@ bool ContentLoader::fixPackIndices(
                 std::string space = file.stem().string();
                 if (space[0] == '_')
                     continue;
-                for (auto entry : fs::directory_iterator(file)) {
-                    fs::path file = entry.path();
+                for (const auto& entry : fs::directory_iterator(file)) {
+                    const fs::path& file = entry.path();
                     if (fs::is_regular_file(file) && file.extension() == ".json") {
                         std::string name = file.stem().string();
                         if (name[0] == '_')
@@ -109,7 +109,7 @@ void ContentLoader::fixPackIndices() {
     }
 }
 
-void ContentLoader::loadBlock(Block& def, std::string name, fs::path file) {
+void ContentLoader::loadBlock(Block& def, const std::string& name, const fs::path& file) {
     auto root = files::read_json(file);
 
     root->str("caption", def.caption);
@@ -244,7 +244,7 @@ void ContentLoader::loadCustomBlockModel(Block& def, dynamic::Map* primitives) {
                 }
             else
                 for (uint j = 6; j < 12; j++) {
-                    def.modelTextures.push_back("notfound");
+                    def.modelTextures.emplace_back("notfound");
                 }
         }
     }
@@ -266,7 +266,7 @@ void ContentLoader::loadCustomBlockModel(Block& def, dynamic::Map* primitives) {
     }
 }
 
-void ContentLoader::loadItem(ItemDef& def, std::string name, fs::path file) {
+void ContentLoader::loadItem(ItemDef& def, const std::string& name, const fs::path& file) {
     auto root = files::read_json(file);
     root->str("caption", def.caption);
 
@@ -295,7 +295,7 @@ void ContentLoader::loadItem(ItemDef& def, std::string name, fs::path file) {
     }
 }
 
-void ContentLoader::loadBlock(Block& def, std::string full, std::string name) {
+void ContentLoader::loadBlock(Block& def, const std::string& full, const std::string& name) {
     auto folder = pack->folder;
 
     fs::path configFile = folder/fs::path("blocks/"+name+".json");
@@ -307,7 +307,7 @@ void ContentLoader::loadBlock(Block& def, std::string full, std::string name) {
     }
 }
 
-void ContentLoader::loadItem(ItemDef& def, std::string full, std::string name) {
+void ContentLoader::loadItem(ItemDef& def, const std::string& full, const std::string& name) {
     auto folder = pack->folder;
 
     fs::path configFile = folder/fs::path("items/"+name+".json");
@@ -319,7 +319,7 @@ void ContentLoader::loadItem(ItemDef& def, std::string full, std::string name) {
     }
 }
 
-void ContentLoader::loadBlockMaterial(BlockMaterial& def, fs::path file) {
+void ContentLoader::loadBlockMaterial(BlockMaterial& def, const fs::path& file) {
     auto root = files::read_json(file);
     root->str("steps-sound", def.stepsSound);
     root->str("place-sound", def.placeSound);
@@ -394,8 +394,8 @@ void ContentLoader::load(ContentBuilder& builder) {
 
     fs::path materialsDir = folder / fs::u8path("block_materials");
     if (fs::is_directory(materialsDir)) {
-        for (auto entry : fs::directory_iterator(materialsDir)) {
-            fs::path file = entry.path();
+        for (const auto& entry : fs::directory_iterator(materialsDir)) {
+            const fs::path& file = entry.path();
             std::string name = pack->id+":"+file.stem().u8string();
             loadBlockMaterial(builder.createBlockMaterial(name), file);
         }

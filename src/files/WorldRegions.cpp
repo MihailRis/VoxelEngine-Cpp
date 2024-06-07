@@ -8,10 +8,11 @@
 #include "../util/data_io.hpp"
 
 #include <cstring>
+#include <utility>
 
 #define REGION_FORMAT_MAGIC ".VOXREG"
 
-regfile::regfile(fs::path filename) : file(filename) {
+regfile::regfile(fs::path filename) : file(std::move(filename)) {
     if (file.length() < REGION_HEADER_SIZE)
         throw std::runtime_error("incomplete region file header");
     char header[REGION_HEADER_SIZE];
@@ -86,7 +87,7 @@ uint WorldRegion::getChunkDataSize(uint x, uint z) {
     return sizes[z * REGION_SIZE + x];
 }
 
-WorldRegions::WorldRegions(fs::path directory) : directory(directory) {
+WorldRegions::WorldRegions(const fs::path& directory) : directory(directory) {
     for (uint i = 0; i < sizeof(layers)/sizeof(RegionsLayer); i++) {
         layers[i].layer = i;
     }
@@ -417,7 +418,7 @@ chunk_inventories_map WorldRegions::fetchInventories(int x, int z) {
     return inventories;
 }
 
-void WorldRegions::processRegionVoxels(int x, int z, regionproc func) {
+void WorldRegions::processRegionVoxels(int x, int z, const regionproc& func) {
     if (getRegion(x, z, REGION_LAYER_VOXELS)) {
         throw std::runtime_error("not implemented for in-memory regions");
     }

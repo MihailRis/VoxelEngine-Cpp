@@ -35,7 +35,7 @@ const float RUN_ZOOM = 1.1f;
 const float C_ZOOM = 0.1f;
 const float CROUCH_SHIFT_Y = -0.2f;
 
-CameraControl::CameraControl(std::shared_ptr<Player> player, const CameraSettings& settings) 
+CameraControl::CameraControl(const std::shared_ptr<Player>& player, const CameraSettings& settings)
   : player(player), 
     camera(player->camera),
     settings(settings),
@@ -186,7 +186,7 @@ void PlayerController::onBlockInteraction(
     const Block* def,
     BlockInteraction type
 ) {
-    for (auto callback : blockInteractionCallbacks) {
+    for (const auto& callback : blockInteractionCallbacks) {
         callback(player.get(), pos, def, type);
     }
 }
@@ -456,6 +456,6 @@ Player* PlayerController::getPlayer() {
     return player.get();
 }
 
-void PlayerController::listenBlockInteraction(on_block_interaction callback) {
+void PlayerController::listenBlockInteraction(const on_block_interaction& callback) {
     blockInteractionCallbacks.push_back(callback);
 }

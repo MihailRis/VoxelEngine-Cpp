@@ -16,7 +16,7 @@ std::string WorldGenerators::getDefaultGeneratorID() {
     return "core:default";
 }
 
-std::unique_ptr<WorldGenerator> WorldGenerators::createGenerator(std::string id, const Content* content) {
+std::unique_ptr<WorldGenerator> WorldGenerators::createGenerator(const std::string& id, const Content* content) {
     auto found = generators.find(id);
     if (found == generators.end()) {
         throw std::runtime_error("unknown generator id: "+id);

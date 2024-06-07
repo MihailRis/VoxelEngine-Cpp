@@ -1,5 +1,7 @@
 #include "CheckBox.hpp"
 
+#include <utility>
+
 #include "../../core/DrawContext.hpp"
 #include "../../core/Batch2D.hpp"
 #include "Label.hpp"
@@ -30,11 +32,11 @@ void CheckBox::mouseRelease(GUI*, int, int) {
 }
 
 void CheckBox::setSupplier(boolsupplier supplier) {
-    this->supplier = supplier;
+    this->supplier = std::move(supplier);
 }
 
 void CheckBox::setConsumer(boolconsumer consumer) {
-    this->consumer = consumer;
+    this->consumer = std::move(consumer);
 }
 
 CheckBox* CheckBox::setChecked(bool flag) {
@@ -42,7 +44,7 @@ CheckBox* CheckBox::setChecked(bool flag) {
     return this;
 }
 
-FullCheckBox::FullCheckBox(std::wstring text, glm::vec2 size, bool checked)
+FullCheckBox::FullCheckBox(const std::wstring& text, glm::vec2 size, bool checked)
     : Panel(size), 
       checkbox(std::make_shared<CheckBox>(checked)){
     setColor(glm::vec4(0.0f));

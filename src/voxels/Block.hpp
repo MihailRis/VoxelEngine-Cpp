@@ -186,8 +186,8 @@ public:
         itemid_t pickingItem = 0;
     } rt;
 
-    Block(std::string name);
-    Block(std::string name, std::string texture);
+    Block(const std::string& name);
+    Block(std::string name, const std::string& texture);
     Block(const Block&) = delete;
 };
 

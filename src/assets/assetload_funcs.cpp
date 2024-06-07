@@ -36,9 +36,9 @@ static bool animation(
 assetload::postfunc assetload::texture(
     AssetsLoader*,
     const ResPaths* paths,
-    const std::string filename,
-    const std::string name,
-    std::shared_ptr<AssetCfg>
+    const std::string& filename,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>&
 ) {
     std::shared_ptr<ImageData> image (
         imageio::read(paths->find(filename+".png").u8string()).release()
@@ -51,9 +51,9 @@ assetload::postfunc assetload::texture(
 assetload::postfunc assetload::shader(
     AssetsLoader*,
     const ResPaths* paths,
-    const std::string filename, 
-    const std::string name,
-    std::shared_ptr<AssetCfg>
+    const std::string& filename,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>&
 ) {
     fs::path vertexFile = paths->find(filename+".glslv");
     fs::path fragmentFile = paths->find(filename+".glslf");
@@ -88,9 +88,9 @@ static bool append_atlas(AtlasBuilder& atlas, const fs::path& file) {
 assetload::postfunc assetload::atlas(
     AssetsLoader*,
     const ResPaths* paths,
-    const std::string directory, 
-    const std::string name,
-    std::shared_ptr<AssetCfg>
+    const std::string& directory,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>&
 ) {
     AtlasBuilder builder;
     for (const auto& file : paths->listdir(directory)) {
@@ -113,9 +113,9 @@ assetload::postfunc assetload::atlas(
 assetload::postfunc assetload::font(
     AssetsLoader*,
     const ResPaths* paths,
-    const std::string filename, 
-    const std::string name,
-    std::shared_ptr<AssetCfg>
+    const std::string& filename,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>&
 ) {
     auto pages = std::make_shared<std::vector<std::unique_ptr<ImageData>>>();
     for (size_t i = 0; i <= 4; i++) {
@@ -136,9 +136,9 @@ assetload::postfunc assetload::font(
 assetload::postfunc assetload::layout(
     AssetsLoader*,
     const ResPaths* paths,
-    const std::string file,
-    const std::string name,
-    std::shared_ptr<AssetCfg> config
+    const std::string& file,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>& config
 ) {
     return [=](auto assets) {
         try {
@@ -154,9 +154,9 @@ assetload::postfunc assetload::layout(
 assetload::postfunc assetload::sound(
     AssetsLoader*,
     const ResPaths* paths,
-    const std::string file,
-    const std::string name,
-    std::shared_ptr<AssetCfg> config
+    const std::string& file,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>& config
 ) {
     auto cfg = std::dynamic_pointer_cast<SoundCfg>(config);
     bool keepPCM = cfg ? cfg->keepPCM : false;

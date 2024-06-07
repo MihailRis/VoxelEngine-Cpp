@@ -21,12 +21,13 @@
 #include <memory>
 #include <sstream>
 #include <bitset>
+#include <utility>
 
 using namespace gui;
 
 static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
     auto label = std::make_shared<Label>(L"-");
-    label->textSupplier(supplier);
+    label->textSupplier(std::move(supplier));
     return label;
 }
 
@@ -75,13 +76,13 @@ std::shared_ptr<UINode> create_debug_panel(
     panel->add(create_label([=](){
         std::wstringstream stream;
         stream << "r:" << player->selectedVoxel.state.rotation << " s:"
-               << player->selectedVoxel.state.segment << " u:"
-               << std::bitset<8>(player->selectedVoxel.state.userbits);
+                << player->selectedVoxel.state.segment << " u:"
+                << std::bitset<8>(player->selectedVoxel.state.userbits);
         if (player->selectedVoxel.id == BLOCK_VOID) {
             return std::wstring {L"block: -"};
         } else {
             return L"block: "+std::to_wstring(player->selectedVoxel.id)+
-                L" "+stream.str();
+                   L" "+stream.str();
         }
     }));
     panel->add(create_label([=](){
@@ -114,7 +115,7 @@ std::shared_ptr<UINode> create_debug_panel(
             Hitbox* hitbox = player->hitbox.get();
             return util::to_wstring(hitbox->position[ax], 2);
         });
-        box->setTextConsumer([=](std::wstring text) {
+        box->setTextConsumer([=](const std::wstring& text) {
             try {
                 glm::vec3 position = player->hitbox->position;
                 position[ax] = std::stoi(text);
@@ -137,8 +138,8 @@ std::shared_ptr<UINode> create_debug_panel(
         timeutil::from_value(level->getWorld()->daytime, hour, minute, second);
 
         std::wstring timeString = 
-                     util::lfill(std::to_wstring(hour), 2, L'0') + L":" +
-                     util::lfill(std::to_wstring(minute), 2, L'0');
+                util::lfill(std::to_wstring(hour), 2, L'0') + L":" +
+                util::lfill(std::to_wstring(minute), 2, L'0');
         return L"time: "+timeString;
     }));
     {

@@ -10,6 +10,7 @@
 #include "../items/Inventory.hpp"
 
 #include <glm/glm.hpp>
+#include <utility>
 
 const float CROUCH_SPEED_MUL = 0.35f;
 const float RUN_SPEED_MUL = 1.5f;
@@ -22,7 +23,7 @@ const float JUMP_FORCE = 8.0f;
 Player::Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv) :
     speed(speed),
     chosenSlot(0),
-    inventory(inv),
+    inventory(std::move(inv)),
     camera(std::make_shared<Camera>(position, glm::radians(90.0f))),
     spCamera(std::make_shared<Camera>(position, glm::radians(90.0f))),
     tpCamera(std::make_shared<Camera>(position, glm::radians(90.0f))),

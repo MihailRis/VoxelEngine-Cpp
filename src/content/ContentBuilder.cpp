@@ -6,7 +6,7 @@ void ContentBuilder::add(std::unique_ptr<ContentPackRuntime> pack) {
     packs[pack->getId()] = std::move(pack);
 }
 
-Block& ContentBuilder::createBlock(std::string id) {
+Block& ContentBuilder::createBlock(const std::string& id) {
     auto found = blockDefs.find(id);
     if (found != blockDefs.end()) {
         return *found->second;
@@ -17,7 +17,7 @@ Block& ContentBuilder::createBlock(std::string id) {
     return *blockDefs[id];
 }
 
-ItemDef& ContentBuilder::createItem(std::string id) {
+ItemDef& ContentBuilder::createItem(const std::string& id) {
     auto found = itemDefs.find(id);
     if (found != itemDefs.end()) {
         return *found->second;
@@ -28,21 +28,21 @@ ItemDef& ContentBuilder::createItem(std::string id) {
     return *itemDefs[id];
 }
 
-BlockMaterial& ContentBuilder::createBlockMaterial(std::string id) {
+BlockMaterial& ContentBuilder::createBlockMaterial(const std::string& id) {
     blockMaterials[id] = std::make_unique<BlockMaterial>();
     auto& material = *blockMaterials[id];
     material.name = id;
     return material;
 }
 
-void ContentBuilder::checkIdentifier(std::string id) {
+void ContentBuilder::checkIdentifier(const std::string& id) {
     contenttype result;
     if (((result = checkContentType(id)) != contenttype::none)) {
         throw namereuse_error("name "+id+" is already used", result);
     }  
 }
 
-contenttype ContentBuilder::checkContentType(std::string id) {
+contenttype ContentBuilder::checkContentType(const std::string& id) {
     if (blockDefs.find(id) != blockDefs.end()) {
         return contenttype::block;
     }

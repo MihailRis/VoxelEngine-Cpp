@@ -38,26 +38,26 @@ public:
     Assets(const Assets&) = delete;
     ~Assets();
     
-    Texture* getTexture(std::string name) const;
-    void store(std::unique_ptr<Texture> texture, std::string name);
+    Texture* getTexture(const std::string& name) const;
+    void store(std::unique_ptr<Texture> texture, const std::string& name);
 
-    Shader* getShader(std::string name) const;
-    void store(std::unique_ptr<Shader> shader, std::string name);
+    Shader* getShader(const std::string& name) const;
+    void store(std::unique_ptr<Shader> shader, const std::string& name);
 
-    Font* getFont(std::string name) const;
-    void store(std::unique_ptr<Font> font, std::string name);
+    Font* getFont(const std::string& name) const;
+    void store(std::unique_ptr<Font> font, const std::string& name);
 
-    Atlas* getAtlas(std::string name) const;
-    void store(std::unique_ptr<Atlas> atlas, std::string name);
+    Atlas* getAtlas(const std::string& name) const;
+    void store(std::unique_ptr<Atlas> atlas, const std::string& name);
 
-    audio::Sound* getSound(std::string name) const;
-    void store(std::unique_ptr<audio::Sound> sound, std::string name);
+    audio::Sound* getSound(const std::string& name) const;
+    void store(std::unique_ptr<audio::Sound> sound, const std::string& name);
 
     const std::vector<TextureAnimation>& getAnimations();
     void store(const TextureAnimation& animation);
 
-    UiDocument* getLayout(std::string name) const;
-    void store(std::unique_ptr<UiDocument> layout, std::string name);
+    UiDocument* getLayout(const std::string& name) const;
+    void store(std::unique_ptr<UiDocument> layout, const std::string& name);
 };
 
 #endif // ASSETS_ASSETS_HPP_

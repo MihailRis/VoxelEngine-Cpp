@@ -98,7 +98,7 @@ namespace gui {
         virtual std::wstring getText() const;
 
         /// @brief Set TextBox content text
-        virtual void setText(std::wstring value);
+        virtual void setText(const std::wstring &value);
 
         /// @brief Get text placeholder
         virtual std::wstring getPlaceholder() const;
@@ -169,8 +169,8 @@ namespace gui {
         virtual void typed(unsigned int codepoint) override; 
         virtual void keyPressed(keycode key) override;
         virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self) override;
-        virtual void setOnUpPressed(runnable callback);
-        virtual void setOnDownPressed(runnable callback);
+        virtual void setOnUpPressed(const runnable &callback);
+        virtual void setOnDownPressed(const runnable &callback);
     };
 }
 

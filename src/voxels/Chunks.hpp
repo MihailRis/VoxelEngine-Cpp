@@ -36,7 +36,7 @@ public:
            WorldFiles* worldFiles, LevelEvents* events, const Content* content);
     ~Chunks() = default;
 
-    bool putChunk(std::shared_ptr<Chunk> chunk);
+    bool putChunk(const std::shared_ptr<Chunk>& chunk);
 
     Chunk* getChunk(int32_t x, int32_t z);
     Chunk* getChunkByVoxel(int32_t x, int32_t y, int32_t z);

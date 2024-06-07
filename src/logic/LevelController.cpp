@@ -39,7 +39,7 @@ void LevelController::update(float delta, bool input, bool pause) {
     
     if (!pause) {
         // update all objects that needed
-        for (auto obj : level->objects) {
+        for (const auto& obj : level->objects) {
             if (obj && obj->shouldUpdate) {
                 obj->update(delta);
             }

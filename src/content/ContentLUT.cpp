@@ -19,7 +19,7 @@ ContentLUT::ContentLUT(const Content* content, size_t blocksCount, size_t itemsC
         blockNames.push_back(indices->getBlockDef(i)->name);
     }
     for (size_t i = indices->countBlockDefs(); i < blocksCount; i++) {
-        blockNames.push_back("");
+        blockNames.emplace_back("");
     }
 
     for (size_t i = 0; i < itemsCount; i++) {
@@ -29,7 +29,7 @@ ContentLUT::ContentLUT(const Content* content, size_t blocksCount, size_t itemsC
         itemNames.push_back(indices->getItemDef(i)->name);
     }
     for (size_t i = indices->countItemDefs(); i < itemsCount; i++) {
-        itemNames.push_back("");
+        itemNames.emplace_back();
     }
 }
 

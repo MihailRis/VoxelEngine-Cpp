@@ -35,7 +35,7 @@ namespace debug {
 
         std::string name;
    
-        static void log(LogLevel level, const std::string& name, std::string message);
+        static void log(LogLevel level, const std::string& name, const std::string& message);
     public:
         static void init(const std::string& filename);
         static void flush();

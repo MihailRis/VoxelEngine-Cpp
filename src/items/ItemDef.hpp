@@ -44,7 +44,7 @@ public:
         bool emissive = false;
     } rt;
 
-    ItemDef(std::string name);
+    ItemDef(const std::string& name);
     ItemDef(const ItemDef&) = delete;
 };
 

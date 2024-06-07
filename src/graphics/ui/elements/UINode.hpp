@@ -25,7 +25,7 @@ namespace gui {
     class ActionsSet {
         std::unique_ptr<std::vector<onaction>> callbacks;
     public:
-        void listen(onaction callback) {
+        void listen(const onaction& callback) {
             if (callbacks == nullptr) {
                 callbacks = std::make_unique<std::vector<onaction>>();
             }
@@ -162,8 +162,8 @@ namespace gui {
         /// @brief Get element z-index
         int getZIndex() const;
 
-        virtual UINode* listenAction(onaction action);
-        virtual UINode* listenDoubleClick(onaction action);
+        virtual UINode* listenAction(const onaction &action);
+        virtual UINode* listenDoubleClick(const onaction &action);
 
         virtual void onFocus(GUI*) {focused = true;}
         virtual void doubleClick(GUI*, int x, int y);
@@ -227,8 +227,8 @@ namespace gui {
             }
         };
         static void moveInto(
-            std::shared_ptr<UINode> node,
-            std::shared_ptr<Container> dest
+            const std::shared_ptr<UINode>& node,
+            const std::shared_ptr<Container>& dest
         );
 
         virtual vec2supplier getPositionFunc() const;
@@ -249,12 +249,12 @@ namespace gui {
 
         /// @brief collect all nodes having id
         static void getIndices(
-            const std::shared_ptr<UINode> node,
+            const std::shared_ptr<UINode>& node,
             std::unordered_map<std::string, std::shared_ptr<UINode>>& map
         );
 
         static std::shared_ptr<UINode> find(
-            const std::shared_ptr<UINode> node,
+            const std::shared_ptr<UINode>& node,
             const std::string& id
         );
     };

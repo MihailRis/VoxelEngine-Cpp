@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <utility>
 
 namespace util {
     class RunnablesList {
@@ -14,7 +15,7 @@ namespace util {
     public:
         observer_handler add(runnable callback) {
             int id = nextid++;
-            runnables[id] = callback;
+            runnables[id] = std::move(callback);
             return observer_handler(new int(id), [this](int* id) {
                 runnables.erase(*id);
                 delete id;

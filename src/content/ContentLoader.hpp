@@ -22,21 +22,21 @@ class ContentLoader {
     const ContentPack* pack;
     scriptenv env;
 
-    void loadBlock(Block& def, std::string full, std::string name);
+    void loadBlock(Block& def, const std::string& full, const std::string& name);
     void loadCustomBlockModel(Block& def, dynamic::Map* primitives);
-    void loadItem(ItemDef& def, std::string full, std::string name);
-    void loadBlockMaterial(BlockMaterial& def, fs::path file);
+    void loadItem(ItemDef& def, const std::string& full, const std::string& name);
+    void loadBlockMaterial(BlockMaterial& def, const fs::path& file);
 public:
     ContentLoader(ContentPack* pack);
 
     bool fixPackIndices(
-        fs::path folder,
+        const fs::path& folder,
         dynamic::Map* indicesRoot,
-        std::string contentSection
+        const std::string& contentSection
     );
     void fixPackIndices();
-    void loadBlock(Block& def, std::string name, fs::path file);
-    void loadItem(ItemDef& def, std::string name, fs::path file);
+    void loadBlock(Block& def, const std::string& name, const fs::path& file);
+    void loadItem(ItemDef& def, const std::string& name, const fs::path& file);
     void load(ContentBuilder& builder);
 };
 

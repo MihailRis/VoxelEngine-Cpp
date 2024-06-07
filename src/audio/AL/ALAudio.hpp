@@ -29,7 +29,7 @@ namespace audio {
         std::shared_ptr<PCM> pcm;
         duration_t duration;
     public:
-        ALSound(ALAudio* al, uint buffer, std::shared_ptr<PCM> pcm, bool keepPCM);
+        ALSound(ALAudio* al, uint buffer, const std::shared_ptr<PCM>& pcm, bool keepPCM);
         ~ALSound();
 
         duration_t getDuration() const override {
