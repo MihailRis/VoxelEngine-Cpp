@@ -1,7 +1,7 @@
 #ifndef OBJECTS_OBJECTS_HPP_
 #define OBJECTS_OBJECTS_HPP_
 
-#include "../interfaces/Object.hpp"
+#include "Object.hpp"
 #include "../typedefs.hpp"
 
 #include <memory>
@@ -42,6 +42,14 @@ public:
     
     void clear() {
         objects.clear();
+    }
+
+    inline auto begin() {
+        return objects.begin();
+    }
+
+    inline auto end() {
+        return objects.end();
     }
 };
 

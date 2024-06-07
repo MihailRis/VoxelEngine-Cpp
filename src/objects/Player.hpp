@@ -5,7 +5,7 @@
 #include "../data/dynamic.hpp"
 #include "../voxels/voxel.hpp"
 #include "../interfaces/Serializable.hpp"
-#include "../interfaces/Object.hpp"
+#include "../objects/Object.hpp"
 
 #include <memory>
 #include <glm/glm.hpp>

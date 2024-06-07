@@ -60,16 +60,15 @@ void World::write(Level* level) {
         }
     }
     wfile->write(this, content);
-    // FIXME
-    /*auto playerFile = dynamic::Map();
 
+    auto playerFile = dynamic::Map();
     auto& players = playerFile.putList("players");
-    for (const auto& object : level->objects) {
-        if (auto player = std::dynamic_pointer_cast<Player>(object)) {
+    for (auto& iter : level->objects) {
+        if (auto player = dynamic_cast<Player*>(iter.second.get())) {
             players.put(player->serialize());
         }
     }
-    files::write_json(wfile->getPlayerFile(), &playerFile);*/
+    files::write_json(wfile->getPlayerFile(), &playerFile);
 }
 
 std::unique_ptr<Level> World::create(
