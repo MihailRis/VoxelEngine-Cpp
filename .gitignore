@@ -13,6 +13,8 @@ Debug/voxel_engine
 /worlds/**/*
 /settings.toml
 /controls.json
+/controls.toml
+/latest.log
 
 /.idea
 .vscode

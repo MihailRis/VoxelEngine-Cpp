@@ -24,6 +24,8 @@
 #include "../core_defs.hpp"
 #include "../settings.hpp"
 
+#include <algorithm>
+
 const float CAM_SHAKE_OFFSET = 0.025f;
 const float CAM_SHAKE_OFFSET_Y = 0.031f;
 const float CAM_SHAKE_SPEED = 1.75f;
