@@ -9,7 +9,7 @@
 #include "../maths/UVRegion.hpp"
 #include "../typedefs.hpp"
 
-#define BLOCK_ITEM_SUFFIX ".item"
+inline std::string BLOCK_ITEM_SUFFIX = ".item";
 
 inline constexpr uint FACE_MX = 0;
 inline constexpr uint FACE_PX = 1;
@@ -191,4 +191,4 @@ public:
     Block(const Block&) = delete;
 };
 
-#endif /* VOXELS_BLOCK_HPP_ */
+#endif // VOXELS_BLOCK_HPP_

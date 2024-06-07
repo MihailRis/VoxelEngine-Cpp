@@ -11,25 +11,27 @@ inline constexpr int BLOCK_DIR_UP = 0x4;
 inline constexpr int BLOCK_DIR_DOWN = 0x5;
 
 struct blockstate {
-    uint8_t rotation : 3;
-    uint8_t segment : 2; // planned to 0.22
-    uint8_t reserved : 3;
-    uint8_t userbits : 8;
+    uint8_t rotation : 3; // block rotation index
+    uint8_t segment : 1;  // segment block bit
+    uint8_t reserved : 4; // reserved bits
+    uint8_t userbits : 8; // bits for use in block script
 };
 static_assert (sizeof(blockstate) == 2);
 
+/// @brief blockstate cast to an integer (optimized out in most cases) 
 inline constexpr blockstate_t blockstate2int(blockstate b) {
     return static_cast<blockstate_t>(b.rotation) |
            static_cast<blockstate_t>(b.segment) << 3 |
-           static_cast<blockstate_t>(b.reserved) << 5 |
+           static_cast<blockstate_t>(b.reserved) << 4 |
            static_cast<blockstate_t>(b.userbits) << 8;
 }
 
+/// @brief integer cast to a blockstate (optimized out in most cases) 
 inline constexpr blockstate int2blockstate(blockstate_t i) {
     return {
         static_cast<uint8_t>(i & 0b111),
-        static_cast<uint8_t>((i >> 3) & 0b11),
-        static_cast<uint8_t>((i >> 5) & 0b111),
+        static_cast<uint8_t>((i >> 3) & 0b1),
+        static_cast<uint8_t>((i >> 4) & 0b1111),
         static_cast<uint8_t>((i >> 8) & 0xFF)
     };
 }
