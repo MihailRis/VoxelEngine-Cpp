@@ -68,14 +68,14 @@ namespace xml {
         /// @param name attribute name
         /// @throws std::runtime_error if element has no attribute 
         /// @return xmlattribute - {name, value}
-        const xmlattribute attr(const std::string& name) const;
+        const xmlattribute& attr(const std::string& name) const;
         
         /// @brief Get attribute by name
         /// @param name attribute name
         /// @param def default value will be returned wrapped in xmlattribute
         /// if element has no attribute 
         /// @return xmlattribute - {name, value} or {name, def} if not found*/
-        const xmlattribute attr(const std::string& name, const std::string& def) const;
+        xmlattribute attr(const std::string& name, const std::string& def) const;
 
         /// @brief Check if element has attribute
         /// @param name attribute name

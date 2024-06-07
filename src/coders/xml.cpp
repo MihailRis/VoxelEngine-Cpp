@@ -120,7 +120,7 @@ const std::string& Node::getTag() const {
     return tag;
 }
 
-const xmlattribute Node::attr(const std::string& name) const {
+const xmlattribute& Node::attr(const std::string& name) const {
     auto found = attrs.find(name);
     if (found == attrs.end()) {
         throw std::runtime_error("element <"+tag+" ...> missing attribute "+name);
@@ -128,7 +128,7 @@ const xmlattribute Node::attr(const std::string& name) const {
     return found->second;
 }
 
-const xmlattribute Node::attr(const std::string& name, const std::string& def) const {
+xmlattribute Node::attr(const std::string& name, const std::string& def) const {
     auto found = attrs.find(name);
     if (found == attrs.end()) {
         return Attribute(name, def);

@@ -114,8 +114,21 @@ SlotView::SlotView(
 }
 
 void SlotView::draw(const DrawContext* pctx, Assets* assets) {
-    if (bound == nullptr)
+    if (bound == nullptr) {
         return;
+    }
+    itemid_t itemid = bound->getItemId();
+    if (itemid != prevItem) {
+        if (itemid) {
+            auto def = content->getIndices()->getItemDef(itemid);
+            tooltip = util::pascal_case(
+                langs::get(util::str2wstr_utf8(def->caption))
+            );
+        } else {
+            tooltip = L"";
+        }
+    }
+    prevItem = itemid;
 
     const int slotSize = InventoryView::SLOT_SIZE;
 
@@ -274,15 +287,12 @@ void SlotView::onFocus(gui::GUI* gui) {
     clicked(gui, mousecode::BUTTON_1);
 }
 
-const std::wstring SlotView::getTooltip() const {
-    const auto str = UINode::getTooltip();
-    if (!str.empty() || bound->isEmpty()) {
+const std::wstring& SlotView::getTooltip() const {
+    const auto& str = UINode::getTooltip();
+    if (!str.empty() || tooltip.empty()) {
         return str;
     }
-    auto def = content->getIndices()->getItemDef(bound->getItemId());
-    return util::pascal_case(
-        langs::get(util::str2wstr_utf8(def->caption))
-    ); // TODO: cache
+    return tooltip;
 }
 
 void SlotView::bind(

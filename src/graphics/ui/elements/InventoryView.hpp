@@ -53,6 +53,9 @@ namespace gui {
 
         int64_t inventoryid = 0;
         ItemStack* bound = nullptr;
+
+        std::wstring tooltip;
+        itemid_t prevItem = 0;
     public:
         SlotView(SlotLayout layout);
 
@@ -63,7 +66,7 @@ namespace gui {
 
         virtual void clicked(gui::GUI*, mousecode) override;
         virtual void onFocus(gui::GUI*) override;
-        virtual const std::wstring getTooltip() const override;
+        virtual const std::wstring& getTooltip() const override;
 
         void bind(
             int64_t inventoryid,

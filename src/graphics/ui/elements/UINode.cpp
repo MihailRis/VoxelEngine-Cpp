@@ -138,7 +138,7 @@ void UINode::setTooltip(const std::wstring& text) {
     this->tooltip = text;
 }
 
-const std::wstring UINode::getTooltip() const {
+const std::wstring& UINode::getTooltip() const {
     return tooltip;
 }
 

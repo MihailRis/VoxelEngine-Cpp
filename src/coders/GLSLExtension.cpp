@@ -42,10 +42,10 @@ const std::string& GLSLExtension::getHeader(const std::string& name) const {
     return found->second;
 }
 
-const std::string GLSLExtension::getDefine(const std::string& name) const {
+const std::string& GLSLExtension::getDefine(const std::string& name) const {
     auto found = defines.find(name);
     if (found == defines.end()) {
-        return "";
+        throw std::runtime_error("name '"+name+"' is not defined");
     }
     return found->second;
 }
@@ -84,7 +84,7 @@ inline void source_line(std::stringstream& ss, uint linenum) {
     ss << "#line " << linenum << "\n";
 }
 
-const std::string GLSLExtension::process(const fs::path& file, const std::string& source) {
+std::string GLSLExtension::process(const fs::path& file, const std::string& source) {
     std::stringstream ss;
     size_t pos = 0;
     uint linenum = 1;
