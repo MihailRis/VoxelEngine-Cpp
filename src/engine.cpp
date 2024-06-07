@@ -116,14 +116,6 @@ void Engine::loadControls() {
         logger.info() << "loading controls";
         std::string text = files::read_string(controls_file);
         Events::loadBindings(controls_file.u8string(), text);
-    } else {
-        controls_file = paths->getControlsFileOld();
-        if (fs::is_regular_file(controls_file)) {
-            logger.info() << "loading controls (old)";
-            std::string text = files::read_string(controls_file);
-            Events::loadBindingsOld(controls_file.u8string(), text);
-            fs::remove(controls_file);
-        }
     }
 }
 

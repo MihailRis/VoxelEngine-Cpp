@@ -61,10 +61,6 @@ fs::path EnginePaths::getControlsFile() {
     return userfiles/fs::path(CONTROLS_FILE);
 }
 
-fs::path EnginePaths::getControlsFileOld() {
-    return userfiles/fs::path("controls.json");
-}
-
 fs::path EnginePaths::getSettingsFile() {
     return userfiles/fs::path(SETTINGS_FILE);
 }

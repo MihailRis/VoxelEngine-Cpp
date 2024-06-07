@@ -182,31 +182,6 @@ std::string Events::writeBindings() {
     return toml::stringify(obj);
 }
 
-void Events::loadBindingsOld(const std::string& filename, const std::string& source) {
-    auto obj = json::parse(filename, source);
-    for (auto& entry : Events::bindings) {
-        auto& binding = entry.second;
-
-        auto jentry = obj->map(entry.first);
-        if (jentry == nullptr)
-            continue;
-        inputtype type;
-        std::string typestr;
-        jentry->str("type", typestr);
-
-        if (typestr == "keyboard") {
-            type = inputtype::keyboard;
-        } else if (typestr == "mouse") {
-            type = inputtype::mouse;
-        } else {
-            logger.error() << "unknown input type '" << typestr << "'";
-            continue;
-        }
-        binding.type = type;
-        jentry->num("code", binding.code);
-    }
-}
-
 void Events::loadBindings(const std::string& filename, const std::string& source) {
     auto map = toml::parse(filename, source);
     for (auto& entry : map->values) {

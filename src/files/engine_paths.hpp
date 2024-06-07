@@ -29,7 +29,6 @@ public:
     fs::path getWorldFolder();
     fs::path getWorldFolder(const std::string& name);
     fs::path getControlsFile();
-    fs::path getControlsFileOld(); // TODO: remove in 0.22
     fs::path getSettingsFile();
     bool isWorldNameUsed(const std::string& name);
 
