@@ -3,6 +3,7 @@
 #include "LuaState.hpp"
 #include "../scripting.hpp"
 #include "../../../engine.hpp"
+#include "../../../coders/gzip.hpp"
 #include "../../../files/files.hpp"
 #include "../../../files/engine_paths.hpp"
 #include "../../../util/stringutil.hpp"
@@ -129,7 +130,7 @@ static int l_file_read_bytes(lua_State* L) {
         int newTable = lua_gettop(L);
 
         for(size_t i = 0; i < length; i++) {
-            lua_pushnumber(L, bytes[i]);
+            lua_pushinteger(L, bytes[i]);
             lua_rawseti(L, newTable, i+1);
         }
         return 1;
@@ -206,6 +207,32 @@ static int l_file_list(lua_State* L) {
     return 1;
 }
 
+static int l_file_gzip_compress(lua_State* L) { 
+    fs::path path = resolve_path(state->requireString(1)); 
+    if (fs::is_regular_file(path)) { 
+        size_t length = static_cast<size_t>(fs::file_size(path));
+
+        auto compressed_bytes = gzip::compress(files::read_bytes(path, length).get(), length);
+
+        lua_pushboolean(L, files::write_bytes(path, compressed_bytes.data(), compressed_bytes.size()));
+        return 1;
+    } 
+    throw std::runtime_error("file does not exist " + util::quote(path.u8string())); 
+}
+
+static int l_file_gzip_decompress(lua_State* L) { 
+    fs::path path = resolve_path(state->requireString(1)); 
+    if (fs::is_regular_file(path)) { 
+        size_t length = static_cast<size_t>(fs::file_size(path));
+
+        auto decompressed_bytes = gzip::decompress(files::read_bytes(path, length).get(), length);
+
+        lua_pushboolean(L, files::write_bytes(path, decompressed_bytes.data(), decompressed_bytes.size()));
+        return 1;
+    } 
+    throw std::runtime_error("file does not exist " + util::quote(path.u8string())); 
+}
+
 const luaL_Reg filelib [] = {
     {"exists", lua_wrap_errors<l_file_exists>},
     {"find", lua_wrap_errors<l_file_find>},
@@ -222,5 +249,7 @@ const luaL_Reg filelib [] = {
     {"resolve", lua_wrap_errors<l_file_resolve>},
     {"write_bytes", lua_wrap_errors<l_file_write_bytes>},
     {"write", lua_wrap_errors<l_file_write>},
+    {"gzip_compress", lua_wrap_errors<l_file_gzip_compress>},
+    {"gzip_decompress", lua_wrap_errors<l_file_gzip_decompress>},
     {NULL, NULL}
 };
