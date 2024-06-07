@@ -133,7 +133,7 @@ std::shared_ptr<InventoryView> Hud::createHotbar() {
     InventoryBuilder builder;
     builder.addGrid(10, 10, glm::vec2(), 4, true, slotLayout);
     auto view = builder.build();
-
+    view->setId("hud.hotbar");
     view->setOrigin(glm::vec2(view->getSize().x/2, 0));
     view->bind(inventory, content);
     view->setInteractive(false);
@@ -147,12 +147,14 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     player(player)
 {
     contentAccess = createContentAccess();
+    contentAccess->setId("hud.content-access");
     contentAccessPanel = std::make_shared<Panel>(
         contentAccess->getSize(), glm::vec4(0.0f), 0.0f
     );
     contentAccessPanel->setColor(glm::vec4());
     contentAccessPanel->add(contentAccess);
     contentAccessPanel->setScrollable(true);
+    contentAccessPanel->setId("hud.content-access-panel");
 
     hotbarView = createHotbar();
     darkOverlay = guiutil::create(
