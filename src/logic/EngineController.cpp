@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <filesystem>
+#include <algorithm>
 
 namespace fs = std::filesystem;
 

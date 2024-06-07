@@ -12,6 +12,7 @@
 #include <string>
 #include <stdexcept>
 #include <filesystem>
+#include <algorithm>
 
 static int l_pack_get_folder(lua_State* L) {
     std::string packName = lua_tostring(L, 1);

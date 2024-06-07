@@ -10,6 +10,8 @@
 #include "scripting/scripting.hpp"
 #include "../interfaces/Object.hpp"
 
+#include <algorithm>
+
 static debug::Logger logger("level-control");
 
 LevelController::LevelController(EngineSettings& settings, std::unique_ptr<Level> level) 

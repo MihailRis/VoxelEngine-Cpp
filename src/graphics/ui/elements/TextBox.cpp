@@ -1,6 +1,7 @@
 #include "TextBox.hpp"
 
 #include <utility>
+#include <algorithm>
 
 #include "Label.hpp"
 #include "../../core/DrawContext.hpp"
