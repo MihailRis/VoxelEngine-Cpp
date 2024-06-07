@@ -30,7 +30,6 @@ class World : Serializable {
     std::string name;
     std::string generator;
     uint64_t seed;
-    EngineSettings& settings;
     const Content* const content;
     std::vector<ContentPack> packs;
 

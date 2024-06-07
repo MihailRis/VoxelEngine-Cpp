@@ -497,14 +497,9 @@ void Chunks::saveAndClear(){
     for (size_t i = 0; i < volume; i++){
         Chunk* chunk = chunks[i].get();
         chunks[i] = nullptr;
-        if (chunk == nullptr || !chunk->flags.lighted)
-            continue;
-        
-        bool lightsUnsaved = !chunk->flags.loadedLights && 
-                              worldFiles->doesWriteLights();
-        if (!chunk->flags.unsaved && !lightsUnsaved)
-            continue;
-        regions.put(chunk);
+        if (chunk) {
+            regions.put(chunk);
+        }
     }
     chunksCount = 0;
 }
