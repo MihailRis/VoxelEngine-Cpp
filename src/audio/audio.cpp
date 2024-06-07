@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <utility>
 
 namespace audio {
     static speakerid_t nextId = 1;
@@ -19,7 +20,7 @@ namespace audio {
 
 using namespace audio;
 
-Channel::Channel(std::string name) : name(name) {
+Channel::Channel(std::string name) : name(std::move(name)) {
 }
 
 float Channel::getVolume() const {
@@ -175,7 +176,7 @@ std::unique_ptr<Sound> audio::load_sound(const fs::path& file, bool keepPCM) {
 }
 
 std::unique_ptr<Sound> audio::create_sound(std::shared_ptr<PCM> pcm, bool keepPCM) {
-    return backend->createSound(pcm, keepPCM);
+    return backend->createSound(std::move(pcm), keepPCM);
 }
 
 std::unique_ptr<PCMStream> audio::open_PCM_stream(const fs::path& file) {
@@ -204,7 +205,7 @@ std::unique_ptr<Stream> audio::open_stream(const fs::path& file, bool keepSource
 }
 
 std::unique_ptr<Stream> audio::open_stream(std::shared_ptr<PCMStream> stream, bool keepSource) {
-    return backend->openStream(stream, keepSource);
+    return backend->openStream(std::move(stream), keepSource);
 }
 
 
@@ -276,7 +277,7 @@ speakerid_t audio::play(
 }
 
 speakerid_t audio::play(
-    std::shared_ptr<Stream> stream,
+    const std::shared_ptr<Stream>& stream,
     glm::vec3 position,
     bool relative,
     float volume,

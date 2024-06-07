@@ -103,7 +103,7 @@ static int l_reconfig_packs(lua_State* L) {
 static int l_get_setting(lua_State* L) {
     auto name = lua_tostring(L, 1);
     const auto value = scripting::engine->getSettingsHandler().getValue(name);
-    scripting::state->pushvalue(std::move(value));
+    scripting::state->pushvalue(value);
     return 1;
 }
 

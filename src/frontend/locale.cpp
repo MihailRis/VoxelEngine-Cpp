@@ -1,5 +1,7 @@
 #include "locale.hpp"
 
+#include <utility>
+
 #include "../coders/json.hpp"
 #include "../coders/commons.hpp"
 #include "../content/ContentPack.hpp"
@@ -16,7 +18,7 @@ using namespace std::literals;
 std::unique_ptr<langs::Lang> langs::current;
 std::unordered_map<std::string, langs::LocaleInfo> langs::locales_info;
 
-langs::Lang::Lang(std::string locale) : locale(locale) {
+langs::Lang::Lang(std::string locale) : locale(std::move(locale)) {
 }
 
 const std::wstring& langs::Lang::get(const std::wstring& key) const  {
@@ -50,7 +52,7 @@ public:
     Reader(std::string_view file, std::string_view source) : BasicParser(file, source) {
     }
 
-    void read(langs::Lang& lang, std::string prefix) {
+    void read(langs::Lang& lang, const std::string &prefix) {
         skipWhitespace();
         while (hasNext()) {
             std::string key = parseString('=', true);

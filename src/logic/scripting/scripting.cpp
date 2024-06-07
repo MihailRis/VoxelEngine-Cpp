@@ -37,7 +37,7 @@ const ContentIndices* scripting::indices = nullptr;
 BlocksController* scripting::blocks = nullptr;
 LevelController* scripting::controller = nullptr;
 
-void load_script(fs::path name) {
+void load_script(const fs::path& name) {
     auto paths = scripting::engine->getPaths();
     fs::path file = paths->getResources()/fs::path("scripts")/name;
 
@@ -72,7 +72,7 @@ scriptenv scripting::create_pack_environment(const ContentPack& pack) {
     });
 }
 
-scriptenv scripting::create_doc_environment(scriptenv parent, const std::string& name) {
+scriptenv scripting::create_doc_environment(const scriptenv& parent, const std::string& name) {
     int id = state->createEnvironment(*parent);
     state->pushenv(id);
     state->pushvalue(-1);
@@ -279,7 +279,7 @@ bool scripting::register_event(int env, const std::string& name, const std::stri
     return false;
 }
 
-void scripting::load_block_script(scriptenv senv, std::string prefix, fs::path file, block_funcs_set& funcsset) {
+void scripting::load_block_script(const scriptenv& senv, const std::string& prefix, const fs::path& file, block_funcs_set& funcsset) {
     int env = *senv;
     std::string src = files::read_string(file);
     logger.info() << "script (block) " << file.u8string();
@@ -293,7 +293,7 @@ void scripting::load_block_script(scriptenv senv, std::string prefix, fs::path f
     funcsset.onblockstick = register_event(env, "on_blocks_tick", prefix+".blockstick");
 }
 
-void scripting::load_item_script(scriptenv senv, std::string prefix, fs::path file, item_funcs_set& funcsset) {
+void scripting::load_item_script(const scriptenv& senv, const std::string& prefix, const fs::path& file, item_funcs_set& funcsset) {
     int env = *senv;
     std::string src = files::read_string(file);
     logger.info() << "script (item) " << file.u8string();
@@ -305,7 +305,7 @@ void scripting::load_item_script(scriptenv senv, std::string prefix, fs::path fi
     funcsset.on_block_break_by = register_event(env, "on_block_break_by", prefix+".blockbreakby");
 }
 
-void scripting::load_world_script(scriptenv senv, std::string prefix, fs::path file) {
+void scripting::load_world_script(const scriptenv& senv, const std::string& prefix, const fs::path& file) {
     int env = *senv;
 
     std::string src = files::read_string(file);
@@ -321,7 +321,7 @@ void scripting::load_world_script(scriptenv senv, std::string prefix, fs::path f
     register_event(env, "on_world_quit", prefix+".worldquit");
 }
 
-void scripting::load_layout_script(scriptenv senv, std::string prefix, fs::path file, uidocscript& script) {
+void scripting::load_layout_script(const scriptenv& senv, const std::string& prefix, const fs::path& file, uidocscript& script) {
     int env = *senv;
 
     std::string src = files::read_string(file);

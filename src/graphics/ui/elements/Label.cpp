@@ -1,4 +1,6 @@
 #include "Label.hpp"
+
+#include <utility>
 #include "../../core/DrawContext.hpp"
 #include "../../core/Batch2D.hpp"
 #include "../../core/Font.hpp"
@@ -45,20 +47,20 @@ void LabelCache::update(const std::wstring& text, bool multiline, bool wrap) {
     }
 }
 
-Label::Label(std::string text, std::string fontName) 
+Label::Label(const std::string& text, std::string fontName)
   : UINode(glm::vec2(text.length() * 8, 15)),
     text(util::str2wstr_utf8(text)), 
-    fontName(fontName) 
+    fontName(std::move(fontName))
 {
     setInteractive(false);
     cache.update(this->text, multiline, textWrap);
 }
 
 
-Label::Label(std::wstring text, std::string fontName) 
+Label::Label(const std::wstring& text, std::string fontName)
   : UINode(glm::vec2(text.length() * 8, 15)), 
     text(text), 
-    fontName(fontName) 
+    fontName(std::move(fontName))
 {
     setInteractive(false);
     cache.update(this->text, multiline, textWrap);
@@ -76,7 +78,7 @@ glm::vec2 Label::calcSize() {
     );
 }
 
-void Label::setText(std::wstring text) {
+void Label::setText(const std::wstring& text) {
     if (text == this->text && !cache.resetFlag) {
         return;
     }
@@ -93,7 +95,7 @@ const std::wstring& Label::getText() const {
 }
 
 void Label::setFontName(std::string name) {
-    this->fontName = name;
+    this->fontName = std::move(name);
 }
 
 const std::string& Label::getFontName() const {
@@ -207,7 +209,7 @@ void Label::draw(const DrawContext* pctx, Assets* assets) {
 }
 
 void Label::textSupplier(wstringsupplier supplier) {
-    this->supplier = supplier;
+    this->supplier = std::move(supplier);
 }
 
 void Label::setAutoResize(bool flag) {

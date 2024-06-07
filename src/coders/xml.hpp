@@ -46,12 +46,12 @@ namespace xml {
         Node(std::string tag);
 
         /// @brief Add sub-element
-        void add(xmlelement element);
+        void add(const xmlelement& element);
 
         /// @brief Set attribute value. Creates attribute if does not exists
         /// @param name attribute name
         /// @param text attribute value
-        void set(std::string name, std::string text);
+        void set(const std::string& name, const std::string &text);
         
         /// @brief Get element tag
         const std::string& getTag() const;
@@ -101,7 +101,7 @@ namespace xml {
     public:
         Document(std::string version, std::string encoding);
 
-        void setRoot(xmlelement element);
+        void setRoot(const xmlelement &element);
         xmlelement getRoot() const;
 
         const std::string& getVersion() const;
@@ -129,7 +129,7 @@ namespace xml {
     /// @param indentStr indentation characters sequence (default - 4 spaces)
     /// @return XML string
     extern std::string stringify(
-        const xmldocument document,
+        const xmldocument& document,
         bool nice=true,
         const std::string& indentStr="    "
     );
@@ -138,7 +138,7 @@ namespace xml {
     /// @param filename file name will be shown in error messages
     /// @param source xml source code string
     /// @return xml document
-    extern xmldocument parse(std::string filename, std::string source);
+    extern xmldocument parse(const std::string& filename, const std::string& source);
 }
 
 #endif // CODERS_XML_HPP_

@@ -53,10 +53,10 @@ namespace gui {
         /// @brief Auto resize label to fit text
         bool autoresize = false;
     public:
-        Label(std::string text, std::string fontName="normal");
-        Label(std::wstring text, std::string fontName="normal");
+        Label(const std::string& text, std::string fontName="normal");
+        Label(const std::wstring& text, std::string fontName="normal");
 
-        virtual void setText(std::wstring text);
+        virtual void setText(const std::wstring& text);
         const std::wstring& getText() const;
 
         virtual void setFontName(std::string name);

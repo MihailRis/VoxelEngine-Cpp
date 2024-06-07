@@ -13,6 +13,7 @@
 #include <memory>
 #include <iostream>
 #include <stdexcept>
+#include <utility>
 
 namespace fs = std::filesystem;
 
@@ -22,7 +23,7 @@ class ConverterWorker : public util::Worker<convert_task, int> {
     std::shared_ptr<WorldConverter> converter;
 public:
     ConverterWorker(std::shared_ptr<WorldConverter> converter) 
-    : converter(converter) {}
+    : converter(std::move(converter)) {}
 
     int operator()(const std::shared_ptr<convert_task>& task) override {
         converter->convert(*task);
@@ -31,11 +32,11 @@ public:
 };
 
 WorldConverter::WorldConverter(
-    fs::path folder, 
+    const fs::path& folder,
     const Content* content, 
     std::shared_ptr<ContentLUT> lut
 ) : wfile(std::make_unique<WorldFiles>(folder)), 
-    lut(lut), 
+    lut(std::move(lut)),
     content(content) 
 {
     fs::path regionsFolder = wfile->getRegions().getRegionsFolder(REGION_LAYER_VOXELS);
@@ -44,7 +45,7 @@ WorldConverter::WorldConverter(
         return;
     }
     tasks.push(convert_task {convert_task_type::player, wfile->getPlayerFile()});
-    for (auto file : fs::directory_iterator(regionsFolder)) {
+    for (const auto& file : fs::directory_iterator(regionsFolder)) {
         tasks.push(convert_task {convert_task_type::region, file.path()});
     }
 }
@@ -53,10 +54,10 @@ WorldConverter::~WorldConverter() {
 }
 
 std::shared_ptr<Task> WorldConverter::startTask(
-    fs::path folder, 
+    const fs::path& folder,
     const Content* content, 
-    std::shared_ptr<ContentLUT> lut,
-    runnable onDone,
+    const std::shared_ptr<ContentLUT>& lut,
+    const runnable& onDone,
     bool multithreading
 ) {
     auto converter = std::make_shared<WorldConverter>(folder, content, lut);
@@ -85,7 +86,7 @@ std::shared_ptr<Task> WorldConverter::startTask(
     return pool;
 }
 
-void WorldConverter::convertRegion(fs::path file) const {
+void WorldConverter::convertRegion(const fs::path& file) const {
     int x, z;
     std::string name = file.stem().string();
     if (!WorldRegions::parseRegionFilename(name, x, z)) {
@@ -101,14 +102,14 @@ void WorldConverter::convertRegion(fs::path file) const {
     });
 }
 
-void WorldConverter::convertPlayer(fs::path file) const {
+void WorldConverter::convertPlayer(const fs::path& file) const {
     logger.info() << "converting player " << file.u8string();
     auto map = files::read_json(file);
     Player::convert(map.get(), lut.get());
     files::write_json(file, map.get());
 }
 
-void WorldConverter::convert(convert_task task) const {
+void WorldConverter::convert(const convert_task& task) const {
     if (!fs::is_regular_file(task.file))
         return;
 
@@ -134,7 +135,7 @@ void WorldConverter::convertNext() {
 }
 
 void WorldConverter::setOnComplete(runnable callback) {
-    this->onComplete = callback;
+    this->onComplete = std::move(callback);
 }
 
 void WorldConverter::update() {

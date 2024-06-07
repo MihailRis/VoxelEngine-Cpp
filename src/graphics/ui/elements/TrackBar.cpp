@@ -1,5 +1,7 @@
 #include "TrackBar.hpp"
 
+#include <utility>
+
 #include "../../core/DrawContext.hpp"
 #include "../../core/Batch2D.hpp"
 #include "../../../assets/Assets.hpp"
@@ -41,11 +43,11 @@ void TrackBar::draw(const DrawContext* pctx, Assets*) {
 }
 
 void TrackBar::setSupplier(doublesupplier supplier) {
-    this->supplier = supplier;
+    this->supplier = std::move(supplier);
 }
 
 void TrackBar::setConsumer(doubleconsumer consumer) {
-    this->consumer = consumer;
+    this->consumer = std::move(consumer);
 }
 
 void TrackBar::mouseMove(GUI*, int x, int) {

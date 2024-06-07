@@ -8,7 +8,7 @@ namespace audio {
         std::shared_ptr<PCM> pcm;
         duration_t duration;
     public:
-        NoSound(std::shared_ptr<PCM> pcm, bool keepPCM);
+        NoSound(const std::shared_ptr<PCM>& pcm, bool keepPCM);
         ~NoSound() {}
 
         duration_t getDuration() const override {
@@ -28,7 +28,7 @@ namespace audio {
         std::shared_ptr<PCMStream> source;
         duration_t duration;
     public:
-        NoStream(std::shared_ptr<PCMStream> source, bool keepSource) {
+        NoStream(const std::shared_ptr<PCMStream>& source, bool keepSource) {
             duration = source->getTotalDuration();
             if (keepSource) {
                 this->source = source;

@@ -8,6 +8,7 @@
 #include "../settings.hpp"
 
 #include <memory>
+#include <utility>
 
 static debug::Logger logger("settings_io");
 
@@ -22,10 +23,10 @@ struct SectionsBuilder {
     }
 
     void section(std::string name) {
-        sections.push_back(Section {name, {}});
+        sections.push_back(Section {std::move(name), {}});
     }
 
-    void add(std::string name, Setting* setting, bool writeable=true) {
+    void add(const std::string& name, Setting* setting, bool writeable=true) {
         Section& section = sections.at(sections.size()-1);
         map[section.name+"."+name] = setting;
         section.keys.push_back(name);

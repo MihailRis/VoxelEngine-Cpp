@@ -4,12 +4,13 @@
 #include "../../debug/Logger.hpp"
 
 #include <string>
+#include <utility>
 
 static debug::Logger logger("al-audio");
 
 using namespace audio;
 
-ALSound::ALSound(ALAudio* al, uint buffer, std::shared_ptr<PCM> pcm, bool keepPCM) 
+ALSound::ALSound(ALAudio* al, uint buffer, const std::shared_ptr<PCM>& pcm, bool keepPCM)
 : al(al), buffer(buffer) 
 {
     duration = pcm->getDuration();
@@ -36,7 +37,7 @@ std::unique_ptr<Speaker> ALSound::newInstance(int priority, int channel) const {
 }
 
 ALStream::ALStream(ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSource)
-: al(al), source(source), keepSource(keepSource) {
+: al(al), source(std::move(source)), keepSource(keepSource) {
 }
 
 ALStream::~ALStream() {

@@ -480,7 +480,7 @@ void Chunks::_setOffset(int32_t x, int32_t z) {
     oz = z;
 }
 
-bool Chunks::putChunk(std::shared_ptr<Chunk> chunk) {
+bool Chunks::putChunk(const std::shared_ptr<Chunk>& chunk) {
     int x = chunk->x;
     int z = chunk->z;
     x -= ox;

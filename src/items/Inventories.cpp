@@ -31,7 +31,7 @@ std::shared_ptr<Inventory> Inventories::createVirtual(size_t size) {
     });
 }
 
-void Inventories::store(std::shared_ptr<Inventory> inv) {
+void Inventories::store(const std::shared_ptr<Inventory>& inv) {
     map[inv->getId()] = inv;
 }
 

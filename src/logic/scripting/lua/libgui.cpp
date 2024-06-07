@@ -494,7 +494,7 @@ static void p_set_inventory(UINode* node, int idx) {
         }
     }
 }
-static void p_set_focused(std::shared_ptr<UINode> node, int idx) {
+static void p_set_focused(const std::shared_ptr<UINode> &node, int idx) {
     if (state->toboolean(idx) && !node->isFocused()) {
         scripting::engine->getGUI()->setFocus(node);
     } else if (node->isFocused()){

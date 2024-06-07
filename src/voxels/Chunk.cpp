@@ -1,5 +1,7 @@
 #include "Chunk.hpp"
 
+#include <utility>
+
 #include "voxel.hpp"
 
 #include "../items/Inventory.hpp"
@@ -41,7 +43,7 @@ void Chunk::updateHeights() {
 
 void Chunk::addBlockInventory(std::shared_ptr<Inventory> inventory, 
                               uint x, uint y, uint z) {
-    inventories[vox_index(x, y, z)] = inventory;
+    inventories[vox_index(x, y, z)] = std::move(inventory);
     flags.unsaved = true;
 }
 
@@ -52,7 +54,7 @@ void Chunk::removeBlockInventory(uint x, uint y, uint z) {
 }
 
 void Chunk::setBlockInventories(chunk_inventories_map map) {
-    inventories = map;
+    inventories = std::move(map);
 }
 
 std::shared_ptr<Inventory> Chunk::getBlockInventory(uint x, uint y, uint z) const {

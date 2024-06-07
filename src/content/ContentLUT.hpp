@@ -7,6 +7,7 @@
 #include "../constants.hpp"
 
 #include <string>
+#include <utility>
 #include <vector>
 #include <filesystem>
 
@@ -44,7 +45,7 @@ public:
 
     inline void setBlock(blockid_t index, std::string name, blockid_t id) {
         blocks[index] = id;
-        blockNames[index] = name;
+        blockNames[index] = std::move(name);
         if (id == BLOCK_VOID) {
             missingContent = true;
         } else if (index != id) {
@@ -62,7 +63,7 @@ public:
 
     inline void setItem(itemid_t index, std::string name, itemid_t id) {
         items[index] = id;
-        itemNames[index] = name;
+        itemNames[index] = std::move(name);
         if (id == ITEM_VOID) {
             missingContent = true;
         } else if (index != id) {

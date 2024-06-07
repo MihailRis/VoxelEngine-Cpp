@@ -88,7 +88,7 @@ UiDocument* menus::show(Engine* engine, const std::string& name, std::vector<dyn
     return document;
 }
 
-void menus::show_process_panel(Engine* engine, std::shared_ptr<Task> task, std::wstring text) {
+void menus::show_process_panel(Engine* engine, const std::shared_ptr<Task>& task, const std::wstring& text) {
     using namespace dynamic;
     
     uint initialWork = task->getWorkTotal();

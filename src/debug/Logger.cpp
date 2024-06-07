@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <chrono>
 #include <iostream>
+#include <utility>
 
 using namespace debug;
 
@@ -16,10 +17,10 @@ LogMessage::~LogMessage() {
     logger->log(level, ss.str());
 }
 
-Logger::Logger(std::string name) : name(name) {
+Logger::Logger(std::string name) : name(std::move(name)) {
 }
 
-void Logger::log(LogLevel level, const std::string& name, std::string message) {
+void Logger::log(LogLevel level, const std::string& name, const std::string& message) {
     using namespace std::chrono;
 
     std::stringstream ss;
@@ -72,5 +73,5 @@ void Logger::flush() {
 }
 
 void Logger::log(LogLevel level, std::string message) {
-    log(level, name, message);
+    log(level, name, std::move(message));
 }

@@ -22,7 +22,7 @@ public:
     static std::string getDefaultGeneratorID();
 
     static std::unique_ptr<WorldGenerator> createGenerator(
-        std::string id, const Content* content
+        const std::string &id, const Content *content
     );
 };
 

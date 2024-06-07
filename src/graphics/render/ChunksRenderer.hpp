@@ -38,10 +38,10 @@ public:
     );
     virtual ~ChunksRenderer();
 
-    std::shared_ptr<Mesh> render(std::shared_ptr<Chunk> chunk, bool important);
+    std::shared_ptr<Mesh> render(const std::shared_ptr<Chunk>& chunk, bool important);
     void unload(const Chunk* chunk);
 
-    std::shared_ptr<Mesh> getOrRender(std::shared_ptr<Chunk> chunk, bool important);
+    std::shared_ptr<Mesh> getOrRender(const std::shared_ptr<Chunk>& chunk, bool important);
     std::shared_ptr<Mesh> get(Chunk* chunk);
 
     void update();

@@ -22,7 +22,7 @@ namespace fs = std::filesystem;
 
 class world_load_error : public std::runtime_error {
 public:
-    world_load_error(std::string message);
+    world_load_error(const std::string &message);
 };
 
 /// @brief holds all world data except the level (chunks and objects)
@@ -55,11 +55,11 @@ public:
     World(
         std::string name, 
         std::string generator,
-        fs::path directory, 
+        const fs::path& directory,
         uint64_t seed, 
         EngineSettings& settings,
         const Content* content,
-        std::vector<ContentPack> packs
+        const std::vector<ContentPack>& packs
     );
 
     ~World();
@@ -90,9 +90,9 @@ public:
     /// @param packs vector of all world content-packs
     /// @return Level instance containing World instance
     static std::unique_ptr<Level> create(
-        std::string name, 
-        std::string generator,
-        fs::path directory, 
+        const std::string& name,
+        const std::string& generator,
+        const fs::path& directory,
         uint64_t seed, 
         EngineSettings& settings, 
         const Content* content,
@@ -108,7 +108,7 @@ public:
     /// @return Level instance containing World instance
     /// @throws world_load_error on world.json load error
     static std::unique_ptr<Level> load(
-        fs::path directory,
+        const fs::path& directory,
         EngineSettings& settings,
         const Content* content,
         const std::vector<ContentPack>& packs

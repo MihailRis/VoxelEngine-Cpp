@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <memory>
+#include <utility>
 
 static debug::Logger logger("assets-loader");
 
@@ -32,11 +33,11 @@ AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths)
 }
 
 void AssetsLoader::addLoader(AssetType tag, aloader_func func) {
-    loaders[tag] = func;
+    loaders[tag] = std::move(func);
 }
 
-void AssetsLoader::add(AssetType tag, const std::string filename, const std::string alias, std::shared_ptr<AssetCfg> settings) {
-    entries.push(aloader_entry{tag, filename, alias, settings});
+void AssetsLoader::add(AssetType tag, const std::string& filename, const std::string& alias, std::shared_ptr<AssetCfg> settings) {
+    entries.push(aloader_entry{tag, filename, alias, std::move(settings)});
 }
 
 bool AssetsLoader::hasNext() const {
@@ -69,12 +70,12 @@ bool AssetsLoader::loadNext() {
     }
 }
 
-void addLayouts(scriptenv env, const std::string& prefix, const fs::path& folder, AssetsLoader& loader) {
+void addLayouts(const scriptenv& env, const std::string& prefix, const fs::path& folder, AssetsLoader& loader) {
     if (!fs::is_directory(folder)) {
         return;
     }
     for (auto& entry : fs::directory_iterator(folder)) {
-        const fs::path file = entry.path();
+        const fs::path& file = entry.path();
         if (file.extension().u8string() != ".xml")
             continue;
         std::string name = prefix+":"+file.stem().u8string();
@@ -82,7 +83,7 @@ void addLayouts(scriptenv env, const std::string& prefix, const fs::path& folder
     }
 }
 
-void AssetsLoader::tryAddSound(std::string name) {
+void AssetsLoader::tryAddSound(const std::string& name) {
     if (name.empty()) {
         return;
     }
@@ -148,7 +149,7 @@ void AssetsLoader::processPreloadList(AssetType tag, dynamic::List* list) {
     }
 }
 
-void AssetsLoader::processPreloadConfig(fs::path file) {
+void AssetsLoader::processPreloadConfig(const fs::path& file) {
     auto root = files::read_json(file);
     processPreloadList(AssetType::font, root->list("fonts"));
     processPreloadList(AssetType::shader, root->list("shaders"));
@@ -209,7 +210,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
 bool AssetsLoader::loadExternalTexture(
     Assets* assets,
     const std::string& name,
-    std::vector<std::filesystem::path> alternatives
+    const std::vector<std::filesystem::path>& alternatives
 ) {
     if (assets->getTexture(name) != nullptr) {
         return true;
@@ -255,7 +256,7 @@ std::shared_ptr<Task> AssetsLoader::startTask(runnable onDone) {
             func(assets);
         }
     );
-    pool->setOnComplete(onDone);
+    pool->setOnComplete(std::move(onDone));
     while (!entries.empty()) {
         const aloader_entry& entry = entries.front();
         auto ptr = std::make_shared<aloader_entry>(entry);
