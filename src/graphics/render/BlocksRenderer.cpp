@@ -126,7 +126,7 @@ void BlocksRenderer::face(const vec3& coord,
 
     float s = 0.5f;
     if (lights) {
-        float d = glm::dot(Z, SUN_VECTOR);
+        float d = glm::dot(glm::normalize(Z), SUN_VECTOR);
         d = 0.8f + d * 0.2f;
 
         vec3 axisX = glm::normalize(X);
@@ -229,13 +229,11 @@ void BlocksRenderer::blockAABB(
     if (block->hitboxes.empty()) {
         return;
     }
-
     AABB hitbox = block->hitboxes[0];
     for (const auto& box : block->hitboxes) {
         hitbox.a = glm::min(hitbox.a, box.a);
         hitbox.b = glm::max(hitbox.b, box.b);
     }
-
     vec3 size = hitbox.size();
     vec3 X(1, 0, 0);
     vec3 Y(0, 1, 0);
@@ -249,7 +247,6 @@ void BlocksRenderer::blockAABB(
         Z = orient.axisZ;
         orient.transform(hitbox);
     }
-
     coord = vec3(icoord) - vec3(0.5f) + hitbox.center();
     
     face(coord,  X*size.x,  Y*size.y,  Z*size.z, texfaces[5], lights); // north
