@@ -21,6 +21,8 @@ class EnginePaths {
     fs::path worldFolder;
     std::vector<ContentPack>* contentPacks = nullptr;
 public:
+    void prepare();
+
     fs::path getUserfiles() const;
     fs::path getResources() const;
     

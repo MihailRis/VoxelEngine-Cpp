@@ -11,8 +11,16 @@
 #include "WorldFiles.hpp"
 
 const fs::path SCREENSHOTS_FOLDER {"screenshots"};
+const fs::path CONTENT_FOLDER {"content"};
 const fs::path CONTROLS_FILE {"controls.toml"};
 const fs::path SETTINGS_FILE {"settings.toml"};
+
+void EnginePaths::prepare() {
+    fs::path contentFolder = userfiles/fs::path(CONTENT_FOLDER);
+    if (!fs::is_directory(contentFolder)) {
+        fs::create_directories(contentFolder);
+    }
+}
 
 fs::path EnginePaths::getUserfiles() const {
     return userfiles;
