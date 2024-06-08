@@ -77,7 +77,7 @@ std::shared_ptr<UINode> create_debug_panel(
     panel->add(create_label([=](){
         std::wstringstream stream;
         stream << "r:" << player->selectedVoxel.state.rotation << " s:"
-                << player->selectedVoxel.state.segment << " u:"
+                << std::bitset<3>(player->selectedVoxel.state.segment) << " u:"
                 << std::bitset<8>(player->selectedVoxel.state.userbits);
         if (player->selectedVoxel.id == BLOCK_VOID) {
             return std::wstring {L"block: -"};
