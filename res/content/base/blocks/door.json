@@ -1,0 +1,15 @@
+{
+    "material": "base:wood",
+    "texture-faces": [
+        "door_side",
+        "door_side",
+        "door_top",
+        "door_top",
+        "door",
+        "door"
+    ],
+    "light-passing": true,
+    "sky-light-passing": true,
+    "size": [1, 2, 1],
+    "rotation": "pipe"
+}

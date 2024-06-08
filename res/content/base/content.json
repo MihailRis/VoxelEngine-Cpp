@@ -1,7 +1,4 @@
 {
-  "items": [
-    "bazalt_breaker"
-  ],
   "blocks": [
     "dirt",
     "grass_block",
@@ -25,6 +22,10 @@
     "pane",
     "pipe",
     "lightbulb",
-    "torch"
+    "torch",
+    "door"
+  ],
+  "items": [
+    "bazalt_breaker"
   ]
 }

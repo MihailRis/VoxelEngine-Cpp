@@ -31,6 +31,13 @@ static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
     return label;
 }
 
+template <size_t T>
+inline std::wstring to_string(std::bitset<T> bs) {
+    std::wstringstream ss;
+    ss << bs;
+    return ss.str();
+}
+
 std::shared_ptr<UINode> create_debug_panel(
     Engine* engine, 
     Level* level, 
@@ -92,6 +99,18 @@ std::shared_ptr<UINode> create_debug_panel(
             return L"name: " + util::str2wstr_utf8(def->name);
         } else {
             return std::wstring {L"name: void"};
+        }
+    }));
+    panel->add(create_label([=](){
+        auto* indices = level->content->getIndices();
+        if (auto def = indices->getBlockDef(player->selectedVoxel.id)) {
+            return L"light: " + to_string(std::bitset<16>(level->chunks->getLight(
+                player->actualSelectedBlockPosition.x,
+                player->actualSelectedBlockPosition.y,
+                player->actualSelectedBlockPosition.z
+            )));
+        } else {
+            return std::wstring {L"no light: -"};
         }
     }));
     panel->add(create_label([=](){
