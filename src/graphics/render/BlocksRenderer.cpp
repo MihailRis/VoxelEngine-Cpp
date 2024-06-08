@@ -414,9 +414,11 @@ void BlocksRenderer::render(const voxel* voxels) {
         for (int i = begin; i < end; i++) {
             const voxel& vox = voxels[i];
             blockid_t id = vox.id;
+            blockstate state = vox.state;
             const Block& def = *blockDefsCache[id];
-            if (id == 0 || def.drawGroup != drawGroup)
+            if (id == 0 || def.drawGroup != drawGroup || state.segment) {
                 continue;
+            }
             const UVRegion texfaces[6]{ cache->getRegion(id, 0), 
                                         cache->getRegion(id, 1),
                                         cache->getRegion(id, 2), 

@@ -62,6 +62,7 @@ std::unique_ptr<Content> ContentBuilder::build() {
         def.rt.id = blockDefsIndices.size();
         def.rt.emissive = *reinterpret_cast<uint32_t*>(def.emission);
         def.rt.solid = def.model == BlockModel::block;
+        def.rt.extended = def.size.x > 1 || def.size.y > 1 || def.size.z > 1;
 
         if (def.rotatable) {
             for (uint i = 0; i < BlockRotProfile::MAX_COUNT; i++) {

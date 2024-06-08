@@ -130,11 +130,13 @@ void BlocksController::randomTick(int tickid, int parts) {
     for (uint z = padding; z < d-padding; z++){
         for (uint x = padding; x < w-padding; x++){
             int index = z * w + x;
-            if ((index + tickid) % parts != 0)
+            if ((index + tickid) % parts != 0) {
                 continue;
+            }
             auto& chunk = chunks->chunks[index];
-            if (chunk == nullptr || !chunk->flags.lighted)
+            if (chunk == nullptr || !chunk->flags.lighted) {
                 continue;
+            }
             for (int s = 0; s < segments; s++) {
                 for (int i = 0; i < 4; i++) {
                     int bx = random.rand() % CHUNK_W;
@@ -146,7 +148,8 @@ void BlocksController::randomTick(int tickid, int parts) {
                         scripting::random_update_block(
                             block, 
                             chunk->x * CHUNK_W + bx, by, 
-                            chunk->z * CHUNK_D + bz);
+                            chunk->z * CHUNK_D + bz
+                        );
                     }
                 }
             }

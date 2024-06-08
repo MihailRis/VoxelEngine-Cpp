@@ -17,10 +17,14 @@ class ContentIndices;
 class Chunk;
 class WorldFiles;
 class LevelEvents;
+class Block;
 
 /* Player-centred chunks matrix */
 class Chunks {
     const ContentIndices* const contentIds;
+
+    void eraseSegments(const Block* def, blockstate state, int x, int y, int z);
+    void repairSegments(const Block* def, blockstate state, int x, int y, int z);
 public:
     std::vector<std::shared_ptr<Chunk>> chunks;
     std::vector<std::shared_ptr<Chunk>> chunksSecond;
@@ -40,10 +44,16 @@ public:
 
     Chunk* getChunk(int32_t x, int32_t z);
     Chunk* getChunkByVoxel(int32_t x, int32_t y, int32_t z);
-    voxel* get(int32_t x, int32_t y, int32_t z);
+    voxel* get(int32_t x, int32_t y, int32_t z) const;
+
+    inline voxel* get(glm::ivec3 pos) {
+        return get(pos.x, pos.y, pos.z);
+    }
+
     light_t getLight(int32_t x, int32_t y, int32_t z);
     ubyte getLight(int32_t x, int32_t y, int32_t z, int channel);
     void set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state);
+    glm::ivec3 seekOrigin(glm::ivec3 pos, const Block* def, blockstate state);
 
     voxel* rayCast(
         glm::vec3 start, 

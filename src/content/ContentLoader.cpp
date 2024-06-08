@@ -175,27 +175,36 @@ void ContentLoader::loadBlock(Block& def, const std::string& name, const fs::pat
             def.hitboxes[i].b = glm::vec3(box->num(3), box->num(4), box->num(5));
             def.hitboxes[i].b += def.hitboxes[i].a;
         }
+    } else if (auto boxarr = root->list("hitbox")){
+        AABB aabb;
+        aabb.a = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
+        aabb.b = glm::vec3(boxarr->num(3), boxarr->num(4), boxarr->num(5));
+        aabb.b += aabb.a;
+        def.hitboxes = { aabb };
+    } else if (!def.modelBoxes.empty()) {
+        def.hitboxes = def.modelBoxes;
     } else {
-        boxarr = root->list("hitbox");
-        if (boxarr) {
-            AABB aabb;
-            aabb.a = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
-            aabb.b = glm::vec3(boxarr->num(3), boxarr->num(4), boxarr->num(5));
-            aabb.b += aabb.a;
-            def.hitboxes = { aabb };
-        } else if (!def.modelBoxes.empty()) {
-            def.hitboxes = def.modelBoxes;
-        } else {
-            def.hitboxes = { AABB() };
-        }
+        def.hitboxes = { AABB() };
     }
 
+
     // block light emission [r, g, b] where r,g,b in range [0..15]
-    auto emissionarr = root->list("emission");
-    if (emissionarr) {
+    if (auto emissionarr = root->list("emission")) {
         def.emission[0] = emissionarr->num(0);
         def.emission[1] = emissionarr->num(1);
         def.emission[2] = emissionarr->num(2);
+    }
+
+    // block size
+    if (auto sizearr = root->list("size")) {
+        def.size.x = sizearr->num(0);
+        def.size.y = sizearr->num(1);
+        def.size.z = sizearr->num(2);
+        if (def.model == BlockModel::block && 
+           (def.size.x != 1 || def.size.y != 1 || def.size.z != 1)) {
+            def.model = BlockModel::aabb;
+            def.hitboxes = {AABB(def.size)};
+        }
     }
 
     // primitive properties

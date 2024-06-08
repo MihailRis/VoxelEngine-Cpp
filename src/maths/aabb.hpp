@@ -8,6 +8,11 @@ struct AABB {
     glm::vec3 a {0.0f};
     glm::vec3 b {1.0f};
 
+    AABB() {}
+
+    AABB(glm::vec3 size) : a(0.0f), b(size) {
+    }
+
     /* Get AABB point with minimal x,y,z */
     inline glm::vec3 min() const {
         return glm::min(a, b);

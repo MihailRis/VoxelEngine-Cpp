@@ -110,6 +110,8 @@ public:
     /// @brief Light emission R, G, B, S (sky lights: sun, moon, radioactive clouds)
     uint8_t emission[4] {0, 0, 0, 0};
 
+    glm::i8vec3 size {1, 1, 1};
+
     /// @brief Influences visible block sides for transparent blocks
     uint8_t drawGroup = 0;
     
@@ -175,6 +177,9 @@ public:
         
         /// @brief does the block emit any lights
         bool emissive = false;
+
+        // @brief block size is greather than 1x1x1
+        bool extended = false;
         
         /// @brief set of hitboxes sets with all coord-systems precalculated
         std::vector<AABB> hitboxes[BlockRotProfile::MAX_COUNT];

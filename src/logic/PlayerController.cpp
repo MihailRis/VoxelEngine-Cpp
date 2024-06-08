@@ -364,9 +364,15 @@ void PlayerController::updateInteraction(){
         end, norm, iend
     );
     if (vox != nullptr) {
+        blockstate selectedState = vox->state;
         player->selectedVoxel = *vox;
         selectedBlockId = vox->id;
         selectedBlockRotation = vox->state.rotation;
+        if (selectedState.segment) {
+            iend = chunks->seekOrigin(
+                iend, indices->getBlockDef(selectedBlockId), selectedState
+            );
+        } 
         player->selectedBlockPosition = iend;
         selectedPointPosition = end;
         selectedBlockNormal = norm;
@@ -379,8 +385,9 @@ void PlayerController::updateInteraction(){
         state.rotation = determine_rotation(def, norm, camera->dir);
         
         if (lclick && !input.shift && item->rt.funcsset.on_block_break_by) {
-            if (scripting::on_item_break_block(player.get(), item, x, y, z))
+            if (scripting::on_item_break_block(player.get(), item, x, y, z)) {
                 return;
+            }
         }
 
         Block* target = indices->getBlockDef(vox->id);
@@ -411,10 +418,8 @@ void PlayerController::updateInteraction(){
                 x = (iend.x)+(norm.x);
                 y = (iend.y)+(norm.y);
                 z = (iend.z)+(norm.z);
-            } else {
-                if (def->rotations.name == "pipe") {
-                    state.rotation = BLOCK_DIR_UP;
-                }
+            } else if (def->rotations.name == "pipe") {
+                state.rotation = BLOCK_DIR_UP;
             }
             vox = chunks->get(x, y, z);
             blockid_t chosenBlock = def->rt.id;
