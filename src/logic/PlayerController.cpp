@@ -293,7 +293,7 @@ void PlayerController::updateControls(float delta){
     player->updateInput(level, input, delta);
 }
 
-static int determine_rotation(Block* def, glm::ivec3& norm, glm::vec3& camDir) {
+static int determine_rotation(Block* def, const glm::ivec3& norm, glm::vec3& camDir) {
     if (def && def->rotatable){
         const std::string& name = def->rotations.name;
         if (name == "pipe") {
