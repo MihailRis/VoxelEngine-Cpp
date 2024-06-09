@@ -21,6 +21,13 @@ namespace lua {
         return 3;
     }
 
+    inline int pushivec3(lua_State* L, glm::ivec3 vec) {
+        lua_pushinteger(L, vec.x);
+        lua_pushinteger(L, vec.y);
+        lua_pushinteger(L, vec.z);
+        return 3;
+    }
+
     inline int pushvec3(lua_State* L, glm::vec3 vec) {
         lua_pushnumber(L, vec.x);
         lua_pushnumber(L, vec.y);
