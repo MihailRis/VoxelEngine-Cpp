@@ -158,8 +158,9 @@ Chunk* Chunks::getChunkByVoxel(int32_t x, int32_t y, int32_t z) {
 Chunk* Chunks::getChunk(int x, int z){
     x -= ox;
     z -= oz;
-    if (x < 0 || z < 0 || x >= int(w) || z >= int(d))
+    if (x < 0 || z < 0 || x >= static_cast<int>(w) || z >= static_cast<int>(d)) {
         return nullptr;
+    }
     return chunks[z * w + x].get();
 }
 
