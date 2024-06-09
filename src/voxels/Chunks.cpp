@@ -67,11 +67,16 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
     }
     const Block* def = indices->getBlockDef(v->id);
     if (def->obstacle) {
+        glm::ivec3 offset {};
+        if (v->state.segment) {
+            glm::ivec3 point(ix, iy, iz);
+            offset = seekOrigin(point, def, v->state) - point;
+        }
         const auto& boxes = def->rotatable 
                           ? def->rt.hitboxes[v->state.rotation] 
                           : def->hitboxes;
         for (const auto& hitbox : boxes) {
-            if (hitbox.contains({x - ix, y - iy, z - iz})) {
+            if (hitbox.contains({x - ix - offset.x, y - iy - offset.y, z - iz - offset.z})) {
                 return &hitbox;
             }
         }
