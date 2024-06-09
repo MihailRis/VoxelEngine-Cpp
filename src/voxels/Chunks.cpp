@@ -200,6 +200,10 @@ void Chunks::eraseSegments(const Block* def, blockstate state, int x, int y, int
     }
 }
 
+static constexpr uint8_t segment_to_int(int sx, int sy, int sz) {
+    return ((sx > 0) | ((sy > 0) << 1) | ((sz > 0) << 2));
+}
+
 void Chunks::repairSegments(const Block* def, blockstate state, int x, int y, int z) {
     const auto& rotation = def->rotations.variants[state.rotation];
     const auto id = def->rt.id;
@@ -211,7 +215,7 @@ void Chunks::repairSegments(const Block* def, blockstate state, int x, int y, in
                     continue;
                 }
                 blockstate segState = state;
-                segState.segment = ((sx > 0) | ((sy > 0) << 1) | ((sz > 0) << 2));
+                segState.segment = segment_to_int(sx, sy, sz);
 
                 glm::ivec3 pos(x, y, z);
                 pos += rotation.axisX * sx;
@@ -223,14 +227,14 @@ void Chunks::repairSegments(const Block* def, blockstate state, int x, int y, in
     }
 }
 
-bool Chunks::checkReplaceability(const Block* def, blockstate state, glm::ivec3 origin) {
+bool Chunks::checkReplaceability(const Block* def, blockstate state, glm::ivec3 origin, blockid_t ignore) {
     const auto& rotation = def->rotations.variants[state.rotation];
     const auto size = def->size;
     for (int sy = 0; sy < size.y; sy++) {
         for (int sz = 0; sz < size.z; sz++) {
             for (int sx = 0; sx < size.x; sx++) {
                 blockstate segState = state;
-                segState.segment = ((sx > 0) | ((sy > 0) << 1) | ((sz > 0) << 2));
+                segState.segment = segment_to_int(sx, sy, sz);
 
                 auto pos = origin;
                 pos += rotation.axisX * sx;
@@ -238,7 +242,7 @@ bool Chunks::checkReplaceability(const Block* def, blockstate state, glm::ivec3 
                 pos += rotation.axisZ * sz;
                 if (auto vox = get(pos.x, pos.y, pos.z)) {
                     auto target = indices->getBlockDef(vox->id);
-                    if (!target->replaceable) {
+                    if (!target->replaceable && vox->id != ignore) {
                         return false;
                     }
                 } else {
@@ -248,6 +252,82 @@ bool Chunks::checkReplaceability(const Block* def, blockstate state, glm::ivec3 
         }
     }
     return true;
+}
+
+void Chunks::setRotationExtended(
+    Block* def, blockstate state, glm::ivec3 origin, uint8_t index
+) {
+    auto newstate = state;
+    newstate.rotation = index;
+    
+    // unable to rotate block (cause: obstacles)
+    if (!checkReplaceability(def, newstate, origin, def->rt.id)) {
+        return;
+    }
+
+    const auto& rotation = def->rotations.variants[index];
+    const auto size = def->size;
+    std::vector<glm::ivec3> segmentBlocks;
+
+    for (int sy = 0; sy < size.y; sy++) {
+        for (int sz = 0; sz < size.z; sz++) {
+            for (int sx = 0; sx < size.x; sx++) {
+                auto pos = origin;
+                pos += rotation.axisX * sx;
+                pos += rotation.axisY * sy;
+                pos += rotation.axisZ * sz;
+
+                blockstate segState = newstate;
+                segState.segment = segment_to_int(sx, sy, sz);
+                
+                auto vox = get(pos);
+                // checked for nullptr by checkReplaceability
+                if (vox->id != def->rt.id) {
+                    set(pos.x, pos.y, pos.z, def->rt.id, segState);
+                } else {
+                    vox->state = segState;
+                    auto chunk = getChunkByVoxel(pos.x, pos.y, pos.z);
+                    chunk->setModifiedAndUnsaved();
+                    segmentBlocks.emplace_back(pos);
+                }
+            }
+        }
+    }
+    const auto& prevRotation = def->rotations.variants[state.rotation];
+    for (int sy = 0; sy < size.y; sy++) {
+        for (int sz = 0; sz < size.z; sz++) {
+            for (int sx = 0; sx < size.x; sx++) {
+                auto pos = origin;
+                pos += prevRotation.axisX * sx;
+                pos += prevRotation.axisY * sy;
+                pos += prevRotation.axisZ * sz;
+                if (std::find(segmentBlocks.begin(), segmentBlocks.end(), pos) == segmentBlocks.end()) {
+                    set(pos.x, pos.y, pos.z, 0, {});
+                }
+            }
+        }
+    }
+}
+
+void Chunks::setRotation(int32_t x, int32_t y, int32_t z, uint8_t index) {
+    if (index >= BlockRotProfile::MAX_COUNT) {
+        return;
+    }
+    auto vox = get(x, y, z);
+    if (vox == nullptr) {
+        return;
+    }
+    auto def = indices->getBlockDef(vox->id);
+    if (!def->rotatable || vox->state.rotation == index) {
+        return;
+    }
+    if (def->rt.extended) {
+        setRotationExtended(def, vox->state, {x, y, z}, index);
+    } else {
+        vox->state.rotation = index;
+        auto chunk = getChunkByVoxel(x, y, z);
+        chunk->setModifiedAndUnsaved();   
+    }
 }
 
 void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state) {

@@ -25,6 +25,7 @@ class Chunks {
 
     void eraseSegments(const Block* def, blockstate state, int x, int y, int z);
     void repairSegments(const Block* def, blockstate state, int x, int y, int z);
+    void setRotationExtended(Block* def, blockstate state, glm::ivec3 origin, uint8_t rotation);
 public:
     std::vector<std::shared_ptr<Chunk>> chunks;
     std::vector<std::shared_ptr<Chunk>> chunksSecond;
@@ -40,7 +41,7 @@ public:
            WorldFiles* worldFiles, LevelEvents* events, const Content* content);
     ~Chunks() = default;
 
-    bool checkReplaceability(const Block* def, blockstate state, glm::ivec3 coord);
+    bool checkReplaceability(const Block* def, blockstate state, glm::ivec3 coord, blockid_t ignore=0);
     bool putChunk(const std::shared_ptr<Chunk>& chunk);
 
     Chunk* getChunk(int32_t x, int32_t z);
@@ -55,6 +56,7 @@ public:
     ubyte getLight(int32_t x, int32_t y, int32_t z, int channel);
     void set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state);
     glm::ivec3 seekOrigin(glm::ivec3 pos, const Block* def, blockstate state);
+    void setRotation(int32_t x, int32_t y, int32_t z, uint8_t rotation);
 
     voxel* rayCast(
         glm::vec3 start, 
