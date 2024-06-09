@@ -22,7 +22,7 @@ Chunks::Chunks(
     WorldFiles* wfile, 
     LevelEvents* events, 
     const Content* content
-) : contentIds(content->getIndices()), 
+) : indices(content->getIndices()), 
     chunks(w*d),
     chunksSecond(w*d),
     w(w), d(d), ox(ox), oz(oz), 
@@ -65,7 +65,7 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
             return &empty;
         }
     }
-    const Block* def = contentIds->getBlockDef(v->id);
+    const Block* def = indices->getBlockDef(v->id);
     if (def->obstacle) {
         const auto& boxes = def->rotatable 
                           ? def->rt.hitboxes[v->state.rotation] 
@@ -83,21 +83,21 @@ bool Chunks::isSolidBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
     if (v == nullptr)
         return false;
-    return contentIds->getBlockDef(v->id)->rt.solid;
+    return indices->getBlockDef(v->id)->rt.solid;
 }
 
 bool Chunks::isReplaceableBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
     if (v == nullptr)
         return false;
-    return contentIds->getBlockDef(v->id)->replaceable;
+    return indices->getBlockDef(v->id)->replaceable;
 }
 
 bool Chunks::isObstacleBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
     if (v == nullptr)
         return false;
-    return contentIds->getBlockDef(v->id)->obstacle;
+    return indices->getBlockDef(v->id)->obstacle;
 }
 
 ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel){
@@ -218,6 +218,33 @@ void Chunks::repairSegments(const Block* def, blockstate state, int x, int y, in
     }
 }
 
+bool Chunks::checkReplaceability(const Block* def, blockstate state, glm::ivec3 origin) {
+    const auto& rotation = def->rotations.variants[state.rotation];
+    const auto size = def->size;
+    for (int sy = 0; sy < size.y; sy++) {
+        for (int sz = 0; sz < size.z; sz++) {
+            for (int sx = 0; sx < size.x; sx++) {
+                blockstate segState = state;
+                segState.segment = ((sx > 0) | ((sy > 0) << 1) | ((sz > 0) << 2));
+
+                auto pos = origin;
+                pos += rotation.axisX * sx;
+                pos += rotation.axisY * sy;
+                pos += rotation.axisZ * sz;
+                if (auto vox = get(pos.x, pos.y, pos.z)) {
+                    auto target = indices->getBlockDef(vox->id);
+                    if (!target->replaceable) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
 void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state) {
     if (y < 0 || y >= CHUNK_H) {
         return;
@@ -240,7 +267,7 @@ void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state)
     
     // block finalization
     voxel& vox = chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx]; 
-    auto prevdef = contentIds->getBlockDef(vox.id);
+    auto prevdef = indices->getBlockDef(vox.id);
     if (prevdef->inventorySize == 0) {
         chunk->removeBlockInventory(lx, y, lz);
     }
@@ -249,7 +276,7 @@ void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state)
     }
 
     // block initialization
-    auto newdef = contentIds->getBlockDef(id);
+    auto newdef = indices->getBlockDef(id);
     vox.id = id;
     vox.state = state;
     chunk->setModifiedAndUnsaved();
@@ -318,7 +345,7 @@ voxel* Chunks::rayCast(
         if (voxel == nullptr){
             return nullptr;
         }
-        const Block* def = contentIds->getBlockDef(voxel->id);
+        const auto def = indices->getBlockDef(voxel->id);
         if (def->selectable){
             end.x = px + t * dx;
             end.y = py + t * dy;
@@ -442,7 +469,7 @@ glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDis
         if (voxel == nullptr) { 
             return glm::vec3(px + t * dx, py + t * dy, pz + t * dz); 
         }
-        const Block* def = contentIds->getBlockDef(voxel->id);
+        const auto def = indices->getBlockDef(voxel->id);
         if (def->obstacle) {
             if (!def->rt.solid) {
                 const std::vector<AABB>& hitboxes = def->rotatable

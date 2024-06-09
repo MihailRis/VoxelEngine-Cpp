@@ -58,7 +58,7 @@ namespace scripting {
     void random_update_block(const Block* block, int x, int y, int z);
     void on_block_placed(Player* player, const Block* block, int x, int y, int z);
     void on_block_broken(Player* player, const Block* block, int x, int y, int z);
-    bool on_block_interact(Player* player, const Block* block, int x, int y, int z);
+    bool on_block_interact(Player* player, const Block* block, glm::ivec3 pos);
 
     /// @brief Called on RMB click with the item selected 
     /// @return true if prevents default action

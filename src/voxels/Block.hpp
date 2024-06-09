@@ -62,6 +62,9 @@ struct BlockRotProfile {
 
     /// @brief Doors, signs and other panes
     static const BlockRotProfile PANE;
+
+    static inline std::string PIPE_NAME = "pipe";
+    static inline std::string PANE_NAME = "pane";
 };
 
 enum class BlockModel {

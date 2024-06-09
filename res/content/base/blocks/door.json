@@ -11,5 +11,7 @@
     "light-passing": true,
     "sky-light-passing": true,
     "size": [1, 2, 1],
-    "rotation": "pipe"
+    "rotation": "pipe",
+    "model": "aabb",
+    "hitbox": [0.0, 0.0, 0.8, 1.0, 2.0, 0.2]
 }

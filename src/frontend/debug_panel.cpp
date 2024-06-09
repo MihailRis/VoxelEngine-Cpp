@@ -31,13 +31,6 @@ static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
     return label;
 }
 
-template <size_t T>
-inline std::wstring to_string(std::bitset<T> bs) {
-    std::wstringstream ss;
-    ss << bs;
-    return ss.str();
-}
-
 std::shared_ptr<UINode> create_debug_panel(
     Engine* engine, 
     Level* level, 
@@ -82,35 +75,24 @@ std::shared_ptr<UINode> create_debug_panel(
                L" visible: "+std::to_wstring(level->chunks->visible);
     }));
     panel->add(create_label([=](){
+        const auto& vox = player->selection.vox;
         std::wstringstream stream;
-        stream << "r:" << player->selectedVoxel.state.rotation << " s:"
-                << std::bitset<3>(player->selectedVoxel.state.segment) << " u:"
-                << std::bitset<8>(player->selectedVoxel.state.userbits);
-        if (player->selectedVoxel.id == BLOCK_VOID) {
+        stream << "r:" << vox.state.rotation << " s:"
+                << std::bitset<3>(vox.state.segment) << " u:"
+                << std::bitset<8>(vox.state.userbits);
+        if (vox.id == BLOCK_VOID) {
             return std::wstring {L"block: -"};
         } else {
-            return L"block: "+std::to_wstring(player->selectedVoxel.id)+
+            return L"block: "+std::to_wstring(vox.id)+
                    L" "+stream.str();
         }
     }));
     panel->add(create_label([=](){
         auto* indices = level->content->getIndices();
-        if (auto def = indices->getBlockDef(player->selectedVoxel.id)) {
+        if (auto def = indices->getBlockDef(player->selection.vox.id)) {
             return L"name: " + util::str2wstr_utf8(def->name);
         } else {
             return std::wstring {L"name: void"};
-        }
-    }));
-    panel->add(create_label([=](){
-        auto* indices = level->content->getIndices();
-        if (auto def = indices->getBlockDef(player->selectedVoxel.id)) {
-            return L"light: " + to_string(std::bitset<16>(level->chunks->getLight(
-                player->actualSelectedBlockPosition.x,
-                player->actualSelectedBlockPosition.y,
-                player->actualSelectedBlockPosition.z
-            )));
-        } else {
-            return std::wstring {L"no light: -"};
         }
     }));
     panel->add(create_label([=](){

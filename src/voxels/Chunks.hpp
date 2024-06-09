@@ -21,7 +21,7 @@ class Block;
 
 /* Player-centred chunks matrix */
 class Chunks {
-    const ContentIndices* const contentIds;
+    const ContentIndices* const indices;
 
     void eraseSegments(const Block* def, blockstate state, int x, int y, int z);
     void repairSegments(const Block* def, blockstate state, int x, int y, int z);
@@ -40,6 +40,7 @@ public:
            WorldFiles* worldFiles, LevelEvents* events, const Content* content);
     ~Chunks() = default;
 
+    bool checkReplaceability(const Block* def, blockstate state, glm::ivec3 coord);
     bool putChunk(const std::shared_ptr<Chunk>& chunk);
 
     Chunk* getChunk(int32_t x, int32_t z);

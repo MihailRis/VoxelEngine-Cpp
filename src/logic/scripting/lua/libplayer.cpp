@@ -134,10 +134,10 @@ static int l_player_set_noclip(lua_State* L) {
 
 static int l_player_get_selected_block(lua_State* L) {
     if (auto player = get_player(L, 1)) {
-        if (player->selectedVoxel.id == BLOCK_VOID) {
+        if (player->selection.vox.id == BLOCK_VOID) {
             return 0;
         }
-        const glm::ivec3 pos = player->selectedBlockPosition;
+        const glm::ivec3 pos = player->selection.position;
         lua_pushinteger(L, pos.x);
         lua_pushinteger(L, pos.y);
         lua_pushinteger(L, pos.z);

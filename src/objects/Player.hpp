@@ -32,6 +32,14 @@ struct PlayerInput {
     bool flight : 1;
 };
 
+struct BlockSelection {
+    voxel vox {0, {}};
+    glm::ivec3 position {};
+    glm::ivec3 actualPosition {};
+    glm::ivec3 normal {};
+    glm::vec3 hitPosition;
+};
+
 class Player : public Object, public Serializable {
     float speed;
     int chosenSlot;
@@ -44,10 +52,8 @@ public:
     std::shared_ptr<Camera> currentCamera;
     std::unique_ptr<Hitbox> hitbox;
     bool debug = false;
-    voxel selectedVoxel {0, {}};
     glm::vec3 cam {};
-    glm::ivec3 selectedBlockPosition {};
-    glm::ivec3 actualSelectedBlockPosition {};
+    BlockSelection selection {};
 
     Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv);
     ~Player();

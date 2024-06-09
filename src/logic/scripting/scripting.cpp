@@ -192,10 +192,10 @@ void scripting::on_block_broken(Player* player, const Block* block, int x, int y
     });
 }
 
-bool scripting::on_block_interact(Player* player, const Block* block, int x, int y, int z) {
+bool scripting::on_block_interact(Player* player, const Block* block, glm::ivec3 pos) {
     std::string name = block->name + ".interact";
-    return state->emit_event(name, [x, y, z, player] (lua::LuaState* state) {
-        state->pushivec3(x, y, z);
+    return state->emit_event(name, [pos, player] (lua::LuaState* state) {
+        state->pushivec3(pos.x, pos.y, pos.z);
         state->pushinteger(player->getId());
         return 4;
     });
