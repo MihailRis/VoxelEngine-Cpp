@@ -352,11 +352,17 @@ voxel* PlayerController::updateSelection(float maxDistance) {
     selection.vox = *vox;
     selection.actualPosition = iend;
     if (selectedState.segment) {
-        iend = chunks->seekOrigin(
+        selection.position = chunks->seekOrigin(
             iend, indices->getBlockDef(selection.vox.id), selectedState
         );
+        auto origin = chunks->get(iend);
+        if (origin && origin->id != vox->id) {
+            chunks->set(iend.x, iend.y, iend.z, 0, {});
+            return updateSelection(maxDistance);
+        }
+    } else {
+        selection.position = iend;
     }
-    selection.position = iend;
     selection.hitPosition = end;
     selection.normal = norm;
     return vox;
@@ -398,7 +404,7 @@ void PlayerController::processRightClick(Block* def, Block* target) {
     if (def->grounded && !chunks->isSolidBlock(coord.x, coord.y-1, coord.z)) {
         return;
     }
-    if (chosenBlock != vox->id) {
+    if (chosenBlock != vox->id && chosenBlock) {
         onBlockInteraction(coord, def, BlockInteraction::placing);
         chunks->set(coord.x, coord.y, coord.z, chosenBlock, state);
         lighting->onBlockSet(coord.x, coord.y, coord.z, chosenBlock);
