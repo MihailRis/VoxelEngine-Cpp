@@ -34,16 +34,16 @@ BlocksRenderer::BlocksRenderer(
     cache(cache),
     settings(settings) 
 {
-    vertexBuffer = new float[capacity];
-    indexBuffer = new int[capacity];
-    voxelsBuffer = new VoxelsVolume(CHUNK_W + 2, CHUNK_H, CHUNK_D + 2);
+    vertexBuffer = std::make_unique<float[]>(capacity);
+    indexBuffer = std::make_unique<int[]>(capacity);
+    voxelsBuffer = std::make_unique<VoxelsVolume>(
+        CHUNK_W + voxelBufferPadding*2, 
+        CHUNK_H, 
+        CHUNK_D + voxelBufferPadding*2);
     blockDefsCache = content->getIndices()->getBlockDefs();
 }
 
 BlocksRenderer::~BlocksRenderer() {
-    delete voxelsBuffer;
-    delete[] vertexBuffer;
-    delete[] indexBuffer;
 }
 
 /* Basic vertex add method */
@@ -416,45 +416,52 @@ void BlocksRenderer::render(const voxel* voxels) {
             if (id == 0 || def.drawGroup != drawGroup || state.segment) {
                 continue;
             }
-            const UVRegion texfaces[6]{ cache->getRegion(id, 0), 
-                                        cache->getRegion(id, 1),
-                                        cache->getRegion(id, 2), 
-                                        cache->getRegion(id, 3),
-                                        cache->getRegion(id, 4), 
-                                        cache->getRegion(id, 5)};
+            const UVRegion texfaces[6] {
+                cache->getRegion(id, 0), 
+                cache->getRegion(id, 1),
+                cache->getRegion(id, 2), 
+                cache->getRegion(id, 3),
+                cache->getRegion(id, 4), 
+                cache->getRegion(id, 5)
+            };
             int x = i % CHUNK_W;
             int y = i / (CHUNK_D * CHUNK_W);
             int z = (i / CHUNK_D) % CHUNK_W;
             switch (def.model) {
-            case BlockModel::block:
-                blockCube(x, y, z, texfaces, &def, vox.state, !def.rt.emissive);
-                break;
-            case BlockModel::xsprite: {
-                blockXSprite(x, y, z, vec3(1.0f), 
-                             texfaces[FACE_MX], texfaces[FACE_MZ], 1.0f);
-                break;
+                case BlockModel::block:
+                    blockCube(x, y, z, texfaces, &def, vox.state, !def.rt.emissive);
+                    break;
+                case BlockModel::xsprite: {
+                    blockXSprite(x, y, z, vec3(1.0f), 
+                                texfaces[FACE_MX], texfaces[FACE_MZ], 1.0f);
+                    break;
+                }
+                case BlockModel::aabb: {
+                    blockAABB(ivec3(x,y,z), texfaces, &def, vox.state.rotation, !def.rt.emissive);
+                    break;
+                }
+                case BlockModel::custom: {
+                    blockCustomModel(ivec3(x, y, z), &def, vox.state.rotation, !def.rt.emissive);
+                    break;
+                }
+                default:
+                    break;
             }
-            case BlockModel::aabb: {
-                blockAABB(ivec3(x,y,z), texfaces, &def, vox.state.rotation, !def.rt.emissive);
-                break;
-            }
-            case BlockModel::custom: {
-                blockCustomModel(ivec3(x, y, z), &def, vox.state.rotation, !def.rt.emissive);
-                break;
-            }
-            default:
-                break;
-            }
-            if (overflow)
+            if (overflow) {
                 return;
+            }
         }
     }
 }
 
 void BlocksRenderer::build(const Chunk* chunk, const ChunksStorage* chunks) {
     this->chunk = chunk;
-    voxelsBuffer->setPosition(chunk->x * CHUNK_W - 1, 0, chunk->z * CHUNK_D - 1);
-    chunks->getVoxels(voxelsBuffer, settings->graphics.backlight.get());
+    voxelsBuffer->setPosition(
+        chunk->x * CHUNK_W - voxelBufferPadding, 
+        0,
+        chunk->z * CHUNK_D - voxelBufferPadding
+    );
+    chunks->getVoxels(voxelsBuffer.get(), settings->graphics.backlight.get());
     overflow = false;
     vertexOffset = 0;
     indexOffset = indexSize = 0;
@@ -465,7 +472,9 @@ void BlocksRenderer::build(const Chunk* chunk, const ChunksStorage* chunks) {
 std::shared_ptr<Mesh> BlocksRenderer::createMesh() {
     const vattr attrs[]{ {3}, {2}, {1}, {0} };
     size_t vcount = vertexOffset / BlocksRenderer::VERTEX_SIZE;
-    return std::make_shared<Mesh>(vertexBuffer, vcount, indexBuffer, indexSize, attrs);
+    return std::make_shared<Mesh>(
+        vertexBuffer.get(), vcount, indexBuffer.get(), indexSize, attrs
+    );
 }
 
 std::shared_ptr<Mesh> BlocksRenderer::render(const Chunk* chunk, const ChunksStorage* chunks) {
@@ -474,5 +483,5 @@ std::shared_ptr<Mesh> BlocksRenderer::render(const Chunk* chunk, const ChunksSto
 }
 
 VoxelsVolume* BlocksRenderer::getVoxelsBuffer() const {
-    return voxelsBuffer;
+    return voxelsBuffer.get();
 }
