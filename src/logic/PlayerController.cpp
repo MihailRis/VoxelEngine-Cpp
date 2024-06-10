@@ -26,11 +26,11 @@
 
 #include <algorithm>
 
-const float CAM_SHAKE_OFFSET = 0.025f;
+const float STEPS_SPEED = 2.2f;
+const float CAM_SHAKE_OFFSET = 0.0075f;
 const float CAM_SHAKE_OFFSET_Y = 0.031f;
-const float CAM_SHAKE_SPEED = 1.75f;
+const float CAM_SHAKE_SPEED = STEPS_SPEED;
 const float CAM_SHAKE_DELTA_K = 10.0f;
-const float STEPS_SPEED = 1.75f;
 const float ZOOM_SPEED = 16.0f;
 const float CROUCH_ZOOM = 0.9f;
 const float RUN_ZOOM = 1.1f;
@@ -80,7 +80,6 @@ glm::vec3 CameraControl::updateCameraShaking(float delta) {
     glm::vec3 offset {};
     auto hitbox = player->hitbox.get();
     const float k = CAM_SHAKE_DELTA_K;
-    const float oh = CAM_SHAKE_OFFSET;
     const float ov = CAM_SHAKE_OFFSET_Y;
     const glm::vec3& vel = hitbox->velocity;
 
@@ -89,11 +88,14 @@ glm::vec3 CameraControl::updateCameraShaking(float delta) {
         interpVel.y *= -30.0f;
     }
     shake = shake * (1.0f - delta * k);
+    float oh = CAM_SHAKE_OFFSET;
     if (hitbox->grounded) {
         float f = glm::length(glm::vec2(vel.x, vel.z));
         shakeTimer += delta * f * CAM_SHAKE_SPEED;
         shake += f * delta * k;
+        oh *= glm::sqrt(f);
     }
+    
     offset += camera->right * glm::sin(shakeTimer) * oh * shake;
     offset += camera->up * glm::abs(glm::cos(shakeTimer)) * ov * shake;
     offset -= glm::min(interpVel * 0.05f, 1.0f);
