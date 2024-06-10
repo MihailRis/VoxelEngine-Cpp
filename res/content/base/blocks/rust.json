@@ -1,3 +1,4 @@
 {
-    "texture": "rust"
+    "texture": "rust",
+    "material": "base:metal"
 }

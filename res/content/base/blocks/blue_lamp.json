@@ -1,4 +1,5 @@
 {
     "texture": "blue_lamp",
-    "emission": [0, 0, 15]
+    "emission": [0, 0, 15],
+    "material": "base:glass"
 }
