@@ -137,16 +137,14 @@ void ContentLoader::loadBlock(Block& def, const std::string& name, const fs::pat
         def.model = BlockModel::custom;
         if (root->has("model-primitives")) {
             loadCustomBlockModel(def, root->map("model-primitives"));
-        }
-        else {
-            std::cerr << "ERROR occured while block "
-                       << name << " parsed: no \"model-primitives\" found" << std::endl;
+        } else {
+            logger.error() << name << ": no 'model-primitives' found";
         }
     }
     else if (model == "X") def.model = BlockModel::xsprite;
     else if (model == "none") def.model = BlockModel::none;
     else {
-        std::cerr << "unknown model " << model << std::endl;
+        logger.error() << "unknown model " << model;
         def.model = BlockModel::none;
     }
 
@@ -156,12 +154,12 @@ void ContentLoader::loadBlock(Block& def, const std::string& name, const fs::pat
     std::string profile = "none";
     root->str("rotation", profile);
     def.rotatable = profile != "none";
-    if (profile == "pipe") {
+    if (profile == BlockRotProfile::PIPE_NAME) {
         def.rotations = BlockRotProfile::PIPE;
-    } else if (profile == "pane") {
+    } else if (profile == BlockRotProfile::PANE_NAME) {
         def.rotations = BlockRotProfile::PANE;
     } else if (profile != "none") {
-        std::cerr << "unknown rotation profile " << profile << std::endl;
+        logger.error() << "unknown rotation profile " << profile;
         def.rotatable = false;
     }
     
@@ -175,27 +173,35 @@ void ContentLoader::loadBlock(Block& def, const std::string& name, const fs::pat
             def.hitboxes[i].b = glm::vec3(box->num(3), box->num(4), box->num(5));
             def.hitboxes[i].b += def.hitboxes[i].a;
         }
+    } else if (auto boxarr = root->list("hitbox")){
+        AABB aabb;
+        aabb.a = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
+        aabb.b = glm::vec3(boxarr->num(3), boxarr->num(4), boxarr->num(5));
+        aabb.b += aabb.a;
+        def.hitboxes = { aabb };
+    } else if (!def.modelBoxes.empty()) {
+        def.hitboxes = def.modelBoxes;
     } else {
-        boxarr = root->list("hitbox");
-        if (boxarr) {
-            AABB aabb;
-            aabb.a = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
-            aabb.b = glm::vec3(boxarr->num(3), boxarr->num(4), boxarr->num(5));
-            aabb.b += aabb.a;
-            def.hitboxes = { aabb };
-        } else if (!def.modelBoxes.empty()) {
-            def.hitboxes = def.modelBoxes;
-        } else {
-            def.hitboxes = { AABB() };
-        }
+        def.hitboxes = { AABB() };
     }
 
     // block light emission [r, g, b] where r,g,b in range [0..15]
-    auto emissionarr = root->list("emission");
-    if (emissionarr) {
+    if (auto emissionarr = root->list("emission")) {
         def.emission[0] = emissionarr->num(0);
         def.emission[1] = emissionarr->num(1);
         def.emission[2] = emissionarr->num(2);
+    }
+
+    // block size
+    if (auto sizearr = root->list("size")) {
+        def.size.x = sizearr->num(0);
+        def.size.y = sizearr->num(1);
+        def.size.z = sizearr->num(2);
+        if (def.model == BlockModel::block && 
+           (def.size.x != 1 || def.size.y != 1 || def.size.z != 1)) {
+            def.model = BlockModel::aabb;
+            def.hitboxes = {AABB(def.size)};
+        }
     }
 
     // primitive properties
@@ -254,8 +260,8 @@ void ContentLoader::loadCustomBlockModel(Block& def, dynamic::Map* primitives) {
             /* Parse tetragon to points */
             auto tgonobj = modeltetragons->list(i);
             glm::vec3 p1(tgonobj->num(0), tgonobj->num(1), tgonobj->num(2)),
-                    xw(tgonobj->num(3), tgonobj->num(4), tgonobj->num(5)),
-                    yh(tgonobj->num(6), tgonobj->num(7), tgonobj->num(8));
+                      xw(tgonobj->num(3), tgonobj->num(4), tgonobj->num(5)),
+                      yh(tgonobj->num(6), tgonobj->num(7), tgonobj->num(8));
             def.modelExtraPoints.push_back(p1);
             def.modelExtraPoints.push_back(p1+xw);
             def.modelExtraPoints.push_back(p1+xw+yh);
@@ -279,7 +285,7 @@ void ContentLoader::loadItem(ItemDef& def, const std::string& name, const fs::pa
     } else if (iconTypeStr == "sprite") {
         def.iconType = item_icon_type::sprite;
     } else if (iconTypeStr.length()){
-        std::cerr << "unknown icon type" << iconTypeStr << std::endl;
+        logger.error() << name << ": unknown icon type" << iconTypeStr;
     }
     root->str("icon", def.icon);
     root->str("placing-block", def.placingBlock);

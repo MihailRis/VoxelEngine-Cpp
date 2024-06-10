@@ -17,10 +17,15 @@ class ContentIndices;
 class Chunk;
 class WorldFiles;
 class LevelEvents;
+class Block;
 
 /* Player-centred chunks matrix */
 class Chunks {
-    const ContentIndices* const contentIds;
+    const ContentIndices* const indices;
+
+    void eraseSegments(const Block* def, blockstate state, int x, int y, int z);
+    void repairSegments(const Block* def, blockstate state, int x, int y, int z);
+    void setRotationExtended(Block* def, blockstate state, glm::ivec3 origin, uint8_t rotation);
 public:
     std::vector<std::shared_ptr<Chunk>> chunks;
     std::vector<std::shared_ptr<Chunk>> chunksSecond;
@@ -40,10 +45,31 @@ public:
 
     Chunk* getChunk(int32_t x, int32_t z);
     Chunk* getChunkByVoxel(int32_t x, int32_t y, int32_t z);
-    voxel* get(int32_t x, int32_t y, int32_t z);
+    voxel* get(int32_t x, int32_t y, int32_t z) const;
+
+    inline voxel* get(glm::ivec3 pos) {
+        return get(pos.x, pos.y, pos.z);
+    }
+
     light_t getLight(int32_t x, int32_t y, int32_t z);
     ubyte getLight(int32_t x, int32_t y, int32_t z, int channel);
     void set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state);
+
+    /// @brief Seek for the extended block origin position
+    /// @param pos segment block position
+    /// @param def segment block definition
+    /// @param state segment block state
+    /// @return origin block position or `pos` if block is not extended
+    glm::ivec3 seekOrigin(glm::ivec3 pos, const Block* def, blockstate state);
+
+    /// @brief Check if required zone is replaceable
+    /// @param def definition of the block that requires a replaceable zone
+    /// @param state the block state
+    /// @param coord position of the zone start
+    /// @param ignore ignored block id (will be counted as replaceable)
+    bool checkReplaceability(const Block* def, blockstate state, glm::ivec3 coord, blockid_t ignore=0);
+
+    void setRotation(int32_t x, int32_t y, int32_t z, uint8_t rotation);
 
     voxel* rayCast(
         glm::vec3 start, 

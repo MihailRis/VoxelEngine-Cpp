@@ -27,6 +27,8 @@ BlocksRenderer::BlocksRenderer(
     const ContentGfxCache* cache,
     const EngineSettings* settings
 ) : content(content),
+    vertexBuffer(std::make_unique<float[]>(capacity)),
+    indexBuffer(std::make_unique<int[]>(capacity)),
     vertexOffset(0),
     indexOffset(0),
     indexSize(0),
@@ -34,16 +36,14 @@ BlocksRenderer::BlocksRenderer(
     cache(cache),
     settings(settings) 
 {
-    vertexBuffer = new float[capacity];
-    indexBuffer = new int[capacity];
-    voxelsBuffer = new VoxelsVolume(CHUNK_W + 2, CHUNK_H, CHUNK_D + 2);
+    voxelsBuffer = std::make_unique<VoxelsVolume>(
+        CHUNK_W + voxelBufferPadding*2, 
+        CHUNK_H, 
+        CHUNK_D + voxelBufferPadding*2);
     blockDefsCache = content->getIndices()->getBlockDefs();
 }
 
 BlocksRenderer::~BlocksRenderer() {
-    delete voxelsBuffer;
-    delete[] vertexBuffer;
-    delete[] indexBuffer;
 }
 
 /* Basic vertex add method */
@@ -60,10 +60,10 @@ void BlocksRenderer::vertex(const vec3& coord, float u, float v, const vec4& lig
         uint32_t integer;
     } compressed;
 
-    compressed.integer = (uint32_t(light.r * 255) & 0xff) << 24;
-    compressed.integer |= (uint32_t(light.g * 255) & 0xff) << 16;
-    compressed.integer |= (uint32_t(light.b * 255) & 0xff) << 8;
-    compressed.integer |= (uint32_t(light.a * 255) & 0xff);
+    compressed.integer = (static_cast<uint32_t>(light.r * 255) & 0xff) << 24;
+    compressed.integer |= (static_cast<uint32_t>(light.g * 255) & 0xff) << 16;
+    compressed.integer |= (static_cast<uint32_t>(light.b * 255) & 0xff) << 8;
+    compressed.integer |= (static_cast<uint32_t>(light.a * 255) & 0xff);
 
     vertexBuffer[vertexOffset++] = compressed.floating;
 }
@@ -78,15 +78,17 @@ void BlocksRenderer::index(int a, int b, int c, int d, int e, int f) {
     indexOffset += 4;
 }
 
-/* Add face with precalculated lights */
-void BlocksRenderer::face(const vec3& coord, 
-                          float w, float h, float d,
-                          const vec3& axisX,
-                          const vec3& axisY,
-                          const vec3& axisZ,
-                          const UVRegion& region,
-                          const vec4(&lights)[4],
-                          const vec4& tint) {
+/// @brief Add face with precalculated lights
+void BlocksRenderer::face(
+    const vec3& coord, 
+    float w, float h, float d,
+    const vec3& axisX,
+    const vec3& axisY,
+    const vec3& axisZ,
+    const UVRegion& region,
+    const vec4(&lights)[4],
+    const vec4& tint
+) {
     if (vertexOffset + BlocksRenderer::VERTEX_SIZE * 4 > capacity) {
         overflow = true;
         return;
@@ -102,23 +104,27 @@ void BlocksRenderer::face(const vec3& coord,
     index(0, 1, 3, 1, 2, 3);
 }
 
-void BlocksRenderer::vertex(const vec3& coord, 
-                            float u, float v,
-                            const vec4& tint,
-                            const vec3& axisX,
-                            const vec3& axisY,
-                            const vec3& axisZ) {
+void BlocksRenderer::vertex(
+    const vec3& coord, 
+    float u, float v,
+    const vec4& tint,
+    const vec3& axisX,
+    const vec3& axisY,
+    const vec3& axisZ
+) {
     vec3 pos = coord+axisZ*0.5f+(axisX+axisY)*0.5f;
     vec4 light = pickSoftLight(ivec3(round(pos.x), round(pos.y), round(pos.z)), axisX, axisY);
     vertex(coord, u, v, light * tint);
 }
 
-void BlocksRenderer::face(const vec3& coord,
-                          const vec3& X,
-                          const vec3& Y,
-                          const vec3& Z,
-                          const UVRegion& region,
-                          bool lights) {
+void BlocksRenderer::face(
+    const vec3& coord,
+    const vec3& X,
+    const vec3& Y,
+    const vec3& Z,
+    const UVRegion& region,
+    bool lights
+) {
     if (vertexOffset + BlocksRenderer::VERTEX_SIZE * 4 > capacity) {
         overflow = true;
         return;
@@ -148,14 +154,13 @@ void BlocksRenderer::face(const vec3& coord,
     index(0, 1, 2, 0, 2, 3);
 }
 
-void BlocksRenderer::tetragonicFace(const vec3& coord, const vec3& p1,
-    const vec3& p2, const vec3& p3, const vec3& p4,
-                                    const vec3& X,
-                                    const vec3& Y,
-                                    const vec3& Z,
-                                    const UVRegion& texreg,
-                                    bool lights) {
-    
+void BlocksRenderer::tetragonicFace(
+    const vec3& coord, 
+    const vec3& p1, const vec3& p2, const vec3& p3, const vec3& p4,
+    const vec3& X, const vec3& Y, const vec3& Z,
+    const UVRegion& texreg,
+    bool lights
+) {    
     const vec3 fp1 = (p1.x - 0.5f) * X + (p1.y - 0.5f) * Y + (p1.z - 0.5f) * Z;
     const vec3 fp2 = (p2.x - 0.5f) * X + (p2.y - 0.5f) * Y + (p2.z - 0.5f) * Z;
     const vec3 fp3 = (p3.x - 0.5f) * X + (p3.y - 0.5f) * Y + (p3.z - 0.5f) * Z;
@@ -182,17 +187,19 @@ void BlocksRenderer::tetragonicFace(const vec3& coord, const vec3& p1,
     index(0, 1, 3, 1, 2, 3);
 }
 
-void BlocksRenderer::blockXSprite(int x, int y, int z, 
-                                  const vec3& size, 
-                                  const UVRegion& texface1, 
-                                  const UVRegion& texface2, 
-                                  float spread) {
-    vec4 lights[]{
-            pickSoftLight({x, y + 1, z}, {1, 0, 0}, {0, 1, 0}),
-            pickSoftLight({x + 1, y + 1, z}, {1, 0, 0}, {0, 1, 0}),
-            pickSoftLight({x + 1, y + 1, z}, {1, 0, 0}, {0, 1, 0}),
-            pickSoftLight({x, y + 1, z}, {1, 0, 0}, {0, 1, 0}) };
-
+void BlocksRenderer::blockXSprite(
+    int x, int y, int z, 
+    const vec3& size, 
+    const UVRegion& texface1, 
+    const UVRegion& texface2, 
+    float spread
+) {
+    vec4 lights[] {
+        pickSoftLight({x, y + 1, z}, {1, 0, 0}, {0, 1, 0}),
+        pickSoftLight({x + 1, y + 1, z}, {1, 0, 0}, {0, 1, 0}),
+        pickSoftLight({x + 1, y + 1, z}, {1, 0, 0}, {0, 1, 0}),
+        pickSoftLight({x, y + 1, z}, {1, 0, 0}, {0, 1, 0})
+    };
     int rand = ((x * z + y) ^ (z * y - x)) * (z + y);
 
     float xs = ((float)(char)rand / 512) * spread;
@@ -218,7 +225,7 @@ void BlocksRenderer::blockXSprite(int x, int y, int z,
 
 // HINT: texture faces order: {east, west, bottom, top, south, north}
 
-/* AABB blocks render method */
+/// @brief AABB blocks render method
 void BlocksRenderer::blockAABB(
     const ivec3& icoord,
     const UVRegion(&texfaces)[6], 
@@ -259,8 +266,9 @@ void BlocksRenderer::blockAABB(
     face(coord,  Z*size.z,  Y*size.y, -X*size.x, texfaces[0], lights); // east
 }
 
-void BlocksRenderer::blockCustomModel(const ivec3& icoord,
-                                      const Block* block, ubyte rotation, bool lights) {
+void BlocksRenderer::blockCustomModel(
+    const ivec3& icoord, const Block* block, ubyte rotation, bool lights
+) {
     vec3 X(1, 0, 0);
     vec3 Y(0, 1, 0);
     vec3 Z(0, 0, 1);
@@ -347,8 +355,9 @@ bool BlocksRenderer::isOpen(int x, int y, int z, ubyte group) const {
     blockid_t id = voxelsBuffer->pickBlockId(chunk->x * CHUNK_W + x, 
                                              y, 
                                              chunk->z * CHUNK_D + z);
-    if (id == BLOCK_VOID)
+    if (id == BLOCK_VOID) {
         return false;
+    }
     const Block& block = *blockDefsCache[id];
     if ((block.drawGroup != group && block.lightPassing) || !block.rt.solid) {
         return true;
@@ -360,8 +369,9 @@ bool BlocksRenderer::isOpenForLight(int x, int y, int z) const {
     blockid_t id = voxelsBuffer->pickBlockId(chunk->x * CHUNK_W + x, 
                                              y, 
                                              chunk->z * CHUNK_D + z);
-    if (id == BLOCK_VOID)
+    if (id == BLOCK_VOID) {
         return false;
+    }
     const Block& block = *blockDefsCache[id];
     if (block.lightPassing) {
         return true;
@@ -371,15 +381,13 @@ bool BlocksRenderer::isOpenForLight(int x, int y, int z) const {
 
 vec4 BlocksRenderer::pickLight(int x, int y, int z) const {
     if (isOpenForLight(x, y, z)) {
-        light_t light = voxelsBuffer->pickLight(chunk->x * CHUNK_W + x, 
-                                                y, 
+        light_t light = voxelsBuffer->pickLight(chunk->x * CHUNK_W + x, y, 
                                                 chunk->z * CHUNK_D + z);
         return vec4(Lightmap::extract(light, 0) / 15.0f,
-            Lightmap::extract(light, 1) / 15.0f,
-            Lightmap::extract(light, 2) / 15.0f,
-            Lightmap::extract(light, 3) / 15.0f);
-    }
-    else {
+                    Lightmap::extract(light, 1) / 15.0f,
+                    Lightmap::extract(light, 2) / 15.0f,
+                    Lightmap::extract(light, 3) / 15.0f);
+    } else {
         return vec4(0.0f);
     }
 }
@@ -391,17 +399,20 @@ vec4 BlocksRenderer::pickLight(const ivec3& coord) const {
 vec4 BlocksRenderer::pickSoftLight(const ivec3& coord, 
                                    const ivec3& right, 
                                    const ivec3& up) const {
-    return (
-        pickLight(coord) +
-        pickLight(coord - right) +
-        pickLight(coord - right - up) +
-        pickLight(coord - up)) * 0.25f;
+    return (pickLight(coord) +
+            pickLight(coord - right) +
+            pickLight(coord - right - up) +
+            pickLight(coord - up)) * 0.25f;
 }
 
 vec4 BlocksRenderer::pickSoftLight(float x, float y, float z, 
-                                  const ivec3& right, 
-                                  const ivec3& up) const {
-    return pickSoftLight({int(round(x)), int(round(y)), int(round(z))}, right, up);
+                                   const ivec3& right, 
+                                   const ivec3& up) const {
+    return pickSoftLight({
+        static_cast<int>(round(x)), 
+        static_cast<int>(round(y)), 
+        static_cast<int>(round(z))},
+        right, up);
 }
 
 void BlocksRenderer::render(const voxel* voxels) {
@@ -411,48 +422,55 @@ void BlocksRenderer::render(const voxel* voxels) {
         for (int i = begin; i < end; i++) {
             const voxel& vox = voxels[i];
             blockid_t id = vox.id;
+            blockstate state = vox.state;
             const Block& def = *blockDefsCache[id];
-            if (id == 0 || def.drawGroup != drawGroup)
+            if (id == 0 || def.drawGroup != drawGroup || state.segment) {
                 continue;
-            const UVRegion texfaces[6]{ cache->getRegion(id, 0), 
-                                        cache->getRegion(id, 1),
-                                        cache->getRegion(id, 2), 
-                                        cache->getRegion(id, 3),
-                                        cache->getRegion(id, 4), 
-                                        cache->getRegion(id, 5)};
+            }
+            const UVRegion texfaces[6] {
+                cache->getRegion(id, 0), 
+                cache->getRegion(id, 1),
+                cache->getRegion(id, 2), 
+                cache->getRegion(id, 3),
+                cache->getRegion(id, 4), 
+                cache->getRegion(id, 5)
+            };
             int x = i % CHUNK_W;
             int y = i / (CHUNK_D * CHUNK_W);
             int z = (i / CHUNK_D) % CHUNK_W;
             switch (def.model) {
-            case BlockModel::block:
-                blockCube(x, y, z, texfaces, &def, vox.state, !def.rt.emissive);
-                break;
-            case BlockModel::xsprite: {
-                blockXSprite(x, y, z, vec3(1.0f), 
-                             texfaces[FACE_MX], texfaces[FACE_MZ], 1.0f);
-                break;
+                case BlockModel::block:
+                    blockCube(x, y, z, texfaces, &def, vox.state, !def.rt.emissive);
+                    break;
+                case BlockModel::xsprite: {
+                    blockXSprite(x, y, z, vec3(1.0f), 
+                                texfaces[FACE_MX], texfaces[FACE_MZ], 1.0f);
+                    break;
+                }
+                case BlockModel::aabb: {
+                    blockAABB(ivec3(x,y,z), texfaces, &def, vox.state.rotation, !def.rt.emissive);
+                    break;
+                }
+                case BlockModel::custom: {
+                    blockCustomModel(ivec3(x, y, z), &def, vox.state.rotation, !def.rt.emissive);
+                    break;
+                }
+                default:
+                    break;
             }
-            case BlockModel::aabb: {
-                blockAABB(ivec3(x,y,z), texfaces, &def, vox.state.rotation, !def.rt.emissive);
-                break;
-            }
-            case BlockModel::custom: {
-                blockCustomModel(ivec3(x, y, z), &def, vox.state.rotation, !def.rt.emissive);
-                break;
-            }
-            default:
-                break;
-            }
-            if (overflow)
+            if (overflow) {
                 return;
+            }
         }
     }
 }
 
 void BlocksRenderer::build(const Chunk* chunk, const ChunksStorage* chunks) {
     this->chunk = chunk;
-    voxelsBuffer->setPosition(chunk->x * CHUNK_W - 1, 0, chunk->z * CHUNK_D - 1);
-    chunks->getVoxels(voxelsBuffer, settings->graphics.backlight.get());
+    voxelsBuffer->setPosition(
+        chunk->x * CHUNK_W - voxelBufferPadding, 0,
+        chunk->z * CHUNK_D - voxelBufferPadding);
+    chunks->getVoxels(voxelsBuffer.get(), settings->graphics.backlight.get());
     overflow = false;
     vertexOffset = 0;
     indexOffset = indexSize = 0;
@@ -463,7 +481,9 @@ void BlocksRenderer::build(const Chunk* chunk, const ChunksStorage* chunks) {
 std::shared_ptr<Mesh> BlocksRenderer::createMesh() {
     const vattr attrs[]{ {3}, {2}, {1}, {0} };
     size_t vcount = vertexOffset / BlocksRenderer::VERTEX_SIZE;
-    return std::make_shared<Mesh>(vertexBuffer, vcount, indexBuffer, indexSize, attrs);
+    return std::make_shared<Mesh>(
+        vertexBuffer.get(), vcount, indexBuffer.get(), indexSize, attrs
+    );
 }
 
 std::shared_ptr<Mesh> BlocksRenderer::render(const Chunk* chunk, const ChunksStorage* chunks) {
@@ -472,5 +492,5 @@ std::shared_ptr<Mesh> BlocksRenderer::render(const Chunk* chunk, const ChunksSto
 }
 
 VoxelsVolume* BlocksRenderer::getVoxelsBuffer() const {
-    return voxelsBuffer;
+    return voxelsBuffer.get();
 }

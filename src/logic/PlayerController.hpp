@@ -76,12 +76,10 @@ class PlayerController {
     float stepsTimer = 0.0f;
     void onFootstep();
     void updateFootsteps(float delta);
-public:
-    static glm::ivec3 selectedBlockNormal;
-    static glm::vec3 selectedPointPosition;
-    static int selectedBlockId;
-    static int selectedBlockRotation;
+    void processRightClick(Block* def, Block* target);
 
+    voxel* updateSelection(float maxDistance);
+public:
     PlayerController(
         Level* level, 
         const EngineSettings& settings,
