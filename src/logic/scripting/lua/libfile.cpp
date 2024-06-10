@@ -1,4 +1,5 @@
 #include "lua_commons.hpp"
+#include "lua_util.hpp"
 #include "api_lua.hpp"
 #include "LuaState.hpp"
 #include "../scripting.hpp"
@@ -31,7 +32,7 @@ static fs::path resolve_path_soft(const std::string& path) {
 }
 
 static int l_file_find(lua_State* L) {
-    std::string path = state->requireString(1);
+    auto path = lua::require_string(L, 1);
     try {
         lua_pushstring(L, engine->getResPaths()->findRaw(path).c_str());
         return 1;
@@ -41,13 +42,13 @@ static int l_file_find(lua_State* L) {
 }
 
 static int l_file_resolve(lua_State* L) {
-    fs::path path = resolve_path(state->requireString(1));
+    fs::path path = resolve_path(lua::require_string(L, 1));
     lua_pushstring(L, path.u8string().c_str());
     return 1;
 }
 
 static int l_file_read(lua_State* L) {
-    fs::path path = resolve_path(state->requireString(1));
+    fs::path path = resolve_path(lua::require_string(L, 1));
     if (fs::is_regular_file(path)) {
         lua_pushstring(L, files::read_string(path).c_str());
         return 1;
@@ -55,50 +56,50 @@ static int l_file_read(lua_State* L) {
     throw std::runtime_error("file does not exists "+util::quote(path.u8string()));
 }
 
-static int l_file_write(lua_State*) {
-    fs::path path = resolve_path(state->requireString(1));
-    auto text = state->requireString(2);
+static int l_file_write(lua_State* L) {
+    fs::path path = resolve_path(lua::require_string(L, 1));
+    std::string text = lua::require_string(L, 2);
     files::write_string(path, text);
     return 1;    
 }
 
-static int l_file_remove(lua_State*) {
-    std::string rawpath = state->requireString(1);
+static int l_file_remove(lua_State* L) {
+    std::string rawpath = lua::require_string(L, 1);
     fs::path path = resolve_path(rawpath);
     auto entryPoint = rawpath.substr(0, rawpath.find(':'));
     if (entryPoint != "world") {
         throw std::runtime_error("access denied");
     }
-    return state->pushboolean(fs::remove(path));
+    return lua::pushboolean(L, fs::remove(path));
 }
 
-static int l_file_remove_tree(lua_State*) {
-    std::string rawpath = state->requireString(1);
+static int l_file_remove_tree(lua_State* L) {
+    std::string rawpath = lua::require_string(L, 1);
     fs::path path = resolve_path(rawpath);
     auto entryPoint = rawpath.substr(0, rawpath.find(':'));
     if (entryPoint != "world") {
         throw std::runtime_error("access denied");
     }
-    return state->pushinteger(fs::remove_all(path));
+    return lua::pushinteger(L, fs::remove_all(path));
 }
 
-static int l_file_exists(lua_State*) {
-    fs::path path = resolve_path_soft(state->requireString(1));
-    return state->pushboolean(fs::exists(path));
+static int l_file_exists(lua_State* L) {
+    fs::path path = resolve_path_soft(lua::require_string(L, 1));
+    return lua::pushboolean(L, fs::exists(path));
 }
 
-static int l_file_isfile(lua_State*) {
-    fs::path path = resolve_path_soft(state->requireString(1));
-    return state->pushboolean(fs::is_regular_file(path));
+static int l_file_isfile(lua_State* L) {
+    fs::path path = resolve_path_soft(lua::require_string(L, 1));
+    return lua::pushboolean(L, fs::is_regular_file(path));
 }
 
-static int l_file_isdir(lua_State*) {
-    fs::path path = resolve_path_soft(state->requireString(1));
-    return state->pushboolean(fs::is_directory(path));
+static int l_file_isdir(lua_State* L) {
+    fs::path path = resolve_path_soft(lua::require_string(L, 1));
+    return lua::pushboolean(L, fs::is_directory(path));
 }
 
 static int l_file_length(lua_State* L) {
-    fs::path path = resolve_path(state->requireString(1));
+    fs::path path = resolve_path(lua::require_string(L, 1));
     if (fs::exists(path)){
         lua_pushinteger(L, fs::file_size(path));
     } else {
@@ -108,19 +109,17 @@ static int l_file_length(lua_State* L) {
 }
 
 static int l_file_mkdir(lua_State* L) {
-    fs::path path = resolve_path(state->requireString(1));
-    lua_pushboolean(L, fs::create_directory(path));
-    return 1;    
+    fs::path path = resolve_path(lua::require_string(L, 1));
+    return lua::pushboolean(L, fs::create_directory(path));  
 }
 
 static int l_file_mkdirs(lua_State* L) {
-    fs::path path = resolve_path(state->requireString(1));
-    lua_pushboolean(L, fs::create_directories(path));
-    return 1;    
+    fs::path path = resolve_path(lua::require_string(L, 1));
+    return lua::pushboolean(L, fs::create_directories(path)); 
 }
 
 static int l_file_read_bytes(lua_State* L) {
-    fs::path path = resolve_path(state->requireString(1));
+    fs::path path = resolve_path(lua::require_string(L, 1));
     if (fs::is_regular_file(path)) {
         size_t length = static_cast<size_t>(fs::file_size(path));
 
@@ -162,7 +161,7 @@ static int l_file_write_bytes(lua_State* L) {
         throw std::runtime_error("string expected");
     }
 
-    fs::path path = resolve_path(state->requireString(pathIndex));
+    fs::path path = resolve_path(lua::require_string(L, pathIndex));
 
     std::vector<ubyte> bytes;
 
@@ -171,8 +170,7 @@ static int l_file_write_bytes(lua_State* L) {
     if(result != 1) {
         return result;
     } else {
-        lua_pushboolean(L, files::write_bytes(path, bytes.data(), bytes.size()));
-        return 1;
+        return lua::pushboolean(L, files::write_bytes(path, bytes.data(), bytes.size()));
     }
 }
 
@@ -187,7 +185,7 @@ static int l_file_list_all_res(lua_State* L, const std::string& path) {
 }
 
 static int l_file_list(lua_State* L) {
-    std::string dirname = state->requireString(1);
+    std::string dirname = lua::require_string(L, 1);
     if (dirname.find(':') == std::string::npos) {
         return l_file_list_all_res(L, dirname);
     }
@@ -208,7 +206,7 @@ static int l_file_list(lua_State* L) {
 }
 
 static int l_file_gzip_compress(lua_State* L) { 
-    fs::path path = resolve_path(state->requireString(1)); 
+    fs::path path = resolve_path(lua::require_string(L, 1)); 
     if (fs::is_regular_file(path)) { 
         size_t length = static_cast<size_t>(fs::file_size(path));
 
@@ -221,7 +219,7 @@ static int l_file_gzip_compress(lua_State* L) {
 }
 
 static int l_file_gzip_decompress(lua_State* L) { 
-    fs::path path = resolve_path(state->requireString(1)); 
+    fs::path path = resolve_path(lua::require_string(L, 1)); 
     if (fs::is_regular_file(path)) { 
         size_t length = static_cast<size_t>(fs::file_size(path));
 

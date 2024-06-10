@@ -17,65 +17,35 @@ namespace lua {
     };
 
     class LuaState {
-        lua_State* L;
+        lua_State* mainThread;
+
         int nextEnvironment = 1;
 
-        void logError(const std::string& text);
-        void removeLibFuncs(const char* libname, const char* funcs[]);
-        void createLibs();
+        void removeLibFuncs(lua_State*, const char* libname, const char* funcs[]);
+        void createLibs(lua_State* L);
 
-        std::shared_ptr<std::string> createLambdaHandler();
+        std::shared_ptr<std::string> createLambdaHandler(lua_State*);
     public:
         LuaState();
         ~LuaState();
 
         static std::string envName(int env);
-        void loadbuffer(int env, const std::string& src, const std::string& file);
-        int gettop() const;
-        int pushivec3(lua_Integer x, lua_Integer y, lua_Integer z);
-        int pushinteger(lua_Integer x);
-        int pushnumber(lua_Number x);
-        int pushboolean(bool x);
-        int pushstring(const std::string& str);
-        int pushenv(int env);
-        int pushvalue(int idx);
-        int pushvalue(const dynamic::Value& value);
-        int pushnil();
-        int pushglobals();
-        int pushcfunction(lua_CFunction function);
-        void pop(int n=1);
-        bool getfield(const std::string& name, int idx = -1);
-        void setfield(const std::string& name, int idx = -2);
-        bool toboolean(int idx);
-        lua_Integer tointeger(int idx);
-        lua_Number tonumber(int idx);
-        glm::vec2 tovec2(int idx);
-        glm::vec4 tocolor(int idx);
-        dynamic::Value tovalue(int idx);
-        const char* tostring(int idx);
-        bool isstring(int idx);
-        bool isfunction(int idx);
-        int call(int argc, int nresults=-1);
-        int callNoThrow(int argc);
-        int execute(int env, const std::string& src, const std::string& file="<string>");
-        int eval(int env, const std::string& src, const std::string& file="<eval>");
-        void openlib(const std::string& name, const luaL_Reg* libfuncs);
-        void addfunc(const std::string& name, lua_CFunction func);
-        bool getglobal(const std::string& name);
-        void setglobal(const std::string& name);
-        bool hasglobal(const std::string& name);
-        bool rename(const std::string& from, const std::string& to);
-        void remove(const std::string& name);;
-        runnable createRunnable();
-        scripting::common_func createLambda();
+        void loadbuffer(lua_State*, int env, const std::string& src, const std::string& file);
+        int pushenv(lua_State*, int env);
+        int execute(lua_State*, int env, const std::string& src, const std::string& file="<string>");
+        int eval(lua_State*, int env, const std::string& src, const std::string& file="<eval>");
+        void openlib(lua_State*, const std::string& name, const luaL_Reg* libfuncs);
+        void addfunc(lua_State*, const std::string& name, lua_CFunction func);
+        bool rename(lua_State*, const std::string& from, const std::string& to);
+        void remove(lua_State*, const std::string& name);;
+        runnable createRunnable(lua_State*);
+        scripting::common_func createLambda(lua_State*);
 
-        const char* requireString(int idx);
-
-        int createEnvironment(int parent);
-        void removeEnvironment(int id);
-        bool emit_event(const std::string& name, std::function<int(lua::LuaState*)> args=[](auto*){return 0;});
-        void dumpStack();
-        lua_State* getLua() const;
+        int createEnvironment(lua_State*, int parent);
+        void removeEnvironment(lua_State*, int id);
+        bool emitEvent(lua_State*, const std::string& name, std::function<int(lua_State*)> args=[](auto*){return 0;});
+        void dumpStack(lua_State*);
+        lua_State* getMainThread() const;
     };
 }
 

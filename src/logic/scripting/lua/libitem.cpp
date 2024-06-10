@@ -1,4 +1,5 @@
 #include "lua_commons.hpp"
+#include "lua_util.hpp"
 #include "api_lua.hpp"
 #include "LuaState.hpp"
 #include "../scripting.hpp"
@@ -8,12 +9,11 @@
 namespace scripting {
     extern lua::LuaState* state;
 }
-
 using namespace scripting;
 
 static int l_item_name(lua_State* L) {
-    auto indices = scripting::content->getIndices();
-    lua_Number id = lua_tointeger(L, 1);
+    auto indices = content->getIndices();
+    auto id = lua_tointeger(L, 1);
     if (static_cast<size_t>(id) >= indices->countItemDefs()) {
         return 0;
     }
@@ -23,15 +23,15 @@ static int l_item_name(lua_State* L) {
 }
 
 static int l_item_index(lua_State* L) {
-    auto name = scripting::state->requireString(1);
-    lua_pushinteger(L, scripting::content->requireItem(name).rt.id);
+    auto name = lua::require_string(L, 1);
+    lua_pushinteger(L, content->requireItem(name).rt.id);
     return 1;
 }
 
 static int l_item_stack_size(lua_State* L) {
-    auto indices = scripting::content->getIndices();
-    lua_Integer id = lua_tointeger(L, 1);
-    if (id < 0 || size_t(id) >= indices->countItemDefs()) {
+    auto indices = content->getIndices();
+    auto id = lua_tointeger(L, 1);
+    if (static_cast<size_t>(id) >= indices->countItemDefs()) {
         return 0;
     }
     auto def = indices->getItemDef(id);

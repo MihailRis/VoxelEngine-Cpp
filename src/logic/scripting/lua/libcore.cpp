@@ -1,4 +1,5 @@
 #include "lua_commons.hpp"
+#include "lua_util.hpp"
 #include "api_lua.hpp"
 #include "LuaState.hpp"
 
@@ -21,48 +22,49 @@
 namespace scripting {
     extern lua::LuaState* state;
 }
+using namespace scripting;
 
 static int l_new_world(lua_State* L) {
-    auto name = lua_tostring(L, 1);
-    auto seed = lua_tostring(L, 2);
-    auto generator = lua_tostring(L, 3);
-    auto controller = scripting::engine->getController();
+    auto name = lua::require_string(L, 1);
+    auto seed = lua::require_string(L, 2);
+    auto generator = lua::require_string(L, 3);
+    auto controller = engine->getController();
     controller->createWorld(name, seed, generator);
     return 0;
 }
 
 static int l_open_world(lua_State* L) {
-    auto name = lua_tostring(L, 1);
+    auto name = lua::require_string(L, 1);
 
-    auto controller = scripting::engine->getController();
+    auto controller = engine->getController();
     controller->openWorld(name, false);
     return 0;
 }
 
 static int l_reopen_world(lua_State*) {
-    auto controller = scripting::engine->getController();
-    controller->reopenWorld(scripting::level->getWorld());
+    auto controller = engine->getController();
+    controller->reopenWorld(level->getWorld());
     return 0;
 }
 
 static int l_close_world(lua_State* L) {
-    if (scripting::controller == nullptr) {
+    if (controller == nullptr) {
         throw std::runtime_error("no world open");
     }
     bool save_world = lua_toboolean(L, 1);
     if (save_world) {
-        scripting::controller->saveWorld();
+        controller->saveWorld();
     }
     // destroy LevelScreen and run quit callbacks
-    scripting::engine->setScreen(nullptr);
+    engine->setScreen(nullptr);
     // create and go to menu screen
-    scripting::engine->setScreen(std::make_shared<MenuScreen>(scripting::engine));
+    engine->setScreen(std::make_shared<MenuScreen>(engine));
     return 0;
 }
 
 static int l_delete_world(lua_State* L) {
-    auto name = lua_tostring(L, 1);
-    auto controller = scripting::engine->getController();
+    auto name = lua::require_string(L, 1);
+    auto controller = engine->getController();
     controller->deleteWorld(name);
     return 0;
 }
@@ -95,35 +97,35 @@ static int l_reconfig_packs(lua_State* L) {
         remPacks.emplace_back(lua_tostring(L, -1));
         lua_pop(L, 1);
     }
-    auto controller = scripting::engine->getController();
-    controller->reconfigPacks(scripting::controller, addPacks, remPacks);
+    auto engine_controller = engine->getController();
+    engine_controller->reconfigPacks(controller, addPacks, remPacks);
     return 0;
 }
 
 static int l_get_setting(lua_State* L) {
-    auto name = lua_tostring(L, 1);
-    const auto value = scripting::engine->getSettingsHandler().getValue(name);
-    scripting::state->pushvalue(value);
+    auto name = lua::require_string(L, 1);
+    const auto value = engine->getSettingsHandler().getValue(name);
+    lua::pushvalue(L, value);
     return 1;
 }
 
 static int l_set_setting(lua_State* L) {
-    auto name = lua_tostring(L, 1);
-    const auto value = scripting::state->tovalue(2);
-    scripting::engine->getSettingsHandler().setValue(name, value);
+    auto name = lua::require_string(L, 1);
+    const auto value = lua::tovalue(L, 2);
+    engine->getSettingsHandler().setValue(name, value);
     return 0;
 }
 
 static int l_str_setting(lua_State* L) {
-    auto name = lua_tostring(L, 1);
-    const auto string = scripting::engine->getSettingsHandler().toString(name);
-    scripting::state->pushstring(string);
+    auto name = lua::require_string(L, 1);
+    const auto string = engine->getSettingsHandler().toString(name);
+    lua::pushstring(L, string);
     return 1;
 }
 
 static int l_get_setting_info(lua_State* L) {
-    auto name = lua_tostring(L, 1);
-    auto setting = scripting::engine->getSettingsHandler().getSetting(name);
+    auto name = lua::require_string(L, 1);
+    auto setting = engine->getSettingsHandler().getSetting(name);
     lua_createtable(L, 0, 1);
     if (auto number = dynamic_cast<NumberSetting*>(setting)) {
         lua_pushnumber(L, number->getMin());

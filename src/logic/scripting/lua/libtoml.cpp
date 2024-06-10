@@ -1,4 +1,5 @@
 #include "api_lua.hpp"
+#include "lua_util.hpp"
 #include "lua_commons.hpp"
 #include "LuaState.hpp"
 
@@ -11,7 +12,7 @@ namespace scripting {
 using namespace scripting;
 
 static int l_toml_stringify(lua_State* L) {
-    auto value = state->tovalue(1);
+    auto value = lua::tovalue(L, 1);
 
     if (auto mapptr = std::get_if<dynamic::Map_sptr>(&value)) {
         auto string = toml::stringify(**mapptr);
@@ -22,11 +23,11 @@ static int l_toml_stringify(lua_State* L) {
     }
 }
 
-static int l_toml_parse(lua_State*) {
-    auto string = state->requireString(1);
+static int l_toml_parse(lua_State* L) {
+    auto string = lua::require_string(L, 1);
     auto element = toml::parse("<string>", string);
     auto value = std::make_unique<dynamic::Value>(element);
-    state->pushvalue(*value);
+    lua::pushvalue(L, *value);
     return 1;
 }
 

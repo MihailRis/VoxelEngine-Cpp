@@ -1,4 +1,5 @@
 #include "api_lua.hpp"
+#include "lua_util.hpp"
 #include "lua_commons.hpp"
 #include "LuaState.hpp"
 
@@ -10,7 +11,7 @@ namespace scripting {
 }
 
 static int l_json_stringify(lua_State* L) {
-    auto value = scripting::state->tovalue(1);
+    auto value = lua::tovalue(L, 1);
 
     if (auto mapptr = std::get_if<dynamic::Map_sptr>(&value)) {
         bool nice = lua_toboolean(L, 2);
@@ -23,9 +24,9 @@ static int l_json_stringify(lua_State* L) {
 }
 
 static int l_json_parse(lua_State* L) {
-    auto string = scripting::state->requireString(1);
+    auto string = lua::require_string(L, 1);
     auto element = json::parse("<string>", string);
-    scripting::state->pushvalue(element);
+    lua::pushvalue(L, element);
     return 1;
 }
 

@@ -1,6 +1,7 @@
 #include "scripting_hud.hpp"
 #include "scripting.hpp"
 
+#include "lua/lua_util.hpp"
 #include "lua/api_lua.hpp"
 #include "lua/LuaState.hpp"
 
@@ -13,6 +14,7 @@
 namespace scripting {
     extern lua::LuaState* state;
 }
+using namespace scripting;
 
 static debug::Logger logger("scripting-hud");
 
@@ -20,21 +22,21 @@ Hud* scripting::hud = nullptr;
 
 void scripting::on_frontend_init(Hud* hud) {
     scripting::hud = hud;
-    scripting::state->openlib("hud", hudlib);
+    state->openlib(state->getMainThread(), "hud", hudlib);
 
     for (auto& pack : scripting::engine->getContentPacks()) {
-        state->emit_event(pack.id + ".hudopen", [&] (lua::LuaState* state) {
-            state->pushinteger(hud->getPlayer()->getId());
-            return 1;            
+        state->emitEvent(state->getMainThread(), pack.id + ".hudopen", 
+        [&] (lua_State* L) {
+            return lua::pushinteger(L, hud->getPlayer()->getId());        
         });
     }
 }
 
 void scripting::on_frontend_close() {
     for (auto& pack : scripting::engine->getContentPacks()) {
-        state->emit_event(pack.id + ".hudclose", [&] (lua::LuaState* state) {
-            state->pushinteger(hud->getPlayer()->getId());
-            return 1;            
+        state->emitEvent(state->getMainThread(), pack.id + ".hudclose", 
+        [&] (lua_State* L) {
+            return lua::pushinteger(L, hud->getPlayer()->getId());            
         });
     }
     scripting::hud = nullptr;
@@ -45,8 +47,9 @@ void scripting::load_hud_script(const scriptenv& senv, const std::string& packid
     std::string src = files::read_string(file);
     logger.info() << "loading script " << file.u8string();
 
-    state->loadbuffer(env, src, file.u8string());
-    state->callNoThrow(0);
+    auto L = state->getMainThread();
+    state->loadbuffer(L, env, src, file.u8string());
+    lua::callNoThrow(L, 0);
 
     register_event(env, "init", packid+".init");
     register_event(env, "on_hud_open", packid+".hudopen");
