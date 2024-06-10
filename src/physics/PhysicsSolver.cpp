@@ -45,7 +45,7 @@ void PhysicsSolver::step(
         vel.z *= glm::max(0.0f, 1.0f - dt * linear_damping);
 
         pos += vel * dt + gravity * gravityScale * dt * dt * 0.5f;
-        if (hitbox->grounded) {
+        if (hitbox->grounded && pos.y < py) {
             pos.y = py;
         }
 
