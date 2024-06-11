@@ -30,12 +30,11 @@ jobs:
           cd ..
       - name: Configure and build project with CMake and vcpkg
         run: |
-          vcpkg install --triplet=x64-windows-static-md
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_STATIC=ON -DVCPKG_TARGET_TRIPLET=x64-windows-static-md ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..
           Remove-Item -Path CMakeFiles -Recurse -Force
-          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_STATIC=ON -DVCPKG_TARGET_TRIPLET=x64-windows-static-md ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..
           cmake --build . --config Release
       - name: Package for Windows
         run: |
