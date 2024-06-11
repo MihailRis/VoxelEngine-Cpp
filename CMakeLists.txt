@@ -109,6 +109,7 @@ if (WIN32)
         set(PNGLIB spng::spng)
       endif()
       set(VORBISLIB Vorbis::vorbis Vorbis::vorbisfile)
+    else()
       find_package(Lua REQUIRED)
       set(PNGLIB spng)
       set(VORBISLIB vorbis vorbisfile) # not tested
