@@ -8,12 +8,45 @@
 
 #include <stdexcept>
 
-#include <entt/entt.hpp> // workflows test
-
 static debug::Logger logger("main");
+
+#include <entt/entt.hpp>
+
+struct position {
+    float x;
+    float y;
+};
+
+struct velocity {
+    float dx;
+    float dy;
+};
+
+void update(entt::registry &registry) {
+    auto view = registry.view<const position, velocity>();
+
+    view.each([](const auto &pos, const auto &vel) {
+        logger.info() << pos.x << "," << pos.y << " - " << vel.dx << ", " << vel.dy;
+    });
+}
+
+int entt_test() {
+    entt::registry registry;
+
+    for(auto i = 0u; i < 10u; ++i) {
+        const auto entity = registry.create();
+        registry.emplace<position>(entity, i * 1.f, i * 1.f);
+        if(i % 2 == 0) { registry.emplace<velocity>(entity, i * .1f, i * .1f); }
+    }
+
+    update(registry);
+    return EXIT_SUCCESS;
+}
 
 int main(int argc, char** argv) {
     debug::Logger::init("latest.log");
+
+    return entt_test();
 
     EnginePaths paths;
     if (!parse_cmdline(argc, argv, paths))
