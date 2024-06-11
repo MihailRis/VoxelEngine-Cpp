@@ -13,6 +13,10 @@ Container::Container(glm::vec2 size) : UINode(size) {
     setColor(glm::vec4());
 }
 
+Container::~Container() {
+    Container::clear();
+}
+
 std::shared_ptr<UINode> Container::getAt(glm::vec2 pos, std::shared_ptr<UINode> self) {
     if (!isInteractive() || !isEnabled()) {
         return nullptr;
