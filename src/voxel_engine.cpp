@@ -13,9 +13,12 @@ static debug::Logger logger("main");
 int main(int argc, char** argv) {
     debug::Logger::init("latest.log");
 
+    logger.info() << "start of the log (argc=" << argc << ")";
     EnginePaths paths;
     if (!parse_cmdline(argc, argv, paths))
         return EXIT_SUCCESS;
+        
+    logger.info() << "configuring encoding";
 
     platform::configure_encoding();
     try {
