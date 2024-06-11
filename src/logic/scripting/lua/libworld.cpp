@@ -13,7 +13,7 @@
 using namespace scripting;
 namespace fs = std::filesystem;
 
-static int l_world_get_list(lua_State* L) {
+static int l_world_get_list(lua::State* L) {
     auto paths = engine->getPaths();
     auto worlds = paths->scanForWorlds();
 
@@ -40,25 +40,25 @@ static int l_world_get_list(lua_State* L) {
     return 1;
 }
 
-static int l_world_get_total_time(lua_State* L) {
+static int l_world_get_total_time(lua::State* L) {
     return lua::pushnumber(L, level->getWorld()->totalTime);
 }
 
-static int l_world_get_day_time(lua_State* L) {
+static int l_world_get_day_time(lua::State* L) {
     return lua::pushnumber(L, level->getWorld()->daytime);
 }
 
-static int l_world_set_day_time(lua_State* L) {
+static int l_world_set_day_time(lua::State* L) {
     auto value = lua::tonumber(L, 1);
     level->getWorld()->daytime = fmod(value, 1.0);
     return 0;
 }
 
-static int l_world_get_seed(lua_State* L) {
+static int l_world_get_seed(lua::State* L) {
     return lua::pushinteger(L, level->getWorld()->getSeed());
 }
 
-static int l_world_exists(lua_State* L) {
+static int l_world_exists(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto worldsDir = engine->getPaths()->getWorldFolder(name);
     return lua::pushboolean(L, fs::is_directory(worldsDir));

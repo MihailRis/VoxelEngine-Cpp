@@ -22,7 +22,7 @@ void scripting::on_frontend_init(Hud* hud) {
 
     for (auto& pack : engine->getContentPacks()) {
         lua::emit_event(lua::get_main_thread(), pack.id + ".hudopen", 
-        [&] (lua_State* L) {
+        [&] (lua::State* L) {
             return lua::pushinteger(L, hud->getPlayer()->getId());        
         });
     }
@@ -31,7 +31,7 @@ void scripting::on_frontend_init(Hud* hud) {
 void scripting::on_frontend_close() {
     for (auto& pack : engine->getContentPacks()) {
         lua::emit_event(lua::get_main_thread(), pack.id + ".hudclose", 
-        [&] (lua_State* L) {
+        [&] (lua::State* L) {
             return lua::pushinteger(L, hud->getPlayer()->getId());            
         });
     }

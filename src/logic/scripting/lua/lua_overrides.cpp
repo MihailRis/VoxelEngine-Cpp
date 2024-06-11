@@ -3,8 +3,8 @@
 #include <iostream>
 
 /// @brief Modified version of luaB_print from lbaselib.c
-int l_print(lua_State* L) {
-    int n = lua_gettop(L);  /* number of arguments */
+int l_print(lua::State* L) {
+    int n = lua::gettop(L);  /* number of arguments */
     lua::getglobal(L, "tostring");
     for (int i=1; i<=n; i++) {
         lua::pushvalue(L, -1);  /* function to be called */

@@ -17,7 +17,7 @@
 
 using namespace scripting;
 
-static int l_new_world(lua_State* L) {
+static int l_new_world(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto seed = lua::require_string(L, 2);
     auto generator = lua::require_string(L, 3);
@@ -26,7 +26,7 @@ static int l_new_world(lua_State* L) {
     return 0;
 }
 
-static int l_open_world(lua_State* L) {
+static int l_open_world(lua::State* L) {
     auto name = lua::require_string(L, 1);
 
     auto controller = engine->getController();
@@ -34,13 +34,13 @@ static int l_open_world(lua_State* L) {
     return 0;
 }
 
-static int l_reopen_world(lua_State*) {
+static int l_reopen_world(lua::State*) {
     auto controller = engine->getController();
     controller->reopenWorld(level->getWorld());
     return 0;
 }
 
-static int l_close_world(lua_State* L) {
+static int l_close_world(lua::State* L) {
     if (controller == nullptr) {
         throw std::runtime_error("no world open");
     }
@@ -55,14 +55,14 @@ static int l_close_world(lua_State* L) {
     return 0;
 }
 
-static int l_delete_world(lua_State* L) {
+static int l_delete_world(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto controller = engine->getController();
     controller->deleteWorld(name);
     return 0;
 }
 
-static int l_reconfig_packs(lua_State* L) {
+static int l_reconfig_packs(lua::State* L) {
     if (!lua::istable(L, 1)) {
         throw std::runtime_error("strings array expected as the first argument");
     }
@@ -95,26 +95,26 @@ static int l_reconfig_packs(lua_State* L) {
     return 0;
 }
 
-static int l_get_setting(lua_State* L) {
+static int l_get_setting(lua::State* L) {
     auto name = lua::require_string(L, 1);
     const auto value = engine->getSettingsHandler().getValue(name);
     return lua::pushvalue(L, value);
 }
 
-static int l_set_setting(lua_State* L) {
+static int l_set_setting(lua::State* L) {
     auto name = lua::require_string(L, 1);
     const auto value = lua::tovalue(L, 2);
     engine->getSettingsHandler().setValue(name, value);
     return 0;
 }
 
-static int l_str_setting(lua_State* L) {
+static int l_str_setting(lua::State* L) {
     auto name = lua::require_string(L, 1);
     const auto string = engine->getSettingsHandler().toString(name);
     return lua::pushstring(L, string);
 }
 
-static int l_get_setting_info(lua_State* L) {
+static int l_get_setting_info(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto setting = engine->getSettingsHandler().getSetting(name);
     lua::createtable(L, 0, 1);
@@ -136,16 +136,16 @@ static int l_get_setting_info(lua_State* L) {
     throw std::runtime_error("unsupported setting type");
 }
 
-static int l_quit(lua_State*) {
+static int l_quit(lua::State*) {
     Window::setShouldClose(true);
     return 0;
 }
 
-static int l_get_default_generator(lua_State* L) {
+static int l_get_default_generator(lua::State* L) {
     return lua::pushstring(L, WorldGenerators::getDefaultGeneratorID());
 }
 
-static int l_get_generators(lua_State* L) {
+static int l_get_generators(lua::State* L) {
     const auto& generators = WorldGenerators::getGeneratorsIDs();
     lua::createtable(L, generators.size(), 0);
 

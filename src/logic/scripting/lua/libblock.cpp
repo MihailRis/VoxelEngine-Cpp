@@ -11,7 +11,7 @@
 
 using namespace scripting;
 
-static Block* require_block(lua_State* L) {
+static Block* require_block(lua::State* L) {
     auto indices = content->getIndices();
     auto id = lua::tointeger(L, 1);
     if (static_cast<size_t>(id) >= indices->countBlockDefs()) {
@@ -20,21 +20,21 @@ static Block* require_block(lua_State* L) {
     return indices->getBlockDef(id);
 }
 
-static int l_name(lua_State* L) {
+static int l_name(lua::State* L) {
     if (auto def = require_block(L)) {
         return lua::pushstring(L, def->name);
     }
     return 0;
 }
 
-static int l_material(lua_State* L) {
+static int l_material(lua::State* L) {
     if (auto def = require_block(L)) {
         return lua::pushstring(L, def->material);
     }
     return 0;
 }
 
-static int l_is_solid_at(lua_State* L) {
+static int l_is_solid_at(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -42,30 +42,30 @@ static int l_is_solid_at(lua_State* L) {
     return lua::pushboolean(L, level->chunks->isSolidBlock(x, y, z));
 }
 
-static int l_count(lua_State* L) {
+static int l_count(lua::State* L) {
     return lua::pushinteger(L, indices->countBlockDefs());
 }
 
-static int l_index(lua_State* L) {
+static int l_index(lua::State* L) {
     auto name = lua::require_string(L, 1);
     return lua::pushinteger(L, content->requireBlock(name).rt.id);
 }
 
-static int l_is_extended(lua_State* L) {
+static int l_is_extended(lua::State* L) {
     if (auto def = require_block(L)) {
         return lua::pushboolean(L, def->rt.extended);
     }
     return 0;
 }
 
-static int l_get_size(lua_State* L) {
+static int l_get_size(lua::State* L) {
     if (auto def = require_block(L)) {
         return lua::pushivec3(L, def->size.x, def->size.y, def->size.z);
     }
     return 0;
 }
 
-static int l_is_segment(lua_State* L) {
+static int l_is_segment(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -73,7 +73,7 @@ static int l_is_segment(lua_State* L) {
     return lua::pushboolean(L, vox->state.segment);
 }
 
-static int l_seek_origin(lua_State* L) {
+static int l_seek_origin(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -82,7 +82,7 @@ static int l_seek_origin(lua_State* L) {
     return lua::pushivec3(L, level->chunks->seekOrigin({x, y, z}, def, vox->state));
 }
 
-static int l_set(lua_State* L) {
+static int l_set(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -103,7 +103,7 @@ static int l_set(lua_State* L) {
     return 0;
 }
 
-static int l_get(lua_State* L) {
+static int l_get(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -112,7 +112,7 @@ static int l_get(lua_State* L) {
     return lua::pushinteger(L, id);
 }
 
-static int l_get_x(lua_State* L) {
+static int l_get_x(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -129,7 +129,7 @@ static int l_get_x(lua_State* L) {
     }
 }
 
-static int l_get_y(lua_State* L) {
+static int l_get_y(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -146,7 +146,7 @@ static int l_get_y(lua_State* L) {
     }
 }
 
-static int l_get_z(lua_State* L) {
+static int l_get_z(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -163,7 +163,7 @@ static int l_get_z(lua_State* L) {
     }
 }
 
-static int l_get_rotation(lua_State* L) {
+static int l_get_rotation(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -172,7 +172,7 @@ static int l_get_rotation(lua_State* L) {
     return lua::pushinteger(L, rotation);
 }
 
-static int l_set_rotation(lua_State* L) {
+static int l_set_rotation(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -181,7 +181,7 @@ static int l_set_rotation(lua_State* L) {
     return 0;
 }
 
-static int l_get_states(lua_State* L) {
+static int l_get_states(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -190,7 +190,7 @@ static int l_get_states(lua_State* L) {
     return lua::pushinteger(L, states);
 }
 
-static int l_set_states(lua_State* L) {
+static int l_set_states(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -206,7 +206,7 @@ static int l_set_states(lua_State* L) {
     return 0;
 }
 
-static int l_get_user_bits(lua_State* L) {
+static int l_get_user_bits(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -222,7 +222,7 @@ static int l_get_user_bits(lua_State* L) {
     return lua::pushinteger(L, data);
 }
 
-static int l_set_user_bits(lua_State* L) {
+static int l_set_user_bits(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -245,14 +245,14 @@ static int l_set_user_bits(lua_State* L) {
     return 0; 
 }
 
-static int l_is_replaceable_at(lua_State* L) {
+static int l_is_replaceable_at(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
     return lua::pushboolean(L, level->chunks->isReplaceableBlock(x, y, z));
 }
 
-static int l_caption(lua_State* L) {
+static int l_caption(lua::State* L) {
     if (auto def = require_block(L)) {
         return lua::pushstring(L, def->caption);
     }

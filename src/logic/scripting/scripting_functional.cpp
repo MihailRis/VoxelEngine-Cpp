@@ -23,7 +23,7 @@ runnable scripting::create_runnable(
     }
 }
 
-static lua_State* process_callback(
+static lua::State* process_callback(
     const scriptenv& env,
     const std::string& src,
     const std::string& file

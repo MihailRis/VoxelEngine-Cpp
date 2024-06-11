@@ -23,7 +23,7 @@ static fs::path resolve_path_soft(const std::string& path) {
     return engine->getPaths()->resolve(path, false);
 }
 
-static int l_file_find(lua_State* L) {
+static int l_file_find(lua::State* L) {
     auto path = lua::require_string(L, 1);
     try {
         return lua::pushstring(L, engine->getResPaths()->findRaw(path));
@@ -32,12 +32,12 @@ static int l_file_find(lua_State* L) {
     }
 }
 
-static int l_file_resolve(lua_State* L) {
+static int l_file_resolve(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     return lua::pushstring(L, path.u8string());
 }
 
-static int l_file_read(lua_State* L) {
+static int l_file_read(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     if (fs::is_regular_file(path)) {
         return lua::pushstring(L, files::read_string(path));
@@ -45,14 +45,14 @@ static int l_file_read(lua_State* L) {
     throw std::runtime_error("file does not exists "+util::quote(path.u8string()));
 }
 
-static int l_file_write(lua_State* L) {
+static int l_file_write(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     std::string text = lua::require_string(L, 2);
     files::write_string(path, text);
     return 1;    
 }
 
-static int l_file_remove(lua_State* L) {
+static int l_file_remove(lua::State* L) {
     std::string rawpath = lua::require_string(L, 1);
     fs::path path = resolve_path(rawpath);
     auto entryPoint = rawpath.substr(0, rawpath.find(':'));
@@ -62,7 +62,7 @@ static int l_file_remove(lua_State* L) {
     return lua::pushboolean(L, fs::remove(path));
 }
 
-static int l_file_remove_tree(lua_State* L) {
+static int l_file_remove_tree(lua::State* L) {
     std::string rawpath = lua::require_string(L, 1);
     fs::path path = resolve_path(rawpath);
     auto entryPoint = rawpath.substr(0, rawpath.find(':'));
@@ -72,22 +72,22 @@ static int l_file_remove_tree(lua_State* L) {
     return lua::pushinteger(L, fs::remove_all(path));
 }
 
-static int l_file_exists(lua_State* L) {
+static int l_file_exists(lua::State* L) {
     fs::path path = resolve_path_soft(lua::require_string(L, 1));
     return lua::pushboolean(L, fs::exists(path));
 }
 
-static int l_file_isfile(lua_State* L) {
+static int l_file_isfile(lua::State* L) {
     fs::path path = resolve_path_soft(lua::require_string(L, 1));
     return lua::pushboolean(L, fs::is_regular_file(path));
 }
 
-static int l_file_isdir(lua_State* L) {
+static int l_file_isdir(lua::State* L) {
     fs::path path = resolve_path_soft(lua::require_string(L, 1));
     return lua::pushboolean(L, fs::is_directory(path));
 }
 
-static int l_file_length(lua_State* L) {
+static int l_file_length(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     if (fs::exists(path)){
         return lua::pushinteger(L, fs::file_size(path));
@@ -96,17 +96,17 @@ static int l_file_length(lua_State* L) {
     }
 }
 
-static int l_file_mkdir(lua_State* L) {
+static int l_file_mkdir(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     return lua::pushboolean(L, fs::create_directory(path));  
 }
 
-static int l_file_mkdirs(lua_State* L) {
+static int l_file_mkdirs(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     return lua::pushboolean(L, fs::create_directories(path)); 
 }
 
-static int l_file_read_bytes(lua_State* L) {
+static int l_file_read_bytes(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     if (fs::is_regular_file(path)) {
         size_t length = static_cast<size_t>(fs::file_size(path));
@@ -125,12 +125,12 @@ static int l_file_read_bytes(lua_State* L) {
     throw std::runtime_error("file does not exists "+util::quote(path.u8string()));   
 }
 
-static int read_bytes_from_table(lua_State* L, int tableIndex, std::vector<ubyte>& bytes) {
+static int read_bytes_from_table(lua::State* L, int tableIndex, std::vector<ubyte>& bytes) {
     if(!lua::istable(L, tableIndex)) {
         throw std::runtime_error("table expected");
     } else {
         lua::pushnil(L);
-        while(lua_next(L, tableIndex - 1) != 0) {
+        while(lua::next(L, tableIndex - 1) != 0) {
             const int byte = lua::tointeger(L, -1);
             if(byte < 0 || byte > 255) {
                 throw std::runtime_error("invalid byte '"+std::to_string(byte)+"'");
@@ -142,7 +142,7 @@ static int read_bytes_from_table(lua_State* L, int tableIndex, std::vector<ubyte
     }
 }
 
-static int l_file_write_bytes(lua_State* L) {
+static int l_file_write_bytes(lua::State* L) {
     int pathIndex = 1;
 
     if(!lua::isstring(L, pathIndex)) {
@@ -162,7 +162,7 @@ static int l_file_write_bytes(lua_State* L) {
     }
 }
 
-static int l_file_list_all_res(lua_State* L, const std::string& path) {
+static int l_file_list_all_res(lua::State* L, const std::string& path) {
     auto files = engine->getResPaths()->listdirRaw(path);
     lua::createtable(L, files.size(), 0);
     for (size_t i = 0; i < files.size(); i++) {
@@ -172,7 +172,7 @@ static int l_file_list_all_res(lua_State* L, const std::string& path) {
     return 1;
 }
 
-static int l_file_list(lua_State* L) {
+static int l_file_list(lua::State* L) {
     std::string dirname = lua::require_string(L, 1);
     if (dirname.find(':') == std::string::npos) {
         return l_file_list_all_res(L, dirname);
@@ -193,7 +193,7 @@ static int l_file_list(lua_State* L) {
     return 1;
 }
 
-static int l_file_gzip_compress(lua_State* L) { 
+static int l_file_gzip_compress(lua::State* L) { 
     fs::path path = resolve_path(lua::require_string(L, 1)); 
     if (fs::is_regular_file(path)) { 
         size_t length = static_cast<size_t>(fs::file_size(path));
@@ -205,7 +205,7 @@ static int l_file_gzip_compress(lua_State* L) {
     throw std::runtime_error("file does not exist " + util::quote(path.u8string())); 
 }
 
-static int l_file_gzip_decompress(lua_State* L) { 
+static int l_file_gzip_decompress(lua::State* L) { 
     fs::path path = resolve_path(lua::require_string(L, 1)); 
     if (fs::is_regular_file(path)) { 
         size_t length = static_cast<size_t>(fs::file_size(path));

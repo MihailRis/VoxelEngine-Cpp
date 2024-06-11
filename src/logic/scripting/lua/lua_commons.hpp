@@ -26,6 +26,10 @@ namespace lua {
     };
 
     void log_error(const std::string& text);
+
+    using State = lua_State;
+    using Number = lua_Number;
+    using Integer = lua_Integer;
 }
 
 #endif // LOGIC_SCRIPTING_LUA_HPP_

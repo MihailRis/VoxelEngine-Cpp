@@ -37,7 +37,7 @@ static void validate_slotid(int slotid, Inventory* inv) {
     }
 }
 
-static int l_inventory_get(lua_State* L) {
+static int l_inventory_get(lua::State* L) {
     auto invid = lua::tointeger(L, 1);
     auto slotid = lua::tointeger(L, 2);
     auto inv = get_inventory(invid);
@@ -48,7 +48,7 @@ static int l_inventory_get(lua_State* L) {
     return 2;
 }
 
-static int l_inventory_set(lua_State* L) {
+static int l_inventory_set(lua::State* L) {
     auto invid = lua::tointeger(L, 1);
     auto slotid = lua::tointeger(L, 2);
     auto itemid = lua::tointeger(L, 3);
@@ -63,13 +63,13 @@ static int l_inventory_set(lua_State* L) {
     return 0;
 }
 
-static int l_inventory_size(lua_State* L) {
+static int l_inventory_size(lua::State* L) {
     auto invid = lua::tointeger(L, 1);
     auto inv = get_inventory(invid);
     return lua::pushinteger(L, inv->size());
 }
 
-static int l_inventory_add(lua_State* L) {
+static int l_inventory_add(lua::State* L) {
     auto invid = lua::tointeger(L, 1);
     auto itemid = lua::tointeger(L, 2);
     auto count = lua::tointeger(L, 3);
@@ -81,7 +81,7 @@ static int l_inventory_add(lua_State* L) {
     return lua::pushinteger(L, item.getCount());
 }
 
-static int l_inventory_get_block(lua_State* L) {
+static int l_inventory_get_block(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -89,7 +89,7 @@ static int l_inventory_get_block(lua_State* L) {
     return lua::pushinteger(L, id);
 }
 
-static int l_inventory_bind_block(lua_State* L) {
+static int l_inventory_bind_block(lua::State* L) {
     auto id = lua::tointeger(L, 1);
     auto x = lua::tointeger(L, 2);
     auto y = lua::tointeger(L, 3);
@@ -98,7 +98,7 @@ static int l_inventory_bind_block(lua_State* L) {
     return 0;
 }
 
-static int l_inventory_unbind_block(lua_State* L) {
+static int l_inventory_unbind_block(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -106,7 +106,7 @@ static int l_inventory_unbind_block(lua_State* L) {
     return 0;
 }
 
-static int l_inventory_clone(lua_State* L) {
+static int l_inventory_clone(lua::State* L) {
     auto id = lua::tointeger(L, 1);
     auto clone = level->inventories->clone(id);
     if (clone == nullptr) {
@@ -115,7 +115,7 @@ static int l_inventory_clone(lua_State* L) {
     return lua::pushinteger(L, clone->getId());
 }
 
-static int l_inventory_move(lua_State* L) {
+static int l_inventory_move(lua::State* L) {
     auto invAid = lua::tointeger(L, 1);
     auto slotAid = lua::tointeger(L, 2);
     auto invA = get_inventory(invAid, 1);

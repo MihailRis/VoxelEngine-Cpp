@@ -10,18 +10,18 @@
 
 using namespace scripting;
 
-inline std::shared_ptr<Player> get_player(lua_State* L, int idx) {
+inline std::shared_ptr<Player> get_player(lua::State* L, int idx) {
     return level->getObject<Player>(lua::tointeger(L, idx));
 }
 
-static int l_player_get_pos(lua_State* L) {
+static int l_player_get_pos(lua::State* L) {
     if (auto player = get_player(L, 1)) {
         return lua::pushvec3(L, player->hitbox->position);
     }
     return 0;
 }
 
-static int l_player_set_pos(lua_State* L) {
+static int l_player_set_pos(lua::State* L) {
     auto player = get_player(L, 1);
     if (!player) {
         return 0;
@@ -33,14 +33,14 @@ static int l_player_set_pos(lua_State* L) {
     return 0;
 }
 
-static int l_player_get_vel(lua_State* L) {
+static int l_player_get_vel(lua::State* L) {
     if (auto player = get_player(L, 1)) {
         return lua::pushvec3(L, player->hitbox->velocity);
     }
     return 0;    
 }
 
-static int l_player_set_vel(lua_State* L) {
+static int l_player_set_vel(lua::State* L) {
     auto player = get_player(L, 1);
     if (!player) {
         return 0;
@@ -52,23 +52,23 @@ static int l_player_set_vel(lua_State* L) {
     return 0;
 }
 
-static int l_player_get_rot(lua_State* L) {
+static int l_player_get_rot(lua::State* L) {
     if (auto player = get_player(L, 1)) {
         return lua::pushvec3(L, player->cam);
     }
     return 0;
 }
 
-static int l_player_set_rot(lua_State* L) {
+static int l_player_set_rot(lua::State* L) {
     auto player = get_player(L, 1);
     if (!player) {
         return 0;
     }
     glm::vec3& cam = player->cam;
 
-    lua_Number x = lua::tonumber(L, 2);
-    lua_Number y = lua::tonumber(L, 3);
-    lua_Number z = cam.z;
+    auto x = lua::tonumber(L, 2);
+    auto y = lua::tonumber(L, 3);
+    auto z = cam.z;
     if (lua::isnumber(L, 4)) {
         z = lua::tonumber(L, 4);
     }
@@ -78,7 +78,7 @@ static int l_player_set_rot(lua_State* L) {
     return 0;
 }
 
-static int l_player_get_inv(lua_State* L) {
+static int l_player_get_inv(lua::State* L) {
     auto player = get_player(L, 1);
     if (!player) {
         return 0;
@@ -88,35 +88,35 @@ static int l_player_get_inv(lua_State* L) {
     return 2;
 }
 
-static int l_player_is_flight(lua_State* L) {
+static int l_player_is_flight(lua::State* L) {
     if (auto player = get_player(L, 1)) {
         return lua::pushboolean(L, player->isFlight());
     }
     return 0;
 }
 
-static int l_player_set_flight(lua_State* L) {
+static int l_player_set_flight(lua::State* L) {
     if (auto player = get_player(L, 1)) {
         player->setFlight(lua::toboolean(L, 2));
     }
     return 0;
 }
 
-static int l_player_is_noclip(lua_State* L) {
+static int l_player_is_noclip(lua::State* L) {
     if (auto player = get_player(L, 1)) {
         return lua::pushboolean(L, player->isNoclip());
     }
     return 0;
 }
 
-static int l_player_set_noclip(lua_State* L) {
+static int l_player_set_noclip(lua::State* L) {
     if (auto player = get_player(L, 1)) {
         player->setNoclip(lua::toboolean(L, 2));
     }
     return 0;
 }
 
-static int l_player_get_selected_block(lua_State* L) {
+static int l_player_get_selected_block(lua::State* L) {
     if (auto player = get_player(L, 1)) {
         if (player->selection.vox.id == BLOCK_VOID) {
             return 0;

@@ -8,14 +8,14 @@
 #include <iostream>
 
 static debug::Logger logger("lua-state");
-static lua_State* main_thread = nullptr;
+static lua::State* main_thread = nullptr;
 
 using namespace lua;
 
 luaerror::luaerror(const std::string& message) : std::runtime_error(message) {
 }
 
-static void remove_lib_funcs(lua_State* L, const char* libname, const char* funcs[]) {
+static void remove_lib_funcs(lua::State* L, const char* libname, const char* funcs[]) {
     if (getglobal(L, libname)) {
         for (uint i = 0; funcs[i]; i++) {
             pushnil(L);
@@ -24,7 +24,7 @@ static void remove_lib_funcs(lua_State* L, const char* libname, const char* func
     }
 }
 
-static void create_libs(lua_State* L) {
+static void create_libs(lua::State* L) {
     openlib(L, "audio", audiolib);
     openlib(L, "block", blocklib);
     openlib(L, "console", consolelib);
@@ -86,7 +86,7 @@ void lua::finalize() {
     lua_close(main_thread);
 }
 
-bool lua::emit_event(lua_State* L, const std::string &name, std::function<int(lua_State*)> args) {
+bool lua::emit_event(lua::State* L, const std::string &name, std::function<int(lua::State*)> args) {
     getglobal(L, "events");
     getfield(L, "emit");
     pushstring(L, name);
@@ -96,6 +96,6 @@ bool lua::emit_event(lua_State* L, const std::string &name, std::function<int(lu
     return result;
 }
 
-lua_State* lua::get_main_thread() {
+lua::State* lua::get_main_thread() {
     return main_thread;
 }

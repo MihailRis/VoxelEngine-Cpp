@@ -6,7 +6,7 @@
 
 using namespace scripting;
 
-static int l_add_command(lua_State* L) {
+static int l_add_command(lua::State* L) {
     if (!lua::isfunction(L, 3)) {
         throw std::runtime_error("invalid callback");
     }
@@ -26,21 +26,21 @@ static int l_add_command(lua_State* L) {
     return 0;
 }
 
-static int l_execute(lua_State* L) {
+static int l_execute(lua::State* L) {
     auto prompt = lua::require_string(L, 1);
     auto result = engine->getCommandsInterpreter()->execute(prompt);
     lua::pushvalue(L, result);
     return 1;
 }
 
-static int l_set(lua_State* L) {
+static int l_set(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto value = lua::tovalue(L, 2);
     (*engine->getCommandsInterpreter())[name] = value;
     return 0;
 }
 
-static int l_get_commands_list(lua_State* L) {
+static int l_get_commands_list(lua::State* L) {
     auto interpreter = engine->getCommandsInterpreter();
     auto repo = interpreter->getRepository();
     const auto& commands = repo->getCommands();
@@ -54,7 +54,7 @@ static int l_get_commands_list(lua_State* L) {
     return 1;
 }
 
-static int l_get_command_info(lua_State* L) {
+static int l_get_command_info(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto interpreter = engine->getCommandsInterpreter();
     auto repo = interpreter->getRepository();

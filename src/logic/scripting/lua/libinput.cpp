@@ -13,17 +13,17 @@ namespace scripting {
 }
 using namespace scripting;
 
-static int l_keycode(lua_State* L) {
+static int l_keycode(lua::State* L) {
     auto name = lua::require_string(L, 1);
     return lua::pushinteger(L, static_cast<int>(input_util::keycode_from(name)));
 }
 
-static int l_mousecode(lua_State* L) {
+static int l_mousecode(lua::State* L) {
     auto name = lua::require_string(L, 1);
     return lua::pushinteger(L, static_cast<int>(input_util::mousecode_from(name)));
 }
 
-static int l_add_callback(lua_State* L) {
+static int l_add_callback(lua::State* L) {
     auto bindname = lua::require_string(L, 1);
     const auto& bind = Events::bindings.find(bindname);
     if (bind == Events::bindings.end()) {
@@ -44,11 +44,11 @@ static int l_add_callback(lua_State* L) {
     return 0;
 }
 
-static int l_get_mouse_pos(lua_State* L) {
+static int l_get_mouse_pos(lua::State* L) {
     return lua::pushvec2_arr(L, Events::cursor);
 }
 
-static int l_get_bindings(lua_State* L) {
+static int l_get_bindings(lua::State* L) {
     auto& bindings = Events::bindings;
     lua::createtable(L, bindings.size(), 0);
 

@@ -23,21 +23,21 @@ namespace scripting {
 }
 using namespace scripting;
 
-static int l_hud_open_inventory(lua_State*) {
+static int l_hud_open_inventory(lua::State*) {
     if (!hud->isInventoryOpen()) {
         hud->openInventory();
     }
     return 0;
 }
 
-static int l_hud_close_inventory(lua_State*) {
+static int l_hud_close_inventory(lua::State*) {
     if (hud->isInventoryOpen()) {
         hud->closeInventory();
     }
     return 0;
 }
 
-static int l_hud_open_block(lua_State* L) {
+static int l_hud_open_block(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -66,7 +66,7 @@ static int l_hud_open_block(lua_State* L) {
     return 2;
 }
 
-static int l_hud_show_overlay(lua_State* L) {
+static int l_hud_show_overlay(lua::State* L) {
     auto name = lua::tostring(L, 1);
     bool playerInventory = lua::toboolean(L, 2);
 
@@ -88,29 +88,29 @@ static UiDocument* require_layout(const char* name) {
     return layout;
 }
 
-static int l_hud_open_permanent(lua_State* L) {
+static int l_hud_open_permanent(lua::State* L) {
     auto layout = require_layout(lua::tostring(L, 1));
     hud->openPermanent(layout);
     return 0;
 }
 
-static int l_hud_close(lua_State* L) {
+static int l_hud_close(lua::State* L) {
     auto layout = require_layout(lua::tostring(L, 1));
     hud->remove(layout->getRoot());
     return 0;
 }
 
-static int l_hud_pause(lua_State*) {
+static int l_hud_pause(lua::State*) {
     hud->setPause(true);
     return 0;
 }
 
-static int l_hud_resume(lua_State*) {
+static int l_hud_resume(lua::State*) {
     hud->setPause(false);
     return 0;
 }
 
-static int l_hud_get_block_inventory(lua_State* L) {
+static int l_hud_get_block_inventory(lua::State* L) {
     auto inventory = hud->getBlockInventory();
     if (inventory == nullptr) {
         return lua::pushinteger(L, 0);
@@ -119,7 +119,7 @@ static int l_hud_get_block_inventory(lua_State* L) {
     }
 }
 
-static int l_hud_get_player(lua_State* L) {
+static int l_hud_get_player(lua::State* L) {
     auto player = hud->getPlayer();
     return lua::pushinteger(L, player->getId());
 }

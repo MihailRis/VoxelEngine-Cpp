@@ -14,7 +14,7 @@
 
 using namespace scripting;
 
-static int l_pack_get_folder(lua_State* L) {
+static int l_pack_get_folder(lua::State* L) {
     std::string packName = lua::tostring(L, 1);
     if (packName == "core") {
         auto folder = engine->getPaths()->getResources().u8string()+"/";
@@ -29,7 +29,7 @@ static int l_pack_get_folder(lua_State* L) {
 }
 
 /// @brief pack.get_installed() -> array<string>
-static int l_pack_get_installed(lua_State* L) {
+static int l_pack_get_installed(lua::State* L) {
     auto& packs = engine->getContentPacks();
     lua::createtable(L, packs.size(), 0);
     for (size_t i = 0; i < packs.size(); i++) {
@@ -40,7 +40,7 @@ static int l_pack_get_installed(lua_State* L) {
 }
 
 /// @brief pack.get_available() -> array<string>
-static int l_pack_get_available(lua_State* L) {
+static int l_pack_get_available(lua::State* L) {
     fs::path worldFolder("");
     if (level) {
         worldFolder = level->getWorld()->wfile->getFolder();
@@ -62,7 +62,7 @@ static int l_pack_get_available(lua_State* L) {
     return 1;
 }
 
-static int l_pack_get_info(lua_State* L, const ContentPack& pack, const Content* content) {
+static int l_pack_get_info(lua::State* L, const ContentPack& pack, const Content* content) {
     lua::createtable(L, 0, 5);
 
     lua::pushstring(L, pack.id);
@@ -123,7 +123,7 @@ static int l_pack_get_info(lua_State* L, const ContentPack& pack, const Content*
 ///     version: str,
 ///     [optional] has_indices: bool
 /// } or nil
-static int l_pack_get_info(lua_State* L) {
+static int l_pack_get_info(lua::State* L) {
     auto packid = lua::tostring(L, 1);
     
     auto content = engine->getContent();
@@ -149,7 +149,7 @@ static int l_pack_get_info(lua_State* L) {
     return l_pack_get_info(L, pack, content);
 }
 
-static int l_pack_get_base_packs(lua_State* L) {
+static int l_pack_get_base_packs(lua::State* L) {
     auto& packs = engine->getBasePacks();
     lua::createtable(L, packs.size(), 0);
     for (size_t i = 0; i < packs.size(); i++) {

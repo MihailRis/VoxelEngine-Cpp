@@ -3,7 +3,7 @@
 #include "../../../coders/json.hpp"
 #include "../../../data/dynamic.hpp"
 
-static int l_json_stringify(lua_State* L) {
+static int l_json_stringify(lua::State* L) {
     auto value = lua::tovalue(L, 1);
 
     if (auto mapptr = std::get_if<dynamic::Map_sptr>(&value)) {
@@ -15,7 +15,7 @@ static int l_json_stringify(lua_State* L) {
     }
 }
 
-static int l_json_parse(lua_State* L) {
+static int l_json_parse(lua::State* L) {
     auto string = lua::require_string(L, 1);
     auto element = json::parse("<string>", string);
     return lua::pushvalue(L, element);

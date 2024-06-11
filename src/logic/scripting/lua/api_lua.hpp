@@ -24,6 +24,6 @@ extern const luaL_Reg tomllib [];
 extern const luaL_Reg worldlib [];
 
 // Lua Overrides
-extern int l_print(lua_State* L);
+extern int l_print(lua::State* L);
 
 #endif // LOGIC_SCRIPTING_API_LUA_HPP_

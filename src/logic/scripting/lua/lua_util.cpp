@@ -13,7 +13,7 @@ std::string lua::env_name(int env) {
     return "_ENV"+util::mangleid(env);
 }
 
-int lua::pushvalue(lua_State* L, const dynamic::Value& value) {
+int lua::pushvalue(State* L, const dynamic::Value& value) {
     using namespace dynamic;
 
     if (auto* flag = std::get_if<bool>(&value)) {
@@ -44,15 +44,15 @@ int lua::pushvalue(lua_State* L, const dynamic::Value& value) {
     return 1;
 }
 
-std::wstring lua::require_wstring(lua_State* L, int idx) {
-    return util::str2wstr_utf8(lua::require_string(L, idx));
+std::wstring lua::require_wstring(State* L, int idx) {
+    return util::str2wstr_utf8(require_string(L, idx));
 }
 
-int lua::pushwstring(lua_State* L, const std::wstring& str) {
-    return lua::pushstring(L, util::wstr2str_utf8(str));
+int lua::pushwstring(State* L, const std::wstring& str) {
+    return pushstring(L, util::wstr2str_utf8(str));
 }
 
-dynamic::Value lua::tovalue(lua_State* L, int idx) {
+dynamic::Value lua::tovalue(State* L, int idx) {
     using namespace dynamic;
     auto type = lua::type(L, idx);
     switch (type) {
@@ -64,7 +64,7 @@ dynamic::Value lua::tovalue(lua_State* L, int idx) {
         case LUA_TNUMBER: {
             auto number = tonumber(L, idx);
             auto integer = tointeger(L, idx);
-            if (number == static_cast<lua_Number>(integer)) {
+            if (number == static_cast<Number>(integer)) {
                 return integer;
             } else {
                 return number;
@@ -73,7 +73,7 @@ dynamic::Value lua::tovalue(lua_State* L, int idx) {
         case LUA_TSTRING:
             return std::string(tostring(L, idx));
         case LUA_TTABLE: {
-            int len = lua::objlen(L, idx);
+            int len = objlen(L, idx);
             if (len) {
                 // array
                 auto list = create_list();
@@ -88,7 +88,7 @@ dynamic::Value lua::tovalue(lua_State* L, int idx) {
                 auto map = create_map();
                 pushvalue(L, idx);
                 pushnil(L);
-                while (lua_next(L, -2)) {
+                while (next(L, -2)) {
                     pushvalue(L, -2);
                     auto key = tostring(L, -1);
                     map->put(key, tovalue(L, -2));
@@ -105,14 +105,14 @@ dynamic::Value lua::tovalue(lua_State* L, int idx) {
     }
 }
 
-int lua::call(lua_State* L, int argc, int nresults) {
+int lua::call(State* L, int argc, int nresults) {
     if (lua_pcall(L, argc, nresults, 0)) {
         throw luaerror(tostring(L, -1));
     }
     return 1;
 }
 
-int lua::call_nothrow(lua_State* L, int argc) {
+int lua::call_nothrow(State* L, int argc) {
     if (lua_pcall(L, argc, LUA_MULTRET, 0)) {
         log_error(tostring(L, -1));
         return 0;
@@ -120,7 +120,7 @@ int lua::call_nothrow(lua_State* L, int argc) {
     return 1;
 }
 
-void lua::dump_stack(lua_State* L) {
+void lua::dump_stack(State* L) {
     int top = gettop(L);
     for (int i = 1; i <= top; i++) {
         std::cout << std::setw(3) << i << std::setw(20) << luaL_typename(L, i) << std::setw(30);
@@ -145,7 +145,7 @@ void lua::dump_stack(lua_State* L) {
     }
 }
 
-static std::shared_ptr<std::string> createLambdaHandler(lua_State* L) {
+static std::shared_ptr<std::string> createLambdaHandler(State* L) {
     auto ptr = reinterpret_cast<ptrdiff_t>(topointer(L, -1));
     auto name = util::mangleid(ptr);
     getglobal(L, LAMBDAS_TABLE);
@@ -162,16 +162,16 @@ static std::shared_ptr<std::string> createLambdaHandler(lua_State* L) {
     });
 }
 
-runnable lua::create_runnable(lua_State* L) {
+runnable lua::create_runnable(State* L) {
     auto funcptr = createLambdaHandler(L);
     return [=]() {
-        lua_getglobal(L, LAMBDAS_TABLE.c_str());
-        lua_getfield(L, -1, funcptr->c_str());
+        getglobal(L, LAMBDAS_TABLE);
+        getfield(L, *funcptr);
         call_nothrow(L, 0);
     };
 }
 
-scripting::common_func lua::create_lambda(lua_State* L) {
+scripting::common_func lua::create_lambda(State* L) {
     auto funcptr = createLambdaHandler(L);
     return [=](const std::vector<dynamic::Value>& args) {
         getglobal(L, LAMBDAS_TABLE);
@@ -188,7 +188,7 @@ scripting::common_func lua::create_lambda(lua_State* L) {
     };
 }
 
-int lua::createEnvironment(lua_State* L, int parent) {
+int lua::createEnvironment(State* L, int parent) {
     int id = nextEnvironment++;
 
     // local env = {}
@@ -204,7 +204,7 @@ int lua::createEnvironment(lua_State* L, int parent) {
         }
     }
     setfield(L, "__index");
-    lua_setmetatable(L, -2);
+    setmetatable(L);
 
     // envname = env
     setglobal(L, env_name(id));
@@ -212,7 +212,7 @@ int lua::createEnvironment(lua_State* L, int parent) {
 }
 
 
-void lua::removeEnvironment(lua_State* L, int id) {
+void lua::removeEnvironment(State* L, int id) {
     if (id == 0) {
         return;
     }
