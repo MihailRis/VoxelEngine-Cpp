@@ -8,6 +8,8 @@
 
 #include <stdexcept>
 
+#include <entt/entt.hpp> // workflows test
+
 static debug::Logger logger("main");
 
 int main(int argc, char** argv) {
