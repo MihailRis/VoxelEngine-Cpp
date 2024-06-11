@@ -29,6 +29,14 @@ cmake --build .
 
 ## Install libs:
 
+#### Install EnTT
+```sh
+git clone https://github.com/skypjack/entt.git
+cd entt/build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+sudo make install
+```
+
 #### Debian-based distro:
 ```sh
 sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev libvorbis-dev
@@ -59,7 +67,7 @@ sudo pacman -S glfw-wayland glew glm libpng libvorbis openal luajit
 #### macOS:
 
 ```
-brew install glfw3 glew glm libpng libvorbis lua luajit openal-soft
+brew install glfw3 glew glm libpng libvorbis lua luajit openal-soft skypjack/entt/entt
 ```
 
 If homebrew for some reason could not install the necessary packages: ```lua luajit openal-soft```, then download, install and compile them manually (Lua, LuaJIT and OpenAL).
