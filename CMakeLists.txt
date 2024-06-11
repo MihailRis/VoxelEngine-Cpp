@@ -84,7 +84,9 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenAL REQUIRED)
 find_package(ZLIB REQUIRED)
-find_package(EnTT REQUIRED)
+if (NOT APPLE)
+    find_package(EnTT REQUIRED)
+endif()
 
 if (WIN32)
     if(VOXELENGINE_BUILD_WINDOWS_VCPKG)
@@ -138,7 +140,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 include_directories(${LUA_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ZLIB::ZLIB ${VORBISLIB} ${PNGLIB} ${LUA_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ZLIB::ZLIB EnTT::EnTT ${VORBISLIB} ${PNGLIB} ${LUA_LIBRARIES} ${CMAKE_DL_LIBS})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
