@@ -14,8 +14,8 @@ vec4 apply_vignette(vec4 color)
     vec2 position = (gl_FragCoord.xy / u_screenSize) - vec2(0.5);
     float dist = length(position);
 
-    float radius = 0.88;
-    float softness = 0.365;
+    float radius = 2.0;
+    float softness = 1.7;
     float vignette = smoothstep(radius, radius - softness, dist);
 
     color.rgb = color.rgb - (1.0 - vignette);
