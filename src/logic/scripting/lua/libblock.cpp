@@ -1,8 +1,4 @@
-#include "lua_commons.hpp"
-
 #include "api_lua.hpp"
-#include "lua_util.hpp"
-#include "../scripting.hpp"
 
 #include "../../../world/Level.hpp"
 #include "../../../voxels/Chunks.hpp"
@@ -279,27 +275,27 @@ static int l_caption(lua_State* L) {
 }
 
 const luaL_Reg blocklib [] = {
-    {"index", lua_wrap_errors<l_index>},
-    {"name", lua_wrap_errors<l_name>},
-    {"material", lua_wrap_errors<l_material>},
-    {"caption", lua_wrap_errors<l_caption>},
-    {"defs_count", lua_wrap_errors<l_count>},
-    {"is_solid_at", lua_wrap_errors<l_is_solid_at>},
-    {"is_replaceable_at", lua_wrap_errors<l_is_replaceable_at>},
-    {"set", lua_wrap_errors<l_set>},
-    {"get", lua_wrap_errors<l_get>},
-    {"get_X", lua_wrap_errors<l_get_x>},
-    {"get_Y", lua_wrap_errors<l_get_y>},
-    {"get_Z", lua_wrap_errors<l_get_z>},
-    {"get_states", lua_wrap_errors<l_get_states>},
-    {"set_states", lua_wrap_errors<l_set_states>},
-    {"get_rotation", lua_wrap_errors<l_get_rotation>},
-    {"set_rotation", lua_wrap_errors<l_set_rotation>},
-    {"get_user_bits", lua_wrap_errors<l_get_user_bits>},
-    {"set_user_bits", lua_wrap_errors<l_set_user_bits>},
-    {"is_extended", lua_wrap_errors<l_is_extended>},
-    {"get_size", lua_wrap_errors<l_get_size>},
-    {"is_segment", lua_wrap_errors<l_is_segment>},
-    {"seek_origin", lua_wrap_errors<l_seek_origin>},
+    {"index", lua::wrap<l_index>},
+    {"name", lua::wrap<l_name>},
+    {"material", lua::wrap<l_material>},
+    {"caption", lua::wrap<l_caption>},
+    {"defs_count", lua::wrap<l_count>},
+    {"is_solid_at", lua::wrap<l_is_solid_at>},
+    {"is_replaceable_at", lua::wrap<l_is_replaceable_at>},
+    {"set", lua::wrap<l_set>},
+    {"get", lua::wrap<l_get>},
+    {"get_X", lua::wrap<l_get_x>},
+    {"get_Y", lua::wrap<l_get_y>},
+    {"get_Z", lua::wrap<l_get_z>},
+    {"get_states", lua::wrap<l_get_states>},
+    {"set_states", lua::wrap<l_set_states>},
+    {"get_rotation", lua::wrap<l_get_rotation>},
+    {"set_rotation", lua::wrap<l_set_rotation>},
+    {"get_user_bits", lua::wrap<l_get_user_bits>},
+    {"set_user_bits", lua::wrap<l_set_user_bits>},
+    {"is_extended", lua::wrap<l_is_extended>},
+    {"get_size", lua::wrap<l_get_size>},
+    {"is_segment", lua::wrap<l_is_segment>},
+    {"seek_origin", lua::wrap<l_seek_origin>},
     {NULL, NULL}
 };

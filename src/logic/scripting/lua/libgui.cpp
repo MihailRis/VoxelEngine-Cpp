@@ -1,9 +1,5 @@
-#include "lua_commons.hpp"
 #include "api_lua.hpp"
-#include "lua_util.hpp"
-#include "LuaState.hpp"
 
-#include "../scripting.hpp"
 #include "../../../engine.hpp"
 #include "../../../assets/Assets.hpp"
 #include "../../../items/Inventories.hpp"
@@ -23,17 +19,12 @@
 #include "../../../world/Level.hpp"
 
 using namespace gui;
-
-namespace scripting {
-    extern lua::LuaState* state;
-}
+using namespace scripting;
 
 struct DocumentNode {
     UiDocument* document;
     std::shared_ptr<UINode> node;
 };
-
-using namespace scripting;
 
 static DocumentNode getDocumentNode(lua_State*, const std::string& name, const std::string& nodeName) {
     auto doc = engine->getAssets()->getLayout(name);
@@ -115,10 +106,10 @@ static int l_container_clear(lua_State* L) {
 
 static int l_container_set_interval(lua_State* L) {
     auto node = getDocumentNode(L, 1);
-    auto interval = lua_tointeger(L, 2) / 1000.0f;
+    auto interval = lua::tointeger(L, 2) / 1000.0f;
     if (auto container = std::dynamic_pointer_cast<Container>(node.node)) {
-        lua_pushvalue(L, 3);
-        auto runnable = state->createRunnable(L);
+        lua::pushvalue(L, 3);
+        auto runnable = lua::create_runnable(L);
         container->listenInterval(interval, runnable);
     }
     return 0;
@@ -266,25 +257,25 @@ static int p_get_src(UINode* node, lua_State* L) {
 
 static int p_get_add(UINode* node, lua_State* L) {
     if (dynamic_cast<Container*>(node)) {
-        return lua::pushcfunction(L, lua_wrap_errors<l_container_add>);
+        return lua::pushcfunction(L, lua::wrap<l_container_add>);
     }
     return 0;
 }
 
 static int p_get_destruct(UINode*, lua_State* L) {
-    return lua::pushcfunction(L, lua_wrap_errors<l_node_destruct>);
+    return lua::pushcfunction(L, lua::wrap<l_node_destruct>);
 }
 
 static int p_get_clear(UINode* node, lua_State* L) {
     if (dynamic_cast<Container*>(node)) {
-        return lua::pushcfunction(L, lua_wrap_errors<l_container_clear>);
+        return lua::pushcfunction(L, lua::wrap<l_container_clear>);
     }
     return 0;
 }
 
 static int p_set_interval(UINode* node, lua_State* L) {
     if (dynamic_cast<Container*>(node)) {
-        return lua::pushcfunction(L, lua_wrap_errors<l_container_set_interval>);
+        return lua::pushcfunction(L, lua::wrap<l_container_set_interval>);
     }
     return 0;
 }
@@ -393,7 +384,7 @@ static void p_set_tooltip(UINode* node, lua_State* L, int idx) {
     node->setTooltip(lua::require_wstring(L, idx));
 }
 static void p_set_tooltip_delay(UINode* node, lua_State* L, int idx) {
-    node->setTooltipDelay(lua_tonumber(L, idx));
+    node->setTooltipDelay(lua::tonumber(L, idx));
 }
 static void p_set_pos(UINode* node, lua_State* L, int idx) {
     node->setPos(lua::tovec2(L, idx));
@@ -405,13 +396,13 @@ static void p_set_size(UINode* node, lua_State* L, int idx) {
     node->setSize(lua::tovec2(L, idx));
 }
 static void p_set_interactive(UINode* node, lua_State* L, int idx) {
-    node->setInteractive(lua_toboolean(L, idx));
+    node->setInteractive(lua::toboolean(L, idx));
 }
 static void p_set_visible(UINode* node, lua_State* L, int idx) {
-    node->setVisible(lua_toboolean(L, idx));
+    node->setVisible(lua::toboolean(L, idx));
 }
 static void p_set_enabled(UINode* node, lua_State* L, int idx) {
-    node->setEnabled(lua_toboolean(L, idx));
+    node->setEnabled(lua::toboolean(L, idx));
 }
 static void p_set_placeholder(UINode* node, lua_State* L, int idx) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
@@ -429,12 +420,12 @@ static void p_set_text(UINode* node, lua_State* L, int idx) {
 }
 static void p_set_caret(UINode* node, lua_State* L, int idx) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
-        box->setCaret(static_cast<ptrdiff_t>(lua_tointeger(L, idx)));
+        box->setCaret(static_cast<ptrdiff_t>(lua::tointeger(L, idx)));
     }
 }
 static void p_set_editable(UINode* node, lua_State* L, int idx) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
-        box->setEditable(lua_toboolean(L, idx));
+        box->setEditable(lua::toboolean(L, idx));
     }
 }
 static void p_set_src(UINode* node, lua_State* L, int idx) {
@@ -444,27 +435,27 @@ static void p_set_src(UINode* node, lua_State* L, int idx) {
 }
 static void p_set_value(UINode* node, lua_State* L, int idx) {
     if (auto bar = dynamic_cast<TrackBar*>(node)) {
-        bar->setValue(lua_tonumber(L, idx));
+        bar->setValue(lua::tonumber(L, idx));
     }
 }
 static void p_set_min(UINode* node, lua_State* L, int idx) {
     if (auto bar = dynamic_cast<TrackBar*>(node)) {
-        bar->setMin(lua_tonumber(L, idx));
+        bar->setMin(lua::tonumber(L, idx));
     }
 }
 static void p_set_max(UINode* node, lua_State* L, int idx) {
     if (auto bar = dynamic_cast<TrackBar*>(node)) {
-        bar->setMax(lua_tonumber(L, idx));
+        bar->setMax(lua::tonumber(L, idx));
     }
 }
 static void p_set_step(UINode* node, lua_State* L, int idx) {
     if (auto bar = dynamic_cast<TrackBar*>(node)) {
-        bar->setStep(lua_tonumber(L, idx));
+        bar->setStep(lua::tonumber(L, idx));
     }
 }
 static void p_set_track_width(UINode* node, lua_State* L, int idx) {
     if (auto bar = dynamic_cast<TrackBar*>(node)) {
-        bar->setTrackWidth(lua_tointeger(L, idx));
+        bar->setTrackWidth(lua::tointeger(L, idx));
     }
 }
 static void p_set_track_color(UINode* node, lua_State* L, int idx) {
@@ -474,9 +465,9 @@ static void p_set_track_color(UINode* node, lua_State* L, int idx) {
 }
 static void p_set_checked(UINode* node, lua_State* L, int idx) {
     if (auto box = dynamic_cast<CheckBox*>(node)) {
-        box->setChecked(lua_toboolean(L, idx));
+        box->setChecked(lua::toboolean(L, idx));
     } else if (auto box = dynamic_cast<FullCheckBox*>(node)) {
-        box->setChecked(lua_toboolean(L, idx));
+        box->setChecked(lua::toboolean(L, idx));
     }
 }
 static void p_set_page(UINode* node, lua_State* L, int idx) {
@@ -486,7 +477,7 @@ static void p_set_page(UINode* node, lua_State* L, int idx) {
 }
 static void p_set_inventory(UINode* node, lua_State* L, int idx) {
     if (auto view = dynamic_cast<InventoryView*>(node)) {
-        auto inventory = level->inventories->get(lua_tointeger(L, idx));
+        auto inventory = level->inventories->get(lua::tointeger(L, idx));
         if (inventory == nullptr) {
             view->unbind();
         } else {
@@ -495,8 +486,8 @@ static void p_set_inventory(UINode* node, lua_State* L, int idx) {
     }
 }
 static void p_set_focused(const std::shared_ptr<UINode> &node, lua_State* L, int idx) {
-    if (lua_toboolean(L, idx) && !node->isFocused()) {
-        scripting::engine->getGUI()->setFocus(node);
+    if (lua::toboolean(L, idx) && !node->isFocused()) {
+        engine->getGUI()->setFocus(node);
     } else if (node->isFocused()){
         node->defocus();
     }
@@ -553,11 +544,11 @@ static int l_gui_setattr(lua_State* L) {
 
 static int l_gui_get_env(lua_State* L) {
     auto name = lua::require_string(L, 1);
-    auto doc = scripting::engine->getAssets()->getLayout(name);
+    auto doc = engine->getAssets()->getLayout(name);
     if (doc == nullptr) {
         throw std::runtime_error("document '"+std::string(name)+"' not found");
     }
-    lua_getglobal(L, lua::LuaState::envName(*doc->getEnvironment()).c_str());
+    lua::getglobal(L, lua::env_name(*doc->getEnvironment()));
     return 1;
 }
 
@@ -565,16 +556,16 @@ static int l_gui_str(lua_State* L) {
     auto text = lua::require_wstring(L, 1);
     if (!lua_isnoneornil(L, 2)) {
         auto context = lua::require_wstring(L, 2);
-        lua_pushstring(L, util::wstr2str_utf8(langs::get(text, context)).c_str());
+        lua::pushwstring(L, langs::get(text, context));
     } else {
-        lua_pushstring(L, util::wstr2str_utf8(langs::get(text)).c_str());
+        lua::pushwstring(L, langs::get(text));
     }
     return 1;
 }
 
 static int l_gui_reindex(lua_State* L) {
     auto name = lua::require_string(L, 1);
-    auto doc = scripting::engine->getAssets()->getLayout(name);
+    auto doc = engine->getAssets()->getLayout(name);
     if (doc == nullptr) {
         throw std::runtime_error("document '"+std::string(name)+"' not found");
     }
@@ -588,24 +579,24 @@ static int l_gui_get_locales_info(lua_State* L) {
     lua_createtable(L, 0, locales.size());
     for (auto& entry : locales) {
         lua_createtable(L, 0, 1);
-        lua_pushstring(L, entry.second.name.c_str());
-        lua_setfield(L, -2, "name");
-        lua_setfield(L, -2, entry.first.c_str());
+        lua::pushstring(L, entry.second.name);
+        lua::setfield(L, "name");
+        lua::setfield(L, entry.first);
     }
     return 1;
 }
 
 static int l_gui_getviewport(lua_State* L) {
-    return lua::pushvec2_arr(L, scripting::engine->getGUI()->getContainer()->getSize());
+    return lua::pushvec2_arr(L, engine->getGUI()->getContainer()->getSize());
 }
 
 const luaL_Reg guilib [] = {
-    {"get_viewport", lua_wrap_errors<l_gui_getviewport>},
-    {"getattr", lua_wrap_errors<l_gui_getattr>},
-    {"setattr", lua_wrap_errors<l_gui_setattr>},
-    {"get_env", lua_wrap_errors<l_gui_get_env>},
-    {"str", lua_wrap_errors<l_gui_str>},
-    {"get_locales_info", lua_wrap_errors<l_gui_get_locales_info>},
-    {"__reindex", lua_wrap_errors<l_gui_reindex>},
+    {"get_viewport", lua::wrap<l_gui_getviewport>},
+    {"getattr", lua::wrap<l_gui_getattr>},
+    {"setattr", lua::wrap<l_gui_setattr>},
+    {"get_env", lua::wrap<l_gui_get_env>},
+    {"str", lua::wrap<l_gui_str>},
+    {"get_locales_info", lua::wrap<l_gui_get_locales_info>},
+    {"__reindex", lua::wrap<l_gui_reindex>},
     {NULL, NULL}
 };

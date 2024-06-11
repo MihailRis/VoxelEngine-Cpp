@@ -1,9 +1,17 @@
 #include "lua_util.hpp"
 
-#include "../../../debug/Logger.hpp"
 #include "../../../util/stringutil.hpp"
 
-static debug::Logger logger("lua");
+#include <iostream>
+#include <iomanip>
+
+using namespace lua;
+
+static int nextEnvironment = 1;
+
+std::string lua::env_name(int env) {
+    return "_ENV"+util::mangleid(env);
+}
 
 int lua::pushvalue(lua_State* L, const dynamic::Value& value) {
     using namespace dynamic;
@@ -97,10 +105,6 @@ dynamic::Value lua::tovalue(lua_State* L, int idx) {
     }
 }
 
-void lua::logError(const std::string& text) {
-    logger.error() << text;
-}
-
 int lua::call(lua_State* L, int argc, int nresults) {
     if (lua_pcall(L, argc, nresults, 0)) {
         throw luaerror(lua_tostring(L, -1));
@@ -108,10 +112,110 @@ int lua::call(lua_State* L, int argc, int nresults) {
     return 1;
 }
 
-int lua::callNoThrow(lua_State* L, int argc) {
+int lua::call_nothrow(lua_State* L, int argc) {
     if (lua_pcall(L, argc, LUA_MULTRET, 0)) {
-        logError(lua_tostring(L, -1));
+        log_error(lua_tostring(L, -1));
         return 0;
     }
     return 1;
+}
+
+void lua::dump_stack(lua_State* L) {
+    int top = lua_gettop(L);
+    for (int i = 1; i <= top; i++) {
+        std::cout << std::setw(3) << i << std::setw(20) << luaL_typename(L, i) << std::setw(30);
+        switch (lua_type(L, i)) {
+            case LUA_TNUMBER:
+                std::cout << lua_tonumber(L, i);
+                break;
+            case LUA_TSTRING:
+                std::cout << lua_tostring(L, i);
+                break;
+            case LUA_TBOOLEAN:
+                std::cout << (lua_toboolean(L, i) ? "true" : "false");
+                break;
+            case LUA_TNIL:
+                std::cout << "nil";
+                break;
+            default:
+                std::cout << lua_topointer(L, i);
+                break;
+        }
+        std::cout << std::endl;
+    }
+}
+
+static std::shared_ptr<std::string> createLambdaHandler(lua_State* L) {
+    auto ptr = reinterpret_cast<ptrdiff_t>(lua_topointer(L, -1));
+    auto name = util::mangleid(ptr);
+    getglobal(L, LAMBDAS_TABLE);
+    pushvalue(L, -2);
+    setfield(L, name);
+    pop(L, 2);
+
+    return std::shared_ptr<std::string>(new std::string(name), [=](std::string* name) {
+        getglobal(L, LAMBDAS_TABLE);
+        pushnil(L);
+        setfield(L, *name);
+        pop(L);
+        delete name;
+    });
+}
+
+runnable lua::create_runnable(lua_State* L) {
+    auto funcptr = createLambdaHandler(L);
+    return [=]() {
+        lua_getglobal(L, LAMBDAS_TABLE.c_str());
+        lua_getfield(L, -1, funcptr->c_str());
+        call_nothrow(L, 0);
+    };
+}
+
+scripting::common_func lua::create_lambda(lua_State* L) {
+    auto funcptr = createLambdaHandler(L);
+    return [=](const std::vector<dynamic::Value>& args) {
+        lua_getglobal(L, LAMBDAS_TABLE.c_str());
+        lua_getfield(L, -1, funcptr->c_str());
+        for (const auto& arg : args) {
+            pushvalue(L, arg);
+        }
+        if (call(L, args.size(), 1)) {
+            auto result = tovalue(L, -1);
+            lua_pop(L, 1);
+            return result;
+        }
+        return dynamic::Value(dynamic::NONE);
+    };
+}
+
+int lua::createEnvironment(lua_State* L, int parent) {
+    int id = nextEnvironment++;
+
+    // local env = {}
+    lua_createtable(L, 0, 1);
+    
+    // setmetatable(env, {__index=_G})
+    lua_createtable(L, 0, 1);
+    if (parent == 0) {
+        pushglobals(L);
+    } else {
+        if (pushenv(L, parent) == 0) {
+            pushglobals(L);
+        }
+    }
+    setfield(L, "__index");
+    lua_setmetatable(L, -2);
+
+    // envname = env
+    setglobal(L, env_name(id));
+    return id;
+}
+
+
+void lua::removeEnvironment(lua_State* L, int id) {
+    if (id == 0) {
+        return;
+    }
+    pushnil(L);
+    setglobal(L, env_name(id));
 }

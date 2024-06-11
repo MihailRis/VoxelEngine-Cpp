@@ -43,7 +43,7 @@ static void load_script(const fs::path& name) {
     fs::path file = paths->getResources()/fs::path("scripts")/name;
 
     std::string src = files::read_string(file);
-    state->execute(state->getMainThread(), 0, src, file.u8string());
+    lua::execute(state->getMainThread(), 0, src, file.u8string());
 }
 
 void scripting::initialize(Engine* engine) {
@@ -61,24 +61,24 @@ scriptenv scripting::get_root_environment() {
 
 scriptenv scripting::create_pack_environment(const ContentPack& pack) {
     auto L = state->getMainThread();
-    int id = state->createEnvironment(L, 0);
-    state->pushenv(L, id);
+    int id = lua::createEnvironment(L, 0);
+    lua::pushenv(L, id);
     lua::pushvalue(L, -1);
     lua::setfield(L, "PACK_ENV");
     lua::pushstring(L, pack.id);
     lua::setfield(L, "PACK_ID");
     lua::pop(L);
     return std::shared_ptr<int>(new int(id), [=](int* id) {
-        state->removeEnvironment(L, *id);
+        lua::removeEnvironment(L, *id);
         delete id;
     });
 }
 
 scriptenv scripting::create_doc_environment(const scriptenv& parent, const std::string& name) {
     auto L = state->getMainThread();
-    int id = state->createEnvironment(L, *parent);
-    state->pushenv(L, id);
-    lua_pushvalue(L, -1);
+    int id = lua::createEnvironment(L, *parent);
+    lua::pushenv(L, id);
+    lua::pushvalue(L, -1);
     lua::setfield(L, "DOC_ENV");
     lua::pushstring(L, name);
     lua::setfield(L, "DOC_NAME");
@@ -86,7 +86,7 @@ scriptenv scripting::create_doc_environment(const scriptenv& parent, const std::
     if (lua::getglobal(L, "Document")) {
         if (lua::getfield(L, "new")) {
             lua::pushstring(L, name);
-            if (lua::callNoThrow(L, 1)) {
+            if (lua::call_nothrow(L, 1)) {
                 lua::setfield(L, "document", -3);
             }
         }
@@ -94,7 +94,7 @@ scriptenv scripting::create_doc_environment(const scriptenv& parent, const std::
     }
     lua::pop(L);
     return std::shared_ptr<int>(new int(id), [=](int* id) {
-        state->removeEnvironment(L, *id);
+        lua::removeEnvironment(L, *id);
         delete id;
     });
 }
@@ -102,7 +102,7 @@ scriptenv scripting::create_doc_environment(const scriptenv& parent, const std::
 void scripting::process_post_runnables() {
     auto L = state->getMainThread();
     if (lua::getglobal(L, "__process_post_runnables")) {
-        lua::callNoThrow(L, 0);
+        lua::call_nothrow(L, 0);
     }
 }
 
@@ -144,12 +144,12 @@ void scripting::on_world_quit() {
     for (auto& pack : scripting::engine->getContentPacks()) {
         lua::getfield(L, "unload");
         lua::pushstring(L, pack.id);
-        lua::callNoThrow(L, 1);   
+        lua::call_nothrow(L, 1);   
     }
     lua::pop(L);
     
     if (lua::getglobal(L, "__scripts_cleanup")) {
-        lua::callNoThrow(L, 0);
+        lua::call_nothrow(L, 0);
     }
     scripting::level = nullptr;
     scripting::content = nullptr;
@@ -263,7 +263,7 @@ void scripting::on_ui_close(UiDocument* layout, Inventory* inventory) {
 
 bool scripting::register_event(int env, const std::string& name, const std::string& id) {
     auto L = state->getMainThread();
-    if (state->pushenv(L, env) == 0) {
+    if (lua::pushenv(L, env) == 0) {
         lua::pushglobals(L);
     }
     if (lua::getfield(L, name)) {
@@ -272,7 +272,7 @@ bool scripting::register_event(int env, const std::string& name, const std::stri
         lua::getfield(L, "on");
         lua::pushstring(L, id);
         lua::getfield(L, name, -4);
-        lua::callNoThrow(L, 2);
+        lua::call_nothrow(L, 2);
         lua::pop(L);
 
         // remove previous name
@@ -287,7 +287,7 @@ void scripting::load_block_script(const scriptenv& senv, const std::string& pref
     int env = *senv;
     std::string src = files::read_string(file);
     logger.info() << "script (block) " << file.u8string();
-    state->execute(state->getMainThread(), env, src, file.u8string());
+    lua::execute(state->getMainThread(), env, src, file.u8string());
     funcsset.init = register_event(env, "init", prefix+".init");
     funcsset.update = register_event(env, "on_update", prefix+".update");
     funcsset.randupdate = register_event(env, "on_random_update", prefix+".randupdate");
@@ -301,7 +301,7 @@ void scripting::load_item_script(const scriptenv& senv, const std::string& prefi
     int env = *senv;
     std::string src = files::read_string(file);
     logger.info() << "script (item) " << file.u8string();
-    state->execute(state->getMainThread(), env, src, file.u8string());
+    lua::execute(state->getMainThread(), env, src, file.u8string());
 
     funcsset.init = register_event(env, "init", prefix+".init");
     funcsset.on_use = register_event(env, "on_use", prefix+".use");
@@ -314,8 +314,7 @@ void scripting::load_world_script(const scriptenv& senv, const std::string& pref
 
     std::string src = files::read_string(file);
     logger.info() << "loading world script for " << prefix;
-
-    state->execute(state->getMainThread(), env, src, file.u8string());
+    lua::execute(state->getMainThread(), env, src, file.u8string());
 
     register_event(env, "init", prefix+".init");
     register_event(env, "on_world_open", prefix+".worldopen");
@@ -330,7 +329,7 @@ void scripting::load_layout_script(const scriptenv& senv, const std::string& pre
     std::string src = files::read_string(file);
     logger.info() << "loading script " << file.u8string();
 
-    state->execute(state->getMainThread(), env, src, file.u8string());
+    lua::execute(state->getMainThread(), env, src, file.u8string());
     script.onopen = register_event(env, "on_open", prefix+".open");
     script.onprogress = register_event(env, "on_progress", prefix+".progress");
     script.onclose = register_event(env, "on_close", prefix+".close");

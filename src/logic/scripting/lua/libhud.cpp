@@ -1,6 +1,4 @@
-#include "lua_commons.hpp"
 #include "api_lua.hpp"
-#include "LuaState.hpp"
 
 #include "../../../assets/Assets.hpp"
 #include "../../../content/Content.hpp"
@@ -16,7 +14,6 @@
 #include "../../../voxels/Chunks.hpp"
 #include "../../../voxels/voxel.hpp"
 #include "../../../world/Level.hpp"
-#include "../scripting.hpp"
 
 #include <iostream>
 #include <glm/glm.hpp>
@@ -129,15 +126,15 @@ static int l_hud_get_player(lua_State* L) {
 }
 
 const luaL_Reg hudlib [] = {
-    {"open_inventory", lua_wrap_errors<l_hud_open_inventory>},
-    {"close_inventory", lua_wrap_errors<l_hud_close_inventory>},
-    {"open_block", lua_wrap_errors<l_hud_open_block>},
-    {"open_permanent", lua_wrap_errors<l_hud_open_permanent>},
-    {"show_overlay", lua_wrap_errors<l_hud_show_overlay>},
-    {"get_block_inventory", lua_wrap_errors<l_hud_get_block_inventory>},
-    {"close", lua_wrap_errors<l_hud_close>},
-    {"pause", lua_wrap_errors<l_hud_pause>},
-    {"resume", lua_wrap_errors<l_hud_resume>},
-    {"get_player", lua_wrap_errors<l_hud_get_player>},
+    {"open_inventory", lua::wrap<l_hud_open_inventory>},
+    {"close_inventory", lua::wrap<l_hud_close_inventory>},
+    {"open_block", lua::wrap<l_hud_open_block>},
+    {"open_permanent", lua::wrap<l_hud_open_permanent>},
+    {"show_overlay", lua::wrap<l_hud_show_overlay>},
+    {"get_block_inventory", lua::wrap<l_hud_get_block_inventory>},
+    {"close", lua::wrap<l_hud_close>},
+    {"pause", lua::wrap<l_hud_pause>},
+    {"resume", lua::wrap<l_hud_resume>},
+    {"get_player", lua::wrap<l_hud_get_player>},
     {NULL, NULL}
 };

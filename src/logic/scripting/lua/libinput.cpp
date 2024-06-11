@@ -1,8 +1,4 @@
 #include "api_lua.hpp"
-#include "lua_util.hpp"
-#include "lua_commons.hpp"
-#include "LuaState.hpp"
-#include "../scripting.hpp"
 
 #include "../../../window/input.hpp"
 #include "../../../window/Events.hpp"
@@ -13,7 +9,6 @@
 #include "../../../engine.hpp"
 
 namespace scripting {
-    extern lua::LuaState* state;
     extern Hud* hud;
 }
 using namespace scripting;
@@ -37,7 +32,7 @@ static int l_add_callback(lua_State* L) {
         throw std::runtime_error("unknown binding "+util::quote(bindname));
     }
     lua_pushvalue(L, 2);
-    runnable actual_callback = state->createRunnable(L);
+    runnable actual_callback = lua::create_runnable(L);
     runnable callback = [=]() {
         if (!scripting::engine->getGUI()->isFocusCaught()) {
             actual_callback();
@@ -69,11 +64,11 @@ static int l_get_bindings(lua_State* L) {
 }
 
 const luaL_Reg inputlib [] = {
-    {"keycode", lua_wrap_errors<l_keycode>},
-    {"mousecode", lua_wrap_errors<l_mousecode>},
-    {"add_callback", lua_wrap_errors<l_add_callback>},
-    {"get_mouse_pos", lua_wrap_errors<l_get_mouse_pos>},
-    {"get_bindings", lua_wrap_errors<l_get_bindings>},
+    {"keycode", lua::wrap<l_keycode>},
+    {"mousecode", lua::wrap<l_mousecode>},
+    {"add_callback", lua::wrap<l_add_callback>},
+    {"get_mouse_pos", lua::wrap<l_get_mouse_pos>},
+    {"get_bindings", lua::wrap<l_get_bindings>},
     {NULL, NULL}
 };
 

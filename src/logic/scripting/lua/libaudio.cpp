@@ -1,10 +1,7 @@
 #include "api_lua.hpp"
-#include "lua_commons.hpp"
-#include "lua_util.hpp"
 
 #include "../../../audio/audio.hpp"
 #include "../../../engine.hpp"
-#include "../scripting.hpp"
 
 inline const char* DEFAULT_CHANNEL = "regular";
 
@@ -386,29 +383,29 @@ static int l_audio_count_streams(lua_State* L) {
 }
 
 const luaL_Reg audiolib [] = {
-    {"play_sound", lua_wrap_errors<l_audio_play_sound>},
-    {"play_sound_2d", lua_wrap_errors<l_audio_play_sound_2d>},
-    {"play_stream", lua_wrap_errors<l_audio_play_stream>},
-    {"play_stream_2d", lua_wrap_errors<l_audio_play_stream_2d>},
-    {"stop", lua_wrap_errors<l_audio_stop>},
-    {"pause", lua_wrap_errors<l_audio_pause>},
-    {"resume", lua_wrap_errors<l_audio_resume>},
-    {"set_loop", lua_wrap_errors<l_audio_set_loop>},
-    {"set_volume", lua_wrap_errors<l_audio_set_volume>},
-    {"set_pitch", lua_wrap_errors<l_audio_set_pitch>},
-    {"set_time", lua_wrap_errors<l_audio_set_time>},
-    {"set_position", lua_wrap_errors<l_audio_set_position>},
-    {"set_velocity", lua_wrap_errors<l_audio_set_velocity>},
-    {"is_playing", lua_wrap_errors<l_audio_is_playing>},
-    {"is_paused", lua_wrap_errors<l_audio_is_paused>},
-    {"is_loop", lua_wrap_errors<l_audio_is_loop>},
-    {"get_volume", lua_wrap_errors<l_audio_get_volume>},
-    {"get_pitch", lua_wrap_errors<l_audio_get_pitch>},
-    {"get_time", lua_wrap_errors<l_audio_get_time>},
-    {"get_duration", lua_wrap_errors<l_audio_get_duration>},
-    {"get_position", lua_wrap_errors<l_audio_get_position>},
-    {"get_velocity", lua_wrap_errors<l_audio_get_velocity>},
-    {"count_speakers", lua_wrap_errors<l_audio_count_speakers>},
-    {"count_streams", lua_wrap_errors<l_audio_count_streams>},
+    {"play_sound", lua::wrap<l_audio_play_sound>},
+    {"play_sound_2d", lua::wrap<l_audio_play_sound_2d>},
+    {"play_stream", lua::wrap<l_audio_play_stream>},
+    {"play_stream_2d", lua::wrap<l_audio_play_stream_2d>},
+    {"stop", lua::wrap<l_audio_stop>},
+    {"pause", lua::wrap<l_audio_pause>},
+    {"resume", lua::wrap<l_audio_resume>},
+    {"set_loop", lua::wrap<l_audio_set_loop>},
+    {"set_volume", lua::wrap<l_audio_set_volume>},
+    {"set_pitch", lua::wrap<l_audio_set_pitch>},
+    {"set_time", lua::wrap<l_audio_set_time>},
+    {"set_position", lua::wrap<l_audio_set_position>},
+    {"set_velocity", lua::wrap<l_audio_set_velocity>},
+    {"is_playing", lua::wrap<l_audio_is_playing>},
+    {"is_paused", lua::wrap<l_audio_is_paused>},
+    {"is_loop", lua::wrap<l_audio_is_loop>},
+    {"get_volume", lua::wrap<l_audio_get_volume>},
+    {"get_pitch", lua::wrap<l_audio_get_pitch>},
+    {"get_time", lua::wrap<l_audio_get_time>},
+    {"get_duration", lua::wrap<l_audio_get_duration>},
+    {"get_position", lua::wrap<l_audio_get_position>},
+    {"get_velocity", lua::wrap<l_audio_get_velocity>},
+    {"count_speakers", lua::wrap<l_audio_count_speakers>},
+    {"count_streams", lua::wrap<l_audio_count_streams>},
     {NULL, NULL}
 };

@@ -1,8 +1,5 @@
-#include "lua_commons.hpp"
-#include "lua_util.hpp"
 #include "api_lua.hpp"
-#include "LuaState.hpp"
-#include "../scripting.hpp"
+
 #include "../../../engine.hpp"
 #include "../../../coders/gzip.hpp"
 #include "../../../files/files.hpp"
@@ -13,11 +10,6 @@
 #include <filesystem>
 
 namespace fs = std::filesystem;
-
-namespace scripting {
-    extern lua::LuaState* state;
-}
-
 using namespace scripting;
 
 static fs::path resolve_path(const std::string& path) {
@@ -232,22 +224,22 @@ static int l_file_gzip_decompress(lua_State* L) {
 }
 
 const luaL_Reg filelib [] = {
-    {"exists", lua_wrap_errors<l_file_exists>},
-    {"find", lua_wrap_errors<l_file_find>},
-    {"isdir", lua_wrap_errors<l_file_isdir>},
-    {"isfile", lua_wrap_errors<l_file_isfile>},
-    {"length", lua_wrap_errors<l_file_length>},
-    {"list", lua_wrap_errors<l_file_list>},
-    {"mkdir", lua_wrap_errors<l_file_mkdir>},
-    {"mkdirs", lua_wrap_errors<l_file_mkdirs>},
-    {"read_bytes", lua_wrap_errors<l_file_read_bytes>},
-    {"read", lua_wrap_errors<l_file_read>},
-    {"remove", lua_wrap_errors<l_file_remove>},
-    {"remove_tree", lua_wrap_errors<l_file_remove_tree>},
-    {"resolve", lua_wrap_errors<l_file_resolve>},
-    {"write_bytes", lua_wrap_errors<l_file_write_bytes>},
-    {"write", lua_wrap_errors<l_file_write>},
-    {"gzip_compress", lua_wrap_errors<l_file_gzip_compress>},
-    {"gzip_decompress", lua_wrap_errors<l_file_gzip_decompress>},
+    {"exists", lua::wrap<l_file_exists>},
+    {"find", lua::wrap<l_file_find>},
+    {"isdir", lua::wrap<l_file_isdir>},
+    {"isfile", lua::wrap<l_file_isfile>},
+    {"length", lua::wrap<l_file_length>},
+    {"list", lua::wrap<l_file_list>},
+    {"mkdir", lua::wrap<l_file_mkdir>},
+    {"mkdirs", lua::wrap<l_file_mkdirs>},
+    {"read_bytes", lua::wrap<l_file_read_bytes>},
+    {"read", lua::wrap<l_file_read>},
+    {"remove", lua::wrap<l_file_remove>},
+    {"remove_tree", lua::wrap<l_file_remove_tree>},
+    {"resolve", lua::wrap<l_file_resolve>},
+    {"write_bytes", lua::wrap<l_file_write_bytes>},
+    {"write", lua::wrap<l_file_write>},
+    {"gzip_compress", lua::wrap<l_file_gzip_compress>},
+    {"gzip_decompress", lua::wrap<l_file_gzip_decompress>},
     {NULL, NULL}
 };

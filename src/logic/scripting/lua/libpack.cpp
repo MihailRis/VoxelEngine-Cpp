@@ -1,7 +1,5 @@
 #include "api_lua.hpp"
-#include "lua_commons.hpp"
 
-#include "../scripting.hpp"
 #include "../../../engine.hpp"
 #include "../../../assets/AssetsLoader.hpp"
 #include "../../../files/engine_paths.hpp"
@@ -14,29 +12,28 @@
 #include <filesystem>
 #include <algorithm>
 
+using namespace scripting;
+
 static int l_pack_get_folder(lua_State* L) {
-    std::string packName = lua_tostring(L, 1);
+    std::string packName = lua::tostring(L, 1);
     if (packName == "core") {
-        auto folder = scripting::engine->getPaths()->getResources().u8string()+"/";
-        lua_pushstring(L, folder.c_str());
-        return 1;
+        auto folder = engine->getPaths()->getResources().u8string()+"/";
+        return lua::pushstring(L, folder);
     }
-    for (auto& pack : scripting::engine->getContentPacks()) {
+    for (auto& pack : engine->getContentPacks()) {
         if (pack.id == packName) {
-            lua_pushstring(L, (pack.folder.u8string()+"/").c_str());
-            return 1;
+            return lua::pushstring(L, pack.folder.u8string()+"/");
         }
     }
-    lua_pushstring(L, "");
-    return 1;
+    return lua::pushstring(L, "");
 }
 
 /// @brief pack.get_installed() -> array<string>
 static int l_pack_get_installed(lua_State* L) {
-    auto& packs = scripting::engine->getContentPacks();
+    auto& packs = engine->getContentPacks();
     lua_createtable(L, packs.size(), 0);
     for (size_t i = 0; i < packs.size(); i++) {
-        lua_pushstring(L, packs[i].id.c_str());
+        lua::pushstring(L, packs[i].id);
         lua_rawseti(L, -2, i + 1);
     }
     return 1;
@@ -45,13 +42,13 @@ static int l_pack_get_installed(lua_State* L) {
 /// @brief pack.get_available() -> array<string>
 static int l_pack_get_available(lua_State* L) {
     fs::path worldFolder("");
-    if (scripting::level) {
-        worldFolder = scripting::level->getWorld()->wfile->getFolder();
+    if (level) {
+        worldFolder = level->getWorld()->wfile->getFolder();
     }
-    auto manager = scripting::engine->createPacksManager(worldFolder);
+    auto manager = engine->createPacksManager(worldFolder);
     manager.scan();
 
-    const auto& installed = scripting::engine->getContentPacks();
+    const auto& installed = engine->getContentPacks();
     for (auto& pack : installed) {
         manager.exclude(pack.id);
     }
@@ -59,7 +56,7 @@ static int l_pack_get_available(lua_State* L) {
     
     lua_createtable(L, names.size(), 0);
     for (size_t i = 0; i < names.size(); i++) {
-        lua_pushstring(L, names[i].c_str());
+        lua::pushstring(L, names[i]);
         lua_rawseti(L, -2, i + 1);
     }
     return 1;
@@ -68,22 +65,22 @@ static int l_pack_get_available(lua_State* L) {
 static int l_pack_get_info(lua_State* L, const ContentPack& pack, const Content* content) {
     lua_createtable(L, 0, 5);
 
-    lua_pushstring(L, pack.id.c_str());
-    lua_setfield(L, -2, "id");
+    lua::pushstring(L, pack.id);
+    lua::setfield(L, "id");
 
-    lua_pushstring(L, pack.title.c_str());
-    lua_setfield(L, -2, "title");
+    lua::pushstring(L, pack.title);
+    lua::setfield(L, "title");
 
-    lua_pushstring(L, pack.creator.c_str());
-    lua_setfield(L, -2, "creator");
+    lua::pushstring(L, pack.creator);
+    lua::setfield(L, "creator");
 
-    lua_pushstring(L, pack.description.c_str());
-    lua_setfield(L, -2, "description");
+    lua::pushstring(L, pack.description);
+    lua::setfield(L, "description");
 
-    lua_pushstring(L, pack.version.c_str());
-    lua_setfield(L, -2, "version");
+    lua::pushstring(L, pack.version);
+    lua::setfield(L, "version");
 
-    auto assets = scripting::engine->getAssets();
+    auto assets = engine->getAssets();
     std::string icon = pack.id+".icon";
     if (!AssetsLoader::loadExternalTexture(assets, icon, {
         pack.folder/fs::path("icon.png")
@@ -91,8 +88,8 @@ static int l_pack_get_info(lua_State* L, const ContentPack& pack, const Content*
         icon = "gui/no_icon";
     }
 
-    lua_pushstring(L, icon.c_str());
-    lua_setfield(L, -2, "icon");
+    lua::pushstring(L, icon);
+    lua::setfield(L, "icon");
 
     if (!pack.dependencies.empty()) {
         lua_createtable(L, pack.dependencies.size(), 0);
@@ -108,13 +105,13 @@ static int l_pack_get_info(lua_State* L, const ContentPack& pack, const Content*
             lua_pushfstring(L, "%s%s", prefix.c_str(), dpack.id.c_str());
             lua_rawseti(L, -2, i+1);
         }
-        lua_setfield(L, -2, "dependencies");
+        lua::setfield(L, "dependencies");
     }
 
     auto runtime = content ? content->getPackRuntime(pack.id) : nullptr;
     if (runtime) {
-        lua_pushboolean(L, runtime->getStats().hasSavingContent());
-        lua_setfield(L, -2, "has_indices");
+        lua::pushboolean(L, runtime->getStats().hasSavingContent());
+        lua::setfield(L, "has_indices");
     }
     return 1;
 }
@@ -163,10 +160,10 @@ static int l_pack_get_base_packs(lua_State* L) {
 }
 
 const luaL_Reg packlib [] = {
-    {"get_folder", lua_wrap_errors<l_pack_get_folder>},
-    {"get_installed", lua_wrap_errors<l_pack_get_installed>},
-    {"get_available", lua_wrap_errors<l_pack_get_available>},
-    {"get_info", lua_wrap_errors<l_pack_get_info>},
-    {"get_base_packs", lua_wrap_errors<l_pack_get_base_packs>},
+    {"get_folder", lua::wrap<l_pack_get_folder>},
+    {"get_installed", lua::wrap<l_pack_get_installed>},
+    {"get_available", lua::wrap<l_pack_get_available>},
+    {"get_info", lua::wrap<l_pack_get_info>},
+    {"get_base_packs", lua::wrap<l_pack_get_base_packs>},
     {NULL, NULL}
 };

@@ -1,7 +1,7 @@
 #ifndef LOGIC_SCRIPTING_API_LUA_HPP_
 #define LOGIC_SCRIPTING_API_LUA_HPP_
 
-#include "lua_commons.hpp"
+#include "lua_util.hpp"
 
 #include <exception>
  

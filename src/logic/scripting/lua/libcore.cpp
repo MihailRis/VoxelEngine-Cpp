@@ -1,7 +1,4 @@
-#include "lua_commons.hpp"
-#include "lua_util.hpp"
 #include "api_lua.hpp"
-#include "LuaState.hpp"
 
 #include "../../../engine.hpp"
 #include "../../../files/settings_io.hpp"
@@ -14,14 +11,10 @@
 #include "../../../window/Events.hpp"
 #include "../../../window/Window.hpp"
 #include "../../../world/WorldGenerators.hpp"
-#include "../scripting.hpp"
 
 #include <vector>
 #include <memory>
 
-namespace scripting {
-    extern lua::LuaState* state;
-}
 using namespace scripting;
 
 static int l_new_world(lua_State* L) {
@@ -128,17 +121,17 @@ static int l_get_setting_info(lua_State* L) {
     auto setting = engine->getSettingsHandler().getSetting(name);
     lua_createtable(L, 0, 1);
     if (auto number = dynamic_cast<NumberSetting*>(setting)) {
-        lua_pushnumber(L, number->getMin());
-        lua_setfield(L, -2, "min");
-        lua_pushnumber(L, number->getMax());
-        lua_setfield(L, -2, "max");
+        lua::pushnumber(L, number->getMin());
+        lua::setfield(L, "min");
+        lua::pushnumber(L, number->getMax());
+        lua::setfield(L, "max");
         return 1;
     }
     if (auto integer = dynamic_cast<IntegerSetting*>(setting)) {
-        lua_pushinteger(L, integer->getMin());
-        lua_setfield(L, -2, "min");
-        lua_pushinteger(L, integer->getMax());
-        lua_setfield(L, -2, "max");
+        lua::pushinteger(L, integer->getMin());
+        lua::setfield(L, "min");
+        lua::pushinteger(L, integer->getMax());
+        lua::setfield(L, "max");
         return 1;
     }
     lua_pop(L, 1);
@@ -151,7 +144,7 @@ static int l_quit(lua_State*) {
 }
 
 static int l_get_default_generator(lua_State* L) {
-    lua_pushstring(L, WorldGenerators::getDefaultGeneratorID().c_str());
+    lua::pushstring(L, WorldGenerators::getDefaultGeneratorID().c_str());
     return 1;
 }
 
@@ -161,7 +154,7 @@ static int l_get_generators(lua_State* L) {
 
     int i = 0;
     for (auto& id : generators) {
-        lua_pushstring(L, id.c_str());
+        lua::pushstring(L, id.c_str());
         lua_rawseti(L, -2, i + 1);
         i++;
     }
@@ -169,18 +162,18 @@ static int l_get_generators(lua_State* L) {
 }
 
 const luaL_Reg corelib [] = {
-    {"new_world", lua_wrap_errors<l_new_world>},
-    {"open_world", lua_wrap_errors<l_open_world>},
-    {"reopen_world", lua_wrap_errors<l_reopen_world>},
-    {"close_world", lua_wrap_errors<l_close_world>},
-    {"delete_world", lua_wrap_errors<l_delete_world>},
-    {"reconfig_packs", lua_wrap_errors<l_reconfig_packs>},
-    {"get_setting", lua_wrap_errors<l_get_setting>},
-    {"set_setting", lua_wrap_errors<l_set_setting>},
-    {"str_setting", lua_wrap_errors<l_str_setting>},
-    {"get_setting_info", lua_wrap_errors<l_get_setting_info>},
-    {"quit", lua_wrap_errors<l_quit>},
-    {"get_default_generator", lua_wrap_errors<l_get_default_generator>},
-    {"get_generators", lua_wrap_errors<l_get_generators>},
+    {"new_world", lua::wrap<l_new_world>},
+    {"open_world", lua::wrap<l_open_world>},
+    {"reopen_world", lua::wrap<l_reopen_world>},
+    {"close_world", lua::wrap<l_close_world>},
+    {"delete_world", lua::wrap<l_delete_world>},
+    {"reconfig_packs", lua::wrap<l_reconfig_packs>},
+    {"get_setting", lua::wrap<l_get_setting>},
+    {"set_setting", lua::wrap<l_set_setting>},
+    {"str_setting", lua::wrap<l_str_setting>},
+    {"get_setting_info", lua::wrap<l_get_setting_info>},
+    {"quit", lua::wrap<l_quit>},
+    {"get_default_generator", lua::wrap<l_get_default_generator>},
+    {"get_generators", lua::wrap<l_get_generators>},
     {NULL, NULL}
 };

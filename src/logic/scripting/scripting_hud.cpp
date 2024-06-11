@@ -24,7 +24,7 @@ void scripting::on_frontend_init(Hud* hud) {
     scripting::hud = hud;
     state->openlib(state->getMainThread(), "hud", hudlib);
 
-    for (auto& pack : scripting::engine->getContentPacks()) {
+    for (auto& pack : engine->getContentPacks()) {
         state->emitEvent(state->getMainThread(), pack.id + ".hudopen", 
         [&] (lua_State* L) {
             return lua::pushinteger(L, hud->getPlayer()->getId());        
@@ -33,7 +33,7 @@ void scripting::on_frontend_init(Hud* hud) {
 }
 
 void scripting::on_frontend_close() {
-    for (auto& pack : scripting::engine->getContentPacks()) {
+    for (auto& pack : engine->getContentPacks()) {
         state->emitEvent(state->getMainThread(), pack.id + ".hudclose", 
         [&] (lua_State* L) {
             return lua::pushinteger(L, hud->getPlayer()->getId());            
@@ -47,9 +47,7 @@ void scripting::load_hud_script(const scriptenv& senv, const std::string& packid
     std::string src = files::read_string(file);
     logger.info() << "loading script " << file.u8string();
 
-    auto L = state->getMainThread();
-    state->loadbuffer(L, env, src, file.u8string());
-    lua::callNoThrow(L, 0);
+    lua::execute(state->getMainThread(), env, src, file.u8string());
 
     register_event(env, "init", packid+".init");
     register_event(env, "on_hud_open", packid+".hudopen");

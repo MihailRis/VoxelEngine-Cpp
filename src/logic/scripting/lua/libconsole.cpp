@@ -1,16 +1,8 @@
 #include "api_lua.hpp"
-#include "lua_commons.hpp"
-#include "lua_util.hpp"
-#include "LuaState.hpp"
 
-#include "../scripting.hpp"
 #include "../../CommandsInterpreter.hpp"
 #include "../../../engine.hpp"
 #include "../../../coders/commons.hpp"
-
-namespace scripting {
-    extern lua::LuaState* state;
-}
 
 using namespace scripting;
 
@@ -20,8 +12,8 @@ static int l_add_command(lua_State* L) {
     }
     auto scheme = lua::require_string(L, 1);
     auto description = lua::require_string(L, 2);
-    lua_pushvalue(L, 3);
-    auto func = state->createLambda(L);
+    lua::pushvalue(L, 3);
+    auto func = lua::create_lambda(L);
     try {
         engine->getCommandsInterpreter()->getRepository()->add(
             scheme, description, [func](auto, auto args, auto kwargs) {
@@ -115,10 +107,10 @@ static int l_get_command_info(lua_State* L) {
 }
 
 const luaL_Reg consolelib [] = {
-    {"add_command", lua_wrap_errors<l_add_command>},
-    {"execute", lua_wrap_errors<l_execute>},
-    {"set", lua_wrap_errors<l_set>},
-    {"get_commands_list", lua_wrap_errors<l_get_commands_list>},
-    {"get_command_info", lua_wrap_errors<l_get_command_info>},
+    {"add_command", lua::wrap<l_add_command>},
+    {"execute", lua::wrap<l_execute>},
+    {"set", lua::wrap<l_set>},
+    {"get_commands_list", lua::wrap<l_get_commands_list>},
+    {"get_command_info", lua::wrap<l_get_command_info>},
     {NULL, NULL}
 };
