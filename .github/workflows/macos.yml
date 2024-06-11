@@ -17,8 +17,7 @@ jobs:
 
       - name: Install dependencies from brew
         run: |
-          brew install glfw3 glew libpng openal-soft luajit libvorbis 
-          brew install skypjack/entt/entt --with-docs
+          brew install glfw3 glew libpng openal-soft luajit libvorbis skypjack/entt/entt
 
       - name: Install specific version of GLM
         run: |
