@@ -10,6 +10,7 @@
       "libspng",
       "zlib",
       "luajit",
-      "libvorbis"
+      "libvorbis",
+      "entt"
     ]
   }

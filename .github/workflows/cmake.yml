@@ -36,8 +36,15 @@ jobs:
       run: |
           sudo apt-get update
           sudo apt-get install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev libvorbis-dev
+          # fix luajit paths
           sudo ln -s /usr/lib/x86_64-linux-gnu/libluajit-5.1.a /usr/lib/x86_64-linux-gnu/liblua-5.1.a
           sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
+          # install EnTT
+          git clone https://github.com/skypjack/entt.git
+          cd entt/build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          sudo make install
+          cd ../..
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only
