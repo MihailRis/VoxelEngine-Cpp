@@ -31,10 +31,10 @@ static int l_pack_get_folder(lua_State* L) {
 /// @brief pack.get_installed() -> array<string>
 static int l_pack_get_installed(lua_State* L) {
     auto& packs = engine->getContentPacks();
-    lua_createtable(L, packs.size(), 0);
+    lua::createtable(L, packs.size(), 0);
     for (size_t i = 0; i < packs.size(); i++) {
         lua::pushstring(L, packs[i].id);
-        lua_rawseti(L, -2, i + 1);
+        lua::rawseti(L, i + 1);
     }
     return 1;
 }
@@ -54,16 +54,16 @@ static int l_pack_get_available(lua_State* L) {
     }
     auto names = manager.getAllNames();
     
-    lua_createtable(L, names.size(), 0);
+    lua::createtable(L, names.size(), 0);
     for (size_t i = 0; i < names.size(); i++) {
         lua::pushstring(L, names[i]);
-        lua_rawseti(L, -2, i + 1);
+        lua::rawseti(L, i + 1);
     }
     return 1;
 }
 
 static int l_pack_get_info(lua_State* L, const ContentPack& pack, const Content* content) {
-    lua_createtable(L, 0, 5);
+    lua::createtable(L, 0, 5);
 
     lua::pushstring(L, pack.id);
     lua::setfield(L, "id");
@@ -92,7 +92,7 @@ static int l_pack_get_info(lua_State* L, const ContentPack& pack, const Content*
     lua::setfield(L, "icon");
 
     if (!pack.dependencies.empty()) {
-        lua_createtable(L, pack.dependencies.size(), 0);
+        lua::createtable(L, pack.dependencies.size(), 0);
         for (size_t i = 0; i < pack.dependencies.size(); i++) {
             auto& dpack = pack.dependencies.at(i);
             std::string prefix;
@@ -102,8 +102,8 @@ static int l_pack_get_info(lua_State* L, const ContentPack& pack, const Content*
                 case DependencyLevel::weak: prefix = "~"; break;
                 default: throw std::runtime_error("");
             }
-            lua_pushfstring(L, "%s%s", prefix.c_str(), dpack.id.c_str());
-            lua_rawseti(L, -2, i+1);
+            lua::pushfstring(L, "%s%s", prefix.c_str(), dpack.id.c_str());
+            lua::rawseti(L, i+1);
         }
         lua::setfield(L, "dependencies");
     }
@@ -124,20 +124,20 @@ static int l_pack_get_info(lua_State* L, const ContentPack& pack, const Content*
 ///     [optional] has_indices: bool
 /// } or nil
 static int l_pack_get_info(lua_State* L) {
-    auto packid = lua_tostring(L, 1);
+    auto packid = lua::tostring(L, 1);
     
-    auto content = scripting::engine->getContent();
-    auto& packs = scripting::engine->getContentPacks();
+    auto content = engine->getContent();
+    auto& packs = engine->getContentPacks();
     auto found = std::find_if(packs.begin(), packs.end(), [packid](const auto& pack) {
         return pack.id == packid;
     });
     if (found == packs.end()) {
         // TODO: optimize
         fs::path worldFolder("");
-        if (scripting::level) {
-            worldFolder = scripting::level->getWorld()->wfile->getFolder();
+        if (level) {
+            worldFolder = level->getWorld()->wfile->getFolder();
         }
-        auto manager = scripting::engine->createPacksManager(worldFolder);
+        auto manager = engine->createPacksManager(worldFolder);
         manager.scan();
         auto vec = manager.getAll({packid});
         if (!vec.empty()) {
@@ -150,11 +150,11 @@ static int l_pack_get_info(lua_State* L) {
 }
 
 static int l_pack_get_base_packs(lua_State* L) {
-    auto& packs = scripting::engine->getBasePacks();
-    lua_createtable(L, packs.size(), 0);
+    auto& packs = engine->getBasePacks();
+    lua::createtable(L, packs.size(), 0);
     for (size_t i = 0; i < packs.size(); i++) {
-        lua_pushstring(L, packs[i].c_str());
-        lua_rawseti(L, -2, i + 1);
+        lua::pushstring(L, packs[i]);
+        lua::rawseti(L, i + 1);
     }
     return 1;
 }

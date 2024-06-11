@@ -9,7 +9,7 @@ static int l_json_stringify(lua_State* L) {
     if (auto mapptr = std::get_if<dynamic::Map_sptr>(&value)) {
         bool nice = lua::toboolean(L, 2);
         auto string = json::stringify(mapptr->get(), nice, "  ");
-        return lua::pushstring(L, string.c_str());
+        return lua::pushstring(L, string);
     } else {
         throw std::runtime_error("table expected");
     }

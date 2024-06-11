@@ -122,7 +122,7 @@ static int l_inventory_move(lua_State* L) {
     validate_slotid(slotAid, invA.get());
 
     auto invBid = lua::tointeger(L, 3);
-    auto slotBid = lua_isnil(L, 4) ? -1 : lua::tointeger(L, 4);
+    auto slotBid = lua::isnil(L, 4) ? -1 : lua::tointeger(L, 4);
     auto invB = get_inventory(invBid, 3);
     auto& slot = invA->getSlot(slotAid);
     if (slotBid == -1) {

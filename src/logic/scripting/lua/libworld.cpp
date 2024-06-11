@@ -17,9 +17,9 @@ static int l_world_get_list(lua_State* L) {
     auto paths = engine->getPaths();
     auto worlds = paths->scanForWorlds();
 
-    lua_createtable(L, worlds.size(), 0);
+    lua::createtable(L, worlds.size(), 0);
     for (size_t i = 0; i < worlds.size(); i++) {
-        lua_createtable(L, 0, 1);
+        lua::createtable(L, 0, 1);
         
         auto name = worlds[i].filename().u8string();
         lua::pushstring(L, name);
@@ -35,8 +35,7 @@ static int l_world_get_list(lua_State* L) {
         }
         lua::pushstring(L, icon);
         lua::setfield(L, "icon");
-
-        lua_rawseti(L, -2, i + 1);
+        lua::rawseti(L, i + 1);
     }
     return 1;
 }

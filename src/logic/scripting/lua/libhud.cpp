@@ -21,65 +21,66 @@
 namespace scripting {
     extern Hud* hud;
 }
+using namespace scripting;
 
 static int l_hud_open_inventory(lua_State*) {
-    if (!scripting::hud->isInventoryOpen()) {
-        scripting::hud->openInventory();
+    if (!hud->isInventoryOpen()) {
+        hud->openInventory();
     }
     return 0;
 }
 
 static int l_hud_close_inventory(lua_State*) {
-    if (scripting::hud->isInventoryOpen()) {
-        scripting::hud->closeInventory();
+    if (hud->isInventoryOpen()) {
+        hud->closeInventory();
     }
     return 0;
 }
 
 static int l_hud_open_block(lua_State* L) {
-    auto x = lua_tointeger(L, 1);
-    auto y = lua_tointeger(L, 2);
-    auto z = lua_tointeger(L, 3);
-    bool playerInventory = !lua_toboolean(L, 4);
+    auto x = lua::tointeger(L, 1);
+    auto y = lua::tointeger(L, 2);
+    auto z = lua::tointeger(L, 3);
+    bool playerInventory = !lua::toboolean(L, 4);
 
-    voxel* vox = scripting::level->chunks->get(x, y, z);
+    auto vox = level->chunks->get(x, y, z);
     if (vox == nullptr) {
         throw std::runtime_error("block does not exists at " +
             std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z)
         );
     }
-    auto def = scripting::content->getIndices()->getBlockDef(vox->id);
-    auto assets = scripting::engine->getAssets();
+    auto def = content->getIndices()->getBlockDef(vox->id);
+    auto assets = engine->getAssets();
     auto layout = assets->getLayout(def->uiLayout);
     if (layout == nullptr) {
         throw std::runtime_error("block '"+def->name+"' has no ui layout");
     }
 
-    auto id = scripting::blocks->createBlockInventory(x, y, z);
-    scripting::hud->openInventory(
-        glm::ivec3(x, y, z), layout, scripting::level->inventories->get(id), playerInventory
+    auto id = blocks->createBlockInventory(x, y, z);
+    hud->openInventory(
+        glm::ivec3(x, y, z), layout, level->inventories->get(id), playerInventory
     );
 
-    lua_pushinteger(L, id);
-    lua_pushstring(L, def->uiLayout.c_str());
+    lua::pushinteger(L, id);
+    lua::pushstring(L, def->uiLayout);
     return 2;
 }
 
 static int l_hud_show_overlay(lua_State* L) {
-    const char* name = lua_tostring(L, 1);
-    bool playerInventory = lua_toboolean(L, 2);
+    auto name = lua::tostring(L, 1);
+    bool playerInventory = lua::toboolean(L, 2);
 
-    auto assets = scripting::engine->getAssets();
+    auto assets = engine->getAssets();
     auto layout = assets->getLayout(name);
     if (layout == nullptr) {
         throw std::runtime_error("there is no ui layout "+util::quote(name));
     }
-    scripting::hud->showOverlay(layout, playerInventory);
+    hud->showOverlay(layout, playerInventory);
     return 0;
 }
 
-static UiDocument* require_layout(lua_State* L, const char* name) {
-    auto assets = scripting::engine->getAssets();
+static UiDocument* require_layout(const char* name) {
+    auto assets = engine->getAssets();
     auto layout = assets->getLayout(name);
     if (layout == nullptr) {
         throw std::runtime_error("layout '"+std::string(name)+"' is not found");
@@ -88,41 +89,39 @@ static UiDocument* require_layout(lua_State* L, const char* name) {
 }
 
 static int l_hud_open_permanent(lua_State* L) {
-    auto layout = require_layout(L, lua_tostring(L, 1));
-    scripting::hud->openPermanent(layout);
+    auto layout = require_layout(lua::tostring(L, 1));
+    hud->openPermanent(layout);
     return 0;
 }
 
 static int l_hud_close(lua_State* L) {
-    auto layout = require_layout(L, lua_tostring(L, 1));
-    scripting::hud->remove(layout->getRoot());
+    auto layout = require_layout(lua::tostring(L, 1));
+    hud->remove(layout->getRoot());
     return 0;
 }
 
 static int l_hud_pause(lua_State*) {
-    scripting::hud->setPause(true);
+    hud->setPause(true);
     return 0;
 }
 
 static int l_hud_resume(lua_State*) {
-    scripting::hud->setPause(false);
+    hud->setPause(false);
     return 0;
 }
 
 static int l_hud_get_block_inventory(lua_State* L) {
-    auto inventory = scripting::hud->getBlockInventory();
+    auto inventory = hud->getBlockInventory();
     if (inventory == nullptr) {
-        lua_pushinteger(L, 0);
+        return lua::pushinteger(L, 0);
     } else {
-        lua_pushinteger(L, inventory->getId());
+        return lua::pushinteger(L, inventory->getId());
     }
-    return 1;
 }
 
 static int l_hud_get_player(lua_State* L) {
-    auto player = scripting::hud->getPlayer();
-    lua_pushinteger(L, player->getId());
-    return 1;
+    auto player = hud->getPlayer();
+    return lua::pushinteger(L, player->getId());
 }
 
 const luaL_Reg hudlib [] = {

@@ -69,7 +69,7 @@ static int l_player_set_rot(lua_State* L) {
     lua_Number x = lua::tonumber(L, 2);
     lua_Number y = lua::tonumber(L, 3);
     lua_Number z = cam.z;
-    if (lua_isnumber(L, 4)) {
+    if (lua::isnumber(L, 4)) {
         z = lua::tonumber(L, 4);
     }
     cam.x = x;

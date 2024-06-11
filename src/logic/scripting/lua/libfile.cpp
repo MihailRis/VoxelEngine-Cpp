@@ -26,8 +26,7 @@ static fs::path resolve_path_soft(const std::string& path) {
 static int l_file_find(lua_State* L) {
     auto path = lua::require_string(L, 1);
     try {
-        lua_pushstring(L, engine->getResPaths()->findRaw(path).c_str());
-        return 1;
+        return lua::pushstring(L, engine->getResPaths()->findRaw(path));
     } catch (const std::runtime_error& err) {
         return 0;
     }
@@ -35,15 +34,13 @@ static int l_file_find(lua_State* L) {
 
 static int l_file_resolve(lua_State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
-    lua_pushstring(L, path.u8string().c_str());
-    return 1;
+    return lua::pushstring(L, path.u8string());
 }
 
 static int l_file_read(lua_State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     if (fs::is_regular_file(path)) {
-        lua_pushstring(L, files::read_string(path).c_str());
-        return 1;
+        return lua::pushstring(L, files::read_string(path));
     }
     throw std::runtime_error("file does not exists "+util::quote(path.u8string()));
 }
@@ -93,11 +90,10 @@ static int l_file_isdir(lua_State* L) {
 static int l_file_length(lua_State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     if (fs::exists(path)){
-        lua_pushinteger(L, fs::file_size(path));
+        return lua::pushinteger(L, fs::file_size(path));
     } else {
-        lua_pushinteger(L, -1);
+        return lua::pushinteger(L, -1);
     }
-    return 1;
 }
 
 static int l_file_mkdir(lua_State* L) {
@@ -117,12 +113,12 @@ static int l_file_read_bytes(lua_State* L) {
 
         auto bytes = files::read_bytes(path, length);
 
-        lua_createtable(L, length, 0);
-        int newTable = lua_gettop(L);
+        lua::createtable(L, length, 0);
+        int newTable = lua::gettop(L);
 
         for(size_t i = 0; i < length; i++) {
-            lua_pushinteger(L, bytes[i]);
-            lua_rawseti(L, newTable, i+1);
+            lua::pushinteger(L, bytes[i]);
+            lua::rawseti(L, i+1, newTable);
         }
         return 1;
     }
@@ -130,17 +126,17 @@ static int l_file_read_bytes(lua_State* L) {
 }
 
 static int read_bytes_from_table(lua_State* L, int tableIndex, std::vector<ubyte>& bytes) {
-    if(!lua_istable(L, tableIndex)) {
+    if(!lua::istable(L, tableIndex)) {
         throw std::runtime_error("table expected");
     } else {
-        lua_pushnil(L);
+        lua::pushnil(L);
         while(lua_next(L, tableIndex - 1) != 0) {
-            const int byte = lua_tointeger(L, -1);
+            const int byte = lua::tointeger(L, -1);
             if(byte < 0 || byte > 255) {
                 throw std::runtime_error("invalid byte '"+std::to_string(byte)+"'");
             }
             bytes.push_back(byte);  
-            lua_pop(L, 1);
+            lua::pop(L);
         }
         return 1;
     }
@@ -149,7 +145,7 @@ static int read_bytes_from_table(lua_State* L, int tableIndex, std::vector<ubyte
 static int l_file_write_bytes(lua_State* L) {
     int pathIndex = 1;
 
-    if(!lua_isstring(L, pathIndex)) {
+    if(!lua::isstring(L, pathIndex)) {
         throw std::runtime_error("string expected");
     }
 
@@ -168,10 +164,10 @@ static int l_file_write_bytes(lua_State* L) {
 
 static int l_file_list_all_res(lua_State* L, const std::string& path) {
     auto files = engine->getResPaths()->listdirRaw(path);
-    lua_createtable(L, files.size(), 0);
+    lua::createtable(L, files.size(), 0);
     for (size_t i = 0; i < files.size(); i++) {
-        lua_pushstring(L, files[i].c_str());
-        lua_rawseti(L, -2, i+1);
+        lua::pushstring(L, files[i]);
+        lua::rawseti(L, i+1);
     }
     return 1;
 }
@@ -185,13 +181,13 @@ static int l_file_list(lua_State* L) {
     if (!fs::is_directory(path)) {
         throw std::runtime_error(util::quote(path.u8string())+" is not a directory");
     }
-    lua_createtable(L, 0, 0);
+    lua::createtable(L, 0, 0);
     size_t index = 1;
     for (auto& entry : fs::directory_iterator(path)) {
         auto name = entry.path().filename().u8string();
         auto file = dirname + "/" + name;
-        lua_pushstring(L, file.c_str());
-        lua_rawseti(L, -2, index);
+        lua::pushstring(L, file);
+        lua::rawseti(L, index);
         index++;
     }
     return 1;
@@ -204,8 +200,7 @@ static int l_file_gzip_compress(lua_State* L) {
 
         auto compressed_bytes = gzip::compress(files::read_bytes(path, length).get(), length);
 
-        lua_pushboolean(L, files::write_bytes(path, compressed_bytes.data(), compressed_bytes.size()));
-        return 1;
+        return lua::pushboolean(L, files::write_bytes(path, compressed_bytes.data(), compressed_bytes.size()));
     } 
     throw std::runtime_error("file does not exist " + util::quote(path.u8string())); 
 }
@@ -217,8 +212,7 @@ static int l_file_gzip_decompress(lua_State* L) {
 
         auto decompressed_bytes = gzip::decompress(files::read_bytes(path, length).get(), length);
 
-        lua_pushboolean(L, files::write_bytes(path, decompressed_bytes.data(), decompressed_bytes.size()));
-        return 1;
+        return lua::pushboolean(L, files::write_bytes(path, decompressed_bytes.data(), decompressed_bytes.size()));
     } 
     throw std::runtime_error("file does not exist " + util::quote(path.u8string())); 
 }

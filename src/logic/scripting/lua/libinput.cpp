@@ -15,14 +15,12 @@ using namespace scripting;
 
 static int l_keycode(lua_State* L) {
     auto name = lua::require_string(L, 1);
-    lua_pushinteger(L, static_cast<int>(input_util::keycode_from(name)));
-    return 1;
+    return lua::pushinteger(L, static_cast<int>(input_util::keycode_from(name)));
 }
 
 static int l_mousecode(lua_State* L) {
     auto name = lua::require_string(L, 1);
-    lua_pushinteger(L, static_cast<int>(input_util::mousecode_from(name)));
-    return 1;
+    return lua::pushinteger(L, static_cast<int>(input_util::mousecode_from(name)));
 }
 
 static int l_add_callback(lua_State* L) {
@@ -31,7 +29,7 @@ static int l_add_callback(lua_State* L) {
     if (bind == Events::bindings.end()) {
         throw std::runtime_error("unknown binding "+util::quote(bindname));
     }
-    lua_pushvalue(L, 2);
+    lua::pushvalue(L, 2);
     runnable actual_callback = lua::create_runnable(L);
     runnable callback = [=]() {
         if (!scripting::engine->getGUI()->isFocusCaught()) {
@@ -52,12 +50,12 @@ static int l_get_mouse_pos(lua_State* L) {
 
 static int l_get_bindings(lua_State* L) {
     auto& bindings = Events::bindings;
-    lua_createtable(L, bindings.size(), 0);
+    lua::createtable(L, bindings.size(), 0);
 
     int i = 0;
     for (auto& entry : bindings) {
-        lua_pushstring(L, entry.first.c_str());
-        lua_rawseti(L, -2, i + 1);
+        lua::pushstring(L, entry.first);
+        lua::rawseti(L, i + 1);
         i++;
     }
     return 1;

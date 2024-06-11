@@ -44,7 +44,7 @@ static int l_close_world(lua_State* L) {
     if (controller == nullptr) {
         throw std::runtime_error("no world open");
     }
-    bool save_world = lua_toboolean(L, 1);
+    bool save_world = lua::toboolean(L, 1);
     if (save_world) {
         controller->saveWorld();
     }
@@ -63,32 +63,32 @@ static int l_delete_world(lua_State* L) {
 }
 
 static int l_reconfig_packs(lua_State* L) {
-    if (!lua_istable(L, 1)) {
+    if (!lua::istable(L, 1)) {
         throw std::runtime_error("strings array expected as the first argument");
     }
-    if (!lua_istable(L, 2)) {
+    if (!lua::istable(L, 2)) {
         throw std::runtime_error("strings array expected as the second argument");
     }
     std::vector<std::string> addPacks;
-    if (!lua_istable(L, 1)) {
+    if (!lua::istable(L, 1)) {
         throw std::runtime_error("an array expected as argument 1");
     }
-    int addLen = lua_objlen(L, 1);
+    int addLen = lua::objlen(L, 1);
     for (int i = 0; i < addLen; i++) {
-        lua_rawgeti(L, 1, i+1);
-        addPacks.emplace_back(lua_tostring(L, -1));
-        lua_pop(L, 1);
+        lua::rawgeti(L, i+1, 1);
+        addPacks.emplace_back(lua::tostring(L, -1));
+        lua::pop(L);
     }
 
     std::vector<std::string> remPacks;
-    if (!lua_istable(L, 2)) {
+    if (!lua::istable(L, 2)) {
         throw std::runtime_error("an array expected as argument 2");
     }
-    int remLen = lua_objlen(L, 2);
+    int remLen = lua::objlen(L, 2);
     for (int i = 0; i < remLen; i++) {
-        lua_rawgeti(L, 2, i+1);
-        remPacks.emplace_back(lua_tostring(L, -1));
-        lua_pop(L, 1);
+        lua::rawgeti(L, i+1, 2);
+        remPacks.emplace_back(lua::tostring(L, -1));
+        lua::pop(L);
     }
     auto engine_controller = engine->getController();
     engine_controller->reconfigPacks(controller, addPacks, remPacks);
@@ -98,8 +98,7 @@ static int l_reconfig_packs(lua_State* L) {
 static int l_get_setting(lua_State* L) {
     auto name = lua::require_string(L, 1);
     const auto value = engine->getSettingsHandler().getValue(name);
-    lua::pushvalue(L, value);
-    return 1;
+    return lua::pushvalue(L, value);
 }
 
 static int l_set_setting(lua_State* L) {
@@ -112,14 +111,13 @@ static int l_set_setting(lua_State* L) {
 static int l_str_setting(lua_State* L) {
     auto name = lua::require_string(L, 1);
     const auto string = engine->getSettingsHandler().toString(name);
-    lua::pushstring(L, string);
-    return 1;
+    return lua::pushstring(L, string);
 }
 
 static int l_get_setting_info(lua_State* L) {
     auto name = lua::require_string(L, 1);
     auto setting = engine->getSettingsHandler().getSetting(name);
-    lua_createtable(L, 0, 1);
+    lua::createtable(L, 0, 1);
     if (auto number = dynamic_cast<NumberSetting*>(setting)) {
         lua::pushnumber(L, number->getMin());
         lua::setfield(L, "min");
@@ -134,7 +132,7 @@ static int l_get_setting_info(lua_State* L) {
         lua::setfield(L, "max");
         return 1;
     }
-    lua_pop(L, 1);
+    lua::pop(L);
     throw std::runtime_error("unsupported setting type");
 }
 
@@ -144,18 +142,17 @@ static int l_quit(lua_State*) {
 }
 
 static int l_get_default_generator(lua_State* L) {
-    lua::pushstring(L, WorldGenerators::getDefaultGeneratorID().c_str());
-    return 1;
+    return lua::pushstring(L, WorldGenerators::getDefaultGeneratorID());
 }
 
 static int l_get_generators(lua_State* L) {
     const auto& generators = WorldGenerators::getGeneratorsIDs();
-    lua_createtable(L, generators.size(), 0);
+    lua::createtable(L, generators.size(), 0);
 
     int i = 0;
     for (auto& id : generators) {
-        lua::pushstring(L, id.c_str());
-        lua_rawseti(L, -2, i + 1);
+        lua::pushstring(L, id);
+        lua::rawseti(L, i + 1);
         i++;
     }
     return 1;

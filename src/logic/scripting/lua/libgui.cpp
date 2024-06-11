@@ -554,7 +554,7 @@ static int l_gui_get_env(lua_State* L) {
 
 static int l_gui_str(lua_State* L) {
     auto text = lua::require_wstring(L, 1);
-    if (!lua_isnoneornil(L, 2)) {
+    if (!lua::isnoneornil(L, 2)) {
         auto context = lua::require_wstring(L, 2);
         lua::pushwstring(L, langs::get(text, context));
     } else {
@@ -576,9 +576,9 @@ static int l_gui_reindex(lua_State* L) {
 /// @brief gui.get_locales_info() -> table of tables 
 static int l_gui_get_locales_info(lua_State* L) {
     auto& locales = langs::locales_info;
-    lua_createtable(L, 0, locales.size());
+    lua::createtable(L, 0, locales.size());
     for (auto& entry : locales) {
-        lua_createtable(L, 0, 1);
+        lua::createtable(L, 0, 1);
         lua::pushstring(L, entry.second.name);
         lua::setfield(L, "name");
         lua::setfield(L, entry.first);

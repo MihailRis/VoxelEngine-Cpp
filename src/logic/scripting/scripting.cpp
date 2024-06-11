@@ -1,5 +1,7 @@
 #include "scripting.hpp"
 
+#include "lua/lua_engine.hpp"
+
 #include "../../content/ContentPack.hpp"
 #include "../../debug/Logger.hpp"
 #include "../../engine.hpp"
@@ -16,22 +18,15 @@
 #include "../../util/timeutil.hpp"
 #include "../../voxels/Block.hpp"
 #include "../../world/Level.hpp"
-#include "lua/LuaState.hpp"
-#include "lua/lua_util.hpp"
 
 #include <iostream>
 #include <stdexcept>
 
 using namespace scripting;
 
-namespace scripting {
-    extern lua::LuaState* state;
-}
-
 static debug::Logger logger("scripting");
 
 Engine* scripting::engine = nullptr;
-lua::LuaState* scripting::state = nullptr;
 Level* scripting::level = nullptr;
 const Content* scripting::content = nullptr;
 const ContentIndices* scripting::indices = nullptr;
@@ -43,13 +38,12 @@ static void load_script(const fs::path& name) {
     fs::path file = paths->getResources()/fs::path("scripts")/name;
 
     std::string src = files::read_string(file);
-    lua::execute(state->getMainThread(), 0, src, file.u8string());
+    lua::execute(lua::get_main_thread(), 0, src, file.u8string());
 }
 
 void scripting::initialize(Engine* engine) {
     scripting::engine = engine;
-
-    state = new lua::LuaState();
+    lua::initialize();
 
     load_script(fs::path("stdlib.lua"));
     load_script(fs::path("stdcmd.lua"));
@@ -60,7 +54,7 @@ scriptenv scripting::get_root_environment() {
 }
 
 scriptenv scripting::create_pack_environment(const ContentPack& pack) {
-    auto L = state->getMainThread();
+    auto L = lua::get_main_thread();
     int id = lua::createEnvironment(L, 0);
     lua::pushenv(L, id);
     lua::pushvalue(L, -1);
@@ -75,7 +69,7 @@ scriptenv scripting::create_pack_environment(const ContentPack& pack) {
 }
 
 scriptenv scripting::create_doc_environment(const scriptenv& parent, const std::string& name) {
-    auto L = state->getMainThread();
+    auto L = lua::get_main_thread();
     int id = lua::createEnvironment(L, *parent);
     lua::pushenv(L, id);
     lua::pushvalue(L, -1);
@@ -100,7 +94,7 @@ scriptenv scripting::create_doc_environment(const scriptenv& parent, const std::
 }
 
 void scripting::process_post_runnables() {
-    auto L = state->getMainThread();
+    auto L = lua::get_main_thread();
     if (lua::getglobal(L, "__process_post_runnables")) {
         lua::call_nothrow(L, 0);
     }
@@ -114,30 +108,30 @@ void scripting::on_world_load(LevelController* controller) {
     scripting::controller = controller;
     load_script("world.lua");
 
-    auto L = state->getMainThread();
+    auto L = lua::get_main_thread();
     for (auto& pack : scripting::engine->getContentPacks()) {
-        state->emitEvent(L, pack.id + ".worldopen");
+        lua::emit_event(L, pack.id + ".worldopen");
     }
 }
 
 void scripting::on_world_tick() {
-    auto L = state->getMainThread();
+    auto L = lua::get_main_thread();
     for (auto& pack : scripting::engine->getContentPacks()) {
-        state->emitEvent(L, pack.id + ".worldtick");
+        lua::emit_event(L, pack.id + ".worldtick");
     }
 }
 
 void scripting::on_world_save() {
-    auto L = state->getMainThread();
+    auto L = lua::get_main_thread();
     for (auto& pack : scripting::engine->getContentPacks()) {
-        state->emitEvent(L, pack.id + ".worldsave");
+        lua::emit_event(L, pack.id + ".worldsave");
     }
 }
 
 void scripting::on_world_quit() {
-    auto L = state->getMainThread();
+    auto L = lua::get_main_thread();
     for (auto& pack : scripting::engine->getContentPacks()) {
-        state->emitEvent(L, pack.id + ".worldquit");
+        lua::emit_event(L, pack.id + ".worldquit");
     }
 
     lua::getglobal(L, "pack");
@@ -160,28 +154,28 @@ void scripting::on_world_quit() {
 
 void scripting::on_blocks_tick(const Block* block, int tps) {
     std::string name = block->name + ".blockstick";
-    state->emitEvent(state->getMainThread(), name, [tps] (lua_State* L) {
+    lua::emit_event(lua::get_main_thread(), name, [tps] (lua_State* L) {
         return lua::pushinteger(L, tps);
     });
 }
 
 void scripting::update_block(const Block* block, int x, int y, int z) {
     std::string name = block->name + ".update";
-    state->emitEvent(state->getMainThread(), name, [x, y, z] (lua_State* L) {
+    lua::emit_event(lua::get_main_thread(), name, [x, y, z] (lua_State* L) {
         return lua::pushivec3(L, x, y, z);
     });
 }
 
 void scripting::random_update_block(const Block* block, int x, int y, int z) {
     std::string name = block->name + ".randupdate";
-    state->emitEvent(state->getMainThread(), name, [x, y, z] (lua_State* L) {
+    lua::emit_event(lua::get_main_thread(), name, [x, y, z] (lua_State* L) {
         return lua::pushivec3(L, x, y, z);
     });
 }
 
 void scripting::on_block_placed(Player* player, const Block* block, int x, int y, int z) {
     std::string name = block->name + ".placed";
-    state->emitEvent(state->getMainThread(), name, [x, y, z, player] (lua_State* L) {
+    lua::emit_event(lua::get_main_thread(), name, [x, y, z, player] (lua_State* L) {
         lua::pushivec3(L, x, y, z);
         lua::pushinteger(L, player->getId());
         return 4;
@@ -190,7 +184,7 @@ void scripting::on_block_placed(Player* player, const Block* block, int x, int y
 
 void scripting::on_block_broken(Player* player, const Block* block, int x, int y, int z) {
     std::string name = block->name + ".broken";
-    state->emitEvent(state->getMainThread(), name, [x, y, z, player] (lua_State* L) {
+    lua::emit_event(lua::get_main_thread(), name, [x, y, z, player] (lua_State* L) {
         lua::pushivec3(L, x, y, z);
         lua::pushinteger(L, player->getId());
         return 4;
@@ -199,7 +193,7 @@ void scripting::on_block_broken(Player* player, const Block* block, int x, int y
 
 bool scripting::on_block_interact(Player* player, const Block* block, glm::ivec3 pos) {
     std::string name = block->name + ".interact";
-    return state->emitEvent(state->getMainThread(), name, [pos, player] (lua_State* L) {
+    return lua::emit_event(lua::get_main_thread(), name, [pos, player] (lua_State* L) {
         lua::pushivec3(L, pos.x, pos.y, pos.z);
         lua::pushinteger(L, player->getId());
         return 4;
@@ -208,14 +202,14 @@ bool scripting::on_block_interact(Player* player, const Block* block, glm::ivec3
 
 bool scripting::on_item_use(Player* player, const ItemDef* item) {
     std::string name = item->name + ".use";
-    return state->emitEvent(state->getMainThread(), name, [player] (lua_State* L) {
+    return lua::emit_event(lua::get_main_thread(), name, [player] (lua_State* L) {
         return lua::pushinteger(L, player->getId());
     });
 }
 
 bool scripting::on_item_use_on_block(Player* player, const ItemDef* item, int x, int y, int z) {
     std::string name = item->name + ".useon";
-    return state->emitEvent(state->getMainThread(), name, [x, y, z, player] (lua_State* L) {
+    return lua::emit_event(lua::get_main_thread(), name, [x, y, z, player] (lua_State* L) {
         lua::pushivec3(L, x, y, z);
         lua::pushinteger(L, player->getId());
         return 4;
@@ -224,7 +218,7 @@ bool scripting::on_item_use_on_block(Player* player, const ItemDef* item, int x,
 
 bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, int y, int z) {
     std::string name = item->name + ".blockbreakby";
-    return state->emitEvent(state->getMainThread(), name, [x, y, z, player] (lua_State* L) {
+    return lua::emit_event(lua::get_main_thread(), name, [x, y, z, player] (lua_State* L) {
         lua::pushivec3(L, x, y, z);
         lua::pushinteger(L, player->getId());
         return 4;
@@ -237,7 +231,7 @@ void scripting::on_ui_open(
 ) {
     auto argsptr = std::make_shared<std::vector<dynamic::Value>>(std::move(args));
     std::string name = layout->getId() + ".open";
-    state->emitEvent(state->getMainThread(), name, [=] (lua_State* L) {
+    lua::emit_event(lua::get_main_thread(), name, [=] (lua_State* L) {
         for (const auto& value : *argsptr) {
             lua::pushvalue(L, value);
         }
@@ -247,7 +241,7 @@ void scripting::on_ui_open(
 
 void scripting::on_ui_progress(UiDocument* layout, int workDone, int workTotal) {
     std::string name = layout->getId() + ".progress";
-    state->emitEvent(state->getMainThread(), name, [=] (lua_State* L) {
+    lua::emit_event(lua::get_main_thread(), name, [=] (lua_State* L) {
         lua::pushinteger(L, workDone);
         lua::pushinteger(L, workTotal);
         return 2;
@@ -256,13 +250,13 @@ void scripting::on_ui_progress(UiDocument* layout, int workDone, int workTotal) 
 
 void scripting::on_ui_close(UiDocument* layout, Inventory* inventory) {
     std::string name = layout->getId() + ".close";
-    state->emitEvent(state->getMainThread(), name, [inventory] (lua_State* L) {
+    lua::emit_event(lua::get_main_thread(), name, [inventory] (lua_State* L) {
         return lua::pushinteger(L, inventory ? inventory->getId() : 0);
     });
 }
 
 bool scripting::register_event(int env, const std::string& name, const std::string& id) {
-    auto L = state->getMainThread();
+    auto L = lua::get_main_thread();
     if (lua::pushenv(L, env) == 0) {
         lua::pushglobals(L);
     }
@@ -287,7 +281,7 @@ void scripting::load_block_script(const scriptenv& senv, const std::string& pref
     int env = *senv;
     std::string src = files::read_string(file);
     logger.info() << "script (block) " << file.u8string();
-    lua::execute(state->getMainThread(), env, src, file.u8string());
+    lua::execute(lua::get_main_thread(), env, src, file.u8string());
     funcsset.init = register_event(env, "init", prefix+".init");
     funcsset.update = register_event(env, "on_update", prefix+".update");
     funcsset.randupdate = register_event(env, "on_random_update", prefix+".randupdate");
@@ -301,7 +295,7 @@ void scripting::load_item_script(const scriptenv& senv, const std::string& prefi
     int env = *senv;
     std::string src = files::read_string(file);
     logger.info() << "script (item) " << file.u8string();
-    lua::execute(state->getMainThread(), env, src, file.u8string());
+    lua::execute(lua::get_main_thread(), env, src, file.u8string());
 
     funcsset.init = register_event(env, "init", prefix+".init");
     funcsset.on_use = register_event(env, "on_use", prefix+".use");
@@ -314,7 +308,7 @@ void scripting::load_world_script(const scriptenv& senv, const std::string& pref
 
     std::string src = files::read_string(file);
     logger.info() << "loading world script for " << prefix;
-    lua::execute(state->getMainThread(), env, src, file.u8string());
+    lua::execute(lua::get_main_thread(), env, src, file.u8string());
 
     register_event(env, "init", prefix+".init");
     register_event(env, "on_world_open", prefix+".worldopen");
@@ -329,16 +323,14 @@ void scripting::load_layout_script(const scriptenv& senv, const std::string& pre
     std::string src = files::read_string(file);
     logger.info() << "loading script " << file.u8string();
 
-    lua::execute(state->getMainThread(), env, src, file.u8string());
+    lua::execute(lua::get_main_thread(), env, src, file.u8string());
     script.onopen = register_event(env, "on_open", prefix+".open");
     script.onprogress = register_event(env, "on_progress", prefix+".progress");
     script.onclose = register_event(env, "on_close", prefix+".close");
 }
 
 void scripting::close() {
-    delete state;
-
-    state = nullptr;
+    lua::finalize();
     content = nullptr;
     indices = nullptr;
     level = nullptr;
