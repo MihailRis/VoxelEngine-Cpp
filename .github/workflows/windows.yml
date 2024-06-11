@@ -23,6 +23,7 @@ jobs:
 
       - name: Set up vcpkg
         run: |
+          set VCPKG_DEFAULT_HOST_TRIPLET=x64-windows-static-md
           git clone https://github.com/microsoft/vcpkg.git
           cd vcpkg
           .\bootstrap-vcpkg.bat
@@ -32,9 +33,9 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVCPKG_TARGET_TRIPLET=x64-windows-static-md ..
           Remove-Item -Path CMakeFiles -Recurse -Force
-          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVCPKG_TARGET_TRIPLET=x64-windows-static-md ..
           cmake --build . --config Release
       - name: Package for Windows
         run: |
