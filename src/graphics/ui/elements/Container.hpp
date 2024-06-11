@@ -17,6 +17,7 @@ namespace gui {
         bool scrollable = true;
     public:
         Container(glm::vec2 size);
+        virtual ~Container();
 
         virtual void act(float delta) override;
         virtual void drawBackground(const DrawContext* pctx, Assets* assets);

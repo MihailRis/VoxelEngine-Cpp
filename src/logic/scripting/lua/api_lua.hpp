@@ -1,7 +1,7 @@
 #ifndef LOGIC_SCRIPTING_API_LUA_HPP_
 #define LOGIC_SCRIPTING_API_LUA_HPP_
 
-#include "lua_commons.hpp"
+#include "lua_util.hpp"
 
 #include <exception>
  
@@ -24,6 +24,6 @@ extern const luaL_Reg tomllib [];
 extern const luaL_Reg worldlib [];
 
 // Lua Overrides
-extern int l_print(lua_State* L);
+extern int l_print(lua::State* L);
 
 #endif // LOGIC_SCRIPTING_API_LUA_HPP_

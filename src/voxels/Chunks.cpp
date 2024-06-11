@@ -234,9 +234,6 @@ bool Chunks::checkReplaceability(const Block* def, blockstate state, glm::ivec3 
     for (int sy = 0; sy < size.y; sy++) {
         for (int sz = 0; sz < size.z; sz++) {
             for (int sx = 0; sx < size.x; sx++) {
-                blockstate segState = state;
-                segState.segment = segment_to_int(sx, sy, sz);
-
                 auto pos = origin;
                 pos += rotation.axisX * sx;
                 pos += rotation.axisY * sy;

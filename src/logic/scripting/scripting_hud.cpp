@@ -2,7 +2,7 @@
 #include "scripting.hpp"
 
 #include "lua/api_lua.hpp"
-#include "lua/LuaState.hpp"
+#include "lua/lua_engine.hpp"
 
 #include "../../debug/Logger.hpp"
 #include "../../frontend/hud.hpp"
@@ -10,9 +10,7 @@
 #include "../../files/files.hpp"
 #include "../../engine.hpp"
 
-namespace scripting {
-    extern lua::LuaState* state;
-}
+using namespace scripting;
 
 static debug::Logger logger("scripting-hud");
 
@@ -20,21 +18,21 @@ Hud* scripting::hud = nullptr;
 
 void scripting::on_frontend_init(Hud* hud) {
     scripting::hud = hud;
-    scripting::state->openlib("hud", hudlib);
+    lua::openlib(lua::get_main_thread(), "hud", hudlib);
 
-    for (auto& pack : scripting::engine->getContentPacks()) {
-        state->emit_event(pack.id + ".hudopen", [&] (lua::LuaState* state) {
-            state->pushinteger(hud->getPlayer()->getId());
-            return 1;            
+    for (auto& pack : engine->getContentPacks()) {
+        lua::emit_event(lua::get_main_thread(), pack.id + ".hudopen", 
+        [&] (lua::State* L) {
+            return lua::pushinteger(L, hud->getPlayer()->getId());        
         });
     }
 }
 
 void scripting::on_frontend_close() {
-    for (auto& pack : scripting::engine->getContentPacks()) {
-        state->emit_event(pack.id + ".hudclose", [&] (lua::LuaState* state) {
-            state->pushinteger(hud->getPlayer()->getId());
-            return 1;            
+    for (auto& pack : engine->getContentPacks()) {
+        lua::emit_event(lua::get_main_thread(), pack.id + ".hudclose", 
+        [&] (lua::State* L) {
+            return lua::pushinteger(L, hud->getPlayer()->getId());            
         });
     }
     scripting::hud = nullptr;
@@ -45,8 +43,7 @@ void scripting::load_hud_script(const scriptenv& senv, const std::string& packid
     std::string src = files::read_string(file);
     logger.info() << "loading script " << file.u8string();
 
-    state->loadbuffer(env, src, file.u8string());
-    state->callNoThrow(0);
+    lua::execute(lua::get_main_thread(), env, src, file.u8string());
 
     register_event(env, "init", packid+".init");
     register_event(env, "on_hud_open", packid+".hudopen");
