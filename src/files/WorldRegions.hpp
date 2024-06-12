@@ -77,6 +77,43 @@ struct RegionsLayer {
     std::mutex mutex;
 };
 
+class regfile_ptr {
+    regfile* file;
+    std::condition_variable* cv;
+public:
+    regfile_ptr(
+        regfile* file,
+        std::condition_variable* cv
+    ) : file(file), cv(cv) {}
+
+    regfile_ptr(const regfile_ptr&) = delete;
+
+    regfile_ptr(std::nullptr_t) : file(nullptr), cv(nullptr) {}
+
+    bool operator==(std::nullptr_t) const {
+        return file == nullptr;
+    }
+    bool operator!=(std::nullptr_t) const {
+        return file != nullptr;
+    }
+    operator bool() const {
+        return file != nullptr;
+    }
+    ~regfile_ptr() {
+        reset();
+    }
+    regfile* get() {
+        return file;
+    }
+    void reset() {
+        if (file) {
+            file->inUse = false;
+            cv->notify_one();
+            file = nullptr;
+        }
+    }
+};
+
 class WorldRegions {
     fs::path directory;
     std::unordered_map<glm::ivec3, std::unique_ptr<regfile>> openRegFiles;
@@ -110,10 +147,10 @@ class WorldRegions {
 
     ubyte* getData(int x, int z, int layer, uint32_t& size);
 
-    std::shared_ptr<regfile> getRegFile(glm::ivec3 coord, bool create=true);
+    regfile_ptr getRegFile(glm::ivec3 coord, bool create=true);
     void closeRegFile(glm::ivec3 coord);
-    std::shared_ptr<regfile> useRegFile(glm::ivec3 coord);
-    std::shared_ptr<regfile> createRegFile(glm::ivec3 coord);
+    regfile_ptr useRegFile(glm::ivec3 coord);
+    regfile_ptr createRegFile(glm::ivec3 coord);
 
     fs::path getRegionFilename(int x, int y) const;
 
