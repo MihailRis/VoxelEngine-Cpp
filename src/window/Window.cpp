@@ -144,10 +144,16 @@ int Window::initialize(DisplaySettings* settings){
     glfwMakeContextCurrent(window);
 
     glewExperimental = GL_TRUE;
+    
     GLenum glewErr = glewInit();
     if (glewErr != GLEW_OK){
-        logger.error() << "failed to initialize GLEW:\n" << glewGetErrorString(glewErr);
-        return -1;
+        if (glewErr == GLEW_ERROR_NO_GLX_DISPLAY) {
+            // see issue #240
+            logger.warning() << "glewInit() returned GLEW_ERROR_NO_GLX_DISPLAY; ignored";
+        } else {
+            logger.error() << "failed to initialize GLEW:\n" << glewGetErrorString(glewErr);
+            return -1;
+        }
     }
 
     glViewport(0,0, width, height);
