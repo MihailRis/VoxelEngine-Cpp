@@ -22,6 +22,7 @@ static void remove_lib_funcs(lua::State* L, const char* libname, const char* fun
             setfield(L, funcs[i], -2);
         }
     }
+    pop(L);
 }
 
 static void create_libs(lua::State* L) {
@@ -44,6 +45,7 @@ static void create_libs(lua::State* L) {
     addfunc(L, "print", lua::wrap<l_print>);
 }
 
+#include <iostream>
 void lua::initialize() {
     logger.info() << LUA_VERSION;
     logger.info() << LUAJIT_VERSION;
@@ -54,15 +56,14 @@ void lua::initialize() {
     }
     main_thread = L;
     // Allowed standard libraries
-    luaopen_base(L);
-    luaopen_math(L);
-    luaopen_string(L);
-    luaopen_table(L);
-    luaopen_debug(L);
-    luaopen_jit(L);
-    luaopen_bit(L);
-
-    luaopen_os(L);
+    pop(L, luaopen_base(L));
+    pop(L, luaopen_math(L));
+    pop(L, luaopen_string(L));
+    pop(L, luaopen_table(L));
+    pop(L, luaopen_debug(L));
+    pop(L, luaopen_jit(L));
+    pop(L, luaopen_bit(L));
+    pop(L, luaopen_os(L));
     const char* removed_os[] {
         "execute",
         "exit",

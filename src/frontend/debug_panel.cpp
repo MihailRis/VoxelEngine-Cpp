@@ -8,6 +8,7 @@
 #include "../graphics/ui/elements/TrackBar.hpp"
 #include "../graphics/ui/elements/InputBindBox.hpp"
 #include "../graphics/render/WorldRenderer.hpp"
+#include "../logic/scripting/scripting.hpp"
 #include "../objects/Player.hpp"
 #include "../physics/Hitbox.hpp"
 #include "../util/stringutil.hpp"
@@ -64,6 +65,9 @@ std::shared_ptr<UINode> create_debug_panel(
     panel->add(create_label([](){
         return L"speakers: " + std::to_wstring(audio::count_speakers())+
                L" streams: " + std::to_wstring(audio::count_streams());
+    }));
+    panel->add(create_label([](){
+        return L"lua-stack: " + std::to_wstring(scripting::get_values_on_stack());
     }));
     panel->add(create_label([=](){
         auto& settings = engine->getSettings();

@@ -145,7 +145,7 @@ void lua::dump_stack(State* L) {
     }
 }
 
-static std::shared_ptr<std::string> createLambdaHandler(State* L) {
+static std::shared_ptr<std::string> create_lambda_handler(State* L) {
     auto ptr = reinterpret_cast<ptrdiff_t>(topointer(L, -1));
     auto name = util::mangleid(ptr);
     getglobal(L, LAMBDAS_TABLE);
@@ -163,16 +163,17 @@ static std::shared_ptr<std::string> createLambdaHandler(State* L) {
 }
 
 runnable lua::create_runnable(State* L) {
-    auto funcptr = createLambdaHandler(L);
+    auto funcptr = create_lambda_handler(L);
     return [=]() {
         getglobal(L, LAMBDAS_TABLE);
         getfield(L, *funcptr);
         call_nothrow(L, 0);
+        pop(L);
     };
 }
 
 scripting::common_func lua::create_lambda(State* L) {
-    auto funcptr = createLambdaHandler(L);
+    auto funcptr = create_lambda_handler(L);
     return [=](const std::vector<dynamic::Value>& args) {
         getglobal(L, LAMBDAS_TABLE);
         getfield(L, *funcptr);

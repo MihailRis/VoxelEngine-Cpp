@@ -41,7 +41,8 @@ namespace scripting {
 
     void initialize(Engine* engine);
 
-    extern bool register_event(int env, const std::string& name, const std::string& id);
+    bool register_event(int env, const std::string& name, const std::string& id);
+    int get_values_on_stack();
 
     scriptenv get_root_environment();
     scriptenv create_pack_environment(const ContentPack& pack);

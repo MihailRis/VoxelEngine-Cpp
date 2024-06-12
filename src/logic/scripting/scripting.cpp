@@ -277,6 +277,10 @@ bool scripting::register_event(int env, const std::string& name, const std::stri
     return false;
 }
 
+int scripting::get_values_on_stack() {
+    return lua::gettop(lua::get_main_thread());
+}
+
 void scripting::load_block_script(const scriptenv& senv, const std::string& prefix, const fs::path& file, block_funcs_set& funcsset) {
     int env = *senv;
     std::string src = files::read_string(file);
