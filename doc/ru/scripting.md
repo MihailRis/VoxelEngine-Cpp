@@ -2,6 +2,15 @@
 
 В качестве языка сценариев используется LuaJIT
 
+Подразделы:
+- [События движка](scripting/events.md)
+- [Пользовательский ввод](scripting/user-input.md)
+- [Файловая система и сериализация](scripting/filesystem.md)
+- [Модуль core:bit_converter](scripting/modules/core_bit_converter.md)
+- [Модуль core:data_buffer](scripting/modules/core_data_buffer.md)
+- [Модули core:Vector2, core:Vector3](scripting/modules/core_Vector2&&Vector3.md)
+
+
 ```lua
 require "контентпак:имя_модуля" -- загружает lua модуль из папки modules (расширение не указывается)
 ```
@@ -372,6 +381,35 @@ block.set_rotation(x: int, y: int, z: int, rotation: int)
 ```
 
 Устанавливает вращение блока по индексу в его профиле вращения.
+
+### Расширенные блоки
+
+Расширенные блоки - те, размер которых превышает 1x1x1
+
+```python
+block.is_extended(id: int) -> bool
+```
+
+Проверяет, является ли блок расширенным.
+
+```python
+block.get_size(id: int) -> int, int, int
+```
+
+Возвращает размер блока.
+
+```python
+block.is_segment(x: int, y: int, z: int) -> bool
+```
+
+Проверяет является ли блок сегментом расширенного блока, не являющимся главным.
+
+```python
+block.seek_origin(x: int, y: int, z: int) -> int, int, int
+```
+
+Возвращает позицию главного сегмента расширенного блока или исходную позицию,
+если блок не являющийся расширенным.
 
 ### Пользовательские биты
 
