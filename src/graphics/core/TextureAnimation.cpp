@@ -52,21 +52,6 @@ void TextureAnimator::update(float delta) {
 
             float srcPosY = elem.srcTexture->getHeight() - frame.size.y - frame.srcPos.y; // vertical flip
 
-            // Extensions
-            const int ext = 2;
-            for (int y = -1; y <= 1; y++) {
-                for (int x = -1; x <= 1; x++) {
-                    if (x == 0 && y == 0)
-                        continue;
-                    glBlitFramebuffer(
-                        frame.srcPos.x, srcPosY, frame.srcPos.x + frame.size.x, srcPosY + frame.size.y,
-                        frame.dstPos.x+x*ext, frame.dstPos.y+y*ext,	
-                        frame.dstPos.x + frame.size.x+x*ext, frame.dstPos.y + frame.size.y+y*ext,
-                        GL_COLOR_BUFFER_BIT, GL_NEAREST
-                    );
-                }
-            }
-
             glBlitFramebuffer(
                 frame.srcPos.x, srcPosY,
                 frame.srcPos.x + frame.size.x,	

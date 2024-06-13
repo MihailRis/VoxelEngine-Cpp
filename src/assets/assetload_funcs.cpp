@@ -235,8 +235,10 @@ static TextureAnimation create_animation(
     uint srcWidth = srcTex->getWidth();
     uint srcHeight = srcTex->getHeight();
 
-    frame.dstPos = glm::ivec2(region.u1 * dstWidth, region.v1 * dstHeight);
-    frame.size = glm::ivec2(region.u2 * dstWidth, region.v2 * dstHeight) - frame.dstPos;
+    const int extension = 2;
+
+    frame.dstPos = glm::ivec2(region.u1 * dstWidth, region.v1 * dstHeight) - extension;
+    frame.size = glm::ivec2(region.u2 * dstWidth, region.v2 * dstHeight) - frame.dstPos + extension;
 
     for (const auto& elem : frameList) {
         if (!srcAtlas->has(elem.first)) {
@@ -247,7 +249,7 @@ static TextureAnimation create_animation(
         if (elem.second > 0) {
             frame.duration = static_cast<float>(elem.second) / 1000.0f;
         }
-        frame.srcPos = glm::ivec2(region.u1 * srcWidth, srcHeight - region.v2 * srcHeight);
+        frame.srcPos = glm::ivec2(region.u1 * srcWidth, srcHeight - region.v2 * srcHeight) - extension;
         animation.addFrame(frame);
     }
     return animation;
