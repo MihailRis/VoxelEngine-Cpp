@@ -44,10 +44,10 @@ For pack *containermod* will write text to the file `world:data/containermod/exa
 
 ## *player* library
 
-
 ```python
 player.get_pos(playerid: int) -> number, number, number
 ```
+
 Returns x, y, z coordinates of the player
 
 ```python
@@ -88,7 +88,24 @@ player.set_noclip(bool)
 
 Getter and setter for player noclip mode (collisions disabled)
 
+```python
+player.get_selected_block(playerid: int) -> x,y,z
+```
+
+Returns position of the selected block or nil
+
 ## *world* library
+
+## Библиотека *world*
+
+```python
+world.get_list() -> tables array {
+	name: str,
+	icon: str
+}
+```
+
+Retuns worlds information: name and preview/icon (loading automatically).
 
 ```python
 world.get_day_time() -> number
@@ -114,29 +131,67 @@ world.get_seed() -> int
 
 Returns world seed.
 
+```python
+world.exists() -> bool
+```
+
+Checks the existence of a world by name.
+
 ## *pack* library
 
 ```python
 pack.get_folder(packid: str) -> str
 ```
 
-Returns installed content-pack folder
+Returns installed content-pack folder.
 
 ```python
 pack.is_installed(packid: str) -> bool
 ```
 
-Check if the world has specified pack installed
+Check if the world has specified pack installed.
 
 ```python
-pack.get_installed() -> array of strings
+pack.get_installed() -> strings array
 ```
 
-Returns all installed content-pack ids
+Returns all installed content-pack ids.
+
+```python
+pack.get_available() -> strings array
+```
+
+Returns the ids of all content packs available but not installed in the world.
+
+```python
+pack.get_base_packs() -> strings array
+```
+
+Returns the id of all base packages (non-removeable)
+
+```python
+pack.get_info(packid: str) -> {
+  id: str,
+  title: str,
+  creator: str,
+  description: str,
+  version: str,
+  icon: str,
+  dependencies: optional strings array
+}
+```
+
+Returns information about the pack (not necessarily installed).
+- icon - name of the preview texture (loading automatically)
+- dependencies - strings following format `{lvl}{id}`, where lvl:
+  - `!` - required
+  - `?` - optional
+  - `~` - weak
+  for example `!teal`
 
 ## *gui* library
 
-Library contains ui elements access functions. Library should not be directly used, because script *layouts/layout_name.xml.lua* already has a generated variable **document** (instance of **Document**)
+The library contains functions for accessing the properties of UI elements. Instead of gui, you should use an object wrapper that provides access to properties through the __index, __newindex meta methods:
 
 Example:
 
@@ -145,7 +200,35 @@ print(document.some_button.text) -- where 'some_button' is an element id
 document.some_button.text = "new text"
 ```
 
-## **inventory** library
+```python
+gui.str(text: str, context: str) -> str
+```
+
+Returns translated text.
+
+```python
+gui.get_viewport() -> {int, int}
+```
+
+Returns size of the main container (window).
+
+```python
+gui.get_env(document: str) -> table
+```
+
+Returns environment (global variables table) of the specified document.
+
+```python
+get_locales_info() -> table of tables where
+ key - locale id following isolangcode_ISOCOUNTRYCODE format
+ value - table {
+  name: str # name of the locale in its language
+ }
+```
+
+Returns information about all loaded locales (res/texts/\*).
+
+## *inventory* library
 
 Library for inventories interaction.
 
@@ -213,13 +296,25 @@ If slotB will be chosen automaticly if argument is not specified.
 block.name(blockid: int) -> str
 ```
 
-Returns block string ID (name) by index
+Returns block string ID (name) by index.
 
 ```python
 block.index(name: str) -> int
 ```
 
-Returns block integer ID (index) by name
+Returns block integer ID (index) by name.
+
+```python
+block.material(blockid: int) -> str
+```
+
+Returns the id of the block material.
+
+```python
+block.caption(blockid: int) -> str
+```
+
+Returns the block name displayed in the interface.
 
 ```python
 block.get(x: int, y: int, z: int) -> int
@@ -295,6 +390,35 @@ block.set_rotation(x: int, y: int, z: int, rotation: int)
 ```
 
 Set block rotation by index.
+
+### Extended blocks
+
+Extended blocks are blocks with size greather than 1x1x1
+
+```python
+block.is_extended(id: int) -> bool
+```
+
+Checks whether the block is extended.
+
+```python
+block.get_size(id: int) -> int, int, int
+```
+
+Returns the block size.
+
+```python
+block.is_segment(x: int, y: int, z: int) -> bool
+```
+
+Checks whether the block is a non-origin segment of an extended block.
+
+```python
+block.seek_origin(x: int, y: int, z: int) -> int, int, int
+```
+
+Returns the position of the main segment of an extended block or the original position,
+if the block is not extended.
 
 ### User bits
 

@@ -15,7 +15,7 @@
 require "контентпак:имя_модуля" -- загружает lua модуль из папки modules (расширение не указывается)
 ```
 
-## Библиотека pack
+## Библиотека *pack*
 
 ```python
 pack.is_installed(packid: str) -> bool
@@ -38,10 +38,12 @@ file.write(pack.data_file(PACK_ID, "example.txt"), text)
 ```
 Для пака *containermod* запишет текст в файл `world:data/containermod/example.txt`
 
-## Библиотека player
+## Библиотека *player*
+
 ```python
 player.get_pos(playerid: int) -> number, number, number
 ```
+
 Возвращает x, y, z координаты игрока
 
 ```python
@@ -88,7 +90,7 @@ player.get_selected_block(playerid: int) -> x,y,z
 
 Возвращает координаты выделенного блока, либо nil
 
-## Библиотека world
+## Библиотека *world*
 
 ```python
 world.get_list() -> массив таблиц {
@@ -129,13 +131,13 @@ world.exists() -> bool
 
 Проверяет существование мира по имени.
 
-## Библиотека pack
+## Библиотека *pack*
 
 ```python
 pack.get_folder(packid: str) -> str
 ```
 
-Возвращает путь к папке установленного контент-пака
+Возвращает путь к папке установленного контент-пака.
 
 ```python
 pack.is_installed(packid: str) -> bool
@@ -147,13 +149,13 @@ pack.is_installed(packid: str) -> bool
 pack.get_installed() -> массив строк
 ```
 
-Возращает id всех установленных в мире контент-паков
+Возращает id всех установленных в мире контент-паков.
 
 ```python
 pack.get_available() -> массив строк
 ```
 
-Возвращает id всех доступных, но не установленных в мире контент-паков
+Возвращает id всех доступных, но не установленных в мире контент-паков.
 
 ```python
 pack.get_base_packs() -> массив строк
@@ -181,13 +183,13 @@ pack.get_info(packid: str) -> {
 	- `~` - weak
 	например `!teal`
 
-## Библиотека gui
+## Библиотека *gui*
 
 Библиотека содержит функции для доступа к свойствам UI элементов. Вместо gui следует использовать объектную обертку, предоставляющую доступ к свойствам через мета-методы __index, __newindex:
+
 ```lua
-local inventory_doc = Document.new("id-макета")
-print(inventory_doc.some_button.text)
-indentory_doc.some_button.text = "new text"
+print(document.some_button.text) -- где 'some_button' - id элемета
+document.some_button.text = "новый текст"
 ```
 
 В скрипте макета `layouts/файл_макета.xml` - `layouts/файл_макета.xml.lua` уже доступна переменная **document** содержащая объект класса Document
@@ -219,7 +221,8 @@ get_locales_info() -> таблица таблиц где
 ```
 
 Возвращает информацию о всех загруженных локалях (res/texts/\*).
-## Библиотека inventory
+
+## Библиотека *inventory*
 
 Библиотека функций для работы с инвентарем.
 
@@ -282,19 +285,19 @@ inventory.move(invA: int, slotA: int, invB: int, slotB: int)
 invA и invB могут указывать на один инвентарь.
 slotB будет выбран автоматически, если не указывать явно.
 
-## Библиотека block
+## Библиотека *block*
 
 ```python
 block.name(blockid: int) -> str
 ```
 
-Возвращает строковый id блока по его числовому id
+Возвращает строковый id блока по его числовому id.
 
 ```python
 block.index(name: str) -> int
 ```
 
-Возвращает числовой id блока, принимая в качестве агрумента строковый
+Возвращает числовой id блока, принимая в качестве агрумента строковый.
 
 ```python
 block.material(blockid: int) -> str
