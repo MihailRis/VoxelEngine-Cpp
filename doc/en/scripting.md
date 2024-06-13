@@ -437,7 +437,6 @@ Set specified bits.
 
 ## *item* library
 
-
 ```python
 item.name(itemid: int) -> str
 ```
@@ -512,7 +511,25 @@ Remove an element from the screen
 hud.get_block_inventory() -> int
 ```
 
-Get open block inventory ID or 0
+Get open block inventory ID or 0.
+
+```python
+hud.get_player() -> int
+```
+
+Gives the ID of the player that the UI is bound to.
+
+```python
+hud.pause()
+```
+
+Opens the pause menu
+
+```python
+hud.resume()
+```
+
+Closes the pause menu.
 
 ### *time* library
 
