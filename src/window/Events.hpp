@@ -53,7 +53,6 @@ public:
 
     static std::string writeBindings();
     static void loadBindings(const std::string& filename, const std::string& source);
-    static void loadBindingsOld(const std::string& filename, const std::string& source); // TODO: remove in 0.22
 };
 
 #endif // WINDOW_EVENTS_HPP_

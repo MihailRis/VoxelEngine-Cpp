@@ -37,7 +37,7 @@ class CameraControl {
     /// @brief Switch active player camera
     void switchCamera();
 public:
-    CameraControl(std::shared_ptr<Player> player, const CameraSettings& settings);
+    CameraControl(const std::shared_ptr<Player>& player, const CameraSettings& settings);
     void updateMouse(PlayerInput& input);
     void update(const PlayerInput& input, float delta, Chunks* chunks);
     void refresh();
@@ -76,12 +76,10 @@ class PlayerController {
     float stepsTimer = 0.0f;
     void onFootstep();
     void updateFootsteps(float delta);
-public:
-    static glm::ivec3 selectedBlockNormal;
-    static glm::vec3 selectedPointPosition;
-    static int selectedBlockId;
-    static int selectedBlockRotation;
+    void processRightClick(Block* def, Block* target);
 
+    voxel* updateSelection(float maxDistance);
+public:
     PlayerController(
         Level* level, 
         const EngineSettings& settings,
@@ -91,7 +89,7 @@ public:
 
     Player* getPlayer();
 
-    void listenBlockInteraction(on_block_interaction callback);
+    void listenBlockInteraction(const on_block_interaction& callback);
 };
 
 #endif /* PLAYER_CONTROL_HPP_ */

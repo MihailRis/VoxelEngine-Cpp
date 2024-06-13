@@ -80,7 +80,7 @@ class OggStream : public PCMStream {
     size_t totalSamples = 0;
     bool seekable;
 public:
-    OggStream(OggVorbis_File vf) : vf(std::move(vf)) {
+    OggStream(OggVorbis_File vf) : vf(vf) {
         vorbis_info* info = ov_info(&vf, -1);
         channels = info->channels;
         sampleRate = info->rate;
@@ -158,5 +158,5 @@ std::unique_ptr<PCMStream> ogg::create_stream(const fs::path& file) {
     if ((code = ov_fopen(file.u8string().c_str(), &vf))) {
         throw std::runtime_error("vorbis: "+vorbis_error_message(code));
     }
-    return std::make_unique<OggStream>(std::move(vf));
+    return std::make_unique<OggStream>(vf);
 }

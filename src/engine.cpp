@@ -42,6 +42,7 @@
 #include <glm/glm.hpp>
 #include <unordered_set>
 #include <functional>
+#include <utility>
 
 static debug::Logger logger("engine");
 
@@ -65,6 +66,7 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     : settings(settings), settingsHandler(settingsHandler), paths(paths),
       interpreter(std::make_unique<cmd::CommandsInterpreter>())
 {
+    paths->prepare();
     loadSettings();
 
     controller = std::make_unique<EngineController>(this);
@@ -115,14 +117,6 @@ void Engine::loadControls() {
         logger.info() << "loading controls";
         std::string text = files::read_string(controls_file);
         Events::loadBindings(controls_file.u8string(), text);
-    } else {
-        controls_file = paths->getControlsFileOld();
-        if (fs::is_regular_file(controls_file)) {
-            logger.info() << "loading controls (old)";
-            std::string text = files::read_string(controls_file);
-            Events::loadBindingsOld(controls_file.u8string(), text);
-            fs::remove(controls_file);
-        }
     }
 }
 
@@ -347,11 +341,11 @@ double Engine::getDelta() const {
 void Engine::setScreen(std::shared_ptr<Screen> screen) {
     audio::reset_channel(audio::get_channel_index("regular"));
     audio::reset_channel(audio::get_channel_index("ambient"));
-    this->screen = screen;
+    this->screen = std::move(screen);
 }
 
 void Engine::setLanguage(std::string locale) {
-    langs::setup(paths->getResources(), locale, contentPacks);
+    langs::setup(paths->getResources(), std::move(locale), contentPacks);
     gui->getMenu()->setPageLoader(menus::create_page_loader(this));
 }
 
@@ -391,7 +385,7 @@ std::shared_ptr<Screen> Engine::getScreen() {
     return screen;
 }
 
-void Engine::postRunnable(runnable callback) {
+void Engine::postRunnable(const runnable& callback) {
     std::lock_guard<std::recursive_mutex> lock(postRunnablesMutex);
     postRunnables.push(callback);
 }

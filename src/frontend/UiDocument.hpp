@@ -32,7 +32,7 @@ public:
     UiDocument(
         std::string id, 
         uidocscript script, 
-        std::shared_ptr<gui::UINode> root, 
+        const std::shared_ptr<gui::UINode> &root,
         scriptenv env
     );
 
@@ -41,13 +41,13 @@ public:
     const std::string& getId() const;
     const uinodes_map& getMap() const;
     uinodes_map& getMapWriteable();
-    const std::shared_ptr<gui::UINode> getRoot() const;
-    const std::shared_ptr<gui::UINode> get(const std::string& id) const;
+    std::shared_ptr<gui::UINode> getRoot() const;
+    std::shared_ptr<gui::UINode> get(const std::string& id) const;
     const uidocscript& getScript() const;
     scriptenv getEnvironment() const;
 
-    static std::unique_ptr<UiDocument> read(scriptenv parent_env, std::string name, fs::path file);
-    static std::shared_ptr<gui::UINode> readElement(fs::path file);
+    static std::unique_ptr<UiDocument> read(const scriptenv& parent_env, const std::string& name, const fs::path& file);
+    static std::shared_ptr<gui::UINode> readElement(const fs::path& file);
 };
 
 #endif // FRONTEND_UI_DOCUMENT_HPP_

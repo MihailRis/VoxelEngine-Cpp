@@ -25,6 +25,7 @@
 #include "../GUI.hpp"
 
 #include <glm/glm.hpp>
+#include <utility>
 
 using namespace gui;
 
@@ -40,9 +41,9 @@ SlotLayout::SlotLayout(
     position(position),
     background(background),
     itemSource(itemSource),
-    updateFunc(updateFunc),
-    shareFunc(shareFunc),
-    rightClick(rightClick) {}
+    updateFunc(std::move(updateFunc)),
+    shareFunc(std::move(shareFunc)),
+    rightClick(std::move(rightClick)) {}
 
 InventoryBuilder::InventoryBuilder() {
     view = std::make_shared<InventoryView>();
@@ -53,7 +54,7 @@ void InventoryBuilder::addGrid(
     glm::vec2 pos, 
     int padding,
     bool addpanel,
-    SlotLayout slotLayout
+    const SlotLayout& slotLayout
 ) {
     const int slotSize = InventoryView::SLOT_SIZE;
     const int interval = InventoryView::SLOT_INTERVAL;
@@ -95,7 +96,7 @@ void InventoryBuilder::addGrid(
     }
 }
 
-void InventoryBuilder::add(SlotLayout layout) {
+void InventoryBuilder::add(const SlotLayout& layout) {
     view->add(view->addSlot(layout), layout.position);
 }
 
@@ -106,15 +107,28 @@ std::shared_ptr<InventoryView> InventoryBuilder::build() {
 SlotView::SlotView(
     SlotLayout layout
 ) : UINode(glm::vec2(InventoryView::SLOT_SIZE)),
-    layout(layout)
+    layout(std::move(layout))
 {
     setColor(glm::vec4(0, 0, 0, 0.2f));
     setTooltipDelay(0.05f);
 }
 
 void SlotView::draw(const DrawContext* pctx, Assets* assets) {
-    if (bound == nullptr)
+    if (bound == nullptr) {
         return;
+    }
+    itemid_t itemid = bound->getItemId();
+    if (itemid != prevItem) {
+        if (itemid) {
+            auto def = content->getIndices()->getItemDef(itemid);
+            tooltip = util::pascal_case(
+                langs::get(util::str2wstr_utf8(def->caption))
+            );
+        } else {
+            tooltip = L"";
+        }
+    }
+    prevItem = itemid;
 
     const int slotSize = InventoryView::SLOT_SIZE;
 
@@ -273,15 +287,12 @@ void SlotView::onFocus(gui::GUI* gui) {
     clicked(gui, mousecode::BUTTON_1);
 }
 
-const std::wstring SlotView::getTooltip() const {
-    const auto str = UINode::getTooltip();
-    if (!str.empty() || bound->isEmpty()) {
+const std::wstring& SlotView::getTooltip() const {
+    const auto& str = UINode::getTooltip();
+    if (!str.empty() || tooltip.empty()) {
         return str;
     }
-    auto def = content->getIndices()->getItemDef(bound->getItemId());
-    return util::pascal_case(
-        langs::get(util::str2wstr_utf8(def->caption))
-    ); // TODO: cache
+    return tooltip;
 }
 
 void SlotView::bind(
@@ -309,7 +320,7 @@ InventoryView::InventoryView() : Container(glm::vec2()) {
 InventoryView::~InventoryView() {}
 
 
-std::shared_ptr<SlotView> InventoryView::addSlot(SlotLayout layout) {
+std::shared_ptr<SlotView> InventoryView::addSlot(const SlotLayout& layout) {
     uint width =  InventoryView::SLOT_SIZE + layout.padding;
     uint height = InventoryView::SLOT_SIZE + layout.padding;
 
@@ -341,7 +352,7 @@ size_t InventoryView::getSlotsCount() const {
 }
 
 void InventoryView::bind(
-    std::shared_ptr<Inventory> inventory,
+    const std::shared_ptr<Inventory>& inventory,
     const Content* content
 ) {
     this->inventory = inventory;

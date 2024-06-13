@@ -53,6 +53,9 @@ namespace gui {
 
         int64_t inventoryid = 0;
         ItemStack* bound = nullptr;
+
+        std::wstring tooltip;
+        itemid_t prevItem = 0;
     public:
         SlotView(SlotLayout layout);
 
@@ -63,7 +66,7 @@ namespace gui {
 
         virtual void clicked(gui::GUI*, mousecode) override;
         virtual void onFocus(gui::GUI*) override;
-        virtual const std::wstring getTooltip() const override;
+        virtual const std::wstring& getTooltip() const override;
 
         void bind(
             int64_t inventoryid,
@@ -96,13 +99,13 @@ namespace gui {
         void setSelected(int index);
 
         void bind(
-            std::shared_ptr<Inventory> inventory,
+            const std::shared_ptr<Inventory>& inventory,
             const Content* content
         );
         
         void unbind();
 
-        std::shared_ptr<SlotView> addSlot(SlotLayout layout);
+        std::shared_ptr<SlotView> addSlot(const SlotLayout& layout);
 
         std::shared_ptr<Inventory> getInventory() const;
 
@@ -130,10 +133,10 @@ namespace gui {
             glm::vec2 pos, 
             int padding,
             bool addpanel,
-            SlotLayout slotLayout
+            const SlotLayout& slotLayout
         );
         
-        void add(SlotLayout slotLayout);
+        void add(const SlotLayout& slotLayout);
         std::shared_ptr<InventoryView> build();
     };
 }

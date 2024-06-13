@@ -157,7 +157,7 @@ struct Binding {
     void reset(keycode);
     void reset(mousecode);
 
-    inline const std::string text() const {
+    inline std::string text() const {
         switch (type) {
         case inputtype::keyboard: {
             return input_util::to_string(static_cast<keycode>(code));

@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <vector>
+#include <memory>
 #include <glm/glm.hpp>
 #include "../../voxels/voxel.hpp"
 #include "../../typedefs.hpp"
@@ -22,16 +23,15 @@ class BlocksRenderer {
     static const glm::vec3 SUN_VECTOR;
     static const uint VERTEX_SIZE;
     const Content* const content;
-    float* vertexBuffer;
-    int* indexBuffer;
+    std::unique_ptr<float[]> vertexBuffer;
+    std::unique_ptr<int[]> indexBuffer;
     size_t vertexOffset;
     size_t indexOffset, indexSize;
     size_t capacity;
-
+    int voxelBufferPadding = 2;
     bool overflow = false;
-
     const Chunk* chunk = nullptr;
-    VoxelsVolume* voxelsBuffer;
+    std::unique_ptr<VoxelsVolume> voxelsBuffer;
 
     const Block* const* blockDefsCache;
     const ContentGfxCache* const cache;
@@ -40,36 +40,41 @@ class BlocksRenderer {
     void vertex(const glm::vec3& coord, float u, float v, const glm::vec4& light);
     void index(int a, int b, int c, int d, int e, int f);
 
-    void vertex(const glm::vec3& coord, float u, float v, 
-                const glm::vec4& brightness,
-                const glm::vec3& axisX,
-                const glm::vec3& axisY,
-                const glm::vec3& axisZ);
-
-    void face(const glm::vec3& coord, float w, float h, float d,
+    void vertex(
+        const glm::vec3& coord, float u, float v, 
+        const glm::vec4& brightness,
+        const glm::vec3& axisX,
+        const glm::vec3& axisY,
+        const glm::vec3& axisZ
+    );
+    void face(
+        const glm::vec3& coord, 
+        float w, float h, float d,
         const glm::vec3& axisX,
         const glm::vec3& axisY,
         const glm::vec3& axisZ,
         const UVRegion& region,
         const glm::vec4(&lights)[4],
-        const glm::vec4& tint);
-    
-    void face(const glm::vec3& coord,
+        const glm::vec4& tint
+    );
+    void face(
+        const glm::vec3& coord,
         const glm::vec3& axisX,
         const glm::vec3& axisY,
         const glm::vec3& axisZ,
         const UVRegion& region,
-        bool lights);
-
-    void tetragonicFace(const glm::vec3& coord,
+        bool lights
+    );
+    void tetragonicFace(
+        const glm::vec3& coord,
         const glm::vec3& p1, const glm::vec3& p2,
         const glm::vec3& p3, const glm::vec3& p4,
         const glm::vec3& X,
         const glm::vec3& Y,
         const glm::vec3& Z,
         const UVRegion& texreg,
-        bool lights);
-    
+        bool lights
+    );
     void blockCube(
         int x, int y, int z, 
         const UVRegion(&faces)[6], 

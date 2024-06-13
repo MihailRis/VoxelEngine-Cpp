@@ -4,14 +4,23 @@
 #include <sstream>
 #include <filesystem>
 #include <algorithm>
+#include <utility>
 
 #include "../util/stringutil.hpp"
 #include "../typedefs.hpp"
 #include "WorldFiles.hpp"
 
 const fs::path SCREENSHOTS_FOLDER {"screenshots"};
+const fs::path CONTENT_FOLDER {"content"};
 const fs::path CONTROLS_FILE {"controls.toml"};
 const fs::path SETTINGS_FILE {"settings.toml"};
+
+void EnginePaths::prepare() {
+    fs::path contentFolder = userfiles/fs::path(CONTENT_FOLDER);
+    if (!fs::is_directory(contentFolder)) {
+        fs::create_directories(contentFolder);
+    }
+}
 
 fs::path EnginePaths::getUserfiles() const {
     return userfiles;
@@ -21,7 +30,7 @@ fs::path EnginePaths::getResources() const {
     return resources;
 }
 
-fs::path EnginePaths::getScreenshotFile(std::string ext) {
+fs::path EnginePaths::getScreenshotFile(const std::string& ext) {
     fs::path folder = userfiles/fs::path(SCREENSHOTS_FOLDER);
     if (!fs::is_directory(folder)) {
         fs::create_directory(folder);
@@ -60,10 +69,6 @@ fs::path EnginePaths::getControlsFile() {
     return userfiles/fs::path(CONTROLS_FILE);
 }
 
-fs::path EnginePaths::getControlsFileOld() {
-    return userfiles/fs::path("controls.json");
-}
-
 fs::path EnginePaths::getSettingsFile() {
     return userfiles/fs::path(SETTINGS_FILE);
 }
@@ -75,11 +80,11 @@ std::vector<fs::path> EnginePaths::scanForWorlds() {
     if (!fs::is_directory(folder))
         return folders;
     
-    for (auto entry : fs::directory_iterator(folder)) {
+    for (const auto& entry : fs::directory_iterator(folder)) {
         if (!entry.is_directory()) {
             continue;
         }
-        fs::path worldFolder = entry.path();
+        const fs::path& worldFolder = entry.path();
         fs::path worldFile = worldFolder/fs::u8path(WorldFiles::WORLD_FILE);
         if (!fs::is_regular_file(worldFile)) {
             continue;
@@ -94,20 +99,20 @@ std::vector<fs::path> EnginePaths::scanForWorlds() {
     return folders;
 }
 
-bool EnginePaths::isWorldNameUsed(std::string name) {
+bool EnginePaths::isWorldNameUsed(const std::string& name) {
     return fs::exists(EnginePaths::getWorldsFolder()/fs::u8path(name));
 }
 
 void EnginePaths::setUserfiles(fs::path folder) {
-    this->userfiles = folder;
+    this->userfiles = std::move(folder);
 }
 
 void EnginePaths::setResources(fs::path folder) {
-    this->resources = folder;
+    this->resources = std::move(folder);
 }
 
 void EnginePaths::setWorldFolder(fs::path folder) {
-    this->worldFolder = folder;
+    this->worldFolder = std::move(folder);
 }
 
 void EnginePaths::setContentPacks(std::vector<ContentPack>* contentPacks) {
@@ -139,7 +144,7 @@ static fs::path toCanonic(fs::path path) {
     return path;
 }
 
-fs::path EnginePaths::resolve(std::string path, bool throwErr) {
+fs::path EnginePaths::resolve(const std::string& path, bool throwErr) {
     size_t separator = path.find(':');
     if (separator == std::string::npos) {
         throw files_access_error("no entry point specified");
@@ -172,7 +177,7 @@ fs::path EnginePaths::resolve(std::string path, bool throwErr) {
 }
 
 ResPaths::ResPaths(fs::path mainRoot, std::vector<PathsRoot> roots) 
-    : mainRoot(mainRoot), roots(roots) {
+    : mainRoot(std::move(mainRoot)), roots(std::move(roots)) {
 }
 
 fs::path ResPaths::find(const std::string& filename) const {

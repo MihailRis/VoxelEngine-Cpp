@@ -1,5 +1,7 @@
 #include "Chunk.hpp"
 
+#include <utility>
+
 #include "voxel.hpp"
 
 #include "../items/Inventory.hpp"
@@ -41,7 +43,7 @@ void Chunk::updateHeights() {
 
 void Chunk::addBlockInventory(std::shared_ptr<Inventory> inventory, 
                               uint x, uint y, uint z) {
-    inventories[vox_index(x, y, z)] = inventory;
+    inventories[vox_index(x, y, z)] = std::move(inventory);
     flags.unsaved = true;
 }
 
@@ -52,7 +54,7 @@ void Chunk::removeBlockInventory(uint x, uint y, uint z) {
 }
 
 void Chunk::setBlockInventories(chunk_inventories_map map) {
-    inventories = map;
+    inventories = std::move(map);
 }
 
 std::shared_ptr<Inventory> Chunk::getBlockInventory(uint x, uint y, uint z) const {
@@ -111,8 +113,11 @@ bool Chunk::decode(const ubyte* data) {
         ubyte bst1 = data[CHUNK_VOL*2 + i];
         ubyte bst2 = data[CHUNK_VOL*3 + i];
 
-        vox.id = (blockid_t(bid1) << 8) | (blockid_t(bid2));
-        vox.state = int2blockstate((blockstate_t(bst1) << 8) | (blockstate_t(bst2)));
+        vox.id = (static_cast<blockid_t>(bid1) << 8) |
+                  static_cast<blockid_t>(bid2);
+        vox.state = int2blockstate(
+            (static_cast<blockstate_t>(bst1) << 8) | 
+             static_cast<blockstate_t>(bst2));
     }
     return true;
 }
@@ -120,8 +125,8 @@ bool Chunk::decode(const ubyte* data) {
 void Chunk::convert(ubyte* data, const ContentLUT* lut) {
     for (uint i = 0; i < CHUNK_VOL; i++) {
         // see encode method to understand what the hell is going on here
-        blockid_t id = ((blockid_t(data[i]) << 8) | 
-                         blockid_t(data[CHUNK_VOL+i]));
+        blockid_t id = ((static_cast<blockid_t>(data[i]) << 8) | 
+                         static_cast<blockid_t>(data[CHUNK_VOL+i]));
         blockid_t replacement = lut->getBlockId(id);
         data[i] = replacement >> 8;
         data[CHUNK_VOL+i] = replacement & 0xFF;

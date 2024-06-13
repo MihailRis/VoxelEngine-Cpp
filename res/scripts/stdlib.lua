@@ -203,6 +203,24 @@ function time.post_runnable(runnable)
     table.insert(__post_runnables, runnable)
 end
 
+local log_element = Document.new("core:console").log
+function console.log(...)
+    local args = {...}
+    local text = ''
+    for i,v in ipairs(args) do
+        if i ~= 1 then 
+            text = text..' '..v 
+        else
+            text = text..v
+        end
+    end
+    log_element.caret = -1
+    if log_element.caret > 0 then
+        text = '\n'..text
+    end
+    log_element:paste(text)
+end
+
 function gui.template(name, params)
     local text = file.read(file.find("layouts/templates/"..name..".xml"))
     for k,v in pairs(params) do

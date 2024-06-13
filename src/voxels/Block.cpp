@@ -1,5 +1,7 @@
 #include "Block.hpp"
 
+#include <utility>
+
 #include "../core_defs.hpp"
 #include "../util/stringutil.hpp"
 
@@ -38,7 +40,7 @@ const BlockRotProfile BlockRotProfile::PANE {"pane", {
 		{ { 0, 0, 1 }, { 0, 1, 0 }, {-1, 0, 0 }}, // West
 }};
 
-Block::Block(std::string name) 
+Block::Block(const std::string& name)
 	: name(name), 
       caption(util::id_to_caption(name)),
 	  textureFaces {TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,TEXTURE_NOTFOUND,
@@ -46,7 +48,7 @@ Block::Block(std::string name)
       rotations(BlockRotProfile::PIPE)
 {}
 
-Block::Block(std::string name, std::string texture) : name(name),
+Block::Block(std::string name, const std::string& texture) : name(std::move(name)),
 		textureFaces{texture,texture,texture,texture,texture,texture},
         rotations(BlockRotProfile::PIPE)
 {}

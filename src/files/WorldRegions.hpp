@@ -38,8 +38,8 @@ public:
 };
 
 class WorldRegion {
-    ubyte** chunksData;
-    uint32_t* sizes;
+    std::unique_ptr<std::unique_ptr<ubyte[]>[]> chunksData;
+    std::unique_ptr<uint32_t[]> sizes;
     bool unsaved = false;
 public:
     WorldRegion();
@@ -52,7 +52,7 @@ public:
     void setUnsaved(bool unsaved);
     bool isUnsaved() const;
 
-    ubyte** getChunks() const;
+    std::unique_ptr<ubyte[]>* getChunks() const;
     uint32_t* getSizes() const;
 };
 
@@ -75,6 +75,43 @@ struct RegionsLayer {
     fs::path folder;
     regionsmap regions;
     std::mutex mutex;
+};
+
+class regfile_ptr {
+    regfile* file;
+    std::condition_variable* cv;
+public:
+    regfile_ptr(
+        regfile* file,
+        std::condition_variable* cv
+    ) : file(file), cv(cv) {}
+
+    regfile_ptr(const regfile_ptr&) = delete;
+
+    regfile_ptr(std::nullptr_t) : file(nullptr), cv(nullptr) {}
+
+    bool operator==(std::nullptr_t) const {
+        return file == nullptr;
+    }
+    bool operator!=(std::nullptr_t) const {
+        return file != nullptr;
+    }
+    operator bool() const {
+        return file != nullptr;
+    }
+    ~regfile_ptr() {
+        reset();
+    }
+    regfile* get() {
+        return file;
+    }
+    void reset() {
+        if (file) {
+            file->inUse = false;
+            cv->notify_one();
+            file = nullptr;
+        }
+    }
 };
 
 class WorldRegions {
@@ -110,10 +147,10 @@ class WorldRegions {
 
     ubyte* getData(int x, int z, int layer, uint32_t& size);
 
-    std::shared_ptr<regfile> getRegFile(glm::ivec3 coord, bool create=true);
+    regfile_ptr getRegFile(glm::ivec3 coord, bool create=true);
     void closeRegFile(glm::ivec3 coord);
-    std::shared_ptr<regfile> useRegFile(glm::ivec3 coord);
-    std::shared_ptr<regfile> createRegFile(glm::ivec3 coord);
+    regfile_ptr useRegFile(glm::ivec3 coord);
+    regfile_ptr createRegFile(glm::ivec3 coord);
 
     fs::path getRegionFilename(int x, int y) const;
 
@@ -128,7 +165,7 @@ public:
     bool generatorTestMode = false;
     bool doWriteLights = true;
 
-    WorldRegions(fs::path directory);
+    WorldRegions(const fs::path& directory);
     WorldRegions(const WorldRegions&) = delete;
     ~WorldRegions();
 
@@ -148,7 +185,7 @@ public:
     std::unique_ptr<light_t[]> getLights(int x, int z);
     chunk_inventories_map fetchInventories(int x, int z);
 
-    void processRegionVoxels(int x, int z, regionproc func);
+    void processRegionVoxels(int x, int z, const regionproc& func);
 
     fs::path getRegionsFolder(int layer) const;
 

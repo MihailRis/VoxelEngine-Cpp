@@ -22,7 +22,7 @@ Chunks::Chunks(
     WorldFiles* wfile, 
     LevelEvents* events, 
     const Content* content
-) : contentIds(content->getIndices()), 
+) : indices(content->getIndices()), 
     chunks(w*d),
     chunksSecond(w*d),
     w(w), d(d), ox(ox), oz(oz), 
@@ -33,7 +33,7 @@ Chunks::Chunks(
     chunksCount = 0;
 }
 
-voxel* Chunks::get(int32_t x, int32_t y, int32_t z) {
+voxel* Chunks::get(int32_t x, int32_t y, int32_t z) const {
     x -= ox * CHUNK_W; 
     z -= oz * CHUNK_D;
     int cx = floordiv(x, CHUNK_W);
@@ -65,13 +65,18 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
             return &empty;
         }
     }
-    const Block* def = contentIds->getBlockDef(v->id);
+    const Block* def = indices->getBlockDef(v->id);
     if (def->obstacle) {
+        glm::ivec3 offset {};
+        if (v->state.segment) {
+            glm::ivec3 point(ix, iy, iz);
+            offset = seekOrigin(point, def, v->state) - point;
+        }
         const auto& boxes = def->rotatable 
                           ? def->rt.hitboxes[v->state.rotation] 
                           : def->hitboxes;
         for (const auto& hitbox : boxes) {
-            if (hitbox.contains({x - ix, y - iy, z - iz})) {
+            if (hitbox.contains({x - ix - offset.x, y - iy - offset.y, z - iz - offset.z})) {
                 return &hitbox;
             }
         }
@@ -83,21 +88,21 @@ bool Chunks::isSolidBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
     if (v == nullptr)
         return false;
-    return contentIds->getBlockDef(v->id)->rt.solid;
+    return indices->getBlockDef(v->id)->rt.solid;
 }
 
 bool Chunks::isReplaceableBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
     if (v == nullptr)
         return false;
-    return contentIds->getBlockDef(v->id)->replaceable;
+    return indices->getBlockDef(v->id)->replaceable;
 }
 
 bool Chunks::isObstacleBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
     if (v == nullptr)
         return false;
-    return contentIds->getBlockDef(v->id)->obstacle;
+    return indices->getBlockDef(v->id)->obstacle;
 }
 
 ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel){
@@ -153,33 +158,214 @@ Chunk* Chunks::getChunkByVoxel(int32_t x, int32_t y, int32_t z) {
 Chunk* Chunks::getChunk(int x, int z){
     x -= ox;
     z -= oz;
-    if (x < 0 || z < 0 || x >= int(w) || z >= int(d))
+    if (x < 0 || z < 0 || x >= static_cast<int>(w) || z >= static_cast<int>(d)) {
         return nullptr;
+    }
     return chunks[z * w + x].get();
 }
 
-void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state) {
-    if (y < 0 || y >= CHUNK_H)
+glm::ivec3 Chunks::seekOrigin(glm::ivec3 pos, const Block* def, blockstate state) {
+    const auto& rotation = def->rotations.variants[state.rotation];
+    auto segment = state.segment;
+    while (true) {
+        if (!segment) {
+            return pos;
+        }
+        if (segment & 1) pos -= rotation.axisX;
+        if (segment & 2) pos -= rotation.axisY;
+        if (segment & 4) pos -= rotation.axisZ;
+
+        if (auto* voxel = get(pos.x, pos.y, pos.z)) {
+            segment = voxel->state.segment;
+        } else {
+            return pos;
+        }
+    }
+}
+
+void Chunks::eraseSegments(const Block* def, blockstate state, int x, int y, int z) {
+    const auto& rotation = def->rotations.variants[state.rotation];
+    for (int sy = 0; sy < def->size.y; sy++) {
+        for (int sz = 0; sz < def->size.z; sz++) {
+            for (int sx = 0; sx < def->size.x; sx++) {
+                if ((sx | sy | sz) == 0) {
+                    continue;
+                }
+                glm::ivec3 pos(x, y, z);
+                pos += rotation.axisX * sx;
+                pos += rotation.axisY * sy;
+                pos += rotation.axisZ * sz;
+                set(pos.x, pos.y, pos.z, 0, {});
+            }
+        }
+    }
+}
+
+static constexpr uint8_t segment_to_int(int sx, int sy, int sz) {
+    return ((sx > 0) | ((sy > 0) << 1) | ((sz > 0) << 2));
+}
+
+void Chunks::repairSegments(const Block* def, blockstate state, int x, int y, int z) {
+    const auto& rotation = def->rotations.variants[state.rotation];
+    const auto id = def->rt.id;
+    const auto size = def->size;
+    for (int sy = 0; sy < size.y; sy++) {
+        for (int sz = 0; sz < size.z; sz++) {
+            for (int sx = 0; sx < size.x; sx++) {
+                if ((sx | sy | sz) == 0) {
+                    continue;
+                }
+                blockstate segState = state;
+                segState.segment = segment_to_int(sx, sy, sz);
+
+                glm::ivec3 pos(x, y, z);
+                pos += rotation.axisX * sx;
+                pos += rotation.axisY * sy;
+                pos += rotation.axisZ * sz;
+                set(pos.x, pos.y, pos.z, id, segState);
+            }
+        }
+    }
+}
+
+bool Chunks::checkReplaceability(const Block* def, blockstate state, glm::ivec3 origin, blockid_t ignore) {
+    const auto& rotation = def->rotations.variants[state.rotation];
+    const auto size = def->size;
+    for (int sy = 0; sy < size.y; sy++) {
+        for (int sz = 0; sz < size.z; sz++) {
+            for (int sx = 0; sx < size.x; sx++) {
+                auto pos = origin;
+                pos += rotation.axisX * sx;
+                pos += rotation.axisY * sy;
+                pos += rotation.axisZ * sz;
+                if (auto vox = get(pos.x, pos.y, pos.z)) {
+                    auto target = indices->getBlockDef(vox->id);
+                    if (!target->replaceable && vox->id != ignore) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+void Chunks::setRotationExtended(
+    Block* def, blockstate state, glm::ivec3 origin, uint8_t index
+) {
+    auto newstate = state;
+    newstate.rotation = index;
+    
+    // unable to rotate block (cause: obstacles)
+    if (!checkReplaceability(def, newstate, origin, def->rt.id)) {
         return;
+    }
+
+    const auto& rotation = def->rotations.variants[index];
+    const auto size = def->size;
+    std::vector<glm::ivec3> segmentBlocks;
+
+    for (int sy = 0; sy < size.y; sy++) {
+        for (int sz = 0; sz < size.z; sz++) {
+            for (int sx = 0; sx < size.x; sx++) {
+                auto pos = origin;
+                pos += rotation.axisX * sx;
+                pos += rotation.axisY * sy;
+                pos += rotation.axisZ * sz;
+
+                blockstate segState = newstate;
+                segState.segment = segment_to_int(sx, sy, sz);
+                
+                auto vox = get(pos);
+                // checked for nullptr by checkReplaceability
+                if (vox->id != def->rt.id) {
+                    set(pos.x, pos.y, pos.z, def->rt.id, segState);
+                } else {
+                    vox->state = segState;
+                    auto chunk = getChunkByVoxel(pos.x, pos.y, pos.z);
+                    chunk->setModifiedAndUnsaved();
+                    segmentBlocks.emplace_back(pos);
+                }
+            }
+        }
+    }
+    const auto& prevRotation = def->rotations.variants[state.rotation];
+    for (int sy = 0; sy < size.y; sy++) {
+        for (int sz = 0; sz < size.z; sz++) {
+            for (int sx = 0; sx < size.x; sx++) {
+                auto pos = origin;
+                pos += prevRotation.axisX * sx;
+                pos += prevRotation.axisY * sy;
+                pos += prevRotation.axisZ * sz;
+                if (std::find(segmentBlocks.begin(), segmentBlocks.end(), pos) == segmentBlocks.end()) {
+                    set(pos.x, pos.y, pos.z, 0, {});
+                }
+            }
+        }
+    }
+}
+
+void Chunks::setRotation(int32_t x, int32_t y, int32_t z, uint8_t index) {
+    if (index >= BlockRotProfile::MAX_COUNT) {
+        return;
+    }
+    auto vox = get(x, y, z);
+    if (vox == nullptr) {
+        return;
+    }
+    auto def = indices->getBlockDef(vox->id);
+    if (!def->rotatable || vox->state.rotation == index) {
+        return;
+    }
+    if (def->rt.extended) {
+        setRotationExtended(def, vox->state, {x, y, z}, index);
+    } else {
+        vox->state.rotation = index;
+        auto chunk = getChunkByVoxel(x, y, z);
+        chunk->setModifiedAndUnsaved();   
+    }
+}
+
+void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state) {
+    if (y < 0 || y >= CHUNK_H) {
+        return;
+    }
+    int32_t gx = x;
+    int32_t gz = z;
     x -= ox * CHUNK_W;
     z -= oz * CHUNK_D;
     int cx = floordiv(x, CHUNK_W);
     int cz = floordiv(z, CHUNK_D);
-    if (cx < 0 || cz < 0 || cx >= int(w) || cz >= int(d))
+    if (cx < 0 || cz < 0 || cx >= static_cast<int>(w) || cz >= static_cast<int>(d)) {
         return;
+    }
     Chunk* chunk = chunks[cz * w + cx].get();
-    if (chunk == nullptr)
+    if (chunk == nullptr) {
         return;
+    }
     int lx = x - cx * CHUNK_W;
     int lz = z - cz * CHUNK_D;
     
+    // block finalization
     voxel& vox = chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx]; 
-    auto def = contentIds->getBlockDef(vox.id);
-    if (def->inventorySize == 0)
+    auto prevdef = indices->getBlockDef(vox.id);
+    if (prevdef->inventorySize == 0) {
         chunk->removeBlockInventory(lx, y, lz);
+    }
+    if (prevdef->rt.extended && !vox.state.segment) {
+        eraseSegments(prevdef, vox.state, gx, y, gz);
+    }
+
+    // block initialization
+    auto newdef = indices->getBlockDef(id);
     vox.id = id;
     vox.state = state;
     chunk->setModifiedAndUnsaved();
+    if (!state.segment && newdef->rt.extended) {
+        repairSegments(newdef, state, gx, y, gz);
+    }
 
     if (y < chunk->bottom) chunk->bottom = y;
     else if (y + 1 > chunk->top) chunk->top = y + 1;
@@ -242,14 +428,14 @@ voxel* Chunks::rayCast(
         if (voxel == nullptr){
             return nullptr;
         }
-        const Block* def = contentIds->getBlockDef(voxel->id);
+        const auto def = indices->getBlockDef(voxel->id);
         if (def->selectable){
             end.x = px + t * dx;
             end.y = py + t * dy;
             end.z = pz + t * dz;
-                    iend.x = ix;
-                    iend.y = iy;
-                    iend.z = iz;
+            iend.x = ix;
+            iend.y = iy;
+            iend.z = iz;
             
             if (!def->rt.solid) {
                 const std::vector<AABB>& hitboxes = def->rotatable
@@ -261,7 +447,14 @@ voxel* Chunks::rayCast(
 
                 bool hit = false;
 
-                for (const auto& box : hitboxes) {
+                glm::vec3 offset {};
+                if (voxel->state.segment) {
+                    offset = seekOrigin(iend, def, voxel->state) - iend;
+                }
+
+                for (auto box : hitboxes) {
+                    box.a += offset;
+                    box.b += offset;
                     scalar_t boxDistance;
                     glm::ivec3 boxNorm;
                     if (ray.intersectAABB(iend, box, maxDist, boxNorm, boxDistance) > RayRelation::None && boxDistance < distance) {
@@ -359,7 +552,7 @@ glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDis
         if (voxel == nullptr) { 
             return glm::vec3(px + t * dx, py + t * dy, pz + t * dz); 
         }
-        const Block* def = contentIds->getBlockDef(voxel->id);
+        const auto def = indices->getBlockDef(voxel->id);
         if (def->obstacle) {
             if (!def->rt.solid) {
                 const std::vector<AABB>& hitboxes = def->rotatable
@@ -370,9 +563,14 @@ glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDis
                 glm::ivec3 norm;
                 Ray ray(start, dir);
 
+                glm::ivec3 offset {};
+                if (voxel->state.segment) {
+                    offset = seekOrigin({ix, iy, iz}, def, voxel->state) - glm::ivec3(ix, iy, iz);
+                }
+
                 for (const auto& box : hitboxes) {
                     // norm is dummy now, can be inefficient
-                    if (ray.intersectAABB(glm::ivec3(ix, iy, iz), box, maxDist, norm, distance) > RayRelation::None) {
+                    if (ray.intersectAABB(glm::ivec3(ix, iy, iz)+offset, box, maxDist, norm, distance) > RayRelation::None) {
                         return start + (dir * glm::vec3(distance));
                     }
                 }
@@ -480,7 +678,7 @@ void Chunks::_setOffset(int32_t x, int32_t z) {
     oz = z;
 }
 
-bool Chunks::putChunk(std::shared_ptr<Chunk> chunk) {
+bool Chunks::putChunk(const std::shared_ptr<Chunk>& chunk) {
     int x = chunk->x;
     int z = chunk->z;
     x -= ox;
@@ -497,14 +695,9 @@ void Chunks::saveAndClear(){
     for (size_t i = 0; i < volume; i++){
         Chunk* chunk = chunks[i].get();
         chunks[i] = nullptr;
-        if (chunk == nullptr || !chunk->flags.lighted)
-            continue;
-        
-        bool lightsUnsaved = !chunk->flags.loadedLights && 
-                              worldFiles->doesWriteLights();
-        if (!chunk->flags.unsaved && !lightsUnsaved)
-            continue;
-        regions.put(chunk);
+        if (chunk) {
+            regions.put(chunk);
+        }
     }
     chunksCount = 0;
 }

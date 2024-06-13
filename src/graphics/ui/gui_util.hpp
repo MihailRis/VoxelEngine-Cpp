@@ -16,13 +16,13 @@ namespace guiutil {
     void alert(
         gui::GUI* gui, 
         const std::wstring& text, 
-        runnable on_hidden=nullptr
+        const runnable& on_hidden=nullptr
     );
 
     void confirm(
         gui::GUI* gui, 
         const std::wstring& text, 
-        runnable on_confirm=nullptr,
+        const runnable& on_confirm=nullptr,
         std::wstring yestext=L"", 
         std::wstring notext=L"");
 }

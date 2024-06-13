@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <utility>
 
 #include "../coders/json.hpp"
 #include "../files/files.hpp"
@@ -21,8 +22,8 @@ const std::vector<std::string> ContentPack::RESERVED_NAMES = {
 contentpack_error::contentpack_error(
     std::string packId, 
     fs::path folder, 
-    std::string message)
-    : std::runtime_error(message), packId(packId), folder(folder) {
+    const std::string& message)
+    : std::runtime_error(message), packId(std::move(packId)), folder(std::move(folder)) {
 }
 
 std::string contentpack_error::getPackId() const {
@@ -36,7 +37,7 @@ fs::path ContentPack::getContentFile() const {
     return folder/fs::path(CONTENT_FILENAME);
 }
 
-bool ContentPack::is_pack(fs::path folder) {
+bool ContentPack::is_pack(const fs::path& folder) {
     return fs::is_regular_file(folder/fs::path(PACKAGE_FILENAME));
 }
 
@@ -61,7 +62,7 @@ static void checkContentPackId(const std::string& id, const fs::path& folder) {
     }
 }
 
-ContentPack ContentPack::read(fs::path folder) {
+ContentPack ContentPack::read(const fs::path& folder) {
     auto root = files::read_json(folder/fs::path(PACKAGE_FILENAME));
     ContentPack pack;
     root->str("id", pack.id);
@@ -89,14 +90,14 @@ ContentPack ContentPack::read(fs::path folder) {
 }
 
 void ContentPack::scanFolder(
-    fs::path folder,
+    const fs::path& folder,
     std::vector<ContentPack>& packs
 ) {
     if (!fs::is_directory(folder)) {
         return;
     }
-    for (auto entry : fs::directory_iterator(folder)) {
-        fs::path folder = entry.path();
+    for (const auto& entry : fs::directory_iterator(folder)) {
+        const fs::path& folder = entry.path();
         if (!fs::is_directory(folder))
             continue;
         if (!is_pack(folder))
@@ -112,7 +113,7 @@ void ContentPack::scanFolder(
     }
 }
 
-std::vector<std::string> ContentPack::worldPacksList(fs::path folder) {
+std::vector<std::string> ContentPack::worldPacksList(const fs::path& folder) {
     fs::path listfile = folder / fs::path("packs.list");
     if (!fs::is_regular_file(listfile)) {
         std::cerr << "warning: packs.list not found (will be created)";
@@ -122,7 +123,7 @@ std::vector<std::string> ContentPack::worldPacksList(fs::path folder) {
     return files::read_list(listfile);
 }
 
-fs::path ContentPack::findPack(const EnginePaths* paths, fs::path worldDir, std::string name) {
+fs::path ContentPack::findPack(const EnginePaths* paths, const fs::path& worldDir, const std::string& name) {
     fs::path folder = worldDir / fs::path("content") / fs::path(name);
     if (fs::is_directory(folder)) {
         return folder;
@@ -141,7 +142,7 @@ fs::path ContentPack::findPack(const EnginePaths* paths, fs::path worldDir, std:
 ContentPackRuntime::ContentPackRuntime(
     ContentPack info,
     scriptenv env
-) : info(info), env(std::move(env))
+) : info(std::move(info)), env(std::move(env))
 {
 }
 

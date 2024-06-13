@@ -195,15 +195,16 @@ void WorldRenderer::renderLevel(
 }
 
 void WorldRenderer::renderBlockSelection(Camera* camera, Shader* linesShader) {
+    const auto& selection = player->selection;
     auto indices = level->content->getIndices();
-    blockid_t id = PlayerController::selectedBlockId;
+    blockid_t id = selection.vox.id;
     auto block = indices->getBlockDef(id);
-    const glm::ivec3 pos = player->selectedBlockPosition;
-    const glm::vec3 point = PlayerController::selectedPointPosition;
-    const glm::vec3 norm = PlayerController::selectedBlockNormal;
+    const glm::ivec3 pos = player->selection.position;
+    const glm::vec3 point = selection.hitPosition;
+    const glm::vec3 norm = selection.normal;
 
     const std::vector<AABB>& hitboxes = block->rotatable
-        ? block->rt.hitboxes[PlayerController::selectedBlockRotation]
+        ? block->rt.hitboxes[selection.vox.state.rotation]
         : block->hitboxes;
 
     linesShader->use();
@@ -305,7 +306,7 @@ void WorldRenderer::draw(
             ctx.setCullFace(true);
             renderLevel(ctx, camera, settings);
             // Selected block
-            if (PlayerController::selectedBlockId != -1 && hudVisible){
+            if (player->selection.vox.id != BLOCK_VOID && hudVisible){
                 renderBlockSelection(camera, linesShader);
             }
         }

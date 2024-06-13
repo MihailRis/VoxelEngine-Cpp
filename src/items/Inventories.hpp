@@ -28,7 +28,7 @@ public:
     std::shared_ptr<Inventory> createVirtual(size_t size);
 
     /* Store inventory */
-    void store(std::shared_ptr<Inventory> inv);
+    void store(const std::shared_ptr<Inventory>& inv);
 
     /* Remove inventory from map */
     void remove(int64_t id);

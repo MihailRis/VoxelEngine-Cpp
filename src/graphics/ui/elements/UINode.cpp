@@ -1,5 +1,7 @@
 #include "UINode.hpp"
 
+#include <utility>
+
 #include "Container.hpp"
 #include "../../core/Batch2D.hpp"
 
@@ -62,12 +64,12 @@ UINode* UINode::getParent() const {
     return parent;
 }
 
-UINode* UINode::listenAction(onaction action) {
+UINode* UINode::listenAction(const onaction& action) {
     actions.listen(action);
     return this;
 }
 
-UINode* UINode::listenDoubleClick(onaction action) {
+UINode* UINode::listenDoubleClick(const onaction& action) {
     doubleClickCallbacks.listen(action);
     return this;
 }
@@ -113,7 +115,7 @@ std::shared_ptr<UINode> UINode::getAt(glm::vec2 point, std::shared_ptr<UINode> s
     if (!isInteractive() || !enabled) {
         return nullptr;
     }
-    return isInside(point) ? self : nullptr;
+    return isInside(point) ? std::move(self) : nullptr;
 }
 
 bool UINode::isInteractive() const {
@@ -136,7 +138,7 @@ void UINode::setTooltip(const std::wstring& text) {
     this->tooltip = text;
 }
 
-const std::wstring UINode::getTooltip() const {
+const std::wstring& UINode::getTooltip() const {
     return tooltip;
 }
 
@@ -241,8 +243,8 @@ int UINode::getZIndex() const {
 }
 
 void UINode::moveInto(
-    std::shared_ptr<UINode> node,
-    std::shared_ptr<Container> dest
+    const std::shared_ptr<UINode>& node,
+    const std::shared_ptr<Container>& dest
 ) {
     auto parent = node->getParent();
     if (auto container = dynamic_cast<Container*>(parent)) {
@@ -259,7 +261,7 @@ vec2supplier UINode::getPositionFunc() const {
 }
 
 void UINode::setPositionFunc(vec2supplier func) {
-    positionfunc = func;
+    positionfunc = std::move(func);
 }
 
 vec2supplier UINode::getSizeFunc() const {
@@ -267,7 +269,7 @@ vec2supplier UINode::getSizeFunc() const {
 }
 
 void UINode::setSizeFunc(vec2supplier func) {
-    sizefunc = func;
+    sizefunc = std::move(func);
 }
 
 void UINode::setId(const std::string& id) {
@@ -345,7 +347,7 @@ bool UINode::isSubnodeOf(const UINode* node) {
 }
 
 void UINode::getIndices(
-    const std::shared_ptr<UINode> node,
+    const std::shared_ptr<UINode>& node,
     std::unordered_map<std::string, std::shared_ptr<UINode>>& map
 ) {
     const std::string& id = node->getId();
@@ -354,20 +356,20 @@ void UINode::getIndices(
     }
     auto container = std::dynamic_pointer_cast<gui::Container>(node);
     if (container) {
-        for (auto subnode : container->getNodes()) {
+        for (const auto& subnode : container->getNodes()) {
             getIndices(subnode, map);
         }
     }
 }
 std::shared_ptr<UINode> UINode::find(
-    const std::shared_ptr<UINode> node,
+    const std::shared_ptr<UINode>& node,
     const std::string& id
 ) {
     if (node->getId() == id) {
         return node;
     }
     if (auto container = std::dynamic_pointer_cast<Container>(node)) {
-        for (auto subnode : container->getNodes()) {
+        for (const auto& subnode : container->getNodes()) {
             if (auto found = UINode::find(subnode, id)) {
                 return found;
             }

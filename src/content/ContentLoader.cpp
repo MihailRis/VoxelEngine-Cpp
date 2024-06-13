@@ -28,15 +28,15 @@ ContentLoader::ContentLoader(ContentPack* pack) : pack(pack) {
 }
 
 bool ContentLoader::fixPackIndices(
-    fs::path folder, 
+    const fs::path& folder,
     dynamic::Map* indicesRoot,
-    std::string contentSection
+    const std::string& contentSection
 ) {
     std::vector<std::string> detected;
     std::vector<std::string> indexed;
     if (fs::is_directory(folder)) {
-        for (auto entry : fs::directory_iterator(folder)) {
-            fs::path file = entry.path();
+        for (const auto& entry : fs::directory_iterator(folder)) {
+            const fs::path& file = entry.path();
             if (fs::is_regular_file(file) && file.extension() == ".json") {
                 std::string name = file.stem().string();
                 if (name[0] == '_')
@@ -46,8 +46,8 @@ bool ContentLoader::fixPackIndices(
                 std::string space = file.stem().string();
                 if (space[0] == '_')
                     continue;
-                for (auto entry : fs::directory_iterator(file)) {
-                    fs::path file = entry.path();
+                for (const auto& entry : fs::directory_iterator(file)) {
+                    const fs::path& file = entry.path();
                     if (fs::is_regular_file(file) && file.extension() == ".json") {
                         std::string name = file.stem().string();
                         if (name[0] == '_')
@@ -109,7 +109,7 @@ void ContentLoader::fixPackIndices() {
     }
 }
 
-void ContentLoader::loadBlock(Block& def, std::string name, fs::path file) {
+void ContentLoader::loadBlock(Block& def, const std::string& name, const fs::path& file) {
     auto root = files::read_json(file);
 
     root->str("caption", def.caption);
@@ -137,16 +137,14 @@ void ContentLoader::loadBlock(Block& def, std::string name, fs::path file) {
         def.model = BlockModel::custom;
         if (root->has("model-primitives")) {
             loadCustomBlockModel(def, root->map("model-primitives"));
-        }
-        else {
-            std::cerr << "ERROR occured while block "
-                       << name << " parsed: no \"model-primitives\" found" << std::endl;
+        } else {
+            logger.error() << name << ": no 'model-primitives' found";
         }
     }
     else if (model == "X") def.model = BlockModel::xsprite;
     else if (model == "none") def.model = BlockModel::none;
     else {
-        std::cerr << "unknown model " << model << std::endl;
+        logger.error() << "unknown model " << model;
         def.model = BlockModel::none;
     }
 
@@ -156,12 +154,12 @@ void ContentLoader::loadBlock(Block& def, std::string name, fs::path file) {
     std::string profile = "none";
     root->str("rotation", profile);
     def.rotatable = profile != "none";
-    if (profile == "pipe") {
+    if (profile == BlockRotProfile::PIPE_NAME) {
         def.rotations = BlockRotProfile::PIPE;
-    } else if (profile == "pane") {
+    } else if (profile == BlockRotProfile::PANE_NAME) {
         def.rotations = BlockRotProfile::PANE;
     } else if (profile != "none") {
-        std::cerr << "unknown rotation profile " << profile << std::endl;
+        logger.error() << "unknown rotation profile " << profile;
         def.rotatable = false;
     }
     
@@ -175,27 +173,35 @@ void ContentLoader::loadBlock(Block& def, std::string name, fs::path file) {
             def.hitboxes[i].b = glm::vec3(box->num(3), box->num(4), box->num(5));
             def.hitboxes[i].b += def.hitboxes[i].a;
         }
+    } else if (auto boxarr = root->list("hitbox")){
+        AABB aabb;
+        aabb.a = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
+        aabb.b = glm::vec3(boxarr->num(3), boxarr->num(4), boxarr->num(5));
+        aabb.b += aabb.a;
+        def.hitboxes = { aabb };
+    } else if (!def.modelBoxes.empty()) {
+        def.hitboxes = def.modelBoxes;
     } else {
-        boxarr = root->list("hitbox");
-        if (boxarr) {
-            AABB aabb;
-            aabb.a = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
-            aabb.b = glm::vec3(boxarr->num(3), boxarr->num(4), boxarr->num(5));
-            aabb.b += aabb.a;
-            def.hitboxes = { aabb };
-        } else if (!def.modelBoxes.empty()) {
-            def.hitboxes = def.modelBoxes;
-        } else {
-            def.hitboxes = { AABB() };
-        }
+        def.hitboxes = { AABB() };
     }
 
     // block light emission [r, g, b] where r,g,b in range [0..15]
-    auto emissionarr = root->list("emission");
-    if (emissionarr) {
+    if (auto emissionarr = root->list("emission")) {
         def.emission[0] = emissionarr->num(0);
         def.emission[1] = emissionarr->num(1);
         def.emission[2] = emissionarr->num(2);
+    }
+
+    // block size
+    if (auto sizearr = root->list("size")) {
+        def.size.x = sizearr->num(0);
+        def.size.y = sizearr->num(1);
+        def.size.z = sizearr->num(2);
+        if (def.model == BlockModel::block && 
+           (def.size.x != 1 || def.size.y != 1 || def.size.z != 1)) {
+            def.model = BlockModel::aabb;
+            def.hitboxes = {AABB(def.size)};
+        }
     }
 
     // primitive properties
@@ -244,7 +250,7 @@ void ContentLoader::loadCustomBlockModel(Block& def, dynamic::Map* primitives) {
                 }
             else
                 for (uint j = 6; j < 12; j++) {
-                    def.modelTextures.push_back("notfound");
+                    def.modelTextures.emplace_back("notfound");
                 }
         }
     }
@@ -254,8 +260,8 @@ void ContentLoader::loadCustomBlockModel(Block& def, dynamic::Map* primitives) {
             /* Parse tetragon to points */
             auto tgonobj = modeltetragons->list(i);
             glm::vec3 p1(tgonobj->num(0), tgonobj->num(1), tgonobj->num(2)),
-                    xw(tgonobj->num(3), tgonobj->num(4), tgonobj->num(5)),
-                    yh(tgonobj->num(6), tgonobj->num(7), tgonobj->num(8));
+                      xw(tgonobj->num(3), tgonobj->num(4), tgonobj->num(5)),
+                      yh(tgonobj->num(6), tgonobj->num(7), tgonobj->num(8));
             def.modelExtraPoints.push_back(p1);
             def.modelExtraPoints.push_back(p1+xw);
             def.modelExtraPoints.push_back(p1+xw+yh);
@@ -266,7 +272,7 @@ void ContentLoader::loadCustomBlockModel(Block& def, dynamic::Map* primitives) {
     }
 }
 
-void ContentLoader::loadItem(ItemDef& def, std::string name, fs::path file) {
+void ContentLoader::loadItem(ItemDef& def, const std::string& name, const fs::path& file) {
     auto root = files::read_json(file);
     root->str("caption", def.caption);
 
@@ -279,7 +285,7 @@ void ContentLoader::loadItem(ItemDef& def, std::string name, fs::path file) {
     } else if (iconTypeStr == "sprite") {
         def.iconType = item_icon_type::sprite;
     } else if (iconTypeStr.length()){
-        std::cerr << "unknown icon type" << iconTypeStr << std::endl;
+        logger.error() << name << ": unknown icon type" << iconTypeStr;
     }
     root->str("icon", def.icon);
     root->str("placing-block", def.placingBlock);
@@ -295,7 +301,7 @@ void ContentLoader::loadItem(ItemDef& def, std::string name, fs::path file) {
     }
 }
 
-void ContentLoader::loadBlock(Block& def, std::string full, std::string name) {
+void ContentLoader::loadBlock(Block& def, const std::string& full, const std::string& name) {
     auto folder = pack->folder;
 
     fs::path configFile = folder/fs::path("blocks/"+name+".json");
@@ -307,7 +313,7 @@ void ContentLoader::loadBlock(Block& def, std::string full, std::string name) {
     }
 }
 
-void ContentLoader::loadItem(ItemDef& def, std::string full, std::string name) {
+void ContentLoader::loadItem(ItemDef& def, const std::string& full, const std::string& name) {
     auto folder = pack->folder;
 
     fs::path configFile = folder/fs::path("items/"+name+".json");
@@ -319,7 +325,7 @@ void ContentLoader::loadItem(ItemDef& def, std::string full, std::string name) {
     }
 }
 
-void ContentLoader::loadBlockMaterial(BlockMaterial& def, fs::path file) {
+void ContentLoader::loadBlockMaterial(BlockMaterial& def, const fs::path& file) {
     auto root = files::read_json(file);
     root->str("steps-sound", def.stepsSound);
     root->str("place-sound", def.placeSound);
@@ -394,8 +400,8 @@ void ContentLoader::load(ContentBuilder& builder) {
 
     fs::path materialsDir = folder / fs::u8path("block_materials");
     if (fs::is_directory(materialsDir)) {
-        for (auto entry : fs::directory_iterator(materialsDir)) {
-            fs::path file = entry.path();
+        for (const auto& entry : fs::directory_iterator(materialsDir)) {
+            const fs::path& file = entry.path();
             std::string name = pack->id+":"+file.stem().u8string();
             loadBlockMaterial(builder.createBlockMaterial(name), file);
         }

@@ -27,17 +27,17 @@ namespace gui {
         bool hasReader(const std::string& tag) const;
         void addIgnore(const std::string& tag);
         
-        std::shared_ptr<UINode> readUINode(xml::xmlelement element);
+        std::shared_ptr<UINode> readUINode(const xml::xmlelement& element);
         
         void readUINode(
             UiXmlReader& reader, 
-            xml::xmlelement element, 
+            const xml::xmlelement& element,
             UINode& node
         );
 
         void readUINode(
             UiXmlReader& reader, 
-            xml::xmlelement element, 
+            const xml::xmlelement& element,
             Container& container
         );
 
@@ -48,7 +48,7 @@ namespace gui {
 
         std::shared_ptr<UINode> readXML(
             const std::string& filename,
-            xml::xmlelement root
+            const xml::xmlelement& root
         );
 
         const std::string& getContext() const;

@@ -1,0 +1,17 @@
+{
+    "material": "base:wood",
+    "texture-faces": [
+        "wooden_door_side",
+        "wooden_door_side",
+        "wooden_door_top",
+        "wooden_door_top",
+        "wooden_door",
+        "wooden_door"
+    ],
+    "light-passing": true,
+    "sky-light-passing": true,
+    "size": [1, 2, 1],
+    "rotation": "pane",
+    "model": "aabb",
+    "hitbox": [0.0, 0.0, 0.8, 1.0, 2.0, 0.2]
+}

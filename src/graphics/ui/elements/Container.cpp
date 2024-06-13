@@ -4,12 +4,17 @@
 #include "../../core/Batch2D.hpp"
 
 #include <algorithm>
+#include <utility>
 
 using namespace gui;
 
 Container::Container(glm::vec2 size) : UINode(size) {
     actualLength = size.y;
     setColor(glm::vec4());
+}
+
+Container::~Container() {
+    Container::clear();
 }
 
 std::shared_ptr<UINode> Container::getAt(glm::vec2 pos, std::shared_ptr<UINode> self) {
@@ -31,7 +36,7 @@ std::shared_ptr<UINode> Container::getAt(glm::vec2 pos, std::shared_ptr<UINode> 
 }
 
 void Container::act(float delta) {
-    for (auto node : nodes) {
+    for (const auto& node : nodes) {
         if (node->isVisible()) {
             node->act(delta);
         }
@@ -86,7 +91,7 @@ void Container::draw(const DrawContext* pctx, Assets* assets) {
     {
         DrawContext ctx = pctx->sub();
         ctx.setScissors(glm::vec4(pos.x, pos.y, size.x, size.y));
-        for (auto node : nodes) {
+        for (const auto& node : nodes) {
             if (node->isVisible())
                 node->draw(pctx, assets);
         }
@@ -105,22 +110,22 @@ void Container::drawBackground(const DrawContext* pctx, Assets*) {
     batch->rect(pos.x, pos.y, size.x, size.y);
 }
 
-void Container::add(std::shared_ptr<UINode> node) {
+void Container::add(const std::shared_ptr<UINode> &node) {
     nodes.push_back(node);
     node->setParent(this);
     node->reposition();
     refresh();
 }
 
-void Container::add(std::shared_ptr<UINode> node, glm::vec2 pos) {
+void Container::add(const std::shared_ptr<UINode>& node, glm::vec2 pos) {
     node->setPos(pos);
     add(node);
 }
 
-void Container::remove(std::shared_ptr<UINode> selected) {
+void Container::remove(const std::shared_ptr<UINode>& selected) {
     selected->setParent(nullptr);
     nodes.erase(std::remove_if(nodes.begin(), nodes.end(), 
-        [selected](const std::shared_ptr<UINode> node) {
+        [selected](const std::shared_ptr<UINode>& node) {
             return node == selected;
         }
     ), nodes.end());
@@ -136,7 +141,7 @@ void Container::remove(const std::string& id) {
 }
 
 void Container::clear() {
-    for (auto node : nodes) {
+    for (const auto& node : nodes) {
         node->setParent(nullptr);
     }
     nodes.clear();
@@ -144,7 +149,7 @@ void Container::clear() {
 }
 
 void Container::listenInterval(float interval, ontimeout callback, int repeat) {
-    intervalEvents.push_back({callback, interval, 0.0f, repeat});
+    intervalEvents.push_back({std::move(callback), interval, 0.0f, repeat});
 }
 
 void Container::setSize(glm::vec2 size) {

@@ -9,7 +9,7 @@
 #include "../maths/UVRegion.hpp"
 #include "../typedefs.hpp"
 
-#define BLOCK_ITEM_SUFFIX ".item"
+inline std::string BLOCK_ITEM_SUFFIX = ".item";
 
 inline constexpr uint FACE_MX = 0;
 inline constexpr uint FACE_PX = 1;
@@ -62,6 +62,9 @@ struct BlockRotProfile {
 
     /// @brief Doors, signs and other panes
     static const BlockRotProfile PANE;
+
+    static inline std::string PIPE_NAME = "pipe";
+    static inline std::string PANE_NAME = "pane";
 };
 
 enum class BlockModel {
@@ -109,6 +112,8 @@ public:
 
     /// @brief Light emission R, G, B, S (sky lights: sun, moon, radioactive clouds)
     uint8_t emission[4] {0, 0, 0, 0};
+
+    glm::i8vec3 size {1, 1, 1};
 
     /// @brief Influences visible block sides for transparent blocks
     uint8_t drawGroup = 0;
@@ -175,6 +180,9 @@ public:
         
         /// @brief does the block emit any lights
         bool emissive = false;
+
+        // @brief block size is greather than 1x1x1
+        bool extended = false;
         
         /// @brief set of hitboxes sets with all coord-systems precalculated
         std::vector<AABB> hitboxes[BlockRotProfile::MAX_COUNT];
@@ -186,9 +194,9 @@ public:
         itemid_t pickingItem = 0;
     } rt;
 
-    Block(std::string name);
-    Block(std::string name, std::string texture);
+    Block(const std::string& name);
+    Block(std::string name, const std::string& texture);
     Block(const Block&) = delete;
 };
 
-#endif /* VOXELS_BLOCK_HPP_ */
+#endif // VOXELS_BLOCK_HPP_

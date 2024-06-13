@@ -21,17 +21,18 @@ class EnginePaths {
     fs::path worldFolder;
     std::vector<ContentPack>* contentPacks = nullptr;
 public:
+    void prepare();
+
     fs::path getUserfiles() const;
     fs::path getResources() const;
     
-    fs::path getScreenshotFile(std::string ext);
+    fs::path getScreenshotFile(const std::string& ext);
     fs::path getWorldsFolder();
     fs::path getWorldFolder();
     fs::path getWorldFolder(const std::string& name);
     fs::path getControlsFile();
-    fs::path getControlsFileOld(); // TODO: remove in 0.22
     fs::path getSettingsFile();
-    bool isWorldNameUsed(std::string name);
+    bool isWorldNameUsed(const std::string& name);
 
     void setUserfiles(fs::path folder);
     void setResources(fs::path folder);
@@ -40,7 +41,7 @@ public:
 
     std::vector<fs::path> scanForWorlds();
 
-    fs::path resolve(std::string path, bool throwErr=true);
+    fs::path resolve(const std::string& path, bool throwErr=true);
 };
 
 struct PathsRoot {

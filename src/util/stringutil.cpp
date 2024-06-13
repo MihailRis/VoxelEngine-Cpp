@@ -128,7 +128,7 @@ extern uint32_t util::decode_utf8(uint& size, const char* chr) {
     return code;
 }
 
-std::string util::wstr2str_utf8(const std::wstring ws) {
+std::string util::wstr2str_utf8(const std::wstring& ws) {
     std::vector<char> chars;
     char buffer[4];
     for (wchar_t wc : ws) {
@@ -140,7 +140,7 @@ std::string util::wstr2str_utf8(const std::wstring ws) {
     return std::string(chars.data(), chars.size());
 }
 
-std::wstring util::str2wstr_utf8(const std::string s) {
+std::wstring util::str2wstr_utf8(const std::string& s) {
     std::vector<wchar_t> chars;
     size_t pos = 0;
     uint size = 0;
@@ -167,7 +167,7 @@ bool util::is_integer(const std::wstring& text) {
     return true;
 }
 
-bool util::is_valid_filename(std::wstring name) {
+bool util::is_valid_filename(const std::wstring& name) {
     for (wchar_t c : name) {
         if (c < 31 || c == '/' || c == '\\' || c == '<' || c == '>' ||
             c == ':' || c == '"' || c == '|' || c == '?' || c == '*'){
@@ -403,7 +403,7 @@ std::vector<std::string> util::split(const std::string& str, char delimiter) {
         result.push_back(tmp);
     }
     if (result.empty()) {
-        result.push_back("");
+        result.emplace_back("");
     }
     return result;
 }
@@ -420,7 +420,7 @@ std::vector<std::wstring> util::split(const std::wstring& str, char delimiter) {
         result.push_back(tmp);
     }
     if (result.empty()) {
-        result.push_back(L"");
+        result.emplace_back(L"");
     }
     return result;
 }

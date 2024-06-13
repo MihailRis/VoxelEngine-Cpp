@@ -8,6 +8,7 @@
 #include "../graphics/ui/elements/TrackBar.hpp"
 #include "../graphics/ui/elements/InputBindBox.hpp"
 #include "../graphics/render/WorldRenderer.hpp"
+#include "../logic/scripting/scripting.hpp"
 #include "../objects/Player.hpp"
 #include "../physics/Hitbox.hpp"
 #include "../util/stringutil.hpp"
@@ -21,12 +22,13 @@
 #include <memory>
 #include <sstream>
 #include <bitset>
+#include <utility>
 
 using namespace gui;
 
 static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
     auto label = std::make_shared<Label>(L"-");
-    label->textSupplier(supplier);
+    label->textSupplier(std::move(supplier));
     return label;
 }
 
@@ -36,6 +38,7 @@ std::shared_ptr<UINode> create_debug_panel(
     Player* player
 ) {
     auto panel = std::make_shared<Panel>(glm::vec2(250, 200), glm::vec4(5.0f), 2.0f);
+    panel->setId("hud.debug-panel");
     panel->setPos(glm::vec2(10, 10));
 
     static int fps = 0;
@@ -63,6 +66,9 @@ std::shared_ptr<UINode> create_debug_panel(
         return L"speakers: " + std::to_wstring(audio::count_speakers())+
                L" streams: " + std::to_wstring(audio::count_streams());
     }));
+    panel->add(create_label([](){
+        return L"lua-stack: " + std::to_wstring(scripting::get_values_on_stack());
+    }));
     panel->add(create_label([=](){
         auto& settings = engine->getSettings();
         bool culling = settings.graphics.frustumCulling.get();
@@ -73,20 +79,21 @@ std::shared_ptr<UINode> create_debug_panel(
                L" visible: "+std::to_wstring(level->chunks->visible);
     }));
     panel->add(create_label([=](){
+        const auto& vox = player->selection.vox;
         std::wstringstream stream;
-        stream << "r:" << player->selectedVoxel.state.rotation << " s:"
-               << player->selectedVoxel.state.segment << " u:"
-               << std::bitset<8>(player->selectedVoxel.state.userbits);
-        if (player->selectedVoxel.id == BLOCK_VOID) {
+        stream << "r:" << vox.state.rotation << " s:"
+                << std::bitset<3>(vox.state.segment) << " u:"
+                << std::bitset<8>(vox.state.userbits);
+        if (vox.id == BLOCK_VOID) {
             return std::wstring {L"block: -"};
         } else {
-            return L"block: "+std::to_wstring(player->selectedVoxel.id)+
-                L" "+stream.str();
+            return L"block: "+std::to_wstring(vox.id)+
+                   L" "+stream.str();
         }
     }));
     panel->add(create_label([=](){
         auto* indices = level->content->getIndices();
-        if (auto def = indices->getBlockDef(player->selectedVoxel.id)) {
+        if (auto def = indices->getBlockDef(player->selection.vox.id)) {
             return L"name: " + util::str2wstr_utf8(def->name);
         } else {
             return std::wstring {L"name: void"};
@@ -114,7 +121,7 @@ std::shared_ptr<UINode> create_debug_panel(
             Hitbox* hitbox = player->hitbox.get();
             return util::to_wstring(hitbox->position[ax], 2);
         });
-        box->setTextConsumer([=](std::wstring text) {
+        box->setTextConsumer([=](const std::wstring& text) {
             try {
                 glm::vec3 position = player->hitbox->position;
                 position[ax] = std::stoi(text);
@@ -136,8 +143,8 @@ std::shared_ptr<UINode> create_debug_panel(
         timeutil::from_value(level->getWorld()->daytime, hour, minute, second);
 
         std::wstring timeString = 
-                     util::lfill(std::to_wstring(hour), 2, L'0') + L":" +
-                     util::lfill(std::to_wstring(minute), 2, L'0');
+                util::lfill(std::to_wstring(hour), 2, L'0') + L":" +
+                util::lfill(std::to_wstring(minute), 2, L'0');
         return L"time: "+timeString;
     }));
     {

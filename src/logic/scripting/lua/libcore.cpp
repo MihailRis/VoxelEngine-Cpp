@@ -1,6 +1,4 @@
-#include "lua_commons.hpp"
 #include "api_lua.hpp"
-#include "LuaState.hpp"
 
 #include "../../../engine.hpp"
 #include "../../../files/settings_io.hpp"
@@ -13,172 +11,166 @@
 #include "../../../window/Events.hpp"
 #include "../../../window/Window.hpp"
 #include "../../../world/WorldGenerators.hpp"
-#include "../scripting.hpp"
 
 #include <vector>
 #include <memory>
 
-namespace scripting {
-    extern lua::LuaState* state;
-}
+using namespace scripting;
 
-static int l_new_world(lua_State* L) {
-    auto name = lua_tostring(L, 1);
-    auto seed = lua_tostring(L, 2);
-    auto generator = lua_tostring(L, 3);
-    auto controller = scripting::engine->getController();
+static int l_new_world(lua::State* L) {
+    auto name = lua::require_string(L, 1);
+    auto seed = lua::require_string(L, 2);
+    auto generator = lua::require_string(L, 3);
+    auto controller = engine->getController();
     controller->createWorld(name, seed, generator);
     return 0;
 }
 
-static int l_open_world(lua_State* L) {
-    auto name = lua_tostring(L, 1);
+static int l_open_world(lua::State* L) {
+    auto name = lua::require_string(L, 1);
 
-    auto controller = scripting::engine->getController();
+    auto controller = engine->getController();
     controller->openWorld(name, false);
     return 0;
 }
 
-static int l_reopen_world(lua_State*) {
-    auto controller = scripting::engine->getController();
-    controller->reopenWorld(scripting::level->getWorld());
+static int l_reopen_world(lua::State*) {
+    auto controller = engine->getController();
+    controller->reopenWorld(level->getWorld());
     return 0;
 }
 
-static int l_close_world(lua_State* L) {
-    if (scripting::controller == nullptr) {
+static int l_close_world(lua::State* L) {
+    if (controller == nullptr) {
         throw std::runtime_error("no world open");
     }
-    bool save_world = lua_toboolean(L, 1);
+    bool save_world = lua::toboolean(L, 1);
     if (save_world) {
-        scripting::controller->saveWorld();
+        controller->saveWorld();
     }
     // destroy LevelScreen and run quit callbacks
-    scripting::engine->setScreen(nullptr);
+    engine->setScreen(nullptr);
     // create and go to menu screen
-    scripting::engine->setScreen(std::make_shared<MenuScreen>(scripting::engine));
+    engine->setScreen(std::make_shared<MenuScreen>(engine));
     return 0;
 }
 
-static int l_delete_world(lua_State* L) {
-    auto name = lua_tostring(L, 1);
-    auto controller = scripting::engine->getController();
+static int l_delete_world(lua::State* L) {
+    auto name = lua::require_string(L, 1);
+    auto controller = engine->getController();
     controller->deleteWorld(name);
     return 0;
 }
 
-static int l_reconfig_packs(lua_State* L) {
-    if (!lua_istable(L, 1)) {
+static int l_reconfig_packs(lua::State* L) {
+    if (!lua::istable(L, 1)) {
         throw std::runtime_error("strings array expected as the first argument");
     }
-    if (!lua_istable(L, 2)) {
+    if (!lua::istable(L, 2)) {
         throw std::runtime_error("strings array expected as the second argument");
     }
     std::vector<std::string> addPacks;
-    if (!lua_istable(L, 1)) {
+    if (!lua::istable(L, 1)) {
         throw std::runtime_error("an array expected as argument 1");
     }
-    int addLen = lua_objlen(L, 1);
+    int addLen = lua::objlen(L, 1);
     for (int i = 0; i < addLen; i++) {
-        lua_rawgeti(L, 1, i+1);
-        addPacks.push_back(lua_tostring(L, -1));
-        lua_pop(L, 1);
+        lua::rawgeti(L, i+1, 1);
+        addPacks.emplace_back(lua::tostring(L, -1));
+        lua::pop(L);
     }
 
     std::vector<std::string> remPacks;
-    if (!lua_istable(L, 2)) {
+    if (!lua::istable(L, 2)) {
         throw std::runtime_error("an array expected as argument 2");
     }
-    int remLen = lua_objlen(L, 2);
+    int remLen = lua::objlen(L, 2);
     for (int i = 0; i < remLen; i++) {
-        lua_rawgeti(L, 2, i+1);
-        remPacks.push_back(lua_tostring(L, -1));
-        lua_pop(L, 1);
+        lua::rawgeti(L, i+1, 2);
+        remPacks.emplace_back(lua::tostring(L, -1));
+        lua::pop(L);
     }
-    auto controller = scripting::engine->getController();
-    controller->reconfigPacks(scripting::controller, addPacks, remPacks);
+    auto engine_controller = engine->getController();
+    engine_controller->reconfigPacks(controller, addPacks, remPacks);
     return 0;
 }
 
-static int l_get_setting(lua_State* L) {
-    auto name = lua_tostring(L, 1);
-    const auto value = scripting::engine->getSettingsHandler().getValue(name);
-    scripting::state->pushvalue(std::move(value));
-    return 1;
+static int l_get_setting(lua::State* L) {
+    auto name = lua::require_string(L, 1);
+    const auto value = engine->getSettingsHandler().getValue(name);
+    return lua::pushvalue(L, value);
 }
 
-static int l_set_setting(lua_State* L) {
-    auto name = lua_tostring(L, 1);
-    const auto value = scripting::state->tovalue(2);
-    scripting::engine->getSettingsHandler().setValue(name, value);
+static int l_set_setting(lua::State* L) {
+    auto name = lua::require_string(L, 1);
+    const auto value = lua::tovalue(L, 2);
+    engine->getSettingsHandler().setValue(name, value);
     return 0;
 }
 
-static int l_str_setting(lua_State* L) {
-    auto name = lua_tostring(L, 1);
-    const auto string = scripting::engine->getSettingsHandler().toString(name);
-    scripting::state->pushstring(string);
-    return 1;
+static int l_str_setting(lua::State* L) {
+    auto name = lua::require_string(L, 1);
+    const auto string = engine->getSettingsHandler().toString(name);
+    return lua::pushstring(L, string);
 }
 
-static int l_get_setting_info(lua_State* L) {
-    auto name = lua_tostring(L, 1);
-    auto setting = scripting::engine->getSettingsHandler().getSetting(name);
-    lua_createtable(L, 0, 1);
+static int l_get_setting_info(lua::State* L) {
+    auto name = lua::require_string(L, 1);
+    auto setting = engine->getSettingsHandler().getSetting(name);
+    lua::createtable(L, 0, 1);
     if (auto number = dynamic_cast<NumberSetting*>(setting)) {
-        lua_pushnumber(L, number->getMin());
-        lua_setfield(L, -2, "min");
-        lua_pushnumber(L, number->getMax());
-        lua_setfield(L, -2, "max");
+        lua::pushnumber(L, number->getMin());
+        lua::setfield(L, "min");
+        lua::pushnumber(L, number->getMax());
+        lua::setfield(L, "max");
         return 1;
     }
     if (auto integer = dynamic_cast<IntegerSetting*>(setting)) {
-        lua_pushinteger(L, integer->getMin());
-        lua_setfield(L, -2, "min");
-        lua_pushinteger(L, integer->getMax());
-        lua_setfield(L, -2, "max");
+        lua::pushinteger(L, integer->getMin());
+        lua::setfield(L, "min");
+        lua::pushinteger(L, integer->getMax());
+        lua::setfield(L, "max");
         return 1;
     }
-    lua_pop(L, 1);
+    lua::pop(L);
     throw std::runtime_error("unsupported setting type");
 }
 
-static int l_quit(lua_State*) {
+static int l_quit(lua::State*) {
     Window::setShouldClose(true);
     return 0;
 }
 
-static int l_get_default_generator(lua_State* L) {
-    lua_pushstring(L, WorldGenerators::getDefaultGeneratorID().c_str());
-    return 1;
+static int l_get_default_generator(lua::State* L) {
+    return lua::pushstring(L, WorldGenerators::getDefaultGeneratorID());
 }
 
-static int l_get_generators(lua_State* L) {
+static int l_get_generators(lua::State* L) {
     const auto& generators = WorldGenerators::getGeneratorsIDs();
-    lua_createtable(L, generators.size(), 0);
+    lua::createtable(L, generators.size(), 0);
 
     int i = 0;
     for (auto& id : generators) {
-        lua_pushstring(L, id.c_str());
-        lua_rawseti(L, -2, i + 1);
+        lua::pushstring(L, id);
+        lua::rawseti(L, i + 1);
         i++;
     }
     return 1;
 }
 
 const luaL_Reg corelib [] = {
-    {"new_world", lua_wrap_errors<l_new_world>},
-    {"open_world", lua_wrap_errors<l_open_world>},
-    {"reopen_world", lua_wrap_errors<l_reopen_world>},
-    {"close_world", lua_wrap_errors<l_close_world>},
-    {"delete_world", lua_wrap_errors<l_delete_world>},
-    {"reconfig_packs", lua_wrap_errors<l_reconfig_packs>},
-    {"get_setting", lua_wrap_errors<l_get_setting>},
-    {"set_setting", lua_wrap_errors<l_set_setting>},
-    {"str_setting", lua_wrap_errors<l_str_setting>},
-    {"get_setting_info", lua_wrap_errors<l_get_setting_info>},
-    {"quit", lua_wrap_errors<l_quit>},
-    {"get_default_generator", lua_wrap_errors<l_get_default_generator>},
-    {"get_generators", lua_wrap_errors<l_get_generators>},
+    {"new_world", lua::wrap<l_new_world>},
+    {"open_world", lua::wrap<l_open_world>},
+    {"reopen_world", lua::wrap<l_reopen_world>},
+    {"close_world", lua::wrap<l_close_world>},
+    {"delete_world", lua::wrap<l_delete_world>},
+    {"reconfig_packs", lua::wrap<l_reconfig_packs>},
+    {"get_setting", lua::wrap<l_get_setting>},
+    {"set_setting", lua::wrap<l_set_setting>},
+    {"str_setting", lua::wrap<l_str_setting>},
+    {"get_setting_info", lua::wrap<l_get_setting_info>},
+    {"quit", lua::wrap<l_quit>},
+    {"get_default_generator", lua::wrap<l_get_default_generator>},
+    {"get_generators", lua::wrap<l_get_generators>},
     {NULL, NULL}
 };

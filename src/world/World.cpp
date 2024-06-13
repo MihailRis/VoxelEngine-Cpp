@@ -16,30 +16,29 @@
 
 #include <memory>
 #include <glm/glm.hpp>
+#include <utility>
 
 static debug::Logger logger("world");
 
-world_load_error::world_load_error(std::string message) 
+world_load_error::world_load_error(const std::string& message)
     : std::runtime_error(message) {
 }
 
 World::World(
     std::string name, 
     std::string generator,
-    fs::path directory, 
+    const fs::path& directory,
     uint64_t seed, 
     EngineSettings& settings,
     const Content* content,
-    const std::vector<ContentPack> packs
-) : name(name),
-    generator(generator),
+    const std::vector<ContentPack>& packs
+) : name(std::move(name)),
+    generator(std::move(generator)),
     seed(seed),
-    settings(settings), 
     content(content),
-    packs(packs) 
-{
-    wfile = std::make_unique<WorldFiles>(directory, settings.debug);
-}
+    packs(packs),
+    wfile(std::make_unique<WorldFiles>(directory, settings.debug))
+{}
 
 World::~World(){
 }
@@ -56,21 +55,15 @@ void World::write(Level* level) {
     auto& regions = wfile->getRegions();
 
     for (size_t i = 0; i < chunks->volume; i++) {
-        auto chunk = chunks->chunks[i];
-        if (chunk == nullptr || !chunk->flags.lighted)
-            continue;
-        bool lightsUnsaved = !chunk->flags.loadedLights && 
-                              settings.debug.doWriteLights.get();
-        if (!chunk->flags.unsaved && !lightsUnsaved)
-            continue;
-        regions.put(chunk.get());
+        if (auto chunk = chunks->chunks[i]) {
+            regions.put(chunk.get());
+        }
     }
-
     wfile->write(this, content);
     auto playerFile = dynamic::Map();
 
     auto& players = playerFile.putList("players");
-    for (auto object : level->objects) {
+    for (const auto& object : level->objects) {
         if (auto player = std::dynamic_pointer_cast<Player>(object)) {
             players.put(player->serialize());
         }
@@ -79,9 +72,9 @@ void World::write(Level* level) {
 }
 
 std::unique_ptr<Level> World::create(
-    std::string name, 
-    std::string generator,
-    fs::path directory, 
+    const std::string& name,
+    const std::string& generator,
+    const fs::path& directory,
     uint64_t seed,
     EngineSettings& settings, 
     const Content* content,
@@ -94,7 +87,7 @@ std::unique_ptr<Level> World::create(
 }
 
 std::unique_ptr<Level> World::load(
-    fs::path directory,
+    const fs::path& directory,
     EngineSettings& settings,
     const Content* content,
     const std::vector<ContentPack>& packs

@@ -1,5 +1,8 @@
 #include "TextBox.hpp"
 
+#include <utility>
+#include <algorithm>
+
 #include "Label.hpp"
 #include "../../core/DrawContext.hpp"
 #include "../../core/Batch2D.hpp"
@@ -14,7 +17,7 @@ using namespace gui;
 TextBox::TextBox(std::wstring placeholder, glm::vec4 padding) 
   : Panel(glm::vec2(200,32), padding, 0), 
     input(L""),
-    placeholder(placeholder)
+    placeholder(std::move(placeholder))
 {
     setOnUpPressed(nullptr);
     setOnDownPressed(nullptr);
@@ -556,7 +559,7 @@ std::shared_ptr<UINode> TextBox::getAt(glm::vec2 pos, std::shared_ptr<UINode> se
     return UINode::getAt(pos, self);
 }
 
-void TextBox::setOnUpPressed(runnable callback) {
+void TextBox::setOnUpPressed(const runnable &callback) {
     if (callback == nullptr) {
         onUpPressed = [this]() {
             bool shiftPressed = Events::pressed(keycode::LEFT_SHIFT);
@@ -568,7 +571,7 @@ void TextBox::setOnUpPressed(runnable callback) {
     }
 }
 
-void TextBox::setOnDownPressed(runnable callback) {
+void TextBox::setOnDownPressed(const runnable &callback) {
     if (callback == nullptr) {
         onDownPressed = [this]() {
             bool shiftPressed = Events::pressed(keycode::LEFT_SHIFT);
@@ -581,15 +584,15 @@ void TextBox::setOnDownPressed(runnable callback) {
 }
 
 void TextBox::setTextSupplier(wstringsupplier supplier) {
-    this->supplier = supplier;
+    this->supplier = std::move(supplier);
 }
 
 void TextBox::setTextConsumer(wstringconsumer consumer) {
-    this->consumer = consumer;
+    this->consumer = std::move(consumer);
 }
 
 void TextBox::setTextValidator(wstringchecker validator) {
-    this->validator = validator;
+    this->validator = std::move(validator);
 }
 
 void TextBox::setFocusedColor(glm::vec4 color) {
@@ -614,7 +617,7 @@ std::wstring TextBox::getText() const {
     return input;
 }
 
-void TextBox::setText(const std::wstring value) {
+void TextBox::setText(const std::wstring& value) {
     this->input = value;
     input.erase(std::remove(input.begin(), input.end(), '\r'), input.end());
 }
@@ -637,8 +640,10 @@ size_t TextBox::getCaret() const {
 
 void TextBox::setCaret(size_t position) {
     this->caret = std::min(static_cast<size_t>(position), input.length());
+    if (font == nullptr) {
+        return;
+    }
     caretLastMove = Window::time();
-
     int width = label->getSize().x;
     uint line = label->getLineByTextIndex(caret);
     int offset = label->getLineYOffset(line) + contentOffset().y;

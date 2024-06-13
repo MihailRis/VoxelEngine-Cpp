@@ -19,7 +19,7 @@ class DrawContext {
     BlendMode blendMode = BlendMode::normal;
     int scissorsCount = 0;
 public:
-    DrawContext(const DrawContext* parent, const Viewport& viewport, Batch2D* g2d);
+    DrawContext(const DrawContext* parent, Viewport  viewport, Batch2D* g2d);
     ~DrawContext();
     
     Batch2D* getBatch2D() const;

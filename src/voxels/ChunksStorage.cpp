@@ -18,7 +18,7 @@ static debug::Logger logger("chunks-storage");
 ChunksStorage::ChunksStorage(Level* level) : level(level) {
 }
 
-void ChunksStorage::store(std::shared_ptr<Chunk> chunk) {
+void ChunksStorage::store(const std::shared_ptr<Chunk>& chunk) {
 	chunksMap[glm::ivec2(chunk->x, chunk->z)] = chunk;
 }
 
@@ -59,8 +59,10 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 	auto data = regions.getChunk(chunk->x, chunk->z);
 	if (data) {
 		chunk->decode(data.get());
+
 		auto invs = regions.fetchInventories(chunk->x, chunk->z);
 		chunk->setBlockInventories(std::move(invs));
+
         chunk->flags.loaded = true;
 		for(auto& entry : chunk->inventories) {
 			level->inventories->store(entry.second);

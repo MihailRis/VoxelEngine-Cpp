@@ -161,9 +161,9 @@ public:
     /// @param doc element layout
     void openPermanent(UiDocument* doc);
 
-    void add(HudElement element);
+    void add(const HudElement& element);
     void onRemove(const HudElement& element);
-    void remove(std::shared_ptr<gui::UINode> node);
+    void remove(const std::shared_ptr<gui::UINode>& node);
 
     Player* getPlayer() const;
 

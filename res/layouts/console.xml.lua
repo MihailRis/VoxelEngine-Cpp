@@ -38,12 +38,7 @@ function submit(text)
     document.log.caret = -1
     local status, result = pcall(function() return console.execute(text) end)
     if result ~= nil then
-        local prevtext = document.log.text
-        if #prevtext == 0 then
-            document.log:paste(tostring(result))
-        else
-            document.log:paste('\n'..tostring(result))
-        end
+        console.log(result)
     end
     document.prompt.text = ""
     document.prompt.focused = true

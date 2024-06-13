@@ -1,0 +1,5 @@
+{
+    "steps-sound": "steps/metal",
+    "place-sound": "blocks/metal_place",
+    "break-sound": "blocks/metal_break"
+}

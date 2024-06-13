@@ -60,7 +60,7 @@ public:
     uint linestart;
 
     parsing_error(
-        std::string message, 
+        const std::string& message,
         std::string_view filename, 
         std::string_view source, 
         uint pos, 
@@ -92,7 +92,7 @@ protected:
     dynamic::Value parseNumber(int sign);
     std::string parseString(char chr, bool closeRequired=true);
 
-    parsing_error error(std::string message);
+    parsing_error error(const std::string& message);
 
 public:
     std::string_view readUntil(char c);

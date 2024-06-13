@@ -1,5 +1,5 @@
 {
-    "steps-sound": "steps/wood",
-    "place-sound": "blocks/wood_place",
+    "steps-sound": "steps/glass",
+    "place-sound": "blocks/glass_place",
     "break-sound": "blocks/glass_break"
 }

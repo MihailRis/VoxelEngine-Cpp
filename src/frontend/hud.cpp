@@ -48,6 +48,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 using namespace gui;
 
@@ -63,7 +64,7 @@ HudElement::HudElement(
     UiDocument* document, 
     std::shared_ptr<UINode> node, 
     bool debug
-) : mode(mode), document(document), node(node), debug(debug) {
+) : mode(mode), document(document), node(std::move(node)), debug(debug) {
 }
 
 void HudElement::update(bool pause, bool inventoryOpen, bool debugMode) {
@@ -132,7 +133,7 @@ std::shared_ptr<InventoryView> Hud::createHotbar() {
     InventoryBuilder builder;
     builder.addGrid(10, 10, glm::vec2(), 4, true, slotLayout);
     auto view = builder.build();
-
+    view->setId("hud.hotbar");
     view->setOrigin(glm::vec2(view->getSize().x/2, 0));
     view->bind(inventory, content);
     view->setInteractive(false);
@@ -146,12 +147,14 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     player(player)
 {
     contentAccess = createContentAccess();
+    contentAccess->setId("hud.content-access");
     contentAccessPanel = std::make_shared<Panel>(
         contentAccess->getSize(), glm::vec4(0.0f), 0.0f
     );
     contentAccessPanel->setColor(glm::vec4());
     contentAccessPanel->add(contentAccess);
     contentAccessPanel->setScrollable(true);
+    contentAccessPanel->setId("hud.content-access-panel");
 
     hotbarView = createHotbar();
     darkOverlay = guiutil::create(
@@ -398,7 +401,7 @@ void Hud::closeInventory() {
     cleanup();
 }
 
-void Hud::add(HudElement element) {
+void Hud::add(const HudElement& element) {
     using namespace dynamic;
 
     gui->add(element.getNode());
@@ -407,9 +410,9 @@ void Hud::add(HudElement element) {
     if (document) {
         auto inventory = invview ? invview->getInventory() : nullptr;
         std::vector<Value> args;
-        args.push_back(inventory ? inventory.get()->getId() : 0);
+        args.emplace_back(inventory ? inventory.get()->getId() : 0);
         for (int i = 0; i < 3; i++) {
-            args.push_back(static_cast<integer_t>(blockPos[i]));
+            args.emplace_back(static_cast<integer_t>(blockPos[i]));
         }
         scripting::on_ui_open(
             element.getDocument(), 
@@ -435,7 +438,7 @@ void Hud::onRemove(const HudElement& element) {
     gui->remove(element.getNode());
 }
 
-void Hud::remove(std::shared_ptr<UINode> node) {
+void Hud::remove(const std::shared_ptr<UINode>& node) {
     for (auto& element : elements) {
         if (element.getNode() == node) {
             element.setRemoved();

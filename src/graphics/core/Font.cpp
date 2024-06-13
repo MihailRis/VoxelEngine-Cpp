@@ -1,4 +1,6 @@
 #include "Font.hpp"
+
+#include <utility>
 #include "Texture.hpp"
 #include "Batch2D.hpp"
 
@@ -43,7 +45,7 @@ int Font::calcWidth(const std::wstring& text, size_t offset, size_t length) {
 }
 
 void Font::draw(Batch2D* batch, std::wstring text, int x, int y) {
-    draw(batch, text, x, y, FontStyle::none);
+    draw(batch, std::move(text), x, y, FontStyle::none);
 }
 
 static inline void drawGlyph(Batch2D* batch, int x, int y, uint c, FontStyle style) {
@@ -66,7 +68,7 @@ static inline void drawGlyph(Batch2D* batch, int x, int y, uint c, FontStyle sty
     batch->sprite(x, y, GLYPH_SIZE, GLYPH_SIZE, 16, c, batch->getColor());
 }
 
-void Font::draw(Batch2D* batch, std::wstring text, int x, int y, FontStyle style) {
+void Font::draw(Batch2D* batch, const std::wstring& text, int x, int y, FontStyle style) {
     draw(batch, std::wstring_view(text.c_str(), text.length()), x, y, style);
 }
 
