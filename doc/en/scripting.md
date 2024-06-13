@@ -2,15 +2,20 @@
 
 Project uses LuaJIT as a scripting language.
 
+Subsections:
+- [Engine events](scripting/events.md)
+- [User input](scripting/user-input.md)
+- [Filesystem and serialization](scripting/filesystem.md)
+- [Module core:bit_converter](scripting/modules/core_bit_converter.md)
+- [Module core:data_buffer](scripting/modules/core_data_buffer.md)
+- [Module core:Vector2, core:Vector3](scripting/modules/core_Vector2&&Vector3.md)
+
+
 ## Core functions
 
 ```lua
 require "packid:module_name" -- load Lua module from pack-folder/modules/
 -- no extension included, just name
-
--- deprecated functions
-load_script("packid:scripts/script_name.lua") -- load Lua script if not loaded yet
-load_script("packid:scripts/script_name.lua", true) -- load Lua script anyway
 ```
 
 ## *pack* library
@@ -384,127 +389,6 @@ hud.get_block_inventory() -> int
 ```
 
 Get open block inventory ID or 0
-
-## Block events
-
-```lua
-function on_placed(x, y, z, playerid)
-```
-
-Called on block placed by player
-
-```lua
-function on_broken(x, y, z, playerid)
-```
-
-Called on block broken by player
-
-```lua
-function on_interact(x, y, z, playerid) -> bool
-```
-
-Called on block RMB click interaction. Prevents block placing if **true** returned.
-
-```lua
-function on_update(x, y, z)
-```
-
-Called on block update (near block changed)
-
-```lua
-function on_random_update(x, y, z)
-```
-
-Called on random block update (grass growth)
-
-```lua
-function on_blocks_tick(tps: int)
-```
-
-Called tps (20) times per second.
-
-## Item events
-
-```lua
-function on_use(playerid: int)
-```
-
-Called on RMB click out of a block.
-
-```lua
-function on_use_on_block(x: int, y: int, z: int, playerid: int)
-```
-
-Called on block RMB click. Prevents block **placing-block** placing if returns **true**
-
-```lua
-function on_block_break_by(x: int, y: int, z: int, playerid: int)
-```
-
-Called on block LMB click (unbreakable blocks included).  Prevents block destruction if returns **true**.
-
-## World events
-
-Script *scripts/world.lua* events.
-
-```lua
-function on_world_open()
-```
-
-Called on world open.
-
-```lua
-function on_world_save()
-```
-
-Called before world save.
-
-```lua
-function on_world_tick()
-```
-
-Called 20 times per second
-
-```lua
-function on_world_quit()
-```
-
-Called on world close (after saving)
-
-## Layout events
-
-Script *layouts/layout_name.xml.lua* events.
-
-```lua
-function on_open(invid: int, x: int, y: int, z: int)
-```
-
-Called on element added to the screen.
-invid=0 if no inventory bound
-x,y,z=0 if no block bound
-
-```lua
-function on_close(invid: int)
-```
-
-Called on element removed from the screen.
-
-## HUD events
-
-Script *scripts/hud.lua* events.
-
-
-```lua
-function on_hud_open(playerid: int)
-```
-
-Called after world open.
-
-```lua
-function on_hud_close(playerid: int)
-```
-
-Called on world close (before saving)
 
 ## Engine libraries
 
