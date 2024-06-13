@@ -1,4 +1,5 @@
 # Block properties
+
 ## Visual
 
 ### *texture*
@@ -128,3 +129,8 @@ Examples for block `containermod:container`:
 
 Number of block inventory slots. Default - 0 (no inventory).
 
+## Extended blocks
+
+### *size*
+
+Array of three integers. Default value is `[1, 1, 1]`.
