@@ -8,7 +8,7 @@ Subsections:
 - [Filesystem and serialization](scripting/filesystem.md)
 - [Module core:bit_converter](scripting/modules/core_bit_converter.md)
 - [Module core:data_buffer](scripting/modules/core_data_buffer.md)
-- [Module core:Vector2, core:Vector3](scripting/modules/core_Vector2&&Vector3.md)
+- [Module core:vector2, core:vector3](scripting/modules/core_vector2_vector3.md)
 
 
 ## Core functions

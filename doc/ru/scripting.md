@@ -8,7 +8,7 @@
 - [Файловая система и сериализация](scripting/filesystem.md)
 - [Модуль core:bit_converter](scripting/modules/core_bit_converter.md)
 - [Модуль core:data_buffer](scripting/modules/core_data_buffer.md)
-- [Модули core:Vector2, core:Vector3](scripting/modules/core_Vector2&&Vector3.md)
+- [Модули core:vector2, core:vector3](scripting/modules/core_vector2_vector3.md)
 
 
 ```lua

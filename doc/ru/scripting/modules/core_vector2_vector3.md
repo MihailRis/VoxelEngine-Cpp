@@ -1,4 +1,5 @@
-# Вектора
+# Модули core:vector2, core:vector3
+
 ## Vector2
 ### Операции над векторами
 
@@ -7,6 +8,7 @@
 function vector2:round(decimals: number) -> round[vec2]
 ```
 Округление компонентов вектора
+
 ```lua
 function vector2:len() -> number
 ```
@@ -68,7 +70,7 @@ function vector2:rot(
 ### Операции с векторами
 
 ```lua
-    local vec2 = require("res:vector2")
+    local vec2 = require("core:vector2")
 
     local v1 = vec2(5, 10)
     local v2 = vec2(10, 15)
@@ -170,7 +172,7 @@ function vector3:rot(
 
 ```lua
     
-local vec3 = require("res:vector3")
+local vec3 = require("core:vector3")
 
 local v1 = vec3(1, 2, 3)
 local v2 = vec3(4, 5, 6)
