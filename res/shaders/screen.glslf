@@ -4,10 +4,6 @@ out vec4 f_color;
 uniform sampler2D u_texture0;
 uniform ivec2 u_screenSize;
 
-float random(vec2 st){
-    return fract(sin(dot(st.xy ,vec2(12.9898,78.233))) * 43758.5453);
-}
-
 // Vignette
 vec4 apply_vignette(vec4 color)
 {
