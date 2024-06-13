@@ -2,15 +2,20 @@
 
 Project uses LuaJIT as a scripting language.
 
+Subsections:
+- [Engine events](scripting/events.md)
+- [User input](scripting/user-input.md)
+- [Filesystem and serialization](scripting/filesystem.md)
+- [Module core:bit_converter](scripting/modules/core_bit_converter.md)
+- [Module core:data_buffer](scripting/modules/core_data_buffer.md)
+- [Module core:vector2, core:vector3](scripting/modules/core_vector2_vector3.md)
+
+
 ## Core functions
 
 ```lua
 require "packid:module_name" -- load Lua module from pack-folder/modules/
 -- no extension included, just name
-
--- deprecated functions
-load_script("packid:scripts/script_name.lua") -- load Lua script if not loaded yet
-load_script("packid:scripts/script_name.lua", true) -- load Lua script anyway
 ```
 
 ## *pack* library
@@ -39,10 +44,10 @@ For pack *containermod* will write text to the file `world:data/containermod/exa
 
 ## *player* library
 
-
 ```python
 player.get_pos(playerid: int) -> number, number, number
 ```
+
 Returns x, y, z coordinates of the player
 
 ```python
@@ -83,7 +88,24 @@ player.set_noclip(bool)
 
 Getter and setter for player noclip mode (collisions disabled)
 
+```python
+player.get_selected_block(playerid: int) -> x,y,z
+```
+
+Returns position of the selected block or nil
+
 ## *world* library
+
+## Библиотека *world*
+
+```python
+world.get_list() -> tables array {
+	name: str,
+	icon: str
+}
+```
+
+Retuns worlds information: name and preview/icon (loading automatically).
 
 ```python
 world.get_day_time() -> number
@@ -109,29 +131,67 @@ world.get_seed() -> int
 
 Returns world seed.
 
+```python
+world.exists() -> bool
+```
+
+Checks the existence of a world by name.
+
 ## *pack* library
 
 ```python
 pack.get_folder(packid: str) -> str
 ```
 
-Returns installed content-pack folder
+Returns installed content-pack folder.
 
 ```python
 pack.is_installed(packid: str) -> bool
 ```
 
-Check if the world has specified pack installed
+Check if the world has specified pack installed.
 
 ```python
-pack.get_installed() -> array of strings
+pack.get_installed() -> strings array
 ```
 
-Returns all installed content-pack ids
+Returns all installed content-pack ids.
+
+```python
+pack.get_available() -> strings array
+```
+
+Returns the ids of all content packs available but not installed in the world.
+
+```python
+pack.get_base_packs() -> strings array
+```
+
+Returns the id of all base packages (non-removeable)
+
+```python
+pack.get_info(packid: str) -> {
+  id: str,
+  title: str,
+  creator: str,
+  description: str,
+  version: str,
+  icon: str,
+  dependencies: optional strings array
+}
+```
+
+Returns information about the pack (not necessarily installed).
+- icon - name of the preview texture (loading automatically)
+- dependencies - strings following format `{lvl}{id}`, where lvl:
+  - `!` - required
+  - `?` - optional
+  - `~` - weak
+  for example `!teal`
 
 ## *gui* library
 
-Library contains ui elements access functions. Library should not be directly used, because script *layouts/layout_name.xml.lua* already has a generated variable **document** (instance of **Document**)
+The library contains functions for accessing the properties of UI elements. Instead of gui, you should use an object wrapper that provides access to properties through the __index, __newindex meta methods:
 
 Example:
 
@@ -140,7 +200,35 @@ print(document.some_button.text) -- where 'some_button' is an element id
 document.some_button.text = "new text"
 ```
 
-## **inventory** library
+```python
+gui.str(text: str, context: str) -> str
+```
+
+Returns translated text.
+
+```python
+gui.get_viewport() -> {int, int}
+```
+
+Returns size of the main container (window).
+
+```python
+gui.get_env(document: str) -> table
+```
+
+Returns environment (global variables table) of the specified document.
+
+```python
+get_locales_info() -> table of tables where
+ key - locale id following isolangcode_ISOCOUNTRYCODE format
+ value - table {
+  name: str # name of the locale in its language
+ }
+```
+
+Returns information about all loaded locales (res/texts/\*).
+
+## *inventory* library
 
 Library for inventories interaction.
 
@@ -208,13 +296,25 @@ If slotB will be chosen automaticly if argument is not specified.
 block.name(blockid: int) -> str
 ```
 
-Returns block string ID (name) by index
+Returns block string ID (name) by index.
 
 ```python
 block.index(name: str) -> int
 ```
 
-Returns block integer ID (index) by name
+Returns block integer ID (index) by name.
+
+```python
+block.material(blockid: int) -> str
+```
+
+Returns the id of the block material.
+
+```python
+block.caption(blockid: int) -> str
+```
+
+Returns the block name displayed in the interface.
 
 ```python
 block.get(x: int, y: int, z: int) -> int
@@ -291,6 +391,35 @@ block.set_rotation(x: int, y: int, z: int, rotation: int)
 
 Set block rotation by index.
 
+### Extended blocks
+
+Extended blocks are blocks with size greather than 1x1x1
+
+```python
+block.is_extended(id: int) -> bool
+```
+
+Checks whether the block is extended.
+
+```python
+block.get_size(id: int) -> int, int, int
+```
+
+Returns the block size.
+
+```python
+block.is_segment(x: int, y: int, z: int) -> bool
+```
+
+Checks whether the block is a non-origin segment of an extended block.
+
+```python
+block.seek_origin(x: int, y: int, z: int) -> int, int, int
+```
+
+Returns the position of the main segment of an extended block or the original position,
+if the block is not extended.
+
 ### User bits
 
 Part of a voxel data used for scripting. Size: 8 bit.
@@ -307,7 +436,6 @@ block.set_user_bits(x: int, y: int, z: int, offset: int, bits: int, value: int) 
 Set specified bits.
 
 ## *item* library
-
 
 ```python
 item.name(itemid: int) -> str
@@ -383,207 +511,27 @@ Remove an element from the screen
 hud.get_block_inventory() -> int
 ```
 
-Get open block inventory ID or 0
-
-## Block events
-
-```lua
-function on_placed(x, y, z, playerid)
-```
-
-Called on block placed by player
-
-```lua
-function on_broken(x, y, z, playerid)
-```
-
-Called on block broken by player
-
-```lua
-function on_interact(x, y, z, playerid) -> bool
-```
-
-Called on block RMB click interaction. Prevents block placing if **true** returned.
-
-```lua
-function on_update(x, y, z)
-```
-
-Called on block update (near block changed)
-
-```lua
-function on_random_update(x, y, z)
-```
-
-Called on random block update (grass growth)
-
-```lua
-function on_blocks_tick(tps: int)
-```
-
-Called tps (20) times per second.
-
-## Item events
-
-```lua
-function on_use(playerid: int)
-```
-
-Called on RMB click out of a block.
-
-```lua
-function on_use_on_block(x: int, y: int, z: int, playerid: int)
-```
-
-Called on block RMB click. Prevents block **placing-block** placing if returns **true**
-
-```lua
-function on_block_break_by(x: int, y: int, z: int, playerid: int)
-```
-
-Called on block LMB click (unbreakable blocks included).  Prevents block destruction if returns **true**.
-
-## World events
-
-Script *scripts/world.lua* events.
-
-```lua
-function on_world_open()
-```
-
-Called on world open.
-
-```lua
-function on_world_save()
-```
-
-Called before world save.
-
-```lua
-function on_world_tick()
-```
-
-Called 20 times per second
-
-```lua
-function on_world_quit()
-```
-
-Called on world close (after saving)
-
-## Layout events
-
-Script *layouts/layout_name.xml.lua* events.
-
-```lua
-function on_open(invid: int, x: int, y: int, z: int)
-```
-
-Called on element added to the screen.
-invid=0 if no inventory bound
-x,y,z=0 if no block bound
-
-```lua
-function on_close(invid: int)
-```
-
-Called on element removed from the screen.
-
-## HUD events
-
-Script *scripts/hud.lua* events.
-
-
-```lua
-function on_hud_open(playerid: int)
-```
-
-Called after world open.
-
-```lua
-function on_hud_close(playerid: int)
-```
-
-Called on world close (before saving)
-
-## Engine libraries
-
-### file
-
-Filesystem interaction library.
+Get open block inventory ID or 0.
 
 ```python
-file.resolve(path: str) -> str
+hud.get_player() -> int
 ```
 
-Function turns *entry_point:path* (example *user:worlds/house1*) to a regular path. (example *C://Users/user/.voxeng/worlds/house1*)
-
-> [!NOTE]
-> The function should be used for debug only. *entry_point:path* notation is required in all **file** functions.
-
-Resulting path is not canonical and may be relative.
+Gives the ID of the player that the UI is bound to.
 
 ```python
-file.read(path: str) -> str
+hud.pause()
 ```
 
-Read whole text file.
+Opens the pause menu
 
 ```python
-file.read_bytes(path: str) -> array of integers
+hud.resume()
 ```
 
-Read file into bytes array.
+Closes the pause menu.
 
-```python
-file.write(path: str, text: str) -> nil
-```
-
-Overwrite text file.
-
-```python
-file.write_bytes(path: str, data: array of integers)
-```
-
-Overwrite binary file with bytes array.
-
-```python
-file.length(path: str) -> int
-```
-
-Get file length (bytes) or 0.
-
-```python
-file.exists(path: str) -> bool
-```
-
-Check if file or directory exist.
-
-```python
-file.isfile(path: str) -> bool
-```
-
-Check if the path points to a file.
-
-```python
-file.isdir(path: str) -> bool
-```
-
-Check if the path points to a directory.
-
-```python
-file.mkdir(path: str) -> bool
-```
-
-Create directory. Returns true if new directory created
-
-```python
-file.mkdirs(path: str) -> bool
-```
-
-Create directories chain. Returns true if new directory created
-
-### time
+### *time* library
 
 ```python
 time.uptime() -> float
@@ -591,24 +539,8 @@ time.uptime() -> float
 
 Returns time elapsed since the engine started.
 
-## Available modules
-
-### TOML serialization/deserialization
-
-```lua
-local toml = require "core:toml"
-
-local t = {a=53, b=42, s="test", sub={x=1, y=6}}
-local s = toml.serialize(t)
-print(s)
-local t2 = toml.deserialize(s) 
+```python
+time.delta() -> float
 ```
-output:
-```toml
-b = 42
-s = "test"
-a = 53
-[sub]
-y = 6
-x = 1
-```
+
+Returns time elapsed since the last frame.

@@ -1,3 +1,5 @@
+# Модуль core:bit_converter
+
 ## Конвертация значений в байты и обратно
 
 ```lua
@@ -23,27 +25,27 @@ function bit_converter.double_to_bytes(number: double) -> table
 ```lua
 function bit_converter.uint16_to_bytes(integer: int) -> table
 ```
-Конвертирует беззнаковое 2-х битное целое число в байты
+Конвертирует беззнаковое 2-х байтовое целое число в байты
 
 ```lua
 function bit_converter.uint32_to_bytes(integer: int) -> table
 ```
-Конвертирует беззнаковое 4-х битное целое число в байты
+Конвертирует беззнаковое 4-х байтовое целое число в байты
 
 ```lua
 function bit_converter.int16_to_bytes(integer: int) -> table
 ```
-Конвертирует знаковое 2-х битное целое число в байты
+Конвертирует знаковое 2-х байтовое целое число в байты
 
 ```lua
 function bit_converter.int32_to_bytes(integer: int) -> table
 ```
-Конвертирует знаковое 4-х битное целое число в байты
+Конвертирует знаковое 4-х байтовое целое число в байты
 
 ```lua
 function bit_converter.int64_to_bytes(integer: int) -> table
 ```
-Конвертирует знаковое 8-и битное целое число в байты
+Конвертирует знаковое 8-и байтовое целое число в байты
 
 ```lua
 function bit_converter.bytes_to_string(table: bytes) -> string
@@ -68,24 +70,24 @@ function bit_converter.bytes_to_double(table: bytes) -> number
 ```lua
 function bit_converter.bytes_to_uint16(table: bytes) -> integer
 ```
-Конвертирует массив байтов в 2-х битное беззнаковое число
+Конвертирует массив байтов в 2-х байтовое беззнаковое число
 
 ```lua
 function bit_converter.bytes_to_uint32(table: bytes) -> integer
 ```
-Конвертирует массив байтов в 4-х битное беззнаковое число
+Конвертирует массив байтов в 4-х байтовое беззнаковое число
 
 ```lua
 function bit_converter.bytes_to_int16(table: bytes) -> integer
 ```
-Конвертирует массив байтов в 2-х битное знаковое число
+Конвертирует массив байтов в 2-х байтовое знаковое число
 
 ```lua
 function bit_converter.bytes_to_int32(table: bytes) -> integer
 ```
-Конвертирует массив байтов в 4-х битное знаковое число
+Конвертирует массив байтов в 4-х байтовое знаковое число
 
 ```lua
 function bit_converter.bytes_to_int64(table: bytes) -> integer
 ```
-Конвертирует массив байтов в 8-х битное знаковое число
+Конвертирует массив байтов в 8-х байтовое знаковое число
