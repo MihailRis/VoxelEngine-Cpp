@@ -2,11 +2,20 @@
 
 В качестве языка сценариев используется LuaJIT
 
+Подразделы:
+- [События движка](scripting/events.md)
+- [Пользовательский ввод](scripting/user-input.md)
+- [Файловая система и сериализация](scripting/filesystem.md)
+- [Модуль core:bit_converter](scripting/modules/core_bit_converter.md)
+- [Модуль core:data_buffer](scripting/modules/core_data_buffer.md)
+- [Модули core:vector2, core:vector3](scripting/modules/core_vector2_vector3.md)
+
+
 ```lua
 require "контентпак:имя_модуля" -- загружает lua модуль из папки modules (расширение не указывается)
 ```
 
-## Библиотека pack
+## Библиотека *pack*
 
 ```python
 pack.is_installed(packid: str) -> bool
@@ -29,10 +38,12 @@ file.write(pack.data_file(PACK_ID, "example.txt"), text)
 ```
 Для пака *containermod* запишет текст в файл `world:data/containermod/example.txt`
 
-## Библиотека player
+## Библиотека *player*
+
 ```python
 player.get_pos(playerid: int) -> number, number, number
 ```
+
 Возвращает x, y, z координаты игрока
 
 ```python
@@ -79,7 +90,7 @@ player.get_selected_block(playerid: int) -> x,y,z
 
 Возвращает координаты выделенного блока, либо nil
 
-## Библиотека world
+## Библиотека *world*
 
 ```python
 world.get_list() -> массив таблиц {
@@ -120,13 +131,13 @@ world.exists() -> bool
 
 Проверяет существование мира по имени.
 
-## Библиотека pack
+## Библиотека *pack*
 
 ```python
 pack.get_folder(packid: str) -> str
 ```
 
-Возвращает путь к папке установленного контент-пака
+Возвращает путь к папке установленного контент-пака.
 
 ```python
 pack.is_installed(packid: str) -> bool
@@ -138,13 +149,13 @@ pack.is_installed(packid: str) -> bool
 pack.get_installed() -> массив строк
 ```
 
-Возращает id всех установленных в мире контент-паков
+Возращает id всех установленных в мире контент-паков.
 
 ```python
 pack.get_available() -> массив строк
 ```
 
-Возвращает id всех доступных, но не установленных в мире контент-паков
+Возвращает id всех доступных, но не установленных в мире контент-паков.
 
 ```python
 pack.get_base_packs() -> массив строк
@@ -172,13 +183,13 @@ pack.get_info(packid: str) -> {
 	- `~` - weak
 	например `!teal`
 
-## Библиотека gui
+## Библиотека *gui*
 
 Библиотека содержит функции для доступа к свойствам UI элементов. Вместо gui следует использовать объектную обертку, предоставляющую доступ к свойствам через мета-методы __index, __newindex:
+
 ```lua
-local inventory_doc = Document.new("id-макета")
-print(inventory_doc.some_button.text)
-indentory_doc.some_button.text = "new text"
+print(document.some_button.text) -- где 'some_button' - id элемета
+document.some_button.text = "новый текст"
 ```
 
 В скрипте макета `layouts/файл_макета.xml` - `layouts/файл_макета.xml.lua` уже доступна переменная **document** содержащая объект класса Document
@@ -210,7 +221,8 @@ get_locales_info() -> таблица таблиц где
 ```
 
 Возвращает информацию о всех загруженных локалях (res/texts/\*).
-## Библиотека inventory
+
+## Библиотека *inventory*
 
 Библиотека функций для работы с инвентарем.
 
@@ -273,19 +285,19 @@ inventory.move(invA: int, slotA: int, invB: int, slotB: int)
 invA и invB могут указывать на один инвентарь.
 slotB будет выбран автоматически, если не указывать явно.
 
-## Библиотека block
+## Библиотека *block*
 
 ```python
 block.name(blockid: int) -> str
 ```
 
-Возвращает строковый id блока по его числовому id
+Возвращает строковый id блока по его числовому id.
 
 ```python
 block.index(name: str) -> int
 ```
 
-Возвращает числовой id блока, принимая в качестве агрумента строковый
+Возвращает числовой id блока, принимая в качестве агрумента строковый.
 
 ```python
 block.material(blockid: int) -> str
@@ -373,6 +385,35 @@ block.set_rotation(x: int, y: int, z: int, rotation: int)
 
 Устанавливает вращение блока по индексу в его профиле вращения.
 
+### Расширенные блоки
+
+Расширенные блоки - те, размер которых превышает 1x1x1
+
+```python
+block.is_extended(id: int) -> bool
+```
+
+Проверяет, является ли блок расширенным.
+
+```python
+block.get_size(id: int) -> int, int, int
+```
+
+Возвращает размер блока.
+
+```python
+block.is_segment(x: int, y: int, z: int) -> bool
+```
+
+Проверяет является ли блок сегментом расширенного блока, не являющимся главным.
+
+```python
+block.seek_origin(x: int, y: int, z: int) -> int, int, int
+```
+
+Возвращает позицию главного сегмента расширенного блока или исходную позицию,
+если блок не являющийся расширенным.
+
 ### Пользовательские биты
 
 Выделенная под использования в скриптах часть поля `voxel.states` хранящего доп-информацию о вокселе, такую как вращение блока. На данный момент выделенная часть составляет 8 бит.
@@ -455,25 +496,25 @@ hud.open_permanent(layoutid: str)
 hud.close(layoutid: str)
 ```
 
-Удаляет элемент с экрана
+Удаляет элемент с экрана.
 
 ```python
 hud.get_block_inventory() -> int
 ```
 
-Дает ID инвентаря открытого блока или 0
+Дает ID инвентаря открытого блока или 0.
 
 ```python
 hud.get_player() -> int
 ```
 
-Дает ID игрока, к которому привязан пользовательский интерфейс
+Дает ID игрока, к которому привязан пользовательский интерфейс.
 
 ```python
 hud.pause()
 ```
 
-Открывает меню паузы
+Открывает меню паузы.
 
 ```python
 hud.resume()
@@ -487,7 +528,7 @@ hud.resume()
 time.uptime() -> float
 ```
 
-Возвращает время с момента запуска движка в секундах
+Возвращает время с момента запуска движка в секундах.
 
 ```python
 time.delta() -> float
