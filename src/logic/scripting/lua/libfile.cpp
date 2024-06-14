@@ -193,28 +193,44 @@ static int l_file_list(lua::State* L) {
     return 1;
 }
 
-static int l_file_gzip_compress(lua::State* L) { 
-    fs::path path = resolve_path(lua::require_string(L, 1)); 
-    if (fs::is_regular_file(path)) { 
-        size_t length = static_cast<size_t>(fs::file_size(path));
+static int l_file_gzip_compress(lua::State* L) {
 
-        auto compressed_bytes = gzip::compress(files::read_bytes(path, length).get(), length);
+    std::vector<ubyte> bytes;
 
-        return lua::pushboolean(L, files::write_bytes(path, compressed_bytes.data(), compressed_bytes.size()));
-    } 
-    throw std::runtime_error("file does not exist " + util::quote(path.u8string())); 
+    int result = read_bytes_from_table(L, -1, bytes);
+
+    if(result != 1) {
+        return result;
+    } else {
+        auto compressed_bytes = gzip::compress(bytes.data(), bytes.size());
+        int newTable = lua::gettop(L);
+
+        for(size_t i = 0; i < compressed_bytes.size(); i++) {
+            lua::pushinteger(L, compressed_bytes.data()[i]);
+            lua::rawseti(L, i+1, newTable);
+        }
+        return 1;
+    }
 }
 
 static int l_file_gzip_decompress(lua::State* L) { 
-    fs::path path = resolve_path(lua::require_string(L, 1)); 
-    if (fs::is_regular_file(path)) { 
-        size_t length = static_cast<size_t>(fs::file_size(path));
 
-        auto decompressed_bytes = gzip::decompress(files::read_bytes(path, length).get(), length);
+    std::vector<ubyte> bytes;
 
-        return lua::pushboolean(L, files::write_bytes(path, decompressed_bytes.data(), decompressed_bytes.size()));
-    } 
-    throw std::runtime_error("file does not exist " + util::quote(path.u8string())); 
+    int result = read_bytes_from_table(L, -1, bytes);
+
+    if(result != 1) {
+        return result;
+    } else {
+        auto decompressed_bytes = gzip::decompress(bytes.data(), bytes.size());
+        int newTable = lua::gettop(L);
+
+        for(size_t i = 0; i < decompressed_bytes.size(); i++) {
+            lua::pushinteger(L, decompressed_bytes.data()[i]);
+            lua::rawseti(L, i+1, newTable);
+        }
+        return 1;
+    }
 }
 
 const luaL_Reg filelib [] = {
