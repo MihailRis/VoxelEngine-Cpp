@@ -25,11 +25,12 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+# Install EnTT
 RUN git clone https://github.com/skypjack/entt.git && \
     cd entt/build && \
     cmake -DCMAKE_BUILD_TYPE=Release .. && \
     make install && \
-    cd .. && rm -rf entt
+    cd ../.. && rm -rf entt
 
 
 # CMake missing LUA_INCLUDE_DIR and LUA_LIBRARIES fix:
