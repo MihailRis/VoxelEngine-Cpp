@@ -31,10 +31,10 @@ jobs:
         run: cmake --build build -t install
 
       - name: Make fix_dylibs.sh executable
-        run: chmod +x fix_dylibs.sh
+        run: chmod +x dev/fix_dylibs.sh
 
       - name: Fix dylibs
-        run: ./fix_dylibs.sh VoxelEngine Release build
+        run: ./dev/fix_dylibs.sh VoxelEngine Release build
 
       - name: Create DMG
         run: |
