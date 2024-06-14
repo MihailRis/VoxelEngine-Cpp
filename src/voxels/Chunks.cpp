@@ -15,6 +15,7 @@
 #include <math.h>
 #include <limits.h>
 #include <vector>
+#include <algorithm>
 
 Chunks::Chunks(
     uint32_t w, uint32_t d, 
