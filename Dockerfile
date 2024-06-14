@@ -25,6 +25,13 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+RUN git clone https://github.com/skypjack/entt.git && \
+    cd entt/build && \
+    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    make install && \
+    cd .. && rm -rf entt
+
+
 # CMake missing LUA_INCLUDE_DIR and LUA_LIBRARIES fix:
 RUN ln -s /usr/lib/x86_64-linux-gnu/libluajit-5.1.a /usr/lib/x86_64-linux-gnu/liblua5.1.a \
     && ln -s /usr/include/luajit-2.1 /usr/include/lua
