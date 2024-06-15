@@ -5,7 +5,6 @@
     <button pos='15,430' size='440,40' onclick='menu:back()'>@Back</button>
 
     <panel id='content_info' pos='485,15' size='440,406' color='0' max-length='406' scrollable='true'>
-        <!-- content is generated in script -->
         <label>@Creator</label>
         <label id='author' multiline="true" color='#8C8C8C'>None</label>
         <label></label>
