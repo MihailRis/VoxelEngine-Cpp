@@ -1,5 +1,6 @@
 {
     "texture": "red_lamp",
     "emission": [15, 0, 0],
+    "shadeless": true,
     "material": "base:glass"
 }

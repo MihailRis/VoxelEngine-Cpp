@@ -440,7 +440,7 @@ void BlocksRenderer::render(const voxel* voxels) {
             int z = (i / CHUNK_D) % CHUNK_W;
             switch (def.model) {
                 case BlockModel::block:
-                    blockCube(x, y, z, texfaces, &def, vox.state, !def.rt.emissive);
+                    blockCube(x, y, z, texfaces, &def, vox.state, !def.shadeless);
                     break;
                 case BlockModel::xsprite: {
                     blockXSprite(x, y, z, vec3(1.0f), 
@@ -448,11 +448,11 @@ void BlocksRenderer::render(const voxel* voxels) {
                     break;
                 }
                 case BlockModel::aabb: {
-                    blockAABB(ivec3(x,y,z), texfaces, &def, vox.state.rotation, !def.rt.emissive);
+                    blockAABB(ivec3(x,y,z), texfaces, &def, vox.state.rotation, !def.shadeless);
                     break;
                 }
                 case BlockModel::custom: {
-                    blockCustomModel(ivec3(x, y, z), &def, vox.state.rotation, !def.rt.emissive);
+                    blockCustomModel(ivec3(x, y, z), &def, vox.state.rotation, !def.shadeless);
                     break;
                 }
                 default:

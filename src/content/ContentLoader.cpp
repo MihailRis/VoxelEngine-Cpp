@@ -208,11 +208,12 @@ void ContentLoader::loadBlock(Block& def, const std::string& name, const fs::pat
     root->flag("obstacle", def.obstacle);
     root->flag("replaceable", def.replaceable);
     root->flag("light-passing", def.lightPassing);
+    root->flag("sky-light-passing", def.skyLightPassing);
+    root->flag("shadeless", def.shadeless);
     root->flag("breakable", def.breakable);
     root->flag("selectable", def.selectable);
     root->flag("grounded", def.grounded);
     root->flag("hidden", def.hidden);
-    root->flag("sky-light-passing", def.skyLightPassing);
     root->num("draw-group", def.drawGroup);
     root->str("picking-item", def.pickingItem);
     root->str("script-name", def.scriptName);

@@ -7,5 +7,6 @@
     "rotation": "pipe",
     "light-passing": true,
     "sky-light-passing": true,
+    "shadeless": true,
     "material": "base:glass"
 }
