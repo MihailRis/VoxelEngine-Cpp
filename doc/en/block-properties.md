@@ -67,6 +67,10 @@ Light ignores block if **true**
 
 Vertical sky light ray ignores block if **true**. (used for water)
 
+### *shadeless*
+
+Turns off block model shading
+
 ## Physics
 
 ### *obstacle*
