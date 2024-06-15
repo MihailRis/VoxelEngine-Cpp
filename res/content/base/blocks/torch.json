@@ -11,6 +11,7 @@
     "model": "aabb",
     "hitbox": [0.4375, 0.0, 0.4375, 0.125, 0.5, 0.125],
     "light-passing": true,
+    "shadeless": true,
     "obstacle": false,
     "rotation": "pipe"
 }

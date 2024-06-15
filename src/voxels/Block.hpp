@@ -126,6 +126,9 @@ public:
     
     /// @brief Does the block passing top-down sky lights into itself
     bool skyLightPassing = false;
+
+    /// @brief Does block model have shading
+    bool shadeless = false;
     
     /// @brief Is the block a physical obstacle
     bool obstacle = true;
