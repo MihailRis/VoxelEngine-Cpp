@@ -14,6 +14,15 @@ function build_scheme(command)
 end
 
 console.add_command(
+    "clear",
+    "Clears the console",
+    function ()
+        local document = Document.new("core:console")
+        document.log.text = ""
+    end
+)
+
+console.add_command(
     "help name:str=''",
     "Show help infomation for the specified command",
     function (args, kwargs)
