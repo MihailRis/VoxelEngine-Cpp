@@ -17,7 +17,7 @@ console.add_command(
     "clear",
     "Clears the console",
     function ()
-        document = Document.new("core:console")
+        local document = Document.new("core:console")
         document.log.text = ""
     end
 )
