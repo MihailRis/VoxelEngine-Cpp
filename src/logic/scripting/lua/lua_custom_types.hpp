@@ -4,7 +4,7 @@
 #include "lua_commons.hpp"
 
 #include <string>
-#include <memory>
+#include <vector>
 
 namespace lua {
     class Userdata {
@@ -14,10 +14,10 @@ namespace lua {
     };
 
     class Bytearray : public Userdata {
-        std::unique_ptr<ubyte[]> buffer;
-        size_t capacity;
+        std::vector<ubyte> buffer;
     public:
         Bytearray(size_t capacity);
+        Bytearray(std::vector<ubyte> buffer);
         virtual ~Bytearray();
 
         inline ubyte& operator[](size_t index) {
@@ -29,7 +29,7 @@ namespace lua {
         }
 
         inline size_t size() const {
-            return capacity;
+            return buffer.size();
         }
         static int createMetatable(lua::State*);
         inline static std::string TYPENAME = "bytearray";

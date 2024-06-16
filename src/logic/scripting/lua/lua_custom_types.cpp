@@ -8,7 +8,11 @@ using namespace lua;
 
 
 Bytearray::Bytearray(size_t capacity) 
-  : buffer(std::make_unique<ubyte[]>(capacity)), capacity(capacity) {
+  : buffer(capacity) {
+    buffer.resize(capacity);
+}
+
+Bytearray::Bytearray(std::vector<ubyte> buffer) : buffer(std::move(buffer)) {
 }
 
 Bytearray::~Bytearray() {
