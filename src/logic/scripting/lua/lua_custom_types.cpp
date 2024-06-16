@@ -143,8 +143,24 @@ static int l_bytearray_meta_tostring(lua::State* L) {
     }
 }
 
+static int l_bytearray_meta_add(lua::State* L) {
+    auto bufferA = touserdata<Bytearray>(L, 1);
+    auto bufferB = touserdata<Bytearray>(L, 2);
+    if (bufferA == nullptr || bufferB == nullptr) {
+        return 0;
+    }
+    auto& dataA = bufferA->data();
+    auto& dataB = bufferB->data();
+
+    std::vector<ubyte> ab;
+    ab.reserve(dataA.size() + dataB.size());
+    ab.insert(ab.end(), dataA.begin(), dataA.end());
+    ab.insert(ab.end(), dataB.begin(), dataB.end());
+    return newuserdata<Bytearray>(L, std::move(ab));
+}
+
 int Bytearray::createMetatable(lua::State* L) {
-    createtable(L, 0, 5);
+    createtable(L, 0, 6);
     pushcfunction(L, lua::wrap<l_bytearray_meta_index>);
     setfield(L, "__index");
     pushcfunction(L, lua::wrap<l_bytearray_meta_newindex>);
@@ -153,6 +169,8 @@ int Bytearray::createMetatable(lua::State* L) {
     setfield(L, "__len");
     pushcfunction(L, lua::wrap<l_bytearray_meta_tostring>);
     setfield(L, "__tostring");
+    pushcfunction(L, lua::wrap<l_bytearray_meta_add>);
+    setfield(L, "__add");
 
     createtable(L, 0, 1);
     pushcfunction(L, lua::wrap<l_bytearray_meta_meta_call>);
