@@ -31,6 +31,11 @@ namespace lua {
         inline size_t size() const {
             return buffer.size();
         }
+
+        inline void append(ubyte b) {
+            buffer.push_back(b);    
+        }
+
         static int createMetatable(lua::State*);
         inline static std::string TYPENAME = "bytearray";
     };

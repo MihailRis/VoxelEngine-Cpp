@@ -18,6 +18,14 @@ Bytearray::Bytearray(std::vector<ubyte> buffer) : buffer(std::move(buffer)) {
 Bytearray::~Bytearray() {
 }
 
+static int l_bytearray_append(lua::State* L) {
+    if (auto buffer = touserdata<Bytearray>(L, 1)) {
+        auto value = tointeger(L, 2);
+        buffer->append(static_cast<ubyte>(value));
+    }
+    return 0;
+}
+
 static int l_bytearray_meta_meta_call(lua::State* L) {
     auto size = tointeger(L, 2);
     if (size < 0) {
@@ -28,6 +36,12 @@ static int l_bytearray_meta_meta_call(lua::State* L) {
 
 static int l_bytearray_meta_index(lua::State* L) {
     auto buffer = touserdata<Bytearray>(L, 1);
+    if (isstring(L, 2)) {
+        std::string member = tostring(L, 2);
+        if (member == "append") {
+            return pushcfunction(L, l_bytearray_append);
+        }
+    }
     auto index = tointeger(L, 2)-1;
     if (buffer == nullptr || static_cast<size_t>(index) > buffer->size()) {
         return 0;
@@ -55,7 +69,7 @@ static int l_bytearray_meta_len(lua::State* L) {
 
 static int l_bytearray_meta_tostring(lua::State* L) {
     auto& buffer = *touserdata<Bytearray>(L, 1);
-    if (buffer.size() > 128) {
+    if (buffer.size() > 512) {
         return pushstring(L, "bytearray["+std::to_string(buffer.size())+"]{...}");
     } else {
         std::stringstream ss;

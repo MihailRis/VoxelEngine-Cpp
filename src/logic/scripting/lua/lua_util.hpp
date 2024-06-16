@@ -49,6 +49,10 @@ namespace lua {
     inline const char* type_name(lua::State* L, int idx) {
         return lua_typename(L, idx);
     }
+    inline int rawget(lua::State* L, int idx=-2) {
+        lua_rawget(L, idx);
+        return 1;
+    }
     inline int rawgeti(lua::State* L, int n, int idx=-1) {
         lua_rawgeti(L, idx, n);
         return 1;

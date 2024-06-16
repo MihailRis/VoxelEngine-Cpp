@@ -78,6 +78,21 @@ std::unique_ptr<ubyte[]> files::read_bytes(const fs::path& filename, size_t& len
     return data;
 }
 
+std::vector<ubyte> files::read_bytes(const fs::path& filename) {
+    std::ifstream input(filename, std::ios::binary);
+    if (!input.is_open())
+        return {};
+    input.seekg(0, std::ios_base::end);
+    size_t length = input.tellg();
+    input.seekg(0, std::ios_base::beg);
+
+    std::vector<ubyte> data(length);
+    data.resize(length);
+    input.read((char*)data.data(), length);
+    input.close();
+    return data;
+}
+
 std::string files::read_string(const fs::path& filename) {
     size_t size;
     std::unique_ptr<ubyte[]> bytes (read_bytes(filename, size));

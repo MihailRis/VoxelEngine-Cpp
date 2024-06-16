@@ -57,6 +57,7 @@ namespace files {
 
     bool read(const fs::path&, char* data, size_t size);
     std::unique_ptr<ubyte[]> read_bytes(const fs::path&, size_t& length);
+    std::vector<ubyte> read_bytes(const fs::path&);
     std::string read_string(const fs::path& filename);
 
     /// @brief Read JSON or BJSON file
