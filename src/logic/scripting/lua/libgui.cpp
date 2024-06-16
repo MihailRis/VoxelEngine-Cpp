@@ -86,7 +86,7 @@ static int l_container_add(lua::State* L) {
 
 static int l_node_destruct(lua::State* L) {
     auto docnode = getDocumentNode(L);
-    auto node = std::dynamic_pointer_cast<Container>(docnode.node);
+    auto node = docnode.node;
     engine->getGUI()->postRunnable([node]() {
         auto parent = node->getParent();
         if (auto container = dynamic_cast<Container*>(parent)) {
@@ -339,7 +339,8 @@ static int l_gui_getattr(lua::State* L) {
         {"interactive", p_is_interactive},
         {"visible", p_is_visible},
         {"enabled",  p_is_enabled},
-        {"move_into", p_move_into},
+        {"move_into", p_move_into}, // deprecated
+        {"moveInto", p_move_into},
         {"add", p_get_add},
         {"destruct", p_get_destruct},
         {"clear", p_get_clear},
