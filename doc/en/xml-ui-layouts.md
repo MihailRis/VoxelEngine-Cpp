@@ -1,5 +1,7 @@
 # XML UI Building
 
+See also [ui elements in scripting](scripting/ui.md).
+
 # Specific types
 
 **2D vector** - pair of numbers separated with comma.

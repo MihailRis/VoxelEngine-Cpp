@@ -6,6 +6,7 @@ Subsections:
 - [Engine events](scripting/events.md)
 - [User input](scripting/user-input.md)
 - [Filesystem and serialization](scripting/filesystem.md)
+- [UI properties and methods](scripting/ui.md)
 - [Module core:bit_converter](scripting/modules/core_bit_converter.md)
 - [Module core:data_buffer](scripting/modules/core_data_buffer.md)
 - [Module core:vector2, core:vector3](scripting/modules/core_vector2_vector3.md)

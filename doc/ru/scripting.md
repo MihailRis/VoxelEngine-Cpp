@@ -6,6 +6,7 @@
 - [События движка](scripting/events.md)
 - [Пользовательский ввод](scripting/user-input.md)
 - [Файловая система и сериализация](scripting/filesystem.md)
+- [Свойства и методы UI элементов](scripting/ui.md)
 - [Модуль core:bit_converter](scripting/modules/core_bit_converter.md)
 - [Модуль core:data_buffer](scripting/modules/core_data_buffer.md)
 - [Модули core:vector2, core:vector3](scripting/modules/core_vector2_vector3.md)
