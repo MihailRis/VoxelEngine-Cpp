@@ -1,0 +1,23 @@
+<container size='1000,480' color='#0F1E2DB2' padding='8' interval='5' context='menu'>
+    <panel id='contents' pos='15,15' size='440,390' color='0' max-length='406' scrollable='true'>
+        <!-- content is generated in script -->
+    </panel>
+    <button pos='15,430' size='440,40' onclick='menu:back()'>@Back</button>
+
+    <panel id='content_info' pos='485,15' size='440,406' color='0' max-length='406' scrollable='true'>
+        <label>@Creator</label>
+        <label id='author' multiline="true" color='#8C8C8C'>None</label>
+        <label></label>
+        <label></label>
+        <label>@Version</label>
+        <label id='version' multiline="true" color='#8C8C8C'>None</label>
+        <label></label>
+        <label></label>
+        <label>@Description</label>
+        <label id='description' multiline="true" color='#8C8C8C'>None</label>
+        <label></label>
+        <label></label>
+        <label>@Dependencies</label>
+        <label id='dependencies' multiline="true" color='#8C8C8C'>None</label>
+    </panel>
+</container>
