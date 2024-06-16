@@ -9,6 +9,15 @@ using namespace lua;
 
 static int nextEnvironment = 1;
 
+std::unordered_map<std::type_index, std::string> lua::usertypeNames;
+
+int lua::userdata_destructor(lua::State* L) {
+    if (auto obj = touserdata<Userdata>(L, 1)) {
+        obj->~Userdata();
+    }
+    return 0;
+}
+
 std::string lua::env_name(int env) {
     return "_ENV"+util::mangleid(env);
 }

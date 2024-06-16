@@ -109,18 +109,8 @@ static int l_file_mkdirs(lua::State* L) {
 static int l_file_read_bytes(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     if (fs::is_regular_file(path)) {
-        size_t length = static_cast<size_t>(fs::file_size(path));
-
-        auto bytes = files::read_bytes(path, length);
-
-        lua::createtable(L, length, 0);
-        int newTable = lua::gettop(L);
-
-        for(size_t i = 0; i < length; i++) {
-            lua::pushinteger(L, bytes[i]);
-            lua::rawseti(L, i+1, newTable);
-        }
-        return 1;
+        auto bytes = files::read_bytes(path);
+        return lua::newuserdata<lua::Bytearray>(L, std::move(bytes));
     }
     throw std::runtime_error("file does not exists "+util::quote(path.u8string()));   
 }
@@ -151,10 +141,13 @@ static int l_file_write_bytes(lua::State* L) {
 
     fs::path path = resolve_path(lua::require_string(L, pathIndex));
 
+    if (auto bytearray = lua::touserdata<lua::Bytearray>(L, -1)) {
+        auto& bytes = bytearray->data();
+        return lua::pushboolean(L, files::write_bytes(path, bytes.data(), bytes.size()));
+    }
+
     std::vector<ubyte> bytes;
-
     int result = read_bytes_from_table(L, -1, bytes);
-
     if(result != 1) {
         return result;
     } else {

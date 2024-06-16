@@ -68,19 +68,19 @@ local function floatOrDoubleToBytes(val, opt)
       if opt == 'd' then
         val = mantissa
         for i = 1, 6 do
-          table.insert(bytes, math.floor(val) % (2 ^ 8))
+          bytes[#bytes + 1] = math.floor(val) % (2 ^ 8)
           val = math.floor(val / (2 ^ 8))
         end
       else
-        table.insert(bytes, math.floor(mantissa) % (2 ^ 8))
+        bytes[#bytes + 1] = math.floor(mantissa) % (2 ^ 8)
         val = math.floor(mantissa / (2 ^ 8))
-        table.insert(bytes, math.floor(val) % (2 ^ 8))
+        bytes[#bytes + 1] = math.floor(val) % (2 ^ 8)
         val = math.floor(val / (2 ^ 8))
       end
 
-      table.insert(bytes, math.floor(exponent * ((opt == 'd') and 16 or 128) + val) % (2 ^ 8))
+      bytes[#bytes + 1] = math.floor(exponent * ((opt == 'd') and 16 or 128) + val) % (2 ^ 8)
       val = math.floor((exponent * ((opt == 'd') and 16 or 128) + val) / (2 ^ 8))
-      table.insert(bytes, math.floor(sign * 128 + val) % (2 ^ 8))
+      bytes[#bytes + 1] = math.floor(sign * 128 + val) % (2 ^ 8)
       val = math.floor((sign * 128 + val) / (2 ^ 8))
 
       if not endianness then
