@@ -19,21 +19,12 @@ namespace lua {
         Bytearray(size_t capacity);
         Bytearray(std::vector<ubyte> buffer);
         virtual ~Bytearray();
-
-        inline ubyte& operator[](size_t index) {
-            return buffer[index];
-        }
-
+        
         const std::string& getTypeName() const override {
             return TYPENAME;
         }
-
-        inline size_t size() const {
-            return buffer.size();
-        }
-
-        inline void append(ubyte b) {
-            buffer.push_back(b);    
+        inline std::vector<ubyte>& data() {
+            return buffer;
         }
 
         static int createMetatable(lua::State*);
