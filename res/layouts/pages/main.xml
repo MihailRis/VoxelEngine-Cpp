@@ -3,5 +3,6 @@
     <panel id='worlds' size='390,1' padding='5' color='#FFFFFF11' max-length='400'>
     </panel>
     <button onclick='menu.page="settings"'>@Settings</button>
+    <button onclick='menu.page="content_menu"'>@Contents Menu</button>
     <button onclick='core.quit()'>@Quit</button>
 </panel>

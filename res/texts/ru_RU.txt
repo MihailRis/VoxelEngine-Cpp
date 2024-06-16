@@ -6,6 +6,10 @@ Cancel=Отмена
 Back=Назад
 Continue=Продолжить
 Add=Добавить
+Version=Версия
+Creator=Автор
+Dependencies=Зависимости
+Description=Описание
 Converting world...=Выполняется конвертация мира...
 
 error.pack-not-found=Не удалось найти пакет
@@ -31,6 +35,7 @@ menu.Page not found=Страница не найдена
 menu.Quit=Выход
 menu.Save and Quit to Menu=Сохранить и Выйти в Меню
 menu.Settings=Настройки
+menu.Contents Menu=Меню контентпаков
 
 world.Seed=Зерно
 world.Name=Название
