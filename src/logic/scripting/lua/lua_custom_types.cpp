@@ -105,11 +105,14 @@ static int l_bytearray_meta_newindex(lua::State* L) {
         return 0;
     }
     auto& data = buffer->data();
-    auto index = tointeger(L, 2)-1;
-    if (static_cast<size_t>(index) > data.size()) {
+    auto index = static_cast<size_t>(tointeger(L, 2)-1);
+    auto value = tointeger(L, 3);
+    if (index >= data.size()) {
+        if (index == data.size()) {
+            data.push_back(static_cast<ubyte>(value));
+        }
         return 0;
     }
-    auto value = tointeger(L, 3);
     data[index] = static_cast<ubyte>(value);
     return 0;
 }
