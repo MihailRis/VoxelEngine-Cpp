@@ -1,6 +1,7 @@
 #include "lua_engine.hpp"
 
 #include "api_lua.hpp"
+#include "lua_custom_types.hpp"
 #include "../../../debug/Logger.hpp"
 #include "../../../util/stringutil.hpp"
 
@@ -45,7 +46,6 @@ static void create_libs(lua::State* L) {
     addfunc(L, "print", lua::wrap<l_print>);
 }
 
-#include <iostream>
 void lua::initialize() {
     logger.info() << LUA_VERSION;
     logger.info() << LUAJIT_VERSION;
@@ -81,6 +81,8 @@ void lua::initialize() {
 
     createtable(L, 0, 0);
     setglobal(L, LAMBDAS_TABLE);
+
+    newusertype<Bytearray, Bytearray::createMetatable>(L, "bytearray");
 }
 
 void lua::finalize() {
