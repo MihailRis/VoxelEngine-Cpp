@@ -7,6 +7,11 @@ static int l_idt(lua::State* L) {
     return lua::pushmat4(L, glm::mat4(1.0f));
 }
 
+/// Overloads:
+/// mat4.mul(m1: float[16], m2: float[16]) -> float[16] - creates matrix of m1 and m2 multiplication result
+/// mat4.mul(m1: float[16], m2: float[16], dst: float[16]) -> float[16] - updates dst matrix with m1 and m2 multiplication result
+/// mat4.mul(m1: float[16], v: float[3 or 4]) -> float[3 or 4] - creates vector of m1 and v multiplication result
+/// mat4.mul(m1: float[16], v: float[3 or 4], dst: float[3 or 4]) -> float[3 or 4] - updates dst vector with m1 and v multiplication result
 static int l_mul(lua::State* L) {
     uint argc = lua::gettop(L);
     if (argc < 2 || argc > 3) {
@@ -98,6 +103,44 @@ inline int l_rotate(lua::State* L) {
     return 0;
 }
 
+/// Overloads:
+/// mat4.inverse(matrix: float[16]) -> float[16] - creates inversed version of the matrix
+/// mat4.inverse(matrix: float[16], dst: float[16]) -> float[16] - updates dst matrix with inversed version of the matrix
+static int l_inverse(lua::State* L) {
+    uint argc = lua::gettop(L);
+    auto matrix = lua::tomat4(L, 1);
+    switch (argc) {
+        case 1: {
+            return lua::pushmat4(L, glm::inverse(matrix));
+        }
+        case 2: {
+            return lua::setmat4(L, 2, glm::inverse(matrix));
+        }
+        default: {
+            throw std::runtime_error("invalid arguments number (1 or 2 expected)");
+        }
+    }
+}
+
+/// Overloads:
+/// mat4.transpose(matrix: float[16]) -> float[16] - creates transposed version of the matrix
+/// mat4.transpose(matrix: float[16], dst: float[16]) -> float[16] - updates dst matrix with transposed version of the matrix
+static int l_transpose(lua::State* L) {
+    uint argc = lua::gettop(L);
+    auto matrix = lua::tomat4(L, 1);
+    switch (argc) {
+        case 1: {
+            return lua::pushmat4(L, glm::transpose(matrix));
+        }
+        case 2: {
+            return lua::setmat4(L, 2, glm::transpose(matrix));
+        }
+        default: {
+            throw std::runtime_error("invalid arguments number (1 or 2 expected)");
+        }
+    }
+}
+
 static int l_tostring(lua::State* L) {
     auto matrix = lua::tomat4(L, 1);
     std::stringstream ss;
@@ -118,6 +161,8 @@ const luaL_Reg mat4lib [] = {
     {"scale", lua::wrap<l_transform_func<glm::scale>>},
     {"rotate", lua::wrap<l_rotate>},
     {"translate", lua::wrap<l_transform_func<glm::translate>>},
+    {"inverse", lua::wrap<l_inverse>},
+    {"transpose", lua::wrap<l_transpose>},
     {"tostring", lua::wrap<l_tostring>},
     {NULL, NULL}
 };
