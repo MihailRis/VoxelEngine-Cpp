@@ -3,8 +3,23 @@
 #include <sstream>
 #include <glm/ext/matrix_transform.hpp>
 
+/// Overloads:
+/// mat4.idt() -> float[16] - creates identity matrix
+/// mat4.idt(dst: float[16]) -> float[16] - sets dst to identity matrix
 static int l_idt(lua::State* L) {
-    return lua::pushmat4(L, glm::mat4(1.0f));
+    uint argc = lua::gettop(L);
+    switch (argc) {
+        case 0: {
+            return lua::pushmat4(L, glm::mat4(1.0f));
+        }
+        case 1: {
+            return lua::setmat4(L, 1, glm::mat4(1.0f));
+        }
+        default: {
+            throw std::runtime_error("invalid arguments number (0 or 1 expected)");
+        }
+    }
+    return 0;
 }
 
 /// Overloads:
@@ -139,6 +154,7 @@ static int l_transpose(lua::State* L) {
             throw std::runtime_error("invalid arguments number (1 or 2 expected)");
         }
     }
+    return 0;
 }
 
 static int l_tostring(lua::State* L) {
