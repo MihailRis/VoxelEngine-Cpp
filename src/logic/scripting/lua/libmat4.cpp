@@ -7,27 +7,61 @@ static int l_idt(lua::State* L) {
     return lua::pushmat4(L, glm::mat4(1.0f));
 }
 
-/// @brief  mat4.scale(matrix=idt: array[16], scale: array[3]) -> array[16]
-/// Modifies matrix
-static int l_scale(lua::State* L) {
+/// Overloads:
+/// mat4.<func>(vec: float[3]) -> float[16] - creates transform matrix
+/// mat4.<func>(matrix: float[16], vec: float[3]) -> float[16] - creates transformed copy of matrix
+/// mat4.<func>(matrix: float[16], vec: float[3], dst: float[16]) -> sets dst to transformed version of matrix
+template<glm::mat4(*func)(const glm::mat4&, const glm::vec3&)>
+inline int l_transform_func(lua::State* L) {
     uint argc = lua::gettop(L);
     switch (argc) {
         case 1: {
-            auto scale = lua::tovec3(L, 1);
-            return lua::pushmat4(L, glm::scale(glm::mat4(1.0f), scale));
+            auto vec = lua::tovec3(L, 1);
+            return lua::pushmat4(L, func(glm::mat4(1.0f), vec));
         }
         case 2: {
             auto matrix = lua::tomat4(L, 1);
-            auto scale = lua::tovec3(L, 2);
-            return lua::pushmat4(L, glm::scale(matrix, scale));
+            auto vec = lua::tovec3(L, 2);
+            return lua::pushmat4(L, func(matrix, vec));
         }
         case 3: {
             auto matrix = lua::tomat4(L, 1);
-            auto scale = lua::tovec3(L, 2);
-            return lua::setmat4(L, 3, glm::scale(matrix, scale));
+            auto vec = lua::tovec3(L, 2);
+            return lua::setmat4(L, 3, func(matrix, vec));
         }
         default: {
-            throw std::runtime_error("invalid number of arguments (1 or 2 expected)");
+            throw std::runtime_error("invalid arguments number (1, 2 or 3 expected)");
+        }
+    }
+    return 0;
+}
+
+/// Overloads:
+/// mat4.rotate(vec: float[3], angle: float) -> float[16] - creates rotation matrix
+/// mat4.rotate(matrix: float[16], vec: float[3], angle: float) -> float[16] - creates rotated copy of matrix
+/// mat4.rotate(matrix: float[16], vec: float[3], angle: float, dst: float[16]) -> sets dst to rotated version of matrix
+inline int l_rotate(lua::State* L) {
+    uint argc = lua::gettop(L);
+    switch (argc) {
+        case 2: {
+            auto vec = lua::tovec3(L, 1);
+            auto angle = static_cast<float>(lua::tonumber(L, 2));
+            return lua::pushmat4(L, glm::rotate(glm::mat4(1.0f), angle, vec));
+        }
+        case 3: {
+            auto matrix = lua::tomat4(L, 1);
+            auto vec = lua::tovec3(L, 2);
+            auto angle = static_cast<float>(lua::tonumber(L, 3));
+            return lua::pushmat4(L, glm::rotate(matrix, angle, vec));
+        }
+        case 4: {
+            auto matrix = lua::tomat4(L, 1);
+            auto vec = lua::tovec3(L, 2);
+            auto angle = static_cast<float>(lua::tonumber(L, 3));
+            return lua::setmat4(L, 3, glm::rotate(matrix, angle, vec));
+        }
+        default: {
+            throw std::runtime_error("invalid arguments number (2, 3 or 4 expected)");
         }
     }
     return 0;
@@ -49,7 +83,9 @@ static int l_tostring(lua::State* L) {
 
 const luaL_Reg mat4lib [] = {
     {"idt", lua::wrap<l_idt>},
-    {"scale", lua::wrap<l_scale>},
+    {"scale", lua::wrap<l_transform_func<glm::scale>>},
+    {"rotate", lua::wrap<l_rotate>},
+    {"translate", lua::wrap<l_transform_func<glm::translate>>},
     {"tostring", lua::wrap<l_tostring>},
     {NULL, NULL}
 };
