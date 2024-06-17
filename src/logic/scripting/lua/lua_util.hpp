@@ -138,7 +138,10 @@ namespace lua {
     inline void setmetatable(lua::State* L, int idx=-2) {
         lua_setmetatable(L, idx);
     }
-
+    inline int pushvalue(lua::State* L, int idx) {
+        lua_pushvalue(L, idx);
+        return 1;
+    }
     inline int pushvec2_arr(lua::State* L, glm::vec2 vec) {
         createtable(L, 2, 0);
         getglobal(L, "vec2_mt");
@@ -195,6 +198,47 @@ namespace lua {
         rawseti(L, 4);
         return 1;
     }
+    inline int pushmat4(lua::State* L, glm::mat4 matrix) {
+        createtable(L, 16, 0);
+        for (uint y = 0; y < 4; y++) {
+            for (uint x = 0; x < 4; x++) {
+                uint i = y * 4 + x;
+                pushnumber(L, matrix[y][x]);
+                rawseti(L, i+1);
+            }
+        }
+        return 1;
+    }
+    /// @brief pushes matrix table to the stack and updates it with glm matrix 
+    inline int setmat4(lua::State* L, int idx, glm::mat4 matrix) {
+        pushvalue(L, idx);
+        for (uint y = 0; y < 4; y++) {
+            for (uint x = 0; x < 4; x++) {
+                uint i = y * 4 + x;
+                pushnumber(L, matrix[y][x]);
+                rawseti(L, i+1);
+            }
+        }
+        return 1;
+    }
+    /// @brief pushes vector table to the stack and updates it with glm vec4 
+    inline int setvec4(lua::State* L, int idx, glm::vec4 vec) {
+        pushvalue(L, idx);
+        for (uint i = 0; i < 4; i++) {
+            pushnumber(L, vec[i]);
+            rawseti(L, i+1);
+        }
+        return 1;
+    }
+    /// @brief pushes vector table to the stack and updates it with glm vec3 
+    inline int setvec3(lua::State* L, int idx, glm::vec3 vec) {
+        pushvalue(L, idx);
+        for (uint i = 0; i < 3; i++) {
+            pushnumber(L, vec[i]);
+            rawseti(L, i+1);
+        }
+        return 1;
+    }
     inline int pushcfunction(lua::State* L, lua_CFunction func) {
         lua_pushcfunction(L, func);
         return 1;
@@ -214,10 +258,6 @@ namespace lua {
 
     inline int pushboolean(lua::State* L, bool value) {
         lua_pushboolean(L, value);
-        return 1;
-    }
-    inline int pushvalue(lua::State* L, int idx) {
-        lua_pushvalue(L, idx);
         return 1;
     }
     inline int pushglobals(lua::State* L) {
@@ -308,6 +348,53 @@ namespace lua {
         auto y = tonumber(L, -1); pop(L);
         pop(L);
         return glm::vec2(x, y);
+    }
+    inline glm::vec3 tovec3(lua::State* L, int idx) { 
+        pushvalue(L, idx);
+        if (!istable(L, idx) || objlen(L, idx) < 3) {
+            throw std::runtime_error("value must be an array of three numbers");
+        }
+        rawgeti(L, 1);
+        auto x = tonumber(L, -1); pop(L);
+        rawgeti(L, 2);
+        auto y = tonumber(L, -1); pop(L);
+        rawgeti(L, 3);
+        auto z = tonumber(L, -1); pop(L);
+        pop(L);
+        return glm::vec3(x, y, z);
+    }
+    inline glm::vec4 tovec4(lua::State* L, int idx) { 
+        pushvalue(L, idx);
+        if (!istable(L, idx) || objlen(L, idx) < 4) {
+            throw std::runtime_error("value must be an array of four numbers");
+        }
+        rawgeti(L, 1);
+        auto x = tonumber(L, -1); pop(L);
+        rawgeti(L, 2);
+        auto y = tonumber(L, -1); pop(L);
+        rawgeti(L, 3);
+        auto z = tonumber(L, -1); pop(L);
+        rawgeti(L, 4);
+        auto w = tonumber(L, -1); pop(L);
+        pop(L);
+        return glm::vec4(x, y, z, w);
+    }
+    inline glm::mat4 tomat4(lua::State* L, int idx) {
+        pushvalue(L, idx);
+        if (!istable(L, idx) || objlen(L, idx) < 16) {
+            throw std::runtime_error("value must be an array of 16 numbers");
+        }
+        glm::mat4 matrix;
+        for (uint y = 0; y < 4; y++) {
+            for (uint x = 0; x < 4; x++) {
+                uint i = y * 4 + x;
+                rawgeti(L, i+1);
+                matrix[y][x] = static_cast<float>(tonumber(L, -1));
+                pop(L);
+            }
+        }
+        pop(L);
+        return matrix;
     }
 
     inline glm::vec4 tocolor(lua::State* L, int idx) {
