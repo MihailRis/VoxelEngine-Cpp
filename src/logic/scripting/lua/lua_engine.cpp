@@ -37,6 +37,7 @@ static void create_libs(lua::State* L) {
     openlib(L, "inventory", inventorylib);
     openlib(L, "item", itemlib);
     openlib(L, "json", jsonlib);
+    openlib(L, "mat4", mat4lib);
     openlib(L, "pack", packlib);
     openlib(L, "player", playerlib);
     openlib(L, "time", timelib);

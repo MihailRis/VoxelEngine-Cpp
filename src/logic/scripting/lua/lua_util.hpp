@@ -195,6 +195,17 @@ namespace lua {
         rawseti(L, 4);
         return 1;
     }
+    inline int pushmat4(lua::State* L, glm::mat4 matrix) {
+        createtable(L, 16, 0);
+        for (uint y = 0; y < 4; y++) {
+            for (uint x = 0; x < 4; x++) {
+                uint i = y * 4 + x;
+                pushnumber(L, matrix[y][x]);
+                rawseti(L, i+1);
+            }
+        }
+        return 1;
+    }
     inline int pushcfunction(lua::State* L, lua_CFunction func) {
         lua_pushcfunction(L, func);
         return 1;
@@ -308,6 +319,38 @@ namespace lua {
         auto y = tonumber(L, -1); pop(L);
         pop(L);
         return glm::vec2(x, y);
+    }
+
+    inline glm::vec3 tovec3(lua::State* L, int idx) { 
+        pushvalue(L, idx);
+        if (!istable(L, idx) || objlen(L, idx) < 3) {
+            throw std::runtime_error("value must be an array of three numbers");
+        }
+        rawgeti(L, 1);
+        auto x = tonumber(L, -1); pop(L);
+        rawgeti(L, 2);
+        auto y = tonumber(L, -1); pop(L);
+        rawgeti(L, 3);
+        auto z = tonumber(L, -1); pop(L);
+        pop(L);
+        return glm::vec3(x, y, z);
+    }
+
+    inline glm::mat4 tomat4(lua::State* L, int idx) {
+        pushvalue(L, idx);
+        if (!istable(L, idx) || objlen(L, idx) < 16) {
+            throw std::runtime_error("value must be an array of 16 numbers");
+        }
+        glm::mat4 matrix;
+        for (uint y = 0; y < 4; y++) {
+            for (uint x = 0; x < 4; x++) {
+                uint i = y * 4 + x;
+                rawgeti(L, i+1);
+                matrix[y][x] = static_cast<float>(tonumber(L, -1));
+                pop(L);
+            }
+        }
+        return matrix;
     }
 
     inline glm::vec4 tocolor(lua::State* L, int idx) {
