@@ -138,7 +138,10 @@ namespace lua {
     inline void setmetatable(lua::State* L, int idx=-2) {
         lua_setmetatable(L, idx);
     }
-
+    inline int pushvalue(lua::State* L, int idx) {
+        lua_pushvalue(L, idx);
+        return 1;
+    }
     inline int pushvec2_arr(lua::State* L, glm::vec2 vec) {
         createtable(L, 2, 0);
         getglobal(L, "vec2_mt");
@@ -237,10 +240,6 @@ namespace lua {
 
     inline int pushboolean(lua::State* L, bool value) {
         lua_pushboolean(L, value);
-        return 1;
-    }
-    inline int pushvalue(lua::State* L, int idx) {
-        lua_pushvalue(L, idx);
         return 1;
     }
     inline int pushglobals(lua::State* L) {
