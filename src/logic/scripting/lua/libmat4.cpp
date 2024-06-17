@@ -96,19 +96,19 @@ inline int l_rotate(lua::State* L) {
     switch (argc) {
         case 2: {
             auto vec = lua::tovec3(L, 1);
-            auto angle = static_cast<float>(lua::tonumber(L, 2));
+            auto angle = glm::radians(static_cast<float>(lua::tonumber(L, 2)));
             return lua::pushmat4(L, glm::rotate(glm::mat4(1.0f), angle, vec));
         }
         case 3: {
             auto matrix = lua::tomat4(L, 1);
             auto vec = lua::tovec3(L, 2);
-            auto angle = static_cast<float>(lua::tonumber(L, 3));
+            auto angle = glm::radians(static_cast<float>(lua::tonumber(L, 3)));
             return lua::pushmat4(L, glm::rotate(matrix, angle, vec));
         }
         case 4: {
             auto matrix = lua::tomat4(L, 1);
             auto vec = lua::tovec3(L, 2);
-            auto angle = static_cast<float>(lua::tonumber(L, 3));
+            auto angle = glm::radians(static_cast<float>(lua::tonumber(L, 3)));
             return lua::setmat4(L, 3, glm::rotate(matrix, angle, vec));
         }
         default: {
