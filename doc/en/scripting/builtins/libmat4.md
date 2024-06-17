@@ -11,7 +11,8 @@ Type conventions will be used on this page.
 - vec3 - array of three numbers
 - matrix - array of 16 numbers - matrix
 
->[!ATTENTION]
+> [!WARNING]
+>
 > Type annotations are part of the documentation and are not present in Lua.
 
 ## Identity matrix - *mat4.idt(...)*
