@@ -221,6 +221,24 @@ namespace lua {
         }
         return 1;
     }
+    /// @brief pushes vector table to the stack and updates it with glm vec4 
+    inline int setvec4(lua::State* L, int idx, glm::vec4 vec) {
+        pushvalue(L, idx);
+        for (uint i = 0; i < 4; i++) {
+            pushnumber(L, vec[i]);
+            rawseti(L, i+1);
+        }
+        return 1;
+    }
+    /// @brief pushes vector table to the stack and updates it with glm vec3 
+    inline int setvec3(lua::State* L, int idx, glm::vec3 vec) {
+        pushvalue(L, idx);
+        for (uint i = 0; i < 3; i++) {
+            pushnumber(L, vec[i]);
+            rawseti(L, i+1);
+        }
+        return 1;
+    }
     inline int pushcfunction(lua::State* L, lua_CFunction func) {
         lua_pushcfunction(L, func);
         return 1;
@@ -331,7 +349,6 @@ namespace lua {
         pop(L);
         return glm::vec2(x, y);
     }
-
     inline glm::vec3 tovec3(lua::State* L, int idx) { 
         pushvalue(L, idx);
         if (!istable(L, idx) || objlen(L, idx) < 3) {
@@ -346,7 +363,22 @@ namespace lua {
         pop(L);
         return glm::vec3(x, y, z);
     }
-
+    inline glm::vec4 tovec4(lua::State* L, int idx) { 
+        pushvalue(L, idx);
+        if (!istable(L, idx) || objlen(L, idx) < 4) {
+            throw std::runtime_error("value must be an array of four numbers");
+        }
+        rawgeti(L, 1);
+        auto x = tonumber(L, -1); pop(L);
+        rawgeti(L, 2);
+        auto y = tonumber(L, -1); pop(L);
+        rawgeti(L, 3);
+        auto z = tonumber(L, -1); pop(L);
+        rawgeti(L, 4);
+        auto w = tonumber(L, -1); pop(L);
+        pop(L);
+        return glm::vec4(x, y, z, w);
+    }
     inline glm::mat4 tomat4(lua::State* L, int idx) {
         pushvalue(L, idx);
         if (!istable(L, idx) || objlen(L, idx) < 16) {

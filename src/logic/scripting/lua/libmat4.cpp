@@ -7,6 +7,37 @@ static int l_idt(lua::State* L) {
     return lua::pushmat4(L, glm::mat4(1.0f));
 }
 
+static int l_mul(lua::State* L) {
+    uint argc = lua::gettop(L);
+    if (argc < 2 || argc > 3) {
+        throw std::runtime_error("invalid arguments number (2 or 3 expected)");
+    }
+    auto matrix1 = lua::tomat4(L, 1);
+    uint len2 = lua::objlen(L, 2);
+    if (len2 < 3) {
+        throw std::runtime_error("argument #2: vec3 or vec4 expected");
+    }
+    switch (argc) {
+        case 2: {
+            if (len2 == 4) {
+               return lua::pushvec4(L, matrix1 * lua::tovec4(L, 2));
+            } else if (len2 == 3) {
+               return lua::pushvec3(L, matrix1 * glm::vec4(lua::tovec3(L, 2), 1.0f));
+            }
+            return lua::pushmat4(L, matrix1 * lua::tomat4(L, 2));
+        }
+        case 3: {
+            if (len2 == 4) {
+               return lua::setvec4(L, 3, matrix1 * lua::tovec4(L, 2));
+            } else if (len2 == 3) {
+               return lua::setvec3(L, 3, matrix1 * glm::vec4(lua::tovec3(L, 2), 1.0f));
+            }
+            return lua::setmat4(L, 3, matrix1 * lua::tomat4(L, 2));
+        }
+    }
+    return 0;
+}
+
 /// Overloads:
 /// mat4.<func>(vec: float[3]) -> float[16] - creates transform matrix
 /// mat4.<func>(matrix: float[16], vec: float[3]) -> float[16] - creates transformed copy of matrix
@@ -83,6 +114,7 @@ static int l_tostring(lua::State* L) {
 
 const luaL_Reg mat4lib [] = {
     {"idt", lua::wrap<l_idt>},
+    {"mul", lua::wrap<l_mul>},
     {"scale", lua::wrap<l_transform_func<glm::scale>>},
     {"rotate", lua::wrap<l_rotate>},
     {"translate", lua::wrap<l_transform_func<glm::translate>>},
