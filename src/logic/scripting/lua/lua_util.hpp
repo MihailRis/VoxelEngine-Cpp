@@ -393,6 +393,7 @@ namespace lua {
                 pop(L);
             }
         }
+        pop(L);
         return matrix;
     }
 

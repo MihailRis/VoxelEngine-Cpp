@@ -159,13 +159,27 @@ static int l_transpose(lua::State* L) {
 
 static int l_tostring(lua::State* L) {
     auto matrix = lua::tomat4(L, 1);
+    bool multiline = lua::toboolean(L, 2);
     std::stringstream ss;
-    ss << "mat4 {\n";
+    ss << "mat4 {";
+    if (multiline) {
+        ss << "\n";
+    }
     for (uint y = 0; y < 4; y++) {
         for (uint x = 0; x < 4; x++) {
-            ss << "\t" << matrix[y][x];
+            if (multiline) {
+                ss << "\t" << matrix[y][x];
+            } else if (x > 0) {
+                ss << " " << matrix[y][x];
+            } else {
+                ss << matrix[y][x];
+            }
         }
-        ss << "\n";
+        if (multiline) {
+            ss << "\n";
+        } else {
+            ss << "; ";
+        }
     }
     ss << "}";
     return lua::pushstring(L, ss.str());
