@@ -7,6 +7,8 @@ static int l_idt(lua::State* L) {
     return lua::pushmat4(L, glm::mat4(1.0f));
 }
 
+/// @brief  mat4.scale(matrix=idt: array[16], scale: array[3]) -> array[16]
+/// Modifies matrix
 static int l_scale(lua::State* L) {
     uint argc = lua::gettop(L);
     switch (argc) {
@@ -18,6 +20,11 @@ static int l_scale(lua::State* L) {
             auto matrix = lua::tomat4(L, 1);
             auto scale = lua::tovec3(L, 2);
             return lua::pushmat4(L, glm::scale(matrix, scale));
+        }
+        case 3: {
+            auto matrix = lua::tomat4(L, 1);
+            auto scale = lua::tovec3(L, 2);
+            return lua::setmat4(L, 3, glm::scale(matrix, scale));
         }
         default: {
             throw std::runtime_error("invalid number of arguments (1 or 2 expected)");

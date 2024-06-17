@@ -206,6 +206,18 @@ namespace lua {
         }
         return 1;
     }
+    /// @brief pushes matrix table to the stack and updates it with glm matrix 
+    inline int setmat4(lua::State* L, int idx, glm::mat4 matrix) {
+        pushvalue(L, idx);
+        for (uint y = 0; y < 4; y++) {
+            for (uint x = 0; x < 4; x++) {
+                uint i = y * 4 + x;
+                pushnumber(L, matrix[y][x]);
+                rawseti(L, i+1);
+            }
+        }
+        return 1;
+    }
     inline int pushcfunction(lua::State* L, lua_CFunction func) {
         lua_pushcfunction(L, func);
         return 1;
