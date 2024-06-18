@@ -161,18 +161,26 @@ assetload::postfunc assetload::sound(
     auto cfg = std::dynamic_pointer_cast<SoundCfg>(config);
     bool keepPCM = cfg ? cfg->keepPCM : false;
 
-    std::string extension = ".ogg";
     std::unique_ptr<audio::Sound> baseSound = nullptr;
-
-    // looking for 'sound_name' as base sound
-    auto soundFile = paths->find(file+extension);
-    if (fs::exists(soundFile)) {
-        baseSound = audio::load_sound(soundFile, keepPCM);
+    static std::vector<std::string> extensions {".ogg", ".wav"};
+    std::string extension;
+    for (size_t i = 0; i < extensions.size(); i++) {
+        extension = extensions[i];
+        // looking for 'sound_name' as base sound
+        auto soundFile = paths->find(file+extension);
+        if (fs::exists(soundFile)) {
+            baseSound = audio::load_sound(soundFile, keepPCM);
+            break;
+        }
+        // looking for 'sound_name_0' as base sound
+        auto variantFile = paths->find(file+"_0"+extension);
+        if (fs::exists(variantFile)) {
+            baseSound = audio::load_sound(variantFile, keepPCM);
+            break;
+        }
     }
-    // looking for 'sound_name_0' as base sound
-    auto variantFile = paths->find(file+"_0"+extension);
-    if (fs::exists(variantFile)) {
-        baseSound = audio::load_sound(variantFile, keepPCM);
+    if (baseSound == nullptr) {
+        throw std::runtime_error("could not to find sound: " + file);
     }
 
     // loading sound variants
@@ -184,9 +192,6 @@ assetload::postfunc assetload::sound(
         baseSound->variants.emplace_back(audio::load_sound(variantFile, keepPCM));
     }
 
-    if (baseSound == nullptr) {
-        throw std::runtime_error("could not to find sound: " + file);
-    }
     auto sound = baseSound.release();
     return [=](auto assets) {
         assets->store(std::unique_ptr<audio::Sound>(sound), name);
