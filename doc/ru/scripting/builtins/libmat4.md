@@ -25,6 +25,13 @@ mat4.idt()
 mat4.idt(dst: matrix)
 ```
 
+## Определитель матрицы - *mat4.determinant(...)*
+
+```lua
+-- вычисляет определитель матрицы
+mat4.determinant(m: matrix)
+```
+
 ## Умножение матриц - *mat4.mul(...)*
 
 ```lua

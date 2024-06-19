@@ -25,6 +25,13 @@ mat4.idt()
 mat4.idt(dst: matrix)
 ```
 
+## Matrix determinant - *mat4.determinant(...)*
+
+```lua
+-- calculates the determinant of the matrix
+mat4.determinant(m: matrix)
+```
+
 ## Matrix multiplication - *mat4.mul(...)*
 
 ```lua

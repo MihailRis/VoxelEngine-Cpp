@@ -22,6 +22,14 @@ static int l_idt(lua::State* L) {
     return 0;
 }
 
+/// mat4.determinant(matrix: float[16]) - calculates matrix determinant
+static int l_determinant(lua::State* L) {
+    if (lua::gettop(L) != 1) {
+        throw std::runtime_error("invalid arguments number (1 expected)");
+    }
+    return lua::pushnumber(L, glm::determinant(lua::tomat4(L, 1)));
+}
+
 /// Overloads:
 /// mat4.mul(m1: float[16], m2: float[16]) -> float[16] - creates matrix of m1 and m2 multiplication result
 /// mat4.mul(m1: float[16], m2: float[16], dst: float[16]) -> float[16] - updates dst matrix with m1 and m2 multiplication result
@@ -193,6 +201,7 @@ const luaL_Reg mat4lib [] = {
     {"translate", lua::wrap<l_transform_func<glm::translate>>},
     {"inverse", lua::wrap<l_inverse>},
     {"transpose", lua::wrap<l_transpose>},
+    {"determinant", lua::wrap<l_determinant>},
     {"tostring", lua::wrap<l_tostring>},
     {NULL, NULL}
 };
