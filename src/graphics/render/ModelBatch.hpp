@@ -8,6 +8,11 @@
 class Mesh;
 class Texture;
 class Chunks;
+class Assets;
+
+namespace model {
+    struct Model;
+}
 
 class ModelBatch {
     std::unique_ptr<float[]> buffer;
@@ -21,6 +26,7 @@ class ModelBatch {
     std::vector<glm::mat4> matrices;
     glm::mat3 rotation;
 
+    Assets* assets;
     Chunks* chunks;
 
     static inline glm::vec3 SUN_VECTOR {0.411934f, 0.863868f, -0.279161f};
@@ -65,13 +71,15 @@ class ModelBatch {
         vertex(pos-right+up, {0,1}, color);
     }
 public:
-    ModelBatch(size_t capacity, Chunks* chunks);
+    ModelBatch(size_t capacity, Assets* assets, Chunks* chunks);
     ~ModelBatch();
 
     void pushMatrix(glm::mat4 matrix);
     void popMatrix();
 
     void box(glm::vec3 pos, glm::vec3 size, glm::vec4 lights);
+
+    void draw(const model::Model& model);
 
     void test(glm::vec3 pos, glm::vec3 size);
     void flush();

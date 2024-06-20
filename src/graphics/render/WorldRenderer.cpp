@@ -32,6 +32,7 @@
 #include "../core/PostProcessing.hpp"
 #include "../core/Shader.hpp"
 #include "../core/Texture.hpp"
+#include "../core/Model.hpp"
 
 #include <assert.h>
 #include <GL/glew.h>
@@ -49,7 +50,7 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* pl
     player(player),
     frustumCulling(std::make_unique<Frustum>()),
     lineBatch(std::make_unique<LineBatch>()),
-    modelBatch(std::make_unique<ModelBatch>(1000, level->chunks.get()))
+    modelBatch(std::make_unique<ModelBatch>(1000, engine->getAssets(), level->chunks.get()))
 {
     renderer = std::make_unique<ChunksRenderer>(
         level,
@@ -193,10 +194,16 @@ void WorldRenderer::renderLevel(
 
     drawChunks(level->chunks.get(), camera, shader);
 
+    model::Model model {};
+    auto& mesh = model.addMesh("gui/warning");
+    mesh.addBox({}, glm::vec3(1));
+
     assets->getTexture("gui/menubg")->bind();
     shader->uniformMatrix("u_model", glm::mat4(1.0f));
-    modelBatch->test(glm::vec3(0, 88, 0), glm::vec3(1.0f));
-    modelBatch->flush();
+    //modelBatch->test(glm::vec3(0, 88, 0), glm::vec3(1.0f));
+    modelBatch->pushMatrix(glm::translate(glm::mat4(1.0f), glm::vec3(0, 88, 0)));
+    modelBatch->draw(model);
+    modelBatch->popMatrix();
 
     skybox->unbind();
 }

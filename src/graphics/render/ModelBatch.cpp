@@ -1,7 +1,9 @@
 #include "ModelBatch.hpp"
 
 #include "../core/Mesh.hpp"
+#include "../core/Model.hpp"
 #include "../core/Texture.hpp"
+#include "../../assets/Assets.hpp"
 #include "../../window/Window.hpp"
 #include "../../voxels/Chunks.hpp"
 #include "../../lighting/Lightmap.hpp"
@@ -30,12 +32,13 @@ struct DecomposedMat4 {
     glm::vec4 perspective;
 };
 
-ModelBatch::ModelBatch(size_t capacity, Chunks* chunks)
+ModelBatch::ModelBatch(size_t capacity, Assets* assets, Chunks* chunks)
   : buffer(std::make_unique<float[]>(capacity * VERTEX_SIZE)),
     capacity(capacity),
     index(0),
     mesh(std::make_unique<Mesh>(buffer.get(), 0, attrs)),
     combined(1.0f),
+    assets(assets),
     chunks(chunks)
 {
     ubyte pixels[] = {
@@ -45,6 +48,34 @@ ModelBatch::ModelBatch(size_t capacity, Chunks* chunks)
 }
 
 ModelBatch::~ModelBatch() {
+}
+
+void ModelBatch::draw(const model::Model& model) {
+    glm::vec3 gpos = combined * glm::vec4(glm::vec3(), 1.0f);
+    light_t light = chunks->getLight(gpos.x, gpos.y, gpos.z);
+    glm::vec4 lights (
+        Lightmap::extract(light, 0) / 15.0f,
+        Lightmap::extract(light, 1) / 15.0f,
+        Lightmap::extract(light, 2) / 15.0f,
+        Lightmap::extract(light, 3) / 15.0f
+    );
+    for (const auto& mesh : model.meshes) {
+        auto texture = assets->getTexture(mesh.texture);
+        if (texture) {
+            texture->bind();
+        } else {
+            blank->bind();
+        }
+        for (const auto& vert : mesh.vertices) {
+            auto norm = rotation * vert.normal;
+            float d = glm::dot(norm, SUN_VECTOR);
+            d = 0.8f + d * 0.2f;
+            
+            auto color = lights * d;
+            vertex(vert.coord, vert.uv, color);
+        }
+        flush();
+    }
 }
 
 void ModelBatch::test(glm::vec3 pos, glm::vec3 size) {
