@@ -6,6 +6,10 @@ Cancel=Скасаваць
 Back=Назад
 Continue=Працягнуть
 Add=Дадаць
+Version=Версія
+Creator=Аўтар
+Dependencies=Залежнасці
+Description=Апісанне
 Converting world...=Выконваецца канвертацыя свету...
 
 error.pack-not-found=Не ўдалося знайсці пакет
@@ -22,6 +26,7 @@ menu.Audio=Гук
 menu.Back to Main Menu=Вярнуцца ў Меню
 menu.Content Error=Памылка Кантэнту
 menu.Content=Кантэнт
+menu.Contents Menu=Меню Кантэнтпакаў
 menu.Continue=Працягнуть
 menu.Controls=Кіраванне
 menu.Graphics=Графіка
@@ -60,6 +65,7 @@ settings.UI Sounds=Гукі Інтэрфейсу
 settings.V-Sync=Вертыкальная Сінхранізацыя
 
 # Управление
+chunks.reload=Перезагрузіць Чанкі
 devtools.console=Кансоль
 movement.forward=Уперад
 movement.back=Назад
