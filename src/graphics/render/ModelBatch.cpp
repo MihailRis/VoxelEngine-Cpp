@@ -22,6 +22,14 @@ inline constexpr glm::vec3 X(1, 0, 0);
 inline constexpr glm::vec3 Y(0, 1, 0);
 inline constexpr glm::vec3 Z(0, 0, 1);
 
+struct DecomposedMat4 {
+    glm::vec3 scale;
+    glm::mat3 rotation;
+    glm::vec3 translation;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+};
+
 ModelBatch::ModelBatch(size_t capacity, Chunks* chunks)
   : buffer(std::make_unique<float[]>(capacity * VERTEX_SIZE)),
     capacity(capacity),
@@ -55,6 +63,9 @@ void ModelBatch::test(glm::vec3 pos, glm::vec3 size) {
 }
 
 void ModelBatch::box(glm::vec3 pos, glm::vec3 size) {
+    if (index + 36 < capacity*VERTEX_SIZE) {
+        flush();
+    }
     glm::vec3 gpos = combined * glm::vec4(pos, 1.0f);
     light_t light = chunks->getLight(gpos.x, gpos.y, gpos.z);
     glm::vec4 lights (
@@ -84,36 +95,28 @@ void ModelBatch::flush() {
     index = 0;
 }
 
-void ModelBatch::pushMatrix(glm::mat4 matrix) {
-    matrices.push_back(combined);
-    combined = combined * matrix;
-
-    decomposed = {};
+static glm::mat4 extract_rotation(glm::mat4 matrix) {
+    DecomposedMat4 decomposed = {};
     glm::quat rotation;
     glm::decompose(
-        combined, 
+        matrix, 
         decomposed.scale, 
         rotation, 
         decomposed.translation, 
         decomposed.skew, 
         decomposed.perspective
     );
-    decomposed.rotation = glm::toMat3(rotation);
+    return glm::toMat3(rotation);
+}
+
+void ModelBatch::pushMatrix(glm::mat4 matrix) {
+    matrices.push_back(combined);
+    combined = combined * matrix;
+    rotation = extract_rotation(combined);
 }
 
 void ModelBatch::popMatrix() {
     combined = matrices[matrices.size()-1];
     matrices.erase(matrices.end()-1);
-
-    decomposed = {};
-    glm::quat rotation;
-    glm::decompose(
-        combined, 
-        decomposed.scale, 
-        rotation, 
-        decomposed.translation, 
-        decomposed.skew, 
-        decomposed.perspective
-    );
-    decomposed.rotation = glm::toMat3(rotation);
+    rotation = extract_rotation(combined);
 }

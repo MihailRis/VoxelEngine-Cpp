@@ -9,14 +9,6 @@ class Mesh;
 class Texture;
 class Chunks;
 
-struct DecomposedMat4 {
-    glm::vec3 scale;
-    glm::mat3 rotation;
-    glm::vec3 translation;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-};
-
 class ModelBatch {
     std::unique_ptr<float[]> buffer;
     size_t capacity;
@@ -27,15 +19,14 @@ class ModelBatch {
 
     glm::mat4 combined;
     std::vector<glm::mat4> matrices;
-
-    DecomposedMat4 decomposed {};
+    glm::mat3 rotation;
 
     Chunks* chunks;
 
     static inline glm::vec3 SUN_VECTOR {0.411934f, 0.863868f, -0.279161f};
 
     inline void vertex(
-        glm::vec3 pos, glm::vec2 uv, glm::vec4 color
+        glm::vec3 pos, glm::vec2 uv, glm::vec4 light
     ) {
         float* buffer = this->buffer.get();
         pos = combined * glm::vec4(pos, 1.0f);
@@ -50,21 +41,20 @@ class ModelBatch {
             uint32_t integer;
         } compressed;
 
-        compressed.integer = (static_cast<uint32_t>(color.r * 255) & 0xff) << 24;
-        compressed.integer |= (static_cast<uint32_t>(color.g * 255) & 0xff) << 16;
-        compressed.integer |= (static_cast<uint32_t>(color.b * 255) & 0xff) << 8;
-        compressed.integer |= (static_cast<uint32_t>(color.a * 255) & 0xff);
+        compressed.integer = (static_cast<uint32_t>(light.r * 255) & 0xff) << 24;
+        compressed.integer |= (static_cast<uint32_t>(light.g * 255) & 0xff) << 16;
+        compressed.integer |= (static_cast<uint32_t>(light.b * 255) & 0xff) << 8;
+        compressed.integer |= (static_cast<uint32_t>(light.a * 255) & 0xff);
 
         buffer[index++] = compressed.floating;
     }
 
     inline void plane(glm::vec3 pos, glm::vec3 right, glm::vec3 up, glm::vec3 norm, glm::vec4 light) {
-        norm = decomposed.rotation * norm;
+        norm = rotation * norm;
         float d = glm::dot(norm, SUN_VECTOR);
         d = 0.8f + d * 0.2f;
         
-        glm::vec4 color {d, d, d, 1.0f};
-        color *= light;
+        auto color = light * d;
 
         vertex(pos-right-up, {0,0}, color);
         vertex(pos+right-up, {1,0}, color);
