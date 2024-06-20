@@ -15,7 +15,7 @@ struct DecomposedMat4 {
     glm::vec3 skew;
     glm::vec4 perspective;
 };
-#include <iostream>
+
 class ModelBatch {
     std::unique_ptr<float[]> buffer;
     size_t capacity;
@@ -28,6 +28,8 @@ class ModelBatch {
     std::vector<glm::mat4> matrices;
 
     DecomposedMat4 decomposed {};
+
+    static inline glm::vec3 SUN_VECTOR {0.411934f, 0.863868f, -0.279161f};
 
     inline void vertex(
         glm::vec3 pos, glm::vec2 uv, glm::vec4 color
@@ -55,7 +57,10 @@ class ModelBatch {
 
     inline void plane(glm::vec3 pos, glm::vec3 right, glm::vec3 up, glm::vec3 norm) {
         norm = decomposed.rotation * norm;
-        glm::vec4 color {norm.x, norm.y, norm.z, 0.0f};
+        float d = glm::dot(norm, SUN_VECTOR);
+        d = 0.8f + d * 0.2f;
+        
+        glm::vec4 color {d, d, d, 0.0f};
         color.r = glm::max(0.0f, color.r);
         color.g = glm::max(0.0f, color.g);
         color.b = glm::max(0.0f, color.b);

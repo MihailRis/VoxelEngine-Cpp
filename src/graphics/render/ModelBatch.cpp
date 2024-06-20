@@ -4,6 +4,7 @@
 #include "../core/Texture.hpp"
 #include "../../window/Window.hpp"
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -15,7 +16,6 @@ static const vattr attrs[] = {
     {3}, {2}, {1}, {0}
 };
 
-static glm::vec3 SUN_VECTOR (0.411934f, 0.863868f, -0.279161f);
 inline constexpr glm::vec3 X(1, 0, 0);
 inline constexpr glm::vec3 Y(0, 1, 0);
 inline constexpr glm::vec3 Z(0, 0, 1);
@@ -39,9 +39,13 @@ ModelBatch::~ModelBatch() {
 void ModelBatch::test(glm::vec3 pos, glm::vec3 size) {
     float time = static_cast<float>(Window::time());
     pushMatrix(glm::translate(glm::mat4(1.0f), pos));
-    pushMatrix(glm::rotate(glm::mat4(1.0f), time, glm::vec3(0,1,0)));
+    pushMatrix(glm::rotate(glm::mat4(1.0f), glm::sin(time*7*0.1f), glm::vec3(0,1,0)));
+    pushMatrix(glm::rotate(glm::mat4(1.0f), glm::sin(time*11*0.1f), glm::vec3(1,0,0)));
+    pushMatrix(glm::rotate(glm::mat4(1.0f), glm::sin(time*17*0.1f), glm::vec3(0,0,1)));
     pushMatrix(glm::translate(glm::mat4(1.0f), glm::vec3(0, glm::sin(time*2), 0)));
     box({}, size);
+    popMatrix();
+    popMatrix();
     popMatrix();
     popMatrix();
     popMatrix();
@@ -62,7 +66,7 @@ void ModelBatch::flush() {
     if (index == 0) {
         return;
     }
-    blank->bind();
+    // blank->bind();
     mesh->reload(buffer.get(), index / VERTEX_SIZE);
     mesh->draw();
     index = 0;
@@ -70,7 +74,7 @@ void ModelBatch::flush() {
 
 void ModelBatch::pushMatrix(glm::mat4 matrix) {
     matrices.push_back(combined);
-    combined = matrix * combined;
+    combined = combined * matrix;
 
     decomposed = {};
     glm::quat rotation;
