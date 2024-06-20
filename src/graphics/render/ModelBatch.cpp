@@ -55,6 +55,7 @@ void ModelBatch::test(glm::vec3 pos, glm::vec3 size) {
     pushMatrix(glm::rotate(glm::mat4(1.0f), glm::sin(time*17*0.1f), glm::vec3(0,0,1)));
     pushMatrix(glm::translate(glm::mat4(1.0f), glm::vec3(0, glm::sin(time*2), 0)));
     box({}, size);
+    box({1.5f,0,0}, size*0.5f);
     popMatrix();
     popMatrix();
     popMatrix();
@@ -75,14 +76,14 @@ void ModelBatch::box(glm::vec3 pos, glm::vec3 size) {
         Lightmap::extract(light, 3) / 15.0f
     );
 
-    plane(pos+Z, X*size, Y*size, Z, lights);
-    plane(pos-Z, -X*size, Y*size, -Z, lights);
+    plane(pos+Z*size, X*size, Y*size, Z, lights);
+    plane(pos-Z*size, -X*size, Y*size, -Z, lights);
 
-    plane(pos+Y, X*size, -Z*size, Y, lights);
-    plane(pos-Y, X*size, Z*size, -Y, lights);
+    plane(pos+Y*size, X*size, -Z*size, Y, lights);
+    plane(pos-Y*size, X*size, Z*size, -Y, lights);
 
-    plane(pos+X, -Z*size, Y*size, X, lights);
-    plane(pos-X, Z*size, Y*size, -X, lights);
+    plane(pos+X*size, -Z*size, Y*size, X, lights);
+    plane(pos-X*size, Z*size, Y*size, -X, lights);
 }
 
 void ModelBatch::flush() {
