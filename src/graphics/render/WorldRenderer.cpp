@@ -44,12 +44,12 @@
 bool WorldRenderer::showChunkBorders = false;
 
 WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* player) 
-    : engine(engine), 
-      level(frontend->getLevel()),
-      player(player),
-      frustumCulling(std::make_unique<Frustum>()),
-      lineBatch(std::make_unique<LineBatch>()),
-      modelBatch(std::make_unique<ModelBatch>(1000))
+  : engine(engine), 
+    level(frontend->getLevel()),
+    player(player),
+    frustumCulling(std::make_unique<Frustum>()),
+    lineBatch(std::make_unique<LineBatch>()),
+    modelBatch(std::make_unique<ModelBatch>(1000, level->chunks.get()))
 {
     renderer = std::make_unique<ChunksRenderer>(
         level,

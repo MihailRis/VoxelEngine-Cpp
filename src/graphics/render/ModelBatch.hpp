@@ -7,6 +7,7 @@
 
 class Mesh;
 class Texture;
+class Chunks;
 
 struct DecomposedMat4 {
     glm::vec3 scale;
@@ -28,6 +29,8 @@ class ModelBatch {
     std::vector<glm::mat4> matrices;
 
     DecomposedMat4 decomposed {};
+
+    Chunks* chunks;
 
     static inline glm::vec3 SUN_VECTOR {0.411934f, 0.863868f, -0.279161f};
 
@@ -55,15 +58,13 @@ class ModelBatch {
         buffer[index++] = compressed.floating;
     }
 
-    inline void plane(glm::vec3 pos, glm::vec3 right, glm::vec3 up, glm::vec3 norm) {
+    inline void plane(glm::vec3 pos, glm::vec3 right, glm::vec3 up, glm::vec3 norm, glm::vec4 light) {
         norm = decomposed.rotation * norm;
         float d = glm::dot(norm, SUN_VECTOR);
         d = 0.8f + d * 0.2f;
         
-        glm::vec4 color {d, d, d, 0.0f};
-        color.r = glm::max(0.0f, color.r);
-        color.g = glm::max(0.0f, color.g);
-        color.b = glm::max(0.0f, color.b);
+        glm::vec4 color {d, d, d, 1.0f};
+        color *= light;
 
         vertex(pos-right-up, {0,0}, color);
         vertex(pos+right-up, {1,0}, color);
@@ -74,7 +75,7 @@ class ModelBatch {
         vertex(pos-right+up, {0,1}, color);
     }
 public:
-    ModelBatch(size_t capacity);
+    ModelBatch(size_t capacity, Chunks* chunks);
     ~ModelBatch();
 
     void pushMatrix(glm::mat4 matrix);

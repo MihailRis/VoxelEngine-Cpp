@@ -3,6 +3,8 @@
 #include "../core/Mesh.hpp"
 #include "../core/Texture.hpp"
 #include "../../window/Window.hpp"
+#include "../../voxels/Chunks.hpp"
+#include "../../lighting/Lightmap.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/ext/matrix_transform.hpp>
@@ -20,12 +22,13 @@ inline constexpr glm::vec3 X(1, 0, 0);
 inline constexpr glm::vec3 Y(0, 1, 0);
 inline constexpr glm::vec3 Z(0, 0, 1);
 
-ModelBatch::ModelBatch(size_t capacity) 
+ModelBatch::ModelBatch(size_t capacity, Chunks* chunks)
   : buffer(std::make_unique<float[]>(capacity * VERTEX_SIZE)),
     capacity(capacity),
     index(0),
     mesh(std::make_unique<Mesh>(buffer.get(), 0, attrs)),
-    combined(1.0f)
+    combined(1.0f),
+    chunks(chunks)
 {
     ubyte pixels[] = {
         255, 255, 255, 255,
@@ -52,14 +55,23 @@ void ModelBatch::test(glm::vec3 pos, glm::vec3 size) {
 }
 
 void ModelBatch::box(glm::vec3 pos, glm::vec3 size) {
-    plane(pos+Z, X*size, Y*size, Z);
-    plane(pos-Z, -X*size, Y*size, -Z);
+    glm::vec3 gpos = combined * glm::vec4(pos, 1.0f);
+    light_t light = chunks->getLight(gpos.x, gpos.y, gpos.z);
+    glm::vec4 lights (
+        Lightmap::extract(light, 0) / 15.0f,
+        Lightmap::extract(light, 1) / 15.0f,
+        Lightmap::extract(light, 2) / 15.0f,
+        Lightmap::extract(light, 3) / 15.0f
+    );
 
-    plane(pos+Y, X*size, -Z*size, Y);
-    plane(pos-Y, X*size, Z*size, -Y);
+    plane(pos+Z, X*size, Y*size, Z, lights);
+    plane(pos-Z, -X*size, Y*size, -Z, lights);
 
-    plane(pos+X, -Z*size, Y*size, X);
-    plane(pos-X, Z*size, Y*size, -X);
+    plane(pos+Y, X*size, -Z*size, Y, lights);
+    plane(pos-Y, X*size, Z*size, -Y, lights);
+
+    plane(pos+X, -Z*size, Y*size, X, lights);
+    plane(pos-X, Z*size, Y*size, -X, lights);
 }
 
 void ModelBatch::flush() {
