@@ -48,25 +48,6 @@ ModelBatch::~ModelBatch() {
 }
 
 void ModelBatch::test(glm::vec3 pos, glm::vec3 size) {
-    float time = static_cast<float>(Window::time());
-    pushMatrix(glm::translate(glm::mat4(1.0f), pos));
-    pushMatrix(glm::rotate(glm::mat4(1.0f), glm::sin(time*7*0.1f), glm::vec3(0,1,0)));
-    pushMatrix(glm::rotate(glm::mat4(1.0f), glm::sin(time*11*0.1f), glm::vec3(1,0,0)));
-    pushMatrix(glm::rotate(glm::mat4(1.0f), glm::sin(time*17*0.1f), glm::vec3(0,0,1)));
-    pushMatrix(glm::translate(glm::mat4(1.0f), glm::vec3(0, glm::sin(time*2), 0)));
-    box({}, size);
-    box({1.5f,0,0}, size*0.5f);
-    popMatrix();
-    popMatrix();
-    popMatrix();
-    popMatrix();
-    popMatrix();
-}
-
-void ModelBatch::box(glm::vec3 pos, glm::vec3 size) {
-    if (index + 36 < capacity*VERTEX_SIZE) {
-        flush();
-    }
     glm::vec3 gpos = combined * glm::vec4(pos, 1.0f);
     light_t light = chunks->getLight(gpos.x, gpos.y, gpos.z);
     glm::vec4 lights (
@@ -76,6 +57,25 @@ void ModelBatch::box(glm::vec3 pos, glm::vec3 size) {
         Lightmap::extract(light, 3) / 15.0f
     );
 
+    float time = static_cast<float>(Window::time());
+    pushMatrix(glm::translate(glm::mat4(1.0f), pos));
+    pushMatrix(glm::rotate(glm::mat4(1.0f), glm::sin(time*7*0.1f), glm::vec3(0,1,0)));
+    pushMatrix(glm::rotate(glm::mat4(1.0f), glm::sin(time*11*0.1f), glm::vec3(1,0,0)));
+    pushMatrix(glm::rotate(glm::mat4(1.0f), glm::sin(time*17*0.1f), glm::vec3(0,0,1)));
+    pushMatrix(glm::translate(glm::mat4(1.0f), glm::vec3(0, glm::sin(time*2), 0)));
+    box({}, size, lights);
+    box({1.5f,0,0}, size*0.5f, lights);
+    popMatrix();
+    popMatrix();
+    popMatrix();
+    popMatrix();
+    popMatrix();
+}
+
+void ModelBatch::box(glm::vec3 pos, glm::vec3 size, glm::vec4 lights) {
+    if (index + 36 < capacity*VERTEX_SIZE) {
+        flush();
+    }
     plane(pos+Z*size, X*size, Y*size, Z, lights);
     plane(pos-Z*size, -X*size, Y*size, -Z, lights);
 
