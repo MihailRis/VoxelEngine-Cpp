@@ -1,7 +1,6 @@
 #ifndef GRAPHICS_CORE_BATCH3D_HPP_
 #define GRAPHICS_CORE_BATCH3D_HPP_
 
-#include "../../maths/UVRegion.hpp"
 #include "../../typedefs.hpp"
 
 #include <memory>
@@ -10,6 +9,7 @@
 
 class Mesh;
 class Texture;
+struct UVRegion;
 
 class Batch3D {
     std::unique_ptr<float[]> buffer;

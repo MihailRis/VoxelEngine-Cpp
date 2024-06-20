@@ -1,6 +1,7 @@
 #include "WorldRenderer.hpp"
 
 #include "ChunksRenderer.hpp"
+#include "ModelBatch.hpp"
 #include "Skybox.hpp"
 
 #include "../../assets/Assets.hpp"
@@ -47,7 +48,8 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* pl
       level(frontend->getLevel()),
       player(player),
       frustumCulling(std::make_unique<Frustum>()),
-      lineBatch(std::make_unique<LineBatch>())
+      lineBatch(std::make_unique<LineBatch>()),
+      modelBatch(std::make_unique<ModelBatch>(1000))
 {
     renderer = std::make_unique<ChunksRenderer>(
         level,
@@ -190,6 +192,10 @@ void WorldRenderer::renderLevel(
     atlas->getTexture()->bind();
 
     drawChunks(level->chunks.get(), camera, shader);
+
+    shader->uniformMatrix("u_model", glm::mat4(1.0f));
+    modelBatch->test(glm::vec3(0, 68, 0), glm::vec3(1.0f));
+    modelBatch->flush();
 
     skybox->unbind();
 }

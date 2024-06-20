@@ -23,6 +23,7 @@ class LevelFrontend;
 class Skybox;
 class PostProcessing;
 class DrawContext;
+class ModelBatch;
 struct EngineSettings;
 
 class WorldRenderer {
@@ -34,6 +35,7 @@ class WorldRenderer {
     std::unique_ptr<ChunksRenderer> renderer;
     std::unique_ptr<Skybox> skybox;
     std::unique_ptr<Batch3D> batch3d;
+    std::unique_ptr<ModelBatch> modelBatch;
     bool drawChunk(size_t index, Camera* camera, Shader* shader, bool culling);
     void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
 
