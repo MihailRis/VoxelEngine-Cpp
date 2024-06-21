@@ -9,6 +9,7 @@ Most functions have several options for argument lists (overloads).
 Type conventions will be used on this page.
 - vector - an array of three or four numbers
 - vec3 - array of three numbers
+- vec4 - array of four numbers
 - matrix - array of 16 numbers - matrix
 
 > [!WARNING]
@@ -98,7 +99,23 @@ mat4.rotate(m: matrix, axis: vec3, angle: number)
 mat4.rotate(m: matrix, axis: vec3, angle: number, dst: matrix)
 ```
 
-## Translation to string - *mat4.tostring(...)*
+## Decomposition - *mat4.decompose(...)*
+
+Decomposes the transformation matrix into its components.
+
+```lua
+mat4.decompose(m: matrix)
+-- returns a table:
+{
+    scale=vec3,
+    rotation=matrix,
+    translation=vec3,
+    skew=vec3,
+    perspective=vec4
+}
+```
+
+## Casting to string - *mat4.tostring(...)*
 
 ```lua
 -- returns a string representing the contents of the matrix

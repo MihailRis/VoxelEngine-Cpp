@@ -9,6 +9,7 @@
 На данной странице будут использоваться условные обозначения типов.
 - vector - массив из трех или четырех чисел
 - vec3 - массив из трех чисел
+- vec4 - массив из четырех чисел
 - matrix - массив из 16 чисел - матрица
 
 > [!WARNING]
@@ -96,6 +97,22 @@ mat4.rotate(axis: vec3, angle: number)
 mat4.rotate(m: matrix, axis: vec3, angle: number)
 -- записывает результат применения вращения к матрице m в dst
 mat4.rotate(m: matrix, axis: vec3, angle: number, dst: matrix)
+```
+
+## Декомпозиция - *mat4.decompose(...)*
+
+Раскладывает матрицу трансформации на составляющие.
+
+```lua
+mat4.decompose(m: matrix)
+-- возвращает таблицу:
+{
+    scale=vec3,
+    rotation=matrix,
+    translation=vec3,
+    skew=vec3,
+    perspective=vec4 
+}
 ```
 
 ## Перевод в строку - *mat4.tostring(...)*
