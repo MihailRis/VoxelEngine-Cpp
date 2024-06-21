@@ -81,7 +81,6 @@ public:
 
     void draw(const model::Model& model);
 
-    void test(glm::vec3 pos, glm::vec3 size);
     void flush();
 };
 
