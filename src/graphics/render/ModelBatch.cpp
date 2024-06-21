@@ -116,6 +116,18 @@ static glm::mat4 extract_rotation(glm::mat4 matrix) {
     return glm::toMat3(rotation);
 }
 
+void ModelBatch::translate(glm::vec3 vec) {
+    pushMatrix(glm::translate(glm::mat4(1.0f), vec));
+}
+
+void ModelBatch::rotate(glm::vec3 axis, float angle) {
+    pushMatrix(glm::rotate(glm::mat4(1.0f), angle, axis));
+}
+
+void ModelBatch::scale(glm::vec3 vec) {
+    pushMatrix(glm::scale(glm::mat4(1.0f), vec));
+}
+
 void ModelBatch::pushMatrix(glm::mat4 matrix) {
     matrices.push_back(combined);
     combined = combined * matrix;

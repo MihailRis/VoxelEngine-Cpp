@@ -74,6 +74,10 @@ public:
     ModelBatch(size_t capacity, Assets* assets, Chunks* chunks);
     ~ModelBatch();
 
+    void translate(glm::vec3 vec);
+    void rotate(glm::vec3 axis, float angle);
+    void scale(glm::vec3 vec);
+
     void pushMatrix(glm::mat4 matrix);
     void popMatrix();
 

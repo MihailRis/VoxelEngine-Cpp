@@ -196,18 +196,21 @@ void WorldRenderer::renderLevel(
 
     model::Model model {};
     auto& mesh = model.addMesh("gui/warning");
-    mesh.addBox({}, glm::vec3(1));
-    mesh.addBox({}, glm::vec3(2));
+    mesh.addBox({}, glm::vec3(0.3f));
+    mesh.addBox({}, glm::vec3(0.6f));
 
     auto& mesh2 = model.addMesh("gui/error");
-    mesh2.addBox({}, glm::vec3(1.25f));
-    mesh2.addBox({}, glm::vec3(3.25f));
+    mesh2.addBox({}, glm::vec3(0.7f));
+    mesh2.addBox({}, glm::vec3(0.9f));
 
+    float timer = static_cast<float>(Window::time());
     assets->getTexture("gui/menubg")->bind();
     shader->uniformMatrix("u_model", glm::mat4(1.0f));
-    modelBatch->pushMatrix(glm::translate(glm::mat4(1.0f), glm::vec3(0, 88, 0)));
-    modelBatch->pushMatrix(glm::rotate(glm::mat4(1.0f), static_cast<float>(Window::time()), glm::vec3(1, 0, 0)));
+    modelBatch->translate({0, 86, 0});
+    modelBatch->scale(glm::vec3(glm::sin(timer*6)+1));
+    modelBatch->rotate(glm::vec3(1, 0, 0), timer);
     modelBatch->draw(model);
+    modelBatch->popMatrix();
     modelBatch->popMatrix();
     modelBatch->popMatrix();
 
