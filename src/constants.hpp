@@ -49,5 +49,6 @@ inline const std::string TEXTURES_FOLDER = "textures";
 inline const std::string FONTS_FOLDER = "fonts";
 inline const std::string LAYOUTS_FOLDER = "layouts";
 inline const std::string SOUNDS_FOLDER = "sounds";
+inline const std::string MODELS_FOLDER = "models";
 
 #endif // CONSTANTS_HPP_

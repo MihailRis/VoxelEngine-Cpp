@@ -25,7 +25,8 @@ enum class AssetType {
     font,
     atlas,
     layout,
-    sound
+    sound,
+    model,
 };
 
 class ResPaths;

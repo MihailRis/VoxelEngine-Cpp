@@ -35,14 +35,14 @@ void MenuScreen::draw(float delta) {
     Window::setBgColor(glm::vec3(0.2f));
 
     uicamera->setFov(Window::height);
-    Shader* uishader = assets->getShader("ui");
+    auto uishader = assets->get<Shader>("ui");
     uishader->use();
     uishader->uniformMatrix("u_projview", uicamera->getProjView());
 
     uint width = Window::width;
     uint height = Window::height;
 
-    auto bg = assets->getTexture("gui/menubg");
+    auto bg = assets->get<Texture>("gui/menubg");
     batch->begin();
     batch->texture(bg);
     batch->rect(

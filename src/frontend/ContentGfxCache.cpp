@@ -15,7 +15,7 @@
 ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets) : content(content) {
     auto indices = content->getIndices();
     sideregions = std::make_unique<UVRegion[]>(indices->countBlockDefs() * 6);
-    Atlas* atlas = assets->getAtlas("blocks");
+    auto atlas = assets->get<Atlas>("blocks");
     
     for (uint i = 0; i < indices->countBlockDefs(); i++) {
         Block* def = indices->getBlockDef(i);

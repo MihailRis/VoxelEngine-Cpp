@@ -37,7 +37,7 @@ void Plotter::draw(const DrawContext* pctx, Assets* assets) {
     }
 
     int current_point = static_cast<int>(points[index % dmwidth]);
-    auto font = assets->getFont("normal");
+    auto font = assets->get<Font>("normal");
     for (int y = 0; y < dmheight; y += labelsInterval) {
         std::wstring string;
         if (current_point/16 == y/labelsInterval) {

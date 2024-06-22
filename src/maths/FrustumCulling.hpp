@@ -9,7 +9,7 @@ public:
     Frustum() {};
 
     void update(glm::mat4 projview);
-    bool IsBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) const;
+    bool isBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) const;
 
 private:
     enum Planes
@@ -76,8 +76,7 @@ inline void Frustum::update(glm::mat4 m)
 
 }
 
-inline bool Frustum::IsBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) const
-{
+inline bool Frustum::isBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) const {
     // check box outside/inside of frustum
     for (int i = 0; i < Count; i++)
     {

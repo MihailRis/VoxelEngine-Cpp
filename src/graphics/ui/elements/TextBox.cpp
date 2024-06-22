@@ -33,7 +33,7 @@ TextBox::TextBox(std::wstring placeholder, glm::vec4 padding)
 void TextBox::draw(const DrawContext* pctx, Assets* assets) {
     Panel::draw(pctx, assets);
 
-    font = assets->getFont(label->getFontName());
+    font = assets->get<Font>(label->getFontName());
 
     if (!isFocused()) {
         return;

@@ -208,7 +208,7 @@ void Hud::processInput(bool visible) {
         }
     }
     if (!pause && Events::active(BIND_DEVTOOLS_CONSOLE)) {
-        showOverlay(assets->getLayout("core:console"), false);
+        showOverlay(assets->get<UiDocument>("core:console"), false);
     }
     if (!Window::isFocused() && !pause && !isInventoryOpen()) {
         setPause(true);
@@ -305,7 +305,7 @@ void Hud::openInventory() {
 
     inventoryOpen = true;
     auto inventory = player->getInventory();
-    auto inventoryDocument = assets->getLayout("core:inventory");
+    auto inventoryDocument = assets->get<UiDocument>("core:inventory");
     inventoryView = std::dynamic_pointer_cast<InventoryView>(inventoryDocument->getRoot());
     inventoryView->bind(inventory, content);
     add(HudElement(hud_element_mode::inventory_bound, inventoryDocument, inventoryView, false));
@@ -460,7 +460,7 @@ void Hud::draw(const DrawContext& ctx){
     auto batch = ctx.getBatch2D();
     batch->begin();
 
-    Shader* uishader = assets->getShader("ui");
+    auto uishader = assets->get<Shader>("ui");
     uishader->use();
     uishader->uniformMatrix("u_projview", uicamera->getProjView());
 
@@ -468,7 +468,7 @@ void Hud::draw(const DrawContext& ctx){
     if (!pause && !inventoryOpen && !player->debug) {
         DrawContext chctx = ctx.sub();
         chctx.setBlendMode(BlendMode::inversion);
-        auto texture = assets->getTexture("gui/crosshair");
+        auto texture = assets->get<Texture>("gui/crosshair");
         batch->texture(texture);
         int chsizex = texture != nullptr ? texture->getWidth() : 16;
         int chsizey = texture != nullptr ? texture->getHeight() : 16;

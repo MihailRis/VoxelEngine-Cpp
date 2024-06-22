@@ -209,9 +209,8 @@ std::unique_ptr<List> Parser::parseList() {
 
 Value Parser::parseValue() {
     char next = peek();
-    if (next == '-' || next == '+') {
-        pos++;
-        return parseNumber(next == '-' ? -1 : 1);
+    if (next == '-' || next == '+' || is_digit(next)) {
+        return parseNumber();
     }
     if (is_identifier_start(next)) {
         std::string literal = parseName();
@@ -231,9 +230,6 @@ Value Parser::parseValue() {
     }
     if (next == '[') {
         return List_sptr(parseList().release());
-    }
-    if (is_digit(next)) {
-        return parseNumber(1);
     }
     if (next == '"' || next == '\'') {
         pos++;

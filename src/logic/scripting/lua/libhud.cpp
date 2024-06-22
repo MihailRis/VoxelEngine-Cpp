@@ -51,7 +51,7 @@ static int l_hud_open_block(lua::State* L) {
     }
     auto def = content->getIndices()->getBlockDef(vox->id);
     auto assets = engine->getAssets();
-    auto layout = assets->getLayout(def->uiLayout);
+    auto layout = assets->get<UiDocument>(def->uiLayout);
     if (layout == nullptr) {
         throw std::runtime_error("block '"+def->name+"' has no ui layout");
     }
@@ -71,7 +71,7 @@ static int l_hud_show_overlay(lua::State* L) {
     bool playerInventory = lua::toboolean(L, 2);
 
     auto assets = engine->getAssets();
-    auto layout = assets->getLayout(name);
+    auto layout = assets->get<UiDocument>(name);
     if (layout == nullptr) {
         throw std::runtime_error("there is no ui layout "+util::quote(name));
     }
@@ -81,7 +81,7 @@ static int l_hud_show_overlay(lua::State* L) {
 
 static UiDocument* require_layout(const char* name) {
     auto assets = engine->getAssets();
-    auto layout = assets->getLayout(name);
+    auto layout = assets->get<UiDocument>(name);
     if (layout == nullptr) {
         throw std::runtime_error("layout '"+std::string(name)+"' is not found");
     }

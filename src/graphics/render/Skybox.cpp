@@ -9,6 +9,7 @@
 #include "../../graphics/core/DrawContext.hpp"
 #include "../../window/Window.hpp"
 #include "../../window/Camera.hpp"
+#include "../../maths/UVRegion.hpp"
 
 #include <iostream>
 #include <GL/glew.h>
@@ -58,7 +59,7 @@ Skybox::~Skybox() {
 }
 
 void Skybox::drawBackground(Camera* camera, Assets* assets, int width, int height) {
-    Shader* backShader = assets->getShader("background");
+    auto backShader = assets->get<Shader>("background");
     backShader->use();
     backShader->uniformMatrix("u_view", camera->getView(false));
     backShader->uniform1f("u_zoom", camera->zoom*camera->getFov()/(M_PI*0.5f));
@@ -106,7 +107,7 @@ void Skybox::draw(
     DrawContext ctx = pctx.sub();
     ctx.setBlendMode(BlendMode::addition);
 
-    Shader* shader = assets->getShader("ui3d");
+    auto shader = assets->get<Shader>("ui3d");
     shader->use();
     shader->uniformMatrix("u_projview", camera->getProjView(false));
     shader->uniformMatrix("u_apply", glm::mat4(1.0f));
@@ -116,7 +117,7 @@ void Skybox::draw(
     float opacity = glm::pow(1.0f-fog, 7.0f);
     
     for (auto& sprite : sprites) {
-        batch3d->texture(assets->getTexture(sprite.texture));
+        batch3d->texture(assets->get<Texture>(sprite.texture));
 
         float sangle = daytime * M_PI*2 + sprite.phase;
         float distance = sprite.distance;

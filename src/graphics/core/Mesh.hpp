@@ -37,6 +37,7 @@ public:
 
     /// @brief Total numbers of alive mesh objects
     static int meshesCount;
+    static int drawCalls;
 };
 
 #endif // GRAPHICS_CORE_MESH_HPP_

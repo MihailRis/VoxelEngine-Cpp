@@ -1,6 +1,7 @@
 #include "WorldRenderer.hpp"
 
 #include "ChunksRenderer.hpp"
+#include "ModelBatch.hpp"
 #include "Skybox.hpp"
 
 #include "../../assets/Assets.hpp"
@@ -31,6 +32,7 @@
 #include "../core/PostProcessing.hpp"
 #include "../core/Shader.hpp"
 #include "../core/Texture.hpp"
+#include "../core/Model.hpp"
 
 #include <assert.h>
 #include <GL/glew.h>
@@ -43,11 +45,12 @@
 bool WorldRenderer::showChunkBorders = false;
 
 WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* player) 
-    : engine(engine), 
-      level(frontend->getLevel()),
-      player(player),
-      frustumCulling(std::make_unique<Frustum>()),
-      lineBatch(std::make_unique<LineBatch>())
+  : engine(engine), 
+    level(frontend->getLevel()),
+    player(player),
+    frustumCulling(std::make_unique<Frustum>()),
+    lineBatch(std::make_unique<LineBatch>()),
+    modelBatch(std::make_unique<ModelBatch>(20'000, engine->getAssets(), level->chunks.get()))
 {
     renderer = std::make_unique<ChunksRenderer>(
         level,
@@ -65,7 +68,7 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* pl
     auto assets = engine->getAssets();
     skybox = std::make_unique<Skybox>(
         settings.graphics.skyboxResolution.get(), 
-        assets->getShader("skybox_gen")
+        assets->get<Shader>("skybox_gen")
     );
 }
 
@@ -104,7 +107,7 @@ bool WorldRenderer::drawChunk(
             chunk->z * CHUNK_D + CHUNK_D
         );
 
-        if (!frustumCulling->IsBoxVisible(min, max)) 
+        if (!frustumCulling->isBoxVisible(min, max)) 
             return false;
     }
     glm::vec3 coord(chunk->x*CHUNK_W+0.5f, 0.5f, chunk->z*CHUNK_D+0.5f);
@@ -151,9 +154,9 @@ void WorldRenderer::renderLevel(
     Camera* camera, 
     const EngineSettings& settings
 ) {
-    Assets* assets = engine->getAssets();
-    Atlas* atlas = assets->getAtlas("blocks");
-    Shader* shader = assets->getShader("main");
+    auto assets = engine->getAssets();
+    auto atlas = assets->get<Atlas>("blocks");
+    auto shader = assets->get<Shader>("main");
 
     auto indices = level->content->getIndices();
 
@@ -190,6 +193,10 @@ void WorldRenderer::renderLevel(
     atlas->getTexture()->bind();
 
     drawChunks(level->chunks.get(), camera, shader);
+
+    shader->uniformMatrix("u_model", glm::mat4(1.0f));
+    // draw entities here
+    modelBatch->render();
 
     skybox->unbind();
 }
@@ -286,8 +293,8 @@ void WorldRenderer::draw(
     const EngineSettings& settings = engine->getSettings();
     skybox->refresh(pctx, world->daytime, 1.0f+world->fog*2.0f, 4);
 
-    Assets* assets = engine->getAssets();
-    Shader* linesShader = assets->getShader("lines");
+    auto assets = engine->getAssets();
+    auto linesShader = assets->get<Shader>("lines");
     
     // World render scope with diegetic HUD included
     {
@@ -317,7 +324,7 @@ void WorldRenderer::draw(
     }
 
     // Rendering fullscreen quad with 
-    auto screenShader = assets->getShader("screen");
+    auto screenShader = assets->get<Shader>("screen");
     screenShader->use();
     screenShader->uniform1f("u_timer", Window::time());
     screenShader->uniform1f("u_dayTime", level->getWorld()->daytime);
