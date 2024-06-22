@@ -13,14 +13,6 @@
 
 class Assets;
 
-namespace audio {
-    class Sound;
-}
-
-namespace model {
-    struct Model;
-}
-
 namespace assetload {
     /// @brief final work to do in the main thread
     using postfunc = std::function<void(Assets*)>;

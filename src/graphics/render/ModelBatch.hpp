@@ -83,7 +83,7 @@ public:
 
     void box(glm::vec3 pos, glm::vec3 size, glm::vec4 lights);
 
-    void draw(const model::Model& model);
+    void draw(const model::Model* model);
 
     void flush();
 };

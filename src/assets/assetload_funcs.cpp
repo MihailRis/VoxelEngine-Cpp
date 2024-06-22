@@ -9,14 +9,17 @@
 #include "../coders/commons.hpp"
 #include "../coders/imageio.hpp"
 #include "../coders/json.hpp"
+#include "../coders/obj.hpp"
 #include "../coders/GLSLExtension.hpp"
 #include "../graphics/core/Shader.hpp"
 #include "../graphics/core/Texture.hpp"
 #include "../graphics/core/ImageData.hpp"
 #include "../graphics/core/Atlas.hpp"
 #include "../graphics/core/Font.hpp"
+#include "../graphics/core/Model.hpp"
 #include "../graphics/core/TextureAnimation.hpp"
 #include "../frontend/UiDocument.hpp"
+#include "../constants.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -196,6 +199,30 @@ assetload::postfunc assetload::sound(
     return [=](auto assets) {
         assets->store(std::unique_ptr<audio::Sound>(sound), name);
     };
+}
+
+assetload::postfunc assetload::model(
+    AssetsLoader* loader,
+    const ResPaths* paths,
+    const std::string& file,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>&
+) {
+    auto path = paths->find(file+".obj");
+    auto text = files::read_string(path);
+    try {
+        auto model = obj::parse(path.u8string(), text).release();
+        return [=](Assets* assets) {
+            for (auto& mesh : model->meshes) {
+                auto filename = TEXTURES_FOLDER+"/"+mesh.texture;
+                loader->add(AssetType::texture, filename, mesh.texture, nullptr);
+            }
+            assets->store(std::unique_ptr<model::Model>(model), name);
+        };
+    } catch (const parsing_error& err) {
+        std::cerr << err.errorLog() << std::endl;
+        throw;
+    }
 }
 
 static void read_anim_file(

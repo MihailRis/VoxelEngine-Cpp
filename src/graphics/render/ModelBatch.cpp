@@ -50,7 +50,7 @@ ModelBatch::ModelBatch(size_t capacity, Assets* assets, Chunks* chunks)
 ModelBatch::~ModelBatch() {
 }
 
-void ModelBatch::draw(const model::Model& model) {
+void ModelBatch::draw(const model::Model* model) {
     glm::vec3 gpos = combined * glm::vec4(glm::vec3(), 1.0f);
     light_t light = chunks->getLight(gpos.x, gpos.y, gpos.z);
     glm::vec4 lights (
@@ -59,7 +59,7 @@ void ModelBatch::draw(const model::Model& model) {
         Lightmap::extract(light, 2) / 15.0f,
         Lightmap::extract(light, 3) / 15.0f
     );
-    for (const auto& mesh : model.meshes) {
+    for (const auto& mesh : model->meshes) {
         auto texture = assets->get<Texture>(mesh.texture);
         if (texture) {
             texture->bind();

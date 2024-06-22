@@ -30,6 +30,7 @@ AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths)
     addLoader(AssetType::atlas, assetload::atlas);
     addLoader(AssetType::layout, assetload::layout);
     addLoader(AssetType::sound, assetload::sound);
+    addLoader(AssetType::model, assetload::model);
 }
 
 void AssetsLoader::addLoader(AssetType tag, aloader_func func) {
@@ -99,6 +100,7 @@ static std::string assets_def_folder(AssetType tag) {
         case AssetType::atlas: return TEXTURES_FOLDER;
         case AssetType::layout: return LAYOUTS_FOLDER;
         case AssetType::sound: return SOUNDS_FOLDER;
+        case AssetType::model: return MODELS_FOLDER;
     }
     return "<error>";
 }
@@ -155,6 +157,7 @@ void AssetsLoader::processPreloadConfig(const fs::path& file) {
     processPreloadList(AssetType::shader, root->list("shaders"));
     processPreloadList(AssetType::texture, root->list("textures"));
     processPreloadList(AssetType::sound, root->list("sounds"));
+    processPreloadList(AssetType::model, root->list("models"));
     // layouts are loaded automatically
 }
 
