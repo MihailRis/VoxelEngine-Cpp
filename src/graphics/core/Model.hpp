@@ -23,10 +23,15 @@ namespace model {
     struct Model {
         std::vector<Mesh> meshes;
 
+        /// @brief Add mesh to the model
+        /// @param texture texture name
+        /// @return writeable Mesh
         Mesh& addMesh(const std::string& texture) {
             meshes.push_back({texture, {}});
             return meshes[meshes.size()-1];
         }
+        /// @brief Remove all empty meshes
+        void clean();
     };
 }
 

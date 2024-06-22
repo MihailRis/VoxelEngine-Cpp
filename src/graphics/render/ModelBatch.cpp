@@ -66,13 +66,19 @@ void ModelBatch::draw(const model::Model& model) {
         } else {
             blank->bind();
         }
-        for (const auto& vert : mesh.vertices) {
-            auto norm = rotation * vert.normal;
-            float d = glm::dot(norm, SUN_VECTOR);
-            d = 0.8f + d * 0.2f;
-            
-            auto color = lights * d;
-            vertex(vert.coord, vert.uv, color);
+        for (size_t i = 0; i < mesh.vertices.size() / 3; i++) {
+            if (index + VERTEX_SIZE * 3 > capacity) {
+                flush();
+            }
+            for (size_t j = 0; j < 3; j++) {
+                const auto& vert = mesh.vertices[i * 3 + j];
+                auto norm = rotation * vert.normal;
+                float d = glm::dot(norm, SUN_VECTOR);
+                d = 0.8f + d * 0.2f;
+                
+                auto color = lights * d;
+                vertex(vert.coord, vert.uv, color);
+            }
         }
         flush();
     }

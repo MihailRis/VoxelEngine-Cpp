@@ -1,5 +1,7 @@
 #include "Model.hpp"
 
+#include <algorithm>
+
 using namespace model;
 
 inline constexpr glm::vec3 X(1, 0, 0);
@@ -25,4 +27,15 @@ void Mesh::addBox(glm::vec3 pos, glm::vec3 size) {
 
     addPlane(pos+X*size, -Z*size, Y*size, X);
     addPlane(pos-X*size, Z*size, Y*size, -X);
+}
+
+
+void Model::clean() {
+    meshes.erase(
+        std::remove_if(meshes.begin(), meshes.end(), 
+        [](const Mesh& mesh){
+            return mesh.vertices.empty();
+        }),
+        meshes.end()
+    );
 }
