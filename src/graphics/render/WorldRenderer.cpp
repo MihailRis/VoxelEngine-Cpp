@@ -107,7 +107,7 @@ bool WorldRenderer::drawChunk(
             chunk->z * CHUNK_D + CHUNK_D
         );
 
-        if (!frustumCulling->IsBoxVisible(min, max)) 
+        if (!frustumCulling->isBoxVisible(min, max)) 
             return false;
     }
     glm::vec3 coord(chunk->x*CHUNK_W+0.5f, 0.5f, chunk->z*CHUNK_D+0.5f);
@@ -195,24 +195,7 @@ void WorldRenderer::renderLevel(
     drawChunks(level->chunks.get(), camera, shader);
 
     shader->uniformMatrix("u_model", glm::mat4(1.0f));
-    if (auto model = assets->get<model::Model>("cube")) {
-        srand(0);
-        float timer = Window::time();
-        for (size_t i = 0; i < 10000; i++) {
-            float x = (rand() % 5000)*0.1f;
-            float y = (rand() % 1000)*0.1f + 60;
-            float z = (rand() % 5000)*0.1f;
-            glm::vec3 coord(x, y, z);
-            int rot = rand() % 1000;
-            if (frustumCulling->IsBoxVisible(coord, coord)) {
-                modelBatch->translate(coord);
-                modelBatch->rotate(glm::vec3(0, 1, 0), timer*3+rot);
-                modelBatch->draw(model);
-                modelBatch->popMatrix();
-                modelBatch->popMatrix();
-            }
-        }
-    }
+    // draw entities here
     modelBatch->render();
 
     skybox->unbind();
