@@ -121,7 +121,7 @@ inline int l_rotate(lua::State* L) {
             auto matrix = lua::tomat4(L, 1);
             auto vec = lua::tovec3(L, 2);
             auto angle = glm::radians(static_cast<float>(lua::tonumber(L, 3)));
-            return lua::setmat4(L, 3, glm::rotate(matrix, angle, vec));
+            return lua::setmat4(L, 4, glm::rotate(matrix, angle, vec));
         }
         default: {
             throw std::runtime_error("invalid arguments number (2, 3 or 4 expected)");
