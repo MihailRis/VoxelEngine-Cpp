@@ -50,7 +50,7 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* pl
     player(player),
     frustumCulling(std::make_unique<Frustum>()),
     lineBatch(std::make_unique<LineBatch>()),
-    modelBatch(std::make_unique<ModelBatch>(1000, engine->getAssets(), level->chunks.get()))
+    modelBatch(std::make_unique<ModelBatch>(20'000, engine->getAssets(), level->chunks.get()))
 {
     renderer = std::make_unique<ChunksRenderer>(
         level,
@@ -195,7 +195,25 @@ void WorldRenderer::renderLevel(
     drawChunks(level->chunks.get(), camera, shader);
 
     shader->uniformMatrix("u_model", glm::mat4(1.0f));
-    /// draw models here
+    if (auto model = assets->get<model::Model>("cube")) {
+        srand(0);
+        float timer = Window::time();
+        for (size_t i = 0; i < 10000; i++) {
+            float x = (rand() % 5000)*0.1f;
+            float y = (rand() % 1000)*0.1f + 60;
+            float z = (rand() % 5000)*0.1f;
+            glm::vec3 coord(x, y, z);
+            int rot = rand() % 1000;
+            if (frustumCulling->IsBoxVisible(coord, coord)) {
+                modelBatch->translate(coord);
+                modelBatch->rotate(glm::vec3(0, 1, 0), timer*3+rot);
+                modelBatch->draw(model);
+                modelBatch->popMatrix();
+                modelBatch->popMatrix();
+            }
+        }
+    }
+    modelBatch->render();
 
     skybox->unbind();
 }

@@ -122,9 +122,9 @@ assetload::postfunc assetload::font(
 ) {
     auto pages = std::make_shared<std::vector<std::unique_ptr<ImageData>>>();
     for (size_t i = 0; i <= 4; i++) {
-        std::string name = filename + "_" + std::to_string(i) + ".png"; 
-        name = paths->find(name).string();
-        pages->push_back(imageio::read(name));
+        std::string pagefile = filename + "_" + std::to_string(i) + ".png"; 
+        pagefile = paths->find(pagefile).string();
+        pages->push_back(imageio::read(pagefile));
     }
     return [=](auto assets) {
         int res = pages->at(0)->getHeight() / 16;

@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 
 int Mesh::meshesCount = 0;
+int Mesh::drawCalls = 0;
 
 Mesh::Mesh(const float* vertexBuffer, size_t vertices, const int* indexBuffer, size_t indices, const vattr* attrs) : 
     ibo(0),
@@ -60,6 +61,7 @@ void Mesh::reload(const float* vertexBuffer, size_t vertices, const int* indexBu
 }
 
 void Mesh::draw(unsigned int primitive){
+    drawCalls++;
     glBindVertexArray(vao);
     if (ibo != 0) {
         glDrawElements(primitive, indices, GL_UNSIGNED_INT, 0);

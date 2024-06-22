@@ -63,6 +63,11 @@ std::shared_ptr<UINode> create_debug_panel(
         return L"meshes: " + std::to_wstring(Mesh::meshesCount);
     }));
     panel->add(create_label([](){
+        int drawCalls = Mesh::drawCalls;
+        Mesh::drawCalls = 0;
+        return L"draw-calls: " + std::to_wstring(drawCalls);
+    }));
+    panel->add(create_label([](){
         return L"speakers: " + std::to_wstring(audio::count_speakers())+
                L" streams: " + std::to_wstring(audio::count_streams());
     }));
