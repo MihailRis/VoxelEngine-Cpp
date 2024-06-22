@@ -205,7 +205,7 @@ void GUI::draw(const DrawContext* pctx, Assets* assets) {
     menu->setPos((wsize - menu->getSize()) / 2.0f);
     uicamera->setFov(wsize.y);
 
-    Shader* uishader = assets->getShader("ui");
+    auto uishader = assets->get<Shader>("ui");
     uishader->use();
     uishader->uniformMatrix("u_projview", uicamera->getProjView());
 

@@ -30,7 +30,7 @@ LevelFrontend::LevelFrontend(LevelController* controller, Assets* assets)
             }
 
             if (type == BlockInteraction::step) {
-                auto sound = assets->getSound(material->stepsSound);
+                auto sound = assets->get<audio::Sound>(material->stepsSound);
                 audio::play(
                     sound, 
                     glm::vec3(), 
@@ -45,10 +45,10 @@ LevelFrontend::LevelFrontend(LevelController* controller, Assets* assets)
                 audio::Sound* sound = nullptr;
                 switch (type) {
                     case BlockInteraction::placing:
-                        sound = assets->getSound(material->placeSound);
+                        sound = assets->get<audio::Sound>(material->placeSound);
                         break;
                     case BlockInteraction::destruction:
-                        sound = assets->getSound(material->breakSound);
+                        sound = assets->get<audio::Sound>(material->breakSound);
                         break; 
                     case BlockInteraction::step:
                         break;   

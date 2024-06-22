@@ -18,7 +18,7 @@ void Image::draw(const DrawContext* pctx, Assets* assets) {
     glm::vec2 pos = calcPos();
     auto batch = pctx->getBatch2D();
     
-    auto texture = assets->getTexture(this->texture);
+    auto texture = assets->get<Texture>(this->texture);
     if (texture && autoresize) {
         setSize(glm::vec2(texture->getWidth(), texture->getHeight()));
     }

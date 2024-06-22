@@ -68,7 +68,7 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* pl
     auto assets = engine->getAssets();
     skybox = std::make_unique<Skybox>(
         settings.graphics.skyboxResolution.get(), 
-        assets->getShader("skybox_gen")
+        assets->get<Shader>("skybox_gen")
     );
 }
 
@@ -154,9 +154,9 @@ void WorldRenderer::renderLevel(
     Camera* camera, 
     const EngineSettings& settings
 ) {
-    Assets* assets = engine->getAssets();
-    Atlas* atlas = assets->getAtlas("blocks");
-    Shader* shader = assets->getShader("main");
+    auto assets = engine->getAssets();
+    auto atlas = assets->get<Atlas>("blocks");
+    auto shader = assets->get<Shader>("main");
 
     auto indices = level->content->getIndices();
 
@@ -292,8 +292,8 @@ void WorldRenderer::draw(
     const EngineSettings& settings = engine->getSettings();
     skybox->refresh(pctx, world->daytime, 1.0f+world->fog*2.0f, 4);
 
-    Assets* assets = engine->getAssets();
-    Shader* linesShader = assets->getShader("lines");
+    auto assets = engine->getAssets();
+    auto linesShader = assets->get<Shader>("lines");
     
     // World render scope with diegetic HUD included
     {
@@ -323,7 +323,7 @@ void WorldRenderer::draw(
     }
 
     // Rendering fullscreen quad with 
-    auto screenShader = assets->getShader("screen");
+    auto screenShader = assets->get<Shader>("screen");
     screenShader->use();
     screenShader->uniform1f("u_timer", Window::time());
     screenShader->uniform1f("u_dayTime", level->getWorld()->daytime);

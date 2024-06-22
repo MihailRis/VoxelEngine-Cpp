@@ -60,7 +60,7 @@ void ModelBatch::draw(const model::Model& model) {
         Lightmap::extract(light, 3) / 15.0f
     );
     for (const auto& mesh : model.meshes) {
-        auto texture = assets->getTexture(mesh.texture);
+        auto texture = assets->get<Texture>(mesh.texture);
         if (texture) {
             texture->bind();
         } else {
