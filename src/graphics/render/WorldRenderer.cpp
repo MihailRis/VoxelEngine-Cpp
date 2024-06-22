@@ -7,12 +7,10 @@
 #include "../../assets/Assets.hpp"
 #include "../../content/Content.hpp"
 #include "../../engine.hpp"
-#include "../../coders/obj.hpp"
 #include "../../frontend/LevelFrontend.hpp"
 #include "../../items/Inventory.hpp"
 #include "../../items/ItemDef.hpp"
 #include "../../items/ItemStack.hpp"
-#include "../../files/files.hpp"
 #include "../../logic/PlayerController.hpp"
 #include "../../maths/FrustumCulling.hpp"
 #include "../../maths/voxmaths.hpp"
@@ -72,10 +70,6 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* pl
         settings.graphics.skyboxResolution.get(), 
         assets->getShader("skybox_gen")
     );
-
-    auto name = "dingus.obj";
-    auto text = files::read_string(fs::path(name));
-    model = obj::parse(name, text);
 }
 
 WorldRenderer::~WorldRenderer() {
@@ -200,15 +194,8 @@ void WorldRenderer::renderLevel(
 
     drawChunks(level->chunks.get(), camera, shader);
 
-    float timer = static_cast<float>(Window::time());
     shader->uniformMatrix("u_model", glm::mat4(1.0f));
-    modelBatch->translate({0, 85, 0});
-    //modelBatch->scale(glm::vec3(glm::sin(timer*6)+10));
-    modelBatch->rotate(glm::vec3(0, 1, 0), timer*6);
-    modelBatch->draw(*model);
-    //modelBatch->popMatrix();
-    modelBatch->popMatrix();
-    modelBatch->popMatrix();
+    /// draw models here
 
     skybox->unbind();
 }
