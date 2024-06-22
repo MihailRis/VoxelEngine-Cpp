@@ -13,6 +13,8 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include <algorithm>
+
 /// xyz, uv, compressed rgba
 inline constexpr uint VERTEX_SIZE = 6;
 
