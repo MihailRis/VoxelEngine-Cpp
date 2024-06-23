@@ -196,7 +196,7 @@ void WorldRenderer::renderLevel(
     drawChunks(level->chunks.get(), camera, shader);
 
     shader->uniformMatrix("u_model", glm::mat4(1.0f));
-    level->entities->render(assets, *modelBatch);
+    level->entities->render(assets, *modelBatch, *frustumCulling);
     modelBatch->render();
 
     skybox->unbind();

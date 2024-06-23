@@ -23,6 +23,7 @@ struct Transform {
 class Level;
 class Assets;
 class ModelBatch;
+class Frustum;
 
 class Entity {
     entt::registry& registry;
@@ -51,7 +52,7 @@ class Entities {
 public:
     Entities(Level* level);
     void updatePhysics(float delta);
-    void render(Assets* assets, ModelBatch& batch);
+    void render(Assets* assets, ModelBatch& batch, Frustum& frustum);
 };
 
 #endif // OBJECTS_ENTITIES_HPP_
