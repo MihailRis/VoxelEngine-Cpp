@@ -15,6 +15,7 @@
 #include "../../maths/FrustumCulling.hpp"
 #include "../../maths/voxmaths.hpp"
 #include "../../objects/Player.hpp"
+#include "../../objects/Entities.hpp"
 #include "../../settings.hpp"
 #include "../../voxels/Block.hpp"
 #include "../../voxels/Chunk.hpp"
@@ -195,7 +196,7 @@ void WorldRenderer::renderLevel(
     drawChunks(level->chunks.get(), camera, shader);
 
     shader->uniformMatrix("u_model", glm::mat4(1.0f));
-    // draw entities here
+    level->entities->render(assets, *modelBatch);
     modelBatch->render();
 
     skybox->unbind();

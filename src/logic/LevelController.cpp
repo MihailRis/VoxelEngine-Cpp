@@ -6,6 +6,7 @@
 #include "../world/Level.hpp"
 #include "../world/World.hpp"
 #include "../physics/Hitbox.hpp"
+#include "../objects/Entities.hpp"
 
 #include "scripting/scripting.hpp"
 #include "../interfaces/Object.hpp"
@@ -47,6 +48,7 @@ void LevelController::update(float delta, bool input, bool pause) {
             }
         }
         blocks->update(delta);
+        level->entities->updatePhysics(delta);
     }
 }
 

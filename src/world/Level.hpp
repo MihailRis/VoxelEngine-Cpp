@@ -14,6 +14,7 @@ class Content;
 class World;
 class Player;
 class Chunks;
+class Entities;
 class Inventory;
 class Inventories;
 class LevelEvents;
@@ -35,6 +36,7 @@ public:
     std::unique_ptr<PhysicsSolver> physics;
     std::unique_ptr<Lighting> lighting;
     std::unique_ptr<LevelEvents> events;
+    std::unique_ptr<Entities> entities;
 
     const EngineSettings& settings;
 
