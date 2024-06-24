@@ -248,7 +248,7 @@ void PlayerController::update(float delta, bool input, bool pause) {
     if (input) {
         updateInteraction();
         if (Events::jactive("player.drop")) {
-            level->entities->drop(player->camera->position, player->camera->front*10.0f+player->hitbox->velocity);
+            level->entities->drop(player->camera->position, player->camera->front*8.0f+glm::vec3(0, 2, 0)+player->hitbox->velocity);
         }
     } else {
         player->selection.vox.id = BLOCK_VOID;

@@ -24,6 +24,7 @@ class Level;
 class Assets;
 class ModelBatch;
 class Frustum;
+class Rig;
 
 class Entity {
     entt::registry& registry;

@@ -25,7 +25,8 @@ void Entities::drop(glm::vec3 pos, glm::vec3 vel) {
     glm::vec3 size(1);
     registry.emplace<EntityId>(entity, static_cast<entityid_t>(1));
     registry.emplace<Transform>(entity, pos, size/4.0f, glm::mat3(1.0f));
-    registry.emplace<Hitbox>(entity, pos, size/2.0f);
+    registry.emplace<Hitbox>(entity, pos, 
+        glm::vec3(size.x*0.2f, size.y*0.5f, size.z*0.2f));
 
     auto& hitbox = registry.get<Hitbox>(entity);
     hitbox.velocity = vel;
