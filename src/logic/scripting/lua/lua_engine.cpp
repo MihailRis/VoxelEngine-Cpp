@@ -31,6 +31,7 @@ static void create_libs(lua::State* L) {
     openlib(L, "block", blocklib);
     openlib(L, "console", consolelib);
     openlib(L, "core", corelib);
+    openlib(L, "entity", entitylib);
     openlib(L, "file", filelib);
     openlib(L, "gui", guilib);
     openlib(L, "input", inputlib);

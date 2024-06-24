@@ -10,6 +10,7 @@ extern const luaL_Reg audiolib [];
 extern const luaL_Reg blocklib [];
 extern const luaL_Reg consolelib [];
 extern const luaL_Reg corelib [];
+extern const luaL_Reg entitylib [];
 extern const luaL_Reg filelib [];
 extern const luaL_Reg guilib [];
 extern const luaL_Reg hudlib [];
