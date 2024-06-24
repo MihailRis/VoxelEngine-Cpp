@@ -18,14 +18,17 @@ void Transform::refresh() {
 }
 
 Entities::Entities(Level* level) : level(level) {
-    for (int i = 0; i < 1000; i++) {
-        auto entity = registry.create();
-        glm::vec3 pos(0.5f+rand()%50, 100+i, 0.5f+rand()%50);
-        glm::vec3 size(1);
-        registry.emplace<EntityId>(entity, 1);
-        registry.emplace<Transform>(entity, pos, size/4.0f, glm::mat3(1.0f));
-        registry.emplace<Hitbox>(entity, pos, size/2.0f);
-    }
+}
+
+void Entities::drop(glm::vec3 pos, glm::vec3 vel) {
+    auto entity = registry.create();
+    glm::vec3 size(1);
+    registry.emplace<EntityId>(entity, 1);
+    registry.emplace<Transform>(entity, pos, size/4.0f, glm::mat3(1.0f));
+    registry.emplace<Hitbox>(entity, pos, size/2.0f);
+
+    auto& hitbox = registry.get<Hitbox>(entity);
+    hitbox.velocity = vel;
 }
 
 void Entities::updatePhysics(float delta){
@@ -41,6 +44,7 @@ void Entities::updatePhysics(float delta){
             1.0f,
             true
         );
+        hitbox.linear_damping = hitbox.grounded * 5;
         transform.pos = hitbox.position;
         transform.rot = glm::rotate(glm::mat4(transform.rot), delta, glm::vec3(0, 1, 0));
         if (hitbox.grounded) {

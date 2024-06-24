@@ -6,6 +6,7 @@
 #include "scripting/scripting.hpp"
 
 #include "../objects/Player.hpp"
+#include "../objects/Entities.hpp"
 #include "../physics/PhysicsSolver.hpp"
 #include "../physics/Hitbox.hpp"
 #include "../lighting/Lighting.hpp"
@@ -246,6 +247,9 @@ void PlayerController::update(float delta, bool input, bool pause) {
     camControl.refresh();
     if (input) {
         updateInteraction();
+        if (Events::jactive("player.drop")) {
+            level->entities->drop(player->camera->position, player->camera->front*10.0f+player->hitbox->velocity);
+        }
     } else {
         player->selection.vox.id = BLOCK_VOID;
         player->selection.vox.state.rotation = 0;
