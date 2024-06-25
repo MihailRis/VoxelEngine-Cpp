@@ -379,6 +379,16 @@ namespace lua {
         pop(L);
         return glm::vec4(x, y, z, w);
     }
+    inline glm::vec3 tovec3_stack(lua::State* L, int idx) { 
+        return glm::vec3(
+            tonumber(L, idx), tonumber(L, idx+1), tonumber(L, idx+2)
+        );
+    }
+    inline glm::vec4 tovec4_stack(lua::State* L, int idx) { 
+        return glm::vec4(
+            tonumber(L, idx), tonumber(L, idx+1), tonumber(L, idx+2), tonumber(L, idx+3)
+        );
+    }
     inline glm::mat4 tomat4(lua::State* L, int idx) {
         pushvalue(L, idx);
         if (!istable(L, idx) || objlen(L, idx) < 16) {
