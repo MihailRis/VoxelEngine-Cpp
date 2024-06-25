@@ -96,17 +96,16 @@ void WorldFiles::writeIndices(const ContentIndices* indices) {
     dynamic::Map root;
     uint count;
     auto& blocks = root.putList("blocks");
-    count = indices->countBlockDefs();
+    count = indices->blocks.count();
     for (uint i = 0; i < count; i++) {
-        const Block* def = indices->getBlockDef(i);
+        const Block* def = indices->blocks.get(i);
         blocks.put(def->name);
     }
 
     auto& items = root.putList("items");
-    count = indices->countItemDefs();
+    count = indices->items.count();
     for (uint i = 0; i < count; i++) {
-        const ItemDef* def = indices->getItemDef(i);
-        items.put(def->name);
+        items.put(indices->items.get(i)->name);
     }
 
     files::write_json(getIndicesFile(), &root);

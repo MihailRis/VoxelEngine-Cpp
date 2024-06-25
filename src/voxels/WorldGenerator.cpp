@@ -6,13 +6,13 @@
 #include "../content/Content.hpp"
 
 WorldGenerator::WorldGenerator(const Content* content)
-  : idStone(content->requireBlock("base:stone").rt.id),
-    idDirt(content->requireBlock("base:dirt").rt.id),
-    idGrassBlock(content->requireBlock("base:grass_block").rt.id),
-    idSand(content->requireBlock("base:sand").rt.id),
-    idWater(content->requireBlock("base:water").rt.id),
-    idWood(content->requireBlock("base:wood").rt.id),
-    idLeaves(content->requireBlock("base:leaves").rt.id),
-    idGrass(content->requireBlock("base:grass").rt.id),
-    idFlower(content->requireBlock("base:flower").rt.id),
-    idBazalt(content->requireBlock("base:bazalt").rt.id) {}
+  : idStone(content->blocks.require("base:stone").rt.id),
+    idDirt(content->blocks.require("base:dirt").rt.id),
+    idGrassBlock(content->blocks.require("base:grass_block").rt.id),
+    idSand(content->blocks.require("base:sand").rt.id),
+    idWater(content->blocks.require("base:water").rt.id),
+    idWood(content->blocks.require("base:wood").rt.id),
+    idLeaves(content->blocks.require("base:leaves").rt.id),
+    idGrass(content->blocks.require("base:grass").rt.id),
+    idFlower(content->blocks.require("base:flower").rt.id),
+    idBazalt(content->blocks.require("base:bazalt").rt.id) {}

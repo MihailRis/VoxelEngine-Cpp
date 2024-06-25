@@ -203,7 +203,7 @@ void PlayerController::onFootstep() {
             int z = std::floor(pos.z+half.z*offsetZ);
             auto vox = level->chunks->get(x, y, z);
             if (vox) {
-                auto def = level->content->getIndices()->getBlockDef(vox->id);
+                auto def = level->content->getIndices()->blocks.get(vox->id);
                 if (!def->obstacle)
                     continue;
                 onBlockInteraction(
@@ -317,7 +317,7 @@ static int determine_rotation(Block* def, const glm::ivec3& norm, glm::vec3& cam
 }
 
 static void pick_block(ContentIndices* indices, Chunks* chunks, Player* player, int x, int y, int z) {
-    Block* block = indices->getBlockDef(chunks->get(x,y,z)->id);
+    auto block = indices->blocks.get(chunks->get(x,y,z)->id);
     itemid_t id = block->rt.pickingItem;
     auto inventory = player->getInventory();
     size_t slotid = inventory->findSlotByItem(id, 0, 10);
@@ -356,7 +356,7 @@ voxel* PlayerController::updateSelection(float maxDistance) {
     selection.actualPosition = iend;
     if (selectedState.segment) {
         selection.position = chunks->seekOrigin(
-            iend, indices->getBlockDef(selection.vox.id), selectedState
+            iend, indices->blocks.get(selection.vox.id), selectedState
         );
         auto origin = chunks->get(iend);
         if (origin && origin->id != vox->id) {
@@ -430,7 +430,7 @@ void PlayerController::updateInteraction() {
     
     auto inventory = player->getInventory();
     const ItemStack& stack = inventory->getSlot(player->getChosenSlot());
-    ItemDef* item = indices->getItemDef(stack.getItemId());
+    ItemDef* item = indices->items.get(stack.getItemId());
 
     auto vox = updateSelection(maxDistance);
     if (vox == nullptr) {
@@ -446,7 +446,7 @@ void PlayerController::updateInteraction() {
             return;
         }
     }
-    auto target = indices->getBlockDef(vox->id);
+    auto target = indices->blocks.get(vox->id);
     if (lclick && target->breakable){
         onBlockInteraction(
             iend, target,
@@ -467,7 +467,7 @@ void PlayerController::updateInteraction() {
             return;
         }
     }
-    auto def = indices->getBlockDef(item->rt.placingBlock);
+    auto def = indices->blocks.get(item->rt.placingBlock);
     if (def && rclick) {
         processRightClick(def, target);
     }

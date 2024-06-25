@@ -45,10 +45,11 @@ class WorldRenderer {
     void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
 
     /// @brief Render block selection lines
+    void renderBlockSelection();
+    
+    /// @brief Render lines (selection and debug)
     /// @param camera active camera
     /// @param linesShader shader used
-    void renderBlockSelection(Camera* camera, Shader* linesShader);
-    
     void renderLines(Camera* camera, Shader* linesShader);
 
     /// @brief Render all debug lines (chunks borders, coord system guides)

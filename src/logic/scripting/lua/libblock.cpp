@@ -14,10 +14,10 @@ using namespace scripting;
 static Block* require_block(lua::State* L) {
     auto indices = content->getIndices();
     auto id = lua::tointeger(L, 1);
-    if (static_cast<size_t>(id) >= indices->countBlockDefs()) {
+    if (static_cast<size_t>(id) >= indices->blocks.count()) {
         return nullptr;
     }
-    return indices->getBlockDef(id);
+    return indices->blocks.get(id);
 }
 
 static int l_name(lua::State* L) {
@@ -43,12 +43,12 @@ static int l_is_solid_at(lua::State* L) {
 }
 
 static int l_count(lua::State* L) {
-    return lua::pushinteger(L, indices->countBlockDefs());
+    return lua::pushinteger(L, indices->blocks.count());
 }
 
 static int l_index(lua::State* L) {
     auto name = lua::require_string(L, 1);
-    return lua::pushinteger(L, content->requireBlock(name).rt.id);
+    return lua::pushinteger(L, content->blocks.require(name).rt.id);
 }
 
 static int l_is_extended(lua::State* L) {
@@ -78,7 +78,7 @@ static int l_seek_origin(lua::State* L) {
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
     auto vox = level->chunks->get(x, y, z);
-    auto def = indices->getBlockDef(vox->id);
+    auto def = indices->blocks.get(vox->id);
     return lua::pushivec3(L, level->chunks->seekOrigin({x, y, z}, def, vox->state));
 }
 
@@ -89,7 +89,7 @@ static int l_set(lua::State* L) {
     auto id = lua::tointeger(L, 4);    
     auto state = lua::tointeger(L, 5);
     bool noupdate = lua::toboolean(L, 6);
-    if (static_cast<size_t>(id) >= indices->countBlockDefs()) {
+    if (static_cast<size_t>(id) >= indices->blocks.count()) {
         return 0;
     }
     if (!level->chunks->get(x, y, z)) {
@@ -120,7 +120,7 @@ static int l_get_x(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3(L, 1, 0, 0);
     }
-    auto def = level->content->getIndices()->getBlockDef(vox->id);
+    auto def = level->content->getIndices()->blocks.get(vox->id);
     if (!def->rotatable) {
         return lua::pushivec3(L, 1, 0, 0);
     } else {
@@ -137,7 +137,7 @@ static int l_get_y(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3(L, 0, 1, 0);
     }
-    auto def = level->content->getIndices()->getBlockDef(vox->id);
+    auto def = level->content->getIndices()->blocks.get(vox->id);
     if (!def->rotatable) {
         return lua::pushivec3(L, 0, 1, 0);
     } else {
@@ -154,7 +154,7 @@ static int l_get_z(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3(L, 0, 0, 1);
     }
-    auto def = level->content->getIndices()->getBlockDef(vox->id);
+    auto def = level->content->getIndices()->blocks.get(vox->id);
     if (!def->rotatable) {
         return lua::pushivec3(L, 0, 0, 1);
     } else {

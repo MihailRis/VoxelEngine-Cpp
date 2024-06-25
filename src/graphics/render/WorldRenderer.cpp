@@ -179,7 +179,7 @@ void WorldRenderer::renderLevel(
     {
         auto inventory = player->getInventory();
         ItemStack& stack = inventory->getSlot(player->getChosenSlot());
-        auto item = indices->getItemDef(stack.getItemId());
+        auto item = indices->items.get(stack.getItemId());
         float multiplier = 0.5f;
         shader->uniform3f("u_torchlightColor",  
             item->emission[0] / 15.0f * multiplier,
@@ -202,11 +202,11 @@ void WorldRenderer::renderLevel(
     skybox->unbind();
 }
 
-void WorldRenderer::renderBlockSelection(Camera* camera, Shader* linesShader) {
+void WorldRenderer::renderBlockSelection() {
     const auto& selection = player->selection;
     auto indices = level->content->getIndices();
     blockid_t id = selection.vox.id;
-    auto block = indices->getBlockDef(id);
+    auto block = indices->blocks.get(id);
     const glm::ivec3 pos = player->selection.position;
     const glm::vec3 point = selection.hitPosition;
     const glm::vec3 norm = selection.normal;
@@ -230,7 +230,7 @@ void WorldRenderer::renderLines(Camera* camera, Shader* linesShader) {
     linesShader->use();
     linesShader->uniformMatrix("u_projview", camera->getProjView());
     if (player->selection.vox.id != BLOCK_VOID) {
-        renderBlockSelection(camera, linesShader);
+        renderBlockSelection();
     }
     if (player->debug) {
         level->entities->renderDebug(*lineBatch);

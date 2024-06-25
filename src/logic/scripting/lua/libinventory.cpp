@@ -9,7 +9,7 @@
 using namespace scripting;
 
 static void validate_itemid(itemid_t id) {
-    if (id >= indices->countItemDefs()) {
+    if (id >= indices->items.count()) {
         throw std::runtime_error("invalid item id");
     }
 }

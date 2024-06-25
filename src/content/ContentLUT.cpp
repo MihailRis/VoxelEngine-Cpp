@@ -10,27 +10,43 @@
 
 #include <memory>
 
+template<typename I, class T>
+static void init(std::vector<I>& ids, std::vector<std::string>& names, 
+                 const ContentUnitIndices<T>& indices, size_t count) {
+    for (size_t i = 0; i < count; i++) {
+        ids.push_back(i);
+    }
+    for (size_t i = 0; i < indices.count(); i++) {
+        names.push_back(indices.get(i)->name);
+    }
+    for (size_t i = indices.count(); i < count; i++) {
+        names.emplace_back("");
+    }
+}
+
 ContentLUT::ContentLUT(const Content* content, size_t blocksCount, size_t itemsCount) {
     auto* indices = content->getIndices();
-    for (size_t i = 0; i < blocksCount; i++) {
-        blocks.push_back(i);
-    }
-    for (size_t i = 0; i < indices->countBlockDefs(); i++) {
-        blockNames.push_back(indices->getBlockDef(i)->name);
-    }
-    for (size_t i = indices->countBlockDefs(); i < blocksCount; i++) {
-        blockNames.emplace_back("");
-    }
+    init(blocks, blockNames, indices->blocks, blocksCount);
+    init(items, itemNames, indices->items, itemsCount);
+}
 
-    for (size_t i = 0; i < itemsCount; i++) {
-        items.push_back(i);
+template<class T>
+static void setup_lut(ContentLUT* lut, const ContentUnitDefs<T>& defs, dynamic::List* list) {
+    if (list) {
+        for (size_t i = 0; i < list->size(); i++) {
+            std::string name = list->str(i);
+            if (auto def = defs.find(name)) {
+                lut->setBlock(i, name, def->rt.id);
+            } else {
+                lut->setBlock(i, name, BLOCK_VOID);   
+            }
+        }
     }
-    for (size_t i = 0; i < indices->countItemDefs(); i++) {
-        itemNames.push_back(indices->getItemDef(i)->name);
-    }
-    for (size_t i = indices->countItemDefs(); i < itemsCount; i++) {
-        itemNames.emplace_back();
-    }
+}
+
+template<class T> static constexpr size_t get_entries_count(
+    const ContentUnitIndices<T>& indices, dynamic::List* list) {
+    return list ? std::max(list->size(), indices.count()) : indices.count();
 }
 
 std::shared_ptr<ContentLUT> ContentLUT::create(
@@ -42,38 +58,13 @@ std::shared_ptr<ContentLUT> ContentLUT::create(
     auto itemlist = root->list("items");
 
     auto* indices = content->getIndices();
-    size_t blocks_c = blocklist 
-                      ? std::max(blocklist->size(), indices->countBlockDefs()) 
-                      : indices->countBlockDefs();
-    size_t items_c = itemlist 
-                     ? std::max(itemlist->size(), indices->countItemDefs()) 
-                     : indices->countItemDefs();    
+    size_t blocks_c = get_entries_count(indices->blocks, blocklist);
+    size_t items_c = get_entries_count(indices->items, itemlist);
 
     auto lut = std::make_shared<ContentLUT>(content, blocks_c, items_c);
 
-    if (blocklist) {
-        for (size_t i = 0; i < blocklist->size(); i++) {
-            std::string name = blocklist->str(i);
-            Block* def = content->findBlock(name);
-            if (def) {
-                lut->setBlock(i, name, def->rt.id);
-            } else {
-                lut->setBlock(i, name, BLOCK_VOID);   
-            }
-        }
-    }
-
-    if (itemlist) {
-        for (size_t i = 0; i < itemlist->size(); i++) {
-            std::string name = itemlist->str(i);
-            ItemDef* def = content->findItem(name);
-            if (def) {
-                lut->setItem(i, name, def->rt.id);
-            } else {
-                lut->setItem(i, name, ITEM_VOID);   
-            }
-        }
-    }
+    setup_lut(lut.get(), content->blocks, blocklist);
+    setup_lut(lut.get(), content->items, itemlist);
 
     if (lut->hasContentReorder() || lut->hasMissingContent()) {
         return lut;
