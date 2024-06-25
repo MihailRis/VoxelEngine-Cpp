@@ -48,6 +48,8 @@ class WorldRenderer {
     /// @param camera active camera
     /// @param linesShader shader used
     void renderBlockSelection(Camera* camera, Shader* linesShader);
+    
+    void renderLines(Camera* camera, Shader* linesShader);
 
     /// @brief Render all debug lines (chunks borders, coord system guides)
     /// @param context graphics context

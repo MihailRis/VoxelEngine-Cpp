@@ -24,6 +24,7 @@ struct Transform {
 
 class Level;
 class Assets;
+class LineBatch;
 class ModelBatch;
 class Frustum;
 class Rig;
@@ -60,6 +61,8 @@ class Entities {
 public:
     Entities(Level* level);
     void updatePhysics(float delta);
+
+    void renderDebug(LineBatch& batch);
     void render(Assets* assets, ModelBatch& batch, Frustum& frustum);
 
     entityid_t drop(glm::vec3 pos);

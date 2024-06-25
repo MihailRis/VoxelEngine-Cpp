@@ -5,6 +5,7 @@
 #include "../physics/Hitbox.hpp"
 #include "../physics/PhysicsSolver.hpp"
 #include "../graphics/render/ModelBatch.hpp"
+#include "../graphics/core/LineBatch.hpp"
 #include "../graphics/core/Model.hpp"
 #include "../maths/FrustumCulling.hpp"
 
@@ -51,6 +52,14 @@ void Entities::updatePhysics(float delta){
         if (hitbox.grounded) {
             //hitbox.velocity.y = 10;
         }
+    }
+}
+
+void Entities::renderDebug(LineBatch& batch) {
+    batch.lineWidth(1.0f);
+    auto view = registry.view<Transform, Hitbox>();
+    for (auto [entity, transform, hitbox] : view.each()) {
+        batch.box(hitbox.position, hitbox.halfsize * 2.0f, glm::vec4(1.0f));
     }
 }
 

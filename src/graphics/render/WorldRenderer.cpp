@@ -215,8 +215,6 @@ void WorldRenderer::renderBlockSelection(Camera* camera, Shader* linesShader) {
         ? block->rt.hitboxes[selection.vox.state.rotation]
         : block->hitboxes;
 
-    linesShader->use();
-    linesShader->uniformMatrix("u_projview", camera->getProjView());
     lineBatch->lineWidth(2.0f);
     for (auto& hitbox: hitboxes) {
         const glm::vec3 center = glm::vec3(pos) + hitbox.center();
@@ -225,6 +223,17 @@ void WorldRenderer::renderBlockSelection(Camera* camera, Shader* linesShader) {
         if (player->debug) {
             lineBatch->line(point, point+norm*0.5f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
         }
+    }
+}
+
+void WorldRenderer::renderLines(Camera* camera, Shader* linesShader) {
+    linesShader->use();
+    linesShader->uniformMatrix("u_projview", camera->getProjView());
+    if (player->selection.vox.id != BLOCK_VOID) {
+        renderBlockSelection(camera, linesShader);
+    }
+    if (player->debug) {
+        level->entities->renderDebug(*lineBatch);
     }
     lineBatch->render();
 }
@@ -313,9 +322,9 @@ void WorldRenderer::draw(
             ctx.setDepthTest(true);
             ctx.setCullFace(true);
             renderLevel(ctx, camera, settings);
-            // Selected block
-            if (player->selection.vox.id != BLOCK_VOID && hudVisible){
-                renderBlockSelection(camera, linesShader);
+            // Debug lines
+            if (hudVisible){
+                renderLines(camera, linesShader);
             }
         }
 
