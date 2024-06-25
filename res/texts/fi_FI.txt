@@ -33,6 +33,7 @@ world.Name=Nimi
 world.World generator=Maailma Generaatori
 world.generators.default=Tavallinen
 world.generators.flat=Tasainen
+world.generators.skygrid=SkyGrid
 world.Create World=Luo Maailma
 world.convert-request=Indekseissä on muutoksia! Kääntää maailman?
 world.delete-confirm=Poistetaanko maailma pysyvästi?

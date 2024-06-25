@@ -31,6 +31,7 @@ world.Name=Nazwa
 world.World generator=Generator światła
 world.generators.default=Ekstremalne
 world.generators.flat=Mieszkanie
+world.generators.skygrid=SkyGrid
 world.Create World=Stwórz świat
 world.convert-request=Szykują się zmiany w indeksach! Przekształcić świat?
 world.delete-confirm=Trwale usunąć świat?
