@@ -23,6 +23,9 @@ extern const luaL_Reg packlib [];
 extern const luaL_Reg playerlib [];
 extern const luaL_Reg timelib [];
 extern const luaL_Reg tomllib [];
+extern const luaL_Reg vec2lib [];
+extern const luaL_Reg vec3lib [];
+extern const luaL_Reg vec4lib [];
 extern const luaL_Reg worldlib [];
 
 // Lua Overrides
