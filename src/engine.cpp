@@ -30,6 +30,7 @@
 #include "util/platform.hpp"
 #include "voxels/DefaultWorldGenerator.hpp"
 #include "voxels/FlatWorldGenerator.hpp"
+#include "voxels/SkygridWorldGenerator.hpp"
 #include "window/Camera.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"
@@ -51,6 +52,7 @@ namespace fs = std::filesystem;
 void addWorldGenerators() {
     WorldGenerators::addGenerator<DefaultWorldGenerator>("core:default");
     WorldGenerators::addGenerator<FlatWorldGenerator>("core:flat");
+    WorldGenerators::addGenerator<SkygridWorldGenerator>("core:skygrid");
 }
 
 inline void create_channel(Engine* engine, std::string name, NumberSetting& setting) {

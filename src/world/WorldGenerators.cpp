@@ -1,6 +1,7 @@
 #include "WorldGenerators.hpp"
 #include "../voxels/WorldGenerator.hpp"
 #include "../voxels/FlatWorldGenerator.hpp"
+#include "../voxels/SkygridWorldGenerator.hpp"
 #include "../content/Content.hpp"
 #include <iostream>
 
