@@ -42,6 +42,9 @@ static void create_libs(lua::State* L) {
     openlib(L, "player", playerlib);
     openlib(L, "time", timelib);
     openlib(L, "toml", tomllib);
+    openlib(L, "vec2", vec2lib);
+    openlib(L, "vec3", vec3lib);
+    openlib(L, "vec4", vec4lib);
     openlib(L, "world", worldlib);
 
     addfunc(L, "print", lua::wrap<l_print>);
