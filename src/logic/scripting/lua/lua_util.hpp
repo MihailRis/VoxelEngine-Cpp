@@ -221,19 +221,10 @@ namespace lua {
         }
         return 1;
     }
-    /// @brief pushes vector table to the stack and updates it with glm vec4 
-    inline int setvec4(lua::State* L, int idx, glm::vec4 vec) {
+    template<int n>
+    inline int setvec(lua::State* L, int idx, glm::vec<n, float> vec) {
         pushvalue(L, idx);
-        for (uint i = 0; i < 4; i++) {
-            pushnumber(L, vec[i]);
-            rawseti(L, i+1);
-        }
-        return 1;
-    }
-    /// @brief pushes vector table to the stack and updates it with glm vec3 
-    inline int setvec3(lua::State* L, int idx, glm::vec3 vec) {
-        pushvalue(L, idx);
-        for (uint i = 0; i < 3; i++) {
+        for (int i = 0; i < n; i++) {
             pushnumber(L, vec[i]);
             rawseti(L, i+1);
         }
@@ -336,6 +327,22 @@ namespace lua {
 
         setglobal(L, name);
     } 
+
+    template<int n>
+    inline glm::vec<n, float> tovec(lua::State* L, int idx) { 
+        pushvalue(L, idx);
+        if (!istable(L, idx) || objlen(L, idx) < n) {
+            throw std::runtime_error("value must be an array of "+std::to_string(n)+" numbers");
+        }
+        glm::vec<n, float> vec;
+        for (int i = 0; i < n; i++) {
+            rawgeti(L, 1);
+            vec[i] = tonumber(L, -1); 
+            pop(L);
+        }
+        pop(L);
+        return vec;
+    }
 
     inline glm::vec2 tovec2(lua::State* L, int idx) { 
         pushvalue(L, idx);
