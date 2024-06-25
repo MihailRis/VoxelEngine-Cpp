@@ -6,21 +6,36 @@
 template<int n, template<class> class Op>
 static int l_binop(lua::State* L) {
     uint argc = lua::gettop(L);
+    if (argc != 2 && argc != 3) {
+        throw std::runtime_error("invalid arguments number (2 or 3 expected)");
+    }
     auto a = lua::tovec<n>(L, 1);
-    auto b = lua::tovec<n>(L, 2);
-    Op op;
-    switch (argc) {
-        case 2:
+
+    if (lua::isnumber(L, 2)) { // scalar second operand overload
+        auto b = lua::tonumber(L, 2);
+        Op op;
+        if (argc == 2) {
+            lua::createtable(L, n, 0);
+            for (uint i = 0; i < n; i++) {
+                lua::pushnumber(L, op(a[i], b));
+                lua::rawseti(L, i+1);
+            }
+            return 1;
+        } else {
+            return lua::setvec(L, 3, op(a, glm::vec<n, float>(b)));
+        }
+    } else {
+        auto b = lua::tovec<n>(L, 2);
+        Op op;
+        if (argc == 2) {
             lua::createtable(L, n, 0);
             for (uint i = 0; i < n; i++) {
                 lua::pushnumber(L, op(a[i], b[i]));
                 lua::rawseti(L, i+1);
             }
             return 1;
-        case 3:
+        } else {
             return lua::setvec(L, 3, op(a, b));
-        default: {
-            throw std::runtime_error("invalid arguments number (2 or 3 expected)");
         }
     }
 }
