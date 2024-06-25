@@ -336,7 +336,7 @@ namespace lua {
         }
         glm::vec<n, float> vec;
         for (int i = 0; i < n; i++) {
-            rawgeti(L, 1);
+            rawgeti(L, i+1);
             vec[i] = tonumber(L, -1); 
             pop(L);
         }

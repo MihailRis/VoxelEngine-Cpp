@@ -1,5 +1,6 @@
 #include "api_lua.hpp"
 
+#include <sstream>
 #include <glm/glm.hpp>
 
 template<int n, template<class> class Op>
@@ -53,6 +54,24 @@ static int l_scalar_op(lua::State* L) {
     return lua::pushnumber(L, func(vec));
 }
 
+template<int n>
+static int l_tostring(lua::State* L) {
+    auto vec = lua::tovec<n>(L, 1);
+    if (lua::gettop(L) != 1) {
+        throw std::runtime_error("invalid arguments number (1 expected)");
+    }
+    std::stringstream ss;
+    ss << "vec" << std::to_string(n) << "{";
+    for (int i = 0; i < n; i++) {
+        if (i > 0) {
+            ss << ", ";
+        }
+        ss << vec[i];
+    }
+    ss << "}";
+    return lua::pushstring(L, ss.str());
+}
+
 const luaL_Reg vec2lib [] = {
     {"add", lua::wrap<l_binop<2, std::plus>>},
     {"sub", lua::wrap<l_binop<2, std::minus>>},
@@ -60,6 +79,7 @@ const luaL_Reg vec2lib [] = {
     {"div", lua::wrap<l_binop<2, std::divides>>},
     {"normalize", lua::wrap<l_unaryop<2, glm::normalize>>},
     {"length", lua::wrap<l_scalar_op<2, glm::length>>},
+    {"tostring", lua::wrap<l_tostring<2>>},
     {NULL, NULL}
 };
 
@@ -70,6 +90,7 @@ const luaL_Reg vec3lib [] = {
     {"div", lua::wrap<l_binop<3, std::divides>>},
     {"normalize", lua::wrap<l_unaryop<3, glm::normalize>>},
     {"length", lua::wrap<l_scalar_op<3, glm::length>>},
+    {"tostring", lua::wrap<l_tostring<3>>},
     {NULL, NULL}
 };
 
@@ -80,5 +101,6 @@ const luaL_Reg vec4lib [] = {
     {"div", lua::wrap<l_binop<4, std::divides>>},
     {"normalize", lua::wrap<l_unaryop<4, glm::normalize>>},
     {"length", lua::wrap<l_scalar_op<4, glm::length>>},
+    {"tostring", lua::wrap<l_tostring<4>>},
     {NULL, NULL}
 };
