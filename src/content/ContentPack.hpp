@@ -73,9 +73,10 @@ struct ContentPack {
 struct ContentPackStats {
     size_t totalBlocks;
     size_t totalItems;
+    size_t totalEntities;
 
     inline bool hasSavingContent() const {
-        return totalBlocks + totalItems > 0;
+        return totalBlocks + totalItems + totalEntities > 0;
     }
 };
 

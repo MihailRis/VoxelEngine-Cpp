@@ -289,10 +289,7 @@ void Engine::loadContent() {
     std::vector<PathsRoot> resRoots;
     for (auto& pack : contentPacks) {
         resRoots.push_back({pack.id, pack.folder});
-
-        ContentLoader loader(&pack);
-        loader.load(contentBuilder);
-
+        ContentLoader(&pack, contentBuilder).load();
         load_configs(pack.folder);
     } 
     load_configs(paths->getResources());

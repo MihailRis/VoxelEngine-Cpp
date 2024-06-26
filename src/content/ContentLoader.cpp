@@ -24,7 +24,15 @@ namespace fs = std::filesystem;
 
 static debug::Logger logger("content-loader");
 
-ContentLoader::ContentLoader(ContentPack* pack) : pack(pack) {
+ContentLoader::ContentLoader(ContentPack* pack, ContentBuilder& builder)
+  : pack(pack), builder(builder)
+{
+    auto runtime = std::make_unique<ContentPackRuntime>(
+        *pack, scripting::create_pack_environment(*pack)
+    );
+    stats = &runtime->getStatsWriteable();
+    env = runtime->getEnvironment();
+    builder.add(std::move(runtime));
 }
 
 static void detect_defs(
@@ -172,7 +180,7 @@ void ContentLoader::loadBlock(Block& def, const std::string& name, const fs::pat
             def.hitboxes[i].b = glm::vec3(box->num(3), box->num(4), box->num(5));
             def.hitboxes[i].b += def.hitboxes[i].a;
         }
-    } else if (auto boxarr = root->list("hitbox")){
+    } else if ((boxarr = root->list("hitbox"))){
         AABB aabb;
         aabb.a = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
         aabb.b = glm::vec3(boxarr->num(3), boxarr->num(4), boxarr->num(5));
@@ -301,25 +309,47 @@ void ContentLoader::loadItem(ItemDef& def, const std::string& name, const fs::pa
     }
 }
 
+void ContentLoader::loadEntity(EntityDef& def, const std::string& name, const fs::path& file) {
+    auto root = files::read_json(file);
+    
+}
+
+void ContentLoader::loadEntity(EntityDef& def, const std::string& full, const std::string& name) {
+    auto folder = pack->folder;
+    auto configFile = folder/fs::path("entities/"+name+".json");
+    if (fs::exists(configFile)) loadEntity(def, full, configFile);
+}
+
 void ContentLoader::loadBlock(Block& def, const std::string& full, const std::string& name) {
     auto folder = pack->folder;
-
-    fs::path configFile = folder/fs::path("blocks/"+name+".json");
+    auto configFile = folder/fs::path("blocks/"+name+".json");
     if (fs::exists(configFile)) loadBlock(def, full, configFile);
 
-    fs::path scriptfile = folder/fs::path("scripts/"+def.scriptName+".lua");
+    auto scriptfile = folder/fs::path("scripts/"+def.scriptName+".lua");
     if (fs::is_regular_file(scriptfile)) {
         scripting::load_block_script(env, full, scriptfile, def.rt.funcsset);
+    }
+    if (!def.hidden) {
+        auto& item = builder.items.create(full+BLOCK_ITEM_SUFFIX);
+        item.generated = true;
+        item.caption = def.caption;
+        item.iconType = item_icon_type::block;
+        item.icon = full;
+        item.placingBlock = full;
+        
+        for (uint j = 0; j < 4; j++) {
+            item.emission[j] = def.emission[j];
+        }
+        stats->totalItems++;
     }
 }
 
 void ContentLoader::loadItem(ItemDef& def, const std::string& full, const std::string& name) {
     auto folder = pack->folder;
-
-    fs::path configFile = folder/fs::path("items/"+name+".json");
+    auto configFile = folder/fs::path("items/"+name+".json");
     if (fs::exists(configFile)) loadItem(def, full, configFile);
 
-    fs::path scriptfile = folder/fs::path("scripts/"+def.scriptName+".lua");
+    auto scriptfile = folder/fs::path("scripts/"+def.scriptName+".lua");
     if (fs::is_regular_file(scriptfile)) {
         scripting::load_item_script(env, full, scriptfile, def.rt.funcsset);
     }
@@ -332,15 +362,27 @@ void ContentLoader::loadBlockMaterial(BlockMaterial& def, const fs::path& file) 
     root->str("break-sound", def.breakSound);
 }
 
-void ContentLoader::load(ContentBuilder& builder) {
-    logger.info() << "loading pack [" << pack->id << "]";
+template<class T, void(ContentLoader::*loadfunc)(T&, const std::string&, const std::string&)>
+static void load_defs(ContentLoader* cl, dynamic::List* arr, const ContentPack* pack, ContentUnitBuilder<T>& builder, size_t& counter) {
+    if (arr == nullptr) {
+        return;
+    }
+    for (size_t i = 0; i < arr->size(); i++) {
+        std::string name = arr->str(i);
+        auto colon = name.find(':');
+        std::string full = colon == std::string::npos ? pack->id + ":" + name : name;
+        if (colon != std::string::npos) name[colon] = '/';
+        auto& def = builder.create(full);
+        if (colon != std::string::npos) {
+            def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
+        }
+        cl->*loadfunc(def, full, name);
+        counter++;
+    }
+}
 
-    auto runtime = std::make_unique<ContentPackRuntime>(
-        *pack, scripting::create_pack_environment(*pack)
-    );
-    env = runtime->getEnvironment();
-    ContentPackStats& stats = runtime->getStatsWriteable();
-    builder.add(std::move(runtime));
+void ContentLoader::load() {
+    logger.info() << "loading pack [" << pack->id << "]";
 
     fixPackIndices();
 
@@ -355,38 +397,21 @@ void ContentLoader::load(ContentBuilder& builder) {
         return;
 
     auto root = files::read_json(pack->getContentFile());
-    auto blocksarr = root->list("blocks");
-    if (blocksarr) {
-        for (uint i = 0; i < blocksarr->size(); i++) {
+
+    if (auto blocksarr = root->list("blocks")) {
+        for (size_t i = 0; i < blocksarr->size(); i++) {
             std::string name = blocksarr->str(i);
             auto colon = name.find(':');
             std::string full = colon == std::string::npos ? pack->id + ":" + name : name;
             if (colon != std::string::npos) name[colon] = '/';
             auto& def = builder.blocks.create(full);
-            if (colon != std::string::npos) {
-                def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
-            }
+            if (colon != std::string::npos) def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
             loadBlock(def, full, name);
-            stats.totalBlocks++;
-            if (!def.hidden) {
-                auto& item = builder.items.create(full+BLOCK_ITEM_SUFFIX);
-                item.generated = true;
-                item.caption = def.caption;
-                item.iconType = item_icon_type::block;
-                item.icon = full;
-                item.placingBlock = full;
-                
-                for (uint j = 0; j < 4; j++) {
-                    item.emission[j] = def.emission[j];
-                }
-                stats.totalItems++;
-            }
+            stats->totalBlocks++;
         }
     }
-
-    auto itemsarr = root->list("items");
-    if (itemsarr) {
-        for (uint i = 0; i < itemsarr->size(); i++) {
+    if (auto itemsarr = root->list("items")) {
+        for (size_t i = 0; i < itemsarr->size(); i++) {
             std::string name = itemsarr->str(i);
             auto colon = name.find(':');
             std::string full = colon == std::string::npos ? pack->id + ":" + name : name;
@@ -394,7 +419,19 @@ void ContentLoader::load(ContentBuilder& builder) {
             auto& def = builder.items.create(full);
             if (colon != std::string::npos) def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
             loadItem(def, full, name);
-            stats.totalItems++;
+            stats->totalItems++;
+        }
+    }
+    if (auto entitiesarr = root->list("entities")) {
+        for (size_t i = 0; i < entitiesarr->size(); i++) {
+            std::string name = entitiesarr->str(i);
+            auto colon = name.find(':');
+            std::string full = colon == std::string::npos ? pack->id + ":" + name : name;
+            if (colon != std::string::npos) name[colon] = '/';
+            auto& def = builder.entities.create(full);
+            if (colon != std::string::npos) def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
+            loadEntity(def, full, name);
+            stats->totalEntities++;
         }
     }
 
