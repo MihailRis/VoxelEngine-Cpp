@@ -10,7 +10,7 @@ namespace fs = std::filesystem;
 
 class Block;
 struct BlockMaterial;
-class ItemDef;
+struct ItemDef;
 struct ContentPack;
 class ContentBuilder;
 

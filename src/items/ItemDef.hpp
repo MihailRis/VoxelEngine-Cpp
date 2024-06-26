@@ -19,8 +19,7 @@ enum class item_icon_type {
     block, // block preview: icon is string block id
 };
 
-class ItemDef {
-public:
+struct ItemDef {
     /// @brief Item string id (with prefix included)
     std::string const name;
 

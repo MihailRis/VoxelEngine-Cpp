@@ -6,28 +6,6 @@ void ContentBuilder::add(std::unique_ptr<ContentPackRuntime> pack) {
     packs[pack->getId()] = std::move(pack);
 }
 
-Block& ContentBuilder::createBlock(const std::string& id) {
-    auto found = blockDefs.find(id);
-    if (found != blockDefs.end()) {
-        return *found->second;
-    }
-    checkIdentifier(id);
-    blockIds.push_back(id);
-    blockDefs[id] = std::make_unique<Block>(id);
-    return *blockDefs[id];
-}
-
-ItemDef& ContentBuilder::createItem(const std::string& id) {
-    auto found = itemDefs.find(id);
-    if (found != itemDefs.end()) {
-        return *found->second;
-    }
-    checkIdentifier(id);
-    itemIds.push_back(id);
-    itemDefs[id] = std::make_unique<ItemDef>(id);
-    return *itemDefs[id];
-}
-
 BlockMaterial& ContentBuilder::createBlockMaterial(const std::string& id) {
     blockMaterials[id] = std::make_unique<BlockMaterial>();
     auto& material = *blockMaterials[id];
@@ -35,28 +13,11 @@ BlockMaterial& ContentBuilder::createBlockMaterial(const std::string& id) {
     return material;
 }
 
-void ContentBuilder::checkIdentifier(const std::string& id) {
-    contenttype result;
-    if (((result = checkContentType(id)) != contenttype::none)) {
-        throw namereuse_error("name "+id+" is already used", result);
-    }  
-}
-
-contenttype ContentBuilder::checkContentType(const std::string& id) {
-    if (blockDefs.find(id) != blockDefs.end()) {
-        return contenttype::block;
-    }
-    if (itemDefs.find(id) != itemDefs.end()) {
-        return contenttype::item;
-    }
-    return contenttype::none;
-}
-
 std::unique_ptr<Content> ContentBuilder::build() {
     std::vector<Block*> blockDefsIndices;
     auto groups = std::make_unique<DrawGroups>();
-    for (const std::string& name : blockIds) {
-        Block& def = *blockDefs[name];
+    for (const std::string& name : blocks.names) {
+        Block& def = *blocks.defs[name];
         
         // Generating runtime info
         def.rt.id = blockDefsIndices.size();
@@ -79,8 +40,8 @@ std::unique_ptr<Content> ContentBuilder::build() {
     }
 
     std::vector<ItemDef*> itemDefsIndices;
-    for (const std::string& name : itemIds) {
-        ItemDef& def = *itemDefs[name];
+    for (const std::string& name : items.names) {
+        ItemDef& def = *items.defs[name];
         
         // Generating runtime info
         def.rt.id = itemDefsIndices.size();
@@ -88,12 +49,24 @@ std::unique_ptr<Content> ContentBuilder::build() {
         itemDefsIndices.push_back(&def);
     }
 
+    std::vector<EntityDef*> entityDefsIndices;
+    for (const std::string& name : entities.names) {
+        EntityDef& def = *entities.defs[name];
+
+        // Generating runtime info
+        entityDefsIndices.push_back(&def);
+    }
+
     auto content = std::make_unique<Content>(
-        std::make_unique<ContentIndices>(blockDefsIndices, itemDefsIndices), 
-        std::move(groups), 
-        std::move(blockDefs), 
-        std::move(itemDefs), 
-        std::move(packs), 
+        std::make_unique<ContentIndices>(
+            blockDefsIndices, 
+            itemDefsIndices,
+            entityDefsIndices),
+        std::move(groups),
+        blocks.build(), 
+        items.build(),
+        entities.build(),
+        std::move(packs),
         std::move(blockMaterials)
     );
 

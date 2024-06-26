@@ -14,12 +14,13 @@ using DrawGroups = std::set<ubyte>;
 
 class Block;
 struct BlockMaterial;
-class ItemDef;
+struct ItemDef;
+struct EntityDef;
 class Content;
 class ContentPackRuntime;
 
 enum class contenttype {
-    none, block, item
+    none, block, item, entity
 };
 
 inline const char* contenttype_name(contenttype type) {
@@ -27,6 +28,7 @@ inline const char* contenttype_name(contenttype type) {
         case contenttype::none: return "none";
         case contenttype::block: return "block";
         case contenttype::item: return "item";
+        case contenttype::entity: return "entity";
         default:
             return "unknown";
     }
@@ -70,10 +72,12 @@ class ContentIndices {
 public:
     ContentUnitIndices<Block> blocks;
     ContentUnitIndices<ItemDef> items;
+    ContentUnitIndices<EntityDef> entities;
 
     ContentIndices(
-        std::vector<Block*> blockDefs, 
-        std::vector<ItemDef*> itemDefs
+        ContentUnitIndices<Block> blocks,
+        ContentUnitIndices<ItemDef> items,
+        ContentUnitIndices<EntityDef> entities
     );
 };
 
@@ -109,6 +113,7 @@ class Content {
 public:
     ContentUnitDefs<Block> blocks;
     ContentUnitDefs<ItemDef> items;
+    ContentUnitDefs<EntityDef> entities;
     std::unique_ptr<DrawGroups> const drawGroups;
 
     Content(
@@ -116,6 +121,7 @@ public:
         std::unique_ptr<DrawGroups> drawGroups,
         ContentUnitDefs<Block> blocks,
         ContentUnitDefs<ItemDef> items,
+        ContentUnitDefs<EntityDef> entities,
         std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs,
         std::unordered_map<std::string, std::unique_ptr<BlockMaterial>> blockMaterials
     );

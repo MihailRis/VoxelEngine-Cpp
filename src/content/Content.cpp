@@ -7,15 +7,18 @@
 
 #include "../voxels/Block.hpp"
 #include "../items/ItemDef.hpp"
+#include "../objects/EntityDef.hpp"
 
 #include "ContentPack.hpp"
 #include "../logic/scripting/scripting.hpp"
 
 ContentIndices::ContentIndices(
-    std::vector<Block*> blocks, 
-    std::vector<ItemDef*> items
+    ContentUnitIndices<Block> blocks,
+    ContentUnitIndices<ItemDef> items,
+    ContentUnitIndices<EntityDef> entities
 ) : blocks(std::move(blocks)),
-    items(std::move(items))
+    items(std::move(items)),
+    entities(std::move(entities))
 {}
 
 Content::Content(
@@ -23,6 +26,7 @@ Content::Content(
     std::unique_ptr<DrawGroups> drawGroups,
     ContentUnitDefs<Block> blocks,
     ContentUnitDefs<ItemDef> items,
+    ContentUnitDefs<EntityDef> entities,
     std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs,
     std::unordered_map<std::string, std::unique_ptr<BlockMaterial>> blockMaterials
 ) : indices(std::move(indices)),
@@ -30,6 +34,7 @@ Content::Content(
     blockMaterials(std::move(blockMaterials)),
     blocks(std::move(blocks)),
     items(std::move(items)),
+    entities(std::move(entities)),
     drawGroups(std::move(drawGroups)) 
 {}
 

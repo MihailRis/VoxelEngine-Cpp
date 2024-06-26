@@ -22,7 +22,7 @@ class ContentIndices;
 class Level;
 class Block;
 class Player;
-class ItemDef;
+struct ItemDef;
 class Inventory;
 class UiDocument;
 struct block_funcs_set;

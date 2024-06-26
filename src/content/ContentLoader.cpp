@@ -363,14 +363,14 @@ void ContentLoader::load(ContentBuilder& builder) {
             auto colon = name.find(':');
             std::string full = colon == std::string::npos ? pack->id + ":" + name : name;
             if (colon != std::string::npos) name[colon] = '/';
-            auto& def = builder.createBlock(full);
+            auto& def = builder.blocks.create(full);
             if (colon != std::string::npos) {
                 def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
             }
             loadBlock(def, full, name);
             stats.totalBlocks++;
             if (!def.hidden) {
-                auto& item = builder.createItem(full+BLOCK_ITEM_SUFFIX);
+                auto& item = builder.items.create(full+BLOCK_ITEM_SUFFIX);
                 item.generated = true;
                 item.caption = def.caption;
                 item.iconType = item_icon_type::block;
@@ -392,7 +392,7 @@ void ContentLoader::load(ContentBuilder& builder) {
             auto colon = name.find(':');
             std::string full = colon == std::string::npos ? pack->id + ":" + name : name;
             if (colon != std::string::npos) name[colon] = '/';
-            auto& def = builder.createItem(full);
+            auto& def = builder.items.create(full);
             if (colon != std::string::npos) def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
             loadItem(def, full, name);
             stats.totalItems++;
