@@ -11,6 +11,7 @@
 #include "../lighting/Lightmap.hpp"
 #include "../maths/voxmaths.hpp"
 #include "../objects/Player.hpp"
+#include "../objects/EntityDef.hpp"
 #include "../physics/Hitbox.hpp"
 #include "../typedefs.hpp"
 #include "../settings.hpp"
@@ -92,22 +93,19 @@ void WorldFiles::writePacks(const std::vector<ContentPack>& packs) {
     files::write_string(packsFile, ss.str());
 }
 
+template<class T>
+static void write_indices(const ContentUnitIndices<T>& indices, dynamic::List& list) {
+    size_t count = indices.count();
+    for (size_t i = 0; i < count; i++) {
+        list.put(indices.get(i)->name);
+    }
+}
+
 void WorldFiles::writeIndices(const ContentIndices* indices) {
     dynamic::Map root;
-    uint count;
-    auto& blocks = root.putList("blocks");
-    count = indices->blocks.count();
-    for (uint i = 0; i < count; i++) {
-        const Block* def = indices->blocks.get(i);
-        blocks.put(def->name);
-    }
-
-    auto& items = root.putList("items");
-    count = indices->items.count();
-    for (uint i = 0; i < count; i++) {
-        items.put(indices->items.get(i)->name);
-    }
-
+    write_indices(indices->blocks, root.putList("blocks"));
+    write_indices(indices->items, root.putList("items"));
+    write_indices(indices->entities, root.putList("entities"));
     files::write_json(getIndicesFile(), &root);
 }
 

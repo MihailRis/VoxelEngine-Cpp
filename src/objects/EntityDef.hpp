@@ -8,6 +8,10 @@
 struct EntityDef {
     /// @brief Entity string id (with prefix included)
     std::string const name;
+
+    struct {
+        entityid_t id;
+    } rt;
     
     EntityDef(const std::string& name);
     EntityDef(const EntityDef&) = delete;

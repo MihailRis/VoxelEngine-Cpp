@@ -46,10 +46,11 @@ struct ContentPack {
 
     fs::path getContentFile() const;
 
-    static const std::string PACKAGE_FILENAME;
-    static const std::string CONTENT_FILENAME;
-    static const fs::path BLOCKS_FOLDER;
-    static const fs::path ITEMS_FOLDER;
+    static inline const std::string PACKAGE_FILENAME = "package.json";
+    static inline const std::string CONTENT_FILENAME = "content.json";
+    static inline const fs::path BLOCKS_FOLDER = "blocks";
+    static inline const fs::path ITEMS_FOLDER = "items";
+    static inline const fs::path ENTITIES_FOLDER = "entities";
     static const std::vector<std::string> RESERVED_NAMES;
 
     static bool is_pack(const fs::path& folder);

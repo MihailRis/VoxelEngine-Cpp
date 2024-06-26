@@ -27,38 +27,36 @@ static debug::Logger logger("content-loader");
 ContentLoader::ContentLoader(ContentPack* pack) : pack(pack) {
 }
 
+static void detect_defs(
+    const fs::path& folder,
+    const std::string& prefix,
+    std::vector<std::string>& detected
+) {
+    if (fs::is_directory(folder)) {
+        for (const auto& entry : fs::directory_iterator(folder)) {
+            const fs::path& file = entry.path();
+            std::string name = file.stem().string();
+            if (name[0] == '_') {
+                continue;
+            }
+            if (fs::is_regular_file(file) && file.extension() == ".json") {
+                detected.push_back(prefix.empty() ? name : prefix + ":" + name);
+            } else if (fs::is_directory(file)) {
+                detect_defs(file, name, detected);
+            }
+        }
+    }
+}
+
 bool ContentLoader::fixPackIndices(
     const fs::path& folder,
     dynamic::Map* indicesRoot,
     const std::string& contentSection
 ) {
     std::vector<std::string> detected;
-    std::vector<std::string> indexed;
-    if (fs::is_directory(folder)) {
-        for (const auto& entry : fs::directory_iterator(folder)) {
-            const fs::path& file = entry.path();
-            if (fs::is_regular_file(file) && file.extension() == ".json") {
-                std::string name = file.stem().string();
-                if (name[0] == '_')
-                    continue;
-                detected.push_back(name);
-            } else if (fs::is_directory(file)) {
-                std::string space = file.stem().string();
-                if (space[0] == '_')
-                    continue;
-                for (const auto& entry : fs::directory_iterator(file)) {
-                    const fs::path& file = entry.path();
-                    if (fs::is_regular_file(file) && file.extension() == ".json") {
-                        std::string name = file.stem().string();
-                        if (name[0] == '_')
-                            continue;
-                        detected.push_back(space + ':' + name);
-                    }
-                }
-            }
-        }
-    }
+    detect_defs(folder, "", detected);
 
+    std::vector<std::string> indexed;
     bool modified = false;
     if (!indicesRoot->has(contentSection)) {
         indicesRoot->putList(contentSection);
@@ -90,6 +88,7 @@ void ContentLoader::fixPackIndices() {
     auto indexFile = pack->getContentFile();
     auto blocksFolder = folder/ContentPack::BLOCKS_FOLDER;
     auto itemsFolder = folder/ContentPack::ITEMS_FOLDER;
+    auto entitiesFolder = folder/ContentPack::ENTITIES_FOLDER;
 
     dynamic::Map_sptr root;
     if (fs::is_regular_file(indexFile)) {
@@ -99,9 +98,9 @@ void ContentLoader::fixPackIndices() {
     }
 
     bool modified = false;
-
     modified |= fixPackIndices(blocksFolder, root.get(), "blocks");
     modified |= fixPackIndices(itemsFolder, root.get(), "items");
+    modified |= fixPackIndices(entitiesFolder, root.get(), "entities");
 
     if (modified){
         // rewrite modified json

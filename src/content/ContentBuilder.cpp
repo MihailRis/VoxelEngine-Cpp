@@ -54,6 +54,7 @@ std::unique_ptr<Content> ContentBuilder::build() {
         EntityDef& def = *entities.defs[name];
 
         // Generating runtime info
+        def.rt.id = entityDefsIndices.size();
         entityDefsIndices.push_back(&def);
     }
 

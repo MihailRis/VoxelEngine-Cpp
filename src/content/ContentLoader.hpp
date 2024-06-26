@@ -26,6 +26,9 @@ class ContentLoader {
     void loadCustomBlockModel(Block& def, dynamic::Map* primitives);
     void loadItem(ItemDef& def, const std::string& full, const std::string& name);
     void loadBlockMaterial(BlockMaterial& def, const fs::path& file);
+
+    void loadBlock(Block& def, const std::string& name, const fs::path& file);
+    void loadItem(ItemDef& def, const std::string& name, const fs::path& file);
 public:
     ContentLoader(ContentPack* pack);
 
@@ -35,8 +38,6 @@ public:
         const std::string& contentSection
     );
     void fixPackIndices();
-    void loadBlock(Block& def, const std::string& name, const fs::path& file);
-    void loadItem(ItemDef& def, const std::string& name, const fs::path& file);
     void load(ContentBuilder& builder);
 };
 
