@@ -45,9 +45,25 @@ static int l_set_vel(lua::State* L) {
     return 0;
 }
 
+static int l_get_rot(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        return lua::pushmat4(L, entity->getTransform().rot);
+    }
+    return 0;
+}
+
+static int l_set_rot(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        entity->getTransform().rot = lua::tomat4(L, 2);
+    }
+    return 0;
+}
+
 const luaL_Reg entitylib [] = {
     {"spawn", lua::wrap<l_spawn>},
     {"get_vel", lua::wrap<l_get_vel>},
     {"set_vel", lua::wrap<l_set_vel>},
+    {"get_rot", lua::wrap<l_get_rot>},
+    {"set_rot", lua::wrap<l_set_rot>},
     {NULL, NULL}
 };

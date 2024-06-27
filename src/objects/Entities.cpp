@@ -46,9 +46,9 @@ void Entities::updatePhysics(float delta){
             1.0f,
             true
         );
-        hitbox.linear_damping = hitbox.grounded * 5;
+        hitbox.linear_damping = hitbox.grounded * 12;
         transform.pos = hitbox.position;
-        transform.rot = glm::rotate(glm::mat4(transform.rot), delta, glm::vec3(0, 1, 0));
+        //transform.rot = glm::rotate(glm::mat4(transform.rot), delta, glm::vec3(0, 1, 0));
         if (hitbox.grounded) {
             //hitbox.velocity.y = 10;
         }
