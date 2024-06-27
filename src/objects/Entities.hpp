@@ -90,6 +90,10 @@ public:
         }
         return std::nullopt;
     }
+
+    inline size_t size() const {
+        return entities.size();
+    }
 };
 
 #endif // OBJECTS_ENTITIES_HPP_

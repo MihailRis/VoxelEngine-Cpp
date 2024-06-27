@@ -22,6 +22,10 @@ static std::optional<Entity> get_entity(lua::State* L, int idx) {
     return level->entities->get(id);
 }
 
+static int l_exists(lua::State* L) {
+    return lua::pushboolean(L, get_entity(L, 1).has_value());
+}
+
 static int l_spawn(lua::State* L) {
     auto level = controller->getLevel();
     auto defname = lua::tostring(L, 1);
@@ -102,6 +106,7 @@ static int l_get_size(lua::State* L) {
 }
 
 const luaL_Reg entitylib [] = {
+    {"exists", lua::wrap<l_exists>},
     {"spawn", lua::wrap<l_spawn>},
     {"despawn", lua::wrap<l_despawn>},
     {NULL, NULL}
