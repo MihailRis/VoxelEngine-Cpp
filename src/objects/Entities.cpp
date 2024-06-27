@@ -28,15 +28,19 @@ entityid_t Entities::spawn(EntityDef& def, glm::vec3 pos) {
     auto id = nextID++;
     registry.emplace<EntityId>(entity, static_cast<entityid_t>(id));
     registry.emplace<Transform>(entity, pos, size/4.0f, glm::mat3(1.0f));
-    registry.emplace<Hitbox>(entity, pos, def.hitbox);
+    registry.emplace<Rigidbody>(entity, true, Hitbox {pos, def.hitbox});
     entities[id] = entity;
     return id;
 }
 
 void Entities::updatePhysics(float delta){
-    auto view = registry.view<Transform, Hitbox>();
+    auto view = registry.view<Transform, Rigidbody>();
     auto physics = level->physics.get();
-    for (auto [entity, transform, hitbox] : view.each()) {
+    for (auto [entity, transform, rigidbody] : view.each()) {
+        if (!rigidbody.enabled) {
+            continue;
+        }
+        auto& hitbox = rigidbody.hitbox;
         physics->step(
             level->chunks.get(),
             &hitbox,

@@ -22,6 +22,11 @@ struct Transform {
     void refresh();
 };
 
+struct Rigidbody {
+    bool enabled = true;
+    Hitbox hitbox;
+};
+
 class Level;
 class Assets;
 class LineBatch;
@@ -45,8 +50,8 @@ public:
         return registry.get<Transform>(entity);
     }
 
-    Hitbox& getHitbox() const {
-        return registry.get<Hitbox>(entity);
+    Rigidbody& getRigidbody() const {
+        return registry.get<Rigidbody>(entity);
     }
 
     entityid_t getUID() const {

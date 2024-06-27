@@ -47,14 +47,14 @@ static int l_set_pos(lua::State* L) {
 
 static int l_get_vel(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
-        return lua::pushvec3_arr(L, entity->getHitbox().velocity);
+        return lua::pushvec3_arr(L, entity->getRigidbody().hitbox.velocity);
     }
     return 0;
 }
 
 static int l_set_vel(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
-        entity->getHitbox().velocity = lua::tovec3(L, 2);
+        entity->getRigidbody().hitbox.velocity = lua::tovec3(L, 2);
     }
     return 0;
 }
@@ -73,6 +73,20 @@ static int l_set_rot(lua::State* L) {
     return 0;
 }
 
+static int l_is_enabled(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        lua::pushboolean(L, entity->getRigidbody().enabled);
+    }
+    return 0;
+}
+
+static int l_set_enabled(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        entity->getRigidbody().enabled = lua::toboolean(L, 2);
+    }
+    return 0;
+}
+
 const luaL_Reg entitylib [] = {
     {"spawn", lua::wrap<l_spawn>},
     {NULL, NULL}
@@ -87,6 +101,8 @@ const luaL_Reg entitylib [] = {
  };
 
 const luaL_Reg rigidbodylib [] = {
+    {"is_enabled", lua::wrap<l_is_enabled>},
+    {"set_enabled", lua::wrap<l_set_enabled>},
     {"get_vel", lua::wrap<l_get_vel>},
     {"set_vel", lua::wrap<l_set_vel>},
     {NULL, NULL}
