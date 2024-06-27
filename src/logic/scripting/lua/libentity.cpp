@@ -24,10 +24,10 @@ static std::optional<Entity> get_entity(lua::State* L, int idx) {
 
 static int l_spawn(lua::State* L) {
     auto level = controller->getLevel();
-    auto player = hud->getPlayer();
     auto defname = lua::tostring(L, 1);
     auto& def = content->entities.require(defname);
-    auto id = level->entities->spawn(def, player->camera->position);
+    auto pos = lua::tovec3(L, 2);
+    auto id = level->entities->spawn(def, pos);
     return lua::pushinteger(L, id);
 }
 
