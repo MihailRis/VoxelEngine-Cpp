@@ -8,6 +8,7 @@
 #include "../graphics/core/LineBatch.hpp"
 #include "../graphics/core/Model.hpp"
 #include "../maths/FrustumCulling.hpp"
+#include "../objects/EntityDef.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 
@@ -21,14 +22,13 @@ void Transform::refresh() {
 Entities::Entities(Level* level) : level(level) {
 }
 
-entityid_t Entities::drop(glm::vec3 pos) {
+entityid_t Entities::spawn(EntityDef& def, glm::vec3 pos) {
     auto entity = registry.create();
     glm::vec3 size(1);
     auto id = nextID++;
     registry.emplace<EntityId>(entity, static_cast<entityid_t>(id));
     registry.emplace<Transform>(entity, pos, size/4.0f, glm::mat3(1.0f));
-    registry.emplace<Hitbox>(entity, pos, 
-        glm::vec3(size.x*0.2f, size.y*0.5f, size.z*0.2f));
+    registry.emplace<Hitbox>(entity, pos, def.hitbox);
     entities[id] = entity;
     return id;
 }

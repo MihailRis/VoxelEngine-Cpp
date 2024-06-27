@@ -301,8 +301,7 @@ void ContentLoader::loadItem(ItemDef& def, const std::string& name, const fs::pa
     root->num("stack-size", def.stackSize);
 
     // item light emission [r, g, b] where r,g,b in range [0..15]
-    auto emissionarr = root->list("emission");
-    if (emissionarr) {
+    if (auto emissionarr = root->list("emission")) {
         def.emission[0] = emissionarr->num(0);
         def.emission[1] = emissionarr->num(1);
         def.emission[2] = emissionarr->num(2);
@@ -311,7 +310,11 @@ void ContentLoader::loadItem(ItemDef& def, const std::string& name, const fs::pa
 
 void ContentLoader::loadEntity(EntityDef& def, const std::string& name, const fs::path& file) {
     auto root = files::read_json(file);
-    
+    root->str("script-name", def.scriptName);
+    if (auto boxarr = root->list("hitbox")) {
+        def.hitbox = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
+    }
+    std::cout << "loading entity " << name << " from " << file.u8string() << std::endl;
 }
 
 void ContentLoader::loadEntity(EntityDef& def, const std::string& full, const std::string& name) {

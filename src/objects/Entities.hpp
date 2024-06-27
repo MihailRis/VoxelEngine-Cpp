@@ -28,6 +28,7 @@ class LineBatch;
 class ModelBatch;
 class Frustum;
 class Rig;
+struct EntityDef;
 
 class Entity {
     entt::registry& registry;
@@ -65,7 +66,7 @@ public:
     void renderDebug(LineBatch& batch);
     void render(Assets* assets, ModelBatch& batch, Frustum& frustum);
 
-    entityid_t drop(glm::vec3 pos);
+    entityid_t spawn(EntityDef& def, glm::vec3 pos);
 
     std::optional<Entity> get(entityid_t id) {
         const auto& found = entities.find(id);

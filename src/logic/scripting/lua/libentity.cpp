@@ -7,6 +7,7 @@
 #include "../../../physics/Hitbox.hpp"
 #include "../../../window/Camera.hpp"
 #include "../../../frontend/hud.hpp"
+#include "../../../content/Content.hpp"
 
 #include <optional>
 
@@ -21,10 +22,12 @@ static std::optional<Entity> get_entity(lua::State* L, int idx) {
     return level->entities->get(id);
 }
 
-static int l_test(lua::State* L) {
+static int l_spawn(lua::State* L) {
     auto level = controller->getLevel();
     auto player = hud->getPlayer();
-    auto id = level->entities->drop(player->camera->position);
+    auto defname = lua::tostring(L, 1);
+    auto& def = content->entities.require(defname);
+    auto id = level->entities->spawn(def, player->camera->position);
     return lua::pushinteger(L, id);
 }
 
@@ -43,7 +46,7 @@ static int l_set_vel(lua::State* L) {
 }
 
 const luaL_Reg entitylib [] = {
-    {"test", lua::wrap<l_test>},
+    {"spawn", lua::wrap<l_spawn>},
     {"get_vel", lua::wrap<l_get_vel>},
     {"set_vel", lua::wrap<l_set_vel>},
     {NULL, NULL}

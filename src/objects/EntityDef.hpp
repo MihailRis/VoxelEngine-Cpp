@@ -2,6 +2,7 @@
 #define OBJECTS_ENTITY_DEF_HPP_
 
 #include <string>
+#include <glm/glm.hpp>
 
 #include "../typedefs.hpp"
 
@@ -10,6 +11,7 @@ struct EntityDef {
     std::string const name;
 
     std::string scriptName = name.substr(name.find(':')+1);
+    glm::vec3 hitbox {0.5f};
     
     struct {
         entityid_t id;
