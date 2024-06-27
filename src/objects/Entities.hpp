@@ -85,7 +85,7 @@ public:
 
     std::optional<Entity> get(entityid_t id) {
         const auto& found = entities.find(id);
-        if (found != entities.end()) {
+        if (found != entities.end() && registry.valid(found->second)) {
             return Entity(id, registry, found->second);
         }
         return std::nullopt;

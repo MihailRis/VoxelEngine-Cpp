@@ -34,7 +34,7 @@ entityid_t Entities::spawn(EntityDef& def, glm::vec3 pos) {
 }
 
 void Entities::clean() {
-    for (auto it = entities.begin(); it != entities.end(); ++it) {
+    for (auto it = entities.begin(); it != entities.end();) {
         if (registry.valid(it->second)) {
             ++it;
         } else {
