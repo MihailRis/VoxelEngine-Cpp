@@ -31,6 +31,13 @@ static int l_spawn(lua::State* L) {
     return lua::pushinteger(L, id);
 }
 
+static int l_despawn(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        entity->destroy();
+    }
+    return 0;
+}
+
 static int l_get_pos(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
         return lua::pushvec3_arr(L, entity->getTransform().pos);
@@ -87,8 +94,16 @@ static int l_set_enabled(lua::State* L) {
     return 0;
 }
 
+static int l_get_size(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        return lua::pushvec3(L, entity->getRigidbody().hitbox.halfsize * 2.0f);
+    }
+    return 0;
+}
+
 const luaL_Reg entitylib [] = {
     {"spawn", lua::wrap<l_spawn>},
+    {"despawn", lua::wrap<l_despawn>},
     {NULL, NULL}
 };
 
@@ -105,5 +120,6 @@ const luaL_Reg rigidbodylib [] = {
     {"set_enabled", lua::wrap<l_set_enabled>},
     {"get_vel", lua::wrap<l_get_vel>},
     {"set_vel", lua::wrap<l_set_vel>},
+    {"get_size", lua::wrap<l_get_size>},
     {NULL, NULL}
 };

@@ -40,6 +40,7 @@ void LevelController::update(float delta, bool input, bool pause) {
         level->objects.end()
     );
     
+    level->entities->clean();
     if (!pause) {
         // update all objects that needed
         for (const auto& obj : level->objects) {

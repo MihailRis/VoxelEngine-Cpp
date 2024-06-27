@@ -36,11 +36,16 @@ class Rig;
 struct EntityDef;
 
 class Entity {
+    entityid_t id;
     entt::registry& registry;
     const entt::entity entity;
 public:
-    Entity(entt::registry& registry, const entt::entity entity)
-    : registry(registry), entity(entity) {}
+    Entity(entityid_t id, entt::registry& registry, const entt::entity entity)
+    : id(id), registry(registry), entity(entity) {}
+
+    entityid_t getID() const {
+        return id;
+    }
 
     bool isValid() const {
         return registry.valid(entity);
@@ -57,6 +62,10 @@ public:
     entityid_t getUID() const {
         return registry.get<EntityId>(entity).uid;
     }
+
+    void destroy() {
+        registry.destroy(entity);
+    }
 };
 
 class Entities {
@@ -66,6 +75,7 @@ class Entities {
     entityid_t nextID = 1;
 public:
     Entities(Level* level);
+    void clean();
     void updatePhysics(float delta);
 
     void renderDebug(LineBatch& batch);
@@ -76,7 +86,7 @@ public:
     std::optional<Entity> get(entityid_t id) {
         const auto& found = entities.find(id);
         if (found != entities.end()) {
-            return Entity(registry, found->second);
+            return Entity(id, registry, found->second);
         }
         return std::nullopt;
     }

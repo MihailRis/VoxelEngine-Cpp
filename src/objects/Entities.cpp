@@ -33,6 +33,16 @@ entityid_t Entities::spawn(EntityDef& def, glm::vec3 pos) {
     return id;
 }
 
+void Entities::clean() {
+    for (auto it = entities.begin(); it != entities.end(); ++it) {
+        if (registry.valid(it->second)) {
+            ++it;
+        } else {
+            it = entities.erase(it);
+        }
+    }
+}
+
 void Entities::updatePhysics(float delta){
     auto view = registry.view<Transform, Rigidbody>();
     auto physics = level->physics.get();
