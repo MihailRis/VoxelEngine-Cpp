@@ -31,6 +31,20 @@ static int l_spawn(lua::State* L) {
     return lua::pushinteger(L, id);
 }
 
+static int l_get_pos(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        return lua::pushvec3_arr(L, entity->getTransform().pos);
+    }
+    return 0;
+}
+
+static int l_set_pos(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        entity->getTransform().pos = lua::tovec3(L, 2);
+    }
+    return 0;
+}
+
 static int l_get_vel(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
         return lua::pushvec3_arr(L, entity->getHitbox().velocity);
@@ -61,9 +75,19 @@ static int l_set_rot(lua::State* L) {
 
 const luaL_Reg entitylib [] = {
     {"spawn", lua::wrap<l_spawn>},
-    {"get_vel", lua::wrap<l_get_vel>},
-    {"set_vel", lua::wrap<l_set_vel>},
+    {NULL, NULL}
+};
+
+ const luaL_Reg transformlib [] = {
+    {"get_pos", lua::wrap<l_get_pos>},
+    {"set_pos", lua::wrap<l_set_pos>},
     {"get_rot", lua::wrap<l_get_rot>},
     {"set_rot", lua::wrap<l_set_rot>},
+    {NULL, NULL}
+ };
+
+const luaL_Reg rigidbodylib [] = {
+    {"get_vel", lua::wrap<l_get_vel>},
+    {"set_vel", lua::wrap<l_set_vel>},
     {NULL, NULL}
 };
