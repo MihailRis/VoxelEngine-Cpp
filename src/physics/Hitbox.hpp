@@ -3,12 +3,11 @@
 
 #include <glm/glm.hpp>
 
-class Hitbox {
-public:
+struct Hitbox {
     glm::vec3 position;
     glm::vec3 halfsize;
     glm::vec3 velocity;
-    float linear_damping;
+    float linearDamping;
     bool grounded = false;
 
     Hitbox(glm::vec3 position, glm::vec3 halfsize);

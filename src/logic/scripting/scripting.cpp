@@ -13,6 +13,8 @@
 #include "../../logic/BlocksController.hpp"
 #include "../../logic/LevelController.hpp"
 #include "../../objects/Player.hpp"
+#include "../../objects/EntityDef.hpp"
+#include "../../objects/Entities.hpp"
 #include "../../util/stringutil.hpp"
 #include "../../util/timeutil.hpp"
 #include "../../util/timeutil.hpp"
@@ -225,6 +227,22 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
     });
 }
 
+bool scripting::on_entity_spawn(const EntityDef& def, entityid_t eid) {
+    std::string name = def.name + ".spawn";
+    return lua::emit_event(lua::get_main_thread(), name, [eid] (auto L) {
+        lua::pushinteger(L, eid);
+        return 1;
+    });
+}
+
+bool scripting::on_entity_despawn(const EntityDef& def, entityid_t eid) {
+    std::string name = def.name + ".despawn";
+    return lua::emit_event(lua::get_main_thread(), name, [eid] (auto L) {
+        lua::pushinteger(L, eid);
+        return 1;
+    });
+}
+
 void scripting::on_ui_open(
     UiDocument* layout,
     std::vector<dynamic::Value> args
@@ -306,6 +324,14 @@ void scripting::load_item_script(const scriptenv& senv, const std::string& prefi
     funcsset.on_use = register_event(env, "on_use", prefix+".use");
     funcsset.on_use_on_block = register_event(env, "on_use_on_block", prefix+".useon");
     funcsset.on_block_break_by = register_event(env, "on_block_break_by", prefix+".blockbreakby");
+}
+
+void scripting::load_entity_script(const scriptenv& senv, const std::string& prefix, const fs::path& file, entity_funcs_set& funcsset) {
+    int env = *senv;
+    load_script(env, "entity", file);
+    funcsset.init = register_event(env, "init", prefix+".init");
+    funcsset.on_spawn = register_event(env, "on_spawn", prefix+".spawn");
+    funcsset.on_despawn = register_event(env, "on_despawn", prefix+".despawn");
 }
 
 void scripting::load_world_script(const scriptenv& senv, const std::string& prefix, const fs::path& file) {

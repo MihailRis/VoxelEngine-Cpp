@@ -321,6 +321,11 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& full, const st
     auto folder = pack->folder;
     auto configFile = folder/fs::path("entities/"+name+".json");
     if (fs::exists(configFile)) loadEntity(def, full, configFile);
+
+    auto scriptfile = folder/fs::path("scripts/"+def.scriptName+".lua");
+    if (fs::is_regular_file(scriptfile)) {
+        scripting::load_entity_script(env, full, scriptfile, def.rt.funcsset);
+    }
 }
 
 void ContentLoader::loadBlock(Block& def, const std::string& full, const std::string& name) {

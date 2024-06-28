@@ -27,9 +27,12 @@ class Inventory;
 class UiDocument;
 struct block_funcs_set;
 struct item_funcs_set;
+struct entity_funcs_set;
 struct uidocscript;
 class BlocksController;
 class LevelController;
+class Entity;
+struct EntityDef;
 
 namespace scripting {
     extern Engine* engine;
@@ -73,6 +76,10 @@ namespace scripting {
     /// @return true if prevents default action
     bool on_item_break_block(Player* player, const ItemDef* item, int x, int y, int z);
 
+    bool on_entity_spawn(const EntityDef& def, entityid_t eid);
+
+    bool on_entity_despawn(const EntityDef& def, entityid_t eid);
+
     /// @brief Called on UI view show
     void on_ui_open(
         UiDocument* layout, 
@@ -89,14 +96,28 @@ namespace scripting {
     /// @param prefix pack id
     /// @param file item script file
     /// @param funcsset block callbacks set
-    void load_block_script(const scriptenv& env, const std::string& prefix, const fs::path& file, block_funcs_set& funcsset);
+    void load_block_script(
+        const scriptenv& env, 
+        const std::string& prefix,
+        const fs::path& file,
+        block_funcs_set& funcsset);
 
     /// @brief Load script associated with an Item
     /// @param env environment
     /// @param prefix pack id
     /// @param file item script file
     /// @param funcsset item callbacks set
-    void load_item_script(const scriptenv& env, const std::string& prefix, const fs::path& file, item_funcs_set& funcsset);
+    void load_item_script(
+        const scriptenv& env,
+        const std::string& prefix,
+        const fs::path& file, 
+        item_funcs_set& funcsset);
+
+    void load_entity_script(
+        const scriptenv& env,
+        const std::string& prefix,
+        const fs::path& file,
+        entity_funcs_set& funcsset);
     
     /// @brief Load package-specific world script 
     /// @param env environment

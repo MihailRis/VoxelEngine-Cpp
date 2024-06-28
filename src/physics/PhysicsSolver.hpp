@@ -7,8 +7,8 @@
 #include <glm/glm.hpp>
 
 class Block;
-class Hitbox;
 class Chunks;
+struct Hitbox;
 
 class PhysicsSolver {
     glm::vec3 gravity;

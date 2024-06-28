@@ -11,10 +11,10 @@
 #include <glm/glm.hpp>
 
 class Camera;
-class Hitbox;
 class Inventory;
 class ContentLUT;
 class Level;
+struct Hitbox;
 struct EngineSettings;
 
 struct PlayerInput {

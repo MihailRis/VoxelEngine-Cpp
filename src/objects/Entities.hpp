@@ -9,8 +9,11 @@
 #include <unordered_map>
 #include <entt/entity/registry.hpp>
 
+struct EntityDef;
+
 struct EntityId {
     entityid_t uid;
+    const EntityDef& def;
 };
 
 struct Transform {
@@ -33,15 +36,16 @@ class LineBatch;
 class ModelBatch;
 class Frustum;
 class Rig;
-struct EntityDef;
+class Entities;
 
 class Entity {
+    Entities& entities;
     entityid_t id;
     entt::registry& registry;
     const entt::entity entity;
 public:
-    Entity(entityid_t id, entt::registry& registry, const entt::entity entity)
-    : id(id), registry(registry), entity(entity) {}
+    Entity(Entities& entities, entityid_t id, entt::registry& registry, const entt::entity entity)
+    : entities(entities), id(id), registry(registry), entity(entity) {}
 
     entityid_t getID() const {
         return id;
@@ -49,6 +53,10 @@ public:
 
     bool isValid() const {
         return registry.valid(entity);
+    }
+
+    const EntityDef& getDef() const {
+        return registry.get<EntityId>(entity).def;
     }
 
     Transform& getTransform() const {
@@ -63,9 +71,11 @@ public:
         return registry.get<EntityId>(entity).uid;
     }
 
-    void destroy() {
-        registry.destroy(entity);
+    entt::entity getHandler() const {
+        return entity;
     }
+
+    void destroy();
 };
 
 class Entities {
@@ -86,10 +96,12 @@ public:
     std::optional<Entity> get(entityid_t id) {
         const auto& found = entities.find(id);
         if (found != entities.end() && registry.valid(found->second)) {
-            return Entity(id, registry, found->second);
+            return Entity(*this, id, registry, found->second);
         }
         return std::nullopt;
     }
+
+    void despawn(entityid_t id);
 
     inline size_t size() const {
         return entities.size();

@@ -9,6 +9,7 @@
 #include "../graphics/core/Model.hpp"
 #include "../maths/FrustumCulling.hpp"
 #include "../objects/EntityDef.hpp"
+#include "../logic/scripting/scripting.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 
@@ -19,6 +20,12 @@ void Transform::refresh() {
     combined = combined * glm::mat4(rot);
 }
 
+void Entity::destroy() {
+    if (isValid()){
+        entities.despawn(id);
+    }
+}
+
 Entities::Entities(Level* level) : level(level) {
 }
 
@@ -26,11 +33,21 @@ entityid_t Entities::spawn(EntityDef& def, glm::vec3 pos) {
     auto entity = registry.create();
     glm::vec3 size(1);
     auto id = nextID++;
-    registry.emplace<EntityId>(entity, static_cast<entityid_t>(id));
+    registry.emplace<EntityId>(entity, static_cast<entityid_t>(id), def);
     registry.emplace<Transform>(entity, pos, size/4.0f, glm::mat3(1.0f));
     registry.emplace<Rigidbody>(entity, true, Hitbox {pos, def.hitbox});
     entities[id] = entity;
+    if (def.rt.funcsset.on_spawn) {
+        scripting::on_entity_spawn(def, id);
+    }
     return id;
+}
+
+void Entities::despawn(entityid_t id) {
+    if (auto entity = get(id)) {
+        scripting::on_entity_despawn(entity->getDef(), id);
+        registry.destroy(get(id)->getHandler());
+    }
 }
 
 void Entities::clean() {
@@ -60,7 +77,7 @@ void Entities::updatePhysics(float delta){
             1.0f,
             true
         );
-        hitbox.linear_damping = hitbox.grounded * 12;
+        hitbox.linearDamping = hitbox.grounded * 12;
         transform.pos = hitbox.position;
         //transform.rot = glm::rotate(glm::mat4(transform.rot), delta, glm::vec3(0, 1, 0));
         if (hitbox.grounded) {
