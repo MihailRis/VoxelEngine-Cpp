@@ -77,8 +77,8 @@ namespace scripting {
     bool on_item_break_block(Player* player, const ItemDef* item, int x, int y, int z);
 
     bool on_entity_spawn(const EntityDef& def, entityid_t eid);
-
     bool on_entity_despawn(const EntityDef& def, entityid_t eid);
+    bool on_entity_grounded(const EntityDef& def, entityid_t eid);
 
     /// @brief Called on UI view show
     void on_ui_open(

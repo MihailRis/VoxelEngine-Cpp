@@ -85,6 +85,7 @@ class Entities {
     entityid_t nextID = 1;
 public:
     Entities(Level* level);
+
     void clean();
     void updatePhysics(float delta);
 

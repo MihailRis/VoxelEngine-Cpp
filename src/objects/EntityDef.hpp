@@ -10,6 +10,7 @@ struct entity_funcs_set {
     bool init : 1;
     bool on_spawn : 1;
     bool on_despawn : 1;
+    bool on_grounded : 1;
 };
 
 struct EntityDef {

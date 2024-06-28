@@ -243,6 +243,14 @@ bool scripting::on_entity_despawn(const EntityDef& def, entityid_t eid) {
     });
 }
 
+bool scripting::on_entity_grounded(const EntityDef& def, entityid_t eid) {
+    std::string name = def.name + ".grounded";
+    return lua::emit_event(lua::get_main_thread(), name, [eid] (auto L) {
+        lua::pushinteger(L, eid);
+        return 1;
+    });
+}
+
 void scripting::on_ui_open(
     UiDocument* layout,
     std::vector<dynamic::Value> args
@@ -332,6 +340,7 @@ void scripting::load_entity_script(const scriptenv& senv, const std::string& pre
     funcsset.init = register_event(env, "init", prefix+".init");
     funcsset.on_spawn = register_event(env, "on_spawn", prefix+".spawn");
     funcsset.on_despawn = register_event(env, "on_despawn", prefix+".despawn");
+    funcsset.on_grounded = register_event(env, "on_grounded", prefix+".grounded");
 }
 
 void scripting::load_world_script(const scriptenv& senv, const std::string& prefix, const fs::path& file) {

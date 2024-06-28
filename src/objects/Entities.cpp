@@ -61,13 +61,14 @@ void Entities::clean() {
 }
 
 void Entities::updatePhysics(float delta){
-    auto view = registry.view<Transform, Rigidbody>();
+    auto view = registry.view<EntityId, Transform, Rigidbody>();
     auto physics = level->physics.get();
-    for (auto [entity, transform, rigidbody] : view.each()) {
+    for (auto [entity, eid, transform, rigidbody] : view.each()) {
         if (!rigidbody.enabled) {
             continue;
         }
         auto& hitbox = rigidbody.hitbox;
+        bool grounded = hitbox.grounded;
         physics->step(
             level->chunks.get(),
             &hitbox,
@@ -80,8 +81,8 @@ void Entities::updatePhysics(float delta){
         hitbox.linearDamping = hitbox.grounded * 12;
         transform.pos = hitbox.position;
         //transform.rot = glm::rotate(glm::mat4(transform.rot), delta, glm::vec3(0, 1, 0));
-        if (hitbox.grounded) {
-            //hitbox.velocity.y = 10;
+        if (hitbox.grounded && !grounded) {
+            scripting::on_entity_grounded(eid.def, eid.uid);
         }
     }
 }
