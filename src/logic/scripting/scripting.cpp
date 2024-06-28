@@ -230,24 +230,21 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
 bool scripting::on_entity_spawn(const EntityDef& def, entityid_t eid) {
     std::string name = def.name + ".spawn";
     return lua::emit_event(lua::get_main_thread(), name, [eid] (auto L) {
-        lua::pushinteger(L, eid);
-        return 1;
+        return lua::pushinteger(L, eid);
     });
 }
 
 bool scripting::on_entity_despawn(const EntityDef& def, entityid_t eid) {
     std::string name = def.name + ".despawn";
     return lua::emit_event(lua::get_main_thread(), name, [eid] (auto L) {
-        lua::pushinteger(L, eid);
-        return 1;
+        return lua::pushinteger(L, eid);
     });
 }
 
 bool scripting::on_entity_grounded(const EntityDef& def, entityid_t eid) {
     std::string name = def.name + ".grounded";
     return lua::emit_event(lua::get_main_thread(), name, [eid] (auto L) {
-        lua::pushinteger(L, eid);
-        return 1;
+        return lua::pushinteger(L, eid);
     });
 }
 

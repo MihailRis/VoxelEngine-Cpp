@@ -49,8 +49,8 @@ static void create_libs(lua::State* L) {
     openlib(L, "world", worldlib);
 
     // components
-    openlib(L, "Rigidbody", rigidbodylib);
-    openlib(L, "Transform", transformlib);
+    openlib(L, "__rigidbody", rigidbodylib);
+    openlib(L, "__transform", transformlib);
 
     addfunc(L, "print", lua::wrap<l_print>);
 }

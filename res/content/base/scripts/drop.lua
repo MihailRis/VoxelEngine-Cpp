@@ -7,5 +7,6 @@ function on_despawn(eid)
 end
 
 function on_grounded(eid)
-    Transform.set_rot(eid, mat4.rotate({0, 1, 0}, math.random()*360))
+    local entity = stdcomp.new_Entity(eid) -- test
+    entity.transform:set_rot(mat4.rotate({0, 1, 0}, math.random()*360))
 end
