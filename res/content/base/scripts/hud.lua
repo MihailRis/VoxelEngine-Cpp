@@ -6,11 +6,11 @@ function on_hud_open()
         local pid = hud.get_player()
         local pvel = {player.get_vel(pid)}
         local ppos = vec3.add({player.get_pos(pid)}, {0, 0.7, 0})
-        local eid = entity.spawn("base:drop", ppos)
         local throw_force = vec3.mul(player.get_dir(pid), DROP_FORCE)
-        __rigidbody.set_vel(eid, vec3.add(throw_force, vec3.add(pvel, DROP_INIT_VEL)))
-        __transform.set_rot(eid, 
-            mat4.rotate(mat4.rotate(mat4.rotate({0, 1, 0}, math.random() * 360), 
+
+        local drop = entity.spawn("base:drop", ppos)
+        drop.rigidbody:set_vel(vec3.add(throw_force, vec3.add(pvel, DROP_INIT_VEL)))
+        drop.transform:set_rot(mat4.rotate(mat4.rotate(mat4.rotate({0, 1, 0}, math.random() * 360), 
             {1, 0, 0}, math.random() * 360), {0, 0, 1}, math.random() * 360))
     end)
 end

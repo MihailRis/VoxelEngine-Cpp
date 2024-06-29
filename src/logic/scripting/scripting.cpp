@@ -271,6 +271,7 @@ scriptenv scripting::on_entity_spawn(const EntityDef& def, entityid_t eid, entit
     lua::pushenv(L, *entityenv);
     funcsset.on_grounded = lua::hasfield(L, "on_grounded");
     funcsset.on_despawn = lua::hasfield(L, "on_despawn");
+    lua::pop(L, 2);
     return entityenv;
 }
 
