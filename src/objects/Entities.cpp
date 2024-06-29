@@ -67,6 +67,7 @@ void Entities::updatePhysics(float delta){
             continue;
         }
         auto& hitbox = rigidbody.hitbox;
+        auto prevVel = hitbox.velocity;
         bool grounded = hitbox.grounded;
         physics->step(
             level->chunks.get(),
@@ -77,11 +78,14 @@ void Entities::updatePhysics(float delta){
             1.0f,
             true
         );
-        hitbox.linearDamping = hitbox.grounded * 12;
+        hitbox.linearDamping = hitbox.grounded * 24;
         transform.pos = hitbox.position;
         //transform.rot = glm::rotate(glm::mat4(transform.rot), delta, glm::vec3(0, 1, 0));
         if (hitbox.grounded && !grounded) {
-            scripting::on_entity_grounded(eid.def, *get(eid.uid));
+            scripting::on_entity_grounded(*get(eid.uid), glm::length(prevVel-hitbox.velocity));
+        }
+        if (!hitbox.grounded && grounded) {
+            scripting::on_entity_fall(*get(eid.uid));
         }
     }
 }

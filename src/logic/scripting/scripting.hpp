@@ -78,7 +78,8 @@ namespace scripting {
 
     scriptenv on_entity_spawn(const EntityDef& def, entityid_t eid, entity_funcs_set&);
     bool on_entity_despawn(const EntityDef& def, const Entity& entity);
-    bool on_entity_grounded(const EntityDef& def, const Entity& entity);
+    bool on_entity_grounded(const Entity& entity, float force);
+    bool on_entity_fall(const Entity& entity);
     void on_entities_update();
 
     /// @brief Called on UI view show

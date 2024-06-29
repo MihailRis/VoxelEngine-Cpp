@@ -271,6 +271,7 @@ scriptenv scripting::on_entity_spawn(const EntityDef& def, entityid_t eid, entit
 
     lua::pushenv(L, *entityenv);
     funcsset.on_grounded = lua::hasfield(L, "on_grounded");
+    funcsset.on_fall = lua::hasfield(L, "on_fall");
     funcsset.on_despawn = lua::hasfield(L, "on_despawn");
     lua::pop(L, 2);
     return entityenv;
@@ -306,10 +307,20 @@ bool scripting::on_entity_despawn(const EntityDef& def, const Entity& entity) {
     return true;
 }
 
-bool scripting::on_entity_grounded(const EntityDef& def, const Entity& entity) {
+bool scripting::on_entity_grounded(const Entity& entity, float force) {
     const auto& script = entity.getScripting();
     if (script.funcsset.on_grounded) {
-        return process_entity_callback(script.env, "on_grounded", nullptr);
+        return process_entity_callback(script.env, "on_grounded", [force](auto L){
+            return lua::pushnumber(L, force);
+        });
+    }
+    return true;
+}
+
+bool scripting::on_entity_fall(const Entity& entity) {
+    const auto& script = entity.getScripting();
+    if (script.funcsset.on_fall) {
+        return process_entity_callback(script.env, "on_fall", nullptr);
     }
     return true;
 }
