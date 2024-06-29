@@ -36,16 +36,15 @@ entityid_t Entities::spawn(EntityDef& def, glm::vec3 pos) {
     registry.emplace<EntityId>(entity, static_cast<entityid_t>(id), def);
     registry.emplace<Transform>(entity, pos, size/4.0f, glm::mat3(1.0f));
     registry.emplace<Rigidbody>(entity, true, Hitbox {pos, def.hitbox});
+    auto& scripting = registry.emplace<Scripting>(entity, entity_funcs_set {}, nullptr);
     entities[id] = entity;
-    if (def.rt.funcsset.on_spawn) {
-        scripting::on_entity_spawn(def, id);
-    }
+    scripting.env = scripting::on_entity_spawn(def, id, scripting.funcsset);
     return id;
 }
 
 void Entities::despawn(entityid_t id) {
     if (auto entity = get(id)) {
-        scripting::on_entity_despawn(entity->getDef(), id);
+        scripting::on_entity_despawn(entity->getDef(), *entity);
         registry.destroy(get(id)->getHandler());
     }
 }
@@ -82,15 +81,16 @@ void Entities::updatePhysics(float delta){
         transform.pos = hitbox.position;
         //transform.rot = glm::rotate(glm::mat4(transform.rot), delta, glm::vec3(0, 1, 0));
         if (hitbox.grounded && !grounded) {
-            scripting::on_entity_grounded(eid.def, eid.uid);
+            scripting::on_entity_grounded(eid.def, *get(eid.uid));
         }
     }
 }
 
 void Entities::renderDebug(LineBatch& batch) {
     batch.lineWidth(1.0f);
-    auto view = registry.view<Transform, Hitbox>();
-    for (auto [entity, transform, hitbox] : view.each()) {
+    auto view = registry.view<Transform, Rigidbody>();
+    for (auto [entity, transform, rigidbody] : view.each()) {
+        const auto& hitbox = rigidbody.hitbox;
         batch.box(hitbox.position, hitbox.halfsize * 2.0f, glm::vec4(1.0f));
     }
 }

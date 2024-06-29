@@ -25,11 +25,25 @@ end
 
 -- Entity class
 
-local Entity = {__index={}}
+local Entity = {__index={
+    despawn=function(self) return entity.despawn(self.eid) end,
+}}
 
-return {new_Entity = function(eid)
-    local entity = setmetatable({eid=eid}, Entity)
-    entity.transform = new_Transform(eid)
-    entity.rigidbody = new_Rigidbody(eid)
-    return entity
-end}
+local entities = {}
+
+return {
+    new_Entity = function(eid)
+        local entity = setmetatable({eid=eid}, Entity)
+        entity.transform = new_Transform(eid)
+        entity.rigidbody = new_Rigidbody(eid)
+        entities[eid] = entity;
+        return entity
+    end,
+    remove_Entity = function(eid)
+        local entity = entities[eid]
+        if entity and entity.on_despawn then
+            entity.on_despawn()
+        end
+        entities[eid] = nil;
+    end
+}

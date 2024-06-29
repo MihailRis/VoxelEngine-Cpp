@@ -8,8 +8,10 @@
 #include <typeindex>
 #include <typeinfo>
 
+// NOTE: const std::string& used instead of string_view because c_str() needed
 namespace lua {
-    inline std::string LAMBDAS_TABLE = "$L";
+    inline std::string LAMBDAS_TABLE = "$L"; // lambdas storage
+    inline std::string CHUNKS_TABLE = "$C"; // precompiled lua chunks
     extern std::unordered_map<std::type_index, std::string> usertypeNames;
     int userdata_destructor(lua::State* L);
 
@@ -77,6 +79,14 @@ namespace lua {
             return false;
         }
         return true;
+    }
+
+    inline int requireglobal(lua::State* L, const std::string& name) {
+        if (getglobal(L, name)) {
+            return 1;
+        } else {
+            throw std::runtime_error("global name "+name+" not found");
+        }
     }
 
     inline bool hasglobal(lua::State* L, const std::string& name) {
@@ -443,6 +453,16 @@ namespace lua {
         return true;
     }
 
+    inline bool hasfield(lua::State* L, const std::string& name, int idx=-1) {
+        lua_getfield(L, idx, name.c_str());
+        if (isnil(L, -1)) {
+            pop(L);
+            return false;
+        }
+        pop(L);
+        return true;
+    }
+
     inline const char* require_string(lua::State* L, int idx) {
         if (!isstring(L, idx)) {
             throw luaerror("string expected at "+std::to_string(idx));
@@ -471,6 +491,10 @@ namespace lua {
         setglobal(L, name);
     }
 
+    inline int setfenv(lua::State* L, int idx=-2) {
+        return lua_setfenv(L, idx);
+    }
+
     inline void loadbuffer(lua::State* L, int env, const std::string& src, const std::string& file) {
         if (luaL_loadbuffer(L, src.c_str(), src.length(), file.c_str())) {
             throw luaerror(tostring(L, -1));
@@ -480,8 +504,31 @@ namespace lua {
         }
     }
 
+    inline void store_in(lua::State* L, const std::string& tableName, const std::string& name) {
+        if (getglobal(L, tableName)) {
+            pushvalue(L, -2);
+            setfield(L, name);
+            pop(L, 2);
+        } else {
+            throw std::runtime_error("table "+tableName+" not found");
+        }
+    }
+
+    inline int get_from(lua::State* L, const std::string& tableName, const std::string& name, bool required=false) {
+        if (getglobal(L, tableName)) {
+            if (getfield(L, name)) {
+                return 1;
+            } else if (required) {
+                throw std::runtime_error("table "+tableName+" has no member "+name);
+            }
+            return 0;
+        } else {
+            throw std::runtime_error("table "+tableName+" not found");
+        }
+    }
+
     int call(lua::State*, int argc, int nresults=-1);
-    int call_nothrow(lua::State*, int argc);
+    int call_nothrow(lua::State*, int argc, int nresults=1);
 
     inline int eval(lua::State* L, int env, const std::string& src, const std::string& file="<eval>") {
         auto srcText = "return "+src;
@@ -503,7 +550,7 @@ namespace lua {
         }
         return 0;
     }
-    int createEnvironment(lua::State*, int parent);
+    int create_environment(lua::State*, int parent);
     void removeEnvironment(lua::State*, int id);
     void dump_stack(lua::State*);
 

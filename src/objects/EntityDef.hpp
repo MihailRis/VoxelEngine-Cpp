@@ -6,13 +6,6 @@
 
 #include "../typedefs.hpp"
 
-struct entity_funcs_set {
-    bool init : 1;
-    bool on_spawn : 1;
-    bool on_despawn : 1;
-    bool on_grounded : 1;
-};
-
 struct EntityDef {
     /// @brief Entity string id (with prefix included)
     std::string const name;
@@ -22,8 +15,7 @@ struct EntityDef {
     
     struct {
         entityid_t id;
-        entity_funcs_set funcsset;
-    } rt;
+    } rt {};
     
     EntityDef(const std::string& name) : name(name) {}
     EntityDef(const EntityDef&) = delete;

@@ -324,7 +324,7 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& full, const st
 
     auto scriptfile = folder/fs::path("scripts/"+def.scriptName+".lua");
     if (fs::is_regular_file(scriptfile)) {
-        scripting::load_entity_script(env, full, scriptfile, def.rt.funcsset);
+        scripting::load_entity_script(env, def, scriptfile);
     }
 }
 

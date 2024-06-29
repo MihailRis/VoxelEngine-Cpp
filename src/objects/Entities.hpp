@@ -9,6 +9,12 @@
 #include <unordered_map>
 #include <entt/entity/registry.hpp>
 
+struct entity_funcs_set {
+    bool init : 1;
+    bool on_despawn : 1;
+    bool on_grounded : 1;
+};
+
 struct EntityDef;
 
 struct EntityId {
@@ -28,6 +34,11 @@ struct Transform {
 struct Rigidbody {
     bool enabled = true;
     Hitbox hitbox;
+};
+
+struct Scripting {
+    entity_funcs_set funcsset;
+    scriptenv env;
 };
 
 class Level;
@@ -65,6 +76,10 @@ public:
 
     Rigidbody& getRigidbody() const {
         return registry.get<Rigidbody>(entity);
+    }
+
+    Scripting& getScripting() const {
+        return registry.get<Scripting>(entity);
     }
 
     entityid_t getUID() const {
