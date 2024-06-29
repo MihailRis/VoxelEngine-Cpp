@@ -52,8 +52,8 @@ static int l_unaryop(lua::State* L) {
                 lua::rawseti(L, i+1);
             }
             return 1;
-        case 3:
-            return lua::setvec(L, 3, vec);
+        case 2:
+            return lua::setvec(L, 2, vec);
         default: {
             throw std::runtime_error("invalid arguments number (1 or 2 expected)");
         }
