@@ -86,6 +86,10 @@ void Entities::updatePhysics(float delta){
     }
 }
 
+void Entities::update() {
+    scripting::on_entities_update();
+}
+
 void Entities::renderDebug(LineBatch& batch) {
     batch.lineWidth(1.0f);
     auto view = registry.view<Transform, Rigidbody>();

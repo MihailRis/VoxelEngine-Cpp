@@ -103,6 +103,7 @@ public:
 
     void clean();
     void updatePhysics(float delta);
+    void update();
 
     void renderDebug(LineBatch& batch);
     void render(Assets* assets, ModelBatch& batch, Frustum& frustum);

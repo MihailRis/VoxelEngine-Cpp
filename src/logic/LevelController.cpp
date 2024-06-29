@@ -50,6 +50,7 @@ void LevelController::update(float delta, bool input, bool pause) {
         }
         blocks->update(delta);
         level->entities->updatePhysics(delta);
+        level->entities->update();
     }
 }
 

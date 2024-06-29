@@ -40,6 +40,21 @@ return {
         return entity
     end,
     remove_Entity = function(eid)
-        entities[eid] = nil;
+        local entity = entities[eid]
+        if entity then
+            entity.env = nil
+            entities[eid] = nil;
+        end
+    end,
+    update = function()
+        for id,entity in pairs(entities) do
+            local callback = entity.env.on_update
+            if callback then
+                local result, err = pcall(callback)
+                if err then
+                    print(err)
+                end
+            end
+        end
     end
 }

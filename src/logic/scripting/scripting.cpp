@@ -114,8 +114,9 @@ static scriptenv create_entity_environment(const scriptenv& parent, int entityId
 
     lua::pushvalue(L, -2);
     lua::setfield(L, "entity");
-    
-    lua::pop(L, 2);
+
+    lua::setfield(L, "env");
+    lua::pop(L);
 
     return std::shared_ptr<int>(new int(id), [=](int* id) {
         lua::removeEnvironment(L, *id);
@@ -307,10 +308,16 @@ bool scripting::on_entity_despawn(const EntityDef& def, const Entity& entity) {
 
 bool scripting::on_entity_grounded(const EntityDef& def, const Entity& entity) {
     const auto& script = entity.getScripting();
-    if (script.funcsset.on_despawn) {
+    if (script.funcsset.on_grounded) {
         return process_entity_callback(script.env, "on_grounded", nullptr);
     }
     return true;
+}
+
+void scripting::on_entities_update() {
+    auto L = lua::get_main_thread();
+    lua::get_from(L, STDCOMP, "update", true);
+    lua::call_nothrow(L, 0, 0);
 }
 
 void scripting::on_ui_open(
