@@ -10,6 +10,7 @@
 #include "../graphics/render/WorldRenderer.hpp"
 #include "../logic/scripting/scripting.hpp"
 #include "../objects/Player.hpp"
+#include "../objects/Entities.hpp"
 #include "../physics/Hitbox.hpp"
 #include "../util/stringutil.hpp"
 #include "../voxels/Block.hpp"
@@ -82,6 +83,9 @@ std::shared_ptr<UINode> create_debug_panel(
     panel->add(create_label([=]() {
         return L"chunks: "+std::to_wstring(level->chunks->chunksCount)+
                L" visible: "+std::to_wstring(level->chunks->visible);
+    }));
+    panel->add(create_label([=]() {
+        return L"entities: "+std::to_wstring(level->entities->size());
     }));
     panel->add(create_label([=](){
         const auto& vox = player->selection.vox;

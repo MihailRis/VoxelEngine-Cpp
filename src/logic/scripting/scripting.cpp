@@ -318,6 +318,7 @@ void scripting::on_entities_update() {
     auto L = lua::get_main_thread();
     lua::get_from(L, STDCOMP, "update", true);
     lua::call_nothrow(L, 0, 0);
+    lua::pop(L);
 }
 
 void scripting::on_ui_open(
