@@ -40,10 +40,6 @@ return {
         return entity
     end,
     remove_Entity = function(eid)
-        local entity = entities[eid]
-        if entity and entity.on_despawn then
-            entity.on_despawn()
-        end
         entities[eid] = nil;
     end
 }

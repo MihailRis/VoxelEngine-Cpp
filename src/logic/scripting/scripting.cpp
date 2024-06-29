@@ -296,8 +296,12 @@ static bool process_entity_callback(
 bool scripting::on_entity_despawn(const EntityDef& def, const Entity& entity) {
     const auto& script = entity.getScripting();
     if (script.funcsset.on_despawn) {
-        return process_entity_callback(script.env, "on_despawn", nullptr);
+        process_entity_callback(script.env, "on_despawn", nullptr);
     }
+    auto L = lua::get_main_thread();
+    lua::get_from(L, "stdcomp", "remove_Entity", true);
+    lua::pushinteger(L, entity.getUID());
+    lua::call(L, 1, 0);
     return true;
 }
 
