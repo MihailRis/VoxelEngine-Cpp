@@ -15,7 +15,7 @@ function on_fall()
 end
 
 function on_trigger_enter(index, oid)
-    if ready then
+    if ready and oid == 0 then
         entity:despawn()
     end
 end
