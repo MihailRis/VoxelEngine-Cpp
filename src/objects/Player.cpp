@@ -88,7 +88,8 @@ void Player::updateInput(
         substeps, 
         crouch, 
         flight ? 0.0f : 1.0f, 
-        !noclip
+        !noclip,
+        0
     );
                          
     if (flight && hitbox->grounded) {

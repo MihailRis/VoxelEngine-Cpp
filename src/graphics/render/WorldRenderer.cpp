@@ -233,7 +233,7 @@ void WorldRenderer::renderLines(Camera* camera, Shader* linesShader) {
         renderBlockSelection();
     }
     if (player->debug) {
-        level->entities->renderDebug(*lineBatch);
+        level->entities->renderDebug(*lineBatch, *frustumCulling);
     }
     lineBatch->render();
 }

@@ -273,6 +273,8 @@ scriptenv scripting::on_entity_spawn(const EntityDef& def, entityid_t eid, entit
     funcsset.on_grounded = lua::hasfield(L, "on_grounded");
     funcsset.on_fall = lua::hasfield(L, "on_fall");
     funcsset.on_despawn = lua::hasfield(L, "on_despawn");
+    funcsset.on_trigger_enter = lua::hasfield(L, "on_trigger_enter");
+    funcsset.on_trigger_exit = lua::hasfield(L, "on_trigger_exit");
     lua::pop(L, 2);
     return entityenv;
 }
@@ -323,6 +325,29 @@ bool scripting::on_entity_fall(const Entity& entity) {
         return process_entity_callback(script.env, "on_fall", nullptr);
     }
     return true;
+}
+
+void scripting::on_trigger_enter(const Entity& entity, size_t index, entityid_t oid) {
+    const auto& script = entity.getScripting();
+    if (script.funcsset.on_trigger_enter) {
+        process_entity_callback(script.env, "on_trigger_enter", [index, oid](auto L) {
+            lua::pushinteger(L, index);
+            lua::pushinteger(L, oid);
+            return 2;
+        });
+    }
+}
+
+
+void scripting::on_trigger_exit(const Entity& entity, size_t index, entityid_t oid) {
+    const auto& script = entity.getScripting();
+    if (script.funcsset.on_trigger_exit) {
+        process_entity_callback(script.env, "on_trigger_exit", [index, oid](auto L) {
+            lua::pushinteger(L, index);
+            lua::pushinteger(L, oid);
+            return 2;
+        });
+    }
 }
 
 void scripting::on_entities_update() {
@@ -415,10 +440,10 @@ void scripting::load_item_script(const scriptenv& senv, const std::string& prefi
     funcsset.on_block_break_by = register_event(env, "on_block_break_by", prefix+".blockbreakby");
 }
 
-void scripting::load_entity_script(const scriptenv& penv, const EntityDef& def, const fs::path& file) {
+void scripting::load_entity_component(const scriptenv& penv, const EntityDef& def, const fs::path& file) {
     auto L = lua::get_main_thread();
     std::string src = files::read_string(file);
-    logger.info() << "script (entity) " << file.u8string();
+    logger.info() << "script (component) " << file.u8string();
     lua::loadbuffer(L, 0, src, file.u8string());
     lua::store_in(L, lua::CHUNKS_TABLE, def.scriptName);
 }

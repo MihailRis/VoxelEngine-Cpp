@@ -81,6 +81,8 @@ namespace scripting {
     bool on_entity_grounded(const Entity& entity, float force);
     bool on_entity_fall(const Entity& entity);
     void on_entities_update();
+    void on_trigger_enter(const Entity& entity, size_t index, entityid_t oid);
+    void on_trigger_exit(const Entity& entity, size_t index, entityid_t oid);
 
     /// @brief Called on UI view show
     void on_ui_open(
@@ -115,7 +117,7 @@ namespace scripting {
         const fs::path& file, 
         item_funcs_set& funcsset);
 
-    void load_entity_script(
+    void load_entity_component(
         const scriptenv& env,
         const EntityDef& def,
         const fs::path& file);
