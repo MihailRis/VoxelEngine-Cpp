@@ -7,6 +7,8 @@
 #include <vector>
 #include <optional>
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/norm.hpp>
 #include <unordered_map>
 #include <entt/entity/registry.hpp>
 
@@ -32,8 +34,21 @@ struct Transform {
     glm::vec3 size;
     glm::mat3 rot;
     glm::mat4 combined;
+    bool dirty = true;
 
     void refresh();
+    
+    inline void setRot(glm::mat3 m) {
+        rot = m;
+        dirty = true;
+    }
+
+    inline void setPos(glm::vec3 v) {
+        if (glm::distance2(pos, v) >= 0.00001f) {
+            dirty = true;
+        }
+        pos = v;
+    }
 };
 
 struct Rigidbody {
@@ -104,7 +119,7 @@ class Entities {
     Level* level;
     std::unordered_map<entityid_t, entt::entity> entities;
     entityid_t nextID = 1;
-    
+
     void preparePhysics();
 public:
     Entities(Level* level);

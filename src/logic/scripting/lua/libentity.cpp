@@ -51,7 +51,7 @@ static int l_get_pos(lua::State* L) {
 
 static int l_set_pos(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
-        entity->getTransform().pos = lua::tovec3(L, 2);
+        entity->getTransform().setPos(lua::tovec3(L, 2));
     }
     return 0;
 }
@@ -79,7 +79,7 @@ static int l_get_rot(lua::State* L) {
 
 static int l_set_rot(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
-        entity->getTransform().rot = lua::tomat4(L, 2);
+        entity->getTransform().setRot(lua::tomat4(L, 2));
     }
     return 0;
 }

@@ -22,7 +22,8 @@ end
 
 function on_update()
     if inair then
-        tsf:set_rot(mat4.rotate(tsf:get_rot(), {0, 1, 0}, math.random()*4))
-        tsf:set_rot(mat4.rotate(tsf:get_rot(), {0, 0, 1}, math.random()*4))
+        local dt = time.delta();
+        tsf:set_rot(mat4.rotate(tsf:get_rot(), {0, 1, 0}, 240*dt))
+        tsf:set_rot(mat4.rotate(tsf:get_rot(), {0, 0, 1}, 240*dt))
     end
 end

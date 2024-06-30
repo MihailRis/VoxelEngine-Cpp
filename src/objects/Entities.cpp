@@ -18,6 +18,7 @@ void Transform::refresh() {
     combined = glm::translate(combined, pos);
     combined = glm::scale(combined, size);
     combined = combined * glm::mat4(rot);
+    dirty = false;
 }
 
 void Entity::destroy() {
@@ -136,7 +137,7 @@ void Entities::updatePhysics(float delta) {
             eid.uid
         );
         hitbox.linearDamping = hitbox.grounded * 24;
-        transform.pos = hitbox.position;
+        transform.setPos(hitbox.position);
         if (hitbox.grounded && !grounded) {
             scripting::on_entity_grounded(*get(eid.uid), glm::length(prevVel-hitbox.velocity));
         }
@@ -150,7 +151,9 @@ void Entities::update() {
     scripting::on_entities_update();
     auto view = registry.view<Transform>();
     for (auto [entity, transform] : view.each()) {
-        transform.refresh();
+        if (transform.dirty) {
+            transform.refresh();
+        }
     }
 }
 

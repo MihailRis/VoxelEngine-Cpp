@@ -9,9 +9,9 @@ function on_hud_open()
         local ppos = vec3.add({player.get_pos(pid)}, {0, 0.7, 0})
         local throw_force = vec3.mul(vec3.add(player.get_dir(pid), 
         {
-            (math.random() - 0.5) * 5,
-            (math.random() - 0.5) * 5,
-            (math.random() - 0.5) * 5
+            (math.random() - 0.5) * 1,
+            (math.random() - 0.5) * 1,
+            (math.random() - 0.5) * 1
         }), DROP_FORCE)
 
         local drop = entity.spawn("base:drop", ppos)
