@@ -30,7 +30,7 @@ void Entity::destroy() {
 Entities::Entities(Level* level) : level(level) {
 }
 
-entityid_t Entities::spawn(EntityDef& def, glm::vec3 pos) {
+entityid_t Entities::spawn(EntityDef& def, glm::vec3 pos, dynamic::Value args) {
     auto entity = registry.create();
     glm::vec3 size(1);
     auto id = nextID++;
@@ -55,7 +55,7 @@ entityid_t Entities::spawn(EntityDef& def, glm::vec3 pos) {
     }
     auto& scripting = registry.emplace<Scripting>(entity, entity_funcs_set {}, nullptr);
     entities[id] = entity;
-    scripting.env = scripting::on_entity_spawn(def, id, scripting.funcsset);
+    scripting.env = scripting::on_entity_spawn(def, id, scripting.funcsset, std::move(args));
     return id;
 }
 

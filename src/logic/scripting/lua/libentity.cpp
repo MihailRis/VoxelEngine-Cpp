@@ -31,7 +31,11 @@ static int l_spawn(lua::State* L) {
     auto defname = lua::tostring(L, 1);
     auto& def = content->entities.require(defname);
     auto pos = lua::tovec3(L, 2);
-    level->entities->spawn(def, pos);
+    dynamic::Value args = dynamic::NONE;
+    if (lua::gettop(L) > 2) {
+        args = lua::tovalue(L, 3);
+    }
+    level->entities->spawn(def, pos, args);
     return 1;
 }
 

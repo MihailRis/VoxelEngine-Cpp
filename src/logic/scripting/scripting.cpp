@@ -256,7 +256,12 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
     });
 }
 
-scriptenv scripting::on_entity_spawn(const EntityDef& def, entityid_t eid, entity_funcs_set& funcsset) {
+scriptenv scripting::on_entity_spawn(
+    const EntityDef& def, 
+    entityid_t eid, 
+    entity_funcs_set& funcsset,
+    dynamic::Value args
+) {
     auto L = lua::get_main_thread();
     lua::requireglobal(L, STDCOMP);
     if (lua::getfield(L, "new_Entity")) {
@@ -266,6 +271,8 @@ scriptenv scripting::on_entity_spawn(const EntityDef& def, entityid_t eid, entit
     auto entityenv = create_entity_environment(get_root_environment(), -1);
     lua::get_from(L, lua::CHUNKS_TABLE, def.scriptName, true);
     lua::pushenv(L, *entityenv);
+    lua::pushvalue(L, args);
+    lua::setfield(L, "ARGS");
     lua::setfenv(L);
     lua::call_nothrow(L, 0, 0);
 

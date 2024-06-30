@@ -3,6 +3,7 @@
 
 #include "../typedefs.hpp"
 #include "../physics/Hitbox.hpp"
+#include "../data/dynamic.hpp"
 
 #include <vector>
 #include <optional>
@@ -131,7 +132,7 @@ public:
     void renderDebug(LineBatch& batch, const Frustum& frustum);
     void render(Assets* assets, ModelBatch& batch, const Frustum& frustum);
 
-    entityid_t spawn(EntityDef& def, glm::vec3 pos);
+    entityid_t spawn(EntityDef& def, glm::vec3 pos, dynamic::Value args=dynamic::NONE);
 
     std::optional<Entity> get(entityid_t id) {
         const auto& found = entities.find(id);

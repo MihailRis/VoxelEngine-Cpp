@@ -76,7 +76,12 @@ namespace scripting {
     /// @return true if prevents default action
     bool on_item_break_block(Player* player, const ItemDef* item, int x, int y, int z);
 
-    scriptenv on_entity_spawn(const EntityDef& def, entityid_t eid, entity_funcs_set&);
+    scriptenv on_entity_spawn(
+        const EntityDef& def, 
+        entityid_t eid, 
+        entity_funcs_set&,
+        dynamic::Value args
+    );
     bool on_entity_despawn(const EntityDef& def, const Entity& entity);
     bool on_entity_grounded(const Entity& entity, float force);
     bool on_entity_fall(const Entity& entity);
