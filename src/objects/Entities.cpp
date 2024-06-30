@@ -34,9 +34,9 @@ entityid_t Entities::spawn(EntityDef& def, glm::vec3 pos) {
     glm::vec3 size(1);
     auto id = nextID++;
     registry.emplace<EntityId>(entity, static_cast<entityid_t>(id), def);
-    registry.emplace<Transform>(entity, pos, size/4.0f, glm::mat3(1.0f));
+    registry.emplace<Transform>(entity, pos, size, glm::mat3(1.0f));
     registry.emplace<Rigidbody>(entity, true, Hitbox {pos, def.hitbox}, std::vector<Trigger>{
-        {true, id, AABB {glm::vec3{-1.0f, -1.0f, -1.0f}, glm::vec3{1.0f, 1.0f, 1.0f}}, {}, {}, {},
+        {true, id, AABB {glm::vec3{-0.2f, -0.2f, -0.2f}, glm::vec3{0.2f, 0.2f, 0.2f}}, {}, {}, {},
         [=](auto entityid, auto index, auto otherid) {
             if (auto entity = get(entityid)) {
                 if (entity->isValid()) {
@@ -77,7 +77,7 @@ void Entities::clean() {
         }
     }
 }
-#include "../util/timeutil.hpp"
+
 void Entities::updatePhysics(float delta){
     auto view = registry.view<EntityId, Transform, Rigidbody>();
     auto physics = level->physics.get();
