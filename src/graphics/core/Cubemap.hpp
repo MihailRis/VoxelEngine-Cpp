@@ -1,10 +1,10 @@
 #ifndef GRAPHICS_CORE_CUBEMAP_HPP_
 #define GRAPHICS_CORE_CUBEMAP_HPP_
 
-#include "Texture.hpp"
+#include "GLTexture.hpp"
 
 /// @brief Cubemap texture
-class Cubemap : public Texture {
+class Cubemap : public GLTexture {
 public:
     Cubemap(uint width, uint height, ImageFormat format);
 

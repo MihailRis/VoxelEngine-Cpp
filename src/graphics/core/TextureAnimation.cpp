@@ -1,5 +1,5 @@
 #include "TextureAnimation.hpp"
-#include "Texture.hpp"
+#include "GLTexture.hpp"
 #include "Framebuffer.hpp"
 
 #include <GL/glew.h>

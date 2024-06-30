@@ -43,10 +43,11 @@ ModelBatch::ModelBatch(size_t capacity, Assets* assets, Chunks* chunks)
     assets(assets),
     chunks(chunks)
 {
-    ubyte pixels[] = {
+    const ubyte pixels[] = {
         255, 255, 255, 255,
     };
-    blank = std::make_unique<Texture>(pixels, 1, 1, ImageFormat::rgba8888);
+    ImageData image(ImageFormat::rgba8888, 1, 1, pixels);
+    blank = Texture::from(&image);
 }
 
 ModelBatch::~ModelBatch() {

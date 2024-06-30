@@ -1,7 +1,7 @@
 #include "png.hpp"
 
 #include "../graphics/core/ImageData.hpp"
-#include "../graphics/core/Texture.hpp"
+#include "../graphics/core/GLTexture.hpp"
 #include "../files/files.hpp"
 #include "../debug/Logger.hpp"
 
@@ -159,8 +159,8 @@ std::unique_ptr<ImageData> _png_load(const char* file){
     color_type = 6;
     bit_depth  = png_get_bit_depth(png, info);
 
-    std::unique_ptr<png_byte[]> image_data (new png_byte[row_bytes * height]);
-    std::unique_ptr<png_byte*[]> row_pointers (new png_byte*[height]);
+    auto image_data = std::make_unique<png_byte[]>(row_bytes * height);
+    auto row_pointers = std::make_unique<png_byte*[]>(height);
     for (int i = 0; i < height; ++i ) {
         row_pointers[height - 1 - i] = image_data.get() + i * row_bytes;
     }
@@ -180,7 +180,7 @@ std::unique_ptr<ImageData> _png_load(const char* file){
             fclose(fp);
             return nullptr;
     }
-    auto image = std::make_unique<ImageData>(format, width, height, (void*)image_data.release());
+    auto image = std::make_unique<ImageData>(format, width, height, std::move(image_data));
     png_destroy_read_struct(&png, &info, &end_info);
     fclose(fp);
     return image;
@@ -336,7 +336,7 @@ std::unique_ptr<ImageData> png::load_image(const std::string& filename) {
 
 std::unique_ptr<Texture> png::load_texture(const std::string& filename) {
     auto image = load_image(filename);
-    auto texture = Texture::from(image.get());
+    auto texture = GLTexture::from(image.get());
     texture->setNearestFilter();
     return texture;
 }
