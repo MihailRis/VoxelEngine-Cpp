@@ -464,6 +464,12 @@ item.defs_count() -> int
 
 Returns count of available item IDs.
 
+```python
+item.icon(itemid: int) -> str
+```
+
+Returns item icon name to use in 'src' property of an image element
+
 ## *hud* library
 
 
