@@ -17,10 +17,11 @@ Batch2D::Batch2D(size_t capacity) : capacity(capacity), color(1.0f){
     mesh = std::make_unique<Mesh>(buffer.get(), 0, attrs);
     index = 0;
 
-    ubyte pixels[] = {
+    const ubyte pixels[] = {
         0xFF, 0xFF, 0xFF, 0xFF
     };
-    blank = std::make_unique<Texture>(pixels, 1, 1, ImageFormat::rgba8888);
+    ImageData image(ImageFormat::rgba8888, 1, 1, pixels);
+    blank = Texture::from(&image);
     currentTexture = nullptr;
 }
 
@@ -38,6 +39,7 @@ void Batch2D::setPrimitive(DrawPrimitive primitive) {
 void Batch2D::begin(){
     currentTexture = nullptr;
     blank->bind();
+    region = blank->getUVRegion();
     color = glm::vec4(1.0f);
     primitive = DrawPrimitive::triangle;
 }
@@ -49,8 +51,8 @@ void Batch2D::vertex(
 ) {
     buffer[index++] = x;
     buffer[index++] = y;
-    buffer[index++] = u;
-    buffer[index++] = v;
+    buffer[index++] = u * region.getWidth() + region.u1;
+    buffer[index++] = v * region.getHeight() + region.v1;
     buffer[index++] = r;
     buffer[index++] = g;
     buffer[index++] = b;
@@ -63,8 +65,8 @@ void Batch2D::vertex(
 ) {
     buffer[index++] = point.x;
     buffer[index++] = point.y;
-    buffer[index++] = uvpoint.x;
-    buffer[index++] = uvpoint.y;
+    buffer[index++] = uvpoint.x * region.getWidth() + region.u1;
+    buffer[index++] = uvpoint.y * region.getHeight() + region.v1;
     buffer[index++] = r;
     buffer[index++] = g;
     buffer[index++] = b;
@@ -79,13 +81,19 @@ void Batch2D::texture(Texture* new_texture){
     currentTexture = new_texture;
     if (new_texture == nullptr) {
         blank->bind();
+        region = blank->getUVRegion();
     } else {
         new_texture->bind();
+        region = currentTexture->getUVRegion();
     }
 }
 
 void Batch2D::untexture() {
     texture(nullptr);
+}
+
+void Batch2D::setRegion(UVRegion region) {
+    this->region = region;
 }
 
 void Batch2D::point(float x, float y, float r, float g, float b, float a){
