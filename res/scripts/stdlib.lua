@@ -304,6 +304,7 @@ function file.readlines(path)
 end
 
 stdcomp = require "core:internal/stdcomp"
+entity.get = stdcomp.get_Entity
 
 -- Deprecated functions
 block_index = block.index

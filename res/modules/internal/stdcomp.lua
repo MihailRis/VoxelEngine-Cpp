@@ -36,8 +36,12 @@ return {
         local entity = setmetatable({eid=eid}, Entity)
         entity.transform = new_Transform(eid)
         entity.rigidbody = new_Rigidbody(eid)
+        entity.data = {}
         entities[eid] = entity;
         return entity
+    end,
+    get_Entity = function(eid)
+        return entities[eid]
     end,
     remove_Entity = function(eid)
         local entity = entities[eid]

@@ -17,6 +17,7 @@ end
 function on_trigger_enter(index, oid)
     if ready and oid == 0 then
         entity:despawn()
+        inventory.add(player.get_inventory(oid), item.index("base:stone.item"), 1)
     end
 end
 

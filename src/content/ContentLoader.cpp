@@ -314,6 +314,16 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& name, const fs
     if (auto boxarr = root->list("hitbox")) {
         def.hitbox = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
     }
+    if (auto triggersarr = root->list("triggers")) {
+        for (size_t i = 0; i < triggersarr->size(); i++) {
+            if (auto triggerarr = triggersarr->list(i)) {
+                def.triggers.push_back({
+                    {triggerarr->num(0), triggerarr->num(1), triggerarr->num(2)},
+                    {triggerarr->num(3), triggerarr->num(4), triggerarr->num(5)}
+                });
+            }
+        }
+    }
     std::cout << "loading entity " << name << " from " << file.u8string() << std::endl;
 }
 
