@@ -20,6 +20,10 @@ public:
     virtual std::unique_ptr<ImageData> readData() override;
     virtual uint getId() const override;
 
+    virtual UVRegion getUVRegion() const override {
+        return UVRegion(0.0f, 0.0f, 1.0f, 1.0f);
+    }
+
     static std::unique_ptr<GLTexture> from(const ImageData* image);
 };
 

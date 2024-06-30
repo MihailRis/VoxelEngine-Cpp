@@ -2,6 +2,7 @@
 #define GRAPHICS_CORE_TEXTURE_HPP_
 
 #include "../../typedefs.hpp"
+#include "../../maths/UVRegion.hpp"
 #include "ImageData.hpp"
 
 #include <memory>
@@ -28,6 +29,7 @@ public:
     virtual uint getHeight() const {
         return height;
     }
+    virtual UVRegion getUVRegion() const = 0;
 
     virtual uint getId() const = 0;
 

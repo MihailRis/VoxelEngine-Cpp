@@ -235,7 +235,6 @@ std::unique_ptr<ImageData> _png_load(const char* file){
     FILE *png = nullptr;
     char *pngbuf = nullptr;
     spng_ctx *ctx = nullptr;
-    unsigned char *out = nullptr;
 
     png = fopen(file, "rb");
     if (png == nullptr){
@@ -297,27 +296,24 @@ std::unique_ptr<ImageData> _png_load(const char* file){
         logger.error() << "spng_decoded_image_size(): " << spng_strerror(r);
         return nullptr;
     }
-    out = new unsigned char[out_size];
-    r = spng_decode_image(ctx, out, out_size, SPNG_FMT_RGBA8, 0);
+    auto out = std::make_unique<ubyte[]>(out_size);
+    r = spng_decode_image(ctx, out.get(), out_size, SPNG_FMT_RGBA8, 0);
     if (r != SPNG_SUCCESS){
-        delete[] out;
         delete[] pngbuf;
         spng_ctx_free(ctx);
         logger.error() << "spng_decode_image(): " << spng_strerror(r);
         return nullptr;
     }
 
-    unsigned char* flipped = new unsigned char[out_size];
-
+    auto flipped = std::make_unique<ubyte[]>(out_size);
     for (size_t i = 0; i < ihdr.height; i+=1){
         size_t rowsize = ihdr.width*4;
         for (size_t j = 0; j < rowsize; j++){
             flipped[(ihdr.height-i-1)*rowsize+j] = out[i*rowsize+j];
         }
     }
-    delete[] out; // <- finally delete out // no, delete spng usage
 
-    auto image = std::make_unique<ImageData>(ImageFormat::rgba8888, ihdr.width, ihdr.height, (void*)flipped);
+    auto image = std::make_unique<ImageData>(ImageFormat::rgba8888, ihdr.width, ihdr.height, std::move(flipped));
 
     delete[] pngbuf;
     spng_ctx_free(ctx);
