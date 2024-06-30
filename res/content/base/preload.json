@@ -4,6 +4,7 @@
         "blocks/door_close"
     ],
     "models": [
-        "cube"
+        "cube",
+        "item"
     ]
 }

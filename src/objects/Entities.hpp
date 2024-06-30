@@ -104,6 +104,8 @@ class Entities {
     Level* level;
     std::unordered_map<entityid_t, entt::entity> entities;
     entityid_t nextID = 1;
+    
+    void preparePhysics();
 public:
     Entities(Level* level);
 
@@ -111,8 +113,8 @@ public:
     void updatePhysics(float delta);
     void update();
 
-    void renderDebug(LineBatch& batch, Frustum& frustum);
-    void render(Assets* assets, ModelBatch& batch, Frustum& frustum);
+    void renderDebug(LineBatch& batch, const Frustum& frustum);
+    void render(Assets* assets, ModelBatch& batch, const Frustum& frustum);
 
     entityid_t spawn(EntityDef& def, glm::vec3 pos);
 

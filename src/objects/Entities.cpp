@@ -78,31 +78,42 @@ void Entities::clean() {
     }
 }
 
-void Entities::updatePhysics(float delta){
+void Entities::preparePhysics() {
+    static uint64_t frameid = 0;
+    frameid++;
     auto view = registry.view<EntityId, Transform, Rigidbody>();
     auto physics = level->physics.get();
-    {
-        std::vector<Trigger*> triggers;
-        for (auto [entity, eid, transform, rigidbody] : view.each()) {
-            if (!rigidbody.enabled) {
-                continue;
-            }
-            for (size_t i = 0; i < rigidbody.triggers.size(); i++) {
-                auto& trigger = rigidbody.triggers[i];
-                for (auto oid : trigger.prevEntered) {
-                    if (trigger.nextEntered.find(oid) == trigger.nextEntered.end()) {
-                        trigger.exitCallback(trigger.entity, i, oid);
-                    }
-                }
-                trigger.prevEntered = trigger.nextEntered;
-                trigger.nextEntered.clear();
-                trigger.calculated = trigger.aabb;
-                trigger.calculated.transform(transform.combined);
-                triggers.push_back(&trigger);
-            }
+    std::vector<Trigger*> triggers;
+    for (auto [entity, eid, transform, rigidbody] : view.each()) {
+        if (!rigidbody.enabled) {
+            continue;
         }
-        physics->setTriggers(std::move(triggers));
+        // TODO: temporary optimization until threaded solution
+        if ((eid.uid + frameid) % 3 != 0) {
+            continue;
+        }
+        for (size_t i = 0; i < rigidbody.triggers.size(); i++) {
+            auto& trigger = rigidbody.triggers[i];
+            for (auto oid : trigger.prevEntered) {
+                if (trigger.nextEntered.find(oid) == trigger.nextEntered.end()) {
+                    trigger.exitCallback(trigger.entity, i, oid);
+                }
+            }
+            trigger.prevEntered = trigger.nextEntered;
+            trigger.nextEntered.clear();
+            trigger.calculated = trigger.aabb;
+            trigger.calculated.transform(transform.combined);
+            triggers.push_back(&trigger);
+        }
     }
+    physics->setTriggers(std::move(triggers));
+}
+
+void Entities::updatePhysics(float delta) {
+    preparePhysics();
+
+    auto view = registry.view<EntityId, Transform, Rigidbody>();
+    auto physics = level->physics.get();
     for (auto [entity, eid, transform, rigidbody] : view.each()) {
         if (!rigidbody.enabled) {
             continue;
@@ -110,11 +121,15 @@ void Entities::updatePhysics(float delta){
         auto& hitbox = rigidbody.hitbox;
         auto prevVel = hitbox.velocity;
         bool grounded = hitbox.grounded;
+
+        float vel = glm::length(prevVel);
+        int substeps = static_cast<int>(delta * vel * 20);
+        substeps = std::min(100, std::max(2, substeps));
         physics->step(
             level->chunks.get(),
             &hitbox,
             delta,
-            10,
+            substeps,
             false,
             1.0f,
             true,
@@ -139,7 +154,7 @@ void Entities::update() {
     }
 }
 
-void Entities::renderDebug(LineBatch& batch, Frustum& frustum) {
+void Entities::renderDebug(LineBatch& batch, const Frustum& frustum) {
     batch.lineWidth(1.0f);
     auto view = registry.view<Transform, Rigidbody>();
     for (auto [entity, transform, rigidbody] : view.each()) {
@@ -157,9 +172,12 @@ void Entities::renderDebug(LineBatch& batch, Frustum& frustum) {
     }
 }
 
-void Entities::render(Assets* assets, ModelBatch& batch, Frustum& frustum) {
+void Entities::render(Assets* assets, ModelBatch& batch, const Frustum& frustum) {
     auto view = registry.view<Transform>();
     auto model = assets->get<model::Model>("cube");
+    if (model == nullptr) {
+        return;
+    }
     for (auto [entity, transform] : view.each()) {
         const auto& pos = transform.pos;
         const auto& size = transform.size;
