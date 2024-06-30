@@ -30,14 +30,17 @@ void Image::draw(const DrawContext* pctx, Assets* assets) {
     } else {
         auto atlasName = this->texture.substr(0, separator);
         if (auto atlas = assets->get<Atlas>(atlasName)) {
-            texture = atlas->getTexture();
-            batch->texture(atlas->getTexture());
-            auto& region = atlas->get(this->texture.substr(separator+1));
-            batch->setRegion(region);
-            if (autoresize) {
-                setSize(glm::vec2(
-                    texture->getWidth()*region.getWidth(), 
-                    texture->getHeight()*region.getHeight()));
+            if (auto region = atlas->getIf(this->texture.substr(separator+1))) {
+                texture = atlas->getTexture();
+                batch->texture(atlas->getTexture());
+                batch->setRegion(*region);
+                if (autoresize) {
+                    setSize(glm::vec2(
+                        texture->getWidth()*region->getWidth(), 
+                        texture->getHeight()*region->getHeight()));
+                }
+            } else {
+                batch->texture(nullptr);
             }
         }
     }
