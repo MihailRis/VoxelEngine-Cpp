@@ -17,9 +17,14 @@ namespace model {
 
 namespace rigging {
     struct Rig;
+    class RigConfig;
 
     struct Pose {
         std::vector<glm::mat4> matrices;
+
+        Pose(size_t size) : matrices(size) {
+            matrices.resize(size);
+        }
     };
 
     class RigNode {
@@ -49,6 +54,13 @@ namespace rigging {
             return subnodes;
         }
     };
+
+    struct Rig {
+        RigConfig* config;
+        Pose pose;
+        Pose calculated;
+        std::vector<std::string> textures;
+    };
     
     class RigConfig {
         std::unique_ptr<RigNode> root;
@@ -66,17 +78,16 @@ namespace rigging {
         void update(Rig& rig, glm::mat4 matrix);
         void setup(const Assets* assets, RigNode* node=nullptr);
 
+        Rig instance() {
+            return Rig {
+                this, Pose(nodes.size()), Pose(nodes.size()), {}
+            };
+        }
+
         static std::unique_ptr<RigConfig> parse(
             std::string_view src,
             std::string_view file
         );
-    };
-
-    struct Rig {
-        RigConfig* config;
-        Pose pose;
-        Pose calculated;
-        std::vector<std::string> textures;
     };
 };
 

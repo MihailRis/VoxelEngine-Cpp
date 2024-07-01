@@ -8,6 +8,7 @@
 #include "../../../window/Camera.hpp"
 #include "../../../frontend/hud.hpp"
 #include "../../../content/Content.hpp"
+#include "../../../engine.hpp"
 
 #include <optional>
 
@@ -35,7 +36,7 @@ static int l_spawn(lua::State* L) {
     if (lua::gettop(L) > 2) {
         args = lua::tovalue(L, 3);
     }
-    level->entities->spawn(def, pos, args);
+    level->entities->spawn(scripting::engine->getAssets(), def, pos, args);
     return 1;
 }
 

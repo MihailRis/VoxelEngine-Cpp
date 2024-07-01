@@ -9,6 +9,7 @@
 #include "../graphics/core/Model.hpp"
 #include "../maths/FrustumCulling.hpp"
 #include "../objects/EntityDef.hpp"
+#include "../objects/rigging.hpp"
 #include "../logic/scripting/scripting.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
@@ -30,7 +31,16 @@ void Entity::destroy() {
 Entities::Entities(Level* level) : level(level) {
 }
 
-entityid_t Entities::spawn(EntityDef& def, glm::vec3 pos, dynamic::Value args) {
+entityid_t Entities::spawn(
+    Assets* assets,
+    EntityDef& def,
+    glm::vec3 pos,
+    dynamic::Value args) 
+{
+    auto rig = assets->get<rigging::RigConfig>(def.rigName);
+    if (rig == nullptr) {
+        throw std::runtime_error("rig "+def.rigName+" not found");
+    }
     auto entity = registry.create();
     glm::vec3 size(1);
     auto id = nextID++;
@@ -54,9 +64,12 @@ entityid_t Entities::spawn(EntityDef& def, glm::vec3 pos, dynamic::Value args) {
             }
         }});
     }
-    auto& scripting = registry.emplace<Scripting>(entity, entity_funcs_set {}, nullptr);
+    auto& scripting = registry.emplace<Scripting>(
+        entity, entity_funcs_set {}, nullptr);
     entities[id] = entity;
-    scripting.env = scripting::on_entity_spawn(def, id, scripting.funcsset, std::move(args));
+    scripting.env = scripting::on_entity_spawn(
+        def, id, scripting.funcsset, std::move(args));
+    registry.emplace<rigging::Rig>(entity, rig->instance());
     return id;
 }
 
@@ -173,7 +186,10 @@ void Entities::renderDebug(LineBatch& batch, const Frustum& frustum) {
         batch.box(hitbox.position, hitbox.halfsize * 2.0f, glm::vec4(1.0f));
 
         for (auto& trigger : rigidbody.triggers) {
-            batch.box(trigger.calculated.center(), trigger.calculated.size(), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+            batch.box(
+                trigger.calculated.center(), 
+                trigger.calculated.size(), 
+                glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
         }
     }
 }

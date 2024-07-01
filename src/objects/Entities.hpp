@@ -137,7 +137,11 @@ public:
     void renderDebug(LineBatch& batch, const Frustum& frustum);
     void render(Assets* assets, ModelBatch& batch, const Frustum& frustum);
 
-    entityid_t spawn(EntityDef& def, glm::vec3 pos, dynamic::Value args=dynamic::NONE);
+    entityid_t spawn(
+        Assets* assets,
+        EntityDef& def,
+        glm::vec3 pos,
+        dynamic::Value args=dynamic::NONE);
 
     std::optional<Entity> get(entityid_t id) {
         const auto& found = entities.find(id);

@@ -23,6 +23,13 @@ function new_Rigidbody(eid)
     return setmetatable({eid=eid}, Rigidbody)
 end
 
+local Modeltree = {__index={
+}}
+
+function new_Modeltree(eid)
+    return setmetatable({eid=eid}, Modeltree)
+end
+
 -- Entity class
 
 local Entity = {__index={
@@ -36,6 +43,7 @@ return {
         local entity = setmetatable({eid=eid}, Entity)
         entity.transform = new_Transform(eid)
         entity.rigidbody = new_Rigidbody(eid)
+        entity.modeltree = new_Modeltree(eid)
         entity.data = {}
         entities[eid] = entity;
         return entity
