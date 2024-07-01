@@ -17,19 +17,19 @@ class Assets;
 namespace assetload {
     /// @brief final work to do in the main thread
     using postfunc = std::function<void(Assets*)>;
+
+    using setupfunc = std::function<void(const Assets*)>;
+
+    template<class T>
+    void assets_setup(const Assets*);
 }
-
-template<class T>
-void assets_setup(const Assets*);
-
-using assetssetupfunc = std::function<void(const Assets*)>;
 
 class Assets {
     std::vector<TextureAnimation> animations;
 
     using assets_map = std::unordered_map<std::string, std::shared_ptr<void>>;
     std::unordered_map<std::type_index, assets_map> assets;
-    std::vector<assetssetupfunc> setupFuncs;
+    std::vector<assetload::setupfunc> setupFuncs;
 public:
     Assets() {}
     Assets(const Assets&) = delete;
@@ -72,13 +72,13 @@ public:
         }
     }
 
-    void addSetupFunc(assetssetupfunc setupfunc) {
+    void addSetupFunc(assetload::setupfunc setupfunc) {
         setupFuncs.push_back(setupfunc);
     }
 };
 
 template<class T>
-void assets_setup(const Assets* assets) {
+void assetload::assets_setup(const Assets* assets) {
     if (auto mapPtr = assets->getMap<T>()) {
         for (const auto& entry : **mapPtr) {
             static_cast<T*>(entry.second.get())->setup(assets);

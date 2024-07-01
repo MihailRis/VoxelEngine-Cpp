@@ -245,7 +245,7 @@ void Engine::loadAssets() {
     Shader::preprocessor->setPaths(resPaths.get());
 
     auto new_assets = std::make_unique<Assets>();
-    new_assets->addSetupFunc(assets_setup<rigging::RigConfig>);
+    new_assets->addSetupFunc(assetload::assets_setup<rigging::RigConfig>);
     AssetsLoader loader(new_assets.get(), resPaths.get());
     AssetsLoader::addDefaults(loader, content.get());
 
