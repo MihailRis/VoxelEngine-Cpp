@@ -258,7 +258,7 @@ void Engine::loadAssets() {
             }
         }
     }
-    assets.reset(new_assets.release());
+    assets = std::move(new_assets);
 }
 
 static void load_configs(const fs::path& root) {

@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-inline int getPackerScore(rectangle& rect) {
+static int get_packer_score(const rectangle& rect) {
     if (rect.width * rect.height > 100)
         return rect.height * rect.height * 1000;
     return (rect.width * rect.height * rect.height);
@@ -14,7 +14,7 @@ LMPacker::LMPacker(const uint32_t sizes[], size_t length) {
         rects.push_back(rect);
     }
     sort(rects.begin(), rects.end(), [](rectangle a, rectangle b) {
-        return -getPackerScore(a) < -getPackerScore(b);
+        return -get_packer_score(a) < -get_packer_score(b);
     });
 }
 
@@ -23,12 +23,7 @@ LMPacker::~LMPacker() {
 }
 
 void LMPacker::cleanup() {
-    if (matrix) {
-        for (unsigned int y = 0; y < (height >> mbit); y++) {
-            delete[] matrix[y];
-        }
-        delete[] matrix;
-    }
+    matrix.reset();
     placed.clear();
 }
 
@@ -43,9 +38,9 @@ bool LMPacker::build(uint32_t width, uint32_t height,
     const unsigned int mwidth = width >> mbit;
     const unsigned int mheight = height >> mbit;
 
-    matrix = new rectangle**[mheight];
+    matrix = std::make_unique<matrix_row[]>(mheight);
     for (unsigned int y = 0; y < mheight; y++) {
-        matrix[y] = new rectangle*[mwidth];
+        matrix[y] = std::make_unique<rectangle*[]>(mwidth);
         for (unsigned int x = 0; x < mwidth; x++) {
             matrix[y][x] = nullptr;
         }
@@ -85,7 +80,9 @@ bool LMPacker::build(uint32_t width, uint32_t height,
     return built;
 }
 
-inline rectangle* findCollision(rectangle*** matrix, int x, int y, int w, int h) {
+inline rectangle* find_collision(
+    const LMPacker::matrix_ptr& matrix, int x, int y, int w, int h
+) {
     for (int row = y; row < y+h; row++) {
         for (int col = x; col < x+w; col++) {
             rectangle* rect = matrix[row][col];
@@ -97,7 +94,7 @@ inline rectangle* findCollision(rectangle*** matrix, int x, int y, int w, int h)
     return nullptr;
 }
 
-inline void fill(rectangle*** matrix, rectangle* rect, int x, int y, int w, int h) {
+inline void fill(LMPacker::matrix_ptr& matrix, rectangle* rect, int x, int y, int w, int h) {
     for (int row = y; row < y+h; row++) {
         for (int col = x; col < x+w; col++) {
             matrix[row][col] = rect;
@@ -115,9 +112,9 @@ bool LMPacker::place(rectangle* rectptr, uint32_t vstep) {
     const unsigned int mwidth = width >> mbit;
     const unsigned int mheight = height >> mbit;
     for (unsigned int y = 0; y + rh < mheight; y += vstep) {
-        rectangle** line = matrix[y];
+        auto& line = matrix[y];
         bool skiplines = true;
-        rectangle** lower = matrix[y + rh - 1];
+        auto& lower = matrix[y + rh - 1];
         for (unsigned int x = 0; x + rw < mwidth; x++) {
             rectangle* prect = line[x];
             if (prect) {
@@ -131,7 +128,7 @@ bool LMPacker::place(rectangle* rectptr, uint32_t vstep) {
                     if (lfree >= rw)
                         skiplines = false;
                 }
-                prect = findCollision(matrix, x, y, rw, rh);
+                prect = find_collision(matrix, x, y, rw, rh);
                 if (prect) {
                     x = (prect->x >> mbit) + (prect->width >> mbit) - 1;
                     continue;

@@ -7,13 +7,12 @@ inline constexpr uint LB_VERTEX_SIZE = (3+4);
 
 LineBatch::LineBatch(size_t capacity) : capacity(capacity) {
     const vattr attrs[] = { {3},{4}, {0} };
-    buffer = new float[capacity * LB_VERTEX_SIZE * 2];
-    mesh = std::make_unique<Mesh>(buffer, 0, attrs);
+    buffer = std::make_unique<float[]>(capacity * LB_VERTEX_SIZE * 2);
+    mesh = std::make_unique<Mesh>(buffer.get(), 0, attrs);
     index = 0;
 }
 
 LineBatch::~LineBatch(){
-    delete[] buffer;
 }
 
 void LineBatch::line(
@@ -69,7 +68,7 @@ void LineBatch::box(float x, float y, float z, float w, float h, float d,
 void LineBatch::render(){
     if (index == 0)
         return;
-    mesh->reload(buffer, index / LB_VERTEX_SIZE);
+    mesh->reload(buffer.get(), index / LB_VERTEX_SIZE);
     mesh->draw(GL_LINES);
     index = 0;
 }
