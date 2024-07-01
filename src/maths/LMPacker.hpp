@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <vector>
+#include <memory>
 
 struct rectangle {
     unsigned int idx;
@@ -22,11 +23,15 @@ struct rectangle {
 };
 
 class LMPacker {
+public:
+    using matrix_row = std::unique_ptr<rectangle*[]>;
+    using matrix_ptr = std::unique_ptr<matrix_row[]>;
+private:
     std::vector<rectangle> rects;
     std::vector<rectangle*> placed;
     uint32_t width = 0;
     uint32_t height = 0;
-    rectangle*** matrix = nullptr;
+    matrix_ptr matrix = nullptr;
     uint32_t mbit = 0;
 
     void cleanup();

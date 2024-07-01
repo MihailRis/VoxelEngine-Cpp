@@ -47,6 +47,6 @@ public:
     }
 };
 
-extern ImageData* add_atlas_margins(ImageData* image, int grid_size);
+std::unique_ptr<ImageData> add_atlas_margins(ImageData* image, int grid_size);
 
 #endif // GRAPHICS_CORE_IMAGE_DATA_HPP_

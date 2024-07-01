@@ -254,7 +254,7 @@ void ImageData::fixAlphaColor() {
     }
 }
 
-ImageData* add_atlas_margins(ImageData* image, int grid_size) {
+std::unique_ptr<ImageData> add_atlas_margins(ImageData* image, int grid_size) {
     // RGBA is only supported
     assert(image->getFormat() == ImageFormat::rgba8888);
     assert(image->getWidth() == image->getHeight());
@@ -300,5 +300,7 @@ ImageData* add_atlas_margins(ImageData* image, int grid_size) {
             }
         }
     }
-    return new ImageData(image->getFormat(), dstwidth, dstheight, std::move(dstdata));
+    return std::make_unique<ImageData>(
+        image->getFormat(), dstwidth, dstheight, std::move(dstdata)
+    );
 }
