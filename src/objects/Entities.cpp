@@ -36,7 +36,8 @@ entityid_t Entities::spawn(EntityDef& def, glm::vec3 pos, dynamic::Value args) {
     auto id = nextID++;
     registry.emplace<EntityId>(entity, static_cast<entityid_t>(id), def);
     registry.emplace<Transform>(entity, pos, size, glm::mat3(1.0f));
-    auto& body = registry.emplace<Rigidbody>(entity, true, Hitbox {pos, def.hitbox}, std::vector<Trigger>{});
+    auto& body = registry.emplace<Rigidbody>(
+        entity, true, Hitbox {pos, def.hitbox}, std::vector<Trigger>{});
     for (auto& box : def.triggers) {
         body.triggers.emplace_back(Trigger{true, id, box, AABB{}, {}, {},
         [=](auto entityid, auto index, auto otherid) {
@@ -140,7 +141,8 @@ void Entities::updatePhysics(float delta) {
         hitbox.linearDamping = hitbox.grounded * 24;
         transform.setPos(hitbox.position);
         if (hitbox.grounded && !grounded) {
-            scripting::on_entity_grounded(*get(eid.uid), glm::length(prevVel-hitbox.velocity));
+            scripting::on_entity_grounded(
+                *get(eid.uid), glm::length(prevVel-hitbox.velocity));
         }
         if (!hitbox.grounded && grounded) {
             scripting::on_entity_fall(*get(eid.uid));

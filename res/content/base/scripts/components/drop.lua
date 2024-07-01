@@ -1,5 +1,6 @@
 local tsf = entity.transform
 local body = entity.rigidbody
+local rig = entity.modeltree
 
 inair = true
 ready = false

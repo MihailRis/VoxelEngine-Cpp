@@ -77,7 +77,12 @@ class Entity {
     entt::registry& registry;
     const entt::entity entity;
 public:
-    Entity(Entities& entities, entityid_t id, entt::registry& registry, const entt::entity entity)
+    Entity(
+        Entities& entities,
+        entityid_t id, 
+        entt::registry& registry, 
+        const entt::entity entity
+    )
     : entities(entities), id(id), registry(registry), entity(entity) {}
 
     EntityId& getID() const {
