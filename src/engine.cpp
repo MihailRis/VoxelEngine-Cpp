@@ -23,6 +23,7 @@
 #include "graphics/core/ImageData.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/ui/GUI.hpp"
+#include "objects/rigging.hpp"
 #include "logic/EngineController.hpp"
 #include "logic/CommandsInterpreter.hpp"
 #include "logic/scripting/scripting.hpp"
@@ -121,6 +122,7 @@ void Engine::loadControls() {
 }
 
 void Engine::onAssetsLoaded() {
+    assets->setup();
     gui->onAssetsLoad(assets.get());
 }
 
@@ -243,9 +245,12 @@ void Engine::loadAssets() {
     Shader::preprocessor->setPaths(resPaths.get());
 
     auto new_assets = std::make_unique<Assets>();
+    new_assets->addSetupFunc(assets_setup<rigging::RigConfig>);
     AssetsLoader loader(new_assets.get(), resPaths.get());
     AssetsLoader::addDefaults(loader, content.get());
 
+    // no need
+    // correct log messages order is more useful
     bool threading = false;
     if (threading) {
         auto task = loader.startTask([=](){});
