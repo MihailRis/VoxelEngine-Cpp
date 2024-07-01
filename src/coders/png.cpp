@@ -267,7 +267,7 @@ std::unique_ptr<ImageData> _png_load(const char* file){
         logger.error() << "spng_set_crc_action(): " << spng_strerror(r);
         return nullptr;
     }
-    r = spng_set_png_buffer(ctx, pngbuf, siz_pngbuf);
+    r = spng_set_png_buffer(ctx, pngbuf.get(), siz_pngbuf);
     if (r != SPNG_SUCCESS){
         spng_ctx_free(ctx);
         logger.error() << "spng_set_png_buffer(): " << spng_strerror(r);
