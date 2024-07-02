@@ -12,6 +12,7 @@
 #include "../logic/scripting/scripting.hpp"
 #include "../typedefs.hpp"
 #include "../util/listutil.hpp"
+#include "../util/stringutil.hpp"
 #include "../voxels/Block.hpp"
 
 #include <iostream>
@@ -317,10 +318,16 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& name, const fs
     if (auto triggersarr = root->list("triggers")) {
         for (size_t i = 0; i < triggersarr->size(); i++) {
             if (auto triggerarr = triggersarr->list(i)) {
-                def.triggers.push_back({
-                    {triggerarr->num(0), triggerarr->num(1), triggerarr->num(2)},
-                    {triggerarr->num(3), triggerarr->num(4), triggerarr->num(5)}
-                });
+                auto triggerType = triggerarr->str(0);
+                if (triggerType == "aabb") {
+                    def.boxTriggers.push_back({
+                        {triggerarr->num(1), triggerarr->num(2), triggerarr->num(3)},
+                        {triggerarr->num(4), triggerarr->num(5), triggerarr->num(6)}
+                    });
+                } else {
+                    logger.error() << name << ": trigger #" << i << " - unknown type "
+                        << util::quote(triggerType);
+                }
             }
         }
     }
