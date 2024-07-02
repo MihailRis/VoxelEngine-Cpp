@@ -68,8 +68,11 @@ class Assets;
 class LineBatch;
 class ModelBatch;
 class Frustum;
-class Rig;
 class Entities;
+namespace riggining {
+    struct Rig;
+    class RigConfig;
+}
 
 class Entity {
     Entities& entities;

@@ -195,18 +195,13 @@ void Entities::renderDebug(LineBatch& batch, const Frustum& frustum) {
 }
 
 void Entities::render(Assets* assets, ModelBatch& batch, const Frustum& frustum) {
-    auto view = registry.view<Transform>();
-    auto model = assets->get<model::Model>("cube");
-    if (model == nullptr) {
-        return;
-    }
-    for (auto [entity, transform] : view.each()) {
+    auto view = registry.view<Transform, rigging::Rig>();
+    for (auto [entity, transform, rig] : view.each()) {
         const auto& pos = transform.pos;
         const auto& size = transform.size;
         if (frustum.isBoxVisible(pos-size, pos+size)) {
-            batch.pushMatrix(transform.combined);
-            batch.draw(model);
-            batch.popMatrix();
+            const auto* rigConfig = rig.config;
+            rigConfig->render(assets, batch, rig, transform.combined);
         }
     }
 }

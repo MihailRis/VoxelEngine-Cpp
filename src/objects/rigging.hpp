@@ -10,6 +10,7 @@
 #include <unordered_map>
 
 class Assets;
+class ModelBatch;
 
 namespace model {
     struct Model;
@@ -24,6 +25,9 @@ namespace rigging {
 
         Pose(size_t size) : matrices(size) {
             matrices.resize(size);
+            for (size_t i = 0; i < size; i++) {
+                matrices[i] = glm::mat4(1.0f);
+            }
         }
     };
 
@@ -44,6 +48,10 @@ namespace rigging {
 
         const std::string& getModelName() const {
             return modelName;
+        }
+
+        model::Model* getModel() const {
+            return model;
         }
 
         size_t getIndex() const {
@@ -71,12 +79,17 @@ namespace rigging {
             size_t index,
             Rig& rig,
             RigNode* node,
-            glm::mat4 matrix);
+            glm::mat4 matrix) const;
     public:
-        RigConfig(std::unique_ptr<RigNode> root);
+        RigConfig(std::unique_ptr<RigNode> root, size_t nodesCount);
 
-        void update(Rig& rig, glm::mat4 matrix);
-        void setup(const Assets* assets, RigNode* node=nullptr);
+        void update(Rig& rig, glm::mat4 matrix) const;
+        void setup(const Assets* assets, RigNode* node=nullptr) const;
+        void render(
+            Assets* assets,
+            ModelBatch& batch,
+            Rig& rig, 
+            const glm::mat4& matrix) const;
 
         Rig instance() {
             return Rig {
