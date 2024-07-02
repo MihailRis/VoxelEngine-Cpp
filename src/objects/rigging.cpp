@@ -42,10 +42,11 @@ size_t RigConfig::update(
     glm::mat4 matrix) const
 {
     rig.calculated.matrices[index] = matrix * rig.pose.matrices[index];
+    size_t count = 1;
     for (auto& subnode : node->getSubnodes()) {
-        index = update(index+1, rig, subnode.get(), rig.calculated.matrices[index]);
+        count += update(index+count, rig, subnode.get(), rig.calculated.matrices[index]);
     }
-    return index;
+    return count;
 }
 
 void RigConfig::update(Rig& rig, glm::mat4 matrix) const {

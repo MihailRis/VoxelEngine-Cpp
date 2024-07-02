@@ -24,7 +24,9 @@ function new_Rigidbody(eid)
 end
 
 local Modeltree = {__index={
-    get_model=function(self) return __modeltree.get_model(self.eid) end,
+    get_model=function(self, i) return __modeltree.get_model(self.eid, i) end,
+    get_matrix=function(self, i) return __modeltree.get_matrix(self.eid, i) end,
+    set_matrix=function(self, i, m) return __modeltree.set_matrix(self.eid, i, m) end,
 }}
 
 function new_Modeltree(eid)

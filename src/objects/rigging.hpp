@@ -1,5 +1,5 @@
-#ifndef OBJECTS_SKELETON_HPP_
-#define OBJECTS_SKELETON_HPP_
+#ifndef OBJECTS_RIGGING_HPP_
+#define OBJECTS_RIGGING_HPP_
 
 #include "../typedefs.hpp"
 
@@ -23,11 +23,8 @@ namespace rigging {
     struct Pose {
         std::vector<glm::mat4> matrices;
 
-        Pose(size_t size) : matrices(size) {
-            matrices.resize(size);
-            for (size_t i = 0; i < size; i++) {
-                matrices[i] = glm::mat4(1.0f);
-            }
+        Pose(size_t size) {
+            matrices.resize(size, glm::mat4(1.0f));
         }
     };
 
@@ -115,4 +112,4 @@ namespace rigging {
     };
 };
 
-#endif // OBJECTS_SKELETON_HPP_
+#endif // OBJECTS_RIGGING_HPP_

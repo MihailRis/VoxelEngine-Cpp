@@ -78,9 +78,9 @@ entityid_t Entities::spawn(
     auto& scripting = registry.emplace<Scripting>(
         entity, entity_funcs_set {}, nullptr);
     entities[id] = entity;
+    registry.emplace<rigging::Rig>(entity, rig->instance());
     scripting.env = scripting::on_entity_spawn(
         def, id, scripting.funcsset, std::move(args));
-    registry.emplace<rigging::Rig>(entity, rig->instance());
     return id;
 }
 
