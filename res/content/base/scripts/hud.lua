@@ -3,19 +3,22 @@ local DROP_INIT_VEL = {0, 3, 0}
 
 function on_hud_open()
     input.add_callback("player.drop", function ()
-        for i=1,80 do
-            local pid = hud.get_player()
-            local pvel = {player.get_vel(pid)}
-            local ppos = vec3.add({player.get_pos(pid)}, {0, 0.7, 0})
-            local throw_force = vec3.mul(vec3.add(player.get_dir(pid), 
-            {
-                (math.random() - 0.5) * 1,
-                (math.random() - 0.5) * 1,
-                (math.random() - 0.5) * 1
-            }), DROP_FORCE)
-
-            local drop = entities.spawn("base:drop", ppos)
-            drop.rigidbody:set_vel(vec3.add(throw_force, vec3.add(pvel, DROP_INIT_VEL)))
+        local pid = hud.get_player()
+        local invid, slot = player.get_inventory(pid)
+        local itemid, itemcount = inventory.get(invid, slot)
+        if itemid == 0 then
+            return
         end
+        inventory.set(invid, slot, itemid, itemcount-1)
+
+        local pvel = {player.get_vel(pid)}
+        local ppos = vec3.add({player.get_pos(pid)}, {0, 0.7, 0})
+        local throw_force = vec3.mul(player.get_dir(pid), DROP_FORCE)
+
+        local drop = entities.spawn("base:drop", ppos, {item={
+            id=itemid,
+            count=1
+        }})
+        drop.rigidbody:set_vel(vec3.add(throw_force, vec3.add(pvel, DROP_INIT_VEL)))
     end)
 end

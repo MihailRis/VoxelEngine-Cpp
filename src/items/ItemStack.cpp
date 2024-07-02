@@ -12,6 +12,9 @@ ItemStack::ItemStack(itemid_t item, itemcount_t count) : item(item), count(count
 void ItemStack::set(const ItemStack& item) {
     this->item = item.item;
     this->count = item.count;
+    if (count == 0) {
+        this->item = 0;
+    }
 }
 
 bool ItemStack::accepts(const ItemStack& other) const {
