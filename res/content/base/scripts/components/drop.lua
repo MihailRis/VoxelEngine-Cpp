@@ -25,6 +25,7 @@ function on_trigger_enter(index, oid)
     if ready and oid == 0 then
         entity:despawn()
         inventory.add(player.get_inventory(oid), item.index("base:stone.item"), 1)
+        audio.play_sound_2d("events/pickup", 0.5, 0.8+math.random()*0.4, "regular")
     end
 end
 
