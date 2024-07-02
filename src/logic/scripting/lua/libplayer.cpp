@@ -78,6 +78,13 @@ static int l_player_set_rot(lua::State* L) {
     return 0;
 }
 
+static int l_player_get_dir(lua::State* L) {
+    if (auto player = get_player(L, 1)) {
+        return lua::pushvec3_arr(L, player->camera->front);
+    }
+    return 0;
+}
+
 static int l_player_get_inv(lua::State* L) {
     auto player = get_player(L, 1);
     if (!player) {
@@ -133,6 +140,7 @@ const luaL_Reg playerlib [] = {
     {"set_vel", lua::wrap<l_player_set_vel>},
     {"get_rot", lua::wrap<l_player_get_rot>},
     {"set_rot", lua::wrap<l_player_set_rot>},
+    {"get_dir", lua::wrap<l_player_get_dir>},
     {"get_inventory", lua::wrap<l_player_get_inv>},
     {"is_flight", lua::wrap<l_player_is_flight>},
     {"set_flight", lua::wrap<l_player_set_flight>},

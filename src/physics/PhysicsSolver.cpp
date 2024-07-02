@@ -6,12 +6,14 @@
 #include "../voxels/Chunks.hpp"
 #include "../voxels/voxel.hpp"
 
+#include <iostream>
+
 const float E = 0.03f;
 const float MAX_FIX = 0.1f;
 
 PhysicsSolver::PhysicsSolver(glm::vec3 gravity) : gravity(gravity) {
 }
-
+#include "../util/timeutil.hpp"
 void PhysicsSolver::step(
     Chunks* chunks, 
     Hitbox* hitbox, 
@@ -19,10 +21,11 @@ void PhysicsSolver::step(
     uint substeps, 
     bool shifting,
     float gravityScale,
-    bool collisions
+    bool collisions,
+    entityid_t entity
 ) {
     float dt = delta / static_cast<float>(substeps);
-    float linear_damping = hitbox->linear_damping;
+    float linearDamping = hitbox->linearDamping;
     float s = 2.0f/BLOCK_AABB_GRID;
 
     const glm::vec3& half = hitbox->halfsize;
@@ -41,8 +44,8 @@ void PhysicsSolver::step(
             colisionCalc(chunks, hitbox, vel, pos, half, 
                          (prevGrounded && gravityScale > 0.0f) ? 0.5f : 0.0f);
         }
-        vel.x *= glm::max(0.0f, 1.0f - dt * linear_damping);
-        vel.z *= glm::max(0.0f, 1.0f - dt * linear_damping);
+        vel.x *= glm::max(0.0f, 1.0f - dt * linearDamping);
+        vel.z *= glm::max(0.0f, 1.0f - dt * linearDamping);
 
         pos += vel * dt + gravity * gravityScale * dt * dt * 0.5f;
         if (hitbox->grounded && pos.y < py) {
@@ -76,6 +79,21 @@ void PhysicsSolver::step(
                 pos.x = px;
             }
             hitbox->grounded = true;
+        }
+    }
+    AABB aabb;
+    aabb.a = hitbox->position - hitbox->halfsize;
+    aabb.b = hitbox->position + hitbox->halfsize;
+    for (size_t i = 0; i < triggers.size(); i++) {
+        auto& trigger = triggers[i];
+        if (trigger->entity == entity) {
+            continue;
+        }
+        if (aabb.intersect(trigger->calculated)) {
+            if (trigger->prevEntered.find(entity) == trigger->prevEntered.end()) {
+                trigger->enterCallback(trigger->entity, i, entity);
+            }
+            trigger->nextEntered.insert(entity);
         }
     }
 }

@@ -24,7 +24,36 @@ namespace fs = std::filesystem;
 
 static debug::Logger logger("content-loader");
 
-ContentLoader::ContentLoader(ContentPack* pack) : pack(pack) {
+ContentLoader::ContentLoader(ContentPack* pack, ContentBuilder& builder)
+  : pack(pack), builder(builder)
+{
+    auto runtime = std::make_unique<ContentPackRuntime>(
+        *pack, scripting::create_pack_environment(*pack)
+    );
+    stats = &runtime->getStatsWriteable();
+    env = runtime->getEnvironment();
+    builder.add(std::move(runtime));
+}
+
+static void detect_defs(
+    const fs::path& folder,
+    const std::string& prefix,
+    std::vector<std::string>& detected
+) {
+    if (fs::is_directory(folder)) {
+        for (const auto& entry : fs::directory_iterator(folder)) {
+            const fs::path& file = entry.path();
+            std::string name = file.stem().string();
+            if (name[0] == '_') {
+                continue;
+            }
+            if (fs::is_regular_file(file) && file.extension() == ".json") {
+                detected.push_back(prefix.empty() ? name : prefix + ":" + name);
+            } else if (fs::is_directory(file)) {
+                detect_defs(file, name, detected);
+            }
+        }
+    }
 }
 
 bool ContentLoader::fixPackIndices(
@@ -33,32 +62,9 @@ bool ContentLoader::fixPackIndices(
     const std::string& contentSection
 ) {
     std::vector<std::string> detected;
-    std::vector<std::string> indexed;
-    if (fs::is_directory(folder)) {
-        for (const auto& entry : fs::directory_iterator(folder)) {
-            const fs::path& file = entry.path();
-            if (fs::is_regular_file(file) && file.extension() == ".json") {
-                std::string name = file.stem().string();
-                if (name[0] == '_')
-                    continue;
-                detected.push_back(name);
-            } else if (fs::is_directory(file)) {
-                std::string space = file.stem().string();
-                if (space[0] == '_')
-                    continue;
-                for (const auto& entry : fs::directory_iterator(file)) {
-                    const fs::path& file = entry.path();
-                    if (fs::is_regular_file(file) && file.extension() == ".json") {
-                        std::string name = file.stem().string();
-                        if (name[0] == '_')
-                            continue;
-                        detected.push_back(space + ':' + name);
-                    }
-                }
-            }
-        }
-    }
+    detect_defs(folder, "", detected);
 
+    std::vector<std::string> indexed;
     bool modified = false;
     if (!indicesRoot->has(contentSection)) {
         indicesRoot->putList(contentSection);
@@ -90,6 +96,7 @@ void ContentLoader::fixPackIndices() {
     auto indexFile = pack->getContentFile();
     auto blocksFolder = folder/ContentPack::BLOCKS_FOLDER;
     auto itemsFolder = folder/ContentPack::ITEMS_FOLDER;
+    auto entitiesFolder = folder/ContentPack::ENTITIES_FOLDER;
 
     dynamic::Map_sptr root;
     if (fs::is_regular_file(indexFile)) {
@@ -99,9 +106,9 @@ void ContentLoader::fixPackIndices() {
     }
 
     bool modified = false;
-
     modified |= fixPackIndices(blocksFolder, root.get(), "blocks");
     modified |= fixPackIndices(itemsFolder, root.get(), "items");
+    modified |= fixPackIndices(entitiesFolder, root.get(), "entities");
 
     if (modified){
         // rewrite modified json
@@ -173,7 +180,7 @@ void ContentLoader::loadBlock(Block& def, const std::string& name, const fs::pat
             def.hitboxes[i].b = glm::vec3(box->num(3), box->num(4), box->num(5));
             def.hitboxes[i].b += def.hitboxes[i].a;
         }
-    } else if (auto boxarr = root->list("hitbox")){
+    } else if ((boxarr = root->list("hitbox"))){
         AABB aabb;
         aabb.a = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
         aabb.b = glm::vec3(boxarr->num(3), boxarr->num(4), boxarr->num(5));
@@ -294,33 +301,73 @@ void ContentLoader::loadItem(ItemDef& def, const std::string& name, const fs::pa
     root->num("stack-size", def.stackSize);
 
     // item light emission [r, g, b] where r,g,b in range [0..15]
-    auto emissionarr = root->list("emission");
-    if (emissionarr) {
+    if (auto emissionarr = root->list("emission")) {
         def.emission[0] = emissionarr->num(0);
         def.emission[1] = emissionarr->num(1);
         def.emission[2] = emissionarr->num(2);
     }
 }
 
+void ContentLoader::loadEntity(EntityDef& def, const std::string& name, const fs::path& file) {
+    auto root = files::read_json(file);
+    root->str("script-name", def.scriptName);
+    if (auto boxarr = root->list("hitbox")) {
+        def.hitbox = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
+    }
+    if (auto triggersarr = root->list("triggers")) {
+        for (size_t i = 0; i < triggersarr->size(); i++) {
+            if (auto triggerarr = triggersarr->list(i)) {
+                def.triggers.push_back({
+                    {triggerarr->num(0), triggerarr->num(1), triggerarr->num(2)},
+                    {triggerarr->num(3), triggerarr->num(4), triggerarr->num(5)}
+                });
+            }
+        }
+    }
+    std::cout << "loading entity " << name << " from " << file.u8string() << std::endl;
+}
+
+void ContentLoader::loadEntity(EntityDef& def, const std::string& full, const std::string& name) {
+    auto folder = pack->folder;
+    auto configFile = folder/fs::path("entities/"+name+".json");
+    if (fs::exists(configFile)) loadEntity(def, full, configFile);
+
+    auto scriptfile = folder/fs::path("scripts/components/"+def.scriptName+".lua");
+    if (fs::is_regular_file(scriptfile)) {
+        scripting::load_entity_component(env, def, scriptfile);
+    }
+}
+
 void ContentLoader::loadBlock(Block& def, const std::string& full, const std::string& name) {
     auto folder = pack->folder;
-
-    fs::path configFile = folder/fs::path("blocks/"+name+".json");
+    auto configFile = folder/fs::path("blocks/"+name+".json");
     if (fs::exists(configFile)) loadBlock(def, full, configFile);
 
-    fs::path scriptfile = folder/fs::path("scripts/"+def.scriptName+".lua");
+    auto scriptfile = folder/fs::path("scripts/"+def.scriptName+".lua");
     if (fs::is_regular_file(scriptfile)) {
         scripting::load_block_script(env, full, scriptfile, def.rt.funcsset);
+    }
+    if (!def.hidden) {
+        auto& item = builder.items.create(full+BLOCK_ITEM_SUFFIX);
+        item.generated = true;
+        item.caption = def.caption;
+        item.iconType = item_icon_type::block;
+        item.icon = full;
+        item.placingBlock = full;
+        
+        for (uint j = 0; j < 4; j++) {
+            item.emission[j] = def.emission[j];
+        }
+        stats->totalItems++;
     }
 }
 
 void ContentLoader::loadItem(ItemDef& def, const std::string& full, const std::string& name) {
     auto folder = pack->folder;
-
-    fs::path configFile = folder/fs::path("items/"+name+".json");
+    auto configFile = folder/fs::path("items/"+name+".json");
     if (fs::exists(configFile)) loadItem(def, full, configFile);
 
-    fs::path scriptfile = folder/fs::path("scripts/"+def.scriptName+".lua");
+    auto scriptfile = folder/fs::path("scripts/"+def.scriptName+".lua");
     if (fs::is_regular_file(scriptfile)) {
         scripting::load_item_script(env, full, scriptfile, def.rt.funcsset);
     }
@@ -333,15 +380,8 @@ void ContentLoader::loadBlockMaterial(BlockMaterial& def, const fs::path& file) 
     root->str("break-sound", def.breakSound);
 }
 
-void ContentLoader::load(ContentBuilder& builder) {
+void ContentLoader::load() {
     logger.info() << "loading pack [" << pack->id << "]";
-
-    auto runtime = std::make_unique<ContentPackRuntime>(
-        *pack, scripting::create_pack_environment(*pack)
-    );
-    env = runtime->getEnvironment();
-    ContentPackStats& stats = runtime->getStatsWriteable();
-    builder.add(std::move(runtime));
 
     fixPackIndices();
 
@@ -356,46 +396,41 @@ void ContentLoader::load(ContentBuilder& builder) {
         return;
 
     auto root = files::read_json(pack->getContentFile());
-    auto blocksarr = root->list("blocks");
-    if (blocksarr) {
-        for (uint i = 0; i < blocksarr->size(); i++) {
+
+    if (auto blocksarr = root->list("blocks")) {
+        for (size_t i = 0; i < blocksarr->size(); i++) {
             std::string name = blocksarr->str(i);
             auto colon = name.find(':');
             std::string full = colon == std::string::npos ? pack->id + ":" + name : name;
             if (colon != std::string::npos) name[colon] = '/';
-            auto& def = builder.createBlock(full);
-            if (colon != std::string::npos) {
-                def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
-            }
+            auto& def = builder.blocks.create(full);
+            if (colon != std::string::npos) def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
             loadBlock(def, full, name);
-            stats.totalBlocks++;
-            if (!def.hidden) {
-                auto& item = builder.createItem(full+BLOCK_ITEM_SUFFIX);
-                item.generated = true;
-                item.caption = def.caption;
-                item.iconType = item_icon_type::block;
-                item.icon = full;
-                item.placingBlock = full;
-                
-                for (uint j = 0; j < 4; j++) {
-                    item.emission[j] = def.emission[j];
-                }
-                stats.totalItems++;
-            }
+            stats->totalBlocks++;
         }
     }
-
-    auto itemsarr = root->list("items");
-    if (itemsarr) {
-        for (uint i = 0; i < itemsarr->size(); i++) {
+    if (auto itemsarr = root->list("items")) {
+        for (size_t i = 0; i < itemsarr->size(); i++) {
             std::string name = itemsarr->str(i);
             auto colon = name.find(':');
             std::string full = colon == std::string::npos ? pack->id + ":" + name : name;
             if (colon != std::string::npos) name[colon] = '/';
-            auto& def = builder.createItem(full);
+            auto& def = builder.items.create(full);
             if (colon != std::string::npos) def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
             loadItem(def, full, name);
-            stats.totalItems++;
+            stats->totalItems++;
+        }
+    }
+    if (auto entitiesarr = root->list("entities")) {
+        for (size_t i = 0; i < entitiesarr->size(); i++) {
+            std::string name = entitiesarr->str(i);
+            auto colon = name.find(':');
+            std::string full = colon == std::string::npos ? pack->id + ":" + name : name;
+            if (colon != std::string::npos) name[colon] = '/';
+            auto& def = builder.entities.create(full);
+            if (colon != std::string::npos) def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
+            loadEntity(def, full, name);
+            stats->totalEntities++;
         }
     }
 

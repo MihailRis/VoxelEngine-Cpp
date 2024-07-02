@@ -10,6 +10,7 @@
 #include "../physics/Hitbox.hpp"
 #include "../physics/PhysicsSolver.hpp"
 #include "../objects/Player.hpp"
+#include "../objects/Entities.hpp"
 #include "../items/Inventory.hpp"
 #include "../items/Inventories.hpp"
 
@@ -22,6 +23,7 @@ Level::Level(
 	chunksStorage(std::make_unique<ChunksStorage>(this)),
 	physics(std::make_unique<PhysicsSolver>(glm::vec3(0, -22.6f, 0))),
     events(std::make_unique<LevelEvents>()),
+    entities(std::make_unique<Entities>(this)),
 	settings(settings)
 {
 	auto inv = std::make_shared<Inventory>(

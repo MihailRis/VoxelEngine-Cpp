@@ -121,7 +121,7 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
     itemid_t itemid = bound->getItemId();
     if (itemid != prevItem) {
         if (itemid) {
-            auto def = content->getIndices()->getItemDef(itemid);
+            auto def = content->getIndices()->items.get(itemid);
             tooltip = util::pascal_case(
                 langs::get(util::str2wstr_utf8(def->caption))
             );
@@ -159,12 +159,12 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
     auto previews = assets->get<Atlas>("block-previews");
     auto indices = content->getIndices();
 
-    ItemDef* item = indices->getItemDef(stack.getItemId());
+    ItemDef* item = indices->items.get(stack.getItemId());
     switch (item->iconType) {
         case item_icon_type::none:
             break;
         case item_icon_type::block: {
-            const Block& cblock = content->requireBlock(item->icon);
+            const Block& cblock = content->blocks.require(item->icon);
             batch->texture(previews->getTexture());
 
             UVRegion region = previews->get(cblock.name);
@@ -268,7 +268,7 @@ void SlotView::clicked(gui::GUI* gui, mousecode button) {
                 stack.setCount(halfremain);
             }
         } else {
-            auto stackDef = content->getIndices()->getItemDef(stack.getItemId());
+            auto stackDef = content->getIndices()->items.get(stack.getItemId());
             if (stack.isEmpty()) {
                 stack.set(grabbed);
                 stack.setCount(1);

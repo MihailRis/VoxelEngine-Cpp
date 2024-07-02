@@ -10,6 +10,7 @@ extern const luaL_Reg audiolib [];
 extern const luaL_Reg blocklib [];
 extern const luaL_Reg consolelib [];
 extern const luaL_Reg corelib [];
+extern const luaL_Reg entitylib [];
 extern const luaL_Reg filelib [];
 extern const luaL_Reg guilib [];
 extern const luaL_Reg hudlib [];
@@ -26,6 +27,11 @@ extern const luaL_Reg vec2lib [];
 extern const luaL_Reg vec3lib [];
 extern const luaL_Reg vec4lib [];
 extern const luaL_Reg worldlib [];
+
+// Components
+extern const luaL_Reg modeltreelib [];
+extern const luaL_Reg rigidbodylib [];
+extern const luaL_Reg transformlib [];
 
 // Lua Overrides
 extern int l_print(lua::State* L);

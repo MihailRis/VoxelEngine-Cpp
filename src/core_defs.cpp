@@ -12,7 +12,7 @@
 
 // All in-game definitions (blocks, items, etc..)
 void corecontent::setup(EnginePaths* paths, ContentBuilder* builder) {
-    Block& block = builder->createBlock("core:air");
+    Block& block = builder->blocks.create("core:air");
     block.replaceable = true;
     block.drawGroup = 1;
     block.lightPassing = true;
@@ -22,7 +22,7 @@ void corecontent::setup(EnginePaths* paths, ContentBuilder* builder) {
     block.model = BlockModel::none;
     block.pickingItem = "core:empty";
 
-    ItemDef& item = builder->createItem("core:empty");
+    ItemDef& item = builder->items.create("core:empty");
     item.iconType = item_icon_type::none;
 
     auto bindsFile = paths->getResources()/fs::path("bindings.toml");

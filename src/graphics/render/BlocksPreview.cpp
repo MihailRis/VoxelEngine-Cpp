@@ -123,7 +123,7 @@ std::unique_ptr<Atlas> BlocksPreview::build(
     const Content* content
 ) {
     auto indices = content->getIndices();
-    size_t count = indices->countBlockDefs();
+    size_t count = indices->blocks.count();
     size_t iconSize = ITEM_ICON_SIZE;
 
     auto shader = assets->get<Shader>("ui3d");
@@ -153,7 +153,7 @@ std::unique_ptr<Atlas> BlocksPreview::build(
     
     fbo.bind();
     for (size_t i = 0; i < count; i++) {
-        auto def = indices->getBlockDef(i);
+        auto def = indices->blocks.get(i);
         atlas->getTexture()->bind();
         builder.add(def->name, draw(cache, shader, &fbo, &batch, def, iconSize));
     }

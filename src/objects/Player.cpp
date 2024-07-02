@@ -88,7 +88,8 @@ void Player::updateInput(
         substeps, 
         crouch, 
         flight ? 0.0f : 1.0f, 
-        !noclip
+        !noclip,
+        0
     );
                          
     if (flight && hitbox->grounded) {
@@ -110,9 +111,9 @@ void Player::updateInput(
         noclip = !noclip;
     }
 
-    hitbox->linear_damping = PLAYER_GROUND_DAMPING;
+    hitbox->linearDamping = PLAYER_GROUND_DAMPING;
     if (flight){
-        hitbox->linear_damping = PLAYER_AIR_DAMPING;
+        hitbox->linearDamping = PLAYER_AIR_DAMPING;
         hitbox->velocity.y *= 1.0f - delta * 9;
         if (input.jump){
             hitbox->velocity.y += speed * delta * 9;
@@ -122,7 +123,7 @@ void Player::updateInput(
         }
     }
     if (!hitbox->grounded) {
-        hitbox->linear_damping = PLAYER_AIR_DAMPING;
+        hitbox->linearDamping = PLAYER_AIR_DAMPING;
     }
 
     input.noclip = false;

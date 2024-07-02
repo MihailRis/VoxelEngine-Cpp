@@ -15,6 +15,7 @@
 #include "../../maths/FrustumCulling.hpp"
 #include "../../maths/voxmaths.hpp"
 #include "../../objects/Player.hpp"
+#include "../../objects/Entities.hpp"
 #include "../../settings.hpp"
 #include "../../voxels/Block.hpp"
 #include "../../voxels/Chunk.hpp"
@@ -178,7 +179,7 @@ void WorldRenderer::renderLevel(
     {
         auto inventory = player->getInventory();
         ItemStack& stack = inventory->getSlot(player->getChosenSlot());
-        auto item = indices->getItemDef(stack.getItemId());
+        auto item = indices->items.get(stack.getItemId());
         float multiplier = 0.5f;
         shader->uniform3f("u_torchlightColor",  
             item->emission[0] / 15.0f * multiplier,
@@ -195,17 +196,17 @@ void WorldRenderer::renderLevel(
     drawChunks(level->chunks.get(), camera, shader);
 
     shader->uniformMatrix("u_model", glm::mat4(1.0f));
-    // draw entities here
+    level->entities->render(assets, *modelBatch, *frustumCulling);
     modelBatch->render();
 
     skybox->unbind();
 }
 
-void WorldRenderer::renderBlockSelection(Camera* camera, Shader* linesShader) {
+void WorldRenderer::renderBlockSelection() {
     const auto& selection = player->selection;
     auto indices = level->content->getIndices();
     blockid_t id = selection.vox.id;
-    auto block = indices->getBlockDef(id);
+    auto block = indices->blocks.get(id);
     const glm::ivec3 pos = player->selection.position;
     const glm::vec3 point = selection.hitPosition;
     const glm::vec3 norm = selection.normal;
@@ -214,8 +215,6 @@ void WorldRenderer::renderBlockSelection(Camera* camera, Shader* linesShader) {
         ? block->rt.hitboxes[selection.vox.state.rotation]
         : block->hitboxes;
 
-    linesShader->use();
-    linesShader->uniformMatrix("u_projview", camera->getProjView());
     lineBatch->lineWidth(2.0f);
     for (auto& hitbox: hitboxes) {
         const glm::vec3 center = glm::vec3(pos) + hitbox.center();
@@ -224,6 +223,17 @@ void WorldRenderer::renderBlockSelection(Camera* camera, Shader* linesShader) {
         if (player->debug) {
             lineBatch->line(point, point+norm*0.5f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
         }
+    }
+}
+
+void WorldRenderer::renderLines(Camera* camera, Shader* linesShader) {
+    linesShader->use();
+    linesShader->uniformMatrix("u_projview", camera->getProjView());
+    if (player->selection.vox.id != BLOCK_VOID) {
+        renderBlockSelection();
+    }
+    if (player->debug) {
+        level->entities->renderDebug(*lineBatch, *frustumCulling);
     }
     lineBatch->render();
 }
@@ -312,9 +322,9 @@ void WorldRenderer::draw(
             ctx.setDepthTest(true);
             ctx.setCullFace(true);
             renderLevel(ctx, camera, settings);
-            // Selected block
-            if (player->selection.vox.id != BLOCK_VOID && hudVisible){
-                renderBlockSelection(camera, linesShader);
+            // Debug lines
+            if (hudVisible){
+                renderLines(camera, linesShader);
             }
         }
 

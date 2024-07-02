@@ -13,6 +13,8 @@
 #include "../../logic/BlocksController.hpp"
 #include "../../logic/LevelController.hpp"
 #include "../../objects/Player.hpp"
+#include "../../objects/EntityDef.hpp"
+#include "../../objects/Entities.hpp"
 #include "../../util/stringutil.hpp"
 #include "../../util/timeutil.hpp"
 #include "../../util/timeutil.hpp"
@@ -25,6 +27,8 @@
 using namespace scripting;
 
 static debug::Logger logger("scripting");
+
+static inline const std::string STDCOMP = "stdcomp";
 
 Engine* scripting::engine = nullptr;
 Level* scripting::level = nullptr;
@@ -49,13 +53,15 @@ void scripting::initialize(Engine* engine) {
     load_script(fs::path("stdcmd.lua"));
 }
 
+[[nodiscard]]
 scriptenv scripting::get_root_environment() {
     return std::make_shared<int>(0);
 }
 
+[[nodiscard]]
 scriptenv scripting::create_pack_environment(const ContentPack& pack) {
     auto L = lua::get_main_thread();
-    int id = lua::createEnvironment(L, 0);
+    int id = lua::create_environment(L, 0);
     lua::pushenv(L, id);
     lua::pushvalue(L, -1);
     lua::setfield(L, "PACK_ENV");
@@ -68,9 +74,10 @@ scriptenv scripting::create_pack_environment(const ContentPack& pack) {
     });
 }
 
+[[nodiscard]]
 scriptenv scripting::create_doc_environment(const scriptenv& parent, const std::string& name) {
     auto L = lua::get_main_thread();
-    int id = lua::createEnvironment(L, *parent);
+    int id = lua::create_environment(L, *parent);
     lua::pushenv(L, id);
     lua::pushvalue(L, -1);
     lua::setfield(L, "DOC_ENV");
@@ -87,6 +94,30 @@ scriptenv scripting::create_doc_environment(const scriptenv& parent, const std::
         lua::pop(L);
     }
     lua::pop(L);
+    return std::shared_ptr<int>(new int(id), [=](int* id) {
+        lua::removeEnvironment(L, *id);
+        delete id;
+    });
+}
+
+[[nodiscard]]
+static scriptenv create_entity_environment(const scriptenv& parent, int entityIdx) {
+    auto L = lua::get_main_thread();
+    int id = lua::create_environment(L, *parent);
+
+    lua::pushvalue(L, entityIdx);
+
+    lua::pushenv(L, id);
+
+    lua::pushvalue(L, -1);
+    lua::setfield(L, "this");
+
+    lua::pushvalue(L, -2);
+    lua::setfield(L, "entity");
+
+    lua::setfield(L, "env");
+    lua::pop(L);
+
     return std::shared_ptr<int>(new int(id), [=](int* id) {
         lua::removeEnvironment(L, *id);
         delete id;
@@ -225,6 +256,114 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
     });
 }
 
+scriptenv scripting::on_entity_spawn(
+    const EntityDef& def, 
+    entityid_t eid, 
+    entity_funcs_set& funcsset,
+    dynamic::Value args
+) {
+    auto L = lua::get_main_thread();
+    lua::requireglobal(L, STDCOMP);
+    if (lua::getfield(L, "new_Entity")) {
+        lua::pushinteger(L, eid);
+        lua::call(L, 1);
+    }
+    auto entityenv = create_entity_environment(get_root_environment(), -1);
+    lua::get_from(L, lua::CHUNKS_TABLE, def.scriptName, true);
+    lua::pushenv(L, *entityenv);
+    lua::pushvalue(L, args);
+    lua::setfield(L, "ARGS");
+    lua::setfenv(L);
+    lua::call_nothrow(L, 0, 0);
+
+    lua::pushenv(L, *entityenv);
+    funcsset.on_grounded = lua::hasfield(L, "on_grounded");
+    funcsset.on_fall = lua::hasfield(L, "on_fall");
+    funcsset.on_despawn = lua::hasfield(L, "on_despawn");
+    funcsset.on_trigger_enter = lua::hasfield(L, "on_trigger_enter");
+    funcsset.on_trigger_exit = lua::hasfield(L, "on_trigger_exit");
+    lua::pop(L, 2);
+    return entityenv;
+}
+
+static bool process_entity_callback(
+    const scriptenv& env, 
+    const std::string& name, 
+    std::function<int(lua::State*)> args
+) {
+    auto L = lua::get_main_thread();
+    lua::pushenv(L, *env);
+    if (lua::getfield(L, name)) {
+        if (args) {
+            lua::call_nothrow(L, args(L), 0);
+        } else {
+            lua::call_nothrow(L, 0, 0);
+        }
+    }
+    lua::pop(L);
+    return true;
+}
+
+bool scripting::on_entity_despawn(const EntityDef& def, const Entity& entity) {
+    const auto& script = entity.getScripting();
+    if (script.funcsset.on_despawn) {
+        process_entity_callback(script.env, "on_despawn", nullptr);
+    }
+    auto L = lua::get_main_thread();
+    lua::get_from(L, "stdcomp", "remove_Entity", true);
+    lua::pushinteger(L, entity.getUID());
+    lua::call(L, 1, 0);
+    return true;
+}
+
+bool scripting::on_entity_grounded(const Entity& entity, float force) {
+    const auto& script = entity.getScripting();
+    if (script.funcsset.on_grounded) {
+        return process_entity_callback(script.env, "on_grounded", [force](auto L){
+            return lua::pushnumber(L, force);
+        });
+    }
+    return true;
+}
+
+bool scripting::on_entity_fall(const Entity& entity) {
+    const auto& script = entity.getScripting();
+    if (script.funcsset.on_fall) {
+        return process_entity_callback(script.env, "on_fall", nullptr);
+    }
+    return true;
+}
+
+void scripting::on_trigger_enter(const Entity& entity, size_t index, entityid_t oid) {
+    const auto& script = entity.getScripting();
+    if (script.funcsset.on_trigger_enter) {
+        process_entity_callback(script.env, "on_trigger_enter", [index, oid](auto L) {
+            lua::pushinteger(L, index);
+            lua::pushinteger(L, oid);
+            return 2;
+        });
+    }
+}
+
+
+void scripting::on_trigger_exit(const Entity& entity, size_t index, entityid_t oid) {
+    const auto& script = entity.getScripting();
+    if (script.funcsset.on_trigger_exit) {
+        process_entity_callback(script.env, "on_trigger_exit", [index, oid](auto L) {
+            lua::pushinteger(L, index);
+            lua::pushinteger(L, oid);
+            return 2;
+        });
+    }
+}
+
+void scripting::on_entities_update() {
+    auto L = lua::get_main_thread();
+    lua::get_from(L, STDCOMP, "update", true);
+    lua::call_nothrow(L, 0, 0);
+    lua::pop(L);
+}
+
 void scripting::on_ui_open(
     UiDocument* layout,
     std::vector<dynamic::Value> args
@@ -306,6 +445,14 @@ void scripting::load_item_script(const scriptenv& senv, const std::string& prefi
     funcsset.on_use = register_event(env, "on_use", prefix+".use");
     funcsset.on_use_on_block = register_event(env, "on_use_on_block", prefix+".useon");
     funcsset.on_block_break_by = register_event(env, "on_block_break_by", prefix+".blockbreakby");
+}
+
+void scripting::load_entity_component(const scriptenv& penv, const EntityDef& def, const fs::path& file) {
+    auto L = lua::get_main_thread();
+    std::string src = files::read_string(file);
+    logger.info() << "script (component) " << file.u8string();
+    lua::loadbuffer(L, *penv, src, file.u8string());
+    lua::store_in(L, lua::CHUNKS_TABLE, def.scriptName);
 }
 
 void scripting::load_world_script(const scriptenv& senv, const std::string& prefix, const fs::path& file) {

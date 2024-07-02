@@ -49,7 +49,7 @@ static int l_hud_open_block(lua::State* L) {
             std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z)
         );
     }
-    auto def = content->getIndices()->getBlockDef(vox->id);
+    auto def = content->getIndices()->blocks.get(vox->id);
     auto assets = engine->getAssets();
     auto layout = assets->get<UiDocument>(def->uiLayout);
     if (layout == nullptr) {

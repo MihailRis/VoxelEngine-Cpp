@@ -50,5 +50,6 @@ inline const std::string FONTS_FOLDER = "fonts";
 inline const std::string LAYOUTS_FOLDER = "layouts";
 inline const std::string SOUNDS_FOLDER = "sounds";
 inline const std::string MODELS_FOLDER = "models";
+inline const std::string RIGS_FOLDER = "rigs";
 
 #endif // CONSTANTS_HPP_

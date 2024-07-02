@@ -8,10 +8,10 @@ using namespace scripting;
 static ItemDef* get_item_def(lua::State* L, int idx) {
     auto indices = content->getIndices();
     auto id = lua::tointeger(L, idx);
-    if (static_cast<size_t>(id) >= indices->countItemDefs()) {
+    if (static_cast<size_t>(id) >= indices->items.count()) {
         return nullptr;
     }
-    return indices->getItemDef(id);
+    return indices->items.get(id);
 }
 
 static int l_item_name(lua::State* L) {
@@ -23,7 +23,7 @@ static int l_item_name(lua::State* L) {
 
 static int l_item_index(lua::State* L) {
     auto name = lua::require_string(L, 1);
-    return lua::pushinteger(L, content->requireItem(name).rt.id);
+    return lua::pushinteger(L, content->items.require(name).rt.id);
 }
 
 static int l_item_stack_size(lua::State* L) {
@@ -34,7 +34,7 @@ static int l_item_stack_size(lua::State* L) {
 }
 
 static int l_item_defs_count(lua::State* L) {
-    return lua::pushinteger(L, indices->countItemDefs());
+    return lua::pushinteger(L, indices->items.count());
 }
 
 static int l_item_get_icon(lua::State* L) {

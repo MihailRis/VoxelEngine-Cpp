@@ -3,8 +3,7 @@
 
 #include <glm/matrix.hpp>
 
-class Frustum
-{
+class Frustum {
 public:
     Frustum() {};
 
@@ -12,8 +11,7 @@ public:
     bool isBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) const;
 
 private:
-    enum Planes
-    {
+    enum Planes {
         Left = 0,
         Right,
         Bottom,
@@ -25,8 +23,7 @@ private:
     };
 
     template<Planes i, Planes j>
-    struct ij2k
-    {
+    struct ij2k {
         enum { k = i * (9 - i) / 2 + j - 1 };
     };
 
@@ -37,8 +34,7 @@ private:
     glm::vec3   m_points[8];
 };
 
-inline void Frustum::update(glm::mat4 m)
-{
+inline void Frustum::update(glm::mat4 m) {
     m = glm::transpose(m);
     m_planes[Left] = m[3] + m[0];
     m_planes[Right] = m[3] - m[0];
@@ -78,8 +74,7 @@ inline void Frustum::update(glm::mat4 m)
 
 inline bool Frustum::isBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) const {
     // check box outside/inside of frustum
-    for (int i = 0; i < Count; i++)
-    {
+    for (int i = 0; i < Count; i++) {
         if ((glm::dot(m_planes[i], glm::vec4(minp.x, minp.y, minp.z, 1.0f)) < 0.0) &&
             (glm::dot(m_planes[i], glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) < 0.0) &&
             (glm::dot(m_planes[i], glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) < 0.0) &&
@@ -106,8 +101,7 @@ inline bool Frustum::isBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) 
 }
 
 template<Frustum::Planes a, Frustum::Planes b, Frustum::Planes c>
-inline glm::vec3 Frustum::intersection(const glm::vec3* crosses) const
-{
+inline glm::vec3 Frustum::intersection(const glm::vec3* crosses) const {
     float D = glm::dot(glm::vec3(m_planes[a]), crosses[ij2k<b, c>::k]);
     glm::vec3 res = glm::mat3(crosses[ij2k<b, c>::k], -crosses[ij2k<a, c>::k], crosses[ij2k<a, b>::k]) *
         glm::vec3(m_planes[a].w, m_planes[b].w, m_planes[c].w);

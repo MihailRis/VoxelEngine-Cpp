@@ -40,7 +40,7 @@ BlocksRenderer::BlocksRenderer(
         CHUNK_W + voxelBufferPadding*2, 
         CHUNK_H, 
         CHUNK_D + voxelBufferPadding*2);
-    blockDefsCache = content->getIndices()->getBlockDefs();
+    blockDefsCache = content->getIndices()->blocks.getDefs();
 }
 
 BlocksRenderer::~BlocksRenderer() {

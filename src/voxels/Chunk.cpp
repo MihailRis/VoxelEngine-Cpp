@@ -127,7 +127,7 @@ void Chunk::convert(ubyte* data, const ContentLUT* lut) {
         // see encode method to understand what the hell is going on here
         blockid_t id = ((static_cast<blockid_t>(data[i]) << 8) | 
                          static_cast<blockid_t>(data[CHUNK_VOL+i]));
-        blockid_t replacement = lut->getBlockId(id);
+        blockid_t replacement = lut->blocks.getId(id);
         data[i] = replacement >> 8;
         data[CHUNK_VOL+i] = replacement & 0xFF;
     }

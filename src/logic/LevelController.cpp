@@ -6,6 +6,7 @@
 #include "../world/Level.hpp"
 #include "../world/World.hpp"
 #include "../physics/Hitbox.hpp"
+#include "../objects/Entities.hpp"
 
 #include "scripting/scripting.hpp"
 #include "../interfaces/Object.hpp"
@@ -29,6 +30,19 @@ void LevelController::update(float delta, bool input, bool pause) {
         settings.chunks.loadDistance.get() + 
         settings.chunks.padding.get() * 2);
     chunks->update(settings.chunks.loadSpeed.get());
+    
+    level->entities->clean();
+    if (!pause) {
+        // update all objects that needed
+        for (const auto& obj : level->objects) {
+            if (obj && obj->shouldUpdate) {
+                obj->update(delta);
+            }
+        }
+        blocks->update(delta);
+        level->entities->updatePhysics(delta);
+        level->entities->update();
+    }
     player->update(delta, input, pause);
 
     // erease null pointers
@@ -38,16 +52,6 @@ void LevelController::update(float delta, bool input, bool pause) {
             [](auto obj) { return obj == nullptr; }),
         level->objects.end()
     );
-    
-    if (!pause) {
-        // update all objects that needed
-        for (const auto& obj : level->objects) {
-            if (obj && obj->shouldUpdate) {
-                obj->update(delta);
-            }
-        }
-        blocks->update(delta);
-    }
 }
 
 void LevelController::saveWorld() {

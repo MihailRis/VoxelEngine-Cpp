@@ -81,7 +81,7 @@ void LightSolver::solve(){
 		}
 	}
 
-	const Block* const* blockDefs = contentIds->getBlockDefs();
+	const Block* const* blockDefs = contentIds->blocks.getDefs();
 	while (!addqueue.empty()){
 		const lightentry entry = addqueue.front();
 		addqueue.pop();
