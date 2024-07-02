@@ -73,6 +73,13 @@ namespace rigging {
     class RigConfig {
         std::unique_ptr<RigNode> root;
         std::unordered_map<std::string, size_t> indices;
+        
+        /// Nodes and indices are ordered from root to subnodes.
+        /// Example:
+        /// 0 - root
+        /// 1 --- sub1
+        /// 2 ----- subsub1
+        /// 3 --- sub2
         std::vector<RigNode*> nodes;
 
         size_t update(

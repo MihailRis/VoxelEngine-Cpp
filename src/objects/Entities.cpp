@@ -53,20 +53,27 @@ entityid_t Entities::spawn(
     auto& body = registry.emplace<Rigidbody>(
         entity, true, Hitbox {pos, def.hitbox}, std::vector<Trigger>{});
     for (auto& box : def.triggers) {
-        body.triggers.emplace_back(Trigger{true, id, box, AABB{}, {}, {},
-        [=](auto entityid, auto index, auto otherid) {
-            if (auto entity = get(entityid)) {
-                if (entity->isValid()) {
-                    scripting::on_trigger_enter(*entity, index, otherid);
+        body.triggers.emplace_back(Trigger{
+            true,
+            id,
+            box,
+            AABB{},
+            {},
+            {},
+            [=](auto entityid, auto index, auto otherid) {
+                if (auto entity = get(entityid)) {
+                    if (entity->isValid()) {
+                        scripting::on_trigger_enter(*entity, index, otherid);
+                    }
                 }
-            }
-        }, [=](auto entityid, auto index, auto otherid) {
-            if (auto entity = get(entityid)) {
-                if (entity->isValid()) {
-                    scripting::on_trigger_exit(*entity, index, otherid);
+            },
+            [=](auto entityid, auto index, auto otherid) {
+                if (auto entity = get(entityid)) {
+                    if (entity->isValid()) {
+                        scripting::on_trigger_exit(*entity, index, otherid);
+                    }
                 }
-            }
-        }});
+            }});
     }
     auto& scripting = registry.emplace<Scripting>(
         entity, entity_funcs_set {}, nullptr);

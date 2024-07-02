@@ -451,7 +451,7 @@ void scripting::load_entity_component(const scriptenv& penv, const EntityDef& de
     auto L = lua::get_main_thread();
     std::string src = files::read_string(file);
     logger.info() << "script (component) " << file.u8string();
-    lua::loadbuffer(L, 0, src, file.u8string());
+    lua::loadbuffer(L, *penv, src, file.u8string());
     lua::store_in(L, lua::CHUNKS_TABLE, def.scriptName);
 }
 

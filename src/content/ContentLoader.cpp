@@ -380,25 +380,6 @@ void ContentLoader::loadBlockMaterial(BlockMaterial& def, const fs::path& file) 
     root->str("break-sound", def.breakSound);
 }
 
-template<class T, void(ContentLoader::*loadfunc)(T&, const std::string&, const std::string&)>
-static void load_defs(ContentLoader* cl, dynamic::List* arr, const ContentPack* pack, ContentUnitBuilder<T>& builder, size_t& counter) {
-    if (arr == nullptr) {
-        return;
-    }
-    for (size_t i = 0; i < arr->size(); i++) {
-        std::string name = arr->str(i);
-        auto colon = name.find(':');
-        std::string full = colon == std::string::npos ? pack->id + ":" + name : name;
-        if (colon != std::string::npos) name[colon] = '/';
-        auto& def = builder.create(full);
-        if (colon != std::string::npos) {
-            def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
-        }
-        cl->*loadfunc(def, full, name);
-        counter++;
-    }
-}
-
 void ContentLoader::load() {
     logger.info() << "loading pack [" << pack->id << "]";
 
