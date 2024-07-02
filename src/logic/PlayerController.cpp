@@ -169,6 +169,7 @@ void CameraControl::update(const PlayerInput& input, float delta, Chunks* chunks
         tpCamera->dir = camera->dir;
         tpCamera->front = camera->front;
     }
+    player->currentCamera->setFov(glm::radians(settings.fov.get()));
 }
 
 PlayerController::PlayerController(
