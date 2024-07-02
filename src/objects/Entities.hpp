@@ -69,7 +69,8 @@ class LineBatch;
 class ModelBatch;
 class Frustum;
 class Entities;
-namespace riggining {
+
+namespace rigging {
     struct Rig;
     class RigConfig;
 }
@@ -111,6 +112,8 @@ public:
     Scripting& getScripting() const {
         return registry.get<Scripting>(entity);
     }
+
+    rigging::Rig& getModeltree() const;
 
     entityid_t getUID() const {
         return registry.get<EntityId>(entity).uid;

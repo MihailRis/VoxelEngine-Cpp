@@ -21,14 +21,17 @@ extern const luaL_Reg jsonlib [];
 extern const luaL_Reg mat4lib [];
 extern const luaL_Reg packlib [];
 extern const luaL_Reg playerlib [];
-extern const luaL_Reg rigidbodylib [];
 extern const luaL_Reg timelib [];
 extern const luaL_Reg tomllib [];
-extern const luaL_Reg transformlib [];
 extern const luaL_Reg vec2lib [];
 extern const luaL_Reg vec3lib [];
 extern const luaL_Reg vec4lib [];
 extern const luaL_Reg worldlib [];
+
+// Components
+extern const luaL_Reg modeltreelib [];
+extern const luaL_Reg rigidbodylib [];
+extern const luaL_Reg transformlib [];
 
 // Lua Overrides
 extern int l_print(lua::State* L);

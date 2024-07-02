@@ -4,6 +4,7 @@
 #include "../../../world/Level.hpp"
 #include "../../../objects/Player.hpp"
 #include "../../../objects/Entities.hpp"
+#include "../../../objects/rigging.hpp"
 #include "../../../physics/Hitbox.hpp"
 #include "../../../window/Camera.hpp"
 #include "../../../frontend/hud.hpp"
@@ -110,6 +111,16 @@ static int l_get_size(lua::State* L) {
     return 0;
 }
 
+static int l_modeltree_get_model(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        auto& rig = entity->getModeltree();
+        auto* rigConfig = rig.config;
+        auto index = lua::tointeger(L, 2);
+        return lua::pushstring(L, rigConfig->getNodes()[index]->getModelName());
+    }
+    return 0;
+}
+
 const luaL_Reg entitylib [] = {
     {"exists", lua::wrap<l_exists>},
     {"spawn", lua::wrap<l_spawn>},
@@ -117,13 +128,18 @@ const luaL_Reg entitylib [] = {
     {NULL, NULL}
 };
 
- const luaL_Reg transformlib [] = {
+const luaL_Reg modeltreelib [] = {
+    {"get_model", lua::wrap<l_modeltree_get_model>},
+    {NULL, NULL}
+};
+
+const luaL_Reg transformlib [] = {
     {"get_pos", lua::wrap<l_get_pos>},
     {"set_pos", lua::wrap<l_set_pos>},
     {"get_rot", lua::wrap<l_get_rot>},
     {"set_rot", lua::wrap<l_set_rot>},
     {NULL, NULL}
- };
+};
 
 const luaL_Reg rigidbodylib [] = {
     {"is_enabled", lua::wrap<l_is_enabled>},

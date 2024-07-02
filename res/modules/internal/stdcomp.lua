@@ -24,6 +24,7 @@ function new_Rigidbody(eid)
 end
 
 local Modeltree = {__index={
+    get_model=function(self) return __modeltree.get_model(self.eid) end,
 }}
 
 function new_Modeltree(eid)
@@ -33,7 +34,7 @@ end
 -- Entity class
 
 local Entity = {__index={
-    despawn=function(self) return entity.despawn(self.eid) end,
+    despawn=function(self) return entities.despawn(self.eid) end,
 }}
 
 local entities = {}

@@ -28,6 +28,10 @@ void Entity::destroy() {
     }
 }
 
+rigging::Rig& Entity::getModeltree() const {
+    return registry.get<rigging::Rig>(entity);
+}
+
 Entities::Entities(Level* level) : level(level) {
 }
 

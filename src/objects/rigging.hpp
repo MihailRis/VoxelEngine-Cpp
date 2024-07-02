@@ -101,6 +101,10 @@ namespace rigging {
             std::string_view src,
             std::string_view file
         );
+
+        const std::vector<RigNode*>& getNodes() const {
+            return nodes;
+        }
     };
 };
 
