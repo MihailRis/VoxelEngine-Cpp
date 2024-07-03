@@ -6,20 +6,25 @@ inair = true
 ready = false
 
 local dropitem = ARGS.item
+local scale = {1, 1, 1}
+local rotation = mat4.rotate({
+    math.random(), math.random(), math.random()
+}, 360)
 
 do -- setup visuals
-    local rotation = mat4.rotate({0, 1, 0}, math.random() * 360)
-    mat4.rotate(rotation, {1, 0, 0}, math.random() * 360, rotation)
-    mat4.rotate(rotation, {0, 0, 1}, math.random() * 360, rotation)
-    rig:set_matrix(0, rotation)
+    local matrix = mat4.idt()
     local icon = item.icon(dropitem.id)
     if icon:find("^block%-previews%:") then
         local bid = block.index(icon:sub(16))
-        if block.get_model(bid) == "X" then
+        local model = block.get_model(bid)
+        if model == "X" then
             entity:set_rig("drop-item")
             body:set_size(vec3.mul(body:get_size(), {1.0, 0.3, 1.0}))
             rig:set_texture("$0", icon)
         else
+            if model == "aabb" then
+                scale = block.get_hitbox(bid, 0)[2]
+            end
             local textures = block.get_textures(bid)
             for i,t in ipairs(textures) do
                 rig:set_texture("$"..tostring(i-1), "blocks:"..textures[i])
@@ -30,10 +35,15 @@ do -- setup visuals
         body:set_size(vec3.mul(body:get_size(), {1.0, 0.3, 1.0}))
         rig:set_texture("$0", icon)
     end
+    mat4.mul(matrix, rotation, matrix)
+    mat4.scale(matrix, scale, matrix)
+    rig:set_matrix(0, matrix)
 end
 
 function on_grounded(force)
-    rig:set_matrix(0, mat4.rotate({0, 1, 0}, math.random()*360))
+    local matrix = mat4.rotate({0, 1, 0}, math.random()*360)
+    mat4.scale(matrix, scale, matrix)
+    rig:set_matrix(0, matrix)
     inair = false
     ready = true
 end
@@ -53,9 +63,13 @@ end
 function on_update()
     if inair then
         local dt = time.delta();
-        local matrix = rig:get_matrix(0)
-        mat4.rotate(matrix, {0, 1, 0}, 240*dt, matrix)
-        mat4.rotate(matrix, {0, 0, 1}, 240*dt, matrix)
+
+        mat4.rotate(rotation, {0, 1, 0}, 240*dt, rotation)
+        mat4.rotate(rotation, {0, 0, 1}, 240*dt, rotation)
+        
+        local matrix = mat4.idt()
+        mat4.mul(matrix, rotation, matrix)
+        mat4.scale(matrix, scale, matrix)
         rig:set_matrix(0, matrix)
     end
 end
