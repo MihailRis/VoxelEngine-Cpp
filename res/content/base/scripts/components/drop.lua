@@ -16,14 +16,17 @@ do -- setup visuals
     local icon = item.icon(dropitem.id)
     if icon:find("^block%-previews%:") then
         local bid = block.index(icon:sub(16))
-        local model = block.get_model(bid)
+        model = block.get_model(bid)
         if model == "X" then
             entity:set_rig("drop-item")
             body:set_size(vec3.mul(body:get_size(), {1.0, 0.3, 1.0}))
             rig:set_texture("$0", icon)
         else
             if model == "aabb" then
-                scale = block.get_hitbox(bid, 0)[2]
+                local rot = block.get_rotation_profile(bid) == "pipe" and 4 or 0
+                scale = block.get_hitbox(bid, rot)[2]
+                body:set_size(vec3.mul(body:get_size(), {1.0, 0.7, 1.0}))
+                vec3.mul(scale, 1.5, scale)
             end
             local textures = block.get_textures(bid)
             for i,t in ipairs(textures) do
@@ -41,7 +44,11 @@ do -- setup visuals
 end
 
 function on_grounded(force)
-    local matrix = mat4.rotate({0, 1, 0}, math.random()*360)
+    local matrix = mat4.idt()
+    mat4.rotate(matrix, {0, 1, 0}, math.random()*360, matrix)
+    if model == "aabb" then
+        mat4.rotate(matrix, {1, 0, 0}, 90, matrix)
+    end
     mat4.scale(matrix, scale, matrix)
     rig:set_matrix(0, matrix)
     inair = false
@@ -66,7 +73,7 @@ function on_update()
 
         mat4.rotate(rotation, {0, 1, 0}, 240*dt, rotation)
         mat4.rotate(rotation, {0, 0, 1}, 240*dt, rotation)
-        
+
         local matrix = mat4.idt()
         mat4.mul(matrix, rotation, matrix)
         mat4.scale(matrix, scale, matrix)

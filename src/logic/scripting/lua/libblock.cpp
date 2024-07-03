@@ -286,7 +286,7 @@ static int l_get_model(lua::State* L) {
 
 static int l_get_hitbox(lua::State* L) {
     if (auto def = require_block(L)) {
-        auto& hitbox = def->rt.hitboxes[0].at(lua::tointeger(L, 2));
+        auto& hitbox = def->rt.hitboxes[lua::tointeger(L, 2)].at(0);
         lua::createtable(L, 2, 0);
         
         lua::pushvec3_arr(L, hitbox.min());
@@ -295,6 +295,13 @@ static int l_get_hitbox(lua::State* L) {
         lua::pushvec3_arr(L, hitbox.size());
         lua::rawseti(L, 2);
         return 1;
+    }
+    return 0;
+}
+
+static int l_get_rotation_profile(lua::State* L) {
+    if (auto def = require_block(L)) {
+        return lua::pushstring(L, def->rotations.name);   
     }
     return 0;
 }
@@ -325,5 +332,6 @@ const luaL_Reg blocklib [] = {
     {"get_textures", lua::wrap<l_get_textures>},
     {"get_model", lua::wrap<l_get_model>},
     {"get_hitbox", lua::wrap<l_get_hitbox>},
+    {"get_rotation_profile", lua::wrap<l_get_rotation_profile>},
     {NULL, NULL}
 };
