@@ -38,6 +38,7 @@ end
 
 local Entity = {__index={
     despawn=function(self) return entities.despawn(self.eid) end,
+    set_rig=function(self, s) return entities.set_rig(self.eid, s) end,
 }}
 
 local entities = {}

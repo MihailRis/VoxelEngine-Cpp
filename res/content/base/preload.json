@@ -5,10 +5,11 @@
         "events/pickup"
     ],
     "models": [
-        "cube",
-        "item"
+        "drop-block",
+        "drop-item"
     ],
     "rigs": [
-        "drop"
+        "drop",
+        "drop-item"
     ]
 }

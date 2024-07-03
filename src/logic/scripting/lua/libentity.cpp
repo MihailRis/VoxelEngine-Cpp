@@ -48,6 +48,19 @@ static int l_despawn(lua::State* L) {
     return 0;
 }
 
+static int l_set_rig(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        auto assets = scripting::engine->getAssets();
+        std::string rigName = lua::require_string(L, 2);
+        auto rigConfig = assets->get<rigging::RigConfig>(rigName);
+        if (rigConfig == nullptr) {
+            throw std::runtime_error("rig not found '"+rigName+"'");
+        }
+        entity->setRig(rigConfig);
+    }
+    return 0;
+}
+
 static int l_get_pos(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
         return lua::pushvec3_arr(L, entity->getTransform().pos);
@@ -160,6 +173,7 @@ const luaL_Reg entitylib [] = {
     {"exists", lua::wrap<l_exists>},
     {"spawn", lua::wrap<l_spawn>},
     {"despawn", lua::wrap<l_despawn>},
+    {"set_rig", lua::wrap<l_set_rig>},
     {NULL, NULL}
 };
 

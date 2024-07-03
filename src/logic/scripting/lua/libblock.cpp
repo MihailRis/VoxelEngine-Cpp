@@ -271,6 +271,19 @@ static int l_get_textures(lua::State* L) {
     return 0;
 }
 
+static int l_get_model(lua::State* L) {
+    if (auto def = require_block(L)) {
+        switch (def->model) {
+            case BlockModel::block: return lua::pushstring(L, "block");
+            case BlockModel::aabb: return lua::pushstring(L, "aabb");
+            case BlockModel::xsprite: return lua::pushstring(L, "X");
+            case BlockModel::custom: return lua::pushstring(L, "custom");
+            case BlockModel::none: return lua::pushstring(L, "none");
+        }
+        return 0;
+    }
+}
+
 const luaL_Reg blocklib [] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_name>},
@@ -295,5 +308,6 @@ const luaL_Reg blocklib [] = {
     {"is_segment", lua::wrap<l_is_segment>},
     {"seek_origin", lua::wrap<l_seek_origin>},
     {"get_textures", lua::wrap<l_get_textures>},
+    {"get_model", lua::wrap<l_get_model>},
     {NULL, NULL}
 };
