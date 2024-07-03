@@ -17,6 +17,7 @@ do -- setup visuals
         local bid = block.index(icon:sub(16))
         if block.get_model(bid) == "X" then
             entity:set_rig("drop-item")
+            body:set_size(vec3.mul(body:get_size(), {1.0, 0.3, 1.0}))
             rig:set_texture("$0", icon)
         else
             local textures = block.get_textures(bid)
@@ -26,6 +27,7 @@ do -- setup visuals
         end
     else
         entity:set_rig("drop-item")
+        body:set_size(vec3.mul(body:get_size(), {1.0, 0.3, 1.0}))
         rig:set_texture("$0", icon)
     end
 end
