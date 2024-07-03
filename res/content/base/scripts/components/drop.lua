@@ -12,7 +12,15 @@ mat4.rotate(rotation, {1, 0, 0}, math.random() * 360, rotation)
 mat4.rotate(rotation, {0, 0, 1}, math.random() * 360, rotation)
 rig:set_matrix(0, rotation)
 local icon = item.icon(dropitem.id)
-rig:set_texture("$0", icon:gsub("block%-previews", "blocks"):gsub("base%:", ""))
+if icon:find("^block%-previews%:") then
+    local bid = block.index(icon:sub(16))
+    local textures = block.get_textures(bid)
+    for i,t in ipairs(textures) do
+        rig:set_texture("$"..tostring(i-1), "blocks:"..textures[i])
+    end
+else
+    rig:set_texture("$0", icon)
+end
 
 function on_grounded(force)
     rig:set_matrix(0, mat4.rotate({0, 1, 0}, math.random()*360))

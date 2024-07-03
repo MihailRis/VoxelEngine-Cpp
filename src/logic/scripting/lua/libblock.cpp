@@ -259,6 +259,18 @@ static int l_caption(lua::State* L) {
     return 0;
 }
 
+static int l_get_textures(lua::State* L) {
+    if (auto def = require_block(L)) {
+        lua::createtable(L, 6, 0);
+        for (size_t i = 0; i < 6; i++) {
+            lua::pushstring(L, def->textureFaces[i]);
+            lua::rawseti(L, i+1);
+        }
+        return 1;
+    }
+    return 0;
+}
+
 const luaL_Reg blocklib [] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_name>},
@@ -282,5 +294,6 @@ const luaL_Reg blocklib [] = {
     {"get_size", lua::wrap<l_get_size>},
     {"is_segment", lua::wrap<l_is_segment>},
     {"seek_origin", lua::wrap<l_seek_origin>},
+    {"get_textures", lua::wrap<l_get_textures>},
     {NULL, NULL}
 };

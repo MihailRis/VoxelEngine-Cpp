@@ -139,6 +139,8 @@ void ModelBatch::setTexture(const std::string& name,
             setTexture(atlas->getTexture());
             if (auto reg = atlas->getIf(name.substr(sep+1))) {
                 region = *reg;
+            } else {
+                setTexture("blocks:notfound", varTextures);
             }
         }
     }
