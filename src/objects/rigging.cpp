@@ -78,7 +78,7 @@ void RigConfig::render(
             continue;
         }
         batch.pushMatrix(rig.calculated.matrices[i]);
-        batch.draw(model);
+        batch.draw(model, &rig.textures);
         batch.popMatrix();
     }
 }

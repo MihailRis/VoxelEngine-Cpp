@@ -64,7 +64,7 @@ namespace rigging {
         RigConfig* config;
         Pose pose;
         Pose calculated;
-        std::vector<std::string> textures;
+        std::unordered_map<std::string, std::string> textures;
     };
     
     class RigConfig {

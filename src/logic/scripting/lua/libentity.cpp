@@ -148,6 +148,14 @@ static int l_modeltree_set_matrix(lua::State* L) {
     return 0;
 }
 
+static int l_modeltree_set_texture(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        auto& rig = entity->getModeltree();
+        rig.textures[lua::require_string(L, 2)] = lua::require_string(L, 3);
+    }
+    return 0;
+}
+
 const luaL_Reg entitylib [] = {
     {"exists", lua::wrap<l_exists>},
     {"spawn", lua::wrap<l_spawn>},
@@ -159,6 +167,7 @@ const luaL_Reg modeltreelib [] = {
     {"get_model", lua::wrap<l_modeltree_get_model>},
     {"get_matrix", lua::wrap<l_modeltree_get_matrix>},
     {"set_matrix", lua::wrap<l_modeltree_set_matrix>},
+    {"set_texture", lua::wrap<l_modeltree_set_texture>},
     {NULL, NULL}
 };
 

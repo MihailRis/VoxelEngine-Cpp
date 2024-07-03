@@ -27,6 +27,7 @@ local Modeltree = {__index={
     get_model=function(self, i) return __modeltree.get_model(self.eid, i) end,
     get_matrix=function(self, i) return __modeltree.get_matrix(self.eid, i) end,
     set_matrix=function(self, i, m) return __modeltree.set_matrix(self.eid, i, m) end,
+    set_texture=function(self, s, s2) return __modeltree.set_texture(self.eid, s, s2) end,
 }}
 
 function new_Modeltree(eid)
