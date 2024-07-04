@@ -53,6 +53,7 @@ return {
         entity.rigidbody = new_Rigidbody(eid)
         entity.modeltree = new_Modeltree(eid)
         entity.data = {}
+        entity.components = {}
         entities[eid] = entity;
         return entity
     end,
@@ -62,17 +63,19 @@ return {
     remove_Entity = function(eid)
         local entity = entities[eid]
         if entity then
-            entity.env = nil
+            entity.components = nil
             entities[eid] = nil;
         end
     end,
     update = function()
         for id,entity in pairs(entities) do
-            local callback = entity.env.on_update
-            if callback then
-                local result, err = pcall(callback)
-                if err then
-                    print(err)
+            for _, component in pairs(entity.components) do
+                local callback = component.on_update
+                if callback then
+                    local result, err = pcall(callback)
+                    if err then
+                        print(err)
+                    end
                 end
             end
         end

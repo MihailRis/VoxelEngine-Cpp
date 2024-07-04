@@ -90,12 +90,15 @@ entityid_t Entities::spawn(
             create_trigger_callback<scripting::on_trigger_exit>(this)
         };
     }
-    auto& scripting = registry.emplace<Scripting>(
-        entity, entity_funcs_set {}, nullptr);
+    auto& scripting = registry.emplace<ScriptComponents>(entity);
     entities[id] = entity;
     registry.emplace<rigging::Rig>(entity, rig->instance());
-    scripting.env = scripting::on_entity_spawn(
-        def, id, scripting.funcsset, std::move(args));
+    for (auto& componentName : def.components) {
+        auto component = std::make_unique<UserComponent>(
+            componentName, entity_funcs_set {}, nullptr);
+        scripting.components.emplace_back(std::move(component));
+    }
+    scripting::on_entity_spawn(def, id, scripting.components, std::move(args));
     return id;
 }
 

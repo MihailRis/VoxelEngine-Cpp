@@ -6,6 +6,7 @@
 #include "../data/dynamic.hpp"
 
 #include <vector>
+#include <memory>
 #include <optional>
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -65,9 +66,23 @@ struct Rigidbody {
     std::vector<Trigger> triggers;
 };
 
-struct Scripting {
+struct UserComponent {
+    std::string name;
     entity_funcs_set funcsset;
     scriptenv env;
+
+    UserComponent(const std::string& name, entity_funcs_set funcsset, scriptenv env)
+      : name(name), funcsset(funcsset), env(env) {}
+};
+
+struct ScriptComponents {
+    std::vector<std::unique_ptr<UserComponent>> components;
+
+    ScriptComponents() = default;
+
+    ScriptComponents(ScriptComponents&& other)
+        : components(std::move(other.components)) {
+    }
 };
 
 class Level;
@@ -116,8 +131,8 @@ public:
         return registry.get<Rigidbody>(entity);
     }
 
-    Scripting& getScripting() const {
-        return registry.get<Scripting>(entity);
+    ScriptComponents& getScripting() const {
+        return registry.get<ScriptComponents>(entity);
     }
 
     rigging::Rig& getModeltree() const;

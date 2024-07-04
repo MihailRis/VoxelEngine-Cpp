@@ -27,7 +27,7 @@ class Inventory;
 class UiDocument;
 struct block_funcs_set;
 struct item_funcs_set;
-struct entity_funcs_set;
+struct UserComponent;
 struct uidocscript;
 class BlocksController;
 class LevelController;
@@ -76,10 +76,10 @@ namespace scripting {
     /// @return true if prevents default action
     bool on_item_break_block(Player* player, const ItemDef* item, int x, int y, int z);
 
-    scriptenv on_entity_spawn(
-        const EntityDef& def, 
+    void on_entity_spawn(
+        const EntityDef& def,
         entityid_t eid, 
-        entity_funcs_set&,
+        const std::vector<std::unique_ptr<UserComponent>>& components,
         dynamic::Value args
     );
     bool on_entity_despawn(const EntityDef& def, const Entity& entity);
@@ -124,7 +124,7 @@ namespace scripting {
 
     void load_entity_component(
         const scriptenv& env,
-        const EntityDef& def,
+        const std::string& name,
         const fs::path& file);
     
     /// @brief Load package-specific world script 

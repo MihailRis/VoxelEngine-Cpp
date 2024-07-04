@@ -311,7 +311,11 @@ void ContentLoader::loadItem(ItemDef& def, const std::string& name, const fs::pa
 
 void ContentLoader::loadEntity(EntityDef& def, const std::string& name, const fs::path& file) {
     auto root = files::read_json(file);
-    root->str("script-name", def.scriptName);
+    if (auto componentsarr = root->list("components")) {
+        for (size_t i = 0; i < componentsarr->size(); i++) {
+            def.components.push_back(componentsarr->str(i));
+        }
+    }
     if (auto boxarr = root->list("hitbox")) {
         def.hitbox = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
     }
@@ -341,9 +345,11 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& full, const st
     auto configFile = folder/fs::path("entities/"+name+".json");
     if (fs::exists(configFile)) loadEntity(def, full, configFile);
 
-    auto scriptfile = folder/fs::path("scripts/components/"+def.scriptName+".lua");
-    if (fs::is_regular_file(scriptfile)) {
-        scripting::load_entity_component(env, def, scriptfile);
+    for (auto& componentName : def.components) {
+        auto scriptfile = folder/fs::path("scripts/components/"+componentName+".lua");
+        if (fs::is_regular_file(scriptfile)) {
+            scripting::load_entity_component(env, componentName, scriptfile);
+        }
     }
 }
 
@@ -437,7 +443,6 @@ void ContentLoader::load() {
             std::string full = colon == std::string::npos ? pack->id + ":" + name : name;
             if (colon != std::string::npos) name[colon] = '/';
             auto& def = builder.entities.create(full);
-            if (colon != std::string::npos) def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
             loadEntity(def, full, name);
             stats->totalEntities++;
         }

@@ -15,8 +15,9 @@ namespace rigging {
 struct EntityDef {
     /// @brief Entity string id (with prefix included)
     std::string const name;
+    
+    std::vector<std::string> components;
 
-    std::string scriptName = name.substr(name.find(':')+1);
     glm::vec3 hitbox {0.5f};
     std::vector<std::pair<size_t, AABB>> boxTriggers {};
     std::vector<std::pair<size_t, float>> radialTriggers {};
