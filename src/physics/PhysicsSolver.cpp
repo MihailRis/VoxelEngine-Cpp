@@ -7,13 +7,15 @@
 #include "../voxels/voxel.hpp"
 
 #include <iostream>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/norm.hpp>
 
 const float E = 0.03f;
 const float MAX_FIX = 0.1f;
 
 PhysicsSolver::PhysicsSolver(glm::vec3 gravity) : gravity(gravity) {
 }
-#include "../util/timeutil.hpp"
+
 void PhysicsSolver::step(
     Chunks* chunks, 
     Hitbox* hitbox, 
@@ -85,15 +87,27 @@ void PhysicsSolver::step(
     aabb.a = hitbox->position - hitbox->halfsize;
     aabb.b = hitbox->position + hitbox->halfsize;
     for (size_t i = 0; i < triggers.size(); i++) {
-        auto& trigger = triggers[i];
-        if (trigger->entity == entity) {
+        auto& trigger = *triggers[i];
+        if (trigger.entity == entity) {
             continue;
         }
-        if (aabb.intersect(trigger->calculated)) {
-            if (trigger->prevEntered.find(entity) == trigger->prevEntered.end()) {
-                trigger->enterCallback(trigger->entity, i, entity);
+
+        bool triggered = false;
+        switch (trigger.type) {
+            case TriggerType::AABB:
+                triggered = aabb.intersect(trigger.calculated.aabb);
+                break;
+            case TriggerType::RADIUS:
+                triggered = glm::distance2(
+                    hitbox->position, glm::vec3(trigger.calculated.radial))
+                     < trigger.calculated.radial.w;
+                break;
+        }
+        if (triggered) {
+            if (trigger.prevEntered.find(entity) == trigger.prevEntered.end()) {
+                trigger.enterCallback(trigger.entity, trigger.index, entity);
             }
-            trigger->nextEntered.insert(entity);
+            trigger.nextEntered.insert(entity);
         }
     }
 }

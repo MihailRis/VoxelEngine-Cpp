@@ -4,6 +4,7 @@ local rig = entity.modeltree
 
 inair = true
 ready = false
+target = -1
 
 local dropitem = ARGS.item
 local scale = {1, 1, 1}
@@ -60,10 +61,19 @@ function on_fall()
 end
 
 function on_trigger_enter(index, oid)
-    if ready and oid == 0 then
+    if ready and oid == 0 and index == 0 then
         entity:despawn()
         inventory.add(player.get_inventory(oid), dropitem.id, dropitem.count)
         audio.play_sound_2d("events/pickup", 0.5, 0.8+math.random()*0.4, "regular")
+    end
+    if index == 1 and ready and oid == 0 then
+        target = oid
+    end
+end
+
+function on_trigger_exit(index, oid)
+    if oid == target and index == 1 then
+        target = -1
     end
 end
 
@@ -78,5 +88,11 @@ function on_update()
         mat4.mul(matrix, rotation, matrix)
         mat4.scale(matrix, scale, matrix)
         rig:set_matrix(0, matrix)
+    end
+    if target ~= -1 then
+        local dir = vec3.sub({player.get_pos(target)}, tsf:get_pos())
+        vec3.normalize(dir, dir)
+        vec3.mul(dir, 10.0, dir)
+        body:set_vel(dir)
     end
 end

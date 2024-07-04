@@ -320,10 +320,12 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& name, const fs
             if (auto triggerarr = triggersarr->list(i)) {
                 auto triggerType = triggerarr->str(0);
                 if (triggerType == "aabb") {
-                    def.boxTriggers.push_back({
+                    def.boxTriggers.push_back({i, {
                         {triggerarr->num(1), triggerarr->num(2), triggerarr->num(3)},
                         {triggerarr->num(4), triggerarr->num(5), triggerarr->num(6)}
-                    });
+                    }});
+                } else if (triggerType == "radius") {
+                    def.radialTriggers.push_back({i, triggerarr->num(1)});
                 } else {
                     logger.error() << name << ": trigger #" << i << " - unknown type "
                         << util::quote(triggerType);

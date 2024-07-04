@@ -42,6 +42,17 @@ void Entity::setRig(rigging::RigConfig* rigConfig) {
 Entities::Entities(Level* level) : level(level) {
 }
 
+template<void(*callback)(const Entity&, size_t, entityid_t)>
+static triggercallback create_trigger_callback(Entities* entities) {
+    return [=](auto entityid, auto index, auto otherid) {
+        if (auto entity = entities->get(entityid)) {
+            if (entity->isValid()) {
+                callback(*entity, index, otherid);
+            }
+        }
+    };
+}
+
 entityid_t Entities::spawn(
     Assets* assets,
     EntityDef& def,
@@ -59,28 +70,25 @@ entityid_t Entities::spawn(
     registry.emplace<Transform>(entity, pos, size, glm::mat3(1.0f));
     auto& body = registry.emplace<Rigidbody>(
         entity, true, Hitbox {pos, def.hitbox}, std::vector<Trigger>{});
-    for (auto& box : def.boxTriggers) {
-        body.triggers.emplace_back(Trigger{
-            true,
-            id,
-            box,
-            AABB{},
-            {},
-            {},
-            [=](auto entityid, auto index, auto otherid) {
-                if (auto entity = get(entityid)) {
-                    if (entity->isValid()) {
-                        scripting::on_trigger_enter(*entity, index, otherid);
-                    }
-                }
-            },
-            [=](auto entityid, auto index, auto otherid) {
-                if (auto entity = get(entityid)) {
-                    if (entity->isValid()) {
-                        scripting::on_trigger_exit(*entity, index, otherid);
-                    }
-                }
-            }});
+
+    body.triggers.resize(def.radialTriggers.size() + def.boxTriggers.size());
+    for (auto& [i, box] : def.boxTriggers) {
+        TriggerParams params {};
+        params.aabb = box;
+        body.triggers[i] = Trigger {
+            true, TriggerType::AABB, i, id, params, params, {}, {},
+            create_trigger_callback<scripting::on_trigger_enter>(this),
+            create_trigger_callback<scripting::on_trigger_exit>(this)
+        };
+    }
+    for (auto& [i, radius] : def.radialTriggers) {
+        TriggerParams params {};
+        params.radial = glm::vec4(radius);
+        body.triggers[i] = Trigger {
+            true, TriggerType::RADIUS, i, id, params, params, {}, {},
+            create_trigger_callback<scripting::on_trigger_enter>(this),
+            create_trigger_callback<scripting::on_trigger_exit>(this)
+        };
     }
     auto& scripting = registry.emplace<Scripting>(
         entity, entity_funcs_set {}, nullptr);
@@ -135,8 +143,21 @@ void Entities::preparePhysics() {
             }
             trigger.prevEntered = trigger.nextEntered;
             trigger.nextEntered.clear();
-            trigger.calculated = trigger.aabb;
-            trigger.calculated.transform(transform.combined);
+
+            switch (trigger.type) {
+                case TriggerType::AABB:
+                    trigger.calculated.aabb = trigger.params.aabb;
+                    trigger.calculated.aabb.transform(transform.combined);
+                    break;
+                case TriggerType::RADIUS:
+                    trigger.calculated.radial = glm::vec4(
+                        rigidbody.hitbox.position.x,
+                        rigidbody.hitbox.position.y,
+                        rigidbody.hitbox.position.z,
+                        trigger.params.radial.w*
+                        trigger.params.radial.w);
+                    break;
+            }
             triggers.push_back(&trigger);
         }
     }
@@ -204,9 +225,11 @@ void Entities::renderDebug(LineBatch& batch, const Frustum& frustum) {
         batch.box(hitbox.position, hitbox.halfsize * 2.0f, glm::vec4(1.0f));
 
         for (auto& trigger : rigidbody.triggers) {
+            if (trigger.type != TriggerType::AABB)
+                continue;
             batch.box(
-                trigger.calculated.center(), 
-                trigger.calculated.size(), 
+                trigger.calculated.aabb.center(), 
+                trigger.calculated.aabb.size(), 
                 glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
         }
     }

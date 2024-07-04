@@ -8,7 +8,7 @@ struct AABB {
     glm::vec3 a {0.0f};
     glm::vec3 b {1.0f, 1.0f, 1.0f};
 
-    AABB() {}
+    AABB() = default;
 
     AABB(glm::vec3 size) : a(0.0f), b(size) {
     }
