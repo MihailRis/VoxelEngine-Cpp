@@ -22,3 +22,4 @@ water=вода
 wood=бревно
 torch=факел
 bazalt breaker=крушитель базальта
+wooden door=деревянная дверь
