@@ -9,7 +9,7 @@ local Transform = {__index={
     set_rot=function(self, m) return __transform.set_rot(self.eid, m) end,
 }}
 
-function new_Transform(eid)
+local function new_Transform(eid)
     return setmetatable({eid=eid}, Transform)
 end
 
@@ -22,7 +22,7 @@ local Rigidbody = {__index={
     set_size=function(self, v) return __rigidbody.set_size(self.eid, v) end,
 }}
 
-function new_Rigidbody(eid)
+local function new_Rigidbody(eid)
     return setmetatable({eid=eid}, Rigidbody)
 end
 
@@ -33,7 +33,7 @@ local Modeltree = {__index={
     set_texture=function(self, s, s2) return __modeltree.set_texture(self.eid, s, s2) end,
 }}
 
-function new_Modeltree(eid)
+local function new_Modeltree(eid)
     return setmetatable({eid=eid}, Modeltree)
 end
 
@@ -42,6 +42,7 @@ end
 local Entity = {__index={
     despawn=function(self) return entities.despawn(self.eid) end,
     set_rig=function(self, s) return entities.set_rig(self.eid, s) end,
+    get_component=function(self, name) return self.components[name] end,
 }}
 
 local entities = {}
@@ -52,7 +53,6 @@ return {
         entity.transform = new_Transform(eid)
         entity.rigidbody = new_Rigidbody(eid)
         entity.modeltree = new_Modeltree(eid)
-        entity.data = {}
         entity.components = {}
         entities[eid] = entity;
         return entity
