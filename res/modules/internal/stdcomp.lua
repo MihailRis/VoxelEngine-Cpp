@@ -3,6 +3,8 @@
 local Transform = {__index={
     get_pos=function(self) return __transform.get_pos(self.eid) end,
     set_pos=function(self, v) return __transform.set_pos(self.eid, v) end,
+    get_size=function(self) return __transform.get_size(self.eid) end,
+    set_size=function(self, v) return __transform.set_size(self.eid, v) end,
     get_rot=function(self) return __transform.get_rot(self.eid) end,
     set_rot=function(self, m) return __transform.set_rot(self.eid, m) end,
 }}

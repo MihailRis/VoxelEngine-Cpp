@@ -44,6 +44,13 @@ struct Transform {
         dirty = true;
     }
 
+    inline void setSize(glm::vec3 v) {
+        if (glm::distance2(size, v) >= 0.0000001f) {
+            dirty = true;
+        }
+        size = v;
+    }
+
     inline void setPos(glm::vec3 v) {
         if (glm::distance2(pos, v) >= 0.00001f) {
             dirty = true;
