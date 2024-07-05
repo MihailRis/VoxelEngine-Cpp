@@ -37,7 +37,10 @@ static int l_spawn(lua::State* L) {
     if (lua::gettop(L) > 2) {
         args = lua::tovalue(L, 3);
     }
-    level->entities->spawn(scripting::engine->getAssets(), def, pos, args);
+    Transform transform {
+        pos, glm::vec3(1.0f), glm::mat3(1.0f), {}, true
+    };
+    level->entities->spawn(scripting::engine->getAssets(), def, transform, args);
     return 1;
 }
 

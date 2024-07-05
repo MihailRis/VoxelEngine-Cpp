@@ -172,8 +172,10 @@ public:
     entityid_t spawn(
         Assets* assets,
         EntityDef& def,
-        glm::vec3 pos,
-        dynamic::Value args=dynamic::NONE);
+        Transform transform,
+        dynamic::Value args=dynamic::NONE,
+        dynamic::Map_sptr saved=nullptr,
+        entityid_t uid=0);
 
     std::optional<Entity> get(entityid_t id) {
         const auto& found = entities.find(id);
@@ -183,6 +185,8 @@ public:
         return std::nullopt;
     }
 
+    void loadEntities(dynamic::Map_sptr map);
+    void loadEntity(const dynamic::Map_sptr& map);
     void onSave(const Entity& entity);
     std::vector<Entity> getAllInside(AABB aabb);
     void despawn(entityid_t id);

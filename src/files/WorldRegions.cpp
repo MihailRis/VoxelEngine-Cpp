@@ -435,6 +435,15 @@ chunk_inventories_map WorldRegions::fetchInventories(int x, int z) {
     return meta;
 }
 
+ dynamic::Map_sptr WorldRegions::fetchEntities(int x, int z) {
+    uint32_t bytesSize;
+    const ubyte* data = getData(x, z, REGION_LAYER_ENTITIES, bytesSize);
+    if (data == nullptr) {
+        return nullptr;
+    }
+    return json::from_binary(data, bytesSize);
+ }
+
 void WorldRegions::processRegionVoxels(int x, int z, const regionproc& func) {
     if (getRegion(x, z, REGION_LAYER_VOXELS)) {
         throw std::runtime_error("not implemented for in-memory regions");

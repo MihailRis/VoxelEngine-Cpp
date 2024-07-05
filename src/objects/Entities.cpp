@@ -1,8 +1,10 @@
 #include "Entities.hpp"
 
+#include "../debug/Logger.hpp"
 #include "../data/dynamic_util.hpp"
 #include "../assets/Assets.hpp"
 #include "../world/Level.hpp"
+#include "../content/Content.hpp"
 #include "../physics/Hitbox.hpp"
 #include "../physics/PhysicsSolver.hpp"
 #include "../graphics/render/ModelBatch.hpp"
@@ -12,8 +14,11 @@
 #include "../objects/EntityDef.hpp"
 #include "../objects/rigging.hpp"
 #include "../logic/scripting/scripting.hpp"
+#include "../engine.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
+
+static debug::Logger logger("entities");
 
 void Transform::refresh() {
     combined = glm::mat4(1.0f);
@@ -57,20 +62,26 @@ static triggercallback create_trigger_callback(Entities* entities) {
 entityid_t Entities::spawn(
     Assets* assets,
     EntityDef& def,
-    glm::vec3 pos,
-    dynamic::Value args) 
+    Transform transform,
+    dynamic::Value args,
+    dynamic::Map_sptr saved,
+    entityid_t uid)
 {
     auto rig = assets->get<rigging::RigConfig>(def.rigName);
     if (rig == nullptr) {
         throw std::runtime_error("rig "+def.rigName+" not found");
     }
     auto entity = registry.create();
-    glm::vec3 size(1);
-    auto id = nextID++;
+    entityid_t id;
+    if (uid == 0) {
+        id = nextID++;
+    } else {
+        id = uid;
+    }
     registry.emplace<EntityId>(entity, static_cast<entityid_t>(id), def);
-    registry.emplace<Transform>(entity, pos, size, glm::mat3(1.0f));
+    registry.emplace<Transform>(entity, transform);
     auto& body = registry.emplace<Rigidbody>(
-        entity, true, Hitbox {pos, def.hitbox}, std::vector<Trigger>{});
+        entity, true, Hitbox {transform.pos, def.hitbox}, std::vector<Trigger>{});
 
     body.triggers.resize(def.radialTriggers.size() + def.boxTriggers.size());
     for (auto& [i, box] : def.boxTriggers) {
@@ -98,7 +109,8 @@ entityid_t Entities::spawn(
             componentName, entity_funcs_set {}, nullptr);
         scripting.components.emplace_back(std::move(component));
     }
-    scripting::on_entity_spawn(def, id, scripting.components, std::move(args));
+    scripting::on_entity_spawn(
+        def, id, scripting.components, std::move(args), std::move(saved));
     return id;
 }
 
@@ -108,6 +120,37 @@ void Entities::despawn(entityid_t id) {
         if (!eid.destroyFlag) {
             eid.destroyFlag = true;
             scripting::on_entity_despawn(entity->getDef(), *entity);
+        }
+    }
+}
+
+void Entities::loadEntity(const dynamic::Map_sptr& map) {
+    entityid_t uid = 0;
+    std::string defname;
+    map->num("uid", uid);
+    map->str("def", defname);
+    if (uid == 0) {
+        throw std::runtime_error("could not read entity - invalid UID");
+    }
+    auto& def = level->content->entities.require(defname);
+    Transform transform {
+        glm::vec3(), glm::vec3(1.0f), glm::mat3(1.0f), {}, true
+    };
+    if (auto tsfmap = map->map("transform")) {
+        dynamic::get_vec(tsfmap, "pos", transform.pos);
+    }
+    dynamic::Map_sptr savedMap = map->map("comps");
+    auto assets = scripting::engine->getAssets();
+    spawn(assets, def, transform, dynamic::NONE, savedMap, uid);
+}
+
+void Entities::loadEntities(dynamic::Map_sptr root) {
+    auto list = root->list("data");
+    for (size_t i = 0; i < list->size(); i++) {
+        try {
+            loadEntity(list->map(i));
+        } catch (const std::runtime_error& err) {
+            logger.error() << "could not read entity: " << err.what();
         }
     }
 }
@@ -129,7 +172,9 @@ dynamic::Value Entities::serialize(const Entity& entity) {
         if (transform.size != glm::vec3(1.0f)) {
             tsfmap.put("size", dynamic::to_value(transform.size));
         }
-        tsfmap.put("rot", dynamic::to_value(transform.rot));
+        if (transform.rot != glm::mat3(1.0f)) {
+            tsfmap.put("rot", dynamic::to_value(transform.rot));
+        }
     }
     {
         auto& rigidbody = entity.getRigidbody();
@@ -166,6 +211,7 @@ dynamic::Value Entities::serialize(const Entity& entity) {
             auto data = scripting::get_component_value(comp->env, "SAVED_DATA");
             compsMap.put(comp->name, data);
         }
+        std::cout << root << std::endl;
     }
     return root;
 }

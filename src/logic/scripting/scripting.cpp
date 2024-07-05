@@ -276,7 +276,8 @@ void scripting::on_entity_spawn(
     const EntityDef& def, 
     entityid_t eid, 
     const std::vector<std::unique_ptr<UserComponent>>& components,
-    dynamic::Value args
+    dynamic::Value args,
+    dynamic::Map_sptr saved
 ) {
     auto L = lua::get_main_thread();
     lua::requireglobal(L, STDCOMP);
@@ -296,7 +297,15 @@ void scripting::on_entity_spawn(
         lua::pushvalue(L, args);
         lua::setfield(L, "ARGS");
 
-        lua::createtable(L, 0, 0);
+        if (saved == nullptr) {
+            lua::createtable(L, 0, 0);
+        } else {
+            if (auto datamap = saved->map(component->name)) {
+                lua::pushvalue(L, datamap);
+            } else {
+                lua::createtable(L, 0, 0);
+            }
+        }
         lua::setfield(L, "SAVED_DATA");
 
         lua::setfenv(L);

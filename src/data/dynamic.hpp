@@ -47,7 +47,7 @@ namespace dynamic {
         std::string str(size_t index) const;
         number_t num(size_t index) const;
         integer_t integer(size_t index) const;
-        Map* map(size_t index) const;
+        const Map_sptr& map(size_t index) const;
         List* list(size_t index) const;
         bool flag(size_t index) const;
 
@@ -114,7 +114,7 @@ namespace dynamic {
         void num(const std::string& key, uint64_t& dst) const;
         void num(const std::string& key, ubyte& dst) const;
         void num(const std::string& key, double& dst) const;
-        Map* map(const std::string& key) const;
+        Map_sptr map(const std::string& key) const;
         List* list(const std::string& key) const;
         void flag(const std::string& key, bool& dst) const;
 

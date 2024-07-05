@@ -94,8 +94,8 @@ static std::tuple<size_t, std::unique_ptr<RigNode>> read_node(
     size_t count = 1;
     if (auto nodesList = root->list("nodes")) {
         for (size_t i = 0; i < nodesList->size(); i++) {
-            if (auto map = nodesList->map(i)) {
-                auto [subcount, subNode] = read_node(map, index+count);
+            if (const auto& map = nodesList->map(i)) {
+                auto [subcount, subNode] = read_node(map.get(), index+count);
                 subcount += count;
                 subnodes.push_back(std::move(subNode));
             }
@@ -114,6 +114,6 @@ std::unique_ptr<RigConfig> RigConfig::parse(
     if (rootNodeMap == nullptr) {
         throw std::runtime_error("missing 'root' element");
     }
-    auto [count, rootNode] = read_node(rootNodeMap, 0);
+    auto [count, rootNode] = read_node(rootNodeMap.get(), 0);
     return std::make_unique<RigConfig>(std::string(name), std::move(rootNode), count);
 }

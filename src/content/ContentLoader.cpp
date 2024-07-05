@@ -144,7 +144,7 @@ void ContentLoader::loadBlock(Block& def, const std::string& name, const fs::pat
     else if (model == "custom") { 
         def.model = BlockModel::custom;
         if (root->has("model-primitives")) {
-            loadCustomBlockModel(def, root->map("model-primitives"));
+            loadCustomBlockModel(def, root->map("model-primitives").get());
         } else {
             logger.error() << name << ": no 'model-primitives' found";
         }

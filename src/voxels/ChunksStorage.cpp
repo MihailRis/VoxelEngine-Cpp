@@ -5,6 +5,7 @@
 #include "Block.hpp"
 #include "../content/Content.hpp"
 #include "../files/WorldFiles.hpp"
+#include "../objects/Entities.hpp"
 #include "../world/Level.hpp"
 #include "../world/World.hpp"
 #include "../maths/voxmaths.hpp"
@@ -62,6 +63,10 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 
 		auto invs = regions.fetchInventories(chunk->x, chunk->z);
 		chunk->setBlockInventories(std::move(invs));
+
+        if (auto map = regions.fetchEntities(chunk->x, chunk->z)) {
+            level->entities->loadEntities(std::move(map));
+        }
 
         chunk->flags.loaded = true;
 		for(auto& entry : chunk->inventories) {

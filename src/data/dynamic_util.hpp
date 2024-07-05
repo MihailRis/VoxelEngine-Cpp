@@ -25,6 +25,15 @@ namespace dynamic {
         }
         return list;
     }
+
+    template<int n>
+    void get_vec(const dynamic::Map_sptr& root, const std::string& name, glm::vec<n, float>& vec) {
+        if (const auto& list = root->list(name)) {
+            for (size_t i = 0; i < n; i++) {
+                vec[i] = list->num(i);
+            }
+        }
+    }
 }
 
 #endif // DATA_DYNAMIC_UTIL_HPP_

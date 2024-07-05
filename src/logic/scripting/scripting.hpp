@@ -81,7 +81,8 @@ namespace scripting {
         const EntityDef& def,
         entityid_t eid, 
         const std::vector<std::unique_ptr<UserComponent>>& components,
-        dynamic::Value args
+        dynamic::Value args,
+        dynamic::Map_sptr saved
     );
     bool on_entity_despawn(const EntityDef& def, const Entity& entity);
     bool on_entity_grounded(const Entity& entity, float force);

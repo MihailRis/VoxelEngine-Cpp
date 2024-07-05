@@ -110,7 +110,7 @@ std::unique_ptr<Level> World::load(
                         DEF_PLAYER_SPEED, 
                         level->inventories->create(DEF_PLAYER_INVENTORY_SIZE)
                     );
-                    player->deserialize(players->map(i));
+                    player->deserialize(players->map(i).get());
                     level->inventories->store(player->getInventory());
                 }
             } else {
