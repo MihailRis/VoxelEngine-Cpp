@@ -193,8 +193,8 @@ dynamic::Value Entities::serialize(const Entity& entity) {
         auto& rigmap = root->putMap("rig");
         if (def.save.rig.textures) {
             auto& map = rigmap.putMap("textures");
-            for (auto& entry : rig.textures) {
-                map.put(entry.first, entry.second);
+            for (auto& [slot, texture] : rig.textures) {
+                map.put(slot, texture);
             }
         }
         if (def.save.rig.pose) {
@@ -363,8 +363,8 @@ std::vector<Entity> Entities::getAllInside(AABB aabb) {
             if (found == uids.end()) {
                 continue;
             }
-            if (auto entity = get(found->second)) {
-                collected.push_back(*entity);
+            if (auto wrapper = get(found->second)) {
+                collected.push_back(*wrapper);
             }
         }
     }

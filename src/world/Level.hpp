@@ -12,10 +12,8 @@ inline constexpr int DEF_PLAYER_INVENTORY_SIZE = 40;
 
 class Content;
 class World;
-class Player;
 class Chunks;
 class Entities;
-class Inventory;
 class Inventories;
 class LevelEvents;
 class Lighting;
