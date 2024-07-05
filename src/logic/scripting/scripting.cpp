@@ -295,6 +295,7 @@ void scripting::on_entity_spawn(
         funcsset.on_despawn = lua::hasfield(L, "on_despawn");
         funcsset.on_trigger_enter = lua::hasfield(L, "on_trigger_enter");
         funcsset.on_trigger_exit = lua::hasfield(L, "on_trigger_exit");
+        funcsset.on_save = lua::hasfield(L, "on_save");
         lua::pop(L, 2);
 
         component->env = compenv;
@@ -350,6 +351,16 @@ bool scripting::on_entity_fall(const Entity& entity) {
     for (auto& component : script.components) {
         if (component->funcsset.on_fall) {
             process_entity_callback(component->env, "on_fall", nullptr);
+        }
+    }
+    return true;
+}
+
+bool scripting::on_entity_save(const Entity& entity) {
+    const auto& script = entity.getScripting();
+    for (auto& component : script.components) {
+        if (component->funcsset.on_save) {
+            process_entity_callback(component->env, "on_save", nullptr);
         }
     }
     return true;

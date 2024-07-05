@@ -18,9 +18,11 @@ class Chunk;
 class WorldFiles;
 class LevelEvents;
 class Block;
+class Level;
 
-/* Player-centred chunks matrix */
+/// Player-centred chunks matrix
 class Chunks {
+    Level* level;
     const ContentIndices* const indices;
 
     void eraseSegments(const Block* def, blockstate state, int x, int y, int z);
@@ -35,10 +37,9 @@ public:
     uint32_t w, d;
     int32_t ox, oz;
     WorldFiles* worldFiles;
-    LevelEvents* events;
 
     Chunks(uint32_t w, uint32_t d, int32_t ox, int32_t oz, 
-           WorldFiles* worldFiles, LevelEvents* events, const Content* content);
+           WorldFiles* worldFiles, Level* level);
     ~Chunks() = default;
 
     bool putChunk(const std::shared_ptr<Chunk>& chunk);
@@ -95,6 +96,8 @@ public:
     void resize(uint32_t newW, uint32_t newD);
 
     void saveAndClear();
+    void save(Chunk* chunk);
+    void saveAll();
 };
 
 #endif // VOXELS_CHUNKS_HPP_

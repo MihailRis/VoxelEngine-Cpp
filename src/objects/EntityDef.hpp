@@ -15,14 +15,22 @@ namespace rigging {
 struct EntityDef {
     /// @brief Entity string id (with prefix included)
     std::string const name;
-    
+
     std::vector<std::string> components;
 
     glm::vec3 hitbox {0.5f};
     std::vector<std::pair<size_t, AABB>> boxTriggers {};
     std::vector<std::pair<size_t, float>> radialTriggers {};
     std::string rigName = name.substr(name.find(":")+1);
-    
+
+    struct {
+        bool enabled = true;
+        struct {
+            bool textures = false;
+            bool pose = false;
+        } rig;
+    } save {};
+
     struct {
         entityid_t id;
         rigging::RigConfig* rig;

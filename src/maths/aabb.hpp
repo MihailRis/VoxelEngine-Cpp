@@ -13,7 +13,7 @@ struct AABB {
     AABB(glm::vec3 size) : a(0.0f), b(size) {
     }
 
-    AABB(glm::vec3 pos, glm::vec3 size) : a(pos), b(size) {
+    AABB(glm::vec3 a, glm::vec3 b) : a(a), b(b) {
     }
 
     /// @brief Get AABB point with minimal x,y,z

@@ -337,7 +337,9 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& name, const fs
             }
         }
     }
-    std::cout << "loading entity " << name << " from " << file.u8string() << std::endl;
+    root->flag("save", def.save.enabled);
+    root->flag("save-rig-pose", def.save.rig.pose);
+    root->flag("save-rig-textures", def.save.rig.textures);
 }
 
 void ContentLoader::loadEntity(EntityDef& def, const std::string& full, const std::string& name) {

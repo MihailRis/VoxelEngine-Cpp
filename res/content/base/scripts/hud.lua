@@ -19,6 +19,6 @@ function on_hud_open()
             count=1
         }})
         local velocity = vec3.add(throw_force, vec3.add(pvel, DROP_INIT_VEL))
-        drop.get_component("rigidbody"):set_vel(velocity)
+        drop.rigidbody:set_vel(velocity)
     end)
 end

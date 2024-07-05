@@ -38,7 +38,7 @@ Level::Level(
         settings.chunks.padding.get()
     ) * 2;
     chunks = std::make_unique<Chunks>(
-		matrixSize, matrixSize, 0, 0, this->world->wfile.get(), events.get(), content
+		matrixSize, matrixSize, 0, 0, this->world->wfile.get(), this
 	);
 	lighting = std::make_unique<Lighting>(content, chunks.get());
 

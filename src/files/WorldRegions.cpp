@@ -9,6 +9,7 @@
 
 #include <cstring>
 #include <utility>
+#include <vector>
 
 #define REGION_FORMAT_MAGIC ".VOXREG"
 
@@ -36,17 +37,17 @@ std::unique_ptr<ubyte[]> regfile::read(int index, uint32_t& length) {
 
     uint32_t offset;
     file.seekg(table_offset + index * 4);
-    file.read((char*)(&offset), 4);
-    offset = dataio::read_int32_big((const ubyte*)(&offset), 0);
+    file.read(reinterpret_cast<char*>(&offset), 4);
+    offset = dataio::read_int32_big(reinterpret_cast<const ubyte*>(&offset), 0);
     if (offset == 0){
         return nullptr;
     }
 
     file.seekg(offset);
-    file.read((char*)(&offset), 4);
-    length = dataio::read_int32_big((const ubyte*)(&offset), 0);
+    file.read(reinterpret_cast<char*>(&offset), 4);
+    length = dataio::read_int32_big(reinterpret_cast<const ubyte*>(&offset), 0);
     auto data = std::make_unique<ubyte[]>(length);
-    file.read((char*)data.get(), length);
+    file.read(reinterpret_cast<char*>(data.get()), length);
     return data;
 }
 
@@ -88,12 +89,13 @@ uint WorldRegion::getChunkDataSize(uint x, uint z) {
 }
 
 WorldRegions::WorldRegions(const fs::path& directory) : directory(directory) {
-    for (uint i = 0; i < sizeof(layers)/sizeof(RegionsLayer); i++) {
+    for (size_t i = 0; i < sizeof(layers)/sizeof(RegionsLayer); i++) {
         layers[i].layer = i;
     }
     layers[REGION_LAYER_VOXELS].folder = directory/fs::path("regions");
     layers[REGION_LAYER_LIGHTS].folder = directory/fs::path("lights");
     layers[REGION_LAYER_INVENTORIES].folder = directory/fs::path("inventories");
+    layers[REGION_LAYER_ENTITIES].folder = directory/fs::path("entities");
 }
 
 WorldRegions::~WorldRegions() {
@@ -123,7 +125,7 @@ WorldRegion* WorldRegions::getOrCreateRegion(int x, int z, int layer) {
 
 std::unique_ptr<ubyte[]> WorldRegions::compress(const ubyte* src, size_t srclen, size_t& len) {
     auto buffer = bufferPool.get();
-    ubyte* bytes = buffer.get();
+    auto bytes = buffer.get();
     
     len = extrle::encode(src, srclen, bytes);
     auto data = std::make_unique<ubyte[]>(len);
@@ -150,7 +152,7 @@ inline void calc_reg_coords(
 
 std::unique_ptr<ubyte[]> WorldRegions::readChunkData(
     int x, int z, uint32_t& length, regfile* rfile
-){
+) {
     int regionX, regionZ, localX, localZ;
     calc_reg_coords(x, z, regionX, regionZ, localX, localZ);
     int chunkIndex = localZ * REGION_SIZE + localX;
@@ -171,10 +173,7 @@ void WorldRegions::fetchChunks(WorldRegion* region, int x, int z, regfile* file)
     }
 }
 
-ubyte* WorldRegions::getData(
-    int x, int z, int layer, 
-    uint32_t& size
-) {
+ubyte* WorldRegions::getData(int x, int z, int layer, uint32_t& size) {
     if (generatorTestMode) {
         return nullptr;
     }
@@ -301,7 +300,7 @@ void WorldRegions::writeRegion(int x, int z, int layer, WorldRegion* entry){
             offset += 4 + compressedSize;
 
             file.write(intbuf, 4);
-            file.write((const char*)chunk, compressedSize);
+            file.write(reinterpret_cast<const char*>(chunk), compressedSize);
         }
     }
     for (size_t i = 0; i < REGION_CHUNKS_COUNT; i++) {
@@ -313,8 +312,9 @@ void WorldRegions::writeRegion(int x, int z, int layer, WorldRegion* entry){
 void WorldRegions::writeRegions(int layer) {
     for (auto& it : layers[layer].regions){
         WorldRegion* region = it.second.get();
-        if (region->getChunks() == nullptr || !region->isUnsaved())
+        if (region->getChunks() == nullptr || !region->isUnsaved()) {
             continue;
+        }
         glm::ivec2 key = it.first;
         writeRegion(key[0], key[1], layer, region);
     }
@@ -354,7 +354,7 @@ static std::unique_ptr<ubyte[]> write_inventories(Chunk* chunk, uint& datasize) 
 }
 
 /// @brief Store chunk data (voxels and lights) in region (existing or new)
-void WorldRegions::put(Chunk* chunk){
+void WorldRegions::put(Chunk* chunk, std::vector<ubyte> entitiesData){
     assert(chunk != nullptr);
     if (!chunk->flags.lighted) {
         return;
@@ -376,11 +376,20 @@ void WorldRegions::put(Chunk* chunk){
             chunk->lightmap.encode(), LIGHTMAP_DATA_LEN, true);
     }
     // Writing block inventories
-    if (!chunk->inventories.empty()){
+    if (!chunk->inventories.empty()) {
         uint datasize;
         auto data = write_inventories(chunk, datasize);
         put(chunk->x, chunk->z, REGION_LAYER_INVENTORIES, 
             std::move(data), datasize, false);
+    }
+    // Writing entities
+    if (!entitiesData.empty()) {
+        auto data = std::make_unique<ubyte[]>(entitiesData.size());
+        for (size_t i = 0; i < entitiesData.size(); i++) {
+            data[i] = entitiesData[i];
+        }
+        put(chunk->x, chunk->z, REGION_LAYER_ENTITIES,
+            std::move(data), entitiesData.size(), false);
     }
 }
 
@@ -398,8 +407,9 @@ std::unique_ptr<ubyte[]> WorldRegions::getChunk(int x, int z){
 std::unique_ptr<light_t[]> WorldRegions::getLights(int x, int z) {
     uint32_t size;
     auto* bytes = getData(x, z, REGION_LAYER_LIGHTS, size);
-    if (bytes == nullptr)
+    if (bytes == nullptr) {
         return nullptr;
+    }
     auto data = decompress(bytes, size, LIGHTMAP_DATA_LEN);
     return Lightmap::decode(data.get());
 }
@@ -412,7 +422,7 @@ chunk_inventories_map WorldRegions::fetchInventories(int x, int z) {
         return meta;
     }
     ByteReader reader(data, bytesSize);
-    int count = reader.getInt32();
+    auto count = reader.getInt32();
     for (int i = 0; i < count; i++) {
         uint index = reader.getInt32();
         uint size = reader.getInt32();
@@ -439,8 +449,9 @@ void WorldRegions::processRegionVoxels(int x, int z, const regionproc& func) {
             int gz = cz + z * REGION_SIZE;
             uint32_t length;
             auto data = readChunkData(gx, gz, length, regfile.get());
-            if (data == nullptr)
+            if (data == nullptr) {
                 continue;
+            }
             data = decompress(data.get(), length, CHUNK_DATA_LEN);
             if (func(data.get())) {
                 put(gx, gz, REGION_LAYER_VOXELS, std::move(data), CHUNK_DATA_LEN, true);

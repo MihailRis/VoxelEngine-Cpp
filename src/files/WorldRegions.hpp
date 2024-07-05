@@ -24,6 +24,7 @@ inline constexpr uint REGION_HEADER_SIZE = 10;
 inline constexpr uint REGION_LAYER_VOXELS = 0;
 inline constexpr uint REGION_LAYER_LIGHTS = 1;
 inline constexpr uint REGION_LAYER_INVENTORIES = 2;
+inline constexpr uint REGION_LAYER_ENTITIES = 3;
 
 inline constexpr uint REGION_SIZE_BIT = 5;
 inline constexpr uint REGION_SIZE = (1 << (REGION_SIZE_BIT));
@@ -119,7 +120,7 @@ class WorldRegions {
     std::unordered_map<glm::ivec3, std::unique_ptr<regfile>> openRegFiles;
     std::mutex regFilesMutex;
     std::condition_variable regFilesCv;
-    RegionsLayer layers[3] {};
+    RegionsLayer layers[4] {};
     util::BufferPool<ubyte> bufferPool {
         std::max(CHUNK_DATA_LEN, LIGHTMAP_DATA_LEN) * 2
     };
@@ -170,7 +171,7 @@ public:
     ~WorldRegions();
 
     /// @brief Put all chunk data to regions
-    void put(Chunk* chunk);
+    void put(Chunk* chunk, std::vector<ubyte> entitiesData);
 
     /// @brief Store data in specified region 
     /// @param x chunk.x

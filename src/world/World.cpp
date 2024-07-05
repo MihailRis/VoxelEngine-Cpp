@@ -51,14 +51,7 @@ void World::updateTimers(float delta) {
 
 void World::write(Level* level) {
     const Content* content = level->content;
-    Chunks* chunks = level->chunks.get();
-    auto& regions = wfile->getRegions();
-
-    for (size_t i = 0; i < chunks->volume; i++) {
-        if (auto chunk = chunks->chunks[i]) {
-            regions.put(chunk.get());
-        }
-    }
+    level->chunks->saveAll();
     wfile->write(this, content);
     auto playerFile = dynamic::Map();
 

@@ -1,5 +1,6 @@
 #include "Entities.hpp"
 
+#include "../data/dynamic_util.hpp"
 #include "../assets/Assets.hpp"
 #include "../world/Level.hpp"
 #include "../physics/Hitbox.hpp"
@@ -78,8 +79,7 @@ entityid_t Entities::spawn(
         body.triggers[i] = Trigger {
             true, TriggerType::AABB, i, id, params, params, {}, {},
             create_trigger_callback<scripting::on_trigger_enter>(this),
-            create_trigger_callback<scripting::on_trigger_exit>(this)
-        };
+            create_trigger_callback<scripting::on_trigger_exit>(this)};
     }
     for (auto& [i, radius] : def.radialTriggers) {
         TriggerParams params {};
@@ -87,11 +87,11 @@ entityid_t Entities::spawn(
         body.triggers[i] = Trigger {
             true, TriggerType::RADIUS, i, id, params, params, {}, {},
             create_trigger_callback<scripting::on_trigger_enter>(this),
-            create_trigger_callback<scripting::on_trigger_exit>(this)
-        };
+            create_trigger_callback<scripting::on_trigger_exit>(this)};
     }
     auto& scripting = registry.emplace<ScriptComponents>(entity);
     entities[id] = entity;
+    uids[entity] = id;
     registry.emplace<rigging::Rig>(entity, rig->instance());
     for (auto& componentName : def.components) {
         auto component = std::make_unique<UserComponent>(
@@ -112,11 +112,59 @@ void Entities::despawn(entityid_t id) {
     }
 }
 
+dynamic::Value Entities::serialize(const Entity& entity) {
+    auto root = dynamic::create_map();
+    auto& eid = entity.getID();
+    auto& def = eid.def;
+    root->put("def", def.name);
+    root->put("uid", eid.uid);
+    {
+        auto& transform = entity.getTransform();
+        auto& tsfmap = root->putMap("transform");
+        tsfmap.put("pos", dynamic::to_value(transform.pos));
+        if (transform.size != glm::vec3(1.0f)) {
+            tsfmap.put("size", dynamic::to_value(transform.size));
+        }
+        tsfmap.put("rot", dynamic::to_value(transform.rot));
+    }
+    {
+        auto& rigidbody = entity.getRigidbody();
+        auto& bodymap = root->putMap("rigidbody");
+        if (!rigidbody.enabled) {
+            bodymap.put("enabled", rigidbody.enabled);
+        }
+        bodymap.put("vel", dynamic::to_value(rigidbody.hitbox.velocity));
+        bodymap.put("damping", rigidbody.hitbox.linearDamping);
+    }
+    auto& rig = entity.getModeltree();
+    if (rig.config->getName() != def.rigName) {
+        root->put("rig", rig.config->getName());
+    }
+
+    if (def.save.rig.pose || def.save.rig.textures) {
+        auto& rigmap = root->putMap("rig");
+        if (def.save.rig.textures) {
+            auto& map = rigmap.putMap("textures");
+            for (auto& entry : rig.textures) {
+                map.put(entry.first, entry.second);
+            }
+        }
+        if (def.save.rig.pose) {
+            auto& list = rigmap.putList("pose");
+            for (auto& mat : rig.pose.matrices) {
+                list.put(dynamic::to_value(mat));
+            }
+        }
+    }
+    return root;
+}
+
 void Entities::clean() {
     for (auto it = entities.begin(); it != entities.end();) {
         if (!registry.get<EntityId>(it->second).destroyFlag) {
             ++it;
         } else {
+            uids.erase(it->second);
             registry.destroy(it->second);
             it = entities.erase(it);
         }
@@ -248,4 +296,21 @@ void Entities::render(Assets* assets, ModelBatch& batch, const Frustum& frustum)
             rigConfig->render(assets, batch, rig, transform.combined);
         }
     }
+}
+
+std::vector<Entity> Entities::getAllInside(AABB aabb) {
+    std::vector<Entity> collected;
+    auto view = registry.view<Transform>();
+    for (auto [entity, transform] : view.each()) {
+        if (aabb.contains(transform.pos)) {
+            const auto& found = uids.find(entity);
+            if (found == uids.end()) {
+                continue;
+            }
+            if (auto entity = get(found->second)) {
+                collected.push_back(*entity);
+            }
+        }
+    }
+    return collected;
 }

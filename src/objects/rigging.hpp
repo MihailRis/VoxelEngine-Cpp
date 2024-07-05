@@ -68,6 +68,7 @@ namespace rigging {
     };
     
     class RigConfig {
+        std::string name;
         std::unique_ptr<RigNode> root;
         std::unordered_map<std::string, size_t> indices;
         
@@ -85,7 +86,8 @@ namespace rigging {
             RigNode* node,
             glm::mat4 matrix) const;
     public:
-        RigConfig(std::unique_ptr<RigNode> root, size_t nodesCount);
+        RigConfig(const std::string& name, std::unique_ptr<RigNode> root, 
+                  size_t nodesCount);
 
         void update(Rig& rig, glm::mat4 matrix) const;
         void setup(const Assets* assets, RigNode* node=nullptr) const;
@@ -103,11 +105,16 @@ namespace rigging {
 
         static std::unique_ptr<RigConfig> parse(
             std::string_view src,
-            std::string_view file
+            std::string_view file,
+            std::string_view name
         );
 
         const std::vector<RigNode*>& getNodes() const {
             return nodes;
+        }
+        
+        const std::string& getName() const {
+            return name;
         }
     };
 };

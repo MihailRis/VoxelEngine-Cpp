@@ -1,7 +1,7 @@
 #ifndef CODERS_BINARY_JSON_HPP_
 #define CODERS_BINARY_JSON_HPP_
 
-#include "../typedefs.hpp"
+#include "../data/dynamic_fwd.hpp"
 
 #include <vector>
 #include <memory>
@@ -26,8 +26,9 @@ namespace json {
     inline constexpr int BJSON_TYPE_NULL = 0xC;
     inline constexpr int BJSON_TYPE_CDOCUMENT = 0x1F;
 
-    extern std::vector<ubyte> to_binary(const dynamic::Map* obj, bool compress=false);
-    extern std::shared_ptr<dynamic::Map> from_binary(const ubyte* src, size_t size);
+    std::vector<ubyte> to_binary(const dynamic::Map* obj, bool compress=false);
+    std::vector<ubyte> to_binary(const dynamic::Value& obj, bool compress=false);
+    std::shared_ptr<dynamic::Map> from_binary(const ubyte* src, size_t size);
 }
 
 #endif // CODERS_BINARY_JSON_HPP_

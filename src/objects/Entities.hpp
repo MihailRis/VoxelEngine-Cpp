@@ -21,6 +21,7 @@ struct entity_funcs_set {
     bool on_fall : 1;
     bool on_trigger_enter : 1;
     bool on_trigger_exit : 1;
+    bool on_save : 1;
 };
 
 struct EntityDef;
@@ -154,6 +155,7 @@ class Entities {
     entt::registry registry;
     Level* level;
     std::unordered_map<entityid_t, entt::entity> entities;
+    std::unordered_map<entt::entity, entityid_t> uids;
     entityid_t nextID = 1;
 
     void preparePhysics();
@@ -181,7 +183,9 @@ public:
         return std::nullopt;
     }
 
+    std::vector<Entity> getAllInside(AABB aabb);
     void despawn(entityid_t id);
+    dynamic::Value serialize(const Entity& entity);
 
     inline size_t size() const {
         return entities.size();

@@ -1,41 +1,21 @@
 #ifndef DATA_DYNAMIC_HPP_
 #define DATA_DYNAMIC_HPP_
 
-#include "../typedefs.hpp"
+#include "dynamic_fwd.hpp"
 
 #include <cmath>
 #include <string>
 #include <vector>
 #include <memory>
 #include <ostream>
-#include <variant>
+
 #include <stdexcept>
 #include <unordered_map>
 
 namespace dynamic {
-    class Map;
-    class List;
-
     enum class Type {
         none=0, map, list, string, number, boolean, integer
     };
-
-    using Map_sptr = std::shared_ptr<Map>;
-    using List_sptr = std::shared_ptr<List>;
-
-    struct none {};
-
-    inline constexpr none NONE = {};
-
-    using Value = std::variant<
-        none,
-        Map_sptr,
-        List_sptr,
-        std::string,
-        number_t,
-        bool,
-        integer_t
-    >;
 
     const std::string& type_name(const Value& value);
     List_sptr create_list(std::initializer_list<Value> values={});
@@ -151,6 +131,9 @@ namespace dynamic {
             return put(key, Value(static_cast<integer_t>(value)));
         }
         Map& put(std::string key, int64_t value) {
+            return put(key, Value(static_cast<integer_t>(value)));
+        }
+        Map& put(std::string key, uint64_t value) {
             return put(key, Value(static_cast<integer_t>(value)));
         }
         Map& put(std::string key, float value) {
