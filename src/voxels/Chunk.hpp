@@ -35,6 +35,7 @@ public:
         bool lighted: 1;
         bool unsaved: 1;
         bool loadedLights: 1;
+        bool entities: 1;
     } flags {};
 
     /// @brief Block inventories map where key is index of block in voxels array

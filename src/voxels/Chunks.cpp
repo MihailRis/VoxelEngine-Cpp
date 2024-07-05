@@ -717,7 +717,7 @@ void Chunks::save(Chunk* chunk) {
             list.put(level->entities->serialize(entity));
         }
         if (!entities.empty()) {
-            chunk->flags.unsaved = true;
+            chunk->flags.entities = true;
         }
         worldFiles->getRegions().put(chunk, json::to_binary(root, true));
     }

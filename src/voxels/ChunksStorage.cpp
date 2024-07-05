@@ -66,6 +66,7 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 
         if (auto map = regions.fetchEntities(chunk->x, chunk->z)) {
             level->entities->loadEntities(std::move(map));
+            chunk->flags.entities = true;
         }
 
         chunk->flags.loaded = true;

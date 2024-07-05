@@ -360,7 +360,7 @@ void WorldRegions::put(Chunk* chunk, std::vector<ubyte> entitiesData){
         return;
     }
     bool lightsUnsaved = !chunk->flags.loadedLights && doWriteLights;
-    if (!chunk->flags.unsaved && !lightsUnsaved) {
+    if (!chunk->flags.unsaved && !lightsUnsaved && !chunk->flags.entities) {
         return;
     }
 
@@ -441,7 +441,11 @@ chunk_inventories_map WorldRegions::fetchInventories(int x, int z) {
     if (data == nullptr) {
         return nullptr;
     }
-    return json::from_binary(data, bytesSize);
+    auto map = json::from_binary(data, bytesSize);
+    if (map->size() == 0) {
+        return nullptr;
+    }
+    return map;
  }
 
 void WorldRegions::processRegionVoxels(int x, int z, const regionproc& func) {
