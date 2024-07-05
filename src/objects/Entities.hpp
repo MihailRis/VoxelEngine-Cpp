@@ -192,8 +192,16 @@ public:
     void despawn(entityid_t id);
     dynamic::Value serialize(const Entity& entity);
 
+    void setNextID(entityid_t id) {
+        nextID = id;
+    }
+
     inline size_t size() const {
         return entities.size();
+    }
+
+    inline entityid_t peekNextID() const {
+        return nextID;
     }
 };
 

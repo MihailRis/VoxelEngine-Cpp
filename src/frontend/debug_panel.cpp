@@ -85,7 +85,8 @@ std::shared_ptr<UINode> create_debug_panel(
                L" visible: "+std::to_wstring(level->chunks->visible);
     }));
     panel->add(create_label([=]() {
-        return L"entities: "+std::to_wstring(level->entities->size());
+        return L"entities: "+std::to_wstring(level->entities->size())+L" next: "+
+               std::to_wstring(level->entities->peekNextID());
     }));
     panel->add(create_label([=](){
         const auto& vox = player->selection.vox;

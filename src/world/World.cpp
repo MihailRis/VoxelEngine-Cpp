@@ -9,10 +9,12 @@
 #include "../files/WorldFiles.hpp"
 #include "../items/Inventories.hpp"
 #include "../objects/Player.hpp"
+#include "../objects/Entities.hpp"
 #include "../voxels/Chunk.hpp"
 #include "../voxels/Chunks.hpp"
 #include "../voxels/ChunksStorage.hpp"
 #include "../world/WorldGenerators.hpp"
+#include "Level.hpp"
 
 #include <memory>
 #include <glm/glm.hpp>
@@ -52,6 +54,7 @@ void World::updateTimers(float delta) {
 void World::write(Level* level) {
     const Content* content = level->content;
     level->chunks->saveAll();
+    nextEntityId = level->entities->peekNextID();
     wfile->write(this, content);
     auto playerFile = dynamic::Map();
 
@@ -193,6 +196,7 @@ void World::deserialize(dynamic::Map* root) {
         weatherobj->num("fog", fog);
     }
     nextInventoryId = root->get("next-inventory-id", 2);
+    nextEntityId = root->get("next-entity-id", 1);
 }
 
 std::unique_ptr<dynamic::Map> World::serialize() const {
@@ -215,5 +219,6 @@ std::unique_ptr<dynamic::Map> World::serialize() const {
     weatherobj.put("fog", fog);
 
     root->put("next-inventory-id", nextInventoryId);
+    root->put("next-entity-id", nextEntityId);
     return root;
 }

@@ -51,6 +51,8 @@ public:
     /// @brief will be replaced with weather in future 
     float fog = 0.0f;
 
+    entityid_t nextEntityId = 0;
+
     World(
         std::string name, 
         std::string generator,

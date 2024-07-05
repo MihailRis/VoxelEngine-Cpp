@@ -26,6 +26,7 @@ Level::Level(
     entities(std::make_unique<Entities>(this)),
 	settings(settings)
 {
+    entities->setNextID(this->world->nextEntityId);
 	auto inv = std::make_shared<Inventory>(
         this->world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE
     );
