@@ -713,6 +713,7 @@ void Chunks::save(Chunk* chunk) {
         auto root = dynamic::create_map();
         auto& list = root->putList("data");
         for (auto& entity : entities) {
+            level->entities->onSave(entity);
             list.put(level->entities->serialize(entity));
         }
         if (!entities.empty()) {

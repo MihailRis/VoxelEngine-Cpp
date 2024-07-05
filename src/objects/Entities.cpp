@@ -112,6 +112,10 @@ void Entities::despawn(entityid_t id) {
     }
 }
 
+void Entities::onSave(const Entity& entity) {
+    scripting::on_entity_save(entity);
+}
+
 dynamic::Value Entities::serialize(const Entity& entity) {
     auto root = dynamic::create_map();
     auto& eid = entity.getID();
@@ -140,7 +144,6 @@ dynamic::Value Entities::serialize(const Entity& entity) {
     if (rig.config->getName() != def.rigName) {
         root->put("rig", rig.config->getName());
     }
-
     if (def.save.rig.pose || def.save.rig.textures) {
         auto& rigmap = root->putMap("rig");
         if (def.save.rig.textures) {
@@ -154,6 +157,14 @@ dynamic::Value Entities::serialize(const Entity& entity) {
             for (auto& mat : rig.pose.matrices) {
                 list.put(dynamic::to_value(mat));
             }
+        }
+    }
+    auto& scripts = entity.getScripting();
+    if (!scripts.components.empty()) {
+        auto& compsMap = root->putMap("comps");
+        for (auto& comp : scripts.components) {
+            auto data = scripting::get_component_value(comp->env, "SAVED_DATA");
+            compsMap.put(comp->name, data);
         }
     }
     return root;

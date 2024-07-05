@@ -12,6 +12,11 @@ local rotation = mat4.rotate({
     math.random(), math.random(), math.random()
 }, 360)
 
+function on_save()
+    SAVED_DATA.test = 5
+    print("SAVE ENTITY")
+end
+
 do -- setup visuals
     local matrix = mat4.idt()
     local icon = item.icon(dropitem.id)

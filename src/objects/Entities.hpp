@@ -183,6 +183,7 @@ public:
         return std::nullopt;
     }
 
+    void onSave(const Entity& entity);
     std::vector<Entity> getAllInside(AABB aabb);
     void despawn(entityid_t id);
     dynamic::Value serialize(const Entity& entity);

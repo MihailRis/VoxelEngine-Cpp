@@ -263,6 +263,15 @@ bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, 
     });
 }
 
+dynamic::Value scripting::get_component_value(const scriptenv& env, const std::string& name) {
+    auto L = lua::get_main_thread();
+    lua::pushenv(L, *env);
+    if (lua::getfield(L, name)) {
+        return lua::tovalue(L, -1);
+    }
+    return dynamic::NONE;
+}
+
 void scripting::on_entity_spawn(
     const EntityDef& def, 
     entityid_t eid, 
@@ -279,12 +288,17 @@ void scripting::on_entity_spawn(
         lua::pushvalue(L, -1);
     }
     for (auto& component : components) {
-        auto compenv = create_component_environment(
-            get_root_environment(), -1, component->name);
+        auto compenv = create_component_environment(get_root_environment(), -1, 
+                                                    component->name);
         lua::get_from(L, lua::CHUNKS_TABLE, component->name, true);
         lua::pushenv(L, *compenv);
+
         lua::pushvalue(L, args);
         lua::setfield(L, "ARGS");
+
+        lua::createtable(L, 0, 0);
+        lua::setfield(L, "SAVED_DATA");
+
         lua::setfenv(L);
         lua::call_nothrow(L, 0, 0);
 
@@ -378,7 +392,6 @@ void scripting::on_trigger_enter(const Entity& entity, size_t index, entityid_t 
         }
     }
 }
-
 
 void scripting::on_trigger_exit(const Entity& entity, size_t index, entityid_t oid) {
     const auto& script = entity.getScripting();
