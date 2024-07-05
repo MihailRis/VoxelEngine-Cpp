@@ -211,7 +211,6 @@ dynamic::Value Entities::serialize(const Entity& entity) {
             auto data = scripting::get_component_value(comp->env, "SAVED_DATA");
             compsMap.put(comp->name, data);
         }
-        std::cout << root << std::endl;
     }
     return root;
 }
