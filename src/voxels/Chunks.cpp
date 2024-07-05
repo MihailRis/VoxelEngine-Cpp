@@ -715,6 +715,7 @@ void Chunks::save(Chunk* chunk) {
         for (auto& entity : entities) {
             level->entities->onSave(entity);
             list.put(level->entities->serialize(entity));
+            entity.destroy();
         }
         if (!entities.empty()) {
             chunk->flags.entities = true;
