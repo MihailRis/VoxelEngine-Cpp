@@ -4,6 +4,7 @@
 #include "../typedefs.hpp"
 
 #include <memory>
+#include <string>
 #include <variant>
 
 namespace dynamic {
