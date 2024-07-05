@@ -41,7 +41,7 @@ struct ItemDef {
         item_funcs_set funcsset {};
         blockid_t placingBlock;
         bool emissive = false;
-    } rt;
+    } rt {};
 
     ItemDef(const std::string& name);
     ItemDef(const ItemDef&) = delete;

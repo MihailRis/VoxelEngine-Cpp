@@ -195,7 +195,7 @@ public:
         
         /// @brief picking item integer id
         itemid_t pickingItem = 0;
-    } rt;
+    } rt {};
 
     Block(const std::string& name);
     Block(std::string name, const std::string& texture);
