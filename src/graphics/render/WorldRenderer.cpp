@@ -44,6 +44,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 bool WorldRenderer::showChunkBorders = false;
+bool WorldRenderer::showEntitiesDebug = false;
 
 WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* player) 
   : engine(engine), 
@@ -232,7 +233,7 @@ void WorldRenderer::renderLines(Camera* camera, Shader* linesShader) {
     if (player->selection.vox.id != BLOCK_VOID) {
         renderBlockSelection();
     }
-    if (player->debug) {
+    if (player->debug && showEntitiesDebug) {
         level->entities->renderDebug(*lineBatch, *frustumCulling);
     }
     lineBatch->render();

@@ -63,6 +63,7 @@ class WorldRenderer {
     );
 public:
     static bool showChunkBorders;
+    static bool showEntitiesDebug;
 
     WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* player);
     ~WorldRenderer();

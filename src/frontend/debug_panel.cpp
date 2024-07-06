@@ -33,6 +33,7 @@ static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
     return label;
 }
 
+// TODO: move to xml
 std::shared_ptr<UINode> create_debug_panel(
     Engine* engine, 
     Level* level, 
@@ -178,6 +179,18 @@ std::shared_ptr<UINode> create_debug_panel(
         });
         checkbox->setConsumer([=](bool checked) {
             WorldRenderer::showChunkBorders = checked;
+        });
+        panel->add(checkbox);
+    }
+    {
+        auto checkbox = std::make_shared<FullCheckBox>(
+            L"Show Hitboxes", glm::vec2(400, 24)
+        );
+        checkbox->setSupplier([=]() {
+            return WorldRenderer::showEntitiesDebug;
+        });
+        checkbox->setConsumer([=](bool checked) {
+            WorldRenderer::showEntitiesDebug = checked;
         });
         panel->add(checkbox);
     }
