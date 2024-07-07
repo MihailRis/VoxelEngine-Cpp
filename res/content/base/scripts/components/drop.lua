@@ -88,7 +88,7 @@ function on_trigger_exit(index, oid)
     end
 end
 
-function on_update()
+function on_render()
     if inair then
         local dt = time.delta();
 
@@ -100,6 +100,9 @@ function on_update()
         mat4.scale(matrix, scale, matrix)
         rig:set_matrix(0, matrix)
     end
+end
+
+function on_update()
     if target ~= -1 then
         local dir = vec3.sub({player.get_pos(target)}, tsf:get_pos())
         vec3.normalize(dir, dir)

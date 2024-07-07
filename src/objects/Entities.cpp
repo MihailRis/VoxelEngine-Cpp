@@ -311,12 +311,6 @@ void Entities::updatePhysics(float delta) {
 
 void Entities::update() {
     scripting::on_entities_update();
-    auto view = registry.view<Transform>();
-    for (auto [entity, transform] : view.each()) {
-        if (transform.dirty) {
-            transform.refresh();
-        }
-    }
 }
 
 void Entities::renderDebug(LineBatch& batch, const Frustum& frustum) {
@@ -343,8 +337,13 @@ void Entities::renderDebug(LineBatch& batch, const Frustum& frustum) {
 }
 
 void Entities::render(Assets* assets, ModelBatch& batch, const Frustum& frustum) {
+    scripting::on_entities_render();
+
     auto view = registry.view<Transform, rigging::Rig>();
     for (auto [entity, transform, rig] : view.each()) {
+        if (transform.dirty) {
+            transform.refresh();
+        }
         const auto& pos = transform.pos;
         const auto& size = transform.size;
         if (frustum.isBoxVisible(pos-size, pos+size)) {

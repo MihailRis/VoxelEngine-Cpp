@@ -422,6 +422,13 @@ void scripting::on_entities_update() {
     lua::pop(L);
 }
 
+void scripting::on_entities_render() {
+    auto L = lua::get_main_thread();
+    lua::get_from(L, STDCOMP, "render", true);
+    lua::call_nothrow(L, 0, 0);
+    lua::pop(L);
+}
+
 void scripting::on_ui_open(
     UiDocument* layout,
     std::vector<dynamic::Value> args

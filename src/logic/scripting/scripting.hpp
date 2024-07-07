@@ -89,6 +89,7 @@ namespace scripting {
     bool on_entity_fall(const Entity& entity);
     bool on_entity_save(const Entity& entity);
     void on_entities_update();
+    void on_entities_render();
     void on_trigger_enter(const Entity& entity, size_t index, entityid_t oid);
     void on_trigger_exit(const Entity& entity, size_t index, entityid_t oid);
 

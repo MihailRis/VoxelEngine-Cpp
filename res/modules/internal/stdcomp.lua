@@ -68,9 +68,23 @@ return {
         end
     end,
     update = function()
-        for id,entity in pairs(entities) do
+        for _,entity in pairs(entities) do
             for _, component in pairs(entity.components) do
                 local callback = component.on_update
+                if callback then
+                    local result, err = pcall(callback)
+                    if err then
+                        --// TODO: replace with error logging
+                        print(err)
+                    end
+                end
+            end
+        end
+    end,
+    render = function()
+        for _,entity in pairs(entities) do
+            for _, component in pairs(entity.components) do
+                local callback = component.on_render
                 if callback then
                     local result, err = pcall(callback)
                     if err then
