@@ -18,7 +18,7 @@ const float PLAYER_GROUND_DAMPING = 10.0f;
 const float PLAYER_AIR_DAMPING = 7.0f;
 const float FLIGHT_SPEED_MUL = 4.0f;
 const float CHEAT_SPEED_MUL = 5.0f;
-const float JUMP_FORCE = 8.0f;
+const float JUMP_FACTOR = 8.0f;
 
 Player::Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv) :
     speed(speed),
@@ -96,7 +96,7 @@ void Player::updateInput(
     }
 
     if (input.jump && hitbox->grounded){
-        hitbox->velocity.y = JUMP_FORCE;
+        hitbox->velocity.y = JUMP_FACTOR * jumpForce;
     }
 
     if ((input.flight && !noclip) ||
@@ -106,6 +106,7 @@ void Player::updateInput(
             hitbox->grounded = false;
         }
     }
+
     if (input.noclip) {
         noclip = !noclip;
     }
@@ -182,6 +183,14 @@ bool Player::isNoclip() const {
 
 void Player::setNoclip(bool flag) {
     this->noclip = flag;
+}
+
+float Player::getJumpForce() const {
+    return jumpForce;
+}
+
+void Player::setJumpForce(float value) {
+    jumpForce = value;
 }
 
 std::shared_ptr<Inventory> Player::getInventory() const {

@@ -54,6 +54,12 @@ static int l_world_set_day_time(lua::State* L) {
     return 0;
 }
 
+static int l_wolrd_set_speed_time(lua::State* L) {
+    auto value = lua::tonumber(L, 1);
+    level->getWorld()->factorSpeedTime = std::abs(value);
+    return 0;
+}
+
 static int l_world_get_seed(lua::State* L) {
     return lua::pushinteger(L, level->getWorld()->getSeed());
 }
@@ -64,12 +70,25 @@ static int l_world_exists(lua::State* L) {
     return lua::pushboolean(L, fs::is_directory(worldsDir));
 }
 
+static int l_world_is_day(lua::State* L) {
+    auto daytime = level->getWorld()->daytime;
+    return lua::pushboolean(L, daytime >= 0.2 && daytime <= 0.8);
+}
+
+static int l_world_is_night(lua::State* L) {
+    auto daytime = level->getWorld()->daytime;
+    return lua::pushboolean(L, daytime < 0.2 || daytime > 0.8);
+}
+
 const luaL_Reg worldlib [] = {
     {"get_list", lua::wrap<l_world_get_list>},
     {"get_total_time", lua::wrap<l_world_get_total_time>},
     {"get_day_time", lua::wrap<l_world_get_day_time>},
     {"set_day_time", lua::wrap<l_world_set_day_time>},
+    {"set_speed_time", lua::wrap<l_wolrd_set_speed_time>},
     {"get_seed", lua::wrap<l_world_get_seed>},
+    {"is_day", lua::wrap<l_world_is_day>},
+    {"is_night", lua::wrap<l_world_is_night>},
     {"exists", lua::wrap<l_world_exists>},
     {NULL, NULL}
 };

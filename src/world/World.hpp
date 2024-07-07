@@ -42,8 +42,11 @@ public:
     /// 0.5 - is noon
     float daytime = timeutil::time_value(10, 00, 00);
 
+    // factor speed time
+    float factorSpeedTime = 1.0f;
+
     // looking bad
-    float daytimeSpeed = 1.0f/60.0f/24.0f;
+    float daytimeSpeed = 0.000694444444444f; //1.0f/60.0f/24.0f;
     
     /// @brief total time passed in the world (not depending on daytimeSpeed)
     double totalTime = 0.0;

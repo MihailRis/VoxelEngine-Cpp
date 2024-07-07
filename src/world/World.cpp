@@ -44,7 +44,7 @@ World::~World(){
 }
 
 void World::updateTimers(float delta) {
-    daytime += delta * daytimeSpeed;
+    daytime += delta * daytimeSpeed * factorSpeedTime;
     daytime = fmod(daytime, 1.0f);
     totalTime += delta;
 }
