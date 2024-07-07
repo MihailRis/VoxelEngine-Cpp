@@ -18,9 +18,19 @@ RigNode::RigNode(
     subnodes(std::move(subnodes)) 
 {}
 
-void RigNode::setModel(const Assets* assets, const std::string& name) {
+void RigNode::setModel(const std::string& name) {
+    if (modelName == name) {
+        return;
+    }
     modelName = name;
-    model = assets->get<model::Model>(name);
+    modelUpdated = true;
+}
+
+void RigNode::refreshModel(const Assets* assets) {
+    if (modelUpdated) {
+        model = assets->get<model::Model>(modelName);
+        modelUpdated = false;
+    }
 }
 
 static void get_all_nodes(std::vector<RigNode*>& nodes, RigNode* node) {
@@ -53,19 +63,8 @@ void RigConfig::update(Rig& rig, glm::mat4 matrix) const {
     update(0, rig, root.get(), matrix);
 }
 
-void RigConfig::setup(const Assets* assets, RigNode* node) const {
-    if (node == nullptr) {
-        setup(assets, root.get());
-    } else {
-        node->setModel(assets, node->getModelName());
-        for (auto& subnode : node->getSubnodes()) {
-            setup(assets, subnode.get());
-        }
-    }
-}
-
 void RigConfig::render(
-    Assets*,
+    Assets* assets,
     ModelBatch& batch,
     Rig& rig,
     const glm::mat4& matrix) const
@@ -73,13 +72,12 @@ void RigConfig::render(
     update(rig, matrix);
     for (size_t i = 0; i < nodes.size(); i++) {
         auto* node = nodes[i];
-        auto model = node->getModel();
-        if (model == nullptr) {
-            continue;
+        node->refreshModel(assets);
+        if (auto model = node->getModel()) {
+            batch.pushMatrix(rig.calculated.matrices[i]);
+            batch.draw(model, &rig.textures);
+            batch.popMatrix();
         }
-        batch.pushMatrix(rig.calculated.matrices[i]);
-        batch.draw(model, &rig.textures);
-        batch.popMatrix();
     }
 }
 
