@@ -91,6 +91,20 @@ player.set_noclip(bool)
 
 Getter and setter for player noclip mode (collisions disabled)
 
+``` python
+player.set_spawnpoint(playerid: int, x: number, y: number, z: number)
+player.get_spawnpoint(playerid: int) -> number, number, number
+```
+
+Point setter and getter added by player
+
+```python
+player.set_jump_force(playerid: int, force: number)
+player.get_jump_force(playerid: int) -> number
+```
+
+Player jump force setter and getter
+
 ```python
 player.get_selected_block(playerid: int) -> x,y,z
 ```
@@ -123,6 +137,12 @@ world.set_day_time(time: number)
 Set day time value.
 
 ```python
+world.set_speed_time(value: number)
+```
+
+Sets the specified speed for the game time
+
+```python
 world.get_total_time() -> number
 ```
 
@@ -133,6 +153,18 @@ world.get_seed() -> int
 ```
 
 Returns world seed.
+
+``` python
+world.is_day() -> boolean
+```
+
+Proves that this is the current time during the day. From 0.2(8 am) to 0.8(8 pm)
+
+``` python
+world.is_night() -> bool
+```
+
+Checks that it is the current time at night. From 0.8(8 pm) to 0.2(8 am)
 
 ```python
 world.exists() -> bool
