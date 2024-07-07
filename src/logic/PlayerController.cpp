@@ -242,7 +242,7 @@ void PlayerController::update(float delta, bool input, bool pause) {
         }
         updateFootsteps(delta);
         updateCamera(delta, input);
-        updateControls(delta);
+        updatePlayer(delta);
 
     }
     camControl.refresh();
@@ -288,7 +288,8 @@ void PlayerController::resetKeyboard() {
     input.jump = false;
 }
 
-void PlayerController::updateControls(float delta){
+void PlayerController::updatePlayer(float delta) {
+    player->updateEntity(level);
     player->updateInput(level, input, delta);
 }
 

@@ -65,7 +65,7 @@ class PlayerController {
     void updateKeyboard();
     void updateCamera(float delta, bool movement);
     void resetKeyboard();
-    void updateControls(float delta);
+    void updatePlayer(float delta);
     void updateInteraction();
     void onBlockInteraction(
         glm::ivec3 pos,

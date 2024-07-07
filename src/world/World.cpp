@@ -111,7 +111,8 @@ std::unique_ptr<Level> World::load(
                     auto player = level->spawnObject<Player>(
                         glm::vec3(0, DEF_PLAYER_Y, 0), 
                         DEF_PLAYER_SPEED, 
-                        level->inventories->create(DEF_PLAYER_INVENTORY_SIZE)
+                        level->inventories->create(DEF_PLAYER_INVENTORY_SIZE),
+                        0
                     );
                     player->deserialize(players->map(i).get());
                     level->inventories->store(player->getInventory());

@@ -43,10 +43,12 @@ struct BlockSelection {
 class Player : public Object, public Serializable {
     float speed;
     int chosenSlot;
+    glm::vec3 position;
     glm::vec3 spawnpoint {};
     std::shared_ptr<Inventory> inventory;
     bool flight = false;
     bool noclip = false;
+    entityid_t entity;
 public:
     std::shared_ptr<Camera> camera, spCamera, tpCamera;
     std::shared_ptr<Camera> currentCamera;
@@ -55,10 +57,12 @@ public:
     glm::vec3 cam {};
     BlockSelection selection {};
 
-    Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv);
+    Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv,
+           entityid_t eid);
     ~Player();
 
     void teleport(glm::vec3 position);
+    void updateEntity(Level* level);
     void updateInput(Level* level, PlayerInput& input, float delta);
 
     void attemptToFindSpawnpoint(Level* level);
@@ -73,6 +77,9 @@ public:
 
     bool isNoclip() const;
     void setNoclip(bool flag);
+
+    entityid_t getEntity() const;
+    void setEntity(entityid_t eid);
     
     std::shared_ptr<Inventory> getInventory() const;
 

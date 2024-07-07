@@ -8,6 +8,7 @@
 #include "../window/Events.hpp"
 #include "../window/Camera.hpp"
 #include "../items/Inventory.hpp"
+#include "../objects/Entities.hpp"
 
 #include <glm/glm.hpp>
 #include <utility>
@@ -20,10 +21,13 @@ const float FLIGHT_SPEED_MUL = 4.0f;
 const float CHEAT_SPEED_MUL = 5.0f;
 const float JUMP_FORCE = 8.0f;
 
-Player::Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv) :
+Player::Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv,
+               entityid_t eid) :
     speed(speed),
     chosenSlot(0),
+    position(position),
     inventory(std::move(inv)),
+    entity(eid),
     camera(std::make_shared<Camera>(position, glm::radians(90.0f))),
     spCamera(std::make_shared<Camera>(position, glm::radians(90.0f))),
     tpCamera(std::make_shared<Camera>(position, glm::radians(90.0f))),
@@ -35,11 +39,15 @@ Player::Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv) 
 Player::~Player() {
 }
 
-void Player::updateInput(
-    Level* level,
-    PlayerInput& input, 
-    float delta
-) {
+void Player::updateEntity(Level* level) {
+    if (entity == 0) {
+        // spawn entity
+    } else {
+        // check entity, respawn if despawned
+    }
+}
+
+void Player::updateInput(Level* level, PlayerInput& input, float delta) {
     bool crouch = input.shift && hitbox->grounded && !input.sprint;
     float speed = this->speed;
     if (flight){
@@ -185,6 +193,14 @@ void Player::setNoclip(bool flag) {
     this->noclip = flag;
 }
 
+entityid_t Player::getEntity() const {
+    return entity;
+}
+
+void Player::setEntity(entityid_t eid) {
+    entity = eid;
+}
+
 std::shared_ptr<Inventory> Player::getInventory() const {
     return inventory;
 }
@@ -218,6 +234,7 @@ std::unique_ptr<dynamic::Map> Player::serialize() const {
     root->put("flight", flight);
     root->put("noclip", noclip);
     root->put("chosen-slot", chosenSlot);
+    root->put("entity", entity);
     root->put("inventory", inventory->serialize());
     return root;
 }
@@ -251,12 +268,12 @@ void Player::deserialize(dynamic::Map *src) {
     src->flag("flight", flight);
     src->flag("noclip", noclip);
     setChosenSlot(src->get("chosen-slot", getChosenSlot()));
+    src->num("enitity", entity);
     
     if (auto invmap = src->map("inventory")) {
         getInventory()->deserialize(invmap.get());
     }
 }
-
 
 void Player::convert(dynamic::Map* data, const ContentLUT* lut) {
     auto players = data->list("players");
