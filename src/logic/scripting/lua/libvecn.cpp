@@ -149,7 +149,7 @@ static int l_dot(lua::State* L) {
     if (argc == 2) {
         const auto& a = lua::tovec<n>(L, 1);
         const auto& b = lua::tovec<n>(L, 2);
-        return lua::pushnumber(L, glm::dot(a, b));;
+        return lua::pushnumber(L, glm::dot(a, b));
     } else if (argc == 3) {
         const auto& a = lua::tovec<n>(L, 1);
         const auto& b = lua::tovec<n>(L, 2);
