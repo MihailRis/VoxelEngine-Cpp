@@ -41,7 +41,10 @@ Player::~Player() {
 
 void Player::updateEntity() {
     if (eid == 0) {
-        // spawn entity
+        auto& def = level->content->entities.require("base:player");
+        eid = level->entities->spawn(def, Transform {
+            getPosition(), glm::vec3(1.0f), glm::mat3(1.0f), {}, true
+        });
     } else if (auto entity = level->entities->get(eid)) {
         position = entity->getTransform().pos;
     } else {
@@ -264,11 +267,12 @@ void Player::deserialize(dynamic::Map *src) {
     src->flag("flight", flight);
     src->flag("noclip", noclip);
     setChosenSlot(src->get("chosen-slot", getChosenSlot()));
-    src->num("enitity", eid);
+    src->num("entity", eid);
     
     if (auto invmap = src->map("inventory")) {
         getInventory()->deserialize(invmap.get());
     }
+    std::cout << "Player::DESERIALIZE " << eid << std::endl;
 }
 
 void Player::convert(dynamic::Map* data, const ContentLUT* lut) {

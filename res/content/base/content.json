@@ -1,6 +1,6 @@
 {
-  "entities": [
-    "drop"
+  "items": [
+    "bazalt_breaker"
   ],
   "blocks": [
     "dirt",
@@ -28,7 +28,8 @@
     "torch",
     "wooden_door"
   ],
-  "items": [
-    "bazalt_breaker"
+  "entities": [
+    "drop",
+    "player"
   ]
 }

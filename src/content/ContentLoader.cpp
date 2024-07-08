@@ -439,6 +439,7 @@ void ContentLoader::load() {
             stats->totalItems++;
         }
     }
+
     if (auto entitiesarr = root->list("entities")) {
         for (size_t i = 0; i < entitiesarr->size(); i++) {
             std::string name = entitiesarr->str(i);
