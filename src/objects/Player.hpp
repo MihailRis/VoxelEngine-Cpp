@@ -8,6 +8,7 @@
 #include "../interfaces/Object.hpp"
 
 #include <memory>
+#include <optional>
 #include <glm/glm.hpp>
 
 class Camera;
@@ -41,6 +42,7 @@ struct BlockSelection {
 };
 
 class Player : public Object, public Serializable {
+    Level* level;
     float speed;
     int chosenSlot;
     glm::vec3 position;
@@ -48,24 +50,23 @@ class Player : public Object, public Serializable {
     std::shared_ptr<Inventory> inventory;
     bool flight = false;
     bool noclip = false;
-    entityid_t entity;
+    entityid_t eid;
 public:
     std::shared_ptr<Camera> camera, spCamera, tpCamera;
     std::shared_ptr<Camera> currentCamera;
-    std::unique_ptr<Hitbox> hitbox;
     bool debug = false;
     glm::vec3 cam {};
     BlockSelection selection {};
 
-    Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv,
-           entityid_t eid);
+    Player(Level* level, glm::vec3 position, float speed, 
+           std::shared_ptr<Inventory> inv, entityid_t eid);
     ~Player();
 
     void teleport(glm::vec3 position);
-    void updateEntity(Level* level);
-    void updateInput(Level* level, PlayerInput& input, float delta);
+    void updateEntity();
+    void updateInput(PlayerInput& input, float delta);
 
-    void attemptToFindSpawnpoint(Level* level);
+    void attemptToFindSpawnpoint();
 
     void setChosenSlot(int index);
 
@@ -82,6 +83,12 @@ public:
     void setEntity(entityid_t eid);
     
     std::shared_ptr<Inventory> getInventory() const;
+
+    glm::vec3 getPosition() const {
+        return position;
+    }
+
+    Hitbox* getHitbox();
 
     void setSpawnPoint(glm::vec3 point);
     glm::vec3 getSpawnPoint() const;

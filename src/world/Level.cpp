@@ -31,7 +31,7 @@ Level::Level(
         this->world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE
     );
 	auto player = spawnObject<Player>(
-        glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv, 0
+        this, glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv, 0
     );
 
     uint matrixSize = (

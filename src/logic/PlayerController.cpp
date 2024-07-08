@@ -46,7 +46,7 @@ CameraControl::CameraControl(const std::shared_ptr<Player>& player, const Camera
 }
 
 void CameraControl::refresh() {
-    camera->position = player->hitbox->position + offset;
+    camera->position = player->getPosition() + offset;
 }
 
 void CameraControl::updateMouse(PlayerInput& input) {
@@ -77,20 +77,19 @@ void CameraControl::updateMouse(PlayerInput& input) {
     camera->rotate(glm::radians(cam.y), glm::radians(cam.x), glm::radians(cam.z));
 }
 
-glm::vec3 CameraControl::updateCameraShaking(float delta) {
+glm::vec3 CameraControl::updateCameraShaking(const Hitbox& hitbox, float delta) {
     glm::vec3 offset {};
-    auto hitbox = player->hitbox.get();
     const float k = CAM_SHAKE_DELTA_K;
     const float ov = CAM_SHAKE_OFFSET_Y;
-    const glm::vec3& vel = hitbox->velocity;
+    const glm::vec3& vel = hitbox.velocity;
 
     interpVel = interpVel * (1.0f - delta * 5) + vel * delta * 0.1f;
-    if (hitbox->grounded && interpVel.y < 0.0f){
+    if (hitbox.grounded && interpVel.y < 0.0f){
         interpVel.y *= -30.0f;
     }
     shake = shake * (1.0f - delta * k);
     float oh = CAM_SHAKE_OFFSET;
-    if (hitbox->grounded) {
+    if (hitbox.grounded) {
         float f = glm::length(glm::vec2(vel.x, vel.z));
         shakeTimer += delta * f * CAM_SHAKE_SPEED;
         shake += f * delta * k;
@@ -103,9 +102,9 @@ glm::vec3 CameraControl::updateCameraShaking(float delta) {
     return offset;
 }
 
-void CameraControl::updateFovEffects(const PlayerInput& input, float delta) {
-    auto hitbox = player->hitbox.get();
-    bool crouch = input.shift && hitbox->grounded && !input.sprint;
+void CameraControl::updateFovEffects(const Hitbox& hitbox, 
+                                     const PlayerInput& input, float delta) {
+    bool crouch = input.shift && hitbox.grounded && !input.sprint;
 
     float dt = fmin(1.0f, delta * ZOOM_SPEED);
     float zoomValue = 1.0f;
@@ -146,11 +145,13 @@ void CameraControl::switchCamera() {
 void CameraControl::update(const PlayerInput& input, float delta, Chunks* chunks) {
     offset = glm::vec3(0.0f, 0.7f, 0.0f);
 
-    if (settings.shaking.get() && !input.cheat) {
-        offset += updateCameraShaking(delta);
-    }
-    if (settings.fovEffects.get()){
-        updateFovEffects(input, delta);
+    if (auto hitbox = player->getHitbox()) {
+        if (settings.shaking.get() && !input.cheat) {
+            offset += updateCameraShaking(*hitbox, delta);
+        }
+        if (settings.fovEffects.get()){
+            updateFovEffects(*hitbox, input, delta);
+        }
     }
     if (input.cameraMode) {
         switchCamera();
@@ -192,10 +193,9 @@ void PlayerController::onBlockInteraction(
     }
 }
 
-void PlayerController::onFootstep() {
-    auto hitbox = player->hitbox.get();
-    glm::vec3 pos = hitbox->position;
-    glm::vec3 half = hitbox->halfsize;
+void PlayerController::onFootstep(const Hitbox& hitbox) {
+    auto pos = hitbox.position;
+    auto half = hitbox.halfsize;
 
     for (int offsetZ = -1; offsetZ <= 1; offsetZ++) {
         for (int offsetX = -1; offsetX <= 1; offsetX++) {
@@ -218,15 +218,14 @@ void PlayerController::onFootstep() {
 }
 
 void PlayerController::updateFootsteps(float delta) {
-    auto hitbox = player->hitbox.get();
-
-    if (hitbox->grounded) {
+    auto hitbox = player->getHitbox();
+    if (hitbox && hitbox->grounded) {
         const glm::vec3& vel = hitbox->velocity;
         float f = glm::length(glm::vec2(vel.x, vel.z));
         stepsTimer += delta * f * STEPS_SPEED;
         if (stepsTimer >= M_PI) {
             stepsTimer = fmod(stepsTimer, M_PI);
-            onFootstep();
+            onFootstep(*hitbox);
         }
     } else {
         stepsTimer = M_PI;
@@ -289,8 +288,8 @@ void PlayerController::resetKeyboard() {
 }
 
 void PlayerController::updatePlayer(float delta) {
-    player->updateEntity(level);
-    player->updateInput(level, input, delta);
+    player->updateEntity();
+    player->updateInput(input, delta);
 }
 
 static int determine_rotation(Block* def, const glm::ivec3& norm, glm::vec3& camDir) {
@@ -395,8 +394,9 @@ void PlayerController::processRightClick(Block* def, Block* target) {
     }
     blockid_t chosenBlock = def->rt.id;
 
-    if (def->obstacle && level->physics->isBlockInside(
-            coord.x, coord.y, coord.z, def,state, player->hitbox.get())) {
+    auto hitbox = player->getHitbox();
+    if (hitbox && def->obstacle && level->physics->isBlockInside(
+            coord.x, coord.y, coord.z, def,state, hitbox)) {
         return;
     }
     auto vox = chunks->get(coord);

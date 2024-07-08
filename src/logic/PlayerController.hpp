@@ -13,6 +13,7 @@ class Level;
 class Block;
 class Chunks;
 class BlocksController;
+struct Hitbox;
 struct CameraSettings;
 
 class CameraControl {
@@ -27,17 +28,19 @@ class CameraControl {
     /// @brief Update shaking timer and calculate camera offset
     /// @param delta delta time
     /// @return camera offset
-    glm::vec3 updateCameraShaking(float delta);
+    glm::vec3 updateCameraShaking(const Hitbox& hitbox, float delta);
 
     /// @brief Update field-of-view effects
     /// @param input player inputs
     /// @param delta delta time
-    void updateFovEffects(const PlayerInput& input, float delta);
+    void updateFovEffects(const Hitbox& hitbox, const PlayerInput& input,
+                          float delta);
 
     /// @brief Switch active player camera
     void switchCamera();
 public:
-    CameraControl(const std::shared_ptr<Player>& player, const CameraSettings& settings);
+    CameraControl(const std::shared_ptr<Player>& player,
+                  const CameraSettings& settings);
     void updateMouse(PlayerInput& input);
     void update(const PlayerInput& input, float delta, Chunks* chunks);
     void refresh();
@@ -74,7 +77,7 @@ class PlayerController {
     );
 
     float stepsTimer = 0.0f;
-    void onFootstep();
+    void onFootstep(const Hitbox& hitbox);
     void updateFootsteps(float delta);
     void processRightClick(Block* def, Block* target);
 

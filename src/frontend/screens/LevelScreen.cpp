@@ -136,9 +136,13 @@ void LevelScreen::update(float delta) {
     bool paused = hud->isPause();
     audio::get_channel("regular")->setPaused(paused);
     audio::get_channel("ambient")->setPaused(paused);
+    glm::vec3 velocity {};
+    if (auto hitbox = player->getHitbox())  {
+        velocity = hitbox->velocity;
+    }
     audio::set_listener(
         camera->position-camera->dir, 
-        player->hitbox->velocity,
+        velocity,
         camera->dir, 
         glm::vec3(0, 1, 0)
     );

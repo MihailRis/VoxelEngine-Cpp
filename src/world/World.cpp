@@ -109,6 +109,7 @@ std::unique_ptr<Level> World::load(
                 auto players = playerFile->list("players");
                 for (size_t i = 0; i < players->size(); i++) {
                     auto player = level->spawnObject<Player>(
+                        level.get(),
                         glm::vec3(0, DEF_PLAYER_Y, 0), 
                         DEF_PLAYER_SPEED, 
                         level->inventories->create(DEF_PLAYER_INVENTORY_SIZE),

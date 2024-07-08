@@ -2,6 +2,7 @@
 
 #include "../../../world/Level.hpp"
 #include "../../../objects/Player.hpp"
+#include "../../../objects/Entities.hpp"
 #include "../../../physics/Hitbox.hpp"
 #include "../../../window/Camera.hpp"
 #include "../../../items/Inventory.hpp"
@@ -16,7 +17,7 @@ inline std::shared_ptr<Player> get_player(lua::State* L, int idx) {
 
 static int l_player_get_pos(lua::State* L) {
     if (auto player = get_player(L, 1)) {
-        return lua::pushvec3(L, player->hitbox->position);
+        return lua::pushvec3(L, player->getPosition());
     }
     return 0;
 }
@@ -29,13 +30,15 @@ static int l_player_set_pos(lua::State* L) {
     auto x = lua::tonumber(L, 2);
     auto y = lua::tonumber(L, 3);
     auto z = lua::tonumber(L, 4);
-    player->hitbox->position = glm::vec3(x, y, z);
+    player->teleport(glm::vec3(x, y, z));
     return 0;
 }
 
 static int l_player_get_vel(lua::State* L) {
     if (auto player = get_player(L, 1)) {
-        return lua::pushvec3(L, player->hitbox->velocity);
+        if (auto hitbox = player->getHitbox()) {
+            return lua::pushvec3(L, hitbox->velocity);
+        }
     }
     return 0;    
 }
@@ -48,7 +51,9 @@ static int l_player_set_vel(lua::State* L) {
     auto x = lua::tonumber(L, 2);
     auto y = lua::tonumber(L, 3);
     auto z = lua::tonumber(L, 4);
-    player->hitbox->velocity = glm::vec3(x, y, z);
+    if (auto hitbox = player->getHitbox()) {
+        hitbox->velocity = glm::vec3(x, y, z);
+    }
     return 0;
 }
 
