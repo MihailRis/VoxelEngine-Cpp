@@ -88,6 +88,13 @@ player.set_noclip(bool)
 Геттер и сеттер noclip режима (выключенная коллизия игрока)
 
 ```python
+player.set_spawnpoint(playerid: int, x: number, y: number, z: number) 
+player.get_spawnpoint(playerid: int) -> number, number, number
+```
+
+Сеттер и геттер точки спавна игрока
+
+```python
 player.get_selected_block(playerid: int) -> x,y,z
 ```
 
@@ -117,6 +124,18 @@ world.set_day_time(time: number)
 Устанавливает указанное игровое время.
 
 ```python
+world.set_day_time_speed(value: number)
+```
+
+Устанавливает указанную скорость для игрового времени.
+
+```python
+world.get_day_time_speed() -> number
+```
+
+Возвращает скорость для игрового времени.
+
+```python
 world.get_total_time() -> number
 ```
 
@@ -133,6 +152,18 @@ world.exists() -> bool
 ```
 
 Проверяет существование мира по имени.
+
+```python
+world.is_day() -> bool
+```
+
+Проверяет является ли текущее время днём. От 0.2(8 утра) до 0.8(8 вечера)
+
+```python
+world.is_night() -> bool
+```
+
+Проверяет является ли текущее время ночью. От 0.8(8 вечера) до 0.2(8 утра)
 
 ## Библиотека *pack*
 
