@@ -137,6 +137,12 @@ world.set_speed_time(value: number)
 Устанавливает указанную скорость для игрового времени.
 
 ```python
+world.get_speed_time() -> number
+```
+
+Возвращает скорость для игрового времени.
+
+```python
 world.get_total_time() -> number
 ```
 
