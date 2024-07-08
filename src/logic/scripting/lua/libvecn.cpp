@@ -13,29 +13,29 @@ static int l_binop(lua::State* L) {
 
     if (lua::isnumber(L, 2)) { // scalar second operand overload
         const auto& b = lua::tonumber(L, 2);
-        Operation op;
+        Operation oper;
         if (argc == 2) {
             lua::createtable(L, n, 0);
             for (uint i = 0; i < n; i++) {
-                lua::pushnumber(L, op(a[i], b));
+                lua::pushnumber(L, oper(a[i], b));
                 lua::rawseti(L, i+1);
             }
             return 1;
         } else {
-            return lua::setvec(L, 3, op(a, glm::vec<n, float>(b)));
+            return lua::setvec(L, 3, oper(a, glm::vec<n, float>(b)));
         }
     } else {
         const auto& b = lua::tovec<n>(L, 2);
-        Operation op;
+        Operation oper;
         if (argc == 2) {
             lua::createtable(L, n, 0);
             for (uint i = 0; i < n; i++) {
-                lua::pushnumber(L, op(a[i], b[i]));
+                lua::pushnumber(L, oper(a[i], b[i]));
                 lua::rawseti(L, i+1);
             }
             return 1;
         } else {
-            return lua::setvec(L, 3, op(a, b));
+            return lua::setvec(L, 3, oper(a, b));
         }
     }
 }
@@ -93,16 +93,49 @@ static int l_dot(lua::State* L) {
 }
 
 template<int n>
-static int l_round(lua::State* L) {
-    if (lua::gettop(L)!= 1) {
-        throw std::runtime_error("invalid arguments number (1 expected)");
+static int l_rotate(lua::State* L) {
+    if (lua::gettop(L) != 2) {
+        throw std::runtime_error("invalid arguments number (2 expected)");
     }
-    const auto& vec = lua::tovec<n>(L, 1);
-    glm::vec<n, float> rounded_vector;
-    for (int i = 0; i < n; i++) {
-        rounded_vector[i] = std::round(vec[i]);
+
+    const auto& vec = lua::tovec<n>(L, 1); // vector
+    const auto& angle = lua::tonumber(L, 2); // scalar (in radians)
+
+    const float _cos = std::cos(angle);
+    const float _sin = std::sin(angle);
+
+    glm::vec<n, float> result_vector = vec;
+
+    for (int i = 0; i < n - 1; ++i) {
+        float temp = result_vector[i] * _cos - result_vector[i + 1] * _sin;
+        result_vector[i + 1] = result_vector[i] * _sin + result_vector[i + 1] * _cos;
+        result_vector[i] = temp;
     }
-    return lua::setvec(L, 1, rounded_vector);
+
+    return lua::setvec(L, 1, result_vector);
+}
+
+template<int n>
+static int l_cross(lua::State* L) {
+    if (lua::gettop(L)!= 2) {
+        throw std::runtime_error("invalid arguments number (2 expected)");
+    }
+    const auto& a = lua::tovec<n>(L, 1);
+    const auto& b = lua::tovec<n>(L, 2);
+
+    glm::vec<n, float> result_vector;
+    
+    if (n == 2) {
+        result_vector.x = a.x * b.y - a.y * b.x;
+        return lua::pushnumber(L, result_vector.x);
+    } else {
+        for (int i = 0; i < n; ++i) {
+            int j = (i + 1) % n;
+            int k = (i + 2) % n;
+            result_vector[i] = a[j] * b[k] - a[k] * b[j];
+        }
+        return lua::setvec(L, 1, result_vector);
+    }
 }
 
 template<int n>
@@ -131,10 +164,12 @@ const luaL_Reg vec2lib [] = {
     {"norm", lua::wrap<l_unaryop<2, glm::normalize>>},
     {"len", lua::wrap<l_scalar_op<2, glm::length>>},
     {"abs", lua::wrap<l_unaryop<2, glm::abs>>},
+    {"round", lua::wrap<l_unaryop<2, glm::round>>},
     {"tostring", lua::wrap<l_tostring<2>>},
+    {"cross", lua::wrap<l_cross<2>>},
+    {"rot", lua::wrap<l_rotate<2>>},
     {"pow", lua::wrap<l_pow<2>>},
     {"dot", lua::wrap<l_dot<2>>},
-    {"round", lua::wrap<l_round<2>>},
     {NULL, NULL}
 };
 
@@ -146,10 +181,12 @@ const luaL_Reg vec3lib [] = {
     {"norm", lua::wrap<l_unaryop<3, glm::normalize>>},
     {"len", lua::wrap<l_scalar_op<3, glm::length>>},
     {"abs", lua::wrap<l_unaryop<3, glm::abs>>},
+    {"round", lua::wrap<l_unaryop<3, glm::round>>},
     {"tostring", lua::wrap<l_tostring<3>>},
+    {"cross", lua::wrap<l_cross<3>>},
+    {"rot", lua::wrap<l_rotate<3>>},
     {"pow", lua::wrap<l_pow<3>>},
     {"dot", lua::wrap<l_dot<3>>},
-    {"round", lua::wrap<l_round<3>>},
     {NULL, NULL}
 };
 
@@ -161,9 +198,11 @@ const luaL_Reg vec4lib [] = {
     {"abs", lua::wrap<l_unaryop<4, glm::abs>>},
     {"norm", lua::wrap<l_unaryop<4, glm::normalize>>},
     {"len", lua::wrap<l_scalar_op<4, glm::length>>},
+    {"round", lua::wrap<l_unaryop<4, glm::round>>},
     {"tostring", lua::wrap<l_tostring<4>>},
+    {"cross", lua::wrap<l_cross<4>>},
+    {"rot", lua::wrap<l_rotate<4>>},
     {"pow", lua::wrap<l_pow<4>>},
     {"dot", lua::wrap<l_dot<4>>},
-    {"round", lua::wrap<l_round<4>>},
     {NULL, NULL}
 };
