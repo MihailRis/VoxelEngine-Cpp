@@ -40,10 +40,11 @@ void LevelController::update(float delta, bool input, bool pause) {
             }
         }
         blocks->update(delta);
+        player->update(delta, input, pause);
         level->entities->updatePhysics(delta);
         level->entities->update();
     }
-    player->update(delta, input, pause);
+    player->postUpdate(delta, input, pause);
 
     // erease null pointers
     level->objects.erase(

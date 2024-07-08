@@ -89,7 +89,7 @@ public:
         BlocksController* blocksController
     );
     void update(float delta, bool input, bool pause);
-
+    void postUpdate(float delta, bool input, bool pause);
     Player* getPlayer();
 
     void listenBlockInteraction(const on_block_interaction& callback);

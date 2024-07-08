@@ -96,9 +96,15 @@ void Player::updateInput(PlayerInput& input, float delta) {
         dir = glm::normalize(dir);
         hitbox->velocity += dir * speed * delta * 9.0f;
     }
+}
 
-    // physics calculation was here
-                         
+void Player::postUpdate(PlayerInput& input, float delta) {
+    auto hitbox = getHitbox();
+    if (hitbox == nullptr) {
+        return;
+    }
+    position = hitbox->position;
+
     if (flight && hitbox->grounded) {
         flight = false;
     }
@@ -272,7 +278,6 @@ void Player::deserialize(dynamic::Map *src) {
     if (auto invmap = src->map("inventory")) {
         getInventory()->deserialize(invmap.get());
     }
-    std::cout << "Player::DESERIALIZE " << eid << std::endl;
 }
 
 void Player::convert(dynamic::Map* data, const ContentLUT* lut) {

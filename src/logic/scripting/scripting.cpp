@@ -286,11 +286,10 @@ void scripting::on_entity_spawn(
         lua::call(L, 1);
     }
     if (components.size() > 1) {
-        for (int i = 0; i < components.size()-1; i++) {
+        for (size_t i = 0; i < components.size()-1; i++) {
             lua::pushvalue(L, -1);
         }
     }
-    std::cout << "entity duplicated " << (components.size()-1) << " times" << std::endl;
     for (auto& component : components) {
         auto compenv = create_component_environment(get_root_environment(), -1, 
                                                     component->name);

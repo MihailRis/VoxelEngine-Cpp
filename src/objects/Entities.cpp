@@ -66,7 +66,6 @@ entityid_t Entities::spawn(
     dynamic::Map_sptr saved,
     entityid_t uid)
 {
-    std::cout << "spawn entity " << def.name << std::endl;
     auto rig = level->content->getRig(def.rigName);
     if (rig == nullptr) {
         throw std::runtime_error("rig "+def.rigName+" not found");
@@ -109,10 +108,8 @@ entityid_t Entities::spawn(
             componentName, entity_funcs_set {}, nullptr);
         scripting.components.emplace_back(std::move(component));
     }
-    std::cout << "on_entity_spawn" << std::endl;
     scripting::on_entity_spawn(
         def, id, scripting.components, std::move(args), std::move(saved));
-    std::cout << "done" << std::endl;
     return id;
 }
 

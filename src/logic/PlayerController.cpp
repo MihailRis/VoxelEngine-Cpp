@@ -239,11 +239,16 @@ void PlayerController::update(float delta, bool input, bool pause) {
         } else {
             resetKeyboard();
         }
+        updatePlayer(delta);
+    }
+}
+
+void PlayerController::postUpdate(float delta, bool input, bool pause) {
+    if (!pause) {
         updateFootsteps(delta);
         updateCamera(delta, input);
-        updatePlayer(delta);
-
     }
+    player->postUpdate(this->input, delta);
     camControl.refresh();
     if (input) {
         updateInteraction();
