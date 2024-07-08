@@ -71,31 +71,44 @@ static int l_scalar_op(lua::State* L) {
 
 template<int n>
 static int l_pow(lua::State* L) {
-    if (lua::gettop(L) != 2) {
+    uint argc = lua::gettop(L);
+    if (argc != 2) {
         throw std::runtime_error("invalid arguments number (2 expected)");
     }
     const auto& a = lua::tovec<n>(L, 1); //vector
-    const auto& b = lua::tonumber(L, 2); //scalar (pow)
-    glm::vec<n, float> result_vector;
-    for (int i = 0; i < n; i++) {
-        result_vector[i] = pow(a[i], b);
+    if (lua::isnumber(L, 2)) { // scalar second operand overload
+        const auto& b = lua::tonumber(L, 2); //scalar (pow)
+        glm::vec<n, float> result_vector;
+        for (int i = 0; i < n; i++) {
+            result_vector[i] = pow(a[i], b);
+        }
+        return lua::setvec(L, 1, result_vector);
+    } else {
+        const auto& b = lua::tovec<n>(L, 2); //vector
+        glm::vec<n, float> result_vector;
+        for (int i = 0; i < n; i++) {
+            result_vector[i] = pow(a[i], b[i]);
+        }
+        return lua::setvec(L, 1, result_vector);
     }
-    return lua::setvec(L, 1, result_vector);
 }
 
 template<int n>
 static int l_dot(lua::State* L) {
-    if (lua::gettop(L) != 2) {
+    uint argc = lua::gettop(L);
+    if (argc != 2) {
         throw std::runtime_error("invalid arguments number (2 expected)");
     }
-    return lua::pushnumber(L, glm::dot(lua::tovec<n>(L, 1), 
-                                       lua::tovec<n>(L, 2)));                 
+    const auto& a = lua::tovec<n>(L, 1);
+    const auto& b = lua::tovec<n>(L, 2);
+    return lua::pushnumber(L, glm::dot(a, b));
 }
 
 template<int n>
 static int l_inverse(lua::State* L) {
-    if (lua::gettop(L) != 1) {
-        throw std::runtime_error("invalid arguments number (2 expected)");
+    uint argc = lua::gettop(L);
+    if (argc != 1) {
+        throw std::runtime_error("invalid arguments number (1 expected)");
     }
     const auto& _vector = lua::tovec<n>(L, 1); //vector
     glm::vec<n, float> result_vector;
