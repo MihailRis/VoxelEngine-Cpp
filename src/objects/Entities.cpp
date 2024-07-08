@@ -350,8 +350,10 @@ void Entities::renderDebug(LineBatch& batch, const Frustum& frustum) {
     }
 }
 
-void Entities::render(Assets* assets, ModelBatch& batch, const Frustum& frustum) {
-    scripting::on_entities_render();
+void Entities::render(Assets* assets, ModelBatch& batch, const Frustum& frustum, bool pause) {
+    if (!pause) {
+        scripting::on_entities_render();
+    }
 
     auto view = registry.view<Transform, rigging::Rig>();
     for (auto [entity, transform, rig] : view.each()) {

@@ -168,7 +168,7 @@ public:
     void update();
 
     void renderDebug(LineBatch& batch, const Frustum& frustum);
-    void render(Assets* assets, ModelBatch& batch, const Frustum& frustum);
+    void render(Assets* assets, ModelBatch& batch, const Frustum& frustum, bool pause);
 
     entityid_t spawn(
         EntityDef& def,

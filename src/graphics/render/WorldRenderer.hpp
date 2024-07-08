@@ -71,7 +71,8 @@ public:
     void draw(
         const DrawContext& context, 
         Camera* camera, 
-        bool hudVisible, 
+        bool hudVisible,
+        bool pause,
         PostProcessing* postProcessing
     );
     void drawBorders(int sx, int sy, int sz, int ex, int ey, int ez);
@@ -83,7 +84,8 @@ public:
     void renderLevel(
         const DrawContext& context, 
         Camera* camera, 
-        const EngineSettings& settings
+        const EngineSettings& settings,
+        bool pause
     );
 };
 

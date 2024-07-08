@@ -154,7 +154,8 @@ void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
 void WorldRenderer::renderLevel(
     const DrawContext&,
     Camera* camera, 
-    const EngineSettings& settings
+    const EngineSettings& settings,
+    bool pause
 ) {
     auto assets = engine->getAssets();
     auto atlas = assets->get<Atlas>("blocks");
@@ -197,7 +198,7 @@ void WorldRenderer::renderLevel(
     drawChunks(level->chunks.get(), camera, shader);
 
     shader->uniformMatrix("u_model", glm::mat4(1.0f));
-    level->entities->render(assets, *modelBatch, *frustumCulling);
+    level->entities->render(assets, *modelBatch, *frustumCulling, pause);
     modelBatch->render();
 
     skybox->unbind();
@@ -294,7 +295,8 @@ void WorldRenderer::renderDebugLines(
 void WorldRenderer::draw(
     const DrawContext& pctx, 
     Camera* camera, 
-    bool hudVisible, 
+    bool hudVisible,
+    bool pause,
     PostProcessing* postProcessing
 ){
     auto world = level->getWorld();
@@ -322,7 +324,7 @@ void WorldRenderer::draw(
             DrawContext ctx = wctx.sub();
             ctx.setDepthTest(true);
             ctx.setCullFace(true);
-            renderLevel(ctx, camera, settings);
+            renderLevel(ctx, camera, settings, pause);
             // Debug lines
             if (hudVisible){
                 renderLines(camera, linesShader);
