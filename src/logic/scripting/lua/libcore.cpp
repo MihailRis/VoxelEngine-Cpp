@@ -18,6 +18,10 @@
 
 using namespace scripting;
 
+/// @brief Creating new world
+/// @param name Name world 
+/// @param seed Seed world
+/// @param generator Type of generation
 static int l_new_world(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto seed = lua::require_string(L, 2);
@@ -27,6 +31,8 @@ static int l_new_world(lua::State* L) {
     return 0;
 }
 
+/// @brief Open world
+/// @param name Name world 
 static int l_open_world(lua::State* L) {
     auto name = lua::require_string(L, 1);
 
@@ -35,12 +41,15 @@ static int l_open_world(lua::State* L) {
     return 0;
 }
 
+/// @brief Reopen world
 static int l_reopen_world(lua::State*) {
     auto controller = engine->getController();
     controller->reopenWorld(level->getWorld());
     return 0;
 }
 
+/// @brief Close world
+/// @param flag Save world (bool)
 static int l_close_world(lua::State* L) {
     if (controller == nullptr) {
         throw std::runtime_error("no world open");
@@ -56,6 +65,8 @@ static int l_close_world(lua::State* L) {
     return 0;
 }
 
+/// @brief Delete world
+/// @param name Name world
 static int l_delete_world(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto controller = engine->getController();
@@ -63,6 +74,9 @@ static int l_delete_world(lua::State* L) {
     return 0;
 }
 
+/// @brief Reconfigure packs
+/// @param addPacks An array of packs to add
+/// @param remPacks An array of packs to remove
 static int l_reconfig_packs(lua::State* L) {
     if (!lua::istable(L, 1)) {
         throw std::runtime_error("strings array expected as the first argument");
@@ -96,12 +110,18 @@ static int l_reconfig_packs(lua::State* L) {
     return 0;
 }
 
+/// @brief Get a setting value
+/// @param name The name of the setting
+/// @return The value of the setting
 static int l_get_setting(lua::State* L) {
     auto name = lua::require_string(L, 1);
     const auto value = engine->getSettingsHandler().getValue(name);
     return lua::pushvalue(L, value);
 }
 
+/// @brief Set a setting value
+/// @param name The name of the setting
+/// @param value The new value for the setting
 static int l_set_setting(lua::State* L) {
     auto name = lua::require_string(L, 1);
     const auto value = lua::tovalue(L, 2);
@@ -109,12 +129,18 @@ static int l_set_setting(lua::State* L) {
     return 0;
 }
 
+/// @brief Convert a setting value to a string
+/// @param name The name of the setting
+/// @return The string representation of the setting value
 static int l_str_setting(lua::State* L) {
     auto name = lua::require_string(L, 1);
     const auto string = engine->getSettingsHandler().toString(name);
     return lua::pushstring(L, string);
 }
 
+/// @brief Get information about a setting
+/// @param name The name of the setting
+/// @return A table with information about the setting
 static int l_get_setting_info(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto setting = engine->getSettingsHandler().getSetting(name);
@@ -137,15 +163,20 @@ static int l_get_setting_info(lua::State* L) {
     throw std::runtime_error("unsupported setting type");
 }
 
+/// @brief Quit the game
 static int l_quit(lua::State*) {
     Window::setShouldClose(true);
     return 0;
 }
 
+/// @brief Get the default world generator
+/// @return The ID of the default world generator
 static int l_get_default_generator(lua::State* L) {
     return lua::pushstring(L, WorldGenerators::getDefaultGeneratorID());
 }
 
+/// @brief Get a list of all world generators
+/// @return A table with the IDs of all world generators
 static int l_get_generators(lua::State* L) {
     const auto& generators = WorldGenerators::getGeneratorsIDs();
     lua::createtable(L, generators.size(), 0);
@@ -159,6 +190,8 @@ static int l_get_generators(lua::State* L) {
     return 1;
 }
 
+/// @brief Get engine constants
+/// @return A table with engine constants
 static int l_get_constants(lua::State* L) {
 
     lua::createtable(L, 0, 20);

@@ -46,7 +46,7 @@ public:
     float factorSpeedTime = 1.0f;
 
     // looking bad
-    float daytimeSpeed = 0.000694444444444f; //1.0f/60.0f/24.0f;
+    float daytimeSpeed = 1.0f/1440.0f; //1.0f/60.0f/24.0f;
     
     /// @brief total time passed in the world (not depending on daytimeSpeed)
     double totalTime = 0.0;
