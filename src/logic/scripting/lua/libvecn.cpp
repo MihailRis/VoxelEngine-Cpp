@@ -72,49 +72,34 @@ static int l_scalar_op(lua::State* L) {
 template<int n>
 static int l_pow(lua::State* L) {
     uint argc = lua::gettop(L);
-    if (argc == 2) {
-        const auto& a = lua::tovec<n>(L, 1); //vector
-        if (lua::isnumber(L, 2)) { // scalar second operand overload
-            const auto& b = lua::tonumber(L, 2); //scalar (pow)
+    if (argc == 2 || argc == 3) {
+        const auto& a = lua::tovec<n>(L, 1); // vector
+        bool is_b_scalar = lua::isnumber(L, 2);
+        if (is_b_scalar || (argc == 3 && lua::isnumber(L, 2))) {
+
+            const auto& b = is_b_scalar
+                          ? lua::tonumber(L, 2) // scalar (pow)
+                          : lua::tovec<n>(L, 2)[0]; // vector (pow)
+
             glm::vec<n, float> result_vector;
+
             for (int i = 0; i < n; i++) {
                 result_vector[i] = pow(a[i], b);
             }
-            lua::createtable(L, n, 0);
-            for (uint i = 0; i < n; i++) {
-                lua::pushnumber(L, result_vector[i]);
-                lua::rawseti(L, i+1);
+
+            if (argc == 2) {
+                lua::createtable(L, n, 0);
+                for (uint i = 0; i < n; i++) {
+                    lua::pushnumber(L, result_vector[i]);
+                    lua::rawseti(L, i+1);
+                }
+                return 1;
+                
+            } else {
+                return lua::setvec(L, 3, result_vector);
             }
-            return 1;
         } else {
-            const auto& b = lua::tovec<n>(L, 2); //vector
-            glm::vec<n, float> result_vector;
-            for (int i = 0; i < n; i++) {
-                result_vector[i] = pow(a[i], b[i]);
-            }
-            lua::createtable(L, n, 0);
-            for (uint i = 0; i < n; i++) {
-                lua::pushnumber(L, result_vector[i]);
-                lua::rawseti(L, i+1);
-            }
-            return 1;
-        }
-    } else if (argc == 3) {
-        const auto& a = lua::tovec<n>(L, 1); //vector
-        if (lua::isnumber(L, 2)) { // scalar second operand overload
-            const auto& b = lua::tonumber(L, 2); //scalar (pow)
-            glm::vec<n, float> result_vector;
-            for (int i = 0; i < n; i++) {
-                result_vector[i] = pow(a[i], b);
-            }
-            return lua::setvec(L, 3, result_vector);
-        } else {
-            const auto& b = lua::tovec<n>(L, 2); //vector
-            glm::vec<n, float> result_vector;
-            for (int i = 0; i < n; i++) {
-                result_vector[i] = pow(a[i], b[i]);
-            }
-            return lua::setvec(L, 3, result_vector);
+            throw std::runtime_error("invalid arguments number (2 or 3 expected)");
         }
     } else {
         throw std::runtime_error("invalid arguments number (2 or 3 expected)");
@@ -146,14 +131,11 @@ static int l_inverse(lua::State* L) {
 template<int n>
 static int l_dot(lua::State* L) {
     uint argc = lua::gettop(L);
-    if (argc == 2) {
+    if (argc == 2 || argc == 3) {
         const auto& a = lua::tovec<n>(L, 1);
         const auto& b = lua::tovec<n>(L, 2);
-        return lua::pushnumber(L, glm::dot(a, b));
-    } else if (argc == 3) {
-        const auto& a = lua::tovec<n>(L, 1);
-        const auto& b = lua::tovec<n>(L, 2);
-        return lua::pushnumber(L, glm::dot(a, b));
+        lua::pushnumber(L, glm::dot(a, b));
+        return 1;
     } else {
         throw std::runtime_error("invalid arguments number (2 or 3 expected)");
     }
