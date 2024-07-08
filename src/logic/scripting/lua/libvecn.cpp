@@ -75,61 +75,31 @@ static int l_pow(lua::State* L) {
     if (argc != 2 && argc != 3) {
         throw std::runtime_error("invalid arguments number (2 or 3 expected)");
     }
-    const auto& a = lua::tovec<n>(L, 1); //vector
+    auto a = lua::tovec<n>(L, 1);
 
-    if (lua::isnumber(L, 2)) { // scalar second operand overload
-        const auto& b = lua::tonumber(L, 2); //scalar (pow)
+    if (lua::isnumber(L, 2)) { 
+        auto b = lua::tonumber(L, 2);
         if (argc == 2) {
-            glm::vec<n, float> result_vector;
-            for (int i = 0; i < n; i++) {
-                result_vector[i] = pow(a[i], b);
-            }
             lua::createtable(L, n, 0);
             for (uint i = 0; i < n; i++) {
-                lua::pushnumber(L, result_vector[i]);
+                lua::pushnumber(L, pow(a[i], b));
                 lua::rawseti(L, i+1);
             }
             return 1;
         } else {
-            glm::vec<n, float> result_vector;
-            for (int i = 0; i < n; i++) {
-                result_vector[i] = pow(a[i], b);
-            }
-            lua::pushvalue(L, 3);
-            lua::createtable(L, n, 0);
-            for (uint i = 0; i < n; i++) {
-                lua::pushnumber(L, result_vector[i]);
-                lua::rawseti(L, i+1);
-            }
-            lua_settable(L, 3);
-            return 0;
+            return lua::setvec(L, 3, pow(a, glm::vec<n, float>(b)));
         }
     } else {
-        const auto& b = lua::tovec<n>(L, 2); //vector
+        auto b = lua::tovec<n>(L, 2);
         if (argc == 2) {
-            glm::vec<n, float> result_vector;
-            for (int i = 0; i < n; i++) {
-                result_vector[i] = pow(a[i], b[i]);
-            }
             lua::createtable(L, n, 0);
             for (uint i = 0; i < n; i++) {
-                lua::pushnumber(L, result_vector[i]);
+                lua::pushnumber(L, pow(a[i], b[i]));
                 lua::rawseti(L, i+1);
             }
             return 1;
         } else {
-            glm::vec<n, float> result_vector;
-            for (int i = 0; i < n; i++) {
-                result_vector[i] = pow(a[i], b[i]);
-            }
-            lua::pushvalue(L, 3);
-            lua::createtable(L, n, 0);
-            for (uint i = 0; i < n; i++) {
-                lua::pushnumber(L, result_vector[i]);
-                lua::rawseti(L, i+1);
-            }
-            lua_settable(L, 3);
-            return 0;
+            return lua::setvec(L, 3, pow(a, b));
         }
     }
 }
@@ -137,50 +107,31 @@ static int l_pow(lua::State* L) {
 template<int n>
 static int l_dot(lua::State* L) {
     uint argc = lua::gettop(L);
-    if (argc != 2 && argc != 3) {
-        throw std::runtime_error("invalid arguments number (2 or 3 expected)");
+    if (argc != 1) {
+        throw std::runtime_error("invalid arguments number (1 expected)");
     }
     const auto& a = lua::tovec<n>(L, 1);
     const auto& b = lua::tovec<n>(L, 2);
-    if (argc == 2) {
-        lua::pushnumber(L, glm::dot(a, b));
-        return 1;
-    } else {
-        lua::pushnumber(L, glm::dot(a, b));
-        lua_settable(L, 3);
-        return 0;
-    }
+    return lua::pushnumber(L, glm::dot(a, b));
 }
 
 template<int n>
 static int l_inverse(lua::State* L) {
     uint argc = lua::gettop(L);
-    if (argc != 1 && argc != 2) {
-        throw std::runtime_error("invalid arguments number (1 or 2 expected)");
-    }
-    const auto& _vector = lua::tovec<n>(L, 1); //vector
-    glm::vec<n, float> result_vector;
-
-    for (int i = 0; i < n; i++) {
-        result_vector[i] = -_vector[i]; 
-    }
-
-    if (argc == 1) {
-        lua::createtable(L, n, 0);
-        for (uint i = 0; i < n; i++) {
-            lua::pushnumber(L, result_vector[i]);
-            lua::rawseti(L, i+1);
+    auto vec = lua::tovec<n>(L, 1);
+    switch (argc) {
+        case 1:
+            lua::createtable(L, n, 0);
+            for (uint i = 0; i < n; i++) {
+                lua::pushnumber(L, (-1)*vec[i]);
+                lua::rawseti(L, i+1);
+            }
+            return 1;
+        case 2:
+            return lua::setvec(L, 2, -vec);
+        default: {
+            throw std::runtime_error("invalid arguments number (1 or 2 expected)");
         }
-        return 1;
-    } else {
-        lua::pushvalue(L, 2);
-        lua::createtable(L, n, 0);
-        for (uint i = 0; i < n; i++) {
-            lua::pushnumber(L, result_vector[i]);
-            lua::rawseti(L, i+1);
-        }
-        lua_settable(L, 2);
-        return 0;
     }
 }
 
