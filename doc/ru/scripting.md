@@ -95,13 +95,6 @@ player.get_spawnpoint(playerid: int) -> number, number, number
 Сеттер и геттер точки спавна игрока
 
 ```python
-player.set_jump_force(playerid: int, force: number) 
-player.get_jump_force(playerid: int) -> number 
-```
-
-Сеттер и геттер силы прыжка игрока
-
-```python
 player.get_selected_block(playerid: int) -> x,y,z
 ```
 
@@ -135,6 +128,18 @@ world.set_vel_time(value: number)
 ```
 
 Устанавливает указанную скорость для игрового времени.
+
+```python
+world.get_vel_time() -> number
+```
+
+Возвращает скорость для игрового времени.
+
+```python
+world.get_total_time() -> number
+```
+
+Возвращает общее суммарное время, прошедшее в мире
 
 ```python
 world.get_seed() -> int
