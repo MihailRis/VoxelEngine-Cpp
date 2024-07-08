@@ -31,6 +31,9 @@ vecn.add(a: vector, b: vector)
 
 -- возвращает результат сложения вектора и скаляра
 vecn.add(a: vector, b: number)
+
+-- записывает результат сложения двух векторов в dst
+vec.add(a: vector, b: vector, dst: vector)
 ```
 
 #### Вычитание - *vecn.sub(...)*
@@ -41,6 +44,9 @@ vecn.sub(a: vector, b: vector)
 
 -- возвращает результат вычитания скаляра из вектора
 vecn.sub(a: vector, b: number)
+
+-- записывает результат вычитания двух векторов в dst
+vec.sub(a: vector, b: vector, dst: vector)
 ```
 
 #### Умножение - *vecn.mul(...)*
@@ -58,6 +64,9 @@ vecn.mul(a: vector, b: number)
 ```lua
 -- возвращает результат инверсии (противоположный) вектора
 vecn.inverse(a: vector)
+
+-- записывает инвертированный вектор в dst
+vec.inverse(v: vector, dst: vector)
 ```
 
 ####  Деление - *vecn.div(...)*
@@ -68,6 +77,9 @@ vecn.div(a: vector, b: vector)
 
 -- возвращает результат деления вектора на скаляр
 vecn.div(a: vector, b: number)
+
+-- записывает результат деления двух векторов в dst
+vec.div(a: vector, b: vector, dst: vector)
 ```
 
 #### Нормализация - *vecn.norm(...)*
@@ -75,12 +87,17 @@ vecn.div(a: vector, b: number)
 ```lua
 -- возвращает нормализованный вектор
 vecn.normalize(a: vector)
+
+-- записывает нормализованный вектор в dst
+vec.normalize(v: vector, dst: vector)
 ```
+
 #### Длина вектора - *vecn.len(...)*
 
 ```lua
 -- возвращает длину вектора
 vecn.length(a: vector)
+
 ```
 
 #### Абсолютное значение - *vecn.abs(...)*
@@ -88,6 +105,9 @@ vecn.length(a: vector)
 ```lua
 -- возвращает вектор с абсолютными значениями
 vecn.abs(a: vector)
+
+-- записывает абсолютное значение вектора в dst
+vec.abs(v: vector, dst: vector)
 ```
 
 #### Округление - *vecn.round(...)*
@@ -95,6 +115,9 @@ vecn.abs(a: vector)
 ```lua
 -- возвращает вектор с округленными значениями
 vecn.round(a: vector)
+
+-- записывает округленный вектор в dst
+vec.round(v: vector, dst: vector)
 ```
 
 #### Степень - *vecn.pow(...)*
@@ -102,6 +125,9 @@ vecn.round(a: vector)
 ```lua
 -- возвращает вектор с элементами, возведенными в степень
 vecn.pow(a: vector, b: number)
+
+-- записывает вектор, возведенный в степень, в dst
+vec.pow(v: vector, exponent: number, dst: vector)
 ```
 
 #### Скалярное произведение - *vecn.dot(...)*
