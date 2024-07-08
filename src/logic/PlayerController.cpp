@@ -248,7 +248,7 @@ void PlayerController::postUpdate(float delta, bool input, bool pause) {
         updateFootsteps(delta);
         updateCamera(delta, input);
     }
-    player->postUpdate(this->input, delta);
+    player->postUpdate();
     camControl.refresh();
     if (input) {
         updateInteraction();

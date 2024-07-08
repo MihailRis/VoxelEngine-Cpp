@@ -41,6 +41,7 @@ struct Hitbox {
     glm::vec3 halfsize;
     glm::vec3 velocity;
     float linearDamping;
+    bool verticalDamping = false;
     bool grounded = false;
 
     Hitbox(glm::vec3 position, glm::vec3 halfsize);

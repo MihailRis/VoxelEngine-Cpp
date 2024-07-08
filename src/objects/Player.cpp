@@ -94,17 +94,20 @@ void Player::updateInput(PlayerInput& input, float delta) {
         dir = glm::normalize(dir);
         hitbox->velocity += dir * speed * delta * 9.0f;
     }
-}
 
-void Player::postUpdate(PlayerInput& input, float delta) {
-    auto hitbox = getHitbox();
-    if (hitbox == nullptr) {
-        return;
+    hitbox->linearDamping = PLAYER_GROUND_DAMPING;
+    hitbox->verticalDamping = flight;
+    if (flight){
+        hitbox->linearDamping = PLAYER_AIR_DAMPING;
+        if (input.jump){
+            hitbox->velocity.y += speed * delta * 9;
+        }
+        if (input.shift){
+            hitbox->velocity.y -= speed * delta * 9;
+        }
     }
-    position = hitbox->position;
-
-    if (flight && hitbox->grounded) {
-        flight = false;
+    if (!hitbox->grounded) {
+        hitbox->linearDamping = PLAYER_AIR_DAMPING;
     }
 
     if (input.jump && hitbox->grounded){
@@ -121,25 +124,20 @@ void Player::postUpdate(PlayerInput& input, float delta) {
     if (input.noclip) {
         noclip = !noclip;
     }
-
-    hitbox->linearDamping = PLAYER_GROUND_DAMPING;
-    if (flight){
-        hitbox->linearDamping = PLAYER_AIR_DAMPING;
-        hitbox->velocity.y *= 1.0f - delta * 9;
-        if (input.jump){
-            hitbox->velocity.y += speed * delta * 9;
-        }
-        if (input.shift){
-            hitbox->velocity.y -= speed * delta * 9;
-        }
-    }
-    if (!hitbox->grounded) {
-        hitbox->linearDamping = PLAYER_AIR_DAMPING;
-    }
-
     input.noclip = false;
     input.flight = false;
+}
 
+void Player::postUpdate() {
+    auto hitbox = getHitbox();
+    if (hitbox == nullptr) {
+        return;
+    }
+    position = hitbox->position;
+
+    if (flight && hitbox->grounded) {
+        flight = false;
+    }
     if (spawnpoint.y <= 0.1) {
         attemptToFindSpawnpoint();
     }
