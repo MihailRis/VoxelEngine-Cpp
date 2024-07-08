@@ -190,37 +190,6 @@ static int l_get_generators(lua::State* L) {
     return 1;
 }
 
-/// @brief Get engine constants
-/// @return A table with engine constants
-static int l_get_constants(lua::State* L) {
-
-    lua::createtable(L, 0, 20);
-
-    const std::pair<const char*, int> numberConstants[] = {
-        {"ENGINE_VERSION_MAJOR", ENGINE_VERSION_MAJOR},
-        {"ENGINE_VERSION_MINOR", ENGINE_VERSION_MINOR},
-        {"BLOCK_AIR", BLOCK_AIR},
-        {"ITEM_EMPTY", ITEM_EMPTY},
-        {"CHUNK_W", CHUNK_W},
-        {"CHUNK_H", CHUNK_H},
-        {"CHUNK_D", CHUNK_D},
-        {"VOXEL_USER_BITS", VOXEL_USER_BITS},
-        {"VOXEL_USER_BITS_OFFSET", VOXEL_USER_BITS_OFFSET},
-        {"ITEM_ICON_SIZE", ITEM_ICON_SIZE},
-        {"CHUNK_VOL", CHUNK_VOL},
-        {"BLOCK_VOID", BLOCK_VOID},
-        {"ITEM_VOID", ITEM_VOID},
-        {"MAX_BLOCKS", MAX_BLOCKS}
-    };
-
-    for (const auto& constant : numberConstants) {
-        lua::pushnumber(L, constant.second);
-        lua::setfield(L, constant.first);
-    }
-
-    return 1;
-}
-
 const luaL_Reg corelib [] = {
     {"new_world", lua::wrap<l_new_world>},
     {"open_world", lua::wrap<l_open_world>},
@@ -235,6 +204,5 @@ const luaL_Reg corelib [] = {
     {"quit", lua::wrap<l_quit>},
     {"get_default_generator", lua::wrap<l_get_default_generator>},
     {"get_generators", lua::wrap<l_get_generators>},
-    {"get_constants", lua::wrap<l_get_constants>},
     {NULL, NULL}
 };
