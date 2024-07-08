@@ -144,6 +144,20 @@ static int l_rigidbody_set_size(lua::State* L) {
     return 0;
 }
 
+static int l_rigidbody_get_gravity_scale(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        return lua::pushnumber(L, entity->getRigidbody().hitbox.gravityScale);
+    }
+    return 0;
+}
+
+static int l_rigidbody_set_gravity_scale(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        entity->getRigidbody().hitbox.gravityScale = lua::tonumber(L, 2);
+    }
+    return 0;
+}
+
 static int index_range_check(const rigging::Rig& rig, lua::Integer index) {
     if (static_cast<size_t>(index) >= rig.pose.matrices.size()) {
         throw std::runtime_error("index out of range [0, " +
@@ -222,5 +236,7 @@ const luaL_Reg rigidbodylib [] = {
     {"set_vel", lua::wrap<l_rigidbody_set_vel>},
     {"get_size", lua::wrap<l_rigidbody_get_size>},
     {"set_size", lua::wrap<l_rigidbody_set_size>},
+    {"get_gravity_scale", lua::wrap<l_rigidbody_get_gravity_scale>},
+    {"set_gravity_scale", lua::wrap<l_rigidbody_set_gravity_scale>},
     {NULL, NULL}
 };

@@ -43,7 +43,7 @@ struct Hitbox {
     float linearDamping;
     bool verticalDamping = false;
     bool grounded = false;
-    float gravityMultiplier = 1.0f;
+    float gravityScale = 1.0f;
 
     Hitbox(glm::vec3 position, glm::vec3 halfsize);
 };

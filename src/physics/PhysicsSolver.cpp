@@ -32,7 +32,7 @@ void PhysicsSolver::step(
     const glm::vec3& half = hitbox->halfsize;
     glm::vec3& pos = hitbox->position;
     glm::vec3& vel = hitbox->velocity;
-    float gravityScale = hitbox->gravityMultiplier;
+    float gravityScale = hitbox->gravityScale;
     
     bool prevGrounded = hitbox->grounded;
     hitbox->grounded = false;
