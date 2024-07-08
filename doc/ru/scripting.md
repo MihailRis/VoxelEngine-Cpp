@@ -124,13 +124,13 @@ world.set_day_time(time: number)
 Устанавливает указанное игровое время.
 
 ```python
-world.set_vel_time(value: number)
+world.set_day_time_speed(value: number)
 ```
 
 Устанавливает указанную скорость для игрового времени.
 
 ```python
-world.get_vel_time() -> number
+world.get_day_time_speed() -> number
 ```
 
 Возвращает скорость для игрового времени.

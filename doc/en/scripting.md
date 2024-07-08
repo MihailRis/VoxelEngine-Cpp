@@ -99,13 +99,6 @@ player.get_spawnpoint(playerid: int) -> number, number, number
 Point setter and getter added by player
 
 ```python
-player.set_jump_force(playerid: int, force: number)
-player.get_jump_force(playerid: int) -> number
-```
-
-Player jump force setter and getter
-
-```python
 player.get_selected_block(playerid: int) -> x,y,z
 ```
 
@@ -137,10 +130,16 @@ world.set_day_time(time: number)
 Set day time value.
 
 ```python
-world.set_speed_time(value: number)
+world.set_day_time_speed(value: number)
 ```
 
-Sets the specified speed for the game time
+Sets the specified speed for game time.
+
+```python
+world.get_day_time_speed() -> number
+```
+
+Returns the speed for game time.
 
 ```python
 world.get_total_time() -> number
