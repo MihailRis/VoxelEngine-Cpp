@@ -307,7 +307,6 @@ void Entities::updatePhysics(float delta) {
             delta,
             substeps,
             false,
-            1.0f,
             true,
             eid.uid
         );

@@ -22,7 +22,6 @@ void PhysicsSolver::step(
     float delta, 
     uint substeps, 
     bool shifting,
-    float gravityScale,
     bool collisions,
     entityid_t entity
 ) {
@@ -33,6 +32,7 @@ void PhysicsSolver::step(
     const glm::vec3& half = hitbox->halfsize;
     glm::vec3& pos = hitbox->position;
     glm::vec3& vel = hitbox->velocity;
+    float gravityScale = hitbox->gravityMultiplier;
     
     bool prevGrounded = hitbox->grounded;
     hitbox->grounded = false;

@@ -97,6 +97,7 @@ void Player::updateInput(PlayerInput& input, float delta) {
 
     hitbox->linearDamping = PLAYER_GROUND_DAMPING;
     hitbox->verticalDamping = flight;
+    hitbox->gravityMultiplier = flight ? 0.0f : 1.0f;
     if (flight){
         hitbox->linearDamping = PLAYER_AIR_DAMPING;
         if (input.jump){
@@ -118,7 +119,7 @@ void Player::updateInput(PlayerInput& input, float delta) {
         (input.noclip && flight == noclip)){
         flight = !flight;
         if (flight){
-            hitbox->grounded = false;
+            hitbox->velocity.y += 1.0f;
         }
     }
     if (input.noclip) {

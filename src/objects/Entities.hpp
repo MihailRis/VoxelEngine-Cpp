@@ -65,7 +65,6 @@ struct Rigidbody {
     bool enabled = true;
     Hitbox hitbox;
     std::vector<Trigger> triggers;
-    float gravityMultiplier = 1.0f;
 };
 
 struct UserComponent {

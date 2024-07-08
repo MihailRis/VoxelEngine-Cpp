@@ -24,7 +24,6 @@ public:
         float delta,
         uint substeps,
         bool shifting,
-        float gravityScale,
         bool collisions,
         entityid_t entity
     );
