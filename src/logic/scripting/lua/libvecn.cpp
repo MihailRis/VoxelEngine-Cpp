@@ -92,8 +92,8 @@ const luaL_Reg vec2lib [] = {
     {"sub", lua::wrap<l_binop<2, std::minus>>},
     {"mul", lua::wrap<l_binop<2, std::multiplies>>},
     {"div", lua::wrap<l_binop<2, std::divides>>},
-    {"normalize", lua::wrap<l_unaryop<2, glm::normalize>>},
-    {"length", lua::wrap<l_scalar_op<2, glm::length>>},
+    {"norm", lua::wrap<l_unaryop<2, glm::norm>>},
+    {"len", lua::wrap<l_scalar_op<2, glm::len>>},
     {"tostring", lua::wrap<l_tostring<2>>},
     {NULL, NULL}
 };
@@ -103,8 +103,8 @@ const luaL_Reg vec3lib [] = {
     {"sub", lua::wrap<l_binop<3, std::minus>>},
     {"mul", lua::wrap<l_binop<3, std::multiplies>>},
     {"div", lua::wrap<l_binop<3, std::divides>>},
-    {"normalize", lua::wrap<l_unaryop<3, glm::normalize>>},
-    {"length", lua::wrap<l_scalar_op<3, glm::length>>},
+    {"norm", lua::wrap<l_unaryop<3, glm::norm>>},
+    {"len", lua::wrap<l_scalar_op<3, glm::len>>},
     {"tostring", lua::wrap<l_tostring<3>>},
     {NULL, NULL}
 };
@@ -114,8 +114,8 @@ const luaL_Reg vec4lib [] = {
     {"sub", lua::wrap<l_binop<4, std::minus>>},
     {"mul", lua::wrap<l_binop<4, std::multiplies>>},
     {"div", lua::wrap<l_binop<4, std::divides>>},
-    {"normalize", lua::wrap<l_unaryop<4, glm::normalize>>},
-    {"length", lua::wrap<l_scalar_op<4, glm::length>>},
+    {"norm", lua::wrap<l_unaryop<4, glm::norm>>},
+    {"len", lua::wrap<l_scalar_op<4, glm::len>>},
     {"tostring", lua::wrap<l_tostring<4>>},
     {NULL, NULL}
 };
