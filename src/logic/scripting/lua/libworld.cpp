@@ -54,10 +54,14 @@ static int l_world_set_day_time(lua::State* L) {
     return 0;
 }
 
-static int l_wolrd_set_speed_time(lua::State* L) {
+static int l_wolrd_set_vel_time(lua::State* L) {
     auto value = lua::tonumber(L, 1);
-    level->getWorld()->factorSpeedTime = std::abs(value);
+    level->getWorld()->daytimeSpeed = std::abs(value);
     return 0;
+}
+
+static int l_wolrd_get_vel_time(lua::State* L) {
+    return lua::pushnumber(L, level->getWorld()->daytimeSpeed);
 }
 
 static int l_world_get_seed(lua::State* L) {
@@ -85,7 +89,8 @@ const luaL_Reg worldlib [] = {
     {"get_total_time", lua::wrap<l_world_get_total_time>},
     {"get_day_time", lua::wrap<l_world_get_day_time>},
     {"set_day_time", lua::wrap<l_world_set_day_time>},
-    {"set_speed_time", lua::wrap<l_wolrd_set_speed_time>},
+    {"set_vel_time", lua::wrap<l_wolrd_set_vel_time>},
+    {"get_vel_time", lua::wrap<l_wolrd_get_vel_time>},
     {"get_seed", lua::wrap<l_world_get_seed>},
     {"is_day", lua::wrap<l_world_is_day>},
     {"is_night", lua::wrap<l_world_is_night>},
