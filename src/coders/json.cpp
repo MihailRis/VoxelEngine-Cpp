@@ -97,6 +97,10 @@ void stringifyObj(
     const std::string& indentstr, 
     bool nice
 ) {
+    if (obj == nullptr) {
+        ss << "nullptr";
+        return;
+    }
     if (obj->values.empty()) {
         ss << "{}";
         return;

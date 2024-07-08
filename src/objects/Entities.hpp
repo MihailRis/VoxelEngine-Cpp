@@ -65,6 +65,7 @@ struct Rigidbody {
     bool enabled = true;
     Hitbox hitbox;
     std::vector<Trigger> triggers;
+    float gravityMultiplier = 1.0f;
 };
 
 struct UserComponent {
@@ -171,7 +172,7 @@ public:
 
     entityid_t spawn(
         EntityDef& def,
-        Transform transform,
+        glm::vec3 position,
         dynamic::Value args=dynamic::NONE,
         dynamic::Map_sptr saved=nullptr,
         entityid_t uid=0);
@@ -186,6 +187,7 @@ public:
 
     void loadEntities(dynamic::Map_sptr map);
     void loadEntity(const dynamic::Map_sptr& map);
+    void loadEntity(const dynamic::Map_sptr& map, Entity entity);
     void onSave(const Entity& entity);
     std::vector<Entity> getAllInside(AABB aabb);
     void despawn(entityid_t id);

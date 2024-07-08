@@ -42,9 +42,7 @@ Player::~Player() {
 void Player::updateEntity() {
     if (eid == 0) {
         auto& def = level->content->entities.require("base:player");
-        eid = level->entities->spawn(def, Transform {
-            getPosition(), glm::vec3(1.0f), glm::mat3(1.0f), {}, true
-        });
+        eid = level->entities->spawn(def, getPosition());
     } else if (auto entity = level->entities->get(eid)) {
         position = entity->getTransform().pos;
     } else {

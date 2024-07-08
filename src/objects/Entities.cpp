@@ -20,6 +20,10 @@
 
 static debug::Logger logger("entities");
 
+static inline std::string COMP_TRANSFORM = "transform";
+static inline std::string COMP_RIGIDBODY = "rigidbody";
+static inline std::string COMP_MODELTREE = "modeltree";
+
 void Transform::refresh() {
     combined = glm::mat4(1.0f);
     combined = glm::translate(combined, pos);
@@ -61,7 +65,7 @@ static triggercallback create_trigger_callback(Entities* entities) {
 
 entityid_t Entities::spawn(
     EntityDef& def,
-    Transform transform,
+    glm::vec3 position,
     dynamic::Value args,
     dynamic::Map_sptr saved,
     entityid_t uid)
@@ -78,9 +82,9 @@ entityid_t Entities::spawn(
         id = uid;
     }
     registry.emplace<EntityId>(entity, static_cast<entityid_t>(id), def);
-    registry.emplace<Transform>(entity, transform);
+    auto& tsf = registry.emplace<Transform>(entity, position, glm::vec3(1.0f), glm::mat3(1.0f), glm::mat4(1.0f), true);
     auto& body = registry.emplace<Rigidbody>(
-        entity, true, Hitbox {transform.pos, def.hitbox}, std::vector<Trigger>{});
+        entity, true, Hitbox {position, def.hitbox}, std::vector<Trigger>{});
 
     body.triggers.resize(def.radialTriggers.size() + def.boxTriggers.size());
     for (auto& [i, box] : def.boxTriggers) {
@@ -108,8 +112,14 @@ entityid_t Entities::spawn(
             componentName, entity_funcs_set {}, nullptr);
         scripting.components.emplace_back(std::move(component));
     }
+    dynamic::Map_sptr componentsMap = nullptr;
+    if (saved) {
+        componentsMap = saved->map("comps");
+        loadEntity(saved, get(id).value());
+    }
+    body.hitbox.position = tsf.pos;
     scripting::on_entity_spawn(
-        def, id, scripting.components, std::move(args), std::move(saved));
+        def, id, scripting.components, std::move(args), std::move(componentsMap));
     return id;
 }
 
@@ -132,14 +142,20 @@ void Entities::loadEntity(const dynamic::Map_sptr& map) {
         throw std::runtime_error("could not read entity - invalid UID");
     }
     auto& def = level->content->entities.require(defname);
-    Transform transform {
-        glm::vec3(), glm::vec3(1.0f), glm::mat3(1.0f), {}, true
-    };
-    if (auto tsfmap = map->map("transform")) {
-        dynamic::get_vec(tsfmap, "pos", transform.pos);
+    spawn(def, {}, dynamic::NONE, map, uid);
+}
+
+void Entities::loadEntity(const dynamic::Map_sptr& map, Entity entity) {
+    auto& transform = entity.getTransform();
+    auto& body = entity.getRigidbody();
+
+    if (auto bodymap = map->map(COMP_RIGIDBODY)) {
+        dynamic::get_vec(bodymap, "vel", body.hitbox.velocity);
     }
-    dynamic::Map_sptr savedMap = map->map("comps");
-    spawn(def, transform, dynamic::NONE, savedMap, uid);
+    if (auto tsfmap = map->map(COMP_TRANSFORM)) {
+        dynamic::get_vec(tsfmap, "pos", transform.pos);
+        dynamic::get_vec(tsfmap, "size", transform.size);
+    }
 }
 
 void Entities::loadEntities(dynamic::Map_sptr root) {
@@ -165,7 +181,7 @@ dynamic::Value Entities::serialize(const Entity& entity) {
     root->put("uid", eid.uid);
     {
         auto& transform = entity.getTransform();
-        auto& tsfmap = root->putMap("transform");
+        auto& tsfmap = root->putMap(COMP_TRANSFORM);
         tsfmap.put("pos", dynamic::to_value(transform.pos));
         if (transform.size != glm::vec3(1.0f)) {
             tsfmap.put("size", dynamic::to_value(transform.size));
@@ -176,7 +192,7 @@ dynamic::Value Entities::serialize(const Entity& entity) {
     }
     {
         auto& rigidbody = entity.getRigidbody();
-        auto& bodymap = root->putMap("rigidbody");
+        auto& bodymap = root->putMap(COMP_RIGIDBODY);
         if (!rigidbody.enabled) {
             bodymap.put("enabled", rigidbody.enabled);
         }
@@ -188,7 +204,7 @@ dynamic::Value Entities::serialize(const Entity& entity) {
         root->put("rig", rig.config->getName());
     }
     if (def.save.rig.pose || def.save.rig.textures) {
-        auto& rigmap = root->putMap("rig");
+        auto& rigmap = root->putMap(COMP_MODELTREE);
         if (def.save.rig.textures) {
             auto& map = rigmap.putMap("textures");
             for (auto& [slot, texture] : rig.textures) {
