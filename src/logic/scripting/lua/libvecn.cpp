@@ -72,50 +72,91 @@ static int l_scalar_op(lua::State* L) {
 template<int n>
 static int l_pow(lua::State* L) {
     uint argc = lua::gettop(L);
-    if (argc != 2) {
-        throw std::runtime_error("invalid arguments number (2 expected)");
-    }
-    const auto& a = lua::tovec<n>(L, 1); //vector
-    if (lua::isnumber(L, 2)) { // scalar second operand overload
-        const auto& b = lua::tonumber(L, 2); //scalar (pow)
-        glm::vec<n, float> result_vector;
-        for (int i = 0; i < n; i++) {
-            result_vector[i] = pow(a[i], b);
+    if (argc == 2) {
+        const auto& a = lua::tovec<n>(L, 1); //vector
+        if (lua::isnumber(L, 2)) { // scalar second operand overload
+            const auto& b = lua::tonumber(L, 2); //scalar (pow)
+            glm::vec<n, float> result_vector;
+            for (int i = 0; i < n; i++) {
+                result_vector[i] = pow(a[i], b);
+            }
+            lua::createtable(L, n, 0);
+            for (uint i = 0; i < n; i++) {
+                lua::pushnumber(L, result_vector[i]);
+                lua::rawseti(L, i+1);
+            }
+            return 1;
+        } else {
+            const auto& b = lua::tovec<n>(L, 2); //vector
+            glm::vec<n, float> result_vector;
+            for (int i = 0; i < n; i++) {
+                result_vector[i] = pow(a[i], b[i]);
+            }
+            lua::createtable(L, n, 0);
+            for (uint i = 0; i < n; i++) {
+                lua::pushnumber(L, result_vector[i]);
+                lua::rawseti(L, i+1);
+            }
+            return 1;
         }
-        return lua::setvec(L, 1, result_vector);
+    } else if (argc == 3) {
+        const auto& a = lua::tovec<n>(L, 1); //vector
+        if (lua::isnumber(L, 2)) { // scalar second operand overload
+            const auto& b = lua::tonumber(L, 2); //scalar (pow)
+            glm::vec<n, float> result_vector;
+            for (int i = 0; i < n; i++) {
+                result_vector[i] = pow(a[i], b);
+            }
+            return lua::setvec(L, 3, result_vector);
+        } else {
+            const auto& b = lua::tovec<n>(L, 2); //vector
+            glm::vec<n, float> result_vector;
+            for (int i = 0; i < n; i++) {
+                result_vector[i] = pow(a[i], b[i]);
+            }
+            return lua::setvec(L, 3, result_vector);
+        }
     } else {
-        const auto& b = lua::tovec<n>(L, 2); //vector
+        throw std::runtime_error("invalid arguments number (2 or 3 expected)");
+    }
+}
+
+template<int n>
+static int l_inverse(lua::State* L) {
+    uint argc = lua::gettop(L);
+    if (argc == 1) {
+        const auto& _vector = lua::tovec<n>(L, 1); //vector
         glm::vec<n, float> result_vector;
+
         for (int i = 0; i < n; i++) {
-            result_vector[i] = pow(a[i], b[i]);
+            result_vector[i] = -_vector[i]; 
         }
-        return lua::setvec(L, 1, result_vector);
+
+        lua::createtable(L, n, 0);
+        for (uint i = 0; i < n; i++) {
+            lua::pushnumber(L, result_vector[i]);
+            lua::rawseti(L, i+1);
+        }
+        return 1;
+    } else {
+        throw std::runtime_error("invalid arguments number (1 expected)");
     }
 }
 
 template<int n>
 static int l_dot(lua::State* L) {
     uint argc = lua::gettop(L);
-    if (argc != 2) {
-        throw std::runtime_error("invalid arguments number (2 expected)");
+    if (argc == 2) {
+        const auto& a = lua::tovec<n>(L, 1);
+        const auto& b = lua::tovec<n>(L, 2);
+        return lua::pushnumber(L, glm::dot(a, b));;
+    } else if (argc == 3) {
+        const auto& a = lua::tovec<n>(L, 1);
+        const auto& b = lua::tovec<n>(L, 2);
+        return lua::pushnumber(L, glm::dot(a, b));
+    } else {
+        throw std::runtime_error("invalid arguments number (2 or 3 expected)");
     }
-    const auto& a = lua::tovec<n>(L, 1);
-    const auto& b = lua::tovec<n>(L, 2);
-    return lua::pushnumber(L, glm::dot(a, b));
-}
-
-template<int n>
-static int l_inverse(lua::State* L) {
-    uint argc = lua::gettop(L);
-    if (argc != 1) {
-        throw std::runtime_error("invalid arguments number (1 expected)");
-    }
-    const auto& _vector = lua::tovec<n>(L, 1); //vector
-    glm::vec<n, float> result_vector;
-    for (int i = 0; i < n; i++) {
-        result_vector[i] = -_vector[i];
-    }
-    return lua::setvec(L, 1, result_vector);
 }
 
 template<int n>
