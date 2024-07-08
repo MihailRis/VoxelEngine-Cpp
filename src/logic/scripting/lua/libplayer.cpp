@@ -138,6 +138,27 @@ static int l_player_get_selected_block(lua::State* L) {
     return 0;
 }
 
+static int l_player_get_spawnpoint(lua::State* L) {
+    if (auto player = get_player(L, 1)) {
+        return lua::pushvec3(L, player->getSpawnPoint());
+    }
+    return 0;
+}
+
+
+static int l_player_set_spawnpoint(lua::State* L) {
+    auto player = get_player(L, 1);
+
+    if (player) {
+        auto x = lua::tonumber(L, 2);
+        auto y = lua::tonumber(L, 3);
+        auto z = lua::tonumber(L, 4);
+        player->setSpawnPoint(glm::vec3(x, y, z));
+    }
+ 
+    return 0;
+}
+
 const luaL_Reg playerlib [] = {
     {"get_pos", lua::wrap<l_player_get_pos>},
     {"set_pos", lua::wrap<l_player_set_pos>},
@@ -152,5 +173,7 @@ const luaL_Reg playerlib [] = {
     {"is_noclip", lua::wrap<l_player_is_noclip>},
     {"set_noclip", lua::wrap<l_player_set_noclip>},
     {"get_selected_block", lua::wrap<l_player_get_selected_block>},
+    {"set_spawnpoint", lua::wrap<l_player_set_spawnpoint>},
+    {"get_spawnpoint", lua::wrap<l_player_get_spawnpoint>},
     {NULL, NULL}
 };

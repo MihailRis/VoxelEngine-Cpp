@@ -21,6 +21,7 @@
 #include <utility>
 
 static debug::Logger logger("world");
+const float DAYIME_SPECIFIC_SPEED = 1.0f/1440.0f; //1.0f/60.0f/24.0f;
 
 world_load_error::world_load_error(const std::string& message)
     : std::runtime_error(message) {
@@ -46,7 +47,7 @@ World::~World(){
 }
 
 void World::updateTimers(float delta) {
-    daytime += delta * daytimeSpeed;
+    daytime += delta * daytimeSpeed * DAYIME_SPECIFIC_SPEED;
     daytime = fmod(daytime, 1.0f);
     totalTime += delta;
 }

@@ -43,7 +43,7 @@ public:
     float daytime = timeutil::time_value(10, 00, 00);
 
     // looking bad
-    float daytimeSpeed = 1.0f/60.0f/24.0f;
+    float daytimeSpeed = 1.0f;
     
     /// @brief total time passed in the world (not depending on daytimeSpeed)
     double totalTime = 0.0;
