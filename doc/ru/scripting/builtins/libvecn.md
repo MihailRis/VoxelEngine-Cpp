@@ -57,7 +57,7 @@ vecn.mul(a: vector, b: number)
 
 ```lua
 -- возвращает результат инверсии (противоположный) вектора
-vecn.inv(a: vector)
+vecn.inverse(a: vector)
 ```
 
 ####  Деление - *vecn.div(...)*
@@ -74,13 +74,13 @@ vecn.div(a: vector, b: number)
 
 ```lua
 -- возвращает нормализованный вектор
-vecn.norm(a: vector)
+vecn.normalize(a: vector)
 ```
 #### Длина вектора - *vecn.len(...)*
 
 ```lua
 -- возвращает длину вектора
-vecn.len(a: vector)
+vecn.length(a: vector)
 ```
 
 #### Абсолютное значение - *vecn.abs(...)*
@@ -108,15 +108,6 @@ vecn.pow(a: vector, b: number)
 ```lua
 -- возвращает скалярное произведение векторов
 vecn.dot(a: vector, b: vector)
-```
-
-#### Поворот - *vecn.rot(...)*
-> [!WARNING]
-> Угол поворота (angle) указывается в радианах.
-
-```lua
--- возвращает вектор, повернутый на заданный угол
-vecn.rot(a: vector, angle: number)
 ```
 
 #### Перевод в строку - *vecn.tostring(...)*
@@ -154,11 +145,11 @@ local result_mul_scal = vec3.mul(v1_3d, scal)
 print("mul_scal: " .. vec3.tostring(result_mul_scal)) -- {6, 12, 12}
 
 -- нормализация вектора
-local result_norm = vec3.norm(v1_3d)
+local result_norm = vec3.normalize(v1_3d)
 print("norm: " .. vec3.tostring(result_norm)) -- {0.333, 0.667, 0.667}
 
 -- длина вектора
-local result_len = vec3.len(v1_3d)
+local result_len = vec3.length(v1_3d)
 print("len: " .. result_len) -- 3
 
 -- абсолютное значение вектора
@@ -176,8 +167,4 @@ print("pow: " .. vec3.tostring(result_pow)) -- {1, 4, 4}
 -- скалярное произведение векторов
 local result_dot = vec3.dot(v1_3d, v2_3d)
 print("dot: " .. result_dot) -- 250
-
--- поворот вектора
-local result_rot = vec2.rot(v4_2d, math.pi / 4)
-print("rot: " .. vec2.tostring(result_rot)) -- {0.707107, 0.707107}
 ```
