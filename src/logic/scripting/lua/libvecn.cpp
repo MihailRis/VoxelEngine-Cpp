@@ -1,7 +1,9 @@
 #include "api_lua.hpp"
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <sstream>
 #include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 template<int n, template<class> class Operation>
 static int l_binop(lua::State* L) {
@@ -87,9 +89,8 @@ static int l_dot(lua::State* L) {
     if (lua::gettop(L) != 2) {
         throw std::runtime_error("invalid arguments number (2 expected)");
     }
-    return lua::pushnumber(L, glm::dot(lua::tovec<n>(L, 1), // vector a
-                                       lua::tovec<n>(L, 2) // vector b
-                                       ));
+    return lua::pushnumber(L, glm::dot(lua::tovec<n>(L, 1), 
+                                       lua::tovec<n>(L, 2)));                 
 }
 
 template<int n>
@@ -97,56 +98,34 @@ static int l_rotate(lua::State* L) {
     if (lua::gettop(L) != 2) {
         throw std::runtime_error("invalid arguments number (2 expected)");
     }
-
     const auto& vec = lua::tovec<n>(L, 1); // vector
-    const auto& angle = lua::tonumber(L, 2); // scalar (in radians)
+    const auto& angle = lua::tonumber(L, 2); // scalar (angle)
 
-    const float _cos = std::cos(angle);
-    const float _sin = std::sin(angle);
+    const auto _cos = std::cos(angle);
+    const auto _sin = std::sin(angle);
 
-    glm::vec<n, float> result_vector = vec;
+    glm::vec<n, float> result_vector;
 
-    for (int i = 0; i < n - 1; ++i) {
-        float temp = result_vector[i] * _cos - result_vector[i + 1] * _sin;
-        result_vector[i + 1] = result_vector[i] * _sin + result_vector[i + 1] * _cos;
-        result_vector[i] = temp;
+    switch (n) {
+        case 2: 
+            result_vector.x = vec.x * _cos - vec.y * _sin;
+            result_vector.y = vec.x * _sin + vec.y * _cos;
+            break;
+        // TODO
     }
 
     return lua::setvec(L, 1, result_vector);
 }
 
 template<int n>
-static int l_cross(lua::State* L) {
-    if (lua::gettop(L)!= 2) {
+static int l_inverse(lua::State* L) {
+    if (lua::gettop(L) != 1) {
         throw std::runtime_error("invalid arguments number (2 expected)");
     }
-    const auto& a = lua::tovec<n>(L, 1);
-    const auto& b = lua::tovec<n>(L, 2);
-
-    glm::vec<n, float> result_vector;
-
-    if (n == 2) {
-        result_vector.x = a.x * b.y - a.y * b.x;
-        return lua::pushnumber(L, result_vector.x);
-    } else {
-        for (int i = 0; i < n; ++i) {
-            int j = (i + 1) % n;
-            int k = (i + 2) % n;
-            result_vector[i] = a[j] * b[k] - a[k] * b[j];
-        }
-        return lua::setvec(L, 1, result_vector);
-    }
-}
-
-template<int n>
-static int l_inverse(lua::State* L) {
-    if (lua::gettop(L)!= 1) {
-        throw std::runtime_error("invalid arguments number (1 expected)");
-    }
-    const auto& vec = lua::tovec<n>(L, 1);
+    const auto& _vector = lua::tovec<n>(L, 1); //vector
     glm::vec<n, float> result_vector;
     for (int i = 0; i < n; i++) {
-        result_vector[i] = -vec[i];
+        result_vector[i] = -_vector[i];
     }
     return lua::setvec(L, 1, result_vector);
 }
@@ -180,7 +159,6 @@ const luaL_Reg vec2lib [] = {
     {"round", lua::wrap<l_unaryop<2, glm::round>>},
     {"tostring", lua::wrap<l_tostring<2>>},
     {"inv", lua::wrap<l_inverse<2>>},
-    {"cross", lua::wrap<l_cross<2>>},
     {"rot", lua::wrap<l_rotate<2>>},
     {"pow", lua::wrap<l_pow<2>>},
     {"dot", lua::wrap<l_dot<2>>},
@@ -198,8 +176,6 @@ const luaL_Reg vec3lib [] = {
     {"round", lua::wrap<l_unaryop<3, glm::round>>},
     {"tostring", lua::wrap<l_tostring<3>>},
     {"inv", lua::wrap<l_inverse<3>>},
-    {"cross", lua::wrap<l_cross<3>>},
-    {"rot", lua::wrap<l_rotate<3>>},
     {"pow", lua::wrap<l_pow<3>>},
     {"dot", lua::wrap<l_dot<3>>},
     {NULL, NULL}
@@ -216,8 +192,6 @@ const luaL_Reg vec4lib [] = {
     {"round", lua::wrap<l_unaryop<4, glm::round>>},
     {"tostring", lua::wrap<l_tostring<4>>},
     {"inv", lua::wrap<l_inverse<4>>},
-    {"cross", lua::wrap<l_cross<4>>},
-    {"rot", lua::wrap<l_rotate<4>>},
     {"pow", lua::wrap<l_pow<4>>},
     {"dot", lua::wrap<l_dot<4>>},
     {NULL, NULL}
