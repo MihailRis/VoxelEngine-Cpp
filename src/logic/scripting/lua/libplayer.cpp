@@ -147,25 +147,6 @@ static int l_player_set_spawnpoint(lua::State* L) {
     return 0;
 }
 
-static int l_player_set_jump_force(lua::State* L) {
-
-    if (auto player = get_player(L, 1)) {
-        player->setJumpForce(std::abs(lua::tonumber(L, 2)));
-    }  
-
-    return 0;
-}
-
-static int l_player_get_jump_force(lua::State* L) {
-
-    if (auto player = get_player(L, 1)) {
-        return lua::pushnumber(L, player->getJumpForce());
-    }
-
-    return 0;
-}
-
-
 const luaL_Reg playerlib [] = {
     {"get_pos", lua::wrap<l_player_get_pos>},
     {"set_pos", lua::wrap<l_player_set_pos>},
@@ -181,7 +162,5 @@ const luaL_Reg playerlib [] = {
     {"get_selected_block", lua::wrap<l_player_get_selected_block>},
     {"set_spawnpoint", lua::wrap<l_player_set_spawnpoint>},
     {"get_spawnpoint", lua::wrap<l_player_get_spawnpoint>},
-    {"get_jump_force", lua::wrap<l_player_get_jump_force>},
-    {"set_jump_force", lua::wrap<l_player_set_jump_force>},
     {NULL, NULL}
 };

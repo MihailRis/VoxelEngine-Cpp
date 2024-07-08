@@ -137,18 +137,6 @@ world.set_vel_time(value: number)
 Устанавливает указанную скорость для игрового времени.
 
 ```python
-world.get_vel_time() -> number
-```
-
-Возвращает скорость для игрового времени.
-
-```python
-world.get_total_time() -> number
-```
-
-Возвращает общее суммарное время, прошедшее в мире
-
-```python
 world.get_seed() -> int
 ```
 

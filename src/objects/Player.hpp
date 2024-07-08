@@ -45,7 +45,6 @@ class Player : public Object, public Serializable {
     int chosenSlot;
     glm::vec3 spawnpoint {};
     std::shared_ptr<Inventory> inventory;
-    float jumpForce = 1.0f;
     bool flight = false;
     bool noclip = false;
 public:
@@ -74,9 +73,6 @@ public:
 
     bool isNoclip() const;
     void setNoclip(bool flag);
-
-    float getJumpForce() const;
-    void setJumpForce(float value);
     
     std::shared_ptr<Inventory> getInventory() const;
 
