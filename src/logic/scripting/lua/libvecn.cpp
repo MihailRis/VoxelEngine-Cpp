@@ -124,7 +124,7 @@ static int l_cross(lua::State* L) {
     const auto& b = lua::tovec<n>(L, 2);
 
     glm::vec<n, float> result_vector;
-    
+
     if (n == 2) {
         result_vector.x = a.x * b.y - a.y * b.x;
         return lua::pushnumber(L, result_vector.x);
@@ -136,6 +136,19 @@ static int l_cross(lua::State* L) {
         }
         return lua::setvec(L, 1, result_vector);
     }
+}
+
+template<int n>
+static int l_inverse(lua::State* L) {
+    if (lua::gettop(L)!= 1) {
+        throw std::runtime_error("invalid arguments number (1 expected)");
+    }
+    const auto& vec = lua::tovec<n>(L, 1);
+    glm::vec<n, float> result_vector;
+    for (int i = 0; i < n; i++) {
+        result_vector[i] = -vec[i];
+    }
+    return lua::setvec(L, 1, result_vector);
 }
 
 template<int n>
@@ -166,6 +179,7 @@ const luaL_Reg vec2lib [] = {
     {"abs", lua::wrap<l_unaryop<2, glm::abs>>},
     {"round", lua::wrap<l_unaryop<2, glm::round>>},
     {"tostring", lua::wrap<l_tostring<2>>},
+    {"inv", lua::wrap<l_inverse<2>>},
     {"cross", lua::wrap<l_cross<2>>},
     {"rot", lua::wrap<l_rotate<2>>},
     {"pow", lua::wrap<l_pow<2>>},
@@ -183,6 +197,7 @@ const luaL_Reg vec3lib [] = {
     {"abs", lua::wrap<l_unaryop<3, glm::abs>>},
     {"round", lua::wrap<l_unaryop<3, glm::round>>},
     {"tostring", lua::wrap<l_tostring<3>>},
+    {"inv", lua::wrap<l_inverse<3>>},
     {"cross", lua::wrap<l_cross<3>>},
     {"rot", lua::wrap<l_rotate<3>>},
     {"pow", lua::wrap<l_pow<3>>},
@@ -200,6 +215,7 @@ const luaL_Reg vec4lib [] = {
     {"len", lua::wrap<l_scalar_op<4, glm::length>>},
     {"round", lua::wrap<l_unaryop<4, glm::round>>},
     {"tostring", lua::wrap<l_tostring<4>>},
+    {"inv", lua::wrap<l_inverse<4>>},
     {"cross", lua::wrap<l_cross<4>>},
     {"rot", lua::wrap<l_rotate<4>>},
     {"pow", lua::wrap<l_pow<4>>},
