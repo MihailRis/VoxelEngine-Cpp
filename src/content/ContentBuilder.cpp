@@ -1,9 +1,15 @@
 #include "ContentBuilder.hpp"
 
+#include "../objects/rigging.hpp"
+
 ContentBuilder::~ContentBuilder() {}
 
 void ContentBuilder::add(std::unique_ptr<ContentPackRuntime> pack) {
     packs[pack->getId()] = std::move(pack);
+}
+
+void ContentBuilder::add(std::unique_ptr<rigging::RigConfig> rig) {
+    rigs[rig->getName()] = std::move(rig);
 }
 
 BlockMaterial& ContentBuilder::createBlockMaterial(const std::string& id) {
@@ -68,7 +74,8 @@ std::unique_ptr<Content> ContentBuilder::build() {
         items.build(),
         entities.build(),
         std::move(packs),
-        std::move(blockMaterials)
+        std::move(blockMaterials),
+        std::move(rigs)
     );
 
     // Now, it's time to resolve foreign keys

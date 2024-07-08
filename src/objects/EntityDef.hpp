@@ -21,7 +21,7 @@ struct EntityDef {
     glm::vec3 hitbox {0.5f};
     std::vector<std::pair<size_t, AABB>> boxTriggers {};
     std::vector<std::pair<size_t, float>> radialTriggers {};
-    std::string rigName = name.substr(name.find(":") + 1);
+    std::string rigName = name;
 
     struct {
         bool enabled = true;

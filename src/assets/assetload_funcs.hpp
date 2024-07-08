@@ -63,13 +63,6 @@ namespace assetload {
         const std::string& name,
         const std::shared_ptr<AssetCfg>& settings
     );
-    postfunc rig(
-        AssetsLoader*,
-        const ResPaths* paths,
-        const std::string& file,
-        const std::string& name,
-        const std::shared_ptr<AssetCfg>& settings
-    );
 }
 
 #endif // ASSETS_ASSET_LOADERS_HPP_

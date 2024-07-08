@@ -26,8 +26,7 @@ enum class AssetType {
     ATLAS,
     LAYOUT,
     SOUND,
-    MODEL,
-    RIG,
+    MODEL
 };
 
 class ResPaths;

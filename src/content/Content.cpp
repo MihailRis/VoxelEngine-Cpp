@@ -8,6 +8,7 @@
 #include "../voxels/Block.hpp"
 #include "../items/ItemDef.hpp"
 #include "../objects/EntityDef.hpp"
+#include "../objects/rigging.hpp"
 
 #include "ContentPack.hpp"
 #include "../logic/scripting/scripting.hpp"
@@ -27,18 +28,28 @@ Content::Content(
     ContentUnitDefs<Block> blocks,
     ContentUnitDefs<ItemDef> items,
     ContentUnitDefs<EntityDef> entities,
-    std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs,
-    std::unordered_map<std::string, std::unique_ptr<BlockMaterial>> blockMaterials
+    UptrsMap<std::string, ContentPackRuntime> packs,
+    UptrsMap<std::string, BlockMaterial> blockMaterials,
+    UptrsMap<std::string, rigging::RigConfig> rigs
 ) : indices(std::move(indices)),
     packs(std::move(packs)),
     blockMaterials(std::move(blockMaterials)),
+    rigs(std::move(rigs)),
     blocks(std::move(blocks)),
     items(std::move(items)),
     entities(std::move(entities)),
-    drawGroups(std::move(drawGroups)) 
+    drawGroups(std::move(drawGroups))
 {}
 
 Content::~Content() {
+}
+
+const rigging::RigConfig* Content::getRig(const std::string& id) const {
+    auto found = rigs.find(id);
+    if (found == rigs.end()) {
+        return nullptr;
+    }
+    return found->second.get();
 }
 
 const BlockMaterial* Content::findBlockMaterial(const std::string& id) const {
@@ -57,10 +68,10 @@ const ContentPackRuntime* Content::getPackRuntime(const std::string& id) const {
     return found->second.get();
 }
 
-const std::unordered_map<std::string, std::unique_ptr<BlockMaterial>>& Content::getBlockMaterials() const {
+const UptrsMap<std::string, BlockMaterial>& Content::getBlockMaterials() const {
     return blockMaterials;
 }
 
-const std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>>& Content::getPacks() const {
+const UptrsMap<std::string, ContentPackRuntime>& Content::getPacks() const {
     return packs;
 }

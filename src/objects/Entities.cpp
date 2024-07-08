@@ -38,7 +38,7 @@ rigging::Rig& Entity::getModeltree() const {
     return registry.get<rigging::Rig>(entity);
 }
 
-void Entity::setRig(rigging::RigConfig* rigConfig) {
+void Entity::setRig(const rigging::RigConfig* rigConfig) {
     auto& rig = registry.get<rigging::Rig>(entity);
     rig.config = rigConfig;
     rig.pose.matrices.resize(rigConfig->getNodes().size(), glm::mat4(1.0f));
@@ -60,14 +60,13 @@ static triggercallback create_trigger_callback(Entities* entities) {
 }
 
 entityid_t Entities::spawn(
-    Assets* assets,
     EntityDef& def,
     Transform transform,
     dynamic::Value args,
     dynamic::Map_sptr saved,
     entityid_t uid)
 {
-    auto rig = assets->get<rigging::RigConfig>(def.rigName);
+    auto rig = level->content->getRig(def.rigName);
     if (rig == nullptr) {
         throw std::runtime_error("rig "+def.rigName+" not found");
     }
@@ -140,8 +139,7 @@ void Entities::loadEntity(const dynamic::Map_sptr& map) {
         dynamic::get_vec(tsfmap, "pos", transform.pos);
     }
     dynamic::Map_sptr savedMap = map->map("comps");
-    auto assets = scripting::engine->getAssets();
-    spawn(assets, def, transform, dynamic::NONE, savedMap, uid);
+    spawn(def, transform, dynamic::NONE, savedMap, uid);
 }
 
 void Entities::loadEntities(dynamic::Map_sptr root) {

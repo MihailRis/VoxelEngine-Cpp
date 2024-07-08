@@ -138,7 +138,7 @@ public:
 
     rigging::Rig& getModeltree() const;
 
-    void setRig(rigging::RigConfig* rigConfig);
+    void setRig(const rigging::RigConfig* rigConfig);
 
     entityid_t getUID() const {
         return registry.get<EntityId>(entity).uid;
@@ -170,7 +170,6 @@ public:
     void render(Assets* assets, ModelBatch& batch, const Frustum& frustum);
 
     entityid_t spawn(
-        Assets* assets,
         EntityDef& def,
         Transform transform,
         dynamic::Value args=dynamic::NONE,

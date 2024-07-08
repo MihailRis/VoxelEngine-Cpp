@@ -40,7 +40,7 @@ static int l_spawn(lua::State* L) {
     Transform transform {
         pos, glm::vec3(1.0f), glm::mat3(1.0f), {}, true
     };
-    level->entities->spawn(scripting::engine->getAssets(), def, transform, args);
+    level->entities->spawn(def, transform, args);
     return 1;
 }
 
@@ -53,9 +53,8 @@ static int l_despawn(lua::State* L) {
 
 static int l_set_rig(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
-        auto assets = scripting::engine->getAssets();
         std::string rigName = lua::require_string(L, 2);
-        auto rigConfig = assets->get<rigging::RigConfig>(rigName);
+        auto rigConfig = content->getRig(rigName);
         if (rigConfig == nullptr) {
             throw std::runtime_error("rig not found '"+rigName+"'");
         }

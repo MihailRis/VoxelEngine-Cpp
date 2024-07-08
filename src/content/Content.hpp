@@ -11,6 +11,8 @@
 #include <set>
 
 using DrawGroups = std::set<ubyte>;
+template<class K, class V>
+using UptrsMap = std::unordered_map<K, std::unique_ptr<V>>;
 
 class Block;
 struct BlockMaterial;
@@ -18,6 +20,10 @@ struct ItemDef;
 struct EntityDef;
 class Content;
 class ContentPackRuntime;
+
+namespace rigging {
+    class RigConfig;
+}
 
 enum class contenttype {
     none, block, item, entity
@@ -83,9 +89,9 @@ public:
 
 template<class T>
 class ContentUnitDefs {
-    std::unordered_map<std::string, std::unique_ptr<T>> defs;
+    UptrsMap<std::string, T> defs;
 public:
-    ContentUnitDefs(std::unordered_map<std::string, std::unique_ptr<T>> defs) 
+    ContentUnitDefs(UptrsMap<std::string, T> defs) 
     : defs(std::move(defs)) {
     }
 
@@ -108,8 +114,9 @@ public:
 /// @brief Content is a definitions repository
 class Content {
     std::unique_ptr<ContentIndices> indices;
-    std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs;
-    std::unordered_map<std::string, std::unique_ptr<BlockMaterial>> blockMaterials;
+    UptrsMap<std::string, ContentPackRuntime> packs;
+    UptrsMap<std::string, BlockMaterial> blockMaterials;
+    UptrsMap<std::string, rigging::RigConfig> rigs;
 public:
     ContentUnitDefs<Block> blocks;
     ContentUnitDefs<ItemDef> items;
@@ -122,8 +129,9 @@ public:
         ContentUnitDefs<Block> blocks,
         ContentUnitDefs<ItemDef> items,
         ContentUnitDefs<EntityDef> entities,
-        std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs,
-        std::unordered_map<std::string, std::unique_ptr<BlockMaterial>> blockMaterials
+        UptrsMap<std::string, ContentPackRuntime> packs,
+        UptrsMap<std::string, BlockMaterial> blockMaterials,
+        UptrsMap<std::string, rigging::RigConfig> rigs
     );
     ~Content();
 
@@ -131,11 +139,12 @@ public:
         return indices.get();
     }
 
+    const rigging::RigConfig* getRig(const std::string& id) const;
     const BlockMaterial* findBlockMaterial(const std::string& id) const;
     const ContentPackRuntime* getPackRuntime(const std::string& id) const;
 
-    const std::unordered_map<std::string, std::unique_ptr<BlockMaterial>>& getBlockMaterials() const;
-    const std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>>& getPacks() const;
+    const UptrsMap<std::string, BlockMaterial>& getBlockMaterials() const;
+    const UptrsMap<std::string, ContentPackRuntime>& getPacks() const;
 };
 
 #endif // CONTENT_CONTENT_HPP_

@@ -9,6 +9,7 @@
 #include "../debug/Logger.hpp"
 #include "../files/files.hpp"
 #include "../items/ItemDef.hpp"
+#include "../objects/rigging.hpp"
 #include "../logic/scripting/scripting.hpp"
 #include "../typedefs.hpp"
 #include "../util/listutil.hpp"
@@ -456,6 +457,16 @@ void ContentLoader::load() {
             const fs::path& file = entry.path();
             std::string name = pack->id+":"+file.stem().u8string();
             loadBlockMaterial(builder.createBlockMaterial(name), file);
+        }
+    }
+
+    fs::path rigsDir = folder / fs::u8path("rigs");
+    if (fs::is_directory(rigsDir)) {
+        for (const auto& entry : fs::directory_iterator(rigsDir)) {
+            const fs::path& file = entry.path();
+            std::string name = pack->id+":"+file.stem().u8string();
+            std::string text = files::read_string(file);
+            builder.add(rigging::RigConfig::parse(text, file.u8string(), name));
         }
     }
 }

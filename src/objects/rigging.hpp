@@ -64,7 +64,7 @@ namespace rigging {
     };
 
     struct Rig {
-        RigConfig* config;
+        const RigConfig* config;
         Pose pose;
         Pose calculated;
         std::unordered_map<std::string, std::string> textures;
@@ -99,7 +99,7 @@ namespace rigging {
             Rig& rig, 
             const glm::mat4& matrix) const;
 
-        Rig instance() {
+        Rig instance() const {
             return Rig {
                 this, Pose(nodes.size()), Pose(nodes.size()), {}
             };

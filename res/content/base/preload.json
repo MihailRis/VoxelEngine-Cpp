@@ -7,9 +7,5 @@
     "models": [
         "drop-block",
         "drop-item"
-    ],
-    "rigs": [
-        "drop",
-        "drop-item"
     ]
 }

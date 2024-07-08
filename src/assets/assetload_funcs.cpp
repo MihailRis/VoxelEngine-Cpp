@@ -228,27 +228,6 @@ assetload::postfunc assetload::model(
     }
 }
 
-assetload::postfunc assetload::rig(
-    AssetsLoader* loader,
-    const ResPaths* paths,
-    const std::string& file,
-    const std::string& name,
-    const std::shared_ptr<AssetCfg>&
-) {
-    auto path = paths->find(file+".json");
-    auto text = files::read_string(path);
-    try {
-        auto rig = rigging::RigConfig::parse(text, path.u8string(), name).release();
-        return [=](Assets* assets) {
-            // TODO: add models loading
-            assets->store(std::unique_ptr<rigging::RigConfig>(rig), name);
-        };
-    } catch (const parsing_error& err) {
-        std::cerr << err.errorLog() << std::endl;
-        throw;
-    }
-}
-
 static void read_anim_file(
     const std::string& animFile,
     std::vector<std::pair<std::string, int>>& frameList

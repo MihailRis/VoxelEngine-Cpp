@@ -9,8 +9,5 @@
         "misc/moon",
         "misc/sun",
         "gui/crosshair"
-    ],
-    "rigs": [
-        "player"
     ]
 }

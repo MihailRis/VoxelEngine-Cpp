@@ -31,7 +31,6 @@ AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths)
     addLoader(AssetType::LAYOUT, assetload::layout);
     addLoader(AssetType::SOUND, assetload::sound);
     addLoader(AssetType::MODEL, assetload::model);
-    addLoader(AssetType::RIG, assetload::rig);
 }
 
 void AssetsLoader::addLoader(AssetType tag, aloader_func func) {
@@ -102,7 +101,6 @@ static std::string assets_def_folder(AssetType tag) {
         case AssetType::LAYOUT: return LAYOUTS_FOLDER;
         case AssetType::SOUND: return SOUNDS_FOLDER;
         case AssetType::MODEL: return MODELS_FOLDER;
-        case AssetType::RIG: return RIGS_FOLDER;
     }
     return "<error>";
 }
@@ -160,7 +158,6 @@ void AssetsLoader::processPreloadConfig(const fs::path& file) {
     processPreloadList(AssetType::TEXTURE, root->list("textures"));
     processPreloadList(AssetType::SOUND, root->list("sounds"));
     processPreloadList(AssetType::MODEL, root->list("models"));
-    processPreloadList(AssetType::RIG, root->list("rigs"));
     // layouts are loaded automatically
 }
 
