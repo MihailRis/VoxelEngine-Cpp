@@ -56,6 +56,20 @@ static int l_rigidbody_set_gravity_scale(lua::State* L) {
     return 0;
 }
 
+static int l_rigidbody_is_vdamping(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        return lua::pushboolean(L, entity->getRigidbody().hitbox.verticalDamping);
+    }
+    return 0;
+}
+
+static int l_rigidbody_set_vdamping(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        entity->getRigidbody().hitbox.verticalDamping = lua::toboolean(L, 2);
+    }
+    return 0;
+}
+
 const luaL_Reg rigidbodylib [] = {
     {"is_enabled", lua::wrap<l_rigidbody_is_enabled>},
     {"set_enabled", lua::wrap<l_rigidbody_set_enabled>},
@@ -65,5 +79,7 @@ const luaL_Reg rigidbodylib [] = {
     {"set_size", lua::wrap<l_rigidbody_set_size>},
     {"get_gravity_scale", lua::wrap<l_rigidbody_get_gravity_scale>},
     {"set_gravity_scale", lua::wrap<l_rigidbody_set_gravity_scale>},
+    {"is_vdamping", lua::wrap<l_rigidbody_is_vdamping>},
+    {"set_vdamping", lua::wrap<l_rigidbody_set_vdamping>},
     {NULL, NULL}
 };

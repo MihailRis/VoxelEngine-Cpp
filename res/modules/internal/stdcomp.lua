@@ -15,11 +15,15 @@ end
 
 local Rigidbody = {__index={
     is_enabled=function(self) return __rigidbody.is_enabled(self.eid) end,
-    set_enabled=function(self, f) return __rigidbody.set_enabled(self.eid, f) end,
+    set_enabled=function(self, b) return __rigidbody.set_enabled(self.eid, b) end,
     get_vel=function(self) return __rigidbody.get_vel(self.eid) end,
     set_vel=function(self, v) return __rigidbody.set_vel(self.eid, v) end,
     get_size=function(self) return __rigidbody.get_size(self.eid) end,
     set_size=function(self, v) return __rigidbody.set_size(self.eid, v) end,
+    get_gravity_scale=function(self) return __rigidbody.get_gravity_scale(self.eid) end,
+    set_gravity_scale=function(self, s) return __rigidbody.set_gravity_scale(self.eid, s) end,
+    is_vdamping=function(self) return __rigidbody.is_vdamping(self.eid) end,
+    set_vdamping=function(self, b) return __rigidbody.set_vdamping(self.eid, b) end,
 }}
 
 local function new_Rigidbody(eid)
