@@ -1,6 +1,8 @@
-# Visual
+# Item properties
 
-## *icon-type* and *icon* itself
+## Visual
+
+### *icon-type* and *icon* itself
 
 Icon type defines a source of an item image displayed in inventory.
 - **none** - invisible type, used for *core:empty* only (empty item, like the air block). May be removed in future updates.
@@ -10,9 +12,9 @@ Icon type defines a source of an item image displayed in inventory.
 	- **items** (generated from *png* files in *res/textures/items/*)
 - **block** - block preview. Block ID must be specified in **icon** property. Example: *base:wood*.
 
-# Behaviour
+## Behaviour
 
-## *placing-block*
+### *placing-block*
 
 Specifies what block will be placed on RMB click. Automatically specified in generated items.
 
@@ -22,7 +24,7 @@ Example: an items that places bazalt blocks:
 "placing-block": "base:bazalt"
 ```
 
-## *emission*
+### *emission*
 
 Light emitted when player holds the item in hand.
 
@@ -34,6 +36,6 @@ Examples:
 - *\[7, 0, 0\]* - dim red light
 - *\[0, 0, 0\]* - no emission (default value)
 
-## *stack-size*
+### *stack-size*
 
 Maximal number of an item units in one slot. Default - 64.
