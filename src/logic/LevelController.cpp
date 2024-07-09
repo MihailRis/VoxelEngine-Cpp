@@ -31,7 +31,6 @@ void LevelController::update(float delta, bool input, bool pause) {
         settings.chunks.padding.get() * 2);
     chunks->update(settings.chunks.loadSpeed.get());
     
-    level->entities->clean();
     if (!pause) {
         // update all objects that needed
         for (const auto& obj : level->objects) {
@@ -44,6 +43,7 @@ void LevelController::update(float delta, bool input, bool pause) {
         level->entities->updatePhysics(delta);
         level->entities->update();
     }
+    level->entities->clean();
     player->postUpdate(delta, input, pause);
 
     // erease null pointers
