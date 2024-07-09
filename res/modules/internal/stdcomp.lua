@@ -24,6 +24,7 @@ local Rigidbody = {__index={
     set_gravity_scale=function(self, s) return __rigidbody.set_gravity_scale(self.eid, s) end,
     is_vdamping=function(self) return __rigidbody.is_vdamping(self.eid) end,
     set_vdamping=function(self, b) return __rigidbody.set_vdamping(self.eid, b) end,
+    is_grounded=function(self) return __rigidbody.is_grounded(self.eid) end,
 }}
 
 local function new_Rigidbody(eid)
