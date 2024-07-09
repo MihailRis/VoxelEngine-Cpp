@@ -246,10 +246,12 @@ void PlayerController::update(float delta, bool input, bool pause) {
 void PlayerController::postUpdate(float delta, bool input, bool pause) {
     if (!pause) {
         updateFootsteps(delta);
-        updateCamera(delta, input);
     }
     player->postUpdate();
     camControl.refresh();
+    if (!pause) {
+        updateCamera(delta, input);
+    }
     if (input) {
         updateInteraction();
     } else {
