@@ -85,7 +85,7 @@ entityid_t Entities::spawn(
     const auto& tsf = registry.emplace<Transform>(
         entity, position, glm::vec3(1.0f), glm::mat3(1.0f), glm::mat4(1.0f), true);
     auto& body = registry.emplace<Rigidbody>(
-        entity, true, Hitbox {def.bodyType, position, def.hitbox}, std::vector<Sensor>{});
+        entity, true, Hitbox {def.bodyType, position, def.hitbox*0.5f}, std::vector<Sensor>{});
 
     body.sensors.resize(def.radialSensors.size() + def.boxSensors.size());
     for (auto& [i, box] : def.boxSensors) {

@@ -20,7 +20,7 @@ struct EntityDef {
     std::vector<std::string> components;
 
     BodyType bodyType = BodyType::DYNAMIC;
-    glm::vec3 hitbox {0.5f};
+    glm::vec3 hitbox {0.25f};
     std::vector<std::pair<size_t, AABB>> boxSensors {};
     std::vector<std::pair<size_t, float>> radialSensors {};
     std::string rigName = name;
