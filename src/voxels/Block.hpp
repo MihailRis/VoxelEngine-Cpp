@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 #include <glm/glm.hpp>
 
 #include "../maths/aabb.hpp"
@@ -79,6 +80,9 @@ enum class BlockModel {
     /// @brief custom model defined in json
     custom
 };
+
+std::string to_string(BlockModel model);
+std::optional<BlockModel> BlockModel_from(std::string_view str);
 
 using BoxModel = AABB;
 

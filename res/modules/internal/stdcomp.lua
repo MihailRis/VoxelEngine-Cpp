@@ -25,6 +25,10 @@ local Rigidbody = {__index={
     is_vdamping=function(self) return __rigidbody.is_vdamping(self.eid) end,
     set_vdamping=function(self, b) return __rigidbody.set_vdamping(self.eid, b) end,
     is_grounded=function(self) return __rigidbody.is_grounded(self.eid) end,
+    is_crouching=function(self) return __rigidbody.is_crouching(self.eid) end,
+    set_crouching=function(self, b) return __rigidbody.set_crouching(self.eid, b) end,
+    get_body_type=function(self) return __rigidbody.get_body_type(self.eid) end,
+    set_body_type=function(self, s) return __rigidbody.set_body_type(self.eid, s) end,
 }}
 
 local function new_Rigidbody(eid)

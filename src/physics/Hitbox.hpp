@@ -5,6 +5,8 @@
 #include "../typedefs.hpp"
 
 #include <set>
+#include <string>
+#include <optional>
 #include <functional>
 #include <glm/glm.hpp>
 
@@ -36,7 +38,15 @@ struct Trigger {
     triggercallback exitCallback;
 };
 
+enum class BodyType {
+    KINEMATIC, DYNAMIC
+};
+
+std::optional<BodyType> BodyType_from(std::string_view str);
+std::string to_string(BodyType type);
+
 struct Hitbox {
+    BodyType type;
     glm::vec3 position;
     glm::vec3 halfsize;
     glm::vec3 velocity;
@@ -44,8 +54,9 @@ struct Hitbox {
     bool verticalDamping = false;
     bool grounded = false;
     float gravityScale = 1.0f;
+    bool crouching = false;
 
-    Hitbox(glm::vec3 position, glm::vec3 halfsize);
+    Hitbox(BodyType type, glm::vec3 position, glm::vec3 halfsize);
 };
 
 #endif // PHYSICS_HITBOX_HPP_

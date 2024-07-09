@@ -138,22 +138,19 @@ void ContentLoader::loadBlock(Block& def, const std::string& name, const fs::pat
     }
 
     // block model
-    std::string model = "block";
-    root->str("model", model);
-    if (model == "block") def.model = BlockModel::block;
-    else if (model == "aabb") def.model = BlockModel::aabb;
-    else if (model == "custom") { 
-        def.model = BlockModel::custom;
-        if (root->has("model-primitives")) {
-            loadCustomBlockModel(def, root->map("model-primitives").get());
-        } else {
-            logger.error() << name << ": no 'model-primitives' found";
+    std::string modelName;
+    root->str("model", modelName);
+    if (auto model = BlockModel_from(modelName)) {
+        if (*model == BlockModel::custom) {
+            if (root->has("model-primitives")) {
+                loadCustomBlockModel(def, root->map("model-primitives").get());
+            } else {
+                logger.error() << name << ": no 'model-primitives' found";
+            }
         }
-    }
-    else if (model == "X") def.model = BlockModel::xsprite;
-    else if (model == "none") def.model = BlockModel::none;
-    else {
-        logger.error() << "unknown model " << model;
+        def.model = *model;
+    } else if (!modelName.empty()) {
+        logger.error() << "unknown model " << modelName;
         def.model = BlockModel::none;
     }
 
@@ -341,6 +338,12 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& name, const fs
     root->flag("save", def.save.enabled);
     root->flag("save-rig-pose", def.save.rig.pose);
     root->flag("save-rig-textures", def.save.rig.textures);
+
+    std::string bodyTypeName;
+    root->str("body-type", bodyTypeName);
+    if (auto bodyType = BodyType_from(bodyTypeName)) {
+        def.bodyType = *bodyType;
+    }
 }
 
 void ContentLoader::loadEntity(EntityDef& def, const std::string& full, const std::string& name) {

@@ -21,8 +21,6 @@ void PhysicsSolver::step(
     Hitbox* hitbox, 
     float delta, 
     uint substeps, 
-    bool shifting,
-    bool collisions,
     entityid_t entity
 ) {
     float dt = delta / static_cast<float>(substeps);
@@ -42,7 +40,7 @@ void PhysicsSolver::step(
         float pz = pos.z;
         
         vel += gravity * dt * gravityScale;
-        if (collisions) {
+        if (hitbox->type == BodyType::DYNAMIC) {
             colisionCalc(chunks, hitbox, vel, pos, half, 
                          (prevGrounded && gravityScale > 0.0f) ? 0.5f : 0.0f);
         }
@@ -57,7 +55,7 @@ void PhysicsSolver::step(
             pos.y = py;
         }
 
-        if (shifting && hitbox->grounded){
+        if (hitbox->crouching && hitbox->grounded){
             float y = (pos.y-half.y-E);
             hitbox->grounded = false;
             for (float x = (px-half.x+E); x <= (px+half.x-E); x+=s){

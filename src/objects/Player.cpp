@@ -71,6 +71,7 @@ void Player::updateInput(PlayerInput& input, float delta) {
         speed *= CHEAT_SPEED_MUL;
     }
 
+    hitbox->crouching = crouch;
     if (crouch) {
         speed *= CROUCH_SPEED_MUL;
     } else if (input.sprint) {

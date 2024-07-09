@@ -85,7 +85,7 @@ entityid_t Entities::spawn(
     const auto& tsf = registry.emplace<Transform>(
         entity, position, glm::vec3(1.0f), glm::mat3(1.0f), glm::mat4(1.0f), true);
     auto& body = registry.emplace<Rigidbody>(
-        entity, true, Hitbox {position, def.hitbox}, std::vector<Trigger>{});
+        entity, true, Hitbox {def.bodyType, position, def.hitbox}, std::vector<Trigger>{});
 
     body.triggers.resize(def.radialTriggers.size() + def.boxTriggers.size());
     for (auto& [i, box] : def.boxTriggers) {
@@ -307,8 +307,6 @@ void Entities::updatePhysics(float delta) {
             &hitbox,
             delta,
             substeps,
-            false,
-            true,
             eid.uid
         );
         hitbox.linearDamping = hitbox.grounded * 24;

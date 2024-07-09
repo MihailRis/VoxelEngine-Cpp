@@ -273,13 +273,7 @@ static int l_get_textures(lua::State* L) {
 
 static int l_get_model(lua::State* L) {
     if (auto def = require_block(L)) {
-        switch (def->model) {
-            case BlockModel::block: return lua::pushstring(L, "block");
-            case BlockModel::aabb: return lua::pushstring(L, "aabb");
-            case BlockModel::xsprite: return lua::pushstring(L, "X");
-            case BlockModel::custom: return lua::pushstring(L, "custom");
-            case BlockModel::none: return lua::pushstring(L, "none");
-        }
+        return lua::pushstring(L, to_string(def->model));
     }
     return 0;
 }

@@ -7,6 +7,7 @@
 
 #include "../typedefs.hpp"
 #include "../maths/aabb.hpp"
+#include "../physics/Hitbox.hpp"
 
 namespace rigging {
     class RigConfig;
@@ -18,6 +19,7 @@ struct EntityDef {
 
     std::vector<std::string> components;
 
+    BodyType bodyType = BodyType::DYNAMIC;
     glm::vec3 hitbox {0.5f};
     std::vector<std::pair<size_t, AABB>> boxTriggers {};
     std::vector<std::pair<size_t, float>> radialTriggers {};

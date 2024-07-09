@@ -23,8 +23,6 @@ public:
         Hitbox* hitbox,
         float delta,
         uint substeps,
-        bool shifting,
-        bool collisions,
         entityid_t entity
     );
     void colisionCalc(
