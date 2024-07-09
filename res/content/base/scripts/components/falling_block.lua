@@ -25,7 +25,8 @@ function on_grounded()
     if block.is_replaceable_at(ix, iy, iz) then
         block.set(ix, iy, iz, block.index(blockid))
     else
-        entities.spawn("base:drop", pos, {item={id=item.index(blockid..".item"), count=1}}) 
+        local picking_item = block.get_picking_item(block.index(blockid))
+        entities.spawn("base:drop", pos, {item={id=picking_item, count=1}}) 
     end
     entity:despawn()
 end

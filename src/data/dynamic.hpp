@@ -115,7 +115,7 @@ namespace dynamic {
         void num(const std::string& key, ubyte& dst) const;
         void num(const std::string& key, double& dst) const;
         Map_sptr map(const std::string& key) const;
-        List* list(const std::string& key) const;
+        List_sptr list(const std::string& key) const;
         void flag(const std::string& key, bool& dst) const;
 
         Map& put(std::string key, std::unique_ptr<Map> value) {

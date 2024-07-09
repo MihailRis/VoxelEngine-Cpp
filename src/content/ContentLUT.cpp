@@ -14,7 +14,7 @@ ContentLUT::ContentLUT(const ContentIndices* indices, size_t blocksCount, size_t
 {}
 
 template<class T> static constexpr size_t get_entries_count(
-    const ContentUnitIndices<T>& indices, dynamic::List* list) {
+    const ContentUnitIndices<T>& indices, const dynamic::List_sptr& list) {
     return list ? std::max(list->size(), indices.count()) : indices.count();
 }
 
@@ -32,8 +32,8 @@ std::shared_ptr<ContentLUT> ContentLUT::create(
 
     auto lut = std::make_shared<ContentLUT>(indices, blocks_c, items_c);
 
-    lut->blocks.setup(blocklist, content->blocks);
-    lut->items.setup(itemlist, content->items);
+    lut->blocks.setup(blocklist.get(), content->blocks);
+    lut->items.setup(itemlist.get(), content->items);
 
     if (lut->hasContentReorder() || lut->hasMissingContent()) {
         return lut;

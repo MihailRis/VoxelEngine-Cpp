@@ -161,12 +161,14 @@ void CameraControl::update(const PlayerInput& input, float delta, Chunks* chunks
     auto tpCamera = player->tpCamera;
 
     if (player->currentCamera == spCamera) {
-        spCamera->position = chunks->rayCastToObstacle(camera->position, camera->front, 3.0f) - 0.2f * camera->front;
+        spCamera->position = chunks->rayCastToObstacle(
+            camera->position, camera->front, 3.0f) - 0.2f * camera->front;
         spCamera->dir = -camera->dir;
         spCamera->front = -camera->front;
     }
     else if (player->currentCamera == tpCamera) {
-        tpCamera->position = chunks->rayCastToObstacle(camera->position, -camera->front, 3.0f) + 0.2f * camera->front;
+        tpCamera->position = chunks->rayCastToObstacle(
+            camera->position, -camera->front, 3.0f) + 0.2f * camera->front;
         tpCamera->dir = camera->dir;
         tpCamera->front = camera->front;
     }
@@ -324,7 +326,8 @@ static int determine_rotation(Block* def, const glm::ivec3& norm, glm::vec3& cam
     return 0;
 }
 
-static void pick_block(ContentIndices* indices, Chunks* chunks, Player* player, int x, int y, int z) {
+static void pick_block(ContentIndices* indices, Chunks* chunks, Player* player,
+                       int x, int y, int z) {
     auto block = indices->blocks.get(chunks->get(x,y,z)->id);
     itemid_t id = block->rt.pickingItem;
     auto inventory = player->getInventory();

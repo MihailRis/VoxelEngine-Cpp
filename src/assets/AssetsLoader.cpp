@@ -153,11 +153,11 @@ void AssetsLoader::processPreloadList(AssetType tag, dynamic::List* list) {
 
 void AssetsLoader::processPreloadConfig(const fs::path& file) {
     auto root = files::read_json(file);
-    processPreloadList(AssetType::FONT, root->list("fonts"));
-    processPreloadList(AssetType::SHADER, root->list("shaders"));
-    processPreloadList(AssetType::TEXTURE, root->list("textures"));
-    processPreloadList(AssetType::SOUND, root->list("sounds"));
-    processPreloadList(AssetType::MODEL, root->list("models"));
+    processPreloadList(AssetType::FONT, root->list("fonts").get());
+    processPreloadList(AssetType::SHADER, root->list("shaders").get());
+    processPreloadList(AssetType::TEXTURE, root->list("textures").get());
+    processPreloadList(AssetType::SOUND, root->list("sounds").get());
+    processPreloadList(AssetType::MODEL, root->list("models").get());
     // layouts are loaded automatically
 }
 

@@ -202,10 +202,10 @@ Map_sptr Map::map(const std::string& key) const {
     return nullptr;
 }
 
-List* Map::list(const std::string& key) const {
+List_sptr Map::list(const std::string& key) const {
     auto found = values.find(key);
     if (found != values.end())
-        return std::get<List_sptr>(found->second).get();
+        return std::get<List_sptr>(found->second);
     return nullptr;
 }
 

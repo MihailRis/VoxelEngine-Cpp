@@ -31,6 +31,10 @@ struct EntityDef {
             bool textures = false;
             bool pose = false;
         } rig;
+        struct {
+            bool velocity = true;
+            bool settings = false;
+        } body;
     } save {};
 
     struct {

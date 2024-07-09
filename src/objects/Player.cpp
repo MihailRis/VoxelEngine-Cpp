@@ -123,6 +123,7 @@ void Player::updateInput(PlayerInput& input, float delta) {
             hitbox->velocity.y += 1.0f;
         }
     }
+    hitbox->type = noclip ? BodyType::KINEMATIC : BodyType::DYNAMIC;
     if (input.noclip) {
         noclip = !noclip;
     }
