@@ -82,7 +82,8 @@ entityid_t Entities::spawn(
         id = uid;
     }
     registry.emplace<EntityId>(entity, static_cast<entityid_t>(id), def);
-    auto& tsf = registry.emplace<Transform>(entity, position, glm::vec3(1.0f), glm::mat3(1.0f), glm::mat4(1.0f), true);
+    const auto& tsf = registry.emplace<Transform>(
+        entity, position, glm::vec3(1.0f), glm::mat3(1.0f), glm::mat4(1.0f), true);
     auto& body = registry.emplace<Rigidbody>(
         entity, true, Hitbox {position, def.hitbox}, std::vector<Trigger>{});
 

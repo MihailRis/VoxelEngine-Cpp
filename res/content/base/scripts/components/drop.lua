@@ -72,12 +72,13 @@ function on_fall()
 end
 
 function on_trigger_enter(index, oid)
-    if ready and oid == 0 and index == 0 then
+    local playerentity = player.get_entity(hud.get_player()):get_uid()
+    if ready and oid == playerentity and index == 0 then
         entity:despawn()
         inventory.add(player.get_inventory(oid), dropitem.id, dropitem.count)
         audio.play_sound_2d("events/pickup", 0.5, 0.8+math.random()*0.4, "regular")
     end
-    if index == 1 and ready and oid == 0 then
+    if index == 1 and ready and oid == playerentity then
         target = oid
     end
 end
@@ -104,7 +105,7 @@ end
 
 function on_update()
     if target ~= -1 then
-        local dir = vec3.sub({player.get_pos(target)}, tsf:get_pos())
+        local dir = vec3.sub(entities.get(target).transform:get_pos(), tsf:get_pos())
         vec3.normalize(dir, dir)
         vec3.mul(dir, 10.0, dir)
         body:set_vel(dir)

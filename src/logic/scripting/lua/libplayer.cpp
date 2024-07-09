@@ -1,4 +1,4 @@
-#include "api_lua.hpp"
+#include "libentity.hpp"
 
 #include "../../../world/Level.hpp"
 #include "../../../objects/Player.hpp"
@@ -155,7 +155,29 @@ static int l_player_set_spawnpoint(lua::State* L) {
         auto z = lua::tonumber(L, 4);
         player->setSpawnPoint(glm::vec3(x, y, z));
     }
- 
+    return 0;
+}
+
+static int l_player_get_entity(lua::State* L) {
+    auto player = get_player(L, 1);
+    if (player == nullptr) {
+        return 0;
+    }
+    if (lua::get_from(L, "entities", "get")) {
+        lua::pushinteger(L, player->getEntity());
+        return lua::call(L, 1);
+    }
+    return 0;
+}
+
+static int l_player_set_entity(lua::State* L) {
+    auto player = get_player(L, 1);
+    if (player == nullptr) {
+        return 0;
+    }
+    if (auto entity = get_entity(L, 2)) {
+        player->setEntity(entity->getUID());
+    }
     return 0;
 }
 
@@ -175,5 +197,7 @@ const luaL_Reg playerlib [] = {
     {"get_selected_block", lua::wrap<l_player_get_selected_block>},
     {"set_spawnpoint", lua::wrap<l_player_set_spawnpoint>},
     {"get_spawnpoint", lua::wrap<l_player_get_spawnpoint>},
+    {"get_entity", lua::wrap<l_player_get_entity>},
+    {"set_entity", lua::wrap<l_player_set_entity>},
     {NULL, NULL}
 };
