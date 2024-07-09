@@ -15,10 +15,10 @@
 #include "../items/Inventories.hpp"
 
 Level::Level(
-    std::unique_ptr<World> world,
+    std::unique_ptr<World> worldPtr,
     const Content* content,
     EngineSettings& settings
-) : world(std::move(world)),
+) : world(std::move(worldPtr)),
 	content(content),
 	chunksStorage(std::make_unique<ChunksStorage>(this)),
 	physics(std::make_unique<PhysicsSolver>(glm::vec3(0, -22.6f, 0))),
@@ -26,9 +26,11 @@ Level::Level(
     entities(std::make_unique<Entities>(this)),
 	settings(settings)
 {
-    entities->setNextID(this->world->nextEntityId);
+    if (world->nextEntityId) {
+        entities->setNextID(world->nextEntityId);
+    }
 	auto inv = std::make_shared<Inventory>(
-        this->world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE
+        world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE
     );
 	auto player = spawnObject<Player>(
         this, glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv, 0
@@ -39,7 +41,7 @@ Level::Level(
         settings.chunks.padding.get()
     ) * 2;
     chunks = std::make_unique<Chunks>(
-		matrixSize, matrixSize, 0, 0, this->world->wfile.get(), this
+		matrixSize, matrixSize, 0, 0, world->wfile.get(), this
 	);
 	lighting = std::make_unique<Lighting>(content, chunks.get());
 
