@@ -300,6 +300,13 @@ static int l_get_rotation_profile(lua::State* L) {
     return 0;
 }
 
+static int l_get_picking_item(lua::State* L) {
+    if (auto def = require_block(L)) {
+        return lua::pushinteger(L, def->rt.pickingItem);   
+    }
+    return 0;
+}
+
 const luaL_Reg blocklib [] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_name>},
@@ -327,5 +334,6 @@ const luaL_Reg blocklib [] = {
     {"get_model", lua::wrap<l_get_model>},
     {"get_hitbox", lua::wrap<l_get_hitbox>},
     {"get_rotation_profile", lua::wrap<l_get_rotation_profile>},
+    {"get_picking_item", lua::wrap<l_get_picking_item>},
     {NULL, NULL}
 };
