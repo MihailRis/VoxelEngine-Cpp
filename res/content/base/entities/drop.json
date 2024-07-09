@@ -6,7 +6,5 @@
     "sensors": [
         ["aabb", -0.2, -0.2, -0.2, 0.2, 0.2, 0.2],
         ["radius", 1.6]
-    ],
-    "save-rig-textures": true,
-    "save-rig-pose": true
+    ]
 }

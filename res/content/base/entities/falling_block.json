@@ -1,0 +1,7 @@
+{
+    "components": [
+        "falling_block"
+    ],
+    "rig-name": "base:block",
+    "hitbox": [0.4, 0.4, 0.4]
+}

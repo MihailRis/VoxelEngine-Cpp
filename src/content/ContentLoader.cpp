@@ -344,6 +344,8 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& name, const fs
     if (auto bodyType = BodyType_from(bodyTypeName)) {
         def.bodyType = *bodyType;
     }
+
+    root->str("rig-name", def.rigName);
 }
 
 void ContentLoader::loadEntity(EntityDef& def, const std::string& full, const std::string& name) {
