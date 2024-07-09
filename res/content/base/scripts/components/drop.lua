@@ -71,7 +71,7 @@ function on_fall()
     inair = true
 end
 
-function on_trigger_enter(index, oid)
+function on_sensor_enter(index, oid)
     local playerentity = player.get_entity(hud.get_player()):get_uid()
     if ready and oid == playerentity and index == 0 then
         entity:despawn()
@@ -83,7 +83,7 @@ function on_trigger_enter(index, oid)
     end
 end
 
-function on_trigger_exit(index, oid)
+function on_sensor_exit(index, oid)
     if oid == target and index == 1 then
         target = -1
     end

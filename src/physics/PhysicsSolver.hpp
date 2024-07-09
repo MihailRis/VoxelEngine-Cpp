@@ -11,11 +11,11 @@
 
 class Block;
 class Chunks;
-struct Trigger;
+struct Sensor;
 
 class PhysicsSolver {
     glm::vec3 gravity;
-    std::vector<Trigger*> triggers;
+    std::vector<Sensor*> sensors;
 public:
     PhysicsSolver(glm::vec3 gravity);
     void step(
@@ -36,8 +36,8 @@ public:
     bool isBlockInside(int x, int y, int z, Hitbox* hitbox);
     bool isBlockInside(int x, int y, int z, Block* def, blockstate state, Hitbox* hitbox);
 
-    void setTriggers(std::vector<Trigger*> triggers) {
-        this->triggers = std::move(triggers);
+    void setSensors(std::vector<Sensor*> sensors) {
+        this->sensors = std::move(sensors);
     }
 };
 

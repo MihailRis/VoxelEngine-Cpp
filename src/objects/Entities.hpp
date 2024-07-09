@@ -19,8 +19,8 @@ struct entity_funcs_set {
     bool on_despawn : 1;
     bool on_grounded : 1;
     bool on_fall : 1;
-    bool on_trigger_enter : 1;
-    bool on_trigger_exit : 1;
+    bool on_sensor_enter : 1;
+    bool on_sensor_exit : 1;
     bool on_save : 1;
 };
 
@@ -64,7 +64,7 @@ struct Transform {
 struct Rigidbody {
     bool enabled = true;
     Hitbox hitbox;
-    std::vector<Trigger> triggers;
+    std::vector<Sensor> sensors;
 };
 
 struct UserComponent {

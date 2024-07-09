@@ -10,32 +10,32 @@
 #include <functional>
 #include <glm/glm.hpp>
 
-enum class TriggerType {
+enum class SensorType {
     AABB,
     RADIUS,
 };
 
-union TriggerParams {
+union SensorParams {
     AABB aabb;
     glm::vec4 radial; // x,y,z calculated entity coords + w - radius
 
-    constexpr TriggerParams() : aabb() {
+    constexpr SensorParams() : aabb() {
     }
 };
 
-using triggercallback = std::function<void(entityid_t, size_t, entityid_t)>;
+using sensorcallback = std::function<void(entityid_t, size_t, entityid_t)>;
 
-struct Trigger {
+struct Sensor {
     bool enabled = true;
-    TriggerType type;
+    SensorType type;
     size_t index;
     entityid_t entity;
-    TriggerParams params;
-    TriggerParams calculated;
+    SensorParams params;
+    SensorParams calculated;
     std::set<entityid_t> prevEntered;
     std::set<entityid_t> nextEntered;
-    triggercallback enterCallback;
-    triggercallback exitCallback;
+    sensorcallback enterCallback;
+    sensorcallback exitCallback;
 };
 
 enum class BodyType {

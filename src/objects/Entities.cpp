@@ -53,7 +53,7 @@ Entities::Entities(Level* level) : level(level) {
 }
 
 template<void(*callback)(const Entity&, size_t, entityid_t)>
-static triggercallback create_trigger_callback(Entities* entities) {
+static sensorcallback create_sensor_callback(Entities* entities) {
     return [=](auto entityid, auto index, auto otherid) {
         if (auto entity = entities->get(entityid)) {
             if (entity->isValid()) {
@@ -85,24 +85,24 @@ entityid_t Entities::spawn(
     const auto& tsf = registry.emplace<Transform>(
         entity, position, glm::vec3(1.0f), glm::mat3(1.0f), glm::mat4(1.0f), true);
     auto& body = registry.emplace<Rigidbody>(
-        entity, true, Hitbox {def.bodyType, position, def.hitbox}, std::vector<Trigger>{});
+        entity, true, Hitbox {def.bodyType, position, def.hitbox}, std::vector<Sensor>{});
 
-    body.triggers.resize(def.radialTriggers.size() + def.boxTriggers.size());
-    for (auto& [i, box] : def.boxTriggers) {
-        TriggerParams params {};
+    body.sensors.resize(def.radialSensors.size() + def.boxSensors.size());
+    for (auto& [i, box] : def.boxSensors) {
+        SensorParams params {};
         params.aabb = box;
-        body.triggers[i] = Trigger {
-            true, TriggerType::AABB, i, id, params, params, {}, {},
-            create_trigger_callback<scripting::on_trigger_enter>(this),
-            create_trigger_callback<scripting::on_trigger_exit>(this)};
+        body.sensors[i] = Sensor {
+            true, SensorType::AABB, i, id, params, params, {}, {},
+            create_sensor_callback<scripting::on_sensor_enter>(this),
+            create_sensor_callback<scripting::on_sensor_exit>(this)};
     }
-    for (auto& [i, radius] : def.radialTriggers) {
-        TriggerParams params {};
+    for (auto& [i, radius] : def.radialSensors) {
+        SensorParams params {};
         params.radial = glm::vec4(radius);
-        body.triggers[i] = Trigger {
-            true, TriggerType::RADIUS, i, id, params, params, {}, {},
-            create_trigger_callback<scripting::on_trigger_enter>(this),
-            create_trigger_callback<scripting::on_trigger_exit>(this)};
+        body.sensors[i] = Sensor {
+            true, SensorType::RADIUS, i, id, params, params, {}, {},
+            create_sensor_callback<scripting::on_sensor_enter>(this),
+            create_sensor_callback<scripting::on_sensor_exit>(this)};
     }
     auto& scripting = registry.emplace<ScriptComponents>(entity);
     entities[id] = entity;
@@ -247,7 +247,7 @@ void Entities::preparePhysics() {
     frameid++;
     auto view = registry.view<EntityId, Transform, Rigidbody>();
     auto physics = level->physics.get();
-    std::vector<Trigger*> triggers;
+    std::vector<Sensor*> sensors;
     for (auto [entity, eid, transform, rigidbody] : view.each()) {
         if (!rigidbody.enabled) {
             continue;
@@ -256,34 +256,34 @@ void Entities::preparePhysics() {
         if ((eid.uid + frameid) % 3 != 0) {
             continue;
         }
-        for (size_t i = 0; i < rigidbody.triggers.size(); i++) {
-            auto& trigger = rigidbody.triggers[i];
-            for (auto oid : trigger.prevEntered) {
-                if (trigger.nextEntered.find(oid) == trigger.nextEntered.end()) {
-                    trigger.exitCallback(trigger.entity, i, oid);
+        for (size_t i = 0; i < rigidbody.sensors.size(); i++) {
+            auto& sensor = rigidbody.sensors[i];
+            for (auto oid : sensor.prevEntered) {
+                if (sensor.nextEntered.find(oid) == sensor.nextEntered.end()) {
+                    sensor.exitCallback(sensor.entity, i, oid);
                 }
             }
-            trigger.prevEntered = trigger.nextEntered;
-            trigger.nextEntered.clear();
+            sensor.prevEntered = sensor.nextEntered;
+            sensor.nextEntered.clear();
 
-            switch (trigger.type) {
-                case TriggerType::AABB:
-                    trigger.calculated.aabb = trigger.params.aabb;
-                    trigger.calculated.aabb.transform(transform.combined);
+            switch (sensor.type) {
+                case SensorType::AABB:
+                    sensor.calculated.aabb = sensor.params.aabb;
+                    sensor.calculated.aabb.transform(transform.combined);
                     break;
-                case TriggerType::RADIUS:
-                    trigger.calculated.radial = glm::vec4(
+                case SensorType::RADIUS:
+                    sensor.calculated.radial = glm::vec4(
                         rigidbody.hitbox.position.x,
                         rigidbody.hitbox.position.y,
                         rigidbody.hitbox.position.z,
-                        trigger.params.radial.w*
-                        trigger.params.radial.w);
+                        sensor.params.radial.w*
+                        sensor.params.radial.w);
                     break;
             }
-            triggers.push_back(&trigger);
+            sensors.push_back(&sensor);
         }
     }
-    physics->setTriggers(std::move(triggers));
+    physics->setSensors(std::move(sensors));
 }
 
 void Entities::updatePhysics(float delta) {
@@ -337,12 +337,12 @@ void Entities::renderDebug(LineBatch& batch, const Frustum& frustum) {
         }
         batch.box(hitbox.position, hitbox.halfsize * 2.0f, glm::vec4(1.0f));
 
-        for (auto& trigger : rigidbody.triggers) {
-            if (trigger.type != TriggerType::AABB)
+        for (auto& sensor : rigidbody.sensors) {
+            if (sensor.type != SensorType::AABB)
                 continue;
             batch.box(
-                trigger.calculated.aabb.center(), 
-                trigger.calculated.aabb.size(), 
+                sensor.calculated.aabb.center(), 
+                sensor.calculated.aabb.size(), 
                 glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
         }
     }

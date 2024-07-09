@@ -318,8 +318,8 @@ void scripting::on_entity_spawn(
         funcsset.on_grounded = lua::hasfield(L, "on_grounded");
         funcsset.on_fall = lua::hasfield(L, "on_fall");
         funcsset.on_despawn = lua::hasfield(L, "on_despawn");
-        funcsset.on_trigger_enter = lua::hasfield(L, "on_trigger_enter");
-        funcsset.on_trigger_exit = lua::hasfield(L, "on_trigger_exit");
+        funcsset.on_sensor_enter = lua::hasfield(L, "on_sensor_enter");
+        funcsset.on_sensor_exit = lua::hasfield(L, "on_sensor_exit");
         funcsset.on_save = lua::hasfield(L, "on_save");
         lua::pop(L, 2);
 
@@ -391,11 +391,11 @@ bool scripting::on_entity_save(const Entity& entity) {
     return true;
 }
 
-void scripting::on_trigger_enter(const Entity& entity, size_t index, entityid_t oid) {
+void scripting::on_sensor_enter(const Entity& entity, size_t index, entityid_t oid) {
     const auto& script = entity.getScripting();
     for (auto& component : script.components) {
-        if (component->funcsset.on_trigger_enter) {
-            process_entity_callback(component->env, "on_trigger_enter", [index, oid](auto L) {
+        if (component->funcsset.on_sensor_enter) {
+            process_entity_callback(component->env, "on_sensor_enter", [index, oid](auto L) {
                 lua::pushinteger(L, index);
                 lua::pushinteger(L, oid);
                 return 2;
@@ -404,11 +404,11 @@ void scripting::on_trigger_enter(const Entity& entity, size_t index, entityid_t 
     }
 }
 
-void scripting::on_trigger_exit(const Entity& entity, size_t index, entityid_t oid) {
+void scripting::on_sensor_exit(const Entity& entity, size_t index, entityid_t oid) {
     const auto& script = entity.getScripting();
     for (auto& component : script.components) {
-        if (component->funcsset.on_trigger_exit) {
-            process_entity_callback(component->env, "on_trigger_exit", [index, oid](auto L) {
+        if (component->funcsset.on_sensor_exit) {
+            process_entity_callback(component->env, "on_sensor_exit", [index, oid](auto L) {
                 lua::pushinteger(L, index);
                 lua::pushinteger(L, oid);
                 return 2;

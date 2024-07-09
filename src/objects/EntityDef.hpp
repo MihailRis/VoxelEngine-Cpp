@@ -21,8 +21,8 @@ struct EntityDef {
 
     BodyType bodyType = BodyType::DYNAMIC;
     glm::vec3 hitbox {0.5f};
-    std::vector<std::pair<size_t, AABB>> boxTriggers {};
-    std::vector<std::pair<size_t, float>> radialTriggers {};
+    std::vector<std::pair<size_t, AABB>> boxSensors {};
+    std::vector<std::pair<size_t, float>> radialSensors {};
     std::string rigName = name;
 
     struct {

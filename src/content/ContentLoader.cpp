@@ -317,20 +317,20 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& name, const fs
     if (auto boxarr = root->list("hitbox")) {
         def.hitbox = glm::vec3(boxarr->num(0), boxarr->num(1), boxarr->num(2));
     }
-    if (auto triggersarr = root->list("triggers")) {
-        for (size_t i = 0; i < triggersarr->size(); i++) {
-            if (auto triggerarr = triggersarr->list(i)) {
-                auto triggerType = triggerarr->str(0);
-                if (triggerType == "aabb") {
-                    def.boxTriggers.push_back({i, {
-                        {triggerarr->num(1), triggerarr->num(2), triggerarr->num(3)},
-                        {triggerarr->num(4), triggerarr->num(5), triggerarr->num(6)}
+    if (auto sensorsarr = root->list("sensors")) {
+        for (size_t i = 0; i < sensorsarr->size(); i++) {
+            if (auto sensorarr = sensorsarr->list(i)) {
+                auto sensorType = sensorarr->str(0);
+                if (sensorType == "aabb") {
+                    def.boxSensors.push_back({i, {
+                        {sensorarr->num(1), sensorarr->num(2), sensorarr->num(3)},
+                        {sensorarr->num(4), sensorarr->num(5), sensorarr->num(6)}
                     }});
-                } else if (triggerType == "radius") {
-                    def.radialTriggers.push_back({i, triggerarr->num(1)});
+                } else if (sensorType == "radius") {
+                    def.radialSensors.push_back({i, sensorarr->num(1)});
                 } else {
-                    logger.error() << name << ": trigger #" << i << " - unknown type "
-                        << util::quote(triggerType);
+                    logger.error() << name << ": sensor #" << i << " - unknown type "
+                        << util::quote(sensorType);
                 }
             }
         }
