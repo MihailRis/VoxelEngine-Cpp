@@ -142,3 +142,13 @@ console.add_command(
         return tostring(w*h*d).." blocks set"
     end
 )
+
+console.add_command(
+    "player.respawn player:sel=$obj.id",
+    "Respawn player entity",
+    function (args, kwargs)
+        local eid = entities.spawn("base:player", {player.get_pos(args[1])}):get_uid()
+        player.set_entity(args[1], eid)
+        return "spawned new player entity #"..tostring(eid)
+    end
+)
