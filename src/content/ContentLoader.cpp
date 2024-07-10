@@ -348,6 +348,7 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& name, const fs
     }
 
     root->str("skeleton-name", def.skeletonName);
+    root->flag("blocking", def.blocking);
 }
 
 void ContentLoader::loadEntity(EntityDef& def, const std::string& full, const std::string& name) {

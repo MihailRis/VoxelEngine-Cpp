@@ -24,6 +24,7 @@ struct EntityDef {
     std::vector<std::pair<size_t, AABB>> boxSensors {};
     std::vector<std::pair<size_t, float>> radialSensors {};
     std::string skeletonName = name;
+    bool blocking = true;
 
     struct {
         bool enabled = true;

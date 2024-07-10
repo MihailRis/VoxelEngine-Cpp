@@ -6,5 +6,6 @@
     "sensors": [
         ["aabb", -0.2, -0.2, -0.2, 0.2, 0.2, 0.2],
         ["radius", 1.6]
-    ]
+    ],
+    "blocking": false
 }

@@ -405,9 +405,10 @@ void PlayerController::processRightClick(Block* def, Block* target) {
     }
     blockid_t chosenBlock = def->rt.id;
 
-    auto hitbox = player->getHitbox();
-    if (hitbox && def->obstacle && level->physics->isBlockInside(
-            coord.x, coord.y, coord.z, def,state, hitbox)) {
+    AABB blockAABB(coord, coord+1);
+    bool blocked = level->entities->hasBlockingInside(blockAABB);
+
+    if (def->obstacle && blocked) {
         return;
     }
     auto vox = chunks->get(coord);
