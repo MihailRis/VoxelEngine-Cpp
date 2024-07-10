@@ -84,9 +84,12 @@ void BlocksController::updateBlock(int x, int y, int z) {
     if (vox == nullptr)
         return;
     const Block* def = level->content->getIndices()->getBlockDef(vox->id);
-    if (def->grounded && !chunks->isSolidBlock(x, y-1, z)) {
-        breakBlock(nullptr, def, x, y, z);
-        return;
+    if (def->grounded) {
+        const auto& vec = get_ground_direction(def, vox->state.rotation);
+        if (!chunks->isSolidBlock(x+vec.x, y+vec.y, z+vec.z)) {
+            breakBlock(nullptr, def, x, y, z);
+            return;
+        }
     }
     if (def->rt.funcsset.update) {
         scripting::update_block(def, x, y, z);
