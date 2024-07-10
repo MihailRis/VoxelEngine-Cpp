@@ -405,9 +405,9 @@ void Entities::render(Assets* assets, ModelBatch& batch, const Frustum& frustum,
 }
 
 bool Entities::hasBlockingInside(AABB aabb) {
-    auto view = registry.view<EntityId, Transform>();
-    for (auto [entity, eid, transform] : view.each()) {
-        if (eid.def.blocking && aabb.contains(transform.pos)) {
+    auto view = registry.view<EntityId, Transform, Rigidbody>();
+    for (auto [entity, eid, transform, body] : view.each()) {
+        if (eid.def.blocking && aabb.intersect(body.hitbox.getAABB())) {
             return true;
         }
     }

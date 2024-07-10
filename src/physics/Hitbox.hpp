@@ -57,6 +57,10 @@ struct Hitbox {
     bool crouching = false;
 
     Hitbox(BodyType type, glm::vec3 position, glm::vec3 halfsize);
+
+    AABB getAABB() const {
+        return AABB(position-halfsize, position+halfsize);
+    }
 };
 
 #endif // PHYSICS_HITBOX_HPP_
