@@ -571,6 +571,18 @@ hud.resume()
 
 Closes the pause menu.
 
+```python
+hud.is_paused() -> bool
+```
+
+Returns true if pause menu is open.
+
+```python
+hud.is_inventory_open() -> bool
+```
+
+Returns true if inventory is open or overlay is shown.
+
 ### *time* library
 
 ```python

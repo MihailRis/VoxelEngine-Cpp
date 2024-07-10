@@ -3,6 +3,9 @@ local DROP_INIT_VEL = {0, 3, 0}
 
 function on_hud_open()
     input.add_callback("player.drop", function ()
+        if hud.is_paused() or hud.is_inventory_open() then
+            return
+        end
         local pid = hud.get_player()
         local invid, slot = player.get_inventory(pid)
         local itemid, itemcount = inventory.get(invid, slot)

@@ -124,6 +124,14 @@ static int l_hud_get_player(lua::State* L) {
     return lua::pushinteger(L, player->getId());
 }
 
+static int l_hud_is_paused(lua::State* L) {
+    return lua::pushboolean(L, hud->isPause());
+}
+
+static int l_hud_is_inventory_open(lua::State* L) {
+    return lua::pushboolean(L, hud->isInventoryOpen());
+}
+
 const luaL_Reg hudlib [] = {
     {"open_inventory", lua::wrap<l_hud_open_inventory>},
     {"close_inventory", lua::wrap<l_hud_close_inventory>},
@@ -134,6 +142,8 @@ const luaL_Reg hudlib [] = {
     {"close", lua::wrap<l_hud_close>},
     {"pause", lua::wrap<l_hud_pause>},
     {"resume", lua::wrap<l_hud_resume>},
+    {"is_paused", lua::wrap<l_hud_is_paused>},
+    {"is_inventory_open", lua::wrap<l_hud_is_inventory_open>},
     {"get_player", lua::wrap<l_hud_get_player>},
     {NULL, NULL}
 };

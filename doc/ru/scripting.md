@@ -582,6 +582,18 @@ hud.resume()
 
 Закрывает меню паузы.
 
+```python
+hud.is_paused() -> bool
+```
+
+Возвращает true если открыто меню паузы.
+
+```python
+hud.is_inventory_open() -> bool
+```
+
+Возвращает true если открыт инвентарь или оверлей.
+
 ## Библиотека time
 
 ```python
