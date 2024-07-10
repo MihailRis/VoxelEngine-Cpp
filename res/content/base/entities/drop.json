@@ -1,6 +1,6 @@
 {
     "components": [
-        "drop"
+        "base:drop"
     ],
     "hitbox": [0.4, 0.25, 0.4],
     "sensors": [

@@ -355,13 +355,6 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& full, const st
     auto folder = pack->folder;
     auto configFile = folder/fs::path("entities/"+name+".json");
     if (fs::exists(configFile)) loadEntity(def, full, configFile);
-
-    for (auto& componentName : def.components) {
-        auto scriptfile = folder/fs::path("scripts/components/"+componentName+".lua");
-        if (fs::is_regular_file(scriptfile)) {
-            scripting::load_entity_component(componentName, scriptfile);
-        }
-    }
 }
 
 void ContentLoader::loadBlock(Block& def, const std::string& full, const std::string& name) {
@@ -476,6 +469,18 @@ void ContentLoader::load() {
             std::string name = pack->id+":"+file.stem().u8string();
             std::string text = files::read_string(file);
             builder.add(rigging::SkeletonConfig::parse(text, file.u8string(), name));
+        }
+    }
+
+    fs::path componentsDir = folder / fs::u8path("scripts/components");
+    if (fs::is_directory(componentsDir)) {
+        for (const auto& entry : fs::directory_iterator(componentsDir)) {
+            fs::path scriptfile = entry.path();
+            if (fs::is_regular_file(scriptfile)) {
+                auto name = pack->id+":"+scriptfile.stem().u8string();
+                std::cout << name << std::endl;
+                scripting::load_entity_component(name, scriptfile);
+            }
         }
     }
 }
