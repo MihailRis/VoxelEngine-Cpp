@@ -92,7 +92,7 @@ There is a set of flags that allow you to specify which data will be saved and w
 
 (Boolean values ​​are specified)
 
-| Title                  | Goal                                                 | Default |
+| Title                  | Target                                               | Default |
 | ---------------------- | ---------------------------------------------------- | ------- |
 | save                   | the entity itself                                    | true    |
 | save-skeleton-pose     | skeleton pose                                        | false   |
