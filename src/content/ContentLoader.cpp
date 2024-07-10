@@ -359,7 +359,7 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& full, const st
     for (auto& componentName : def.components) {
         auto scriptfile = folder/fs::path("scripts/components/"+componentName+".lua");
         if (fs::is_regular_file(scriptfile)) {
-            scripting::load_entity_component(env, componentName, scriptfile);
+            scripting::load_entity_component(componentName, scriptfile);
         }
     }
 }

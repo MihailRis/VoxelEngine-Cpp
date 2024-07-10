@@ -127,7 +127,6 @@ namespace scripting {
         item_funcs_set& funcsset);
 
     void load_entity_component(
-        const scriptenv& env,
         const std::string& name,
         const fs::path& file);
     
