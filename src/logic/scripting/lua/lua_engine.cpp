@@ -50,7 +50,7 @@ static void create_libs(lua::State* L) {
     openlib(L, "entities", entitylib);
 
     // components
-    openlib(L, "__modeltree", modeltreelib);
+    openlib(L, "__skeleton", skeletonlib);
     openlib(L, "__rigidbody", rigidbodylib);
     openlib(L, "__transform", transformlib);
 

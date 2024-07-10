@@ -2,6 +2,6 @@
     "components": [
         "falling_block"
     ],
-    "rig-name": "base:block",
+    "skeleton-name": "base:block",
     "hitbox": [0.8, 0.8, 0.8]
 }

@@ -1,6 +1,6 @@
 local tsf = entity.transform
 local body = entity.rigidbody
-local rig = entity.modeltree
+local rig = entity.skeleton
 
 ARGS = ARGS or {}
 local blockid = ARGS.block

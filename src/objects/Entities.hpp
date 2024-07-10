@@ -94,8 +94,8 @@ class Frustum;
 class Entities;
 
 namespace rigging {
-    struct Rig;
-    class RigConfig;
+    struct Skeleton;
+    class SkeletonConfig;
 }
 
 class Entity {
@@ -136,9 +136,9 @@ public:
         return registry.get<ScriptComponents>(entity);
     }
 
-    rigging::Rig& getModeltree() const;
+    rigging::Skeleton& getSkeleton() const;
 
-    void setRig(const rigging::RigConfig* rigConfig);
+    void setRig(const rigging::SkeletonConfig* rigConfig);
 
     entityid_t getUID() const {
         return registry.get<EntityId>(entity).uid;

@@ -30,11 +30,11 @@ Content::Content(
     ContentUnitDefs<EntityDef> entities,
     UptrsMap<std::string, ContentPackRuntime> packs,
     UptrsMap<std::string, BlockMaterial> blockMaterials,
-    UptrsMap<std::string, rigging::RigConfig> rigs
+    UptrsMap<std::string, rigging::SkeletonConfig> skeletons
 ) : indices(std::move(indices)),
     packs(std::move(packs)),
     blockMaterials(std::move(blockMaterials)),
-    rigs(std::move(rigs)),
+    skeletons(std::move(skeletons)),
     blocks(std::move(blocks)),
     items(std::move(items)),
     entities(std::move(entities)),
@@ -44,9 +44,9 @@ Content::Content(
 Content::~Content() {
 }
 
-const rigging::RigConfig* Content::getRig(const std::string& id) const {
-    auto found = rigs.find(id);
-    if (found == rigs.end()) {
+const rigging::SkeletonConfig* Content::getRig(const std::string& id) const {
+    auto found = skeletons.find(id);
+    if (found == skeletons.end()) {
         return nullptr;
     }
     return found->second.get();

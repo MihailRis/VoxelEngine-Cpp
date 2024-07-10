@@ -10,7 +10,7 @@
 #include "../physics/Hitbox.hpp"
 
 namespace rigging {
-    class RigConfig;
+    class SkeletonConfig;
 }
 
 struct EntityDef {
@@ -23,14 +23,14 @@ struct EntityDef {
     glm::vec3 hitbox {0.25f};
     std::vector<std::pair<size_t, AABB>> boxSensors {};
     std::vector<std::pair<size_t, float>> radialSensors {};
-    std::string rigName = name;
+    std::string skeletonName = name;
 
     struct {
         bool enabled = true;
         struct {
             bool textures = false;
             bool pose = false;
-        } rig;
+        } skeleton;
         struct {
             bool velocity = true;
             bool settings = false;
@@ -39,7 +39,7 @@ struct EntityDef {
 
     struct {
         entityid_t id;
-        rigging::RigConfig* rig;
+        rigging::SkeletonConfig* skeleton;
     } rt {};
 
     EntityDef(const std::string& name) : name(name) {}

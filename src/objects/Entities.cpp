@@ -22,7 +22,7 @@ static debug::Logger logger("entities");
 
 static inline std::string COMP_TRANSFORM = "transform";
 static inline std::string COMP_RIGIDBODY = "rigidbody";
-static inline std::string COMP_MODELTREE = "modeltree";
+static inline std::string COMP_SKELETON = "skeleton";
 
 void Transform::refresh() {
     combined = glm::mat4(1.0f);
@@ -38,15 +38,15 @@ void Entity::destroy() {
     }
 }
 
-rigging::Rig& Entity::getModeltree() const {
-    return registry.get<rigging::Rig>(entity);
+rigging::Skeleton& Entity::getSkeleton() const {
+    return registry.get<rigging::Skeleton>(entity);
 }
 
-void Entity::setRig(const rigging::RigConfig* rigConfig) {
-    auto& rig = registry.get<rigging::Rig>(entity);
-    rig.config = rigConfig;
-    rig.pose.matrices.resize(rigConfig->getNodes().size(), glm::mat4(1.0f));
-    rig.calculated.matrices.resize(rigConfig->getNodes().size(), glm::mat4(1.0f));
+void Entity::setRig(const rigging::SkeletonConfig* rigConfig) {
+    auto& skeleton = registry.get<rigging::Skeleton>(entity);
+    skeleton.config = rigConfig;
+    skeleton.pose.matrices.resize(rigConfig->getNodes().size(), glm::mat4(1.0f));
+    skeleton.calculated.matrices.resize(rigConfig->getNodes().size(), glm::mat4(1.0f));
 }
 
 Entities::Entities(Level* level) : level(level) {
@@ -70,9 +70,9 @@ entityid_t Entities::spawn(
     dynamic::Map_sptr saved,
     entityid_t uid)
 {
-    auto rig = level->content->getRig(def.rigName);
-    if (rig == nullptr) {
-        throw std::runtime_error("rig "+def.rigName+" not found");
+    auto skeleton = level->content->getRig(def.skeletonName);
+    if (skeleton == nullptr) {
+        throw std::runtime_error("skeleton "+def.skeletonName+" not found");
     }
     auto entity = registry.create();
     entityid_t id;
@@ -107,7 +107,7 @@ entityid_t Entities::spawn(
     auto& scripting = registry.emplace<ScriptComponents>(entity);
     entities[id] = entity;
     uids[entity] = id;
-    registry.emplace<rigging::Rig>(entity, rig->instance());
+    registry.emplace<rigging::Skeleton>(entity, skeleton->instance());
     for (auto& componentName : def.components) {
         auto component = std::make_unique<UserComponent>(
             componentName, entity_funcs_set {}, nullptr);
@@ -149,7 +149,7 @@ void Entities::loadEntity(const dynamic::Map_sptr& map) {
 void Entities::loadEntity(const dynamic::Map_sptr& map, Entity entity) {
     auto& transform = entity.getTransform();
     auto& body = entity.getRigidbody();
-    auto& rig = entity.getModeltree();
+    auto& skeleton = entity.getSkeleton();
 
     if (auto bodymap = map->map(COMP_RIGIDBODY)) {
         dynamic::get_vec(bodymap, "vel", body.hitbox.velocity);
@@ -166,20 +166,20 @@ void Entities::loadEntity(const dynamic::Map_sptr& map, Entity entity) {
         dynamic::get_vec(tsfmap, "size", transform.size);
         dynamic::get_mat(tsfmap, "rot", transform.rot);
     }
-    std::string rigName = rig.config->getName();
-    map->str("rig", rigName);
-    if (rigName != rig.config->getName()) {
-        rig.config = level->content->getRig(rigName);
+    std::string skeletonName = skeleton.config->getName();
+    map->str("skeleton", skeletonName);
+    if (skeletonName != skeleton.config->getName()) {
+        skeleton.config = level->content->getRig(skeletonName);
     }
-    if (auto rigmap = map->map(COMP_MODELTREE)) {
-        if (auto texturesmap = rigmap->map("textures")) {
+    if (auto skeletonmap = map->map(COMP_SKELETON)) {
+        if (auto texturesmap = skeletonmap->map("textures")) {
             for (auto& [slot, _] : texturesmap->values) {
-                texturesmap->str(slot, rig.textures[slot]);
+                texturesmap->str(slot, skeleton.textures[slot]);
             }
         }
-        if (auto posearr = rigmap->list("pose")) {
-            for (size_t i = 0; i < std::min(rig.pose.matrices.size(), posearr->size()); i++) {
-                dynamic::get_mat(posearr, i, rig.pose.matrices[i]);
+        if (auto posearr = skeletonmap->list("pose")) {
+            for (size_t i = 0; i < std::min(skeleton.pose.matrices.size(), posearr->size()); i++) {
+                dynamic::get_mat(posearr, i, skeleton.pose.matrices[i]);
             }
         }
     }
@@ -237,21 +237,21 @@ dynamic::Value Entities::serialize(const Entity& entity) {
             }
         }
     }
-    auto& rig = entity.getModeltree();
-    if (rig.config->getName() != def.rigName) {
-        root->put("rig", rig.config->getName());
+    auto& skeleton = entity.getSkeleton();
+    if (skeleton.config->getName() != def.skeletonName) {
+        root->put("skeleton", skeleton.config->getName());
     }
-    if (def.save.rig.pose || def.save.rig.textures) {
-        auto& rigmap = root->putMap(COMP_MODELTREE);
-        if (def.save.rig.textures) {
-            auto& map = rigmap.putMap("textures");
-            for (auto& [slot, texture] : rig.textures) {
+    if (def.save.skeleton.pose || def.save.skeleton.textures) {
+        auto& skeletonmap = root->putMap(COMP_SKELETON);
+        if (def.save.skeleton.textures) {
+            auto& map = skeletonmap.putMap("textures");
+            for (auto& [slot, texture] : skeleton.textures) {
                 map.put(slot, texture);
             }
         }
-        if (def.save.rig.pose) {
-            auto& list = rigmap.putList("pose");
-            for (auto& mat : rig.pose.matrices) {
+        if (def.save.skeleton.pose) {
+            auto& list = skeletonmap.putList("pose");
+            for (auto& mat : skeleton.pose.matrices) {
                 list.put(dynamic::to_value(mat));
             }
         }
@@ -390,16 +390,16 @@ void Entities::render(Assets* assets, ModelBatch& batch, const Frustum& frustum,
         scripting::on_entities_render();
     }
 
-    auto view = registry.view<Transform, rigging::Rig>();
-    for (auto [entity, transform, rig] : view.each()) {
+    auto view = registry.view<Transform, rigging::Skeleton>();
+    for (auto [entity, transform, skeleton] : view.each()) {
         if (transform.dirty) {
             transform.refresh();
         }
         const auto& pos = transform.pos;
         const auto& size = transform.size;
         if (frustum.isBoxVisible(pos-size, pos+size)) {
-            const auto* rigConfig = rig.config;
-            rigConfig->render(assets, batch, rig, transform.combined);
+            const auto* rigConfig = skeleton.config;
+            rigConfig->render(assets, batch, skeleton, transform.combined);
         }
     }
 }

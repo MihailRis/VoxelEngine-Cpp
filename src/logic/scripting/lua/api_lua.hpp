@@ -29,7 +29,7 @@ extern const luaL_Reg vec4lib [];
 extern const luaL_Reg worldlib [];
 
 // Components
-extern const luaL_Reg modeltreelib [];
+extern const luaL_Reg skeletonlib [];
 extern const luaL_Reg rigidbodylib [];
 extern const luaL_Reg transformlib [];
 

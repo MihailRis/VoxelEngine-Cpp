@@ -35,15 +35,15 @@ local function new_Rigidbody(eid)
     return setmetatable({eid=eid}, Rigidbody)
 end
 
-local Modeltree = {__index={
-    get_model=function(self, i) return __modeltree.get_model(self.eid, i) end,
-    get_matrix=function(self, i) return __modeltree.get_matrix(self.eid, i) end,
-    set_matrix=function(self, i, m) return __modeltree.set_matrix(self.eid, i, m) end,
-    set_texture=function(self, s, s2) return __modeltree.set_texture(self.eid, s, s2) end,
+local Skeleton = {__index={
+    get_model=function(self, i) return __skeleton.get_model(self.eid, i) end,
+    get_matrix=function(self, i) return __skeleton.get_matrix(self.eid, i) end,
+    set_matrix=function(self, i, m) return __skeleton.set_matrix(self.eid, i, m) end,
+    set_texture=function(self, s, s2) return __skeleton.set_texture(self.eid, s, s2) end,
 }}
 
-local function new_Modeltree(eid)
-    return setmetatable({eid=eid}, Modeltree)
+local function new_Skeleton(eid)
+    return setmetatable({eid=eid}, Skeleton)
 end
 
 -- Entity class
@@ -63,7 +63,7 @@ return {
         local entity = setmetatable({eid=eid}, Entity)
         entity.transform = new_Transform(eid)
         entity.rigidbody = new_Rigidbody(eid)
-        entity.modeltree = new_Modeltree(eid)
+        entity.skeleton = new_Skeleton(eid)
         entity.components = {}
         entities[eid] = entity;
         return entity

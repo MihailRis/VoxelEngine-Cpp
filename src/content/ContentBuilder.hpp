@@ -50,7 +50,7 @@ public:
 
 class ContentBuilder {
     UptrsMap<std::string, BlockMaterial> blockMaterials;
-    UptrsMap<std::string, rigging::RigConfig> rigs;
+    UptrsMap<std::string, rigging::SkeletonConfig> skeletons;
     UptrsMap<std::string, ContentPackRuntime> packs;
     std::unordered_map<std::string, contenttype> allNames;
 public:
@@ -61,7 +61,7 @@ public:
     ~ContentBuilder();
 
     void add(std::unique_ptr<ContentPackRuntime> pack);
-    void add(std::unique_ptr<rigging::RigConfig> rig);
+    void add(std::unique_ptr<rigging::SkeletonConfig> skeleton);
 
     BlockMaterial& createBlockMaterial(const std::string& id);
 

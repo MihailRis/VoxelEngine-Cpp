@@ -7,18 +7,18 @@
 
 using namespace rigging;
 
-RigNode::RigNode(
+Bone::Bone(
     size_t index, 
     std::string name, 
     std::string model,
-    std::vector<std::unique_ptr<RigNode>> subnodes)
+    std::vector<std::unique_ptr<Bone>> bones)
   : index(index), 
     name(std::move(name)),
     modelName(std::move(model)),
-    subnodes(std::move(subnodes)) 
+    bones(std::move(bones)) 
 {}
 
-void RigNode::setModel(const std::string& name) {
+void Bone::setModel(const std::string& name) {
     if (modelName == name) {
         return;
     }
@@ -26,83 +26,83 @@ void RigNode::setModel(const std::string& name) {
     modelUpdated = true;
 }
 
-void RigNode::refreshModel(const Assets* assets) {
+void Bone::refreshModel(const Assets* assets) {
     if (modelUpdated) {
         model = assets->get<model::Model>(modelName);
         modelUpdated = false;
     }
 }
 
-static void get_all_nodes(std::vector<RigNode*>& nodes, RigNode* node) {
+static void get_all_nodes(std::vector<Bone*>& nodes, Bone* node) {
     nodes[node->getIndex()] = node;
     for (auto& subnode : node->getSubnodes()) {
         get_all_nodes(nodes, subnode.get());
     }
 }
 
-RigConfig::RigConfig(const std::string& name, std::unique_ptr<RigNode> root, size_t nodesCount)
+SkeletonConfig::SkeletonConfig(const std::string& name, std::unique_ptr<Bone> root, size_t nodesCount)
   : name(name), root(std::move(root)), nodes(nodesCount) {
     get_all_nodes(nodes, this->root.get());
 }
 
-size_t RigConfig::update(
+size_t SkeletonConfig::update(
     size_t index, 
-    Rig& rig, 
-    RigNode* node, 
+    Skeleton& skeleton, 
+    Bone* node, 
     glm::mat4 matrix) const
 {
-    rig.calculated.matrices[index] = matrix * rig.pose.matrices[index];
+    skeleton.calculated.matrices[index] = matrix * skeleton.pose.matrices[index];
     size_t count = 1;
     for (auto& subnode : node->getSubnodes()) {
-        count += update(index+count, rig, subnode.get(), rig.calculated.matrices[index]);
+        count += update(index+count, skeleton, subnode.get(), skeleton.calculated.matrices[index]);
     }
     return count;
 }
 
-void RigConfig::update(Rig& rig, glm::mat4 matrix) const {
-    update(0, rig, root.get(), matrix);
+void SkeletonConfig::update(Skeleton& skeleton, glm::mat4 matrix) const {
+    update(0, skeleton, root.get(), matrix);
 }
 
-void RigConfig::render(
+void SkeletonConfig::render(
     Assets* assets,
     ModelBatch& batch,
-    Rig& rig,
+    Skeleton& skeleton,
     const glm::mat4& matrix) const
 {
-    update(rig, matrix);
+    update(skeleton, matrix);
     for (size_t i = 0; i < nodes.size(); i++) {
         auto* node = nodes[i];
         node->refreshModel(assets);
         if (auto model = node->getModel()) {
-            batch.pushMatrix(rig.calculated.matrices[i]);
-            batch.draw(model, &rig.textures);
+            batch.pushMatrix(skeleton.calculated.matrices[i]);
+            batch.draw(model, &skeleton.textures);
             batch.popMatrix();
         }
     }
 }
 
-static std::tuple<size_t, std::unique_ptr<RigNode>> read_node(
+static std::tuple<size_t, std::unique_ptr<Bone>> read_node(
     dynamic::Map* root, size_t index
 ) {
     std::string name;
     std::string model;
     root->str("name", name);
     root->str("model", model);
-    std::vector<std::unique_ptr<RigNode>> subnodes;
+    std::vector<std::unique_ptr<Bone>> bones;
     size_t count = 1;
     if (auto nodesList = root->list("nodes")) {
         for (size_t i = 0; i < nodesList->size(); i++) {
             if (const auto& map = nodesList->map(i)) {
                 auto [subcount, subNode] = read_node(map.get(), index+count);
                 subcount += count;
-                subnodes.push_back(std::move(subNode));
+                bones.push_back(std::move(subNode));
             }
         }
     }
-    return {index + count, std::make_unique<RigNode>(index, name, model, std::move(subnodes))};
+    return {index + count, std::make_unique<Bone>(index, name, model, std::move(bones))};
 }
 
-std::unique_ptr<RigConfig> RigConfig::parse(
+std::unique_ptr<SkeletonConfig> SkeletonConfig::parse(
     std::string_view src,
     std::string_view file,
     std::string_view name
@@ -113,5 +113,5 @@ std::unique_ptr<RigConfig> RigConfig::parse(
         throw std::runtime_error("missing 'root' element");
     }
     auto [count, rootNode] = read_node(rootNodeMap.get(), 0);
-    return std::make_unique<RigConfig>(std::string(name), std::move(rootNode), count);
+    return std::make_unique<SkeletonConfig>(std::string(name), std::move(rootNode), count);
 }
