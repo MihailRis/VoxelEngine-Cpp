@@ -9,7 +9,9 @@ static int l_transform_get_pos(lua::State* L) {
 
 static int l_transform_set_pos(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
-        entity->getTransform().setPos(lua::tovec3(L, 2));
+        auto vec = lua::tovec3(L, 2);
+        entity->getTransform().setPos(vec);
+        entity->getRigidbody().hitbox.position = vec;
     }
     return 0;
 }

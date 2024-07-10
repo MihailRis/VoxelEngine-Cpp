@@ -2,10 +2,12 @@ history = session.get_entry("commands_history")
 history_pointer = #history
 
 function setup_variables()
-    local x,y,z = player.get_pos(hud.get_player())
+    local pid = hud.get_player()
+    local x,y,z = player.get_pos(pid)
     console.set('pos.x', x)
     console.set('pos.y', y)
     console.set('pos.z', z)
+    console.set('entity.id', player.get_entity(pid):get_uid())
 end
 
 function on_history_up()
