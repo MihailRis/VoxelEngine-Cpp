@@ -206,4 +206,13 @@ public:
     Block(const Block&) = delete;
 };
 
+inline glm::ivec3 get_ground_direction(const Block* def, int rotation) {
+    const auto& profileName = def->rotations.name;
+    if (profileName == BlockRotProfile::PIPE_NAME) {
+        return -def->rotations.variants[rotation].axisY;
+    } else {
+        return glm::ivec3(0, -1, 0);
+    }
+}
+
 #endif // VOXELS_BLOCK_HPP_

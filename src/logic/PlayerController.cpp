@@ -418,8 +418,11 @@ void PlayerController::processRightClick(Block* def, Block* target) {
     if (!chunks->checkReplaceability(def, state, coord)) {
         return;
     }
-    if (def->grounded && !chunks->isSolidBlock(coord.x, coord.y-1, coord.z)) {
-        return;
+    if (def->grounded) {
+        const auto& vec = get_ground_direction(def, state.rotation);
+        if (!chunks->isSolidBlock(coord.x+vec.x, coord.y+vec.y, coord.z+vec.z)) {
+            return;
+        }
     }
     if (chosenBlock != vox->id && chosenBlock) {
         onBlockInteraction(coord, def, BlockInteraction::placing);

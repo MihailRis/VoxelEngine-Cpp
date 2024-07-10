@@ -13,5 +13,6 @@
     "light-passing": true,
     "shadeless": true,
     "obstacle": false,
+    "grounded": true,
     "rotation": "pipe"
 }
