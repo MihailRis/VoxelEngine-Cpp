@@ -1,7 +1,7 @@
 #ifndef CONTENT_CONTENT_LOADER_HPP_
 #define CONTENT_CONTENT_LOADER_HPP_
 
-#include "../typedefs.hpp"
+#include "content_fwd.hpp"
 
 #include <string>
 #include <memory>
@@ -19,6 +19,7 @@ struct ContentPackStats;
 
 namespace dynamic {
     class Map;
+    class List;
 }
 
 class ContentLoader {
@@ -36,6 +37,7 @@ class ContentLoader {
     static void loadBlock(Block& def, const std::string& name, const fs::path& file);
     static void loadItem(ItemDef& def, const std::string& name, const fs::path& file);
     static void loadEntity(EntityDef& def, const std::string& name, const fs::path& file);
+    void loadResources(ResourceType type, dynamic::List* list);
 public:
     ContentLoader(ContentPack* pack, ContentBuilder& builder);
 

@@ -1,0 +1,7 @@
+{
+    "camera": [
+        "first-person",
+        "third-person-front",
+        "third-person-back"
+    ]
+}

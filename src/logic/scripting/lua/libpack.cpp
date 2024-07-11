@@ -1,6 +1,7 @@
 #include "api_lua.hpp"
 
 #include "../../../engine.hpp"
+#include "../../../content/Content.hpp"
 #include "../../../assets/AssetsLoader.hpp"
 #include "../../../files/engine_paths.hpp"
 #include "../../../files/WorldFiles.hpp"

@@ -478,9 +478,28 @@ void ContentLoader::load() {
             fs::path scriptfile = entry.path();
             if (fs::is_regular_file(scriptfile)) {
                 auto name = pack->id+":"+scriptfile.stem().u8string();
-                std::cout << name << std::endl;
                 scripting::load_entity_component(name, scriptfile);
             }
         }
+    }
+
+    fs::path resourcesFile = folder / fs::u8path("resources.json");
+    if (fs::exists(resourcesFile)) {
+        auto resRoot = files::read_json(resourcesFile);
+        for (const auto& [key, _] : resRoot->values) {
+            if (auto resType = ResourceType_from(key)) {
+                if (auto arr = resRoot->list(key)) {
+                    loadResources(*resType, arr.get());
+                }
+            } else {
+                logger.warning() << "unknown resource type: " << key;
+            }
+        }
+    }
+}
+
+void ContentLoader::loadResources(ResourceType type, dynamic::List* list) {
+    for (size_t i = 0; i < list->size(); i++) {
+        builder.resourceIndices[static_cast<size_t>(type)].add(list->str(i));
     }
 }

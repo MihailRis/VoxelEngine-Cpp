@@ -9,6 +9,7 @@
 #include "coders/imageio.hpp"
 #include "coders/json.hpp"
 #include "coders/toml.hpp"
+#include "content/Content.hpp"
 #include "content/ContentBuilder.hpp"
 #include "content/ContentLoader.hpp"
 #include "core_defs.hpp"

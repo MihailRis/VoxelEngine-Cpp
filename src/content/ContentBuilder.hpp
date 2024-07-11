@@ -57,6 +57,7 @@ public:
     ContentUnitBuilder<Block> blocks {allNames, contenttype::block};
     ContentUnitBuilder<ItemDef> items {allNames, contenttype::item};
     ContentUnitBuilder<EntityDef> entities {allNames, contenttype::entity};
+    ResourceIndicesSet resourceIndices {};
 
     ~ContentBuilder();
 

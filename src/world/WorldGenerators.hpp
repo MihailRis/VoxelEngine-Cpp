@@ -2,10 +2,11 @@
 #define WORLD_WORLDGENERATORS_HPP_
 
 #include "../voxels/WorldGenerator.hpp"
-#include "../content/Content.hpp"
 #include <map>
 #include <vector>
 #include <string>
+
+class Content;
 
 typedef WorldGenerator* (*gen_constructor) (const Content*);
 

@@ -2,6 +2,7 @@
 
 #include "lua/lua_engine.hpp"
 
+#include "../../content/Content.hpp"
 #include "../../content/ContentPack.hpp"
 #include "../../debug/Logger.hpp"
 #include "../../engine.hpp"

@@ -1,11 +1,12 @@
 #ifndef CONTENT_CONTENT_HPP_
 #define CONTENT_CONTENT_HPP_
 
-#include "../typedefs.hpp"
+#include "content_fwd.hpp"
 
 #include <string>
 #include <vector>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <unordered_map>
 #include <set>
@@ -18,18 +19,12 @@ class Block;
 struct BlockMaterial;
 struct ItemDef;
 struct EntityDef;
-class Content;
-class ContentPackRuntime;
 
 namespace rigging {
     class SkeletonConfig;
 }
 
-enum class contenttype {
-    none, block, item, entity
-};
-
-inline const char* contenttype_name(contenttype type) {
+constexpr const char* contenttype_name(contenttype type) {
     switch (type) {
         case contenttype::none: return "none";
         case contenttype::block: return "block";
@@ -111,6 +106,44 @@ public:
     }
 };
 
+class ResourceIndices {
+    std::vector<std::string> names;
+    std::unordered_map<std::string, size_t> indices;
+public:
+    ResourceIndices() {}
+
+    static constexpr size_t MISSING = -1;
+
+    void add(std::string name) {
+        indices[name] = names.size();
+        names.push_back(name);
+    }
+
+    size_t indexOf(const std::string& name) const {
+        const auto& found = indices.find(name);
+        if (found == indices.end()) {
+            return found->second;
+        }
+        return MISSING;
+    }
+};
+
+constexpr const char* to_string(ResourceType type) {
+    switch (type) {
+        case ResourceType::CAMERA: return "camera";
+        default: return "unknown";
+    }
+}
+
+inline std::optional<ResourceType> ResourceType_from(std::string_view str) {
+    if (str == "camera") {
+        return ResourceType::CAMERA;
+    }
+    return std::nullopt;
+}
+
+using ResourceIndicesSet = ResourceIndices[static_cast<size_t>(ResourceType::LAST)+1];
+
 /// @brief Content is a definitions repository
 class Content {
     std::unique_ptr<ContentIndices> indices;
@@ -122,6 +155,7 @@ public:
     ContentUnitDefs<ItemDef> items;
     ContentUnitDefs<EntityDef> entities;
     std::unique_ptr<DrawGroups> const drawGroups;
+    ResourceIndicesSet resourceIndices {};
 
     Content(
         std::unique_ptr<ContentIndices> indices, 

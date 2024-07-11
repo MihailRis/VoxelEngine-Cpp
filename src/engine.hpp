@@ -5,7 +5,7 @@
 #include "typedefs.hpp"
 
 #include "assets/Assets.hpp"
-#include "content/Content.hpp"
+#include "content/content_fwd.hpp"
 #include "content/ContentPack.hpp"
 #include "content/PacksManager.hpp"
 #include "files/engine_paths.hpp"
@@ -48,11 +48,11 @@ class Engine : public util::ObjectsKeeper {
     SettingsHandler& settingsHandler;
     EnginePaths* paths;
 
-    std::unique_ptr<Assets> assets = nullptr;
-    std::shared_ptr<Screen> screen = nullptr;
+    std::unique_ptr<Assets> assets;
+    std::shared_ptr<Screen> screen;
     std::vector<ContentPack> contentPacks;
-    std::unique_ptr<Content> content = nullptr;
-    std::unique_ptr<ResPaths> resPaths = nullptr;
+    std::unique_ptr<Content> content;
+    std::unique_ptr<ResPaths> resPaths;
     std::queue<runnable> postRunnables;
     std::recursive_mutex postRunnablesMutex;
     std::unique_ptr<EngineController> controller;
