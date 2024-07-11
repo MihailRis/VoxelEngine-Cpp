@@ -75,6 +75,8 @@ public:
     }
 
     void onSave();
+
+    std::shared_ptr<Camera> getCamera(const std::string& name);
 };
 
 #endif /* WORLD_LEVEL_HPP_ */

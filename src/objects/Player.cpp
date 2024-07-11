@@ -29,11 +29,14 @@ Player::Player(Level* level, glm::vec3 position, float speed,
     position(position),
     inventory(std::move(inv)),
     eid(eid),
-    camera(std::make_shared<Camera>(position, glm::radians(90.0f))),
-    spCamera(std::make_shared<Camera>(position, glm::radians(90.0f))),
-    tpCamera(std::make_shared<Camera>(position, glm::radians(90.0f))),
+    camera(level->getCamera("base:first-person")),
+    spCamera(level->getCamera("base:third-person-front")),
+    tpCamera(level->getCamera("base:third-person-back")),
     currentCamera(camera)
 {
+    camera->setFov(glm::radians(90.0f));
+    spCamera->setFov(glm::radians(90.0f));
+    tpCamera->setFov(glm::radians(90.0f));
 }
 
 Player::~Player() {

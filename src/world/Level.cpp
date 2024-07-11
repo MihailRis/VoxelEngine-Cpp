@@ -28,6 +28,23 @@ Level::Level(
     entities(std::make_unique<Entities>(this)),
 	settings(settings)
 {
+    auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
+    std::cout << cameraIndices.size() << std::endl;
+    for (size_t i = 0; i < cameraIndices.size(); i++) {
+        auto camera = std::make_shared<Camera>();
+        if (auto map = cameraIndices.getSavedData(i)) {
+            dynamic::get_vec(map, "pos", camera->position);
+            dynamic::get_mat(map, "rot", camera->rotation);
+            map->flag("perspective", camera->perspective);
+            map->flag("flipped", camera->flipped);
+            map->num("zoom", camera->zoom);
+            float fov = camera->getFov();
+            map->num("fov", fov);
+            camera->setFov(fov);
+        }
+        cameras.push_back(std::move(camera));
+    }
+
     if (world->nextEntityId) {
         entities->setNextID(world->nextEntityId);
     }
@@ -53,22 +70,6 @@ Level::Level(
 
 	inventories = std::make_unique<Inventories>(*this);
 	inventories->store(player->getInventory());
-
-    auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
-    for (size_t i = 0; i < cameraIndices.size(); i++) {
-        auto camera = std::make_shared<Camera>();
-        if (auto map = cameraIndices.getSavedData(i)) {
-            dynamic::get_vec(map, "pos", camera->position);
-            dynamic::get_mat(map, "rot", camera->rotation);
-            map->flag("perspective", camera->perspective);
-            map->flag("flipped", camera->flipped);
-            map->num("zoom", camera->zoom);
-            float fov = camera->getFov();
-            map->num("fov", fov);
-            camera->setFov(fov);
-        }
-        cameras.push_back(std::move(camera));
-    }
 }
 
 Level::~Level(){
@@ -105,4 +106,12 @@ void Level::onSave() {
         map->put("fov", camera.getFov());
         cameraIndices.saveData(i, std::move(map));
     }
+}
+
+std::shared_ptr<Camera> Level::getCamera(const std::string& name) {
+    size_t index = content->getIndices(ResourceType::CAMERA).indexOf(name);
+    if (index == ResourceIndices::MISSING) {
+        return nullptr;
+    }
+    return cameras.at(index);
 }

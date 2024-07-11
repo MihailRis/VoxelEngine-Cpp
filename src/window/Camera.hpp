@@ -20,7 +20,9 @@ public:
     bool flipped = false;
     float aspect = 0.0f;
 
-    Camera() {}
+    Camera() {
+        updateVectors();
+    }
     Camera(glm::vec3 position, float fov);
 
     void rotate(float x, float y, float z);
