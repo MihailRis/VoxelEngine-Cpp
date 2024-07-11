@@ -30,7 +30,8 @@ Content::Content(
     ContentUnitDefs<EntityDef> entities,
     UptrsMap<std::string, ContentPackRuntime> packs,
     UptrsMap<std::string, BlockMaterial> blockMaterials,
-    UptrsMap<std::string, rigging::SkeletonConfig> skeletons
+    UptrsMap<std::string, rigging::SkeletonConfig> skeletons,
+    const ResourceIndicesSet& resourceIndices
 ) : indices(std::move(indices)),
     packs(std::move(packs)),
     blockMaterials(std::move(blockMaterials)),
@@ -39,7 +40,11 @@ Content::Content(
     items(std::move(items)),
     entities(std::move(entities)),
     drawGroups(std::move(drawGroups))
-{}
+{
+    for (size_t i = 0; i < RESOURCE_TYPES_COUNT; i++) {
+        this->resourceIndices[i] = resourceIndices[i];
+    }
+}
 
 Content::~Content() {
 }

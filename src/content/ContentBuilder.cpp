@@ -75,7 +75,8 @@ std::unique_ptr<Content> ContentBuilder::build() {
         entities.build(),
         std::move(packs),
         std::move(blockMaterials),
-        std::move(skeletons)
+        std::move(skeletons),
+        resourceIndices
     );
 
     // Now, it's time to resolve foreign keys

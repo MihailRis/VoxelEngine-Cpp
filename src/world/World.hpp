@@ -34,6 +34,8 @@ class World : Serializable {
     std::vector<ContentPack> packs;
 
     int64_t nextInventoryId = 0;
+
+    void writeResources(const Content* content);
 public:
     std::unique_ptr<WorldFiles> wfile;
 

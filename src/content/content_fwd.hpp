@@ -15,4 +15,6 @@ enum class ResourceType : size_t {
     LAST=CAMERA
 };
 
+inline constexpr auto RESOURCE_TYPES_COUNT = static_cast<size_t>(ResourceType::LAST)+1;
+
 #endif // CONTENT_CONTENT_FWD_HPP_

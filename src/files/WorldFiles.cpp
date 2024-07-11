@@ -56,6 +56,10 @@ fs::path WorldFiles::getPlayerFile() const {
     return directory/fs::path("player.json");
 }
 
+fs::path WorldFiles::getResourcesFile() const {
+    return directory/fs::path("resources.json");
+}
+
 fs::path WorldFiles::getWorldFile() const {
     return directory/fs::path(WORLD_FILE);
 }

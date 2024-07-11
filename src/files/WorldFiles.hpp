@@ -46,6 +46,7 @@ public:
     ~WorldFiles();
 
     fs::path getPlayerFile() const;
+    fs::path getResourcesFile() const;
     void createDirectories();
 
     bool readWorldInfo(World* world);
