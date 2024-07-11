@@ -116,6 +116,7 @@ std::unique_ptr<Level> World::load(
     if (!wfile->readWorldInfo(world.get())) {
         throw world_load_error("could not to find world.json");
     }
+    wfile->readResourcesData(content);
 
     auto level = std::make_unique<Level>(std::move(world), content, settings);
     {

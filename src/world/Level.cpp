@@ -59,8 +59,7 @@ Level::Level(
         auto camera = std::make_shared<Camera>();
         if (auto map = cameraIndices.getSavedData(i)) {
             dynamic::get_vec(map, "pos", camera->position);
-            dynamic::get_vec(map, "front", camera->front);
-            dynamic::get_vec(map, "up", camera->up);
+            dynamic::get_mat(map, "rot", camera->rotation);
             map->flag("perspective", camera->perspective);
             map->flag("flipped", camera->flipped);
             map->num("zoom", camera->zoom);
@@ -99,8 +98,7 @@ void Level::onSave() {
         auto& camera = *cameras.at(i);
         auto map = dynamic::create_map();
         map->put("pos", dynamic::to_value(camera.position));
-        map->put("front", dynamic::to_value(camera.front));
-        map->put("up", dynamic::to_value(camera.up));
+        map->put("rot", dynamic::to_value(camera.rotation));
         map->put("perspective", camera.perspective);
         map->put("flipped", camera.flipped);
         map->put("zoom", camera.zoom);

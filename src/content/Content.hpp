@@ -117,7 +117,7 @@ public:
     : savedData(std::make_unique<std::vector<dynamic::Map_sptr>>()){
     }
 
-    static constexpr size_t MISSING = -1;
+    static constexpr size_t MISSING = SIZE_MAX;
 
     void add(std::string name, dynamic::Map_sptr map) {
         indices[name] = names.size();
@@ -131,7 +131,7 @@ public:
 
     size_t indexOf(const std::string& name) const {
         const auto& found = indices.find(name);
-        if (found == indices.end()) {
+        if (found != indices.end()) {
             return found->second;
         }
         return MISSING;

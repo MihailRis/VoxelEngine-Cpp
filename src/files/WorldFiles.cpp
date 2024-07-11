@@ -6,6 +6,7 @@
 #include "../content/Content.hpp"
 #include "../core_defs.hpp"
 #include "../data/dynamic.hpp"
+#include "../debug/Logger.hpp"
 #include "../items/Inventory.hpp"
 #include "../items/ItemDef.hpp"
 #include "../lighting/Lightmap.hpp"
@@ -31,6 +32,8 @@
 #include <utility>
 
 #define WORLD_FORMAT_MAGIC ".VOXWLD"
+
+static debug::Logger logger("world-files");
 
 WorldFiles::WorldFiles(const fs::path& directory) : directory(directory), regions(directory) {
 }
@@ -120,12 +123,49 @@ void WorldFiles::writeWorldInfo(const World* world) {
 bool WorldFiles::readWorldInfo(World* world) {
     fs::path file = getWorldFile();
     if (!fs::is_regular_file(file)) {
-        std::cerr << "warning: world.json does not exists" << std::endl;
+        logger.warning() << "world.json does not exists";
         return false;
     }
-
     auto root = files::read_json(file);
     world->deserialize(root.get());
+    return true;
+}
+
+static void read_resources_data(
+    const Content* content, 
+    const dynamic::List_sptr& list,
+    ResourceType type
+) {
+    const auto& indices = content->getIndices(type);
+    for (size_t i = 0; i < list->size(); i++) {
+        auto map = list->map(i);
+        std::string name;
+        map->str("name", name);
+        size_t index = indices.indexOf(name);
+        if (index == ResourceIndices::MISSING) {
+            logger.warning() << "discard " << name;
+        } else {
+            indices.saveData(index, map);
+        }
+    }
+}
+
+bool WorldFiles::readResourcesData(const Content* content) {
+    fs::path file = getResourcesFile();
+    if (!fs::is_regular_file(file)) {
+        logger.warning() << "resources.json does not exists";
+        return false;
+    }
+    auto root = files::read_json(file);
+    for (const auto& [key, _] : root->values) {
+        if (auto resType = ResourceType_from(key)) {
+            if (auto arr = root->list(key)) {
+                read_resources_data(content, arr, *resType);
+            }
+        } else {
+            logger.warning() << "unknown resource type: " << key;
+        }
+    }
     return true;
 }
 

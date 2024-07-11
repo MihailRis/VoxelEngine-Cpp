@@ -50,6 +50,7 @@ public:
     void createDirectories();
 
     bool readWorldInfo(World* world);
+    bool readResourcesData(const Content* content);
 
     /// @brief Write all unsaved data to world files
     /// @param world target world
