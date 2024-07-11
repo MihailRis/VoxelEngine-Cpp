@@ -29,7 +29,6 @@ Level::Level(
 	settings(settings)
 {
     auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
-    std::cout << cameraIndices.size() << std::endl;
     for (size_t i = 0; i < cameraIndices.size(); i++) {
         auto camera = std::make_shared<Camera>();
         if (auto map = cameraIndices.getSavedData(i)) {
@@ -42,6 +41,7 @@ Level::Level(
             map->num("fov", fov);
             camera->setFov(fov);
         }
+        camera->updateVectors();
         cameras.push_back(std::move(camera));
     }
 

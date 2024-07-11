@@ -4,7 +4,6 @@
 #include <glm/glm.hpp>
 
 class Camera {
-    void updateVectors();
     float fov = 1.0f;
 public:
     glm::vec3 front {};
@@ -25,6 +24,7 @@ public:
     }
     Camera(glm::vec3 position, float fov);
 
+    void updateVectors();
     void rotate(float x, float y, float z);
 
     glm::mat4 getProjection();

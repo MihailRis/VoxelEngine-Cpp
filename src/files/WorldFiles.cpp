@@ -145,7 +145,7 @@ static void read_resources_data(
         if (index == ResourceIndices::MISSING) {
             logger.warning() << "discard " << name;
         } else {
-            indices.saveData(index, map);
+            indices.saveData(index, map->map("saved"));
         }
     }
 }
