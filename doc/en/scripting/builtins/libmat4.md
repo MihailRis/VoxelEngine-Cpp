@@ -115,6 +115,15 @@ mat4.decompose(m: matrix)
 }
 ```
 
+## Look at point - *mat4.look_at(...)*
+
+```lua
+-- creates a view matrix from the 'eye' point to the 'center' point with up vector specified
+mat4.look_at(eye: vec3, center: vec3, up: vec3)
+-- writes the view matrix to dst
+mat4.look_at(eye: vec3, center: vec3, up: vec3, dst: matrix)
+```
+
 ## Casting to string - *mat4.tostring(...)*
 
 ```lua

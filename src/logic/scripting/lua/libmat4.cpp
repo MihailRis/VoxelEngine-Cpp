@@ -211,6 +211,22 @@ static int l_decompose(lua::State* L) {
     return 1;
 }
 
+static int l_look_at(lua::State* L) {
+    int argc = lua::gettop(L);
+    if (argc != 3 && argc != 4) {
+        throw std::runtime_error("invalid arguments number (3 or 4 expected)");
+    }
+    auto eye = lua::tovec<3>(L, 1);
+    auto center = lua::tovec<3>(L, 2);
+    auto up = lua::tovec<3>(L, 3);
+
+    if (argc == 3) {
+        return lua::pushmat4(L, glm::lookAt(eye, center, up));
+    } else {
+        return lua::setmat4(L, 4, glm::lookAt(eye, center, up));
+    }
+}
+
 static int l_tostring(lua::State* L) {
     auto matrix = lua::tomat4(L, 1);
     bool multiline = lua::toboolean(L, 2);
@@ -249,6 +265,7 @@ const luaL_Reg mat4lib [] = {
     {"transpose", lua::wrap<l_transpose>},
     {"determinant", lua::wrap<l_determinant>},
     {"decompose", lua::wrap<l_decompose>},
+    {"look_at", lua::wrap<l_look_at>},
     {"tostring", lua::wrap<l_tostring>},
     {NULL, NULL}
 };

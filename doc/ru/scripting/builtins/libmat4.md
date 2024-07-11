@@ -115,6 +115,15 @@ mat4.decompose(m: matrix)
 }
 ```
 
+## Отслеживание точки *mat4.look_at(...)*
+
+```lua
+-- cоздает матрицу вида с точки 'eye' на точку 'center', где вектор 'up' определяет верх.
+mat4.look_at(eye: vec3, center: vec3, up: vec3)
+-- записывает матрицу вида в dst
+mat4.look_at(eye: vec3, center: vec3, up: vec3, dst: matrix)
+```
+
 ## Перевод в строку - *mat4.tostring(...)*
 
 ```lua
