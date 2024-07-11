@@ -111,16 +111,18 @@ public:
 class ResourceIndices {
     std::vector<std::string> names;
     std::unordered_map<std::string, size_t> indices;
-    std::vector<dynamic::Map_sptr> savedData;
+    std::unique_ptr<std::vector<dynamic::Map_sptr>> savedData;
 public:
-    ResourceIndices() {}
+    ResourceIndices() 
+    : savedData(std::make_unique<std::vector<dynamic::Map_sptr>>()){
+    }
 
     static constexpr size_t MISSING = -1;
 
     void add(std::string name, dynamic::Map_sptr map) {
         indices[name] = names.size();
         names.push_back(name);
-        savedData.push_back(map);
+        savedData->push_back(map);
     }
 
     const std::string& getName(size_t index) const {
@@ -136,11 +138,11 @@ public:
     }
 
     dynamic::Map_sptr getSavedData(size_t index) const {
-        return savedData.at(index);
+        return savedData->at(index);
     }
 
-    void saveData(size_t index, dynamic::Map_sptr map) {
-        savedData.at(index) = map;
+    void saveData(size_t index, dynamic::Map_sptr map) const {
+        savedData->at(index) = map;
     }
 
     size_t size() const {
@@ -186,12 +188,16 @@ public:
         UptrsMap<std::string, ContentPackRuntime> packs,
         UptrsMap<std::string, BlockMaterial> blockMaterials,
         UptrsMap<std::string, rigging::SkeletonConfig> skeletons,
-        const ResourceIndicesSet& resourceIndices
+        ResourceIndicesSet resourceIndices
     );
     ~Content();
 
     inline ContentIndices* getIndices() const {
         return indices.get();
+    }
+
+    inline const ResourceIndices& getIndices(ResourceType type) const {
+        return resourceIndices[static_cast<size_t>(type)];
     }
 
     const rigging::SkeletonConfig* getRig(const std::string& id) const;

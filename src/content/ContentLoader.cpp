@@ -500,6 +500,7 @@ void ContentLoader::load() {
 
 void ContentLoader::loadResources(ResourceType type, dynamic::List* list) {
     for (size_t i = 0; i < list->size(); i++) {
-        builder.resourceIndices[static_cast<size_t>(type)].add(list->str(i), nullptr);
+        builder.resourceIndices[static_cast<size_t>(type)].add(
+            pack->id+":"+list->str(i), nullptr);
     }
 }

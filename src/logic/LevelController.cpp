@@ -59,6 +59,7 @@ void LevelController::saveWorld() {
     level->getWorld()->wfile->createDirectories();
     logger.info() << "writing world";
     scripting::on_world_save();
+    level->onSave();
     level->getWorld()->write(level.get());
 }
 

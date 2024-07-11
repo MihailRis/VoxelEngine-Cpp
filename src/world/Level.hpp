@@ -19,6 +19,7 @@ class LevelEvents;
 class Lighting;
 class PhysicsSolver;
 class ChunksStorage;
+class Camera;
 struct EngineSettings;
 
 /// @brief A level, contains chunks and objects
@@ -35,6 +36,7 @@ public:
     std::unique_ptr<Lighting> lighting;
     std::unique_ptr<LevelEvents> events;
     std::unique_ptr<Entities> entities;
+    std::vector<std::shared_ptr<Camera>> cameras; // move somewhere?
 
     const EngineSettings& settings;
 
@@ -71,6 +73,8 @@ public:
         std::shared_ptr<T> object = std::dynamic_pointer_cast<T>(objects[id]);
         return object; 
     }
+
+    void onSave();
 };
 
 #endif /* WORLD_LEVEL_HPP_ */

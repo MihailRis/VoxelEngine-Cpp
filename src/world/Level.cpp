@@ -13,6 +13,8 @@
 #include "../objects/Entities.hpp"
 #include "../items/Inventory.hpp"
 #include "../items/Inventories.hpp"
+#include "../window/Camera.hpp"
+#include "../data/dynamic_util.hpp"
 
 Level::Level(
     std::unique_ptr<World> worldPtr,
@@ -51,6 +53,23 @@ Level::Level(
 
 	inventories = std::make_unique<Inventories>(*this);
 	inventories->store(player->getInventory());
+
+    auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
+    for (size_t i = 0; i < cameraIndices.size(); i++) {
+        auto camera = std::make_shared<Camera>();
+        if (auto map = cameraIndices.getSavedData(i)) {
+            dynamic::get_vec(map, "pos", camera->position);
+            dynamic::get_vec(map, "front", camera->front);
+            dynamic::get_vec(map, "up", camera->up);
+            map->flag("perspective", camera->perspective);
+            map->flag("flipped", camera->flipped);
+            map->num("zoom", camera->zoom);
+            float fov = camera->getFov();
+            map->num("fov", fov);
+            camera->setFov(fov);
+        }
+        cameras.push_back(std::move(camera));
+    }
 }
 
 Level::~Level(){
@@ -72,4 +91,20 @@ void Level::loadMatrix(int32_t x, int32_t z, uint32_t radius) {
 
 World* Level::getWorld() {
     return world.get();
+}
+
+void Level::onSave() {
+    auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
+    for (size_t i = 0; i < cameraIndices.size(); i++) {
+        auto& camera = *cameras.at(i);
+        auto map = dynamic::create_map();
+        map->put("pos", dynamic::to_value(camera.position));
+        map->put("front", dynamic::to_value(camera.front));
+        map->put("up", dynamic::to_value(camera.up));
+        map->put("perspective", camera.perspective);
+        map->put("flipped", camera.flipped);
+        map->put("zoom", camera.zoom);
+        map->put("fov", camera.getFov());
+        cameraIndices.saveData(i, std::move(map));
+    }
 }
