@@ -7,7 +7,10 @@ function setup_variables()
     console.set('pos.x', x)
     console.set('pos.y', y)
     console.set('pos.z', z)
-    console.set('entity.id', player.get_entity(pid):get_uid())
+    local pentity = player.get_entity(pid)
+    if pentity ~= nil then
+        console.set('entity.id', pentity:get_uid())
+    end
 end
 
 function on_history_up()
