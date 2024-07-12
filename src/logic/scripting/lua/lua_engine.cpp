@@ -48,6 +48,7 @@ static void create_libs(lua::State* L) {
     openlib(L, "world", worldlib);
 
     openlib(L, "entities", entitylib);
+    openlib(L, "cameras", cameralib);
 
     // components
     openlib(L, "__skeleton", skeletonlib);

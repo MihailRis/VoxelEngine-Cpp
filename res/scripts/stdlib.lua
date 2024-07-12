@@ -252,9 +252,11 @@ function session.reset_entry(name)
     session.entries[name] = nil
 end
 
-function timeit(func, ...)
+function timeit(iters, func, ...)
     local tm = time.uptime()
-    func(...)
+    for i=1,iters do
+        func(...)
+    end
     print("[time mcs]", (time.uptime()-tm) * 1000000)
 end
 
