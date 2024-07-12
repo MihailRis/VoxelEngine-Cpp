@@ -12,6 +12,7 @@
 #include "../../items/ItemDef.hpp"
 #include "../../items/ItemStack.hpp"
 #include "../../logic/PlayerController.hpp"
+#include "../../logic/scripting/scripting_hud.hpp"
 #include "../../maths/FrustumCulling.hpp"
 #include "../../maths/voxmaths.hpp"
 #include "../../objects/Player.hpp"
@@ -199,6 +200,9 @@ void WorldRenderer::renderLevel(
 
     shader->uniformMatrix("u_model", glm::mat4(1.0f));
     level->entities->render(assets, *modelBatch, *frustumCulling, pause);
+    if (!pause) {
+        scripting::on_frontend_render();
+    }
     modelBatch->render();
 
     skybox->unbind();

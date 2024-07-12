@@ -139,6 +139,8 @@ void CameraControl::switchCamera() {
     if (static_cast<size_t>(index) != playerCameras.size()) {
         index = (index + 1) % playerCameras.size();
         player->currentCamera = playerCameras.at(index);
+    } else {
+        player->currentCamera = camera;
     }
 }
 
