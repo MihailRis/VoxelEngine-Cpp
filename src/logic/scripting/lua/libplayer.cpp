@@ -181,6 +181,16 @@ static int l_player_set_entity(lua::State* L) {
     return 0;
 }
 
+static int l_player_set_camera(lua::State* L) {
+    auto player = get_player(L, 1);
+    if (player == nullptr) {
+        return 0;
+    }
+    size_t index = lua::tointeger(L, 2);
+    player->currentCamera = level->cameras.at(index);
+    return 0;
+}
+
 const luaL_Reg playerlib [] = {
     {"get_pos", lua::wrap<l_player_get_pos>},
     {"set_pos", lua::wrap<l_player_set_pos>},
@@ -199,5 +209,6 @@ const luaL_Reg playerlib [] = {
     {"get_spawnpoint", lua::wrap<l_player_get_spawnpoint>},
     {"get_entity", lua::wrap<l_player_get_entity>},
     {"set_entity", lua::wrap<l_player_set_entity>},
+    {"set_camera", lua::wrap<l_player_set_camera>},
     {NULL, NULL}
 };

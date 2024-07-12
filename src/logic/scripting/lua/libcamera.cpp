@@ -4,6 +4,8 @@
 #include "../../../world/Level.hpp"
 #include "../../../window/Camera.hpp"
 
+#include <glm/ext.hpp>
+
 using namespace scripting;
 
 template<int(*getterfunc)(lua::State*, const Camera&)>
@@ -86,6 +88,15 @@ static int getter_up(lua::State* L, const Camera& camera) {
     return lua::pushvec3_arr(L, camera.up);
 }
 
+static int l_look_at(lua::State* L) {
+    size_t index = static_cast<size_t>(lua::tointeger(L, 1));
+    auto& camera = *level->cameras.at(index);
+    auto center = lua::tovec<3>(L, 2);
+    camera.rotation = glm::inverse(glm::lookAt(glm::vec3(), center-camera.position, glm::vec3(0, 1, 0)));
+    camera.updateVectors();
+    return 0;
+}
+
 const luaL_Reg cameralib [] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_name>},
@@ -104,5 +115,6 @@ const luaL_Reg cameralib [] = {
     {"get_front", lua::wrap<l_camera_getter<getter_front>>},
     {"get_right", lua::wrap<l_camera_getter<getter_right>>},
     {"get_up", lua::wrap<l_camera_getter<getter_up>>},
+    {"look_at", lua::wrap<l_look_at>},
     {NULL, NULL}
 };
