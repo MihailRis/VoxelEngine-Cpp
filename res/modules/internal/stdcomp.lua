@@ -41,6 +41,7 @@ local Skeleton = {__index={
     get_model=function(self, i) return __skeleton.get_model(self.eid, i) end,
     get_matrix=function(self, i) return __skeleton.get_matrix(self.eid, i) end,
     set_matrix=function(self, i, m) return __skeleton.set_matrix(self.eid, i, m) end,
+    get_texture=function(self, s) return __skeleton.get_texture(self.eid, s) end,
     set_texture=function(self, s, s2) return __skeleton.set_texture(self.eid, s, s2) end,
 }}
 
