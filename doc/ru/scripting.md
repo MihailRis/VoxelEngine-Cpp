@@ -7,6 +7,7 @@
 - [Пользовательский ввод](scripting/user-input.md)
 - [Файловая система и сериализация](scripting/filesystem.md)
 - [Свойства и методы UI элементов](scripting/ui.md)
+- [Сущности и компоненты](scripting/ecs.md)
 - [Библиотеки](#)
     - [mat4](scripting/builtins/libmat4.md)
 - [Модуль core:bit_converter](scripting/modules/core_bit_converter.md)
