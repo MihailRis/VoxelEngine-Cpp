@@ -32,7 +32,7 @@ static int l_despawn(lua::State* L) {
     return 0;
 }
 
-static int l_set_rig(lua::State* L) {
+static int l_set_skeleton(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
         std::string skeletonName = lua::require_string(L, 2);
         auto rigConfig = content->getRig(skeletonName);
@@ -48,6 +48,6 @@ const luaL_Reg entitylib [] = {
     {"exists", lua::wrap<l_exists>},
     {"spawn", lua::wrap<l_spawn>},
     {"despawn", lua::wrap<l_despawn>},
-    {"set_rig", lua::wrap<l_set_rig>},
+    {"set_skeleton", lua::wrap<l_set_skeleton>},
     {NULL, NULL}
 };

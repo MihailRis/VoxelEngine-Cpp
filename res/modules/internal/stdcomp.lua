@@ -52,7 +52,7 @@ end
 
 local Entity = {__index={
     despawn=function(self) return entities.despawn(self.eid) end,
-    set_rig=function(self, s) return entities.set_rig(self.eid, s) end,
+    set_skeleton=function(self, s) return entities.set_skeleton(self.eid, s) end,
     get_component=function(self, name) return self.components[name] end,
     has_component=function(self, name) return self.components[name] ~= nil end,
     get_uid=function(self) return self.eid end,

@@ -30,7 +30,7 @@ do -- setup visuals
         local bid = block.index(icon:sub(16))
         model = block.get_model(bid)
         if model == "X" then
-            entity:set_rig("base:drop-item")
+            entity:set_skeleton("base:drop-item")
             body:set_size(vec3.mul(body:get_size(), {1.0, 0.3, 1.0}))
             rig:set_texture("$0", icon)
         else
@@ -46,7 +46,7 @@ do -- setup visuals
             end
         end
     else
-        entity:set_rig("base:drop-item")
+        entity:set_skeleton("base:drop-item")
         body:set_size(vec3.mul(body:get_size(), {1.0, 0.3, 1.0}))
         rig:set_texture("$0", icon)
     end
