@@ -7,6 +7,7 @@ Subsections:
 - [User input](scripting/user-input.md)
 - [Filesystem and serialization](scripting/filesystem.md)
 - [UI properties and methods](scripting/ui.md)
+- [Entities and components](scripting/ecs.md)
 - [Libraries](#)
     - [mat4](scripting/builtins/libmat4.md)
 - [Module core:bit_converter](scripting/modules/core_bit_converter.md)
