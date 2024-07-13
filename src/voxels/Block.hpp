@@ -58,6 +58,9 @@ struct BlockRotProfile {
     std::string name;
     CoordSystem variants[MAX_COUNT];
 
+    /// @brief No rotation
+    static const BlockRotProfile NONE;
+
     /// @brief Wood logs, pillars, pipes
     static const BlockRotProfile PIPE;
 
@@ -160,7 +163,7 @@ public:
     std::vector<AABB> hitboxes;
     
     /// @brief Set of available block rotations (coord-systems)
-    BlockRotProfile rotations;
+    BlockRotProfile rotations = BlockRotProfile::NONE;
     
     /// @brief Item will be picked on MMB click on the block
     std::string pickingItem = name+BLOCK_ITEM_SUFFIX;
@@ -207,12 +210,7 @@ public:
 };
 
 inline glm::ivec3 get_ground_direction(const Block* def, int rotation) {
-    const auto& profileName = def->rotations.name;
-    if (profileName == BlockRotProfile::PIPE_NAME) {
-        return -def->rotations.variants[rotation].axisY;
-    } else {
-        return glm::ivec3(0, -1, 0);
-    }
+    return -def->rotations.variants[rotation].axisY;
 }
 
 #endif // VOXELS_BLOCK_HPP_
