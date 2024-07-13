@@ -1,6 +1,8 @@
 #include "libentity.hpp"
 
 #include "../../../objects/Player.hpp"
+#include "../../../objects/Entities.hpp"
+#include "../../../objects/rigging.hpp"
 #include "../../../physics/Hitbox.hpp"
 #include "../../../window/Camera.hpp"
 #include "../../../content/Content.hpp"
@@ -32,6 +34,13 @@ static int l_despawn(lua::State* L) {
     return 0;
 }
 
+static int l_get_skeleton(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        return lua::pushstring(L, entity->getSkeleton().config->getName());
+    }
+    return 0;
+}
+
 static int l_set_skeleton(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
         std::string skeletonName = lua::require_string(L, 2);
@@ -48,6 +57,7 @@ const luaL_Reg entitylib [] = {
     {"exists", lua::wrap<l_exists>},
     {"spawn", lua::wrap<l_spawn>},
     {"despawn", lua::wrap<l_despawn>},
+    {"get_skeleton", lua::wrap<l_get_skeleton>},
     {"set_skeleton", lua::wrap<l_set_skeleton>},
     {NULL, NULL}
 };
