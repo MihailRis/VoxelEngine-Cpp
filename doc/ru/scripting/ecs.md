@@ -18,7 +18,6 @@ entity:despawn()
 
 -- Возращает имя скелета сущности
 entity:get_skeleton() -> str
-
 -- Заменяет скелет сущности
 entity:set_skeleton(name: str)
 
@@ -27,7 +26,6 @@ entity:get_uid() -> int
 
 -- Возвращает компонент по имени
 entity:get_component(name: str) -> компонент или nil
-
 -- Проверяет наличие компонента по имени
 entity:has_component(name: str) -> bool
 ```

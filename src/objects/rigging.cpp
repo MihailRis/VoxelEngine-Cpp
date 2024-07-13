@@ -88,6 +88,7 @@ static std::tuple<size_t, std::unique_ptr<Bone>> read_node(
     std::string model;
     root->str("name", name);
     root->str("model", model);
+    
     std::vector<std::unique_ptr<Bone>> bones;
     size_t count = 1;
     if (auto nodesList = root->list("nodes")) {

@@ -407,7 +407,7 @@ void Entities::render(Assets* assets, ModelBatch& batch, const Frustum& frustum,
 bool Entities::hasBlockingInside(AABB aabb) {
     auto view = registry.view<EntityId, Rigidbody>();
     for (auto [entity, eid, body] : view.each()) {
-        if (eid.def.blocking && aabb.intersect(body.hitbox.getAABB())) {
+        if (eid.def.blocking && aabb.intersect(body.hitbox.getAABB(), -0.05f)) {
             return true;
         }
     }

@@ -100,6 +100,17 @@ struct AABB {
             b.z >= aabb.a.z 
         );
     }
+
+    inline bool intersect(const AABB& aabb, float margin) {
+        return (
+            a.x <= aabb.b.x+margin &&
+            b.x >= aabb.a.x-margin && 
+            a.y <= aabb.b.y+margin &&
+            b.y >= aabb.a.y-margin && 
+            a.z <= aabb.b.z+margin &&
+            b.z >= aabb.a.z-margin 
+        );
+    }
 };
 
 #endif // MATHS_AABB_HPP_
