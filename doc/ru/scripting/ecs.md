@@ -110,7 +110,6 @@ body:get_body_type() -> str
 body:set_body_type(type: str)
 ```
 
-
 ### Skeleton
 
 Компонент отвечает за скелет сущности. См. [риггинг](../rigging.md).
@@ -127,6 +126,9 @@ rig:get_matrix(index: int) -> mat4
 -- Устанавливает матрицу трансформации кости с указанным индексом
 rig:set_matrix(index: int, matrix: mat4)
 
--- Назначает текстуру по ключу (динамически назначаемые текстуры - '$имя')
+-- Возвращает текстуру по ключу (динамически назначаемые текстуры - '$имя')
+rig:get_texture(key: str) -> str
+
+-- Назначает текстуру по ключу
 rig:set_texture(key: str, value: str)
 ```
