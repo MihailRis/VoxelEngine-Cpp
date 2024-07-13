@@ -219,15 +219,39 @@ void scripting::on_block_placed(Player* player, const Block* block, int x, int y
         lua::pushinteger(L, player->getId());
         return 4;
     });
+    auto world_event_args = [block, x, y, z, player] (lua::State* L) {
+        lua::pushinteger(L, block->rt.id);
+        lua::pushivec3(L, x, y, z);
+        lua::pushinteger(L, player ? player->getId() : -1);
+        return 5;
+    };
+    for (auto& [packid, pack] : content->getPacks()) {
+        if (pack->worldfuncsset.onblockplaced) {
+            lua::emit_event(lua::get_main_thread(), packid + ".blockplaced", world_event_args);
+        }
+    }
 }
 
 void scripting::on_block_broken(Player* player, const Block* block, int x, int y, int z) {
     std::string name = block->name + ".broken";
-    lua::emit_event(lua::get_main_thread(), name, [x, y, z, player] (auto L) {
+    if (block->rt.funcsset.onbroken) {
+        lua::emit_event(lua::get_main_thread(), name, [x, y, z, player] (auto L) {
+            lua::pushivec3(L, x, y, z);
+            lua::pushinteger(L, player->getId());
+            return 4;
+        });
+    }
+    auto world_event_args = [block, x, y, z, player] (lua::State* L) {
+        lua::pushinteger(L, block->rt.id);
         lua::pushivec3(L, x, y, z);
-        lua::pushinteger(L, player->getId());
-        return 4;
-    });
+        lua::pushinteger(L, player ? player->getId() : -1);
+        return 5;
+    };
+    for (auto& [packid, pack] : content->getPacks()) {
+        if (pack->worldfuncsset.onblockbroken) {
+            lua::emit_event(lua::get_main_thread(), packid + ".blockbroken", world_event_args);
+        }
+    }
 }
 
 bool scripting::on_block_interact(Player* player, const Block* block, glm::ivec3 pos) {
@@ -523,7 +547,10 @@ void scripting::load_entity_component(const std::string& name, const fs::path& f
     lua::store_in(L, lua::CHUNKS_TABLE, name);
 }
 
-void scripting::load_world_script(const scriptenv& senv, const std::string& prefix, const fs::path& file) {
+void scripting::load_world_script(const scriptenv& senv, 
+                                  const std::string& prefix, 
+                                  const fs::path& file,
+                                  world_funcs_set& funcsset) {
     int env = *senv;
     load_script(env, "world", file);
     register_event(env, "init", prefix+".init");
@@ -531,6 +558,8 @@ void scripting::load_world_script(const scriptenv& senv, const std::string& pref
     register_event(env, "on_world_tick", prefix+".worldtick");
     register_event(env, "on_world_save", prefix+".worldsave");
     register_event(env, "on_world_quit", prefix+".worldquit");
+    funcsset.onblockplaced = register_event(env, "on_block_placed", prefix+".blockplaced");
+    funcsset.onblockbroken = register_event(env, "on_block_broken", prefix+".blockbroken");
 }
 
 void scripting::load_layout_script(const scriptenv& senv, const std::string& prefix, const fs::path& file, uidocscript& script) {

@@ -80,11 +80,18 @@ struct ContentPackStats {
     }
 };
 
+struct world_funcs_set {
+    bool onblockplaced : 1;
+    bool onblockbroken : 1;
+};
+
 class ContentPackRuntime {
     ContentPack info;
     ContentPackStats stats {};
     scriptenv env;
 public:
+    world_funcs_set worldfuncsset {};
+
     ContentPackRuntime(
         ContentPack info,
         scriptenv env

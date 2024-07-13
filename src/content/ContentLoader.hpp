@@ -14,7 +14,9 @@ struct BlockMaterial;
 struct ItemDef;
 struct EntityDef;
 struct ContentPack;
+
 class ContentBuilder;
+class ContentPackRuntime;
 struct ContentPackStats;
 
 namespace dynamic {
@@ -24,6 +26,7 @@ namespace dynamic {
 
 class ContentLoader {
     const ContentPack* pack;
+    ContentPackRuntime* runtime;
     scriptenv env;
     ContentBuilder& builder;
     ContentPackStats* stats;

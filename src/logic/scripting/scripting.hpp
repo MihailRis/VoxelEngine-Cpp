@@ -27,6 +27,7 @@ class Inventory;
 class UiDocument;
 struct block_funcs_set;
 struct item_funcs_set;
+struct world_funcs_set;
 struct UserComponent;
 struct uidocscript;
 class BlocksController;
@@ -134,7 +135,7 @@ namespace scripting {
     /// @param env environment
     /// @param packid content-pack id
     /// @param file script file path
-    void load_world_script(const scriptenv& env, const std::string& packid, const fs::path& file);
+    void load_world_script(const scriptenv& env, const std::string& packid, const fs::path& file, world_funcs_set& funcsset);
 
     /// @brief Load script associated with an UiDocument
     /// @param env environment

@@ -73,9 +73,7 @@ void BlocksController::updateSides(int x, int y, int z) {
 void BlocksController::breakBlock(Player* player, const Block* def, int x, int y, int z) {
     chunks->set(x,y,z, 0, {});
     lighting->onBlockSet(x,y,z, 0);
-    if (def->rt.funcsset.onbroken) {
-        scripting::on_block_broken(player, def, x, y, z);
-    }
+    scripting::on_block_broken(player, def, x, y, z);
     updateSides(x, y, z);
 }
 
