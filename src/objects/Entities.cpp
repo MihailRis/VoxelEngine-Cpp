@@ -218,6 +218,7 @@ std::optional<Entities::RaycastResult> Entities::rayCast(
 }
 
 void Entities::loadEntities(dynamic::Map_sptr root) {
+    clean();
     auto list = root->list("data");
     for (size_t i = 0; i < list->size(); i++) {
         try {
