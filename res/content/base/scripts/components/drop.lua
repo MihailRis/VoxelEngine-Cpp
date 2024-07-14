@@ -72,7 +72,7 @@ function on_fall()
 end
 
 function on_sensor_enter(index, oid)
-    local playerentity = player.get_entity(hud.get_player()):get_uid()
+    local playerentity = player.get_entity(hud.get_player())
     if ready and oid == playerentity and index == 0 then
         entity:despawn()
         inventory.add(player.get_inventory(oid), dropitem.id, dropitem.count)

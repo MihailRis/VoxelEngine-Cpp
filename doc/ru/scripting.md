@@ -101,6 +101,18 @@ player.get_selected_block(playerid: int) -> x,y,z
 
 Возвращает координаты выделенного блока, либо nil
 
+```python
+player.get_selected_entity(playerid: int) -> int
+```
+
+Возвращает уникальный идентификатор сущности, на которую нацелен игрок
+
+```python
+player.get_entity(playerid: int) -> int
+```
+
+Возвращает уникальный идентификатор сущности игрока
+
 ## Библиотека *world*
 
 ```python

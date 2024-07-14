@@ -105,6 +105,18 @@ player.get_selected_block(playerid: int) -> x,y,z
 
 Returns position of the selected block or nil
 
+```python
+player.get_selected_entity(playerid: int) -> int
+```
+
+Returns unique indentifier of the entity selected by player
+
+```python
+player.get_entity(playerid: int) -> int
+```
+
+Returns unique identifier of the player entity
+
 ## *world* library
 
 ## Библиотека *world*
