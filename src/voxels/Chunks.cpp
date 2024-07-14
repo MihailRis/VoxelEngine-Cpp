@@ -461,7 +461,8 @@ voxel* Chunks::rayCast(
                     box.b += offset;
                     scalar_t boxDistance;
                     glm::ivec3 boxNorm;
-                    if (ray.intersectAABB(iend, box, maxDist, boxNorm, boxDistance) > RayRelation::None && boxDistance < distance) {
+                    if (ray.intersectAABB(iend, box, maxDist, boxNorm, boxDistance) > RayRelation::None && 
+                        boxDistance < distance) {
                         hit = true;
                         distance = boxDistance;
                         norm = boxNorm;

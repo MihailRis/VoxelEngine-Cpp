@@ -19,6 +19,7 @@ inline const std::string ENGINE_VERSION_STRING = "0.22";
 
 inline constexpr blockid_t BLOCK_AIR = 0;
 inline constexpr itemid_t ITEM_EMPTY = 0;
+inline constexpr entityid_t ENTITY_NONE = 0;
 
 inline constexpr int CHUNK_W = 16;
 inline constexpr int CHUNK_H = 256;

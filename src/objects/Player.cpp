@@ -60,6 +60,7 @@ Hitbox* Player::getHitbox() {
     return nullptr;
 }
 
+#include "EntityDef.hpp"
 void Player::updateInput(PlayerInput& input, float delta) {
     auto hitbox = getHitbox();
     if (hitbox == nullptr) {

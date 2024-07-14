@@ -4,6 +4,7 @@
 #include "../data/dynamic_util.hpp"
 #include "../assets/Assets.hpp"
 #include "../world/Level.hpp"
+#include "../maths/rays.hpp"
 #include "../content/Content.hpp"
 #include "../physics/Hitbox.hpp"
 #include "../physics/PhysicsSolver.hpp"
@@ -182,6 +183,37 @@ void Entities::loadEntity(const dynamic::Map_sptr& map, Entity entity) {
                 dynamic::get_mat(posearr, i, skeleton.pose.matrices[i]);
             }
         }
+    }
+}
+
+std::optional<Entities::RaycastResult> Entities::rayCast(
+    glm::vec3 start, glm::vec3 dir, float maxDistance, entityid_t ignore
+) {
+    Ray ray(start, dir);
+    auto view = registry.view<EntityId, Transform, Rigidbody>();
+
+    entityid_t foundUID = 0;
+    glm::ivec3 foundNormal;
+
+    for (auto [entity, eid, transform, body] : view.each()) {
+        if (eid.uid == ignore) {
+            continue;
+        }
+        auto& hitbox = body.hitbox;
+        glm::ivec3 normal;
+        double distance;
+        if (ray.intersectAABB(
+            glm::vec3(), hitbox.getAABB(), maxDistance, normal, distance) > RayRelation::None) {
+
+            foundUID = eid.uid;
+            foundNormal = normal;
+            maxDistance = static_cast<float>(distance);
+        }
+    }
+    if (foundUID) {
+        return Entities::RaycastResult {foundUID, foundNormal, maxDistance};
+    } else {
+        return std::nullopt;
     }
 }
 

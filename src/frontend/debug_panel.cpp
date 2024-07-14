@@ -12,6 +12,7 @@
 #include "../logic/scripting/scripting.hpp"
 #include "../objects/Player.hpp"
 #include "../objects/Entities.hpp"
+#include "../objects/EntityDef.hpp"
 #include "../physics/Hitbox.hpp"
 #include "../util/stringutil.hpp"
 #include "../voxels/Block.hpp"
@@ -60,24 +61,24 @@ std::shared_ptr<UINode> create_debug_panel(
         fpsMin = fps;
         fpsMax = fps;
     });
-    panel->add(create_label([](){ return L"fps: "+fpsString;}));
+    panel->add(create_label([]() { return L"fps: "+fpsString;}));
    
-    panel->add(create_label([](){
+    panel->add(create_label([]() {
         return L"meshes: " + std::to_wstring(Mesh::meshesCount);
     }));
-    panel->add(create_label([](){
+    panel->add(create_label([]() {
         int drawCalls = Mesh::drawCalls;
         Mesh::drawCalls = 0;
         return L"draw-calls: " + std::to_wstring(drawCalls);
     }));
-    panel->add(create_label([](){
+    panel->add(create_label([]() {
         return L"speakers: " + std::to_wstring(audio::count_speakers())+
                L" streams: " + std::to_wstring(audio::count_streams());
     }));
-    panel->add(create_label([](){
+    panel->add(create_label([]() {
         return L"lua-stack: " + std::to_wstring(scripting::get_values_on_stack());
     }));
-    panel->add(create_label([=](){
+    panel->add(create_label([=]() {
         auto& settings = engine->getSettings();
         bool culling = settings.graphics.frustumCulling.get();
         return L"frustum-culling: "+std::wstring(culling ? L"on" : L"off");
@@ -90,7 +91,7 @@ std::shared_ptr<UINode> create_debug_panel(
         return L"entities: "+std::to_wstring(level->entities->size())+L" next: "+
                std::to_wstring(level->entities->peekNextID());
     }));
-    panel->add(create_label([=](){
+    panel->add(create_label([=]() {
         const auto& vox = player->selection.vox;
         std::wstringstream stream;
         stream << "r:" << vox.state.rotation << " s:"
@@ -101,6 +102,17 @@ std::shared_ptr<UINode> create_debug_panel(
         } else {
             return L"block: "+std::to_wstring(vox.id)+
                    L" "+stream.str();
+        }
+    }));
+    panel->add(create_label([=]() {
+        const auto& selection = player->selection;
+        if (selection.entity == ENTITY_NONE) {
+            return std::wstring {L"entity: -"};
+        } else if (auto entity = level->entities->get(selection.entity)) {
+            return L"entity: "+util::str2wstr_utf8(entity->getDef().name)+
+                   L" uid: "+std::to_wstring(entity->getUID());
+        } else {
+            return std::wstring {L"entity: error (invalid UID)"};
         }
     }));
     panel->add(create_label([=](){

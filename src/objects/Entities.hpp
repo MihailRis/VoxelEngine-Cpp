@@ -160,6 +160,12 @@ class Entities {
 
     void preparePhysics();
 public:
+    struct RaycastResult {
+        entityid_t entity;
+        glm::ivec3 normal;
+        float distance;        
+    };
+
     Entities(Level* level);
 
     void clean();
@@ -183,6 +189,16 @@ public:
         }
         return std::nullopt;
     }
+
+    /// @brief Entities raycast. No blocks check included, use combined with
+    /// Chunks.rayCast
+    /// @param start Ray start
+    /// @param dir Ray direction normalized vector
+    /// @param maxDistance Max ray length
+    /// @param ignore Ignored entity ID
+    /// @return An optional structure containing entity, normal and distance
+    std::optional<RaycastResult> rayCast(
+        glm::vec3 start, glm::vec3 dir, float maxDistance, entityid_t ignore=-1);
 
     void loadEntities(dynamic::Map_sptr map);
     void loadEntity(const dynamic::Map_sptr& map);
