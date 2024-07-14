@@ -8,8 +8,8 @@ function setup_variables()
     console.set('pos.y', y)
     console.set('pos.z', z)
     local pentity = player.get_entity(pid)
-    if pentity ~= nil then
-        console.set('entity.id', pentity:get_uid())
+    if pentity ~= 0 then
+        console.set('entity.id', pentity)
     end
 end
 
