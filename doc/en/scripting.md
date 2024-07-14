@@ -483,13 +483,12 @@ block.set_user_bits(x: int, y: int, z: int, offset: int, bits: int, value: int) 
 Set specified bits.
 
 ```lua
-block.raycast(start: vec3, dir: vec3, max_distance: number) -> {
+block.raycast(start: vec3, dir: vec3, max_distance: number, [optional] dest: table) -> {
     block: int, -- block id
     endpoint: vec3, -- point of the ray hit point
     iendpoint: vec3, -- position of the block hit by the ray
     length: number, -- ray length
-    normal: vec3, -- normal vector of the surface hit by the ray
-    [optional] dest: table -- destination table
+    normal: vec3 -- normal vector of the surface hit by the ray
 } or nil
 ```
 
