@@ -17,6 +17,7 @@
 #include "../logic/scripting/scripting.hpp"
 #include "../engine.hpp"
 
+#include <sstream>
 #include <glm/ext/matrix_transform.hpp>
 
 static debug::Logger logger("entities");
@@ -75,13 +76,22 @@ entityid_t Entities::spawn(
     if (skeleton == nullptr) {
         throw std::runtime_error("skeleton "+def.skeletonName+" not found");
     }
-    auto entity = registry.create();
     entityid_t id;
     if (uid == 0) {
         id = nextID++;
     } else {
         id = uid;
+        if (auto found = get(uid)) {
+            std::stringstream ss;
+            ss << "UID #" << uid << " is already used by an entity ";
+            ss << found->getDef().name;
+            if (found->getID().destroyFlag) {
+                ss << " marked to destroy";
+            }
+            throw std::runtime_error(ss.str());
+        }
     }
+    auto entity = registry.create();
     registry.emplace<EntityId>(entity, static_cast<entityid_t>(id), def);
     const auto& tsf = registry.emplace<Transform>(
         entity, position, glm::vec3(1.0f), glm::mat3(1.0f), glm::mat4(1.0f), true);
