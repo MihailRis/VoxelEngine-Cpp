@@ -489,12 +489,15 @@ block.raycast(start: vec3, dir: vec3, max_distance: number) -> {
     iendpoint: vec3, -- position of the block hit by the ray
     length: number, -- ray length
     normal: vec3, -- normal vector of the surface hit by the ray
+    [optional] dest: table -- destination table
 } or nil
 ```
 
-Casts a ray from the start point in the direction of dir. Max_distance specifies the maximum ray length.
+Casts a ray from the start point in the direction of *dir*. Max_distance specifies the maximum ray length.
 
 The function returns a table with the results or nil if the ray does not hit any block.
+
+The result will use the destination table instead of creating a new one if the optional argument specified.
 
 ## *item* library
 
