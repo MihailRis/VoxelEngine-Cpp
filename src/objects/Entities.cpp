@@ -25,6 +25,7 @@ static debug::Logger logger("entities");
 static inline std::string COMP_TRANSFORM = "transform";
 static inline std::string COMP_RIGIDBODY = "rigidbody";
 static inline std::string COMP_SKELETON = "skeleton";
+static inline std::string SAVED_DATA_VARNAME = "SAVED_SATA";
 
 void Transform::refresh() {
     combined = glm::mat4(1.0f);
@@ -47,8 +48,12 @@ rigging::Skeleton& Entity::getSkeleton() const {
 void Entity::setRig(const rigging::SkeletonConfig* rigConfig) {
     auto& skeleton = registry.get<rigging::Skeleton>(entity);
     skeleton.config = rigConfig;
-    skeleton.pose.matrices.resize(rigConfig->getNodes().size(), glm::mat4(1.0f));
-    skeleton.calculated.matrices.resize(rigConfig->getNodes().size(), glm::mat4(1.0f));
+    skeleton.pose.matrices.resize(
+        rigConfig->getNodes().size(), glm::mat4(1.0f)
+    );
+    skeleton.calculated.matrices.resize(
+        rigConfig->getNodes().size(), glm::mat4(1.0f)
+    );
 }
 
 Entities::Entities(Level* level) : level(level) {
@@ -63,6 +68,28 @@ static sensorcallback create_sensor_callback(Entities* entities) {
             }
         }
     };
+}
+
+static void initialize_body(
+    EntityDef& def, Rigidbody& body, entityid_t id, Entities* entities
+) {
+    body.sensors.resize(def.radialSensors.size() + def.boxSensors.size());
+    for (auto& [i, box] : def.boxSensors) {
+        SensorParams params {};
+        params.aabb = box;
+        body.sensors[i] = Sensor {
+            true, SensorType::AABB, i, id, params, params, {}, {},
+            create_sensor_callback<scripting::on_sensor_enter>(entities),
+            create_sensor_callback<scripting::on_sensor_exit>(entities)};
+    }
+    for (auto& [i, radius] : def.radialSensors) {
+        SensorParams params {};
+        params.radial = glm::vec4(radius);
+        body.sensors[i] = Sensor {
+            true, SensorType::RADIUS, i, id, params, params, {}, {},
+            create_sensor_callback<scripting::on_sensor_enter>(entities),
+            create_sensor_callback<scripting::on_sensor_exit>(entities)};
+    }
 }
 
 entityid_t Entities::spawn(
@@ -92,36 +119,33 @@ entityid_t Entities::spawn(
         }
     }
     auto entity = registry.create();
-    registry.emplace<EntityId>(entity, static_cast<entityid_t>(id), def);
-    const auto& tsf = registry.emplace<Transform>(
-        entity, position, glm::vec3(1.0f), glm::mat3(1.0f), glm::mat4(1.0f), true);
-    auto& body = registry.emplace<Rigidbody>(
-        entity, true, Hitbox {def.bodyType, position, def.hitbox*0.5f}, std::vector<Sensor>{});
-
-    body.sensors.resize(def.radialSensors.size() + def.boxSensors.size());
-    for (auto& [i, box] : def.boxSensors) {
-        SensorParams params {};
-        params.aabb = box;
-        body.sensors[i] = Sensor {
-            true, SensorType::AABB, i, id, params, params, {}, {},
-            create_sensor_callback<scripting::on_sensor_enter>(this),
-            create_sensor_callback<scripting::on_sensor_exit>(this)};
-    }
-    for (auto& [i, radius] : def.radialSensors) {
-        SensorParams params {};
-        params.radial = glm::vec4(radius);
-        body.sensors[i] = Sensor {
-            true, SensorType::RADIUS, i, id, params, params, {}, {},
-            create_sensor_callback<scripting::on_sensor_enter>(this),
-            create_sensor_callback<scripting::on_sensor_exit>(this)};
-    }
-    auto& scripting = registry.emplace<ScriptComponents>(entity);
     entities[id] = entity;
     uids[entity] = id;
+
+    registry.emplace<EntityId>(entity, static_cast<entityid_t>(id), def);
+    const auto& tsf = registry.emplace<Transform>(
+        entity,
+        position,
+        glm::vec3(1.0f),
+        glm::mat3(1.0f),
+        glm::mat4(1.0f),
+        true
+    );
+    auto& body = registry.emplace<Rigidbody>(
+        entity,
+        true,
+        Hitbox {def.bodyType, position, def.hitbox * 0.5f},
+        std::vector<Sensor> {}
+    );
+    initialize_body(def, body, id, this);
+
+    auto& scripting = registry.emplace<ScriptComponents>(entity);
     registry.emplace<rigging::Skeleton>(entity, skeleton->instance());
+    
     for (auto& componentName : def.components) {
         auto component = std::make_unique<UserComponent>(
-            componentName, entity_funcs_set {}, nullptr);
+            componentName, entity_funcs_set {}, nullptr
+        );
         scripting.components.emplace_back(std::move(component));
     }
     dynamic::Map_sptr componentsMap = nullptr;
@@ -131,7 +155,8 @@ entityid_t Entities::spawn(
     }
     body.hitbox.position = tsf.pos;
     scripting::on_entity_spawn(
-        def, id, scripting.components, std::move(args), std::move(componentsMap));
+        def, id, scripting.components, std::move(args), std::move(componentsMap)
+    );
     return id;
 }
 
@@ -189,7 +214,9 @@ void Entities::loadEntity(const dynamic::Map_sptr& map, Entity entity) {
             }
         }
         if (auto posearr = skeletonmap->list("pose")) {
-            for (size_t i = 0; i < std::min(skeleton.pose.matrices.size(), posearr->size()); i++) {
+            for (size_t i = 0;
+                 i < std::min(skeleton.pose.matrices.size(), posearr->size());
+                 i++) {
                 dynamic::get_mat(posearr, i, skeleton.pose.matrices[i]);
             }
         }
@@ -213,8 +240,8 @@ std::optional<Entities::RaycastResult> Entities::rayCast(
         glm::ivec3 normal;
         double distance;
         if (ray.intersectAABB(
-            glm::vec3(), hitbox.getAABB(), maxDistance, normal, distance) > RayRelation::None) {
-
+                glm::vec3(), hitbox.getAABB(), maxDistance, normal, distance
+            ) > RayRelation::None) {
             foundUID = eid.uid;
             foundNormal = normal;
             maxDistance = static_cast<float>(distance);
@@ -303,7 +330,8 @@ dynamic::Value Entities::serialize(const Entity& entity) {
     if (!scripts.components.empty()) {
         auto& compsMap = root->putMap("comps");
         for (auto& comp : scripts.components) {
-            auto data = scripting::get_component_value(comp->env, "SAVED_DATA");
+            auto data = scripting::get_component_value(
+                comp->env, SAVED_DATA_VARNAME);
             compsMap.put(comp->name, data);
         }
     }
@@ -428,7 +456,9 @@ void Entities::renderDebug(LineBatch& batch, const Frustum& frustum) {
     }
 }
 
-void Entities::render(Assets* assets, ModelBatch& batch, const Frustum& frustum, bool pause) {
+void Entities::render(
+    Assets* assets, ModelBatch& batch, const Frustum& frustum, bool pause
+) {
     if (!pause) {
         scripting::on_entities_render();
     }
