@@ -482,6 +482,20 @@ block.set_user_bits(x: int, y: int, z: int, offset: int, bits: int, value: int) 
 ```
 Set specified bits.
 
+```lua
+block.raycast(start: vec3, dir: vec3, max_distance: number) -> {
+    block: int, -- block id
+    endpoint: vec3, -- point of the ray hit point
+    iendpoint: vec3, -- position of the block hit by the ray
+    length: number, -- ray length
+    normal: vec3, -- normal vector of the surface hit by the ray
+} or nil
+```
+
+Casts a ray from the start point in the direction of dir. Max_distance specifies the maximum ray length.
+
+The function returns a table with the results or nil if the ray does not hit any block.
+
 ## *item* library
 
 ```python

@@ -307,6 +307,39 @@ static int l_get_picking_item(lua::State* L) {
     return 0;
 }
 
+static int l_raycast(lua::State* L) {
+    auto start = lua::tovec<3>(L, 1);
+    auto dir = lua::tovec<3>(L, 2);
+    auto maxDistance = lua::tonumber(L, 3);
+    glm::vec3 end;
+    glm::ivec3 normal;
+    glm::ivec3 iend;
+    if (auto voxel = level->chunks->rayCast(start, dir, maxDistance, end, normal, iend)) {
+        if (lua::gettop(L) >= 4) {
+            lua::pushvalue(L, 4);
+        } else {
+            lua::createtable(L, 0, 5);
+        }
+        
+        lua::pushvec3_arr(L, end);
+        lua::setfield(L, "endpoint");
+
+        lua::pushvec3_arr(L, normal);
+        lua::setfield(L, "normal");
+
+        lua::pushnumber(L, glm::distance(start, end));
+        lua::setfield(L, "length");
+
+        lua::pushvec3_arr(L, iend);
+        lua::setfield(L, "iendpoint");
+
+        lua::pushinteger(L, voxel->id);
+        lua::setfield(L, "block");
+        return 1;
+    }
+    return 0;
+}
+
 const luaL_Reg blocklib [] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_name>},
@@ -335,5 +368,6 @@ const luaL_Reg blocklib [] = {
     {"get_hitbox", lua::wrap<l_get_hitbox>},
     {"get_rotation_profile", lua::wrap<l_get_rotation_profile>},
     {"get_picking_item", lua::wrap<l_get_picking_item>},
+    {"raycast", lua::wrap<l_raycast>},
     {NULL, NULL}
 };
