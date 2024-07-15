@@ -25,7 +25,7 @@ static debug::Logger logger("entities");
 static inline std::string COMP_TRANSFORM = "transform";
 static inline std::string COMP_RIGIDBODY = "rigidbody";
 static inline std::string COMP_SKELETON = "skeleton";
-static inline std::string SAVED_DATA_VARNAME = "SAVED_SATA";
+static inline std::string SAVED_DATA_VARNAME = "SAVED_DATA";
 
 void Transform::refresh() {
     combined = glm::mat4(1.0f);
