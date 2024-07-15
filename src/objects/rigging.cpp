@@ -70,9 +70,16 @@ void SkeletonConfig::render(
     const glm::mat4& matrix) const
 {
     update(skeleton, matrix);
+
+    if (!skeleton.visible) {
+        return;
+    }
     for (size_t i = 0; i < nodes.size(); i++) {
         auto* node = nodes[i];
         node->refreshModel(assets);
+        if (!skeleton.flags[i].visible) {
+            continue;
+        }
         if (auto model = node->getModel()) {
             batch.pushMatrix(skeleton.calculated.matrices[i]);
             batch.draw(model, &skeleton.textures);

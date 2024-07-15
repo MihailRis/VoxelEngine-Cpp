@@ -44,6 +44,8 @@ local Skeleton = {__index={
     get_texture=function(self, s) return __skeleton.get_texture(self.eid, s) end,
     set_texture=function(self, s, s2) return __skeleton.set_texture(self.eid, s, s2) end,
     index=function(self, s) return __skeleton.index(self.eid, s) end,
+    is_visible=function(self, i) return __skeleton.is_visible(self.eid, i) end,
+    set_visible=function(self, i, b) return __skeleton.set_visible(self.eid, i, b) end,
 }}
 
 local function new_Skeleton(eid)

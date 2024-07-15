@@ -132,4 +132,12 @@ rig:set_texture(key: str, value: str)
 
 -- Возвращает индекс кости по имени или nil
 rig:index(name: str) -> int
+
+-- Проверяет статус видимости кости по индесу 
+-- или всего скелета, если индекс не указан
+rig:is_visible([optional] index: int) -> bool
+
+-- Устанавливает статус видимости кости по индексу
+-- или всего скелета, если индекс не указан
+rig:set_visible([optional] index: int, status: bool)
 ```

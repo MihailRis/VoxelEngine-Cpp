@@ -2,7 +2,14 @@
   "root": {
     "nodes": [
       {
-        "model": "player"
+        "name": "body",
+        "model": "player",
+        "nodes": [
+          {
+            "name": "head",
+            "model": "player-head"
+          }
+        ]
       }
     ]
   }

@@ -8,6 +8,7 @@
         "block",
         "drop-block",
         "drop-item",
-        "player"
+        "player",
+        "player-head"
     ]
 }

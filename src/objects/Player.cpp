@@ -9,6 +9,7 @@
 #include "../window/Camera.hpp"
 #include "../items/Inventory.hpp"
 #include "../objects/Entities.hpp"
+#include "../objects/rigging.hpp"
 
 #include <glm/glm.hpp>
 #include <utility>
@@ -66,9 +67,18 @@ void Player::updateInput(PlayerInput& input, float delta) {
         return;
     }
     auto& hitbox = entity->getRigidbody().hitbox;
-    auto& transform = entity->getTransform();
-    transform.setRot(
-        glm::rotate(glm::mat4(1.0f), glm::radians(cam.x), glm::vec3(0, 1, 0)));
+    auto& skeleton = entity->getSkeleton();
+
+    skeleton.visible = currentCamera != camera;
+
+    size_t bodyIndex = skeleton.config->find("body")->getIndex();
+    size_t headIndex = skeleton.config->find("head")->getIndex();
+    
+    skeleton.pose.matrices[bodyIndex] = 
+        glm::rotate(glm::mat4(1.0f), glm::radians(cam.x-90), glm::vec3(0, 1, 0));
+    skeleton.pose.matrices[headIndex] = glm::rotate(glm::rotate(
+            glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.6f, 0.0f)), 
+            glm::radians(-cam.y), glm::vec3(0, 0, 1)), glm::radians(90.0f), glm::vec3(0, 1, 0));
 
     bool crouch = input.shift && hitbox.grounded && !input.sprint;
     float speed = this->speed;

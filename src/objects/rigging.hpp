@@ -67,11 +67,17 @@ namespace rigging {
         }
     };
 
+    struct BoneFlags {
+        bool visible: 1;
+    };
+
     struct Skeleton {
         const SkeletonConfig* config;
         Pose pose;
         Pose calculated;
+        std::vector<BoneFlags> flags;
         std::unordered_map<std::string, std::string> textures;
+        bool visible;
     };
     
     class SkeletonConfig {
@@ -104,9 +110,13 @@ namespace rigging {
             const glm::mat4& matrix) const;
 
         Skeleton instance() const {
-            return Skeleton {
-                this, Pose(nodes.size()), Pose(nodes.size()), {}
+            auto rig = Skeleton {
+                this, Pose(nodes.size()), Pose(nodes.size()), {}, {}, true
             };
+            for (size_t i = 0; i < nodes.size(); i++) {
+                rig.flags.push_back({true});
+            }
+            return rig;
         }
 
         Bone* find(std::string_view str) const;
