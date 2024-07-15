@@ -12,6 +12,7 @@ Subsections:
     - [block](scripting/builtins/libblock.md)
     - [entities](scripting/builtins/libentities.md)
     - [mat4](scripting/builtins/libmat4.md)
+    - [vec2, vec3, vec4](scripting/builtins/libvecn.md)
 - [Module core:bit_converter](scripting/modules/core_bit_converter.md)
 - [Module core:data_buffer](scripting/modules/core_data_buffer.md)
 - [Module core:vector2, core:vector3](scripting/modules/core_vector2_vector3.md)
