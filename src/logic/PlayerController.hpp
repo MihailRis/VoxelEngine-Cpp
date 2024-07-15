@@ -5,7 +5,6 @@
 
 #include <memory>
 #include <vector>
-#include <functional>
 #include <glm/glm.hpp>
 
 class Camera;
@@ -46,16 +45,6 @@ public:
     void refresh();
 };
 
-enum class BlockInteraction {
-    step,
-    destruction,
-    placing
-};
-
-using on_block_interaction = std::function<void(
-    Player*, glm::ivec3, const Block*, BlockInteraction type
-)>;
-
 class PlayerController {
     Level* level;
     std::shared_ptr<Player> player;
@@ -63,17 +52,10 @@ class PlayerController {
     CameraControl camControl;
     BlocksController* blocksController;
 
-    std::vector<on_block_interaction> blockInteractionCallbacks;
-
     void updateKeyboard();
     void resetKeyboard();
     void updatePlayer(float delta);
     void updateInteraction();
-    void onBlockInteraction(
-        glm::ivec3 pos,
-        const Block* def,
-        BlockInteraction type
-    );
 
     float stepsTimer = 0.0f;
     void onFootstep(const Hitbox& hitbox);
@@ -90,8 +72,6 @@ public:
     void update(float delta, bool input, bool pause);
     void postUpdate(float delta, bool input, bool pause);
     Player* getPlayer();
-
-    void listenBlockInteraction(const on_block_interaction& callback);
 };
 
 #endif /* PLAYER_CONTROL_HPP_ */

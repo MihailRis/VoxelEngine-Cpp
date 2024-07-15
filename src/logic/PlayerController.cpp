@@ -196,15 +196,6 @@ PlayerController::PlayerController(
     blocksController(blocksController) 
 {}
 
-void PlayerController::onBlockInteraction(
-    glm::ivec3 pos,
-    const Block* def,
-    BlockInteraction type
-) {
-    for (const auto& callback : blockInteractionCallbacks) {
-        callback(player.get(), pos, def, type);
-    }
-}
 
 void PlayerController::onFootstep(const Hitbox& hitbox) {
     auto pos = hitbox.position;
@@ -220,7 +211,8 @@ void PlayerController::onFootstep(const Hitbox& hitbox) {
                 auto def = level->content->getIndices()->blocks.get(vox->id);
                 if (!def->obstacle)
                     continue;
-                onBlockInteraction(
+                blocksController->onBlockInteraction(
+                    player.get(),
                     glm::ivec3(x, y, z), def,
                     BlockInteraction::step
                 );
@@ -402,7 +394,6 @@ void PlayerController::processRightClick(Block* def, Block* target) {
     const auto& selection = player->selection;
     auto chunks = level->chunks.get();
     auto camera = player->camera.get();
-    auto lighting = level->lighting.get();
 
     blockstate state {};
     state.rotation = determine_rotation(def, selection.normal, camera->dir);
@@ -440,13 +431,8 @@ void PlayerController::processRightClick(Block* def, Block* target) {
         }
     }
     if (chosenBlock != vox->id && chosenBlock) {
-        onBlockInteraction(coord, def, BlockInteraction::placing);
-        chunks->set(coord.x, coord.y, coord.z, chosenBlock, state);
-        lighting->onBlockSet(coord.x, coord.y, coord.z, chosenBlock);
-        if (def->rt.funcsset.onplaced) {
-            scripting::on_block_placed(player.get(), def, coord.x, coord.y, coord.z);
-        }
-        blocksController->updateSides(coord.x, coord.y, coord.z);
+        blocksController->placeBlock(
+            player.get(), def, state, coord.x, coord.y, coord.z);
     }
 }
 
@@ -480,10 +466,6 @@ void PlayerController::updateInteraction() {
     }
     auto target = indices->blocks.get(vox->id);
     if (lclick && target->breakable){
-        onBlockInteraction(
-            iend, target,
-            BlockInteraction::destruction
-        );
         blocksController->breakBlock(player.get(), target, iend.x, iend.y, iend.z);
     }
     if (rclick && !input.shift) {
@@ -511,8 +493,4 @@ void PlayerController::updateInteraction() {
 
 Player* PlayerController::getPlayer() {
     return player.get();
-}
-
-void PlayerController::listenBlockInteraction(const on_block_interaction& callback) {
-    blockInteractionCallbacks.push_back(callback);
 }

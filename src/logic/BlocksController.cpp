@@ -71,9 +71,22 @@ void BlocksController::updateSides(int x, int y, int z) {
 }
 
 void BlocksController::breakBlock(Player* player, const Block* def, int x, int y, int z) {
-    chunks->set(x,y,z, 0, {});
-    lighting->onBlockSet(x,y,z, 0);
+    onBlockInteraction(
+        player, glm::ivec3(x, y, z), def, BlockInteraction::destruction);
+    chunks->set(x, y, z, 0, {});
+    lighting->onBlockSet(x, y, z, 0);
     scripting::on_block_broken(player, def, x, y, z);
+    updateSides(x, y, z);
+}
+
+void BlocksController::placeBlock(Player* player, const Block* def, blockstate state, int x, int y, int z) {
+    onBlockInteraction(
+        player, glm::ivec3(x, y, z), def, BlockInteraction::placing);
+    chunks->set(x, y, z, def->rt.id, state);
+    lighting->onBlockSet(x, y, z, def->rt.id);
+    if (def->rt.funcsset.onplaced) {
+        scripting::on_block_placed(player, def, x, y, z);
+    }
     updateSides(x, y, z);
 }
 
@@ -200,4 +213,19 @@ void BlocksController::unbindInventory(int x, int y, int z) {
     int lx = x - chunk->x * CHUNK_W;
     int lz = z - chunk->z * CHUNK_D;
     chunk->removeBlockInventory(lx, y, lz);
+}
+
+void BlocksController::onBlockInteraction(
+    Player* player,
+    glm::ivec3 pos,
+    const Block* def,
+    BlockInteraction type
+) {
+    for (const auto& callback : blockInteractionCallbacks) {
+        callback(player, pos, def, type);
+    }
+}
+
+void BlocksController::listenBlockInteraction(const on_block_interaction& callback) {
+    blockInteractionCallbacks.push_back(callback);
 }
