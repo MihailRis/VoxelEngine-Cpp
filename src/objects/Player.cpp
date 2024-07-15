@@ -49,7 +49,7 @@ void Player::updateEntity() {
     } else if (auto entity = level->entities->get(eid)) {
         position = entity->getTransform().pos;
     } else {
-        // check if chunk loaded
+        // TODO: check if chunk loaded
     }
 }
 
@@ -61,11 +61,16 @@ Hitbox* Player::getHitbox() {
 }
 
 void Player::updateInput(PlayerInput& input, float delta) {
-    auto hitbox = getHitbox();
-    if (hitbox == nullptr) {
+    auto entity = level->entities->get(eid);
+    if (!entity.has_value()) {
         return;
     }
-    bool crouch = input.shift && hitbox->grounded && !input.sprint;
+    auto& hitbox = entity->getRigidbody().hitbox;
+    auto& transform = entity->getTransform();
+    transform.setRot(
+        glm::rotate(glm::mat4(1.0f), glm::radians(cam.x), glm::vec3(0, 1, 0)));
+
+    bool crouch = input.shift && hitbox.grounded && !input.sprint;
     float speed = this->speed;
     if (flight){
         speed *= FLIGHT_SPEED_MUL;
@@ -74,7 +79,7 @@ void Player::updateInput(PlayerInput& input, float delta) {
         speed *= CHEAT_SPEED_MUL;
     }
 
-    hitbox->crouching = crouch;
+    hitbox.crouching = crouch;
     if (crouch) {
         speed *= CROUCH_SPEED_MUL;
     } else if (input.sprint) {
@@ -96,37 +101,37 @@ void Player::updateInput(PlayerInput& input, float delta) {
     }
     if (glm::length(dir) > 0.0f){
         dir = glm::normalize(dir);
-        hitbox->velocity += dir * speed * delta * 9.0f;
+        hitbox.velocity += dir * speed * delta * 9.0f;
     }
 
-    hitbox->linearDamping = PLAYER_GROUND_DAMPING;
-    hitbox->verticalDamping = flight;
-    hitbox->gravityScale = flight ? 0.0f : 1.0f;
+    hitbox.linearDamping = PLAYER_GROUND_DAMPING;
+    hitbox.verticalDamping = flight;
+    hitbox.gravityScale = flight ? 0.0f : 1.0f;
     if (flight){
-        hitbox->linearDamping = PLAYER_AIR_DAMPING;
+        hitbox.linearDamping = PLAYER_AIR_DAMPING;
         if (input.jump){
-            hitbox->velocity.y += speed * delta * 9;
+            hitbox.velocity.y += speed * delta * 9;
         }
         if (input.shift){
-            hitbox->velocity.y -= speed * delta * 9;
+            hitbox.velocity.y -= speed * delta * 9;
         }
     }
-    if (!hitbox->grounded) {
-        hitbox->linearDamping = PLAYER_AIR_DAMPING;
+    if (!hitbox.grounded) {
+        hitbox.linearDamping = PLAYER_AIR_DAMPING;
     }
 
-    if (input.jump && hitbox->grounded){
-        hitbox->velocity.y = JUMP_FORCE;
+    if (input.jump && hitbox.grounded){
+        hitbox.velocity.y = JUMP_FORCE;
     }
 
     if ((input.flight && !noclip) ||
         (input.noclip && flight == noclip)){
         flight = !flight;
         if (flight){
-            hitbox->velocity.y += 1.0f;
+            hitbox.velocity.y += 1.0f;
         }
     }
-    hitbox->type = noclip ? BodyType::KINEMATIC : BodyType::DYNAMIC;
+    hitbox.type = noclip ? BodyType::KINEMATIC : BodyType::DYNAMIC;
     if (input.noclip) {
         noclip = !noclip;
     }

@@ -129,4 +129,7 @@ rig:get_texture(key: str) -> str
 
 -- Назначает текстуру по ключу
 rig:set_texture(key: str, value: str)
+
+-- Возвращает индекс кости по имени или nil
+rig:index(name: str) -> int
 ```

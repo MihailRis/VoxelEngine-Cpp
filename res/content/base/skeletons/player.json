@@ -1,3 +1,9 @@
 {
-    "root": {}
+  "root": {
+    "nodes": [
+      {
+        "model": "player"
+      }
+    ]
+  }
 }

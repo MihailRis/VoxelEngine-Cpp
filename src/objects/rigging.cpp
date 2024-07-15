@@ -81,6 +81,16 @@ void SkeletonConfig::render(
     }
 }
 
+Bone* SkeletonConfig::find(std::string_view str) const {
+    for (size_t i = 0; i < nodes.size(); i++) {
+        auto* node = nodes[i];
+        if (node->getName() == str) {
+            return node;
+        }
+    }
+    return nullptr;
+}
+
 static std::tuple<size_t, std::unique_ptr<Bone>> read_node(
     dynamic::Map* root, size_t index
 ) {
@@ -88,19 +98,19 @@ static std::tuple<size_t, std::unique_ptr<Bone>> read_node(
     std::string model;
     root->str("name", name);
     root->str("model", model);
-    
+
     std::vector<std::unique_ptr<Bone>> bones;
     size_t count = 1;
     if (auto nodesList = root->list("nodes")) {
         for (size_t i = 0; i < nodesList->size(); i++) {
             if (const auto& map = nodesList->map(i)) {
                 auto [subcount, subNode] = read_node(map.get(), index+count);
-                subcount += count;
+                count += subcount;
                 bones.push_back(std::move(subNode));
             }
         }
     }
-    return {index + count, std::make_unique<Bone>(index, name, model, std::move(bones))};
+    return {count, std::make_unique<Bone>(index, name, model, std::move(bones))};
 }
 
 std::unique_ptr<SkeletonConfig> SkeletonConfig::parse(

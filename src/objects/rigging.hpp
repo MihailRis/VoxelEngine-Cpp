@@ -46,6 +46,10 @@ namespace rigging {
 
         void refreshModel(const Assets* assets);
 
+        const std::string& getName() const {
+            return name;
+        }
+
         const std::string& getModelName() const {
             return modelName;
         }
@@ -104,6 +108,8 @@ namespace rigging {
                 this, Pose(nodes.size()), Pose(nodes.size()), {}
             };
         }
+
+        Bone* find(std::string_view str) const;
 
         static std::unique_ptr<SkeletonConfig> parse(
             std::string_view src,

@@ -59,11 +59,22 @@ static int l_set_texture(lua::State* L) {
     return 0;
 }
 
+static int l_index(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        auto& skeleton = entity->getSkeleton();
+        if (auto bone = skeleton.config->find(lua::require_string(L, 2))) {
+            return lua::tointeger(L, bone->getIndex());
+        }
+    }
+    return 0;
+}
+
 const luaL_Reg skeletonlib [] = {
     {"get_model", lua::wrap<l_get_model>},
     {"get_matrix", lua::wrap<l_get_matrix>},
     {"set_matrix", lua::wrap<l_set_matrix>},
     {"get_texture", lua::wrap<l_get_texture>},
     {"set_texture", lua::wrap<l_set_texture>},
+    {"index", lua::wrap<l_index>},
     {NULL, NULL}
 };

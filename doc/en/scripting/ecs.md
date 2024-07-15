@@ -128,4 +128,7 @@ rig:get_texture(key: str) -> str
 
 -- Assigns texture by key
 rig:set_texture(key: str, value: str)
+
+-- Returns the bone index by name or nil
+rig:index(name: str) -> int
 ```
