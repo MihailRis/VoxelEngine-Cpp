@@ -35,9 +35,9 @@ function create_checkbox(id, name, tooltip)
 end
 
 function on_open()
-    create_setting("chunks.load-distance", "Load Distance", 1)
-    create_setting("chunks.load-speed", "Load Speed", 1)
-    create_setting("graphics.fog-curve", "Fog Curve", 0.1)
-    create_setting("graphics.gamma", "Gamma", 0.05, "", "graphics.gamma.tooltip")
-    create_checkbox("graphics.backlight", "Backlight", "graphics.backlight.tooltip")
+    create_setting("camera.fov", "FOV", 1, "°")
+    create_checkbox("display.fullscreen", "Fullscreen")
+    create_checkbox("display.vsync", "V-Sync")
+    create_checkbox("camera.shaking", "Camera Shaking")
+    create_checkbox("camera.inertia", "Camera Inertia")
 end

@@ -56,6 +56,7 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     builder.add("fov", &settings.camera.fov);
     builder.add("fov-effects", &settings.camera.fovEffects);
     builder.add("shaking", &settings.camera.shaking);
+    builder.add("inertia", &settings.camera.inertia);
 
     builder.section("chunks");
     builder.add("load-distance", &settings.chunks.loadDistance);

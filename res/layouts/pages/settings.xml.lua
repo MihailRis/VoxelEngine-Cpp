@@ -8,6 +8,7 @@ end
 
 function set_page(btn, page)
     document.s_aud.enabled = true
+    document.s_dsp.enabled = true
     document.s_gfx.enabled = true
     document.s_ctl.enabled = true
     document[btn].enabled = false

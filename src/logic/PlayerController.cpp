@@ -98,7 +98,9 @@ glm::vec3 CameraControl::updateCameraShaking(const Hitbox& hitbox, float delta) 
     
     offset += camera->right * glm::sin(shakeTimer) * oh * shake;
     offset += camera->up * glm::abs(glm::cos(shakeTimer)) * ov * shake;
-    offset -= glm::min(interpVel * 0.05f, 1.0f);
+    if (settings.inertia.get()) {
+        offset -= glm::min(interpVel * 0.05f, 1.0f);
+    }
     return offset;
 }
 
