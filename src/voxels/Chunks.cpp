@@ -707,8 +707,8 @@ void Chunks::saveAndClear() {
 void Chunks::save(Chunk* chunk) {
     if (chunk != nullptr) {
         AABB aabb (
-            glm::vec3(chunk->x * CHUNK_W, -16, chunk->z * CHUNK_D),
-            glm::vec3((chunk->x+1) * CHUNK_W, CHUNK_H+32, (chunk->z + 1) * CHUNK_D)
+            glm::vec3(chunk->x * CHUNK_W, -INFINITY, chunk->z * CHUNK_D),
+            glm::vec3((chunk->x+1) * CHUNK_W, INFINITY, (chunk->z + 1) * CHUNK_D)
         );
         auto entities = level->entities->getAllInside(aabb);
         auto root = dynamic::create_map();
