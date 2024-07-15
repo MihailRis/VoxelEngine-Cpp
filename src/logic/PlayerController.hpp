@@ -66,7 +66,6 @@ class PlayerController {
     std::vector<on_block_interaction> blockInteractionCallbacks;
 
     void updateKeyboard();
-    void updateCamera(float delta, bool movement);
     void resetKeyboard();
     void updatePlayer(float delta);
     void updateInteraction();

@@ -163,6 +163,8 @@ void CameraControl::update(const PlayerInput& input, float delta, Chunks* chunks
     auto spCamera = player->spCamera;
     auto tpCamera = player->tpCamera;
 
+    refresh();
+
     if (player->currentCamera == spCamera) {
         spCamera->position = chunks->rayCastToObstacle(
             camera->position, camera->front, 3.0f) - 0.2f * camera->front;
@@ -256,16 +258,17 @@ void PlayerController::postUpdate(float delta, bool input, bool pause) {
     if (!pause) {
         updateFootsteps(delta);
     }
-    player->postUpdate();
-    camControl.refresh();
-    if (!pause) {
-        updateCamera(delta, input);
+
+    if (!pause && input) {
+        camControl.updateMouse(this->input);
     }
     if (input) {
         updateInteraction();
     } else {
         player->selection = {};
     }
+    player->postUpdate();
+    camControl.update(this->input, delta, level->chunks.get());
 }
 
 void PlayerController::updateKeyboard() {
@@ -281,13 +284,6 @@ void PlayerController::updateKeyboard() {
     input.cameraMode = Events::jactive(BIND_CAM_MODE);
     input.noclip = Events::jactive(BIND_PLAYER_NOCLIP);
     input.flight = Events::jactive(BIND_PLAYER_FLIGHT);
-}
-
-void PlayerController::updateCamera(float delta, bool movement) {
-    if (movement) {
-        camControl.updateMouse(input);
-    }
-    camControl.update(input, delta, level->chunks.get());
 }
 
 void PlayerController::resetKeyboard() {
