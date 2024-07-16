@@ -118,6 +118,10 @@ local rig = entity.skeleton
 -- Returns the model name assigned to the bone at the specified index
 rig:get_model(index: int) -> str
 
+-- Reassigns the bone model at the specified index
+-- Resets to original if name is not specified
+rig:set_model(index: int, name: str)
+
 -- Returns the bone transformation matrix at the specified index
 rig:get_matrix(index: int) -> mat4
 -- Sets the bone transformation matrix at the specified index

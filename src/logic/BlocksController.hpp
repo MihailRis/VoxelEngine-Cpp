@@ -20,6 +20,7 @@ enum class BlockInteraction {
     placing
 };
 
+/// @brief Player argument is nullable
 using on_block_interaction = std::function<void(
     Player*, glm::ivec3, const Block*, BlockInteraction type
 )>;
@@ -76,6 +77,7 @@ public:
         BlockInteraction type
     );
 
+    /// @brief Add block interaction callback
     void listenBlockInteraction(const on_block_interaction& callback);
 };
 

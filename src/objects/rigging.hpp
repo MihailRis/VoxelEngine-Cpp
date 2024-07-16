@@ -28,14 +28,20 @@ namespace rigging {
         }
     };
 
+    struct ModelReference {
+        std::string name;
+        model::Model* model;
+        bool updateFlag;
+
+        void refresh(const Assets* assets);
+    };
+
     class Bone {
         size_t index;
         std::string name;
-        std::string modelName;
         std::vector<std::unique_ptr<Bone>> bones;
-        model::Model* model = nullptr;
-        bool modelUpdated = true;
     public:
+        ModelReference model;
         Bone(
             size_t index, 
             std::string name,
@@ -44,20 +50,10 @@ namespace rigging {
 
         void setModel(const std::string& name);
 
-        void refreshModel(const Assets* assets);
-
         const std::string& getName() const {
             return name;
         }
-
-        const std::string& getModelName() const {
-            return modelName;
-        }
-
-        model::Model* getModel() const {
-            return model;
-        }
-
+        
         size_t getIndex() const {
             return index;
         }
@@ -77,7 +73,10 @@ namespace rigging {
         Pose calculated;
         std::vector<BoneFlags> flags;
         std::unordered_map<std::string, std::string> textures;
+        std::vector<ModelReference> modelOverrides;
         bool visible;
+
+        Skeleton(const SkeletonConfig* config);
     };
     
     class SkeletonConfig {
@@ -110,13 +109,7 @@ namespace rigging {
             const glm::mat4& matrix) const;
 
         Skeleton instance() const {
-            auto rig = Skeleton {
-                this, Pose(nodes.size()), Pose(nodes.size()), {}, {}, true
-            };
-            for (size_t i = 0; i < nodes.size(); i++) {
-                rig.flags.push_back({true});
-            }
-            return rig;
+            return Skeleton(this);
         }
 
         Bone* find(std::string_view str) const;

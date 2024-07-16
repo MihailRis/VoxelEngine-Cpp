@@ -7,6 +7,13 @@
 
 using namespace rigging;
 
+void ModelReference::refresh(const Assets* assets) {
+    if (updateFlag) {
+        model = assets->get<model::Model>(name);
+        updateFlag = false;
+    }
+}
+
 Bone::Bone(
     size_t index, 
     std::string name, 
@@ -14,22 +21,27 @@ Bone::Bone(
     std::vector<std::unique_ptr<Bone>> bones)
   : index(index), 
     name(std::move(name)),
-    modelName(std::move(model)),
-    bones(std::move(bones)) 
+    bones(std::move(bones)),
+    model({model, nullptr, true})
 {}
 
 void Bone::setModel(const std::string& name) {
-    if (modelName == name) {
+    if (model.name == name) {
         return;
     }
-    modelName = name;
-    modelUpdated = true;
+    model = {name, nullptr, true};
 }
 
-void Bone::refreshModel(const Assets* assets) {
-    if (modelUpdated) {
-        model = assets->get<model::Model>(modelName);
-        modelUpdated = false;
+Skeleton::Skeleton(const SkeletonConfig* config) 
+    : config(config),
+      pose(config->getNodes().size()),
+      calculated(config->getNodes().size()),
+      flags(config->getNodes().size()),
+      textures(),
+      modelOverrides(config->getNodes().size()),
+      visible(true) {
+    for (size_t i = 0; i < config->getNodes().size(); i++) {
+        flags[i].visible = true;
     }
 }
 
@@ -76,11 +88,17 @@ void SkeletonConfig::render(
     }
     for (size_t i = 0; i < nodes.size(); i++) {
         auto* node = nodes[i];
-        node->refreshModel(assets);
         if (!skeleton.flags[i].visible) {
             continue;
         }
-        if (auto model = node->getModel()) {
+        node->model.refresh(assets);
+        auto model = node->model.model;
+        auto& modelOverride = skeleton.modelOverrides.at(i);
+        if (!modelOverride.updateFlag) {
+            modelOverride.refresh(assets);
+        }
+        model = modelOverride.model ? modelOverride.model : model;
+        if (model) {
             batch.pushMatrix(skeleton.calculated.matrices[i]);
             batch.draw(model, &skeleton.textures);
             batch.popMatrix();
