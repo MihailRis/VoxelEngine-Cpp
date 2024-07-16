@@ -346,6 +346,8 @@ void scripting::on_entity_spawn(
         funcsset.on_sensor_enter = lua::hasfield(L, "on_sensor_enter");
         funcsset.on_sensor_exit = lua::hasfield(L, "on_sensor_exit");
         funcsset.on_save = lua::hasfield(L, "on_save");
+        funcsset.on_aim_on = lua::hasfield(L, "on_aim_on");
+        funcsset.on_aim_off = lua::hasfield(L, "on_aim_off");
         lua::pop(L, 2);
 
         component->env = compenv;
@@ -420,6 +422,20 @@ void scripting::on_sensor_exit(const Entity& entity, size_t index, entityid_t oi
         lua::pushinteger(L, index);
         lua::pushinteger(L, oid);
         return 2;
+    });
+}
+
+void scripting::on_aim_on(const Entity& entity, Player* player) {
+    process_entity_callback(entity, "on_aim_on", 
+            &entity_funcs_set::on_aim_on, [player](auto L) {
+        return lua::pushinteger(L, player->getId());
+    });
+}
+
+void scripting::on_aim_off(const Entity& entity, Player* player) {
+    process_entity_callback(entity, "on_aim_off", 
+            &entity_funcs_set::on_aim_off, [player](auto L) {
+        return lua::pushinteger(L, player->getId());
     });
 }
 

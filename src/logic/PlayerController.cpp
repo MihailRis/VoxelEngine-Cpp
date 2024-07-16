@@ -357,6 +357,7 @@ voxel* PlayerController::updateSelection(float maxDistance) {
     if (vox) {
         maxDistance = glm::distance(camera->position, end);
     }
+    auto prevEntity = selection.entity;
     selection.entity = ENTITY_NONE;
     selection.actualPosition = iend;
     if (auto result = level->entities->rayCast(
@@ -366,6 +367,18 @@ voxel* PlayerController::updateSelection(float maxDistance) {
         selection.position = selection.hitPosition;
         selection.actualPosition = selection.position;
         selection.normal = result->normal;
+    }
+    if (selection.entity != prevEntity) {
+        if (prevEntity != ENTITY_NONE) {
+            if (auto pentity = level->entities->get(prevEntity)) {
+                scripting::on_aim_off(*pentity, player.get());
+            }
+        }
+        if (selection.entity != ENTITY_NONE) {
+            if (auto pentity = level->entities->get(selection.entity)) {
+                scripting::on_aim_on(*pentity, player.get());
+            }
+        }
     }
     if (vox == nullptr || selection.entity) {
         selection.vox = {BLOCK_VOID, {}};

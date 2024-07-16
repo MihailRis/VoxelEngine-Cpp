@@ -93,6 +93,8 @@ namespace scripting {
     void on_entities_render();
     void on_sensor_enter(const Entity& entity, size_t index, entityid_t oid);
     void on_sensor_exit(const Entity& entity, size_t index, entityid_t oid);
+    void on_aim_on(const Entity& entity, Player* player);
+    void on_aim_off(const Entity& entity, Player* player);
 
     /// @brief Called on UI view show
     void on_ui_open(
