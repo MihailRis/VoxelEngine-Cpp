@@ -95,6 +95,8 @@ namespace scripting {
     void on_sensor_exit(const Entity& entity, size_t index, entityid_t oid);
     void on_aim_on(const Entity& entity, Player* player);
     void on_aim_off(const Entity& entity, Player* player);
+    void on_attacked(const Entity& entity, Player* player, entityid_t attacker);
+    void on_entity_used(const Entity& entity, Player* player);
 
     /// @brief Called on UI view show
     void on_ui_open(

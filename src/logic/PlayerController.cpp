@@ -449,6 +449,20 @@ void PlayerController::processRightClick(Block* def, Block* target) {
     }
 }
 
+void PlayerController::updateEntityInteraction(entityid_t eid, bool lclick, bool rclick) {
+    auto entityOpt = level->entities->get(eid);
+    if (!entityOpt.has_value()) {
+        return;
+    }
+    auto entity = entityOpt.value();
+    if (lclick) {
+        scripting::on_attacked(entity, player.get(), player->getEntity());
+    }
+    if (rclick) {
+        scripting::on_entity_used(entity, player.get());
+    }
+}
+
 void PlayerController::updateInteraction() {
     auto indices = level->content->getIndices();
     auto chunks = level->chunks.get();
@@ -467,6 +481,9 @@ void PlayerController::updateInteraction() {
     if (vox == nullptr) {
         if (rclick && item->rt.funcsset.on_use) {
             scripting::on_item_use(player.get(), item);
+        }
+        if (selection.entity) {
+            updateEntityInteraction(selection.entity, lclick, rclick);
         }
         return;
     }

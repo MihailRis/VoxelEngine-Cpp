@@ -55,6 +55,7 @@ class PlayerController {
     void updateKeyboard();
     void resetKeyboard();
     void updatePlayer(float delta);
+    void updateEntityInteraction(entityid_t eid, bool lclick, bool rclick);
     void updateInteraction();
 
     float stepsTimer = 0.0f;

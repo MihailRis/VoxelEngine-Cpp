@@ -111,3 +111,7 @@ function on_update()
         body:set_vel(dir)
     end
 end
+
+function on_attacked(attacker, pid)
+    body:set_vel({0, 10, 0})
+end

@@ -24,6 +24,8 @@ struct entity_funcs_set {
     bool on_save;
     bool on_aim_on;
     bool on_aim_off;
+    bool on_attacked;
+    bool on_used;
 };
 
 struct EntityDef;

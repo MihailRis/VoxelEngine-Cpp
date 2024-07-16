@@ -348,6 +348,8 @@ void scripting::on_entity_spawn(
         funcsset.on_save = lua::hasfield(L, "on_save");
         funcsset.on_aim_on = lua::hasfield(L, "on_aim_on");
         funcsset.on_aim_off = lua::hasfield(L, "on_aim_off");
+        funcsset.on_attacked = lua::hasfield(L, "on_attacked");
+        funcsset.on_used = lua::hasfield(L, "on_used");
         lua::pop(L, 2);
 
         component->env = compenv;
@@ -435,6 +437,22 @@ void scripting::on_aim_on(const Entity& entity, Player* player) {
 void scripting::on_aim_off(const Entity& entity, Player* player) {
     process_entity_callback(entity, "on_aim_off", 
             &entity_funcs_set::on_aim_off, [player](auto L) {
+        return lua::pushinteger(L, player->getId());
+    });
+}
+
+void scripting::on_attacked(const Entity& entity, Player* player, entityid_t attacker) {
+    process_entity_callback(entity, "on_attacked", 
+            &entity_funcs_set::on_attacked, [player, attacker](auto L) {
+        lua::pushinteger(L, attacker);
+        lua::pushinteger(L, player->getId());
+        return 2;
+    });
+}
+
+void scripting::on_entity_used(const Entity& entity, Player* player) {
+    process_entity_callback(entity, "on_used", 
+            &entity_funcs_set::on_used, [player](auto L) {
         return lua::pushinteger(L, player->getId());
     });
 }
