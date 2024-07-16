@@ -165,7 +165,7 @@ void Entities::despawn(entityid_t id) {
         auto& eid = entity->getID();
         if (!eid.destroyFlag) {
             eid.destroyFlag = true;
-            scripting::on_entity_despawn(entity->getDef(), *entity);
+            scripting::on_entity_despawn(*entity);
         }
     }
 }

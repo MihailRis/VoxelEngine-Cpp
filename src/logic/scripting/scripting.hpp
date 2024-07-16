@@ -85,10 +85,10 @@ namespace scripting {
         dynamic::Value args,
         dynamic::Map_sptr saved
     );
-    bool on_entity_despawn(const EntityDef& def, const Entity& entity);
-    bool on_entity_grounded(const Entity& entity, float force);
-    bool on_entity_fall(const Entity& entity);
-    bool on_entity_save(const Entity& entity);
+    void on_entity_despawn(const Entity& entity);
+    void on_entity_grounded(const Entity& entity, float force);
+    void on_entity_fall(const Entity& entity);
+    void on_entity_save(const Entity& entity);
     void on_entities_update();
     void on_entities_render();
     void on_sensor_enter(const Entity& entity, size_t index, entityid_t oid);

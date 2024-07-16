@@ -298,8 +298,8 @@ dynamic::Value scripting::get_component_value(const scriptenv& env, const std::s
 }
 
 void scripting::on_entity_spawn(
-    const EntityDef&, 
-    entityid_t eid, 
+    const EntityDef&,
+    entityid_t eid,
     const std::vector<std::unique_ptr<UserComponent>>& components,
     dynamic::Value args,
     dynamic::Map_sptr saved
@@ -352,7 +352,7 @@ void scripting::on_entity_spawn(
     }
 }
 
-static bool process_entity_callback(
+static void process_entity_callback(
     const scriptenv& env, 
     const std::string& name, 
     std::function<int(lua::State*)> args
@@ -367,79 +367,60 @@ static bool process_entity_callback(
         }
     }
     lua::pop(L);
-    return true;
 }
 
-bool scripting::on_entity_despawn(const EntityDef& def, const Entity& entity) {
+static void process_entity_callback(
+    const Entity& entity,
+    const std::string& name,
+    bool entity_funcs_set::*flag,
+    std::function<int(lua::State*)> args
+) {
     const auto& script = entity.getScripting();
     for (auto& component : script.components) {
-        if (component->funcsset.on_despawn) {
-            process_entity_callback(component->env, "on_despawn", nullptr);
+        if (component->funcsset.*flag) {
+            process_entity_callback(component->env, name, args);
         }
     }
+}
+
+void scripting::on_entity_despawn(const Entity& entity) {
+    process_entity_callback(entity, "on_despawn", &entity_funcs_set::on_despawn, nullptr);
     auto L = lua::get_main_thread();
     lua::get_from(L, "stdcomp", "remove_Entity", true);
     lua::pushinteger(L, entity.getUID());
     lua::call(L, 1, 0);
-    return true;
 }
 
-bool scripting::on_entity_grounded(const Entity& entity, float force) {
-    const auto& script = entity.getScripting();
-    for (auto& component : script.components) {
-        if (component->funcsset.on_grounded) {
-            process_entity_callback(component->env, "on_grounded", [force](auto L){
-                return lua::pushnumber(L, force);
-            });
-        }
-    }
-    return true;
+void scripting::on_entity_grounded(const Entity& entity, float force) {
+    process_entity_callback(entity, "on_grounded", &entity_funcs_set::on_grounded, [force](auto L){
+        return lua::pushnumber(L, force);
+    });
 }
 
-bool scripting::on_entity_fall(const Entity& entity) {
-    const auto& script = entity.getScripting();
-    for (auto& component : script.components) {
-        if (component->funcsset.on_fall) {
-            process_entity_callback(component->env, "on_fall", nullptr);
-        }
-    }
-    return true;
+void scripting::on_entity_fall(const Entity& entity) {
+    process_entity_callback(entity, "on_fall", &entity_funcs_set::on_fall, nullptr);
 }
 
-bool scripting::on_entity_save(const Entity& entity) {
-    const auto& script = entity.getScripting();
-    for (auto& component : script.components) {
-        if (component->funcsset.on_save) {
-            process_entity_callback(component->env, "on_save", nullptr);
-        }
-    }
-    return true;
+void scripting::on_entity_save(const Entity& entity) {
+    process_entity_callback(entity, "on_save", &entity_funcs_set::on_save, nullptr);
 }
 
 void scripting::on_sensor_enter(const Entity& entity, size_t index, entityid_t oid) {
-    const auto& script = entity.getScripting();
-    for (auto& component : script.components) {
-        if (component->funcsset.on_sensor_enter) {
-            process_entity_callback(component->env, "on_sensor_enter", [index, oid](auto L) {
-                lua::pushinteger(L, index);
-                lua::pushinteger(L, oid);
-                return 2;
-            });
-        }
-    }
+    process_entity_callback(entity, "on_sensor_enter", 
+            &entity_funcs_set::on_sensor_enter, [index, oid](auto L) {
+        lua::pushinteger(L, index);
+        lua::pushinteger(L, oid);
+        return 2;
+    });
 }
 
 void scripting::on_sensor_exit(const Entity& entity, size_t index, entityid_t oid) {
-    const auto& script = entity.getScripting();
-    for (auto& component : script.components) {
-        if (component->funcsset.on_sensor_exit) {
-            process_entity_callback(component->env, "on_sensor_exit", [index, oid](auto L) {
-                lua::pushinteger(L, index);
-                lua::pushinteger(L, oid);
-                return 2;
-            });
-        }
-    }
+    process_entity_callback(entity, "on_sensor_exit", 
+            &entity_funcs_set::on_sensor_exit, [index, oid](auto L) {
+        lua::pushinteger(L, index);
+        lua::pushinteger(L, oid);
+        return 2;
+    });
 }
 
 void scripting::on_entities_update() {
