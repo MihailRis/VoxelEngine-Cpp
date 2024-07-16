@@ -97,6 +97,8 @@ void lua::initialize() {
     createtable(L, 0, 0);
     setglobal(L, CHUNKS_TABLE);
 
+    initialize_libs_extends(L);
+
     newusertype<Bytearray, Bytearray::createMetatable>(L, "bytearray");
 }
 

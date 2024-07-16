@@ -93,8 +93,7 @@ return {
                 if callback then
                     local result, err = pcall(callback)
                     if err then
-                        --// TODO: replace with error logging
-                        print(err)
+                        debug.error(err)
                     end
                 end
             end
@@ -107,8 +106,7 @@ return {
                 if callback then
                     local result, err = pcall(callback)
                     if err then
-                        --// TODO: replace with error logging
-                        print(err)
+                        debug.error(err)
                     end
                 end
             end

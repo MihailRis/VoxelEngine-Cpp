@@ -45,4 +45,6 @@ extern const luaL_Reg transformlib [];
 // Lua Overrides
 extern int l_print(lua::State* L);
 
+void initialize_libs_extends(lua::State* L);
+
 #endif // LOGIC_SCRIPTING_API_LUA_HPP_
