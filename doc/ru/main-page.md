@@ -12,3 +12,5 @@
 - [Скриптинг](scripting.md)
 - [Консоль](console.md)
 - [Модели блоков](block-models.md)
+- [Риггинг](rigging.md)
+- [Ресурсы (resources.json)](resources.md)

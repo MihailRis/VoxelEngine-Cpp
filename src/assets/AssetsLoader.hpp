@@ -20,13 +20,13 @@ namespace dynamic {
 }
 
 enum class AssetType {
-    texture,
-    shader,
-    font,
-    atlas,
-    layout,
-    sound,
-    model,
+    TEXTURE,
+    SHADER,
+    FONT,
+    ATLAS,
+    LAYOUT,
+    SOUND,
+    MODEL
 };
 
 class ResPaths;

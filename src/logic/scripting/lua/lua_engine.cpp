@@ -22,8 +22,8 @@ static void remove_lib_funcs(lua::State* L, const char* libname, const char* fun
             pushnil(L);
             setfield(L, funcs[i], -2);
         }
+        pop(L);
     }
-    pop(L);
 }
 
 static void create_libs(lua::State* L) {
@@ -46,6 +46,14 @@ static void create_libs(lua::State* L) {
     openlib(L, "vec3", vec3lib);
     openlib(L, "vec4", vec4lib);
     openlib(L, "world", worldlib);
+
+    openlib(L, "entities", entitylib);
+    openlib(L, "cameras", cameralib);
+
+    // components
+    openlib(L, "__skeleton", skeletonlib);
+    openlib(L, "__rigidbody", rigidbodylib);
+    openlib(L, "__transform", transformlib);
 
     addfunc(L, "print", lua::wrap<l_print>);
 }
@@ -85,6 +93,11 @@ void lua::initialize() {
 
     createtable(L, 0, 0);
     setglobal(L, LAMBDAS_TABLE);
+
+    createtable(L, 0, 0);
+    setglobal(L, CHUNKS_TABLE);
+
+    initialize_libs_extends(L);
 
     newusertype<Bytearray, Bytearray::createMetatable>(L, "bytearray");
 }

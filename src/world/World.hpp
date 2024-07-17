@@ -34,6 +34,8 @@ class World : Serializable {
     std::vector<ContentPack> packs;
 
     int64_t nextInventoryId = 0;
+
+    void writeResources(const Content* content);
 public:
     std::unique_ptr<WorldFiles> wfile;
 
@@ -50,6 +52,8 @@ public:
 
     /// @brief will be replaced with weather in future 
     float fog = 0.0f;
+
+    entityid_t nextEntityId = 0;
 
     World(
         std::string name, 

@@ -71,10 +71,21 @@ void BlocksController::updateSides(int x, int y, int z) {
 }
 
 void BlocksController::breakBlock(Player* player, const Block* def, int x, int y, int z) {
-    chunks->set(x,y,z, 0, {});
-    lighting->onBlockSet(x,y,z, 0);
-    if (def->rt.funcsset.onbroken) {
-        scripting::on_block_broken(player, def, x, y, z);
+    onBlockInteraction(
+        player, glm::ivec3(x, y, z), def, BlockInteraction::destruction);
+    chunks->set(x, y, z, 0, {});
+    lighting->onBlockSet(x, y, z, 0);
+    scripting::on_block_broken(player, def, x, y, z);
+    updateSides(x, y, z);
+}
+
+void BlocksController::placeBlock(Player* player, const Block* def, blockstate state, int x, int y, int z) {
+    onBlockInteraction(
+        player, glm::ivec3(x, y, z), def, BlockInteraction::placing);
+    chunks->set(x, y, z, def->rt.id, state);
+    lighting->onBlockSet(x, y, z, def->rt.id);
+    if (def->rt.funcsset.onplaced) {
+        scripting::on_block_placed(player, def, x, y, z);
     }
     updateSides(x, y, z);
 }
@@ -83,7 +94,7 @@ void BlocksController::updateBlock(int x, int y, int z) {
     voxel* vox = chunks->get(x, y, z);
     if (vox == nullptr)
         return;
-    const Block* def = level->content->getIndices()->getBlockDef(vox->id);
+    auto def = level->content->getIndices()->blocks.get(vox->id);
     if (def->grounded) {
         const auto& vec = get_ground_direction(def, vox->state.rotation);
         if (!chunks->isSolidBlock(x+vec.x, y+vec.y, z+vec.z)) {
@@ -112,10 +123,10 @@ void BlocksController::onBlocksTick(int tickid, int parts) {
     auto content = level->content;
     auto indices = content->getIndices();
     int tickRate = blocksTickClock.getTickRate();
-    for (size_t id = 0; id < indices->countBlockDefs(); id++) {
+    for (size_t id = 0; id < indices->blocks.count(); id++) {
         if ((id + tickid) % parts != 0)
             continue;
-        auto def = indices->getBlockDef(id);
+        auto def = indices->blocks.get(id);
         auto interval = def->tickInterval;
         if (def->rt.funcsset.onblockstick && tickid / parts % interval == 0) {
             scripting::on_blocks_tick(def, tickRate / interval);
@@ -146,7 +157,7 @@ void BlocksController::randomTick(int tickid, int parts) {
                     int by = random.rand() % segheight + s * segheight;
                     int bz = random.rand() % CHUNK_D;
                     const voxel& vox = chunk->voxels[(by * CHUNK_D + bz) * CHUNK_W + bx];
-                    Block* block = indices->getBlockDef(vox.id);
+                    Block* block = indices->blocks.get(vox.id);
                     if (block->rt.funcsset.randupdate) {
                         scripting::random_update_block(
                             block, 
@@ -170,7 +181,7 @@ int64_t BlocksController::createBlockInventory(int x, int y, int z) {
     auto inv = chunk->getBlockInventory(lx, y, lz);
     if (inv == nullptr) {
         auto indices = level->content->getIndices();
-        auto def = indices->getBlockDef(chunk->voxels[vox_index(lx, y, lz)].id);
+        auto def = indices->blocks.get(chunk->voxels[vox_index(lx, y, lz)].id);
         int invsize = def->inventorySize;
         if (invsize == 0) {
             return 0;
@@ -202,4 +213,19 @@ void BlocksController::unbindInventory(int x, int y, int z) {
     int lx = x - chunk->x * CHUNK_W;
     int lz = z - chunk->z * CHUNK_D;
     chunk->removeBlockInventory(lx, y, lz);
+}
+
+void BlocksController::onBlockInteraction(
+    Player* player,
+    glm::ivec3 pos,
+    const Block* def,
+    BlockInteraction type
+) {
+    for (const auto& callback : blockInteractionCallbacks) {
+        callback(player, pos, def, type);
+    }
+}
+
+void BlocksController::listenBlockInteraction(const on_block_interaction& callback) {
+    blockInteractionCallbacks.push_back(callback);
 }

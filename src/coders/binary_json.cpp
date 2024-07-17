@@ -83,6 +83,13 @@ std::vector<ubyte> json::to_binary(const Map* obj, bool compress) {
     return builder.build();
 }
 
+std::vector<ubyte> json::to_binary(const Value& value, bool compress) {
+    if (auto map = std::get_if<Map_sptr>(&value)) {
+        return to_binary(map->get(), compress);
+    }
+    throw std::runtime_error("map is only supported as the root element");
+}
+
 static Value value_from_binary(ByteReader& reader) {
     ubyte typecode = reader.get();
     switch (typecode) {

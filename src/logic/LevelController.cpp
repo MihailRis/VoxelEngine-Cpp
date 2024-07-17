@@ -6,6 +6,7 @@
 #include "../world/Level.hpp"
 #include "../world/World.hpp"
 #include "../physics/Hitbox.hpp"
+#include "../objects/Entities.hpp"
 
 #include "scripting/scripting.hpp"
 #include "../interfaces/Object.hpp"
@@ -24,20 +25,11 @@ LevelController::LevelController(EngineSettings& settings, std::unique_ptr<Level
 }
 
 void LevelController::update(float delta, bool input, bool pause) {
-    glm::vec3 position = player->getPlayer()->hitbox->position;
+    glm::vec3 position = player->getPlayer()->getPosition();
     level->loadMatrix(position.x, position.z, 
         settings.chunks.loadDistance.get() + 
         settings.chunks.padding.get() * 2);
     chunks->update(settings.chunks.loadSpeed.get());
-    player->update(delta, input, pause);
-
-    // erease null pointers
-    level->objects.erase(
-        std::remove_if(
-            level->objects.begin(), level->objects.end(),
-            [](auto obj) { return obj == nullptr; }),
-        level->objects.end()
-    );
     
     if (!pause) {
         // update all objects that needed
@@ -47,13 +39,27 @@ void LevelController::update(float delta, bool input, bool pause) {
             }
         }
         blocks->update(delta);
+        player->update(delta, input, pause);
+        level->entities->updatePhysics(delta);
+        level->entities->update();
     }
+    level->entities->clean();
+    player->postUpdate(delta, input, pause);
+
+    // erease null pointers
+    level->objects.erase(
+        std::remove_if(
+            level->objects.begin(), level->objects.end(),
+            [](auto obj) { return obj == nullptr; }),
+        level->objects.end()
+    );
 }
 
 void LevelController::saveWorld() {
     level->getWorld()->wfile->createDirectories();
     logger.info() << "writing world";
     scripting::on_world_save();
+    level->onSave();
     level->getWorld()->write(level.get());
 }
 

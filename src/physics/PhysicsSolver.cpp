@@ -6,6 +6,10 @@
 #include "../voxels/Chunks.hpp"
 #include "../voxels/voxel.hpp"
 
+#include <iostream>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/norm.hpp>
+
 const float E = 0.03f;
 const float MAX_FIX = 0.1f;
 
@@ -17,17 +21,16 @@ void PhysicsSolver::step(
     Hitbox* hitbox, 
     float delta, 
     uint substeps, 
-    bool shifting,
-    float gravityScale,
-    bool collisions
+    entityid_t entity
 ) {
     float dt = delta / static_cast<float>(substeps);
-    float linear_damping = hitbox->linear_damping;
+    float linearDamping = hitbox->linearDamping;
     float s = 2.0f/BLOCK_AABB_GRID;
 
     const glm::vec3& half = hitbox->halfsize;
     glm::vec3& pos = hitbox->position;
     glm::vec3& vel = hitbox->velocity;
+    float gravityScale = hitbox->gravityScale;
     
     bool prevGrounded = hitbox->grounded;
     hitbox->grounded = false;
@@ -37,19 +40,22 @@ void PhysicsSolver::step(
         float pz = pos.z;
         
         vel += gravity * dt * gravityScale;
-        if (collisions) {
+        if (hitbox->type == BodyType::DYNAMIC) {
             colisionCalc(chunks, hitbox, vel, pos, half, 
                          (prevGrounded && gravityScale > 0.0f) ? 0.5f : 0.0f);
         }
-        vel.x *= glm::max(0.0f, 1.0f - dt * linear_damping);
-        vel.z *= glm::max(0.0f, 1.0f - dt * linear_damping);
+        vel.x *= glm::max(0.0f, 1.0f - dt * linearDamping);
+        if (hitbox->verticalDamping) {
+            vel.y *= glm::max(0.0f, 1.0f - dt * linearDamping);
+        }
+        vel.z *= glm::max(0.0f, 1.0f - dt * linearDamping);
 
         pos += vel * dt + gravity * gravityScale * dt * dt * 0.5f;
         if (hitbox->grounded && pos.y < py) {
             pos.y = py;
         }
 
-        if (shifting && hitbox->grounded){
+        if (hitbox->crouching && hitbox->grounded){
             float y = (pos.y-half.y-E);
             hitbox->grounded = false;
             for (float x = (px-half.x+E); x <= (px+half.x-E); x+=s){
@@ -76,6 +82,33 @@ void PhysicsSolver::step(
                 pos.x = px;
             }
             hitbox->grounded = true;
+        }
+    }
+    AABB aabb;
+    aabb.a = hitbox->position - hitbox->halfsize;
+    aabb.b = hitbox->position + hitbox->halfsize;
+    for (size_t i = 0; i < sensors.size(); i++) {
+        auto& sensor = *sensors[i];
+        if (sensor.entity == entity) {
+            continue;
+        }
+
+        bool triggered = false;
+        switch (sensor.type) {
+            case SensorType::AABB:
+                triggered = aabb.intersect(sensor.calculated.aabb);
+                break;
+            case SensorType::RADIUS:
+                triggered = glm::distance2(
+                    hitbox->position, glm::vec3(sensor.calculated.radial))
+                     < sensor.calculated.radial.w;
+                break;
+        }
+        if (triggered) {
+            if (sensor.prevEntered.find(entity) == sensor.prevEntered.end()) {
+                sensor.enterCallback(sensor.entity, sensor.index, entity);
+            }
+            sensor.nextEntered.insert(entity);
         }
     }
 }

@@ -21,6 +21,7 @@ using ubyte = uint8_t;
 using itemid_t = uint32_t;
 using blockid_t = uint16_t;
 
+using entityid_t = uint64_t;
 using itemcount_t = uint32_t;
 using blockstate_t = uint16_t;
 using light_t = uint16_t;

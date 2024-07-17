@@ -33,7 +33,7 @@ vecn.add(a: vector, b: vector)
 vecn.add(a: vector, b: number)
 
 -- записывает результат сложения двух векторов в dst
-vec.add(a: vector, b: vector, dst: vector)
+vecn.add(a: vector, b: vector, dst: vector)
 ```
 
 #### Вычитание - *vecn.sub(...)*
@@ -46,7 +46,7 @@ vecn.sub(a: vector, b: vector)
 vecn.sub(a: vector, b: number)
 
 -- записывает результат вычитания двух векторов в dst
-vec.sub(a: vector, b: vector, dst: vector)
+vecn.sub(a: vector, b: vector, dst: vector)
 ```
 
 #### Умножение - *vecn.mul(...)*
@@ -66,7 +66,7 @@ vecn.mul(a: vector, b: number)
 vecn.inverse(a: vector)
 
 -- записывает инвертированный вектор в dst
-vec.inverse(v: vector, dst: vector)
+vecn.inverse(v: vector, dst: vector)
 ```
 
 ####  Деление - *vecn.div(...)*
@@ -79,7 +79,7 @@ vecn.div(a: vector, b: vector)
 vecn.div(a: vector, b: number)
 
 -- записывает результат деления двух векторов в dst
-vec.div(a: vector, b: vector, dst: vector)
+vecn.div(a: vector, b: vector, dst: vector)
 ```
 
 #### Нормализация - *vecn.norm(...)*
@@ -89,7 +89,7 @@ vec.div(a: vector, b: vector, dst: vector)
 vecn.normalize(a: vector)
 
 -- записывает нормализованный вектор в dst
-vec.normalize(v: vector, dst: vector)
+vecn.normalize(v: vector, dst: vector)
 ```
 
 #### Длина вектора - *vecn.len(...)*
@@ -107,7 +107,7 @@ vecn.length(a: vector)
 vecn.abs(a: vector)
 
 -- записывает абсолютное значение вектора в dst
-vec.abs(v: vector, dst: vector)
+vecn.abs(v: vector, dst: vector)
 ```
 
 #### Округление - *vecn.round(...)*
@@ -117,7 +117,7 @@ vec.abs(v: vector, dst: vector)
 vecn.round(a: vector)
 
 -- записывает округленный вектор в dst
-vec.round(v: vector, dst: vector)
+vecn.round(v: vector, dst: vector)
 ```
 
 #### Степень - *vecn.pow(...)*
@@ -127,7 +127,7 @@ vec.round(v: vector, dst: vector)
 vecn.pow(a: vector, b: number)
 
 -- записывает вектор, возведенный в степень, в dst
-vec.pow(v: vector, exponent: number, dst: vector)
+vecn.pow(v: vector, exponent: number, dst: vector)
 ```
 
 #### Скалярное произведение - *vecn.dot(...)*
@@ -142,6 +142,18 @@ vecn.dot(a: vector, b: vector)
 ```lua
 -- возвращает строку представляющую содержимое вектора
 vecn.tostring(a: vector)
+```
+
+## Специфические функции
+
+Функции относящиеся к конкретным размерностям векторов.
+
+```lua
+-- возвращает случайный вектор, координаты которого равномерно распределены на сфере заданного радиуса
+vec3.spherical_rand(radius: number)
+
+-- записывает случайный вектор, координаты которого равномерно распределены на сфере заданного радиуса в dst
+vec3.spherical_rand(radius: number, dst: vec3)
 ```
 
 

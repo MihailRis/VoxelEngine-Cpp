@@ -9,7 +9,7 @@
 using namespace scripting;
 
 static void validate_itemid(itemid_t id) {
-    if (id >= indices->countItemDefs()) {
+    if (id >= indices->items.count()) {
         throw std::runtime_error("invalid item id");
     }
 }
@@ -32,7 +32,7 @@ static std::shared_ptr<Inventory> get_inventory(int64_t id, int arg) {
 }
 
 static void validate_slotid(int slotid, Inventory* inv) {
-    if (slotid < 0 || uint64_t(slotid) >= inv->size()) {
+    if (static_cast<size_t>(slotid) >= inv->size()) {
         throw std::runtime_error("slot index is out of range [0..inventory.size(invid)]");
     }
 }

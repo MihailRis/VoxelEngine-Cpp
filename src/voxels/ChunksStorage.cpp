@@ -5,6 +5,7 @@
 #include "Block.hpp"
 #include "../content/Content.hpp"
 #include "../files/WorldFiles.hpp"
+#include "../objects/Entities.hpp"
 #include "../world/Level.hpp"
 #include "../world/World.hpp"
 #include "../maths/voxmaths.hpp"
@@ -40,7 +41,7 @@ void ChunksStorage::remove(int x, int z) {
 static void verifyLoadedChunk(ContentIndices* indices, Chunk* chunk) {
     for (size_t i = 0; i < CHUNK_VOL; i++) {
         blockid_t id = chunk->voxels[i].id;
-        if (indices->getBlockDef(id) == nullptr) {
+        if (indices->blocks.get(id) == nullptr) {
             auto logline = logger.error();
             logline << "corruped block detected at " << i << " of chunk ";
             logline << chunk->x << "x" << chunk->z;
@@ -63,6 +64,11 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 		auto invs = regions.fetchInventories(chunk->x, chunk->z);
 		chunk->setBlockInventories(std::move(invs));
 
+        if (auto map = regions.fetchEntities(chunk->x, chunk->z)) {
+            level->entities->loadEntities(std::move(map));
+            chunk->flags.entities = true;
+        }
+
         chunk->flags.loaded = true;
 		for(auto& entry : chunk->inventories) {
 			level->inventories->store(entry.second);
@@ -79,6 +85,7 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 }
 
 // reduce nesting on next modification
+// 25.06.2024: not now
 void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 	const Content* content = level->content;
 	auto indices = content->getIndices();
@@ -137,7 +144,7 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
 							voxels[vidx] = cvoxels[cidx];
 							light_t light = clights[cidx];
 							if (backlight) {
-								const Block* block = indices->getBlockDef(voxels[vidx].id);
+								auto block = indices->blocks.get(voxels[vidx].id);
 								if (block->lightPassing) {
 									light = Lightmap::combine(
 										min(15, Lightmap::extract(light, 0)+1),

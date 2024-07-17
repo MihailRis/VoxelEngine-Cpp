@@ -12,6 +12,9 @@ ItemStack::ItemStack(itemid_t item, itemcount_t count) : item(item), count(count
 void ItemStack::set(const ItemStack& item) {
     this->item = item.item;
     this->count = item.count;
+    if (count == 0) {
+        this->item = 0;
+    }
 }
 
 bool ItemStack::accepts(const ItemStack& other) const {
@@ -22,7 +25,7 @@ bool ItemStack::accepts(const ItemStack& other) const {
 }
 
 void ItemStack::move(ItemStack& item, const ContentIndices* indices) {
-    auto def = indices->getItemDef(item.getItemId());
+    auto def = indices->items.get(item.getItemId());
     int count = std::min(item.count, def->stackSize-this->count);
     if (isEmpty()) {
         set(ItemStack(item.getItemId(), count));

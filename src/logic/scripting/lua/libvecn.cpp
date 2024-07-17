@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <glm/glm.hpp>
+#include <glm/gtc/random.hpp>
 
 template<int n, template<class> class Op>
 static int l_binop(lua::State* L) {
@@ -135,6 +136,19 @@ static int l_inverse(lua::State* L) {
     }
 }
 
+static int l_spherical_rand(lua::State* L) {
+    int argc = lua::gettop(L);
+    switch (argc) {
+        case 1:
+            return lua::pushvec3_arr(L, glm::sphericalRand(lua::tonumber(L, 1)));
+        case 2:
+            return lua::setvec(L, 2, 
+                glm::sphericalRand(static_cast<float>(lua::tonumber(L, 1))));
+        default:
+            throw std::runtime_error("invalid arguments number (1 or 2 expected)");
+    }
+}
+
 template<int n>
 static int l_tostring(lua::State* L) {
     auto vec = lua::tovec<n>(L, 1);
@@ -182,6 +196,7 @@ const luaL_Reg vec3lib [] = {
     {"inverse", lua::wrap<l_inverse<3>>},
     {"pow", lua::wrap<l_pow<3>>},
     {"dot", lua::wrap<l_dot<3>>},
+    {"spherical_rand", lua::wrap<l_spherical_rand>},
     {NULL, NULL}
 };
 

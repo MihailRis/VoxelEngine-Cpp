@@ -4,23 +4,27 @@
 #include <glm/glm.hpp>
 
 class Camera {
-    void updateVectors();
-    float fov;
+    float fov = 1.0f;
 public:
-    glm::vec3 front;
-    glm::vec3 up;
-    glm::vec3 right;
-    glm::vec3 dir;
+    glm::vec3 front {};
+    glm::vec3 up {};
+    glm::vec3 right {};
+    glm::vec3 dir {};
 
-    glm::vec3 position;
+    glm::vec3 position {};
 
     float zoom = 1.0f;
     glm::mat4 rotation {1.0f};
     bool perspective = true;
     bool flipped = false;
     float aspect = 0.0f;
+
+    Camera() {
+        updateVectors();
+    }
     Camera(glm::vec3 position, float fov);
 
+    void updateVectors();
     void rotate(float x, float y, float z);
 
     glm::mat4 getProjection();

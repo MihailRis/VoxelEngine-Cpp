@@ -6,11 +6,13 @@
 #include "../content/Content.hpp"
 #include "../core_defs.hpp"
 #include "../data/dynamic.hpp"
+#include "../debug/Logger.hpp"
 #include "../items/Inventory.hpp"
 #include "../items/ItemDef.hpp"
 #include "../lighting/Lightmap.hpp"
 #include "../maths/voxmaths.hpp"
 #include "../objects/Player.hpp"
+#include "../objects/EntityDef.hpp"
 #include "../physics/Hitbox.hpp"
 #include "../typedefs.hpp"
 #include "../settings.hpp"
@@ -30,6 +32,8 @@
 #include <utility>
 
 #define WORLD_FORMAT_MAGIC ".VOXWLD"
+
+static debug::Logger logger("world-files");
 
 WorldFiles::WorldFiles(const fs::path& directory) : directory(directory), regions(directory) {
 }
@@ -53,6 +57,10 @@ void WorldFiles::createDirectories() {
 
 fs::path WorldFiles::getPlayerFile() const {
     return directory/fs::path("player.json");
+}
+
+fs::path WorldFiles::getResourcesFile() const {
+    return directory/fs::path("resources.json");
 }
 
 fs::path WorldFiles::getWorldFile() const {
@@ -92,23 +100,19 @@ void WorldFiles::writePacks(const std::vector<ContentPack>& packs) {
     files::write_string(packsFile, ss.str());
 }
 
+template<class T>
+static void write_indices(const ContentUnitIndices<T>& indices, dynamic::List& list) {
+    size_t count = indices.count();
+    for (size_t i = 0; i < count; i++) {
+        list.put(indices.get(i)->name);
+    }
+}
+
 void WorldFiles::writeIndices(const ContentIndices* indices) {
     dynamic::Map root;
-    uint count;
-    auto& blocks = root.putList("blocks");
-    count = indices->countBlockDefs();
-    for (uint i = 0; i < count; i++) {
-        const Block* def = indices->getBlockDef(i);
-        blocks.put(def->name);
-    }
-
-    auto& items = root.putList("items");
-    count = indices->countItemDefs();
-    for (uint i = 0; i < count; i++) {
-        const ItemDef* def = indices->getItemDef(i);
-        items.put(def->name);
-    }
-
+    write_indices(indices->blocks, root.putList("blocks"));
+    write_indices(indices->items, root.putList("items"));
+    write_indices(indices->entities, root.putList("entities"));
     files::write_json(getIndicesFile(), &root);
 }
 
@@ -119,12 +123,49 @@ void WorldFiles::writeWorldInfo(const World* world) {
 bool WorldFiles::readWorldInfo(World* world) {
     fs::path file = getWorldFile();
     if (!fs::is_regular_file(file)) {
-        std::cerr << "warning: world.json does not exists" << std::endl;
+        logger.warning() << "world.json does not exists";
         return false;
     }
-
     auto root = files::read_json(file);
     world->deserialize(root.get());
+    return true;
+}
+
+static void read_resources_data(
+    const Content* content, 
+    const dynamic::List_sptr& list,
+    ResourceType type
+) {
+    const auto& indices = content->getIndices(type);
+    for (size_t i = 0; i < list->size(); i++) {
+        auto map = list->map(i);
+        std::string name;
+        map->str("name", name);
+        size_t index = indices.indexOf(name);
+        if (index == ResourceIndices::MISSING) {
+            logger.warning() << "discard " << name;
+        } else {
+            indices.saveData(index, map->map("saved"));
+        }
+    }
+}
+
+bool WorldFiles::readResourcesData(const Content* content) {
+    fs::path file = getResourcesFile();
+    if (!fs::is_regular_file(file)) {
+        logger.warning() << "resources.json does not exists";
+        return false;
+    }
+    auto root = files::read_json(file);
+    for (const auto& [key, _] : root->values) {
+        if (auto resType = ResourceType_from(key)) {
+            if (auto arr = root->list(key)) {
+                read_resources_data(content, arr, *resType);
+            }
+        } else {
+            logger.warning() << "unknown resource type: " << key;
+        }
+    }
     return true;
 }
 

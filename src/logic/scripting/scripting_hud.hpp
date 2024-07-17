@@ -14,6 +14,7 @@ namespace scripting {
     extern Hud* hud;
 
     void on_frontend_init(Hud* hud);
+    void on_frontend_render();
     void on_frontend_close();
 
     /** 

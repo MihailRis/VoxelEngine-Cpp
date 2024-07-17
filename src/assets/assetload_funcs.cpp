@@ -18,6 +18,7 @@
 #include "../graphics/core/Font.hpp"
 #include "../graphics/core/Model.hpp"
 #include "../graphics/core/TextureAnimation.hpp"
+#include "../objects/rigging.hpp"
 #include "../frontend/UiDocument.hpp"
 #include "../constants.hpp"
 
@@ -214,8 +215,10 @@ assetload::postfunc assetload::model(
         auto model = obj::parse(path.u8string(), text).release();
         return [=](Assets* assets) {
             for (auto& mesh : model->meshes) {
-                auto filename = TEXTURES_FOLDER+"/"+mesh.texture;
-                loader->add(AssetType::texture, filename, mesh.texture, nullptr);
+                if (mesh.texture.find('$') == std::string::npos) {
+                    auto filename = TEXTURES_FOLDER+"/"+mesh.texture;
+                    loader->add(AssetType::TEXTURE, filename, mesh.texture, nullptr);
+                }
             }
             assets->store(std::unique_ptr<model::Model>(model), name);
         };

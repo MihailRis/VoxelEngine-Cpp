@@ -14,10 +14,10 @@ using namespace scripting;
 static Block* require_block(lua::State* L) {
     auto indices = content->getIndices();
     auto id = lua::tointeger(L, 1);
-    if (static_cast<size_t>(id) >= indices->countBlockDefs()) {
+    if (static_cast<size_t>(id) >= indices->blocks.count()) {
         return nullptr;
     }
-    return indices->getBlockDef(id);
+    return indices->blocks.get(id);
 }
 
 static int l_name(lua::State* L) {
@@ -43,12 +43,12 @@ static int l_is_solid_at(lua::State* L) {
 }
 
 static int l_count(lua::State* L) {
-    return lua::pushinteger(L, indices->countBlockDefs());
+    return lua::pushinteger(L, indices->blocks.count());
 }
 
 static int l_index(lua::State* L) {
     auto name = lua::require_string(L, 1);
-    return lua::pushinteger(L, content->requireBlock(name).rt.id);
+    return lua::pushinteger(L, content->blocks.require(name).rt.id);
 }
 
 static int l_is_extended(lua::State* L) {
@@ -78,7 +78,7 @@ static int l_seek_origin(lua::State* L) {
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
     auto vox = level->chunks->get(x, y, z);
-    auto def = indices->getBlockDef(vox->id);
+    auto def = indices->blocks.get(vox->id);
     return lua::pushivec3(L, level->chunks->seekOrigin({x, y, z}, def, vox->state));
 }
 
@@ -89,7 +89,7 @@ static int l_set(lua::State* L) {
     auto id = lua::tointeger(L, 4);    
     auto state = lua::tointeger(L, 5);
     bool noupdate = lua::toboolean(L, 6);
-    if (static_cast<size_t>(id) >= indices->countBlockDefs()) {
+    if (static_cast<size_t>(id) >= indices->blocks.count()) {
         return 0;
     }
     if (!level->chunks->get(x, y, z)) {
@@ -120,7 +120,7 @@ static int l_get_x(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3(L, 1, 0, 0);
     }
-    auto def = level->content->getIndices()->getBlockDef(vox->id);
+    auto def = level->content->getIndices()->blocks.get(vox->id);
     if (!def->rotatable) {
         return lua::pushivec3(L, 1, 0, 0);
     } else {
@@ -137,7 +137,7 @@ static int l_get_y(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3(L, 0, 1, 0);
     }
-    auto def = level->content->getIndices()->getBlockDef(vox->id);
+    auto def = level->content->getIndices()->blocks.get(vox->id);
     if (!def->rotatable) {
         return lua::pushivec3(L, 0, 1, 0);
     } else {
@@ -154,7 +154,7 @@ static int l_get_z(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3(L, 0, 0, 1);
     }
-    auto def = level->content->getIndices()->getBlockDef(vox->id);
+    auto def = level->content->getIndices()->blocks.get(vox->id);
     if (!def->rotatable) {
         return lua::pushivec3(L, 0, 0, 1);
     } else {
@@ -259,6 +259,87 @@ static int l_caption(lua::State* L) {
     return 0;
 }
 
+static int l_get_textures(lua::State* L) {
+    if (auto def = require_block(L)) {
+        lua::createtable(L, 6, 0);
+        for (size_t i = 0; i < 6; i++) {
+            lua::pushstring(L, def->textureFaces[i]);
+            lua::rawseti(L, i+1);
+        }
+        return 1;
+    }
+    return 0;
+}
+
+static int l_get_model(lua::State* L) {
+    if (auto def = require_block(L)) {
+        return lua::pushstring(L, to_string(def->model));
+    }
+    return 0;
+}
+
+static int l_get_hitbox(lua::State* L) {
+    if (auto def = require_block(L)) {
+        auto& hitbox = def->rt.hitboxes[lua::tointeger(L, 2)].at(0);
+        lua::createtable(L, 2, 0);
+        
+        lua::pushvec3_arr(L, hitbox.min());
+        lua::rawseti(L, 1);
+
+        lua::pushvec3_arr(L, hitbox.size());
+        lua::rawseti(L, 2);
+        return 1;
+    }
+    return 0;
+}
+
+static int l_get_rotation_profile(lua::State* L) {
+    if (auto def = require_block(L)) {
+        return lua::pushstring(L, def->rotations.name);   
+    }
+    return 0;
+}
+
+static int l_get_picking_item(lua::State* L) {
+    if (auto def = require_block(L)) {
+        return lua::pushinteger(L, def->rt.pickingItem);   
+    }
+    return 0;
+}
+
+static int l_raycast(lua::State* L) {
+    auto start = lua::tovec<3>(L, 1);
+    auto dir = lua::tovec<3>(L, 2);
+    auto maxDistance = lua::tonumber(L, 3);
+    glm::vec3 end;
+    glm::ivec3 normal;
+    glm::ivec3 iend;
+    if (auto voxel = level->chunks->rayCast(start, dir, maxDistance, end, normal, iend)) {
+        if (lua::gettop(L) >= 4) {
+            lua::pushvalue(L, 4);
+        } else {
+            lua::createtable(L, 0, 5);
+        }
+        
+        lua::pushvec3_arr(L, end);
+        lua::setfield(L, "endpoint");
+
+        lua::pushvec3_arr(L, normal);
+        lua::setfield(L, "normal");
+
+        lua::pushnumber(L, glm::distance(start, end));
+        lua::setfield(L, "length");
+
+        lua::pushvec3_arr(L, iend);
+        lua::setfield(L, "iendpoint");
+
+        lua::pushinteger(L, voxel->id);
+        lua::setfield(L, "block");
+        return 1;
+    }
+    return 0;
+}
+
 const luaL_Reg blocklib [] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_name>},
@@ -282,5 +363,11 @@ const luaL_Reg blocklib [] = {
     {"get_size", lua::wrap<l_get_size>},
     {"is_segment", lua::wrap<l_is_segment>},
     {"seek_origin", lua::wrap<l_seek_origin>},
+    {"get_textures", lua::wrap<l_get_textures>},
+    {"get_model", lua::wrap<l_get_model>},
+    {"get_hitbox", lua::wrap<l_get_hitbox>},
+    {"get_rotation_profile", lua::wrap<l_get_rotation_profile>},
+    {"get_picking_item", lua::wrap<l_get_picking_item>},
+    {"raycast", lua::wrap<l_raycast>},
     {NULL, NULL}
 };

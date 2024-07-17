@@ -7,10 +7,14 @@
 #include "../lighting/Lightmap.hpp"
 #include "../files/WorldFiles.hpp"
 #include "../world/LevelEvents.hpp"
+#include "../world/Level.hpp"
+#include "../objects/Entities.hpp"
 #include "../graphics/core/Mesh.hpp"
 #include "../maths/voxmaths.hpp"
 #include "../maths/aabb.hpp"
 #include "../maths/rays.hpp"
+#include "../coders/byte_utils.hpp"
+#include "../coders/json.hpp"
 
 #include <math.h>
 #include <limits.h>
@@ -18,17 +22,16 @@
 #include <algorithm>
 
 Chunks::Chunks(
-    uint32_t w, uint32_t d, 
-    int32_t ox, int32_t oz, 
-    WorldFiles* wfile, 
-    LevelEvents* events, 
-    const Content* content
-) : indices(content->getIndices()), 
+    uint32_t w, uint32_t d,
+    int32_t ox, int32_t oz,
+    WorldFiles* wfile,
+    Level* level
+) : level(level),
+    indices(level->content->getIndices()), 
     chunks(w*d),
     chunksSecond(w*d),
     w(w), d(d), ox(ox), oz(oz), 
-    worldFiles(wfile), 
-    events(events) 
+    worldFiles(wfile)
 {
     volume = static_cast<size_t>(w)*static_cast<size_t>(d);
     chunksCount = 0;
@@ -66,7 +69,7 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
             return &empty;
         }
     }
-    const Block* def = indices->getBlockDef(v->id);
+    const auto def = indices->blocks.get(v->id);
     if (def->obstacle) {
         glm::ivec3 offset {};
         if (v->state.segment) {
@@ -89,21 +92,21 @@ bool Chunks::isSolidBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
     if (v == nullptr)
         return false;
-    return indices->getBlockDef(v->id)->rt.solid;
+    return indices->blocks.get(v->id)->rt.solid;
 }
 
 bool Chunks::isReplaceableBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
     if (v == nullptr)
         return false;
-    return indices->getBlockDef(v->id)->replaceable;
+    return indices->blocks.get(v->id)->replaceable;
 }
 
 bool Chunks::isObstacleBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
     if (v == nullptr)
         return false;
-    return indices->getBlockDef(v->id)->obstacle;
+    return indices->blocks.get(v->id)->obstacle;
 }
 
 ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel){
@@ -240,7 +243,7 @@ bool Chunks::checkReplaceability(const Block* def, blockstate state, glm::ivec3 
                 pos += rotation.axisY * sy;
                 pos += rotation.axisZ * sz;
                 if (auto vox = get(pos.x, pos.y, pos.z)) {
-                    auto target = indices->getBlockDef(vox->id);
+                    auto target = indices->blocks.get(vox->id);
                     if (!target->replaceable && vox->id != ignore) {
                         return false;
                     }
@@ -316,7 +319,7 @@ void Chunks::setRotation(int32_t x, int32_t y, int32_t z, uint8_t index) {
     if (vox == nullptr) {
         return;
     }
-    auto def = indices->getBlockDef(vox->id);
+    auto def = indices->blocks.get(vox->id);
     if (!def->rotatable || vox->state.rotation == index) {
         return;
     }
@@ -351,7 +354,7 @@ void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state)
     
     // block finalization
     voxel& vox = chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx]; 
-    auto prevdef = indices->getBlockDef(vox.id);
+    auto prevdef = indices->blocks.get(vox.id);
     if (prevdef->inventorySize == 0) {
         chunk->removeBlockInventory(lx, y, lz);
     }
@@ -360,7 +363,7 @@ void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state)
     }
 
     // block initialization
-    auto newdef = indices->getBlockDef(id);
+    auto newdef = indices->blocks.get(id);
     vox.id = id;
     vox.state = state;
     chunk->setModifiedAndUnsaved();
@@ -424,13 +427,13 @@ voxel* Chunks::rayCast(
 
     int steppedIndex = -1;      
                                 
-    while (t <= maxDist){       
+    while (t <= maxDist) {       
         voxel* voxel = get(ix, iy, iz);		
         if (voxel == nullptr){
             return nullptr;
         }
-        const auto def = indices->getBlockDef(voxel->id);
-        if (def->selectable){
+        const auto def = indices->blocks.get(voxel->id);
+        if (def->selectable) {
             end.x = px + t * dx;
             end.y = py + t * dy;
             end.z = pz + t * dz;
@@ -458,7 +461,8 @@ voxel* Chunks::rayCast(
                     box.b += offset;
                     scalar_t boxDistance;
                     glm::ivec3 boxNorm;
-                    if (ray.intersectAABB(iend, box, maxDist, boxNorm, boxDistance) > RayRelation::None && boxDistance < distance) {
+                    if (ray.intersectAABB(iend, box, maxDist, boxNorm, boxDistance) > RayRelation::None && 
+                        boxDistance < distance) {
                         hit = true;
                         distance = boxDistance;
                         norm = boxNorm;
@@ -517,9 +521,9 @@ voxel* Chunks::rayCast(
 }
 
 glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDist) {
-    float px = start.x;
-    float py = start.y;
-    float pz = start.z;
+    const float px = start.x;
+    const float py = start.y;
+    const float pz = start.z;
 
     float dx = dir.x;
     float dy = dir.y;
@@ -553,7 +557,7 @@ glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDis
         if (voxel == nullptr) { 
             return glm::vec3(px + t * dx, py + t * dy, pz + t * dz); 
         }
-        const auto def = indices->getBlockDef(voxel->id);
+        const auto def = indices->blocks.get(voxel->id);
         if (def->obstacle) {
             if (!def->rt.solid) {
                 const std::vector<AABB>& hitboxes = def->rotatable
@@ -620,7 +624,6 @@ void Chunks::setCenter(int32_t x, int32_t z) {
 }
 
 void Chunks::translate(int32_t dx, int32_t dz) {
-    auto& regions = worldFiles->getRegions();
     for (uint i = 0; i < volume; i++){
         chunksSecond[i] = nullptr;
     }
@@ -631,9 +634,9 @@ void Chunks::translate(int32_t dx, int32_t dz) {
             int nz = z - dz;
             if (chunk == nullptr)
                 continue;
-            if (nx < 0 || nz < 0 || nx >= int(w) || nz >= int(d)) {
-                events->trigger(EVT_CHUNK_HIDDEN, chunk.get());
-                regions.put(chunk.get());
+            if (nx < 0 || nz < 0 || nx >= static_cast<int>(w) || nz >= static_cast<int>(d)) {
+                level->events->trigger(EVT_CHUNK_HIDDEN, chunk.get());
+                save(chunk.get());
                 chunksCount--;
                 continue;
             }
@@ -662,8 +665,8 @@ void Chunks::resize(uint32_t newW, uint32_t newD) {
     const int newVolume = newW * newD;
     std::vector<std::shared_ptr<Chunk>> newChunks(newVolume);
     std::vector<std::shared_ptr<Chunk>> newChunksSecond(newVolume);
-    for (int z = 0; z < int(d) && z < int(newD); z++) {
-        for (int x = 0; x < int(w) && x < int(newW); x++) {
+    for (int z = 0; z < static_cast<int>(d) && z < static_cast<int>(newD); z++) {
+        for (int x = 0; x < static_cast<int>(w) && x < static_cast<int>(newW); x++) {
             newChunks[z * newW + x] = chunks[z * w + x];
         }
     }
@@ -684,21 +687,48 @@ bool Chunks::putChunk(const std::shared_ptr<Chunk>& chunk) {
     int z = chunk->z;
     x -= ox;
     z -= oz;
-    if (x < 0 || z < 0 || x >= int(w) || z >= int(d))
+    if (x < 0 || z < 0 || x >= static_cast<int>(w) || z >= static_cast<int>(d)) {
         return false;
+    }
     chunks[z * w + x] = chunk;
     chunksCount++;
     return true;
 }
 
-void Chunks::saveAndClear(){
-    auto& regions = worldFiles->getRegions();
+void Chunks::saveAndClear() {
     for (size_t i = 0; i < volume; i++){
-        Chunk* chunk = chunks[i].get();
+        auto chunk = chunks[i].get();
         chunks[i] = nullptr;
-        if (chunk) {
-            regions.put(chunk);
-        }
+        save(chunk);
     }
     chunksCount = 0;
+}
+
+void Chunks::save(Chunk* chunk) {
+    if (chunk != nullptr) {
+        AABB aabb (
+            glm::vec3(chunk->x * CHUNK_W, -INFINITY, chunk->z * CHUNK_D),
+            glm::vec3((chunk->x+1) * CHUNK_W, INFINITY, (chunk->z + 1) * CHUNK_D)
+        );
+        auto entities = level->entities->getAllInside(aabb);
+        auto root = dynamic::create_map();
+        auto& list = root->putList("data");
+        for (auto& entity : entities) {
+            level->entities->onSave(entity);
+            list.put(level->entities->serialize(entity));
+            entity.destroy();
+        }
+        if (!entities.empty()) {
+            chunk->flags.entities = true;
+        }
+        worldFiles->getRegions().put(chunk, json::to_binary(root, true));
+    }
+}
+
+void Chunks::saveAll() {
+    for (size_t i = 0; i < volume; i++) {
+        if (auto& chunk = chunks[i]) {
+            save(chunk.get());
+        }
+    }
 }

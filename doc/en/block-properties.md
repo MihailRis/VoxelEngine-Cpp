@@ -82,12 +82,12 @@ Block is not a physical obstacle if **false**
 An array of 6 numbers describing an offset an size of a block hitbox.
 
 Array *\[0.25, 0.0, 0.5,  0.75, 0.4, 0.3\]* describes hitbox width:
-- 0.75m width (from east to west)
-- 0.4m height
-- 0.3m length (from south to north)
 - offset 0.25m east
 - offset 0.0m up
 - offset 0.5m north
+- 0.75m width (from east to west)
+- 0.4m height
+- 0.3m length (from south to north)
 
 ### *grounded*
 

@@ -252,9 +252,11 @@ function session.reset_entry(name)
     session.entries[name] = nil
 end
 
-function timeit(func, ...)
+function timeit(iters, func, ...)
     local tm = time.uptime()
-    func(...)
+    for i=1,iters do
+        func(...)
+    end
     print("[time mcs]", (time.uptime()-tm) * 1000000)
 end
 
@@ -302,6 +304,22 @@ function file.readlines(path)
     end
     return lines
 end
+
+stdcomp = require "core:internal/stdcomp"
+entities.get = stdcomp.get_Entity
+entities.get_all = function(uids)
+    if uids == nil then
+        local values = {}
+        for k,v in pairs(stdcomp.get_all()) do
+            values[k] = v
+        end
+        return values 
+    else
+        return stdcomp.get_all(uids)
+    end
+end
+
+math.randomseed(time.uptime()*1536227939)
 
 -- Deprecated functions
 block_index = block.index

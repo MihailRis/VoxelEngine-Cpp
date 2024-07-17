@@ -1,32 +1,37 @@
 #ifndef CONTENT_CONTENT_HPP_
 #define CONTENT_CONTENT_HPP_
 
-#include "../typedefs.hpp"
+#include "content_fwd.hpp"
+
+#include "../data/dynamic_fwd.hpp"
 
 #include <string>
 #include <vector>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <unordered_map>
 #include <set>
 
 using DrawGroups = std::set<ubyte>;
+template<class K, class V>
+using UptrsMap = std::unordered_map<K, std::unique_ptr<V>>;
 
 class Block;
 struct BlockMaterial;
-class ItemDef;
-class Content;
-class ContentPackRuntime;
+struct ItemDef;
+struct EntityDef;
 
-enum class contenttype {
-    none, block, item
-};
+namespace rigging {
+    class SkeletonConfig;
+}
 
-inline const char* contenttype_name(contenttype type) {
+constexpr const char* contenttype_name(contenttype type) {
     switch (type) {
         case contenttype::none: return "none";
         case contenttype::block: return "block";
         case contenttype::item: return "item";
+        case contenttype::entity: return "entity";
         default:
             return "unknown";
     }
@@ -43,82 +48,165 @@ public:
     }
 };
 
-/// @brief Runtime defs cache: indices
-class ContentIndices {
-    std::vector<Block*> blockDefs;
-    std::vector<ItemDef*> itemDefs;
+template<class T>
+class ContentUnitIndices {
+    std::vector<T*> defs;
 public:
-    ContentIndices(
-        std::vector<Block*> blockDefs, 
-        std::vector<ItemDef*> itemDefs
-    );
+    ContentUnitIndices(std::vector<T*> defs) : defs(std::move(defs)) {}
 
-    inline Block* getBlockDef(blockid_t id) const {
-        if (id >= blockDefs.size())
+    inline T* get(blockid_t id) const {
+        if (id >= defs.size()) {
             return nullptr;
-        return blockDefs[id];
+        }
+        return defs[id];
     }
 
-    inline ItemDef* getItemDef(itemid_t id) const {
-        if (id >= itemDefs.size())
-            return nullptr;
-        return itemDefs[id];
+    inline size_t count() const {
+        return defs.size();
     }
 
-    inline size_t countBlockDefs() const {
-        return blockDefs.size();
-    }
-
-    inline size_t countItemDefs() const {
-        return itemDefs.size();
-    }
-
-    // use this for critical spots to prevent range check overhead
-    const Block* const* getBlockDefs() const {
-        return blockDefs.data();
-    }
-
-    const ItemDef* const* getItemDefs() const {
-        return itemDefs.data();
+    inline const T* const* getDefs() const {
+        return defs.data();
     }
 };
 
-/* Content is a definitions repository */
-class Content {
-    std::unordered_map<std::string, std::unique_ptr<Block>> blockDefs;
-    std::unordered_map<std::string, std::unique_ptr<ItemDef>> itemDefs;
-    std::unique_ptr<ContentIndices> indices;
-    std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs;
-    std::unordered_map<std::string, std::unique_ptr<BlockMaterial>> blockMaterials;
+/// @brief Runtime defs cache: indices
+class ContentIndices {
 public:
+    ContentUnitIndices<Block> blocks;
+    ContentUnitIndices<ItemDef> items;
+    ContentUnitIndices<EntityDef> entities;
+
+    ContentIndices(
+        ContentUnitIndices<Block> blocks,
+        ContentUnitIndices<ItemDef> items,
+        ContentUnitIndices<EntityDef> entities
+    );
+};
+
+template<class T>
+class ContentUnitDefs {
+    UptrsMap<std::string, T> defs;
+public:
+    ContentUnitDefs(UptrsMap<std::string, T> defs) 
+    : defs(std::move(defs)) {
+    }
+
+    T* find(const std::string& id) const {
+        const auto& found = defs.find(id);
+        if (found == defs.end()) {
+            return nullptr;
+        }
+        return found->second.get();
+    }
+    T& require(const std::string& id) const {
+        const auto& found = defs.find(id);
+        if (found == defs.end()) {
+            throw std::runtime_error("missing content unit "+id);
+        }
+        return *found->second;
+    }
+};
+
+class ResourceIndices {
+    std::vector<std::string> names;
+    std::unordered_map<std::string, size_t> indices;
+    std::unique_ptr<std::vector<dynamic::Map_sptr>> savedData;
+public:
+    ResourceIndices() 
+    : savedData(std::make_unique<std::vector<dynamic::Map_sptr>>()){
+    }
+
+    static constexpr size_t MISSING = SIZE_MAX;
+
+    void add(std::string name, dynamic::Map_sptr map) {
+        indices[name] = names.size();
+        names.push_back(name);
+        savedData->push_back(map);
+    }
+
+    const std::string& getName(size_t index) const {
+        return names.at(index);
+    }
+
+    size_t indexOf(const std::string& name) const {
+        const auto& found = indices.find(name);
+        if (found != indices.end()) {
+            return found->second;
+        }
+        return MISSING;
+    }
+
+    dynamic::Map_sptr getSavedData(size_t index) const {
+        return savedData->at(index);
+    }
+
+    void saveData(size_t index, dynamic::Map_sptr map) const {
+        savedData->at(index) = map;
+    }
+
+    size_t size() const {
+        return names.size();
+    }
+};
+
+constexpr const char* to_string(ResourceType type) {
+    switch (type) {
+        case ResourceType::CAMERA: return "camera";
+        default: return "unknown";
+    }
+}
+
+inline std::optional<ResourceType> ResourceType_from(std::string_view str) {
+    if (str == "camera") {
+        return ResourceType::CAMERA;
+    }
+    return std::nullopt;
+}
+
+using ResourceIndicesSet = ResourceIndices[RESOURCE_TYPES_COUNT];
+
+/// @brief Content is a definitions repository
+class Content {
+    std::unique_ptr<ContentIndices> indices;
+    UptrsMap<std::string, ContentPackRuntime> packs;
+    UptrsMap<std::string, BlockMaterial> blockMaterials;
+    UptrsMap<std::string, rigging::SkeletonConfig> skeletons;
+public:
+    ContentUnitDefs<Block> blocks;
+    ContentUnitDefs<ItemDef> items;
+    ContentUnitDefs<EntityDef> entities;
     std::unique_ptr<DrawGroups> const drawGroups;
+    ResourceIndicesSet resourceIndices {};
 
     Content(
         std::unique_ptr<ContentIndices> indices, 
         std::unique_ptr<DrawGroups> drawGroups,
-        std::unordered_map<std::string, std::unique_ptr<Block>> blockDefs,
-        std::unordered_map<std::string, std::unique_ptr<ItemDef>> itemDefs,
-        std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>> packs,
-        std::unordered_map<std::string, std::unique_ptr<BlockMaterial>> blockMaterials
+        ContentUnitDefs<Block> blocks,
+        ContentUnitDefs<ItemDef> items,
+        ContentUnitDefs<EntityDef> entities,
+        UptrsMap<std::string, ContentPackRuntime> packs,
+        UptrsMap<std::string, BlockMaterial> blockMaterials,
+        UptrsMap<std::string, rigging::SkeletonConfig> skeletons,
+        ResourceIndicesSet resourceIndices
     );
     ~Content();
 
     inline ContentIndices* getIndices() const {
         return indices.get();
     }
-    
-    Block* findBlock(const std::string& id) const;
-    Block& requireBlock(const std::string& id) const;
 
-    ItemDef* findItem(const std::string& id) const;
-    ItemDef& requireItem(const std::string& id) const;
+    inline const ResourceIndices& getIndices(ResourceType type) const {
+        return resourceIndices[static_cast<size_t>(type)];
+    }
 
+    const rigging::SkeletonConfig* getSkeleton(const std::string& id) const;
     const BlockMaterial* findBlockMaterial(const std::string& id) const;
-
     const ContentPackRuntime* getPackRuntime(const std::string& id) const;
 
-    const std::unordered_map<std::string, std::unique_ptr<BlockMaterial>>& getBlockMaterials() const;
-    const std::unordered_map<std::string, std::unique_ptr<ContentPackRuntime>>& getPacks() const;
+    const UptrsMap<std::string, BlockMaterial>& getBlockMaterials() const;
+    const UptrsMap<std::string, ContentPackRuntime>& getPacks() const;
+    const UptrsMap<std::string, rigging::SkeletonConfig>& getSkeletons() const;
 };
 
 #endif // CONTENT_CONTENT_HPP_

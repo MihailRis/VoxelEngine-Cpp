@@ -1,0 +1,16 @@
+{
+  "root": {
+    "nodes": [
+      {
+        "name": "body",
+        "model": "player",
+        "nodes": [
+          {
+            "name": "head",
+            "model": "player-head"
+          }
+        ]
+      }
+    ]
+  }
+}

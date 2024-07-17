@@ -7,8 +7,12 @@
 - [Пользовательский ввод](scripting/user-input.md)
 - [Файловая система и сериализация](scripting/filesystem.md)
 - [Свойства и методы UI элементов](scripting/ui.md)
+- [Сущности и компоненты](scripting/ecs.md)
 - [Библиотеки](#)
+    - [block](scripting/builtins/libblock.md)
+    - [entities](scripting/builtins/libentities.md)
     - [mat4](scripting/builtins/libmat4.md)
+    - [vec2, vec3, vec4](scripting/builtins/libvecn.md)
 - [Модуль core:bit_converter](scripting/modules/core_bit_converter.md)
 - [Модуль core:data_buffer](scripting/modules/core_data_buffer.md)
 - [Модули core:vector2, core:vector3](scripting/modules/core_vector2_vector3.md)
@@ -99,6 +103,18 @@ player.get_selected_block(playerid: int) -> x,y,z
 ```
 
 Возвращает координаты выделенного блока, либо nil
+
+```python
+player.get_selected_entity(playerid: int) -> int
+```
+
+Возвращает уникальный идентификатор сущности, на которую нацелен игрок
+
+```python
+player.get_entity(playerid: int) -> int
+```
+
+Возвращает уникальный идентификатор сущности игрока
 
 ## Библиотека *world*
 
@@ -319,150 +335,6 @@ inventory.move(invA: int, slotA: int, invB: int, slotB: int)
 invA и invB могут указывать на один инвентарь.
 slotB будет выбран автоматически, если не указывать явно.
 
-## Библиотека *block*
-
-```python
-block.name(blockid: int) -> str
-```
-
-Возвращает строковый id блока по его числовому id.
-
-```python
-block.index(name: str) -> int
-```
-
-Возвращает числовой id блока, принимая в качестве агрумента строковый.
-
-```python
-block.material(blockid: int) -> str
-```
-
-Возвращает id материала блока.
-
-```python
-block.caption(blockid: int) -> str
-```
-
-Возвращает название блока, отображаемое в интерфейсе.
-
-```python
-block.get(x: int, y: int, z: int) -> int
-```
-
-Возвращает числовой id блока на указанных координатах. Если чанк на указанных координатах не загружен, возвращает -1.
-
-```python
-block.get_states(x: int, y: int, z: int) -> int
-```
-
-Возвращает состояние (поворот + доп. информация) в виде целого числа
-
-```python
-block.set(x: int, y: int, z: int, id: int, states: int)
-```
-
-Устанавливает блок с заданным числовым id и состоянием (0 - по-умолчанию) на заданных координатах.
-
-> [!WARNING]
-> `block.set` не вызывает событие on_placed.
-
-```python
-block.is_solid_at(x: int, y: int, z: int) -> bool
-```
-
-Проверяет, является ли блок на указанных координатах полным
-
-```python
-block.is_replaceable_at(x: int, y: int, z: int) -> bool
-```
-Проверяет, можно ли на заданных координатах поставить блок (примеры: воздух, трава, цветы, вода)
-
-```python
-block.defs_count() -> int
-```
-
-Возвращает количество id доступных в движке блоков
-
-Следующие три функции используется для учёта вращения блока при обращении к соседним блокам или других целей, где направление блока имеет решающее значение.
-
-
-```python
-block.get_X(x: int, y: int, z: int) -> int, int, int
-```
-
-Возвращает целочисленный единичный вектор X блока на указанных координатах с учётом его вращения (три целых числа).
-Если поворот отсутствует, возвращает 1, 0, 0
-
-```python
-block.get_Y(x: int, y: int, z: int) -> int, int, int
-```
-
-Возвращает целочисленный единичный вектор Y блока на указанных координатах с учётом его вращения (три целых числа).
-Если поворот отсутствует, возвращает 0, 1, 0
-
-```python
-block.get_Z(x: int, y: int, z: int) -> int, int, int
-```
-
-Возвращает целочисленный единичный вектор Z блока на указанных координатах с учётом его вращения (три целых числа).
-Если поворот отсутствует, возвращает 0, 0, 1
-
-```python
-block.get_rotation(x: int, y: int, z: int) -> int
-```
-
-Возвращает индекс поворота блока в его профиле вращения.
-
-```python
-block.set_rotation(x: int, y: int, z: int, rotation: int)
-```
-
-Устанавливает вращение блока по индексу в его профиле вращения.
-
-### Расширенные блоки
-
-Расширенные блоки - те, размер которых превышает 1x1x1
-
-```python
-block.is_extended(id: int) -> bool
-```
-
-Проверяет, является ли блок расширенным.
-
-```python
-block.get_size(id: int) -> int, int, int
-```
-
-Возвращает размер блока.
-
-```python
-block.is_segment(x: int, y: int, z: int) -> bool
-```
-
-Проверяет является ли блок сегментом расширенного блока, не являющимся главным.
-
-```python
-block.seek_origin(x: int, y: int, z: int) -> int, int, int
-```
-
-Возвращает позицию главного сегмента расширенного блока или исходную позицию,
-если блок не являющийся расширенным.
-
-### Пользовательские биты
-
-Выделенная под использования в скриптах часть поля `voxel.states` хранящего доп-информацию о вокселе, такую как вращение блока. На данный момент выделенная часть составляет 8 бит.
-
-```python
-block.get_user_bits(x: int, y: int, z: int, offset: int, bits: int) -> int
-``` 
-
-Возвращает выбранное число бит с указанного смещения в виде целого беззнакового числа
-
-```python
-block.set_user_bits(x: int, y: int, z: int, offset: int, bits: int, value: int) -> int
-```
-Записывает указанное число бит значения value в user bits по выбранному смещению
-
 ## Библиотека item
 
 ```python
@@ -561,6 +433,18 @@ hud.resume()
 ```
 
 Закрывает меню паузы.
+
+```python
+hud.is_paused() -> bool
+```
+
+Возвращает true если открыто меню паузы.
+
+```python
+hud.is_inventory_open() -> bool
+```
+
+Возвращает true если открыт инвентарь или оверлей.
 
 ## Библиотека time
 

@@ -22,7 +22,7 @@ LevelFrontend::LevelFrontend(LevelController* controller, Assets* assets)
         BlocksPreview::build(contentCache.get(), assets, level->content),
         "block-previews"
     );
-    controller->getPlayerController()->listenBlockInteraction(
+    controller->getBlocksController()->listenBlockInteraction(
         [=](Player*, glm::ivec3 pos, const Block* def, BlockInteraction type) {
             auto material = level->content->findBlockMaterial(def->material);
             if (material == nullptr) {

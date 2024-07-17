@@ -106,10 +106,14 @@ console.add_command(
 )
 
 console.add_command(
-    "tp obj:sel=$obj.id x:num~pos.x y:num~pos.y z:num~pos.z",
-    "Teleport object",
+    "tp entity:sel=$entity.id x:num~pos.x y:num~pos.y z:num~pos.z",
+    "Teleport entity",
     function (args, kwargs)
-        player.set_pos(unpack(args))
+        local eid, x, y, z = unpack(args)
+        local entity = entities.get(eid)
+        if entity ~= nil then
+            entity.transform:set_pos({x, y, z})
+        end
     end
 )
 console.add_command(
@@ -140,5 +144,28 @@ console.add_command(
             end
         end
         return tostring(w*h*d).." blocks set"
+    end
+)
+
+console.add_command(
+    "player.respawn player:sel=$obj.id",
+    "Respawn player entity",
+    function (args, kwargs)
+        local eid = entities.spawn("base:player", {player.get_pos(args[1])}):get_uid()
+        player.set_entity(args[1], eid)
+        return "spawned new player entity #"..tostring(eid)
+    end
+)
+
+console.add_command(
+    "entity.despawn entity:sel=$entity.selected",
+    "Despawn entity",
+    function (args, kwargs)
+        local eid = args[1]
+        local entity = entities.get(eid)
+        if entity ~= nil then
+            entity:despawn()
+            return "despawned entity #"..tostring(eid)
+        end
     end
 )

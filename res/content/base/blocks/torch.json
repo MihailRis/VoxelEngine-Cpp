@@ -14,5 +14,6 @@
     "shadeless": true,
     "obstacle": false,
     "grounded": true,
-    "rotation": "pipe"
+    "rotation": "pipe",
+    "material": "base:wood"
 }

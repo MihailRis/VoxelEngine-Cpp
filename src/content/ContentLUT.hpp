@@ -5,6 +5,7 @@
 
 #include "../typedefs.hpp"
 #include "../constants.hpp"
+#include "../data/dynamic.hpp"
 
 #include <string>
 #include <utility>
@@ -18,58 +19,82 @@ struct contententry {
     std::string name;
 };
 
-// TODO: make it unified for all types of content
+template<typename T, class U>
+class ContentUnitLUT {
+    std::vector<T> indices;
+    std::vector<std::string> names;
+    bool missingContent = false;
+    bool reorderContent = false;
+    T missingValue;
+    contenttype type;
+public:
+    ContentUnitLUT(size_t count, const ContentUnitIndices<U>& unitIndices, T missingValue, contenttype type) 
+    : missingValue(missingValue), type(type) {
+        for (size_t i = 0; i < count; i++) {
+            indices.push_back(i);
+        }
+        for (size_t i = 0; i < unitIndices.count(); i++) {
+            names.push_back(unitIndices.get(i)->name);
+        }
+        for (size_t i = unitIndices.count(); i < count; i++) {
+            names.emplace_back("");
+        }
+    }
+    void setup(dynamic::List* list, const ContentUnitDefs<U>& defs) {
+        if (list) {
+            for (size_t i = 0; i < list->size(); i++) {
+                std::string name = list->str(i);
+                if (auto def = defs.find(name)) {
+                    set(i, name, def->rt.id);
+                } else {
+                    set(i, name, missingValue);   
+                }
+            }
+        }
+    }
+    void getMissingContent(std::vector<contententry>& entries) const {
+        for (size_t i = 0; i < count(); i++) {
+            if (indices[i] == missingValue) {
+                auto& name = names[i];
+                entries.push_back(contententry {type, name});
+            }
+        }
+    }
+    inline const std::string& getName(T index) const {
+        return names[index];
+    }
+    inline T getId(T index) const {
+        return indices[index];
+    }
+    inline void set(T index, std::string name, T id) {
+        indices[index] = id;
+        names[index] = std::move(name);
+        if (id == missingValue) {
+            missingContent = true;
+        } else if (index != id) {
+            reorderContent = true;
+        }
+    }
+    inline size_t count() const {
+        return indices.size();
+    }
+    inline bool hasContentReorder() const {
+        return reorderContent;
+    }
+    inline bool hasMissingContent() const {
+        return missingContent;
+    }
+};
 
 /// @brief Content indices lookup table or report 
 /// used to convert world with different indices
 /// Building with indices.json
 class ContentLUT {
-    std::vector<blockid_t> blocks;
-    std::vector<std::string> blockNames;
-
-    std::vector<itemid_t> items;
-    std::vector<std::string> itemNames;
-
-    bool reorderContent = false;
-    bool missingContent = false;
 public:
-    ContentLUT(const Content* content, size_t blocks, size_t items);
+    ContentUnitLUT<blockid_t, Block> blocks;
+    ContentUnitLUT<itemid_t, ItemDef> items;
 
-    inline const std::string& getBlockName(blockid_t index) const {
-        return blockNames[index];
-    }
-
-    inline blockid_t getBlockId(blockid_t index) const {
-        return blocks[index];
-    }
-
-    inline void setBlock(blockid_t index, std::string name, blockid_t id) {
-        blocks[index] = id;
-        blockNames[index] = std::move(name);
-        if (id == BLOCK_VOID) {
-            missingContent = true;
-        } else if (index != id) {
-            reorderContent = true;
-        }
-    }
-
-    inline const std::string& getItemName(blockid_t index) const {
-        return itemNames[index];
-    }
-
-    inline itemid_t getItemId(itemid_t index) const {
-        return items[index];
-    }
-
-    inline void setItem(itemid_t index, std::string name, itemid_t id) {
-        items[index] = id;
-        itemNames[index] = std::move(name);
-        if (id == ITEM_VOID) {
-            missingContent = true;
-        } else if (index != id) {
-            reorderContent = true;
-        }
-    }
+    ContentLUT(const ContentIndices* indices, size_t blocks, size_t items);
 
     static std::shared_ptr<ContentLUT> create(
         const fs::path& filename, 
@@ -77,18 +102,10 @@ public:
     );
     
     inline bool hasContentReorder() const {
-        return reorderContent;
+        return blocks.hasContentReorder() || items.hasContentReorder();
     }
     inline bool hasMissingContent() const {
-        return missingContent;
-    }
-
-    inline size_t countBlocks() const {
-        return blocks.size();
-    }
-
-    inline size_t countItems() const {
-        return items.size();
+        return blocks.hasMissingContent() || items.hasMissingContent();
     }
 
     std::vector<contententry> getMissingContent() const;

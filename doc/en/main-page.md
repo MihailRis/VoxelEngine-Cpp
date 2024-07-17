@@ -12,3 +12,5 @@
 - [Scripting](scripting.md)
 - [Console](console.md)
 - [Block models](block-models.md)
+- [Rigging](rigging.md)
+- [Resources (resources.json)](resources.md)

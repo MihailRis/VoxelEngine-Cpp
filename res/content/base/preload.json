@@ -1,6 +1,10 @@
 {
     "sounds": [
         "blocks/door_open",
-        "blocks/door_close"
+        "blocks/door_close",
+        "events/pickup"
+    ],
+    "models": [
+        "drop-item"
     ]
 }

@@ -59,3 +59,18 @@ input.get_bindings() -> strings array
 ```
 
 Returns all binding names.
+
+```python
+input.is_pressed(code: str) -> bool
+```
+
+Checks input activity using a code consisting of:
+- input type: *key* or *mouse*
+- input code: [key name](#key names) or mouse button name (left, middle, right)
+
+Example:
+```lua
+if (input.is_pressed("key:enter") {
+    ...
+}
+```

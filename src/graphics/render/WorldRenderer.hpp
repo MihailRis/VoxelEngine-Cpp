@@ -45,9 +45,12 @@ class WorldRenderer {
     void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
 
     /// @brief Render block selection lines
+    void renderBlockSelection();
+    
+    /// @brief Render lines (selection and debug)
     /// @param camera active camera
     /// @param linesShader shader used
-    void renderBlockSelection(Camera* camera, Shader* linesShader);
+    void renderLines(Camera* camera, Shader* linesShader);
 
     /// @brief Render all debug lines (chunks borders, coord system guides)
     /// @param context graphics context
@@ -60,6 +63,7 @@ class WorldRenderer {
     );
 public:
     static bool showChunkBorders;
+    static bool showEntitiesDebug;
 
     WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* player);
     ~WorldRenderer();
@@ -67,7 +71,8 @@ public:
     void draw(
         const DrawContext& context, 
         Camera* camera, 
-        bool hudVisible, 
+        bool hudVisible,
+        bool pause,
         PostProcessing* postProcessing
     );
     void drawBorders(int sx, int sy, int sz, int ex, int ey, int ez);
@@ -79,7 +84,8 @@ public:
     void renderLevel(
         const DrawContext& context, 
         Camera* camera, 
-        const EngineSettings& settings
+        const EngineSettings& settings,
+        bool pause
     );
 };
 

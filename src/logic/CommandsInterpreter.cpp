@@ -373,6 +373,12 @@ public:
             if (!arg->optional) {
                 throw error("missing argument "+util::quote(arg->name));
             } else {
+                if (auto string = std::get_if<std::string>(&arg->def)) {
+                    if ((*string)[0] == '$') {
+                        args->put((*interpreter)[string->substr(1)]);
+                        continue;
+                    }
+                }
                 args->put(arg->def);
             }
         }

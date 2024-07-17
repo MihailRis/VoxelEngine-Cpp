@@ -9,10 +9,12 @@
 #include "../files/WorldFiles.hpp"
 #include "../items/Inventories.hpp"
 #include "../objects/Player.hpp"
+#include "../objects/Entities.hpp"
 #include "../voxels/Chunk.hpp"
 #include "../voxels/Chunks.hpp"
 #include "../voxels/ChunksStorage.hpp"
 #include "../world/WorldGenerators.hpp"
+#include "Level.hpp"
 
 #include <memory>
 #include <glm/glm.hpp>
@@ -50,19 +52,30 @@ void World::updateTimers(float delta) {
     totalTime += delta;
 }
 
-void World::write(Level* level) {
-    const Content* content = level->content;
-    Chunks* chunks = level->chunks.get();
-    auto& regions = wfile->getRegions();
-
-    for (size_t i = 0; i < chunks->volume; i++) {
-        if (auto chunk = chunks->chunks[i]) {
-            regions.put(chunk.get());
+void World::writeResources(const Content* content) {
+    auto root = dynamic::Map();
+    for (size_t typeIndex = 0; typeIndex < RESOURCE_TYPES_COUNT; typeIndex++) {
+        auto typeName = to_string(static_cast<ResourceType>(typeIndex));
+        auto& list = root.putList(typeName);
+        auto& indices = content->resourceIndices[typeIndex];
+        for (size_t i = 0; i < indices.size(); i++) {
+            auto& map = list.putMap();
+            map.put("name", indices.getName(i));
+            if (auto data = indices.getSavedData(i)) {
+                map.put("saved", data);
+            }
         }
     }
-    wfile->write(this, content);
-    auto playerFile = dynamic::Map();
+    files::write_json(wfile->getResourcesFile(), &root);
+}
 
+void World::write(Level* level) {
+    const Content* content = level->content;
+    level->chunks->saveAll();
+    nextEntityId = level->entities->peekNextID();
+    wfile->write(this, content);
+    
+    auto playerFile = dynamic::Map();
     auto& players = playerFile.putList("players");
     for (const auto& object : level->objects) {
         if (auto player = std::dynamic_pointer_cast<Player>(object)) {
@@ -70,6 +83,8 @@ void World::write(Level* level) {
         }
     }
     files::write_json(wfile->getPlayerFile(), &playerFile);
+
+    writeResources(content);
 }
 
 std::unique_ptr<Level> World::create(
@@ -101,6 +116,7 @@ std::unique_ptr<Level> World::load(
     if (!wfile->readWorldInfo(world.get())) {
         throw world_load_error("could not to find world.json");
     }
+    wfile->readResourcesData(content);
 
     auto level = std::make_unique<Level>(std::move(world), content, settings);
     {
@@ -114,11 +130,13 @@ std::unique_ptr<Level> World::load(
                 auto players = playerFile->list("players");
                 for (size_t i = 0; i < players->size(); i++) {
                     auto player = level->spawnObject<Player>(
+                        level.get(),
                         glm::vec3(0, DEF_PLAYER_Y, 0), 
                         DEF_PLAYER_SPEED, 
-                        level->inventories->create(DEF_PLAYER_INVENTORY_SIZE)
+                        level->inventories->create(DEF_PLAYER_INVENTORY_SIZE),
+                        0
                     );
-                    player->deserialize(players->map(i));
+                    player->deserialize(players->map(i).get());
                     level->inventories->store(player->getInventory());
                 }
             } else {
@@ -201,6 +219,7 @@ void World::deserialize(dynamic::Map* root) {
         weatherobj->num("fog", fog);
     }
     nextInventoryId = root->get("next-inventory-id", 2);
+    nextEntityId = root->get("next-entity-id", 1);
 }
 
 std::unique_ptr<dynamic::Map> World::serialize() const {
@@ -223,5 +242,6 @@ std::unique_ptr<dynamic::Map> World::serialize() const {
     weatherobj.put("fog", fog);
 
     root->put("next-inventory-id", nextInventoryId);
+    root->put("next-entity-id", nextEntityId);
     return root;
 }

@@ -1,6 +1,7 @@
 <container size='668,418' color='#0F1E2DB2' context='menu'>
     <panel pos='6' size='250' color='0' interval='1'>
         <button id='s_aud' onclick='set_page("s_aud", "settings_audio")'>@Audio</button>
+        <button id='s_dsp' onclick='set_page("s_dsp", "settings_display")'>@Display</button>
         <button id='s_gfx' onclick='set_page("s_gfx", "settings_graphics")'>@Graphics</button>
         <button id='s_ctl' onclick='set_page("s_ctl", "settings_controls")'>@Controls</button>
     </panel>

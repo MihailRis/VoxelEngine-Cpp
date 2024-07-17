@@ -9,6 +9,7 @@
 #include "coders/imageio.hpp"
 #include "coders/json.hpp"
 #include "coders/toml.hpp"
+#include "content/Content.hpp"
 #include "content/ContentBuilder.hpp"
 #include "content/ContentLoader.hpp"
 #include "core_defs.hpp"
@@ -23,6 +24,7 @@
 #include "graphics/core/ImageData.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/ui/GUI.hpp"
+#include "objects/rigging.hpp"
 #include "logic/EngineController.hpp"
 #include "logic/CommandsInterpreter.hpp"
 #include "logic/scripting/scripting.hpp"
@@ -121,6 +123,7 @@ void Engine::loadControls() {
 }
 
 void Engine::onAssetsLoaded() {
+    assets->setup();
     gui->onAssetsLoad(assets.get());
 }
 
@@ -246,6 +249,8 @@ void Engine::loadAssets() {
     AssetsLoader loader(new_assets.get(), resPaths.get());
     AssetsLoader::addDefaults(loader, content.get());
 
+    // no need
+    // correct log messages order is more useful
     bool threading = false;
     if (threading) {
         auto task = loader.startTask([=](){});
@@ -289,10 +294,7 @@ void Engine::loadContent() {
     std::vector<PathsRoot> resRoots;
     for (auto& pack : contentPacks) {
         resRoots.push_back({pack.id, pack.folder});
-
-        ContentLoader loader(&pack);
-        loader.load(contentBuilder);
-
+        ContentLoader(&pack, contentBuilder).load();
         load_configs(pack.folder);
     } 
     load_configs(paths->getResources());

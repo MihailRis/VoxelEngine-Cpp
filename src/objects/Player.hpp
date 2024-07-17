@@ -8,13 +8,14 @@
 #include "../interfaces/Object.hpp"
 
 #include <memory>
+#include <optional>
 #include <glm/glm.hpp>
 
 class Camera;
-class Hitbox;
 class Inventory;
 class ContentLUT;
 class Level;
+struct Hitbox;
 struct EngineSettings;
 
 struct PlayerInput {
@@ -32,36 +33,44 @@ struct PlayerInput {
     bool flight : 1;
 };
 
-struct BlockSelection {
-    voxel vox {0, {}};
+struct CursorSelection {
+    voxel vox {BLOCK_VOID, {}};
     glm::ivec3 position {};
     glm::ivec3 actualPosition {};
     glm::ivec3 normal {};
     glm::vec3 hitPosition;
+    entityid_t entity = ENTITY_NONE;
 };
 
 class Player : public Object, public Serializable {
+    Level* level;
     float speed;
     int chosenSlot;
+    glm::vec3 position;
     glm::vec3 spawnpoint {};
     std::shared_ptr<Inventory> inventory;
     bool flight = false;
     bool noclip = false;
+    entityid_t eid;
+    entityid_t selectedEid;
 public:
     std::shared_ptr<Camera> camera, spCamera, tpCamera;
     std::shared_ptr<Camera> currentCamera;
-    std::unique_ptr<Hitbox> hitbox;
     bool debug = false;
     glm::vec3 cam {};
-    BlockSelection selection {};
+    CursorSelection selection {};
 
-    Player(glm::vec3 position, float speed, std::shared_ptr<Inventory> inv);
+    Player(Level* level, glm::vec3 position, float speed, 
+           std::shared_ptr<Inventory> inv, entityid_t eid);
     ~Player();
 
     void teleport(glm::vec3 position);
-    void updateInput(Level* level, PlayerInput& input, float delta);
+    void updateEntity();
+    void updateInput(PlayerInput& input, float delta);
+    void updateSelectedEntity();
+    void postUpdate();
 
-    void attemptToFindSpawnpoint(Level* level);
+    void attemptToFindSpawnpoint();
 
     void setChosenSlot(int index);
 
@@ -73,8 +82,19 @@ public:
 
     bool isNoclip() const;
     void setNoclip(bool flag);
+
+    entityid_t getEntity() const;
+    void setEntity(entityid_t eid);
+
+    entityid_t getSelectedEntity() const;
     
     std::shared_ptr<Inventory> getInventory() const;
+
+    glm::vec3 getPosition() const {
+        return position;
+    }
+
+    Hitbox* getHitbox();
 
     void setSpawnPoint(glm::vec3 point);
     glm::vec3 getSpawnPoint() const;

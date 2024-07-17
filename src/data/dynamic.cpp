@@ -55,9 +55,9 @@ integer_t List::integer(size_t index) const {
     }
 }
 
-Map* List::map(size_t index) const {
+const Map_sptr& List::map(size_t index) const {
     if (auto* val = std::get_if<Map_sptr>(&values[index])) {
-        return val->get();
+        return *val;
     } else {
         throw std::runtime_error("type error");
     }
@@ -192,20 +192,20 @@ void Map::num(const std::string& key, uint& dst) const {
     dst = get(key, static_cast<integer_t>(dst));
 }
 
-Map* Map::map(const std::string& key) const {
+Map_sptr Map::map(const std::string& key) const {
     auto found = values.find(key);
     if (found != values.end()) {
         if (auto* val = std::get_if<Map_sptr>(&found->second)) {
-            return val->get();
+            return *val;
         }
     }
     return nullptr;
 }
 
-List* Map::list(const std::string& key) const {
+List_sptr Map::list(const std::string& key) const {
     auto found = values.find(key);
     if (found != values.end())
-        return std::get<List_sptr>(found->second).get();
+        return std::get<List_sptr>(found->second);
     return nullptr;
 }
 

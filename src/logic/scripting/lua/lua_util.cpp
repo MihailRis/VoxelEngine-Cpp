@@ -118,15 +118,15 @@ int lua::call(State* L, int argc, int nresults) {
     if (lua_pcall(L, argc, nresults, 0)) {
         throw luaerror(tostring(L, -1));
     }
-    return 1;
+    return nresults == -1 ? 1 : nresults;
 }
 
-int lua::call_nothrow(State* L, int argc) {
+int lua::call_nothrow(State* L, int argc, int nresults) {
     if (lua_pcall(L, argc, LUA_MULTRET, 0)) {
         log_error(tostring(L, -1));
         return 0;
     }
-    return 1;
+    return nresults == -1 ? 1 : nresults;
 }
 
 void lua::dump_stack(State* L) {
@@ -198,7 +198,7 @@ scripting::common_func lua::create_lambda(State* L) {
     };
 }
 
-int lua::createEnvironment(State* L, int parent) {
+int lua::create_environment(State* L, int parent) {
     int id = nextEnvironment++;
 
     // local env = {}

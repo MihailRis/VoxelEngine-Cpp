@@ -46,6 +46,8 @@ struct CameraSettings {
     FlagSetting fovEffects {true};
     /// @brief Camera movement shake
     FlagSetting shaking {true};
+    /// @brief Camera movement inertia effect
+    FlagSetting inertia {true};
     /// @brief Camera field of view
     NumberSetting fov {90.0f, 10, 120};
     /// @brief Camera sensitivity
