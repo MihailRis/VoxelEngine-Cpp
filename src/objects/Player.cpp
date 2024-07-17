@@ -135,6 +135,10 @@ void Player::updateInput(PlayerInput& input, float delta) {
     input.flight = false;
 }
 
+void Player::updateSelectedEntity() {
+    selectedEid = selection.entity;
+}
+
 void Player::postUpdate() {
     auto entity = level->entities->get(eid);
     if (!entity.has_value()) {
@@ -223,6 +227,10 @@ entityid_t Player::getEntity() const {
 
 void Player::setEntity(entityid_t eid) {
     this->eid = eid;
+}
+
+entityid_t Player::getSelectedEntity() const {
+    return selectedEid;
 }
 
 std::shared_ptr<Inventory> Player::getInventory() const {

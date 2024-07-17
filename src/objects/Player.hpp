@@ -52,6 +52,7 @@ class Player : public Object, public Serializable {
     bool flight = false;
     bool noclip = false;
     entityid_t eid;
+    entityid_t selectedEid;
 public:
     std::shared_ptr<Camera> camera, spCamera, tpCamera;
     std::shared_ptr<Camera> currentCamera;
@@ -66,6 +67,7 @@ public:
     void teleport(glm::vec3 position);
     void updateEntity();
     void updateInput(PlayerInput& input, float delta);
+    void updateSelectedEntity();
     void postUpdate();
 
     void attemptToFindSpawnpoint();
@@ -83,6 +85,8 @@ public:
 
     entityid_t getEntity() const;
     void setEntity(entityid_t eid);
+
+    entityid_t getSelectedEntity() const;
     
     std::shared_ptr<Inventory> getInventory() const;
 

@@ -140,8 +140,8 @@ static int l_get_selected_block(lua::State* L) {
 
 static int l_get_selected_entity(lua::State* L) {
     if (auto player = get_player(L, 1)) {
-        if (player->selection.entity) {
-            return lua::pushinteger(L, player->selection.entity);
+        if (auto eid = player->getSelectedEntity()) {
+            return lua::pushinteger(L, eid);
         }
     }
     return 0;

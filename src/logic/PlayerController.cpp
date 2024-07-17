@@ -241,6 +241,7 @@ void PlayerController::update(float delta, bool input, bool pause) {
     if (!pause) {
         if (input) {
             updateKeyboard();
+            player->updateSelectedEntity();
         } else {
             resetKeyboard();
         }

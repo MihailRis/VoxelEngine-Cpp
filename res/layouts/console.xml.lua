@@ -11,6 +11,10 @@ function setup_variables()
     if pentity ~= 0 then
         console.set('entity.id', pentity)
     end
+    local sentity = player.get_selected_entity(pid)
+    if sentity ~= nil then
+        console.set('entity.selected', sentity)
+    end
 end
 
 function on_history_up()

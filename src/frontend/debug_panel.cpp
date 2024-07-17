@@ -105,10 +105,10 @@ std::shared_ptr<UINode> create_debug_panel(
         }
     }));
     panel->add(create_label([=]() {
-        const auto& selection = player->selection;
-        if (selection.entity == ENTITY_NONE) {
+        auto eid = player->getSelectedEntity();
+        if (eid == ENTITY_NONE) {
             return std::wstring {L"entity: -"};
-        } else if (auto entity = level->entities->get(selection.entity)) {
+        } else if (auto entity = level->entities->get(eid)) {
             return L"entity: "+util::str2wstr_utf8(entity->getDef().name)+
                    L" uid: "+std::to_wstring(entity->getUID());
         } else {
