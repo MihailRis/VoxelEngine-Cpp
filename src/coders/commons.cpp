@@ -208,6 +208,14 @@ std::string_view BasicParser::readUntil(char c) {
     return source.substr(start, pos-start);
 }
 
+std::string_view BasicParser::readUntilEOL() {
+    int start = pos;
+    while (hasNext() && source[pos] != '\r' && source[pos] != '\n') {
+        pos++;
+    }
+    return source.substr(start, pos-start);
+}
+
 std::string BasicParser::parseName() {
     char c = peek();
     if (!is_identifier_start(c)) {
