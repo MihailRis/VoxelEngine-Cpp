@@ -12,6 +12,7 @@ std::string to_string(BlockModel model) {
         case BlockModel::xsprite: return "X";
         case BlockModel::aabb: return "aabb";
         case BlockModel::custom: return "custom";
+        default: return "unknown";
     }
 }
 
