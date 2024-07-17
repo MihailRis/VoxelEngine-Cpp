@@ -10,6 +10,11 @@ entities.get(uid: int) -> table
 -- Creates the specified entity.
 -- args - table of component parameter tables (ARGS variable)
 -- args is optional
+-- args structure:
+-- {prefix__name={...}, ...}
+-- prefix - component pack id
+-- name - component name
+-- component prefix and name are separated with two underscores
 entities.spawn(name: str, pos: vec3, [optional] args: table)
 
 -- Checks the existence of an entity by a unique identifier.
