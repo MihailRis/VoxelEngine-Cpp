@@ -17,15 +17,27 @@ struct EntityDef {
     /// @brief Entity string id (with prefix included)
     std::string const name;
 
+    /// @brief Component IDs
     std::vector<std::string> components;
 
+    /// @brief Physic body type
     BodyType bodyType = BodyType::DYNAMIC;
+
+    /// @brief Hitbox size
     glm::vec3 hitbox {0.25f};
+    
+    /// @brief 'aabb' sensors
     std::vector<std::pair<size_t, AABB>> boxSensors {};
+    /// @brief 'radius' sensors
     std::vector<std::pair<size_t, float>> radialSensors {};
+    
+    /// @brief Skeleton ID
     std::string skeletonName = name;
+
+    /// @brief Does entity prevent blocks setup
     bool blocking = true;
 
+    /// @brief save-** flags
     struct {
         bool enabled = true;
         struct {

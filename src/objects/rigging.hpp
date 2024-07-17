@@ -120,7 +120,7 @@ namespace rigging {
             std::string_view name
         );
 
-        const std::vector<Bone*>& getNodes() const {
+        const std::vector<Bone*>& getBones() const {
             return nodes;
         }
         

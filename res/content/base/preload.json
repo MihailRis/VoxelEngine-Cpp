@@ -5,10 +5,6 @@
         "events/pickup"
     ],
     "models": [
-        "block",
-        "drop-block",
-        "drop-item",
-        "player",
-        "player-head"
+        "drop-item"
     ]
 }

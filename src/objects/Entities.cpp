@@ -49,10 +49,10 @@ void Entity::setRig(const rigging::SkeletonConfig* rigConfig) {
     auto& skeleton = registry.get<rigging::Skeleton>(entity);
     skeleton.config = rigConfig;
     skeleton.pose.matrices.resize(
-        rigConfig->getNodes().size(), glm::mat4(1.0f)
+        rigConfig->getBones().size(), glm::mat4(1.0f)
     );
     skeleton.calculated.matrices.resize(
-        rigConfig->getNodes().size(), glm::mat4(1.0f)
+        rigConfig->getBones().size(), glm::mat4(1.0f)
     );
 }
 
@@ -99,7 +99,7 @@ entityid_t Entities::spawn(
     dynamic::Map_sptr saved,
     entityid_t uid)
 {
-    auto skeleton = level->content->getRig(def.skeletonName);
+    auto skeleton = level->content->getSkeleton(def.skeletonName);
     if (skeleton == nullptr) {
         throw std::runtime_error("skeleton "+def.skeletonName+" not found");
     }
@@ -205,7 +205,7 @@ void Entities::loadEntity(const dynamic::Map_sptr& map, Entity entity) {
     std::string skeletonName = skeleton.config->getName();
     map->str("skeleton", skeletonName);
     if (skeletonName != skeleton.config->getName()) {
-        skeleton.config = level->content->getRig(skeletonName);
+        skeleton.config = level->content->getSkeleton(skeletonName);
     }
     if (auto skeletonmap = map->map(COMP_SKELETON)) {
         if (auto texturesmap = skeletonmap->map("textures")) {

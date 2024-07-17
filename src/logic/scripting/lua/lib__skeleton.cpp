@@ -20,7 +20,7 @@ static int l_get_model(lua::State* L) {
         if (!modelOverride.model) {
             return lua::pushstring(L, modelOverride.name);
         }
-        return lua::pushstring(L, rigConfig->getNodes()[index]->model.name);
+        return lua::pushstring(L, rigConfig->getBones()[index]->model.name);
     }
     return 0;
 }

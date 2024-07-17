@@ -48,7 +48,7 @@ static int l_get_skeleton(lua::State* L) {
 static int l_set_skeleton(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
         std::string skeletonName = lua::require_string(L, 2);
-        auto rigConfig = content->getRig(skeletonName);
+        auto rigConfig = content->getSkeleton(skeletonName);
         if (rigConfig == nullptr) {
             throw std::runtime_error("skeleton not found '"+skeletonName+"'");
         }

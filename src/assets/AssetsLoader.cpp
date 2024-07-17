@@ -12,6 +12,7 @@
 #include "../content/Content.hpp"
 #include "../content/ContentPack.hpp"
 #include "../voxels/Block.hpp"
+#include "../objects/rigging.hpp"
 #include "../graphics/core/Texture.hpp"
 #include "../logic/scripting/scripting.hpp"
 
@@ -204,6 +205,16 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
             auto& info = pack->getInfo();
             fs::path folder = info.folder / fs::path("layouts");
             addLayouts(pack->getEnvironment(), info.id, folder, loader);
+        }
+
+        for (auto& entry : content->getSkeletons()) {
+            auto& skeleton = *entry.second;
+            for (auto& bone : skeleton.getBones()) {
+                auto& model = bone->model.name;
+                if (!model.empty()) {
+                    loader.add(AssetType::MODEL, MODELS_FOLDER+"/"+model, model);
+                }
+            }
         }
     }
     loader.add(AssetType::ATLAS, TEXTURES_FOLDER+"/blocks", "blocks");

@@ -200,12 +200,13 @@ public:
         return resourceIndices[static_cast<size_t>(type)];
     }
 
-    const rigging::SkeletonConfig* getRig(const std::string& id) const;
+    const rigging::SkeletonConfig* getSkeleton(const std::string& id) const;
     const BlockMaterial* findBlockMaterial(const std::string& id) const;
     const ContentPackRuntime* getPackRuntime(const std::string& id) const;
 
     const UptrsMap<std::string, BlockMaterial>& getBlockMaterials() const;
     const UptrsMap<std::string, ContentPackRuntime>& getPacks() const;
+    const UptrsMap<std::string, rigging::SkeletonConfig>& getSkeletons() const;
 };
 
 #endif // CONTENT_CONTENT_HPP_
