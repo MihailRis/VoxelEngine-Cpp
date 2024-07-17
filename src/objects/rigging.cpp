@@ -94,7 +94,7 @@ void SkeletonConfig::render(
         node->model.refresh(assets);
         auto model = node->model.model;
         auto& modelOverride = skeleton.modelOverrides.at(i);
-        if (!modelOverride.updateFlag) {
+        if (modelOverride.updateFlag) {
             modelOverride.refresh(assets);
         }
         model = modelOverride.model ? modelOverride.model : model;
