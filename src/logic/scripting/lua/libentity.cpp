@@ -2,6 +2,7 @@
 
 #include "../../../objects/Player.hpp"
 #include "../../../objects/Entities.hpp"
+#include "../../../objects/EntityDef.hpp"
 #include "../../../objects/rigging.hpp"
 #include "../../../physics/Hitbox.hpp"
 #include "../../../window/Camera.hpp"
@@ -13,6 +14,13 @@ using namespace scripting;
 
 static int l_exists(lua::State* L) {
     return lua::pushboolean(L, get_entity(L, 1).has_value());
+}
+
+static int l_name(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        return lua::pushstring(L, entity->getDef().name);
+    }
+    return 0;
 }
 
 static int l_spawn(lua::State* L) {
@@ -150,6 +158,7 @@ static int l_raycast(lua::State* L) {
 
 const luaL_Reg entitylib [] = {
     {"exists", lua::wrap<l_exists>},
+    {"name", lua::wrap<l_name>},
     {"spawn", lua::wrap<l_spawn>},
     {"despawn", lua::wrap<l_despawn>},
     {"get_skeleton", lua::wrap<l_get_skeleton>},

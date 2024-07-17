@@ -15,6 +15,9 @@ entities.spawn(name: str, pos: vec3, [optional] args: table)
 -- Checks the existence of an entity by a unique identifier.
 entities.exists(uid: int) -> bool
 
+-- Returns entity name (string ID).
+entities.name(uid: int) -> str
+
 -- Returns a table of all loaded entities
 entities.get_all() -> table
 

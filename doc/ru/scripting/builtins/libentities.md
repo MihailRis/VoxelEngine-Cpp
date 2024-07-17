@@ -15,6 +15,9 @@ entities.spawn(name: str, pos: vec3, [optional] args: table)
 -- Проверяет наличие сущности по уникальному идентификатору.
 entities.exists(uid: int) -> bool
 
+-- Возвращает имя сущности (строковый ID).
+entities.name(uid: int) -> str
+
 -- Возвращает таблицу всех загруженных сущностей
 entities.get_all() -> table
 
