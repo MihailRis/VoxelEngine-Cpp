@@ -95,7 +95,7 @@ static void initialize_body(
 entityid_t Entities::spawn(
     EntityDef& def,
     glm::vec3 position,
-    dynamic::Value args,
+    dynamic::Map_sptr args,
     dynamic::Map_sptr saved,
     entityid_t uid)
 {
@@ -179,7 +179,7 @@ void Entities::loadEntity(const dynamic::Map_sptr& map) {
         throw std::runtime_error("could not read entity - invalid UID");
     }
     auto& def = level->content->entities.require(defname);
-    spawn(def, {}, dynamic::NONE, map, uid);
+    spawn(def, {}, nullptr, map, uid);
 }
 
 void Entities::loadEntity(const dynamic::Map_sptr& map, Entity entity) {

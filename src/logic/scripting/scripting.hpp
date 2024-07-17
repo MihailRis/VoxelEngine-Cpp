@@ -82,7 +82,7 @@ namespace scripting {
         const EntityDef& def,
         entityid_t eid, 
         const std::vector<std::unique_ptr<UserComponent>>& components,
-        dynamic::Value args,
+        dynamic::Map_sptr args,
         dynamic::Map_sptr saved
     );
     void on_entity_despawn(const Entity& entity);

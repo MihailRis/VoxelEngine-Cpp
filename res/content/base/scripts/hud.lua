@@ -17,7 +17,7 @@ function on_hud_open()
         local pvel = {player.get_vel(pid)}
         local ppos = vec3.add({player.get_pos(pid)}, {0, 0.7, 0})
         local throw_force = vec3.mul(player.get_dir(pid), DROP_FORCE)
-        local drop = entities.spawn("base:drop", ppos, {item={
+        local drop = entities.spawn("base:drop", ppos, {base__drop={
             id=itemid,
             count=1
         }})

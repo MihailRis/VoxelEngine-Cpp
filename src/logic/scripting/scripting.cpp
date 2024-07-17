@@ -301,7 +301,7 @@ void scripting::on_entity_spawn(
     const EntityDef&,
     entityid_t eid,
     const std::vector<std::unique_ptr<UserComponent>>& components,
-    dynamic::Value args,
+    dynamic::Map_sptr args,
     dynamic::Map_sptr saved
 ) {
     auto L = lua::get_main_thread();
@@ -321,8 +321,14 @@ void scripting::on_entity_spawn(
         lua::get_from(L, lua::CHUNKS_TABLE, component->name, true);
         lua::pushenv(L, *compenv);
 
-        lua::pushvalue(L, args);
-        lua::setfield(L, "ARGS");
+        if (args != nullptr) {
+            std::string compfieldname = component->name;
+            util::replaceAll(compfieldname, ":", "__");
+            if (auto datamap = args->map(compfieldname)) {
+                lua::pushvalue(L, datamap);
+                lua::setfield(L, "ARGS");
+            }
+        }
 
         if (saved == nullptr) {
             lua::createtable(L, 0, 0);

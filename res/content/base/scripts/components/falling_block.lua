@@ -26,7 +26,7 @@ function on_grounded()
         block.set(ix, iy, iz, block.index(blockid))
     else
         local picking_item = block.get_picking_item(block.index(blockid))
-        local drop = entities.spawn("base:drop", pos, {item={id=picking_item, count=1}})
+        local drop = entities.spawn("base:drop", pos, {base__drop={id=picking_item, count=1}})
         drop.rigidbody:set_vel(vec3.spherical_rand(5.0))
     end
     entity:despawn()
