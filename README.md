@@ -1,6 +1,6 @@
 # Run with compiled executable file:
 
-[Download | Скачать](https://github.com/MihailRis/VoxelEngine-Cpp/releases/latest) (0.22)
+[Download | Скачать](https://github.com/MihailRis/VoxelEngine-Cpp/releases/latest) (0.21)
 
 # Controls:
 - <kbd>**Esc**</kbd> - pause
