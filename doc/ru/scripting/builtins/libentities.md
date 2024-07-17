@@ -14,6 +14,22 @@ entities.spawn(name: str, pos: vec3, [optional] args: table)
 
 -- Проверяет наличие сущности по уникальному идентификатору.
 entities.exists(uid: int) -> bool
+
+-- Возвращает таблицу всех загруженных сущностей
+entities.get_all() -> table
+
+-- Возвращает таблицу загруженных сущностей по переданному списку UID
+entities.get_all(uids: array<int>) -> table
+
+-- Возвращает список UID сущностей, попадающих в прямоугольную область
+-- pos - минимальный угол области
+-- size - размер области
+entities.get_all_in_box(pos: vec3, size: vec3) -> array<int>
+
+-- Возвращает список UID сущностей, попадающих в радиус
+-- center - центр области
+-- radius - радиус области
+entities.get_all_in_radius(center: vec3, radius: number) -> array<int>
 ```
 
 ```lua

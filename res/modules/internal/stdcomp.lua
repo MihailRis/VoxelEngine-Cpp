@@ -111,5 +111,16 @@ return {
                 end
             end
         end
+    end,
+    get_all = function(uids)
+        if uids == nil then
+            return entities
+        else
+            local values = {}
+            for _, uid in ipairs(uids) do
+                values[uid] = entities[uid]
+            end
+            return values
+        end
     end
 }

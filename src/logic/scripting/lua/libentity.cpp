@@ -57,6 +57,32 @@ static int l_set_skeleton(lua::State* L) {
     return 0;
 }
 
+static int l_get_all_in_box(lua::State* L) {
+    auto pos = lua::tovec<3>(L, 1);
+    auto size = lua::tovec<3>(L, 2);
+    auto found = level->entities->getAllInside(AABB(pos, pos + size));
+    lua::createtable(L, found.size(), 0);
+    for (size_t i = 0; i < found.size(); i++) {
+        const auto& entity = found[i];
+        lua::pushinteger(L, entity.getUID());
+        lua::rawseti(L, i+1);
+    }
+    return 1;
+}
+
+static int l_get_all_in_radius(lua::State* L) {
+    auto pos = lua::tovec<3>(L, 1);
+    auto radius = lua::tonumber(L, 2);
+    auto found = level->entities->getAllInRadius(pos, radius);
+    lua::createtable(L, found.size(), 0);
+    for (size_t i = 0; i < found.size(); i++) {
+        const auto& entity = found[i];
+        lua::pushinteger(L, entity.getUID());
+        lua::rawseti(L, i+1);
+    }
+    return 1;  
+}
+
 static int l_raycast(lua::State* L) {
     auto start = lua::tovec<3>(L, 1);
     auto dir = lua::tovec<3>(L, 2);
@@ -128,6 +154,8 @@ const luaL_Reg entitylib [] = {
     {"despawn", lua::wrap<l_despawn>},
     {"get_skeleton", lua::wrap<l_get_skeleton>},
     {"set_skeleton", lua::wrap<l_set_skeleton>},
+    {"get_all_in_box", lua::wrap<l_get_all_in_box>},
+    {"get_all_in_radius", lua::wrap<l_get_all_in_radius>},
     {"raycast", lua::wrap<l_raycast>},
     {NULL, NULL}
 };

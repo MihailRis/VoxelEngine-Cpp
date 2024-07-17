@@ -210,6 +210,7 @@ public:
     void onSave(const Entity& entity);
     bool hasBlockingInside(AABB aabb);
     std::vector<Entity> getAllInside(AABB aabb);
+    std::vector<Entity> getAllInRadius(glm::vec3 center, float radius);
     void despawn(entityid_t id);
     dynamic::Value serialize(const Entity& entity);
 

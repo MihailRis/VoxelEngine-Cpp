@@ -503,3 +503,20 @@ std::vector<Entity> Entities::getAllInside(AABB aabb) {
     }
     return collected;
 }
+
+std::vector<Entity> Entities::getAllInRadius(glm::vec3 center, float radius) {
+    std::vector<Entity> collected;
+    auto view = registry.view<Transform>();
+    for (auto [entity, transform] : view.each()) {
+        if (glm::distance2(transform.pos, center) <= radius*radius) {
+            const auto& found = uids.find(entity);
+            if (found == uids.end()) {
+                continue;
+            }
+            if (auto wrapper = get(found->second)) {
+                collected.push_back(*wrapper);
+            }
+        }
+    }
+    return collected;
+}
