@@ -32,6 +32,8 @@ At the moment, positioning, rotation, scaling is done through scripting, as well
 
 The process of working with skeletons will be simplified in the future.
 
+Models are loaded automatically; adding them to preload.json is not required.
+
 ## Models
 
 Models should be located in the models folder. Currently only OBJ format is supported.
