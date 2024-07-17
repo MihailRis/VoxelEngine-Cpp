@@ -1,6 +1,6 @@
 # Run with compiled executable file:
 
-[Download | Скачать](https://github.com/MihailRis/VoxelEngine-Cpp/releases/latest) (0.21)
+[Download | Скачать](https://github.com/MihailRis/VoxelEngine-Cpp/releases/latest)
 
 # Controls:
 - <kbd>**Esc**</kbd> - pause
@@ -11,7 +11,6 @@
 - <kbd>**RMB**</kbd> - place block
 - <kbd>**F**</kbd> - toggle flight mode
 - <kbd>**N**</kbd> - noclip mode
-- <kbd>**Q**</kbd> - drop item
 - <kbd>**F1**</kbd> - toggle interface
 - <kbd>**F2**</kbd> - save screenshot
 - <kbd>**F3**</kbd> - debug mode

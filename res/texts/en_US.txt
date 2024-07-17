@@ -29,5 +29,6 @@ player.attack=Attack / Break
 player.build=Place Block
 player.flight=Flight
 player.noclip=No-clip
+player.drop=Drop Item
 camera.zoom=Zoom
 camera.mode=Switch Camera Mode

@@ -82,5 +82,6 @@ player.pick=Подобрать Блок
 player.attack=Атаковать / Сломать
 player.build=Поставить Блок
 player.flight=Полёт
+player.drop=Выбросить Предмет
 camera.zoom=Приближение
 camera.mode=Сменить Режим Камеры
