@@ -20,8 +20,17 @@ entities.spawn(name: str, pos: vec3, [optional] args: table)
 -- Checks the existence of an entity by a unique identifier.
 entities.exists(uid: int) -> bool
 
--- Returns entity name (string ID).
-entities.name(uid: int) -> str
+-- Returns entity definition index by UID
+entities.get_def(uid: int) -> int
+
+-- Returns entity definition name by index (string ID).
+entities.def_name(id: int) -> str
+
+-- Returns entity definition index by name (integer ID).
+entities.def_index(name: str) -> int
+
+-- Returns number of available entity definitions
+entities.defs_count() -> int
 
 -- Returns a table of all loaded entities
 entities.get_all() -> table

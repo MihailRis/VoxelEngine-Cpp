@@ -12,11 +12,36 @@
 
 using namespace scripting;
 
+static EntityDef* require_entity_def(lua::State* L) {
+    auto indices = content->getIndices();
+    auto id = lua::tointeger(L, 1);
+    if (static_cast<size_t>(id) >= indices->entities.count()) {
+        return nullptr;
+    }
+    return indices->entities.get(id);
+}
+
+
 static int l_exists(lua::State* L) {
     return lua::pushboolean(L, get_entity(L, 1).has_value());
 }
 
-static int l_name(lua::State* L) {
+static int l_def_index(lua::State* L) {
+    auto name = lua::require_string(L, 1);
+    return lua::pushinteger(L, content->entities.require(name).rt.id);
+}
+
+static int l_def_name(lua::State* L) {
+    if (auto def = require_entity_def(L)) {
+        return lua::pushstring(L, def->name);
+    }
+    return 0;
+}
+static int l_defs_count(lua::State* L) {
+    return lua::pushinteger(L, indices->entities.count());
+}
+
+static int l_get_def(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
         return lua::pushstring(L, entity->getDef().name);
     }
@@ -158,7 +183,10 @@ static int l_raycast(lua::State* L) {
 
 const luaL_Reg entitylib [] = {
     {"exists", lua::wrap<l_exists>},
-    {"name", lua::wrap<l_name>},
+    {"def_index", lua::wrap<l_def_index>},
+    {"def_name", lua::wrap<l_def_name>},
+    {"get_def", lua::wrap<l_get_def>},
+    {"defs_count", lua::wrap<l_defs_count>},
     {"spawn", lua::wrap<l_spawn>},
     {"despawn", lua::wrap<l_despawn>},
     {"get_skeleton", lua::wrap<l_get_skeleton>},

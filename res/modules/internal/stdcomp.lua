@@ -62,7 +62,7 @@ local Entity = {__index={
     get_component=function(self, name) return self.components[name] end,
     has_component=function(self, name) return self.components[name] ~= nil end,
     get_uid=function(self) return self.eid end,
-    get_name=function(self) return entities.name(self.eid) end,
+    get_def=function(self) return entities.get_def(self.eid) end,
 }}
 
 local entities = {}

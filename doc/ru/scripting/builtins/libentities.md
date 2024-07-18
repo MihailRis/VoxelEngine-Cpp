@@ -20,8 +20,17 @@ entities.spawn(name: str, pos: vec3, [optional] args: table)
 -- Проверяет наличие сущности по уникальному идентификатору.
 entities.exists(uid: int) -> bool
 
--- Возвращает имя сущности (строковый ID).
-entities.name(uid: int) -> str
+-- Возвращает индекс определения сущности по UID
+entities.get_def(uid: int) -> int
+
+-- Возвращает имя определения сущности по индексу (строковый ID).
+entities.def_name(id: int) -> str
+
+-- Возвращает индекс определения сущности по имени (числовой ID).
+entities.def_index(name: str) -> int
+
+-- Возвращает число доступных определений сущностей
+entities.defs_count() -> int
 
 -- Возвращает таблицу всех загруженных сущностей
 entities.get_all() -> table

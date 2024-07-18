@@ -21,7 +21,7 @@ static Block* require_block(lua::State* L) {
     return indices->blocks.get(id);
 }
 
-static int l_name(lua::State* L) {
+static int l_get_def(lua::State* L) {
     if (auto def = require_block(L)) {
         return lua::pushstring(L, def->name);
     }
@@ -382,7 +382,7 @@ static int l_raycast(lua::State* L) {
 
 const luaL_Reg blocklib [] = {
     {"index", lua::wrap<l_index>},
-    {"name", lua::wrap<l_name>},
+    {"name", lua::wrap<l_get_def>},
     {"material", lua::wrap<l_material>},
     {"caption", lua::wrap<l_caption>},
     {"defs_count", lua::wrap<l_count>},
