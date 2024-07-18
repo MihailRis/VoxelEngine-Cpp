@@ -8,6 +8,7 @@
 #include "../../../lighting/Lighting.hpp"
 #include "../../../content/Content.hpp"
 #include "../../../logic/BlocksController.hpp"
+#include "../../../logic/LevelController.hpp"
 
 using namespace scripting;
 
@@ -307,6 +308,45 @@ static int l_get_picking_item(lua::State* L) {
     return 0;
 }
 
+static int l_place(lua::State* L) {
+    auto x = lua::tointeger(L, 1);
+    auto y = lua::tointeger(L, 2);
+    auto z = lua::tointeger(L, 3);
+    auto id = lua::tointeger(L, 4);
+    auto state = lua::tointeger(L, 5);
+    auto playerid = lua::gettop(L) >= 6 ? lua::tointeger(L, 6) : -1;
+    if (static_cast<size_t>(id) >= indices->blocks.count()) {
+        return 0;
+    }
+    if (!level->chunks->get(x, y, z)) {
+        return 0;
+    }
+    const auto def = level->content->getIndices()->blocks.get(id);
+    if (def == nullptr) {
+        throw std::runtime_error("there is no block with index "+std::to_string(id));
+    }
+    auto player = level->getObject<Player>(playerid);
+    controller->getBlocksController()->placeBlock(
+        player ? player.get() : nullptr, def, int2blockstate(state), x, y, z);
+    return 0;
+}
+
+static int l_destruct(lua::State* L) {
+    auto x = lua::tointeger(L, 1);
+    auto y = lua::tointeger(L, 2);
+    auto z = lua::tointeger(L, 3);
+    auto playerid = lua::gettop(L) >= 4 ? lua::tointeger(L, 4) : -1;
+    auto voxel = level->chunks->get(x, y, z);
+    if (voxel == nullptr) {
+        return 0;
+    }
+    const auto def = level->content->getIndices()->blocks.get(voxel->id);
+    auto player = level->getObject<Player>(playerid);
+    controller->getBlocksController()->breakBlock(
+        player ? player.get() : nullptr, def, x, y, z);
+    return 0;
+}
+
 static int l_raycast(lua::State* L) {
     auto start = lua::tovec<3>(L, 1);
     auto dir = lua::tovec<3>(L, 2);
@@ -368,6 +408,8 @@ const luaL_Reg blocklib [] = {
     {"get_hitbox", lua::wrap<l_get_hitbox>},
     {"get_rotation_profile", lua::wrap<l_get_rotation_profile>},
     {"get_picking_item", lua::wrap<l_get_picking_item>},
+    {"place", lua::wrap<l_place>},
+    {"destruct", lua::wrap<l_destruct>},
     {"raycast", lua::wrap<l_raycast>},
     {NULL, NULL}
 };

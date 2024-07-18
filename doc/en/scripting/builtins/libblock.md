@@ -20,8 +20,17 @@ block.get(x: int, y: int, z: int) -> int
 -- Used to save complete block information.
 block.get_states(x: int, y: int, z: int) -> int
 
--- Set block with specified integer ID and state (default - 0) at specified position.
+-- Set block with given integer ID and state (default - 0) at given position.
 block.set(x: int, y: int, z: int, id: int, states: int)
+
+-- Places a block with a given integer id and state (default - 0) at given position.
+-- on behalf of the player, calling the on_placed event.
+-- playerid is optional
+block.place(x: int, y: int, z: int, id: int, states: int, [optional] playerid: int)
+
+-- Breaks a block at the given coordinates on behalf of the player, triggering the on_broken event.
+-- playerid is optional
+block.destruct(x: int, y: int, z: int, playerid: int)
 ```
 
 > [!WARNING]

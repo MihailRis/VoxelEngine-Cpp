@@ -22,6 +22,15 @@ block.get_states(x: int, y: int, z: int) -> int
 
 -- Устанавливает блок с заданным числовым id и состоянием (0 - по-умолчанию) на заданных координатах.
 block.set(x: int, y: int, z: int, id: int, states: int)
+
+-- Устанавливает блок с заданным числовым id и состоянием (0 - по-умолчанию) на заданных координатах
+-- от лица игрока, вызывая событие on_placed.
+-- playerid не является обязательным
+block.place(x: int, y: int, z: int, id: int, states: int, [optional] playerid: int)
+
+-- Ломает блок на заданных координатах от лица игрока, вызывая событие on_broken.
+-- playerid не является обязательным
+block.destruct(x: int, y: int, z: int, playerid: int)
 ```
 
 > [!WARNING]

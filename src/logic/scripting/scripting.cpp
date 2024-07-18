@@ -216,7 +216,7 @@ void scripting::on_block_placed(Player* player, const Block* block, int x, int y
     std::string name = block->name + ".placed";
     lua::emit_event(lua::get_main_thread(), name, [x, y, z, player] (auto L) {
         lua::pushivec3(L, x, y, z);
-        lua::pushinteger(L, player->getId());
+        lua::pushinteger(L, player ? player->getId() : -1);
         return 4;
     });
     auto world_event_args = [block, x, y, z, player] (lua::State* L) {
@@ -237,7 +237,7 @@ void scripting::on_block_broken(Player* player, const Block* block, int x, int y
     if (block->rt.funcsset.onbroken) {
         lua::emit_event(lua::get_main_thread(), name, [x, y, z, player] (auto L) {
             lua::pushivec3(L, x, y, z);
-            lua::pushinteger(L, player->getId());
+            lua::pushinteger(L, player ? player->getId() : -1);
             return 4;
         });
     }
