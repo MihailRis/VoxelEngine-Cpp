@@ -40,6 +40,7 @@ class WorldRenderer {
     std::unique_ptr<Skybox> skybox;
     std::unique_ptr<Batch3D> batch3d;
     std::unique_ptr<ModelBatch> modelBatch;
+    float timer = 0.0f;
 
     bool drawChunk(size_t index, Camera* camera, Shader* shader, bool culling);
     void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
@@ -73,6 +74,7 @@ public:
         Camera* camera, 
         bool hudVisible,
         bool pause,
+        float delta,
         PostProcessing* postProcessing
     );
     void drawBorders(int sx, int sy, int sz, int ex, int ey, int ez);

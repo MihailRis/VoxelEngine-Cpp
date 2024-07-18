@@ -170,7 +170,7 @@ void WorldRenderer::renderLevel(
     shader->use();
     shader->uniformMatrix("u_proj", camera->getProjection());
     shader->uniformMatrix("u_view", camera->getView());
-    shader->uniform1f("u_timer", Window::time());
+    shader->uniform1f("u_timer", timer);
     shader->uniform1f("u_gamma", settings.graphics.gamma.get());
     shader->uniform1f("u_fogFactor", fogFactor);
     shader->uniform1f("u_fogCurve", settings.graphics.fogCurve.get());
@@ -301,8 +301,10 @@ void WorldRenderer::draw(
     Camera* camera, 
     bool hudVisible,
     bool pause,
+    float delta,
     PostProcessing* postProcessing
 ){
+    timer += delta * !pause;
     auto world = level->getWorld();
     const Viewport& vp = pctx.getViewport();
     camera->aspect = vp.getWidth() / static_cast<float>(vp.getHeight());
@@ -343,7 +345,7 @@ void WorldRenderer::draw(
     // Rendering fullscreen quad with 
     auto screenShader = assets->get<Shader>("screen");
     screenShader->use();
-    screenShader->uniform1f("u_timer", Window::time());
+    screenShader->uniform1f("u_timer", timer);
     screenShader->uniform1f("u_dayTime", level->getWorld()->daytime);
     postProcessing->render(pctx, screenShader);
 }

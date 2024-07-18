@@ -99,7 +99,7 @@ void LevelScreen::saveWorldPreview() {
         Viewport viewport(previewSize * 1.5, previewSize);
         DrawContext ctx(&pctx, viewport, batch.get());
         
-        worldRenderer->draw(ctx, &camera, false, true, postProcessing.get());
+        worldRenderer->draw(ctx, &camera, false, true, 0.0f, postProcessing.get());
         auto image = postProcessing->toImage();
         image->flipY();
         imageio::write(paths->resolve("world:preview.png").u8string(), image.get());
@@ -156,13 +156,13 @@ void LevelScreen::update(float delta) {
     hud->update(hudVisible);
 }
 
-void LevelScreen::draw(float) {
+void LevelScreen::draw(float delta) {
     auto camera = controller->getPlayer()->currentCamera;
 
     Viewport viewport(Window::width, Window::height);
     DrawContext ctx(nullptr, viewport, batch.get());
 
-    worldRenderer->draw(ctx, camera.get(), hudVisible, hud->isPause(), postProcessing.get());
+    worldRenderer->draw(ctx, camera.get(), hudVisible, hud->isPause(), delta, postProcessing.get());
 
     if (hudVisible) {
         hud->draw(ctx);
