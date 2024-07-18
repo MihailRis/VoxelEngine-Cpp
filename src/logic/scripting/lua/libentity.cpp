@@ -43,7 +43,7 @@ static int l_defs_count(lua::State* L) {
 
 static int l_get_def(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
-        return lua::pushstring(L, entity->getDef().name);
+        return lua::pushinteger(L, entity->getDef().rt.id);
     }
     return 0;
 }
