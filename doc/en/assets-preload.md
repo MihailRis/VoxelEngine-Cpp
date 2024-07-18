@@ -7,6 +7,7 @@ The file contains following categories available:
 - shaders
 - textures
 - sounds
+- models
 
 > [!NOTE]
 > Sound loading with all variations following template:
