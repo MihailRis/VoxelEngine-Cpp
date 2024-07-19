@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <typeindex>
 #include <typeinfo>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
 // NOTE: const std::string& used instead of string_view because c_str() needed
