@@ -140,7 +140,7 @@ static int l_spherical_rand(lua::State* L) {
     int argc = lua::gettop(L);
     switch (argc) {
         case 1:
-            return lua::pushvec3_arr(L, glm::sphericalRand(lua::tonumber(L, 1)));
+            return lua::pushvec3(L, glm::sphericalRand(lua::tonumber(L, 1)));
         case 2:
             return lua::setvec(L, 2, 
                 glm::sphericalRand(static_cast<float>(lua::tonumber(L, 1))));

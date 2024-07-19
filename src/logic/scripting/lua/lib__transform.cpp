@@ -2,7 +2,7 @@
 
 static int l_get_pos(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
-        return lua::pushvec3_arr(L, entity->getTransform().pos);
+        return lua::pushvec3(L, entity->getTransform().pos);
     }
     return 0;
 }
@@ -18,7 +18,7 @@ static int l_set_pos(lua::State* L) {
 
 static int l_get_size(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
-        return lua::pushvec3_arr(L, entity->getTransform().size);
+        return lua::pushvec3(L, entity->getTransform().size);
     }
     return 0;
 }

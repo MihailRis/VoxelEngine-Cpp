@@ -201,27 +201,27 @@ void scripting::on_blocks_tick(const Block* block, int tps) {
 void scripting::update_block(const Block* block, int x, int y, int z) {
     std::string name = block->name + ".update";
     lua::emit_event(lua::get_main_thread(), name, [x, y, z] (auto L) {
-        return lua::pushivec3(L, x, y, z);
+        return lua::pushivec3_stack(L, x, y, z);
     });
 }
 
 void scripting::random_update_block(const Block* block, int x, int y, int z) {
     std::string name = block->name + ".randupdate";
     lua::emit_event(lua::get_main_thread(), name, [x, y, z] (auto L) {
-        return lua::pushivec3(L, x, y, z);
+        return lua::pushivec3_stack(L, x, y, z);
     });
 }
 
 void scripting::on_block_placed(Player* player, const Block* block, int x, int y, int z) {
     std::string name = block->name + ".placed";
     lua::emit_event(lua::get_main_thread(), name, [x, y, z, player] (auto L) {
-        lua::pushivec3(L, x, y, z);
+        lua::pushivec3_stack(L, x, y, z);
         lua::pushinteger(L, player ? player->getId() : -1);
         return 4;
     });
     auto world_event_args = [block, x, y, z, player] (lua::State* L) {
         lua::pushinteger(L, block->rt.id);
-        lua::pushivec3(L, x, y, z);
+        lua::pushivec3_stack(L, x, y, z);
         lua::pushinteger(L, player ? player->getId() : -1);
         return 5;
     };
@@ -236,14 +236,14 @@ void scripting::on_block_broken(Player* player, const Block* block, int x, int y
     std::string name = block->name + ".broken";
     if (block->rt.funcsset.onbroken) {
         lua::emit_event(lua::get_main_thread(), name, [x, y, z, player] (auto L) {
-            lua::pushivec3(L, x, y, z);
+            lua::pushivec3_stack(L, x, y, z);
             lua::pushinteger(L, player ? player->getId() : -1);
             return 4;
         });
     }
     auto world_event_args = [block, x, y, z, player] (lua::State* L) {
         lua::pushinteger(L, block->rt.id);
-        lua::pushivec3(L, x, y, z);
+        lua::pushivec3_stack(L, x, y, z);
         lua::pushinteger(L, player ? player->getId() : -1);
         return 5;
     };
@@ -257,7 +257,7 @@ void scripting::on_block_broken(Player* player, const Block* block, int x, int y
 bool scripting::on_block_interact(Player* player, const Block* block, glm::ivec3 pos) {
     std::string name = block->name + ".interact";
     return lua::emit_event(lua::get_main_thread(), name, [pos, player] (auto L) {
-        lua::pushivec3(L, pos.x, pos.y, pos.z);
+        lua::pushivec3_stack(L, pos.x, pos.y, pos.z);
         lua::pushinteger(L, player->getId());
         return 4;
     });
@@ -273,7 +273,7 @@ bool scripting::on_item_use(Player* player, const ItemDef* item) {
 bool scripting::on_item_use_on_block(Player* player, const ItemDef* item, int x, int y, int z) {
     std::string name = item->name + ".useon";
     return lua::emit_event(lua::get_main_thread(), name, [x, y, z, player] (auto L) {
-        lua::pushivec3(L, x, y, z);
+        lua::pushivec3_stack(L, x, y, z);
         lua::pushinteger(L, player->getId());
         return 4;
     });
@@ -282,7 +282,7 @@ bool scripting::on_item_use_on_block(Player* player, const ItemDef* item, int x,
 bool scripting::on_item_break_block(Player* player, const ItemDef* item, int x, int y, int z) {
     std::string name = item->name + ".blockbreakby";
     return lua::emit_event(lua::get_main_thread(), name, [x, y, z, player] (auto L) {
-        lua::pushivec3(L, x, y, z);
+        lua::pushivec3_stack(L, x, y, z);
         lua::pushinteger(L, player->getId());
         return 4;
     });

@@ -34,7 +34,7 @@ static int l_name(lua::State* L) {
 }
 
 static int getter_pos(lua::State* L, const Camera& camera) {
-    return lua::pushvec3_arr(L, camera.position);
+    return lua::pushvec3(L, camera.position);
 }
 
 static void setter_pos(lua::State* L, Camera& camera, int idx) {
@@ -79,13 +79,13 @@ static void setter_flipped(lua::State* L, Camera& camera, int idx) {
 }
 
 static int getter_front(lua::State* L, const Camera& camera) {
-    return lua::pushvec3_arr(L, camera.front);
+    return lua::pushvec3(L, camera.front);
 }
 static int getter_right(lua::State* L, const Camera& camera) {
-    return lua::pushvec3_arr(L, camera.right);
+    return lua::pushvec3(L, camera.right);
 }
 static int getter_up(lua::State* L, const Camera& camera) {
-    return lua::pushvec3_arr(L, camera.up);
+    return lua::pushvec3(L, camera.up);
 }
 
 static int l_look_at(lua::State* L) {

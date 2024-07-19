@@ -10,6 +10,7 @@ Type conventions will be used on this page.
 - vector - an array of three or four numbers
 - vec3 - array of three numbers
 - vec4 - array of four numbers
+- quat - array of four numbers - quaternion
 - matrix - array of 16 numbers - matrix
 
 > [!WARNING]
@@ -31,6 +32,16 @@ mat4.idt(dst: matrix)
 ```lua
 -- calculates the determinant of the matrix
 mat4.determinant(m: matrix)
+```
+
+## Matrix from quaternion - *mat4.from_quat(...)*
+
+```lua
+-- creates a rotation matrix from quaternion
+mat4.from_quat(quaternion: quat)
+
+-- writes the quaternion rotation matrix to dst
+mat4.from_quat(quaternion: quat, dst: matrix)
 ```
 
 ## Matrix multiplication - *mat4.mul(...)*
@@ -109,6 +120,7 @@ mat4.decompose(m: matrix)
 {
     scale=vec3,
     rotation=matrix,
+    quaternion=quat,
     translation=vec3,
     skew=vec3,
     perspective=vec4
