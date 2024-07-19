@@ -56,7 +56,7 @@ void Entity::setRig(const rigging::SkeletonConfig* rigConfig) {
     );
 }
 
-Entities::Entities(Level* level) : level(level) {
+Entities::Entities(Level* level) : level(level), sensorsTickClock(20, 3) {
 }
 
 template<void(*callback)(const Entity&, size_t, entityid_t)>
@@ -350,52 +350,60 @@ void Entities::clean() {
     }
 }
 
-void Entities::preparePhysics() {
-    static uint64_t frameid = 0;
-    frameid++;
-    auto view = registry.view<EntityId, Transform, Rigidbody>();
-    auto physics = level->physics.get();
-    std::vector<Sensor*> sensors;
-    for (auto [entity, eid, transform, rigidbody] : view.each()) {
-        if (!rigidbody.enabled) {
-            continue;
-        }
-        // TODO: temporary optimization until threaded solution
-        if ((eid.uid + frameid) % 3 != 0) {
-            continue;
-        }
-        for (size_t i = 0; i < rigidbody.sensors.size(); i++) {
-            auto& sensor = rigidbody.sensors[i];
-            for (auto oid : sensor.prevEntered) {
-                if (sensor.nextEntered.find(oid) == sensor.nextEntered.end()) {
-                    sensor.exitCallback(sensor.entity, i, oid);
-                }
+void Entities::updateSensors(
+    Rigidbody& body, const Transform& tsf, std::vector<Sensor*>& sensors
+) {
+    for (size_t i = 0; i < body.sensors.size(); i++) {
+        auto& sensor = body.sensors[i];
+        for (auto oid : sensor.prevEntered) {
+            if (sensor.nextEntered.find(oid) == sensor.nextEntered.end()) {
+                sensor.exitCallback(sensor.entity, i, oid);
             }
-            sensor.prevEntered = sensor.nextEntered;
-            sensor.nextEntered.clear();
+        }
+        sensor.prevEntered = sensor.nextEntered;
+        sensor.nextEntered.clear();
 
-            switch (sensor.type) {
-                case SensorType::AABB:
-                    sensor.calculated.aabb = sensor.params.aabb;
-                    sensor.calculated.aabb.transform(transform.combined);
-                    break;
-                case SensorType::RADIUS:
-                    sensor.calculated.radial = glm::vec4(
-                        rigidbody.hitbox.position.x,
-                        rigidbody.hitbox.position.y,
-                        rigidbody.hitbox.position.z,
-                        sensor.params.radial.w*
-                        sensor.params.radial.w);
-                    break;
-            }
-            sensors.push_back(&sensor);
+        switch (sensor.type) {
+            case SensorType::AABB:
+                sensor.calculated.aabb = sensor.params.aabb;
+                sensor.calculated.aabb.transform(tsf.combined);
+                break;
+            case SensorType::RADIUS:
+                sensor.calculated.radial = glm::vec4(
+                    body.hitbox.position.x,
+                    body.hitbox.position.y,
+                    body.hitbox.position.z,
+                    sensor.params.radial.w*
+                    sensor.params.radial.w);
+                break;
         }
+        sensors.push_back(&sensor);
     }
-    physics->setSensors(std::move(sensors));
+}
+
+void Entities::preparePhysics(float delta) {
+    if (sensorsTickClock.update(delta)) {
+        auto part = sensorsTickClock.getPart();
+        auto parts = sensorsTickClock.getParts();
+
+        auto view = registry.view<EntityId, Transform, Rigidbody>();
+        auto physics = level->physics.get();
+        std::vector<Sensor*> sensors;
+        for (auto [entity, eid, transform, rigidbody] : view.each()) {
+            if (!rigidbody.enabled) {
+                continue;
+            }
+            if ((eid.uid + part) % parts != 0) {
+                continue;
+            }
+            updateSensors(rigidbody, transform, sensors);
+        }
+        physics->setSensors(std::move(sensors));
+    }
 }
 
 void Entities::updatePhysics(float delta) {
-    preparePhysics();
+    preparePhysics(delta);
 
     auto view = registry.view<EntityId, Transform, Rigidbody>();
     auto physics = level->physics.get();

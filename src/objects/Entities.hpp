@@ -4,6 +4,7 @@
 #include "../typedefs.hpp"
 #include "../physics/Hitbox.hpp"
 #include "../data/dynamic.hpp"
+#include "../util/Clock.hpp"
 
 #include <vector>
 #include <memory>
@@ -161,8 +162,12 @@ class Entities {
     std::unordered_map<entityid_t, entt::entity> entities;
     std::unordered_map<entt::entity, entityid_t> uids;
     entityid_t nextID = 1;
+    util::Clock sensorsTickClock;
 
-    void preparePhysics();
+    void updateSensors(
+        Rigidbody& body, const Transform& tsf, std::vector<Sensor*>& sensors
+    );
+    void preparePhysics(float delta);
 public:
     struct RaycastResult {
         entityid_t entity;
