@@ -15,42 +15,6 @@
 
 #include "scripting/scripting.hpp"
 
-Clock::Clock(int tickRate, int tickParts)
-    : tickRate(tickRate),
-      tickParts(tickParts) {
-}
-
-bool Clock::update(float delta) {
-    tickTimer += delta;
-    float delay = 1.0f / float(tickRate);    
-    if (tickTimer > delay || tickPartsUndone) {
-        if (tickPartsUndone) {
-            tickPartsUndone--;
-        } else {
-            tickTimer = fmod(tickTimer, delay);
-            tickPartsUndone = tickParts-1;
-        }
-        return true;
-    }
-    return false;
-}
-
-int Clock::getParts() const {
-    return tickParts;
-}
-
-int Clock::getPart() const {
-    return tickParts-tickPartsUndone-1;
-}
-
-int Clock::getTickRate() const {
-    return tickRate;
-}
-
-int Clock::getTickId() const {
-    return tickId;
-}
-
 BlocksController::BlocksController(Level* level, uint padding) 
     : level(level), 
       chunks(level->chunks.get()), 
@@ -134,12 +98,34 @@ void BlocksController::onBlocksTick(int tickid, int parts) {
     }
 }
 
+void BlocksController::randomTick(
+    const Chunk& chunk, int segments, const ContentIndices* indices
+) {
+    const int segheight = CHUNK_H / segments;
+
+    for (int s = 0; s < segments; s++) {
+        for (int i = 0; i < 4; i++) {
+            int bx = random.rand() % CHUNK_W;
+            int by = random.rand() % segheight + s * segheight;
+            int bz = random.rand() % CHUNK_D;
+            const voxel& vox = chunk.voxels[(by * CHUNK_D + bz) * CHUNK_W + bx];
+            Block* block = indices->blocks.get(vox.id);
+            if (block->rt.funcsset.randupdate) {
+                scripting::random_update_block(
+                    block, 
+                    chunk.x * CHUNK_W + bx, by, 
+                    chunk.z * CHUNK_D + bz
+                );
+            }
+        }
+    }
+}
+
 void BlocksController::randomTick(int tickid, int parts) {
+    auto indices = level->content->getIndices();
     const int w = chunks->w;
     const int d = chunks->d;
     int segments = 4;
-    int segheight = CHUNK_H / segments;
-    auto indices = level->content->getIndices();
     
     for (uint z = padding; z < d-padding; z++){
         for (uint x = padding; x < w-padding; x++){
@@ -151,22 +137,7 @@ void BlocksController::randomTick(int tickid, int parts) {
             if (chunk == nullptr || !chunk->flags.lighted) {
                 continue;
             }
-            for (int s = 0; s < segments; s++) {
-                for (int i = 0; i < 4; i++) {
-                    int bx = random.rand() % CHUNK_W;
-                    int by = random.rand() % segheight + s * segheight;
-                    int bz = random.rand() % CHUNK_D;
-                    const voxel& vox = chunk->voxels[(by * CHUNK_D + bz) * CHUNK_W + bx];
-                    Block* block = indices->blocks.get(vox.id);
-                    if (block->rt.funcsset.randupdate) {
-                        scripting::random_update_block(
-                            block, 
-                            chunk->x * CHUNK_W + bx, by, 
-                            chunk->z * CHUNK_D + bz
-                        );
-                    }
-                }
-            }
+            randomTick(*chunk, segments, indices);
         }
     }
 }

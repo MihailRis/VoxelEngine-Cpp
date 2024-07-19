@@ -4,6 +4,7 @@
 #include "../typedefs.hpp"
 #include "../maths/fastmaths.hpp"
 #include "../voxels/voxel.hpp"
+#include "../util/Clock.hpp"
 
 #include <functional>
 #include <glm/glm.hpp>
@@ -11,8 +12,10 @@
 class Player;
 class Block;
 class Level;
+class Chunk;
 class Chunks;
 class Lighting;
+class ContentIndices;
 
 enum class BlockInteraction {
     step,
@@ -25,32 +28,14 @@ using on_block_interaction = std::function<void(
     Player*, glm::ivec3, const Block*, BlockInteraction type
 )>;
 
-class Clock {
-    int tickRate;
-    int tickParts;
-
-    float tickTimer = 0.0f;
-    int tickId = 0;
-    int tickPartsUndone = 0;
-public:
-    Clock(int tickRate, int tickParts);
-
-    bool update(float delta);
-
-    int getParts() const;
-    int getPart() const;
-    int getTickRate() const;
-    int getTickId() const;
-};
-
-/* BlocksController manages block updates and block data (aka inventories) */
+/// BlocksController manages block updates and data (inventories, metadata)
 class BlocksController {
     Level* level;
 	Chunks* chunks;
 	Lighting* lighting;
-    Clock randTickClock;
-    Clock blocksTickClock;
-    Clock worldTickClock;
+    util::Clock randTickClock;
+    util::Clock blocksTickClock;
+    util::Clock worldTickClock;
     uint padding;
     FastRandom random;
     std::vector<on_block_interaction> blockInteractionCallbacks;
@@ -64,6 +49,7 @@ public:
     void placeBlock(Player* player, const Block* def, blockstate state, int x, int y, int z);
 
     void update(float delta);
+    void randomTick(const Chunk& chunk, int segments, const ContentIndices* indices);
     void randomTick(int tickid, int parts);
     void onBlocksTick(int tickid, int parts);
     int64_t createBlockInventory(int x, int y, int z);
