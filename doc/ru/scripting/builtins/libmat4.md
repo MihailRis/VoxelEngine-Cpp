@@ -10,6 +10,7 @@
 - vector - массив из трех или четырех чисел
 - vec3 - массив из трех чисел
 - vec4 - массив из четырех чисел
+- quat - массив из четырех чисел - кватернион
 - matrix - массив из 16 чисел - матрица
 
 > [!WARNING]
@@ -31,6 +32,16 @@ mat4.idt(dst: matrix)
 ```lua
 -- вычисляет определитель матрицы
 mat4.determinant(m: matrix)
+```
+
+## Матрица из кватерниона - *mat4.from_quat(...)*
+
+```lua
+-- создает матрицу вращения по кватерниону
+mat4.from_quat(quaternion: quat)
+
+-- записывает матрицу вращения по кватерниону в dst
+mat4.from_quat(quaternion: quat, dst: matrix)
 ```
 
 ## Умножение матриц - *mat4.mul(...)*
@@ -109,6 +120,7 @@ mat4.decompose(m: matrix)
 {
     scale=vec3,
     rotation=matrix,
+    quaternion=quat,
     translation=vec3,
     skew=vec3,
     perspective=vec4 

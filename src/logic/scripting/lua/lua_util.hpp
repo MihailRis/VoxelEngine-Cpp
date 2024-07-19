@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <typeindex>
 #include <typeinfo>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 // NOTE: const std::string& used instead of string_view because c_str() needed
 namespace lua {
@@ -116,28 +118,47 @@ namespace lua {
         return 1;
     }
 
-    inline int pushivec3(lua::State* L, lua::Integer x, lua::Integer y, lua::Integer z) {
+    template<int n>
+    inline int pushvec(lua::State* L, glm::vec<n, float> vec) {
+        createtable(L, n, 0);
+        for (int i = 0; i < n; i++) {
+            pushnumber(L, vec[i]);
+            rawseti(L, i+1);
+        }
+        return 1;
+    }
+
+    template<int n>
+    inline int pushivec(lua::State* L, glm::vec<n, int> vec) {
+        createtable(L, n, 0);
+        for (int i = 0; i < n; i++) {
+            pushinteger(L, vec[i]);
+            rawseti(L, i+1);
+        }
+        return 1;
+    }
+
+    inline int pushivec3_stack(lua::State* L, lua::Integer x, lua::Integer y, lua::Integer z) {
         pushinteger(L, x);
         pushinteger(L, y);
         pushinteger(L, z);
         return 3;
     }
 
-    inline int pushivec3(lua::State* L, glm::ivec3 vec) {
+    inline int pushivec3_stack(lua::State* L, glm::ivec3 vec) {
         pushinteger(L, vec.x);
         pushinteger(L, vec.y);
         pushinteger(L, vec.z);
         return 3;
     }
 
-    inline int pushvec3(lua::State* L, glm::vec3 vec) {
+    inline int pushvec3_stack(lua::State* L, glm::vec3 vec) {
         pushnumber(L, vec.x);
         pushnumber(L, vec.y);
         pushnumber(L, vec.z);
         return 3;
     }
-
-    inline int pushvec4(lua::State* L, glm::vec4 vec) {
+    inline int pushvec4_stack(lua::State* L, glm::vec4 vec) {
         pushnumber(L, vec.x);
         pushnumber(L, vec.y);
         pushnumber(L, vec.z);
@@ -152,62 +173,30 @@ namespace lua {
         lua_pushvalue(L, idx);
         return 1;
     }
-    inline int pushvec2_arr(lua::State* L, glm::vec2 vec) {
-        createtable(L, 2, 0);
-        getglobal(L, "vec2_mt");
-        setmetatable(L);
-
-        pushnumber(L, vec.x);
-        rawseti(L, 1);
-        pushnumber(L, vec.y);
-        rawseti(L, 2);
-        return 1;
+    inline int pushvec2(lua::State* L, glm::vec2 vec) {
+        return pushvec(L, vec);
     }
 
-    inline int pushvec3_arr(lua::State* L, glm::vec3 vec) {
-        createtable(L, 3, 0);
-        getglobal(L, "vec3_mt");
-        setmetatable(L);
-
-        pushnumber(L, vec.x);
-        rawseti(L, 1);
-        pushnumber(L, vec.y);
-        rawseti(L, 2);
-        pushnumber(L, vec.z);
-        rawseti(L, 3);
-        return 1;
+    inline int pushvec3(lua::State* L, glm::vec3 vec) {
+        return pushvec(L, vec);
     }
 
-    inline int pushvec4_arr(lua::State* L, glm::vec4 vec) {
+    inline int pushvec4(lua::State* L, glm::vec4 vec) {
+        return pushvec(L, vec);
+    }
+    inline int pushcolor(lua::State* L, glm::vec4 vec) {
+        return pushivec(L, glm::ivec4(vec*255.0f));
+    }
+
+    inline int pushquat(lua::State* L, glm::quat quat) {
         createtable(L, 4, 0);
-        getglobal(L, "vec4_mt");
-        setmetatable(L);
-
-        pushnumber(L, vec.x);
-        rawseti(L, 1);
-        pushnumber(L, vec.y);
-        rawseti(L, 2);
-        pushnumber(L, vec.z);
-        rawseti(L, 3);
-        pushnumber(L, vec.w);
-        rawseti(L, 4);
+        for (size_t i = 0; i < 4; i++) {
+            pushnumber(L, quat[i]);
+            rawseti(L, i+1);
+        }
         return 1;
     }
-    inline int pushcolor_arr(lua::State* L, glm::vec4 vec) {
-        createtable(L, 4, 0);
-        getglobal(L, "color_mt");
-        setmetatable(L);
 
-        pushinteger(L, vec.x*255);
-        rawseti(L, 1);
-        pushinteger(L, vec.y*255);
-        rawseti(L, 2);
-        pushinteger(L, vec.z*255);
-        rawseti(L, 3);
-        pushinteger(L, vec.w*255);
-        rawseti(L, 4);
-        return 1;
-    }
     inline int pushmat4(lua::State* L, glm::mat4 matrix) {
         createtable(L, 16, 0);
         for (uint y = 0; y < 4; y++) {
@@ -396,6 +385,24 @@ namespace lua {
         pop(L);
         return glm::vec4(x, y, z, w);
     }
+
+    inline glm::quat toquat(lua::State* L, int idx) {
+        pushvalue(L, idx);
+        if (!istable(L, idx) || objlen(L, idx) < 4) {
+            throw std::runtime_error("value must be an array of four numbers");
+        }
+        rawgeti(L, 1);
+        auto x = tonumber(L, -1); pop(L);
+        rawgeti(L, 2);
+        auto y = tonumber(L, -1); pop(L);
+        rawgeti(L, 3);
+        auto z = tonumber(L, -1); pop(L);
+        rawgeti(L, 4);
+        auto w = tonumber(L, -1); pop(L);
+        pop(L);
+        return glm::quat(x, y, z, w);
+    }
+
     inline glm::vec3 tovec3_stack(lua::State* L, int idx) { 
         return glm::vec3(
             tonumber(L, idx), tonumber(L, idx+1), tonumber(L, idx+2)

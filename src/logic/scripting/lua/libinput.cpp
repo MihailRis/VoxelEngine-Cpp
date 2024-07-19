@@ -45,7 +45,7 @@ static int l_add_callback(lua::State* L) {
 }
 
 static int l_get_mouse_pos(lua::State* L) {
-    return lua::pushvec2_arr(L, Events::cursor);
+    return lua::pushvec2(L, Events::cursor);
 }
 
 static int l_get_bindings(lua::State* L) {

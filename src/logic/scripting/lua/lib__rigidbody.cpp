@@ -4,7 +4,7 @@
 
 static int l_get_vel(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
-        return lua::pushvec3_arr(L, entity->getRigidbody().hitbox.velocity);
+        return lua::pushvec3(L, entity->getRigidbody().hitbox.velocity);
     }
     return 0;
 }
@@ -32,7 +32,7 @@ static int l_set_enabled(lua::State* L) {
 
 static int l_get_size(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
-        return lua::pushvec3_arr(L, entity->getRigidbody().hitbox.halfsize * 2.0f);
+        return lua::pushvec3(L, entity->getRigidbody().hitbox.halfsize * 2.0f);
     }
     return 0;
 }

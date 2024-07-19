@@ -204,7 +204,7 @@ static int p_get_track_width(UINode* node, lua::State* L) {
 
 static int p_get_track_color(UINode* node, lua::State* L) {
     if (auto bar = dynamic_cast<TrackBar*>(node)) {
-        return lua::pushcolor_arr(L, bar->getTrackColor());
+        return lua::pushcolor(L, bar->getTrackColor());
     }
     return 0;
 }
@@ -281,13 +281,13 @@ static int p_set_interval(UINode* node, lua::State* L) {
 }
 
 static int p_get_color(UINode* node, lua::State* L) {
-    return lua::pushcolor_arr(L, node->getColor());
+    return lua::pushcolor(L, node->getColor());
 }
 static int p_get_hover_color(UINode* node, lua::State* L) {
-    return lua::pushcolor_arr(L, node->getHoverColor());
+    return lua::pushcolor(L, node->getHoverColor());
 }
 static int p_get_pressed_color(UINode* node, lua::State* L) {
-    return lua::pushcolor_arr(L, node->getPressedColor());
+    return lua::pushcolor(L, node->getPressedColor());
 }
 static int p_get_tooltip(UINode* node, lua::State* L) {
     return lua::pushwstring(L, node->getTooltip());
@@ -296,13 +296,13 @@ static int p_get_tooltip_delay(UINode* node, lua::State* L) {
     return lua::pushnumber(L, node->getTooltipDelay());
 }
 static int p_get_pos(UINode* node, lua::State* L) {
-    return lua::pushvec2_arr(L, node->getPos());
+    return lua::pushvec2(L, node->getPos());
 }
 static int p_get_wpos(UINode* node, lua::State* L) {
-    return lua::pushvec2_arr(L, node->calcPos());
+    return lua::pushvec2(L, node->calcPos());
 }
 static int p_get_size(UINode* node, lua::State* L) {
-    return lua::pushvec2_arr(L, node->getSize());
+    return lua::pushvec2(L, node->getSize());
 }
 static int p_is_interactive(UINode* node, lua::State* L) {
     return lua::pushboolean(L, node->isInteractive());
@@ -588,7 +588,7 @@ static int l_gui_get_locales_info(lua::State* L) {
 }
 
 static int l_gui_getviewport(lua::State* L) {
-    return lua::pushvec2_arr(L, engine->getGUI()->getContainer()->getSize());
+    return lua::pushvec2(L, engine->getGUI()->getContainer()->getSize());
 }
 
 const luaL_Reg guilib [] = {

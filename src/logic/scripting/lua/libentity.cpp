@@ -138,16 +138,16 @@ static int l_raycast(lua::State* L) {
             lua::createtable(L, 0, 6);
         }
         
-        lua::pushvec3_arr(L, start + dir * ray->distance);
+        lua::pushvec3(L, start + dir * ray->distance);
         lua::setfield(L, "endpoint");
 
-        lua::pushvec3_arr(L, ray->normal);
+        lua::pushvec3(L, ray->normal);
         lua::setfield(L, "normal");
 
         lua::pushnumber(L, glm::distance(start, end));
         lua::setfield(L, "length");
 
-        lua::pushvec3_arr(L, iend);
+        lua::pushvec3(L, iend);
         lua::setfield(L, "iendpoint");
 
         lua::pushinteger(L, block);
@@ -162,16 +162,16 @@ static int l_raycast(lua::State* L) {
         } else {
             lua::createtable(L, 0, 5);
         }
-        lua::pushvec3_arr(L, end);
+        lua::pushvec3(L, end);
         lua::setfield(L, "endpoint");
 
-        lua::pushvec3_arr(L, normal);
+        lua::pushvec3(L, normal);
         lua::setfield(L, "normal");
 
         lua::pushnumber(L, glm::distance(start, end));
         lua::setfield(L, "length");
 
-        lua::pushvec3_arr(L, iend);
+        lua::pushvec3(L, iend);
         lua::setfield(L, "iendpoint");
 
         lua::pushinteger(L, block);
