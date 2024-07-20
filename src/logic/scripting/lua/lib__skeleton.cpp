@@ -112,6 +112,22 @@ static int l_set_visible(lua::State* L) {
     return 0;
 }
 
+static int l_get_color(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        auto& skeleton = entity->getSkeleton();
+        return lua::pushvec(L, skeleton.tint);
+    }
+    return 0;
+}
+
+static int l_set_color(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        auto& skeleton = entity->getSkeleton();
+        skeleton.tint = lua::tovec3(L, 2);
+    }
+    return 0;
+}
+
 const luaL_Reg skeletonlib [] = {
     {"get_model", lua::wrap<l_get_model>},
     {"set_model", lua::wrap<l_set_model>},
@@ -122,5 +138,7 @@ const luaL_Reg skeletonlib [] = {
     {"index", lua::wrap<l_index>},
     {"is_visible", lua::wrap<l_is_visible>},
     {"set_visible", lua::wrap<l_set_visible>},
+    {"get_color", lua::wrap<l_get_color>},
+    {"set_color", lua::wrap<l_set_color>},
     {NULL, NULL}
 };
