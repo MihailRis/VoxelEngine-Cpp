@@ -23,7 +23,8 @@ void GLSLExtension::setPaths(const ResPaths* paths) {
 void GLSLExtension::loadHeader(const std::string& name) {
     fs::path file = paths->find("shaders/lib/"+name+".glsl");
     std::string source = files::read_string(file);
-    addHeader(name, source);
+    addHeader(name, "");
+    addHeader(name, process(file, source, true));
 }
 
 void GLSLExtension::addHeader(const std::string& name, std::string source) {
@@ -84,11 +85,13 @@ inline void source_line(std::stringstream& ss, uint linenum) {
     ss << "#line " << linenum << "\n";
 }
 
-std::string GLSLExtension::process(const fs::path& file, const std::string& source) {
+std::string GLSLExtension::process(const fs::path& file, const std::string& source, bool header) {
     std::stringstream ss;
     size_t pos = 0;
     uint linenum = 1;
-    ss << "#version " << version << '\n';
+    if (!header) {
+        ss << "#version " << version << '\n';
+    }
     for (auto& entry : defines) {
         ss << "#define " << entry.first << " " << entry.second << '\n';
     }
@@ -137,6 +140,10 @@ std::string GLSLExtension::process(const fs::path& file, const std::string& sour
         linenum++;
         ss << source.substr(pos, endline+1-pos);
         pos = endline+1;
+    }
+    if (!header) {
+        std::cout << " ========================================================== " << file.u8string() << std::endl;
+        std::cout << ss.str() << std::endl;
     }
     return ss.str();    
 }

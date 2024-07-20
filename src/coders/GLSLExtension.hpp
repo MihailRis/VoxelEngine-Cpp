@@ -31,7 +31,8 @@ public:
 
     std::string process(
         const std::filesystem::path& file, 
-        const std::string& source
+        const std::string& source,
+        bool header=false
     );
 };
 
