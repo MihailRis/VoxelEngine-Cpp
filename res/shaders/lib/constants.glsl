@@ -1,6 +1,9 @@
 #ifndef CONSTANTS_GLSL_
 #define CONSTANTS_GLSL_
 
+#define PI 3.1415926535897932384626433832795
+#define PI2 (PI*2)
+
 // geometry
 #define CURVATURE_FACTOR 0.002
 

@@ -62,6 +62,13 @@ class WorldRenderer {
         Camera* camera, 
         Shader* linesShader
     );
+
+    void setupWorldShader(
+        Shader* shader,
+        Camera* camera,
+        const EngineSettings& settings,
+        float fogFactor
+    );
 public:
     static bool showChunkBorders;
     static bool showEntitiesDebug;

@@ -141,6 +141,20 @@ rig:set_texture(key: str, value: str)
 
 -- Returns the bone index by name or nil
 rig:index(name: str) -> int
+
+-- Checks the visibility status of a bone by index 
+-- or the skeleton if no index is specified
+rig:is_visible([optional] index: int) -> bool
+
+-- Sets the visibility status of a bone by index
+-- or the skeleton if no index is specified
+rig:set_visible([optional] index: int, status: bool)
+
+-- Returns the color of the entity
+rig:get_color() -> vec3
+
+-- Sets the color of the entity
+rig:set_color(color: vec3)
 ```
 
 ## Component events

@@ -180,6 +180,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
     loader.add(AssetType::FONT, FONTS_FOLDER+"/font", "normal");
     loader.add(AssetType::SHADER, SHADERS_FOLDER+"/ui", "ui");
     loader.add(AssetType::SHADER, SHADERS_FOLDER+"/main", "main");
+    loader.add(AssetType::SHADER, SHADERS_FOLDER+"/entity", "entity");
     loader.add(AssetType::SHADER, SHADERS_FOLDER+"/lines", "lines");
     loader.add(AssetType::TEXTURE, TEXTURES_FOLDER+"/gui/menubg", "gui/menubg");
     loader.add(AssetType::TEXTURE, TEXTURES_FOLDER+"/gui/delete_icon", "gui/delete_icon");

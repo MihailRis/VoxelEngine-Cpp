@@ -10,7 +10,7 @@ uniform vec3 u_fogColor;
 uniform float u_fogFactor;
 uniform float u_fogCurve;
 
-void main(){
+void main() {
     vec3 fogColor = texture(u_cubemap, a_dir).rgb;
     vec4 tex_color = texture(u_texture0, a_texCoord);
     float depth = (a_distance/256.0);

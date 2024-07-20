@@ -152,22 +152,12 @@ void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
     }
 }
 
-void WorldRenderer::renderLevel(
-    const DrawContext&,
-    Camera* camera, 
-    const EngineSettings& settings,
-    bool pause
+void WorldRenderer::setupWorldShader(
+    Shader* shader, Camera* camera, const EngineSettings& settings, 
+    float fogFactor
 ) {
-    auto assets = engine->getAssets();
-    auto atlas = assets->get<Atlas>("blocks");
-    auto shader = assets->get<Shader>("main");
-
-    auto indices = level->content->getIndices();
-
-    float fogFactor = 15.0f / ((float)settings.chunks.loadDistance.get()-2);
-
-    // Setting up main shader
     shader->use();
+    shader->uniformMatrix("u_model", glm::mat4(1.0f));
     shader->uniformMatrix("u_proj", camera->getProjection());
     shader->uniformMatrix("u_view", camera->getView());
     shader->uniform1f("u_timer", timer);
@@ -178,6 +168,7 @@ void WorldRenderer::renderLevel(
     shader->uniform3f("u_cameraPos", camera->position);
     shader->uniform1i("u_cubemap", 1);
 
+    auto indices = level->content->getIndices();
     // Light emission when an emissive item is chosen
     {
         auto inventory = player->getInventory();
@@ -191,15 +182,32 @@ void WorldRenderer::renderLevel(
         );
         shader->uniform1f("u_torchlightDistance", 6.0f);
     }
+}
 
-    // Binding main shader textures
+void WorldRenderer::renderLevel(
+    const DrawContext&,
+    Camera* camera, 
+    const EngineSettings& settings,
+    bool pause
+) {
+    auto assets = engine->getAssets();
+    auto atlas = assets->get<Atlas>("blocks");
+
+    float fogFactor = 15.0f / ((float)settings.chunks.loadDistance.get()-2);
+
+    auto shader = assets->get<Shader>("main");
+    setupWorldShader(shader, camera, settings, fogFactor);
+
     skybox->bind();
     atlas->getTexture()->bind();
 
     drawChunks(level->chunks.get(), camera, shader);
 
-    shader->uniformMatrix("u_model", glm::mat4(1.0f));
+    auto entityShader = assets->get<Shader>("entity");
+    setupWorldShader(entityShader, camera, settings, fogFactor);
+
     level->entities->render(assets, *modelBatch, *frustumCulling, pause);
+
     if (!pause) {
         scripting::on_frontend_render();
     }
@@ -263,8 +271,8 @@ void WorldRenderer::renderDebugLines(
         glm::vec3 coord = player->camera->position;
         if (coord.x < 0) coord.x--;
         if (coord.z < 0) coord.z--;
-        int cx = floordiv((int)coord.x, CHUNK_W);
-        int cz = floordiv((int)coord.z, CHUNK_D);
+        int cx = floordiv(static_cast<int>(coord.x), CHUNK_W);
+        int cz = floordiv(static_cast<int>(coord.z), CHUNK_D);
 
         drawBorders(
             cx * CHUNK_W, 0, cz * CHUNK_D, 
@@ -276,8 +284,8 @@ void WorldRenderer::renderDebugLines(
     glm::vec3 tsl(displayWidth/2, displayHeight/2, 0.f);
     glm::mat4 model(glm::translate(glm::mat4(1.f), tsl));
     linesShader->uniformMatrix("u_projview", glm::ortho(
-        0.f, (float)displayWidth, 
-        0.f, (float)displayHeight,
+        0.f, static_cast<float>(displayWidth), 
+        0.f, static_cast<float>(displayHeight),
         -length, length) * model * glm::inverse(camera->rotation)
     );
 

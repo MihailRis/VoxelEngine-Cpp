@@ -75,6 +75,7 @@ namespace rigging {
         std::unordered_map<std::string, std::string> textures;
         std::vector<ModelReference> modelOverrides;
         bool visible;
+        glm::vec3 tint {1.0f, 1.0f, 1.0f};
 
         Skeleton(const SkeletonConfig* config);
     };
