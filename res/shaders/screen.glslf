@@ -19,7 +19,7 @@ vec4 apply_vignette(vec4 color) {
 }
 
 void main() {
-	f_color = texture(u_texture0, v_coord);
-	f_color = apply_vignette(f_color);
+    f_color = texture(u_texture0, v_coord);
+    f_color = apply_vignette(f_color);
 }
 

@@ -43,7 +43,7 @@ SOFTWARE.
 #define LIGHT_STEPS 4
 
 vec3 calculate_scattering(
-	vec3 start, 				// the start of the ray (the camera position)
+    vec3 start, 				// the start of the ray (the camera position)
     vec3 dir, 					// the direction of the ray (the camera vector)
     float max_dist, 			// the maximum distance the ray can travel (because something is in the way, like an object)
     vec3 scene_color,			// the color of the scene
@@ -201,16 +201,16 @@ vec3 calculate_scattering(
 
         // and increment the position on this ray
         ray_pos_i += step_size_i;
-    	
+        
     }
     
     // calculate how much light can pass through the atmosphere
     vec3 opacity = exp(-(beta_mie * opt_i.y + beta_ray * opt_i.x + beta_absorption * opt_i.z));
     
-	// calculate and return the final color
+    // calculate and return the final color
     return (
-        	phase_ray * beta_ray * total_ray // rayleigh color
-       		+ phase_mie * beta_mie * total_mie // mie
+            phase_ray * beta_ray * total_ray // rayleigh color
+               + phase_mie * beta_mie * total_mie // mie
             + opt_i.x * beta_ambient // and ambient
     ) * light_intensity + scene_color * opacity; // now make sure the background is rendered correctly
 }
@@ -264,7 +264,7 @@ void main() {
     vec3 col = vec3(0.0);//scene.xyz;
     // get the atmosphere color
     col += calculate_scattering(
-    	camera_position,				// the position of the camera
+        camera_position,				// the position of the camera
         camera_vector, 					// the camera vector (ray direction of this pixel)
         1e12f, 						    // max dist, essentially the scene depth
         vec3(0.0f),						// scene color, the color of the current pixel being rendered

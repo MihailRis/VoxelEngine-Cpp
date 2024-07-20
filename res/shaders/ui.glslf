@@ -5,5 +5,5 @@ out vec4 f_color;
 uniform sampler2D u_texture;
 
 void main(){
-	f_color = a_color * texture(u_texture, a_textureCoord);
+    f_color = a_color * texture(u_texture, a_textureCoord);
 }
