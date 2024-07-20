@@ -32,6 +32,8 @@ void Transform::refresh() {
     combined = glm::translate(combined, pos);
     combined = glm::scale(combined, size);
     combined = combined * glm::mat4(rot);
+    displayPos = pos;
+    displaySize = size;
     dirty = false;
 }
 

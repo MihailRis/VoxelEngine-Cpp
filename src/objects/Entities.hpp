@@ -44,6 +44,9 @@ struct Transform {
     glm::mat4 combined;
     bool dirty = true;
 
+    glm::vec3 displayPos;
+    glm::vec3 displaySize;
+
     void refresh();
     
     inline void setRot(glm::mat3 m) {
@@ -52,14 +55,14 @@ struct Transform {
     }
 
     inline void setSize(glm::vec3 v) {
-        if (glm::distance2(size, v) >= 0.0000001f) {
+        if (glm::distance2(displaySize, v) >= 0.00001f) {
             dirty = true;
         }
         size = v;
     }
 
     inline void setPos(glm::vec3 v) {
-        if (glm::distance2(pos, v) >= 0.00001f) {
+        if (glm::distance2(displayPos, v) >= 0.0001f) {
             dirty = true;
         }
         pos = v;
