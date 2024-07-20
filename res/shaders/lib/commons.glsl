@@ -3,9 +3,6 @@
 
 #include <constants>
 
-#define PI 3.1415926535897932384626433832795
-#define PI2 (PI*2)
-
 vec4 decompress_light(float compressed_light) {
     vec4 result;
     int compressed = floatBitsToInt(compressed_light);
@@ -22,6 +19,11 @@ vec3 pick_sky_color(samplerCube cubemap) {
     skyLightColor = min(vec3(1.0), skyLightColor*SKY_LIGHT_MUL);
     skyLightColor = max(MAX_SKY_LIGHT, skyLightColor);
     return skyLightColor;
+}
+
+vec3 apply_planet_curvature(vec3 modelPos, vec3 pos3d) {
+    modelPos.y -= pow(length(pos3d.xz)*CURVATURE_FACTOR, 3.0);
+    return modelPos;
 }
 
 #endif // COMMONS_GLSL_

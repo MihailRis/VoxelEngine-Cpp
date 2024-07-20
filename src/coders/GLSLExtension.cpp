@@ -141,9 +141,5 @@ std::string GLSLExtension::process(const fs::path& file, const std::string& sour
         ss << source.substr(pos, endline+1-pos);
         pos = endline+1;
     }
-    if (!header) {
-        std::cout << " ========================================================== " << file.u8string() << std::endl;
-        std::cout << ss.str() << std::endl;
-    }
     return ss.str();    
 }
