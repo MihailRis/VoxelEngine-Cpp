@@ -99,9 +99,8 @@ void SkeletonConfig::render(
         }
         model = modelOverride.model ? modelOverride.model : model;
         if (model) {
-            batch.pushMatrix(skeleton.calculated.matrices[i]);
-            batch.draw(model, &skeleton.textures);
-            batch.popMatrix();
+            batch.draw(
+                skeleton.calculated.matrices[i], model, &skeleton.textures);
         }
     }
 }

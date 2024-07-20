@@ -35,12 +35,25 @@ struct DecomposedMat4 {
     glm::vec4 perspective;
 };
 
+static glm::mat4 extract_rotation(glm::mat4 matrix) {
+    DecomposedMat4 decomposed = {};
+    glm::quat rotation;
+    glm::decompose(
+        matrix, 
+        decomposed.scale, 
+        rotation, 
+        decomposed.translation, 
+        decomposed.skew, 
+        decomposed.perspective
+    );
+    return glm::toMat3(rotation);
+}
+
 ModelBatch::ModelBatch(size_t capacity, Assets* assets, Chunks* chunks)
   : buffer(std::make_unique<float[]>(capacity * VERTEX_SIZE)),
     capacity(capacity),
     index(0),
     mesh(std::make_unique<Mesh>(buffer.get(), 0, attrs)),
-    combined(1.0f),
     assets(assets),
     chunks(chunks)
 {
@@ -84,10 +97,11 @@ void ModelBatch::draw(const model::Mesh& mesh, const glm::mat4& matrix,
     }
 }
 
-void ModelBatch::draw(const model::Model* model,
+void ModelBatch::draw(glm::mat4 matrix,
+                      const model::Model* model,
                       const texture_names_map* varTextures) {
     for (const auto& mesh : model->meshes) {
-        entries.push_back({combined, rotation, &mesh, varTextures});
+        entries.push_back({matrix, extract_rotation(matrix), &mesh, varTextures});
     }
 }
 
@@ -102,20 +116,6 @@ void ModelBatch::render() {
     }
     flush();
     entries.clear();
-}
-
-void ModelBatch::box(glm::vec3 pos, glm::vec3 size, glm::vec4 lights) {
-    if (index + 36 < capacity*VERTEX_SIZE) {
-        flush();
-    }
-    plane(pos+Z*size, X*size, Y*size, Z, lights);
-    plane(pos-Z*size, -X*size, Y*size, -Z, lights);
-
-    plane(pos+Y*size, X*size, -Z*size, Y, lights);
-    plane(pos-Y*size, X*size, Z*size, -Y, lights);
-
-    plane(pos+X*size, -Z*size, Y*size, X, lights);
-    plane(pos-X*size, Z*size, Y*size, -X, lights);
 }
 
 void ModelBatch::setTexture(const std::string& name,
@@ -168,42 +168,4 @@ void ModelBatch::flush() {
     mesh->reload(buffer.get(), index / VERTEX_SIZE);
     mesh->draw();
     index = 0;
-}
-
-static glm::mat4 extract_rotation(glm::mat4 matrix) {
-    DecomposedMat4 decomposed = {};
-    glm::quat rotation;
-    glm::decompose(
-        matrix, 
-        decomposed.scale, 
-        rotation, 
-        decomposed.translation, 
-        decomposed.skew, 
-        decomposed.perspective
-    );
-    return glm::toMat3(rotation);
-}
-
-void ModelBatch::translate(glm::vec3 vec) {
-    pushMatrix(glm::translate(glm::mat4(1.0f), vec));
-}
-
-void ModelBatch::rotate(glm::vec3 axis, float angle) {
-    pushMatrix(glm::rotate(glm::mat4(1.0f), angle, axis));
-}
-
-void ModelBatch::scale(glm::vec3 vec) {
-    pushMatrix(glm::scale(glm::mat4(1.0f), vec));
-}
-
-void ModelBatch::pushMatrix(glm::mat4 matrix) {
-    matrices.push_back(combined);
-    combined = combined * matrix;
-    rotation = extract_rotation(combined);
-}
-
-void ModelBatch::popMatrix() {
-    combined = matrices[matrices.size()-1];
-    matrices.erase(matrices.end()-1);
-    rotation = extract_rotation(combined);
 }
