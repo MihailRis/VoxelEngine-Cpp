@@ -99,8 +99,8 @@ void SkeletonConfig::render(
         }
         model = modelOverride.model ? modelOverride.model : model;
         if (model) {
-            batch.draw(
-                skeleton.calculated.matrices[i], model, &skeleton.textures);
+            batch.draw(skeleton.calculated.matrices[i], glm::vec3(1.0f), model, 
+                       &skeleton.textures);
         }
     }
 }

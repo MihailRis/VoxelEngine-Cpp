@@ -37,7 +37,7 @@ class ModelBatch {
     static inline glm::vec3 SUN_VECTOR {0.411934f, 0.863868f, -0.279161f};
 
     inline void vertex(
-        glm::vec3 pos, glm::vec2 uv, glm::vec4 light
+        glm::vec3 pos, glm::vec2 uv, glm::vec4 light, glm::vec3 tint
     ) {
         float* buffer = this->buffer.get();
         buffer[index++] = pos.x;
@@ -45,6 +45,9 @@ class ModelBatch {
         buffer[index++] = pos.z;
         buffer[index++] = uv.x * region.getWidth() + region.u1;
         buffer[index++] = uv.y * region.getHeight() + region.v1;
+        buffer[index++] = tint.x;
+        buffer[index++] = tint.y;
+        buffer[index++] = tint.z;
 
         union {
             float floating;
@@ -59,8 +62,11 @@ class ModelBatch {
         buffer[index++] = compressed.floating;
     }
 
-    void draw(const model::Mesh& mesh, const glm::mat4& matrix, 
-              const glm::mat3& rotation, const texture_names_map* varTextures);
+    void draw(const model::Mesh& mesh, 
+              const glm::mat4& matrix, 
+              const glm::mat3& rotation, 
+              glm::vec3 tint,
+              const texture_names_map* varTextures);
     void setTexture(const std::string& name,
                     const texture_names_map* varTextures);
     void setTexture(Texture* texture);
@@ -69,6 +75,7 @@ class ModelBatch {
     struct DrawEntry {
         glm::mat4 matrix;
         glm::mat3 rotation;
+        glm::vec3 tint;
         const model::Mesh* mesh;
         const texture_names_map* varTextures;
     };
@@ -77,12 +84,10 @@ public:
     ModelBatch(size_t capacity, Assets* assets, Chunks* chunks);
     ~ModelBatch();
 
-    void pushMatrix(glm::mat4 matrix);
-    void popMatrix();
     void draw(glm::mat4 matrix,
+              glm::vec3 tint,
               const model::Model* model,
               const texture_names_map* varTextures);
-
     void render();
 };
 

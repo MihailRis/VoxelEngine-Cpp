@@ -16,11 +16,11 @@
 
 #include <algorithm>
 
-/// xyz, uv, compressed rgba
-inline constexpr uint VERTEX_SIZE = 6;
+/// xyz, uv, color, compressed lights
+inline constexpr uint VERTEX_SIZE = 9;
 
 static const vattr attrs[] = {
-    {3}, {2}, {1}, {0}
+    {3}, {2}, {3}, {1}, {0}
 };
 
 inline constexpr glm::vec3 X(1, 0, 0);
@@ -68,9 +68,9 @@ ModelBatch::~ModelBatch() {
 }
 
 void ModelBatch::draw(const model::Mesh& mesh, const glm::mat4& matrix, 
-                      const glm::mat3& rotation, 
+                      const glm::mat3& rotation, glm::vec3 tint,
                       const texture_names_map* varTextures) {
-    glm::vec3 gpos = matrix * glm::vec4(glm::vec3(), 1.0f);
+    glm::vec3 gpos = matrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     light_t light = chunks->getLight(floor(gpos.x), floor(gpos.y), floor(gpos.z));
     glm::vec4 lights (
         Lightmap::extract(light, 0) / 15.0f,
@@ -90,18 +90,19 @@ void ModelBatch::draw(const model::Mesh& mesh, const glm::mat4& matrix,
             auto norm = rotation * vert.normal;
             float d = glm::dot(norm, SUN_VECTOR);
             d = 0.8f + d * 0.2f;
-            
-            auto color = lights * d;
-            vertex(matrix * glm::vec4(vert.coord, 1.0f), vert.uv, color);
+            vertex(matrix * glm::vec4(vert.coord, 1.0f), vert.uv, lights*d, tint);
         }
     }
 }
 
 void ModelBatch::draw(glm::mat4 matrix,
+                      glm::vec3 tint,
                       const model::Model* model,
                       const texture_names_map* varTextures) {
     for (const auto& mesh : model->meshes) {
-        entries.push_back({matrix, extract_rotation(matrix), &mesh, varTextures});
+        entries.push_back({
+            matrix, extract_rotation(matrix), tint, &mesh, varTextures
+        });
     }
 }
 
@@ -112,7 +113,7 @@ void ModelBatch::render() {
         }
     );
     for (auto& entry : entries) {
-        draw(*entry.mesh, entry.matrix, entry.rotation, entry.varTextures);
+        draw(*entry.mesh, entry.matrix, entry.rotation, entry.tint, entry.varTextures);
     }
     flush();
     entries.clear();

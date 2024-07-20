@@ -3,8 +3,7 @@
 layout (location = 0) in vec3 v_position;
 layout (location = 1) in vec2 v_texCoord;
 layout (location = 2) in vec3 v_color;
-layout (location = 3) in vec3 v_normal;
-layout (location = 4) in float v_light;
+layout (location = 3) in float v_light;
 
 out vec4 a_color;
 out vec2 a_texCoord;
@@ -31,12 +30,12 @@ void main() {
     float torchlight = max(0.0, 1.0-distance(u_cameraPos, modelpos.xyz) / 
                        u_torchlightDistance);
     light += torchlight * u_torchlightColor;
-    a_color = vec4(pow(light, vec3(u_gamma)) * v_normal,1.0f);
+    a_color = vec4(pow(light, vec3(u_gamma)),1.0f);
     a_texCoord = v_texCoord;
 
     a_dir = modelpos.xyz - u_cameraPos;
     vec3 skyLightColor = pick_sky_color(u_cubemap);
-    a_color.rgb = max(a_color.rgb, skyLightColor.rgb*decomp_light.a);
+    a_color.rgb = max(a_color.rgb, skyLightColor.rgb*decomp_light.a) * v_color;
     a_distance = length(u_view * u_model * vec4(pos3d * FOG_POS_SCALE, 0.0));
     gl_Position = u_proj * u_view * modelpos;
 }
