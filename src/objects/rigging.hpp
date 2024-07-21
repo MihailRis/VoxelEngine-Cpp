@@ -40,13 +40,15 @@ namespace rigging {
         size_t index;
         std::string name;
         std::vector<std::unique_ptr<Bone>> bones;
+        glm::vec3 offset;
     public:
         ModelReference model;
         Bone(
             size_t index, 
             std::string name,
             std::string model,
-            std::vector<std::unique_ptr<Bone>> bones);
+            std::vector<std::unique_ptr<Bone>> bones,
+            glm::vec3 offset);
 
         void setModel(const std::string& name);
 
@@ -56,6 +58,10 @@ namespace rigging {
         
         size_t getIndex() const {
             return index;
+        }
+
+        glm::vec3 getOffset() const {
+            return offset;
         }
 
         const auto& getSubnodes() const {

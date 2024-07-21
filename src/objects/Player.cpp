@@ -140,6 +140,7 @@ void Player::updateSelectedEntity() {
     selectedEid = selection.entity;
 }
 
+#include "../window/Window.hpp"
 void Player::postUpdate() {
     auto entity = level->entities->get(eid);
     if (!entity.has_value()) {
@@ -159,14 +160,15 @@ void Player::postUpdate() {
 
     skeleton.visible = currentCamera != camera;
 
+    auto velocityMod = glm::length(hitbox.velocity);
+
     size_t bodyIndex = skeleton.config->find("body")->getIndex();
     size_t headIndex = skeleton.config->find("head")->getIndex();
-    
+
     skeleton.pose.matrices[bodyIndex] = 
-        glm::rotate(glm::mat4(1.0f), glm::radians(cam.x-90), glm::vec3(0, 1, 0));
-    skeleton.pose.matrices[headIndex] = glm::rotate(glm::rotate(
-            glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.4f, 0.0f)), 
-            glm::radians(-cam.y), glm::vec3(0, 0, 1)), glm::radians(90.0f), glm::vec3(0, 1, 0));
+        glm::rotate(glm::mat4(1.0f), glm::radians(cam.x), glm::vec3(0, 1, 0));
+    skeleton.pose.matrices[headIndex] = glm::rotate(
+        glm::mat4(1.0f), glm::radians(cam.y), glm::vec3(1, 0, 0));
 }
 
 void Player::teleport(glm::vec3 position) {
@@ -188,8 +190,9 @@ void Player::attemptToFindSpawnpoint() {
 
     voxel* headvox = level->chunks->get(newpos.x, newpos.y+1, newpos.z);
     if (level->chunks->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
-        headvox == nullptr || headvox->id != 0)
+        headvox == nullptr || headvox->id != 0) {
         return;
+    }
     spawnpoint = newpos + glm::vec3(0.5f, 0.0f, 0.5f);
     teleport(spawnpoint);
 }

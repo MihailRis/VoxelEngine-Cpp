@@ -4,6 +4,11 @@
 #include "../graphics/render/ModelBatch.hpp"
 #include "../graphics/core/Model.hpp"
 #include "../coders/json.hpp"
+#include "../data/dynamic_util.hpp"
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/norm.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
 using namespace rigging;
 
@@ -18,10 +23,12 @@ Bone::Bone(
     size_t index, 
     std::string name, 
     std::string model,
-    std::vector<std::unique_ptr<Bone>> bones)
+    std::vector<std::unique_ptr<Bone>> bones,
+    glm::vec3 offset)
   : index(index), 
     name(std::move(name)),
     bones(std::move(bones)),
+    offset(offset),
     model({model, nullptr, true})
 {}
 
@@ -40,7 +47,8 @@ Skeleton::Skeleton(const SkeletonConfig* config)
       textures(),
       modelOverrides(config->getBones().size()),
       visible(true) {
-    for (size_t i = 0; i < config->getBones().size(); i++) {
+    const auto& bones = config->getBones();
+    for (size_t i = 0; i < bones.size(); i++) {
         flags[i].visible = true;
     }
 }
@@ -63,7 +71,13 @@ size_t SkeletonConfig::update(
     Bone* node, 
     glm::mat4 matrix) const
 {
-    skeleton.calculated.matrices[index] = matrix * skeleton.pose.matrices[index];
+    auto boneMatrix = skeleton.pose.matrices[index];
+    auto boneOffset = node->getOffset();
+    glm::mat4 baseMatrix(1.0f);
+    if (glm::length2(boneOffset) > 0.0f) {
+        baseMatrix = glm::translate(glm::mat4(1.0f), boneOffset);
+    }
+    skeleton.calculated.matrices[index] =  matrix * baseMatrix * boneMatrix;
     size_t count = 1;
     for (auto& subnode : node->getSubnodes()) {
         count += update(index+count, skeleton, subnode.get(), skeleton.calculated.matrices[index]);
@@ -116,25 +130,28 @@ Bone* SkeletonConfig::find(std::string_view str) const {
 }
 
 static std::tuple<size_t, std::unique_ptr<Bone>> read_node(
-    dynamic::Map* root, size_t index
+    const dynamic::Map_sptr& root, size_t index
 ) {
     std::string name;
     std::string model;
     root->str("name", name);
     root->str("model", model);
 
+    glm::vec3 offset(0.0f);
+    dynamic::get_vec(root, "offset", offset);
+
     std::vector<std::unique_ptr<Bone>> bones;
     size_t count = 1;
     if (auto nodesList = root->list("nodes")) {
         for (size_t i = 0; i < nodesList->size(); i++) {
             if (const auto& map = nodesList->map(i)) {
-                auto [subcount, subNode] = read_node(map.get(), index+count);
+                auto [subcount, subNode] = read_node(map, index+count);
                 count += subcount;
                 bones.push_back(std::move(subNode));
             }
         }
     }
-    return {count, std::make_unique<Bone>(index, name, model, std::move(bones))};
+    return {count, std::make_unique<Bone>(index, name, model, std::move(bones), offset)};
 }
 
 std::unique_ptr<SkeletonConfig> SkeletonConfig::parse(
@@ -147,6 +164,6 @@ std::unique_ptr<SkeletonConfig> SkeletonConfig::parse(
     if (rootNodeMap == nullptr) {
         throw std::runtime_error("missing 'root' element");
     }
-    auto [count, rootNode] = read_node(rootNodeMap.get(), 0);
+    auto [count, rootNode] = read_node(rootNodeMap, 0);
     return std::make_unique<SkeletonConfig>(std::string(name), std::move(rootNode), count);
 }

@@ -3,11 +3,12 @@
     "nodes": [
       {
         "name": "body",
-        "model": "player",
+        "model": "player-body",
         "nodes": [
           {
             "name": "head",
-            "model": "player-head"
+            "model": "player-head",
+            "offset": [0, 0.4, 0]
           }
         ]
       }
