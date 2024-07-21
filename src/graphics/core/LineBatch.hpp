@@ -5,9 +5,11 @@
 #include <stdlib.h>
 #include <glm/glm.hpp>
 
+#include "commons.hpp"
+
 class Mesh;
 
-class LineBatch {
+class LineBatch : public Flushable {
     std::unique_ptr<Mesh> mesh;
     std::unique_ptr<float[]> buffer;
     size_t index;
@@ -29,7 +31,7 @@ public:
             rgba.r, rgba.g, rgba.b, rgba.a);
     }
 
-    void render();
+    void flush() override;
     void lineWidth(float width);
 };
 

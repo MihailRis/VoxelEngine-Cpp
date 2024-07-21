@@ -243,15 +243,15 @@ void WorldRenderer::renderBlockSelection() {
 void WorldRenderer::renderLines(
     Camera* camera, Shader* linesShader, const DrawContext& pctx
 ) {
+    auto ctx = pctx.sub(lineBatch.get());
     linesShader->use();
     linesShader->uniformMatrix("u_projview", camera->getProjView());
     if (player->selection.vox.id != BLOCK_VOID) {
         renderBlockSelection();
     }
     if (player->debug && showEntitiesDebug) {
-        level->entities->renderDebug(*lineBatch, *frustumCulling, pctx);
+        level->entities->renderDebug(*lineBatch, *frustumCulling, ctx);
     }
-    lineBatch->render();
 }
 
 void WorldRenderer::renderDebugLines(
@@ -259,7 +259,7 @@ void WorldRenderer::renderDebugLines(
     Camera* camera,
     Shader* linesShader
 ) {
-    DrawContext ctx = pctx.sub();
+    DrawContext ctx = pctx.sub(lineBatch.get());
     const auto& viewport = ctx.getViewport();
     uint displayWidth = viewport.getWidth();
     uint displayHeight = viewport.getHeight();
@@ -296,14 +296,13 @@ void WorldRenderer::renderDebugLines(
     lineBatch->line(0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f);
     lineBatch->line(0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 0.f, 1.f);
     lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 1.f);
-    lineBatch->render();
+    lineBatch->flush();
 
     ctx.setDepthTest(true);
     lineBatch->lineWidth(2.0f);
     lineBatch->line(0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f);
     lineBatch->line(0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 0.f, 1.f);
     lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 1.f);
-    lineBatch->render();
 }
 
 void WorldRenderer::draw(
@@ -395,5 +394,5 @@ void WorldRenderer::drawBorders(int sx, int sy, int sz, int ex, int ey, int ez) 
         lineBatch->line(ex, i, sz,
                         sx, i, sz, 0, 0.8f, 0, 1);
     }
-    lineBatch->render();
+    lineBatch->flush();
 }

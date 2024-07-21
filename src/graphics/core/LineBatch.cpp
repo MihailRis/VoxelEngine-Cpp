@@ -22,7 +22,7 @@ void LineBatch::line(
     float r, float g, float b, float a
 ) {
     if (index + LB_VERTEX_SIZE * 2 >= capacity) {
-        render();
+        flush();
     }
     buffer[index] = x1;
     buffer[index+1] = y1;
@@ -65,7 +65,7 @@ void LineBatch::box(float x, float y, float z, float w, float h, float d,
     line(x+w, y+h, z-d, x+w, y+h, z+d, r,g,b,a);
 }
 
-void LineBatch::render(){
+void LineBatch::flush(){
     if (index == 0)
         return;
     mesh->reload(buffer.get(), index / LB_VERTEX_SIZE);

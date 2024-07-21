@@ -11,7 +11,7 @@
 class Mesh;
 class Texture;
 
-class Batch2D {
+class Batch2D : public Flushable {
     std::unique_ptr<float[]> buffer;
     size_t capacity;
     std::unique_ptr<Mesh> mesh;
@@ -89,7 +89,7 @@ public:
         float r4, float g4, float b4, int sh
     );
 
-    void flush();
+    void flush() override;
 
     void lineWidth(float width);
 };

@@ -462,33 +462,35 @@ static void debug_render_skeleton(
 void Entities::renderDebug(
     LineBatch& batch, const Frustum& frustum, const DrawContext& pctx
 ) {
-    batch.lineWidth(1.0f);
-    auto view = registry.view<Transform, Rigidbody>();
-    for (auto [entity, transform, rigidbody] : view.each()) {
-        const auto& hitbox = rigidbody.hitbox;
-        const auto& pos = transform.pos;
-        const auto& size = transform.size;
-        if (!frustum.isBoxVisible(pos-size, pos+size)) {
-            continue;
-        }
-        batch.box(hitbox.position, hitbox.halfsize * 2.0f, glm::vec4(1.0f));
-
-        for (auto& sensor : rigidbody.sensors) {
-            if (sensor.type != SensorType::AABB)
+    {
+        auto ctx = pctx.sub(&batch);
+        ctx.setLineWidth(1);
+        auto view = registry.view<Transform, Rigidbody>();
+        for (auto [entity, transform, rigidbody] : view.each()) {
+            const auto& hitbox = rigidbody.hitbox;
+            const auto& pos = transform.pos;
+            const auto& size = transform.size;
+            if (!frustum.isBoxVisible(pos-size, pos+size)) {
                 continue;
-            batch.box(
-                sensor.calculated.aabb.center(), 
-                sensor.calculated.aabb.size(), 
-                glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+            }
+            batch.box(hitbox.position, hitbox.halfsize * 2.0f, glm::vec4(1.0f));
+
+            for (auto& sensor : rigidbody.sensors) {
+                if (sensor.type != SensorType::AABB)
+                    continue;
+                batch.box(
+                    sensor.calculated.aabb.center(), 
+                    sensor.calculated.aabb.size(), 
+                    glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+            }
         }
     }
-    batch.render();
     {
         auto view = registry.view<Transform, rigging::Skeleton>();
-        auto ctx = pctx.sub();
+        auto ctx = pctx.sub(&batch);
         ctx.setDepthTest(false);
         ctx.setDepthMask(false);
-        batch.lineWidth(2);
+        ctx.setLineWidth(2);
         for (auto [entity, transform, skeleton] : view.each()) {
             auto config = skeleton.config;
             const auto& pos = transform.pos;
@@ -499,8 +501,6 @@ void Entities::renderDebug(
             auto bone = config->getRoot();
             debug_render_skeleton(batch, bone, skeleton);
         }
-        batch.render();
-        batch.lineWidth(1);
     }
 }
 
