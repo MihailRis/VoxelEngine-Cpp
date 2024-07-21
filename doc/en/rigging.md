@@ -16,6 +16,7 @@ A skeleton file has the following structure:
     "root": {
         "name": "name",
         "model": "model_name",
+        "offset": [x, y, z],
         "nodes": [
             ...
         ]
@@ -24,9 +25,10 @@ A skeleton file has the following structure:
 ```
 
 - root - root element
-- name - name of the element to get the index (field optional)
-- model - name of the model to display the element (field optional)
-- nodes - list of elements - descendants, which are affected by the matrix of this element (the field is optional)
+- name - name of the element to get the index (optional field)
+- model - name of the model to display the element (optional field)
+- offset - element offset relative to the parent (optional field)
+- nodes - list of elements - sub-elements, which are affected by the matrix of this element (optional field)
 
 At the moment, positioning, rotation, scaling is done through scripting, as well as animation.
 
