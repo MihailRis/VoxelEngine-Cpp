@@ -51,7 +51,7 @@ class WorldRenderer {
     /// @brief Render lines (selection and debug)
     /// @param camera active camera
     /// @param linesShader shader used
-    void renderLines(Camera* camera, Shader* linesShader);
+    void renderLines(Camera* camera, Shader* linesShader, const DrawContext& pctx);
 
     /// @brief Render all debug lines (chunks borders, coord system guides)
     /// @param context graphics context

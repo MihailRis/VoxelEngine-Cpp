@@ -240,14 +240,16 @@ void WorldRenderer::renderBlockSelection() {
     }
 }
 
-void WorldRenderer::renderLines(Camera* camera, Shader* linesShader) {
+void WorldRenderer::renderLines(
+    Camera* camera, Shader* linesShader, const DrawContext& pctx
+) {
     linesShader->use();
     linesShader->uniformMatrix("u_projview", camera->getProjView());
     if (player->selection.vox.id != BLOCK_VOID) {
         renderBlockSelection();
     }
     if (player->debug && showEntitiesDebug) {
-        level->entities->renderDebug(*lineBatch, *frustumCulling);
+        level->entities->renderDebug(*lineBatch, *frustumCulling, pctx);
     }
     lineBatch->render();
 }
@@ -341,7 +343,7 @@ void WorldRenderer::draw(
             renderLevel(ctx, camera, settings, pause);
             // Debug lines
             if (hudVisible){
-                renderLines(camera, linesShader);
+                renderLines(camera, linesShader, ctx);
             }
         }
 

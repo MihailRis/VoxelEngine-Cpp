@@ -100,6 +100,7 @@ class LineBatch;
 class ModelBatch;
 class Frustum;
 class Entities;
+class DrawContext;
 
 namespace rigging {
     struct Skeleton;
@@ -184,7 +185,7 @@ public:
     void updatePhysics(float delta);
     void update();
 
-    void renderDebug(LineBatch& batch, const Frustum& frustum);
+    void renderDebug(LineBatch& batch, const Frustum& frustum, const DrawContext& ctx);
     void render(Assets* assets, ModelBatch& batch, const Frustum& frustum, bool pause);
 
     entityid_t spawn(

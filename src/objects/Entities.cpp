@@ -11,6 +11,7 @@
 #include "../graphics/render/ModelBatch.hpp"
 #include "../graphics/core/LineBatch.hpp"
 #include "../graphics/core/Model.hpp"
+#include "../graphics/core/DrawContext.hpp"
 #include "../maths/FrustumCulling.hpp"
 #include "../objects/EntityDef.hpp"
 #include "../objects/rigging.hpp"
@@ -443,7 +444,24 @@ void Entities::update() {
     scripting::on_entities_update();
 }
 
-void Entities::renderDebug(LineBatch& batch, const Frustum& frustum) {
+static void debug_render_skeleton(
+    LineBatch& batch, 
+    const rigging::Bone* bone, 
+    const rigging::Skeleton& skeleton
+) {
+    size_t pindex = bone->getIndex();
+    for (auto& sub : bone->getSubnodes()) {
+        size_t sindex = sub->getIndex();
+        batch.line(glm::vec3(skeleton.calculated.matrices[pindex] * glm::vec4(0,0,0,1)),
+                   glm::vec3(skeleton.calculated.matrices[sindex] * glm::vec4(0,0,0,1)),
+                   glm::vec4(0,0.5f,0,1));
+        debug_render_skeleton(batch, sub.get(), skeleton);
+    }
+}
+
+void Entities::renderDebug(
+    LineBatch& batch, const Frustum& frustum, const DrawContext& pctx
+) {
     batch.lineWidth(1.0f);
     auto view = registry.view<Transform, Rigidbody>();
     for (auto [entity, transform, rigidbody] : view.each()) {
@@ -463,6 +481,26 @@ void Entities::renderDebug(LineBatch& batch, const Frustum& frustum) {
                 sensor.calculated.aabb.size(), 
                 glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
         }
+    }
+    batch.render();
+    {
+        auto view = registry.view<Transform, rigging::Skeleton>();
+        auto ctx = pctx.sub();
+        ctx.setDepthTest(false);
+        ctx.setDepthMask(false);
+        batch.lineWidth(2);
+        for (auto [entity, transform, skeleton] : view.each()) {
+            auto config = skeleton.config;
+            const auto& pos = transform.pos;
+            const auto& size = transform.size;
+            if (!frustum.isBoxVisible(pos-size, pos+size)) {
+                continue;
+            }
+            auto bone = config->getRoot();
+            debug_render_skeleton(batch, bone, skeleton);
+        }
+        batch.render();
+        batch.lineWidth(1);
     }
 }
 

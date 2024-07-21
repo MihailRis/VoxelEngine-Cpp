@@ -128,6 +128,10 @@ namespace rigging {
         const std::string& getName() const {
             return name;
         }
+
+        Bone* getRoot() const {
+            return root.get();
+        }
     };
 };
 
