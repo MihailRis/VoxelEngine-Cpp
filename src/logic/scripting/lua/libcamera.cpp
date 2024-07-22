@@ -58,10 +58,10 @@ static void setter_zoom(lua::State* L, Camera& camera, int idx) {
 }
 
 static int getter_fov(lua::State* L, const Camera& camera) {
-    return lua::pushnumber(L, camera.getFov());
+    return lua::pushnumber(L, glm::degrees(camera.getFov()));
 }
 static void setter_fov(lua::State* L, Camera& camera, int idx) {
-    camera.setFov(lua::tonumber(L, idx));
+    camera.setFov(glm::radians(lua::tonumber(L, idx)));
 }
 
 static int getter_perspective(lua::State* L, const Camera& camera) {

@@ -58,6 +58,7 @@ void scripting::initialize(Engine* engine) {
 
     load_script(fs::path("stdlib.lua"), true);
     load_script(fs::path("stdcmd.lua"), true);
+    load_script(fs::path("classes.lua"), true);
 }
 
 [[nodiscard]]
