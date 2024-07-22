@@ -3,6 +3,7 @@
 
 #include "lua_util.hpp"
 
+#include <string>
 #include <exception>
 
 /// Definitions can be found in local .cpp files 
@@ -44,6 +45,29 @@ extern const luaL_Reg transformlib [];
 
 // Lua Overrides
 extern int l_print(lua::State* L);
+
+namespace lua {
+    inline uint check_argc(lua::State* L, int a) {
+        int argc = lua::gettop(L);
+        if (argc == a) {
+            return static_cast<uint>(argc);
+        } else {
+            throw std::runtime_error(
+                "invalid number of arguments (" + std::to_string(a) +
+                " expected)");
+        }
+    }
+    inline uint check_argc(lua::State* L, int a, int b) {
+        int argc = lua::gettop(L);
+        if (argc == a || argc == b) {
+            return static_cast<uint>(argc);
+        } else {
+            throw std::runtime_error(
+                "invalid number of arguments (" + std::to_string(a) + " or " +
+                std::to_string(b) + " expected)");
+        }
+    }
+}
 
 void initialize_libs_extends(lua::State* L);
 

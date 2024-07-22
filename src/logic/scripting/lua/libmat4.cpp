@@ -11,16 +11,13 @@
 /// mat4.idt() -> float[16] - creates identity matrix
 /// mat4.idt(dst: float[16]) -> float[16] - sets dst to identity matrix
 static int l_idt(lua::State* L) {
-    uint argc = lua::gettop(L);
+    uint argc = lua::check_argc(L, 0, 1);
     switch (argc) {
         case 0: {
             return lua::pushmat4(L, glm::mat4(1.0f));
         }
         case 1: {
             return lua::setmat4(L, 1, glm::mat4(1.0f));
-        }
-        default: {
-            throw std::runtime_error("invalid arguments number (0 or 1 expected)");
         }
     }
     return 0;
@@ -40,10 +37,7 @@ static int l_determinant(lua::State* L) {
 /// mat4.mul(m1: float[16], v: float[3 or 4]) -> float[3 or 4] - creates vector of m1 and v multiplication result
 /// mat4.mul(m1: float[16], v: float[3 or 4], dst: float[3 or 4]) -> float[3 or 4] - updates dst vector with m1 and v multiplication result
 static int l_mul(lua::State* L) {
-    uint argc = lua::gettop(L);
-    if (argc < 2 || argc > 3) {
-        throw std::runtime_error("invalid arguments number (2 or 3 expected)");
-    }
+    uint argc = lua::check_argc(L, 2, 3);
     auto matrix1 = lua::tomat4(L, 1);
     uint len2 = lua::objlen(L, 2);
     if (len2 < 3) {
@@ -134,7 +128,7 @@ inline int l_rotate(lua::State* L) {
 /// mat4.inverse(matrix: float[16]) -> float[16] - creates inversed version of the matrix
 /// mat4.inverse(matrix: float[16], dst: float[16]) -> float[16] - updates dst matrix with inversed version of the matrix
 static int l_inverse(lua::State* L) {
-    uint argc = lua::gettop(L);
+    uint argc = lua::check_argc(L, 1, 2);
     auto matrix = lua::tomat4(L, 1);
     switch (argc) {
         case 1: {
@@ -143,17 +137,15 @@ static int l_inverse(lua::State* L) {
         case 2: {
             return lua::setmat4(L, 2, glm::inverse(matrix));
         }
-        default: {
-            throw std::runtime_error("invalid arguments number (1 or 2 expected)");
-        }
     }
+    return 0;
 }
 
 /// Overloads:
 /// mat4.transpose(matrix: float[16]) -> float[16] - creates transposed version of the matrix
 /// mat4.transpose(matrix: float[16], dst: float[16]) -> float[16] - updates dst matrix with transposed version of the matrix
 static int l_transpose(lua::State* L) {
-    uint argc = lua::gettop(L);
+    uint argc = lua::check_argc(L, 1, 2);
     auto matrix = lua::tomat4(L, 1);
     switch (argc) {
         case 1: {
@@ -161,9 +153,6 @@ static int l_transpose(lua::State* L) {
         }
         case 2: {
             return lua::setmat4(L, 2, glm::transpose(matrix));
-        }
-        default: {
-            throw std::runtime_error("invalid arguments number (1 or 2 expected)");
         }
     }
     return 0;
@@ -216,10 +205,7 @@ static int l_decompose(lua::State* L) {
 }
 
 static int l_look_at(lua::State* L) {
-    int argc = lua::gettop(L);
-    if (argc != 3 && argc != 4) {
-        throw std::runtime_error("invalid arguments number (3 or 4 expected)");
-    }
+    uint argc = lua::check_argc(L, 3, 4);
     auto eye = lua::tovec<3>(L, 1);
     auto center = lua::tovec<3>(L, 2);
     auto up = lua::tovec<3>(L, 3);
@@ -232,10 +218,7 @@ static int l_look_at(lua::State* L) {
 }
 
 static int l_from_quat(lua::State* L) {
-    uint argc = lua::gettop(L);
-    if (argc != 1 && argc != 2) {
-        throw std::runtime_error("invalid arguments number (1 or 2 expected)");
-    }
+    uint argc = lua::check_argc(L, 1, 2);
     auto quat = lua::toquat(L, 1);
     switch (argc) {
         case 1:
