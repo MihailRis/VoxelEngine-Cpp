@@ -38,20 +38,26 @@ const ContentIndices* scripting::indices = nullptr;
 BlocksController* scripting::blocks = nullptr;
 LevelController* scripting::controller = nullptr;
 
-static void load_script(const fs::path& name) {
+static void load_script(const fs::path& name, bool throwable) {
     auto paths = scripting::engine->getPaths();
     fs::path file = paths->getResources()/fs::path("scripts")/name;
 
     std::string src = files::read_string(file);
-    lua::execute(lua::get_main_thread(), 0, src, file.u8string());
+    auto L = lua::get_main_thread();
+    lua::loadbuffer(L, 0, src, file.u8string());
+    if (throwable) {
+        lua::call(L, 0, 0);
+    } else {
+        lua::call_nothrow(L, 0, 0);
+    }
 }
 
 void scripting::initialize(Engine* engine) {
     scripting::engine = engine;
     lua::initialize();
 
-    load_script(fs::path("stdlib.lua"));
-    load_script(fs::path("stdcmd.lua"));
+    load_script(fs::path("stdlib.lua"), true);
+    load_script(fs::path("stdcmd.lua"), true);
 }
 
 [[nodiscard]]
@@ -145,7 +151,7 @@ void scripting::on_world_load(LevelController* controller) {
     scripting::indices = level->content->getIndices();
     scripting::blocks = controller->getBlocksController();
     scripting::controller = controller;
-    load_script("world.lua");
+    load_script("world.lua", false);
 
     auto L = lua::get_main_thread();
     for (auto& pack : scripting::engine->getContentPacks()) {
