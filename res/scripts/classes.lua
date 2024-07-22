@@ -16,7 +16,7 @@ local Camera = {__index={
     get_front=function(self) return cameras.get_front(self.cid) end,
     get_right=function(self) return cameras.get_right(self.cid) end,
     get_up=function(self) return cameras.get_up(self.cid) end,
-    look_at=function(self, v) return cameras.look_at(self.cid, v) end,
+    look_at=function(self, v, f) return cameras.look_at(self.cid, v, f) end,
 }}
 
 local wrappers = {}

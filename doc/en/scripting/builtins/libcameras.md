@@ -61,6 +61,9 @@ cam:get_up() -> vec3
 
 -- makes camera look to a given point
 cam:look_at(point:vec3)
+
+-- makes camera look to a given point with given interpolation factor
+cam:look_at(point: vec3, t: number)
 ```
 
 Use player.set_camera to switch cameras.

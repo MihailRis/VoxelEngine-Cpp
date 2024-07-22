@@ -92,7 +92,14 @@ static int l_look_at(lua::State* L) {
     size_t index = static_cast<size_t>(lua::tointeger(L, 1));
     auto& camera = *level->cameras.at(index);
     auto center = lua::tovec<3>(L, 2);
-    camera.rotation = glm::inverse(glm::lookAt(glm::vec3(), center-camera.position, glm::vec3(0, 1, 0)));
+    auto matrix = glm::inverse(glm::lookAt(glm::vec3(), center-camera.position, glm::vec3(0, 1, 0)));
+    if (lua::isnumber(L, 3)) {
+        matrix = glm::mat4_cast(glm::slerp(
+            glm::quat(camera.rotation),
+            glm::quat(matrix),
+            static_cast<float>(lua::tonumber(L, 3))));
+    }
+    camera.rotation = matrix;
     camera.updateVectors();
     return 0;
 }
