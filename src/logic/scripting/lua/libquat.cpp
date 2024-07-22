@@ -3,6 +3,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <sstream>
 
 static int l_from_mat4(lua::State* L) {
     uint argc = lua::check_argc(L, 1, 2);
