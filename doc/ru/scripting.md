@@ -11,6 +11,7 @@
 - [Библиотеки](#)
     - [block](scripting/builtins/libblock.md)
     - [entities](scripting/builtins/libentities.md)
+	- [cameras](scripting/builtins/libcameras.md)
     - [mat4](scripting/builtins/libmat4.md)
     - [vec2, vec3, vec4](scripting/builtins/libvecn.md)
 - [Модуль core:bit_converter](scripting/modules/core_bit_converter.md)
