@@ -160,8 +160,6 @@ void Player::postUpdate() {
 
     skeleton.visible = currentCamera != camera;
 
-    auto velocityMod = glm::length(hitbox.velocity);
-
     size_t bodyIndex = skeleton.config->find("body")->getIndex();
     size_t headIndex = skeleton.config->find("head")->getIndex();
 
@@ -271,7 +269,8 @@ std::unique_ptr<dynamic::Map> Player::serialize() const {
     root->put("chosen-slot", chosenSlot);
     root->put("entity", eid);
     root->put("inventory", inventory->serialize());
-    auto found = std::find(level->cameras.begin(), level->cameras.end(), currentCamera);
+    auto found = std::find(
+        level->cameras.begin(), level->cameras.end(), currentCamera);
     if (found != level->cameras.end()) {
         root->put("camera", level->content->getIndices(
             ResourceType::CAMERA).getName(found - level->cameras.begin()));

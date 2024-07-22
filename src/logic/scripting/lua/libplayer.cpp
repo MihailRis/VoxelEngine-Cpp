@@ -8,6 +8,7 @@
 #include "../../../items/Inventory.hpp"
 
 #include <glm/glm.hpp>
+#include <algorithm>
 
 using namespace scripting;
 
@@ -186,6 +187,19 @@ static int l_set_entity(lua::State* L) {
     return 0;
 }
 
+static int l_get_camera(lua::State* L) {
+    auto player = get_player(L, 1);
+    if (player == nullptr) {
+        return 0;
+    }
+    auto found = std::find(
+        level->cameras.begin(), level->cameras.end(), player->currentCamera);
+    if (found == level->cameras.end()) {
+        return 0;
+    }
+    return lua::pushinteger(L, found - level->cameras.end());
+}
+
 static int l_set_camera(lua::State* L) {
     auto player = get_player(L, 1);
     if (player == nullptr) {
@@ -215,6 +229,7 @@ const luaL_Reg playerlib [] = {
     {"get_spawnpoint", lua::wrap<l_get_spawnpoint>},
     {"get_entity", lua::wrap<l_get_entity>},
     {"set_entity", lua::wrap<l_set_entity>},
+    {"get_camera", lua::wrap<l_get_camera>},
     {"set_camera", lua::wrap<l_set_camera>},
     {NULL, NULL}
 };
