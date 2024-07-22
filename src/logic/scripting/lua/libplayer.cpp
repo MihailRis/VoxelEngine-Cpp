@@ -197,7 +197,7 @@ static int l_get_camera(lua::State* L) {
     if (found == level->cameras.end()) {
         return 0;
     }
-    return lua::pushinteger(L, found - level->cameras.end());
+    return lua::pushinteger(L, found - level->cameras.begin());
 }
 
 static int l_set_camera(lua::State* L) {
