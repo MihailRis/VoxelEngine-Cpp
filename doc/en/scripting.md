@@ -13,11 +13,23 @@ Subsections:
     - [entities](scripting/builtins/libentities.md)
     - [cameras](scripting/builtins/libcameras.md)
     - [mat4](scripting/builtins/libmat4.md)
+    - [quat](scripting/builtins/libquat.md)
     - [vec2, vec3, vec4](scripting/builtins/libvecn.md)
 - [Module core:bit_converter](scripting/modules/core_bit_converter.md)
 - [Module core:data_buffer](scripting/modules/core_data_buffer.md)
 - [Module core:vector2, core:vector3](scripting/modules/core_vector2_vector3.md)
 
+## Type annotations
+
+The documentation for Lua libraries uses type annotations,
+not part of Lua syntax.
+
+- vector - an array of three or four numbers
+- vec2 - array of two numbers
+- vec3 - array of three numbers
+- vec4 - array of four numbers
+- quat - array of four numbers - quaternion
+- matrix - array of 16 numbers - matrix
 
 ## Core functions
 

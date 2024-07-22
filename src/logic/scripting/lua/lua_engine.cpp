@@ -40,6 +40,7 @@ static void create_libs(lua::State* L) {
     openlib(L, "mat4", mat4lib);
     openlib(L, "pack", packlib);
     openlib(L, "player", playerlib);
+    openlib(L, "quat", quatlib);
     openlib(L, "time", timelib);
     openlib(L, "toml", tomllib);
     openlib(L, "vec2", vec2lib);

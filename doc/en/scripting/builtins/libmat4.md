@@ -4,19 +4,6 @@
 
 Most functions have several options for argument lists (overloads).
 
-## Data types
-
-Type conventions will be used on this page.
-- vector - an array of three or four numbers
-- vec3 - array of three numbers
-- vec4 - array of four numbers
-- quat - array of four numbers - quaternion
-- matrix - array of 16 numbers - matrix
-
-> [!WARNING]
->
-> Type annotations are part of the documentation and are not present in Lua.
-
 ## Identity matrix - *mat4.idt(...)*
 
 ```lua

@@ -196,7 +196,14 @@ namespace lua {
         }
         return 1;
     }
-
+    inline int setquat(lua::State* L, int idx, glm::quat quat) {
+        pushvalue(L, idx);
+        for (int i = 0; i < 4; i++) {
+            pushnumber(L, quat[i]);
+            rawseti(L, i+1);
+        }
+        return 1;
+    }
     inline int pushmat4(lua::State* L, glm::mat4 matrix) {
         createtable(L, 16, 0);
         for (uint y = 0; y < 4; y++) {
