@@ -278,14 +278,16 @@ static void load_configs(const fs::path& root) {
 
 void Engine::loadContent() {
     auto resdir = paths->getResources();
-    ContentBuilder contentBuilder;
-    corecontent::setup(paths, &contentBuilder);
-    paths->setContentPacks(&contentPacks);
 
     std::vector<std::string> names;
     for (auto& pack : contentPacks) {
         names.push_back(pack.id);
     }
+
+    ContentBuilder contentBuilder;
+    corecontent::setup(paths, &contentBuilder);
+
+    paths->setContentPacks(&contentPacks);
     PacksManager manager = createPacksManager(paths->getWorldFolder());
     manager.scan();
     names = manager.assembly(names);
@@ -308,10 +310,18 @@ void Engine::loadContent() {
 }
 
 void Engine::resetContent() {
+    auto resdir = paths->getResources();
+    resPaths = std::make_unique<ResPaths>(resdir, std::vector<PathsRoot>());
+    contentPacks.clear();
+    content.reset();
+
+    langs::setup(resdir, langs::current->getId(), contentPacks);
+    loadAssets();
+    onAssetsLoaded();
+
     auto manager = createPacksManager(fs::path());
     manager.scan();
     contentPacks = manager.getAll(basePacks);
-    loadContent();
 }
 
 void Engine::loadWorldContent(const fs::path& folder) {
