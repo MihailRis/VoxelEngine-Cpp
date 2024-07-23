@@ -9,6 +9,10 @@
             "name": "head",
             "model": "player-head",
             "offset": [0, 0.4, 0]
+          },
+          {
+            "name": "item",
+            "offset": [0.26, 0, -0.23]
           }
         ]
       }

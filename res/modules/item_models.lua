@@ -1,4 +1,5 @@
-local function setup(id, rig)
+local function setup(id, rig, index)
+    rig:set_model(index, "drop-block")
     local icon = item.icon(id)
     local size = {1.0, 1.0, 1.0}
     if icon:find("^block%-previews%:") then
@@ -6,7 +7,7 @@ local function setup(id, rig)
         model = block.get_model(bid)
         if model == "X" then
             size = {1.0, 0.3, 1.0}
-            rig:set_model(0, "drop-item")
+            rig:set_model(index, "drop-item")
             rig:set_texture("$0", icon)
         else
             if model == "aabb" then
@@ -21,7 +22,7 @@ local function setup(id, rig)
         end
     else
         size = {1.0, 0.3, 1.0}
-        rig:set_model(0, "drop-item")
+        rig:set_model(index, "drop-item")
         rig:set_texture("$0", icon)
     end
     return size
