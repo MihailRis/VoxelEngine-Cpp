@@ -81,7 +81,7 @@ static int l_index(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
         auto& skeleton = entity->getSkeleton();
         if (auto bone = skeleton.config->find(lua::require_string(L, 2))) {
-            return lua::tointeger(L, bone->getIndex());
+            return lua::pushinteger(L, bone->getIndex());
         }
     }
     return 0;
