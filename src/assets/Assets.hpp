@@ -14,6 +14,16 @@
 
 class Assets;
 
+enum class AssetType {
+    TEXTURE,
+    SHADER,
+    FONT,
+    ATLAS,
+    LAYOUT,
+    SOUND,
+    MODEL
+};
+
 namespace assetload {
     /// @brief final work to do in the main thread
     using postfunc = std::function<void(Assets*)>;
@@ -22,6 +32,32 @@ namespace assetload {
 
     template<class T>
     void assets_setup(const Assets*);
+
+    class error : public std::runtime_error {
+        AssetType type;
+        std::string filename;
+        std::string reason;
+    public:
+        error(
+            AssetType type, std::string filename, std::string reason
+        ) : std::runtime_error(filename + ": " + reason),
+            type(type),
+            filename(std::move(filename)),
+            reason(std::move(reason)) {
+        }
+
+        AssetType getAssetType() const {
+            return type;
+        }
+
+        const std::string& getFilename() const {
+            return filename;
+        }
+
+        const std::string& getReason() const {
+            return reason;
+        }
+    };
 }
 
 class Assets {

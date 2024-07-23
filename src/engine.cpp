@@ -256,11 +256,13 @@ void Engine::loadAssets() {
         auto task = loader.startTask([=](){});
         task->waitForEnd();
     } else {
-        while (loader.hasNext()) {
-            if (!loader.loadNext()) {
-                new_assets.reset();
-                throw std::runtime_error("could not to load assets");
+        try {
+            while (loader.hasNext()) {
+                loader.loadNext();
             }
+        } catch (const assetload::error& err) {
+            new_assets.reset();
+            throw;
         }
     }
     assets = std::move(new_assets);

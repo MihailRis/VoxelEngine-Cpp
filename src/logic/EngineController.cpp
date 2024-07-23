@@ -84,6 +84,7 @@ static void show_content_missing(
 }
 
 static bool loadWorldContent(Engine* engine, const fs::path& folder) {
+    // TODO: combine errors handling with newWorld
     try {
         engine->loadWorldContent(folder);
         return true;
@@ -95,10 +96,17 @@ static bool loadWorldContent(Engine* engine, const fs::path& folder) {
             util::str2wstr_utf8(error.getPackId())
         );
         return false;
+    } catch (const assetload::error& error) {
+        engine->setScreen(std::make_shared<MenuScreen>(engine));
+        guiutil::alert(
+            engine->getGUI(), langs::get(L"Assets Load Error", L"menu")+L":\n"+
+            util::str2wstr_utf8(error.what())
+        );
+        return false;
     } catch (const std::runtime_error& error) {
         engine->setScreen(std::make_shared<MenuScreen>(engine));
         guiutil::alert(
-            engine->getGUI(), langs::get(L"Content Error", L"menu")+L": "+
+            engine->getGUI(), langs::get(L"Content Error", L"menu")+L":\n"+
             util::str2wstr_utf8(error.what())
         );
         return false;
@@ -189,11 +197,18 @@ void EngineController::createWorld(
             )
         );
         return;
-    } catch (const std::runtime_error& error) {
+    } catch (const assetload::error& error) {
         guiutil::alert(
             engine->getGUI(),
-            langs::get(L"Content Error", L"menu")+
-            L": "+util::str2wstr_utf8(error.what())
+            langs::get(L"Assets Loading Error", L"menu")+
+            L":\n"+util::str2wstr_utf8(error.what())
+        );
+        return;
+    } catch (const std::runtime_error& error) {
+        engine->setScreen(std::make_shared<MenuScreen>(engine));
+        guiutil::alert(
+            engine->getGUI(), langs::get(L"Content Error", L"menu")+L":\n"+
+            util::str2wstr_utf8(error.what())
         );
         return;
     }

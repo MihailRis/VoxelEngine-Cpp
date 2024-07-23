@@ -1,13 +1,27 @@
 {
     "shaders": [
-        "ui3d",
-        "screen",
-        "background",
-        "skybox_gen"
+        "ui",
+        "main",
+        "lines"
     ],
     "textures": [
-        "misc/moon",
-        "misc/sun",
-        "gui/crosshair"
+        "gui/menubg",
+        "gui/delete_icon",
+        "gui/no_icon",
+        "gui/no_world_icon",
+        "gui/warning",
+        "gui/error",
+        "gui/cross",
+        "gui/refresh"
+    ],
+    "fonts": [
+        {
+            "name": "normal",
+            "path": "fonts/font"
+        }
+    ],
+    "atlases": [
+        "blocks",
+        "items"
     ]
 }

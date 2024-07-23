@@ -19,16 +19,6 @@ namespace dynamic {
     class List;
 }
 
-enum class AssetType {
-    TEXTURE,
-    SHADER,
-    FONT,
-    ATLAS,
-    LAYOUT,
-    SOUND,
-    MODEL
-};
-
 class ResPaths;
 class AssetsLoader;
 class Content;
@@ -50,7 +40,7 @@ struct SoundCfg : AssetCfg {
 };
 
 using aloader_func = std::function<assetload::postfunc(
-    AssetsLoader*, // redundant?
+    AssetsLoader*,
     const ResPaths*, 
     const std::string&, 
     const std::string&, 
@@ -93,7 +83,9 @@ public:
     );
     
     bool hasNext() const;
-    bool loadNext();
+
+    /// @throws assetload::error
+    void loadNext();
 
     std::shared_ptr<Task> startTask(runnable onDone);
 
