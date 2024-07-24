@@ -53,10 +53,11 @@ function on_fall()
 end
 
 function on_sensor_enter(index, oid)
-    local playerentity = player.get_entity(hud.get_player())
+    local playerid = hud.get_player()
+    local playerentity = player.get_entity(playerid)
     if ready and oid == playerentity and index == 0 then
         entity:despawn()
-        inventory.add(player.get_inventory(oid), dropitem.id, dropitem.count)
+        inventory.add(player.get_inventory(playerid), dropitem.id, dropitem.count)
         audio.play_sound_2d("events/pickup", 0.5, 0.8+math.random()*0.4, "regular")
     end
     if index == 1 and ready and oid == playerentity then
