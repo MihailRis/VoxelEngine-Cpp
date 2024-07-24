@@ -8,10 +8,10 @@ local itemid = 0
 local itemIndex = rig:index("item")
 
 local function refresh_model(id)
+    itemid = id
     if id == 0 then
         rig:set_model(itemIndex, "")
     else
-        itemid = id
         local scale = item_models.setup(itemid, rig, itemIndex)
         rig:set_matrix(itemIndex, mat4.scale(scale))
     end 
