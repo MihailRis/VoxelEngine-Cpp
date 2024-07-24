@@ -85,37 +85,9 @@ static void show_content_missing(
 }
 
 static bool loadWorldContent(Engine* engine, const fs::path& folder) {
-    // TODO: combine errors handling with newWorld
-    try {
+    return menus::call(engine, [engine, folder]() {
         engine->loadWorldContent(folder);
-        return true;
-    } catch (const contentpack_error& error) {
-        engine->setScreen(std::make_shared<MenuScreen>(engine));
-        // could not to find or read pack
-        guiutil::alert(
-            engine->getGUI(), langs::get(L"error.pack-not-found")+L": "+
-            util::str2wstr_utf8(error.getPackId())
-        );
-        return false;
-    } catch (const assetload::error& error) {
-        engine->setScreen(std::make_shared<MenuScreen>(engine));
-        guiutil::alert(
-            engine->getGUI(), langs::get(L"Assets Load Error", L"menu")+L":\n"+
-            util::str2wstr_utf8(error.what())
-        );
-        return false;
-    } catch (const parsing_error& error) {
-        engine->setScreen(std::make_shared<MenuScreen>(engine));
-        guiutil::alert(engine->getGUI(), util::str2wstr_utf8(error.errorLog()));
-        return false;
-    } catch (const std::runtime_error& error) {
-        engine->setScreen(std::make_shared<MenuScreen>(engine));
-        guiutil::alert(
-            engine->getGUI(), langs::get(L"Content Error", L"menu")+L":\n"+
-            util::str2wstr_utf8(error.what())
-        );
-        return false;
-    }
+    });
 }
 
 static void loadWorld(Engine* engine, const fs::path& folder) {
@@ -188,40 +160,13 @@ void EngineController::createWorld(
 
     EnginePaths* paths = engine->getPaths();
     auto folder = paths->getWorldsFolder()/fs::u8path(name);
-    try {
+
+    if (!menus::call(engine, [this, paths, folder]() {
         engine->loadContent();
         paths->setWorldFolder(folder);
-    } catch (const contentpack_error& error) {
-        guiutil::alert(
-            engine->getGUI(),
-            langs::get(L"Content Error", L"menu")+L":\n"+
-            util::str2wstr_utf8(
-                std::string(error.what())+
-                "\npack '"+error.getPackId()+"' from "+
-                error.getFolder().u8string()
-            )
-        );
-        return;
-    } catch (const assetload::error& error) {
-        guiutil::alert(
-            engine->getGUI(),
-            langs::get(L"Assets Loading Error", L"menu")+
-            L":\n"+util::str2wstr_utf8(error.what())
-        );
-        return;
-    } catch (const parsing_error& error) {
-        engine->setScreen(std::make_shared<MenuScreen>(engine));
-        guiutil::alert(engine->getGUI(), util::str2wstr_utf8(error.errorLog()));
-        return;
-    } catch (const std::runtime_error& error) {
-        engine->setScreen(std::make_shared<MenuScreen>(engine));
-        guiutil::alert(
-            engine->getGUI(), langs::get(L"Content Error", L"menu")+L":\n"+
-            util::str2wstr_utf8(error.what())
-        );
+    })) {
         return;
     }
-
     auto level = World::create(
         name, generatorID, folder, seed, 
         engine->getSettings(), 

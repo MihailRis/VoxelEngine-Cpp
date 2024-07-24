@@ -2,6 +2,7 @@
 
 #include "locale.hpp"
 #include "UiDocument.hpp"
+#include "screens/MenuScreen.hpp"
 
 #include "../delegates.hpp"
 #include "../engine.hpp"
@@ -70,6 +71,39 @@ gui::page_loader_func menus::create_page_loader(Engine* engine) {
         scripting::on_ui_open(document, std::move(args));
         return document->getRoot();
     };
+}
+
+bool menus::call(Engine* engine, runnable func) {
+    try {
+        func();
+        return true;
+    } catch (const contentpack_error& error) {
+        engine->setScreen(std::make_shared<MenuScreen>(engine));
+        // could not to find or read pack
+        guiutil::alert(
+            engine->getGUI(), langs::get(L"error.pack-not-found")+L": "+
+            util::str2wstr_utf8(error.getPackId())
+        );
+        return false;
+    } catch (const assetload::error& error) {
+        engine->setScreen(std::make_shared<MenuScreen>(engine));
+        guiutil::alert(
+            engine->getGUI(), langs::get(L"Assets Load Error", L"menu")+L":\n"+
+            util::str2wstr_utf8(error.what())
+        );
+        return false;
+    } catch (const parsing_error& error) {
+        engine->setScreen(std::make_shared<MenuScreen>(engine));
+        guiutil::alert(engine->getGUI(), util::str2wstr_utf8(error.errorLog()));
+        return false;
+    } catch (const std::runtime_error& error) {
+        engine->setScreen(std::make_shared<MenuScreen>(engine));
+        guiutil::alert(
+            engine->getGUI(), langs::get(L"Content Error", L"menu")+L":\n"+
+            util::str2wstr_utf8(error.what())
+        );
+        return false;
+    }
 }
 
 UiDocument* menus::show(Engine* engine, const std::string& name, std::vector<dynamic::Value> args) {
