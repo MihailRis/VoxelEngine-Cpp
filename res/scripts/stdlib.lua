@@ -25,13 +25,17 @@ package = {
 }
 local __cached_scripts = {}
 
+function on_deprecated_call(name)
+    debug.warning("deprecated function called ("..name..")\n"..debug.traceback())
+end
+
 -- Load script with caching
 --
 -- path - script path `contentpack:filename`. 
 --     Example `base:scripts/tests.lua`
 --
 -- nocache - ignore cached script, load anyway
-function load_script(path, nocache)
+local function __load_script(path, nocache)
     local packname, filename = parse_path(path)
 
     -- __cached_scripts used in condition because cached result may be nil
@@ -68,7 +72,7 @@ end
 
 function require(path)
     local prefix, file = parse_path(path)
-    return load_script(prefix..":modules/"..file..".lua")
+    return __load_script(prefix..":modules/"..file..".lua")
 end
 
 function sleep(timesec)
@@ -76,24 +80,6 @@ function sleep(timesec)
     while time.uptime() - start < timesec do
         coroutine.yield()
     end
-end
-
-_dofile = dofile
--- Replaces dofile('*/content/packid/*') with load_script('packid:*') 
-function dofile(path)
-    local index = string.find(path, "/content/")
-    if index then
-        local newpath = string.sub(path, index+9)
-        index = string.find(newpath, "/")
-        if index then
-            local label = string.sub(newpath, 1, index-1)
-            newpath = label..':'..string.sub(newpath, index+1)
-            if file.isfile(newpath) then
-                return load_script(newpath, true)
-            end
-        end
-    end
-    return _dofile(path)
 end
 
 function pack.is_installed(packid)
@@ -301,7 +287,7 @@ end
 
 math.randomseed(time.uptime()*1536227939)
 
--- Deprecated functions
+-- --------- Deprecated functions ------ --
 block_index = block.index
 block_name = block.name
 blocks_count = block.defs_count
@@ -318,3 +304,27 @@ get_block_rotation = block.get_rotation
 set_block_rotation = block.set_rotation
 get_block_user_bits = block.get_user_bits
 set_block_user_bits = block.set_user_bits
+
+function load_script(path, nocache)
+    on_deprecated_call("load_script")
+    __load_script(path, nocache)
+end
+
+_dofile = dofile
+-- Replaces dofile('*/content/packid/*') with load_script('packid:*') 
+function dofile(path)
+    on_deprecated_call("dofile")
+    local index = string.find(path, "/content/")
+    if index then
+        local newpath = string.sub(path, index+9)
+        index = string.find(newpath, "/")
+        if index then
+            local label = string.sub(newpath, 1, index-1)
+            newpath = label..':'..string.sub(newpath, index+1)
+            if file.isfile(newpath) then
+                return __load_script(newpath, true)
+            end
+        end
+    end
+    return _dofile(path)
+end

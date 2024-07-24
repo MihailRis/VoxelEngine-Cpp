@@ -29,7 +29,7 @@ void guiutil::alert(GUI* gui, const std::wstring& text, const runnable& on_hidde
     
     auto label = std::make_shared<Label>(text);
     label->setMultiline(true);
-    label->setSize(glm::vec2(1, 80));
+    label->setSize(glm::vec2(1, 90));
     panel->add(label);
     panel->add(std::make_shared<Button>(
         langs::get(L"Ok"), glm::vec4(10.f), 

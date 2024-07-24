@@ -1,5 +1,6 @@
 #include "EngineController.hpp"
 
+#include "../coders/commons.hpp"
 #include "../content/ContentLUT.hpp"
 #include "../debug/Logger.hpp"
 #include "../engine.hpp"
@@ -103,6 +104,10 @@ static bool loadWorldContent(Engine* engine, const fs::path& folder) {
             util::str2wstr_utf8(error.what())
         );
         return false;
+    } catch (const parsing_error& error) {
+        engine->setScreen(std::make_shared<MenuScreen>(engine));
+        guiutil::alert(engine->getGUI(), util::str2wstr_utf8(error.errorLog()));
+        return false;
     } catch (const std::runtime_error& error) {
         engine->setScreen(std::make_shared<MenuScreen>(engine));
         guiutil::alert(
@@ -203,6 +208,10 @@ void EngineController::createWorld(
             langs::get(L"Assets Loading Error", L"menu")+
             L":\n"+util::str2wstr_utf8(error.what())
         );
+        return;
+    } catch (const parsing_error& error) {
+        engine->setScreen(std::make_shared<MenuScreen>(engine));
+        guiutil::alert(engine->getGUI(), util::str2wstr_utf8(error.errorLog()));
         return;
     } catch (const std::runtime_error& error) {
         engine->setScreen(std::make_shared<MenuScreen>(engine));

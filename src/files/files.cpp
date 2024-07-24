@@ -123,12 +123,7 @@ bool files::write_binary_json(const fs::path& filename, const dynamic::Map* obj,
 
 std::shared_ptr<dynamic::Map> files::read_json(const fs::path& filename) {
     std::string text = files::read_string(filename);
-    try {
-        return json::parse(filename.string(), text);;
-    } catch (const parsing_error& error) {
-        std::cerr << error.errorLog() << std::endl;
-        throw std::runtime_error("could not to parse "+filename.string());
-    }
+    return json::parse(filename.string(), text);
 }
 
 std::shared_ptr<dynamic::Map> files::read_binary_json(const fs::path& file) {
