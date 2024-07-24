@@ -79,6 +79,9 @@ dynamic::Value lua::tovalue(State* L, int idx) {
                 return number;
             }
         }
+        case LUA_TFUNCTION:
+            return "<function "+std::to_string(
+                reinterpret_cast<ptrdiff_t>(lua_topointer(L, idx)))+">";
         case LUA_TSTRING:
             return std::string(tostring(L, idx));
         case LUA_TTABLE: {
@@ -109,23 +112,48 @@ dynamic::Value lua::tovalue(State* L, int idx) {
         }
         default:
             throw std::runtime_error(
-                "lua type "+std::string(luaL_typename(L, type))+" is not supported"
+                "lua type "+std::string(lua_typename(L, type))+" is not supported"
             );
     }
 }
 
-int lua::call(State* L, int argc, int nresults) {
-    if (lua_pcall(L, argc, nresults, 0)) {
-        throw luaerror(tostring(L, -1));
+static int l_error_handler(lua_State* L) {
+    if (!isstring(L, 1)) { // 'message' not a string?
+        return 1;          // keep it intact
     }
+    if (get_from(L, "debug", "traceback")) {
+        lua_pushvalue(L, 1);   // pass error message
+        lua_pushinteger(L, 2); // skip this function and traceback
+        lua_call(L, 2, 1);     // call debug.traceback
+    }
+    return 1;
+}
+
+int lua::call(State* L, int argc, int nresults) {
+    int handler_pos = gettop(L) - argc;
+    pushcfunction(L, l_error_handler);
+    insert(L, handler_pos);
+    if (lua_pcall(L, argc, nresults, handler_pos)) {
+        std::string log = tostring(L, -1);
+        pop(L);
+        remove(L, handler_pos);
+        throw luaerror(log);
+    }
+    remove(L, handler_pos);
     return nresults == -1 ? 1 : nresults;
 }
 
 int lua::call_nothrow(State* L, int argc, int nresults) {
-    if (lua_pcall(L, argc, LUA_MULTRET, 0)) {
+    int handler_pos = gettop(L) - argc;
+    pushcfunction(L, l_error_handler);
+    insert(L, handler_pos);
+    if (lua_pcall(L, argc, LUA_MULTRET, handler_pos)) {
         log_error(tostring(L, -1));
+        pop(L);
+        remove(L, handler_pos);
         return 0;
     }
+    remove(L, handler_pos);
     return nresults == -1 ? 1 : nresults;
 }
 
