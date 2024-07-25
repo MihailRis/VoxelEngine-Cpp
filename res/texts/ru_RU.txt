@@ -55,6 +55,7 @@ settings.Camera Inertia=Инерция Камеры
 settings.Fog Curve=Кривая Тумана
 settings.FOV=Поле Зрения
 settings.Fullscreen=Полный экран
+settings.Framerate=Частота кадров
 settings.Gamma=Гамма
 settings.Language=Язык
 settings.Load Distance=Дистанция Загрузки
