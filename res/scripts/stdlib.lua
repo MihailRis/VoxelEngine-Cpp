@@ -307,7 +307,7 @@ set_block_user_bits = block.set_user_bits
 
 function load_script(path, nocache)
     on_deprecated_call("load_script")
-    __load_script(path, nocache)
+    return __load_script(path, nocache)
 end
 
 _dofile = dofile
