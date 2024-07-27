@@ -13,6 +13,7 @@
     - [entities](scripting/builtins/libentities.md)
 	- [cameras](scripting/builtins/libcameras.md)
     - [mat4](scripting/builtins/libmat4.md)
+    - [player](scripting/builtins/libplayer.md)
 	- [quat](scripting/builtins/libquat.md)
     - [vec2, vec3, vec4](scripting/builtins/libvecn.md)
 - [Модуль core:bit_converter](scripting/modules/core_bit_converter.md)
@@ -58,76 +59,55 @@ file.write(pack.data_file(PACK_ID, "example.txt"), text)
 ```
 Для пака *containermod* запишет текст в файл `world:data/containermod/example.txt`
 
-## Библиотека *player*
-
 ```python
-player.get_pos(playerid: int) -> number, number, number
+pack.get_folder(packid: str) -> str
 ```
 
-Возвращает x, y, z координаты игрока
+Возвращает путь к папке установленного контент-пака.
 
 ```python
-player.set_pos(playerid: int, x: number, y: number, z: number)
+pack.is_installed(packid: str) -> bool
 ```
 
-Устанавливает x, y, z координаты игрока
+Проверяет наличие контент-пака в мире
 
 ```python
-player.get_rot(playerid: int) -> number, number, number
+pack.get_installed() -> массив строк
 ```
 
-Возвращает x, y, z вращения камеры (в радианах)
+Возращает id всех установленных в мире контент-паков.
 
 ```python
-player.set_rot(playerid: int, x: number, y: number, z: number)
+pack.get_available() -> массив строк
 ```
 
-Устанавливает x, y вращения камеры (в радианах)
+Возвращает id всех доступных, но не установленных в мире контент-паков.
 
 ```python
-player.get_inventory(playerid: int) -> int, int
+pack.get_base_packs() -> массив строк
 ```
 
-Возвращает id инвентаря игрока и индекс выбранного слота (от 0 до 9)
+Возвращает id всех базовых паков (неудаляемых)
 
 ```python
-player.is_flight() -> bool
-player.set_flight(bool)
+pack.get_info(packid: str) -> {
+	id: str,
+	title: str,
+	creator: str,
+	description: str,
+	version: str,
+	icon: str,
+	dependencies: опциональный массив строк
+}
 ```
 
-Геттер и сеттер режима полета
-
-```python
-player.is_noclip() -> bool
-player.set_noclip(bool)
-```
-
-Геттер и сеттер noclip режима (выключенная коллизия игрока)
-
-```python
-player.set_spawnpoint(playerid: int, x: number, y: number, z: number) 
-player.get_spawnpoint(playerid: int) -> number, number, number
-```
-
-Сеттер и геттер точки спавна игрока
-
-```python
-player.get_selected_block(playerid: int) -> x,y,z
-```
-
-Возвращает координаты выделенного блока, либо nil
-
-```python
-player.get_selected_entity(playerid: int) -> int
-```
-
-Возвращает уникальный идентификатор сущности, на которую нацелен игрок
-
-```python
-player.get_entity(playerid: int) -> int
-```
-
-Возвращает уникальный идентификатор сущности игрока
+Возвращает информацию о паке (не обязательно установленном).
+- icon - название текстуры предпросмотра (загружается автоматически)
+- dependencies - строки в формате `{lvl}{id}`, где lvl:
+	- `!` - required
+	- `?` - optional
+	- `~` - weak
+	например `!teal`
 
 ## Библиотека *world*
 
@@ -193,58 +173,6 @@ world.is_night() -> bool
 ```
 
 Проверяет является ли текущее время ночью. От 0.8(8 вечера) до 0.2(8 утра)
-
-## Библиотека *pack*
-
-```python
-pack.get_folder(packid: str) -> str
-```
-
-Возвращает путь к папке установленного контент-пака.
-
-```python
-pack.is_installed(packid: str) -> bool
-```
-
-Проверяет наличие контент-пака в мире
-
-```python
-pack.get_installed() -> массив строк
-```
-
-Возращает id всех установленных в мире контент-паков.
-
-```python
-pack.get_available() -> массив строк
-```
-
-Возвращает id всех доступных, но не установленных в мире контент-паков.
-
-```python
-pack.get_base_packs() -> массив строк
-```
-
-Возвращает id всех базовых паков (неудаляемых)
-
-```python
-pack.get_info(packid: str) -> {
-	id: str,
-	title: str,
-	creator: str,
-	description: str,
-	version: str,
-	icon: str,
-	dependencies: опциональный массив строк
-}
-```
-
-Возвращает информацию о паке (не обязательно установленном).
-- icon - название текстуры предпросмотра (загружается автоматически)
-- dependencies - строки в формате `{lvl}{id}`, где lvl:
-	- `!` - required
-	- `?` - optional
-	- `~` - weak
-	например `!teal`
 
 ## Библиотека *gui*
 

@@ -13,6 +13,7 @@ Subsections:
     - [entities](scripting/builtins/libentities.md)
     - [cameras](scripting/builtins/libcameras.md)
     - [mat4](scripting/builtins/libmat4.md)
+    - [player](scripting/builtins/libplayer.md)
     - [quat](scripting/builtins/libquat.md)
     - [vec2, vec3, vec4](scripting/builtins/libvecn.md)
 - [Module core:bit_converter](scripting/modules/core_bit_converter.md)
@@ -62,76 +63,55 @@ file.write(pack.data_file(PACK_ID, "example.txt"), text)
 
 For pack *containermod* will write text to the file `world:data/containermod/example.txt`
 
-## *player* library
+```python
+pack.get_folder(packid: str) -> str
+```
+
+Returns installed content-pack folder.
 
 ```python
-player.get_pos(playerid: int) -> number, number, number
+pack.is_installed(packid: str) -> bool
 ```
 
-Returns x, y, z coordinates of the player
+Check if the world has specified pack installed.
 
 ```python
-player.set_pos(playerid: int, x: number, y: number, z: number)
+pack.get_installed() -> strings array
 ```
 
-Set player position
+Returns all installed content-pack ids.
 
 ```python
-player.get_rot(playerid: int) -> number, number, number
+pack.get_available() -> strings array
 ```
 
-Returns x, y, z of camera rotation (radians)
+Returns the ids of all content packs available but not installed in the world.
 
 ```python
-player.set_rot(playerid: int, x: number, y: number, z: number)
+pack.get_base_packs() -> strings array
 ```
 
-Set camera rotation (radians)
+Returns the id of all base packages (non-removeable)
 
 ```python
-player.get_inventory(playerid: int) -> int, int
+pack.get_info(packid: str) -> {
+  id: str,
+  title: str,
+  creator: str,
+  description: str,
+  version: str,
+  icon: str,
+  dependencies: optional strings array
+}
 ```
 
-Returns player inventory ID and selected slot index (0-9)
-
-```python
-player.is_flight() -> bool
-player.set_flight(bool)
-```
-
-Getter and setter for player flight mode
-
-```python
-player.is_noclip() -> bool
-player.set_noclip(bool)
-```
-
-Getter and setter for player noclip mode (collisions disabled)
-
-``` python
-player.set_spawnpoint(playerid: int, x: number, y: number, z: number)
-player.get_spawnpoint(playerid: int) -> number, number, number
-```
-
-Point setter and getter added by player
-
-```python
-player.get_selected_block(playerid: int) -> x,y,z
-```
-
-Returns position of the selected block or nil
-
-```python
-player.get_selected_entity(playerid: int) -> int
-```
-
-Returns unique indentifier of the entity selected by player
-
-```python
-player.get_entity(playerid: int) -> int
-```
-
-Returns unique identifier of the player entity
+Returns information about the pack (not necessarily installed).
+- icon - name of the preview texture (loading automatically)
+- dependencies - strings following format `{lvl}{id}`, where lvl:
+  - `!` - required
+  - `?` - optional
+  - `~` - weak
+  for example `!teal`
 
 ## *world* library
 
@@ -200,57 +180,6 @@ world.exists() -> bool
 
 Checks the existence of a world by name.
 
-## *pack* library
-
-```python
-pack.get_folder(packid: str) -> str
-```
-
-Returns installed content-pack folder.
-
-```python
-pack.is_installed(packid: str) -> bool
-```
-
-Check if the world has specified pack installed.
-
-```python
-pack.get_installed() -> strings array
-```
-
-Returns all installed content-pack ids.
-
-```python
-pack.get_available() -> strings array
-```
-
-Returns the ids of all content packs available but not installed in the world.
-
-```python
-pack.get_base_packs() -> strings array
-```
-
-Returns the id of all base packages (non-removeable)
-
-```python
-pack.get_info(packid: str) -> {
-  id: str,
-  title: str,
-  creator: str,
-  description: str,
-  version: str,
-  icon: str,
-  dependencies: optional strings array
-}
-```
-
-Returns information about the pack (not necessarily installed).
-- icon - name of the preview texture (loading automatically)
-- dependencies - strings following format `{lvl}{id}`, where lvl:
-  - `!` - required
-  - `?` - optional
-  - `~` - weak
-  for example `!teal`
 
 ## *gui* library
 
@@ -282,7 +211,7 @@ gui.get_env(document: str) -> table
 Returns environment (global variables table) of the specified document.
 
 ```python
-get_locales_info() -> table of tables where
+gui.get_locales_info() -> table of tables where
  key - locale id following isolangcode_ISOCOUNTRYCODE format
  value - table {
   name: str # name of the locale in its language
