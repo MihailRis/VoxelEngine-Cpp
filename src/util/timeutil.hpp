@@ -20,11 +20,11 @@ namespace timeutil {
      *     ...
      *     } 
      */
-    class ScopeLogTimer : public Timer{
-            long long scopeid_;
-        public:
-            ScopeLogTimer(long long id);
-            ~ScopeLogTimer();
+    class ScopeLogTimer : public Timer {
+        long long scopeid_;
+    public:
+        ScopeLogTimer(long long id);
+        ~ScopeLogTimer();
     };
 
     inline constexpr float time_value(float hour, float minute, float second) {

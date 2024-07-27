@@ -136,6 +136,9 @@ public:
 
     /// @brief Does block model have shading
     bool shadeless = false;
+
+    /// @brief Does block model have vertex-based AO effect
+    bool ambientOcclusion = true;
     
     /// @brief Is the block a physical obstacle
     bool obstacle = true;
