@@ -391,7 +391,7 @@ voxel* PlayerController::updateSelection(float maxDistance) {
         selection.position = chunks->seekOrigin(
             iend, indices->blocks.get(selection.vox.id), selectedState
         );
-        auto origin = chunks->get(iend);
+        auto origin = chunks->get(selection.position);
         if (origin && origin->id != vox->id) {
             chunks->set(iend.x, iend.y, iend.z, 0, {});
             return updateSelection(maxDistance);
