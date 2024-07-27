@@ -391,24 +391,23 @@ void BlocksRenderer::blockCube(
             faceAO(coord, Z, Y, -X, texfaces[0], lights);
         }
     } else {
-        auto tint = pickLight({x, y, z});
         if (isOpen(x+Z.x, y+Z.y, z+Z.z, group)) {
-            face(coord, X, Y, Z, texfaces[5], tint, lights);
+            face(coord, X, Y, Z, texfaces[5], pickLight({x, y, z+1}), lights);
         }
         if (isOpen(x-Z.x, y-Z.y, z-Z.z, group)) {
-            face(coord, -X, Y, -Z, texfaces[4], tint, lights);
+            face(coord, -X, Y, -Z, texfaces[4], pickLight({x, y, z-1}), lights);
         }
         if (isOpen(x+Y.x, y+Y.y, z+Y.z, group)) {
-            face(coord, X, -Z, Y, texfaces[3], tint, lights);
+            face(coord, X, -Z, Y, texfaces[3], pickLight({x, y+1, z}), lights);
         }
         if (isOpen(x-Y.x, y-Y.y, z-Y.z, group)) {
-            face(coord, X, Z, -Y, texfaces[2], tint, lights);
+            face(coord, X, Z, -Y, texfaces[2], pickLight({x, y-1, z}), lights);
         }
         if (isOpen(x+X.x, y+X.y, z+X.z, group)) {
-            face(coord, -Z, Y, X, texfaces[1], tint, lights);
+            face(coord, -Z, Y, X, texfaces[1], pickLight({x+1, y, z}), lights);
         }
         if (isOpen(x-X.x, y-X.y, z-X.z, group)) {
-            face(coord, Z, Y, -X, texfaces[0], tint, lights);
+            face(coord, Z, Y, -X, texfaces[0], pickLight({x-1, y, z}), lights);
         }
     }
 }
