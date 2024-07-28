@@ -64,6 +64,18 @@ inline void create_channel(Engine* engine, std::string name, NumberSetting& sett
     }, true));
 }
 
+static std::unique_ptr<ImageData> load_icon(const fs::path& resdir) {
+    try {
+        auto file = resdir / fs::u8path("textures/misc/icon.png");
+        if (fs::exists(file)) {
+            return imageio::read(file.u8string());
+        }
+    } catch (const std::exception& err) {
+        logger.error() << "could not load window icon: " << err.what();
+    }
+    return nullptr;
+}
+
 Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, EnginePaths* paths) 
     : settings(settings), settingsHandler(settingsHandler), paths(paths),
       interpreter(std::make_unique<cmd::CommandsInterpreter>())
@@ -71,9 +83,15 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     paths->prepare();
     loadSettings();
 
+    auto resdir = paths->getResources();
+
     controller = std::make_unique<EngineController>(this);
     if (Window::initialize(&this->settings.display)){
         throw initialize_error("could not initialize window");
+    }
+    if (auto icon = load_icon(resdir)) {
+        icon->flipY();
+        Window::setIcon(icon.get());
     }
     loadControls();
     audio::initialize(settings.audio.enabled.get());
@@ -99,8 +117,6 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     addWorldGenerators();
     
     scripting::initialize(this);
-
-    auto resdir = paths->getResources();
     basePacks = files::read_list(resdir/fs::path("config/builtins.list"));
 }
 
@@ -171,7 +187,8 @@ void Engine::mainloop() {
         if (!Window::isIconified()) {
             renderFrame(batch);
         }
-        Window::swapInterval(Window::isIconified() ? 1 : settings.display.vsync.get());
+        Window::setFramerate(!Window::isIconified() ? 20 : 
+                             settings.display.framerate.get());
 
         processPostRunnables();
 

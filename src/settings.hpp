@@ -28,8 +28,8 @@ struct DisplaySettings {
     IntegerSetting height {720};
     /// @brief Anti-aliasing samples
     IntegerSetting samples {0};
-    /// @brief VSync on
-    FlagSetting vsync {true};
+    /// @brief Framerate limit
+    IntegerSetting framerate {-1, -1, 120};
 };
 
 struct ChunksSettings {

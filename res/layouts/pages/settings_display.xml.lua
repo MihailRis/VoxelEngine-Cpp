@@ -1,3 +1,14 @@
+local tostring_overrides = {}
+tostring_overrides["display.framerate"] = function(x)
+    if x == -1 then
+        return "V-Sync"
+    elseif x == 0 then
+        return "Unlimited"
+    else
+        return tostring(x)
+    end
+end
+
 function create_setting(id, name, step, postfix, tooltip, changeonrelease)
     local info = core.get_setting_info(id)
     postfix = postfix or ""
@@ -18,11 +29,18 @@ function create_setting(id, name, step, postfix, tooltip, changeonrelease)
 end
 
 function update_setting(x, id, name, postfix)
+    local str
+    local func = tostring_overrides[id]
+    if func then
+        str = func(x)
+    else
+        str = core.str_setting(id)
+    end
     -- updating label
     document[id..".L"].text = string.format(
         "%s: %s%s", 
         gui.str(name, "settings"), 
-        core.str_setting(id), 
+        str, 
         postfix
     )
 end
@@ -37,8 +55,8 @@ end
 
 function on_open()
     create_setting("camera.fov", "FOV", 1, "°")
+    create_setting("display.framerate", "Framerate", 1, "", "", true)
     create_checkbox("display.fullscreen", "Fullscreen")
-    create_checkbox("display.vsync", "V-Sync")
     create_checkbox("camera.shaking", "Camera Shaking")
     create_checkbox("camera.inertia", "Camera Inertia")
 end

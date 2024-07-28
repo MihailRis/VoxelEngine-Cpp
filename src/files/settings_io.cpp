@@ -48,7 +48,7 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     builder.add("width", &settings.display.width);
     builder.add("height", &settings.display.height);
     builder.add("samples", &settings.display.samples);
-    builder.add("vsync", &settings.display.vsync);
+    builder.add("framerate", &settings.display.framerate);
     builder.add("fullscreen", &settings.display.fullscreen);
 
     builder.section("camera");

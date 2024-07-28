@@ -19,6 +19,8 @@ class Window {
     static std::stack<glm::vec4> scissorStack;
     static glm::vec4 scissorArea;
     static bool fullscreen;
+    static int framerate;
+    static double prevSwap;
 
     static bool tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor);
 public:
@@ -34,7 +36,7 @@ public:
     static bool isShouldClose();
     static void setShouldClose(bool flag);
     static void swapBuffers();
-    static void swapInterval(int interval);
+    static void setFramerate(int interval);
     static void toggleFullscreen();
     static bool isFullscreen();
     static bool isMaximized();
@@ -53,6 +55,7 @@ public:
     static const char* getClipboardText();
     static void setClipboardText(const char* text);
     static DisplaySettings* getSettings();
+    static void setIcon(const ImageData* image);
 
     static glm::vec2 size() {
         return glm::vec2(width, height);
