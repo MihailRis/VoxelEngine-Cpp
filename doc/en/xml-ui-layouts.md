@@ -27,50 +27,52 @@ Examples:
 
 # Common element attributes
 
-- **id** - element identifier. Type: string.
-- **pos** - element position. Type: 2D vector.
-- **size** - element size. Type: 2D vector.
-- **color** - element color. Type: RGBA color.
-- **margin** - element margin. Type: 4D vector
+- `id` - element identifier. Type: string.
+- `pos` - element position. Type: 2D vector.
+- `size` - element size. Type: 2D vector.
+- `color` - element color. Type: RGBA color.
+- `margin` - element margin. Type: 4D vector
   *left, top, right, bottom*
-- **visible** - element visibility. Type: boolean (true/false)
-- **position-func** - position supplier for an element (two numbers), called on every parent container size update or on element adding on a container. May be called before *on_hud_open*
+- `visible` - element visibility. Type: boolean (true/false)
+- `position-func` - position supplier for an element (two numbers), called on every parent container size update or on element adding on a container. May be called before *on_hud_open*
+
 # Common *container* attributes
 
 Buttons and panels are also containers.
 
-- **padding** - element padding. Type: 4D vector.
+- `padding` - element padding. Type: 4D vector.
   *left, top, right, bottom*
-  **scrollable** - element scrollability. Works on panels only. Type: boolean
+  `scrollable` - element scrollability. Works on panels only. Type: boolean
 
 # Common *panel* attributes
 
 Buttons are also panels.
 
-- **max-length** - maximal length of panel stretching before scrolling (if scrollable = true). Type: number
+- `max-length` - maximal length of panel stretching before scrolling (if scrollable = true). Type: number
 # Common elements
 
 ## *button*
 
 Inner text is a button text.
 
-- **text-align** - inner text alignment (*left/center/right*). Type: string.
-- **onclick** - Lua function called on button press.
+- `text-align` - inner text alignment (*left/center/right*). Type: string.
+- `onclick` - Lua function called on button press.
 
 ## *image*
 
-- **src** - name of an image stored in textures folder. Extension is not specified. Type: string.
+- `src` - name of an image stored in textures folder. Extension is not specified. Type: string.
   Example: *gui/error*
 
 ## *trackbar*
 
-- **min** - minimal value. Type: number. Default: 0
-- **max** - maximal value. Type: number. Default: 1
-- **value** - initial value. Type: number. Default: 0
-- **step** - track step size. Type: number: Default: 1
-- **track-width** track pointer width (in steps). Type: number. Default: 1
-- **consumer** - Lua function - new value consumer
-- **supplier** - Lua function - value supplier
+- `min` - minimal value. Type: number. Default: 0
+- `max` - maximal value. Type: number. Default: 1
+- `value` - initial value. Type: number. Default: 0
+- `step` - track step size. Type: number: Default: 1
+- `track-width` track pointer width (in steps). Type: number. Default: 1
+- `consumer` - Lua function - new value consumer
+- `supplier` - Lua function - value supplier
+- `change-on-release` - Call consumer on trackbar release only. Type: boolean. Default: false
 
 # Inventory elements
 
@@ -84,21 +86,21 @@ Element is a container. Does not have specific attributes.
 ## *slot*
 
 Element must be in direct sub-element of *inventory*.
-- **index** - inventory slot index (starting from 0). Type: integer
-- **item-source** - content access panel behaviour (infinite source of an item). Type: boolean
-- **sharefunc** - Lua event called on <btn>LMB</btn> + <btn>Shift</btn>. Inventory id and slot index passed as arguments.
-- **updatefunc** - Lua event called on slot content update.Inventory id and slot index passed as arguments.
-- **onrightclick** - Lua event called on <btn>RMB</btn> click. Inventory id and slot index passed as arguments.
+- `index` - inventory slot index (starting from 0). Type: integer
+- `item-source` - content access panel behaviour (infinite source of an item). Type: boolean
+- `sharefunc` - Lua event called on <btn>LMB</btn> + <btn>Shift</btn>. Inventory id and slot index passed as arguments.
+- `updatefunc` - Lua event called on slot content update.Inventory id and slot index passed as arguments.
+- `onrightclick` - Lua event called on <btn>RMB</btn> click. Inventory id and slot index passed as arguments.
 
 ## *slots-grid*
 
-- **start-index** - inventory slot index of the first slot. Type: integer
-- **rows** - number of grid rows (unnecessary if *cols* and *count* specified). Type: integer
-- **cols** - number of grid columns (unnecessary if *rows* and *count* specified). Type: integer
-- **count** - total number of slots in grid (unnecessary if *rows* and *cols* specified). Type: integer
-- **interval** - visual slots interval. Type: number
-- **padding** - grid padding (not slots interval). Type: number. (*deprecated*)
-- **sharefunc** - Lua event called on <btn>LMB</btn> + <btn>Shift</btn>. Inventory id and slot index passed as arguments.
-- **updatefunc** - Lua event called on slot content update.Inventory id and slot index passed as arguments.
-- **onrightclick** - Lua event called on <btn>RMB</btn> click. Inventory id and slot index passed as arguments.
+- `start-index` - inventory slot index of the first slot. Type: integer
+- `rows` - number of grid rows (unnecessary if *cols* and *count* specified). Type: integer
+- `cols` - number of grid columns (unnecessary if *rows* and *count* specified). Type: integer
+- `count` - total number of slots in grid (unnecessary if *rows* and *cols* specified). Type: integer
+- `interval` - visual slots interval. Type: number
+- `padding` - grid padding (not slots interval). Type: number. (*deprecated*)
+- `sharefunc` - Lua event called on <btn>LMB</btn> + <btn>Shift</btn>. Inventory id and slot index passed as arguments.
+- `updatefunc` - Lua event called on slot content update.Inventory id and slot index passed as arguments.
+- `onrightclick` - Lua event called on <btn>RMB</btn> click. Inventory id and slot index passed as arguments.
 
