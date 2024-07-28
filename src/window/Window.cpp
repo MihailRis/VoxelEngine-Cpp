@@ -325,7 +325,6 @@ bool Window::isFullscreen() {
 void Window::swapBuffers() {
     double currentTime = time();
     if (framerate > 0 && currentTime - prevSwap < (1.0 / framerate)) {
-        std::cout << static_cast<int>((1.0/framerate - (currentTime-prevSwap))*1000) << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(
             static_cast<int>((1.0/framerate - (currentTime-prevSwap))*1000)));
     }
