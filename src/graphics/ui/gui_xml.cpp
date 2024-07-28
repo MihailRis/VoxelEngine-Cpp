@@ -392,29 +392,32 @@ static std::shared_ptr<UINode> readImage(UiXmlReader& reader, const xml::xmlelem
 }
 
 static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, const xml::xmlelement& element) {
-    float min = element->attr("min", "0.0").asFloat();
-    float max = element->attr("max", "1.0").asFloat();
+    const auto& env = reader.getEnvironment();
+    const auto& file = reader.getFilename();
+    float minv = element->attr("min", "0.0").asFloat();
+    float maxv = element->attr("max", "1.0").asFloat();
     float def = element->attr("value", "0.0").asFloat();
     float step = element->attr("step", "1.0").asFloat();
     int trackWidth = element->attr("track-width", "12").asInt();
-    auto bar = std::make_shared<TrackBar>(min, max, def, step, trackWidth);
+    auto bar = std::make_shared<TrackBar>(minv, maxv, def, step, trackWidth);
     _readUINode(reader, element, *bar);
     if (element->has("consumer")) {
         bar->setConsumer(scripting::create_number_consumer(
-            reader.getEnvironment(),
-            element->attr("consumer").getText(),
-            reader.getFilename()
-        ));
+            env, element->attr("consumer").getText(), file));
+    }
+    if (element->has("sub-consumer")) {
+        bar->setSubConsumer(scripting::create_number_consumer(
+            env, element->attr("sub-consumer").getText(), file));
     }
     if (element->has("supplier")) {
         bar->setSupplier(scripting::create_number_supplier(
-            reader.getEnvironment(),
-            element->attr("supplier").getText(),
-            reader.getFilename()
-        ));
+            env, element->attr("supplier").getText(), file));
     }
     if (element->has("track-color")) {
         bar->setTrackColor(element->attr("track-color").asColor());
+    }
+    if (element->has("change-on-release")) {
+        bar->setChangeOnRelease(element->attr("change-on-release").asBool());
     }
     return bar;
 }

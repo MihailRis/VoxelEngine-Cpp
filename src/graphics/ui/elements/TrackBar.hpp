@@ -2,6 +2,7 @@
 #define GRAPHICS_UI_ELEMENTS_TRACKBAR_HPP_
 
 #include "UINode.hpp"
+#include "../../../data/dynamic_fwd.hpp"
 
 namespace gui {
     class TrackBar : public UINode {
@@ -9,11 +10,13 @@ namespace gui {
         glm::vec4 trackColor {1.0f, 1.0f, 1.0f, 0.4f};
         doublesupplier supplier = nullptr;
         doubleconsumer consumer = nullptr;
+        doubleconsumer subconsumer = nullptr;
         double min;
         double max;
         double value;
         double step;
         int trackWidth;
+        bool changeOnRelease = false;
     public:
         TrackBar(double min, 
                  double max, 
@@ -22,10 +25,12 @@ namespace gui {
                  int trackWidth=12);
         virtual void draw(const DrawContext* pctx, Assets* assets) override;
 
-        virtual void setSupplier(doublesupplier supplier);
-        virtual void setConsumer(doubleconsumer consumer);
+        virtual void setSupplier(doublesupplier);
+        virtual void setConsumer(doubleconsumer);
+        virtual void setSubConsumer(doubleconsumer);
 
         virtual void mouseMove(GUI*, int x, int y) override;
+        virtual void mouseRelease(GUI*, int x, int y) override;
 
         virtual double getValue() const;
         virtual double getMin() const;
@@ -33,6 +38,7 @@ namespace gui {
         virtual double getStep() const;
         virtual int getTrackWidth() const;
         virtual glm::vec4 getTrackColor() const;
+        virtual bool isChangeOnRelease() const;
 
         virtual void setValue(double);
         virtual void setMin(double);
@@ -40,6 +46,7 @@ namespace gui {
         virtual void setStep(double);
         virtual void setTrackWidth(int);
         virtual void setTrackColor(glm::vec4);
+        virtual void setChangeOnRelease(bool);
     };
 }
 

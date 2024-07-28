@@ -14,6 +14,7 @@ block.material(blockid: int) -> str
 block.caption(blockid: int) -> str
 
 -- Returns integer ID by block position
+-- If the chunk at the specified coordinates is not loaded, returns -1.
 block.get(x: int, y: int, z: int) -> int
 
 -- Returns block state (rotation + additional information) as an integer.
@@ -31,6 +32,12 @@ block.place(x: int, y: int, z: int, id: int, states: int, [optional] playerid: i
 -- Breaks a block at the given coordinates on behalf of the player, triggering the on_broken event.
 -- playerid is optional
 block.destruct(x: int, y: int, z: int, playerid: int)
+
+-- Compose the complete state as an integer
+block.compose_state(rotation: int, segment: int, userbits: int) -> int
+
+-- Decompose the complete state into: rotation, segment, user bits
+block.decompose_state(state: int) -> int, int, int
 ```
 
 > [!WARNING]

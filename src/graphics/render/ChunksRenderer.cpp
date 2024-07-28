@@ -50,6 +50,7 @@ ChunksRenderer::ChunksRenderer(
     renderer = std::make_unique<BlocksRenderer>(
         RENDERER_CAPACITY, level->content, cache, settings
     );
+    logger.info() << "created " << threadPool.getWorkersCount() << " workers";
 }
 
 ChunksRenderer::~ChunksRenderer() {

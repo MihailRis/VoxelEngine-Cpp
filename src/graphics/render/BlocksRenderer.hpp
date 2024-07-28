@@ -40,7 +40,7 @@ class BlocksRenderer {
     void vertex(const glm::vec3& coord, float u, float v, const glm::vec4& light);
     void index(int a, int b, int c, int d, int e, int f);
 
-    void vertex(
+    void vertexAO(
         const glm::vec3& coord, float u, float v, 
         const glm::vec4& brightness,
         const glm::vec3& axisX,
@@ -58,6 +58,15 @@ class BlocksRenderer {
         const glm::vec4& tint
     );
     void face(
+        const glm::vec3& coord,
+        const glm::vec3& X,
+        const glm::vec3& Y,
+        const glm::vec3& Z,
+        const UVRegion& region,
+        glm::vec4 tint,
+        bool lights
+    );
+    void faceAO(
         const glm::vec3& coord,
         const glm::vec3& axisX,
         const glm::vec3& axisY,
@@ -80,14 +89,16 @@ class BlocksRenderer {
         const UVRegion(&faces)[6], 
         const Block* block, 
         blockstate states, 
-        bool lights
+        bool lights,
+        bool ao
     );
     void blockAABB(
         const glm::ivec3& coord,
         const UVRegion(&faces)[6], 
         const Block* block, 
         ubyte rotation,
-        bool lights
+        bool lights,
+        bool ambientOcclusion
     );
     void blockXSprite(
         int x, int y, int z, 
@@ -100,7 +111,8 @@ class BlocksRenderer {
         const glm::ivec3& icoord,
         const Block* block, 
         ubyte rotation,
-        bool lights
+        bool lights,
+        bool ao
     );
 
     bool isOpenForLight(int x, int y, int z) const;

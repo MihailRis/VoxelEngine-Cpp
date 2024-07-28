@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <variant>
+#include <functional>
 
 namespace dynamic {
     class Map;
@@ -27,6 +28,8 @@ namespace dynamic {
         bool,
         integer_t
     >;
+
+    using to_string_func = std::function<std::string(const Value&)>;
 }
 
 #endif // DATA_DYNAMIC_FWD_HPP_

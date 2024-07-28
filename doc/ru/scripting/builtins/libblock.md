@@ -17,7 +17,7 @@ block.caption(blockid: int) -> str
 -- Если чанк на указанных координатах не загружен, возвращает -1.
 block.get(x: int, y: int, z: int) -> int
 
--- Возвращает состояние (поворот + доп. информация) в виде целого числа
+-- Возвращает полное состояние (поворот + сегмент + доп. информация) в виде целого числа
 block.get_states(x: int, y: int, z: int) -> int
 
 -- Устанавливает блок с заданным числовым id и состоянием (0 - по-умолчанию) на заданных координатах.
@@ -31,6 +31,12 @@ block.place(x: int, y: int, z: int, id: int, states: int, [optional] playerid: i
 -- Ломает блок на заданных координатах от лица игрока, вызывая событие on_broken.
 -- playerid не является обязательным
 block.destruct(x: int, y: int, z: int, playerid: int)
+
+-- Собирает полное состояние в виде целого числа
+block.compose_state(rotation: int, segment: int, userbits: int) -> int
+
+-- Разбирает полное состояние на: вращение, сегмент, пользовательские биты
+block.decompose_state(state: int) -> int, int, int
 ```
 
 > [!WARNING]

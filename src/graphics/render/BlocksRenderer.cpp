@@ -104,7 +104,7 @@ void BlocksRenderer::face(
     index(0, 1, 3, 1, 2, 3);
 }
 
-void BlocksRenderer::vertex(
+void BlocksRenderer::vertexAO(
     const vec3& coord, 
     float u, float v,
     const vec4& tint,
@@ -117,7 +117,7 @@ void BlocksRenderer::vertex(
     vertex(coord, u, v, light * tint);
 }
 
-void BlocksRenderer::face(
+void BlocksRenderer::faceAO(
     const vec3& coord,
     const vec3& X,
     const vec3& Y,
@@ -140,17 +140,44 @@ void BlocksRenderer::face(
         vec3 axisZ = glm::normalize(Z);
 
         vec4 tint(d);
-        vertex(coord + (-X - Y + Z) * s, region.u1, region.v1, tint, axisX, axisY, axisZ);
-        vertex(coord + ( X - Y + Z) * s, region.u2, region.v1, tint, axisX, axisY, axisZ);
-        vertex(coord + ( X + Y + Z) * s, region.u2, region.v2, tint, axisX, axisY, axisZ);
-        vertex(coord + (-X + Y + Z) * s, region.u1, region.v2, tint, axisX, axisY, axisZ);
+        vertexAO(coord + (-X - Y + Z) * s, region.u1, region.v1, tint, axisX, axisY, axisZ);
+        vertexAO(coord + ( X - Y + Z) * s, region.u2, region.v1, tint, axisX, axisY, axisZ);
+        vertexAO(coord + ( X + Y + Z) * s, region.u2, region.v2, tint, axisX, axisY, axisZ);
+        vertexAO(coord + (-X + Y + Z) * s, region.u1, region.v2, tint, axisX, axisY, axisZ);
     } else {
-        vec4 tint(1.0f);
+        glm::vec4 tint(1.0f);
         vertex(coord + (-X - Y + Z) * s, region.u1, region.v1, tint);
         vertex(coord + ( X - Y + Z) * s, region.u2, region.v1, tint);
         vertex(coord + ( X + Y + Z) * s, region.u2, region.v2, tint);
         vertex(coord + (-X + Y + Z) * s, region.u1, region.v2, tint);
     }
+    index(0, 1, 2, 0, 2, 3);
+}
+
+void BlocksRenderer::face(
+    const vec3& coord,
+    const vec3& X,
+    const vec3& Y,
+    const vec3& Z,
+    const UVRegion& region,
+    vec4 tint,
+    bool lights
+) {
+    if (vertexOffset + BlocksRenderer::VERTEX_SIZE * 4 > capacity) {
+        overflow = true;
+        return;
+    }
+
+    float s = 0.5f;
+    if (lights) {
+        float d = glm::dot(glm::normalize(Z), SUN_VECTOR);
+        d = 0.8f + d * 0.2f;
+        tint *= d;
+    }
+    vertex(coord + (-X - Y + Z) * s, region.u1, region.v1, tint);
+    vertex(coord + ( X - Y + Z) * s, region.u2, region.v1, tint);
+    vertex(coord + ( X + Y + Z) * s, region.u2, region.v2, tint);
+    vertex(coord + (-X + Y + Z) * s, region.u1, region.v2, tint);
     index(0, 1, 2, 0, 2, 3);
 }
 
@@ -231,7 +258,8 @@ void BlocksRenderer::blockAABB(
     const UVRegion(&texfaces)[6], 
     const Block* block, 
     ubyte rotation,
-    bool lights
+    bool lights,
+    bool ao
 ) {
     if (block->hitboxes.empty()) {
         return;
@@ -256,18 +284,30 @@ void BlocksRenderer::blockAABB(
     }
     coord = vec3(icoord) - vec3(0.5f) + hitbox.center();
     
-    face(coord,  X*size.x,  Y*size.y,  Z*size.z, texfaces[5], lights); // north
-    face(coord, -X*size.x,  Y*size.y, -Z*size.z, texfaces[4], lights); // south
+    if (ao) {
+        faceAO(coord,  X*size.x,  Y*size.y,  Z*size.z, texfaces[5], lights); // north
+        faceAO(coord, -X*size.x,  Y*size.y, -Z*size.z, texfaces[4], lights); // south
 
-    face(coord,  X*size.x, -Z*size.z,  Y*size.y, texfaces[3], lights); // top
-    face(coord, -X*size.x, -Z*size.z, -Y*size.y, texfaces[2], lights); // bottom
+        faceAO(coord,  X*size.x, -Z*size.z,  Y*size.y, texfaces[3], lights); // top
+        faceAO(coord, -X*size.x, -Z*size.z, -Y*size.y, texfaces[2], lights); // bottom
 
-    face(coord, -Z*size.z,  Y*size.y,  X*size.x, texfaces[1], lights); // west
-    face(coord,  Z*size.z,  Y*size.y, -X*size.x, texfaces[0], lights); // east
+        faceAO(coord, -Z*size.z,  Y*size.y,  X*size.x, texfaces[1], lights); // west
+        faceAO(coord,  Z*size.z,  Y*size.y, -X*size.x, texfaces[0], lights); // east
+    } else {
+        auto tint = pickLight(icoord);
+        face(coord,  X*size.x,  Y*size.y,  Z*size.z, texfaces[5], tint, lights); // north
+        face(coord, -X*size.x,  Y*size.y, -Z*size.z, texfaces[4], tint, lights); // south
+
+        face(coord,  X*size.x, -Z*size.z,  Y*size.y, texfaces[3], tint, lights); // top
+        face(coord, -X*size.x, -Z*size.z, -Y*size.y, texfaces[2], tint, lights); // bottom
+
+        face(coord, -Z*size.z,  Y*size.y,  X*size.x, texfaces[1], tint, lights); // west
+        face(coord,  Z*size.z,  Y*size.y, -X*size.x, texfaces[0], tint, lights); // east
+    }
 }
 
 void BlocksRenderer::blockCustomModel(
-    const ivec3& icoord, const Block* block, ubyte rotation, bool lights
+    const ivec3& icoord, const Block* block, ubyte rotation, bool lights, bool ao
 ) {
     vec3 X(1, 0, 0);
     vec3 Y(0, 1, 0);
@@ -289,12 +329,12 @@ void BlocksRenderer::blockCustomModel(
             orient.transform(box);
         }
         vec3 center_coord = coord - vec3(0.5f) + box.center();
-        face(center_coord, X * size.x, Y * size.y, Z * size.z, block->modelUVs[i * 6 + 5], lights); // north
-        face(center_coord, -X * size.x, Y * size.y, -Z * size.z, block->modelUVs[i * 6 + 4], lights); // south
-        face(center_coord, X * size.x, -Z * size.z, Y * size.y, block->modelUVs[i * 6 + 3], lights); // top
-        face(center_coord, -X * size.x, -Z * size.z, -Y * size.y, block->modelUVs[i * 6 + 2], lights); // bottom
-        face(center_coord, -Z * size.z, Y * size.y, X * size.x, block->modelUVs[i * 6 + 1], lights); // west
-        face(center_coord, Z * size.z, Y * size.y, -X * size.x, block->modelUVs[i * 6 + 0], lights); // east
+        faceAO(center_coord, X * size.x, Y * size.y, Z * size.z, block->modelUVs[i * 6 + 5], lights); // north
+        faceAO(center_coord, -X * size.x, Y * size.y, -Z * size.z, block->modelUVs[i * 6 + 4], lights); // south
+        faceAO(center_coord, X * size.x, -Z * size.z, Y * size.y, block->modelUVs[i * 6 + 3], lights); // top
+        faceAO(center_coord, -X * size.x, -Z * size.z, -Y * size.y, block->modelUVs[i * 6 + 2], lights); // bottom
+        faceAO(center_coord, -Z * size.z, Y * size.y, X * size.x, block->modelUVs[i * 6 + 1], lights); // west
+        faceAO(center_coord, Z * size.z, Y * size.y, -X * size.x, block->modelUVs[i * 6 + 0], lights); // east
     }
     
     for (size_t i = 0; i < block->modelExtraPoints.size()/4; i++) {
@@ -314,7 +354,8 @@ void BlocksRenderer::blockCube(
     const UVRegion(&texfaces)[6], 
     const Block* block, 
     blockstate states,
-    bool lights
+    bool lights,
+    bool ao
 ) {
     ubyte group = block->drawGroup;
 
@@ -330,23 +371,44 @@ void BlocksRenderer::blockCube(
         Z = orient.axisZ;
     }
     
-    if (isOpen(x+Z.x, y+Z.y, z+Z.z, group)) {
-        face(coord, X, Y, Z, texfaces[5], lights);
-    }
-    if (isOpen(x-Z.x, y-Z.y, z-Z.z, group)) {
-        face(coord, -X, Y, -Z, texfaces[4], lights);
-    }
-    if (isOpen(x+Y.x, y+Y.y, z+Y.z, group)) {
-        face(coord, X, -Z, Y, texfaces[3], lights);
-    }
-    if (isOpen(x-Y.x, y-Y.y, z-Y.z, group)) {
-        face(coord, X, Z, -Y, texfaces[2], lights);
-    }
-    if (isOpen(x+X.x, y+X.y, z+X.z, group)) {
-        face(coord, -Z, Y, X, texfaces[1], lights);
-    }
-    if (isOpen(x-X.x, y-X.y, z-X.z, group)) {
-        face(coord, Z, Y, -X, texfaces[0], lights);
+    if (ao) {
+        if (isOpen(x+Z.x, y+Z.y, z+Z.z, group)) {
+            faceAO(coord, X, Y, Z, texfaces[5], lights);
+        }
+        if (isOpen(x-Z.x, y-Z.y, z-Z.z, group)) {
+            faceAO(coord, -X, Y, -Z, texfaces[4], lights);
+        }
+        if (isOpen(x+Y.x, y+Y.y, z+Y.z, group)) {
+            faceAO(coord, X, -Z, Y, texfaces[3], lights);
+        }
+        if (isOpen(x-Y.x, y-Y.y, z-Y.z, group)) {
+            faceAO(coord, X, Z, -Y, texfaces[2], lights);
+        }
+        if (isOpen(x+X.x, y+X.y, z+X.z, group)) {
+            faceAO(coord, -Z, Y, X, texfaces[1], lights);
+        }
+        if (isOpen(x-X.x, y-X.y, z-X.z, group)) {
+            faceAO(coord, Z, Y, -X, texfaces[0], lights);
+        }
+    } else {
+        if (isOpen(x+Z.x, y+Z.y, z+Z.z, group)) {
+            face(coord, X, Y, Z, texfaces[5], pickLight({x, y, z+1}), lights);
+        }
+        if (isOpen(x-Z.x, y-Z.y, z-Z.z, group)) {
+            face(coord, -X, Y, -Z, texfaces[4], pickLight({x, y, z-1}), lights);
+        }
+        if (isOpen(x+Y.x, y+Y.y, z+Y.z, group)) {
+            face(coord, X, -Z, Y, texfaces[3], pickLight({x, y+1, z}), lights);
+        }
+        if (isOpen(x-Y.x, y-Y.y, z-Y.z, group)) {
+            face(coord, X, Z, -Y, texfaces[2], pickLight({x, y-1, z}), lights);
+        }
+        if (isOpen(x+X.x, y+X.y, z+X.z, group)) {
+            face(coord, -Z, Y, X, texfaces[1], pickLight({x+1, y, z}), lights);
+        }
+        if (isOpen(x-X.x, y-X.y, z-X.z, group)) {
+            face(coord, Z, Y, -X, texfaces[0], pickLight({x-1, y, z}), lights);
+        }
     }
 }
 
@@ -440,7 +502,8 @@ void BlocksRenderer::render(const voxel* voxels) {
             int z = (i / CHUNK_D) % CHUNK_W;
             switch (def.model) {
                 case BlockModel::block:
-                    blockCube(x, y, z, texfaces, &def, vox.state, !def.shadeless);
+                    blockCube(x, y, z, texfaces, &def, vox.state, !def.shadeless,
+                              def.ambientOcclusion);
                     break;
                 case BlockModel::xsprite: {
                     blockXSprite(x, y, z, vec3(1.0f), 
@@ -448,11 +511,13 @@ void BlocksRenderer::render(const voxel* voxels) {
                     break;
                 }
                 case BlockModel::aabb: {
-                    blockAABB(ivec3(x,y,z), texfaces, &def, vox.state.rotation, !def.shadeless);
+                    blockAABB(ivec3(x,y,z), texfaces, &def, vox.state.rotation, 
+                              !def.shadeless, def.ambientOcclusion);
                     break;
                 }
                 case BlockModel::custom: {
-                    blockCustomModel(ivec3(x, y, z), &def, vox.state.rotation, !def.shadeless);
+                    blockCustomModel(ivec3(x, y, z), &def, vox.state.rotation, 
+                                     !def.shadeless, def.ambientOcclusion);
                     break;
                 }
                 default:

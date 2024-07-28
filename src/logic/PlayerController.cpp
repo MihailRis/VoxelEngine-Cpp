@@ -169,13 +169,13 @@ void CameraControl::update(const PlayerInput& input, float delta, Chunks* chunks
 
     if (player->currentCamera == spCamera) {
         spCamera->position = chunks->rayCastToObstacle(
-            camera->position, camera->front, 3.0f) - 0.2f * camera->front;
+            camera->position, camera->front, 3.0f) - 0.4f * camera->front;
         spCamera->dir = -camera->dir;
         spCamera->front = -camera->front;
     }
     else if (player->currentCamera == tpCamera) {
         tpCamera->position = chunks->rayCastToObstacle(
-            camera->position, -camera->front, 3.0f) + 0.2f * camera->front;
+            camera->position, -camera->front, 3.0f) + 0.4f * camera->front;
         tpCamera->dir = camera->dir;
         tpCamera->front = camera->front;
     }
@@ -391,7 +391,7 @@ voxel* PlayerController::updateSelection(float maxDistance) {
         selection.position = chunks->seekOrigin(
             iend, indices->blocks.get(selection.vox.id), selectedState
         );
-        auto origin = chunks->get(iend);
+        auto origin = chunks->get(selection.position);
         if (origin && origin->id != vox->id) {
             chunks->set(iend.x, iend.y, iend.z, 0, {});
             return updateSelection(maxDistance);

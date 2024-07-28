@@ -380,6 +380,23 @@ static int l_raycast(lua::State* L) {
     return 0;
 }
 
+static int l_compose_state(lua::State* L) {
+    blockstate state {};
+    state.rotation = lua::tointeger(L, 1);
+    state.segment = lua::tointeger(L, 2);
+    state.userbits = lua::tointeger(L, 3);
+    return lua::pushinteger(L, blockstate2int(state));
+}
+
+static int l_decompose_state(lua::State* L) {
+    auto stateInt = static_cast<blockstate_t>(lua::tointeger(L, 1));
+    auto state = int2blockstate(stateInt);
+    lua::pushinteger(L, state.rotation);
+    lua::pushinteger(L, state.segment);
+    lua::pushinteger(L, state.userbits);
+    return 3;
+}
+
 const luaL_Reg blocklib [] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_get_def>},
@@ -411,5 +428,7 @@ const luaL_Reg blocklib [] = {
     {"place", lua::wrap<l_place>},
     {"destruct", lua::wrap<l_destruct>},
     {"raycast", lua::wrap<l_raycast>},
+    {"compose_state", lua::wrap<l_compose_state>},
+    {"decompose_state", lua::wrap<l_decompose_state>},
     {NULL, NULL}
 };

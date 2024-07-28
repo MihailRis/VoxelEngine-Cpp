@@ -71,6 +71,10 @@ Vertical sky light ray ignores block if **true**. (used for water)
 
 Turns off block model shading
 
+### *ambient-occlusion* (Vertex-based Ambient-Occlusion)
+
+Determines the presence of the vertex AO effect. Turned-on by default.
+
 ## Physics
 
 ### *obstacle*
