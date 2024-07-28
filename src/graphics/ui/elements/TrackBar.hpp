@@ -2,6 +2,7 @@
 #define GRAPHICS_UI_ELEMENTS_TRACKBAR_HPP_
 
 #include "UINode.hpp"
+#include "../../../data/dynamic_fwd.hpp"
 
 namespace gui {
     class TrackBar : public UINode {
@@ -9,6 +10,7 @@ namespace gui {
         glm::vec4 trackColor {1.0f, 1.0f, 1.0f, 0.4f};
         doublesupplier supplier = nullptr;
         doubleconsumer consumer = nullptr;
+        doubleconsumer subconsumer = nullptr;
         double min;
         double max;
         double value;
@@ -23,8 +25,9 @@ namespace gui {
                  int trackWidth=12);
         virtual void draw(const DrawContext* pctx, Assets* assets) override;
 
-        virtual void setSupplier(doublesupplier supplier);
-        virtual void setConsumer(doubleconsumer consumer);
+        virtual void setSupplier(doublesupplier);
+        virtual void setConsumer(doubleconsumer);
+        virtual void setSubConsumer(doubleconsumer);
 
         virtual void mouseMove(GUI*, int x, int y) override;
         virtual void mouseRelease(GUI*, int x, int y) override;

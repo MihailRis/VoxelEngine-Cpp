@@ -50,6 +50,10 @@ void TrackBar::setConsumer(doubleconsumer consumer) {
     this->consumer = std::move(consumer);
 }
 
+void TrackBar::setSubConsumer(doubleconsumer consumer) {
+    this->subconsumer = std::move(consumer);
+}
+
 void TrackBar::mouseMove(GUI*, int x, int) {
     glm::vec2 pos = calcPos();
     value = x - trackWidth/2;
@@ -62,6 +66,9 @@ void TrackBar::mouseMove(GUI*, int x, int) {
 
     if (consumer && !changeOnRelease) {
         consumer(value);
+    }
+    if (subconsumer) {
+        subconsumer(value);
     }
 }
 

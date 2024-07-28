@@ -2,6 +2,7 @@
 
 #include "lua/lua_engine.hpp"
 #include "../../debug/Logger.hpp"
+#include "../../coders/json.hpp"
 #include "../../util/stringutil.hpp"
 
 using namespace scripting;
@@ -176,4 +177,26 @@ vec2supplier scripting::create_vec2_supplier(
         }
         return glm::vec2(0, 0);
     };
+}
+
+dynamic::to_string_func scripting::create_tostring(
+    const scriptenv& env,
+    const std::string& src,
+    const std::string& file
+) {
+    auto L = lua::get_main_thread();
+    try {
+        lua::loadbuffer(L, *env, src, file);
+        lua::call(L, 0, 1);
+        auto func = lua::create_lambda(L);
+        return [func](const dynamic::Value& value) {
+            auto result = func({value});
+            return json::stringify(result, true, "  ");
+        };
+    } catch (const lua::luaerror& err) {
+        logger.error() << err.what();
+        return [](const auto& value) {
+            return json::stringify(value, true, "  ");
+        };
+    }
 }
