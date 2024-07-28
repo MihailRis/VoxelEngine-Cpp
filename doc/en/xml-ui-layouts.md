@@ -6,24 +6,25 @@ See also [ui elements in scripting](scripting/ui.md).
 
 **2D vector** - pair of numbers separated with comma.
 Examples:
-- "500,200"
-- "0.4,53.01"
-- "0,0"
+- `"500,200"`
+- `"0.4,53.01"`
+- `"0,0"`
 
 **3D vector** - three numbers separated with comma.
 Examples:
-- "60,30,53"
-- "0.4,0.1,0.753"
+- `"60,30,53"`
+- `"0.4,0.1,0.753"`
 
 **4D vector** - four numbers separated with comma.
-- "10,5,10,3"
-- "0.1,0.5,0.0,0.0"
+Examples:
+- `"10,5,10,3"`
+- `"0.1,0.5,0.0,0.0"`
 
 **RGBA color** - only HEX notation available
 Examples:
-- "#FF8000" - opaque orange
-- "#FFFFFF80" - semi-transparent white
-- "#000000FF" - opaque black
+- `"#FF8000"` - opaque orange
+- `"#FFFFFF80"` - semi-transparent white
+- `"#000000FF"` - opaque black
 
 # Common element attributes
 
@@ -35,6 +36,19 @@ Examples:
   *left, top, right, bottom*
 - `visible` - element visibility. Type: boolean (true/false)
 - `position-func` - position supplier for an element (two numbers), called on every parent container size update or on element adding on a container. May be called before *on_hud_open*
+- `size-func` - element size provider (two numbers), called when the size of the container in which the element is located changes, or when an element is added to the container. Can be called before on_hud_open is called.
+- `onclick` - lua function called when an element is clicked.
+- `ondoubleclick` - lua function called when you double click on an element.
+- `tooltip` - tooltip text
+- `tooltip-delay` - tooltip show-up delay
+- `gravity` - automatic positioning of the element in the container. (Does not work in automatic containers like panel). Values: *top-left, top-center, top-right, center-left, center-center, center-right, bottom-left, bottom-center, bottom-right*.
+- `z-index` - determines the order of elements, with a larger value it will overlap elements with a smaller one.
+- `interactive` - if false, hovering over the element and all sub-elements will be ignored.
+
+# Template attributes
+
+- `if` with values ​​('', 'false', 'nil') the element will be ignored, including sub-elements.
+- `ifnot` is the same as `if`, but with the opposite condition.
 
 # Common *container* attributes
 
@@ -49,6 +63,8 @@ Buttons and panels are also containers.
 Buttons are also panels.
 
 - `max-length` - maximal length of panel stretching before scrolling (if scrollable = true). Type: number
+- `orientation` - panel orientation: horizontal/vertical.
+
 # Common elements
 
 ## *button*
@@ -56,12 +72,41 @@ Buttons are also panels.
 Inner text is a button text.
 
 - `text-align` - inner text alignment (*left/center/right*). Type: string.
-- `onclick` - Lua function called on button press.
+
+## *checkbox*
+
+- `checked` - defines the checked state.
+- `supplier` - mark state supplier (called every frame).
+- `consumer` - lua function-consumer of the state of the mark.
+
+## *label*
+
+- `valign` - vertical text alignment: top/center/bottom.
+- `supplier` - text supplier (called every frame).
+- `autoresize` - automatic change of element size (default - false). Does not affect font size.
+- `multiline` - allows display of multiline text.
+- `text-wrap` - allows automatic text wrapping (works only with multiline: "true").
 
 ## *image*
 
 - `src` - name of an image stored in textures folder. Extension is not specified. Type: string.
   Example: *gui/error*
+
+  ## *textbox*
+
+Inner text - initially entered text
+
+- `placeholder` - placeholder text (used if the text field is empty)
+- `supplier` - text supplier (called every frame)
+- `consumer` - lua function that receives the entered text. Called only when input is complete
+- `autoresize` - automatic change of element size (default - false). Does not affect font size.
+- `multiline` - allows display of multiline text.
+- `text-wrap` - allows automatic text wrapping (works only with multiline: "true")
+- `editable` - determines whether the text can be edited.
+- `error-color` - color when entering incorrect data (the text does not pass the validator check). Type: RGBA color.
+- `validator` - lua function that checks text for correctness. Takes a string as input, returns true if the text is correct.
+- `onup` - lua function called when the up arrow is pressed.
+- `ondown` - lua function called when the down arrow is pressed.
 
 ## *trackbar*
 
@@ -70,6 +115,7 @@ Inner text is a button text.
 - `value` - initial value. Type: number. Default: 0
 - `step` - track step size. Type: number: Default: 1
 - `track-width` track pointer width (in steps). Type: number. Default: 1
+- `track-color` - the color of the pointer when hovering over the cursor. Type: RGBA color.
 - `consumer` - Lua function - new value consumer
 - `supplier` - Lua function - value supplier
 - `change-on-release` - Call consumer on trackbar release only. Type: boolean. Default: false
