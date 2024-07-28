@@ -416,6 +416,9 @@ static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, const xml::xmle
     if (element->has("track-color")) {
         bar->setTrackColor(element->attr("track-color").asColor());
     }
+    if (element->has("change-on-release")) {
+        bar->setChangeOnRelease(element->attr("change-on-release").asBool());
+    }
     return bar;
 }
 

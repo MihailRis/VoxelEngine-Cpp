@@ -14,6 +14,7 @@ namespace gui {
         double value;
         double step;
         int trackWidth;
+        bool changeOnRelease = false;
     public:
         TrackBar(double min, 
                  double max, 
@@ -26,6 +27,7 @@ namespace gui {
         virtual void setConsumer(doubleconsumer consumer);
 
         virtual void mouseMove(GUI*, int x, int y) override;
+        virtual void mouseRelease(GUI*, int x, int y) override;
 
         virtual double getValue() const;
         virtual double getMin() const;
@@ -33,6 +35,7 @@ namespace gui {
         virtual double getStep() const;
         virtual int getTrackWidth() const;
         virtual glm::vec4 getTrackColor() const;
+        virtual bool isChangeOnRelease() const;
 
         virtual void setValue(double);
         virtual void setMin(double);
@@ -40,6 +43,7 @@ namespace gui {
         virtual void setStep(double);
         virtual void setTrackWidth(int);
         virtual void setTrackColor(glm::vec4);
+        virtual void setChangeOnRelease(bool);
     };
 }
 

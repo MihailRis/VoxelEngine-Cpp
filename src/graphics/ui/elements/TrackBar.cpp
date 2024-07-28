@@ -60,11 +60,16 @@ void TrackBar::mouseMove(GUI*, int x, int) {
     value = (value < min) ? min : value;
     value = (int64_t)round(value / step) * step;
 
-    if (consumer) {
+    if (consumer && !changeOnRelease) {
         consumer(value);
     }
 }
 
+void TrackBar::mouseRelease(GUI*, int, int) {
+    if (consumer && changeOnRelease) {
+        consumer(value);
+    }
+}
 
 double TrackBar::getValue() const {
     return value;
@@ -90,6 +95,10 @@ glm::vec4 TrackBar::getTrackColor() const {
     return trackColor;
 }
 
+bool TrackBar::isChangeOnRelease() const {
+    return changeOnRelease;
+}
+
 void TrackBar::setValue(double x) {
     value = x;
 }
@@ -112,4 +121,8 @@ void TrackBar::setTrackWidth(int width) {
 
 void TrackBar::setTrackColor(glm::vec4 color) {
     trackColor = color;
+}
+
+void TrackBar::setChangeOnRelease(bool flag) {
+    changeOnRelease = flag;
 }

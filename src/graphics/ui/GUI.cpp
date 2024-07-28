@@ -131,7 +131,7 @@ void GUI::actMouse(float delta) {
             focus->defocus();
             focus = nullptr;
         }
-    } else if (pressed) {
+    } else if (!Events::clicked(mousecode::BUTTON_1) && pressed) {
         pressed->mouseRelease(this, Events::cursor.x, Events::cursor.y);
         pressed = nullptr;
     }
