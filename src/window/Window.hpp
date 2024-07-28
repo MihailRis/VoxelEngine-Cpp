@@ -55,6 +55,7 @@ public:
     static const char* getClipboardText();
     static void setClipboardText(const char* text);
     static DisplaySettings* getSettings();
+    static void setIcon(const ImageData* image);
 
     static glm::vec2 size() {
         return glm::vec2(width, height);

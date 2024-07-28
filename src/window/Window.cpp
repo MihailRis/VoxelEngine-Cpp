@@ -323,13 +323,13 @@ bool Window::isFullscreen() {
 }
 
 void Window::swapBuffers() {
+    glfwSwapBuffers(window);
+    Window::resetScissor();
     double currentTime = time();
     if (framerate > 0 && currentTime - prevSwap < (1.0 / framerate)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(
             static_cast<int>((1.0/framerate - (currentTime-prevSwap))*1000)));
     }
-    glfwSwapBuffers(window);
-    Window::resetScissor();
     prevSwap = time();
 }
 
@@ -374,4 +374,13 @@ bool Window::tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor) {
     glfwSetWindowPos(window, workArea.x + (workArea.z - Window::width) / 2, 
                              workArea.y + (workArea.w - Window::height) / 2 + windowFrame.y / 2);
     return false;
+}
+
+void Window::setIcon(const ImageData* image) {
+    GLFWimage icon {
+        static_cast<int>(image->getWidth()),
+        static_cast<int>(image->getHeight()),
+        image->getData() 
+    };
+    glfwSetWindowIcon(window, 1, &icon);
 }
