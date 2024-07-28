@@ -117,6 +117,7 @@ Inner text - initially entered text
 - `track-width` track pointer width (in steps). Type: number. Default: 1
 - `track-color` - the color of the pointer when hovering over the cursor. Type: RGBA color.
 - `consumer` - Lua function - new value consumer
+- `sub-consumer` - Lua function that receives intermediate values ​​(use to update text when `change-on-release="true"`)
 - `supplier` - Lua function - value supplier
 - `change-on-release` - Call consumer on trackbar release only. Type: boolean. Default: false
 
