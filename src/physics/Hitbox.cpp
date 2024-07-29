@@ -7,6 +7,8 @@ std::optional<BodyType> BodyType_from(std::string_view str) {
         return BodyType::KINEMATIC;
     } else if (str == "dynamic") {
         return BodyType::DYNAMIC;
+    } else if (str == "static") {
+        return BodyType::STATIC;
     }
     return std::nullopt;
 }
@@ -15,6 +17,7 @@ std::string to_string(BodyType type) {
     switch (type) {
         case BodyType::KINEMATIC: return "kinematic";
         case BodyType::DYNAMIC: return "dynamic";
+        case BodyType::STATIC: return "static";
         default: return "unknown";
     }
 }

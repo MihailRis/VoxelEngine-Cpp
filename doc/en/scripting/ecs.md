@@ -1,12 +1,5 @@
 # Entities and components
 
-## Types notation used below
-
-- vec3 - 3D vector (array of three numbers)
-- mat4 - 4x4 matrix (array of 16 numbers)
-
-Type annotations are added for documentation purposes and are not part of the Lua syntax.
-
 ## Entity
 
 The entity object is available in components as a global variable **entity**.
@@ -107,7 +100,7 @@ body:is_crouching() -> bool
 -- Enables/disables the "crouching" state
 body:set_crouching(enabled: bool)
 
--- Returns the type of physical body (dynamic/kinematic)
+-- Returns the type of physical body (static/dynamic/kinematic)
 body:get_body_type() -> str
 -- Sets the physical body type
 body:set_body_type(type: str)

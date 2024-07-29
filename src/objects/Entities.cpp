@@ -411,7 +411,7 @@ void Entities::updatePhysics(float delta) {
     auto view = registry.view<EntityId, Transform, Rigidbody>();
     auto physics = level->physics.get();
     for (auto [entity, eid, transform, rigidbody] : view.each()) {
-        if (!rigidbody.enabled) {
+        if (!rigidbody.enabled || rigidbody.hitbox.type == BodyType::STATIC) {
             continue;
         }
         auto& hitbox = rigidbody.hitbox;

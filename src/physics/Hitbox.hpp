@@ -39,7 +39,7 @@ struct Sensor {
 };
 
 enum class BodyType {
-    KINEMATIC, DYNAMIC
+    STATIC, KINEMATIC, DYNAMIC
 };
 
 std::optional<BodyType> BodyType_from(std::string_view str);

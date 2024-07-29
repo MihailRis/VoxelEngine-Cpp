@@ -39,6 +39,7 @@ Example:
 
 Determines how the physics engine will work with it.
 
+- *static* - static body. No physics calculation, no velocity.
 - *dynamic* - default type. The physics engine calculates movement and collisions.
 - *kinematic* - only movement is calculated, without collisions.
 
