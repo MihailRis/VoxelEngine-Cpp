@@ -3,6 +3,16 @@
 #include <sstream>
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>
+#include <glm/gtx/vector_angle.hpp>
+
+template<typename T>
+inline T angle(glm::vec<2, T> vec) {
+    auto val = std::atan2(vec.y, vec.x);
+    if (val < 0.0) {
+        return val + glm::two_pi<double>();
+    }
+    return val;
+}
 
 template<int n, template<class> class Op>
 static int l_binop(lua::State* L) {
@@ -133,6 +143,16 @@ static int l_spherical_rand(lua::State* L) {
     return 0;
 }
 
+static int l_vec2_angle(lua::State* L) {
+    uint argc = lua::check_argc(L, 1, 2);
+    if (argc == 1) {
+        return lua::pushnumber(L, glm::degrees(angle(lua::tovec2(L, 1))));
+    } else {
+        return lua::pushnumber(L, glm::degrees(angle(
+            glm::vec2(lua::tonumber(L, 1), lua::tonumber(L, 2)))));
+    }
+}
+
 template<int n>
 static int l_tostring(lua::State* L) {
     lua::check_argc(L, 1);
@@ -162,6 +182,7 @@ const luaL_Reg vec2lib [] = {
     {"inverse", lua::wrap<l_inverse<2>>},
     {"pow", lua::wrap<l_pow<2>>},
     {"dot", lua::wrap<l_dot<2>>},
+    {"angle", lua::wrap<l_vec2_angle>},
     {NULL, NULL}
 };
 

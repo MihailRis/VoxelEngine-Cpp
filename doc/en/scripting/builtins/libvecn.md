@@ -154,6 +154,12 @@ vec3.spherical_rand(radius: number)
 
 -- writes a random vector whose coordinates are uniformly distributed on a sphere of a given radius in dst
 vec3.spherical_rand(radius: number, dst: vec3)
+
+-- returns the direction angle of the vector v in degrees [0, 360]
+vec2.angle(v: vec2)
+
+-- returns the direction angle of the vector {x, y} in degrees [0, 360]
+vec2.angle(x: number, y: number)
 ```
 
 
