@@ -170,6 +170,9 @@ void LevelScreen::draw(float delta) {
 }
 
 void LevelScreen::onEngineShutdown() {
+    if (hud->isInventoryOpen()) {
+        hud->closeInventory();
+    }
     controller->saveWorld();
 }
 
