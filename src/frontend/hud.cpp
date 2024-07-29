@@ -285,7 +285,7 @@ void Hud::update(bool visible) {
     contentAccessPanel->setVisible(inventoryView != nullptr);
     contentAccessPanel->setSize(glm::vec2(invSize.x, Window::height));
     contentAccess->setMinSize(glm::vec2(1, Window::height));
-    hotbarView->setVisible(visible);
+    hotbarView->setVisible(visible && !(secondUI && !inventoryView));
 
     if (visible) {
         for (auto& element : elements) {
