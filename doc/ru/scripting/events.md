@@ -51,9 +51,7 @@ function on_use(playerid: int)
 Вызывается при нажатии ПКМ не на блок.
 
 ```lua
-
-function on_use_on_block(x: int, y: int, z: int, playerid: int)
-
+function on_use_on_block(x: int, y: int, z: int, playerid: int, normal: vec3)
 ```
 
 Вызывается при нажатии ПКМ на блок. Предотвращает установку блока, прописанного в `placing-block` если возвращает `true`

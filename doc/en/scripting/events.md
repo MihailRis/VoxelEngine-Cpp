@@ -51,7 +51,7 @@ function on_use(playerid: int)
 Called on RMB click out of a block.
 
 ```lua
-function on_use_on_block(x: int, y: int, z: int, playerid: int)
+function on_use_on_block(x: int, y: int, z: int, playerid: int, normal: vec3)
 ```
 
 Called on block RMB click. Prevents block **placing-block** placing if returns **true**

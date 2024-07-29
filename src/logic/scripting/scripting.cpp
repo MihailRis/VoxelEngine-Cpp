@@ -277,12 +277,13 @@ bool scripting::on_item_use(Player* player, const ItemDef* item) {
     });
 }
 
-bool scripting::on_item_use_on_block(Player* player, const ItemDef* item, int x, int y, int z) {
+bool scripting::on_item_use_on_block(Player* player, const ItemDef* item, glm::ivec3 ipos, glm::ivec3 normal) {
     std::string name = item->name + ".useon";
-    return lua::emit_event(lua::get_main_thread(), name, [x, y, z, player] (auto L) {
-        lua::pushivec3_stack(L, x, y, z);
+    return lua::emit_event(lua::get_main_thread(), name, [ipos, normal, player] (auto L) {
+        lua::pushivec3_stack(L, ipos.x, ipos.y, ipos.z);
         lua::pushinteger(L, player->getId());
-        return 4;
+        lua::pushivec(L, normal);
+        return 5;
     });
 }
 

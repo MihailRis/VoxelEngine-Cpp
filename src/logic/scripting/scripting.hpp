@@ -71,7 +71,7 @@ namespace scripting {
 
     /// @brief Called on RMB click on block with the item selected 
     /// @return true if prevents default action
-    bool on_item_use_on_block(Player* player, const ItemDef* item, int x, int y, int z);
+    bool on_item_use_on_block(Player* player, const ItemDef* item, glm::ivec3 ipos, glm::ivec3 normal);
 
     /// @brief Called on LMB click on block with the item selected 
     /// @return true if prevents default action

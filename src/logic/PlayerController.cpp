@@ -503,7 +503,7 @@ void PlayerController::updateInteraction() {
         bool preventDefault = false;
         if (item->rt.funcsset.on_use_on_block) {
             preventDefault = scripting::on_item_use_on_block(
-                player.get(), item, iend.x, iend.y, iend.z
+                player.get(), item, iend, selection.normal
             );
         } else if (item->rt.funcsset.on_use) {
             preventDefault = scripting::on_item_use(player.get(), item);

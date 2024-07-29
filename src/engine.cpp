@@ -50,12 +50,12 @@ static debug::Logger logger("engine");
 
 namespace fs = std::filesystem;
 
-void addWorldGenerators() {
+static void add_world_generators() {
     WorldGenerators::addGenerator<DefaultWorldGenerator>("core:default");
     WorldGenerators::addGenerator<FlatWorldGenerator>("core:flat");
 }
 
-inline void create_channel(Engine* engine, std::string name, NumberSetting& setting) {
+static void create_channel(Engine* engine, std::string name, NumberSetting& setting) {
     if (name != "master") {
         audio::create_channel(name);
     }
@@ -114,7 +114,7 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     keepAlive(settings.ui.language.observe([=](auto lang) {
         setLanguage(lang);
     }, true));
-    addWorldGenerators();
+    add_world_generators();
     
     scripting::initialize(this);
     basePacks = files::read_list(resdir/fs::path("config/builtins.list"));
