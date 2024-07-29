@@ -187,7 +187,7 @@ void Engine::mainloop() {
         if (!Window::isIconified()) {
             renderFrame(batch);
         }
-        Window::setFramerate(!Window::isIconified() ? 20 : 
+        Window::setFramerate(Window::isIconified() ? 20 : 
                              settings.display.framerate.get());
 
         processPostRunnables();
