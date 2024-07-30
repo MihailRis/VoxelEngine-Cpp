@@ -334,9 +334,13 @@ void scripting::on_entity_spawn(
             util::replaceAll(compfieldname, ":", "__");
             if (auto datamap = args->map(compfieldname)) {
                 lua::pushvalue(L, datamap);
-                lua::setfield(L, "ARGS");
+            } else {
+                lua::createtable(L, 0, 0);
             }
+        } else {
+            lua::createtable(L, 0, 0);
         }
+        lua::setfield(L, "ARGS");
 
         if (saved == nullptr) {
             lua::createtable(L, 0, 0);

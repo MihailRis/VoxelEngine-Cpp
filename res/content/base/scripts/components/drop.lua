@@ -8,7 +8,6 @@ inair = true
 ready = false
 target = -1
 
-ARGS = ARGS or {}
 local dropitem = ARGS
 if SAVED_DATA.item then
     dropitem.id = item.index(SAVED_DATA.item)

@@ -2,7 +2,6 @@ local tsf = entity.transform
 local body = entity.rigidbody
 local rig = entity.skeleton
 
-ARGS = ARGS or {}
 local blockid = ARGS.block
 if SAVED_DATA.block then
     blockid = SAVED_DATA.block
