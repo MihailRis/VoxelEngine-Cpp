@@ -5,6 +5,7 @@
 
 class Level;
 class Assets;
+class Player;
 class ContentGfxCache;
 class LevelController;
 
@@ -14,7 +15,7 @@ class LevelFrontend {
     Assets* assets;
     std::unique_ptr<ContentGfxCache> contentCache;
 public:
-    LevelFrontend(LevelController* controller, Assets* assets);
+    LevelFrontend(Player* currentPlayer, LevelController* controller, Assets* assets);
     ~LevelFrontend();
 
     Level* getLevel() const;

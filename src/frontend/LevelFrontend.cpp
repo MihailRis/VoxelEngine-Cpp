@@ -9,11 +9,13 @@
 #include "../graphics/render/BlocksPreview.hpp"
 #include "../logic/LevelController.hpp"
 #include "../logic/PlayerController.hpp"
+#include "../objects/Player.hpp"
 #include "../voxels/Block.hpp"
 #include "../world/Level.hpp"
 
-LevelFrontend::LevelFrontend(LevelController* controller, Assets* assets) 
-  : level(controller->getLevel()),
+LevelFrontend::LevelFrontend(
+    Player* currentPlayer, LevelController* controller, Assets* assets
+) : level(controller->getLevel()),
     controller(controller),
     assets(assets),
     contentCache(std::make_unique<ContentGfxCache>(level->content, assets)) 
@@ -23,7 +25,7 @@ LevelFrontend::LevelFrontend(LevelController* controller, Assets* assets)
         "block-previews"
     );
     controller->getBlocksController()->listenBlockInteraction(
-        [=](Player*, glm::ivec3 pos, const Block* def, BlockInteraction type) {
+        [=](Player* player, glm::ivec3 pos, const Block* def, BlockInteraction type) {
             auto material = level->content->findBlockMaterial(def->material);
             if (material == nullptr) {
                 return;
@@ -31,10 +33,21 @@ LevelFrontend::LevelFrontend(LevelController* controller, Assets* assets)
 
             if (type == BlockInteraction::step) {
                 auto sound = assets->get<audio::Sound>(material->stepsSound);
+                glm::vec3 pos {};
+                auto soundsCamera = currentPlayer->currentCamera.get();
+                if (soundsCamera == currentPlayer->spCamera.get() ||
+                    soundsCamera == currentPlayer->tpCamera.get()) {
+                    soundsCamera = currentPlayer->camera.get();
+                }
+                bool relative = player == currentPlayer && 
+                    soundsCamera == currentPlayer->camera.get();
+                if (!relative) {
+                    pos = player->getPosition();
+                }
                 audio::play(
                     sound, 
-                    glm::vec3(), 
-                    true, 
+                    pos, 
+                    relative, 
                     0.333f, 
                     1.0f + (rand() % 6 - 3) * 0.05f, 
                     false,
@@ -50,7 +63,7 @@ LevelFrontend::LevelFrontend(LevelController* controller, Assets* assets)
                     case BlockInteraction::destruction:
                         sound = assets->get<audio::Sound>(material->breakSound);
                         break; 
-                    case BlockInteraction::step:
+                    default:
                         break;   
                 }
                 audio::play(
