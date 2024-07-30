@@ -1,9 +1,9 @@
 local tostring_overrides = {}
 tostring_overrides["display.framerate"] = function(x)
     if x == -1 then
-        return "V-Sync"
+        return gui.str("V-Sync")
     elseif x == 0 then
-        return "Unlimited"
+        return gui.str("Unlimited")
     else
         return tostring(x)
     end

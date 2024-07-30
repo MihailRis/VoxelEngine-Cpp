@@ -11,6 +11,7 @@ Creator=Автор
 Dependencies=Зависимости
 Description=Описание
 Converting world...=Выполняется конвертация мира...
+Unlimited=Неограниченно
 
 error.pack-not-found=Не удалось найти пакет
 error.dependency-not-found=Используемая зависимость не найдена
