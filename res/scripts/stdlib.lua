@@ -430,6 +430,11 @@ function string.ends_with(str, endStr)
     return endStr == "" or string.sub(str, -string.len(endStr)) == endStr
 end
 
+----------------------------------------------
+
+json = require("core:internal/json")
+hook = require("core:internal/hook")
+
 -- --------- Deprecated functions ------ --
 block_index = block.index
 block_name = block.name
