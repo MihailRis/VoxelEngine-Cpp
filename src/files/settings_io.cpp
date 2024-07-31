@@ -70,6 +70,9 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     builder.add("frustum-culling", &settings.graphics.frustumCulling);
     builder.add("skybox-resolution", &settings.graphics.skyboxResolution);
 
+    builder.section("content");
+    builder.add("autoreload-scripts", &settings.content.autoreloadScripts);
+
     builder.section("ui");
     builder.add("language", &settings.ui.language);
     builder.add("world-preview-size", &settings.ui.worldPreviewSize);

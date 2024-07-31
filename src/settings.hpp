@@ -67,6 +67,10 @@ struct GraphicsSettings {
     IntegerSetting skyboxResolution {64 + 32, 64, 128};
 };
 
+struct ContentSettings {
+    FlagSetting autoreloadScripts {true};
+};
+
 struct DebugSettings {
     /// @brief Turns off chunks saving/loading
     FlagSetting generatorTestMode {false};
@@ -84,6 +88,7 @@ struct EngineSettings {
     ChunksSettings chunks;
     CameraSettings camera;
     GraphicsSettings graphics;
+    ContentSettings content;
     DebugSettings debug;
     UiSettings ui;
 };
