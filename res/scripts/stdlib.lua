@@ -1,11 +1,11 @@
 -- kit of standard functions
 
 -- Check if given table is an array
-function is_array(x)
+function is_array(t)
     if #t > 0 then
         return true
     end
-    for k, v in pairs(x) do
+    for k, v in pairs(t) do
         return false
     end
     return true
@@ -430,9 +430,21 @@ function string.ends_with(str, endStr)
     return endStr == "" or string.sub(str, -string.len(endStr)) == endStr
 end
 
+function string.unpack(...)
+    local t = {...}
+    t = type(t[1]) == "table" and t[1] or t
+
+    local str = ""
+
+    for k, v in pairs(t) do
+        str = str .. tostring(v)
+    end
+
+    return str
+end
+
 ----------------------------------------------
 
-json = require("core:internal/json")
 hook = require("core:internal/hook")
 
 -- --------- Deprecated functions ------ --
