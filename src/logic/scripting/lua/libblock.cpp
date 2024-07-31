@@ -381,20 +381,32 @@ static int l_raycast(lua::State* L) {
 }
 
 static int l_compose_state(lua::State* L) {
+    if (lua::istable(L, 1) || lua::objlen(L, 1) < 3) {
+        throw std::runtime_error("expected array of 3 integers");
+    }
     blockstate state {};
-    state.rotation = lua::tointeger(L, 1);
-    state.segment = lua::tointeger(L, 2);
-    state.userbits = lua::tointeger(L, 3);
+    
+    lua::rawgeti(L, 1, 1); state.rotation = lua::tointeger(L, -1); lua::pop(L);
+    lua::rawgeti(L, 2, 1); state.segment = lua::tointeger(L, -1); lua::pop(L);
+    lua::rawgeti(L, 3, 1); state.userbits = lua::tointeger(L, -1); lua::pop(L);
+
     return lua::pushinteger(L, blockstate2int(state));
 }
 
 static int l_decompose_state(lua::State* L) {
     auto stateInt = static_cast<blockstate_t>(lua::tointeger(L, 1));
     auto state = int2blockstate(stateInt);
+
+    lua::createtable(L, 3, 0);
     lua::pushinteger(L, state.rotation);
+    lua::rawseti(L, 1);
+
     lua::pushinteger(L, state.segment);
+    lua::rawseti(L, 2);
+
     lua::pushinteger(L, state.userbits);
-    return 3;
+    lua::rawseti(L, 3);
+    return 1;
 }
 
 const luaL_Reg blocklib [] = {
