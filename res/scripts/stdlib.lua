@@ -1,11 +1,11 @@
 -- kit of standard functions
 
 -- Check if given table is an array
-function is_array(x)
+function is_array(t)
     if #t > 0 then
         return true
     end
-    for k, v in pairs(x) do
+    for k, v in pairs(t) do
         return false
     end
     return true
@@ -17,16 +17,16 @@ function parse_path(path)
     if index == nil then
         error("invalid path syntax (':' missing)")
     end
-    return string.sub(path, 1, index-1), string.sub(path, index+1, -1)
+    return string.sub(path, 1, index-1), string.sub(path, index + 1, -1)
 end
 
 package = {
-    loaded={}
+    loaded = {}
 }
 local __cached_scripts = {}
 
 function on_deprecated_call(name)
-    debug.warning("deprecated function called ("..name..")\n"..debug.traceback())
+    debug.warning("deprecated function called (" .. name .. ")\n" .. debug.traceback())
 end
 
 -- Load script with caching
@@ -428,6 +428,19 @@ end
 
 function string.ends_with(str, endStr)
     return endStr == "" or string.sub(str, -string.len(endStr)) == endStr
+end
+
+function string.unpack(...)
+    local t = {...}
+    t = type(t[1]) == "table" and t[1] or t
+
+    local str = ""
+
+    for k, v in pairs(t) do
+        str = str .. tostring(v)
+    end
+
+    return str
 end
 
 ----------------------------------------------
