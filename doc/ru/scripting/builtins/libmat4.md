@@ -111,7 +111,7 @@ mat4.decompose(m: matrix)
     translation=vec3,
     skew=vec3,
     perspective=vec4 
-}
+} или nil
 ```
 
 ## Отслеживание точки *mat4.look_at(...)*
