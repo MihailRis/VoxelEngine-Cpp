@@ -45,8 +45,8 @@ function submit(text)
     setup_variables()
     
     document.log.caret = -1
-    local status, result = pcall(function() return console.execute(text) end)
-    if result ~= nil then
+    local status, result = pcall(console.execute, text)
+    if result then
         console.log(result)
     end
     document.prompt.text = ""
