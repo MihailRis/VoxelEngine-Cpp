@@ -17,16 +17,16 @@ function parse_path(path)
     if index == nil then
         error("invalid path syntax (':' missing)")
     end
-    return string.sub(path, 1, index-1), string.sub(path, index+1, -1)
+    return string.sub(path, 1, index-1), string.sub(path, index + 1, -1)
 end
 
 package = {
-    loaded={}
+    loaded = {}
 }
 local __cached_scripts = {}
 
 function on_deprecated_call(name)
-    debug.warning("deprecated function called ("..name..")\n"..debug.traceback())
+    debug.warning("deprecated function called (" .. name .. ")\n" .. debug.traceback())
 end
 
 -- Load script with caching
