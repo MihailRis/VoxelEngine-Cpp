@@ -309,7 +309,7 @@ function table.copy(t)
     return copied
 end
 
-function table.count(t)
+function table.count_pairs(t)
     local count = 0
 
     for k, v in pairs(t) do
@@ -376,7 +376,7 @@ function string.formatted_time(seconds, format)
     if (not seconds) then seconds = 0 end
     local hours = math.floor(seconds / 3600)
     local minutes = math.floor((seconds / 60) % 60)
-    local millisecs = (seconds - math.floor(seconds)) * 100
+    local millisecs = (seconds - math.floor(seconds)) * 1000
     seconds = math.floor(seconds % 60)
 
     if (format) then
