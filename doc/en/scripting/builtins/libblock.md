@@ -34,10 +34,10 @@ block.place(x: int, y: int, z: int, id: int, states: int, [optional] playerid: i
 block.destruct(x: int, y: int, z: int, playerid: int)
 
 -- Compose the complete state as an integer
-block.compose_state(rotation: int, segment: int, userbits: int) -> int
+block.compose_state(state: {rotation: int, segment: int, userbits: int}) -> int
 
 -- Decompose the complete state into: rotation, segment, user bits
-block.decompose_state(state: int) -> int, int, int
+block.decompose_state(state: int) -> {int, int, int}
 ```
 
 > [!WARNING]

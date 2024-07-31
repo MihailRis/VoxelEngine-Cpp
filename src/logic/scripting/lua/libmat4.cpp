@@ -165,7 +165,7 @@ static int l_transpose(lua::State* L) {
 ///   translation=float[3],
 ///   skew=float[3],
 ///   perspective=float[4]
-/// }
+/// } or nil
 static int l_decompose(lua::State* L) {
     auto matrix = lua::tomat4(L, 1);
     glm::vec3 scale;
@@ -173,35 +173,36 @@ static int l_decompose(lua::State* L) {
     glm::vec3 translation;
     glm::vec3 skew;
     glm::vec4 perspective;
-    glm::decompose(
+    if (glm::decompose(
         matrix,
         scale,
         rotation,
         translation,
         skew,
         perspective
-    );
+    )) {
+        lua::createtable(L, 0, 6);
+        
+        lua::pushvec3(L, scale);
+        lua::setfield(L, "scale");
 
-    lua::createtable(L, 0, 6);
-    
-    lua::pushvec3(L, scale);
-    lua::setfield(L, "scale");
+        lua::pushmat4(L, glm::toMat4(rotation));
+        lua::setfield(L, "rotation");
 
-    lua::pushmat4(L, glm::toMat4(rotation));
-    lua::setfield(L, "rotation");
+        lua::pushquat(L, rotation);
+        lua::setfield(L, "quaternion");
 
-    lua::pushquat(L, rotation);
-    lua::setfield(L, "quaternion");
+        lua::pushvec3(L, translation);
+        lua::setfield(L, "translation");
 
-    lua::pushvec3(L, translation);
-    lua::setfield(L, "translation");
+        lua::pushvec3(L, skew);
+        lua::setfield(L, "skew");
 
-    lua::pushvec3(L, skew);
-    lua::setfield(L, "skew");
-
-    lua::pushvec4(L, perspective);
-    lua::setfield(L, "perspective");
-    return 1;
+        lua::pushvec4(L, perspective);
+        lua::setfield(L, "perspective");
+        return 1;
+    }
+    return 0;
 }
 
 static int l_look_at(lua::State* L) {
