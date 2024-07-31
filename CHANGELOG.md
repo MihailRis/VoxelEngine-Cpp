@@ -126,7 +126,7 @@ Table of contents:
 - Lua stack leaks
 - behavior of Lua functions in coroutines
 - support for wav sounds
-- issue #239
+- [issue #239](https://github.com/MihailRis/VoxelEngine-Cpp/issues/239)
 - errors when rebooting the world
 - incorrect lighting of AABB blocks
 - camera height limitation
