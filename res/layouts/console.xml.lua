@@ -4,19 +4,16 @@ history_pointer = #history
 function setup_variables()
     local pid = hud.get_player()
     local x,y,z = player.get_pos(pid)
-
-    console.set("pos.x", x)
-    console.set("pos.y", y)
-    console.set("pos.z", z)
-
+    console.set('pos.x', x)
+    console.set('pos.y', y)
+    console.set('pos.z', z)
     local pentity = player.get_entity(pid)
     if pentity ~= 0 then
-        console.set("entity.id", pentity)
+        console.set('entity.id', pentity)
     end
-
     local sentity = player.get_selected_entity(pid)
     if sentity ~= nil then
-        console.set("entity.selected", sentity)
+        console.set('entity.selected', sentity)
     end
 end
 
@@ -46,7 +43,7 @@ end
 function submit(text)
     add_to_history(text)
     setup_variables()
-
+    
     document.log.caret = -1
     local status, result = pcall(console.execute, text)
     if result then
