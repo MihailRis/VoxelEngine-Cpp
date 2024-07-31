@@ -418,6 +418,10 @@ function meta:__index(key)
     end
 end
 
+function meta:__len()
+    return string.len(self) -- budet herovo rabotat s utf8, ili kirillitsa
+end
+
 function string.starts_with(str, start)
     return string.sub(str, 1, string.len(start)) == start
 end
