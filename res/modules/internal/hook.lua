@@ -2,7 +2,7 @@ local hook = {}
 
 hook.list = {}
 
-function hook.Add(id, name, fn)
+function hook.add(id, name, fn)
     if not hook.list[id] then hook.list[id] = {} end
 
     table.insert(hook.list[id], {
@@ -12,7 +12,7 @@ function hook.Add(id, name, fn)
 end
 
 
-function hook.Remove(id, name)
+function hook.remove(id, name)
     if not hook.list[id] then return end
 
     for k, v in pairs(hook.list[id]) do
@@ -23,7 +23,7 @@ function hook.Remove(id, name)
     end
 end
 
-function hook.Run(id, ...)
+function hook.run(id, ...)
     if not hook.list[id] then return end
 
     local result = nil
