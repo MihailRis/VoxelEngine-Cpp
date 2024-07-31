@@ -21,7 +21,7 @@ function parse_path(path)
 end
 
 package = {
-    loaded = {}
+    loaded={}
 }
 local __cached_scripts = {}
 
@@ -279,19 +279,13 @@ entities.get_all = function(uids)
         for k,v in pairs(stdcomp.get_all()) do
             values[k] = v
         end
-        return values
+        return values 
     else
         return stdcomp.get_all(uids)
     end
 end
 
------------------- sekta helpers
-
-require("core:internal/math")
-require("core:internal/string")
-require("core:internal/table")
-
-math.randomseed(time.uptime() * 1536227939)
+math.randomseed(time.uptime()*1536227939)
 
 -- --------- Deprecated functions ------ --
 block_index = block.index
