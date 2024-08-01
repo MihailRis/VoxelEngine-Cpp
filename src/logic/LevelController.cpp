@@ -41,7 +41,7 @@ void LevelController::update(float delta, bool input, bool pause) {
         blocks->update(delta);
         player->update(delta, input, pause);
         level->entities->updatePhysics(delta);
-        level->entities->update();
+        level->entities->update(delta);
     }
     level->entities->clean();
     player->postUpdate(delta, input, pause);

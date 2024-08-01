@@ -89,8 +89,8 @@ namespace scripting {
     void on_entity_grounded(const Entity& entity, float force);
     void on_entity_fall(const Entity& entity);
     void on_entity_save(const Entity& entity);
-    void on_entities_update();
-    void on_entities_render();
+    void on_entities_update(int tps, int parts, int part);
+    void on_entities_render(float delta);
     void on_sensor_enter(const Entity& entity, size_t index, entityid_t oid);
     void on_sensor_exit(const Entity& entity, size_t index, entityid_t oid);
     void on_aim_on(const Entity& entity, Player* player);

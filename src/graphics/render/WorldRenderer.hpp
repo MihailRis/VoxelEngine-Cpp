@@ -94,6 +94,7 @@ public:
         const DrawContext& context, 
         Camera* camera, 
         const EngineSettings& settings,
+        float delta,
         bool pause
     );
 };

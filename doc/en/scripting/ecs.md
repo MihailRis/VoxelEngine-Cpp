@@ -177,6 +177,18 @@ function on_save()
 Called before component data is saved. Here you can write the data you want to save into the *SAVED_DATA* table, which is available for the entire life of the component.
 
 ```lua
+function on_update(tps: int)
+```
+
+Called every entities tick (currently 20 times per second).
+
+```lua
+function on_render(delta: number)
+```
+
+Called every frame before the entity is rendered.
+
+```lua
 function on_sensor_enter(index: int, entity: int)
 ```
 
