@@ -20,8 +20,7 @@ Lighting::Lighting(const Content* content, Chunks* chunks)
     solverS = std::make_unique<LightSolver>(indices, chunks, 3);
 }
 
-Lighting::~Lighting(){
-}
+Lighting::~Lighting() = default;
 
 void Lighting::clear(){
     for (size_t index = 0; index < chunks->volume; index++){

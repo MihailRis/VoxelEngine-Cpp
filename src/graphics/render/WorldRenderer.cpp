@@ -75,8 +75,7 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* pl
     );
 }
 
-WorldRenderer::~WorldRenderer() {
-}
+WorldRenderer::~WorldRenderer() = default;
 
 bool WorldRenderer::drawChunk(
     size_t index,

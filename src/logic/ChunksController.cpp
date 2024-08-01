@@ -30,8 +30,7 @@ ChunksController::ChunksController(Level* level, uint padding)
     generator(WorldGenerators::createGenerator(level->getWorld()->getGenerator(), level->content)) {
 }
 
-ChunksController::~ChunksController(){
-}
+ChunksController::~ChunksController() = default;
 
 void ChunksController::update(int64_t maxDuration) {
     int64_t mcstotal = 0;

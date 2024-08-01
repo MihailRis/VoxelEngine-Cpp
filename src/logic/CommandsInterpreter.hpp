@@ -55,7 +55,7 @@ namespace cmd {
         std::string description;
         executor_func executor;
     public:
-        Command() {}
+        Command() = default;
 
         Command(
             std::string name,
