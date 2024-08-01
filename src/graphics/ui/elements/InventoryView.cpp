@@ -126,7 +126,7 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
                 langs::get(util::str2wstr_utf8(def->caption))
             );
         } else {
-            tooltip = L"";
+            tooltip.clear();
         }
     }
     prevItem = itemid;
