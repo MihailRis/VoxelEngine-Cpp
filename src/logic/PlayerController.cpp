@@ -455,7 +455,7 @@ void PlayerController::updateEntityInteraction(entityid_t eid, bool lclick, bool
     if (!entityOpt.has_value()) {
         return;
     }
-    auto entity = entityOpt.value();
+    auto entity = *entityOpt;
     if (lclick) {
         scripting::on_attacked(entity, player.get(), player->getEntity());
     }
