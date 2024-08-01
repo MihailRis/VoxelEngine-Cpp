@@ -8,7 +8,7 @@
 PacksManager::PacksManager() = default;
 
 void PacksManager::setSources(std::vector<fs::path> sources) {
-    this->sources = sources;
+    this->sources = std::move(sources);
 }
 
 void PacksManager::scan() {
