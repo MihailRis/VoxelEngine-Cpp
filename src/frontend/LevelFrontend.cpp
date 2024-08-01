@@ -81,8 +81,7 @@ LevelFrontend::LevelFrontend(
     );
 }
 
-LevelFrontend::~LevelFrontend() {
-}
+LevelFrontend::~LevelFrontend() = default;
 
 Level* LevelFrontend::getLevel() const {
     return level;

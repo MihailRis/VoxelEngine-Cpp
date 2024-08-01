@@ -12,8 +12,7 @@ Font::Font(std::vector<std::unique_ptr<Texture>> pages, int lineHeight, int yoff
     : lineHeight(lineHeight), yoffset(yoffset), pages(std::move(pages)) {
 }
 
-Font::~Font(){
-}
+Font::~Font() = default;
 
 int Font::getYOffset() const {
     return yoffset;

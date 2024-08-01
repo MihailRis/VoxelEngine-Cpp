@@ -32,7 +32,7 @@ uint Shader::getUniformLocation(const std::string& name) {
     auto found = uniformLocations.find(name);
     if (found == uniformLocations.end()) {
         uint location = glGetUniformLocation(id, name.c_str());
-        uniformLocations.emplace(name, location);
+        uniformLocations.try_emplace(name, location);
         return location;
     }
     return found->second;

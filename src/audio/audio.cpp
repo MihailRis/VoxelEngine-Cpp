@@ -266,7 +266,7 @@ speakerid_t audio::play(
     }
     auto speaker = speaker_ptr.get();
     speakerid_t id = nextId++;
-    speakers.emplace(id, std::move(speaker_ptr));
+    speakers.try_emplace(id, std::move(speaker_ptr));
     speaker->setPosition(position);
     speaker->setVolume(volume);
     speaker->setPitch(pitch);
@@ -295,8 +295,8 @@ speakerid_t audio::play(
     }
     auto speaker = speaker_ptr.get();
     speakerid_t id = nextId++;
-    streams.emplace(id, stream);
-    speakers.emplace(id, std::move(speaker_ptr));
+    streams.try_emplace(id, stream);
+    speakers.try_emplace(id, std::move(speaker_ptr));
     stream->bindSpeaker(id);
 
     speaker->setPosition(position);
