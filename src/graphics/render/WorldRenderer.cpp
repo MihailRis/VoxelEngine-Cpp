@@ -243,13 +243,13 @@ void WorldRenderer::renderBlockSelection() {
 void WorldRenderer::renderLines(
     Camera* camera, Shader* linesShader, const DrawContext& pctx
 ) {
-    auto ctx = pctx.sub(lineBatch.get());
     linesShader->use();
     linesShader->uniformMatrix("u_projview", camera->getProjView());
     if (player->selection.vox.id != BLOCK_VOID) {
         renderBlockSelection();
     }
     if (player->debug && showEntitiesDebug) {
+        auto ctx = pctx.sub(lineBatch.get());
         level->entities->renderDebug(*lineBatch, *frustumCulling, ctx);
     }
 }
