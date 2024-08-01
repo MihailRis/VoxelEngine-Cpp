@@ -75,7 +75,7 @@ static int l_get_command_info(lua::State* L) {
     
     lua::createtable(L, args.size(), 0);
     for (size_t i = 0; i < args.size(); i++) {
-        auto& arg = args.at(i);
+        auto& arg = args[i];
         lua::createtable(L, 0, 2);
         
         lua::pushstring(L, arg.name);

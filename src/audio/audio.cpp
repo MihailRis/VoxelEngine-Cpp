@@ -253,7 +253,7 @@ speakerid_t audio::play(
     if (!sound->variants.empty()) {
         size_t index = rand() % (sound->variants.size() + 1);
         if (index < sound->variants.size()) {
-            sound = sound->variants.at(index).get();
+            sound = sound->variants[index].get();
         }
     }
     auto speaker_ptr = sound->newInstance(priority, channel);
