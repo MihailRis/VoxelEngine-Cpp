@@ -85,7 +85,7 @@ bool ContentLoader::fixPackIndices(
             indexed.push_back(name);
         }
     }
-    for (auto name : detected) {
+    for (const auto &name : detected) {
         if (!util::contains(indexed, name)) {
             arr->put(name);
             modified = true;

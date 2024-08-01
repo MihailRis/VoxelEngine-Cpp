@@ -203,7 +203,7 @@ static void _readPanel(UiXmlReader& reader, const xml::xmlelement& element, Pane
         panel.setMaxLength(element->attr("max-length").asInt());
     }
     if (element->has("orientation")) {
-        auto oname = element->attr("orientation").getText();
+        const auto &oname = element->attr("orientation").getText();
         if (oname == "horizontal") {
             panel.setOrientation(Orientation::horizontal);
         }
