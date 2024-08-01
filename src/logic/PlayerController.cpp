@@ -105,7 +105,7 @@ glm::vec3 CameraControl::updateCameraShaking(const Hitbox& hitbox, float delta) 
 }
 
 void CameraControl::updateFovEffects(const Hitbox& hitbox, 
-                                     const PlayerInput& input, float delta) {
+                                     PlayerInput input, float delta) {
     bool crouch = input.shift && hitbox.grounded && !input.sprint;
 
     float dt = fmin(1.0f, delta * ZOOM_SPEED);
@@ -146,7 +146,7 @@ void CameraControl::switchCamera() {
     }
 }
 
-void CameraControl::update(const PlayerInput& input, float delta, Chunks* chunks) {
+void CameraControl::update(PlayerInput input, float delta, Chunks* chunks) {
     offset = glm::vec3(0.0f, 0.0f, 0.0f);
 
     if (auto hitbox = player->getHitbox()) {
