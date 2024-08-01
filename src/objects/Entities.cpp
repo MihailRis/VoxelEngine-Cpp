@@ -347,6 +347,12 @@ void Entities::clean() {
         if (!registry.get<EntityId>(it->second).destroyFlag) {
             ++it;
         } else {
+            auto& rigidbody = registry.get<Rigidbody>(it->second);
+            // todo: refactor
+            auto physics = level->physics.get();
+            for (auto& sensor : rigidbody.sensors) {
+                physics->removeSensor(&sensor);
+            }
             uids.erase(it->second);
             registry.destroy(it->second);
             it = entities.erase(it);

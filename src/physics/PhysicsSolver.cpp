@@ -273,3 +273,7 @@ bool PhysicsSolver::isBlockInside(int x, int y, int z, Block* def, blockstate st
     }
     return false;
 }
+
+void PhysicsSolver::removeSensor(Sensor* sensor) {
+    sensors.erase(std::remove(sensors.begin(), sensors.end(), sensor), sensors.end());
+}
