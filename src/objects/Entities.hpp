@@ -167,6 +167,7 @@ class Entities {
     std::unordered_map<entt::entity, entityid_t> uids;
     entityid_t nextID = 1;
     util::Clock sensorsTickClock;
+    util::Clock updateTickClock;
 
     void updateSensors(
         Rigidbody& body, const Transform& tsf, std::vector<Sensor*>& sensors
@@ -183,10 +184,10 @@ public:
 
     void clean();
     void updatePhysics(float delta);
-    void update();
+    void update(float delta);
 
     void renderDebug(LineBatch& batch, const Frustum& frustum, const DrawContext& ctx);
-    void render(Assets* assets, ModelBatch& batch, const Frustum& frustum, bool pause);
+    void render(Assets* assets, ModelBatch& batch, const Frustum& frustum, float delta, bool pause);
 
     entityid_t spawn(
         EntityDef& def,

@@ -59,7 +59,8 @@ void Entity::setRig(const rigging::SkeletonConfig* rigConfig) {
     );
 }
 
-Entities::Entities(Level* level) : level(level), sensorsTickClock(20, 3) {
+Entities::Entities(Level* level) 
+: level(level), sensorsTickClock(20, 3), updateTickClock(20, 3) {
 }
 
 template<void(*callback)(const Entity&, size_t, entityid_t)>
@@ -440,8 +441,13 @@ void Entities::updatePhysics(float delta) {
     }
 }
 
-void Entities::update() {
-    scripting::on_entities_update();
+void Entities::update(float delta) {
+    if (updateTickClock.update(delta)) {
+        scripting::on_entities_update(
+            updateTickClock.getTickRate(),
+            updateTickClock.getParts(),
+            updateTickClock.getPart());
+    }
 }
 
 static void debug_render_skeleton(
@@ -505,10 +511,10 @@ void Entities::renderDebug(
 }
 
 void Entities::render(
-    Assets* assets, ModelBatch& batch, const Frustum& frustum, bool pause
+    Assets* assets, ModelBatch& batch, const Frustum& frustum, float delta, bool pause
 ) {
     if (!pause) {
-        scripting::on_entities_render();
+        scripting::on_entities_render(delta);
     }
 
     auto view = registry.view<Transform, rigging::Skeleton>();

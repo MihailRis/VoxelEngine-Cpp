@@ -88,25 +88,29 @@ return {
             entities[eid] = nil;
         end
     end,
-    update = function()
-        for _,entity in pairs(entities) do
+    update = function(tps, parts, part)
+        for uid, entity in pairs(entities) do
+            if uid % parts ~= part then
+                goto continue
+            end
             for _, component in pairs(entity.components) do
                 local callback = component.on_update
                 if callback then
-                    local result, err = pcall(callback)
+                    local result, err = pcall(callback, tps)
                     if err then
                         debug.error(err)
                     end
                 end
             end
+            ::continue::
         end
     end,
-    render = function()
+    render = function(delta)
         for _,entity in pairs(entities) do
             for _, component in pairs(entity.components) do
                 local callback = component.on_render
                 if callback then
-                    local result, err = pcall(callback)
+                    local result, err = pcall(callback, delta)
                     if err then
                         debug.error(err)
                     end

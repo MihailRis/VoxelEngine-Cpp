@@ -475,17 +475,21 @@ void scripting::on_entity_used(const Entity& entity, Player* player) {
     });
 }
 
-void scripting::on_entities_update() {
+void scripting::on_entities_update(int tps, int parts, int part) {
     auto L = lua::get_main_thread();
     lua::get_from(L, STDCOMP, "update", true);
-    lua::call_nothrow(L, 0, 0);
+    lua::pushinteger(L, tps);
+    lua::pushinteger(L, parts);
+    lua::pushinteger(L, part);
+    lua::call_nothrow(L, 3, 0);
     lua::pop(L);
 }
 
-void scripting::on_entities_render() {
+void scripting::on_entities_render(float delta) {
     auto L = lua::get_main_thread();
     lua::get_from(L, STDCOMP, "render", true);
-    lua::call_nothrow(L, 0, 0);
+    lua::pushnumber(L, delta);
+    lua::call_nothrow(L, 1, 0);
     lua::pop(L);
 }
 

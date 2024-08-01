@@ -188,6 +188,7 @@ void WorldRenderer::renderLevel(
     const DrawContext&,
     Camera* camera, 
     const EngineSettings& settings,
+    float delta,
     bool pause
 ) {
     auto assets = engine->getAssets();
@@ -206,7 +207,7 @@ void WorldRenderer::renderLevel(
     auto entityShader = assets->get<Shader>("entity");
     setupWorldShader(entityShader, camera, settings, fogFactor);
 
-    level->entities->render(assets, *modelBatch, *frustumCulling, pause);
+    level->entities->render(assets, *modelBatch, *frustumCulling, delta, pause);
 
     if (!pause) {
         scripting::on_frontend_render();
@@ -339,7 +340,7 @@ void WorldRenderer::draw(
             DrawContext ctx = wctx.sub();
             ctx.setDepthTest(true);
             ctx.setCullFace(true);
-            renderLevel(ctx, camera, settings, pause);
+            renderLevel(ctx, camera, settings, delta, pause);
             // Debug lines
             if (hudVisible){
                 renderLines(camera, linesShader, ctx);
