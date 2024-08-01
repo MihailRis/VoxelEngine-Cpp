@@ -252,11 +252,11 @@ void ContentLoader::loadCustomBlockModel(Block& def, dynamic::Map* primitives) {
 
             if (boxarr->size() == 7)
                 for (uint j = 6; j < 12; j++) {
-                    def.modelTextures.push_back(boxarr->str(6));
+                    def.modelTextures.emplace_back(boxarr->str(6));
                 }
             else if (boxarr->size() == 12)
                 for (uint j = 6; j < 12; j++) {
-                    def.modelTextures.push_back(boxarr->str(j));
+                    def.modelTextures.emplace_back(boxarr->str(j));
                 }
             else
                 for (uint j = 6; j < 12; j++) {
@@ -277,7 +277,7 @@ void ContentLoader::loadCustomBlockModel(Block& def, dynamic::Map* primitives) {
             def.modelExtraPoints.push_back(p1+xw+yh);
             def.modelExtraPoints.push_back(p1+yh);
 
-            def.modelTextures.push_back(tgonobj->str(9));
+            def.modelTextures.emplace_back(tgonobj->str(9));
         }
     }
 }
@@ -314,7 +314,7 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& name, const fs
     auto root = files::read_json(file);
     if (auto componentsarr = root->list("components")) {
         for (size_t i = 0; i < componentsarr->size(); i++) {
-            def.components.push_back(componentsarr->str(i));
+            def.components.emplace_back(componentsarr->str(i));
         }
     }
     if (auto boxarr = root->list("hitbox")) {
@@ -325,12 +325,12 @@ void ContentLoader::loadEntity(EntityDef& def, const std::string& name, const fs
             if (auto sensorarr = sensorsarr->list(i)) {
                 auto sensorType = sensorarr->str(0);
                 if (sensorType == "aabb") {
-                    def.boxSensors.push_back({i, {
+                    def.boxSensors.emplace_back(i, AABB{
                         {sensorarr->num(1), sensorarr->num(2), sensorarr->num(3)},
                         {sensorarr->num(4), sensorarr->num(5), sensorarr->num(6)}
-                    }});
+                    });
                 } else if (sensorType == "radius") {
-                    def.radialSensors.push_back({i, sensorarr->num(1)});
+                    def.radialSensors.emplace_back(i, sensorarr->num(1));
                 } else {
                     logger.error() << name << ": sensor #" << i << " - unknown type "
                         << util::quote(sensorType);
