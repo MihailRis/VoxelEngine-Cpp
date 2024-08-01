@@ -95,7 +95,7 @@ static int l_pack_get_info(lua::State* L, const ContentPack& pack, const Content
     if (!pack.dependencies.empty()) {
         lua::createtable(L, pack.dependencies.size(), 0);
         for (size_t i = 0; i < pack.dependencies.size(); i++) {
-            auto& dpack = pack.dependencies.at(i);
+            auto& dpack = pack.dependencies[i];
             std::string prefix;
             switch (dpack.level) {
                 case DependencyLevel::required: prefix = "!"; break;
@@ -142,7 +142,7 @@ static int l_pack_get_info(lua::State* L) {
         manager.scan();
         auto vec = manager.getAll({packid});
         if (!vec.empty()) {
-            return l_pack_get_info(L, vec.at(0), content);
+            return l_pack_get_info(L, vec[0], content);
         }
         return 0;
     }
