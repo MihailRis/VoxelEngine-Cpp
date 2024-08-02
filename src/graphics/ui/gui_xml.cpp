@@ -203,7 +203,7 @@ static void _readPanel(UiXmlReader& reader, const xml::xmlelement& element, Pane
         panel.setMaxLength(element->attr("max-length").asInt());
     }
     if (element->has("orientation")) {
-        const auto &oname = element->attr("orientation").getText();
+        auto oname = element->attr("orientation").getText();
         if (oname == "horizontal") {
             panel.setOrientation(Orientation::horizontal);
         }
@@ -286,7 +286,7 @@ static std::shared_ptr<UINode> readButton(UiXmlReader& reader, const xml::xmlele
 
     std::shared_ptr<Button> button;
     auto& elements = element->getElements();
-    if (!elements.empty() && elements[0]->getTag() != "#") {
+    if (!elements.empty() && elements.at(0)->getTag() != "#") {
         auto inner = reader.readUINode(element->getElements().at(0));
         if (inner != nullptr) {
             button = std::make_shared<Button>(inner, padding);

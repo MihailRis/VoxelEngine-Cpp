@@ -44,7 +44,8 @@ GUI::GUI() {
     container->add(tooltip);
 }
 
-GUI::~GUI() = default;
+GUI::~GUI() {
+}
 
 std::shared_ptr<Menu> GUI::getMenu() {
     return menu;

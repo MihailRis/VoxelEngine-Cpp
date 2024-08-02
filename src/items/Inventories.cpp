@@ -8,7 +8,8 @@
 Inventories::Inventories(Level& level) : level(level) {
 }
 
-Inventories::~Inventories() = default;
+Inventories::~Inventories() {
+}
 
 std::shared_ptr<Inventory> Inventories::create(size_t size) {
     int64_t id = level.getWorld()->getNextInventoryId();

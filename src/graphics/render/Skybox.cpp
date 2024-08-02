@@ -55,7 +55,8 @@ Skybox::Skybox(uint size, Shader* shader)
     });
 }
 
-Skybox::~Skybox() = default;
+Skybox::~Skybox() {
+}
 
 void Skybox::drawBackground(Camera* camera, Assets* assets, int width, int height) {
     auto backShader = assets->get<Shader>("background");

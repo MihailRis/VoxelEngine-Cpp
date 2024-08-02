@@ -64,7 +64,7 @@ public:
            std::shared_ptr<Inventory> inv, entityid_t eid);
     ~Player();
 
-    void teleport(const glm::vec3 &position);
+    void teleport(glm::vec3 position);
     void updateEntity();
     void updateInput(PlayerInput& input, float delta);
     void updateSelectedEntity();
@@ -96,7 +96,7 @@ public:
 
     Hitbox* getHitbox();
 
-    void setSpawnPoint(const glm::vec3 &spawnpoint);
+    void setSpawnPoint(glm::vec3 point);
     glm::vec3 getSpawnPoint() const;
 
     std::unique_ptr<dynamic::Map> serialize() const override;

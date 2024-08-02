@@ -205,11 +205,11 @@ void Window::clearDepth() {
     glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-void Window::setBgColor(const glm::vec3 &color) {
+void Window::setBgColor(glm::vec3 color) {
     glClearColor(color.r, color.g, color.b, 1.0f);
 }
 
-void Window::setBgColor(const glm::vec4 &color) {
+void Window::setBgColor(glm::vec4 color) {
     glClearColor(color.r, color.g, color.b, color.a);
 }
 

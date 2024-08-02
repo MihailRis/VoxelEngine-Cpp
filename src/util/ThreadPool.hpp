@@ -28,8 +28,8 @@ struct ThreadPoolResult {
 template<class T, class R>
 class Worker {
 public:
-    Worker() = default;
-    virtual ~Worker() = default;
+    Worker() {}
+    virtual ~Worker() {}
     virtual R operator()(const std::shared_ptr<T>&) = 0;
 };
 

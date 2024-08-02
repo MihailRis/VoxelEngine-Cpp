@@ -142,4 +142,5 @@ ContentPackRuntime::ContentPackRuntime(
 {
 }
 
-ContentPackRuntime::~ContentPackRuntime() = default;
+ContentPackRuntime::~ContentPackRuntime() {
+}

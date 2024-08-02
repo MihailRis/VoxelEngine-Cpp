@@ -30,7 +30,8 @@ ChunksController::ChunksController(Level* level, uint padding)
     generator(WorldGenerators::createGenerator(level->getWorld()->getGenerator(), level->content)) {
 }
 
-ChunksController::~ChunksController() = default;
+ChunksController::~ChunksController(){
+}
 
 void ChunksController::update(int64_t maxDuration) {
     int64_t mcstotal = 0;
@@ -112,22 +113,21 @@ bool ChunksController::buildLights(const std::shared_ptr<Chunk>& chunk) {
 void ChunksController::createChunk(int x, int z) {
     auto chunk = level->chunksStorage->create(x, z);
     chunks->putChunk(chunk);
-    auto& chunkFlags = chunk->flags;
 
-    if (!chunkFlags.loaded) {
+    if (!chunk->flags.loaded) {
         generator->generate(
             chunk->voxels, x, z, 
             level->getWorld()->getSeed()
         );
-        chunkFlags.unsaved = true;
+        chunk->flags.unsaved = true;
     }
     chunk->updateHeights();
 
-    if (!chunkFlags.loadedLights) {
+    if (!chunk->flags.loadedLights) {
         Lighting::prebuildSkyLight(
             chunk.get(), level->content->getIndices()
         );
     }
-    chunkFlags.loaded = true;
-    chunkFlags.ready = true;
+    chunk->flags.loaded = true;
+    chunk->flags.ready = true;
 }

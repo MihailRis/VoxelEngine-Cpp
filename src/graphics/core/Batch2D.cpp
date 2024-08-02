@@ -59,8 +59,8 @@ void Batch2D::vertex(
     buffer[index++] = a;
 }
 void Batch2D::vertex(
-    const glm::vec2& point,
-    const glm::vec2& uvpoint,
+    glm::vec2 point,
+    glm::vec2 uvpoint,
     float r, float g, float b, float a
 ) {
     buffer[index++] = point.x;
@@ -138,7 +138,7 @@ void Batch2D::rect(
     UVRegion region,
     bool flippedX,
     bool flippedY,
-    const glm::vec4& tint
+    glm::vec4 tint
 ) {
     if (index + 6*B2D_VERTEX_SIZE >= capacity) {
         flush();
@@ -322,13 +322,11 @@ void Batch2D::rect(
     vertex(v1, glm::vec2(0, 0), r2,g2,b2,1.0f);
 }
 
-void Batch2D::sprite(float x, float y, float w, float h, const UVRegion& region,
-    const glm::vec4& tint){
+void Batch2D::sprite(float x, float y, float w, float h, const UVRegion& region, glm::vec4 tint){
     rect(x, y, w, h, region.u1, region.v1, region.u2-region.u1, region.v2-region.v1, tint.r, tint.g, tint.b, tint.a);
 }
 
-void Batch2D::sprite(float x, float y, float w, float h, int atlasRes, int index,
-    const glm::vec4& tint){
+void Batch2D::sprite(float x, float y, float w, float h, int atlasRes, int index, glm::vec4 tint){
     float scale = 1.0f / (float)atlasRes;
     float u = (index % atlasRes) * scale;
     float v = 1.0f - ((index / atlasRes) * scale) - scale;

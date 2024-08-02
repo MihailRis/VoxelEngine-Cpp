@@ -2,7 +2,7 @@
 
 #include "../objects/rigging.hpp"
 
-ContentBuilder::~ContentBuilder() = default;
+ContentBuilder::~ContentBuilder() {}
 
 void ContentBuilder::add(std::unique_ptr<ContentPackRuntime> pack) {
     packs[pack->getId()] = std::move(pack);

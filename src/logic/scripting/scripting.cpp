@@ -240,8 +240,8 @@ void scripting::on_block_placed(Player* player, const Block* block, int x, int y
 }
 
 void scripting::on_block_broken(Player* player, const Block* block, int x, int y, int z) {
+    std::string name = block->name + ".broken";
     if (block->rt.funcsset.onbroken) {
-        std::string name = block->name + ".broken";
         lua::emit_event(lua::get_main_thread(), name, [x, y, z, player] (auto L) {
             lua::pushivec3_stack(L, x, y, z);
             lua::pushinteger(L, player ? player->getId() : -1);

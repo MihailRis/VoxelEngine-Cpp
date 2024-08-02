@@ -18,7 +18,8 @@ PostProcessing::PostProcessing() {
     quadMesh = std::make_unique<Mesh>(vertices, 6, attrs);
 }
 
-PostProcessing::~PostProcessing() = default;
+PostProcessing::~PostProcessing() {
+}
 
 void PostProcessing::use(DrawContext& context) {
     const auto& vp = context.getViewport();

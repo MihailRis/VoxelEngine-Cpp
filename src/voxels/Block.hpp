@@ -48,7 +48,7 @@ struct CoordSystem {
 
     void transform(AABB& aabb) const;
 
-    inline bool isVectorHasNegatives(const glm::ivec3& vec) {
+    inline bool isVectorHasNegatives(glm::ivec3 vec) {
         return (vec.x < 0 || vec.y < 0 || vec.z < 0);
     }
 };

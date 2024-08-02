@@ -105,7 +105,7 @@ glm::vec3 CameraControl::updateCameraShaking(const Hitbox& hitbox, float delta) 
 }
 
 void CameraControl::updateFovEffects(const Hitbox& hitbox, 
-                                     PlayerInput input, float delta) {
+                                     const PlayerInput& input, float delta) {
     bool crouch = input.shift && hitbox.grounded && !input.sprint;
 
     float dt = fmin(1.0f, delta * ZOOM_SPEED);
@@ -146,7 +146,7 @@ void CameraControl::switchCamera() {
     }
 }
 
-void CameraControl::update(PlayerInput input, float delta, Chunks* chunks) {
+void CameraControl::update(const PlayerInput& input, float delta, Chunks* chunks) {
     offset = glm::vec3(0.0f, 0.0f, 0.0f);
 
     if (auto hitbox = player->getHitbox()) {
@@ -455,7 +455,7 @@ void PlayerController::updateEntityInteraction(entityid_t eid, bool lclick, bool
     if (!entityOpt.has_value()) {
         return;
     }
-    auto entity = *entityOpt;
+    auto entity = entityOpt.value();
     if (lclick) {
         scripting::on_attacked(entity, player.get(), player->getEntity());
     }

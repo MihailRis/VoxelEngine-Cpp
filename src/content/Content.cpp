@@ -46,7 +46,8 @@ Content::Content(
     }
 }
 
-Content::~Content() = default;
+Content::~Content() {
+}
 
 const rigging::SkeletonConfig* Content::getSkeleton(const std::string& id) const {
     auto found = skeletons.find(id);

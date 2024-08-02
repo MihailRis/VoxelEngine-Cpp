@@ -11,12 +11,12 @@
 namespace fs = std::filesystem;
 
 class ArgsReader {
-    const char* last = "";
-    char** argv;
     int argc;
+    char** argv;
     int pos = 0;
+    const char* last = "";
 public:
-    ArgsReader(int argc, char** argv) : argv(argv), argc(argc) {}
+    ArgsReader(int argc, char** argv) : argc(argc), argv(argv) {}
 
     void skip() {
         pos++;

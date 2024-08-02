@@ -22,7 +22,7 @@ struct Frame {
 class TextureAnimation {
 public:
     TextureAnimation(Texture* srcTex, Texture* dstTex) : srcTexture(srcTex), dstTexture(dstTex) {};
-    ~TextureAnimation() = default;
+    ~TextureAnimation() {};
 
     void addFrame(const Frame& frame) { frames.emplace_back(frame); };
 

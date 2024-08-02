@@ -55,7 +55,7 @@ static void add_world_generators() {
     WorldGenerators::addGenerator<FlatWorldGenerator>("core:flat");
 }
 
-static void create_channel(Engine* engine, const std::string& name, NumberSetting& setting) {
+static void create_channel(Engine* engine, std::string name, NumberSetting& setting) {
     if (name != "master") {
         audio::create_channel(name);
     }

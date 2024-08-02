@@ -47,12 +47,11 @@ void LevelController::update(float delta, bool input, bool pause) {
     player->postUpdate(delta, input, pause);
 
     // erease null pointers
-    auto& objects = level->objects;
-    objects.erase(
+    level->objects.erase(
         std::remove_if(
-            objects.begin(), objects.end(),
+            level->objects.begin(), level->objects.end(),
             [](auto obj) { return obj == nullptr; }),
-        objects.end()
+        level->objects.end()
     );
 }
 
