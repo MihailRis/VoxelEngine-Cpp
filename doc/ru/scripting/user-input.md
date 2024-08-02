@@ -74,7 +74,7 @@ input.is_pressed(code: str) -> bool
 
 Пример: 
 ```lua
-if (input.is_pressed("key:enter") {
+if input.is_pressed("key:enter") then
     ...
-}
+end
 ```
