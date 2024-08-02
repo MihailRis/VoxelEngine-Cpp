@@ -70,7 +70,7 @@ Checks input activity using a code consisting of:
 
 Example:
 ```lua
-if (input.is_pressed("key:enter") {
+if input.is_pressed("key:enter") then
     ...
-}
+end
 ```
