@@ -50,9 +50,10 @@ std::unique_ptr<ImageData> BlocksPreview::draw(
                 }
                 offset = glm::vec3(1, 1, 0.0f);
                 shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), offset));
+                glm::vec3 scaledSize = glm::vec3(size * 0.63f);
                 batch->cube(
-                    -hitbox * glm::vec3(size * 0.63f)*0.5f * glm::vec3(1,1,-1),
-                    hitbox * glm::vec3(size * 0.63f), 
+                    -hitbox * scaledSize * 0.5f * glm::vec3(1,1,-1),
+                    hitbox * scaledSize,
                     texfaces, glm::vec4(1.0f), 
                     !def->rt.emissive
                 );
