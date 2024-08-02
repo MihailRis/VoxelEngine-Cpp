@@ -239,6 +239,7 @@ void WorldRenderer::renderBlockSelection() {
             lineBatch->line(point, point+norm*0.5f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
         }
     }
+    lineBatch->flush();
 }
 
 void WorldRenderer::renderLines(
