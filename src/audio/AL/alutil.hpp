@@ -40,8 +40,7 @@ namespace AL {
     /// @param field enum value
     /// @param def default value will be returned in case of error
     /// @return field value or default
-    inline glm::vec3 getSource3f(uint source, ALenum field, const glm::vec3& def= {}
-    ) {
+    inline glm::vec3 getSource3f(uint source, ALenum field, glm::vec3 def={}) {
         glm::vec3 value = def;
         if (source == 0)
             return def;

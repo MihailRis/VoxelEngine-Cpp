@@ -32,7 +32,7 @@ class CameraControl {
     /// @brief Update field-of-view effects
     /// @param input player inputs
     /// @param delta delta time
-    void updateFovEffects(const Hitbox& hitbox, PlayerInput input,
+    void updateFovEffects(const Hitbox& hitbox, const PlayerInput& input,
                           float delta);
 
     /// @brief Switch active player camera
@@ -41,7 +41,7 @@ public:
     CameraControl(const std::shared_ptr<Player>& player,
                   const CameraSettings& settings);
     void updateMouse(PlayerInput& input);
-    void update(PlayerInput input, float delta, Chunks* chunks);
+    void update(const PlayerInput& input, float delta, Chunks* chunks);
     void refresh();
 };
 

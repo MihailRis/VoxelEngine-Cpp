@@ -255,8 +255,8 @@ public:
     }
 
     dynamic::Value applyRelative(
-        Argument* arg,
-        const dynamic::Value& value,
+        Argument* arg, 
+        dynamic::Value value,
         const dynamic::Value& origin
     ) {
         if (origin.index() == 0) {

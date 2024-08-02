@@ -38,7 +38,8 @@ ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets) : conte
     }
 }
 
-ContentGfxCache::~ContentGfxCache() = default;
+ContentGfxCache::~ContentGfxCache() {
+}
 
 const Content* ContentGfxCache::getContent() const {
     return content;

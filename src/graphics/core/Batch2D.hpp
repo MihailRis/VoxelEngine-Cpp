@@ -31,8 +31,8 @@ class Batch2D : public Flushable {
     );
     
     void vertex(
-        const glm::vec2& point,
-        const glm::vec2& uvpoint,
+        glm::vec2 point,
+        glm::vec2 uvpoint,
         float r, float g, float b, float a
     );
 
@@ -44,13 +44,11 @@ public:
     void texture(Texture* texture);
     void untexture();
     void setRegion(UVRegion region);
-    void sprite(float x, float y, float w, float h, const UVRegion& region,
-        const glm::vec4& tint);
-    void sprite(float x, float y, float w, float h, int atlasRes, int index,
-        const glm::vec4& tint);
+    void sprite(float x, float y, float w, float h, const UVRegion& region, glm::vec4 tint);
+    void sprite(float x, float y, float w, float h, int atlasRes, int index, glm::vec4 tint);
     void point(float x, float y, float r, float g, float b, float a);
     
-    inline void setColor(const glm::vec4& color) {
+    inline void setColor(glm::vec4 color) {
         this->color = color;
     }
     inline glm::vec4 getColor() const {
@@ -71,7 +69,7 @@ public:
         float ox, float oy,
         float angle, UVRegion region,
         bool flippedX, bool flippedY,
-        const glm::vec4& tint
+        glm::vec4 tint
     );
 
     void rect(float x, float y, float w, float h);

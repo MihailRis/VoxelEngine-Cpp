@@ -142,7 +142,7 @@ struct Binding {
     bool state = false;
     bool justChange = false;
     
-    Binding() = default;
+    Binding(){}
     Binding(inputtype type, int code) : type(type), code(code) {}
 
     bool active() const {

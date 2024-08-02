@@ -49,19 +49,19 @@ struct Transform {
 
     void refresh();
     
-    inline void setRot(const glm::mat3 &m) {
+    inline void setRot(glm::mat3 m) {
         rot = m;
         dirty = true;
     }
 
-    inline void setSize(const glm::vec3 &v) {
+    inline void setSize(glm::vec3 v) {
         if (glm::distance2(displaySize, v) >= 0.00001f) {
             dirty = true;
         }
         size = v;
     }
 
-    inline void setPos(const glm::vec3 &v) {
+    inline void setPos(glm::vec3 v) {
         if (glm::distance2(displayPos, v) >= 0.0001f) {
             dirty = true;
         }
@@ -212,15 +212,15 @@ public:
     /// @param ignore Ignored entity ID
     /// @return An optional structure containing entity, normal and distance
     std::optional<RaycastResult> rayCast(
-        const glm::vec3 &start, const glm::vec3 &dir, float maxDistance, entityid_t ignore=-1);
+        glm::vec3 start, glm::vec3 dir, float maxDistance, entityid_t ignore=-1);
 
     void loadEntities(dynamic::Map_sptr map);
     void loadEntity(const dynamic::Map_sptr& map);
-    void loadEntity(const dynamic::Map_sptr& map, const Entity &entity);
+    void loadEntity(const dynamic::Map_sptr& map, Entity entity);
     void onSave(const Entity& entity);
     bool hasBlockingInside(AABB aabb);
-    std::vector<Entity> getAllInside(const AABB &aabb);
-    std::vector<Entity> getAllInRadius(const glm::vec3 &center, float radius);
+    std::vector<Entity> getAllInside(AABB aabb);
+    std::vector<Entity> getAllInRadius(glm::vec3 center, float radius);
     void despawn(entityid_t id);
     dynamic::Value serialize(const Entity& entity);
 

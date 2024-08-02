@@ -27,7 +27,7 @@ class Chunks {
 
     void eraseSegments(const Block* def, blockstate state, int x, int y, int z);
     void repairSegments(const Block* def, blockstate state, int x, int y, int z);
-    void setRotationExtended(Block* def, blockstate state, const glm::ivec3 &origin, uint8_t rotation);
+    void setRotationExtended(Block* def, blockstate state, glm::ivec3 origin, uint8_t rotation);
 public:
     std::vector<std::shared_ptr<Chunk>> chunks;
     std::vector<std::shared_ptr<Chunk>> chunksSecond;
@@ -48,7 +48,7 @@ public:
     Chunk* getChunkByVoxel(int32_t x, int32_t y, int32_t z);
     voxel* get(int32_t x, int32_t y, int32_t z) const;
 
-    inline voxel* get(const glm::ivec3 &pos) {
+    inline voxel* get(glm::ivec3 pos) {
         return get(pos.x, pos.y, pos.z);
     }
 
@@ -68,20 +68,20 @@ public:
     /// @param state the block state
     /// @param coord position of the zone start
     /// @param ignore ignored block id (will be counted as replaceable)
-    bool checkReplaceability(const Block* def, blockstate state, const glm::ivec3 &coord, blockid_t ignore=0);
+    bool checkReplaceability(const Block* def, blockstate state, glm::ivec3 coord, blockid_t ignore=0);
 
     void setRotation(int32_t x, int32_t y, int32_t z, uint8_t rotation);
 
     voxel* rayCast(
-        const glm::vec3 &start,
-        const glm::vec3 &dir,
+        glm::vec3 start, 
+        glm::vec3 dir, 
         float maxLength, 
         glm::vec3& end, 
         glm::ivec3& norm, 
         glm::ivec3& iend
     );
 
-    glm::vec3 rayCastToObstacle(const glm::vec3 &start, const glm::vec3 &dir, float maxDist);
+    glm::vec3 rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDist);
 
     const AABB* isObstacleAt(float x, float y, float z);
     bool isSolidBlock(int32_t x, int32_t y, int32_t z);

@@ -21,7 +21,7 @@ class AABBFaces {
 public:
     std::array<std::pair<rayvec3, rayvec2>, AABBFACES_COUNT> faces; // every face is min-point and opposite corner point
 
-    AABBFaces() = default;
+    AABBFaces(){};
     AABBFaces(const rayvec3& parentBoxPos, const AABB& parentBox);
 };
 

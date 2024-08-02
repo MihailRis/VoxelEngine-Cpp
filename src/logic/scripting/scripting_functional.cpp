@@ -66,7 +66,7 @@ wstringsupplier scripting::create_wstring_supplier(
             auto str = lua::require_wstring(L, -1); lua::pop(L);
             return str;
         }
-        return std::wstring();
+        return std::wstring(L"");
     };
 }
 

@@ -47,7 +47,8 @@ WorldFiles::WorldFiles(const fs::path& directory, const DebugSettings& settings)
     regions.doWriteLights = doWriteLights;
 }
 
-WorldFiles::~WorldFiles() = default;
+WorldFiles::~WorldFiles() {
+}
 
 void WorldFiles::createDirectories() {
     fs::create_directories(directory / fs::path("data"));

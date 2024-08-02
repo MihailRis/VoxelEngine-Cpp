@@ -70,7 +70,7 @@ struct AABB {
         b = end;
     }
 
-    inline void addPoint(const glm::vec3& p) {
+    inline void addPoint(glm::vec3 p) {
         a = glm::min(a, p);
         b = glm::max(b, p);
     }

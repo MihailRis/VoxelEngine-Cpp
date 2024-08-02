@@ -232,13 +232,13 @@ void Chunks::repairSegments(const Block* def, blockstate state, int x, int y, in
     }
 }
 
-bool Chunks::checkReplaceability(const Block* def, blockstate state, const glm::ivec3 &coord, blockid_t ignore) {
+bool Chunks::checkReplaceability(const Block* def, blockstate state, glm::ivec3 origin, blockid_t ignore) {
     const auto& rotation = def->rotations.variants[state.rotation];
     const auto size = def->size;
     for (int sy = 0; sy < size.y; sy++) {
         for (int sz = 0; sz < size.z; sz++) {
             for (int sx = 0; sx < size.x; sx++) {
-                auto pos = coord;
+                auto pos = origin;
                 pos += rotation.axisX * sx;
                 pos += rotation.axisY * sy;
                 pos += rotation.axisZ * sz;
@@ -257,7 +257,7 @@ bool Chunks::checkReplaceability(const Block* def, blockstate state, const glm::
 }
 
 void Chunks::setRotationExtended(
-    Block* def, blockstate state, const glm::ivec3 &origin, uint8_t index
+    Block* def, blockstate state, glm::ivec3 origin, uint8_t index
 ) {
     auto newstate = state;
     newstate.rotation = index;
@@ -387,8 +387,8 @@ void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state)
 }
 
 voxel* Chunks::rayCast(
-    const glm::vec3 &start,
-    const glm::vec3 &dir,
+    glm::vec3 start, 
+    glm::vec3 dir, 
     float maxDist, 
     glm::vec3& end, 
     glm::ivec3& norm, 
@@ -520,7 +520,7 @@ voxel* Chunks::rayCast(
     return nullptr;
 }
 
-glm::vec3 Chunks::rayCastToObstacle(const glm::vec3 &start, const glm::vec3 &dir, float maxDist) {
+glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDist) {
     const float px = start.x;
     const float py = start.y;
     const float pz = start.z;

@@ -19,7 +19,8 @@ Atlas::Atlas(
     }
 }
 
-Atlas::~Atlas() = default;
+Atlas::~Atlas() {
+}
 
 void Atlas::prepare() {
     texture = Texture::from(image.get());

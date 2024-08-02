@@ -146,7 +146,7 @@ void langs::load(const fs::path& resdir,
     if (locale != fallback) {
         load(resdir, locale, packs, *lang.get());
     }
-    current = std::move(lang);
+    current.reset(lang.release());
 }
 
 void langs::setup(const fs::path& resdir,

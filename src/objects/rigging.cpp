@@ -68,8 +68,8 @@ SkeletonConfig::SkeletonConfig(const std::string& name, std::unique_ptr<Bone> ro
 size_t SkeletonConfig::update(
     size_t index, 
     Skeleton& skeleton, 
-    Bone* node,
-    const glm::mat4& matrix) const
+    Bone* node, 
+    glm::mat4 matrix) const
 {
     auto boneMatrix = skeleton.pose.matrices[index];
     auto boneOffset = node->getOffset();
@@ -85,7 +85,7 @@ size_t SkeletonConfig::update(
     return count;
 }
 
-void SkeletonConfig::update(Skeleton& skeleton, const glm::mat4& matrix) const {
+void SkeletonConfig::update(Skeleton& skeleton, glm::mat4 matrix) const {
     update(0, skeleton, root.get(), matrix);
 }
 

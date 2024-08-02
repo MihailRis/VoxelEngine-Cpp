@@ -324,6 +324,8 @@ static int l_gui_getattr(lua::State* L) {
     auto docname = lua::require_string(L, 1);
     auto element = lua::require_string(L, 2);
     auto attr = lua::require_string(L, 3);
+    auto docnode = getDocumentNode(L, docname, element);
+    auto node = docnode.node;
 
     static const std::unordered_map<std::string_view, std::function<int(UINode*,lua::State*)>> getters {
         {"color", p_get_color},
@@ -365,8 +367,6 @@ static int l_gui_getattr(lua::State* L) {
     };
     auto func = getters.find(attr);
     if (func != getters.end()) {
-        auto docnode = getDocumentNode(L, docname, element);
-        auto node = docnode.node;
         return func->second(node.get(), L);
     }
     return 0;

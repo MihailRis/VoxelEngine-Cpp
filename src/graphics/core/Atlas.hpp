@@ -47,7 +47,7 @@ class AtlasBuilder {
     std::vector<atlasentry> entries;
     std::set<std::string> names;
 public:
-    AtlasBuilder() = default;
+    AtlasBuilder() {}
     void add(const std::string& name, std::unique_ptr<ImageData> image);
     bool has(const std::string& name) const;
     const std::set<std::string>& getNames() { return names; };
