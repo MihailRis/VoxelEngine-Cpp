@@ -176,9 +176,10 @@ void ContentLoader::loadBlock(Block& def, const std::string& name, const fs::pat
         def.hitboxes.resize(boxarr->size());
         for (uint i = 0; i < boxarr->size(); i++) {
             auto box = boxarr->list(i);
-            def.hitboxes[i].a = glm::vec3(box->num(0), box->num(1), box->num(2));
-            def.hitboxes[i].b = glm::vec3(box->num(3), box->num(4), box->num(5));
-            def.hitboxes[i].b += def.hitboxes[i].a;
+            auto& hitboxesIndex = def.hitboxes[i];
+            hitboxesIndex.a = glm::vec3(box->num(0), box->num(1), box->num(2));
+            hitboxesIndex.b = glm::vec3(box->num(3), box->num(4), box->num(5));
+            hitboxesIndex.b += hitboxesIndex.a;
         }
     } else if ((boxarr = root->list("hitbox"))){
         AABB aabb;

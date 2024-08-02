@@ -112,21 +112,22 @@ bool ChunksController::buildLights(const std::shared_ptr<Chunk>& chunk) {
 void ChunksController::createChunk(int x, int z) {
     auto chunk = level->chunksStorage->create(x, z);
     chunks->putChunk(chunk);
+    auto& chunkFlags = chunk->flags;
 
-    if (!chunk->flags.loaded) {
+    if (!chunkFlags.loaded) {
         generator->generate(
             chunk->voxels, x, z, 
             level->getWorld()->getSeed()
         );
-        chunk->flags.unsaved = true;
+        chunkFlags.unsaved = true;
     }
     chunk->updateHeights();
 
-    if (!chunk->flags.loadedLights) {
+    if (!chunkFlags.loadedLights) {
         Lighting::prebuildSkyLight(
             chunk.get(), level->content->getIndices()
         );
     }
-    chunk->flags.loaded = true;
-    chunk->flags.ready = true;
+    chunkFlags.loaded = true;
+    chunkFlags.ready = true;
 }
