@@ -38,8 +38,8 @@ struct ItemDef {
 
     struct {
         itemid_t id;
-        item_funcs_set funcsset {};
         blockid_t placingBlock;
+        item_funcs_set funcsset {};
         bool emissive = false;
     } rt {};
 
