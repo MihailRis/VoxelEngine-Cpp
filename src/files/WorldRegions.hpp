@@ -149,10 +149,10 @@ class WorldRegions {
 
     ubyte* getData(int x, int z, int layer, uint32_t& size);
 
-    regfile_ptr getRegFile(glm::ivec3 coord, bool create=true);
+    regfile_ptr getRegFile(const glm::ivec3& coord, bool create=true);
     void closeRegFile(glm::ivec3 coord);
-    regfile_ptr useRegFile(glm::ivec3 coord);
-    regfile_ptr createRegFile(glm::ivec3 coord);
+    regfile_ptr useRegFile(const glm::ivec3& coord);
+    regfile_ptr createRegFile(const glm::ivec3& coord);
 
     fs::path getRegionFilename(int x, int y) const;
 
@@ -172,7 +172,7 @@ public:
     ~WorldRegions();
 
     /// @brief Put all chunk data to regions
-    void put(Chunk* chunk, std::vector<ubyte> entitiesData);
+    void put(Chunk* chunk, const std::vector<ubyte>& entitiesData);
 
     /// @brief Store data in specified region 
     /// @param x chunk.x

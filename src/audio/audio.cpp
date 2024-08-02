@@ -210,10 +210,10 @@ std::unique_ptr<Stream> audio::open_stream(std::shared_ptr<PCMStream> stream, bo
 
 
 void audio::set_listener(
-    glm::vec3 position, 
-    glm::vec3 velocity, 
-    glm::vec3 lookAt, 
-    glm::vec3 up
+    const glm::vec3& position,
+    const glm::vec3& velocity,
+    const glm::vec3& lookAt,
+    const glm::vec3& up
 ) {
     backend->setListener(position, velocity, lookAt, up);
 }
@@ -253,7 +253,7 @@ speakerid_t audio::play(
     if (!sound->variants.empty()) {
         size_t index = rand() % (sound->variants.size() + 1);
         if (index < sound->variants.size()) {
-            sound = sound->variants.at(index).get();
+            sound = sound->variants[index].get();
         }
     }
     auto speaker_ptr = sound->newInstance(priority, channel);
@@ -266,7 +266,7 @@ speakerid_t audio::play(
     }
     auto speaker = speaker_ptr.get();
     speakerid_t id = nextId++;
-    speakers.emplace(id, std::move(speaker_ptr));
+    speakers.try_emplace(id, std::move(speaker_ptr));
     speaker->setPosition(position);
     speaker->setVolume(volume);
     speaker->setPitch(pitch);
@@ -295,8 +295,8 @@ speakerid_t audio::play(
     }
     auto speaker = speaker_ptr.get();
     speakerid_t id = nextId++;
-    streams.emplace(id, stream);
-    speakers.emplace(id, std::move(speaker_ptr));
+    streams.try_emplace(id, stream);
+    speakers.try_emplace(id, std::move(speaker_ptr));
     stream->bindSpeaker(id);
 
     speaker->setPosition(position);
@@ -310,7 +310,7 @@ speakerid_t audio::play(
 
 speakerid_t audio::play_stream(
     const fs::path& file,
-    glm::vec3 position,
+    const glm::vec3& position,
     bool relative,
     float volume,
     float pitch,

@@ -399,10 +399,10 @@ namespace audio {
     /// @param lookAt point the listener look at
     /// @param up camera up vector
     void set_listener(
-        glm::vec3 position, 
-        glm::vec3 velocity, 
-        glm::vec3 lookAt, 
-        glm::vec3 up
+        const glm::vec3& position,
+        const glm::vec3& velocity,
+        const glm::vec3& lookAt,
+        const glm::vec3& up
     );
 
     /// @brief Play 3D sound in the world
@@ -457,7 +457,7 @@ namespace audio {
     /// @return speaker id or 0
     speakerid_t play_stream(
         const fs::path& file,
-        glm::vec3 position,
+        const glm::vec3& position,
         bool relative,
         float volume,
         float pitch,

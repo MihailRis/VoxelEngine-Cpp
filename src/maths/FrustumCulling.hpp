@@ -5,7 +5,7 @@
 
 class Frustum {
 public:
-    Frustum() {};
+    Frustum() = default;
 
     void update(glm::mat4 projview);
     bool isBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) const;

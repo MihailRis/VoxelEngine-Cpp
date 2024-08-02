@@ -314,7 +314,7 @@ void Hud::openInventory() {
 }
 
 void Hud::openInventory(
-    glm::ivec3 block, 
+    const glm::ivec3& block,
     UiDocument* doc, 
     std::shared_ptr<Inventory> blockinv, 
     bool playerInventory
@@ -406,9 +406,9 @@ void Hud::add(const HudElement& element) {
     using namespace dynamic;
 
     gui->add(element.getNode());
-    auto invview = std::dynamic_pointer_cast<InventoryView>(element.getNode());
     auto document = element.getDocument();
     if (document) {
+        auto invview = std::dynamic_pointer_cast<InventoryView>(element.getNode());
         auto inventory = invview ? invview->getInventory() : nullptr;
         std::vector<Value> args;
         args.emplace_back(inventory ? inventory.get()->getId() : 0);

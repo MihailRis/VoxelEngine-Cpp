@@ -68,7 +68,7 @@ class Assets {
     std::unordered_map<std::type_index, assets_map> assets;
     std::vector<assetload::setupfunc> setupFuncs;
 public:
-    Assets() {}
+    Assets() = default;
     Assets(const Assets&) = delete;
     ~Assets();
 

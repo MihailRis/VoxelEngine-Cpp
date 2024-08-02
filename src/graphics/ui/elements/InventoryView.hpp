@@ -93,7 +93,7 @@ namespace gui {
 
         virtual void setPos(glm::vec2 pos) override;
 
-        void setOrigin(glm::vec2 origin);
+        void setOrigin(const glm::vec2 &origin);
         glm::vec2 getOrigin() const;
 
         void setSelected(int index);
@@ -130,7 +130,7 @@ namespace gui {
         /// @param slotLayout slot settings (index and position are ignored)
         void addGrid(
             int cols, int count, 
-            glm::vec2 pos, 
+            const glm::vec2 &pos,
             int padding,
             bool addpanel,
             const SlotLayout& slotLayout

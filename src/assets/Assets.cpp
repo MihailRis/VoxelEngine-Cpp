@@ -1,7 +1,6 @@
 #include "Assets.hpp"
 
-Assets::~Assets() {
-}
+Assets::~Assets() = default;
 
 const std::vector<TextureAnimation>& Assets::getAnimations() {
     return animations;

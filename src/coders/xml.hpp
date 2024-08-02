@@ -23,7 +23,7 @@ namespace xml {
         std::string name;
         std::string text;
     public:
-        Attribute() {};
+        Attribute() = default;
         Attribute(std::string name, std::string text);
 
         const std::string& getName() const;

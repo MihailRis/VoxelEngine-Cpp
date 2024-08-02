@@ -140,12 +140,12 @@ public:
     /// @brief Show block inventory in inventory-mode
     /// @param block block position
     /// @param doc block ui layout
-    /// @param blockInv block inventory
+    /// @param blockinv block inventory
     /// @param playerInventory show player inventory too
     void openInventory(
-        glm::ivec3 block, 
+        const glm::ivec3& block,
         UiDocument* doc, 
-        std::shared_ptr<Inventory> blockInv, 
+        std::shared_ptr<Inventory> blockinv,
         bool playerInventory
     );
 

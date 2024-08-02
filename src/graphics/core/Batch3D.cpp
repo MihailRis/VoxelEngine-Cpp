@@ -51,7 +51,7 @@ void Batch3D::vertex(
     buffer[index++] = a;
 }
 void Batch3D::vertex(
-    glm::vec3 coord, float u, float v,
+    const glm::vec3& coord, float u, float v,
     float r, float g, float b, float a
 ) {
     buffer[index++] = coord.x;
@@ -65,8 +65,8 @@ void Batch3D::vertex(
     buffer[index++] = a;
 }
 void Batch3D::vertex(
-    glm::vec3 point,
-    glm::vec2 uvpoint,
+    const glm::vec3& point,
+    const glm::vec2& uvpoint,
     float r, float g, float b, float a
 ) {
     buffer[index++] = point.x;
@@ -118,12 +118,12 @@ void Batch3D::texture(Texture* new_texture){
 }
 
 void Batch3D::sprite(
-    glm::vec3 pos, 
-    glm::vec3 up, 
-    glm::vec3 right, 
+    const glm::vec3& pos,
+    const glm::vec3& up,
+    const glm::vec3& right,
     float w, float h, 
-    const UVRegion& uv, 
-    glm::vec4 color
+    const UVRegion& uv,
+    const glm::vec4& color
 ){
     const float r = color.r;
     const float g = color.g;
@@ -245,11 +245,11 @@ void Batch3D::blockCube(
     cube((1.0f - size) * -0.5f, size, texfaces, tint, shading);
 }
 
-void Batch3D::point(glm::vec3 coord, glm::vec2 uv, glm::vec4 tint) {
+void Batch3D::point(const glm::vec3& coord, const glm::vec2& uv, const glm::vec4& tint) {
     vertex(coord, uv, tint.r, tint.g, tint.b, tint.a);
 }
 
-void Batch3D::point(glm::vec3 coord, glm::vec4 tint) {
+void Batch3D::point(const glm::vec3& coord, const glm::vec4& tint) {
     point(coord, glm::vec2(), tint);
 }
 

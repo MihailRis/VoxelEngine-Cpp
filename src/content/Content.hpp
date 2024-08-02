@@ -119,7 +119,7 @@ public:
 
     static constexpr size_t MISSING = SIZE_MAX;
 
-    void add(std::string name, dynamic::Map_sptr map) {
+    void add(const std::string& name, dynamic::Map_sptr map) {
         indices[name] = names.size();
         names.push_back(name);
         savedData->push_back(map);

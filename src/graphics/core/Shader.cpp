@@ -32,7 +32,7 @@ uint Shader::getUniformLocation(const std::string& name) {
     auto found = uniformLocations.find(name);
     if (found == uniformLocations.end()) {
         uint location = glGetUniformLocation(id, name.c_str());
-        uniformLocations.emplace(name, location);
+        uniformLocations.try_emplace(name, location);
         return location;
     }
     return found->second;
@@ -54,11 +54,11 @@ void Shader::uniform2f(const std::string& name, float x, float y){
     glUniform2f(getUniformLocation(name), x, y);
 }
 
-void Shader::uniform2f(const std::string& name, glm::vec2 xy){
+void Shader::uniform2f(const std::string& name, const glm::vec2& xy){
     glUniform2f(getUniformLocation(name), xy.x, xy.y);
 }
 
-void Shader::uniform2i(const std::string& name, glm::ivec2 xy){
+void Shader::uniform2i(const std::string& name, const glm::ivec2& xy){
     glUniform2i(getUniformLocation(name), xy.x, xy.y);
 }
 
@@ -66,7 +66,7 @@ void Shader::uniform3f(const std::string& name, float x, float y, float z){
     glUniform3f(getUniformLocation(name), x,y,z);
 }
 
-void Shader::uniform3f(const std::string& name, glm::vec3 xyz){
+void Shader::uniform3f(const std::string& name, const glm::vec3& xyz){
     glUniform3f(getUniformLocation(name), xyz.x, xyz.y, xyz.z);
 }
 

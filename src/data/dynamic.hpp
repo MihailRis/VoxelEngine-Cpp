@@ -41,7 +41,7 @@ namespace dynamic {
     public:
         std::vector<Value> values;
 
-        List() {}
+        List() = default;
         List(std::vector<Value> values) : values(std::move(values)) {}
 
         std::string str(size_t index) const;
@@ -79,7 +79,7 @@ namespace dynamic {
     public:
         std::unordered_map<std::string, Value> values;
 
-        Map() {}
+        Map() = default;
         Map(std::unordered_map<std::string, Value> values) 
         : values(std::move(values)) {};
 
@@ -118,34 +118,34 @@ namespace dynamic {
         List_sptr list(const std::string& key) const;
         void flag(const std::string& key, bool& dst) const;
 
-        Map& put(std::string key, std::unique_ptr<Map> value) {
+        Map& put(const std::string& key, std::unique_ptr<Map> value) {
             return put(key, Map_sptr(value.release()));
         }
-        Map& put(std::string key, std::unique_ptr<List> value) {
+        Map& put(const std::string& key, std::unique_ptr<List> value) {
             return put(key, List_sptr(value.release()));
         }
-        Map& put(std::string key, int value) {
+        Map& put(const std::string& key, int value) {
             return put(key, Value(static_cast<integer_t>(value)));
         }
-        Map& put(std::string key, unsigned int value) {
+        Map& put(const std::string& key, unsigned int value) {
             return put(key, Value(static_cast<integer_t>(value)));
         }
-        Map& put(std::string key, int64_t value) {
+        Map& put(const std::string& key, int64_t value) {
             return put(key, Value(static_cast<integer_t>(value)));
         }
-        Map& put(std::string key, uint64_t value) {
+        Map& put(const std::string& key, uint64_t value) {
             return put(key, Value(static_cast<integer_t>(value)));
         }
-        Map& put(std::string key, float value) {
+        Map& put(const std::string& key, float value) {
             return put(key, Value(static_cast<number_t>(value)));
         }
-        Map& put(std::string key, double value) {
+        Map& put(const std::string& key, double value) {
             return put(key, Value(static_cast<number_t>(value)));
         }
-        Map& put(std::string key, bool value) {
+        Map& put(const std::string& key, bool value) {
             return put(key, Value(static_cast<bool>(value)));
         }
-        Map& put(std::string key, const char* value) {
+        Map& put(const std::string& key, const char* value) {
             return put(key, Value(value));
         }
         Map& put(const std::string& key, const Value& value);

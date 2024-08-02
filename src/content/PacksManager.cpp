@@ -5,11 +5,10 @@
 #include <queue>
 #include <sstream>
 
-PacksManager::PacksManager() {
-}
+PacksManager::PacksManager() = default;
 
 void PacksManager::setSources(std::vector<fs::path> sources) {
-    this->sources = sources;
+    this->sources = std::move(sources);
 }
 
 void PacksManager::scan() {
@@ -19,7 +18,7 @@ void PacksManager::scan() {
     for (auto& folder : sources) {
         ContentPack::scanFolder(folder, packsList);
         for (auto& pack : packsList) {
-            packs.emplace(pack.id, pack);
+            packs.try_emplace(pack.id, pack);
         }
     }
 }

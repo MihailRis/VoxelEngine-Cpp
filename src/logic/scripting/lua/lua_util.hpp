@@ -151,20 +151,20 @@ namespace lua {
         return 3;
     }
 
-    inline int pushivec3_stack(lua::State* L, glm::ivec3 vec) {
+    inline int pushivec3_stack(lua::State* L, const glm::ivec3 &vec) {
         pushinteger(L, vec.x);
         pushinteger(L, vec.y);
         pushinteger(L, vec.z);
         return 3;
     }
 
-    inline int pushvec3_stack(lua::State* L, glm::vec3 vec) {
+    inline int pushvec3_stack(lua::State* L, const glm::vec3 &vec) {
         pushnumber(L, vec.x);
         pushnumber(L, vec.y);
         pushnumber(L, vec.z);
         return 3;
     }
-    inline int pushvec4_stack(lua::State* L, glm::vec4 vec) {
+    inline int pushvec4_stack(lua::State* L, const glm::vec4 &vec) {
         pushnumber(L, vec.x);
         pushnumber(L, vec.y);
         pushnumber(L, vec.z);
@@ -179,15 +179,15 @@ namespace lua {
         lua_pushvalue(L, idx);
         return 1;
     }
-    inline int pushvec2(lua::State* L, glm::vec2 vec) {
+    inline int pushvec2(lua::State* L, const glm::vec2 &vec) {
         return pushvec(L, vec);
     }
 
-    inline int pushvec3(lua::State* L, glm::vec3 vec) {
+    inline int pushvec3(lua::State* L, const glm::vec3 &vec) {
         return pushvec(L, vec);
     }
 
-    inline int pushvec4(lua::State* L, glm::vec4 vec) {
+    inline int pushvec4(lua::State* L, const glm::vec4 &vec) {
         return pushvec(L, vec);
     }
     inline int pushcolor(lua::State* L, glm::vec4 vec) {
@@ -210,7 +210,7 @@ namespace lua {
         }
         return 1;
     }
-    inline int pushmat4(lua::State* L, glm::mat4 matrix) {
+    inline int pushmat4(lua::State* L, const glm::mat4 &matrix) {
         createtable(L, 16, 0);
         for (uint y = 0; y < 4; y++) {
             for (uint x = 0; x < 4; x++) {
@@ -222,7 +222,7 @@ namespace lua {
         return 1;
     }
     /// @brief pushes matrix table to the stack and updates it with glm matrix 
-    inline int setmat4(lua::State* L, int idx, glm::mat4 matrix) {
+    inline int setmat4(lua::State* L, int idx, const glm::mat4 &matrix) {
         pushvalue(L, idx);
         for (uint y = 0; y < 4; y++) {
             for (uint x = 0; x < 4; x++) {

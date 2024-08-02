@@ -75,8 +75,7 @@ WorldRenderer::WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* pl
     );
 }
 
-WorldRenderer::~WorldRenderer() {
-}
+WorldRenderer::~WorldRenderer() = default;
 
 bool WorldRenderer::drawChunk(
     size_t index,
@@ -231,26 +230,29 @@ void WorldRenderer::renderBlockSelection() {
         : block->hitboxes;
 
     lineBatch->lineWidth(2.0f);
+    constexpr auto boxOffset = glm::vec3(0.02);
+    constexpr auto boxColor = glm::vec4(0.f, 0.f, 0.f, 0.5f);
     for (auto& hitbox: hitboxes) {
         const glm::vec3 center = glm::vec3(pos) + hitbox.center();
         const glm::vec3 size = hitbox.size();
-        lineBatch->box(center, size + glm::vec3(0.02), glm::vec4(0.f, 0.f, 0.f, 0.5f));
+        lineBatch->box(center, size + boxOffset, boxColor);
         if (player->debug) {
             lineBatch->line(point, point+norm*0.5f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
         }
     }
+    lineBatch->flush();
 }
 
 void WorldRenderer::renderLines(
     Camera* camera, Shader* linesShader, const DrawContext& pctx
 ) {
-    auto ctx = pctx.sub(lineBatch.get());
     linesShader->use();
     linesShader->uniformMatrix("u_projview", camera->getProjView());
     if (player->selection.vox.id != BLOCK_VOID) {
         renderBlockSelection();
     }
     if (player->debug && showEntitiesDebug) {
+        auto ctx = pctx.sub(lineBatch.get());
         level->entities->renderDebug(*lineBatch, *frustumCulling, ctx);
     }
 }
@@ -341,12 +343,12 @@ void WorldRenderer::draw(
             ctx.setDepthTest(true);
             ctx.setCullFace(true);
             renderLevel(ctx, camera, settings, delta, pause);
-            // Debug lines
+
             if (hudVisible){
                 renderLines(camera, linesShader, ctx);
             }
         }
-
+        // Debug lines
         if (hudVisible && player->debug) {
             renderDebugLines(wctx, camera, linesShader);
         }

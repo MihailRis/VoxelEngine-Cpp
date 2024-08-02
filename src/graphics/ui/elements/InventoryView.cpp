@@ -52,7 +52,7 @@ InventoryBuilder::InventoryBuilder() {
 
 void InventoryBuilder::addGrid(
     int cols, int count, 
-    glm::vec2 pos, 
+    const glm::vec2 &pos,
     int padding,
     bool addpanel,
     const SlotLayout& slotLayout
@@ -126,7 +126,7 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
                 langs::get(util::str2wstr_utf8(def->caption))
             );
         } else {
-            tooltip = L"";
+            tooltip.clear();
         }
     }
     prevItem = itemid;
@@ -381,7 +381,7 @@ void InventoryView::setPos(glm::vec2 pos) {
     Container::setPos(pos - origin);
 }
 
-void InventoryView::setOrigin(glm::vec2 origin) {
+void InventoryView::setOrigin(const glm::vec2 &origin) {
     this->origin = origin;
 }
 
