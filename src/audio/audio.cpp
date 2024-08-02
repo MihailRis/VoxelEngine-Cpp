@@ -210,10 +210,10 @@ std::unique_ptr<Stream> audio::open_stream(std::shared_ptr<PCMStream> stream, bo
 
 
 void audio::set_listener(
-    glm::vec3 position, 
-    glm::vec3 velocity, 
-    glm::vec3 lookAt, 
-    glm::vec3 up
+    const glm::vec3& position,
+    const glm::vec3& velocity,
+    const glm::vec3& lookAt,
+    const glm::vec3& up
 ) {
     backend->setListener(position, velocity, lookAt, up);
 }
@@ -310,7 +310,7 @@ speakerid_t audio::play(
 
 speakerid_t audio::play_stream(
     const fs::path& file,
-    glm::vec3 position,
+    const glm::vec3& position,
     bool relative,
     float volume,
     float pitch,

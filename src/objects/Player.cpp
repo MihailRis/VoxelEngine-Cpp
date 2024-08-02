@@ -169,7 +169,7 @@ void Player::postUpdate() {
         glm::mat4(1.0f), glm::radians(cam.y), glm::vec3(1, 0, 0));
 }
 
-void Player::teleport(glm::vec3 position) {
+void Player::teleport(const glm::vec3 &position) {
     this->position = position;
     if (auto hitbox = getHitbox()) {
         hitbox->position = position;
@@ -239,7 +239,7 @@ std::shared_ptr<Inventory> Player::getInventory() const {
     return inventory;
 }
 
-void Player::setSpawnPoint(glm::vec3 spawnpoint) {
+void Player::setSpawnPoint(const glm::vec3 &spawnpoint) {
     this->spawnpoint = spawnpoint;
 }
 

@@ -35,7 +35,7 @@ struct DecomposedMat4 {
     glm::vec4 perspective;
 };
 
-static glm::mat4 extract_rotation(glm::mat4 matrix) {
+static glm::mat4 extract_rotation(const glm::mat4& matrix) {
     DecomposedMat4 decomposed = {};
     glm::quat rotation;
     glm::decompose(
@@ -66,8 +66,10 @@ ModelBatch::ModelBatch(size_t capacity, Assets* assets, Chunks* chunks)
 
 ModelBatch::~ModelBatch() = default;
 
-void ModelBatch::draw(const model::Mesh& mesh, const glm::mat4& matrix, 
-                      const glm::mat3& rotation, glm::vec3 tint,
+void ModelBatch::draw(const model::Mesh& mesh,
+                      const glm::mat4& matrix,
+                      const glm::mat3& rotation,
+                      const glm::vec3& tint,
                       const texture_names_map* varTextures) {
     glm::vec3 gpos = matrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     light_t light = chunks->getLight(floor(gpos.x), floor(gpos.y), floor(gpos.z));
@@ -94,8 +96,9 @@ void ModelBatch::draw(const model::Mesh& mesh, const glm::mat4& matrix,
     }
 }
 
-void ModelBatch::draw(glm::mat4 matrix,
-                      glm::vec3 tint,
+void ModelBatch::draw(
+                      const glm::mat4& matrix,
+                      const glm::vec3& tint,
                       const model::Model* model,
                       const texture_names_map* varTextures) {
     for (const auto& mesh : model->meshes) {

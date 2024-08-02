@@ -35,7 +35,7 @@ public:
     void setDepthTest(bool flag);
     void setCullFace(bool flag);
     void setBlendMode(BlendMode mode);
-    void setScissors(glm::vec4 area);
+    void setScissors(const glm::vec4& area);
     void setLineWidth(float width);
 };
 

@@ -103,12 +103,12 @@ namespace rigging {
             size_t index,
             Skeleton& skeleton,
             Bone* node,
-            glm::mat4 matrix) const;
+            const glm::mat4& matrix) const;
     public:
         SkeletonConfig(const std::string& name, std::unique_ptr<Bone> root, 
                   size_t nodesCount);
 
-        void update(Skeleton& skeleton, glm::mat4 matrix) const;
+        void update(Skeleton& skeleton, const glm::mat4& matrix) const;
         void render(
             Assets* assets,
             ModelBatch& batch,

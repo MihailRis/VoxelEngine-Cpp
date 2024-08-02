@@ -37,7 +37,7 @@ std::string util::quote(const std::string& s) {
     return escape(s);
 }
 
-std::wstring util::lfill(std::wstring s, uint length, wchar_t c) {
+std::wstring util::lfill(const std::wstring& s, uint length, wchar_t c) {
     if (s.length() >= length) {
         return s;
     }
@@ -49,7 +49,7 @@ std::wstring util::lfill(std::wstring s, uint length, wchar_t c) {
     return ss.str();
 }
 
-std::wstring util::rfill(std::wstring s, uint length, wchar_t c) {
+std::wstring util::rfill(const std::wstring& s, uint length, wchar_t c) {
     if (s.length() >= length) {
         return s;
     }

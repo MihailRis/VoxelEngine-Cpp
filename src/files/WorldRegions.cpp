@@ -196,7 +196,7 @@ ubyte* WorldRegions::getData(int x, int z, int layer, uint32_t& size) {
     return nullptr;
 }
 
-regfile_ptr WorldRegions::useRegFile(glm::ivec3 coord) {
+regfile_ptr WorldRegions::useRegFile(const glm::ivec3& coord) {
     auto* file = openRegFiles[coord].get();
     file->inUse = true;
     return regfile_ptr(file, &regFilesCv);
@@ -208,7 +208,7 @@ void WorldRegions::closeRegFile(glm::ivec3 coord) {
 }
 
 // Marks regfile as used and unmarks when shared_ptr dies
-regfile_ptr WorldRegions::getRegFile(glm::ivec3 coord, bool create) {
+regfile_ptr WorldRegions::getRegFile(const glm::ivec3& coord, bool create) {
     {
         std::lock_guard lock(regFilesMutex);
         const auto found = openRegFiles.find(coord);
@@ -225,7 +225,7 @@ regfile_ptr WorldRegions::getRegFile(glm::ivec3 coord, bool create) {
     return nullptr;
 }
 
-regfile_ptr WorldRegions::createRegFile(glm::ivec3 coord) {
+regfile_ptr WorldRegions::createRegFile(const glm::ivec3& coord) {
     fs::path file = layers[coord[2]].folder/getRegionFilename(coord[0], coord[1]);
     if (!fs::exists(file)) {
         return nullptr;
@@ -352,7 +352,7 @@ static std::unique_ptr<ubyte[]> write_inventories(Chunk* chunk, uint& datasize) 
 }
 
 /// @brief Store chunk data (voxels and lights) in region (existing or new)
-void WorldRegions::put(Chunk* chunk, std::vector<ubyte> entitiesData){
+void WorldRegions::put(Chunk* chunk, const std::vector<ubyte>& entitiesData){
     assert(chunk != nullptr);
     if (!chunk->flags.lighted) {
         return;

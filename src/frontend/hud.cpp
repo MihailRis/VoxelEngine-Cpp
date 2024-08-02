@@ -314,7 +314,7 @@ void Hud::openInventory() {
 }
 
 void Hud::openInventory(
-    glm::ivec3 block, 
+    const glm::ivec3& block,
     UiDocument* doc, 
     std::shared_ptr<Inventory> blockinv, 
     bool playerInventory

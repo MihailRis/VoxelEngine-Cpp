@@ -186,7 +186,7 @@ void Entities::loadEntity(const dynamic::Map_sptr& map) {
     spawn(def, {}, nullptr, map, uid);
 }
 
-void Entities::loadEntity(const dynamic::Map_sptr& map, Entity entity) {
+void Entities::loadEntity(const dynamic::Map_sptr& map, const Entity &entity) {
     auto& transform = entity.getTransform();
     auto& body = entity.getRigidbody();
     auto& skeleton = entity.getSkeleton();
@@ -228,7 +228,7 @@ void Entities::loadEntity(const dynamic::Map_sptr& map, Entity entity) {
 }
 
 std::optional<Entities::RaycastResult> Entities::rayCast(
-    glm::vec3 start, glm::vec3 dir, float maxDistance, entityid_t ignore
+    const glm::vec3 &start, const glm::vec3 &dir, float maxDistance, entityid_t ignore
 ) {
     Ray ray(start, dir);
     auto view = registry.view<EntityId, Transform, Rigidbody>();
@@ -547,7 +547,7 @@ bool Entities::hasBlockingInside(AABB aabb) {
     return false;
 }
 
-std::vector<Entity> Entities::getAllInside(AABB aabb) {
+std::vector<Entity> Entities::getAllInside(const AABB &aabb) {
     std::vector<Entity> collected;
     auto view = registry.view<Transform>();
     for (auto [entity, transform] : view.each()) {
@@ -564,7 +564,7 @@ std::vector<Entity> Entities::getAllInside(AABB aabb) {
     return collected;
 }
 
-std::vector<Entity> Entities::getAllInRadius(glm::vec3 center, float radius) {
+std::vector<Entity> Entities::getAllInRadius(const glm::vec3 &center, float radius) {
     std::vector<Entity> collected;
     auto view = registry.view<Transform>();
     for (auto [entity, transform] : view.each()) {
