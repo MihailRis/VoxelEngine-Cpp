@@ -74,27 +74,27 @@ bool ALStream::preloadBuffer(uint buffer, bool loop) {
 
 std::unique_ptr<Speaker> ALStream::createSpeaker(bool loop, int channel) {
     this->loop = loop;
-    uint source = al->getFreeSource();
-    if (source == 0) {
+    uint free_source = al->getFreeSource();
+    if (free_source == 0) {
         return nullptr;
     }
     for (uint i = 0; i < ALStream::STREAM_BUFFERS; i++) {
-        uint buffer = al->getFreeBuffer();
-        if (!preloadBuffer(buffer, loop)) {
+        uint free_buffer = al->getFreeBuffer();
+        if (!preloadBuffer(free_buffer, loop)) {
             break;
         }
-        AL_CHECK(alSourceQueueBuffers(source, 1, &buffer));
+        AL_CHECK(alSourceQueueBuffers(free_source, 1, &free_buffer));
     }
-    return std::make_unique<ALSpeaker>(al, source, PRIORITY_HIGH, channel);
+    return std::make_unique<ALSpeaker>(al, free_source, PRIORITY_HIGH, channel);
 }
 
-void ALStream::bindSpeaker(speakerid_t speaker) {
+void ALStream::bindSpeaker(speakerid_t speakerid) {
     auto sp = audio::get_speaker(this->speaker);
     if (sp) {
         sp->stop();
     }
-    this->speaker = speaker;
-    sp = audio::get_speaker(speaker);
+    this->speaker = speakerid;
+    sp = audio::get_speaker(speakerid);
     if (sp) {
         auto alspeaker = dynamic_cast<ALSpeaker*>(sp); //FIXME: Potentional null pointer
         alspeaker->stream = this; //-V522
@@ -110,15 +110,15 @@ void ALStream::unqueueBuffers(uint alsource) {
     uint processed = AL::getSourcei(alsource, AL_BUFFERS_PROCESSED);
 
     while (processed--) {
-        uint buffer;
-        AL_CHECK(alSourceUnqueueBuffers(alsource, 1, &buffer));
-        unusedBuffers.push(buffer);
+        uint bufferqueue;
+        AL_CHECK(alSourceUnqueueBuffers(alsource, 1, &bufferqueue));
+        unusedBuffers.push(bufferqueue);
 
-        uint bps = source->getBitsPerSample() / 8;
+        uint bps = source->getBitsPerSample()/ 8;
         uint channels = source->getChannels();
 
         ALint bufferSize;
-        alGetBufferi(buffer, AL_SIZE, &bufferSize);
+        alGetBufferi(bufferqueue, AL_SIZE, &bufferSize);
         totalPlayedSamples += bufferSize / bps / channels;
         if (source->isSeekable()) {
             totalPlayedSamples %= source->getTotalSamples();
@@ -129,11 +129,11 @@ void ALStream::unqueueBuffers(uint alsource) {
 uint ALStream::enqueueBuffers(uint alsource) {
     uint preloaded = 0;
     if (!unusedBuffers.empty()) {
-        uint buffer = unusedBuffers.front();
-        if (preloadBuffer(buffer, loop)) {
+        uint first_buffer = unusedBuffers.front();
+        if (preloadBuffer(first_buffer, loop)) {
             preloaded++;
             unusedBuffers.pop();
-            AL_CHECK(alSourceQueueBuffers(alsource, 1, &buffer));
+            AL_CHECK(alSourceQueueBuffers(alsource, 1, &first_buffer));
         }
     }
     return preloaded;
@@ -143,14 +143,14 @@ void ALStream::update(double delta) {
     if (this->speaker == 0) {
         return;
     }
-    auto speaker = audio::get_speaker(this->speaker);
-    if (speaker == nullptr) {
-        speaker = 0; //FIXME: Not used
+    auto p_speaker = audio::get_speaker(this->speaker);
+    if (p_speaker == nullptr) {
+        p_speaker = 0; //FIXME: Not used
         return;
     }
-    ALSpeaker* alspeaker = dynamic_cast<ALSpeaker*>(speaker); //FIXME: Potentional null pointer
+    ALSpeaker* alspeaker = dynamic_cast<ALSpeaker*>(p_speaker); //FIXME: Potentional null pointer
     if (alspeaker->stopped) { //-V522
-        speaker = 0; //FIXME: Not used
+        p_speaker = 0; //FIXME: Not used
         return;
     }
 
@@ -159,11 +159,11 @@ void ALStream::update(double delta) {
     unqueueBuffers(alsource);
     uint preloaded = enqueueBuffers(alsource);
 
-    if (speaker->isStopped() && !alspeaker->stopped) { //FIXME: !alspeaker->stopped always true //-V560
+    if (p_speaker->isStopped() && !alspeaker->stopped) { //FIXME: !alspeaker->stopped always true //-V560
         if (preloaded) {
-            speaker->play();
+            p_speaker->play();
         } else {
-            speaker->stop();
+            p_speaker->stop();
         }
     }
 }
@@ -271,11 +271,11 @@ void ALSpeaker::setLoop(bool loop) {
 void ALSpeaker::play() {
     paused = false;
     stopped = false;
-    auto channel = get_channel(this->channel);
+    auto p_channel = get_channel(this->channel);
     AL_CHECK(alSourcef(
         source,
         AL_GAIN,
-        volume * channel->getVolume() * get_channel(0)->getVolume()
+        volume * p_channel->getVolume() * get_channel(0)->getVolume()
     ));
     AL_CHECK(alSourcePlay(source));
 }

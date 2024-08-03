@@ -31,27 +31,27 @@ void Camera::rotate(float x, float y, float z) {
 
 glm::mat4 Camera::getProjection() {
     constexpr float epsilon = 1e-6f; // 0.000001
-    float aspect = this->aspect;
-    if (std::fabs(aspect) < epsilon) {
-        aspect = (float)Window::width / (float)Window::height;
+    float aspect_ratio = this->aspect;
+    if (std::fabs(aspect_ratio) < epsilon) {
+        aspect_ratio = (float)Window::width / (float)Window::height;
     }
     if (perspective)
-        return glm::perspective(fov * zoom, aspect, 0.05f, 1500.0f);
+        return glm::perspective(fov * zoom, aspect_ratio, 0.05f, 1500.0f);
     else if (flipped)
-        return glm::ortho(0.0f, fov * aspect, fov, 0.0f);
+        return glm::ortho(0.0f, fov * aspect_ratio, fov, 0.0f);
     else
-        return glm::ortho(0.0f, fov * aspect, 0.0f, fov);
+        return glm::ortho(0.0f, fov * aspect_ratio, 0.0f, fov);
 }
 
 glm::mat4 Camera::getView(bool pos) {
-    glm::vec3 position = this->position;
+    glm::vec3 camera_pos = this->position;
     if (!pos) {
-        position = glm::vec3(0.0f);
+        camera_pos = glm::vec3(0.0f);
     }
     if (perspective) {
-        return glm::lookAt(position, position + front, up);
+        return glm::lookAt(camera_pos, camera_pos + front, up);
     } else {
-        return glm::translate(glm::mat4(1.0f), position);
+        return glm::translate(glm::mat4(1.0f), camera_pos);
     }
 }
 
