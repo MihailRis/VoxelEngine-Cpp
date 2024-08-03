@@ -145,12 +145,12 @@ void ALStream::update(double delta) {
     }
     auto speaker = audio::get_speaker(this->speaker);
     if (speaker == nullptr) {
-        speaker = 0;
+        speaker = 0; //FIXME: Not used
         return;
     }
     ALSpeaker* alspeaker = dynamic_cast<ALSpeaker*>(speaker); //FIXME: Potentional null pointer
     if (alspeaker->stopped) { //-V522
-        speaker = 0;
+        speaker = 0; //FIXME: Not used
         return;
     }
 
