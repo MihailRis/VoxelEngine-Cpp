@@ -432,10 +432,10 @@ voxel* Chunks::rayCast(
     int stepz = (dz > 0.0f) ? 1 : -1;
 
     constexpr float infinity = std::numeric_limits<float>::infinity();
-
-    float txDelta = (dx == 0.0f) ? infinity : abs(1.0f / dx);
-    float tyDelta = (dy == 0.0f) ? infinity : abs(1.0f / dy);
-    float tzDelta = (dz == 0.0f) ? infinity : abs(1.0f / dz);
+    constexpr float epsilon = 1e-6f; // 0.000001
+    float txDelta = (fabs(dx) < epsilon) ? infinity : abs(1.0f / dx);
+    float tyDelta = (fabs(dy) < epsilon) ? infinity : abs(1.0f / dy);
+    float tzDelta = (fabs(dz) < epsilon) ? infinity : abs(1.0f / dz);
 
     float xdist = (stepx > 0) ? (ix + 1 - px) : (px - ix);
     float ydist = (stepy > 0) ? (iy + 1 - py) : (py - iy);
@@ -563,10 +563,10 @@ glm::vec3 Chunks::rayCastToObstacle(
     int stepz = (dz > 0.0f) ? 1 : -1;
 
     constexpr float infinity = std::numeric_limits<float>::infinity();
-
-    float txDelta = (dx == 0.0f) ? infinity : abs(1.0f / dx);
-    float tyDelta = (dy == 0.0f) ? infinity : abs(1.0f / dy);
-    float tzDelta = (dz == 0.0f) ? infinity : abs(1.0f / dz);
+    constexpr float epsilon = 1e-6f; // 0.000001
+    float txDelta = (fabs(dx) < epsilon) ? infinity : abs(1.0f / dx);
+    float tyDelta = (fabs(dy) < epsilon) ? infinity : abs(1.0f / dy);
+    float tzDelta = (fabs(dz) < epsilon) ? infinity : abs(1.0f / dz);
 
     float xdist = (stepx > 0) ? (ix + 1 - px) : (px - ix);
     float ydist = (stepy > 0) ? (iy + 1 - py) : (py - iy);

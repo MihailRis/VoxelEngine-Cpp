@@ -1,5 +1,6 @@
 #include "Camera.hpp"
 
+#include <cmath>
 #include <glm/ext.hpp>
 
 #include "Window.hpp"
@@ -29,8 +30,9 @@ void Camera::rotate(float x, float y, float z) {
 }
 
 glm::mat4 Camera::getProjection() {
+    constexpr float epsilon = 1e-6f; // 0.000001
     float aspect = this->aspect;
-    if (aspect == 0.0f) {
+    if (std::fabs(aspect) < epsilon) {
         aspect = (float)Window::width / (float)Window::height;
     }
     if (perspective)

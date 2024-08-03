@@ -261,7 +261,7 @@ void ALSpeaker::setPitch(float pitch) {
 }
 
 bool ALSpeaker::isLoop() const {
-    return AL::getSourcei(source, AL_LOOPING) == AL_TRUE;
+    return AL::getSourcei(source, AL_LOOPING) == AL_TRUE; //-V550
 }
 
 void ALSpeaker::setLoop(bool loop) {
@@ -343,7 +343,7 @@ void ALSpeaker::setRelative(bool relative) {
 }
 
 bool ALSpeaker::isRelative() const {
-    return AL::getSourcei(source, AL_SOURCE_RELATIVE) == AL_TRUE;
+    return AL::getSourcei(source, AL_SOURCE_RELATIVE) == AL_TRUE; //-V550
 }
 
 int ALSpeaker::getPriority() const {
