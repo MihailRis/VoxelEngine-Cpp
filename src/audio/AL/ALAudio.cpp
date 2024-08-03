@@ -151,7 +151,7 @@ void ALStream::update(double delta) {
     }
     ALSpeaker* alspeaker = dynamic_cast<ALSpeaker*>(p_speaker);
     assert(alspeaker != nullptr);
-    if (alspeaker->stopped) { //-V522
+    if (alspeaker->stopped) {
         this->speaker = 0;
         return;
     }
@@ -161,7 +161,8 @@ void ALStream::update(double delta) {
     unqueueBuffers(alsource);
     uint preloaded = enqueueBuffers(alsource);
 
-    if (p_speaker->isStopped() && !alspeaker->stopped) { //FIXME: !alspeaker->stopped always true //-V560
+    // alspeaker->stopped is assigned to false at ALSpeaker::play(...)
+    if (p_speaker->isStopped() && !alspeaker->stopped) { //TODO: -V560 false-positive?
         if (preloaded) {
             p_speaker->play();
         } else {
