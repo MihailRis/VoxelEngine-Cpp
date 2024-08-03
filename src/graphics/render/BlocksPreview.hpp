@@ -22,7 +22,7 @@ class BlocksPreview {
         Shader* shader,
         Framebuffer* framebuffer,
         Batch3D* batch,
-        const Block* block, 
+        const Block& block, 
         int size
     );
 public:

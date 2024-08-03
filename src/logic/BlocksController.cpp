@@ -153,8 +153,8 @@ int64_t BlocksController::createBlockInventory(int x, int y, int z) {
     auto inv = chunk->getBlockInventory(lx, y, lz);
     if (inv == nullptr) {
         auto indices = level->content->getIndices();
-        auto def = indices->blocks.get(chunk->voxels[vox_index(lx, y, lz)].id); //FIXME: Potentional null pointer
-        int invsize = def->inventorySize; //-V522
+        auto& def = indices->blocks.require(chunk->voxels[vox_index(lx, y, lz)].id);
+        int invsize = def.inventorySize;
         if (invsize == 0) {
             return 0;
         }

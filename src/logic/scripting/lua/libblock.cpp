@@ -119,11 +119,11 @@ static int l_get_x(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3_stack(L, 1, 0, 0);
     }
-    auto def = level->content->getIndices()->blocks.get(vox->id); //FIXME: Potentional null pointer
-    if (!def->rotatable) { //-V522
+    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    if (!def.rotatable) {
         return lua::pushivec3_stack(L, 1, 0, 0);
     } else {
-        const CoordSystem& rot = def->rotations.variants[vox->state.rotation];
+        const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
         return lua::pushivec3_stack(L, rot.axisX.x, rot.axisX.y, rot.axisX.z);
     }
 }
@@ -136,11 +136,11 @@ static int l_get_y(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3_stack(L, 0, 1, 0);
     }
-    auto def = level->content->getIndices()->blocks.get(vox->id); //FIXME: Potentional null pointer
-    if (!def->rotatable) { //-V522
+    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    if (!def.rotatable) {
         return lua::pushivec3_stack(L, 0, 1, 0);
     } else {
-        const CoordSystem& rot = def->rotations.variants[vox->state.rotation];
+        const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
         return lua::pushivec3_stack(L, rot.axisY.x, rot.axisY.y, rot.axisY.z);
     }
 }
@@ -153,11 +153,11 @@ static int l_get_z(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3_stack(L, 0, 0, 1);
     }
-    auto def = level->content->getIndices()->blocks.get(vox->id); //FIXME: Potentional null pointer
-    if (!def->rotatable) { //-V522
+    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    if (!def.rotatable) {
         return lua::pushivec3_stack(L, 0, 0, 1);
     } else {
-        const CoordSystem& rot = def->rotations.variants[vox->state.rotation];
+        const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
         return lua::pushivec3_stack(L, rot.axisZ.x, rot.axisZ.y, rot.axisZ.z);
     }
 }

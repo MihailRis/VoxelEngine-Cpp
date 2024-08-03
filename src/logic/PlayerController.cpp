@@ -335,8 +335,8 @@ static int determine_rotation(
 static void pick_block(
     ContentIndices* indices, Chunks* chunks, Player* player, int x, int y, int z
 ) {
-    auto block = indices->blocks.get(chunks->get(x, y, z)->id); //FIXME: Potentional null pointer
-    itemid_t id = block->rt.pickingItem; //-V522
+    auto& block = indices->blocks.require(chunks->get(x, y, z)->id);
+    itemid_t id = block.rt.pickingItem;
     auto inventory = player->getInventory();
     size_t slotid = inventory->findSlotByItem(id, 0, 10);
     if (slotid == Inventory::npos) {

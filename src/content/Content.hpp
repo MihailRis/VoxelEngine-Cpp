@@ -82,6 +82,10 @@ public:
         return defs.size();
     }
 
+    inline const auto& getIterable() const {
+        return defs;
+    }
+ 
     inline const T* const* getDefs() const {
         return defs.data();
     }
