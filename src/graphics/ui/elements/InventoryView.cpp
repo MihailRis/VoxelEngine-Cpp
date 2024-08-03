@@ -159,12 +159,12 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
     auto previews = assets->get<Atlas>("block-previews");
     auto indices = content->getIndices();
 
-    ItemDef* item = indices->items.get(stack.getItemId()); //FIXME: Potentional null pointer
-    switch (item->iconType) { //-V522
+    auto& item = indices->items.require(stack.getItemId()); //FIXME: Potentional null pointer
+    switch (item.iconType) {
         case item_icon_type::none:
             break;
         case item_icon_type::block: {
-            const Block& cblock = content->blocks.require(item->icon);
+            const Block& cblock = content->blocks.require(item.icon);
             batch->texture(previews->getTexture());
 
             UVRegion region = previews->get(cblock.name);
@@ -174,13 +174,13 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
             break;
         }
         case item_icon_type::sprite: {
-            size_t index = item->icon.find(':');
-            std::string name = item->icon.substr(index+1);
+            size_t index = item.icon.find(':');
+            std::string name = item.icon.substr(index+1);
             UVRegion region(0.0f, 0.0, 1.0f, 1.0f);
             if (index == std::string::npos) {
                 batch->texture(assets->get<Texture>(name));
             } else {
-                std::string atlasname = item->icon.substr(0, index);
+                std::string atlasname = item.icon.substr(0, index);
                 auto atlas = assets->get<Atlas>(atlasname);
                 if (atlas && atlas->has(name)) {
                     region = atlas->get(name);

@@ -96,8 +96,9 @@ void ALStream::bindSpeaker(speakerid_t speakerid) {
     this->speaker = speakerid;
     sp = audio::get_speaker(speakerid);
     if (sp) {
-        auto alspeaker = dynamic_cast<ALSpeaker*>(sp); //FIXME: Potentional null pointer
-        alspeaker->stream = this; //-V522
+        auto alspeaker = dynamic_cast<ALSpeaker*>(sp);
+        assert(alspeaker != nullptr); // backends must not be mixed
+        alspeaker->stream = this;
         alspeaker->duration = source->getTotalDuration();
     }
 }
@@ -145,12 +146,13 @@ void ALStream::update(double delta) {
     }
     auto p_speaker = audio::get_speaker(this->speaker);
     if (p_speaker == nullptr) {
-        p_speaker = 0; //FIXME: Not used
+        this->speaker = 0;
         return;
     }
-    ALSpeaker* alspeaker = dynamic_cast<ALSpeaker*>(p_speaker); //FIXME: Potentional null pointer
+    ALSpeaker* alspeaker = dynamic_cast<ALSpeaker*>(p_speaker);
+    assert(alspeaker != nullptr);
     if (alspeaker->stopped) { //-V522
-        p_speaker = 0; //FIXME: Not used
+        this->speaker = 0;
         return;
     }
 

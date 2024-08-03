@@ -34,7 +34,7 @@ void BlocksController::updateSides(int x, int y, int z) {
 }
 
 void BlocksController::breakBlock(
-    Player* player, const Block* def, int x, int y, int z
+    Player* player, const Block& def, int x, int y, int z
 ) {
     onBlockInteraction(
         player, glm::ivec3(x, y, z), def, BlockInteraction::destruction
@@ -46,14 +46,14 @@ void BlocksController::breakBlock(
 }
 
 void BlocksController::placeBlock(
-    Player* player, const Block* def, blockstate state, int x, int y, int z
+    Player* player, const Block& def, blockstate state, int x, int y, int z
 ) {
     onBlockInteraction(
         player, glm::ivec3(x, y, z), def, BlockInteraction::placing
     );
-    chunks->set(x, y, z, def->rt.id, state);
-    lighting->onBlockSet(x, y, z, def->rt.id);
-    if (def->rt.funcsset.onplaced) {
+    chunks->set(x, y, z, def.rt.id, state);
+    lighting->onBlockSet(x, y, z, def.rt.id);
+    if (def.rt.funcsset.onplaced) {
         scripting::on_block_placed(player, def, x, y, z);
     }
     updateSides(x, y, z);
@@ -62,15 +62,15 @@ void BlocksController::placeBlock(
 void BlocksController::updateBlock(int x, int y, int z) {
     voxel* vox = chunks->get(x, y, z);
     if (vox == nullptr) return;
-    auto def = level->content->getIndices()->blocks.get(vox->id); //FIXME: Potentional null pointer
-    if (def->grounded) { //-V522
+    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    if (def.grounded) {
         const auto& vec = get_ground_direction(def, vox->state.rotation);
         if (!chunks->isSolidBlock(x + vec.x, y + vec.y, z + vec.z)) {
             breakBlock(nullptr, def, x, y, z);
             return;
         }
     }
-    if (def->rt.funcsset.update) {
+    if (def.rt.funcsset.update) {
         scripting::update_block(def, x, y, z);
     }
 }
@@ -93,9 +93,9 @@ void BlocksController::onBlocksTick(int tickid, int parts) {
     int tickRate = blocksTickClock.getTickRate();
     for (size_t id = 0; id < indices->blocks.count(); id++) {
         if ((id + tickid) % parts != 0) continue;
-        auto def = indices->blocks.get(id); //FIXME: Potentional null pointer
-        auto interval = def->tickInterval; //-V522
-        if (def->rt.funcsset.onblockstick && tickid / parts % interval == 0) {
+        auto& def = indices->blocks.require(id);
+        auto interval = def.tickInterval;
+        if (def.rt.funcsset.onblockstick && tickid / parts % interval == 0) {
             scripting::on_blocks_tick(def, tickRate / interval);
         }
     }
@@ -112,8 +112,8 @@ void BlocksController::randomTick(
             int by = random.rand() % segheight + s * segheight;
             int bz = random.rand() % CHUNK_D;
             const voxel& vox = chunk.voxels[(by * CHUNK_D + bz) * CHUNK_W + bx];
-            Block* block = indices->blocks.get(vox.id); //FIXME: Potentional null pointer
-            if (block->rt.funcsset.randupdate) { //-V522
+            auto& block = indices->blocks.require(vox.id);
+            if (block.rt.funcsset.randupdate) {
                 scripting::random_update_block(
                     block, chunk.x * CHUNK_W + bx, by, chunk.z * CHUNK_D + bz
                 );
@@ -188,7 +188,7 @@ void BlocksController::unbindInventory(int x, int y, int z) {
 }
 
 void BlocksController::onBlockInteraction(
-    Player* player, glm::ivec3 pos, const Block* def, BlockInteraction type
+    Player* player, glm::ivec3 pos, const Block& def, BlockInteraction type
 ) {
     for (const auto& callback : blockInteractionCallbacks) {
         callback(player, pos, def, type);

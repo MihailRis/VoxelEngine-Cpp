@@ -26,12 +26,12 @@ class Chunks {
     Level* level;
     const ContentIndices* const indices;
 
-    void eraseSegments(const Block* def, blockstate state, int x, int y, int z);
+    void eraseSegments(const Block& def, blockstate state, int x, int y, int z);
     void repairSegments(
-        const Block* def, blockstate state, int x, int y, int z
+        const Block& def, blockstate state, int x, int y, int z
     );
     void setRotationExtended(
-        Block* def, blockstate state, glm::ivec3 origin, uint8_t rotation
+        const Block& def, blockstate state, glm::ivec3 origin, uint8_t rotation
     );
 public:
     std::vector<std::shared_ptr<Chunk>> chunks;
@@ -72,7 +72,7 @@ public:
     /// @param def segment block definition
     /// @param state segment block state
     /// @return origin block position or `pos` if block is not extended
-    glm::ivec3 seekOrigin(glm::ivec3 pos, const Block* def, blockstate state);
+    glm::ivec3 seekOrigin(glm::ivec3 pos, const Block& def, blockstate state);
 
     /// @brief Check if required zone is replaceable
     /// @param def definition of the block that requires a replaceable zone
@@ -80,7 +80,7 @@ public:
     /// @param coord position of the zone start
     /// @param ignore ignored block id (will be counted as replaceable)
     bool checkReplaceability(
-        const Block* def,
+        const Block& def,
         blockstate state,
         glm::ivec3 coord,
         blockid_t ignore = 0

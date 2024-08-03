@@ -268,8 +268,8 @@ void Engine::loadAssets() {
 
     // no need
     // correct log messages order is more useful
-    bool threading = false;
-    if (threading) { // TODO: Why is always false?
+    bool threading = false; // look at two upper lines
+    if (threading) {
         auto task = loader.startTask([=](){});
         task->waitForEnd();
     } else {

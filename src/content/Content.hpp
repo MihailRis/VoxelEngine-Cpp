@@ -59,11 +59,23 @@ public:
     ContentUnitIndices(std::vector<T*> defs) : defs(std::move(defs)) {
     }
 
-    inline T* get(blockid_t id) const {
+    inline const T* get(blockid_t id) const {
         if (id >= defs.size()) {
             return nullptr;
         }
         return defs[id];
+    }
+
+    [[deprecated]]
+    inline T* getWriteable(blockid_t id) const { // TODO: remove
+        if (id >= defs.size()) {
+            return nullptr;
+        }
+        return defs[id];
+    }
+
+    inline const T& require(blockid_t id) const {
+        return *defs.at(id);
     }
 
     inline size_t count() const {
