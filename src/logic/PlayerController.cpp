@@ -257,13 +257,13 @@ void PlayerController::postUpdate(float delta, bool input, bool pause) {
     if (!pause && input) {
         camControl.updateMouse(this->input);
     }
+    player->postUpdate();
+    camControl.update(this->input, delta, level->chunks.get());
     if (input) {
         updateInteraction();
     } else {
         player->selection = {};
     }
-    player->postUpdate();
-    camControl.update(this->input, delta, level->chunks.get());
 }
 
 void PlayerController::updateKeyboard() {

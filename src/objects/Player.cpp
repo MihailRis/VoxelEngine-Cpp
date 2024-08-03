@@ -143,7 +143,6 @@ void Player::updateSelectedEntity() {
     selectedEid = selection.entity;
 }
 
-#include "../window/Window.hpp"
 void Player::postUpdate() {
     auto entity = level->entities->get(eid);
     if (!entity.has_value()) {
