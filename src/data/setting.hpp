@@ -48,7 +48,7 @@ public:
         if (callOnStart) {
             callback(value);
         }
-        return std::shared_ptr<int>(new int(id), [this](int* id) {
+        return std::shared_ptr<int>(new int(id), [this](int* id) { //-V508
             observers.erase(*id);
             delete id;
         });

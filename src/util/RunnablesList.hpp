@@ -16,7 +16,7 @@ namespace util {
         observer_handler add(runnable callback) {
             int id = nextid++;
             runnables[id] = std::move(callback);
-            return observer_handler(new int(id), [this](int* id) {
+            return observer_handler(new int(id), [this](int* id) { //-V508
                 runnables.erase(*id);
                 delete id;
             });

@@ -74,7 +74,7 @@ void scripting::initialize(Engine* engine) {
     lua::pushstring(L, pack.id);
     lua::setfield(L, "PACK_ID");
     lua::pop(L);
-    return std::shared_ptr<int>(new int(id), [=](int* id) {
+    return std::shared_ptr<int>(new int(id), [=](int* id) { //-V508
         lua::removeEnvironment(L, *id);
         delete id;
     });
@@ -101,7 +101,7 @@ void scripting::initialize(Engine* engine) {
         lua::pop(L);
     }
     lua::pop(L);
-    return std::shared_ptr<int>(new int(id), [=](int* id) {
+    return std::shared_ptr<int>(new int(id), [=](int* id) { //-V508
         lua::removeEnvironment(L, *id);
         delete id;
     });
@@ -131,7 +131,7 @@ void scripting::initialize(Engine* engine) {
     }
     lua::pop(L);
 
-    return std::shared_ptr<int>(new int(id), [=](int* id) {
+    return std::shared_ptr<int>(new int(id), [=](int* id) { //-V508
         lua::removeEnvironment(L, *id);
         delete id;
     });

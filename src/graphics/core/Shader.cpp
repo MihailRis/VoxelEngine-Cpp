@@ -95,7 +95,7 @@ glshader compile_shader(GLenum type, const GLchar* source, const std::string& fi
             "vertex shader compilation failed ("+file+"):\n"+std::string(infoLog)
         );
     } 
-    return glshader(new GLuint(shader), shader_deleter);
+    return glshader(new GLuint(shader), shader_deleter); //-V508
 }
 
 std::unique_ptr<Shader> Shader::create(
