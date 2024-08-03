@@ -159,7 +159,7 @@ void ALStream::update(double delta) {
     unqueueBuffers(alsource);
     uint preloaded = enqueueBuffers(alsource);
 
-    if (speaker->isStopped() && !alspeaker->stopped) {
+    if (speaker->isStopped() && !alspeaker->stopped) { //FIXME: !alspeaker->stopped always true //-V560
         if (preloaded) {
             speaker->play();
         } else {
