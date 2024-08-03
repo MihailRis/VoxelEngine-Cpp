@@ -115,8 +115,8 @@ std::string input_util::to_string(keycode code) {
     char name[64];
     int result =
         GetKeyNameTextA(glfwGetKeyScancode(icode_repr) << 16, name, 64);
-    if (result == NULL) return "Unknown";
-    return std::string(name);
+    if (result == 0) return "Unknown";
+    return name;
 #else
     const char* name =
         glfwGetKeyName(icode_repr, glfwGetKeyScancode(icode_repr));
