@@ -12,12 +12,9 @@
 
 using namespace scripting;
 
-static EntityDef* require_entity_def(lua::State* L) {
+static const EntityDef* require_entity_def(lua::State* L) {
     auto indices = content->getIndices();
     auto id = lua::tointeger(L, 1);
-    if (static_cast<size_t>(id) >= indices->entities.count()) {
-        return nullptr;
-    }
     return indices->entities.get(id);
 }
 

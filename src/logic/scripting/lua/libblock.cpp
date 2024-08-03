@@ -11,12 +11,9 @@
 
 using namespace scripting;
 
-static Block* require_block(lua::State* L) {
+static const Block* require_block(lua::State* L) {
     auto indices = content->getIndices();
     auto id = lua::tointeger(L, 1);
-    if (static_cast<size_t>(id) >= indices->blocks.count()) {
-        return nullptr;
-    }
     return indices->blocks.get(id);
 }
 
@@ -78,7 +75,7 @@ static int l_seek_origin(lua::State* L) {
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
     auto vox = level->chunks->get(x, y, z);
-    auto def = indices->blocks.get(vox->id);
+    auto& def = indices->blocks.require(vox->id);
     return lua::pushivec3_stack(
         L, level->chunks->seekOrigin({x, y, z}, def, vox->state)
     );
@@ -122,11 +119,11 @@ static int l_get_x(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3_stack(L, 1, 0, 0);
     }
-    auto def = level->content->getIndices()->blocks.get(vox->id); //FIXME: Potentional null pointer
-    if (!def->rotatable) { //-V522
+    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    if (!def.rotatable) {
         return lua::pushivec3_stack(L, 1, 0, 0);
     } else {
-        const CoordSystem& rot = def->rotations.variants[vox->state.rotation];
+        const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
         return lua::pushivec3_stack(L, rot.axisX.x, rot.axisX.y, rot.axisX.z);
     }
 }
@@ -139,11 +136,11 @@ static int l_get_y(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3_stack(L, 0, 1, 0);
     }
-    auto def = level->content->getIndices()->blocks.get(vox->id); //FIXME: Potentional null pointer
-    if (!def->rotatable) { //-V522
+    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    if (!def.rotatable) {
         return lua::pushivec3_stack(L, 0, 1, 0);
     } else {
-        const CoordSystem& rot = def->rotations.variants[vox->state.rotation];
+        const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
         return lua::pushivec3_stack(L, rot.axisY.x, rot.axisY.y, rot.axisY.z);
     }
 }
@@ -156,11 +153,11 @@ static int l_get_z(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3_stack(L, 0, 0, 1);
     }
-    auto def = level->content->getIndices()->blocks.get(vox->id); //FIXME: Potentional null pointer
-    if (!def->rotatable) { //-V522
+    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    if (!def.rotatable) {
         return lua::pushivec3_stack(L, 0, 0, 1);
     } else {
-        const CoordSystem& rot = def->rotations.variants[vox->state.rotation];
+        const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
         return lua::pushivec3_stack(L, rot.axisZ.x, rot.axisZ.y, rot.axisZ.z);
     }
 }
@@ -330,7 +327,7 @@ static int l_place(lua::State* L) {
     }
     auto player = level->getObject<Player>(playerid);
     controller->getBlocksController()->placeBlock(
-        player ? player.get() : nullptr, def, int2blockstate(state), x, y, z
+        player ? player.get() : nullptr, *def, int2blockstate(state), x, y, z
     );
     return 0;
 }
@@ -344,7 +341,7 @@ static int l_destruct(lua::State* L) {
     if (voxel == nullptr) {
         return 0;
     }
-    const auto def = level->content->getIndices()->blocks.get(voxel->id);
+    auto& def = level->content->getIndices()->blocks.require(voxel->id);
     auto player = level->getObject<Player>(playerid);
     controller->getBlocksController()->breakBlock(
         player ? player.get() : nullptr, def, x, y, z

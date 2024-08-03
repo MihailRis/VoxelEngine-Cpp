@@ -49,11 +49,11 @@ static int l_hud_open_block(lua::State* L) {
             std::to_string(y) + " " + std::to_string(z)
         );
     }
-    auto def = content->getIndices()->blocks.get(vox->id);
+    auto& def = content->getIndices()->blocks.require(vox->id);
     auto assets = engine->getAssets();
-    auto layout = assets->get<UiDocument>(def->uiLayout);//FIXME: Potentional null pointer //-V522
+    auto layout = assets->get<UiDocument>(def.uiLayout);
     if (layout == nullptr) {
-        throw std::runtime_error("block '" + def->name + "' has no ui layout");
+        throw std::runtime_error("block '" + def.name + "' has no ui layout");
     }
 
     auto id = blocks->createBlockInventory(x, y, z);
@@ -65,7 +65,7 @@ static int l_hud_open_block(lua::State* L) {
     );
 
     lua::pushinteger(L, id);
-    lua::pushstring(L, def->uiLayout);
+    lua::pushstring(L, def.uiLayout);
     return 2;
 }
 

@@ -21,7 +21,7 @@ enum class BlockInteraction { step, destruction, placing };
 
 /// @brief Player argument is nullable
 using on_block_interaction = std::function<
-    void(Player*, glm::ivec3, const Block*, BlockInteraction type)>;
+    void(Player*, glm::ivec3, const Block&, BlockInteraction type)>;
 
 /// BlocksController manages block updates and data (inventories, metadata)
 class BlocksController {
@@ -40,9 +40,9 @@ public:
     void updateSides(int x, int y, int z);
     void updateBlock(int x, int y, int z);
 
-    void breakBlock(Player* player, const Block* def, int x, int y, int z);
+    void breakBlock(Player* player, const Block& def, int x, int y, int z);
     void placeBlock(
-        Player* player, const Block* def, blockstate state, int x, int y, int z
+        Player* player, const Block& def, blockstate state, int x, int y, int z
     );
 
     void update(float delta);
@@ -56,7 +56,7 @@ public:
     void unbindInventory(int x, int y, int z);
 
     void onBlockInteraction(
-        Player* player, glm::ivec3 pos, const Block* def, BlockInteraction type
+        Player* player, glm::ivec3 pos, const Block& def, BlockInteraction type
     );
 
     /// @brief Add block interaction callback

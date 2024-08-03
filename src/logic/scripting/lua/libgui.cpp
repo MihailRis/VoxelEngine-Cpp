@@ -53,34 +53,40 @@ static DocumentNode getDocumentNode(lua::State* L, int idx = 1) {
 
 static int l_menu_back(lua::State* L) {
     auto node = getDocumentNode(L);
-    auto menu = dynamic_cast<Menu*>(node.node.get()); //FIXME: Potentional null pointer
-    menu->back(); //-V522
+    if (auto menu = dynamic_cast<Menu*>(node.node.get())) {
+        menu->back();
+    }
     return 0;
 }
 
 static int l_menu_reset(lua::State* L) {
     auto node = getDocumentNode(L);
-    auto menu = dynamic_cast<Menu*>(node.node.get()); //FIXME: Potentional null pointer
-    menu->reset(); //-V522
+    if (auto menu = dynamic_cast<Menu*>(node.node.get())) {
+        menu->reset();
+    }
     return 0;
 }
 
 static int l_textbox_paste(lua::State* L) {
     auto node = getDocumentNode(L);
-    auto box = dynamic_cast<TextBox*>(node.node.get()); //FIXME: Potentional null pointer
-    auto text = lua::require_string(L, 2);
-    box->paste(util::str2wstr_utf8(text)); //-V522
+    if (auto box = dynamic_cast<TextBox*>(node.node.get())) {
+        auto text = lua::require_string(L, 2);
+        box->paste(util::str2wstr_utf8(text));
+    }
     return 0;
 }
 
 static int l_container_add(lua::State* L) {
     auto docnode = getDocumentNode(L);
-    auto node = dynamic_cast<Container*>(docnode.node.get()); //FIXME: Potentional null pointer
+    auto node = dynamic_cast<Container*>(docnode.node.get());
+    if (node == nullptr) {
+        return 0;
+    }
     auto xmlsrc = lua::require_string(L, 2);
     try {
         auto subnode =
             guiutil::create(xmlsrc, docnode.document->getEnvironment());
-        node->add(subnode); //-V522
+        node->add(subnode);
         UINode::getIndices(subnode, docnode.document->getMapWriteable());
     } catch (const std::exception& err) {
         throw std::runtime_error(err.what());

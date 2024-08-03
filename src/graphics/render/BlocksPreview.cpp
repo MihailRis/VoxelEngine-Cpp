@@ -22,30 +22,30 @@ std::unique_ptr<ImageData> BlocksPreview::draw(
     Shader* shader,
     Framebuffer* fbo,
     Batch3D* batch,
-    const Block* def, 
+    const Block& def, 
     int size
 ){
     Window::clear();
-    blockid_t id = def->rt.id;
+    blockid_t id = def.rt.id;
     const UVRegion texfaces[6]{cache->getRegion(id, 0), cache->getRegion(id, 1),
                                cache->getRegion(id, 2), cache->getRegion(id, 3),
                                cache->getRegion(id, 4), cache->getRegion(id, 5)};
 
     glm::vec3 offset(0.1f, 0.5f, 0.1f);
-    switch (def->model) {
+    switch (def.model) {
         case BlockModel::none:
             // something went wrong...
             break;
         case BlockModel::block:
             shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), offset));
             batch->blockCube(glm::vec3(size * 0.63f), texfaces, 
-                             glm::vec4(1.0f), !def->rt.emissive);
+                             glm::vec4(1.0f), !def.rt.emissive);
             batch->flush();
             break;
         case BlockModel::aabb:
             {
                 glm::vec3 hitbox {};
-                for (const auto& box : def->hitboxes) {
+                for (const auto& box : def.hitboxes) {
                     hitbox = glm::max(hitbox, box.size());
                 }
                 offset = glm::vec3(1, 1, 0.0f);
@@ -55,7 +55,7 @@ std::unique_ptr<ImageData> BlocksPreview::draw(
                     -hitbox * scaledSize * 0.5f * glm::vec3(1,1,-1),
                     hitbox * scaledSize,
                     texfaces, glm::vec4(1.0f), 
-                    !def->rt.emissive
+                    !def.rt.emissive
                 );
             }
             batch->flush();
@@ -64,32 +64,32 @@ std::unique_ptr<ImageData> BlocksPreview::draw(
             {
                 glm::vec3 pmul = glm::vec3(size * 0.63f);
                 glm::vec3 hitbox = glm::vec3();
-                for (const auto& box : def->modelBoxes) {
+                for (const auto& box : def.modelBoxes) {
                     hitbox = glm::max(hitbox, box.size());
                 }
                 offset.y += (1.0f - hitbox).y * 0.5f;
                 shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), offset));
-                for (size_t i = 0; i < def->modelBoxes.size(); i++) {
+                for (size_t i = 0; i < def.modelBoxes.size(); i++) {
                     const UVRegion (&boxtexfaces)[6] = {
-                        def->modelUVs[i * 6],
-                        def->modelUVs[i * 6 + 1],
-                        def->modelUVs[i * 6 + 2],
-                        def->modelUVs[i * 6 + 3],
-                        def->modelUVs[i * 6 + 4],
-                        def->modelUVs[i * 6 + 5]
+                        def.modelUVs[i * 6],
+                        def.modelUVs[i * 6 + 1],
+                        def.modelUVs[i * 6 + 2],
+                        def.modelUVs[i * 6 + 3],
+                        def.modelUVs[i * 6 + 4],
+                        def.modelUVs[i * 6 + 5]
                     };
                     batch->cube(
-                        def->modelBoxes[i].a * glm::vec3(1.0f, 1.0f, -1.0f) * pmul, 
-                        def->modelBoxes[i].size() * pmul, 
-                        boxtexfaces, glm::vec4(1.0f), !def->rt.emissive
+                        def.modelBoxes[i].a * glm::vec3(1.0f, 1.0f, -1.0f) * pmul, 
+                        def.modelBoxes[i].size() * pmul, 
+                        boxtexfaces, glm::vec4(1.0f), !def.rt.emissive
                     );
                 }
                 
-                auto& points = def->modelExtraPoints;
+                auto& points = def.modelExtraPoints;
                 glm::vec3 poff = glm::vec3(0.0f, 0.0f, 1.0f);
 
-                for (size_t i = 0; i < def->modelExtraPoints.size() / 4; i++) {
-                    const UVRegion& reg = def->modelUVs[def->modelBoxes.size() * 6 + i];
+                for (size_t i = 0; i < def.modelExtraPoints.size() / 4; i++) {
+                    const UVRegion& reg = def.modelUVs[def.modelBoxes.size() * 6 + i];
                     
                     batch->point((points[i * 4 + 0] - poff) * pmul, glm::vec2(reg.u1, reg.v1), glm::vec4(1.0));
                     batch->point((points[i * 4 + 1] - poff) * pmul, glm::vec2(reg.u2, reg.v1), glm::vec4(1.0));
@@ -154,9 +154,9 @@ std::unique_ptr<Atlas> BlocksPreview::build(
     
     fbo.bind();
     for (size_t i = 0; i < count; i++) {
-        auto def = indices->blocks.get(i); //FIXME: Potentional null pointer
+        auto& def = indices->blocks.require(i);
         atlas->getTexture()->bind();
-        builder.add(def->name, draw(cache, shader, &fbo, &batch, def, iconSize)); //-V522
+        builder.add(def.name, draw(cache, shader, &fbo, &batch, def, iconSize));
     }
     fbo.unbind();
 
