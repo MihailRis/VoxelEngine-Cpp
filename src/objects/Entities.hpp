@@ -177,7 +177,7 @@ public:
     struct RaycastResult {
         entityid_t entity;
         glm::ivec3 normal;
-        float distance;        
+        float distance;
     };
 
     Entities(Level* level);
@@ -186,8 +186,8 @@ public:
     void updatePhysics(float delta);
     void update(float delta);
 
-    void renderDebug(LineBatch& batch, const Frustum& frustum, const DrawContext& ctx);
-    void render(Assets* assets, ModelBatch& batch, const Frustum& frustum, float delta, bool pause);
+    void renderDebug(LineBatch& batch, const Frustum* frustum, const DrawContext& ctx);
+    void render(Assets* assets, ModelBatch& batch, const Frustum* frustum, float delta, bool pause);
 
     entityid_t spawn(
         EntityDef& def,

@@ -472,7 +472,7 @@ static void debug_render_skeleton(
 }
 
 void Entities::renderDebug(
-    LineBatch& batch, const Frustum& frustum, const DrawContext& pctx
+    LineBatch& batch, const Frustum* frustum, const DrawContext& pctx
 ) {
     {
         auto ctx = pctx.sub(&batch);
@@ -482,7 +482,7 @@ void Entities::renderDebug(
             const auto& hitbox = rigidbody.hitbox;
             const auto& pos = transform.pos;
             const auto& size = transform.size;
-            if (!frustum.isBoxVisible(pos-size, pos+size)) {
+            if (frustum && !frustum->isBoxVisible(pos-size, pos+size)) {
                 continue;
             }
             batch.box(hitbox.position, hitbox.halfsize * 2.0f, glm::vec4(1.0f));
@@ -507,7 +507,7 @@ void Entities::renderDebug(
             auto config = skeleton.config;
             const auto& pos = transform.pos;
             const auto& size = transform.size;
-            if (!frustum.isBoxVisible(pos-size, pos+size)) {
+            if (frustum && !frustum->isBoxVisible(pos-size, pos+size)) {
                 continue;
             }
             auto bone = config->getRoot();
@@ -517,7 +517,7 @@ void Entities::renderDebug(
 }
 
 void Entities::render(
-    Assets* assets, ModelBatch& batch, const Frustum& frustum, float delta, bool pause
+    Assets* assets, ModelBatch& batch, const Frustum* frustum, float delta, bool pause
 ) {
     if (!pause) {
         scripting::on_entities_render(delta);
@@ -530,7 +530,7 @@ void Entities::render(
         }
         const auto& pos = transform.pos;
         const auto& size = transform.size;
-        if (frustum.isBoxVisible(pos-size, pos+size)) {
+        if (!frustum || frustum->isBoxVisible(pos-size, pos+size)) {
             const auto* rigConfig = skeleton.config;
             rigConfig->render(assets, batch, skeleton, transform.combined);
         }

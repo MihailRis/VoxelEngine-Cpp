@@ -194,6 +194,7 @@ void WorldRenderer::renderLevel(
     auto assets = engine->getAssets();
     auto atlas = assets->get<Atlas>("blocks");
 
+    bool culling = engine->getSettings().graphics.frustumCulling.get();
     float fogFactor = 15.0f / ((float)settings.chunks.loadDistance.get()-2);
 
     auto shader = assets->get<Shader>("main");
@@ -207,7 +208,8 @@ void WorldRenderer::renderLevel(
     auto entityShader = assets->get<Shader>("entity");
     setupWorldShader(entityShader, camera, settings, fogFactor);
 
-    level->entities->render(assets, *modelBatch, *frustumCulling, delta, pause);
+    level->entities->render(
+        assets, *modelBatch, culling ? frustumCulling.get() : nullptr, delta, pause);
 
     if (!pause) {
         scripting::on_frontend_render();
@@ -252,7 +254,9 @@ void WorldRenderer::renderLines(
         renderBlockSelection();
     }
     if (player->debug && showEntitiesDebug) {
-        level->entities->renderDebug(*lineBatch, *frustumCulling, ctx);
+        bool culling = engine->getSettings().graphics.frustumCulling.get();
+        level->entities->renderDebug(
+            *lineBatch, culling ? frustumCulling.get() : nullptr, ctx);
     }
 }
 
