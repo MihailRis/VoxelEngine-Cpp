@@ -1,20 +1,19 @@
-#include "api_lua.hpp"
+#include <glm/ext.hpp>
 
 #include "../../../content/Content.hpp"
-#include "../../../world/Level.hpp"
 #include "../../../window/Camera.hpp"
-
-#include <glm/ext.hpp>
+#include "../../../world/Level.hpp"
+#include "api_lua.hpp"
 
 using namespace scripting;
 
-template<int(*getterfunc)(lua::State*, const Camera&)>
+template <int (*getterfunc)(lua::State*, const Camera&)>
 static int l_camera_getter(lua::State* L) {
     size_t index = static_cast<size_t>(lua::tointeger(L, 1));
     return getterfunc(L, *level->cameras.at(index));
 }
 
-template<void(*setterfunc)(lua::State*, Camera&, int)>
+template <void (*setterfunc)(lua::State*, Camera&, int)>
 static int l_camera_setter(lua::State* L) {
     size_t index = static_cast<size_t>(lua::tointeger(L, 1));
     setterfunc(L, *level->cameras.at(index), 2);
@@ -92,19 +91,22 @@ static int l_look_at(lua::State* L) {
     size_t index = static_cast<size_t>(lua::tointeger(L, 1));
     auto& camera = *level->cameras.at(index);
     auto center = lua::tovec<3>(L, 2);
-    auto matrix = glm::inverse(glm::lookAt(glm::vec3(), center-camera.position, glm::vec3(0, 1, 0)));
+    auto matrix = glm::inverse(
+        glm::lookAt(glm::vec3(), center - camera.position, glm::vec3(0, 1, 0))
+    );
     if (lua::isnumber(L, 3)) {
         matrix = glm::mat4_cast(glm::slerp(
             glm::quat(camera.rotation),
             glm::quat(matrix),
-            static_cast<float>(lua::tonumber(L, 3))));
+            static_cast<float>(lua::tonumber(L, 3))
+        ));
     }
     camera.rotation = matrix;
     camera.updateVectors();
     return 0;
 }
 
-const luaL_Reg cameralib [] = {
+const luaL_Reg cameralib[] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_name>},
     {"get_pos", lua::wrap<l_camera_getter<getter_pos>>},
@@ -123,5 +125,4 @@ const luaL_Reg cameralib [] = {
     {"get_right", lua::wrap<l_camera_getter<getter_right>>},
     {"get_up", lua::wrap<l_camera_getter<getter_up>>},
     {"look_at", lua::wrap<l_look_at>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

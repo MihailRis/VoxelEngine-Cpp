@@ -1,17 +1,17 @@
 #ifndef UTIL_BUFFER_POOL_HPP_
 #define UTIL_BUFFER_POOL_HPP_
 
-#include "../typedefs.hpp"
-
-#include <queue>
-#include <mutex>
-#include <vector>
 #include <memory>
+#include <mutex>
+#include <queue>
+#include <vector>
+
+#include "../typedefs.hpp"
 
 namespace util {
     /// @brief Thread-safe pool of same-sized buffers
     /// @tparam T array type
-    template<class T>
+    template <class T>
     class BufferPool {
         std::vector<std::unique_ptr<T[]>> buffers;
         std::queue<T*> freeBuffers;
@@ -27,7 +27,7 @@ namespace util {
             std::lock_guard lock(mutex);
             if (freeBuffers.empty()) {
                 buffers.emplace_back(std::make_unique<T[]>(bufferSize));
-                freeBuffers.push(buffers[buffers.size()-1].get());
+                freeBuffers.push(buffers[buffers.size() - 1].get());
             }
             auto* buffer = freeBuffers.front();
             freeBuffers.pop();
@@ -39,4 +39,4 @@ namespace util {
     };
 }
 
-#endif // UTIL_BUFFER_POOL_HPP_
+#endif  // UTIL_BUFFER_POOL_HPP_

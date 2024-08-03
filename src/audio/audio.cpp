@@ -1,14 +1,13 @@
 #include "audio.hpp"
 
-#include "NoAudio.hpp"
-#include "AL/ALAudio.hpp"
-
-#include "../coders/wav.hpp"
-#include "../coders/ogg.hpp"
-
 #include <iostream>
 #include <stdexcept>
 #include <utility>
+
+#include "../coders/ogg.hpp"
+#include "../coders/wav.hpp"
+#include "AL/ALAudio.hpp"
+#include "NoAudio.hpp"
 
 namespace audio {
     static speakerid_t nextId = 1;
@@ -85,12 +84,12 @@ class PCMVoidSource : public PCMStream {
     bool seekable;
     bool closed = false;
 public:
-    PCMVoidSource(size_t totalSamples, uint sampleRate, bool seekable) 
-    : totalSamples(totalSamples), 
-      remain(totalSamples), 
-      sampleRate(sampleRate),
-      seekable(seekable) 
-    {}
+    PCMVoidSource(size_t totalSamples, uint sampleRate, bool seekable)
+        : totalSamples(totalSamples),
+          remain(totalSamples),
+          sampleRate(sampleRate),
+          seekable(seekable) {
+    }
 
     size_t read(char*, size_t bufferSize) override {
         if (closed) {
@@ -117,7 +116,7 @@ public:
     }
 
     duration_t getTotalDuration() const override {
-        return static_cast<duration_t>(totalSamples) / 
+        return static_cast<duration_t>(totalSamples) /
                static_cast<duration_t>(sampleRate);
     }
 
@@ -159,7 +158,7 @@ void audio::initialize(bool enabled) {
 
 std::unique_ptr<PCM> audio::load_PCM(const fs::path& file, bool headerOnly) {
     if (!fs::exists(file)) {
-        throw std::runtime_error("file not found '"+file.u8string()+"'");
+        throw std::runtime_error("file not found '" + file.u8string() + "'");
     }
     std::string ext = file.extension().u8string();
     if (ext == ".wav" || ext == ".WAV") {
@@ -171,11 +170,15 @@ std::unique_ptr<PCM> audio::load_PCM(const fs::path& file, bool headerOnly) {
 }
 
 std::unique_ptr<Sound> audio::load_sound(const fs::path& file, bool keepPCM) {
-    std::shared_ptr<PCM> pcm(load_PCM(file, !keepPCM && backend->isDummy()).release());
+    std::shared_ptr<PCM> pcm(
+        load_PCM(file, !keepPCM && backend->isDummy()).release()
+    );
     return create_sound(pcm, keepPCM);
 }
 
-std::unique_ptr<Sound> audio::create_sound(std::shared_ptr<PCM> pcm, bool keepPCM) {
+std::unique_ptr<Sound> audio::create_sound(
+    std::shared_ptr<PCM> pcm, bool keepPCM
+) {
     return backend->createSound(std::move(pcm), keepPCM);
 }
 
@@ -189,31 +192,32 @@ std::unique_ptr<PCMStream> audio::open_PCM_stream(const fs::path& file) {
     throw std::runtime_error("unsupported audio stream format");
 }
 
-std::unique_ptr<Stream> audio::open_stream(const fs::path& file, bool keepSource) {
+std::unique_ptr<Stream> audio::open_stream(
+    const fs::path& file, bool keepSource
+) {
     if (!keepSource && backend->isDummy()) {
         auto header = load_PCM(file, true);
         // using void source sized as audio instead of actual audio file
         return open_stream(
-            std::make_shared<PCMVoidSource>(header->totalSamples, header->sampleRate, header->seekable), 
+            std::make_shared<PCMVoidSource>(
+                header->totalSamples, header->sampleRate, header->seekable
+            ),
             keepSource
         );
     }
     return open_stream(
-        std::shared_ptr<PCMStream>(open_PCM_stream(file)),
-        keepSource
+        std::shared_ptr<PCMStream>(open_PCM_stream(file)), keepSource
     );
 }
 
-std::unique_ptr<Stream> audio::open_stream(std::shared_ptr<PCMStream> stream, bool keepSource) {
+std::unique_ptr<Stream> audio::open_stream(
+    std::shared_ptr<PCMStream> stream, bool keepSource
+) {
     return backend->openStream(std::move(stream), keepSource);
 }
 
-
 void audio::set_listener(
-    glm::vec3 position, 
-    glm::vec3 velocity, 
-    glm::vec3 lookAt, 
-    glm::vec3 up
+    glm::vec3 position, glm::vec3 velocity, glm::vec3 lookAt, glm::vec3 up
 ) {
     backend->setListener(position, velocity, lookAt, up);
 }
@@ -317,7 +321,7 @@ speakerid_t audio::play_stream(
     bool loop,
     int channel
 ) {
-    std::shared_ptr<Stream> stream (open_stream(file, false));
+    std::shared_ptr<Stream> stream(open_stream(file, false));
     return play(stream, position, relative, volume, pitch, loop, channel);
 }
 
@@ -335,14 +339,14 @@ int audio::create_channel(const std::string& name) {
         return index;
     }
     channels.emplace_back(std::make_unique<Channel>(name));
-    return channels.size()-1;
+    return channels.size() - 1;
 }
 
 int audio::get_channel_index(const std::string& name) {
     int index = 0;
     for (auto& channel : channels) {
         if (channel->getName() == name) {
-            return index; 
+            return index;
         }
         index++;
     }

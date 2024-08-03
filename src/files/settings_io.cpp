@@ -1,14 +1,14 @@
 #include "settings_io.hpp"
 
-#include "../window/Events.hpp"
-#include "../window/input.hpp"
-#include "../coders/toml.hpp"
-#include "../coders/json.hpp"
-#include "../debug/Logger.hpp"
-#include "../settings.hpp"
-
 #include <memory>
 #include <utility>
+
+#include "../coders/json.hpp"
+#include "../coders/toml.hpp"
+#include "../debug/Logger.hpp"
+#include "../settings.hpp"
+#include "../window/Events.hpp"
+#include "../window/input.hpp"
 
 static debug::Logger logger("settings_io");
 
@@ -19,16 +19,17 @@ struct SectionsBuilder {
     SectionsBuilder(
         std::unordered_map<std::string, Setting*>& map,
         std::vector<Section>& sections
-    ) : map(map), sections(sections) {
+    )
+        : map(map), sections(sections) {
     }
 
     void section(std::string name) {
         sections.push_back(Section {std::move(name), {}});
     }
 
-    void add(const std::string& name, Setting* setting, bool writeable=true) {
-        Section& section = sections.at(sections.size()-1);
-        map[section.name+"."+name] = setting;
+    void add(const std::string& name, Setting* setting, bool writeable = true) {
+        Section& section = sections.at(sections.size() - 1);
+        map[section.name + "." + name] = setting;
         section.keys.push_back(name);
     }
 };
@@ -82,7 +83,7 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
 dynamic::Value SettingsHandler::getValue(const std::string& name) const {
     auto found = map.find(name);
     if (found == map.end()) {
-        throw std::runtime_error("setting '"+name+"' does not exist");
+        throw std::runtime_error("setting '" + name + "' does not exist");
     }
     auto setting = found->second;
     if (auto number = dynamic_cast<NumberSetting*>(setting)) {
@@ -94,14 +95,14 @@ dynamic::Value SettingsHandler::getValue(const std::string& name) const {
     } else if (auto string = dynamic_cast<StringSetting*>(setting)) {
         return string->get();
     } else {
-        throw std::runtime_error("type is not implemented for '"+name+"'");
+        throw std::runtime_error("type is not implemented for '" + name + "'");
     }
 }
 
 std::string SettingsHandler::toString(const std::string& name) const {
     auto found = map.find(name);
     if (found == map.end()) {
-        throw std::runtime_error("setting '"+name+"' does not exist");
+        throw std::runtime_error("setting '" + name + "' does not exist");
     }
     auto setting = found->second;
     return setting->toString();
@@ -110,7 +111,7 @@ std::string SettingsHandler::toString(const std::string& name) const {
 Setting* SettingsHandler::getSetting(const std::string& name) const {
     auto found = map.find(name);
     if (found == map.end()) {
-        throw std::runtime_error("setting '"+name+"' does not exist");
+        throw std::runtime_error("setting '" + name + "' does not exist");
     }
     return found->second;
 }
@@ -119,7 +120,7 @@ bool SettingsHandler::has(const std::string& name) const {
     return map.find(name) != map.end();
 }
 
-template<class T>
+template <class T>
 static void set_numeric_value(T* setting, const dynamic::Value& value) {
     if (auto num = std::get_if<integer_t>(&value)) {
         setting->set(*num);
@@ -132,10 +133,12 @@ static void set_numeric_value(T* setting, const dynamic::Value& value) {
     }
 }
 
-void SettingsHandler::setValue(const std::string& name, const dynamic::Value& value) {
+void SettingsHandler::setValue(
+    const std::string& name, const dynamic::Value& value
+) {
     auto found = map.find(name);
     if (found == map.end()) {
-        throw std::runtime_error("setting '"+name+"' does not exist");
+        throw std::runtime_error("setting '" + name + "' does not exist");
     }
     auto setting = found->second;
     if (auto number = dynamic_cast<NumberSetting*>(setting)) {
@@ -157,7 +160,9 @@ void SettingsHandler::setValue(const std::string& name, const dynamic::Value& va
             throw std::runtime_error("not implemented for type");
         }
     } else {
-        throw std::runtime_error("type is not implement - setting '"+name+"'");
+        throw std::runtime_error(
+            "type is not implement - setting '" + name + "'"
+        );
     }
 }
 

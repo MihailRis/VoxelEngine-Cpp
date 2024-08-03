@@ -14,4 +14,4 @@ namespace extrle {
     size_t decode(const ubyte* src, size_t length, ubyte* dst);
 }
 
-#endif // CODERS_RLE_HPP_
+#endif  // CODERS_RLE_HPP_

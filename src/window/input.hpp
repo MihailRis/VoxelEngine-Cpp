@@ -1,9 +1,9 @@
 #ifndef WINDOW_INPUT_HPP_
 #define WINDOW_INPUT_HPP_
 
-#include "../util/RunnablesList.hpp"
-
 #include <string>
+
+#include "../util/RunnablesList.hpp"
 
 /// @brief Represents glfw3 keycode values.
 enum class keycode : int {
@@ -100,17 +100,14 @@ enum class keycode : int {
 /// @brief Represents glfw3 mouse button IDs.
 /// @details There is a subset of glfw3 mouse button IDs.
 enum class mousecode : int {
-    BUTTON_1 = 0, // Left mouse button
-    BUTTON_2 = 1, // Right mouse button
-    BUTTON_3 = 2, // Middle mouse button
+    BUTTON_1 = 0,  // Left mouse button
+    BUTTON_2 = 1,  // Right mouse button
+    BUTTON_3 = 2,  // Middle mouse button
     UNKNOWN = -1,
 };
 
 inline mousecode MOUSECODES_ALL[] {
-    mousecode::BUTTON_1,
-    mousecode::BUTTON_2,
-    mousecode::BUTTON_3
-};
+    mousecode::BUTTON_1, mousecode::BUTTON_2, mousecode::BUTTON_3};
 
 namespace input_util {
     void initialize();
@@ -141,9 +138,10 @@ struct Binding {
     int code;
     bool state = false;
     bool justChange = false;
-    
+
     Binding() = default;
-    Binding(inputtype type, int code) : type(type), code(code) {}
+    Binding(inputtype type, int code) : type(type), code(code) {
+    }
 
     bool active() const {
         return state;
@@ -152,23 +150,22 @@ struct Binding {
     bool jactive() const {
         return state && justChange;
     }
-    
+
     void reset(inputtype, int);
     void reset(keycode);
     void reset(mousecode);
 
     inline std::string text() const {
         switch (type) {
-        case inputtype::keyboard: {
-            return input_util::to_string(static_cast<keycode>(code));
-        }
-        case inputtype::mouse: {
-            return input_util::to_string(static_cast<mousecode>(code));
-        }
+            case inputtype::keyboard: {
+                return input_util::to_string(static_cast<keycode>(code));
+            }
+            case inputtype::mouse: {
+                return input_util::to_string(static_cast<mousecode>(code));
+            }
         }
         return "<unknown input type>";
     }
 };
 
-
-#endif // WINDOW_INPUT_HPP_
+#endif  // WINDOW_INPUT_HPP_

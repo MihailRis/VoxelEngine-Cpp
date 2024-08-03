@@ -18,9 +18,9 @@ ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets) : conte
     auto atlas = assets->get<Atlas>("blocks");
     
     for (uint i = 0; i < indices->blocks.count(); i++) {
-        Block* def = indices->blocks.get(i);
+        Block* def = indices->blocks.get(i); //FIXME: Potential null pointer
         for (uint side = 0; side < 6; side++) {
-            const std::string& tex = def->textureFaces[side];
+            const std::string& tex = def->textureFaces[side]; //-V522
             if (atlas->has(tex)) {
                 sideregions[i * 6 + side] = atlas->get(tex);
             } else if (atlas->has(TEXTURE_NOTFOUND)) {

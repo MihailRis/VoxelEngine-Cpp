@@ -5,19 +5,18 @@
 using namespace util;
 
 Clock::Clock(int tickRate, int tickParts)
-    : tickRate(tickRate),
-      tickParts(tickParts) {
+    : tickRate(tickRate), tickParts(tickParts) {
 }
 
 bool Clock::update(float delta) {
     tickTimer += delta;
-    float delay = 1.0f / float(tickRate);    
+    float delay = 1.0f / float(tickRate);
     if (tickTimer > delay || tickPartsUndone) {
         if (tickPartsUndone) {
             tickPartsUndone--;
         } else {
             tickTimer = std::fmod(tickTimer, delay);
-            tickPartsUndone = tickParts-1;
+            tickPartsUndone = tickParts - 1;
         }
         return true;
     }
@@ -29,7 +28,7 @@ int Clock::getParts() const {
 }
 
 int Clock::getPart() const {
-    return tickParts-tickPartsUndone-1;
+    return tickParts - tickPartsUndone - 1;
 }
 
 int Clock::getTickRate() const {

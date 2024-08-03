@@ -21,4 +21,4 @@ namespace util {
     };
 }
 
-#endif // UTIL_CLOCK_HPP_
+#endif  // UTIL_CLOCK_HPP_

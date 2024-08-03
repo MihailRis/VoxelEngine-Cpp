@@ -1,15 +1,15 @@
 #ifndef SRC_OBJECTS_PLAYER_HPP_
 #define SRC_OBJECTS_PLAYER_HPP_
 
-#include "../settings.hpp"
-#include "../data/dynamic.hpp"
-#include "../voxels/voxel.hpp"
-#include "../interfaces/Serializable.hpp"
-#include "../interfaces/Object.hpp"
-
+#include <glm/glm.hpp>
 #include <memory>
 #include <optional>
-#include <glm/glm.hpp>
+
+#include "../data/dynamic.hpp"
+#include "../interfaces/Object.hpp"
+#include "../interfaces/Serializable.hpp"
+#include "../settings.hpp"
+#include "../voxels/voxel.hpp"
 
 class Camera;
 class Inventory;
@@ -60,8 +60,13 @@ public:
     glm::vec3 cam {};
     CursorSelection selection {};
 
-    Player(Level* level, glm::vec3 position, float speed, 
-           std::shared_ptr<Inventory> inv, entityid_t eid);
+    Player(
+        Level* level,
+        glm::vec3 position,
+        float speed,
+        std::shared_ptr<Inventory> inv,
+        entityid_t eid
+    );
     ~Player();
 
     void teleport(glm::vec3 position);
@@ -87,7 +92,7 @@ public:
     void setEntity(entityid_t eid);
 
     entityid_t getSelectedEntity() const;
-    
+
     std::shared_ptr<Inventory> getInventory() const;
 
     glm::vec3 getPosition() const {
@@ -100,7 +105,7 @@ public:
     glm::vec3 getSpawnPoint() const;
 
     std::unique_ptr<dynamic::Map> serialize() const override;
-    void deserialize(dynamic::Map *src) override;
+    void deserialize(dynamic::Map* src) override;
 
     static void convert(dynamic::Map* data, const ContentLUT* lut);
 
@@ -109,4 +114,4 @@ public:
     }
 };
 
-#endif // SRC_OBJECTS_PLAYER_HPP_
+#endif  // SRC_OBJECTS_PLAYER_HPP_

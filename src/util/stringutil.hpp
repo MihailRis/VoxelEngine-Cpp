@@ -1,13 +1,13 @@
 #ifndef UTIL_STRINGUTIL_HPP_
 #define UTIL_STRINGUTIL_HPP_
 
-#include "../typedefs.hpp"
-
 #include <string>
 #include <vector>
 
+#include "../typedefs.hpp"
+
 namespace util {
-    /// @brief Function used for string serialization in text formats 
+    /// @brief Function used for string serialization in text formats
     std::string escape(const std::string& s);
 
     /// @brief Function used for error messages
@@ -18,15 +18,15 @@ namespace util {
 
     uint encode_utf8(uint32_t c, ubyte* bytes);
     uint32_t decode_utf8(uint& size, const char* bytes);
-    std::string wstr2str_utf8(const std::wstring &ws);
-    std::wstring str2wstr_utf8(const std::string &s);
+    std::string wstr2str_utf8(const std::wstring& ws);
+    std::wstring str2wstr_utf8(const std::string& s);
     bool is_integer(const std::string& text);
     bool is_integer(const std::wstring& text);
-    bool is_valid_filename(const std::wstring &name);
+    bool is_valid_filename(const std::wstring& name);
 
-    void ltrim(std::string &s);
-    void rtrim(std::string &s);
-    void trim(std::string &s);
+    void ltrim(std::string& s);
+    void rtrim(std::string& s);
+    void trim(std::string& s);
 
     std::string to_string(double x);
     std::wstring to_wstring(double x, int precision);
@@ -37,7 +37,9 @@ namespace util {
 
     std::string mangleid(uint64_t value);
 
-    int replaceAll(std::string& str, const std::string& from, const std::string& to);
+    int replaceAll(
+        std::string& str, const std::string& from, const std::string& to
+    );
 
     double parse_double(const std::string& str);
     double parse_double(const std::string& str, size_t offset, size_t len);
@@ -61,4 +63,4 @@ namespace util {
     std::pair<std::string, std::string> split_at(std::string_view view, char c);
 }
 
-#endif // UTIL_STRINGUTIL_HPP_
+#endif  // UTIL_STRINGUTIL_HPP_

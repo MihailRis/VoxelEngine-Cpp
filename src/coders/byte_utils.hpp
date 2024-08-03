@@ -1,10 +1,10 @@
 #ifndef CODERS_BYTE_UTILS_HPP_
 #define CODERS_BYTE_UTILS_HPP_
 
-#include "../typedefs.hpp"
-
 #include <string>
 #include <vector>
+
+#include "../typedefs.hpp"
 
 /* byteorder: little-endian */
 class ByteBuilder {
@@ -23,8 +23,8 @@ public:
     /* Write 32 bit floating-point number */
     void putFloat32(float val);
     /* Write 64 bit floating-point number */
-    void putFloat64(double val);   
-    
+    void putFloat64(double val);
+
     /* Write string (uint32 length + bytes) */
     void put(const std::string& s);
     /* Write sequence of bytes without any header */
@@ -80,4 +80,4 @@ public:
     void skip(size_t n);
 };
 
-#endif // CODERS_BYTE_UTILS_HPP_
+#endif  // CODERS_BYTE_UTILS_HPP_

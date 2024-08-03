@@ -6,4 +6,4 @@ class EnginePaths;
 /// @return false if engine start can
 bool parse_cmdline(int argc, char** argv, EnginePaths& paths);
 
-#endif // UTIL_COMMAND_LINE_HPP_
+#endif  // UTIL_COMMAND_LINE_HPP_

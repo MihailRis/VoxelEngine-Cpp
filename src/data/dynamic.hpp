@@ -1,28 +1,27 @@
 #ifndef DATA_DYNAMIC_HPP_
 #define DATA_DYNAMIC_HPP_
 
-#include "dynamic_fwd.hpp"
-
 #include <cmath>
-#include <string>
-#include <vector>
 #include <memory>
 #include <ostream>
-
 #include <stdexcept>
+#include <string>
 #include <unordered_map>
+#include <vector>
+
+#include "dynamic_fwd.hpp"
 
 namespace dynamic {
-    enum class Type {
-        none=0, map, list, string, number, boolean, integer
-    };
+    enum class Type { none = 0, map, list, string, number, boolean, integer };
 
     const std::string& type_name(const Value& value);
-    List_sptr create_list(std::initializer_list<Value> values={});
-    Map_sptr create_map(std::initializer_list<std::pair<const std::string, Value>> entries={});
+    List_sptr create_list(std::initializer_list<Value> values = {});
+    Map_sptr create_map(
+        std::initializer_list<std::pair<const std::string, Value>> entries = {}
+    );
     number_t get_number(const Value& value);
     integer_t get_integer(const Value& value);
-    
+
     inline bool is_numeric(const Value& value) {
         return std::holds_alternative<number_t>(value) ||
                std::holds_alternative<integer_t>(value);
@@ -42,7 +41,8 @@ namespace dynamic {
         std::vector<Value> values;
 
         List() = default;
-        List(std::vector<Value> values) : values(std::move(values)) {}
+        List(std::vector<Value> values) : values(std::move(values)) {
+        }
 
         std::string str(size_t index) const;
         number_t num(size_t index) const;
@@ -80,13 +80,13 @@ namespace dynamic {
         std::unordered_map<std::string, Value> values;
 
         Map() = default;
-        Map(std::unordered_map<std::string, Value> values) 
-        : values(std::move(values)) {};
+        Map(std::unordered_map<std::string, Value> values)
+            : values(std::move(values)) {};
 
-        template<typename T>
+        template <typename T>
         T get(const std::string& key) const {
             if (!has(key)) {
-                throw std::runtime_error("missing key '"+key+"'");
+                throw std::runtime_error("missing key '" + key + "'");
             }
             return get(key, T());
         }
@@ -164,4 +164,4 @@ std::ostream& operator<<(std::ostream& stream, const dynamic::Value& value);
 std::ostream& operator<<(std::ostream& stream, const dynamic::Map_sptr& value);
 std::ostream& operator<<(std::ostream& stream, const dynamic::List_sptr& value);
 
-#endif // DATA_DYNAMIC_HPP_
+#endif  // DATA_DYNAMIC_HPP_

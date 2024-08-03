@@ -172,10 +172,10 @@ void WorldRenderer::setupWorldShader(
     {
         auto inventory = player->getInventory();
         ItemStack& stack = inventory->getSlot(player->getChosenSlot());
-        auto item = indices->items.get(stack.getItemId());
+        auto item = indices->items.get(stack.getItemId()); //FIXME: Potentional null pointer
         float multiplier = 0.5f;
         shader->uniform3f("u_torchlightColor",  
-            item->emission[0] / 15.0f * multiplier,
+            item->emission[0] / 15.0f * multiplier, //-V522
             item->emission[1] / 15.0f * multiplier,
             item->emission[2] / 15.0f * multiplier
         );
@@ -222,12 +222,12 @@ void WorldRenderer::renderBlockSelection() {
     const auto& selection = player->selection;
     auto indices = level->content->getIndices();
     blockid_t id = selection.vox.id;
-    auto block = indices->blocks.get(id);
+    auto block = indices->blocks.get(id); //FIXME: Potentional null pointer
     const glm::ivec3 pos = player->selection.position;
     const glm::vec3 point = selection.hitPosition;
     const glm::vec3 norm = selection.normal;
 
-    const std::vector<AABB>& hitboxes = block->rotatable
+    const std::vector<AABB>& hitboxes = block->rotatable //-V522
         ? block->rt.hitboxes[selection.vox.state.rotation]
         : block->hitboxes;
 

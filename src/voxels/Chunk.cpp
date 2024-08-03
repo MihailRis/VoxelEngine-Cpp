@@ -2,21 +2,20 @@
 
 #include <utility>
 
+#include "../content/ContentLUT.hpp"
+#include "../items/Inventory.hpp"
+#include "../lighting/Lightmap.hpp"
 #include "voxel.hpp"
 
-#include "../items/Inventory.hpp"
-#include "../content/ContentLUT.hpp"
-#include "../lighting/Lightmap.hpp"
-
-Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos){
+Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos) {
     bottom = 0;
     top = CHUNK_H;
 }
 
-bool Chunk::isEmpty(){
+bool Chunk::isEmpty() {
     int id = -1;
-    for (uint i = 0; i < CHUNK_VOL; i++){
-        if (voxels[i].id != id){
+    for (uint i = 0; i < CHUNK_VOL; i++) {
+        if (voxels[i].id != id) {
             if (id != -1)
                 return false;
             else
@@ -41,8 +40,9 @@ void Chunk::updateHeights() {
     }
 }
 
-void Chunk::addBlockInventory(std::shared_ptr<Inventory> inventory, 
-                              uint x, uint y, uint z) {
+void Chunk::addBlockInventory(
+    std::shared_ptr<Inventory> inventory, uint x, uint y, uint z
+) {
     inventories[vox_index(x, y, z)] = std::move(inventory);
     flags.unsaved = true;
 }
@@ -57,9 +57,9 @@ void Chunk::setBlockInventories(chunk_inventories_map map) {
     inventories = std::move(map);
 }
 
-std::shared_ptr<Inventory> Chunk::getBlockInventory(uint x, uint y, uint z) const {
-    if (x >= CHUNK_W || y >= CHUNK_H || z >= CHUNK_D)
-        return nullptr;
+std::shared_ptr<Inventory> Chunk::getBlockInventory(uint x, uint y, uint z)
+    const {
+    if (x >= CHUNK_W || y >= CHUNK_H || z >= CHUNK_D) return nullptr;
     const auto& found = inventories.find(vox_index(x, y, z));
     if (found == inventories.end()) {
         return nullptr;
@@ -68,7 +68,7 @@ std::shared_ptr<Inventory> Chunk::getBlockInventory(uint x, uint y, uint z) cons
 }
 
 std::unique_ptr<Chunk> Chunk::clone() const {
-    auto other = std::make_unique<Chunk>(x,z);
+    auto other = std::make_unique<Chunk>(x, z);
     for (uint i = 0; i < CHUNK_VOL; i++) {
         other->voxels[i] = voxels[i];
     }
@@ -76,7 +76,7 @@ std::unique_ptr<Chunk> Chunk::clone() const {
     return other;
 }
 
-/** 
+/**
   Current chunk format:
     - byte-order: big-endian
     - [don't panic!] first and second bytes are separated for RLE efficiency
@@ -94,11 +94,11 @@ std::unique_ptr<ubyte[]> Chunk::encode() const {
     auto buffer = std::make_unique<ubyte[]>(CHUNK_DATA_LEN);
     for (uint i = 0; i < CHUNK_VOL; i++) {
         buffer[i] = voxels[i].id >> 8;
-        buffer[CHUNK_VOL+i] = voxels[i].id & 0xFF;
+        buffer[CHUNK_VOL + i] = voxels[i].id & 0xFF;
 
         blockstate_t state = blockstate2int(voxels[i].state);
-        buffer[CHUNK_VOL*2 + i] = state >> 8;
-        buffer[CHUNK_VOL*3 + i] = state & 0xFF;
+        buffer[CHUNK_VOL * 2 + i] = state >> 8;
+        buffer[CHUNK_VOL * 3 + i] = state & 0xFF;
     }
     return buffer;
 }
@@ -109,15 +109,16 @@ bool Chunk::decode(const ubyte* data) {
 
         ubyte bid1 = data[i];
         ubyte bid2 = data[CHUNK_VOL + i];
-        
-        ubyte bst1 = data[CHUNK_VOL*2 + i];
-        ubyte bst2 = data[CHUNK_VOL*3 + i];
 
-        vox.id = (static_cast<blockid_t>(bid1) << 8) |
-                  static_cast<blockid_t>(bid2);
+        ubyte bst1 = data[CHUNK_VOL * 2 + i];
+        ubyte bst2 = data[CHUNK_VOL * 3 + i];
+
+        vox.id =
+            (static_cast<blockid_t>(bid1) << 8) | static_cast<blockid_t>(bid2);
         vox.state = int2blockstate(
-            (static_cast<blockstate_t>(bst1) << 8) | 
-             static_cast<blockstate_t>(bst2));
+            (static_cast<blockstate_t>(bst1) << 8) |
+            static_cast<blockstate_t>(bst2)
+        );
     }
     return true;
 }
@@ -125,10 +126,11 @@ bool Chunk::decode(const ubyte* data) {
 void Chunk::convert(ubyte* data, const ContentLUT* lut) {
     for (uint i = 0; i < CHUNK_VOL; i++) {
         // see encode method to understand what the hell is going on here
-        blockid_t id = ((static_cast<blockid_t>(data[i]) << 8) | 
-                         static_cast<blockid_t>(data[CHUNK_VOL+i]));
+        blockid_t id =
+            ((static_cast<blockid_t>(data[i]) << 8) |
+             static_cast<blockid_t>(data[CHUNK_VOL + i]));
         blockid_t replacement = lut->blocks.getId(id);
         data[i] = replacement >> 8;
-        data[CHUNK_VOL+i] = replacement & 0xFF;
+        data[CHUNK_VOL + i] = replacement & 0xFF;
     }
 }

@@ -1,30 +1,29 @@
 #include "AssetsLoader.hpp"
 
-#include "Assets.hpp"
-#include "assetload_funcs.hpp"
-#include "../util/ThreadPool.hpp"
-#include "../constants.hpp"
-#include "../data/dynamic.hpp"
-#include "../debug/Logger.hpp"
-#include "../coders/imageio.hpp"
-#include "../files/files.hpp"
-#include "../files/engine_paths.hpp"
-#include "../content/Content.hpp"
-#include "../content/ContentPack.hpp"
-#include "../voxels/Block.hpp"
-#include "../objects/rigging.hpp"
-#include "../graphics/core/Texture.hpp"
-#include "../logic/scripting/scripting.hpp"
-
 #include <iostream>
 #include <memory>
 #include <utility>
 
+#include "../coders/imageio.hpp"
+#include "../constants.hpp"
+#include "../content/Content.hpp"
+#include "../content/ContentPack.hpp"
+#include "../data/dynamic.hpp"
+#include "../debug/Logger.hpp"
+#include "../files/engine_paths.hpp"
+#include "../files/files.hpp"
+#include "../graphics/core/Texture.hpp"
+#include "../logic/scripting/scripting.hpp"
+#include "../objects/rigging.hpp"
+#include "../util/ThreadPool.hpp"
+#include "../voxels/Block.hpp"
+#include "Assets.hpp"
+#include "assetload_funcs.hpp"
+
 static debug::Logger logger("assets-loader");
 
-AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths) 
-  : assets(assets), paths(paths) 
-{
+AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths)
+    : assets(assets), paths(paths) {
     addLoader(AssetType::SHADER, assetload::shader);
     addLoader(AssetType::TEXTURE, assetload::texture);
     addLoader(AssetType::FONT, assetload::font);
@@ -38,8 +37,13 @@ void AssetsLoader::addLoader(AssetType tag, aloader_func func) {
     loaders[tag] = std::move(func);
 }
 
-void AssetsLoader::add(AssetType tag, const std::string& filename, const std::string& alias, std::shared_ptr<AssetCfg> settings) {
-    entries.push(aloader_entry{tag, filename, alias, std::move(settings)});
+void AssetsLoader::add(
+    AssetType tag,
+    const std::string& filename,
+    const std::string& alias,
+    std::shared_ptr<AssetCfg> settings
+) {
+    entries.push(aloader_entry {tag, filename, alias, std::move(settings)});
 }
 
 bool AssetsLoader::hasNext() const {
@@ -50,7 +54,7 @@ aloader_func AssetsLoader::getLoader(AssetType tag) {
     auto found = loaders.find(tag);
     if (found == loaders.end()) {
         throw std::runtime_error(
-            "unknown asset tag "+std::to_string(static_cast<int>(tag))
+            "unknown asset tag " + std::to_string(static_cast<int>(tag))
         );
     }
     return found->second;
@@ -61,7 +65,8 @@ void AssetsLoader::loadNext() {
     logger.info() << "loading " << entry.filename << " as " << entry.alias;
     try {
         aloader_func loader = getLoader(entry.tag);
-        auto postfunc = loader(this, paths, entry.filename, entry.alias, entry.config);
+        auto postfunc =
+            loader(this, paths, entry.filename, entry.alias, entry.config);
         postfunc(assets);
         entries.pop();
     } catch (std::runtime_error& err) {
@@ -74,16 +79,25 @@ void AssetsLoader::loadNext() {
     }
 }
 
-void addLayouts(const scriptenv& env, const std::string& prefix, const fs::path& folder, AssetsLoader& loader) {
+void addLayouts(
+    const scriptenv& env,
+    const std::string& prefix,
+    const fs::path& folder,
+    AssetsLoader& loader
+) {
     if (!fs::is_directory(folder)) {
         return;
     }
     for (auto& entry : fs::directory_iterator(folder)) {
         const fs::path& file = entry.path();
-        if (file.extension().u8string() != ".xml")
-            continue;
-        std::string name = prefix+":"+file.stem().u8string();
-        loader.add(AssetType::LAYOUT, file.u8string(), name, std::make_shared<LayoutCfg>(env));
+        if (file.extension().u8string() != ".xml") continue;
+        std::string name = prefix + ":" + file.stem().u8string();
+        loader.add(
+            AssetType::LAYOUT,
+            file.u8string(),
+            name,
+            std::make_shared<LayoutCfg>(env)
+        );
     }
 }
 
@@ -91,30 +105,35 @@ void AssetsLoader::tryAddSound(const std::string& name) {
     if (name.empty()) {
         return;
     }
-    std::string file = SOUNDS_FOLDER+"/"+name;
+    std::string file = SOUNDS_FOLDER + "/" + name;
     add(AssetType::SOUND, file, name);
 }
 
 static std::string assets_def_folder(AssetType tag) {
     switch (tag) {
-        case AssetType::FONT: return FONTS_FOLDER;
-        case AssetType::SHADER: return SHADERS_FOLDER;
-        case AssetType::TEXTURE: return TEXTURES_FOLDER;
-        case AssetType::ATLAS: return TEXTURES_FOLDER;
-        case AssetType::LAYOUT: return LAYOUTS_FOLDER;
-        case AssetType::SOUND: return SOUNDS_FOLDER;
-        case AssetType::MODEL: return MODELS_FOLDER;
+        case AssetType::FONT:
+            return FONTS_FOLDER;
+        case AssetType::SHADER:
+            return SHADERS_FOLDER;
+        case AssetType::TEXTURE:
+            return TEXTURES_FOLDER;
+        case AssetType::ATLAS:
+            return TEXTURES_FOLDER;
+        case AssetType::LAYOUT:
+            return LAYOUTS_FOLDER;
+        case AssetType::SOUND:
+            return SOUNDS_FOLDER;
+        case AssetType::MODEL:
+            return MODELS_FOLDER;
     }
     return "<error>";
 }
 
 void AssetsLoader::processPreload(
-    AssetType tag, 
-    const std::string& name, 
-    dynamic::Map* map
+    AssetType tag, const std::string& name, dynamic::Map* map
 ) {
     std::string defFolder = assets_def_folder(tag);
-    std::string path = defFolder+"/"+name;
+    std::string path = defFolder + "/" + name;
     if (map == nullptr) {
         add(tag, path, name);
         return;
@@ -122,9 +141,10 @@ void AssetsLoader::processPreload(
     map->str("path", path);
     switch (tag) {
         case AssetType::SOUND:
-            add(tag, path, name, std::make_shared<SoundCfg>(
-                map->get("keep-pcm", false)
-            ));
+            add(tag,
+                path,
+                name,
+                std::make_shared<SoundCfg>(map->get("keep-pcm", false)));
             break;
         default:
             add(tag, path, name);
@@ -166,7 +186,7 @@ void AssetsLoader::processPreloadConfig(const fs::path& file) {
 }
 
 void AssetsLoader::processPreloadConfigs(const Content* content) {
-    auto preloadFile = paths->getMainRoot()/fs::path("preload.json");
+    auto preloadFile = paths->getMainRoot() / fs::path("preload.json");
     if (fs::exists(preloadFile)) {
         processPreloadConfig(preloadFile);
     }
@@ -192,7 +212,12 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
             loader.tryAddSound(material.breakSound);
         }
 
-        addLayouts(0, "core", loader.getPaths()->getMainRoot()/fs::path("layouts"), loader);
+        addLayouts(
+            0,
+            "core",
+            loader.getPaths()->getMainRoot() / fs::path("layouts"),
+            loader
+        );
         for (auto& entry : content->getPacks()) {
             auto pack = entry.second.get();
             auto& info = pack->getInfo();
@@ -205,7 +230,9 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
             for (auto& bone : skeleton.getBones()) {
                 auto& model = bone->model.name;
                 if (!model.empty()) {
-                    loader.add(AssetType::MODEL, MODELS_FOLDER+"/"+model, model);
+                    loader.add(
+                        AssetType::MODEL, MODELS_FOLDER + "/" + model, model
+                    );
                 }
             }
         }
@@ -227,8 +254,8 @@ bool AssetsLoader::loadExternalTexture(
                 assets->store(Texture::from(image.get()), name);
                 return true;
             } catch (const std::exception& err) {
-                logger.error() << "error while loading external " 
-                    << path.u8string() << ": " << err.what();
+                logger.error() << "error while loading external "
+                               << path.u8string() << ": " << err.what();
             }
         }
     }
@@ -245,22 +272,26 @@ public:
     LoaderWorker(AssetsLoader* loader) : loader(loader) {
     }
 
-    assetload::postfunc operator()(const std::shared_ptr<aloader_entry>& entry) override {
+    assetload::postfunc operator()(const std::shared_ptr<aloader_entry>& entry
+    ) override {
         aloader_func loadfunc = loader->getLoader(entry->tag);
-        return loadfunc(loader, loader->getPaths(), entry->filename, entry->alias, entry->config);
+        return loadfunc(
+            loader,
+            loader->getPaths(),
+            entry->filename,
+            entry->alias,
+            entry->config
+        );
     }
 };
 
 std::shared_ptr<Task> AssetsLoader::startTask(runnable onDone) {
-    auto pool = std::make_shared<
-        util::ThreadPool<aloader_entry, assetload::postfunc>
-    >(
-        "assets-loader-pool", 
-        [=](){return std::make_shared<LoaderWorker>(this);},
-        [=](assetload::postfunc& func) {
-            func(assets);
-        }
-    );
+    auto pool =
+        std::make_shared<util::ThreadPool<aloader_entry, assetload::postfunc>>(
+            "assets-loader-pool",
+            [=]() { return std::make_shared<LoaderWorker>(this); },
+            [=](assetload::postfunc& func) { func(assets); }
+        );
     pool->setOnComplete(std::move(onDone));
     while (!entries.empty()) {
         const aloader_entry& entry = entries.front();

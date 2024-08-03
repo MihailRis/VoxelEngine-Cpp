@@ -1,7 +1,6 @@
-#include "api_lua.hpp"
-
 #include "../../../coders/json.hpp"
 #include "../../../data/dynamic.hpp"
+#include "api_lua.hpp"
 
 static int l_json_stringify(lua::State* L) {
     auto value = lua::tovalue(L, 1);
@@ -21,8 +20,7 @@ static int l_json_parse(lua::State* L) {
     return lua::pushvalue(L, element);
 }
 
-const luaL_Reg jsonlib [] = {
+const luaL_Reg jsonlib[] = {
     {"tostring", lua::wrap<l_json_stringify>},
     {"parse", lua::wrap<l_json_parse>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

@@ -1,15 +1,16 @@
 #include "toml.hpp"
 
-#include "commons.hpp"
-#include "../data/setting.hpp"
-#include "../data/dynamic.hpp"
-#include "../util/stringutil.hpp"
-#include "../files/settings_io.hpp"
-
+#include <assert.h>
 #include <math.h>
+
 #include <iomanip>
 #include <sstream>
-#include <assert.h>
+
+#include "../data/dynamic.hpp"
+#include "../data/setting.hpp"
+#include "../files/settings_io.hpp"
+#include "../util/stringutil.hpp"
+#include "commons.hpp"
 
 using namespace toml;
 
@@ -48,7 +49,7 @@ class TomlReader : BasicParser {
             } else {
                 rootMap = *map;
             }
-            offset = index+1;
+            offset = index + 1;
         } while (true);
     }
 
@@ -93,12 +94,9 @@ class TomlReader : BasicParser {
             expectNewLine();
         }
     }
-
 public:
-    TomlReader(
-        std::string_view file, 
-        std::string_view source) 
-    : BasicParser(file, source) {
+    TomlReader(std::string_view file, std::string_view source)
+        : BasicParser(file, source) {
         root = dynamic::create_map();
     }
 
@@ -129,7 +127,7 @@ void toml::parse(
         for (auto& sectionEntry : (*sectionMap)->values) {
             const auto& name = sectionEntry.first;
             auto& value = sectionEntry.second;
-            auto fullname = sectionName+"."+name;
+            auto fullname = sectionName + "." + name;
             if (handler.has(fullname)) {
                 handler.setValue(fullname, value);
             }
@@ -150,9 +148,11 @@ std::string toml::stringify(dynamic::Map& root, const std::string& name) {
     }
     for (auto& entry : root.values) {
         if (auto submap = std::get_if<dynamic::Map_sptr>(&entry.second)) {
-            ss << "\n" << toml::stringify(
-                **submap, name.empty() ? entry.first : name+"."+entry.first
-            );
+            ss << "\n"
+               << toml::stringify(
+                      **submap,
+                      name.empty() ? entry.first : name + "." + entry.first
+                  );
         }
     }
     return ss.str();
@@ -166,7 +166,7 @@ std::string toml::stringify(SettingsHandler& handler) {
         ss << "[" << section.name << "]\n";
         for (const std::string& key : section.keys) {
             ss << key << " = ";
-            auto setting = handler.getSetting(section.name+"."+key);
+            auto setting = handler.getSetting(section.name + "." + key);
             assert(setting != nullptr);
             if (auto integer = dynamic_cast<IntegerSetting*>(setting)) {
                 ss << integer->get();

@@ -1,8 +1,9 @@
 #ifndef VOXELS_WORLDGENERATOR_HPP_
 #define VOXELS_WORLDGENERATOR_HPP_
 
-#include "../typedefs.hpp"
 #include <string>
+
+#include "../typedefs.hpp"
 
 struct voxel;
 class Content;
@@ -26,4 +27,4 @@ public:
     virtual void generate(voxel* voxels, int x, int z, int seed) = 0;
 };
 
-#endif // VOXELS_WORLDGENERATOR_HPP_
+#endif  // VOXELS_WORLDGENERATOR_HPP_

@@ -48,4 +48,4 @@ inline light_t light_pack(ubyte r, ubyte g, ubyte b, ubyte s) {
     return r | (g << 4) | (b << 8) | (s << 12);
 }
 
-#endif // VOXNATHS_HPP_
+#endif  // VOXNATHS_HPP_

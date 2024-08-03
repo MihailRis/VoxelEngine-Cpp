@@ -7,7 +7,8 @@ std::string NumberSetting::toString() const {
         case setting_format::simple:
             return util::to_string(value);
         case setting_format::percent:
-            return std::to_string(static_cast<integer_t>(round(value * 100))) + "%";
+            return std::to_string(static_cast<integer_t>(round(value * 100))) +
+                   "%";
         default:
             return "invalid format";
     }

@@ -11,6 +11,7 @@
 #include "../../window/Camera.hpp"
 #include "../../maths/UVRegion.hpp"
 
+#include <cmath>
 #include <iostream>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -76,14 +77,14 @@ void Skybox::drawStars(float angle, float opacity) {
         float rx = (random.randFloat()) - 0.5f;
         float ry = (random.randFloat()) - 0.5f;
         float z = (random.randFloat()) - 0.5f;
-        float x = rx * sin(angle) + ry * -cos(angle);
-        float y = rx * cos(angle) + ry * sin(angle);
+        float x = rx * std::sin(angle) + ry * -std::cos(angle);
+        float y = rx * std::cos(angle) + ry * std::sin(angle);
 
         float sopacity = random.randFloat();
         if (y < 0.0f)
             continue;
 
-        sopacity *= (0.2f+sqrt(cos(angle))*0.5) - 0.05;
+        sopacity *= (0.2f+std::sqrt(std::cos(angle))*0.5f) - 0.05f;
         glm::vec4 tint (1,1,1, sopacity * opacity);
         batch3d->point(glm::vec3(x, y, z), tint);
     }
@@ -106,26 +107,26 @@ void Skybox::draw(
     DrawContext ctx = pctx.sub();
     ctx.setBlendMode(BlendMode::addition);
 
-    auto shader = assets->get<Shader>("ui3d");
-    shader->use();
-    shader->uniformMatrix("u_projview", camera->getProjView(false));
-    shader->uniformMatrix("u_apply", glm::mat4(1.0f));
+    auto p_shader = assets->get<Shader>("ui3d");
+    p_shader->use();
+    p_shader->uniformMatrix("u_projview", camera->getProjView(false));
+    p_shader->uniformMatrix("u_apply", glm::mat4(1.0f));
     batch3d->begin();
 
-    float angle = daytime * M_PI * 2;
+    float angle = daytime * float(M_PI) * 2.0f;
     float opacity = glm::pow(1.0f-fog, 7.0f);
     
     for (auto& sprite : sprites) {
         batch3d->texture(assets->get<Texture>(sprite.texture));
 
-        float sangle = daytime * M_PI*2 + sprite.phase;
+        float sangle = daytime * float(M_PI)*2.0 + sprite.phase;
         float distance = sprite.distance;
 
-        glm::vec3 pos(-cos(sangle)*distance, sin(sangle)*distance, 0);
-        glm::vec3 up(-sin(-sangle), cos(-sangle), 0.0f);
+        glm::vec3 pos(-std::cos(sangle)*distance, std::sin(sangle)*distance, 0);
+        glm::vec3 up(-std::sin(-sangle), std::cos(-sangle), 0.0f);
         glm::vec4 tint (1,1,1, opacity);
         if (!sprite.emissive) {
-            tint *= 0.6f+cos(angle)*0.4;
+            tint *= 0.6f+std::cos(angle)*0.4;
         }
         batch3d->sprite(pos, glm::vec3(0, 0, 1), 
                         up, 1, 1, UVRegion(), tint);
@@ -141,11 +142,11 @@ void Skybox::refresh(const DrawContext& pctx, float t, float mie, uint quality) 
     ctx.setFramebuffer(fbo.get());
     ctx.setViewport(Viewport(size, size));
 
-    auto cubemap = dynamic_cast<Cubemap*>(fbo->getTexture());
+    auto cubemap = dynamic_cast<Cubemap*>(fbo->getTexture()); //FIXME: Potentional null pointer
 
     ready = true;
     glActiveTexture(GL_TEXTURE1);
-    cubemap->bind();
+    cubemap->bind(); //-V522
     shader->use();
 
     const glm::vec3 xaxs[] = {

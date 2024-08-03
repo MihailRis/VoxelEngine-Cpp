@@ -1,12 +1,12 @@
 #ifndef CONTENT_CONTENT_PACK_HPP_
 #define CONTENT_CONTENT_PACK_HPP_
 
-#include "../typedefs.hpp"
-
+#include <filesystem>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <stdexcept>
-#include <filesystem>
+
+#include "../typedefs.hpp"
 
 class EnginePaths;
 
@@ -16,18 +16,19 @@ class contentpack_error : public std::runtime_error {
     std::string packId;
     fs::path folder;
 public:
-    contentpack_error(std::string packId, fs::path folder, const std::string& message);
+    contentpack_error(
+        std::string packId, fs::path folder, const std::string& message
+    );
 
     std::string getPackId() const;
     fs::path getFolder() const;
 };
 
 enum class DependencyLevel {
-    required, // dependency must be installed
-    optional, // dependency will be installed if found
-    weak, // only affects packs order
+    required,  // dependency must be installed
+    optional,  // dependency will be installed if found
+    weak,      // only affects packs order
 };
-
 
 /// @brief Content-pack that should be installed earlier the dependent
 struct DependencyPack {
@@ -57,14 +58,13 @@ struct ContentPack {
     static ContentPack read(const fs::path& folder);
 
     static void scanFolder(
-        const fs::path& folder,
-        std::vector<ContentPack>& packs
+        const fs::path& folder, std::vector<ContentPack>& packs
     );
-    
+
     static std::vector<std::string> worldPacksList(const fs::path& folder);
 
     static fs::path findPack(
-        const EnginePaths* paths, 
+        const EnginePaths* paths,
         const fs::path& worldDir,
         const std::string& name
     );
@@ -92,10 +92,7 @@ class ContentPackRuntime {
 public:
     world_funcs_set worldfuncsset {};
 
-    ContentPackRuntime(
-        ContentPack info,
-        scriptenv env
-    );
+    ContentPackRuntime(ContentPack info, scriptenv env);
     ~ContentPackRuntime();
 
     inline const ContentPackStats& getStats() const {
@@ -119,4 +116,4 @@ public:
     }
 };
 
-#endif // CONTENT_CONTENT_PACK_HPP_
+#endif  // CONTENT_CONTENT_PACK_HPP_

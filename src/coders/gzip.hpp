@@ -1,8 +1,9 @@
 #ifndef CODERS_GZIP_HPP_
 #define CODERS_GZIP_HPP_
 
-#include "../typedefs.hpp"
 #include <vector>
+
+#include "../typedefs.hpp"
 
 namespace gzip {
     const unsigned char MAGIC[] = "\x1F\x8B";
@@ -11,11 +12,11 @@ namespace gzip {
      @param src source bytes array
      @param size length of source bytes array */
     std::vector<ubyte> compress(const ubyte* src, size_t size);
-    
-    /* Decompress bytes array from GZIP 
+
+    /* Decompress bytes array from GZIP
      @param src GZIP data
      @param size length of GZIP data */
     std::vector<ubyte> decompress(const ubyte* src, size_t size);
 }
 
-#endif // CODERS_GZIP_HPP_
+#endif  // CODERS_GZIP_HPP_

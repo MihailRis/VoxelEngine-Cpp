@@ -1,16 +1,15 @@
 #ifndef CONTENT_CONTENT_LUT_HPP_
 #define CONTENT_CONTENT_LUT_HPP_
 
-#include "Content.hpp"
-
-#include "../typedefs.hpp"
-#include "../constants.hpp"
-#include "../data/dynamic.hpp"
-
+#include <filesystem>
 #include <string>
 #include <utility>
 #include <vector>
-#include <filesystem>
+
+#include "../constants.hpp"
+#include "../data/dynamic.hpp"
+#include "../typedefs.hpp"
+#include "Content.hpp"
 
 namespace fs = std::filesystem;
 
@@ -19,7 +18,7 @@ struct contententry {
     std::string name;
 };
 
-template<typename T, class U>
+template <typename T, class U>
 class ContentUnitLUT {
     std::vector<T> indices;
     std::vector<std::string> names;
@@ -28,13 +27,18 @@ class ContentUnitLUT {
     T missingValue;
     contenttype type;
 public:
-    ContentUnitLUT(size_t count, const ContentUnitIndices<U>& unitIndices, T missingValue, contenttype type) 
-    : missingValue(missingValue), type(type) {
+    ContentUnitLUT(
+        size_t count,
+        const ContentUnitIndices<U>& unitIndices,
+        T missingValue,
+        contenttype type
+    )
+        : missingValue(missingValue), type(type) {
         for (size_t i = 0; i < count; i++) {
             indices.push_back(i);
         }
         for (size_t i = 0; i < unitIndices.count(); i++) {
-            names.push_back(unitIndices.get(i)->name);
+            names.push_back(unitIndices.get(i)->name); //FIXME: .get(i) potentional null pointer //-V522
         }
         for (size_t i = unitIndices.count(); i < count; i++) {
             names.emplace_back("");
@@ -47,7 +51,7 @@ public:
                 if (auto def = defs.find(name)) {
                     set(i, name, def->rt.id);
                 } else {
-                    set(i, name, missingValue);   
+                    set(i, name, missingValue);
                 }
             }
         }
@@ -86,7 +90,7 @@ public:
     }
 };
 
-/// @brief Content indices lookup table or report 
+/// @brief Content indices lookup table or report
 /// used to convert world with different indices
 /// Building with indices.json
 class ContentLUT {
@@ -97,10 +101,9 @@ public:
     ContentLUT(const ContentIndices* indices, size_t blocks, size_t items);
 
     static std::shared_ptr<ContentLUT> create(
-        const fs::path& filename, 
-        const Content* content
+        const fs::path& filename, const Content* content
     );
-    
+
     inline bool hasContentReorder() const {
         return blocks.hasContentReorder() || items.hasContentReorder();
     }
@@ -111,4 +114,4 @@ public:
     std::vector<contententry> getMissingContent() const;
 };
 
-#endif // CONTENT_CONTENT_LUT_HPP_
+#endif  // CONTENT_CONTENT_LUT_HPP_

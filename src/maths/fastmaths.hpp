@@ -12,7 +12,7 @@ public:
 
     inline int rand() {
         seed = (214013 * seed + 2531011);
-        return (seed>>16) & 0x7FFF;   
+        return (seed >> 16) & 0x7FFF;
     }
 
     inline float randFloat() {
@@ -20,4 +20,4 @@ public:
     }
 };
 
-#endif // MATHS_FASTMATHS_HPP_
+#endif  // MATHS_FASTMATHS_HPP_

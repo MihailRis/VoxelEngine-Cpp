@@ -1,14 +1,13 @@
-#include "libentity.hpp"
+#include <algorithm>
+#include <glm/glm.hpp>
 
-#include "../../../world/Level.hpp"
-#include "../../../objects/Player.hpp"
+#include "../../../items/Inventory.hpp"
 #include "../../../objects/Entities.hpp"
+#include "../../../objects/Player.hpp"
 #include "../../../physics/Hitbox.hpp"
 #include "../../../window/Camera.hpp"
-#include "../../../items/Inventory.hpp"
-
-#include <glm/glm.hpp>
-#include <algorithm>
+#include "../../../world/Level.hpp"
+#include "libentity.hpp"
 
 using namespace scripting;
 
@@ -41,7 +40,7 @@ static int l_get_vel(lua::State* L) {
             return lua::pushvec3_stack(L, hitbox->velocity);
         }
     }
-    return 0;    
+    return 0;
 }
 
 static int l_set_vel(lua::State* L) {
@@ -155,7 +154,6 @@ static int l_get_spawnpoint(lua::State* L) {
     return 0;
 }
 
-
 static int l_set_spawnpoint(lua::State* L) {
     auto player = get_player(L, 1);
 
@@ -193,7 +191,8 @@ static int l_get_camera(lua::State* L) {
         return 0;
     }
     auto found = std::find(
-        level->cameras.begin(), level->cameras.end(), player->currentCamera);
+        level->cameras.begin(), level->cameras.end(), player->currentCamera
+    );
     if (found == level->cameras.end()) {
         return 0;
     }
@@ -210,7 +209,7 @@ static int l_set_camera(lua::State* L) {
     return 0;
 }
 
-const luaL_Reg playerlib [] = {
+const luaL_Reg playerlib[] = {
     {"get_pos", lua::wrap<l_get_pos>},
     {"set_pos", lua::wrap<l_set_pos>},
     {"get_vel", lua::wrap<l_get_vel>},
@@ -231,5 +230,4 @@ const luaL_Reg playerlib [] = {
     {"set_entity", lua::wrap<l_set_entity>},
     {"get_camera", lua::wrap<l_get_camera>},
     {"set_camera", lua::wrap<l_set_camera>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

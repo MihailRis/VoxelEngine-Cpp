@@ -1,10 +1,9 @@
-#include "api_lua.hpp"
-
 #include "../../../content/Content.hpp"
-#include "../../../world/Level.hpp"
-#include "../../../items/ItemStack.hpp"
 #include "../../../items/Inventories.hpp"
+#include "../../../items/ItemStack.hpp"
 #include "../../../logic/BlocksController.hpp"
+#include "../../../world/Level.hpp"
+#include "api_lua.hpp"
 
 using namespace scripting;
 
@@ -17,7 +16,7 @@ static void validate_itemid(itemid_t id) {
 static std::shared_ptr<Inventory> get_inventory(int64_t id) {
     auto inv = level->inventories->get(id);
     if (inv == nullptr) {
-        throw std::runtime_error("inventory not found: "+std::to_string(id));
+        throw std::runtime_error("inventory not found: " + std::to_string(id));
     }
     return inv;
 }
@@ -25,15 +24,19 @@ static std::shared_ptr<Inventory> get_inventory(int64_t id) {
 static std::shared_ptr<Inventory> get_inventory(int64_t id, int arg) {
     auto inv = level->inventories->get(id);
     if (inv == nullptr) {
-        throw std::runtime_error("inventory not found: "+std::to_string(id)+
-            " argument "+std::to_string(arg));
+        throw std::runtime_error(
+            "inventory not found: " + std::to_string(id) + " argument " +
+            std::to_string(arg)
+        );
     }
     return inv;
 }
 
 static void validate_slotid(int slotid, Inventory* inv) {
     if (static_cast<size_t>(slotid) >= inv->size()) {
-        throw std::runtime_error("slot index is out of range [0..inventory.size(invid)]");
+        throw std::runtime_error(
+            "slot index is out of range [0..inventory.size(invid)]"
+        );
     }
 }
 
@@ -128,12 +131,12 @@ static int l_inventory_move(lua::State* L) {
     if (slotBid == -1) {
         invB->move(slot, content->getIndices());
     } else {
-        invB->move(slot, content->getIndices(), slotBid, slotBid+1);
+        invB->move(slot, content->getIndices(), slotBid, slotBid + 1);
     }
     return 0;
 }
 
-const luaL_Reg inventorylib [] = {
+const luaL_Reg inventorylib[] = {
     {"get", lua::wrap<l_inventory_get>},
     {"set", lua::wrap<l_inventory_set>},
     {"size", lua::wrap<l_inventory_size>},
@@ -143,6 +146,4 @@ const luaL_Reg inventorylib [] = {
     {"bind_block", lua::wrap<l_inventory_bind_block>},
     {"unbind_block", lua::wrap<l_inventory_unbind_block>},
     {"clone", lua::wrap<l_inventory_clone>},
-    {NULL, NULL}
-};
-
+    {NULL, NULL}};

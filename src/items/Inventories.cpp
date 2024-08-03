@@ -40,15 +40,13 @@ void Inventories::remove(int64_t id) {
 
 std::shared_ptr<Inventory> Inventories::get(int64_t id) {
     auto found = map.find(id);
-    if (found == map.end())
-        return nullptr;
+    if (found == map.end()) return nullptr;
     return found->second;
 }
 
 std::shared_ptr<Inventory> Inventories::clone(int64_t id) {
     auto original = get(id);
-    if (original == nullptr)
-        return nullptr;
+    if (original == nullptr) return nullptr;
     auto clone = std::make_shared<Inventory>(*original);
     clone->setId(level.getWorld()->getNextInventoryId());
     store(clone);

@@ -9,7 +9,7 @@ IndentCaseLabels: true
 NamespaceIndentation: All
 FixNamespaceComments: false
 SpaceBeforeCpp11BracedList: true
-AllowShortFunctionsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
 IndentAccessModifiers: false
 AccessModifierOffset: -4
 EmptyLineBeforeAccessModifier: Never

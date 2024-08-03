@@ -1,12 +1,12 @@
 #ifndef DATA_DYNAMIC_FWD_HPP_
 #define DATA_DYNAMIC_FWD_HPP_
 
-#include "../typedefs.hpp"
-
+#include <functional>
 #include <memory>
 #include <string>
 #include <variant>
-#include <functional>
+
+#include "../typedefs.hpp"
 
 namespace dynamic {
     class Map;
@@ -26,10 +26,9 @@ namespace dynamic {
         std::string,
         number_t,
         bool,
-        integer_t
-    >;
+        integer_t>;
 
     using to_string_func = std::function<std::string(const Value&)>;
 }
 
-#endif // DATA_DYNAMIC_FWD_HPP_
+#endif  // DATA_DYNAMIC_FWD_HPP_

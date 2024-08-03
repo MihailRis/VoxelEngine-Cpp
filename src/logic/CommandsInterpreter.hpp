@@ -1,26 +1,30 @@
 #ifndef LOGIC_COMMANDS_INTERPRETER_HPP_
 #define LOGIC_COMMANDS_INTERPRETER_HPP_
 
+#include <functional>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
 #include "../data/dynamic.hpp"
 
-#include <string>
-#include <vector>
-#include <functional>
-#include <unordered_map>
-
 namespace cmd {
-    enum class ArgType {
-        number, integer, enumvalue, selector, string
-    };
+    enum class ArgType { number, integer, enumvalue, selector, string };
 
     inline std::string argtype_name(ArgType type) {
         switch (type) {
-            case ArgType::number: return "number";
-            case ArgType::integer: return "integer";
-            case ArgType::enumvalue: return "enumeration";
-            case ArgType::selector: return "selector";
-            case ArgType::string: return "string";
-            default: return "<unknown>";
+            case ArgType::number:
+                return "number";
+            case ArgType::integer:
+                return "integer";
+            case ArgType::enumvalue:
+                return "enumeration";
+            case ArgType::selector:
+                return "selector";
+            case ArgType::string:
+                return "string";
+            default:
+                return "<unknown>";
         }
     }
 
@@ -38,14 +42,12 @@ namespace cmd {
 
     struct Prompt {
         Command* command;
-        dynamic::List_sptr args; // positional arguments list
-        dynamic::Map_sptr kwargs; // keyword arguments table
+        dynamic::List_sptr args;   // positional arguments list
+        dynamic::Map_sptr kwargs;  // keyword arguments table
     };
 
     using executor_func = std::function<dynamic::Value(
-        CommandsInterpreter*,
-        dynamic::List_sptr args,
-        dynamic::Map_sptr kwargs
+        CommandsInterpreter*, dynamic::List_sptr args, dynamic::Map_sptr kwargs
     )>;
 
     class Command {
@@ -63,15 +65,16 @@ namespace cmd {
             std::unordered_map<std::string, Argument> kwargs,
             std::string description,
             executor_func executor
-        ) : name(name),
-            args(std::move(args)),
-            kwargs(std::move(kwargs)),
-            description(description),
-            executor(executor) {}
-        
+        )
+            : name(name),
+              args(std::move(args)),
+              kwargs(std::move(kwargs)),
+              description(description),
+              executor(executor) {
+        }
+
         Argument* getArgument(size_t index) {
-            if (index >= args.size())
-                return nullptr;
+            if (index >= args.size()) return nullptr;
             return &args[index];
         }
 
@@ -83,7 +86,9 @@ namespace cmd {
             return &found->second;
         }
 
-        dynamic::Value execute(CommandsInterpreter* interpreter, const Prompt& prompt) {
+        dynamic::Value execute(
+            CommandsInterpreter* interpreter, const Prompt& prompt
+        ) {
             return executor(interpreter, prompt.args, prompt.kwargs);
         }
 
@@ -104,9 +109,7 @@ namespace cmd {
         }
 
         static Command create(
-            std::string_view scheme, 
-            std::string_view description, 
-            executor_func
+            std::string_view scheme, std::string_view description, executor_func
         );
     };
 
@@ -114,9 +117,7 @@ namespace cmd {
         std::unordered_map<std::string, Command> commands;
     public:
         void add(
-            std::string_view scheme, 
-            std::string_view description, 
-            executor_func
+            std::string_view scheme, std::string_view description, executor_func
         );
         Command* get(const std::string& name);
 
@@ -129,12 +130,15 @@ namespace cmd {
         std::unique_ptr<CommandsRepository> repository;
         std::unordered_map<std::string, dynamic::Value> variables;
     public:
-        CommandsInterpreter() : repository(std::make_unique<CommandsRepository>()) {}
+        CommandsInterpreter()
+            : repository(std::make_unique<CommandsRepository>()) {
+        }
 
         CommandsInterpreter(const CommandsInterpreter&) = delete;
 
         CommandsInterpreter(std::unique_ptr<CommandsRepository> repository)
-        : repository(std::move(repository)){}
+            : repository(std::move(repository)) {
+        }
 
         Prompt parse(std::string_view text);
 
@@ -156,4 +160,4 @@ namespace cmd {
     };
 }
 
-#endif // LOGIC_COMMANDS_INTERPRETER_HPP_
+#endif  // LOGIC_COMMANDS_INTERPRETER_HPP_

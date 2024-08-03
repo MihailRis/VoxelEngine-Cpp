@@ -1,14 +1,14 @@
 #include "GLSLExtension.hpp"
 
-#include "../util/stringutil.hpp"
-#include "../typedefs.hpp"
-#include "../files/files.hpp"
-#include "../files/engine_paths.hpp"
-
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
+
+#include "../files/engine_paths.hpp"
+#include "../files/files.hpp"
+#include "../typedefs.hpp"
+#include "../util/stringutil.hpp"
 
 namespace fs = std::filesystem;
 
@@ -21,7 +21,7 @@ void GLSLExtension::setPaths(const ResPaths* paths) {
 }
 
 void GLSLExtension::loadHeader(const std::string& name) {
-    fs::path file = paths->find("shaders/lib/"+name+".glsl");
+    fs::path file = paths->find("shaders/lib/" + name + ".glsl");
     std::string source = files::read_string(file);
     addHeader(name, "");
     addHeader(name, process(file, source, true));
@@ -38,7 +38,7 @@ void GLSLExtension::define(const std::string& name, std::string value) {
 const std::string& GLSLExtension::getHeader(const std::string& name) const {
     auto found = headers.find(name);
     if (found == headers.end()) {
-        throw std::runtime_error("no header '"+name+"' loaded");
+        throw std::runtime_error("no header '" + name + "' loaded");
     }
     return found->second;
 }
@@ -46,7 +46,7 @@ const std::string& GLSLExtension::getHeader(const std::string& name) const {
 const std::string& GLSLExtension::getDefine(const std::string& name) const {
     auto found = defines.find(name);
     if (found == defines.end()) {
-        throw std::runtime_error("name '"+name+"' is not defined");
+        throw std::runtime_error("name '" + name + "' is not defined");
     }
     return found->second;
 }
@@ -66,26 +66,29 @@ void GLSLExtension::undefine(const std::string& name) {
 }
 
 inline std::runtime_error parsing_error(
-        const fs::path& file, 
-        uint linenum, 
-        const std::string& message) {
-    return std::runtime_error("file "+file.string()+": "+message+
-                          " at line "+std::to_string(linenum));
+    const fs::path& file, uint linenum, const std::string& message
+) {
+    return std::runtime_error(
+        "file " + file.string() + ": " + message + " at line " +
+        std::to_string(linenum)
+    );
 }
 
 inline void parsing_warning(
-        const fs::path& file, 
-        uint linenum, const 
-        std::string& message) {
-    std::cerr << "file "+file.string()+": warning: "+message+
-            " at line "+std::to_string(linenum) << std::endl;
+    const fs::path& file, uint linenum, const std::string& message
+) {
+    std::cerr << "file " + file.string() + ": warning: " + message +
+                     " at line " + std::to_string(linenum)
+              << std::endl;
 }
 
 inline void source_line(std::stringstream& ss, uint linenum) {
     ss << "#line " << linenum << "\n";
 }
 
-std::string GLSLExtension::process(const fs::path& file, const std::string& source, bool header) {
+std::string GLSLExtension::process(
+    const fs::path& file, const std::string& source, bool header
+) {
     std::stringstream ss;
     size_t pos = 0;
     uint linenum = 1;
@@ -103,43 +106,45 @@ std::string GLSLExtension::process(const fs::path& file, const std::string& sour
         }
         // parsing preprocessor directives
         if (source[pos] == '#') {
-            std::string line = source.substr(pos+1, endline-pos);
+            std::string line = source.substr(pos + 1, endline - pos);
             util::trim(line);
             // parsing 'include' directive
             if (line.find("include") != std::string::npos) {
                 line = line.substr(7);
                 util::trim(line);
                 if (line.length() < 3) {
-                    throw parsing_error(file, linenum, 
-                        "invalid 'include' syntax");
+                    throw parsing_error(
+                        file, linenum, "invalid 'include' syntax"
+                    );
                 }
-                if (line[0] != '<' || line[line.length()-1] != '>') {
-                    throw parsing_error(file, linenum,
-                        "expected '#include <filename>' syntax");
+                if (line[0] != '<' || line[line.length() - 1] != '>') {
+                    throw parsing_error(
+                        file, linenum, "expected '#include <filename>' syntax"
+                    );
                 }
-                std::string name = line.substr(1, line.length()-2);
+                std::string name = line.substr(1, line.length() - 2);
                 if (!hasHeader(name)) {
                     loadHeader(name);
                 }
                 source_line(ss, 1);
                 ss << getHeader(name) << '\n';
-                pos = endline+1;
+                pos = endline + 1;
                 linenum++;
                 source_line(ss, linenum);
                 continue;
-            } 
+            }
             // removing extra 'include' directives
             else if (line.find("version") != std::string::npos) {
                 parsing_warning(file, linenum, "removed #version directive");
-                pos = endline+1;
+                pos = endline + 1;
                 linenum++;
                 source_line(ss, linenum);
                 continue;
             }
         }
         linenum++;
-        ss << source.substr(pos, endline+1-pos);
-        pos = endline+1;
+        ss << source.substr(pos, endline + 1 - pos);
+        pos = endline + 1;
     }
-    return ss.str();    
+    return ss.str();
 }
