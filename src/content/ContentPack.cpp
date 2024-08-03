@@ -134,9 +134,9 @@ fs::path ContentPack::findPack(
     }
     folder = paths->getResources() / fs::path("content") / fs::path(name);
     if (fs::is_directory(folder)) {
-        return folder;
+        return folder; //-V523
     }
-    return folder;
+    return folder; // FIXME: V523 The 'then' statement is equivalent to the subsequent code fragment //-V523
 }
 
 ContentPackRuntime::ContentPackRuntime(ContentPack info, scriptenv env)
