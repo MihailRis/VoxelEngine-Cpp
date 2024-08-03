@@ -96,8 +96,8 @@ void ALStream::bindSpeaker(speakerid_t speaker) {
     this->speaker = speaker;
     sp = audio::get_speaker(speaker);
     if (sp) {
-        auto alspeaker = dynamic_cast<ALSpeaker*>(sp);
-        alspeaker->stream = this;
+        auto alspeaker = dynamic_cast<ALSpeaker*>(sp); //FIXME: Potentional null pointer
+        alspeaker->stream = this; //-V522
         alspeaker->duration = source->getTotalDuration();
     }
 }
@@ -148,8 +148,8 @@ void ALStream::update(double delta) {
         speaker = 0;
         return;
     }
-    ALSpeaker* alspeaker = dynamic_cast<ALSpeaker*>(speaker);
-    if (alspeaker->stopped) {
+    ALSpeaker* alspeaker = dynamic_cast<ALSpeaker*>(speaker); //FIXME: Potentional null pointer
+    if (alspeaker->stopped) { //-V522
         speaker = 0;
         return;
     }

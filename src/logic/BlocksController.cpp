@@ -62,8 +62,8 @@ void BlocksController::placeBlock(
 void BlocksController::updateBlock(int x, int y, int z) {
     voxel* vox = chunks->get(x, y, z);
     if (vox == nullptr) return;
-    auto def = level->content->getIndices()->blocks.get(vox->id);
-    if (def->grounded) {
+    auto def = level->content->getIndices()->blocks.get(vox->id); //FIXME: Potentional null pointer
+    if (def->grounded) { //-V522
         const auto& vec = get_ground_direction(def, vox->state.rotation);
         if (!chunks->isSolidBlock(x + vec.x, y + vec.y, z + vec.z)) {
             breakBlock(nullptr, def, x, y, z);
@@ -93,8 +93,8 @@ void BlocksController::onBlocksTick(int tickid, int parts) {
     int tickRate = blocksTickClock.getTickRate();
     for (size_t id = 0; id < indices->blocks.count(); id++) {
         if ((id + tickid) % parts != 0) continue;
-        auto def = indices->blocks.get(id);
-        auto interval = def->tickInterval;
+        auto def = indices->blocks.get(id); //FIXME: Potentional null pointer
+        auto interval = def->tickInterval; //-V522
         if (def->rt.funcsset.onblockstick && tickid / parts % interval == 0) {
             scripting::on_blocks_tick(def, tickRate / interval);
         }
@@ -112,8 +112,8 @@ void BlocksController::randomTick(
             int by = random.rand() % segheight + s * segheight;
             int bz = random.rand() % CHUNK_D;
             const voxel& vox = chunk.voxels[(by * CHUNK_D + bz) * CHUNK_W + bx];
-            Block* block = indices->blocks.get(vox.id);
-            if (block->rt.funcsset.randupdate) {
+            Block* block = indices->blocks.get(vox.id); //FIXME: Potentional null pointer
+            if (block->rt.funcsset.randupdate) { //-V522
                 scripting::random_update_block(
                     block, chunk.x * CHUNK_W + bx, by, chunk.z * CHUNK_D + bz
                 );
@@ -153,8 +153,8 @@ int64_t BlocksController::createBlockInventory(int x, int y, int z) {
     auto inv = chunk->getBlockInventory(lx, y, lz);
     if (inv == nullptr) {
         auto indices = level->content->getIndices();
-        auto def = indices->blocks.get(chunk->voxels[vox_index(lx, y, lz)].id);
-        int invsize = def->inventorySize;
+        auto def = indices->blocks.get(chunk->voxels[vox_index(lx, y, lz)].id); //FIXME: Potentional null pointer
+        int invsize = def->inventorySize; //-V522
         if (invsize == 0) {
             return 0;
         }

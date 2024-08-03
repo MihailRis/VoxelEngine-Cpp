@@ -105,7 +105,7 @@ static void write_indices(
 ) {
     size_t count = indices.count();
     for (size_t i = 0; i < count; i++) {
-        list.put(indices.get(i)->name);
+        list.put(indices.get(i)->name); //FIXME: .get(i) potential null pointer //-V522
     }
 }
 

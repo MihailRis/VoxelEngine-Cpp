@@ -141,11 +141,11 @@ void Skybox::refresh(const DrawContext& pctx, float t, float mie, uint quality) 
     ctx.setFramebuffer(fbo.get());
     ctx.setViewport(Viewport(size, size));
 
-    auto cubemap = dynamic_cast<Cubemap*>(fbo->getTexture());
+    auto cubemap = dynamic_cast<Cubemap*>(fbo->getTexture()); //FIXME: Potentional null pointer
 
     ready = true;
     glActiveTexture(GL_TEXTURE1);
-    cubemap->bind();
+    cubemap->bind(); //-V522
     shader->use();
 
     const glm::vec3 xaxs[] = {

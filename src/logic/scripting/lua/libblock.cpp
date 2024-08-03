@@ -122,8 +122,8 @@ static int l_get_x(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3_stack(L, 1, 0, 0);
     }
-    auto def = level->content->getIndices()->blocks.get(vox->id);
-    if (!def->rotatable) {
+    auto def = level->content->getIndices()->blocks.get(vox->id); //FIXME: Potentional null pointer
+    if (!def->rotatable) { //-V522
         return lua::pushivec3_stack(L, 1, 0, 0);
     } else {
         const CoordSystem& rot = def->rotations.variants[vox->state.rotation];
@@ -139,8 +139,8 @@ static int l_get_y(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3_stack(L, 0, 1, 0);
     }
-    auto def = level->content->getIndices()->blocks.get(vox->id);
-    if (!def->rotatable) {
+    auto def = level->content->getIndices()->blocks.get(vox->id); //FIXME: Potentional null pointer
+    if (!def->rotatable) { //-V522
         return lua::pushivec3_stack(L, 0, 1, 0);
     } else {
         const CoordSystem& rot = def->rotations.variants[vox->state.rotation];
@@ -156,8 +156,8 @@ static int l_get_z(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3_stack(L, 0, 0, 1);
     }
-    auto def = level->content->getIndices()->blocks.get(vox->id);
-    if (!def->rotatable) {
+    auto def = level->content->getIndices()->blocks.get(vox->id); //FIXME: Potentional null pointer
+    if (!def->rotatable) { //-V522
         return lua::pushivec3_stack(L, 0, 0, 1);
     } else {
         const CoordSystem& rot = def->rotations.variants[vox->state.rotation];

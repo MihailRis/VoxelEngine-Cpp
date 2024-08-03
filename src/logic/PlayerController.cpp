@@ -208,8 +208,8 @@ void PlayerController::onFootstep(const Hitbox& hitbox) {
             int z = std::floor(pos.z + half.z * offsetZ);
             auto vox = level->chunks->get(x, y, z);
             if (vox) {
-                auto def = level->content->getIndices()->blocks.get(vox->id);
-                if (!def->obstacle) continue;
+                auto def = level->content->getIndices()->blocks.get(vox->id); //FIXME: Potentional null pointer
+                if (!def->obstacle) continue; //-V522
                 blocksController->onBlockInteraction(
                     player.get(),
                     glm::ivec3(x, y, z),
@@ -333,8 +333,8 @@ static int determine_rotation(
 static void pick_block(
     ContentIndices* indices, Chunks* chunks, Player* player, int x, int y, int z
 ) {
-    auto block = indices->blocks.get(chunks->get(x, y, z)->id);
-    itemid_t id = block->rt.pickingItem;
+    auto block = indices->blocks.get(chunks->get(x, y, z)->id); //FIXME: Potentional null pointer
+    itemid_t id = block->rt.pickingItem; //-V522
     auto inventory = player->getInventory();
     size_t slotid = inventory->findSlotByItem(id, 0, 10);
     if (slotid == Inventory::npos) {
@@ -492,11 +492,11 @@ void PlayerController::updateInteraction() {
 
     auto inventory = player->getInventory();
     const ItemStack& stack = inventory->getSlot(player->getChosenSlot());
-    ItemDef* item = indices->items.get(stack.getItemId());
+    ItemDef* item = indices->items.get(stack.getItemId()); //FIXME: Potentional null pointer
 
     auto vox = updateSelection(maxDistance);
     if (vox == nullptr) {
-        if (rclick && item->rt.funcsset.on_use) {
+        if (rclick && item->rt.funcsset.on_use) { //-V522
             scripting::on_item_use(player.get(), item);
         }
         if (selection.entity) {
@@ -513,8 +513,8 @@ void PlayerController::updateInteraction() {
             return;
         }
     }
-    auto target = indices->blocks.get(vox->id);
-    if (lclick && target->breakable) {
+    auto target = indices->blocks.get(vox->id); //FIXME: Potentional null pointer
+    if (lclick && target->breakable) { //-V522
         blocksController->breakBlock(
             player.get(), target, iend.x, iend.y, iend.z
         );

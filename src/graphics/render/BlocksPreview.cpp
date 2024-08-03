@@ -154,9 +154,9 @@ std::unique_ptr<Atlas> BlocksPreview::build(
     
     fbo.bind();
     for (size_t i = 0; i < count; i++) {
-        auto def = indices->blocks.get(i);
+        auto def = indices->blocks.get(i); //FIXME: Potentional null pointer
         atlas->getTexture()->bind();
-        builder.add(def->name, draw(cache, shader, &fbo, &batch, def, iconSize));
+        builder.add(def->name, draw(cache, shader, &fbo, &batch, def, iconSize)); //-V522
     }
     fbo.unbind();
 

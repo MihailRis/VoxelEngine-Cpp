@@ -149,7 +149,7 @@ void Lighting::onChunkLoaded(int cx, int cz, bool expand){
 }
 
 void Lighting::onBlockSet(int x, int y, int z, blockid_t id){
-    Block* block = content->getIndices()->blocks.get(id);
+    Block* block = content->getIndices()->blocks.get(id); //FIXME: Potentional null pointer
     solverR->remove(x,y,z);
     solverG->remove(x,y,z);
     solverB->remove(x,y,z);
@@ -161,7 +161,7 @@ void Lighting::onBlockSet(int x, int y, int z, blockid_t id){
         if (chunks->getLight(x,y+1,z, 3) == 0xF){
             for (int i = y; i >= 0; i--){
                 voxel* vox = chunks->get(x,i,z);
-                if ((vox == nullptr || vox->id != 0) && block->skyLightPassing)
+                if ((vox == nullptr || vox->id != 0) && block->skyLightPassing) //-V522
                     break;
                 solverS->add(x,i,z, 0xF);
             }

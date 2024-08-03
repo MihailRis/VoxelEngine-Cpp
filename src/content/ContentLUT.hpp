@@ -38,7 +38,7 @@ public:
             indices.push_back(i);
         }
         for (size_t i = 0; i < unitIndices.count(); i++) {
-            names.push_back(unitIndices.get(i)->name);
+            names.push_back(unitIndices.get(i)->name); //FIXME: .get(i) potentional null pointer //-V522
         }
         for (size_t i = unitIndices.count(); i < count; i++) {
             names.emplace_back("");

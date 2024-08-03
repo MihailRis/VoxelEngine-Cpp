@@ -150,8 +150,8 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
                             light_t light = clights[cidx];
                             if (backlight) {
                                 auto block =
-                                    indices->blocks.get(voxels[vidx].id);
-                                if (block->lightPassing) {
+                                    indices->blocks.get(voxels[vidx].id); //FIXME: Potentional null pointer
+                                if (block->lightPassing) { //-V522
                                     light = Lightmap::combine(
                                         min(15,
                                             Lightmap::extract(light, 0) + 1),

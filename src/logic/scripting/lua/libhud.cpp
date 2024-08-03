@@ -51,7 +51,7 @@ static int l_hud_open_block(lua::State* L) {
     }
     auto def = content->getIndices()->blocks.get(vox->id);
     auto assets = engine->getAssets();
-    auto layout = assets->get<UiDocument>(def->uiLayout);
+    auto layout = assets->get<UiDocument>(def->uiLayout);//FIXME: Potentional null pointer //-V522
     if (layout == nullptr) {
         throw std::runtime_error("block '" + def->name + "' has no ui layout");
     }
