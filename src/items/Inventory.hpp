@@ -1,13 +1,12 @@
 #ifndef ITEMS_INVENTORY_HPP_
 #define ITEMS_INVENTORY_HPP_
 
-#include "ItemStack.hpp"
-
-#include "../typedefs.hpp"
-#include "../interfaces/Serializable.hpp"
-
-#include <vector>
 #include <memory>
+#include <vector>
+
+#include "../interfaces/Serializable.hpp"
+#include "../typedefs.hpp"
+#include "ItemStack.hpp"
 
 namespace dynamic {
     class Map;
@@ -25,18 +24,19 @@ public:
     Inventory(const Inventory& orig);
 
     ItemStack& getSlot(size_t index);
-    size_t findEmptySlot(size_t begin=0, size_t end=-1) const;
-    size_t findSlotByItem(itemid_t id, size_t begin=0, size_t end=-1);
-    
+    size_t findEmptySlot(size_t begin = 0, size_t end = -1) const;
+    size_t findSlotByItem(itemid_t id, size_t begin = 0, size_t end = -1);
+
     inline size_t size() const {
         return slots.size();
     }
 
     void move(
-        ItemStack& item, 
-        const ContentIndices* indices, 
-        size_t begin=0, 
-        size_t end=-1);
+        ItemStack& item,
+        const ContentIndices* indices,
+        size_t begin = 0,
+        size_t end = -1
+    );
 
     /* deserializing inventory */
     void deserialize(dynamic::Map* src) override;
@@ -60,4 +60,4 @@ public:
     static const size_t npos;
 };
 
-#endif // ITEMS_INVENTORY_HPP_
+#endif  // ITEMS_INVENTORY_HPP_

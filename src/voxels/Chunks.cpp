@@ -1,44 +1,51 @@
 #include "Chunks.hpp"
-#include "Chunk.hpp"
-#include "voxel.hpp"
-#include "Block.hpp"
-#include "WorldGenerator.hpp"
-#include "../content/Content.hpp"
-#include "../lighting/Lightmap.hpp"
-#include "../files/WorldFiles.hpp"
-#include "../world/LevelEvents.hpp"
-#include "../world/Level.hpp"
-#include "../objects/Entities.hpp"
-#include "../graphics/core/Mesh.hpp"
-#include "../maths/voxmaths.hpp"
-#include "../maths/aabb.hpp"
-#include "../maths/rays.hpp"
+
+#include <limits.h>
+#include <math.h>
+
+#include <algorithm>
+#include <vector>
+
 #include "../coders/byte_utils.hpp"
 #include "../coders/json.hpp"
-
-#include <math.h>
-#include <limits.h>
-#include <vector>
-#include <algorithm>
+#include "../content/Content.hpp"
+#include "../files/WorldFiles.hpp"
+#include "../graphics/core/Mesh.hpp"
+#include "../lighting/Lightmap.hpp"
+#include "../maths/aabb.hpp"
+#include "../maths/rays.hpp"
+#include "../maths/voxmaths.hpp"
+#include "../objects/Entities.hpp"
+#include "../world/Level.hpp"
+#include "../world/LevelEvents.hpp"
+#include "Block.hpp"
+#include "Chunk.hpp"
+#include "WorldGenerator.hpp"
+#include "voxel.hpp"
 
 Chunks::Chunks(
-    uint32_t w, uint32_t d,
-    int32_t ox, int32_t oz,
+    uint32_t w,
+    uint32_t d,
+    int32_t ox,
+    int32_t oz,
     WorldFiles* wfile,
     Level* level
-) : level(level),
-    indices(level->content->getIndices()), 
-    chunks(w*d),
-    chunksSecond(w*d),
-    w(w), d(d), ox(ox), oz(oz), 
-    worldFiles(wfile)
-{
-    volume = static_cast<size_t>(w)*static_cast<size_t>(d);
+)
+    : level(level),
+      indices(level->content->getIndices()),
+      chunks(w * d),
+      chunksSecond(w * d),
+      w(w),
+      d(d),
+      ox(ox),
+      oz(oz),
+      worldFiles(wfile) {
+    volume = static_cast<size_t>(w) * static_cast<size_t>(d);
     chunksCount = 0;
 }
 
 voxel* Chunks::get(int32_t x, int32_t y, int32_t z) const {
-    x -= ox * CHUNK_W; 
+    x -= ox * CHUNK_W;
     z -= oz * CHUNK_D;
     int cx = floordiv(x, CHUNK_W);
     int cy = floordiv(y, CHUNK_H);
@@ -46,7 +53,7 @@ voxel* Chunks::get(int32_t x, int32_t y, int32_t z) const {
     if (cx < 0 || cy < 0 || cz < 0 || cx >= int(w) || cy >= 1 || cz >= int(d)) {
         return nullptr;
     }
-    auto& chunk = chunks[cz * w + cx]; // not thread safe
+    auto& chunk = chunks[cz * w + cx];  // not thread safe
     if (chunk == nullptr) {
         return nullptr;
     }
@@ -56,7 +63,7 @@ voxel* Chunks::get(int32_t x, int32_t y, int32_t z) const {
     return &chunk->voxels[(ly * CHUNK_D + lz) * CHUNK_W + lx];
 }
 
-const AABB* Chunks::isObstacleAt(float x, float y, float z){
+const AABB* Chunks::isObstacleAt(float x, float y, float z) {
     int ix = floor(x);
     int iy = floor(y);
     int iz = floor(z);
@@ -76,11 +83,12 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
             glm::ivec3 point(ix, iy, iz);
             offset = seekOrigin(point, def, v->state) - point;
         }
-        const auto& boxes = def->rotatable 
-                          ? def->rt.hitboxes[v->state.rotation] 
-                          : def->hitboxes;
+        const auto& boxes = def->rotatable ? def->rt.hitboxes[v->state.rotation]
+                                           : def->hitboxes;
         for (const auto& hitbox : boxes) {
-            if (hitbox.contains({x - ix - offset.x, y - iy - offset.y, z - iz - offset.z})) {
+            if (hitbox.contains(
+                    {x - ix - offset.x, y - iy - offset.y, z - iz - offset.z}
+                )) {
                 return &hitbox;
             }
         }
@@ -90,26 +98,23 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z){
 
 bool Chunks::isSolidBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
-    if (v == nullptr)
-        return false;
+    if (v == nullptr) return false;
     return indices->blocks.get(v->id)->rt.solid;
 }
 
 bool Chunks::isReplaceableBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
-    if (v == nullptr)
-        return false;
+    if (v == nullptr) return false;
     return indices->blocks.get(v->id)->replaceable;
 }
 
 bool Chunks::isObstacleBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
-    if (v == nullptr)
-        return false;
+    if (v == nullptr) return false;
     return indices->blocks.get(v->id)->obstacle;
 }
 
-ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel){
+ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel) {
     x -= ox * CHUNK_W;
     z -= oz * CHUNK_D;
     int cx = floordiv(x, CHUNK_W);
@@ -128,7 +133,7 @@ ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel){
     return chunk->lightmap.get(lx, ly, lz, channel);
 }
 
-light_t Chunks::getLight(int32_t x, int32_t y, int32_t z){
+light_t Chunks::getLight(int32_t x, int32_t y, int32_t z) {
     x -= ox * CHUNK_W;
     z -= oz * CHUNK_D;
     int cx = floordiv(x, CHUNK_W);
@@ -144,31 +149,32 @@ light_t Chunks::getLight(int32_t x, int32_t y, int32_t z){
     int lx = x - cx * CHUNK_W;
     int ly = y - cy * CHUNK_H;
     int lz = z - cz * CHUNK_D;
-    return chunk->lightmap.get(lx,ly,lz);
+    return chunk->lightmap.get(lx, ly, lz);
 }
 
 Chunk* Chunks::getChunkByVoxel(int32_t x, int32_t y, int32_t z) {
-    if (y < 0 || y >= CHUNK_H)
-        return nullptr;
+    if (y < 0 || y >= CHUNK_H) return nullptr;
     x -= ox * CHUNK_W;
     z -= oz * CHUNK_D;
     int cx = floordiv(x, CHUNK_W);
     int cz = floordiv(z, CHUNK_D);
-    if (cx < 0 || cz < 0 || cx >= int(w) || cz >= int(d))
-        return nullptr;
+    if (cx < 0 || cz < 0 || cx >= int(w) || cz >= int(d)) return nullptr;
     return chunks[cz * w + cx].get();
 }
 
-Chunk* Chunks::getChunk(int x, int z){
+Chunk* Chunks::getChunk(int x, int z) {
     x -= ox;
     z -= oz;
-    if (x < 0 || z < 0 || x >= static_cast<int>(w) || z >= static_cast<int>(d)) {
+    if (x < 0 || z < 0 || x >= static_cast<int>(w) ||
+        z >= static_cast<int>(d)) {
         return nullptr;
     }
     return chunks[z * w + x].get();
 }
 
-glm::ivec3 Chunks::seekOrigin(glm::ivec3 pos, const Block* def, blockstate state) {
+glm::ivec3 Chunks::seekOrigin(
+    glm::ivec3 pos, const Block* def, blockstate state
+) {
     const auto& rotation = def->rotations.variants[state.rotation];
     auto segment = state.segment;
     while (true) {
@@ -187,7 +193,9 @@ glm::ivec3 Chunks::seekOrigin(glm::ivec3 pos, const Block* def, blockstate state
     }
 }
 
-void Chunks::eraseSegments(const Block* def, blockstate state, int x, int y, int z) {
+void Chunks::eraseSegments(
+    const Block* def, blockstate state, int x, int y, int z
+) {
     const auto& rotation = def->rotations.variants[state.rotation];
     for (int sy = 0; sy < def->size.y; sy++) {
         for (int sz = 0; sz < def->size.z; sz++) {
@@ -209,7 +217,9 @@ static constexpr uint8_t segment_to_int(int sx, int sy, int sz) {
     return ((sx > 0) | ((sy > 0) << 1) | ((sz > 0) << 2));
 }
 
-void Chunks::repairSegments(const Block* def, blockstate state, int x, int y, int z) {
+void Chunks::repairSegments(
+    const Block* def, blockstate state, int x, int y, int z
+) {
     const auto& rotation = def->rotations.variants[state.rotation];
     const auto id = def->rt.id;
     const auto size = def->size;
@@ -232,7 +242,9 @@ void Chunks::repairSegments(const Block* def, blockstate state, int x, int y, in
     }
 }
 
-bool Chunks::checkReplaceability(const Block* def, blockstate state, glm::ivec3 origin, blockid_t ignore) {
+bool Chunks::checkReplaceability(
+    const Block* def, blockstate state, glm::ivec3 origin, blockid_t ignore
+) {
     const auto& rotation = def->rotations.variants[state.rotation];
     const auto size = def->size;
     for (int sy = 0; sy < size.y; sy++) {
@@ -261,7 +273,7 @@ void Chunks::setRotationExtended(
 ) {
     auto newstate = state;
     newstate.rotation = index;
-    
+
     // unable to rotate block (cause: obstacles)
     if (!checkReplaceability(def, newstate, origin, def->rt.id)) {
         return;
@@ -281,7 +293,7 @@ void Chunks::setRotationExtended(
 
                 blockstate segState = newstate;
                 segState.segment = segment_to_int(sx, sy, sz);
-                
+
                 auto vox = get(pos);
                 // checked for nullptr by checkReplaceability
                 if (vox->id != def->rt.id) {
@@ -303,7 +315,9 @@ void Chunks::setRotationExtended(
                 pos += prevRotation.axisX * sx;
                 pos += prevRotation.axisY * sy;
                 pos += prevRotation.axisZ * sz;
-                if (std::find(segmentBlocks.begin(), segmentBlocks.end(), pos) == segmentBlocks.end()) {
+                if (std::find(
+                        segmentBlocks.begin(), segmentBlocks.end(), pos
+                    ) == segmentBlocks.end()) {
                     set(pos.x, pos.y, pos.z, 0, {});
                 }
             }
@@ -328,11 +342,13 @@ void Chunks::setRotation(int32_t x, int32_t y, int32_t z, uint8_t index) {
     } else {
         vox->state.rotation = index;
         auto chunk = getChunkByVoxel(x, y, z);
-        chunk->setModifiedAndUnsaved();   
+        chunk->setModifiedAndUnsaved();
     }
 }
 
-void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state) {
+void Chunks::set(
+    int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state
+) {
     if (y < 0 || y >= CHUNK_H) {
         return;
     }
@@ -342,7 +358,8 @@ void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state)
     z -= oz * CHUNK_D;
     int cx = floordiv(x, CHUNK_W);
     int cz = floordiv(z, CHUNK_D);
-    if (cx < 0 || cz < 0 || cx >= static_cast<int>(w) || cz >= static_cast<int>(d)) {
+    if (cx < 0 || cz < 0 || cx >= static_cast<int>(w) ||
+        cz >= static_cast<int>(d)) {
         return;
     }
     Chunk* chunk = chunks[cz * w + cx].get();
@@ -351,9 +368,9 @@ void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state)
     }
     int lx = x - cx * CHUNK_W;
     int lz = z - cz * CHUNK_D;
-    
+
     // block finalization
-    voxel& vox = chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx]; 
+    voxel& vox = chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx];
     auto prevdef = indices->blocks.get(vox.id);
     if (prevdef->inventorySize == 0) {
         chunk->removeBlockInventory(lx, y, lz);
@@ -371,27 +388,30 @@ void Chunks::set(int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state)
         repairSegments(newdef, state, gx, y, gz);
     }
 
-    if (y < chunk->bottom) chunk->bottom = y;
-    else if (y + 1 > chunk->top) chunk->top = y + 1;
-    else if (id == 0) chunk->updateHeights();
+    if (y < chunk->bottom)
+        chunk->bottom = y;
+    else if (y + 1 > chunk->top)
+        chunk->top = y + 1;
+    else if (id == 0)
+        chunk->updateHeights();
 
-    if (lx == 0 && (chunk = getChunk(cx+ox-1, cz+oz)))
+    if (lx == 0 && (chunk = getChunk(cx + ox - 1, cz + oz)))
         chunk->flags.modified = true;
-    if (lz == 0 && (chunk = getChunk(cx+ox, cz+oz-1))) 
+    if (lz == 0 && (chunk = getChunk(cx + ox, cz + oz - 1)))
         chunk->flags.modified = true;
 
-    if (lx == CHUNK_W-1 && (chunk = getChunk(cx+ox+1, cz+oz))) 
+    if (lx == CHUNK_W - 1 && (chunk = getChunk(cx + ox + 1, cz + oz)))
         chunk->flags.modified = true;
-    if (lz == CHUNK_D-1 && (chunk = getChunk(cx+ox, cz+oz+1))) 
+    if (lz == CHUNK_D - 1 && (chunk = getChunk(cx + ox, cz + oz + 1)))
         chunk->flags.modified = true;
 }
 
 voxel* Chunks::rayCast(
-    glm::vec3 start, 
-    glm::vec3 dir, 
-    float maxDist, 
-    glm::vec3& end, 
-    glm::ivec3& norm, 
+    glm::vec3 start,
+    glm::vec3 dir,
+    float maxDist,
+    glm::vec3& end,
+    glm::ivec3& norm,
     glm::ivec3& iend
 ) {
     float px = start.x;
@@ -425,11 +445,11 @@ voxel* Chunks::rayCast(
     float tyMax = (tyDelta < infinity) ? tyDelta * ydist : infinity;
     float tzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
 
-    int steppedIndex = -1;      
-                                
-    while (t <= maxDist) {       
-        voxel* voxel = get(ix, iy, iz);		
-        if (voxel == nullptr){
+    int steppedIndex = -1;
+
+    while (t <= maxDist) {
+        voxel* voxel = get(ix, iy, iz);
+        if (voxel == nullptr) {
             return nullptr;
         }
         const auto def = indices->blocks.get(voxel->id);
@@ -440,11 +460,11 @@ voxel* Chunks::rayCast(
             iend.x = ix;
             iend.y = iy;
             iend.z = iz;
-            
+
             if (!def->rt.solid) {
-                const std::vector<AABB>& hitboxes = def->rotatable
-                        ? def->rt.hitboxes[voxel->state.rotation]
-                        : def->hitboxes;
+                const std::vector<AABB>& hitboxes =
+                    def->rotatable ? def->rt.hitboxes[voxel->state.rotation]
+                                   : def->hitboxes;
 
                 scalar_t distance = maxDist;
                 Ray ray(start, dir);
@@ -461,7 +481,9 @@ voxel* Chunks::rayCast(
                     box.b += offset;
                     scalar_t boxDistance;
                     glm::ivec3 boxNorm;
-                    if (ray.intersectAABB(iend, box, maxDist, boxNorm, boxDistance) > RayRelation::None && 
+                    if (ray.intersectAABB(
+                            iend, box, maxDist, boxNorm, boxDistance
+                        ) > RayRelation::None &&
                         boxDistance < distance) {
                         hit = true;
                         distance = boxDistance;
@@ -520,7 +542,9 @@ voxel* Chunks::rayCast(
     return nullptr;
 }
 
-glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDist) {
+glm::vec3 Chunks::rayCastToObstacle(
+    glm::vec3 start, glm::vec3 dir, float maxDist
+) {
     const float px = start.x;
     const float py = start.y;
     const float pz = start.z;
@@ -558,9 +582,9 @@ glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDis
             const auto def = indices->blocks.get(voxel->id);
             if (def->obstacle) {
                 if (!def->rt.solid) {
-                    const std::vector<AABB>& hitboxes = def->rotatable
-                        ? def->rt.hitboxes[voxel->state.rotation]
-                        : def->modelBoxes;
+                    const std::vector<AABB>& hitboxes =
+                        def->rotatable ? def->rt.hitboxes[voxel->state.rotation]
+                                       : def->modelBoxes;
 
                     scalar_t distance;
                     glm::ivec3 norm;
@@ -568,17 +592,23 @@ glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDis
 
                     glm::ivec3 offset {};
                     if (voxel->state.segment) {
-                        offset = seekOrigin({ix, iy, iz}, def, voxel->state) - glm::ivec3(ix, iy, iz);
+                        offset = seekOrigin({ix, iy, iz}, def, voxel->state) -
+                                 glm::ivec3(ix, iy, iz);
                     }
 
                     for (const auto& box : hitboxes) {
                         // norm is dummy now, can be inefficient
-                        if (ray.intersectAABB(glm::ivec3(ix, iy, iz)+offset, box, maxDist, norm, distance) > RayRelation::None) {
+                        if (ray.intersectAABB(
+                                glm::ivec3(ix, iy, iz) + offset,
+                                box,
+                                maxDist,
+                                norm,
+                                distance
+                            ) > RayRelation::None) {
                             return start + (dir * glm::vec3(distance));
                         }
                     }
-                }
-                else {
+                } else {
                     return glm::vec3(px + t * dx, py + t * dy, pz + t * dz);
                 }
             }
@@ -588,20 +618,17 @@ glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDis
                 ix += stepx;
                 t = txMax;
                 txMax += txDelta;
-            }
-            else {
+            } else {
                 iz += stepz;
                 t = tzMax;
                 tzMax += tzDelta;
             }
-        }
-        else {
+        } else {
             if (tyMax < tzMax) {
                 iy += stepy;
                 t = tyMax;
                 tyMax += tyDelta;
-            }
-            else {
+            } else {
                 iz += stepz;
                 t = tzMax;
                 tzMax += tzDelta;
@@ -611,19 +638,18 @@ glm::vec3 Chunks::rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDis
     return glm::vec3(px + maxDist * dx, py + maxDist * dy, pz + maxDist * dz);
 }
 
-
 void Chunks::setCenter(int32_t x, int32_t z) {
     int cx = floordiv(x, CHUNK_W);
     int cz = floordiv(z, CHUNK_D);
     cx -= ox + w / 2;
     cz -= oz + d / 2;
     if (cx | cz) {
-        translate(cx,cz);
+        translate(cx, cz);
     }
 }
 
 void Chunks::translate(int32_t dx, int32_t dz) {
-    for (uint i = 0; i < volume; i++){
+    for (uint i = 0; i < volume; i++) {
         chunksSecond[i] = nullptr;
     }
     for (uint32_t z = 0; z < d; z++) {
@@ -631,9 +657,9 @@ void Chunks::translate(int32_t dx, int32_t dz) {
             auto chunk = chunks[z * w + x];
             int nx = x - dx;
             int nz = z - dz;
-            if (chunk == nullptr)
-                continue;
-            if (nx < 0 || nz < 0 || nx >= static_cast<int>(w) || nz >= static_cast<int>(d)) {
+            if (chunk == nullptr) continue;
+            if (nx < 0 || nz < 0 || nx >= static_cast<int>(w) ||
+                nz >= static_cast<int>(d)) {
                 level->events->trigger(EVT_CHUNK_HIDDEN, chunk.get());
                 save(chunk.get());
                 chunksCount--;
@@ -664,8 +690,10 @@ void Chunks::resize(uint32_t newW, uint32_t newD) {
     const int newVolume = newW * newD;
     std::vector<std::shared_ptr<Chunk>> newChunks(newVolume);
     std::vector<std::shared_ptr<Chunk>> newChunksSecond(newVolume);
-    for (int z = 0; z < static_cast<int>(d) && z < static_cast<int>(newD); z++) {
-        for (int x = 0; x < static_cast<int>(w) && x < static_cast<int>(newW); x++) {
+    for (int z = 0; z < static_cast<int>(d) && z < static_cast<int>(newD);
+         z++) {
+        for (int x = 0; x < static_cast<int>(w) && x < static_cast<int>(newW);
+             x++) {
             newChunks[z * newW + x] = chunks[z * w + x];
         }
     }
@@ -686,7 +714,8 @@ bool Chunks::putChunk(const std::shared_ptr<Chunk>& chunk) {
     int z = chunk->z;
     x -= ox;
     z -= oz;
-    if (x < 0 || z < 0 || x >= static_cast<int>(w) || z >= static_cast<int>(d)) {
+    if (x < 0 || z < 0 || x >= static_cast<int>(w) ||
+        z >= static_cast<int>(d)) {
         return false;
     }
     chunks[z * w + x] = chunk;
@@ -695,7 +724,7 @@ bool Chunks::putChunk(const std::shared_ptr<Chunk>& chunk) {
 }
 
 void Chunks::saveAndClear() {
-    for (size_t i = 0; i < volume; i++){
+    for (size_t i = 0; i < volume; i++) {
         auto chunk = chunks[i].get();
         chunks[i] = nullptr;
         save(chunk);
@@ -705,9 +734,11 @@ void Chunks::saveAndClear() {
 
 void Chunks::save(Chunk* chunk) {
     if (chunk != nullptr) {
-        AABB aabb (
+        AABB aabb(
             glm::vec3(chunk->x * CHUNK_W, -INFINITY, chunk->z * CHUNK_D),
-            glm::vec3((chunk->x+1) * CHUNK_W, INFINITY, (chunk->z + 1) * CHUNK_D)
+            glm::vec3(
+                (chunk->x + 1) * CHUNK_W, INFINITY, (chunk->z + 1) * CHUNK_D
+            )
         );
         auto entities = level->entities->getAllInside(aabb);
         auto root = dynamic::create_map();

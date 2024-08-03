@@ -1,10 +1,11 @@
 #include "commons.hpp"
 
-#include "../util/stringutil.hpp"
+#include <math.h>
 
 #include <sstream>
 #include <stdexcept>
-#include <math.h>
+
+#include "../util/stringutil.hpp"
 
 inline double power(double base, int64_t power) {
     double result = 1.0;
@@ -21,21 +22,25 @@ parsing_error::parsing_error(
     uint pos,
     uint line,
     uint linestart
-) : std::runtime_error(message), filename(filename), 
-    pos(pos), line(line), linestart(linestart)
-{
+)
+    : std::runtime_error(message),
+      filename(filename),
+      pos(pos),
+      line(line),
+      linestart(linestart) {
     size_t end = source.find("\n", linestart);
     if (end == std::string::npos) {
         end = source.length();
     }
-    this->source = source.substr(linestart, end-linestart);
+    this->source = source.substr(linestart, end - linestart);
 }
 
 std::string parsing_error::errorLog() const {
     std::stringstream ss;
     uint linepos = pos - linestart;
     ss << "parsing error in file '" << filename;
-    ss << "' at " << (line+1) << ":" << linepos << ": " << this->what() << "\n";
+    ss << "' at " << (line + 1) << ":" << linepos << ": " << this->what()
+       << "\n";
     ss << source << "\n";
     for (uint i = 0; i < linepos; i++) {
         ss << " ";
@@ -44,10 +49,8 @@ std::string parsing_error::errorLog() const {
     return ss.str();
 }
 
-BasicParser::BasicParser(
-    std::string_view file,
-    std::string_view source
-) : filename(file), source(source) {
+BasicParser::BasicParser(std::string_view file, std::string_view source)
+    : filename(file), source(source) {
 }
 
 void BasicParser::skipWhitespace() {
@@ -67,7 +70,7 @@ void BasicParser::skipWhitespace() {
 }
 
 void BasicParser::skip(size_t n) {
-    n = std::min(n, source.length()-pos);
+    n = std::min(n, source.length() - pos);
 
     for (size_t i = 0; i < n; i++) {
         char next = source[pos++];
@@ -93,10 +96,10 @@ void BasicParser::skipLine() {
 bool BasicParser::skipTo(const std::string& substring) {
     size_t idx = source.find(substring, pos);
     if (idx == std::string::npos) {
-        skip(source.length()-pos);
+        skip(source.length() - pos);
         return false;
     } else {
-        skip(idx-pos);
+        skip(idx - pos);
         return true;
     }
 }
@@ -122,17 +125,16 @@ char BasicParser::nextChar() {
 void BasicParser::expect(char expected) {
     char c = peek();
     if (c != expected) {
-        throw error("'"+std::string({expected})+"' expected");
+        throw error("'" + std::string({expected}) + "' expected");
     }
     pos++;
 }
 
 void BasicParser::expect(const std::string& substring) {
-    if (substring.empty())
-        return;
+    if (substring.empty()) return;
     for (uint i = 0; i < substring.length(); i++) {
-        if (source.length() <= pos + i || source[pos+i] != substring[i]) {
-            throw error(util::quote(substring)+" expected");
+        if (source.length() <= pos + i || source[pos + i] != substring[i]) {
+            throw error(util::quote(substring) + " expected");
         }
     }
     pos += substring.length();
@@ -158,7 +160,7 @@ void BasicParser::goBack(size_t count) {
     if (pos < count) {
         throw std::runtime_error("pos < jump");
     }
-    if (pos) { 
+    if (pos) {
         pos -= count;
     }
 }
@@ -205,7 +207,7 @@ std::string_view BasicParser::readUntil(char c) {
     while (hasNext() && source[pos] != c) {
         pos++;
     }
-    return source.substr(start, pos-start);
+    return source.substr(start, pos - start);
 }
 
 std::string_view BasicParser::readUntilEOL() {
@@ -213,7 +215,7 @@ std::string_view BasicParser::readUntilEOL() {
     while (hasNext() && source[pos] != '\r' && source[pos] != '\n') {
         pos++;
     }
-    return source.substr(start, pos-start);
+    return source.substr(start, pos - start);
 }
 
 std::string BasicParser::parseName() {
@@ -229,7 +231,7 @@ std::string BasicParser::parseName() {
     while (hasNext() && is_identifier_part(source[pos])) {
         pos++;
     }
-    return std::string(source.substr(start, pos-start));
+    return std::string(source.substr(start, pos - start));
 }
 
 int64_t BasicParser::parseSimpleInt(int base) {
@@ -272,14 +274,14 @@ dynamic::Value BasicParser::parseNumber() {
 dynamic::Value BasicParser::parseNumber(int sign) {
     char c = peek();
     int base = 10;
-    if (c == '0' && pos + 1 < source.length() && 
-          (base = is_box(source[pos+1])) != 10) {
+    if (c == '0' && pos + 1 < source.length() &&
+        (base = is_box(source[pos + 1])) != 10) {
         pos += 2;
         return parseSimpleInt(base);
-    } else if (c == 'i' && pos + 2 < source.length() && source[pos+1] == 'n' && source[pos+2] == 'f') {
+    } else if (c == 'i' && pos + 2 < source.length() && source[pos + 1] == 'n' && source[pos + 2] == 'f') {
         pos += 3;
         return INFINITY * sign;
-    } else if (c == 'n' && pos + 2 < source.length() && source[pos+1] == 'a' && source[pos+2] == 'n') {
+    } else if (c == 'n' && pos + 2 < source.length() && source[pos + 1] == 'a' && source[pos + 2] == 'n') {
         pos += 3;
         return NAN * sign;
     }
@@ -294,7 +296,7 @@ dynamic::Value BasicParser::parseNumber(int sign) {
         if (peek() == '-') {
             s = -1;
             pos++;
-        } else if (peek() == '+'){
+        } else if (peek() == '+') {
             pos++;
         }
         return sign * value * power(10.0, s * parseSimpleInt(10));
@@ -320,7 +322,7 @@ dynamic::Value BasicParser::parseNumber(int sign) {
             if (peek() == '-') {
                 s = -1;
                 pos++;
-            } else if (peek() == '+'){
+            } else if (peek() == '+') {
                 pos++;
             }
             return sign * dvalue * power(10.0, s * parseSimpleInt(10));
@@ -347,19 +349,40 @@ std::string BasicParser::parseString(char quote, bool closeRequired) {
                 continue;
             }
             switch (c) {
-                case 'n': ss << '\n'; break;
-                case 'r': ss << '\r'; break;
-                case 'b': ss << '\b'; break;
-                case 't': ss << '\t'; break;
-                case 'f': ss << '\f'; break;
-                case '\'': ss << '\\'; break;
-                case '"': ss << '"'; break;
-                case '\\': ss << '\\'; break;
-                case '/': ss << '/'; break;
-                case '\n': pos++; continue;
+                case 'n':
+                    ss << '\n';
+                    break;
+                case 'r':
+                    ss << '\r';
+                    break;
+                case 'b':
+                    ss << '\b';
+                    break;
+                case 't':
+                    ss << '\t';
+                    break;
+                case 'f':
+                    ss << '\f';
+                    break;
+                case '\'':
+                    ss << '\\';
+                    break;
+                case '"':
+                    ss << '"';
+                    break;
+                case '\\':
+                    ss << '\\';
+                    break;
+                case '/':
+                    ss << '/';
+                    break;
+                case '\n':
+                    pos++;
+                    continue;
                 default:
-                    throw error("'\\" + std::string({c}) + 
-                                "' is an illegal escape");
+                    throw error(
+                        "'\\" + std::string({c}) + "' is an illegal escape"
+                    );
             }
             continue;
         }

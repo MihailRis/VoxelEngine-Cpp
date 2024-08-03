@@ -1,18 +1,16 @@
 #include "scripting_functional.hpp"
 
-#include "lua/lua_engine.hpp"
-#include "../../debug/Logger.hpp"
 #include "../../coders/json.hpp"
+#include "../../debug/Logger.hpp"
 #include "../../util/stringutil.hpp"
+#include "lua/lua_engine.hpp"
 
 using namespace scripting;
 
 static debug::Logger logger("scripting_func");
 
 runnable scripting::create_runnable(
-    const scriptenv& env,
-    const std::string& src,
-    const std::string& file
+    const scriptenv& env, const std::string& src, const std::string& file
 ) {
     auto L = lua::get_main_thread();
     try {
@@ -20,14 +18,12 @@ runnable scripting::create_runnable(
         return lua::create_runnable(L);
     } catch (const lua::luaerror& err) {
         logger.error() << err.what();
-        return [](){};
+        return []() {};
     }
 }
 
 static lua::State* process_callback(
-    const scriptenv& env,
-    const std::string& src,
-    const std::string& file
+    const scriptenv& env, const std::string& src, const std::string& file
 ) {
     auto L = lua::get_main_thread();
     try {
@@ -41,11 +37,9 @@ static lua::State* process_callback(
 }
 
 wstringconsumer scripting::create_wstring_consumer(
-    const scriptenv& env,
-    const std::string& src,
-    const std::string& file
+    const scriptenv& env, const std::string& src, const std::string& file
 ) {
-    return [=](const std::wstring& x){
+    return [=](const std::wstring& x) {
         if (auto L = process_callback(env, src, file)) {
             lua::pushwstring(L, x);
             lua::call_nothrow(L, 1);
@@ -54,16 +48,15 @@ wstringconsumer scripting::create_wstring_consumer(
 }
 
 wstringsupplier scripting::create_wstring_supplier(
-    const scriptenv& env,
-    const std::string& src,
-    const std::string& file
+    const scriptenv& env, const std::string& src, const std::string& file
 ) {
-    return [=](){
+    return [=]() {
         if (auto L = process_callback(env, src, file)) {
             if (lua::isfunction(L, -1)) {
                 lua::call_nothrow(L, 0);
             }
-            auto str = lua::require_wstring(L, -1); lua::pop(L);
+            auto str = lua::require_wstring(L, -1);
+            lua::pop(L);
             return str;
         }
         return std::wstring();
@@ -71,26 +64,21 @@ wstringsupplier scripting::create_wstring_supplier(
 }
 
 wstringchecker scripting::create_wstring_validator(
-    const scriptenv& env,
-    const std::string& src,
-    const std::string& file
+    const scriptenv& env, const std::string& src, const std::string& file
 ) {
-    return [=](const std::wstring& x){
+    return [=](const std::wstring& x) {
         if (auto L = process_callback(env, src, file)) {
             lua::pushwstring(L, x);
-            if (lua::call_nothrow(L, 1))
-                return lua::toboolean(L, -1);
+            if (lua::call_nothrow(L, 1)) return lua::toboolean(L, -1);
         }
         return false;
     };
 }
 
 boolconsumer scripting::create_bool_consumer(
-    const scriptenv& env,
-    const std::string& src,
-    const std::string& file
+    const scriptenv& env, const std::string& src, const std::string& file
 ) {
-    return [=](bool x){
+    return [=](bool x) {
         if (auto L = process_callback(env, src, file)) {
             lua::pushboolean(L, x);
             lua::call_nothrow(L, 1);
@@ -99,16 +87,15 @@ boolconsumer scripting::create_bool_consumer(
 }
 
 boolsupplier scripting::create_bool_supplier(
-    const scriptenv& env,
-    const std::string& src,
-    const std::string& file
+    const scriptenv& env, const std::string& src, const std::string& file
 ) {
-    return [=](){
+    return [=]() {
         if (auto L = process_callback(env, src, file)) {
             if (lua::isfunction(L, -1)) {
                 lua::call_nothrow(L, 0);
             }
-            bool x = lua::toboolean(L,-1); lua::pop(L);
+            bool x = lua::toboolean(L, -1);
+            lua::pop(L);
             return x;
         }
         return false;
@@ -116,11 +103,9 @@ boolsupplier scripting::create_bool_supplier(
 }
 
 doubleconsumer scripting::create_number_consumer(
-    const scriptenv& env,
-    const std::string& src,
-    const std::string& file
+    const scriptenv& env, const std::string& src, const std::string& file
 ) {
-    return [=](double x){
+    return [=](double x) {
         if (auto L = process_callback(env, src, file)) {
             lua::pushnumber(L, x);
             lua::call_nothrow(L, 1);
@@ -129,16 +114,14 @@ doubleconsumer scripting::create_number_consumer(
 }
 
 doublesupplier scripting::create_number_supplier(
-    const scriptenv& env,
-    const std::string& src,
-    const std::string& file
+    const scriptenv& env, const std::string& src, const std::string& file
 ) {
-    return [=](){
+    return [=]() {
         if (auto L = process_callback(env, src, file)) {
             if (lua::isfunction(L, -1)) {
                 lua::call_nothrow(L, 0);
             }
-            auto x = lua::tonumber(L, -1); 
+            auto x = lua::tonumber(L, -1);
             lua::pop(L);
             return x;
         }
@@ -147,9 +130,7 @@ doublesupplier scripting::create_number_supplier(
 }
 
 int_array_consumer scripting::create_int_array_consumer(
-    const scriptenv& env,
-    const std::string& src, 
-    const std::string& file
+    const scriptenv& env, const std::string& src, const std::string& file
 ) {
     return [=](const int arr[], size_t len) {
         if (auto L = process_callback(env, src, file)) {
@@ -162,17 +143,17 @@ int_array_consumer scripting::create_int_array_consumer(
 }
 
 vec2supplier scripting::create_vec2_supplier(
-    const scriptenv& env,
-    const std::string& src, 
-    const std::string& file
+    const scriptenv& env, const std::string& src, const std::string& file
 ) {
     return [=]() {
         if (auto L = process_callback(env, src, file)) {
             if (lua::isfunction(L, -1)) {
                 lua::call_nothrow(L, 0);
             }
-            auto y = lua::tonumber(L, -1); lua::pop(L);
-            auto x = lua::tonumber(L, -1); lua::pop(L);
+            auto y = lua::tonumber(L, -1);
+            lua::pop(L);
+            auto x = lua::tonumber(L, -1);
+            lua::pop(L);
             return glm::vec2(x, y);
         }
         return glm::vec2(0, 0);
@@ -180,9 +161,7 @@ vec2supplier scripting::create_vec2_supplier(
 }
 
 dynamic::to_string_func scripting::create_tostring(
-    const scriptenv& env,
-    const std::string& src,
-    const std::string& file
+    const scriptenv& env, const std::string& src, const std::string& file
 ) {
     auto L = lua::get_main_thread();
     try {

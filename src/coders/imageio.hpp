@@ -1,8 +1,8 @@
 #ifndef CODERS_IMAGEIO_HPP_
 #define CODERS_IMAGEIO_HPP_
 
-#include <string>
 #include <memory>
+#include <string>
 
 class ImageData;
 
@@ -16,4 +16,4 @@ namespace imageio {
     void write(const std::string& filename, const ImageData* image);
 }
 
-#endif // CODERS_IMAGEIO_HPP_
+#endif  // CODERS_IMAGEIO_HPP_

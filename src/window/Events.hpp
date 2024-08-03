@@ -1,12 +1,12 @@
 #ifndef WINDOW_EVENTS_HPP_
 #define WINDOW_EVENTS_HPP_
 
-#include "input.hpp"
-#include "../typedefs.hpp"
-
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
+
+#include "../typedefs.hpp"
+#include "input.hpp"
 
 inline constexpr short KEYS_BUFFER_SIZE = 1036;
 
@@ -52,7 +52,9 @@ public:
     static void setPosition(float xpos, float ypos);
 
     static std::string writeBindings();
-    static void loadBindings(const std::string& filename, const std::string& source);
+    static void loadBindings(
+        const std::string& filename, const std::string& source
+    );
 };
 
-#endif // WINDOW_EVENTS_HPP_
+#endif  // WINDOW_EVENTS_HPP_

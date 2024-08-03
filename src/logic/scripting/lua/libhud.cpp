@@ -1,10 +1,11 @@
-#include "api_lua.hpp"
+#include <glm/glm.hpp>
+#include <iostream>
 
 #include "../../../assets/Assets.hpp"
 #include "../../../content/Content.hpp"
 #include "../../../engine.hpp"
-#include "../../../frontend/hud.hpp"
 #include "../../../frontend/UiDocument.hpp"
+#include "../../../frontend/hud.hpp"
 #include "../../../graphics/ui/elements/InventoryView.hpp"
 #include "../../../items/Inventories.hpp"
 #include "../../../logic/BlocksController.hpp"
@@ -14,9 +15,7 @@
 #include "../../../voxels/Chunks.hpp"
 #include "../../../voxels/voxel.hpp"
 #include "../../../world/Level.hpp"
-
-#include <iostream>
-#include <glm/glm.hpp>
+#include "api_lua.hpp"
 
 namespace scripting {
     extern Hud* hud;
@@ -45,20 +44,24 @@ static int l_hud_open_block(lua::State* L) {
 
     auto vox = level->chunks->get(x, y, z);
     if (vox == nullptr) {
-        throw std::runtime_error("block does not exists at " +
-            std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z)
+        throw std::runtime_error(
+            "block does not exists at " + std::to_string(x) + " " +
+            std::to_string(y) + " " + std::to_string(z)
         );
     }
     auto def = content->getIndices()->blocks.get(vox->id);
     auto assets = engine->getAssets();
     auto layout = assets->get<UiDocument>(def->uiLayout);
     if (layout == nullptr) {
-        throw std::runtime_error("block '"+def->name+"' has no ui layout");
+        throw std::runtime_error("block '" + def->name + "' has no ui layout");
     }
 
     auto id = blocks->createBlockInventory(x, y, z);
     hud->openInventory(
-        glm::ivec3(x, y, z), layout, level->inventories->get(id), playerInventory
+        glm::ivec3(x, y, z),
+        layout,
+        level->inventories->get(id),
+        playerInventory
     );
 
     lua::pushinteger(L, id);
@@ -73,7 +76,7 @@ static int l_hud_show_overlay(lua::State* L) {
     auto assets = engine->getAssets();
     auto layout = assets->get<UiDocument>(name);
     if (layout == nullptr) {
-        throw std::runtime_error("there is no ui layout "+util::quote(name));
+        throw std::runtime_error("there is no ui layout " + util::quote(name));
     }
     hud->showOverlay(layout, playerInventory);
     return 0;
@@ -83,7 +86,9 @@ static UiDocument* require_layout(const char* name) {
     auto assets = engine->getAssets();
     auto layout = assets->get<UiDocument>(name);
     if (layout == nullptr) {
-        throw std::runtime_error("layout '"+std::string(name)+"' is not found");
+        throw std::runtime_error(
+            "layout '" + std::string(name) + "' is not found"
+        );
     }
     return layout;
 }
@@ -132,7 +137,7 @@ static int l_hud_is_inventory_open(lua::State* L) {
     return lua::pushboolean(L, hud->isInventoryOpen());
 }
 
-const luaL_Reg hudlib [] = {
+const luaL_Reg hudlib[] = {
     {"open_inventory", lua::wrap<l_hud_open_inventory>},
     {"close_inventory", lua::wrap<l_hud_close_inventory>},
     {"open_block", lua::wrap<l_hud_open_block>},
@@ -145,5 +150,4 @@ const luaL_Reg hudlib [] = {
     {"is_paused", lua::wrap<l_hud_is_paused>},
     {"is_inventory_open", lua::wrap<l_hud_is_inventory_open>},
     {"get_player", lua::wrap<l_hud_get_player>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

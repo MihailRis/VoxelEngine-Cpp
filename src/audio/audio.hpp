@@ -1,12 +1,12 @@
 #ifndef AUDIO_AUDIO_HPP_
 #define AUDIO_AUDIO_HPP_
 
-#include "../typedefs.hpp"
-
-#include <vector>
-#include <memory>
 #include <filesystem>
 #include <glm/glm.hpp>
+#include <memory>
+#include <vector>
+
+#include "../typedefs.hpp"
 
 namespace fs = std::filesystem;
 
@@ -29,14 +29,11 @@ namespace audio {
     class Speaker;
 
     /// @brief Audio speaker states
-    enum class State {
-        playing,
-        paused,
-        stopped
-    };
+    enum class State { playing, paused, stopped };
 
     /// @brief Mixer channel controls speakers volume and effects
-    /// There is main channel 'master' and sub-channels like 'regular', 'music', 'ambient'...
+    /// There is main channel 'master' and sub-channels like 'regular', 'music',
+    /// 'ambient'...
     class Channel {
         /// @brief Channel name
         std::string name;
@@ -46,7 +43,7 @@ namespace audio {
     public:
         Channel(std::string name);
 
-        /// @brief Get channel volume 
+        /// @brief Get channel volume
         float getVolume() const;
 
         /// @brief Set channel volume
@@ -57,8 +54,7 @@ namespace audio {
         const std::string& getName() const;
 
         inline void setPaused(bool flag) {
-            if (flag == paused)
-                return;
+            if (flag == paused) return;
             if (flag) {
                 pause();
             } else {
@@ -92,24 +88,24 @@ namespace audio {
         /// @brief Audio source is seekable
         bool seekable;
 
-        PCM(  
-            std::vector<char> data,
+        PCM(std::vector<char> data,
             size_t totalSamples,
             uint8_t channels,
             uint8_t bitsPerSample,
             uint sampleRate,
-            bool seekable
-        ) : data(std::move(data)),
-            totalSamples(totalSamples),
-            channels(channels), 
-            bitsPerSample(bitsPerSample),
-            sampleRate(sampleRate),
-            seekable(seekable) {}
+            bool seekable)
+            : data(std::move(data)),
+              totalSamples(totalSamples),
+              channels(channels),
+              bitsPerSample(bitsPerSample),
+              sampleRate(sampleRate),
+              seekable(seekable) {
+        }
 
         /// @brief Get total audio duration
-        /// @return duration in seconds 
+        /// @return duration in seconds
         inline duration_t getDuration() const {
-            return static_cast<duration_t>(totalSamples) / 
+            return static_cast<duration_t>(totalSamples) /
                    static_cast<duration_t>(sampleRate);
         }
     };
@@ -123,38 +119,38 @@ namespace audio {
         /// @param buffer destination buffer
         /// @param bufferSize destination buffer size
         /// @param loop loop stream (seek to start when end reached)
-        /// @return size of data received 
+        /// @return size of data received
         /// (always equals bufferSize if seekable and looped)
         virtual size_t readFully(char* buffer, size_t bufferSize, bool loop);
 
         virtual size_t read(char* buffer, size_t bufferSize) = 0;
 
         /// @brief Close stream
-        virtual void close()=0;
+        virtual void close() = 0;
 
         /// @brief Check if stream is open
-        virtual bool isOpen() const=0;
+        virtual bool isOpen() const = 0;
 
         /// @brief Get total samples number if seekable or 0
-        virtual size_t getTotalSamples() const=0;
+        virtual size_t getTotalSamples() const = 0;
 
         /// @brief Get total audio track duration if seekable or 0.0
-        virtual duration_t getTotalDuration() const=0;
+        virtual duration_t getTotalDuration() const = 0;
 
         /// @brief Get number of audio channels
         /// @return 1 if mono, 2 if stereo
-        virtual uint getChannels() const=0;
+        virtual uint getChannels() const = 0;
 
         /// @brief Get audio sampling frequency
         /// @return number of mono samples per second
-        virtual uint getSampleRate() const=0;
+        virtual uint getSampleRate() const = 0;
 
         /// @brief Get number of bits per mono sample
         /// @return 8 or 16
-        virtual uint getBitsPerSample() const=0;
+        virtual uint getBitsPerSample() const = 0;
 
         /// @brief Check if the stream does support seek feature
-        virtual bool isSeekable() const=0;
+        virtual bool isSeekable() const = 0;
 
         /// @brief Move playhead to the selected sample number
         /// @param position selected sample number
@@ -170,16 +166,18 @@ namespace audio {
         virtual ~Stream() {};
 
         /// @brief Get pcm data source
-        /// @return PCM stream or nullptr if audio::openStream 
+        /// @return PCM stream or nullptr if audio::openStream
         /// keepSource argument is set to false
         virtual std::shared_ptr<PCMStream> getSource() const = 0;
 
-        /// @brief Create new speaker bound to the Stream 
+        /// @brief Create new speaker bound to the Stream
         /// and having high priority
         /// @param loop is stream looped (required for correct buffers preload)
         /// @param channel channel index
         /// @return speaker id or 0
-        virtual std::unique_ptr<Speaker> createSpeaker(bool loop, int channel) = 0;
+        virtual std::unique_ptr<Speaker> createSpeaker(
+            bool loop, int channel
+        ) = 0;
 
         /// @brief Unbind previous speaker and bind new speaker to the stream
         /// @param speaker speaker id or 0 if all you need is unbind speaker
@@ -201,7 +199,7 @@ namespace audio {
         virtual void setTime(duration_t time) = 0;
     };
 
-    /// @brief Sound is an audio asset that supposed to support many 
+    /// @brief Sound is an audio asset that supposed to support many
     /// simultaneously playing instances (speakers).
     /// So it's audio data is stored in memory.
     class Sound {
@@ -209,7 +207,8 @@ namespace audio {
         /// @brief Sound variants will be chosen randomly to play
         std::vector<std::shared_ptr<Sound>> variants;
 
-        virtual ~Sound() {}
+        virtual ~Sound() {
+        }
 
         /// @brief Get sound duration
         /// @return duration in seconds (>= 0.0)
@@ -220,19 +219,21 @@ namespace audio {
         virtual std::shared_ptr<PCM> getPCM() const = 0;
 
         /// @brief Create new sound instance
-        /// @param priority instance priority. High priority instance can 
+        /// @param priority instance priority. High priority instance can
         /// take out speaker from low priority instance
         /// @param channel channel index
-        /// @return new speaker with sound bound or nullptr 
+        /// @return new speaker with sound bound or nullptr
         /// if all speakers are in use
-        virtual std::unique_ptr<Speaker> newInstance(int priority, int channel) const = 0;
+        virtual std::unique_ptr<Speaker> newInstance(int priority, int channel)
+            const = 0;
     };
 
     /// @brief Audio source controller interface.
     /// @attention Speaker is not supposed to be reused
     class Speaker {
     public:
-        virtual ~Speaker() {}
+        virtual ~Speaker() {
+        }
 
         /// @brief Synchronize the speaker with channel settings
         /// @param channel speaker channel
@@ -277,7 +278,7 @@ namespace audio {
 
         /// @brief Stop and destroy speaker
         virtual void stop() = 0;
-        
+
         /// @brief Get current time position of playing audio
         /// @return time position in seconds
         virtual duration_t getTime() const = 0;
@@ -316,17 +317,17 @@ namespace audio {
         /// @brief Determines if the position is relative to the listener
         virtual bool isRelative() const = 0;
 
-        /// @brief Check if speaker is playing 
+        /// @brief Check if speaker is playing
         inline bool isPlaying() const {
             return getState() == State::playing;
         }
 
-        /// @brief Check if speaker is paused 
+        /// @brief Check if speaker is paused
         inline bool isPaused() const {
             return getState() == State::paused;
         }
 
-        /// @brief Check if speaker is stopped 
+        /// @brief Check if speaker is stopped
         inline bool isStopped() const {
             return getState() == State::stopped;
         }
@@ -336,12 +337,16 @@ namespace audio {
     public:
         virtual ~Backend() {};
 
-        virtual std::unique_ptr<Sound> createSound(std::shared_ptr<PCM> pcm, bool keepPCM) = 0;
-        virtual std::unique_ptr<Stream> openStream(std::shared_ptr<PCMStream> stream, bool keepSource) = 0;
+        virtual std::unique_ptr<Sound> createSound(
+            std::shared_ptr<PCM> pcm, bool keepPCM
+        ) = 0;
+        virtual std::unique_ptr<Stream> openStream(
+            std::shared_ptr<PCMStream> stream, bool keepSource
+        ) = 0;
         virtual void setListener(
-            glm::vec3 position, 
-            glm::vec3 velocity, 
-            glm::vec3 lookAt, 
+            glm::vec3 position,
+            glm::vec3 velocity,
+            glm::vec3 lookAt,
             glm::vec3 up
         ) = 0;
         virtual void update(double delta) = 0;
@@ -358,21 +363,23 @@ namespace audio {
     /// @brief Load audio file info and PCM data
     /// @param file audio file
     /// @param headerOnly read header only
-    /// @throws std::runtime_error if I/O error ocurred or format is unknown 
+    /// @throws std::runtime_error if I/O error ocurred or format is unknown
     /// @return PCM audio data
     std::unique_ptr<PCM> load_PCM(const fs::path& file, bool headerOnly);
 
     /// @brief Load sound from file
     /// @param file audio file path
-    /// @param keepPCM store PCM data in sound to make it accessible with Sound::getPCM
-    /// @throws std::runtime_error if I/O error ocurred or format is unknown 
+    /// @param keepPCM store PCM data in sound to make it accessible with
+    /// Sound::getPCM
+    /// @throws std::runtime_error if I/O error ocurred or format is unknown
     /// @return new Sound instance
     std::unique_ptr<Sound> load_sound(const fs::path& file, bool keepPCM);
 
     /// @brief Create new sound from PCM data
     /// @param pcm PCM data
-    /// @param keepPCM store PCM data in sound to make it accessible with Sound::getPCM
-    /// @return new Sound instance 
+    /// @param keepPCM store PCM data in sound to make it accessible with
+    /// Sound::getPCM
+    /// @return new Sound instance
     std::unique_ptr<Sound> create_sound(std::shared_ptr<PCM> pcm, bool keepPCM);
 
     /// @brief Open new PCM stream from file
@@ -383,15 +390,19 @@ namespace audio {
 
     /// @brief Open new audio stream from file
     /// @param file audio file path
-    /// @param keepSource store PCMStream in stream to make it accessible with Stream::getSource
+    /// @param keepSource store PCMStream in stream to make it accessible with
+    /// Stream::getSource
     /// @return new Stream instance
     std::unique_ptr<Stream> open_stream(const fs::path& file, bool keepSource);
 
     /// @brief Open new audio stream from source
     /// @param stream PCM data source
-    /// @param keepSource store PCMStream in stream to make it accessible with Stream::getSource
+    /// @param keepSource store PCMStream in stream to make it accessible with
+    /// Stream::getSource
     /// @return new Stream instance
-    std::unique_ptr<Stream> open_stream(std::shared_ptr<PCMStream> stream, bool keepSource);
+    std::unique_ptr<Stream> open_stream(
+        std::shared_ptr<PCMStream> stream, bool keepSource
+    );
 
     /// @brief Configure 3D listener
     /// @param position listener position
@@ -399,10 +410,7 @@ namespace audio {
     /// @param lookAt point the listener look at
     /// @param up camera up vector
     void set_listener(
-        glm::vec3 position, 
-        glm::vec3 velocity, 
-        glm::vec3 lookAt, 
-        glm::vec3 up
+        glm::vec3 position, glm::vec3 velocity, glm::vec3 lookAt, glm::vec3 up
     );
 
     /// @brief Play 3D sound in the world
@@ -412,7 +420,7 @@ namespace audio {
     /// @param volume sound volume [0.0-1.0]
     /// @param pitch sound pitch multiplier [0.0-...]
     /// @param loop loop sound
-    /// @param priority sound priority 
+    /// @param priority sound priority
     /// (PRIORITY_LOW, PRIORITY_NORMAL, PRIORITY_HIGH)
     /// @param channel channel index
     /// @return speaker id or 0
@@ -470,7 +478,7 @@ namespace audio {
     /// @return speaker or nullptr
     Speaker* get_speaker(speakerid_t id);
 
-    /// @brief Create new channel. 
+    /// @brief Create new channel.
     /// All non-builtin channels will be destroyed on audio::reset() call
     /// @param name channel name
     /// @return new channel index
@@ -499,7 +507,7 @@ namespace audio {
     /// @brief Get alive speakers number (including paused)
     size_t count_speakers();
 
-    /// @brief Get playing streams number (including paused) 
+    /// @brief Get playing streams number (including paused)
     size_t count_streams();
 
     /// @brief Update audio streams and sound instanced
@@ -508,9 +516,9 @@ namespace audio {
 
     /// @brief Stop all playing audio in channel, reset channel state
     void reset_channel(int channel);
-    
+
     /// @brief Finalize audio system
     void close();
 };
 
-#endif // AUDIO_AUDIO_HPP_
+#endif  // AUDIO_AUDIO_HPP_

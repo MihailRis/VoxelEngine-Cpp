@@ -4,16 +4,16 @@
 #include "../../../delegates.hpp"
 #include "../scripting.hpp"
 
-#ifdef __linux__ 
+#ifdef __linux__
 #include <luajit-2.1/luaconf.h>
+
 #include <luajit-2.1/lua.hpp>
 #else
 #include <lua.hpp>
 #endif
 #include <glm/glm.hpp>
-
-#include <string>
 #include <stdexcept>
+#include <string>
 
 #ifndef LUAJIT_VERSION
 #error LuaJIT required
@@ -32,4 +32,4 @@ namespace lua {
     using Integer = lua_Integer;
 }
 
-#endif // LOGIC_SCRIPTING_LUA_HPP_
+#endif  // LOGIC_SCRIPTING_LUA_HPP_

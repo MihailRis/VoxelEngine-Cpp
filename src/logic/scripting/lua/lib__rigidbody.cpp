@@ -1,6 +1,5 @@
-#include "libentity.hpp"
-
 #include "../../../util/stringutil.hpp"
+#include "libentity.hpp"
 
 static int l_get_vel(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
@@ -60,7 +59,9 @@ static int l_set_gravity_scale(lua::State* L) {
 
 static int l_is_vdamping(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
-        return lua::pushboolean(L, entity->getRigidbody().hitbox.verticalDamping);
+        return lua::pushboolean(
+            L, entity->getRigidbody().hitbox.verticalDamping
+        );
     }
     return 0;
 }
@@ -95,7 +96,9 @@ static int l_set_crouching(lua::State* L) {
 
 static int l_get_body_type(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
-        return lua::pushstring(L, to_string(entity->getRigidbody().hitbox.type));
+        return lua::pushstring(
+            L, to_string(entity->getRigidbody().hitbox.type)
+        );
     }
     return 0;
 }
@@ -106,7 +109,8 @@ static int l_set_body_type(lua::State* L) {
             entity->getRigidbody().hitbox.type = *type;
         } else {
             throw std::runtime_error(
-                "unknown body type "+util::quote(lua::tostring(L, 2)));
+                "unknown body type " + util::quote(lua::tostring(L, 2))
+            );
         }
     }
     return 0;
@@ -126,7 +130,7 @@ static int l_set_linear_damping(lua::State* L) {
     return 0;
 }
 
-const luaL_Reg rigidbodylib [] = {
+const luaL_Reg rigidbodylib[] = {
     {"is_enabled", lua::wrap<l_is_enabled>},
     {"set_enabled", lua::wrap<l_set_enabled>},
     {"get_vel", lua::wrap<l_get_vel>},
@@ -144,5 +148,4 @@ const luaL_Reg rigidbodylib [] = {
     {"set_crouching", lua::wrap<l_set_crouching>},
     {"get_body_type", lua::wrap<l_get_body_type>},
     {"set_body_type", lua::wrap<l_set_body_type>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

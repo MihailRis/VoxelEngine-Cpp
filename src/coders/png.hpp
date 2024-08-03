@@ -13,4 +13,4 @@ namespace png {
     std::unique_ptr<Texture> load_texture(const std::string& filename);
 }
 
-#endif // CODERS_PNG_HPP_
+#endif  // CODERS_PNG_HPP_

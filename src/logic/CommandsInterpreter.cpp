@@ -1,15 +1,15 @@
 #include "CommandsInterpreter.hpp"
 
-#include "../coders/commons.hpp"
-#include "../util/stringutil.hpp"
-
 #include <iostream>
 #include <utility>
+
+#include "../coders/commons.hpp"
+#include "../util/stringutil.hpp"
 
 using namespace cmd;
 
 inline bool is_cmd_identifier_part(char c, bool allowColon) {
-    return is_identifier_part(c) || c == '.' || c == '$' || 
+    return is_identifier_part(c) || c == '.' || c == '$' ||
            (allowColon && c == ':');
 }
 
@@ -31,7 +31,7 @@ class CommandParser : BasicParser {
         while (hasNext() && is_cmd_identifier_part(source[pos], allowColon)) {
             pos++;
         }
-        return std::string(source.substr(start, pos-start));
+        return std::string(source.substr(start, pos - start));
     }
 
     std::unordered_map<std::string, ArgType> types {
@@ -42,8 +42,8 @@ class CommandParser : BasicParser {
         {"enum", ArgType::enumvalue},
     };
 public:
-    CommandParser(std::string_view filename, std::string_view source) 
-    : BasicParser(filename, source) {
+    CommandParser(std::string_view filename, std::string_view source)
+        : BasicParser(filename, source) {
     }
 
     ArgType parseType() {
@@ -55,7 +55,7 @@ public:
         if (found != types.end()) {
             return found->second;
         } else {
-            throw error("unknown type "+util::quote(name));
+            throw error("unknown type " + util::quote(name));
         }
     }
 
@@ -83,7 +83,7 @@ public:
         if (is_digit(c)) {
             return parseNumber(1);
         }
-        throw error("invalid character '"+std::string({c})+"'");
+        throw error("invalid character '" + std::string({c}) + "'");
     }
 
     std::string parseEnum() {
@@ -92,10 +92,10 @@ public:
             if (peek() == ']') {
                 throw error("empty enumeration is not allowed");
             }
-            auto enumvalue = "|"+std::string(readUntil(']'))+"|";
+            auto enumvalue = "|" + std::string(readUntil(']')) + "|";
             size_t offset = enumvalue.find(' ');
             if (offset != std::string::npos) {
-                goBack(enumvalue.length()-offset);
+                goBack(enumvalue.length() - offset);
                 throw error("use '|' as separator, not a space");
             }
             nextChar();
@@ -156,30 +156,34 @@ public:
             }
         }
         return Command(
-            name, std::move(args), std::move(kwargs),
-             std::string(description), std::move(executor)
+            name,
+            std::move(args),
+            std::move(kwargs),
+            std::string(description),
+            std::move(executor)
         );
     }
 
     inline parsing_error argumentError(
-        const std::string& argname, 
-        const std::string& message
+        const std::string& argname, const std::string& message
     ) {
-        return error("argument "+util::quote(argname)+": "+message);
+        return error("argument " + util::quote(argname) + ": " + message);
     }
 
     inline parsing_error typeError(
-        const std::string& argname, 
-        const std::string& expected, 
+        const std::string& argname,
+        const std::string& expected,
         const dynamic::Value& value
     ) {
         return argumentError(
-            argname, expected+" expected, got "+dynamic::type_name(value)
+            argname, expected + " expected, got " + dynamic::type_name(value)
         );
     }
 
-    template<typename T>
-    inline bool typeCheck(Argument* arg, const dynamic::Value& value, const std::string& tname) {
+    template <typename T>
+    inline bool typeCheck(
+        Argument* arg, const dynamic::Value& value, const std::string& tname
+    ) {
         if (!std::holds_alternative<T>(value)) {
             if (arg->optional) {
                 return false;
@@ -198,7 +202,7 @@ public:
                 }
                 return true;
             }
-        } 
+        }
         if (arg->optional) {
             return false;
         } else {
@@ -211,9 +215,12 @@ public:
             case ArgType::enumvalue: {
                 if (auto* string = std::get_if<std::string>(&value)) {
                     auto& enumname = arg->enumname;
-                    if (enumname.find("|"+*string+"|") == std::string::npos) {
-                        throw error("argument "+util::quote(arg->name)+
-                                    ": invalid enumeration value");
+                    if (enumname.find("|" + *string + "|") ==
+                        std::string::npos) {
+                        throw error(
+                            "argument " + util::quote(arg->name) +
+                            ": invalid enumeration value"
+                        );
                     }
                 } else {
                     if (arg->optional) {
@@ -245,7 +252,9 @@ public:
         return true;
     }
 
-    dynamic::Value fetchOrigin(CommandsInterpreter* interpreter, Argument* arg) {
+    dynamic::Value fetchOrigin(
+        CommandsInterpreter* interpreter, Argument* arg
+    ) {
         if (dynamic::is_numeric(arg->origin)) {
             return arg->origin;
         } else if (auto string = std::get_if<std::string>(&arg->origin)) {
@@ -255,9 +264,7 @@ public:
     }
 
     dynamic::Value applyRelative(
-        Argument* arg, 
-        dynamic::Value value,
-        const dynamic::Value& origin
+        Argument* arg, dynamic::Value value, const dynamic::Value& origin
     ) {
         if (origin.index() == 0) {
             return value;
@@ -266,14 +273,17 @@ public:
             if (arg->type == ArgType::number) {
                 return dynamic::get_number(origin) + dynamic::get_number(value);
             } else {
-                return dynamic::get_integer(origin) + dynamic::get_integer(value);
+                return dynamic::get_integer(origin) +
+                       dynamic::get_integer(value);
             }
         } catch (std::runtime_error& err) {
             throw argumentError(arg->name, err.what());
         }
     }
 
-    dynamic::Value parseRelativeValue(CommandsInterpreter* interpreter, Argument* arg) {
+    dynamic::Value parseRelativeValue(
+        CommandsInterpreter* interpreter, Argument* arg
+    ) {
         if (arg->type != ArgType::number && arg->type != ArgType::integer) {
             throw error("'~' operator is only allowed for numeric arguments");
         }
@@ -290,17 +300,18 @@ public:
     }
 
     inline dynamic::Value performKeywordArg(
-        CommandsInterpreter* interpreter, Command* command, const std::string& key
+        CommandsInterpreter* interpreter,
+        Command* command,
+        const std::string& key
     ) {
         if (auto arg = command->getArgument(key)) {
             nextChar();
-            auto value = peek() == '~' 
-                ? parseRelativeValue(interpreter, arg) 
-                : parseValue();
+            auto value = peek() == '~' ? parseRelativeValue(interpreter, arg)
+                                       : parseValue();
             typeCheck(arg, value);
             return value;
         } else {
-            throw error("unknown keyword "+util::quote(key));
+            throw error("unknown keyword " + util::quote(key));
         }
     }
 
@@ -309,7 +320,7 @@ public:
         std::string name = parseIdentifier(true);
         auto command = repo->get(name);
         if (command == nullptr) {
-            throw error("unknown command "+util::quote(name));
+            throw error("unknown command " + util::quote(name));
         }
         auto args = dynamic::create_list();
         auto kwargs = dynamic::create_map();
@@ -324,7 +335,7 @@ public:
                 value = static_cast<integer_t>(0);
                 nextChar();
             }
-            
+
             if (hasNext() && peekNoJump() != ' ') {
                 value = parseValue();
                 if (auto string = std::get_if<std::string>(&value)) {
@@ -336,7 +347,9 @@ public:
                 // keyword argument
                 if (!relative && hasNext() && peek() == '=') {
                     auto key = std::get<std::string>(value);
-                    kwargs->put(key, performKeywordArg(interpreter, command, key));
+                    kwargs->put(
+                        key, performKeywordArg(interpreter, command, key)
+                    );
                 }
             }
 
@@ -364,14 +377,15 @@ public:
             } while (!typeCheck(arg, value));
 
             if (relative) {
-                value = applyRelative(arg, value, fetchOrigin(interpreter, arg));
+                value =
+                    applyRelative(arg, value, fetchOrigin(interpreter, arg));
             }
             args->put(value);
         }
 
         while (auto arg = command->getArgument(arg_index++)) {
             if (!arg->optional) {
-                throw error("missing argument "+util::quote(arg->name));
+                throw error("missing argument " + util::quote(arg->name));
             } else {
                 if (auto string = std::get_if<std::string>(&arg->def)) {
                     if ((*string)[0] == '$') {
@@ -386,13 +400,18 @@ public:
     }
 };
 
-Command Command::create(std::string_view scheme, std::string_view description, executor_func executor) {
-    return CommandParser("<string>", scheme).parseScheme(std::move(executor), description);
+Command Command::create(
+    std::string_view scheme,
+    std::string_view description,
+    executor_func executor
+) {
+    return CommandParser("<string>", scheme)
+        .parseScheme(std::move(executor), description);
 }
 
 void CommandsRepository::add(
-    std::string_view scheme, 
-    std::string_view description, 
+    std::string_view scheme,
+    std::string_view description,
     executor_func executor
 ) {
     Command command = Command::create(scheme, description, std::move(executor));

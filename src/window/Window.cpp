@@ -1,16 +1,18 @@
-#include <iostream>
 #include "Window.hpp"
-#include "Events.hpp"
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include <chrono>
+#include <iostream>
+#include <thread>
+
 #include "../debug/Logger.hpp"
 #include "../graphics/core/ImageData.hpp"
 #include "../graphics/core/Texture.hpp"
 #include "../settings.hpp"
 #include "../util/ObjectsKeeper.hpp"
-
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <thread>
-#include <chrono>
+#include "Events.hpp"
 
 static debug::Logger logger("window");
 
@@ -36,16 +38,16 @@ void mouse_button_callback(GLFWwindow*, int button, int action, int) {
     Events::setButton(button, action == GLFW_PRESS);
 }
 
-void key_callback(GLFWwindow*, int key, int /*scancode*/, int action, int /*mode*/) {
+void key_callback(
+    GLFWwindow*, int key, int /*scancode*/, int action, int /*mode*/
+) {
     if (key == GLFW_KEY_UNKNOWN) return;
     if (action == GLFW_PRESS) {
         Events::setKey(key, true);
         Events::pressedKeys.push_back(static_cast<keycode>(key));
-    }
-    else if (action == GLFW_RELEASE) {
+    } else if (action == GLFW_RELEASE) {
         Events::setKey(key, false);
-    }
-    else if (action == GLFW_REPEAT) {
+    } else if (action == GLFW_REPEAT) {
         Events::pressedKeys.push_back(static_cast<keycode>(key));
     }
 }
@@ -82,24 +84,36 @@ void window_size_callback(GLFWwindow*, int width, int height) {
     Window::resetScissor();
 }
 
-void character_callback(GLFWwindow*, unsigned int codepoint){
+void character_callback(GLFWwindow*, unsigned int codepoint) {
     Events::codepoints.push_back(codepoint);
 }
 
 const char* glfwErrorName(int error) {
     switch (error) {
-        case GLFW_NO_ERROR: return "no error";
-        case GLFW_NOT_INITIALIZED: return "not initialized";
-        case GLFW_NO_CURRENT_CONTEXT: return "no current context";
-        case GLFW_INVALID_ENUM: return "invalid enum";
-        case GLFW_INVALID_VALUE: return "invalid value";
-        case GLFW_OUT_OF_MEMORY: return "out of memory";
-        case GLFW_API_UNAVAILABLE: return "api unavailable";
-        case GLFW_VERSION_UNAVAILABLE: return "version unavailable";
-        case GLFW_PLATFORM_ERROR: return "platform error";
-        case GLFW_FORMAT_UNAVAILABLE: return "format unavailable";
-        case GLFW_NO_WINDOW_CONTEXT: return "no window context";
-        default: return "unknown error";
+        case GLFW_NO_ERROR:
+            return "no error";
+        case GLFW_NOT_INITIALIZED:
+            return "not initialized";
+        case GLFW_NO_CURRENT_CONTEXT:
+            return "no current context";
+        case GLFW_INVALID_ENUM:
+            return "invalid enum";
+        case GLFW_INVALID_VALUE:
+            return "invalid value";
+        case GLFW_OUT_OF_MEMORY:
+            return "out of memory";
+        case GLFW_API_UNAVAILABLE:
+            return "api unavailable";
+        case GLFW_VERSION_UNAVAILABLE:
+            return "version unavailable";
+        case GLFW_PLATFORM_ERROR:
+            return "platform error";
+        case GLFW_FORMAT_UNAVAILABLE:
+            return "format unavailable";
+        case GLFW_NO_WINDOW_CONTEXT:
+            return "no window context";
+        default:
+            return "unknown error";
     }
 }
 
@@ -111,14 +125,14 @@ void error_callback(int error, const char* description) {
     }
 }
 
-int Window::initialize(DisplaySettings* settings){
+int Window::initialize(DisplaySettings* settings) {
     Window::settings = settings;
     Window::width = settings->width.get();
     Window::height = settings->height.get();
 
-    std::string title = "VoxelEngine-Cpp v" + 
-        std::to_string(ENGINE_VERSION_MAJOR) + "." +
-        std::to_string(ENGINE_VERSION_MINOR);
+    std::string title = "VoxelEngine-Cpp v" +
+                        std::to_string(ENGINE_VERSION_MAJOR) + "." +
+                        std::to_string(ENGINE_VERSION_MINOR);
 
     glfwSetErrorCallback(error_callback);
     if (glfwInit() == GLFW_FALSE) {
@@ -139,7 +153,7 @@ int Window::initialize(DisplaySettings* settings){
     glfwWindowHint(GLFW_SAMPLES, settings->samples.get());
 
     window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
-    if (window == nullptr){
+    if (window == nullptr) {
         logger.error() << "failed to create GLFW window";
         glfwTerminate();
         return -1;
@@ -147,24 +161,26 @@ int Window::initialize(DisplaySettings* settings){
     glfwMakeContextCurrent(window);
 
     glewExperimental = GL_TRUE;
-    
+
     GLenum glewErr = glewInit();
-    if (glewErr != GLEW_OK){
+    if (glewErr != GLEW_OK) {
         if (glewErr == GLEW_ERROR_NO_GLX_DISPLAY) {
             // see issue #240
-            logger.warning() << "glewInit() returned GLEW_ERROR_NO_GLX_DISPLAY; ignored";
+            logger.warning()
+                << "glewInit() returned GLEW_ERROR_NO_GLX_DISPLAY; ignored";
         } else {
-            logger.error() << "failed to initialize GLEW:\n" << glewGetErrorString(glewErr);
+            logger.error() << "failed to initialize GLEW:\n"
+                           << glewGetErrorString(glewErr);
             return -1;
         }
     }
 
-    glViewport(0,0, width, height);
-    glClearColor(0.0f,0.0f,0.0f, 1);
+    glViewport(0, 0, width, height);
+    glClearColor(0.0f, 0.0f, 0.0f, 1);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    GLint maxTextureSize[1]{static_cast<GLint>(Texture::MAX_RESOLUTION)};
+    GLint maxTextureSize[1] {static_cast<GLint>(Texture::MAX_RESOLUTION)};
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, maxTextureSize);
     if (maxTextureSize[0] > 0) {
         Texture::MAX_RESOLUTION = maxTextureSize[0];
@@ -179,11 +195,14 @@ int Window::initialize(DisplaySettings* settings){
     glfwSetScrollCallback(window, scroll_callback);
 
     observers_keeper = util::ObjectsKeeper();
-    observers_keeper.keepAlive(settings->fullscreen.observe([=](bool value) {
-        if (value != isFullscreen()) {
-            toggleFullscreen();
-        }
-    }, true));
+    observers_keeper.keepAlive(settings->fullscreen.observe(
+        [=](bool value) {
+            if (value != isFullscreen()) {
+                toggleFullscreen();
+            }
+        },
+        true
+    ));
 
     glfwSwapInterval(1);
     setFramerate(settings->framerate.get());
@@ -213,11 +232,11 @@ void Window::setBgColor(glm::vec4 color) {
     glClearColor(color.r, color.g, color.b, color.a);
 }
 
-void Window::viewport(int x, int y, int width, int height){
+void Window::viewport(int x, int y, int width, int height) {
     glViewport(x, y, width, height);
 }
 
-void Window::setCursorMode(int mode){
+void Window::setCursorMode(int mode) {
     glfwSetInputMode(window, GLFW_CURSOR, mode);
 }
 
@@ -245,9 +264,12 @@ void Window::pushScissor(glm::vec4 area) {
     if (area.z < 0.0f || area.w < 0.0f) {
         glScissor(0, 0, 0, 0);
     } else {
-        glScissor(area.x, Window::height-area.w, 
-                  std::max(0, int(area.z-area.x)), 
-                  std::max(0, int(area.w-area.y)));
+        glScissor(
+            area.x,
+            Window::height - area.w,
+            std::max(0, int(area.z - area.x)),
+            std::max(0, int(area.w - area.y))
+        );
     }
     scissorArea = area;
 }
@@ -262,9 +284,12 @@ void Window::popScissor() {
     if (area.z < 0.0f || area.w < 0.0f) {
         glScissor(0, 0, 0, 0);
     } else {
-        glScissor(area.x, Window::height-area.w, 
-                  std::max(0, int(area.z-area.x)), 
-                  std::max(0, int(area.w-area.y)));
+        glScissor(
+            area.x,
+            Window::height - area.w,
+            std::max(0, int(area.z - area.x)),
+            std::max(0, int(area.w - area.y))
+        );
     }
     if (scissorStack.empty()) {
         glDisable(GL_SCISSOR_TEST);
@@ -272,16 +297,16 @@ void Window::popScissor() {
     scissorArea = area;
 }
 
-void Window::terminate(){
+void Window::terminate() {
     observers_keeper = util::ObjectsKeeper();
     glfwTerminate();
 }
 
-bool Window::isShouldClose(){
+bool Window::isShouldClose() {
     return glfwWindowShouldClose(window);
 }
 
-void Window::setShouldClose(bool flag){
+void Window::setShouldClose(bool flag) {
     glfwSetWindowShouldClose(window, flag);
 }
 
@@ -292,7 +317,7 @@ void Window::setFramerate(int framerate) {
     Window::framerate = framerate;
 }
 
-void Window::toggleFullscreen(){
+void Window::toggleFullscreen() {
     fullscreen = !fullscreen;
 
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -302,12 +327,17 @@ void Window::toggleFullscreen(){
 
     if (fullscreen) {
         glfwGetWindowPos(window, &posX, &posY);
-        glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
-    }
-    else {
-        glfwSetWindowMonitor(window, nullptr, 
-            posX, posY, 
-            settings->width.get(), settings->height.get(), 
+        glfwSetWindowMonitor(
+            window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE
+        );
+    } else {
+        glfwSetWindowMonitor(
+            window,
+            nullptr,
+            posX,
+            posY,
+            settings->width.get(),
+            settings->height.get(),
             GLFW_DONT_CARE
         );
         glfwSetWindowAttrib(window, GLFW_MAXIMIZED, GLFW_FALSE);
@@ -327,8 +357,9 @@ void Window::swapBuffers() {
     Window::resetScissor();
     double currentTime = time();
     if (framerate > 0 && currentTime - prevSwap < (1.0 / framerate)) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(
-            static_cast<int>((1.0/framerate - (currentTime-prevSwap))*1000)));
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(
+            (1.0 / framerate - (currentTime - prevSwap)) * 1000
+        )));
     }
     prevSwap = time();
 }
@@ -361,18 +392,26 @@ void Window::setClipboardText(const char* text) {
 bool Window::tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor) {
     glm::ivec4 windowFrame(0);
     glm::ivec4 workArea(0);
-    glfwGetWindowFrameSize(window, &windowFrame.x, &windowFrame.y, &windowFrame.z, &windowFrame.w);
-    glfwGetMonitorWorkarea(monitor, &workArea.x, &workArea.y, &workArea.z, &workArea.w);
+    glfwGetWindowFrameSize(
+        window, &windowFrame.x, &windowFrame.y, &windowFrame.z, &windowFrame.w
+    );
+    glfwGetMonitorWorkarea(
+        monitor, &workArea.x, &workArea.y, &workArea.z, &workArea.w
+    );
     if (Window::width > (uint)workArea.z) Window::width = (uint)workArea.z;
     if (Window::height > (uint)workArea.w) Window::height = (uint)workArea.w;
     if (Window::width >= (uint)(workArea.z - (windowFrame.x + windowFrame.z)) &&
-        Window::height >= (uint)(workArea.w - (windowFrame.y + windowFrame.w))) {
+        Window::height >=
+            (uint)(workArea.w - (windowFrame.y + windowFrame.w))) {
         glfwMaximizeWindow(window);
         return true;
     }
     glfwSetWindowSize(window, Window::width, Window::height);
-    glfwSetWindowPos(window, workArea.x + (workArea.z - Window::width) / 2, 
-                             workArea.y + (workArea.w - Window::height) / 2 + windowFrame.y / 2);
+    glfwSetWindowPos(
+        window,
+        workArea.x + (workArea.z - Window::width) / 2,
+        workArea.y + (workArea.w - Window::height) / 2 + windowFrame.y / 2
+    );
     return false;
 }
 
@@ -380,7 +419,6 @@ void Window::setIcon(const ImageData* image) {
     GLFWimage icon {
         static_cast<int>(image->getWidth()),
         static_cast<int>(image->getHeight()),
-        image->getData() 
-    };
+        image->getData()};
     glfwSetWindowIcon(window, 1, &icon);
 }

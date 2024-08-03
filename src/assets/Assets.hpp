@@ -1,29 +1,21 @@
 #ifndef ASSETS_ASSETS_HPP_
 #define ASSETS_ASSETS_HPP_
 
-#include "../graphics/core/TextureAnimation.hpp"
-
-#include <string>
-#include <memory>
-#include <stdexcept>
-#include <optional>
 #include <functional>
-#include <unordered_map>
+#include <memory>
+#include <optional>
+#include <stdexcept>
+#include <string>
 #include <typeindex>
 #include <typeinfo>
+#include <unordered_map>
 #include <vector>
+
+#include "../graphics/core/TextureAnimation.hpp"
 
 class Assets;
 
-enum class AssetType {
-    TEXTURE,
-    SHADER,
-    FONT,
-    ATLAS,
-    LAYOUT,
-    SOUND,
-    MODEL
-};
+enum class AssetType { TEXTURE, SHADER, FONT, ATLAS, LAYOUT, SOUND, MODEL };
 
 namespace assetload {
     /// @brief final work to do in the main thread
@@ -31,7 +23,7 @@ namespace assetload {
 
     using setupfunc = std::function<void(const Assets*)>;
 
-    template<class T>
+    template <class T>
     void assets_setup(const Assets*);
 
     class error : public std::runtime_error {
@@ -39,12 +31,11 @@ namespace assetload {
         std::string filename;
         std::string reason;
     public:
-        error(
-            AssetType type, std::string filename, std::string reason
-        ) : std::runtime_error(filename + ": " + reason),
-            type(type),
-            filename(std::move(filename)),
-            reason(std::move(reason)) {
+        error(AssetType type, std::string filename, std::string reason)
+            : std::runtime_error(filename + ": " + reason),
+              type(type),
+              filename(std::move(filename)),
+              reason(std::move(reason)) {
         }
 
         AssetType getAssetType() const {
@@ -75,12 +66,12 @@ public:
     const std::vector<TextureAnimation>& getAnimations();
     void store(const TextureAnimation& animation);
 
-    template<class T>
+    template <class T>
     void store(std::unique_ptr<T> asset, const std::string& name) {
         assets[typeid(T)][name].reset(asset.release());
     }
 
-    template<class T>
+    template <class T>
     T* get(const std::string& name) const {
         const auto& mapIter = assets.find(typeid(T));
         if (mapIter == assets.end()) {
@@ -94,7 +85,7 @@ public:
         return static_cast<T*>(found->second.get());
     }
 
-    template<class T>
+    template <class T>
     std::optional<const assets_map*> getMap() const {
         const auto& mapIter = assets.find(typeid(T));
         if (mapIter == assets.end()) {
@@ -114,7 +105,7 @@ public:
     }
 };
 
-template<class T>
+template <class T>
 void assetload::assets_setup(const Assets* assets) {
     if (auto mapPtr = assets->getMap<T>()) {
         for (const auto& entry : **mapPtr) {
@@ -123,4 +114,4 @@ void assetload::assets_setup(const Assets* assets) {
     }
 }
 
-#endif // ASSETS_ASSETS_HPP_
+#endif  // ASSETS_ASSETS_HPP_

@@ -1,8 +1,9 @@
 #ifndef UTIL_TIMEUTIL_HPP_
 #define UTIL_TIMEUTIL_HPP_
 
-#include "../typedefs.hpp"
 #include <chrono>
+
+#include "../typedefs.hpp"
 
 namespace timeutil {
     class Timer {
@@ -12,13 +13,13 @@ namespace timeutil {
         int64_t stop();
     };
 
-    /** 
+    /**
      * Timer that stops and prints time when destructor called
      * @example:
      *     {    // some scope (custom, function, if/else, cycle etc.)
      *     timeutil::ScopeLogTimer scopeclock();
      *     ...
-     *     } 
+     *     }
      */
     class ScopeLogTimer : public Timer {
         long long scopeid_;
@@ -30,8 +31,8 @@ namespace timeutil {
     inline constexpr float time_value(float hour, float minute, float second) {
         return (hour + (minute + second / 60.0f) / 60.0f) / 24.0f;
     }
-    
+
     void from_value(float value, int& hour, int& minute, int& second);
 }
 
-#endif // UTIL_TIMEUTIL_HPP_
+#endif  // UTIL_TIMEUTIL_HPP_

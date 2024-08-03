@@ -1,29 +1,28 @@
-#include "api_lua.hpp"
+#include <algorithm>
+#include <filesystem>
+#include <stdexcept>
+#include <string>
 
-#include "../../../engine.hpp"
-#include "../../../content/Content.hpp"
 #include "../../../assets/AssetsLoader.hpp"
-#include "../../../files/engine_paths.hpp"
+#include "../../../content/Content.hpp"
+#include "../../../engine.hpp"
 #include "../../../files/WorldFiles.hpp"
+#include "../../../files/engine_paths.hpp"
 #include "../../../world/Level.hpp"
 #include "../../../world/World.hpp"
-
-#include <string>
-#include <stdexcept>
-#include <filesystem>
-#include <algorithm>
+#include "api_lua.hpp"
 
 using namespace scripting;
 
 static int l_pack_get_folder(lua::State* L) {
     std::string packName = lua::tostring(L, 1);
     if (packName == "core") {
-        auto folder = engine->getPaths()->getResources().u8string()+"/";
+        auto folder = engine->getPaths()->getResources().u8string() + "/";
         return lua::pushstring(L, folder);
     }
     for (auto& pack : engine->getContentPacks()) {
         if (pack.id == packName) {
-            return lua::pushstring(L, pack.folder.u8string()+"/");
+            return lua::pushstring(L, pack.folder.u8string() + "/");
         }
     }
     return lua::pushstring(L, "");
@@ -54,7 +53,7 @@ static int l_pack_get_available(lua::State* L) {
         manager.exclude(pack.id);
     }
     auto names = manager.getAllNames();
-    
+
     lua::createtable(L, names.size(), 0);
     for (size_t i = 0; i < names.size(); i++) {
         lua::pushstring(L, names[i]);
@@ -63,7 +62,9 @@ static int l_pack_get_available(lua::State* L) {
     return 1;
 }
 
-static int l_pack_get_info(lua::State* L, const ContentPack& pack, const Content* content) {
+static int l_pack_get_info(
+    lua::State* L, const ContentPack& pack, const Content* content
+) {
     lua::createtable(L, 0, 5);
 
     lua::pushstring(L, pack.id);
@@ -82,10 +83,10 @@ static int l_pack_get_info(lua::State* L, const ContentPack& pack, const Content
     lua::setfield(L, "version");
 
     auto assets = engine->getAssets();
-    std::string icon = pack.id+".icon";
-    if (!AssetsLoader::loadExternalTexture(assets, icon, {
-        pack.folder/fs::path("icon.png")
-    })) {
+    std::string icon = pack.id + ".icon";
+    if (!AssetsLoader::loadExternalTexture(
+            assets, icon, {pack.folder / fs::path("icon.png")}
+        )) {
         icon = "gui/no_icon";
     }
 
@@ -98,13 +99,20 @@ static int l_pack_get_info(lua::State* L, const ContentPack& pack, const Content
             auto& dpack = pack.dependencies[i];
             std::string prefix;
             switch (dpack.level) {
-                case DependencyLevel::required: prefix = "!"; break;
-                case DependencyLevel::optional: prefix = "?"; break;
-                case DependencyLevel::weak: prefix = "~"; break;
-                default: throw std::runtime_error("");
+                case DependencyLevel::required:
+                    prefix = "!";
+                    break;
+                case DependencyLevel::optional:
+                    prefix = "?";
+                    break;
+                case DependencyLevel::weak:
+                    prefix = "~";
+                    break;
+                default:
+                    throw std::runtime_error("");
             }
             lua::pushfstring(L, "%s%s", prefix.c_str(), dpack.id.c_str());
-            lua::rawseti(L, i+1);
+            lua::rawseti(L, i + 1);
         }
         lua::setfield(L, "dependencies");
     }
@@ -126,12 +134,13 @@ static int l_pack_get_info(lua::State* L, const ContentPack& pack, const Content
 /// } or nil
 static int l_pack_get_info(lua::State* L) {
     auto packid = lua::tostring(L, 1);
-    
+
     auto content = engine->getContent();
     auto& packs = engine->getContentPacks();
-    auto found = std::find_if(packs.begin(), packs.end(), [packid](const auto& pack) {
-        return pack.id == packid;
-    });
+    auto found =
+        std::find_if(packs.begin(), packs.end(), [packid](const auto& pack) {
+            return pack.id == packid;
+        });
     if (found == packs.end()) {
         // TODO: optimize
         fs::path worldFolder("");
@@ -160,11 +169,10 @@ static int l_pack_get_base_packs(lua::State* L) {
     return 1;
 }
 
-const luaL_Reg packlib [] = {
+const luaL_Reg packlib[] = {
     {"get_folder", lua::wrap<l_pack_get_folder>},
     {"get_installed", lua::wrap<l_pack_get_installed>},
     {"get_available", lua::wrap<l_pack_get_available>},
     {"get_info", lua::wrap<l_pack_get_info>},
     {"get_base_packs", lua::wrap<l_pack_get_base_packs>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

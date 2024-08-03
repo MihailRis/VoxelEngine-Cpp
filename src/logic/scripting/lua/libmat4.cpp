@@ -1,6 +1,6 @@
-#include "api_lua.hpp"
-
 #include <sstream>
+
+#include "api_lua.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/ext/matrix_transform.hpp>
@@ -32,10 +32,13 @@ static int l_determinant(lua::State* L) {
 }
 
 /// Overloads:
-/// mat4.mul(m1: float[16], m2: float[16]) -> float[16] - creates matrix of m1 and m2 multiplication result
-/// mat4.mul(m1: float[16], m2: float[16], dst: float[16]) -> float[16] - updates dst matrix with m1 and m2 multiplication result
-/// mat4.mul(m1: float[16], v: float[3 or 4]) -> float[3 or 4] - creates vector of m1 and v multiplication result
-/// mat4.mul(m1: float[16], v: float[3 or 4], dst: float[3 or 4]) -> float[3 or 4] - updates dst vector with m1 and v multiplication result
+/// mat4.mul(m1: float[16], m2: float[16]) -> float[16] - creates matrix of m1
+/// and m2 multiplication result mat4.mul(m1: float[16], m2: float[16], dst:
+/// float[16]) -> float[16] - updates dst matrix with m1 and m2 multiplication
+/// result mat4.mul(m1: float[16], v: float[3 or 4]) -> float[3 or 4] - creates
+/// vector of m1 and v multiplication result mat4.mul(m1: float[16], v: float[3
+/// or 4], dst: float[3 or 4]) -> float[3 or 4] - updates dst vector with m1 and
+/// v multiplication result
 static int l_mul(lua::State* L) {
     uint argc = lua::check_argc(L, 2, 3);
     auto matrix1 = lua::tomat4(L, 1);
@@ -46,17 +49,21 @@ static int l_mul(lua::State* L) {
     switch (argc) {
         case 2: {
             if (len2 == 4) {
-               return lua::pushvec4_stack(L, matrix1 * lua::tovec4(L, 2));
+                return lua::pushvec4_stack(L, matrix1 * lua::tovec4(L, 2));
             } else if (len2 == 3) {
-               return lua::pushvec3_stack(L, matrix1 * glm::vec4(lua::tovec3(L, 2), 1.0f));
+                return lua::pushvec3_stack(
+                    L, matrix1 * glm::vec4(lua::tovec3(L, 2), 1.0f)
+                );
             }
             return lua::pushmat4(L, matrix1 * lua::tomat4(L, 2));
         }
         case 3: {
             if (len2 == 4) {
-               return lua::setvec(L, 3, matrix1 * lua::tovec4(L, 2));
+                return lua::setvec(L, 3, matrix1 * lua::tovec4(L, 2));
             } else if (len2 == 3) {
-               return lua::setvec(L, 3, matrix1 * glm::vec4(lua::tovec3(L, 2), 1.0f));
+                return lua::setvec(
+                    L, 3, matrix1 * glm::vec4(lua::tovec3(L, 2), 1.0f)
+                );
             }
             return lua::setmat4(L, 3, matrix1 * lua::tomat4(L, 2));
         }
@@ -66,9 +73,10 @@ static int l_mul(lua::State* L) {
 
 /// Overloads:
 /// mat4.<func>(vec: float[3]) -> float[16] - creates transform matrix
-/// mat4.<func>(matrix: float[16], vec: float[3]) -> float[16] - creates transformed copy of matrix
-/// mat4.<func>(matrix: float[16], vec: float[3], dst: float[16]) -> sets dst to transformed version of matrix
-template<glm::mat4(*func)(const glm::mat4&, const glm::vec3&)>
+/// mat4.<func>(matrix: float[16], vec: float[3]) -> float[16] - creates
+/// transformed copy of matrix mat4.<func>(matrix: float[16], vec: float[3],
+/// dst: float[16]) -> sets dst to transformed version of matrix
+template <glm::mat4 (*func)(const glm::mat4&, const glm::vec3&)>
 inline int l_transform_func(lua::State* L) {
     uint argc = lua::gettop(L);
     switch (argc) {
@@ -87,16 +95,20 @@ inline int l_transform_func(lua::State* L) {
             return lua::setmat4(L, 3, func(matrix, vec));
         }
         default: {
-            throw std::runtime_error("invalid arguments number (1, 2 or 3 expected)");
+            throw std::runtime_error(
+                "invalid arguments number (1, 2 or 3 expected)"
+            );
         }
     }
     return 0;
 }
 
 /// Overloads:
-/// mat4.rotate(vec: float[3], angle: float) -> float[16] - creates rotation matrix
-/// mat4.rotate(matrix: float[16], vec: float[3], angle: float) -> float[16] - creates rotated copy of matrix
-/// mat4.rotate(matrix: float[16], vec: float[3], angle: float, dst: float[16]) -> sets dst to rotated version of matrix
+/// mat4.rotate(vec: float[3], angle: float) -> float[16] - creates rotation
+/// matrix mat4.rotate(matrix: float[16], vec: float[3], angle: float) ->
+/// float[16] - creates rotated copy of matrix mat4.rotate(matrix: float[16],
+/// vec: float[3], angle: float, dst: float[16]) -> sets dst to rotated version
+/// of matrix
 inline int l_rotate(lua::State* L) {
     uint argc = lua::gettop(L);
     switch (argc) {
@@ -118,15 +130,18 @@ inline int l_rotate(lua::State* L) {
             return lua::setmat4(L, 4, glm::rotate(matrix, angle, vec));
         }
         default: {
-            throw std::runtime_error("invalid arguments number (2, 3 or 4 expected)");
+            throw std::runtime_error(
+                "invalid arguments number (2, 3 or 4 expected)"
+            );
         }
     }
     return 0;
 }
 
 /// Overloads:
-/// mat4.inverse(matrix: float[16]) -> float[16] - creates inversed version of the matrix
-/// mat4.inverse(matrix: float[16], dst: float[16]) -> float[16] - updates dst matrix with inversed version of the matrix
+/// mat4.inverse(matrix: float[16]) -> float[16] - creates inversed version of
+/// the matrix mat4.inverse(matrix: float[16], dst: float[16]) -> float[16] -
+/// updates dst matrix with inversed version of the matrix
 static int l_inverse(lua::State* L) {
     uint argc = lua::check_argc(L, 1, 2);
     auto matrix = lua::tomat4(L, 1);
@@ -142,8 +157,9 @@ static int l_inverse(lua::State* L) {
 }
 
 /// Overloads:
-/// mat4.transpose(matrix: float[16]) -> float[16] - creates transposed version of the matrix
-/// mat4.transpose(matrix: float[16], dst: float[16]) -> float[16] - updates dst matrix with transposed version of the matrix
+/// mat4.transpose(matrix: float[16]) -> float[16] - creates transposed version
+/// of the matrix mat4.transpose(matrix: float[16], dst: float[16]) -> float[16]
+/// - updates dst matrix with transposed version of the matrix
 static int l_transpose(lua::State* L) {
     uint argc = lua::check_argc(L, 1, 2);
     auto matrix = lua::tomat4(L, 1);
@@ -174,15 +190,10 @@ static int l_decompose(lua::State* L) {
     glm::vec3 skew;
     glm::vec4 perspective;
     if (glm::decompose(
-        matrix,
-        scale,
-        rotation,
-        translation,
-        skew,
-        perspective
-    )) {
+            matrix, scale, rotation, translation, skew, perspective
+        )) {
         lua::createtable(L, 0, 6);
-        
+
         lua::pushvec3(L, scale);
         lua::setfield(L, "scale");
 
@@ -258,7 +269,7 @@ static int l_tostring(lua::State* L) {
     return lua::pushstring(L, ss.str());
 }
 
-const luaL_Reg mat4lib [] = {
+const luaL_Reg mat4lib[] = {
     {"idt", lua::wrap<l_idt>},
     {"mul", lua::wrap<l_mul>},
     {"scale", lua::wrap<l_transform_func<glm::scale>>},
@@ -271,6 +282,4 @@ const luaL_Reg mat4lib [] = {
     {"look_at", lua::wrap<l_look_at>},
     {"from_quat", lua::wrap<l_from_quat>},
     {"tostring", lua::wrap<l_tostring>},
-    {NULL, NULL}
-};
-
+    {NULL, NULL}};

@@ -9,4 +9,4 @@ namespace platform {
     std::string detect_locale();
 }
 
-#endif // UTIL_PLATFORM_HPP_
+#endif  // UTIL_PLATFORM_HPP_

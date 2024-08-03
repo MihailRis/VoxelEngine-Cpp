@@ -1,19 +1,19 @@
 #ifndef OBJECTS_ENTITIES_HPP_
 #define OBJECTS_ENTITIES_HPP_
 
-#include "../typedefs.hpp"
-#include "../physics/Hitbox.hpp"
-#include "../data/dynamic.hpp"
-#include "../util/Clock.hpp"
-
-#include <vector>
+#include <glm/glm.hpp>
 #include <memory>
 #include <optional>
-#include <glm/glm.hpp>
+#include <vector>
+
+#include "../data/dynamic.hpp"
+#include "../physics/Hitbox.hpp"
+#include "../typedefs.hpp"
+#include "../util/Clock.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
+#include <entt/entity/registry.hpp>
 #include <glm/gtx/norm.hpp>
 #include <unordered_map>
-#include <entt/entity/registry.hpp>
 
 struct entity_funcs_set {
     bool init;
@@ -48,7 +48,7 @@ struct Transform {
     glm::vec3 displaySize;
 
     void refresh();
-    
+
     inline void setRot(glm::mat3 m) {
         rot = m;
         dirty = true;
@@ -80,8 +80,11 @@ struct UserComponent {
     entity_funcs_set funcsset;
     scriptenv env;
 
-    UserComponent(const std::string& name, entity_funcs_set funcsset, scriptenv env)
-      : name(name), funcsset(funcsset), env(env) {}
+    UserComponent(
+        const std::string& name, entity_funcs_set funcsset, scriptenv env
+    )
+        : name(name), funcsset(funcsset), env(env) {
+    }
 };
 
 struct ScriptComponents {
@@ -115,11 +118,12 @@ class Entity {
 public:
     Entity(
         Entities& entities,
-        entityid_t id, 
-        entt::registry& registry, 
+        entityid_t id,
+        entt::registry& registry,
         const entt::entity entity
     )
-    : entities(entities), id(id), registry(registry), entity(entity) {}
+        : entities(entities), id(id), registry(registry), entity(entity) {
+    }
 
     EntityId& getID() const {
         return registry.get<EntityId>(entity);
@@ -186,15 +190,24 @@ public:
     void updatePhysics(float delta);
     void update(float delta);
 
-    void renderDebug(LineBatch& batch, const Frustum* frustum, const DrawContext& ctx);
-    void render(Assets* assets, ModelBatch& batch, const Frustum* frustum, float delta, bool pause);
+    void renderDebug(
+        LineBatch& batch, const Frustum* frustum, const DrawContext& ctx
+    );
+    void render(
+        Assets* assets,
+        ModelBatch& batch,
+        const Frustum* frustum,
+        float delta,
+        bool pause
+    );
 
     entityid_t spawn(
         EntityDef& def,
         glm::vec3 position,
-        dynamic::Map_sptr args=nullptr,
-        dynamic::Map_sptr saved=nullptr,
-        entityid_t uid=0);
+        dynamic::Map_sptr args = nullptr,
+        dynamic::Map_sptr saved = nullptr,
+        entityid_t uid = 0
+    );
 
     std::optional<Entity> get(entityid_t id) {
         const auto& found = entities.find(id);
@@ -212,7 +225,11 @@ public:
     /// @param ignore Ignored entity ID
     /// @return An optional structure containing entity, normal and distance
     std::optional<RaycastResult> rayCast(
-        glm::vec3 start, glm::vec3 dir, float maxDistance, entityid_t ignore=-1);
+        glm::vec3 start,
+        glm::vec3 dir,
+        float maxDistance,
+        entityid_t ignore = -1
+    );
 
     void loadEntities(dynamic::Map_sptr map);
     void loadEntity(const dynamic::Map_sptr& map);
@@ -237,4 +254,4 @@ public:
     }
 };
 
-#endif // OBJECTS_ENTITIES_HPP_
+#endif  // OBJECTS_ENTITIES_HPP_

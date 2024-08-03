@@ -1,17 +1,16 @@
 #include "xml.hpp"
 
-#include "../util/stringutil.hpp"
-
 #include <charconv>
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
 #include <utility>
+
+#include "../util/stringutil.hpp"
 
 using namespace xml;
 
 Attribute::Attribute(std::string name, std::string text)
-    : name(std::move(name)),
-      text(std::move(text)) {
+    : name(std::move(name)), text(std::move(text)) {
 }
 
 const std::string& Attribute::getName() const {
@@ -42,7 +41,7 @@ glm::vec2 Attribute::asVec2() const {
     }
     return glm::vec2(
         util::parse_double(text, 0, pos),
-        util::parse_double(text, pos+1, text.length()-pos-1)
+        util::parse_double(text, pos + 1, text.length() - pos - 1)
     );
 }
 
@@ -52,14 +51,14 @@ glm::vec3 Attribute::asVec3() const {
     if (pos1 == std::string::npos) {
         return glm::vec3(util::parse_double(text, 0, text.length()));
     }
-    size_t pos2 = text.find(',', pos1+1);
+    size_t pos2 = text.find(',', pos1 + 1);
     if (pos2 == std::string::npos) {
-        throw std::runtime_error("invalid vec3 value "+util::quote(text));
+        throw std::runtime_error("invalid vec3 value " + util::quote(text));
     }
     return glm::vec3(
         util::parse_double(text, 0, pos1),
-        util::parse_double(text, pos1+1, pos2),
-        util::parse_double(text, pos2+1, text.length()-pos2-1)
+        util::parse_double(text, pos1 + 1, pos2),
+        util::parse_double(text, pos2 + 1, text.length() - pos2 - 1)
     );
 }
 
@@ -69,19 +68,19 @@ glm::vec4 Attribute::asVec4() const {
     if (pos1 == std::string::npos) {
         return glm::vec4(util::parse_double(text, 0, text.length()));
     }
-    size_t pos2 = text.find(',', pos1+1);
+    size_t pos2 = text.find(',', pos1 + 1);
     if (pos2 == std::string::npos) {
-        throw std::runtime_error("invalid vec4 value "+util::quote(text));
+        throw std::runtime_error("invalid vec4 value " + util::quote(text));
     }
-    size_t pos3 = text.find(',', pos2+1);
+    size_t pos3 = text.find(',', pos2 + 1);
     if (pos3 == std::string::npos) {
-        throw std::runtime_error("invalid vec4 value "+util::quote(text));
+        throw std::runtime_error("invalid vec4 value " + util::quote(text));
     }
     return glm::vec4(
         util::parse_double(text, 0, pos1),
-        util::parse_double(text, pos1+1, pos2-pos1-1),
-        util::parse_double(text, pos2+1, pos3-pos2-1),
-        util::parse_double(text, pos3+1, text.length()-pos3-1)
+        util::parse_double(text, pos1 + 1, pos2 - pos1 - 1),
+        util::parse_double(text, pos2 + 1, pos3 - pos2 - 1),
+        util::parse_double(text, pos3 + 1, text.length() - pos3 - 1)
     );
 }
 
@@ -112,7 +111,7 @@ void Node::add(const xmlelement& element) {
     elements.push_back(element);
 }
 
-void Node::set(const std::string& name, const std::string &text) {
+void Node::set(const std::string& name, const std::string& text) {
     attrs[name] = Attribute(name, text);
 }
 
@@ -123,7 +122,9 @@ const std::string& Node::getTag() const {
 const xmlattribute& Node::attr(const std::string& name) const {
     auto found = attrs.find(name);
     if (found == attrs.end()) {
-        throw std::runtime_error("element <"+tag+" ...> missing attribute "+name);
+        throw std::runtime_error(
+            "element <" + tag + " ...> missing attribute " + name
+        );
     }
     return found->second;
 }
@@ -158,11 +159,10 @@ const xmlelements_map& Node::getAttributes() const {
 }
 
 Document::Document(std::string version, std::string encoding)
-    : version(std::move(version)),
-      encoding(std::move(encoding)) {
+    : version(std::move(version)), encoding(std::move(encoding)) {
 }
 
-void Document::setRoot(const xmlelement &element) {
+void Document::setRoot(const xmlelement& element) {
     this->root = element;
 }
 
@@ -178,7 +178,7 @@ const std::string& Document::getEncoding() const {
     return encoding;
 }
 
-Parser::Parser(std::string_view filename, std::string_view source) 
+Parser::Parser(std::string_view filename, std::string_view source)
     : BasicParser(filename, source) {
 }
 
@@ -190,15 +190,14 @@ xmlelement Parser::parseOpenTag() {
     while (true) {
         skipWhitespace();
         c = peek();
-        if (c == '/' || c == '>' || c == '?')
-            break;
+        if (c == '/' || c == '>' || c == '?') break;
         std::string attrname = parseXMLName();
         std::string attrtext = "";
         skipWhitespace();
         if (peek() == '=') {
             nextChar();
             skipWhitespace();
-            
+
             char quote = peek();
             if (quote != '\'' && quote != '"') {
                 throw error("string literal expected");
@@ -251,7 +250,7 @@ std::string Parser::parseText() {
         }
         nextChar();
     }
-    return std::string(source.substr(start, pos-start));
+    return std::string(source.substr(start, pos - start));
 }
 
 inline bool is_xml_identifier_start(char c) {
@@ -259,7 +258,7 @@ inline bool is_xml_identifier_start(char c) {
 }
 
 inline bool is_xml_identifier_part(char c) {
-    return is_identifier_part(c) || c == '-' || c == '.'  || c == ':';
+    return is_identifier_part(c) || c == '-' || c == '.' || c == ':';
 }
 
 std::string Parser::parseXMLName() {
@@ -271,7 +270,7 @@ std::string Parser::parseXMLName() {
     while (hasNext() && is_xml_identifier_part(source[pos])) {
         pos++;
     }
-    return std::string(source.substr(start, pos-start));
+    return std::string(source.substr(start, pos - start));
 }
 
 xmlelement Parser::parseElement() {
@@ -300,12 +299,12 @@ xmlelement Parser::parseElement() {
 
     auto element = parseOpenTag();
     char c = nextChar();
-    
+
     // <element/>
     if (c == '/') {
         expect('>');
     }
-    // <element>...</element> 
+    // <element>...</element>
     else if (c == '>') {
         skipWhitespace();
         while (!isNext("</")) {
@@ -319,7 +318,7 @@ xmlelement Parser::parseElement() {
         expect(element->getTag());
         expect('>');
     }
-    // <element?> 
+    // <element?>
     else {
         throw error("invalid syntax");
     }
@@ -343,13 +342,9 @@ xmldocument xml::parse(const std::string& filename, const std::string& source) {
 }
 
 inline void newline(
-    std::stringstream& ss,
-    bool nice,
-    const std::string& indentStr,
-    int indent
+    std::stringstream& ss, bool nice, const std::string& indentStr, int indent
 ) {
-    if (!nice)
-        return;
+    if (!nice) return;
     ss << '\n';
     for (int i = 0; i < indent; i++) {
         ss << indentStr;
@@ -366,7 +361,7 @@ static void stringifyElement(
     if (element->isText()) {
         std::string text = element->attr("#").getText();
         util::replaceAll(text, "&", "&amp;");
-        util::replaceAll(text, "\"","&quot;");
+        util::replaceAll(text, "\"", "&quot;");
         util::replaceAll(text, "'", "&apos;");
         util::replaceAll(text, "<", "&lt;");
         util::replaceAll(text, ">", "&gt;");
@@ -395,32 +390,29 @@ static void stringifyElement(
     auto& elements = element->getElements();
     if (elements.size() == 1 && elements[0]->isText()) {
         ss << ">";
-        stringifyElement(ss, elements[0], nice, indentStr, indent+1);
+        stringifyElement(ss, elements[0], nice, indentStr, indent + 1);
         ss << "</" << tag << ">";
         return;
     }
     if (!elements.empty()) {
         ss << '>';
         for (auto& sub : elements) {
-            newline(ss, nice, indentStr, indent+1);
-            stringifyElement(ss, sub, nice, indentStr, indent+1);
+            newline(ss, nice, indentStr, indent + 1);
+            stringifyElement(ss, sub, nice, indentStr, indent + 1);
         }
         newline(ss, nice, indentStr, indent);
         ss << "</" << tag << ">";
-        
+
     } else {
         ss << "/>";
     }
-    
 }
 
 std::string xml::stringify(
-    const xmldocument& document,
-    bool nice,
-    const std::string& indentStr
+    const xmldocument& document, bool nice, const std::string& indentStr
 ) {
     std::stringstream ss;
-    
+
     // XML declaration
     ss << "<?xml version=\"" << document->getVersion();
     ss << "\" encoding=\"UTF-8\" ?>";

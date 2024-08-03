@@ -1,20 +1,19 @@
 #ifndef CONTENT_CONTENT_HPP_
 #define CONTENT_CONTENT_HPP_
 
-#include "content_fwd.hpp"
-
-#include "../data/dynamic_fwd.hpp"
-
-#include <string>
-#include <vector>
 #include <memory>
 #include <optional>
-#include <stdexcept>
-#include <unordered_map>
 #include <set>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#include "../data/dynamic_fwd.hpp"
+#include "content_fwd.hpp"
 
 using DrawGroups = std::set<ubyte>;
-template<class K, class V>
+template <class K, class V>
 using UptrsMap = std::unordered_map<K, std::unique_ptr<V>>;
 
 class Block;
@@ -28,31 +27,37 @@ namespace rigging {
 
 constexpr const char* contenttype_name(contenttype type) {
     switch (type) {
-        case contenttype::none: return "none";
-        case contenttype::block: return "block";
-        case contenttype::item: return "item";
-        case contenttype::entity: return "entity";
+        case contenttype::none:
+            return "none";
+        case contenttype::block:
+            return "block";
+        case contenttype::item:
+            return "item";
+        case contenttype::entity:
+            return "entity";
         default:
             return "unknown";
     }
 }
 
-class namereuse_error: public std::runtime_error {
+class namereuse_error : public std::runtime_error {
     contenttype type;
 public:
     namereuse_error(const std::string& msg, contenttype type)
-        : std::runtime_error(msg), type(type) {}
+        : std::runtime_error(msg), type(type) {
+    }
 
     inline contenttype getType() const {
         return type;
     }
 };
 
-template<class T>
+template <class T>
 class ContentUnitIndices {
     std::vector<T*> defs;
 public:
-    ContentUnitIndices(std::vector<T*> defs) : defs(std::move(defs)) {}
+    ContentUnitIndices(std::vector<T*> defs) : defs(std::move(defs)) {
+    }
 
     inline T* get(blockid_t id) const {
         if (id >= defs.size()) {
@@ -84,12 +89,11 @@ public:
     );
 };
 
-template<class T>
+template <class T>
 class ContentUnitDefs {
     UptrsMap<std::string, T> defs;
 public:
-    ContentUnitDefs(UptrsMap<std::string, T> defs) 
-    : defs(std::move(defs)) {
+    ContentUnitDefs(UptrsMap<std::string, T> defs) : defs(std::move(defs)) {
     }
 
     T* find(const std::string& id) const {
@@ -102,7 +106,7 @@ public:
     T& require(const std::string& id) const {
         const auto& found = defs.find(id);
         if (found == defs.end()) {
-            throw std::runtime_error("missing content unit "+id);
+            throw std::runtime_error("missing content unit " + id);
         }
         return *found->second;
     }
@@ -113,8 +117,8 @@ class ResourceIndices {
     std::unordered_map<std::string, size_t> indices;
     std::unique_ptr<std::vector<dynamic::Map_sptr>> savedData;
 public:
-    ResourceIndices() 
-    : savedData(std::make_unique<std::vector<dynamic::Map_sptr>>()){
+    ResourceIndices()
+        : savedData(std::make_unique<std::vector<dynamic::Map_sptr>>()) {
     }
 
     static constexpr size_t MISSING = SIZE_MAX;
@@ -152,8 +156,10 @@ public:
 
 constexpr const char* to_string(ResourceType type) {
     switch (type) {
-        case ResourceType::CAMERA: return "camera";
-        default: return "unknown";
+        case ResourceType::CAMERA:
+            return "camera";
+        default:
+            return "unknown";
     }
 }
 
@@ -180,7 +186,7 @@ public:
     ResourceIndicesSet resourceIndices {};
 
     Content(
-        std::unique_ptr<ContentIndices> indices, 
+        std::unique_ptr<ContentIndices> indices,
         std::unique_ptr<DrawGroups> drawGroups,
         ContentUnitDefs<Block> blocks,
         ContentUnitDefs<ItemDef> items,
@@ -209,4 +215,4 @@ public:
     const UptrsMap<std::string, rigging::SkeletonConfig>& getSkeletons() const;
 };
 
-#endif // CONTENT_CONTENT_HPP_
+#endif  // CONTENT_CONTENT_HPP_

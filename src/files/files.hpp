@@ -1,11 +1,12 @@
 #ifndef FILES_FILES_HPP_
 #define FILES_FILES_HPP_
 
+#include <filesystem>
+#include <fstream>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
-#include <fstream>
-#include <filesystem>
+
 #include "../typedefs.hpp"
 
 namespace fs = std::filesystem;
@@ -43,16 +44,19 @@ namespace files {
     bool write_string(const fs::path& filename, const std::string content);
 
     /// @brief Write dynamic data to the JSON file
-    /// @param nice if true, human readable format will be used, otherwise minimal
-    bool write_json(const fs::path& filename, const dynamic::Map* obj, bool nice=true);
+    /// @param nice if true, human readable format will be used, otherwise
+    /// minimal
+    bool write_json(
+        const fs::path& filename, const dynamic::Map* obj, bool nice = true
+    );
 
     /// @brief Write dynamic data to the binary JSON file
     /// (see src/coders/binary_json_spec.md)
     /// @param compressed use gzip compression
     bool write_binary_json(
         const fs::path& filename,
-        const dynamic::Map* obj, 
-        bool compressed=false
+        const dynamic::Map* obj,
+        bool compressed = false
     );
 
     bool read(const fs::path&, char* data, size_t size);

@@ -1,11 +1,11 @@
 #ifndef PLAYER_CONTROL_HPP_
 #define PLAYER_CONTROL_HPP_
 
-#include "../objects/Player.hpp"
-
+#include <glm/glm.hpp>
 #include <memory>
 #include <vector>
-#include <glm/glm.hpp>
+
+#include "../objects/Player.hpp"
 
 class Camera;
 class Level;
@@ -32,14 +32,14 @@ class CameraControl {
     /// @brief Update field-of-view effects
     /// @param input player inputs
     /// @param delta delta time
-    void updateFovEffects(const Hitbox& hitbox, PlayerInput input,
-                          float delta);
+    void updateFovEffects(const Hitbox& hitbox, PlayerInput input, float delta);
 
     /// @brief Switch active player camera
     void switchCamera();
 public:
-    CameraControl(const std::shared_ptr<Player>& player,
-                  const CameraSettings& settings);
+    CameraControl(
+        const std::shared_ptr<Player>& player, const CameraSettings& settings
+    );
     void updateMouse(PlayerInput& input);
     void update(PlayerInput input, float delta, Chunks* chunks);
     void refresh();
@@ -66,7 +66,7 @@ class PlayerController {
     voxel* updateSelection(float maxDistance);
 public:
     PlayerController(
-        Level* level, 
+        Level* level,
         const EngineSettings& settings,
         BlocksController* blocksController
     );

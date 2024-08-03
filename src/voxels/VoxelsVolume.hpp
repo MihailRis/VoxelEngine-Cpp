@@ -1,8 +1,8 @@
 #ifndef VOXELS_VOXELSVOLUME_HPP_
 #define VOXELS_VOXELSVOLUME_HPP_
 
-#include "../typedefs.hpp"
 #include "../constants.hpp"
+#include "../typedefs.hpp"
 #include "voxel.hpp"
 
 class VoxelsVolume {
@@ -50,18 +50,20 @@ public:
     }
 
     inline blockid_t pickBlockId(int bx, int by, int bz) const {
-        if (bx < x || by < y || bz < z || bx >= x + w || by >= y + h || bz >= z + d) {
+        if (bx < x || by < y || bz < z || bx >= x + w || by >= y + h ||
+            bz >= z + d) {
             return BLOCK_VOID;
         }
         return voxels[vox_index(bx - x, by - y, bz - z, w, d)].id;
     }
 
     inline light_t pickLight(int bx, int by, int bz) const {
-        if (bx < x || by < y || bz < z || bx >= x + w || by >= y + h || bz >= z + d) {
+        if (bx < x || by < y || bz < z || bx >= x + w || by >= y + h ||
+            bz >= z + d) {
             return 0;
         }
         return lights[vox_index(bx - x, by - y, bz - z, w, d)];
     }
 };
 
-#endif // VOXELS_VOXELSVOLUME_HPP_
+#endif  // VOXELS_VOXELSVOLUME_HPP_

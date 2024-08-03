@@ -1,12 +1,12 @@
 #include "lua_engine.hpp"
 
-#include "api_lua.hpp"
-#include "lua_custom_types.hpp"
-#include "../../../debug/Logger.hpp"
-#include "../../../util/stringutil.hpp"
-
 #include <iomanip>
 #include <iostream>
+
+#include "../../../debug/Logger.hpp"
+#include "../../../util/stringutil.hpp"
+#include "api_lua.hpp"
+#include "lua_custom_types.hpp"
 
 static debug::Logger logger("lua-state");
 static lua::State* main_thread = nullptr;
@@ -16,7 +16,9 @@ using namespace lua;
 luaerror::luaerror(const std::string& message) : std::runtime_error(message) {
 }
 
-static void remove_lib_funcs(lua::State* L, const char* libname, const char* funcs[]) {
+static void remove_lib_funcs(
+    lua::State* L, const char* libname, const char* funcs[]
+) {
     if (getglobal(L, libname)) {
         for (uint i = 0; funcs[i]; i++) {
             pushnil(L);
@@ -78,14 +80,7 @@ void lua::initialize() {
     pop(L, luaopen_bit(L));
     pop(L, luaopen_os(L));
     const char* removed_os[] {
-        "execute",
-        "exit",
-        "remove",
-        "rename",
-        "setlocale",
-        "tmpname",
-        nullptr
-    };
+        "execute", "exit", "remove", "rename", "setlocale", "tmpname", nullptr};
     remove_lib_funcs(L, "os", removed_os);
     create_libs(L);
 
@@ -107,7 +102,9 @@ void lua::finalize() {
     lua_close(main_thread);
 }
 
-bool lua::emit_event(lua::State* L, const std::string &name, std::function<int(lua::State*)> args) {
+bool lua::emit_event(
+    lua::State* L, const std::string& name, std::function<int(lua::State*)> args
+) {
     getglobal(L, "events");
     getfield(L, "emit");
     pushstring(L, name);

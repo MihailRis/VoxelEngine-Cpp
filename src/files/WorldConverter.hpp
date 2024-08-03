@@ -1,13 +1,13 @@
 #ifndef FILES_WORLD_CONVERTER_HPP_
 #define FILES_WORLD_CONVERTER_HPP_
 
-#include <queue>
-#include <memory>
 #include <filesystem>
+#include <memory>
+#include <queue>
 
-#include "../typedefs.hpp"
 #include "../delegates.hpp"
 #include "../interfaces/Task.hpp"
+#include "../typedefs.hpp"
 
 namespace fs = std::filesystem;
 
@@ -15,9 +15,7 @@ class Content;
 class ContentLUT;
 class WorldFiles;
 
-enum class convert_task_type {
-    region, player
-};
+enum class convert_task_type { region, player };
 
 struct convert_task {
     convert_task_type type;
@@ -37,7 +35,7 @@ class WorldConverter : public Task {
 public:
     WorldConverter(
         const fs::path& folder,
-        const Content* content, 
+        const Content* content,
         std::shared_ptr<ContentLUT> lut
     );
     ~WorldConverter();
@@ -56,11 +54,11 @@ public:
 
     static std::shared_ptr<Task> startTask(
         const fs::path& folder,
-        const Content* content, 
+        const Content* content,
         const std::shared_ptr<ContentLUT>& lut,
         const runnable& onDone,
         bool multithreading
     );
 };
 
-#endif // FILES_WORLD_CONVERTER_HPP_
+#endif  // FILES_WORLD_CONVERTER_HPP_

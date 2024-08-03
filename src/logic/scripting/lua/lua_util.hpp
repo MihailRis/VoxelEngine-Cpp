@@ -1,31 +1,32 @@
 #ifndef LOGIC_SCRIPTING_LUA_UTIL_HPP_
 #define LOGIC_SCRIPTING_LUA_UTIL_HPP_
 
-#include "lua_commons.hpp"
-#include "lua_custom_types.hpp"
-
-#include <unordered_map>
 #include <typeindex>
 #include <typeinfo>
+#include <unordered_map>
+
+#include "lua_commons.hpp"
+#include "lua_custom_types.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
 // NOTE: const std::string& used instead of string_view because c_str() needed
 namespace lua {
-    inline std::string LAMBDAS_TABLE = "$L"; // lambdas storage
-    inline std::string CHUNKS_TABLE = "$C"; // precompiled lua chunks
+    inline std::string LAMBDAS_TABLE = "$L";  // lambdas storage
+    inline std::string CHUNKS_TABLE = "$C";   // precompiled lua chunks
     extern std::unordered_map<std::type_index, std::string> usertypeNames;
     int userdata_destructor(lua::State* L);
 
     std::string env_name(int env);
 
-    template <lua_CFunction func> int wrap(lua_State *L) {
+    template <lua_CFunction func>
+    int wrap(lua_State* L) {
         int result = 0;
         try {
             result = func(L);
         }
         // transform exception with description into lua_error
-        catch (std::exception &e) {
+        catch (std::exception& e) {
             luaL_error(L, e.what());
         }
         // Rethrow any other exception (lua error for example)
@@ -35,7 +36,7 @@ namespace lua {
         return result;
     }
 
-    inline void pop(lua::State* L, int n=1) {
+    inline void pop(lua::State* L, int n = 1) {
         lua_pop(L, n);
     }
     inline void insert(lua::State* L, int idx) {
@@ -59,15 +60,15 @@ namespace lua {
     inline const char* type_name(lua::State* L, int idx) {
         return lua_typename(L, idx);
     }
-    inline int rawget(lua::State* L, int idx=-2) {
+    inline int rawget(lua::State* L, int idx = -2) {
         lua_rawget(L, idx);
         return 1;
     }
-    inline int rawgeti(lua::State* L, int n, int idx=-1) {
+    inline int rawgeti(lua::State* L, int n, int idx = -1) {
         lua_rawgeti(L, idx, n);
         return 1;
     }
-    inline void rawseti(lua::State* L, int n, int idx=-2) {
+    inline void rawseti(lua::State* L, int n, int idx = -2) {
         lua_rawseti(L, idx, n);
     }
 
@@ -93,7 +94,7 @@ namespace lua {
         if (getglobal(L, name)) {
             return 1;
         } else {
-            throw std::runtime_error("global name "+name+" not found");
+            throw std::runtime_error("global name " + name + " not found");
         }
     }
 
@@ -124,27 +125,29 @@ namespace lua {
         return 1;
     }
 
-    template<int n>
+    template <int n>
     inline int pushvec(lua::State* L, glm::vec<n, float> vec) {
         createtable(L, n, 0);
         for (int i = 0; i < n; i++) {
             pushnumber(L, vec[i]);
-            rawseti(L, i+1);
+            rawseti(L, i + 1);
         }
         return 1;
     }
 
-    template<int n>
+    template <int n>
     inline int pushivec(lua::State* L, glm::vec<n, int> vec) {
         createtable(L, n, 0);
         for (int i = 0; i < n; i++) {
             pushinteger(L, vec[i]);
-            rawseti(L, i+1);
+            rawseti(L, i + 1);
         }
         return 1;
     }
 
-    inline int pushivec3_stack(lua::State* L, lua::Integer x, lua::Integer y, lua::Integer z) {
+    inline int pushivec3_stack(
+        lua::State* L, lua::Integer x, lua::Integer y, lua::Integer z
+    ) {
         pushinteger(L, x);
         pushinteger(L, y);
         pushinteger(L, z);
@@ -172,7 +175,7 @@ namespace lua {
         return 4;
     }
 
-    inline void setmetatable(lua::State* L, int idx=-2) {
+    inline void setmetatable(lua::State* L, int idx = -2) {
         lua_setmetatable(L, idx);
     }
     inline int pushvalue(lua::State* L, int idx) {
@@ -191,14 +194,14 @@ namespace lua {
         return pushvec(L, vec);
     }
     inline int pushcolor(lua::State* L, glm::vec4 vec) {
-        return pushivec(L, glm::ivec4(vec*255.0f));
+        return pushivec(L, glm::ivec4(vec * 255.0f));
     }
 
     inline int pushquat(lua::State* L, glm::quat quat) {
         createtable(L, 4, 0);
         for (size_t i = 0; i < 4; i++) {
             pushnumber(L, quat[i]);
-            rawseti(L, i+1);
+            rawseti(L, i + 1);
         }
         return 1;
     }
@@ -206,7 +209,7 @@ namespace lua {
         pushvalue(L, idx);
         for (int i = 0; i < 4; i++) {
             pushnumber(L, quat[i]);
-            rawseti(L, i+1);
+            rawseti(L, i + 1);
         }
         return 1;
     }
@@ -216,29 +219,29 @@ namespace lua {
             for (uint x = 0; x < 4; x++) {
                 uint i = y * 4 + x;
                 pushnumber(L, matrix[y][x]);
-                rawseti(L, i+1);
+                rawseti(L, i + 1);
             }
         }
         return 1;
     }
-    /// @brief pushes matrix table to the stack and updates it with glm matrix 
+    /// @brief pushes matrix table to the stack and updates it with glm matrix
     inline int setmat4(lua::State* L, int idx, glm::mat4 matrix) {
         pushvalue(L, idx);
         for (uint y = 0; y < 4; y++) {
             for (uint x = 0; x < 4; x++) {
                 uint i = y * 4 + x;
                 pushnumber(L, matrix[y][x]);
-                rawseti(L, i+1);
+                rawseti(L, i + 1);
             }
         }
         return 1;
     }
-    template<int n>
+    template <int n>
     inline int setvec(lua::State* L, int idx, glm::vec<n, float> vec) {
         pushvalue(L, idx);
         for (int i = 0; i < n; i++) {
             pushnumber(L, vec[i]);
-            rawseti(L, i+1);
+            rawseti(L, i + 1);
         }
         return 1;
     }
@@ -251,8 +254,8 @@ namespace lua {
         return 1;
     }
 
-    template<typename... Args> 
-    inline int pushfstring(lua_State *L, const char * fmt, Args... args) {
+    template <typename... Args>
+    inline int pushfstring(lua_State* L, const char* fmt, Args... args) {
         lua_pushfstring(L, fmt, args...);
         return 1;
     }
@@ -287,7 +290,7 @@ namespace lua {
     inline bool isuserdata(lua::State* L, int idx) {
         return lua_isuserdata(L, idx);
     }
-    inline void setfield(lua::State* L, const std::string& name, int idx=-2) {
+    inline void setfield(lua::State* L, const std::string& name, int idx = -2) {
         lua_setfield(L, idx, name.c_str());
     }
     inline bool toboolean(lua::State* L, int idx) {
@@ -308,28 +311,30 @@ namespace lua {
     inline void setglobal(lua::State* L, const std::string& name) {
         lua_setglobal(L, name.c_str());
     }
-    template<class T>
+    template <class T>
     inline T* touserdata(lua::State* L, int idx) {
         if (void* rawptr = lua_touserdata(L, idx)) {
             return static_cast<T*>(rawptr);
         }
         return nullptr;
     }
-    template<class T, typename... Args>
+    template <class T, typename... Args>
     inline int newuserdata(lua::State* L, Args&&... args) {
         const auto& found = usertypeNames.find(typeid(T));
         void* ptr = lua_newuserdata(L, sizeof(T));
         new (ptr) T(args...);
 
         if (found == usertypeNames.end()) {
-            log_error("usertype is not registred: "+std::string(typeid(T).name()));
+            log_error(
+                "usertype is not registred: " + std::string(typeid(T).name())
+            );
         } else if (getglobal(L, found->second)) {
             setmetatable(L);
         }
         return 1;
     }
 
-    template<class T, lua_CFunction func>
+    template <class T, lua_CFunction func>
     inline void newusertype(lua::State* L, const std::string& name) {
         usertypeNames[typeid(T)] = name;
         func(L);
@@ -338,63 +343,74 @@ namespace lua {
         setfield(L, "__gc");
 
         setglobal(L, name);
-    } 
+    }
 
-    template<int n>
-    inline glm::vec<n, float> tovec(lua::State* L, int idx) { 
+    template <int n>
+    inline glm::vec<n, float> tovec(lua::State* L, int idx) {
         pushvalue(L, idx);
         if (!istable(L, idx) || objlen(L, idx) < n) {
-            throw std::runtime_error("value must be an array of "+std::to_string(n)+" numbers");
+            throw std::runtime_error(
+                "value must be an array of " + std::to_string(n) + " numbers"
+            );
         }
         glm::vec<n, float> vec;
         for (int i = 0; i < n; i++) {
-            rawgeti(L, i+1);
-            vec[i] = tonumber(L, -1); 
+            rawgeti(L, i + 1);
+            vec[i] = tonumber(L, -1);
             pop(L);
         }
         pop(L);
         return vec;
     }
 
-    inline glm::vec2 tovec2(lua::State* L, int idx) { 
+    inline glm::vec2 tovec2(lua::State* L, int idx) {
         pushvalue(L, idx);
         if (!istable(L, idx) || objlen(L, idx) < 2) {
             throw std::runtime_error("value must be an array of two numbers");
         }
         rawgeti(L, 1);
-        auto x = tonumber(L, -1); pop(L);
+        auto x = tonumber(L, -1);
+        pop(L);
         rawgeti(L, 2);
-        auto y = tonumber(L, -1); pop(L);
+        auto y = tonumber(L, -1);
+        pop(L);
         pop(L);
         return glm::vec2(x, y);
     }
-    inline glm::vec3 tovec3(lua::State* L, int idx) { 
+    inline glm::vec3 tovec3(lua::State* L, int idx) {
         pushvalue(L, idx);
         if (!istable(L, idx) || objlen(L, idx) < 3) {
             throw std::runtime_error("value must be an array of three numbers");
         }
         rawgeti(L, 1);
-        auto x = tonumber(L, -1); pop(L);
+        auto x = tonumber(L, -1);
+        pop(L);
         rawgeti(L, 2);
-        auto y = tonumber(L, -1); pop(L);
+        auto y = tonumber(L, -1);
+        pop(L);
         rawgeti(L, 3);
-        auto z = tonumber(L, -1); pop(L);
+        auto z = tonumber(L, -1);
+        pop(L);
         pop(L);
         return glm::vec3(x, y, z);
     }
-    inline glm::vec4 tovec4(lua::State* L, int idx) { 
+    inline glm::vec4 tovec4(lua::State* L, int idx) {
         pushvalue(L, idx);
         if (!istable(L, idx) || objlen(L, idx) < 4) {
             throw std::runtime_error("value must be an array of four numbers");
         }
         rawgeti(L, 1);
-        auto x = tonumber(L, -1); pop(L);
+        auto x = tonumber(L, -1);
+        pop(L);
         rawgeti(L, 2);
-        auto y = tonumber(L, -1); pop(L);
+        auto y = tonumber(L, -1);
+        pop(L);
         rawgeti(L, 3);
-        auto z = tonumber(L, -1); pop(L);
+        auto z = tonumber(L, -1);
+        pop(L);
         rawgeti(L, 4);
-        auto w = tonumber(L, -1); pop(L);
+        auto w = tonumber(L, -1);
+        pop(L);
         pop(L);
         return glm::vec4(x, y, z, w);
     }
@@ -405,25 +421,32 @@ namespace lua {
             throw std::runtime_error("value must be an array of four numbers");
         }
         rawgeti(L, 1);
-        auto x = tonumber(L, -1); pop(L);
+        auto x = tonumber(L, -1);
+        pop(L);
         rawgeti(L, 2);
-        auto y = tonumber(L, -1); pop(L);
+        auto y = tonumber(L, -1);
+        pop(L);
         rawgeti(L, 3);
-        auto z = tonumber(L, -1); pop(L);
+        auto z = tonumber(L, -1);
+        pop(L);
         rawgeti(L, 4);
-        auto w = tonumber(L, -1); pop(L);
+        auto w = tonumber(L, -1);
+        pop(L);
         pop(L);
         return glm::quat(x, y, z, w);
     }
 
-    inline glm::vec3 tovec3_stack(lua::State* L, int idx) { 
+    inline glm::vec3 tovec3_stack(lua::State* L, int idx) {
         return glm::vec3(
-            tonumber(L, idx), tonumber(L, idx+1), tonumber(L, idx+2)
+            tonumber(L, idx), tonumber(L, idx + 1), tonumber(L, idx + 2)
         );
     }
-    inline glm::vec4 tovec4_stack(lua::State* L, int idx) { 
+    inline glm::vec4 tovec4_stack(lua::State* L, int idx) {
         return glm::vec4(
-            tonumber(L, idx), tonumber(L, idx+1), tonumber(L, idx+2), tonumber(L, idx+3)
+            tonumber(L, idx),
+            tonumber(L, idx + 1),
+            tonumber(L, idx + 2),
+            tonumber(L, idx + 3)
         );
     }
     inline glm::mat4 tomat4(lua::State* L, int idx) {
@@ -435,7 +458,7 @@ namespace lua {
         for (uint y = 0; y < 4; y++) {
             for (uint x = 0; x < 4; x++) {
                 uint i = y * 4 + x;
-                rawgeti(L, i+1);
+                rawgeti(L, i + 1);
                 matrix[y][x] = static_cast<float>(tonumber(L, -1));
                 pop(L);
             }
@@ -450,21 +473,25 @@ namespace lua {
             throw std::runtime_error("RGBA array required");
         }
         rawgeti(L, 1);
-        auto r = tonumber(L, -1); pop(L);
-        rawgeti(L, 2);
-        auto g = tonumber(L, -1); pop(L);
-        rawgeti(L, 3);
-        auto b = tonumber(L, -1); pop(L);
-        rawgeti(L, 4);
-        auto a = tonumber(L, -1); pop(L);
+        auto r = tonumber(L, -1);
         pop(L);
-        return glm::vec4(r/255, g/255, b/255, a/255);
+        rawgeti(L, 2);
+        auto g = tonumber(L, -1);
+        pop(L);
+        rawgeti(L, 3);
+        auto b = tonumber(L, -1);
+        pop(L);
+        rawgeti(L, 4);
+        auto a = tonumber(L, -1);
+        pop(L);
+        pop(L);
+        return glm::vec4(r / 255, g / 255, b / 255, a / 255);
     }
 
     int pushvalue(lua::State*, const dynamic::Value& value);
     dynamic::Value tovalue(lua::State*, int idx);
 
-    inline bool getfield(lua::State* L, const std::string& name, int idx=-1) {
+    inline bool getfield(lua::State* L, const std::string& name, int idx = -1) {
         lua_getfield(L, idx, name.c_str());
         if (isnil(L, -1)) {
             pop(L);
@@ -473,7 +500,7 @@ namespace lua {
         return true;
     }
 
-    inline bool hasfield(lua::State* L, const std::string& name, int idx=-1) {
+    inline bool hasfield(lua::State* L, const std::string& name, int idx = -1) {
         lua_getfield(L, idx, name.c_str());
         if (isnil(L, -1)) {
             pop(L);
@@ -485,21 +512,23 @@ namespace lua {
 
     inline const char* require_string(lua::State* L, int idx) {
         if (!isstring(L, idx)) {
-            throw luaerror("string expected at "+std::to_string(idx));
+            throw luaerror("string expected at " + std::to_string(idx));
         }
         return tostring(L, idx);
     }
 
     std::wstring require_wstring(lua::State*, int idx);
 
-    inline bool rename(lua::State* L, const std::string& from, const std::string& to) {
+    inline bool rename(
+        lua::State* L, const std::string& from, const std::string& to
+    ) {
         getglobal(L, from);
         if (isnil(L, -1)) {
             pop(L, 1);
             return false;
         }
         setglobal(L, to);
-        
+
         // remove previous
         pushnil(L);
         setglobal(L, from);
@@ -511,11 +540,13 @@ namespace lua {
         setglobal(L, name);
     }
 
-    inline int setfenv(lua::State* L, int idx=-2) {
+    inline int setfenv(lua::State* L, int idx = -2) {
         return lua_setfenv(L, idx);
     }
 
-    inline void loadbuffer(lua::State* L, int env, const std::string& src, const std::string& file) {
+    inline void loadbuffer(
+        lua::State* L, int env, const std::string& src, const std::string& file
+    ) {
         if (luaL_loadbuffer(L, src.c_str(), src.length(), file.c_str())) {
             throw luaerror(tostring(L, -1));
         }
@@ -524,45 +555,64 @@ namespace lua {
         }
     }
 
-    inline void store_in(lua::State* L, const std::string& tableName, const std::string& name) {
+    inline void store_in(
+        lua::State* L, const std::string& tableName, const std::string& name
+    ) {
         if (getglobal(L, tableName)) {
             pushvalue(L, -2);
             setfield(L, name);
             pop(L, 2);
         } else {
-            throw std::runtime_error("table "+tableName+" not found");
+            throw std::runtime_error("table " + tableName + " not found");
         }
     }
 
-    inline int get_from(lua::State* L, const std::string& tableName, const std::string& name, bool required=false) {
+    inline int get_from(
+        lua::State* L,
+        const std::string& tableName,
+        const std::string& name,
+        bool required = false
+    ) {
         if (getglobal(L, tableName)) {
             if (getfield(L, name)) {
                 return 1;
             } else if (required) {
-                throw std::runtime_error("table "+tableName+" has no member "+name);
+                throw std::runtime_error(
+                    "table " + tableName + " has no member " + name
+                );
             }
             return 0;
         } else {
-            throw std::runtime_error("table "+tableName+" not found");
+            throw std::runtime_error("table " + tableName + " not found");
         }
     }
 
-    int call(lua::State*, int argc, int nresults=-1);
-    int call_nothrow(lua::State*, int argc, int nresults=1);
+    int call(lua::State*, int argc, int nresults = -1);
+    int call_nothrow(lua::State*, int argc, int nresults = 1);
 
-    inline int eval(lua::State* L, int env, const std::string& src, const std::string& file="<eval>") {
-        auto srcText = "return "+src;
+    inline int eval(
+        lua::State* L,
+        int env,
+        const std::string& src,
+        const std::string& file = "<eval>"
+    ) {
+        auto srcText = "return " + src;
         loadbuffer(L, env, srcText, file);
         return call(L, 0);
     }
 
-    inline int execute(lua::State* L, int env, const std::string& src, const std::string& file="<eval>") {
+    inline int execute(
+        lua::State* L,
+        int env,
+        const std::string& src,
+        const std::string& file = "<eval>"
+    ) {
         loadbuffer(L, env, src, file);
         return call_nothrow(L, 0);
     }
 
     runnable create_runnable(lua::State*);
-    scripting::common_func create_lambda(lua::State* );
+    scripting::common_func create_lambda(lua::State*);
 
     inline int pushenv(lua::State* L, int env) {
         if (getglobal(L, env_name(env))) {
@@ -574,16 +624,20 @@ namespace lua {
     void removeEnvironment(lua::State*, int id);
     void dump_stack(lua::State*);
 
-    inline void addfunc(lua::State* L, const std::string& name, lua_CFunction func) {
+    inline void addfunc(
+        lua::State* L, const std::string& name, lua_CFunction func
+    ) {
         pushcfunction(L, func);
         setglobal(L, name);
     }
 
-    inline void openlib(lua::State* L, const std::string& name, const luaL_Reg* libfuncs) {
+    inline void openlib(
+        lua::State* L, const std::string& name, const luaL_Reg* libfuncs
+    ) {
         createtable(L, 0, 0);
         luaL_setfuncs(L, libfuncs, 0);
         setglobal(L, name);
     }
 }
 
-#endif // LOGIC_SCRIPTING_LUA_UTIL_HPP_
+#endif  // LOGIC_SCRIPTING_LUA_UTIL_HPP_

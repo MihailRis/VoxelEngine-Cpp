@@ -24,7 +24,7 @@ std::unique_ptr<Content> ContentBuilder::build() {
     auto groups = std::make_unique<DrawGroups>();
     for (const std::string& name : blocks.names) {
         Block& def = *blocks.defs[name];
-        
+
         // Generating runtime info
         def.rt.id = blockDefsIndices.size();
         def.rt.emissive = *reinterpret_cast<uint32_t*>(def.emission);
@@ -48,7 +48,7 @@ std::unique_ptr<Content> ContentBuilder::build() {
     std::vector<ItemDef*> itemDefsIndices;
     for (const std::string& name : items.names) {
         ItemDef& def = *items.defs[name];
-        
+
         // Generating runtime info
         def.rt.id = itemDefsIndices.size();
         def.rt.emissive = *reinterpret_cast<uint32_t*>(def.emission);
@@ -66,11 +66,10 @@ std::unique_ptr<Content> ContentBuilder::build() {
 
     auto content = std::make_unique<Content>(
         std::make_unique<ContentIndices>(
-            blockDefsIndices, 
-            itemDefsIndices,
-            entityDefsIndices),
+            blockDefsIndices, itemDefsIndices, entityDefsIndices
+        ),
         std::move(groups),
-        blocks.build(), 
+        blocks.build(),
         items.build(),
         entities.build(),
         std::move(packs),

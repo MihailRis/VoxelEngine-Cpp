@@ -28,11 +28,7 @@ struct AABB {
 
     /// @brief Get AABB dimensions: width, height, depth
     inline glm::vec3 size() const {
-        return glm::vec3(
-            fabs(b.x - a.x),
-            fabs(b.y - a.y),
-            fabs(b.z - a.z)
-        );
+        return glm::vec3(fabs(b.x - a.x), fabs(b.y - a.y), fabs(b.z - a.z));
     }
 
     inline glm::vec3 center() const {
@@ -59,8 +55,10 @@ struct AABB {
     inline bool contains(const glm::vec3 pos) const {
         const glm::vec3 p = min();
         const glm::vec3 s = size();
-        return !(pos.x < p.x || pos.y < p.y || pos.z < p.z ||
-                 pos.x >= p.x+s.x || pos.y >= p.y+s.y || pos.z >= p.z+s.z);
+        return !(
+            pos.x < p.x || pos.y < p.y || pos.z < p.z || pos.x >= p.x + s.x ||
+            pos.y >= p.y + s.y || pos.z >= p.z + s.z
+        );
     }
 
     void fix() {
@@ -92,25 +90,18 @@ struct AABB {
 
     inline bool intersect(const AABB& aabb) {
         return (
-            a.x <= aabb.b.x &&
-            b.x >= aabb.a.x && 
-            a.y <= aabb.b.y &&
-            b.y >= aabb.a.y && 
-            a.z <= aabb.b.z &&
-            b.z >= aabb.a.z 
+            a.x <= aabb.b.x && b.x >= aabb.a.x && a.y <= aabb.b.y &&
+            b.y >= aabb.a.y && a.z <= aabb.b.z && b.z >= aabb.a.z
         );
     }
 
     inline bool intersect(const AABB& aabb, float margin) {
         return (
-            a.x <= aabb.b.x+margin &&
-            b.x >= aabb.a.x-margin && 
-            a.y <= aabb.b.y+margin &&
-            b.y >= aabb.a.y-margin && 
-            a.z <= aabb.b.z+margin &&
-            b.z >= aabb.a.z-margin 
+            a.x <= aabb.b.x + margin && b.x >= aabb.a.x - margin &&
+            a.y <= aabb.b.y + margin && b.y >= aabb.a.y - margin &&
+            a.z <= aabb.b.z + margin && b.z >= aabb.a.z - margin
         );
     }
 };
 
-#endif // MATHS_AABB_HPP_
+#endif  // MATHS_AABB_HPP_

@@ -1,18 +1,19 @@
 #include "ALAudio.hpp"
 
-#include "alutil.hpp"
-#include "../../debug/Logger.hpp"
-
 #include <string>
 #include <utility>
+
+#include "../../debug/Logger.hpp"
+#include "alutil.hpp"
 
 static debug::Logger logger("al-audio");
 
 using namespace audio;
 
-ALSound::ALSound(ALAudio* al, uint buffer, const std::shared_ptr<PCM>& pcm, bool keepPCM)
-: al(al), buffer(buffer) 
-{
+ALSound::ALSound(
+    ALAudio* al, uint buffer, const std::shared_ptr<PCM>& pcm, bool keepPCM
+)
+    : al(al), buffer(buffer) {
     duration = pcm->getDuration();
     if (keepPCM) {
         this->pcm = pcm;
@@ -36,8 +37,10 @@ std::unique_ptr<Speaker> ALSound::newInstance(int priority, int channel) const {
     return speaker;
 }
 
-ALStream::ALStream(ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSource)
-: al(al), source(std::move(source)), keepSource(keepSource) {
+ALStream::ALStream(
+    ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSource
+)
+    : al(al), source(std::move(source)), keepSource(keepSource) {
 }
 
 ALStream::~ALStream() {
@@ -60,10 +63,12 @@ std::shared_ptr<PCMStream> ALStream::getSource() const {
 
 bool ALStream::preloadBuffer(uint buffer, bool loop) {
     size_t read = source->readFully(this->buffer, BUFFER_SIZE, loop);
-    if (!read)
-        return false;
-    ALenum format = AL::to_al_format(source->getChannels(), source->getBitsPerSample());
-    AL_CHECK(alBufferData(buffer, format, this->buffer, read, source->getSampleRate()));
+    if (!read) return false;
+    ALenum format =
+        AL::to_al_format(source->getChannels(), source->getBitsPerSample());
+    AL_CHECK(alBufferData(
+        buffer, format, this->buffer, read, source->getSampleRate()
+    ));
     return true;
 }
 
@@ -82,7 +87,6 @@ std::unique_ptr<Speaker> ALStream::createSpeaker(bool loop, int channel) {
     }
     return std::make_unique<ALSpeaker>(al, source, PRIORITY_HIGH, channel);
 }
-
 
 void ALStream::bindSpeaker(speakerid_t speaker) {
     auto sp = audio::get_speaker(this->speaker);
@@ -110,7 +114,7 @@ void ALStream::unqueueBuffers(uint alsource) {
         AL_CHECK(alSourceUnqueueBuffers(alsource, 1, &buffer));
         unusedBuffers.push(buffer);
 
-        uint bps = source->getBitsPerSample()/8;
+        uint bps = source->getBitsPerSample() / 8;
         uint channels = source->getChannels();
 
         ALint bufferSize;
@@ -151,10 +155,10 @@ void ALStream::update(double delta) {
     }
 
     uint alsource = alspeaker->source;
-    
+
     unqueueBuffers(alsource);
     uint preloaded = enqueueBuffers(alsource);
-    
+
     if (speaker->isStopped() && !alspeaker->stopped) {
         if (preloaded) {
             speaker->play();
@@ -166,10 +170,12 @@ void ALStream::update(double delta) {
 
 duration_t ALStream::getTime() const {
     uint total = totalPlayedSamples;
-    auto alspeaker = dynamic_cast<ALSpeaker*>(audio::get_speaker(this->speaker));
+    auto alspeaker =
+        dynamic_cast<ALSpeaker*>(audio::get_speaker(this->speaker));
     if (alspeaker) {
         uint alsource = alspeaker->source;
-        total += static_cast<duration_t>(AL::getSourcef(alsource, AL_SAMPLE_OFFSET));
+        total +=
+            static_cast<duration_t>(AL::getSourcef(alsource, AL_SAMPLE_OFFSET));
         if (source->isSeekable()) {
             total %= source->getTotalSamples();
         }
@@ -178,11 +184,11 @@ duration_t ALStream::getTime() const {
 }
 
 void ALStream::setTime(duration_t time) {
-    if (!source->isSeekable())
-        return;
+    if (!source->isSeekable()) return;
     uint sample = time * source->getSampleRate();
     source->seek(sample);
-    auto alspeaker = dynamic_cast<ALSpeaker*>(audio::get_speaker(this->speaker));
+    auto alspeaker =
+        dynamic_cast<ALSpeaker*>(audio::get_speaker(this->speaker));
     if (alspeaker) {
         bool paused = alspeaker->isPaused();
         AL_CHECK(alSourceStop(alspeaker->source));
@@ -198,8 +204,8 @@ void ALStream::setTime(duration_t time) {
     }
 }
 
-ALSpeaker::ALSpeaker(ALAudio* al, uint source, int priority, int channel) 
-: al(al), priority(priority), channel(channel), source(source) {
+ALSpeaker::ALSpeaker(ALAudio* al, uint source, int priority, int channel)
+    : al(al), priority(priority), channel(channel), source(source) {
 }
 
 ALSpeaker::~ALSpeaker() {
@@ -209,11 +215,10 @@ ALSpeaker::~ALSpeaker() {
 }
 
 void ALSpeaker::update(const Channel* channel) {
-    if (source == 0)
-        return;
+    if (source == 0) return;
     float gain = this->volume * channel->getVolume();
     AL_CHECK(alSourcef(source, AL_GAIN, gain));
-    
+
     if (!paused) {
         if (isPaused() && !channel->isPaused()) {
             play();
@@ -230,9 +235,12 @@ int ALSpeaker::getChannel() const {
 State ALSpeaker::getState() const {
     int state = AL::getSourcei(source, AL_SOURCE_STATE, AL_STOPPED);
     switch (state) {
-        case AL_PLAYING: return State::playing;
-        case AL_PAUSED: return State::paused;
-        default: return State::stopped;
+        case AL_PLAYING:
+            return State::playing;
+        case AL_PAUSED:
+            return State::paused;
+        default:
+            return State::stopped;
     }
 }
 
@@ -264,7 +272,11 @@ void ALSpeaker::play() {
     paused = false;
     stopped = false;
     auto channel = get_channel(this->channel);
-    AL_CHECK(alSourcef(source, AL_GAIN, volume * channel->getVolume() * get_channel(0)->getVolume()));
+    AL_CHECK(alSourcef(
+        source,
+        AL_GAIN,
+        volume * channel->getVolume() * get_channel(0)->getVolume()
+    ));
     AL_CHECK(alSourcePlay(source));
 }
 
@@ -325,7 +337,9 @@ glm::vec3 ALSpeaker::getVelocity() const {
 }
 
 void ALSpeaker::setRelative(bool relative) {
-    AL_CHECK(alSourcei(source, AL_SOURCE_RELATIVE, relative ? AL_TRUE : AL_FALSE));    
+    AL_CHECK(
+        alSourcei(source, AL_SOURCE_RELATIVE, relative ? AL_TRUE : AL_FALSE)
+    );
 }
 
 bool ALSpeaker::isRelative() const {
@@ -336,19 +350,17 @@ int ALSpeaker::getPriority() const {
     return priority;
 }
 
-
 ALAudio::ALAudio(ALCdevice* device, ALCcontext* context)
-: device(device), context(context)
-{
+    : device(device), context(context) {
     ALCint size;
     alcGetIntegerv(device, ALC_ATTRIBUTES_SIZE, 1, &size);
     std::vector<ALCint> attrs(size);
     alcGetIntegerv(device, ALC_ALL_ATTRIBUTES, size, &attrs[0]);
-    for (size_t i = 0; i < attrs.size(); ++i){
-       if (attrs[i] == ALC_MONO_SOURCES) {
-          logger.info() << "max mono sources: " << attrs[i+1];
-          maxSources = attrs[i+1];
-       }
+    for (size_t i = 0; i < attrs.size(); ++i) {
+        if (attrs[i] == ALC_MONO_SOURCES) {
+            logger.info() << "max mono sources: " << attrs[i + 1];
+            maxSources = attrs[i + 1];
+        }
     }
     auto devices = getAvailableDevices();
     logger.info() << "devices:";
@@ -366,7 +378,7 @@ ALAudio::~ALAudio() {
         AL_CHECK(alDeleteSources(1, &source));
     }
 
-    for (uint buffer : allbuffers){
+    for (uint buffer : allbuffers) {
         AL_CHECK(alDeleteBuffers(1, &buffer));
     }
 
@@ -379,23 +391,28 @@ ALAudio::~ALAudio() {
     context = nullptr;
 }
 
-std::unique_ptr<Sound> ALAudio::createSound(std::shared_ptr<PCM> pcm, bool keepPCM) {
+std::unique_ptr<Sound> ALAudio::createSound(
+    std::shared_ptr<PCM> pcm, bool keepPCM
+) {
     auto format = AL::to_al_format(pcm->channels, pcm->bitsPerSample);
     uint buffer = getFreeBuffer();
-    AL_CHECK(alBufferData(buffer, format, pcm->data.data(), pcm->data.size(), pcm->sampleRate));
+    AL_CHECK(alBufferData(
+        buffer, format, pcm->data.data(), pcm->data.size(), pcm->sampleRate
+    ));
     return std::make_unique<ALSound>(this, buffer, pcm, keepPCM);
 }
 
-std::unique_ptr<Stream> ALAudio::openStream(std::shared_ptr<PCMStream> stream, bool keepSource) {
+std::unique_ptr<Stream> ALAudio::openStream(
+    std::shared_ptr<PCMStream> stream, bool keepSource
+) {
     return std::make_unique<ALStream>(this, stream, keepSource);
 }
 
 std::unique_ptr<ALAudio> ALAudio::create() {
     ALCdevice* device = alcOpenDevice(nullptr);
-    if (device == nullptr)
-        return nullptr;
+    if (device == nullptr) return nullptr;
     ALCcontext* context = alcCreateContext(device, nullptr);
-    if (!alcMakeContextCurrent(context)){
+    if (!alcMakeContextCurrent(context)) {
         alcCloseDevice(device);
         return nullptr;
     }
@@ -404,14 +421,15 @@ std::unique_ptr<ALAudio> ALAudio::create() {
     return std::make_unique<ALAudio>(device, context);
 }
 
-uint ALAudio::getFreeSource(){
-    if (!freesources.empty()){
+uint ALAudio::getFreeSource() {
+    if (!freesources.empty()) {
         uint source = freesources.back();
         freesources.pop_back();
         return source;
     }
-    if (allsources.size() == maxSources){
-        logger.error() << "attempted to create new source, but limit is " << maxSources;
+    if (allsources.size() == maxSources) {
+        logger.error() << "attempted to create new source, but limit is "
+                       << maxSources;
         return 0;
     }
     ALuint id;
@@ -423,8 +441,8 @@ uint ALAudio::getFreeSource(){
     return id;
 }
 
-uint ALAudio::getFreeBuffer(){
-    if (!freebuffers.empty()){
+uint ALAudio::getFreeBuffer() {
+    if (!freebuffers.empty()) {
         uint buffer = freebuffers.back();
         freebuffers.pop_back();
         return buffer;
@@ -439,11 +457,11 @@ uint ALAudio::getFreeBuffer(){
     return id;
 }
 
-void ALAudio::freeSource(uint source){
+void ALAudio::freeSource(uint source) {
     freesources.push_back(source);
 }
 
-void ALAudio::freeBuffer(uint buffer){
+void ALAudio::freeBuffer(uint buffer) {
     freebuffers.push_back(buffer);
 }
 
@@ -460,14 +478,15 @@ std::vector<std::string> ALAudio::getAvailableDevices() const {
     do {
         devicesVec.emplace_back(ptr);
         ptr += devicesVec.back().size() + 1;
-    }
-    while (ptr[0]);
+    } while (ptr[0]);
 
     return devicesVec;
 }
 
-void ALAudio::setListener(glm::vec3 position, glm::vec3 velocity, glm::vec3 at, glm::vec3 up){
-    ALfloat listenerOri[] = { at.x, at.y, at.z, up.x, up.y, up.z };
+void ALAudio::setListener(
+    glm::vec3 position, glm::vec3 velocity, glm::vec3 at, glm::vec3 up
+) {
+    ALfloat listenerOri[] = {at.x, at.y, at.z, up.x, up.y, up.z};
 
     AL_CHECK(alListener3f(AL_POSITION, position.x, position.y, position.z));
     AL_CHECK(alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z));

@@ -1,14 +1,14 @@
 #include "libentity.hpp"
 
-#include "../../../objects/Player.hpp"
+#include "../../../content/Content.hpp"
+#include "../../../engine.hpp"
 #include "../../../objects/Entities.hpp"
 #include "../../../objects/EntityDef.hpp"
+#include "../../../objects/Player.hpp"
 #include "../../../objects/rigging.hpp"
 #include "../../../physics/Hitbox.hpp"
-#include "../../../window/Camera.hpp"
-#include "../../../content/Content.hpp"
 #include "../../../voxels/Chunks.hpp"
-#include "../../../engine.hpp"
+#include "../../../window/Camera.hpp"
 
 using namespace scripting;
 
@@ -20,7 +20,6 @@ static EntityDef* require_entity_def(lua::State* L) {
     }
     return indices->entities.get(id);
 }
-
 
 static int l_exists(lua::State* L) {
     return lua::pushboolean(L, get_entity(L, 1).has_value());
@@ -83,7 +82,9 @@ static int l_set_skeleton(lua::State* L) {
         std::string skeletonName = lua::require_string(L, 2);
         auto rigConfig = content->getSkeleton(skeletonName);
         if (rigConfig == nullptr) {
-            throw std::runtime_error("skeleton not found '"+skeletonName+"'");
+            throw std::runtime_error(
+                "skeleton not found '" + skeletonName + "'"
+            );
         }
         entity->setRig(rigConfig);
     }
@@ -98,7 +99,7 @@ static int l_get_all_in_box(lua::State* L) {
     for (size_t i = 0; i < found.size(); i++) {
         const auto& entity = found[i];
         lua::pushinteger(L, entity.getUID());
-        lua::rawseti(L, i+1);
+        lua::rawseti(L, i + 1);
     }
     return 1;
 }
@@ -111,9 +112,9 @@ static int l_get_all_in_radius(lua::State* L) {
     for (size_t i = 0; i < found.size(); i++) {
         const auto& entity = found[i];
         lua::pushinteger(L, entity.getUID());
-        lua::rawseti(L, i+1);
+        lua::rawseti(L, i + 1);
     }
-    return 1;  
+    return 1;
 }
 
 static int l_raycast(lua::State* L) {
@@ -127,7 +128,9 @@ static int l_raycast(lua::State* L) {
 
     blockid_t block = BLOCK_VOID;
 
-    if (auto voxel = level->chunks->rayCast(start, dir, maxDistance, end, normal, iend)) {
+    if (auto voxel = level->chunks->rayCast(
+            start, dir, maxDistance, end, normal, iend
+        )) {
         maxDistance = glm::distance(start, end);
         block = voxel->id;
     }
@@ -137,7 +140,7 @@ static int l_raycast(lua::State* L) {
         } else {
             lua::createtable(L, 0, 6);
         }
-        
+
         lua::pushvec3(L, start + dir * ray->distance);
         lua::setfield(L, "endpoint");
 
@@ -181,7 +184,7 @@ static int l_raycast(lua::State* L) {
     return 0;
 }
 
-const luaL_Reg entitylib [] = {
+const luaL_Reg entitylib[] = {
     {"exists", lua::wrap<l_exists>},
     {"def_index", lua::wrap<l_def_index>},
     {"def_name", lua::wrap<l_def_name>},
@@ -194,5 +197,4 @@ const luaL_Reg entitylib [] = {
     {"get_all_in_box", lua::wrap<l_get_all_in_box>},
     {"get_all_in_radius", lua::wrap<l_get_all_in_radius>},
     {"raycast", lua::wrap<l_raycast>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

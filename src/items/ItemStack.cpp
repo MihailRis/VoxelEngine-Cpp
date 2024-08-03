@@ -1,12 +1,13 @@
 #include "ItemStack.hpp"
 
-#include "ItemDef.hpp"
 #include "../content/Content.hpp"
+#include "ItemDef.hpp"
 
 ItemStack::ItemStack() : item(ITEM_EMPTY), count(0) {
 }
 
-ItemStack::ItemStack(itemid_t item, itemcount_t count) : item(item), count(count) {
+ItemStack::ItemStack(itemid_t item, itemcount_t count)
+    : item(item), count(count) {
 }
 
 void ItemStack::set(const ItemStack& item) {
@@ -26,13 +27,13 @@ bool ItemStack::accepts(const ItemStack& other) const {
 
 void ItemStack::move(ItemStack& item, const ContentIndices* indices) {
     auto def = indices->items.get(item.getItemId());
-    int count = std::min(item.count, def->stackSize-this->count);
+    int count = std::min(item.count, def->stackSize - this->count);
     if (isEmpty()) {
         set(ItemStack(item.getItemId(), count));
     } else {
         setCount(this->count + count);
     }
-    item.setCount(item.count-count);
+    item.setCount(item.count - count);
 }
 
 void ItemStack::setCount(itemcount_t count) {

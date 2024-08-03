@@ -1,10 +1,10 @@
 #include "binary_json.hpp"
 
-#include "gzip.hpp"
-#include "byte_utils.hpp"
-#include "../data/dynamic.hpp"
-
 #include <stdexcept>
+
+#include "../data/dynamic.hpp"
+#include "byte_utils.hpp"
+#include "gzip.hpp"
 
 using namespace json;
 using namespace dynamic;
@@ -30,7 +30,7 @@ static void to_binary(ByteBuilder& builder, const Value& value) {
             if (val >= 0 && val <= 255) {
                 builder.put(BJSON_TYPE_BYTE);
                 builder.put(val);
-            } else if (val >= INT16_MIN && val <= INT16_MAX){
+            } else if (val >= INT16_MIN && val <= INT16_MAX) {
                 builder.put(BJSON_TYPE_INT16);
                 builder.putInt16(val);
             } else if (val >= INT32_MIN && val <= INT32_MAX) {
@@ -115,7 +115,7 @@ static Value value_from_binary(ByteReader& reader) {
             return reader.getString();
         default:
             throw std::runtime_error(
-                "type "+std::to_string(typecode)+" is not supported"
+                "type " + std::to_string(typecode) + " is not supported"
             );
     }
 }

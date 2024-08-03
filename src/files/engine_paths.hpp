@@ -1,10 +1,10 @@
 #ifndef FILES_ENGINE_PATHS_HPP_
 #define FILES_ENGINE_PATHS_HPP_
 
+#include <filesystem>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <stdexcept>
-#include <filesystem>
 
 #include "../content/ContentPack.hpp"
 
@@ -12,12 +12,13 @@ namespace fs = std::filesystem;
 
 class files_access_error : public std::runtime_error {
 public:
-    files_access_error(const std::string& msg) : std::runtime_error(msg) {}
+    files_access_error(const std::string& msg) : std::runtime_error(msg) {
+    }
 };
 
 class EnginePaths {
     fs::path userfiles {"."};
-    fs::path resources {"res"}; 
+    fs::path resources {"res"};
     fs::path worldFolder;
     std::vector<ContentPack>* contentPacks = nullptr;
 public:
@@ -25,7 +26,7 @@ public:
 
     fs::path getUserfiles() const;
     fs::path getResources() const;
-    
+
     fs::path getScreenshotFile(const std::string& ext);
     fs::path getWorldsFolder();
     fs::path getWorldFolder();
@@ -41,7 +42,7 @@ public:
 
     std::vector<fs::path> scanForWorlds();
 
-    fs::path resolve(const std::string& path, bool throwErr=true);
+    fs::path resolve(const std::string& path, bool throwErr = true);
 };
 
 struct PathsRoot {
@@ -53,11 +54,8 @@ class ResPaths {
     fs::path mainRoot;
     std::vector<PathsRoot> roots;
 public:
-    ResPaths(
-        fs::path mainRoot,
-        std::vector<PathsRoot> roots
-    );
-    
+    ResPaths(fs::path mainRoot, std::vector<PathsRoot> roots);
+
     fs::path find(const std::string& filename) const;
     std::string findRaw(const std::string& filename) const;
     std::vector<fs::path> listdir(const std::string& folder) const;
@@ -66,4 +64,4 @@ public:
     const fs::path& getMainRoot() const;
 };
 
-#endif // FILES_ENGINE_PATHS_HPP_
+#endif  // FILES_ENGINE_PATHS_HPP_
