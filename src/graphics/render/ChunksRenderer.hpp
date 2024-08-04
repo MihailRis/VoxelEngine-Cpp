@@ -7,8 +7,8 @@
 #include <unordered_map>
 #include <glm/glm.hpp>
 
-#include "../../voxels/Block.hpp"
-#include "../../voxels/ChunksStorage.hpp"
+#include <voxels/Block.hpp>
+#include <voxels/ChunksStorage.hpp>
 #include <util/ThreadPool.hpp>
 
 class Mesh;

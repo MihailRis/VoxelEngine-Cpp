@@ -15,9 +15,9 @@
 #include "../physics/Hitbox.hpp"
 #include "../physics/PhysicsSolver.hpp"
 #include <settings.hpp>
-#include "../voxels/Block.hpp"
-#include "../voxels/Chunks.hpp"
-#include "../voxels/voxel.hpp"
+#include <voxels/Block.hpp>
+#include <voxels/Chunks.hpp>
+#include <voxels/voxel.hpp>
 #include "../window/Camera.hpp"
 #include "../window/Events.hpp"
 #include "../window/Window.hpp"

@@ -2,9 +2,9 @@
 #include "Hitbox.hpp"
 
 #include "../maths/aabb.hpp"
-#include "../voxels/Block.hpp"
-#include "../voxels/Chunks.hpp"
-#include "../voxels/voxel.hpp"
+#include <voxels/Block.hpp>
+#include <voxels/Chunks.hpp>
+#include <voxels/voxel.hpp>
 
 #include <iostream>
 #define GLM_ENABLE_EXPERIMENTAL

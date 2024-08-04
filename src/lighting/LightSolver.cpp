@@ -3,10 +3,10 @@
 #include "LightSolver.hpp"
 #include "Lightmap.hpp"
 #include <content/Content.hpp>
-#include "../voxels/Chunks.hpp"
-#include "../voxels/Chunk.hpp"
-#include "../voxels/voxel.hpp"
-#include "../voxels/Block.hpp"
+#include <voxels/Chunks.hpp>
+#include <voxels/Chunk.hpp>
+#include <voxels/voxel.hpp>
+#include <voxels/Block.hpp>
 
 LightSolver::LightSolver(const ContentIndices* contentIds, Chunks* chunks, int channel) 
 	: contentIds(contentIds), 

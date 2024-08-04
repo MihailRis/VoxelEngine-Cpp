@@ -9,7 +9,7 @@
 #include "ContentPack.hpp"
 #include <items/ItemDef.hpp>
 #include <objects/EntityDef.hpp>
-#include "../voxels/Block.hpp"
+#include <voxels/Block.hpp>
 
 template <class T>
 class ContentUnitBuilder {

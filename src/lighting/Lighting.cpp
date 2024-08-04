@@ -2,10 +2,10 @@
 #include "LightSolver.hpp"
 #include "Lightmap.hpp"
 #include <content/Content.hpp>
-#include "../voxels/Chunks.hpp"
-#include "../voxels/Chunk.hpp"
-#include "../voxels/voxel.hpp"
-#include "../voxels/Block.hpp"
+#include <voxels/Chunks.hpp>
+#include <voxels/Chunk.hpp>
+#include <voxels/voxel.hpp>
+#include <voxels/Block.hpp>
 #include <constants.hpp>
 #include <util/timeutil.hpp>
 

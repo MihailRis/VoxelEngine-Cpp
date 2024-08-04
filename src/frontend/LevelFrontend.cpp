@@ -10,7 +10,7 @@
 #include "../logic/LevelController.hpp"
 #include "../logic/PlayerController.hpp"
 #include <objects/Player.hpp>
-#include "../voxels/Block.hpp"
+#include <voxels/Block.hpp>
 #include "../world/Level.hpp"
 
 LevelFrontend::LevelFrontend(

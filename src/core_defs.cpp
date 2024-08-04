@@ -8,7 +8,7 @@
 #include "window/Window.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"
-#include "voxels/Block.hpp"
+#include <voxels/Block.hpp>
 
 // All in-game definitions (blocks, items, etc..)
 void corecontent::setup(EnginePaths* paths, ContentBuilder* builder) {

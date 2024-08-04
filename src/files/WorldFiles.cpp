@@ -25,9 +25,9 @@
 #include <settings.hpp>
 #include <typedefs.hpp>
 #include <util/data_io.hpp>
-#include "../voxels/Block.hpp"
-#include "../voxels/Chunk.hpp"
-#include "../voxels/voxel.hpp"
+#include <voxels/Block.hpp>
+#include <voxels/Chunk.hpp>
+#include <voxels/voxel.hpp>
 #include "../window/Camera.hpp"
 #include "../world/World.hpp"
 

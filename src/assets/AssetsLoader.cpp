@@ -16,7 +16,7 @@
 #include "../logic/scripting/scripting.hpp"
 #include <objects/rigging.hpp>
 #include <util/ThreadPool.hpp>
-#include "../voxels/Block.hpp"
+#include <voxels/Block.hpp>
 #include "Assets.hpp"
 #include "assetload_funcs.hpp"
 

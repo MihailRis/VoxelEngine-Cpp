@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 #include <glm/glm.hpp>
-#include "../../voxels/voxel.hpp"
+#include <voxels/voxel.hpp>
 #include <typedefs.hpp>
 
 class Content;

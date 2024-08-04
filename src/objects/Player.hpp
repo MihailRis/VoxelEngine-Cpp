@@ -9,7 +9,7 @@
 #include "../interfaces/Object.hpp"
 #include "../interfaces/Serializable.hpp"
 #include <settings.hpp>
-#include "../voxels/voxel.hpp"
+#include <voxels/voxel.hpp>
 
 class Camera;
 class Inventory;

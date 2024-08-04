@@ -19,7 +19,7 @@
 #include <objects/Player.hpp>
 #include <util/stringutil.hpp>
 #include <util/timeutil.hpp>
-#include "../../voxels/Block.hpp"
+#include <voxels/Block.hpp>
 #include "../../world/Level.hpp"
 #include "lua/lua_engine.hpp"
 

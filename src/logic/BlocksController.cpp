@@ -6,10 +6,10 @@
 #include "../lighting/Lighting.hpp"
 #include "../maths/fastmaths.hpp"
 #include <util/timeutil.hpp>
-#include "../voxels/Block.hpp"
-#include "../voxels/Chunk.hpp"
-#include "../voxels/Chunks.hpp"
-#include "../voxels/voxel.hpp"
+#include <voxels/Block.hpp>
+#include <voxels/Chunk.hpp>
+#include <voxels/Chunks.hpp>
+#include <voxels/voxel.hpp>
 #include "../world/Level.hpp"
 #include "../world/World.hpp"
 #include "scripting/scripting.hpp"

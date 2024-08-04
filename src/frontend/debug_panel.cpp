@@ -15,9 +15,9 @@
 #include <objects/EntityDef.hpp>
 #include "../physics/Hitbox.hpp"
 #include <util/stringutil.hpp>
-#include "../voxels/Block.hpp"
-#include "../voxels/Chunk.hpp"
-#include "../voxels/Chunks.hpp"
+#include <voxels/Block.hpp>
+#include <voxels/Chunk.hpp>
+#include <voxels/Chunks.hpp>
 #include "../world/Level.hpp"
 #include "../world/World.hpp"
 

@@ -6,7 +6,7 @@
 #include <graphics/core/Texture.hpp>
 #include <assets/Assets.hpp>
 #include "../../window/Window.hpp"
-#include "../../voxels/Chunks.hpp"
+#include <voxels/Chunks.hpp>
 #include "../../lighting/Lightmap.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL

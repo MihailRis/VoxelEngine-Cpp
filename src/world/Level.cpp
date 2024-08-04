@@ -10,9 +10,9 @@
 #include "../physics/Hitbox.hpp"
 #include "../physics/PhysicsSolver.hpp"
 #include <settings.hpp>
-#include "../voxels/Chunk.hpp"
-#include "../voxels/Chunks.hpp"
-#include "../voxels/ChunksStorage.hpp"
+#include <voxels/Chunk.hpp>
+#include <voxels/Chunks.hpp>
+#include <voxels/ChunksStorage.hpp>
 #include "../window/Camera.hpp"
 #include "LevelEvents.hpp"
 #include "World.hpp"

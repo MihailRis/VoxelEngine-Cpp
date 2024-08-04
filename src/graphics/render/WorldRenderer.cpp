@@ -22,9 +22,9 @@
 #include <objects/Entities.hpp>
 #include <objects/Player.hpp>
 #include <settings.hpp>
-#include "../../voxels/Block.hpp"
-#include "../../voxels/Chunk.hpp"
-#include "../../voxels/Chunks.hpp"
+#include <voxels/Block.hpp>
+#include <voxels/Chunk.hpp>
+#include <voxels/Chunks.hpp>
 #include "../../window/Camera.hpp"
 #include "../../window/Window.hpp"
 #include "../../world/Level.hpp"

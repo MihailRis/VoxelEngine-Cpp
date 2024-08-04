@@ -17,7 +17,7 @@
 #include <typedefs.hpp>
 #include <util/listutil.hpp>
 #include <util/stringutil.hpp>
-#include "../voxels/Block.hpp"
+#include <voxels/Block.hpp>
 #include "Content.hpp"
 #include "ContentBuilder.hpp"
 #include "ContentPack.hpp"

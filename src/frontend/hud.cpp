@@ -34,9 +34,9 @@
 #include "../physics/Hitbox.hpp"
 #include <typedefs.hpp>
 #include <util/stringutil.hpp>
-#include "../voxels/Block.hpp"
-#include "../voxels/Chunk.hpp"
-#include "../voxels/Chunks.hpp"
+#include <voxels/Block.hpp>
+#include <voxels/Chunk.hpp>
+#include <voxels/Chunks.hpp>
 #include "../window/Camera.hpp"
 #include "../window/Events.hpp"
 #include "../window/input.hpp"

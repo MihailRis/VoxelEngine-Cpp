@@ -11,7 +11,7 @@
 #include <files/files.hpp>
 #include <objects/Player.hpp>
 #include <util/ThreadPool.hpp>
-#include "../voxels/Chunk.hpp"
+#include <voxels/Chunk.hpp>
 #include "WorldFiles.hpp"
 
 namespace fs = std::filesystem;
