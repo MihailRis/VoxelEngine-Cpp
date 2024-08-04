@@ -10,7 +10,7 @@
 #include <coders/json.hpp>
 #include <content/Content.hpp>
 #include <files/WorldFiles.hpp>
-#include "../graphics/core/Mesh.hpp"
+#include <graphics/core/Mesh.hpp>
 #include "../lighting/Lightmap.hpp"
 #include "../maths/aabb.hpp"
 #include "../maths/rays.hpp"

@@ -16,13 +16,13 @@
 #include "../../../window/Events.hpp"
 #include "../../../window/input.hpp"
 #include "../../../world/Level.hpp"
-#include "../../core/Atlas.hpp"
-#include "../../core/Batch2D.hpp"
-#include "../../core/Font.hpp"
-#include "../../core/DrawContext.hpp"
-#include "../../core/Shader.hpp"
-#include "../../core/Texture.hpp"
-#include "../../render/BlocksPreview.hpp"
+#include <graphics/core/Atlas.hpp>
+#include <graphics/core/Batch2D.hpp>
+#include <graphics/core/Font.hpp>
+#include <graphics/core/DrawContext.hpp>
+#include <graphics/core/Shader.hpp>
+#include <graphics/core/Texture.hpp>
+#include <graphics/render/BlocksPreview.hpp>
 #include "../GUI.hpp"
 
 #include <glm/glm.hpp>

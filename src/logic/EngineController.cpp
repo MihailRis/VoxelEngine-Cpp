@@ -14,8 +14,8 @@
 #include "../frontend/menu.hpp"
 #include "../frontend/screens/LevelScreen.hpp"
 #include "../frontend/screens/MenuScreen.hpp"
-#include "../graphics/ui/elements/Menu.hpp"
-#include "../graphics/ui/gui_util.hpp"
+#include <graphics/ui/elements/Menu.hpp>
+#include <graphics/ui/gui_util.hpp>
 #include "../interfaces/Task.hpp"
 #include "../util/stringutil.hpp"
 #include "../world/Level.hpp"

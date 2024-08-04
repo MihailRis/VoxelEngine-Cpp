@@ -9,9 +9,9 @@
 #include <assets/Assets.hpp>
 #include "../../frontend/UiDocument.hpp"
 #include "../../frontend/locale.hpp"
-#include "../../graphics/core/Batch2D.hpp"
-#include "../../graphics/core/Shader.hpp"
-#include "../../graphics/core/DrawContext.hpp"
+#include <graphics/core/Batch2D.hpp>
+#include <graphics/core/Shader.hpp>
+#include <graphics/core/DrawContext.hpp>
 #include "../../window/Events.hpp"
 #include "../../window/Window.hpp"
 #include "../../window/input.hpp"

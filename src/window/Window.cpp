@@ -8,8 +8,8 @@
 #include <thread>
 
 #include <debug/Logger.hpp>
-#include "../graphics/core/ImageData.hpp"
-#include "../graphics/core/Texture.hpp"
+#include <graphics/core/ImageData.hpp>
+#include <graphics/core/Texture.hpp>
 #include <settings.hpp>
 #include "../util/ObjectsKeeper.hpp"
 #include "Events.hpp"

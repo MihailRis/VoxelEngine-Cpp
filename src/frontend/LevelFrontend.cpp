@@ -5,8 +5,8 @@
 #include <assets/Assets.hpp>
 #include "../audio/audio.hpp"
 #include <content/Content.hpp>
-#include "../graphics/core/Atlas.hpp"
-#include "../graphics/render/BlocksPreview.hpp"
+#include <graphics/core/Atlas.hpp>
+#include <graphics/render/BlocksPreview.hpp>
 #include "../logic/LevelController.hpp"
 #include "../logic/PlayerController.hpp"
 #include "../objects/Player.hpp"

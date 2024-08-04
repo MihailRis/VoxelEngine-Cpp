@@ -19,11 +19,11 @@
 #include "frontend/menu.hpp"
 #include "frontend/screens/Screen.hpp"
 #include "frontend/screens/MenuScreen.hpp"
-#include "graphics/core/Batch2D.hpp"
-#include "graphics/core/DrawContext.hpp"
-#include "graphics/core/ImageData.hpp"
-#include "graphics/core/Shader.hpp"
-#include "graphics/ui/GUI.hpp"
+#include <graphics/core/Batch2D.hpp>
+#include <graphics/core/DrawContext.hpp>
+#include <graphics/core/ImageData.hpp>
+#include <graphics/core/Shader.hpp>
+#include <graphics/ui/GUI.hpp>
 #include "objects/rigging.hpp"
 #include "logic/EngineController.hpp"
 #include "logic/CommandsInterpreter.hpp"

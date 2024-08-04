@@ -2,7 +2,7 @@
 #define FRONTEND_MENU_MENU_HPP_
 
 #include "../data/dynamic.hpp"
-#include "../graphics/ui/elements/Menu.hpp"
+#include <graphics/ui/elements/Menu.hpp>
 
 #include <string>
 #include <vector>

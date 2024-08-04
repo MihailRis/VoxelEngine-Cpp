@@ -8,10 +8,10 @@
 #include "../data/dynamic_util.hpp"
 #include <debug/Logger.hpp>
 #include <engine.hpp>
-#include "../graphics/core/DrawContext.hpp"
-#include "../graphics/core/LineBatch.hpp"
-#include "../graphics/core/Model.hpp"
-#include "../graphics/render/ModelBatch.hpp"
+#include <graphics/core/DrawContext.hpp>
+#include <graphics/core/LineBatch.hpp>
+#include <graphics/core/Model.hpp>
+#include <graphics/render/ModelBatch.hpp>
 #include "../logic/scripting/scripting.hpp"
 #include "../maths/FrustumCulling.hpp"
 #include "../maths/rays.hpp"

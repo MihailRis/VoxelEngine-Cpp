@@ -7,13 +7,13 @@
 #include "../../voxels/Block.hpp"
 #include "../../window/Camera.hpp"
 #include "../../window/Window.hpp"
-#include "../core/Atlas.hpp"
-#include "../core/Batch3D.hpp"
-#include "../core/Framebuffer.hpp"
-#include "../core/DrawContext.hpp"
-#include "../core/Shader.hpp"
-#include "../core/Texture.hpp"
-#include "../core/Viewport.hpp"
+#include <graphics/core/Atlas.hpp>
+#include <graphics/core/Batch3D.hpp>
+#include <graphics/core/Framebuffer.hpp>
+#include <graphics/core/DrawContext.hpp>
+#include <graphics/core/Shader.hpp>
+#include <graphics/core/Texture.hpp>
+#include <graphics/core/Viewport.hpp>
 
 #include <glm/ext.hpp>
 

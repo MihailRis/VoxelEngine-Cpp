@@ -1,9 +1,9 @@
 #include "ModelBatch.hpp"
 
-#include "../core/Mesh.hpp"
-#include "../core/Model.hpp"
-#include "../core/Atlas.hpp"
-#include "../core/Texture.hpp"
+#include <graphics/core/Mesh.hpp>
+#include <graphics/core/Model.hpp>
+#include <graphics/core/Atlas.hpp>
+#include <graphics/core/Texture.hpp>
 #include <assets/Assets.hpp>
 #include "../../window/Window.hpp"
 #include "../../voxels/Chunks.hpp"
