@@ -113,6 +113,10 @@ bool WorldRenderer::drawChunk(
 }
 
 void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
+    auto assets = engine->getAssets();
+    auto atlas = assets->get<Atlas>("blocks");
+    
+    atlas->getTexture()->bind();
     renderer->update();
 
     // [warning] this whole method is not thread-safe for chunks
@@ -186,21 +190,13 @@ void WorldRenderer::renderLevel(
     bool pause
 ) {
     auto assets = engine->getAssets();
-    auto atlas = assets->get<Atlas>("blocks");
 
     bool culling = engine->getSettings().graphics.frustumCulling.get();
     float fogFactor = 15.0f / ((float)settings.chunks.loadDistance.get() - 2);
 
-    auto shader = assets->get<Shader>("main");
-    setupWorldShader(shader, camera, settings, fogFactor);
-
-    skybox->bind();
-    atlas->getTexture()->bind();
-
-    drawChunks(level->chunks.get(), camera, shader);
-
     auto entityShader = assets->get<Shader>("entity");
     setupWorldShader(entityShader, camera, settings, fogFactor);
+    skybox->bind();
 
     level->entities->render(
         assets,
@@ -209,11 +205,16 @@ void WorldRenderer::renderLevel(
         delta,
         pause
     );
+    modelBatch->render();
+
+    auto shader = assets->get<Shader>("main");
+    setupWorldShader(shader, camera, settings, fogFactor);
+
+    drawChunks(level->chunks.get(), camera, shader);
 
     if (!pause) {
         scripting::on_frontend_render();
     }
-    modelBatch->render();
 
     skybox->unbind();
 }
