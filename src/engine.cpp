@@ -5,10 +5,10 @@
 #include "debug/Logger.hpp"
 #include <assets/AssetsLoader.hpp>
 #include "audio/audio.hpp"
-#include "coders/GLSLExtension.hpp"
-#include "coders/imageio.hpp"
-#include "coders/json.hpp"
-#include "coders/toml.hpp"
+#include <coders/GLSLExtension.hpp>
+#include <coders/imageio.hpp>
+#include <coders/json.hpp>
+#include <coders/toml.hpp>
 #include "content/Content.hpp"
 #include "content/ContentBuilder.hpp"
 #include "content/ContentLoader.hpp"

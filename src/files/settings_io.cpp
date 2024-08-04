@@ -3,8 +3,8 @@
 #include <memory>
 #include <utility>
 
-#include "../coders/json.hpp"
-#include "../coders/toml.hpp"
+#include <coders/json.hpp>
+#include <coders/toml.hpp>
 #include "../debug/Logger.hpp"
 #include <settings.hpp>
 #include "../window/Events.hpp"

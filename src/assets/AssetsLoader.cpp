@@ -4,7 +4,7 @@
 #include <memory>
 #include <utility>
 
-#include "../coders/imageio.hpp"
+#include <coders/imageio.hpp>
 #include <constants.hpp>
 #include "../content/Content.hpp"
 #include "../content/ContentPack.hpp"

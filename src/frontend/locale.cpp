@@ -2,8 +2,8 @@
 
 #include <utility>
 
-#include "../coders/json.hpp"
-#include "../coders/commons.hpp"
+#include <coders/json.hpp>
+#include <coders/commons.hpp>
 #include "../content/ContentPack.hpp"
 #include "../files/files.hpp"
 #include "../util/stringutil.hpp"

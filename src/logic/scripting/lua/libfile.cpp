@@ -1,7 +1,7 @@
 #include <filesystem>
 #include <string>
 
-#include "../../../coders/gzip.hpp"
+#include <coders/gzip.hpp>
 #include <engine.hpp>
 #include "../../../files/engine_paths.hpp"
 #include "../../../files/files.hpp"

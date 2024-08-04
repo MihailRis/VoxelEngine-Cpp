@@ -165,8 +165,8 @@ void Events::setPosition(float xpos, float ypos) {
     Events::cursor.y = ypos;
 }
 
-#include "../coders/json.hpp"
-#include "../coders/toml.hpp"
+#include <coders/json.hpp>
+#include <coders/toml.hpp>
 #include "../data/dynamic.hpp"
 
 std::string Events::writeBindings() {

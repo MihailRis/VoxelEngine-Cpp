@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 
-#include "../coders/json.hpp"
+#include <coders/json.hpp>
 #include <core_defs.hpp>
 #include "../data/dynamic.hpp"
 #include "../debug/Logger.hpp"

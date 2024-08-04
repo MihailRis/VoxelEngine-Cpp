@@ -8,8 +8,8 @@
 #include <sstream>
 #include <utility>
 
-#include "../coders/byte_utils.hpp"
-#include "../coders/json.hpp"
+#include <coders/byte_utils.hpp>
+#include <coders/json.hpp>
 #include <constants.hpp>
 #include "../content/Content.hpp"
 #include <core_defs.hpp>

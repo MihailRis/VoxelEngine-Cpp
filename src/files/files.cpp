@@ -7,10 +7,10 @@
 #include <memory>
 #include <stdexcept>
 
-#include "../coders/commons.hpp"
-#include "../coders/gzip.hpp"
-#include "../coders/json.hpp"
-#include "../coders/toml.hpp"
+#include <coders/commons.hpp>
+#include <coders/gzip.hpp>
+#include <coders/json.hpp>
+#include <coders/toml.hpp>
 #include "../data/dynamic.hpp"
 #include "../util/stringutil.hpp"
 

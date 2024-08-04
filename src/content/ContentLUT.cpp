@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "../coders/json.hpp"
+#include <coders/json.hpp>
 #include <constants.hpp>
 #include "../files/files.hpp"
 #include "../items/ItemDef.hpp"

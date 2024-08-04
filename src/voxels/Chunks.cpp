@@ -6,8 +6,8 @@
 #include <algorithm>
 #include <vector>
 
-#include "../coders/byte_utils.hpp"
-#include "../coders/json.hpp"
+#include <coders/byte_utils.hpp>
+#include <coders/json.hpp>
 #include "../content/Content.hpp"
 #include "../files/WorldFiles.hpp"
 #include "../graphics/core/Mesh.hpp"
