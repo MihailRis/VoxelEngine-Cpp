@@ -6,7 +6,7 @@
 #include <stack>
 #include <utility>
 
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 #include "../util/stringutil.hpp"
 #include "WorldFiles.hpp"
 

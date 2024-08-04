@@ -4,7 +4,7 @@
 #include "../../graphics/core/Mesh.hpp"
 #include "../../voxels/Chunk.hpp"
 #include "../../world/Level.hpp"
-#include "../../settings.hpp"
+#include <settings.hpp>
 
 #include <iostream>
 #include <glm/glm.hpp>

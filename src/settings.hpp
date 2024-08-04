@@ -5,8 +5,8 @@
 #include <unordered_map>
 
 #include "data/setting.hpp"
-#include "constants.hpp"
-#include "typedefs.hpp"
+#include <constants.hpp>
+#include <typedefs.hpp>
 
 struct AudioSettings {
     /// @brief try to initialize AL backend

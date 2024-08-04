@@ -10,7 +10,7 @@
 
 #include "../../assets/Assets.hpp"
 #include "../../content/Content.hpp"
-#include "../../engine.hpp"
+#include <engine.hpp>
 #include "../../frontend/LevelFrontend.hpp"
 #include "../../items/Inventory.hpp"
 #include "../../items/ItemDef.hpp"
@@ -21,7 +21,7 @@
 #include "../../maths/voxmaths.hpp"
 #include "../../objects/Entities.hpp"
 #include "../../objects/Player.hpp"
-#include "../../settings.hpp"
+#include <settings.hpp>
 #include "../../voxels/Block.hpp"
 #include "../../voxels/Chunk.hpp"
 #include "../../voxels/Chunks.hpp"

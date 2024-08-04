@@ -7,7 +7,7 @@
 #include "../interfaces/Object.hpp"
 #include "../objects/Entities.hpp"
 #include "../physics/Hitbox.hpp"
-#include "../settings.hpp"
+#include <settings.hpp>
 #include "../world/Level.hpp"
 #include "../world/World.hpp"
 #include "scripting/scripting.hpp"

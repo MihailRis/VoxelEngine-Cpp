@@ -1,8 +1,8 @@
 #include <memory>
 #include <vector>
 
-#include "../../../constants.hpp"
-#include "../../../engine.hpp"
+#include <constants.hpp>
+#include <engine.hpp>
 #include "../../../files/engine_paths.hpp"
 #include "../../../files/settings_io.hpp"
 #include "../../../frontend/menu.hpp"

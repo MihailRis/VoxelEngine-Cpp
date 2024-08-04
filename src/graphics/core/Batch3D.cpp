@@ -4,7 +4,7 @@
 #include "Texture.hpp"
 
 #include <GL/glew.h>
-#include "../../typedefs.hpp"
+#include <typedefs.hpp>
 #include "../../maths/UVRegion.hpp"
 
 /// xyz, uv, rgba

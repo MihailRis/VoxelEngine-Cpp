@@ -7,7 +7,7 @@
 
 #include "../files/engine_paths.hpp"
 #include "../files/files.hpp"
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 #include "../util/stringutil.hpp"
 
 namespace fs = std::filesystem;

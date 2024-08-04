@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "../interfaces/Serializable.hpp"
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 #include "ItemStack.hpp"
 
 namespace dynamic {

@@ -6,7 +6,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 #include "../../voxels/voxel.hpp"
-#include "../../typedefs.hpp"
+#include <typedefs.hpp>
 
 class Content;
 class Mesh;

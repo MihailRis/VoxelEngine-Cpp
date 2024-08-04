@@ -1,7 +1,7 @@
 #ifndef VOXELS_DEFAULTWORLDGENERATOR_HPP_
 #define VOXELS_DEFAULTWORLDGENERATOR_HPP_
 
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 #include "../voxels/WorldGenerator.hpp"
 
 struct voxel;

@@ -10,9 +10,9 @@
 
 #include "../coders/byte_utils.hpp"
 #include "../coders/json.hpp"
-#include "../constants.hpp"
+#include <constants.hpp>
 #include "../content/Content.hpp"
-#include "../core_defs.hpp"
+#include <core_defs.hpp>
 #include "../data/dynamic.hpp"
 #include "../debug/Logger.hpp"
 #include "../items/Inventory.hpp"
@@ -22,8 +22,8 @@
 #include "../objects/EntityDef.hpp"
 #include "../objects/Player.hpp"
 #include "../physics/Hitbox.hpp"
-#include "../settings.hpp"
-#include "../typedefs.hpp"
+#include <settings.hpp>
+#include <typedefs.hpp>
 #include "../util/data_io.hpp"
 #include "../voxels/Block.hpp"
 #include "../voxels/Chunk.hpp"

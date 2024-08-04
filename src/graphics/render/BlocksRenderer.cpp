@@ -2,7 +2,7 @@
 
 #include "../core/Mesh.hpp"
 #include "../../maths/UVRegion.hpp"
-#include "../../constants.hpp"
+#include <constants.hpp>
 #include "../../content/Content.hpp"
 #include "../../voxels/Block.hpp"
 #include "../../voxels/Chunk.hpp"
@@ -10,7 +10,7 @@
 #include "../../voxels/ChunksStorage.hpp"
 #include "../../lighting/Lightmap.hpp"
 #include "../../frontend/ContentGfxCache.hpp"
-#include "../../settings.hpp"
+#include <settings.hpp>
 
 #include <glm/glm.hpp>
 

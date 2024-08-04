@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "../core_defs.hpp"
+#include <core_defs.hpp>
 #include "../util/stringutil.hpp"
 
 std::string to_string(BlockModel model) {

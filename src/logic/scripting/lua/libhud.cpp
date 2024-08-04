@@ -3,7 +3,7 @@
 
 #include "../../../assets/Assets.hpp"
 #include "../../../content/Content.hpp"
-#include "../../../engine.hpp"
+#include <engine.hpp>
 #include "../../../frontend/UiDocument.hpp"
 #include "../../../frontend/hud.hpp"
 #include "../../../graphics/ui/elements/InventoryView.hpp"

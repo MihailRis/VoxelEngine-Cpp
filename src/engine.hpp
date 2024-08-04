@@ -1,8 +1,8 @@
 #ifndef ENGINE_HPP_
 #define ENGINE_HPP_
 
-#include "delegates.hpp"
-#include "typedefs.hpp"
+#include <delegates.hpp>
+#include <typedefs.hpp>
 
 #include "assets/Assets.hpp"
 #include "content/content_fwd.hpp"

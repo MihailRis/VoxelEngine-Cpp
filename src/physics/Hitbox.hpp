@@ -2,7 +2,7 @@
 #define PHYSICS_HITBOX_HPP_
 
 #include "../maths/aabb.hpp"
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 
 #include <set>
 #include <string>

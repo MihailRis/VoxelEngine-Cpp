@@ -8,7 +8,7 @@
 #include "../data/dynamic.hpp"
 #include "../interfaces/Object.hpp"
 #include "../interfaces/Serializable.hpp"
-#include "../settings.hpp"
+#include <settings.hpp>
 #include "../voxels/voxel.hpp"
 
 class Camera;

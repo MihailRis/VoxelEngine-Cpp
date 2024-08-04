@@ -5,7 +5,7 @@
 #include <utility>
 
 #include "../coders/imageio.hpp"
-#include "../constants.hpp"
+#include <constants.hpp>
 #include "../content/Content.hpp"
 #include "../content/ContentPack.hpp"
 #include "../data/dynamic.hpp"

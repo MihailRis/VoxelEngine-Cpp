@@ -8,7 +8,7 @@
 
 #include "../maths/UVRegion.hpp"
 #include "../maths/aabb.hpp"
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 
 inline std::string BLOCK_ITEM_SUFFIX = ".item";
 

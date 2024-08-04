@@ -7,7 +7,7 @@
 #include "../coders/commons.hpp"
 #include "../content/ContentLUT.hpp"
 #include "../debug/Logger.hpp"
-#include "../engine.hpp"
+#include <engine.hpp>
 #include "../files/WorldConverter.hpp"
 #include "../files/WorldFiles.hpp"
 #include "../frontend/locale.hpp"

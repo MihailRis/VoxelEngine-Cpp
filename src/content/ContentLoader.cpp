@@ -7,14 +7,14 @@
 #include <string>
 
 #include "../coders/json.hpp"
-#include "../core_defs.hpp"
+#include <core_defs.hpp>
 #include "../data/dynamic.hpp"
 #include "../debug/Logger.hpp"
 #include "../files/files.hpp"
 #include "../items/ItemDef.hpp"
 #include "../logic/scripting/scripting.hpp"
 #include "../objects/rigging.hpp"
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 #include "../util/listutil.hpp"
 #include "../util/stringutil.hpp"
 #include "../voxels/Block.hpp"

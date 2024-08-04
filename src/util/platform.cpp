@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 
 #ifdef _WIN32
 #include <Windows.h>

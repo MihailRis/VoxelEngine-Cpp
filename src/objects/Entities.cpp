@@ -7,7 +7,7 @@
 #include "../content/Content.hpp"
 #include "../data/dynamic_util.hpp"
 #include "../debug/Logger.hpp"
-#include "../engine.hpp"
+#include <engine.hpp>
 #include "../graphics/core/DrawContext.hpp"
 #include "../graphics/core/LineBatch.hpp"
 #include "../graphics/core/Model.hpp"

@@ -4,8 +4,8 @@
 #include "UiDocument.hpp"
 #include "screens/MenuScreen.hpp"
 
-#include "../delegates.hpp"
-#include "../engine.hpp"
+#include <delegates.hpp>
+#include <engine.hpp>
 #include "../data/dynamic.hpp"
 #include "../interfaces/Task.hpp"
 #include "../files/engine_paths.hpp"
@@ -13,7 +13,7 @@
 #include "../graphics/ui/gui_util.hpp"
 #include "../graphics/ui/GUI.hpp"
 #include "../logic/scripting/scripting.hpp"
-#include "../settings.hpp"
+#include <settings.hpp>
 #include "../coders/commons.hpp"
 #include "../util/stringutil.hpp"
 #include "../window/Window.hpp"

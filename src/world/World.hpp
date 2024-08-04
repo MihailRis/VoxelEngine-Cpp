@@ -9,7 +9,7 @@
 #include "../content/ContentPack.hpp"
 #include "../data/dynamic.hpp"
 #include "../interfaces/Serializable.hpp"
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 #include "../util/timeutil.hpp"
 
 class Content;

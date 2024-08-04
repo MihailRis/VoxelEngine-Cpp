@@ -5,8 +5,8 @@
 #include <string>
 
 #include "../../data/dynamic.hpp"
-#include "../../delegates.hpp"
-#include "../../typedefs.hpp"
+#include <delegates.hpp>
+#include <typedefs.hpp>
 
 namespace scripting {
     using common_func =

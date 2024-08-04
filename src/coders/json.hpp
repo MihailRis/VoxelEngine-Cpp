@@ -4,7 +4,7 @@
 #include <string>
 
 #include "../data/dynamic.hpp"
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 #include "binary_json.hpp"
 
 namespace json {

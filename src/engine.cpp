@@ -12,7 +12,7 @@
 #include "content/Content.hpp"
 #include "content/ContentBuilder.hpp"
 #include "content/ContentLoader.hpp"
-#include "core_defs.hpp"
+#include <core_defs.hpp>
 #include "files/files.hpp"
 #include "files/settings_io.hpp"
 #include "frontend/locale.hpp"
@@ -37,7 +37,7 @@
 #include "window/input.hpp"
 #include "window/Window.hpp"
 #include "world/WorldGenerators.hpp"
-#include "settings.hpp"
+#include <settings.hpp>
 
 #include <iostream>
 #include <assert.h>

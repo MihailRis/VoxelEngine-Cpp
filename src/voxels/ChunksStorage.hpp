@@ -4,7 +4,7 @@
 #include <memory>
 #include <unordered_map>
 
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 #include "voxel.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL

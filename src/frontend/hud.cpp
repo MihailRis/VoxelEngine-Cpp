@@ -6,9 +6,9 @@
 
 #include "../assets/Assets.hpp"
 #include "../content/Content.hpp"
-#include "../core_defs.hpp"
-#include "../delegates.hpp"
-#include "../engine.hpp"
+#include <core_defs.hpp>
+#include <delegates.hpp>
+#include <engine.hpp>
 #include "../graphics/core/Atlas.hpp"
 #include "../graphics/core/Batch2D.hpp"
 #include "../graphics/core/Batch3D.hpp"
@@ -32,7 +32,7 @@
 #include "../maths/voxmaths.hpp"
 #include "../objects/Player.hpp"
 #include "../physics/Hitbox.hpp"
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 #include "../util/stringutil.hpp"
 #include "../voxels/Block.hpp"
 #include "../voxels/Chunk.hpp"

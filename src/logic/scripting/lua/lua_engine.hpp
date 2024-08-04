@@ -5,7 +5,7 @@
 #include <string>
 
 #include "../../../data/dynamic.hpp"
-#include "../../../delegates.hpp"
+#include <delegates.hpp>
 #include "../scripting_functional.hpp"
 #include "lua_util.hpp"
 

@@ -7,7 +7,7 @@
 #include "../lighting/Lightmap.hpp"
 #include "../maths/voxmaths.hpp"
 #include "../objects/Entities.hpp"
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 #include "../world/Level.hpp"
 #include "../world/World.hpp"
 #include "Block.hpp"

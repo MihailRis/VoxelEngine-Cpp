@@ -1,5 +1,5 @@
-#include "engine.hpp"
-#include "settings.hpp"
+#include <engine.hpp>
+#include <settings.hpp>
 #include "files/settings_io.hpp"
 #include "files/engine_paths.hpp"
 #include "util/platform.hpp"

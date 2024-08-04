@@ -1,8 +1,8 @@
 #ifndef LIGHTING_LIGHTMAP_HPP_
 #define LIGHTING_LIGHTMAP_HPP_
 
-#include "../constants.hpp"
-#include "../typedefs.hpp"
+#include <constants.hpp>
+#include <typedefs.hpp>
 
 #include <memory>
 

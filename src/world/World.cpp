@@ -11,7 +11,7 @@
 #include "../items/Inventories.hpp"
 #include "../objects/Entities.hpp"
 #include "../objects/Player.hpp"
-#include "../settings.hpp"
+#include <settings.hpp>
 #include "../voxels/Chunk.hpp"
 #include "../voxels/Chunks.hpp"
 #include "../voxels/ChunksStorage.hpp"

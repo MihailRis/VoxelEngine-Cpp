@@ -3,7 +3,7 @@
 
 #include "../../../assets/Assets.hpp"
 #include "../../../assets/AssetsLoader.hpp"
-#include "../../../engine.hpp"
+#include <engine.hpp>
 #include "../../../files/engine_paths.hpp"
 #include "../../../world/Level.hpp"
 #include "../../../world/World.hpp"
