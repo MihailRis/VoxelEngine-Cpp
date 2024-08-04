@@ -5,9 +5,9 @@
 #include <utility>
 
 #include <content/ContentLUT.hpp>
-#include "../items/Inventory.hpp"
-#include "../objects/Entities.hpp"
-#include "../objects/rigging.hpp"
+#include <items/Inventory.hpp>
+#include "Entities.hpp"
+#include "rigging.hpp"
 #include "../physics/Hitbox.hpp"
 #include "../physics/PhysicsSolver.hpp"
 #include "../voxels/Chunks.hpp"

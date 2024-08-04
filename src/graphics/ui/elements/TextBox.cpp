@@ -8,7 +8,7 @@
 #include <graphics/core/Batch2D.hpp>
 #include <graphics/core/Font.hpp>
 #include <assets/Assets.hpp>
-#include "../../../util/stringutil.hpp"
+#include <util/stringutil.hpp>
 #include "../../../window/Events.hpp"
 #include "../../../window/Window.hpp"
 

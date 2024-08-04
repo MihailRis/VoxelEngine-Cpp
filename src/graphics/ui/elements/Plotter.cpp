@@ -4,7 +4,7 @@
 #include <graphics/core/Font.hpp>
 #include <graphics/core/DrawContext.hpp>
 #include <assets/Assets.hpp>
-#include "../../../util/stringutil.hpp"
+#include <util/stringutil.hpp>
 
 using namespace gui;
 

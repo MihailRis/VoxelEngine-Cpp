@@ -9,8 +9,8 @@
 #include "../data/dynamic.hpp"
 #include <debug/Logger.hpp>
 #include <files/files.hpp>
-#include "../objects/Player.hpp"
-#include "../util/ThreadPool.hpp"
+#include <objects/Player.hpp>
+#include <util/ThreadPool.hpp>
 #include "../voxels/Chunk.hpp"
 #include "WorldFiles.hpp"
 

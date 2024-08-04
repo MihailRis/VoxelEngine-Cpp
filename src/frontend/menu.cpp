@@ -15,7 +15,7 @@
 #include "../logic/scripting/scripting.hpp"
 #include <settings.hpp>
 #include <coders/commons.hpp>
-#include "../util/stringutil.hpp"
+#include <util/stringutil.hpp>
 #include "../window/Window.hpp"
 
 #include <filesystem>

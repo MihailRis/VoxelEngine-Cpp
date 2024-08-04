@@ -9,7 +9,7 @@
 #include <content/ContentPack.hpp>
 #include <content/PacksManager.hpp>
 #include <files/engine_paths.hpp>
-#include "util/ObjectsKeeper.hpp"
+#include <util/ObjectsKeeper.hpp>
 
 #include <filesystem>
 #include <memory>

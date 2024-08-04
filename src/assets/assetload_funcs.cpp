@@ -22,7 +22,7 @@
 #include <graphics/core/Shader.hpp>
 #include <graphics/core/Texture.hpp>
 #include <graphics/core/TextureAnimation.hpp>
-#include "../objects/rigging.hpp"
+#include <objects/rigging.hpp>
 #include "Assets.hpp"
 #include "AssetsLoader.hpp"
 

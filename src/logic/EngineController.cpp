@@ -17,7 +17,7 @@
 #include <graphics/ui/elements/Menu.hpp>
 #include <graphics/ui/gui_util.hpp>
 #include "../interfaces/Task.hpp"
-#include "../util/stringutil.hpp"
+#include <util/stringutil.hpp>
 #include "../world/Level.hpp"
 #include "../world/World.hpp"
 #include "LevelController.hpp"

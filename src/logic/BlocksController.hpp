@@ -6,7 +6,7 @@
 
 #include "../maths/fastmaths.hpp"
 #include <typedefs.hpp>
-#include "../util/Clock.hpp"
+#include <util/Clock.hpp>
 #include "../voxels/voxel.hpp"
 
 class Player;

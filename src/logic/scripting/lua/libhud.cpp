@@ -7,10 +7,10 @@
 #include "../../../frontend/UiDocument.hpp"
 #include "../../../frontend/hud.hpp"
 #include <graphics/ui/elements/InventoryView.hpp>
-#include "../../../items/Inventories.hpp"
+#include <items/Inventories.hpp>
 #include "../../../logic/BlocksController.hpp"
-#include "../../../objects/Player.hpp"
-#include "../../../util/stringutil.hpp"
+#include <objects/Player.hpp>
+#include <util/stringutil.hpp>
 #include "../../../voxels/Block.hpp"
 #include "../../../voxels/Chunks.hpp"
 #include "../../../voxels/voxel.hpp"

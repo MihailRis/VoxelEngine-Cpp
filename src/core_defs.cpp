@@ -1,6 +1,6 @@
 #include "core_defs.hpp"
 
-#include "items/ItemDef.hpp"
+#include <items/ItemDef.hpp>
 #include <content/Content.hpp>
 #include <content/ContentBuilder.hpp>
 #include <files/files.hpp>

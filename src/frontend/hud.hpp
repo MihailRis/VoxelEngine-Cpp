@@ -2,7 +2,7 @@
 #define FRONTEND_HUD_HPP_
 
 #include <typedefs.hpp>
-#include "../util/ObjectsKeeper.hpp"
+#include <util/ObjectsKeeper.hpp>
 
 #include <string>
 #include <memory>

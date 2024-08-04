@@ -2,7 +2,7 @@
 
 #include <coders/json.hpp>
 #include <debug/Logger.hpp>
-#include "../../util/stringutil.hpp"
+#include <util/stringutil.hpp>
 #include "lua/lua_engine.hpp"
 
 using namespace scripting;

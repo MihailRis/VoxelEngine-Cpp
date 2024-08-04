@@ -11,7 +11,7 @@
 #ifdef _WIN32
 #include <Windows.h>
 
-#include "./stringutil.hpp"
+#include "stringutil.hpp"
 
 void platform::configure_encoding() {
     // set utf-8 encoding to console output

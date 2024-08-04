@@ -10,11 +10,11 @@
 #include <graphics/ui/elements/InputBindBox.hpp>
 #include <graphics/render/WorldRenderer.hpp>
 #include "../logic/scripting/scripting.hpp"
-#include "../objects/Player.hpp"
-#include "../objects/Entities.hpp"
-#include "../objects/EntityDef.hpp"
+#include <objects/Player.hpp>
+#include <objects/Entities.hpp>
+#include <objects/EntityDef.hpp>
 #include "../physics/Hitbox.hpp"
-#include "../util/stringutil.hpp"
+#include <util/stringutil.hpp>
 #include "../voxels/Block.hpp"
 #include "../voxels/Chunk.hpp"
 #include "../voxels/Chunks.hpp"

@@ -7,7 +7,7 @@
 #include <utility>
 
 #include <typedefs.hpp>
-#include "../util/stringutil.hpp"
+#include <util/stringutil.hpp>
 #include "WorldFiles.hpp"
 
 const fs::path SCREENSHOTS_FOLDER {"screenshots"};

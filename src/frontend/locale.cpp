@@ -6,7 +6,7 @@
 #include <coders/commons.hpp>
 #include <content/ContentPack.hpp>
 #include <files/files.hpp>
-#include "../util/stringutil.hpp"
+#include <util/stringutil.hpp>
 #include "../data/dynamic.hpp"
 #include <debug/Logger.hpp>
 

@@ -2,7 +2,7 @@
 #include "../../../frontend/hud.hpp"
 #include "../../../frontend/screens/Screen.hpp"
 #include <graphics/ui/GUI.hpp>
-#include "../../../util/stringutil.hpp"
+#include <util/stringutil.hpp>
 #include "../../../window/Events.hpp"
 #include "../../../window/input.hpp"
 #include "api_lua.hpp"

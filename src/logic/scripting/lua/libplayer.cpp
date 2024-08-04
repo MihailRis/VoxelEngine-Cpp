@@ -1,9 +1,9 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 
-#include "../../../items/Inventory.hpp"
-#include "../../../objects/Entities.hpp"
-#include "../../../objects/Player.hpp"
+#include <items/Inventory.hpp>
+#include <objects/Entities.hpp>
+#include <objects/Player.hpp>
 #include "../../../physics/Hitbox.hpp"
 #include "../../../window/Camera.hpp"
 #include "../../../world/Level.hpp"

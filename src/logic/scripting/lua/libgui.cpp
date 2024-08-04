@@ -12,8 +12,8 @@
 #include <graphics/ui/elements/TrackBar.hpp>
 #include <graphics/ui/elements/UINode.hpp>
 #include <graphics/ui/gui_util.hpp>
-#include "../../../items/Inventories.hpp"
-#include "../../../util/stringutil.hpp"
+#include <items/Inventories.hpp>
+#include <util/stringutil.hpp>
 #include "../../../world/Level.hpp"
 #include "api_lua.hpp"
 

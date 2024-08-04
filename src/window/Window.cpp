@@ -11,7 +11,7 @@
 #include <graphics/core/ImageData.hpp>
 #include <graphics/core/Texture.hpp>
 #include <settings.hpp>
-#include "../util/ObjectsKeeper.hpp"
+#include <util/ObjectsKeeper.hpp>
 #include "Events.hpp"
 
 static debug::Logger logger("window");

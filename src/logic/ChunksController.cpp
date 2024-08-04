@@ -10,7 +10,7 @@
 #include <graphics/core/Mesh.hpp>
 #include "../lighting/Lighting.hpp"
 #include "../maths/voxmaths.hpp"
-#include "../util/timeutil.hpp"
+#include <util/timeutil.hpp>
 #include "../voxels/Block.hpp"
 #include "../voxels/Chunk.hpp"
 #include "../voxels/Chunks.hpp"

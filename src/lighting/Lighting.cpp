@@ -7,7 +7,7 @@
 #include "../voxels/voxel.hpp"
 #include "../voxels/Block.hpp"
 #include <constants.hpp>
-#include "../util/timeutil.hpp"
+#include <util/timeutil.hpp>
 
 #include <memory>
 

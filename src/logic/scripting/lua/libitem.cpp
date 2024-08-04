@@ -1,5 +1,5 @@
 #include <content/Content.hpp>
-#include "../../../items/ItemDef.hpp"
+#include <items/ItemDef.hpp>
 #include "api_lua.hpp"
 
 using namespace scripting;

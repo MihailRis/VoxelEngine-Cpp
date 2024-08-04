@@ -15,7 +15,7 @@
 #include "../maths/aabb.hpp"
 #include "../maths/rays.hpp"
 #include "../maths/voxmaths.hpp"
-#include "../objects/Entities.hpp"
+#include <objects/Entities.hpp>
 #include "../world/Level.hpp"
 #include "../world/LevelEvents.hpp"
 #include "Block.hpp"

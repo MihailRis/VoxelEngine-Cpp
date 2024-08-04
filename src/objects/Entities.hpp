@@ -9,7 +9,7 @@
 #include "../data/dynamic.hpp"
 #include "../physics/Hitbox.hpp"
 #include <typedefs.hpp>
-#include "../util/Clock.hpp"
+#include <util/Clock.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <entt/entity/registry.hpp>
 #include <glm/gtx/norm.hpp>

@@ -2,11 +2,11 @@
 
 #include <content/Content.hpp>
 #include "../data/dynamic_util.hpp"
-#include "../items/Inventories.hpp"
-#include "../items/Inventory.hpp"
+#include <items/Inventories.hpp>
+#include <items/Inventory.hpp>
 #include "../lighting/Lighting.hpp"
-#include "../objects/Entities.hpp"
-#include "../objects/Player.hpp"
+#include <objects/Entities.hpp>
+#include <objects/Player.hpp>
 #include "../physics/Hitbox.hpp"
 #include "../physics/PhysicsSolver.hpp"
 #include <settings.hpp>

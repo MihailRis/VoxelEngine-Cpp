@@ -3,7 +3,7 @@
 #include <utility>
 
 #include <content/ContentLUT.hpp>
-#include "../items/Inventory.hpp"
+#include <items/Inventory.hpp>
 #include "../lighting/Lightmap.hpp"
 #include "voxel.hpp"
 
