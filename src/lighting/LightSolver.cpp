@@ -2,7 +2,7 @@
 #include <assert.h>
 #include "LightSolver.hpp"
 #include "Lightmap.hpp"
-#include "../content/Content.hpp"
+#include <content/Content.hpp>
 #include "../voxels/Chunks.hpp"
 #include "../voxels/Chunk.hpp"
 #include "../voxels/voxel.hpp"

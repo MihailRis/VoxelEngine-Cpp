@@ -4,7 +4,7 @@
 
 #include <coders/json.hpp>
 #include <coders/commons.hpp>
-#include "../content/ContentPack.hpp"
+#include <content/ContentPack.hpp>
 #include "../files/files.hpp"
 #include "../util/stringutil.hpp"
 #include "../data/dynamic.hpp"

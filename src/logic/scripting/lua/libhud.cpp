@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include <assets/Assets.hpp>
-#include "../../../content/Content.hpp"
+#include <content/Content.hpp>
 #include <engine.hpp>
 #include "../../../frontend/UiDocument.hpp"
 #include "../../../frontend/hud.hpp"

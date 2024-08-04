@@ -4,7 +4,7 @@
 #include <string>
 
 #include <assets/AssetsLoader.hpp>
-#include "../../../content/Content.hpp"
+#include <content/Content.hpp>
 #include <engine.hpp>
 #include "../../../files/WorldFiles.hpp"
 #include "../../../files/engine_paths.hpp"

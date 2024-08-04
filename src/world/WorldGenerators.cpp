@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "../content/Content.hpp"
+#include <content/Content.hpp>
 #include "../voxels/FlatWorldGenerator.hpp"
 #include "../voxels/WorldGenerator.hpp"
 

@@ -1,6 +1,6 @@
 #include "libentity.hpp"
 
-#include "../../../content/Content.hpp"
+#include <content/Content.hpp>
 #include <engine.hpp>
 #include "../../../objects/Entities.hpp"
 #include "../../../objects/EntityDef.hpp"

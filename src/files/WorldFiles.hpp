@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "../content/ContentPack.hpp"
+#include <content/ContentPack.hpp>
 #include <typedefs.hpp>
 #include "../voxels/Chunk.hpp"
 #include "WorldRegions.hpp"

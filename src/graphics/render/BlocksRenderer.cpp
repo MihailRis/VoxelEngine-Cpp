@@ -3,7 +3,7 @@
 #include "../core/Mesh.hpp"
 #include "../../maths/UVRegion.hpp"
 #include <constants.hpp>
-#include "../../content/Content.hpp"
+#include <content/Content.hpp>
 #include "../../voxels/Block.hpp"
 #include "../../voxels/Chunk.hpp"
 #include "../../voxels/VoxelsVolume.hpp"

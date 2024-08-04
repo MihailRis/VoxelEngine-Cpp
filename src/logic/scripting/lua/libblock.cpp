@@ -1,4 +1,4 @@
-#include "../../../content/Content.hpp"
+#include <content/Content.hpp>
 #include "../../../lighting/Lighting.hpp"
 #include "../../../logic/BlocksController.hpp"
 #include "../../../logic/LevelController.hpp"

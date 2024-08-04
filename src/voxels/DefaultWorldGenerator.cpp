@@ -14,7 +14,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "../content/Content.hpp"
+#include <content/Content.hpp>
 #include <core_defs.hpp>
 #include "../maths/FastNoiseLite.h"
 #include "../maths/util.hpp"

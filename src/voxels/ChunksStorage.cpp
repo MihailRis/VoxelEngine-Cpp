@@ -1,6 +1,6 @@
 #include "ChunksStorage.hpp"
 
-#include "../content/Content.hpp"
+#include <content/Content.hpp>
 #include "../debug/Logger.hpp"
 #include "../files/WorldFiles.hpp"
 #include "../items/Inventories.hpp"

@@ -8,7 +8,7 @@
 #include "../../debug/Logger.hpp"
 #include <engine.hpp>
 #include "../../files/files.hpp"
-#include "../../content/Content.hpp"
+#include <content/Content.hpp>
 #include "../../graphics/core/DrawContext.hpp"
 #include "../../graphics/core/ImageData.hpp"
 #include "../../graphics/core/PostProcessing.hpp"

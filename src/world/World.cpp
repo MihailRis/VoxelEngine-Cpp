@@ -4,8 +4,8 @@
 #include <memory>
 #include <utility>
 
-#include "../content/Content.hpp"
-#include "../content/ContentLUT.hpp"
+#include <content/Content.hpp>
+#include <content/ContentLUT.hpp>
 #include "../debug/Logger.hpp"
 #include "../files/WorldFiles.hpp"
 #include "../items/Inventories.hpp"

@@ -5,7 +5,7 @@
 #include "UiDocument.hpp"
 
 #include <assets/Assets.hpp>
-#include "../content/Content.hpp"
+#include <content/Content.hpp>
 #include <core_defs.hpp>
 #include <delegates.hpp>
 #include <engine.hpp>

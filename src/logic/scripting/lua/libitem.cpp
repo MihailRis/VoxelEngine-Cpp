@@ -1,4 +1,4 @@
-#include "../../../content/Content.hpp"
+#include <content/Content.hpp>
 #include "../../../items/ItemDef.hpp"
 #include "api_lua.hpp"
 

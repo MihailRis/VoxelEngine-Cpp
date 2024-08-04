@@ -1,8 +1,8 @@
 #include "core_defs.hpp"
 
 #include "items/ItemDef.hpp"
-#include "content/Content.hpp"
-#include "content/ContentBuilder.hpp"
+#include <content/Content.hpp>
+#include <content/ContentBuilder.hpp>
 #include "files/files.hpp"
 #include "files/engine_paths.hpp"
 #include "window/Window.hpp"

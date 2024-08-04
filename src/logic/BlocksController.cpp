@@ -1,6 +1,6 @@
 #include "BlocksController.hpp"
 
-#include "../content/Content.hpp"
+#include <content/Content.hpp>
 #include "../items/Inventories.hpp"
 #include "../items/Inventory.hpp"
 #include "../lighting/Lighting.hpp"

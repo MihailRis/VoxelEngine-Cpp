@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "../content/Content.hpp"
+#include <content/Content.hpp>
 #include <core_defs.hpp>
 #include "../items/Inventory.hpp"
 #include "../items/ItemDef.hpp"

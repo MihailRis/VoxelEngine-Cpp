@@ -5,7 +5,7 @@
 #include <iostream>
 #include <memory>
 
-#include "../content/Content.hpp"
+#include <content/Content.hpp>
 #include "../files/WorldFiles.hpp"
 #include "../graphics/core/Mesh.hpp"
 #include "../lighting/Lighting.hpp"

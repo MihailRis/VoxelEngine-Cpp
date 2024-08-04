@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "../content/ContentPack.hpp"
+#include <content/ContentPack.hpp>
 
 namespace fs = std::filesystem;
 

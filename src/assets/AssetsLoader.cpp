@@ -6,8 +6,8 @@
 
 #include <coders/imageio.hpp>
 #include <constants.hpp>
-#include "../content/Content.hpp"
-#include "../content/ContentPack.hpp"
+#include <content/Content.hpp>
+#include <content/ContentPack.hpp>
 #include "../data/dynamic.hpp"
 #include "../debug/Logger.hpp"
 #include "../files/engine_paths.hpp"

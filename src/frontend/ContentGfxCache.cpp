@@ -3,8 +3,8 @@
 #include "UiDocument.hpp"
 
 #include <assets/Assets.hpp>
-#include "../content/Content.hpp"
-#include "../content/ContentPack.hpp"
+#include <content/Content.hpp>
+#include <content/ContentPack.hpp>
 #include <core_defs.hpp>
 #include "../graphics/core/Atlas.hpp"
 #include "../maths/UVRegion.hpp"

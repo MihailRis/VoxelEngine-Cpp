@@ -3,8 +3,8 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "../../content/Content.hpp"
-#include "../../content/ContentPack.hpp"
+#include <content/Content.hpp>
+#include <content/ContentPack.hpp>
 #include "../../debug/Logger.hpp"
 #include <engine.hpp>
 #include "../../files/engine_paths.hpp"

@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <utility>
 
-#include "../content/ContentLUT.hpp"
+#include <content/ContentLUT.hpp>
 #include "../items/Inventory.hpp"
 #include "../objects/Entities.hpp"
 #include "../objects/rigging.hpp"
