@@ -16,6 +16,7 @@
 - <kbd>**F1**</kbd> - toggle interface
 - <kbd>**F2**</kbd> - save screenshot
 - <kbd>**F3**</kbd> - debug mode
+- <kbd>**F4**</kbd> - switch camera
 - <kbd>**F5**</kbd> - reload chunks
 
 #### Build with CMake
