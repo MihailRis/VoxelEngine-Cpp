@@ -9,7 +9,7 @@
 #include <coders/json.hpp>
 #include <core_defs.hpp>
 #include "../data/dynamic.hpp"
-#include "../debug/Logger.hpp"
+#include <debug/Logger.hpp>
 #include "../files/files.hpp"
 #include "../items/ItemDef.hpp"
 #include "../logic/scripting/scripting.hpp"

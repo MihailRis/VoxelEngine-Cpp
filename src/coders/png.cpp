@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include "../debug/Logger.hpp"
+#include <debug/Logger.hpp>
 #include "../files/files.hpp"
 #include "../graphics/core/GLTexture.hpp"
 #include "../graphics/core/ImageData.hpp"

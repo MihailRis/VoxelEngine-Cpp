@@ -1,6 +1,6 @@
 #include "scripting_hud.hpp"
 
-#include "../../debug/Logger.hpp"
+#include <debug/Logger.hpp>
 #include <engine.hpp>
 #include "../../files/files.hpp"
 #include "../../frontend/hud.hpp"

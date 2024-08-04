@@ -14,7 +14,7 @@
 #include <content/Content.hpp>
 #include <core_defs.hpp>
 #include "../data/dynamic.hpp"
-#include "../debug/Logger.hpp"
+#include <debug/Logger.hpp>
 #include "../items/Inventory.hpp"
 #include "../items/ItemDef.hpp"
 #include "../lighting/Lightmap.hpp"

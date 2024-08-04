@@ -1,6 +1,6 @@
 #include "ChunksRenderer.hpp"
 #include "BlocksRenderer.hpp"
-#include "../../debug/Logger.hpp"
+#include <debug/Logger.hpp>
 #include "../../graphics/core/Mesh.hpp"
 #include "../../voxels/Chunk.hpp"
 #include "../../world/Level.hpp"

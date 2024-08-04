@@ -5,7 +5,7 @@
 #include "../LevelFrontend.hpp"
 #include "../../audio/audio.hpp"
 #include <coders/imageio.hpp>
-#include "../../debug/Logger.hpp"
+#include <debug/Logger.hpp>
 #include <engine.hpp>
 #include "../../files/files.hpp"
 #include <content/Content.hpp>

@@ -6,7 +6,7 @@
 #include <string>
 
 #include "../audio/audio.hpp"
-#include "../debug/Logger.hpp"
+#include <debug/Logger.hpp>
 #include <typedefs.hpp>
 
 static debug::Logger logger("ogg");

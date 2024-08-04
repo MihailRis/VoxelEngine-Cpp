@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "../audio/audio.hpp"
-#include "../debug/Logger.hpp"
+#include <debug/Logger.hpp>
 
 namespace fs = std::filesystem;
 

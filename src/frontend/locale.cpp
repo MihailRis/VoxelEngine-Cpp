@@ -8,7 +8,7 @@
 #include "../files/files.hpp"
 #include "../util/stringutil.hpp"
 #include "../data/dynamic.hpp"
-#include "../debug/Logger.hpp"
+#include <debug/Logger.hpp>
 
 static debug::Logger logger("locale");
 

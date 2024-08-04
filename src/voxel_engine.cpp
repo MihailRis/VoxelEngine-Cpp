@@ -4,7 +4,7 @@
 #include "files/engine_paths.hpp"
 #include "util/platform.hpp"
 #include "util/command_line.hpp"
-#include "debug/Logger.hpp"
+#include <debug/Logger.hpp>
 
 #include <stdexcept>
 

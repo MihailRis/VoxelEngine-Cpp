@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <string.h>
 
-#include "../debug/Logger.hpp"
+#include <debug/Logger.hpp>
 #include "../util/stringutil.hpp"
 #include "Window.hpp"
 
