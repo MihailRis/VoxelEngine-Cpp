@@ -38,6 +38,7 @@ struct EntityId {
 };
 
 struct Transform {
+    static inline constexpr float EPSILON = 0.0000001f;
     glm::vec3 pos;
     glm::vec3 size;
     glm::mat3 rot;
@@ -55,14 +56,14 @@ struct Transform {
     }
 
     inline void setSize(glm::vec3 v) {
-        if (glm::distance2(displaySize, v) >= 0.00001f) {
+        if (glm::distance2(displaySize, v) >= EPSILON) {
             dirty = true;
         }
         size = v;
     }
 
     inline void setPos(glm::vec3 v) {
-        if (glm::distance2(displayPos, v) >= 0.0001f) {
+        if (glm::distance2(displayPos, v) >= EPSILON) {
             dirty = true;
         }
         pos = v;
