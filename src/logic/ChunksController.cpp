@@ -6,7 +6,7 @@
 #include <memory>
 
 #include <content/Content.hpp>
-#include "../files/WorldFiles.hpp"
+#include <files/WorldFiles.hpp>
 #include "../graphics/core/Mesh.hpp"
 #include "../lighting/Lighting.hpp"
 #include "../maths/voxmaths.hpp"

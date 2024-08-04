@@ -1,7 +1,7 @@
 #include <engine.hpp>
 #include <settings.hpp>
-#include "files/settings_io.hpp"
-#include "files/engine_paths.hpp"
+#include <files/settings_io.hpp>
+#include <files/engine_paths.hpp>
 #include "util/platform.hpp"
 #include "util/command_line.hpp"
 #include <debug/Logger.hpp>

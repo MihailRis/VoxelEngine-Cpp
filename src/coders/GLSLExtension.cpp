@@ -5,8 +5,8 @@
 #include <stdexcept>
 #include <utility>
 
-#include "../files/engine_paths.hpp"
-#include "../files/files.hpp"
+#include <files/engine_paths.hpp>
+#include <files/files.hpp>
 #include <typedefs.hpp>
 #include "../util/stringutil.hpp"
 

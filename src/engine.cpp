@@ -13,8 +13,8 @@
 #include <content/ContentBuilder.hpp>
 #include <content/ContentLoader.hpp>
 #include <core_defs.hpp>
-#include "files/files.hpp"
-#include "files/settings_io.hpp"
+#include <files/files.hpp>
+#include <files/settings_io.hpp>
 #include "frontend/locale.hpp"
 #include "frontend/menu.hpp"
 #include "frontend/screens/Screen.hpp"

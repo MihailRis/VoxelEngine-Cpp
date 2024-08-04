@@ -8,8 +8,8 @@
 #include <content/ContentLUT.hpp>
 #include <debug/Logger.hpp>
 #include <engine.hpp>
-#include "../files/WorldConverter.hpp"
-#include "../files/WorldFiles.hpp"
+#include <files/WorldConverter.hpp>
+#include <files/WorldFiles.hpp>
 #include "../frontend/locale.hpp"
 #include "../frontend/menu.hpp"
 #include "../frontend/screens/LevelScreen.hpp"

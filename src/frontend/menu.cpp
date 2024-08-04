@@ -8,7 +8,7 @@
 #include <engine.hpp>
 #include "../data/dynamic.hpp"
 #include "../interfaces/Task.hpp"
-#include "../files/engine_paths.hpp"
+#include <files/engine_paths.hpp>
 #include "../graphics/ui/elements/Menu.hpp"
 #include "../graphics/ui/gui_util.hpp"
 #include "../graphics/ui/GUI.hpp"

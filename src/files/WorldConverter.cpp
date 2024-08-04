@@ -8,7 +8,7 @@
 #include <content/ContentLUT.hpp>
 #include "../data/dynamic.hpp"
 #include <debug/Logger.hpp>
-#include "../files/files.hpp"
+#include <files/files.hpp>
 #include "../objects/Player.hpp"
 #include "../util/ThreadPool.hpp"
 #include "../voxels/Chunk.hpp"

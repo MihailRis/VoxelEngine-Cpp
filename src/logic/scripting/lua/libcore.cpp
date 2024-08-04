@@ -3,8 +3,8 @@
 
 #include <constants.hpp>
 #include <engine.hpp>
-#include "../../../files/engine_paths.hpp"
-#include "../../../files/settings_io.hpp"
+#include <files/engine_paths.hpp>
+#include <files/settings_io.hpp>
 #include "../../../frontend/menu.hpp"
 #include "../../../frontend/screens/MenuScreen.hpp"
 #include "../../../logic/EngineController.hpp"

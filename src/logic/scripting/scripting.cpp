@@ -7,8 +7,8 @@
 #include <content/ContentPack.hpp>
 #include <debug/Logger.hpp>
 #include <engine.hpp>
-#include "../../files/engine_paths.hpp"
-#include "../../files/files.hpp"
+#include <files/engine_paths.hpp>
+#include <files/files.hpp>
 #include "../../frontend/UiDocument.hpp"
 #include "../../items/Inventory.hpp"
 #include "../../items/ItemDef.hpp"

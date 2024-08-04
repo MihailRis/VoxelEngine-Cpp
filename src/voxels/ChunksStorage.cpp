@@ -2,7 +2,7 @@
 
 #include <content/Content.hpp>
 #include <debug/Logger.hpp>
-#include "../files/WorldFiles.hpp"
+#include <files/WorldFiles.hpp>
 #include "../items/Inventories.hpp"
 #include "../lighting/Lightmap.hpp"
 #include "../maths/voxmaths.hpp"
