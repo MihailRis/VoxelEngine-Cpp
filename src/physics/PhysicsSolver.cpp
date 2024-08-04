@@ -7,6 +7,7 @@
 #include "../voxels/voxel.hpp"
 
 #include <iostream>
+#include <algorithm>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
 
