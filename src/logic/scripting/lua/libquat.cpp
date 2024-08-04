@@ -32,7 +32,8 @@ static int l_tostring(lua::State* L) {
     auto quat = lua::toquat(L, 1);
 
     std::stringstream ss;
-    ss << "quat" << "{";
+    ss << "quat"
+       << "{";
     for (int i = 0; i < 4; i++) {
         if (i > 0) {
             ss << ", ";
@@ -43,9 +44,8 @@ static int l_tostring(lua::State* L) {
     return lua::pushstring(L, ss.str());
 }
 
-const luaL_Reg quatlib [] = {
+const luaL_Reg quatlib[] = {
     {"from_mat4", lua::wrap<l_from_mat4>},
     {"slerp", lua::wrap<l_slerp>},
     {"tostring", lua::wrap<l_tostring>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

@@ -44,12 +44,11 @@ static int l_set_rot(lua::State* L) {
     return 0;
 }
 
-const luaL_Reg transformlib [] = {
+const luaL_Reg transformlib[] = {
     {"get_pos", lua::wrap<l_get_pos>},
     {"set_pos", lua::wrap<l_set_pos>},
     {"get_size", lua::wrap<l_get_size>},
     {"set_size", lua::wrap<l_set_size>},
     {"get_rot", lua::wrap<l_get_rot>},
     {"set_rot", lua::wrap<l_set_rot>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

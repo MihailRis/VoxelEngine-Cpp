@@ -3,12 +3,13 @@
 #include "byte_utils.hpp"
 
 #define ZLIB_CONST
-#include <zlib.h>
 #include <math.h>
+#include <zlib.h>
+
 #include <memory>
 
 std::vector<ubyte> gzip::compress(const ubyte* src, size_t size) {
-    size_t buffer_size = 23+size*1.01;
+    size_t buffer_size = 23 + size * 1.01;
     std::vector<ubyte> buffer;
     buffer.resize(buffer_size);
 
@@ -23,8 +24,14 @@ std::vector<ubyte> gzip::compress(const ubyte* src, size_t size) {
     defstream.next_out = buffer.data();
 
     // compression
-    deflateInit2(&defstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 
-                 16 + MAX_WBITS, 8, Z_DEFAULT_STRATEGY);
+    deflateInit2(
+        &defstream,
+        Z_DEFAULT_COMPRESSION,
+        Z_DEFLATED,
+        16 + MAX_WBITS,
+        8,
+        Z_DEFAULT_STRATEGY
+    );
     deflate(&defstream, Z_FINISH);
     deflateEnd(&defstream);
 
@@ -35,7 +42,8 @@ std::vector<ubyte> gzip::compress(const ubyte* src, size_t size) {
 
 std::vector<ubyte> gzip::decompress(const ubyte* src, size_t size) {
     // getting uncompressed data length from gzip footer
-    size_t decompressed_size = *reinterpret_cast<const uint32_t*>(src+size-4);
+    size_t decompressed_size =
+        *reinterpret_cast<const uint32_t*>(src + size - 4);
     std::vector<ubyte> buffer;
     buffer.resize(decompressed_size);
 
@@ -49,7 +57,7 @@ std::vector<ubyte> gzip::decompress(const ubyte* src, size_t size) {
     infstream.avail_out = decompressed_size;
     infstream.next_out = buffer.data();
 
-    inflateInit2(&infstream, 16+MAX_WBITS);
+    inflateInit2(&infstream, 16 + MAX_WBITS);
     inflate(&infstream, Z_NO_FLUSH);
     inflateEnd(&infstream);
 

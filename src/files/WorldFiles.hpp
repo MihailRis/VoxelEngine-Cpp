@@ -1,19 +1,17 @@
 #ifndef FILES_WORLD_FILES_HPP_
 #define FILES_WORLD_FILES_HPP_
 
-#include "WorldRegions.hpp"
-
-#include "files.hpp"
-#include "../typedefs.hpp"
-#include "../content/ContentPack.hpp"
-#include "../voxels/Chunk.hpp"
-
-#include <vector>
-#include <string>
-#include <memory>
 #include <filesystem>
-
 #include <glm/glm.hpp>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "../content/ContentPack.hpp"
+#include "../typedefs.hpp"
+#include "../voxels/Chunk.hpp"
+#include "WorldRegions.hpp"
+#include "files.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/hash.hpp"
 
@@ -41,8 +39,8 @@ class WorldFiles {
     void writeWorldInfo(const World* world);
     void writeIndices(const ContentIndices* indices);
 public:
-    WorldFiles(const fs::path &directory);
-    WorldFiles(const fs::path &directory, const DebugSettings& settings);
+    WorldFiles(const fs::path& directory);
+    WorldFiles(const fs::path& directory, const DebugSettings& settings);
     ~WorldFiles();
 
     fs::path getPlayerFile() const;
@@ -75,4 +73,4 @@ public:
     }
 };
 
-#endif // FILES_WORLD_FILES_HPP_
+#endif  // FILES_WORLD_FILES_HPP_

@@ -1,25 +1,39 @@
 #include "stringutil.hpp"
 
+#include <algorithm>
 #include <cmath>
-#include <locale>
 #include <iomanip>
+#include <locale>
 #include <sstream>
 #include <stdexcept>
-#include <algorithm>
 
-// TODO: finish 
+// TODO: finish
 std::string util::escape(const std::string& s) {
     std::stringstream ss;
     ss << '"';
     for (char c : s) {
         switch (c) {
-            case '\n': ss << "\\n"; break;
-            case '\r': ss << "\\r"; break;
-            case '\t': ss << "\\t"; break;
-            case '\f': ss << "\\f"; break;
-            case '\b': ss << "\\b"; break;
-            case '"': ss << "\\\""; break;
-            case '\\': ss << "\\\\"; break;
+            case '\n':
+                ss << "\\n";
+                break;
+            case '\r':
+                ss << "\\r";
+                break;
+            case '\t':
+                ss << "\\t";
+                break;
+            case '\f':
+                ss << "\\f";
+                break;
+            case '\b':
+                ss << "\\b";
+                break;
+            case '"':
+                ss << "\\\"";
+                break;
+            case '\\':
+                ss << "\\\\";
+                break;
             default:
                 if (c < ' ') {
                     ss << "\\" << std::oct << uint(ubyte(c));
@@ -42,7 +56,7 @@ std::wstring util::lfill(std::wstring s, uint length, wchar_t c) {
         return s;
     }
     std::wstringstream ss;
-    for (uint i = 0; i < length-s.length(); i++) {
+    for (uint i = 0; i < length - s.length(); i++) {
         ss << c;
     }
     ss << s;
@@ -55,7 +69,7 @@ std::wstring util::rfill(std::wstring s, uint length, wchar_t c) {
     }
     std::wstringstream ss;
     ss << s;
-    for (uint i = 0; i < length-s.length(); i++) {
+    for (uint i = 0; i < length - s.length(); i++) {
         ss << c;
     }
     return ss.str();
@@ -93,24 +107,23 @@ struct utf_t {
 
 const utf_t utf[] = {
     /* mask             lead              beg      end     bits */
-    {(char)0b00111111, (char)0b10000000, 0,       0,        6},
-    {(char)0b01111111, (char)0b00000000, 0000,    0177,     7},
-    {(char)0b00011111, (char)0b11000000, 0200,    03777,    5},
-    {(char)0b00001111, (char)0b11100000, 04000,   0177777,  4},
+    {(char)0b00111111, (char)0b10000000, 0, 0, 6},
+    {(char)0b01111111, (char)0b00000000, 0000, 0177, 7},
+    {(char)0b00011111, (char)0b11000000, 0200, 03777, 5},
+    {(char)0b00001111, (char)0b11100000, 04000, 0177777, 4},
     {(char)0b00000111, (char)0b11110000, 0200000, 04177777, 3},
     {0, 0, 0, 0, 0},
 };
 
-
 inline uint utf8_len(ubyte cp) {
     uint len = 0;
     for (const utf_t* u = utf; u->mask; ++u) {
-        if((cp >= u->beg) && (cp <= u->end)) {
+        if ((cp >= u->beg) && (cp <= u->end)) {
             break;
         }
         ++len;
     }
-    if(len > 4) /* Out of bounds */
+    if (len > 4) /* Out of bounds */
         throw std::runtime_error("utf-8 decode error");
 
     return len;
@@ -121,7 +134,7 @@ extern uint32_t util::decode_utf8(uint& size, const char* chr) {
     int shift = utf[0].bits_stored * (size - 1);
     uint32_t code = (*chr++ & utf[size].mask) << shift;
 
-    for(uint i = 1; i < size; ++i, ++chr) {
+    for (uint i = 1; i < size; ++i, ++chr) {
         shift -= utf[0].bits_stored;
         code |= ((char)*chr & utf[0].mask) << shift;
     }
@@ -153,16 +166,14 @@ std::wstring util::str2wstr_utf8(const std::string& s) {
 
 bool util::is_integer(const std::string& text) {
     for (char c : text) {
-        if (c < '0' || c > '9')
-            return false;
+        if (c < '0' || c > '9') return false;
     }
     return true;
 }
 
 bool util::is_integer(const std::wstring& text) {
     for (wchar_t c : text) {
-        if (c < L'0' || c > L'9')
-            return false;
+        if (c < L'0' || c > L'9') return false;
     }
     return true;
 }
@@ -170,26 +181,31 @@ bool util::is_integer(const std::wstring& text) {
 bool util::is_valid_filename(const std::wstring& name) {
     for (wchar_t c : name) {
         if (c < 31 || c == '/' || c == '\\' || c == '<' || c == '>' ||
-            c == ':' || c == '"' || c == '|' || c == '?' || c == '*'){
+            c == ':' || c == '"' || c == '|' || c == '?' || c == '*') {
             return false;
         }
     }
     return true;
 }
 
-void util::ltrim(std::string &s) {
+void util::ltrim(std::string& s) {
     s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
-        return !std::isspace(ch);
-    }));
+                return !std::isspace(ch);
+            }));
 }
 
-void util::rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
-        return !std::isspace(ch);
-    }).base(), s.end());
+void util::rtrim(std::string& s) {
+    s.erase(
+        std::find_if(
+            s.rbegin(),
+            s.rend(),
+            [](unsigned char ch) { return !std::isspace(ch); }
+        ).base(),
+        s.end()
+    );
 }
 
-void util::trim(std::string &s) {
+void util::trim(std::string& s) {
     rtrim(s);
     ltrim(s);
 }
@@ -198,7 +214,7 @@ std::string util::to_string(double x) {
     std::stringstream ss;
     ss << std::setprecision(6);
     ss << x;
-    return ss.str(); 
+    return ss.str();
 }
 
 std::wstring util::to_wstring(double x, int precision) {
@@ -207,59 +223,56 @@ std::wstring util::to_wstring(double x, int precision) {
     return ss.str();
 }
 
-const char B64ABC[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                      "abcdefghijklmnopqrstuvwxyz"
-                      "0123456789"
-                      "+/";
+const char B64ABC[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789"
+    "+/";
 
 inline ubyte base64_decode_char(char c) {
-    if (c >= 'A' && c <= 'Z')
-        return c - 'A';
-    if (c >= 'a' && c <= 'z')
-        return c - 'a' + 26;
-    if (c >= '0' && c <= '9')
-        return c - '0' + 52;
-    if (c == '+')
-        return 62;
-    if (c == '/')
-        return 63;
+    if (c >= 'A' && c <= 'Z') return c - 'A';
+    if (c >= 'a' && c <= 'z') return c - 'a' + 26;
+    if (c >= '0' && c <= '9') return c - '0' + 52;
+    if (c == '+') return 62;
+    if (c == '/') return 63;
     return 0;
 }
 
 inline void base64_encode_(const ubyte* segment, char* output) {
     output[0] = B64ABC[(segment[0] & 0b11111100) >> 2];
-    output[1] = B64ABC[((segment[0] & 0b11) << 4) | ((segment[1] & 0b11110000) >> 4)];
-    output[2] = B64ABC[((segment[1] & 0b1111) << 2) | ((segment[2] & 0b11000000) >> 6)];
+    output[1] =
+        B64ABC[((segment[0] & 0b11) << 4) | ((segment[1] & 0b11110000) >> 4)];
+    output[2] =
+        B64ABC[((segment[1] & 0b1111) << 2) | ((segment[2] & 0b11000000) >> 6)];
     output[3] = B64ABC[segment[2] & 0b111111];
 }
 
 std::string util::base64_encode(const ubyte* data, size_t size) {
     std::stringstream ss;
 
-    size_t fullsegments = (size/3)*3;
+    size_t fullsegments = (size / 3) * 3;
 
     size_t i = 0;
-    for (; i < fullsegments; i+=3) {
+    for (; i < fullsegments; i += 3) {
         char output[] = "====";
-        base64_encode_(data+i, output);
+        base64_encode_(data + i, output);
         ss << output;
     }
 
     ubyte ending[3] {};
     for (; i < size; i++) {
-        ending[i-fullsegments] = data[i];
+        ending[i - fullsegments] = data[i];
     }
-    size_t trailing = size-fullsegments;
+    size_t trailing = size - fullsegments;
     {
         char output[] = "====";
         output[0] = B64ABC[(ending[0] & 0b11111100) >> 2];
-        output[1] = B64ABC[((ending[0] & 0b11) << 4) | 
-                           ((ending[1] & 0b11110000) >> 4)];
+        output[1] =
+            B64ABC[((ending[0] & 0b11) << 4) | ((ending[1] & 0b11110000) >> 4)];
         if (trailing > 1)
-            output[2] = B64ABC[((ending[1] & 0b1111) << 2) | 
-                               ((ending[2] & 0b11000000) >> 6)];
-        if (trailing > 2)
-            output[3] = B64ABC[ending[2] & 0b111111];
+            output[2] = B64ABC
+                [((ending[1] & 0b1111) << 2) | ((ending[2] & 0b11000000) >> 6)];
+        if (trailing > 2) output[3] = B64ABC[ending[2] & 0b111111];
         ss << output;
     }
     return ss.str();
@@ -273,7 +286,7 @@ std::string util::mangleid(uint64_t value) {
 }
 
 std::vector<ubyte> util::base64_decode(const char* str, size_t size) {
-    std::vector<ubyte> bytes((size/4)*3);
+    std::vector<ubyte> bytes((size / 4) * 3);
     ubyte* dst = bytes.data();
     for (size_t i = 0; i < size;) {
         ubyte a = base64_decode_char(ubyte(str[i++]));
@@ -286,8 +299,8 @@ std::vector<ubyte> util::base64_decode(const char* str, size_t size) {
     }
     if (size >= 2) {
         size_t outsize = bytes.size();
-        if (str[size-1] == '=') outsize--;
-        if (str[size-2] == '=') outsize--;
+        if (str[size - 1] == '=') outsize--;
+        if (str[size - 2] == '=') outsize--;
         bytes.resize(outsize);
     }
     return bytes;
@@ -297,13 +310,14 @@ std::vector<ubyte> util::base64_decode(const std::string& str) {
     return base64_decode(str.c_str(), str.size());
 }
 
-int util::replaceAll(std::string& str, const std::string& from, const std::string& to) {
+int util::replaceAll(
+    std::string& str, const std::string& from, const std::string& to
+) {
     int count = 0;
     size_t offset = 0;
     while (true) {
         size_t start_pos = str.find(from, offset);
-        if(start_pos == std::string::npos)
-            break;
+        if (start_pos == std::string::npos) break;
         str.replace(start_pos, from.length(), to);
         offset = start_pos + to.length();
         count++;
@@ -321,7 +335,7 @@ double util::parse_double(const std::string& str) {
     if (ss.fail()) {
         throw std::runtime_error("invalid number format");
     }
-    return d;    
+    return d;
 }
 
 double util::parse_double(const std::string& str, size_t offset, size_t len) {
@@ -347,15 +361,14 @@ std::wstring util::upper_case(const std::wstring& str) {
 }
 
 std::wstring util::capitalized(const std::wstring& str) {
-    if (str.empty())
-        return str;
+    if (str.empty()) return str;
     static const std::locale loc("");
-    return std::wstring({static_cast<wchar_t>(std::toupper(str[0], loc))}) + str.substr(1);
+    return std::wstring({static_cast<wchar_t>(std::toupper(str[0], loc))}) +
+           str.substr(1);
 }
 
 std::wstring util::pascal_case(const std::wstring& str) {
-    if (str.empty())
-        return str;
+    if (str.empty()) return str;
     static const std::locale loc("");
     std::wstring result = str;
     bool upper = true;
@@ -375,14 +388,15 @@ std::string util::id_to_caption(const std::string& id) {
     std::string result = id;
 
     size_t index = result.find(':');
-    if (index < result.length()-1) {
-        result = result.substr(index+1);
+    if (index < result.length() - 1) {
+        result = result.substr(index + 1);
     } else {
         return "";
     }
     size_t offset = 0;
-    for (; offset < result.length() && result[offset] == '_'; offset++) {}
-    
+    for (; offset < result.length() && result[offset] == '_'; offset++) {
+    }
+
     for (; offset < result.length(); offset++) {
         if (result[offset] == '_') {
             result[offset] = ' ';
@@ -427,11 +441,10 @@ std::vector<std::wstring> util::split(const std::wstring& str, char delimiter) {
 
 std::string util::format_data_size(size_t size) {
     if (size < 1024) {
-        return std::to_string(size)+" B";
+        return std::to_string(size) + " B";
     }
     const std::string postfixes[] {
-        " B", " KiB", " MiB", " GiB", " TiB", " EiB", " PiB"
-    };
+        " B", " KiB", " MiB", " GiB", " TiB", " EiB", " PiB"};
     int group = 0;
     size_t remainder = 0;
     while (size >= 1024) {
@@ -439,18 +452,19 @@ std::string util::format_data_size(size_t size) {
         remainder = size % 1024;
         size /= 1024;
     }
-    return std::to_string(size)+"."+
-           std::to_string(static_cast<int>(round(remainder/1024.0f)))+
+    return std::to_string(size) + "." +
+           std::to_string(static_cast<int>(round(remainder / 1024.0f))) +
            postfixes[group];
 }
 
-std::pair<std::string, std::string> util::split_at(std::string_view view, char c) {
+std::pair<std::string, std::string> util::split_at(
+    std::string_view view, char c
+) {
     size_t idx = view.find(c);
     if (idx == std::string::npos) {
-        throw std::runtime_error(util::quote(std::string({c}))+" not found");
+        throw std::runtime_error(util::quote(std::string({c})) + " not found");
     }
     return std::make_pair(
-        std::string(view.substr(0, idx)), 
-        std::string(view.substr(idx+1))
+        std::string(view.substr(0, idx)), std::string(view.substr(idx + 1))
     );
 }

@@ -1,12 +1,12 @@
 #ifndef UTIL_RUNNABLES_LIST_HPP_
 #define UTIL_RUNNABLES_LIST_HPP_
 
-#include "../typedefs.hpp"
-#include "../delegates.hpp"
-
 #include <memory>
 #include <unordered_map>
 #include <utility>
+
+#include "../delegates.hpp"
+#include "../typedefs.hpp"
 
 namespace util {
     class RunnablesList {
@@ -16,7 +16,7 @@ namespace util {
         observer_handler add(runnable callback) {
             int id = nextid++;
             runnables[id] = std::move(callback);
-            return observer_handler(new int(id), [this](int* id) {
+            return observer_handler(new int(id), [this](int* id) { //-V508
                 runnables.erase(*id);
                 delete id;
             });
@@ -30,4 +30,4 @@ namespace util {
     };
 }
 
-#endif // UTIL_RUNNABLES_LIST_HPP_
+#endif  // UTIL_RUNNABLES_LIST_HPP_

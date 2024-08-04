@@ -20,8 +20,7 @@ Lighting::Lighting(const Content* content, Chunks* chunks)
     solverS = std::make_unique<LightSolver>(indices, chunks, 3);
 }
 
-Lighting::~Lighting(){
-}
+Lighting::~Lighting() = default;
 
 void Lighting::clear(){
     for (size_t index = 0; index < chunks->volume; index++){
@@ -150,7 +149,7 @@ void Lighting::onChunkLoaded(int cx, int cz, bool expand){
 }
 
 void Lighting::onBlockSet(int x, int y, int z, blockid_t id){
-    Block* block = content->getIndices()->blocks.get(id);
+    const auto& block = content->getIndices()->blocks.require(id);
     solverR->remove(x,y,z);
     solverG->remove(x,y,z);
     solverB->remove(x,y,z);
@@ -162,7 +161,7 @@ void Lighting::onBlockSet(int x, int y, int z, blockid_t id){
         if (chunks->getLight(x,y+1,z, 3) == 0xF){
             for (int i = y; i >= 0; i--){
                 voxel* vox = chunks->get(x,i,z);
-                if ((vox == nullptr || vox->id != 0) && block->skyLightPassing)
+                if ((vox == nullptr || vox->id != 0) && block.skyLightPassing)
                     break;
                 solverS->add(x,i,z, 0xF);
             }
@@ -178,7 +177,7 @@ void Lighting::onBlockSet(int x, int y, int z, blockid_t id){
         solverB->solve();
         solverS->solve();
     } else {
-        if (!block->skyLightPassing){
+        if (!block.skyLightPassing){
             solverS->remove(x,y,z);
             for (int i = y-1; i >= 0; i--){
                 solverS->remove(x,i,z);
@@ -192,10 +191,10 @@ void Lighting::onBlockSet(int x, int y, int z, blockid_t id){
         solverG->solve();
         solverB->solve();
 
-        if (block->emission[0] || block->emission[1] || block->emission[2]){
-            solverR->add(x,y,z,block->emission[0]);
-            solverG->add(x,y,z,block->emission[1]);
-            solverB->add(x,y,z,block->emission[2]);
+        if (block.emission[0] || block.emission[1] || block.emission[2]){
+            solverR->add(x,y,z,block.emission[0]);
+            solverG->add(x,y,z,block.emission[1]);
+            solverB->add(x,y,z,block.emission[2]);
             solverR->solve();
             solverG->solve();
             solverB->solve();

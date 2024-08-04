@@ -1,8 +1,7 @@
-#include "api_lua.hpp"
-
-#include "../../CommandsInterpreter.hpp"
-#include "../../../engine.hpp"
 #include "../../../coders/commons.hpp"
+#include "../../../engine.hpp"
+#include "../../CommandsInterpreter.hpp"
+#include "api_lua.hpp"
 
 using namespace scripting;
 
@@ -16,12 +15,16 @@ static int l_add_command(lua::State* L) {
     auto func = lua::create_lambda(L);
     try {
         engine->getCommandsInterpreter()->getRepository()->add(
-            scheme, description, [func](auto, auto args, auto kwargs) {
+            scheme,
+            description,
+            [func](auto, auto args, auto kwargs) {
                 return func({args, kwargs});
             }
         );
     } catch (const parsing_error& err) {
-        throw std::runtime_error(("command scheme error:\n"+err.errorLog()).c_str());
+        throw std::runtime_error(
+            ("command scheme error:\n" + err.errorLog()).c_str()
+        );
     }
     return 0;
 }
@@ -64,7 +67,7 @@ static int l_get_command_info(lua::State* L) {
     }
     const auto& args = command->getArgs();
     const auto& kwargs = command->getKwArgs();
-    
+
     lua::createtable(L, 0, 4);
 
     lua::pushstring(L, name);
@@ -72,15 +75,15 @@ static int l_get_command_info(lua::State* L) {
 
     lua::pushstring(L, command->getDescription());
     lua::setfield(L, "description");
-    
+
     lua::createtable(L, args.size(), 0);
     for (size_t i = 0; i < args.size(); i++) {
-        auto& arg = args.at(i);
+        auto& arg = args[i];
         lua::createtable(L, 0, 2);
-        
+
         lua::pushstring(L, arg.name);
         lua::setfield(L, "name");
-        
+
         lua::pushstring(L, cmd::argtype_name(arg.type));
         lua::setfield(L, "type");
 
@@ -88,7 +91,7 @@ static int l_get_command_info(lua::State* L) {
             lua::pushboolean(L, true);
             lua::setfield(L, "optional");
         }
-        lua::rawseti(L, i+1);
+        lua::rawseti(L, i + 1);
     }
     lua::setfield(L, "args");
 
@@ -99,18 +102,17 @@ static int l_get_command_info(lua::State* L) {
 
         lua::pushstring(L, cmd::argtype_name(arg.type));
         lua::setfield(L, "type");
-        
+
         lua::setfield(L, arg.name);
     }
     lua::setfield(L, "kwargs");
     return 1;
 }
 
-const luaL_Reg consolelib [] = {
+const luaL_Reg consolelib[] = {
     {"add_command", lua::wrap<l_add_command>},
     {"execute", lua::wrap<l_execute>},
     {"set", lua::wrap<l_set>},
     {"get_commands_list", lua::wrap<l_get_commands_list>},
     {"get_command_info", lua::wrap<l_get_command_info>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

@@ -1,13 +1,13 @@
 #ifndef VOXELS_BLOCK_HPP_
 #define VOXELS_BLOCK_HPP_
 
+#include <glm/glm.hpp>
+#include <optional>
 #include <string>
 #include <vector>
-#include <optional>
-#include <glm/glm.hpp>
 
-#include "../maths/aabb.hpp"
 #include "../maths/UVRegion.hpp"
+#include "../maths/aabb.hpp"
 #include "../typedefs.hpp"
 
 inline std::string BLOCK_ITEM_SUFFIX = ".item";
@@ -26,13 +26,13 @@ inline constexpr uint BLOCK_AABB_GRID = 16;
 inline std::string DEFAULT_MATERIAL = "base:stone";
 
 struct block_funcs_set {
-    bool init: 1;
-    bool update: 1;
-    bool onplaced: 1;
-    bool onbroken: 1;
-    bool oninteract: 1;
-    bool randupdate: 1;
-    bool onblockstick: 1;
+    bool init : 1;
+    bool update : 1;
+    bool onplaced : 1;
+    bool onbroken : 1;
+    bool oninteract : 1;
+    bool randupdate : 1;
+    bool onblockstick : 1;
 };
 
 struct CoordSystem {
@@ -89,7 +89,6 @@ std::optional<BlockModel> BlockModel_from(std::string_view str);
 
 using BoxModel = AABB;
 
-
 /// @brief Common kit of block properties applied to groups of blocks
 struct BlockMaterial {
     std::string name;
@@ -105,32 +104,34 @@ public:
     std::string const name;
 
     std::string caption;
-    
+
     /// @brief Textures set applied to block sides
-    std::string textureFaces[6]; // -x,x, -y,y, -z,z
-    
+    std::string textureFaces[6];  // -x,x, -y,y, -z,z
+
     std::vector<std::string> modelTextures = {};
     std::vector<BoxModel> modelBoxes = {};
-    std::vector<glm::vec3> modelExtraPoints = {}; //initially made for tetragons
-    std::vector<UVRegion> modelUVs = {}; // boxes' tex-UVs also there
+    std::vector<glm::vec3> modelExtraPoints =
+        {};                               // initially made for tetragons
+    std::vector<UVRegion> modelUVs = {};  // boxes' tex-UVs also there
 
     /// @brief id of used BlockMaterial, may specify non-existing material
     std::string material = DEFAULT_MATERIAL;
 
-    /// @brief Light emission R, G, B, S (sky lights: sun, moon, radioactive clouds)
+    /// @brief Light emission R, G, B, S (sky lights: sun, moon, radioactive
+    /// clouds)
     uint8_t emission[4] {0, 0, 0, 0};
 
     glm::i8vec3 size {1, 1, 1};
 
     /// @brief Influences visible block sides for transparent blocks
     uint8_t drawGroup = 0;
-    
+
     /// @brief Block model type
     BlockModel model = BlockModel::block;
-    
+
     /// @brief Does the block passing lights into itself
     bool lightPassing = false;
-    
+
     /// @brief Does the block passing top-down sky lights into itself
     bool skyLightPassing = false;
 
@@ -139,70 +140,71 @@ public:
 
     /// @brief Does block model have vertex-based AO effect
     bool ambientOcclusion = true;
-    
+
     /// @brief Is the block a physical obstacle
     bool obstacle = true;
-    
+
     /// @brief Can the block be selected
     bool selectable = true;
-    
-    /// @brief Can the block be replaced with other. 
+
+    /// @brief Can the block be replaced with other.
     /// Examples of replaceable blocks: air, flower, water
     bool replaceable = false;
-    
+
     /// @brief Can player destroy the block
     bool breakable = true;
-    
+
     /// @brief Can the block be oriented different ways
     bool rotatable = false;
-    
-    /// @brief Can the block exist without physical support be a solid block below
+
+    /// @brief Can the block exist without physical support be a solid block
+    /// below
     bool grounded = false;
-    
+
     /// @brief Turns off block item generation
     bool hidden = false;
-    
+
     /// @brief Set of block physical hitboxes
     std::vector<AABB> hitboxes;
-    
+
     /// @brief Set of available block rotations (coord-systems)
     BlockRotProfile rotations = BlockRotProfile::NONE;
-    
+
     /// @brief Item will be picked on MMB click on the block
-    std::string pickingItem = name+BLOCK_ITEM_SUFFIX;
-    
+    std::string pickingItem = name + BLOCK_ITEM_SUFFIX;
+
     /// @brief Block script name in blocks/ without extension
-    std::string scriptName = name.substr(name.find(':')+1);	
-    
+    std::string scriptName = name.substr(name.find(':') + 1);
+
     /// @brief Default block layout will be used by hud.open_block(...)
     std::string uiLayout = name;
-    
+
     /// @brief Block inventory size. 0 - no inventory
     uint inventorySize = 0;
 
     // @brief Block tick interval (1 - 20tps, 2 - 10tps)
-    uint tickInterval = 1; 
+    uint tickInterval = 1;
 
     /// @brief Runtime indices (content indexing results)
     struct {
         /// @brief block runtime integer id
         blockid_t id;
-        
+
         /// @brief is the block completely opaque for render and raycast
         bool solid = true;
-        
+
         /// @brief does the block emit any lights
         bool emissive = false;
 
         // @brief block size is greather than 1x1x1
         bool extended = false;
-        
+
         /// @brief set of hitboxes sets with all coord-systems precalculated
         std::vector<AABB> hitboxes[BlockRotProfile::MAX_COUNT];
-        
+
         /// @brief set of block callbacks flags
         block_funcs_set funcsset {};
-        
+
         /// @brief picking item integer id
         itemid_t pickingItem = 0;
     } rt {};
@@ -212,8 +214,8 @@ public:
     Block(const Block&) = delete;
 };
 
-inline glm::ivec3 get_ground_direction(const Block* def, int rotation) {
-    return -def->rotations.variants[rotation].axisY;
+inline glm::ivec3 get_ground_direction(const Block& def, int rotation) {
+    return -def.rotations.variants[rotation].axisY;
 }
 
-#endif // VOXELS_BLOCK_HPP_
+#endif  // VOXELS_BLOCK_HPP_

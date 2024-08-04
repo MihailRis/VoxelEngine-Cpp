@@ -1,17 +1,18 @@
 #ifndef MATHS_UTIL_HPP_
 #define MATHS_UTIL_HPP_
 
-#include <ctime>
 #include <stdint.h>
+
+#include <ctime>
 
 class PseudoRandom {
     unsigned short seed;
 public:
-    PseudoRandom(){
+    PseudoRandom() {
         seed = (unsigned short)time(0);
     }
 
-    int rand(){
+    int rand() {
         seed = (seed + 0x7ed5 + (seed << 6));
         seed = (seed ^ 0xc23c ^ (seed >> 9));
         seed = (seed + 0x1656 + (seed << 3));
@@ -36,14 +37,19 @@ public:
         return (x << 32ULL) | y;
     }
 
-    void setSeed(int number){
-        seed = ((unsigned short)(number*23729) ^ (unsigned short)(number+16786));
+    void setSeed(int number) {
+        seed =
+            ((unsigned short)(number * 23729) ^ (unsigned short)(number + 16786)
+            );
         rand();
     }
-    void setSeed(int number1, int number2){
-        seed = (((unsigned short)(number1*23729) | (unsigned short)(number2%16786)) ^ (unsigned short)(number2*number1));
+    void setSeed(int number1, int number2) {
+        seed =
+            (((unsigned short)(number1 * 23729) |
+              (unsigned short)(number2 % 16786)) ^
+             (unsigned short)(number2 * number1));
         rand();
     }
 };
 
-#endif // MATHS_UTIL_HPP_
+#endif  // MATHS_UTIL_HPP_

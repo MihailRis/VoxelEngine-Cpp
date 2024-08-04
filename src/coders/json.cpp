@@ -1,14 +1,14 @@
 #include "json.hpp"
 
-#include "commons.hpp"
+#include <math.h>
+
+#include <iomanip>
+#include <memory>
+#include <sstream>
 
 #include "../data/dynamic.hpp"
 #include "../util/stringutil.hpp"
-
-#include <math.h>
-#include <sstream>
-#include <iomanip>
-#include <memory>
+#include "commons.hpp"
 
 using namespace json;
 using namespace dynamic;
@@ -19,14 +19,12 @@ class Parser : BasicParser {
     dynamic::Value parseValue();
 public:
     Parser(std::string_view filename, std::string_view source);
-    
+
     std::unique_ptr<dynamic::Map> parse();
 };
 
 inline void newline(
-    std::stringstream& ss, 
-    bool nice, uint indent, 
-    const std::string& indentstr
+    std::stringstream& ss, bool nice, uint indent, const std::string& indentstr
 ) {
     if (nice) {
         ss << "\n";
@@ -39,24 +37,23 @@ inline void newline(
 }
 
 void stringifyObj(
-    const Map* obj, 
-    std::stringstream& ss, 
-    int indent, 
-    const std::string& indentstr, 
+    const Map* obj,
+    std::stringstream& ss,
+    int indent,
+    const std::string& indentstr,
     bool nice
 );
 
 void stringifyValue(
-    const Value& value, 
-    std::stringstream& ss, 
-    int indent, 
-    const std::string& indentstr, 
+    const Value& value,
+    std::stringstream& ss,
+    int indent,
+    const std::string& indentstr,
     bool nice
 ) {
     if (auto map = std::get_if<Map_sptr>(&value)) {
         stringifyObj(map->get(), ss, indent, indentstr, nice);
-    }
-    else if (auto listptr = std::get_if<List_sptr>(&value)) {
+    } else if (auto listptr = std::get_if<List_sptr>(&value)) {
         auto list = *listptr;
         if (list->size() == 0) {
             ss << "[]";
@@ -68,7 +65,7 @@ void stringifyValue(
             if (i > 0 || nice) {
                 newline(ss, nice, indent, indentstr);
             }
-            stringifyValue(value, ss, indent+1, indentstr, nice);
+            stringifyValue(value, ss, indent + 1, indentstr, nice);
             if (i + 1 < list->size()) {
                 ss << ',';
             }
@@ -91,10 +88,10 @@ void stringifyValue(
 }
 
 void stringifyObj(
-    const Map* obj, 
-    std::stringstream& ss, 
-    int indent, 
-    const std::string& indentstr, 
+    const Map* obj,
+    std::stringstream& ss,
+    int indent,
+    const std::string& indentstr,
     bool nice
 ) {
     if (obj == nullptr) {
@@ -114,22 +111,20 @@ void stringifyObj(
         }
         const Value& value = entry.second;
         ss << util::escape(key) << ": ";
-        stringifyValue(value, ss, indent+1, indentstr, nice);
+        stringifyValue(value, ss, indent + 1, indentstr, nice);
         index++;
         if (index < obj->values.size()) {
             ss << ',';
         }
     }
     if (nice) {
-        newline(ss, true, indent-1, indentstr);
+        newline(ss, true, indent - 1, indentstr);
     }
     ss << '}';
 }
 
 std::string json::stringify(
-    const Map* obj, 
-    bool nice, 
-    const std::string& indent
+    const Map* obj, bool nice, const std::string& indent
 ) {
     std::stringstream ss;
     stringifyObj(obj, ss, 1, indent, nice);
@@ -137,17 +132,15 @@ std::string json::stringify(
 }
 
 std::string json::stringify(
-    const dynamic::Value& value, 
-    bool nice, 
-    const std::string& indent
+    const dynamic::Value& value, bool nice, const std::string& indent
 ) {
     std::stringstream ss;
     stringifyValue(value, ss, 1, indent, nice);
     return ss.str();
 }
 
-Parser::Parser(std::string_view filename, std::string_view source) 
-    : BasicParser(filename, source) {    
+Parser::Parser(std::string_view filename, std::string_view source)
+    : BasicParser(filename, source) {
 }
 
 std::unique_ptr<Map> Parser::parse() {
@@ -239,10 +232,12 @@ Value Parser::parseValue() {
         pos++;
         return parseString(next);
     }
-    throw error("unexpected character '"+std::string({next})+"'");
+    throw error("unexpected character '" + std::string({next}) + "'");
 }
 
-dynamic::Map_sptr json::parse(std::string_view filename, std::string_view source) {
+dynamic::Map_sptr json::parse(
+    std::string_view filename, std::string_view source
+) {
     Parser parser(filename, source);
     return parser.parse();
 }

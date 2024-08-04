@@ -1,14 +1,12 @@
 #ifndef DEBUG_LOGGER_HPP_
 #define DEBUG_LOGGER_HPP_
 
-#include <sstream>
 #include <fstream>
 #include <mutex>
+#include <sstream>
 
 namespace debug {
-    enum class LogLevel {
-        debug, info, warning, error
-    };
+    enum class LogLevel { debug, info, warning, error };
 
     class Logger;
 
@@ -17,10 +15,12 @@ namespace debug {
         LogLevel level;
         std::stringstream ss;
     public:
-        LogMessage(Logger* logger, LogLevel level) : logger(logger), level(level) {}
+        LogMessage(Logger* logger, LogLevel level)
+            : logger(logger), level(level) {
+        }
         ~LogMessage();
 
-        template<class T>
+        template <class T>
         LogMessage& operator<<(const T& x) {
             ss << x;
             return *this;
@@ -34,8 +34,10 @@ namespace debug {
         static unsigned moduleLen;
 
         std::string name;
-   
-        static void log(LogLevel level, const std::string& name, const std::string& message);
+
+        static void log(
+            LogLevel level, const std::string& name, const std::string& message
+        );
     public:
         static void init(const std::string& filename);
         static void flush();
@@ -62,4 +64,4 @@ namespace debug {
     };
 }
 
-#endif // DEBUG_LOGGER_HPP_
+#endif  // DEBUG_LOGGER_HPP_

@@ -26,8 +26,7 @@ size_t rle::encode(const ubyte* src, size_t srclen, ubyte* dst) {
             dst[offset++] = c;
             c = cnext;
             counter = 0;
-        }
-        else {
+        } else {
             counter++;
         }
     }
@@ -35,7 +34,6 @@ size_t rle::encode(const ubyte* src, size_t srclen, ubyte* dst) {
     dst[offset++] = c;
     return offset;
 }
-
 
 size_t extrle::decode(const ubyte* src, size_t srclen, ubyte* dst) {
     size_t offset = 0;
@@ -66,23 +64,20 @@ size_t extrle::encode(const ubyte* src, size_t srclen, ubyte* dst) {
             if (counter >= 0x80) {
                 dst[offset++] = 0x80 | (counter & 0x7F);
                 dst[offset++] = counter >> 7;
-            }
-            else {
+            } else {
                 dst[offset++] = counter;
             }
             dst[offset++] = c;
             c = cnext;
             counter = 0;
-        }
-        else {
+        } else {
             counter++;
         }
     }
     if (counter >= 0x80) {
         dst[offset++] = 0x80 | (counter & 0x7F);
         dst[offset++] = counter >> 7;
-    }
-    else {
+    } else {
         dst[offset++] = counter;
     }
     dst[offset++] = c;

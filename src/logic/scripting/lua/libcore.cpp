@@ -1,25 +1,24 @@
-#include "api_lua.hpp"
+#include <memory>
+#include <vector>
 
+#include "../../../constants.hpp"
 #include "../../../engine.hpp"
-#include "../../../files/settings_io.hpp"
 #include "../../../files/engine_paths.hpp"
+#include "../../../files/settings_io.hpp"
 #include "../../../frontend/menu.hpp"
 #include "../../../frontend/screens/MenuScreen.hpp"
-#include "../../../logic/LevelController.hpp"
 #include "../../../logic/EngineController.hpp"
-#include "../../../world/Level.hpp"
+#include "../../../logic/LevelController.hpp"
 #include "../../../window/Events.hpp"
 #include "../../../window/Window.hpp"
+#include "../../../world/Level.hpp"
 #include "../../../world/WorldGenerators.hpp"
-#include "../../../constants.hpp"
-
-#include <vector>
-#include <memory>
+#include "api_lua.hpp"
 
 using namespace scripting;
 
 /// @brief Creating new world
-/// @param name Name world 
+/// @param name Name world
 /// @param seed Seed world
 /// @param generator Type of generation
 static int l_new_world(lua::State* L) {
@@ -32,7 +31,7 @@ static int l_new_world(lua::State* L) {
 }
 
 /// @brief Open world
-/// @param name Name world 
+/// @param name Name world
 static int l_open_world(lua::State* L) {
     auto name = lua::require_string(L, 1);
 
@@ -79,10 +78,12 @@ static int l_delete_world(lua::State* L) {
 /// @param remPacks An array of packs to remove
 static int l_reconfig_packs(lua::State* L) {
     if (!lua::istable(L, 1)) {
-        throw std::runtime_error("strings array expected as the first argument");
+        throw std::runtime_error("strings array expected as the first argument"
+        );
     }
     if (!lua::istable(L, 2)) {
-        throw std::runtime_error("strings array expected as the second argument");
+        throw std::runtime_error("strings array expected as the second argument"
+        );
     }
     std::vector<std::string> addPacks;
     if (!lua::istable(L, 1)) {
@@ -90,7 +91,7 @@ static int l_reconfig_packs(lua::State* L) {
     }
     int addLen = lua::objlen(L, 1);
     for (int i = 0; i < addLen; i++) {
-        lua::rawgeti(L, i+1, 1);
+        lua::rawgeti(L, i + 1, 1);
         addPacks.emplace_back(lua::tostring(L, -1));
         lua::pop(L);
     }
@@ -101,7 +102,7 @@ static int l_reconfig_packs(lua::State* L) {
     }
     int remLen = lua::objlen(L, 2);
     for (int i = 0; i < remLen; i++) {
-        lua::rawgeti(L, i+1, 2);
+        lua::rawgeti(L, i + 1, 2);
         remPacks.emplace_back(lua::tostring(L, -1));
         lua::pop(L);
     }
@@ -190,7 +191,7 @@ static int l_get_generators(lua::State* L) {
     return 1;
 }
 
-const luaL_Reg corelib [] = {
+const luaL_Reg corelib[] = {
     {"new_world", lua::wrap<l_new_world>},
     {"open_world", lua::wrap<l_open_world>},
     {"reopen_world", lua::wrap<l_reopen_world>},
@@ -204,5 +205,4 @@ const luaL_Reg corelib [] = {
     {"quit", lua::wrap<l_quit>},
     {"get_default_generator", lua::wrap<l_get_default_generator>},
     {"get_generators", lua::wrap<l_get_generators>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

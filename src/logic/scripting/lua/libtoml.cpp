@@ -1,7 +1,6 @@
-#include "api_lua.hpp"
-
 #include "../../../coders/toml.hpp"
 #include "../../../data/dynamic.hpp"
+#include "api_lua.hpp"
 
 using namespace scripting;
 
@@ -23,8 +22,7 @@ static int l_toml_parse(lua::State* L) {
     return lua::pushvalue(L, *value);
 }
 
-const luaL_Reg tomllib [] = {
+const luaL_Reg tomllib[] = {
     {"tostring", lua::wrap<l_toml_stringify>},
     {"parse", lua::wrap<l_toml_parse>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

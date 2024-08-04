@@ -1,13 +1,13 @@
 #ifndef OBJECTS_RIGGING_HPP_
 #define OBJECTS_RIGGING_HPP_
 
-#include "../typedefs.hpp"
-
-#include <vector>
+#include <glm/glm.hpp>
 #include <memory>
 #include <string>
-#include <glm/glm.hpp>
 #include <unordered_map>
+#include <vector>
+
+#include "../typedefs.hpp"
 
 class Assets;
 class ModelBatch;
@@ -44,18 +44,19 @@ namespace rigging {
     public:
         ModelReference model;
         Bone(
-            size_t index, 
+            size_t index,
             std::string name,
             std::string model,
             std::vector<std::unique_ptr<Bone>> bones,
-            glm::vec3 offset);
+            glm::vec3 offset
+        );
 
         void setModel(const std::string& name);
 
         const std::string& getName() const {
             return name;
         }
-        
+
         size_t getIndex() const {
             return index;
         }
@@ -70,7 +71,7 @@ namespace rigging {
     };
 
     struct BoneFlags {
-        bool visible: 1;
+        bool visible : 1;
     };
 
     struct Skeleton {
@@ -85,12 +86,12 @@ namespace rigging {
 
         Skeleton(const SkeletonConfig* config);
     };
-    
+
     class SkeletonConfig {
         std::string name;
         std::unique_ptr<Bone> root;
         std::unordered_map<std::string, size_t> indices;
-        
+
         /// Nodes and indices are ordered from root to bones.
         /// Example:
         /// 0 - root
@@ -100,20 +101,22 @@ namespace rigging {
         std::vector<Bone*> nodes;
 
         size_t update(
-            size_t index,
-            Skeleton& skeleton,
-            Bone* node,
-            glm::mat4 matrix) const;
+            size_t index, Skeleton& skeleton, Bone* node, glm::mat4 matrix
+        ) const;
     public:
-        SkeletonConfig(const std::string& name, std::unique_ptr<Bone> root, 
-                  size_t nodesCount);
+        SkeletonConfig(
+            const std::string& name,
+            std::unique_ptr<Bone> root,
+            size_t nodesCount
+        );
 
         void update(Skeleton& skeleton, glm::mat4 matrix) const;
         void render(
             Assets* assets,
             ModelBatch& batch,
-            Skeleton& skeleton, 
-            const glm::mat4& matrix) const;
+            Skeleton& skeleton,
+            const glm::mat4& matrix
+        ) const;
 
         Skeleton instance() const {
             return Skeleton(this);
@@ -122,15 +125,13 @@ namespace rigging {
         Bone* find(std::string_view str) const;
 
         static std::unique_ptr<SkeletonConfig> parse(
-            std::string_view src,
-            std::string_view file,
-            std::string_view name
+            std::string_view src, std::string_view file, std::string_view name
         );
 
         const std::vector<Bone*>& getBones() const {
             return nodes;
         }
-        
+
         const std::string& getName() const {
             return name;
         }
@@ -141,4 +142,4 @@ namespace rigging {
     };
 };
 
-#endif // OBJECTS_RIGGING_HPP_
+#endif  // OBJECTS_RIGGING_HPP_

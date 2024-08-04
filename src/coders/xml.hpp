@@ -1,13 +1,13 @@
 #ifndef CODERS_XML_HPP_
 #define CODERS_XML_HPP_
 
-#include "commons.hpp"
-
-#include <string>
-#include <memory>
-#include <vector>
 #include <glm/glm.hpp>
+#include <memory>
+#include <string>
 #include <unordered_map>
+#include <vector>
+
+#include "commons.hpp"
 
 namespace xml {
     class Node;
@@ -23,7 +23,7 @@ namespace xml {
         std::string name;
         std::string text;
     public:
-        Attribute() {};
+        Attribute() = default;
         Attribute(std::string name, std::string text);
 
         const std::string& getName() const;
@@ -37,7 +37,8 @@ namespace xml {
         glm::vec4 asColor() const;
     };
 
-    /// @brief XML element class. Text element has tag 'text' and attribute 'text'
+    /// @brief XML element class. Text element has tag 'text' and attribute
+    /// 'text'
     class Node {
         std::string tag;
         std::unordered_map<std::string, xmlattribute> attrs;
@@ -51,8 +52,8 @@ namespace xml {
         /// @brief Set attribute value. Creates attribute if does not exists
         /// @param name attribute name
         /// @param text attribute value
-        void set(const std::string& name, const std::string &text);
-        
+        void set(const std::string& name, const std::string& text);
+
         /// @brief Get element tag
         const std::string& getTag() const;
 
@@ -66,16 +67,17 @@ namespace xml {
 
         /// @brief Get attribute by name
         /// @param name attribute name
-        /// @throws std::runtime_error if element has no attribute 
+        /// @throws std::runtime_error if element has no attribute
         /// @return xmlattribute - {name, value}
         const xmlattribute& attr(const std::string& name) const;
-        
+
         /// @brief Get attribute by name
         /// @param name attribute name
         /// @param def default value will be returned wrapped in xmlattribute
-        /// if element has no attribute 
+        /// if element has no attribute
         /// @return xmlattribute - {name, value} or {name, def} if not found*/
-        xmlattribute attr(const std::string& name, const std::string& def) const;
+        xmlattribute attr(const std::string& name, const std::string& def)
+            const;
 
         /// @brief Check if element has attribute
         /// @param name attribute name
@@ -101,7 +103,7 @@ namespace xml {
     public:
         Document(std::string version, std::string encoding);
 
-        void setRoot(const xmlelement &element);
+        void setRoot(const xmlelement& element);
         xmlelement getRoot() const;
 
         const std::string& getVersion() const;
@@ -123,22 +125,24 @@ namespace xml {
         xmldocument parse();
     };
 
-    /// @brief Serialize XML Document to string 
+    /// @brief Serialize XML Document to string
     /// @param document serializing document
     /// @param nice use human readable format (with indents and line-separators)
     /// @param indentStr indentation characters sequence (default - 4 spaces)
     /// @return XML string
     extern std::string stringify(
         const xmldocument& document,
-        bool nice=true,
-        const std::string& indentStr="    "
+        bool nice = true,
+        const std::string& indentStr = "    "
     );
-    
+
     /// @brief Read XML Document from string
     /// @param filename file name will be shown in error messages
     /// @param source xml source code string
     /// @return xml document
-    extern xmldocument parse(const std::string& filename, const std::string& source);
+    extern xmldocument parse(
+        const std::string& filename, const std::string& source
+    );
 }
 
-#endif // CODERS_XML_HPP_
+#endif  // CODERS_XML_HPP_

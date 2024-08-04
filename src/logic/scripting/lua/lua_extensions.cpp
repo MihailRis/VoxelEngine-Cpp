@@ -1,6 +1,5 @@
-#include "api_lua.hpp"
-
 #include "../../../debug/Logger.hpp"
+#include "api_lua.hpp"
 
 static debug::Logger logger("lua-debug");
 
@@ -24,7 +23,6 @@ static int l_debug_log(lua::State* L) {
 
 void initialize_libs_extends(lua::State* L) {
     if (lua::getglobal(L, "debug")) {
-
         lua::pushcfunction(L, lua::wrap<l_debug_error>);
         lua::setfield(L, "error");
 

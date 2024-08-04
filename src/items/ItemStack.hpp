@@ -1,8 +1,8 @@
 #ifndef ITEMS_ITEM_STACK_HPP_
 #define ITEMS_ITEM_STACK_HPP_
 
-#include "../typedefs.hpp"
 #include "../constants.hpp"
+#include "../typedefs.hpp"
 
 class ContentIndices;
 
@@ -37,4 +37,4 @@ public:
     }
 };
 
-#endif // ITEMS_ITEM_STACK_HPP_
+#endif  // ITEMS_ITEM_STACK_HPP_

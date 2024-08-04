@@ -1,25 +1,25 @@
 #include "Entities.hpp"
 
-#include "../debug/Logger.hpp"
-#include "../data/dynamic_util.hpp"
+#include <glm/ext/matrix_transform.hpp>
+#include <sstream>
+
 #include "../assets/Assets.hpp"
-#include "../world/Level.hpp"
-#include "../maths/rays.hpp"
 #include "../content/Content.hpp"
-#include "../physics/Hitbox.hpp"
-#include "../physics/PhysicsSolver.hpp"
-#include "../graphics/render/ModelBatch.hpp"
+#include "../data/dynamic_util.hpp"
+#include "../debug/Logger.hpp"
+#include "../engine.hpp"
+#include "../graphics/core/DrawContext.hpp"
 #include "../graphics/core/LineBatch.hpp"
 #include "../graphics/core/Model.hpp"
-#include "../graphics/core/DrawContext.hpp"
+#include "../graphics/render/ModelBatch.hpp"
+#include "../logic/scripting/scripting.hpp"
 #include "../maths/FrustumCulling.hpp"
+#include "../maths/rays.hpp"
 #include "../objects/EntityDef.hpp"
 #include "../objects/rigging.hpp"
-#include "../logic/scripting/scripting.hpp"
-#include "../engine.hpp"
-
-#include <sstream>
-#include <glm/ext/matrix_transform.hpp>
+#include "../physics/Hitbox.hpp"
+#include "../physics/PhysicsSolver.hpp"
+#include "../world/Level.hpp"
 
 static debug::Logger logger("entities");
 
@@ -39,7 +39,7 @@ void Transform::refresh() {
 }
 
 void Entity::destroy() {
-    if (isValid()){
+    if (isValid()) {
         entities.despawn(id);
     }
 }
@@ -59,11 +59,11 @@ void Entity::setRig(const rigging::SkeletonConfig* rigConfig) {
     );
 }
 
-Entities::Entities(Level* level) 
-: level(level), sensorsTickClock(20, 3), updateTickClock(20, 3) {
+Entities::Entities(Level* level)
+    : level(level), sensorsTickClock(20, 3), updateTickClock(20, 3) {
 }
 
-template<void(*callback)(const Entity&, size_t, entityid_t)>
+template <void (*callback)(const Entity&, size_t, entityid_t)>
 static sensorcallback create_sensor_callback(Entities* entities) {
     return [=](auto entityid, auto index, auto otherid) {
         if (auto entity = entities->get(entityid)) {
@@ -82,7 +82,14 @@ static void initialize_body(
         SensorParams params {};
         params.aabb = box;
         body.sensors[i] = Sensor {
-            true, SensorType::AABB, i, id, params, params, {}, {},
+            true,
+            SensorType::AABB,
+            i,
+            id,
+            params,
+            params,
+            {},
+            {},
             create_sensor_callback<scripting::on_sensor_enter>(entities),
             create_sensor_callback<scripting::on_sensor_exit>(entities)};
     }
@@ -90,7 +97,14 @@ static void initialize_body(
         SensorParams params {};
         params.radial = glm::vec4(radius);
         body.sensors[i] = Sensor {
-            true, SensorType::RADIUS, i, id, params, params, {}, {},
+            true,
+            SensorType::RADIUS,
+            i,
+            id,
+            params,
+            params,
+            {},
+            {},
             create_sensor_callback<scripting::on_sensor_enter>(entities),
             create_sensor_callback<scripting::on_sensor_exit>(entities)};
     }
@@ -101,11 +115,11 @@ entityid_t Entities::spawn(
     glm::vec3 position,
     dynamic::Map_sptr args,
     dynamic::Map_sptr saved,
-    entityid_t uid)
-{
+    entityid_t uid
+) {
     auto skeleton = level->content->getSkeleton(def.skeletonName);
     if (skeleton == nullptr) {
-        throw std::runtime_error("skeleton "+def.skeletonName+" not found");
+        throw std::runtime_error("skeleton " + def.skeletonName + " not found");
     }
     entityid_t id;
     if (uid == 0) {
@@ -145,7 +159,7 @@ entityid_t Entities::spawn(
 
     auto& scripting = registry.emplace<ScriptComponents>(entity);
     registry.emplace<rigging::Skeleton>(entity, skeleton->instance());
-    
+
     for (auto& componentName : def.components) {
         auto component = std::make_unique<UserComponent>(
             componentName, entity_funcs_set {}, nullptr
@@ -334,8 +348,8 @@ dynamic::Value Entities::serialize(const Entity& entity) {
     if (!scripts.components.empty()) {
         auto& compsMap = root->putMap("comps");
         for (auto& comp : scripts.components) {
-            auto data = scripting::get_component_value(
-                comp->env, SAVED_DATA_VARNAME);
+            auto data =
+                scripting::get_component_value(comp->env, SAVED_DATA_VARNAME);
             compsMap.put(comp->name, data);
         }
     }
@@ -383,8 +397,8 @@ void Entities::updateSensors(
                     body.hitbox.position.x,
                     body.hitbox.position.y,
                     body.hitbox.position.z,
-                    sensor.params.radial.w*
-                    sensor.params.radial.w);
+                    sensor.params.radial.w * sensor.params.radial.w
+                );
                 break;
         }
         sensors.push_back(&sensor);
@@ -428,18 +442,13 @@ void Entities::updatePhysics(float delta) {
         float vel = glm::length(prevVel);
         int substeps = static_cast<int>(delta * vel * 20);
         substeps = std::min(100, std::max(2, substeps));
-        physics->step(
-            level->chunks.get(),
-            &hitbox,
-            delta,
-            substeps,
-            eid.uid
-        );
+        physics->step(level->chunks.get(), &hitbox, delta, substeps, eid.uid);
         hitbox.linearDamping = hitbox.grounded * 24;
         transform.setPos(hitbox.position);
         if (hitbox.grounded && !grounded) {
             scripting::on_entity_grounded(
-                *get(eid.uid), glm::length(prevVel-hitbox.velocity));
+                *get(eid.uid), glm::length(prevVel - hitbox.velocity)
+            );
         }
         if (!hitbox.grounded && grounded) {
             scripting::on_entity_fall(*get(eid.uid));
@@ -452,27 +461,34 @@ void Entities::update(float delta) {
         scripting::on_entities_update(
             updateTickClock.getTickRate(),
             updateTickClock.getParts(),
-            updateTickClock.getPart());
+            updateTickClock.getPart()
+        );
     }
 }
 
 static void debug_render_skeleton(
-    LineBatch& batch, 
-    const rigging::Bone* bone, 
+    LineBatch& batch,
+    const rigging::Bone* bone,
     const rigging::Skeleton& skeleton
 ) {
     size_t pindex = bone->getIndex();
     for (auto& sub : bone->getSubnodes()) {
         size_t sindex = sub->getIndex();
-        batch.line(glm::vec3(skeleton.calculated.matrices[pindex] * glm::vec4(0,0,0,1)),
-                   glm::vec3(skeleton.calculated.matrices[sindex] * glm::vec4(0,0,0,1)),
-                   glm::vec4(0,0.5f,0,1));
+        batch.line(
+            glm::vec3(
+                skeleton.calculated.matrices[pindex] * glm::vec4(0, 0, 0, 1)
+            ),
+            glm::vec3(
+                skeleton.calculated.matrices[sindex] * glm::vec4(0, 0, 0, 1)
+            ),
+            glm::vec4(0, 0.5f, 0, 1)
+        );
         debug_render_skeleton(batch, sub.get(), skeleton);
     }
 }
 
 void Entities::renderDebug(
-    LineBatch& batch, const Frustum& frustum, const DrawContext& pctx
+    LineBatch& batch, const Frustum* frustum, const DrawContext& pctx
 ) {
     {
         auto ctx = pctx.sub(&batch);
@@ -482,18 +498,18 @@ void Entities::renderDebug(
             const auto& hitbox = rigidbody.hitbox;
             const auto& pos = transform.pos;
             const auto& size = transform.size;
-            if (!frustum.isBoxVisible(pos-size, pos+size)) {
+            if (frustum && !frustum->isBoxVisible(pos - size, pos + size)) {
                 continue;
             }
             batch.box(hitbox.position, hitbox.halfsize * 2.0f, glm::vec4(1.0f));
 
             for (auto& sensor : rigidbody.sensors) {
-                if (sensor.type != SensorType::AABB)
-                    continue;
+                if (sensor.type != SensorType::AABB) continue;
                 batch.box(
-                    sensor.calculated.aabb.center(), 
-                    sensor.calculated.aabb.size(), 
-                    glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+                    sensor.calculated.aabb.center(),
+                    sensor.calculated.aabb.size(),
+                    glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)
+                );
             }
         }
     }
@@ -507,7 +523,7 @@ void Entities::renderDebug(
             auto config = skeleton.config;
             const auto& pos = transform.pos;
             const auto& size = transform.size;
-            if (!frustum.isBoxVisible(pos-size, pos+size)) {
+            if (frustum && !frustum->isBoxVisible(pos - size, pos + size)) {
                 continue;
             }
             auto bone = config->getRoot();
@@ -517,7 +533,11 @@ void Entities::renderDebug(
 }
 
 void Entities::render(
-    Assets* assets, ModelBatch& batch, const Frustum& frustum, float delta, bool pause
+    Assets* assets,
+    ModelBatch& batch,
+    const Frustum* frustum,
+    float delta,
+    bool pause
 ) {
     if (!pause) {
         scripting::on_entities_render(delta);
@@ -530,7 +550,7 @@ void Entities::render(
         }
         const auto& pos = transform.pos;
         const auto& size = transform.size;
-        if (frustum.isBoxVisible(pos-size, pos+size)) {
+        if (!frustum || frustum->isBoxVisible(pos - size, pos + size)) {
             const auto* rigConfig = skeleton.config;
             rigConfig->render(assets, batch, skeleton, transform.combined);
         }
@@ -568,7 +588,7 @@ std::vector<Entity> Entities::getAllInRadius(glm::vec3 center, float radius) {
     std::vector<Entity> collected;
     auto view = registry.view<Transform>();
     for (auto [entity, transform] : view.each()) {
-        if (glm::distance2(transform.pos, center) <= radius*radius) {
+        if (glm::distance2(transform.pos, center) <= radius * radius) {
             const auto& found = uids.find(entity);
             if (found == uids.end()) {
                 continue;

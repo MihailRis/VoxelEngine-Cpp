@@ -1,8 +1,8 @@
 #ifndef CODERS_OBJ_HPP_
 #define CODERS_OBJ_HPP_
 
-#include <string>
 #include <memory>
+#include <string>
 
 /// Wavefont OBJ files parser
 
@@ -16,4 +16,4 @@ namespace obj {
     );
 }
 
-#endif // CODERS_OBJ_HPP_
+#endif  // CODERS_OBJ_HPP_

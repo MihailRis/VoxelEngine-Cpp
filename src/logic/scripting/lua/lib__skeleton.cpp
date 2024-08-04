@@ -1,12 +1,14 @@
+#include "../../../objects/rigging.hpp"
 #include "libentity.hpp"
 
-#include "../../../objects/rigging.hpp"
-
-static int index_range_check(const rigging::Skeleton& skeleton, lua::Integer index) {
+static int index_range_check(
+    const rigging::Skeleton& skeleton, lua::Integer index
+) {
     if (static_cast<size_t>(index) >= skeleton.pose.matrices.size()) {
-        throw std::runtime_error("index out of range [0, " +
-                                 std::to_string(skeleton.pose.matrices.size()) +
-                                 "]");
+        throw std::runtime_error(
+            "index out of range [0, " +
+            std::to_string(skeleton.pose.matrices.size()) + "]"
+        );
     }
     return static_cast<int>(index);
 }
@@ -60,7 +62,8 @@ static int l_set_matrix(lua::State* L) {
 static int l_get_texture(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
         auto& skeleton = entity->getSkeleton();
-        skeleton.textures[lua::require_string(L, 2)] = lua::require_string(L, 3);
+        skeleton.textures[lua::require_string(L, 2)] =
+            lua::require_string(L, 3);
         const auto& found = skeleton.textures.find(lua::require_string(L, 2));
         if (found != skeleton.textures.end()) {
             return lua::pushstring(L, found->second);
@@ -72,7 +75,8 @@ static int l_get_texture(lua::State* L) {
 static int l_set_texture(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
         auto& skeleton = entity->getSkeleton();
-        skeleton.textures[lua::require_string(L, 2)] = lua::require_string(L, 3);
+        skeleton.textures[lua::require_string(L, 2)] =
+            lua::require_string(L, 3);
     }
     return 0;
 }
@@ -128,7 +132,7 @@ static int l_set_color(lua::State* L) {
     return 0;
 }
 
-const luaL_Reg skeletonlib [] = {
+const luaL_Reg skeletonlib[] = {
     {"get_model", lua::wrap<l_get_model>},
     {"set_model", lua::wrap<l_set_model>},
     {"get_matrix", lua::wrap<l_get_matrix>},
@@ -140,5 +144,4 @@ const luaL_Reg skeletonlib [] = {
     {"set_visible", lua::wrap<l_set_visible>},
     {"get_color", lua::wrap<l_get_color>},
     {"set_color", lua::wrap<l_set_color>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

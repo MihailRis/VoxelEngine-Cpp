@@ -1,16 +1,12 @@
-#include "api_lua.hpp"
-
 #include "../../../content/Content.hpp"
 #include "../../../items/ItemDef.hpp"
+#include "api_lua.hpp"
 
 using namespace scripting;
 
-static ItemDef* get_item_def(lua::State* L, int idx) {
+static const ItemDef* get_item_def(lua::State* L, int idx) {
     auto indices = content->getIndices();
     auto id = lua::tointeger(L, idx);
-    if (static_cast<size_t>(id) >= indices->items.count()) {
-        return nullptr;
-    }
     return indices->items.get(id);
 }
 
@@ -45,17 +41,16 @@ static int l_item_get_icon(lua::State* L) {
             case item_icon_type::sprite:
                 return lua::pushstring(L, def->icon);
             case item_icon_type::block:
-                return lua::pushstring(L, "block-previews:"+def->icon);
+                return lua::pushstring(L, "block-previews:" + def->icon);
         }
     }
     return 0;
 }
 
-const luaL_Reg itemlib [] = {
+const luaL_Reg itemlib[] = {
     {"index", lua::wrap<l_item_index>},
     {"name", lua::wrap<l_item_name>},
     {"stack_size", lua::wrap<l_item_stack_size>},
     {"defs_count", lua::wrap<l_item_defs_count>},
     {"icon", lua::wrap<l_item_get_icon>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

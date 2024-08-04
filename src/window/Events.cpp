@@ -1,11 +1,12 @@
 #include "Events.hpp"
-#include "Window.hpp"
-#include "../debug/Logger.hpp"
-#include "../util/stringutil.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string.h>
+
+#include "../debug/Logger.hpp"
+#include "../util/stringutil.hpp"
+#include "Window.hpp"
 
 static debug::Logger logger("events");
 
@@ -61,7 +62,9 @@ bool Events::jclicked(int button) {
 void Events::toggleCursor() {
     cursor_drag = false;
     _cursor_locked = !_cursor_locked;
-    Window::setCursorMode(_cursor_locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    Window::setCursorMode(
+        _cursor_locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL
+    );
 }
 
 void Events::pollEvents() {
@@ -79,8 +82,12 @@ void Events::pollEvents() {
 
         bool newstate = false;
         switch (binding.type) {
-            case inputtype::keyboard: newstate = pressed(binding.code); break;
-            case inputtype::mouse: newstate = clicked(binding.code); break;
+            case inputtype::keyboard:
+                newstate = pressed(binding.code);
+                break;
+            case inputtype::mouse:
+                newstate = clicked(binding.code);
+                break;
         }
 
         if (newstate) {
@@ -101,7 +108,7 @@ void Events::pollEvents() {
 Binding& Events::getBinding(const std::string& name) {
     auto found = bindings.find(name);
     if (found == bindings.end()) {
-        throw std::runtime_error("binding '"+name+"' does not exists");
+        throw std::runtime_error("binding '" + name + "' does not exists");
     }
     return found->second;
 }
@@ -115,7 +122,7 @@ void Events::bind(const std::string& name, inputtype type, mousecode code) {
 }
 
 void Events::bind(const std::string& name, inputtype type, int code) {
-    bindings.emplace(name, Binding(type, code));
+    bindings.try_emplace(name, Binding(type, code));
 }
 
 void Events::rebind(const std::string& name, inputtype type, int code) {
@@ -151,17 +158,16 @@ void Events::setPosition(float xpos, float ypos) {
     if (Events::cursor_drag) {
         Events::delta.x += xpos - Events::cursor.x;
         Events::delta.y += ypos - Events::cursor.y;
-    }
-    else {
+    } else {
         Events::cursor_drag = true;
     }
     Events::cursor.x = xpos;
     Events::cursor.y = ypos;
 }
 
-#include "../data/dynamic.hpp"
 #include "../coders/json.hpp"
 #include "../coders/toml.hpp"
+#include "../data/dynamic.hpp"
 
 std::string Events::writeBindings() {
     dynamic::Map obj;
@@ -169,20 +175,27 @@ std::string Events::writeBindings() {
         const auto& binding = entry.second;
         std::string value;
         switch (binding.type) {
-            case inputtype::keyboard: 
-                value = "key:"+input_util::get_name(static_cast<keycode>(binding.code)); 
+            case inputtype::keyboard:
+                value =
+                    "key:" +
+                    input_util::get_name(static_cast<keycode>(binding.code));
                 break;
-            case inputtype::mouse: 
-                value = "mouse:"+input_util::get_name(static_cast<mousecode>(binding.code));
+            case inputtype::mouse:
+                value =
+                    "mouse:" +
+                    input_util::get_name(static_cast<mousecode>(binding.code));
                 break;
-            default: throw std::runtime_error("unsupported control type");
+            default:
+                throw std::runtime_error("unsupported control type");
         }
         obj.put(entry.first, value);
     }
     return toml::stringify(obj);
 }
 
-void Events::loadBindings(const std::string& filename, const std::string& source) {
+void Events::loadBindings(
+    const std::string& filename, const std::string& source
+) {
     auto map = toml::parse(filename, source);
     for (auto& entry : map->values) {
         if (auto value = std::get_if<std::string>(&entry.second)) {
@@ -196,8 +209,9 @@ void Events::loadBindings(const std::string& filename, const std::string& source
                 type = inputtype::mouse;
                 code = static_cast<int>(input_util::mousecode_from(codename));
             } else {
-                logger.error() << "unknown input type: " << prefix
-                    << " (binding " << util::quote(entry.first) << ")";
+                logger.error()
+                    << "unknown input type: " << prefix << " (binding "
+                    << util::quote(entry.first) << ")";
                 continue;
             }
             Events::bind(entry.first, type, code);

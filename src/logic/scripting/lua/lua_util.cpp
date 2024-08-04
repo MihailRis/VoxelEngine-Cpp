@@ -1,9 +1,9 @@
 #include "lua_util.hpp"
 
-#include "../../../util/stringutil.hpp"
-
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+
+#include "../../../util/stringutil.hpp"
 
 using namespace lua;
 
@@ -19,7 +19,7 @@ int lua::userdata_destructor(lua::State* L) {
 }
 
 std::string lua::env_name(int env) {
-    return "_ENV"+util::mangleid(env);
+    return "_ENV" + util::mangleid(env);
 }
 
 int lua::pushvalue(State* L, const dynamic::Value& value) {
@@ -38,7 +38,7 @@ int lua::pushvalue(State* L, const dynamic::Value& value) {
         createtable(L, list->size(), 0);
         for (size_t i = 0; i < list->size(); i++) {
             pushvalue(L, list->get(i));
-            rawseti(L, i+1);
+            rawseti(L, i + 1);
         }
     } else if (auto mapptr = std::get_if<Map_sptr>(&value)) {
         auto map = *mapptr;
@@ -80,8 +80,11 @@ dynamic::Value lua::tovalue(State* L, int idx) {
             }
         }
         case LUA_TFUNCTION:
-            return "<function "+std::to_string(
-                reinterpret_cast<ptrdiff_t>(lua_topointer(L, idx)))+">";
+            return "<function " +
+                   std::to_string(
+                       reinterpret_cast<ptrdiff_t>(lua_topointer(L, idx))
+                   ) +
+                   ">";
         case LUA_TSTRING:
             return std::string(tostring(L, idx));
         case LUA_TTABLE: {
@@ -112,19 +115,20 @@ dynamic::Value lua::tovalue(State* L, int idx) {
         }
         default:
             throw std::runtime_error(
-                "lua type "+std::string(lua_typename(L, type))+" is not supported"
+                "lua type " + std::string(lua_typename(L, type)) +
+                " is not supported"
             );
     }
 }
 
 static int l_error_handler(lua_State* L) {
-    if (!isstring(L, 1)) { // 'message' not a string?
-        return 1;          // keep it intact
+    if (!isstring(L, 1)) {  // 'message' not a string?
+        return 1;           // keep it intact
     }
     if (get_from(L, "debug", "traceback")) {
-        lua_pushvalue(L, 1);   // pass error message
-        lua_pushinteger(L, 2); // skip this function and traceback
-        lua_call(L, 2, 1);     // call debug.traceback
+        lua_pushvalue(L, 1);    // pass error message
+        lua_pushinteger(L, 2);  // skip this function and traceback
+        lua_call(L, 2, 1);      // call debug.traceback
     }
     return 1;
 }
@@ -160,7 +164,8 @@ int lua::call_nothrow(State* L, int argc, int nresults) {
 void lua::dump_stack(State* L) {
     int top = gettop(L);
     for (int i = 1; i <= top; i++) {
-        std::cout << std::setw(3) << i << std::setw(20) << luaL_typename(L, i) << std::setw(30);
+        std::cout << std::setw(3) << i << std::setw(20) << luaL_typename(L, i)
+                  << std::setw(30);
         switch (lua::type(L, i)) {
             case LUA_TNUMBER:
                 std::cout << tonumber(L, i);
@@ -190,13 +195,16 @@ static std::shared_ptr<std::string> create_lambda_handler(State* L) {
     setfield(L, name);
     pop(L, 2);
 
-    return std::shared_ptr<std::string>(new std::string(name), [=](std::string* name) {
-        getglobal(L, LAMBDAS_TABLE);
-        pushnil(L);
-        setfield(L, *name);
-        pop(L);
-        delete name;
-    });
+    return std::shared_ptr<std::string>(
+        new std::string(name),
+        [=](std::string* name) {
+            getglobal(L, LAMBDAS_TABLE);
+            pushnil(L);
+            setfield(L, *name);
+            pop(L);
+            delete name;
+        }
+    );
 }
 
 runnable lua::create_runnable(State* L) {
@@ -231,7 +239,7 @@ int lua::create_environment(State* L, int parent) {
 
     // local env = {}
     createtable(L, 0, 1);
-    
+
     // setmetatable(env, {__index=_G})
     createtable(L, 0, 1);
     if (parent == 0) {
@@ -248,7 +256,6 @@ int lua::create_environment(State* L, int parent) {
     setglobal(L, env_name(id));
     return id;
 }
-
 
 void lua::removeEnvironment(State* L, int id) {
     if (id == 0) {

@@ -1,14 +1,13 @@
-#include "api_lua.hpp"
+#include <cmath>
+#include <filesystem>
 
 #include "../../../assets/Assets.hpp"
 #include "../../../assets/AssetsLoader.hpp"
+#include "../../../engine.hpp"
 #include "../../../files/engine_paths.hpp"
 #include "../../../world/Level.hpp"
 #include "../../../world/World.hpp"
-#include "../../../engine.hpp"
-
-#include <cmath>
-#include <filesystem>
+#include "api_lua.hpp"
 
 using namespace scripting;
 namespace fs = std::filesystem;
@@ -20,17 +19,19 @@ static int l_world_get_list(lua::State* L) {
     lua::createtable(L, worlds.size(), 0);
     for (size_t i = 0; i < worlds.size(); i++) {
         lua::createtable(L, 0, 1);
-        
+
         auto name = worlds[i].filename().u8string();
         lua::pushstring(L, name);
         lua::setfield(L, "name");
-        
+
         auto assets = engine->getAssets();
-        std::string icon = "world#"+name+".icon";
-        if (!AssetsLoader::loadExternalTexture(assets, icon, {
-            worlds[i]/fs::path("icon.png"),
-            worlds[i]/fs::path("preview.png")
-        })) {
+        std::string icon = "world#" + name + ".icon";
+        if (!AssetsLoader::loadExternalTexture(
+                assets,
+                icon,
+                {worlds[i] / fs::path("icon.png"),
+                 worlds[i] / fs::path("preview.png")}
+            )) {
             icon = "gui/no_world_icon";
         }
         lua::pushstring(L, icon);
@@ -84,7 +85,7 @@ static int l_world_is_night(lua::State* L) {
     return lua::pushboolean(L, daytime < 0.2 || daytime > 0.8);
 }
 
-const luaL_Reg worldlib [] = {
+const luaL_Reg worldlib[] = {
     {"get_list", lua::wrap<l_world_get_list>},
     {"get_total_time", lua::wrap<l_world_get_total_time>},
     {"get_day_time", lua::wrap<l_world_get_day_time>},
@@ -95,5 +96,4 @@ const luaL_Reg worldlib [] = {
     {"is_day", lua::wrap<l_world_is_day>},
     {"is_night", lua::wrap<l_world_is_night>},
     {"exists", lua::wrap<l_world_exists>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

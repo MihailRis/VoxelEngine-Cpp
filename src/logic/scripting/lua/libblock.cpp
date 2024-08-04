@@ -1,23 +1,19 @@
-#include "api_lua.hpp"
-
-#include "../../../world/Level.hpp"
-#include "../../../voxels/Chunks.hpp"
-#include "../../../voxels/Chunk.hpp"
-#include "../../../voxels/Block.hpp"
-#include "../../../voxels/voxel.hpp"
-#include "../../../lighting/Lighting.hpp"
 #include "../../../content/Content.hpp"
+#include "../../../lighting/Lighting.hpp"
 #include "../../../logic/BlocksController.hpp"
 #include "../../../logic/LevelController.hpp"
+#include "../../../voxels/Block.hpp"
+#include "../../../voxels/Chunk.hpp"
+#include "../../../voxels/Chunks.hpp"
+#include "../../../voxels/voxel.hpp"
+#include "../../../world/Level.hpp"
+#include "api_lua.hpp"
 
 using namespace scripting;
 
-static Block* require_block(lua::State* L) {
+static const Block* require_block(lua::State* L) {
     auto indices = content->getIndices();
     auto id = lua::tointeger(L, 1);
-    if (static_cast<size_t>(id) >= indices->blocks.count()) {
-        return nullptr;
-    }
     return indices->blocks.get(id);
 }
 
@@ -79,15 +75,17 @@ static int l_seek_origin(lua::State* L) {
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
     auto vox = level->chunks->get(x, y, z);
-    auto def = indices->blocks.get(vox->id);
-    return lua::pushivec3_stack(L, level->chunks->seekOrigin({x, y, z}, def, vox->state));
+    auto& def = indices->blocks.require(vox->id);
+    return lua::pushivec3_stack(
+        L, level->chunks->seekOrigin({x, y, z}, def, vox->state)
+    );
 }
 
 static int l_set(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
-    auto id = lua::tointeger(L, 4);    
+    auto id = lua::tointeger(L, 4);
     auto state = lua::tointeger(L, 5);
     bool noupdate = lua::toboolean(L, 6);
     if (static_cast<size_t>(id) >= indices->blocks.count()) {
@@ -97,7 +95,7 @@ static int l_set(lua::State* L) {
         return 0;
     }
     level->chunks->set(x, y, z, id, int2blockstate(state));
-    level->lighting->onBlockSet(x,y,z, id);
+    level->lighting->onBlockSet(x, y, z, id);
     if (!noupdate) {
         blocks->updateSides(x, y, z);
     }
@@ -121,11 +119,11 @@ static int l_get_x(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3_stack(L, 1, 0, 0);
     }
-    auto def = level->content->getIndices()->blocks.get(vox->id);
-    if (!def->rotatable) {
+    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    if (!def.rotatable) {
         return lua::pushivec3_stack(L, 1, 0, 0);
     } else {
-        const CoordSystem& rot = def->rotations.variants[vox->state.rotation];
+        const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
         return lua::pushivec3_stack(L, rot.axisX.x, rot.axisX.y, rot.axisX.z);
     }
 }
@@ -138,11 +136,11 @@ static int l_get_y(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3_stack(L, 0, 1, 0);
     }
-    auto def = level->content->getIndices()->blocks.get(vox->id);
-    if (!def->rotatable) {
+    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    if (!def.rotatable) {
         return lua::pushivec3_stack(L, 0, 1, 0);
     } else {
-        const CoordSystem& rot = def->rotations.variants[vox->state.rotation];
+        const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
         return lua::pushivec3_stack(L, rot.axisY.x, rot.axisY.y, rot.axisY.z);
     }
 }
@@ -155,11 +153,11 @@ static int l_get_z(lua::State* L) {
     if (vox == nullptr) {
         return lua::pushivec3_stack(L, 0, 0, 1);
     }
-    auto def = level->content->getIndices()->blocks.get(vox->id);
-    if (!def->rotatable) {
+    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    if (!def.rotatable) {
         return lua::pushivec3_stack(L, 0, 0, 1);
     } else {
-        const CoordSystem& rot = def->rotations.variants[vox->state.rotation];
+        const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
         return lua::pushivec3_stack(L, rot.axisZ.x, rot.axisZ.y, rot.axisZ.z);
     }
 }
@@ -232,7 +230,7 @@ static int l_set_user_bits(lua::State* L) {
 
     size_t mask = ((1 << bits) - 1) << offset;
     auto value = (lua::tointeger(L, 6) << offset) & mask;
-    
+
     auto chunk = level->chunks->getChunkByVoxel(x, y, z);
     if (chunk == nullptr) {
         return 0;
@@ -243,7 +241,7 @@ static int l_set_user_bits(lua::State* L) {
     }
     vox->state.userbits = (vox->state.userbits & (~mask)) | value;
     chunk->setModifiedAndUnsaved();
-    return 0; 
+    return 0;
 }
 
 static int l_is_replaceable_at(lua::State* L) {
@@ -265,7 +263,7 @@ static int l_get_textures(lua::State* L) {
         lua::createtable(L, 6, 0);
         for (size_t i = 0; i < 6; i++) {
             lua::pushstring(L, def->textureFaces[i]);
-            lua::rawseti(L, i+1);
+            lua::rawseti(L, i + 1);
         }
         return 1;
     }
@@ -283,7 +281,7 @@ static int l_get_hitbox(lua::State* L) {
     if (auto def = require_block(L)) {
         auto& hitbox = def->rt.hitboxes[lua::tointeger(L, 2)].at(0);
         lua::createtable(L, 2, 0);
-        
+
         lua::pushvec3(L, hitbox.min());
         lua::rawseti(L, 1);
 
@@ -296,14 +294,14 @@ static int l_get_hitbox(lua::State* L) {
 
 static int l_get_rotation_profile(lua::State* L) {
     if (auto def = require_block(L)) {
-        return lua::pushstring(L, def->rotations.name);   
+        return lua::pushstring(L, def->rotations.name);
     }
     return 0;
 }
 
 static int l_get_picking_item(lua::State* L) {
     if (auto def = require_block(L)) {
-        return lua::pushinteger(L, def->rt.pickingItem);   
+        return lua::pushinteger(L, def->rt.pickingItem);
     }
     return 0;
 }
@@ -323,11 +321,14 @@ static int l_place(lua::State* L) {
     }
     const auto def = level->content->getIndices()->blocks.get(id);
     if (def == nullptr) {
-        throw std::runtime_error("there is no block with index "+std::to_string(id));
+        throw std::runtime_error(
+            "there is no block with index " + std::to_string(id)
+        );
     }
     auto player = level->getObject<Player>(playerid);
     controller->getBlocksController()->placeBlock(
-        player ? player.get() : nullptr, def, int2blockstate(state), x, y, z);
+        player ? player.get() : nullptr, *def, int2blockstate(state), x, y, z
+    );
     return 0;
 }
 
@@ -340,10 +341,11 @@ static int l_destruct(lua::State* L) {
     if (voxel == nullptr) {
         return 0;
     }
-    const auto def = level->content->getIndices()->blocks.get(voxel->id);
+    auto& def = level->content->getIndices()->blocks.require(voxel->id);
     auto player = level->getObject<Player>(playerid);
     controller->getBlocksController()->breakBlock(
-        player ? player.get() : nullptr, def, x, y, z);
+        player ? player.get() : nullptr, def, x, y, z
+    );
     return 0;
 }
 
@@ -354,13 +356,15 @@ static int l_raycast(lua::State* L) {
     glm::vec3 end;
     glm::ivec3 normal;
     glm::ivec3 iend;
-    if (auto voxel = level->chunks->rayCast(start, dir, maxDistance, end, normal, iend)) {
+    if (auto voxel = level->chunks->rayCast(
+            start, dir, maxDistance, end, normal, iend
+        )) {
         if (lua::gettop(L) >= 4) {
             lua::pushvalue(L, 4);
         } else {
             lua::createtable(L, 0, 5);
         }
-        
+
         lua::pushvec3(L, end);
         lua::setfield(L, "endpoint");
 
@@ -385,10 +389,16 @@ static int l_compose_state(lua::State* L) {
         throw std::runtime_error("expected array of 3 integers");
     }
     blockstate state {};
-    
-    lua::rawgeti(L, 1, 1); state.rotation = lua::tointeger(L, -1); lua::pop(L);
-    lua::rawgeti(L, 2, 1); state.segment = lua::tointeger(L, -1); lua::pop(L);
-    lua::rawgeti(L, 3, 1); state.userbits = lua::tointeger(L, -1); lua::pop(L);
+
+    lua::rawgeti(L, 1, 1);
+    state.rotation = lua::tointeger(L, -1);
+    lua::pop(L);
+    lua::rawgeti(L, 2, 1);
+    state.segment = lua::tointeger(L, -1);
+    lua::pop(L);
+    lua::rawgeti(L, 3, 1);
+    state.userbits = lua::tointeger(L, -1);
+    lua::pop(L);
 
     return lua::pushinteger(L, blockstate2int(state));
 }
@@ -409,7 +419,7 @@ static int l_decompose_state(lua::State* L) {
     return 1;
 }
 
-const luaL_Reg blocklib [] = {
+const luaL_Reg blocklib[] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_get_def>},
     {"material", lua::wrap<l_material>},
@@ -442,5 +452,4 @@ const luaL_Reg blocklib [] = {
     {"raycast", lua::wrap<l_raycast>},
     {"compose_state", lua::wrap<l_compose_state>},
     {"decompose_state", lua::wrap<l_decompose_state>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

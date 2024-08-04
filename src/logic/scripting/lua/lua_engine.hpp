@@ -1,21 +1,24 @@
 #ifndef LOGIC_SCRIPTING_LUA_STATE_HPP_
 #define LOGIC_SCRIPTING_LUA_STATE_HPP_
 
-#include "lua_util.hpp"
+#include <stdexcept>
+#include <string>
 
-#include "../scripting_functional.hpp"
 #include "../../../data/dynamic.hpp"
 #include "../../../delegates.hpp"
-
-#include <string>
-#include <stdexcept>
+#include "../scripting_functional.hpp"
+#include "lua_util.hpp"
 
 namespace lua {
     void initialize();
     void finalize();
 
-    bool emit_event(lua::State*, const std::string& name, std::function<int(lua::State*)> args=[](auto*){return 0;});
+    bool emit_event(
+        lua::State*,
+        const std::string& name,
+        std::function<int(lua::State*)> args = [](auto*) { return 0; }
+    );
     lua::State* get_main_thread();
 }
 
-#endif // LOGIC_SCRIPTING_LUA_STATE_HPP_
+#endif  // LOGIC_SCRIPTING_LUA_STATE_HPP_

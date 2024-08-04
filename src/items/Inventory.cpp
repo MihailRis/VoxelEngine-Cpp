@@ -1,7 +1,7 @@
 #include "Inventory.hpp"
 
-#include "../data/dynamic.hpp"
 #include "../content/ContentLUT.hpp"
+#include "../data/dynamic.hpp"
 
 Inventory::Inventory(int64_t id, size_t size) : id(id), slots(size) {
 }
@@ -35,11 +35,8 @@ size_t Inventory::findSlotByItem(itemid_t id, size_t begin, size_t end) {
 }
 
 void Inventory::move(
-    ItemStack& item, 
-    const ContentIndices* indices, 
-    size_t begin, 
-    size_t end) 
-{
+    ItemStack& item, const ContentIndices* indices, size_t begin, size_t end
+) {
     end = std::min(slots.size(), end);
     for (size_t i = begin; i < end && !item.isEmpty(); i++) {
         ItemStack& slot = slots[i];
@@ -61,7 +58,7 @@ void Inventory::deserialize(dynamic::Map* src) {
         itemid_t id = item->get("id", ITEM_EMPTY);
         itemcount_t count = item->get("count", 0);
         auto& slot = slots[i];
-        slot.set(ItemStack(id, count)); 
+        slot.set(ItemStack(id, count));
     }
 }
 

@@ -41,8 +41,7 @@ ImageData::ImageData(ImageFormat format, uint width, uint height, const ubyte* d
     std::memcpy(this->data.get(), data, width * height * pixsize);
 }
 
-ImageData::~ImageData() {
-}
+ImageData::~ImageData() = default;
 
 void ImageData::flipX() {
     switch (format) {

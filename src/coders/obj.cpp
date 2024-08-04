@@ -1,7 +1,7 @@
 #include "obj.hpp"
 
-#include "commons.hpp"
 #include "../graphics/core/Model.hpp"
+#include "commons.hpp"
 
 using namespace model;
 
@@ -34,8 +34,7 @@ class ObjParser : BasicParser {
                 } while (peekInLine() != '\n' && ++i < 3);
 
                 vertices.push_back(Vertex {
-                    coords[indices[0]], uvs[indices[1]], normals[indices[2]]
-                });
+                    coords[indices[0]], uvs[indices[1]], normals[indices[2]]});
             }
         }
         if (peekInLine() != '\n' && hasNext()) {
@@ -51,7 +50,8 @@ class ObjParser : BasicParser {
         }
     }
 public:
-    ObjParser(const std::string_view file, const std::string_view src) : BasicParser(file, src) {
+    ObjParser(const std::string_view file, const std::string_view src)
+        : BasicParser(file, src) {
     }
 
     std::unique_ptr<Model> parse() {
@@ -111,7 +111,7 @@ public:
                 }
                 skipLine();
             }
-        } while(hasNext());
+        } while (hasNext());
         model->clean();
         return model;
     }

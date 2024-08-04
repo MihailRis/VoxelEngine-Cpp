@@ -1,22 +1,22 @@
 #ifndef CONTENT_ITEMS_ITEM_DEF_HPP_
 #define CONTENT_ITEMS_ITEM_DEF_HPP_
 
-#include <string>
 #include <glm/glm.hpp>
+#include <string>
 
 #include "../typedefs.hpp"
 
 struct item_funcs_set {
-    bool init: 1;
-    bool on_use: 1;
-    bool on_use_on_block: 1;
-    bool on_block_break_by: 1;
+    bool init : 1;
+    bool on_use : 1;
+    bool on_use_on_block : 1;
+    bool on_block_break_by : 1;
 };
 
 enum class item_icon_type {
-    none, // invisible (core:empty) must not be rendered
-    sprite, // textured quad: icon is `atlas_name:texture_name`
-    block, // block preview: icon is string block id
+    none,    // invisible (core:empty) must not be rendered
+    sprite,  // textured quad: icon is `atlas_name:texture_name`
+    block,   // block preview: icon is string block id
 };
 
 struct ItemDef {
@@ -34,12 +34,12 @@ struct ItemDef {
     std::string icon = "blocks:notfound";
 
     std::string placingBlock = "core:air";
-    std::string scriptName = name.substr(name.find(':')+1);
+    std::string scriptName = name.substr(name.find(':') + 1);
 
     struct {
         itemid_t id;
-        item_funcs_set funcsset {};
         blockid_t placingBlock;
+        item_funcs_set funcsset {};
         bool emissive = false;
     } rt {};
 
@@ -47,4 +47,4 @@ struct ItemDef {
     ItemDef(const ItemDef&) = delete;
 };
 
-#endif //CONTENT_ITEMS_ITEM_DEF_HPP_
+#endif  // CONTENT_ITEMS_ITEM_DEF_HPP_

@@ -1,6 +1,9 @@
 #include "WorldConverter.hpp"
 
-#include "WorldFiles.hpp"
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+#include <utility>
 
 #include "../content/ContentLUT.hpp"
 #include "../data/dynamic.hpp"
@@ -9,11 +12,7 @@
 #include "../objects/Player.hpp"
 #include "../util/ThreadPool.hpp"
 #include "../voxels/Chunk.hpp"
-
-#include <memory>
-#include <iostream>
-#include <stdexcept>
-#include <utility>
+#include "WorldFiles.hpp"
 
 namespace fs = std::filesystem;
 
@@ -22,8 +21,9 @@ static debug::Logger logger("world-converter");
 class ConverterWorker : public util::Worker<convert_task, int> {
     std::shared_ptr<WorldConverter> converter;
 public:
-    ConverterWorker(std::shared_ptr<WorldConverter> converter) 
-    : converter(std::move(converter)) {}
+    ConverterWorker(std::shared_ptr<WorldConverter> converter)
+        : converter(std::move(converter)) {
+    }
 
     int operator()(const std::shared_ptr<convert_task>& task) override {
         converter->convert(*task);
@@ -33,18 +33,20 @@ public:
 
 WorldConverter::WorldConverter(
     const fs::path& folder,
-    const Content* content, 
+    const Content* content,
     std::shared_ptr<ContentLUT> lut
-) : wfile(std::make_unique<WorldFiles>(folder)), 
-    lut(std::move(lut)),
-    content(content) 
-{
-    fs::path regionsFolder = wfile->getRegions().getRegionsFolder(REGION_LAYER_VOXELS);
+)
+    : wfile(std::make_unique<WorldFiles>(folder)),
+      lut(std::move(lut)),
+      content(content) {
+    fs::path regionsFolder =
+        wfile->getRegions().getRegionsFolder(REGION_LAYER_VOXELS);
     if (!fs::is_directory(regionsFolder)) {
         logger.error() << "nothing to convert";
         return;
     }
-    tasks.push(convert_task {convert_task_type::player, wfile->getPlayerFile()});
+    tasks.push(convert_task {convert_task_type::player, wfile->getPlayerFile()}
+    );
     for (const auto& file : fs::directory_iterator(regionsFolder)) {
         tasks.push(convert_task {convert_task_type::region, file.path()});
     }
@@ -55,7 +57,7 @@ WorldConverter::~WorldConverter() {
 
 std::shared_ptr<Task> WorldConverter::startTask(
     const fs::path& folder,
-    const Content* content, 
+    const Content* content,
     const std::shared_ptr<ContentLUT>& lut,
     const runnable& onDone,
     bool multithreading
@@ -70,14 +72,15 @@ std::shared_ptr<Task> WorldConverter::startTask(
     }
     auto pool = std::make_shared<util::ThreadPool<convert_task, int>>(
         "converter-pool",
-        [=](){return std::make_shared<ConverterWorker>(converter);},
+        [=]() { return std::make_shared<ConverterWorker>(converter); },
         [=](int&) {}
     );
-    while (!converter->tasks.empty()) {
-        const convert_task& task = converter->tasks.front();
+    auto& converterTasks = converter->tasks;
+    while (!converterTasks.empty()) {
+        const convert_task& task = converterTasks.front();
         auto ptr = std::make_shared<convert_task>(task);
         pool->enqueueJob(ptr);
-        converter->tasks.pop();
+        converterTasks.pop();
     }
     pool->setOnComplete([=]() {
         converter->write();
@@ -110,8 +113,7 @@ void WorldConverter::convertPlayer(const fs::path& file) const {
 }
 
 void WorldConverter::convert(const convert_task& task) const {
-    if (!fs::is_regular_file(task.file))
-        return;
+    if (!fs::is_regular_file(task.file)) return;
 
     switch (task.type) {
         case convert_task_type::region:

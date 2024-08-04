@@ -1,19 +1,19 @@
 #include "Player.hpp"
 
-#include "../content/ContentLUT.hpp"
-#include "../physics/Hitbox.hpp"
-#include "../physics/PhysicsSolver.hpp"
-#include "../voxels/Chunks.hpp"
-#include "../world/Level.hpp"
-#include "../window/Events.hpp"
-#include "../window/Camera.hpp"
-#include "../items/Inventory.hpp"
-#include "../objects/Entities.hpp"
-#include "../objects/rigging.hpp"
-
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <utility>
+
+#include "../content/ContentLUT.hpp"
+#include "../items/Inventory.hpp"
+#include "../objects/Entities.hpp"
+#include "../objects/rigging.hpp"
+#include "../physics/Hitbox.hpp"
+#include "../physics/PhysicsSolver.hpp"
+#include "../voxels/Chunks.hpp"
+#include "../window/Camera.hpp"
+#include "../window/Events.hpp"
+#include "../world/Level.hpp"
 
 const float CROUCH_SPEED_MUL = 0.35f;
 const float RUN_SPEED_MUL = 1.5f;
@@ -23,19 +23,23 @@ const float FLIGHT_SPEED_MUL = 4.0f;
 const float CHEAT_SPEED_MUL = 5.0f;
 const float JUMP_FORCE = 8.0f;
 
-Player::Player(Level* level, glm::vec3 position, float speed, 
-               std::shared_ptr<Inventory> inv, entityid_t eid) :
-    level(level),
-    speed(speed),
-    chosenSlot(0),
-    position(position),
-    inventory(std::move(inv)),
-    eid(eid),
-    camera(level->getCamera("base:first-person")),
-    spCamera(level->getCamera("base:third-person-front")),
-    tpCamera(level->getCamera("base:third-person-back")),
-    currentCamera(camera)
-{
+Player::Player(
+    Level* level,
+    glm::vec3 position,
+    float speed,
+    std::shared_ptr<Inventory> inv,
+    entityid_t eid
+)
+    : level(level),
+      speed(speed),
+      chosenSlot(0),
+      position(position),
+      inventory(std::move(inv)),
+      eid(eid),
+      camera(level->getCamera("base:first-person")),
+      spCamera(level->getCamera("base:third-person-front")),
+      tpCamera(level->getCamera("base:third-person-back")),
+      currentCamera(camera) {
     camera->setFov(glm::radians(90.0f));
     spCamera->setFov(glm::radians(90.0f));
     tpCamera->setFov(glm::radians(90.0f));
@@ -69,10 +73,10 @@ void Player::updateInput(PlayerInput& input, float delta) {
     }
     bool crouch = input.shift && hitbox->grounded && !input.sprint;
     float speed = this->speed;
-    if (flight){
+    if (flight) {
         speed *= FLIGHT_SPEED_MUL;
     }
-    if (input.cheat){
+    if (input.cheat) {
         speed *= CHEAT_SPEED_MUL;
     }
 
@@ -83,20 +87,20 @@ void Player::updateInput(PlayerInput& input, float delta) {
         speed *= RUN_SPEED_MUL;
     }
 
-    glm::vec3 dir(0,0,0);
-    if (input.moveForward){
+    glm::vec3 dir(0, 0, 0);
+    if (input.moveForward) {
         dir += camera->dir;
     }
-    if (input.moveBack){
+    if (input.moveBack) {
         dir -= camera->dir;
     }
-    if (input.moveRight){
+    if (input.moveRight) {
         dir += camera->right;
     }
-    if (input.moveLeft){
+    if (input.moveLeft) {
         dir -= camera->right;
     }
-    if (glm::length(dir) > 0.0f){
+    if (glm::length(dir) > 0.0f) {
         dir = glm::normalize(dir);
         hitbox->velocity += dir * speed * delta * 9.0f;
     }
@@ -104,12 +108,12 @@ void Player::updateInput(PlayerInput& input, float delta) {
     hitbox->linearDamping = PLAYER_GROUND_DAMPING;
     hitbox->verticalDamping = flight;
     hitbox->gravityScale = flight ? 0.0f : 1.0f;
-    if (flight){
+    if (flight) {
         hitbox->linearDamping = PLAYER_AIR_DAMPING;
-        if (input.jump){
+        if (input.jump) {
             hitbox->velocity.y += speed * delta * 9;
         }
-        if (input.shift){
+        if (input.shift) {
             hitbox->velocity.y -= speed * delta * 9;
         }
     }
@@ -117,14 +121,13 @@ void Player::updateInput(PlayerInput& input, float delta) {
         hitbox->linearDamping = PLAYER_AIR_DAMPING;
     }
 
-    if (input.jump && hitbox->grounded){
+    if (input.jump && hitbox->grounded) {
         hitbox->velocity.y = JUMP_FORCE;
     }
 
-    if ((input.flight && !noclip) ||
-        (input.noclip && flight == noclip)){
+    if ((input.flight && !noclip) || (input.noclip && flight == noclip)) {
         flight = !flight;
-        if (flight){
+        if (flight) {
             hitbox->velocity.y += 1.0f;
         }
     }
@@ -140,7 +143,6 @@ void Player::updateSelectedEntity() {
     selectedEid = selection.entity;
 }
 
-#include "../window/Window.hpp"
 void Player::postUpdate() {
     auto entity = level->entities->get(eid);
     if (!entity.has_value()) {
@@ -163,10 +165,10 @@ void Player::postUpdate() {
     size_t bodyIndex = skeleton.config->find("body")->getIndex();
     size_t headIndex = skeleton.config->find("head")->getIndex();
 
-    skeleton.pose.matrices[bodyIndex] = 
+    skeleton.pose.matrices[bodyIndex] =
         glm::rotate(glm::mat4(1.0f), glm::radians(cam.x), glm::vec3(0, 1, 0));
-    skeleton.pose.matrices[headIndex] = glm::rotate(
-        glm::mat4(1.0f), glm::radians(cam.y), glm::vec3(1, 0, 0));
+    skeleton.pose.matrices[headIndex] =
+        glm::rotate(glm::mat4(1.0f), glm::radians(cam.y), glm::vec3(1, 0, 0));
 }
 
 void Player::teleport(glm::vec3 position) {
@@ -177,16 +179,17 @@ void Player::teleport(glm::vec3 position) {
 }
 
 void Player::attemptToFindSpawnpoint() {
-    glm::vec3 newpos (
+    glm::vec3 newpos(
         position.x + (rand() % 200 - 100),
         rand() % 80 + 100,
         position.z + (rand() % 200 - 100)
     );
-    while (newpos.y > 0 && !level->chunks->isObstacleBlock(newpos.x, newpos.y-2, newpos.z)) {
+    while (newpos.y > 0 &&
+           !level->chunks->isObstacleBlock(newpos.x, newpos.y - 2, newpos.z)) {
         newpos.y--;
     }
 
-    voxel* headvox = level->chunks->get(newpos.x, newpos.y+1, newpos.z);
+    voxel* headvox = level->chunks->get(newpos.x, newpos.y + 1, newpos.z);
     if (level->chunks->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
         headvox == nullptr || headvox->id != 0) {
         return;
@@ -269,16 +272,19 @@ std::unique_ptr<dynamic::Map> Player::serialize() const {
     root->put("chosen-slot", chosenSlot);
     root->put("entity", eid);
     root->put("inventory", inventory->serialize());
-    auto found = std::find(
-        level->cameras.begin(), level->cameras.end(), currentCamera);
+    auto found =
+        std::find(level->cameras.begin(), level->cameras.end(), currentCamera);
     if (found != level->cameras.end()) {
-        root->put("camera", level->content->getIndices(
-            ResourceType::CAMERA).getName(found - level->cameras.begin()));
+        root->put(
+            "camera",
+            level->content->getIndices(ResourceType::CAMERA)
+                .getName(found - level->cameras.begin())
+        );
     }
     return root;
 }
 
-void Player::deserialize(dynamic::Map *src) {
+void Player::deserialize(dynamic::Map* src) {
     auto posarr = src->list("position");
     position.x = posarr->num(0);
     position.y = posarr->num(1);
@@ -294,11 +300,7 @@ void Player::deserialize(dynamic::Map *src) {
 
     if (src->has("spawnpoint")) {
         auto sparr = src->list("spawnpoint");
-        setSpawnPoint(glm::vec3(
-            sparr->num(0),
-            sparr->num(1),
-            sparr->num(2)
-        ));
+        setSpawnPoint(glm::vec3(sparr->num(0), sparr->num(1), sparr->num(2)));
     } else {
         setSpawnPoint(position);
     }
@@ -307,11 +309,11 @@ void Player::deserialize(dynamic::Map *src) {
     src->flag("noclip", noclip);
     setChosenSlot(src->get("chosen-slot", getChosenSlot()));
     src->num("entity", eid);
-    
+
     if (auto invmap = src->map("inventory")) {
         getInventory()->deserialize(invmap.get());
     }
-    
+
     if (src->has("camera")) {
         std::string name;
         src->str("camera", name);
@@ -330,7 +332,7 @@ void Player::convert(dynamic::Map* data, const ContentLUT* lut) {
                 Inventory::convert(inventory.get(), lut);
             }
         }
-    
+
     } else {
         if (auto inventory = data->map("inventory")) {
             Inventory::convert(inventory.get(), lut);

@@ -1,14 +1,14 @@
 #ifndef SRC_AUDIO_AUDIO_HPP_
 #define SRC_AUDIO_AUDIO_HPP_
 
-#include "../audio.hpp"
-#include "../../typedefs.hpp"
-
-#include <queue>
-#include <vector>
-#include <string>
 #include <glm/glm.hpp>
+#include <queue>
+#include <string>
 #include <unordered_map>
+#include <vector>
+
+#include "../../typedefs.hpp"
+#include "../audio.hpp"
 
 #ifdef __APPLE__
 #include <OpenAL/al.h>
@@ -29,7 +29,12 @@ namespace audio {
         std::shared_ptr<PCM> pcm;
         duration_t duration;
     public:
-        ALSound(ALAudio* al, uint buffer, const std::shared_ptr<PCM>& pcm, bool keepPCM);
+        ALSound(
+            ALAudio* al,
+            uint buffer,
+            const std::shared_ptr<PCM>& pcm,
+            bool keepPCM
+        );
         ~ALSound();
 
         duration_t getDuration() const override {
@@ -40,12 +45,13 @@ namespace audio {
             return pcm;
         }
 
-        std::unique_ptr<Speaker> newInstance(int priority, int channel) const override;
+        std::unique_ptr<Speaker> newInstance(int priority, int channel)
+            const override;
     };
 
     class ALStream : public Stream {
         static inline constexpr size_t BUFFER_SIZE = 44100;
-        
+
         ALAudio* al;
         std::shared_ptr<PCMStream> source;
         std::queue<uint> unusedBuffers;
@@ -60,19 +66,21 @@ namespace audio {
     public:
         size_t totalPlayedSamples = 0;
 
-        ALStream(ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSource);
+        ALStream(
+            ALAudio* al, std::shared_ptr<PCMStream> source, bool keepSource
+        );
         ~ALStream();
 
         std::shared_ptr<PCMStream> getSource() const override;
-        void bindSpeaker(speakerid_t speaker) override;
+        void bindSpeaker(speakerid_t speakerid) override;
         std::unique_ptr<Speaker> createSpeaker(bool loop, int channel) override;
         speakerid_t getSpeaker() const override;
         void update(double delta) override;
-        
-        duration_t getTime() const override;
-        void setTime(duration_t time) override;       
 
-        static inline constexpr uint STREAM_BUFFERS = 3; 
+        duration_t getTime() const override;
+        void setTime(duration_t time) override;
+
+        static inline constexpr uint STREAM_BUFFERS = 3;
     };
 
     /// @brief AL source adapter
@@ -147,8 +155,12 @@ namespace audio {
 
         std::vector<std::string> getAvailableDevices() const;
 
-        std::unique_ptr<Sound> createSound(std::shared_ptr<PCM> pcm, bool keepPCM) override;
-        std::unique_ptr<Stream> openStream(std::shared_ptr<PCMStream> stream, bool keepSource) override;
+        std::unique_ptr<Sound> createSound(
+            std::shared_ptr<PCM> pcm, bool keepPCM
+        ) override;
+        std::unique_ptr<Stream> openStream(
+            std::shared_ptr<PCMStream> stream, bool keepSource
+        ) override;
 
         void setListener(
             glm::vec3 position,
@@ -158,7 +170,7 @@ namespace audio {
         ) override;
 
         void update(double delta) override;
-        
+
         bool isDummy() const override {
             return false;
         }
@@ -167,4 +179,4 @@ namespace audio {
     };
 }
 
-#endif // SRC_AUDIO_AUDIO_HPP_
+#endif  // SRC_AUDIO_AUDIO_HPP_

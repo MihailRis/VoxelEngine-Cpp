@@ -2,12 +2,12 @@
 #define UTIL_LISTUTIL_HPP_
 
 #include <algorithm>
-#include <vector>
-#include <string>
 #include <queue>
+#include <string>
+#include <vector>
 
 namespace util {
-    template<class T>
+    template <class T>
     bool contains(const std::vector<T>& vec, const T& value) {
         return std::find(vec.begin(), vec.end(), value) != vec.end();
     }
@@ -15,4 +15,4 @@ namespace util {
     std::string to_string(const std::vector<std::string>& vec);
 }
 
-#endif // UTIL_LISTUTIL_HPP_
+#endif  // UTIL_LISTUTIL_HPP_

@@ -29,7 +29,7 @@ public:
     );
 
     void createWorld(
-        const std::string& name, 
+        const std::string& name,
         const std::string& seedstr,
         const std::string& generatorID
     );
@@ -37,4 +37,4 @@ public:
     void reopenWorld(World* world);
 };
 
-#endif // LOGIC_ENGINE_CONTROLLER_HPP_
+#endif  // LOGIC_ENGINE_CONTROLLER_HPP_

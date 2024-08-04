@@ -1,11 +1,12 @@
-#include "api_lua.hpp"
-
-#include <sstream>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>
 #include <glm/gtx/vector_angle.hpp>
+#include <sstream>
 
-template<typename T>
+#include "api_lua.hpp"
+
+template <typename T>
 inline T angle(glm::vec<2, T> vec) {
     auto val = std::atan2(vec.y, vec.x);
     if (val < 0.0) {
@@ -14,19 +15,19 @@ inline T angle(glm::vec<2, T> vec) {
     return val;
 }
 
-template<int n, template<class> class Op>
+template <int n, template <class> class Op>
 static int l_binop(lua::State* L) {
     uint argc = lua::check_argc(L, 2, 3);
     auto a = lua::tovec<n>(L, 1);
 
-    if (lua::isnumber(L, 2)) { // scalar second operand overload
+    if (lua::isnumber(L, 2)) {  // scalar second operand overload
         auto b = lua::tonumber(L, 2);
         Op op;
         if (argc == 2) {
             lua::createtable(L, n, 0);
             for (uint i = 0; i < n; i++) {
                 lua::pushnumber(L, op(a[i], b));
-                lua::rawseti(L, i+1);
+                lua::rawseti(L, i + 1);
             }
             return 1;
         } else {
@@ -39,7 +40,7 @@ static int l_binop(lua::State* L) {
             lua::createtable(L, n, 0);
             for (uint i = 0; i < n; i++) {
                 lua::pushnumber(L, op(a[i], b[i]));
-                lua::rawseti(L, i+1);
+                lua::rawseti(L, i + 1);
             }
             return 1;
         } else {
@@ -48,7 +49,7 @@ static int l_binop(lua::State* L) {
     }
 }
 
-template<int n, glm::vec<n, float>(*func)(const glm::vec<n, float>&)>
+template <int n, glm::vec<n, float> (*func)(const glm::vec<n, float>&)>
 static int l_unaryop(lua::State* L) {
     uint argc = lua::check_argc(L, 1, 2);
     auto vec = func(lua::tovec<n>(L, 1));
@@ -57,7 +58,7 @@ static int l_unaryop(lua::State* L) {
             lua::createtable(L, n, 0);
             for (uint i = 0; i < n; i++) {
                 lua::pushnumber(L, vec[i]);
-                lua::rawseti(L, i+1);
+                lua::rawseti(L, i + 1);
             }
             return 1;
         case 2:
@@ -66,25 +67,25 @@ static int l_unaryop(lua::State* L) {
     return 0;
 }
 
-template<int n, float(*func)(const glm::vec<n, float>&)>
+template <int n, float (*func)(const glm::vec<n, float>&)>
 static int l_scalar_op(lua::State* L) {
     lua::check_argc(L, 1);
     auto vec = lua::tovec<n>(L, 1);
     return lua::pushnumber(L, func(vec));
 }
 
-template<int n>
+template <int n>
 static int l_pow(lua::State* L) {
     uint argc = lua::check_argc(L, 2, 3);
     auto a = lua::tovec<n>(L, 1);
 
-    if (lua::isnumber(L, 2)) { 
+    if (lua::isnumber(L, 2)) {
         auto b = lua::tonumber(L, 2);
         if (argc == 2) {
             lua::createtable(L, n, 0);
             for (uint i = 0; i < n; i++) {
                 lua::pushnumber(L, pow(a[i], b));
-                lua::rawseti(L, i+1);
+                lua::rawseti(L, i + 1);
             }
             return 1;
         } else {
@@ -96,7 +97,7 @@ static int l_pow(lua::State* L) {
             lua::createtable(L, n, 0);
             for (uint i = 0; i < n; i++) {
                 lua::pushnumber(L, pow(a[i], b[i]));
-                lua::rawseti(L, i+1);
+                lua::rawseti(L, i + 1);
             }
             return 1;
         } else {
@@ -105,7 +106,7 @@ static int l_pow(lua::State* L) {
     }
 }
 
-template<int n>
+template <int n>
 static int l_dot(lua::State* L) {
     lua::check_argc(L, 2);
     const auto& a = lua::tovec<n>(L, 1);
@@ -113,7 +114,7 @@ static int l_dot(lua::State* L) {
     return lua::pushnumber(L, glm::dot(a, b));
 }
 
-template<int n>
+template <int n>
 static int l_inverse(lua::State* L) {
     uint argc = lua::check_argc(L, 1, 2);
     auto vec = lua::tovec<n>(L, 1);
@@ -121,8 +122,8 @@ static int l_inverse(lua::State* L) {
         case 1:
             lua::createtable(L, n, 0);
             for (uint i = 0; i < n; i++) {
-                lua::pushnumber(L, (-1)*vec[i]);
-                lua::rawseti(L, i+1);
+                lua::pushnumber(L, (-1) * vec[i]);
+                lua::rawseti(L, i + 1);
             }
             return 1;
         case 2:
@@ -137,8 +138,11 @@ static int l_spherical_rand(lua::State* L) {
         case 1:
             return lua::pushvec3(L, glm::sphericalRand(lua::tonumber(L, 1)));
         case 2:
-            return lua::setvec(L, 2, 
-                glm::sphericalRand(static_cast<float>(lua::tonumber(L, 1))));
+            return lua::setvec(
+                L,
+                2,
+                glm::sphericalRand(static_cast<float>(lua::tonumber(L, 1)))
+            );
     }
     return 0;
 }
@@ -148,12 +152,16 @@ static int l_vec2_angle(lua::State* L) {
     if (argc == 1) {
         return lua::pushnumber(L, glm::degrees(angle(lua::tovec2(L, 1))));
     } else {
-        return lua::pushnumber(L, glm::degrees(angle(
-            glm::vec2(lua::tonumber(L, 1), lua::tonumber(L, 2)))));
+        return lua::pushnumber(
+            L,
+            glm::degrees(
+                angle(glm::vec2(lua::tonumber(L, 1), lua::tonumber(L, 2)))
+            )
+        );
     }
 }
 
-template<int n>
+template <int n>
 static int l_tostring(lua::State* L) {
     lua::check_argc(L, 1);
     auto vec = lua::tovec<n>(L, 1);
@@ -169,7 +177,7 @@ static int l_tostring(lua::State* L) {
     return lua::pushstring(L, ss.str());
 }
 
-const luaL_Reg vec2lib [] = {
+const luaL_Reg vec2lib[] = {
     {"add", lua::wrap<l_binop<2, std::plus>>},
     {"sub", lua::wrap<l_binop<2, std::minus>>},
     {"mul", lua::wrap<l_binop<2, std::multiplies>>},
@@ -183,10 +191,9 @@ const luaL_Reg vec2lib [] = {
     {"pow", lua::wrap<l_pow<2>>},
     {"dot", lua::wrap<l_dot<2>>},
     {"angle", lua::wrap<l_vec2_angle>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};
 
-const luaL_Reg vec3lib [] = {
+const luaL_Reg vec3lib[] = {
     {"add", lua::wrap<l_binop<3, std::plus>>},
     {"sub", lua::wrap<l_binop<3, std::minus>>},
     {"mul", lua::wrap<l_binop<3, std::multiplies>>},
@@ -200,10 +207,9 @@ const luaL_Reg vec3lib [] = {
     {"pow", lua::wrap<l_pow<3>>},
     {"dot", lua::wrap<l_dot<3>>},
     {"spherical_rand", lua::wrap<l_spherical_rand>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};
 
-const luaL_Reg vec4lib [] = {
+const luaL_Reg vec4lib[] = {
     {"add", lua::wrap<l_binop<4, std::plus>>},
     {"sub", lua::wrap<l_binop<4, std::minus>>},
     {"mul", lua::wrap<l_binop<4, std::multiplies>>},
@@ -216,5 +222,4 @@ const luaL_Reg vec4lib [] = {
     {"inverse", lua::wrap<l_inverse<4>>},
     {"pow", lua::wrap<l_pow<4>>},
     {"dot", lua::wrap<l_dot<4>>},
-    {NULL, NULL}
-};
+    {NULL, NULL}};

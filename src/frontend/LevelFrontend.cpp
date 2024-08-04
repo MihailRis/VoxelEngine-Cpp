@@ -25,8 +25,8 @@ LevelFrontend::LevelFrontend(
         "block-previews"
     );
     controller->getBlocksController()->listenBlockInteraction(
-        [=](Player* player, glm::ivec3 pos, const Block* def, BlockInteraction type) {
-            auto material = level->content->findBlockMaterial(def->material);
+        [=](Player* player, glm::ivec3 pos, const Block& def, BlockInteraction type) {
+            auto material = level->content->findBlockMaterial(def.material);
             if (material == nullptr) {
                 return;
             }
@@ -81,8 +81,7 @@ LevelFrontend::LevelFrontend(
     );
 }
 
-LevelFrontend::~LevelFrontend() {
-}
+LevelFrontend::~LevelFrontend() = default;
 
 Level* LevelFrontend::getLevel() const {
     return level;

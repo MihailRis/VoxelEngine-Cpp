@@ -1,14 +1,12 @@
 #include "lua_custom_types.hpp"
 
-#include "lua_util.hpp"
-
 #include <sstream>
+
+#include "lua_util.hpp"
 
 using namespace lua;
 
-
-Bytearray::Bytearray(size_t capacity) 
-  : buffer(capacity) {
+Bytearray::Bytearray(size_t capacity) : buffer(capacity) {
     buffer.resize(capacity);
 }
 
@@ -32,7 +30,7 @@ static int l_bytearray_insert(lua::State* L) {
         return 0;
     }
     auto& data = buffer->data();
-    auto index = tointeger(L, 2)-1;
+    auto index = tointeger(L, 2) - 1;
     if (static_cast<size_t>(index) > data.size()) {
         return 0;
     }
@@ -47,11 +45,11 @@ static int l_bytearray_remove(lua::State* L) {
         return 0;
     }
     auto& data = buffer->data();
-    auto index = tointeger(L, 2)-1;
+    auto index = tointeger(L, 2) - 1;
     if (static_cast<size_t>(index) > data.size()) {
         return 0;
     }
-    data.erase(data.begin()+index);
+    data.erase(data.begin() + index);
     return 0;
 }
 
@@ -67,7 +65,7 @@ static int l_bytearray_meta_meta_call(lua::State* L) {
         std::vector<ubyte> buffer(len);
         buffer.resize(len);
         for (size_t i = 0; i < len; i++) {
-            rawgeti(L, i+1);
+            rawgeti(L, i + 1);
             buffer[i] = static_cast<ubyte>(tointeger(L, -1));
             pop(L);
         }
@@ -92,7 +90,7 @@ static int l_bytearray_meta_index(lua::State* L) {
             return pushcfunction(L, found->second);
         }
     }
-    auto index = tointeger(L, 2)-1;
+    auto index = tointeger(L, 2) - 1;
     if (static_cast<size_t>(index) > data.size()) {
         return 0;
     }
@@ -105,7 +103,7 @@ static int l_bytearray_meta_newindex(lua::State* L) {
         return 0;
     }
     auto& data = buffer->data();
-    auto index = static_cast<size_t>(tointeger(L, 2)-1);
+    auto index = static_cast<size_t>(tointeger(L, 2) - 1);
     auto value = tointeger(L, 3);
     if (index >= data.size()) {
         if (index == data.size()) {
@@ -131,7 +129,9 @@ static int l_bytearray_meta_tostring(lua::State* L) {
     }
     auto& data = buffer->data();
     if (data.size() > 512) {
-        return pushstring(L, "bytearray["+std::to_string(data.size())+"]{...}");
+        return pushstring(
+            L, "bytearray[" + std::to_string(data.size()) + "]{...}"
+        );
     } else {
         std::stringstream ss;
         ss << "bytearray[" << std::to_string(data.size()) << "]{";

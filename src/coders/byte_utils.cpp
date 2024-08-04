@@ -9,7 +9,7 @@ void ByteBuilder::put(ubyte b) {
 }
 
 void ByteBuilder::putCStr(const char* str) {
-    size_t size = strlen(str)+1;
+    size_t size = strlen(str) + 1;
     buffer.reserve(buffer.size() + size);
     for (size_t i = 0; i < size; i++) {
         buffer.push_back(str[i]);
@@ -37,21 +37,21 @@ void ByteBuilder::putInt16(int16_t val) {
 void ByteBuilder::putInt32(int32_t val) {
     buffer.reserve(buffer.size() + 4);
     buffer.push_back(static_cast<ubyte>(val >> 0 & 255));
-    buffer.push_back(static_cast<ubyte> (val >> 8 & 255));
-    buffer.push_back(static_cast<ubyte> (val >> 16 & 255));
-    buffer.push_back(static_cast<ubyte> (val >> 24 & 255));
+    buffer.push_back(static_cast<ubyte>(val >> 8 & 255));
+    buffer.push_back(static_cast<ubyte>(val >> 16 & 255));
+    buffer.push_back(static_cast<ubyte>(val >> 24 & 255));
 }
 
 void ByteBuilder::putInt64(int64_t val) {
     buffer.reserve(buffer.size() + 8);
-    buffer.push_back(static_cast<ubyte> (val >> 0 & 255));
-    buffer.push_back(static_cast<ubyte> (val >> 8 & 255));
-    buffer.push_back(static_cast<ubyte> (val >> 16 & 255));
-    buffer.push_back(static_cast<ubyte> (val >> 24 & 255));
-    buffer.push_back(static_cast<ubyte> (val >> 32 & 255));
-    buffer.push_back(static_cast<ubyte> (val >> 40 & 255));
-    buffer.push_back(static_cast<ubyte> (val >> 48 & 255));
-    buffer.push_back(static_cast<ubyte> (val >> 56 & 255));
+    buffer.push_back(static_cast<ubyte>(val >> 0 & 255));
+    buffer.push_back(static_cast<ubyte>(val >> 8 & 255));
+    buffer.push_back(static_cast<ubyte>(val >> 16 & 255));
+    buffer.push_back(static_cast<ubyte>(val >> 24 & 255));
+    buffer.push_back(static_cast<ubyte>(val >> 32 & 255));
+    buffer.push_back(static_cast<ubyte>(val >> 40 & 255));
+    buffer.push_back(static_cast<ubyte>(val >> 48 & 255));
+    buffer.push_back(static_cast<ubyte>(val >> 56 & 255));
 }
 
 void ByteBuilder::putFloat32(float val) {
@@ -102,8 +102,7 @@ ByteReader::ByteReader(const ubyte* data, size_t size)
     : data(data), size(size), pos(0) {
 }
 
-ByteReader::ByteReader(const ubyte* data)
-    : data(data), size(4), pos(0) {
+ByteReader::ByteReader(const ubyte* data) : data(data), size(4), pos(0) {
     size = getInt32();
 }
 
@@ -112,7 +111,7 @@ void ByteReader::checkMagic(const char* data, size_t size) {
         throw std::runtime_error("invalid magic number");
     }
     for (size_t i = 0; i < size; i++) {
-        if (this->data[pos + i] != (ubyte)data[i]){
+        if (this->data[pos + i] != (ubyte)data[i]) {
             throw std::runtime_error("invalid magic number");
         }
     }
@@ -130,11 +129,11 @@ ubyte ByteReader::peek() {
     if (pos == size) {
         throw std::runtime_error("buffer underflow");
     }
-    return data[pos]; 
+    return data[pos];
 }
 
 int16_t ByteReader::getInt16() {
-    if (pos+2 > size) {
+    if (pos + 2 > size) {
         throw std::runtime_error("buffer underflow");
     }
     pos += 2;
@@ -143,7 +142,7 @@ int16_t ByteReader::getInt16() {
 }
 
 int32_t ByteReader::getInt32() {
-    if (pos+4 > size) {
+    if (pos + 4 > size) {
         throw std::runtime_error("buffer underflow");
     }
     pos += 4;
@@ -154,7 +153,7 @@ int32_t ByteReader::getInt32() {
 }
 
 int64_t ByteReader::getInt64() {
-    if (pos+8 > size) {
+    if (pos + 8 > size) {
         throw std::runtime_error("buffer underflow");
     }
     pos += 8;
@@ -183,18 +182,20 @@ double ByteReader::getFloat64() {
 }
 
 const char* ByteReader::getCString() {
-    const char* cstr = reinterpret_cast<const char*>(data+pos);
+    const char* cstr = reinterpret_cast<const char*>(data + pos);
     pos += strlen(cstr) + 1;
     return cstr;
 }
 
 std::string ByteReader::getString() {
     uint32_t length = (uint32_t)getInt32();
-    if (pos+length > size) {
+    if (pos + length > size) {
         throw std::runtime_error("buffer underflow");
     }
     pos += length;
-    return std::string(reinterpret_cast<const char*>(data+pos-length), length);
+    return std::string(
+        reinterpret_cast<const char*>(data + pos - length), length
+    );
 }
 
 bool ByteReader::hasNext() const {

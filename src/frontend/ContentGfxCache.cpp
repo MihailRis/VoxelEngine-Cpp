@@ -17,8 +17,9 @@ ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets) : conte
     sideregions = std::make_unique<UVRegion[]>(indices->blocks.count() * 6);
     auto atlas = assets->get<Atlas>("blocks");
     
-    for (uint i = 0; i < indices->blocks.count(); i++) {
-        Block* def = indices->blocks.get(i);
+    const auto& blocks = indices->blocks.getIterable();
+    for (uint i = 0; i < blocks.size(); i++) {
+        auto def = blocks[i];
         for (uint side = 0; side < 6; side++) {
             const std::string& tex = def->textureFaces[side];
             if (atlas->has(tex)) {
@@ -38,8 +39,7 @@ ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets) : conte
     }
 }
 
-ContentGfxCache::~ContentGfxCache() {
-}
+ContentGfxCache::~ContentGfxCache() = default;
 
 const Content* ContentGfxCache::getContent() const {
     return content;
