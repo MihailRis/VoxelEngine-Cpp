@@ -103,35 +103,49 @@ end
 
 -- events
 events = {
-    handlers = {}
+    list = {}
 }
 
-function events.on(event, func)
-    -- why an array? length is always = 1
-    -- FIXME: temporary fixed
-    events.handlers[event] = {} -- events.handlers[event] or {}
-    table.insert(events.handlers[event], func)
+function events.on(id, name, fn)
+    if not events.list[id] then events.list[id] = {} end
+
+    table.insert(events.list[id], {
+        name = name,
+        fn = fn
+    })
 end
 
-function events.remove_by_prefix(prefix)
-    for name, handlers in pairs(events.handlers) do
-        if name:sub(1, #prefix) == prefix then
-            events.handlers[name] = nil
+function events.remove(id, name)
+    if not events.list[id] then return end
+
+    for k, v in pairs(events.list[id]) do
+        if v.name == name then
+            table.remove(events.list[id], k)
+            break
         end
     end
 end
 
-function pack.unload(prefix)
-    events.remove_by_prefix(prefix)
+function events.get_table(id)
+    if id then
+        return events.list[id] and table.copy(events.list[id]) or nil
+    end
+
+    return table.copy(events.list)
 end
 
-function events.emit(event, ...)
-    result = nil
-    if events.handlers[event] then
-        for _, func in ipairs(events.handlers[event]) do
-            result = result or func(...)
-        end
+function events.emit(id, ...)
+    if not events.list[id] then return end
+
+    local result = nil
+
+    for i = 1, #events.list[id] do
+        local fn = events.list[id][i].fn
+
+        local fnRes = fn(...)
+        result = fnRes or result
     end
+
     return result
 end
 
@@ -452,10 +466,6 @@ function string.unpack(...)
 
     return str
 end
-
-----------------------------------------------
-
-hook = require("core:internal/hook")
 
 -- --------- Deprecated functions ------ --
 local function wrap_deprecated(func, name, alternatives)
