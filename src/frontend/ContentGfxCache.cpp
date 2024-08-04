@@ -2,7 +2,7 @@
 
 #include "UiDocument.hpp"
 
-#include "../assets/Assets.hpp"
+#include <assets/Assets.hpp>
 #include "../content/Content.hpp"
 #include "../content/ContentPack.hpp"
 #include <core_defs.hpp>

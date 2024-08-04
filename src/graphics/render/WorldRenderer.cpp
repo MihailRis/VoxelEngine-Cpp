@@ -8,7 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
 
-#include "../../assets/Assets.hpp"
+#include <assets/Assets.hpp>
 #include "../../content/Content.hpp"
 #include <engine.hpp>
 #include "../../frontend/LevelFrontend.hpp"

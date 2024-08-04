@@ -7,7 +7,7 @@
 #include "../../core/DrawContext.hpp"
 #include "../../core/Batch2D.hpp"
 #include "../../core/Font.hpp"
-#include "../../../assets/Assets.hpp"
+#include <assets/Assets.hpp>
 #include "../../../util/stringutil.hpp"
 #include "../../../window/Events.hpp"
 #include "../../../window/Window.hpp"

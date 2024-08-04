@@ -4,7 +4,7 @@
 #include "../core/Model.hpp"
 #include "../core/Atlas.hpp"
 #include "../core/Texture.hpp"
-#include "../../assets/Assets.hpp"
+#include <assets/Assets.hpp>
 #include "../../window/Window.hpp"
 #include "../../voxels/Chunks.hpp"
 #include "../../lighting/Lightmap.hpp"

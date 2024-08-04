@@ -1,4 +1,4 @@
-#include "../../../assets/Assets.hpp"
+#include <assets/Assets.hpp>
 #include <engine.hpp>
 #include "../../../frontend/UiDocument.hpp"
 #include "../../../frontend/locale.hpp"

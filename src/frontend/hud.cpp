@@ -4,7 +4,7 @@
 #include "LevelFrontend.hpp"
 #include "UiDocument.hpp"
 
-#include "../assets/Assets.hpp"
+#include <assets/Assets.hpp>
 #include "../content/Content.hpp"
 #include <core_defs.hpp>
 #include <delegates.hpp>

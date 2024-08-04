@@ -1,7 +1,7 @@
 #include <glm/glm.hpp>
 #include <iostream>
 
-#include "../../../assets/Assets.hpp"
+#include <assets/Assets.hpp>
 #include "../../../content/Content.hpp"
 #include <engine.hpp>
 #include "../../../frontend/UiDocument.hpp"

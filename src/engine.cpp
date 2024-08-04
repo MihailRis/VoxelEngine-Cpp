@@ -3,7 +3,7 @@
 #define GLEW_STATIC
 
 #include "debug/Logger.hpp"
-#include "assets/AssetsLoader.hpp"
+#include <assets/AssetsLoader.hpp>
 #include "audio/audio.hpp"
 #include "coders/GLSLExtension.hpp"
 #include "coders/imageio.hpp"

@@ -4,7 +4,7 @@
 #include <delegates.hpp>
 #include <typedefs.hpp>
 
-#include "assets/Assets.hpp"
+#include <assets/Assets.hpp>
 #include "content/content_fwd.hpp"
 #include "content/ContentPack.hpp"
 #include "content/PacksManager.hpp"

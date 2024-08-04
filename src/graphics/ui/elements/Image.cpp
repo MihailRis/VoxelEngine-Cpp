@@ -6,7 +6,7 @@
 #include "../../core/Batch2D.hpp"
 #include "../../core/Texture.hpp"
 #include "../../core/Atlas.hpp"
-#include "../../../assets/Assets.hpp"
+#include <assets/Assets.hpp>
 #include "../../../maths/UVRegion.hpp"
 
 using namespace gui;

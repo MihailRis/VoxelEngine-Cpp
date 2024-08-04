@@ -1,6 +1,6 @@
 #include "BlocksPreview.hpp"
 
-#include "../../assets/Assets.hpp"
+#include <assets/Assets.hpp>
 #include <constants.hpp>
 #include "../../content/Content.hpp"
 #include "../../frontend/ContentGfxCache.hpp"

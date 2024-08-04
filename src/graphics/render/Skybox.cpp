@@ -1,5 +1,5 @@
 #include "Skybox.hpp"
-#include "../../assets/Assets.hpp"
+#include <assets/Assets.hpp>
 #include "../../graphics/core/Shader.hpp"
 #include "../../graphics/core/Mesh.hpp"
 #include "../../graphics/core/Batch3D.hpp"

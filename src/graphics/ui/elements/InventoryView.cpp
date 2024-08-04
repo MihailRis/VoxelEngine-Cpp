@@ -1,6 +1,6 @@
 #include "InventoryView.hpp"
 
-#include "../../../assets/Assets.hpp"
+#include <assets/Assets.hpp>
 #include "../../../content/Content.hpp"
 #include "../../../frontend/LevelFrontend.hpp"
 #include "../../../frontend/locale.hpp"
