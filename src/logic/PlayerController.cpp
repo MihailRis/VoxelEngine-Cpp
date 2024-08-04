@@ -260,7 +260,7 @@ void PlayerController::postUpdate(float delta, bool input, bool pause) {
         camControl.updateMouse(this->input);
     }
     player->postUpdate();
-    camControl.update(this->input, delta, level->chunks.get());
+    camControl.update(this->input, pause ? 0.0f : delta, level->chunks.get());
     if (input) {
         updateInteraction();
     } else {
