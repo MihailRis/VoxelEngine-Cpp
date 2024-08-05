@@ -23,7 +23,7 @@
 #include <graphics/core/Shader.hpp>
 #include <graphics/core/Texture.hpp>
 #include <graphics/render/BlocksPreview.hpp>
-#include "../GUI.hpp"
+#include <graphics/ui/GUI.hpp>
 
 #include <glm/glm.hpp>
 #include <utility>
