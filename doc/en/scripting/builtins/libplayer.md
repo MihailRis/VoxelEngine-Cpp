@@ -12,6 +12,18 @@ player.set_pos(playerid: int, x: number, y: number, z: number)
 
 Set player position
 
+``` python
+player.get_vel(playerid: int) -> number, number, number
+```
+
+Returns the x, y, z linear velocity of the player
+
+``` python
+player.set_vel(playerid: int, x: number, y: number, z: number)
+```
+
+Sets x, y, z player linear velocity
+
 ```python
 player.get_rot(playerid: int) -> number, number, number
 ```
