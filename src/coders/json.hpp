@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "../data/dynamic.hpp"
+#include <data/dynamic.hpp>
 #include <typedefs.hpp>
 #include "binary_json.hpp"
 

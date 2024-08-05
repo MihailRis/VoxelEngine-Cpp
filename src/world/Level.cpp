@@ -1,7 +1,7 @@
 #include "Level.hpp"
 
 #include <content/Content.hpp>
-#include "../data/dynamic_util.hpp"
+#include <data/dynamic_util.hpp>
 #include <items/Inventories.hpp>
 #include <items/Inventory.hpp>
 #include "../lighting/Lighting.hpp"

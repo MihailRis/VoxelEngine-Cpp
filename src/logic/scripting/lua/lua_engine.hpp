@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "../../../data/dynamic.hpp"
+#include <data/dynamic.hpp>
 #include <delegates.hpp>
 #include "../scripting_functional.hpp"
 #include "lua_util.hpp"

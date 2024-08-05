@@ -6,7 +6,7 @@
 #include <optional>
 #include <vector>
 
-#include "../data/dynamic.hpp"
+#include <data/dynamic.hpp>
 #include "../physics/Hitbox.hpp"
 #include <typedefs.hpp>
 #include <util/Clock.hpp>

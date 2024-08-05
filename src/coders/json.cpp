@@ -6,7 +6,7 @@
 #include <memory>
 #include <sstream>
 
-#include "../data/dynamic.hpp"
+#include <data/dynamic.hpp>
 #include <util/stringutil.hpp>
 #include "commons.hpp"
 

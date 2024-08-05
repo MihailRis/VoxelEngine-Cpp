@@ -1,7 +1,7 @@
 #ifndef FRONTEND_MENU_MENU_HPP_
 #define FRONTEND_MENU_MENU_HPP_
 
-#include "../data/dynamic.hpp"
+#include <data/dynamic.hpp>
 #include <graphics/ui/elements/Menu.hpp>
 
 #include <string>

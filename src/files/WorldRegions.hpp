@@ -9,7 +9,7 @@
 #include <mutex>
 #include <unordered_map>
 
-#include "../data/dynamic_fwd.hpp"
+#include <data/dynamic_fwd.hpp>
 #include <typedefs.hpp>
 #include <util/BufferPool.hpp>
 #include <voxels/Chunk.hpp>

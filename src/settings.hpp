@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "data/setting.hpp"
+#include <data/setting.hpp>
 #include <constants.hpp>
 #include <typedefs.hpp>
 

@@ -7,7 +7,7 @@
 #include <vector>
 
 #include <constants.hpp>
-#include "../data/dynamic.hpp"
+#include <data/dynamic.hpp>
 #include <typedefs.hpp>
 #include "Content.hpp"
 

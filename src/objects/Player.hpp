@@ -5,7 +5,7 @@
 #include <memory>
 #include <optional>
 
-#include "../data/dynamic.hpp"
+#include <data/dynamic.hpp>
 #include "../interfaces/Object.hpp"
 #include "../interfaces/Serializable.hpp"
 #include <settings.hpp>

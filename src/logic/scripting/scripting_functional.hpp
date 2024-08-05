@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <string>
 
-#include "../../data/dynamic.hpp"
+#include <data/dynamic.hpp>
 #include <delegates.hpp>
 #include <typedefs.hpp>
 

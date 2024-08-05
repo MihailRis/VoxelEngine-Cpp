@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "../../data/dynamic.hpp"
+#include <data/dynamic.hpp>
 #include <delegates.hpp>
 #include <typedefs.hpp>
 #include "scripting_functional.hpp"

@@ -6,8 +6,8 @@
 #include <iomanip>
 #include <sstream>
 
-#include "../data/dynamic.hpp"
-#include "../data/setting.hpp"
+#include <data/dynamic.hpp>
+#include <data/setting.hpp>
 #include <files/settings_io.hpp>
 #include <util/stringutil.hpp>
 #include "commons.hpp"

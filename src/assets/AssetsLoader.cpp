@@ -8,7 +8,7 @@
 #include <constants.hpp>
 #include <content/Content.hpp>
 #include <content/ContentPack.hpp>
-#include "../data/dynamic.hpp"
+#include <data/dynamic.hpp>
 #include <debug/Logger.hpp>
 #include <files/engine_paths.hpp>
 #include <files/files.hpp>

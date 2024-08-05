@@ -11,7 +11,7 @@
 #include <coders/json.hpp>
 #include <coders/obj.hpp>
 #include <constants.hpp>
-#include "../data/dynamic.hpp"
+#include <data/dynamic.hpp>
 #include <files/engine_paths.hpp>
 #include <files/files.hpp>
 #include "../frontend/UiDocument.hpp"

@@ -11,7 +11,7 @@
 #include <coders/gzip.hpp>
 #include <coders/json.hpp>
 #include <coders/toml.hpp>
-#include "../data/dynamic.hpp"
+#include <data/dynamic.hpp>
 #include <util/stringutil.hpp>
 
 namespace fs = std::filesystem;
