@@ -1,8 +1,8 @@
 #include "LevelScreen.hpp"
 
 #include <core_defs.hpp>
-#include "../hud.hpp"
-#include "../LevelFrontend.hpp"
+#include <frontend/hud.hpp>
+#include <frontend/LevelFrontend.hpp>
 #include <audio/audio.hpp>
 #include <coders/imageio.hpp>
 #include <debug/Logger.hpp>
