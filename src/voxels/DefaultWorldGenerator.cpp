@@ -16,7 +16,7 @@
 
 #include <content/Content.hpp>
 #include <core_defs.hpp>
-#include "../maths/FastNoiseLite.h"
+#include <maths/FastNoiseLite.h>
 #include <maths/util.hpp>
 #include <maths/voxmaths.hpp>
 
