@@ -130,9 +130,12 @@ int Window::initialize(DisplaySettings* settings) {
     Window::width = settings->width.get();
     Window::height = settings->height.get();
 
-    std::string title = "VoxelEngine-Cpp v" +
+    std::string title = "VoxelCore v" +
                         std::to_string(ENGINE_VERSION_MAJOR) + "." +
                         std::to_string(ENGINE_VERSION_MINOR);
+    if (ENGINE_DEBUG_BUILD) {
+        title += " [debug]";
+    }
 
     glfwSetErrorCallback(error_callback);
     if (glfwInit() == GLFW_FALSE) {
