@@ -109,6 +109,15 @@ events = {
 function events.on(id, name, fn)
     if not events.list[id] then events.list[id] = {} end
 
+    --[[
+        если на месте аргумента name стоит функция, 
+        то она переносится в аргумент func а name будет содержать название типа: "function: 128xk3819"
+    ]]
+    if type(name) == "function" then
+        fn = name
+        name = tostring(name)
+    end
+
     table.insert(events.list[id], {
         name = name,
         fn = fn
