@@ -14,7 +14,7 @@
 #include <graphics/ui/gui_util.hpp>
 #include <items/Inventories.hpp>
 #include <util/stringutil.hpp>
-#include "../../../world/Level.hpp"
+#include <world/Level.hpp>
 #include "api_lua.hpp"
 
 using namespace gui;

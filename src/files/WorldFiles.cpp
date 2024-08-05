@@ -29,7 +29,7 @@
 #include <voxels/Chunk.hpp>
 #include <voxels/voxel.hpp>
 #include "../window/Camera.hpp"
-#include "../world/World.hpp"
+#include <world/World.hpp>
 
 #define WORLD_FORMAT_MAGIC ".VOXWLD"
 

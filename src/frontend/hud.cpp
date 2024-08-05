@@ -41,8 +41,8 @@
 #include "../window/Events.hpp"
 #include "../window/input.hpp"
 #include "../window/Window.hpp"
-#include "../world/Level.hpp"
-#include "../world/World.hpp"
+#include <world/Level.hpp>
+#include <world/World.hpp>
 
 #include <assert.h>
 #include <memory>

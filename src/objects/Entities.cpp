@@ -19,7 +19,7 @@
 #include "rigging.hpp"
 #include "../physics/Hitbox.hpp"
 #include "../physics/PhysicsSolver.hpp"
-#include "../world/Level.hpp"
+#include <world/Level.hpp>
 
 static debug::Logger logger("entities");
 

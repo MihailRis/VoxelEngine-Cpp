@@ -22,7 +22,7 @@
 #include "../window/Events.hpp"
 #include "../window/Window.hpp"
 #include "../window/input.hpp"
-#include "../world/Level.hpp"
+#include <world/Level.hpp>
 #include "BlocksController.hpp"
 #include "scripting/scripting.hpp"
 

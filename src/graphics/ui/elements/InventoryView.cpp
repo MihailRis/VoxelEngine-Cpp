@@ -15,7 +15,7 @@
 #include <voxels/Block.hpp>
 #include "../../../window/Events.hpp"
 #include "../../../window/input.hpp"
-#include "../../../world/Level.hpp"
+#include <world/Level.hpp>
 #include <graphics/core/Atlas.hpp>
 #include <graphics/core/Batch2D.hpp>
 #include <graphics/core/Font.hpp>

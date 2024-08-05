@@ -24,8 +24,8 @@
 #include "../../window/Camera.hpp"
 #include "../../window/Events.hpp"
 #include "../../window/Window.hpp"
-#include "../../world/Level.hpp"
-#include "../../world/World.hpp"
+#include <world/Level.hpp>
+#include <world/World.hpp>
 
 static debug::Logger logger("level-screen");
 

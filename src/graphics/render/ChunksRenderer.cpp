@@ -3,7 +3,7 @@
 #include <debug/Logger.hpp>
 #include <graphics/core/Mesh.hpp>
 #include <voxels/Chunk.hpp>
-#include "../../world/Level.hpp"
+#include <world/Level.hpp>
 #include <settings.hpp>
 
 #include <iostream>

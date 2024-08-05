@@ -11,7 +11,7 @@
 #include <logic/PlayerController.hpp>
 #include <objects/Player.hpp>
 #include <voxels/Block.hpp>
-#include "../world/Level.hpp"
+#include <world/Level.hpp>
 
 LevelFrontend::LevelFrontend(
     Player* currentPlayer, LevelController* controller, Assets* assets

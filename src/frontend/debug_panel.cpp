@@ -18,8 +18,8 @@
 #include <voxels/Block.hpp>
 #include <voxels/Chunk.hpp>
 #include <voxels/Chunks.hpp>
-#include "../world/Level.hpp"
-#include "../world/World.hpp"
+#include <world/Level.hpp>
+#include <world/World.hpp>
 
 #include <string>
 #include <memory>

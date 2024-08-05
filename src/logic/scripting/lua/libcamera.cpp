@@ -2,7 +2,7 @@
 
 #include <content/Content.hpp>
 #include "../../../window/Camera.hpp"
-#include "../../../world/Level.hpp"
+#include <world/Level.hpp>
 #include "api_lua.hpp"
 
 using namespace scripting;

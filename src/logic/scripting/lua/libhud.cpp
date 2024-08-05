@@ -14,7 +14,7 @@
 #include <voxels/Block.hpp>
 #include <voxels/Chunks.hpp>
 #include <voxels/voxel.hpp>
-#include "../../../world/Level.hpp"
+#include <world/Level.hpp>
 #include "api_lua.hpp"
 
 namespace scripting {

@@ -13,7 +13,7 @@
 #include <voxels/Chunks.hpp>
 #include "../window/Camera.hpp"
 #include "../window/Events.hpp"
-#include "../world/Level.hpp"
+#include <world/Level.hpp>
 
 const float CROUCH_SPEED_MUL = 0.35f;
 const float RUN_SPEED_MUL = 1.5f;

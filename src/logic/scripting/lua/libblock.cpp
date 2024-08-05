@@ -6,7 +6,7 @@
 #include <voxels/Chunk.hpp>
 #include <voxels/Chunks.hpp>
 #include <voxels/voxel.hpp>
-#include "../../../world/Level.hpp"
+#include <world/Level.hpp>
 #include "api_lua.hpp"
 
 using namespace scripting;

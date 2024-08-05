@@ -27,9 +27,9 @@
 #include <voxels/Chunks.hpp>
 #include "../../window/Camera.hpp"
 #include "../../window/Window.hpp"
-#include "../../world/Level.hpp"
-#include "../../world/LevelEvents.hpp"
-#include "../../world/World.hpp"
+#include <world/Level.hpp>
+#include <world/LevelEvents.hpp>
+#include <world/World.hpp>
 #include <graphics/core/Atlas.hpp>
 #include <graphics/core/Batch3D.hpp>
 #include <graphics/core/DrawContext.hpp>

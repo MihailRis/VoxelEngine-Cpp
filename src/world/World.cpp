@@ -15,7 +15,7 @@
 #include <voxels/Chunk.hpp>
 #include <voxels/Chunks.hpp>
 #include <voxels/ChunksStorage.hpp>
-#include "../world/WorldGenerators.hpp"
+#include "WorldGenerators.hpp"
 #include "Level.hpp"
 
 static debug::Logger logger("world");

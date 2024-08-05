@@ -20,7 +20,7 @@
 #include <util/stringutil.hpp>
 #include <util/timeutil.hpp>
 #include <voxels/Block.hpp>
-#include "../../world/Level.hpp"
+#include <world/Level.hpp>
 #include "lua/lua_engine.hpp"
 
 using namespace scripting;

@@ -8,8 +8,8 @@
 #include <engine.hpp>
 #include <files/WorldFiles.hpp>
 #include <files/engine_paths.hpp>
-#include "../../../world/Level.hpp"
-#include "../../../world/World.hpp"
+#include <world/Level.hpp>
+#include <world/World.hpp>
 #include "api_lua.hpp"
 
 using namespace scripting;

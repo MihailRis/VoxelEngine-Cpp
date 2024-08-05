@@ -36,7 +36,7 @@
 #include "window/Events.hpp"
 #include "window/input.hpp"
 #include "window/Window.hpp"
-#include "world/WorldGenerators.hpp"
+#include <world/WorldGenerators.hpp>
 #include <settings.hpp>
 
 #include <iostream>
