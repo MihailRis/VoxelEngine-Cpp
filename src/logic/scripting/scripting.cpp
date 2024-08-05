@@ -12,8 +12,8 @@
 #include "../../frontend/UiDocument.hpp"
 #include <items/Inventory.hpp>
 #include <items/ItemDef.hpp>
-#include "../BlocksController.hpp"
-#include "../LevelController.hpp"
+#include <logic/BlocksController.hpp>
+#include <logic/LevelController.hpp>
 #include <objects/Entities.hpp>
 #include <objects/EntityDef.hpp>
 #include <objects/Player.hpp>
