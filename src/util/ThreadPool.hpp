@@ -12,7 +12,7 @@
 
 #include <debug/Logger.hpp>
 #include <delegates.hpp>
-#include "../interfaces/Task.hpp"
+#include <interfaces/Task.hpp>
 
 namespace util {
 

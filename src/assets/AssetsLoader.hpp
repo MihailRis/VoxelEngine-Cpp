@@ -10,7 +10,7 @@
 #include <utility>
 
 #include <delegates.hpp>
-#include "../interfaces/Task.hpp"
+#include <interfaces/Task.hpp>
 #include <typedefs.hpp>
 #include "Assets.hpp"
 

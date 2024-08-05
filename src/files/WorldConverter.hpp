@@ -6,7 +6,7 @@
 #include <queue>
 
 #include <delegates.hpp>
-#include "../interfaces/Task.hpp"
+#include <interfaces/Task.hpp>
 #include <typedefs.hpp>
 
 namespace fs = std::filesystem;

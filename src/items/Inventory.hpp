@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "../interfaces/Serializable.hpp"
+#include <interfaces/Serializable.hpp>
 #include <typedefs.hpp>
 #include "ItemStack.hpp"
 
