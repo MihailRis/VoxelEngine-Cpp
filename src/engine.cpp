@@ -4,7 +4,7 @@
 
 #include <debug/Logger.hpp>
 #include <assets/AssetsLoader.hpp>
-#include "audio/audio.hpp"
+#include <audio/audio.hpp>
 #include <coders/GLSLExtension.hpp>
 #include <coders/imageio.hpp>
 #include <coders/json.hpp>

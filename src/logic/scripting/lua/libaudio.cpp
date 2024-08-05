@@ -1,4 +1,4 @@
-#include "../../../audio/audio.hpp"
+#include <audio/audio.hpp>
 #include <engine.hpp>
 #include "api_lua.hpp"
 

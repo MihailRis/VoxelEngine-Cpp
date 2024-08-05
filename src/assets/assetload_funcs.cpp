@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "../audio/audio.hpp"
+#include <audio/audio.hpp>
 #include <coders/GLSLExtension.hpp>
 #include <coders/commons.hpp>
 #include <coders/imageio.hpp>
