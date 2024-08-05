@@ -7,8 +7,8 @@
 #include "elements/Menu.hpp"
 
 #include <assets/Assets.hpp>
-#include "../../frontend/UiDocument.hpp"
-#include "../../frontend/locale.hpp"
+#include <frontend/UiDocument.hpp>
+#include <frontend/locale.hpp>
 #include <graphics/core/Batch2D.hpp>
 #include <graphics/core/Shader.hpp>
 #include <graphics/core/DrawContext.hpp>

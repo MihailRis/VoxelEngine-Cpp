@@ -1,6 +1,6 @@
 #include <engine.hpp>
-#include "../../../frontend/hud.hpp"
-#include "../../../frontend/screens/Screen.hpp"
+#include <frontend/hud.hpp>
+#include <frontend/screens/Screen.hpp>
 #include <graphics/ui/GUI.hpp>
 #include <util/stringutil.hpp>
 #include "../../../window/Events.hpp"

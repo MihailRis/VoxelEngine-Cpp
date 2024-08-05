@@ -15,10 +15,10 @@
 #include <core_defs.hpp>
 #include <files/files.hpp>
 #include <files/settings_io.hpp>
-#include "frontend/locale.hpp"
-#include "frontend/menu.hpp"
-#include "frontend/screens/Screen.hpp"
-#include "frontend/screens/MenuScreen.hpp"
+#include <frontend/locale.hpp>
+#include <frontend/menu.hpp>
+#include <frontend/screens/Screen.hpp>
+#include <frontend/screens/MenuScreen.hpp>
 #include <graphics/core/Batch2D.hpp>
 #include <graphics/core/DrawContext.hpp>
 #include <graphics/core/ImageData.hpp>

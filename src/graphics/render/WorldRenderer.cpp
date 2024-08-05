@@ -11,7 +11,7 @@
 #include <assets/Assets.hpp>
 #include <content/Content.hpp>
 #include <engine.hpp>
-#include "../../frontend/LevelFrontend.hpp"
+#include <frontend/LevelFrontend.hpp>
 #include <items/Inventory.hpp>
 #include <items/ItemDef.hpp>
 #include <items/ItemStack.hpp>

@@ -2,8 +2,8 @@
 
 #include <assets/Assets.hpp>
 #include <content/Content.hpp>
-#include "../../../frontend/LevelFrontend.hpp"
-#include "../../../frontend/locale.hpp"
+#include <frontend/LevelFrontend.hpp>
+#include <frontend/locale.hpp>
 #include <items/Inventories.hpp>
 #include <items/Inventory.hpp>
 #include <items/ItemDef.hpp>

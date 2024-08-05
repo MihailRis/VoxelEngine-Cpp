@@ -9,7 +9,7 @@
 #include <voxels/VoxelsVolume.hpp>
 #include <voxels/ChunksStorage.hpp>
 #include "../../lighting/Lightmap.hpp"
-#include "../../frontend/ContentGfxCache.hpp"
+#include <frontend/ContentGfxCache.hpp>
 #include <settings.hpp>
 
 #include <glm/glm.hpp>

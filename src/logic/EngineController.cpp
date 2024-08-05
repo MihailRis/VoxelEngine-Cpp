@@ -10,10 +10,10 @@
 #include <engine.hpp>
 #include <files/WorldConverter.hpp>
 #include <files/WorldFiles.hpp>
-#include "../frontend/locale.hpp"
-#include "../frontend/menu.hpp"
-#include "../frontend/screens/LevelScreen.hpp"
-#include "../frontend/screens/MenuScreen.hpp"
+#include <frontend/locale.hpp>
+#include <frontend/menu.hpp>
+#include <frontend/screens/LevelScreen.hpp>
+#include <frontend/screens/MenuScreen.hpp>
 #include <graphics/ui/elements/Menu.hpp>
 #include <graphics/ui/gui_util.hpp>
 #include "../interfaces/Task.hpp"

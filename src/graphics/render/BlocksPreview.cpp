@@ -3,7 +3,7 @@
 #include <assets/Assets.hpp>
 #include <constants.hpp>
 #include <content/Content.hpp>
-#include "../../frontend/ContentGfxCache.hpp"
+#include <frontend/ContentGfxCache.hpp>
 #include <voxels/Block.hpp>
 #include "../../window/Camera.hpp"
 #include "../../window/Window.hpp"

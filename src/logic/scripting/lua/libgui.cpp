@@ -1,7 +1,7 @@
 #include <assets/Assets.hpp>
 #include <engine.hpp>
-#include "../../../frontend/UiDocument.hpp"
-#include "../../../frontend/locale.hpp"
+#include <frontend/UiDocument.hpp>
+#include <frontend/locale.hpp>
 #include <graphics/ui/elements/Button.hpp>
 #include <graphics/ui/elements/CheckBox.hpp>
 #include <graphics/ui/elements/Image.hpp>

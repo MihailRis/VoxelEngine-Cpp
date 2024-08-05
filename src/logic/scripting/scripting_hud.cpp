@@ -3,7 +3,7 @@
 #include <debug/Logger.hpp>
 #include <engine.hpp>
 #include <files/files.hpp>
-#include "../../frontend/hud.hpp"
+#include <frontend/hud.hpp>
 #include <objects/Player.hpp>
 #include "lua/api_lua.hpp"
 #include "lua/lua_engine.hpp"

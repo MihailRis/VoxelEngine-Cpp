@@ -3,7 +3,7 @@
 
 #include <optional>
 
-#include "../../../frontend/hud.hpp"
+#include <frontend/hud.hpp>
 #include <objects/Entities.hpp>
 #include <world/Level.hpp>
 #include <logic/LevelController.hpp>
