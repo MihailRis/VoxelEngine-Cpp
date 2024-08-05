@@ -142,8 +142,11 @@ function events.emit(id, ...)
     for i = 1, #events.list[id] do
         local fn = events.list[id][i].fn
 
+        if not fn then goto skip end
+
         local fnRes = fn(...)
         result = fnRes or result
+        ::skip::
     end
 
     return result
