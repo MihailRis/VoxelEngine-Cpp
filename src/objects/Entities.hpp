@@ -7,7 +7,7 @@
 #include <vector>
 
 #include <data/dynamic.hpp>
-#include "../physics/Hitbox.hpp"
+#include <physics/Hitbox.hpp>
 #include <typedefs.hpp>
 #include <util/Clock.hpp>
 #define GLM_ENABLE_EXPERIMENTAL

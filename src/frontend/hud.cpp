@@ -31,7 +31,7 @@
 #include <logic/scripting/scripting.hpp>
 #include <maths/voxmaths.hpp>
 #include <objects/Player.hpp>
-#include "../physics/Hitbox.hpp"
+#include <physics/Hitbox.hpp>
 #include <typedefs.hpp>
 #include <util/stringutil.hpp>
 #include <voxels/Block.hpp>

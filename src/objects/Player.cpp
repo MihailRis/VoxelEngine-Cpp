@@ -8,8 +8,8 @@
 #include <items/Inventory.hpp>
 #include "Entities.hpp"
 #include "rigging.hpp"
-#include "../physics/Hitbox.hpp"
-#include "../physics/PhysicsSolver.hpp"
+#include <physics/Hitbox.hpp>
+#include <physics/PhysicsSolver.hpp>
 #include <voxels/Chunks.hpp>
 #include "../window/Camera.hpp"
 #include "../window/Events.hpp"

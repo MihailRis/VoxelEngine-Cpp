@@ -12,8 +12,8 @@
 #include <lighting/Lighting.hpp>
 #include <objects/Entities.hpp>
 #include <objects/Player.hpp>
-#include "../physics/Hitbox.hpp"
-#include "../physics/PhysicsSolver.hpp"
+#include <physics/Hitbox.hpp>
+#include <physics/PhysicsSolver.hpp>
 #include <settings.hpp>
 #include <voxels/Block.hpp>
 #include <voxels/Chunks.hpp>

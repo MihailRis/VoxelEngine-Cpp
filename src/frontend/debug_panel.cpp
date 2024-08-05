@@ -13,7 +13,7 @@
 #include <objects/Player.hpp>
 #include <objects/Entities.hpp>
 #include <objects/EntityDef.hpp>
-#include "../physics/Hitbox.hpp"
+#include <physics/Hitbox.hpp>
 #include <util/stringutil.hpp>
 #include <voxels/Block.hpp>
 #include <voxels/Chunk.hpp>

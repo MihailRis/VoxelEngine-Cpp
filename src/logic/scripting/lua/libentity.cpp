@@ -6,7 +6,7 @@
 #include <objects/EntityDef.hpp>
 #include <objects/Player.hpp>
 #include <objects/rigging.hpp>
-#include "../../../physics/Hitbox.hpp"
+#include <physics/Hitbox.hpp>
 #include <voxels/Chunks.hpp>
 #include "../../../window/Camera.hpp"
 

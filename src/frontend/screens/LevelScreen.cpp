@@ -19,7 +19,7 @@
 #include <logic/LevelController.hpp>
 #include <logic/scripting/scripting_hud.hpp>
 #include <util/stringutil.hpp>
-#include "../../physics/Hitbox.hpp"
+#include <physics/Hitbox.hpp>
 #include <voxels/Chunks.hpp>
 #include "../../window/Camera.hpp"
 #include "../../window/Events.hpp"

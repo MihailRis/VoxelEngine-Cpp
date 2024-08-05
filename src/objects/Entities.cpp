@@ -17,8 +17,8 @@
 #include <maths/rays.hpp>
 #include "EntityDef.hpp"
 #include "rigging.hpp"
-#include "../physics/Hitbox.hpp"
-#include "../physics/PhysicsSolver.hpp"
+#include <physics/Hitbox.hpp>
+#include <physics/PhysicsSolver.hpp>
 #include <world/Level.hpp>
 
 static debug::Logger logger("entities");

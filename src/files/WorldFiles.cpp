@@ -21,7 +21,7 @@
 #include <maths/voxmaths.hpp>
 #include <objects/EntityDef.hpp>
 #include <objects/Player.hpp>
-#include "../physics/Hitbox.hpp"
+#include <physics/Hitbox.hpp>
 #include <settings.hpp>
 #include <typedefs.hpp>
 #include <util/data_io.hpp>
