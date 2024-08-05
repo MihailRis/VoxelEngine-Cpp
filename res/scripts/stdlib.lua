@@ -107,6 +107,9 @@ events = {
 }
 
 function events.on(id, name, fn)
+    if not id then error("Where event name?") end
+    if not name then error("Where callback name?") end
+
     if not events.list[id] then events.list[id] = {} end
 
     --[[
@@ -125,6 +128,9 @@ function events.on(id, name, fn)
 end
 
 function events.remove(id, name)
+    if not id then error("Where event name?") end
+    if not name then error("Where callback name?") end
+
     if not events.list[id] then return end
 
     for k, v in pairs(events.list[id]) do
@@ -144,6 +150,7 @@ function events.get_table(id)
 end
 
 function events.emit(id, ...)
+    if not id then error("Where event name?") end
     if not events.list[id] then return end
 
     local result = nil
