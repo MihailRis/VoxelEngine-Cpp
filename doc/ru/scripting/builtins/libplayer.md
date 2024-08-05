@@ -13,6 +13,18 @@ player.set_pos(playerid: int, x: number, y: number, z: number)
 Устанавливает x, y, z координаты игрока
 
 ```python
+player.get_vel(playerid: int) -> number, number, number
+```
+
+Возвращает x, y, z линейной скорости игрока
+
+```python
+player.set_vel(playerid: int, x: number, y: number, z: number)
+```
+
+Устанавливает x, y, z линейной скорости игрока
+
+```python
 player.get_rot(playerid: int) -> number, number, number
 ```
 
