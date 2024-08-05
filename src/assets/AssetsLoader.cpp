@@ -13,7 +13,7 @@
 #include <files/engine_paths.hpp>
 #include <files/files.hpp>
 #include <graphics/core/Texture.hpp>
-#include "../logic/scripting/scripting.hpp"
+#include <logic/scripting/scripting.hpp>
 #include <objects/rigging.hpp>
 #include <util/ThreadPool.hpp>
 #include <voxels/Block.hpp>

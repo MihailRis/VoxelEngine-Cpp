@@ -12,7 +12,7 @@
 #include <graphics/ui/elements/Menu.hpp>
 #include <graphics/ui/gui_util.hpp>
 #include <graphics/ui/GUI.hpp>
-#include "../logic/scripting/scripting.hpp"
+#include <logic/scripting/scripting.hpp>
 #include <settings.hpp>
 #include <coders/commons.hpp>
 #include <util/stringutil.hpp>

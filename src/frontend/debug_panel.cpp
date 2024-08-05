@@ -9,7 +9,7 @@
 #include <graphics/ui/elements/TrackBar.hpp>
 #include <graphics/ui/elements/InputBindBox.hpp>
 #include <graphics/render/WorldRenderer.hpp>
-#include "../logic/scripting/scripting.hpp"
+#include <logic/scripting/scripting.hpp>
 #include <objects/Player.hpp>
 #include <objects/Entities.hpp>
 #include <objects/EntityDef.hpp>

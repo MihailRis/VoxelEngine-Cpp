@@ -7,8 +7,8 @@
 #include <files/settings_io.hpp>
 #include "../../../frontend/menu.hpp"
 #include "../../../frontend/screens/MenuScreen.hpp"
-#include "../../../logic/EngineController.hpp"
-#include "../../../logic/LevelController.hpp"
+#include <logic/EngineController.hpp>
+#include <logic/LevelController.hpp>
 #include "../../../window/Events.hpp"
 #include "../../../window/Window.hpp"
 #include "../../../world/Level.hpp"

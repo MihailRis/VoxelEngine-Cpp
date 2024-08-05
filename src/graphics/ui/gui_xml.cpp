@@ -13,7 +13,7 @@
 #include "../../frontend/menu.hpp"
 #include "../../frontend/locale.hpp"
 #include <items/Inventory.hpp>
-#include "../../logic/scripting/scripting.hpp"
+#include <logic/scripting/scripting.hpp>
 #include "../../maths/voxmaths.hpp"
 #include <util/stringutil.hpp>
 #include "../../window/Events.hpp"

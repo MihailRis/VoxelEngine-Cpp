@@ -6,7 +6,7 @@
 #include <graphics/ui/elements/UINode.hpp>
 #include <graphics/ui/elements/InventoryView.hpp>
 #include <graphics/ui/gui_xml.hpp>
-#include "../logic/scripting/scripting.hpp"
+#include <logic/scripting/scripting.hpp>
 
 UiDocument::UiDocument(
     std::string id, 

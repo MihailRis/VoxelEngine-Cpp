@@ -25,9 +25,9 @@
 #include <graphics/core/Shader.hpp>
 #include <graphics/ui/GUI.hpp>
 #include <objects/rigging.hpp>
-#include "logic/EngineController.hpp"
-#include "logic/CommandsInterpreter.hpp"
-#include "logic/scripting/scripting.hpp"
+#include <logic/EngineController.hpp>
+#include <logic/CommandsInterpreter.hpp>
+#include <logic/scripting/scripting.hpp>
 #include <util/listutil.hpp>
 #include <util/platform.hpp>
 #include <voxels/DefaultWorldGenerator.hpp>

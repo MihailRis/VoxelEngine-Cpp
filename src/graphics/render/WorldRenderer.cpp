@@ -15,8 +15,8 @@
 #include <items/Inventory.hpp>
 #include <items/ItemDef.hpp>
 #include <items/ItemStack.hpp>
-#include "../../logic/PlayerController.hpp"
-#include "../../logic/scripting/scripting_hud.hpp"
+#include <logic/PlayerController.hpp>
+#include <logic/scripting/scripting_hud.hpp>
 #include "../../maths/FrustumCulling.hpp"
 #include "../../maths/voxmaths.hpp"
 #include <objects/Entities.hpp>

@@ -1,7 +1,7 @@
 #include <content/Content.hpp>
 #include <items/Inventories.hpp>
 #include <items/ItemStack.hpp>
-#include "../../../logic/BlocksController.hpp"
+#include <logic/BlocksController.hpp>
 #include "../../../world/Level.hpp"
 #include "api_lua.hpp"
 

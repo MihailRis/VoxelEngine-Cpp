@@ -7,8 +7,8 @@
 #include <content/Content.hpp>
 #include <graphics/core/Atlas.hpp>
 #include <graphics/render/BlocksPreview.hpp>
-#include "../logic/LevelController.hpp"
-#include "../logic/PlayerController.hpp"
+#include <logic/LevelController.hpp>
+#include <logic/PlayerController.hpp>
 #include <objects/Player.hpp>
 #include <voxels/Block.hpp>
 #include "../world/Level.hpp"

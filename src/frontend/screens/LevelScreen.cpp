@@ -16,8 +16,8 @@
 #include <graphics/render/WorldRenderer.hpp>
 #include <graphics/ui/elements/Menu.hpp>
 #include <graphics/ui/GUI.hpp>
-#include "../../logic/LevelController.hpp"
-#include "../../logic/scripting/scripting_hud.hpp"
+#include <logic/LevelController.hpp>
+#include <logic/scripting/scripting_hud.hpp>
 #include <util/stringutil.hpp>
 #include "../../physics/Hitbox.hpp"
 #include <voxels/Chunks.hpp>

@@ -12,7 +12,7 @@
 #include <debug/Logger.hpp>
 #include <files/files.hpp>
 #include <items/ItemDef.hpp>
-#include "../logic/scripting/scripting.hpp"
+#include <logic/scripting/scripting.hpp>
 #include <objects/rigging.hpp>
 #include <typedefs.hpp>
 #include <util/listutil.hpp>
