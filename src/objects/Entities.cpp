@@ -13,8 +13,8 @@
 #include <graphics/core/Model.hpp>
 #include <graphics/render/ModelBatch.hpp>
 #include <logic/scripting/scripting.hpp>
-#include "../maths/FrustumCulling.hpp"
-#include "../maths/rays.hpp"
+#include <maths/FrustumCulling.hpp>
+#include <maths/rays.hpp>
 #include "EntityDef.hpp"
 #include "rigging.hpp"
 #include "../physics/Hitbox.hpp"

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <typedefs.hpp>
-#include "../../maths/fastmaths.hpp"
+#include <maths/fastmaths.hpp>
 
 class Mesh;
 class Shader;

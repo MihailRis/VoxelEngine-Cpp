@@ -12,9 +12,9 @@
 #include <files/WorldFiles.hpp>
 #include <graphics/core/Mesh.hpp>
 #include <lighting/Lightmap.hpp>
-#include "../maths/aabb.hpp"
-#include "../maths/rays.hpp"
-#include "../maths/voxmaths.hpp"
+#include <maths/aabb.hpp>
+#include <maths/rays.hpp>
+#include <maths/voxmaths.hpp>
 #include <objects/Entities.hpp>
 #include <world/Level.hpp>
 #include <world/LevelEvents.hpp>

@@ -8,7 +8,7 @@
 #include <coders/rle.hpp>
 #include <data/dynamic.hpp>
 #include <items/Inventory.hpp>
-#include "../maths/voxmaths.hpp"
+#include <maths/voxmaths.hpp>
 #include <util/data_io.hpp>
 
 #define REGION_FORMAT_MAGIC ".VOXREG"

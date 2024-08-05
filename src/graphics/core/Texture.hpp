@@ -2,7 +2,7 @@
 #define GRAPHICS_CORE_TEXTURE_HPP_
 
 #include <typedefs.hpp>
-#include "../../maths/UVRegion.hpp"
+#include <maths/UVRegion.hpp>
 #include "ImageData.hpp"
 
 #include <memory>

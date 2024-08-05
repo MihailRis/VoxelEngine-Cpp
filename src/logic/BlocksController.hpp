@@ -4,7 +4,7 @@
 #include <functional>
 #include <glm/glm.hpp>
 
-#include "../maths/fastmaths.hpp"
+#include <maths/fastmaths.hpp>
 #include <typedefs.hpp>
 #include <util/Clock.hpp>
 #include <voxels/voxel.hpp>

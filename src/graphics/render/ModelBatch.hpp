@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_RENDER_MODEL_BATCH_HPP_
 #define GRAPHICS_RENDER_MODEL_BATCH_HPP_
 
-#include "../../maths/UVRegion.hpp"
+#include <maths/UVRegion.hpp>
 
 #include <memory>
 #include <vector>

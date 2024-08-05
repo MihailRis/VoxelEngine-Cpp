@@ -7,7 +7,7 @@
 #include <content/ContentPack.hpp>
 #include <core_defs.hpp>
 #include <graphics/core/Atlas.hpp>
-#include "../maths/UVRegion.hpp"
+#include <maths/UVRegion.hpp>
 #include <voxels/Block.hpp>
 
 #include <string>

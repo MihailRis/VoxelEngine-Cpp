@@ -7,7 +7,7 @@
 #include <vector>
 #include <optional>
 #include <unordered_map>
-#include "../../maths/UVRegion.hpp"
+#include <maths/UVRegion.hpp>
 #include <typedefs.hpp>
 
 class ImageData;

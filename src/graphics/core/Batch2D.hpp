@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "commons.hpp"
-#include "../../maths/UVRegion.hpp"
+#include <maths/UVRegion.hpp>
 
 class Mesh;
 class Texture;

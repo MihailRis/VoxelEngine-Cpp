@@ -7,7 +7,7 @@
 #include <graphics/core/Texture.hpp>
 #include <graphics/core/Atlas.hpp>
 #include <assets/Assets.hpp>
-#include "../../../maths/UVRegion.hpp"
+#include <maths/UVRegion.hpp>
 
 using namespace gui;
 

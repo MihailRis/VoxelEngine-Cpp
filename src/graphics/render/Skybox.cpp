@@ -9,7 +9,7 @@
 #include <graphics/core/DrawContext.hpp>
 #include "../../window/Window.hpp"
 #include "../../window/Camera.hpp"
-#include "../../maths/UVRegion.hpp"
+#include <maths/UVRegion.hpp>
 
 #include <cmath>
 #include <iostream>

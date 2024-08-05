@@ -4,7 +4,7 @@
 #include <items/Inventories.hpp>
 #include <items/Inventory.hpp>
 #include <lighting/Lighting.hpp>
-#include "../maths/fastmaths.hpp"
+#include <maths/fastmaths.hpp>
 #include <util/timeutil.hpp>
 #include <voxels/Block.hpp>
 #include <voxels/Chunk.hpp>

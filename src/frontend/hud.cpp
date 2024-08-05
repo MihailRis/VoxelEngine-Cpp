@@ -29,7 +29,7 @@
 #include <items/Inventory.hpp>
 #include <items/ItemDef.hpp>
 #include <logic/scripting/scripting.hpp>
-#include "../maths/voxmaths.hpp"
+#include <maths/voxmaths.hpp>
 #include <objects/Player.hpp>
 #include "../physics/Hitbox.hpp"
 #include <typedefs.hpp>

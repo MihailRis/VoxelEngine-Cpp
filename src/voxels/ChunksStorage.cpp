@@ -5,7 +5,7 @@
 #include <files/WorldFiles.hpp>
 #include <items/Inventories.hpp>
 #include <lighting/Lightmap.hpp>
-#include "../maths/voxmaths.hpp"
+#include <maths/voxmaths.hpp>
 #include <objects/Entities.hpp>
 #include <typedefs.hpp>
 #include <world/Level.hpp>
