@@ -2,7 +2,7 @@
 #define LOGIC_SCRIPTING_LUA_HPP_
 
 #include <delegates.hpp>
-#include "../scripting.hpp"
+#include <logic/scripting/scripting.hpp>
 
 #ifdef __linux__
 #include <luajit-2.1/luaconf.h>

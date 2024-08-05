@@ -6,7 +6,7 @@
 
 #include <data/dynamic.hpp>
 #include <delegates.hpp>
-#include "../scripting_functional.hpp"
+#include <logic/scripting/scripting_functional.hpp>
 #include "lua_util.hpp"
 
 namespace lua {
