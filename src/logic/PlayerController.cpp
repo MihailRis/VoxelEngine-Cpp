@@ -9,7 +9,7 @@
 #include <items/Inventory.hpp>
 #include <items/ItemDef.hpp>
 #include <items/ItemStack.hpp>
-#include "../lighting/Lighting.hpp"
+#include <lighting/Lighting.hpp>
 #include <objects/Entities.hpp>
 #include <objects/Player.hpp>
 #include "../physics/Hitbox.hpp"

@@ -8,7 +8,7 @@
 #include <content/Content.hpp>
 #include <files/WorldFiles.hpp>
 #include <graphics/core/Mesh.hpp>
-#include "../lighting/Lighting.hpp"
+#include <lighting/Lighting.hpp>
 #include "../maths/voxmaths.hpp"
 #include <util/timeutil.hpp>
 #include <voxels/Block.hpp>

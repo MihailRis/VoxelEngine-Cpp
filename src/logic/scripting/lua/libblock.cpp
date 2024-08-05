@@ -1,5 +1,5 @@
 #include <content/Content.hpp>
-#include "../../../lighting/Lighting.hpp"
+#include <lighting/Lighting.hpp>
 #include <logic/BlocksController.hpp>
 #include <logic/LevelController.hpp>
 #include <voxels/Block.hpp>

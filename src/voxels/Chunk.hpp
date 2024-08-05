@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 #include <constants.hpp>
-#include "../lighting/Lightmap.hpp"
+#include <lighting/Lightmap.hpp>
 #include "voxel.hpp"
 
 inline constexpr int CHUNK_DATA_LEN = CHUNK_VOL * 4;

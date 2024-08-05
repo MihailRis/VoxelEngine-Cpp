@@ -7,7 +7,7 @@
 #include <assets/Assets.hpp>
 #include "../../window/Window.hpp"
 #include <voxels/Chunks.hpp>
-#include "../../lighting/Lightmap.hpp"
+#include <lighting/Lightmap.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/ext/matrix_transform.hpp>

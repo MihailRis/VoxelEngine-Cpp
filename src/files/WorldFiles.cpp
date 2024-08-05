@@ -17,7 +17,7 @@
 #include <debug/Logger.hpp>
 #include <items/Inventory.hpp>
 #include <items/ItemDef.hpp>
-#include "../lighting/Lightmap.hpp"
+#include <lighting/Lightmap.hpp>
 #include "../maths/voxmaths.hpp"
 #include <objects/EntityDef.hpp>
 #include <objects/Player.hpp>

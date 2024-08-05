@@ -8,7 +8,7 @@
 #include <voxels/Chunk.hpp>
 #include <voxels/VoxelsVolume.hpp>
 #include <voxels/ChunksStorage.hpp>
-#include "../../lighting/Lightmap.hpp"
+#include <lighting/Lightmap.hpp>
 #include <frontend/ContentGfxCache.hpp>
 #include <settings.hpp>
 
