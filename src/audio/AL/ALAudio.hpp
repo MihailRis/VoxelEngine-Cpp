@@ -8,7 +8,7 @@
 #include <vector>
 
 #include <typedefs.hpp>
-#include "../audio.hpp"
+#include <audio/audio.hpp>
 
 #ifdef __APPLE__
 #include <OpenAL/al.h>
