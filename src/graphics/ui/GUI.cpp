@@ -12,10 +12,10 @@
 #include <graphics/core/Batch2D.hpp>
 #include <graphics/core/Shader.hpp>
 #include <graphics/core/DrawContext.hpp>
-#include "../../window/Events.hpp"
-#include "../../window/Window.hpp"
-#include "../../window/input.hpp"
-#include "../../window/Camera.hpp"
+#include <window/Events.hpp>
+#include <window/Window.hpp>
+#include <window/input.hpp>
+#include <window/Camera.hpp>
 
 #include <iostream>
 #include <algorithm>

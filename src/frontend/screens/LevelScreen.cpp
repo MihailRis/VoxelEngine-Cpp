@@ -21,9 +21,9 @@
 #include <util/stringutil.hpp>
 #include <physics/Hitbox.hpp>
 #include <voxels/Chunks.hpp>
-#include "../../window/Camera.hpp"
-#include "../../window/Events.hpp"
-#include "../../window/Window.hpp"
+#include <window/Camera.hpp>
+#include <window/Events.hpp>
+#include <window/Window.hpp>
 #include <world/Level.hpp>
 #include <world/World.hpp>
 

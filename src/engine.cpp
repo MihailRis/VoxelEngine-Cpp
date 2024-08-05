@@ -32,10 +32,10 @@
 #include <util/platform.hpp>
 #include <voxels/DefaultWorldGenerator.hpp>
 #include <voxels/FlatWorldGenerator.hpp>
-#include "window/Camera.hpp"
-#include "window/Events.hpp"
-#include "window/input.hpp"
-#include "window/Window.hpp"
+#include <window/Camera.hpp>
+#include <window/Events.hpp>
+#include <window/input.hpp>
+#include <window/Window.hpp>
 #include <world/WorldGenerators.hpp>
 #include <settings.hpp>
 

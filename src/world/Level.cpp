@@ -13,7 +13,7 @@
 #include <voxels/Chunk.hpp>
 #include <voxels/Chunks.hpp>
 #include <voxels/ChunksStorage.hpp>
-#include "../window/Camera.hpp"
+#include <window/Camera.hpp>
 #include "LevelEvents.hpp"
 #include "World.hpp"
 

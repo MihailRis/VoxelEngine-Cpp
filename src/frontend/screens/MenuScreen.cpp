@@ -6,8 +6,8 @@
 #include <graphics/core/Shader.hpp>
 #include <graphics/core/Texture.hpp>
 #include <maths/UVRegion.hpp>
-#include "../../window/Window.hpp"
-#include "../../window/Camera.hpp"
+#include <window/Window.hpp>
+#include <window/Camera.hpp>
 #include <engine.hpp>
 
 MenuScreen::MenuScreen(Engine* engine) : Screen(engine) {

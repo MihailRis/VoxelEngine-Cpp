@@ -16,7 +16,7 @@
 #include <logic/scripting/scripting.hpp>
 #include <maths/voxmaths.hpp>
 #include <util/stringutil.hpp>
-#include "../../window/Events.hpp"
+#include <window/Events.hpp>
 
 #include <stdexcept>
 #include <utility>

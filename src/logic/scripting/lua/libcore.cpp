@@ -9,8 +9,8 @@
 #include <frontend/screens/MenuScreen.hpp>
 #include <logic/EngineController.hpp>
 #include <logic/LevelController.hpp>
-#include "../../../window/Events.hpp"
-#include "../../../window/Window.hpp"
+#include <window/Events.hpp>
+#include <window/Window.hpp>
 #include <world/Level.hpp>
 #include <world/WorldGenerators.hpp>
 #include "api_lua.hpp"

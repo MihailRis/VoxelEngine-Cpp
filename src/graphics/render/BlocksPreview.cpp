@@ -5,8 +5,8 @@
 #include <content/Content.hpp>
 #include <frontend/ContentGfxCache.hpp>
 #include <voxels/Block.hpp>
-#include "../../window/Camera.hpp"
-#include "../../window/Window.hpp"
+#include <window/Camera.hpp>
+#include <window/Window.hpp>
 #include <graphics/core/Atlas.hpp>
 #include <graphics/core/Batch3D.hpp>
 #include <graphics/core/Framebuffer.hpp>

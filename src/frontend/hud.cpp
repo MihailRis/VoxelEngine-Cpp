@@ -37,10 +37,10 @@
 #include <voxels/Block.hpp>
 #include <voxels/Chunk.hpp>
 #include <voxels/Chunks.hpp>
-#include "../window/Camera.hpp"
-#include "../window/Events.hpp"
-#include "../window/input.hpp"
-#include "../window/Window.hpp"
+#include <window/Camera.hpp>
+#include <window/Events.hpp>
+#include <window/input.hpp>
+#include <window/Window.hpp>
 #include <world/Level.hpp>
 #include <world/World.hpp>
 

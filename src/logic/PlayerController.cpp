@@ -18,10 +18,10 @@
 #include <voxels/Block.hpp>
 #include <voxels/Chunks.hpp>
 #include <voxels/voxel.hpp>
-#include "../window/Camera.hpp"
-#include "../window/Events.hpp"
-#include "../window/Window.hpp"
-#include "../window/input.hpp"
+#include <window/Camera.hpp>
+#include <window/Events.hpp>
+#include <window/Window.hpp>
+#include <window/input.hpp>
 #include <world/Level.hpp>
 #include "BlocksController.hpp"
 #include "scripting/scripting.hpp"

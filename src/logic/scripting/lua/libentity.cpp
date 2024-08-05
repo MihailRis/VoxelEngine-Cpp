@@ -8,7 +8,7 @@
 #include <objects/rigging.hpp>
 #include <physics/Hitbox.hpp>
 #include <voxels/Chunks.hpp>
-#include "../../../window/Camera.hpp"
+#include <window/Camera.hpp>
 
 using namespace scripting;
 

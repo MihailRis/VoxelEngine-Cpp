@@ -11,8 +11,8 @@
 #include <physics/Hitbox.hpp>
 #include <physics/PhysicsSolver.hpp>
 #include <voxels/Chunks.hpp>
-#include "../window/Camera.hpp"
-#include "../window/Events.hpp"
+#include <window/Camera.hpp>
+#include <window/Events.hpp>
 #include <world/Level.hpp>
 
 const float CROUCH_SPEED_MUL = 0.35f;
