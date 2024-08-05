@@ -51,7 +51,7 @@ tsf:set_size(size: vec3)
 -- Возвращает вращение сущности
 tsf:get_rot() -> mat4
 -- Устанавливает вращение сущности
-tsf:set_rot(size: mat4)
+tsf:set_rot(rotation: mat4)
 ```
 
 ### Rigidbody
