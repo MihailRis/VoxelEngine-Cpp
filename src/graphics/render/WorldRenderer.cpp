@@ -115,7 +115,7 @@ bool WorldRenderer::drawChunk(
 void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
     auto assets = engine->getAssets();
     auto atlas = assets->get<Atlas>("blocks");
-    
+
     atlas->getTexture()->bind();
     renderer->update();
 
@@ -126,8 +126,8 @@ void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
         if (chunks->chunks[i] == nullptr) continue;
         indices.emplace_back(i);
     }
-    float px = camera->position.x / (float)CHUNK_W - 0.5f;
-    float pz = camera->position.z / (float)CHUNK_D - 0.5f;
+    float px = camera->position.x / static_cast<float>(CHUNK_W) - 0.5f;
+    float pz = camera->position.z / static_cast<float>(CHUNK_D) - 0.5f;
     std::sort(indices.begin(), indices.end(), [chunks, px, pz](auto i, auto j) {
         const auto a = chunks->chunks[i].get();
         const auto b = chunks->chunks[j].get();

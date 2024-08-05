@@ -57,7 +57,7 @@ struct CameraSettings {
 struct GraphicsSettings {
     /// @brief Fog opacity is calculated as `pow(depth*k, fogCurve)` where k depends on chunksLoadDistance.
     /// 1.0 is linear, 2.0 is quadratic
-    NumberSetting fogCurve {1.6f, 1.0f, 6.0f};
+    NumberSetting fogCurve {1.0f, 1.0f, 6.0f};
     /// @brief Lighting gamma
     NumberSetting gamma {1.0f, 0.4f, 1.0f};
     /// @brief Enable blocks backlight to prevent complete darkness
