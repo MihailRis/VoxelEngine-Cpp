@@ -26,7 +26,7 @@ enum F_F_NAME{
 /**
  * @brief array for get file or folder name by enum `F_F_NAME`
  * 
- * @example example:
+ * example:
  * `std::filesystem::path settings = f_f_names[SETTINGS_FILE];`
  */
 static std::array<std::string, F_F_NAME::COUNT> f_f_names{
