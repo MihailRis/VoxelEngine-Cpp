@@ -48,14 +48,14 @@ bool perform_keyword(
         if (!fs::is_directory(fs::path(token))) {
             throw std::runtime_error(token + " is not a directory");
         }
-        paths.setResources(fs::path(token));
+        paths.setResourcesFolder(fs::path(token));
         std::cout << "resources folder: " << token << std::endl;
     } else if (keyword == "--dir") {
         auto token = reader.next();
         if (!fs::is_directory(fs::path(token))) {
             fs::create_directories(fs::path(token));
         }
-        paths.setUserfiles(fs::path(token));
+        paths.setUserFilesFolder(fs::path(token));
         std::cout << "userfiles folder: " << token << std::endl;
     } else if (keyword == "--help" || keyword == "-h") {
         std::cout << "VoxelEngine command-line arguments:" << std::endl;

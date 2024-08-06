@@ -128,11 +128,11 @@ fs::path ContentPack::findPack(
     if (fs::is_directory(folder)) {
         return folder;
     }
-    folder = paths->getUserfiles() / fs::path("content") / fs::path(name);
+    folder = paths->getUserFilesFolder() / fs::path("content") / fs::path(name);
     if (fs::is_directory(folder)) {
         return folder;
     }
-    return paths->getResources() / fs::path("content") / fs::path(name);
+    return paths->getResourcesFolder() / fs::path("content") / fs::path(name);
 }
 
 ContentPackRuntime::ContentPackRuntime(ContentPack info, scriptenv env)
