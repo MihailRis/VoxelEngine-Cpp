@@ -42,7 +42,7 @@ static int l_add_callback(lua::State* L) {
     if (hud) {
         hud->keepAlive(bind->second.onactived.add(callback));
     } else {
-        engine->keepAlive(bind->second.onactived.add(callback));
+        throw std::runtime_error("on_hud_open is not called yet");
     }
     return 0;
 }
