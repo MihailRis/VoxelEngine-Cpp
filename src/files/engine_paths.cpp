@@ -1,20 +1,19 @@
 #include "engine_paths.hpp"
 
 #include <algorithm>
+#include <array>
 #include <filesystem>
 #include <sstream>
 #include <stack>
-#include <utility>
-#include <array>
-
 #include <typedefs.hpp>
 #include <util/stringutil.hpp>
+#include <utility>
+
 #include "WorldFiles.hpp"
 
-/**
- * @brief ENUM for accessing folder and file names
- */
-enum F_F_NAME{
+
+/// @brief ENUM for accessing folder and file names
+enum F_F_NAME {
     SCREENSHOTS_FOLDER,
     CONTENT_FOLDER,
     CONTROLS_FILE,
@@ -23,18 +22,11 @@ enum F_F_NAME{
     COUNT
 };
 
-/**
- * @brief array for get file or folder name by enum `F_F_NAME`
- * 
- * example:
- * `std::filesystem::path settings = f_f_names[SETTINGS_FILE];`
- */
-static std::array<std::string, F_F_NAME::COUNT> f_f_names{
-        "screenshots",
-        "content",
-        "controls.toml",
-        "settings.toml"
-};
+/// @brief array for get file or folder name by enum `F_F_NAME`
+/// @example:
+///     std::filesystem::path settings = f_f_names[SETTINGS_FILE];
+static std::array<std::string, F_F_NAME::COUNT> f_f_names {
+    "screenshots", "content", "controls.toml", "settings.toml"};
 
 static std::filesystem::path toCanonic(std::filesystem::path path) {
     std::stack<std::string> parts;
@@ -45,7 +37,7 @@ static std::filesystem::path toCanonic(std::filesystem::path path) {
     } while (!path.empty());
 
     path = fs::u8path("");
-    
+
     while (!parts.empty()) {
         const std::string part = parts.top();
         parts.pop();
@@ -61,9 +53,9 @@ static std::filesystem::path toCanonic(std::filesystem::path path) {
     return path;
 }
 
-
 void EnginePaths::prepare() {
-    std::filesystem::path contentFolder = userFilesFolder / std::filesystem::path(f_f_names[CONTENT_FOLDER]);
+    auto contentFolder =
+        userFilesFolder / std::filesystem::path(f_f_names[CONTENT_FOLDER]);
     if (!fs::is_directory(contentFolder)) {
         fs::create_directories(contentFolder);
     }
@@ -78,7 +70,8 @@ std::filesystem::path EnginePaths::getResourcesFolder() const {
 }
 
 std::filesystem::path EnginePaths::getNewScreenshotFile(const std::string& ext) {
-    std::filesystem::path folder = userFilesFolder / std::filesystem::path(f_f_names[SCREENSHOTS_FOLDER]);
+    auto folder =
+        userFilesFolder / std::filesystem::path(f_f_names[SCREENSHOTS_FOLDER]);
     if (!fs::is_directory(folder)) {
         fs::create_directory(folder);
     }
@@ -91,8 +84,7 @@ std::filesystem::path EnginePaths::getNewScreenshotFile(const std::string& ext) 
     ss << std::put_time(&tm, format);
     std::string datetimestr = ss.str();
 
-    std::filesystem::path filename =
-        folder / fs::u8path("screenshot-" + datetimestr + "." + ext);
+    auto filename = folder / fs::u8path("screenshot-" + datetimestr + "." + ext);
     uint index = 0;
     while (fs::exists(filename)) {
         filename = folder / fs::u8path(
@@ -127,25 +119,29 @@ std::filesystem::path EnginePaths::getSettingsFile() {
 std::vector<std::filesystem::path> EnginePaths::scanForWorlds() {
     std::vector<std::filesystem::path> folders;
 
-    std::filesystem::path folder = getWorldsFolder();
+    auto folder = getWorldsFolder();
     if (!fs::is_directory(folder)) return folders;
 
     for (const auto& entry : fs::directory_iterator(folder)) {
         if (!entry.is_directory()) {
             continue;
         }
-        const std::filesystem::path& worldFolder = entry.path();
-        std::filesystem::path worldFile = worldFolder / fs::u8path(WorldFiles::WORLD_FILE);
+        const auto& worldFolder = entry.path();
+        auto worldFile = worldFolder / fs::u8path(WorldFiles::WORLD_FILE);
         if (!fs::is_regular_file(worldFile)) {
             continue;
         }
         folders.push_back(worldFolder);
     }
-    std::sort(folders.begin(), folders.end(), [](std::filesystem::path a, std::filesystem::path b) {
-        a = a / fs::u8path(WorldFiles::WORLD_FILE);
-        b = b / fs::u8path(WorldFiles::WORLD_FILE);
-        return fs::last_write_time(a) > fs::last_write_time(b);
-    });
+    std::sort(
+        folders.begin(),
+        folders.end(),
+        [](std::filesystem::path a, std::filesystem::path b) {
+            a = a / fs::u8path(WorldFiles::WORLD_FILE);
+            b = b / fs::u8path(WorldFiles::WORLD_FILE);
+            return fs::last_write_time(a) > fs::last_write_time(b);
+        }
+    );
     return folders;
 }
 
@@ -165,7 +161,9 @@ void EnginePaths::setContentPacks(std::vector<ContentPack>* contentPacks) {
     this->contentPacks = contentPacks;
 }
 
-std::filesystem::path EnginePaths::resolve(const std::string& path, bool throwErr) {
+std::filesystem::path EnginePaths::resolve(
+    const std::string& path, bool throwErr
+) {
     size_t separator = path.find(':');
     if (separator == std::string::npos) {
         throw files_access_error("no entry point specified");
@@ -197,7 +195,6 @@ std::filesystem::path EnginePaths::resolve(const std::string& path, bool throwEr
     return std::filesystem::path(filename);
 }
 
-
 ResPaths::ResPaths(std::filesystem::path mainRoot, std::vector<PathsRoot> roots)
     : mainRoot(std::move(mainRoot)), roots(std::move(roots)) {
 }
@@ -205,7 +202,7 @@ ResPaths::ResPaths(std::filesystem::path mainRoot, std::vector<PathsRoot> roots)
 std::filesystem::path ResPaths::find(const std::string& filename) const {
     for (int i = roots.size() - 1; i >= 0; i--) {
         auto& root = roots[i];
-        std::filesystem::path file = root.path / fs::u8path(filename);
+        auto file = root.path / fs::u8path(filename);
         if (fs::exists(file)) {
             return file;
         }
@@ -227,12 +224,11 @@ std::string ResPaths::findRaw(const std::string& filename) const {
     throw std::runtime_error("could not to find file " + util::quote(filename));
 }
 
-std::vector<std::string> ResPaths::listdirRaw(const std::string& folderName
-) const {
+std::vector<std::string> ResPaths::listdirRaw(const std::string& folderName) const {
     std::vector<std::string> entries;
     for (int i = roots.size() - 1; i >= 0; i--) {
         auto& root = roots[i];
-        std::filesystem::path folder = root.path / fs::u8path(folderName);
+        auto folder = root.path / fs::u8path(folderName);
         if (!fs::is_directory(folder)) continue;
         for (const auto& entry : fs::directory_iterator(folder)) {
             auto name = entry.path().filename().u8string();
@@ -240,7 +236,7 @@ std::vector<std::string> ResPaths::listdirRaw(const std::string& folderName
         }
     }
     {
-        std::filesystem::path folder = mainRoot / fs::u8path(folderName);
+        auto folder = mainRoot / fs::u8path(folderName);
         if (!fs::is_directory(folder)) return entries;
         for (const auto& entry : fs::directory_iterator(folder)) {
             auto name = entry.path().filename().u8string();
@@ -250,7 +246,9 @@ std::vector<std::string> ResPaths::listdirRaw(const std::string& folderName
     return entries;
 }
 
-std::vector<std::filesystem::path> ResPaths::listdir(const std::string& folderName) const {
+std::vector<std::filesystem::path> ResPaths::listdir(
+    const std::string& folderName
+) const {
     std::vector<std::filesystem::path> entries;
     for (int i = roots.size() - 1; i >= 0; i--) {
         auto& root = roots[i];
@@ -261,7 +259,7 @@ std::vector<std::filesystem::path> ResPaths::listdir(const std::string& folderNa
         }
     }
     {
-        std::filesystem::path folder = mainRoot / fs::u8path(folderName);
+        auto folder = mainRoot / fs::u8path(folderName);
         if (!fs::is_directory(folder)) return entries;
         for (const auto& entry : fs::directory_iterator(folder)) {
             entries.push_back(entry.path());
