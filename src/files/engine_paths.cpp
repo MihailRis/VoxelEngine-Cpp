@@ -22,9 +22,9 @@ enum F_F_NAME {
     COUNT
 };
 
-/// @brief array for get file or folder name by enum `F_F_NAME`
-/// @example:
-///     std::filesystem::path settings = f_f_names[SETTINGS_FILE];
+/// array for get file or folder name by enum `F_F_NAME`
+/// example:
+// `std::filesystem::path settings = f_f_names[SETTINGS_FILE];`
 static std::array<std::string, F_F_NAME::COUNT> f_f_names {
     "screenshots", "content", "controls.toml", "settings.toml"};
 
