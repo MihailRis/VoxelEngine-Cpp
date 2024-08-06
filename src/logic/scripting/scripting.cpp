@@ -38,7 +38,7 @@ LevelController* scripting::controller = nullptr;
 
 static void load_script(const fs::path& name, bool throwable) {
     auto paths = scripting::engine->getPaths();
-    fs::path file = paths->getResources() / fs::path("scripts") / name;
+    fs::path file = paths->getResourcesFolder() / fs::path("scripts") / name;
 
     std::string src = files::read_string(file);
     auto L = lua::get_main_thread();

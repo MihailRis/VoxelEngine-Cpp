@@ -71,7 +71,7 @@ static int l_world_get_seed(lua::State* L) {
 
 static int l_world_exists(lua::State* L) {
     auto name = lua::require_string(L, 1);
-    auto worldsDir = engine->getPaths()->getWorldFolder(name);
+    auto worldsDir = engine->getPaths()->getWorldFolderByName(name);
     return lua::pushboolean(L, fs::is_directory(worldsDir));
 }
 

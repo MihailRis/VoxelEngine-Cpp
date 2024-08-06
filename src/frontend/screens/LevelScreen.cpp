@@ -79,7 +79,7 @@ LevelScreen::~LevelScreen() {
     saveWorldPreview();
     scripting::on_frontend_close();
     controller->onWorldQuit();
-    engine->getPaths()->setWorldFolder(fs::path());
+    engine->getPaths()->setCurrentWorldFolder(fs::path());
 }
 
 void LevelScreen::saveWorldPreview() {

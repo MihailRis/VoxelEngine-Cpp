@@ -30,7 +30,7 @@ EngineController::EngineController(Engine* engine) : engine(engine) {
 }
 
 void EngineController::deleteWorld(const std::string& name) {
-    fs::path folder = engine->getPaths()->getWorldFolder(name);
+    fs::path folder = engine->getPaths()->getWorldFolderByName(name);
     guiutil::confirm(
         engine->getGUI(),
         langs::get(L"delete-confirm", L"world") + L" (" +
@@ -189,7 +189,7 @@ void EngineController::createWorld(
 
     if (!menus::call(engine, [this, paths, folder]() {
             engine->loadContent();
-            paths->setWorldFolder(folder);
+            paths->setCurrentWorldFolder(folder);
         })) {
         return;
     }
