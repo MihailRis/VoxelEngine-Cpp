@@ -1,7 +1,7 @@
 #ifndef VOXELS_VOXEL_HPP_
 #define VOXELS_VOXEL_HPP_
 
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 
 inline constexpr int BLOCK_DIR_NORTH = 0x0;
 inline constexpr int BLOCK_DIR_WEST = 0x1;

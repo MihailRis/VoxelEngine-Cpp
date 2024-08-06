@@ -9,7 +9,7 @@
         devShells.default = with nixpkgs.legacyPackages.${system}; mkShell {
           nativeBuildInputs = [ cmake pkg-config ];
           buildInputs = [ glm glfw glew zlib libpng libvorbis openal luajit  ]; # libglvnd
-          packages = [ mesa freeglut entt ];
+          packages = [ glfw mesa freeglut entt ];
           LD_LIBRARY_PATH = "${wayland}/lib:$LD_LIBRARY_PATH";
         };
     });

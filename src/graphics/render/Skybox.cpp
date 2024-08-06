@@ -1,15 +1,15 @@
 #include "Skybox.hpp"
-#include "../../assets/Assets.hpp"
-#include "../../graphics/core/Shader.hpp"
-#include "../../graphics/core/Mesh.hpp"
-#include "../../graphics/core/Batch3D.hpp"
-#include "../../graphics/core/Texture.hpp"
-#include "../../graphics/core/Cubemap.hpp"
-#include "../../graphics/core/Framebuffer.hpp"
-#include "../../graphics/core/DrawContext.hpp"
-#include "../../window/Window.hpp"
-#include "../../window/Camera.hpp"
-#include "../../maths/UVRegion.hpp"
+#include <assets/Assets.hpp>
+#include <graphics/core/Shader.hpp>
+#include <graphics/core/Mesh.hpp>
+#include <graphics/core/Batch3D.hpp>
+#include <graphics/core/Texture.hpp>
+#include <graphics/core/Cubemap.hpp>
+#include <graphics/core/Framebuffer.hpp>
+#include <graphics/core/DrawContext.hpp>
+#include <window/Window.hpp>
+#include <window/Camera.hpp>
+#include <maths/UVRegion.hpp>
 
 #include <cmath>
 #include <iostream>

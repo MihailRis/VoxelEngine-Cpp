@@ -1,7 +1,7 @@
 #include "FlatWorldGenerator.hpp"
 
-#include "../content/Content.hpp"
-#include "../core_defs.hpp"
+#include <content/Content.hpp>
+#include <core_defs.hpp>
 #include "Chunk.hpp"
 #include "voxel.hpp"
 

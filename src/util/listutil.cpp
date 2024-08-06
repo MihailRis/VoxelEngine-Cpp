@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "../util/stringutil.hpp"
+#include "stringutil.hpp"
 
 std::string util::to_string(const std::vector<std::string>& vec) {
     std::stringstream ss;

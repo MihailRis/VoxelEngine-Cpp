@@ -1,20 +1,20 @@
 #include <glm/glm.hpp>
 #include <iostream>
 
-#include "../../../assets/Assets.hpp"
-#include "../../../content/Content.hpp"
-#include "../../../engine.hpp"
-#include "../../../frontend/UiDocument.hpp"
-#include "../../../frontend/hud.hpp"
-#include "../../../graphics/ui/elements/InventoryView.hpp"
-#include "../../../items/Inventories.hpp"
-#include "../../../logic/BlocksController.hpp"
-#include "../../../objects/Player.hpp"
-#include "../../../util/stringutil.hpp"
-#include "../../../voxels/Block.hpp"
-#include "../../../voxels/Chunks.hpp"
-#include "../../../voxels/voxel.hpp"
-#include "../../../world/Level.hpp"
+#include <assets/Assets.hpp>
+#include <content/Content.hpp>
+#include <engine.hpp>
+#include <frontend/UiDocument.hpp>
+#include <frontend/hud.hpp>
+#include <graphics/ui/elements/InventoryView.hpp>
+#include <items/Inventories.hpp>
+#include <logic/BlocksController.hpp>
+#include <objects/Player.hpp>
+#include <util/stringutil.hpp>
+#include <voxels/Block.hpp>
+#include <voxels/Chunks.hpp>
+#include <voxels/voxel.hpp>
+#include <world/Level.hpp>
 #include "api_lua.hpp"
 
 namespace scripting {

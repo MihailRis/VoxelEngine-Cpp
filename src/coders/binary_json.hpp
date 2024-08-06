@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "../data/dynamic_fwd.hpp"
+#include <data/dynamic_fwd.hpp>
 
 namespace dynamic {
     class Map;

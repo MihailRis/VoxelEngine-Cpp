@@ -5,11 +5,11 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../content/Content.hpp"
-#include "../content/ContentPack.hpp"
-#include "../items/ItemDef.hpp"
-#include "../objects/EntityDef.hpp"
-#include "../voxels/Block.hpp"
+#include "Content.hpp"
+#include "ContentPack.hpp"
+#include <items/ItemDef.hpp>
+#include <objects/EntityDef.hpp>
+#include <voxels/Block.hpp>
 
 template <class T>
 class ContentUnitBuilder {

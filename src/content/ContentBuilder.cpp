@@ -1,6 +1,6 @@
 #include "ContentBuilder.hpp"
 
-#include "../objects/rigging.hpp"
+#include <objects/rigging.hpp>
 
 ContentBuilder::~ContentBuilder() = default;
 

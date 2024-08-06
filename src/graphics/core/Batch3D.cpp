@@ -4,8 +4,8 @@
 #include "Texture.hpp"
 
 #include <GL/glew.h>
-#include "../../typedefs.hpp"
-#include "../../maths/UVRegion.hpp"
+#include <typedefs.hpp>
+#include <maths/UVRegion.hpp>
 
 /// xyz, uv, rgba
 inline constexpr uint B3D_VERTEX_SIZE = 9;

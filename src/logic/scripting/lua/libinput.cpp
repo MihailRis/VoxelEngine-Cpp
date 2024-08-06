@@ -1,10 +1,10 @@
-#include "../../../engine.hpp"
-#include "../../../frontend/hud.hpp"
-#include "../../../frontend/screens/Screen.hpp"
-#include "../../../graphics/ui/GUI.hpp"
-#include "../../../util/stringutil.hpp"
-#include "../../../window/Events.hpp"
-#include "../../../window/input.hpp"
+#include <engine.hpp>
+#include <frontend/hud.hpp>
+#include <frontend/screens/Screen.hpp>
+#include <graphics/ui/GUI.hpp>
+#include <util/stringutil.hpp>
+#include <window/Events.hpp>
+#include <window/input.hpp>
 #include "api_lua.hpp"
 
 namespace scripting {
@@ -42,7 +42,7 @@ static int l_add_callback(lua::State* L) {
     if (hud) {
         hud->keepAlive(bind->second.onactived.add(callback));
     } else {
-        engine->keepAlive(bind->second.onactived.add(callback));
+        throw std::runtime_error("on_hud_open is not called yet");
     }
     return 0;
 }

@@ -1,10 +1,10 @@
 #include "Plotter.hpp"
 
-#include "../../core/Batch2D.hpp"
-#include "../../core/Font.hpp"
-#include "../../core/DrawContext.hpp"
-#include "../../../assets/Assets.hpp"
-#include "../../../util/stringutil.hpp"
+#include <graphics/core/Batch2D.hpp>
+#include <graphics/core/Font.hpp>
+#include <graphics/core/DrawContext.hpp>
+#include <assets/Assets.hpp>
+#include <util/stringutil.hpp>
 
 using namespace gui;
 

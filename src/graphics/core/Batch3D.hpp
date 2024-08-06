@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_CORE_BATCH3D_HPP_
 #define GRAPHICS_CORE_BATCH3D_HPP_
 
-#include "../../typedefs.hpp"
+#include <typedefs.hpp>
 #include "commons.hpp"
 
 #include <memory>

@@ -7,8 +7,8 @@
 #include <utility>
 #include <array>
 
-#include "../typedefs.hpp"
-#include "../util/stringutil.hpp"
+#include <typedefs.hpp>
+#include <util/stringutil.hpp>
 #include "WorldFiles.hpp"
 
 /**

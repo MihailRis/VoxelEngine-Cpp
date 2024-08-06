@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-#include "../data/dynamic.hpp"
+#include <data/dynamic.hpp>
 #include "byte_utils.hpp"
 #include "gzip.hpp"
 
