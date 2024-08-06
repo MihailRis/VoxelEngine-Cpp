@@ -2,7 +2,7 @@
 #define VOXELS_FLATWORLDGENERATOR_HPP_
 
 #include <typedefs.hpp>
-#include "WorldGenerator.hpp"
+#include "../WorldGenerator.hpp"
 
 struct voxel;
 class Content;

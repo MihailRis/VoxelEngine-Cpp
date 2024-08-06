@@ -1,8 +1,8 @@
-#include "DefaultWorldGenerator.hpp"
+#include "Default.hpp"
 
-#include "Block.hpp"
-#include "Chunk.hpp"
-#include "voxel.hpp"
+#include "../Block.hpp"
+#include "../Chunk.hpp"
+#include "../voxel.hpp"
 
 #define FNL_IMPL
 #include <math.h>

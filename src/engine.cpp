@@ -30,8 +30,8 @@
 #include <logic/scripting/scripting.hpp>
 #include <util/listutil.hpp>
 #include <util/platform.hpp>
-#include <voxels/DefaultWorldGenerator.hpp>
-#include <voxels/FlatWorldGenerator.hpp>
+#include <voxels/WorldGenerators/Default.hpp>
+#include <voxels/WorldGenerators/Flat.hpp>
 #include <window/Camera.hpp>
 #include <window/Events.hpp>
 #include <window/input.hpp>
