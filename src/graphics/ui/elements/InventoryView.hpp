@@ -3,8 +3,8 @@
 
 #include "UINode.hpp"
 #include "Container.hpp"
-#include "../../../typedefs.hpp"
-#include "../../../constants.hpp"
+#include <typedefs.hpp>
+#include <constants.hpp>
 
 #include <vector>
 #include <functional>

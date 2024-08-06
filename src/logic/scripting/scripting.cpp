@@ -3,24 +3,24 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "../../content/Content.hpp"
-#include "../../content/ContentPack.hpp"
-#include "../../debug/Logger.hpp"
-#include "../../engine.hpp"
-#include "../../files/engine_paths.hpp"
-#include "../../files/files.hpp"
-#include "../../frontend/UiDocument.hpp"
-#include "../../items/Inventory.hpp"
-#include "../../items/ItemDef.hpp"
-#include "../../logic/BlocksController.hpp"
-#include "../../logic/LevelController.hpp"
-#include "../../objects/Entities.hpp"
-#include "../../objects/EntityDef.hpp"
-#include "../../objects/Player.hpp"
-#include "../../util/stringutil.hpp"
-#include "../../util/timeutil.hpp"
-#include "../../voxels/Block.hpp"
-#include "../../world/Level.hpp"
+#include <content/Content.hpp>
+#include <content/ContentPack.hpp>
+#include <debug/Logger.hpp>
+#include <engine.hpp>
+#include <files/engine_paths.hpp>
+#include <files/files.hpp>
+#include <frontend/UiDocument.hpp>
+#include <items/Inventory.hpp>
+#include <items/ItemDef.hpp>
+#include <logic/BlocksController.hpp>
+#include <logic/LevelController.hpp>
+#include <objects/Entities.hpp>
+#include <objects/EntityDef.hpp>
+#include <objects/Player.hpp>
+#include <util/stringutil.hpp>
+#include <util/timeutil.hpp>
+#include <voxels/Block.hpp>
+#include <world/Level.hpp>
 #include "lua/lua_engine.hpp"
 
 using namespace scripting;

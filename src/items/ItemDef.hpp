@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <string>
 
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 
 struct item_funcs_set {
     bool init : 1;

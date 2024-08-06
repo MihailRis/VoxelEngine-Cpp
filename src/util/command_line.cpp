@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "../files/engine_paths.hpp"
+#include <files/engine_paths.hpp>
 
 namespace fs = std::filesystem;
 

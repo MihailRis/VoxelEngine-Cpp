@@ -1,7 +1,7 @@
 #ifndef FRONTEND_GUI_GUI_HPP_
 #define FRONTEND_GUI_GUI_HPP_
 
-#include "../../delegates.hpp"
+#include <delegates.hpp>
 
 #include <queue>
 #include <memory>

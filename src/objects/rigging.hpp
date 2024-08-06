@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 
 class Assets;
 class ModelBatch;

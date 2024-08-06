@@ -5,13 +5,13 @@
 #include <stdexcept>
 #include <utility>
 
-#include "../content/ContentLUT.hpp"
-#include "../data/dynamic.hpp"
-#include "../debug/Logger.hpp"
-#include "../files/files.hpp"
-#include "../objects/Player.hpp"
-#include "../util/ThreadPool.hpp"
-#include "../voxels/Chunk.hpp"
+#include <content/ContentLUT.hpp>
+#include <data/dynamic.hpp>
+#include <debug/Logger.hpp>
+#include <files/files.hpp>
+#include <objects/Player.hpp>
+#include <util/ThreadPool.hpp>
+#include <voxels/Chunk.hpp>
 #include "WorldFiles.hpp"
 
 namespace fs = std::filesystem;

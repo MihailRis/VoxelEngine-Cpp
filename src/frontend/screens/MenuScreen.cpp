@@ -1,14 +1,14 @@
 #include "MenuScreen.hpp"
 
-#include "../../graphics/ui/GUI.hpp"
-#include "../../graphics/ui/elements/Menu.hpp"
-#include "../../graphics/core/Batch2D.hpp"
-#include "../../graphics/core/Shader.hpp"
-#include "../../graphics/core/Texture.hpp"
-#include "../../maths/UVRegion.hpp"
-#include "../../window/Window.hpp"
-#include "../../window/Camera.hpp"
-#include "../../engine.hpp"
+#include <graphics/ui/GUI.hpp>
+#include <graphics/ui/elements/Menu.hpp>
+#include <graphics/core/Batch2D.hpp>
+#include <graphics/core/Shader.hpp>
+#include <graphics/core/Texture.hpp>
+#include <maths/UVRegion.hpp>
+#include <window/Window.hpp>
+#include <window/Camera.hpp>
+#include <engine.hpp>
 
 MenuScreen::MenuScreen(Engine* engine) : Screen(engine) {
     engine->resetContent();

@@ -3,10 +3,10 @@
 
 #include <optional>
 
-#include "../../../frontend/hud.hpp"
-#include "../../../objects/Entities.hpp"
-#include "../../../world/Level.hpp"
-#include "../../LevelController.hpp"
+#include <frontend/hud.hpp>
+#include <objects/Entities.hpp>
+#include <world/Level.hpp>
+#include <logic/LevelController.hpp>
 #include "api_lua.hpp"
 
 namespace scripting {

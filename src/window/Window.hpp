@@ -6,7 +6,7 @@
 #include <stack>
 #include <vector>
 
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 
 class ImageData;
 struct DisplaySettings;

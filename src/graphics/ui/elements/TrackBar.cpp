@@ -2,9 +2,9 @@
 
 #include <utility>
 
-#include "../../core/DrawContext.hpp"
-#include "../../core/Batch2D.hpp"
-#include "../../../assets/Assets.hpp"
+#include <graphics/core/DrawContext.hpp>
+#include <graphics/core/Batch2D.hpp>
+#include <assets/Assets.hpp>
 
 using namespace gui;
 

@@ -5,7 +5,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../maths/util.hpp"
+#include <maths/util.hpp>
 #include "Inventory.hpp"
 
 class Level;

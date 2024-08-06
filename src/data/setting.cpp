@@ -1,6 +1,6 @@
 #include "setting.hpp"
 
-#include "../util/stringutil.hpp"
+#include <util/stringutil.hpp>
 
 std::string NumberSetting::toString() const {
     switch (getFormat()) {

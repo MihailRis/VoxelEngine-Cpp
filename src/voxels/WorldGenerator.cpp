@@ -1,6 +1,6 @@
 #include "WorldGenerator.hpp"
 
-#include "../content/Content.hpp"
+#include <content/Content.hpp>
 #include "Block.hpp"
 #include "Chunk.hpp"
 #include "voxel.hpp"

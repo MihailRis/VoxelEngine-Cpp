@@ -1,5 +1,5 @@
-#include "../../../engine.hpp"
-#include "../../../window/Window.hpp"
+#include <engine.hpp>
+#include <window/Window.hpp>
 #include "api_lua.hpp"
 
 static int l_time_uptime(lua::State* L) {

@@ -1,9 +1,9 @@
 #include "InputBindBox.hpp"
 
 #include "Label.hpp"
-#include "../../core/DrawContext.hpp"
-#include "../../core/Batch2D.hpp"
-#include "../../../util/stringutil.hpp"
+#include <graphics/core/DrawContext.hpp>
+#include <graphics/core/Batch2D.hpp>
+#include <util/stringutil.hpp>
 
 using namespace gui;
 

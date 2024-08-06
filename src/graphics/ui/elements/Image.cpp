@@ -2,12 +2,12 @@
 
 #include <utility>
 
-#include "../../core/DrawContext.hpp"
-#include "../../core/Batch2D.hpp"
-#include "../../core/Texture.hpp"
-#include "../../core/Atlas.hpp"
-#include "../../../assets/Assets.hpp"
-#include "../../../maths/UVRegion.hpp"
+#include <graphics/core/DrawContext.hpp>
+#include <graphics/core/Batch2D.hpp>
+#include <graphics/core/Texture.hpp>
+#include <graphics/core/Atlas.hpp>
+#include <assets/Assets.hpp>
+#include <maths/UVRegion.hpp>
 
 using namespace gui;
 
