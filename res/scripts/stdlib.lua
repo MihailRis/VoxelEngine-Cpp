@@ -461,8 +461,10 @@ function meta:__index(key)
     end
 end
 
+local utf8 = require("utf8")
+
 function meta:__len()
-    return string.len(self) -- budet herovo rabotat s utf8, ili kirillitsa
+    return utf8.len(self)
 end
 
 function string.starts_with(str, start)
