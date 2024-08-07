@@ -128,8 +128,8 @@ function events.on(id, name, fn)
 end
 
 function events.remove(id, name)
-    if not id then error("Where event name?") end
-    if not name then error("Where callback name?") end
+    if not id then error("event name missing") end
+    if not name then error("callback name missing") end
 
     if not events.list[id] then return end
 
