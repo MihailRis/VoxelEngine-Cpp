@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <string>
 
-#include "../../typedefs.hpp"
+#include <typedefs.hpp>
 
 namespace fs = std::filesystem;
 

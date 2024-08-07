@@ -2,42 +2,42 @@
 
 #define GLEW_STATIC
 
-#include "debug/Logger.hpp"
-#include "assets/AssetsLoader.hpp"
-#include "audio/audio.hpp"
-#include "coders/GLSLExtension.hpp"
-#include "coders/imageio.hpp"
-#include "coders/json.hpp"
-#include "coders/toml.hpp"
-#include "content/Content.hpp"
-#include "content/ContentBuilder.hpp"
-#include "content/ContentLoader.hpp"
-#include "core_defs.hpp"
-#include "files/files.hpp"
-#include "files/settings_io.hpp"
-#include "frontend/locale.hpp"
-#include "frontend/menu.hpp"
-#include "frontend/screens/Screen.hpp"
-#include "frontend/screens/MenuScreen.hpp"
-#include "graphics/core/Batch2D.hpp"
-#include "graphics/core/DrawContext.hpp"
-#include "graphics/core/ImageData.hpp"
-#include "graphics/core/Shader.hpp"
-#include "graphics/ui/GUI.hpp"
-#include "objects/rigging.hpp"
-#include "logic/EngineController.hpp"
-#include "logic/CommandsInterpreter.hpp"
-#include "logic/scripting/scripting.hpp"
-#include "util/listutil.hpp"
-#include "util/platform.hpp"
-#include "voxels/DefaultWorldGenerator.hpp"
-#include "voxels/FlatWorldGenerator.hpp"
-#include "window/Camera.hpp"
-#include "window/Events.hpp"
-#include "window/input.hpp"
-#include "window/Window.hpp"
-#include "world/WorldGenerators.hpp"
-#include "settings.hpp"
+#include <debug/Logger.hpp>
+#include <assets/AssetsLoader.hpp>
+#include <audio/audio.hpp>
+#include <coders/GLSLExtension.hpp>
+#include <coders/imageio.hpp>
+#include <coders/json.hpp>
+#include <coders/toml.hpp>
+#include <content/Content.hpp>
+#include <content/ContentBuilder.hpp>
+#include <content/ContentLoader.hpp>
+#include <core_defs.hpp>
+#include <files/files.hpp>
+#include <files/settings_io.hpp>
+#include <frontend/locale.hpp>
+#include <frontend/menu.hpp>
+#include <frontend/screens/Screen.hpp>
+#include <frontend/screens/MenuScreen.hpp>
+#include <graphics/core/Batch2D.hpp>
+#include <graphics/core/DrawContext.hpp>
+#include <graphics/core/ImageData.hpp>
+#include <graphics/core/Shader.hpp>
+#include <graphics/ui/GUI.hpp>
+#include <objects/rigging.hpp>
+#include <logic/EngineController.hpp>
+#include <logic/CommandsInterpreter.hpp>
+#include <logic/scripting/scripting.hpp>
+#include <util/listutil.hpp>
+#include <util/platform.hpp>
+#include <voxels/DefaultWorldGenerator.hpp>
+#include <voxels/FlatWorldGenerator.hpp>
+#include <window/Camera.hpp>
+#include <window/Events.hpp>
+#include <window/input.hpp>
+#include <window/Window.hpp>
+#include <world/WorldGenerators.hpp>
+#include <settings.hpp>
 
 #include <iostream>
 #include <assert.h>
@@ -83,7 +83,7 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     paths->prepare();
     loadSettings();
 
-    auto resdir = paths->getResources();
+    auto resdir = paths->getResourcesFolder();
 
     controller = std::make_unique<EngineController>(this);
     if (Window::initialize(&this->settings.display)){
@@ -105,7 +105,7 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     if (settings.ui.language.get() == "auto") {
         settings.ui.language.set(langs::locale_by_envlocale(
             platform::detect_locale(),
-            paths->getResources()
+            paths->getResourcesFolder()
         ));
     }
     if (ENGINE_DEBUG_BUILD) {
@@ -162,7 +162,7 @@ void Engine::updateHotkeys() {
 void Engine::saveScreenshot() {
     auto image = Window::takeScreenshot();
     image->flipY();
-    fs::path filename = paths->getScreenshotFile("png");
+    fs::path filename = paths->getNewScreenshotFile("png");
     imageio::write(filename.string(), image.get());
     logger.info() << "saved screenshot as " << filename.u8string();
 }
@@ -252,8 +252,8 @@ PacksManager Engine::createPacksManager(const fs::path& worldFolder) {
     PacksManager manager;
     manager.setSources({
         worldFolder/fs::path("content"),
-        paths->getUserfiles()/fs::path("content"),
-        paths->getResources()/fs::path("content")
+        paths->getUserFilesFolder()/fs::path("content"),
+        paths->getResourcesFolder()/fs::path("content")
     });
     return manager;
 }
@@ -296,7 +296,7 @@ static void load_configs(const fs::path& root) {
 }
 
 void Engine::loadContent() {
-    auto resdir = paths->getResources();
+    auto resdir = paths->getResourcesFolder();
 
     std::vector<std::string> names;
     for (auto& pack : contentPacks) {
@@ -307,7 +307,7 @@ void Engine::loadContent() {
     corecontent::setup(paths, &contentBuilder);
 
     paths->setContentPacks(&contentPacks);
-    PacksManager manager = createPacksManager(paths->getWorldFolder());
+    PacksManager manager = createPacksManager(paths->getCurrentWorldFolder());
     manager.scan();
     names = manager.assembly(names);
     contentPacks = manager.getAll(names);
@@ -318,7 +318,7 @@ void Engine::loadContent() {
         ContentLoader(&pack, contentBuilder).load();
         load_configs(pack.folder);
     } 
-    load_configs(paths->getResources());
+    load_configs(paths->getResourcesFolder());
 
     content = contentBuilder.build();
     resPaths = std::make_unique<ResPaths>(resdir, resRoots);
@@ -329,7 +329,7 @@ void Engine::loadContent() {
 }
 
 void Engine::resetContent() {
-    auto resdir = paths->getResources();
+    auto resdir = paths->getResourcesFolder();
     resPaths = std::make_unique<ResPaths>(resdir, std::vector<PathsRoot>());
     contentPacks.clear();
     content.reset();
@@ -349,17 +349,17 @@ void Engine::loadWorldContent(const fs::path& folder) {
     PacksManager manager;
     manager.setSources({
         folder/fs::path("content"),
-        paths->getUserfiles()/fs::path("content"),
-        paths->getResources()/fs::path("content")
+        paths->getUserFilesFolder()/fs::path("content"),
+        paths->getResourcesFolder()/fs::path("content")
     });
     manager.scan();
     contentPacks = manager.getAll(manager.assembly(packNames));
-    paths->setWorldFolder(folder);
+    paths->setCurrentWorldFolder(folder);
     loadContent();
 }
 
 void Engine::loadAllPacks() {
-    PacksManager manager = createPacksManager(paths->getWorldFolder());
+    PacksManager manager = createPacksManager(paths->getCurrentWorldFolder());
     manager.scan();
     auto allnames = manager.getAllNames();
     contentPacks = manager.getAll(manager.assembly(allnames));
@@ -376,7 +376,7 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
 }
 
 void Engine::setLanguage(std::string locale) {
-    langs::setup(paths->getResources(), std::move(locale), contentPacks);
+    langs::setup(paths->getResourcesFolder(), std::move(locale), contentPacks);
     gui->getMenu()->setPageLoader(menus::create_page_loader(this));
 }
 

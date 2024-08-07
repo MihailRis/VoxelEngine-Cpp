@@ -4,10 +4,10 @@
 
 #include <iostream>
 
-#include "../debug/Logger.hpp"
-#include "../files/files.hpp"
-#include "../graphics/core/GLTexture.hpp"
-#include "../graphics/core/ImageData.hpp"
+#include <debug/Logger.hpp>
+#include <files/files.hpp>
+#include <graphics/core/GLTexture.hpp>
+#include <graphics/core/ImageData.hpp>
 
 static debug::Logger logger("png-coder");
 
@@ -28,7 +28,6 @@ int _png_write(
     FILE* fp = fopen(filename, "wb");
     if (fp == nullptr) {
         logger.error() << "could not open file " << filename << " for writing";
-        fclose(fp);
         return 1;
     }
 

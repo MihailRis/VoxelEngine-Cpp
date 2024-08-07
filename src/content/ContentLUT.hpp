@@ -6,9 +6,9 @@
 #include <utility>
 #include <vector>
 
-#include "../constants.hpp"
-#include "../data/dynamic.hpp"
-#include "../typedefs.hpp"
+#include <constants.hpp>
+#include <data/dynamic.hpp>
+#include <typedefs.hpp>
 #include "Content.hpp"
 
 namespace fs = std::filesystem;

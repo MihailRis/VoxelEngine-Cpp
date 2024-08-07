@@ -5,20 +5,20 @@
 #include <iostream>
 #include <memory>
 
-#include "../content/Content.hpp"
-#include "../files/WorldFiles.hpp"
-#include "../graphics/core/Mesh.hpp"
-#include "../lighting/Lighting.hpp"
-#include "../maths/voxmaths.hpp"
-#include "../util/timeutil.hpp"
-#include "../voxels/Block.hpp"
-#include "../voxels/Chunk.hpp"
-#include "../voxels/Chunks.hpp"
-#include "../voxels/ChunksStorage.hpp"
-#include "../voxels/WorldGenerator.hpp"
-#include "../world/Level.hpp"
-#include "../world/World.hpp"
-#include "../world/WorldGenerators.hpp"
+#include <content/Content.hpp>
+#include <files/WorldFiles.hpp>
+#include <graphics/core/Mesh.hpp>
+#include <lighting/Lighting.hpp>
+#include <maths/voxmaths.hpp>
+#include <util/timeutil.hpp>
+#include <voxels/Block.hpp>
+#include <voxels/Chunk.hpp>
+#include <voxels/Chunks.hpp>
+#include <voxels/ChunksStorage.hpp>
+#include <voxels/WorldGenerator.hpp>
+#include <world/Level.hpp>
+#include <world/World.hpp>
+#include <world/WorldGenerators.hpp>
 
 const uint MAX_WORK_PER_FRAME = 128;
 const uint MIN_SURROUNDING = 9;

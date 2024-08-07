@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../data/dynamic_fwd.hpp"
+#include <data/dynamic_fwd.hpp>
 #include "content_fwd.hpp"
 
 using DrawGroups = std::set<ubyte>;

@@ -4,8 +4,8 @@
 #include <stdexcept>
 #include <string>
 
-#include "../data/dynamic.hpp"
-#include "../typedefs.hpp"
+#include <data/dynamic.hpp>
+#include <typedefs.hpp>
 
 inline int is_box(int c) {
     switch (c) {

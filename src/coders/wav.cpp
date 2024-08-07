@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "../audio/audio.hpp"
-#include "../debug/Logger.hpp"
+#include <audio/audio.hpp>
+#include <debug/Logger.hpp>
 
 namespace fs = std::filesystem;
 

@@ -3,8 +3,8 @@
 #include <iostream>
 #include <utility>
 
-#include "../coders/commons.hpp"
-#include "../util/stringutil.hpp"
+#include <coders/commons.hpp>
+#include <util/stringutil.hpp>
 
 using namespace cmd;
 

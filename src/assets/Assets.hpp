@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../graphics/core/TextureAnimation.hpp"
+#include <graphics/core/TextureAnimation.hpp>
 
 class Assets;
 

@@ -3,13 +3,13 @@
 #include <stdexcept>
 #include <string>
 
-#include "../../../assets/AssetsLoader.hpp"
-#include "../../../content/Content.hpp"
-#include "../../../engine.hpp"
-#include "../../../files/WorldFiles.hpp"
-#include "../../../files/engine_paths.hpp"
-#include "../../../world/Level.hpp"
-#include "../../../world/World.hpp"
+#include <assets/AssetsLoader.hpp>
+#include <content/Content.hpp>
+#include <engine.hpp>
+#include <files/WorldFiles.hpp>
+#include <files/engine_paths.hpp>
+#include <world/Level.hpp>
+#include <world/World.hpp>
 #include "api_lua.hpp"
 
 using namespace scripting;
@@ -17,7 +17,7 @@ using namespace scripting;
 static int l_pack_get_folder(lua::State* L) {
     std::string packName = lua::tostring(L, 1);
     if (packName == "core") {
-        auto folder = engine->getPaths()->getResources().u8string() + "/";
+        auto folder = engine->getPaths()->getResourcesFolder().u8string() + "/";
         return lua::pushstring(L, folder);
     }
     for (auto& pack : engine->getContentPacks()) {

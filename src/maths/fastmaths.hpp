@@ -1,7 +1,7 @@
 #ifndef MATHS_FASTMATHS_HPP_
 #define MATHS_FASTMATHS_HPP_
 
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 
 class FastRandom {
     uint seed;

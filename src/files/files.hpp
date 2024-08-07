@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 
 namespace fs = std::filesystem;
 
