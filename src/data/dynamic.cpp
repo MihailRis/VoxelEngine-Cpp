@@ -1,6 +1,6 @@
 #include "dynamic.hpp"
 
-#include "../coders/json.hpp"
+#include <coders/json.hpp>
 
 using namespace dynamic;
 

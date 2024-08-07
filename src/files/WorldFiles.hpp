@@ -7,9 +7,9 @@
 #include <string>
 #include <vector>
 
-#include "../content/ContentPack.hpp"
-#include "../typedefs.hpp"
-#include "../voxels/Chunk.hpp"
+#include <content/ContentPack.hpp>
+#include <typedefs.hpp>
+#include <voxels/Chunk.hpp>
 #include "WorldRegions.hpp"
 #include "files.hpp"
 #define GLM_ENABLE_EXPERIMENTAL

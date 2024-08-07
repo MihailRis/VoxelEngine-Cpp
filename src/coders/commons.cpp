@@ -5,7 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "../util/stringutil.hpp"
+#include <util/stringutil.hpp>
 
 inline double power(double base, int64_t power) {
     double result = 1.0;

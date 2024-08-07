@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 
-#include "../../typedefs.hpp"
+#include <typedefs.hpp>
 
 class Viewport {
     uint width;

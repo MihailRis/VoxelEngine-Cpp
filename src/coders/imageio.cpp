@@ -4,7 +4,7 @@
 #include <functional>
 #include <unordered_map>
 
-#include "../graphics/core/ImageData.hpp"
+#include <graphics/core/ImageData.hpp>
 #include "png.hpp"
 
 namespace fs = std::filesystem;

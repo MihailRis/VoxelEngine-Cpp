@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 
 class Level;
 class Chunk;

@@ -51,7 +51,7 @@ tsf:set_size(size: vec3)
 -- Returns the entity rotation
 tsf:get_rot() -> mat4
 -- Sets entity rotation
-tsf:set_rot(size: mat4)
+tsf:set_rot(rotation: mat4)
 ```
 
 ### Rigidbody

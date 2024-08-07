@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 
 namespace util {
     /// @brief Function used for string serialization in text formats

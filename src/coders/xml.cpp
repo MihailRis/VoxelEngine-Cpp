@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <utility>
 
-#include "../util/stringutil.hpp"
+#include <util/stringutil.hpp>
 
 using namespace xml;
 

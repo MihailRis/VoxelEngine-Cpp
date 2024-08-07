@@ -4,8 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <string.h>
 
-#include "../debug/Logger.hpp"
-#include "../util/stringutil.hpp"
+#include <debug/Logger.hpp>
+#include <util/stringutil.hpp>
 #include "Window.hpp"
 
 static debug::Logger logger("events");
@@ -165,9 +165,9 @@ void Events::setPosition(float xpos, float ypos) {
     Events::cursor.y = ypos;
 }
 
-#include "../coders/json.hpp"
-#include "../coders/toml.hpp"
-#include "../data/dynamic.hpp"
+#include <coders/json.hpp>
+#include <coders/toml.hpp>
+#include <data/dynamic.hpp>
 
 std::string Events::writeBindings() {
     dynamic::Map obj;

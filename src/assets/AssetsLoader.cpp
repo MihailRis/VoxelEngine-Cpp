@@ -4,19 +4,19 @@
 #include <memory>
 #include <utility>
 
-#include "../coders/imageio.hpp"
-#include "../constants.hpp"
-#include "../content/Content.hpp"
-#include "../content/ContentPack.hpp"
-#include "../data/dynamic.hpp"
-#include "../debug/Logger.hpp"
-#include "../files/engine_paths.hpp"
-#include "../files/files.hpp"
-#include "../graphics/core/Texture.hpp"
-#include "../logic/scripting/scripting.hpp"
-#include "../objects/rigging.hpp"
-#include "../util/ThreadPool.hpp"
-#include "../voxels/Block.hpp"
+#include <coders/imageio.hpp>
+#include <constants.hpp>
+#include <content/Content.hpp>
+#include <content/ContentPack.hpp>
+#include <data/dynamic.hpp>
+#include <debug/Logger.hpp>
+#include <files/engine_paths.hpp>
+#include <files/files.hpp>
+#include <graphics/core/Texture.hpp>
+#include <logic/scripting/scripting.hpp>
+#include <objects/rigging.hpp>
+#include <util/ThreadPool.hpp>
+#include <voxels/Block.hpp>
 #include "Assets.hpp"
 #include "assetload_funcs.hpp"
 

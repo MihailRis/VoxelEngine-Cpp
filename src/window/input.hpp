@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "../util/RunnablesList.hpp"
+#include <util/RunnablesList.hpp>
 
 /// @brief Represents glfw3 keycode values.
 enum class keycode : int {

@@ -1,7 +1,7 @@
 #ifndef LIGHTING_LIGHTING_HPP_
 #define LIGHTING_LIGHTING_HPP_
 
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 
 class Content;
 class ContentIndices;

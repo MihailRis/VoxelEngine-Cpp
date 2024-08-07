@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "../voxels/WorldGenerator.hpp"
+#include <voxels/WorldGenerator.hpp>
 
 class Content;
 

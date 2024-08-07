@@ -8,37 +8,37 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
 
-#include "../../assets/Assets.hpp"
-#include "../../content/Content.hpp"
-#include "../../engine.hpp"
-#include "../../frontend/LevelFrontend.hpp"
-#include "../../items/Inventory.hpp"
-#include "../../items/ItemDef.hpp"
-#include "../../items/ItemStack.hpp"
-#include "../../logic/PlayerController.hpp"
-#include "../../logic/scripting/scripting_hud.hpp"
-#include "../../maths/FrustumCulling.hpp"
-#include "../../maths/voxmaths.hpp"
-#include "../../objects/Entities.hpp"
-#include "../../objects/Player.hpp"
-#include "../../settings.hpp"
-#include "../../voxels/Block.hpp"
-#include "../../voxels/Chunk.hpp"
-#include "../../voxels/Chunks.hpp"
-#include "../../window/Camera.hpp"
-#include "../../window/Window.hpp"
-#include "../../world/Level.hpp"
-#include "../../world/LevelEvents.hpp"
-#include "../../world/World.hpp"
-#include "../core/Atlas.hpp"
-#include "../core/Batch3D.hpp"
-#include "../core/DrawContext.hpp"
-#include "../core/LineBatch.hpp"
-#include "../core/Mesh.hpp"
-#include "../core/Model.hpp"
-#include "../core/PostProcessing.hpp"
-#include "../core/Shader.hpp"
-#include "../core/Texture.hpp"
+#include <assets/Assets.hpp>
+#include <content/Content.hpp>
+#include <engine.hpp>
+#include <frontend/LevelFrontend.hpp>
+#include <items/Inventory.hpp>
+#include <items/ItemDef.hpp>
+#include <items/ItemStack.hpp>
+#include <logic/PlayerController.hpp>
+#include <logic/scripting/scripting_hud.hpp>
+#include <maths/FrustumCulling.hpp>
+#include <maths/voxmaths.hpp>
+#include <objects/Entities.hpp>
+#include <objects/Player.hpp>
+#include <settings.hpp>
+#include <voxels/Block.hpp>
+#include <voxels/Chunk.hpp>
+#include <voxels/Chunks.hpp>
+#include <window/Camera.hpp>
+#include <window/Window.hpp>
+#include <world/Level.hpp>
+#include <world/LevelEvents.hpp>
+#include <world/World.hpp>
+#include <graphics/core/Atlas.hpp>
+#include <graphics/core/Batch3D.hpp>
+#include <graphics/core/DrawContext.hpp>
+#include <graphics/core/LineBatch.hpp>
+#include <graphics/core/Mesh.hpp>
+#include <graphics/core/Model.hpp>
+#include <graphics/core/PostProcessing.hpp>
+#include <graphics/core/Shader.hpp>
+#include <graphics/core/Texture.hpp>
 #include "ChunksRenderer.hpp"
 #include "ModelBatch.hpp"
 #include "Skybox.hpp"
@@ -115,7 +115,7 @@ bool WorldRenderer::drawChunk(
 void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
     auto assets = engine->getAssets();
     auto atlas = assets->get<Atlas>("blocks");
-    
+
     atlas->getTexture()->bind();
     renderer->update();
 
@@ -126,8 +126,8 @@ void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
         if (chunks->chunks[i] == nullptr) continue;
         indices.emplace_back(i);
     }
-    float px = camera->position.x / (float)CHUNK_W - 0.5f;
-    float pz = camera->position.z / (float)CHUNK_D - 0.5f;
+    float px = camera->position.x / static_cast<float>(CHUNK_W) - 0.5f;
+    float pz = camera->position.z / static_cast<float>(CHUNK_D) - 0.5f;
     std::sort(indices.begin(), indices.end(), [chunks, px, pz](auto i, auto j) {
         const auto a = chunks->chunks[i].get();
         const auto b = chunks->chunks[j].get();

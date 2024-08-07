@@ -5,7 +5,7 @@
 #include <string>
 #include <type_traits>
 
-#include "../../typedefs.hpp"
+#include <typedefs.hpp>
 
 #ifdef __APPLE__
 #include <OpenAL/al.h>

@@ -4,18 +4,18 @@
 #include <memory>
 #include <utility>
 
-#include "../content/Content.hpp"
-#include "../content/ContentLUT.hpp"
-#include "../debug/Logger.hpp"
-#include "../files/WorldFiles.hpp"
-#include "../items/Inventories.hpp"
-#include "../objects/Entities.hpp"
-#include "../objects/Player.hpp"
-#include "../settings.hpp"
-#include "../voxels/Chunk.hpp"
-#include "../voxels/Chunks.hpp"
-#include "../voxels/ChunksStorage.hpp"
-#include "../world/WorldGenerators.hpp"
+#include <content/Content.hpp>
+#include <content/ContentLUT.hpp>
+#include <debug/Logger.hpp>
+#include <files/WorldFiles.hpp>
+#include <items/Inventories.hpp>
+#include <objects/Entities.hpp>
+#include <objects/Player.hpp>
+#include <settings.hpp>
+#include <voxels/Chunk.hpp>
+#include <voxels/Chunks.hpp>
+#include <voxels/ChunksStorage.hpp>
+#include "WorldGenerators.hpp"
 #include "Level.hpp"
 
 static debug::Logger logger("world");

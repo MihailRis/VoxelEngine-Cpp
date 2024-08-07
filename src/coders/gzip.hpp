@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "../typedefs.hpp"
+#include <typedefs.hpp>
 
 namespace gzip {
     const unsigned char MAGIC[] = "\x1F\x8B";

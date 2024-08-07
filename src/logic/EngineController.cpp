@@ -4,22 +4,22 @@
 #include <filesystem>
 #include <memory>
 
-#include "../coders/commons.hpp"
-#include "../content/ContentLUT.hpp"
-#include "../debug/Logger.hpp"
-#include "../engine.hpp"
-#include "../files/WorldConverter.hpp"
-#include "../files/WorldFiles.hpp"
-#include "../frontend/locale.hpp"
-#include "../frontend/menu.hpp"
-#include "../frontend/screens/LevelScreen.hpp"
-#include "../frontend/screens/MenuScreen.hpp"
-#include "../graphics/ui/elements/Menu.hpp"
-#include "../graphics/ui/gui_util.hpp"
-#include "../interfaces/Task.hpp"
-#include "../util/stringutil.hpp"
-#include "../world/Level.hpp"
-#include "../world/World.hpp"
+#include <coders/commons.hpp>
+#include <content/ContentLUT.hpp>
+#include <debug/Logger.hpp>
+#include <engine.hpp>
+#include <files/WorldConverter.hpp>
+#include <files/WorldFiles.hpp>
+#include <frontend/locale.hpp>
+#include <frontend/menu.hpp>
+#include <frontend/screens/LevelScreen.hpp>
+#include <frontend/screens/MenuScreen.hpp>
+#include <graphics/ui/elements/Menu.hpp>
+#include <graphics/ui/gui_util.hpp>
+#include <interfaces/Task.hpp>
+#include <util/stringutil.hpp>
+#include <world/Level.hpp>
+#include <world/World.hpp>
 #include "LevelController.hpp"
 
 namespace fs = std::filesystem;
@@ -30,7 +30,7 @@ EngineController::EngineController(Engine* engine) : engine(engine) {
 }
 
 void EngineController::deleteWorld(const std::string& name) {
-    fs::path folder = engine->getPaths()->getWorldFolder(name);
+    fs::path folder = engine->getPaths()->getWorldFolderByName(name);
     guiutil::confirm(
         engine->getGUI(),
         langs::get(L"delete-confirm", L"world") + L" (" +
@@ -189,7 +189,7 @@ void EngineController::createWorld(
 
     if (!menus::call(engine, [this, paths, folder]() {
             engine->loadContent();
-            paths->setWorldFolder(folder);
+            paths->setCurrentWorldFolder(folder);
         })) {
         return;
     }
