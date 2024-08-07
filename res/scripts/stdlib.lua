@@ -113,8 +113,8 @@ function events.on(id, name, fn)
     if not events.list[id] then events.list[id] = {} end
 
     --[[
-        если на месте аргумента name стоит функция, 
-        то она переносится в аргумент func а name будет содержать название типа: "function: 128xk3819"
+        if there is a function in place of the name argument, 
+        then it is moved to the func argument and name will contain a name of the type: "function: 128xk3819".
     ]]
     if type(name) == "function" then
         fn = name
