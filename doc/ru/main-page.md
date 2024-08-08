@@ -1,5 +1,10 @@
 # Документация
 
+документация разделена на 2 раздела:
+
+- [Content](content/) - предназначена для документации возможностей движка по созданию контента
+- [Engine](engine/) - предназначена для внутренней документации движка
+
 ## Раздел content
 
 - [Рекомендации по использованию движка](content/engine-use-recommendations.md)
@@ -14,3 +19,5 @@
 - [Модели блоков](content/block-models.md)
 - [Риггинг](content/rigging.md)
 - [Ресурсы (resources.json)](content/resources.md)
+
+## Раздел engine
