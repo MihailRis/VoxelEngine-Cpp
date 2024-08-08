@@ -240,7 +240,9 @@ public:
     std::vector<Entity> getAllInside(AABB aabb);
     std::vector<Entity> getAllInRadius(glm::vec3 center, float radius);
     void despawn(entityid_t id);
+    void despawn(std::vector<Entity> entities);
     dynamic::Value serialize(const Entity& entity);
+    dynamic::List_sptr serialize(const std::vector<Entity>& entities);
 
     void setNextID(entityid_t id) {
         nextID = id;

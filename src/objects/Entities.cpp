@@ -356,6 +356,24 @@ dynamic::Value Entities::serialize(const Entity& entity) {
     return root;
 }
 
+dynamic::List_sptr Entities::serialize(const std::vector<Entity>& entities) {
+    auto list = dynamic::create_list();
+    for (auto& entity : entities) {
+        if (!entity.getDef().save.enabled) {
+            continue;
+        }
+        level->entities->onSave(entity);
+        list->put(level->entities->serialize(entity));
+    }
+    return list;
+}
+
+void Entities::despawn(std::vector<Entity> entities) {
+    for (auto& entity : entities) {
+        entity.destroy();
+    }
+}
+
 void Entities::clean() {
     for (auto it = entities.begin(); it != entities.end();) {
         if (!registry.get<EntityId>(it->second).destroyFlag) {

@@ -743,17 +743,13 @@ void Chunks::save(Chunk* chunk) {
             )
         );
         auto entities = level->entities->getAllInside(aabb);
-        auto root = dynamic::create_map();
-        auto& list = root->putList("data");
-        for (auto& entity : entities) {
-            level->entities->onSave(entity);
-            list.put(level->entities->serialize(entity));
-            entity.destroy();
-        }
         if (!entities.empty()) {
+            auto root = dynamic::create_map();
+            root->put("data", level->entities->serialize(entities));
+            level->entities->despawn(std::move(entities));
             chunk->flags.entities = true;
+            worldFiles->getRegions().put(chunk, json::to_binary(root, true));
         }
-        worldFiles->getRegions().put(chunk, json::to_binary(root, true));
     }
 }
 
