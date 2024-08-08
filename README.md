@@ -1,4 +1,4 @@
-# ![voxel-core](dev/VoxelEngine.png) Voxel-Core
+# ![voxel-core](dev/VoxelEngine.png) VoxelCore
 
 ## Latest release
 
