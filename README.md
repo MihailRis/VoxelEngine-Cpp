@@ -36,6 +36,16 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 sudo make install
 ```
 
+> [!NOTE] For ALT Linux user
+> If you are using ALT Linux, you should not use this EnTT installation method
+
+#### ALT Linux based distro
+
+```sh
+su -
+apt-get install entt-devel libglfw3-devel libGLEW-devel libglm-devel libpng-devel libvorbis-devel libopenal-devel libluajit-devel libstdc++13-devel-static
+```
+
 #### Debian based distro
 
 ```sh
