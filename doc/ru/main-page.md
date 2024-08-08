@@ -21,3 +21,6 @@
 - [Ресурсы (resources.json)](content/resources.md)
 
 ## Раздел engine
+
+- [Стиль оформления проекта](engine/project-design-rules.md)
+- [Конвейер разработки](engine/development-pipeline.md)
