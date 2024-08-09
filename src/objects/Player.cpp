@@ -162,13 +162,19 @@ void Player::postUpdate() {
 
     skeleton.visible = currentCamera != camera;
 
-    size_t bodyIndex = skeleton.config->find("body")->getIndex();
-    size_t headIndex = skeleton.config->find("head")->getIndex();
+    auto body = skeleton.config->find("body");
+    auto head = skeleton.config->find("head");
 
-    skeleton.pose.matrices[bodyIndex] =
-        glm::rotate(glm::mat4(1.0f), glm::radians(cam.x), glm::vec3(0, 1, 0));
-    skeleton.pose.matrices[headIndex] =
-        glm::rotate(glm::mat4(1.0f), glm::radians(cam.y), glm::vec3(1, 0, 0));
+    if (body) {
+        skeleton.pose.matrices[body->getIndex()] = glm::rotate(
+            glm::mat4(1.0f), glm::radians(cam.x), glm::vec3(0, 1, 0)
+        );
+    }
+    if (head) {
+        skeleton.pose.matrices[head->getIndex()] = glm::rotate(
+            glm::mat4(1.0f), glm::radians(cam.y), glm::vec3(1, 0, 0)
+        );
+    }
 }
 
 void Player::teleport(glm::vec3 position) {
