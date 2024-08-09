@@ -115,7 +115,10 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 
-## Build in Windows with CMake and vcpkg
+## Build in Windows
+
+>[!NOTE] Requirement
+> vcpkg, CMake
 
 ```sh
 git clone --recursive https://github.com/MihailRis/VoxelEngine-Cpp.git
