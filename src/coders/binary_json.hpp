@@ -1,5 +1,4 @@
-#ifndef CODERS_BINARY_JSON_HPP_
-#define CODERS_BINARY_JSON_HPP_
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -34,5 +33,3 @@ namespace json {
     );
     std::shared_ptr<dynamic::Map> from_binary(const ubyte* src, size_t size);
 }
-
-#endif  // CODERS_BINARY_JSON_HPP_

@@ -1,5 +1,4 @@
-#ifndef UTIL_LISTUTIL_HPP_
-#define UTIL_LISTUTIL_HPP_
+#pragma once
 
 #include <algorithm>
 #include <queue>
@@ -14,5 +13,3 @@ namespace util {
 
     std::string to_string(const std::vector<std::string>& vec);
 }
-
-#endif  // UTIL_LISTUTIL_HPP_

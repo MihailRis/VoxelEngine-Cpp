@@ -1,5 +1,4 @@
-#ifndef ASSETS_ASSETS_HPP_
-#define ASSETS_ASSETS_HPP_
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -113,5 +112,3 @@ void assetload::assets_setup(const Assets* assets) {
         }
     }
 }
-
-#endif  // ASSETS_ASSETS_HPP_

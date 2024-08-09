@@ -1,7 +1,6 @@
 ///    C++ LMPacker port
 ///        https://github.com/MihailRis/LMPacker
-#ifndef LMPACKER_HPP_
-#define LMPACKER_HPP_
+#pragma once
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -59,5 +58,3 @@ public:
         return rects;
     }
 };
-
-#endif  // LMPACKER_HPP_

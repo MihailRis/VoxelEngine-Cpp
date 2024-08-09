@@ -1,5 +1,4 @@
-#ifndef CONTENT_CONTENT_LOADER_HPP_
-#define CONTENT_CONTENT_LOADER_HPP_
+#pragma once
 
 #include <filesystem>
 #include <memory>
@@ -64,5 +63,3 @@ public:
     void fixPackIndices();
     void load();
 };
-
-#endif  // CONTENT_CONTENT_LOADER_HPP_

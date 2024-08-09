@@ -1,5 +1,4 @@
-#ifndef CONSTANTS_HPP_
-#define CONSTANTS_HPP_
+#pragma once
 
 #include "typedefs.hpp"
 
@@ -52,5 +51,3 @@ inline const std::string LAYOUTS_FOLDER = "layouts";
 inline const std::string SOUNDS_FOLDER = "sounds";
 inline const std::string MODELS_FOLDER = "models";
 inline const std::string SKELETONS_FOLDER = "skeletons";
-
-#endif // CONSTANTS_HPP_

@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_RENDER_CHUNKSRENDERER_HPP_
-#define GRAPHICS_RENDER_CHUNKSRENDERER_HPP_
+#pragma once
 
 #include <queue>
 #include <memory>
@@ -46,5 +45,3 @@ public:
 
     void update();
 };
-
-#endif // GRAPHICS_RENDER_CHUNKSRENDERER_HPP_

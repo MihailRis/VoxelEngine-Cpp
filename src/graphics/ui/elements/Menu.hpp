@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_UI_ELEMENTS_MENU_HPP_
-#define GRAPHICS_UI_ELEMENTS_MENU_HPP_
+#pragma once
 
 #include "Container.hpp"
 
@@ -56,5 +55,3 @@ namespace gui {
         Page& getCurrent();
     };
 }
-
-#endif // GRAPHICS_UI_ELEMENTS_MENU_HPP_

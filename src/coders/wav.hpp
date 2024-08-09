@@ -1,5 +1,4 @@
-#ifndef CODERS_WAV_HPP_
-#define CODERS_WAV_HPP_
+#pragma once
 
 #include <filesystem>
 
@@ -16,5 +15,3 @@ namespace wav {
         const std::filesystem::path& file
     );
 }
-
-#endif  // CODERS_WAV_HPP_

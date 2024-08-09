@@ -1,5 +1,4 @@
-#ifndef UTIL_BUFFER_POOL_HPP_
-#define UTIL_BUFFER_POOL_HPP_
+#pragma once
 
 #include <memory>
 #include <mutex>
@@ -38,5 +37,3 @@ namespace util {
         }
     };
 }
-
-#endif  // UTIL_BUFFER_POOL_HPP_

@@ -1,5 +1,4 @@
-#ifndef FRONTEND_INVENTORY_VIEW_HPP_
-#define FRONTEND_INVENTORY_VIEW_HPP_
+#pragma once
 
 #include "UINode.hpp"
 #include "Container.hpp"
@@ -140,5 +139,3 @@ namespace gui {
         std::shared_ptr<InventoryView> build();
     };
 }
-
-#endif // FRONTEND_INVENTORY_VIEW_HPP_

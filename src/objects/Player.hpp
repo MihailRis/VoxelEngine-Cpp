@@ -1,5 +1,4 @@
-#ifndef SRC_OBJECTS_PLAYER_HPP_
-#define SRC_OBJECTS_PLAYER_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <memory>
@@ -113,5 +112,3 @@ public:
         return objectUID;
     }
 };
-
-#endif  // SRC_OBJECTS_PLAYER_HPP_

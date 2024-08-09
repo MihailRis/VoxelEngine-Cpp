@@ -1,5 +1,4 @@
-#ifndef FILES_SETTINGS_IO_HPP_
-#define FILES_SETTINGS_IO_HPP_
+#pragma once
 
 #include <memory>
 #include <string>
@@ -30,5 +29,3 @@ public:
 
     std::vector<Section>& getSections();
 };
-
-#endif  // FILES_SETTINGS_IO_HPP_

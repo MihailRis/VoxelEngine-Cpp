@@ -1,5 +1,4 @@
-#ifndef ENGINE_HPP_
-#define ENGINE_HPP_
+#pragma once
 
 #include "delegates.hpp"
 #include "typedefs.hpp"
@@ -148,5 +147,3 @@ public:
 
     SettingsHandler& getSettingsHandler();
 };
-
-#endif // ENGINE_HPP_

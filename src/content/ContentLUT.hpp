@@ -1,5 +1,4 @@
-#ifndef CONTENT_CONTENT_LUT_HPP_
-#define CONTENT_CONTENT_LUT_HPP_
+#pragma once
 
 #include <filesystem>
 #include <string>
@@ -113,5 +112,3 @@ public:
 
     std::vector<contententry> getMissingContent() const;
 };
-
-#endif  // CONTENT_CONTENT_LUT_HPP_

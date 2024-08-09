@@ -1,5 +1,4 @@
-#ifndef LOGIC_SCRIPTING_SCRIPTING_HPP_
-#define LOGIC_SCRIPTING_SCRIPTING_HPP_
+#pragma once
 
 #include <filesystem>
 #include <glm/glm.hpp>
@@ -171,5 +170,3 @@ namespace scripting {
     /// @brief Finalize lua state. Using scripting after will lead to Lua panic
     void close();
 }
-
-#endif  // LOGIC_SCRIPTING_SCRIPTING_HPP_

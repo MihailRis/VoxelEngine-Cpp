@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_RENDER_WORLD_RENDERER_HPP_
-#define GRAPHICS_RENDER_WORLD_RENDERER_HPP_
+#pragma once
 
 #include <vector>
 #include <memory>
@@ -98,6 +97,3 @@ public:
         bool pause
     );
 };
-
-
-#endif // GRAPHICS_RENDER_WORLD_RENDERER_HPP_

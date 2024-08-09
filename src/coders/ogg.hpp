@@ -1,5 +1,4 @@
-#ifndef CODERS_OGG_HPP_
-#define CODERS_OGG_HPP_
+#pragma once
 
 #include <filesystem>
 
@@ -16,5 +15,3 @@ namespace ogg {
         const std::filesystem::path& file
     );
 }
-
-#endif  // CODERS_OGG_HPP_

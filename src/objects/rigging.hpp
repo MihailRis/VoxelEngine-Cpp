@@ -1,5 +1,4 @@
-#ifndef OBJECTS_RIGGING_HPP_
-#define OBJECTS_RIGGING_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <memory>
@@ -141,5 +140,3 @@ namespace rigging {
         }
     };
 };
-
-#endif  // OBJECTS_RIGGING_HPP_

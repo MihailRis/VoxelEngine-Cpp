@@ -1,5 +1,4 @@
-#ifndef UTIL_RUNNABLES_LIST_HPP_
-#define UTIL_RUNNABLES_LIST_HPP_
+#pragma once
 
 #include <memory>
 #include <unordered_map>
@@ -29,5 +28,3 @@ namespace util {
         }
     };
 }
-
-#endif  // UTIL_RUNNABLES_LIST_HPP_

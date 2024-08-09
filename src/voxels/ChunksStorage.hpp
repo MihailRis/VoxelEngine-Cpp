@@ -1,5 +1,4 @@
-#ifndef VOXELS_CHUNKSSTORAGE_HPP_
-#define VOXELS_CHUNKSSTORAGE_HPP_
+#pragma once
 
 #include <memory>
 #include <unordered_map>
@@ -27,5 +26,3 @@ public:
     void getVoxels(VoxelsVolume* volume, bool backlight = false) const;
     std::shared_ptr<Chunk> create(int x, int z);
 };
-
-#endif  // VOXELS_CHUNKSSTORAGE_HPP_

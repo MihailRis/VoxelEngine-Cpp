@@ -1,5 +1,4 @@
-#ifndef FILES_FILES_HPP_
-#define FILES_FILES_HPP_
+#pragma once
 
 #include <filesystem>
 #include <fstream>
@@ -71,5 +70,3 @@ namespace files {
     std::shared_ptr<dynamic::Map> read_toml(const fs::path& file);
     std::vector<std::string> read_list(const fs::path& file);
 }
-
-#endif /* FILES_FILES_HPP_ */

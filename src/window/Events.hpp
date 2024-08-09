@@ -1,5 +1,4 @@
-#ifndef WINDOW_EVENTS_HPP_
-#define WINDOW_EVENTS_HPP_
+#pragma once
 
 #include <string>
 #include <unordered_map>
@@ -56,5 +55,3 @@ public:
         const std::string& filename, const std::string& source
     );
 };
-
-#endif  // WINDOW_EVENTS_HPP_

@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_CORE_VIEWPORT_HPP_
-#define GRAPHICS_CORE_VIEWPORT_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -18,5 +17,3 @@ public:
         return glm::ivec2(width, height);
     }
 };
-
-#endif // GRAPHICS_VIEWPORT_HPP_

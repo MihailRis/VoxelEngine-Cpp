@@ -1,5 +1,4 @@
-#ifndef MATHS_RAYS_HPP_
-#define MATHS_RAYS_HPP_
+#pragma once
 
 #include "aabb.hpp"
 #include <glm/glm.hpp>
@@ -76,5 +75,3 @@ public:
         scalar_t& distance_ret
     );
 };
-
-#endif  // SRC_VOXNATHS_HPP_

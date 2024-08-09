@@ -1,5 +1,4 @@
-#ifndef MATHS_AABB_HPP_
-#define MATHS_AABB_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -103,5 +102,3 @@ struct AABB {
         );
     }
 };
-
-#endif  // MATHS_AABB_HPP_

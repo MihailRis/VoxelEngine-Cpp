@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_CORE_COMMONS_HPP_
-#define GRAPHICS_CORE_COMMONS_HPP_
+#pragma once
 
 enum class DrawPrimitive {
     point = 0,
@@ -17,5 +16,3 @@ public:
 
     virtual void flush() = 0;
 };
-
-#endif // GRAPHICS_CORE_COMMONS_HPP_

@@ -1,5 +1,4 @@
-#ifndef LOGIC_SCRIPTING_LUA_STATE_HPP_
-#define LOGIC_SCRIPTING_LUA_STATE_HPP_
+#pragma once
 
 #include <stdexcept>
 #include <string>
@@ -20,5 +19,3 @@ namespace lua {
     );
     lua::State* get_main_thread();
 }
-
-#endif  // LOGIC_SCRIPTING_LUA_STATE_HPP_

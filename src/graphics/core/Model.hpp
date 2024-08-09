@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_CORE_MODEL_HPP_
-#define GRAPHICS_CORE_MODEL_HPP_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -34,5 +33,3 @@ namespace model {
         void clean();
     };
 }
-
-#endif // GRAPHICS_CORE_MODEL_HPP_

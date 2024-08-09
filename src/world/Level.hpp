@@ -1,5 +1,4 @@
-#ifndef WORLD_LEVEL_HPP_
-#define WORLD_LEVEL_HPP_
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -85,5 +84,3 @@ public:
 
     std::shared_ptr<Camera> getCamera(const std::string& name);
 };
-
-#endif /* WORLD_LEVEL_HPP_ */

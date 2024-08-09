@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_CORE_ATLAS_HPP_
-#define GRAPHICS_CORE_ATLAS_HPP_
+#pragma once
 
 #include <set>
 #include <string>
@@ -7,6 +6,7 @@
 #include <vector>
 #include <optional>
 #include <unordered_map>
+
 #include "maths/UVRegion.hpp"
 #include "typedefs.hpp"
 
@@ -59,5 +59,3 @@ public:
     /// @param maxResolution max atlas resolution
     std::unique_ptr<Atlas> build(uint extrusion, bool prepare=true, uint maxResolution=0);
 };
-
-#endif // GRAPHICS_CORE_ATLAS_HPP_

@@ -1,5 +1,4 @@
-#ifndef FILES_WORLD_FILES_HPP_
-#define FILES_WORLD_FILES_HPP_
+#pragma once
 
 #include <filesystem>
 #include <glm/glm.hpp>
@@ -72,5 +71,3 @@ public:
         return doWriteLights;
     }
 };
-
-#endif  // FILES_WORLD_FILES_HPP_

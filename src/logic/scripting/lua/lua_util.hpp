@@ -1,5 +1,4 @@
-#ifndef LOGIC_SCRIPTING_LUA_UTIL_HPP_
-#define LOGIC_SCRIPTING_LUA_UTIL_HPP_
+#pragma once
 
 #include <typeindex>
 #include <typeinfo>
@@ -639,5 +638,3 @@ namespace lua {
         setglobal(L, name);
     }
 }
-
-#endif  // LOGIC_SCRIPTING_LUA_UTIL_HPP_

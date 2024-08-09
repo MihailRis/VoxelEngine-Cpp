@@ -1,5 +1,4 @@
-#ifndef LOGIC_SCRIPTING_LUA_LUA_CUSTOM_TYPES_HPP_
-#define LOGIC_SCRIPTING_LUA_LUA_CUSTOM_TYPES_HPP_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -31,5 +30,3 @@ namespace lua {
         inline static std::string TYPENAME = "bytearray";
     };
 }
-
-#endif  // LOGIC_SCRIPTING_LUA_LUA_CUSTOM_TYPES_HPP_

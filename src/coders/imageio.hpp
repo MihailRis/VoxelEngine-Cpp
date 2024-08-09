@@ -1,5 +1,4 @@
-#ifndef CODERS_IMAGEIO_HPP_
-#define CODERS_IMAGEIO_HPP_
+#pragma once
 
 #include <memory>
 #include <string>
@@ -15,5 +14,3 @@ namespace imageio {
     std::unique_ptr<ImageData> read(const std::string& filename);
     void write(const std::string& filename, const ImageData* image);
 }
-
-#endif  // CODERS_IMAGEIO_HPP_

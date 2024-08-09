@@ -1,5 +1,4 @@
-#ifndef VOXELS_VOXELSVOLUME_HPP_
-#define VOXELS_VOXELSVOLUME_HPP_
+#pragma once
 
 #include "constants.hpp"
 #include "typedefs.hpp"
@@ -65,5 +64,3 @@ public:
         return lights[vox_index(bx - x, by - y, bz - z, w, d)];
     }
 };
-
-#endif  // VOXELS_VOXELSVOLUME_HPP_

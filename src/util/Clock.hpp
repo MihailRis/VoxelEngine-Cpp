@@ -1,5 +1,4 @@
-#ifndef UTIL_CLOCK_HPP_
-#define UTIL_CLOCK_HPP_
+#pragma once
 
 namespace util {
     class Clock {
@@ -20,5 +19,3 @@ namespace util {
         int getTickId() const;
     };
 }
-
-#endif  // UTIL_CLOCK_HPP_

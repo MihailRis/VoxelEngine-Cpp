@@ -1,5 +1,4 @@
-#ifndef VOXELS_CHUNKS_HPP_
-#define VOXELS_CHUNKS_HPP_
+#pragma once
 
 #include <stdlib.h>
 
@@ -115,5 +114,3 @@ public:
     void save(Chunk* chunk);
     void saveAll();
 };
-
-#endif  // VOXELS_CHUNKS_HPP_

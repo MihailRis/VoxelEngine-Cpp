@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_RENDER_BLOCKS_PREVIEW_HPP_
-#define GRAPHICS_RENDER_BLOCKS_PREVIEW_HPP_
+#pragma once
 
 #include "typedefs.hpp"
 
@@ -32,5 +31,3 @@ public:
         const Content* content
     );
 };
-
-#endif // GRAPHICS_RENDER_BLOCKS_PREVIEW_HPP_

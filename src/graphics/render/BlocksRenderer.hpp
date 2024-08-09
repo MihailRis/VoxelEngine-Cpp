@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_RENDER_BLOCKS_RENDERER_HPP_
-#define GRAPHICS_RENDER_BLOCKS_RENDERER_HPP_
+#pragma once
 
 #include <stdlib.h>
 #include <vector>
@@ -132,5 +131,3 @@ public:
     std::shared_ptr<Mesh> createMesh();
     VoxelsVolume* getVoxelsBuffer() const;
 };
-
-#endif // GRAPHICS_RENDER_BLOCKS_RENDERER_HPP_

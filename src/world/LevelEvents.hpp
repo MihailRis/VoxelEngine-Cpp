@@ -1,5 +1,4 @@
-#ifndef WORLD_LEVEL_EVENTS_HPP_
-#define WORLD_LEVEL_EVENTS_HPP_
+#pragma once
 
 #include <functional>
 #include <unordered_map>
@@ -20,5 +19,3 @@ public:
     void listen(lvl_event_type type, const chunk_event_func& func);
     void trigger(lvl_event_type type, Chunk* chunk);
 };
-
-#endif  // WORLD_LEVEL_EVENTS_HPP_

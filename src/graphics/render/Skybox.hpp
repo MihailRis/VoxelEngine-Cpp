@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_RENDER_SKYBOX_HPP_
-#define GRAPHICS_RENDER_SKYBOX_HPP_
+#pragma once
 
 #include <memory>
 #include <string>
@@ -54,5 +53,3 @@ public:
         return ready;
     }
 };
-
-#endif // GRAPHICS_RENDER_SKYBOX_HPP_

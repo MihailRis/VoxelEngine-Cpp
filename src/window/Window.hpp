@@ -1,5 +1,4 @@
-#ifndef WINDOW_WINDOW_HPP_
-#define WINDOW_WINDOW_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <memory>
@@ -63,5 +62,3 @@ public:
 
     static std::unique_ptr<ImageData> takeScreenshot();
 };
-
-#endif  // WINDOW_WINDOW_HPP_

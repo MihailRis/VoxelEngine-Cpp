@@ -1,5 +1,4 @@
-#ifndef INTERFACES_TASK_HPP_
-#define INTERFACES_TASK_HPP_
+#pragma once
 
 #include "typedefs.hpp"
 
@@ -16,6 +15,3 @@ public:
     virtual void waitForEnd() = 0;
     virtual void terminate() = 0;
 };
-
-#endif // INTERFACES_TASK_HPP_
-

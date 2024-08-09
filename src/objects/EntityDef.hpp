@@ -1,5 +1,4 @@
-#ifndef OBJECTS_ENTITY_DEF_HPP_
-#define OBJECTS_ENTITY_DEF_HPP_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -58,5 +57,3 @@ struct EntityDef {
     EntityDef(const std::string& name) : name(name) {}
     EntityDef(const EntityDef&) = delete;
 };
-
-#endif // OBJECTS_ENTITY_DEF_HPP_

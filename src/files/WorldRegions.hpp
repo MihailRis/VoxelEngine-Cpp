@@ -1,5 +1,4 @@
-#ifndef FILES_WORLD_REGIONS_HPP_
-#define FILES_WORLD_REGIONS_HPP_
+#pragma once
 
 #include <condition_variable>
 #include <filesystem>
@@ -213,5 +212,3 @@ public:
     /// @return false if std::invalid_argument or std::out_of_range occurred
     static bool parseRegionFilename(const std::string& name, int& x, int& y);
 };
-
-#endif  // FILES_WORLD_REGIONS_HPP_

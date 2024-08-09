@@ -1,5 +1,4 @@
-#ifndef VOXELS_CHUNK_HPP_
-#define VOXELS_CHUNK_HPP_
+#pragma once
 
 #include <stdlib.h>
 
@@ -74,5 +73,3 @@ public:
 
     static void convert(ubyte* data, const ContentLUT* lut);
 };
-
-#endif /* VOXELS_CHUNK_HPP_ */

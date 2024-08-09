@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_CORE_POST_PROCESSING_HPP_
-#define GRAPHICS_CORE_POST_PROCESSING_HPP_
+#pragma once
 
 #include <memory>
 
@@ -37,5 +36,3 @@ public:
 
     Framebuffer* getFramebuffer() const;
 };
-
-#endif // GRAPHICS_CORE_POST_PROCESSING_HPP_

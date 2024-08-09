@@ -1,5 +1,4 @@
-#ifndef DATA_SETTING_HPP_
-#define DATA_SETTING_HPP_
+#pragma once
 
 #include <limits>
 #include <string>
@@ -174,5 +173,3 @@ public:
 
     virtual std::string toString() const override;
 };
-
-#endif  // DATA_SETTING_HPP_

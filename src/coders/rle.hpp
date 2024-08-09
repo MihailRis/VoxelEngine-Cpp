@@ -1,5 +1,4 @@
-#ifndef CODERS_RLE_HPP_
-#define CODERS_RLE_HPP_
+#pragma once
 
 #include "typedefs.hpp"
 
@@ -13,5 +12,3 @@ namespace extrle {
     size_t encode(const ubyte* src, size_t length, ubyte* dst);
     size_t decode(const ubyte* src, size_t length, ubyte* dst);
 }
-
-#endif  // CODERS_RLE_HPP_

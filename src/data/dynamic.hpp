@@ -1,5 +1,4 @@
-#ifndef DATA_DYNAMIC_HPP_
-#define DATA_DYNAMIC_HPP_
+#pragma once
 
 #include <cmath>
 #include <memory>
@@ -163,5 +162,3 @@ namespace dynamic {
 std::ostream& operator<<(std::ostream& stream, const dynamic::Value& value);
 std::ostream& operator<<(std::ostream& stream, const dynamic::Map_sptr& value);
 std::ostream& operator<<(std::ostream& stream, const dynamic::List_sptr& value);
-
-#endif  // DATA_DYNAMIC_HPP_

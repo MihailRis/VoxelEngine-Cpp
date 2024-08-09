@@ -1,5 +1,4 @@
-#ifndef VOXELS_DEFAULTWORLDGENERATOR_HPP_
-#define VOXELS_DEFAULTWORLDGENERATOR_HPP_
+#pragma once
 
 #include "typedefs.hpp"
 #include "WorldGenerator.hpp"
@@ -14,5 +13,3 @@ public:
 
     void generate(voxel* voxels, int x, int z, int seed);
 };
-
-#endif  // VOXELS_DEFAULTWORLDGENERATOR_HPP_

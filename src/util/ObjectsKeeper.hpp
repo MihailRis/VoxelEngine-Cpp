@@ -1,5 +1,4 @@
-#ifndef UTIL_OBJECTS_KEEPER_HPP_
-#define UTIL_OBJECTS_KEEPER_HPP_
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -17,5 +16,3 @@ namespace util {
         }
     };
 }
-
-#endif  // UTIL_OBJECTS_KEEPER_HPP_

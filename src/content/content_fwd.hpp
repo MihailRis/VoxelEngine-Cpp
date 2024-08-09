@@ -1,5 +1,4 @@
-#ifndef CONTENT_CONTENT_FWD_HPP_
-#define CONTENT_CONTENT_FWD_HPP_
+#pragma once
 
 #include "typedefs.hpp"
 
@@ -12,5 +11,3 @@ enum class ResourceType : size_t { CAMERA, LAST = CAMERA };
 
 inline constexpr auto RESOURCE_TYPES_COUNT =
     static_cast<size_t>(ResourceType::LAST) + 1;
-
-#endif  // CONTENT_CONTENT_FWD_HPP_

@@ -1,5 +1,4 @@
-#ifndef MATHS_FASTMATHS_HPP_
-#define MATHS_FASTMATHS_HPP_
+#pragma once
 
 #include "typedefs.hpp"
 
@@ -19,5 +18,3 @@ public:
         return rand() / float(0x7FFF);
     }
 };
-
-#endif  // MATHS_FASTMATHS_HPP_

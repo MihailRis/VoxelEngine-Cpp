@@ -1,5 +1,4 @@
-#ifndef CONTENT_PACKS_MANAGER_HPP_
-#define CONTENT_PACKS_MANAGER_HPP_
+#pragma once
 
 #include <filesystem>
 #include <unordered_map>
@@ -47,5 +46,3 @@ public:
         const std::vector<ContentPack>& packs
     );
 };
-
-#endif  // CONTENT_PACKS_MANAGER_HPP_

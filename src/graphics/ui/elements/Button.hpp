@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_UI_ELEMENTS_BUTTON_HPP_
-#define GRAPHICS_UI_ELEMENTS_BUTTON_HPP_
+#pragma once
 
 #include "Panel.hpp"
 
@@ -31,5 +30,3 @@ namespace gui {
         virtual void refresh() override;
     };
 }
-
-#endif // GRAPHICS_UI_ELEMENTS_BUTTON_HPP_

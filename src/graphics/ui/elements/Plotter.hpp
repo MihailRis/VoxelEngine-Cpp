@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_UI_ELEMENTS_PLOTTER_HPP_
-#define GRAPHICS_UI_ELEMENTS_PLOTTER_HPP_
+#pragma once
 
 #include "UINode.hpp"
 #include "typedefs.hpp"
@@ -33,5 +32,3 @@ namespace gui {
         void draw(const DrawContext* pctx, Assets* assets) override;
     };
 }
-
-#endif // GRAPHICS_UI_ELEMENTS_PLOTTER_HPP_

@@ -1,5 +1,4 @@
-#ifndef AUDIO_AUDIOUTIL_HPP_
-#define AUDIO_AUDIOUTIL_HPP_
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -83,5 +82,3 @@ namespace AL {
         }
     }
 }
-
-#endif  // AUDIO_AUDIOUTIL_HPP_

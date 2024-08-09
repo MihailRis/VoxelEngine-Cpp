@@ -1,5 +1,4 @@
-#ifndef WORLD_WORLD_HPP_
-#define WORLD_WORLD_HPP_
+#pragma once
 
 #include <filesystem>
 #include <memory>
@@ -152,5 +151,3 @@ public:
     std::unique_ptr<dynamic::Map> serialize() const override;
     void deserialize(dynamic::Map* src) override;
 };
-
-#endif  // WORLD_WORLD_HPP_

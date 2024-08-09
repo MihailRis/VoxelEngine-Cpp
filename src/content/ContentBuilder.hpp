@@ -1,5 +1,4 @@
-#ifndef CONTENT_CONTENT_BUILDER_HPP_
-#define CONTENT_CONTENT_BUILDER_HPP_
+#pragma once
 
 #include <memory>
 #include <unordered_map>
@@ -71,5 +70,3 @@ public:
 
     std::unique_ptr<Content> build();
 };
-
-#endif  // CONTENT_CONTENT_BUILDER_HPP_

@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_CORE_MESH_HPP_
-#define GRAPHICS_CORE_MESH_HPP_
+#pragma once
 
 #include <stdlib.h>
 #include "typedefs.hpp"
@@ -39,5 +38,3 @@ public:
     static int meshesCount;
     static int drawCalls;
 };
-
-#endif // GRAPHICS_CORE_MESH_HPP_

@@ -1,5 +1,4 @@
-#ifndef CODERS_COMMONS_HPP_
-#define CODERS_COMMONS_HPP_
+#pragma once
 
 #include <stdexcept>
 #include <string>
@@ -108,5 +107,3 @@ public:
 
     BasicParser(std::string_view file, std::string_view source);
 };
-
-#endif  // CODERS_COMMONS_HPP_

@@ -1,5 +1,4 @@
-#ifndef MATHS_UVREGION_HPP_
-#define MATHS_UVREGION_HPP_
+#pragma once
 
 #include <cmath>
 
@@ -24,5 +23,3 @@ struct UVRegion {
         return fabs(v2 - v1);
     }
 };
-
-#endif  // MATHS_UVREGION_HPP_

@@ -1,6 +1,4 @@
-#ifndef LIGHTING_LIGHTING_HPP_
-#define LIGHTING_LIGHTING_HPP_
-
+#pragma once
 #include "typedefs.hpp"
 
 class Content;
@@ -27,5 +25,3 @@ public:
 
     static void prebuildSkyLight(Chunk* chunk, const ContentIndices* indices);
 };
-
-#endif /* LIGHTING_LIGHTING_HPP_ */

@@ -1,5 +1,4 @@
-#ifndef CODERS_BYTE_UTILS_HPP_
-#define CODERS_BYTE_UTILS_HPP_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -79,5 +78,3 @@ public:
     const ubyte* pointer() const;
     void skip(size_t n);
 };
-
-#endif  // CODERS_BYTE_UTILS_HPP_

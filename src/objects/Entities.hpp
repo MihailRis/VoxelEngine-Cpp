@@ -1,5 +1,4 @@
-#ifndef OBJECTS_ENTITIES_HPP_
-#define OBJECTS_ENTITIES_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <memory>
@@ -256,5 +255,3 @@ public:
         return nextID;
     }
 };
-
-#endif  // OBJECTS_ENTITIES_HPP_

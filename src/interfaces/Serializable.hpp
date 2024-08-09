@@ -1,5 +1,4 @@
-#ifndef SERIALIZABLE_HPP_
-#define SERIALIZABLE_HPP_
+#pragma once
 
 #include "coders/json.hpp"
 
@@ -11,5 +10,3 @@ public:
     virtual std::unique_ptr<dynamic::Map>  serialize() const = 0;
     virtual void deserialize(dynamic::Map* src) = 0;
 };
-
-#endif // SERIALIZABLE_HPP_

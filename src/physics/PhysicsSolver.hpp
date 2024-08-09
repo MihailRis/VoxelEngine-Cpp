@@ -1,5 +1,4 @@
-#ifndef PHYSICS_PHYSICSSOLVER_HPP_
-#define PHYSICS_PHYSICSSOLVER_HPP_
+#pragma once
 
 #include "Hitbox.hpp"
 
@@ -42,5 +41,3 @@ public:
 
     void removeSensor(Sensor* sensor);
 };
-
-#endif // PHYSICS_PHYSICSSOLVER_HPP_

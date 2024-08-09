@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_UI_ELEMENTS_INPUTBINDBOX_HPP_
-#define GRAPHICS_UI_ELEMENTS_INPUTBINDBOX_HPP_
+#pragma once
 
 #include "Panel.hpp"
 
@@ -21,5 +20,3 @@ namespace gui {
         virtual bool isFocuskeeper() const override {return true;}
     };
 }
-
-#endif // GRAPHICS_UI_ELEMENTS_INPUTBINDBOX_HPP_

@@ -1,5 +1,4 @@
-#ifndef LOGIC_COMMANDS_INTERPRETER_HPP_
-#define LOGIC_COMMANDS_INTERPRETER_HPP_
+#pragma once
 
 #include <functional>
 #include <string>
@@ -159,5 +158,3 @@ namespace cmd {
         }
     };
 }
-
-#endif  // LOGIC_COMMANDS_INTERPRETER_HPP_

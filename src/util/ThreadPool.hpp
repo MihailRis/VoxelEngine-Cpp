@@ -1,5 +1,4 @@
-#ifndef UTIL_THREAD_POOL_HPP_
-#define UTIL_THREAD_POOL_HPP_
+#pragma once
 
 #include <atomic>
 #include <chrono>
@@ -255,5 +254,3 @@ namespace util {
     };
 
 }  // namespace util
-
-#endif  // UTIL_THREAD_POOL_HPP_

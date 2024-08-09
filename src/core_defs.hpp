@@ -1,5 +1,4 @@
-#ifndef CORE_DEFS_HPP_
-#define CORE_DEFS_HPP_
+#pragma once
 
 #include <string>
 
@@ -34,5 +33,3 @@ class ContentBuilder;
 namespace corecontent {
     void setup(EnginePaths* paths, ContentBuilder* builder);
 }
-
-#endif // CORE_DEFS_HPP_

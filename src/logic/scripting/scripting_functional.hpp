@@ -1,5 +1,4 @@
-#ifndef LOGIC_SCRIPTING_SCRIPTING_FUNCTIONAL_HPP_
-#define LOGIC_SCRIPTING_SCRIPTING_FUNCTIONAL_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <string>
@@ -78,5 +77,3 @@ namespace scripting {
         const std::string& file = "<string>"
     );
 }
-
-#endif  // LOGIC_SCRIPTING_SCRIPTING_FUNCTIONAL_HPP_

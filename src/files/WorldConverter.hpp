@@ -1,5 +1,4 @@
-#ifndef FILES_WORLD_CONVERTER_HPP_
-#define FILES_WORLD_CONVERTER_HPP_
+#pragma once
 
 #include <filesystem>
 #include <memory>
@@ -61,4 +60,3 @@ public:
     );
 };
 
-#endif  // FILES_WORLD_CONVERTER_HPP_

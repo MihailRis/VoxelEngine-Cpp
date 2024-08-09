@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_CORE_FRAMEBUFFER_HPP_
-#define GRAPHICS_CORE_FRAMEBUFFER_HPP_
+#pragma once
 
 #include "typedefs.hpp"
 
@@ -38,5 +37,3 @@ public:
     /// @brief Get framebuffer height
     uint getHeight() const;
 };
-
-#endif // GRAPHICS_CORE_FRAMEBUFFER_HPP_

@@ -1,5 +1,4 @@
-#ifndef WINDOW_INPUT_HPP_
-#define WINDOW_INPUT_HPP_
+#pragma once
 
 #include <string>
 
@@ -167,5 +166,3 @@ struct Binding {
         return "<unknown input type>";
     }
 };
-
-#endif  // WINDOW_INPUT_HPP_

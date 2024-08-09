@@ -1,5 +1,4 @@
-#ifndef FILES_ENGINE_PATHS_HPP_
-#define FILES_ENGINE_PATHS_HPP_
+#pragma once
 
 #include <filesystem>
 #include <stdexcept>
@@ -68,5 +67,3 @@ private:
     std::filesystem::path mainRoot;
     std::vector<PathsRoot> roots;
 };
-
-#endif  // FILES_ENGINE_PATHS_HPP_

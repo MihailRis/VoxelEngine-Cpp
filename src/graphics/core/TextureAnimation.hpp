@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_CORE_TEXTURE_ANIMATION_HPP_
-#define GRAPHICS_CORE_TEXTURE_ANIMATION_HPP_
+#pragma once
 
 #include "typedefs.hpp"
 
@@ -48,5 +47,3 @@ private:
 
     std::vector<TextureAnimation> animations;
 };
-
-#endif // GRAPHICS_CORE_TEXTURE_ANIMATION_HPP_

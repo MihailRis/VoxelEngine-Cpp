@@ -1,5 +1,4 @@
-#ifndef UTIL_STRINGUTIL_HPP_
-#define UTIL_STRINGUTIL_HPP_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -62,5 +61,3 @@ namespace util {
 
     std::pair<std::string, std::string> split_at(std::string_view view, char c);
 }
-
-#endif  // UTIL_STRINGUTIL_HPP_

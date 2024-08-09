@@ -1,5 +1,4 @@
-#ifndef FRONTEND_GUI_GUI_HPP_
-#define FRONTEND_GUI_GUI_HPP_
+#pragma once
 
 #include "delegates.hpp"
 
@@ -135,5 +134,3 @@ namespace gui {
         float getDoubleClickDelay() const;
     };
 }
-
-#endif // FRONTEND_GUI_GUI_HPP_

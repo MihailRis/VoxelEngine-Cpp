@@ -1,5 +1,4 @@
-#ifndef LOGIC_BLOCKS_CONTROLLER_HPP_
-#define LOGIC_BLOCKS_CONTROLLER_HPP_
+#pragma once
 
 #include <functional>
 #include <glm/glm.hpp>
@@ -62,5 +61,3 @@ public:
     /// @brief Add block interaction callback
     void listenBlockInteraction(const on_block_interaction& callback);
 };
-
-#endif  // LOGIC_BLOCKS_CONTROLLER_HPP_

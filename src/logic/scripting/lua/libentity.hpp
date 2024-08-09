@@ -1,5 +1,4 @@
-#ifndef LOGIC_SCRIPTING_LUA_LIBENTITY_HPP_
-#define LOGIC_SCRIPTING_LUA_LIBENTITY_HPP_
+#pragma once
 
 #include <optional>
 
@@ -18,5 +17,3 @@ inline std::optional<Entity> get_entity(lua::State* L, int idx) {
     auto level = scripting::controller->getLevel();
     return level->entities->get(id);
 }
-
-#endif  // LOGIC_SCRIPTING_LUA_LIBENTITY_HPP_

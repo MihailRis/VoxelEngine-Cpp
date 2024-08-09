@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_CORE_GFX_CONTEXT_HPP_
-#define GRAPHICS_CORE_GFX_CONTEXT_HPP_
+#pragma once
 
 #include "commons.hpp"
 #include "Viewport.hpp"
@@ -38,5 +37,3 @@ public:
     void setScissors(glm::vec4 area);
     void setLineWidth(float width);
 };
-
-#endif // GRAPHICS_CORE_GFX_CONTEXT_HPP_

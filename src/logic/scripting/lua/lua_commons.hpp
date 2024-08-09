@@ -1,5 +1,4 @@
-#ifndef LOGIC_SCRIPTING_LUA_HPP_
-#define LOGIC_SCRIPTING_LUA_HPP_
+#pragma once
 
 #include "delegates.hpp"
 #include "logic/scripting/scripting.hpp"
@@ -9,7 +8,7 @@
 
 #include <luajit-2.1/lua.hpp>
 #else
-#include <lua.hpp"
+#include <lua.hpp>
 #endif
 #include <glm/glm.hpp>
 #include <stdexcept>
@@ -31,5 +30,3 @@ namespace lua {
     using Number = lua_Number;
     using Integer = lua_Integer;
 }
-
-#endif  // LOGIC_SCRIPTING_LUA_HPP_

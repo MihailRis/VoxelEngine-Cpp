@@ -1,5 +1,4 @@
-#ifndef CODERS_JSON_HPP_
-#define CODERS_JSON_HPP_
+#pragma once
 
 #include <string>
 
@@ -19,5 +18,3 @@ namespace json {
         const dynamic::Value& value, bool nice, const std::string& indent
     );
 }
-
-#endif  // CODERS_JSON_HPP_

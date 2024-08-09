@@ -1,5 +1,4 @@
-#ifndef CONTENT_CONTENT_PACK_HPP_
-#define CONTENT_CONTENT_PACK_HPP_
+#pragma once
 
 #include <filesystem>
 #include <stdexcept>
@@ -115,5 +114,3 @@ public:
         return env;
     }
 };
-
-#endif  // CONTENT_CONTENT_PACK_HPP_

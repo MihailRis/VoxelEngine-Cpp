@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_UI_ELEMENTS_CHECKBOX_HPP_
-#define GRAPHICS_UI_ELEMENTS_CHECKBOX_HPP_
+#pragma once
 
 #include <utility>
 
@@ -59,5 +58,3 @@ namespace gui {
         }
     };
 }
-
-#endif // GRAPHICS_UI_ELEMENTS_CHECKBOX_HPP_

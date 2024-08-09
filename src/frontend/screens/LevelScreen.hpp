@@ -1,5 +1,4 @@
-#ifndef FRONTEND_SCREENS_LEVEL_SCREEN_HPP_
-#define FRONTEND_SCREENS_LEVEL_SCREEN_HPP_
+#pragma once
 
 #include "Screen.hpp"
 
@@ -40,5 +39,3 @@ public:
 
     LevelController* getLevelController() const;
 };
-
-#endif // FRONTEND_SCREENS_LEVEL_SCREEN_HPP_

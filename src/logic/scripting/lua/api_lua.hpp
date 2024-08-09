@@ -1,5 +1,4 @@
-#ifndef LOGIC_SCRIPTING_API_LUA_HPP_
-#define LOGIC_SCRIPTING_API_LUA_HPP_
+#pragma once
 
 #include <exception>
 #include <string>
@@ -74,5 +73,3 @@ namespace lua {
 }
 
 void initialize_libs_extends(lua::State* L);
-
-#endif  // LOGIC_SCRIPTING_API_LUA_HPP_
