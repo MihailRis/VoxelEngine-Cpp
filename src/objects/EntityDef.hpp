@@ -5,9 +5,9 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-#include <typedefs.hpp>
-#include <maths/aabb.hpp>
-#include <physics/Hitbox.hpp>
+#include "typedefs.hpp"
+#include "maths/aabb.hpp"
+#include "physics/Hitbox.hpp"
 
 namespace rigging {
     class SkeletonConfig;

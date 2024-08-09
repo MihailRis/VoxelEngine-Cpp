@@ -5,8 +5,8 @@
 #include <unordered_map>
 #include <utility>
 
-#include <delegates.hpp>
-#include <typedefs.hpp>
+#include "delegates.hpp"
+#include "typedefs.hpp"
 
 namespace util {
     class RunnablesList {

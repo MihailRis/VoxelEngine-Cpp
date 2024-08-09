@@ -1,7 +1,7 @@
 #ifndef INTERFACES_TASK_HPP_
 #define INTERFACES_TASK_HPP_
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 /// @brief Task is a finite process interface.
 /// 'work' is a metric of task progress/remaining work (jobs/bytes/something other)

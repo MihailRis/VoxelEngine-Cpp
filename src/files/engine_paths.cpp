@@ -5,8 +5,8 @@
 #include <filesystem>
 #include <sstream>
 #include <stack>
-#include <typedefs.hpp>
-#include <util/stringutil.hpp>
+#include "typedefs.hpp"
+#include "util/stringutil.hpp"
 #include <utility>
 
 #include "WorldFiles.hpp"

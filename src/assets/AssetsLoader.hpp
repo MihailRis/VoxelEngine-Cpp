@@ -9,9 +9,9 @@
 #include <string>
 #include <utility>
 
-#include <delegates.hpp>
-#include <interfaces/Task.hpp>
-#include <typedefs.hpp>
+#include "delegates.hpp"
+#include "interfaces/Task.hpp"
+#include "typedefs.hpp"
 #include "Assets.hpp"
 
 namespace dynamic {

@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_CORE_TEXTURE_ANIMATION_HPP_
 #define GRAPHICS_CORE_TEXTURE_ANIMATION_HPP_
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 #include <glm/glm.hpp>
 #include <vector>

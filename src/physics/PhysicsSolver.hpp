@@ -3,8 +3,8 @@
 
 #include "Hitbox.hpp"
 
-#include <typedefs.hpp>
-#include <voxels/voxel.hpp>
+#include "typedefs.hpp"
+#include "voxels/voxel.hpp"
 
 #include <vector>
 #include <glm/glm.hpp>

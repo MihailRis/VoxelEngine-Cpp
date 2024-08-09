@@ -4,16 +4,16 @@
 #include <glm/glm.hpp>
 #include <utility>
 
-#include <content/ContentLUT.hpp>
-#include <items/Inventory.hpp>
+#include "content/ContentLUT.hpp"
+#include "items/Inventory.hpp"
 #include "Entities.hpp"
 #include "rigging.hpp"
-#include <physics/Hitbox.hpp>
-#include <physics/PhysicsSolver.hpp>
-#include <voxels/Chunks.hpp>
-#include <window/Camera.hpp>
-#include <window/Events.hpp>
-#include <world/Level.hpp>
+#include "physics/Hitbox.hpp"
+#include "physics/PhysicsSolver.hpp"
+#include "voxels/Chunks.hpp"
+#include "window/Camera.hpp"
+#include "window/Events.hpp"
+#include "world/Level.hpp"
 
 const float CROUCH_SPEED_MUL = 0.35f;
 const float RUN_SPEED_MUL = 1.5f;

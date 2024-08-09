@@ -1,4 +1,4 @@
-#include <util/stringutil.hpp>
+#include "util/stringutil.hpp"
 #include "libentity.hpp"
 
 static int l_get_vel(lua::State* L) {

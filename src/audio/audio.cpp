@@ -4,8 +4,8 @@
 #include <stdexcept>
 #include <utility>
 
-#include <coders/ogg.hpp>
-#include <coders/wav.hpp>
+#include "coders/ogg.hpp"
+#include "coders/wav.hpp"
 #include "AL/ALAudio.hpp"
 #include "NoAudio.hpp"
 

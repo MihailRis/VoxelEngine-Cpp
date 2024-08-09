@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 /* byteorder: little-endian */
 class ByteBuilder {

@@ -3,7 +3,7 @@
 
 #include <chrono>
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 namespace timeutil {
     class Timer {

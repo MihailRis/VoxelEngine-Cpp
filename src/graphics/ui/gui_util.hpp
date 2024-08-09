@@ -2,8 +2,8 @@
 #define FRONTEND_GUI_GUI_UTIL_HPP_
 
 #include "GUI.hpp"
-#include <typedefs.hpp>
-#include <delegates.hpp>
+#include "typedefs.hpp"
+#include "delegates.hpp"
 
 #include <memory>
 #include <string>

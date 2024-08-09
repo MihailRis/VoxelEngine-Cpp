@@ -1,8 +1,8 @@
 #ifndef VOXELS_VOXELSVOLUME_HPP_
 #define VOXELS_VOXELSVOLUME_HPP_
 
-#include <constants.hpp>
-#include <typedefs.hpp>
+#include "constants.hpp"
+#include "typedefs.hpp"
 #include "voxel.hpp"
 
 class VoxelsVolume {

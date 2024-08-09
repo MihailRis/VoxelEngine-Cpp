@@ -1,4 +1,4 @@
-#include <objects/rigging.hpp>
+#include "objects/rigging.hpp"
 #include "libentity.hpp"
 
 static int index_range_check(

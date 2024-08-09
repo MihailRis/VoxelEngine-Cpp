@@ -1,10 +1,10 @@
 #include "rigging.hpp"
 
-#include <assets/Assets.hpp>
-#include <coders/json.hpp>
-#include <data/dynamic_util.hpp>
-#include <graphics/core/Model.hpp>
-#include <graphics/render/ModelBatch.hpp>
+#include "assets/Assets.hpp"
+#include "coders/json.hpp"
+#include "data/dynamic_util.hpp"
+#include "graphics/core/Model.hpp"
+#include "graphics/render/ModelBatch.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/ext/matrix_transform.hpp>

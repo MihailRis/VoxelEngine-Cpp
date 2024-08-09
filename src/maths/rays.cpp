@@ -2,7 +2,7 @@
 #include "rays.hpp"
 
 #include "aabb.hpp"
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 
 static const rayvec3 X_AXIS = rayvec3(1, 0, 0), Y_AXIS = rayvec3(0, 1, 0),
                      Z_AXIS = rayvec3(0, 0, 1);

@@ -1,11 +1,11 @@
 #include <filesystem>
 #include <string>
 
-#include <coders/gzip.hpp>
-#include <engine.hpp>
-#include <files/engine_paths.hpp>
-#include <files/files.hpp>
-#include <util/stringutil.hpp>
+#include "coders/gzip.hpp"
+#include "engine.hpp"
+#include "files/engine_paths.hpp"
+#include "files/files.hpp"
+#include "util/stringutil.hpp"
 #include "api_lua.hpp"
 
 namespace fs = std::filesystem;

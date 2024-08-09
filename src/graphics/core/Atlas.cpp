@@ -2,7 +2,7 @@
 
 #include "Texture.hpp"
 #include "ImageData.hpp"
-#include <maths/LMPacker.hpp>
+#include "maths/LMPacker.hpp"
 
 #include <stdexcept>
 

@@ -9,13 +9,13 @@
 #include <mutex>
 #include <unordered_map>
 
-#include <data/dynamic_fwd.hpp>
-#include <typedefs.hpp>
-#include <util/BufferPool.hpp>
-#include <voxels/Chunk.hpp>
+#include "data/dynamic_fwd.hpp"
+#include "typedefs.hpp"
+#include "util/BufferPool.hpp"
+#include "voxels/Chunk.hpp"
 #include "files.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/hash.hpp"
+#include <glm/gtx/hash.hpp>
 
 namespace fs = std::filesystem;
 

@@ -1,11 +1,11 @@
 #include "Label.hpp"
 
 #include <utility>
-#include <graphics/core/DrawContext.hpp>
-#include <graphics/core/Batch2D.hpp>
-#include <graphics/core/Font.hpp>
-#include <assets/Assets.hpp>
-#include <util/stringutil.hpp>
+#include "graphics/core/DrawContext.hpp"
+#include "graphics/core/Batch2D.hpp"
+#include "graphics/core/Font.hpp"
+#include "assets/Assets.hpp"
+#include "util/stringutil.hpp"
 
 using namespace gui;
 

@@ -1,7 +1,7 @@
 #ifndef UTIL_DATA_IO_HPP_
 #define UTIL_DATA_IO_HPP_
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 namespace dataio {
     /* Read big-endian 16 bit signed integer from bytes */

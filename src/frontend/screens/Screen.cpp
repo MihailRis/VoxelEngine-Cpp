@@ -1,7 +1,7 @@
 #include "Screen.hpp"
 
-#include <graphics/core/Batch2D.hpp>
-#include <engine.hpp>
+#include "graphics/core/Batch2D.hpp"
+#include "engine.hpp"
 
 Screen::Screen(Engine* engine)
   : engine(engine), 

@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 class Texture;
 class Batch2D;

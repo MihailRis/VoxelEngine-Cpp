@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_CORE_IMAGE_DATA_HPP_
 #define GRAPHICS_CORE_IMAGE_DATA_HPP_
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 #include <memory>
 

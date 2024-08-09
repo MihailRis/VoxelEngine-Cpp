@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-#include <content/Content.hpp>
-#include <voxels/FlatWorldGenerator.hpp>
-#include <voxels/WorldGenerator.hpp>
+#include "content/Content.hpp"
+#include "voxels/FlatWorldGenerator.hpp"
+#include "voxels/WorldGenerator.hpp"
 
 std::vector<std::string> WorldGenerators::getGeneratorsIDs() {
     std::vector<std::string> ids;

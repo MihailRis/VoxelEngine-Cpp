@@ -2,11 +2,11 @@
 #define MATHS_RAYS_HPP_
 
 #include "aabb.hpp"
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <array>
 
-#include "glm/gtx/hash.hpp"
+#include <glm/gtx/hash.hpp>
 
 using rayvec3 = glm::highp_dvec3;
 using rayvec2 = glm::highp_dvec2;

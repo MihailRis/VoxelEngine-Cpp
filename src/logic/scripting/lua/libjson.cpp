@@ -1,5 +1,5 @@
-#include <coders/json.hpp>
-#include <data/dynamic.hpp>
+#include "coders/json.hpp"
+#include "data/dynamic.hpp"
 #include "api_lua.hpp"
 
 static int l_json_stringify(lua::State* L) {

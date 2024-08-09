@@ -1,7 +1,7 @@
 #ifndef VOXNATHS_HPP_
 #define VOXNATHS_HPP_
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 inline int floordiv(int a, int b) {
     if (a < 0 && a % b) {

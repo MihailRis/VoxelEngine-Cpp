@@ -6,8 +6,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include <delegates.hpp>
-#include <typedefs.hpp>
+#include "delegates.hpp"
+#include "typedefs.hpp"
 
 enum class setting_format { simple, percent };
 

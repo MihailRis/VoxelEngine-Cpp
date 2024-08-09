@@ -11,7 +11,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <coders/GLSLExtension.hpp>
+#include "coders/GLSLExtension.hpp"
 
 namespace fs = std::filesystem;
 

@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <data/dynamic.hpp>
+#include "data/dynamic.hpp"
 
 namespace cmd {
     enum class ArgType { number, integer, enumvalue, selector, string };

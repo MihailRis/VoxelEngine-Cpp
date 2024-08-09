@@ -7,8 +7,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include <typedefs.hpp>
-#include <audio/audio.hpp>
+#include "typedefs.hpp"
+#include "audio/audio.hpp"
 
 #ifdef __APPLE__
 #include <OpenAL/al.h>

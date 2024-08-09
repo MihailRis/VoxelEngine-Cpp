@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 #include "voxel.hpp"
 
 class VoxelRenderer;

@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 struct voxel;
 class Content;

@@ -1,8 +1,8 @@
 #ifndef ITEMS_ITEM_STACK_HPP_
 #define ITEMS_ITEM_STACK_HPP_
 
-#include <constants.hpp>
-#include <typedefs.hpp>
+#include "constants.hpp"
+#include "typedefs.hpp"
 
 class ContentIndices;
 
