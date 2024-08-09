@@ -36,7 +36,7 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 sudo make install
 ```
 
-> [!NOTE] For ALT Linux user
+> [!WARNING]
 > If you are using ALT Linux, you should not use this EnTT installation method
 
 #### ALT Linux based distro
@@ -117,7 +117,9 @@ cmake --build .
 
 ## Build in Windows
 
->[!NOTE] Requirement
+>[!NOTE]
+> Requirement:
+>
 > vcpkg, CMake
 
 ```sh
