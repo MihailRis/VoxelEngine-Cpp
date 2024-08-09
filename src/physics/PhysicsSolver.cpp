@@ -238,7 +238,7 @@ void PhysicsSolver::colisionCalc(
                     vel.y = 0.0f;
                     float newy = std::floor(y) + aabb->max().y + half.y;
                     if (std::abs(newy-pos.y) <= MAX_FIX+stepHeight) {
-                        pos.y = newy;	
+                        pos.y = newy;    
                     }
                     break;
                 }
