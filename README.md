@@ -5,24 +5,6 @@
 - [Download](https://github.com/MihailRis/VoxelEngine-Cpp/releases/latest) | [Скачать](https://github.com/MihailRis/VoxelEngine-Cpp/releases/latest)
 - [Documentation](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.22/doc/en/main-page.md) | [Документация](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.22/doc/ru/main-page.md)
 
-## Base controls
-<!-- Remove this paragraph -->
-
-- <kbd>**Esc**</kbd> - pause
-- <kbd>**W**</kbd> <kbd>**A**</kbd> <kbd>**S**</kbd> <kbd>**D**</kbd> - movement
-- <kbd>**Space**</kbd> - jump
-- <kbd>**LMB**</kbd> - remove block
-- <kbd>**RMB**</kbd> - place block
-- <kbd>**Tab**</kbd> - open inventory
-- <kbd>**Q**</kbd> - drop item
-- <kbd>**F**</kbd> - toggle flight mode
-- <kbd>**N**</kbd> - noclip mode
-- <kbd>**F1**</kbd> - toggle interface
-- <kbd>**F2**</kbd> - save screenshot
-- <kbd>**F3**</kbd> - debug mode
-- <kbd>**F4**</kbd> - switch camera
-- <kbd>**F5**</kbd> - reload chunks
-
 ## Build project in Linux
 
 ### Install libraries
