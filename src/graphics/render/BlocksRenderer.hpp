@@ -7,6 +7,10 @@
 #include "voxels/voxel.hpp"
 #include "typedefs.hpp"
 
+#include "voxels/Block.hpp"
+#include "voxels/Chunk.hpp"
+#include "voxels/VoxelsVolume.hpp"
+
 class Content;
 class Mesh;
 class Block;
@@ -84,9 +88,9 @@ class BlocksRenderer {
         bool lights
     );
     void blockCube(
-        int x, int y, int z, 
+        const glm::ivec3& coord,
         const UVRegion(&faces)[6], 
-        const Block* block, 
+        const Block& block, 
         blockstate states, 
         bool lights,
         bool ao
@@ -115,7 +119,22 @@ class BlocksRenderer {
     );
 
     bool isOpenForLight(int x, int y, int z) const;
-    bool isOpen(int x, int y, int z, ubyte group) const;
+
+
+    // Does block allow to see other blocks sides (is it transparent)
+    inline constexpr bool isOpen(const glm::ivec3& pos, ubyte group) const {
+        auto id = voxelsBuffer->pickBlockId(
+            chunk->x * CHUNK_W + pos.x, pos.y, chunk->z * CHUNK_D + pos.z
+        );
+        if (id == BLOCK_VOID) {
+            return false;
+        }
+        const auto& block = *blockDefsCache[id];
+        if ((block.drawGroup != group && block.lightPassing) || !block.rt.solid) {
+            return true;
+        }
+        return !id;
+    }
 
     glm::vec4 pickLight(int x, int y, int z) const;
     glm::vec4 pickLight(const glm::ivec3& coord) const;
