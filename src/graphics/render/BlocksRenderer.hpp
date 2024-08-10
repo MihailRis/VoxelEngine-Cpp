@@ -122,7 +122,7 @@ class BlocksRenderer {
 
 
     // Does block allow to see other blocks sides (is it transparent)
-    inline constexpr bool isOpen(const glm::ivec3& pos, ubyte group) const {
+    inline bool isOpen(const glm::ivec3& pos, ubyte group) const {
         auto id = voxelsBuffer->pickBlockId(
             chunk->x * CHUNK_W + pos.x, pos.y, chunk->z * CHUNK_D + pos.z
         );
