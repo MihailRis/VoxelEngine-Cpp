@@ -1,5 +1,7 @@
 #include "ChunksStorage.hpp"
 
+#include <algorithm>
+
 #include "content/Content.hpp"
 #include "debug/Logger.hpp"
 #include "files/WorldFiles.hpp"

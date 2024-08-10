@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdexcept>
 #include <cstring>
+#include <algorithm>
 
 ImageData::ImageData(ImageFormat format, uint width, uint height) 
     : format(format), width(width), height(height) {
