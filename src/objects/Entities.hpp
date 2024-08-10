@@ -1,15 +1,14 @@
-#ifndef OBJECTS_ENTITIES_HPP_
-#define OBJECTS_ENTITIES_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <memory>
 #include <optional>
 #include <vector>
 
-#include <data/dynamic.hpp>
-#include <physics/Hitbox.hpp>
-#include <typedefs.hpp>
-#include <util/Clock.hpp>
+#include "data/dynamic.hpp"
+#include "physics/Hitbox.hpp"
+#include "typedefs.hpp"
+#include "util/Clock.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <entt/entity/registry.hpp>
 #include <glm/gtx/norm.hpp>
@@ -256,5 +255,3 @@ public:
         return nextID;
     }
 };
-
-#endif  // OBJECTS_ENTITIES_HPP_

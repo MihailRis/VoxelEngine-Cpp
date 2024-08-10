@@ -1,7 +1,6 @@
-#ifndef GRAPHICS_CORE_BATCH3D_HPP_
-#define GRAPHICS_CORE_BATCH3D_HPP_
+#pragma once
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 #include "commons.hpp"
 
 #include <memory>
@@ -58,5 +57,3 @@ public:
     void flush() override;
     void flushPoints();
 };
-
-#endif // GRAPHICS_CORE_BATCH3D_HPP_

@@ -2,13 +2,13 @@
 
 #include <utility>
 
-#include <coders/json.hpp>
-#include <coders/commons.hpp>
-#include <content/ContentPack.hpp>
-#include <files/files.hpp>
-#include <util/stringutil.hpp>
-#include <data/dynamic.hpp>
-#include <debug/Logger.hpp>
+#include "coders/json.hpp"
+#include "coders/commons.hpp"
+#include "content/ContentPack.hpp"
+#include "files/files.hpp"
+#include "util/stringutil.hpp"
+#include "data/dynamic.hpp"
+#include "debug/Logger.hpp"
 
 static debug::Logger logger("locale");
 

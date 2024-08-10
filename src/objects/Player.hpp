@@ -1,15 +1,14 @@
-#ifndef SRC_OBJECTS_PLAYER_HPP_
-#define SRC_OBJECTS_PLAYER_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <memory>
 #include <optional>
 
-#include <data/dynamic.hpp>
-#include <interfaces/Object.hpp>
-#include <interfaces/Serializable.hpp>
-#include <settings.hpp>
-#include <voxels/voxel.hpp>
+#include "data/dynamic.hpp"
+#include "interfaces/Object.hpp"
+#include "interfaces/Serializable.hpp"
+#include "settings.hpp"
+#include "voxels/voxel.hpp"
 
 class Camera;
 class Inventory;
@@ -113,5 +112,3 @@ public:
         return objectUID;
     }
 };
-
-#endif  // SRC_OBJECTS_PLAYER_HPP_

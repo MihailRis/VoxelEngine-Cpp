@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_UI_ELEMENTS_TEXTBOX_HPP_
-#define GRAPHICS_UI_ELEMENTS_TEXTBOX_HPP_
+#pragma once
 
 #include "Panel.hpp"
 #include "Label.hpp"
@@ -173,5 +172,3 @@ namespace gui {
         virtual void setOnDownPressed(const runnable &callback);
     };
 }
-
-#endif // GRAPHICS_UI_ELEMENTS_TEXTBOX_HPP_

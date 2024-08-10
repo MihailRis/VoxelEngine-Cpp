@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_UI_ELEMENTS_IMAGE_HPP_
-#define GRAPHICS_UI_ELEMENTS_IMAGE_HPP_
+#pragma once
 
 #include "UINode.hpp"
 
@@ -19,5 +18,3 @@ namespace gui {
         virtual void setTexture(const std::string& name);
     };
 }
-
-#endif // GRAPHICS_UI_ELEMENTS_IMAGE_HPP_

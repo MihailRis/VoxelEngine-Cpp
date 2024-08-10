@@ -1,13 +1,12 @@
-#ifndef FILES_WORLD_CONVERTER_HPP_
-#define FILES_WORLD_CONVERTER_HPP_
+#pragma once
 
 #include <filesystem>
 #include <memory>
 #include <queue>
 
-#include <delegates.hpp>
-#include <interfaces/Task.hpp>
-#include <typedefs.hpp>
+#include "delegates.hpp"
+#include "interfaces/Task.hpp"
+#include "typedefs.hpp"
 
 namespace fs = std::filesystem;
 
@@ -61,4 +60,3 @@ public:
     );
 };
 
-#endif  // FILES_WORLD_CONVERTER_HPP_

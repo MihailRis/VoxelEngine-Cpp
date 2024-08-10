@@ -1,5 +1,4 @@
-#ifndef OBJECTS_RIGGING_HPP_
-#define OBJECTS_RIGGING_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <memory>
@@ -7,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 class Assets;
 class ModelBatch;
@@ -141,5 +140,3 @@ namespace rigging {
         }
     };
 };
-
-#endif  // OBJECTS_RIGGING_HPP_

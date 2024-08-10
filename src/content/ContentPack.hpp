@@ -1,12 +1,11 @@
-#ifndef CONTENT_CONTENT_PACK_HPP_
-#define CONTENT_CONTENT_PACK_HPP_
+#pragma once
 
 #include <filesystem>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 class EnginePaths;
 
@@ -115,5 +114,3 @@ public:
         return env;
     }
 };
-
-#endif  // CONTENT_CONTENT_PACK_HPP_

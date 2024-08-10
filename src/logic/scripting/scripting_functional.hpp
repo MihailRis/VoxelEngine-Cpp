@@ -1,12 +1,11 @@
-#ifndef LOGIC_SCRIPTING_SCRIPTING_FUNCTIONAL_HPP_
-#define LOGIC_SCRIPTING_SCRIPTING_FUNCTIONAL_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <string>
 
-#include <data/dynamic.hpp>
-#include <delegates.hpp>
-#include <typedefs.hpp>
+#include "data/dynamic.hpp"
+#include "delegates.hpp"
+#include "typedefs.hpp"
 
 namespace scripting {
     using common_func =
@@ -78,5 +77,3 @@ namespace scripting {
         const std::string& file = "<string>"
     );
 }
-
-#endif  // LOGIC_SCRIPTING_SCRIPTING_FUNCTIONAL_HPP_

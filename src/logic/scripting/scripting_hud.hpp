@@ -1,10 +1,9 @@
-#ifndef LOGIC_SCRIPTING_SCRIPTING_HUD_HPP_
-#define LOGIC_SCRIPTING_SCRIPTING_HUD_HPP_
+#pragma once
 
 #include <filesystem>
 #include <string>
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 namespace fs = std::filesystem;
 
@@ -27,5 +26,3 @@ namespace scripting {
         const scriptenv &env, const std::string &packid, const fs::path &file
     );
 }
-
-#endif  // LOGIC_SCRIPTING_SCRIPTING_HUD_HPP_

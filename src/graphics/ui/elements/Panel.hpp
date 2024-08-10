@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_UI_ELEMENTS_PANEL_HPP_
-#define GRAPHICS_UI_ELEMENTS_PANEL_HPP_
+#pragma once
 
 #include "commons.hpp"
 #include "Container.hpp"
@@ -36,5 +35,3 @@ namespace gui {
         glm::vec4 getPadding() const;
     };
 }
-
-#endif // GRAPHICS_UI_ELEMENTS_PANEL_HPP_

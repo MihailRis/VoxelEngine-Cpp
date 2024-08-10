@@ -1,5 +1,4 @@
-#ifndef VOXELS_CHUNKS_HPP_
-#define VOXELS_CHUNKS_HPP_
+#pragma once
 
 #include <stdlib.h>
 
@@ -7,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 #include "voxel.hpp"
 
 class VoxelRenderer;
@@ -115,5 +114,3 @@ public:
     void save(Chunk* chunk);
     void saveAll();
 };
-
-#endif  // VOXELS_CHUNKS_HPP_

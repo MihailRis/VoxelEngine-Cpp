@@ -1,12 +1,11 @@
-#ifndef LOGIC_SCRIPTING_LUA_LIBENTITY_HPP_
-#define LOGIC_SCRIPTING_LUA_LIBENTITY_HPP_
+#pragma once
 
 #include <optional>
 
-#include <frontend/hud.hpp>
-#include <objects/Entities.hpp>
-#include <world/Level.hpp>
-#include <logic/LevelController.hpp>
+#include "frontend/hud.hpp"
+#include "objects/Entities.hpp"
+#include "world/Level.hpp"
+#include "logic/LevelController.hpp"
 #include "api_lua.hpp"
 
 namespace scripting {
@@ -18,5 +17,3 @@ inline std::optional<Entity> get_entity(lua::State* L, int idx) {
     auto level = scripting::controller->getLevel();
     return level->entities->get(id);
 }
-
-#endif  // LOGIC_SCRIPTING_LUA_LIBENTITY_HPP_

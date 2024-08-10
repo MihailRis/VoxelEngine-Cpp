@@ -1,5 +1,4 @@
-#ifndef MATHS_UTIL_HPP_
-#define MATHS_UTIL_HPP_
+#pragma once
 
 #include <stdint.h>
 
@@ -51,5 +50,3 @@ public:
         rand();
     }
 };
-
-#endif  // MATHS_UTIL_HPP_

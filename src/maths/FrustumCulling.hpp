@@ -1,5 +1,4 @@
-#ifndef MATHS_FRUSTUM_CULLING_HPP_
-#define MATHS_FRUSTUM_CULLING_HPP_
+#pragma once
 
 #include <glm/matrix.hpp>
 
@@ -128,5 +127,3 @@ inline glm::vec3 Frustum::intersection(const glm::vec3* crosses) const {
                     glm::vec3(m_planes[a].w, m_planes[b].w, m_planes[c].w);
     return res * (-1.0f / D);
 }
-
-#endif  // MATHS_FRUSTUM_CULLING_HPP_

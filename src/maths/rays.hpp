@@ -1,12 +1,11 @@
-#ifndef MATHS_RAYS_HPP_
-#define MATHS_RAYS_HPP_
+#pragma once
 
 #include "aabb.hpp"
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <array>
 
-#include "glm/gtx/hash.hpp"
+#include <glm/gtx/hash.hpp>
 
 using rayvec3 = glm::highp_dvec3;
 using rayvec2 = glm::highp_dvec2;
@@ -76,5 +75,3 @@ public:
         scalar_t& distance_ret
     );
 };
-
-#endif  // SRC_VOXNATHS_HPP_

@@ -5,7 +5,7 @@
 #include <memory>
 #include <type_traits>
 
-#include <debug/Logger.hpp>
+#include "debug/Logger.hpp"
 
 #ifdef __APPLE__
 #include <OpenAL/al.h>

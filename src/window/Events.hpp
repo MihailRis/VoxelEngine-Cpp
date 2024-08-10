@@ -1,11 +1,10 @@
-#ifndef WINDOW_EVENTS_HPP_
-#define WINDOW_EVENTS_HPP_
+#pragma once
 
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 #include "input.hpp"
 
 inline constexpr short KEYS_BUFFER_SIZE = 1036;
@@ -56,5 +55,3 @@ public:
         const std::string& filename, const std::string& source
     );
 };
-
-#endif  // WINDOW_EVENTS_HPP_

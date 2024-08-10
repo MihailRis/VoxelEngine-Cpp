@@ -1,8 +1,7 @@
-#ifndef ITEMS_ITEM_STACK_HPP_
-#define ITEMS_ITEM_STACK_HPP_
+#pragma once
 
-#include <constants.hpp>
-#include <typedefs.hpp>
+#include "constants.hpp"
+#include "typedefs.hpp"
 
 class ContentIndices;
 
@@ -36,5 +35,3 @@ public:
         return count;
     }
 };
-
-#endif  // ITEMS_ITEM_STACK_HPP_

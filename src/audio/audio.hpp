@@ -1,12 +1,11 @@
-#ifndef AUDIO_AUDIO_HPP_
-#define AUDIO_AUDIO_HPP_
+#pragma once
 
 #include <filesystem>
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 namespace fs = std::filesystem;
 
@@ -520,5 +519,3 @@ namespace audio {
     /// @brief Finalize audio system
     void close();
 };
-
-#endif  // AUDIO_AUDIO_HPP_

@@ -1,11 +1,10 @@
-#ifndef AUDIO_AUDIOUTIL_HPP_
-#define AUDIO_AUDIOUTIL_HPP_
+#pragma once
 
 #include <cstdint>
 #include <string>
 #include <type_traits>
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 #ifdef __APPLE__
 #include <OpenAL/al.h>
@@ -83,5 +82,3 @@ namespace AL {
         }
     }
 }
-
-#endif  // AUDIO_AUDIOUTIL_HPP_

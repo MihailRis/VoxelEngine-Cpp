@@ -1,7 +1,6 @@
-#ifndef VOXELS_VOXEL_HPP_
-#define VOXELS_VOXEL_HPP_
+#pragma once
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 inline constexpr int BLOCK_DIR_NORTH = 0x0;
 inline constexpr int BLOCK_DIR_WEST = 0x1;
@@ -40,5 +39,3 @@ struct voxel {
     blockstate state;
 };
 static_assert(sizeof(voxel) == 4);
-
-#endif  // VOXELS_VOXEL_HPP_

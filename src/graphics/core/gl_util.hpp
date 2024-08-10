@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_CORE_GL_UTIL_HPP_
-#define GRAPHICS_CORE_GL_UTIL_HPP_
+#pragma once
 
 #include "commons.hpp"
 #include "ImageData.hpp"
@@ -25,5 +24,3 @@ namespace gl {
         return primitives[static_cast<int>(primitive)];
     }
 }
-
-#endif // GRAPHICS_CORE_GL_UTIL_HPP_

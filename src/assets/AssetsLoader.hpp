@@ -1,5 +1,4 @@
-#ifndef ASSETS_ASSETS_LOADER_HPP_
-#define ASSETS_ASSETS_LOADER_HPP_
+#pragma once
 
 #include <filesystem>
 #include <functional>
@@ -9,9 +8,9 @@
 #include <string>
 #include <utility>
 
-#include <delegates.hpp>
-#include <interfaces/Task.hpp>
-#include <typedefs.hpp>
+#include "delegates.hpp"
+#include "interfaces/Task.hpp"
+#include "typedefs.hpp"
 #include "Assets.hpp"
 
 namespace dynamic {
@@ -104,5 +103,3 @@ public:
         const std::vector<std::filesystem::path>& alternatives
     );
 };
-
-#endif  // ASSETS_ASSETS_LOADER_HPP_

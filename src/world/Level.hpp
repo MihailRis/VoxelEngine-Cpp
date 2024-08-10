@@ -1,10 +1,9 @@
-#ifndef WORLD_LEVEL_HPP_
-#define WORLD_LEVEL_HPP_
+#pragma once
 
 #include <memory>
 #include <vector>
 
-#include <interfaces/Object.hpp>
+#include "interfaces/Object.hpp"
 
 inline constexpr float DEF_PLAYER_Y = 100.0f;
 inline constexpr float DEF_PLAYER_SPEED = 4.0f;
@@ -85,5 +84,3 @@ public:
 
     std::shared_ptr<Camera> getCamera(const std::string& name);
 };
-
-#endif /* WORLD_LEVEL_HPP_ */

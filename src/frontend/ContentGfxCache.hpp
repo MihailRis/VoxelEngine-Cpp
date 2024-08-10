@@ -1,7 +1,6 @@
-#ifndef FRONTEND_BLOCKS_GFX_CACHE_HPP_
-#define FRONTEND_BLOCKS_GFX_CACHE_HPP_
+#pragma once
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 #include <memory>
 
@@ -23,5 +22,3 @@ public:
     
     const Content* getContent() const;
 };
-
-#endif // FRONTEND_BLOCKS_GFX_CACHE_HPP_

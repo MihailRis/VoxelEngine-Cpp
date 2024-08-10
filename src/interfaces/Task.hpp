@@ -1,7 +1,6 @@
-#ifndef INTERFACES_TASK_HPP_
-#define INTERFACES_TASK_HPP_
+#pragma once
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 /// @brief Task is a finite process interface.
 /// 'work' is a metric of task progress/remaining work (jobs/bytes/something other)
@@ -16,6 +15,3 @@ public:
     virtual void waitForEnd() = 0;
     virtual void terminate() = 0;
 };
-
-#endif // INTERFACES_TASK_HPP_
-

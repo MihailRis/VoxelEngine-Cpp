@@ -1,9 +1,8 @@
-#ifndef UTIL_TIMEUTIL_HPP_
-#define UTIL_TIMEUTIL_HPP_
+#pragma once
 
 #include <chrono>
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 namespace timeutil {
     class Timer {
@@ -34,5 +33,3 @@ namespace timeutil {
 
     void from_value(float value, int& hour, int& minute, int& second);
 }
-
-#endif  // UTIL_TIMEUTIL_HPP_

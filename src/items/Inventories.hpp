@@ -1,11 +1,10 @@
-#ifndef ITEMS_INVENTORIES_HPP_
-#define ITEMS_INVENTORIES_HPP_
+#pragma once
 
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-#include <maths/util.hpp>
+#include "maths/util.hpp"
 #include "Inventory.hpp"
 
 class Level;
@@ -41,4 +40,3 @@ public:
     const inventories_map& getMap() const;
 };
 
-#endif  // ITEMS_INVENTORIES_HPP_

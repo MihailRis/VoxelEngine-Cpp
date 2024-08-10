@@ -1,5 +1,4 @@
-#ifndef ASSETS_ASSET_LOADERS_HPP_
-#define ASSETS_ASSET_LOADERS_HPP_
+#pragma once
 
 #include <memory>
 #include <string>
@@ -64,5 +63,3 @@ namespace assetload {
         const std::shared_ptr<AssetCfg>& settings
     );
 }
-
-#endif  // ASSETS_ASSET_LOADERS_HPP_

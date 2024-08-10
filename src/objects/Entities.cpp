@@ -3,23 +3,23 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <sstream>
 
-#include <assets/Assets.hpp>
-#include <content/Content.hpp>
-#include <data/dynamic_util.hpp>
-#include <debug/Logger.hpp>
-#include <engine.hpp>
-#include <graphics/core/DrawContext.hpp>
-#include <graphics/core/LineBatch.hpp>
-#include <graphics/core/Model.hpp>
-#include <graphics/render/ModelBatch.hpp>
-#include <logic/scripting/scripting.hpp>
-#include <maths/FrustumCulling.hpp>
-#include <maths/rays.hpp>
+#include "assets/Assets.hpp"
+#include "content/Content.hpp"
+#include "data/dynamic_util.hpp"
+#include "debug/Logger.hpp"
+#include "engine.hpp"
+#include "graphics/core/DrawContext.hpp"
+#include "graphics/core/LineBatch.hpp"
+#include "graphics/core/Model.hpp"
+#include "graphics/render/ModelBatch.hpp"
+#include "logic/scripting/scripting.hpp"
+#include "maths/FrustumCulling.hpp"
+#include "maths/rays.hpp"
 #include "EntityDef.hpp"
 #include "rigging.hpp"
-#include <physics/Hitbox.hpp>
-#include <physics/PhysicsSolver.hpp>
-#include <world/Level.hpp>
+#include "physics/Hitbox.hpp"
+#include "physics/PhysicsSolver.hpp"
+#include "world/Level.hpp"
 
 static debug::Logger logger("entities");
 

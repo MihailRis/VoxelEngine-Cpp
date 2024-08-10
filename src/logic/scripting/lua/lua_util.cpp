@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include <util/stringutil.hpp>
+#include "util/stringutil.hpp"
 
 using namespace lua;
 

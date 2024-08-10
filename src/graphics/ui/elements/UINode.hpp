@@ -1,8 +1,7 @@
-#ifndef GRAPHICS_UI_ELEMENTS_UINODE_HPP_
-#define GRAPHICS_UI_ELEMENTS_UINODE_HPP_
+#pragma once
 
-#include <delegates.hpp>
-#include <window/input.hpp>
+#include "delegates.hpp"
+#include "window/input.hpp"
 
 #include <glm/glm.hpp>
 #include <vector>
@@ -259,5 +258,3 @@ namespace gui {
         );
     };
 }
-
-#endif // GRAPHICS_UI_ELEMENTS_UINODE_HPP_

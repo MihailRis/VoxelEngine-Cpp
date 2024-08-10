@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_CORE_LINEBATCH_HPP_
-#define GRAPHICS_CORE_LINEBATCH_HPP_
+#pragma once
 
 #include <memory>
 #include <stdlib.h>
@@ -34,5 +33,3 @@ public:
     void flush() override;
     void lineWidth(float width);
 };
-
-#endif // GRAPHICS_CORE_LINEBATCH_HPP_

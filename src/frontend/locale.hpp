@@ -1,5 +1,4 @@
-#ifndef FRONTEND_LOCALES_HPP_
-#define FRONTEND_LOCALES_HPP_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -68,5 +67,3 @@ namespace langs {
                       std::string locale,
                       const std::vector<ContentPack>& packs);
 }
-
-#endif // FRONTEND_LOCALES_HPP_

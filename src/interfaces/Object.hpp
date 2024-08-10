@@ -1,5 +1,4 @@
-#ifndef OBJECT_HPP_
-#define OBJECT_HPP_
+#pragma once
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -22,5 +21,3 @@ public:
     virtual void update(float delta) { }
     virtual void destroyed() {  }
 };
-
-#endif // OBJECT_HPP_

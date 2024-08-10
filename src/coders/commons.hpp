@@ -1,11 +1,10 @@
-#ifndef CODERS_COMMONS_HPP_
-#define CODERS_COMMONS_HPP_
+#pragma once
 
 #include <stdexcept>
 #include <string>
 
-#include <data/dynamic.hpp>
-#include <typedefs.hpp>
+#include "data/dynamic.hpp"
+#include "typedefs.hpp"
 
 inline int is_box(int c) {
     switch (c) {
@@ -108,5 +107,3 @@ public:
 
     BasicParser(std::string_view file, std::string_view source);
 };
-
-#endif  // CODERS_COMMONS_HPP_

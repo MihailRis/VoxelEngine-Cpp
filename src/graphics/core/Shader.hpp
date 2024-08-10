@@ -1,7 +1,6 @@
-#ifndef GRAPHICS_CORE_SHADER_HPP_
-#define GRAPHICS_CORE_SHADER_HPP_
+#pragma once
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 #include <string>
 #include <memory>
@@ -44,5 +43,3 @@ public:
         const std::string& fragmentSource
     );
 };
-
-#endif // GRAPHICS_SHADER_HPP_

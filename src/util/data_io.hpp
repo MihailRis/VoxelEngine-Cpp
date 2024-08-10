@@ -1,7 +1,6 @@
-#ifndef UTIL_DATA_IO_HPP_
-#define UTIL_DATA_IO_HPP_
+#pragma once
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 namespace dataio {
     /* Read big-endian 16 bit signed integer from bytes */
@@ -47,5 +46,3 @@ namespace dataio {
         dest[offset + 7] = (char)(value >> 0 & 255);
     }
 }
-
-#endif  // UTIL_DATA_IO_HPP_

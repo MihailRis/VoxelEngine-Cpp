@@ -1,8 +1,7 @@
-#ifndef FRONTEND_GUI_GUI_XML_HPP_
-#define FRONTEND_GUI_GUI_XML_HPP_
+#pragma once
 
 #include "GUI.hpp"
-#include <coders/xml.hpp>
+#include "coders/xml.hpp"
 
 #include <memory>
 #include <stack>
@@ -56,5 +55,3 @@ namespace gui {
         const std::string& getFilename() const;
     };
 }
-
-#endif // FRONTEND_GUI_GUI_XML_HPP_

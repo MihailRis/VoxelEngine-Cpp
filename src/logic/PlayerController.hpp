@@ -1,11 +1,10 @@
-#ifndef PLAYER_CONTROL_HPP_
-#define PLAYER_CONTROL_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
 
-#include <objects/Player.hpp>
+#include "objects/Player.hpp"
 
 class Camera;
 class Level;
@@ -74,5 +73,3 @@ public:
     void postUpdate(float delta, bool input, bool pause);
     Player* getPlayer();
 };
-
-#endif /* PLAYER_CONTROL_HPP_ */

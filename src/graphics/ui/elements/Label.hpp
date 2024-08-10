@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_UI_ELEMENTS_LABEL_HPP_
-#define GRAPHICS_UI_ELEMENTS_LABEL_HPP_
+#pragma once
 
 #include "UINode.hpp"
 
@@ -110,5 +109,3 @@ namespace gui {
         virtual bool isTextWrapping() const;
     };
 }
-
-#endif // GRAPHICS_UI_ELEMENTS_LABEL_HPP_

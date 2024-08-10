@@ -1,5 +1,4 @@
-#ifndef FRONTEND_LEVEL_FRONTEND_HPP_
-#define FRONTEND_LEVEL_FRONTEND_HPP_
+#pragma once
 
 #include <memory>
 
@@ -23,5 +22,3 @@ public:
     ContentGfxCache* getContentGfxCache() const;
     LevelController* getController() const;
 };
-
-#endif // FRONTEND_LEVEL_FRONTEND_HPP_

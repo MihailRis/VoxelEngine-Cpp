@@ -1,9 +1,8 @@
-#ifndef WINDOW_INPUT_HPP_
-#define WINDOW_INPUT_HPP_
+#pragma once
 
 #include <string>
 
-#include <util/RunnablesList.hpp>
+#include "util/RunnablesList.hpp"
 
 /// @brief Represents glfw3 keycode values.
 enum class keycode : int {
@@ -167,5 +166,3 @@ struct Binding {
         return "<unknown input type>";
     }
 };
-
-#endif  // WINDOW_INPUT_HPP_

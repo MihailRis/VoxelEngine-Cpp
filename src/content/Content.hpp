@@ -1,5 +1,4 @@
-#ifndef CONTENT_CONTENT_HPP_
-#define CONTENT_CONTENT_HPP_
+#pragma once
 
 #include <memory>
 #include <optional>
@@ -9,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <data/dynamic_fwd.hpp>
+#include "data/dynamic_fwd.hpp"
 #include "content_fwd.hpp"
 
 using DrawGroups = std::set<ubyte>;
@@ -230,5 +229,3 @@ public:
     const UptrsMap<std::string, ContentPackRuntime>& getPacks() const;
     const UptrsMap<std::string, rigging::SkeletonConfig>& getSkeletons() const;
 };
-
-#endif  // CONTENT_CONTENT_HPP_

@@ -1,10 +1,9 @@
-#ifndef GRAPHICS_CORE_FONT_HPP_
-#define GRAPHICS_CORE_FONT_HPP_
+#pragma once
 
 #include <memory>
 #include <string>
 #include <vector>
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 class Texture;
 class Batch2D;
@@ -46,5 +45,3 @@ public:
     void draw(Batch2D* batch, const std::wstring& text, int x, int y, FontStyle style);
     void draw(Batch2D* batch, std::wstring_view text, int x, int y, FontStyle style);
 };
-
-#endif // GRAPHICS_CORE_FONT_HPP_

@@ -1,12 +1,11 @@
-#ifndef UTIL_RUNNABLES_LIST_HPP_
-#define UTIL_RUNNABLES_LIST_HPP_
+#pragma once
 
 #include <memory>
 #include <unordered_map>
 #include <utility>
 
-#include <delegates.hpp>
-#include <typedefs.hpp>
+#include "delegates.hpp"
+#include "typedefs.hpp"
 
 namespace util {
     class RunnablesList {
@@ -29,5 +28,3 @@ namespace util {
         }
     };
 }
-
-#endif  // UTIL_RUNNABLES_LIST_HPP_

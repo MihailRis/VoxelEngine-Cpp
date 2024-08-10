@@ -1,5 +1,4 @@
-#ifndef CODERS_GLSL_EXTESION_HPP_
-#define CODERS_GLSL_EXTESION_HPP_
+#pragma once
 
 #include <filesystem>
 #include <string>
@@ -35,5 +34,3 @@ public:
         bool header = false
     );
 };
-
-#endif  // CODERS_GLSL_EXTESION_HPP_

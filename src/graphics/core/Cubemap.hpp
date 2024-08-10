@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_CORE_CUBEMAP_HPP_
-#define GRAPHICS_CORE_CUBEMAP_HPP_
+#pragma once
 
 #include "GLTexture.hpp"
 
@@ -11,5 +10,3 @@ public:
     virtual void bind() override;
     virtual void unbind() override;
 };
-
-#endif // GRAPHICS_CORE_CUBEMAP_HPP_

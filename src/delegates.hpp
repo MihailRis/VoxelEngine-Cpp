@@ -1,5 +1,4 @@
-#ifndef DELEGATES_HPP_
-#define DELEGATES_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <functional>
@@ -21,5 +20,3 @@ using doubleconsumer = std::function<void(double)>;
 using boolconsumer = std::function<void(bool)>;
 using int_array_consumer = std::function<void(const int[], size_t)>;
 using wstringchecker = std::function<bool(const std::wstring&)>;
-
-#endif // DELEGATES_HPP_

@@ -1,5 +1,4 @@
-#ifndef TYPEDEFS_HPP_
-#define TYPEDEFS_HPP_
+#pragma once
 
 #include <memory>
 #include <stdint.h>
@@ -25,5 +24,3 @@ using entityid_t = uint64_t;
 using itemcount_t = uint32_t;
 using blockstate_t = uint16_t;
 using light_t = uint16_t;
-
-#endif // TYPEDEFS_HPP_

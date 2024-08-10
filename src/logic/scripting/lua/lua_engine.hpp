@@ -1,12 +1,11 @@
-#ifndef LOGIC_SCRIPTING_LUA_STATE_HPP_
-#define LOGIC_SCRIPTING_LUA_STATE_HPP_
+#pragma once
 
 #include <stdexcept>
 #include <string>
 
-#include <data/dynamic.hpp>
-#include <delegates.hpp>
-#include <logic/scripting/scripting_functional.hpp>
+#include "data/dynamic.hpp"
+#include "delegates.hpp"
+#include "logic/scripting/scripting_functional.hpp"
 #include "lua_util.hpp"
 
 namespace lua {
@@ -20,5 +19,3 @@ namespace lua {
     );
     lua::State* get_main_thread();
 }
-
-#endif  // LOGIC_SCRIPTING_LUA_STATE_HPP_

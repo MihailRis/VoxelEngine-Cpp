@@ -1,5 +1,4 @@
-#ifndef DEBUG_LOGGER_HPP_
-#define DEBUG_LOGGER_HPP_
+#pragma once
 
 #include <fstream>
 #include <mutex>
@@ -63,5 +62,3 @@ namespace debug {
         }
     };
 }
-
-#endif  // DEBUG_LOGGER_HPP_

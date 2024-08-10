@@ -1,8 +1,7 @@
-#ifndef FRONTEND_HUD_HPP_
-#define FRONTEND_HUD_HPP_
+#pragma once
 
-#include <typedefs.hpp>
-#include <util/ObjectsKeeper.hpp>
+#include "typedefs.hpp"
+#include "util/ObjectsKeeper.hpp"
 
 #include <string>
 #include <memory>
@@ -169,5 +168,3 @@ public:
 
     std::shared_ptr<Inventory> getBlockInventory();
 };
-
-#endif // FRONTEND_HUD_HPP_

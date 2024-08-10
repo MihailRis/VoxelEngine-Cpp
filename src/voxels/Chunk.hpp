@@ -1,13 +1,12 @@
-#ifndef VOXELS_CHUNK_HPP_
-#define VOXELS_CHUNK_HPP_
+#pragma once
 
 #include <stdlib.h>
 
 #include <memory>
 #include <unordered_map>
 
-#include <constants.hpp>
-#include <lighting/Lightmap.hpp>
+#include "constants.hpp"
+#include "lighting/Lightmap.hpp"
 #include "voxel.hpp"
 
 inline constexpr int CHUNK_DATA_LEN = CHUNK_VOL * 4;
@@ -74,5 +73,3 @@ public:
 
     static void convert(ubyte* data, const ContentLUT* lut);
 };
-
-#endif /* VOXELS_CHUNK_HPP_ */

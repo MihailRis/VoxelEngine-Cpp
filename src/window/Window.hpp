@@ -1,12 +1,11 @@
-#ifndef WINDOW_WINDOW_HPP_
-#define WINDOW_WINDOW_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <memory>
 #include <stack>
 #include <vector>
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 class ImageData;
 struct DisplaySettings;
@@ -63,5 +62,3 @@ public:
 
     static std::unique_ptr<ImageData> takeScreenshot();
 };
-
-#endif  // WINDOW_WINDOW_HPP_

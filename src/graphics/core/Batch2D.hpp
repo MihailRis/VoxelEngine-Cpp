@@ -1,12 +1,11 @@
-#ifndef GRAPHICS_CORE_BATCH2D_HPP_
-#define GRAPHICS_CORE_BATCH2D_HPP_
+#pragma once
 
 #include <memory>
 #include <stdlib.h>
 #include <glm/glm.hpp>
 
 #include "commons.hpp"
-#include <maths/UVRegion.hpp>
+#include "maths/UVRegion.hpp"
 
 class Mesh;
 class Texture;
@@ -93,5 +92,3 @@ public:
 
     void lineWidth(float width);
 };
-
-#endif // GRAPHICS_CORE_BATCH2D_HPP_

@@ -1,12 +1,11 @@
-#ifndef LOGIC_COMMANDS_INTERPRETER_HPP_
-#define LOGIC_COMMANDS_INTERPRETER_HPP_
+#pragma once
 
 #include <functional>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#include <data/dynamic.hpp>
+#include "data/dynamic.hpp"
 
 namespace cmd {
     enum class ArgType { number, integer, enumvalue, selector, string };
@@ -159,5 +158,3 @@ namespace cmd {
         }
     };
 }
-
-#endif  // LOGIC_COMMANDS_INTERPRETER_HPP_

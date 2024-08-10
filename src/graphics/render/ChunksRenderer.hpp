@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_RENDER_CHUNKSRENDERER_HPP_
-#define GRAPHICS_RENDER_CHUNKSRENDERER_HPP_
+#pragma once
 
 #include <queue>
 #include <memory>
@@ -7,9 +6,9 @@
 #include <unordered_map>
 #include <glm/glm.hpp>
 
-#include <voxels/Block.hpp>
-#include <voxels/ChunksStorage.hpp>
-#include <util/ThreadPool.hpp>
+#include "voxels/Block.hpp"
+#include "voxels/ChunksStorage.hpp"
+#include "util/ThreadPool.hpp"
 
 class Mesh;
 class Chunk;
@@ -46,5 +45,3 @@ public:
 
     void update();
 };
-
-#endif // GRAPHICS_RENDER_CHUNKSRENDERER_HPP_

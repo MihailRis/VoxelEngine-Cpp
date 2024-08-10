@@ -1,15 +1,17 @@
 #include "ChunksStorage.hpp"
 
-#include <content/Content.hpp>
-#include <debug/Logger.hpp>
-#include <files/WorldFiles.hpp>
-#include <items/Inventories.hpp>
-#include <lighting/Lightmap.hpp>
-#include <maths/voxmaths.hpp>
-#include <objects/Entities.hpp>
-#include <typedefs.hpp>
-#include <world/Level.hpp>
-#include <world/World.hpp>
+#include <algorithm>
+
+#include "content/Content.hpp"
+#include "debug/Logger.hpp"
+#include "files/WorldFiles.hpp"
+#include "items/Inventories.hpp"
+#include "lighting/Lightmap.hpp"
+#include "maths/voxmaths.hpp"
+#include "objects/Entities.hpp"
+#include "typedefs.hpp"
+#include "world/Level.hpp"
+#include "world/World.hpp"
 #include "Block.hpp"
 #include "Chunk.hpp"
 #include "VoxelsVolume.hpp"
@@ -115,12 +117,12 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
             if (found == chunksMap.end()) {
                 // no chunk loaded -> filling with BLOCK_VOID
                 for (int ly = y; ly < y + h; ly++) {
-                    for (int lz = max(z, cz * CHUNK_D);
-                         lz < min(z + d, (cz + 1) * CHUNK_D);
-                         lz++) {
-                        for (int lx = max(x, cx * CHUNK_W);
-                             lx < min(x + w, (cx + 1) * CHUNK_W);
-                             lx++) {
+                    for (int lz = std::max(z, cz * CHUNK_D);
+                             lz < std::min(z + d, (cz + 1) * CHUNK_D);
+                             lz++) {
+                        for (int lx = std::max(x, cx * CHUNK_W);
+                                 lx < std::min(x + w, (cx + 1) * CHUNK_W);
+                                 lx++) {
                             uint idx = vox_index(lx - x, ly - y, lz - z, w, d);
                             voxels[idx].id = BLOCK_VOID;
                             lights[idx] = 0;
@@ -132,12 +134,12 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
                 const voxel* cvoxels = chunk->voxels;
                 const light_t* clights = chunk->lightmap.getLights();
                 for (int ly = y; ly < y + h; ly++) {
-                    for (int lz = max(z, cz * CHUNK_D);
-                         lz < min(z + d, (cz + 1) * CHUNK_D);
-                         lz++) {
-                        for (int lx = max(x, cx * CHUNK_W);
-                             lx < min(x + w, (cx + 1) * CHUNK_W);
-                             lx++) {
+                    for (int lz = std::max(z, cz * CHUNK_D);
+                             lz < std::min(z + d, (cz + 1) * CHUNK_D);
+                             lz++) {
+                        for (int lx = std::max(x, cx * CHUNK_W);
+                                 lx < std::min(x + w, (cx + 1) * CHUNK_W);
+                                 lx++) {
                             uint vidx = vox_index(lx - x, ly - y, lz - z, w, d);
                             uint cidx = vox_index(
                                 lx - cx * CHUNK_W,
@@ -149,17 +151,18 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
                             voxels[vidx] = cvoxels[cidx];
                             light_t light = clights[cidx];
                             if (backlight) {
-                                const auto& block =
-                                    indices->blocks.require(voxels[vidx].id);
-                                if (block.lightPassing) { //-V522
+                                const auto block =
+                                    indices->blocks.get(voxels[vidx].id);
+                                if (block && block->lightPassing) {
                                     light = Lightmap::combine(
-                                        min(15,
+                                        std::min(15,
                                             Lightmap::extract(light, 0) + 1),
-                                        min(15,
+                                        std::min(15,
                                             Lightmap::extract(light, 1) + 1),
-                                        min(15,
+                                        std::min(15,
                                             Lightmap::extract(light, 2) + 1),
-                                        min(15, Lightmap::extract(light, 3))
+                                        std::min(15, 
+                                            static_cast<int>(Lightmap::extract(light, 3)))
                                     );
                                 }
                             }

@@ -1,5 +1,4 @@
-#ifndef LIGHTING_LIGHTSOLVER_HPP_
-#define LIGHTING_LIGHTSOLVER_HPP_
+#pragma once
 
 #include <queue>
 
@@ -27,5 +26,3 @@ public:
     void remove(int x, int y, int z);
     void solve();
 };
-
-#endif // LIGHTING_LIGHTSOLVER_HPP_

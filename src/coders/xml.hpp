@@ -1,5 +1,4 @@
-#ifndef CODERS_XML_HPP_
-#define CODERS_XML_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <memory>
@@ -144,5 +143,3 @@ namespace xml {
         const std::string& filename, const std::string& source
     );
 }
-
-#endif  // CODERS_XML_HPP_

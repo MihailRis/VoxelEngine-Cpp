@@ -1,7 +1,6 @@
-#ifndef FRONTEND_UI_DOCUMENT_HPP_
-#define FRONTEND_UI_DOCUMENT_HPP_
+#pragma once
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 #include <string>
 #include <memory>
@@ -49,5 +48,3 @@ public:
     static std::unique_ptr<UiDocument> read(const scriptenv& parent_env, const std::string& name, const fs::path& file);
     static std::shared_ptr<gui::UINode> readElement(const fs::path& file);
 };
-
-#endif // FRONTEND_UI_DOCUMENT_HPP_

@@ -1,7 +1,6 @@
-#ifndef GRAPHICS_CORE_IMAGE_DATA_HPP_
-#define GRAPHICS_CORE_IMAGE_DATA_HPP_
+#pragma once
 
-#include <typedefs.hpp>
+#include "typedefs.hpp"
 
 #include <memory>
 
@@ -48,5 +47,3 @@ public:
 };
 
 std::unique_ptr<ImageData> add_atlas_margins(ImageData* image, int grid_size);
-
-#endif // GRAPHICS_CORE_IMAGE_DATA_HPP_

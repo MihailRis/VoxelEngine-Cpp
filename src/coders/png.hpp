@@ -1,5 +1,4 @@
-#ifndef CODERS_PNG_HPP_
-#define CODERS_PNG_HPP_
+#pragma once
 
 #include <memory>
 #include <string>
@@ -12,5 +11,3 @@ namespace png {
     void write_image(const std::string& filename, const ImageData* image);
     std::unique_ptr<Texture> load_texture(const std::string& filename);
 }
-
-#endif  // CODERS_PNG_HPP_

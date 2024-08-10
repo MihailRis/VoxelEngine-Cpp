@@ -1,14 +1,13 @@
-#ifndef VOXELS_BLOCK_HPP_
-#define VOXELS_BLOCK_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <optional>
 #include <string>
 #include <vector>
 
-#include <maths/UVRegion.hpp>
-#include <maths/aabb.hpp>
-#include <typedefs.hpp>
+#include "maths/UVRegion.hpp"
+#include "maths/aabb.hpp"
+#include "typedefs.hpp"
 
 inline std::string BLOCK_ITEM_SUFFIX = ".item";
 
@@ -217,5 +216,3 @@ public:
 inline glm::ivec3 get_ground_direction(const Block& def, int rotation) {
     return -def.rotations.variants[rotation].axisY;
 }
-
-#endif  // VOXELS_BLOCK_HPP_

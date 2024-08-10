@@ -1,5 +1,4 @@
-#ifndef SRC_AUDIO_AUDIO_HPP_
-#define SRC_AUDIO_AUDIO_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 #include <queue>
@@ -7,8 +6,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include <typedefs.hpp>
-#include <audio/audio.hpp>
+#include "typedefs.hpp"
+#include "audio/audio.hpp"
 
 #ifdef __APPLE__
 #include <OpenAL/al.h>
@@ -178,5 +177,3 @@ namespace audio {
         static std::unique_ptr<ALAudio> create();
     };
 }
-
-#endif  // SRC_AUDIO_AUDIO_HPP_

@@ -1,5 +1,4 @@
-#ifndef DATA_DYNAMIC_UTIL_HPP_
-#define DATA_DYNAMIC_UTIL_HPP_
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -78,5 +77,3 @@ namespace dynamic {
         }
     }
 }
-
-#endif  // DATA_DYNAMIC_UTIL_HPP_

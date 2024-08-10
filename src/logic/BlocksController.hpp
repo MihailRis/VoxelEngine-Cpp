@@ -1,13 +1,12 @@
-#ifndef LOGIC_BLOCKS_CONTROLLER_HPP_
-#define LOGIC_BLOCKS_CONTROLLER_HPP_
+#pragma once
 
 #include <functional>
 #include <glm/glm.hpp>
 
-#include <maths/fastmaths.hpp>
-#include <typedefs.hpp>
-#include <util/Clock.hpp>
-#include <voxels/voxel.hpp>
+#include "maths/fastmaths.hpp"
+#include "typedefs.hpp"
+#include "util/Clock.hpp"
+#include "voxels/voxel.hpp"
 
 class Player;
 class Block;
@@ -62,5 +61,3 @@ public:
     /// @brief Add block interaction callback
     void listenBlockInteraction(const on_block_interaction& callback);
 };
-
-#endif  // LOGIC_BLOCKS_CONTROLLER_HPP_

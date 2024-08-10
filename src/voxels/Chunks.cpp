@@ -6,18 +6,18 @@
 #include <algorithm>
 #include <vector>
 
-#include <coders/byte_utils.hpp>
-#include <coders/json.hpp>
-#include <content/Content.hpp>
-#include <files/WorldFiles.hpp>
-#include <graphics/core/Mesh.hpp>
-#include <lighting/Lightmap.hpp>
-#include <maths/aabb.hpp>
-#include <maths/rays.hpp>
-#include <maths/voxmaths.hpp>
-#include <objects/Entities.hpp>
-#include <world/Level.hpp>
-#include <world/LevelEvents.hpp>
+#include "coders/byte_utils.hpp"
+#include "coders/json.hpp"
+#include "content/Content.hpp"
+#include "files/WorldFiles.hpp"
+#include "graphics/core/Mesh.hpp"
+#include "lighting/Lightmap.hpp"
+#include "maths/aabb.hpp"
+#include "maths/rays.hpp"
+#include "maths/voxmaths.hpp"
+#include "objects/Entities.hpp"
+#include "world/Level.hpp"
+#include "world/LevelEvents.hpp"
 #include "Block.hpp"
 #include "Chunk.hpp"
 #include "WorldGenerator.hpp"
@@ -656,7 +656,7 @@ void Chunks::translate(int32_t dx, int32_t dz) {
     }
     for (uint32_t z = 0; z < d; z++) {
         for (uint32_t x = 0; x < w; x++) {
-            auto chunk = chunks[z * w + x];
+            auto& chunk = chunks[z * w + x];
             int nx = x - dx;
             int nz = z - dz;
             if (chunk == nullptr) continue;

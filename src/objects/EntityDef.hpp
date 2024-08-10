@@ -1,13 +1,12 @@
-#ifndef OBJECTS_ENTITY_DEF_HPP_
-#define OBJECTS_ENTITY_DEF_HPP_
+#pragma once
 
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
 
-#include <typedefs.hpp>
-#include <maths/aabb.hpp>
-#include <physics/Hitbox.hpp>
+#include "typedefs.hpp"
+#include "maths/aabb.hpp"
+#include "physics/Hitbox.hpp"
 
 namespace rigging {
     class SkeletonConfig;
@@ -58,5 +57,3 @@ struct EntityDef {
     EntityDef(const std::string& name) : name(name) {}
     EntityDef(const EntityDef&) = delete;
 };
-
-#endif // OBJECTS_ENTITY_DEF_HPP_

@@ -1,5 +1,4 @@
-#ifndef LOGIC_LEVEL_CONTROLLER_HPP_
-#define LOGIC_LEVEL_CONTROLLER_HPP_
+#pragma once
 
 #include <memory>
 
@@ -37,5 +36,3 @@ public:
     BlocksController* getBlocksController();
     PlayerController* getPlayerController();
 };
-
-#endif  // LOGIC_LEVEL_CONTROLLER_HPP_

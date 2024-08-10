@@ -1,12 +1,11 @@
-#ifndef SETTINGS_HPP_
-#define SETTINGS_HPP_
+#pragma once
 
 #include <string>
 #include <unordered_map>
 
-#include <data/setting.hpp>
-#include <constants.hpp>
-#include <typedefs.hpp>
+#include "data/setting.hpp"
+#include "constants.hpp"
+#include "typedefs.hpp"
 
 struct AudioSettings {
     /// @brief try to initialize AL backend
@@ -87,5 +86,3 @@ struct EngineSettings {
     DebugSettings debug;
     UiSettings ui;
 };
-
-#endif // SETTINGS_HPP_

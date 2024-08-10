@@ -1,5 +1,4 @@
-#ifndef FRONTEND_SCREENS_MENU_SCREEN_HPP_
-#define FRONTEND_SCREENS_MENU_SCREEN_HPP_
+#pragma once
 
 #include "Screen.hpp"
 
@@ -17,6 +16,3 @@ public:
     void update(float delta) override;
     void draw(float delta) override;
 };
-
-
-#endif // FRONTEND_SCREENS_MENU_SCREEN_HPP_

@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_UI_ELEMENTS_COMMONS_HPP_
-#define GRAPHICS_UI_ELEMENTS_COMMONS_HPP_
+#pragma once
 
 #include <functional>
 
@@ -16,5 +15,3 @@ namespace gui {
         int repeat;
     };
 }
-
-#endif // GRAPHICS_UI_ELEMENTS_COMMONS_HPP_

@@ -3,14 +3,7 @@
 #include <assert.h>
 #include <stdexcept>
 #include <cstring>
-
-inline int min(int a, int b) {
-    return (a < b) ? a : b;
-}
-
-inline int max(int a, int b) {
-    return (a > b) ? a : b;
-}
+#include <algorithm>
 
 ImageData::ImageData(ImageFormat format, uint width, uint height) 
     : format(format), width(width), height(height) {
@@ -49,10 +42,11 @@ void ImageData::flipX() {
         case ImageFormat::rgba8888: {
             uint size = (format == ImageFormat::rgba8888) ? 4 : 3;
             for (uint y = 0; y < height; y++) {
-                for (uint x = 0; x < width/2; x++) {
+                for (uint x = 0; x < width / 2; x++) {
                     for (uint c = 0; c < size; c++) {
                         ubyte temp = data[(y * width + x) * size + c];
-                        data[(y * width + x) * size + c] = data[(y * width + (width - x - 1)) * size + c];
+                        data[(y * width + x) * size + c] =
+                            data[(y * width + (width - x - 1)) * size + c];
                         data[(y * width + (width - x - 1)) * size + c] = temp;
                     }
                 }
@@ -104,8 +98,12 @@ void ImageData::blitRGB_on_RGBA(const ImageData* image, int x, int y) {
     uint srcwidth = image->getWidth();
     uint srcheight = image->getHeight();
 
-    for (uint srcy = max(0, -y); (int)srcy < min(srcheight, height-y); srcy++) {
-        for (uint srcx = max(0, -x); (int)srcx < min(srcwidth, width-x); srcx++) {
+    for (uint srcy = std::max(0, -y);
+         srcy < std::min(srcheight, height - y);
+         srcy++) {
+        for (uint srcx = std::max(0, -x);
+             srcx < std::min(srcwidth, width - x);
+             srcx++) {
             uint dstx = srcx + x;
             uint dsty = srcy + y;
             uint dstidx = (dsty * width + dstx) * 4;
@@ -130,8 +128,12 @@ void ImageData::blitMatchingFormat(const ImageData* image, int x, int y) {
     uint srcwidth = image->getWidth();
     uint srcheight = image->getHeight();
 
-    for (uint srcy = max(0, -y); (int)srcy < min(srcheight, height-y); srcy++) {
-        for (uint srcx = max(0, -x); (int)srcx < min(srcwidth, width-x); srcx++) {
+    for (uint srcy = std::max(0, -y);
+         srcy < std::min(srcheight, height - y);
+         srcy++) {
+        for (uint srcx = std::max(0, -x);
+             srcx < std::min(srcwidth, width - x);
+             srcx++) {
             uint dstx = srcx + x;
             uint dsty = srcy + y;
             uint dstidx = (dsty * width + dstx) * comps;
@@ -156,7 +158,8 @@ void ImageData::extrude(int x, int y, int w, int h) {
     int rx = x + w - 1;
     int ry = y + h - 1;
     // top-left pixel
-    if (x > 0 && (uint)x < width && y > 0 && (uint)y < height) {
+    if (x > 0 && static_cast<uint>(x) < width && 
+        y > 0 && static_cast<uint>(y) < height) {
         uint srcidx = (y * width + x) * comps;
         uint dstidx = ((y - 1) * width + x - 1) * comps;
         for (uint c = 0; c < comps; c++) {
@@ -165,7 +168,8 @@ void ImageData::extrude(int x, int y, int w, int h) {
     }
     
     // top-right pixel
-    if (rx >= 0 && (uint)rx < width-1 && y > 0 && (uint)y < height) {
+    if (rx >= 0 && static_cast<uint>(rx) < width-1 && 
+          y > 0 && static_cast<uint>(y) < height) {
         uint srcidx = (y * width + rx) * comps;
         uint dstidx = ((y - 1) * width + rx + 1) * comps;
         for (uint c = 0; c < comps; c++) {
@@ -174,7 +178,8 @@ void ImageData::extrude(int x, int y, int w, int h) {
     }
 
     // bottom-left pixel
-    if (x > 0 && (uint)x < width && ry >= 0 && (uint)ry < height-1) {
+    if (x > 0 && static_cast<uint>(x) < width && 
+        ry >= 0 && static_cast<uint>(ry) < height-1) {
         uint srcidx = (ry * width + x) * comps;
         uint dstidx = ((ry + 1) * width + x - 1) * comps;
         for (uint c = 0; c < comps; c++) {
@@ -183,7 +188,8 @@ void ImageData::extrude(int x, int y, int w, int h) {
     }
     
     // bottom-right pixel
-    if (rx >= 0 && (uint)rx < width-1 && ry >= 0 && (uint)ry < height-1) {
+    if (rx >= 0 && static_cast<uint>(rx) < width-1 && 
+        ry >= 0 && static_cast<uint>(ry) < height-1) {
         uint srcidx = (ry * width + rx) * comps;
         uint dstidx = ((ry + 1) * width + rx + 1) * comps;
         for (uint c = 0; c < comps; c++) {
@@ -192,8 +198,8 @@ void ImageData::extrude(int x, int y, int w, int h) {
     }
 
     // left border
-    if (x > 0 && (uint)x < width) {
-        for (uint ey = max(y, 0); (int)ey < y + h; ey++) {
+    if (x > 0 && static_cast<uint>(x) < width) {
+        for (uint ey = std::max(y, 0); static_cast<int>(ey) < y + h; ey++) {
             uint srcidx = (ey * width + x) * comps;
             uint dstidx = (ey * width + x - 1) * comps;
             for (uint c = 0; c < comps; c++) {
@@ -203,8 +209,8 @@ void ImageData::extrude(int x, int y, int w, int h) {
     }
 
     // top border
-    if (y > 0 && (uint)y < height) {
-        for (uint ex = max(x, 0); (int)ex < x + w; ex++) {
+    if (y > 0 && static_cast<uint>(y) < height) {
+        for (uint ex = std::max(x, 0); static_cast<int>(ex) < x + w; ex++) {
             uint srcidx = (y * width + ex) * comps;
             uint dstidx = ((y-1) * width + ex) * comps;
             for (uint c = 0; c < comps; c++) {
@@ -214,8 +220,8 @@ void ImageData::extrude(int x, int y, int w, int h) {
     }
     
     // right border
-    if (rx >= 0 && (uint)rx < width-1) {
-        for (uint ey = max(y, 0); (int)ey < y + h; ey++) {
+    if (rx >= 0 && static_cast<uint>(rx) < width-1) {
+        for (uint ey = std::max(y, 0); static_cast<int>(ey) < y + h; ey++) {
             uint srcidx = (ey * width + rx) * comps;
             uint dstidx = (ey * width + rx + 1) * comps;
             for (uint c = 0; c < comps; c++) {
@@ -225,8 +231,8 @@ void ImageData::extrude(int x, int y, int w, int h) {
     }
 
     // bottom border
-    if (ry >= 0 && (uint)ry < height-1) {
-        for (uint ex = max(x, 0); (int)ex < x + w; ex++) {
+    if (ry >= 0 && static_cast<uint>(ry) < height-1) {
+        for (uint ex = std::max(x, 0); static_cast<int>(ex) < x + w; ex++) {
             uint srcidx = (ry * width + ex) * comps;
             uint dstidx = ((ry+1) * width + ex) * comps;
             for (uint c = 0; c < comps; c++) {
@@ -275,8 +281,8 @@ std::unique_ptr<ImageData> add_atlas_margins(ImageData* image, int grid_size) {
             int doy = 1 + row * (imgres + 2);
             for (int ly = -1; ly <= imgres; ly++) {
                 for (int lx = -1; lx <= imgres; lx++) {
-                    int sy = max(min(ly, imgres-1), 0);
-                    int sx = max(min(lx, imgres-1), 0);
+                    int sy = std::max(std::min(ly, imgres-1), 0);
+                    int sx = std::max(std::min(lx, imgres-1), 0);
                     for (int c = 0; c < 4; c++)
                         dstdata[((doy+ly) * dstwidth + dox + lx) * 4 + c] = 
                            srcdata[((soy+sy) * srcwidth + sox + sx) * 4 + c];

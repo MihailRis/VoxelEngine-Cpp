@@ -1,7 +1,6 @@
-#ifndef FRONTEND_SCREENS_SCREEN_HPP_
-#define FRONTEND_SCREENS_SCREEN_HPP_
+#pragma once
 
-#include <util/ObjectsKeeper.hpp>
+#include "util/ObjectsKeeper.hpp"
 
 class Engine;
 class Batch2D;
@@ -18,5 +17,3 @@ public:
     virtual void draw(float delta) = 0;
     virtual void onEngineShutdown() {};
 };
-
-#endif // FRONTEND_SCREENS_SCREEN_HPP_

@@ -1,14 +1,13 @@
-#ifndef CONTENT_CONTENT_LUT_HPP_
-#define CONTENT_CONTENT_LUT_HPP_
+#pragma once
 
 #include <filesystem>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include <constants.hpp>
-#include <data/dynamic.hpp>
-#include <typedefs.hpp>
+#include "constants.hpp"
+#include "data/dynamic.hpp"
+#include "typedefs.hpp"
 #include "Content.hpp"
 
 namespace fs = std::filesystem;
@@ -113,5 +112,3 @@ public:
 
     std::vector<contententry> getMissingContent() const;
 };
-
-#endif  // CONTENT_CONTENT_LUT_HPP_

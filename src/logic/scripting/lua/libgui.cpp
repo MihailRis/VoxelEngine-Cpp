@@ -1,20 +1,20 @@
-#include <assets/Assets.hpp>
-#include <engine.hpp>
-#include <frontend/UiDocument.hpp>
-#include <frontend/locale.hpp>
-#include <graphics/ui/elements/Button.hpp>
-#include <graphics/ui/elements/CheckBox.hpp>
-#include <graphics/ui/elements/Image.hpp>
-#include <graphics/ui/elements/InventoryView.hpp>
-#include <graphics/ui/elements/Menu.hpp>
-#include <graphics/ui/elements/Panel.hpp>
-#include <graphics/ui/elements/TextBox.hpp>
-#include <graphics/ui/elements/TrackBar.hpp>
-#include <graphics/ui/elements/UINode.hpp>
-#include <graphics/ui/gui_util.hpp>
-#include <items/Inventories.hpp>
-#include <util/stringutil.hpp>
-#include <world/Level.hpp>
+#include "assets/Assets.hpp"
+#include "engine.hpp"
+#include "frontend/UiDocument.hpp"
+#include "frontend/locale.hpp"
+#include "graphics/ui/elements/Button.hpp"
+#include "graphics/ui/elements/CheckBox.hpp"
+#include "graphics/ui/elements/Image.hpp"
+#include "graphics/ui/elements/InventoryView.hpp"
+#include "graphics/ui/elements/Menu.hpp"
+#include "graphics/ui/elements/Panel.hpp"
+#include "graphics/ui/elements/TextBox.hpp"
+#include "graphics/ui/elements/TrackBar.hpp"
+#include "graphics/ui/elements/UINode.hpp"
+#include "graphics/ui/gui_util.hpp"
+#include "items/Inventories.hpp"
+#include "util/stringutil.hpp"
+#include "world/Level.hpp"
 #include "api_lua.hpp"
 
 using namespace gui;

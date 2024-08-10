@@ -5,11 +5,11 @@
 #include <stdexcept>
 #include <utility>
 
-#include <items/ItemDef.hpp>
-#include <logic/scripting/scripting.hpp>
-#include <objects/EntityDef.hpp>
-#include <objects/rigging.hpp>
-#include <voxels/Block.hpp>
+#include "items/ItemDef.hpp"
+#include "logic/scripting/scripting.hpp"
+#include "objects/EntityDef.hpp"
+#include "objects/rigging.hpp"
+#include "voxels/Block.hpp"
 #include "ContentPack.hpp"
 
 ContentIndices::ContentIndices(

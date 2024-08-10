@@ -1,11 +1,10 @@
-#ifndef ITEMS_INVENTORY_HPP_
-#define ITEMS_INVENTORY_HPP_
+#pragma once
 
 #include <memory>
 #include <vector>
 
-#include <interfaces/Serializable.hpp>
-#include <typedefs.hpp>
+#include "interfaces/Serializable.hpp"
+#include "typedefs.hpp"
 #include "ItemStack.hpp"
 
 namespace dynamic {
@@ -59,5 +58,3 @@ public:
 
     static const size_t npos;
 };
-
-#endif  // ITEMS_INVENTORY_HPP_

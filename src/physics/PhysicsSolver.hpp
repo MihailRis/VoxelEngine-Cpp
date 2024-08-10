@@ -1,10 +1,9 @@
-#ifndef PHYSICS_PHYSICSSOLVER_HPP_
-#define PHYSICS_PHYSICSSOLVER_HPP_
+#pragma once
 
 #include "Hitbox.hpp"
 
-#include <typedefs.hpp>
-#include <voxels/voxel.hpp>
+#include "typedefs.hpp"
+#include "voxels/voxel.hpp"
 
 #include <vector>
 #include <glm/glm.hpp>
@@ -42,5 +41,3 @@ public:
 
     void removeSensor(Sensor* sensor);
 };
-
-#endif // PHYSICS_PHYSICSSOLVER_HPP_

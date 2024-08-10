@@ -1,7 +1,6 @@
-#ifndef GRAPHICS_RENDER_MODEL_BATCH_HPP_
-#define GRAPHICS_RENDER_MODEL_BATCH_HPP_
+#pragma once
 
-#include <maths/UVRegion.hpp>
+#include "maths/UVRegion.hpp"
 
 #include <memory>
 #include <vector>
@@ -90,5 +89,3 @@ public:
               const texture_names_map* varTextures);
     void render();
 };
-
-#endif // GRAPHICS_RENDER_MODEL_BATCH_HPP_

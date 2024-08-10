@@ -1,9 +1,8 @@
-#ifndef CODERS_TOML_HPP_
-#define CODERS_TOML_HPP_
+#pragma once
 
 #include <string>
 
-#include <data/dynamic.hpp>
+#include "data/dynamic.hpp"
 
 class SettingsHandler;
 
@@ -16,5 +15,3 @@ namespace toml {
         SettingsHandler& handler, std::string_view file, std::string_view source
     );
 }
-
-#endif  // CODERS_TOML_HPP_

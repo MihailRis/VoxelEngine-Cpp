@@ -1,6 +1,6 @@
 #include "Lightmap.hpp"
 
-#include <util/data_io.hpp>
+#include "util/data_io.hpp"
 
 #include <assert.h>
 

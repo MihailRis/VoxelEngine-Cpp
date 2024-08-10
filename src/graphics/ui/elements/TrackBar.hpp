@@ -1,8 +1,7 @@
-#ifndef GRAPHICS_UI_ELEMENTS_TRACKBAR_HPP_
-#define GRAPHICS_UI_ELEMENTS_TRACKBAR_HPP_
+#pragma once
 
 #include "UINode.hpp"
-#include <data/dynamic_fwd.hpp>
+#include "data/dynamic_fwd.hpp"
 
 namespace gui {
     class TrackBar : public UINode {
@@ -49,5 +48,3 @@ namespace gui {
         virtual void setChangeOnRelease(bool);
     };
 }
-
-#endif // GRAPHICS_UI_ELEMENTS_TRACKBAR_HPP_

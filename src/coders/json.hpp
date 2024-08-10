@@ -1,10 +1,9 @@
-#ifndef CODERS_JSON_HPP_
-#define CODERS_JSON_HPP_
+#pragma once
 
 #include <string>
 
-#include <data/dynamic.hpp>
-#include <typedefs.hpp>
+#include "data/dynamic.hpp"
+#include "typedefs.hpp"
 #include "binary_json.hpp"
 
 namespace json {
@@ -19,5 +18,3 @@ namespace json {
         const dynamic::Value& value, bool nice, const std::string& indent
     );
 }
-
-#endif  // CODERS_JSON_HPP_

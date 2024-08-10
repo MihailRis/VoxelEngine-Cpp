@@ -1,5 +1,4 @@
-#ifndef FILES_WORLD_REGIONS_HPP_
-#define FILES_WORLD_REGIONS_HPP_
+#pragma once
 
 #include <condition_variable>
 #include <filesystem>
@@ -9,13 +8,14 @@
 #include <mutex>
 #include <unordered_map>
 
-#include <data/dynamic_fwd.hpp>
-#include <typedefs.hpp>
-#include <util/BufferPool.hpp>
-#include <voxels/Chunk.hpp>
+#include "data/dynamic_fwd.hpp"
+#include "typedefs.hpp"
+#include "util/BufferPool.hpp"
+#include "voxels/Chunk.hpp"
 #include "files.hpp"
+
 #define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/hash.hpp"
+#include <glm/gtx/hash.hpp>
 
 namespace fs = std::filesystem;
 
@@ -213,5 +213,3 @@ public:
     /// @return false if std::invalid_argument or std::out_of_range occurred
     static bool parseRegionFilename(const std::string& name, int& x, int& y);
 };
-
-#endif  // FILES_WORLD_REGIONS_HPP_

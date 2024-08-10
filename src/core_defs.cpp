@@ -1,14 +1,14 @@
 #include "core_defs.hpp"
 
-#include <items/ItemDef.hpp>
-#include <content/Content.hpp>
-#include <content/ContentBuilder.hpp>
-#include <files/files.hpp>
-#include <files/engine_paths.hpp>
-#include <window/Window.hpp>
-#include <window/Events.hpp>
-#include <window/input.hpp>
-#include <voxels/Block.hpp>
+#include "items/ItemDef.hpp"
+#include "content/Content.hpp"
+#include "content/ContentBuilder.hpp"
+#include "files/files.hpp"
+#include "files/engine_paths.hpp"
+#include "window/Window.hpp"
+#include "window/Events.hpp"
+#include "window/input.hpp"
+#include "voxels/Block.hpp"
 
 // All in-game definitions (blocks, items, etc..)
 void corecontent::setup(EnginePaths* paths, ContentBuilder* builder) {

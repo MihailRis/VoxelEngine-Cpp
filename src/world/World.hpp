@@ -1,16 +1,15 @@
-#ifndef WORLD_WORLD_HPP_
-#define WORLD_WORLD_HPP_
+#pragma once
 
 #include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include <content/ContentPack.hpp>
-#include <data/dynamic.hpp>
-#include <interfaces/Serializable.hpp>
-#include <typedefs.hpp>
-#include <util/timeutil.hpp>
+#include "content/ContentPack.hpp"
+#include "data/dynamic.hpp"
+#include "interfaces/Serializable.hpp"
+#include "typedefs.hpp"
+#include "util/timeutil.hpp"
 
 class Content;
 class WorldFiles;
@@ -152,5 +151,3 @@ public:
     std::unique_ptr<dynamic::Map> serialize() const override;
     void deserialize(dynamic::Map* src) override;
 };
-
-#endif  // WORLD_WORLD_HPP_

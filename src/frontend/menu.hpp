@@ -1,8 +1,7 @@
-#ifndef FRONTEND_MENU_MENU_HPP_
-#define FRONTEND_MENU_MENU_HPP_
+#pragma once
 
-#include <data/dynamic.hpp>
-#include <graphics/ui/elements/Menu.hpp>
+#include "data/dynamic.hpp"
+#include "graphics/ui/elements/Menu.hpp"
 
 #include <string>
 #include <vector>
@@ -29,5 +28,3 @@ namespace menus {
 
     bool call(Engine* engine, runnable func);
 }
-
-#endif // FRONTEND_MENU_MENU_HPP_
