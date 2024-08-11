@@ -17,7 +17,7 @@ struct contententry {
     std::string name;
 };
 
-struct WorldFiles;
+class WorldFiles;
 
 template <typename T, class U>
 class ContentUnitLUT {

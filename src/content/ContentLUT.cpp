@@ -27,7 +27,8 @@ static constexpr size_t get_entries_count(
 
 std::shared_ptr<ContentLUT> ContentLUT::create(
     const std::shared_ptr<WorldFiles>& worldFiles,
-    const fs::path& filename, const Content* content
+    const fs::path& filename, 
+    const Content* content
 ) {
     auto worldInfo = worldFiles->readWorldInfo();
     if (!worldInfo.has_value()) {
