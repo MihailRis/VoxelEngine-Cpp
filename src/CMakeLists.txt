@@ -63,5 +63,6 @@ if(UNIX)
     set(LIBS ${LIBS} Threads::Threads)
 endif()
 
+include_directories(${LUA_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ZLIB::ZLIB ${VORBISLIB} ${PNGLIB} ${LUA_LIBRARIES} ${CMAKE_DL_LIBS})
