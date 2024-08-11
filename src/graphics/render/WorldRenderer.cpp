@@ -161,7 +161,7 @@ void WorldRenderer::setupWorldShader(
     shader->uniform1f("u_gamma", settings.graphics.gamma.get());
     shader->uniform1f("u_fogFactor", fogFactor);
     shader->uniform1f("u_fogCurve", settings.graphics.fogCurve.get());
-    shader->uniform1f("u_dayTime", level->getWorld()->daytime);
+    shader->uniform1f("u_dayTime", level->getWorld()->getInfo().daytime);
     shader->uniform3f("u_cameraPos", camera->position);
     shader->uniform1i("u_cubemap", 1);
 
@@ -338,8 +338,10 @@ void WorldRenderer::draw(
     const Viewport& vp = pctx.getViewport();
     camera->aspect = vp.getWidth() / static_cast<float>(vp.getHeight());
 
-    const EngineSettings& settings = engine->getSettings();
-    skybox->refresh(pctx, world->daytime, 1.0f + world->fog * 2.0f, 4);
+    const auto& settings = engine->getSettings();
+    const auto& worldInfo = world->getInfo();
+
+    skybox->refresh(pctx, worldInfo.daytime, 1.0f + worldInfo.fog * 2.0f, 4);
 
     auto assets = engine->getAssets();
     auto linesShader = assets->get<Shader>("lines");
@@ -352,7 +354,7 @@ void WorldRenderer::draw(
         Window::clearDepth();
 
         // Drawing background sky plane
-        skybox->draw(pctx, camera, assets, world->daytime, world->fog);
+        skybox->draw(pctx, camera, assets, worldInfo.daytime, worldInfo.fog);
 
         // Actually world render with depth buffer on
         {
@@ -375,7 +377,7 @@ void WorldRenderer::draw(
     auto screenShader = assets->get<Shader>("screen");
     screenShader->use();
     screenShader->uniform1f("u_timer", timer);
-    screenShader->uniform1f("u_dayTime", level->getWorld()->daytime);
+    screenShader->uniform1f("u_dayTime", worldInfo.daytime);
     postProcessing->render(pctx, screenShader);
 }
 

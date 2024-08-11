@@ -32,11 +32,11 @@ public:
 };
 
 WorldConverter::WorldConverter(
-    const fs::path& folder,
+    const std::shared_ptr<WorldFiles>& worldFiles,
     const Content* content,
     std::shared_ptr<ContentLUT> lut
 )
-    : wfile(std::make_unique<WorldFiles>(folder)),
+    : wfile(worldFiles),
       lut(std::move(lut)),
       content(content) {
     fs::path regionsFolder =
@@ -56,13 +56,13 @@ WorldConverter::~WorldConverter() {
 }
 
 std::shared_ptr<Task> WorldConverter::startTask(
-    const fs::path& folder,
+    const std::shared_ptr<WorldFiles>& worldFiles,
     const Content* content,
     const std::shared_ptr<ContentLUT>& lut,
     const runnable& onDone,
     bool multithreading
 ) {
-    auto converter = std::make_shared<WorldConverter>(folder, content, lut);
+    auto converter = std::make_shared<WorldConverter>(worldFiles, content, lut);
     if (!multithreading) {
         converter->setOnComplete([=]() {
             converter->write();

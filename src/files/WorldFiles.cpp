@@ -76,7 +76,7 @@ fs::path WorldFiles::getPacksFile() const {
 
 void WorldFiles::write(const World* world, const Content* content) {
     if (world) {
-        writeWorldInfo(world);
+        writeWorldInfo(world->getInfo());
         if (!fs::exists(getPacksFile())) {
             writePacks(world->getPacks());
         }
@@ -116,19 +116,20 @@ void WorldFiles::writeIndices(const ContentIndices* indices) {
     files::write_json(getIndicesFile(), &root);
 }
 
-void WorldFiles::writeWorldInfo(const World* world) {
-    files::write_json(getWorldFile(), world->serialize().get());
+void WorldFiles::writeWorldInfo(const WorldInfo& info) {
+    files::write_json(getWorldFile(), info.serialize().get());
 }
 
-bool WorldFiles::readWorldInfo(World* world) {
+std::optional<WorldInfo> WorldFiles::readWorldInfo() {
     fs::path file = getWorldFile();
     if (!fs::is_regular_file(file)) {
         logger.warning() << "world.json does not exists";
-        return false;
+        return std::nullopt;
     }
     auto root = files::read_json(file);
-    world->deserialize(root.get());
-    return true;
+    WorldInfo info {};
+    info.deserialize(root.get());
+    return info;
 }
 
 static void read_resources_data(

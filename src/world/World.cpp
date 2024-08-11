@@ -26,29 +26,22 @@ world_load_error::world_load_error(const std::string& message)
 }
 
 World::World(
-    std::string name,
-    std::string generator,
-    const fs::path& directory,
-    uint64_t seed,
-    EngineSettings& settings,
+    WorldInfo info,
+    const std::shared_ptr<WorldFiles>& worldFiles,
     const Content* content,
     const std::vector<ContentPack>& packs
-)
-    : name(std::move(name)),
-      generator(std::move(generator)),
-      seed(seed),
-      content(content),
-      packs(packs),
-      wfile(std::make_unique<WorldFiles>(directory, settings.debug)) {
-}
+) : info(std::move(info)),
+    content(content),
+    packs(packs),
+    wfile(std::move(worldFiles)) {}
 
 World::~World() {
 }
 
 void World::updateTimers(float delta) {
-    daytime += delta * daytimeSpeed * DAYIME_SPECIFIC_SPEED;
-    daytime = fmod(daytime, 1.0f);
-    totalTime += delta;
+    info.daytime += delta * info.daytimeSpeed * DAYIME_SPECIFIC_SPEED;
+    info.daytime = std::fmod(info.daytime, 1.0f);
+    info.totalTime += delta;
 }
 
 void World::writeResources(const Content* content) {
@@ -71,7 +64,7 @@ void World::writeResources(const Content* content) {
 void World::write(Level* level) {
     const Content* content = level->content;
     level->chunks->saveAll();
-    nextEntityId = level->entities->peekNextID();
+    info.nextEntityId = level->entities->peekNextID();
     wfile->write(this, content);
 
     auto playerFile = dynamic::Map();
@@ -95,32 +88,39 @@ std::unique_ptr<Level> World::create(
     const Content* content,
     const std::vector<ContentPack>& packs
 ) {
+    WorldInfo info {};
+    info.name = name;
+    info.generator = generator;
+    info.seed = seed;
     auto world = std::make_unique<World>(
-        name, generator, directory, seed, settings, content, packs
+        info,
+        std::make_unique<WorldFiles>(directory, settings.debug),
+        content,
+        packs
     );
     return std::make_unique<Level>(std::move(world), content, settings);
 }
 
 std::unique_ptr<Level> World::load(
-    const fs::path& directory,
+    const std::shared_ptr<WorldFiles>& worldFilesPtr,
     EngineSettings& settings,
     const Content* content,
     const std::vector<ContentPack>& packs
 ) {
+    auto worldFiles = worldFilesPtr.get();
+    auto info = worldFiles->readWorldInfo();
+    if (!info.has_value()) {
+        throw world_load_error("could not to find world.json");
+    }
+    logger.info() << "world version: " << info->major << "." << info->minor;
+
     auto world = std::make_unique<World>(
-        ".",
-        WorldGenerators::getDefaultGeneratorID(),
-        directory,
-        0,
-        settings,
+        info.value(),
+        std::move(worldFilesPtr),
         content,
         packs
     );
     auto& wfile = world->wfile;
-
-    if (!wfile->readWorldInfo(world.get())) {
-        throw world_load_error("could not to find world.json");
-    }
     wfile->readResourcesData(content);
 
     auto level = std::make_unique<Level>(std::move(world), content, settings);
@@ -155,21 +155,21 @@ std::unique_ptr<Level> World::load(
 }
 
 std::shared_ptr<ContentLUT> World::checkIndices(
-    const fs::path& directory, const Content* content
+    const std::shared_ptr<WorldFiles>& worldFiles, const Content* content
 ) {
-    fs::path indicesFile = directory / fs::path("indices.json");
+    fs::path indicesFile = worldFiles->getIndicesFile();
     if (fs::is_regular_file(indicesFile)) {
-        return ContentLUT::create(indicesFile, content);
+        return ContentLUT::create(worldFiles, indicesFile, content);
     }
     return nullptr;
 }
 
 void World::setName(const std::string& name) {
-    this->name = name;
+    this->info.name = name;
 }
 
 void World::setGenerator(const std::string& generator) {
-    this->generator = generator;
+    this->info.generator = generator;
 }
 
 bool World::hasPack(const std::string& id) const {
@@ -180,26 +180,26 @@ bool World::hasPack(const std::string& id) const {
 }
 
 void World::setSeed(uint64_t seed) {
-    this->seed = seed;
+    this->info.seed = seed;
 }
 
 std::string World::getName() const {
-    return name;
+    return info.name;
 }
 
 uint64_t World::getSeed() const {
-    return seed;
+    return info.seed;
 }
 
 std::string World::getGenerator() const {
-    return generator;
+    return info.generator;
 }
 
 const std::vector<ContentPack>& World::getPacks() const {
     return packs;
 }
 
-void World::deserialize(dynamic::Map* root) {
+void WorldInfo::deserialize(dynamic::Map* root) {
     name = root->get("name", name);
     generator = root->get("generator", generator);
     seed = root->get("seed", seed);
@@ -208,10 +208,8 @@ void World::deserialize(dynamic::Map* root) {
         generator = WorldGenerators::getDefaultGeneratorID();
     }
     if (auto verobj = root->map("version")) {
-        int major = 0, minor = -1;
         verobj->num("major", major);
         verobj->num("minor", minor);
-        logger.info() << "world version: " << major << "." << minor;
     }
     if (auto timeobj = root->map("time")) {
         timeobj->num("day-time", daytime);
@@ -225,7 +223,7 @@ void World::deserialize(dynamic::Map* root) {
     nextEntityId = root->get("next-entity-id", 1);
 }
 
-std::unique_ptr<dynamic::Map> World::serialize() const {
+std::unique_ptr<dynamic::Map> WorldInfo::serialize() const {
     auto root = std::make_unique<dynamic::Map>();
 
     auto& versionobj = root->putMap("version");

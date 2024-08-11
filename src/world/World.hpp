@@ -24,19 +24,11 @@ public:
     world_load_error(const std::string& message);
 };
 
-/// @brief holds all world data except the level (chunks and objects)
-class World : Serializable {
+struct WorldInfo : public Serializable {
     std::string name;
     std::string generator;
     uint64_t seed;
-    const Content* const content;
-    std::vector<ContentPack> packs;
-
     int64_t nextInventoryId = 0;
-
-    void writeResources(const Content* content);
-public:
-    std::unique_ptr<WorldFiles> wfile;
 
     /// @brief Day/night loop timer in range 0..1 where
     /// 0.0 - is midnight and
@@ -54,12 +46,28 @@ public:
 
     entityid_t nextEntityId = 0;
 
+    int major = 0, minor = -1;
+
+    std::unique_ptr<dynamic::Map> serialize() const override;
+    void deserialize(dynamic::Map* src) override;
+};
+
+/// @brief holds all world data except the level (chunks and objects)
+class World {
+    WorldInfo info {};
+
+    const Content* const content;
+    std::vector<ContentPack> packs;
+
+    int64_t nextInventoryId = 0;
+
+    void writeResources(const Content* content);
+public:
+    std::shared_ptr<WorldFiles> wfile;
+
     World(
-        std::string name,
-        std::string generator,
-        const fs::path& directory,
-        uint64_t seed,
-        EngineSettings& settings,
+        WorldInfo info,
+        const std::shared_ptr<WorldFiles>& worldFiles,
         const Content* content,
         const std::vector<ContentPack>& packs
     );
@@ -78,7 +86,7 @@ public:
     /// @param content current Content instance
     /// @return ContentLUT if world convert required else nullptr
     static std::shared_ptr<ContentLUT> checkIndices(
-        const fs::path& directory, const Content* content
+        const std::shared_ptr<WorldFiles>& worldFiles, const Content* content
     );
 
     /// @brief Create new world
@@ -102,7 +110,7 @@ public:
     );
 
     /// @brief Load an existing world
-    /// @param directory root world directory
+    /// @param worldFiles world files manager
     /// @param settings current engine settings
     /// @param content current engine Content instance
     /// with all world content-packs applied
@@ -110,7 +118,7 @@ public:
     /// @return Level instance containing World instance
     /// @throws world_load_error on world.json load error
     static std::unique_ptr<Level> load(
-        const fs::path& directory,
+        const std::shared_ptr<WorldFiles>& worldFiles,
         EngineSettings& settings,
         const Content* content,
         const std::vector<ContentPack>& packs
@@ -134,6 +142,14 @@ public:
     /// @brief Get world generator id
     std::string getGenerator() const;
 
+    WorldInfo& getInfo() {
+        return info;
+    }
+
+    const WorldInfo& getInfo() const {
+        return info;
+    }
+
     /// @brief Get vector of all content-packs installed in world
     const std::vector<ContentPack>& getPacks() const;
 
@@ -147,7 +163,4 @@ public:
     const Content* getContent() const {
         return content;
     }
-
-    std::unique_ptr<dynamic::Map> serialize() const override;
-    void deserialize(dynamic::Map* src) override;
 };

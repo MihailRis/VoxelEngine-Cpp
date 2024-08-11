@@ -17,6 +17,8 @@ struct contententry {
     std::string name;
 };
 
+class WorldFiles;
+
 template <typename T, class U>
 class ContentUnitLUT {
     std::vector<T> indices;
@@ -100,7 +102,9 @@ public:
     ContentLUT(const ContentIndices* indices, size_t blocks, size_t items);
 
     static std::shared_ptr<ContentLUT> create(
-        const fs::path& filename, const Content* content
+        const std::shared_ptr<WorldFiles>& worldFiles,
+        const fs::path& filename,
+        const Content* content
     );
 
     inline bool hasContentReorder() const {
