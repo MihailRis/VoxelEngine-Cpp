@@ -83,7 +83,10 @@ void Font::draw(Batch2D* batch, std::wstring_view text, int x, int y, FontStyle 
             }
             uint charpage = c >> 8;
             if (charpage == page){
-                Texture* texture = pages[charpage].get();
+                Texture* texture = nullptr;
+                if (charpage < pages.size()) {
+                    texture = pages[charpage].get();
+                }
                 if (texture == nullptr){
                     texture = pages[0].get();
                 }
