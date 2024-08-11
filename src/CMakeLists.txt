@@ -8,6 +8,8 @@ list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/voxel_engine.cpp)
 
 add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
+option(VOXELENGINE_BUILD_WINDOWS_VCPKG ON)
+
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenAL REQUIRED)
