@@ -34,6 +34,7 @@ if (WIN32)
       set(VORBISLIB vorbis vorbisfile) # not tested
       add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glfw)
     endif()
+    message(${LUA_INCLUDE_DIR})
 elseif(APPLE)
     find_package(PkgConfig)
     pkg_check_modules(LUAJIT REQUIRED luajit)
