@@ -44,13 +44,13 @@ void EngineController::deleteWorld(const std::string& name) {
 
 std::shared_ptr<Task> create_converter(
     Engine* engine,
-    const fs::path& folder,
+    const std::shared_ptr<WorldFiles>& worldFiles,
     const Content* content,
     const std::shared_ptr<ContentLUT>& lut,
     const runnable& postRunnable
 ) {
     return WorldConverter::startTask(
-        folder,
+        worldFiles,
         content,
         lut,
         [=]() {
@@ -67,7 +67,7 @@ void show_convert_request(
     Engine* engine,
     const Content* content,
     const std::shared_ptr<ContentLUT>& lut,
-    const fs::path& folder,
+    const std::shared_ptr<WorldFiles>& worldFiles,
     const runnable& postRunnable
 ) {
     guiutil::confirm(
@@ -75,7 +75,7 @@ void show_convert_request(
         langs::get(L"world.convert-request"),
         [=]() {
             auto converter =
-                create_converter(engine, folder, content, lut, postRunnable);
+                create_converter(engine, worldFiles, content, lut, postRunnable);
             menus::show_process_panel(
                 engine, converter, L"Converting world..."
             );
@@ -106,13 +106,13 @@ static bool loadWorldContent(Engine* engine, const fs::path& folder) {
     });
 }
 
-static void loadWorld(Engine* engine, const fs::path& folder) {
+static void loadWorld(Engine* engine, const std::shared_ptr<WorldFiles>& worldFiles) {
     try {
         auto content = engine->getContent();
         auto& packs = engine->getContentPacks();
         auto& settings = engine->getSettings();
 
-        auto level = World::load(folder, settings, content, packs);
+        auto level = World::load(worldFiles, settings, content, packs);
         engine->setScreen(
             std::make_shared<LevelScreen>(engine, std::move(level))
         );
@@ -133,9 +133,9 @@ void EngineController::openWorld(const std::string& name, bool confirmConvert) {
     }
 
     auto* content = engine->getContent();
-
-    std::shared_ptr<ContentLUT> lut(World::checkIndices(folder, content));
-    if (lut) {
+    auto worldFiles = std::make_shared<WorldFiles>(
+        folder, engine->getSettings().debug);
+    if (auto lut = World::checkIndices(worldFiles, content)) {
         if (lut->hasMissingContent()) {
             engine->setScreen(std::make_shared<MenuScreen>(engine));
             show_content_missing(engine, lut);
@@ -145,7 +145,7 @@ void EngineController::openWorld(const std::string& name, bool confirmConvert) {
                     engine,
                     create_converter(
                         engine,
-                        folder,
+                        worldFiles,
                         content,
                         lut,
                         [=]() { openWorld(name, false); }
@@ -153,14 +153,14 @@ void EngineController::openWorld(const std::string& name, bool confirmConvert) {
                     L"Converting world..."
                 );
             } else {
-                show_convert_request(engine, content, lut, folder, [=]() {
+                show_convert_request(engine, content, lut, std::move(worldFiles), [=]() {
                     openWorld(name, false);
                 });
             }
         }
-    } else {
-        loadWorld(engine, folder);
+        return;
     }
+    loadWorld(engine, std::move(worldFiles));
 }
 
 inline uint64_t str2seed(const std::string& seedstr) {

@@ -63,11 +63,11 @@ class World {
 
     void writeResources(const Content* content);
 public:
-    std::unique_ptr<WorldFiles> wfile;
+    std::shared_ptr<WorldFiles> wfile;
 
     World(
         WorldInfo info,
-        std::unique_ptr<WorldFiles> wfile,
+        const std::shared_ptr<WorldFiles>& worldFiles,
         const Content* content,
         const std::vector<ContentPack>& packs
     );
@@ -86,7 +86,7 @@ public:
     /// @param content current Content instance
     /// @return ContentLUT if world convert required else nullptr
     static std::shared_ptr<ContentLUT> checkIndices(
-        const fs::path& directory, const Content* content
+        const std::shared_ptr<WorldFiles>& worldFiles, const Content* content
     );
 
     /// @brief Create new world
@@ -110,7 +110,7 @@ public:
     );
 
     /// @brief Load an existing world
-    /// @param directory root world directory
+    /// @param worldFiles world files manager
     /// @param settings current engine settings
     /// @param content current engine Content instance
     /// with all world content-packs applied
@@ -118,7 +118,7 @@ public:
     /// @return Level instance containing World instance
     /// @throws world_load_error on world.json load error
     static std::unique_ptr<Level> load(
-        const fs::path& directory,
+        const std::shared_ptr<WorldFiles>& worldFiles,
         EngineSettings& settings,
         const Content* content,
         const std::vector<ContentPack>& packs

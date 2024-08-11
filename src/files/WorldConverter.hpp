@@ -22,7 +22,7 @@ struct convert_task {
 };
 
 class WorldConverter : public Task {
-    std::unique_ptr<WorldFiles> wfile;
+    std::shared_ptr<WorldFiles> wfile;
     std::shared_ptr<ContentLUT> const lut;
     const Content* const content;
     std::queue<convert_task> tasks;
@@ -33,7 +33,7 @@ class WorldConverter : public Task {
     void convertRegion(const fs::path& file) const;
 public:
     WorldConverter(
-        const fs::path& folder,
+        const std::shared_ptr<WorldFiles>& worldFiles,
         const Content* content,
         std::shared_ptr<ContentLUT> lut
     );
@@ -52,7 +52,7 @@ public:
     uint getWorkDone() const override;
 
     static std::shared_ptr<Task> startTask(
-        const fs::path& folder,
+        const std::shared_ptr<WorldFiles>& worldFiles,
         const Content* content,
         const std::shared_ptr<ContentLUT>& lut,
         const runnable& onDone,

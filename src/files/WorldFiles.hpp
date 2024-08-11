@@ -34,7 +34,6 @@ class WorldFiles {
     bool doWriteLights = true;
 
     fs::path getWorldFile() const;
-    fs::path getIndicesFile() const;
     fs::path getPacksFile() const;
 
     void writeWorldInfo(const WorldInfo& info);
@@ -45,6 +44,7 @@ public:
     ~WorldFiles();
 
     fs::path getPlayerFile() const;
+    fs::path getIndicesFile() const;
     fs::path getResourcesFile() const;
     void createDirectories();
 

@@ -27,7 +27,7 @@ world_load_error::world_load_error(const std::string& message)
 
 World::World(
     WorldInfo info,
-    std::unique_ptr<WorldFiles> worldFiles,
+    const std::shared_ptr<WorldFiles>& worldFiles,
     const Content* content,
     const std::vector<ContentPack>& packs
 ) : info(std::move(info)),
@@ -102,12 +102,11 @@ std::unique_ptr<Level> World::create(
 }
 
 std::unique_ptr<Level> World::load(
-    const fs::path& directory,
+    const std::shared_ptr<WorldFiles>& worldFilesPtr,
     EngineSettings& settings,
     const Content* content,
     const std::vector<ContentPack>& packs
 ) {
-    auto worldFilesPtr = std::make_unique<WorldFiles>(directory, settings.debug);
     auto worldFiles = worldFilesPtr.get();
     auto info = worldFiles->readWorldInfo();
     if (!info.has_value()) {
@@ -156,11 +155,11 @@ std::unique_ptr<Level> World::load(
 }
 
 std::shared_ptr<ContentLUT> World::checkIndices(
-    const fs::path& directory, const Content* content
+    const std::shared_ptr<WorldFiles>& worldFiles, const Content* content
 ) {
-    fs::path indicesFile = directory / fs::path("indices.json");
+    fs::path indicesFile = worldFiles->getIndicesFile();
     if (fs::is_regular_file(indicesFile)) {
-        return ContentLUT::create(indicesFile, content);
+        return ContentLUT::create(worldFiles, indicesFile, content);
     }
     return nullptr;
 }

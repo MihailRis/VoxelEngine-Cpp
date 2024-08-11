@@ -20,12 +20,12 @@ regfile::regfile(fs::path filename) : file(std::move(filename)) {
     file.read(header, REGION_HEADER_SIZE);
 
     // avoid of use strcmp_s
-    if (std::string(header, strlen(REGION_FORMAT_MAGIC)) !=
+    if (std::string(header, std::strlen(REGION_FORMAT_MAGIC)) !=
         REGION_FORMAT_MAGIC) {
         throw std::runtime_error("invalid region file magic number");
     }
     version = header[8];
-    if (uint(version) > REGION_FORMAT_VERSION) {
+    if (static_cast<uint>(version) > REGION_FORMAT_VERSION) {
         throw illegal_region_format(
             "region format " + std::to_string(version) + " is not supported"
         );
