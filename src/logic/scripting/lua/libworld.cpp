@@ -42,27 +42,27 @@ static int l_world_get_list(lua::State* L) {
 }
 
 static int l_world_get_total_time(lua::State* L) {
-    return lua::pushnumber(L, level->getWorld()->totalTime);
+    return lua::pushnumber(L, level->getWorld()->getInfo().totalTime);
 }
 
 static int l_world_get_day_time(lua::State* L) {
-    return lua::pushnumber(L, level->getWorld()->daytime);
+    return lua::pushnumber(L, level->getWorld()->getInfo().daytime);
 }
 
 static int l_world_set_day_time(lua::State* L) {
     auto value = lua::tonumber(L, 1);
-    level->getWorld()->daytime = fmod(value, 1.0);
+    level->getWorld()->getInfo().daytime = std::fmod(value, 1.0);
     return 0;
 }
 
 static int l_world_set_day_time_speed(lua::State* L) {
     auto value = lua::tonumber(L, 1);
-    level->getWorld()->daytimeSpeed = std::abs(value);
+    level->getWorld()->getInfo().daytimeSpeed = std::abs(value);
     return 0;
 }
 
 static int l_world_get_day_time_speed(lua::State* L) {
-    return lua::pushnumber(L, level->getWorld()->daytimeSpeed);
+    return lua::pushnumber(L, level->getWorld()->getInfo().daytimeSpeed);
 }
 
 static int l_world_get_seed(lua::State* L) {
@@ -76,12 +76,12 @@ static int l_world_exists(lua::State* L) {
 }
 
 static int l_world_is_day(lua::State* L) {
-    auto daytime = level->getWorld()->daytime;
+    auto daytime = level->getWorld()->getInfo().daytime;
     return lua::pushboolean(L, daytime >= 0.2 && daytime <= 0.8);
 }
 
 static int l_world_is_night(lua::State* L) {
-    auto daytime = level->getWorld()->daytime;
+    auto daytime = level->getWorld()->getInfo().daytime;
     return lua::pushboolean(L, daytime < 0.2 || daytime > 0.8);
 }
 

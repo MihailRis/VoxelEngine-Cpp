@@ -29,6 +29,7 @@ Level::Level(
       events(std::make_unique<LevelEvents>()),
       entities(std::make_unique<Entities>(this)),
       settings(settings) {
+    auto& worldInfo = world->getInfo();
     auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
     for (size_t i = 0; i < cameraIndices.size(); i++) {
         auto camera = std::make_shared<Camera>();
@@ -46,8 +47,8 @@ Level::Level(
         cameras.push_back(std::move(camera));
     }
 
-    if (world->nextEntityId) {
-        entities->setNextID(world->nextEntityId);
+    if (worldInfo.nextEntityId) {
+        entities->setNextID(worldInfo.nextEntityId);
     }
     auto inv = std::make_shared<Inventory>(
         world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE

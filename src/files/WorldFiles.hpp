@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <glm/glm.hpp>
+#include <optional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -20,6 +21,7 @@ class Player;
 class Content;
 class ContentIndices;
 class World;
+struct WorldInfo;
 struct DebugSettings;
 
 namespace fs = std::filesystem;
@@ -35,7 +37,7 @@ class WorldFiles {
     fs::path getIndicesFile() const;
     fs::path getPacksFile() const;
 
-    void writeWorldInfo(const World* world);
+    void writeWorldInfo(const WorldInfo& info);
     void writeIndices(const ContentIndices* indices);
 public:
     WorldFiles(const fs::path& directory);
@@ -46,7 +48,7 @@ public:
     fs::path getResourcesFile() const;
     void createDirectories();
 
-    bool readWorldInfo(World* world);
+    std::optional<WorldInfo> readWorldInfo();
     bool readResourcesData(const Content* content);
 
     /// @brief Write all unsaved data to world files
