@@ -1,6 +1,6 @@
 # Общее
 Yes=Ha
-No=Нa
+No=Yo'q
 Ok=Ок
 Cancel=Bekor qilish
 Back=Orqaga
