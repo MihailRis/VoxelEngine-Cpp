@@ -46,7 +46,7 @@ jobs:
           # install EnTT
           git clone https://github.com/skypjack/entt.git
           cd entt/build
-          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_TESTS=ON ..
+          cmake -DCMAKE_BUILD_TYPE=Release ..
           sudo make install
           cd ../..
 
@@ -56,7 +56,7 @@ jobs:
       # make.
       #
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{inputs.build_type}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{inputs.build_type}} -DVOXELENGINE_BUILD_TESTS=ON
 
     - name: Build
       # Build your program with the given configuration
