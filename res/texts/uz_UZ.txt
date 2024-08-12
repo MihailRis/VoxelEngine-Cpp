@@ -1,0 +1,89 @@
+# Общее
+Yes=Ha
+No=Yo'q
+Ok=Ок
+Cancel=Bekor qilish
+Back=Orqaga
+Continue=Davom etish
+Add=Qo'shish
+Version=Versiya
+Creator=Muallif
+Dependencies=Bog'liqliklar
+Description=Tavsif
+Converting world...=Dunyoni konvertatsiyalash amalga oshirilyapti...
+Unlimited=Cheksiz
+
+error.pack-not-found=Paketni topib bo'lmadi
+error.dependency-not-found=Amaldagi qaramliklar topilmadi
+pack.remove-confirm=Paketlar bilan taqdim etilgan barcha mazmunni dunyodan olib tashlash (qaytarib bo'lmaydi)?
+
+# Подсказки
+graphics.gamma.tooltip=Yorug'lik yorqinligi egri chizig'i
+graphics.backlight.tooltip=To'liq zulmatni oldini oladigan orqa yorug'ligi
+
+# Меню
+menu.Apply=Qo'llash
+menu.Audio=Tovush
+menu.Back to Main Menu=Menyuga qaytish
+menu.Content Error=Kontent Xatosi
+menu.Content=Kontent
+menu.Continue=Davom ettirish
+menu.Controls=Boshqaruv
+menu.Display=Displey
+menu.Graphics=Grafika
+menu.missing-content=Kontent etishmayapti!
+menu.New World=Yangi Dunyo
+menu.Page not found=Sahifa topilmadi
+menu.Quit=Chiqish
+menu.Save and Quit to Menu=Saqlash va menyuga chiqish
+menu.Settings=Sozlamalar
+menu.Contents Menu=Kontent to'plamlari menyusi
+
+world.Seed=Don
+world.Name=Nom
+world.World generator=Dunyo yaratuvchi
+world.generators.default=Oddiy
+world.generators.flat=Yassi
+world.Create World=Dunyoni Yaratish
+world.convert-request=Indekslarda o‘zgarishlar mavjud! Dunyoni konvertatsiya qilish kerakmi?
+world.delete-confirm=Dunyoni qaytarib bo'lmaydigan tarzda olib tashlaysizmi?
+
+# Настройки
+settings.Ambient=Fon
+settings.Backlight=Yoritish
+settings.Camera Shaking=Kamera Silkinishi
+settings.Camera Inertia=Kamera Inertsiyasi
+settings.Fog Curve=Tuman Egri Chizig'i
+settings.FOV=Ko'rish Maydoni
+settings.Fullscreen=To'liq ekran
+settings.Framerate=Kadr tezligi
+settings.Gamma=Gamma
+settings.Language=Til
+settings.Load Distance=Yuklash Masofasi
+settings.Load Speed=Yuklash Tezligi
+settings.Master Volume=Umumiy Ovoz Balandligi
+settings.Mouse Sensitivity=Sichqoncha Sezgirligi
+settings.Music=Musiqa
+settings.Regular Sounds=Oddiy Tovushlar
+settings.UI Sounds=Interfeys Tovushlari
+settings.V-Sync=Vertikal Sinxronizatsiya
+
+# Управление
+chunks.reload=Chanklarni qayta yuklash
+devtools.console=Konsol
+movement.forward=Oldinga
+movement.back=Orqaga
+movement.left=Chapga
+movement.right=O'ng tomonda
+movement.jump=Sakrash
+movement.sprint=Tezlanish
+movement.crouch=Egilish
+movement.cheat=Chit
+hud.inventory=inventar
+player.pick=Blokni olish
+player.attack=Hujum Qilish / Sindirish
+player.build=Blokni Joylashtiring
+player.flight=Parvoz
+player.drop=Narsani tashlash
+camera.zoom=Yaqinlashish
+camera.mode=Kamera Rejimini O'zgartiring
