@@ -11,6 +11,7 @@
       "zlib",
       "luajit",
       "libvorbis",
-      "entt"
+      "entt",
+      "gtest"
     ]
   }

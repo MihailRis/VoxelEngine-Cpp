@@ -12,3 +12,4 @@ jobs:
     uses: ./.github/workflows/cmake.yml
     with:
       build_type: Release
+      run_tests: true

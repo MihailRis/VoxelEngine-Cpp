@@ -32,16 +32,17 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
           Remove-Item -Path CMakeFiles -Recurse -Force
-          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
           cmake --build . --config Release
       - name: Package for Windows
         run: |
           mkdir packaged
           cp -r build/* packaged/
         working-directory: ${{ github.workspace }}
-
+      - name: Run tests
+        run: ctest --test-dir build
       - uses: actions/upload-artifact@v2
         with:
           name: Windows-Build
