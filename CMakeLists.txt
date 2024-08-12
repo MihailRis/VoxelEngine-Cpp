@@ -16,7 +16,7 @@ add_executable(${PROJECT_NAME} src/voxel_engine.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 if(VOXELENGINE_BUILD_APPDIR)
-    include(dev/cmake/BuildAppdir)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/dev/cmake/BuildAppdir.cmake)
 endif()
 
 if(MSVC)
