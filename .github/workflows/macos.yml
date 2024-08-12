@@ -25,7 +25,7 @@ jobs:
           brew install --formula glm.rb
 
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_TESTS -DVOXELENGINE_BUILD_APPDIR=1
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_TESTS=ON -DVOXELENGINE_BUILD_APPDIR=1
 
       - name: Build
         run: cmake --build build -t install
