@@ -67,6 +67,8 @@ struct ContentPack {
         const fs::path& worldDir,
         const std::string& name
     );
+
+    static ContentPack createCore(const EnginePaths*);
 };
 
 struct ContentPackStats {

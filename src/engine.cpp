@@ -313,12 +313,17 @@ void Engine::loadContent() {
     contentPacks = manager.getAll(names);
 
     std::vector<PathsRoot> resRoots;
+    {
+        auto pack = ContentPack::createCore(paths);
+        resRoots.push_back({"core", pack.folder});
+        ContentLoader(&pack, contentBuilder).load();
+        load_configs(pack.folder);
+    }
     for (auto& pack : contentPacks) {
         resRoots.push_back({pack.id, pack.folder});
         ContentLoader(&pack, contentBuilder).load();
         load_configs(pack.folder);
     } 
-    load_configs(paths->getResourcesFolder());
 
     content = contentBuilder.build();
     resPaths = std::make_unique<ResPaths>(resdir, resRoots);
@@ -330,7 +335,13 @@ void Engine::loadContent() {
 
 void Engine::resetContent() {
     auto resdir = paths->getResourcesFolder();
-    resPaths = std::make_unique<ResPaths>(resdir, std::vector<PathsRoot>());
+    std::vector<PathsRoot> resRoots;
+    {
+        auto pack = ContentPack::createCore(paths);
+        resRoots.push_back({"core", pack.folder});
+        load_configs(pack.folder);
+    }
+    resPaths = std::make_unique<ResPaths>(resdir, resRoots);
     contentPacks.clear();
     content.reset();
 
