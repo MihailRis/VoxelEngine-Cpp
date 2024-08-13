@@ -19,6 +19,7 @@ class Block;
 struct BlockMaterial;
 struct ItemDef;
 struct EntityDef;
+struct GeneratorDef;
 
 namespace rigging {
     class SkeletonConfig;
@@ -34,6 +35,8 @@ constexpr const char* ContentType_name(ContentType type) {
             return "item";
         case ContentType::ENTITY:
             return "entity";
+        case ContentType::GENERATOR:
+            return "generator";
         default:
             return "unknown";
     }
@@ -59,14 +62,6 @@ public:
     }
 
     inline const T* get(blockid_t id) const {
-        if (id >= defs.size()) {
-            return nullptr;
-        }
-        return defs[id];
-    }
-
-    [[deprecated]]
-    inline T* getWriteable(blockid_t id) const { // TODO: remove
         if (id >= defs.size()) {
             return nullptr;
         }
@@ -197,6 +192,7 @@ public:
     ContentUnitDefs<Block> blocks;
     ContentUnitDefs<ItemDef> items;
     ContentUnitDefs<EntityDef> entities;
+    ContentUnitDefs<GeneratorDef> generators;
     std::unique_ptr<DrawGroups> const drawGroups;
     ResourceIndicesSet resourceIndices {};
 
@@ -206,6 +202,7 @@ public:
         ContentUnitDefs<Block> blocks,
         ContentUnitDefs<ItemDef> items,
         ContentUnitDefs<EntityDef> entities,
+        ContentUnitDefs<GeneratorDef> generators,
         UptrsMap<std::string, ContentPackRuntime> packs,
         UptrsMap<std::string, BlockMaterial> blockMaterials,
         UptrsMap<std::string, rigging::SkeletonConfig> skeletons,

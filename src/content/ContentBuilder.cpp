@@ -72,6 +72,7 @@ std::unique_ptr<Content> ContentBuilder::build() {
         blocks.build(),
         items.build(),
         entities.build(),
+        generators.build(),
         std::move(packs),
         std::move(blockMaterials),
         std::move(skeletons),

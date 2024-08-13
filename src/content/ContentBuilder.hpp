@@ -8,6 +8,7 @@
 #include "ContentPack.hpp"
 #include "items/ItemDef.hpp"
 #include "objects/EntityDef.hpp"
+#include "world/generator/GeneratorDef.hpp"
 #include "voxels/Block.hpp"
 
 template <class T>
@@ -59,6 +60,7 @@ public:
     ContentUnitBuilder<Block> blocks {allNames, ContentType::BLOCK};
     ContentUnitBuilder<ItemDef> items {allNames, ContentType::ITEM};
     ContentUnitBuilder<EntityDef> entities {allNames, ContentType::ENTITY};
+    ContentUnitBuilder<GeneratorDef> generators {allNames, ContentType::GENERATOR};
     ResourceIndicesSet resourceIndices {};
 
     ~ContentBuilder();
