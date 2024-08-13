@@ -37,6 +37,7 @@ static void create_libs(lua::State* L) {
     openlib(L, "gui", guilib);
     openlib(L, "input", inputlib);
     openlib(L, "inventory", inventorylib);
+    openlib(L, "generation", generationlib);
     openlib(L, "item", itemlib);
     openlib(L, "json", jsonlib);
     openlib(L, "mat4", mat4lib);
@@ -95,7 +96,8 @@ void lua::initialize() {
 
     initialize_libs_extends(L);
 
-    newusertype<Bytearray, Bytearray::createMetatable>(L, "bytearray");
+    newusertype<Bytearray, Bytearray::createMetatable>(L, "Bytearray");
+    newusertype<Heightmap, Heightmap::createMetatable>(L, "Heightmap");
 }
 
 void lua::finalize() {

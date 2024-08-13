@@ -16,7 +16,7 @@ Bytearray::Bytearray(std::vector<ubyte> buffer) : buffer(std::move(buffer)) {
 Bytearray::~Bytearray() {
 }
 
-static int l_bytearray_append(lua::State* L) {
+static int l_append(lua::State* L) {
     if (auto buffer = touserdata<Bytearray>(L, 1)) {
         auto value = tointeger(L, 2);
         buffer->data().push_back(static_cast<ubyte>(value));
@@ -24,7 +24,7 @@ static int l_bytearray_append(lua::State* L) {
     return 0;
 }
 
-static int l_bytearray_insert(lua::State* L) {
+static int l_insert(lua::State* L) {
     auto buffer = touserdata<Bytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
@@ -39,7 +39,7 @@ static int l_bytearray_insert(lua::State* L) {
     return 0;
 }
 
-static int l_bytearray_remove(lua::State* L) {
+static int l_remove(lua::State* L) {
     auto buffer = touserdata<Bytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
@@ -54,12 +54,12 @@ static int l_bytearray_remove(lua::State* L) {
 }
 
 static std::unordered_map<std::string, lua_CFunction> bytearray_methods {
-    {"append", lua::wrap<l_bytearray_append>},
-    {"insert", lua::wrap<l_bytearray_insert>},
-    {"remove", lua::wrap<l_bytearray_remove>},
+    {"append", lua::wrap<l_append>},
+    {"insert", lua::wrap<l_insert>},
+    {"remove", lua::wrap<l_remove>},
 };
 
-static int l_bytearray_meta_meta_call(lua::State* L) {
+static int l_meta_meta_call(lua::State* L) {
     if (lua_istable(L, 2)) {
         size_t len = objlen(L, 2);
         std::vector<ubyte> buffer(len);
@@ -78,7 +78,7 @@ static int l_bytearray_meta_meta_call(lua::State* L) {
     return newuserdata<Bytearray>(L, static_cast<size_t>(size));
 }
 
-static int l_bytearray_meta_index(lua::State* L) {
+static int l_meta_index(lua::State* L) {
     auto buffer = touserdata<Bytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
@@ -97,7 +97,7 @@ static int l_bytearray_meta_index(lua::State* L) {
     return pushinteger(L, data[index]);
 }
 
-static int l_bytearray_meta_newindex(lua::State* L) {
+static int l_meta_newindex(lua::State* L) {
     auto buffer = touserdata<Bytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
@@ -115,14 +115,14 @@ static int l_bytearray_meta_newindex(lua::State* L) {
     return 0;
 }
 
-static int l_bytearray_meta_len(lua::State* L) {
+static int l_meta_len(lua::State* L) {
     if (auto buffer = touserdata<Bytearray>(L, 1)) {
         return pushinteger(L, buffer->data().size());
     }
     return 0;
 }
 
-static int l_bytearray_meta_tostring(lua::State* L) {
+static int l_meta_tostring(lua::State* L) {
     auto buffer = touserdata<Bytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
@@ -146,7 +146,7 @@ static int l_bytearray_meta_tostring(lua::State* L) {
     }
 }
 
-static int l_bytearray_meta_add(lua::State* L) {
+static int l_meta_add(lua::State* L) {
     auto bufferA = touserdata<Bytearray>(L, 1);
     auto bufferB = touserdata<Bytearray>(L, 2);
     if (bufferA == nullptr || bufferB == nullptr) {
@@ -164,19 +164,19 @@ static int l_bytearray_meta_add(lua::State* L) {
 
 int Bytearray::createMetatable(lua::State* L) {
     createtable(L, 0, 6);
-    pushcfunction(L, lua::wrap<l_bytearray_meta_index>);
+    pushcfunction(L, lua::wrap<l_meta_index>);
     setfield(L, "__index");
-    pushcfunction(L, lua::wrap<l_bytearray_meta_newindex>);
+    pushcfunction(L, lua::wrap<l_meta_newindex>);
     setfield(L, "__newindex");
-    pushcfunction(L, lua::wrap<l_bytearray_meta_len>);
+    pushcfunction(L, lua::wrap<l_meta_len>);
     setfield(L, "__len");
-    pushcfunction(L, lua::wrap<l_bytearray_meta_tostring>);
+    pushcfunction(L, lua::wrap<l_meta_tostring>);
     setfield(L, "__tostring");
-    pushcfunction(L, lua::wrap<l_bytearray_meta_add>);
+    pushcfunction(L, lua::wrap<l_meta_add>);
     setfield(L, "__add");
 
     createtable(L, 0, 1);
-    pushcfunction(L, lua::wrap<l_bytearray_meta_meta_call>);
+    pushcfunction(L, lua::wrap<l_meta_meta_call>);
     setfield(L, "__call");
     setmetatable(L);
     return 1;
