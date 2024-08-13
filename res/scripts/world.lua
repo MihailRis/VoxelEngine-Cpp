@@ -2,8 +2,8 @@
 -- must be empty in release
 -- must not be modified by content-packs
 
-local W = 16
-local H = 16
+local W = 1024
+local H = 1024
 
 for t=1,1 do
     local tm = time.uptime()
@@ -28,10 +28,10 @@ for t=1,1 do
     local rivermap = Heightmap(W, H)
     rivermap:noise({21, 12}, 0.05, 3)
     rivermap:abs()
-    rivermap:min(0.02)
-    rivermap:mul(50.0)
-    rivermap:pow(0.4)
-    map:add(1.7)
+    rivermap:min(0.1)
+    rivermap:mul(10.0)
+    rivermap:pow(0.8)
+    map:add(1.2)
     map:mul(rivermap)
     map:add(-1.0)
     map:mul(0.5)

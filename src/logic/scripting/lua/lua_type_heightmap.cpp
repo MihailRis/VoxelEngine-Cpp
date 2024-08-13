@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <filesystem>
 
+#include "util/functional_util.hpp"
 #include "maths/FastNoiseLite.h"
 #include "coders/png.hpp"
 #include "graphics/core/ImageData.hpp"
@@ -94,7 +95,38 @@ static int l_noise(lua::State* L) {
     return 0;
 }
 
-static int l_pow(lua::State* L) {
+template<template<class> class Op>
+static int l_binop_func(lua::State* L) {
+    Op<float> op;
+    if (auto heightmap = touserdata<Heightmap>(L, 1)) {
+        uint w = heightmap->getWidth();
+        uint h = heightmap->getHeight();
+        auto heights = heightmap->getValues();
+
+        if (isnumber(L, 2)) {
+            float scalar = tonumber(L, 2);
+            for (uint y = 0; y < h; y++) {
+                for (uint x = 0; x < w; x++) {
+                    uint i = y * w + x;
+                    heights[i] = op(heights[i], scalar);
+                }
+            }
+        } else {
+            auto map = touserdata<Heightmap>(L, 2);
+            for (uint y = 0; y < h; y++) {
+                for (uint x = 0; x < w; x++) {
+                    uint i = y * w + x;
+                    heights[i] = op(heights[i], map->getValues()[i]);
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+template<template<class> class Op>
+static int l_unaryop_func(lua::State* L) {
+    Op<float> op;
     if (auto heightmap = touserdata<Heightmap>(L, 1)) {
         uint w = heightmap->getWidth();
         uint h = heightmap->getHeight();
@@ -103,131 +135,7 @@ static int l_pow(lua::State* L) {
         for (uint y = 0; y < h; y++) {
             for (uint x = 0; x < w; x++) {
                 uint i = y * w + x;
-                heights[i] = glm::pow(heights[i], power);
-            }
-        }
-    }
-    return 0;
-}
-
-static int l_add(lua::State* L) {
-    if (auto heightmap = touserdata<Heightmap>(L, 1)) {
-        uint w = heightmap->getWidth();
-        uint h = heightmap->getHeight();
-        auto heights = heightmap->getValues();
-
-        if (isnumber(L, 2)) {
-            float scalar = tonumber(L, 2);
-            for (uint y = 0; y < h; y++) {
-                for (uint x = 0; x < w; x++) {
-                    uint i = y * w + x;
-                    heights[i] += scalar;
-                }
-            }
-        } else {
-            auto map = touserdata<Heightmap>(L, 2);
-            for (uint y = 0; y < h; y++) {
-                for (uint x = 0; x < w; x++) {
-                    uint i = y * w + x;
-                    heights[i] += map->getValues()[i];
-                }
-            }
-        }
-    }
-    return 0;
-}
-
-static int l_mul(lua::State* L) {
-    if (auto heightmap = touserdata<Heightmap>(L, 1)) {
-        uint w = heightmap->getWidth();
-        uint h = heightmap->getHeight();
-        auto heights = heightmap->getValues();
-
-        if (isnumber(L, 2)) {
-            float scalar = tonumber(L, 2);
-            for (uint y = 0; y < h; y++) {
-                for (uint x = 0; x < w; x++) {
-                    uint i = y * w + x;
-                    heights[i] *= scalar;
-                }
-            }
-        } else {
-            auto map = touserdata<Heightmap>(L, 2);
-            for (uint y = 0; y < h; y++) {
-                for (uint x = 0; x < w; x++) {
-                    uint i = y * w + x;
-                    heights[i] *= map->getValues()[i];
-                }
-            }
-        }
-    }
-    return 0;
-}
-
-static int l_max(lua::State* L) {
-    if (auto heightmap = touserdata<Heightmap>(L, 1)) {
-        uint w = heightmap->getWidth();
-        uint h = heightmap->getHeight();
-        auto heights = heightmap->getValues();
-
-        if (isnumber(L, 2)) {
-            float scalar = tonumber(L, 2);
-            for (uint y = 0; y < h; y++) {
-                for (uint x = 0; x < w; x++) {
-                    uint i = y * w + x;
-                    heights[i] *= scalar;
-                }
-            }
-        } else {
-            auto map = touserdata<Heightmap>(L, 2);
-            for (uint y = 0; y < h; y++) {
-                for (uint x = 0; x < w; x++) {
-                    uint i = y * w + x;
-                    heights[i] = glm::max(map->getValues()[i], heights[i]);
-                }
-            }
-        }
-    }
-    return 0;
-}
-
-static int l_min(lua::State* L) {
-    if (auto heightmap = touserdata<Heightmap>(L, 1)) {
-        uint w = heightmap->getWidth();
-        uint h = heightmap->getHeight();
-        auto heights = heightmap->getValues();
-
-        if (isnumber(L, 2)) {
-            float scalar = tonumber(L, 2);
-            for (uint y = 0; y < h; y++) {
-                for (uint x = 0; x < w; x++) {
-                    uint i = y * w + x;
-                    heights[i] *= scalar;
-                }
-            }
-        } else {
-            auto map = touserdata<Heightmap>(L, 2);
-            for (uint y = 0; y < h; y++) {
-                for (uint x = 0; x < w; x++) {
-                    uint i = y * w + x;
-                    heights[i] = glm::min(map->getValues()[i], heights[i]);
-                }
-            }
-        }
-    }
-    return 0;
-}
-
-static int l_abs(lua::State* L) {
-    if (auto heightmap = touserdata<Heightmap>(L, 1)) {
-        uint w = heightmap->getWidth();
-        uint h = heightmap->getHeight();
-        auto heights = heightmap->getValues();
-        float power = tonumber(L, 2);
-        for (uint y = 0; y < h; y++) {
-            for (uint x = 0; x < w; x++) {
-                uint i = y * w + x;
-                heights[i] = glm::abs(heights[i]);
+                heights[i] = op(heights[i]);
             }
         }
     }
@@ -237,12 +145,12 @@ static int l_abs(lua::State* L) {
 static std::unordered_map<std::string, lua_CFunction> methods {
     {"dump", lua::wrap<l_dump>},
     {"noise", lua::wrap<l_noise>},
-    {"pow", lua::wrap<l_pow>},
-    {"add", lua::wrap<l_add>},
-    {"mul", lua::wrap<l_mul>},
-    {"min", lua::wrap<l_min>},
-    {"max", lua::wrap<l_max>},
-    {"abs", lua::wrap<l_abs>},
+    {"pow", lua::wrap<l_binop_func<util::pow>>},
+    {"add", lua::wrap<l_binop_func<std::plus>>},
+    {"mul", lua::wrap<l_binop_func<std::multiplies>>},
+    {"min", lua::wrap<l_binop_func<util::min>>},
+    {"max", lua::wrap<l_binop_func<util::max>>},
+    {"abs", lua::wrap<l_unaryop_func<util::abs>>},
 };
 
 static int l_meta_meta_call(lua::State* L) {
