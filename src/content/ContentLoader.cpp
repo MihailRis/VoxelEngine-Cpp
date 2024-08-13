@@ -415,6 +415,18 @@ void ContentLoader::loadItem(
     }
 }
 
+static std::tuple<std::string, std::string, std::string> create_unit_id(
+    const std::string& packid, const std::string& name
+) {
+    size_t colon = name.find(':');
+    if (colon == std::string::npos) {
+        return {packid, packid + ":" + name, name};
+    }
+    auto otherPackid = name.substr(0, colon);
+    auto full = otherPackid + ":" + name;
+    return {otherPackid, full, otherPackid + "/" + name};
+}
+
 void ContentLoader::loadBlockMaterial(
     BlockMaterial& def, const fs::path& file
 ) {
@@ -445,28 +457,28 @@ void ContentLoader::load() {
     if (auto blocksarr = root->list("blocks")) {
         for (size_t i = 0; i < blocksarr->size(); i++) {
             std::string name = blocksarr->str(i);
-            auto colon = name.find(':');
-            std::string full =
-                colon == std::string::npos ? pack->id + ":" + name : name;
-            if (colon != std::string::npos) name[colon] = '/';
+            auto [packid, full, filename] = create_unit_id(pack->id, name);
+
             auto& def = builder.blocks.create(full);
-            if (colon != std::string::npos)
-                def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
-            loadBlock(def, full, name);
+            if (filename != name) {
+                def.scriptName = packid + "/" + def.scriptName;
+            }
+
+            loadBlock(def, full, filename);
             stats->totalBlocks++;
         }
     }
     if (auto itemsarr = root->list("items")) {
         for (size_t i = 0; i < itemsarr->size(); i++) {
             std::string name = itemsarr->str(i);
-            auto colon = name.find(':');
-            std::string full =
-                colon == std::string::npos ? pack->id + ":" + name : name;
-            if (colon != std::string::npos) name[colon] = '/';
+            auto [packid, full, filename] = create_unit_id(pack->id, name);
+
             auto& def = builder.items.create(full);
-            if (colon != std::string::npos)
-                def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
-            loadItem(def, full, name);
+            if (filename != name) {
+                def.scriptName = packid + "/" + def.scriptName;
+            }
+
+            loadItem(def, full, filename);
             stats->totalItems++;
         }
     }
@@ -474,11 +486,11 @@ void ContentLoader::load() {
     if (auto entitiesarr = root->list("entities")) {
         for (size_t i = 0; i < entitiesarr->size(); i++) {
             std::string name = entitiesarr->str(i);
-            auto colon = name.find(':');
-            std::string full =
-                colon == std::string::npos ? pack->id + ":" + name : name;
-            if (colon != std::string::npos) name[colon] = '/';
+
+            auto [packid, full, filename] = create_unit_id(pack->id, name);
+
             auto& def = builder.entities.create(full);
+
             loadEntity(def, full, name);
             stats->totalEntities++;
         }
@@ -488,8 +500,12 @@ void ContentLoader::load() {
     if (fs::is_directory(materialsDir)) {
         for (const auto& entry : fs::directory_iterator(materialsDir)) {
             const fs::path& file = entry.path();
-            std::string name = pack->id + ":" + file.stem().u8string();
-            loadBlockMaterial(builder.createBlockMaterial(name), file);
+            auto [packid, full, filename] =
+                create_unit_id(pack->id, file.stem().u8string());
+            loadBlockMaterial(
+                builder.createBlockMaterial(full),
+                materialsDir / fs::u8path(filename + ".json")
+            );
         }
     }
 
