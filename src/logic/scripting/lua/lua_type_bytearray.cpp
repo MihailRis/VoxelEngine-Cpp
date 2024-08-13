@@ -53,7 +53,7 @@ static int l_remove(lua::State* L) {
     return 0;
 }
 
-static std::unordered_map<std::string, lua_CFunction> bytearray_methods {
+static std::unordered_map<std::string, lua_CFunction> methods {
     {"append", lua::wrap<l_append>},
     {"insert", lua::wrap<l_insert>},
     {"remove", lua::wrap<l_remove>},
@@ -85,8 +85,8 @@ static int l_meta_index(lua::State* L) {
     }
     auto& data = buffer->data();
     if (isstring(L, 2)) {
-        auto found = bytearray_methods.find(tostring(L, 2));
-        if (found != bytearray_methods.end()) {
+        auto found = methods.find(tostring(L, 2));
+        if (found != methods.end()) {
             return pushcfunction(L, found->second);
         }
     }

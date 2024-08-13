@@ -49,6 +49,14 @@ namespace lua {
             return TYPENAME;
         }
 
+        float* getValues() {
+            return buffer.data();
+        }
+
+        const float* getValues() const {
+            return buffer.data();
+        }
+
         static int createMetatable(lua::State*);
         inline static std::string TYPENAME = "heightmap";
     };
