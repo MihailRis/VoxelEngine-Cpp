@@ -218,10 +218,6 @@ std::string ResPaths::findRaw(const std::string& filename) const {
             return root.name + ":" + filename;
         }
     }
-    auto resDir = mainRoot;
-    if (fs::exists(resDir / std::filesystem::path(filename))) {
-        return "core:" + filename;
-    }
     throw std::runtime_error("could not to find file " + util::quote(filename));
 }
 
@@ -236,14 +232,6 @@ std::vector<std::string> ResPaths::listdirRaw(const std::string& folderName) con
             entries.emplace_back(root.name + ":" + folderName + "/" + name);
         }
     }
-    {
-        auto folder = mainRoot / fs::u8path(folderName);
-        if (!fs::is_directory(folder)) return entries;
-        for (const auto& entry : fs::directory_iterator(folder)) {
-            auto name = entry.path().filename().u8string();
-            entries.emplace_back("core:" + folderName + "/" + name);
-        }
-    }
     return entries;
 }
 
@@ -255,13 +243,6 @@ std::vector<std::filesystem::path> ResPaths::listdir(
         auto& root = roots[i];
         std::filesystem::path folder = root.path / fs::u8path(folderName);
         if (!fs::is_directory(folder)) continue;
-        for (const auto& entry : fs::directory_iterator(folder)) {
-            entries.push_back(entry.path());
-        }
-    }
-    {
-        auto folder = mainRoot / fs::u8path(folderName);
-        if (!fs::is_directory(folder)) return entries;
         for (const auto& entry : fs::directory_iterator(folder)) {
             entries.push_back(entry.path());
         }

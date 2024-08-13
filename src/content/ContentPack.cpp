@@ -4,12 +4,19 @@
 #include <iostream>
 #include <utility>
 
+#include "constants.hpp"
 #include "coders/json.hpp"
 #include "data/dynamic.hpp"
 #include "files/engine_paths.hpp"
 #include "files/files.hpp"
 
 namespace fs = std::filesystem;
+
+ContentPack ContentPack::createCore(const EnginePaths* paths) {
+    return ContentPack {
+        "core", "Core", ENGINE_VERSION_STRING, "", "", paths->getResourcesFolder(), {}
+    };
+}
 
 const std::vector<std::string> ContentPack::RESERVED_NAMES = {
     "res", "abs", "local", "core", "user", "world", "none", "null"};
