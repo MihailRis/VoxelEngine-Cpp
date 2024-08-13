@@ -13,7 +13,7 @@
 namespace fs = std::filesystem;
 
 struct contententry {
-    contenttype type;
+    ContentType type;
     std::string name;
 };
 
@@ -26,13 +26,13 @@ class ContentUnitLUT {
     bool missingContent = false;
     bool reorderContent = false;
     T missingValue;
-    contenttype type;
+    ContentType type;
 public:
     ContentUnitLUT(
         size_t count,
         const ContentUnitIndices<U>& unitIndices,
         T missingValue,
-        contenttype type
+        ContentType type
     )
         : missingValue(missingValue), type(type) {
         for (size_t i = 0; i < count; i++) {

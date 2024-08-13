@@ -14,8 +14,8 @@
 ContentLUT::ContentLUT(
     const ContentIndices* indices, size_t blocksCount, size_t itemsCount
 )
-    : blocks(blocksCount, indices->blocks, BLOCK_VOID, contenttype::block),
-      items(itemsCount, indices->items, ITEM_VOID, contenttype::item) {
+    : blocks(blocksCount, indices->blocks, BLOCK_VOID, ContentType::BLOCK),
+      items(itemsCount, indices->items, ITEM_VOID, ContentType::ITEM) {
 }
 
 template <class T>

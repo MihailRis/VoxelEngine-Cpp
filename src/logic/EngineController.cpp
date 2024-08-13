@@ -92,7 +92,7 @@ static void show_content_missing(
     auto root = create_map();
     auto& contentEntries = root->putList("content");
     for (auto& entry : lut->getMissingContent()) {
-        std::string contentName = contenttype_name(entry.type);
+        std::string contentName = ContentType_name(entry.type);
         auto& contentEntry = contentEntries.putMap();
         contentEntry.put("type", contentName);
         contentEntry.put("name", entry.name);

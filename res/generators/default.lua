@@ -11,9 +11,8 @@ function generate_heightmap(x, y)
 
     local bmap = Heightmap(W, H)
     bmap:noise({x+3, y+6}, 0.1, 1, 3)
+    
     local map = Heightmap(W, H)
-
-
     map:noise({x, y}, 0.06, 5, 0.2, umap, vmap)
     map:noise({x, y}, 0.12, 6, 0.5, umap, vmap)
     map:mul(bmap)
