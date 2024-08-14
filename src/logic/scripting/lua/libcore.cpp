@@ -3,6 +3,7 @@
 
 #include "constants.hpp"
 #include "engine.hpp"
+#include "content/Content.hpp"
 #include "files/engine_paths.hpp"
 #include "files/settings_io.hpp"
 #include "frontend/menu.hpp"
@@ -11,8 +12,8 @@
 #include "logic/LevelController.hpp"
 #include "window/Events.hpp"
 #include "window/Window.hpp"
+#include "voxels/WorldGenerator.hpp"
 #include "world/Level.hpp"
-#include "world/WorldGenerators.hpp"
 #include "api_lua.hpp"
 
 using namespace scripting;
@@ -173,18 +174,19 @@ static int l_quit(lua::State*) {
 /// @brief Get the default world generator
 /// @return The ID of the default world generator
 static int l_get_default_generator(lua::State* L) {
-    return lua::pushstring(L, WorldGenerators::getDefaultGeneratorID());
+    return lua::pushstring(L, WorldGenerator::DEFAULT);
 }
 
 /// @brief Get a list of all world generators
 /// @return A table with the IDs of all world generators
 static int l_get_generators(lua::State* L) {
-    const auto& generators = WorldGenerators::getGeneratorsIDs();
+    const auto& generators = content->generators.getDefs();
     lua::createtable(L, generators.size(), 0);
 
     int i = 0;
-    for (auto& id : generators) {
-        lua::pushstring(L, id);
+    for (auto& [name, _] : generators) {
+        std::cout << name << std::endl;
+        lua::pushstring(L, name);
         lua::rawseti(L, i + 1);
         i++;
     }

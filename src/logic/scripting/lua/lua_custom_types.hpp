@@ -37,7 +37,7 @@ namespace lua {
         LuaHeightmap(uint width, uint height) 
         : map(std::make_shared<Heightmap>(width, height)) {}
 
-        virtual ~LuaHeightmap() = default;
+        virtual ~LuaHeightmap();
 
         uint getWidth() const {
             return map->getWidth();

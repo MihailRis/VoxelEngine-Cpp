@@ -698,9 +698,12 @@ public:
             lua::pushivec_stack(L, offset);
             lua::pushivec_stack(L, size);
             if (lua::call_nothrow(L, 4)) {
-                return lua::touserdata<lua::LuaHeightmap>(L, -1)->getHeightmap();
+                auto map = lua::touserdata<lua::LuaHeightmap>(L, -1)->getHeightmap();
+                lua::pop(L, 2);
+                return map;
             }
         }
+        lua::pop(L);
         return std::make_shared<Heightmap>(size.x, size.y);
     }
 };

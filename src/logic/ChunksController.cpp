@@ -18,7 +18,6 @@
 #include "voxels/WorldGenerator.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
-#include "world/WorldGenerators.hpp"
 
 const uint MAX_WORK_PER_FRAME = 128;
 const uint MIN_SURROUNDING = 9;
@@ -28,10 +27,10 @@ ChunksController::ChunksController(Level* level, uint padding)
       chunks(level->chunks.get()),
       lighting(level->lighting.get()),
       padding(padding),
-      generator(WorldGenerators::createGenerator(
-          level->getWorld()->getGenerator(), level->content
-      )) {
-}
+      generator(std::make_unique<WorldGenerator>(
+          level->content->generators.require(level->getWorld()->getGenerator()),
+          level->content
+      )) {}
 
 ChunksController::~ChunksController() = default;
 

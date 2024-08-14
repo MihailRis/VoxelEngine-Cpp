@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include "util/functional_util.hpp"
+#define FNL_IMPL
 #include "maths/FastNoiseLite.h"
 #include "coders/png.hpp"
 #include "files/util.hpp"
@@ -15,6 +16,9 @@
 using namespace lua;
 
 static fnl_state noise = fnlCreateState();
+
+LuaHeightmap::~LuaHeightmap() {;
+}
 
 static int l_dump(lua::State* L) {
     if (auto heightmap = touserdata<LuaHeightmap>(L, 1)) {
@@ -95,7 +99,7 @@ static int l_noise(lua::State* L) {
 template<template<class> class Op>
 static int l_binop_func(lua::State* L) {
     Op<float> op;
-    if (auto heightmap = touserdata<Heightmap>(L, 1)) {
+    if (auto heightmap = touserdata<LuaHeightmap>(L, 1)) {
         uint w = heightmap->getWidth();
         uint h = heightmap->getHeight();
         auto heights = heightmap->getValues();
@@ -124,7 +128,7 @@ static int l_binop_func(lua::State* L) {
 template<template<class> class Op>
 static int l_unaryop_func(lua::State* L) {
     Op<float> op;
-    if (auto heightmap = touserdata<Heightmap>(L, 1)) {
+    if (auto heightmap = touserdata<LuaHeightmap>(L, 1)) {
         uint w = heightmap->getWidth();
         uint h = heightmap->getHeight();
         auto heights = heightmap->getValues();

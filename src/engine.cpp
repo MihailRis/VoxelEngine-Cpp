@@ -30,13 +30,10 @@
 #include "logic/scripting/scripting.hpp"
 #include "util/listutil.hpp"
 #include "util/platform.hpp"
-#include "voxels/DefaultWorldGenerator.hpp"
-#include "voxels/FlatWorldGenerator.hpp"
 #include "window/Camera.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"
 #include "window/Window.hpp"
-#include "world/WorldGenerators.hpp"
 #include "settings.hpp"
 
 #include <iostream>
@@ -49,11 +46,6 @@
 static debug::Logger logger("engine");
 
 namespace fs = std::filesystem;
-
-static void add_world_generators() {
-    WorldGenerators::addGenerator<DefaultWorldGenerator>("core:default");
-    WorldGenerators::addGenerator<FlatWorldGenerator>("core:flat");
-}
 
 static void create_channel(Engine* engine, std::string name, NumberSetting& setting) {
     if (name != "master") {
@@ -114,7 +106,6 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     keepAlive(settings.ui.language.observe([=](auto lang) {
         setLanguage(lang);
     }, true));
-    add_world_generators();
     
     scripting::initialize(this);
     basePacks = files::read_list(resdir/fs::path("config/builtins.list"));
