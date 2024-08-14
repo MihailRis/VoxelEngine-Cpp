@@ -6,7 +6,7 @@
 
 struct voxel;
 class Content;
-class GeneratorDef;
+struct GeneratorDef;
 
 class WorldGenerator {
     const GeneratorDef& def;
