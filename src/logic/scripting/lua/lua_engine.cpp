@@ -97,7 +97,7 @@ void lua::initialize() {
     initialize_libs_extends(L);
 
     newusertype<Bytearray, Bytearray::createMetatable>(L, "Bytearray");
-    newusertype<Heightmap, Heightmap::createMetatable>(L, "Heightmap");
+    newusertype<LuaHeightmap, LuaHeightmap::createMetatable>(L, "Heightmap");
 }
 
 void lua::finalize() {

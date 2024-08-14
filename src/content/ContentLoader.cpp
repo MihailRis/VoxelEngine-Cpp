@@ -376,6 +376,18 @@ void ContentLoader::loadEntity(
     if (fs::exists(configFile)) loadEntity(def, full, configFile);
 }
 
+
+void ContentLoader::loadGenerator(
+    GeneratorDef& def, const std::string& full, const std::string& name
+) {
+    auto folder = pack->folder;
+    auto generatorFile = folder / fs::path("generators/" + name + ".lua");
+    if (!fs::exists(generatorFile)) {
+        return;
+    }
+    def.script = scripting::load_generator(generatorFile);
+}
+
 void ContentLoader::loadBlock(
     Block& def, const std::string& full, const std::string& name
 ) {
@@ -450,6 +462,21 @@ void ContentLoader::load() {
         );
     }
 
+    fs::path generatorsDir = folder / fs::u8path("generators");
+    if (fs::is_directory(generatorsDir)) {
+        for (const auto& entry : fs::directory_iterator(generatorsDir)) {
+            const auto& file = entry.path();
+
+            std::string name = file.stem().u8string();
+            auto [packid, full, filename] =
+                create_unit_id(pack->id, file.stem().u8string());
+
+            auto& def = builder.generators.create(full);
+
+            loadGenerator(def, full, name);
+        }
+    }
+
     if (!fs::is_regular_file(pack->getContentFile())) return;
 
     auto root = files::read_json(pack->getContentFile());
@@ -486,7 +513,6 @@ void ContentLoader::load() {
     if (auto entitiesarr = root->list("entities")) {
         for (size_t i = 0; i < entitiesarr->size(); i++) {
             std::string name = entitiesarr->str(i);
-
             auto [packid, full, filename] = create_unit_id(pack->id, name);
 
             auto& def = builder.entities.create(full);
@@ -499,7 +525,7 @@ void ContentLoader::load() {
     fs::path materialsDir = folder / fs::u8path("block_materials");
     if (fs::is_directory(materialsDir)) {
         for (const auto& entry : fs::directory_iterator(materialsDir)) {
-            const fs::path& file = entry.path();
+            const auto& file = entry.path();
             auto [packid, full, filename] =
                 create_unit_id(pack->id, file.stem().u8string());
             loadBlockMaterial(
@@ -512,7 +538,7 @@ void ContentLoader::load() {
     fs::path skeletonsDir = folder / fs::u8path("skeletons");
     if (fs::is_directory(skeletonsDir)) {
         for (const auto& entry : fs::directory_iterator(skeletonsDir)) {
-            const fs::path& file = entry.path();
+            const auto& file = entry.path();
             std::string name = pack->id + ":" + file.stem().u8string();
             std::string text = files::read_string(file);
             builder.add(

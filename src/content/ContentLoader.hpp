@@ -13,6 +13,7 @@ struct BlockMaterial;
 struct ItemDef;
 struct EntityDef;
 struct ContentPack;
+struct GeneratorDef;
 
 class ContentBuilder;
 class ContentPackRuntime;
@@ -38,6 +39,9 @@ class ContentLoader {
     );
     void loadEntity(
         EntityDef& def, const std::string& full, const std::string& name
+    );
+    void loadGenerator(
+        GeneratorDef& def, const std::string& full, const std::string& name
     );
 
     static void loadCustomBlockModel(Block& def, dynamic::Map* primitives);

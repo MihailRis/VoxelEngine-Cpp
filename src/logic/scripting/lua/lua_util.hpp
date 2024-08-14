@@ -153,6 +153,14 @@ namespace lua {
         return 3;
     }
 
+    template<int n>
+    inline int pushivec_stack(lua::State* L, glm::vec<n, int> vec) {
+        for (int i = 0; i < n; i++) {
+            pushinteger(L, vec[i]);
+        }
+        return n;
+    }
+
     inline int pushivec3_stack(lua::State* L, glm::ivec3 vec) {
         pushinteger(L, vec.x);
         pushinteger(L, vec.y);

@@ -14,6 +14,9 @@
 #include "items/ItemDef.hpp"
 #include "logic/BlocksController.hpp"
 #include "logic/LevelController.hpp"
+#include "lua/lua_engine.hpp"
+#include "lua/lua_custom_types.hpp"
+#include "maths/Heightmap.hpp"
 #include "objects/Entities.hpp"
 #include "objects/EntityDef.hpp"
 #include "objects/Player.hpp"
@@ -21,7 +24,7 @@
 #include "util/timeutil.hpp"
 #include "voxels/Block.hpp"
 #include "world/Level.hpp"
-#include "lua/lua_engine.hpp"
+#include "world/generator/GeneratorDef.hpp"
 
 using namespace scripting;
 
@@ -60,6 +63,15 @@ void scripting::initialize(Engine* engine) {
 
 [[nodiscard]] scriptenv scripting::get_root_environment() {
     return std::make_shared<int>(0);
+}
+
+[[nodiscard]] scriptenv scripting::create_environment() {
+    auto L = lua::get_main_thread();
+    int id = lua::create_environment(L, 0);
+    return std::shared_ptr<int>(new int(id), [=](int* id) { //-V508
+        lua::removeEnvironment(L, *id);
+        delete id;
+    });
 }
 
 [[nodiscard]] scriptenv scripting::create_pack_environment(
@@ -670,6 +682,35 @@ void scripting::load_entity_component(
     logger.info() << "script (component) " << file.u8string();
     lua::loadbuffer(L, 0, src, "C!" + name);
     lua::store_in(L, lua::CHUNKS_TABLE, name);
+}
+
+class LuaGeneratorScript : public GeneratorScript {
+    scriptenv env;
+public:
+    LuaGeneratorScript(scriptenv env) : env(std::move(env)) {}
+
+    std::shared_ptr<Heightmap> generateHeightmap(
+        const glm::ivec2& offset, const glm::ivec2& size
+    ) override {
+        auto L = lua::get_main_thread();
+        lua::pushenv(L, *env);
+        if (lua::getfield(L, "generate_heightmap")) {
+            lua::pushivec_stack(L, offset);
+            lua::pushivec_stack(L, size);
+            if (lua::call_nothrow(L, 4)) {
+                return lua::touserdata<lua::LuaHeightmap>(L, -1)->getHeightmap();
+            }
+        }
+        return std::make_shared<Heightmap>(size.x, size.y);
+    }
+};
+
+std::unique_ptr<GeneratorScript> scripting::load_generator(
+    const fs::path& file
+) {
+    auto env = create_environment();
+    load_script(*env, "generator", file);
+    return std::make_unique<LuaGeneratorScript>(std::move(env));
 }
 
 void scripting::load_world_script(
