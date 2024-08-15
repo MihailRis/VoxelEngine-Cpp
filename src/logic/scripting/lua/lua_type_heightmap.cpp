@@ -113,7 +113,7 @@ static int l_binop_func(lua::State* L) {
                 }
             }
         } else {
-            auto map = touserdata<Heightmap>(L, 2);
+            auto map = touserdata<LuaHeightmap>(L, 2);
             for (uint y = 0; y < h; y++) {
                 for (uint x = 0; x < w; x++) {
                     uint i = y * w + x;
@@ -132,7 +132,6 @@ static int l_unaryop_func(lua::State* L) {
         uint w = heightmap->getWidth();
         uint h = heightmap->getHeight();
         auto heights = heightmap->getValues();
-        float power = tonumber(L, 2);
         for (uint y = 0; y < h; y++) {
             for (uint x = 0; x < w; x++) {
                 uint i = y * w + x;
