@@ -1,9 +1,9 @@
 #include "WorldGenerator.hpp"
 
 #include "content/Content.hpp"
-#include "Block.hpp"
-#include "Chunk.hpp"
-#include "voxel.hpp"
+#include "voxels/Block.hpp"
+#include "voxels/Chunk.hpp"
+#include "voxels/voxel.hpp"
 #include "world/generator/GeneratorDef.hpp"
 
 WorldGenerator::WorldGenerator(

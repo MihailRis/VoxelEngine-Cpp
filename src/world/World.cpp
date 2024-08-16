@@ -15,7 +15,7 @@
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
 #include "voxels/ChunksStorage.hpp"
-#include "voxels/WorldGenerator.hpp"
+#include "world/generator/WorldGenerator.hpp"
 #include "world/generator/GeneratorDef.hpp"
 #include "Level.hpp"
 

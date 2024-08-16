@@ -12,7 +12,7 @@
 #include "logic/LevelController.hpp"
 #include "window/Events.hpp"
 #include "window/Window.hpp"
-#include "voxels/WorldGenerator.hpp"
+#include "world/generator/WorldGenerator.hpp"
 #include "world/Level.hpp"
 #include "api_lua.hpp"
 

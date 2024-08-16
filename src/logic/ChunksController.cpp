@@ -15,9 +15,9 @@
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
 #include "voxels/ChunksStorage.hpp"
-#include "voxels/WorldGenerator.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
+#include "world/generator/WorldGenerator.hpp"
 
 const uint MAX_WORK_PER_FRAME = 128;
 const uint MIN_SURROUNDING = 9;

@@ -20,7 +20,6 @@
 #include "world/LevelEvents.hpp"
 #include "Block.hpp"
 #include "Chunk.hpp"
-#include "WorldGenerator.hpp"
 #include "voxel.hpp"
 
 Chunks::Chunks(
