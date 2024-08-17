@@ -166,6 +166,19 @@ static int l_resize(lua::State* L) {
     return 0;
 }
 
+static int l_crop(lua::State* L) {
+    if (auto heightmap = touserdata<LuaHeightmap>(L, 1)) {
+        uint srcX = touinteger(L, 2);
+        uint srcY = touinteger(L, 3);
+
+        uint dstWidth = touinteger(L, 4);
+        uint dstHeight = touinteger(L, 5);
+
+        heightmap->getHeightmap()->crop(srcX, srcY, dstWidth, dstHeight);
+    }
+    return 0;
+}
+
 static std::unordered_map<std::string, lua_CFunction> methods {
     {"dump", lua::wrap<l_dump>},
     {"noise", lua::wrap<l_noise<FNL_NOISE_OPENSIMPLEX2>>},
@@ -177,6 +190,7 @@ static std::unordered_map<std::string, lua_CFunction> methods {
     {"max", lua::wrap<l_binop_func<util::max>>},
     {"abs", lua::wrap<l_unaryop_func<util::abs>>},
     {"resize", lua::wrap<l_resize>},
+    {"crop", lua::wrap<l_crop>},
 };
 
 static int l_meta_meta_call(lua::State* L) {

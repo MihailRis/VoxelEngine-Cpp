@@ -34,6 +34,7 @@ void WorldGenerator::generate(
         for (uint x = 0; x < CHUNK_W; x++) {
             // generate water
             int height = values[z * CHUNK_W + x] * CHUNK_H;
+            height = std::max(0, height);
             for (uint y = height+1; y <= seaLevel; y++) {
                 voxels[vox_index(x, y, z)].id = baseWater;
             }

@@ -27,6 +27,8 @@ public:
 
     void resize(uint width, uint height, InterpolationType interpolation);
 
+    void crop(uint srcX, uint srcY, uint dstWidth, uint dstHeight);
+
     uint getWidth() const {
         return width;
     }

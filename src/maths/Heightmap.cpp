@@ -1,6 +1,7 @@
 #include "Heightmap.hpp"
 
 #include <cmath>
+#include <cstring>
 #include <stdexcept>
 #include <glm/glm.hpp>
 
@@ -59,6 +60,9 @@ static inline float sample_at(
 void Heightmap::resize(
     uint dstwidth, uint dstheight, InterpolationType interp
 ) {
+    if (width == dstwidth && height == dstheight) {
+        return;
+    }
     std::vector<float> dst;
     dst.resize(dstwidth*dstheight);
 
@@ -69,6 +73,32 @@ void Heightmap::resize(
             float sy = static_cast<float>(y) / dstheight * height;
             dst[index] = sample_at(buffer.data(), width, height, sx, sy, interp);
         }
+    }
+
+    width = dstwidth;
+    height = dstheight;
+    buffer = std::move(dst);
+}
+
+void Heightmap::crop(
+    uint srcx, uint srcy, uint dstwidth, uint dstheight
+) {
+    if (srcx + dstwidth > width || srcy + dstheight > height) {
+        throw std::runtime_error(
+            "crop zone is not fully inside of the source image");
+    }
+    if (dstwidth == width && dstheight == height) {
+        return;
+    }
+
+    std::vector<float> dst;
+    dst.resize(dstwidth*dstheight);
+
+    for (uint y = 0; y < dstheight; y++) {
+        std::memcpy(
+            dst.data()+y*dstwidth, 
+            buffer.data()+(y+srcy)*width+srcx, 
+            dstwidth*sizeof(float));
     }
 
     width = dstwidth;

@@ -7,34 +7,49 @@ layers = {
     {block="base:bazalt", height=1},
 }
 
-function generate_heightmap(x, y, w, h, seed)
+local function _generate_heightmap(x, y, w, h, seed, s)
     local umap = Heightmap(w, h)
     local vmap = Heightmap(w, h)
     umap.noiseSeed = seed
     vmap.noiseSeed = seed
-    umap:noise({x+521, y+73}, 0.05, 1, 20.8)
-    umap:noise({x+51, y+75}, 0.05, 1, 21.8)
-    vmap:noise({x+521, y+70}, 0.1, 3, 35.8)
-    vmap:noise({x+95, y+246}, 0.15, 3, 35.8)
+    vmap:noise({x+521, y+70}, 0.1*s, 3, 25.8)
+    vmap:noise({x+95, y+246}, 0.15*s, 3, 25.8)
 
     local map = Heightmap(w, h)
     map.noiseSeed = seed
-    map:noise({x, y}, 0.02, 7, 0.2)
-    map:noise({x, y}, 0.06, 8, 0.4, umap, vmap)
+    map:noise({x, y}, 0.8*s, 4, 0.04)
+    map:cellnoise({x, y}, 0.1*s, 3, 0.7, umap, vmap)
     map:mul(0.5)
-    map:add(0.1)
-    map:pow(2.0)
+    map:add(0.3)
 
     local rivermap = Heightmap(w, h)
     rivermap.noiseSeed = seed
-    rivermap:noise({x+21, y+12}, 0.1, 4)
+    rivermap:noise({x+21, y+12}, 0.1*s, 4)
     rivermap:abs()
     rivermap:mul(2.0)
-    rivermap:pow(0.4)
+    rivermap:pow(0.3)
     rivermap:max(0.6)
     map:add(0.4)
     map:mul(rivermap)
-    map:add(-0.2)
+    map:add(-0.15)
 
     return map
 end
+
+function generate_heightmap(x, y, w, h, seed)
+    -- blocks per dot
+    -- 8 - linear interpolation is visible, but not so much (Minecraft)
+    -- 4 - high quality, but slower
+    -- 2 - you really don't need it
+    -- 1 - please have mercy on your CPU
+    local bpd = 8
+    local map = _generate_heightmap(
+        math.floor(x/bpd), math.floor(y/bpd), 
+        math.floor(w/bpd)+1, math.floor(h/bpd)+1, seed, bpd)
+    map:resize(w+bpd, h+bpd, 'linear')
+    map:crop(0, 0, w, h)
+    return map
+end
+
+local map = generate_heightmap(0, 0, 1024, 1024, 0)
+map:dump("heightmap.png")
