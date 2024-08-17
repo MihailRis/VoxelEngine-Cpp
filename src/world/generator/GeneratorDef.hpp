@@ -30,6 +30,8 @@ public:
     /// @brief Total height of all layers after resizeable one
     virtual uint getLastLayersHeight() const = 0;
 
+    virtual uint getSeaLevel() const = 0;
+
     virtual void prepare(const Content* content) = 0;
 };
 

@@ -1,3 +1,5 @@
+sea_level = 64
+
 layers = {
     {block="base:grass_block", height=1, below_sea_level=false},
     {block="base:dirt", height=5, below_sea_level=false},

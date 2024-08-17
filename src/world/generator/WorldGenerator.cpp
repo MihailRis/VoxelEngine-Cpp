@@ -20,17 +20,17 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ, int seed) {
     auto heightmap = def.script->generateHeightmap(
         {chunkX*CHUNK_W, chunkZ*CHUNK_D}, {CHUNK_W, CHUNK_D}
     );
-    uint seaLevel = 64;
     auto values = heightmap->getValues();
     const auto& layers = def.script->getLayers();
     uint lastLayersHeight = def.script->getLastLayersHeight();
+    uint seaLevel = def.script->getSeaLevel();
     auto baseWater = content->blocks.require("base:water").rt.id;
 
     std::memset(voxels, 0, sizeof(voxel) * CHUNK_VOL);
 
     for (uint z = 0; z < CHUNK_D; z++) {
         for (uint x = 0; x < CHUNK_W; x++) {
-            int height = values[z * CHUNK_W + x] * 255 + 10;
+            int height = values[z * CHUNK_W + x] * CHUNK_H;
             for (uint y = height+1; y <= seaLevel; y++) {
                 voxels[vox_index(x, y, z)].id = baseWater;
             }

@@ -630,12 +630,13 @@ int scripting::get_values_on_stack() {
     return lua::gettop(lua::get_main_thread());
 }
 
-static void load_script(
+[[nodiscard]]
+static int load_script(
     int env, const std::string& type, const fs::path& file
 ) {
     std::string src = files::read_string(file);
     logger.info() << "script (" << type << ") " << file.u8string();
-    lua::execute(lua::get_main_thread(), env, src, file.u8string());
+    return lua::execute(lua::get_main_thread(), env, src, file.u8string());
 }
 
 void scripting::load_block_script(
@@ -645,7 +646,7 @@ void scripting::load_block_script(
     block_funcs_set& funcsset
 ) {
     int env = *senv;
-    load_script(env, "block", file);
+    lua::pop(lua::get_main_thread(), load_script(env, "block", file));
     funcsset.init = register_event(env, "init", prefix + ".init");
     funcsset.update = register_event(env, "on_update", prefix + ".update");
     funcsset.randupdate =
@@ -665,7 +666,7 @@ void scripting::load_item_script(
     item_funcs_set& funcsset
 ) {
     int env = *senv;
-    load_script(env, "item", file);
+    lua::pop(lua::get_main_thread(), load_script(env, "item", file));
     funcsset.init = register_event(env, "init", prefix + ".init");
     funcsset.on_use = register_event(env, "on_use", prefix + ".use");
     funcsset.on_use_on_block =
@@ -688,9 +689,18 @@ class LuaGeneratorScript : public GeneratorScript {
     scriptenv env;
     std::vector<BlocksLayer> layers;
     uint lastLayersHeight;
+    uint seaLevel;
 public:
-    LuaGeneratorScript(scriptenv env, std::vector<BlocksLayer> layers, uint lastLayersHeight)
-    : env(std::move(env)), layers(std::move(layers)), lastLayersHeight(lastLayersHeight) {}
+    LuaGeneratorScript(
+        scriptenv env, 
+        std::vector<BlocksLayer> layers, 
+        uint lastLayersHeight,
+        uint seaLevel)
+    : env(std::move(env)), 
+      layers(std::move(layers)), 
+      lastLayersHeight(lastLayersHeight),
+      seaLevel(seaLevel) 
+      {}
 
     std::shared_ptr<Heightmap> generateHeightmap(
         const glm::ivec2& offset, const glm::ivec2& size
@@ -723,16 +733,54 @@ public:
     uint getLastLayersHeight() const override {
         return lastLayersHeight;
     }
+    
+    uint getSeaLevel() const override {
+        return seaLevel;
+    }
 };
+
+static BlocksLayer load_layer(
+    lua::State* L, int idx, uint& lastLayersHeight, bool& hasResizeableLayer
+) {
+    lua::requirefield(L, "block");
+    auto name = lua::require_string(L, -1);
+    lua::pop(L);
+    lua::requirefield(L, "height");
+    int height = lua::tointeger(L, -1);
+    lua::pop(L);
+    bool belowSeaLevel = true;
+    if (lua::getfield(L, "below_sea_level")) {
+        belowSeaLevel = lua::toboolean(L, -1);
+        lua::pop(L);
+    }
+
+    if (hasResizeableLayer) {
+        lastLayersHeight += height;
+    }
+    if (height == -1) {
+        if (hasResizeableLayer) {
+            throw std::runtime_error("only one resizeable layer allowed");
+        }
+        hasResizeableLayer = true;
+    }
+    return BlocksLayer {name, height, belowSeaLevel, {}};
+}
 
 std::unique_ptr<GeneratorScript> scripting::load_generator(
     const fs::path& file
 ) {
     auto env = create_environment();
-    load_script(*env, "generator", file);
-
     auto L = lua::get_main_thread();
+
+    lua::pop(L, load_script(*env, "generator", file));
+
     lua::pushenv(L, *env);
+
+    uint seaLevel = 0;
+    if (lua::getfield(L, "sea_level")) {
+        seaLevel = lua::tointeger(L, -1);
+        lua::pop(L);
+    }
 
     uint lastLayersHeight = 0;
     bool hasResizeableLayer = false;
@@ -741,41 +789,22 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
     if (lua::getfield(L, "layers")) {
         int len = lua::objlen(L, -1);
         for (int i = 1; i <= len; i++) {
+            lua::rawgeti(L, i);
             try {
-                lua::rawgeti(L, i);
-                lua::requirefield(L, "block");
-                auto name = lua::require_string(L, -1);
-                lua::pop(L);
-                lua::requirefield(L, "height");
-                int height = lua::tointeger(L, -1);
-                lua::pop(L);
-                bool below_sea_level = true;
-                if (lua::getfield(L, "below_sea_level")) {
-                    below_sea_level = lua::toboolean(L, -1);
-                    lua::pop(L);
-                }
-                lua::pop(L);
-
-                if (hasResizeableLayer) {
-                    lastLayersHeight += height;
-                }
-                if (height == -1) {
-                    if (hasResizeableLayer) {
-                        throw std::runtime_error("only one resizeable layer allowed");
-                    }
-                    hasResizeableLayer = true;
-                }
-                layers.push_back(BlocksLayer {name, height, below_sea_level, {}});
+                layers.push_back(
+                    load_layer(L, -1, lastLayersHeight, hasResizeableLayer));
             } catch (const std::runtime_error& err) {
                 lua::pop(L, 2);
                 throw std::runtime_error(
                     "layer #"+std::to_string(i)+": "+err.what());
             }
+            lua::pop(L);
         }
         lua::pop(L);
     }
     lua::pop(L);
-    return std::make_unique<LuaGeneratorScript>(std::move(env), std::move(layers), lastLayersHeight);
+    return std::make_unique<LuaGeneratorScript>(
+        std::move(env), std::move(layers), lastLayersHeight, seaLevel);
 }
 
 void scripting::load_world_script(
@@ -785,7 +814,7 @@ void scripting::load_world_script(
     world_funcs_set& funcsset
 ) {
     int env = *senv;
-    load_script(env, "world", file);
+    lua::pop(lua::get_main_thread(), load_script(env, "world", file));
     register_event(env, "init", prefix + ".init");
     register_event(env, "on_world_open", prefix + ".worldopen");
     register_event(env, "on_world_tick", prefix + ".worldtick");
@@ -804,7 +833,7 @@ void scripting::load_layout_script(
     uidocscript& script
 ) {
     int env = *senv;
-    load_script(env, "layout", file);
+    lua::pop(lua::get_main_thread(), load_script(env, "layout", file));
     script.onopen = register_event(env, "on_open", prefix + ".open");
     script.onprogress =
         register_event(env, "on_progress", prefix + ".progress");
