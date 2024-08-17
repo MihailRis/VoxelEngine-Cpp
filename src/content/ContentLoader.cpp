@@ -473,7 +473,11 @@ void ContentLoader::load() {
 
             auto& def = builder.generators.create(full);
 
-            loadGenerator(def, full, name);
+            try {
+                loadGenerator(def, full, name);
+            } catch (const std::runtime_error& err) {
+                throw std::runtime_error("generator '"+full+"': "+err.what());
+            }
         }
     }
 

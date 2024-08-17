@@ -1,3 +1,10 @@
+layers = {
+    {block="base:grass_block", height=1},
+    {block="base:dirt", height=1},
+    {block="base:stone", height=-1},
+    {block="base:bazalt", height=1},
+}
+
 function generate_heightmap(x, y, w, h)
     local umap = Heightmap(w, h)
     local vmap = Heightmap(w, h)
