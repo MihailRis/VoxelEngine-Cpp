@@ -11,6 +11,7 @@ class Content;
 struct BlocksLayer {
     std::string block;
     int height;
+    bool below_sea_level;
 
     struct {
         blockid_t id;

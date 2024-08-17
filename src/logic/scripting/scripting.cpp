@@ -748,7 +748,13 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
                 lua::pop(L);
                 lua::requirefield(L, "height");
                 int height = lua::tointeger(L, -1);
-                lua::pop(L, 2);
+                lua::pop(L);
+                bool below_sea_level = true;
+                if (lua::getfield(L, "below_sea_level")) {
+                    below_sea_level = lua::toboolean(L, -1);
+                    lua::pop(L);
+                }
+                lua::pop(L);
 
                 if (hasResizeableLayer) {
                     lastLayersHeight += height;
@@ -759,7 +765,7 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
                     }
                     hasResizeableLayer = true;
                 }
-                layers.push_back(BlocksLayer {name, height, {}});
+                layers.push_back(BlocksLayer {name, height, below_sea_level, {}});
             } catch (const std::runtime_error& err) {
                 lua::pop(L, 2);
                 throw std::runtime_error(

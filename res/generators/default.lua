@@ -1,6 +1,6 @@
 layers = {
-    {block="base:grass_block", height=1},
-    {block="base:dirt", height=1},
+    {block="base:grass_block", height=1, below_sea_level=false},
+    {block="base:dirt", height=5, below_sea_level=false},
     {block="base:stone", height=-1},
     {block="base:bazalt", height=1},
 }
