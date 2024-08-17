@@ -18,7 +18,7 @@ public:
     );
     virtual ~WorldGenerator() = default;
 
-    virtual void generate(voxel* voxels, int x, int z, int seed);
+    virtual void generate(voxel* voxels, int x, int z, uint64_t seed);
 
     inline static std::string DEFAULT = "core:default";
 };

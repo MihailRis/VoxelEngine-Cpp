@@ -23,7 +23,7 @@ public:
     virtual ~GeneratorScript() = default;
 
     virtual std::shared_ptr<Heightmap> generateHeightmap(
-        const glm::ivec2& offset, const glm::ivec2& size) = 0;
+        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed) = 0;
 
     virtual const std::vector<BlocksLayer>& getLayers() const = 0;
 

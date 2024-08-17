@@ -703,14 +703,15 @@ public:
       {}
 
     std::shared_ptr<Heightmap> generateHeightmap(
-        const glm::ivec2& offset, const glm::ivec2& size
+        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed
     ) override {
         auto L = lua::get_main_thread();
         lua::pushenv(L, *env);
         if (lua::getfield(L, "generate_heightmap")) {
             lua::pushivec_stack(L, offset);
             lua::pushivec_stack(L, size);
-            if (lua::call_nothrow(L, 4)) {
+            lua::pushinteger(L, seed);
+            if (lua::call_nothrow(L, 5)) {
                 auto map = lua::touserdata<lua::LuaHeightmap>(L, -1)->getHeightmap();
                 lua::pop(L, 2);
                 return map;

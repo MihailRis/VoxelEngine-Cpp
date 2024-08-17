@@ -15,10 +15,12 @@ WorldGenerator::WorldGenerator(
 }
 
 #include "util/timeutil.hpp"
-void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ, int seed) {
+void WorldGenerator::generate(
+    voxel* voxels, int chunkX, int chunkZ, uint64_t seed
+) {
     timeutil::ScopeLogTimer log(555);
     auto heightmap = def.script->generateHeightmap(
-        {chunkX*CHUNK_W, chunkZ*CHUNK_D}, {CHUNK_W, CHUNK_D}
+        {chunkX*CHUNK_W, chunkZ*CHUNK_D}, {CHUNK_W, CHUNK_D}, seed
     );
     auto values = heightmap->getValues();
     const auto& layers = def.script->getLayers();
@@ -30,6 +32,7 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ, int seed) {
 
     for (uint z = 0; z < CHUNK_D; z++) {
         for (uint x = 0; x < CHUNK_W; x++) {
+            // generate water
             int height = values[z * CHUNK_W + x] * CHUNK_H;
             for (uint y = height+1; y <= seaLevel; y++) {
                 voxels[vox_index(x, y, z)].id = baseWater;
@@ -38,12 +41,15 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ, int seed) {
             uint y = height;
             uint layerExtension = 0;
             for (const auto& layer : layers) {
+                // skip layer if can't be generated under sea level
                 if (y < seaLevel && !layer.below_sea_level) {
                     layerExtension = std::max(0, layer.height);
                     continue;
                 }
+                
                 uint layerHeight = layer.height;
                 if (layerHeight == -1) {
+                    // resizeable layer
                     layerHeight = y - lastLayersHeight + 1;
                 } else {
                     layerHeight += layerExtension;
