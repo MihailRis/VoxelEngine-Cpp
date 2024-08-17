@@ -26,9 +26,11 @@ public:
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed) = 0;
 
     virtual const std::vector<BlocksLayer>& getLayers() const = 0;
+    virtual const std::vector<BlocksLayer>& getSeaLayers() const = 0;
 
     /// @brief Total height of all layers after resizeable one
     virtual uint getLastLayersHeight() const = 0;
+    virtual uint getLastSeaLayersHeight() const = 0;
 
     virtual uint getSeaLevel() const = 0;
 

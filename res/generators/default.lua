@@ -1,5 +1,9 @@
 sea_level = 64
 
+sea_layers = {
+    {block="base:water", height=-1},
+}
+
 layers = {
     {block="base:grass_block", height=1, below_sea_level=false},
     {block="base:dirt", height=5, below_sea_level=false},
@@ -20,7 +24,7 @@ local function _generate_heightmap(x, y, w, h, seed, s)
     map:noise({x, y}, 0.8*s, 4, 0.04)
     map:cellnoise({x, y}, 0.1*s, 3, 0.7, umap, vmap)
     map:mul(0.5)
-    map:add(0.3)
+    map:add(0.5)
 
     local rivermap = Heightmap(w, h)
     rivermap.noiseSeed = seed
@@ -50,6 +54,3 @@ function generate_heightmap(x, y, w, h, seed)
     map:crop(0, 0, w, h)
     return map
 end
-
-local map = generate_heightmap(0, 0, 1024, 1024, 0)
-map:dump("heightmap.png")

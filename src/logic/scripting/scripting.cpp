@@ -688,17 +688,23 @@ void scripting::load_entity_component(
 class LuaGeneratorScript : public GeneratorScript {
     scriptenv env;
     std::vector<BlocksLayer> layers;
+    std::vector<BlocksLayer> seaLayers;
     uint lastLayersHeight;
+    uint lastSeaLayersHeight;
     uint seaLevel;
 public:
     LuaGeneratorScript(
         scriptenv env, 
-        std::vector<BlocksLayer> layers, 
+        std::vector<BlocksLayer> layers,
+        std::vector<BlocksLayer> seaLayers,
         uint lastLayersHeight,
+        uint lastSeaLayersHeight,
         uint seaLevel)
     : env(std::move(env)), 
       layers(std::move(layers)), 
+      seaLayers(std::move(seaLayers)),
       lastLayersHeight(lastLayersHeight),
+      lastSeaLayersHeight(lastSeaLayersHeight),
       seaLevel(seaLevel) 
       {}
 
@@ -725,14 +731,25 @@ public:
         for (auto& layer : layers) {
             layer.rt.id = content->blocks.require(layer.block).rt.id;
         }
+        for (auto& layer : seaLayers) {
+            layer.rt.id = content->blocks.require(layer.block).rt.id;
+        }
     }
 
     const std::vector<BlocksLayer>& getLayers() const override {
         return layers;
     }
 
+    const std::vector<BlocksLayer>& getSeaLayers() const override {
+        return seaLayers;
+    }
+
     uint getLastLayersHeight() const override {
         return lastLayersHeight;
+    }
+
+    uint getLastSeaLayersHeight() const override {
+        return lastSeaLayersHeight;
     }
     
     uint getSeaLevel() const override {
@@ -784,9 +801,12 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
     }
 
     uint lastLayersHeight = 0;
+    uint lastSeaLayersHeight = 0;
     bool hasResizeableLayer = false;
+    bool hasResizeableSeaLayer = false;
 
     std::vector<BlocksLayer> layers;
+    std::vector<BlocksLayer> seaLayers;
     if (lua::getfield(L, "layers")) {
         int len = lua::objlen(L, -1);
         for (int i = 1; i <= len; i++) {
@@ -803,9 +823,28 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
         }
         lua::pop(L);
     }
+    if (lua::getfield(L, "sea_layers")) {
+        int len = lua::objlen(L, -1);
+        for (int i = 1; i <= len; i++) {
+            lua::rawgeti(L, i);
+            try {
+                seaLayers.push_back(
+                    load_layer(L, -1, lastSeaLayersHeight, hasResizeableSeaLayer));
+            } catch (const std::runtime_error& err) {
+                lua::pop(L, 2);
+                throw std::runtime_error(
+                    "sea layer #"+std::to_string(i)+": "+err.what());
+            }
+            lua::pop(L);
+        }
+        lua::pop(L);
+    }
     lua::pop(L);
     return std::make_unique<LuaGeneratorScript>(
-        std::move(env), std::move(layers), lastLayersHeight, seaLevel);
+        std::move(env), 
+        std::move(layers), std::move(seaLayers), 
+        lastLayersHeight, lastSeaLayersHeight, 
+        seaLevel);
 }
 
 void scripting::load_world_script(
