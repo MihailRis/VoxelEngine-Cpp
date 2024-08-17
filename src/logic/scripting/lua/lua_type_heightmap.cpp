@@ -53,6 +53,7 @@ static int l_dump(lua::State* L) {
     return 0;
 }
 
+template<fnl_noise_type noise_type>
 static int l_noise(lua::State* L) {
     if (auto heightmap = touserdata<LuaHeightmap>(L, 1)) {
         uint w = heightmap->getWidth();
@@ -79,6 +80,7 @@ static int l_noise(lua::State* L) {
         if (gettop(L) > 6) {
             shiftMapY = touserdata<LuaHeightmap>(L, 7);
         }
+        noise->noise_type = noise_type;
         for (uint y = 0; y < h; y++) {
             for (uint x = 0; x < w; x++) {
                 uint i = y * w + x;
@@ -150,15 +152,31 @@ static int l_unaryop_func(lua::State* L) {
     return 0;
 }
 
+static int l_resize(lua::State* L) {
+    if (auto heightmap = touserdata<LuaHeightmap>(L, 1)) {
+        uint width = touinteger(L, 2);
+        uint height = touinteger(L, 3);
+        auto interpName = tostring(L, 4);
+        auto interpolation = InterpolationType::NEAREST;
+        if (!std::strcmp(interpName, "linear")) {
+            interpolation = InterpolationType::LINEAR;
+        }
+        heightmap->getHeightmap()->resize(width, height, interpolation);
+    }
+    return 0;
+}
+
 static std::unordered_map<std::string, lua_CFunction> methods {
     {"dump", lua::wrap<l_dump>},
-    {"noise", lua::wrap<l_noise>},
+    {"noise", lua::wrap<l_noise<FNL_NOISE_OPENSIMPLEX2>>},
+    {"cellnoise", lua::wrap<l_noise<FNL_NOISE_CELLULAR>>},
     {"pow", lua::wrap<l_binop_func<util::pow>>},
     {"add", lua::wrap<l_binop_func<std::plus>>},
     {"mul", lua::wrap<l_binop_func<std::multiplies>>},
     {"min", lua::wrap<l_binop_func<util::min>>},
     {"max", lua::wrap<l_binop_func<util::max>>},
     {"abs", lua::wrap<l_unaryop_func<util::abs>>},
+    {"resize", lua::wrap<l_resize>},
 };
 
 static int l_meta_meta_call(lua::State* L) {
