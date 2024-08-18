@@ -687,24 +687,18 @@ void scripting::load_entity_component(
 
 class LuaGeneratorScript : public GeneratorScript {
     scriptenv env;
-    std::vector<BlocksLayer> layers;
-    std::vector<BlocksLayer> seaLayers;
-    uint lastLayersHeight;
-    uint lastSeaLayersHeight;
+    BlocksLayers groundLayers;
+    BlocksLayers seaLayers;
     uint seaLevel;
 public:
     LuaGeneratorScript(
         scriptenv env, 
-        std::vector<BlocksLayer> layers,
-        std::vector<BlocksLayer> seaLayers,
-        uint lastLayersHeight,
-        uint lastSeaLayersHeight,
+        BlocksLayers groundLayers,
+        BlocksLayers seaLayers,
         uint seaLevel)
     : env(std::move(env)), 
-      layers(std::move(layers)), 
+      groundLayers(std::move(groundLayers)), 
       seaLayers(std::move(seaLayers)),
-      lastLayersHeight(lastLayersHeight),
-      lastSeaLayersHeight(lastSeaLayersHeight),
       seaLevel(seaLevel) 
       {}
 
@@ -728,30 +722,22 @@ public:
     }
 
     void prepare(const Content* content) override {
-        for (auto& layer : layers) {
+        for (auto& layer : groundLayers.layers) {
             layer.rt.id = content->blocks.require(layer.block).rt.id;
         }
-        for (auto& layer : seaLayers) {
+        for (auto& layer : seaLayers.layers) {
             layer.rt.id = content->blocks.require(layer.block).rt.id;
         }
     }
 
-    const std::vector<BlocksLayer>& getLayers() const override {
-        return layers;
+    const BlocksLayers& getGroundLayers() const override {
+        return groundLayers;
     }
 
-    const std::vector<BlocksLayer>& getSeaLayers() const override {
+    const BlocksLayers& getSeaLayers() const override {
         return seaLayers;
     }
 
-    uint getLastLayersHeight() const override {
-        return lastLayersHeight;
-    }
-
-    uint getLastSeaLayersHeight() const override {
-        return lastSeaLayersHeight;
-    }
-    
     uint getSeaLevel() const override {
         return seaLevel;
     }
@@ -784,6 +770,32 @@ static BlocksLayer load_layer(
     return BlocksLayer {name, height, belowSeaLevel, {}};
 }
 
+static inline BlocksLayers load_layers(
+    lua::State* L, const std::string& fieldname
+) {
+    uint lastLayersHeight = 0;
+    bool hasResizeableLayer = false;
+    std::vector<BlocksLayer> layers;
+
+    if (lua::getfield(L, fieldname)) {
+        int len = lua::objlen(L, -1);
+        for (int i = 1; i <= len; i++) {
+            lua::rawgeti(L, i);
+            try {
+                layers.push_back(
+                    load_layer(L, -1, lastLayersHeight, hasResizeableLayer));
+            } catch (const std::runtime_error& err) {
+                lua::pop(L, 2);
+                throw std::runtime_error(
+                    fieldname+" #"+std::to_string(i)+": "+err.what());
+            }
+            lua::pop(L);
+        }
+        lua::pop(L);
+    }
+    return BlocksLayers {std::move(layers), lastLayersHeight};
+}
+
 std::unique_ptr<GeneratorScript> scripting::load_generator(
     const fs::path& file
 ) {
@@ -800,50 +812,25 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
         lua::pop(L);
     }
 
-    uint lastLayersHeight = 0;
+    uint lastGroundLayersHeight = 0;
     uint lastSeaLayersHeight = 0;
-    bool hasResizeableLayer = false;
+    bool hasResizeableGroundLayer = false;
     bool hasResizeableSeaLayer = false;
 
-    std::vector<BlocksLayer> layers;
-    std::vector<BlocksLayer> seaLayers;
-    if (lua::getfield(L, "layers")) {
-        int len = lua::objlen(L, -1);
-        for (int i = 1; i <= len; i++) {
-            lua::rawgeti(L, i);
-            try {
-                layers.push_back(
-                    load_layer(L, -1, lastLayersHeight, hasResizeableLayer));
-            } catch (const std::runtime_error& err) {
-                lua::pop(L, 2);
-                throw std::runtime_error(
-                    "layer #"+std::to_string(i)+": "+err.what());
-            }
-            lua::pop(L);
-        }
+    BlocksLayers groundLayers;
+    BlocksLayers seaLayers;
+    try {
+        groundLayers = load_layers(L, "layers");
+        seaLayers = load_layers(L, "sea_layers");
+    } catch (const std::runtime_error& err) {
         lua::pop(L);
-    }
-    if (lua::getfield(L, "sea_layers")) {
-        int len = lua::objlen(L, -1);
-        for (int i = 1; i <= len; i++) {
-            lua::rawgeti(L, i);
-            try {
-                seaLayers.push_back(
-                    load_layer(L, -1, lastSeaLayersHeight, hasResizeableSeaLayer));
-            } catch (const std::runtime_error& err) {
-                lua::pop(L, 2);
-                throw std::runtime_error(
-                    "sea layer #"+std::to_string(i)+": "+err.what());
-            }
-            lua::pop(L);
-        }
-        lua::pop(L);
+        throw std::runtime_error(file.u8string()+": "+err.what());
     }
     lua::pop(L);
     return std::make_unique<LuaGeneratorScript>(
         std::move(env), 
-        std::move(layers), std::move(seaLayers), 
-        lastLayersHeight, lastSeaLayersHeight, 
+        std::move(groundLayers), 
+        std::move(seaLayers), 
         seaLevel);
 }
 
