@@ -56,8 +56,9 @@ void WorldGenerator::generate(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed
     );
     auto values = heightmap->getValues();
-    const auto& groundLayers = def.script->getGroundLayers();
-    const auto& seaLayers = def.script->getSeaLayers();
+    const auto& biome = def.script->getBiome();
+    const auto& groundLayers = biome.groundLayers;
+    const auto& seaLayers = biome.seaLayers;
 
     uint seaLevel = def.script->getSeaLevel();
 

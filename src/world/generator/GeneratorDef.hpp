@@ -33,6 +33,12 @@ struct BlocksLayers {
     uint lastLayersHeight;
 };
 
+struct Biome {
+    std::string name;
+    BlocksLayers groundLayers;
+    BlocksLayers seaLayers;
+};
+
 /// @brief Generator behaviour and settings interface
 class GeneratorScript {
 public:
@@ -46,8 +52,7 @@ public:
     virtual std::shared_ptr<Heightmap> generateHeightmap(
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed) = 0;
 
-    virtual const BlocksLayers& getGroundLayers() const = 0;
-    virtual const BlocksLayers& getSeaLayers() const = 0;
+    virtual const Biome& getBiome() const = 0;
 
     virtual uint getSeaLevel() const = 0;
 
