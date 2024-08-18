@@ -101,7 +101,6 @@ static inline BlocksLayers load_layers(
                 layers.push_back(
                     load_layer(L, -1, lastLayersHeight, hasResizeableLayer));
             } catch (const std::runtime_error& err) {
-                lua::pop(L, 2);
                 throw std::runtime_error(
                     fieldname+" #"+std::to_string(i)+": "+err.what());
             }
@@ -117,6 +116,7 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
 ) {
     auto env = create_environment();
     auto L = lua::get_main_thread();
+    lua::stackguard _(L);
 
     lua::pop(L, load_script(*env, "generator", file));
 
@@ -139,7 +139,6 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
         groundLayers = load_layers(L, "layers");
         seaLayers = load_layers(L, "sea_layers");
     } catch (const std::runtime_error& err) {
-        lua::pop(L);
         throw std::runtime_error(file.u8string()+": "+err.what());
     }
     lua::pop(L);
