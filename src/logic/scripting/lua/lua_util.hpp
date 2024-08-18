@@ -4,7 +4,7 @@
 #include <typeinfo>
 #include <unordered_map>
 
-#include "lua_commons.hpp"
+#include "lua_wrapper.hpp"
 #include "lua_custom_types.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
@@ -17,68 +17,6 @@ namespace lua {
     int userdata_destructor(lua::State* L);
 
     std::string env_name(int env);
-
-    template <lua_CFunction func>
-    int wrap(lua_State* L) {
-        int result = 0;
-        try {
-            result = func(L);
-        }
-        // transform exception with description into lua_error
-        catch (std::exception& e) {
-            luaL_error(L, e.what());
-        }
-        // Rethrow any other exception (lua error for example)
-        catch (...) {
-            throw;
-        }
-        return result;
-    }
-
-    inline void pop(lua::State* L, int n = 1) {
-        lua_pop(L, n);
-    }
-    inline void insert(lua::State* L, int idx) {
-        lua_insert(L, idx);
-    }
-    inline void remove(lua::State* L, int idx) {
-        lua_remove(L, idx);
-    }
-    inline int gettop(lua::State* L) {
-        return lua_gettop(L);
-    }
-    inline size_t objlen(lua::State* L, int idx) {
-        return lua_objlen(L, idx);
-    }
-    inline int next(lua::State* L, int idx) {
-        return lua_next(L, idx);
-    }
-    inline int type(lua::State* L, int idx) {
-        return lua_type(L, idx);
-    }
-    inline const char* type_name(lua::State* L, int idx) {
-        return lua_typename(L, idx);
-    }
-    inline int rawget(lua::State* L, int idx = -2) {
-        lua_rawget(L, idx);
-        return 1;
-    }
-    inline int rawgeti(lua::State* L, int n, int idx = -1) {
-        lua_rawgeti(L, idx, n);
-        return 1;
-    }
-    inline void rawseti(lua::State* L, int n, int idx = -2) {
-        lua_rawseti(L, idx, n);
-    }
-
-    inline int createtable(lua::State* L, int narr, int nrec) {
-        lua_createtable(L, narr, nrec);
-        return 1;
-    }
-
-    inline bool isnil(lua::State* L, int idx) {
-        return lua_isnil(L, idx);
-    }
 
     inline bool getglobal(lua::State* L, const std::string& name) {
         lua_getglobal(L, name.c_str());
@@ -107,25 +45,8 @@ namespace lua {
         return true;
     }
 
-    // function wrappers with number of pushed values as return value
-
-    inline int pushnil(lua::State* L) {
-        lua_pushnil(L);
-        return 1;
-    }
-
-    inline int pushinteger(lua::State* L, lua::Integer x) {
-        lua_pushinteger(L, x);
-        return 1;
-    }
-
-    inline int pushnumber(lua::State* L, lua::Number x) {
-        lua_pushnumber(L, x);
-        return 1;
-    }
-
     template <int n>
-    inline int pushvec(lua::State* L, glm::vec<n, float> vec) {
+    inline int pushvec(lua::State* L, const glm::vec<n, float>& vec) {
         createtable(L, n, 0);
         for (int i = 0; i < n; i++) {
             pushnumber(L, vec[i]);
@@ -135,7 +56,7 @@ namespace lua {
     }
 
     template <int n>
-    inline int pushivec(lua::State* L, glm::vec<n, int> vec) {
+    inline int pushivec(lua::State* L, const glm::vec<n, int>& vec) {
         createtable(L, n, 0);
         for (int i = 0; i < n; i++) {
             pushinteger(L, vec[i]);
@@ -144,42 +65,20 @@ namespace lua {
         return 1;
     }
 
-    inline int pushivec3_stack(
-        lua::State* L, lua::Integer x, lua::Integer y, lua::Integer z
-    ) {
-        pushinteger(L, x);
-        pushinteger(L, y);
-        pushinteger(L, z);
-        return 3;
-    }
-
     template<int n>
-    inline int pushivec_stack(lua::State* L, glm::vec<n, int> vec) {
+    inline int pushvec_stack(lua::State* L, const glm::vec<n, float>& vec) {
         for (int i = 0; i < n; i++) {
-            pushinteger(L, vec[i]);
+            pushnumber(L, vec[i]);
         }
         return n;
     }
 
-    inline int pushivec3_stack(lua::State* L, glm::ivec3 vec) {
-        pushinteger(L, vec.x);
-        pushinteger(L, vec.y);
-        pushinteger(L, vec.z);
-        return 3;
-    }
-
-    inline int pushvec3_stack(lua::State* L, glm::vec3 vec) {
-        pushnumber(L, vec.x);
-        pushnumber(L, vec.y);
-        pushnumber(L, vec.z);
-        return 3;
-    }
-    inline int pushvec4_stack(lua::State* L, glm::vec4 vec) {
-        pushnumber(L, vec.x);
-        pushnumber(L, vec.y);
-        pushnumber(L, vec.z);
-        pushnumber(L, vec.w);
-        return 4;
+    template<int n>
+    inline int pushivec_stack(lua::State* L, const glm::vec<n, int>& vec) {
+        for (int i = 0; i < n; i++) {
+            pushinteger(L, vec[i]);
+        }
+        return n;
     }
 
     inline void setmetatable(lua::State* L, int idx = -2) {
@@ -660,5 +559,34 @@ namespace lua {
         createtable(L, 0, 0);
         luaL_setfuncs(L, libfuncs, 0);
         setglobal(L, name);
+    }
+
+    inline const char* require_string_field(
+        lua::State* L, const std::string& name, int idx=-1
+    ) {
+        requirefield(L, name, idx);
+        auto value = require_string(L, -1);
+        lua::pop(L);
+        return value;
+    }
+
+    inline Integer require_integer_field(
+        lua::State* L, const std::string& name, int idx=-1
+    ) {
+        requirefield(L, name, idx);
+        auto value = tointeger(L, -1);
+        lua::pop(L);
+        return value;
+    }
+
+    inline bool get_boolean_field(
+        lua::State* L, const std::string& name, bool def, int idx=-1
+    ) {
+        if (getfield(L, name, idx)) {
+            bool value = toboolean(L, -1);
+            pop(L);
+            return value;
+        }
+        return def;
     }
 }
