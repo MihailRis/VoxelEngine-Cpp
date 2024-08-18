@@ -57,7 +57,7 @@ static int l_is_extended(lua::State* L) {
 
 static int l_get_size(lua::State* L) {
     if (auto def = require_block(L)) {
-        return lua::pushivec3_stack(L, def->size.x, def->size.y, def->size.z);
+        return lua::pushivec_stack(L, glm::ivec3(def->size));
     }
     return 0;
 }
@@ -76,7 +76,7 @@ static int l_seek_origin(lua::State* L) {
     auto z = lua::tointeger(L, 3);
     auto vox = level->chunks->get(x, y, z);
     auto& def = indices->blocks.require(vox->id);
-    return lua::pushivec3_stack(
+    return lua::pushivec_stack(
         L, level->chunks->seekOrigin({x, y, z}, def, vox->state)
     );
 }
@@ -117,14 +117,14 @@ static int l_get_x(lua::State* L) {
     auto z = lua::tointeger(L, 3);
     auto vox = level->chunks->get(x, y, z);
     if (vox == nullptr) {
-        return lua::pushivec3_stack(L, 1, 0, 0);
+        return lua::pushivec_stack(L, glm::ivec3(1, 0, 0));
     }
-    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    const auto& def = level->content->getIndices()->blocks.require(vox->id);
     if (!def.rotatable) {
-        return lua::pushivec3_stack(L, 1, 0, 0);
+        return lua::pushivec_stack(L, glm::ivec3(1, 0, 0));
     } else {
         const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
-        return lua::pushivec3_stack(L, rot.axisX.x, rot.axisX.y, rot.axisX.z);
+        return lua::pushivec_stack(L, rot.axisX);
     }
 }
 
@@ -134,14 +134,14 @@ static int l_get_y(lua::State* L) {
     auto z = lua::tointeger(L, 3);
     auto vox = level->chunks->get(x, y, z);
     if (vox == nullptr) {
-        return lua::pushivec3_stack(L, 0, 1, 0);
+        return lua::pushivec_stack(L, glm::ivec3(0, 1, 0));
     }
-    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    const auto& def = level->content->getIndices()->blocks.require(vox->id);
     if (!def.rotatable) {
-        return lua::pushivec3_stack(L, 0, 1, 0);
+        return lua::pushivec_stack(L, glm::ivec3(0, 1, 0));
     } else {
         const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
-        return lua::pushivec3_stack(L, rot.axisY.x, rot.axisY.y, rot.axisY.z);
+        return lua::pushivec_stack(L, rot.axisY);
     }
 }
 
@@ -151,14 +151,14 @@ static int l_get_z(lua::State* L) {
     auto z = lua::tointeger(L, 3);
     auto vox = level->chunks->get(x, y, z);
     if (vox == nullptr) {
-        return lua::pushivec3_stack(L, 0, 0, 1);
+        return lua::pushivec_stack(L, glm::ivec3(0, 0, 1));
     }
-    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    const auto& def = level->content->getIndices()->blocks.require(vox->id);
     if (!def.rotatable) {
-        return lua::pushivec3_stack(L, 0, 0, 1);
+        return lua::pushivec_stack(L, glm::ivec3(0, 0, 1));
     } else {
         const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
-        return lua::pushivec3_stack(L, rot.axisZ.x, rot.axisZ.y, rot.axisZ.z);
+        return lua::pushivec_stack(L, rot.axisZ);
     }
 }
 

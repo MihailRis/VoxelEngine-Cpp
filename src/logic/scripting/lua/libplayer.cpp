@@ -17,7 +17,7 @@ inline std::shared_ptr<Player> get_player(lua::State* L, int idx) {
 
 static int l_get_pos(lua::State* L) {
     if (auto player = get_player(L, 1)) {
-        return lua::pushvec3_stack(L, player->getPosition());
+        return lua::pushvec_stack(L, player->getPosition());
     }
     return 0;
 }
@@ -37,7 +37,7 @@ static int l_set_pos(lua::State* L) {
 static int l_get_vel(lua::State* L) {
     if (auto player = get_player(L, 1)) {
         if (auto hitbox = player->getHitbox()) {
-            return lua::pushvec3_stack(L, hitbox->velocity);
+            return lua::pushvec_stack(L, hitbox->velocity);
         }
     }
     return 0;
@@ -59,7 +59,7 @@ static int l_set_vel(lua::State* L) {
 
 static int l_get_rot(lua::State* L) {
     if (auto player = get_player(L, 1)) {
-        return lua::pushvec3_stack(L, player->cam);
+        return lua::pushvec_stack(L, player->cam);
     }
     return 0;
 }
@@ -133,7 +133,7 @@ static int l_get_selected_block(lua::State* L) {
         if (player->selection.vox.id == BLOCK_VOID) {
             return 0;
         }
-        return lua::pushivec3_stack(L, player->selection.position);
+        return lua::pushivec_stack(L, player->selection.position);
     }
     return 0;
 }
@@ -149,15 +149,13 @@ static int l_get_selected_entity(lua::State* L) {
 
 static int l_get_spawnpoint(lua::State* L) {
     if (auto player = get_player(L, 1)) {
-        return lua::pushvec3_stack(L, player->getSpawnPoint());
+        return lua::pushvec_stack(L, player->getSpawnPoint());
     }
     return 0;
 }
 
 static int l_set_spawnpoint(lua::State* L) {
-    auto player = get_player(L, 1);
-
-    if (player) {
+    if (auto player = get_player(L, 1)) {
         auto x = lua::tonumber(L, 2);
         auto y = lua::tonumber(L, 3);
         auto z = lua::tonumber(L, 4);
