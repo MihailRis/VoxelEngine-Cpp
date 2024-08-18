@@ -15,14 +15,14 @@ WorldGenerator::WorldGenerator(const GeneratorDef& def, const Content* content)
 
 static inline void generate_pole(
     const BlocksLayers& layers,
-    int height,
+    int top,
     int bottom,
     int seaLevel,
     voxel* voxels,
     int x,
     int z
 ) {
-    uint y = height;
+    uint y = top;
     uint layerExtension = 0;
     for (const auto& layer : layers.layers) {
         // skip layer if can't be generated under sea level
