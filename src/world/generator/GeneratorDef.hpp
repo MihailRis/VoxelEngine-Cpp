@@ -61,6 +61,9 @@ public:
     virtual std::shared_ptr<Heightmap> generateHeightmap(
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed) = 0;
 
+    virtual std::vector<std::shared_ptr<Heightmap>> generateParameterMaps(
+        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed) = 0;
+
     virtual const std::vector<Biome>& getBiomes() const = 0;
 
     /// @return Number of biome parameters, that biome choosing depending on

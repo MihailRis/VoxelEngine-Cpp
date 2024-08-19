@@ -9,6 +9,8 @@
 #include "voxels/Chunk.hpp"
 #include "world/generator/GeneratorDef.hpp"
 
+// TODO: use dynamic::* for parsing
+
 class LuaGeneratorScript : public GeneratorScript {
     scriptenv env;
     std::vector<Biome> biomes;
@@ -43,6 +45,34 @@ public:
         }
         lua::pop(L);
         return std::make_shared<Heightmap>(size.x, size.y);
+    }
+
+    std::vector<std::shared_ptr<Heightmap>> generateParameterMaps(
+        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed
+    ) override {
+        std::vector<std::shared_ptr<Heightmap>> maps;
+
+        auto L = lua::get_main_thread();
+        lua::pushenv(L, *env);
+        if (lua::getfield(L, "generate_biome_parameters")) {
+            lua::pushivec_stack(L, offset);
+            lua::pushivec_stack(L, size);
+            lua::pushinteger(L, seed);
+            if (lua::call_nothrow(L, 5, biomeParameters)) {
+                for (int i = biomeParameters-1; i >= 0; i--) {
+                    maps.push_back(
+                        lua::touserdata<lua::LuaHeightmap>(L, -1-i)->getHeightmap());
+                    
+                }
+                lua::pop(L, 1+biomeParameters);
+                return maps;
+            }
+        }
+        lua::pop(L);
+        for (uint i = 0; i < biomeParameters; i++) {
+            maps.push_back(std::make_shared<Heightmap>(size.x, size.y));
+        }
+        return maps;
     }
 
     void prepare(const Content* content) override {
@@ -118,7 +148,7 @@ static inline Biome load_biome(
 ) {
     lua::pushvalue(L, idx);
 
-    std::vector<BiomeParameter> parameters(parametersCount);
+    std::vector<BiomeParameter> parameters;
     lua::requirefield(L, "parameters");
     if (lua::objlen(L, -1) < parametersCount) {
         throw std::runtime_error(

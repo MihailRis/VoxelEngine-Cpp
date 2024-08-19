@@ -37,6 +37,14 @@ public:
         return height;
     }
 
+    float get(uint x, uint y) {
+        return buffer.at(y * width + x);
+    }
+
+    float getUnchecked(uint x, uint y) {
+        return buffer[y * width + x];
+    }
+
     float* getValues() {
         return buffer.data();
     }

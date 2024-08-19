@@ -9,6 +9,8 @@
 #include "voxels/voxel.hpp"
 #include "world/generator/GeneratorDef.hpp"
 
+static inline constexpr uint MAX_PARAMETERS = 16;
+
 WorldGenerator::WorldGenerator(const GeneratorDef& def, const Content* content)
     : def(def), content(content) {
 }
@@ -30,7 +32,6 @@ static inline void generate_pole(
             layerExtension = std::max(0, layer.height);
             continue;
         }
-
         int layerHeight = layer.height;
         if (layerHeight == -1) {
             // resizeable layer
@@ -47,6 +48,32 @@ static inline void generate_pole(
     }
 }
 
+static inline const Biome* choose_biome(
+    const std::vector<Biome>& biomes,
+    const std::vector<std::shared_ptr<Heightmap>>& maps,
+    uint x, uint z
+) {
+    uint paramsCount = maps.size();
+    float params[MAX_PARAMETERS];
+    for (uint i = 0; i < paramsCount; i++) {
+        params[i] = maps[i]->getUnchecked(x, z);
+    }
+    const Biome* chosenBiome = nullptr;
+    float chosenScore = std::numeric_limits<float>::infinity();
+    for (const auto& biome : biomes) {
+        float score = 0.0f;
+        for (uint i = 0; i < paramsCount; i++) {
+            score += glm::abs((params[i] - biome.parameters[i].origin) / 
+                              biome.parameters[i].weight);
+        }
+        if (score < chosenScore) {
+            chosenScore = score;
+            chosenBiome = &biome;
+        }
+    }
+    return chosenBiome;
+}
+
 #include "util/timeutil.hpp"
 void WorldGenerator::generate(
     voxel* voxels, int chunkX, int chunkZ, uint64_t seed
@@ -55,11 +82,11 @@ void WorldGenerator::generate(
     auto heightmap = def.script->generateHeightmap(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed
     );
+    auto biomeParams = def.script->generateParameterMaps(
+        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed
+    );
     auto values = heightmap->getValues();
     const auto& biomes = def.script->getBiomes();
-    const auto& biome = biomes.at(0);
-    const auto& groundLayers = biome.groundLayers;
-    const auto& seaLayers = biome.seaLayers;
 
     uint seaLevel = def.script->getSeaLevel();
 
@@ -67,8 +94,13 @@ void WorldGenerator::generate(
 
     for (uint z = 0; z < CHUNK_D; z++) {
         for (uint x = 0; x < CHUNK_W; x++) {
+            const Biome* biome = choose_biome(biomes, biomeParams, x, z);
+
             int height = values[z * CHUNK_W + x] * CHUNK_H;
             height = std::max(0, height);
+
+            const auto& groundLayers = biome->groundLayers;
+            const auto& seaLayers = biome->seaLayers;
 
             generate_pole(seaLayers, seaLevel, height, seaLevel, voxels, x, z);
             generate_pole(groundLayers, height, 0, seaLevel, voxels, x, z);
