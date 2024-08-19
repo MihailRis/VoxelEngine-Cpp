@@ -5,6 +5,10 @@ sea_level = 64
 biome_parameters = 2
 
 biome = {
+    parameters = {
+        {value=0.5, weight=1.0},
+        {value=0.5, weight=1.0},
+    },
     sea_layers = {
         {block="base:water", height=-1},
     },

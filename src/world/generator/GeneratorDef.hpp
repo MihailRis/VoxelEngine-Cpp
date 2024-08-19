@@ -33,8 +33,17 @@ struct BlocksLayers {
     uint lastLayersHeight;
 };
 
+struct BiomeParameter {
+    /// @brief Central parameter value for the biome
+    float origin;
+    /// @brief Parameter score multiplier 
+    /// (the higher the value, the greater the chance of biome choosing)
+    float weight;
+};
+
 struct Biome {
     std::string name;
+    std::vector<BiomeParameter> parameters;
     BlocksLayers groundLayers;
     BlocksLayers seaLayers;
 };
@@ -67,6 +76,7 @@ public:
 
 /// @brief Generator information
 struct GeneratorDef {
+    /// @brief Generator full name - packid:name
     std::string name;
     std::unique_ptr<GeneratorScript> script;
 

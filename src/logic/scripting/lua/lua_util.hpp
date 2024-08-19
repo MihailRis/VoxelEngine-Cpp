@@ -566,7 +566,7 @@ namespace lua {
     ) {
         requirefield(L, name, idx);
         auto value = require_string(L, -1);
-        lua::pop(L);
+        pop(L);
         return value;
     }
 
@@ -575,7 +575,16 @@ namespace lua {
     ) {
         requirefield(L, name, idx);
         auto value = tointeger(L, -1);
-        lua::pop(L);
+        pop(L);
+        return value;
+    }
+
+    inline Number require_number_field(
+        lua::State* L, const std::string& name, int idx=-1
+    ) {
+        requirefield(L, name, idx);
+        auto value = tonumber(L, -1);
+        pop(L);
         return value;
     }
 

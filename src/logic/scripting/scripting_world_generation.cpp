@@ -112,9 +112,25 @@ static inline BlocksLayers load_layers(
 }
 
 static inline Biome load_biome(
-    lua::State* L, const std::string& name, int idx
+    lua::State* L, const std::string& name, uint parametersCount, int idx
 ) {
     lua::pushvalue(L, idx);
+
+    std::vector<BiomeParameter> parameters(parametersCount);
+    lua::requirefield(L, "parameters");
+    if (lua::objlen(L, -1) < parametersCount) {
+        throw std::runtime_error(
+            std::to_string(parametersCount)+" parameters expected");
+    }
+    for (uint i = 1; i <= parametersCount; i++) {
+        lua::rawgeti(L, i);
+        float value = lua::require_number_field(L, "value");
+        float weight = lua::require_number_field(L, "weight");
+        parameters.push_back(BiomeParameter {value, weight});
+        lua::pop(L);
+    }
+    lua::pop(L);
+
     BlocksLayers groundLayers;
     BlocksLayers seaLayers;
     try {
@@ -124,7 +140,11 @@ static inline Biome load_biome(
         throw std::runtime_error("biome "+name+": "+err.what());
     }
     lua::pop(L);
-    return Biome {name, std::move(groundLayers), std::move(seaLayers)};
+    return Biome {
+        name,
+        std::move(parameters),
+        std::move(groundLayers),
+        std::move(seaLayers)};
 }
 
 std::unique_ptr<GeneratorScript> scripting::load_generator(
@@ -141,7 +161,7 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
     uint biomeParameters = lua::get_integer_field(L, "biome_parameters", 0, 0, 16);
     uint seaLevel = lua::get_integer_field(L, "sea_level", 0, 0, CHUNK_H);
     lua::requirefield(L, "biome");
-    Biome biome = load_biome(L, "default", -1);
+    Biome biome = load_biome(L, "default", biomeParameters, -1);
     lua::pop(L);
 
     lua::pop(L);
