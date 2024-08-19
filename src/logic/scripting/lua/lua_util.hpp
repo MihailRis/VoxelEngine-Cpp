@@ -589,4 +589,32 @@ namespace lua {
         }
         return def;
     }
+
+    inline Integer get_integer_field(
+        lua::State* L, const std::string& name, Integer def, int idx=-1
+    ) {
+        if (getfield(L, name, idx)) {
+            auto value = tointeger(L, -1);
+            pop(L);
+            return value;
+        }
+        return def;
+    }
+
+    inline Integer get_integer_field(
+        lua::State* L, const std::string& name, 
+        Integer def, Integer min, Integer max, int idx=-1
+    ) {
+        if (getfield(L, name, idx)) {
+            auto value = tointeger(L, -1);
+            if (value < min || value > max) {
+                throw std::runtime_error(
+                    "value is out of range ["
+                    +std::to_string(min)+", "+std::to_string(max)+"]");
+            }
+            pop(L);
+            return value;
+        }
+        return def;
+    }
 }

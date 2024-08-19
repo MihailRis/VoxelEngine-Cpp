@@ -1,14 +1,19 @@
 sea_level = 64
 
-sea_layers = {
-    {block="base:water", height=-1},
-}
+-- 1 - temperature
+-- 2 - humidity
+biome_parameters = 2
 
-layers = {
-    {block="base:grass_block", height=1, below_sea_level=false},
-    {block="base:dirt", height=5, below_sea_level=false},
-    {block="base:stone", height=-1},
-    {block="base:bazalt", height=1},
+biome = {
+    sea_layers = {
+        {block="base:water", height=-1},
+    },
+    layers = {
+        {block="base:grass_block", height=1, below_sea_level=false},
+        {block="base:dirt", height=5, below_sea_level=false},
+        {block="base:stone", height=-1},
+        {block="base:bazalt", height=1},
+    }
 }
 
 local function _generate_heightmap(x, y, w, h, seed, s)

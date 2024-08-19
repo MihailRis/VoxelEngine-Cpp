@@ -17,7 +17,7 @@ struct BlocksLayer {
 
     /// @brief Layer can present under the sea level (default: true) else will
     /// extend the next layer
-    bool below_sea_level;
+    bool belowSeaLevel;
 
     struct {
         /// @brief Layer block index
@@ -54,6 +54,10 @@ public:
 
     virtual const Biome& getBiome() const = 0;
 
+    /// @return Number of biome parameters, that biome choosing depending on
+    virtual uint getBiomeParameters() const = 0;
+
+    /// @return Sea level (top of seaLayers)
     virtual uint getSeaLevel() const = 0;
 
     /// @brief Build the runtime cache

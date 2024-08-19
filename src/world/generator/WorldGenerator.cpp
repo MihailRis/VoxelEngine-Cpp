@@ -26,7 +26,7 @@ static inline void generate_pole(
     uint layerExtension = 0;
     for (const auto& layer : layers.layers) {
         // skip layer if can't be generated under sea level
-        if (y < seaLevel && !layer.below_sea_level) {
+        if (y < seaLevel && !layer.belowSeaLevel) {
             layerExtension = std::max(0, layer.height);
             continue;
         }

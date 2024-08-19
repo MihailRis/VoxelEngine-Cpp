@@ -6,19 +6,23 @@
 #include "lua/lua_custom_types.hpp"
 #include "content/Content.hpp"
 #include "voxels/Block.hpp"
+#include "voxels/Chunk.hpp"
 #include "world/generator/GeneratorDef.hpp"
 
 class LuaGeneratorScript : public GeneratorScript {
     scriptenv env;
     Biome biome;
+    uint biomeParameters;
     uint seaLevel;
 public:
     LuaGeneratorScript(
         scriptenv env, 
         Biome biome,
+        uint biomeParameters,
         uint seaLevel)
     : env(std::move(env)), 
       biome(std::move(biome)), 
+      biomeParameters(biomeParameters),
       seaLevel(seaLevel) 
       {}
 
@@ -54,6 +58,10 @@ public:
         return biome;
     }
 
+    uint getBiomeParameters() const override {
+        return biomeParameters;
+    }
+
     uint getSeaLevel() const override {
         return seaLevel;
     }
@@ -62,17 +70,9 @@ public:
 static BlocksLayer load_layer(
     lua::State* L, int idx, uint& lastLayersHeight, bool& hasResizeableLayer
 ) {
-    lua::requirefield(L, "block");
-    auto name = lua::require_string(L, -1);
-    lua::pop(L);
-    lua::requirefield(L, "height");
-    int height = lua::tointeger(L, -1);
-    lua::pop(L);
-    bool belowSeaLevel = true;
-    if (lua::getfield(L, "below_sea_level")) {
-        belowSeaLevel = lua::toboolean(L, -1);
-        lua::pop(L);
-    }
+    auto name = lua::require_string_field(L, "block");
+    int height = lua::require_integer_field(L, "height");
+    bool belowSeaLevel = lua::get_boolean_field(L, "below_sea_level", true);
 
     if (hasResizeableLayer) {
         lastLayersHeight += height;
@@ -111,6 +111,22 @@ static inline BlocksLayers load_layers(
     return BlocksLayers {std::move(layers), lastLayersHeight};
 }
 
+static inline Biome load_biome(
+    lua::State* L, const std::string& name, int idx
+) {
+    lua::pushvalue(L, idx);
+    BlocksLayers groundLayers;
+    BlocksLayers seaLayers;
+    try {
+        groundLayers = load_layers(L, "layers");
+        seaLayers = load_layers(L, "sea_layers");
+    } catch (const std::runtime_error& err) {
+        throw std::runtime_error("biome "+name+": "+err.what());
+    }
+    lua::pop(L);
+    return Biome {name, std::move(groundLayers), std::move(seaLayers)};
+}
+
 std::unique_ptr<GeneratorScript> scripting::load_generator(
     const fs::path& file
 ) {
@@ -122,28 +138,16 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
 
     lua::pushenv(L, *env);
 
-    uint seaLevel = 0;
-    if (lua::getfield(L, "sea_level")) {
-        seaLevel = lua::tointeger(L, -1);
-        lua::pop(L);
-    }
+    uint biomeParameters = lua::get_integer_field(L, "biome_parameters", 0, 0, 16);
+    uint seaLevel = lua::get_integer_field(L, "sea_level", 0, 0, CHUNK_H);
+    lua::requirefield(L, "biome");
+    Biome biome = load_biome(L, "default", -1);
+    lua::pop(L);
 
-    uint lastGroundLayersHeight = 0;
-    uint lastSeaLayersHeight = 0;
-    bool hasResizeableGroundLayer = false;
-    bool hasResizeableSeaLayer = false;
-
-    BlocksLayers groundLayers;
-    BlocksLayers seaLayers;
-    try {
-        groundLayers = load_layers(L, "layers");
-        seaLayers = load_layers(L, "sea_layers");
-    } catch (const std::runtime_error& err) {
-        throw std::runtime_error(file.u8string()+": "+err.what());
-    }
     lua::pop(L);
     return std::make_unique<LuaGeneratorScript>(
         std::move(env), 
-        Biome {"default", std::move(groundLayers), std::move(seaLayers)}, 
+        std::move(biome), 
+        biomeParameters,
         seaLevel);
 }
