@@ -353,13 +353,30 @@ static int l_raycast(lua::State* L) {
     auto start = lua::tovec<3>(L, 1);
     auto dir = lua::tovec<3>(L, 2);
     auto maxDistance = lua::tonumber(L, 3);
+    std::set<blockid_t> filteredBlocks {};
+    if (lua::gettop(L) >= 5) {
+        if (lua::istable(L, 5)) {
+            int addLen = lua::objlen(L, 5);
+            for (int i = 0; i < addLen; i++) {
+                lua::rawgeti(L, i + 1, 5);
+                auto blockName = std::string(lua::tostring(L, -1));
+                Block* block = content->blocks.find(blockName);
+                if (block != nullptr) {
+                    filteredBlocks.insert(block->rt.id);
+                }
+                lua::pop(L);
+            }
+        } else {
+            throw std::runtime_error("table expected for filter");
+        }
+    }
     glm::vec3 end;
     glm::ivec3 normal;
     glm::ivec3 iend;
     if (auto voxel = level->chunks->rayCast(
-            start, dir, maxDistance, end, normal, iend
+            start, dir, maxDistance, end, normal, iend, filteredBlocks
         )) {
-        if (lua::gettop(L) >= 4) {
+        if (lua::gettop(L) >= 4 && !lua::isnil(L, 4)) {
             lua::pushvalue(L, 4);
         } else {
             lua::createtable(L, 0, 5);
@@ -452,4 +469,5 @@ const luaL_Reg blocklib[] = {
     {"raycast", lua::wrap<l_raycast>},
     {"compose_state", lua::wrap<l_compose_state>},
     {"decompose_state", lua::wrap<l_decompose_state>},
-    {NULL, NULL}};
+    {NULL, NULL}
+};
