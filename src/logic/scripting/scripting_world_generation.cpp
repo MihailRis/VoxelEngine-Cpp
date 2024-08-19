@@ -11,17 +11,17 @@
 
 class LuaGeneratorScript : public GeneratorScript {
     scriptenv env;
-    Biome biome;
+    std::vector<Biome> biomes;
     uint biomeParameters;
     uint seaLevel;
 public:
     LuaGeneratorScript(
         scriptenv env, 
-        Biome biome,
+        std::vector<Biome> biomes,
         uint biomeParameters,
         uint seaLevel)
     : env(std::move(env)), 
-      biome(std::move(biome)), 
+      biomes(std::move(biomes)), 
       biomeParameters(biomeParameters),
       seaLevel(seaLevel) 
       {}
@@ -46,16 +46,18 @@ public:
     }
 
     void prepare(const Content* content) override {
-        for (auto& layer : biome.groundLayers.layers) {
-            layer.rt.id = content->blocks.require(layer.block).rt.id;
-        }
-        for (auto& layer : biome.seaLayers.layers) {
-            layer.rt.id = content->blocks.require(layer.block).rt.id;
+        for (auto& biome : biomes) {
+            for (auto& layer : biome.groundLayers.layers) {
+                layer.rt.id = content->blocks.require(layer.block).rt.id;
+            }
+            for (auto& layer : biome.seaLayers.layers) {
+                layer.rt.id = content->blocks.require(layer.block).rt.id;
+            }
         }
     }
 
-    const Biome& getBiome() const override {
-        return biome;
+    const std::vector<Biome>& getBiomes() const override {
+        return biomes;
     }
 
     uint getBiomeParameters() const override {
@@ -160,14 +162,30 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
 
     uint biomeParameters = lua::get_integer_field(L, "biome_parameters", 0, 0, 16);
     uint seaLevel = lua::get_integer_field(L, "sea_level", 0, 0, CHUNK_H);
-    lua::requirefield(L, "biome");
-    Biome biome = load_biome(L, "default", biomeParameters, -1);
+
+    std::vector<Biome> biomes;
+    lua::requirefield(L, "biomes");
+    if (!lua::istable(L, -1)) {
+        throw std::runtime_error("'biomes' must be a table");
+    }
+    lua::pushnil(L);
+    while (lua::next(L, -2)) {
+        lua::pushvalue(L, -2);
+        std::string biomeName = lua::tostring(L, -1);
+        try {
+            biomes.push_back(
+                load_biome(L, biomeName, biomeParameters, -2));
+        } catch (const std::runtime_error& err) {
+            throw std::runtime_error("biome "+biomeName+": "+err.what());
+        }
+        lua::pop(L, 2);
+    }
     lua::pop(L);
 
     lua::pop(L);
     return std::make_unique<LuaGeneratorScript>(
         std::move(env), 
-        std::move(biome), 
+        std::move(biomes),
         biomeParameters,
         seaLevel);
 }

@@ -4,19 +4,21 @@ sea_level = 64
 -- 2 - humidity
 biome_parameters = 2
 
-biome = {
-    parameters = {
-        {value=0.5, weight=1.0},
-        {value=0.5, weight=1.0},
-    },
-    sea_layers = {
-        {block="base:water", height=-1},
-    },
-    layers = {
-        {block="base:grass_block", height=1, below_sea_level=false},
-        {block="base:dirt", height=5, below_sea_level=false},
-        {block="base:stone", height=-1},
-        {block="base:bazalt", height=1},
+biomes = {
+    plains = {
+        parameters = {
+            {value=0.5, weight=1.0},
+            {value=0.5, weight=1.0},
+        },
+        sea_layers = {
+            {block="base:water", height=-1},
+        },
+        layers = {
+            {block="base:grass_block", height=1, below_sea_level=false},
+            {block="base:dirt", height=5, below_sea_level=false},
+            {block="base:stone", height=-1},
+            {block="base:bazalt", height=1},
+        }
     }
 }
 
