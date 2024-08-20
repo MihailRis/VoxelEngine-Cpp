@@ -18,6 +18,10 @@ biomes = {
             {block="base:dirt", height=5, below_sea_level=false},
             {block="base:stone", height=-1},
             {block="base:bazalt", height=1},
+        },
+        plant_chance = 0.5,
+        plants = {
+            {block="base:grass", weight=1}
         }
     },
     desert = {

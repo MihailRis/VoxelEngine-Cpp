@@ -83,6 +83,9 @@ public:
             for (auto& layer : biome.seaLayers.layers) {
                 layer.rt.id = content->blocks.require(layer.block).rt.id;
             }
+            for (auto& plant : biome.plants.plants) {
+                plant.rt.id = content->blocks.require(plant.block).rt.id;
+            }
         }
     }
 
@@ -163,18 +166,37 @@ static inline Biome load_biome(
     }
     lua::pop(L);
 
-    BlocksLayers groundLayers;
-    BlocksLayers seaLayers;
-    try {
-        groundLayers = load_layers(L, "layers");
-        seaLayers = load_layers(L, "sea_layers");
-    } catch (const std::runtime_error& err) {
-        throw std::runtime_error("biome "+name+": "+err.what());
+    float plantChance = lua::get_number_field(L, "plant_chance", 0.0);
+    float plantsWeightSum = 0.0f;
+    std::vector<PlantEntry> plants;
+    if (lua::getfield(L, "plants")) {
+        if (!lua::istable(L, -1)) {
+            throw std::runtime_error("'plants' must be a table");
+        }
+        int plantsCount = lua::objlen(L, -1);
+        for (int i = 1; i <= plantsCount; i++) {
+            lua::rawgeti(L, i);
+            if (!lua::istable(L, -1)) {
+                throw std::runtime_error("plant must be a table");
+            }
+            auto block = lua::require_string_field(L, "block");
+            float weight = lua::require_number_field(L, "weight");
+            // TODO: range check (positive)
+            plantsWeightSum += weight;
+            plants.push_back(PlantEntry {block, weight, {}});
+            lua::pop(L);
+        }
+        lua::pop(L);
     }
+    // TODO: sort by weight descending
+
+    BlocksLayers groundLayers = load_layers(L, "layers");
+    BlocksLayers seaLayers = load_layers(L, "sea_layers");
     lua::pop(L);
     return Biome {
         name,
         std::move(parameters),
+        BiomePlants {plants, plantsWeightSum, plantChance},
         std::move(groundLayers),
         std::move(seaLayers)};
 }

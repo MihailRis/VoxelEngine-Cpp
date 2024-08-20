@@ -610,6 +610,17 @@ namespace lua {
         return def;
     }
 
+    inline Number get_number_field(
+        lua::State* L, const std::string& name, Number def, int idx=-1
+    ) {
+        if (getfield(L, name, idx)) {
+            auto value = tonumber(L, -1);
+            pop(L);
+            return value;
+        }
+        return def;
+    }
+
     inline Integer get_integer_field(
         lua::State* L, const std::string& name, 
         Integer def, Integer min, Integer max, int idx=-1

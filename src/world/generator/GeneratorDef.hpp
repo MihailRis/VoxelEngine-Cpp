@@ -35,15 +35,56 @@ struct BlocksLayers {
 
 struct BiomeParameter {
     /// @brief Central parameter value for the biome
-    float origin;
+    float value;
     /// @brief Parameter score multiplier 
-    /// (the higher the value, the greater the chance of biome choosing)
+    /// (the higher the weight, the greater the chance of biome choosing)
     float weight;
+};
+
+struct PlantEntry {
+    /// @brief Plant block id
+    std::string block;
+    /// @brief Plant weight
+    float weight;
+
+    struct {
+        blockid_t id;
+    } rt;
+};
+
+struct BiomePlants {
+    static inline float MIN_CHANCE = 0.000001f;
+
+    /// @brief Plant entries sorted by weight descending.
+    std::vector<PlantEntry> plants;
+    /// @brief Sum of weight values
+    float weightsSum;
+    /// @brief Plant generation chance
+    float chance;
+
+    /// @brief Choose plant based on weight
+    /// @param rand some random value in range [0, 1)
+    /// @return index of chosen plant block
+    inline blockid_t choose(float rand) const {
+        if (plants.empty() || rand > chance || chance < MIN_CHANCE) {
+            return 0;
+        }
+        rand = rand / chance;
+        rand *= weightsSum;
+        for (const auto& plant : plants) {
+            rand -= plant.weight;
+            if (rand <= 0.0f) {
+                return plant.rt.id;
+            }
+        }
+        return plants[plants.size()-1].rt.id;
+    }
 };
 
 struct Biome {
     std::string name;
     std::vector<BiomeParameter> parameters;
+    BiomePlants plants;
     BlocksLayers groundLayers;
     BlocksLayers seaLayers;
 };
