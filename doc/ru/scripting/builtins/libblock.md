@@ -60,16 +60,19 @@ block.get_picking_item(id: int) -> int
 ### Raycast
 
 ```lua
-block.raycast(start: vec3, dir: vec3, max_distance: number, [опционально] dest: table) -> {
+block.raycast(start: vec3, dir: vec3, max_distance: number, [опционально] dest: table, [опционально] filter: table) -> {
     block: int, -- id блока
     endpoint: vec3, -- точка касания луча
     iendpoint: vec3, -- позиция блока, которого касается луч
     length: number, -- длина луча
-    normal: vec3 -- вектор нормали поверхности, которой касается луч
+    normal: vec3, -- вектор нормали поверхности, которой касается луч
 } или nil
 ```
 
 Бросает луч из точки start в направлении dir. Max_distance указывает максимальную длину луча.
+
+Аргумент `filter` позволяет указать какие блоки являются "прозрачными" для луча, прим.: {"base:glass","base:water"}. 
+Для использования агрумент `dest` нужно чем-то заполнить(можно nil), это сделано для обратной совместимости
 
 Функция возвращает таблицу с результатами или nil, если луч не касается блока.
 
