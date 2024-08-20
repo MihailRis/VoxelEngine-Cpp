@@ -75,7 +75,7 @@ static sensorcallback create_sensor_callback(Entities* entities) {
 }
 
 static void initialize_body(
-    EntityDef& def, Rigidbody& body, entityid_t id, Entities* entities
+    const EntityDef& def, Rigidbody& body, entityid_t id, Entities* entities
 ) {
     body.sensors.resize(def.radialSensors.size() + def.boxSensors.size());
     for (auto& [i, box] : def.boxSensors) {
@@ -111,7 +111,7 @@ static void initialize_body(
 }
 
 entityid_t Entities::spawn(
-    EntityDef& def,
+    const EntityDef& def,
     glm::vec3 position,
     dynamic::Map_sptr args,
     dynamic::Map_sptr saved,

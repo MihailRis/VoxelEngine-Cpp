@@ -202,7 +202,7 @@ public:
     );
 
     entityid_t spawn(
-        EntityDef& def,
+        const EntityDef& def,
         glm::vec3 position,
         dynamic::Map_sptr args = nullptr,
         dynamic::Map_sptr saved = nullptr,
