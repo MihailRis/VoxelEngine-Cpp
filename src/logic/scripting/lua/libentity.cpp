@@ -127,7 +127,7 @@ static int l_raycast(lua::State* L) {
             for (int i = 0; i < addLen; i++) {
                 lua::rawgeti(L, i + 1, 6);
                 auto blockName = std::string(lua::tostring(L, -1));
-                Block* block = content->blocks.find(blockName);
+                const Block* block = content->blocks.find(blockName);
                 if (block != nullptr) {
                     filteredBlocks.insert(block->rt.id);
                 }

@@ -106,14 +106,14 @@ public:
     ContentUnitDefs(UptrsMap<std::string, T> defs) : defs(std::move(defs)) {
     }
 
-    T* find(const std::string& id) const {
+    const T* find(const std::string& id) const {
         const auto& found = defs.find(id);
         if (found == defs.end()) {
             return nullptr;
         }
         return found->second.get();
     }
-    T& require(const std::string& id) const {
+    const T& require(const std::string& id) const {
         const auto& found = defs.find(id);
         if (found == defs.end()) {
             throw std::runtime_error("missing content unit " + id);
