@@ -60,14 +60,12 @@ block.get_picking_item(id: int) -> int
 ### Raycast
 
 ```lua
-block.raycast(start: vec3, dir: vec3, max_distance: number, [опционально] dest: table) -> {
+block.raycast(start: vec3, dir: vec3, max_distance: number, [опционально] dest: table, [опционально] filter: table) -> {
     block: int, -- id блока
     endpoint: vec3, -- точка касания луча
     iendpoint: vec3, -- позиция блока, которого касается луч
     length: number, -- длина луча
     normal: vec3, -- вектор нормали поверхности, которой касается луч
-    [optional] dest: table, -- таблица куда будет записан результат вместо возврата из функции
-    [optional] filter: table -- массив имён блоков которые "прозрачны" для луча
 } или nil
 ```
 

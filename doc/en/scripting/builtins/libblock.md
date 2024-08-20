@@ -115,14 +115,12 @@ Set specified bits.
 ## Raycast
 
 ```lua
-block.raycast(start: vec3, dir: vec3, max_distance: number, [optional] dest: table) -> {
+block.raycast(start: vec3, dir: vec3, max_distance: number, [optional] dest: table, [optional] filter: table) -> {
     block: int, -- block id
     endpoint: vec3, -- point of the ray hit point
     iendpoint: vec3, -- position of the block hit by the ray
     length: number, -- ray length
     normal: vec3, -- normal vector of the surface hit by the ray
-    [optional] dest: table, -- table where result will be written to instead of function return
-    [optional] filter: table -- list of block names that are "transparent" for ray
 } or nil
 ```
 
