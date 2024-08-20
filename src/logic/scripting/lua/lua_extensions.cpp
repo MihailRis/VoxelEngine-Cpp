@@ -93,7 +93,7 @@ int l_debug_print(lua::State* L) {
     };
 
     int n = lua::gettop(L);
-    std::cout << "debug_print(" << std::endl;
+    std::cout << "debug.print(" << std::endl;
     for (int i = 1; i <= n; ++i) {
         addIndentation(1);
         debugPrint(i, 1, false);
