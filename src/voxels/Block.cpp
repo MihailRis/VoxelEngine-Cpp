@@ -64,7 +64,8 @@ const BlockRotProfile BlockRotProfile::NONE {
         {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}},  // West
         {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}},  // Up
         {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}},  // Down
-    }};
+    }
+};
 
 const BlockRotProfile BlockRotProfile::PIPE {
     "pipe",
@@ -75,7 +76,8 @@ const BlockRotProfile BlockRotProfile::PIPE {
         {{0, 0, -1}, {1, 0, 0}, {0, -1, 0}},   // West
         {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}},     // Up
         {{1, 0, 0}, {0, -1, 0}, {0, 0, -1}},   // Down
-    }};
+    }
+};
 
 const BlockRotProfile BlockRotProfile::PANE {
     "pane",
@@ -84,7 +86,8 @@ const BlockRotProfile BlockRotProfile::PANE {
         {{0, 0, -1}, {0, 1, 0}, {1, 0, 0}},   // East
         {{-1, 0, 0}, {0, 1, 0}, {0, 0, -1}},  // South
         {{0, 0, 1}, {0, 1, 0}, {-1, 0, 0}},   // West
-    }};
+    }
+};
 
 Block::Block(const std::string& name)
     : name(name),
@@ -95,10 +98,43 @@ Block::Block(const std::string& name)
           TEXTURE_NOTFOUND,
           TEXTURE_NOTFOUND,
           TEXTURE_NOTFOUND,
-          TEXTURE_NOTFOUND} {
+          TEXTURE_NOTFOUND
+      } {
 }
 
 Block::Block(std::string name, const std::string& texture)
     : name(std::move(name)),
       textureFaces {texture, texture, texture, texture, texture, texture} {
+}
+void Block::cloneTo(Block& dst) {
+    dst.caption = caption;
+    for (int i = 0; i < 6; i++) {
+            dst.textureFaces[i] = textureFaces[i];
+    }
+    dst.modelTextures = modelTextures;
+    dst.modelBoxes = modelBoxes;
+    dst.modelExtraPoints = modelExtraPoints;
+    dst.modelUVs = modelUVs;
+    dst.material = material;
+    std::copy(&emission[0], &emission[3], dst.emission);
+    dst.size = size;
+    dst.model = model;
+    dst.lightPassing = lightPassing;
+    dst.skyLightPassing = skyLightPassing;
+    dst.shadeless = shadeless;
+    dst.ambientOcclusion = ambientOcclusion;
+    dst.obstacle = obstacle;
+    dst.selectable = selectable;
+    dst.replaceable = replaceable;
+    dst.breakable = breakable;
+    dst.rotatable = rotatable;
+    dst.grounded = grounded;
+    dst.hidden = hidden;
+    dst.hitboxes = hitboxes;
+    dst.rotations = rotations;
+    dst.pickingItem = pickingItem;
+    dst.scriptName = scriptName;
+    dst.uiLayout = uiLayout;
+    dst.inventorySize = inventorySize;
+    dst.tickInterval = tickInterval;
 }

@@ -24,12 +24,12 @@ struct EntityDef {
 
     /// @brief Hitbox size
     glm::vec3 hitbox {0.25f};
-    
+
     /// @brief 'aabb' sensors
     std::vector<std::pair<size_t, AABB>> boxSensors {};
     /// @brief 'radius' sensors
     std::vector<std::pair<size_t, float>> radialSensors {};
-    
+
     /// @brief Skeleton ID
     std::string skeletonName = name;
 
@@ -56,4 +56,6 @@ struct EntityDef {
 
     EntityDef(const std::string& name) : name(name) {}
     EntityDef(const EntityDef&) = delete;
+    void cloneTo(EntityDef& dst);
 };
+

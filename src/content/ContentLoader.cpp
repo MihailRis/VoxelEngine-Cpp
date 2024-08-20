@@ -6,6 +6,9 @@
 #include <memory>
 #include <string>
 
+#include "Content.hpp"
+#include "ContentBuilder.hpp"
+#include "ContentPack.hpp"
 #include "coders/json.hpp"
 #include "core_defs.hpp"
 #include "data/dynamic.hpp"
@@ -18,9 +21,6 @@
 #include "util/listutil.hpp"
 #include "util/stringutil.hpp"
 #include "voxels/Block.hpp"
-#include "Content.hpp"
-#include "ContentBuilder.hpp"
-#include "ContentPack.hpp"
 
 namespace fs = std::filesystem;
 
@@ -122,6 +122,18 @@ void ContentLoader::loadBlock(
     Block& def, const std::string& name, const fs::path& file
 ) {
     auto root = files::read_json(file);
+
+    if (root->has("parent")) {
+        std::string parentName;
+        root->str("parent", parentName);
+        auto parentDef = this->builder.blocks.get(parentName);
+        if (parentDef == nullptr) {
+            throw std::runtime_error(
+                "Failed to find parent(" + parentName + ") for " + name
+            );
+        }
+        parentDef->cloneTo(def);
+    }
 
     root->str("caption", def.caption);
 
@@ -289,6 +301,19 @@ void ContentLoader::loadItem(
     ItemDef& def, const std::string& name, const fs::path& file
 ) {
     auto root = files::read_json(file);
+
+    if (root->has("parent")) {
+        std::string parentName;
+        root->str("parent", parentName);
+        auto parentDef = this->builder.items.get(parentName);
+        if (parentDef == nullptr) {
+            throw std::runtime_error(
+                "Failed to find parent(" + parentName + ") for " + name
+            );
+        }
+        parentDef->cloneTo(def);
+    }
+
     root->str("caption", def.caption);
 
     std::string iconTypeStr = "";
@@ -319,6 +344,19 @@ void ContentLoader::loadEntity(
     EntityDef& def, const std::string& name, const fs::path& file
 ) {
     auto root = files::read_json(file);
+
+    if (root->has("parent")) {
+        std::string parentName;
+        root->str("parent", parentName);
+        auto parentDef = this->builder.entities.get(parentName);
+        if (parentDef == nullptr) {
+            throw std::runtime_error(
+                "Failed to find parent(" + parentName + ") for " + name
+            );
+        }
+        parentDef->cloneTo(def);
+    }
+
     if (auto componentsarr = root->list("components")) {
         for (size_t i = 0; i < componentsarr->size(); i++) {
             def.components.emplace_back(componentsarr->str(i));
@@ -340,7 +378,8 @@ void ContentLoader::loadEntity(
                              sensorarr->num(3)},
                             {sensorarr->num(4),
                              sensorarr->num(5),
-                             sensorarr->num(6)}}
+                             sensorarr->num(6)}
+                        }
                     );
                 } else if (sensorType == "radius") {
                     def.radialSensors.emplace_back(i, sensorarr->num(1));
