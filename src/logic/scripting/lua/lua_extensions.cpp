@@ -27,27 +27,58 @@ const int MAX_DEPTH = 10;
 
 int l_debug_print(lua::State* L) {
     auto addIndentation = [](int depth) {
-        std::cout << std::string(depth * 2, ' ');
+        for (int i = 0; i < depth; ++i) std::cout << "  ";
     };
 
-    auto pointerToHexString = [](const void* ptr, size_t size) {
-        std::stringstream ss;
+    auto printHexData = [](const void* ptr, size_t size) {
         const auto* bytePtr = reinterpret_cast<const uint8_t*>(ptr);
         for (size_t i = 0; i < size; ++i) {
-            ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(bytePtr[i])
-               << ((i + 1) % 8 == 0 && i + 1 < size ? "\n" : " ");
+            std::cout << std::hex << std::setw(2) << std::setfill('0')
+                      << static_cast<int>(bytePtr[i])
+                      << ((i + 1) % 8 == 0 && i + 1 < size ? "\n" : " ");
         }
-        return ss.str();
     };
 
-    std::function<void(int, int, bool)> debugPrint = [&](int index, int depth, bool is_key) {
+    auto printEscapedString = [](const char* str) {
+        while (*str) {
+            switch (*str) {
+                case '\\': std::cout << "\\\\"; break;
+                case '\"': std::cout << "\\\""; break;
+                case '\n': std::cout << "\\n"; break;
+                case '\t': std::cout << "\\t"; break;
+                case '\r': std::cout << "\\r"; break;
+                case '\b': std::cout << "\\b"; break;
+                case '\f': std::cout << "\\f"; break;
+                default:
+                    if (iscntrl(static_cast<unsigned char>(*str))) {
+                        // Print other control characters in \xHH format
+                        std::cout << "\\x" << std::hex << std::setw(2) << std::setfill('0')
+                                  << static_cast<int>(static_cast<unsigned char>(*str)) << std::dec;
+                    } else {
+                        std::cout << *str;
+                    }
+                    break;
+            }
+            ++str;
+        }
+    };
+
+    std::function<void(int, int, bool)> debugPrint = [&](int index,
+                                                         int depth,
+                                                         bool is_key) {
         if (depth > MAX_DEPTH) {
             std::cout << "{...}";
             return;
         }
         switch (lua::type(L, index)) {
             case LUA_TSTRING:
-                std::cout << (is_key ? lua::tostring(L, index) : "\"" + std::string(lua::tostring(L, index)) + "\"");
+                if (is_key){
+                    std::cout << lua::tostring(L, index);
+                }else{
+                    std::cout << "\"";
+                    printEscapedString(lua::tostring(L, index));
+                    std::cout << "\"";
+                }
                 break;
             case LUA_TBOOLEAN:
                 std::cout << (lua::toboolean(L, index) ? "true" : "false");
@@ -57,31 +88,41 @@ int l_debug_print(lua::State* L) {
                 break;
             case LUA_TTABLE: {
                 bool is_list = lua::objlen(L, index) > 0, hadItems = false;
-                int absTableIndex = index > 0 ? index : lua::gettop(L) + index + 1;
+                int absTableIndex =
+                    index > 0 ? index : lua::gettop(L) + index + 1;
                 std::cout << "{";
                 lua::pushnil(L);
                 while (lua::next(L, absTableIndex) != 0) {
-                    if (hadItems) std::cout << "," << std::endl;
-                    else std::cout << std::endl;
+                    if (hadItems)
+                        std::cout << "," << '\n';
+                    else
+                        std::cout << '\n';
+
                     addIndentation(depth + 1);
-                    if (!is_list) debugPrint(-2, depth, true), std::cout << " = ";
+                    if (!is_list) {
+                        debugPrint(-2, depth, true);
+                        std::cout << " = ";
+                    }
                     debugPrint(-1, depth + 1, false);
                     lua::pop(L, 1);
                     hadItems = true;
                 }
-                if (hadItems) std::cout << std::endl;
+                if (hadItems) std::cout << '\n';
                 addIndentation(depth);
                 std::cout << "}";
                 break;
             }
             case LUA_TFUNCTION:
-                std::cout << "function(0x" << std::hex << lua::topointer(L, index) << std::dec << ")";
+                std::cout << "function(0x" << std::hex
+                          << lua::topointer(L, index) << std::dec << ")";
                 break;
             case LUA_TUSERDATA:
-                std::cout << "userdata:\n" << pointerToHexString(lua::topointer(L, index), lua::objlen(L, index));
+                std::cout << "userdata:\n";
+                printHexData(lua::topointer(L, index), lua::objlen(L, index));
                 break;
             case LUA_TLIGHTUSERDATA:
-                std::cout << "lightuserdata:\n" << pointerToHexString(lua::topointer(L, index), sizeof(void*));
+                std::cout << "lightuserdata:\n";
+                printHexData(lua::topointer(L, index), sizeof(void*));
                 break;
             case LUA_TNIL:
                 std::cout << "nil";
@@ -93,18 +134,16 @@ int l_debug_print(lua::State* L) {
     };
 
     int n = lua::gettop(L);
-    std::cout << "debug.print(" << std::endl;
+    std::cout << "debug.print(" << '\n';
     for (int i = 1; i <= n; ++i) {
         addIndentation(1);
         debugPrint(i, 1, false);
-        if (i < n) std::cout << "," << std::endl;
+        if (i < n) std::cout << "," << '\n';
     }
-    std::cout << std::endl << ")" << std::endl;
+    std::cout << '\n' << ")" << std::endl;
     lua::pop(L, n);
     return 0;
 }
-
-
 
 void initialize_libs_extends(lua::State* L) {
     if (lua::getglobal(L, "debug")) {
