@@ -1,5 +1,8 @@
 #include "scripting.hpp"
 
+#include <algorithm>
+#include <functional>
+
 #include "scripting_commons.hpp"
 #include "typedefs.hpp"
 #include "lua/lua_engine.hpp"
@@ -188,7 +191,7 @@ static inline Biome load_biome(
         }
         lua::pop(L);
     }
-    // TODO: sort by weight descending
+    std::sort(plants.begin(), plants.end(), std::greater<PlantEntry>());
 
     BlocksLayers groundLayers = load_layers(L, "layers");
     BlocksLayers seaLayers = load_layers(L, "sea_layers");

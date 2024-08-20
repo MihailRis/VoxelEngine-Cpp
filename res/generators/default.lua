@@ -21,7 +21,8 @@ biomes = {
         },
         plant_chance = 0.5,
         plants = {
-            {block="base:grass", weight=1}
+            {block="base:grass", weight=1},
+            {block="base:flower", weight=0.03},
         }
     },
     desert = {

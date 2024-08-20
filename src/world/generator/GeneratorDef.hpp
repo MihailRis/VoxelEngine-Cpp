@@ -41,6 +41,7 @@ struct BiomeParameter {
     float weight;
 };
 
+/// @brief Plant is a single-block structure randomly generating in world
 struct PlantEntry {
     /// @brief Plant block id
     std::string block;
@@ -50,6 +51,10 @@ struct PlantEntry {
     struct {
         blockid_t id;
     } rt;
+
+    bool operator>(const PlantEntry& other) const {
+        return weight > other.weight;
+    }
 };
 
 struct BiomePlants {
