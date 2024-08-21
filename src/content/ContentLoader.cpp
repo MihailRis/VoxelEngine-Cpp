@@ -480,46 +480,155 @@ void ContentLoader::load() {
     if (!fs::is_regular_file(pack->getContentFile())) return;
 
     auto root = files::read_json(pack->getContentFile());
+    std::vector<std::pair<std::string, std::string>> pendingDefs;
+    auto getJsonParent = [&](std::string prerix, std::string name) {
+        auto configFile =
+            pack->folder / fs::path(prerix + "/" + name + ".json");
+        std::string parent;
+        if (fs::exists(configFile)) {
+            auto root = files::read_json(configFile);
+            if (root->has("parent")) root->str("parent", parent);
+        }
+        return parent;
+    };
+    auto processName = [&](std::string name) {
+        auto colon = name.find(':');
+        std::string full =
+            colon == std::string::npos ? pack->id + ":" + name : name;
+        if (colon != std::string::npos) name[colon] = '/';
+
+        return std::make_pair(full, name);
+    };
 
     if (auto blocksarr = root->list("blocks")) {
         for (size_t i = 0; i < blocksarr->size(); i++) {
-            std::string name = blocksarr->str(i);
-            auto colon = name.find(':');
-            std::string full =
-                colon == std::string::npos ? pack->id + ":" + name : name;
-            if (colon != std::string::npos) name[colon] = '/';
-            auto& def = builder.blocks.create(full);
-            if (colon != std::string::npos)
-                def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
-            loadBlock(def, full, name);
-            stats->totalBlocks++;
+            auto [full, name] = processName(blocksarr->str(i));
+            auto parent = getJsonParent("blocks", name);
+            if (parent.empty() || builder.blocks.get(parent)) {
+                // No dependency or dependency already loaded/exists in another
+                // content pack
+                auto& def = builder.blocks.create(full);
+                loadBlock(def, full, name);
+                stats->totalBlocks++;
+            } else {
+                // Dependency not loaded yet, add to pending items
+                pendingDefs.emplace_back(full, name);
+            }
+        }
+
+        // Resolve dependencies for pending items
+        bool progressMade = true;
+        while (!pendingDefs.empty() && progressMade) {
+            progressMade = false;
+
+            for (auto it = pendingDefs.begin(); it != pendingDefs.end();) {
+                auto parent = getJsonParent("blocks", it->second);
+                if (builder.blocks.get(parent)) {
+                    // Dependency resolved or parent exists in another pack,
+                    // load the item
+                    auto& def = builder.blocks.create(it->first);
+                    loadBlock(def, it->first, it->second);
+                    stats->totalBlocks++;
+                    it = pendingDefs.erase(it);  // Remove resolved item
+                    progressMade = true;
+                } else {
+                    ++it;
+                }
+            }
+        }
+
+        if (!pendingDefs.empty()) {
+            // Handle circular dependencies or missing dependencies
+            // You can log an error or throw an exception here if necessary
+            throw std::runtime_error("Unresolved block dependencies detected.");
         }
     }
+
     if (auto itemsarr = root->list("items")) {
         for (size_t i = 0; i < itemsarr->size(); i++) {
-            std::string name = itemsarr->str(i);
-            auto colon = name.find(':');
-            std::string full =
-                colon == std::string::npos ? pack->id + ":" + name : name;
-            if (colon != std::string::npos) name[colon] = '/';
-            auto& def = builder.items.create(full);
-            if (colon != std::string::npos)
-                def.scriptName = name.substr(0, colon) + '/' + def.scriptName;
-            loadItem(def, full, name);
-            stats->totalItems++;
+            auto [full, name] = processName(itemsarr->str(i));
+            auto parent = getJsonParent("items", name);
+            if (parent.empty() || builder.items.get(parent)) {
+                // No dependency or dependency already loaded/exists in another
+                // content pack
+                auto& def = builder.items.create(full);
+                loadItem(def, full, name);
+                stats->totalItems++;
+            } else {
+                // Dependency not loaded yet, add to pending items
+                pendingDefs.emplace_back(full, name);
+            }
+        }
+
+        // Resolve dependencies for pending items
+        bool progressMade = true;
+        while (!pendingDefs.empty() && progressMade) {
+            progressMade = false;
+
+            for (auto it = pendingDefs.begin(); it != pendingDefs.end();) {
+                auto parent = getJsonParent("items", it->second);
+                if (builder.items.get(parent)) {
+                    // Dependency resolved or parent exists in another pack,
+                    // load the item
+                    auto& def = builder.items.create(it->first);
+                    loadItem(def, it->first, it->second);
+                    stats->totalItems++;
+                    it = pendingDefs.erase(it);  // Remove resolved item
+                    progressMade = true;
+                } else {
+                    ++it;
+                }
+            }
+        }
+
+        if (!pendingDefs.empty()) {
+            // Handle circular dependencies or missing dependencies
+            // You can log an error or throw an exception here if necessary
+            throw std::runtime_error("Unresolved item dependencies detected.");
         }
     }
 
     if (auto entitiesarr = root->list("entities")) {
         for (size_t i = 0; i < entitiesarr->size(); i++) {
-            std::string name = entitiesarr->str(i);
-            auto colon = name.find(':');
-            std::string full =
-                colon == std::string::npos ? pack->id + ":" + name : name;
-            if (colon != std::string::npos) name[colon] = '/';
-            auto& def = builder.entities.create(full);
-            loadEntity(def, full, name);
-            stats->totalEntities++;
+            auto [full, name] = processName(entitiesarr->str(i));
+            auto parent = getJsonParent("entities", name);
+            if (parent.empty() || builder.entities.get(parent)) {
+                // No dependency or dependency already loaded/exists in another
+                // content pack
+                auto& def = builder.entities.create(full);
+                loadEntity(def, full, name);
+                stats->totalEntities++;
+            } else {
+                // Dependency not loaded yet, add to pending items
+                pendingDefs.emplace_back(full, name);
+            }
+        }
+
+        // Resolve dependencies for pending items
+        bool progressMade = true;
+        while (!pendingDefs.empty() && progressMade) {
+            progressMade = false;
+
+            for (auto it = pendingDefs.begin(); it != pendingDefs.end();) {
+                auto parent = getJsonParent("entities", it->second);
+                if (builder.entities.get(parent)) {
+                    // Dependency resolved or parent exists in another pack,
+                    // load the item
+                    auto& def = builder.entities.create(it->first);
+                    loadEntity(def, it->first, it->second);
+                    stats->totalEntities++;
+                    it = pendingDefs.erase(it);  // Remove resolved item
+                    progressMade = true;
+                } else {
+                    ++it;
+                }
+            }
+        }
+
+        if (!pendingDefs.empty()) {
+            // Handle circular dependencies or missing dependencies
+            // You can log an error or throw an exception here if necessary
+            throw std::runtime_error("Unresolved entities dependencies detected.");
         }
     }
 
