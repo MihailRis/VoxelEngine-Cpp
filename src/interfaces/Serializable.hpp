@@ -1,6 +1,6 @@
 #pragma once
 
-#include "coders/json.hpp"
+#include "data/dynamic_fwd.hpp"
 
 #include <memory>
 

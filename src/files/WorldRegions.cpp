@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 
+#include "coders/json.hpp"
 #include "coders/byte_utils.hpp"
 #include "coders/rle.hpp"
 #include "data/dynamic.hpp"
