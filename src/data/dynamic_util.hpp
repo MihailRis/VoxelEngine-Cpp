@@ -5,8 +5,8 @@
 #include "dynamic.hpp"
 
 namespace dynamic {
-    template <int n>
-    inline dynamic::List_sptr to_value(glm::vec<n, float> vec) {
+    template <int n, typename T>
+    inline dynamic::List_sptr to_value(glm::vec<n, T> vec) {
         auto list = dynamic::create_list();
         for (size_t i = 0; i < n; i++) {
             list->put(vec[i]);
@@ -14,8 +14,8 @@ namespace dynamic {
         return list;
     }
 
-    template <int n, int m>
-    inline dynamic::List_sptr to_value(glm::mat<n, m, float> mat) {
+    template <int n, int m, typename T>
+    inline dynamic::List_sptr to_value(glm::mat<n, m, T> mat) {
         auto list = dynamic::create_list();
         for (size_t i = 0; i < n; i++) {
             for (size_t j = 0; j < m; j++) {
