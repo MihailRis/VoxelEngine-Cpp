@@ -110,8 +110,8 @@ void WorldGenerator::generate(
             generate_pole(groundLayers, height, 0, seaLevel, voxels, x, z);
             
             if (height+1 > seaLevel) {
-                // TODO: add underwater plants support
-                float rand = (plantsRand.randU32() % RAND_MAX) / static_cast<float>(RAND_MAX);
+                float rand = (plantsRand.randU32() % RAND_MAX) / 
+                              static_cast<float>(RAND_MAX);
                 blockid_t plant = biome->plants.choose(rand);
                 if (plant) {
                     voxels[vox_index(x, height+1, z)].id = plant;
