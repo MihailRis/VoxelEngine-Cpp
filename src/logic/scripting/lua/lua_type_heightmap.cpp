@@ -29,7 +29,7 @@ void LuaHeightmap::setSeed(int64_t seed) {
 
 static int l_dump(lua::State* L) {
     if (auto heightmap = touserdata<LuaHeightmap>(L, 1)) {
-        auto filename = tostring(L, 2);
+        auto filename = require_string(L, 2);
         if (!files::is_valid_name(filename)) {
             throw std::runtime_error("invalid file name");
         }

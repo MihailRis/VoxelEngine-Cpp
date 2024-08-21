@@ -105,7 +105,7 @@ public:
 };
 
 static BlocksLayer load_layer(
-    const dynamic::Map_sptr& map, int idx, uint& lastLayersHeight, bool& hasResizeableLayer
+    const dynamic::Map_sptr& map, uint& lastLayersHeight, bool& hasResizeableLayer
 ) {
     auto name = map->get<std::string>("block");
     int height = map->get<integer_t>("height");
@@ -134,7 +134,7 @@ static inline BlocksLayers load_layers(
         const auto& layerMap = layersArr->map(i);
         try {
             layers.push_back(
-                load_layer(layerMap, -1, lastLayersHeight, hasResizeableLayer));
+                load_layer(layerMap, lastLayersHeight, hasResizeableLayer));
         } catch (const std::runtime_error& err) {
             throw std::runtime_error(
                 fieldname+" #"+std::to_string(i)+": "+err.what());
@@ -214,8 +214,8 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
     
     auto root = std::get<dynamic::Map_sptr>(val);
 
-    uint biomeParameters = lua::get_integer_field(L, "biome_parameters", 0, 0, 16);
-    uint seaLevel = lua::get_integer_field(L, "sea_level", 0, 0, CHUNK_H);
+    uint biomeParameters = root->get<integer_t>("biome_parameters");
+    uint seaLevel = root->get<integer_t>("sea_level");
 
     std::vector<Biome> biomes;
 
