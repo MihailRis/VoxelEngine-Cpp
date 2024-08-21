@@ -481,23 +481,23 @@ void ContentLoader::load() {
 
     auto root = files::read_json(pack->getContentFile());
     std::vector<std::pair<std::string, std::string>> pendingDefs;
-    auto getJsonParent = [&](std::string prerix, std::string name) {
-        auto configFile =
-            pack->folder / fs::path(prerix + "/" + name + ".json");
-        std::string parent;
-        if (fs::exists(configFile)) {
-            auto root = files::read_json(configFile);
-            if (root->has("parent")) root->str("parent", parent);
-        }
-        return parent;
-    };
-    auto processName = [&](std::string name) {
+    auto getJsonParent = [this](const std::string& prefix, const std::string& name) {
+            auto configFile = pack->folder / fs::path(prefix + "/" + name + ".json");
+            std::string parent;
+            if (fs::exists(configFile)) {
+                auto root = files::read_json(configFile);
+                if (root->has("parent")) root->str("parent", parent);
+            }
+            return parent;
+        };
+    auto processName = [this](const std::string& name) {
         auto colon = name.find(':');
+        auto new_name = name;
         std::string full =
             colon == std::string::npos ? pack->id + ":" + name : name;
-        if (colon != std::string::npos) name[colon] = '/';
+        if (colon != std::string::npos) new_name[colon] = '/';
 
-        return std::make_pair(full, name);
+        return std::make_pair(full, new_name);
     };
 
     if (auto blocksarr = root->list("blocks")) {
@@ -628,7 +628,9 @@ void ContentLoader::load() {
         if (!pendingDefs.empty()) {
             // Handle circular dependencies or missing dependencies
             // You can log an error or throw an exception here if necessary
-            throw std::runtime_error("Unresolved entities dependencies detected.");
+            throw std::runtime_error(
+                "Unresolved entities dependencies detected."
+            );
         }
     }
 
