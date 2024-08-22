@@ -194,6 +194,9 @@ void AssetsLoader::processPreloadConfigs(const Content* content) {
         return;
     }
     for (auto& entry : content->getPacks()) {
+        if (entry.first == "core") {
+            continue;
+        }
         const auto& pack = entry.second;
         auto preloadFile = pack->getInfo().folder / fs::path("preload.json");
         if (fs::exists(preloadFile)) {

@@ -12,6 +12,7 @@
 #include "coders/obj.hpp"
 #include "constants.hpp"
 #include "data/dynamic.hpp"
+#include "debug/Logger.hpp"
 #include "files/engine_paths.hpp"
 #include "files/files.hpp"
 #include "frontend/UiDocument.hpp"
@@ -25,6 +26,8 @@
 #include "objects/rigging.hpp"
 #include "Assets.hpp"
 #include "AssetsLoader.hpp"
+
+static debug::Logger logger("assetload-funcs");
 
 namespace fs = std::filesystem;
 
@@ -263,7 +266,7 @@ static TextureAnimation create_animation(
 
     for (const auto& elem : frameList) {
         if (!srcAtlas->has(elem.first)) {
-            std::cerr << "Unknown frame name: " << elem.first << std::endl;
+            logger.error() << "unknown frame name: " << elem.first;
             continue;
         }
         region = srcAtlas->get(elem.first);
