@@ -46,13 +46,13 @@ class ContentLoader {
 
     static void loadCustomBlockModel(Block& def, dynamic::Map* primitives);
     static void loadBlockMaterial(BlockMaterial& def, const fs::path& file);
-    static void loadBlock(
+    void loadBlock(
         Block& def, const std::string& name, const fs::path& file
     );
-    static void loadItem(
+    void loadItem(
         ItemDef& def, const std::string& name, const fs::path& file
     );
-    static void loadEntity(
+    void loadEntity(
         EntityDef& def, const std::string& name, const fs::path& file
     );
     void loadResources(ResourceType type, dynamic::List* list);

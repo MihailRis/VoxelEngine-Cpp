@@ -6,6 +6,9 @@
 #include <memory>
 #include <string>
 
+#include "Content.hpp"
+#include "ContentBuilder.hpp"
+#include "ContentPack.hpp"
 #include "coders/json.hpp"
 #include "core_defs.hpp"
 #include "data/dynamic.hpp"
@@ -18,9 +21,6 @@
 #include "util/listutil.hpp"
 #include "util/stringutil.hpp"
 #include "voxels/Block.hpp"
-#include "Content.hpp"
-#include "ContentBuilder.hpp"
-#include "ContentPack.hpp"
 
 namespace fs = std::filesystem;
 
@@ -122,6 +122,18 @@ void ContentLoader::loadBlock(
     Block& def, const std::string& name, const fs::path& file
 ) {
     auto root = files::read_json(file);
+
+    if (root->has("parent")) {
+        std::string parentName;
+        root->str("parent", parentName);
+        auto parentDef = this->builder.blocks.get(parentName);
+        if (parentDef == nullptr) {
+            throw std::runtime_error(
+                "Failed to find parent(" + parentName + ") for " + name
+            );
+        }
+        parentDef->cloneTo(def);
+    }
 
     root->str("caption", def.caption);
 
@@ -289,6 +301,19 @@ void ContentLoader::loadItem(
     ItemDef& def, const std::string& name, const fs::path& file
 ) {
     auto root = files::read_json(file);
+
+    if (root->has("parent")) {
+        std::string parentName;
+        root->str("parent", parentName);
+        auto parentDef = this->builder.items.get(parentName);
+        if (parentDef == nullptr) {
+            throw std::runtime_error(
+                "Failed to find parent(" + parentName + ") for " + name
+            );
+        }
+        parentDef->cloneTo(def);
+    }
+
     root->str("caption", def.caption);
 
     std::string iconTypeStr = "";
@@ -319,6 +344,19 @@ void ContentLoader::loadEntity(
     EntityDef& def, const std::string& name, const fs::path& file
 ) {
     auto root = files::read_json(file);
+
+    if (root->has("parent")) {
+        std::string parentName;
+        root->str("parent", parentName);
+        auto parentDef = this->builder.entities.get(parentName);
+        if (parentDef == nullptr) {
+            throw std::runtime_error(
+                "Failed to find parent(" + parentName + ") for " + name
+            );
+        }
+        parentDef->cloneTo(def);
+    }
+
     if (auto componentsarr = root->list("components")) {
         for (size_t i = 0; i < componentsarr->size(); i++) {
             def.components.emplace_back(componentsarr->str(i));
@@ -340,7 +378,8 @@ void ContentLoader::loadEntity(
                              sensorarr->num(3)},
                             {sensorarr->num(4),
                              sensorarr->num(5),
-                             sensorarr->num(6)}}
+                             sensorarr->num(6)}
+                        }
                     );
                 } else if (sensorType == "radius") {
                     def.radialSensors.emplace_back(i, sensorarr->num(1));
@@ -484,45 +523,157 @@ void ContentLoader::load() {
     if (!fs::is_regular_file(pack->getContentFile())) return;
 
     auto root = files::read_json(pack->getContentFile());
+    std::vector<std::pair<std::string, std::string>> pendingDefs;
+    auto getJsonParent = [this](const std::string& prefix, const std::string& name) {
+            auto configFile = pack->folder / fs::path(prefix + "/" + name + ".json");
+            std::string parent;
+            if (fs::exists(configFile)) {
+                auto root = files::read_json(configFile);
+                if (root->has("parent")) root->str("parent", parent);
+            }
+            return parent;
+        };
+    auto processName = [this](const std::string& name) {
+        auto colon = name.find(':');
+        auto new_name = name;
+        std::string full =
+            colon == std::string::npos ? pack->id + ":" + name : name;
+        if (colon != std::string::npos) new_name[colon] = '/';
+
+        return std::make_pair(full, new_name);
+    };
 
     if (auto blocksarr = root->list("blocks")) {
         for (size_t i = 0; i < blocksarr->size(); i++) {
-            std::string name = blocksarr->str(i);
-            auto [packid, full, filename] = create_unit_id(pack->id, name);
-
-            auto& def = builder.blocks.create(full);
-            if (filename != name) {
-                def.scriptName = packid + "/" + def.scriptName;
+            auto [full, name] = processName(blocksarr->str(i));
+            auto parent = getJsonParent("blocks", name);
+            if (parent.empty() || builder.blocks.get(parent)) {
+                // No dependency or dependency already loaded/exists in another
+                // content pack
+                auto& def = builder.blocks.create(full);
+                loadBlock(def, full, name);
+                stats->totalBlocks++;
+            } else {
+                // Dependency not loaded yet, add to pending items
+                pendingDefs.emplace_back(full, name);
             }
+        }
 
-            loadBlock(def, full, filename);
-            stats->totalBlocks++;
+        // Resolve dependencies for pending items
+        bool progressMade = true;
+        while (!pendingDefs.empty() && progressMade) {
+            progressMade = false;
+
+            for (auto it = pendingDefs.begin(); it != pendingDefs.end();) {
+                auto parent = getJsonParent("blocks", it->second);
+                if (builder.blocks.get(parent)) {
+                    // Dependency resolved or parent exists in another pack,
+                    // load the item
+                    auto& def = builder.blocks.create(it->first);
+                    loadBlock(def, it->first, it->second);
+                    stats->totalBlocks++;
+                    it = pendingDefs.erase(it);  // Remove resolved item
+                    progressMade = true;
+                } else {
+                    ++it;
+                }
+            }
+        }
+
+        if (!pendingDefs.empty()) {
+            // Handle circular dependencies or missing dependencies
+            // You can log an error or throw an exception here if necessary
+            throw std::runtime_error("Unresolved block dependencies detected.");
         }
     }
+
     if (auto itemsarr = root->list("items")) {
         for (size_t i = 0; i < itemsarr->size(); i++) {
-            std::string name = itemsarr->str(i);
-            auto [packid, full, filename] = create_unit_id(pack->id, name);
-
-            auto& def = builder.items.create(full);
-            if (filename != name) {
-                def.scriptName = packid + "/" + def.scriptName;
+            auto [full, name] = processName(itemsarr->str(i));
+            auto parent = getJsonParent("items", name);
+            if (parent.empty() || builder.items.get(parent)) {
+                // No dependency or dependency already loaded/exists in another
+                // content pack
+                auto& def = builder.items.create(full);
+                loadItem(def, full, name);
+                stats->totalItems++;
+            } else {
+                // Dependency not loaded yet, add to pending items
+                pendingDefs.emplace_back(full, name);
             }
+        }
 
-            loadItem(def, full, filename);
-            stats->totalItems++;
+        // Resolve dependencies for pending items
+        bool progressMade = true;
+        while (!pendingDefs.empty() && progressMade) {
+            progressMade = false;
+
+            for (auto it = pendingDefs.begin(); it != pendingDefs.end();) {
+                auto parent = getJsonParent("items", it->second);
+                if (builder.items.get(parent)) {
+                    // Dependency resolved or parent exists in another pack,
+                    // load the item
+                    auto& def = builder.items.create(it->first);
+                    loadItem(def, it->first, it->second);
+                    stats->totalItems++;
+                    it = pendingDefs.erase(it);  // Remove resolved item
+                    progressMade = true;
+                } else {
+                    ++it;
+                }
+            }
+        }
+
+        if (!pendingDefs.empty()) {
+            // Handle circular dependencies or missing dependencies
+            // You can log an error or throw an exception here if necessary
+            throw std::runtime_error("Unresolved item dependencies detected.");
         }
     }
 
     if (auto entitiesarr = root->list("entities")) {
         for (size_t i = 0; i < entitiesarr->size(); i++) {
-            std::string name = entitiesarr->str(i);
-            auto [packid, full, filename] = create_unit_id(pack->id, name);
+            auto [full, name] = processName(entitiesarr->str(i));
+            auto parent = getJsonParent("entities", name);
+            if (parent.empty() || builder.entities.get(parent)) {
+                // No dependency or dependency already loaded/exists in another
+                // content pack
+                auto& def = builder.entities.create(full);
+                loadEntity(def, full, name);
+                stats->totalEntities++;
+            } else {
+                // Dependency not loaded yet, add to pending items
+                pendingDefs.emplace_back(full, name);
+            }
+        }
 
-            auto& def = builder.entities.create(full);
+        // Resolve dependencies for pending items
+        bool progressMade = true;
+        while (!pendingDefs.empty() && progressMade) {
+            progressMade = false;
 
-            loadEntity(def, full, name);
-            stats->totalEntities++;
+            for (auto it = pendingDefs.begin(); it != pendingDefs.end();) {
+                auto parent = getJsonParent("entities", it->second);
+                if (builder.entities.get(parent)) {
+                    // Dependency resolved or parent exists in another pack,
+                    // load the item
+                    auto& def = builder.entities.create(it->first);
+                    loadEntity(def, it->first, it->second);
+                    stats->totalEntities++;
+                    it = pendingDefs.erase(it);  // Remove resolved item
+                    progressMade = true;
+                } else {
+                    ++it;
+                }
+            }
+        }
+
+        if (!pendingDefs.empty()) {
+            // Handle circular dependencies or missing dependencies
+            // You can log an error or throw an exception here if necessary
+            throw std::runtime_error(
+                "Unresolved entities dependencies detected."
+            );
         }
     }
 
