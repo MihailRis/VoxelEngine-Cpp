@@ -65,9 +65,6 @@ namespace dynamic {
             return put(List_sptr(value.release()));
         }
         List& put(const Value& value);
-        List& put(uint64_t value) {
-            return put(static_cast<integer_t>(value));
-        }
 
         Value* getValueWriteable(size_t index);
 

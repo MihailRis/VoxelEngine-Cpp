@@ -31,8 +31,8 @@ std::unique_ptr<dynamic::Map> Structure::serialize() const {
 
     auto& voxelsArr = root->putList("voxels");
     for (size_t i = 0; i < voxels.size(); i++) {
-        voxelsArr.put(voxels[i].id);
-        voxelsArr.put(blockstate2int(voxels[i].state));
+        voxelsArr.put(static_cast<integer_t>(voxels[i].id));
+        voxelsArr.put(static_cast<integer_t>(blockstate2int(voxels[i].state)));
     }
     return root;
 }
