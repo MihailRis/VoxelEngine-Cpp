@@ -44,6 +44,14 @@ public:
         defs[id] = std::make_unique<T>(id);
         return *defs[id];
     }
+    // Only fetch existing definition, return null otherwise.
+    T* get(const std::string& id) {
+        auto found = defs.find(id);
+        if (found != defs.end()) {
+            return &*found->second;
+        }
+        return nullptr;
+    }
 
     auto build() {
         return std::move(defs);
