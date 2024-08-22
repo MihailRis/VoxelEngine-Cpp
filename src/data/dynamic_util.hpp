@@ -38,6 +38,20 @@ namespace dynamic {
         }
     }
 
+    /// TODO: remove raw pointer overloads
+    template <int n>
+    void get_vec(
+        const dynamic::Map* root,
+        const std::string& name,
+        glm::vec<n, int>& vec
+    ) {
+        if (const auto& list = root->list(name)) {
+            for (size_t i = 0; i < n; i++) {
+                vec[i] = list->integer(i);
+            }
+        }
+    }
+
     template <int n>
     void get_vec(
         const dynamic::List_sptr& root, size_t index, glm::vec<n, float>& vec
@@ -45,6 +59,17 @@ namespace dynamic {
         if (const auto& list = root->list(index)) {
             for (size_t i = 0; i < n; i++) {
                 vec[i] = list->num(i);
+            }
+        }
+    }
+
+    template <int n>
+    void get_vec(
+        const dynamic::List_sptr& root, size_t index, glm::vec<n, int>& vec
+    ) {
+        if (const auto& list = root->list(index)) {
+            for (size_t i = 0; i < n; i++) {
+                vec[i] = list->integer(i);
             }
         }
     }

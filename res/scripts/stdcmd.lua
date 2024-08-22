@@ -149,3 +149,20 @@ console.add_command(
         end
     end
 )
+
+console.add_command(
+    "structure.save x:int y:int z:int w:int h:int d:int name:str='untitled'",
+    "Save structure",
+    function(args, kwargs)
+        local x = args[1]
+        local y = args[2]
+        local z = args[3]
+
+        local w = args[4]
+        local h = args[5]
+        local d = args[6]
+
+        local name = args[7]
+        generation.save_structure({x, y, z}, {x+w, y+h, z+d}, name..'.vox', false)
+    end
+)
