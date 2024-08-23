@@ -2,19 +2,37 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
+#include "constants.hpp"
 #include "typedefs.hpp"
 #include "voxels/voxel.hpp"
 
-struct voxel;
 class Content;
 struct GeneratorDef;
+class Heightmap;
+struct Biome;
+
+struct ChunkPrototype {
+    /// @brief chunk heightmap
+    std::shared_ptr<Heightmap> heightmap;
+    /// @brief chunk biomes matrix
+    std::vector<const Biome*> biomes;
+
+    ChunkPrototype(
+        std::shared_ptr<Heightmap> heightmap, std::vector<const Biome*> biomes
+    ) : heightmap(std::move(heightmap)), biomes(std::move(biomes)) {};
+};
 
 /// @brief High-level world generation controller
 class WorldGenerator {
     const GeneratorDef& def;
     const Content* content;
     uint64_t seed;
+
+    std::vector<std::unique_ptr<ChunkPrototype>> chunks;
+
+    std::unique_ptr<ChunkPrototype> generatePrototype(int x, int z);
 public:
     /// @param def generator definition
     /// @param content world content

@@ -16,7 +16,6 @@ WorldGenerator::WorldGenerator(
     const GeneratorDef& def, const Content* content, uint64_t seed
 )
     : def(def), content(content), seed(seed) {
-    voxel voxels[CHUNK_VOL];
 }
 
 static inline void generate_pole(
@@ -76,16 +75,31 @@ static inline const Biome* choose_biome(
     return chosenBiome;
 }
 
+std::unique_ptr<ChunkPrototype> WorldGenerator::generatePrototype(
+    int chunkX, int chunkZ
+) {
+    timeutil::ScopeLogTimer log(666);
+    auto heightmap = def.script->generateHeightmap(
+        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed);
+    auto biomeParams = def.script->generateParameterMaps(
+        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed);
+    const auto& biomes = def.script->getBiomes();
+
+    std::vector<const Biome*> chunkBiomes(CHUNK_W*CHUNK_D);
+    for (uint z = 0; z < CHUNK_D; z++) {
+        for (uint x = 0; x < CHUNK_W; x++) {
+            chunkBiomes[z * CHUNK_W + x] = choose_biome(biomes, biomeParams, x, z);
+        }
+    }
+    return std::make_unique<ChunkPrototype>(
+        std::move(heightmap), std::move(chunkBiomes));
+}
+
 void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
     // timeutil::ScopeLogTimer log(555);
-    auto heightmap = def.script->generateHeightmap(
-        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed
-    );
-    auto biomeParams = def.script->generateParameterMaps(
-        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed
-    );
-    auto values = heightmap->getValues();
-    const auto& biomes = def.script->getBiomes();
+
+    auto prototype = generatePrototype(chunkX, chunkZ);
+    const auto values = prototype->heightmap->getValues();
 
     uint seaLevel = def.script->getSeaLevel();
 
@@ -96,7 +110,7 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
 
     for (uint z = 0; z < CHUNK_D; z++) {
         for (uint x = 0; x < CHUNK_W; x++) {
-            const Biome* biome = choose_biome(biomes, biomeParams, x, z);
+            const Biome* biome = prototype->biomes[z * CHUNK_W + x];
 
             int height = values[z * CHUNK_W + x] * CHUNK_H;
             height = std::max(0, height);
