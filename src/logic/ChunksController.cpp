@@ -29,7 +29,8 @@ ChunksController::ChunksController(Level* level, uint padding)
       padding(padding),
       generator(std::make_unique<WorldGenerator>(
           level->content->generators.require(level->getWorld()->getGenerator()),
-          level->content
+          level->content,
+          level->getWorld()->getSeed()
       )) {}
 
 ChunksController::~ChunksController() = default;
@@ -116,7 +117,7 @@ void ChunksController::createChunk(int x, int z) {
     auto& chunkFlags = chunk->flags;
 
     if (!chunkFlags.loaded) {
-        generator->generate(chunk->voxels, x, z, level->getWorld()->getSeed());
+        generator->generate(chunk->voxels, x, z);
         chunkFlags.unsaved = true;
     }
     chunk->updateHeights();

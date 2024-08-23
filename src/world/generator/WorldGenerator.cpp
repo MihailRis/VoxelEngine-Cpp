@@ -7,23 +7,24 @@
 #include "content/Content.hpp"
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
-#include "voxels/voxel.hpp"
 #include "world/generator/GeneratorDef.hpp"
+#include "util/timeutil.hpp"
 
 static inline constexpr uint MAX_PARAMETERS = 16;
 
-WorldGenerator::WorldGenerator(const GeneratorDef& def, const Content* content)
-    : def(def), content(content) {
+WorldGenerator::WorldGenerator(
+    const GeneratorDef& def, const Content* content, uint64_t seed
+)
+    : def(def), content(content), seed(seed) {
+    voxel voxels[CHUNK_VOL];
 }
 
 static inline void generate_pole(
     const BlocksLayers& layers,
-    int top,
-    int bottom,
+    int top, int bottom,
     int seaLevel,
     voxel* voxels,
-    int x,
-    int z
+    int x, int z
 ) {
     uint y = top;
     uint layerExtension = 0;
@@ -75,11 +76,8 @@ static inline const Biome* choose_biome(
     return chosenBiome;
 }
 
-#include "util/timeutil.hpp"
-void WorldGenerator::generate(
-    voxel* voxels, int chunkX, int chunkZ, uint64_t seed
-) {
-    timeutil::ScopeLogTimer log(555);
+void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
+    // timeutil::ScopeLogTimer log(555);
     auto heightmap = def.script->generateHeightmap(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed
     );

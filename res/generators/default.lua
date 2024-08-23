@@ -19,7 +19,7 @@ biomes = {
             {block="base:stone", height=-1},
             {block="base:bazalt", height=1},
         },
-        plant_chance = 0.5,
+        plant_chance = 0.3,
         plants = {
             {block="base:grass", weight=1},
             {block="base:flower", weight=0.03},
