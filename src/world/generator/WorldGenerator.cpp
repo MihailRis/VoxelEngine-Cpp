@@ -40,7 +40,7 @@ static inline void generate_pole(
         } else {
             layerHeight += layerExtension;
         }
-        layerHeight = std::min(static_cast<uint>(layerHeight), y);
+        layerHeight = std::min(static_cast<uint>(layerHeight), y+1);
 
         for (uint i = 0; i < layerHeight; i++, y--) {
             voxels[vox_index(x, y, z)].id = layer.rt.id;

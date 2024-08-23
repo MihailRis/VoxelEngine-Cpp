@@ -26,17 +26,18 @@ struct ChunkPrototype {
 
 /// @brief High-level world generation controller
 class WorldGenerator {
+    /// @param def generator definition
     const GeneratorDef& def;
+    /// @param content world content
     const Content* content;
+    /// @param seed world seed
     uint64_t seed;
 
-    std::vector<std::unique_ptr<ChunkPrototype>> chunks;
-
+    /// @brief Generate chunk prototype (see ChunkPrototype)
+    /// @param x chunk position X divided by CHUNK_W
+    /// @param z chunk position Y divided by CHUNK_D
     std::unique_ptr<ChunkPrototype> generatePrototype(int x, int z);
 public:
-    /// @param def generator definition
-    /// @param content world content
-    /// @param seed world seed
     WorldGenerator(
         const GeneratorDef& def,
         const Content* content,
