@@ -1,9 +1,12 @@
 #include "Structure.hpp"
 
+#include <unordered_map>
 #include <cstring>
 
 #include "data/dynamic.hpp"
 #include "data/dynamic_util.hpp"
+#include "content/Content.hpp"
+#include "voxels/Block.hpp"
 #include "voxels/ChunksStorage.hpp"
 #include "voxels/VoxelsVolume.hpp"
 #include "world/Level.hpp"
@@ -15,13 +18,33 @@ std::unique_ptr<Structure> Structure::create(
     auto size = glm::abs(a - b);
 
     VoxelsVolume volume(size.x, size.y, size.z);
+    volume.setPosition(start.x, start.y, start.z);
     level->chunksStorage->getVoxels(&volume);
 
     auto volVoxels = volume.getVoxels();
     std::vector<voxel> voxels(size.x*size.y*size.z);
-    std::memcpy(voxels.data(), volVoxels, sizeof(voxel) * voxels.size());
 
-    return std::make_unique<Structure>(size, std::move(voxels));
+    std::vector<std::string> blockNames;
+    std::unordered_map<blockid_t, blockid_t> blocksRegistered;
+    auto contentIndices = level->content->getIndices();
+    for (size_t i = 0 ; i < voxels.size(); i++) {
+        blockid_t id = volVoxels[i].id;
+        blockid_t index;
+        
+        auto found = blocksRegistered.find(id);
+        if (found == blocksRegistered.end()) {
+            const auto& def = contentIndices->blocks.require(id);
+            index = blockNames.size();
+            blockNames.push_back(def.name);
+            blocksRegistered[id] = index;
+        } else {
+            index = found->second;
+        }
+        voxels[i].id = index;
+    }
+
+    return std::make_unique<Structure>(
+        size, std::move(voxels), std::move(blockNames));
 }
 
 std::unique_ptr<dynamic::Map> Structure::serialize() const {
@@ -29,6 +52,10 @@ std::unique_ptr<dynamic::Map> Structure::serialize() const {
     root->put("version", STRUCTURE_FORMAT_VERSION);
     root->put("size", dynamic::to_value(size));
 
+    auto& blockNamesArr = root->putList("block-names");
+    for (const auto& name : blockNames) {
+        blockNamesArr.put(name);
+    }
     auto& voxelsArr = root->putList("voxels");
     for (size_t i = 0; i < voxels.size(); i++) {
         voxelsArr.put(static_cast<integer_t>(voxels[i].id));

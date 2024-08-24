@@ -9,15 +9,26 @@
 inline constexpr int STRUCTURE_FORMAT_VERSION = 1;
 
 class Level;
+class Content;
 
 struct Structure : public Serializable {
     glm::ivec3 size;
+
+    /// @brief Structure voxels indexed different to world content
     std::vector<voxel> voxels;
+    /// @brief Block names are used for indexing
+    std::vector<std::string> blockNames;
 
     Structure() : size() {}
 
-    Structure(glm::ivec3 size, std::vector<voxel> voxels)
-    : size(size), voxels(std::move(voxels)) {}
+    Structure(
+        glm::ivec3 size,
+        std::vector<voxel> voxels,
+        std::vector<std::string> blockNames
+    ):  size(size), 
+        voxels(std::move(voxels)), 
+        blockNames(std::move(blockNames)) 
+    {}
 
     std::unique_ptr<dynamic::Map> serialize() const override;
     void deserialize(dynamic::Map* src) override;
