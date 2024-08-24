@@ -13,15 +13,25 @@ struct GeneratorDef;
 class Heightmap;
 struct Biome;
 
+enum class ChunkPrototypeLevel {
+    BIOME, HEIGHTMAP
+};
+
 struct ChunkPrototype {
+    ChunkPrototypeLevel level;
+
     /// @brief chunk heightmap
     std::shared_ptr<Heightmap> heightmap;
     /// @brief chunk biomes matrix
     std::vector<const Biome*> biomes;
 
     ChunkPrototype(
-        std::shared_ptr<Heightmap> heightmap, std::vector<const Biome*> biomes
-    ) : heightmap(std::move(heightmap)), biomes(std::move(biomes)) {};
+        ChunkPrototypeLevel level,
+        std::shared_ptr<Heightmap> heightmap, 
+        std::vector<const Biome*> biomes
+    ) : level(level),
+        heightmap(std::move(heightmap)), 
+        biomes(std::move(biomes)) {};
 };
 
 /// @brief High-level world generation controller
@@ -37,6 +47,8 @@ class WorldGenerator {
     /// @param x chunk position X divided by CHUNK_W
     /// @param z chunk position Y divided by CHUNK_D
     std::unique_ptr<ChunkPrototype> generatePrototype(int x, int z);
+
+    void generateHeightmap(ChunkPrototype* prototype, int x, int z);
 public:
     WorldGenerator(
         const GeneratorDef& def,

@@ -78,9 +78,7 @@ static inline const Biome* choose_biome(
 std::unique_ptr<ChunkPrototype> WorldGenerator::generatePrototype(
     int chunkX, int chunkZ
 ) {
-    timeutil::ScopeLogTimer log(666);
-    auto heightmap = def.script->generateHeightmap(
-        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed);
+    // timeutil::ScopeLogTimer log(666);
     auto biomeParams = def.script->generateParameterMaps(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed);
     const auto& biomes = def.script->getBiomes();
@@ -92,13 +90,25 @@ std::unique_ptr<ChunkPrototype> WorldGenerator::generatePrototype(
         }
     }
     return std::make_unique<ChunkPrototype>(
-        std::move(heightmap), std::move(chunkBiomes));
+        ChunkPrototypeLevel::HEIGHTMAP,
+        nullptr, 
+        std::move(chunkBiomes));
+}
+
+void WorldGenerator::generateHeightmap(
+    ChunkPrototype* prototype, int chunkX, int chunkZ
+) {
+    prototype->heightmap = def.script->generateHeightmap(
+        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed);
+    prototype->level = ChunkPrototypeLevel::HEIGHTMAP;
 }
 
 void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
-    // timeutil::ScopeLogTimer log(555);
+    timeutil::ScopeLogTimer log(555);
 
     auto prototype = generatePrototype(chunkX, chunkZ);
+    generateHeightmap(prototype.get(), chunkX, chunkZ);
+
     const auto values = prototype->heightmap->getValues();
 
     uint seaLevel = def.script->getSeaLevel();
