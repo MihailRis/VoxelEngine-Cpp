@@ -14,7 +14,7 @@ class Heightmap;
 struct Biome;
 
 enum class ChunkPrototypeLevel {
-    BIOME, HEIGHTMAP
+    BIOMES, HEIGHTMAP
 };
 
 struct ChunkPrototype {

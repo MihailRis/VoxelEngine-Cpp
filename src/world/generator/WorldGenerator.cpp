@@ -90,7 +90,7 @@ std::unique_ptr<ChunkPrototype> WorldGenerator::generatePrototype(
         }
     }
     return std::make_unique<ChunkPrototype>(
-        ChunkPrototypeLevel::HEIGHTMAP,
+        ChunkPrototypeLevel::BIOMES,
         nullptr, 
         std::move(chunkBiomes));
 }
