@@ -44,4 +44,5 @@ struct ItemDef {
 
     ItemDef(const std::string& name);
     ItemDef(const ItemDef&) = delete;
+    void cloneTo(ItemDef& dst);
 };

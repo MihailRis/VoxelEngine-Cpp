@@ -57,7 +57,7 @@ static int l_is_extended(lua::State* L) {
 
 static int l_get_size(lua::State* L) {
     if (auto def = require_block(L)) {
-        return lua::pushivec3_stack(L, def->size.x, def->size.y, def->size.z);
+        return lua::pushivec_stack(L, glm::ivec3(def->size));
     }
     return 0;
 }
@@ -76,7 +76,7 @@ static int l_seek_origin(lua::State* L) {
     auto z = lua::tointeger(L, 3);
     auto vox = level->chunks->get(x, y, z);
     auto& def = indices->blocks.require(vox->id);
-    return lua::pushivec3_stack(
+    return lua::pushivec_stack(
         L, level->chunks->seekOrigin({x, y, z}, def, vox->state)
     );
 }
@@ -117,14 +117,14 @@ static int l_get_x(lua::State* L) {
     auto z = lua::tointeger(L, 3);
     auto vox = level->chunks->get(x, y, z);
     if (vox == nullptr) {
-        return lua::pushivec3_stack(L, 1, 0, 0);
+        return lua::pushivec_stack(L, glm::ivec3(1, 0, 0));
     }
-    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    const auto& def = level->content->getIndices()->blocks.require(vox->id);
     if (!def.rotatable) {
-        return lua::pushivec3_stack(L, 1, 0, 0);
+        return lua::pushivec_stack(L, glm::ivec3(1, 0, 0));
     } else {
         const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
-        return lua::pushivec3_stack(L, rot.axisX.x, rot.axisX.y, rot.axisX.z);
+        return lua::pushivec_stack(L, rot.axisX);
     }
 }
 
@@ -134,14 +134,14 @@ static int l_get_y(lua::State* L) {
     auto z = lua::tointeger(L, 3);
     auto vox = level->chunks->get(x, y, z);
     if (vox == nullptr) {
-        return lua::pushivec3_stack(L, 0, 1, 0);
+        return lua::pushivec_stack(L, glm::ivec3(0, 1, 0));
     }
-    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    const auto& def = level->content->getIndices()->blocks.require(vox->id);
     if (!def.rotatable) {
-        return lua::pushivec3_stack(L, 0, 1, 0);
+        return lua::pushivec_stack(L, glm::ivec3(0, 1, 0));
     } else {
         const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
-        return lua::pushivec3_stack(L, rot.axisY.x, rot.axisY.y, rot.axisY.z);
+        return lua::pushivec_stack(L, rot.axisY);
     }
 }
 
@@ -151,14 +151,14 @@ static int l_get_z(lua::State* L) {
     auto z = lua::tointeger(L, 3);
     auto vox = level->chunks->get(x, y, z);
     if (vox == nullptr) {
-        return lua::pushivec3_stack(L, 0, 0, 1);
+        return lua::pushivec_stack(L, glm::ivec3(0, 0, 1));
     }
-    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    const auto& def = level->content->getIndices()->blocks.require(vox->id);
     if (!def.rotatable) {
-        return lua::pushivec3_stack(L, 0, 0, 1);
+        return lua::pushivec_stack(L, glm::ivec3(0, 0, 1));
     } else {
         const CoordSystem& rot = def.rotations.variants[vox->state.rotation];
-        return lua::pushivec3_stack(L, rot.axisZ.x, rot.axisZ.y, rot.axisZ.z);
+        return lua::pushivec_stack(L, rot.axisZ);
     }
 }
 
@@ -353,13 +353,30 @@ static int l_raycast(lua::State* L) {
     auto start = lua::tovec<3>(L, 1);
     auto dir = lua::tovec<3>(L, 2);
     auto maxDistance = lua::tonumber(L, 3);
+    std::set<blockid_t> filteredBlocks {};
+    if (lua::gettop(L) >= 5) {
+        if (lua::istable(L, 5)) {
+            int addLen = lua::objlen(L, 5);
+            for (int i = 0; i < addLen; i++) {
+                lua::rawgeti(L, i + 1, 5);
+                auto blockName = std::string(lua::tostring(L, -1));
+                const Block* block = content->blocks.find(blockName);
+                if (block != nullptr) {
+                    filteredBlocks.insert(block->rt.id);
+                }
+                lua::pop(L);
+            }
+        } else {
+            throw std::runtime_error("table expected for filter");
+        }
+    }
     glm::vec3 end;
     glm::ivec3 normal;
     glm::ivec3 iend;
     if (auto voxel = level->chunks->rayCast(
-            start, dir, maxDistance, end, normal, iend
+            start, dir, maxDistance, end, normal, iend, filteredBlocks
         )) {
-        if (lua::gettop(L) >= 4) {
+        if (lua::gettop(L) >= 4 && !lua::isnil(L, 4)) {
             lua::pushvalue(L, 4);
         } else {
             lua::createtable(L, 0, 5);
@@ -452,4 +469,5 @@ const luaL_Reg blocklib[] = {
     {"raycast", lua::wrap<l_raycast>},
     {"compose_state", lua::wrap<l_compose_state>},
     {"decompose_state", lua::wrap<l_decompose_state>},
-    {NULL, NULL}};
+    {NULL, NULL}
+};

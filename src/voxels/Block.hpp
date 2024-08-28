@@ -211,6 +211,8 @@ public:
     Block(const std::string& name);
     Block(std::string name, const std::string& texture);
     Block(const Block&) = delete;
+
+    void cloneTo(Block& dst);
 };
 
 inline glm::ivec3 get_ground_direction(const Block& def, int rotation) {

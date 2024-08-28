@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 #include <memory>
+#include <set>
 #include <vector>
 
 #include "typedefs.hpp"
@@ -93,7 +94,8 @@ public:
         float maxLength,
         glm::vec3& end,
         glm::ivec3& norm,
-        glm::ivec3& iend
+        glm::ivec3& iend,
+        std::set<blockid_t> filter = {}
     );
 
     glm::vec3 rayCastToObstacle(glm::vec3 start, glm::vec3 dir, float maxDist);

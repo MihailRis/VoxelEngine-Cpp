@@ -414,7 +414,8 @@ voxel* Chunks::rayCast(
     float maxDist,
     glm::vec3& end,
     glm::ivec3& norm,
-    glm::ivec3& iend
+    glm::ivec3& iend,
+    std::set<blockid_t> filter
 ) {
     float px = start.x;
     float py = start.y;
@@ -454,8 +455,10 @@ voxel* Chunks::rayCast(
         if (voxel == nullptr) {
             return nullptr;
         }
+
         const auto& def = indices->blocks.require(voxel->id);
-        if (def.selectable) {
+        if ((filter.empty() && def.selectable) ||
+            (!filter.empty() && filter.find(def.rt.id) == filter.end())) {
             end.x = px + t * dx;
             end.y = py + t * dy;
             end.z = pz + t * dz;
@@ -750,7 +753,9 @@ void Chunks::save(Chunk* chunk) {
             chunk->flags.entities = true;
         }
         worldFiles->getRegions().put(
-            chunk, json::to_binary(root, true)
+            chunk,
+            chunk->flags.entities ? json::to_binary(root, true)
+                                  : std::vector<ubyte>()
         );
     }
 }

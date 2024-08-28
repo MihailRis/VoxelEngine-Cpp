@@ -65,14 +65,6 @@ public:
         return defs[id];
     }
 
-    [[deprecated]]
-    inline T* getWriteable(blockid_t id) const { // TODO: remove
-        if (id >= defs.size()) {
-            return nullptr;
-        }
-        return defs[id];
-    }
-
     inline const T& require(blockid_t id) const {
         return *defs.at(id);
     }
@@ -111,14 +103,14 @@ public:
     ContentUnitDefs(UptrsMap<std::string, T> defs) : defs(std::move(defs)) {
     }
 
-    T* find(const std::string& id) const {
+    const T* find(const std::string& id) const {
         const auto& found = defs.find(id);
         if (found == defs.end()) {
             return nullptr;
         }
         return found->second.get();
     }
-    T& require(const std::string& id) const {
+    const T& require(const std::string& id) const {
         const auto& found = defs.find(id);
         if (found == defs.end()) {
             throw std::runtime_error("missing content unit " + id);

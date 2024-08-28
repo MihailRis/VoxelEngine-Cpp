@@ -51,7 +51,7 @@ entities.get_all_in_radius(center: vec3, radius: number) -> array<int>
 
 ```lua
 entities.raycast(start: vec3, dir: vec3, max_distance: number,
- ignore: int, [optional] destination: table) -> table or nil
+ ignore: int, [optional] destination: table, [optional] filter: table) -> table or nil
 ```
 
 The function is an extended version of [block.raycast](libblock.md#raycast). Returns a table with the results if the ray touches a block or entity.

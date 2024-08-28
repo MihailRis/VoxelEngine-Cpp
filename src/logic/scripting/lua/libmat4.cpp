@@ -49,9 +49,9 @@ static int l_mul(lua::State* L) {
     switch (argc) {
         case 2: {
             if (len2 == 4) {
-                return lua::pushvec4_stack(L, matrix1 * lua::tovec4(L, 2));
+                return lua::pushvec(L, matrix1 * lua::tovec4(L, 2));
             } else if (len2 == 3) {
-                return lua::pushvec3_stack(
+                return lua::pushvec(
                     L, matrix1 * glm::vec4(lua::tovec3(L, 2), 1.0f)
                 );
             }

@@ -8,6 +8,7 @@
 #include "objects/rigging.hpp"
 #include "physics/Hitbox.hpp"
 #include "voxels/Chunks.hpp"
+#include "voxels/Block.hpp"
 #include "window/Camera.hpp"
 
 using namespace scripting;
@@ -118,7 +119,25 @@ static int l_raycast(lua::State* L) {
     auto start = lua::tovec<3>(L, 1);
     auto dir = lua::tovec<3>(L, 2);
     auto maxDistance = lua::tonumber(L, 3);
-    auto ignore = lua::tointeger(L, 4);
+    auto ignoreEntityId = lua::tointeger(L, 4);
+    std::set<blockid_t> filteredBlocks {};
+    if (lua::gettop(L) >= 6) {
+        if (lua::istable(L, 6)) {
+            int addLen = lua::objlen(L, 6);
+            for (int i = 0; i < addLen; i++) {
+                lua::rawgeti(L, i + 1, 6);
+                auto blockName = std::string(lua::tostring(L, -1));
+                const Block* block = content->blocks.find(blockName);
+                if (block != nullptr) {
+                    filteredBlocks.insert(block->rt.id);
+                }
+                lua::pop(L);
+            }
+        } else {
+            throw std::runtime_error("table expected for filter");
+        }
+    }
+
     glm::vec3 end;
     glm::ivec3 normal;
     glm::ivec3 iend;
@@ -126,13 +145,14 @@ static int l_raycast(lua::State* L) {
     blockid_t block = BLOCK_VOID;
 
     if (auto voxel = level->chunks->rayCast(
-            start, dir, maxDistance, end, normal, iend
+            start, dir, maxDistance, end, normal, iend, filteredBlocks
         )) {
         maxDistance = glm::distance(start, end);
         block = voxel->id;
     }
-    if (auto ray = level->entities->rayCast(start, dir, maxDistance, ignore)) {
-        if (lua::gettop(L) >= 5) {
+    if (auto ray =
+            level->entities->rayCast(start, dir, maxDistance, ignoreEntityId)) {
+        if (lua::gettop(L) >= 5 && !lua::isnil(L, 5)) {
             lua::pushvalue(L, 5);
         } else {
             lua::createtable(L, 0, 6);
@@ -157,7 +177,7 @@ static int l_raycast(lua::State* L) {
         lua::setfield(L, "entity");
         return 1;
     } else if (block != BLOCK_VOID) {
-        if (lua::gettop(L) >= 5) {
+        if (lua::gettop(L) >= 5 && !lua::isnil(L, 5)) {
             lua::pushvalue(L, 5);
         } else {
             lua::createtable(L, 0, 5);
@@ -194,4 +214,5 @@ const luaL_Reg entitylib[] = {
     {"get_all_in_box", lua::wrap<l_get_all_in_box>},
     {"get_all_in_radius", lua::wrap<l_get_all_in_radius>},
     {"raycast", lua::wrap<l_raycast>},
-    {NULL, NULL}};
+    {NULL, NULL}
+};

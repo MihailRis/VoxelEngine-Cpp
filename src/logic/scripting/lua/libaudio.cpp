@@ -335,7 +335,7 @@ static int l_audio_get_duration(lua::State* L) {
 static int l_audio_get_position(lua::State* L) {
     auto speaker = audio::get_speaker(lua::tointeger(L, 1));
     if (speaker != nullptr) {
-        return lua::pushvec3_stack(L, speaker->getPosition());
+        return lua::pushvec_stack(L, speaker->getPosition());
     }
     return 0;
 }
@@ -344,7 +344,7 @@ static int l_audio_get_position(lua::State* L) {
 static int l_audio_get_velocity(lua::State* L) {
     auto speaker = audio::get_speaker(lua::tointeger(L, 1));
     if (speaker != nullptr) {
-        return lua::pushvec3_stack(L, speaker->getVelocity());
+        return lua::pushvec_stack(L, speaker->getVelocity());
     }
     return 0;
 }

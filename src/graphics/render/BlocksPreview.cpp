@@ -102,6 +102,7 @@ std::unique_ptr<ImageData> BlocksPreview::draw(
             }
             break;
         case BlockModel::xsprite: {
+            shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), offset));
             glm::vec3 right = glm::normalize(glm::vec3(1.f, 0.f, -1.f));
             batch->sprite(
                 right*float(size)*0.43f+glm::vec3(0, size*0.4f, 0), 
