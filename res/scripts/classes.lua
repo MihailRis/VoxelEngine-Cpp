@@ -22,6 +22,9 @@ local Camera = {__index={
 local wrappers = {}
 
 cameras.get = function(name)
+    if type(name) == 'number' then
+        return cameras.get(cameras.name(name))
+    end
     local wrapper = wrappers[name]
     if wrapper ~= nil then
         return wrapper
