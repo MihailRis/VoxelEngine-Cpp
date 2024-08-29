@@ -24,3 +24,18 @@ TEST(StructMapper, ReadWrite) {
     mapping.setChars(buffer, "hello", "s");
     EXPECT_EQ(mapping.getChars(buffer, "s"), "hell");
 }
+
+TEST(StructMapper, Unicode) {
+    ubyte buffer[8] {};
+    std::vector<Field> fields {
+        Field {FieldType::CHAR, "text", 5},
+    };
+     auto mapping = StructMapping::create(fields);
+     EXPECT_EQ(mapping.size(), 5);
+
+     mapping.setUnicode(buffer, u8"テキストデモ", "text");
+     EXPECT_EQ(mapping.getChars(buffer, "text"), std::string(u8"テ"));
+
+     mapping.setUnicode(buffer, u8"пример", "text");
+     EXPECT_EQ(mapping.getChars(buffer, "text"), std::string(u8"пр"));
+}

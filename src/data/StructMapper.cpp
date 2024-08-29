@@ -1,10 +1,12 @@
 #include "StructMapper.hpp"
 
 #include <cstring>
+#include <string.h>
 #include <stdexcept>
 #include <algorithm>
 
 #include "util/data_io.hpp"
+#include "util/stringutil.hpp"
 
 using namespace data;
 
@@ -55,7 +57,7 @@ void StructMapping::setInteger(
 ) {
     const auto& field = requreField(name);
     if (index < 0 || index >= field.elements) {
-        throw std::runtime_error(
+        throw std::out_of_range(
             "index out of bounds [0, "+std::to_string(field.elements)+"]");
     }
     auto ptr = dst + field.offset + index * sizeof_type(field.type);
@@ -79,7 +81,7 @@ void StructMapping::setNumber(
 ) {
     const auto& field = requreField(name);
     if (index < 0 || index >= field.elements) {
-        throw std::runtime_error(
+        throw std::out_of_range(
             "index out of bounds [0, "+std::to_string(field.elements)+"]");
     }
     auto ptr = dst + field.offset + index * sizeof_type(field.type);
@@ -103,7 +105,7 @@ void StructMapping::setNumber(
     }
 }
 
-void StructMapping::setChars(
+size_t StructMapping::setChars(
     ubyte* dst, std::string_view value, const std::string& name
 ) {
     const auto& field = requreField(name);
@@ -111,8 +113,23 @@ void StructMapping::setChars(
         throw std::runtime_error("'char' field type required");
     }
     auto ptr = reinterpret_cast<char*>(dst + field.offset);
-    std::memcpy(ptr, value.data(), 
-        std::min(value.size(), static_cast<std::size_t>(field.elements)));
+    auto size = std::min(value.size(), static_cast<std::size_t>(field.elements));
+    std::memcpy(ptr, value.data(), size);
+    return size;
+}
+
+size_t StructMapping::setUnicode(
+    ubyte* dst, std::string_view value, const std::string& name
+) {
+    const auto& field = requreField(name);
+    if (field.type != FieldType::CHAR) {
+        throw std::runtime_error("'char' field type required");
+    }
+    auto text = std::string_view(value.data(), value.size());
+    size_t size = util::crop_utf8(text, field.elements);
+    auto ptr = reinterpret_cast<char*>(dst + field.offset);
+    std::memcpy(ptr, value.data(), size);
+    return size;
 }
 
 template<typename T>
@@ -125,7 +142,7 @@ integer_t StructMapping::getInteger(
 ) const {
     const auto& field = requreField(name);
     if (index < 0 || index >= field.elements) {
-        throw std::runtime_error(
+        throw std::out_of_range(
             "index out of bounds [0, "+std::to_string(field.elements)+"]");
     }
     auto ptr = src + field.offset + index * sizeof_type(field.type);
@@ -145,7 +162,7 @@ number_t StructMapping::getNumber(
 ) const {
     const auto& field = requreField(name);
     if (index < 0 || index >= field.elements) {
-        throw std::runtime_error(
+        throw std::out_of_range(
             "index out of bounds [0, "+std::to_string(field.elements)+"]");
     }
     auto ptr = src + field.offset + index * sizeof_type(field.type);
@@ -180,6 +197,6 @@ std::string_view StructMapping::getChars(
     if (field.type != FieldType::CHAR) {
         throw std::runtime_error("'char' field type required");
     }
-    auto ptr = src + field.offset;
-    return std::string_view(reinterpret_cast<const char*>(ptr), field.elements);
+    auto ptr = reinterpret_cast<const char*>(src + field.offset);
+    return std::string_view(ptr, strnlen(ptr, field.elements));
 }
