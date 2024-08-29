@@ -116,20 +116,22 @@ const utf_t utf[] = {
 };
 
 inline uint utf8_len(ubyte cp) {
-    uint len = 0;
-    for (const utf_t* u = utf; u->mask; ++u) {
-        if ((cp >= u->beg) && (cp <= u->end)) {
-            break;
-        }
-        ++len;
+    if ((cp & 0x80) == 0) {
+        return 1;
     }
-    if (len > 4) /* Out of bounds */
-        throw std::runtime_error("utf-8 decode error");
-
-    return len;
+    if ((cp & 0xE0) == 0xC0) {
+        return 2;
+    }
+    if ((cp & 0xF0) == 0xE0) {
+        return 3;
+    }
+    if ((cp & 0xF8) == 0xF0) {
+        return 4;
+    }
+    return 0;
 }
 
-extern uint32_t util::decode_utf8(uint& size, const char* chr) {
+uint32_t util::decode_utf8(uint& size, const char* chr) {
     size = utf8_len(*chr);
     int shift = utf[0].bits_stored * (size - 1);
     uint32_t code = (*chr++ & utf[size].mask) << shift;
@@ -145,7 +147,7 @@ size_t util::crop_utf8(std::string_view s, size_t maxSize) {
     size_t pos = 0;
     uint size = 0;
     while (pos < s.length()) {
-        decode_utf8(size, &s.at(pos));
+        decode_utf8(size, s.data() + pos);
         if (pos + size > maxSize) {
             return pos;
         }
@@ -154,11 +156,13 @@ size_t util::crop_utf8(std::string_view s, size_t maxSize) {
     return pos;
 }
 
-std::string util::wstr2str_utf8(const std::wstring& ws) {
+template<class C>
+std::string xstr2str_utf8(const std::basic_string<C>& xs) {
     std::vector<char> chars;
-    char buffer[4];
-    for (wchar_t wc : ws) {
-        uint size = encode_utf8((uint)wc, (ubyte*)buffer);
+    ubyte buffer[4];
+    for (C xc : xs) {
+        uint size = util::encode_utf8(
+            static_cast<uint>(xc), buffer);
         for (uint i = 0; i < size; i++) {
             chars.push_back(buffer[i]);
         }
@@ -166,15 +170,32 @@ std::string util::wstr2str_utf8(const std::wstring& ws) {
     return std::string(chars.data(), chars.size());
 }
 
-std::wstring util::str2wstr_utf8(const std::string& s) {
-    std::vector<wchar_t> chars;
+std::string util::wstr2str_utf8(const std::wstring& ws) {
+    return xstr2str_utf8(ws);
+}
+
+std::string util::u32str2str_utf8(const std::u32string& ws) {
+    return xstr2str_utf8(ws);
+}
+
+template<class C>
+std::basic_string<C> str2xstr_utf8(const std::string& s) {
+    std::vector<C> chars;
     size_t pos = 0;
     uint size = 0;
     while (pos < s.length()) {
-        chars.push_back(decode_utf8(size, &s.at(pos)));
+        chars.push_back(util::decode_utf8(size, &s.at(pos)));
         pos += size;
     }
-    return std::wstring(chars.data(), chars.size());
+    return std::basic_string<C>(chars.data(), chars.size());
+}
+
+std::wstring util::str2wstr_utf8(const std::string& s) {
+    return str2xstr_utf8<wchar_t>(s);
+}
+
+std::u32string util::str2u32str_utf8(const std::string& s) {
+    return str2xstr_utf8<char32_t>(s);
 }
 
 bool util::is_integer(const std::string& text) {
