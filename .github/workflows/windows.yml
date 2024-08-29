@@ -42,7 +42,7 @@ jobs:
           cp -r build/* packaged/
         working-directory: ${{ github.workspace }}
       - name: Run tests
-        run: ctest --test-dir build
+        run: ctest --output-on-failure --test-dir build
       - uses: actions/upload-artifact@v2
         with:
           name: Windows-Build
