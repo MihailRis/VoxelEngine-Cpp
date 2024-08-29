@@ -22,7 +22,8 @@ namespace util {
 
         /// @brief Find current entry address by index
         /// @param index entry index
-        /// @return nullptr if entry does not exists
+        /// @return temporary raw pointer or nullptr if entry does not exists
+        /// @attention pointer becomes invalid after allocate(...) or free(...)
         uint8_t* find(Tindex index) {
             auto data = buffer.data();
             for (size_t i = 0; i < entriesCount; i++) {
@@ -60,7 +61,7 @@ namespace util {
         /// @param index entry index
         /// @param size entry size
         /// @return temporary entry pointer 
-        /// (invalid after next allocate(...) or free(...))
+        /// @attention pointer becomes invalid after allocate(...) or free(...)
         uint8_t* allocate(Tindex index, Tsize size) {
             if (size == 0) {
                 throw std::runtime_error("size is 0");

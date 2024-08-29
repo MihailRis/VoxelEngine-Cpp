@@ -30,12 +30,12 @@ namespace data {
         int size;
     };
     
-    class StructMapping {
+    class StructLayout {
         int totalSize;
         std::vector<Field> fields;
         std::unordered_map<std::string, int> indices;
     public:
-        StructMapping(
+        StructLayout(
             int totalSize,
             std::vector<Field> fields,
             std::unordered_map<std::string, int> indices
@@ -47,6 +47,7 @@ namespace data {
         /// @brief Get field by name. Returns nullptr if field not found.
         /// @param name field name
         /// @return nullable field pointer
+        [[nodiscard]]
         const Field* getField(const std::string& name) const {
             auto found = indices.find(name);
             if (found == indices.end()) {
@@ -128,18 +129,19 @@ namespace data {
         size_t setUnicode(ubyte* dst, std::string_view value, const std::string& name);
 
         /// @return total structure size (bytes)
-        int size() const {
+        [[nodiscard]] size_t size() const {
             return totalSize;
         }
 
-        static StructMapping create(const std::vector<Field>& fields);
+        [[nodiscard]]
+        static StructLayout create(const std::vector<Field>& fields);
     };
 
     class StructAccess {
-        const StructMapping& mapping;
+        const StructLayout& mapping;
         uint8_t* buffer;
     public:
-        StructAccess(const StructMapping& mapping, uint8_t* buffer)
+        StructAccess(const StructLayout& mapping, uint8_t* buffer)
             : mapping(mapping), buffer(buffer) {
         }
     };

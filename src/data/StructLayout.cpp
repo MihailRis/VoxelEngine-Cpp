@@ -1,4 +1,4 @@
-#include "StructMapper.hpp"
+#include "StructLayout.hpp"
 
 #include <cstring>
 #include <string.h>
@@ -13,7 +13,7 @@ using namespace data;
 static_assert(sizeof(float) == sizeof(int32_t));
 static_assert(sizeof(double) == sizeof(int64_t));
 
-StructMapping StructMapping::create(const std::vector<Field>& fields) {
+StructLayout StructLayout::create(const std::vector<Field>& fields) {
     std::vector<Field> builtFields = fields;
     std::unordered_map<std::string, int> indices;
 
@@ -32,11 +32,11 @@ StructMapping StructMapping::create(const std::vector<Field>& fields) {
         indices[field.name] = i;
         offset += field.size;
     }
-    return StructMapping(
+    return StructLayout(
         offset, std::move(builtFields), std::move(indices));
 }
 
-const Field& StructMapping::requreField(const std::string& name) const {
+const Field& StructLayout::requreField(const std::string& name) const {
     auto found = indices.find(name);
     if (found == indices.end()) {
         throw std::runtime_error("field '"+name+"' does not exist");
@@ -52,7 +52,7 @@ static void set_int(ubyte* dst, integer_t value) {
     *reinterpret_cast<T*>(dst) = out_value;
 }
 
-void StructMapping::setInteger(
+void StructLayout::setInteger(
     ubyte* dst, integer_t value, const std::string& name, int index
 ) {
     const auto& field = requreField(name);
@@ -76,7 +76,7 @@ void StructMapping::setInteger(
     }
 }
 
-void StructMapping::setNumber(
+void StructLayout::setNumber(
     ubyte* dst, number_t value, const std::string& name, int index
 ) {
     const auto& field = requreField(name);
@@ -105,7 +105,7 @@ void StructMapping::setNumber(
     }
 }
 
-size_t StructMapping::setChars(
+size_t StructLayout::setChars(
     ubyte* dst, std::string_view value, const std::string& name
 ) {
     const auto& field = requreField(name);
@@ -118,7 +118,7 @@ size_t StructMapping::setChars(
     return size;
 }
 
-size_t StructMapping::setUnicode(
+size_t StructLayout::setUnicode(
     ubyte* dst, std::string_view value, const std::string& name
 ) {
     const auto& field = requreField(name);
@@ -137,7 +137,7 @@ static T get_int(const ubyte* src) {
     return dataio::le2h(*reinterpret_cast<const T*>(src));
 }
 
-integer_t StructMapping::getInteger(
+integer_t StructLayout::getInteger(
     const ubyte* src, const std::string& name, int index
 ) const {
     const auto& field = requreField(name);
@@ -157,7 +157,7 @@ integer_t StructMapping::getInteger(
     }
 }
 
-number_t StructMapping::getNumber(
+number_t StructLayout::getNumber(
     const ubyte* src, const std::string& name, int index
 ) const {
     const auto& field = requreField(name);
@@ -190,7 +190,7 @@ number_t StructMapping::getNumber(
     throw std::runtime_error("type error");
 }
 
-std::string_view StructMapping::getChars(
+std::string_view StructLayout::getChars(
     const ubyte* src, const std::string& name
 ) const {
     const auto& field = requreField(name);
