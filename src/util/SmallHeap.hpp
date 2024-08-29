@@ -6,6 +6,13 @@
 #include <stdexcept>
 
 namespace util {
+    // TODO: make it safer (minimize raw temporary pointers use)
+    /// @brief Simple heap implementation for memory-optimal sparse array of 
+    /// small different structures
+    /// @note alignment is not impemented 
+    /// (impractical in the context of scripting and memory consumption)
+    /// @tparam Tindex entry index type
+    /// @tparam Tsize entry size type
     template <typename Tindex, typename Tsize>
     class SmallHeap {
         std::vector<uint8_t> buffer;
@@ -13,6 +20,9 @@ namespace util {
     public:
         SmallHeap() : entriesCount(0) {}
 
+        /// @brief Find current entry address by index
+        /// @param index entry index
+        /// @return nullptr if entry does not exists
         uint8_t* find(Tindex index) {
             auto data = buffer.data();
             for (size_t i = 0; i < entriesCount; i++) {
@@ -30,6 +40,8 @@ namespace util {
             return nullptr;
         }
 
+        /// @brief Erase entry from the heap
+        /// @param ptr valid entry pointer
         void free(uint8_t* ptr) {
             if (ptr == nullptr) {
                 return;
@@ -44,6 +56,11 @@ namespace util {
             entriesCount--;
         }
 
+        /// @brief Create or update entry (size)
+        /// @param index entry index
+        /// @param size entry size
+        /// @return temporary entry pointer 
+        /// (invalid after next allocate(...) or free(...))
         uint8_t* allocate(Tindex index, Tsize size) {
             if (size == 0) {
                 throw std::runtime_error("size is 0");
@@ -84,6 +101,8 @@ namespace util {
             return data + sizeof(Tsize);
         }
 
+        /// @param ptr valid entry pointer
+        /// @return entry size
         Tsize sizeOf(uint8_t* ptr) const {
             if (ptr == nullptr) {
                 return 0;
@@ -91,10 +110,12 @@ namespace util {
             return *(reinterpret_cast<Tsize*>(ptr)-1);
         }
 
+        /// @return number of entries
         Tindex count() const {
             return entriesCount;
         }
 
+        /// @return total used bytes including entries metadata
         size_t size() const {
             return buffer.size();
         }
