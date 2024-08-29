@@ -9,7 +9,7 @@ TEST(StructMapper, ReadWrite) {
 
     std::vector<Field> fields {
         Field {FieldType::I8, "a", 1},
-        Field {FieldType::I32, "b", 1},
+        Field {FieldType::CHAR, "s", 4},
         Field {FieldType::F32, "f", 1},
     };
     auto mapping = StructMapping::create(fields);
@@ -20,4 +20,7 @@ TEST(StructMapper, ReadWrite) {
 
     mapping.setNumber(buffer, 3.141592f, "f");
     EXPECT_FLOAT_EQ(mapping.getNumber(buffer, "f"), 3.141592f);
+
+    mapping.setChars(buffer, "hello", "s");
+    EXPECT_EQ(mapping.getChars(buffer, "s"), "hell");
 }

@@ -57,9 +57,11 @@ namespace data {
 
         integer_t getInteger(const ubyte* src, const std::string& name, int index=0) const;
         number_t getNumber(const ubyte* src, const std::string& name, int index=0) const;
+        std::string_view getChars(const ubyte* src, const std::string& name) const;
 
         void setInteger(ubyte* dst, integer_t value, const std::string& name, int index=0);
         void setNumber(ubyte* dst, number_t value, const std::string& name, int index=0);
+        void setChars(ubyte* dst, std::string_view value, const std::string& name);
 
         int size() const {
             return totalSize;

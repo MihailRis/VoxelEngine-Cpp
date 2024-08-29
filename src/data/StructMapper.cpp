@@ -103,6 +103,18 @@ void StructMapping::setNumber(
     }
 }
 
+void StructMapping::setChars(
+    ubyte* dst, std::string_view value, const std::string& name
+) {
+    const auto& field = requreField(name);
+    if (field.type != FieldType::CHAR) {
+        throw std::runtime_error("'char' field type required");
+    }
+    auto ptr = reinterpret_cast<char*>(dst + field.offset);
+    std::memcpy(ptr, value.data(), 
+        std::min(value.size(), static_cast<std::size_t>(field.elements)));
+}
+
 template<typename T>
 static T get_int(const ubyte* src) {
     return dataio::le2h(*reinterpret_cast<const T*>(src));
@@ -159,4 +171,15 @@ number_t StructMapping::getNumber(
         
     }
     throw std::runtime_error("type error");
+}
+
+std::string_view StructMapping::getChars(
+    const ubyte* src, const std::string& name
+) const {
+    const auto& field = requreField(name);
+    if (field.type != FieldType::CHAR) {
+        throw std::runtime_error("'char' field type required");
+    }
+    auto ptr = src + field.offset;
+    return std::string_view(reinterpret_cast<const char*>(ptr), field.elements);
 }
