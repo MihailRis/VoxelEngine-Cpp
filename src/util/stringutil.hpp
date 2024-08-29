@@ -23,10 +23,20 @@ namespace util {
     /// @return new UTF-8 encoded string
     std::string wstr2str_utf8(const std::wstring& ws);
 
-    /// @brief Decode UTF
+    /// @brief Decode UTF-8 string
     /// @param s source encoded string
-    /// @return new raw decoded string
+    /// @return new raw decoded wstring
     std::wstring str2wstr_utf8(const std::string& s);
+
+    /// @brief Encode raw u32string to UTF-8
+    /// @param ws source raw wstring
+    /// @return new UTF-8 encoded string
+    std::string u32str2str_utf8(const std::u32string& ws);
+
+    /// @brief Decode UTF-8 string
+    /// @param s source encoded string
+    /// @return new raw decoded u32string
+    std::u32string str2u32str_utf8(const std::string& s);
 
     /// @brief Calculated length of UTF-8 encoded string that fits into maxSize
     /// @param s source UTF-8 encoded string view
