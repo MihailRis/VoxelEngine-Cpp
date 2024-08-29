@@ -141,6 +141,19 @@ extern uint32_t util::decode_utf8(uint& size, const char* chr) {
     return code;
 }
 
+size_t util::crop_utf8(std::string_view s, size_t maxSize) {
+    size_t pos = 0;
+    uint size = 0;
+    while (pos < s.length()) {
+        decode_utf8(size, &s.at(pos));
+        if (pos + size > maxSize) {
+            return pos;
+        }
+        pos += size;
+    }
+    return pos;
+}
+
 std::string util::wstr2str_utf8(const std::wstring& ws) {
     std::vector<char> chars;
     char buffer[4];
