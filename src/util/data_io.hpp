@@ -24,7 +24,7 @@ namespace dataio {
 
     inline bool is_big_endian() {
         uint16_t num = 1;
-        auto bytes = reinterpret_cast<uint8_t*>(num);
+        auto bytes = reinterpret_cast<uint8_t*>(&num);
         return bytes[1] == 1;
     }
 
