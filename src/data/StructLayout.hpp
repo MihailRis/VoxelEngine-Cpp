@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <stdexcept>
 #include <unordered_map>
 
 #include "typedefs.hpp"
@@ -18,6 +19,11 @@ namespace data {
         };
         return sizes[static_cast<int>(type)];
     }
+
+    class dataloss_error : public std::runtime_error {
+    public:
+        dataloss_error(const std::string& message) : std::runtime_error(message) {}
+    };
 
     struct Field {
         FieldType type;
@@ -99,7 +105,7 @@ namespace data {
         /// @param value value
         /// @param name field name
         /// @param index array index
-        void setInteger(ubyte* dst, integer_t value, const std::string& name, int index=0);
+        void setInteger(ubyte* dst, integer_t value, const std::string& name, int index=0) const;
 
         /// @brief Set field numeric value.
         /// Types: (f32, f64)
@@ -109,7 +115,7 @@ namespace data {
         /// @param value value
         /// @param name field name
         /// @param index array index
-        void setNumber(ubyte* dst, number_t value, const std::string& name, int index=0);
+        void setNumber(ubyte* dst, number_t value, const std::string& name, int index=0) const;
         
         /// @brief Replace chars array to given ASCII string
         /// @throws std::runtime_exception - field not found
@@ -118,7 +124,7 @@ namespace data {
         /// @param value ASCII string
         /// @param name field name
         /// @return number of written string chars
-        size_t setChars(ubyte* dst, std::string_view value, const std::string& name);
+        size_t setChars(ubyte* dst, std::string_view value, const std::string& name) const;
         
         /// @brief Unicode-safe version of setChars
         /// @throws std::runtime_exception - field not found
@@ -126,23 +132,31 @@ namespace data {
         /// @param value utf-8 string
         /// @param name field name
         /// @return number of written string chars
-        size_t setUnicode(ubyte* dst, std::string_view value, const std::string& name);
+        size_t setUnicode(ubyte* dst, std::string_view value, const std::string& name) const;
 
         /// @return total structure size (bytes)
         [[nodiscard]] size_t size() const {
             return totalSize;
         }
 
+        /// @brief Convert structure data from srcLayout to this layout.
+        /// @param srcLayout source structure layout
+        /// @param src source data
+        /// @param dst destination buffer
+        /// (size must be enough to store converted structure) 
+        /// @param allowDataLoss allow to drop fields that are not present in 
+        /// this layout or have incompatible types
+        /// @throws data::dataloss_error - data loss detected and allowDataLoss 
+        /// is set to false
+        void convert(
+            const StructLayout& srcLayout, 
+            const ubyte* src, 
+            ubyte* dst,
+            bool allowDataLoss) const;
+
+        /// TODO: add checkCompatibility method
+
         [[nodiscard]]
         static StructLayout create(const std::vector<Field>& fields);
-    };
-
-    class StructAccess {
-        const StructLayout& mapping;
-        uint8_t* buffer;
-    public:
-        StructAccess(const StructLayout& mapping, uint8_t* buffer)
-            : mapping(mapping), buffer(buffer) {
-        }
     };
 }

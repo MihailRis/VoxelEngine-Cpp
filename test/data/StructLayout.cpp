@@ -39,3 +39,7 @@ TEST(StructLayout, Unicode) {
      layout.setUnicode(buffer, u8"пример", "text");
      EXPECT_EQ(layout.getChars(buffer, "text"), std::string(u8"пр"));
 }
+
+TEST(StructLayout, Convert) {
+    
+}

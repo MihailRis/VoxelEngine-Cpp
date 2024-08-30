@@ -2,7 +2,6 @@
 
 #include <cstring>
 #include <string.h>
-#include <stdexcept>
 #include <algorithm>
 
 #include "util/data_io.hpp"
@@ -36,6 +35,35 @@ StructLayout StructLayout::create(const std::vector<Field>& fields) {
         offset, std::move(builtFields), std::move(indices));
 }
 
+static inline constexpr bool is_integer_type(FieldType type) {
+    return (type >= FieldType::I8 && type <= FieldType::I64) || 
+            type == FieldType::CHAR;
+}
+
+static inline constexpr bool is_floating_point_type(FieldType type) {
+    return type == FieldType::F32 || type == FieldType::F64;
+}
+
+static inline constexpr bool is_numeric_type(FieldType type) {
+    return is_floating_point_type(type) || is_integer_type(type);
+}
+
+void StructLayout::convert(
+    const StructLayout& srcLayout, 
+    const ubyte* src, 
+    ubyte* dst,
+    bool allowDataLoss
+) const {
+    for (const Field& field : fields) {
+        auto srcField = srcLayout.getField(field.name);
+        if (srcField == nullptr) {
+            std::memset(dst + field.offset, 0, field.size);
+            continue;
+        }
+        // TODO: implement
+    }
+}
+
 const Field& StructLayout::requreField(const std::string& name) const {
     auto found = indices.find(name);
     if (found == indices.end()) {
@@ -54,7 +82,7 @@ static void set_int(ubyte* dst, integer_t value) {
 
 void StructLayout::setInteger(
     ubyte* dst, integer_t value, const std::string& name, int index
-) {
+) const {
     const auto& field = requreField(name);
     if (index < 0 || index >= field.elements) {
         throw std::out_of_range(
@@ -78,7 +106,7 @@ void StructLayout::setInteger(
 
 void StructLayout::setNumber(
     ubyte* dst, number_t value, const std::string& name, int index
-) {
+) const {
     const auto& field = requreField(name);
     if (index < 0 || index >= field.elements) {
         throw std::out_of_range(
@@ -107,7 +135,7 @@ void StructLayout::setNumber(
 
 size_t StructLayout::setChars(
     ubyte* dst, std::string_view value, const std::string& name
-) {
+) const {
     const auto& field = requreField(name);
     if (field.type != FieldType::CHAR) {
         throw std::runtime_error("'char' field type required");
@@ -120,7 +148,7 @@ size_t StructLayout::setChars(
 
 size_t StructLayout::setUnicode(
     ubyte* dst, std::string_view value, const std::string& name
-) {
+) const {
     const auto& field = requreField(name);
     if (field.type != FieldType::CHAR) {
         throw std::runtime_error("'char' field type required");
