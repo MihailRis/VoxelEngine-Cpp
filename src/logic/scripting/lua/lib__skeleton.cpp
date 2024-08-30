@@ -62,8 +62,6 @@ static int l_set_matrix(lua::State* L) {
 static int l_get_texture(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
         auto& skeleton = entity->getSkeleton();
-        skeleton.textures[lua::require_string(L, 2)] =
-            lua::require_string(L, 3);
         const auto& found = skeleton.textures.find(lua::require_string(L, 2));
         if (found != skeleton.textures.end()) {
             return lua::pushstring(L, found->second);
