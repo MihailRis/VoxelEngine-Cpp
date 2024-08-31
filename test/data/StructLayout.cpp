@@ -92,6 +92,8 @@ TEST(StructLayout, ConvertWithLoss) {
     };
     auto dstLayout = StructLayout::create(dstFields);
     auto report = srcLayout.checkCompatibility(dstLayout);
+
+    // check report
     std::sort(report.begin(), report.end(), [](const auto& a, const auto& b) {
         return a.name < b.name;
     });

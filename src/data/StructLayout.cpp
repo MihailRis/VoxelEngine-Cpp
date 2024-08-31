@@ -310,7 +310,8 @@ number_t StructLayout::getNumber(
         case FieldType::I64:
         case FieldType::CHAR:
             return getInteger(src, name, index);
-        
+        default:
+            throw std::runtime_error("type error");
     }
     throw std::runtime_error("type error");
 }
