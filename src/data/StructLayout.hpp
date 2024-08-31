@@ -143,14 +143,14 @@ namespace data {
         
         /// @brief Replace chars array to given ASCII string
         /// @throws std::runtime_exception - field not found
-        /// @see StructMapper::setUnicode - utf-8 version of setChars
+        /// @see StructMapper::setUnicode - utf-8 version of setAscii
         /// @param dst destination buffer
         /// @param value ASCII string
         /// @param name field name
         /// @return number of written string chars
-        size_t setChars(ubyte* dst, std::string_view value, const std::string& name) const;
+        size_t setAscii(ubyte* dst, std::string_view value, const std::string& name) const;
         
-        /// @brief Unicode-safe version of setChars
+        /// @brief Unicode-safe version of setAscii
         /// @throws std::runtime_exception - field not found
         /// @param dst destination buffer
         /// @param value utf-8 string

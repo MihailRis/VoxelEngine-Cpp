@@ -23,7 +23,7 @@ TEST(StructLayout, ReadWrite) {
     layout.setNumber(buffer, 3.141592f, "f");
     EXPECT_FLOAT_EQ(layout.getNumber(buffer, "f"), 3.141592f);
 
-    layout.setChars(buffer, "hello", "s");
+    layout.setAscii(buffer, "hello", "s");
     EXPECT_EQ(layout.getChars(buffer, "s"), "hell");
 }
 
@@ -49,7 +49,7 @@ TEST(StructLayout, ConvertReorder) {
         Field {FieldType::F64, "pi", 1},
     };
     auto srcLayout = StructLayout::create(srcFields);
-    srcLayout.setChars(src, "truth", "text");
+    srcLayout.setAscii(src, "truth", "text");
     srcLayout.setNumber(src, 3.141592, "pi");
 
     EXPECT_EQ(srcLayout.getChars(src, "text"), "truth");
@@ -77,7 +77,7 @@ TEST(StructLayout, ConvertWithLoss) {
         Field {FieldType::F64, "pi", 1},
     };
     auto srcLayout = StructLayout::create(srcFields);
-    srcLayout.setChars(src, "truth", "text");
+    srcLayout.setAscii(src, "truth", "text");
     srcLayout.setInteger(src, 150, "someint");
     srcLayout.setNumber(src, 3.141592, "pi");
 

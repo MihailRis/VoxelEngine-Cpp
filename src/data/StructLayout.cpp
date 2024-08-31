@@ -230,7 +230,7 @@ void StructLayout::setNumber(
     }
 }
 
-size_t StructLayout::setChars(
+size_t StructLayout::setAscii(
     ubyte* dst, std::string_view value, const std::string& name
 ) const {
     const auto& field = requreField(name);
