@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept>
 #include <unordered_map>
+#include <optional>
 
 #include "typedefs.hpp"
 
@@ -11,6 +12,19 @@ namespace data {
     enum class FieldType {
         I8=0, I16, I32, I64, F32, F64, CHAR,
         COUNT
+    };
+
+    /// @brief Sorted by severity
+    enum class FieldIncapatibilityType {
+        NONE = 0,
+        DATA_LOSS,
+        TYPE_ERROR,
+        MISSING,
+    };
+
+    struct FieldIncapatibility {
+        std::string name;
+        FieldIncapatibilityType type;
     };
 
     inline constexpr int sizeof_type(FieldType type) {
@@ -25,11 +39,21 @@ namespace data {
         dataloss_error(const std::string& message) : std::runtime_error(message) {}
     };
 
+    /// @brief Strategy will be used if value can't be left the same on conversion
+    enum class FieldConvertStrategy {
+        /// @brief Reset field value
+        RESET,
+        /// @brief Clamp field value if out of type range
+        CLAMP
+    };
+
     struct Field {
         FieldType type;
         std::string name;
         /// @brief Number of field elements (array size)
         int elements;
+        /// @brief Strategy will be used in data loss case
+        FieldConvertStrategy convertStrategy;
         /// @brief Byte offset of the field
         int offset;
         /// @brief Byte size of the field
@@ -154,7 +178,8 @@ namespace data {
             ubyte* dst,
             bool allowDataLoss) const;
 
-        /// TODO: add checkCompatibility method
+        std::vector<FieldIncapatibility> checkCompatibility(
+            const StructLayout& dstLayout);
 
         [[nodiscard]]
         static StructLayout create(const std::vector<Field>& fields);

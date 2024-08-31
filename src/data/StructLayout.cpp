@@ -1,6 +1,7 @@
 #include "StructLayout.hpp"
 
 #include <cstring>
+#include <climits>
 #include <string.h>
 #include <algorithm>
 
@@ -48,20 +49,116 @@ static inline constexpr bool is_numeric_type(FieldType type) {
     return is_floating_point_type(type) || is_integer_type(type);
 }
 
+static inline FieldIncapatibilityType checkIncapatibility(
+    const Field& srcField, const Field& dstField
+) {
+    auto type = FieldIncapatibilityType::NONE;
+    if (dstField.elements < srcField.elements) {
+        type = FieldIncapatibilityType::DATA_LOSS;
+    }
+    if (srcField.type == dstField.type) {
+        return type;
+    }
+    if (is_numeric_type(srcField.type) && is_numeric_type(dstField.type)) {
+        int sizediff =
+            sizeof_type(dstField.type) - sizeof_type(srcField.type);
+        if (sizediff < 0) {
+            type = std::max(type, FieldIncapatibilityType::DATA_LOSS);
+        }
+    } else {
+        type = std::max(type, FieldIncapatibilityType::TYPE_ERROR);
+    }
+    return type;
+}
+
+static inline integer_t clamp_value(integer_t value, FieldType type) {
+    auto typesize = sizeof_type(type) * CHAR_BIT;
+    integer_t minval = -(1 << (typesize-1));
+    integer_t maxval = (1 << (typesize-1))-1;
+    return std::min(maxval, std::max(minval, value));
+}
+
+static void reset_integer(
+    const StructLayout& srcLayout,
+    const StructLayout& dstLayout,
+    const Field& field,
+    const Field& dstField,
+    const ubyte* src, 
+    ubyte* dst
+) {
+    int elements = std::min(field.elements, dstField.elements);
+    for (int i = 0; i < elements; i++) {
+        auto value = srcLayout.getInteger(src, field.name, i);
+        auto clamped = clamp_value(value, dstField.type);
+        if (dstField.convertStrategy == FieldConvertStrategy::CLAMP) {
+            value = clamped;
+        } else {
+            if (clamped != value) {
+                value = 0;
+            }
+        }
+        dstLayout.setInteger(dst, value, field.name, i);
+    }
+}
+
+static void reset_number(
+    const StructLayout& srcLayout,
+    const StructLayout& dstLayout,
+    const Field& field,
+    const Field& dstField,
+    const ubyte* src, 
+    ubyte* dst
+) {
+    int elements = std::min(field.elements, dstField.elements);
+    for (int i = 0; i < elements; i++) {
+        auto value = srcLayout.getNumber(src, field.name, i);
+        dstLayout.setNumber(dst, value, field.name, i);
+    }
+}
+
 void StructLayout::convert(
     const StructLayout& srcLayout, 
     const ubyte* src, 
     ubyte* dst,
     bool allowDataLoss
 ) const {
-    for (const Field& field : fields) {
-        auto srcField = srcLayout.getField(field.name);
-        if (srcField == nullptr) {
-            std::memset(dst + field.offset, 0, field.size);
+    std::memset(dst, 0, totalSize);
+    for (const Field& field : srcLayout.fields) {
+        auto dstField = getField(field.name);
+        if (dstField == nullptr) {
             continue;
         }
-        // TODO: implement
+        auto type = checkIncapatibility(field, *dstField);
+        if (type == FieldIncapatibilityType::TYPE_ERROR) {
+            continue;
+        }
+        // can't just memcpy, because field type may be changed without data loss
+        if (is_integer_type(field.type) ||
+                (is_floating_point_type(field.type) && 
+                    is_integer_type(dstField->type))) {
+            reset_integer(srcLayout, *this, field, *dstField, src, dst);
+        } else if (is_floating_point_type(dstField->type)) {
+            reset_number(srcLayout, *this, field, *dstField, src, dst);
+        }
     }
+}
+
+std::vector<FieldIncapatibility> StructLayout::checkCompatibility(
+    const StructLayout& dstLayout
+) {
+    std::vector<FieldIncapatibility> report;
+    for (const Field& field : fields) {
+        auto dstField = dstLayout.getField(field.name);
+        if (dstField == nullptr) {
+            report.push_back({field.name, FieldIncapatibilityType::MISSING});
+            continue;
+        }
+        auto type = checkIncapatibility(field, *dstField);
+        if (type != FieldIncapatibilityType::NONE) {
+            report.push_back({field.name, type});
+        }
+    }
+    return report;
 }
 
 const Field& StructLayout::requreField(const std::string& name) const {
