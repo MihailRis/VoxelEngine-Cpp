@@ -8,11 +8,12 @@
 #include <mutex>
 #include <unordered_map>
 
-#include "data/dynamic_fwd.hpp"
 #include "typedefs.hpp"
+#include "data/dynamic_fwd.hpp"
 #include "util/BufferPool.hpp"
 #include "voxels/Chunk.hpp"
 #include "maths/voxmaths.hpp"
+#include "coders/compression.hpp"
 #include "files.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -126,6 +127,8 @@ struct RegionsLayer {
     /// @brief Regions layer folder
     fs::path folder;
 
+    compression::Method compression = compression::Method::NONE;
+
     /// @brief In-memory regions data
     regionsmap regions;
 
@@ -139,7 +142,7 @@ struct RegionsLayer {
     std::mutex regFilesMutex;
     std::condition_variable regFilesCv;
 
-    regfile_ptr getRegFile(glm::ivec2 coord, bool create = true);
+    [[nodiscard]] regfile_ptr getRegFile(glm::ivec2 coord, bool create = true);
     [[nodiscard]] regfile_ptr useRegFile(glm::ivec2 coord);
     regfile_ptr createRegFile(glm::ivec2 coord);
     void closeRegFile(glm::ivec2 coord);
@@ -178,26 +181,6 @@ class WorldRegions {
     fs::path directory;
 
     RegionsLayer layers[4] {};
-    util::BufferPool<ubyte> bufferPool {
-        std::max(CHUNK_DATA_LEN, LIGHTMAP_DATA_LEN) * 2};
-
-    /// @brief Compress buffer with extrle
-    /// @param src source buffer
-    /// @param srclen length of the source buffer
-    /// @param len (out argument) length of result buffer
-    /// @return compressed bytes array
-    std::unique_ptr<ubyte[]> compress(
-        const ubyte* src, size_t srclen, size_t& len
-    );
-
-    /// @brief Decompress buffer with extrle
-    /// @param src compressed buffer
-    /// @param srclen length of compressed buffer
-    /// @param dstlen max expected length of source buffer
-    /// @return decompressed bytes array
-    std::unique_ptr<ubyte[]> decompress(
-        const ubyte* src, size_t srclen, size_t dstlen
-    );
 public:
     bool generatorTestMode = false;
     bool doWriteLights = true;
@@ -215,19 +198,22 @@ public:
     /// @param layer regions layer
     /// @param data target data
     /// @param size data size
-    /// @param rle compress with ext-RLE
     void put(
         int x,
         int z,
         int layer,
         std::unique_ptr<ubyte[]> data,
-        size_t size,
-        bool rle
+        size_t size
     );
 
     std::unique_ptr<ubyte[]> getVoxels(int x, int z);
+
+    /// @brief Get cached lights for chunk at x,z
+    /// @return lights data or nullptr
     std::unique_ptr<light_t[]> getLights(int x, int z);
+    
     chunk_inventories_map fetchInventories(int x, int z);
+    
     dynamic::Map_sptr fetchEntities(int x, int z);
 
     void processRegionVoxels(int x, int z, const regionproc& func);

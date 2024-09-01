@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "coders/byte_utils.hpp"
-#include "coders/rle.hpp"
 #include "data/dynamic.hpp"
 #include "items/Inventory.hpp"
 #include "maths/voxmaths.hpp"
@@ -55,36 +54,20 @@ WorldRegions::WorldRegions(const fs::path& directory) : directory(directory) {
     for (size_t i = 0; i < sizeof(layers) / sizeof(RegionsLayer); i++) {
         layers[i].layer = i;
     }
-    layers[REGION_LAYER_VOXELS].folder = directory / fs::path("regions");
-    layers[REGION_LAYER_LIGHTS].folder = directory / fs::path("lights");
+    auto& voxels = layers[REGION_LAYER_VOXELS];
+    voxels.folder = directory / fs::path("regions");
+    voxels.compression = compression::Method::EXTRLE8;
+
+    auto& lights = layers[REGION_LAYER_LIGHTS];
+    lights.folder = directory / fs::path("lights");
+    lights.compression = compression::Method::EXTRLE8;
+
     layers[REGION_LAYER_INVENTORIES].folder =
         directory / fs::path("inventories");
     layers[REGION_LAYER_ENTITIES].folder = directory / fs::path("entities");
 }
 
 WorldRegions::~WorldRegions() = default;
-
-std::unique_ptr<ubyte[]> WorldRegions::compress(
-    const ubyte* src, size_t srclen, size_t& len
-) {
-    auto buffer = bufferPool.get();
-    auto bytes = buffer.get();
-
-    len = extrle::encode(src, srclen, bytes);
-    auto data = std::make_unique<ubyte[]>(len);
-    for (size_t i = 0; i < len; i++) {
-        data[i] = bytes[i];
-    }
-    return data;
-}
-
-std::unique_ptr<ubyte[]> WorldRegions::decompress(
-    const ubyte* src, size_t srclen, size_t dstlen
-) {
-    auto decompressed = std::make_unique<ubyte[]>(dstlen);
-    extrle::decode(src, srclen, decompressed.get());
-    return decompressed;
-}
 
 void RegionsLayer::writeAll() {
     for (auto& it : regions) {
@@ -100,21 +83,19 @@ void RegionsLayer::writeAll() {
 void WorldRegions::put(
     int x,
     int z,
-    int layer,
+    int layerid,
     std::unique_ptr<ubyte[]> data,
-    size_t size,
-    bool rle
+    size_t size
 ) {
-    if (rle) {
-        size_t compressedSize;
-        auto compressed = compress(data.get(), size, compressedSize);
-        put(x, z, layer, std::move(compressed), compressedSize, false);
-        return;
+    auto& layer = layers[layerid];
+    if (layer.compression != compression::Method::NONE) {
+        data = compression::compress(
+            data.get(), size, size, layer.compression);
     }
     int regionX, regionZ, localX, localZ;
     calc_reg_coords(x, z, regionX, regionZ, localX, localZ);
 
-    WorldRegion* region = layers[layer].getOrCreateRegion(regionX, regionZ);
+    WorldRegion* region = layer.getOrCreateRegion(regionX, regionZ);
     region->setUnsaved(true);
     region->put(localX, localZ, std::move(data), size);
 }
@@ -139,7 +120,6 @@ static std::unique_ptr<ubyte[]> write_inventories(
     return data;
 }
 
-/// @brief Store chunk data (voxels and lights) in region (existing or new)
 void WorldRegions::put(Chunk* chunk, std::vector<ubyte> entitiesData) {
     assert(chunk != nullptr);
     if (!chunk->flags.lighted) {
@@ -157,8 +137,7 @@ void WorldRegions::put(Chunk* chunk, std::vector<ubyte> entitiesData) {
         chunk->z,
         REGION_LAYER_VOXELS,
         chunk->encode(),
-        CHUNK_DATA_LEN,
-        true);
+        CHUNK_DATA_LEN);
 
     // Writing lights cache
     if (doWriteLights && chunk->flags.lighted) {
@@ -166,8 +145,7 @@ void WorldRegions::put(Chunk* chunk, std::vector<ubyte> entitiesData) {
             chunk->z,
             REGION_LAYER_LIGHTS,
             chunk->lightmap.encode(),
-            LIGHTMAP_DATA_LEN,
-            true);
+            LIGHTMAP_DATA_LEN);
     }
     // Writing block inventories
     if (!chunk->inventories.empty()) {
@@ -177,8 +155,7 @@ void WorldRegions::put(Chunk* chunk, std::vector<ubyte> entitiesData) {
             chunk->z,
             REGION_LAYER_INVENTORIES,
             std::move(data),
-            datasize,
-            false);
+            datasize);
     }
     // Writing entities
     if (!entitiesData.empty()) {
@@ -190,29 +167,30 @@ void WorldRegions::put(Chunk* chunk, std::vector<ubyte> entitiesData) {
             chunk->z,
             REGION_LAYER_ENTITIES,
             std::move(data),
-            entitiesData.size(),
-            false);
+            entitiesData.size());
     }
 }
 
 std::unique_ptr<ubyte[]> WorldRegions::getVoxels(int x, int z) {
     uint32_t size;
-    auto* data = layers[REGION_LAYER_VOXELS].getData(x, z, size);
+    auto& layer = layers[REGION_LAYER_VOXELS];
+    auto* data = layer.getData(x, z, size);
     if (data == nullptr) {
         return nullptr;
     }
-    return decompress(data, size, CHUNK_DATA_LEN);
+    return compression::decompress(data, size, CHUNK_DATA_LEN, layer.compression);
 }
 
-/// @brief Get cached lights for chunk at x,z
-/// @return lights data or nullptr
 std::unique_ptr<light_t[]> WorldRegions::getLights(int x, int z) {
     uint32_t size;
-    auto* bytes = layers[REGION_LAYER_LIGHTS].getData(x, z, size);
+    auto& layer = layers[REGION_LAYER_LIGHTS];
+    auto* bytes = layer.getData(x, z, size);
     if (bytes == nullptr) {
         return nullptr;
     }
-    auto data = decompress(bytes, size, LIGHTMAP_DATA_LEN);
+    auto data = compression::decompress(
+        bytes, size, LIGHTMAP_DATA_LEN, layer.compression
+    );
     return Lightmap::decode(data.get());
 }
 
@@ -254,10 +232,11 @@ dynamic::Map_sptr WorldRegions::fetchEntities(int x, int z) {
 }
 
 void WorldRegions::processRegionVoxels(int x, int z, const regionproc& func) {
-    if (layers[REGION_LAYER_VOXELS].getRegion(x, z)) {
+    auto& layer = layers[REGION_LAYER_VOXELS];
+    if (layer.getRegion(x, z)) {
         throw std::runtime_error("not implemented for in-memory regions");
     }
-    auto regfile = layers[REGION_LAYER_VOXELS].getRegFile({x, z});
+    auto regfile = layer.getRegFile({x, z});
     if (regfile == nullptr) {
         throw std::runtime_error("could not open region file");
     }
@@ -271,14 +250,15 @@ void WorldRegions::processRegionVoxels(int x, int z, const regionproc& func) {
             if (data == nullptr) {
                 continue;
             }
-            data = decompress(data.get(), length, CHUNK_DATA_LEN);
+            data = compression::decompress(
+                data.get(), length, CHUNK_DATA_LEN, layer.compression
+            );
             if (func(data.get())) {
                 put(gx,
                     gz,
                     REGION_LAYER_VOXELS,
                     std::move(data),
-                    CHUNK_DATA_LEN,
-                    true);
+                    CHUNK_DATA_LEN);
             }
         }
     }

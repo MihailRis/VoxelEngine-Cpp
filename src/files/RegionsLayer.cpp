@@ -11,7 +11,7 @@ static fs::path get_region_filename(int x, int z) {
 }
 
 /// @brief Read missing chunks data (null pointers) from region file
-static void fetchChunks(WorldRegion* region, int x, int z, regfile* file) {
+static void fetch_chunks(WorldRegion* region, int x, int z, regfile* file) {
     auto* chunks = region->getChunks();
     uint32_t* sizes = region->getSizes();
 
@@ -174,7 +174,7 @@ void RegionsLayer::writeRegion(int x, int z, WorldRegion* entry) {
 
     glm::ivec2 regcoord(x, z);
     if (auto regfile = getRegFile(regcoord, false)) {
-        fetchChunks(entry, x, z, regfile.get());
+        fetch_chunks(entry, x, z, regfile.get());
 
         std::lock_guard lock(regFilesMutex);
         regfile.reset();
