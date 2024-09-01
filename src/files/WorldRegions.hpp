@@ -12,6 +12,7 @@
 #include "typedefs.hpp"
 #include "util/BufferPool.hpp"
 #include "voxels/Chunk.hpp"
+#include "maths/voxmaths.hpp"
 #include "files.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -30,7 +31,7 @@ inline constexpr uint REGION_SIZE_BIT = 5;
 inline constexpr uint REGION_SIZE = (1 << (REGION_SIZE_BIT));
 inline constexpr uint REGION_CHUNKS_COUNT = ((REGION_SIZE) * (REGION_SIZE));
 inline constexpr uint REGION_FORMAT_VERSION = 2;
-inline constexpr uint MAX_OPEN_REGION_FILES = 16;
+inline constexpr uint MAX_OPEN_REGION_FILES = 32;
 
 class illegal_region_format : public std::runtime_error {
 public:
@@ -47,7 +48,7 @@ public:
     WorldRegion();
     ~WorldRegion();
 
-    void put(uint x, uint z, ubyte* data, uint32_t size);
+    void put(uint x, uint z, std::unique_ptr<ubyte[]> data, uint32_t size);
     ubyte* getChunkData(uint x, uint z);
     uint getChunkDataSize(uint x, uint z);
 
@@ -71,13 +72,6 @@ struct regfile {
 
 using regionsmap = std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>>;
 using regionproc = std::function<bool(ubyte*)>;
-
-struct RegionsLayer {
-    int layer;
-    fs::path folder;
-    regionsmap regions;
-    std::mutex mutex;
-};
 
 class regfile_ptr {
     regfile* file;
@@ -116,17 +110,76 @@ public:
     }
 };
 
-class WorldRegions {
-    fs::path directory;
-    std::unordered_map<glm::ivec3, std::unique_ptr<regfile>> openRegFiles;
+inline void calc_reg_coords(
+    int x, int z, int& regionX, int& regionZ, int& localX, int& localZ
+) {
+    regionX = floordiv(x, REGION_SIZE);
+    regionZ = floordiv(z, REGION_SIZE);
+    localX = x - (regionX * REGION_SIZE);
+    localZ = z - (regionZ * REGION_SIZE);
+}
+
+struct RegionsLayer {
+    /// @brief Layer index
+    int layer;
+    
+    /// @brief Regions layer folder
+    fs::path folder;
+
+    /// @brief In-memory regions data
+    regionsmap regions;
+
+    /// @brief In-memory regions map mutex
+    std::mutex mapMutex;
+
+    /// @brief Open region files map
+    std::unordered_map<glm::ivec2, std::unique_ptr<regfile>> openRegFiles;
+
+    /// @brief Open region files map mutex
     std::mutex regFilesMutex;
     std::condition_variable regFilesCv;
+
+    regfile_ptr getRegFile(glm::ivec2 coord, bool create = true);
+    [[nodiscard]] regfile_ptr useRegFile(glm::ivec2 coord);
+    regfile_ptr createRegFile(glm::ivec2 coord);
+    void closeRegFile(glm::ivec2 coord);
+
+    WorldRegion* getRegion(int x, int z);
+    WorldRegion* getOrCreateRegion(int x, int z);
+
+    /// @brief Get chunk data. Read from file if not loaded yet.
+    /// @param x chunk x coord
+    /// @param z chunk z coord
+    /// @param size [out] chunk data length
+    /// @return nullptr if no saved chunk data found
+    [[nodiscard]] ubyte* getData(int x, int z, uint32_t& size);
+
+    /// @brief Write or rewrite region file
+    /// @param x region X
+    /// @param z region Z
+    void writeRegion(int x, int y, WorldRegion* entry);
+
+    /// @brief Write all unsaved regions to files
+    void writeAll();
+
+    /// @brief Read chunk data from region file
+    /// @param x chunk x coord
+    /// @param z chunk z coord
+    /// @param length [out] chunk data length
+    /// @param rfile region file
+    /// @return nullptr if chunk is not present in region file
+    [[nodiscard]] static std::unique_ptr<ubyte[]> readChunkData(
+        int x, int z, uint32_t& length, regfile* rfile
+    );
+};
+
+class WorldRegions {
+    /// @brief World directory
+    fs::path directory;
+
     RegionsLayer layers[4] {};
     util::BufferPool<ubyte> bufferPool {
         std::max(CHUNK_DATA_LEN, LIGHTMAP_DATA_LEN) * 2};
-
-    WorldRegion* getRegion(int x, int z, int layer);
-    WorldRegion* getOrCreateRegion(int x, int z, int layer);
 
     /// @brief Compress buffer with extrle
     /// @param src source buffer
@@ -145,29 +198,6 @@ class WorldRegions {
     std::unique_ptr<ubyte[]> decompress(
         const ubyte* src, size_t srclen, size_t dstlen
     );
-
-    std::unique_ptr<ubyte[]> readChunkData(
-        int x, int y, uint32_t& length, regfile* file
-    );
-
-    void fetchChunks(WorldRegion* region, int x, int y, regfile* file);
-
-    ubyte* getData(int x, int z, int layer, uint32_t& size);
-
-    regfile_ptr getRegFile(glm::ivec3 coord, bool create = true);
-    void closeRegFile(glm::ivec3 coord);
-    regfile_ptr useRegFile(glm::ivec3 coord);
-    regfile_ptr createRegFile(glm::ivec3 coord);
-
-    fs::path getRegionFilename(int x, int y) const;
-
-    void writeRegions(int layer);
-
-    /// @brief Write or rewrite region file
-    /// @param x region X
-    /// @param z region Z
-    /// @param layer regions layer
-    void writeRegion(int x, int y, int layer, WorldRegion* entry);
 public:
     bool generatorTestMode = false;
     bool doWriteLights = true;
@@ -195,7 +225,7 @@ public:
         bool rle
     );
 
-    std::unique_ptr<ubyte[]> getChunk(int x, int z);
+    std::unique_ptr<ubyte[]> getVoxels(int x, int z);
     std::unique_ptr<light_t[]> getLights(int x, int z);
     chunk_inventories_map fetchInventories(int x, int z);
     dynamic::Map_sptr fetchEntities(int x, int z);

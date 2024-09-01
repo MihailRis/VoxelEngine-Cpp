@@ -313,7 +313,6 @@ number_t StructLayout::getNumber(
         default:
             throw std::runtime_error("type error");
     }
-    throw std::runtime_error("type error");
 }
 
 std::string_view StructLayout::getChars(

@@ -84,7 +84,6 @@ void WorldFiles::write(const World* world, const Content* content) {
     if (generatorTestMode) {
         return;
     }
-
     writeIndices(content->getIndices());
     regions.write();
 }

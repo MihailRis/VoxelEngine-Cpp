@@ -63,8 +63,6 @@ public:
     /// @return world folder
     fs::path getFolder() const;
 
-    static const inline std::string WORLD_FILE = "world.json";
-
     WorldRegions& getRegions() {
         return regions;
     }
@@ -72,4 +70,6 @@ public:
     bool doesWriteLights() const {
         return doWriteLights;
     }
+
+    static const inline std::string WORLD_FILE = "world.json";
 };

@@ -59,7 +59,7 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 
     auto chunk = std::make_shared<Chunk>(x, z);
     store(chunk);
-    auto data = regions.getChunk(chunk->x, chunk->z);
+    auto data = regions.getVoxels(chunk->x, chunk->z);
     if (data) {
         chunk->decode(data.get());
 
