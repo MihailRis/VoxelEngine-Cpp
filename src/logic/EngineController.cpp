@@ -59,6 +59,7 @@ std::shared_ptr<Task> create_converter(
             menu->setPage("main", false);
             engine->getGUI()->postRunnable([=]() { postRunnable(); });
         },
+        report->isUpgradeRequired(),
         true
     );
 }

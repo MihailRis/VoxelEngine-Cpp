@@ -81,6 +81,15 @@ std::unique_ptr<dynamic::Map> Inventory::serialize() const {
     return map;
 }
 
+void Inventory::convert(const ContentReport* report) {
+    for (auto& slot : slots) {
+        itemid_t id = slot.getItemId();
+        itemid_t replacement = report->items.getId(id);
+        slot.set(ItemStack(replacement, slot.getCount()));
+    }
+}
+
+// TODO: remove
 void Inventory::convert(dynamic::Map* data, const ContentReport* report) {
     auto slotsarr = data->list("slots");
     for (size_t i = 0; i < slotsarr->size(); i++) {

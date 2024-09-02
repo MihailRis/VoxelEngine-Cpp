@@ -9,17 +9,22 @@
 #include "data/dynamic.hpp"
 #include "typedefs.hpp"
 #include "Content.hpp"
+#include "files/world_regions_fwd.hpp"
 
 namespace fs = std::filesystem;
 
 enum class ContentIssueType {
     REORDER,
     MISSING,
+    REGION_FORMAT_UPDATE,
 };
 
 struct ContentIssue {
     ContentIssueType issueType;
-    ContentType contentType;
+    union {
+        ContentType contentType;
+        RegionLayerIndex regionLayer;
+    };
 };
 
 struct ContentEntry {
@@ -29,12 +34,16 @@ struct ContentEntry {
 
 class WorldFiles;
 
+/// @brief Content unit lookup table
+/// @tparam T index type
+/// @tparam U unit class
 template <typename T, class U>
 class ContentUnitLUT {
     std::vector<T> indices;
     std::vector<std::string> names;
     bool missingContent = false;
     bool reorderContent = false;
+    /// @brief index that will be used to mark missing unit
     T missingValue;
     ContentType type;
 public:
@@ -110,13 +119,15 @@ class ContentReport {
 public:
     ContentUnitLUT<blockid_t, Block> blocks;
     ContentUnitLUT<itemid_t, ItemDef> items;
+    uint regionsVersion;
 
     std::vector<ContentIssue> issues;
 
     ContentReport(
         const ContentIndices* indices, 
         size_t blocks, 
-        size_t items
+        size_t items,
+        uint regionsVersion
     );
 
     static std::shared_ptr<ContentReport> create(
@@ -130,6 +141,9 @@ public:
     }
     inline bool hasMissingContent() const {
         return blocks.hasMissingContent() || items.hasMissingContent();
+    }
+    inline bool isUpgradeRequired() const {
+        return regionsVersion < REGION_FORMAT_VERSION;
     }
     void buildIssues();
 

@@ -101,9 +101,8 @@ void WorldRegions::put(
 }
 
 static std::unique_ptr<ubyte[]> write_inventories(
-    Chunk* chunk, uint& datasize
+    const chunk_inventories_map& inventories, uint32_t& datasize
 ) {
-    auto& inventories = chunk->inventories;
     ByteBuilder builder;
     builder.putInt32(inventories.size());
     for (auto& entry : inventories) {
@@ -118,6 +117,22 @@ static std::unique_ptr<ubyte[]> write_inventories(
     auto data = std::make_unique<ubyte[]>(datasize);
     std::memcpy(data.get(), datavec, datasize);
     return data;
+}
+
+static chunk_inventories_map load_inventories(const ubyte* src, uint32_t size) {
+    chunk_inventories_map inventories;
+    ByteReader reader(src, size);
+    auto count = reader.getInt32();
+    for (int i = 0; i < count; i++) {
+        uint index = reader.getInt32();
+        uint size = reader.getInt32();
+        auto map = json::from_binary(reader.pointer(), size);
+        reader.skip(size);
+        auto inv = std::make_shared<Inventory>(0, 0);
+        inv->deserialize(map.get());
+        inventories[index] = inv;
+    }
+    return inventories;
 }
 
 void WorldRegions::put(Chunk* chunk, std::vector<ubyte> entitiesData) {
@@ -150,7 +165,7 @@ void WorldRegions::put(Chunk* chunk, std::vector<ubyte> entitiesData) {
     // Writing block inventories
     if (!chunk->inventories.empty()) {
         uint datasize;
-        auto data = write_inventories(chunk, datasize);
+        auto data = write_inventories(chunk->inventories, datasize);
         put(chunk->x,
             chunk->z,
             REGION_LAYER_INVENTORIES,
@@ -195,24 +210,25 @@ std::unique_ptr<light_t[]> WorldRegions::getLights(int x, int z) {
 }
 
 chunk_inventories_map WorldRegions::fetchInventories(int x, int z) {
-    chunk_inventories_map meta;
     uint32_t bytesSize;
     auto bytes = layers[REGION_LAYER_INVENTORIES].getData(x, z, bytesSize);
     if (bytes == nullptr) {
-        return meta;
+        return {};
     }
-    ByteReader reader(bytes, bytesSize);
-    auto count = reader.getInt32();
-    for (int i = 0; i < count; i++) {
-        uint index = reader.getInt32();
-        uint size = reader.getInt32();
-        auto map = json::from_binary(reader.pointer(), size);
-        reader.skip(size);
-        auto inv = std::make_shared<Inventory>(0, 0);
-        inv->deserialize(map.get());
-        meta[index] = inv;
-    }
-    return meta;
+    return load_inventories(bytes, bytesSize);
+}
+
+void WorldRegions::processInventories(
+    int x, int z, const inventoryproc& func
+) {
+    processRegion(x, z, REGION_LAYER_INVENTORIES, 0,
+    [=](std::unique_ptr<ubyte[]> data, uint32_t* size) {
+        auto inventories = load_inventories(data.get(), *size);
+        for (const auto& [_, inventory] : inventories) {
+            func(inventory.get());
+        }
+        return write_inventories(inventories, *size);
+    });
 }
 
 dynamic::Map_sptr WorldRegions::fetchEntities(int x, int z) {
@@ -231,8 +247,10 @@ dynamic::Map_sptr WorldRegions::fetchEntities(int x, int z) {
     return map;
 }
 
-void WorldRegions::processRegionVoxels(int x, int z, const regionproc& func) {
-    auto& layer = layers[REGION_LAYER_VOXELS];
+void WorldRegions::processRegion(
+    int x, int z, RegionLayerIndex layerid, uint32_t dataLen, const regionproc& func
+) {
+    auto& layer = layers[layerid];
     if (layer.getRegion(x, z)) {
         throw std::runtime_error("not implemented for in-memory regions");
     }
@@ -250,25 +268,29 @@ void WorldRegions::processRegionVoxels(int x, int z, const regionproc& func) {
             if (data == nullptr) {
                 continue;
             }
-            data = compression::decompress(
-                data.get(), length, CHUNK_DATA_LEN, layer.compression
-            );
-            if (func(data.get())) {
-                put(gx,
-                    gz,
-                    REGION_LAYER_VOXELS,
-                    std::move(data),
-                    CHUNK_DATA_LEN);
+            uint32_t totalLength = dataLen;
+            if (layer.compression != compression::Method::NONE) {
+                if (dataLen == 0) {
+                    throw std::invalid_argument("invalid data length");
+                }
+                data = compression::decompress(
+                    data.get(), length, dataLen, layer.compression
+                );
+            } else {
+                totalLength = length;
+            }
+            if (auto writeData = func(std::move(data), &totalLength)) {
+                put(gx, gz, layerid, std::move(writeData), totalLength);
             }
         }
     }
 }
 
-fs::path WorldRegions::getRegionsFolder(int layer) const {
-    return layers[layer].folder;
+const fs::path& WorldRegions::getRegionsFolder(RegionLayerIndex layerid) const {
+    return layers[layerid].folder;
 }
 
-void WorldRegions::write() {
+void WorldRegions::writeAll() {
     for (auto& layer : layers) {
         fs::create_directories(layer.folder);
         layer.writeAll();

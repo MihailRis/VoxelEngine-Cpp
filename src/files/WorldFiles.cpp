@@ -74,7 +74,9 @@ fs::path WorldFiles::getPacksFile() const {
     return directory / fs::path("packs.list");
 }
 
-void WorldFiles::write(const World* world, const Content* content) {
+void WorldFiles::write(
+    const World* world, const Content* content
+) {
     if (world) {
         writeWorldInfo(world->getInfo());
         if (!fs::exists(getPacksFile())) {
@@ -84,8 +86,10 @@ void WorldFiles::write(const World* world, const Content* content) {
     if (generatorTestMode) {
         return;
     }
-    writeIndices(content->getIndices());
-    regions.write();
+    if (content) {
+        writeIndices(content->getIndices());
+    }
+    regions.writeAll();
 }
 
 void WorldFiles::writePacks(const std::vector<ContentPack>& packs) {

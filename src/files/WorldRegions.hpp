@@ -16,6 +16,7 @@
 #include "maths/voxmaths.hpp"
 #include "coders/compression.hpp"
 #include "files.hpp"
+#include "world_regions_fwd.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
@@ -23,15 +24,6 @@
 namespace fs = std::filesystem;
 
 inline constexpr uint REGION_HEADER_SIZE = 10;
-
-enum RegionLayerIndex : uint {
-    REGION_LAYER_VOXELS = 0,
-    REGION_LAYER_LIGHTS,
-    REGION_LAYER_INVENTORIES,
-    REGION_LAYER_ENTITIES,
-    
-    REGION_LAYERS_COUNT
-};
 
 inline constexpr uint REGION_SIZE_BIT = 5;
 inline constexpr uint REGION_SIZE = (1 << (REGION_SIZE_BIT));
@@ -75,8 +67,10 @@ struct regfile {
 };
 
 using regionsmap = std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>>;
-using regionproc = std::function<bool(ubyte*)>;
+using regionproc = std::function<std::unique_ptr<ubyte[]>(std::unique_ptr<ubyte[]>,uint32_t*)>;
+using inventoryproc = std::function<void(Inventory*)>;
 
+/// @brief Region file pointer keeping inUse flag on until destroyed
 class regfile_ptr {
     regfile* file;
     std::condition_variable* cv;
@@ -209,6 +203,10 @@ public:
         size_t size
     );
 
+    /// @brief Get chunk voxels data
+    /// @param x chunk.x
+    /// @param z chunk.z
+    /// @return voxels data buffer or nullptr
     std::unique_ptr<ubyte[]> getVoxels(int x, int z);
 
     /// @brief Get cached lights for chunk at x,z
@@ -217,13 +215,30 @@ public:
     
     chunk_inventories_map fetchInventories(int x, int z);
     
+    /// @brief Load saved entities data for chunk
+    /// @param x chunk.x
+    /// @param z chunk.z
+    /// @return map with entities list as "data"
     dynamic::Map_sptr fetchEntities(int x, int z);
 
-    void processRegionVoxels(int x, int z, const regionproc& func);
+    /// @brief Load, process and save processed region chunks data
+    /// @param x region X
+    /// @param z region Z
+    /// @param layerid regions layer index
+    /// @param func processing callback
+    void processRegion(
+        int x, int z, RegionLayerIndex layerid, uint32_t dataLen, const regionproc& func);
 
-    fs::path getRegionsFolder(int layer) const;
+    void processInventories(
+        int x, int z, const inventoryproc& func);
 
-    void write();
+    /// @brief Get regions directory by layer index
+    /// @param layerid layer index
+    /// @return directory path
+    const fs::path& getRegionsFolder(RegionLayerIndex layerid) const;
+
+    /// @brief Write all region layers
+    void writeAll();
 
     /// @brief Extract X and Z from 'X_Z.bin' region file name.
     /// @param name source region file name

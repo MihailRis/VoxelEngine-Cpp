@@ -14,10 +14,12 @@
 ContentReport::ContentReport(
     const ContentIndices* indices, 
     size_t blocksCount, 
-    size_t itemsCount
+    size_t itemsCount,
+    uint regionsVersion
 )
     : blocks(blocksCount, indices->blocks, BLOCK_VOID, ContentType::BLOCK),
-      items(itemsCount, indices->items, ITEM_VOID, ContentType::ITEM)
+      items(itemsCount, indices->items, ITEM_VOID, ContentType::ITEM),
+      regionsVersion(regionsVersion)
 {}
 
 template <class T>
@@ -38,6 +40,8 @@ std::shared_ptr<ContentReport> ContentReport::create(
     }
 
     auto root = files::read_json(filename);
+    // TODO: remove default value 2 in 0.24
+    uint regionsVersion = root->get("region-version", 2U);
     auto blocklist = root->list("blocks");
     auto itemlist = root->list("items");
 
@@ -45,7 +49,8 @@ std::shared_ptr<ContentReport> ContentReport::create(
     size_t blocks_c = get_entries_count(indices->blocks, blocklist);
     size_t items_c = get_entries_count(indices->items, itemlist);
 
-    auto report = std::make_shared<ContentReport>(indices, blocks_c, items_c);
+    auto report = std::make_shared<ContentReport>(
+        indices, blocks_c, items_c, regionsVersion);
     report->blocks.setup(blocklist.get(), content->blocks);
     report->items.setup(itemlist.get(), content->items);
     report->buildIssues();
