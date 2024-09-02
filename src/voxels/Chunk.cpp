@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "content/ContentLUT.hpp"
+#include "content/ContentReport.hpp"
 #include "items/Inventory.hpp"
 #include "lighting/Lightmap.hpp"
 #include "voxel.hpp"
@@ -123,13 +123,13 @@ bool Chunk::decode(const ubyte* data) {
     return true;
 }
 
-void Chunk::convert(ubyte* data, const ContentLUT* lut) {
+void Chunk::convert(ubyte* data, const ContentReport* report) {
     for (uint i = 0; i < CHUNK_VOL; i++) {
         // see encode method to understand what the hell is going on here
         blockid_t id =
             ((static_cast<blockid_t>(data[i]) << 8) |
              static_cast<blockid_t>(data[CHUNK_VOL + i]));
-        blockid_t replacement = lut->blocks.getId(id);
+        blockid_t replacement = report->blocks.getId(id);
         data[i] = replacement >> 8;
         data[CHUNK_VOL + i] = replacement & 0xFF;
     }

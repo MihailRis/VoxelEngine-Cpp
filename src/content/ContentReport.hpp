@@ -104,23 +104,22 @@ public:
     }
 };
 
-/// @brief Content indices lookup table or report
-/// used to convert world with different indices
+/// @brief Content incapatibility report used to convert world.
 /// Building with indices.json
-class ContentLUT {
+class ContentReport {
 public:
     ContentUnitLUT<blockid_t, Block> blocks;
     ContentUnitLUT<itemid_t, ItemDef> items;
 
     std::vector<ContentIssue> issues;
 
-    ContentLUT(
+    ContentReport(
         const ContentIndices* indices, 
         size_t blocks, 
         size_t items
     );
 
-    static std::shared_ptr<ContentLUT> create(
+    static std::shared_ptr<ContentReport> create(
         const std::shared_ptr<WorldFiles>& worldFiles,
         const fs::path& filename,
         const Content* content

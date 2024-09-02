@@ -14,7 +14,7 @@
 class Content;
 class WorldFiles;
 class Level;
-class ContentLUT;
+class ContentReport;
 struct EngineSettings;
 
 namespace fs = std::filesystem;
@@ -85,7 +85,7 @@ public:
     /// @param directory world directory
     /// @param content current Content instance
     /// @return ContentLUT if world convert required else nullptr
-    static std::shared_ptr<ContentLUT> checkIndices(
+    static std::shared_ptr<ContentReport> checkIndices(
         const std::shared_ptr<WorldFiles>& worldFiles, const Content* content
     );
 

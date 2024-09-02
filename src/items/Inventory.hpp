@@ -11,7 +11,7 @@ namespace dynamic {
     class Map;
 }
 
-class ContentLUT;
+class ContentReport;
 class ContentIndices;
 
 class Inventory : public Serializable {
@@ -42,7 +42,7 @@ public:
     /* serializing inventory */
     std::unique_ptr<dynamic::Map> serialize() const override;
 
-    static void convert(dynamic::Map* data, const ContentLUT* lut);
+    static void convert(dynamic::Map* data, const ContentReport* report);
 
     inline void setId(int64_t id) {
         this->id = id;

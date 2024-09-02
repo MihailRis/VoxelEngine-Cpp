@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <utility>
 
-#include "content/ContentLUT.hpp"
+#include "content/ContentReport.hpp"
 #include "items/Inventory.hpp"
 #include "Entities.hpp"
 #include "rigging.hpp"
@@ -329,19 +329,19 @@ void Player::deserialize(dynamic::Map* src) {
     }
 }
 
-void Player::convert(dynamic::Map* data, const ContentLUT* lut) {
+void Player::convert(dynamic::Map* data, const ContentReport* report) {
     auto players = data->list("players");
     if (players) {
         for (uint i = 0; i < players->size(); i++) {
             auto playerData = players->map(i);
             if (auto inventory = playerData->map("inventory")) {
-                Inventory::convert(inventory.get(), lut);
+                Inventory::convert(inventory.get(), report);
             }
         }
 
     } else {
         if (auto inventory = data->map("inventory")) {
-            Inventory::convert(inventory.get(), lut);
+            Inventory::convert(inventory.get(), report);
         }
     }
 }

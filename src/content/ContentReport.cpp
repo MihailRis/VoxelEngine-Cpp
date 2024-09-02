@@ -1,4 +1,4 @@
-#include "ContentLUT.hpp"
+#include "ContentReport.hpp"
 
 #include <memory>
 
@@ -11,7 +11,7 @@
 #include "files/WorldFiles.hpp"
 #include "Content.hpp"
 
-ContentLUT::ContentLUT(
+ContentReport::ContentReport(
     const ContentIndices* indices, 
     size_t blocksCount, 
     size_t itemsCount
@@ -27,7 +27,7 @@ static constexpr size_t get_entries_count(
     return list ? std::max(list->size(), indices.count()) : indices.count();
 }
 
-std::shared_ptr<ContentLUT> ContentLUT::create(
+std::shared_ptr<ContentReport> ContentReport::create(
     const std::shared_ptr<WorldFiles>& worldFiles,
     const fs::path& filename, 
     const Content* content
@@ -45,14 +45,13 @@ std::shared_ptr<ContentLUT> ContentLUT::create(
     size_t blocks_c = get_entries_count(indices->blocks, blocklist);
     size_t items_c = get_entries_count(indices->items, itemlist);
 
-    auto lut = std::make_shared<ContentLUT>(indices, blocks_c, items_c);
+    auto report = std::make_shared<ContentReport>(indices, blocks_c, items_c);
+    report->blocks.setup(blocklist.get(), content->blocks);
+    report->items.setup(itemlist.get(), content->items);
+    report->buildIssues();
 
-    lut->blocks.setup(blocklist.get(), content->blocks);
-    lut->items.setup(itemlist.get(), content->items);
-    lut->buildIssues();
-
-    if (lut->hasContentReorder() || lut->hasMissingContent()) {
-        return lut;
+    if (report->hasContentReorder() || report->hasMissingContent()) {
+        return report;
     } else {
         return nullptr;
     }
@@ -61,27 +60,27 @@ std::shared_ptr<ContentLUT> ContentLUT::create(
 template<class T, class U>
 static void build_issues(
     std::vector<ContentIssue>& issues,
-    const ContentUnitLUT<T, U>& lut
+    const ContentUnitLUT<T, U>& report
 ) {
-    auto type = lut.getContentType();
-    if (lut.hasContentReorder()) {
+    auto type = report.getContentType();
+    if (report.hasContentReorder()) {
         issues.push_back(ContentIssue {ContentIssueType::REORDER, type});
     }
-    if (lut.hasMissingContent()) {
+    if (report.hasMissingContent()) {
         issues.push_back(ContentIssue {ContentIssueType::MISSING, type});
     }
 }
 
-void ContentLUT::buildIssues() {
+void ContentReport::buildIssues() {
     build_issues(issues, blocks);
     build_issues(issues, items);
 }
 
-const std::vector<ContentIssue>& ContentLUT::getIssues() const {
+const std::vector<ContentIssue>& ContentReport::getIssues() const {
     return issues;
 }
 
-std::vector<ContentEntry> ContentLUT::getMissingContent() const {
+std::vector<ContentEntry> ContentReport::getMissingContent() const {
     std::vector<ContentEntry> entries;
     blocks.getMissingContent(entries);
     items.getMissingContent(entries);

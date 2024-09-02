@@ -12,7 +12,7 @@
 inline constexpr int CHUNK_DATA_LEN = CHUNK_VOL * 4;
 
 class Lightmap;
-class ContentLUT;
+class ContentReport;
 class Inventory;
 
 namespace dynamic {
@@ -71,5 +71,5 @@ public:
     /// @return true if all is fine
     bool decode(const ubyte* data);
 
-    static void convert(ubyte* data, const ContentLUT* lut);
+    static void convert(ubyte* data, const ContentReport* report);
 };

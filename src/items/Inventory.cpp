@@ -1,6 +1,6 @@
 #include "Inventory.hpp"
 
-#include "content/ContentLUT.hpp"
+#include "content/ContentReport.hpp"
 #include "data/dynamic.hpp"
 
 Inventory::Inventory(int64_t id, size_t size) : id(id), slots(size) {
@@ -81,12 +81,12 @@ std::unique_ptr<dynamic::Map> Inventory::serialize() const {
     return map;
 }
 
-void Inventory::convert(dynamic::Map* data, const ContentLUT* lut) {
+void Inventory::convert(dynamic::Map* data, const ContentReport* report) {
     auto slotsarr = data->list("slots");
     for (size_t i = 0; i < slotsarr->size(); i++) {
         auto item = slotsarr->map(i);
         itemid_t id = item->get("id", ITEM_EMPTY);
-        itemid_t replacement = lut->items.getId(id);
+        itemid_t replacement = report->items.getId(id);
         item->put("id", replacement);
         if (replacement == 0 && item->has("count")) {
             item->remove("count");

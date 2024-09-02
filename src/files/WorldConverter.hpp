@@ -11,7 +11,7 @@
 namespace fs = std::filesystem;
 
 class Content;
-class ContentLUT;
+class ContentReport;
 class WorldFiles;
 
 enum class convert_task_type { region, player };
@@ -23,7 +23,7 @@ struct convert_task {
 
 class WorldConverter : public Task {
     std::shared_ptr<WorldFiles> wfile;
-    std::shared_ptr<ContentLUT> const lut;
+    std::shared_ptr<ContentReport> const report;
     const Content* const content;
     std::queue<convert_task> tasks;
     runnable onComplete;
@@ -35,7 +35,7 @@ public:
     WorldConverter(
         const std::shared_ptr<WorldFiles>& worldFiles,
         const Content* content,
-        std::shared_ptr<ContentLUT> lut
+        std::shared_ptr<ContentReport> report
     );
     ~WorldConverter();
 
@@ -54,7 +54,7 @@ public:
     static std::shared_ptr<Task> startTask(
         const std::shared_ptr<WorldFiles>& worldFiles,
         const Content* content,
-        const std::shared_ptr<ContentLUT>& lut,
+        const std::shared_ptr<ContentReport>& report,
         const runnable& onDone,
         bool multithreading
     );

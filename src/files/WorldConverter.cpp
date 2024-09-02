@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <utility>
 
-#include "content/ContentLUT.hpp"
+#include "content/ContentReport.hpp"
 #include "data/dynamic.hpp"
 #include "debug/Logger.hpp"
 #include "files/files.hpp"
@@ -34,10 +34,10 @@ public:
 WorldConverter::WorldConverter(
     const std::shared_ptr<WorldFiles>& worldFiles,
     const Content* content,
-    std::shared_ptr<ContentLUT> lut
+    std::shared_ptr<ContentReport> report
 )
     : wfile(worldFiles),
-      lut(std::move(lut)),
+      report(std::move(report)),
       content(content) {
     fs::path regionsFolder =
         wfile->getRegions().getRegionsFolder(REGION_LAYER_VOXELS);
@@ -58,11 +58,11 @@ WorldConverter::~WorldConverter() {
 std::shared_ptr<Task> WorldConverter::startTask(
     const std::shared_ptr<WorldFiles>& worldFiles,
     const Content* content,
-    const std::shared_ptr<ContentLUT>& lut,
+    const std::shared_ptr<ContentReport>& report,
     const runnable& onDone,
     bool multithreading
 ) {
-    auto converter = std::make_shared<WorldConverter>(worldFiles, content, lut);
+    auto converter = std::make_shared<WorldConverter>(worldFiles, content, report);
     if (!multithreading) {
         converter->setOnComplete([=]() {
             converter->write();
@@ -98,8 +98,8 @@ void WorldConverter::convertRegion(const fs::path& file) const {
     }
     logger.info() << "converting region " << name;
     wfile->getRegions().processRegionVoxels(x, z, [=](ubyte* data) {
-        if (lut) {
-            Chunk::convert(data, lut.get());
+        if (report) {
+            Chunk::convert(data, report.get());
         }
         return true;
     });
@@ -108,7 +108,7 @@ void WorldConverter::convertRegion(const fs::path& file) const {
 void WorldConverter::convertPlayer(const fs::path& file) const {
     logger.info() << "converting player " << file.u8string();
     auto map = files::read_json(file);
-    Player::convert(map.get(), lut.get());
+    Player::convert(map.get(), report.get());
     files::write_json(file, map.get());
 }
 
