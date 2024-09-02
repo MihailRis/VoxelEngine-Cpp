@@ -12,11 +12,13 @@
 #include "Content.hpp"
 
 ContentLUT::ContentLUT(
-    const ContentIndices* indices, size_t blocksCount, size_t itemsCount
+    const ContentIndices* indices, 
+    size_t blocksCount, 
+    size_t itemsCount
 )
-    : blocks(blocksCount, indices->blocks, BLOCK_VOID, contenttype::block),
-      items(itemsCount, indices->items, ITEM_VOID, contenttype::item) {
-}
+    : blocks(blocksCount, indices->blocks, BLOCK_VOID, ContentType::BLOCK),
+      items(itemsCount, indices->items, ITEM_VOID, ContentType::ITEM)
+{}
 
 template <class T>
 static constexpr size_t get_entries_count(
@@ -47,6 +49,7 @@ std::shared_ptr<ContentLUT> ContentLUT::create(
 
     lut->blocks.setup(blocklist.get(), content->blocks);
     lut->items.setup(itemlist.get(), content->items);
+    lut->buildIssues();
 
     if (lut->hasContentReorder() || lut->hasMissingContent()) {
         return lut;
@@ -55,8 +58,31 @@ std::shared_ptr<ContentLUT> ContentLUT::create(
     }
 }
 
-std::vector<contententry> ContentLUT::getMissingContent() const {
-    std::vector<contententry> entries;
+template<class T, class U>
+static void build_issues(
+    std::vector<ContentIssue>& issues,
+    const ContentUnitLUT<T, U>& lut
+) {
+    auto type = lut.getContentType();
+    if (lut.hasContentReorder()) {
+        issues.push_back(ContentIssue {ContentIssueType::REORDER, type});
+    }
+    if (lut.hasMissingContent()) {
+        issues.push_back(ContentIssue {ContentIssueType::MISSING, type});
+    }
+}
+
+void ContentLUT::buildIssues() {
+    build_issues(issues, blocks);
+    build_issues(issues, items);
+}
+
+const std::vector<ContentIssue>& ContentLUT::getIssues() const {
+    return issues;
+}
+
+std::vector<ContentEntry> ContentLUT::getMissingContent() const {
+    std::vector<ContentEntry> entries;
     blocks.getMissingContent(entries);
     items.getMissingContent(entries);
     return entries;

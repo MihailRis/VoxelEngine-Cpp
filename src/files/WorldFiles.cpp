@@ -109,6 +109,7 @@ static void write_indices(
 
 void WorldFiles::writeIndices(const ContentIndices* indices) {
     dynamic::Map root;
+    root.put("region-version", REGION_FORMAT_VERSION);
     write_indices(indices->blocks, root.putList("blocks"));
     write_indices(indices->items, root.putList("items"));
     write_indices(indices->entities, root.putList("entities"));

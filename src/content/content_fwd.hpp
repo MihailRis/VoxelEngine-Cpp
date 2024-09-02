@@ -5,7 +5,7 @@
 class Content;
 class ContentPackRuntime;
 
-enum class contenttype { none, block, item, entity };
+enum class ContentType { NONE, BLOCK, ITEM, ENTITY };
 
 enum class ResourceType : size_t { CAMERA, LAST = CAMERA };
 

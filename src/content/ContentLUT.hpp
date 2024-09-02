@@ -12,8 +12,18 @@
 
 namespace fs = std::filesystem;
 
-struct contententry {
-    contenttype type;
+enum class ContentIssueType {
+    REORDER,
+    MISSING,
+};
+
+struct ContentIssue {
+    ContentIssueType issueType;
+    ContentType contentType;
+};
+
+struct ContentEntry {
+    ContentType type;
     std::string name;
 };
 
@@ -26,13 +36,13 @@ class ContentUnitLUT {
     bool missingContent = false;
     bool reorderContent = false;
     T missingValue;
-    contenttype type;
+    ContentType type;
 public:
     ContentUnitLUT(
         size_t count,
         const ContentUnitIndices<U>& unitIndices,
         T missingValue,
-        contenttype type
+        ContentType type
     )
         : missingValue(missingValue), type(type) {
         for (size_t i = 0; i < count; i++) {
@@ -57,11 +67,11 @@ public:
             }
         }
     }
-    void getMissingContent(std::vector<contententry>& entries) const {
+    void getMissingContent(std::vector<ContentEntry>& entries) const {
         for (size_t i = 0; i < count(); i++) {
             if (indices[i] == missingValue) {
                 auto& name = names[i];
-                entries.push_back(contententry {type, name});
+                entries.push_back(ContentEntry {type, name});
             }
         }
     }
@@ -79,6 +89,9 @@ public:
         } else if (index != id) {
             reorderContent = true;
         }
+    }
+    inline ContentType getContentType() const {
+        return type;
     }
     inline size_t count() const {
         return indices.size();
@@ -99,7 +112,13 @@ public:
     ContentUnitLUT<blockid_t, Block> blocks;
     ContentUnitLUT<itemid_t, ItemDef> items;
 
-    ContentLUT(const ContentIndices* indices, size_t blocks, size_t items);
+    std::vector<ContentIssue> issues;
+
+    ContentLUT(
+        const ContentIndices* indices, 
+        size_t blocks, 
+        size_t items
+    );
 
     static std::shared_ptr<ContentLUT> create(
         const std::shared_ptr<WorldFiles>& worldFiles,
@@ -113,6 +132,8 @@ public:
     inline bool hasMissingContent() const {
         return blocks.hasMissingContent() || items.hasMissingContent();
     }
+    void buildIssues();
 
-    std::vector<contententry> getMissingContent() const;
+    const std::vector<ContentIssue>& getIssues() const;
+    std::vector<ContentEntry> getMissingContent() const;
 };
