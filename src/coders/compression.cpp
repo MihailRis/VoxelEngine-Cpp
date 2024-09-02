@@ -1,5 +1,6 @@
 #include "compression.hpp"
 
+#include <string>
 #include <cstring>
 #include <stdexcept>
 
