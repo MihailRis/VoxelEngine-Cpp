@@ -51,8 +51,8 @@ uint WorldRegion::getChunkDataSize(uint x, uint z) {
 }
 
 WorldRegions::WorldRegions(const fs::path& directory) : directory(directory) {
-    for (size_t i = 0; i < sizeof(layers) / sizeof(RegionsLayer); i++) {
-        layers[i].layer = i;
+    for (size_t i = 0; i < REGION_LAYERS_COUNT; i++) {
+        layers[i].layer = static_cast<RegionLayerIndex>(i);
     }
     auto& voxels = layers[REGION_LAYER_VOXELS];
     voxels.folder = directory / fs::path("regions");
@@ -83,7 +83,7 @@ void RegionsLayer::writeAll() {
 void WorldRegions::put(
     int x,
     int z,
-    int layerid,
+    RegionLayerIndex layerid,
     std::unique_ptr<ubyte[]> data,
     size_t size
 ) {

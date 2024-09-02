@@ -8,6 +8,7 @@
 #include <mutex>
 #include <unordered_map>
 
+#include "constants.hpp"
 #include "typedefs.hpp"
 #include "data/dynamic_fwd.hpp"
 #include "util/BufferPool.hpp"
@@ -23,16 +24,18 @@ namespace fs = std::filesystem;
 
 inline constexpr uint REGION_HEADER_SIZE = 10;
 
-inline constexpr uint REGION_LAYER_VOXELS = 0;
-inline constexpr uint REGION_LAYER_LIGHTS = 1;
-inline constexpr uint REGION_LAYER_INVENTORIES = 2;
-inline constexpr uint REGION_LAYER_ENTITIES = 3;
+enum RegionLayerIndex : uint {
+    REGION_LAYER_VOXELS = 0,
+    REGION_LAYER_LIGHTS,
+    REGION_LAYER_INVENTORIES,
+    REGION_LAYER_ENTITIES,
+    
+    REGION_LAYERS_COUNT
+};
 
 inline constexpr uint REGION_SIZE_BIT = 5;
 inline constexpr uint REGION_SIZE = (1 << (REGION_SIZE_BIT));
 inline constexpr uint REGION_CHUNKS_COUNT = ((REGION_SIZE) * (REGION_SIZE));
-inline constexpr uint REGION_FORMAT_VERSION = 2;
-inline constexpr uint MAX_OPEN_REGION_FILES = 32;
 
 class illegal_region_format : public std::runtime_error {
 public:
@@ -122,7 +125,7 @@ inline void calc_reg_coords(
 
 struct RegionsLayer {
     /// @brief Layer index
-    int layer;
+    RegionLayerIndex layer;
     
     /// @brief Regions layer folder
     fs::path folder;
@@ -180,7 +183,7 @@ class WorldRegions {
     /// @brief World directory
     fs::path directory;
 
-    RegionsLayer layers[4] {};
+    RegionsLayer layers[REGION_LAYERS_COUNT] {};
 public:
     bool generatorTestMode = false;
     bool doWriteLights = true;
@@ -201,7 +204,7 @@ public:
     void put(
         int x,
         int z,
-        int layer,
+        RegionLayerIndex layer,
         std::unique_ptr<ubyte[]> data,
         size_t size
     );

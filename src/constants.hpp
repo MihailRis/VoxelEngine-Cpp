@@ -16,6 +16,12 @@ inline constexpr bool ENGINE_DEBUG_BUILD = true;
 
 inline const std::string ENGINE_VERSION_STRING = "0.23";
 
+/// @brief world regions format version
+inline constexpr uint REGION_FORMAT_VERSION = 2;
+
+/// @brief max simultaneously open world region files
+inline constexpr uint MAX_OPEN_REGION_FILES = 32;
+
 inline constexpr blockid_t BLOCK_AIR = 0;
 inline constexpr itemid_t ITEM_EMPTY = 0;
 inline constexpr entityid_t ENTITY_NONE = 0;
@@ -40,6 +46,7 @@ inline constexpr itemid_t ITEM_VOID = std::numeric_limits<itemid_t>::max();
 /// @brief max number of block definitions possible
 inline constexpr blockid_t MAX_BLOCKS = BLOCK_VOID;
 
+/// @brief calculates a 1D array index from 3D array indices
 inline constexpr uint vox_index(uint x, uint y, uint z, uint w=CHUNK_W, uint d=CHUNK_D) {
     return (y * d + z) * w + x;
 }
