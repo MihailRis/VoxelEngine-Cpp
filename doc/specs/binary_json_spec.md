@@ -49,9 +49,3 @@ int32     = 4byte
 int16     = 2byte
 byte      = %x00-FF
 ```
-
-## VoxelEngine format support
-
-Current implementation does not support types: bytes array, null, compressed document. 
-
-All unsupported types will be implemented in future.
