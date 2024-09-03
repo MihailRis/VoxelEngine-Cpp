@@ -61,7 +61,7 @@ void WorldConverter::createUpgradeTasks() {
         if (issue.regionLayer == REGION_LAYER_VOXELS) {
             addRegionsTasks(issue.regionLayer, ConvertTaskType::UPGRADE_VOXELS);
         } else {
-            addRegionsTasks(issue.regionLayer, ConvertTaskType::UPGRADE_SIMPLE);
+            addRegionsTasks(issue.regionLayer, ConvertTaskType::UPGRADE_REGION);
         }
     }
 }
@@ -159,7 +159,7 @@ std::shared_ptr<Task> WorldConverter::startTask(
     return pool;
 }
 
-void WorldConverter::upgradeSimple(const fs::path& file, int x, int z) const {
+void WorldConverter::upgradeRegion(const fs::path& file, int x, int z) const {
     throw std::runtime_error("unsupported region format");
 }
 
@@ -194,10 +194,11 @@ void WorldConverter::convert(const ConvertTask& task) const {
     if (!fs::is_regular_file(task.file)) return;
 
     switch (task.type) {
-        case ConvertTaskType::UPGRADE_SIMPLE:
-            upgradeSimple(task.file, task.x, task.z);
+        case ConvertTaskType::UPGRADE_REGION:
+            upgradeRegion(task.file, task.x, task.z);
             break;
         case ConvertTaskType::UPGRADE_VOXELS:
+            upgradeRegion(task.file, task.x, task.z);
             upgradeVoxels(task.file, task.x, task.z);
             break;
         case ConvertTaskType::VOXELS:

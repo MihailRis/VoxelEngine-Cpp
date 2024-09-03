@@ -5,6 +5,9 @@
 namespace rle {
     size_t encode(const ubyte* src, size_t length, ubyte* dst);
     size_t decode(const ubyte* src, size_t length, ubyte* dst);
+
+    size_t encode16(const ubyte* src, size_t length, ubyte* dst);
+    size_t decode16(const ubyte* src, size_t length, ubyte* dst);
 }
 
 namespace extrle {

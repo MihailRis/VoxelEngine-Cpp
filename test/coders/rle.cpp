@@ -3,46 +3,39 @@
 #include "typedefs.hpp"
 #include "coders/rle.hpp"
 
-TEST(RLE, EncodeDecode) {
-    const int initial_size = 50'000;
+static void test_encode_decode(
+    size_t(*encodefunc)(const ubyte*, size_t, ubyte*),
+    size_t(*decodefunc)(const ubyte*, size_t, ubyte*)
+) {
+    const size_t initial_size = 50'000;
     uint8_t initial[initial_size];
     uint8_t next = rand();
-    for (int i = 0; i < initial_size; i++) {
+    for (size_t i = 0; i < initial_size; i++) {
         initial[i] = next;
         if (rand() % 13 == 0) {
             next = rand();
         }
     }
     uint8_t encoded[initial_size * 2];
-    auto encoded_size = rle::encode(initial, initial_size, encoded);
+    size_t encoded_size = encodefunc(initial, initial_size, encoded);
     uint8_t decoded[initial_size * 2];
-    auto decoded_size = rle::decode(encoded, encoded_size, decoded);
+    size_t decoded_size = decodefunc(encoded, encoded_size, decoded);
     
     EXPECT_EQ(decoded_size, initial_size);
 
-    for (int i = 0; i < decoded_size; i++) {
+    for (size_t i = 0; i < decoded_size; i++) {
         EXPECT_EQ(decoded[i], initial[i]);
     }
 }
 
-TEST(ExtRLE, EncodeDecode) {
-    const int initial_size = 50'000;
-    uint8_t initial[initial_size];
-    uint8_t next = rand();
-    for (int i = 0; i < initial_size; i++) {
-        initial[i] = next;
-        if (rand() % 13 == 0) {
-            next = rand();
-        }
-    }
-    uint8_t encoded[initial_size * 2];
-    auto encoded_size = extrle::encode(initial, initial_size, encoded);
-    uint8_t decoded[initial_size * 2];
-    auto decoded_size = extrle::decode(encoded, encoded_size, decoded);
-    
-    EXPECT_EQ(decoded_size, initial_size);
+TEST(RLE, EncodeDecode) {
+    test_encode_decode(rle::encode, rle::decode);
+}
 
-    for (int i = 0; i < decoded_size; i++) {
-        EXPECT_EQ(decoded[i], initial[i]);
-    }
+TEST(RLE16, EncodeDecode) {
+    test_encode_decode(rle::encode16, rle::decode16);
+}
+
+TEST(ExtRLE, EncodeDecode) {
+    test_encode_decode(extrle::encode, extrle::decode);
 }

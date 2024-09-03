@@ -23,7 +23,7 @@ enum class ConvertTaskType {
     /// @brief rewrite player
     PLAYER,
     /// @brief refresh region file version
-    UPGRADE_SIMPLE,
+    UPGRADE_REGION,
     /// @brief rewrite voxels region file to new format
     UPGRADE_VOXELS,
 };
@@ -45,7 +45,7 @@ class WorldConverter : public Task {
     uint tasksDone = 0;
     bool upgradeMode;
 
-    void upgradeSimple(const fs::path& file, int x, int z) const;
+    void upgradeRegion(const fs::path& file, int x, int z) const;
     void upgradeVoxels(const fs::path& file, int x, int z) const;
     void convertPlayer(const fs::path& file) const;
     void convertVoxels(const fs::path& file, int x, int z) const;
