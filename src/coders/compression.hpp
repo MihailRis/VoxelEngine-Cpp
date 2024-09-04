@@ -6,7 +6,7 @@
 
 namespace compression {
     enum class Method {
-        NONE, EXTRLE8, GZIP
+        NONE, EXTRLE8, EXTRLE16, GZIP
     };
 
     /// @brief Compress buffer

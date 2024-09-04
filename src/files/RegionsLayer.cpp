@@ -135,6 +135,10 @@ WorldRegion* RegionsLayer::getRegion(int x, int z) {
     return found->second.get();
 }
 
+fs::path RegionsLayer::getRegionFilePath(int x, int z) const {
+    return folder / get_region_filename(x, z);
+}
+
 WorldRegion* RegionsLayer::getOrCreateRegion(int x, int z) {
     if (auto region = getRegion(x, z)) {
         return region;

@@ -1,17 +1,14 @@
-# Voxels Chunk (version 1)
+# Voxels Chunk (version 2)
 
-Voxel regions layer chunk structure.
-
-Values are separated for extRLE8 compression efficiency.
+IDs and states are separated for extRLE16 compression efficiency.
 
 File format BNF (RFC 5234):
 
 ```bnf
-chunk    = (65536*byte)    block indices (most significant bytes)
-           (65536*byte)    block indices (least significant bytes)
-           (65536*byte)    block states (most significant bytes)
-           (65536*byte)    block states (least significant bytes)
+chunk    = (65536*uint16)  block ids
+           (65536*uint16)  block states
 
+uint16   = 2byte           16 bit little-endian unsigned integer
 byte     = %x00-FF         8 bit unsigned integer
 ```
 

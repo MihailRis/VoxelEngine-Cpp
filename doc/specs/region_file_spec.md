@@ -1,18 +1,21 @@
-# Region File (version 2)
+# Region File (version 3)
 
 File format BNF (RFC 5234):
 
 ```bnf
 file    = header (*chunk) offsets   complete file
-header  = magic %x02 %x00           magic number, version and reserved
-                                    zero byte
+header  = magic %x02 byte           magic number, version and compression
+                                    method
 
 magic   = %x2E %x56 %x4F %x58       '.VOXREG\0'
           %x52 %x45 %x47 %x00
 
-chunk   = int32 (*byte)             byte array with size prefix
-offsets = (1024*int32)              offsets table
-int32   = 4byte                     signed big-endian 32 bit integer
+chunk   = uint32 uint32 (*byte)     byte array with size and source size 
+                                    prefix where source size is 
+                                    decompressed chunk data size
+
+offsets = (1024*uint32)             offsets table
+int32   = 4byte                     unsigned big-endian 32 bit integer
 byte    = %x00-FF                   8 bit unsigned integer
 ```
 
@@ -25,17 +28,23 @@ struct file {
 	// 10 bytes
 	struct {
 		char magic[8] = ".VOXREG";
-		byte version = 2;
-		byte reserved = 0;
+		byte version = 3;
+		byte compression;
 	} header;
 	
 	struct {
-		int32_t size; // byteorder: big-endian
+		uint32_t size; // byteorder: little-endian
+		uint32_t sourceSize; // byteorder: little-endian
 		byte* data;
 	} chunks[1024]; // file does not contain zero sizes for missing chunks
 	
-	int32_t offsets[1024]; // byteorder: big-endian
+	uint32_t offsets[1024]; // byteorder: little-endian
 };
 ```
 
 Offsets table contains chunks positions in file. 0 means that chunk is not present in the file. Minimal valid offset is 10 (header size).
+
+Available compression methods:
+0. no compression
+1. extRLE8
+2. extRLE16

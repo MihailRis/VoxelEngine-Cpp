@@ -290,6 +290,10 @@ const fs::path& WorldRegions::getRegionsFolder(RegionLayerIndex layerid) const {
     return layers[layerid].folder;
 }
 
+fs::path WorldRegions::getRegionFilePath(RegionLayerIndex layerid, int x, int z) const {
+    return layers[layerid].getRegionFilePath(x, z);
+}
+
 void WorldRegions::writeAll() {
     for (auto& layer : layers) {
         fs::create_directories(layer.folder);

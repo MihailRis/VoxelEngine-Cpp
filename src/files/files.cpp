@@ -66,6 +66,12 @@ bool files::read(const fs::path& filename, char* data, size_t size) {
     return true;
 }
 
+util::Buffer<ubyte> files::read_bytes_buffer(const fs::path& path) {
+    size_t size;
+    auto bytes = files::read_bytes(path, size);
+    return util::Buffer<ubyte>(std::move(bytes), size);
+}
+
 std::unique_ptr<ubyte[]> files::read_bytes(
     const fs::path& filename, size_t& length
 ) {

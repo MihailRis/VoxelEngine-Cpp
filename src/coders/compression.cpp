@@ -25,29 +25,38 @@ static std::shared_ptr<ubyte[]> get_buffer(size_t minSize) {
     return nullptr;
 }
 
+static auto compress_rle(
+    const ubyte* src,
+    size_t srclen,
+    size_t& len,
+    size_t(*encodefunc)(const ubyte*, size_t, ubyte*)
+) {
+    auto buffer = get_buffer(srclen * 2);
+    auto bytes = buffer.get();
+    std::unique_ptr<ubyte[]> uptr;
+    if (bytes == nullptr) {
+        uptr = std::make_unique<ubyte[]>(srclen * 2);
+        bytes = uptr.get();
+    }
+    len = encodefunc(src, srclen, bytes);
+    if (uptr) {
+        return uptr;
+    }
+    auto data = std::make_unique<ubyte[]>(len);
+    std::memcpy(data.get(), bytes, len);
+    return data;
+}
+
 std::unique_ptr<ubyte[]> compression::compress(
     const ubyte* src, size_t srclen, size_t& len, Method method
 ) {
     switch (method) {
         case Method::NONE:
             throw std::invalid_argument("compression method is NONE");
-        case Method::EXTRLE8: {
-            // max extrle out size is srcLen * 2
-            auto buffer = get_buffer(srclen * 2);
-            auto bytes = buffer.get();
-            std::unique_ptr<ubyte[]> uptr;
-            if (bytes == nullptr) {
-                uptr = std::make_unique<ubyte[]>(srclen * 2);
-                bytes = uptr.get();
-            }
-            len = extrle::encode(src, srclen, bytes);
-            if (uptr) {
-                return uptr;
-            }
-            auto data = std::make_unique<ubyte[]>(len);
-            std::memcpy(data.get(), bytes, len);
-            return data;
-        }
+        case Method::EXTRLE8:
+            return compress_rle(src, srclen, len, extrle::encode);
+        case Method::EXTRLE16:
+            return compress_rle(src, srclen, len, extrle::encode16);
         case Method::GZIP: {
             auto buffer = gzip::compress(src, srclen);
             auto data = std::make_unique<ubyte[]>(buffer.size());
@@ -69,6 +78,11 @@ std::unique_ptr<ubyte[]> compression::decompress(
         case Method::EXTRLE8: {
             auto decompressed = std::make_unique<ubyte[]>(dstlen);
             extrle::decode(src, srclen, decompressed.get());
+            return decompressed;
+        }
+        case Method::EXTRLE16: {
+            auto decompressed = std::make_unique<ubyte[]>(dstlen);
+            extrle::decode16(src, srclen, decompressed.get());
             return decompressed;
         }
         case Method::GZIP: {

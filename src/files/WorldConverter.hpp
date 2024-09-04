@@ -24,8 +24,6 @@ enum class ConvertTaskType {
     PLAYER,
     /// @brief refresh region file version
     UPGRADE_REGION,
-    /// @brief rewrite voxels region file to new format
-    UPGRADE_VOXELS,
 };
 
 struct ConvertTask {
@@ -34,6 +32,7 @@ struct ConvertTask {
 
     /// @brief region coords
     int x, z;
+    RegionLayerIndex layer;
 };
 
 class WorldConverter : public Task {
@@ -45,8 +44,8 @@ class WorldConverter : public Task {
     uint tasksDone = 0;
     bool upgradeMode;
 
-    void upgradeRegion(const fs::path& file, int x, int z) const;
-    void upgradeVoxels(const fs::path& file, int x, int z) const;
+    void upgradeRegion(
+        const fs::path& file, int x, int z, RegionLayerIndex layer) const;
     void convertPlayer(const fs::path& file) const;
     void convertVoxels(const fs::path& file, int x, int z) const;
     void convertInventories(const fs::path& file, int x, int z) const;

@@ -147,6 +147,8 @@ struct RegionsLayer {
     WorldRegion* getRegion(int x, int z);
     WorldRegion* getOrCreateRegion(int x, int z);
 
+    fs::path getRegionFilePath(int x, int z) const;
+
     /// @brief Get chunk data. Read from file if not loaded yet.
     /// @param x chunk x coord
     /// @param z chunk z coord
@@ -236,6 +238,8 @@ public:
     /// @param layerid layer index
     /// @return directory path
     const fs::path& getRegionsFolder(RegionLayerIndex layerid) const;
+
+    fs::path getRegionFilePath(RegionLayerIndex layerid, int x, int z) const;
 
     /// @brief Write all region layers
     void writeAll();

@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "content/ContentReport.hpp"
+#include "files/compatibility.hpp"
 #include "data/dynamic.hpp"
 #include "debug/Logger.hpp"
 #include "files/files.hpp"
@@ -48,7 +49,7 @@ void WorldConverter::addRegionsTasks(
             logger.error() << "could not parse region name " << name;
             continue;
         }
-        tasks.push(ConvertTask {taskType, file.path(), x, z});
+        tasks.push(ConvertTask {taskType, file.path(), x, z, layerid});
     }
 }
 
@@ -58,11 +59,7 @@ void WorldConverter::createUpgradeTasks() {
         if (issue.issueType != ContentIssueType::REGION_FORMAT_UPDATE) {
             continue;
         }
-        if (issue.regionLayer == REGION_LAYER_VOXELS) {
-            addRegionsTasks(issue.regionLayer, ConvertTaskType::UPGRADE_VOXELS);
-        } else {
-            addRegionsTasks(issue.regionLayer, ConvertTaskType::UPGRADE_REGION);
-        }
+        addRegionsTasks(issue.regionLayer, ConvertTaskType::UPGRADE_REGION);
     }
 }
 
@@ -159,12 +156,13 @@ std::shared_ptr<Task> WorldConverter::startTask(
     return pool;
 }
 
-void WorldConverter::upgradeRegion(const fs::path& file, int x, int z) const {
-    throw std::runtime_error("unsupported region format");
-}
-
-void WorldConverter::upgradeVoxels(const fs::path& file, int x, int z) const {
-    throw std::runtime_error("unsupported region format");
+void WorldConverter::upgradeRegion(
+    const fs::path& file, int x, int z, RegionLayerIndex layer
+) const {
+    auto path = wfile->getRegions().getRegionFilePath(layer, x, z);
+    auto bytes = files::read_bytes_buffer(path);
+    auto buffer = compatibility::convertRegion2to3(bytes, layer);
+    files::write_bytes(path, buffer.data(), buffer.size());
 }
 
 void WorldConverter::convertVoxels(const fs::path& file, int x, int z) const {
@@ -195,11 +193,7 @@ void WorldConverter::convert(const ConvertTask& task) const {
 
     switch (task.type) {
         case ConvertTaskType::UPGRADE_REGION:
-            upgradeRegion(task.file, task.x, task.z);
-            break;
-        case ConvertTaskType::UPGRADE_VOXELS:
-            upgradeRegion(task.file, task.x, task.z);
-            upgradeVoxels(task.file, task.x, task.z);
+            upgradeRegion(task.file, task.x, task.z, task.layer);
             break;
         case ConvertTaskType::VOXELS:
             convertVoxels(task.file, task.x, task.z);
