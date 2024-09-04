@@ -4,6 +4,8 @@
 #include <limits>
 #include <stdexcept>
 
+#include "util/data_io.hpp"
+
 void ByteBuilder::put(ubyte b) {
     buffer.push_back(b);
 }
@@ -30,28 +32,24 @@ void ByteBuilder::put(const ubyte* arr, size_t size) {
 }
 
 void ByteBuilder::putInt16(int16_t val) {
-    buffer.push_back(static_cast<ubyte>(val >> 0 & 255));
-    buffer.push_back(static_cast<ubyte>(val >> 8 & 255));
+    size_t size = buffer.size();
+    buffer.resize(buffer.size() + sizeof(int16_t));
+    val = dataio::h2le(val);
+    std::memcpy(buffer.data()+size, &val, sizeof(int16_t));
 }
 
 void ByteBuilder::putInt32(int32_t val) {
-    buffer.reserve(buffer.size() + 4);
-    buffer.push_back(static_cast<ubyte>(val >> 0 & 255));
-    buffer.push_back(static_cast<ubyte>(val >> 8 & 255));
-    buffer.push_back(static_cast<ubyte>(val >> 16 & 255));
-    buffer.push_back(static_cast<ubyte>(val >> 24 & 255));
+    size_t size = buffer.size();
+    buffer.resize(buffer.size() + sizeof(int32_t));
+    val = dataio::h2le(val);
+    std::memcpy(buffer.data()+size, &val, sizeof(int32_t));
 }
 
 void ByteBuilder::putInt64(int64_t val) {
-    buffer.reserve(buffer.size() + 8);
-    buffer.push_back(static_cast<ubyte>(val >> 0 & 255));
-    buffer.push_back(static_cast<ubyte>(val >> 8 & 255));
-    buffer.push_back(static_cast<ubyte>(val >> 16 & 255));
-    buffer.push_back(static_cast<ubyte>(val >> 24 & 255));
-    buffer.push_back(static_cast<ubyte>(val >> 32 & 255));
-    buffer.push_back(static_cast<ubyte>(val >> 40 & 255));
-    buffer.push_back(static_cast<ubyte>(val >> 48 & 255));
-    buffer.push_back(static_cast<ubyte>(val >> 56 & 255));
+    size_t size = buffer.size();
+    buffer.resize(buffer.size() + sizeof(int64_t));
+    val = dataio::h2le(val);
+    std::memcpy(buffer.data()+size, &val, sizeof(int64_t));
 }
 
 void ByteBuilder::putFloat32(float val) {
@@ -71,27 +69,18 @@ void ByteBuilder::set(size_t position, ubyte val) {
 }
 
 void ByteBuilder::setInt16(size_t position, int16_t val) {
-    buffer[position++] = val >> 0 & 255;
-    buffer[position] = val >> 8 & 255;
+    val = dataio::h2le(val);
+    std::memcpy(buffer.data()+position, &val, sizeof(int16_t));
 }
 
 void ByteBuilder::setInt32(size_t position, int32_t val) {
-    buffer[position++] = val >> 0 & 255;
-    buffer[position++] = val >> 8 & 255;
-    buffer[position++] = val >> 16 & 255;
-    buffer[position] = val >> 24 & 255;
+    val = dataio::h2le(val);
+    std::memcpy(buffer.data()+position, &val, sizeof(int32_t));
 }
 
 void ByteBuilder::setInt64(size_t position, int64_t val) {
-    buffer[position++] = val >> 0 & 255;
-    buffer[position++] = val >> 8 & 255;
-    buffer[position++] = val >> 16 & 255;
-    buffer[position++] = val >> 24 & 255;
-
-    buffer[position++] = val >> 32 & 255;
-    buffer[position++] = val >> 40 & 255;
-    buffer[position++] = val >> 48 & 255;
-    buffer[position] = val >> 56 & 255;
+    val = dataio::h2le(val);
+    std::memcpy(buffer.data()+position, &val, sizeof(int64_t));
 }
 
 std::vector<ubyte> ByteBuilder::build() {
@@ -111,7 +100,7 @@ void ByteReader::checkMagic(const char* data, size_t size) {
         throw std::runtime_error("invalid magic number");
     }
     for (size_t i = 0; i < size; i++) {
-        if (this->data[pos + i] != (ubyte)data[i]) {
+        if (this->data[pos + i] != static_cast<ubyte>(data[i])) {
             throw std::runtime_error("invalid magic number");
         }
     }
@@ -133,38 +122,33 @@ ubyte ByteReader::peek() {
 }
 
 int16_t ByteReader::getInt16() {
-    if (pos + 2 > size) {
+    if (pos + sizeof(int16_t) > size) {
         throw std::runtime_error("buffer underflow");
     }
-    pos += 2;
-    return (static_cast<int16_t>(data[pos - 1]) << 8) |
-           (static_cast<int16_t>(data[pos - 2]));
+    int16_t value;
+    std::memcpy(&value, data + pos, sizeof(int16_t));
+    pos += sizeof(int16_t);
+    return dataio::le2h(value);
 }
 
 int32_t ByteReader::getInt32() {
-    if (pos + 4 > size) {
+    if (pos + sizeof(int32_t) > size) {
         throw std::runtime_error("buffer underflow");
     }
-    pos += 4;
-    return (static_cast<int32_t>(data[pos - 1]) << 24) |
-           (static_cast<int32_t>(data[pos - 2]) << 16) |
-           (static_cast<int32_t>(data[pos - 3]) << 8) |
-           (static_cast<int32_t>(data[pos - 4]));
+    int32_t value;
+    std::memcpy(&value, data + pos, sizeof(int32_t));
+    pos += sizeof(int32_t);
+    return dataio::le2h(value);
 }
 
 int64_t ByteReader::getInt64() {
-    if (pos + 8 > size) {
+    if (pos + sizeof(int64_t) > size) {
         throw std::runtime_error("buffer underflow");
     }
-    pos += 8;
-    return (static_cast<int64_t>(data[pos - 1]) << 56) |
-           (static_cast<int64_t>(data[pos - 2]) << 48) |
-           (static_cast<int64_t>(data[pos - 3]) << 40) |
-           (static_cast<int64_t>(data[pos - 4]) << 32) |
-           (static_cast<int64_t>(data[pos - 5]) << 24) |
-           (static_cast<int64_t>(data[pos - 6]) << 16) |
-           (static_cast<int64_t>(data[pos - 7]) << 8) |
-           (static_cast<int64_t>(data[pos - 8]));
+    int64_t value;
+    std::memcpy(&value, data + pos, sizeof(int64_t));
+    pos += sizeof(int64_t);
+    return dataio::le2h(value);
 }
 
 float ByteReader::getFloat32() {
@@ -183,7 +167,7 @@ double ByteReader::getFloat64() {
 
 const char* ByteReader::getCString() {
     const char* cstr = reinterpret_cast<const char*>(data + pos);
-    pos += strlen(cstr) + 1;
+    pos += std::strlen(cstr) + 1;
     return cstr;
 }
 

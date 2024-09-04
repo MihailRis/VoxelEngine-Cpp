@@ -18,7 +18,7 @@ namespace util {
 
         Buffer(const T* src, size_t length)
          : ptr(std::make_unique<T[]>(length)), length(length) {
-            std::memcpy(ptr, src, length);
+            std::memcpy(ptr.get(), src, length);
         }
 
         T& operator[](long long index) {

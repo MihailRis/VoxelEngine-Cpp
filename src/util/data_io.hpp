@@ -41,6 +41,15 @@ namespace dataio {
         }
     }
 
+    /// @brief Convert hardware byte-order to big-endian 
+    /// @tparam T value type
+    /// @param value source integer
+    /// @return big-endian integer
+    template <typename T>
+    T h2be(T value){
+        return be2h(value);
+    }
+
     /// @brief Convert little-endian to hardware byte-order
     /// @tparam T value type
     /// @param value source integer
@@ -52,6 +61,15 @@ namespace dataio {
         } else {
             return value;
         }
+    }
+
+    /// @brief Convert hardware byte-order to little-endian 
+    /// @tparam T value type
+    /// @param value source integer
+    /// @return little-endian integer
+    template <typename T>
+    T h2le(T value){
+        return le2h(value);
     }
 
     /// @brief Read big-endian 16 bit signed integer from bytes
