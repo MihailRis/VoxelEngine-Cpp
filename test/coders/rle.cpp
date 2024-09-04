@@ -39,3 +39,7 @@ TEST(RLE16, EncodeDecode) {
 TEST(ExtRLE, EncodeDecode) {
     test_encode_decode(extrle::encode, extrle::decode);
 }
+
+TEST(ExtRLE16, EncodeDecode) {
+    test_encode_decode(extrle::encode16, extrle::decode16);
+}

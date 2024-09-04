@@ -33,7 +33,7 @@ namespace dataio {
     /// @param value source integer
     /// @return integer with hardware byte-order
     template <typename T>
-    T be2h(T value){
+    inline T be2h(T value){
         if (is_big_endian()) {
             return value;
         } else {
