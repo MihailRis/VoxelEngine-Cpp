@@ -158,12 +158,20 @@ bool Chunk::decodeV2(const ubyte* data) {
 
 void Chunk::convert(ubyte* data, const ContentReport* report) {
     for (uint i = 0; i < CHUNK_VOL; i++) {
-        // see encode method to understand what the hell is going on here
         blockid_t id =
             ((static_cast<blockid_t>(data[i]) << 8) |
              static_cast<blockid_t>(data[CHUNK_VOL + i]));
         blockid_t replacement = report->blocks.getId(id);
         data[i] = replacement >> 8;
         data[CHUNK_VOL + i] = replacement & 0xFF;
+    }
+}
+
+void Chunk::convertV2(ubyte* data, const ContentReport* report) {
+    auto buffer = reinterpret_cast<uint16_t*>(data);
+    for (uint i = 0; i < CHUNK_VOL; i++) {
+        blockid_t id = dataio::le2h(buffer[i]);
+        blockid_t replacement = report->blocks.getId(id);
+        buffer[i] = dataio::h2le(replacement);
     }
 }

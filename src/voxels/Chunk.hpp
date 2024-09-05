@@ -81,4 +81,5 @@ public:
     bool decodeV2(const ubyte* data);
 
     static void convert(ubyte* data, const ContentReport* report);
+    static void convertV2(ubyte* data, const ContentReport* report);
 };
