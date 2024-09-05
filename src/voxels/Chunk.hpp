@@ -66,10 +66,19 @@ public:
         flags.unsaved = true;
     }
 
+    /// @brief Encode chunk to bytes array of size CHUNK_DATA_LEN
+    /// @see /doc/specs/outdated/region_voxels_chunk_spec_v1.md
     std::unique_ptr<ubyte[]> encode() const;
+
+    /// @brief Encode chunk to bytes array of size CHUNK_DATA_LEN
+    /// @see /doc/specs/region_voxels_chunk_spec.md
+    std::unique_ptr<ubyte[]> encodeV2() const;
 
     /// @return true if all is fine
     bool decode(const ubyte* data);
+
+    /// @return true if all is fine
+    bool decodeV2(const ubyte* data);
 
     static void convert(ubyte* data, const ContentReport* report);
 };

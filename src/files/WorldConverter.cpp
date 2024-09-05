@@ -161,7 +161,7 @@ void WorldConverter::upgradeRegion(
 ) const {
     auto path = wfile->getRegions().getRegionFilePath(layer, x, z);
     auto bytes = files::read_bytes_buffer(path);
-    auto buffer = compatibility::convertRegion2to3(bytes, layer);
+    auto buffer = compatibility::convert_region_2to3(bytes, layer);
     files::write_bytes(path, buffer.data(), buffer.size());
 }
 

@@ -39,7 +39,7 @@ static util::Buffer<ubyte> convert_voxels_1to2(const ubyte* buffer, uint32_t siz
     return util::Buffer<ubyte>(std::move(compressed), outLen);
 }
 
-util::Buffer<ubyte> compatibility::convertRegion2to3(
+util::Buffer<ubyte> compatibility::convert_region_2to3(
     const util::Buffer<ubyte>& src, RegionLayerIndex layer
 ) {
     const size_t REGION_CHUNKS = 1024;

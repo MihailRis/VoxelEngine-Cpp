@@ -5,6 +5,7 @@
 #include "content/ContentReport.hpp"
 #include "items/Inventory.hpp"
 #include "lighting/Lightmap.hpp"
+#include "util/data_io.hpp"
 #include "voxel.hpp"
 
 Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos) {
@@ -103,6 +104,27 @@ std::unique_ptr<ubyte[]> Chunk::encode() const {
     return buffer;
 }
 
+/**
+  Current chunk format:
+    - byte-order: little-endian
+
+    ```cpp
+    uint16_t voxel_id[CHUNK_VOL];
+    uint16_t voxel_states[CHUNK_VOL];
+    ```
+
+    Total size: (CHUNK_VOL * 4) bytes
+*/
+std::unique_ptr<ubyte[]> Chunk::encodeV2() const {
+    auto buffer = std::make_unique<ubyte[]>(CHUNK_DATA_LEN);
+    auto dst = reinterpret_cast<uint16_t*>(buffer.get());
+    for (uint i = 0; i < CHUNK_VOL; i++) {
+        dst[i] = dataio::h2le(voxels[i].id);
+        dst[CHUNK_VOL + i] = dataio::h2le(blockstate2int(voxels[i].state));
+    }
+    return buffer;
+}
+
 bool Chunk::decode(const ubyte* data) {
     for (uint i = 0; i < CHUNK_VOL; i++) {
         voxel& vox = voxels[i];
@@ -119,6 +141,17 @@ bool Chunk::decode(const ubyte* data) {
             (static_cast<blockstate_t>(bst1) << 8) |
             static_cast<blockstate_t>(bst2)
         );
+    }
+    return true;
+}
+
+bool Chunk::decodeV2(const ubyte* data) {
+    auto src = reinterpret_cast<const uint16_t*>(data);
+    for (uint i = 0; i < CHUNK_VOL; i++) {
+        voxel& vox = voxels[i];
+
+        vox.id = dataio::le2h(src[i]);
+        vox.state = int2blockstate(dataio::le2h(src[CHUNK_VOL + i]));
     }
     return true;
 }

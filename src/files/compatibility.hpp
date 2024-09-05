@@ -9,6 +9,6 @@ namespace compatibility {
     /// @see /doc/specs/region_file_spec.md
     /// @param src region file source content
     /// @return new region file content
-    util::Buffer<ubyte> convertRegion2to3(
+    util::Buffer<ubyte> convert_region_2to3(
         const util::Buffer<ubyte>& src, RegionLayerIndex layer);
 }
