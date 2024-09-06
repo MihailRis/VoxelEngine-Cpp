@@ -73,7 +73,8 @@ void show_convert_request(
 ) {
     guiutil::confirm(
         engine->getGUI(),
-        langs::get(L"world.convert-request"),
+        langs::get(report->isUpgradeRequired() ? 
+            L"world.upgrade-request" : L"world.convert-request"),
         [=]() {
             auto converter =
                 create_converter(engine, worldFiles, content, report, postRunnable);

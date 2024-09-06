@@ -82,7 +82,12 @@ std::unique_ptr<ubyte[]> compression::decompress(
         }
         case Method::EXTRLE16: {
             auto decompressed = std::make_unique<ubyte[]>(dstlen);
-            extrle::decode16(src, srclen, decompressed.get());
+            size_t decoded = extrle::decode16(src, srclen, decompressed.get());
+            if (decoded != dstlen) {
+                throw std::runtime_error(
+                    "expected decompressed size " + std::to_string(dstlen) +
+                    " got " + std::to_string(decoded));
+            }
             return decompressed;
         }
         case Method::GZIP: {

@@ -172,6 +172,17 @@ bool WorldFiles::readResourcesData(const Content* content) {
     return true;
 }
 
+void WorldFiles::patchIndicesVersion(const std::string& field, uint version) {
+    fs::path file = getIndicesFile();
+    if (!fs::is_regular_file(file)) {
+        logger.error() << file.filename().u8string() << " does not exists";
+        return;
+    }
+    auto root = files::read_json(file);
+    root->put(field, version);
+    files::write_json(file, root.get(), true);
+}
+
 static void erase_pack_indices(dynamic::Map* root, const std::string& id) {
     auto prefix = id + ":";
     auto blocks = root->list("blocks");

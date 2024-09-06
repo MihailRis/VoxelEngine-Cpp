@@ -38,21 +38,21 @@ public:
 
 class WorldRegion {
     std::unique_ptr<std::unique_ptr<ubyte[]>[]> chunksData;
-    std::unique_ptr<uint32_t[]> sizes;
+    std::unique_ptr<glm::u32vec2[]> sizes;
     bool unsaved = false;
 public:
     WorldRegion();
     ~WorldRegion();
 
-    void put(uint x, uint z, std::unique_ptr<ubyte[]> data, uint32_t size);
+    void put(uint x, uint z, std::unique_ptr<ubyte[]> data, uint32_t size, uint32_t srcSize);
     ubyte* getChunkData(uint x, uint z);
-    uint getChunkDataSize(uint x, uint z);
+    glm::u32vec2 getChunkDataSize(uint x, uint z);
 
     void setUnsaved(bool unsaved);
     bool isUnsaved() const;
 
     std::unique_ptr<ubyte[]>* getChunks() const;
-    uint32_t* getSizes() const;
+    glm::u32vec2* getSizes() const;
 };
 
 struct regfile {
@@ -63,7 +63,7 @@ struct regfile {
     regfile(fs::path filename);
     regfile(const regfile&) = delete;
 
-    std::unique_ptr<ubyte[]> read(int index, uint32_t& length);
+    std::unique_ptr<ubyte[]> read(int index, uint32_t& size, uint32_t& srcSize);
 };
 
 using regionsmap = std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>>;
@@ -152,9 +152,10 @@ struct RegionsLayer {
     /// @brief Get chunk data. Read from file if not loaded yet.
     /// @param x chunk x coord
     /// @param z chunk z coord
-    /// @param size [out] chunk data length
+    /// @param size [out] compressed chunk data length
+    /// @param size [out] source chunk data length
     /// @return nullptr if no saved chunk data found
-    [[nodiscard]] ubyte* getData(int x, int z, uint32_t& size);
+    [[nodiscard]] ubyte* getData(int x, int z, uint32_t& size, uint32_t& srcSize);
 
     /// @brief Write or rewrite region file
     /// @param x region X
@@ -167,11 +168,12 @@ struct RegionsLayer {
     /// @brief Read chunk data from region file
     /// @param x chunk x coord
     /// @param z chunk z coord
-    /// @param length [out] chunk data length
+    /// @param size [out] compressed chunk data length
+    /// @param srcSize [out] source chunk data length
     /// @param rfile region file
     /// @return nullptr if chunk is not present in region file
     [[nodiscard]] static std::unique_ptr<ubyte[]> readChunkData(
-        int x, int z, uint32_t& length, regfile* rfile
+        int x, int z, uint32_t& size, uint32_t& srcSize, regfile* rfile
     );
 };
 
@@ -229,7 +231,7 @@ public:
     /// @param layerid regions layer index
     /// @param func processing callback
     void processRegion(
-        int x, int z, RegionLayerIndex layerid, uint32_t dataLen, const regionproc& func);
+        int x, int z, RegionLayerIndex layerid, const regionproc& func);
 
     void processInventories(
         int x, int z, const inventoryproc& func);

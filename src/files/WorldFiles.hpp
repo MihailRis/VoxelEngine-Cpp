@@ -51,6 +51,8 @@ public:
     std::optional<WorldInfo> readWorldInfo();
     bool readResourcesData(const Content* content);
 
+    void patchIndicesVersion(const std::string& field, uint version);
+
     /// @brief Write all unsaved data to world files
     /// @param world target world
     /// @param content world content

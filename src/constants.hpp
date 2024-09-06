@@ -17,7 +17,7 @@ inline constexpr bool ENGINE_DEBUG_BUILD = true;
 inline const std::string ENGINE_VERSION_STRING = "0.23";
 
 /// @brief world regions format version
-inline constexpr uint REGION_FORMAT_VERSION = 2;
+inline constexpr uint REGION_FORMAT_VERSION = 3;
 
 /// @brief max simultaneously open world region files
 inline constexpr uint MAX_OPEN_REGION_FILES = 32;

@@ -55,7 +55,9 @@ std::shared_ptr<ContentReport> ContentReport::create(
     report->items.setup(itemlist.get(), content->items);
     report->buildIssues();
 
-    if (report->hasContentReorder() || report->hasMissingContent()) {
+    if (report->isUpgradeRequired() || 
+        report->hasContentReorder() || 
+        report->hasMissingContent()) {
         return report;
     } else {
         return nullptr;
@@ -79,6 +81,16 @@ static void build_issues(
 void ContentReport::buildIssues() {
     build_issues(issues, blocks);
     build_issues(issues, items);
+    
+    if (regionsVersion < REGION_FORMAT_VERSION) {
+        for (int layer = REGION_LAYER_VOXELS; 
+             layer < REGION_LAYERS_COUNT; 
+             layer++) {
+            ContentIssue issue {ContentIssueType::REGION_FORMAT_UPDATE};
+            issue.regionLayer = static_cast<RegionLayerIndex>(layer);
+            issues.push_back(issue);
+        }
+    }
 }
 
 const std::vector<ContentIssue>& ContentReport::getIssues() const {

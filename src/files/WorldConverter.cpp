@@ -167,7 +167,7 @@ void WorldConverter::upgradeRegion(
 
 void WorldConverter::convertVoxels(const fs::path& file, int x, int z) const {
     logger.info() << "converting voxels region " << x << "_" << z;
-    wfile->getRegions().processRegion(x, z, REGION_LAYER_VOXELS, CHUNK_DATA_LEN,
+    wfile->getRegions().processRegion(x, z, REGION_LAYER_VOXELS,
     [=](std::unique_ptr<ubyte[]> data, uint32_t*) {
         Chunk::convert(data.get(), report.get());
         return data;
@@ -238,8 +238,13 @@ bool WorldConverter::isActive() const {
 }
 
 void WorldConverter::write() {
-    logger.info() << "writing world";
-    wfile->write(nullptr, upgradeMode ? nullptr : content);
+    if (upgradeMode) {
+        logger.info() << "refreshing version";
+        wfile->patchIndicesVersion("region-version", REGION_FORMAT_VERSION);
+    } else {
+        logger.info() << "writing world";
+        wfile->write(nullptr, content);
+    }
 }
 
 void WorldConverter::waitForEnd() {

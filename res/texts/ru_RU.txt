@@ -46,6 +46,7 @@ world.generators.default=Обычный
 world.generators.flat=Плоский
 world.Create World=Создать Мир
 world.convert-request=Есть изменения в индексах! Конвертировать мир?
+world.upgrade-request=Формат мира устарел! Конвертировать мир?
 world.delete-confirm=Удалить мир безвозвратно?
 
 # Настройки
