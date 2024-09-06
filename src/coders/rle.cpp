@@ -158,7 +158,7 @@ size_t extrle::encode16(const ubyte* src8, size_t srclen, ubyte* dst) {
     uint16_t c = src[0];
     for (size_t i = 1; i < srclen/2; i++) {
         uint16_t cnext = src[i];
-        if (cnext != c || counter == max_sequence) {
+        if (cnext != c || counter == max_sequence16) {
             if (counter >= 0x40) {
                 dst[offset++] = 0x80 | ((c > 255) << 6) | (counter & 0x3F);
                 dst[offset++] = counter >> 6;

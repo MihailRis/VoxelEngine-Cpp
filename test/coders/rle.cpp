@@ -5,14 +5,15 @@
 
 static void test_encode_decode(
     size_t(*encodefunc)(const ubyte*, size_t, ubyte*),
-    size_t(*decodefunc)(const ubyte*, size_t, ubyte*)
+    size_t(*decodefunc)(const ubyte*, size_t, ubyte*),
+    int dencity
 ) {
     const size_t initial_size = 50'000;
     uint8_t initial[initial_size];
     uint8_t next = rand();
     for (size_t i = 0; i < initial_size; i++) {
         initial[i] = next;
-        if (rand() % 13 == 0) {
+        if (rand() % dencity == 0) {
             next = rand();
         }
     }
@@ -29,17 +30,21 @@ static void test_encode_decode(
 }
 
 TEST(RLE, EncodeDecode) {
-    test_encode_decode(rle::encode, rle::decode);
+    test_encode_decode(rle::encode, rle::decode, 13);
+    test_encode_decode(rle::encode, rle::decode, 90123);
 }
 
 TEST(RLE16, EncodeDecode) {
-    test_encode_decode(rle::encode16, rle::decode16);
+    test_encode_decode(rle::encode16, rle::decode16, 13);
+    test_encode_decode(rle::encode16, rle::decode16, 90123);
 }
 
 TEST(ExtRLE, EncodeDecode) {
-    test_encode_decode(extrle::encode, extrle::decode);
+    test_encode_decode(extrle::encode, extrle::decode, 13);
+    test_encode_decode(extrle::encode, extrle::decode, 90123);
 }
 
 TEST(ExtRLE16, EncodeDecode) {
-    test_encode_decode(extrle::encode16, extrle::decode16);
+    test_encode_decode(extrle::encode16, extrle::decode16, 13);
+    test_encode_decode(extrle::encode16, extrle::decode16, 90123);
 }
