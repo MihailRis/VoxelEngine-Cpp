@@ -87,14 +87,15 @@ void Container::draw(const DrawContext* pctx, Assets* assets) {
 
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
-    batch->flush();
-    {
+    if (!nodes.empty()) {
+        batch->flush();
         DrawContext ctx = pctx->sub();
         ctx.setScissors(glm::vec4(pos.x, pos.y, size.x, size.y));
         for (const auto& node : nodes) {
             if (node->isVisible())
                 node->draw(pctx, assets);
         }
+        batch->flush();
     }
 }
 
