@@ -124,12 +124,13 @@ void BlocksController::randomTick(
 
 void BlocksController::randomTick(int tickid, int parts) {
     auto indices = level->content->getIndices();
-    const auto& size = chunks->getSize();
+    int width = chunks->getWidth();
+    int height = chunks->getHeight();
     int segments = 4;
 
-    for (uint z = padding; z < size.y - padding; z++) {
-        for (uint x = padding; x < size.x - padding; x++) {
-            int index = z * size.x + x;
+    for (uint z = padding; z < height - padding; z++) {
+        for (uint x = padding; x < width - padding; x++) {
+            int index = z * width + x;
             if ((index + tickid) % parts != 0) {
                 continue;
             }

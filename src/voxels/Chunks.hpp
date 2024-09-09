@@ -35,14 +35,14 @@ class Chunks {
         const Block& def, blockstate state, glm::ivec3 origin, uint8_t rotation
     );
 
-    util::AreaMap2D<std::shared_ptr<Chunk>> areaMap;
+    util::AreaMap2D<std::shared_ptr<Chunk>, int32_t> areaMap;
 public:
     size_t visible = 0;
     WorldFiles* worldFiles;
 
     Chunks(
-        uint32_t w,
-        uint32_t d,
+        int32_t w,
+        int32_t d,
         int32_t ox,
         int32_t oz,
         WorldFiles* worldFiles,
@@ -113,12 +113,20 @@ public:
         return areaMap.getBuffer();
     }
 
-    const glm::ivec2& getSize() const {
-        return areaMap.getSize();
+    int getWidth() const {
+        return areaMap.getWidth();
     }
 
-    const glm::ivec2& getOffset() const {
-        return areaMap.getOffset();
+    int getHeight() const {
+        return areaMap.getHeight();
+    }
+
+    int getOffsetX() const {
+        return areaMap.getOffsetX();
+    }
+
+    int getOffsetY() const {
+        return areaMap.getOffsetY();
     }
 
     size_t getChunksCount() const {

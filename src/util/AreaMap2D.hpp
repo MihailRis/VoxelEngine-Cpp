@@ -11,80 +11,81 @@ namespace util {
 
     template<class T, typename TCoord=int>
     class AreaMap2D {
-        glm::vec<2, TCoord> offset;
-        glm::vec<2, TCoord> size;
+        TCoord offsetX, offsetY;
+        TCoord sizeX, sizeY;
         std::vector<T> firstBuffer;
         std::vector<T> secondBuffer;
         OutCallback<T> outCallback;
 
         size_t valuesCount = 0;
     
-        void translate(const glm::vec<2, TCoord>& delta) {
-            if (delta.x == 0 && delta.y == 0) {
+        void translate(TCoord dx, TCoord dy) {
+            if (dx == 0 && dy == 0) {
                 return;
             }
             std::fill(secondBuffer.begin(), secondBuffer.end(), T{});
-            for (TCoord y = 0; y < size.y; y++) {
-                for (TCoord x = 0; x < size.x; x++) {
-                    auto& value = firstBuffer[y * size.x + x];
-                    auto nx = x - delta.x;
-                    auto ny = y - delta.y;
+            for (TCoord y = 0; y < sizeY; y++) {
+                for (TCoord x = 0; x < sizeX; x++) {
+                    auto& value = firstBuffer[y * sizeX + x];
+                    auto nx = x - dx;
+                    auto ny = y - dy;
                     if (value == T{}) {
                         continue;
                     }
-                    if (nx < 0 || ny < 0 || nx >= size.x || ny >= size.y) {
+                    if (nx < 0 || ny < 0 || nx >= sizeX || ny >= sizeY) {
                         if (outCallback) {
                             outCallback(value);
                         }
                         valuesCount--;
                         continue;
                     }
-                    secondBuffer[ny * size.x + nx] = value;
+                    secondBuffer[ny * sizeX + nx] = value;
                 }
             }
             std::swap(firstBuffer, secondBuffer);
-            offset += delta;
+            offsetX += dx;
+            offsetY += dy;
         }
     public:
-        AreaMap2D(glm::vec<2, TCoord> size)
-            : size(size), 
-              firstBuffer(size.x * size.y), secondBuffer(size.x * size.y) {
+        AreaMap2D(TCoord width, TCoord height)
+            : sizeX(width), sizeY(height), 
+              firstBuffer(width * height), secondBuffer(width * height) {
         }
 
-        const T* getIf(const glm::vec<2, TCoord>& pos) const {
-            auto localPos = pos - offset;
-            if (localPos.x < 0 || localPos.y < 0 || localPos.x >= size.x ||
-                localPos.y >= size.y) {
+        const T* getIf(TCoord x, TCoord y) const {
+            auto lx = x - offsetX;
+            auto ly = y - offsetY;
+            if (lx < 0 || ly < 0 || lx >= sizeX || ly >= sizeY) {
                 return nullptr;
             }
-            return &firstBuffer[localPos.y * size.x + localPos.x];
+            return &firstBuffer[ly * sizeX + lx];
         }
 
-        T get(const glm::vec<2, TCoord>& pos) {
-            auto localPos = pos - offset;
-            if (localPos.x < 0 || localPos.y < 0 || localPos.x >= size.x ||
-                localPos.y >= size.y) {
+        T get(TCoord x, TCoord y) {
+            auto lx = x - offsetX;
+            auto ly = y - offsetY;
+            if (lx < 0 || ly < 0 || lx >= sizeX || ly >= sizeY) {
                 return T{};
             }
-            return firstBuffer[localPos.y * size.x + localPos.x];
+            return firstBuffer[ly * sizeX + lx];
         }
 
-        const T& require(const glm::vec<2, TCoord>& pos) const {
-            auto localPos = pos - offset;
-            if (localPos.x < 0 || localPos.y < 0 || localPos.x >= size.x ||
-                localPos.y >= size.y) {
+        const T& require(TCoord x, TCoord y) const {
+            auto lx = x - offsetX;
+            auto ly = y - offsetY;
+            if (lx < 0 || ly < 0 || lx >= sizeX || ly >= sizeY) {
                 throw std::invalid_argument("position is out of window");
             }
-            return firstBuffer[localPos.y * size.x + localPos.x];
+            return firstBuffer[ly * sizeX + lx];
         }
 
-        bool set(const glm::vec<2, TCoord>& pos, T value) {
-            auto localPos = pos - offset;
-            if (localPos.x < 0 || localPos.y < 0 || localPos.x >= size.x ||
-                localPos.y >= size.y) {
+        bool set(TCoord x, TCoord y, T value) {
+            auto lx = x - offsetX;
+            auto ly = y - offsetY;
+            if (lx < 0 || ly < 0 || lx >= sizeX || ly >= sizeY) {
                 return false;
             }
-            auto& element = firstBuffer[localPos.y * size.x + localPos.x];
+            auto& element = firstBuffer[ly * sizeX + lx];
             if (!element) {
                 valuesCount++;
             }
@@ -96,41 +97,43 @@ namespace util {
             outCallback = callback;
         }
 
-        void resize(const glm::vec<2, TCoord>& newSize) {
-            if (newSize.x < size.x) {
-                TCoord delta = size.x - newSize.x;
-                translate({delta / 2, 0});
-                translate({-delta, 0});
-                translate({delta, 0});
+        void resize(TCoord newSizeX, TCoord newSizeY) {
+            if (newSizeX < sizeX) {
+                TCoord delta = sizeX - newSizeX;
+                translate(delta / 2, 0);
+                translate(-delta, 0);
+                translate(delta, 0);
             }
-            if (newSize.y < size.y) {
-                TCoord delta = size.y - newSize.y;
-                translate({0, delta / 2});
-                translate({0, -delta});
-                translate({0, delta});
+            if (newSizeY < sizeY) {
+                TCoord delta = sizeY - newSizeY;
+                translate(0, delta / 2);
+                translate(0, -delta);
+                translate(0, delta);
             }
-            const TCoord newVolume = newSize.x * newSize.y;
+            const TCoord newVolume = newSizeX * newSizeY;
             std::vector<T> newFirstBuffer(newVolume);
             std::vector<T> newSecondBuffer(newVolume);
-            for (TCoord y = 0; y < size.y && y < newSize.y; y++) {
-                for (TCoord x = 0; x < size.x && x < newSize.x; x++) {
-                    newFirstBuffer[y * newSize.x + x] = firstBuffer[y * size.x + x];
+            for (TCoord y = 0; y < sizeY && y < newSizeY; y++) {
+                for (TCoord x = 0; x < sizeX && x < newSizeX; x++) {
+                    newFirstBuffer[y * newSizeX + x] = firstBuffer[y * sizeX + x];
                 }
             }
-            size = newSize;
+            sizeX = newSizeX;
+            sizeY = newSizeY;
             firstBuffer = std::move(newFirstBuffer);
             secondBuffer = std::move(newSecondBuffer);
         }
 
-        void setCenter(const glm::vec<2, TCoord>& center) {
-            auto delta = center - (offset + size / 2);
-            if (delta.x | delta.y) {
-                translate({delta.x, delta.y});
+        void setCenter(TCoord centerX, TCoord centerY) {
+            auto deltaX = centerX - (offsetX + sizeX / 2);
+            auto deltaY = centerY - (offsetY + sizeY / 2);
+            if (deltaX | deltaY) {
+                translate(deltaX, deltaY);
             }
         }
 
         void clear() {
-            for (TCoord i = 0; i < size.x * size.y; i++) {
+            for (TCoord i = 0; i < sizeX * sizeY; i++) {
                 auto value = firstBuffer[i];
                 firstBuffer[i] = {};
                 if (outCallback) {
@@ -140,12 +143,20 @@ namespace util {
             valuesCount = 0;
         }
 
-        const glm::vec<2, TCoord>& getOffset() const {
-            return offset;
+        TCoord getOffsetX() const {
+            return offsetX;
         }
 
-        const glm::vec<2, TCoord>& getSize() const {
-            return size;
+        TCoord getOffsetY() const {
+            return offsetY;
+        }
+
+        TCoord getWidth() const {
+            return sizeX;
+        }
+
+        TCoord getHeight() const {
+            return sizeX;
         }
 
         const std::vector<T>& getBuffer() const {
@@ -157,7 +168,7 @@ namespace util {
         }
 
         TCoord area() const {
-            return size.x * size.y;
+            return sizeX * sizeY;
         }
     };
 }
