@@ -9,6 +9,7 @@
 
 #include "typedefs.hpp"
 #include "voxel.hpp"
+#include "util/AreaMap2D.hpp"
 
 class VoxelRenderer;
 
@@ -33,14 +34,10 @@ class Chunks {
     void setRotationExtended(
         const Block& def, blockstate state, glm::ivec3 origin, uint8_t rotation
     );
+
+    util::AreaMap2D<std::shared_ptr<Chunk>> areaMap;
 public:
-    std::vector<std::shared_ptr<Chunk>> chunks;
-    std::vector<std::shared_ptr<Chunk>> chunksSecond;
-    size_t volume;
-    size_t chunksCount;
     size_t visible = 0;
-    uint32_t w, d;
-    int32_t ox, oz;
     WorldFiles* worldFiles;
 
     Chunks(
@@ -105,14 +102,30 @@ public:
     bool isReplaceableBlock(int32_t x, int32_t y, int32_t z);
     bool isObstacleBlock(int32_t x, int32_t y, int32_t z);
 
-    // does not move chunks inside
-    void _setOffset(int32_t x, int32_t z);
-
     void setCenter(int32_t x, int32_t z);
-    void translate(int32_t x, int32_t z);
     void resize(uint32_t newW, uint32_t newD);
 
     void saveAndClear();
     void save(Chunk* chunk);
     void saveAll();
+
+    const std::vector<std::shared_ptr<Chunk>>& getChunks() const {
+        return areaMap.getBuffer();
+    }
+
+    const glm::ivec2& getSize() const {
+        return areaMap.getSize();
+    }
+
+    const glm::ivec2& getOffset() const {
+        return areaMap.getOffset();
+    }
+
+    size_t getChunksCount() const {
+        return areaMap.count();
+    }
+
+    size_t getVolume() const {
+        return areaMap.area();
+    }
 };

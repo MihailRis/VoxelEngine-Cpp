@@ -84,7 +84,7 @@ std::shared_ptr<UINode> create_debug_panel(
         return L"frustum-culling: "+std::wstring(culling ? L"on" : L"off");
     }));
     panel->add(create_label([=]() {
-        return L"chunks: "+std::to_wstring(level->chunks->chunksCount)+
+        return L"chunks: "+std::to_wstring(level->chunks->getChunksCount())+
                L" visible: "+std::to_wstring(level->chunks->visible);
     }));
     panel->add(create_label([=]() {

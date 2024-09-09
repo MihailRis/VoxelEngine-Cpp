@@ -104,7 +104,7 @@ void WorldGenerator::generateHeightmap(
 }
 
 void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
-    timeutil::ScopeLogTimer log(555);
+    //timeutil::ScopeLogTimer log(555);
 
     auto prototype = generatePrototype(chunkX, chunkZ);
     generateHeightmap(prototype.get(), chunkX, chunkZ);
