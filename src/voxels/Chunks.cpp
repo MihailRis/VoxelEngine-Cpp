@@ -35,7 +35,7 @@ Chunks::Chunks(
       areaMap(w, d),
       worldFiles(wfile) {
     areaMap.setCenter(ox-w/2, oz-d/2);
-    areaMap.setOutCallback([this](const auto& chunk) {
+    areaMap.setOutCallback([this](int, int, const auto& chunk) {
         save(chunk.get());
     });
 }

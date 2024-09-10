@@ -10,9 +10,9 @@ namespace util {
     template<class T, typename TCoord=int>
     class AreaMap2D {
     public:
-        using OutCallback = std::function<void(const T&)>;
+        using OutCallback = std::function<void(TCoord, TCoord, const T&)>;
     private:
-        TCoord offsetX, offsetY;
+        TCoord offsetX = 0, offsetY = 0;
         TCoord sizeX, sizeY;
         std::vector<T> firstBuffer;
         std::vector<T> secondBuffer;
@@ -35,7 +35,7 @@ namespace util {
                     }
                     if (nx < 0 || ny < 0 || nx >= sizeX || ny >= sizeY) {
                         if (outCallback) {
-                            outCallback(value);
+                            outCallback(x + offsetX, y + offsetY, value);
                         }
                         valuesCount--;
                         continue;
@@ -69,6 +69,23 @@ namespace util {
                 return T{};
             }
             return firstBuffer[ly * sizeX + lx];
+        }
+
+        T get(TCoord x, TCoord y, const T& def) const {
+            if (auto ptr = getIf(x, y)) {
+                const auto& value = *ptr;
+                if (value == T{}) {
+                    return def;
+                }
+                return value;
+            }
+            return def;
+        }
+
+        bool isInside(TCoord x, TCoord y) const {
+            auto lx = x - offsetX;
+            auto ly = y - offsetY;
+            return !(lx < 0 || ly < 0 || lx >= sizeX || ly >= sizeY);
         }
 
         const T& require(TCoord x, TCoord y) const {
@@ -134,11 +151,14 @@ namespace util {
         }
 
         void clear() {
-            for (TCoord i = 0; i < sizeX * sizeY; i++) {
-                auto value = firstBuffer[i];
-                firstBuffer[i] = {};
-                if (outCallback) {
-                    outCallback(value);
+            for (TCoord y = 0; y < sizeY; y++) {
+                for (TCoord x = 0; x < sizeX; x++) {
+                    auto i = y * sizeX + x;
+                    auto value = firstBuffer[i];
+                    firstBuffer[i] = {};
+                    if (outCallback) {
+                        outCallback(x + offsetX, y + offsetY, value);
+                    }
                 }
             }
             valuesCount = 0;
