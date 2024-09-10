@@ -104,8 +104,11 @@ namespace util {
                 return false;
             }
             auto& element = firstBuffer[ly * sizeX + lx];
-            if (!element) {
+            if (value && !element) {
                 valuesCount++;
+            }
+            if (element && !value) {
+                valuesCount--;
             }
             element = std::move(value);
             return true;
