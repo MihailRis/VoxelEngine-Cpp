@@ -23,7 +23,7 @@ private:
 
     void upgrade(int x, int y, int8_t level);
 public:
-    SurroundMap(int loadDistance, int8_t maxLevel);
+    SurroundMap(int maxLevelRadius, int8_t maxLevel);
 
     /// @brief Callback called on point level increments
     void setLevelCallback(int8_t level, LevelCallback callback);
@@ -38,7 +38,13 @@ public:
     /// @brief Set map area center
     void setCenter(int x, int y);
 
+    void resize(int maxLevelRadius);
+
     /// @brief Get level at position
     /// @throws std::invalid_argument - position is out of area
     int8_t at(int x, int y);
+
+    const util::AreaMap2D<int8_t>& getArea() const {
+        return areaMap;
+    }
 };

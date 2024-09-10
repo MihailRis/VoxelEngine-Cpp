@@ -4,9 +4,9 @@
 #include <cstring>
 #include <stdexcept>
 
-SurroundMap::SurroundMap(int loadDistance, int8_t maxLevel) 
-    : areaMap((loadDistance + maxLevel) * 2 + 1, 
-              (loadDistance + maxLevel) * 2 + 1),
+SurroundMap::SurroundMap(int maxLevelRadius, int8_t maxLevel) 
+    : areaMap((maxLevelRadius + maxLevel) * 2 + 1, 
+              (maxLevelRadius + maxLevel) * 2 + 1),
       levelCallbacks(maxLevel),
       maxLevel(maxLevel) 
 {}
@@ -41,6 +41,11 @@ void SurroundMap::upgrade(int x, int y, int8_t level) {
             }
         }
     }
+}
+
+void SurroundMap::resize(int maxLevelRadius) {
+    areaMap.resize((maxLevelRadius + maxLevel) * 2 + 1,
+                   (maxLevelRadius + maxLevel) * 2 + 1);
 }
 
 void SurroundMap::completeAt(int x, int y) {
