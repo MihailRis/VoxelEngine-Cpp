@@ -14,7 +14,7 @@ public:
     using LevelCallback = std::function<void(int, int)>;
     struct LevelCallbackWrapper {
         LevelCallback callback;
-        bool active;
+        bool active = false;
     };
 private:
     util::AreaMap2D<int8_t> areaMap;

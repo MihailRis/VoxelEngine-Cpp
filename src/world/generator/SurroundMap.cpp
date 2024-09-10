@@ -12,7 +12,7 @@ SurroundMap::SurroundMap(int loadDistance, int8_t maxLevel)
 {}
 
 void SurroundMap::setLevelCallback(int8_t level, LevelCallback callback) {
-    auto& wrapper = levelCallbacks.at(level);
+    auto& wrapper = levelCallbacks.at(level - 1);
     wrapper.callback = callback;
     wrapper.active = callback != nullptr;
 }
@@ -22,7 +22,7 @@ void SurroundMap::setOutCallback(util::AreaMap2D<int8_t>::OutCallback callback) 
 }
 
 void SurroundMap::upgrade(int x, int y, int8_t level) {
-    auto& callback = levelCallbacks[level];
+    auto& callback = levelCallbacks[level - 1];
     int size = maxLevel - level + 1;
     for (int ly = -size+1; ly < size; ly++) {
         for (int lx = -size+1; lx < size; lx++) {
