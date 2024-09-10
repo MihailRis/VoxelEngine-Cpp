@@ -246,6 +246,9 @@ void Batch3D::blockCube(
 }
 
 void Batch3D::point(glm::vec3 coord, glm::vec2 uv, glm::vec4 tint) {
+    if (index + B3D_VERTEX_SIZE >= capacity) {
+        flush();
+    }
     vertex(coord, uv, tint.r, tint.g, tint.b, tint.a);
 }
 
