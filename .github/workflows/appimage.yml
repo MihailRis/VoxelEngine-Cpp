@@ -43,7 +43,7 @@ jobs:
           UPDATE_INFO: gh-releases-zsync|MihailRis|VoxelEngine-Cpp|latest|*x86_64.AppImage.zsync
         with:
           recipe: dev/AppImageBuilder.yml
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: AppImage
           path: './*.AppImage*'
