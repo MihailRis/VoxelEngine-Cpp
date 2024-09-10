@@ -5,43 +5,23 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
+#include "typedefs.hpp"
+#include "util/AreaMap2D.hpp"
+
 class SurroundMap {
-    struct Entry {
-        /// @brief Level is increased when all surrounding (8) entries having
-        // greather or equal confirmed level
-        int level = 0;
-        /// @brief bits storing surrounding entries having greather or equal
-        /// confirmed level.
-        /// 0 - is x=-1,y=-1 offset, 1 is x=0,y=-1, ... 7 is x=1,y=1
-        /// (Prevents extra access to the entries hashmap)
-        uint8_t surrounding = 0x0;
-        /// @brief level confirmed status (entry is ready to expand)
-        bool confirmed = false;
-        /// @brief mark used on sweep event (extra isles garbage collection)
-        bool marked = false;
-    };
-    std::unordered_map<glm::ivec2, Entry> entries;
 public:
-    /// @brief Reset all isles marks
-    void resetMarks();
+    using LevelCallback = std::function<void(ubyte)>;
+private:
+    util::AreaMap2D<ubyte> areaMap;
+    std::vector<LevelCallback> levelCallbacks;
+    ubyte maxLevel;
+public:
+    SurroundMap(int loadDistance, ubyte maxLevel);
 
-    /// @brief Mark all connected entries
-    /// @param origin origin point
-    void markIsle(const glm::ivec2& origin);
+    void setLevelCallback(int level, LevelCallback callback);
+    void setOutCallback(util::AreaMap2D<ubyte>::OutCallback callback);
 
-    /// @brief Erase all non-marked isles
-    /// @return erased entries positions
-    std::vector<glm::ivec2> sweep();
+    void completeAt(int x, int y);
 
-    /// @brief Attempt to upgrade all confirmed entries with specified level
-    /// @param level target entries level
-    /// @return All upgraded entries positions 
-    std::vector<glm::ivec2> upgrade();
-    
-    /// @brief Create entry if does not exist
-    /// @param origin entry position
-    /// @return true if new entry has been created
-    bool createEntry(const glm::ivec2& origin);
-
-    void getLevels(unsigned char* out, int width, int height, int ox, int oy) const;
+    void setCenter(int x, int y);
 };

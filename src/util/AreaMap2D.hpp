@@ -6,16 +6,17 @@
 #include <glm/glm.hpp>
 
 namespace util {
-    template<class T>
-    using OutCallback = std::function<void(const T&)>;
 
     template<class T, typename TCoord=int>
     class AreaMap2D {
+    public:
+        using OutCallback = std::function<void(const T&)>;
+    private:
         TCoord offsetX, offsetY;
         TCoord sizeX, sizeY;
         std::vector<T> firstBuffer;
         std::vector<T> secondBuffer;
-        OutCallback<T> outCallback;
+        OutCallback outCallback;
 
         size_t valuesCount = 0;
     
@@ -93,7 +94,7 @@ namespace util {
             return true;
         }
 
-        void setOutCallback(const OutCallback<T>& callback) {
+        void setOutCallback(const OutCallback& callback) {
             outCallback = callback;
         }
 
