@@ -35,7 +35,11 @@ ChunksController::ChunksController(Level* level, uint padding)
 
 ChunksController::~ChunksController() = default;
 
-void ChunksController::update(int64_t maxDuration) {
+void ChunksController::update(
+    int64_t maxDuration, int loadDistance, int centerX, int centerY
+) {
+    generator->update(centerX, centerY, loadDistance);
+
     int64_t mcstotal = 0;
 
     for (uint i = 0; i < MAX_WORK_PER_FRAME; i++) {

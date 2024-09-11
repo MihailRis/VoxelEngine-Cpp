@@ -3,10 +3,12 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 #include "constants.hpp"
 #include "typedefs.hpp"
 #include "voxels/voxel.hpp"
+#include "SurroundMap.hpp"
 
 class Content;
 struct GeneratorDef;
@@ -42,6 +44,10 @@ class WorldGenerator {
     const Content* content;
     /// @param seed world seed
     uint64_t seed;
+    /// @brief Chunk prototypes main storage
+    std::unordered_map<glm::ivec2, std::unique_ptr<ChunkPrototype>> prototypes;
+    /// @brief Chunk prototypes loading surround map
+    SurroundMap surroundMap;
 
     /// @brief Generate chunk prototype (see ChunkPrototype)
     /// @param x chunk position X divided by CHUNK_W
@@ -56,6 +62,8 @@ public:
         uint64_t seed
     );
     virtual ~WorldGenerator() = default;
+
+    virtual void update(int centerX, int centerY, int loadDistance);
 
     /// @brief Generate complete chunk voxels
     /// @param voxels destinatiopn chunk voxels buffer

@@ -28,5 +28,9 @@ public:
     ~ChunksController();
 
     /// @param maxDuration milliseconds reserved for chunks loading
-    void update(int64_t maxDuration);
+    void update(
+        int64_t maxDuration,
+        int loadDistance,
+        int centerX,
+        int centerY);
 };

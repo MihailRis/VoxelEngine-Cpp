@@ -99,14 +99,27 @@ function generate_heightmap(x, y, w, h, seed)
     return map
 end
 
-function generate_biome_parameters(x, y, w, h, seed)
+local function _generate_biome_parameters(x, y, w, h, seed, s)
     local tempmap = Heightmap(w, h)
     tempmap.noiseSeed = seed + 5324
-    tempmap:noise({x, y}, 0.4, 4)
+    tempmap:noise({x, y}, 0.4*s, 4)
     local hummap = Heightmap(w, h)
     hummap.noiseSeed = seed + 953
-    hummap:noise({x, y}, 0.16, 4)
+    hummap:noise({x, y}, 0.16*s, 4)
     tempmap:pow(2)
     hummap:pow(2)
     return tempmap, hummap
+end
+
+function generate_biome_parameters(x, y, w, h, seed)
+    local bpd = 4
+    local tmap, hmap = _generate_biome_parameters(
+        math.floor(x/bpd), math.floor(y/bpd), 
+        math.floor(w/bpd)+1, math.floor(h/bpd)+1, seed, bpd)
+    tmap:resize(w+bpd, h+bpd, 'linear')
+    tmap:crop(0, 0, w, h)
+
+    hmap:resize(w+bpd, h+bpd, 'linear')
+    hmap:crop(0, 0, w, h)
+    return tmap, hmap
 end

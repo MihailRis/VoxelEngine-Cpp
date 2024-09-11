@@ -9,13 +9,35 @@
 #include "voxels/Chunk.hpp"
 #include "world/generator/GeneratorDef.hpp"
 #include "util/timeutil.hpp"
+#include "debug/Logger.hpp"
+
+static debug::Logger logger("world-generator");
 
 static inline constexpr uint MAX_PARAMETERS = 16;
+static inline constexpr uint MAX_CHUNK_PROTOTYPE_LEVELS = 8;
 
 WorldGenerator::WorldGenerator(
     const GeneratorDef& def, const Content* content, uint64_t seed
 )
-    : def(def), content(content), seed(seed) {
+    : def(def), 
+      content(content), 
+      seed(seed), 
+      surroundMap(0, MAX_CHUNK_PROTOTYPE_LEVELS) 
+{
+    surroundMap.setOutCallback([this](int const x, int const z, int8_t) {
+        const auto& found = prototypes.find({x, z});
+        if (found == prototypes.end()) {
+            logger.warning() << "unable to remove non-existing chunk prototype";
+            return;
+        }
+        prototypes.erase({x, z});
+    });
+    surroundMap.setLevelCallback(1, [this](int const x, int const z) {
+        if (prototypes.find({x, z}) != prototypes.end()) {
+            return;
+        }
+        prototypes[{x, z}] = generatePrototype(x, z);
+    });
 }
 
 static inline void generate_pole(
@@ -78,7 +100,6 @@ static inline const Biome* choose_biome(
 std::unique_ptr<ChunkPrototype> WorldGenerator::generatePrototype(
     int chunkX, int chunkZ
 ) {
-    // timeutil::ScopeLogTimer log(666);
     auto biomeParams = def.script->generateParameterMaps(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed);
     const auto& biomes = def.script->getBiomes();
@@ -103,11 +124,23 @@ void WorldGenerator::generateHeightmap(
     prototype->level = ChunkPrototypeLevel::HEIGHTMAP;
 }
 
+void WorldGenerator::update(int centerX, int centerY, int loadDistance) {
+    surroundMap.setCenter(centerX, centerY);
+    surroundMap.resize(loadDistance);
+    surroundMap.setCenter(centerX, centerY);
+}
+
 void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
     //timeutil::ScopeLogTimer log(555);
+    surroundMap.completeAt(chunkX, chunkZ);
 
-    auto prototype = generatePrototype(chunkX, chunkZ);
-    generateHeightmap(prototype.get(), chunkX, chunkZ);
+    const auto& found = prototypes.find({chunkX, chunkZ});
+    if (found == prototypes.end()) {
+        throw std::runtime_error("no prototype found");
+    }
+
+    auto prototype = found->second.get();
+    generateHeightmap(prototype, chunkX, chunkZ);
 
     const auto values = prototype->heightmap->getValues();
 
