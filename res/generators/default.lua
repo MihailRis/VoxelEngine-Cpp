@@ -112,10 +112,10 @@ local function _generate_biome_parameters(x, y, w, h, seed, s)
 end
 
 function generate_biome_parameters(x, y, w, h, seed)
-    local bpd = 4
+    local bpd = 8
     local tmap, hmap = _generate_biome_parameters(
         math.floor(x/bpd), math.floor(y/bpd), 
-        math.floor(w/bpd)+1, math.floor(h/bpd)+1, seed, bpd)
+        math.floor(w/bpd)+1, math.floor(h/bpd)+1, seed, bpd) 
     tmap:resize(w+bpd, h+bpd, 'linear')
     tmap:crop(0, 0, w, h)
 

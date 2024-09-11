@@ -11,7 +11,7 @@ static inline float smootherstep(float x) {
 
 static inline float sample_at(
     const float* buffer,
-    uint width, uint height,
+    uint width,
     uint x, uint y
 ) {
     return buffer[y*width+x];
@@ -36,11 +36,11 @@ static inline float sample_at(
     switch (interp) {
         case InterpolationType::LINEAR: {
             float s00 = val;
-            float s10 = sample_at(buffer, width, height, 
+            float s10 = sample_at(buffer, width, 
                 ix + 1 < width ? ix + 1 : ix, iy);
-            float s01 = sample_at(buffer, width, height, ix, 
+            float s01 = sample_at(buffer, width, ix, 
                 iy + 1 < height ? iy + 1 : iy);
-            float s11 = sample_at(buffer, width, height, 
+            float s11 = sample_at(buffer, width, 
                 ix + 1 < width ? ix + 1 : ix, iy + 1 < height ? iy + 1 : iy);
 
             float a00 = s00;

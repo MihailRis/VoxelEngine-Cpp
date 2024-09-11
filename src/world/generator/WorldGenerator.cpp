@@ -38,6 +38,13 @@ WorldGenerator::WorldGenerator(
         }
         prototypes[{x, z}] = generatePrototype(x, z);
     });
+    surroundMap.setLevelCallback(2, [this](int const x, int const z) {
+        const auto& found = prototypes.find({x, z});
+        if (found == prototypes.end()) {
+            throw std::runtime_error("prototype not found");
+        }
+        generateHeightmap(found->second.get(), x, z);
+    });
 }
 
 static inline void generate_pole(
@@ -119,6 +126,9 @@ std::unique_ptr<ChunkPrototype> WorldGenerator::generatePrototype(
 void WorldGenerator::generateHeightmap(
     ChunkPrototype* prototype, int chunkX, int chunkZ
 ) {
+    if (prototype->level >= ChunkPrototypeLevel::HEIGHTMAP) {
+        return;
+    }
     prototype->heightmap = def.script->generateHeightmap(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed);
     prototype->level = ChunkPrototypeLevel::HEIGHTMAP;
@@ -126,12 +136,11 @@ void WorldGenerator::generateHeightmap(
 
 void WorldGenerator::update(int centerX, int centerY, int loadDistance) {
     surroundMap.setCenter(centerX, centerY);
-    surroundMap.resize(loadDistance);
+    surroundMap.resize(loadDistance + 1 /* additional safety padding */);
     surroundMap.setCenter(centerX, centerY);
 }
 
 void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
-    //timeutil::ScopeLogTimer log(555);
     surroundMap.completeAt(chunkX, chunkZ);
 
     const auto& found = prototypes.find({chunkX, chunkZ});
@@ -140,8 +149,6 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
     }
 
     auto prototype = found->second.get();
-    generateHeightmap(prototype, chunkX, chunkZ);
-
     const auto values = prototype->heightmap->getValues();
 
     uint seaLevel = def.script->getSeaLevel();
