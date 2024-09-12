@@ -1,4 +1,4 @@
-#include "Structure.hpp"
+#include "VoxelStructure.hpp"
 
 #include <unordered_map>
 #include <cstring>
@@ -11,7 +11,7 @@
 #include "voxels/VoxelsVolume.hpp"
 #include "world/Level.hpp"
 
-std::unique_ptr<Structure> Structure::create(
+std::unique_ptr<VoxelStructure> VoxelStructure::create(
     Level* level, const glm::ivec3& a, const glm::ivec3& b, bool entities
 ) {
     auto start = glm::min(a, b);
@@ -43,11 +43,11 @@ std::unique_ptr<Structure> Structure::create(
         voxels[i].id = index;
     }
 
-    return std::make_unique<Structure>(
+    return std::make_unique<VoxelStructure>(
         size, std::move(voxels), std::move(blockNames));
 }
 
-std::unique_ptr<dynamic::Map> Structure::serialize() const {
+std::unique_ptr<dynamic::Map> VoxelStructure::serialize() const {
     auto root = std::make_unique<dynamic::Map>();
     root->put("version", STRUCTURE_FORMAT_VERSION);
     root->put("size", dynamic::to_value(size));
@@ -64,7 +64,7 @@ std::unique_ptr<dynamic::Map> Structure::serialize() const {
     return root;
 }
 
-void Structure::deserialize(dynamic::Map* src) {
+void VoxelStructure::deserialize(dynamic::Map* src) {
     size = glm::ivec3();
     dynamic::get_vec(src, "size", size);
     voxels.resize(size.x*size.y*size.z);

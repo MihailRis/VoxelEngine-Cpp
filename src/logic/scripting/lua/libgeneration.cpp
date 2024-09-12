@@ -4,7 +4,7 @@
 #include "files/util.hpp"
 #include "coders/binary_json.hpp"
 #include "world/Level.hpp"
-#include "world/generator/Structure.hpp"
+#include "world/generator/VoxelStructure.hpp"
 
 using namespace scripting;
 
@@ -17,7 +17,7 @@ static int l_save_structure(lua::State* L) {
     }
     bool saveEntities = lua::toboolean(L, 4);
     
-    auto structure = Structure::create(level, pointA, pointB, saveEntities);
+    auto structure = VoxelStructure::create(level, pointA, pointB, saveEntities);
     auto map = structure->serialize();
 
     auto bytes = json::to_binary(map.get());

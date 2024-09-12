@@ -13,7 +13,7 @@
 
 static debug::Logger logger("world-generator");
 
-static inline constexpr uint MAX_PARAMETERS = 16;
+static inline constexpr uint MAX_PARAMETERS = 8;
 static inline constexpr uint MAX_CHUNK_PROTOTYPE_LEVELS = 8;
 
 WorldGenerator::WorldGenerator(
@@ -136,7 +136,8 @@ void WorldGenerator::generateHeightmap(
 
 void WorldGenerator::update(int centerX, int centerY, int loadDistance) {
     surroundMap.setCenter(centerX, centerY);
-    surroundMap.resize(loadDistance + 1 /* additional safety padding */);
+    // 1 is safety padding preventing ChunksController rounding problem
+    surroundMap.resize(loadDistance + 1);
     surroundMap.setCenter(centerX, centerY);
 }
 
