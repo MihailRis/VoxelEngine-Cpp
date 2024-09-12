@@ -44,6 +44,14 @@ void stringifyObj(
     bool nice
 );
 
+void stringifyArr(
+    const List* list,
+    std::stringstream& ss,
+    int indent,
+    const std::string& indentstr,
+    bool nice
+);
+
 void stringifyValue(
     const Value& value,
     std::stringstream& ss,
@@ -54,26 +62,7 @@ void stringifyValue(
     if (auto map = std::get_if<Map_sptr>(&value)) {
         stringifyObj(map->get(), ss, indent, indentstr, nice);
     } else if (auto listptr = std::get_if<List_sptr>(&value)) {
-        auto list = *listptr;
-        if (list->size() == 0) {
-            ss << "[]";
-            return;
-        }
-        ss << '[';
-        for (uint i = 0; i < list->size(); i++) {
-            Value& value = list->get(i);
-            if (i > 0 || nice) {
-                newline(ss, nice, indent, indentstr);
-            }
-            stringifyValue(value, ss, indent + 1, indentstr, nice);
-            if (i + 1 < list->size()) {
-                ss << ',';
-            }
-        }
-        if (nice) {
-            newline(ss, true, indent - 1, indentstr);
-        }
-        ss << ']';
+        stringifyArr(listptr->get(), ss, indent, indentstr, nice);
     } else if (auto flag = std::get_if<bool>(&value)) {
         ss << (*flag ? "true" : "false");
     } else if (auto num = std::get_if<number_t>(&value)) {
@@ -85,6 +74,38 @@ void stringifyValue(
     } else {
         ss << "null";
     }
+}
+
+void stringifyArr(
+    const List* list,
+    std::stringstream& ss,
+    int indent,
+    const std::string& indentstr,
+    bool nice
+) {
+    if (list == nullptr) {
+        ss << "nullptr";
+        return;
+    }
+    if (list->values.empty()) {
+        ss << "[]";
+        return;
+    }
+    ss << "[";
+    for (size_t i = 0; i < list->size(); i++) {
+        if (i > 0 || nice) {
+            newline(ss, nice, indent, indentstr);
+        }
+        const Value& value = list->values[i];
+        stringifyValue(value, ss, indent + 1, indentstr, nice);
+        if (i + 1 < list->size()) {
+            ss << ',';
+        }
+    }
+    if (nice) {
+        newline(ss, true, indent - 1, indentstr);
+    }
+    ss << ']';
 }
 
 void stringifyObj(
@@ -103,7 +124,7 @@ void stringifyObj(
         return;
     }
     ss << "{";
-    uint index = 0;
+    size_t index = 0;
     for (auto& entry : obj->values) {
         const std::string& key = entry.first;
         if (index > 0 || nice) {
@@ -128,6 +149,14 @@ std::string json::stringify(
 ) {
     std::stringstream ss;
     stringifyObj(obj, ss, 1, indent, nice);
+    return ss.str();
+}
+
+std::string json::stringify(
+    const dynamic::List* arr, bool nice, const std::string& indent
+) {
+    std::stringstream ss;
+    stringifyArr(arr, ss, 1, indent, nice);
     return ss.str();
 }
 

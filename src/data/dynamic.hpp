@@ -160,5 +160,7 @@ namespace dynamic {
 }
 
 std::ostream& operator<<(std::ostream& stream, const dynamic::Value& value);
+std::ostream& operator<<(std::ostream& stream, const dynamic::Map& value);
 std::ostream& operator<<(std::ostream& stream, const dynamic::Map_sptr& value);
+std::ostream& operator<<(std::ostream& stream, const dynamic::List& value);
 std::ostream& operator<<(std::ostream& stream, const dynamic::List_sptr& value);

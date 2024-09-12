@@ -9,10 +9,21 @@ std::ostream& operator<<(std::ostream& stream, const dynamic::Value& value) {
     return stream;
 }
 
+std::ostream& operator<<(std::ostream& stream, const dynamic::Map& value) {
+    stream << json::stringify(&value, false, " ");
+    return stream;
+}
+
 std::ostream& operator<<(std::ostream& stream, const dynamic::Map_sptr& value) {
     stream << json::stringify(value, false, " ");
     return stream;
 }
+
+std::ostream& operator<<(std::ostream& stream, const dynamic::List& value) {
+    stream << json::stringify(&value, false, " ");
+    return stream;
+}
+
 
 std::ostream& operator<<(
     std::ostream& stream, const dynamic::List_sptr& value
