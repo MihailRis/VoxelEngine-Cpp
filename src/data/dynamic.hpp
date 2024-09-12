@@ -15,11 +15,11 @@ namespace dynamic {
         none = 0,
         map,
         list,
+        bytes,
         string,
         number,
         boolean,
-        integer,
-        bytes
+        integer
     };
 
     const std::string& type_name(const Value& value);
@@ -127,6 +127,7 @@ namespace dynamic {
         void num(const std::string& key, double& dst) const;
         Map_sptr map(const std::string& key) const;
         List_sptr list(const std::string& key) const;
+        ByteBuffer_sptr bytes(const std::string& key) const;
         void flag(const std::string& key, bool& dst) const;
 
         Map& put(std::string key, std::unique_ptr<Map> value) {
@@ -155,6 +156,13 @@ namespace dynamic {
         }
         Map& put(std::string key, bool value) {
             return put(key, Value(static_cast<bool>(value)));
+        }
+        Map& put(const std::string& key, const ByteBuffer* bytes) {
+            return put(key, std::make_unique<ByteBuffer>(
+                bytes->data(), bytes->size()));
+        }
+        Map& put(std::string key, const ubyte* bytes, size_t size) {
+            return put(key, std::make_unique<ByteBuffer>(bytes, size));
         }
         Map& put(std::string key, const char* value) {
             return put(key, Value(value));

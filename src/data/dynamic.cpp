@@ -249,6 +249,12 @@ List_sptr Map::list(const std::string& key) const {
     return nullptr;
 }
 
+ByteBuffer_sptr Map::bytes(const std::string& key) const {
+    auto found = values.find(key);
+    if (found != values.end()) return std::get<ByteBuffer_sptr>(found->second);
+    return nullptr;
+}
+
 void Map::flag(const std::string& key, bool& dst) const {
     dst = get(key, dst);
 }
