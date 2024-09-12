@@ -26,7 +26,7 @@ static void to_binary(ByteBuilder& builder, const Value& value) {
             builder.put(BJSON_END);
             break;
         case Type::bytes: {
-            const auto bytes = std::get<ByteBuffer_sptr>(value).get();
+            const auto& bytes = std::get<ByteBuffer_sptr>(value).get();
             builder.put(BJSON_TYPE_BYTES);
             builder.putInt32(bytes->size());
             builder.put(bytes->data(), bytes->size());
@@ -132,7 +132,9 @@ static Value value_from_binary(ByteReader& reader) {
                 throw std::runtime_error(
                     "buffer_size > remaining_size "+std::to_string(size));
             }
-            return std::make_shared<ByteBuffer>(reader.pointer(), size);
+            auto bytes = std::make_shared<ByteBuffer>(reader.pointer(), size);
+            reader.skip(size);
+            return bytes;
         }
     }
     throw std::runtime_error(

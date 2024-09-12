@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 
-#include "coders/json.hpp"
-#include "util/stringutil.hpp"
+#include "data/dynamic.hpp"
+#include "coders/binary_json.hpp"
 
-TEST(JSON, EncodeDecode) {
+TEST(BJSON, EncodeDecode) {
     const std::string name = "JSON-encoder";
-    const int bytesSize = 20;
+    const int bytesSize = 5000;
     const int year = 2019;
     const float score = 3.141592;
     dynamic::ByteBuffer srcBytes(bytesSize);
@@ -13,7 +13,7 @@ TEST(JSON, EncodeDecode) {
         srcBytes[i] = rand();
     }
 
-    std::string text;
+    std::vector<ubyte> bjsonBytes;
     {
         dynamic::Map map;
         map.put("name", name);
@@ -21,16 +21,15 @@ TEST(JSON, EncodeDecode) {
         map.put("score", score);
         map.put("data", &srcBytes);
 
-        text = json::stringify(&map, false, "");
+        bjsonBytes = json::to_binary(&map, false);
     }
     {
-        auto map = json::parse(text);
+        auto map = json::from_binary(bjsonBytes.data(), bjsonBytes.size());
         EXPECT_EQ(map->get<std::string>("name"), name);
         EXPECT_EQ(map->get<integer_t>("year"), year);
         EXPECT_FLOAT_EQ(map->get<number_t>("score"), score);
-        auto b64string = map->get<std::string>("data");
-
-        auto bytes = util::base64_decode(b64string);
+        auto bytesptr = map->bytes("data");
+        const auto& bytes = *bytesptr;
         EXPECT_EQ(bytes.size(), bytesSize);
         for (int i = 0; i < bytesSize; i++) {
             EXPECT_EQ(bytes[i], srcBytes[i]);
