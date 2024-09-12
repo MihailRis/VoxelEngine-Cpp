@@ -6,13 +6,16 @@
 #include <variant>
 
 #include "typedefs.hpp"
+#include "util/Buffer.hpp"
 
 namespace dynamic {
     class Map;
     class List;
 
+    using ByteBuffer = util::Buffer<ubyte>;
     using Map_sptr = std::shared_ptr<Map>;
     using List_sptr = std::shared_ptr<List>;
+    using ByteBuffer_sptr = std::shared_ptr<ByteBuffer>;
 
     struct none {};
 
@@ -22,6 +25,7 @@ namespace dynamic {
         none,
         Map_sptr,
         List_sptr,
+        ByteBuffer_sptr,
         std::string,
         number_t,
         bool,

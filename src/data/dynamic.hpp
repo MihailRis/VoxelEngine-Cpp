@@ -11,7 +11,16 @@
 #include "dynamic_fwd.hpp"
 
 namespace dynamic {
-    enum class Type { none = 0, map, list, string, number, boolean, integer };
+    enum class Type {
+        none = 0,
+        map,
+        list,
+        string,
+        number,
+        boolean,
+        integer,
+        bytes
+    };
 
     const std::string& type_name(const Value& value);
     List_sptr create_list(std::initializer_list<Value> values = {});
@@ -59,10 +68,13 @@ namespace dynamic {
         }
 
         List& put(std::unique_ptr<Map> value) {
-            return put(Map_sptr(value.release()));
+            return put(Map_sptr(std::move(value)));
         }
         List& put(std::unique_ptr<List> value) {
-            return put(List_sptr(value.release()));
+            return put(List_sptr(std::move(value)));
+        }
+        List& put(std::unique_ptr<ByteBuffer> value) {
+            return put(ByteBuffer_sptr(std::move(value)));
         }
         List& put(const Value& value);
 
