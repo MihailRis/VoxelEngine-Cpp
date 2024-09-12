@@ -27,6 +27,8 @@ namespace dynamic {
     Map_sptr create_map(
         std::initializer_list<std::pair<const std::string, Value>> entries = {}
     );
+    ByteBuffer_sptr create_bytes(size_t size);
+
     number_t get_number(const Value& value);
     integer_t get_integer(const Value& value);
 
@@ -82,6 +84,7 @@ namespace dynamic {
 
         List& putList();
         Map& putMap();
+        ByteBuffer& putBytes(size_t size);
 
         void remove(size_t index);
     };
@@ -173,6 +176,7 @@ namespace dynamic {
 
         List& putList(const std::string& key);
         Map& putMap(const std::string& key);
+        ByteBuffer& putBytes(const std::string& key, size_t size);
 
         bool has(const std::string& key) const;
         size_t size() const;
