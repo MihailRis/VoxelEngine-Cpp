@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "typedefs.hpp"
+#include "util/Buffer.hpp"
 
 namespace util {
     /// @brief Function used for string serialization in text formats
@@ -56,8 +57,8 @@ namespace util {
     std::wstring to_wstring(double x, int precision);
 
     std::string base64_encode(const ubyte* data, size_t size);
-    std::vector<ubyte> base64_decode(const char* str, size_t size);
-    std::vector<ubyte> base64_decode(const std::string& str);
+    util::Buffer<ubyte> base64_decode(const char* str, size_t size);
+    util::Buffer<ubyte> base64_decode(const std::string& str);
 
     std::string mangleid(uint64_t value);
 
