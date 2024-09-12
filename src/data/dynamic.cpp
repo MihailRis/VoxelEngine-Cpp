@@ -129,6 +129,12 @@ Map& List::putMap() {
     return *map;
 }
 
+ByteBuffer& List::putBytes(size_t size) {
+    auto bytes = create_bytes(size);
+    put(bytes);
+    return *bytes;
+}
+
 void List::remove(size_t index) {
     values.erase(values.begin() + index);
 }
@@ -280,6 +286,12 @@ Map& Map::putMap(const std::string& key) {
     return *obj;
 }
 
+ByteBuffer& Map::putBytes(const std::string& key, size_t size) {
+    auto bytes = create_bytes(size);
+    put(key, bytes);
+    return *bytes;
+}
+
 bool Map::has(const std::string& key) const {
     return values.find(key) != values.end();
 }
@@ -310,6 +322,10 @@ Map_sptr dynamic::create_map(
     std::initializer_list<std::pair<const std::string, Value>> entries
 ) {
     return std::make_shared<Map>(entries);
+}
+
+ByteBuffer_sptr dynamic::create_bytes(size_t size) {
+    return std::make_shared<ByteBuffer>(size);
 }
 
 number_t dynamic::get_number(const Value& value) {
