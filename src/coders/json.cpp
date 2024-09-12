@@ -63,6 +63,10 @@ void stringifyValue(
         stringifyObj(map->get(), ss, indent, indentstr, nice);
     } else if (auto listptr = std::get_if<List_sptr>(&value)) {
         stringifyArr(listptr->get(), ss, indent, indentstr, nice);
+    } else if (auto bytesptr = std::get_if<ByteBuffer_sptr>(&value)) {
+        auto bytes = bytesptr->get();
+        ss << "\"" << util::base64_encode(bytes->data(), bytes->size());
+        ss << "\"";
     } else if (auto flag = std::get_if<bool>(&value)) {
         ss << (*flag ? "true" : "false");
     } else if (auto num = std::get_if<number_t>(&value)) {

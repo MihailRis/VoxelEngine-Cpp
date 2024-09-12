@@ -319,8 +319,8 @@ std::string util::mangleid(uint64_t value) {
     return ss.str();
 }
 
-std::vector<ubyte> util::base64_decode(const char* str, size_t size) {
-    std::vector<ubyte> bytes((size / 4) * 3);
+util::Buffer<ubyte> util::base64_decode(const char* str, size_t size) {
+    util::Buffer<ubyte> bytes((size / 4) * 3);
     ubyte* dst = bytes.data();
     for (size_t i = 0; i < size;) {
         ubyte a = base64_decode_char(ubyte(str[i++]));
@@ -335,12 +335,12 @@ std::vector<ubyte> util::base64_decode(const char* str, size_t size) {
         size_t outsize = bytes.size();
         if (str[size - 1] == '=') outsize--;
         if (str[size - 2] == '=') outsize--;
-        bytes.resize(outsize);
+        bytes.resizeFast(outsize);
     }
     return bytes;
 }
 
-std::vector<ubyte> util::base64_decode(const std::string& str) {
+util::Buffer<ubyte> util::base64_decode(const std::string& str) {
     return base64_decode(str.c_str(), str.size());
 }
 
