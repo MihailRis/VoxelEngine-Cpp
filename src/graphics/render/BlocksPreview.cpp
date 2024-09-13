@@ -91,12 +91,12 @@ std::unique_ptr<ImageData> BlocksPreview::draw(
                 for (size_t i = 0; i < def.modelExtraPoints.size() / 4; i++) {
                     const UVRegion& reg = def.modelUVs[def.modelBoxes.size() * 6 + i];
                     
-                    batch->point((points[i * 4 + 0] - poff) * pmul, glm::vec2(reg.u1, reg.v1), glm::vec4(1.0));
-                    batch->point((points[i * 4 + 1] - poff) * pmul, glm::vec2(reg.u2, reg.v1), glm::vec4(1.0));
-                    batch->point((points[i * 4 + 2] - poff) * pmul, glm::vec2(reg.u2, reg.v2), glm::vec4(1.0));
-                    batch->point((points[i * 4 + 0] - poff) * pmul, glm::vec2(reg.u1, reg.v1), glm::vec4(1.0));
-                    batch->point((points[i * 4 + 2] - poff) * pmul, glm::vec2(reg.u2, reg.v2), glm::vec4(1.0));
-                    batch->point((points[i * 4 + 3] - poff) * pmul, glm::vec2(reg.u1, reg.v2), glm::vec4(1.0));
+                    batch->vertex((points[i * 4 + 0] - poff) * pmul, glm::vec2(reg.u1, reg.v1), glm::vec4(1.0));
+                    batch->vertex((points[i * 4 + 1] - poff) * pmul, glm::vec2(reg.u2, reg.v1), glm::vec4(1.0));
+                    batch->vertex((points[i * 4 + 2] - poff) * pmul, glm::vec2(reg.u2, reg.v2), glm::vec4(1.0));
+                    batch->vertex((points[i * 4 + 0] - poff) * pmul, glm::vec2(reg.u1, reg.v1), glm::vec4(1.0));
+                    batch->vertex((points[i * 4 + 2] - poff) * pmul, glm::vec2(reg.u2, reg.v2), glm::vec4(1.0));
+                    batch->vertex((points[i * 4 + 3] - poff) * pmul, glm::vec2(reg.u1, reg.v2), glm::vec4(1.0));
                 }
                 batch->flush();
             }
