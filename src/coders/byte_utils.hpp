@@ -72,6 +72,8 @@ public:
     std::string getString();
     /// @return true if there is at least one byte remains
     bool hasNext() const;
+    /// @return Number of remaining bytes in buffer
+    size_t remaining() const;
 
     const ubyte* pointer() const;
     void skip(size_t n);

@@ -11,13 +11,24 @@
 #include "dynamic_fwd.hpp"
 
 namespace dynamic {
-    enum class Type { none = 0, map, list, string, number, boolean, integer };
+    enum class Type {
+        none = 0,
+        map,
+        list,
+        bytes,
+        string,
+        number,
+        boolean,
+        integer
+    };
 
     const std::string& type_name(const Value& value);
     List_sptr create_list(std::initializer_list<Value> values = {});
     Map_sptr create_map(
         std::initializer_list<std::pair<const std::string, Value>> entries = {}
     );
+    ByteBuffer_sptr create_bytes(size_t size);
+
     number_t get_number(const Value& value);
     integer_t get_integer(const Value& value);
 
@@ -59,10 +70,13 @@ namespace dynamic {
         }
 
         List& put(std::unique_ptr<Map> value) {
-            return put(Map_sptr(value.release()));
+            return put(Map_sptr(std::move(value)));
         }
         List& put(std::unique_ptr<List> value) {
-            return put(List_sptr(value.release()));
+            return put(List_sptr(std::move(value)));
+        }
+        List& put(std::unique_ptr<ByteBuffer> value) {
+            return put(ByteBuffer_sptr(std::move(value)));
         }
         List& put(const Value& value);
 
@@ -70,6 +84,7 @@ namespace dynamic {
 
         List& putList();
         Map& putMap();
+        ByteBuffer& putBytes(size_t size);
 
         void remove(size_t index);
     };
@@ -115,6 +130,7 @@ namespace dynamic {
         void num(const std::string& key, double& dst) const;
         Map_sptr map(const std::string& key) const;
         List_sptr list(const std::string& key) const;
+        ByteBuffer_sptr bytes(const std::string& key) const;
         void flag(const std::string& key, bool& dst) const;
 
         Map& put(std::string key, std::unique_ptr<Map> value) {
@@ -144,6 +160,13 @@ namespace dynamic {
         Map& put(std::string key, bool value) {
             return put(key, Value(static_cast<bool>(value)));
         }
+        Map& put(const std::string& key, const ByteBuffer* bytes) {
+            return put(key, std::make_unique<ByteBuffer>(
+                bytes->data(), bytes->size()));
+        }
+        Map& put(std::string key, const ubyte* bytes, size_t size) {
+            return put(key, std::make_unique<ByteBuffer>(bytes, size));
+        }
         Map& put(std::string key, const char* value) {
             return put(key, Value(value));
         }
@@ -153,6 +176,7 @@ namespace dynamic {
 
         List& putList(const std::string& key);
         Map& putMap(const std::string& key);
+        ByteBuffer& putBytes(const std::string& key, size_t size);
 
         bool has(const std::string& key) const;
         size_t size() const;
@@ -160,5 +184,7 @@ namespace dynamic {
 }
 
 std::ostream& operator<<(std::ostream& stream, const dynamic::Value& value);
+std::ostream& operator<<(std::ostream& stream, const dynamic::Map& value);
 std::ostream& operator<<(std::ostream& stream, const dynamic::Map_sptr& value);
+std::ostream& operator<<(std::ostream& stream, const dynamic::List& value);
 std::ostream& operator<<(std::ostream& stream, const dynamic::List_sptr& value);
