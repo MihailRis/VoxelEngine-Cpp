@@ -214,6 +214,13 @@ namespace dv {
             return *this;
         }
 
+        value& add(value v);
+
+        template<class T>
+        value& add(T v) {
+            return add(value(v));
+        }
+
         value& operator[](const key_t& key);
 
         const value& operator[](const key_t& key) const;
@@ -280,6 +287,11 @@ namespace dv::objects {
         const_reference operator[](std::size_t index) const {
             return list.at(index);
         }
+
+        reference add(value v) {
+            list.push_back(std::move(v));
+            return list[list.size()-1];
+        }
     };
 }
 
@@ -335,5 +347,12 @@ namespace dv {
 
     value list(std::initializer_list<value> values) {
         return std::make_shared<objects::List>(values);
+    }
+
+    value& value::add(value v) {
+        if (type == value_type::list) {
+            return val.list->add(std::move(v));
+        }
+        throw std::runtime_error("value is not a list");
     }
 }

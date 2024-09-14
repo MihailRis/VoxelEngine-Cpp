@@ -3,8 +3,12 @@
 #include "data/dv.hpp"
 
 TEST(dv, dv) {
-    dv::value value = dv::object({
+    auto value = dv::object({
         {"d", "test"}
     });
+    auto list = dv::list({
+        561, 52, "hello"
+    });
+    list.add("world");
     value["a"] = 51;
 }
