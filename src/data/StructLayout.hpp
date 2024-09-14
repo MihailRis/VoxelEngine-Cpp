@@ -15,7 +15,7 @@ namespace data {
         COUNT
     };
 
-    inline const char* to_string(FieldType type) {
+    inline std::string to_string(FieldType type) {
         const char* names[] = {
             "int8", "int16", "int32", "int64", "float32", "float64", "char" 
         };
