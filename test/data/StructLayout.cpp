@@ -114,3 +114,20 @@ TEST(StructLayout, ConvertWithLoss) {
     EXPECT_EQ(dstLayout.getChars(dst, "text"), "tru");
     EXPECT_EQ(dstLayout.getInteger(dst, "someint"), INT8_MAX);
 }
+
+TEST(StructLayout, Serialization) {
+    std::vector<Field> fields {
+        Field {FieldType::CHAR, "text", 5},
+        Field {FieldType::I16, "someint", 1},
+        Field {FieldType::F64, "pi", 1},
+    };
+    auto layout1 = StructLayout::create(fields);
+    auto serialized = layout1.serialize();
+
+    std::cout << *serialized << std::endl;
+
+    StructLayout layout2;
+    layout2.deserialize(serialized.get());
+
+    EXPECT_EQ(layout1, layout2);
+}

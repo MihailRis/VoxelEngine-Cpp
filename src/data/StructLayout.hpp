@@ -7,12 +7,21 @@
 #include <optional>
 
 #include "typedefs.hpp"
+#include "interfaces/Serializable.hpp"
 
 namespace data {
     enum class FieldType {
         I8=0, I16, I32, I64, F32, F64, CHAR,
         COUNT
     };
+
+    inline const char* to_string(FieldType type) {
+        const char* names[] = {
+            "int8", "int16", "int32", "int64", "float32", "float64", "char" 
+        };
+        return names[static_cast<int>(type)];
+    }
+    FieldType FieldType_from_string(std::string_view name);
 
     /// @brief Sorted by severity
     enum class FieldIncapatibilityType {
@@ -28,7 +37,7 @@ namespace data {
     };
 
     inline constexpr int sizeof_type(FieldType type) {
-        const int sizes[static_cast<int>(FieldType::COUNT)] = {
+        const int sizes[] = {
             1, 2, 4, 8, 4, 8, 1
         };
         return sizes[static_cast<int>(type)];
@@ -42,10 +51,18 @@ namespace data {
     /// @brief Strategy will be used if value can't be left the same on conversion
     enum class FieldConvertStrategy {
         /// @brief Reset field value
-        RESET,
+        RESET = 0,
         /// @brief Clamp field value if out of type range
         CLAMP
     };
+    
+    inline const char* to_string(FieldConvertStrategy strategy) {
+        const char* names[] = {
+            "reset", "clamp"
+        };
+        return names[static_cast<int>(strategy)];
+    }
+    FieldConvertStrategy FieldConvertStrategy_from_string(std::string_view name);
 
     struct Field {
         FieldType type;
@@ -58,13 +75,25 @@ namespace data {
         int offset;
         /// @brief Byte size of the field
         int size;
+
+        bool operator==(const Field& o) const {
+            return type == o.type && 
+                   name == o.name && 
+                   elements == o.elements &&
+                   convertStrategy == o.convertStrategy &&
+                   offset == o.offset &&
+                   size == o.size;
+        }
+        bool operator!=(const Field& o) const {
+            return !operator==(o);
+        }
     };
     
-    class StructLayout {
+    class StructLayout : public Serializable {
         int totalSize;
         std::vector<Field> fields;
         std::unordered_map<std::string, int> indices;
-    public:
+    
         StructLayout(
             int totalSize,
             std::vector<Field> fields,
@@ -73,6 +102,16 @@ namespace data {
             fields(std::move(fields)),
             indices(std::move(indices))
         {}
+    public:
+        StructLayout() : StructLayout(0, {}, {}) {}
+
+        bool operator==(const StructLayout& o) const {
+            // if fields are completely equal then structures are equal
+            return fields == o.fields;
+        }
+        bool operator!=(const StructLayout& o) const {
+            return !operator==(o);
+        }
 
         /// @brief Get field by name. Returns nullptr if field not found.
         /// @param name field name
@@ -83,7 +122,6 @@ namespace data {
             if (found == indices.end()) {
                 return nullptr;
             }
-            
             return &fields.at(found->second);
         }
 
@@ -183,5 +221,8 @@ namespace data {
 
         [[nodiscard]]
         static StructLayout create(const std::vector<Field>& fields);
+
+        std::unique_ptr<dynamic::Map> serialize() const override;
+        void deserialize(dynamic::Map* src) override;
     };
 }

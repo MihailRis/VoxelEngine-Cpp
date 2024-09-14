@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstring>
 #include <vector>
+#include <limits>
 #include <stdexcept>
 
 namespace util {
@@ -62,9 +63,15 @@ namespace util {
         /// @param size entry size
         /// @return temporary entry pointer 
         /// @attention pointer becomes invalid after allocate(...) or free(...)
-        uint8_t* allocate(Tindex index, Tsize size) {
+        uint8_t* allocate(Tindex index, size_t size) {
+            const auto maxSize = std::numeric_limits<Tsize>::max();
+            if (size > maxSize) {
+                throw std::invalid_argument(
+                    "requested "+std::to_string(size)+" bytes but limit is "+
+                    std::to_string(maxSize));
+            }
             if (size == 0) {
-                throw std::runtime_error("size is 0");
+                throw std::invalid_argument("zero size");
             }
             ptrdiff_t offset = 0;
             if (auto found = find(index)) {
