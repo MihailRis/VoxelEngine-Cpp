@@ -9,6 +9,10 @@
 #include "maths/aabb.hpp"
 #include "typedefs.hpp"
 
+namespace data {
+    class StructLayout;
+}
+
 inline std::string BLOCK_ITEM_SUFFIX = ".item";
 
 inline constexpr uint FACE_MX = 0;
@@ -184,6 +188,8 @@ public:
     // @brief Block tick interval (1 - 20tps, 2 - 10tps)
     uint tickInterval = 1;
 
+    std::unique_ptr<data::StructLayout> dataStruct;
+
     /// @brief Runtime indices (content indexing results)
     struct {
         /// @brief block runtime integer id
@@ -211,6 +217,7 @@ public:
     Block(const std::string& name);
     Block(std::string name, const std::string& texture);
     Block(const Block&) = delete;
+    ~Block();
 
     void cloneTo(Block& dst);
 };

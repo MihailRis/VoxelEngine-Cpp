@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "core_defs.hpp"
+#include "data/StructLayout.hpp"
 #include "util/stringutil.hpp"
 
 std::string to_string(BlockModel model) {
@@ -101,6 +102,8 @@ Block::Block(const std::string& name)
           TEXTURE_NOTFOUND
       } {
 }
+
+Block::~Block() {}
 
 Block::Block(std::string name, const std::string& texture)
     : name(std::move(name)),

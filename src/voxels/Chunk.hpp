@@ -7,11 +7,11 @@
 
 #include "constants.hpp"
 #include "lighting/Lightmap.hpp"
+#include "util/SmallHeap.hpp"
 #include "voxel.hpp"
 
 inline constexpr int CHUNK_DATA_LEN = CHUNK_VOL * 4;
 
-class Lightmap;
 class ContentReport;
 class Inventory;
 
@@ -40,6 +40,8 @@ public:
 
     /// @brief Block inventories map where key is index of block in voxels array
     chunk_inventories_map inventories;
+    /// @brief Blocks metadata heap
+    util::SmallHeap<uint16_t, uint8_t> blocksMetadata;
 
     Chunk(int x, int z);
 
