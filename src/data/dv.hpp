@@ -46,7 +46,7 @@ namespace dv {
             integer_t integer;
             number_t number;
             boolean_t boolean;
-            std::string string;
+            std::unique_ptr<std::string> string;
             std::shared_ptr<objects::Object> object;
             std::shared_ptr<objects::List> list;
             std::shared_ptr<objects::Bytes> bytes;
@@ -79,9 +79,9 @@ namespace dv {
         }
         value& setString(std::string v) {
             this->~value();
-            new(&val.string)std::string();
+            new(&val.string)std::unique_ptr<std::string>();
             type = value_type::string;
-            val.string = std::move(v);
+            *val.string = std::move(v);
             return *this;
         }
         value& setList(const std::shared_ptr<objects::List>& ptr) {
@@ -106,9 +106,7 @@ namespace dv {
             return *this;
         }
     public:
-        value() {
-            type = value_type::none;
-        }
+        value() : type(value_type::none) {}
         value(value_type type);
         
         template<class T>
@@ -131,7 +129,7 @@ namespace dv {
                     val.bytes.reset();
                     break;
                 case value_type::string:
-                    val.string.~basic_string();
+                    val.string.reset();
                     break;
                 default:
                     break;
@@ -198,7 +196,7 @@ namespace dv {
                     setBytes(v.val.bytes);
                     break;
                 case value_type::string:
-                    setString(v.val.string);
+                    setString(*v.val.string);
                     break;
                 case value_type::boolean:
                     setBoolean(val.boolean);
@@ -298,7 +296,7 @@ namespace dv {
                 val.bytes = nullptr; // no default size
                 break;
             case value_type::string:
-                val.string = "";
+                val.string = std::make_unique<std::string>("");
                 break;
             default:
                 break;
