@@ -228,6 +228,14 @@ namespace dv {
         value& operator[](size_t index);
 
         const value& operator[](size_t index) const;
+
+        value& object(const key_t& key);
+        
+        value& list(const key_t& key);
+
+        value& object();
+        
+        value& list();
     };
 
     using reference = value&;
@@ -354,5 +362,25 @@ namespace dv {
             return val.list->add(std::move(v));
         }
         throw std::runtime_error("value is not a list");
+    }
+
+    value& value::object(const key_t& key) {
+        reference ref = this->operator[](key);
+        ref = dv::object();
+        return ref;
+    }
+
+    value& value::list(const key_t& key) {
+        reference ref = this->operator[](key);
+        ref = dv::list();
+        return ref;
+    }
+
+    value& value::object() {
+        return add(dv::object());
+    }
+
+    value& value::list() {
+        return add(dv::list());
     }
 }
