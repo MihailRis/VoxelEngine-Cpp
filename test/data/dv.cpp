@@ -1,33 +1,30 @@
 #include <gtest/gtest.h>
 
 #include "data/dv.hpp"
-#include "data/dynamic.hpp"
-#include "util/timeutil.hpp"
 
 TEST(dv, dv) {
-    // speed comparsion with data/dynamic
-
+    auto value = dv::object();
     {
-        timeutil::ScopeLogTimer log(444);
-        auto map = dynamic::create_map();
-        auto& list = map->putList("elements");
-        for (int i = 0; i < 10000; i++) {
-            auto& obj = list.putMap();
-            obj.put("name", "user");
-            obj.put("age", 90);
-            auto pos = dynamic::create_list({40, -41, 52});
-            obj.put("position", pos);
-        }
-    }
-    {
-        timeutil::ScopeLogTimer log(555);
-        auto value = dv::object();
         auto& list = value.list("elements");
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1; i++) {
             auto& obj = list.object();
             obj["name"] = "user";
             obj["age"] = 90;
-            obj["position"] = dv::list({40, -41, 52});
+            auto& position = obj.list("position");
+            position.add(40);
+            position.add(-41);
+            position.add(52);
+        }
+    }
+    {
+        const auto& list = value["elements"];
+        for (const auto& obj : list) {
+            EXPECT_EQ(obj["name"].asString(), "user");
+            EXPECT_EQ(obj["age"].asInteger(), 90);
+            auto& position = obj["position"];
+            EXPECT_EQ(position[0].asInteger(), 40);
+            EXPECT_EQ(position[1].asInteger(), -41);
+            EXPECT_EQ(position[2].asInteger(), 52);
         }
     }
 }

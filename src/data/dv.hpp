@@ -38,6 +38,7 @@ namespace dv {
 
     class value;
 
+    using list_t = std::vector<value>;
     using pair = std::pair<const key_t, value>;
 
     class value {
@@ -80,25 +81,25 @@ namespace dv {
         value& setString(std::string v) {
             this->~value();
             new(&val.string)std::unique_ptr<std::string>();
+            val.string = std::make_unique<std::string>(v);
             type = value_type::string;
-            *val.string = std::move(v);
             return *this;
         }
-        value& setList(const std::shared_ptr<objects::List>& ptr) {
+        value& setList(std::shared_ptr<objects::List> ptr) {
             this->~value();
             new(&val.list)std::shared_ptr<objects::List>();
             type = value_type::list;
             val.list = ptr;
             return *this;
         }
-        value& setObject(const std::shared_ptr<objects::Object>& ptr) {
+        value& setObject(std::shared_ptr<objects::Object> ptr) {
             this->~value();
             new(&val.object)std::shared_ptr<objects::Object>();
             type = value_type::object;
             val.object = ptr;
             return *this;
         }
-        value& setBytes(const std::shared_ptr<objects::Bytes>& ptr) {
+        value& setBytes(std::shared_ptr<objects::Bytes> ptr) {
             this->~value();
             new(&val.bytes)std::shared_ptr<objects::Bytes>();
             type = value_type::bytes;
@@ -117,6 +118,36 @@ namespace dv {
         value(const value& v) {
             this->operator=(v);
         }
+
+        value(value&& v) noexcept {
+            switch (v.type) {
+                case value_type::none:
+                    setNone();
+                    break;
+                case value_type::integer:
+                    setInteger(v.val.integer);
+                    break;
+                case value_type::number:
+                    setNumber(v.val.number);
+                    break;
+                case value_type::boolean:
+                    setBoolean(v.val.boolean);
+                    break;
+                case value_type::string:
+                    setString(*v.val.string);
+                    break;
+                case value_type::object:
+                    setObject(v.val.object);
+                    break;
+                case value_type::list:
+                    setList(v.val.list);
+                    break;
+                case value_type::bytes:
+                    setBytes(v.val.bytes);
+                    break;
+            }
+        }
+
         ~value() {
             switch (type) {
                 case value_type::object:
@@ -175,13 +206,16 @@ namespace dv {
         value& operator=(std::string v) {
             return setString(std::move(v));
         }
-        value& operator=(const std::shared_ptr<objects::List>& ptr) {
+        value& operator=(const char* v) {
+            return setString(v);
+        }
+        value& operator=(std::shared_ptr<objects::List> ptr) {
             return setList(ptr);
         }
-        value& operator=(const std::shared_ptr<objects::Object>& ptr) {
+        value& operator=(std::shared_ptr<objects::Object> ptr) {
             return setObject(ptr);
         }
-        value& operator=(const std::shared_ptr<objects::Bytes>& ptr) {
+        value& operator=(std::shared_ptr<objects::Bytes> ptr) {
             return setBytes(ptr);
         }
         value& operator=(const value& v) {
@@ -236,22 +270,31 @@ namespace dv {
         value& object();
         
         value& list();
+
+        list_t::iterator begin();
+        list_t::iterator end();
+
+        list_t::const_iterator begin() const;
+        list_t::const_iterator end() const;
+
+        const std::string& asString() const;
+
+        integer_t asInteger() const;
+
+        number_t asNumber() const;
+
+        boolean_t asBoolean() const;
+
+        objects::Bytes& asBytes();
+
+        const objects::Bytes& asBytes() const;   
     };
 
     using reference = value&;
     using const_reference = const value&;
 
-    value list(std::initializer_list<value> values);
-
-    value list() {
-        return list({});
-    }
-
-    value object(std::initializer_list<pair> pairs);
-
-    value object() {
-        return object({});
-    }
+    value list();
+    value object();
 }
 
 #include "util/Buffer.hpp"
@@ -278,9 +321,6 @@ namespace dv::objects {
     };
 
     class List {
-    public:
-        using list_t = std::vector<value>;
-    private:
         list_t list;
     public:
         List() = default;
@@ -299,6 +339,20 @@ namespace dv::objects {
         reference add(value v) {
             list.push_back(std::move(v));
             return list[list.size()-1];
+        }
+
+        auto begin() {
+            return list.begin();
+        }
+        auto end() {
+            return list.end();
+        }
+
+        auto begin() const {
+            return list.begin();
+        }
+        auto end() const {
+            return list.end();
         }
     };
 }
@@ -349,14 +403,6 @@ namespace dv {
         throw std::runtime_error("value is not a list");
     }
 
-    value object(std::initializer_list<pair> pairs) {
-        return std::make_shared<objects::Object>(pairs);
-    }
-
-    value list(std::initializer_list<value> values) {
-        return std::make_shared<objects::List>(values);
-    }
-
     value& value::add(value v) {
         if (type == value_type::list) {
             return val.list->add(std::move(v));
@@ -382,5 +428,91 @@ namespace dv {
 
     value& value::list() {
         return add(dv::list());
+    }
+
+    list_t::iterator value::begin() {
+        if (type == value_type::list) {
+            return val.list->begin();
+        }
+        throw std::runtime_error("value is not a list");
+    }
+
+    list_t::iterator value::end() {
+        if (type == value_type::list) {
+            return val.list->end();
+        }
+        throw std::runtime_error("value is not a list");
+    }
+
+    list_t::const_iterator value::begin() const {
+        if (type == value_type::list) {
+            const auto& constlist = *val.list;
+            return constlist.begin();
+        }
+        throw std::runtime_error("value is not a list");
+    }
+
+    list_t::const_iterator value::end() const {
+        if (type == value_type::list) {
+            const auto& constlist = *val.list;
+            return constlist.end();
+        }
+        throw std::runtime_error("value is not a list");
+    }
+
+    const std::string& value::asString() const {
+        if (type == value_type::string) {
+            return *val.string;
+        }
+        throw std::runtime_error("type error");
+    }
+
+    integer_t value::asInteger() const {
+        if (type == value_type::integer) {
+            return val.integer;
+        } else if (type == value_type::number) {
+            return static_cast<integer_t>(val.number);
+        }
+        throw std::runtime_error("type error");
+    }
+
+    number_t value::asNumber() const {
+        if (type == value_type::number) {
+            return val.number;
+        } else if (type == value_type::integer) {
+            return static_cast<number_t>(val.integer);
+        }
+        throw std::runtime_error("type error");
+    }
+
+    boolean_t value::asBoolean() const {
+        if (type == value_type::boolean) {
+            return val.boolean;
+        } else if (type == value_type::integer) {
+            return val.integer != 0;
+        }
+        throw std::runtime_error("type error");
+    }
+
+    objects::Bytes& value::asBytes() {
+        if (type == value_type::bytes) {
+            return *val.bytes;
+        }
+        throw std::runtime_error("type error");
+    }
+
+    const objects::Bytes& value::asBytes() const {
+        if (type == value_type::bytes) {
+            return *val.bytes;
+        }
+        throw std::runtime_error("type error");
+    }
+
+    value object() {
+        return std::make_shared<objects::Object>();
+    }
+
+    value list() {
+        return std::make_shared<objects::List>();
     }
 }
