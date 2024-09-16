@@ -10,10 +10,7 @@ TEST(dv, dv) {
             auto& obj = list.object();
             obj["name"] = "user";
             obj["age"] = 90;
-            auto& position = obj.list("position");
-            position.add(40);
-            position.add(-41);
-            position.add(52);
+            obj["position"] = dv::list({40, -41, 52});
         }
     }
     {

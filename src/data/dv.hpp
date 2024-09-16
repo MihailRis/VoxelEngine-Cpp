@@ -295,6 +295,8 @@ namespace dv {
 
     value list();
     value object();
+
+    value list(std::initializer_list<value> values);
 }
 
 #include "util/Buffer.hpp"
@@ -514,5 +516,9 @@ namespace dv {
 
     value list() {
         return std::make_shared<objects::List>();
+    }
+
+    value list(std::initializer_list<value> values) {
+        return std::make_shared<objects::List>(values);
     }
 }
