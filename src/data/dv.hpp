@@ -115,7 +115,7 @@ namespace dv {
             this->operator=(v);
         }
 
-        value(const value& v) {
+        value(const value& v) noexcept : type(value_type::none) {
             this->operator=(v);
         }
 
@@ -233,13 +233,13 @@ namespace dv {
                     setString(*v.val.string);
                     break;
                 case value_type::boolean:
-                    setBoolean(val.boolean);
+                    setBoolean(v.val.boolean);
                     break;
                 case value_type::integer:
-                    setInteger(val.integer);
+                    setInteger(v.val.integer);
                     break;
                 case value_type::number:
-                    setNumber(val.number);
+                    setNumber(v.val.number);
                     break;
                 case value_type::none:
                     setNone();
