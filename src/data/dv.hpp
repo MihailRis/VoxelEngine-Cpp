@@ -39,6 +39,7 @@ namespace dv {
     class value;
 
     using list_t = std::vector<value>;
+    using map_t = std::unordered_map<key_t, value>;
     using pair = std::pair<const key_t, value>;
 
     class value {
@@ -288,6 +289,14 @@ namespace dv {
         objects::Bytes& asBytes();
 
         const objects::Bytes& asBytes() const;   
+
+        const objects::Object& asObject() const;
+
+        const size_t size() const;
+
+        const size_t length() const {
+            return size();
+        }
     };
 
     using reference = value&;
@@ -303,9 +312,6 @@ namespace dv {
 
 namespace dv::objects {
     class Object {
-    public:
-        using map_t = std::unordered_map<key_t, value>;
-    private:
         map_t map;
     public:
         Object() = default;
@@ -316,9 +322,19 @@ namespace dv::objects {
         reference operator[](const key_t& key) {
             return map[key];
         }
-        
         const_reference operator[](const key_t& key) const {
             return map.at(key);
+        }
+
+        map_t::const_iterator begin() const {
+            return map.begin();
+        }
+        map_t::const_iterator end() const {
+            return map.end();
+        }
+
+        const size_t size() const {
+            return map.size();
         }
     };
 
@@ -350,11 +366,15 @@ namespace dv::objects {
             return list.end();
         }
 
-        auto begin() const {
+        list_t::const_iterator begin() const {
             return list.begin();
         }
-        auto end() const {
+        list_t::const_iterator end() const {
             return list.end();
+        }
+
+        const size_t size() const {
+            return list.size();
         }
     };
 }
@@ -508,6 +528,26 @@ namespace dv {
             return *val.bytes;
         }
         throw std::runtime_error("type error");
+    }
+
+    const objects::Object& value::asObject() const {
+        if (type == value_type::object) {
+            return *val.object;
+        }
+        throw std::runtime_error("type error");
+    }
+
+    const size_t value::size() const {
+        switch (type) {
+            case value_type::list:
+                return val.list->size();
+            case value_type::object:
+                return val.object->size();
+            case value_type::string:
+                return val.string->size();
+            default:
+                throw std::runtime_error("type error");
+        }
     }
 
     value object() {
