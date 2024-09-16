@@ -220,7 +220,7 @@ namespace dv {
             return setBytes(ptr);
         }
         value& operator=(const objects::Bytes& bytes);
-        
+
         inline value& operator=(const value& v) {
             switch (v.type) {
                 case value_type::object:
@@ -307,6 +307,8 @@ namespace dv {
             return size() == 0;
         }
     };
+
+    inline value none = value();
 
     using reference = value&;
     using const_reference = const value&;

@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "data/dv.hpp"
 #include "data/dynamic_fwd.hpp"
 
 namespace dynamic {
@@ -24,6 +25,10 @@ namespace json {
     inline constexpr int BJSON_TYPE_TRUE = 0xB;
     inline constexpr int BJSON_TYPE_NULL = 0xC;
     inline constexpr int BJSON_TYPE_CDOCUMENT = 0x1F;
+
+    std::vector<ubyte> to_binaryDV(const dv::value& obj, bool compress = false);
+    
+    dv::value from_binaryDV(const ubyte* src, size_t size);
 
     std::vector<ubyte> to_binary(
         const dynamic::Map* obj, bool compress = false
