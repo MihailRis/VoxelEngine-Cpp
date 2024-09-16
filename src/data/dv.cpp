@@ -52,9 +52,9 @@ namespace dv {
         throw std::runtime_error("value is not a list");
     }
 
-    value& value::add(value v) {
+    void value::add(value v) {
         if (type == value_type::list) {
-            return val.list->add(std::move(v));
+            return val.list->push(std::move(v));
         }
         throw std::runtime_error("value is not a list");
     }
@@ -72,11 +72,17 @@ namespace dv {
     }
 
     value& value::object() {
-        return add(dv::object());
+        if (type == value_type::list) {
+            return val.list->add(std::make_shared<objects::Object>());
+        }
+        throw std::runtime_error("value is not a list");
     }
 
     value& value::list() {
-        return add(dv::list());
+        if (type == value_type::list) {
+            return val.list->add(std::make_shared<objects::List>());
+        }
+        throw std::runtime_error("value is not a list");
     }
 
     list_t::iterator value::begin() {

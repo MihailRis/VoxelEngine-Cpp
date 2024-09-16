@@ -56,55 +56,52 @@ namespace dv {
             ~value_u() {}
         } val;
 
-        value& setBoolean(boolean_t v) {
+        inline value& setBoolean(boolean_t v) {
             this->~value();
             type = value_type::boolean;
             val.boolean = v;
             return *this;
         }
-        value& setInteger(integer_t v) {
+        inline value& setInteger(integer_t v) {
             this->~value();
             type = value_type::integer;
             val.integer = v;
             return *this;
         }
-        value& setNumber(number_t v) {
+        inline value& setNumber(number_t v) {
             this->~value();
             type = value_type::number;
             val.number = v;
             return *this;
         }
-        value& setNone() {
+        inline value& setNone() {
             this->~value();
             type = value_type::none;
             return *this;
         }
-        value& setString(std::string v) {
+        inline value& setString(std::string v) {
             this->~value();
-            new(&val.string)std::unique_ptr<std::string>();
-            val.string = std::make_unique<std::string>(v);
+            new(&val.string)std::unique_ptr<std::string>(
+                std::make_unique<std::string>(std::move(v)));
             type = value_type::string;
             return *this;
         }
-        value& setList(std::shared_ptr<objects::List> ptr) {
+        inline value& setList(std::shared_ptr<objects::List> ptr) {
             this->~value();
-            new(&val.list)std::shared_ptr<objects::List>();
+            new(&val.list)std::shared_ptr<objects::List>(std::move(ptr));
             type = value_type::list;
-            val.list = ptr;
             return *this;
         }
-        value& setObject(std::shared_ptr<objects::Object> ptr) {
+        inline value& setObject(std::shared_ptr<objects::Object> ptr) {
             this->~value();
-            new(&val.object)std::shared_ptr<objects::Object>();
+            new(&val.object)std::shared_ptr<objects::Object>(std::move(ptr));
             type = value_type::object;
-            val.object = ptr;
             return *this;
         }
-        value& setBytes(std::shared_ptr<objects::Bytes> ptr) {
+        inline value& setBytes(std::shared_ptr<objects::Bytes> ptr) {
             this->~value();
-            new(&val.bytes)std::shared_ptr<objects::Bytes>();
+            new(&val.bytes)std::shared_ptr<objects::Bytes>(std::move(ptr));
             type = value_type::bytes;
-            val.bytes = ptr;
             return *this;
         }
     public:
@@ -120,31 +117,34 @@ namespace dv {
             this->operator=(v);
         }
 
-        value(value&& v) noexcept {
+        value(value&& v) noexcept : type(v.type) {
             switch (v.type) {
                 case value_type::none:
-                    setNone();
                     break;
                 case value_type::integer:
-                    setInteger(v.val.integer);
+                    val.integer = v.val.integer;
                     break;
                 case value_type::number:
-                    setNumber(v.val.number);
+                    val.number = v.val.number;
                     break;
                 case value_type::boolean:
-                    setBoolean(v.val.boolean);
+                    val.boolean = v.val.boolean;
                     break;
                 case value_type::string:
-                    setString(*v.val.string);
+                    new(&val.string)std::unique_ptr<std::string>(
+                        std::move(v.val.string));
                     break;
                 case value_type::object:
-                    setObject(v.val.object);
+                    new(&val.object)std::shared_ptr<objects::Object>(
+                        std::move(v.val.object));
                     break;
                 case value_type::list:
-                    setList(v.val.list);
+                    new(&val.list)std::shared_ptr<objects::List>(
+                        std::move(v.val.list));
                     break;
                 case value_type::bytes:
-                    setBytes(v.val.bytes);
+                    new(&val.list)std::shared_ptr<objects::Bytes>(
+                        std::move(v.val.bytes));
                     break;
             }
         }
@@ -211,13 +211,13 @@ namespace dv {
             return setString(v);
         }
         inline value& operator=(std::shared_ptr<objects::List> ptr) {
-            return setList(ptr);
+            return setList(std::move(ptr));
         }
         inline value& operator=(std::shared_ptr<objects::Object> ptr) {
-            return setObject(ptr);
+            return setObject(std::move(ptr));
         }
         inline value& operator=(std::shared_ptr<objects::Bytes> ptr) {
-            return setBytes(ptr);
+            return setBytes(std::move(ptr));
         }
         value& operator=(const objects::Bytes& bytes);
 
@@ -251,10 +251,10 @@ namespace dv {
             return *this;
         }
 
-        value& add(value v);
+        void add(value v);
 
         template<class T>
-        inline value& add(T v) {
+        inline void add(T v) {
             return add(value(v));
         }
 
@@ -356,6 +356,10 @@ namespace dv::objects {
 
         const_reference operator[](std::size_t index) const {
             return list.at(index);
+        }
+
+        void push(value v) {
+            list.push_back(std::move(v));
         }
 
         reference add(value v) {
