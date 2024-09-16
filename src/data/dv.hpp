@@ -292,10 +292,17 @@ namespace dv {
 
         const objects::Object& asObject() const;
 
+        value_type getType() const {
+            return type;
+        }
+
         const size_t size() const;
 
         const size_t length() const {
             return size();
+        }
+        bool empty() const {
+            return size() == 0;
         }
     };
 
