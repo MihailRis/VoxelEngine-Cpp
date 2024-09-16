@@ -23,6 +23,16 @@ public:
     std::unique_ptr<dynamic::Map> parse();
 };
 
+class ParserDV : BasicParser {
+    dv::value parseList();
+    dv::value parseObject();
+    dv::value parseValue();
+public:
+    ParserDV(std::string_view filename, std::string_view source);
+
+    dv::value parse();
+};
+
 inline void newline(
     std::stringstream& ss, bool nice, uint indent, const std::string& indentstr
 ) {
@@ -362,7 +372,11 @@ std::unique_ptr<List> Parser::parseList() {
 Value Parser::parseValue() {
     char next = peek();
     if (next == '-' || next == '+' || is_digit(next)) {
-        return parseNumber();
+        auto numeric = parseNumber();
+        if (std::holds_alternative<integer_t>(numeric)) {
+            return std::get<integer_t>(numeric);
+        }
+        return std::get<number_t>(numeric);
     }
     if (is_identifier_start(next)) {
         std::string literal = parseName();
@@ -399,4 +413,113 @@ dynamic::Map_sptr json::parse(
 
 dynamic::Map_sptr json::parse(std::string_view source) {
     return parse("<string>", source);
+}
+
+ParserDV::ParserDV(std::string_view filename, std::string_view source)
+    : BasicParser(filename, source) {
+}
+
+dv::value ParserDV::parse() {
+    char next = peek();
+    if (next != '{') {
+        throw error("'{' expected");
+    }
+    return parseObject();
+}
+
+dv::value ParserDV::parseObject() {
+    expect('{');
+    auto object = dv::object();
+    while (peek() != '}') {
+        if (peek() == '#') {
+            skipLine();
+            continue;
+        }
+        std::string key = parseName();
+        char next = peek();
+        if (next != ':') {
+            throw error("':' expected");
+        }
+        pos++;
+        object[key] = parseValue();
+        next = peek();
+        if (next == ',') {
+            pos++;
+        } else if (next == '}') {
+            break;
+        } else {
+            throw error("',' expected");
+        }
+    }
+    pos++;
+    return object;
+}
+
+dv::value ParserDV::parseList() {
+    expect('[');
+    auto list = dv::list();
+    while (peek() != ']') {
+        if (peek() == '#') {
+            skipLine();
+            continue;
+        }
+        list.add(parseValue());
+
+        char next = peek();
+        if (next == ',') {
+            pos++;
+        } else if (next == ']') {
+            break;
+        } else {
+            throw error("',' expected");
+        }
+    }
+    pos++;
+    return list;
+}
+
+dv::value ParserDV::parseValue() {
+    char next = peek();
+    if (next == '-' || next == '+' || is_digit(next)) {
+        auto numeric = parseNumber();
+        if (std::holds_alternative<integer_t>(numeric)) {
+            return std::get<integer_t>(numeric);
+        }
+        return std::get<number_t>(numeric);
+    }
+    if (is_identifier_start(next)) {
+        std::string literal = parseName();
+        if (literal == "true") {
+            return true;
+        } else if (literal == "false") {
+            return false;
+        } else if (literal == "inf") {
+            return INFINITY;
+        } else if (literal == "nan") {
+            return NAN;
+        }
+        throw error("invalid literal ");
+    }
+    if (next == '{') {
+        return parseObject();
+    }
+    if (next == '[') {
+        return parseList();
+    }
+    if (next == '"' || next == '\'') {
+        pos++;
+        return parseString(next);
+    }
+    throw error("unexpected character '" + std::string({next}) + "'");
+}
+
+dv::value json::parseDV(
+    std::string_view filename, std::string_view source
+) {
+    ParserDV parser(filename, source);
+    return parser.parse();
+}
+
+dv::value json::parseDV(std::string_view source) {
+    return parseDV("<string>", source);
 }

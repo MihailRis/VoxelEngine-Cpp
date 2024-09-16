@@ -48,22 +48,22 @@ TEST(JSON, EncodeDecodeDV) {
         srcBytes[i] = rand();
     }
 
-        std::string text;
+    std::string text;
     {
-        auto map = dv::object();
-        map["name"] = name;
-        map["year"] = year;
-        map["score"] = score;
-        map["data"] = srcBytes;
+        auto object = dv::object();
+        object["name"] = name;
+        object["year"] = year;
+        object["score"] = score;
+        object["data"] = srcBytes;
 
-        text = json::stringifyDV(map, false, "");
+        text = json::stringifyDV(object, false, "");
     }
     {
-        auto map = json::parse(text);
-        EXPECT_EQ(map->get<std::string>("name"), name);
-        EXPECT_EQ(map->get<integer_t>("year"), year);
-        EXPECT_FLOAT_EQ(map->get<number_t>("score"), score);
-        auto b64string = map->get<std::string>("data");
+        auto object = json::parseDV(text);
+        EXPECT_EQ(object["name"].asString(), name);
+        EXPECT_EQ(object["year"].asInteger(), year);
+        EXPECT_FLOAT_EQ(object["score"].asNumber(), score);
+        auto b64string = object["data"].asString();
 
         auto bytes = util::base64_decode(b64string);
         EXPECT_EQ(bytes.size(), bytesSize);

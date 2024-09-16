@@ -11,6 +11,9 @@ namespace json {
     dynamic::Map_sptr parse(std::string_view filename, std::string_view source);
     dynamic::Map_sptr parse(std::string_view source);
 
+    dv::value parseDV(std::string_view filename, std::string_view source);
+    dv::value parseDV(std::string_view source);
+
     std::string stringify(
         const dynamic::Map* obj, bool nice, const std::string& indent
     );
