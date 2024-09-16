@@ -3,6 +3,7 @@
 #include <string>
 
 #include "data/dynamic.hpp"
+#include "data/dv.hpp"
 #include "typedefs.hpp"
 #include "binary_json.hpp"
 
@@ -20,5 +21,9 @@ namespace json {
 
     std::string stringify(
         const dynamic::Value& value, bool nice, const std::string& indent
+    );
+
+    std::string stringifyDV(
+        const dv::value& value, bool nice, const std::string& indent="  "
     );
 }

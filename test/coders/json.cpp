@@ -37,3 +37,38 @@ TEST(JSON, EncodeDecode) {
         }
     }
 }
+
+TEST(JSON, EncodeDecodeDV) {
+    const std::string name = "JSON-encoder";
+    const int bytesSize = 20;
+    const int year = 2019;
+    const float score = 3.141592;
+    dynamic::ByteBuffer srcBytes(bytesSize);
+    for (int i = 0; i < bytesSize; i ++) {
+        srcBytes[i] = rand();
+    }
+
+        std::string text;
+    {
+        auto map = dv::object();
+        map["name"] = name;
+        map["year"] = year;
+        map["score"] = score;
+        map["data"] = srcBytes;
+
+        text = json::stringifyDV(map, false, "");
+    }
+    {
+        auto map = json::parse(text);
+        EXPECT_EQ(map->get<std::string>("name"), name);
+        EXPECT_EQ(map->get<integer_t>("year"), year);
+        EXPECT_FLOAT_EQ(map->get<number_t>("score"), score);
+        auto b64string = map->get<std::string>("data");
+
+        auto bytes = util::base64_decode(b64string);
+        EXPECT_EQ(bytes.size(), bytesSize);
+        for (int i = 0; i < bytesSize; i++) {
+            EXPECT_EQ(bytes[i], srcBytes[i]);
+        }
+    }
+}

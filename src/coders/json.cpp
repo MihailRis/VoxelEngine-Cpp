@@ -52,6 +52,22 @@ void stringifyArr(
     bool nice
 );
 
+void stringifyObj(
+    const dv::value& obj,
+    std::stringstream& ss,
+    int indent,
+    const std::string& indentstr,
+    bool nice
+);
+
+void stringifyList(
+    const dv::value& list,
+    std::stringstream& ss,
+    int indent,
+    const std::string& indentstr,
+    bool nice
+);
+
 void stringifyValue(
     const Value& value,
     std::stringstream& ss,
@@ -77,6 +93,46 @@ void stringifyValue(
         ss << util::escape(*str);
     } else {
         ss << "null";
+    }
+}
+
+void stringifyValue(
+    const dv::value& value,
+    std::stringstream& ss,
+    int indent,
+    const std::string& indentstr,
+    bool nice
+) {
+    using dv::value_type;
+
+    switch (value.getType()) {
+        case value_type::object:
+            stringifyObj(value, ss, indent, indentstr, nice);
+            break;
+        case value_type::list:
+            stringifyList(value, ss, indent, indentstr, nice);
+            break;
+        case value_type::bytes: {
+            const auto& bytes = value.asBytes();
+            ss << "\"" << util::base64_encode(bytes.data(), bytes.size());
+            ss << "\"";
+            break;
+        }
+        case value_type::string:
+            ss << util::escape(value.asString());
+            break;
+        case value_type::number:
+            ss << std::setprecision(15) << value.asNumber();
+            break;
+        case value_type::integer:
+            ss << value.asInteger();
+            break;
+        case value_type::boolean:
+            ss << (value.asBoolean() ? "true" : "false");
+            break;
+        case value_type::none:
+            ss << "null";
+            break; 
     }
 }
 
@@ -148,6 +204,64 @@ void stringifyObj(
     ss << '}';
 }
 
+void stringifyList(
+    const dv::value& list,
+    std::stringstream& ss,
+    int indent,
+    const std::string& indentstr,
+    bool nice
+) {
+    if (list.empty()) {
+        ss << "[]";
+        return;
+    }
+    ss << "[";
+    for (size_t i = 0; i < list.size(); i++) {
+        if (i > 0 || nice) {
+            newline(ss, nice, indent, indentstr);
+        }
+        const auto& value = list[i];
+        stringifyValue(value, ss, indent + 1, indentstr, nice);
+        if (i + 1 < list.size()) {
+            ss << ',';
+        }
+    }
+    if (nice) {
+        newline(ss, true, indent - 1, indentstr);
+    }
+    ss << ']';
+}
+
+void stringifyObj(
+    const dv::value& obj,
+    std::stringstream& ss,
+    int indent,
+    const std::string& indentstr,
+    bool nice
+) {
+    if (obj.empty()) {
+        ss << "{}";
+        return;
+    }
+    ss << "{";
+    size_t index = 0;
+    for (auto& [key, value] : obj.asObject()) {
+        if (index > 0 || nice) {
+            newline(ss, nice, indent, indentstr);
+        }
+        ss << util::escape(key) << ": ";
+        stringifyValue(value, ss, indent + 1, indentstr, nice);
+        index++;
+        if (index < obj.size()) {
+            ss << ',';
+        }
+    }
+    if (nice) {
+        newline(ss, true, indent - 1, indentstr);
+    }
+    ss << '}';
+}
+
 std::string json::stringify(
     const Map* obj, bool nice, const std::string& indent
 ) {
@@ -166,6 +280,14 @@ std::string json::stringify(
 
 std::string json::stringify(
     const dynamic::Value& value, bool nice, const std::string& indent
+) {
+    std::stringstream ss;
+    stringifyValue(value, ss, 1, indent, nice);
+    return ss.str();
+}
+
+std::string json::stringifyDV(
+    const dv::value& value, bool nice, const std::string& indent
 ) {
     std::stringstream ss;
     stringifyValue(value, ss, 1, indent, nice);
