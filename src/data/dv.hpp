@@ -42,6 +42,9 @@ namespace dv {
     using map_t = std::unordered_map<key_t, value>;
     using pair = std::pair<const key_t, value>;
 
+    using reference = value&;
+    using const_reference = const value&;
+
     class value {
         value_type type = value_type::none;
         union value_u {
@@ -83,6 +86,12 @@ namespace dv {
             this->~value();
             new(&val.string)std::unique_ptr<std::string>(
                 std::make_unique<std::string>(std::move(v)));
+            type = value_type::string;
+            return *this;
+        }
+        inline value& setString(std::unique_ptr<std::string> v) {
+            this->~value();
+            new(&val.string)std::unique_ptr<std::string>(std::move(v));
             type = value_type::string;
             return *this;
         }
@@ -251,6 +260,36 @@ namespace dv {
             return *this;
         }
 
+        inline value& operator=(value&& v) {
+            switch (v.type) {
+                case value_type::object:
+                    setObject(std::move(v.val.object));
+                    break;
+                case value_type::list:
+                    setList(std::move(v.val.list));
+                    break;
+                case value_type::bytes:
+                    setBytes(std::move(v.val.bytes));
+                    break;
+                case value_type::string:
+                    setString(std::move(v.val.string));
+                    break;
+                case value_type::boolean:
+                    setBoolean(v.val.boolean);
+                    break;
+                case value_type::integer:
+                    setInteger(v.val.integer);
+                    break;
+                case value_type::number:
+                    setNumber(v.val.number);
+                    break;
+                case value_type::none:
+                    setNone();
+                    break;
+            }
+            return *this;
+        }
+
         void add(value v);
 
         template<class T>
@@ -309,9 +348,6 @@ namespace dv {
     };
 
     inline value none = value();
-
-    using reference = value&;
-    using const_reference = const value&;
 }
 
 namespace dv::objects {
