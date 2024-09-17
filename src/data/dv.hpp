@@ -21,13 +21,13 @@ namespace dv {
 
     enum class value_type : uint8_t {
         none = 0,
+        number,
+        boolean,
+        integer,
         object,
         list,
         bytes,
-        string,
-        number,
-        boolean,
-        integer
+        string
     };
 
     namespace objects {
@@ -126,36 +126,8 @@ namespace dv {
             this->operator=(v);
         }
 
-        value(value&& v) noexcept : type(v.type) {
-            switch (v.type) {
-                case value_type::none:
-                    break;
-                case value_type::integer:
-                    val.integer = v.val.integer;
-                    break;
-                case value_type::number:
-                    val.number = v.val.number;
-                    break;
-                case value_type::boolean:
-                    val.boolean = v.val.boolean;
-                    break;
-                case value_type::string:
-                    new(&val.string)std::unique_ptr<std::string>(
-                        std::move(v.val.string));
-                    break;
-                case value_type::object:
-                    new(&val.object)std::shared_ptr<objects::Object>(
-                        std::move(v.val.object));
-                    break;
-                case value_type::list:
-                    new(&val.list)std::shared_ptr<objects::List>(
-                        std::move(v.val.list));
-                    break;
-                case value_type::bytes:
-                    new(&val.list)std::shared_ptr<objects::Bytes>(
-                        std::move(v.val.bytes));
-                    break;
-            }
+        value(value&& v) noexcept {
+            this->operator=(std::move(v));
         }
 
         ~value() {
@@ -260,32 +232,65 @@ namespace dv {
             return *this;
         }
 
-        inline value& operator=(value&& v) {
-            switch (v.type) {
-                case value_type::object:
-                    setObject(std::move(v.val.object));
-                    break;
-                case value_type::list:
-                    setList(std::move(v.val.list));
-                    break;
-                case value_type::bytes:
-                    setBytes(std::move(v.val.bytes));
-                    break;
-                case value_type::string:
-                    setString(std::move(v.val.string));
-                    break;
-                case value_type::boolean:
-                    setBoolean(v.val.boolean);
-                    break;
-                case value_type::integer:
-                    setInteger(v.val.integer);
-                    break;
-                case value_type::number:
-                    setNumber(v.val.number);
-                    break;
-                case value_type::none:
-                    setNone();
-                    break;
+        inline value& operator=(value&& v) noexcept {
+            if (type < value_type::object) {
+                type = v.type;
+                switch (v.type) {
+                    case value_type::none:
+                        break;
+                    case value_type::integer:
+                        val.integer = v.val.integer;
+                        break;
+                    case value_type::number:
+                        val.number = v.val.number;
+                        break;
+                    case value_type::boolean:
+                        val.boolean = v.val.boolean;
+                        break;
+                    case value_type::string:
+                        new(&val.string)std::unique_ptr<std::string>(
+                            std::move(v.val.string));
+                        break;
+                    case value_type::object:
+                        new(&val.object)std::shared_ptr<objects::Object>(
+                            std::move(v.val.object));
+                        break;
+                    case value_type::list:
+                        new(&val.list)std::shared_ptr<objects::List>(
+                            std::move(v.val.list));
+                        break;
+                    case value_type::bytes:
+                        new(&val.list)std::shared_ptr<objects::Bytes>(
+                            std::move(v.val.bytes));
+                        break;
+                }
+            } else {
+                switch (v.type) {
+                    case value_type::object:
+                        setObject(std::move(v.val.object));
+                        break;
+                    case value_type::list:
+                        setList(std::move(v.val.list));
+                        break;
+                    case value_type::bytes:
+                        setBytes(std::move(v.val.bytes));
+                        break;
+                    case value_type::string:
+                        setString(std::move(v.val.string));
+                        break;
+                    case value_type::boolean:
+                        setBoolean(v.val.boolean);
+                        break;
+                    case value_type::integer:
+                        setInteger(v.val.integer);
+                        break;
+                    case value_type::number:
+                        setNumber(v.val.number);
+                        break;
+                    case value_type::none:
+                        setNone();
+                        break;
+                }
             }
             return *this;
         }
