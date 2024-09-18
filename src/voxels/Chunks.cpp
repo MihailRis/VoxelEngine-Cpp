@@ -746,8 +746,8 @@ void Chunks::save(Chunk* chunk) {
             )
         );
         auto entities = level->entities->getAllInside(aabb);
-        auto root = dynamic::create_map();
-        root->put("data", level->entities->serialize(entities));
+        auto root = dv::object();
+        root["data"] = level->entities->serialize(entities);
         if (!entities.empty()) {
             level->entities->despawn(std::move(entities));
             chunk->flags.entities = true;

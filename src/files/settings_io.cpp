@@ -80,12 +80,13 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     builder.add("do-write-lights", &settings.debug.doWriteLights);
 }
 
-dynamic::Value SettingsHandler::getValue(const std::string& name) const {
+dv::value SettingsHandler::getValue(const std::string& name) const {
     auto found = map.find(name);
     if (found == map.end()) {
         throw std::runtime_error("setting '" + name + "' does not exist");
     }
     auto setting = found->second;
+
     if (auto number = dynamic_cast<NumberSetting*>(setting)) {
         return static_cast<number_t>(number->get());
     } else if (auto integer = dynamic_cast<IntegerSetting*>(setting)) {
@@ -121,20 +122,26 @@ bool SettingsHandler::has(const std::string& name) const {
 }
 
 template <class T>
-static void set_numeric_value(T* setting, const dynamic::Value& value) {
-    if (auto num = std::get_if<integer_t>(&value)) {
-        setting->set(*num);
-    } else if (auto num = std::get_if<number_t>(&value)) {
-        setting->set(*num);
-    } else if (auto flag = std::get_if<bool>(&value)) {
-        setting->set(*flag);
-    } else {
-        throw std::runtime_error("type error, numeric value expected");
+static void set_numeric_value(T* setting, const dv::value& value) {
+    using dv::value_type;
+
+    switch (value.getType()) {
+        case value_type::integer:
+            setting->set(value.asInteger());
+            break;
+        case value_type::number:
+            setting->set(value.asNumber());
+            break;
+        case value_type::boolean:
+            setting->set(value.asBoolean());
+            break;
+        default:
+            throw std::runtime_error("type error, numeric value expected");
     }
 }
 
 void SettingsHandler::setValue(
-    const std::string& name, const dynamic::Value& value
+    const std::string& name, const dv::value& value
 ) {
     auto found = map.find(name);
     if (found == map.end()) {
@@ -148,16 +155,23 @@ void SettingsHandler::setValue(
     } else if (auto flag = dynamic_cast<FlagSetting*>(setting)) {
         set_numeric_value(flag, value);
     } else if (auto string = dynamic_cast<StringSetting*>(setting)) {
-        if (auto num = std::get_if<integer_t>(&value)) {
-            string->set(std::to_string(*num));
-        } else if (auto num = std::get_if<number_t>(&value)) {
-            string->set(std::to_string(*num));
-        } else if (auto flag = std::get_if<bool>(&value)) {
-            string->set(*flag ? "true" : "false");
-        } else if (auto str = std::get_if<std::string>(&value)) {
-            string->set(*str);
-        } else {
-            throw std::runtime_error("not implemented for type");
+        using dv::value_type;
+
+        switch (value.getType()) {
+            case value_type::integer:
+                string->set(std::to_string(value.asInteger()));
+                break;
+            case value_type::number:
+                string->set(std::to_string(value.asNumber()));
+                break;
+            case value_type::boolean:
+                string->set(value.asBoolean() ? "true" : "false");
+                break;
+            case value_type::string:
+                string->set(value.asString());
+                break;
+            default:
+                throw std::runtime_error("not implemented for type");
         }
     } else {
         throw std::runtime_error(

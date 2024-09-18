@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "data/dynamic.hpp"
+#include "data/dv.hpp"
 
 class Setting;
 struct EngineSettings;
@@ -21,8 +21,8 @@ class SettingsHandler {
 public:
     SettingsHandler(EngineSettings& settings);
 
-    dynamic::Value getValue(const std::string& name) const;
-    void setValue(const std::string& name, const dynamic::Value& value);
+    dv::value getValue(const std::string& name) const;
+    void setValue(const std::string& name, const dv::value& value);
     std::string toString(const std::string& name) const;
     Setting* getSetting(const std::string& name) const;
     bool has(const std::string& name) const;

@@ -160,7 +160,7 @@ vec2supplier scripting::create_vec2_supplier(
     };
 }
 
-dynamic::to_string_func scripting::create_tostring(
+dv::to_string_func scripting::create_tostring(
     const scriptenv& env, const std::string& src, const std::string& file
 ) {
     auto L = lua::get_main_thread();
@@ -168,7 +168,7 @@ dynamic::to_string_func scripting::create_tostring(
         lua::loadbuffer(L, *env, src, file);
         lua::call(L, 0, 1);
         auto func = lua::create_lambda(L);
-        return [func](const dynamic::Value& value) {
+        return [func](const dv::value& value) {
             auto result = func({value});
             return json::stringify(result, true, "  ");
         };

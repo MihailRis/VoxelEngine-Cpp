@@ -4,11 +4,8 @@
 #include <vector>
 
 #include "data/dv.hpp"
-#include "data/dynamic_fwd.hpp"
 
-namespace dynamic {
-    class Map;
-}
+#include "typedefs.hpp"
 
 namespace json {
     inline constexpr int BJSON_END = 0x0;
@@ -26,15 +23,7 @@ namespace json {
     inline constexpr int BJSON_TYPE_NULL = 0xC;
     inline constexpr int BJSON_TYPE_CDOCUMENT = 0x1F;
 
-    std::vector<ubyte> to_binaryDV(const dv::value& obj, bool compress = false);
+    std::vector<ubyte> to_binary(const dv::value& obj, bool compress = false);
     
-    dv::value from_binaryDV(const ubyte* src, size_t size);
-
-    std::vector<ubyte> to_binary(
-        const dynamic::Map* obj, bool compress = false
-    );
-    std::vector<ubyte> to_binary(
-        const dynamic::Value& obj, bool compress = false
-    );
-    std::shared_ptr<dynamic::Map> from_binary(const ubyte* src, size_t size);
+    dv::value from_binary(const ubyte* src, size_t size);
 }

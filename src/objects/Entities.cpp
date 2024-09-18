@@ -5,7 +5,7 @@
 
 #include "assets/Assets.hpp"
 #include "content/Content.hpp"
-#include "data/dynamic_util.hpp"
+#include "data/dv_util.hpp"
 #include "debug/Logger.hpp"
 #include "engine.hpp"
 #include "graphics/core/DrawContext.hpp"
@@ -113,8 +113,8 @@ static void initialize_body(
 entityid_t Entities::spawn(
     const EntityDef& def,
     glm::vec3 position,
-    dynamic::Map_sptr args,
-    dynamic::Map_sptr saved,
+    dv::value args,
+    dv::value saved,
     entityid_t uid
 ) {
     auto skeleton = level->content->getSkeleton(def.skeletonName);
@@ -166,9 +166,9 @@ entityid_t Entities::spawn(
         );
         scripting.components.emplace_back(std::move(component));
     }
-    dynamic::Map_sptr componentsMap = nullptr;
-    if (saved) {
-        componentsMap = saved->map("comps");
+    dv::value componentsMap = nullptr;
+    if (saved != nullptr) {
+        componentsMap = saved["comps"];
         loadEntity(saved, get(id).value());
     }
     body.hitbox.position = tsf.pos;
@@ -188,54 +188,54 @@ void Entities::despawn(entityid_t id) {
     }
 }
 
-void Entities::loadEntity(const dynamic::Map_sptr& map) {
-    entityid_t uid = 0;
-    std::string defname;
-    map->num("uid", uid);
-    map->str("def", defname);
-    if (uid == 0) {
-        throw std::runtime_error("could not read entity - invalid UID");
-    }
+void Entities::loadEntity(const dv::value& map) {
+    entityid_t uid = map["uid"].asInteger();
+    std::string defname = map["def"].asString();
     auto& def = level->content->entities.require(defname);
     spawn(def, {}, nullptr, map, uid);
 }
 
-void Entities::loadEntity(const dynamic::Map_sptr& map, Entity entity) {
+void Entities::loadEntity(const dv::value& map, Entity entity) {
     auto& transform = entity.getTransform();
     auto& body = entity.getRigidbody();
     auto& skeleton = entity.getSkeleton();
 
-    if (auto bodymap = map->map(COMP_RIGIDBODY)) {
-        dynamic::get_vec(bodymap, "vel", body.hitbox.velocity);
+    if (map.has(COMP_RIGIDBODY)) {
+        auto& bodymap = map[COMP_RIGIDBODY];
+        dv::get_vec(bodymap, "vel", body.hitbox.velocity);
         std::string bodyTypeName;
-        bodymap->str("type", bodyTypeName);
+        map.at("type").get(bodyTypeName);
         if (auto bodyType = BodyType_from(bodyTypeName)) {
             body.hitbox.type = *bodyType;
         }
-        bodymap->flag("crouch", body.hitbox.crouching);
-        bodymap->num("damping", body.hitbox.linearDamping);
+        bodymap["crouch"].asBoolean(body.hitbox.crouching);
+        bodymap["damping"].asNumber(body.hitbox.linearDamping);
     }
-    if (auto tsfmap = map->map(COMP_TRANSFORM)) {
-        dynamic::get_vec(tsfmap, "pos", transform.pos);
-        dynamic::get_vec(tsfmap, "size", transform.size);
-        dynamic::get_mat(tsfmap, "rot", transform.rot);
+    if (map.has(COMP_TRANSFORM)) {
+        auto& tsfmap = map[COMP_TRANSFORM];
+        dv::get_vec(tsfmap, "pos", transform.pos);
+        dv::get_vec(tsfmap, "size", transform.size);
+        dv::get_mat(tsfmap, "rot", transform.rot);
     }
     std::string skeletonName = skeleton.config->getName();
-    map->str("skeleton", skeletonName);
+    map.at("skeleton").get(skeletonName);
     if (skeletonName != skeleton.config->getName()) {
         skeleton.config = level->content->getSkeleton(skeletonName);
     }
-    if (auto skeletonmap = map->map(COMP_SKELETON)) {
-        if (auto texturesmap = skeletonmap->map("textures")) {
-            for (auto& [slot, _] : texturesmap->values) {
-                texturesmap->str(slot, skeleton.textures[slot]);
+    if (auto found = map.at(COMP_SKELETON)) {
+        auto& skeletonmap = *found;
+        if (auto found = skeletonmap.at("textures")) {
+            auto& texturesmap = *found;
+            for (auto& [slot, _] : texturesmap.asObject()) {
+                texturesmap.at(slot).get(skeleton.textures[slot]);
             }
         }
-        if (auto posearr = skeletonmap->list("pose")) {
+        if (auto found = skeletonmap.at("pose")) {
+            auto& posearr = *found;
             for (size_t i = 0;
-                 i < std::min(skeleton.pose.matrices.size(), posearr->size());
+                 i < std::min(skeleton.pose.matrices.size(), posearr.size());
                  i++) {
-                dynamic::get_mat(posearr, i, skeleton.pose.matrices[i]);
+                dv::get_mat(posearr[i], skeleton.pose.matrices[i]);
             }
         }
     }
@@ -272,12 +272,12 @@ std::optional<Entities::RaycastResult> Entities::rayCast(
     }
 }
 
-void Entities::loadEntities(dynamic::Map_sptr root) {
+void Entities::loadEntities(dv::value root) {
     clean();
-    auto list = root->list("data");
-    for (size_t i = 0; i < list->size(); i++) {
+    auto& list = root["data"];
+    for (auto& map : list) {
         try {
-            loadEntity(list->map(i));
+            loadEntity(map);
         } catch (const std::runtime_error& err) {
             logger.error() << "could not read entity: " << err.what();
         }
@@ -288,82 +288,82 @@ void Entities::onSave(const Entity& entity) {
     scripting::on_entity_save(entity);
 }
 
-dynamic::Value Entities::serialize(const Entity& entity) {
-    auto root = dynamic::create_map();
+dv::value Entities::serialize(const Entity& entity) {
+    auto root = dv::object();
     auto& eid = entity.getID();
     auto& def = eid.def;
-    root->put("def", def.name);
-    root->put("uid", eid.uid);
+    root["def"] = def.name;
+    root["uid"] = eid.uid;
     {
         auto& transform = entity.getTransform();
-        auto& tsfmap = root->putMap(COMP_TRANSFORM);
-        tsfmap.put("pos", dynamic::to_value(transform.pos));
+        auto& tsfmap = root.object(COMP_TRANSFORM);
+        tsfmap["pos"] = dv::to_value(transform.pos);
         if (transform.size != glm::vec3(1.0f)) {
-            tsfmap.put("size", dynamic::to_value(transform.size));
+            tsfmap["size"] = dv::to_value(transform.size);
         }
         if (transform.rot != glm::mat3(1.0f)) {
-            tsfmap.put("rot", dynamic::to_value(transform.rot));
+            tsfmap["rot"] = dv::to_value(transform.rot);
         }
     }
     {
         auto& rigidbody = entity.getRigidbody();
         auto& hitbox = rigidbody.hitbox;
-        auto& bodymap = root->putMap(COMP_RIGIDBODY);
+        auto& bodymap = root.object(COMP_RIGIDBODY);
         if (!rigidbody.enabled) {
-            bodymap.put("enabled", rigidbody.enabled);
+            bodymap["enabled"] = false;
         }
         if (def.save.body.velocity) {
-            bodymap.put("vel", dynamic::to_value(rigidbody.hitbox.velocity));
+            bodymap["vel"] = dv::to_value(rigidbody.hitbox.velocity);
         }
         if (def.save.body.settings) {
-            bodymap.put("damping", rigidbody.hitbox.linearDamping);
+            bodymap["damping"] = rigidbody.hitbox.linearDamping;
             if (hitbox.type != def.bodyType) {
-                bodymap.put("type", to_string(hitbox.type));
+                bodymap["type"] = to_string(hitbox.type);
             }
             if (hitbox.crouching) {
-                bodymap.put("crouch", hitbox.crouching);
+                bodymap["crouch"] = hitbox.crouching;
             }
         }
     }
     auto& skeleton = entity.getSkeleton();
     if (skeleton.config->getName() != def.skeletonName) {
-        root->put("skeleton", skeleton.config->getName());
+        root["skeleton"] = skeleton.config->getName();
     }
     if (def.save.skeleton.pose || def.save.skeleton.textures) {
-        auto& skeletonmap = root->putMap(COMP_SKELETON);
+        auto& skeletonmap = root.object(COMP_SKELETON);
         if (def.save.skeleton.textures) {
-            auto& map = skeletonmap.putMap("textures");
+            auto& map = skeletonmap.object("textures");
             for (auto& [slot, texture] : skeleton.textures) {
-                map.put(slot, texture);
+                map[slot] = texture;
             }
         }
         if (def.save.skeleton.pose) {
-            auto& list = skeletonmap.putList("pose");
+            auto& list = skeletonmap.list("pose");
             for (auto& mat : skeleton.pose.matrices) {
-                list.put(dynamic::to_value(mat));
+                list.add(dv::to_value(mat));
             }
         }
     }
     auto& scripts = entity.getScripting();
     if (!scripts.components.empty()) {
-        auto& compsMap = root->putMap("comps");
+        auto& compsMap = root.object("comps");
         for (auto& comp : scripts.components) {
             auto data =
                 scripting::get_component_value(comp->env, SAVED_DATA_VARNAME);
-            compsMap.put(comp->name, data);
+            compsMap[comp->name] = data;
         }
     }
     return root;
 }
 
-dynamic::List_sptr Entities::serialize(const std::vector<Entity>& entities) {
-    auto list = dynamic::create_list();
+dv::value Entities::serialize(const std::vector<Entity>& entities) {
+    auto list = dv::list();
     for (auto& entity : entities) {
         if (!entity.getDef().save.enabled) {
             continue;
         }
         level->entities->onSave(entity);
-        list->put(level->entities->serialize(entity));
+        list.add(level->entities->serialize(entity));
     }
     return list;
 }

@@ -258,7 +258,7 @@ int64_t BasicParser::parseSimpleInt(int base) {
     return value;
 }
 
-dynamic::Value BasicParser::parseNumber() {
+dv::value BasicParser::parseNumber() {
     switch (peek()) {
         case '-':
             skip(1);
@@ -271,7 +271,7 @@ dynamic::Value BasicParser::parseNumber() {
     }
 }
 
-dynamic::Value BasicParser::parseNumber(int sign) {
+dv::value BasicParser::parseNumber(int sign) {
     char c = peek();
     int base = 10;
     if (c == '0' && pos + 1 < source.length() &&

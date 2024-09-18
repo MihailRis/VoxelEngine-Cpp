@@ -22,33 +22,42 @@ std::string lua::env_name(int env) {
     return "_ENV" + util::mangleid(env);
 }
 
-int lua::pushvalue(State* L, const dynamic::Value& value) {
-    using namespace dynamic;
+int lua::pushvalue(State* L, const dv::value& value) {
+    using dv::value_type;
 
-    if (auto* flag = std::get_if<bool>(&value)) {
-        pushboolean(L, *flag);
-    } else if (auto* num = std::get_if<integer_t>(&value)) {
-        pushinteger(L, *num);
-    } else if (auto* num = std::get_if<number_t>(&value)) {
-        pushnumber(L, *num);
-    } else if (auto* str = std::get_if<std::string>(&value)) {
-        pushstring(L, *str);
-    } else if (auto listptr = std::get_if<List_sptr>(&value)) {
-        auto list = *listptr;
-        createtable(L, list->size(), 0);
-        for (size_t i = 0; i < list->size(); i++) {
-            pushvalue(L, list->get(i));
-            rawseti(L, i + 1);
+    switch (value.getType()) {
+        case value_type::none:
+            pushnil(L);
+            break;
+        case value_type::boolean:
+            pushboolean(L, value.asBoolean());
+            break;
+        case value_type::number:
+            pushnumber(L, value.asNumber());
+            break;
+        case value_type::integer:
+            pushinteger(L, value.asInteger());
+            break;
+        case value_type::string:
+            pushstring(L, value.asString());
+            break;
+        case value_type::list: {
+            createtable(L, value.size(), 0);
+            size_t index = 1;
+            for (const auto& elem : value) {
+                pushvalue(L, elem);
+                rawseti(L, index);
+                index++;
+            }
+            break;
         }
-    } else if (auto mapptr = std::get_if<Map_sptr>(&value)) {
-        auto map = *mapptr;
-        createtable(L, 0, map->size());
-        for (auto& entry : map->values) {
-            pushvalue(L, entry.second);
-            setfield(L, entry.first);
+        case value_type::object: {
+            createtable(L, 0, value.size());
+            for (const auto& [key, elem] : value.asObject()) {
+                pushvalue(L, elem);
+                setfield(L, key);
+            }
         }
-    } else {
-        pushnil(L);
     }
     return 1;
 }
@@ -61,13 +70,13 @@ int lua::pushwstring(State* L, const std::wstring& str) {
     return pushstring(L, util::wstr2str_utf8(str));
 }
 
-dynamic::Value lua::tovalue(State* L, int idx) {
-    using namespace dynamic;
+dv::value lua::tovalue(State* L, int idx) {
+    using dv::value_type;
     auto type = lua::type(L, idx);
     switch (type) {
         case LUA_TNIL:
         case LUA_TNONE:
-            return dynamic::NONE;
+            return nullptr;
         case LUA_TBOOLEAN:
             return toboolean(L, idx) == 1;
         case LUA_TNUMBER: {
@@ -91,22 +100,22 @@ dynamic::Value lua::tovalue(State* L, int idx) {
             int len = objlen(L, idx);
             if (len) {
                 // array
-                auto list = create_list();
+                auto list = dv::list();
                 for (int i = 1; i <= len; i++) {
                     rawgeti(L, i, idx);
-                    list->put(tovalue(L, -1));
+                    list.add(tovalue(L, -1));
                     pop(L);
                 }
                 return list;
             } else {
                 // table
-                auto map = create_map();
+                auto map = dv::object();
                 pushvalue(L, idx);
                 pushnil(L);
                 while (next(L, -2)) {
                     pushvalue(L, -2);
                     auto key = tostring(L, -1);
-                    map->put(key, tovalue(L, -2));
+                    map[key] = tovalue(L, -2);
                     pop(L, 2);
                 }
                 pop(L);
@@ -219,7 +228,7 @@ runnable lua::create_runnable(State* L) {
 
 scripting::common_func lua::create_lambda(State* L) {
     auto funcptr = create_lambda_handler(L);
-    return [=](const std::vector<dynamic::Value>& args) {
+    return [=](const std::vector<dv::value>& args) -> dv::value {
         getglobal(L, LAMBDAS_TABLE);
         getfield(L, *funcptr);
         for (const auto& arg : args) {
@@ -230,7 +239,7 @@ scripting::common_func lua::create_lambda(State* L) {
             pop(L);
             return result;
         }
-        return dynamic::Value(dynamic::NONE);
+        return nullptr;
     };
 }
 

@@ -403,14 +403,12 @@ void Hud::closeInventory() {
 }
 
 void Hud::add(const HudElement& element) {
-    using namespace dynamic;
-
     gui->add(element.getNode());
     auto document = element.getDocument();
     if (document) {
         auto invview = std::dynamic_pointer_cast<InventoryView>(element.getNode());
         auto inventory = invview ? invview->getInventory() : nullptr;
-        std::vector<Value> args;
+        std::vector<dv::value> args;
         args.emplace_back(inventory ? inventory.get()->getId() : 0);
         for (int i = 0; i < 3; i++) {
             args.emplace_back(static_cast<integer_t>(blockPos[i]));

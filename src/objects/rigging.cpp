@@ -2,7 +2,7 @@
 
 #include "assets/Assets.hpp"
 #include "coders/json.hpp"
-#include "data/dynamic_util.hpp"
+#include "data/dv_util.hpp"
 #include "graphics/core/Model.hpp"
 #include "graphics/render/ModelBatch.hpp"
 
@@ -139,25 +139,23 @@ Bone* SkeletonConfig::find(std::string_view str) const {
 }
 
 static std::tuple<size_t, std::unique_ptr<Bone>> read_node(
-    const dynamic::Map_sptr& root, size_t index
+    const dv::value& root, size_t index
 ) {
     std::string name;
     std::string model;
-    root->str("name", name);
-    root->str("model", model);
-
+    root.at("name").get(name);
+    root.at("model").get(model);
     glm::vec3 offset(0.0f);
-    dynamic::get_vec(root, "offset", offset);
+    dv::get_vec(root, "offset", offset);
 
     std::vector<std::unique_ptr<Bone>> bones;
     size_t count = 1;
-    if (auto nodesList = root->list("nodes")) {
-        for (size_t i = 0; i < nodesList->size(); i++) {
-            if (const auto& map = nodesList->map(i)) {
-                auto [subcount, subNode] = read_node(map, index + count);
-                count += subcount;
-                bones.push_back(std::move(subNode));
-            }
+    if (auto found = root.at("nodes")) {
+        const auto& nodesList = *found;
+        for (const auto& map : nodesList) {
+            auto [subcount, subNode] = read_node(map, index + count);
+            count += subcount;
+            bones.push_back(std::move(subNode));
         }
     }
     return {
@@ -169,10 +167,7 @@ std::unique_ptr<SkeletonConfig> SkeletonConfig::parse(
     std::string_view src, std::string_view file, std::string_view name
 ) {
     auto root = json::parse(file, src);
-    auto rootNodeMap = root->map("root");
-    if (rootNodeMap == nullptr) {
-        throw std::runtime_error("missing 'root' element");
-    }
+    auto rootNodeMap = root["root"];
     auto [count, rootNode] = read_node(rootNodeMap, 0);
     return std::make_unique<SkeletonConfig>(
         std::string(name), std::move(rootNode), count

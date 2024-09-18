@@ -6,6 +6,7 @@
 #include <vector>
 #include <cstring>
 #include <stdexcept>
+#include <functional>
 #include <unordered_map>
 
 namespace util {
@@ -30,10 +31,18 @@ namespace dv {
         string
     };
 
-    namespace objects {
-        class Object;
-        class List;
-        using Bytes = util::Buffer<byte_t>;
+    inline const std::string& type_name(value_type type) {
+        static std::string type_names[] = {
+            "none",
+            "number",
+            "boolean",
+            "integer",
+            "object",
+            "list",
+            "bytes",
+            "string"
+        };
+        return type_names[static_cast<int>(type)];
     }
 
     class value;
@@ -44,6 +53,58 @@ namespace dv {
 
     using reference = value&;
     using const_reference = const value&;
+
+    namespace objects {
+        using Object = std::unordered_map<key_t, value>;
+        using List = std::vector<value>;
+        using Bytes = util::Buffer<byte_t>;
+    }
+
+    /// @brief nullable value reference returned by value.at(...)
+    struct elementreference {
+        value* ptr;
+
+        elementreference(value* ptr) : ptr(ptr) {}
+
+        inline operator bool() const {
+            return ptr != nullptr;
+        }
+
+        inline value& operator*() {
+            return *ptr;
+        }
+
+        inline const value& operator*() const {
+            return *ptr;
+        }
+
+        bool get(std::string& dst) const;
+        bool get(bool& dst) const;
+        bool get(int8_t& dst) const;
+        bool get(int16_t& dst) const;
+        bool get(int32_t& dst) const;
+        bool get(int64_t& dst) const;
+        bool get(uint8_t& dst) const;
+        bool get(uint16_t& dst) const;
+        bool get(uint32_t& dst) const;
+        bool get(uint64_t& dst) const;
+        bool get(float& dst) const;
+        bool get(double& dst) const;
+    };
+
+    inline void throw_type_error(value_type got, value_type expected) {
+        // place breakpoint here to find cause
+        throw std::runtime_error(
+            "type error: expected " + type_name(expected) + ", got " +
+            type_name(got)
+        );
+    }
+
+    inline void check_type(value_type got, value_type expected) {
+        if (got != expected) {
+            throw_type_error(got, expected);
+        }
+    }
 
     class value {
         value_type type = value_type::none;
@@ -147,6 +208,10 @@ namespace dv {
                 default:
                     break;
             }
+        }
+
+        inline value& operator=(std::nullptr_t) {
+            return setNone();
         }
 
         inline value& operator=(int8_t v) {
@@ -302,6 +367,10 @@ namespace dv {
             return add(value(v));
         }
 
+        void erase(const key_t& key);
+
+        void erase(size_t index);
+
         value& operator[](const key_t& key);
 
         const value& operator[](const key_t& key) const;
@@ -309,6 +378,14 @@ namespace dv {
         value& operator[](size_t index);
 
         const value& operator[](size_t index) const;
+
+        bool operator!=(std::nullptr_t) const noexcept {
+            return type != value_type::none;
+        }
+
+        bool operator==(std::nullptr_t) const noexcept {
+            return type == value_type::none;
+        }
 
         value& object(const key_t& key);
         
@@ -342,93 +419,109 @@ namespace dv {
             return type;
         }
 
-        const size_t size() const;
+        std::string asString(std::string def) const {
+            if (type != value_type::string) {
+                return def;
+            }
+            return *val.string;
+        }
 
-        const size_t length() const {
+        std::string asString(const char* s) const {
+            return asString(std::string(s));
+        }
+
+        integer_t asBoolean(boolean_t def) const {
+            switch (type) {
+                case value_type::boolean: 
+                    return val.boolean;
+                default:
+                    return def;
+            }
+        }
+
+        integer_t asInteger(integer_t def) const {
+            switch (type) {
+                case value_type::integer: 
+                    return val.integer;
+                case value_type::number: 
+                    return static_cast<integer_t>(val.number);
+                default:
+                    return def;
+            }
+        }
+
+        integer_t asNumber(integer_t def) const {
+            switch (type) {
+                case value_type::integer: 
+                    return static_cast<number_t>(val.integer);
+                case value_type::number: 
+                    return val.number;
+                default:
+                    return def;
+            }
+        }
+
+        elementreference at(const key_t& k) const {
+            check_type(type, value_type::object);
+            const auto& found = val.object->find(k);
+            if (found == val.object->end()) {
+                return elementreference(nullptr);
+            }
+            return elementreference(&found->second);
+        }
+
+        elementreference at(size_t index) {
+            check_type(type, value_type::list);
+            return elementreference(&val.list->at(index));
+        }
+
+        const elementreference at(size_t index) const {
+            check_type(type, value_type::list);
+            return elementreference(&val.list->at(index));
+        }
+
+        bool has(const key_t& k) const;
+
+        size_t size() const;
+
+        size_t length() const {
             return size();
         }
         inline bool empty() const {
             return size() == 0;
         }
+
+        inline bool isString() const {
+            return type == value_type::string;
+        }
+        inline bool isObject() const {
+            return type == value_type::object;
+        }
+        inline bool isList() const {
+            return type == value_type::list;
+        }
+        inline bool isInteger() const {
+            return type == value_type::integer;
+        }
+        inline bool isNumber() const {
+            return type == value_type::number;
+        }
     };
 
     inline value none = value();
-}
 
-namespace dv::objects {
-    class Object {
-        map_t map;
-    public:
-        Object() = default;
-        Object(std::initializer_list<pair> pairs) : map(pairs) {}
-        Object(const Object&) = delete;
-        ~Object() = default;
+    inline bool is_numeric(const value& val) {
+        return val.isInteger() && val.isNumber();
+    }
 
-        reference operator[](const key_t& key) {
-            return map[key];
-        }
-        const_reference operator[](const key_t& key) const {
-            return map.at(key);
-        }
-
-        map_t::const_iterator begin() const {
-            return map.begin();
-        }
-        map_t::const_iterator end() const {
-            return map.end();
-        }
-
-        const size_t size() const {
-            return map.size();
-        }
-    };
-
-    class List {
-        list_t list;
-    public:
-        List() = default;
-        List(std::initializer_list<value> values) : list(values) {}
-        List(const List&) = delete;
-        ~List() = default;
-
-        reference operator[](std::size_t index) {
-            return list.at(index);
-        }
-
-        const_reference operator[](std::size_t index) const {
-            return list.at(index);
-        }
-
-        void push(value v) {
-            list.push_back(std::move(v));
-        }
-
-        reference add(value v) {
-            list.push_back(std::move(v));
-            return list[list.size()-1];
-        }
-
-        auto begin() {
-            return list.begin();
-        }
-        auto end() {
-            return list.end();
-        }
-
-        list_t::const_iterator begin() const {
-            return list.begin();
-        }
-        list_t::const_iterator end() const {
-            return list.end();
-        }
-
-        const size_t size() const {
-            return list.size();
-        }
-    };
+    using to_string_func = std::function<std::string(const value&)>;
 }
 
 namespace dv {
+    inline const std::string& type_name(const value& value) {
+        return type_name(value.getType());
+    }
+
     inline value object() {
         return std::make_shared<objects::Object>();
     }
@@ -440,4 +533,67 @@ namespace dv {
     inline value list(std::initializer_list<value> values) {
         return std::make_shared<objects::List>(values);
     }
+
+    template<typename T> inline bool get_to_int(value* ptr, T& dst) {
+        if (ptr) {
+            dst = ptr->asInteger();
+            return true;
+        }
+        return false;
+    }
+    template<typename T> inline bool get_to_num(value* ptr, T& dst) {
+        if (ptr) {
+            dst = ptr->asNumber();
+            return true;
+        }
+        return false;
+    }
+    inline bool elementreference::get(std::string& dst) const {
+        if (ptr) {
+            dst = ptr->asString();
+            return true;
+        }
+        return false;
+    }
+
+    inline bool elementreference::get(bool& dst) const {
+        if (ptr) {
+            dst = ptr->asBoolean();
+            return true;
+        }
+        return false;
+    }
+
+    inline bool elementreference::get(int8_t& dst) const {
+        return get_to_int(ptr, dst);
+    }
+    inline bool elementreference::get(int16_t& dst) const {
+        return get_to_int(ptr, dst);
+    }
+    inline bool elementreference::get(int32_t& dst) const {
+        return get_to_int(ptr, dst);
+    }
+    inline bool elementreference::get(int64_t& dst) const {
+        return get_to_int(ptr, dst);
+    }
+    inline bool elementreference::get(uint8_t& dst) const {
+        return get_to_int(ptr, dst);
+    }
+    inline bool elementreference::get(uint16_t& dst) const {
+        return get_to_int(ptr, dst);
+    }
+    inline bool elementreference::get(uint32_t& dst) const {
+        return get_to_int(ptr, dst);
+    }
+    inline bool elementreference::get(uint64_t& dst) const {
+        return get_to_int(ptr, dst);
+    }
+    inline bool elementreference::get(float& dst) const {
+        return get_to_num(ptr, dst);
+    }
+    inline bool elementreference::get(double& dst) const {
+        return get_to_num(ptr, dst);
+    }
 }
+
+std::ostream& operator<<(std::ostream& stream, const dv::value& value);

@@ -3,13 +3,12 @@
 #include <glm/glm.hpp>
 #include <string>
 
-#include "data/dynamic.hpp"
+#include "data/dv.hpp"
 #include "delegates.hpp"
 #include "typedefs.hpp"
 
 namespace scripting {
-    using common_func =
-        std::function<dynamic::Value(const std::vector<dynamic::Value>&)>;
+    using common_func = std::function<dv::value(const std::vector<dv::value>&)>;
 
     runnable create_runnable(
         const scriptenv& env,
@@ -71,7 +70,7 @@ namespace scripting {
         const std::string& file = "<string>"
     );
 
-    dynamic::to_string_func create_tostring(
+    dv::to_string_func create_tostring(
         const scriptenv& env,
         const std::string& src,
         const std::string& file = "<string>"
