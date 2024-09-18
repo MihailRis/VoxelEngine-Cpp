@@ -81,14 +81,16 @@ namespace dv {
 
         bool get(std::string& dst) const;
         bool get(bool& dst) const;
-        bool get(int8_t& dst) const;
-        bool get(int16_t& dst) const;
-        bool get(int32_t& dst) const;
-        bool get(int64_t& dst) const;
-        bool get(uint8_t& dst) const;
-        bool get(uint16_t& dst) const;
-        bool get(uint32_t& dst) const;
-        bool get(uint64_t& dst) const;
+        bool get(char& dst) const;
+        bool get(short& dst) const;
+        bool get(int& dst) const;
+        bool get(long& dst) const;
+        bool get(long long& dst) const;
+        bool get(unsigned char& dst) const;
+        bool get(unsigned short& dst) const;
+        bool get(unsigned int& dst) const;
+        bool get(unsigned long& dst) const;
+        bool get(unsigned long long& dst) const;
         bool get(float& dst) const;
         bool get(double& dst) const;
     };
@@ -571,28 +573,34 @@ namespace dv {
         return false;
     }
 
-    inline bool elementreference::get(int8_t& dst) const {
+    inline bool elementreference::get(char& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(int16_t& dst) const {
+    inline bool elementreference::get(short& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(int32_t& dst) const {
+    inline bool elementreference::get(int& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(int64_t& dst) const {
+    inline bool elementreference::get(long& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(uint8_t& dst) const {
+    inline bool elementreference::get(long long& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(uint16_t& dst) const {
+    inline bool elementreference::get(unsigned char& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(uint32_t& dst) const {
+    inline bool elementreference::get(unsigned short& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(uint64_t& dst) const {
+    inline bool elementreference::get(unsigned int& dst) const {
+        return get_to_int(ptr, dst);
+    }
+    inline bool elementreference::get(unsigned long& dst) const {
+        return get_to_int(ptr, dst);
+    }
+    inline bool elementreference::get(unsigned long long& dst) const {
         return get_to_int(ptr, dst);
     }
     inline bool elementreference::get(float& dst) const {
