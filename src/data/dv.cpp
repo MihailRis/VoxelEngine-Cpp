@@ -1,5 +1,7 @@
 #include "dv.hpp"
 
+#include <iostream>
+
 #include "util/Buffer.hpp"
 
 namespace dv {
