@@ -215,28 +215,34 @@ namespace dv {
             return setNone();
         }
 
-        inline value& operator=(int8_t v) {
+        inline value& operator=(char v) {
             return setInteger(v);
         }
-        inline value& operator=(int16_t v) {
+        inline value& operator=(short v) {
             return setInteger(v);
         }
-        inline value& operator=(int32_t v) {
+        inline value& operator=(int v) {
             return setInteger(v);
         }
-        inline value& operator=(int64_t v) {
+        inline value& operator=(long v) {
             return setInteger(v);
         }
-        inline value& operator=(uint8_t v) {
+        inline value& operator=(long long v) {
             return setInteger(v);
         }
-        inline value& operator=(uint16_t v) {
+        inline value& operator=(unsigned char v) {
             return setInteger(v);
         }
-        inline value& operator=(uint32_t v) {
+        inline value& operator=(unsigned short v) {
             return setInteger(v);
         }
-        inline value& operator=(uint64_t v) {
+        inline value& operator=(unsigned int v) {
+            return setInteger(v);
+        }
+        inline value& operator=(unsigned long v) {
+            return setInteger(v);
+        }
+        inline value& operator=(unsigned long long v) {
             return setInteger(v);
         }
         inline value& operator=(float v) {
