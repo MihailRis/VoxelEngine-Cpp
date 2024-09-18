@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string>
 #include <memory>
+#include <iosfwd>
 #include <vector>
 #include <cstring>
 #include <stdexcept>
