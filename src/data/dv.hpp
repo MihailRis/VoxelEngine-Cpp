@@ -62,10 +62,10 @@ namespace dv {
     }
 
     /// @brief nullable value reference returned by value.at(...)
-    struct elementreference {
+    struct optionalvalue {
         value* ptr;
 
-        elementreference(value* ptr) : ptr(ptr) {}
+        optionalvalue(value* ptr) : ptr(ptr) {}
 
         inline operator bool() const {
             return ptr != nullptr;
@@ -217,36 +217,12 @@ namespace dv {
             return setNone();
         }
 
-        inline value& operator=(char v) {
+        template<typename T>
+        inline std::enable_if_t<std::is_integral<T>() && !std::is_same<T, bool>(), value&>
+        operator=(T v) {
             return setInteger(v);
         }
-        inline value& operator=(short v) {
-            return setInteger(v);
-        }
-        inline value& operator=(int v) {
-            return setInteger(v);
-        }
-        inline value& operator=(long v) {
-            return setInteger(v);
-        }
-        inline value& operator=(long long v) {
-            return setInteger(v);
-        }
-        inline value& operator=(unsigned char v) {
-            return setInteger(v);
-        }
-        inline value& operator=(unsigned short v) {
-            return setInteger(v);
-        }
-        inline value& operator=(unsigned int v) {
-            return setInteger(v);
-        }
-        inline value& operator=(unsigned long v) {
-            return setInteger(v);
-        }
-        inline value& operator=(unsigned long long v) {
-            return setInteger(v);
-        }
+
         inline value& operator=(float v) {
             return setNumber(v);
         }
@@ -470,23 +446,23 @@ namespace dv {
             }
         }
 
-        elementreference at(const key_t& k) const {
+        optionalvalue at(const key_t& k) const {
             check_type(type, value_type::object);
             const auto& found = val.object->find(k);
             if (found == val.object->end()) {
-                return elementreference(nullptr);
+                return optionalvalue(nullptr);
             }
-            return elementreference(&found->second);
+            return optionalvalue(&found->second);
         }
 
-        elementreference at(size_t index) {
+        optionalvalue at(size_t index) {
             check_type(type, value_type::list);
-            return elementreference(&val.list->at(index));
+            return optionalvalue(&val.list->at(index));
         }
 
-        const elementreference at(size_t index) const {
+        const optionalvalue at(size_t index) const {
             check_type(type, value_type::list);
-            return elementreference(&val.list->at(index));
+            return optionalvalue(&val.list->at(index));
         }
 
         bool has(const key_t& k) const;
@@ -557,7 +533,7 @@ namespace dv {
         }
         return false;
     }
-    inline bool elementreference::get(std::string& dst) const {
+    inline bool optionalvalue::get(std::string& dst) const {
         if (ptr) {
             dst = ptr->asString();
             return true;
@@ -565,7 +541,7 @@ namespace dv {
         return false;
     }
 
-    inline bool elementreference::get(bool& dst) const {
+    inline bool optionalvalue::get(bool& dst) const {
         if (ptr) {
             dst = ptr->asBoolean();
             return true;
@@ -573,40 +549,40 @@ namespace dv {
         return false;
     }
 
-    inline bool elementreference::get(char& dst) const {
+    inline bool optionalvalue::get(char& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(short& dst) const {
+    inline bool optionalvalue::get(short& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(int& dst) const {
+    inline bool optionalvalue::get(int& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(long& dst) const {
+    inline bool optionalvalue::get(long& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(long long& dst) const {
+    inline bool optionalvalue::get(long long& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(unsigned char& dst) const {
+    inline bool optionalvalue::get(unsigned char& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(unsigned short& dst) const {
+    inline bool optionalvalue::get(unsigned short& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(unsigned int& dst) const {
+    inline bool optionalvalue::get(unsigned int& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(unsigned long& dst) const {
+    inline bool optionalvalue::get(unsigned long& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(unsigned long long& dst) const {
+    inline bool optionalvalue::get(unsigned long long& dst) const {
         return get_to_int(ptr, dst);
     }
-    inline bool elementreference::get(float& dst) const {
+    inline bool optionalvalue::get(float& dst) const {
         return get_to_num(ptr, dst);
     }
-    inline bool elementreference::get(double& dst) const {
+    inline bool optionalvalue::get(double& dst) const {
         return get_to_num(ptr, dst);
     }
 }

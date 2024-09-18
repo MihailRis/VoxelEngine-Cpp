@@ -123,13 +123,8 @@ namespace dv {
     }
 
     boolean_t value::asBoolean() const {
-        if (type == value_type::boolean) {
-            return val.boolean;
-        } else if (type == value_type::integer) {
-            return val.integer != 0;
-        }
-        throw_type_error(type, value_type::boolean);
-        return false; // unreachable
+        check_type(type, value_type::boolean);
+        return val.boolean;
     }
 
     objects::Bytes& value::asBytes() {

@@ -8,6 +8,7 @@ TEST(JSON, EncodeDecode) {
     const int bytesSize = 20;
     const int year = 2019;
     const float score = 3.141592;
+    const bool visible = true;
     dv::objects::Bytes srcBytes(bytesSize);
     for (int i = 0; i < bytesSize; i ++) {
         srcBytes[i] = rand();
@@ -19,6 +20,7 @@ TEST(JSON, EncodeDecode) {
         object["name"] = name;
         object["year"] = year;
         object["score"] = score;
+        object["visible"] = visible;
         object["data"] = srcBytes;
 
         text = json::stringify(object, false, "");
@@ -28,6 +30,7 @@ TEST(JSON, EncodeDecode) {
         EXPECT_EQ(object["name"].asString(), name);
         EXPECT_EQ(object["year"].asInteger(), year);
         EXPECT_FLOAT_EQ(object["score"].asNumber(), score);
+        EXPECT_EQ(object["visible"].asBoolean(), visible);
         auto b64string = object["data"].asString();
 
         auto bytes = util::base64_decode(b64string);
