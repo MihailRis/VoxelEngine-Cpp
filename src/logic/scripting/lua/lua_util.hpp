@@ -248,10 +248,12 @@ namespace lua {
         return 1;
     }
 
-    template <class T, lua_CFunction func>
-    inline void newusertype(lua::State* L, const std::string& name) {
+    template <class T>
+    inline std::enable_if_t<std::is_base_of_v<Userdata, T>> 
+    newusertype(lua::State* L) {
+        const std::string& name = T::TYPENAME;
         usertypeNames[typeid(T)] = name;
-        func(L);
+        T::createMetatable(L);
 
         pushcfunction(L, userdata_destructor);
         setfield(L, "__gc");

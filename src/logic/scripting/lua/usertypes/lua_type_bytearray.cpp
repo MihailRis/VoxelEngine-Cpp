@@ -1,23 +1,23 @@
-#include "lua_custom_types.hpp"
+#include "../lua_custom_types.hpp"
 
 #include <sstream>
 
-#include "lua_util.hpp"
+#include "../lua_util.hpp"
 
 using namespace lua;
 
-Bytearray::Bytearray(size_t capacity) : buffer(capacity) {
+LuaBytearray::LuaBytearray(size_t capacity) : buffer(capacity) {
     buffer.resize(capacity);
 }
 
-Bytearray::Bytearray(std::vector<ubyte> buffer) : buffer(std::move(buffer)) {
+LuaBytearray::LuaBytearray(std::vector<ubyte> buffer) : buffer(std::move(buffer)) {
 }
 
-Bytearray::~Bytearray() {
+LuaBytearray::~LuaBytearray() {
 }
 
 static int l_append(lua::State* L) {
-    if (auto buffer = touserdata<Bytearray>(L, 1)) {
+    if (auto buffer = touserdata<LuaBytearray>(L, 1)) {
         auto value = tointeger(L, 2);
         buffer->data().push_back(static_cast<ubyte>(value));
     }
@@ -25,7 +25,7 @@ static int l_append(lua::State* L) {
 }
 
 static int l_insert(lua::State* L) {
-    auto buffer = touserdata<Bytearray>(L, 1);
+    auto buffer = touserdata<LuaBytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
     }
@@ -40,7 +40,7 @@ static int l_insert(lua::State* L) {
 }
 
 static int l_remove(lua::State* L) {
-    auto buffer = touserdata<Bytearray>(L, 1);
+    auto buffer = touserdata<LuaBytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
     }
@@ -69,17 +69,17 @@ static int l_meta_meta_call(lua::State* L) {
             buffer[i] = static_cast<ubyte>(tointeger(L, -1));
             pop(L);
         }
-        return newuserdata<Bytearray>(L, std::move(buffer));
+        return newuserdata<LuaBytearray>(L, std::move(buffer));
     }
     auto size = tointeger(L, 2);
     if (size < 0) {
         throw std::runtime_error("size can not be less than 0");
     }
-    return newuserdata<Bytearray>(L, static_cast<size_t>(size));
+    return newuserdata<LuaBytearray>(L, static_cast<size_t>(size));
 }
 
 static int l_meta_index(lua::State* L) {
-    auto buffer = touserdata<Bytearray>(L, 1);
+    auto buffer = touserdata<LuaBytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
     }
@@ -98,7 +98,7 @@ static int l_meta_index(lua::State* L) {
 }
 
 static int l_meta_newindex(lua::State* L) {
-    auto buffer = touserdata<Bytearray>(L, 1);
+    auto buffer = touserdata<LuaBytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
     }
@@ -116,14 +116,14 @@ static int l_meta_newindex(lua::State* L) {
 }
 
 static int l_meta_len(lua::State* L) {
-    if (auto buffer = touserdata<Bytearray>(L, 1)) {
+    if (auto buffer = touserdata<LuaBytearray>(L, 1)) {
         return pushinteger(L, buffer->data().size());
     }
     return 0;
 }
 
 static int l_meta_tostring(lua::State* L) {
-    auto buffer = touserdata<Bytearray>(L, 1);
+    auto buffer = touserdata<LuaBytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
     }
@@ -147,8 +147,8 @@ static int l_meta_tostring(lua::State* L) {
 }
 
 static int l_meta_add(lua::State* L) {
-    auto bufferA = touserdata<Bytearray>(L, 1);
-    auto bufferB = touserdata<Bytearray>(L, 2);
+    auto bufferA = touserdata<LuaBytearray>(L, 1);
+    auto bufferB = touserdata<LuaBytearray>(L, 2);
     if (bufferA == nullptr || bufferB == nullptr) {
         return 0;
     }
@@ -159,10 +159,10 @@ static int l_meta_add(lua::State* L) {
     ab.reserve(dataA.size() + dataB.size());
     ab.insert(ab.end(), dataA.begin(), dataA.end());
     ab.insert(ab.end(), dataB.begin(), dataB.end());
-    return newuserdata<Bytearray>(L, std::move(ab));
+    return newuserdata<LuaBytearray>(L, std::move(ab));
 }
 
-int Bytearray::createMetatable(lua::State* L) {
+int LuaBytearray::createMetatable(lua::State* L) {
     createtable(L, 0, 6);
     pushcfunction(L, lua::wrap<l_meta_index>);
     setfield(L, "__index");

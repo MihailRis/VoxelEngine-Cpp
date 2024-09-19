@@ -1,4 +1,4 @@
-#include "lua_custom_types.hpp"
+#include "../lua_custom_types.hpp"
 
 #include <cstring>
 #include <sstream>
@@ -11,7 +11,8 @@
 #include "coders/png.hpp"
 #include "files/util.hpp"
 #include "graphics/core/ImageData.hpp"
-#include "lua_util.hpp"
+#include "maths/Heightmap.hpp"
+#include "../lua_util.hpp"
 
 using namespace lua;
 
@@ -25,6 +26,22 @@ LuaHeightmap::~LuaHeightmap() {
 
 void LuaHeightmap::setSeed(int64_t seed) {
     noise->seed = seed;
+}
+
+uint LuaHeightmap::getWidth() const {
+    return map->getWidth();
+}
+
+uint LuaHeightmap::getHeight() const {
+    return map->getHeight();
+}
+
+float* LuaHeightmap::getValues() {
+    return map->getValues();
+}
+
+const float* LuaHeightmap::getValues() const {
+    return map->getValues();
 }
 
 static int l_dump(lua::State* L) {

@@ -66,11 +66,23 @@ dv::value VoxelStructure::serialize() const {
 void VoxelStructure::deserialize(const dv::value& src) {
     size = glm::ivec3();
     dv::get_vec(src, "size", size);
-    voxels.resize(size.x*size.y*size.z);
+
+    auto volume = size.x*size.y*size.z;
+    voxels.resize(volume);
 
     const auto& voxelsArr = src["voxels"];
-    for (size_t i = 0; i < size.x*size.y*size.z; i++) {
+    for (size_t i = 0; i < volume; i++) {
         voxels[i].id = voxelsArr[i * 2].asInteger();
         voxels[i].state = int2blockstate(voxelsArr[i * 2 + 1].asInteger());
+    }
+}
+
+void VoxelStructure::prepare(const Content& content) {
+    auto volume = size.x*size.y*size.z;
+    voxelsRuntime.resize(volume);
+    for (size_t i = 0; i < volume; i++) {
+        const auto& name = blockNames[voxels[i].id];
+        voxelsRuntime[i].id = content.blocks.require(name).rt.id;
+        voxelsRuntime[i].state = voxels[i].state;
     }
 }

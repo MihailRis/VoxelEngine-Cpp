@@ -4,6 +4,7 @@
 #include <string>
 
 #include "typedefs.hpp"
+#include "maths/Heightmap.hpp"
 
 enum class InterpolationType {
     NEAREST,

@@ -11,7 +11,7 @@ inline constexpr int STRUCTURE_FORMAT_VERSION = 1;
 class Level;
 class Content;
 
-struct VoxelStructure : public Serializable {
+class VoxelStructure : public Serializable {
     glm::ivec3 size;
 
     /// @brief Structure voxels indexed different to world content
@@ -19,6 +19,9 @@ struct VoxelStructure : public Serializable {
     /// @brief Block names are used for indexing
     std::vector<std::string> blockNames;
 
+    /// @brief Structure voxels built on prepare(...) call
+    std::vector<voxel> voxelsRuntime;
+public:
     VoxelStructure() : size() {}
 
     VoxelStructure(
@@ -33,6 +36,18 @@ struct VoxelStructure : public Serializable {
     dv::value serialize() const override;
     void deserialize(const dv::value& src) override;
 
+    /// @brief Build runtime voxel indices
+    /// @param content world content
+    void prepare(const Content& content);
+
     static std::unique_ptr<VoxelStructure> create(
         Level* level, const glm::ivec3& a, const glm::ivec3& b, bool entities);
+
+    const glm::ivec3& getSize() const {
+        return size;
+    }
+
+    const std::vector<voxel>& getRuntimeVoxels() {
+        return voxelsRuntime;
+    }
 };

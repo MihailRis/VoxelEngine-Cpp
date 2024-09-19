@@ -14,6 +14,7 @@ class Content;
 struct GeneratorDef;
 class Heightmap;
 struct Biome;
+class VoxelStructure;
 
 enum class ChunkPrototypeLevel {
     BIOMES, HEIGHTMAP
@@ -22,18 +23,19 @@ enum class ChunkPrototypeLevel {
 struct ChunkPrototype {
     ChunkPrototypeLevel level;
 
-    /// @brief chunk heightmap
-    std::shared_ptr<Heightmap> heightmap;
     /// @brief chunk biomes matrix
     std::vector<const Biome*> biomes;
 
+    /// @brief chunk heightmap
+    std::shared_ptr<Heightmap> heightmap;
+
     ChunkPrototype(
         ChunkPrototypeLevel level,
-        std::shared_ptr<Heightmap> heightmap, 
-        std::vector<const Biome*> biomes
+        std::vector<const Biome*> biomes,
+        std::shared_ptr<Heightmap> heightmap
     ) : level(level),
-        heightmap(std::move(heightmap)), 
-        biomes(std::move(biomes)) {};
+        biomes(std::move(biomes)),
+        heightmap(std::move(heightmap)) {};
 };
 
 /// @brief High-level world generation controller
@@ -49,6 +51,8 @@ class WorldGenerator {
     /// @brief Chunk prototypes loading surround map
     SurroundMap surroundMap;
 
+    std::vector<std::unique_ptr<VoxelStructure>> structures;
+
     /// @brief Generate chunk prototype (see ChunkPrototype)
     /// @param x chunk position X divided by CHUNK_W
     /// @param z chunk position Y divided by CHUNK_D
@@ -61,15 +65,15 @@ public:
         const Content* content,
         uint64_t seed
     );
-    virtual ~WorldGenerator() = default;
+    ~WorldGenerator();
 
-    virtual void update(int centerX, int centerY, int loadDistance);
+    void update(int centerX, int centerY, int loadDistance);
 
     /// @brief Generate complete chunk voxels
     /// @param voxels destinatiopn chunk voxels buffer
     /// @param x chunk position X divided by CHUNK_W
     /// @param z chunk position Y divided by CHUNK_D
-    virtual void generate(voxel* voxels, int x, int z);
+    void generate(voxel* voxels, int x, int z);
 
     inline static std::string DEFAULT = "core:default";
 };

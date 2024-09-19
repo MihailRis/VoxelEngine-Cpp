@@ -7,7 +7,8 @@
 #include "content/Content.hpp"
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
-#include "world/generator/GeneratorDef.hpp"
+#include "GeneratorDef.hpp"
+#include "VoxelStructure.hpp"
 #include "util/timeutil.hpp"
 #include "debug/Logger.hpp"
 
@@ -46,6 +47,8 @@ WorldGenerator::WorldGenerator(
         generateHeightmap(found->second.get(), x, z);
     });
 }
+
+WorldGenerator::~WorldGenerator() {}
 
 static inline void generate_pole(
     const BlocksLayers& layers,
@@ -119,8 +122,8 @@ std::unique_ptr<ChunkPrototype> WorldGenerator::generatePrototype(
     }
     return std::make_unique<ChunkPrototype>(
         ChunkPrototypeLevel::BIOMES,
-        nullptr, 
-        std::move(chunkBiomes));
+        std::move(chunkBiomes),
+        nullptr);
 }
 
 void WorldGenerator::generateHeightmap(

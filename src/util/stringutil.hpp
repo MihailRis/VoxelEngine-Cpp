@@ -60,6 +60,8 @@ namespace util {
     util::Buffer<ubyte> base64_decode(const char* str, size_t size);
     util::Buffer<ubyte> base64_decode(const std::string& str);
 
+    std::string tohex(uint64_t value);
+
     std::string mangleid(uint64_t value);
 
     int replaceAll(
