@@ -136,7 +136,13 @@ public:
                     break;
             }
         }
-        return Argument {name, type, optional, def, origin, enumname};
+        return Argument {
+            std::move(name),
+            type,
+            optional,
+            std::move(def),
+            std::move(origin),
+            std::move(enumname)};
     }
 
     Command parseScheme(executor_func executor, std::string_view description) {
@@ -257,9 +263,9 @@ public:
         CommandsInterpreter* interpreter, Argument* arg
     ) {
         if (dv::is_numeric(arg->origin)) {
-            return arg->origin;
+            return dv::value(arg->origin);
         } else if (arg->origin.getType() == dv::value_type::string) {
-            return (*interpreter)[arg->origin.asString()];
+            return dv::value((*interpreter)[arg->origin.asString()]);
         }
         return nullptr;
     }
@@ -296,7 +302,7 @@ public:
         if (origin == nullptr) {
             return value;
         }
-        return applyRelative(arg, value, origin);
+        return applyRelative(arg, std::move(value), origin);
     }
 
     inline dv::value performKeywordArg(
@@ -378,9 +384,9 @@ public:
 
             if (relative) {
                 value =
-                    applyRelative(arg, value, fetchOrigin(interpreter, arg));
+                    applyRelative(arg, std::move(value), fetchOrigin(interpreter, arg));
             }
-            args.add(value);
+            args.add(std::move(value));
         }
 
         while (auto arg = command->getArgument(arg_index++)) {
@@ -397,7 +403,7 @@ public:
                 args.add(arg->def);
             }
         }
-        return Prompt {command, args, kwargs};
+        return Prompt {command, std::move(args), std::move(kwargs)};
     }
 };
 

@@ -477,11 +477,11 @@ dv::value WorldRegions::fetchEntities(int x, int z) {
     uint32_t bytesSize;
     const ubyte* data = getData(x, z, REGION_LAYER_ENTITIES, bytesSize);
     if (data == nullptr) {
-        return dv::none;
+        return nullptr;
     }
     auto map = json::from_binary(data, bytesSize);
     if (map.size() == 0) {
-        return dv::none;
+        return nullptr;
     }
     return map;
 }

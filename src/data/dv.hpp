@@ -504,8 +504,6 @@ namespace dv {
         }
     };
 
-    inline value none = value();
-
     inline bool is_numeric(const value& val) {
         return val.isInteger() && val.isNumber();
     }

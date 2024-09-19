@@ -46,7 +46,7 @@ namespace cmd {
     };
 
     using executor_func = std::function<dv::value(
-        CommandsInterpreter*, dv::value args, dv::value kwargs
+        CommandsInterpreter*, const dv::value& args, const dv::value& kwargs
     )>;
 
     class Command {

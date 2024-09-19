@@ -114,7 +114,7 @@ static dv::value value_from_binary(ByteReader& reader) {
         case BJSON_TYPE_STRING:
             return reader.getString();
         case BJSON_TYPE_NULL:
-            return dv::none;
+            return nullptr;
         case BJSON_TYPE_BYTES: {
             int32_t size = reader.getInt32();
             if (size < 0) {

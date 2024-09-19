@@ -102,10 +102,10 @@ public:
     dv::value read() {
         skipWhitespace();
         if (!hasNext()) {
-            return root;
+            return std::move(root);
         }
         readSection("", root);
-        return root;
+        return std::move(root);
     }
 };
 

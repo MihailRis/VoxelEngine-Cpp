@@ -225,7 +225,7 @@ static void read_anim_file(
     if (auto found = root.at("frames")) {
         auto& frameArr = *found;
         for (size_t i = 0; i < frameArr.size(); i++) {
-            auto currentFrame = frameArr[i];
+            const auto& currentFrame = frameArr[i];
 
             frameName = currentFrame[0].asString();
             if (currentFrame.size() > 1) {

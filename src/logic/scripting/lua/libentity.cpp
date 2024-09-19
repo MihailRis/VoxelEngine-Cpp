@@ -54,7 +54,7 @@ static int l_spawn(lua::State* L) {
     if (lua::gettop(L) > 2) {
         args = lua::tovalue(L, 3);
     }
-    level->entities->spawn(def, pos, args);
+    level->entities->spawn(def, pos, std::move(args));
     return 1;
 }
 

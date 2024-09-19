@@ -96,7 +96,7 @@ static void show_content_missing(
         contentEntry["type"] = contentName;
         contentEntry["name"] = entry.name;
     }
-    menus::show(engine, "reports/missing_content", {root});
+    menus::show(engine, "reports/missing_content", {std::move(root)});
 }
 
 static bool loadWorldContent(Engine* engine, const fs::path& folder) {

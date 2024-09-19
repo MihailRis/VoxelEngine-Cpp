@@ -94,8 +94,8 @@ namespace scripting {
         const EntityDef& def,
         entityid_t eid,
         const std::vector<std::unique_ptr<UserComponent>>& components,
-        dv::value args,
-        dv::value saved
+        const dv::value& args,
+        const dv::value& saved
     );
     void on_entity_despawn(const Entity& entity);
     void on_entity_grounded(const Entity& entity, float force);

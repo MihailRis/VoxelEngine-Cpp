@@ -167,7 +167,7 @@ std::unique_ptr<SkeletonConfig> SkeletonConfig::parse(
     std::string_view src, std::string_view file, std::string_view name
 ) {
     auto root = json::parse(file, src);
-    auto rootNodeMap = root["root"];
+    const auto& rootNodeMap = root["root"];
     auto [count, rootNode] = read_node(rootNodeMap, 0);
     return std::make_unique<SkeletonConfig>(
         std::string(name), std::move(rootNode), count

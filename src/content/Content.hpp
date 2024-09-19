@@ -148,7 +148,7 @@ public:
         return MISSING;
     }
 
-    dv::value getSavedData(size_t index) const {
+    const dv::value& getSavedData(size_t index) const {
         return savedData->at(index);
     }
 

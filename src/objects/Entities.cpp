@@ -173,8 +173,7 @@ entityid_t Entities::spawn(
     }
     body.hitbox.position = tsf.pos;
     scripting::on_entity_spawn(
-        def, id, scripting.components, std::move(args), std::move(componentsMap)
-    );
+        def, id, scripting.components, args, componentsMap);
     return id;
 }
 

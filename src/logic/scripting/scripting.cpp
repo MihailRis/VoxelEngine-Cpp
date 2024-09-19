@@ -340,8 +340,8 @@ void scripting::on_entity_spawn(
     const EntityDef&,
     entityid_t eid,
     const std::vector<std::unique_ptr<UserComponent>>& components,
-    dv::value args,
-    dv::value saved
+    const dv::value& args,
+    const dv::value& saved
 ) {
     auto L = lua::get_main_thread();
     lua::requireglobal(L, STDCOMP);
