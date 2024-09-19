@@ -181,7 +181,7 @@ namespace dv {
         
         /// @brief Constructor for fundamental types
         template<typename T>
-        value(T v, typename std::enable_if_t<std::is_fundamental<T>::value, int*> = 0) {
+        value(T v, std::enable_if_t<std::is_fundamental<T>::value, int> = 0) {
             this->operator=(v);
         }
         value(std::string v) {
