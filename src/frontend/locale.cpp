@@ -7,7 +7,7 @@
 #include "content/ContentPack.hpp"
 #include "files/files.hpp"
 #include "util/stringutil.hpp"
-#include "data/dynamic.hpp"
+#include "data/dv.hpp"
 #include "debug/Logger.hpp"
 
 static debug::Logger logger("locale");
@@ -72,23 +72,21 @@ void langs::loadLocalesInfo(const fs::path& resdir, std::string& fallback) {
     auto root = files::read_json(file);
 
     langs::locales_info.clear();
-    root->str("fallback", fallback);
+    root.at("fallback").get(fallback);
 
-    auto langs = root->map("langs");
-    if (langs) {
+    if (auto found = root.at("langs")) {
+        auto& langs = *found;
         auto logline = logger.info();
         logline << "locales ";
-        for (auto& entry : langs->values) {
-            auto langInfo = entry.second;
-
+        for (const auto& [key, langInfo] : langs.asObject()) {
             std::string name;
-            if (auto mapptr = std::get_if<dynamic::Map_sptr>(&langInfo)) {
-                name = (*mapptr)->get("name", "none"s);
+            if (langInfo.isObject()) {
+                name = langInfo["name"].asString("none");
             } else {
                 continue;
             }
-            logline << "[" << entry.first << " (" << name << ")] ";
-            langs::locales_info[entry.first] = LocaleInfo {entry.first, name};
+            logline << "[" << key << " (" << name << ")] ";
+            langs::locales_info[key] = LocaleInfo {key, name};
         } 
         logline << "added";
     }

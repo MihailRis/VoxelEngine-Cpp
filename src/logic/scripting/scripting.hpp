@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "data/dynamic.hpp"
+#include "data/dv.hpp"
 #include "delegates.hpp"
 #include "typedefs.hpp"
 #include "scripting_functional.hpp"
@@ -87,15 +87,15 @@ namespace scripting {
         Player* player, const ItemDef& item, int x, int y, int z
     );
 
-    dynamic::Value get_component_value(
+    dv::value get_component_value(
         const scriptenv& env, const std::string& name
     );
     void on_entity_spawn(
         const EntityDef& def,
         entityid_t eid,
         const std::vector<std::unique_ptr<UserComponent>>& components,
-        dynamic::Map_sptr args,
-        dynamic::Map_sptr saved
+        const dv::value& args,
+        const dv::value& saved
     );
     void on_entity_despawn(const Entity& entity);
     void on_entity_grounded(const Entity& entity, float force);
@@ -111,7 +111,7 @@ namespace scripting {
     void on_entity_used(const Entity& entity, Player* player);
 
     /// @brief Called on UI view show
-    void on_ui_open(UiDocument* layout, std::vector<dynamic::Value> args);
+    void on_ui_open(UiDocument* layout, std::vector<dv::value> args);
 
     void on_ui_progress(UiDocument* layout, int workDone, int totalWork);
 

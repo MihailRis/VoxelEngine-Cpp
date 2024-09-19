@@ -4,6 +4,7 @@
 #include <typeinfo>
 #include <unordered_map>
 
+#include "data/dv.hpp"
 #include "lua_wrapper.hpp"
 #include "lua_custom_types.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
@@ -394,8 +395,8 @@ namespace lua {
         return glm::vec4(r / 255, g / 255, b / 255, a / 255);
     }
 
-    int pushvalue(lua::State*, const dynamic::Value& value);
-    dynamic::Value tovalue(lua::State*, int idx);
+    int pushvalue(lua::State*, const dv::value& value);
+    dv::value tovalue(lua::State*, int idx);
 
     inline bool getfield(lua::State* L, const std::string& name, int idx = -1) {
         lua_getfield(L, idx, name.c_str());

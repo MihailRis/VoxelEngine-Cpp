@@ -6,10 +6,10 @@
 
 #include "coders/byte_utils.hpp"
 #include "coders/rle.hpp"
-#include "data/dynamic.hpp"
 #include "items/Inventory.hpp"
 #include "maths/voxmaths.hpp"
 #include "util/data_io.hpp"
+#include "coders/binary_json.hpp"
 
 #define REGION_FORMAT_MAGIC ".VOXREG"
 
@@ -364,7 +364,7 @@ static std::unique_ptr<ubyte[]> write_inventories(
     for (auto& entry : inventories) {
         builder.putInt32(entry.first);
         auto map = entry.second->serialize();
-        auto bytes = json::to_binary(map.get(), true);
+        auto bytes = json::to_binary(map, true);
         builder.putInt32(bytes.size());
         builder.put(bytes.data(), bytes.size());
     }
@@ -467,20 +467,20 @@ chunk_inventories_map WorldRegions::fetchInventories(int x, int z) {
         auto map = json::from_binary(reader.pointer(), size);
         reader.skip(size);
         auto inv = std::make_shared<Inventory>(0, 0);
-        inv->deserialize(map.get());
+        inv->deserialize(map);
         meta[index] = inv;
     }
     return meta;
 }
 
-dynamic::Map_sptr WorldRegions::fetchEntities(int x, int z) {
+dv::value WorldRegions::fetchEntities(int x, int z) {
     uint32_t bytesSize;
     const ubyte* data = getData(x, z, REGION_LAYER_ENTITIES, bytesSize);
     if (data == nullptr) {
         return nullptr;
     }
     auto map = json::from_binary(data, bytesSize);
-    if (map->size() == 0) {
+    if (map.size() == 0) {
         return nullptr;
     }
     return map;

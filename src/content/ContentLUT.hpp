@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "constants.hpp"
-#include "data/dynamic.hpp"
+#include "data/dv.hpp"
 #include "typedefs.hpp"
 #include "Content.hpp"
 
@@ -45,10 +45,10 @@ public:
             names.emplace_back("");
         }
     }
-    void setup(dynamic::List* list, const ContentUnitDefs<U>& defs) {
-        if (list) {
-            for (size_t i = 0; i < list->size(); i++) {
-                std::string name = list->str(i);
+    void setup(const dv::value& list, const ContentUnitDefs<U>& defs) {
+        if (list != nullptr) {
+            for (size_t i = 0; i < list.size(); i++) {
+                const std::string& name = list[i].asString();
                 if (auto def = defs.find(name)) {
                     set(i, name, def->rt.id);
                 } else {

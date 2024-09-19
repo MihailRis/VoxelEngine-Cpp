@@ -1,17 +1,12 @@
 #include "coders/json.hpp"
-#include "data/dynamic.hpp"
 #include "api_lua.hpp"
 
 static int l_json_stringify(lua::State* L) {
     auto value = lua::tovalue(L, 1);
 
-    if (auto mapptr = std::get_if<dynamic::Map_sptr>(&value)) {
-        bool nice = lua::toboolean(L, 2);
-        auto string = json::stringify(mapptr->get(), nice, "  ");
-        return lua::pushstring(L, string);
-    } else {
-        throw std::runtime_error("table expected");
-    }
+    bool nice = lua::toboolean(L, 2);
+    auto string = json::stringify(value, nice, "  ");
+    return lua::pushstring(L, string);
 }
 
 static int l_json_parse(lua::State* L) {

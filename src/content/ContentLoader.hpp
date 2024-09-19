@@ -5,6 +5,7 @@
 #include <string>
 
 #include "content_fwd.hpp"
+#include "data/dv.hpp"
 
 namespace fs = std::filesystem;
 
@@ -17,11 +18,6 @@ struct ContentPack;
 class ContentBuilder;
 class ContentPackRuntime;
 struct ContentPackStats;
-
-namespace dynamic {
-    class Map;
-    class List;
-}
 
 class ContentLoader {
     const ContentPack* pack;
@@ -40,7 +36,7 @@ class ContentLoader {
         EntityDef& def, const std::string& full, const std::string& name
     );
 
-    static void loadCustomBlockModel(Block& def, dynamic::Map* primitives);
+    static void loadCustomBlockModel(Block& def, const dv::value& primitives);
     static void loadBlockMaterial(BlockMaterial& def, const fs::path& file);
     void loadBlock(
         Block& def, const std::string& name, const fs::path& file
@@ -51,13 +47,13 @@ class ContentLoader {
     void loadEntity(
         EntityDef& def, const std::string& name, const fs::path& file
     );
-    void loadResources(ResourceType type, dynamic::List* list);
+    void loadResources(ResourceType type, const dv::value& list);
 public:
     ContentLoader(ContentPack* pack, ContentBuilder& builder);
 
     bool fixPackIndices(
         const fs::path& folder,
-        dynamic::Map* indicesRoot,
+        dv::value& indicesRoot,
         const std::string& contentSection
     );
     void fixPackIndices();

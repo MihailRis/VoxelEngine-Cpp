@@ -20,9 +20,11 @@ ContentLUT::ContentLUT(
 
 template <class T>
 static constexpr size_t get_entries_count(
-    const ContentUnitIndices<T>& indices, const dynamic::List_sptr& list
+    const ContentUnitIndices<T>& indices, const dv::value& list
 ) {
-    return list ? std::max(list->size(), indices.count()) : indices.count();
+    return list != nullptr 
+        ? std::max(list.size(), indices.count()) 
+        : indices.count();
 }
 
 std::shared_ptr<ContentLUT> ContentLUT::create(
@@ -36,8 +38,8 @@ std::shared_ptr<ContentLUT> ContentLUT::create(
     }
 
     auto root = files::read_json(filename);
-    auto blocklist = root->list("blocks");
-    auto itemlist = root->list("items");
+    auto& blocklist = root["blocks"];
+    auto& itemlist = root["items"];
 
     auto* indices = content->getIndices();
     size_t blocks_c = get_entries_count(indices->blocks, blocklist);
@@ -45,8 +47,8 @@ std::shared_ptr<ContentLUT> ContentLUT::create(
 
     auto lut = std::make_shared<ContentLUT>(indices, blocks_c, items_c);
 
-    lut->blocks.setup(blocklist.get(), content->blocks);
-    lut->items.setup(itemlist.get(), content->items);
+    lut->blocks.setup(blocklist, content->blocks);
+    lut->items.setup(itemlist, content->items);
 
     if (lut->hasContentReorder() || lut->hasMissingContent()) {
         return lut;

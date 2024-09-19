@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "data/dynamic.hpp"
+#include "data/dv.hpp"
 #include "typedefs.hpp"
 
 inline int is_box(int c) {
@@ -90,8 +90,8 @@ protected:
     void reset();
 
     int64_t parseSimpleInt(int base);
-    dynamic::Value parseNumber(int sign);
-    dynamic::Value parseNumber();
+    dv::value parseNumber(int sign);
+    dv::value parseNumber();
     std::string parseString(char chr, bool closeRequired = true);
 
     parsing_error error(const std::string& message);

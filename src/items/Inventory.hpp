@@ -7,10 +7,6 @@
 #include "typedefs.hpp"
 #include "ItemStack.hpp"
 
-namespace dynamic {
-    class Map;
-}
-
 class ContentLUT;
 class ContentIndices;
 
@@ -37,12 +33,11 @@ public:
         size_t end = -1
     );
 
-    /* deserializing inventory */
-    void deserialize(dynamic::Map* src) override;
-    /* serializing inventory */
-    std::unique_ptr<dynamic::Map> serialize() const override;
+    void deserialize(const dv::value& src) override;
 
-    static void convert(dynamic::Map* data, const ContentLUT* lut);
+    dv::value serialize() const override;
+
+    static void convert(dv::value& data, const ContentLUT* lut);
 
     inline void setId(int64_t id) {
         this->id = id;

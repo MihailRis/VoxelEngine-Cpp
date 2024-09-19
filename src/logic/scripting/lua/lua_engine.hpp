@@ -3,7 +3,6 @@
 #include <stdexcept>
 #include <string>
 
-#include "data/dynamic.hpp"
 #include "delegates.hpp"
 #include "logic/scripting/scripting_functional.hpp"
 #include "lua_util.hpp"
