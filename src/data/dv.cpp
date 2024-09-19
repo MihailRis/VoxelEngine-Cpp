@@ -5,25 +5,6 @@
 #include "util/Buffer.hpp"
 
 namespace dv {
-    value::value(value_type type) : type(type) {
-        switch (type) {
-            case value_type::object:
-                val.object = std::make_shared<objects::Object>();
-                break;
-            case value_type::list:
-                val.list = std::make_shared<objects::List>();
-                break;
-            case value_type::bytes:
-                val.bytes = nullptr; // no default size
-                break;
-            case value_type::string:
-                val.string = std::make_unique<std::string>("");
-                break;
-            default:
-                break;
-        }
-    }
-
     value& value::operator[](const key_t& key) {
         check_type(type, value_type::object);
         return (*val.object)[key];

@@ -160,7 +160,7 @@ vec2supplier scripting::create_vec2_supplier(
     };
 }
 
-dv::to_string_func scripting::create_tostring(
+value_to_string_func scripting::create_tostring(
     const scriptenv& env, const std::string& src, const std::string& file
 ) {
     auto L = lua::get_main_thread();

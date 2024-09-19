@@ -7,7 +7,6 @@
 #include <vector>
 #include <cstring>
 #include <stdexcept>
-#include <functional>
 #include <unordered_map>
 
 namespace util {
@@ -179,11 +178,23 @@ namespace dv {
         }
     public:
         value() : type(value_type::none) {}
-        value(value_type type);
         
-        template<class T>
-        value(T v) {
+        /// @brief Constructor for fundamental types
+        template<typename T>
+        value(T v, typename std::enable_if_t<std::is_fundamental<T>::value, int*> = 0) {
             this->operator=(v);
+        }
+        value(std::string v) {
+            this->operator=(std::move(v));
+        }
+        value(std::shared_ptr<objects::Object> v) {
+            this->operator=(std::move(v));
+        }
+        value(std::shared_ptr<objects::List> v) {
+            this->operator=(std::move(v));
+        }
+        value(std::shared_ptr<objects::Bytes> v) {
+            this->operator=(std::move(v));
         }
 
         value(const value& v) noexcept : type(value_type::none) {
@@ -498,8 +509,6 @@ namespace dv {
     inline bool is_numeric(const value& val) {
         return val.isInteger() && val.isNumber();
     }
-
-    using to_string_func = std::function<std::string(const value&)>;
 }
 
 namespace dv {
