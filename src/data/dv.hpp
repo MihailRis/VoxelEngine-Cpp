@@ -64,17 +64,17 @@ namespace dv {
     struct optionalvalue {
         value* ptr;
 
-        optionalvalue(value* ptr) : ptr(ptr) {}
+        optionalvalue(value* ptr) noexcept : ptr(ptr) {}
 
-        inline operator bool() const {
+        inline operator bool() const noexcept {
             return ptr != nullptr;
         }
 
-        inline value& operator*() {
+        inline value& operator*() noexcept {
             return *ptr;
         }
 
-        inline const value& operator*() const {
+        inline const value& operator*() const noexcept {
             return *ptr;
         }
 
@@ -118,82 +118,82 @@ namespace dv {
             std::shared_ptr<objects::Object> object;
             std::shared_ptr<objects::List> list;
             std::shared_ptr<objects::Bytes> bytes;
-            value_u() {}
-            ~value_u() {}
+            value_u() noexcept {}
+            ~value_u() noexcept {}
         } val;
 
-        inline value& setBoolean(boolean_t v) {
+        inline value& setBoolean(boolean_t v) noexcept {
             this->~value();
             type = value_type::boolean;
             val.boolean = v;
             return *this;
         }
-        inline value& setInteger(integer_t v) {
+        inline value& setInteger(integer_t v) noexcept {
             this->~value();
             type = value_type::integer;
             val.integer = v;
             return *this;
         }
-        inline value& setNumber(number_t v) {
+        inline value& setNumber(number_t v) noexcept {
             this->~value();
             type = value_type::number;
             val.number = v;
             return *this;
         }
-        inline value& setNone() {
+        inline value& setNone() noexcept {
             this->~value();
             type = value_type::none;
             return *this;
         }
-        inline value& setString(std::string v) {
+        inline value& setString(std::string v) noexcept {
             this->~value();
             new(&val.string)std::unique_ptr<std::string>(
                 std::make_unique<std::string>(std::move(v)));
             type = value_type::string;
             return *this;
         }
-        inline value& setString(std::unique_ptr<std::string> v) {
+        inline value& setString(std::unique_ptr<std::string> v) noexcept {
             this->~value();
             new(&val.string)std::unique_ptr<std::string>(std::move(v));
             type = value_type::string;
             return *this;
         }
-        inline value& setList(std::shared_ptr<objects::List> ptr) {
+        inline value& setList(std::shared_ptr<objects::List> ptr) noexcept {
             this->~value();
             new(&val.list)std::shared_ptr<objects::List>(std::move(ptr));
             type = value_type::list;
             return *this;
         }
-        inline value& setObject(std::shared_ptr<objects::Object> ptr) {
+        inline value& setObject(std::shared_ptr<objects::Object> ptr) noexcept {
             this->~value();
             new(&val.object)std::shared_ptr<objects::Object>(std::move(ptr));
             type = value_type::object;
             return *this;
         }
-        inline value& setBytes(std::shared_ptr<objects::Bytes> ptr) {
+        inline value& setBytes(std::shared_ptr<objects::Bytes> ptr) noexcept {
             this->~value();
             new(&val.bytes)std::shared_ptr<objects::Bytes>(std::move(ptr));
             type = value_type::bytes;
             return *this;
         }
     public:
-        value() : type(value_type::none) {}
+        value() noexcept : type(value_type::none) {}
         
         /// @brief Constructor for fundamental types
         template<typename T>
-        value(T v, std::enable_if_t<std::is_fundamental<T>::value, int> = 0) {
+        value(T v, std::enable_if_t<std::is_fundamental<T>::value, int> = 0) noexcept {
             this->operator=(v);
         }
-        value(std::string v) {
+        value(std::string v) noexcept {
             this->operator=(std::move(v));
         }
-        value(std::shared_ptr<objects::Object> v) {
+        value(std::shared_ptr<objects::Object> v) noexcept {
             this->operator=(std::move(v));
         }
-        value(std::shared_ptr<objects::List> v) {
+        value(std::shared_ptr<objects::List> v) noexcept {
             this->operator=(std::move(v));
         }
-        value(std::shared_ptr<objects::Bytes> v) {
+        value(std::shared_ptr<objects::Bytes> v) noexcept {
             this->operator=(std::move(v));
         }
 
@@ -205,7 +205,7 @@ namespace dv {
             this->operator=(std::move(v));
         }
 
-        ~value() {
+        ~value() noexcept {
             switch (type) {
                 case value_type::object:
                     val.object.reset();
@@ -478,28 +478,28 @@ namespace dv {
 
         bool has(const key_t& k) const;
 
-        size_t size() const;
+        size_t size() const noexcept;
 
-        size_t length() const {
+        size_t length() const noexcept {
             return size();
         }
-        inline bool empty() const {
+        inline bool empty() const noexcept {
             return size() == 0;
         }
 
-        inline bool isString() const {
+        inline bool isString() const noexcept {
             return type == value_type::string;
         }
-        inline bool isObject() const {
+        inline bool isObject() const noexcept {
             return type == value_type::object;
         }
-        inline bool isList() const {
+        inline bool isList() const noexcept {
             return type == value_type::list;
         }
-        inline bool isInteger() const {
+        inline bool isInteger() const noexcept {
             return type == value_type::integer;
         }
-        inline bool isNumber() const {
+        inline bool isNumber() const noexcept {
             return type == value_type::number;
         }
     };

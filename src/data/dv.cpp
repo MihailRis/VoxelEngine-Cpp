@@ -123,7 +123,7 @@ namespace dv {
         return *val.object;
     }
 
-    size_t value::size() const {
+    size_t value::size() const noexcept {
         switch (type) {
             case value_type::list:
                 return val.list->size();
