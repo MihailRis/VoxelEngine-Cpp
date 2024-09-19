@@ -7,7 +7,6 @@
 
 #include "content/ContentReport.hpp"
 #include "files/compatibility.hpp"
-#include "data/dynamic.hpp"
 #include "debug/Logger.hpp"
 #include "files/files.hpp"
 #include "objects/Player.hpp"
@@ -184,8 +183,8 @@ void WorldConverter::convertInventories(const fs::path& file, int x, int z) cons
 void WorldConverter::convertPlayer(const fs::path& file) const {
     logger.info() << "converting player " << file.u8string();
     auto map = files::read_json(file);
-    Player::convert(map.get(), report.get());
-    files::write_json(file, map.get());
+    Player::convert(map, report.get());
+    files::write_json(file, map);
 }
 
 void WorldConverter::convert(const ConvertTask& task) const {

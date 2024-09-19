@@ -90,16 +90,15 @@ void show_convert_request(
 static void show_content_missing(
     Engine* engine, const std::shared_ptr<ContentReport>& report
 ) {
-    using namespace dynamic;
-    auto root = create_map();
-    auto& contentEntries = root->putList("content");
+    auto root = dv::object();
+    auto& contentEntries = root.list("content");
     for (auto& entry : report->getMissingContent()) {
         std::string contentName = contenttype_name(entry.type);
-        auto& contentEntry = contentEntries.putMap();
-        contentEntry.put("type", contentName);
-        contentEntry.put("name", entry.name);
+        auto& contentEntry = contentEntries.object();
+        contentEntry["type"] = contentName;
+        contentEntry["name"] = entry.name;
     }
-    menus::show(engine, "reports/missing_content", {root});
+    menus::show(engine, "reports/missing_content", {std::move(root)});
 }
 
 static bool loadWorldContent(Engine* engine, const fs::path& folder) {

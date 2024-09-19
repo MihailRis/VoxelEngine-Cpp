@@ -1,7 +1,6 @@
 #pragma once
 
 #include "UINode.hpp"
-#include "data/dynamic_fwd.hpp"
 
 namespace gui {
     class TrackBar : public UINode {

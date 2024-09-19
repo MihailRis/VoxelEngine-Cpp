@@ -65,8 +65,9 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
         auto invs = regions.fetchInventories(chunk->x, chunk->z);
         chunk->setBlockInventories(std::move(invs));
 
-        if (auto map = regions.fetchEntities(chunk->x, chunk->z)) {
-            level->entities->loadEntities(std::move(map));
+        auto entitiesData = regions.fetchEntities(chunk->x, chunk->z);
+        if (entitiesData.getType() == dv::value_type::object) {
+            level->entities->loadEntities(std::move(entitiesData));
             chunk->flags.entities = true;
         }
 

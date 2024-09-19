@@ -15,10 +15,6 @@ inline constexpr int CHUNK_DATA_LEN = CHUNK_VOL * 4;
 class ContentReport;
 class Inventory;
 
-namespace dynamic {
-    class Map;
-}
-
 using chunk_inventories_map =
     std::unordered_map<uint, std::shared_ptr<Inventory>>;
 

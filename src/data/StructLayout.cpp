@@ -348,41 +348,38 @@ std::string_view StructLayout::getChars(
     return std::string_view(ptr, strnlen(ptr, field.elements));
 }
 
-std::unique_ptr<dynamic::Map> StructLayout::serialize() const {
-    auto map = std::make_unique<dynamic::Map>();
+dv::value StructLayout::serialize() const {
+    auto map = dv::object();
     for (const auto& [name, index] : indices) {
-        auto& fieldmap = map->putMap(name);
+        auto& fieldmap = map.object(name);
         const auto& field = fields[index];
-        fieldmap.put("type", to_string(field.type));
+        fieldmap["type"] = to_string(field.type);
         if (field.elements != 1) {
-            fieldmap.put("length", field.elements);
+            fieldmap["length"] = field.elements;
         }
         if (field.convertStrategy != FieldConvertStrategy::RESET) {
-            fieldmap.put("convert-strategy", to_string(field.convertStrategy));
+            fieldmap["convert-strategy"] = to_string(field.convertStrategy);
         }
     }
     return map;
 }
 
-void StructLayout::deserialize(dynamic::Map* src) {
+void StructLayout::deserialize(const dv::value& src) {
     std::vector<Field> fields;
-    for (auto& [name, value] : src->values) {
-        if (auto fieldmapptr = std::get_if<dynamic::Map_sptr>(&value)) {
-            const auto& fieldmap = *fieldmapptr;
+    for (const auto& [name, fieldmap] : src.asObject()) {
+        const auto& typeName = fieldmap["type"].asString();
+        FieldType type = FieldType_from_string(typeName);
+        
+        int elements = 1;
+        fieldmap.at("length").get(elements);
 
-            auto typeName = fieldmap->get<std::string>("type");
-            FieldType type = FieldType_from_string(typeName);
-            
-            int elements = fieldmap->get("length", 1);
-
-            auto convertStrategy = FieldConvertStrategy::RESET;
-            if (fieldmap->has("convert-strategy")) {
-                convertStrategy = FieldConvertStrategy_from_string(
-                    fieldmap->get<std::string>("convert-strategy")
-                );
-            }
-            fields.push_back(Field {type, name, elements, convertStrategy});
+        auto convertStrategy = FieldConvertStrategy::RESET;
+        if (fieldmap.has("convert-strategy")) {
+            convertStrategy = FieldConvertStrategy_from_string(
+                fieldmap["convert-strategy"].asString()
+            );
         }
+        fields.push_back(Field {type, name, elements, convertStrategy});
     }
     *this = create(fields);
 }

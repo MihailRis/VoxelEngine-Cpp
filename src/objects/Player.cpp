@@ -14,6 +14,7 @@
 #include "window/Camera.hpp"
 #include "window/Events.hpp"
 #include "world/Level.hpp"
+#include "data/dv_util.hpp"
 
 const float CROUCH_SPEED_MUL = 0.35f;
 const float RUN_SPEED_MUL = 1.5f;
@@ -256,92 +257,68 @@ glm::vec3 Player::getSpawnPoint() const {
     return spawnpoint;
 }
 
-std::unique_ptr<dynamic::Map> Player::serialize() const {
-    auto root = std::make_unique<dynamic::Map>();
-    auto& posarr = root->putList("position");
-    posarr.put(position.x);
-    posarr.put(position.y);
-    posarr.put(position.z);
+dv::value Player::serialize() const {
+    auto root = dv::object();
 
-    auto& rotarr = root->putList("rotation");
-    rotarr.put(cam.x);
-    rotarr.put(cam.y);
-    rotarr.put(cam.z);
+    root["position"] = dv::to_value(position);
+    root["rotation"] = dv::to_value(cam);
+    root["spawnpoint"] = dv::to_value(spawnpoint);
 
-    auto& sparr = root->putList("spawnpoint");
-    sparr.put(spawnpoint.x);
-    sparr.put(spawnpoint.y);
-    sparr.put(spawnpoint.z);
-
-    root->put("flight", flight);
-    root->put("noclip", noclip);
-    root->put("chosen-slot", chosenSlot);
-    root->put("entity", eid);
-    root->put("inventory", inventory->serialize());
+    root["flight"] = flight;
+    root["noclip"] = noclip;
+    root["chosen-slot"] = chosenSlot;
+    root["entity"] = eid;
+    root["inventory"] = inventory->serialize();
     auto found =
         std::find(level->cameras.begin(), level->cameras.end(), currentCamera);
     if (found != level->cameras.end()) {
-        root->put(
-            "camera",
-            level->content->getIndices(ResourceType::CAMERA)
-                .getName(found - level->cameras.begin())
-        );
+        root["camera"] = level->content->getIndices(ResourceType::CAMERA)
+                .getName(found - level->cameras.begin());
     }
     return root;
 }
 
-void Player::deserialize(dynamic::Map* src) {
-    auto posarr = src->list("position");
-    position.x = posarr->num(0);
-    position.y = posarr->num(1);
-    position.z = posarr->num(2);
+void Player::deserialize(const dv::value& src) {
+    const auto& posarr = src["position"];
+
+    dv::get_vec(posarr, position);
     camera->position = position;
 
-    auto rotarr = src->list("rotation");
-    cam.x = rotarr->num(0);
-    cam.y = rotarr->num(1);
-    if (rotarr->size() > 2) {
-        cam.z = rotarr->num(2);
+    const auto& rotarr = src["rotation"];
+    dv::get_vec(rotarr, cam);
+
+    const auto& sparr = src["spawnpoint"];
+    setSpawnPoint(glm::vec3(
+        sparr[0].asNumber(), sparr[1].asNumber(), sparr[2].asNumber()));
+
+    flight = src["flight"].asBoolean();
+    noclip = src["noclip"].asBoolean();
+    setChosenSlot(src["chosen-slot"].asInteger());
+    eid = src["entity"].asNumber();
+
+    if (src.has("inventory")) {
+        getInventory()->deserialize(src["inventory"]);
     }
 
-    if (src->has("spawnpoint")) {
-        auto sparr = src->list("spawnpoint");
-        setSpawnPoint(glm::vec3(sparr->num(0), sparr->num(1), sparr->num(2)));
-    } else {
-        setSpawnPoint(position);
-    }
-
-    src->flag("flight", flight);
-    src->flag("noclip", noclip);
-    setChosenSlot(src->get("chosen-slot", getChosenSlot()));
-    src->num("entity", eid);
-
-    if (auto invmap = src->map("inventory")) {
-        getInventory()->deserialize(invmap.get());
-    }
-
-    if (src->has("camera")) {
-        std::string name;
-        src->str("camera", name);
+    if (src.has("camera")) {
+        std::string name = src["camera"].asString();
         if (auto camera = level->getCamera(name)) {
             currentCamera = camera;
         }
     }
 }
 
-void Player::convert(dynamic::Map* data, const ContentReport* report) {
-    auto players = data->list("players");
-    if (players) {
-        for (uint i = 0; i < players->size(); i++) {
-            auto playerData = players->map(i);
-            if (auto inventory = playerData->map("inventory")) {
-                Inventory::convert(inventory.get(), report);
+void Player::convert(dv::value& data, const ContentReport* report) {
+    if (data.has("players")) {
+        auto& players = data["players"];
+        for (uint i = 0; i < players.size(); i++) {
+            auto& playerData = players[i];
+            if (playerData.has("inventory")) {
+                Inventory::convert(playerData["inventory"], report);
             }
         }
 
-    } else {
-        if (auto inventory = data->map("inventory")) {
-            Inventory::convert(inventory.get(), report);
-        }
+    } else if (data.has("inventory")){
+        Inventory::convert(data["inventory"], report);
     }
 }

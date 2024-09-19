@@ -50,14 +50,11 @@ static int l_spawn(lua::State* L) {
     auto defname = lua::tostring(L, 1);
     auto& def = content->entities.require(defname);
     auto pos = lua::tovec3(L, 2);
-    dynamic::Map_sptr args = nullptr;
+    dv::value args = nullptr;
     if (lua::gettop(L) > 2) {
-        auto value = lua::tovalue(L, 3);
-        if (auto map = std::get_if<dynamic::Map_sptr>(&value)) {
-            args = *map;
-        }
+        args = lua::tovalue(L, 3);
     }
-    level->entities->spawn(def, pos, args);
+    level->entities->spawn(def, pos, std::move(args));
     return 1;
 }
 

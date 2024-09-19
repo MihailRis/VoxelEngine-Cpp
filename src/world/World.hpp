@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "content/ContentPack.hpp"
-#include "data/dynamic.hpp"
 #include "interfaces/Serializable.hpp"
 #include "typedefs.hpp"
 #include "util/timeutil.hpp"
@@ -48,8 +47,8 @@ struct WorldInfo : public Serializable {
 
     int major = 0, minor = -1;
 
-    std::unique_ptr<dynamic::Map> serialize() const override;
-    void deserialize(dynamic::Map* src) override;
+    dv::value serialize() const override;
+    void deserialize(const dv::value& src) override;
 };
 
 /// @brief holds all world data except the level (chunks and objects)
@@ -81,10 +80,10 @@ public:
     /// @brief Write all unsaved level data to the world directory
     void write(Level* level);
 
-    /// @brief Check world indices and generate ContentLUT if convert required
+    /// @brief Check world indices and generate ContentReport if convert required
     /// @param directory world directory
     /// @param content current Content instance
-    /// @return ContentLUT if world convert required else nullptr
+    /// @return ContentReport if world convert required else nullptr
     static std::shared_ptr<ContentReport> checkIndices(
         const std::shared_ptr<WorldFiles>& worldFiles, const Content* content
     );

@@ -24,9 +24,11 @@ ContentReport::ContentReport(
 
 template <class T>
 static constexpr size_t get_entries_count(
-    const ContentUnitIndices<T>& indices, const dynamic::List_sptr& list
+    const ContentUnitIndices<T>& indices, const dv::value& list
 ) {
-    return list ? std::max(list->size(), indices.count()) : indices.count();
+    return list != nullptr 
+        ? std::max(list.size(), indices.count()) 
+        : indices.count();
 }
 
 std::shared_ptr<ContentReport> ContentReport::create(
@@ -41,9 +43,10 @@ std::shared_ptr<ContentReport> ContentReport::create(
 
     auto root = files::read_json(filename);
     // TODO: remove default value 2 in 0.24
-    uint regionsVersion = root->get("region-version", 2U);
-    auto blocklist = root->list("blocks");
-    auto itemlist = root->list("items");
+    uint regionsVersion = 2U;
+    root.at("region-version").get(regionsVersion);
+    auto& blocklist = root["blocks"];
+    auto& itemlist = root["items"];
 
     auto* indices = content->getIndices();
     size_t blocks_c = get_entries_count(indices->blocks, blocklist);
@@ -51,8 +54,8 @@ std::shared_ptr<ContentReport> ContentReport::create(
 
     auto report = std::make_shared<ContentReport>(
         indices, blocks_c, items_c, regionsVersion);
-    report->blocks.setup(blocklist.get(), content->blocks);
-    report->items.setup(itemlist.get(), content->items);
+    report->blocks.setup(blocklist, content->blocks);
+    report->items.setup(itemlist, content->items);
     report->buildIssues();
 
     if (report->isUpgradeRequired() || 

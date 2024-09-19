@@ -63,18 +63,18 @@ public:
             }
             auto cmd = parseName();
             if (cmd == "v") {
-                float x = dynamic::as_number(parseNumber());
-                float y = dynamic::as_number(parseNumber());
-                float z = dynamic::as_number(parseNumber());
+                float x = parseNumber().asNumber();
+                float y = parseNumber().asNumber();
+                float z = parseNumber().asNumber();
                 coords.emplace_back(x, y, z);
             } else if (cmd == "vt") {
-                float u = dynamic::as_number(parseNumber());
-                float v = dynamic::as_number(parseNumber());
+                float u = parseNumber().asNumber();
+                float v = parseNumber().asNumber();
                 uvs.emplace_back(u, v);
             } else if (cmd == "vn") {
-                float x = dynamic::as_number(parseNumber());
-                float y = dynamic::as_number(parseNumber());
-                float z = dynamic::as_number(parseNumber());
+                float x = parseNumber().asNumber();
+                float y = parseNumber().asNumber();
+                float z = parseNumber().asNumber();
                 normals.emplace_back(x, y, z);
             } else {
                 skipLine();

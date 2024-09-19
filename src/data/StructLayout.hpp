@@ -222,7 +222,7 @@ namespace data {
         [[nodiscard]]
         static StructLayout create(const std::vector<Field>& fields);
 
-        std::unique_ptr<dynamic::Map> serialize() const override;
-        void deserialize(dynamic::Map* src) override;
+        dv::value serialize() const override;
+        void deserialize(const dv::value& src) override;
     };
 }

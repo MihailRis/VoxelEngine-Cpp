@@ -6,7 +6,7 @@
 
 #include "delegates.hpp"
 #include "engine.hpp"
-#include "data/dynamic.hpp"
+#include "data/dv.hpp"
 #include "interfaces/Task.hpp"
 #include "files/engine_paths.hpp"
 #include "graphics/ui/elements/Menu.hpp"
@@ -36,9 +36,7 @@ void menus::create_version_label(Engine* engine) {
 
 gui::page_loader_func menus::create_page_loader(Engine* engine) {
     return [=](const std::string& query) {
-        using namespace dynamic;
-
-        std::vector<Value> args;
+        std::vector<dv::value> args;
 
         std::string name;
         size_t index = query.find('?');
@@ -46,14 +44,14 @@ gui::page_loader_func menus::create_page_loader(Engine* engine) {
             auto argstr = query.substr(index+1);
             name = query.substr(0, index);
             
-            auto map = create_map();
+            auto map = dv::object();
             auto filename = "query for "+name;
             BasicParser parser(filename, argstr);
             while (parser.hasNext()) {
                 auto key = std::string(parser.readUntil('='));
                 parser.nextChar();
                 auto value = std::string(parser.readUntil('&'));
-                map->put(key, value);
+                map[key] = value;
             }
             args.emplace_back(map);
         } else {
@@ -106,7 +104,7 @@ bool menus::call(Engine* engine, runnable func) {
     }
 }
 
-UiDocument* menus::show(Engine* engine, const std::string& name, std::vector<dynamic::Value> args) {
+UiDocument* menus::show(Engine* engine, const std::string& name, std::vector<dv::value> args) {
     auto menu = engine->getGUI()->getMenu();
     auto file = engine->getResPaths()->find("layouts/"+name+".xml");
     auto fullname = "core:layouts/"+name;
@@ -123,8 +121,6 @@ UiDocument* menus::show(Engine* engine, const std::string& name, std::vector<dyn
 }
 
 void menus::show_process_panel(Engine* engine, const std::shared_ptr<Task>& task, const std::wstring& text) {
-    using namespace dynamic;
-    
     uint initialWork = task->getWorkTotal();
 
     auto menu = engine->getGUI()->getMenu();

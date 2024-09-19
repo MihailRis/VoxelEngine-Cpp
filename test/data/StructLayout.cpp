@@ -124,10 +124,10 @@ TEST(StructLayout, Serialization) {
     auto layout1 = StructLayout::create(fields);
     auto serialized = layout1.serialize();
 
-    std::cout << *serialized << std::endl;
+    std::cout << serialized << std::endl;
 
     StructLayout layout2;
-    layout2.deserialize(serialized.get());
+    layout2.deserialize(serialized);
 
     EXPECT_EQ(layout1, layout2);
 }

@@ -8,9 +8,7 @@
 #include <mutex>
 #include <unordered_map>
 
-#include "constants.hpp"
 #include "typedefs.hpp"
-#include "data/dynamic_fwd.hpp"
 #include "util/BufferPool.hpp"
 #include "voxels/Chunk.hpp"
 #include "maths/voxmaths.hpp"
@@ -223,7 +221,7 @@ public:
     /// @param x chunk.x
     /// @param z chunk.z
     /// @return map with entities list as "data"
-    dynamic::Map_sptr fetchEntities(int x, int z);
+    dv::value fetchEntities(int x, int z);
 
     /// @brief Load, process and save processed region chunks data
     /// @param x region X
