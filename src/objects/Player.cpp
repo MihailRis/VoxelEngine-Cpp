@@ -14,6 +14,7 @@
 #include "window/Camera.hpp"
 #include "window/Events.hpp"
 #include "world/Level.hpp"
+#include "data/dv_util.hpp"
 
 const float CROUCH_SPEED_MUL = 0.35f;
 const float RUN_SPEED_MUL = 1.5f;
@@ -259,9 +260,9 @@ glm::vec3 Player::getSpawnPoint() const {
 dv::value Player::serialize() const {
     auto root = dv::object();
 
-    root["position"] = dv::list({position.x, position.y, position.z});
-    root["rotation"] = dv::list({cam.x, cam.y, cam.z});
-    root["spawnpoint"] = dv::list({spawnpoint.x, spawnpoint.y, spawnpoint.z});
+    root["position"] = dv::to_value(position);
+    root["rotation"] = dv::to_value(cam);
+    root["spawnpoint"] = dv::to_value(spawnpoint);
 
     root["flight"] = flight;
     root["noclip"] = noclip;
@@ -279,15 +280,12 @@ dv::value Player::serialize() const {
 
 void Player::deserialize(const dv::value& src) {
     const auto& posarr = src["position"];
-    position.x = posarr[0].asNumber();
-    position.y = posarr[1].asNumber();
-    position.z = posarr[2].asNumber();
+
+    dv::get_vec(posarr, position);
     camera->position = position;
 
     const auto& rotarr = src["rotation"];
-    cam.x = rotarr[0].asNumber();
-    cam.y = rotarr[1].asNumber();
-    cam.z = rotarr[2].asNumber();
+    dv::get_vec(rotarr, cam);
 
     const auto& sparr = src["spawnpoint"];
     setSpawnPoint(glm::vec3(
