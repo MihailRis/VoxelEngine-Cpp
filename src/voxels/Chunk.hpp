@@ -15,10 +15,6 @@ class Lightmap;
 class ContentLUT;
 class Inventory;
 
-namespace dynamic {
-    class Map;
-}
-
 using chunk_inventories_map =
     std::unordered_map<uint, std::shared_ptr<Inventory>>;
 

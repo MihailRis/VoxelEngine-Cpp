@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "content/ContentPack.hpp"
-#include "data/dynamic.hpp"
 #include "interfaces/Serializable.hpp"
 #include "typedefs.hpp"
 #include "util/timeutil.hpp"
@@ -48,8 +47,8 @@ struct WorldInfo : public Serializable {
 
     int major = 0, minor = -1;
 
-    std::unique_ptr<dynamic::Map> serialize() const override;
-    void deserialize(dynamic::Map* src) override;
+    dv::value serialize() const override;
+    void deserialize(const dv::value& src) override;
 };
 
 /// @brief holds all world data except the level (chunks and objects)

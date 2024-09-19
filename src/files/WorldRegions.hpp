@@ -8,7 +8,6 @@
 #include <mutex>
 #include <unordered_map>
 
-#include "data/dynamic_fwd.hpp"
 #include "typedefs.hpp"
 #include "util/BufferPool.hpp"
 #include "voxels/Chunk.hpp"
@@ -198,7 +197,7 @@ public:
     std::unique_ptr<ubyte[]> getChunk(int x, int z);
     std::unique_ptr<light_t[]> getLights(int x, int z);
     chunk_inventories_map fetchInventories(int x, int z);
-    dynamic::Map_sptr fetchEntities(int x, int z);
+    dv::value fetchEntities(int x, int z);
 
     void processRegionVoxels(int x, int z, const regionproc& func);
 

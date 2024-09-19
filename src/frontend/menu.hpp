@@ -1,6 +1,6 @@
 #pragma once
 
-#include "data/dynamic.hpp"
+#include "data/dv.hpp"
 #include "graphics/ui/elements/Menu.hpp"
 
 #include <string>
@@ -21,7 +21,7 @@ namespace menus {
     UiDocument* show(
         Engine* engine, 
         const std::string& name,
-        std::vector<dynamic::Value> args
+        std::vector<dv::value> args
     );
 
     void show_process_panel(Engine* engine, const std::shared_ptr<Task>& task, const std::wstring& text=L"");

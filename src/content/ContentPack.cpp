@@ -6,7 +6,7 @@
 
 #include "constants.hpp"
 #include "coders/json.hpp"
-#include "data/dynamic.hpp"
+#include "data/dv.hpp"
 #include "files/engine_paths.hpp"
 #include "files/files.hpp"
 
@@ -72,18 +72,18 @@ static void checkContentPackId(const std::string& id, const fs::path& folder) {
 ContentPack ContentPack::read(const fs::path& folder) {
     auto root = files::read_json(folder / fs::path(PACKAGE_FILENAME));
     ContentPack pack;
-    root->str("id", pack.id);
-    root->str("title", pack.title);
-    root->str("version", pack.version);
-    root->str("creator", pack.creator);
-    root->str("description", pack.description);
+    root.at("id").get(pack.id);
+    root.at("title").get(pack.title);
+    root.at("version").get(pack.version);
+    root.at("creator").get(pack.creator);
+    root.at("description").get(pack.description);
     pack.folder = folder;
-
-    auto dependencies = root->list("dependencies");
-    if (dependencies) {
-        for (size_t i = 0; i < dependencies->size(); i++) {
+    
+    if (auto found = root.at("dependencies")) {
+        const auto& dependencies = *found;
+        for (const auto& elem : dependencies) {
             pack.dependencies.push_back(
-                {DependencyLevel::required, dependencies->str(i)}
+                {DependencyLevel::required, elem.asString()}
             );
         }
     }

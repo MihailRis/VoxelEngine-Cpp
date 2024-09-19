@@ -30,8 +30,8 @@ struct VoxelStructure : public Serializable {
         blockNames(std::move(blockNames)) 
     {}
 
-    std::unique_ptr<dynamic::Map> serialize() const override;
-    void deserialize(dynamic::Map* src) override;
+    dv::value serialize() const override;
+    void deserialize(const dv::value& src) override;
 
     static std::unique_ptr<VoxelStructure> create(
         Level* level, const glm::ivec3& a, const glm::ivec3& b, bool entities);

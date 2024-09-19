@@ -10,7 +10,7 @@
 #include "content/Content.hpp"
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
-#include "data/dynamic.hpp"
+#include "data/dv.hpp"
 #include "world/generator/GeneratorDef.hpp"
 
 class LuaGeneratorScript : public GeneratorScript {
@@ -105,11 +105,12 @@ public:
 };
 
 static BlocksLayer load_layer(
-    const dynamic::Map_sptr& map, uint& lastLayersHeight, bool& hasResizeableLayer
+    const dv::value& map, uint& lastLayersHeight, bool& hasResizeableLayer
 ) {
-    auto name = map->get<std::string>("block");
-    int height = map->get<integer_t>("height");
-    bool belowSeaLevel = map->get("below_sea_level", true);
+    const auto& name = map["block"].asString();
+    int height = map["height"].asInteger();
+    bool belowSeaLevel = true;
+    map.at("below_sea_level").get(belowSeaLevel);
 
     if (hasResizeableLayer) {
         lastLayersHeight += height;
@@ -124,14 +125,14 @@ static BlocksLayer load_layer(
 }
 
 static inline BlocksLayers load_layers(
-    const dynamic::List_sptr& layersArr, const std::string& fieldname
+    const dv::value& layersArr, const std::string& fieldname
 ) {
     uint lastLayersHeight = 0;
     bool hasResizeableLayer = false;
     std::vector<BlocksLayer> layers;
 
-    for (int i = 0; i < layersArr->size(); i++) {
-        const auto& layerMap = layersArr->map(i);
+    for (int i = 0; i < layersArr.size(); i++) {
+        const auto& layerMap = layersArr[i];
         try {
             layers.push_back(
                 load_layer(layerMap, lastLayersHeight, hasResizeableLayer));
@@ -144,18 +145,18 @@ static inline BlocksLayers load_layers(
 }
 
 static inline BiomePlants load_plants(
-    const dynamic::Map_sptr& biomeMap
+    const dv::value& biomeMap
 ) {
-    float plantChance = biomeMap->get("plant_chance", 0.0);
+    float plantChance = 0.0f;
+    biomeMap.at("plant_chance").get(plantChance);
     float plantsWeightSum = 0.0f;
 
     std::vector<PlantEntry> plants;
-    if (biomeMap->has("plants")) {
-        auto plantsArr = biomeMap->list("plants");
-        for (size_t i = 0; i < plantsArr->size(); i++) {
-            auto entry = plantsArr->map(i);
-            auto block = entry->get<std::string>("block");
-            float weight = entry->get<number_t>("weight");
+    if (biomeMap.has("plants")) {
+        const auto& plantsArr = biomeMap["plants"];
+        for (const auto& entry : plantsArr) {
+            const auto& block = entry["block"].asString();
+            float weight = entry["weight"].asNumber();
             if (weight <= 0.0f) {
                 throw std::runtime_error("weight must be positive");
             }
@@ -169,28 +170,28 @@ static inline BiomePlants load_plants(
 }
 
 static inline Biome load_biome(
-    const dynamic::Map_sptr& biomeMap,
+    const dv::value& biomeMap,
     const std::string& name,
     uint parametersCount,
     int idx
 ) {
     std::vector<BiomeParameter> parameters;
 
-    const auto& paramsArr = biomeMap->list("parameters");
-    if (paramsArr->size() < parametersCount) {
+    const auto& paramsArr = biomeMap["parameters"];
+    if (paramsArr.size() < parametersCount) {
         throw std::runtime_error(
             std::to_string(parametersCount)+" parameters expected");
     }
     for (size_t i = 0; i < parametersCount; i++) {
-        const auto& paramMap = paramsArr->map(i);
-        float value = paramMap->get<number_t>("value");
-        float weight = paramMap->get<number_t>("weight");
+        const auto& paramMap = paramsArr[i];
+        float value = paramMap["value"].asNumber();
+        float weight = paramMap["weight"].asNumber();
         parameters.push_back(BiomeParameter {value, weight});
     }
 
     BiomePlants plants = load_plants(biomeMap);
-    BlocksLayers groundLayers = load_layers(biomeMap->list("layers"), "layers");
-    BlocksLayers seaLayers = load_layers(biomeMap->list("sea_layers"), "sea_layers");
+    BlocksLayers groundLayers = load_layers(biomeMap["layers"], "layers");
+    BlocksLayers seaLayers = load_layers(biomeMap["sea_layers"], "sea_layers");
     return Biome {
         name,
         std::move(parameters),
@@ -209,19 +210,16 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
     lua::pop(L, load_script(*env, "generator", file));
 
     lua::pushenv(L, *env);
-    auto val = lua::tovalue(L, -1);
+    auto root = lua::tovalue(L, -1);
     lua::pop(L);
-    
-    auto root = std::get<dynamic::Map_sptr>(val);
 
-    uint biomeParameters = root->get<integer_t>("biome_parameters");
-    uint seaLevel = root->get<integer_t>("sea_level");
+    uint biomeParameters = root["biome_parameters"].asInteger();
+    uint seaLevel = root["sea_level"].asInteger();
 
     std::vector<Biome> biomes;
 
-    const auto& biomesMap = root->map("biomes");
-    for (const auto& [biomeName, value] : biomesMap->values) {
-        const auto& biomeMap = std::get<dynamic::Map_sptr>(value);
+    const auto& biomesMap = root["biomes"];
+    for (const auto& [biomeName, biomeMap] : biomesMap.asObject()) {
         try {
             biomes.push_back(
                 load_biome(biomeMap, biomeName, biomeParameters, -2));

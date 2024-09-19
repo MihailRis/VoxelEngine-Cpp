@@ -1,7 +1,7 @@
 #include "Level.hpp"
 
 #include "content/Content.hpp"
-#include "data/dynamic_util.hpp"
+#include "data/dv_util.hpp"
 #include "items/Inventories.hpp"
 #include "items/Inventory.hpp"
 #include "lighting/Lighting.hpp"
@@ -33,14 +33,15 @@ Level::Level(
     auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
     for (size_t i = 0; i < cameraIndices.size(); i++) {
         auto camera = std::make_shared<Camera>();
-        if (auto map = cameraIndices.getSavedData(i)) {
-            dynamic::get_vec(map, "pos", camera->position);
-            dynamic::get_mat(map, "rot", camera->rotation);
-            map->flag("perspective", camera->perspective);
-            map->flag("flipped", camera->flipped);
-            map->num("zoom", camera->zoom);
+        auto map = cameraIndices.getSavedData(i);
+        if (map != nullptr) {
+            dv::get_vec(map, "pos", camera->position);
+            dv::get_mat(map, "rot", camera->rotation);
+            map.at("perspective").get(camera->perspective);
+            map.at("flipped").get(camera->flipped);
+            map.at("zoom").get(camera->zoom);
             float fov = camera->getFov();
-            map->num("fov", fov);
+            map.at("fov").get(fov);
             camera->setFov(fov);
         }
         camera->updateVectors();
@@ -99,13 +100,13 @@ void Level::onSave() {
     auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
     for (size_t i = 0; i < cameraIndices.size(); i++) {
         auto& camera = *cameras.at(i);
-        auto map = dynamic::create_map();
-        map->put("pos", dynamic::to_value(camera.position));
-        map->put("rot", dynamic::to_value(camera.rotation));
-        map->put("perspective", camera.perspective);
-        map->put("flipped", camera.flipped);
-        map->put("zoom", camera.zoom);
-        map->put("fov", camera.getFov());
+        auto map = dv::object();
+        map["pos"] = dv::to_value(camera.position);
+        map["rot"] = dv::to_value(camera.rotation);
+        map["perspective"] = camera.perspective;
+        map["flipped"] = camera.flipped;
+        map["zoom"] = camera.zoom;
+        map["fov"] = camera.getFov();
         cameraIndices.saveData(i, std::move(map));
     }
 }

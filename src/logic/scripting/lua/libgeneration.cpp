@@ -20,7 +20,7 @@ static int l_save_structure(lua::State* L) {
     auto structure = VoxelStructure::create(level, pointA, pointB, saveEntities);
     auto map = structure->serialize();
 
-    auto bytes = json::to_binary(map.get());
+    auto bytes = json::to_binary(map);
     files::write_bytes(fs::u8path(filename), bytes.data(), bytes.size());
     return 0;
 }

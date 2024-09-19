@@ -46,20 +46,21 @@ void World::updateTimers(float delta) {
 }
 
 void World::writeResources(const Content* content) {
-    auto root = dynamic::Map();
+    auto root = dv::object();
     for (size_t typeIndex = 0; typeIndex < RESOURCE_TYPES_COUNT; typeIndex++) {
         auto typeName = to_string(static_cast<ResourceType>(typeIndex));
-        auto& list = root.putList(typeName);
+        auto& list = root.list(typeName);
         auto& indices = content->resourceIndices[typeIndex];
         for (size_t i = 0; i < indices.size(); i++) {
-            auto& map = list.putMap();
-            map.put("name", indices.getName(i));
-            if (auto data = indices.getSavedData(i)) {
-                map.put("saved", data);
+            auto& map = list.object();
+            map["name"] = indices.getName(i);
+            auto data = indices.getSavedData(i);
+            if (data != nullptr) {
+                map["saved"] = data;
             }
         }
     }
-    files::write_json(wfile->getResourcesFile(), &root);
+    files::write_json(wfile->getResourcesFile(), root);
 }
 
 void World::write(Level* level) {
@@ -68,14 +69,14 @@ void World::write(Level* level) {
     info.nextEntityId = level->entities->peekNextID();
     wfile->write(this, content);
 
-    auto playerFile = dynamic::Map();
-    auto& players = playerFile.putList("players");
+    auto playerFile = dv::object();
+    auto& players = playerFile.list("players");
     for (const auto& object : level->objects) {
         if (auto player = std::dynamic_pointer_cast<Player>(object)) {
-            players.put(player->serialize());
+            players.add(player->serialize());
         }
     }
-    files::write_json(wfile->getPlayerFile(), &playerFile);
+    files::write_json(wfile->getPlayerFile(), playerFile);
 
     writeResources(content);
 }
@@ -130,11 +131,11 @@ std::unique_ptr<Level> World::load(
         if (!fs::is_regular_file(file)) {
             logger.warning() << "player.json does not exists";
         } else {
-            auto playerFile = files::read_json(file);
-            if (playerFile->has("players")) {
+            auto playerRoot = files::read_json(file);
+            if (playerRoot.has("players")) {
                 level->objects.clear();
-                auto players = playerFile->list("players");
-                for (size_t i = 0; i < players->size(); i++) {
+                const auto& players = playerRoot["players"];
+                for (auto& playerMap : players) {
                     auto player = level->spawnObject<Player>(
                         level.get(),
                         glm::vec3(0, DEF_PLAYER_Y, 0),
@@ -142,12 +143,12 @@ std::unique_ptr<Level> World::load(
                         level->inventories->create(DEF_PLAYER_INVENTORY_SIZE),
                         0
                     );
-                    player->deserialize(players->map(i).get());
+                    player->deserialize(playerMap);
                     level->inventories->store(player->getInventory());
                 }
             } else {
                 auto player = level->getObject<Player>(0);
-                player->deserialize(playerFile.get());
+                player->deserialize(playerRoot);
                 level->inventories->store(player->getInventory());
             }
         }
@@ -200,50 +201,52 @@ const std::vector<ContentPack>& World::getPacks() const {
     return packs;
 }
 
-void WorldInfo::deserialize(dynamic::Map* root) {
-    name = root->get("name", name);
-    generator = root->get("generator", generator);
-    seed = root->get("seed", seed);
+void WorldInfo::deserialize(const dv::value& root) {
+    name = root["name"].asString();
+    generator = root["generator"].asString(generator);
+    seed = root["seed"].asInteger(seed);
 
     if (generator.empty()) {
         generator = WorldGenerator::DEFAULT;
     }
-    if (auto verobj = root->map("version")) {
-        verobj->num("major", major);
-        verobj->num("minor", minor);
+    if (root.has("version")) {
+        auto& verobj = root["version"];
+        major = verobj["major"].asInteger();
+        minor = verobj["minor"].asInteger();
     }
-    if (auto timeobj = root->map("time")) {
-        timeobj->num("day-time", daytime);
-        timeobj->num("day-time-speed", daytimeSpeed);
-        timeobj->num("total-time", totalTime);
+    if (root.has("time")) {
+        auto& timeobj = root["time"];
+        daytime = timeobj["day-time"].asNumber();
+        daytimeSpeed = timeobj["day-time-speed"].asNumber();
+        totalTime = timeobj["total-time"].asNumber();
     }
-    if (auto weatherobj = root->map("weather")) {
-        weatherobj->num("fog", fog);
+    if (root.has("weather")) {
+        fog = root["weather"]["fog"].asNumber();
     }
-    nextInventoryId = root->get("next-inventory-id", 2);
-    nextEntityId = root->get("next-entity-id", 1);
+    nextInventoryId = root["next-inventory-id"].asInteger(2);
+    nextEntityId = root["next-entity-id"].asInteger(1);
 }
 
-std::unique_ptr<dynamic::Map> WorldInfo::serialize() const {
-    auto root = std::make_unique<dynamic::Map>();
+dv::value WorldInfo::serialize() const {
+    auto root = dv::object();
 
-    auto& versionobj = root->putMap("version");
-    versionobj.put("major", ENGINE_VERSION_MAJOR);
-    versionobj.put("minor", ENGINE_VERSION_MINOR);
+    auto& versionobj = root.object("version");
+    versionobj["major"] = ENGINE_VERSION_MAJOR;
+    versionobj["minor"] = ENGINE_VERSION_MINOR;
 
-    root->put("name", name);
-    root->put("generator", generator);
-    root->put("seed", static_cast<integer_t>(seed));
+    root["name"] = name;
+    root["generator"] = generator;
+    root["seed"] = seed;
 
-    auto& timeobj = root->putMap("time");
-    timeobj.put("day-time", daytime);
-    timeobj.put("day-time-speed", daytimeSpeed);
-    timeobj.put("total-time", totalTime);
+    auto& timeobj = root.object("time");
+    timeobj["day-time"] = daytime;
+    timeobj["day-time-speed"] = daytimeSpeed;
+    timeobj["total-time"] = totalTime;
 
-    auto& weatherobj = root->putMap("weather");
-    weatherobj.put("fog", fog);
+    auto& weatherobj = root.object("weather");
+    weatherobj["fog"] = fog;
 
-    root->put("next-inventory-id", nextInventoryId);
-    root->put("next-entity-id", nextEntityId);
+    root["next-inventory-id"] = nextInventoryId;
+    root["next-entity-id"] = nextEntityId;
     return root;
 }

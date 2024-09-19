@@ -4,7 +4,6 @@
 #include <memory>
 #include <optional>
 
-#include "data/dynamic.hpp"
 #include "interfaces/Object.hpp"
 #include "interfaces/Serializable.hpp"
 #include "settings.hpp"
@@ -103,10 +102,10 @@ public:
     void setSpawnPoint(glm::vec3 point);
     glm::vec3 getSpawnPoint() const;
 
-    std::unique_ptr<dynamic::Map> serialize() const override;
-    void deserialize(dynamic::Map* src) override;
+    dv::value serialize() const override;
+    void deserialize(const dv::value& src) override;
 
-    static void convert(dynamic::Map* data, const ContentLUT* lut);
+    static void convert(dv::value& data, const ContentLUT* lut);
 
     inline int getId() const {
         return objectUID;

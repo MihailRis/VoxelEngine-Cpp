@@ -3,8 +3,7 @@
 #include <unordered_map>
 #include <cstring>
 
-#include "data/dynamic.hpp"
-#include "data/dynamic_util.hpp"
+#include "data/dv_util.hpp"
 #include "content/Content.hpp"
 #include "voxels/Block.hpp"
 #include "voxels/ChunksStorage.hpp"
@@ -47,31 +46,31 @@ std::unique_ptr<VoxelStructure> VoxelStructure::create(
         size, std::move(voxels), std::move(blockNames));
 }
 
-std::unique_ptr<dynamic::Map> VoxelStructure::serialize() const {
-    auto root = std::make_unique<dynamic::Map>();
-    root->put("version", STRUCTURE_FORMAT_VERSION);
-    root->put("size", dynamic::to_value(size));
+dv::value VoxelStructure::serialize() const {
+    auto root = dv::object();
+    root["version"] = STRUCTURE_FORMAT_VERSION;
+    root["size"] = dv::to_value(size);
 
-    auto& blockNamesArr = root->putList("block-names");
+    auto& blockNamesArr = root.list("block-names");
     for (const auto& name : blockNames) {
-        blockNamesArr.put(name);
+        blockNamesArr.add(name);
     }
-    auto& voxelsArr = root->putList("voxels");
+    auto& voxelsArr = root.list("voxels");
     for (size_t i = 0; i < voxels.size(); i++) {
-        voxelsArr.put(static_cast<integer_t>(voxels[i].id));
-        voxelsArr.put(static_cast<integer_t>(blockstate2int(voxels[i].state)));
+        voxelsArr.add(voxels[i].id);
+        voxelsArr.add(blockstate2int(voxels[i].state));
     }
     return root;
 }
 
-void VoxelStructure::deserialize(dynamic::Map* src) {
+void VoxelStructure::deserialize(const dv::value& src) {
     size = glm::ivec3();
-    dynamic::get_vec(src, "size", size);
+    dv::get_vec(src, "size", size);
     voxels.resize(size.x*size.y*size.z);
 
-    auto voxelsArr = src->list("voxels");
+    const auto& voxelsArr = src["voxels"];
     for (size_t i = 0; i < size.x*size.y*size.z; i++) {
-        voxels[i].id = voxelsArr->integer(i * 2);
-        voxels[i].state = int2blockstate(voxelsArr->integer(i * 2 + 1));
+        voxels[i].id = voxelsArr[i * 2].asInteger();
+        voxels[i].state = int2blockstate(voxelsArr[i * 2 + 1].asInteger());
     }
 }

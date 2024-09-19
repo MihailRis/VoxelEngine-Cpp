@@ -345,7 +345,7 @@ bool scripting::on_item_break_block(
     );
 }
 
-dynamic::Value scripting::get_component_value(
+dv::value scripting::get_component_value(
     const scriptenv& env, const std::string& name
 ) {
     auto L = lua::get_main_thread();
@@ -353,15 +353,15 @@ dynamic::Value scripting::get_component_value(
     if (lua::getfield(L, name)) {
         return lua::tovalue(L, -1);
     }
-    return dynamic::NONE;
+    return nullptr;
 }
 
 void scripting::on_entity_spawn(
     const EntityDef&,
     entityid_t eid,
     const std::vector<std::unique_ptr<UserComponent>>& components,
-    dynamic::Map_sptr args,
-    dynamic::Map_sptr saved
+    const dv::value& args,
+    const dv::value& saved
 ) {
     auto L = lua::get_main_thread();
     lua::requireglobal(L, STDCOMP);
@@ -384,8 +384,8 @@ void scripting::on_entity_spawn(
         if (args != nullptr) {
             std::string compfieldname = component->name;
             util::replaceAll(compfieldname, ":", "__");
-            if (auto datamap = args->map(compfieldname)) {
-                lua::pushvalue(L, datamap);
+            if (args.has(compfieldname)) {
+                lua::pushvalue(L, args[compfieldname]);
             } else {
                 lua::createtable(L, 0, 0);
             }
@@ -397,8 +397,8 @@ void scripting::on_entity_spawn(
         if (saved == nullptr) {
             lua::createtable(L, 0, 0);
         } else {
-            if (auto datamap = saved->map(component->name)) {
-                lua::pushvalue(L, datamap);
+            if (saved.has(component->name)) {
+                lua::pushvalue(L, saved[component->name]);
             } else {
                 lua::createtable(L, 0, 0);
             }
@@ -579,10 +579,10 @@ void scripting::on_entities_render(float delta) {
 }
 
 void scripting::on_ui_open(
-    UiDocument* layout, std::vector<dynamic::Value> args
+    UiDocument* layout, std::vector<dv::value> args
 ) {
     auto argsptr =
-        std::make_shared<std::vector<dynamic::Value>>(std::move(args));
+        std::make_shared<std::vector<dv::value>>(std::move(args));
     std::string name = layout->getId() + ".open";
     lua::emit_event(lua::get_main_thread(), name, [=](auto L) {
         for (const auto& value : *argsptr) {

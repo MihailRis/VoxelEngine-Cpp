@@ -6,21 +6,19 @@
 #include <memory>
 #include <sstream>
 
-#include "data/dynamic.hpp"
 #include "util/stringutil.hpp"
 #include "commons.hpp"
 
 using namespace json;
-using namespace dynamic;
 
 class Parser : BasicParser {
-    std::unique_ptr<dynamic::List> parseList();
-    std::unique_ptr<dynamic::Map> parseObject();
-    dynamic::Value parseValue();
+    dv::value parseList();
+    dv::value parseObject();
+    dv::value parseValue();
 public:
     Parser(std::string_view filename, std::string_view source);
 
-    std::unique_ptr<dynamic::Map> parse();
+    dv::value parse();
 };
 
 inline void newline(
@@ -37,15 +35,15 @@ inline void newline(
 }
 
 void stringifyObj(
-    const Map* obj,
+    const dv::value& obj,
     std::stringstream& ss,
     int indent,
     const std::string& indentstr,
     bool nice
 );
 
-void stringifyArr(
-    const List* list,
+void stringifyList(
+    const dv::value& list,
     std::stringstream& ss,
     int indent,
     const std::string& indentstr,
@@ -53,56 +51,64 @@ void stringifyArr(
 );
 
 void stringifyValue(
-    const Value& value,
+    const dv::value& value,
     std::stringstream& ss,
     int indent,
     const std::string& indentstr,
     bool nice
 ) {
-    if (auto map = std::get_if<Map_sptr>(&value)) {
-        stringifyObj(map->get(), ss, indent, indentstr, nice);
-    } else if (auto listptr = std::get_if<List_sptr>(&value)) {
-        stringifyArr(listptr->get(), ss, indent, indentstr, nice);
-    } else if (auto bytesptr = std::get_if<ByteBuffer_sptr>(&value)) {
-        auto bytes = bytesptr->get();
-        ss << "\"" << util::base64_encode(bytes->data(), bytes->size());
-        ss << "\"";
-    } else if (auto flag = std::get_if<bool>(&value)) {
-        ss << (*flag ? "true" : "false");
-    } else if (auto num = std::get_if<number_t>(&value)) {
-        ss << std::setprecision(15) << *num;
-    } else if (auto num = std::get_if<integer_t>(&value)) {
-        ss << *num;
-    } else if (auto str = std::get_if<std::string>(&value)) {
-        ss << util::escape(*str);
-    } else {
-        ss << "null";
+    using dv::value_type;
+
+    switch (value.getType()) {
+        case value_type::object:
+            stringifyObj(value, ss, indent, indentstr, nice);
+            break;
+        case value_type::list:
+            stringifyList(value, ss, indent, indentstr, nice);
+            break;
+        case value_type::bytes: {
+            const auto& bytes = value.asBytes();
+            ss << "\"" << util::base64_encode(bytes.data(), bytes.size());
+            ss << "\"";
+            break;
+        }
+        case value_type::string:
+            ss << util::escape(value.asString());
+            break;
+        case value_type::number:
+            ss << std::setprecision(15) << value.asNumber();
+            break;
+        case value_type::integer:
+            ss << value.asInteger();
+            break;
+        case value_type::boolean:
+            ss << (value.asBoolean() ? "true" : "false");
+            break;
+        case value_type::none:
+            ss << "null";
+            break; 
     }
 }
 
-void stringifyArr(
-    const List* list,
+void stringifyList(
+    const dv::value& list,
     std::stringstream& ss,
     int indent,
     const std::string& indentstr,
     bool nice
 ) {
-    if (list == nullptr) {
-        ss << "nullptr";
-        return;
-    }
-    if (list->values.empty()) {
+    if (list.empty()) {
         ss << "[]";
         return;
     }
     ss << "[";
-    for (size_t i = 0; i < list->size(); i++) {
+    for (size_t i = 0; i < list.size(); i++) {
         if (i > 0 || nice) {
             newline(ss, nice, indent, indentstr);
         }
-        const Value& value = list->values[i];
+        const auto& value = list[i];
         stringifyValue(value, ss, indent + 1, indentstr, nice);
-        if (i + 1 < list->size()) {
+        if (i + 1 < list.size()) {
             ss << ',';
         }
     }
@@ -113,32 +119,26 @@ void stringifyArr(
 }
 
 void stringifyObj(
-    const Map* obj,
+    const dv::value& obj,
     std::stringstream& ss,
     int indent,
     const std::string& indentstr,
     bool nice
 ) {
-    if (obj == nullptr) {
-        ss << "nullptr";
-        return;
-    }
-    if (obj->values.empty()) {
+    if (obj.empty()) {
         ss << "{}";
         return;
     }
     ss << "{";
     size_t index = 0;
-    for (auto& entry : obj->values) {
-        const std::string& key = entry.first;
+    for (auto& [key, value] : obj.asObject()) {
         if (index > 0 || nice) {
             newline(ss, nice, indent, indentstr);
         }
-        const Value& value = entry.second;
         ss << util::escape(key) << ": ";
         stringifyValue(value, ss, indent + 1, indentstr, nice);
         index++;
-        if (index < obj->values.size()) {
+        if (index < obj.size()) {
             ss << ',';
         }
     }
@@ -149,23 +149,7 @@ void stringifyObj(
 }
 
 std::string json::stringify(
-    const Map* obj, bool nice, const std::string& indent
-) {
-    std::stringstream ss;
-    stringifyObj(obj, ss, 1, indent, nice);
-    return ss.str();
-}
-
-std::string json::stringify(
-    const dynamic::List* arr, bool nice, const std::string& indent
-) {
-    std::stringstream ss;
-    stringifyArr(arr, ss, 1, indent, nice);
-    return ss.str();
-}
-
-std::string json::stringify(
-    const dynamic::Value& value, bool nice, const std::string& indent
+    const dv::value& value, bool nice, const std::string& indent
 ) {
     std::stringstream ss;
     stringifyValue(value, ss, 1, indent, nice);
@@ -176,7 +160,7 @@ Parser::Parser(std::string_view filename, std::string_view source)
     : BasicParser(filename, source) {
 }
 
-std::unique_ptr<Map> Parser::parse() {
+dv::value Parser::parse() {
     char next = peek();
     if (next != '{') {
         throw error("'{' expected");
@@ -184,10 +168,9 @@ std::unique_ptr<Map> Parser::parse() {
     return parseObject();
 }
 
-std::unique_ptr<Map> Parser::parseObject() {
+dv::value Parser::parseObject() {
     expect('{');
-    auto obj = std::make_unique<Map>();
-    auto& map = obj->values;
+    auto object = dv::object();
     while (peek() != '}') {
         if (peek() == '#') {
             skipLine();
@@ -199,7 +182,7 @@ std::unique_ptr<Map> Parser::parseObject() {
             throw error("':' expected");
         }
         pos++;
-        map.insert(std::make_pair(key, parseValue()));
+        object[key] = parseValue();
         next = peek();
         if (next == ',') {
             pos++;
@@ -210,19 +193,18 @@ std::unique_ptr<Map> Parser::parseObject() {
         }
     }
     pos++;
-    return obj;
+    return object;
 }
 
-std::unique_ptr<List> Parser::parseList() {
+dv::value Parser::parseList() {
     expect('[');
-    auto arr = std::make_unique<List>();
-    auto& values = arr->values;
+    auto list = dv::list();
     while (peek() != ']') {
         if (peek() == '#') {
             skipLine();
             continue;
         }
-        values.push_back(parseValue());
+        list.add(parseValue());
 
         char next = peek();
         if (next == ',') {
@@ -234,13 +216,17 @@ std::unique_ptr<List> Parser::parseList() {
         }
     }
     pos++;
-    return arr;
+    return list;
 }
 
-Value Parser::parseValue() {
+dv::value Parser::parseValue() {
     char next = peek();
     if (next == '-' || next == '+' || is_digit(next)) {
-        return parseNumber();
+        auto numeric = parseNumber();
+        if (numeric.isInteger()) {
+            return numeric.asInteger();
+        }
+        return numeric.asNumber();
     }
     if (is_identifier_start(next)) {
         std::string literal = parseName();
@@ -256,10 +242,10 @@ Value Parser::parseValue() {
         throw error("invalid literal ");
     }
     if (next == '{') {
-        return Map_sptr(parseObject().release());
+        return parseObject();
     }
     if (next == '[') {
-        return List_sptr(parseList().release());
+        return parseList();
     }
     if (next == '"' || next == '\'') {
         pos++;
@@ -268,13 +254,13 @@ Value Parser::parseValue() {
     throw error("unexpected character '" + std::string({next}) + "'");
 }
 
-dynamic::Map_sptr json::parse(
+dv::value json::parse(
     std::string_view filename, std::string_view source
 ) {
     Parser parser(filename, source);
     return parser.parse();
 }
 
-dynamic::Map_sptr json::parse(std::string_view source) {
+dv::value json::parse(std::string_view source) {
     return parse("<string>", source);
 }
