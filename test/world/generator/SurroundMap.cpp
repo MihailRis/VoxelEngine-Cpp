@@ -30,3 +30,49 @@ TEST(SurroundMap, InitTest) {
     map.completeAt(x - 1, y);
     EXPECT_EQ(affected, maxLevel * 2 - 1);
 }
+
+#define VISUAL_TEST
+#ifdef VISUAL_TEST
+
+#include <glm/gtc/random.hpp>
+
+#include "coders/png.hpp"
+#include "graphics/core/ImageData.hpp"
+
+void visualize(const SurroundMap& map, int mul, int max) {
+    const auto& areaMap = map.getArea();
+    int w = areaMap.getWidth();
+    int h = areaMap.getHeight();
+    int ox = areaMap.getOffsetX();
+    int oy = areaMap.getOffsetY();
+    
+    ImageData image(ImageFormat::rgb888, w, h);
+    ubyte* bytes = image.getData();
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            int val = areaMap.get(x + ox, y + oy) * mul;
+            if (val && val / mul < max) {
+                val = val / 4 + 50;
+            }
+            bytes[(y * w + x) * 3] = val;
+            bytes[(y * w + x) * 3 + 1] = val;
+            bytes[(y * w + x) * 3 + 2] = val;
+        }
+    }
+    png::write_image("test.png", &image);
+}
+
+TEST(SurroundMap, Visualize) {
+    int levels = 3;
+    SurroundMap map(50, levels);
+    map.setCenter(0, 0);
+    
+    for (int i = 0; i < 1000; i++) {
+        float x = glm::gaussRand(0.0f, 2.0f);
+        float y = glm::gaussRand(0.0f, 2.0f);
+        map.completeAt(x, y);
+    }
+    visualize(map, 30, levels);
+}
+
+#endif

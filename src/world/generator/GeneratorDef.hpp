@@ -7,6 +7,7 @@
 #include "maths/Heightmap.hpp"
 
 class Content;
+class VoxelStructure;
 
 struct BlocksLayer {
     /// @brief Layer block
@@ -99,8 +100,11 @@ class GeneratorScript {
 public:
     virtual ~GeneratorScript() = default;
 
+    /// @brief Load all structures
+    //virtual std::vector<std::shared_ptr<VoxelStructure>> loadStructures() = 0;
+
     /// @brief Generates a heightmap with values in range 0..1
-    /// @param offset position of the heightmap top left corner in the world
+    /// @param offset position of the heightmap in the world
     /// @param size size of the heightmap
     /// @param seed world seed
     /// @return generated heightmap of given size (can't be nullptr)

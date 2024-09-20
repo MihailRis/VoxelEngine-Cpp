@@ -14,8 +14,8 @@
 
 static debug::Logger logger("world-generator");
 
-static inline constexpr uint MAX_PARAMETERS = 8;
-static inline constexpr uint MAX_CHUNK_PROTOTYPE_LEVELS = 8;
+static inline constexpr uint MAX_PARAMETERS = 4;
+static inline constexpr uint MAX_CHUNK_PROTOTYPE_LEVELS = 3;
 
 WorldGenerator::WorldGenerator(
     const GeneratorDef& def, const Content* content, uint64_t seed
@@ -114,10 +114,11 @@ std::unique_ptr<ChunkPrototype> WorldGenerator::generatePrototype(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed);
     const auto& biomes = def.script->getBiomes();
 
-    std::vector<const Biome*> chunkBiomes(CHUNK_W*CHUNK_D);
+    auto chunkBiomes = std::make_unique<const Biome*[]>(CHUNK_W*CHUNK_D);
     for (uint z = 0; z < CHUNK_D; z++) {
         for (uint x = 0; x < CHUNK_W; x++) {
-            chunkBiomes[z * CHUNK_W + x] = choose_biome(biomes, biomeParams, x, z);
+            chunkBiomes.get()[z * CHUNK_W + x] =
+                choose_biome(biomes, biomeParams, x, z);
         }
     }
     return std::make_unique<ChunkPrototype>(
@@ -162,9 +163,10 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
     PseudoRandom plantsRand;
     plantsRand.setSeed(chunkX, chunkZ);
 
+    const auto& biomes = prototype->biomes.get();
     for (uint z = 0; z < CHUNK_D; z++) {
         for (uint x = 0; x < CHUNK_W; x++) {
-            const Biome* biome = prototype->biomes[z * CHUNK_W + x];
+            const Biome* biome = biomes[z * CHUNK_W + x];
 
             int height = values[z * CHUNK_W + x] * CHUNK_H;
             height = std::max(0, height);

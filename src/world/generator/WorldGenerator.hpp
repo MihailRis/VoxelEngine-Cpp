@@ -20,18 +20,29 @@ enum class ChunkPrototypeLevel {
     BIOMES, HEIGHTMAP
 };
 
+struct StructurePlacement {
+    VoxelStructure& structure;
+
+    glm::ivec3 position;
+
+    StructurePlacement(VoxelStructure& structure, glm::ivec3 position)
+        : structure(structure), position(std::move(position)) {}
+};
+
 struct ChunkPrototype {
     ChunkPrototypeLevel level;
 
     /// @brief chunk biomes matrix
-    std::vector<const Biome*> biomes;
+    std::unique_ptr<const Biome*[]> biomes;
 
     /// @brief chunk heightmap
     std::shared_ptr<Heightmap> heightmap;
 
+    std::vector<StructurePlacement> structures;
+
     ChunkPrototype(
         ChunkPrototypeLevel level,
-        std::vector<const Biome*> biomes,
+        std::unique_ptr<const Biome*[]> biomes,
         std::shared_ptr<Heightmap> heightmap
     ) : level(level),
         biomes(std::move(biomes)),

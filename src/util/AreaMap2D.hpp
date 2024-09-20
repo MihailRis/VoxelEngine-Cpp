@@ -62,7 +62,7 @@ namespace util {
             return &firstBuffer[ly * sizeX + lx];
         }
 
-        T get(TCoord x, TCoord y) {
+        T get(TCoord x, TCoord y) const {
             auto lx = x - offsetX;
             auto ly = y - offsetY;
             if (lx < 0 || ly < 0 || lx >= sizeX || ly >= sizeY) {
