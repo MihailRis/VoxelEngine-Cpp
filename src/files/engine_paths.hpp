@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <tuple>
 
 #include "content/ContentPack.hpp"
 
@@ -40,6 +41,7 @@ public:
 
     std::filesystem::path resolve(const std::string& path, bool throwErr = true);
 
+    static std::tuple<std::string, std::string> parsePath(std::string_view view);
 private:
     std::filesystem::path userFilesFolder {"."};
     std::filesystem::path resourcesFolder {"res"};

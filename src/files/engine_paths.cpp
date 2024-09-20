@@ -162,15 +162,23 @@ void EnginePaths::setContentPacks(std::vector<ContentPack>* contentPacks) {
     this->contentPacks = contentPacks;
 }
 
+std::tuple<std::string, std::string> EnginePaths::parsePath(std::string_view path) {
+    size_t separator = path.find(':');
+    if (separator == std::string::npos) {
+        return {"", std::string(path)};
+    }
+    auto prefix = std::string(path.substr(0, separator));
+    auto filename = std::string(path.substr(separator + 1));
+    return {prefix, filename};
+}
+
 std::filesystem::path EnginePaths::resolve(
     const std::string& path, bool throwErr
 ) {
-    size_t separator = path.find(':');
-    if (separator == std::string::npos) {
+    auto [prefix, filename] = EnginePaths::parsePath(path);
+    if (prefix.empty()) {
         throw files_access_error("no entry point specified");
     }
-    std::string prefix = path.substr(0, separator);
-    std::string filename = path.substr(separator + 1);
     filename = toCanonic(fs::u8path(filename)).u8string();
 
     if (prefix == "res" || prefix == "core") {
