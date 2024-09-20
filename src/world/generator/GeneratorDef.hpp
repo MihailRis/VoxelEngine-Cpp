@@ -101,7 +101,7 @@ public:
     virtual ~GeneratorScript() = default;
 
     /// @brief Load all structures
-    //virtual std::vector<std::shared_ptr<VoxelStructure>> loadStructures() = 0;
+    virtual std::vector<std::shared_ptr<VoxelStructure>> loadStructures() = 0;
 
     /// @brief Generates a heightmap with values in range 0..1
     /// @param offset position of the heightmap in the world

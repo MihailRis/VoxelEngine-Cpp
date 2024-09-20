@@ -55,6 +55,12 @@ biomes = {
     }
 }
 
+function load_structures()
+    local structures = {}
+    table.insert(structures, generation.load_structure("core:default.files/tree0"))
+    return structures
+end
+
 local function _generate_heightmap(x, y, w, h, seed, s)
     local umap = Heightmap(w, h)
     local vmap = Heightmap(w, h)

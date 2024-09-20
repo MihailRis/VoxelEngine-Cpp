@@ -62,7 +62,7 @@ class WorldGenerator {
     /// @brief Chunk prototypes loading surround map
     SurroundMap surroundMap;
 
-    std::vector<std::unique_ptr<VoxelStructure>> structures;
+    std::vector<std::shared_ptr<VoxelStructure>> structures;
 
     /// @brief Generate chunk prototype (see ChunkPrototype)
     /// @param x chunk position X divided by CHUNK_W

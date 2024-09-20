@@ -46,6 +46,8 @@ WorldGenerator::WorldGenerator(
         }
         generateHeightmap(found->second.get(), x, z);
     });
+
+    structures = def.script->loadStructures();
 }
 
 WorldGenerator::~WorldGenerator() {}

@@ -30,6 +30,26 @@ public:
       seaLevel(seaLevel) 
       {}
 
+    std::vector<std::shared_ptr<VoxelStructure>> loadStructures() override {
+        std::vector<std::shared_ptr<VoxelStructure>> structures;
+
+        auto L = lua::get_main_thread();
+        lua::pushenv(L, *env);
+        if (lua::getfield(L, "load_structures")) {
+            if (lua::call_nothrow(L, 0, 1)) {
+                for (int i = 1; i <= lua::objlen(L, -1); i++) {
+                    lua::rawgeti(L, i);
+                    if (auto lstruct =
+                            lua::touserdata<lua::LuaVoxelStructure>(L, -1)) {
+                        structures.push_back(lstruct->getStructure());
+                    }
+                }
+            }
+        }
+        lua::pop(L);
+        return structures;
+    }
+
     std::shared_ptr<Heightmap> generateHeightmap(
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed
     ) override {
