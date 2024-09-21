@@ -57,8 +57,22 @@ biomes = {
 
 function load_structures()
     local structures = {}
-    table.insert(structures, generation.load_structure("core:default.files/tree0"))
+    local names = {"tree0"}
+    for i, name in ipairs(names) do
+        local filename = "core:default.files/"..name
+        debug.log("loading structure "..filename)
+        table.insert(structures, generation.load_structure(filename))
+    end
     return structures
+end
+
+function place_structures(x, z, w, d, seed)
+    local placements = {}
+    local px = math.random() * w
+    local py = 200;
+    local pz = math.random() * d
+    table.insert(placements, {0, {px, py, pz}})
+    return placements
 end
 
 local function _generate_heightmap(x, y, w, h, seed, s)

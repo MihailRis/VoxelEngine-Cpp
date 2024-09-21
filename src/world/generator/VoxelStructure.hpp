@@ -48,6 +48,7 @@ public:
     }
 
     const std::vector<voxel>& getRuntimeVoxels() {
+        assert(!voxelsRuntime.empty());
         return voxelsRuntime;
     }
 };

@@ -43,6 +43,7 @@ public:
                             lua::touserdata<lua::LuaVoxelStructure>(L, -1)) {
                         structures.push_back(lstruct->getStructure());
                     }
+                    lua::pop(L);
                 }
             }
         }
@@ -95,6 +96,40 @@ public:
             maps.push_back(std::make_shared<Heightmap>(size.x, size.y));
         }
         return maps;
+    }
+
+    std::vector<StructurePlacement> placeStructures(
+        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed
+    ) override {
+        std::vector<StructurePlacement> placements;
+        
+        auto L = lua::get_main_thread();
+        lua::stackguard _(L);
+        lua::pushenv(L, *env);
+        if (lua::getfield(L, "place_structures")) {
+            lua::pushivec_stack(L, offset);
+            lua::pushivec_stack(L, size);
+            lua::pushinteger(L, seed);
+            if (lua::call_nothrow(L, 5, 1)) {
+                int len = lua::objlen(L, -1);
+                for (int i = 1; i <= len; i++) {
+                    lua::rawgeti(L, i);
+
+                    lua::rawgeti(L, 1);
+                    int structIndex = lua::tointeger(L, -1);
+                    lua::pop(L);
+
+                    lua::rawgeti(L, 2);
+                    glm::ivec3 pos = lua::tovec3(L, -1);
+
+                    lua::pop(L);
+
+                    placements.emplace_back(structIndex, pos);
+                }
+                lua::pop(L);
+            }
+        }
+        return placements;
     }
 
     void prepare(const Content* content) override {

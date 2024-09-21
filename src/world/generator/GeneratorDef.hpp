@@ -5,6 +5,7 @@
 
 #include "typedefs.hpp"
 #include "maths/Heightmap.hpp"
+#include "StructurePlacement.hpp"
 
 class Content;
 class VoxelStructure;
@@ -114,6 +115,10 @@ public:
     virtual std::vector<std::shared_ptr<Heightmap>> generateParameterMaps(
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed) = 0;
 
+    virtual std::vector<StructurePlacement> placeStructures(
+        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed) = 0;
+
+    /// @brief Get generator biomes
     virtual const std::vector<Biome>& getBiomes() const = 0;
 
     /// @return Number of biome parameters, that biome choosing depending on

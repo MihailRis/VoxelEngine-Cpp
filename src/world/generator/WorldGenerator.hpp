@@ -9,6 +9,7 @@
 #include "typedefs.hpp"
 #include "voxels/voxel.hpp"
 #include "SurroundMap.hpp"
+#include "StructurePlacement.hpp"
 
 class Content;
 struct GeneratorDef;
@@ -17,20 +18,11 @@ struct Biome;
 class VoxelStructure;
 
 enum class ChunkPrototypeLevel {
-    BIOMES, HEIGHTMAP
-};
-
-struct StructurePlacement {
-    VoxelStructure& structure;
-
-    glm::ivec3 position;
-
-    StructurePlacement(VoxelStructure& structure, glm::ivec3 position)
-        : structure(structure), position(std::move(position)) {}
+    VOID=0, STRUCTURES, BIOMES, HEIGHTMAP
 };
 
 struct ChunkPrototype {
-    ChunkPrototypeLevel level;
+    ChunkPrototypeLevel level = ChunkPrototypeLevel::VOID;
 
     /// @brief chunk biomes matrix
     std::unique_ptr<const Biome*[]> biomes;
@@ -39,14 +31,6 @@ struct ChunkPrototype {
     std::shared_ptr<Heightmap> heightmap;
 
     std::vector<StructurePlacement> structures;
-
-    ChunkPrototype(
-        ChunkPrototypeLevel level,
-        std::unique_ptr<const Biome*[]> biomes,
-        std::shared_ptr<Heightmap> heightmap
-    ) : level(level),
-        biomes(std::move(biomes)),
-        heightmap(std::move(heightmap)) {};
 };
 
 /// @brief High-level world generation controller
@@ -69,7 +53,13 @@ class WorldGenerator {
     /// @param z chunk position Y divided by CHUNK_D
     std::unique_ptr<ChunkPrototype> generatePrototype(int x, int z);
 
-    void generateHeightmap(ChunkPrototype* prototype, int x, int z);
+    ChunkPrototype& requirePrototype(int x, int z);
+
+    void generateStructures(ChunkPrototype& prototype, int x, int z);
+
+    void generateBiomes(ChunkPrototype& prototype, int x, int z);
+
+    void generateHeightmap(ChunkPrototype& prototype, int x, int z);
 public:
     WorldGenerator(
         const GeneratorDef& def,

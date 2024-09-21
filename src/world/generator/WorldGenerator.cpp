@@ -15,7 +15,7 @@
 static debug::Logger logger("world-generator");
 
 static inline constexpr uint MAX_PARAMETERS = 4;
-static inline constexpr uint MAX_CHUNK_PROTOTYPE_LEVELS = 3;
+static inline constexpr uint MAX_CHUNK_PROTOTYPE_LEVELS = 5;
 
 WorldGenerator::WorldGenerator(
     const GeneratorDef& def, const Content* content, uint64_t seed
@@ -44,13 +44,30 @@ WorldGenerator::WorldGenerator(
         if (found == prototypes.end()) {
             throw std::runtime_error("prototype not found");
         }
-        generateHeightmap(found->second.get(), x, z);
+        generateStructures(requirePrototype(x, z), x, z);
+    });
+    surroundMap.setLevelCallback(3, [this](int const x, int const z) {
+        generateBiomes(requirePrototype(x, z), x, z);
+    });
+    surroundMap.setLevelCallback(4, [this](int const x, int const z) {
+        generateHeightmap(requirePrototype(x, z), x, z);
     });
 
     structures = def.script->loadStructures();
+    for (auto& structure : structures) {
+        structure->prepare(*content);
+    }
 }
 
 WorldGenerator::~WorldGenerator() {}
+
+ChunkPrototype& WorldGenerator::requirePrototype(int x, int z) {
+    const auto& found = prototypes.find({x, z});
+    if (found == prototypes.end()) {
+        throw std::runtime_error("prototype not found");
+    }
+    return *found->second;
+}
 
 static inline void generate_pole(
     const BlocksLayers& layers,
@@ -112,6 +129,27 @@ static inline const Biome* choose_biome(
 std::unique_ptr<ChunkPrototype> WorldGenerator::generatePrototype(
     int chunkX, int chunkZ
 ) {
+    return std::make_unique<ChunkPrototype>();
+}
+
+void WorldGenerator::generateStructures(
+    ChunkPrototype& prototype, int chunkX, int chunkZ
+) {
+    if (prototype.level >= ChunkPrototypeLevel::STRUCTURES) {
+        return;
+    }
+    prototype.structures = def.script->placeStructures(
+        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed
+    );
+    prototype.level = ChunkPrototypeLevel::STRUCTURES;
+}
+
+void WorldGenerator::generateBiomes(
+    ChunkPrototype& prototype, int chunkX, int chunkZ
+) {
+    if (prototype.level >= ChunkPrototypeLevel::BIOMES) {
+        return;
+    }
     auto biomeParams = def.script->generateParameterMaps(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed);
     const auto& biomes = def.script->getBiomes();
@@ -123,21 +161,19 @@ std::unique_ptr<ChunkPrototype> WorldGenerator::generatePrototype(
                 choose_biome(biomes, biomeParams, x, z);
         }
     }
-    return std::make_unique<ChunkPrototype>(
-        ChunkPrototypeLevel::BIOMES,
-        std::move(chunkBiomes),
-        nullptr);
+    prototype.biomes = std::move(chunkBiomes);
+    prototype.level = ChunkPrototypeLevel::BIOMES;
 }
 
 void WorldGenerator::generateHeightmap(
-    ChunkPrototype* prototype, int chunkX, int chunkZ
+    ChunkPrototype& prototype, int chunkX, int chunkZ
 ) {
-    if (prototype->level >= ChunkPrototypeLevel::HEIGHTMAP) {
+    if (prototype.level >= ChunkPrototypeLevel::HEIGHTMAP) {
         return;
     }
-    prototype->heightmap = def.script->generateHeightmap(
+    prototype.heightmap = def.script->generateHeightmap(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed);
-    prototype->level = ChunkPrototypeLevel::HEIGHTMAP;
+    prototype.level = ChunkPrototypeLevel::HEIGHTMAP;
 }
 
 void WorldGenerator::update(int centerX, int centerY, int loadDistance) {
@@ -150,13 +186,8 @@ void WorldGenerator::update(int centerX, int centerY, int loadDistance) {
 void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
     surroundMap.completeAt(chunkX, chunkZ);
 
-    const auto& found = prototypes.find({chunkX, chunkZ});
-    if (found == prototypes.end()) {
-        throw std::runtime_error("no prototype found");
-    }
-
-    auto prototype = found->second.get();
-    const auto values = prototype->heightmap->getValues();
+    const auto& prototype = requirePrototype(chunkX, chunkZ);
+    const auto values = prototype.heightmap->getValues();
 
     uint seaLevel = def.script->getSeaLevel();
 
@@ -165,7 +196,7 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
     PseudoRandom plantsRand;
     plantsRand.setSeed(chunkX, chunkZ);
 
-    const auto& biomes = prototype->biomes.get();
+    const auto& biomes = prototype.biomes.get();
     for (uint z = 0; z < CHUNK_D; z++) {
         for (uint x = 0; x < CHUNK_W; x++) {
             const Biome* biome = biomes[z * CHUNK_W + x];
@@ -185,6 +216,36 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
                 blockid_t plant = biome->plants.choose(rand);
                 if (plant) {
                     voxels[vox_index(x, height+1, z)].id = plant;
+                }
+            }
+        }
+    }
+
+    for (const auto& placement : prototype.structures) {
+        if (placement.structure < 0 || placement.structure >= structures.size()) {
+            logger.error() << "invalid structure index " << placement.structure;
+        }
+        auto& structure = *structures[placement.structure];
+        auto& structVoxels = structure.getRuntimeVoxels();
+        const auto& offset = placement.position;
+        const auto& size = structure.getSize();
+        for (int y = 0; y < size.y; y++) {
+            int sy = y + offset.y;
+            if (sy < 0 || sy >= CHUNK_H) {
+                continue;
+            }
+            for (int z = 0; z < size.z; z++) {
+                int sz = z + offset.z;
+                if (sz < 0 || sz >= CHUNK_D) {
+                    continue;
+                }
+                for (int x = 0; x < size.x; x++) {
+                    int sx = x + offset.x;
+                    if (sx < 0 || sx >= CHUNK_W) {
+                        continue;
+                    }
+                    voxels[vox_index(sx, sy, sz)] = 
+                        structVoxels[vox_index(x, y, z, size.x, size.z)];
                 }
             }
         }

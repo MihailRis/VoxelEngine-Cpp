@@ -40,6 +40,7 @@ std::unique_ptr<VoxelStructure> VoxelStructure::create(
             index = found->second;
         }
         voxels[i].id = index;
+        voxels[i].state = volVoxels[i].state;
     }
 
     return std::make_unique<VoxelStructure>(
@@ -67,6 +68,11 @@ void VoxelStructure::deserialize(const dv::value& src) {
     size = glm::ivec3();
     dv::get_vec(src, "size", size);
 
+    const auto& namesArr = src["block-names"];
+    for (const auto& elem : namesArr) {
+        blockNames.push_back(elem.asString());
+    }
+
     auto volume = size.x*size.y*size.z;
     voxels.resize(volume);
 
@@ -81,7 +87,7 @@ void VoxelStructure::prepare(const Content& content) {
     auto volume = size.x*size.y*size.z;
     voxelsRuntime.resize(volume);
     for (size_t i = 0; i < volume; i++) {
-        const auto& name = blockNames[voxels[i].id];
+        const auto& name = blockNames.at(voxels[i].id);
         voxelsRuntime[i].id = content.blocks.require(name).rt.id;
         voxelsRuntime[i].state = voxels[i].state;
     }
