@@ -41,17 +41,13 @@ WorldGenerator::WorldGenerator(
         prototypes[{x, z}] = generatePrototype(x, z);
     });
     surroundMap.setLevelCallback(2, [this](int const x, int const z) {
-        const auto& found = prototypes.find({x, z});
-        if (found == prototypes.end()) {
-            throw std::runtime_error("prototype not found");
-        }
-        generateStructures(requirePrototype(x, z), x, z);
-    });
-    surroundMap.setLevelCallback(3, [this](int const x, int const z) {
         generateBiomes(requirePrototype(x, z), x, z);
     });
-    surroundMap.setLevelCallback(4, [this](int const x, int const z) {
+    surroundMap.setLevelCallback(3, [this](int const x, int const z) {
         generateHeightmap(requirePrototype(x, z), x, z);
+    });
+    surroundMap.setLevelCallback(4, [this](int const x, int const z) {
+        generateStructures(requirePrototype(x, z), x, z);
     });
 
     structures = def.script->loadStructures();
@@ -145,7 +141,8 @@ void WorldGenerator::generateStructures(
         return;
     }
     util::concat(prototype.structures, def.script->placeStructures(
-        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed
+        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed,
+        prototype.heightmap
     ));
     for (const auto& placement : prototype.structures) {
         const auto& offset = placement.position;

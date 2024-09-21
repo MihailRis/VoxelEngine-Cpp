@@ -116,7 +116,8 @@ public:
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed) = 0;
 
     virtual std::vector<StructurePlacement> placeStructures(
-        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed) = 0;
+        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed,
+        const std::shared_ptr<Heightmap>& heightmap) = 0;
 
     /// @brief Get generator biomes
     virtual const std::vector<Biome>& getBiomes() const = 0;

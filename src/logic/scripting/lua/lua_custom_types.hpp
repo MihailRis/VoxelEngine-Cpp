@@ -39,6 +39,7 @@ namespace lua {
         std::shared_ptr<Heightmap> map;
         std::unique_ptr<fnl_state> noise;
     public:
+        LuaHeightmap(const std::shared_ptr<Heightmap>& map);
         LuaHeightmap(uint width, uint height);
 
         virtual ~LuaHeightmap();

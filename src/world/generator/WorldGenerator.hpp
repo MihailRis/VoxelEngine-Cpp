@@ -18,7 +18,7 @@ struct Biome;
 class VoxelStructure;
 
 enum class ChunkPrototypeLevel {
-    VOID=0, STRUCTURES, BIOMES, HEIGHTMAP
+    VOID=0, BIOMES, HEIGHTMAP, STRUCTURES
 };
 
 struct ChunkPrototype {

@@ -16,6 +16,10 @@
 
 using namespace lua;
 
+LuaHeightmap::LuaHeightmap(const std::shared_ptr<Heightmap>& map)
+ : map(map), noise(std::make_unique<fnl_state>(fnlCreateState())) {
+}
+
 LuaHeightmap::LuaHeightmap(uint width, uint height)
  : map(std::make_shared<Heightmap>(width, height)),
    noise(std::make_unique<fnl_state>(fnlCreateState())) 

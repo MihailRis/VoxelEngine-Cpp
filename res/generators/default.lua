@@ -45,10 +45,12 @@ biomes = {
             {value=0.2, weight=0.5},
         },
         sea_layers = {
+            {block="base:brick", height=1},
             {block="base:water", height=-1},
         },
         layers = {
-            {block="base:stone", height=6},
+            {block="base:grass_block", height=1, below_sea_level=false},
+            {block="base:dirt", height=3, below_sea_level=false},
             {block="base:stone", height=-1},
             {block="base:bazalt", height=1},
         }
@@ -57,7 +59,7 @@ biomes = {
 
 function load_structures()
     local structures = {}
-    local names = {"tree0", "tower"}
+    local names = {"tree0", "tree1", "tree2", "tower"}
     for i, name in ipairs(names) do
         local filename = "core:default.files/"..name
         debug.log("loading structure "..filename)
@@ -66,9 +68,8 @@ function load_structures()
     return structures
 end
 
-function place_structures(x, z, w, d, seed)
+function place_structures(x, z, w, d, seed, hmap)
     local placements = {}
-    local hmap = generate_heightmap(x, z, w, d, seed)
     for i=0,math.floor(math.random()*3) do
         local px = math.random() * w
         local pz = math.random() * d
@@ -76,15 +77,15 @@ function place_structures(x, z, w, d, seed)
         if py <= sea_level then
             goto continue
         end
-        table.insert(placements, {0, {px-8, py, pz-8}})
+        table.insert(placements, {math.floor(math.random() * 3), {px-8, py, pz-8}})
         ::continue::
     end
 
-    if math.random() < 0.03 then
+    if math.random() < 0.01 then
         local px = math.random() * w
         local pz = math.random() * d
         local py = hmap:at(px, pz) * 256
-        table.insert(placements, {1, {px-8, py, pz-8}})
+        table.insert(placements, {3, {px-8, py, pz-8}})
     end
     return placements
 end

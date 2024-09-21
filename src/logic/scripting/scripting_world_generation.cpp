@@ -13,6 +13,8 @@
 #include "data/dv.hpp"
 #include "world/generator/GeneratorDef.hpp"
 
+#include "util/timeutil.hpp"
+
 class LuaGeneratorScript : public GeneratorScript {
     scriptenv env;
     std::vector<Biome> biomes;
@@ -99,7 +101,8 @@ public:
     }
 
     std::vector<StructurePlacement> placeStructures(
-        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed
+        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed,
+        const std::shared_ptr<Heightmap>& heightmap
     ) override {
         std::vector<StructurePlacement> placements;
         
@@ -110,7 +113,8 @@ public:
             lua::pushivec_stack(L, offset);
             lua::pushivec_stack(L, size);
             lua::pushinteger(L, seed);
-            if (lua::call_nothrow(L, 5, 1)) {
+            lua::newuserdata<lua::LuaHeightmap>(L, heightmap);
+            if (lua::call_nothrow(L, 6, 1)) {
                 int len = lua::objlen(L, -1);
                 for (int i = 1; i <= len; i++) {
                     lua::rawgeti(L, i);
