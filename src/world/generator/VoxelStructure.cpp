@@ -109,7 +109,7 @@ std::unique_ptr<VoxelStructure> VoxelStructure::rotated(const Content& content) 
                 if (def.rotations.name == BlockRotProfile::PANE_NAME ||
                       def.rotations.name == BlockRotProfile::PIPE_NAME){
                     if (voxel.state.rotation < 4) {
-                        voxel.state.rotation = (voxel.state.rotation + 3) & 0b11;
+                        voxel.state.rotation = (voxel.state.rotation + 1) & 0b11;
                     }
                 }
             }
