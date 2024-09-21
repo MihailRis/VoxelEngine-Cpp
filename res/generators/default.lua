@@ -68,10 +68,13 @@ end
 
 function place_structures(x, z, w, d, seed)
     local placements = {}
-    local px = math.random() * w
-    local py = 200;
-    local pz = math.random() * d
-    table.insert(placements, {0, {px, py, pz}})
+    local hmap = generate_heightmap(x, z, w, d, seed)
+    for i=0,math.floor(math.random()*3)+5 do
+        local px = math.random() * w
+        local pz = math.random() * d
+        local py = hmap:at(px, pz) * 256
+        table.insert(placements, {0, {px-8, py, pz-8}})
+    end
     return placements
 end
 

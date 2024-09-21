@@ -10,6 +10,7 @@
 #include "GeneratorDef.hpp"
 #include "VoxelStructure.hpp"
 #include "util/timeutil.hpp"
+#include "util/listutil.hpp"
 #include "debug/Logger.hpp"
 
 static debug::Logger logger("world-generator");
@@ -132,15 +133,49 @@ std::unique_ptr<ChunkPrototype> WorldGenerator::generatePrototype(
     return std::make_unique<ChunkPrototype>();
 }
 
+inline AABB gen_chunk_aabb(int chunkX, int chunkZ) {
+    return AABB({chunkX * CHUNK_W, 0, chunkZ * CHUNK_D}, 
+                {(chunkX + 1)*CHUNK_W, 256, (chunkZ + 1) * CHUNK_D});
+}
+
 void WorldGenerator::generateStructures(
     ChunkPrototype& prototype, int chunkX, int chunkZ
 ) {
     if (prototype.level >= ChunkPrototypeLevel::STRUCTURES) {
         return;
     }
-    prototype.structures = def.script->placeStructures(
+    util::concat(prototype.structures, def.script->placeStructures(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed
-    );
+    ));
+    for (const auto& placement : prototype.structures) {
+        const auto& offset = placement.position;
+        if (placement.structure < 0 || placement.structure >= structures.size()) {
+            logger.error() << "invalid structure index " << placement.structure;
+            continue;
+        }
+        auto& structure = *structures[placement.structure];
+        auto position = glm::ivec3(chunkX * CHUNK_W, 0, chunkZ * CHUNK_D)+offset;
+        auto size = structure.getSize() + glm::ivec3(0, CHUNK_H, 0);
+        AABB aabb(position, position + size);
+        for (int lcz = -1; lcz <= 1; lcz++) {
+            for (int lcx = -1; lcx <= 1; lcx++) {
+                if (lcx == 0 && lcz == 0) {
+                    continue;
+                }
+                auto& otherPrototype = requirePrototype(
+                    chunkX + lcx, chunkZ + lcz
+                );
+                auto chunkAABB = gen_chunk_aabb(chunkX + lcx, chunkZ + lcz);
+                if (chunkAABB.intersect(aabb)) {
+                    otherPrototype.structures.emplace_back(
+                        placement.structure, 
+                        placement.position - 
+                            glm::ivec3(lcx * CHUNK_W, 0, lcz * CHUNK_D)
+                    );
+                }
+            }
+        }
+    }
     prototype.level = ChunkPrototypeLevel::STRUCTURES;
 }
 
@@ -224,6 +259,7 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
     for (const auto& placement : prototype.structures) {
         if (placement.structure < 0 || placement.structure >= structures.size()) {
             logger.error() << "invalid structure index " << placement.structure;
+            continue;
         }
         auto& structure = *structures[placement.structure];
         auto& structVoxels = structure.getRuntimeVoxels();
@@ -244,8 +280,11 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
                     if (sx < 0 || sx >= CHUNK_W) {
                         continue;
                     }
-                    voxels[vox_index(sx, sy, sz)] = 
+                    const auto& structVoxel = 
                         structVoxels[vox_index(x, y, z, size.x, size.z)];
+                    if (structVoxel.id) {
+                        voxels[vox_index(sx, sy, sz)] = structVoxel;
+                    }
                 }
             }
         }

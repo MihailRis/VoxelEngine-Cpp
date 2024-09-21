@@ -121,6 +121,7 @@ public:
 
                     lua::rawgeti(L, 2);
                     glm::ivec3 pos = lua::tovec3(L, -1);
+                    lua::pop(L);
 
                     lua::pop(L);
 

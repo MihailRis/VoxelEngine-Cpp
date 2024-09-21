@@ -70,6 +70,15 @@ static int l_dump(lua::State* L) {
     return 0;
 }
 
+static int l_at(lua::State* L) {
+    if (auto heightmap = touserdata<LuaHeightmap>(L, 1)) {
+        int x = lua::tointeger(L, 2);
+        int y = lua::tointeger(L, 3);
+        return lua::pushnumber(L, heightmap->getHeightmap()->get(x, y));
+    }
+    return 0;
+}
+
 template<fnl_noise_type noise_type>
 static int l_noise(lua::State* L) {
     if (auto heightmap = touserdata<LuaHeightmap>(L, 1)) {
@@ -208,6 +217,7 @@ static std::unordered_map<std::string, lua_CFunction> methods {
     {"abs", lua::wrap<l_unaryop_func<util::abs>>},
     {"resize", lua::wrap<l_resize>},
     {"crop", lua::wrap<l_crop>},
+    {"at", lua::wrap<l_at>},
 };
 
 static int l_meta_meta_call(lua::State* L) {
