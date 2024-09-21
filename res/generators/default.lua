@@ -57,7 +57,7 @@ biomes = {
 
 function load_structures()
     local structures = {}
-    local names = {"tree0"}
+    local names = {"tree0", "tower"}
     for i, name in ipairs(names) do
         local filename = "core:default.files/"..name
         debug.log("loading structure "..filename)
@@ -69,11 +69,22 @@ end
 function place_structures(x, z, w, d, seed)
     local placements = {}
     local hmap = generate_heightmap(x, z, w, d, seed)
-    for i=0,math.floor(math.random()*3)+5 do
+    for i=0,math.floor(math.random()*3) do
         local px = math.random() * w
         local pz = math.random() * d
         local py = hmap:at(px, pz) * 256
+        if py <= sea_level then
+            goto continue
+        end
         table.insert(placements, {0, {px-8, py, pz-8}})
+        ::continue::
+    end
+
+    if math.random() < 0.03 then
+        local px = math.random() * w
+        local pz = math.random() * d
+        local py = hmap:at(px, pz) * 256
+        table.insert(placements, {1, {px-8, py, pz-8}})
     end
     return placements
 end
@@ -125,10 +136,10 @@ end
 local function _generate_biome_parameters(x, y, w, h, seed, s)
     local tempmap = Heightmap(w, h)
     tempmap.noiseSeed = seed + 5324
-    tempmap:noise({x, y}, 0.4*s, 4)
+    tempmap:noise({x, y}, 0.04*s, 4)
     local hummap = Heightmap(w, h)
     hummap.noiseSeed = seed + 953
-    hummap:noise({x, y}, 0.16*s, 4)
+    hummap:noise({x, y}, 0.016*s, 4)
     tempmap:pow(2)
     hummap:pow(2)
     return tempmap, hummap
