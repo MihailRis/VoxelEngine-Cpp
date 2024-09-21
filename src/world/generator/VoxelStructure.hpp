@@ -40,6 +40,9 @@ public:
     /// @param content world content
     void prepare(const Content& content);
 
+    /// @brief Create structure copy rotated 90 deg. clockwise
+    std::unique_ptr<VoxelStructure> rotated(const Content& content) const;
+
     static std::unique_ptr<VoxelStructure> create(
         Level* level, const glm::ivec3& a, const glm::ivec3& b, bool entities);
 
@@ -47,6 +50,7 @@ public:
         return size;
     }
 
+    /// @return Voxels with indices valid to current world content
     const std::vector<voxel>& getRuntimeVoxels() {
         assert(!voxelsRuntime.empty());
         return voxelsRuntime;

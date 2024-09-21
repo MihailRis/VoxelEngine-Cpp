@@ -1,7 +1,6 @@
 #include "WorldGenerator.hpp"
 
 #include <cstring>
-#include <iostream>
 
 #include "maths/util.hpp"
 #include "content/Content.hpp"
@@ -50,9 +49,16 @@ WorldGenerator::WorldGenerator(
         generateStructures(requirePrototype(x, z), x, z);
     });
 
-    structures = def.script->loadStructures();
-    for (auto& structure : structures) {
-        structure->prepare(*content);
+    auto rawStructures = def.script->loadStructures();
+    structures.resize(rawStructures.size());
+
+    for (int i = 0; i < rawStructures.size(); i++) {
+        structures[i][0] = std::move(rawStructures[i]);
+        structures[i][0]->prepare(*content);
+        // pre-calculate rotated structure variants
+        for (int j = 1; j < 4; j++) {
+            structures[i][j] = structures[i][j-1]->rotated(*content);
+        }
     }
 }
 
@@ -150,7 +156,7 @@ void WorldGenerator::generateStructures(
             logger.error() << "invalid structure index " << placement.structure;
             continue;
         }
-        auto& structure = *structures[placement.structure];
+        auto& structure = *structures[placement.structure][placement.rotation];
         auto position = glm::ivec3(chunkX * CHUNK_W, 0, chunkZ * CHUNK_D)+offset;
         auto size = structure.getSize() + glm::ivec3(0, CHUNK_H, 0);
         AABB aabb(position, position + size);
@@ -167,7 +173,8 @@ void WorldGenerator::generateStructures(
                     otherPrototype.structures.emplace_back(
                         placement.structure, 
                         placement.position - 
-                            glm::ivec3(lcx * CHUNK_W, 0, lcz * CHUNK_D)
+                            glm::ivec3(lcx * CHUNK_W, 0, lcz * CHUNK_D),
+                        placement.rotation
                     );
                 }
             }
@@ -258,7 +265,7 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
             logger.error() << "invalid structure index " << placement.structure;
             continue;
         }
-        auto& structure = *structures[placement.structure];
+        auto& structure = *structures[placement.structure][placement.rotation];
         auto& structVoxels = structure.getRuntimeVoxels();
         const auto& offset = placement.position;
         const auto& size = structure.getSize();

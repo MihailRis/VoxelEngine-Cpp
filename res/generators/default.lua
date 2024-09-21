@@ -77,7 +77,8 @@ function place_structures(x, z, w, d, seed, hmap)
         if py <= sea_level then
             goto continue
         end
-        table.insert(placements, {math.floor(math.random() * 3), {px-8, py, pz-8}})
+        table.insert(placements, 
+            {math.floor(math.random() * 3), {px-8, py, pz-8}, math.floor(math.random()*4)})
         ::continue::
     end
 
@@ -85,7 +86,7 @@ function place_structures(x, z, w, d, seed, hmap)
         local px = math.random() * w
         local pz = math.random() * d
         local py = hmap:at(px, pz) * 256
-        table.insert(placements, {3, {px-8, py, pz-8}})
+        table.insert(placements, {3, {px-8, py, pz-8}, 0})
     end
     return placements
 end

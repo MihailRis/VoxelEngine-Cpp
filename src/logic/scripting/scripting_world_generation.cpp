@@ -127,9 +127,13 @@ public:
                     glm::ivec3 pos = lua::tovec3(L, -1);
                     lua::pop(L);
 
+                    lua::rawgeti(L, 3);
+                    int rotation = lua::tointeger(L, -1) & 0b11;
                     lua::pop(L);
 
-                    placements.emplace_back(structIndex, pos);
+                    lua::pop(L);
+
+                    placements.emplace_back(structIndex, pos, rotation);
                 }
                 lua::pop(L);
             }
