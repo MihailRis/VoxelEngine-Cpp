@@ -87,7 +87,6 @@ public:
                 for (int i = biomeParameters-1; i >= 0; i--) {
                     maps.push_back(
                         lua::touserdata<lua::LuaHeightmap>(L, -1-i)->getHeightmap());
-                    
                 }
                 lua::pop(L, 1+biomeParameters);
                 return maps;

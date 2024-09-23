@@ -56,7 +56,7 @@ namespace lua {
             return TYPENAME;
         }
 
-        std::shared_ptr<Heightmap> getHeightmap() const {
+        const std::shared_ptr<Heightmap>& getHeightmap() const {
             return map;
         }
 

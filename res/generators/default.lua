@@ -39,21 +39,20 @@ biomes = {
             {block="base:bazalt", height=1},
         }
     },
-    mountains = {
+    forest = {
         parameters = {
             {value=1.0, weight=1.0},
             {value=0.2, weight=0.5},
         },
         sea_layers = {
-            {block="base:brick", height=1},
             {block="base:water", height=-1},
         },
         layers = {
             {block="base:grass_block", height=1, below_sea_level=false},
-            {block="base:dirt", height=3, below_sea_level=false},
+            {block="base:dirt", height=7, below_sea_level=false},
             {block="base:stone", height=-1},
             {block="base:bazalt", height=1},
-        }
+        },
     }
 }
 
@@ -70,7 +69,7 @@ end
 
 function place_structures(x, z, w, d, seed, hmap)
     local placements = {}
-    for i=0,math.floor(math.random()*3) do
+    for i=0,math.floor(math.random()*3)+5 do
         local px = math.random() * w
         local pz = math.random() * d
         local py = hmap:at(px, pz) * 256
@@ -102,8 +101,7 @@ local function _generate_heightmap(x, y, w, h, seed, s)
     local map = Heightmap(w, h)
     map.noiseSeed = seed
     map:noise({x, y}, 0.8*s, 4, 0.04)
-    map:cellnoise({x, y}, 0.1*s, 3, 0.7, umap, vmap)
-    map:mul(0.5)
+    map:cellnoise({x, y}, 0.1*s, 3, 0.5, umap, vmap)
     map:add(0.5)
 
     local rivermap = Heightmap(w, h)
@@ -111,11 +109,10 @@ local function _generate_heightmap(x, y, w, h, seed, s)
     rivermap:noise({x+21, y+12}, 0.1*s, 4)
     rivermap:abs()
     rivermap:mul(2.0)
-    rivermap:pow(0.3)
+    rivermap:pow(0.2)
     rivermap:max(0.6)
     map:add(0.4)
     map:mul(rivermap)
-    map:add(-0.15)
 
     return map
 end
