@@ -79,6 +79,7 @@ public:
     }
 
     std::vector<StructurePlacement> placeStructures(
+        const GeneratorDef& def,
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed,
         const std::shared_ptr<Heightmap>& heightmap
     ) override {
@@ -98,7 +99,15 @@ public:
                     lua::rawgeti(L, i);
 
                     lua::rawgeti(L, 1);
-                    int structIndex = lua::tointeger(L, -1);
+                    int structIndex = 0;
+                    if (lua::isstring(L, -1)) {
+                        const auto& found = def.structuresIndices.find(lua::require_string(L, -1));
+                        if (found != def.structuresIndices.end()) {
+                            structIndex = found->second;
+                        }
+                    } else {
+                        structIndex = lua::tointeger(L, -1);
+                    }
                     lua::pop(L);
 
                     lua::rawgeti(L, 2);

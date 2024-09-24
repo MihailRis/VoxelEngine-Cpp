@@ -8,6 +8,12 @@ biomes = json.parse(file.read("core:generators/default/biomes.json"))
 
 function place_structures(x, z, w, d, seed, hmap)
     local placements = {}
+    for i=1,10 do
+        local sx = math.random() * w
+        local sz = math.random() * d
+        local sy = math.random() * hmap:at(sx, sz)*256 - 6
+        table.insert(placements, {"coal_ore0", {sx, sy, sz}, math.random()*4})
+    end
     return placements
 end
 

@@ -175,7 +175,7 @@ void WorldGenerator::generateStructures(
     const auto& heightmap = prototype.heightmap;
 
     util::concat(prototype.structures, def.script->placeStructures(
-        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed,
+        def, {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed,
         heightmap
     ));
     for (const auto& placement : prototype.structures) {
