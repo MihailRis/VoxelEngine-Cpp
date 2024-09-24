@@ -1,0 +1,68 @@
+{
+    "forest": {
+        "parameters": [
+            {"weight": 1, "value": 1},
+            {"weight": 0.5, "value": 0.2}
+        ],
+        "layers": [
+            {"below_sea_level": false, "height": 1, "block": "base:grass_block"},
+            {"below_sea_level": false, "height": 7, "block": "base:dirt"},
+            {"height": -1, "block": "base:stone"},
+            {"height": 1, "block": "base:bazalt"}
+        ],
+        "sea_layers": [
+            {"height": -1, "block": "base:water"}
+        ],
+        "plant_chance": 0.4,
+        "plants": [
+            {"weight": 1, "block": "base:grass"},
+            {"weight": 0.03, "block": "base:flower"}
+        ],
+        "structure_chance": 0.032,
+        "structures": [
+            {"name": "tree0", "weight": 1},
+            {"name": "tree1", "weight": 1},
+            {"name": "tree2", "weight": 1},
+            {"name": "tower", "weight": 0.002}
+        ]
+    },
+    "desert": {
+        "parameters": [
+            {"weight": 0.1, "value": 0},
+            {"weight": 0.1, "value": 0}
+        ],
+        "layers": [
+            {"height": 6, "block": "base:sand"},
+            {"height": -1, "block": "base:stone"},
+            {"height": 1, "block": "base:bazalt"}
+        ],
+        "sea_layers": [
+            {"height": -1, "block": "base:water"}
+        ]
+    },
+    "plains": {
+        "parameters": [
+            {"weight": 0.6, "value": 0.5},
+            {"weight": 0.6, "value": 0.5}
+        ],
+        "layers": [
+            {"below_sea_level": false, "height": 1, "block": "base:grass_block"},
+            {"below_sea_level": false, "height": 5, "block": "base:dirt"},
+            {"height": -1, "block": "base:stone"},
+            {"height": 1, "block": "base:bazalt"}
+        ],
+        "sea_layers": [
+            {"height": -1, "block": "base:water"}
+        ],
+        "plant_chance": 0.3,
+        "plants": [
+            {"weight": 1, "block": "base:grass"},
+            {"weight": 0.03, "block": "base:flower"}
+        ],
+        "structure_chance": 0.0001,
+        "structures": [
+            {"name": "tree0", "weight": 1},
+            {"name": "tree1", "weight": 1}
+        ]
+    }
+}
