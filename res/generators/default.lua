@@ -53,6 +53,11 @@ biomes = {
             {block="base:stone", height=-1},
             {block="base:bazalt", height=1},
         },
+        plant_chance = 0.4,
+        plants = {
+            {block="base:grass", weight=1},
+            {block="base:flower", weight=0.03},
+        },
         structure_chance = 0.032,
         structures = {
             {name="tree0", weight=1},
@@ -112,10 +117,10 @@ end
 local function _generate_biome_parameters(x, y, w, h, seed, s)
     local tempmap = Heightmap(w, h)
     tempmap.noiseSeed = seed + 5324
-    tempmap:noise({x, y}, 0.04*s, 4)
+    tempmap:noise({x, y}, 0.04*s, 5)
     local hummap = Heightmap(w, h)
     hummap.noiseSeed = seed + 953
-    hummap:noise({x, y}, 0.016*s, 4)
+    hummap:noise({x, y}, 0.016*s, 5)
     tempmap:pow(2)
     hummap:pow(2)
     return tempmap, hummap
