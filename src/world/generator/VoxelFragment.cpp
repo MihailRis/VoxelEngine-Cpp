@@ -1,4 +1,4 @@
-#include "VoxelStructure.hpp"
+#include "VoxelFragment.hpp"
 
 #include <unordered_map>
 #include <cstring>
@@ -10,7 +10,7 @@
 #include "voxels/VoxelsVolume.hpp"
 #include "world/Level.hpp"
 
-std::unique_ptr<VoxelStructure> VoxelStructure::create(
+std::unique_ptr<VoxelFragment> VoxelFragment::create(
     Level* level, const glm::ivec3& a, const glm::ivec3& b, bool entities
 ) {
     auto start = glm::min(a, b);
@@ -43,11 +43,11 @@ std::unique_ptr<VoxelStructure> VoxelStructure::create(
         voxels[i].state = volVoxels[i].state;
     }
 
-    return std::make_unique<VoxelStructure>(
+    return std::make_unique<VoxelFragment>(
         size, std::move(voxels), std::move(blockNames));
 }
 
-dv::value VoxelStructure::serialize() const {
+dv::value VoxelFragment::serialize() const {
     auto root = dv::object();
     root["version"] = STRUCTURE_FORMAT_VERSION;
     root["size"] = dv::to_value(size);
@@ -64,7 +64,7 @@ dv::value VoxelStructure::serialize() const {
     return root;
 }
 
-void VoxelStructure::deserialize(const dv::value& src) {
+void VoxelFragment::deserialize(const dv::value& src) {
     size = glm::ivec3();
     dv::get_vec(src, "size", size);
 
@@ -83,7 +83,7 @@ void VoxelStructure::deserialize(const dv::value& src) {
     }
 }
 
-void VoxelStructure::prepare(const Content& content) {
+void VoxelFragment::prepare(const Content& content) {
     auto volume = size.x*size.y*size.z;
     voxelsRuntime.resize(volume);
     for (size_t i = 0; i < volume; i++) {
@@ -93,7 +93,7 @@ void VoxelStructure::prepare(const Content& content) {
     }
 }
 
-std::unique_ptr<VoxelStructure> VoxelStructure::rotated(const Content& content) const {
+std::unique_ptr<VoxelFragment> VoxelFragment::rotated(const Content& content) const {
     std::vector<voxel> newVoxels(voxels.size());
 
     for (int y = 0; y < size.y; y++) {
@@ -115,7 +115,7 @@ std::unique_ptr<VoxelStructure> VoxelStructure::rotated(const Content& content) 
             }
         }
     }
-    auto newStructure = std::make_unique<VoxelStructure>(
+    auto newStructure = std::make_unique<VoxelFragment>(
         // swap X and Z on 90 deg. rotation
         glm::ivec3(size.z, size.y, size.x),
         std::move(newVoxels),

@@ -433,18 +433,6 @@ void ContentLoader::loadEntity(
     if (fs::exists(configFile)) loadEntity(def, full, configFile);
 }
 
-
-void ContentLoader::loadGenerator(
-    GeneratorDef& def, const std::string& full, const std::string& name
-) {
-    auto folder = pack->folder;
-    auto generatorFile = folder / fs::path("generators/" + name + ".lua");
-    if (!fs::exists(generatorFile)) {
-        return;
-    }
-    def.script = scripting::load_generator(generatorFile);
-}
-
 void ContentLoader::loadBlock(
     Block& def, const std::string& full, const std::string& name
 ) {
@@ -523,6 +511,9 @@ void ContentLoader::load() {
     if (fs::is_directory(generatorsDir)) {
         for (const auto& entry : fs::directory_iterator(generatorsDir)) {
             const auto& file = entry.path();
+            if (fs::is_directory(file)) {
+                continue;
+            }
 
             std::string name = file.stem().u8string();
             auto [packid, full, filename] =

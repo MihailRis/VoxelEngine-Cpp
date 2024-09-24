@@ -10,6 +10,7 @@
 #include "objects/EntityDef.hpp"
 #include "objects/rigging.hpp"
 #include "voxels/Block.hpp"
+#include "world/generator/VoxelFragment.hpp"
 #include "world/generator/GeneratorDef.hpp"
 #include "ContentPack.hpp"
 

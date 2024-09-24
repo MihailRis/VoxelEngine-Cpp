@@ -16,7 +16,7 @@ class Content;
 struct GeneratorDef;
 class Heightmap;
 struct Biome;
-class VoxelStructure;
+class VoxelFragment;
 
 enum class ChunkPrototypeLevel {
     VOID=0, BIOMES, HEIGHTMAP, STRUCTURES
@@ -47,7 +47,7 @@ class WorldGenerator {
     /// @brief Chunk prototypes loading surround map
     SurroundMap surroundMap;
 
-    std::vector<std::array<std::shared_ptr<VoxelStructure>, 4>> structures;
+    std::vector<std::array<std::shared_ptr<VoxelFragment>, 4>> structures;
 
     /// @brief Generate chunk prototype (see ChunkPrototype)
     /// @param x chunk position X divided by CHUNK_W

@@ -8,6 +8,7 @@
 #include "ContentPack.hpp"
 #include "items/ItemDef.hpp"
 #include "objects/EntityDef.hpp"
+#include "world/generator/VoxelFragment.hpp"
 #include "world/generator/GeneratorDef.hpp"
 #include "voxels/Block.hpp"
 

@@ -2,12 +2,12 @@
 
 #include "../lua_util.hpp"
 
-#include "world/generator/VoxelStructure.hpp"
+#include "world/generator/VoxelFragment.hpp"
 #include "util/stringutil.hpp"
 
 using namespace lua;
 
-LuaVoxelStructure::LuaVoxelStructure(std::shared_ptr<VoxelStructure> structure)
+LuaVoxelStructure::LuaVoxelStructure(std::shared_ptr<VoxelFragment> structure)
     : structure(std::move(structure)) {}
 
 LuaVoxelStructure::~LuaVoxelStructure() {

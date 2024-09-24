@@ -32,8 +32,8 @@ public:
       seaLevel(seaLevel) 
       {}
 
-    std::vector<std::shared_ptr<VoxelStructure>> loadStructures() override {
-        std::vector<std::shared_ptr<VoxelStructure>> structures;
+    std::vector<std::shared_ptr<VoxelFragment>> loadStructures() override {
+        std::vector<std::shared_ptr<VoxelFragment>> structures;
 
         auto L = lua::get_main_thread();
         lua::pushenv(L, *env);

@@ -7,7 +7,7 @@
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
 #include "GeneratorDef.hpp"
-#include "VoxelStructure.hpp"
+#include "VoxelFragment.hpp"
 #include "util/timeutil.hpp"
 #include "util/listutil.hpp"
 #include "debug/Logger.hpp"
@@ -259,6 +259,8 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
             }
         }
     }
+    
+    // TODO: put automatic placement here
 
     for (const auto& placement : prototype.structures) {
         if (placement.structure < 0 || placement.structure >= structures.size()) {

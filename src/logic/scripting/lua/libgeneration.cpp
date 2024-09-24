@@ -4,7 +4,7 @@
 #include "files/util.hpp"
 #include "coders/binary_json.hpp"
 #include "world/Level.hpp"
-#include "world/generator/VoxelStructure.hpp"
+#include "world/generator/VoxelFragment.hpp"
 #include "engine.hpp"
 #include "lua_custom_types.hpp"
 
@@ -19,7 +19,7 @@ static int l_save_structure(lua::State* L) {
     }
     bool saveEntities = lua::toboolean(L, 4);
     
-    auto structure = VoxelStructure::create(level, pointA, pointB, saveEntities);
+    auto structure = VoxelFragment::create(level, pointA, pointB, saveEntities);
     auto map = structure->serialize();
 
     auto bytes = json::to_binary(map);
@@ -37,7 +37,7 @@ static int l_load_structure(lua::State* L) {
     }
     auto map = files::read_binary_json(path);
 
-    auto structure = std::make_shared<VoxelStructure>();
+    auto structure = std::make_shared<VoxelFragment>();
     structure->deserialize(map);
     return lua::newuserdata<lua::LuaVoxelStructure>(L, std::move(structure));
 }

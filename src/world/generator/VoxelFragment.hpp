@@ -11,7 +11,7 @@ inline constexpr int STRUCTURE_FORMAT_VERSION = 1;
 class Level;
 class Content;
 
-class VoxelStructure : public Serializable {
+class VoxelFragment : public Serializable {
     glm::ivec3 size;
 
     /// @brief Structure voxels indexed different to world content
@@ -22,9 +22,9 @@ class VoxelStructure : public Serializable {
     /// @brief Structure voxels built on prepare(...) call
     std::vector<voxel> voxelsRuntime;
 public:
-    VoxelStructure() : size() {}
+    VoxelFragment() : size() {}
 
-    VoxelStructure(
+    VoxelFragment(
         glm::ivec3 size,
         std::vector<voxel> voxels,
         std::vector<std::string> blockNames
@@ -41,9 +41,9 @@ public:
     void prepare(const Content& content);
 
     /// @brief Create structure copy rotated 90 deg. clockwise
-    std::unique_ptr<VoxelStructure> rotated(const Content& content) const;
+    std::unique_ptr<VoxelFragment> rotated(const Content& content) const;
 
-    static std::unique_ptr<VoxelStructure> create(
+    static std::unique_ptr<VoxelFragment> create(
         Level* level, const glm::ivec3& a, const glm::ivec3& b, bool entities);
 
     const glm::ivec3& getSize() const {

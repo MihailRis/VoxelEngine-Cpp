@@ -1,14 +1,20 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <glm/glm.hpp>
+#include <unordered_map>
 
 #include "typedefs.hpp"
 #include "maths/Heightmap.hpp"
 #include "StructurePlacement.hpp"
 
 class Content;
-class VoxelStructure;
+class VoxelFragment;
+
+struct VoxelStructureMeta {
+    std::string name;
+};
 
 struct BlocksLayer {
     /// @brief Layer block
@@ -102,7 +108,7 @@ public:
     virtual ~GeneratorScript() = default;
 
     /// @brief Load all structures
-    virtual std::vector<std::shared_ptr<VoxelStructure>> loadStructures() = 0;
+    virtual std::vector<std::shared_ptr<VoxelFragment>> loadStructures() = 0;
 
     /// @brief Generates a heightmap with values in range 0..1
     /// @param offset position of the heightmap in the world
@@ -133,12 +139,25 @@ public:
     virtual void prepare(const Content* content) = 0;
 };
 
+struct GeneratingVoxelStructure {
+    VoxelStructureMeta meta;
+    std::unique_ptr<VoxelFragment> structure;
+
+    GeneratingVoxelStructure(
+        VoxelStructureMeta meta,
+        std::unique_ptr<VoxelFragment> structure
+    );
+};
+
 /// @brief Generator information
 struct GeneratorDef {
     /// @brief Generator full name - packid:name
     std::string name;
     std::unique_ptr<GeneratorScript> script;
 
-    GeneratorDef(std::string name) : name(std::move(name)) {}
+    std::unordered_map<std::string, size_t> structuresIndices;
+    std::vector<std::unique_ptr<GeneratingVoxelStructure>> structures;
+
+    GeneratorDef(std::string name);
     GeneratorDef(const GeneratorDef&) = delete;
 };
