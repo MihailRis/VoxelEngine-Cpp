@@ -48,7 +48,6 @@ WorldGenerator::WorldGenerator(
     surroundMap.setLevelCallback(4, [this](int const x, int const z) {
         generateStructures(requirePrototype(x, z), x, z);
     });
-
     for (int i = 0; i < def.structures.size(); i++) {
         // pre-calculate rotated structure variants
         def.structures[i]->fragments[0]->prepare(*content);

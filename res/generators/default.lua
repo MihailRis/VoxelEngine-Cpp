@@ -62,17 +62,6 @@ biomes = {
     }
 }
 
-function load_structures()
-    local structures = {}
-    local names = {"tree0", "tree1", "tree2", "tower"}
-    for i, name in ipairs(names) do
-        local filename = "core:default/"..name
-        debug.log("loading structure "..filename)
-        table.insert(structures, generation.load_structure(filename))
-    end
-    return structures
-end
-
 function place_structures(x, z, w, d, seed, hmap)
     local placements = {}
     return placements
