@@ -173,7 +173,6 @@ void WorldGenerator::generateStructures(
     }
     const auto& biomes = prototype.biomes;
     const auto& heightmap = prototype.heightmap;
-    const auto& heights = heightmap->getValues();
 
     util::concat(prototype.structures, def.script->placeStructures(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed,
@@ -189,13 +188,13 @@ void WorldGenerator::generateStructures(
             offset, placement.structure, placement.rotation, chunkX, chunkZ);
     }
 
-    PseudoRandom structsRand;
+    util::PseudoRandom structsRand;
     structsRand.setSeed(chunkX, chunkZ);
 
+    auto heights = heightmap->getValues();
     for (uint z = 0; z < CHUNK_D; z++) {
         for (uint x = 0; x < CHUNK_W; x++) {
-            float rand = (structsRand.randU32() % RAND_MAX) / 
-                static_cast<float>(RAND_MAX);
+            float rand = structsRand.randFloat();
             const Biome* biome = biomes[z * CHUNK_W + x];
             size_t structureId = biome->structures.choose(rand, -1);
             if (structureId == -1) {
@@ -273,7 +272,7 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
 
     std::memset(voxels, 0, sizeof(voxel) * CHUNK_VOL);
 
-    PseudoRandom plantsRand;
+    util::PseudoRandom plantsRand;
     plantsRand.setSeed(chunkX, chunkZ);
 
     const auto& biomes = prototype.biomes.get();
@@ -291,8 +290,7 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
             generate_pole(groundLayers, height, 0, seaLevel, voxels, x, z);
             
             if (height+1 > seaLevel) {
-                float rand = (plantsRand.randU32() % RAND_MAX) / 
-                              static_cast<float>(RAND_MAX);
+                float rand = plantsRand.randFloat();
                 blockid_t plant = biome->plants.choose(rand);
                 if (plant) {
                     voxels[vox_index(x, height+1, z)].id = plant;
@@ -306,7 +304,8 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
             logger.error() << "invalid structure index " << placement.structure;
             continue;
         }
-        auto& structure = *def.structures[placement.structure]->fragments[placement.rotation];
+        auto& generatingStructure = def.structures[placement.structure];
+        auto& structure = *generatingStructure->fragments[placement.rotation];
         auto& structVoxels = structure.getRuntimeVoxels();
         const auto& offset = placement.position;
         const auto& size = structure.getSize();
