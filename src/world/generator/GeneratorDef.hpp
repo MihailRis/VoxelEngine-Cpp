@@ -70,7 +70,7 @@ struct BiomeElementList {
     /// @brief Entries sorted by weight descending.
     std::vector<WeightedEntry> entries;
     /// @brief Sum of weight values
-    float weightsSum;
+    float weightsSum = 0.0f;
     /// @brief Value generation chance
     float chance;
 

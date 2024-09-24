@@ -7,7 +7,7 @@ biome_parameters = 2
 biomes = {
     plains = {
         parameters = {
-            {value=0.5, weight=1.0},
+            {value=0.5, weight=0.3},
             {value=0.5, weight=0.3},
         },
         sea_layers = {
@@ -27,8 +27,8 @@ biomes = {
     },
     desert = {
         parameters = {
-            {value=0.0, weight=0.36},
-            {value=0.0, weight=0.4},
+            {value=0.0, weight=0.1},
+            {value=0.0, weight=0.1},
         },
         sea_layers = {
             {block="base:water", height=-1},
@@ -120,9 +120,9 @@ local function _generate_biome_parameters(x, y, w, h, seed, s)
     tempmap:noise({x, y}, 0.04*s, 5)
     local hummap = Heightmap(w, h)
     hummap.noiseSeed = seed + 953
-    hummap:noise({x, y}, 0.016*s, 5)
-    tempmap:pow(2)
-    hummap:pow(2)
+    hummap:noise({x, y}, 0.04*s, 5)
+    tempmap:pow(3)
+    hummap:pow(3)
     return tempmap, hummap
 end
 

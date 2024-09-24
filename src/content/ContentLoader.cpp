@@ -520,7 +520,6 @@ void ContentLoader::load() {
                 create_unit_id(pack->id, file.stem().u8string());
 
             auto& def = builder.generators.create(full);
-
             try {
                 loadGenerator(def, full, name);
             } catch (const std::runtime_error& err) {
