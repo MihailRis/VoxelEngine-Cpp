@@ -7,8 +7,8 @@ biome_parameters = 2
 biomes = {
     plains = {
         parameters = {
-            {value=0.5, weight=0.3},
-            {value=0.5, weight=0.3},
+            {value=0.5, weight=0.6},
+            {value=0.5, weight=0.6},
         },
         sea_layers = {
             {block="base:water", height=-1},
@@ -23,6 +23,11 @@ biomes = {
         plants = {
             {block="base:grass", weight=1},
             {block="base:flower", weight=0.03},
+        },
+        structure_chance = 0.0001,
+        structures = {
+            {name="tree0", weight=1},
+            {name="tree1", weight=1},
         }
     },
     desert = {
@@ -63,6 +68,7 @@ biomes = {
             {name="tree0", weight=1},
             {name="tree1", weight=1},
             {name="tree2", weight=1},
+            {name="tower", weight=0.002},
         }
     }
 }
@@ -82,20 +88,19 @@ local function _generate_heightmap(x, y, w, h, seed, s)
 
     local map = Heightmap(w, h)
     map.noiseSeed = seed
-    map:noise({x, y}, 0.8*s, 4, 0.04)
-    map:cellnoise({x, y}, 0.1*s, 3, 0.5, umap, vmap)
-    map:add(0.5)
+    map:noise({x, y}, 0.8*s, 4, 0.02)
+    map:cellnoise({x, y}, 0.1*s, 3, 0.3, umap, vmap)
+    map:add(0.4)
 
     local rivermap = Heightmap(w, h)
     rivermap.noiseSeed = seed
     rivermap:noise({x+21, y+12}, 0.1*s, 4)
     rivermap:abs()
     rivermap:mul(2.0)
-    rivermap:pow(0.2)
-    rivermap:max(0.6)
-    map:add(0.4)
+    rivermap:pow(0.15)
+    rivermap:max(0.3)
+    map:add(0.3)
     map:mul(rivermap)
-
     return map
 end
 
@@ -117,10 +122,10 @@ end
 local function _generate_biome_parameters(x, y, w, h, seed, s)
     local tempmap = Heightmap(w, h)
     tempmap.noiseSeed = seed + 5324
-    tempmap:noise({x, y}, 0.04*s, 5)
+    tempmap:noise({x, y}, 0.04*s, 6)
     local hummap = Heightmap(w, h)
     hummap.noiseSeed = seed + 953
-    hummap:noise({x, y}, 0.04*s, 5)
+    hummap:noise({x, y}, 0.04*s, 6)
     tempmap:pow(3)
     hummap:pow(3)
     return tempmap, hummap

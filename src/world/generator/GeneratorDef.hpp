@@ -65,7 +65,7 @@ struct WeightedEntry {
 };
 
 struct BiomeElementList {
-    static inline float MIN_CHANCE = 0.000001f;
+    static inline float MIN_CHANCE = 1e-6f;
 
     /// @brief Entries sorted by weight descending.
     std::vector<WeightedEntry> entries;
