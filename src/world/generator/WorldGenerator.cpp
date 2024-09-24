@@ -49,15 +49,12 @@ WorldGenerator::WorldGenerator(
         generateStructures(requirePrototype(x, z), x, z);
     });
 
-    auto rawStructures = def.script->loadStructures();
-    structures.resize(rawStructures.size());
-
-    for (int i = 0; i < rawStructures.size(); i++) {
-        structures[i][0] = std::move(rawStructures[i]);
-        structures[i][0]->prepare(*content);
+    for (int i = 0; i < def.structures.size(); i++) {
         // pre-calculate rotated structure variants
+        def.structures[i]->fragments[0]->prepare(*content);
         for (int j = 1; j < 4; j++) {
-            structures[i][j] = structures[i][j-1]->rotated(*content);
+            def.structures[i]->fragments[j] = 
+                def.structures[i]->fragments[j-1]->rotated(*content);
         }
     }
 }
@@ -140,44 +137,89 @@ inline AABB gen_chunk_aabb(int chunkX, int chunkZ) {
                 {(chunkX + 1)*CHUNK_W, 256, (chunkZ + 1) * CHUNK_D});
 }
 
+void WorldGenerator::placeStructure(
+    const glm::ivec3 offset, size_t structureId, uint8_t rotation,
+    int chunkX, int chunkZ
+) {
+    auto& structure = *def.structures[structureId]->fragments[rotation];
+    auto position = glm::ivec3(chunkX * CHUNK_W, 0, chunkZ * CHUNK_D)+offset;
+    auto size = structure.getSize() + glm::ivec3(0, CHUNK_H, 0);
+    AABB aabb(position, position + size);
+    for (int lcz = -1; lcz <= 1; lcz++) {
+        for (int lcx = -1; lcx <= 1; lcx++) {
+            if (lcx == 0 && lcz == 0) {
+                continue;
+            }
+            auto& otherPrototype = requirePrototype(
+                chunkX + lcx, chunkZ + lcz
+            );
+            auto chunkAABB = gen_chunk_aabb(chunkX + lcx, chunkZ + lcz);
+            if (chunkAABB.intersect(aabb)) {
+                otherPrototype.structures.emplace_back(
+                    structureId, 
+                    offset - 
+                        glm::ivec3(lcx * CHUNK_W, 0, lcz * CHUNK_D),
+                    rotation
+                );
+            }
+        }
+    }
+}
+
 void WorldGenerator::generateStructures(
     ChunkPrototype& prototype, int chunkX, int chunkZ
 ) {
     if (prototype.level >= ChunkPrototypeLevel::STRUCTURES) {
         return;
     }
+    const auto& biomes = prototype.biomes;
+    const auto& heightmap = prototype.heightmap;
+    const auto& heights = heightmap->getValues();
+
     util::concat(prototype.structures, def.script->placeStructures(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed,
-        prototype.heightmap
+        heightmap
     ));
     for (const auto& placement : prototype.structures) {
         const auto& offset = placement.position;
-        if (placement.structure < 0 || placement.structure >= structures.size()) {
+        if (placement.structure < 0 || placement.structure >= def.structures.size()) {
             logger.error() << "invalid structure index " << placement.structure;
             continue;
         }
-        auto& structure = *structures[placement.structure][placement.rotation];
-        auto position = glm::ivec3(chunkX * CHUNK_W, 0, chunkZ * CHUNK_D)+offset;
-        auto size = structure.getSize() + glm::ivec3(0, CHUNK_H, 0);
-        AABB aabb(position, position + size);
-        for (int lcz = -1; lcz <= 1; lcz++) {
-            for (int lcx = -1; lcx <= 1; lcx++) {
-                if (lcx == 0 && lcz == 0) {
-                    continue;
-                }
-                auto& otherPrototype = requirePrototype(
-                    chunkX + lcx, chunkZ + lcz
-                );
-                auto chunkAABB = gen_chunk_aabb(chunkX + lcx, chunkZ + lcz);
-                if (chunkAABB.intersect(aabb)) {
-                    otherPrototype.structures.emplace_back(
-                        placement.structure, 
-                        placement.position - 
-                            glm::ivec3(lcx * CHUNK_W, 0, lcz * CHUNK_D),
-                        placement.rotation
-                    );
-                }
+        placeStructure(
+            offset, placement.structure, placement.rotation, chunkX, chunkZ);
+    }
+
+    PseudoRandom structsRand;
+    structsRand.setSeed(chunkX, chunkZ);
+
+    for (uint z = 0; z < CHUNK_D; z++) {
+        for (uint x = 0; x < CHUNK_W; x++) {
+            float rand = (structsRand.randU32() % RAND_MAX) / 
+                static_cast<float>(RAND_MAX);
+            const Biome* biome = biomes[z * CHUNK_W + x];
+            size_t structureId = biome->structures.choose(rand, -1);
+            if (structureId == -1) {
+                continue;
             }
+            uint8_t rotation = structsRand.randU32() % 4;
+            int height = heights[z * CHUNK_W + x] * CHUNK_H;
+            if (height < def.script->getSeaLevel()) {
+                continue;
+            }
+            auto& structure = *def.structures[structureId]->fragments[rotation];
+            glm::ivec3 position {x, height, z};
+            position.x -= structure.getSize().x / 2;
+            position.z -= structure.getSize().z / 2;
+            prototype.structures.push_back({
+                static_cast<int>(structureId), position, rotation});
+            placeStructure(
+                position, 
+                structureId, 
+                rotation, 
+                chunkX, 
+                chunkZ
+            );
         }
     }
     prototype.level = ChunkPrototypeLevel::STRUCTURES;
@@ -259,15 +301,13 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
             }
         }
     }
-    
-    // TODO: put automatic placement here
 
     for (const auto& placement : prototype.structures) {
-        if (placement.structure < 0 || placement.structure >= structures.size()) {
+        if (placement.structure < 0 || placement.structure >= def.structures.size()) {
             logger.error() << "invalid structure index " << placement.structure;
             continue;
         }
-        auto& structure = *structures[placement.structure][placement.rotation];
+        auto& structure = *def.structures[placement.structure]->fragments[placement.rotation];
         auto& structVoxels = structure.getRuntimeVoxels();
         const auto& offset = placement.position;
         const auto& size = structure.getSize();

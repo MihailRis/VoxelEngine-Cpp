@@ -45,7 +45,12 @@ static std::vector<std::unique_ptr<GeneratingVoxelStructure>> load_structures(
 }
 
 static void load_structures(GeneratorDef& def, const fs::path& structuresFile) {
-    def.structures = load_structures(structuresFile);
+    auto rawStructures = load_structures(structuresFile);
+    def.structures.resize(rawStructures.size());
+
+    for (int i = 0; i < rawStructures.size(); i++) {
+        def.structures[i] = std::move(rawStructures[i]);
+    }
     // build indices map
     for (size_t i = 0; i < def.structures.size(); i++) {
         auto& structure = def.structures[i];

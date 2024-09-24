@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
@@ -11,6 +12,7 @@
 
 class Content;
 class VoxelFragment;
+struct GeneratorDef;
 
 struct VoxelStructureMeta {
     std::string name;
@@ -49,56 +51,70 @@ struct BiomeParameter {
     float weight;
 };
 
-/// @brief Plant is a single-block structure randomly generating in world
-struct PlantEntry {
-    /// @brief Plant block id
-    std::string block;
-    /// @brief Plant weight
+struct WeightedEntry {
+    std::string name;
     float weight;
 
     struct {
-        blockid_t id;
+        size_t id;
     } rt;
 
-    bool operator>(const PlantEntry& other) const {
+    bool operator>(const WeightedEntry& other) const {
         return weight > other.weight;
     }
 };
 
-struct BiomePlants {
+struct BiomeElementList {
     static inline float MIN_CHANCE = 0.000001f;
 
-    /// @brief Plant entries sorted by weight descending.
-    std::vector<PlantEntry> plants;
+    /// @brief Entries sorted by weight descending.
+    std::vector<WeightedEntry> entries;
     /// @brief Sum of weight values
     float weightsSum;
-    /// @brief Plant generation chance
+    /// @brief Value generation chance
     float chance;
 
-    /// @brief Choose plant based on weight
+    BiomeElementList() {}
+
+    BiomeElementList(std::vector<WeightedEntry> entries, float chance)
+     : entries(entries), chance(chance) {
+        for (const auto& entry : entries) {
+            weightsSum += entry.weight;
+        }
+    }
+
+    /// @brief Choose value based on weight
     /// @param rand some random value in range [0, 1)
-    /// @return index of chosen plant block
-    inline blockid_t choose(float rand) const {
-        if (plants.empty() || rand > chance || chance < MIN_CHANCE) {
-            return 0;
+    /// @return *.index of chosen value
+    inline size_t choose(float rand, size_t def=0) const {
+        if (entries.empty() || rand > chance || chance < MIN_CHANCE) {
+            return def;
         }
         rand = rand / chance;
         rand *= weightsSum;
-        for (const auto& plant : plants) {
-            rand -= plant.weight;
+        for (const auto& entry : entries) {
+            rand -= entry.weight;
             if (rand <= 0.0f) {
-                return plant.rt.id;
+                return entry.rt.id;
             }
         }
-        return plants[plants.size()-1].rt.id;
+        return entries[entries.size()-1].rt.id;
     }
 };
 
 struct Biome {
+    /// @brief Biome name
     std::string name;
+
     std::vector<BiomeParameter> parameters;
-    BiomePlants plants;
+
+    /// @brief Plant is a single-block structure randomly generating in world
+    BiomeElementList plants;
+
+    BiomeElementList structures;
+
     BlocksLayers groundLayers;
+
     BlocksLayers seaLayers;
 };
 
@@ -136,12 +152,12 @@ public:
 
     /// @brief Build the runtime cache
     /// @param content built content
-    virtual void prepare(const Content* content) = 0;
+    virtual void prepare(const GeneratorDef& def, const Content* content) = 0;
 };
 
 struct GeneratingVoxelStructure {
     VoxelStructureMeta meta;
-    std::unique_ptr<VoxelFragment> structure;
+    std::array<std::unique_ptr<VoxelFragment>, 4> fragments;
 
     GeneratingVoxelStructure(
         VoxelStructureMeta meta,

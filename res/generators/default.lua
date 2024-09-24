@@ -53,10 +53,11 @@ biomes = {
             {block="base:stone", height=-1},
             {block="base:bazalt", height=1},
         },
+        structure_chance = 0.032,
         structures = {
-            "tree0",
-            "tree1",
-            "tree2"
+            {name="tree0", weight=1},
+            {name="tree1", weight=1},
+            {name="tree2", weight=1},
         }
     }
 }
@@ -74,24 +75,6 @@ end
 
 function place_structures(x, z, w, d, seed, hmap)
     local placements = {}
-    for i=0,math.floor(math.random()*3)+5 do
-        local px = math.random() * w
-        local pz = math.random() * d
-        local py = hmap:at(px, pz) * 256
-        if py <= sea_level then
-            goto continue
-        end
-        table.insert(placements, 
-            {math.floor(math.random() * 3), {px-8, py, pz-8}, math.floor(math.random()*4)})
-        ::continue::
-    end
-
-    if math.random() < 0.01 then
-        local px = math.random() * w
-        local pz = math.random() * d
-        local py = hmap:at(px, pz) * 256
-        table.insert(placements, {3, {px-8, py, pz-8}, 0})
-    end
     return placements
 end
 

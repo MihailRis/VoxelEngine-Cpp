@@ -5,7 +5,7 @@
 GeneratingVoxelStructure::GeneratingVoxelStructure(
     VoxelStructureMeta meta,
     std::unique_ptr<VoxelFragment> structure
-) : structure(std::move(structure)), meta(std::move(meta)) {}
+) : fragments({std::move(structure)}), meta(std::move(meta)) {}
 
 
 GeneratorDef::GeneratorDef(std::string name) : name(std::move(name)) {}

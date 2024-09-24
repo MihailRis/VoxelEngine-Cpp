@@ -12,7 +12,7 @@
 #include "voxels/Chunk.hpp"
 #include "data/dv.hpp"
 #include "world/generator/GeneratorDef.hpp"
-
+#include "util/stringutil.hpp"
 #include "util/timeutil.hpp"
 
 class LuaGeneratorScript : public GeneratorScript {
@@ -140,7 +140,7 @@ public:
         return placements;
     }
 
-    void prepare(const Content* content) override {
+    void prepare(const GeneratorDef& def, const Content* content) override {
         for (auto& biome : biomes) {
             for (auto& layer : biome.groundLayers.layers) {
                 layer.rt.id = content->blocks.require(layer.block).rt.id;
@@ -148,8 +148,16 @@ public:
             for (auto& layer : biome.seaLayers.layers) {
                 layer.rt.id = content->blocks.require(layer.block).rt.id;
             }
-            for (auto& plant : biome.plants.plants) {
-                plant.rt.id = content->blocks.require(plant.block).rt.id;
+            for (auto& plant : biome.plants.entries) {
+                plant.rt.id = content->blocks.require(plant.name).rt.id;
+            }
+            for (auto& structure : biome.structures.entries) {
+                const auto& found = def.structuresIndices.find(structure.name);
+                if (found == def.structuresIndices.end()) {
+                    throw std::runtime_error(
+                        "no structure "+util::quote(structure.name)+" found");
+                }
+                structure.rt.id = found->second;
             }
         }
     }
@@ -207,29 +215,36 @@ static inline BlocksLayers load_layers(
     return BlocksLayers {std::move(layers), lastLayersHeight};
 }
 
-static inline BiomePlants load_plants(
-    const dv::value& biomeMap
+static inline BiomeElementList load_biome_element_list(
+    const dv::value map,
+    const std::string& chanceName,
+    const std::string& arrName,
+    const std::string& nameName
 ) {
-    float plantChance = 0.0f;
-    biomeMap.at("plant_chance").get(plantChance);
-    float plantsWeightSum = 0.0f;
-
-    std::vector<PlantEntry> plants;
-    if (biomeMap.has("plants")) {
-        const auto& plantsArr = biomeMap["plants"];
-        for (const auto& entry : plantsArr) {
-            const auto& block = entry["block"].asString();
+    float chance = 0.0f;
+    map.at(chanceName).get(chance);
+    std::vector<WeightedEntry> entries;
+    if (map.has(arrName)) {
+        const auto& arr = map[arrName];
+        for (const auto& entry : arr) {
+            const auto& name = entry[nameName].asString();
             float weight = entry["weight"].asNumber();
             if (weight <= 0.0f) {
                 throw std::runtime_error("weight must be positive");
             }
-            plantsWeightSum += weight;
-            plants.push_back(PlantEntry {block, weight, {}});
+            entries.push_back(WeightedEntry {name, weight, {}});
         }
     }
-    std::sort(plants.begin(), plants.end(), std::greater<PlantEntry>());
-    return BiomePlants {
-        std::move(plants), plantsWeightSum, plantChance};
+    std::sort(entries.begin(), entries.end(), std::greater<WeightedEntry>());
+    return BiomeElementList(std::move(entries), chance);
+}
+
+static inline BiomeElementList load_plants(const dv::value& biomeMap) {
+    return load_biome_element_list(biomeMap, "plant_chance", "plants", "block");
+}
+
+static inline BiomeElementList load_structures(const dv::value map) {
+    return load_biome_element_list(map, "structure_chance", "structures", "name");
 }
 
 static inline Biome load_biome(
@@ -252,13 +267,19 @@ static inline Biome load_biome(
         parameters.push_back(BiomeParameter {value, weight});
     }
 
-    BiomePlants plants = load_plants(biomeMap);
-    BlocksLayers groundLayers = load_layers(biomeMap["layers"], "layers");
-    BlocksLayers seaLayers = load_layers(biomeMap["sea_layers"], "sea_layers");
+    auto plants = load_plants(biomeMap);
+    auto groundLayers = load_layers(biomeMap["layers"], "layers");
+    auto seaLayers = load_layers(biomeMap["sea_layers"], "sea_layers");
+    
+    BiomeElementList structures;
+    if (biomeMap.has("structures")) {
+        structures = load_structures(biomeMap);
+    }
     return Biome {
         name,
         std::move(parameters),
         std::move(plants),
+        std::move(structures),
         std::move(groundLayers),
         std::move(seaLayers)};
 }
