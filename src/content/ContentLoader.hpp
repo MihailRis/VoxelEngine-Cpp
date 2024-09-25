@@ -55,7 +55,7 @@ class ContentLoader {
 public:
     ContentLoader(ContentPack* pack, ContentBuilder& builder);
 
-    bool fixPackIndices(
+    static bool fixPackIndices(
         const fs::path& folder,
         dv::value& indicesRoot,
         const std::string& contentSection

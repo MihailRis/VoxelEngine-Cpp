@@ -22,7 +22,7 @@ static VoxelStructureMeta load_structure_meta(
 static std::vector<std::unique_ptr<GeneratingVoxelStructure>> load_structures(
     const fs::path& structuresFile
 ) {
-    auto structuresDir = structuresFile.parent_path();
+    auto structuresDir = structuresFile.parent_path() / fs::path("fragments");
     auto map = files::read_json(structuresFile);
 
     std::vector<std::unique_ptr<GeneratingVoxelStructure>> structures;

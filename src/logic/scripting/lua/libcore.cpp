@@ -180,12 +180,14 @@ static int l_get_default_generator(lua::State* L) {
 /// @brief Get a list of all world generators
 /// @return A table with the IDs of all world generators
 static int l_get_generators(lua::State* L) {
+    if (content == nullptr) {
+        throw std::runtime_error("content is not initialized");
+    }
     const auto& generators = content->generators.getDefs();
     lua::createtable(L, generators.size(), 0);
 
     int i = 0;
     for (auto& [name, _] : generators) {
-        std::cout << name << std::endl;
         lua::pushstring(L, name);
         lua::rawseti(L, i + 1);
         i++;
