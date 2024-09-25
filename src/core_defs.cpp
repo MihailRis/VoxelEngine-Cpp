@@ -12,17 +12,19 @@
 
 // All in-game definitions (blocks, items, etc..)
 void corecontent::setup(EnginePaths* paths, ContentBuilder* builder) {
-    Block& block = builder->blocks.create("core:air");
-    block.replaceable = true;
-    block.drawGroup = 1;
-    block.lightPassing = true;
-    block.skyLightPassing = true;
-    block.obstacle = false;
-    block.selectable = false;
-    block.model = BlockModel::none;
-    block.pickingItem = "core:empty";
+    {
+        Block& block = builder->blocks.create(CORE_AIR);
+        block.replaceable = true;
+        block.drawGroup = 1;
+        block.lightPassing = true;
+        block.skyLightPassing = true;
+        block.obstacle = false;
+        block.selectable = false;
+        block.model = BlockModel::none;
+        block.pickingItem = CORE_EMPTY;
+    }
 
-    ItemDef& item = builder->items.create("core:empty");
+    ItemDef& item = builder->items.create(CORE_EMPTY);
     item.iconType = item_icon_type::none;
 
     auto bindsFile = paths->getResourcesFolder()/fs::path("bindings.toml");
@@ -30,5 +32,18 @@ void corecontent::setup(EnginePaths* paths, ContentBuilder* builder) {
         Events::loadBindings(
             bindsFile.u8string(), files::read_string(bindsFile)
         );
+    }
+
+    {
+        Block& block = builder->blocks.create(CORE_OBSTACLE);
+        for (uint i = 0; i < 6; i++) {
+            block.textureFaces[i] = "obstacle";
+        }
+        block.hitboxes = {AABB()};
+        ItemDef& item = builder->items.create(CORE_OBSTACLE+".item");
+        item.iconType = item_icon_type::block;
+        item.icon = CORE_OBSTACLE;
+        item.placingBlock = CORE_OBSTACLE;
+        item.caption = block.caption;
     }
 }

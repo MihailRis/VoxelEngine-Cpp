@@ -286,7 +286,8 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
     lua::pop(L);
 
     uint biomeParameters = root["biome_parameters"].asInteger();
-    uint seaLevel = root["sea_level"].asInteger();
+    uint seaLevel = 0;
+    root.at("sea_level").get(seaLevel);
 
     std::vector<Biome> biomes;
 

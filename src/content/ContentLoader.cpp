@@ -528,6 +528,18 @@ void ContentLoader::load() {
         }
     }
 
+    fs::path resourcesFile = folder / fs::u8path("resources.json");
+    if (fs::exists(resourcesFile)) {
+        auto resRoot = files::read_json(resourcesFile);
+        for (const auto& [key, arr] : resRoot.asObject()) {
+            if (auto resType = ResourceType_from(key)) {
+                loadResources(*resType, arr);
+            } else {
+                logger.warning() << "unknown resource type: " << key;
+            }
+        }
+    }
+
     if (!fs::is_regular_file(pack->getContentFile())) return;
 
     auto root = files::read_json(pack->getContentFile());
@@ -720,18 +732,6 @@ void ContentLoader::load() {
             if (fs::is_regular_file(scriptfile)) {
                 auto name = pack->id + ":" + scriptfile.stem().u8string();
                 scripting::load_entity_component(name, scriptfile);
-            }
-        }
-    }
-
-    fs::path resourcesFile = folder / fs::u8path("resources.json");
-    if (fs::exists(resourcesFile)) {
-        auto resRoot = files::read_json(resourcesFile);
-        for (const auto& [key, arr] : resRoot.asObject()) {
-            if (auto resType = ResourceType_from(key)) {
-                loadResources(*resType, arr);
-            } else {
-                logger.warning() << "unknown resource type: " << key;
             }
         }
     }

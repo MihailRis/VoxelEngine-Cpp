@@ -3,6 +3,7 @@
 #include <string>
 
 inline const std::string CORE_EMPTY = "core:empty";
+inline const std::string CORE_OBSTACLE = "core:obstacle";
 inline const std::string CORE_AIR = "core:air";
 
 inline const std::string TEXTURE_NOTFOUND = "notfound";

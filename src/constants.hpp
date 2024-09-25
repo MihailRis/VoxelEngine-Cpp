@@ -17,6 +17,7 @@ inline constexpr bool ENGINE_DEBUG_BUILD = true;
 inline const std::string ENGINE_VERSION_STRING = "0.23";
 
 inline constexpr blockid_t BLOCK_AIR = 0;
+inline constexpr blockid_t BLOCK_OBSTACLE = 1;
 inline constexpr itemid_t ITEM_EMPTY = 0;
 inline constexpr entityid_t ENTITY_NONE = 0;
 
