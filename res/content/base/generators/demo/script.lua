@@ -1,9 +1,3 @@
-sea_level = 64
-
--- 1 - temperature
--- 2 - humidity
-biome_parameters = 2
-
 biomes = json.parse(file.read("base:generators/demo/biomes.json"))
 
 function place_structures(x, z, w, d, seed, hmap)

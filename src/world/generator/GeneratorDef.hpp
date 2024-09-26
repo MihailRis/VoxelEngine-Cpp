@@ -135,18 +135,11 @@ public:
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed) = 0;
 
     virtual std::vector<StructurePlacement> placeStructures(
-        const GeneratorDef& def,
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed,
         const std::shared_ptr<Heightmap>& heightmap) = 0;
 
     /// @brief Get generator biomes
     virtual const std::vector<Biome>& getBiomes() const = 0;
-
-    /// @return Number of biome parameters, that biome choosing depending on
-    virtual uint getBiomeParameters() const = 0;
-
-    /// @return Sea level (top of seaLayers)
-    virtual uint getSeaLevel() const = 0;
 
     /// @brief Build the runtime cache
     /// @param content built content
@@ -168,6 +161,12 @@ struct GeneratorDef {
     /// @brief Generator full name - packid:name
     std::string name;
     std::unique_ptr<GeneratorScript> script;
+
+    /// @brief Sea level (top of seaLayers)
+    uint seaLevel = 0;
+
+    /// @brief Number of biome parameters, that biome choosing depending on
+    uint biomeParameters = 0;
 
     std::unordered_map<std::string, size_t> structuresIndices;
     std::vector<std::unique_ptr<GeneratingVoxelStructure>> structures;

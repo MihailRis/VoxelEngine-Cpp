@@ -66,14 +66,20 @@ void ContentLoader::loadGenerator(
 ) {
     auto packDir = pack->folder;
     auto generatorsDir = packDir / GENERATORS_DIR;
-    auto folder = generatorsDir / fs::u8path(name);
-    auto generatorFile = generatorsDir / fs::u8path(name + ".lua");
+    auto generatorFile = generatorsDir / fs::u8path(name + ".toml");
     if (!fs::exists(generatorFile)) {
         return;
     }
+    auto map = files::read_toml(generatorsDir / fs::u8path(name + ".toml"));
+    map.at("biome_parameters").get(def.biomeParameters);
+    map.at("sea_level").get(def.seaLevel);
+
+    auto folder = generatorsDir / fs::u8path(name);
+    auto scriptFile = folder / fs::u8path("script.lua");
+
     auto structuresFile = folder / STRUCTURES_FILE;
     if (fs::exists(structuresFile)) {
         load_structures(def, structuresFile);
     }
-    def.script = scripting::load_generator(generatorFile);
+    def.script = scripting::load_generator(def, scriptFile);
 }

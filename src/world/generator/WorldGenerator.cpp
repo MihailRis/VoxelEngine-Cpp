@@ -175,7 +175,7 @@ void WorldGenerator::generateStructures(
     const auto& heightmap = prototype.heightmap;
 
     util::concat(prototype.structures, def.script->placeStructures(
-        def, {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed,
+        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed,
         heightmap
     ));
     for (const auto& placement : prototype.structures) {
@@ -202,7 +202,7 @@ void WorldGenerator::generateStructures(
             }
             uint8_t rotation = structsRand.randU32() % 4;
             int height = heights[z * CHUNK_W + x] * CHUNK_H;
-            if (height < def.script->getSeaLevel()) {
+            if (height < def.seaLevel) {
                 continue;
             }
             auto& structure = *def.structures[structureId]->fragments[rotation];
@@ -268,7 +268,7 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
     const auto& prototype = requirePrototype(chunkX, chunkZ);
     const auto values = prototype.heightmap->getValues();
 
-    uint seaLevel = def.script->getSeaLevel();
+    uint seaLevel = def.seaLevel;
 
     std::memset(voxels, 0, sizeof(voxel) * CHUNK_VOL);
 

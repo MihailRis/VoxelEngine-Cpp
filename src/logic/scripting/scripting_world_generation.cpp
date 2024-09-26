@@ -16,20 +16,17 @@
 #include "util/timeutil.hpp"
 
 class LuaGeneratorScript : public GeneratorScript {
+    const GeneratorDef& def;
     scriptenv env;
     std::vector<Biome> biomes;
-    uint biomeParameters;
-    uint seaLevel;
 public:
     LuaGeneratorScript(
-        scriptenv env, 
-        std::vector<Biome> biomes,
-        uint biomeParameters,
-        uint seaLevel)
-    : env(std::move(env)), 
-      biomes(std::move(biomes)), 
-      biomeParameters(biomeParameters),
-      seaLevel(seaLevel) 
+        const GeneratorDef& def,
+        scriptenv env,
+        std::vector<Biome> biomes)
+    : def(def),
+      env(std::move(env)),
+      biomes(std::move(biomes))
       {}
 
     std::shared_ptr<Heightmap> generateHeightmap(
@@ -56,6 +53,7 @@ public:
     ) override {
         std::vector<std::shared_ptr<Heightmap>> maps;
 
+        uint biomeParameters = def.biomeParameters;
         auto L = lua::get_main_thread();
         lua::pushenv(L, *env);
         if (lua::getfield(L, "generate_biome_parameters")) {
@@ -79,7 +77,6 @@ public:
     }
 
     std::vector<StructurePlacement> placeStructures(
-        const GeneratorDef& def,
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed,
         const std::shared_ptr<Heightmap>& heightmap
     ) override {
@@ -152,14 +149,6 @@ public:
 
     const std::vector<Biome>& getBiomes() const override {
         return biomes;
-    }
-
-    uint getBiomeParameters() const override {
-        return biomeParameters;
-    }
-
-    uint getSeaLevel() const override {
-        return seaLevel;
     }
 };
 
@@ -273,7 +262,7 @@ static inline Biome load_biome(
 }
 
 std::unique_ptr<GeneratorScript> scripting::load_generator(
-    const fs::path& file
+    const GeneratorDef& def, const fs::path& file
 ) {
     auto env = create_environment();
     auto L = lua::get_main_thread();
@@ -285,24 +274,20 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
     auto root = lua::tovalue(L, -1);
     lua::pop(L);
 
-    uint biomeParameters = root["biome_parameters"].asInteger();
-    uint seaLevel = 0;
-    root.at("sea_level").get(seaLevel);
-
     std::vector<Biome> biomes;
 
     const auto& biomesMap = root["biomes"];
     for (const auto& [biomeName, biomeMap] : biomesMap.asObject()) {
         try {
             biomes.push_back(
-                load_biome(biomeMap, biomeName, biomeParameters, -2));
+                load_biome(biomeMap, biomeName, def.biomeParameters, -2));
         } catch (const std::runtime_error& err) {
             throw std::runtime_error("biome "+biomeName+": "+err.what());
         }
     }
     return std::make_unique<LuaGeneratorScript>(
+        def,
         std::move(env), 
-        std::move(biomes),
-        biomeParameters,
-        seaLevel);
+        std::move(biomes)
+    );
 }

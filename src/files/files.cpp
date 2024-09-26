@@ -159,3 +159,36 @@ std::vector<std::string> files::read_list(const fs::path& filename) {
     }
     return lines;
 }
+
+#include <map>
+
+#include "coders/json.hpp"
+#include "coders/toml.hpp"
+
+using DecodeFunc = dv::value(*)(std::string_view, std::string_view);
+
+static std::map<fs::path, DecodeFunc> data_decoders {
+    {fs::u8path(".json"), json::parse},
+    {fs::u8path(".toml"), toml::parse},
+};
+
+bool files::is_data_file(const fs::path& file) {
+    return is_data_interchange_format(file.extension());
+}
+
+bool files::is_data_interchange_format(const fs::path& ext) {
+    return data_decoders.find(ext) != data_decoders.end();
+}
+
+dv::value files::read_object(const fs::path& file) {
+    const auto& found = data_decoders.find(file.extension());
+    if (found == data_decoders.end()) {
+        throw std::runtime_error("unknown file format");
+    }
+    auto text = read_string(file);
+    try {
+        return found->second(file.u8string(), text);
+    } catch (const parsing_error& err) {
+        throw std::runtime_error(err.errorLog());
+    }
+}

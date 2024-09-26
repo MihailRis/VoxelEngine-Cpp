@@ -49,7 +49,7 @@ static void detect_defs(
             if (name[0] == '_') {
                 continue;
             }
-            if (fs::is_regular_file(file) && file.extension() == ".json") {
+            if (fs::is_regular_file(file) && files::is_data_file(file)) {
                 detected.push_back(prefix.empty() ? name : prefix + ":" + name);
             } else if (fs::is_directory(file)) {
                 detect_defs(file, name, detected);
