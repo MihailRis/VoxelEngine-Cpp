@@ -4,6 +4,7 @@
 #include "constants.hpp"
 #include "engine.hpp"
 #include "content/Content.hpp"
+#include "content/ContentLoader.hpp"
 #include "files/engine_paths.hpp"
 #include "files/settings_io.hpp"
 #include "frontend/menu.hpp"
@@ -14,6 +15,8 @@
 #include "window/Window.hpp"
 #include "world/generator/WorldGenerator.hpp"
 #include "world/Level.hpp"
+#include "util/listutil.hpp"
+
 #include "api_lua.hpp"
 
 using namespace scripting;
@@ -180,17 +183,25 @@ static int l_get_default_generator(lua::State* L) {
 /// @brief Get a list of all world generators
 /// @return A table with the IDs of all world generators
 static int l_get_generators(lua::State* L) {
-    if (content == nullptr) {
-        throw std::runtime_error("content is not initialized");
-    }
-    const auto& generators = content->generators.getDefs();
-    lua::createtable(L, generators.size(), 0);
+    const auto& packs = engine->getContentPacks();
+
+    lua::createtable(L, 0, 0);
 
     int i = 0;
-    for (auto& [name, _] : generators) {
+    auto names = ContentLoader::scanContent(
+        ContentPack::createCore(engine->getPaths()), ContentType::GENERATOR);
+    for (const auto& name : names) {
         lua::pushstring(L, name);
         lua::rawseti(L, i + 1);
         i++;
+    }
+    for (const auto& pack : packs) {
+        auto names = ContentLoader::scanContent(pack, ContentType::GENERATOR);
+        for (const auto& name : names) {
+            lua::pushstring(L, name);
+            lua::rawseti(L, i + 1);
+            i++;
+        }
     }
     return 1;
 }

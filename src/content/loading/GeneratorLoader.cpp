@@ -74,7 +74,7 @@ void ContentLoader::loadGenerator(
     map.at("biome_parameters").get(def.biomeParameters);
     map.at("sea_level").get(def.seaLevel);
 
-    auto folder = generatorsDir / fs::u8path(name);
+    auto folder = generatorsDir / fs::u8path(name + ".files");
     auto scriptFile = folder / fs::u8path("script.lua");
 
     auto structuresFile = folder / STRUCTURES_FILE;

@@ -63,6 +63,11 @@ public:
         dv::value& indicesRoot,
         const std::string& contentSection
     );
+
+    static std::vector<std::string> scanContent(
+        const ContentPack& pack, ContentType type
+    );
+
     void fixPackIndices();
     void load();
 };

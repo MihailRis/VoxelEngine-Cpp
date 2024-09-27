@@ -1,4 +1,4 @@
-biomes = json.parse(file.read("base:generators/demo/biomes.json"))
+biomes = json.parse(file.read("base:generators/demo.files/biomes.json"))
 
 function place_structures(x, z, w, d, seed, hmap)
     local placements = {}
