@@ -93,14 +93,14 @@ bool ContentLoader::fixPackIndices(
 
 void ContentLoader::fixPackIndices() {
     auto folder = pack->folder;
-    auto indexFile = pack->getContentFile();
+    auto contentFile = pack->getContentFile();
     auto blocksFolder = folder / ContentPack::BLOCKS_FOLDER;
     auto itemsFolder = folder / ContentPack::ITEMS_FOLDER;
     auto entitiesFolder = folder / ContentPack::ENTITIES_FOLDER;
 
     dv::value root;
-    if (fs::is_regular_file(indexFile)) {
-        root = files::read_json(indexFile);
+    if (fs::is_regular_file(contentFile)) {
+        root = files::read_json(contentFile);
     } else {
         root = dv::object();
     }
@@ -112,7 +112,7 @@ void ContentLoader::fixPackIndices() {
 
     if (modified) {
         // rewrite modified json
-        files::write_json(indexFile, root);
+        files::write_json(contentFile, root);
     }
 }
 
@@ -493,56 +493,7 @@ void ContentLoader::loadBlockMaterial(
     root.at("break-sound").get(def.breakSound);
 }
 
-void ContentLoader::load() {
-    logger.info() << "loading pack [" << pack->id << "]";
-
-    fixPackIndices();
-
-    auto folder = pack->folder;
-
-    fs::path scriptFile = folder / fs::path("scripts/world.lua");
-    if (fs::is_regular_file(scriptFile)) {
-        scripting::load_world_script(
-            env, pack->id, scriptFile, runtime->worldfuncsset
-        );
-    }
-
-    fs::path generatorsDir = folder / fs::u8path("generators");
-    if (fs::is_directory(generatorsDir)) {
-        for (const auto& entry : fs::directory_iterator(generatorsDir)) {
-            const auto& file = entry.path();
-            if (fs::is_directory(file)) {
-                continue;
-            }
-
-            std::string name = file.stem().u8string();
-            auto [packid, full, filename] =
-                create_unit_id(pack->id, file.stem().u8string());
-
-            auto& def = builder.generators.create(full);
-            try {
-                loadGenerator(def, full, name);
-            } catch (const std::runtime_error& err) {
-                throw std::runtime_error("generator '"+full+"': "+err.what());
-            }
-        }
-    }
-
-    fs::path resourcesFile = folder / fs::u8path("resources.json");
-    if (fs::exists(resourcesFile)) {
-        auto resRoot = files::read_json(resourcesFile);
-        for (const auto& [key, arr] : resRoot.asObject()) {
-            if (auto resType = ResourceType_from(key)) {
-                loadResources(*resType, arr);
-            } else {
-                logger.warning() << "unknown resource type: " << key;
-            }
-        }
-    }
-
-    if (!fs::is_regular_file(pack->getContentFile())) return;
-
-    auto root = files::read_json(pack->getContentFile());
+void ContentLoader::loadContent(const dv::value& root) {
     std::vector<std::pair<std::string, std::string>> pendingDefs;
     auto getJsonParent = [this](const std::string& prefix, const std::string& name) {
             auto configFile = pack->folder / fs::path(prefix + "/" + name + ".json");
@@ -699,8 +650,68 @@ void ContentLoader::load() {
             );
         }
     }
+}
 
-    fs::path materialsDir = folder / fs::u8path("block_materials");
+static inline void foreach_file(
+    const fs::path& dir, std::function<void(const fs::path&)> handler
+) {
+    if (fs::is_directory(dir)) {
+        for (const auto& entry : fs::directory_iterator(dir)) {
+            const auto& path = entry.path();
+            if (fs::is_directory(path)) {
+                continue;
+            }
+            handler(path);
+        }
+    }
+}
+
+void ContentLoader::load() {
+    logger.info() << "loading pack [" << pack->id << "]";
+
+    fixPackIndices();
+
+    auto folder = pack->folder;
+
+    // Load main world script
+    fs::path scriptFile = folder / fs::path("scripts/world.lua");
+    if (fs::is_regular_file(scriptFile)) {
+        scripting::load_world_script(
+            env, pack->id, scriptFile, runtime->worldfuncsset
+        );
+    }
+
+    // Load world generators
+    fs::path generatorsDir = folder / fs::u8path("generators");
+    foreach_file(generatorsDir, [this](const fs::path& file) {
+        std::string name = file.stem().u8string();
+        auto [packid, full, filename] =
+            create_unit_id(pack->id, file.stem().u8string());
+
+        auto& def = builder.generators.create(full);
+        try {
+            loadGenerator(def, full, name);
+        } catch (const std::runtime_error& err) {
+            throw std::runtime_error("generator '"+full+"': "+err.what());
+        }
+    });
+
+    // Load pack resources.json
+    fs::path resourcesFile = folder / fs::u8path("resources.json");
+    if (fs::exists(resourcesFile)) {
+        auto resRoot = files::read_json(resourcesFile);
+        for (const auto& [key, arr] : resRoot.asObject()) {
+            if (auto resType = ResourceType_from(key)) {
+                loadResources(*resType, arr);
+            } else {
+                // Ignore unknown resources
+                logger.warning() << "unknown resource type: " << key;
+            }
+        }
+    }
+
+    // Load block materials
+    fs::path materialsDir = folder / fs::u8path("block_materials");    
     if (fs::is_directory(materialsDir)) {
         for (const auto& entry : fs::directory_iterator(materialsDir)) {
             const auto& file = entry.path();
@@ -713,27 +724,27 @@ void ContentLoader::load() {
         }
     }
 
+    // Load skeletons
     fs::path skeletonsDir = folder / fs::u8path("skeletons");
-    if (fs::is_directory(skeletonsDir)) {
-        for (const auto& entry : fs::directory_iterator(skeletonsDir)) {
-            const auto& file = entry.path();
-            std::string name = pack->id + ":" + file.stem().u8string();
-            std::string text = files::read_string(file);
-            builder.add(
-                rigging::SkeletonConfig::parse(text, file.u8string(), name)
-            );
-        }
-    }
+    foreach_file(skeletonsDir, [this](const fs::path& file) {
+        std::string name = pack->id + ":" + file.stem().u8string();
+        std::string text = files::read_string(file);
+        builder.add(
+            rigging::SkeletonConfig::parse(text, file.u8string(), name)
+        );
+    });
 
+    // Load entity components
     fs::path componentsDir = folder / fs::u8path("scripts/components");
-    if (fs::is_directory(componentsDir)) {
-        for (const auto& entry : fs::directory_iterator(componentsDir)) {
-            fs::path scriptfile = entry.path();
-            if (fs::is_regular_file(scriptfile)) {
-                auto name = pack->id + ":" + scriptfile.stem().u8string();
-                scripting::load_entity_component(name, scriptfile);
-            }
-        }
+    foreach_file(componentsDir, [this](const fs::path& file) {
+        auto name = pack->id + ":" + file.stem().u8string();
+        scripting::load_entity_component(name, file);
+    });
+
+    // Process content.json and load defined content units
+    auto contentFile = pack->getContentFile();
+    if (fs::exists(contentFile)) {
+        loadContent(files::read_json(contentFile));
     }
 }
 
