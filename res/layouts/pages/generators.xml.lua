@@ -1,7 +1,7 @@
 settings = session.get_entry('new_world')
 
 function on_open()
-    local names = core.get_generators()
+    local names = generation.get_generators()
     table.sort(names)
 
     local panel = document.root

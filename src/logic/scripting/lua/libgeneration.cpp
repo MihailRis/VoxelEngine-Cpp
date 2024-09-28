@@ -5,6 +5,7 @@
 #include "coders/binary_json.hpp"
 #include "world/Level.hpp"
 #include "world/generator/VoxelFragment.hpp"
+#include "content/ContentLoader.hpp"
 #include "engine.hpp"
 #include "lua_custom_types.hpp"
 
@@ -42,7 +43,27 @@ static int l_load_structure(lua::State* L) {
     return lua::newuserdata<lua::LuaVoxelStructure>(L, std::move(structure));
 }
 
+/// @brief Get a list of all world generators
+/// @return A table with the IDs of all world generators
+static int l_get_generators(lua::State* L) {
+    auto packs = engine->getAllContentPacks();
+
+    lua::createtable(L, 0, 0);
+
+    int i = 1;
+    for (const auto& pack : packs) {
+        auto names = ContentLoader::scanContent(pack, ContentType::GENERATOR);
+        for (const auto& name : names) {
+            lua::pushstring(L, name);
+            lua::rawseti(L, i);
+            i++;
+        }
+    }
+    return 1;
+}
+
 const luaL_Reg generationlib[] = {
     {"save_structure", lua::wrap<l_save_structure>},
     {"load_structure", lua::wrap<l_load_structure>},
+    {"get_generators", lua::wrap<l_get_generators>},
     {NULL, NULL}};

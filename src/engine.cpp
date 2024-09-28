@@ -398,6 +398,12 @@ const Content* Engine::getContent() const {
     return content.get();
 }
 
+std::vector<ContentPack> Engine::getAllContentPacks() {
+    auto packs = getContentPacks();
+    packs.insert(packs.begin(), ContentPack::createCore(paths));
+    return packs;
+}
+
 std::vector<ContentPack>& Engine::getContentPacks() {
     return contentPacks;
 }
