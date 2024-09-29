@@ -40,6 +40,7 @@ void corecontent::setup(EnginePaths* paths, ContentBuilder* builder) {
             block.textureFaces[i] = "obstacle";
         }
         block.hitboxes = {AABB()};
+        block.breakable = false;
         ItemDef& item = builder->items.create(CORE_OBSTACLE+".item");
         item.iconType = item_icon_type::block;
         item.icon = CORE_OBSTACLE;
