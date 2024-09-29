@@ -303,21 +303,28 @@ void Engine::loadContent() {
     names = manager.assembly(names);
     contentPacks = manager.getAll(names);
 
-    std::vector<PathsRoot> resRoots;
-    {
-        auto pack = ContentPack::createCore(paths);
-        resRoots.push_back({"core", pack.folder});
-        ContentLoader(&pack, contentBuilder).load();
-        load_configs(pack.folder);
-    }
+    auto corePack = ContentPack::createCore(paths);
+
+    // Setup filesystem entry points
+    std::vector<PathsRoot> resRoots {
+        {"core", corePack.folder}
+    };
     for (auto& pack : contentPacks) {
         resRoots.push_back({pack.id, pack.folder});
+    }
+    resPaths = std::make_unique<ResPaths>(resdir, resRoots);
+
+    // Load content
+    {
+        ContentLoader(&corePack, contentBuilder).load();
+        load_configs(corePack.folder);
+    }
+    for (auto& pack : contentPacks) {
         ContentLoader(&pack, contentBuilder).load();
         load_configs(pack.folder);
     } 
 
     content = contentBuilder.build();
-    resPaths = std::make_unique<ResPaths>(resdir, resRoots);
 
     langs::setup(resdir, langs::current->getId(), contentPacks);
     loadAssets();

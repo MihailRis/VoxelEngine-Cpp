@@ -6,6 +6,7 @@
 #include <vector>
 #include <tuple>
 
+#include "data/dv.hpp"
 #include "content/ContentPack.hpp"
 
 
@@ -62,6 +63,11 @@ public:
     std::string findRaw(const std::string& filename) const;
     std::vector<std::filesystem::path> listdir(const std::string& folder) const;
     std::vector<std::string> listdirRaw(const std::string& folder) const;
+
+    /// @brief Read all found list versions from all packs and combine into a
+    /// single list. Invalid versions will be skipped with logging a warning
+    /// @param file *.json file path relative to entry point 
+    dv::value readCombinedList(const std::string& file);
 
     const std::filesystem::path& getMainRoot() const;
 

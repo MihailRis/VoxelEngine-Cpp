@@ -10,6 +10,9 @@
 #include <utility>
 
 #include "WorldFiles.hpp"
+#include "debug/Logger.hpp"
+
+static debug::Logger logger("engine-paths");
 
 
 /// @brief ENUM for accessing folder and file names
@@ -256,6 +259,31 @@ std::vector<std::filesystem::path> ResPaths::listdir(
         }
     }
     return entries;
+}
+
+dv::value ResPaths::readCombinedList(const std::string& filename) {
+    dv::value list = dv::list();
+    for (const auto& root : roots) {
+        auto path = root.path / fs::u8path(filename);
+        if (!fs::exists(path)) {
+            continue;
+        }
+        try {
+            auto value = files::read_object(path);
+            if (!value.isList()) {
+                logger.warning() << "reading combined list " << root.name << ":"
+                    << filename << " is not a list (skipped)";
+                continue;
+            }
+            for (const auto& elem : value) {
+                list.add(elem);
+            }
+        } catch (const std::runtime_error& err) {
+            logger.warning() << "reading combined list " << root.name << ":" 
+                << filename << ": " << err.what();
+        }
+    }
+    return list;
 }
 
 const std::filesystem::path& ResPaths::getMainRoot() const {
