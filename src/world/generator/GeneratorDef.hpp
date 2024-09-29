@@ -137,13 +137,6 @@ public:
     virtual std::vector<StructurePlacement> placeStructures(
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed,
         const std::shared_ptr<Heightmap>& heightmap) = 0;
-
-    /// @brief Get generator biomes
-    virtual const std::vector<Biome>& getBiomes() const = 0;
-
-    /// @brief Build the runtime cache
-    /// @param content built content
-    virtual void prepare(const GeneratorDef& def, const Content* content) = 0;
 };
 
 struct GeneratingVoxelStructure {
@@ -170,7 +163,10 @@ struct GeneratorDef {
 
     std::unordered_map<std::string, size_t> structuresIndices;
     std::vector<std::unique_ptr<GeneratingVoxelStructure>> structures;
+    std::vector<Biome> biomes;
 
     GeneratorDef(std::string name);
     GeneratorDef(const GeneratorDef&) = delete;
+
+    void prepare(const Content* content);
 };

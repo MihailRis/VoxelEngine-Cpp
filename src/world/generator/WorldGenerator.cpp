@@ -231,7 +231,7 @@ void WorldGenerator::generateBiomes(
     }
     auto biomeParams = def.script->generateParameterMaps(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed);
-    const auto& biomes = def.script->getBiomes();
+    const auto& biomes = def.biomes;
 
     auto chunkBiomes = std::make_unique<const Biome*[]>(CHUNK_W*CHUNK_D);
     for (uint z = 0; z < CHUNK_D; z++) {

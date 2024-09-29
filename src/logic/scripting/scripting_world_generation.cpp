@@ -12,21 +12,17 @@
 #include "voxels/Chunk.hpp"
 #include "data/dv.hpp"
 #include "world/generator/GeneratorDef.hpp"
-#include "util/stringutil.hpp"
 #include "util/timeutil.hpp"
 
 class LuaGeneratorScript : public GeneratorScript {
     const GeneratorDef& def;
     scriptenv env;
-    std::vector<Biome> biomes;
 public:
     LuaGeneratorScript(
         const GeneratorDef& def,
-        scriptenv env,
-        std::vector<Biome> biomes)
+        scriptenv env)
     : def(def),
-      env(std::move(env)),
-      biomes(std::move(biomes))
+      env(std::move(env))
       {}
 
     std::shared_ptr<Heightmap> generateHeightmap(
@@ -124,142 +120,7 @@ public:
         }
         return placements;
     }
-
-    void prepare(const GeneratorDef& def, const Content* content) override {
-        for (auto& biome : biomes) {
-            for (auto& layer : biome.groundLayers.layers) {
-                layer.rt.id = content->blocks.require(layer.block).rt.id;
-            }
-            for (auto& layer : biome.seaLayers.layers) {
-                layer.rt.id = content->blocks.require(layer.block).rt.id;
-            }
-            for (auto& plant : biome.plants.entries) {
-                plant.rt.id = content->blocks.require(plant.name).rt.id;
-            }
-            for (auto& structure : biome.structures.entries) {
-                const auto& found = def.structuresIndices.find(structure.name);
-                if (found == def.structuresIndices.end()) {
-                    throw std::runtime_error(
-                        "no structure "+util::quote(structure.name)+" found");
-                }
-                structure.rt.id = found->second;
-            }
-        }
-    }
-
-    const std::vector<Biome>& getBiomes() const override {
-        return biomes;
-    }
 };
-
-static BlocksLayer load_layer(
-    const dv::value& map, uint& lastLayersHeight, bool& hasResizeableLayer
-) {
-    const auto& name = map["block"].asString();
-    int height = map["height"].asInteger();
-    bool belowSeaLevel = true;
-    map.at("below_sea_level").get(belowSeaLevel);
-
-    if (hasResizeableLayer) {
-        lastLayersHeight += height;
-    }
-    if (height == -1) {
-        if (hasResizeableLayer) {
-            throw std::runtime_error("only one resizeable layer allowed");
-        }
-        hasResizeableLayer = true;
-    }
-    return BlocksLayer {name, height, belowSeaLevel, {}};
-}
-
-static inline BlocksLayers load_layers(
-    const dv::value& layersArr, const std::string& fieldname
-) {
-    uint lastLayersHeight = 0;
-    bool hasResizeableLayer = false;
-    std::vector<BlocksLayer> layers;
-
-    for (int i = 0; i < layersArr.size(); i++) {
-        const auto& layerMap = layersArr[i];
-        try {
-            layers.push_back(
-                load_layer(layerMap, lastLayersHeight, hasResizeableLayer));
-        } catch (const std::runtime_error& err) {
-            throw std::runtime_error(
-                fieldname+" #"+std::to_string(i)+": "+err.what());
-        }
-    }
-    return BlocksLayers {std::move(layers), lastLayersHeight};
-}
-
-static inline BiomeElementList load_biome_element_list(
-    const dv::value map,
-    const std::string& chanceName,
-    const std::string& arrName,
-    const std::string& nameName
-) {
-    float chance = 0.0f;
-    map.at(chanceName).get(chance);
-    std::vector<WeightedEntry> entries;
-    if (map.has(arrName)) {
-        const auto& arr = map[arrName];
-        for (const auto& entry : arr) {
-            const auto& name = entry[nameName].asString();
-            float weight = entry["weight"].asNumber();
-            if (weight <= 0.0f) {
-                throw std::runtime_error("weight must be positive");
-            }
-            entries.push_back(WeightedEntry {name, weight, {}});
-        }
-    }
-    std::sort(entries.begin(), entries.end(), std::greater<WeightedEntry>());
-    return BiomeElementList(std::move(entries), chance);
-}
-
-static inline BiomeElementList load_plants(const dv::value& biomeMap) {
-    return load_biome_element_list(biomeMap, "plant_chance", "plants", "block");
-}
-
-static inline BiomeElementList load_structures(const dv::value map) {
-    return load_biome_element_list(map, "structure_chance", "structures", "name");
-}
-
-static inline Biome load_biome(
-    const dv::value& biomeMap,
-    const std::string& name,
-    uint parametersCount,
-    int idx
-) {
-    std::vector<BiomeParameter> parameters;
-
-    const auto& paramsArr = biomeMap["parameters"];
-    if (paramsArr.size() < parametersCount) {
-        throw std::runtime_error(
-            std::to_string(parametersCount)+" parameters expected");
-    }
-    for (size_t i = 0; i < parametersCount; i++) {
-        const auto& paramMap = paramsArr[i];
-        float value = paramMap["value"].asNumber();
-        float weight = paramMap["weight"].asNumber();
-        parameters.push_back(BiomeParameter {value, weight});
-    }
-
-    auto plants = load_plants(biomeMap);
-    auto groundLayers = load_layers(biomeMap["layers"], "layers");
-    auto seaLayers = load_layers(biomeMap["sea_layers"], "sea_layers");
-    
-    BiomeElementList structures;
-    if (biomeMap.has("structures")) {
-        structures = load_structures(biomeMap);
-    }
-    return Biome {
-        name,
-        std::move(parameters),
-        std::move(plants),
-        std::move(structures),
-        std::move(groundLayers),
-        std::move(seaLayers)};
-}
 
 std::unique_ptr<GeneratorScript> scripting::load_generator(
     const GeneratorDef& def, const fs::path& file
@@ -268,26 +129,20 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
     auto L = lua::get_main_thread();
     lua::stackguard _(L);
 
-    lua::pop(L, load_script(*env, "generator", file));
+    if (fs::exists(file)) {
+        lua::pop(L, load_script(*env, "generator", file));
+    } else {
+        // Use default (empty) script
+        lua::pop(L, lua::execute(lua::get_main_thread(), *env, "", "<empty>"));
+    }
+    
 
     lua::pushenv(L, *env);
     auto root = lua::tovalue(L, -1);
     lua::pop(L);
 
-    std::vector<Biome> biomes;
-
-    const auto& biomesMap = root["biomes"];
-    for (const auto& [biomeName, biomeMap] : biomesMap.asObject()) {
-        try {
-            biomes.push_back(
-                load_biome(biomeMap, biomeName, def.biomeParameters, -2));
-        } catch (const std::runtime_error& err) {
-            throw std::runtime_error("biome "+biomeName+": "+err.what());
-        }
-    }
     return std::make_unique<LuaGeneratorScript>(
         def,
-        std::move(env), 
-        std::move(biomes)
+        std::move(env)
     );
 }

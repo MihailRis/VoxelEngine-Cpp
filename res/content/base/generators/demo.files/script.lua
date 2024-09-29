@@ -1,5 +1,3 @@
-biomes = json.parse(file.read("base:generators/demo.files/biomes.json"))
-
 function place_structures(x, z, w, d, seed, hmap)
     local placements = {}
     for i=1,10 do
@@ -41,10 +39,6 @@ end
 
 function generate_heightmap(x, y, w, h, seed)
     -- blocks per dot
-    -- 8 - linear interpolation is visible, but not so much
-    -- 4 - high quality, but slower
-    -- 2 - you really don't need it
-    -- 1 - please have mercy on your CPU
     local bpd = 4
     local map = _generate_heightmap(
         math.floor(x/bpd), math.floor(y/bpd), 

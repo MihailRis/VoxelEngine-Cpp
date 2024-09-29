@@ -1,9 +1,0 @@
-biomes = {flat = {
-    parameters = {},
-    layers = {
-        {height=-1, block="core:obstacle"},
-    },
-    sea_layers = {
-        {height=-1, block="core:obstacle"}
-    }
-}}
