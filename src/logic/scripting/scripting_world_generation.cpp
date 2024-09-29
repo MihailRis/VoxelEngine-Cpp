@@ -135,11 +135,6 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
         // Use default (empty) script
         lua::pop(L, lua::execute(lua::get_main_thread(), *env, "", "<empty>"));
     }
-    
-
-    lua::pushenv(L, *env);
-    auto root = lua::tovalue(L, -1);
-    lua::pop(L);
 
     return std::make_unique<LuaGeneratorScript>(
         def,
