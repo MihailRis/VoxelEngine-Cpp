@@ -177,7 +177,7 @@ void WorldGenerator::generateStructures(
 
     util::concat(prototype.structures, def.script->placeStructures(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed,
-        heightmap
+        heightmap, CHUNK_H
     ));
     for (const auto& placement : prototype.structures) {
         const auto& offset = placement.position;

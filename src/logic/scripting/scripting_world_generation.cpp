@@ -76,7 +76,7 @@ public:
 
     std::vector<StructurePlacement> placeStructures(
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed,
-        const std::shared_ptr<Heightmap>& heightmap
+        const std::shared_ptr<Heightmap>& heightmap, uint chunkHeight
     ) override {
         std::vector<StructurePlacement> placements;
         
@@ -88,7 +88,8 @@ public:
             lua::pushivec_stack(L, size);
             lua::pushinteger(L, seed);
             lua::newuserdata<lua::LuaHeightmap>(L, heightmap);
-            if (lua::call_nothrow(L, 6, 1)) {
+            lua::pushinteger(L, chunkHeight);
+            if (lua::call_nothrow(L, 7, 1)) {
                 int len = lua::objlen(L, -1);
                 for (int i = 1; i <= len; i++) {
                     lua::rawgeti(L, i);

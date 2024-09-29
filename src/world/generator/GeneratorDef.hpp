@@ -155,10 +155,11 @@ public:
     /// @param size size of the area (blocks)
     /// @param seed world seed
     /// @param heightmap area heightmap
+    /// @param chunkHeight chunk height to use as heights multiplier
     /// @return structure placements
     virtual std::vector<StructurePlacement> placeStructures(
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed,
-        const std::shared_ptr<Heightmap>& heightmap) = 0;
+        const std::shared_ptr<Heightmap>& heightmap, uint chunkHeight) = 0;
 };
 
 /// @brief Structure voxel fragments and metadata

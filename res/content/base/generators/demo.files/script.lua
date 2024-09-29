@@ -1,10 +1,10 @@
-function place_structures(x, z, w, d, seed, hmap)
+function place_structures(x, z, w, d, seed, hmap, chunk_height)
     local placements = {}
     for i=1,10 do
         local sx = math.random() * w
         local sz = math.random() * d
-        local sy = math.random() * 128
-        if sy < hmap:at(sx, sz) * 256 - 6 then
+        local sy = math.random() * (chunk_height * 0.5)
+        if sy < hmap:at(sx, sz) * chunk_height - 6 then
             table.insert(placements, {"coal_ore0", {sx, sy, sz}, math.random()*4})
         end
     end
