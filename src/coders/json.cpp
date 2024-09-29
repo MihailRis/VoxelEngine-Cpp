@@ -162,10 +162,12 @@ Parser::Parser(std::string_view filename, std::string_view source)
 
 dv::value Parser::parse() {
     char next = peek();
-    if (next != '{') {
-        throw error("'{' expected");
+    if (next == '{') {
+        return parseObject();
+    } else if (next == '[') {
+        return parseList();
     }
-    return parseObject();
+    throw error("'{' or '[' expected");
 }
 
 dv::value Parser::parseObject() {
