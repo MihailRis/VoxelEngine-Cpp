@@ -123,27 +123,51 @@ class GeneratorScript {
 public:
     virtual ~GeneratorScript() = default;
 
-    /// @brief Generates a heightmap with values in range 0..1
+    /// @brief Generate a heightmap with values in range 0..1
     /// @param offset position of the heightmap in the world
     /// @param size size of the heightmap
     /// @param seed world seed
-    /// @return generated heightmap of given size (can't be nullptr)
+    /// @param bpd blocks per dot
+    /// @return generated heightmap (can't be nullptr)
     virtual std::shared_ptr<Heightmap> generateHeightmap(
-        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed) = 0;
+        const glm::ivec2& offset,
+        const glm::ivec2& size,
+        uint64_t seed,
+        uint bpd
+    ) = 0;
 
+    /// @brief Generate a biomes parameters maps
+    /// @param offset position of maps in the world
+    /// @param size maps size
+    /// @param seed world seed
+    /// @param bpd blocks per dot
+    /// @return generated maps (can't be nullptr)
     virtual std::vector<std::shared_ptr<Heightmap>> generateParameterMaps(
-        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed) = 0;
+        const glm::ivec2& offset,
+        const glm::ivec2& size,
+        uint64_t seed,
+        uint bpd
+    ) = 0;
 
+    /// @brief Generate a list of structures placements. Structures may be
+    /// placed to nearest chunks also (position of out area).
+    /// @param offset position of the area
+    /// @param size size of the area (blocks)
+    /// @param seed world seed
+    /// @param heightmap area heightmap
+    /// @return structure placements
     virtual std::vector<StructurePlacement> placeStructures(
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed,
         const std::shared_ptr<Heightmap>& heightmap) = 0;
 };
 
-struct GeneratingVoxelStructure {
+/// @brief Structure voxel fragments and metadata
+struct VoxelStructure {
     VoxelStructureMeta meta;
+    /// @brief voxel fragment and 3 pre-calculated rotated versions
     std::array<std::unique_ptr<VoxelFragment>, 4> fragments;
 
-    GeneratingVoxelStructure(
+    VoxelStructure(
         VoxelStructureMeta meta,
         std::unique_ptr<VoxelFragment> structure
     );
@@ -161,8 +185,14 @@ struct GeneratorDef {
     /// @brief Number of biome parameters, that biome choosing depending on
     uint biomeParameters = 0;
 
+    /// @brief Biome parameter map blocks per dot
+    uint biomesBPD = 8;
+
+    /// @brief Heightmap blocks per dot
+    uint heightsBPD = 4;
+
     std::unordered_map<std::string, size_t> structuresIndices;
-    std::vector<std::unique_ptr<GeneratingVoxelStructure>> structures;
+    std::vector<std::unique_ptr<VoxelStructure>> structures;
     std::vector<Biome> biomes;
 
     GeneratorDef(std::string name);

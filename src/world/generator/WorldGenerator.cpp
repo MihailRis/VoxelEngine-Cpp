@@ -10,6 +10,7 @@
 #include "VoxelFragment.hpp"
 #include "util/timeutil.hpp"
 #include "util/listutil.hpp"
+#include "maths/voxmaths.hpp"
 #include "debug/Logger.hpp"
 
 static debug::Logger logger("world-generator");
@@ -229,8 +230,19 @@ void WorldGenerator::generateBiomes(
     if (prototype.level >= ChunkPrototypeLevel::BIOMES) {
         return;
     }
+    uint bpd = def.biomesBPD;
     auto biomeParams = def.script->generateParameterMaps(
-        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed);
+        {floordiv(chunkX * CHUNK_W, bpd), floordiv(chunkZ * CHUNK_D, bpd)},
+        {floordiv(CHUNK_W, bpd)+1, floordiv(CHUNK_D, bpd)+1},
+        seed,
+        bpd
+    );
+    for (const auto& map : biomeParams) {
+        map->resize(
+            CHUNK_W + bpd, CHUNK_D + bpd, InterpolationType::LINEAR
+        );
+        map->crop(0, 0, CHUNK_W, CHUNK_D);
+    }
     const auto& biomes = def.biomes;
 
     auto chunkBiomes = std::make_unique<const Biome*[]>(CHUNK_W*CHUNK_D);
@@ -250,8 +262,17 @@ void WorldGenerator::generateHeightmap(
     if (prototype.level >= ChunkPrototypeLevel::HEIGHTMAP) {
         return;
     }
+    uint bpd = def.heightsBPD;
     prototype.heightmap = def.script->generateHeightmap(
-        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed);
+        {floordiv(chunkX * CHUNK_W, bpd), floordiv(chunkZ * CHUNK_D, bpd)},
+        {floordiv(CHUNK_W, bpd)+1, floordiv(CHUNK_D, bpd)+1},
+        seed,
+        bpd
+    );
+    prototype.heightmap->resize(
+        CHUNK_W + bpd, CHUNK_D + bpd, InterpolationType::LINEAR
+    );
+    prototype.heightmap->crop(0, 0, CHUNK_W, CHUNK_D);
     prototype.level = ChunkPrototypeLevel::HEIGHTMAP;
 }
 

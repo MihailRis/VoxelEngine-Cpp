@@ -26,7 +26,7 @@ public:
       {}
 
     std::shared_ptr<Heightmap> generateHeightmap(
-        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed
+        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed, uint bpd
     ) override {
         auto L = lua::get_main_thread();
         lua::pushenv(L, *env);
@@ -34,7 +34,8 @@ public:
             lua::pushivec_stack(L, offset);
             lua::pushivec_stack(L, size);
             lua::pushinteger(L, seed);
-            if (lua::call_nothrow(L, 5)) {
+            lua::pushinteger(L, bpd);
+            if (lua::call_nothrow(L, 6)) {
                 auto map = lua::touserdata<lua::LuaHeightmap>(L, -1)->getHeightmap();
                 lua::pop(L, 2);
                 return map;
@@ -45,7 +46,7 @@ public:
     }
 
     std::vector<std::shared_ptr<Heightmap>> generateParameterMaps(
-        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed
+        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed, uint bpd
     ) override {
         std::vector<std::shared_ptr<Heightmap>> maps;
 
@@ -56,7 +57,8 @@ public:
             lua::pushivec_stack(L, offset);
             lua::pushivec_stack(L, size);
             lua::pushinteger(L, seed);
-            if (lua::call_nothrow(L, 5, biomeParameters)) {
+            lua::pushinteger(L, bpd);
+            if (lua::call_nothrow(L, 6, biomeParameters)) {
                 for (int i = biomeParameters-1; i >= 0; i--) {
                     maps.push_back(
                         lua::touserdata<lua::LuaHeightmap>(L, -1-i)->getHeightmap());

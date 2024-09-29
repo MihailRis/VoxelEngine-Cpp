@@ -11,7 +11,7 @@ function place_structures(x, z, w, d, seed, hmap)
     return placements
 end
 
-local function _generate_heightmap(x, y, w, h, seed, s)
+function generate_heightmap(x, y, w, h, seed, s)
     local umap = Heightmap(w, h)
     local vmap = Heightmap(w, h)
     umap.noiseSeed = seed
@@ -37,18 +37,7 @@ local function _generate_heightmap(x, y, w, h, seed, s)
     return map
 end
 
-function generate_heightmap(x, y, w, h, seed)
-    -- blocks per dot
-    local bpd = 4
-    local map = _generate_heightmap(
-        math.floor(x/bpd), math.floor(y/bpd), 
-        math.floor(w/bpd)+1, math.floor(h/bpd)+1, seed, bpd)
-    map:resize(w+bpd, h+bpd, 'linear')
-    map:crop(0, 0, w, h)
-    return map
-end
-
-local function _generate_biome_parameters(x, y, w, h, seed, s)
+function generate_biome_parameters(x, y, w, h, seed, s)
     local tempmap = Heightmap(w, h)
     tempmap.noiseSeed = seed + 5324
     tempmap:noise({x, y}, 0.04*s, 6)
@@ -58,17 +47,4 @@ local function _generate_biome_parameters(x, y, w, h, seed, s)
     tempmap:pow(3)
     hummap:pow(3)
     return tempmap, hummap
-end
-
-function generate_biome_parameters(x, y, w, h, seed)
-    local bpd = 8
-    local tmap, hmap = _generate_biome_parameters(
-        math.floor(x/bpd), math.floor(y/bpd), 
-        math.floor(w/bpd)+1, math.floor(h/bpd)+1, seed, bpd) 
-    tmap:resize(w+bpd, h+bpd, 'linear')
-    tmap:crop(0, 0, w, h)
-
-    hmap:resize(w+bpd, h+bpd, 'linear')
-    hmap:crop(0, 0, w, h)
-    return tmap, hmap
 end

@@ -5,7 +5,7 @@
 #include "util/stringutil.hpp"
 #include "voxels/Block.hpp"
 
-GeneratingVoxelStructure::GeneratingVoxelStructure(
+VoxelStructure::VoxelStructure(
     VoxelStructureMeta meta,
     std::unique_ptr<VoxelFragment> structure
 ) : fragments({std::move(structure)}), meta(std::move(meta)) {}

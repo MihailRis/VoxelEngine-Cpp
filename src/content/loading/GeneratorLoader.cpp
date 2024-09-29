@@ -127,13 +127,13 @@ static VoxelStructureMeta load_structure_meta(
     return meta;
 }
 
-static std::vector<std::unique_ptr<GeneratingVoxelStructure>> load_structures(
+static std::vector<std::unique_ptr<VoxelStructure>> load_structures(
     const fs::path& structuresFile
 ) {
     auto structuresDir = structuresFile.parent_path() / fs::path("fragments");
     auto map = files::read_json(structuresFile);
 
-    std::vector<std::unique_ptr<GeneratingVoxelStructure>> structures;
+    std::vector<std::unique_ptr<VoxelStructure>> structures;
     for (auto& [name, config] : map.asObject()) {
         auto structFile = structuresDir / fs::u8path(name + ".vox");
         logger.debug() << "loading voxel fragment " << structFile.u8string();
@@ -144,7 +144,7 @@ static std::vector<std::unique_ptr<GeneratingVoxelStructure>> load_structures(
         auto fragment = std::make_unique<VoxelFragment>();
         fragment->deserialize(files::read_binary_json(structFile));
 
-        structures.push_back(std::make_unique<GeneratingVoxelStructure>(
+        structures.push_back(std::make_unique<VoxelStructure>(
             load_structure_meta(name, config),
             std::move(fragment)
         ));
@@ -193,6 +193,8 @@ void ContentLoader::loadGenerator(
     }
     auto map = files::read_toml(generatorsDir / fs::u8path(name + ".toml"));
     map.at("biome_parameters").get(def.biomeParameters);
+    map.at("biome-bpd").get(def.biomesBPD);
+    map.at("heights-bpd").get(def.heightsBPD);
     map.at("sea_level").get(def.seaLevel);
 
     auto folder = generatorsDir / fs::u8path(name + ".files");
