@@ -438,6 +438,31 @@ static int l_decompose_state(lua::State* L) {
     return 1;
 }
 
+static int get_field(
+    lua::State* L,
+    const ubyte* src,
+    const data::Field& field,
+    size_t index,
+    const data::StructLayout& dataStruct
+) {
+    switch (field.type) {
+        case data::FieldType::I8:
+        case data::FieldType::I16:
+        case data::FieldType::I32:
+        case data::FieldType::I64:
+            return lua::pushinteger(L, dataStruct.getInteger(src, field, index));
+        case data::FieldType::F32:
+        case data::FieldType::F64:
+            return lua::pushnumber(L, dataStruct.getNumber(src, field, index));
+        case data::FieldType::CHAR:
+            return lua::pushstring(L, 
+                std::string(dataStruct.getChars(src, field)).c_str());
+        case data::FieldType::COUNT:
+            return 0;
+    }
+    return 0;
+}
+
 static int l_get_field(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
@@ -468,20 +493,35 @@ static int l_get_field(lua::State* L) {
     if (src == nullptr) {
         throw std::runtime_error("block data is not allocated");
     }
-    switch (field->type) {
+    return get_field(L, src, *field, index, dataStruct);
+}
+
+static int set_field(
+    lua::State* L,
+    ubyte* dst,
+    const data::Field& field,
+    size_t index,
+    const data::StructLayout& dataStruct,
+    const dv::value& value
+) {
+    switch (field.type) {
+        case data::FieldType::CHAR:
+            if (value.isString()) {
+                return lua::pushinteger(L,
+                    dataStruct.setUnicode(dst, value.asString(), field));
+            }
         case data::FieldType::I8:
         case data::FieldType::I16:
         case data::FieldType::I32:
         case data::FieldType::I64:
-            return lua::pushinteger(L, dataStruct.getInteger(src, *field, index));
+            dataStruct.setInteger(dst, value.asInteger(), field, index);
+            break;
         case data::FieldType::F32:
         case data::FieldType::F64:
-            return lua::pushnumber(L, dataStruct.getNumber(src, *field, index));
-        case data::FieldType::CHAR:
-            return lua::pushstring(L, 
-                std::string(dataStruct.getChars(src, *field)).c_str());
+            dataStruct.setNumber(dst, value.asNumber(), field, index);
+            break;
         case data::FieldType::COUNT:
-            return 0;
+            break;
     }
     return 0;
 }
@@ -517,26 +557,7 @@ static int l_set_field(lua::State* L) {
     if (dst == nullptr) {
         throw std::runtime_error("block data is not allocated");
     }
-    switch (field->type) {
-        case data::FieldType::CHAR:
-            if (value.isString()) {
-                return lua::pushinteger(L,
-                    dataStruct.setUnicode(dst, value.asString(), *field));
-            }
-        case data::FieldType::I8:
-        case data::FieldType::I16:
-        case data::FieldType::I32:
-        case data::FieldType::I64:
-            dataStruct.setInteger(dst, value.asInteger(), *field, index);
-            break;
-        case data::FieldType::F32:
-        case data::FieldType::F64:
-            dataStruct.setNumber(dst, value.asNumber(), *field, index);
-            break;
-        case data::FieldType::COUNT:
-            break;
-    }
-    return 0;
+    return set_field(L, dst, *field, index, dataStruct, value);
 }
 
 const luaL_Reg blocklib[] = {
