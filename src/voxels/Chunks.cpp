@@ -383,7 +383,11 @@ void Chunks::set(
         eraseSegments(prevdef, vox.state, gx, y, gz);
     }
     if (prevdef.dataStruct) {
-        chunk->blocksMetadata.free(chunk->blocksMetadata.find(index));
+        if (auto found = chunk->blocksMetadata.find(index)) {
+            chunk->blocksMetadata.free(found);
+            chunk->flags.unsaved = true;
+            chunk->flags.blocksData = true;
+        }
     }
 
     // block initialization

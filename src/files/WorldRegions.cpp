@@ -68,6 +68,9 @@ WorldRegions::WorldRegions(const fs::path& directory) : directory(directory) {
     layers[REGION_LAYER_INVENTORIES].folder =
         directory / fs::path("inventories");
     layers[REGION_LAYER_ENTITIES].folder = directory / fs::path("entities");
+
+    auto& blocksData = layers[REGION_LAYER_BLOCKS_DATA];
+    blocksData.folder = directory / fs::path("blocksdata");
 }
 
 WorldRegions::~WorldRegions() = default;
@@ -188,6 +191,15 @@ void WorldRegions::put(Chunk* chunk, std::vector<ubyte> entitiesData) {
             std::move(data),
             entitiesData.size());
     }
+    // Writing blocks data
+    if (chunk->flags.blocksData) {
+        auto bytes = chunk->blocksMetadata.serialize();
+        put(chunk->x,
+            chunk->z,
+            REGION_LAYER_BLOCKS_DATA,
+            bytes.release(),
+            bytes.size());
+    }
 }
 
 std::unique_ptr<ubyte[]> WorldRegions::getVoxels(int x, int z) {
@@ -225,6 +237,18 @@ chunk_inventories_map WorldRegions::fetchInventories(int x, int z) {
         return {};
     }
     return load_inventories(bytes, bytesSize);
+}
+
+BlocksMetadata WorldRegions::getBlocksData(int x, int z) {
+    uint32_t bytesSize;
+    uint32_t srcSize;
+    auto bytes = layers[REGION_LAYER_BLOCKS_DATA].getData(x, z, bytesSize, srcSize);
+    if (bytes == nullptr) {
+        return {};
+    }
+    BlocksMetadata heap;
+    heap.deserialize(bytes, bytesSize);
+    return heap;
 }
 
 void WorldRegions::processInventories(

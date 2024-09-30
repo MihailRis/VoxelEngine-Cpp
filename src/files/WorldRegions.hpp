@@ -216,6 +216,8 @@ public:
     std::unique_ptr<light_t[]> getLights(int x, int z);
     
     chunk_inventories_map fetchInventories(int x, int z);
+
+    BlocksMetadata getBlocksData(int x, int z);
     
     /// @brief Load saved entities data for chunk
     /// @param x chunk.x

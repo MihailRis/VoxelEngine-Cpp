@@ -12,7 +12,6 @@
 static inline size_t VOXELS_DATA_SIZE_V1 = CHUNK_VOL * 4;
 static inline size_t VOXELS_DATA_SIZE_V2 = CHUNK_VOL * 4;
 
-#include <iostream>
 static util::Buffer<ubyte> convert_voxels_1to2(const ubyte* buffer, uint32_t size) {
     auto data = compression::decompress(
         buffer, size, VOXELS_DATA_SIZE_V1, compression::Method::EXTRLE8);
@@ -40,11 +39,9 @@ static util::Buffer<ubyte> convert_voxels_1to2(const ubyte* buffer, uint32_t siz
     return util::Buffer<ubyte>(std::move(compressed), outLen);
 }
 
-#include "util/timeutil.hpp"
 util::Buffer<ubyte> compatibility::convert_region_2to3(
     const util::Buffer<ubyte>& src, RegionLayerIndex layer
 ) {
-    timeutil::ScopeLogTimer log(555);
     const size_t REGION_CHUNKS = 1024;
     const size_t HEADER_SIZE = 10;
     const size_t OFFSET_TABLE_SIZE = REGION_CHUNKS * sizeof(uint32_t);
@@ -95,7 +92,8 @@ util::Buffer<ubyte> compatibility::convert_region_2to3(
                 builder.put(data, size);
                 break;
             case REGION_LAYER_ENTITIES:
-            case REGION_LAYER_INVENTORIES: {
+            case REGION_LAYER_INVENTORIES:
+            case REGION_LAYER_BLOCKS_DATA: {
                 builder.putInt32(size);
                 builder.putInt32(size);
                 builder.put(data, size);

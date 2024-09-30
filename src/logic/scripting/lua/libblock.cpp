@@ -557,6 +557,8 @@ static int l_set_field(lua::State* L) {
     if (dst == nullptr) {
         dst = chunk->blocksMetadata.allocate(voxelIndex, dataStruct.size());
     }
+    chunk->flags.unsaved = true;
+    chunk->flags.blocksData = true;
     return set_field(L, dst, *field, index, dataStruct, value);
 }
 

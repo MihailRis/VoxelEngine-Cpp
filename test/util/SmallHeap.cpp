@@ -53,3 +53,19 @@ TEST(SmallHeap, RandomFill) {
     }
     EXPECT_EQ(map.sizeOf(map.find(n)), 123);
 }
+
+TEST(SmallHeap, EncodeDecode) {
+    SmallHeap<uint16_t, uint8_t> map;
+    int n = 3'000;
+    map.allocate(n, 123);
+    for (int i = 0; i < n; i++) {
+        int index = rand() % n;
+        int size = rand() % 254 + 1;
+        map.allocate(index, size);
+    }
+    auto bytes = map.serialize();
+
+    SmallHeap<uint16_t, uint8_t> out;
+    out.deserialize(bytes.data(), bytes.size());
+    EXPECT_EQ(map, out);
+}

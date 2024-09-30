@@ -18,6 +18,8 @@ class Inventory;
 using chunk_inventories_map =
     std::unordered_map<uint, std::shared_ptr<Inventory>>;
 
+using BlocksMetadata = util::SmallHeap<uint16_t, uint8_t>;
+
 class Chunk {
 public:
     int x, z;
@@ -32,12 +34,13 @@ public:
         bool unsaved : 1;
         bool loadedLights : 1;
         bool entities : 1;
+        bool blocksData : 1;
     } flags {};
 
     /// @brief Block inventories map where key is index of block in voxels array
     chunk_inventories_map inventories;
     /// @brief Blocks metadata heap
-    util::SmallHeap<uint16_t, uint8_t> blocksMetadata;
+    BlocksMetadata blocksMetadata;
 
     Chunk(int x, int z);
 

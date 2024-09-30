@@ -81,6 +81,7 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
         chunk->lightmap.set(lights.get());
         chunk->flags.loadedLights = true;
     }
+    chunk->blocksMetadata = regions.getBlocksData(chunk->x, chunk->z);
     return chunk;
 }
 

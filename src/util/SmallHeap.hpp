@@ -6,7 +6,15 @@
 #include <limits>
 #include <stdexcept>
 
-namespace util {
+#include "Buffer.hpp"
+#include "data_io.hpp"
+
+namespace util {    
+    template<typename T>
+    inline T read_int_le(const uint8_t* src, size_t offset=0) {
+        return dataio::le2h(*(reinterpret_cast<const T*>(src) + offset));
+    }
+
     // TODO: make it safer (minimize raw temporary pointers use)
     /// @brief Simple heap implementation for memory-optimal sparse array of 
     /// small different structures
@@ -28,9 +36,9 @@ namespace util {
         uint8_t* find(Tindex index) {
             auto data = buffer.data();
             for (size_t i = 0; i < entriesCount; i++) {
-                auto nextIndex = *reinterpret_cast<Tindex*>(data);
+                auto nextIndex = read_int_le<Tindex>(data);
                 data += sizeof(Tindex);
-                auto nextSize = *reinterpret_cast<Tsize*>(data);
+                auto nextSize = read_int_le<Tsize>(data);
                 data += sizeof(Tsize);
                 if (nextIndex == index) {
                     return data;
@@ -85,9 +93,9 @@ namespace util {
             }
             for (size_t i = 0; i < entriesCount; i++) {
                 auto data = buffer.data() + offset;
-                auto nextIndex = *reinterpret_cast<Tindex*>(data);
+                auto nextIndex = read_int_le<Tindex>(data);
                 data += sizeof(Tindex);
-                auto nextSize = *reinterpret_cast<Tsize*>(data);
+                auto nextSize = read_int_le<Tsize>(data);
                 data += sizeof(Tsize);
                 if (nextIndex > index) {
                     break;
@@ -103,9 +111,9 @@ namespace util {
             entriesCount++;
 
             auto data = buffer.data() + offset;
-            *reinterpret_cast<Tindex*>(data) = index;
+            *reinterpret_cast<Tindex*>(data) = dataio::h2le(index);
             data += sizeof(Tindex);
-            *reinterpret_cast<Tsize*>(data) = size;
+            *reinterpret_cast<Tsize*>(data) = dataio::h2le(size);
             return data + sizeof(Tsize);
         }
 
@@ -115,7 +123,7 @@ namespace util {
             if (ptr == nullptr) {
                 return 0;
             }
-            return *(reinterpret_cast<Tsize*>(ptr)-1);
+            return read_int_le<Tsize>(ptr, -1);
         }
 
         /// @return number of entries
@@ -126,6 +134,31 @@ namespace util {
         /// @return total used bytes including entries metadata
         size_t size() const {
             return buffer.size();
+        }
+
+        inline bool operator==(const SmallHeap<Tindex, Tsize>& o) const {
+            if (o.entriesCount != entriesCount) {
+                return false;
+            }
+            return buffer == o.buffer;
+        }
+
+        util::Buffer<uint8_t> serialize() const {
+            util::Buffer<uint8_t> out(sizeof(Tindex) + buffer.size());
+            ubyte* dst = out.data();
+            const ubyte* src = buffer.data();
+
+            *reinterpret_cast<Tindex*>(dst) = dataio::h2le(entriesCount);
+            dst += sizeof(Tindex);
+
+            std::memcpy(dst, src, buffer.size());
+            return out;
+        }
+
+        void deserialize(const ubyte* src, size_t size) {
+            entriesCount = read_int_le<Tindex>(src);
+            buffer.resize(size - sizeof(Tindex));
+            std::memcpy(buffer.data(), src + sizeof(Tindex), buffer.size());
         }
     };
 }
