@@ -149,7 +149,8 @@ namespace scripting {
 
     std::unique_ptr<GeneratorScript> load_generator(
         const GeneratorDef& def,
-        const fs::path& file
+        const fs::path& file,
+        const std::string& dirPath
     );
 
     /// @brief Load package-specific world script

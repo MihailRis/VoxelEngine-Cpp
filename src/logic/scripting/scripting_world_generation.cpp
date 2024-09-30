@@ -126,11 +126,19 @@ public:
 };
 
 std::unique_ptr<GeneratorScript> scripting::load_generator(
-    const GeneratorDef& def, const fs::path& file
+    const GeneratorDef& def, const fs::path& file, const std::string& dirPath
 ) {
     auto env = create_environment();
     auto L = lua::get_main_thread();
     lua::stackguard _(L);
+
+    lua::pushenv(L, *env);
+    lua::pushstring(L, dirPath);
+    lua::setfield(L, "__DIR__");
+    lua::pushstring(L, dirPath + "/script.lua");
+    lua::setfield(L, "__FILE__");
+
+    lua::pop(L);
 
     if (fs::exists(file)) {
         lua::pop(L, load_script(*env, "generator", file));

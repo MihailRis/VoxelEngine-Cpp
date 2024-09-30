@@ -212,5 +212,6 @@ void ContentLoader::loadGenerator(
         );
     }
     load_biomes(def, biomesFiles);
-    def.script = scripting::load_generator(def, scriptFile);
+    def.script = scripting::load_generator(
+        def, scriptFile, pack->id+":generators/"+name+".files");
 }
