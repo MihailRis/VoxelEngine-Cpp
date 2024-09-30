@@ -61,6 +61,7 @@ bool ChunksController::loadVisible() {
 
     int nearX = 0;
     int nearZ = 0;
+    bool assigned = false;
     int minDistance = ((sizeX - padding * 2) / 2) * ((sizeY - padding * 2) / 2);
     for (uint z = padding; z < sizeY - padding; z++) {
         for (uint x = padding; x < sizeX - padding; x++) {
@@ -81,12 +82,13 @@ bool ChunksController::loadVisible() {
                 minDistance = distance;
                 nearX = x;
                 nearZ = z;
+                assigned = true;
             }
         }
     }
 
     const auto& chunk = chunks->getChunks()[nearZ * sizeX + nearX];
-    if (chunk != nullptr) {
+    if (chunk != nullptr || !assigned) {
         return false;
     }
     int offsetX = chunks->getOffsetX();
