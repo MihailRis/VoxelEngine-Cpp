@@ -21,6 +21,7 @@
 #include "util/stringutil.hpp"
 #include "voxels/Block.hpp"
 #include "data/dv_util.hpp"
+#include "data/StructLayout.hpp"
 
 namespace fs = std::filesystem;
 
@@ -250,6 +251,12 @@ void ContentLoader::loadBlock(
     root.at("ui-layout").get(def.uiLayout);
     root.at("inventory-size").get(def.inventorySize);
     root.at("tick-interval").get(def.tickInterval);
+
+    if (root.has("fields")) {
+        def.dataStruct = std::make_unique<data::StructLayout>();
+        def.dataStruct->deserialize(root["fields"]);
+    }
+
     if (def.tickInterval == 0) {
         def.tickInterval = 1;
     }

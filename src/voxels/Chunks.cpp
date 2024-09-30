@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <vector>
 
+#include "data/StructLayout.hpp"
 #include "coders/byte_utils.hpp"
 #include "coders/json.hpp"
 #include "content/Content.hpp"
@@ -370,6 +371,7 @@ void Chunks::set(
     }
     int lx = x - cx * CHUNK_W;
     int lz = z - cz * CHUNK_D;
+    size_t index = vox_index(lx, y, lz);
 
     // block finalization
     voxel& vox = chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx];
@@ -380,6 +382,9 @@ void Chunks::set(
     if (prevdef.rt.extended && !vox.state.segment) {
         eraseSegments(prevdef, vox.state, gx, y, gz);
     }
+    if (prevdef.dataStruct) {
+        chunk->blocksMetadata.free(chunk->blocksMetadata.find(index));
+    }
 
     // block initialization
     const auto& newdef = indices->blocks.require(id);
@@ -388,6 +393,9 @@ void Chunks::set(
     chunk->setModifiedAndUnsaved();
     if (!state.segment && newdef.rt.extended) {
         repairSegments(newdef, state, gx, y, gz);
+    }
+    if (newdef.dataStruct) {
+        chunk->blocksMetadata.allocate(index, newdef.dataStruct->size());
     }
 
     if (y < chunk->bottom)

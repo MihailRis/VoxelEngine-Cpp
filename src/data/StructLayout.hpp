@@ -129,35 +129,54 @@ namespace data {
         /// @throws std::runtime_exception - field not found
         /// @param name field name
         /// @return read-only field reference
-        const Field& requreField(const std::string& name) const;
+        const Field& requireField(const std::string& name) const;
+
+        [[nodiscard]]
+        integer_t getInteger(const ubyte* src, const std::string& name, int index=0) const {
+            return getInteger(src, requireField(name), index);
+        }
 
         /// @brief Get integer from specified field. 
         /// Types: (i8, i16, i32, i64, char)
         /// @throws std::runtime_exception - field not found
         /// @throws std::out_of_range - index is out of range [0, elements-1]
         /// @param src source buffer
-        /// @param name field name
+        /// @param field target field
         /// @param index array index
         /// @return field value
         [[nodiscard]]
-        integer_t getInteger(const ubyte* src, const std::string& name, int index=0) const;
+        integer_t getInteger(const ubyte* src, const Field& field, int index=0) const;
+
+        [[nodiscard]]
+        number_t getNumber(const ubyte* src, const std::string& name, int index=0) const {
+            return getNumber(src, requireField(name), index);
+        }
 
         /// @brief Get floating-point number from specified field. 
         /// Types: (f32, f64, i8, i16, i32, i64, char)
         /// @throws std::runtime_exception - field not found
         /// @throws std::out_of_range - index is out of range [0, elements-1]
         /// @param src source buffer
-        /// @param name field name
+        /// @param field target field
         /// @param index array index
         /// @return field value
         [[nodiscard]]
-        number_t getNumber(const ubyte* src, const std::string& name, int index=0) const;
+        number_t getNumber(const ubyte* src, const Field& field, int index=0) const;
+
+        [[nodiscard]]
+        std::string_view getChars(const ubyte* src, const std::string& name) const {
+            return getChars(src, requireField(name));
+        }
 
         /// @brief Get read-only chars array as string_view.
         /// @param src source buffer
-        /// @param name field name
+        /// @param field target field
         [[nodiscard]]
-        std::string_view getChars(const ubyte* src, const std::string& name) const;
+        std::string_view getChars(const ubyte* src, const Field& field) const;
+
+        void setInteger(ubyte* dst, integer_t value, const std::string& name, int index=0) const {
+            setInteger(dst, value, requireField(name), index);
+        }
 
         /// @brief Set field integer value.
         /// Types: (i8, i16, i32, i64, f32, f64, char)
@@ -165,9 +184,13 @@ namespace data {
         /// @throws std::out_of_range - index is out of range [0, elements-1]
         /// @param dst destination buffer
         /// @param value value
-        /// @param name field name
+        /// @param field target field
         /// @param index array index
-        void setInteger(ubyte* dst, integer_t value, const std::string& name, int index=0) const;
+        void setInteger(ubyte* dst, integer_t value, const Field& field, int index=0) const;
+
+        void setNumber(ubyte* dst, number_t value, const std::string& name, int index=0) const {
+            setNumber(dst, value, requireField(name), index);
+        }
 
         /// @brief Set field numeric value.
         /// Types: (f32, f64)
@@ -175,9 +198,9 @@ namespace data {
         /// @throws std::out_of_range - index is out of range [0, elements-1]
         /// @param dst destination buffer
         /// @param value value
-        /// @param name field name
+        /// @param field target field
         /// @param index array index
-        void setNumber(ubyte* dst, number_t value, const std::string& name, int index=0) const;
+        void setNumber(ubyte* dst, number_t value, const Field& field, int index=0) const;
         
         /// @brief Replace chars array to given ASCII string
         /// @throws std::runtime_exception - field not found
@@ -187,6 +210,10 @@ namespace data {
         /// @param name field name
         /// @return number of written string chars
         size_t setAscii(ubyte* dst, std::string_view value, const std::string& name) const;
+
+        size_t setUnicode(ubyte* dst, std::string_view value, const std::string& name) const {
+            return setUnicode(dst, value, requireField(name));
+        }
         
         /// @brief Unicode-safe version of setAscii
         /// @throws std::runtime_exception - field not found
@@ -194,7 +221,7 @@ namespace data {
         /// @param value utf-8 string
         /// @param name field name
         /// @return number of written string chars
-        size_t setUnicode(ubyte* dst, std::string_view value, const std::string& name) const;
+        size_t setUnicode(ubyte* dst, std::string_view value, const Field& field) const;
 
         /// @return total structure size (bytes)
         [[nodiscard]] size_t size() const {
