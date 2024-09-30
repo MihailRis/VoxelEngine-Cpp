@@ -16,6 +16,8 @@ public:
 
     void setNearestFilter();
 
+    virtual void reload(const ImageData& image) override;
+
     virtual std::unique_ptr<ImageData> readData() override;
     virtual uint getId() const override;
 

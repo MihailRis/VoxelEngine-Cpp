@@ -355,3 +355,21 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
         }
     }
 }
+
+WorldGenDebugInfo WorldGenerator::createDebugInfo() const {
+    const auto& area = surroundMap.getArea();
+    const auto& levels = area.getBuffer();
+    auto values = std::make_unique<ubyte[]>(area.getWidth()*area.getHeight());
+
+    for (uint i = 0; i < levels.size(); i++) {
+        values[i] = levels[i];
+    }
+
+    return WorldGenDebugInfo {
+        area.getOffsetX(),
+        area.getOffsetY(),
+        static_cast<uint>(area.getWidth()),
+        static_cast<uint>(area.getHeight()),
+        std::move(values)
+    };
+}

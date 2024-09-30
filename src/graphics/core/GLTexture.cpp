@@ -41,7 +41,13 @@ void GLTexture::unbind() {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void GLTexture::reload(const ubyte* data){
+void GLTexture::reload(const ImageData& image) {
+    width = image.getWidth();
+    height = image.getHeight();
+    reload(image.getData());
+}
+
+void GLTexture::reload(const ubyte* data) {
     glBindTexture(GL_TEXTURE_2D, id);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
         GL_RGBA, GL_UNSIGNED_BYTE, static_cast<const GLvoid*>(data));

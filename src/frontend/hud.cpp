@@ -17,6 +17,7 @@
 #include "graphics/core/Mesh.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
+#include "graphics/core/ImageData.hpp"
 #include "graphics/render/WorldRenderer.hpp"
 #include "graphics/ui/elements/InventoryView.hpp"
 #include "graphics/ui/elements/Menu.hpp"
@@ -29,6 +30,8 @@
 #include "items/Inventory.hpp"
 #include "items/ItemDef.hpp"
 #include "logic/scripting/scripting.hpp"
+#include "logic/LevelController.hpp"
+#include "world/generator/WorldGenerator.hpp"
 #include "maths/voxmaths.hpp"
 #include "objects/Player.hpp"
 #include "physics/Hitbox.hpp"
@@ -140,12 +143,16 @@ std::shared_ptr<InventoryView> Hud::createHotbar() {
     return view;
 }
 
-Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player) 
-  : assets(engine->getAssets()), 
-    gui(engine->getGUI()),
-    frontend(frontend),
-    player(player)
-{
+static constexpr uint WORLDGEN_IMG_SIZE = 64U;
+
+Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
+    : assets(engine->getAssets()),
+      gui(engine->getGUI()),
+      frontend(frontend),
+      player(player),
+      debugImgWorldGen(std::make_unique<ImageData>(
+          ImageFormat::rgba8888, WORLDGEN_IMG_SIZE, WORLDGEN_IMG_SIZE
+      )) {
     contentAccess = createContentAccess();
     contentAccess->setId("hud.content-access");
     contentAccessPanel = std::make_shared<Panel>(
@@ -177,6 +184,14 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     dplotter->setGravity(Gravity::bottom_right);
     dplotter->setInteractive(false);
     add(HudElement(hud_element_mode::permanent, nullptr, dplotter, true));
+
+    assets->store(Texture::from(debugImgWorldGen.get()), DEBUG_WORLDGEN_IMAGE);
+
+    add(HudElement(hud_element_mode::permanent, nullptr, 
+        guiutil::create(
+            "<image src='"+DEBUG_WORLDGEN_IMAGE+
+            "' pos='0' size='256' gravity='top-right' margin='0,20,0,0'/>"
+        ), true));
 }
 
 Hud::~Hud() {
@@ -250,6 +265,40 @@ void Hud::updateHotbarControl() {
     }
 }
 
+void Hud::updateWorldGenDebugVisualization() {
+    auto level = frontend->getLevel();
+    auto generator =
+        frontend->getController()->getChunksController()->getGenerator();
+    auto debugInfo = generator->createDebugInfo();
+    uint width = debugImgWorldGen->getWidth();
+    uint height = debugImgWorldGen->getHeight();
+    ubyte* data = debugImgWorldGen->getData();
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            if (x >= debugInfo.areaWidth || y >= debugInfo.areaHeight) {
+                for (int i = 0; i < 4; i++) {
+                    data[(y * width + x) * 4 + i] = 0;
+                }
+                continue;
+            }
+            int cx = x + debugInfo.areaOffsetX;
+            int cz = y + debugInfo.areaOffsetY;
+            auto value = debugInfo.areaLevels[y * debugInfo.areaWidth + x] * 35;
+            // Chunk is already generated
+            if (level->chunks->getChunk(cx, cz)) {
+                value = 255;
+            }
+            for (int i = 0; i < 3; i++) {
+                data[(y * width + x) * 4 + i] = value;
+            }
+            data[(y * width + x) * 4 + 3] = 100;
+        }
+    }
+
+    auto texture = assets->get<Texture>(DEBUG_WORLDGEN_IMAGE);
+    texture->reload(*debugImgWorldGen);
+}
+
 void Hud::update(bool visible) {
     auto level = frontend->getLevel();
     auto menu = gui->getMenu();
@@ -296,6 +345,10 @@ void Hud::update(bool visible) {
         }
     }
     cleanup();
+
+    if (player->debug) {
+        updateWorldGenDebugVisualization();
+    }
 }
 
 /// @brief Show inventory on the screen and turn on inventory mode blocking movement

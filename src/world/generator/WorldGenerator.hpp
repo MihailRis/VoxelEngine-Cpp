@@ -34,6 +34,14 @@ struct ChunkPrototype {
     std::vector<StructurePlacement> structures;
 };
 
+struct WorldGenDebugInfo {
+    int areaOffsetX;
+    int areaOffsetY;
+    uint areaWidth;
+    uint areaHeight;
+    std::unique_ptr<ubyte[]> areaLevels;
+};
+
 /// @brief High-level world generation controller
 class WorldGenerator {
     /// @param def generator definition
@@ -80,5 +88,8 @@ public:
     /// @param z chunk position Y divided by CHUNK_D
     void generate(voxel* voxels, int x, int z);
 
+    WorldGenDebugInfo createDebugInfo() const;
+
+    /// @brief Default generator name // TODO: move to config
     inline static std::string DEFAULT = "core:default";
 };

@@ -20,6 +20,8 @@ public:
     virtual void bind() = 0;
     virtual void unbind() = 0;
 
+    virtual void reload(const ImageData& image) = 0;
+
     virtual std::unique_ptr<ImageData> readData() = 0;
 
     virtual uint getWidth() const {

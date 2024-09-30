@@ -1,9 +1,8 @@
-BLOCKS_PER_CHUNK = 65536
-
 local _, dir = parse_path(__DIR__)
 ores = file.read_combined_list(dir.."/ores.json")
 
 local function place_ores(placements, x, z, w, d, seed, hmap, chunk_height)
+    local BLOCKS_PER_CHUNK = w * d * chunk_height
     for _, ore in ipairs(ores) do
         local count = BLOCKS_PER_CHUNK / ore.rarity
 
