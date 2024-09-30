@@ -394,9 +394,6 @@ void Chunks::set(
     if (!state.segment && newdef.rt.extended) {
         repairSegments(newdef, state, gx, y, gz);
     }
-    if (newdef.dataStruct) {
-        chunk->blocksMetadata.allocate(index, newdef.dataStruct->size());
-    }
 
     if (y < chunk->bottom)
         chunk->bottom = y;

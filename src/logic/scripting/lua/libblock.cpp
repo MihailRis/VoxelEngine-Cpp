@@ -491,7 +491,7 @@ static int l_get_field(lua::State* L) {
     }
     const ubyte* src = chunk->blocksMetadata.find(voxelIndex);
     if (src == nullptr) {
-        throw std::runtime_error("block data is not allocated");
+        return 0;
     }
     return get_field(L, src, *field, index, dataStruct);
 }
@@ -555,7 +555,7 @@ static int l_set_field(lua::State* L) {
     }
     ubyte* dst = chunk->blocksMetadata.find(voxelIndex);
     if (dst == nullptr) {
-        throw std::runtime_error("block data is not allocated");
+        dst = chunk->blocksMetadata.allocate(voxelIndex, dataStruct.size());
     }
     return set_field(L, dst, *field, index, dataStruct, value);
 }
