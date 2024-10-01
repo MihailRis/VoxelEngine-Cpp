@@ -64,6 +64,8 @@ struct GraphicsSettings {
     /// @brief Enable chunks frustum culling
     FlagSetting frustumCulling {true};
     IntegerSetting skyboxResolution {64 + 32, 64, 128};
+    IntegerSetting chunkMaxVertices {1'000'000, 0, 4'000'000};
+    IntegerSetting chunkMaxRenderers {0, -4, 32};
 };
 
 struct DebugSettings {
