@@ -3,6 +3,7 @@ menu.missing-content=Missing Content!
 world.convert-request=Content indices have changed! Convert world files?
 world.upgrade-request=World format is outdated! Convert world files?
 world.convert-with-loss=Convert world with data loss?
+world.convert-block-layouts=Blocks fields have changes! Convert world files?
 pack.remove-confirm=Do you want to erase all pack(s) content from the world forever?
 error.pack-not-found=Could not to find pack
 error.dependency-not-found=Dependency pack is not found

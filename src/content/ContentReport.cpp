@@ -81,6 +81,9 @@ std::shared_ptr<ContentReport> ContentReport::create(
                 );
             }
         }
+        if (layout != *def->dataStruct) {
+            report->dataLayoutsUpdated = true;
+        }
         report->blocksDataLayouts[name] = std::move(layout);
     }
 
@@ -89,7 +92,7 @@ std::shared_ptr<ContentReport> ContentReport::create(
     if (report->isUpgradeRequired() || 
         report->hasContentReorder() || 
         report->hasMissingContent() ||
-        report->hasDataLoss()) {
+        report->hasUpdatedLayouts()) {
         return report;
     } else {
         return nullptr;

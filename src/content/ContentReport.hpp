@@ -128,6 +128,8 @@ public:
     std::vector<ContentIssue> issues;
     std::vector<std::string> dataLoss;
 
+    bool dataLayoutsUpdated = false;
+
     ContentReport(
         const ContentIndices* indices, 
         size_t blocks, 
@@ -143,6 +145,9 @@ public:
 
     inline const std::vector<std::string>& getDataLoss() const {
         return dataLoss;
+    }
+    inline bool hasUpdatedLayouts() {
+        return dataLayoutsUpdated;
     }
 
     inline bool hasContentReorder() const {

@@ -273,6 +273,9 @@ size_t StructLayout::setUnicode(
     size_t size = util::crop_utf8(text, field.elements);
     auto ptr = reinterpret_cast<char*>(dst + field.offset);
     std::memcpy(ptr, value.data(), size);
+    if (size < field.elements) {
+        ptr[size] = '\0';
+    }
     return size;
 }
 

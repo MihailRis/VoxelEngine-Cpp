@@ -80,6 +80,9 @@ void show_convert_request(
         };
 
     std::wstring message = L"world.convert-request";
+    if (report->hasUpdatedLayouts()) {
+        message = L"world.convert-block-layouts";
+    }
     if (report->isUpgradeRequired()) {
         message = L"world.upgrade-request";
     } else if (report->hasDataLoss()) {
