@@ -31,6 +31,42 @@ static constexpr size_t get_entries_count(
         : indices.count();
 }
 
+static void process_blocks_data(
+    const Content* content,
+    ContentReport& report,
+    const dv::value& root
+) {
+    for (const auto& [name, map] : root.asObject()) {
+        data::StructLayout layout;
+        layout.deserialize(map);
+        auto def = content->blocks.find(name);
+        if (def == nullptr) {
+            continue;
+        }
+        if (def->dataStruct == nullptr) {
+            ContentIssue issue {ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE};
+            report.issues.push_back(issue);
+            report.dataLoss.push_back(name+": discard data");
+            continue;
+        }
+        auto incapatibility = layout.checkCompatibility(*def->dataStruct);
+        if (!incapatibility.empty()) {
+            ContentIssue issue {ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE};
+            report.issues.push_back(issue);
+            for (const auto& error : incapatibility) {
+                report.dataLoss.push_back(
+                    "[" + name + "] field " + error.name + " - " +
+                    data::to_string(error.type)
+                );
+            }
+        }
+        if (layout != *def->dataStruct) {
+            report.dataLayoutsUpdated = true;
+        }
+        report.blocksDataLayouts[name] = std::move(layout);
+    }
+}
+
 std::shared_ptr<ContentReport> ContentReport::create(
     const std::shared_ptr<WorldFiles>& worldFiles,
     const fs::path& filename, 
@@ -57,34 +93,8 @@ std::shared_ptr<ContentReport> ContentReport::create(
     report->blocks.setup(blocklist, content->blocks);
     report->items.setup(itemlist, content->items);
 
-    for (const auto& [name, map] : root["blocks-data"].asObject()) {
-        data::StructLayout layout;
-        layout.deserialize(map);
-        auto def = content->blocks.find(name);
-        if (def == nullptr) {
-            continue;
-        }
-        if (def->dataStruct == nullptr) {
-            ContentIssue issue {ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE};
-            report->issues.push_back(issue);
-            report->dataLoss.push_back(name+": discard data");
-            continue;
-        }
-        auto incapatibility = layout.checkCompatibility(*def->dataStruct);
-        if (!incapatibility.empty()) {
-            ContentIssue issue {ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE};
-            report->issues.push_back(issue);
-            for (const auto& error : incapatibility) {
-                report->dataLoss.push_back(
-                    "[" + name + "] field " + error.name + " - " +
-                    data::to_string(error.type)
-                );
-            }
-        }
-        if (layout != *def->dataStruct) {
-            report->dataLayoutsUpdated = true;
-        }
-        report->blocksDataLayouts[name] = std::move(layout);
+    if (root.has("blocks-data")) {
+        process_blocks_data(content, *report, root["blocks-data"]);
     }
 
     report->buildIssues();
