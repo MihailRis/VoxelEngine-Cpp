@@ -12,18 +12,17 @@
 
 static debug::Logger logger("chunks-render");
 
-const uint RENDERER_CAPACITY = 9 * 6 * 6 * 3000;
-
 class RendererWorker : public util::Worker<Chunk, RendererResult> {
     Level* level;
     BlocksRenderer renderer;
 public:
     RendererWorker(
         Level* level, 
-        const ContentGfxCache* cache, 
+        const ContentGfxCache* cache,
         const EngineSettings* settings
     ) : level(level), 
-        renderer(RENDERER_CAPACITY, level->content, cache, settings)
+        renderer(settings->graphics.chunkMaxVertices.get(),
+                 level->content, cache, settings)
     {}
 
     RendererResult operator()(const std::shared_ptr<Chunk>& chunk) override {
@@ -43,12 +42,13 @@ ChunksRenderer::ChunksRenderer(
         [=](RendererResult& mesh){
             meshes[mesh.key] = mesh.renderer->createMesh();
             inwork.erase(mesh.key);
-        })
+        }, settings->graphics.chunkMaxRenderers.get())
 {
     threadPool.setStandaloneResults(false);
     threadPool.setStopOnFail(false);
     renderer = std::make_unique<BlocksRenderer>(
-        RENDERER_CAPACITY, level->content, cache, settings
+        settings->graphics.chunkMaxVertices.get(), 
+        level->content, cache, settings
     );
     logger.info() << "created " << threadPool.getWorkersCount() << " workers";
 }

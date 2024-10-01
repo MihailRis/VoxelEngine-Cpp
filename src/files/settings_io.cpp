@@ -70,6 +70,8 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     builder.add("gamma", &settings.graphics.gamma);
     builder.add("frustum-culling", &settings.graphics.frustumCulling);
     builder.add("skybox-resolution", &settings.graphics.skyboxResolution);
+    builder.add("chunk-max-vertices", &settings.graphics.chunkMaxVertices);
+    builder.add("chunk-max-renderers", &settings.graphics.chunkMaxRenderers);
 
     builder.section("ui");
     builder.add("language", &settings.ui.language);
