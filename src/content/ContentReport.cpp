@@ -12,29 +12,26 @@
 #include "Content.hpp"
 
 ContentReport::ContentReport(
-    const ContentIndices* indices, 
-    size_t blocksCount, 
+    const ContentIndices* indices,
+    size_t blocksCount,
     size_t itemsCount,
     uint regionsVersion
 )
     : blocks(blocksCount, indices->blocks, BLOCK_VOID, ContentType::BLOCK),
       items(itemsCount, indices->items, ITEM_VOID, ContentType::ITEM),
-      regionsVersion(regionsVersion)
-{}
+      regionsVersion(regionsVersion) {
+}
 
 template <class T>
 static constexpr size_t get_entries_count(
     const ContentUnitIndices<T>& indices, const dv::value& list
 ) {
-    return list != nullptr 
-        ? std::max(list.size(), indices.count()) 
-        : indices.count();
+    return list != nullptr ? std::max(list.size(), indices.count())
+                           : indices.count();
 }
 
 static void process_blocks_data(
-    const Content* content,
-    ContentReport& report,
-    const dv::value& root
+    const Content* content, ContentReport& report, const dv::value& root
 ) {
     for (const auto& [name, map] : root.asObject()) {
         data::StructLayout layout;
@@ -46,7 +43,7 @@ static void process_blocks_data(
         if (def->dataStruct == nullptr) {
             ContentIssue issue {ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE};
             report.issues.push_back(issue);
-            report.dataLoss.push_back(name+": discard data");
+            report.dataLoss.push_back(name + ": discard data");
             continue;
         }
         auto incapatibility = layout.checkCompatibility(*def->dataStruct);
@@ -69,7 +66,7 @@ static void process_blocks_data(
 
 std::shared_ptr<ContentReport> ContentReport::create(
     const std::shared_ptr<WorldFiles>& worldFiles,
-    const fs::path& filename, 
+    const fs::path& filename,
     const Content* content
 ) {
     auto worldInfo = worldFiles->readWorldInfo();
@@ -89,7 +86,8 @@ std::shared_ptr<ContentReport> ContentReport::create(
     size_t items_c = get_entries_count(indices->items, itemlist);
 
     auto report = std::make_shared<ContentReport>(
-        indices, blocks_c, items_c, regionsVersion);
+        indices, blocks_c, items_c, regionsVersion
+    );
     report->blocks.setup(blocklist, content->blocks);
     report->items.setup(itemlist, content->items);
 
@@ -99,20 +97,17 @@ std::shared_ptr<ContentReport> ContentReport::create(
 
     report->buildIssues();
 
-    if (report->isUpgradeRequired() || 
-        report->hasContentReorder() || 
-        report->hasMissingContent() ||
-        report->hasUpdatedLayouts()) {
+    if (report->isUpgradeRequired() || report->hasContentReorder() ||
+        report->hasMissingContent() || report->hasUpdatedLayouts()) {
         return report;
     } else {
         return nullptr;
     }
 }
 
-template<class T, class U>
+template <class T, class U>
 static void build_issues(
-    std::vector<ContentIssue>& issues,
-    const ContentUnitLUT<T, U>& report
+    std::vector<ContentIssue>& issues, const ContentUnitLUT<T, U>& report
 ) {
     auto type = report.getContentType();
     if (report.hasContentReorder()) {
