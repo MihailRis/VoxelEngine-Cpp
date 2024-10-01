@@ -24,4 +24,12 @@ namespace guiutil {
         const runnable& on_confirm=nullptr,
         std::wstring yestext=L"", 
         std::wstring notext=L"");
+
+    void confirmWithMemo(
+        gui::GUI* gui, 
+        const std::wstring& text, 
+        const std::wstring& memo,
+        const runnable& on_confirm=nullptr,
+        std::wstring yestext=L"", 
+        std::wstring notext=L"");
 }

@@ -160,5 +160,57 @@ namespace util {
             buffer.resize(size - sizeof(Tindex));
             std::memcpy(buffer.data(), src + sizeof(Tindex), buffer.size());
         }
+
+        struct const_iterator {
+        private:
+            const std::vector<uint8_t>& buffer;
+        public:
+            Tindex index;
+            size_t offset;
+
+            const_iterator(
+                const std::vector<uint8_t>& buffer, Tindex index, size_t offset
+            ) : buffer(buffer), index(index), offset(offset) {}
+
+            Tsize size() const {
+                return read_int_le<Tsize>(buffer.data() + offset, -1);
+            }
+
+            bool operator!=(const const_iterator& o) const {
+                return o.offset != offset;
+            }
+
+            const_iterator& operator++() {
+                offset += size();
+                if (offset == buffer.size()) {
+                    return *this;
+                }
+                index = read_int_le<Tindex>(buffer.data() + offset);
+                offset += sizeof(Tindex) + sizeof(Tsize);
+                return *this;
+            }
+
+            const_iterator& operator*() {
+                return *this;
+            }
+
+            const uint8_t* data() const {
+                return buffer.data() + offset;
+            }
+        };
+
+        const_iterator begin() const {
+            if (buffer.empty()) {
+                return end();
+            }
+            return const_iterator (
+                buffer,
+                read_int_le<Tindex>(buffer.data()),
+                sizeof(Tindex) + sizeof(Tsize));
+        }
+
+        const_iterator end() const {
+            return const_iterator (buffer, 0, buffer.size());
+        }
     };
 }

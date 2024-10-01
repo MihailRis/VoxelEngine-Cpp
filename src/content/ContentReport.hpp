@@ -4,11 +4,13 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <unordered_map>
 
 #include "constants.hpp"
 #include "data/dv.hpp"
 #include "typedefs.hpp"
 #include "Content.hpp"
+#include "data/StructLayout.hpp"
 #include "files/world_regions_fwd.hpp"
 
 namespace fs = std::filesystem;
@@ -17,6 +19,7 @@ enum class ContentIssueType {
     REORDER,
     MISSING,
     REGION_FORMAT_UPDATE,
+    BLOCK_DATA_LAYOUTS_UPDATE,
 };
 
 struct ContentIssue {
@@ -121,7 +124,9 @@ public:
     ContentUnitLUT<itemid_t, ItemDef> items;
     uint regionsVersion;
 
+    std::unordered_map<std::string, data::StructLayout> blocksDataLayouts;
     std::vector<ContentIssue> issues;
+    std::vector<std::string> dataLoss;
 
     ContentReport(
         const ContentIndices* indices, 
@@ -136,6 +141,10 @@ public:
         const Content* content
     );
 
+    inline const std::vector<std::string>& getDataLoss() const {
+        return dataLoss;
+    }
+
     inline bool hasContentReorder() const {
         return blocks.hasContentReorder() || items.hasContentReorder();
     }
@@ -144,6 +153,9 @@ public:
     }
     inline bool isUpgradeRequired() const {
         return regionsVersion < REGION_FORMAT_VERSION;
+    }
+    inline bool hasDataLoss() const {
+        return !dataLoss.empty();
     }
     void buildIssues();
 

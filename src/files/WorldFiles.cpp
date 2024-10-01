@@ -21,6 +21,7 @@
 #include "objects/EntityDef.hpp"
 #include "objects/Player.hpp"
 #include "physics/Hitbox.hpp"
+#include "data/StructLayout.hpp"
 #include "settings.hpp"
 #include "typedefs.hpp"
 #include "util/data_io.hpp"
@@ -116,6 +117,15 @@ void WorldFiles::writeIndices(const ContentIndices* indices) {
     write_indices(indices->blocks, root.list("blocks"));
     write_indices(indices->items, root.list("items"));
     write_indices(indices->entities, root.list("entities"));
+
+    auto& structsMap = root.object("blocks-data");
+    for (const auto* def : indices->blocks.getIterable()) {
+        if (def->dataStruct == nullptr) {
+            continue;
+        }
+        structsMap[def->name] = def->dataStruct->serialize();
+    }
+    
     files::write_json(getIndicesFile(), root);
 }
 

@@ -30,6 +30,12 @@ namespace data {
         TYPE_ERROR,
         MISSING,
     };
+    inline const char* to_string(FieldIncapatibilityType type) {
+        const char* names[] = {
+            "none", "data_loss", "type_error", "missing"
+        };
+        return names[static_cast<int>(type)];
+    }
 
     struct FieldIncapatibility {
         std::string name;

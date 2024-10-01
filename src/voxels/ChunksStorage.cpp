@@ -87,6 +87,7 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
 
 // reduce nesting on next modification
 // 25.06.2024: not now
+// TODO: move to Chunks for performance improvement
 void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
     const Content* content = level->content;
     auto indices = content->getIndices();

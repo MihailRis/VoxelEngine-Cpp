@@ -71,17 +71,37 @@ void show_convert_request(
     const std::shared_ptr<WorldFiles>& worldFiles,
     const runnable& postRunnable
 ) {
-    guiutil::confirm(
-        engine->getGUI(),
-        langs::get(report->isUpgradeRequired() ? 
-            L"world.upgrade-request" : L"world.convert-request"),
-        [=]() {
+    auto on_confirm = [=]() {
             auto converter =
                 create_converter(engine, worldFiles, content, report, postRunnable);
             menus::show_process_panel(
                 engine, converter, L"Converting world..."
             );
-        },
+        };
+
+    std::wstring message = L"world.convert-request";
+    if (report->isUpgradeRequired()) {
+        message = L"world.upgrade-request";
+    } else if (report->hasDataLoss()) {
+        message = L"world.convert-with-loss";
+        std::wstring text;
+        for (const auto& line : report->getDataLoss()) {
+            text += util::str2wstr_utf8(line) + L"\n";
+        }
+        guiutil::confirmWithMemo(
+            engine->getGUI(),
+            langs::get(message),
+            text,
+            on_confirm,
+            L"",
+            langs::get(L"Cancel")
+        );
+        return;
+    }
+    guiutil::confirm(
+        engine->getGUI(),
+        langs::get(message),
+        on_confirm,
         L"",
         langs::get(L"Cancel")
     );

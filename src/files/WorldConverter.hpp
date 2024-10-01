@@ -24,6 +24,8 @@ enum class ConvertTaskType {
     PLAYER,
     /// @brief refresh region file version
     UPGRADE_REGION,
+    /// @brief convert blocks data to updated layouts
+    CONVERT_BLOCKS_DATA,
 };
 
 struct ConvertTask {
@@ -49,6 +51,7 @@ class WorldConverter : public Task {
     void convertPlayer(const fs::path& file) const;
     void convertVoxels(const fs::path& file, int x, int z) const;
     void convertInventories(const fs::path& file, int x, int z) const;
+    void convertBlocksData(int x, int z, const ContentReport& report) const;
 
     void addRegionsTasks(
         RegionLayerIndex layerid,

@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 
+#include "debug/Logger.hpp"
 #include "coders/byte_utils.hpp"
 #include "coders/rle.hpp"
 #include "coders/binary_json.hpp"
@@ -12,6 +13,8 @@
 #include "util/data_io.hpp"
 
 #define REGION_FORMAT_MAGIC ".VOXREG"
+
+static debug::Logger logger("world-regions");
 
 WorldRegion::WorldRegion()
     : chunksData(
@@ -95,15 +98,21 @@ void WorldRegions::put(
 ) {
     size_t size = srcSize;
     auto& layer = layers[layerid];
-    if (layer.compression != compression::Method::NONE) {
-        data = compression::compress(
-            data.get(), size, size, layer.compression);
-    }
     int regionX, regionZ, localX, localZ;
     calc_reg_coords(x, z, regionX, regionZ, localX, localZ);
 
     WorldRegion* region = layer.getOrCreateRegion(regionX, regionZ);
     region->setUnsaved(true);
+    
+    if (data == nullptr) {
+        region->put(localX, localZ, nullptr, 0, 0);
+        return;
+    }
+
+    if (layer.compression != compression::Method::NONE) {
+        data = compression::compress(
+            data.get(), size, size, layer.compression);
+    }
     region->put(localX, localZ, std::move(data), size, srcSize);
 }
 
@@ -251,9 +260,7 @@ BlocksMetadata WorldRegions::getBlocksData(int x, int z) {
     return heap;
 }
 
-void WorldRegions::processInventories(
-    int x, int z, const inventoryproc& func
-) {
+void WorldRegions::processInventories(int x, int z, const InventoryProc& func) {
     processRegion(x, z, REGION_LAYER_INVENTORIES,
     [=](std::unique_ptr<ubyte[]> data, uint32_t* size) {
         auto inventories = load_inventories(data.get(), *size);
@@ -262,6 +269,65 @@ void WorldRegions::processInventories(
         }
         return write_inventories(inventories, *size);
     });
+}
+
+void WorldRegions::processBlocksData(int x, int z, const BlockDataProc& func) {
+    auto& voxLayer = layers[REGION_LAYER_VOXELS];
+    auto& datLayer = layers[REGION_LAYER_BLOCKS_DATA];
+    if (voxLayer.getRegion(x, z) || datLayer.getRegion(x, z)) {
+        throw std::runtime_error("not implemented for in-memory regions");
+    }
+    auto datRegfile = datLayer.getRegFile({x, z});
+    if (datRegfile == nullptr) {
+        throw std::runtime_error("could not open region file");
+    }
+    auto voxRegfile = voxLayer.getRegFile({x, z});
+    if (voxRegfile == nullptr) {
+        logger.warning() << "missing voxels region - discard blocks data for "
+            << x << "_" << z;
+        abort(); // TODO: delete region file
+    }
+    for (uint cz = 0; cz < REGION_SIZE; cz++) {
+        for (uint cx = 0; cx < REGION_SIZE; cx++) {
+            int gx = cx + x * REGION_SIZE;
+            int gz = cz + z * REGION_SIZE;
+
+            uint32_t datLength;
+            uint32_t datSrcSize;
+            auto datData = RegionsLayer::readChunkData(
+                gx, gz, datLength, datSrcSize, datRegfile.get()
+            );
+            if (datData == nullptr) {
+                continue;
+            }
+            uint32_t voxLength;
+            uint32_t voxSrcSize;
+            auto voxData = RegionsLayer::readChunkData(
+                gx, gz, voxLength, voxSrcSize, voxRegfile.get()
+            );
+            if (voxData == nullptr) {
+                logger.warning()
+                    << "missing voxels for chunk (" << gx << ", " << gz << ")";
+                put(gx, gz, REGION_LAYER_BLOCKS_DATA, nullptr, 0);
+                continue;
+            }
+            voxData = compression::decompress(
+                voxData.get(), voxLength, voxSrcSize, voxLayer.compression
+            );
+
+            BlocksMetadata blocksData;
+            blocksData.deserialize(datData.get(), datLength);
+            try {
+                func(blocksData, std::move(voxData));
+            } catch (const std::exception& err) {
+                logger.error() << "an error ocurred while processing blocks "
+                    "data in chunk (" << gx << ", " << gz << "): " << err.what();
+                blocksData = {};
+            }
+            auto bytes = blocksData.serialize();
+            put(gx, gz, REGION_LAYER_BLOCKS_DATA, bytes.release(), bytes.size());
+        }
+    }
 }
 
 dv::value WorldRegions::fetchEntities(int x, int z) {
@@ -282,7 +348,7 @@ dv::value WorldRegions::fetchEntities(int x, int z) {
 }
 
 void WorldRegions::processRegion(
-    int x, int z, RegionLayerIndex layerid, const regionproc& func
+    int x, int z, RegionLayerIndex layerid, const RegionProc& func
 ) {
     auto& layer = layers[layerid];
     if (layer.getRegion(x, z)) {

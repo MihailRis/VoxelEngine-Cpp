@@ -13,6 +13,7 @@
 #include "util/ThreadPool.hpp"
 #include "voxels/Chunk.hpp"
 #include "items/Inventory.hpp"
+#include "voxels/Block.hpp"
 #include "WorldFiles.hpp"
 
 namespace fs = std::filesystem;
@@ -85,6 +86,7 @@ void WorldConverter::createConvertTasks() {
     const auto& regions = wfile->getRegions();
     for (auto& issue : report->getIssues()) {
         switch (issue.issueType) {
+            case ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE:
             case ContentIssueType::REGION_FORMAT_UPDATE:
                 break;
             case ContentIssueType::MISSING:
@@ -111,8 +113,24 @@ WorldConverter::WorldConverter(
 {
     if (upgradeMode) {
         createUpgradeTasks();
-    } else {
+    } else if (report->hasContentReorder()) {
         createConvertTasks();
+    } else {
+        // blocks data conversion requires correct block indices
+        // so it must be done AFTER voxels conversion
+        const auto& regions = wfile->getRegions();
+        for (auto& issue : report->getIssues()) {
+            switch (issue.issueType) {
+                case ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE:
+                    addRegionsTasks(
+                        REGION_LAYER_BLOCKS_DATA,
+                        ConvertTaskType::CONVERT_BLOCKS_DATA
+                    );
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }
 
@@ -187,6 +205,34 @@ void WorldConverter::convertPlayer(const fs::path& file) const {
     files::write_json(file, map);
 }
 
+void WorldConverter::convertBlocksData(int x, int z, const ContentReport& report) const {
+    logger.info() << "converting blocks data";
+    wfile->getRegions().processBlocksData(x, z, 
+    [=](BlocksMetadata& heap, std::unique_ptr<ubyte[]> voxelsData) {
+        Chunk chunk(0, 0);
+        chunk.decode(voxelsData.get());
+
+        const auto& indices = content->getIndices()->blocks;
+
+        BlocksMetadata newHeap;
+        for (const auto& entry : heap) {
+            size_t index = entry.index;
+            const auto& def = indices.require(chunk.voxels[index].id);
+            const auto& newStruct = *def.dataStruct;
+            const auto& found = report.blocksDataLayouts.find(def.name);
+            if (found == report.blocksDataLayouts.end()) {
+                logger.error() << "no previous fields layout found for block" 
+                    << def.name << " - discard";
+                continue; 
+            }
+            const auto& prevStruct = found->second;
+            uint8_t* dst = newHeap.allocate(index, newStruct.size());
+            newStruct.convert(prevStruct, entry.data(), dst, true);
+        }
+        heap = std::move(newHeap);
+    });
+}
+
 void WorldConverter::convert(const ConvertTask& task) const {
     if (!fs::is_regular_file(task.file)) return;
 
@@ -202,6 +248,9 @@ void WorldConverter::convert(const ConvertTask& task) const {
             break;
         case ConvertTaskType::PLAYER:
             convertPlayer(task.file);
+            break;
+        case ConvertTaskType::CONVERT_BLOCKS_DATA:
+            convertBlocksData(task.x, task.z, *report);
             break;
     }
 }

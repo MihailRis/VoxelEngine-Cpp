@@ -64,9 +64,10 @@ struct regfile {
     std::unique_ptr<ubyte[]> read(int index, uint32_t& size, uint32_t& srcSize);
 };
 
-using regionsmap = std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>>;
-using regionproc = std::function<std::unique_ptr<ubyte[]>(std::unique_ptr<ubyte[]>,uint32_t*)>;
-using inventoryproc = std::function<void(Inventory*)>;
+using RegionsMap = std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>>;
+using RegionProc = std::function<std::unique_ptr<ubyte[]>(std::unique_ptr<ubyte[]>,uint32_t*)>;
+using InventoryProc = std::function<void(Inventory*)>;
+using BlockDataProc = std::function<void(BlocksMetadata&, std::unique_ptr<ubyte[]>)>;
 
 /// @brief Region file pointer keeping inUse flag on until destroyed
 class regfile_ptr {
@@ -125,7 +126,7 @@ struct RegionsLayer {
     compression::Method compression = compression::Method::NONE;
 
     /// @brief In-memory regions data
-    regionsmap regions;
+    RegionsMap regions;
 
     /// @brief In-memory regions map mutex
     std::mutex mapMutex;
@@ -231,10 +232,11 @@ public:
     /// @param layerid regions layer index
     /// @param func processing callback
     void processRegion(
-        int x, int z, RegionLayerIndex layerid, const regionproc& func);
+        int x, int z, RegionLayerIndex layerid, const RegionProc& func);
 
-    void processInventories(
-        int x, int z, const inventoryproc& func);
+    void processInventories(int x, int z, const InventoryProc& func);
+
+    void processBlocksData(int x, int z, const BlockDataProc& func);
 
     /// @brief Get regions directory by layer index
     /// @param layerid layer index

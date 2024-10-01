@@ -69,3 +69,16 @@ TEST(SmallHeap, EncodeDecode) {
     out.deserialize(bytes.data(), bytes.size());
     EXPECT_EQ(map, out);
 }
+
+TEST(SmallHeap, Iterator) {
+    SmallHeap<uint16_t, uint8_t> map;
+    map.allocate(1, 10);
+    map.allocate(2, 20);
+    map.allocate(4, 14);
+    
+    int sum = 0;
+    for (const auto& it : map) {
+        sum += it.size();
+    }
+    EXPECT_EQ(sum, 44);
+}
