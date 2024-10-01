@@ -260,6 +260,9 @@ size_t StructLayout::setAscii(
     auto ptr = reinterpret_cast<char*>(dst + field.offset);
     auto size = std::min(value.size(), static_cast<std::size_t>(field.elements));
     std::memcpy(ptr, value.data(), size);
+    if (size < field.elements) {
+        std::memset(ptr + size, 0, field.elements - size);
+    }
     return size;
 }
 
@@ -274,7 +277,7 @@ size_t StructLayout::setUnicode(
     auto ptr = reinterpret_cast<char*>(dst + field.offset);
     std::memcpy(ptr, value.data(), size);
     if (size < field.elements) {
-        ptr[size] = '\0';
+        std::memset(ptr + size, 0, field.elements - size);
     }
     return size;
 }

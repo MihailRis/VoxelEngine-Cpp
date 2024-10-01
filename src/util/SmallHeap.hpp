@@ -15,7 +15,6 @@ namespace util {
         return dataio::le2h(*(reinterpret_cast<const T*>(src) + offset));
     }
 
-    // TODO: make it safer (minimize raw temporary pointers use)
     /// @brief Simple heap implementation for memory-optimal sparse array of 
     /// small different structures
     /// @note alignment is not impemented 
