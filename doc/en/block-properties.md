@@ -156,6 +156,16 @@ Block fields are declared in the following format:
 }
 ```
 
+In addition to `type` and `length`, the `convert-strategy` parameter determines the value conversion strategy when narrowing the data type.
+
+The parameter takes one of two values:
+- `reset` - a value that does not exists in the new range will be reset to 0
+- `clamp` - the value will be reduced to the closest one in the new range
+
+Example: the number 231 when changing the field type from int16 to int8:
+- in `reset` mode will turn into 0
+- in `clamp` mode will turn into 127
+
 Available data types:
 
 | Type    | Size      | Description            |
