@@ -28,6 +28,11 @@ menu.Settings=Налаштування
 world.Seed=Зерно
 world.Name=Назва
 menu.Create World=Створити Світ
+menu.Contents Browser=Браузер контент-паків
+menu.Contents Installed=Встановлені контент-паки
+menu.Refresh=Оновити
+menu.Download=Завантажити
+menu.Worlds=Світи
 
 world.World generator=Генератор світу
 world.generators.default=Звичайні

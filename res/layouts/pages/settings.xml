@@ -9,6 +9,8 @@
     </pagebox>
 
     <panel margin='6' gravity='bottom-left' size='250' color='0' interval='1'>
+        <label>bvcore client</label>
+        <label>using voxelworld api v1</label>
         <button onclick='menu.page="languages"' id='langs_btn'>-</button>
         <button onclick='menu:back()'>@Back</button>
     </panel>

@@ -1,0 +1,8 @@
+<panel size='400' color='0' interval='1' context='menu'>
+    
+    
+    <button onclick='menu.page="browse"'>@Contents Browser</button>
+    <button onclick='menu.page="content_menu"'>@Contents Installed</button>
+    <button onclick='menu:back()'>@Back</button>
+
+</panel>

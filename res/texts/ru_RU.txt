@@ -38,6 +38,11 @@ menu.Quit=Выход
 menu.Save and Quit to Menu=Сохранить и Выйти в Меню
 menu.Settings=Настройки
 menu.Contents Menu=Меню контентпаков
+menu.Contents Browser=Браузер контентпаков
+menu.Contents Installed=Установленные контентпаки
+menu.Refresh=Обновить
+menu.Download=Загрузить
+menu.Worlds=Миры
 
 world.Seed=Зерно
 world.Name=Название

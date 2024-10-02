@@ -26,6 +26,11 @@ menu.New World=Neue Welt
 menu.Quit=Ausfahrt
 menu.Save and Quit to Menu=Speichern und zum Menü zurückkehren
 menu.Settings=Einstellungen
+menu.Contents Browser=Inhalts-Paket-Browser
+menu.Contents Installed=Installierte Inhalts-Pakete
+menu.Refresh=Aktualisieren
+menu.Download=Herunterladen
+menu.Worlds=Welten
 
 world.Seed=Mais
 world.Name=Name

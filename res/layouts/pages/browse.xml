@@ -1,0 +1,31 @@
+<container size='1000,480' color='#0F1E2DB2' padding='8' interval='5' context='menu'>
+    <panel id='contents' pos='15,15' size='440,390' color='0' max-length='406' scrollable='true'>
+        <!-- content is generated in script -->
+    </panel>
+    <button pos='15,430' size='220,40' onclick='menu:back()'>@Back</button>
+    <button pos='235,430' size='220,40' onclick='refresh()'>@Refresh</button>
+
+    <panel id='content_info' pos='485,15' size='440,406' color='0' max-length='406' scrollable='true'>
+        <label>@Creator</label>
+        <label id='author' multiline="true" color='#8C8C8C'>None</label>
+        <label></label>
+        <label></label>
+        <label>@Version</label>
+        <label id='version' multiline="true" color='#8C8C8C'>None</label>
+        <label></label>
+        <label></label>
+        <label>@Description</label>
+        <label id='description' multiline="true" color='#8C8C8C'>None</label>
+        <label></label>
+        <label></label>
+        <label>@Dependencies</label>
+        <label id='dependencies' multiline="true" color='#8C8C8C'>None</label>
+        
+    </panel>
+    <button id="next_button" pos='625,430' size='40,40' onclick='next_page()'></button>
+    <label id="pack_title_value" pos='820,390' size='120,40'></label>
+    <button id="download_button" pos='900,430' size='80,40' onclick='download()'>@Download</button>
+    <label id="page_value" pos='585,430' size='40,40'>1</label>
+    <button id="previous_button" pos='525,430' size='40,40' onclick='previous_page()'></button>
+    
+</container>

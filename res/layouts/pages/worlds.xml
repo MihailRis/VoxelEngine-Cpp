@@ -1,0 +1,10 @@
+<panel size='400' color='0' interval='1' context='menu'>
+    
+    
+    <panel id='worlds' size='390,1' padding='5' color='#FFFFFF11' max-length='400'>
+    </panel>
+    <button onclick='menu.page="new_world"'>@New World</button>
+    <button onclick='menu:back()'>@Back</button>
+    
+
+</panel>

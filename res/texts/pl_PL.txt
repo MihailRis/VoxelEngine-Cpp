@@ -25,6 +25,11 @@ menu.Page not found=Strona nie znaleziona
 menu.Quit=Wyjście
 menu.Save and Quit to Menu=Zapisz i wyjdź do menu
 menu.Settings=Ustawienia
+menu.Contents Browser=Przeglądarka pakietów zawartości
+menu.Contents Installed=Zainstalowane pakiety zawartości
+menu.Refresh=Odśwież
+menu.Download=Pobierz
+menu.Worlds=Światy
 
 world.Seed=Ziarno
 world.Name=Nazwa
