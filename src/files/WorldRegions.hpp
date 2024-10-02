@@ -67,7 +67,7 @@ struct regfile {
 using RegionsMap = std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>>;
 using RegionProc = std::function<std::unique_ptr<ubyte[]>(std::unique_ptr<ubyte[]>,uint32_t*)>;
 using InventoryProc = std::function<void(Inventory*)>;
-using BlockDataProc = std::function<void(BlocksMetadata&, std::unique_ptr<ubyte[]>)>;
+using BlockDataProc = std::function<void(BlocksMetadata*, std::unique_ptr<ubyte[]>)>;
 
 /// @brief Region file pointer keeping inUse flag on until destroyed
 class regfile_ptr {

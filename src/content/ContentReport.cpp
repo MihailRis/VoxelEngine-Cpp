@@ -46,19 +46,20 @@ static void process_blocks_data(
             report.dataLoss.push_back(name + ": discard data");
             continue;
         }
-        auto incapatibility = layout.checkCompatibility(*def->dataStruct);
-        if (!incapatibility.empty()) {
+        if (layout != *def->dataStruct) {
             ContentIssue issue {ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE};
             report.issues.push_back(issue);
+            report.dataLayoutsUpdated = true;
+        }
+
+        auto incapatibility = layout.checkCompatibility(*def->dataStruct);
+        if (!incapatibility.empty()) {
             for (const auto& error : incapatibility) {
                 report.dataLoss.push_back(
                     "[" + name + "] field " + error.name + " - " +
                     data::to_string(error.type)
                 );
             }
-        }
-        if (layout != *def->dataStruct) {
-            report.dataLayoutsUpdated = true;
         }
         report.blocksDataLayouts[name] = std::move(layout);
     }

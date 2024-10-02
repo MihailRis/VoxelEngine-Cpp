@@ -100,37 +100,45 @@ void WorldConverter::createConvertTasks() {
     tasks.push(ConvertTask {ConvertTaskType::PLAYER, wfile->getPlayerFile()});
 }
 
+void WorldConverter::createBlockFieldsConvertTasks() {
+    // blocks data conversion requires correct block indices
+    // so it must be done AFTER voxels conversion
+    const auto& regions = wfile->getRegions();
+    for (auto& issue : report->getIssues()) {
+        switch (issue.issueType) {
+            case ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE:
+                addRegionsTasks(
+                    REGION_LAYER_BLOCKS_DATA,
+                    ConvertTaskType::CONVERT_BLOCKS_DATA
+                );
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 WorldConverter::WorldConverter(
     const std::shared_ptr<WorldFiles>& worldFiles,
     const Content* content,
     std::shared_ptr<ContentReport> reportPtr,
-    bool upgradeMode
+    ConvertMode mode
 )
     : wfile(worldFiles),
       report(std::move(reportPtr)),
       content(content),
-      upgradeMode(upgradeMode)
+      mode(mode)
 {
-    if (upgradeMode) {
-        createUpgradeTasks();
-    } else if (report->hasContentReorder()) {
-        createConvertTasks();
-    } else {
-        // blocks data conversion requires correct block indices
-        // so it must be done AFTER voxels conversion
-        const auto& regions = wfile->getRegions();
-        for (auto& issue : report->getIssues()) {
-            switch (issue.issueType) {
-                case ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE:
-                    addRegionsTasks(
-                        REGION_LAYER_BLOCKS_DATA,
-                        ConvertTaskType::CONVERT_BLOCKS_DATA
-                    );
-                    break;
-                default:
-                    break;
-            }
-        }
+    switch (mode) {
+        case ConvertMode::UPGRADE:
+            createUpgradeTasks();
+            break;
+        case ConvertMode::REINDEX:
+            createConvertTasks();
+            break;
+        case ConvertMode::BLOCK_FIELDS:
+            createBlockFieldsConvertTasks();
+            break;
     }
 }
 
@@ -142,11 +150,11 @@ std::shared_ptr<Task> WorldConverter::startTask(
     const Content* content,
     const std::shared_ptr<ContentReport>& report,
     const runnable& onDone,
-    bool upgradeMode,
+    ConvertMode mode,
     bool multithreading
 ) {
     auto converter = std::make_shared<WorldConverter>(
-        worldFiles, content, report, upgradeMode);
+        worldFiles, content, report, mode);
     if (!multithreading) {
         converter->setOnComplete([=]() {
             converter->write();
@@ -208,14 +216,14 @@ void WorldConverter::convertPlayer(const fs::path& file) const {
 void WorldConverter::convertBlocksData(int x, int z, const ContentReport& report) const {
     logger.info() << "converting blocks data";
     wfile->getRegions().processBlocksData(x, z, 
-    [=](BlocksMetadata& heap, std::unique_ptr<ubyte[]> voxelsData) {
+    [=](BlocksMetadata* heap, std::unique_ptr<ubyte[]> voxelsData) {
         Chunk chunk(0, 0);
         chunk.decode(voxelsData.get());
 
         const auto& indices = content->getIndices()->blocks;
 
         BlocksMetadata newHeap;
-        for (const auto& entry : heap) {
+        for (const auto& entry : *heap) {
             size_t index = entry.index;
             const auto& def = indices.require(chunk.voxels[index].id);
             const auto& newStruct = *def.dataStruct;
@@ -229,7 +237,7 @@ void WorldConverter::convertBlocksData(int x, int z, const ContentReport& report
             uint8_t* dst = newHeap.allocate(index, newStruct.size());
             newStruct.convert(prevStruct, entry.data(), dst, true);
         }
-        heap = std::move(newHeap);
+        *heap = std::move(newHeap);
     });
 }
 
@@ -286,13 +294,22 @@ bool WorldConverter::isActive() const {
 }
 
 void WorldConverter::write() {
-    if (upgradeMode) {
-        logger.info() << "refreshing version";
-        wfile->patchIndicesVersion("region-version", REGION_FORMAT_VERSION);
-    } else {
-        logger.info() << "writing world";
-        wfile->write(nullptr, content);
+    logger.info() << "applying changes";
+
+    auto patch = dv::object();
+    switch (mode) {
+        case ConvertMode::UPGRADE:
+            patch["region-version"] = REGION_FORMAT_VERSION;
+            break;
+        case ConvertMode::REINDEX:
+            WorldFiles::createContentIndicesCache(content->getIndices(), patch);
+            break;
+        case ConvertMode::BLOCK_FIELDS:
+            WorldFiles::createBlockFieldsIndices(content->getIndices(), patch);
+            break;
     }
+    wfile->patchIndicesFile(patch);
+    wfile->write(nullptr, nullptr);
 }
 
 void WorldConverter::waitForEnd() {

@@ -51,7 +51,14 @@ public:
     std::optional<WorldInfo> readWorldInfo();
     bool readResourcesData(const Content* content);
 
-    void patchIndicesVersion(const std::string& field, uint version);
+    static void createContentIndicesCache(
+        const ContentIndices* indices, dv::value& root
+    );
+    static void createBlockFieldsIndices(
+        const ContentIndices* indices, dv::value& root
+    );
+
+    void patchIndicesFile(const dv::value& map);
 
     /// @brief Write all unsaved data to world files
     /// @param world target world

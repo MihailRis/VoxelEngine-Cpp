@@ -25,6 +25,7 @@
 #include "settings.hpp"
 #include "typedefs.hpp"
 #include "util/data_io.hpp"
+#include "util/stringutil.hpp"
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/voxel.hpp"
@@ -111,13 +112,17 @@ static void write_indices(
     }
 }
 
-void WorldFiles::writeIndices(const ContentIndices* indices) {
-    dv::value root = dv::object();
-    root["region-version"] = REGION_FORMAT_VERSION;
+void WorldFiles::createContentIndicesCache(
+    const ContentIndices* indices, dv::value& root
+) {
     write_indices(indices->blocks, root.list("blocks"));
     write_indices(indices->items, root.list("items"));
     write_indices(indices->entities, root.list("entities"));
+}
 
+void WorldFiles::createBlockFieldsIndices(
+    const ContentIndices* indices, dv::value& root
+) {
     auto& structsMap = root.object("blocks-data");
     for (const auto* def : indices->blocks.getIterable()) {
         if (def->dataStruct == nullptr) {
@@ -125,6 +130,14 @@ void WorldFiles::writeIndices(const ContentIndices* indices) {
         }
         structsMap[def->name] = def->dataStruct->serialize();
     }
+}
+
+void WorldFiles::writeIndices(const ContentIndices* indices) {
+    dv::value root = dv::object();
+    root["region-version"] = REGION_FORMAT_VERSION;
+
+    createContentIndicesCache(indices, root);
+    createBlockFieldsIndices(indices, root);
     
     files::write_json(getIndicesFile(), root);
 }
@@ -178,14 +191,17 @@ bool WorldFiles::readResourcesData(const Content* content) {
     return true;
 }
 
-void WorldFiles::patchIndicesVersion(const std::string& field, uint version) {
+void WorldFiles::patchIndicesFile(const dv::value& map) {
     fs::path file = getIndicesFile();
     if (!fs::is_regular_file(file)) {
         logger.error() << file.filename().u8string() << " does not exists";
         return;
     }
     auto root = files::read_json(file);
-    root[field] = version;
+    for (const auto& [key, value] : map.asObject()) {
+        logger.info() << "patching indices.json: update " << util::quote(key);
+        root[key] = value;
+    }
     files::write_json(file, root, true);
 }
 

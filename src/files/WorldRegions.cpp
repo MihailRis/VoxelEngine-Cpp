@@ -318,7 +318,7 @@ void WorldRegions::processBlocksData(int x, int z, const BlockDataProc& func) {
             BlocksMetadata blocksData;
             blocksData.deserialize(datData.get(), datLength);
             try {
-                func(blocksData, std::move(voxData));
+                func(&blocksData, std::move(voxData));
             } catch (const std::exception& err) {
                 logger.error() << "an error ocurred while processing blocks "
                     "data in chunk (" << gx << ", " << gz << "): " << err.what();

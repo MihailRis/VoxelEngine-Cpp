@@ -49,6 +49,14 @@ std::shared_ptr<Task> create_converter(
     const std::shared_ptr<ContentReport>& report,
     const runnable& postRunnable
 ) {
+    ConvertMode mode;
+    if (report->isUpgradeRequired()) {
+        mode = ConvertMode::UPGRADE;
+    } else if (report->hasContentReorder()) {
+        mode = ConvertMode::REINDEX;
+    } else {
+        mode = ConvertMode::BLOCK_FIELDS;
+    }
     return WorldConverter::startTask(
         worldFiles,
         content,
@@ -59,7 +67,7 @@ std::shared_ptr<Task> create_converter(
             menu->setPage("main", false);
             engine->getGUI()->postRunnable([=]() { postRunnable(); });
         },
-        report->isUpgradeRequired(),
+        mode,
         true
     );
 }
@@ -79,9 +87,9 @@ void show_convert_request(
             );
         };
 
-    std::wstring message = L"world.convert-request";
-    if (report->hasUpdatedLayouts()) {
-        message = L"world.convert-block-layouts";
+    std::wstring message = L"world.convert-block-layouts";
+    if (report->hasContentReorder()) {
+        message = L"world.convert-request";
     }
     if (report->isUpgradeRequired()) {
         message = L"world.upgrade-request";
