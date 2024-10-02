@@ -132,3 +132,27 @@ To use filter `dest` argument must be filled with some value(can be nil), it's d
 The function returns a table with the results or nil if the ray does not hit any block.
 
 The result will use the destination table instead of creating a new one if the optional argument specified.
+
+## Data fields
+
+```lua
+-- writes a value to the specified block field
+-- * throws an exception if the types are incompatible
+-- * does nothing if the block does not have the field
+block.set_field(
+    x: int, y: int, z: int,
+    name: str,
+    value: bool|int|number|string,
+    [optional] index: int = 0
+)
+
+-- returns the value written to the block field
+-- * returns nil if:
+-- 1. the field does not exist
+-- 2. no writes were made to any block field
+block.get_field(
+    x: int, y: int, z: int,
+    name: str,
+    [optional] index: int = 0
+) -> the stored value or nil
+```
