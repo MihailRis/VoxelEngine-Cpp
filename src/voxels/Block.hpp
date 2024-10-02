@@ -26,6 +26,8 @@ inline constexpr uint FACE_PZ = 5;
 /// complex hitboxes
 inline constexpr uint BLOCK_AABB_GRID = 16;
 
+inline constexpr size_t MAX_BLOCK_FIELDS_SIZE = 240;
+
 inline std::string DEFAULT_MATERIAL = "base:stone";
 
 struct block_funcs_set {

@@ -255,6 +255,13 @@ void ContentLoader::loadBlock(
     if (root.has("fields")) {
         def.dataStruct = std::make_unique<data::StructLayout>();
         def.dataStruct->deserialize(root["fields"]);
+        if (def.dataStruct->size() > MAX_BLOCK_FIELDS_SIZE) {
+            throw std::runtime_error(
+                util::quote(def.name) + 
+                " fields total size exceeds limit (" + 
+                std::to_string(def.dataStruct->size()) + "/" +
+                std::to_string(MAX_BLOCK_FIELDS_SIZE) + ")");
+        }
     }
 
     if (def.tickInterval == 0) {
