@@ -158,15 +158,15 @@ Block fields are declared in the following format:
 
 Available data types:
 
-| Type  | Size      | Description            |
-| ----- | --------- | ---------------------- |
-| i8    | 1 byte    | signed integer 8 bits  |
-| i16   | 2 bytes   | signed integer 16 bits |
-| i32   | 4 bytes   | signed integer 32 bits |
-| i64   | 8 bytes   | integer signed 64 bits |
-| f32   | 4 bytes   | floating-point 32 bits |
-| f64   | 8 bytes   | floating-point 64 bits |
-| char  | 1 byte    | character              |
+| Type    | Size      | Description            |
+| ------- | --------- | ---------------------- |
+| int8    | 1 byte    | signed integer 8 bits  |
+| int16   | 2 bytes   | signed integer 16 bits |
+| int32   | 4 bytes   | signed integer 32 bits |
+| int64   | 8 bytes   | integer signed 64 bits |
+| float32 | 4 bytes   | floating-point 32 bits |
+| float64 | 8 bytes   | floating-point 64 bits |
+| char    | 1 byte    | character              |
 
 - Currently, the total sum of the field sizes cannot exceed 240 bytes.
 - A field without an array length specification is equivalent to an array of 1 element.
