@@ -518,12 +518,16 @@ namespace dv {
         return std::make_shared<objects::Object>();
     }
 
+    inline value object(std::initializer_list<pair> pairs) {
+        return std::make_shared<objects::Object>(std::move(pairs));
+    }
+
     inline value list() {
         return std::make_shared<objects::List>();
     }
 
     inline value list(std::initializer_list<value> values) {
-        return std::make_shared<objects::List>(values);
+        return std::make_shared<objects::List>(std::move(values));
     }
 
     template<typename T> inline bool get_to_int(value* ptr, T& dst) {
