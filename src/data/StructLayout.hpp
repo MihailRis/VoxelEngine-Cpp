@@ -11,8 +11,7 @@
 
 namespace data {
     enum class FieldType {
-        I8=0, I16, I32, I64, F32, F64, CHAR,
-        COUNT
+        I8=0, I16, I32, I64, F32, F64, CHAR
     };
 
     inline std::string to_string(FieldType type) {

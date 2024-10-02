@@ -457,8 +457,6 @@ static int get_field(
         case data::FieldType::CHAR:
             return lua::pushstring(L, 
                 std::string(dataStruct.getChars(src, field)).c_str());
-        case data::FieldType::COUNT:
-            return 0;
     }
     return 0;
 }
@@ -523,8 +521,6 @@ static int set_field(
         case data::FieldType::F32:
         case data::FieldType::F64:
             dataStruct.setNumber(dst, value.asNumber(), field, index);
-            break;
-        case data::FieldType::COUNT:
             break;
     }
     return 0;
