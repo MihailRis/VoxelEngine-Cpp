@@ -2,8 +2,8 @@
 
 ## Latest release
 
-- [Download](https://github.com/MihailRis/VoxelEngine-Cpp/releases/latest) | [Скачать](https://github.com/MihailRis/VoxelEngine-Cpp/releases/latest)
-- [Documentation](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.22/doc/en/main-page.md) | [Документация](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.22/doc/ru/main-page.md)
+- [Download](https://github.com/callfishxt/bvcore_cpp/releases/latest) | [Скачать](https://github.com/callfishxt/bvcore_cpp/releases/latest)
+- [Documentation](https://github.com/callfishxt/bvcore_cpp/blob/release-0.22/doc/en/main-page.md) | [Документация](https://github.com/callfishxt/bvcore_cpp/blob/release-0.22/doc/ru/main-page.md)
 
 ## Build project in Linux
 
@@ -25,13 +25,13 @@ sudo make install
 
 ```sh
 su -
-apt-get install entt-devel libglfw3-devel libGLEW-devel libglm-devel libpng-devel libvorbis-devel libopenal-devel libluajit-devel libstdc++13-devel-static libcurl-devel libarchive-devel
+apt-get install entt-devel libglfw3-devel libGLEW-devel libglm-devel libpng-devel libvorbis-devel libopenal-devel libluajit-devel libstdc++13-devel-static libcurl-devel libarchive-devel jsoncpp-devel
 ```
 
 #### Debian based distro
 
 ```sh
-sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev libvorbis-dev libcurl4-openssl-dev libarchive-dev
+sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev libvorbis-dev libcurl4-openssl-dev libarchive-dev jsoncpp-dev
 
 ```
 
@@ -46,7 +46,7 @@ sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopen
 #### RHEL based distro
 
 ```sh
-sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-devel openal-devel luajit-devel libcurl-devel libarchive-devel
+sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-devel openal-devel luajit-devel libcurl-devel libarchive-devel jsoncpp-devel
 ```
 
 #### Arch based distro
@@ -54,13 +54,13 @@ sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-dev
 If you use X11
 
 ```sh
-sudo pacman -S glfw-x11 glew glm libpng libvorbis openal luajit curl libarchive
+sudo pacman -S glfw-x11 glew glm libpng libvorbis openal luajit curl libarchive jsoncpp
 ```
 
 If you use Wayland
 
 ```sh
-sudo pacman -S glfw-wayland glew glm libpng libvorbis openal luajit curl libarchive
+sudo pacman -S glfw-wayland glew glm libpng libvorbis openal luajit curl libarchive jsoncpp
 ```
 
 ### Build engine with CMake
@@ -79,7 +79,7 @@ cmake --build .
 ### Install libraries
 
 ```sh
-brew install glfw3 glew glm libpng libvorbis lua luajit openal-soft skypjack/entt/entt curl libarchive
+brew install glfw3 glew glm libpng libvorbis lua luajit openal-soft skypjack/entt/entt curl libarchive jsoncpp
 ```
 
 > [!TIP]
