@@ -168,6 +168,6 @@ Available data types:
 | f64   | 8 bytes   | floating-point 64 bits |
 | char  | 1 byte    | character              |
 
-Currently, the total sum of the field sizes cannot exceed 240 bytes.
-
-A character array can be used to store UTF-8 strings.
+- Currently, the total sum of the field sizes cannot exceed 240 bytes.
+- A field without an array length specification is equivalent to an array of 1 element.
+- A character array can be used to store UTF-8 strings.

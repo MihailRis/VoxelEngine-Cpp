@@ -489,6 +489,10 @@ static int l_get_field(lua::State* L) {
     if (field == nullptr) {
         return 0;
     }
+    if (index >= field->elements) {
+        throw std::out_of_range(
+            "index out of bounds [0, "+std::to_string(field->elements)+"]");
+    }
     const ubyte* src = chunk->blocksMetadata.find(voxelIndex);
     if (src == nullptr) {
         return 0;
@@ -552,6 +556,10 @@ static int l_set_field(lua::State* L) {
     const auto field = dataStruct.getField(name);
     if (field == nullptr) {
         return 0;
+    }
+    if (index >= field->elements) {
+        throw std::out_of_range(
+            "index out of bounds [0, "+std::to_string(field->elements)+"]");
     }
     ubyte* dst = chunk->blocksMetadata.find(voxelIndex);
     if (dst == nullptr) {

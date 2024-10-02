@@ -372,6 +372,12 @@ void StructLayout::deserialize(const dv::value& src) {
         
         int elements = 1;
         fieldmap.at("length").get(elements);
+        if (elements <= 0) {
+            throw std::runtime_error(
+                "invalid field " + util::quote(name) + " length: " +
+                std::to_string(elements)
+            );
+        }
 
         auto convertStrategy = FieldConvertStrategy::RESET;
         if (fieldmap.has("convert-strategy")) {

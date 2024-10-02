@@ -138,6 +138,7 @@ The result will use the destination table instead of creating a new one if the o
 ```lua
 -- writes a value to the specified block field
 -- * throws an exception if the types are incompatible
+-- * throws an exception when array is out of bounds
 -- * does nothing if the block does not have the field
 block.set_field(
     x: int, y: int, z: int,
@@ -148,8 +149,9 @@ block.set_field(
 
 -- returns the value written to the block field
 -- * returns nil if:
--- 1. the field does not exist
--- 2. no writes were made to any block field
+--     1. the field does not exist
+--     2. no writes were made to any block field
+-- * throws an exception when array is out of bounds
 block.get_field(
     x: int, y: int, z: int,
     name: str,
