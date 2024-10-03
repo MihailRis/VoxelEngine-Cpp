@@ -271,32 +271,44 @@ void Hud::updateWorldGenDebugVisualization() {
     auto generator =
         frontend->getController()->getChunksController()->getGenerator();
     auto debugInfo = generator->createDebugInfo();
-    uint width = debugImgWorldGen->getWidth();
-    uint height = debugImgWorldGen->getHeight();
+    
+    int width = debugImgWorldGen->getWidth();
+    int height = debugImgWorldGen->getHeight();
     ubyte* data = debugImgWorldGen->getData();
-    for (int y = 0; y < height; y++) {
+
+    int ox = debugInfo.areaOffsetX;
+    int oz = debugInfo.areaOffsetY;
+
+    int areaWidth = debugInfo.areaWidth;
+    int areaHeight = debugInfo.areaHeight;
+
+    for (int z = 0; z < height; z++) {
         for (int x = 0; x < width; x++) {
-            int cx = x + debugInfo.areaOffsetX;
-            int cz = y + debugInfo.areaOffsetY;
+            int cx = x + ox;
+            int cz = z + oz;
 
-            data[(y * width + x) * 4 + 1] = 
-                level->chunks->getChunk(cx, cz) ? 255 : 0;
-            data[(y * width + x) * 4 + 0] = 
-                level->chunksStorage->get(cx, cz) ? 255 : 0;
+            int ax = x - (width - areaWidth) / 2;
+            int az = z - (height - areaHeight) / 2;
 
-            if (x >= debugInfo.areaWidth || y >= debugInfo.areaHeight) {
-                data[(y * width + x) * 4 + 2] = 0;
-                data[(y * width + x) * 4 + 3] = 0;
+            data[(z * width + x) * 4 + 1] = 
+                level->chunks->getChunk(ax + ox, az + oz) ? 255 : 0;
+            data[(z * width + x) * 4 + 0] = 
+                level->chunksStorage->get(ax + ox, az + oz) ? 255 : 0;
+
+            if (ax < 0 || az < 0 || 
+                ax >= areaWidth || az >= areaHeight) {
+                data[(z * width + x) * 4 + 2] = 0;
+                data[(z * width + x) * 4 + 3] = 0;
+                data[(z * width + x) * 4 + 3] = 100;
                 continue;
             }
+            auto value = debugInfo.areaLevels[az * areaWidth + ax] * 25;
 
-            auto value = debugInfo.areaLevels[y * debugInfo.areaWidth + x] * 25;
             // Chunk is already generated
-            data[(y * width + x) * 4 + 2] = value;
-            data[(y * width + x) * 4 + 3] = 150;
+            data[(z * width + x) * 4 + 2] = value;
+            data[(z * width + x) * 4 + 3] = 150;
         }
     }
-
     auto texture = assets->get<Texture>(DEBUG_WORLDGEN_IMAGE);
     texture->reload(*debugImgWorldGen);
 }
