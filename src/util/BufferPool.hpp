@@ -35,5 +35,9 @@ namespace util {
                 freeBuffers.push(ptr);
             });
         }
+
+        size_t getBufferSize() const {
+            return bufferSize;
+        }
     };
 }

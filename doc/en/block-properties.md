@@ -142,3 +142,42 @@ Number of block inventory slots. Default - 0 (no inventory).
 ### *size*
 
 Array of three integers. Default value is `[1, 1, 1]`.
+
+## Block fields
+
+Block fields allow you to write more data unique to a specified voxel than the user bits allow.
+
+Block fields are declared in the following format:
+
+```json
+"fields": {
+    "name": {"type": "data_type"},
+    "array_name": {"type": "data_type", "length": "array_length"}
+}
+```
+
+In addition to `type` and `length`, the `convert-strategy` parameter determines the value conversion strategy when narrowing the data type.
+
+The parameter takes one of two values:
+- `reset` - a value that does not exists in the new range will be reset to 0
+- `clamp` - the value will be reduced to the closest one in the new range
+
+Example: the number 231 when changing the field type from int16 to int8:
+- in `reset` mode will turn into 0
+- in `clamp` mode will turn into 127
+
+Available data types:
+
+| Type    | Size      | Description            |
+| ------- | --------- | ---------------------- |
+| int8    | 1 byte    | signed integer 8 bits  |
+| int16   | 2 bytes   | signed integer 16 bits |
+| int32   | 4 bytes   | signed integer 32 bits |
+| int64   | 8 bytes   | integer signed 64 bits |
+| float32 | 4 bytes   | floating-point 32 bits |
+| float64 | 8 bytes   | floating-point 64 bits |
+| char    | 1 byte    | character              |
+
+- Currently, the total sum of the field sizes cannot exceed 240 bytes.
+- A field without an array length specification is equivalent to an array of 1 element.
+- A character array can be used to store UTF-8 strings.

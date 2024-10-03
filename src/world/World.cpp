@@ -5,7 +5,7 @@
 #include <utility>
 
 #include "content/Content.hpp"
-#include "content/ContentLUT.hpp"
+#include "content/ContentReport.hpp"
 #include "debug/Logger.hpp"
 #include "files/WorldFiles.hpp"
 #include "items/Inventories.hpp"
@@ -155,12 +155,12 @@ std::unique_ptr<Level> World::load(
     return level;
 }
 
-std::shared_ptr<ContentLUT> World::checkIndices(
+std::shared_ptr<ContentReport> World::checkIndices(
     const std::shared_ptr<WorldFiles>& worldFiles, const Content* content
 ) {
     fs::path indicesFile = worldFiles->getIndicesFile();
     if (fs::is_regular_file(indicesFile)) {
-        return ContentLUT::create(worldFiles, indicesFile, content);
+        return ContentReport::create(worldFiles, indicesFile, content);
     }
     return nullptr;
 }

@@ -7,7 +7,7 @@
 #include "typedefs.hpp"
 #include "ItemStack.hpp"
 
-class ContentLUT;
+class ContentReport;
 class ContentIndices;
 
 class Inventory : public Serializable {
@@ -37,7 +37,8 @@ public:
 
     dv::value serialize() const override;
 
-    static void convert(dv::value& data, const ContentLUT* lut);
+    void convert(const ContentReport* report);
+    static void convert(dv::value& data, const ContentReport* report);
 
     inline void setId(int64_t id) {
         this->id = id;

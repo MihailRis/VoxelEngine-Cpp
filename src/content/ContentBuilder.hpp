@@ -12,8 +12,8 @@
 
 template <class T>
 class ContentUnitBuilder {
-    std::unordered_map<std::string, contenttype>& allNames;
-    contenttype type;
+    std::unordered_map<std::string, ContentType>& allNames;
+    ContentType type;
 
     void checkIdentifier(const std::string& id) {
         const auto& found = allNames.find(id);
@@ -28,7 +28,7 @@ public:
     std::vector<std::string> names;
 
     ContentUnitBuilder(
-        std::unordered_map<std::string, contenttype>& allNames, contenttype type
+        std::unordered_map<std::string, ContentType>& allNames, ContentType type
     )
         : allNames(allNames), type(type) {
     }
@@ -62,11 +62,11 @@ class ContentBuilder {
     UptrsMap<std::string, BlockMaterial> blockMaterials;
     UptrsMap<std::string, rigging::SkeletonConfig> skeletons;
     UptrsMap<std::string, ContentPackRuntime> packs;
-    std::unordered_map<std::string, contenttype> allNames;
+    std::unordered_map<std::string, ContentType> allNames;
 public:
-    ContentUnitBuilder<Block> blocks {allNames, contenttype::block};
-    ContentUnitBuilder<ItemDef> items {allNames, contenttype::item};
-    ContentUnitBuilder<EntityDef> entities {allNames, contenttype::entity};
+    ContentUnitBuilder<Block> blocks {allNames, ContentType::BLOCK};
+    ContentUnitBuilder<ItemDef> items {allNames, ContentType::ITEM};
+    ContentUnitBuilder<EntityDef> entities {allNames, ContentType::ENTITY};
     ResourceIndicesSet resourceIndices {};
 
     ~ContentBuilder();

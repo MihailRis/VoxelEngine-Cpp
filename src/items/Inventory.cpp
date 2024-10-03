@@ -1,6 +1,6 @@
 #include "Inventory.hpp"
 
-#include "content/ContentLUT.hpp"
+#include "content/ContentReport.hpp"
 
 Inventory::Inventory(int64_t id, size_t size) : id(id), slots(size) {
 }
@@ -83,11 +83,20 @@ dv::value Inventory::serialize() const {
     return map;
 }
 
-void Inventory::convert(dv::value& data, const ContentLUT* lut) {
+void Inventory::convert(const ContentReport* report) {
+    for (auto& slot : slots) {
+        itemid_t id = slot.getItemId();
+        itemid_t replacement = report->items.getId(id);
+        slot.set(ItemStack(replacement, slot.getCount()));
+    }
+}
+
+// TODO: remove
+void Inventory::convert(dv::value& data, const ContentReport* report) {
     auto& slotsarr = data["slots"];
     for (auto& item : data["slots"]) {
         itemid_t id = item["id"].asInteger(ITEM_EMPTY);
-        itemid_t replacement = lut->items.getId(id);
+        itemid_t replacement = report->items.getId(id);
         item["id"] = replacement;
         if (replacement == 0 && item.has("count")) {
             item.erase("count");

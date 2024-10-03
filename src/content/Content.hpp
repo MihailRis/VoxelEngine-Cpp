@@ -24,15 +24,15 @@ namespace rigging {
     class SkeletonConfig;
 }
 
-constexpr const char* contenttype_name(contenttype type) {
+constexpr const char* contenttype_name(ContentType type) {
     switch (type) {
-        case contenttype::none:
+        case ContentType::NONE:
             return "none";
-        case contenttype::block:
+        case ContentType::BLOCK:
             return "block";
-        case contenttype::item:
+        case ContentType::ITEM:
             return "item";
-        case contenttype::entity:
+        case ContentType::ENTITY:
             return "entity";
         default:
             return "unknown";
@@ -40,13 +40,13 @@ constexpr const char* contenttype_name(contenttype type) {
 }
 
 class namereuse_error : public std::runtime_error {
-    contenttype type;
+    ContentType type;
 public:
-    namereuse_error(const std::string& msg, contenttype type)
+    namereuse_error(const std::string& msg, ContentType type)
         : std::runtime_error(msg), type(type) {
     }
 
-    inline contenttype getType() const {
+    inline ContentType getType() const {
         return type;
     }
 };

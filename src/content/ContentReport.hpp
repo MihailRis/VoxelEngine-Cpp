@@ -4,35 +4,57 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <unordered_map>
 
 #include "constants.hpp"
 #include "data/dv.hpp"
 #include "typedefs.hpp"
 #include "Content.hpp"
+#include "data/StructLayout.hpp"
+#include "files/world_regions_fwd.hpp"
 
 namespace fs = std::filesystem;
 
-struct contententry {
-    contenttype type;
+enum class ContentIssueType {
+    REORDER,
+    MISSING,
+    REGION_FORMAT_UPDATE,
+    BLOCK_DATA_LAYOUTS_UPDATE,
+};
+
+struct ContentIssue {
+    ContentIssueType issueType;
+    union {
+        ContentType contentType;
+        RegionLayerIndex regionLayer;
+    };
+};
+
+struct ContentEntry {
+    ContentType type;
     std::string name;
 };
 
 class WorldFiles;
 
+/// @brief Content unit lookup table
+/// @tparam T index type
+/// @tparam U unit class
 template <typename T, class U>
 class ContentUnitLUT {
     std::vector<T> indices;
     std::vector<std::string> names;
     bool missingContent = false;
     bool reorderContent = false;
+    /// @brief index that will be used to mark missing unit
     T missingValue;
-    contenttype type;
+    ContentType type;
 public:
     ContentUnitLUT(
         size_t count,
         const ContentUnitIndices<U>& unitIndices,
         T missingValue,
-        contenttype type
+        ContentType type
     )
         : missingValue(missingValue), type(type) {
         for (size_t i = 0; i < count; i++) {
@@ -57,11 +79,11 @@ public:
             }
         }
     }
-    void getMissingContent(std::vector<contententry>& entries) const {
+    void getMissingContent(std::vector<ContentEntry>& entries) const {
         for (size_t i = 0; i < count(); i++) {
             if (indices[i] == missingValue) {
                 auto& name = names[i];
-                entries.push_back(contententry {type, name});
+                entries.push_back(ContentEntry {type, name});
             }
         }
     }
@@ -80,6 +102,9 @@ public:
             reorderContent = true;
         }
     }
+    inline ContentType getContentType() const {
+        return type;
+    }
     inline size_t count() const {
         return indices.size();
     }
@@ -91,21 +116,39 @@ public:
     }
 };
 
-/// @brief Content indices lookup table or report
-/// used to convert world with different indices
+/// @brief Content incapatibility report used to convert world.
 /// Building with indices.json
-class ContentLUT {
+class ContentReport {
 public:
     ContentUnitLUT<blockid_t, Block> blocks;
     ContentUnitLUT<itemid_t, ItemDef> items;
+    uint regionsVersion;
 
-    ContentLUT(const ContentIndices* indices, size_t blocks, size_t items);
+    std::unordered_map<std::string, data::StructLayout> blocksDataLayouts;
+    std::vector<ContentIssue> issues;
+    std::vector<std::string> dataLoss;
 
-    static std::shared_ptr<ContentLUT> create(
+    bool dataLayoutsUpdated = false;
+
+    ContentReport(
+        const ContentIndices* indices, 
+        size_t blocks, 
+        size_t items,
+        uint regionsVersion
+    );
+
+    static std::shared_ptr<ContentReport> create(
         const std::shared_ptr<WorldFiles>& worldFiles,
         const fs::path& filename,
         const Content* content
     );
+
+    inline const std::vector<std::string>& getDataLoss() const {
+        return dataLoss;
+    }
+    inline bool hasUpdatedLayouts() {
+        return dataLayoutsUpdated;
+    }
 
     inline bool hasContentReorder() const {
         return blocks.hasContentReorder() || items.hasContentReorder();
@@ -113,6 +156,14 @@ public:
     inline bool hasMissingContent() const {
         return blocks.hasMissingContent() || items.hasMissingContent();
     }
+    inline bool isUpgradeRequired() const {
+        return regionsVersion < REGION_FORMAT_VERSION;
+    }
+    inline bool hasDataLoss() const {
+        return !dataLoss.empty();
+    }
+    void buildIssues();
 
-    std::vector<contententry> getMissingContent() const;
+    const std::vector<ContentIssue>& getIssues() const;
+    std::vector<ContentEntry> getMissingContent() const;
 };

@@ -7,6 +7,8 @@
 #include "voxels/Chunks.hpp"
 #include "voxels/voxel.hpp"
 #include "world/Level.hpp"
+#include "maths/voxmaths.hpp"
+#include "data/StructLayout.hpp"
 #include "api_lua.hpp"
 
 using namespace scripting;
@@ -436,6 +438,134 @@ static int l_decompose_state(lua::State* L) {
     return 1;
 }
 
+static int get_field(
+    lua::State* L,
+    const ubyte* src,
+    const data::Field& field,
+    size_t index,
+    const data::StructLayout& dataStruct
+) {
+    switch (field.type) {
+        case data::FieldType::I8:
+        case data::FieldType::I16:
+        case data::FieldType::I32:
+        case data::FieldType::I64:
+            return lua::pushinteger(L, dataStruct.getInteger(src, field, index));
+        case data::FieldType::F32:
+        case data::FieldType::F64:
+            return lua::pushnumber(L, dataStruct.getNumber(src, field, index));
+        case data::FieldType::CHAR:
+            return lua::pushstring(L, 
+                std::string(dataStruct.getChars(src, field)).c_str());
+    }
+    return 0;
+}
+
+static int l_get_field(lua::State* L) {
+    auto x = lua::tointeger(L, 1);
+    auto y = lua::tointeger(L, 2);
+    auto z = lua::tointeger(L, 3);
+    auto name = lua::require_string(L, 4);
+    size_t index = 0;
+    if (lua::gettop(L) >= 5) {
+        index = lua::tointeger(L, 5);
+    }
+    auto vox = level->chunks->get(x, y, z);
+    auto cx = floordiv(x, CHUNK_W);
+    auto cz = floordiv(z, CHUNK_D);
+    auto chunk = level->chunks->getChunk(cx, cz);
+    auto lx = x - cx * CHUNK_W;
+    auto lz = z - cz * CHUNK_W;
+    size_t voxelIndex = vox_index(lx, y, lz);
+
+    const auto& def = content->getIndices()->blocks.require(vox->id);
+    if (def.dataStruct == nullptr) {
+        return 0;
+    }
+    const auto& dataStruct = *def.dataStruct;
+    const auto field = dataStruct.getField(name);
+    if (field == nullptr) {
+        return 0;
+    }
+    if (index >= field->elements) {
+        throw std::out_of_range(
+            "index out of bounds [0, "+std::to_string(field->elements)+"]");
+    }
+    const ubyte* src = chunk->blocksMetadata.find(voxelIndex);
+    if (src == nullptr) {
+        return 0;
+    }
+    return get_field(L, src, *field, index, dataStruct);
+}
+
+static int set_field(
+    lua::State* L,
+    ubyte* dst,
+    const data::Field& field,
+    size_t index,
+    const data::StructLayout& dataStruct,
+    const dv::value& value
+) {
+    switch (field.type) {
+        case data::FieldType::CHAR:
+            if (value.isString()) {
+                return lua::pushinteger(L,
+                    dataStruct.setUnicode(dst, value.asString(), field));
+            }
+        case data::FieldType::I8:
+        case data::FieldType::I16:
+        case data::FieldType::I32:
+        case data::FieldType::I64:
+            dataStruct.setInteger(dst, value.asInteger(), field, index);
+            break;
+        case data::FieldType::F32:
+        case data::FieldType::F64:
+            dataStruct.setNumber(dst, value.asNumber(), field, index);
+            break;
+    }
+    return 0;
+}
+
+static int l_set_field(lua::State* L) {
+    auto x = lua::tointeger(L, 1);
+    auto y = lua::tointeger(L, 2);
+    auto z = lua::tointeger(L, 3);
+    auto name = lua::require_string(L, 4);
+    auto value = lua::tovalue(L, 5);
+    size_t index = 0;
+    if (lua::gettop(L) >= 6) {
+        index = lua::tointeger(L, 6);
+    }
+    auto vox = level->chunks->get(x, y, z);
+    auto cx = floordiv(x, CHUNK_W);
+    auto cz = floordiv(z, CHUNK_D);
+    auto chunk = level->chunks->getChunk(cx, cz);
+    auto lx = x - cx * CHUNK_W;
+    auto lz = z - cz * CHUNK_W;
+    size_t voxelIndex = vox_index(lx, y, lz);
+
+    const auto& def = content->getIndices()->blocks.require(vox->id);
+    if (def.dataStruct == nullptr) {
+        return 0;
+    }
+    const auto& dataStruct = *def.dataStruct;
+    const auto field = dataStruct.getField(name);
+    if (field == nullptr) {
+        return 0;
+    }
+    if (index >= field->elements) {
+        throw std::out_of_range(
+            "index out of bounds [0, "+std::to_string(field->elements)+"]");
+    }
+    ubyte* dst = chunk->blocksMetadata.find(voxelIndex);
+    if (dst == nullptr) {
+        dst = chunk->blocksMetadata.allocate(voxelIndex, dataStruct.size());
+    }
+    chunk->flags.unsaved = true;
+    chunk->flags.blocksData = true;
+    return set_field(L, dst, *field, index, dataStruct, value);
+}
+
 const luaL_Reg blocklib[] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_get_def>},
@@ -469,5 +599,7 @@ const luaL_Reg blocklib[] = {
     {"raycast", lua::wrap<l_raycast>},
     {"compose_state", lua::wrap<l_compose_state>},
     {"decompose_state", lua::wrap<l_decompose_state>},
+    {"get_field", lua::wrap<l_get_field>},
+    {"set_field", lua::wrap<l_set_field>},
     {NULL, NULL}
 };

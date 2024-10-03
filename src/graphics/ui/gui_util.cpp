@@ -3,6 +3,7 @@
 #include "elements/Label.hpp"
 #include "elements/Menu.hpp"
 #include "elements/Button.hpp"
+#include "elements/TextBox.hpp"
 #include "gui_xml.hpp"
 
 #include "logic/scripting/scripting.hpp"
@@ -58,6 +59,50 @@ void guiutil::confirm(
     auto panel = std::make_shared<Panel>(glm::vec2(600, 200), glm::vec4(8.0f), 8.0f);
     panel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
     panel->add(std::make_shared<Label>(text));
+    auto subpanel = std::make_shared<Panel>(glm::vec2(600, 53));
+    subpanel->setColor(glm::vec4(0));
+
+    subpanel->add(std::make_shared<Button>(yestext, glm::vec4(8.f), [=](GUI*){
+        if (on_confirm)
+            on_confirm();
+        menu->back();
+    }));
+
+    subpanel->add(std::make_shared<Button>(notext, glm::vec4(8.f), [=](GUI*){
+        menu->back();
+    }));
+
+    panel->add(subpanel);
+
+    panel->refresh();
+    menu->addPage("<confirm>", panel);
+    menu->setPage("<confirm>");
+}
+
+void guiutil::confirmWithMemo(
+        gui::GUI* gui, 
+        const std::wstring& text, 
+        const std::wstring& memo,
+        const runnable& on_confirm,
+        std::wstring yestext, 
+        std::wstring notext) {
+
+    if (yestext.empty()) yestext = langs::get(L"Yes");
+    if (notext.empty()) notext = langs::get(L"No");
+
+    auto menu = gui->getMenu();
+    auto panel = std::make_shared<Panel>(glm::vec2(600, 500), glm::vec4(8.0f), 8.0f);
+    panel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    panel->add(std::make_shared<Label>(text));
+    
+    auto textbox = std::make_shared<TextBox>(L"");
+    textbox->setMultiline(true);
+    textbox->setTextWrapping(true);
+    textbox->setSize(glm::vec2(600, 300));
+    textbox->setText(memo);
+    textbox->setEditable(false);
+    panel->add(textbox);
+
     auto subpanel = std::make_shared<Panel>(glm::vec2(600, 53));
     subpanel->setColor(glm::vec4(0));
 

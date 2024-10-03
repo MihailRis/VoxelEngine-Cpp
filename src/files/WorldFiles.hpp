@@ -51,6 +51,15 @@ public:
     std::optional<WorldInfo> readWorldInfo();
     bool readResourcesData(const Content* content);
 
+    static void createContentIndicesCache(
+        const ContentIndices* indices, dv::value& root
+    );
+    static void createBlockFieldsIndices(
+        const ContentIndices* indices, dv::value& root
+    );
+
+    void patchIndicesFile(const dv::value& map);
+
     /// @brief Write all unsaved data to world files
     /// @param world target world
     /// @param content world content
@@ -63,8 +72,6 @@ public:
     /// @return world folder
     fs::path getFolder() const;
 
-    static const inline std::string WORLD_FILE = "world.json";
-
     WorldRegions& getRegions() {
         return regions;
     }
@@ -72,4 +79,6 @@ public:
     bool doesWriteLights() const {
         return doWriteLights;
     }
+
+    static const inline std::string WORLD_FILE = "world.json";
 };
