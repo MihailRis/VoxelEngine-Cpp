@@ -61,5 +61,13 @@ namespace util {
         void resizeFast(size_t size) {
             length = size;
         }
+
+        const T* begin() const {
+            return ptr.get();
+        }
+
+        const T* end() const {
+            return ptr.get() + size;
+        }
     };
 }
