@@ -67,7 +67,7 @@ namespace util {
         }
 
         const T* end() const {
-            return ptr.get() + size;
+            return ptr.get() + length;
         }
     };
 }
