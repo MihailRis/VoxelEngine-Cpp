@@ -1,5 +1,6 @@
 #include "Block.hpp"
 
+#include <set>
 #include <utility>
 
 #include "core_defs.hpp"
@@ -140,4 +141,11 @@ void Block::cloneTo(Block& dst) {
     dst.uiLayout = uiLayout;
     dst.inventorySize = inventorySize;
     dst.tickInterval = tickInterval;
+}
+
+static std::set<std::string, std::less<>> RESERVED_BLOCK_FIELDS {
+};
+
+bool Block::isReservedBlockField(std::string_view view) {
+    return RESERVED_BLOCK_FIELDS.find(view) != RESERVED_BLOCK_FIELDS.end();
 }

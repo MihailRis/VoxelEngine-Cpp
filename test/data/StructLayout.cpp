@@ -117,9 +117,9 @@ TEST(StructLayout, ConvertWithLoss) {
 
 TEST(StructLayout, Serialization) {
     std::vector<Field> fields {
-        Field {FieldType::CHAR, "text", 5},
-        Field {FieldType::I16, "someint", 1},
-        Field {FieldType::F64, "pi", 1},
+        Field (FieldType::CHAR, "text", 5),
+        Field (FieldType::I16, "someint", 1),
+        Field (FieldType::F64, "pi", 1),
     };
     auto layout1 = StructLayout::create(fields);
     auto serialized = layout1.serialize();

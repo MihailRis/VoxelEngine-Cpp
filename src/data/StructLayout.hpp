@@ -81,6 +81,18 @@ namespace data {
         /// @brief Byte size of the field
         int size;
 
+        Field(
+            FieldType type, 
+            std::string name, 
+            int elements, 
+            FieldConvertStrategy strategy=FieldConvertStrategy::RESET
+        ) : type(type), 
+            name(std::move(name)), 
+            elements(elements), 
+            convertStrategy(strategy),
+            offset(0),
+            size(0) {}
+
         bool operator==(const Field& o) const {
             return type == o.type && 
                    name == o.name && 
@@ -231,6 +243,14 @@ namespace data {
         /// @return total structure size (bytes)
         [[nodiscard]] size_t size() const {
             return totalSize;
+        }
+
+        [[nodiscard]] const auto begin() const {
+            return fields.begin();
+        }
+
+        [[nodiscard]] const auto end() const {
+            return fields.end();
         }
 
         /// @brief Convert structure data from srcLayout to this layout.

@@ -385,7 +385,7 @@ void StructLayout::deserialize(const dv::value& src) {
                 fieldmap["convert-strategy"].asString()
             );
         }
-        fields.push_back(Field {type, name, elements, convertStrategy});
+        fields.push_back(Field (type, name, elements, convertStrategy));
     }
     *this = create(fields);
 }
