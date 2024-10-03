@@ -348,7 +348,11 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
                     const auto& structVoxel = 
                         structVoxels[vox_index(x, y, z, size.x, size.z)];
                     if (structVoxel.id) {
-                        voxels[vox_index(sx, sy, sz)] = structVoxel;
+                        if (structVoxel.id == BLOCK_STRUCT_AIR) {
+                            voxels[vox_index(sx, sy, sz)] = {0, {}};
+                        } else {
+                            voxels[vox_index(sx, sy, sz)] = structVoxel;
+                        }
                     }
                 }
             }

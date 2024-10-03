@@ -23,9 +23,10 @@ void corecontent::setup(EnginePaths* paths, ContentBuilder* builder) {
         block.model = BlockModel::none;
         block.pickingItem = CORE_EMPTY;
     }
-
-    ItemDef& item = builder->items.create(CORE_EMPTY);
-    item.iconType = item_icon_type::none;
+    {
+        ItemDef& item = builder->items.create(CORE_EMPTY);
+        item.iconType = item_icon_type::none;
+    }
 
     auto bindsFile = paths->getResourcesFolder()/fs::path("bindings.toml");
     if (fs::is_regular_file(bindsFile)) {
@@ -45,6 +46,22 @@ void corecontent::setup(EnginePaths* paths, ContentBuilder* builder) {
         item.iconType = item_icon_type::block;
         item.icon = CORE_OBSTACLE;
         item.placingBlock = CORE_OBSTACLE;
+        item.caption = block.caption;
+    }
+    {
+        Block& block = builder->blocks.create(CORE_STRUCT_AIR);
+        for (uint i = 0; i < 6; i++) {
+            block.textureFaces[i] = "struct_air";
+        }
+        block.drawGroup = -1;
+        block.skyLightPassing = true;
+        block.lightPassing = true;
+        block.hitboxes = {AABB()};
+        block.obstacle = false;
+        ItemDef& item = builder->items.create(CORE_STRUCT_AIR+".item");
+        item.iconType = item_icon_type::block;
+        item.icon = CORE_STRUCT_AIR;
+        item.placingBlock = CORE_STRUCT_AIR;
         item.caption = block.caption;
     }
 }
