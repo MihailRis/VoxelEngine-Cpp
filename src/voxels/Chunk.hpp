@@ -15,7 +15,7 @@ inline constexpr int CHUNK_DATA_LEN = CHUNK_VOL * 4;
 class ContentReport;
 class Inventory;
 
-using chunk_inventories_map =
+using ChunkInventoriesMap =
     std::unordered_map<uint, std::shared_ptr<Inventory>>;
 
 using BlocksMetadata = util::SmallHeap<uint16_t, uint8_t>;
@@ -38,7 +38,7 @@ public:
     } flags {};
 
     /// @brief Block inventories map where key is index of block in voxels array
-    chunk_inventories_map inventories;
+    ChunkInventoriesMap inventories;
     /// @brief Blocks metadata heap
     BlocksMetadata blocksMetadata;
 
@@ -57,7 +57,7 @@ public:
         std::shared_ptr<Inventory> inventory, uint x, uint y, uint z
     );
     void removeBlockInventory(uint x, uint y, uint z);
-    void setBlockInventories(chunk_inventories_map map);
+    void setBlockInventories(ChunkInventoriesMap map);
 
     /// @return inventory bound to the given block or nullptr
     std::shared_ptr<Inventory> getBlockInventory(uint x, uint y, uint z) const;

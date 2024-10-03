@@ -117,7 +117,7 @@ void WorldRegions::put(
 }
 
 static std::unique_ptr<ubyte[]> write_inventories(
-    const chunk_inventories_map& inventories, uint32_t& datasize
+    const ChunkInventoriesMap& inventories, uint32_t& datasize
 ) {
     ByteBuilder builder;
     builder.putInt32(inventories.size());
@@ -135,8 +135,8 @@ static std::unique_ptr<ubyte[]> write_inventories(
     return data;
 }
 
-static chunk_inventories_map load_inventories(const ubyte* src, uint32_t size) {
-    chunk_inventories_map inventories;
+static ChunkInventoriesMap load_inventories(const ubyte* src, uint32_t size) {
+    ChunkInventoriesMap inventories;
     ByteReader reader(src, size);
     auto count = reader.getInt32();
     for (int i = 0; i < count; i++) {
@@ -238,7 +238,7 @@ std::unique_ptr<light_t[]> WorldRegions::getLights(int x, int z) {
     return Lightmap::decode(data.get());
 }
 
-chunk_inventories_map WorldRegions::fetchInventories(int x, int z) {
+ChunkInventoriesMap WorldRegions::fetchInventories(int x, int z) {
     uint32_t bytesSize;
     uint32_t srcSize;
     auto bytes = layers[REGION_LAYER_INVENTORIES].getData(x, z, bytesSize, srcSize);
