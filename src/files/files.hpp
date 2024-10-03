@@ -8,6 +8,7 @@
 
 #include "typedefs.hpp"
 #include "data/dv.hpp"
+#include "util/Buffer.hpp"
 
 namespace fs = std::filesystem;
 
@@ -56,6 +57,7 @@ namespace files {
     );
 
     bool read(const fs::path&, char* data, size_t size);
+    util::Buffer<ubyte> read_bytes_buffer(const fs::path&);
     std::unique_ptr<ubyte[]> read_bytes(const fs::path&, size_t& length);
     std::vector<ubyte> read_bytes(const fs::path&);
     std::string read_string(const fs::path& filename);

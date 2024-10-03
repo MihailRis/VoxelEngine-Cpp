@@ -11,7 +11,10 @@
 #include "typedefs.hpp"
 #include "util/BufferPool.hpp"
 #include "voxels/Chunk.hpp"
+#include "maths/voxmaths.hpp"
+#include "coders/compression.hpp"
 #include "files.hpp"
+#include "world_regions_fwd.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
@@ -20,16 +23,9 @@ namespace fs = std::filesystem;
 
 inline constexpr uint REGION_HEADER_SIZE = 10;
 
-inline constexpr uint REGION_LAYER_VOXELS = 0;
-inline constexpr uint REGION_LAYER_LIGHTS = 1;
-inline constexpr uint REGION_LAYER_INVENTORIES = 2;
-inline constexpr uint REGION_LAYER_ENTITIES = 3;
-
 inline constexpr uint REGION_SIZE_BIT = 5;
 inline constexpr uint REGION_SIZE = (1 << (REGION_SIZE_BIT));
 inline constexpr uint REGION_CHUNKS_COUNT = ((REGION_SIZE) * (REGION_SIZE));
-inline constexpr uint REGION_FORMAT_VERSION = 2;
-inline constexpr uint MAX_OPEN_REGION_FILES = 16;
 
 class illegal_region_format : public std::runtime_error {
 public:
@@ -40,21 +36,21 @@ public:
 
 class WorldRegion {
     std::unique_ptr<std::unique_ptr<ubyte[]>[]> chunksData;
-    std::unique_ptr<uint32_t[]> sizes;
+    std::unique_ptr<glm::u32vec2[]> sizes;
     bool unsaved = false;
 public:
     WorldRegion();
     ~WorldRegion();
 
-    void put(uint x, uint z, ubyte* data, uint32_t size);
+    void put(uint x, uint z, std::unique_ptr<ubyte[]> data, uint32_t size, uint32_t srcSize);
     ubyte* getChunkData(uint x, uint z);
-    uint getChunkDataSize(uint x, uint z);
+    glm::u32vec2 getChunkDataSize(uint x, uint z);
 
     void setUnsaved(bool unsaved);
     bool isUnsaved() const;
 
     std::unique_ptr<ubyte[]>* getChunks() const;
-    uint32_t* getSizes() const;
+    glm::u32vec2* getSizes() const;
 };
 
 struct regfile {
@@ -65,19 +61,15 @@ struct regfile {
     regfile(fs::path filename);
     regfile(const regfile&) = delete;
 
-    std::unique_ptr<ubyte[]> read(int index, uint32_t& length);
+    std::unique_ptr<ubyte[]> read(int index, uint32_t& size, uint32_t& srcSize);
 };
 
-using regionsmap = std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>>;
-using regionproc = std::function<bool(ubyte*)>;
+using RegionsMap = std::unordered_map<glm::ivec2, std::unique_ptr<WorldRegion>>;
+using RegionProc = std::function<std::unique_ptr<ubyte[]>(std::unique_ptr<ubyte[]>,uint32_t*)>;
+using InventoryProc = std::function<void(Inventory*)>;
+using BlockDataProc = std::function<void(BlocksMetadata*, std::unique_ptr<ubyte[]>)>;
 
-struct RegionsLayer {
-    int layer;
-    fs::path folder;
-    regionsmap regions;
-    std::mutex mutex;
-};
-
+/// @brief Region file pointer keeping inUse flag on until destroyed
 class regfile_ptr {
     regfile* file;
     std::condition_variable* cv;
@@ -115,58 +107,80 @@ public:
     }
 };
 
-class WorldRegions {
-    fs::path directory;
-    std::unordered_map<glm::ivec3, std::unique_ptr<regfile>> openRegFiles;
+inline void calc_reg_coords(
+    int x, int z, int& regionX, int& regionZ, int& localX, int& localZ
+) {
+    regionX = floordiv(x, REGION_SIZE);
+    regionZ = floordiv(z, REGION_SIZE);
+    localX = x - (regionX * REGION_SIZE);
+    localZ = z - (regionZ * REGION_SIZE);
+}
+
+struct RegionsLayer {
+    /// @brief Layer index
+    RegionLayerIndex layer;
+    
+    /// @brief Regions layer folder
+    fs::path folder;
+
+    compression::Method compression = compression::Method::NONE;
+
+    /// @brief In-memory regions data
+    RegionsMap regions;
+
+    /// @brief In-memory regions map mutex
+    std::mutex mapMutex;
+
+    /// @brief Open region files map
+    std::unordered_map<glm::ivec2, std::unique_ptr<regfile>> openRegFiles;
+
+    /// @brief Open region files map mutex
     std::mutex regFilesMutex;
     std::condition_variable regFilesCv;
-    RegionsLayer layers[4] {};
-    util::BufferPool<ubyte> bufferPool {
-        std::max(CHUNK_DATA_LEN, LIGHTMAP_DATA_LEN) * 2};
 
-    WorldRegion* getRegion(int x, int z, int layer);
-    WorldRegion* getOrCreateRegion(int x, int z, int layer);
+    [[nodiscard]] regfile_ptr getRegFile(glm::ivec2 coord, bool create = true);
+    [[nodiscard]] regfile_ptr useRegFile(glm::ivec2 coord);
+    regfile_ptr createRegFile(glm::ivec2 coord);
+    void closeRegFile(glm::ivec2 coord);
 
-    /// @brief Compress buffer with extrle
-    /// @param src source buffer
-    /// @param srclen length of the source buffer
-    /// @param len (out argument) length of result buffer
-    /// @return compressed bytes array
-    std::unique_ptr<ubyte[]> compress(
-        const ubyte* src, size_t srclen, size_t& len
-    );
+    WorldRegion* getRegion(int x, int z);
+    WorldRegion* getOrCreateRegion(int x, int z);
 
-    /// @brief Decompress buffer with extrle
-    /// @param src compressed buffer
-    /// @param srclen length of compressed buffer
-    /// @param dstlen max expected length of source buffer
-    /// @return decompressed bytes array
-    std::unique_ptr<ubyte[]> decompress(
-        const ubyte* src, size_t srclen, size_t dstlen
-    );
+    fs::path getRegionFilePath(int x, int z) const;
 
-    std::unique_ptr<ubyte[]> readChunkData(
-        int x, int y, uint32_t& length, regfile* file
-    );
-
-    void fetchChunks(WorldRegion* region, int x, int y, regfile* file);
-
-    ubyte* getData(int x, int z, int layer, uint32_t& size);
-
-    regfile_ptr getRegFile(glm::ivec3 coord, bool create = true);
-    void closeRegFile(glm::ivec3 coord);
-    regfile_ptr useRegFile(glm::ivec3 coord);
-    regfile_ptr createRegFile(glm::ivec3 coord);
-
-    fs::path getRegionFilename(int x, int y) const;
-
-    void writeRegions(int layer);
+    /// @brief Get chunk data. Read from file if not loaded yet.
+    /// @param x chunk x coord
+    /// @param z chunk z coord
+    /// @param size [out] compressed chunk data length
+    /// @param size [out] source chunk data length
+    /// @return nullptr if no saved chunk data found
+    [[nodiscard]] ubyte* getData(int x, int z, uint32_t& size, uint32_t& srcSize);
 
     /// @brief Write or rewrite region file
     /// @param x region X
     /// @param z region Z
-    /// @param layer regions layer
-    void writeRegion(int x, int y, int layer, WorldRegion* entry);
+    void writeRegion(int x, int y, WorldRegion* entry);
+
+    /// @brief Write all unsaved regions to files
+    void writeAll();
+
+    /// @brief Read chunk data from region file
+    /// @param x chunk x coord
+    /// @param z chunk z coord
+    /// @param size [out] compressed chunk data length
+    /// @param srcSize [out] source chunk data length
+    /// @param rfile region file
+    /// @return nullptr if chunk is not present in region file
+    [[nodiscard]] static std::unique_ptr<ubyte[]> readChunkData(
+        int x, int z, uint32_t& size, uint32_t& srcSize, regfile* rfile
+    );
+};
+
+class WorldRegions {
+    /// @brief World directory
+    fs::path directory;
+
+    RegionsLayer layers[REGION_LAYERS_COUNT] {};
 public:
     bool generatorTestMode = false;
     bool doWriteLights = true;
@@ -184,26 +198,57 @@ public:
     /// @param layer regions layer
     /// @param data target data
     /// @param size data size
-    /// @param rle compress with ext-RLE
     void put(
         int x,
         int z,
-        int layer,
+        RegionLayerIndex layer,
         std::unique_ptr<ubyte[]> data,
-        size_t size,
-        bool rle
+        size_t size
     );
 
-    std::unique_ptr<ubyte[]> getChunk(int x, int z);
+    /// @brief Get chunk voxels data
+    /// @param x chunk.x
+    /// @param z chunk.z
+    /// @return voxels data buffer or nullptr
+    std::unique_ptr<ubyte[]> getVoxels(int x, int z);
+
+    /// @brief Get cached lights for chunk at x,z
+    /// @return lights data or nullptr
     std::unique_ptr<light_t[]> getLights(int x, int z);
-    chunk_inventories_map fetchInventories(int x, int z);
+    
+    ChunkInventoriesMap fetchInventories(int x, int z);
+
+    BlocksMetadata getBlocksData(int x, int z);
+    
+    /// @brief Load saved entities data for chunk
+    /// @param x chunk.x
+    /// @param z chunk.z
+    /// @return map with entities list as "data"
     dv::value fetchEntities(int x, int z);
 
-    void processRegionVoxels(int x, int z, const regionproc& func);
+    /// @brief Load, process and save processed region chunks data
+    /// @param x region X
+    /// @param z region Z
+    /// @param layerid regions layer index
+    /// @param func processing callback
+    void processRegion(
+        int x, int z, RegionLayerIndex layerid, const RegionProc& func);
 
-    fs::path getRegionsFolder(int layer) const;
+    void processInventories(int x, int z, const InventoryProc& func);
 
-    void write();
+    void processBlocksData(int x, int z, const BlockDataProc& func);
+
+    /// @brief Get regions directory by layer index
+    /// @param layerid layer index
+    /// @return directory path
+    const fs::path& getRegionsFolder(RegionLayerIndex layerid) const;
+
+    fs::path getRegionFilePath(RegionLayerIndex layerid, int x, int z) const;
+
+    /// @brief Write all region layers
+    void writeAll();
+
+    void deleteRegion(RegionLayerIndex layerid, int x, int z);
 
     /// @brief Extract X and Z from 'X_Z.bin' region file name.
     /// @param name source region file name

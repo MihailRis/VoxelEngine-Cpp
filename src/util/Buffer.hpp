@@ -4,6 +4,8 @@
 #include <cstring>
 
 namespace util {
+    /// @brief Template similar to std::unique_ptr stores a buffer with its size
+    /// @tparam T buffer elements type
     template<typename T>
     class Buffer {
         std::unique_ptr<T[]> ptr;
@@ -12,7 +14,9 @@ namespace util {
         Buffer(size_t length)
          : ptr(std::make_unique<T[]>(length)), length(length) {
         }
-        Buffer(const Buffer<T>& o) : Buffer(o.data(), o.size()) {}
+        explicit Buffer(const Buffer<T>& o) : Buffer(o.data(), o.size()) {}
+
+        Buffer(Buffer<T>&& o) : ptr(std::move(o.ptr)), length(o.length) {}
 
         Buffer(std::unique_ptr<T[]> ptr, size_t length)
          : ptr(std::move(ptr)), length(length) {}
@@ -42,16 +46,28 @@ namespace util {
             return length;
         }
 
+        /// @brief Take ownership over the buffer unique_ptr
         std::unique_ptr<T[]> release() {
             return std::move(ptr);
         }
 
+        /// @brief Create a buffer copy 
         Buffer clone() const {
             return Buffer(ptr.get(), length);
         }
 
+        /// @brief Update buffer size without releasing used memory
+        /// @param size new size (must be less or equal to current)
         void resizeFast(size_t size) {
             length = size;
+        }
+
+        const T* begin() const {
+            return ptr.get();
+        }
+
+        const T* end() const {
+            return ptr.get() + length;
         }
     };
 }

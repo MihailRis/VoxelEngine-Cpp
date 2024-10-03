@@ -13,7 +13,7 @@
 class Content;
 class WorldFiles;
 class Level;
-class ContentLUT;
+class ContentReport;
 struct EngineSettings;
 
 namespace fs = std::filesystem;
@@ -80,11 +80,11 @@ public:
     /// @brief Write all unsaved level data to the world directory
     void write(Level* level);
 
-    /// @brief Check world indices and generate ContentLUT if convert required
+    /// @brief Check world indices and generate ContentReport if convert required
     /// @param directory world directory
     /// @param content current Content instance
-    /// @return ContentLUT if world convert required else nullptr
-    static std::shared_ptr<ContentLUT> checkIndices(
+    /// @return ContentReport if world convert required else nullptr
+    static std::shared_ptr<ContentReport> checkIndices(
         const std::shared_ptr<WorldFiles>& worldFiles, const Content* content
     );
 

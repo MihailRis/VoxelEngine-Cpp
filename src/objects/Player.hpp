@@ -11,7 +11,7 @@
 
 class Camera;
 class Inventory;
-class ContentLUT;
+class ContentReport;
 class Level;
 struct Hitbox;
 struct EngineSettings;
@@ -105,7 +105,7 @@ public:
     dv::value serialize() const override;
     void deserialize(const dv::value& src) override;
 
-    static void convert(dv::value& data, const ContentLUT* lut);
+    static void convert(dv::value& data, const ContentReport* report);
 
     inline int getId() const {
         return objectUID;

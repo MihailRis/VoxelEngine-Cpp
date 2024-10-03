@@ -21,8 +21,10 @@
 #include "util/stringutil.hpp"
 #include "voxels/Block.hpp"
 #include "data/dv_util.hpp"
+#include "data/StructLayout.hpp"
 
 namespace fs = std::filesystem;
+using namespace data;
 
 static debug::Logger logger("content-loader");
 
@@ -123,6 +125,30 @@ void ContentLoader::fixPackIndices() {
         // rewrite modified json
         files::write_json(contentFile, root);
     }
+}
+
+static void perform_user_block_fields(
+    const std::string& blockName, StructLayout& layout
+) {
+    if (layout.size() > MAX_USER_BLOCK_FIELDS_SIZE) {
+        throw std::runtime_error(
+            util::quote(blockName) + 
+            " fields total size exceeds limit (" + 
+            std::to_string(layout.size()) + "/" +
+            std::to_string(MAX_USER_BLOCK_FIELDS_SIZE) + ")");
+    }
+    for (const auto& field : layout) {
+        if (field.name.at(0) == '.') {
+            throw std::runtime_error(
+                util::quote(blockName) + " field " + field.name + 
+                ": user field may not start with '.'");
+        }
+    }
+
+    std::vector<Field> fields;
+    fields.insert(fields.end(), layout.begin(), layout.end());
+    // add built-in fields here
+    layout = StructLayout::create(fields);
 }
 
 void ContentLoader::loadBlock(
@@ -259,6 +285,14 @@ void ContentLoader::loadBlock(
     root.at("ui-layout").get(def.uiLayout);
     root.at("inventory-size").get(def.inventorySize);
     root.at("tick-interval").get(def.tickInterval);
+
+    if (root.has("fields")) {
+        def.dataStruct = std::make_unique<StructLayout>();
+        def.dataStruct->deserialize(root["fields"]);
+
+        perform_user_block_fields(def.name, *def.dataStruct);
+    }
+
     if (def.tickInterval == 0) {
         def.tickInterval = 1;
     }

@@ -2,9 +2,10 @@
 
 #include <utility>
 
-#include "content/ContentLUT.hpp"
+#include "content/ContentReport.hpp"
 #include "items/Inventory.hpp"
 #include "lighting/Lightmap.hpp"
+#include "util/data_io.hpp"
 #include "voxel.hpp"
 
 Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos) {
@@ -53,7 +54,7 @@ void Chunk::removeBlockInventory(uint x, uint y, uint z) {
     }
 }
 
-void Chunk::setBlockInventories(chunk_inventories_map map) {
+void Chunk::setBlockInventories(ChunkInventoriesMap map) {
     inventories = std::move(map);
 }
 
@@ -78,59 +79,41 @@ std::unique_ptr<Chunk> Chunk::clone() const {
 
 /**
   Current chunk format:
-    - byte-order: big-endian
-    - [don't panic!] first and second bytes are separated for RLE efficiency
+    - byte-order: little-endian
 
     ```cpp
-    uint8_t voxel_id_first_byte[CHUNK_VOL];
-    uint8_t voxel_id_second_byte[CHUNK_VOL];
-    uint8_t voxel_states_first_byte[CHUNK_VOL];
-    uint8_t voxel_states_second_byte[CHUNK_VOL];
+    uint16_t voxel_id[CHUNK_VOL];
+    uint16_t voxel_states[CHUNK_VOL];
     ```
 
     Total size: (CHUNK_VOL * 4) bytes
 */
 std::unique_ptr<ubyte[]> Chunk::encode() const {
     auto buffer = std::make_unique<ubyte[]>(CHUNK_DATA_LEN);
+    auto dst = reinterpret_cast<uint16_t*>(buffer.get());
     for (uint i = 0; i < CHUNK_VOL; i++) {
-        buffer[i] = voxels[i].id >> 8;
-        buffer[CHUNK_VOL + i] = voxels[i].id & 0xFF;
-
-        blockstate_t state = blockstate2int(voxels[i].state);
-        buffer[CHUNK_VOL * 2 + i] = state >> 8;
-        buffer[CHUNK_VOL * 3 + i] = state & 0xFF;
+        dst[i] = dataio::h2le(voxels[i].id);
+        dst[CHUNK_VOL + i] = dataio::h2le(blockstate2int(voxels[i].state));
     }
     return buffer;
 }
 
 bool Chunk::decode(const ubyte* data) {
+    auto src = reinterpret_cast<const uint16_t*>(data);
     for (uint i = 0; i < CHUNK_VOL; i++) {
         voxel& vox = voxels[i];
 
-        ubyte bid1 = data[i];
-        ubyte bid2 = data[CHUNK_VOL + i];
-
-        ubyte bst1 = data[CHUNK_VOL * 2 + i];
-        ubyte bst2 = data[CHUNK_VOL * 3 + i];
-
-        vox.id =
-            (static_cast<blockid_t>(bid1) << 8) | static_cast<blockid_t>(bid2);
-        vox.state = int2blockstate(
-            (static_cast<blockstate_t>(bst1) << 8) |
-            static_cast<blockstate_t>(bst2)
-        );
+        vox.id = dataio::le2h(src[i]);
+        vox.state = int2blockstate(dataio::le2h(src[CHUNK_VOL + i]));
     }
     return true;
 }
 
-void Chunk::convert(ubyte* data, const ContentLUT* lut) {
+void Chunk::convert(ubyte* data, const ContentReport* report) {
+    auto buffer = reinterpret_cast<uint16_t*>(data);
     for (uint i = 0; i < CHUNK_VOL; i++) {
-        // see encode method to understand what the hell is going on here
-        blockid_t id =
-            ((static_cast<blockid_t>(data[i]) << 8) |
-             static_cast<blockid_t>(data[CHUNK_VOL + i]));
-        blockid_t replacement = lut->blocks.getId(id);
-        data[i] = replacement >> 8;
-        data[CHUNK_VOL + i] = replacement & 0xFF;
+        blockid_t id = dataio::le2h(buffer[i]);
+        blockid_t replacement = report->blocks.getId(id);
+        buffer[i] = dataio::h2le(replacement);
     }
 }

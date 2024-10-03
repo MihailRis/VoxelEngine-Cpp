@@ -5,28 +5,27 @@
 
 #include "typedefs.hpp"
 
-/* byteorder: little-endian */
 class ByteBuilder {
     std::vector<ubyte> buffer;
 public:
-    /* Write one byte (8 bit unsigned integer) */
+    /// @brief Write one byte (8 bit unsigned integer)
     void put(ubyte b);
-    /* Write c-string (bytes array terminated with '\00') */
+    /// @brief Write c-string (bytes array terminated with '\00')
     void putCStr(const char* str);
-    /* Write signed 16 bit integer */
+    /// @brief Write signed 16 bit little-endian integer
     void putInt16(int16_t val);
-    /* Write signed 32 bit integer */
+    /// @brief Write signed 32 bit integer
     void putInt32(int32_t val);
-    /* Write signed 64 bit integer */
+    /// @brief Write signed 64 bit integer
     void putInt64(int64_t val);
-    /* Write 32 bit floating-point number */
+    /// @brief Write 32 bit floating-point number
     void putFloat32(float val);
-    /* Write 64 bit floating-point number */
+    /// @brief Write 64 bit floating-point number
     void putFloat64(double val);
 
-    /* Write string (uint32 length + bytes) */
+    /// @brief Write string (uint32 length + bytes)
     void put(const std::string& s);
-    /* Write sequence of bytes without any header */
+    /// @brief Write sequence of bytes without any header
     void put(const ubyte* arr, size_t size);
 
     void set(size_t position, ubyte val);
@@ -44,7 +43,6 @@ public:
     std::vector<ubyte> build();
 };
 
-/// byteorder: little-endian
 class ByteReader {
     const ubyte* data;
     size_t size;
@@ -58,11 +56,11 @@ public:
     ubyte get();
     /// @brief Read one byte (unsigned 8 bit integer) without pointer move
     ubyte peek();
-    /// @brief Read signed 16 bit integer
+    /// @brief Read signed 16 bit little-endian integer
     int16_t getInt16();
-    /// @brief Read signed 32 bit integer
+    /// @brief Read signed 32 bit little-endian integer
     int32_t getInt32();
-    /// @brief Read signed 64 bit integer
+    /// @brief Read signed 64 bit little-endian integer
     int64_t getInt64();
     /// @brief Read 32 bit floating-point number
     float getFloat32();

@@ -9,6 +9,10 @@
 #include "maths/aabb.hpp"
 #include "typedefs.hpp"
 
+namespace data {
+    class StructLayout;
+}
+
 inline std::string BLOCK_ITEM_SUFFIX = ".item";
 
 inline constexpr uint FACE_MX = 0;
@@ -21,6 +25,8 @@ inline constexpr uint FACE_PZ = 5;
 /// @brief Grid size used for physics solver collision checking with
 /// complex hitboxes
 inline constexpr uint BLOCK_AABB_GRID = 16;
+
+inline constexpr size_t MAX_USER_BLOCK_FIELDS_SIZE = 240;
 
 inline std::string DEFAULT_MATERIAL = "base:stone";
 
@@ -184,6 +190,8 @@ public:
     // @brief Block tick interval (1 - 20tps, 2 - 10tps)
     uint tickInterval = 1;
 
+    std::unique_ptr<data::StructLayout> dataStruct;
+
     /// @brief Runtime indices (content indexing results)
     struct {
         /// @brief block runtime integer id
@@ -211,8 +219,11 @@ public:
     Block(const std::string& name);
     Block(std::string name, const std::string& texture);
     Block(const Block&) = delete;
+    ~Block();
 
     void cloneTo(Block& dst);
+
+    static bool isReservedBlockField(std::string_view view);
 };
 
 inline glm::ivec3 get_ground_direction(const Block& def, int rotation) {

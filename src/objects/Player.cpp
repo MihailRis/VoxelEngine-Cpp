@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <utility>
 
-#include "content/ContentLUT.hpp"
+#include "content/ContentReport.hpp"
 #include "items/Inventory.hpp"
 #include "Entities.hpp"
 #include "rigging.hpp"
@@ -308,17 +308,17 @@ void Player::deserialize(const dv::value& src) {
     }
 }
 
-void Player::convert(dv::value& data, const ContentLUT* lut) {
+void Player::convert(dv::value& data, const ContentReport* report) {
     if (data.has("players")) {
         auto& players = data["players"];
         for (uint i = 0; i < players.size(); i++) {
             auto& playerData = players[i];
             if (playerData.has("inventory")) {
-                Inventory::convert(playerData["inventory"], lut);
+                Inventory::convert(playerData["inventory"], report);
             }
         }
 
     } else if (data.has("inventory")){
-        Inventory::convert(data["inventory"], lut);
+        Inventory::convert(data["inventory"], report);
     }
 }
