@@ -248,6 +248,8 @@ public:
     /// @brief Write all region layers
     void writeAll();
 
+    void deleteRegion(RegionLayerIndex layerid, int x, int z);
+
     /// @brief Extract X and Z from 'X_Z.bin' region file name.
     /// @param name source region file name
     /// @param x parsed X destination

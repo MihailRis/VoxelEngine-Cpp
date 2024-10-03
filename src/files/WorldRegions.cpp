@@ -285,7 +285,8 @@ void WorldRegions::processBlocksData(int x, int z, const BlockDataProc& func) {
     if (voxRegfile == nullptr) {
         logger.warning() << "missing voxels region - discard blocks data for "
             << x << "_" << z;
-        abort(); // TODO: delete region file
+        deleteRegion(REGION_LAYER_BLOCKS_DATA, x, z);
+        return;
     }
     for (uint cz = 0; cz < REGION_SIZE; cz++) {
         for (uint cx = 0; cx < REGION_SIZE; cx++) {
@@ -395,6 +396,18 @@ void WorldRegions::writeAll() {
     for (auto& layer : layers) {
         fs::create_directories(layer.folder);
         layer.writeAll();
+    }
+}
+
+void WorldRegions::deleteRegion(RegionLayerIndex layerid, int x, int z) {
+    auto& layer = layers[layerid];
+    if (layer.getRegFile({x, z}, false)) {
+        throw std::runtime_error("region file is currently in use");
+    }
+    auto file = layer.getRegionFilePath(x, z);
+    if (fs::exists(file)) {
+        logger.info() << "remove region file " << file.u8string();
+        fs::remove(file);
     }
 }
 
