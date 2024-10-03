@@ -40,6 +40,7 @@
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
+#include "voxels/ChunksStorage.hpp"
 #include "window/Camera.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"
@@ -143,7 +144,7 @@ std::shared_ptr<InventoryView> Hud::createHotbar() {
     return view;
 }
 
-static constexpr uint WORLDGEN_IMG_SIZE = 64U;
+static constexpr uint WORLDGEN_IMG_SIZE = 128U;
 
 Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     : assets(engine->getAssets()),
@@ -275,23 +276,24 @@ void Hud::updateWorldGenDebugVisualization() {
     ubyte* data = debugImgWorldGen->getData();
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            if (x >= debugInfo.areaWidth || y >= debugInfo.areaHeight) {
-                for (int i = 0; i < 4; i++) {
-                    data[(y * width + x) * 4 + i] = 0;
-                }
-                continue;
-            }
             int cx = x + debugInfo.areaOffsetX;
             int cz = y + debugInfo.areaOffsetY;
-            auto value = debugInfo.areaLevels[y * debugInfo.areaWidth + x] * 35;
+
+            data[(y * width + x) * 4 + 1] = 
+                level->chunks->getChunk(cx, cz) ? 255 : 0;
+            data[(y * width + x) * 4 + 0] = 
+                level->chunksStorage->get(cx, cz) ? 255 : 0;
+
+            if (x >= debugInfo.areaWidth || y >= debugInfo.areaHeight) {
+                data[(y * width + x) * 4 + 2] = 0;
+                data[(y * width + x) * 4 + 3] = 0;
+                continue;
+            }
+
+            auto value = debugInfo.areaLevels[y * debugInfo.areaWidth + x] * 25;
             // Chunk is already generated
-            if (level->chunks->getChunk(cx, cz)) {
-                value = 255;
-            }
-            for (int i = 0; i < 3; i++) {
-                data[(y * width + x) * 4 + i] = value;
-            }
-            data[(y * width + x) * 4 + 3] = 100;
+            data[(y * width + x) * 4 + 2] = value;
+            data[(y * width + x) * 4 + 3] = 150;
         }
     }
 
