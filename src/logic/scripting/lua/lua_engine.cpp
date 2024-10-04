@@ -5,7 +5,7 @@
 
 #include "debug/Logger.hpp"
 #include "util/stringutil.hpp"
-#include "api_lua.hpp"
+#include "libs/api_lua.hpp"
 #include "lua_custom_types.hpp"
 
 static debug::Logger logger("lua-state");

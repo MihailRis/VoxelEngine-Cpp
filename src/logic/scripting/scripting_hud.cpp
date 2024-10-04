@@ -5,7 +5,7 @@
 #include "files/files.hpp"
 #include "frontend/hud.hpp"
 #include "objects/Player.hpp"
-#include "lua/api_lua.hpp"
+#include "lua/libs/api_lua.hpp"
 #include "lua/lua_engine.hpp"
 #include "scripting.hpp"
 
