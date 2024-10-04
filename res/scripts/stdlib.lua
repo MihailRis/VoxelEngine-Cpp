@@ -101,6 +101,11 @@ function pack.data_file(packid, name)
     return "world:data/"..packid.."/"..name
 end
 
+function pack.shared_file(packid, name)
+    file.mkdirs("config:"..packid)
+    return "config:"..packid.."/"..name
+end
+
 -- events
 events = {
     handlers = {}

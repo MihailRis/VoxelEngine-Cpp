@@ -70,7 +70,11 @@ void ModelBatch::draw(const model::Mesh& mesh, const glm::mat4& matrix,
                       const glm::mat3& rotation, glm::vec3 tint,
                       const texture_names_map* varTextures) {
     glm::vec3 gpos = matrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    light_t light = chunks->getLight(floor(gpos.x), floor(gpos.y), floor(gpos.z));
+    light_t light = chunks->getLight(
+        std::floor(gpos.x), 
+        std::floor(std::min(CHUNK_H-1.0f, gpos.y)), 
+        std::floor(gpos.z));
+
     glm::vec4 lights (
         Lightmap::extract(light, 0) / 15.0f,
         Lightmap::extract(light, 1) / 15.0f,

@@ -19,7 +19,8 @@ Content pack identifier requirements:
 
 ### Content packs data
 
-Settings and other state that supposed to be saved with a world, must be stored in `world:data/pack_id/`. The path should be retrieved by calling a function:
+State that supposed to be saved with a world, must be stored in `world:data/pack_id/`. The path should be retrieved by calling a function:
+
 ```lua
 local path = pack.data_file(PACK_ID, "file_name")
 file.write(path, some_data)
@@ -29,3 +30,13 @@ PACK_ID is an existing variable containing current content-pack name.
 
 Directory `world:data/PACK_ID` will be created on call `pack.data_file(...)`.
 
+#### Shared data
+
+Settings and other data that should be accessible from all worlds where the pack is used should be in
+`config:pack_id/`. You can use a special function:
+
+```lua
+local path = pack.shared_file(PACK_ID, "file_name")
+file.write(path, data)
+-- writes data to the file config:PACK_ID/file_name
+```
