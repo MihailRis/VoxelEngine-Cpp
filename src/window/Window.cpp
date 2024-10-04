@@ -343,7 +343,6 @@ void Window::toggleFullscreen() {
             settings->height.get(),
             GLFW_DONT_CARE
         );
-        glfwSetWindowAttrib(window, GLFW_MAXIMIZED, GLFW_FALSE);
     }
 
     double xPos, yPos;
