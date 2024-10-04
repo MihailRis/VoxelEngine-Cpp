@@ -11,23 +11,12 @@
 
 #include "WorldFiles.hpp"
 
-
-/// @brief ENUM for accessing folder and file names
-enum F_F_NAME {
-    SCREENSHOTS_FOLDER,
-    CONTENT_FOLDER,
-    CONTROLS_FILE,
-    SETTINGS_FILE,
-
-    COUNT
-};
-
-/// @brief array for get file or folder name by enum `F_F_NAME`
-///
-/// example:
-/// `std::filesystem::path settings = f_f_names[SETTINGS_FILE];`
-static std::array<std::string, F_F_NAME::COUNT> f_f_names {
-    "screenshots", "content", "controls.toml", "settings.toml"};
+static inline auto SCREENSHOTS_FOLDER = std::filesystem::u8path("screenshots");
+static inline auto CONTENT_FOLDER = std::filesystem::u8path("content");
+static inline auto WORLDS_FOLDER = std::filesystem::u8path("worlds");
+static inline auto CONFIG_FOLDER = std::filesystem::u8path("config");
+static inline auto CONTROLS_FILE = std::filesystem::u8path("controls.toml");
+static inline auto SETTINGS_FILE = std::filesystem::u8path("settings.toml");
 
 static std::filesystem::path toCanonic(std::filesystem::path path) {
     std::stack<std::string> parts;
@@ -55,8 +44,7 @@ static std::filesystem::path toCanonic(std::filesystem::path path) {
 }
 
 void EnginePaths::prepare() {
-    auto contentFolder =
-        userFilesFolder / std::filesystem::path(f_f_names[CONTENT_FOLDER]);
+    auto contentFolder = userFilesFolder / CONTENT_FOLDER;
     if (!fs::is_directory(contentFolder)) {
         fs::create_directories(contentFolder);
     }
@@ -71,8 +59,7 @@ std::filesystem::path EnginePaths::getResourcesFolder() const {
 }
 
 std::filesystem::path EnginePaths::getNewScreenshotFile(const std::string& ext) {
-    auto folder =
-        userFilesFolder / std::filesystem::path(f_f_names[SCREENSHOTS_FOLDER]);
+    auto folder = userFilesFolder / SCREENSHOTS_FOLDER;
     if (!fs::is_directory(folder)) {
         fs::create_directory(folder);
     }
@@ -97,8 +84,12 @@ std::filesystem::path EnginePaths::getNewScreenshotFile(const std::string& ext) 
     return filename;
 }
 
-std::filesystem::path EnginePaths::getWorldsFolder() {
-    return userFilesFolder / std::filesystem::path("worlds");
+std::filesystem::path EnginePaths::getWorldsFolder() const {
+    return userFilesFolder / WORLDS_FOLDER;
+}
+
+std::filesystem::path EnginePaths::getConfigFolder() const {
+    return userFilesFolder / CONFIG_FOLDER;
 }
 
 std::filesystem::path EnginePaths::getCurrentWorldFolder() {
@@ -109,12 +100,12 @@ std::filesystem::path EnginePaths::getWorldFolderByName(const std::string& name)
     return getWorldsFolder() / std::filesystem::path(name);
 }
 
-std::filesystem::path EnginePaths::getControlsFile() {
-    return userFilesFolder / std::filesystem::path(f_f_names[CONTROLS_FILE]);
+std::filesystem::path EnginePaths::getControlsFile() const {
+    return userFilesFolder / CONTROLS_FILE;
 }
 
-std::filesystem::path EnginePaths::getSettingsFile() {
-    return userFilesFolder / std::filesystem::path(f_f_names[SETTINGS_FILE]);
+std::filesystem::path EnginePaths::getSettingsFile() const {
+    return userFilesFolder / SETTINGS_FILE;
 }
 
 std::vector<std::filesystem::path> EnginePaths::scanForWorlds() {
@@ -178,6 +169,9 @@ std::filesystem::path EnginePaths::resolve(
     }
     if (prefix == "user") {
         return userFilesFolder / fs::u8path(filename);
+    }
+    if (prefix == "config") {
+        return getConfigFolder() / fs::u8path(filename);
     }
     if (prefix == "world") {
         return currentWorldFolder / fs::u8path(filename);

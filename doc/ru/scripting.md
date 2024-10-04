@@ -44,20 +44,32 @@ pack.is_installed(packid: str) -> bool
 
 Проверяет наличие установленного пака в мире
 
-```python
+```lua
 pack.data_file(packid: str, filename: str) -> str
+-- и
+pack.shared_file(packid: str, filename: str) -> str
 ```
 
-Возвращает путь к файлу данных по типу: `world:data/packid/filename` 
+Возвращает путь к файлу данных 
 и создает недостающие директории в пути.
 
-Используйте эту функцию при сохранении настроек пака или иных данных в мире.
+- Первый вариант возвращает: `world:data/packid/filename`
+- Второй вариант возвращает: `config:packid/filename`
 
-Пример:
+Примеры:
 ```lua
 file.write(pack.data_file(PACK_ID, "example.txt"), text)
 ```
-Для пака *containermod* запишет текст в файл `world:data/containermod/example.txt`
+Для пака *containermod* запишет текст в файл `world:data/containermod/example.txt`.
+
+Используйте для хранения данных в мире.
+
+```lua
+file.write(pack.shared_file(PACK_ID, "example.txt"), text)
+```
+Для пака *containermod* запишет текст в файл `config:containermod/example.txt`
+
+Используйте для хранения данныхm общих для всех миров.
 
 ```python
 pack.get_folder(packid: str) -> str

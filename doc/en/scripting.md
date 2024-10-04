@@ -47,14 +47,38 @@ pack.is_installed(packid: str) -> bool
 
 Check if specified pack is installed in the world
 
-```python
+```lua
 pack.data_file(packid: str, filename: str) -> str
+-- and
+pack.shared_file(packid: str, filename: str) -> str
 ```
 
-Returns data file path like `world:data/packid/filename` 
-and creates missing directories.
+Returns the path to the data file
+and creates missing directories in the path.
 
-Use this function when saving pack settings or other data to the world.
+- The first option returns: `world:data/packid/filename`
+- The second option returns: `config:packid/filename`
+
+Examples:
+```lua
+file.write(pack.data_file(PACK_ID, "example.txt"), text)
+```
+For a *containermod* pack, write text to `world:data/containermod/example.txt`.
+
+Use this to store in-world data.
+
+```lua
+file.write(pack.shared_file(PACK_ID, "example.txt"), text)
+```
+For a *containermod* pack, write text to `config:containermod/example.txt`
+
+Use this to store shared data for all worlds.
+
+```python
+pack.get_folder(packid: str) -> str
+```
+
+Returns the path to the folder of the installed content pack.
 
 Example:
 ```lua
