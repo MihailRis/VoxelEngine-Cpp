@@ -152,7 +152,7 @@ void Player::postUpdate() {
     auto& hitbox = entity->getRigidbody().hitbox;
     position = hitbox.position;
 
-    if (flight && hitbox.grounded) {
+    if (flight && hitbox.grounded && !noclip) {
         flight = false;
     }
     if (spawnpoint.y <= 0.1) {
