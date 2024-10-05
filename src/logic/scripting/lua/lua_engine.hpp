@@ -8,6 +8,11 @@
 #include "lua_util.hpp"
 
 namespace lua {
+    enum class StateType {
+        BASE,
+        GENERATOR,
+    };
+
     void initialize();
     void finalize();
 
@@ -17,4 +22,6 @@ namespace lua {
         std::function<int(lua::State*)> args = [](auto*) { return 0; }
     );
     lua::State* get_main_thread();
+
+    void init_state(lua::State* L, StateType stateType);
 }

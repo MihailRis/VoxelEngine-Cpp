@@ -28,49 +28,44 @@ static void remove_lib_funcs(
     }
 }
 
-static void create_libs(lua::State* L) {
-    openlib(L, "audio", audiolib);
+static void create_libs(lua::State* L, StateType stateType) {
     openlib(L, "block", blocklib);
-    openlib(L, "console", consolelib);
     openlib(L, "core", corelib);
     openlib(L, "file", filelib);
-    openlib(L, "gui", guilib);
-    openlib(L, "input", inputlib);
-    openlib(L, "inventory", inventorylib);
     openlib(L, "generation", generationlib);
     openlib(L, "item", itemlib);
     openlib(L, "json", jsonlib);
     openlib(L, "mat4", mat4lib);
     openlib(L, "pack", packlib);
-    openlib(L, "player", playerlib);
     openlib(L, "quat", quatlib);
     openlib(L, "time", timelib);
     openlib(L, "toml", tomllib);
     openlib(L, "vec2", vec2lib);
     openlib(L, "vec3", vec3lib);
     openlib(L, "vec4", vec4lib);
-    openlib(L, "world", worldlib);
 
-    openlib(L, "entities", entitylib);
-    openlib(L, "cameras", cameralib);
+    if (stateType == StateType::BASE) {
+        openlib(L, "gui", guilib);
+        openlib(L, "input", inputlib);
+        openlib(L, "inventory", inventorylib);
+        openlib(L, "world", worldlib);
+        openlib(L, "audio", audiolib);
+        openlib(L, "console", consolelib);
+        openlib(L, "player", playerlib);
 
-    // components
-    openlib(L, "__skeleton", skeletonlib);
-    openlib(L, "__rigidbody", rigidbodylib);
-    openlib(L, "__transform", transformlib);
+        openlib(L, "entities", entitylib);
+        openlib(L, "cameras", cameralib);
+
+        // components
+        openlib(L, "__skeleton", skeletonlib);
+        openlib(L, "__rigidbody", rigidbodylib);
+        openlib(L, "__transform", transformlib);
+    }
 
     addfunc(L, "print", lua::wrap<l_print>);
 }
 
-void lua::initialize() {
-    logger.info() << LUA_VERSION;
-    logger.info() << LUAJIT_VERSION;
-
-    auto L = luaL_newstate();
-    if (L == nullptr) {
-        throw luaerror("could not to initialize Lua");
-    }
-    main_thread = L;
+void lua::init_state(lua::State* L, StateType stateType) {
     // Allowed standard libraries
     pop(L, luaopen_base(L));
     pop(L, luaopen_math(L));
@@ -83,7 +78,7 @@ void lua::initialize() {
     const char* removed_os[] {
         "execute", "exit", "remove", "rename", "setlocale", "tmpname", nullptr};
     remove_lib_funcs(L, "os", removed_os);
-    create_libs(L);
+    create_libs(L, stateType);
 
     pushglobals(L);
     setglobal(L, env_name(0));
@@ -99,6 +94,18 @@ void lua::initialize() {
     newusertype<LuaBytearray>(L);
     newusertype<LuaHeightmap>(L);
     newusertype<LuaVoxelStructure>(L);
+}
+
+void lua::initialize() {
+    logger.info() << LUA_VERSION;
+    logger.info() << LUAJIT_VERSION;
+
+    auto L = luaL_newstate();
+    if (L == nullptr) {
+        throw luaerror("could not to initialize Lua");
+    }
+    main_thread = L;
+    init_state(L, StateType::BASE);
 }
 
 void lua::finalize() {
