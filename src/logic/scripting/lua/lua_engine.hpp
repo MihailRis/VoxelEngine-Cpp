@@ -8,13 +8,22 @@
 #include "lua_util.hpp"
 
 namespace lua {
+    enum class StateType {
+        BASE,
+        GENERATOR,
+    };
+
     void initialize();
     void finalize();
 
     bool emit_event(
-        lua::State*,
+        State*,
         const std::string& name,
-        std::function<int(lua::State*)> args = [](auto*) { return 0; }
+        std::function<int(State*)> args = [](auto*) { return 0; }
     );
-    lua::State* get_main_thread();
+    State* get_main_state();
+    State* create_state(StateType stateType);
+    [[nodiscard]] scriptenv create_environment(State* L);
+
+    void init_state(State* L, StateType stateType);
 }

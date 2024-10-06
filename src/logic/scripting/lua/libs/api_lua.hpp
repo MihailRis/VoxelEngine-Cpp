@@ -3,7 +3,7 @@
 #include <exception>
 #include <string>
 
-#include "lua_util.hpp"
+#include "../lua_util.hpp"
 
 /// Definitions can be found in local .cpp files
 /// having same names as declarations
