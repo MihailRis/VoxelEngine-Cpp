@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
-    branches: [ "main", "heightmaps" ] # TODO: remove 'heightmaps' after merge
+    branches: [ "main" ]
 
 jobs:
   build:
