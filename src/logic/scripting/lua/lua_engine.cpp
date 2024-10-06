@@ -17,7 +17,7 @@ luaerror::luaerror(const std::string& message) : std::runtime_error(message) {
 }
 
 static void remove_lib_funcs(
-    lua::State* L, const char* libname, const char* funcs[]
+    State* L, const char* libname, const char* funcs[]
 ) {
     if (getglobal(L, libname)) {
         for (uint i = 0; funcs[i]; i++) {
@@ -28,7 +28,15 @@ static void remove_lib_funcs(
     }
 }
 
-static void create_libs(lua::State* L, StateType stateType) {
+[[nodiscard]] scriptenv lua::create_environment(State* L) {
+    int id = lua::create_environment(L, 0);
+    return std::shared_ptr<int>(new int(id), [=](int* id) { //-V508
+        lua::remove_environment(L, *id);
+        delete id;
+    });
+}
+
+static void create_libs(State* L, StateType stateType) {
     openlib(L, "block", blocklib);
     openlib(L, "core", corelib);
     openlib(L, "file", filelib);
@@ -65,7 +73,7 @@ static void create_libs(lua::State* L, StateType stateType) {
     addfunc(L, "print", lua::wrap<l_print>);
 }
 
-void lua::init_state(lua::State* L, StateType stateType) {
+void lua::init_state(State* L, StateType stateType) {
     // Allowed standard libraries
     pop(L, luaopen_base(L));
     pop(L, luaopen_math(L));
@@ -100,20 +108,15 @@ void lua::initialize() {
     logger.info() << LUA_VERSION;
     logger.info() << LUAJIT_VERSION;
 
-    auto L = luaL_newstate();
-    if (L == nullptr) {
-        throw luaerror("could not to initialize Lua");
-    }
-    main_thread = L;
-    init_state(L, StateType::BASE);
+    main_thread = create_state(StateType::BASE);
 }
 
 void lua::finalize() {
-    lua_close(main_thread);
+    lua::close(main_thread);
 }
 
 bool lua::emit_event(
-    lua::State* L, const std::string& name, std::function<int(lua::State*)> args
+    State* L, const std::string& name, std::function<int(State*)> args
 ) {
     getglobal(L, "events");
     getfield(L, "emit");
@@ -124,6 +127,15 @@ bool lua::emit_event(
     return result;
 }
 
-lua::State* lua::get_main_thread() {
+State* lua::get_main_state() {
     return main_thread;
+}
+
+State* lua::create_state(StateType stateType) {
+    auto L = luaL_newstate();
+    if (L == nullptr) {
+        throw luaerror("could not initialize Lua state");
+    }
+    init_state(L, stateType);
+    return L;
 }

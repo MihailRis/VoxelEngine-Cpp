@@ -13,6 +13,10 @@
 #include "data/dv.hpp"
 #include "world/generator/GeneratorDef.hpp"
 #include "util/timeutil.hpp"
+#include "files/files.hpp"
+#include "debug/Logger.hpp"
+
+static debug::Logger logger("generator-scripting");
 
 class LuaGeneratorScript : public GeneratorScript {
     lua::State* L;
@@ -27,6 +31,13 @@ public:
       def(def),
       env(std::move(env))
       {}
+
+    virtual ~LuaGeneratorScript() {
+        env.reset();
+        if (L != lua::get_main_state()) {
+            lua::close(L);
+        }
+    }
 
     std::shared_ptr<Heightmap> generateHeightmap(
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed, uint bpd
@@ -130,8 +141,8 @@ public:
 std::unique_ptr<GeneratorScript> scripting::load_generator(
     const GeneratorDef& def, const fs::path& file, const std::string& dirPath
 ) {
-    auto env = create_environment();
-    auto L = lua::get_main_thread();
+    auto L = lua::create_state(lua::StateType::GENERATOR);
+    auto env = lua::create_environment(L);
     lua::stackguard _(L);
 
     lua::pushenv(L, *env);
@@ -143,7 +154,9 @@ std::unique_ptr<GeneratorScript> scripting::load_generator(
     lua::pop(L);
 
     if (fs::exists(file)) {
-        lua::pop(L, load_script(*env, "generator", file));
+        std::string src = files::read_string(file);
+        logger.info() << "script (generator) " << file.u8string();
+        lua::pop(L, lua::execute(L, *env, src, file.u8string()));
     } else {
         // Use default (empty) script
         lua::pop(L, lua::execute(L, *env, "", "<empty>"));

@@ -546,8 +546,12 @@ namespace lua {
         return 0;
     }
     int create_environment(lua::State*, int parent);
-    void removeEnvironment(lua::State*, int id);
+    void remove_environment(lua::State*, int id);
     void dump_stack(lua::State*);
+
+    inline void close(lua::State* L) {
+        lua_close(L);
+    }
 
     inline void addfunc(
         lua::State* L, const std::string& name, lua_CFunction func
