@@ -73,10 +73,6 @@ void scripting::initialize(Engine* engine) {
     return std::make_shared<int>(0);
 }
 
-[[nodiscard]] scriptenv scripting::create_environment() {
-    return lua::create_environment(lua::get_main_state());
-}
-
 [[nodiscard]] scriptenv scripting::create_pack_environment(
     const ContentPack& pack
 ) {
