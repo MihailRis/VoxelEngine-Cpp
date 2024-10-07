@@ -32,6 +32,8 @@ struct ChunkPrototype {
     std::shared_ptr<Heightmap> heightmap;
 
     std::vector<StructurePlacement> structures;
+
+    std::vector<LinePlacement> lines;
 };
 
 struct WorldGenDebugInfo {
@@ -69,9 +71,11 @@ class WorldGenerator {
     void generateHeightmap(ChunkPrototype& prototype, int x, int z);
 
     void placeStructure(
-        const glm::ivec3 offset, size_t structure, uint8_t rotation,
+        const glm::ivec3& offset, size_t structure, uint8_t rotation,
         int chunkX, int chunkZ
     );
+
+    void placeLine(const LinePlacement& line);
 public:
     WorldGenerator(
         const GeneratorDef& def,

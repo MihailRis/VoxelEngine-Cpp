@@ -83,11 +83,62 @@ public:
         return maps;
     }
 
-    std::vector<StructurePlacement> placeStructures(
+    void perform_line(lua::State* L, PrototypePlacements& placements) {
+        rawgeti(L, 2);
+        blockid_t block = touinteger(L, -1);
+        pop(L);
+
+        rawgeti(L, 3);
+        glm::ivec3 a = tovec3(L, -1);
+        pop(L);
+
+        rawgeti(L, 4);
+        glm::ivec3 b = tovec3(L, -1);
+        pop(L);
+
+        rawgeti(L, 5);
+        int radius = touinteger(L, -1);
+        pop(L);
+
+        placements.lines.emplace_back(block, a, b, radius);
+    }
+
+    void perform_placement(lua::State* L, PrototypePlacements& placements) {
+        rawgeti(L, 1);
+        int structIndex = 0;
+        if (isstring(L, -1)) {
+            const char* name = require_string(L, -1);
+            if (!std::strcmp(name, ":line")) {
+                pop(L);
+
+                perform_line(L, placements);
+                return;
+            }
+            const auto& found = def.structuresIndices.find(name);
+            if (found != def.structuresIndices.end()) {
+                structIndex = found->second;
+            }
+        } else {
+            structIndex = tointeger(L, -1);
+        }
+        pop(L);
+
+        rawgeti(L, 2);
+        glm::ivec3 pos = tovec3(L, -1);
+        pop(L);
+
+        rawgeti(L, 3);
+        int rotation = tointeger(L, -1) & 0b11;
+        pop(L);
+
+        placements.structs.emplace_back(structIndex, pos, rotation);
+    }
+
+    PrototypePlacements placeStructures(
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed,
         const std::shared_ptr<Heightmap>& heightmap, uint chunkHeight
     ) override {
-        std::vector<StructurePlacement> placements;
+        PrototypePlacements placements {};
         
         stackguard _(L);
         pushenv(L, *env);
@@ -102,31 +153,9 @@ public:
                 for (int i = 1; i <= len; i++) {
                     rawgeti(L, i);
 
-                    rawgeti(L, 1);
-                    int structIndex = 0;
-                    if (isstring(L, -1)) {
-                        const auto& found = def.structuresIndices.find(
-                            require_string(L, -1)
-                        );
-                        if (found != def.structuresIndices.end()) {
-                            structIndex = found->second;
-                        }
-                    } else {
-                        structIndex = tointeger(L, -1);
-                    }
-                    pop(L);
-
-                    rawgeti(L, 2);
-                    glm::ivec3 pos = tovec3(L, -1);
-                    pop(L);
-
-                    rawgeti(L, 3);
-                    int rotation = tointeger(L, -1) & 0b11;
-                    pop(L);
+                    perform_placement(L, placements);
 
                     pop(L);
-
-                    placements.emplace_back(structIndex, pos, rotation);
                 }
                 pop(L);
             }

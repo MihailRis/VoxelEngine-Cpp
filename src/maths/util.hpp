@@ -4,7 +4,13 @@
 
 #include <ctime>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtx/norm.hpp>
+
 namespace util {
+    constexpr inline float EPSILON = 1e-6f;
+
     class PseudoRandom {
         unsigned short seed;
     public:
@@ -63,4 +69,21 @@ namespace util {
             rand();
         }
     };
+    
+    /// @brief Find nearest point on segment to given
+    /// @param a segment point A
+    /// @param b segment point B
+    /// @param point given point (may be anywhere)
+    /// @return nearest point on the segment to given point 
+    inline glm::vec3 closest_point_on_segment(
+        glm::vec3 a, glm::vec3 b, const glm::vec3& point
+    ) {
+        auto vec = b - a;
+        float da = glm::distance2(point, a);
+        float db = glm::distance2(point, b);
+        float len = glm::length2(vec);
+        float t = (((da - db) / len) * 0.5f + 0.5f);
+        t = std::min(1.0f, std::max(0.0f, t));
+        return a + vec * t;
+    }
 }

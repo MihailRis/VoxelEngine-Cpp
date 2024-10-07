@@ -11,6 +11,7 @@
 #include "util/timeutil.hpp"
 #include "util/listutil.hpp"
 #include "maths/voxmaths.hpp"
+#include "maths/util.hpp"
 #include "debug/Logger.hpp"
 
 static debug::Logger logger("world-generator");
@@ -138,7 +139,7 @@ inline AABB gen_chunk_aabb(int chunkX, int chunkZ) {
 }
 
 void WorldGenerator::placeStructure(
-    const glm::ivec3 offset, size_t structureId, uint8_t rotation,
+    const glm::ivec3& offset, size_t structureId, uint8_t rotation,
     int chunkX, int chunkZ
 ) {
     auto& structure = *def.structures[structureId]->fragments[rotation];
@@ -157,10 +158,36 @@ void WorldGenerator::placeStructure(
             if (chunkAABB.intersect(aabb)) {
                 otherPrototype.structures.emplace_back(
                     structureId, 
-                    offset - 
-                        glm::ivec3(lcx * CHUNK_W, 0, lcz * CHUNK_D),
+                    offset - glm::ivec3(lcx * CHUNK_W, 0, lcz * CHUNK_D),
                     rotation
                 );
+            }
+        }
+    }
+}
+
+void WorldGenerator::placeLine(const LinePlacement& line) {
+    AABB aabb(line.a, line.b);
+    aabb.fix();
+    aabb.a -= line.radius;
+    aabb.b += line.radius;
+    int cxa = floordiv(aabb.a.x, CHUNK_W);
+    int cza = floordiv(aabb.a.z, CHUNK_D);
+    int cxb = floordiv(aabb.b.x, CHUNK_W);
+    int czb = floordiv(aabb.b.z, CHUNK_D);
+    for (int cz = cza; cz <= czb; cz++) {
+        for (int cx = cxa; cx <= cxb; cx++) {
+            auto& otherPrototype = requirePrototype(cx, cz);
+            auto chunkAABB = gen_chunk_aabb(cx, cz);
+            chunkAABB.a -= line.radius;
+            chunkAABB.b += line.radius;
+            auto found = util::closest_point_on_segment(line.a, line.b, {
+                cx * CHUNK_W + CHUNK_W / 2,
+                0,
+                cz * CHUNK_D + CHUNK_D / 2
+            });
+            if (chunkAABB.contains(found)) {
+                otherPrototype.lines.push_back(line);
             }
         }
     }
@@ -175,10 +202,12 @@ void WorldGenerator::generateStructures(
     const auto& biomes = prototype.biomes;
     const auto& heightmap = prototype.heightmap;
 
-    util::concat(prototype.structures, def.script->placeStructures(
+    auto placements = def.script->placeStructures(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed,
         heightmap, CHUNK_H
-    ));
+    );
+    util::concat(prototype.structures, placements.structs);
+
     for (const auto& placement : prototype.structures) {
         const auto& offset = placement.position;
         if (placement.structure < 0 || placement.structure >= def.structures.size()) {
@@ -187,6 +216,9 @@ void WorldGenerator::generateStructures(
         }
         placeStructure(
             offset, placement.structure, placement.rotation, chunkX, chunkZ);
+    }
+    for (const auto& line : placements.lines) {
+        placeLine(line);
     }
 
     util::PseudoRandom structsRand;
@@ -353,6 +385,22 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
                         } else {
                             voxels[vox_index(sx, sy, sz)] = structVoxel;
                         }
+                    }
+                }
+            }
+        }
+    }
+    for (const auto& line : prototype.lines) {
+        int minY = std::max(0, std::min(line.a.y-line.radius, line.b.y-line.radius));
+        int maxY = std::min(CHUNK_H, std::max(line.a.y+line.radius, line.b.y+line.radius));
+        for (int y = minY; y < maxY; y++) {
+            for (int z = 0; z < CHUNK_D; z++) {
+                for (int x = 0; x < CHUNK_W; x++) {
+                    int gx = x + chunkX * CHUNK_W;
+                    int gz = z + chunkZ * CHUNK_D;
+
+                    if (glm::distance2(util::closest_point_on_segment(line.a, line.b, {gx, y, gz}), {gx, y, gz}) <= line.radius*line.radius) {
+                        voxels[vox_index(x, y, z)] = {line.block, {}};
                     }
                 }
             }

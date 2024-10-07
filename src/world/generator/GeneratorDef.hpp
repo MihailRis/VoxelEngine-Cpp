@@ -118,6 +118,11 @@ struct Biome {
     BlocksLayers seaLayers;
 };
 
+struct PrototypePlacements {
+    std::vector<StructurePlacement> structs {};
+    std::vector<LinePlacement> lines {};
+};
+
 /// @brief Generator behaviour and settings interface
 class GeneratorScript {
 public:
@@ -156,8 +161,8 @@ public:
     /// @param seed world seed
     /// @param heightmap area heightmap
     /// @param chunkHeight chunk height to use as heights multiplier
-    /// @return structure placements
-    virtual std::vector<StructurePlacement> placeStructures(
+    /// @return structure & line placements
+    virtual PrototypePlacements placeStructures(
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed,
         const std::shared_ptr<Heightmap>& heightmap, uint chunkHeight) = 0;
 };
