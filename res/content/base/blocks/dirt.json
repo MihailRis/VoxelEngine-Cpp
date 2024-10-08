@@ -1,4 +1,5 @@
 {
     "texture": "dirt",
-    "material": "base:ground"
+    "material": "base:ground",
+    "surface-replacement": "base:grass_block"
 }

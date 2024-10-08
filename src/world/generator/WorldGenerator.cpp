@@ -305,6 +305,65 @@ void WorldGenerator::update(int centerX, int centerY, int loadDistance) {
     surroundMap.setCenter(centerX, centerY);
 }
 
+void WorldGenerator::generatePlants(
+    const ChunkPrototype& prototype,
+    float* heights,
+    voxel* voxels,
+    int chunkX,
+    int chunkZ,
+    const Biome** biomes
+) {
+    const auto& indices = content->getIndices()->blocks;
+    util::PseudoRandom plantsRand;
+    plantsRand.setSeed(chunkX, chunkZ);
+
+    for (uint z = 0; z < CHUNK_D; z++) {
+        for (uint x = 0; x < CHUNK_W; x++) {
+            const Biome* biome = biomes[z * CHUNK_W + x];
+
+            int height = heights[z * CHUNK_W + x] * CHUNK_H;
+            height = std::max(0, height);
+            
+            if (height+1 > def.seaLevel) {
+                float rand = plantsRand.randFloat();
+                blockid_t plant = biome->plants.choose(rand);
+                if (plant) {
+                    auto& voxel = voxels[vox_index(x, height+1, z)];
+                    auto& groundVoxel = voxels[vox_index(x, height, z)];
+                    if (indices.get(groundVoxel.id)->rt.solid) {
+                        voxel = {plant, {}};
+                    }
+                }
+            }
+        }
+    }
+}
+
+void WorldGenerator::generateLand(
+    const ChunkPrototype& prototype,
+    float* values,
+    voxel* voxels,
+    int chunkX,
+    int chunkZ,
+    const Biome** biomes
+) {
+    uint seaLevel = def.seaLevel;
+    for (uint z = 0; z < CHUNK_D; z++) {
+        for (uint x = 0; x < CHUNK_W; x++) {
+            const Biome* biome = biomes[z * CHUNK_W + x];
+
+            int height = values[z * CHUNK_W + x] * CHUNK_H;
+            height = std::max(0, height);
+
+            const auto& groundLayers = biome->groundLayers;
+            const auto& seaLayers = biome->seaLayers;
+
+            generate_pole(seaLayers, seaLevel, height, seaLevel, voxels, x, z);
+            generate_pole(groundLayers, height, 0, seaLevel, voxels, x, z);
+        }
+    }
+}
+
 void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
     surroundMap.completeAt(chunkX, chunkZ);
 
@@ -315,9 +374,7 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
 
     std::memset(voxels, 0, sizeof(voxel) * CHUNK_VOL);
 
-    util::PseudoRandom plantsRand;
-    plantsRand.setSeed(chunkX, chunkZ);
-
+    const auto& indices = content->getIndices()->blocks;
     const auto& biomes = prototype.biomes.get();
     for (uint z = 0; z < CHUNK_D; z++) {
         for (uint x = 0; x < CHUNK_W; x++) {
@@ -331,18 +388,20 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
 
             generate_pole(seaLayers, seaLevel, height, seaLevel, voxels, x, z);
             generate_pole(groundLayers, height, 0, seaLevel, voxels, x, z);
-            
-            if (height+1 > seaLevel) {
-                float rand = plantsRand.randFloat();
-                blockid_t plant = biome->plants.choose(rand);
-                if (plant) {
-                    voxels[vox_index(x, height+1, z)].id = plant;
-                }
-            }
         }
     }
     generateLines(prototype, voxels, chunkX, chunkZ);
+    generatePlants(prototype, values, voxels, chunkX, chunkZ, biomes);
     generateStructures(prototype, voxels, chunkX, chunkZ);
+
+#ifndef NDEBUG
+    for (uint i = 0; i < CHUNK_VOL; i++) {
+        blockid_t id = voxels[i].id;
+        if (indices.get(id) == nullptr) {
+            abort();
+        }
+    }
+#endif
 }
 
 void WorldGenerator::generateStructures(
@@ -391,11 +450,12 @@ void WorldGenerator::generateStructures(
 void WorldGenerator::generateLines(
     const ChunkPrototype& prototype, voxel* voxels, int chunkX, int chunkZ
 ) {
+    const auto& indices = content->getIndices()->blocks;
     for (const auto& line : prototype.lines) {
         int cgx = chunkX * CHUNK_W;
         int cgz = chunkZ * CHUNK_D;
 
-        int radius = line.radius;
+        int const radius = line.radius;
 
         auto a = line.a;
         auto b = line.b;
@@ -418,8 +478,21 @@ void WorldGenerator::generateLines(
                     glm::ivec3 closest = util::closest_point_on_segment(
                         a, b, point
                     );
-                    if (util::distance2(closest, point) <= radius*radius) {
-                        voxels[vox_index(x, y, z)] = {line.block, {}};
+                    if (y > 0 && util::distance2(closest, point) <= radius*radius && line.block == BLOCK_AIR) {
+                        auto& voxel = voxels[vox_index(x, y, z)];
+                        if (!indices.require(voxel.id).replaceable) {
+                            voxel = {line.block, {}};
+                        }
+                        auto& below = voxels[vox_index(x, y-1, z)];
+                        glm::ivec3 closest2 = util::closest_point_on_segment(
+                            a, b, {gx, y-1, gz}
+                        );
+                        if (util::distance2(closest2, {gx, y-1, gz}) > radius*radius) {
+                            const auto& def = indices.require(below.id);
+                            if (def.rt.surfaceReplacement != below.id) {
+                                below = {def.rt.surfaceReplacement, {}};
+                            }
+                        }
                     }
                 }
             }

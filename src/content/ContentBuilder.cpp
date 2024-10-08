@@ -82,6 +82,7 @@ std::unique_ptr<Content> ContentBuilder::build() {
     // Now, it's time to resolve foreign keys
     for (Block* def : blockDefsIndices) {
         def->rt.pickingItem = content->items.require(def->pickingItem).rt.id;
+        def->rt.surfaceReplacement = content->blocks.require(def->surfaceReplacement).rt.id;
     }
 
     for (ItemDef* def : itemDefsIndices) {

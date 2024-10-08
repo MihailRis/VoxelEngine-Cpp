@@ -83,6 +83,22 @@ class WorldGenerator {
     void generateStructures(
         const ChunkPrototype& prototype, voxel* voxels, int x, int z
     );
+    void generatePlants(
+        const ChunkPrototype& prototype,
+        float* values,
+        voxel* voxels,
+        int x,
+        int z,
+        const Biome** biomes
+    );
+    void generateLand(
+        const ChunkPrototype& prototype,
+        float* values,
+        voxel* voxels,
+        int x,
+        int z,
+        const Biome** biomes
+    );
 public:
     WorldGenerator(
         const GeneratorDef& def,
