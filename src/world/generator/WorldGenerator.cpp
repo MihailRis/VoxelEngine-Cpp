@@ -341,7 +341,13 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
             }
         }
     }
+    generateLines(prototype, voxels, chunkX, chunkZ);
+    generateStructures(prototype, voxels, chunkX, chunkZ);
+}
 
+void WorldGenerator::generateStructures(
+    const ChunkPrototype& prototype, voxel* voxels, int chunkX, int chunkZ
+) {
     for (const auto& placement : prototype.structures) {
         if (placement.structure < 0 || placement.structure >= def.structures.size()) {
             logger.error() << "invalid structure index " << placement.structure;
@@ -380,7 +386,6 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
             }
         }
     }
-    generateLines(prototype, voxels, chunkX, chunkZ);
 }
 
 void WorldGenerator::generateLines(

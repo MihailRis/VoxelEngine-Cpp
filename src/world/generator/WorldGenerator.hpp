@@ -80,6 +80,9 @@ class WorldGenerator {
     void generateLines(
         const ChunkPrototype& prototype, voxel* voxels, int x, int z
     );
+    void generateStructures(
+        const ChunkPrototype& prototype, voxel* voxels, int x, int z
+    );
 public:
     WorldGenerator(
         const GeneratorDef& def,
