@@ -78,10 +78,22 @@ namespace util {
             (b.z - a.z) * (b.z - a.z);
     }
 
+    /// @return integer square of distance between two points
+    inline int distance2(int ax, int ay, int az, int bx, int by, int bz) {
+        return (bx - ax) * (bx - ax) +
+               (by - ay) * (by - ay) +
+               (bz - az) * (bz - az);
+    }
+
     /// @return integer square of vector length
     /// @note glm::length2 does not support integer vectors
     inline int length2(const glm::ivec3& a) {
         return a.x * a.x + a.y * a.y + a.z * a.z;
+    }
+
+    /// @return integer square of vector length
+    inline int length2(int x, int y, int z) {
+        return x * x + y * y + z * z;
     }
 
     /// @brief Find nearest point on segment to given

@@ -76,6 +76,10 @@ class WorldGenerator {
     );
 
     void placeLine(const LinePlacement& line);
+
+    void generateLines(
+        const ChunkPrototype& prototype, voxel* voxels, int x, int z
+    );
 public:
     WorldGenerator(
         const GeneratorDef& def,

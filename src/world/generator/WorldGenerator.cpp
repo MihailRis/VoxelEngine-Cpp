@@ -380,23 +380,29 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
             }
         }
     }
+    generateLines(prototype, voxels, chunkX, chunkZ);
+}
+
+void WorldGenerator::generateLines(
+    const ChunkPrototype& prototype, voxel* voxels, int chunkX, int chunkZ
+) {
     for (const auto& line : prototype.lines) {
         int cgx = chunkX * CHUNK_W;
         int cgz = chunkZ * CHUNK_D;
 
         int radius = line.radius;
 
-        int minX = std::max(0, std::min(line.a.x-radius-cgx, line.b.x-radius-cgx));
-        int maxX = std::min(CHUNK_W, std::max(line.a.x+radius-cgx, line.b.x+radius-cgx));
-
-        int minZ = std::max(0, std::min(line.a.z-radius-cgz, line.b.z-radius-cgz));
-        int maxZ = std::min(CHUNK_D, std::max(line.a.z+radius-cgz, line.b.z+radius-cgz));
-
-        int minY = std::max(0, std::min(line.a.y-radius, line.b.y-radius));
-        int maxY = std::min(CHUNK_H, std::max(line.a.y+radius, line.b.y+radius));
-
         auto a = line.a;
         auto b = line.b;
+
+        int minX = std::max(0, std::min(a.x-radius-cgx, b.x-radius-cgx));
+        int maxX = std::min(CHUNK_W, std::max(a.x+radius-cgx, b.x+radius-cgx));
+
+        int minZ = std::max(0, std::min(a.z-radius-cgz, b.z-radius-cgz));
+        int maxZ = std::min(CHUNK_D, std::max(a.z+radius-cgz, b.z+radius-cgz));
+
+        int minY = std::max(0, std::min(a.y-radius, b.y-radius));
+        int maxY = std::min(CHUNK_H, std::max(a.y+radius, b.y+radius));
 
         for (int y = minY; y < maxY; y++) {
             for (int z = minZ; z < maxZ; z++) {
@@ -405,7 +411,8 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
                     int gz = z + cgz;
                     glm::ivec3 point {gx, y, gz};
                     glm::ivec3 closest = util::closest_point_on_segment(
-                        a, b, point);
+                        a, b, point
+                    );
                     if (util::distance2(closest, point) <= radius*radius) {
                         voxels[vox_index(x, y, z)] = {line.block, {}};
                     }
