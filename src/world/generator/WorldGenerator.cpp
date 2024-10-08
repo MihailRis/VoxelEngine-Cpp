@@ -178,17 +178,7 @@ void WorldGenerator::placeLine(const LinePlacement& line) {
     for (int cz = cza; cz <= czb; cz++) {
         for (int cx = cxa; cx <= cxb; cx++) {
             auto& otherPrototype = requirePrototype(cx, cz);
-            auto chunkAABB = gen_chunk_aabb(cx, cz);
-            chunkAABB.a -= line.radius;
-            chunkAABB.b += line.radius;
-            auto found = util::closest_point_on_segment(line.a, line.b, {
-                cx * CHUNK_W + CHUNK_W / 2,
-                0,
-                cz * CHUNK_D + CHUNK_D / 2
-            });
-            if (chunkAABB.contains(found)) {
-                otherPrototype.lines.push_back(line);
-            }
+            otherPrototype.lines.push_back(line);
         }
     }
 }
@@ -315,6 +305,14 @@ void WorldGenerator::update(int centerX, int centerY, int loadDistance) {
     surroundMap.setCenter(centerX, centerY);
 }
 
+/// @return integer square of distance between two points
+/// @note glm::distance2 does not support integer vectors
+static inline int distance2(const glm::ivec3& a, const glm::ivec3& b) {
+    return (b.x - a.x) * (b.x - a.x) +
+           (b.y - a.y) * (b.y - a.y) +
+           (b.z - a.z) * (b.z - a.z);
+}
+
 void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
     surroundMap.completeAt(chunkX, chunkZ);
 
@@ -391,15 +389,32 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
         }
     }
     for (const auto& line : prototype.lines) {
-        int minY = std::max(0, std::min(line.a.y-line.radius, line.b.y-line.radius));
-        int maxY = std::min(CHUNK_H, std::max(line.a.y+line.radius, line.b.y+line.radius));
-        for (int y = minY; y < maxY; y++) {
-            for (int z = 0; z < CHUNK_D; z++) {
-                for (int x = 0; x < CHUNK_W; x++) {
-                    int gx = x + chunkX * CHUNK_W;
-                    int gz = z + chunkZ * CHUNK_D;
+        int cgx = chunkX * CHUNK_W;
+        int cgz = chunkZ * CHUNK_D;
 
-                    if (glm::distance2(util::closest_point_on_segment(line.a, line.b, {gx, y, gz}), {gx, y, gz}) <= line.radius*line.radius) {
+        int radius = line.radius;
+
+        int minX = std::max(0, std::min(line.a.x-radius-cgx, line.b.x-radius-cgx));
+        int maxX = std::min(CHUNK_W, std::max(line.a.x+radius-cgx, line.b.x+radius-cgx));
+
+        int minZ = std::max(0, std::min(line.a.z-radius-cgz, line.b.z-radius-cgz));
+        int maxZ = std::min(CHUNK_D, std::max(line.a.z+radius-cgz, line.b.z+radius-cgz));
+
+        int minY = std::max(0, std::min(line.a.y-radius, line.b.y-radius));
+        int maxY = std::min(CHUNK_H, std::max(line.a.y+radius, line.b.y+radius));
+
+        auto a = line.a;
+        auto b = line.b;
+
+        for (int y = minY; y < maxY; y++) {
+            for (int z = minZ; z < maxZ; z++) {
+                for (int x = minX; x < maxX; x++) {
+                    int gx = x + cgx;
+                    int gz = z + cgz;
+                    glm::ivec3 point {gx, y, gz};
+                    glm::ivec3 closest = util::closest_point_on_segment(
+                        a, b, point);
+                    if (distance2(closest, point) <= radius*radius) {
                         voxels[vox_index(x, y, z)] = {line.block, {}};
                     }
                 }

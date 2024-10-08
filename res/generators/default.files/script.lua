@@ -17,7 +17,7 @@ function place_structures(x, z, w, d, seed, hmap, chunk_height)
         local sz = z + math.random() * 20 - 10
         local ez = z + math.random() * 20 - 10
         table.insert(placements, 
-            {":line", 0, {sx - 10, sy, sz - 10}, {ex + 10, ey, ez + 10}, 2})
+            {":line", 0, {sx - 10, sy, sz - 10}, {ex + 10, ey, ez + 10}, 3})
     end
     return placements
 end
