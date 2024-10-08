@@ -305,14 +305,6 @@ void WorldGenerator::update(int centerX, int centerY, int loadDistance) {
     surroundMap.setCenter(centerX, centerY);
 }
 
-/// @return integer square of distance between two points
-/// @note glm::distance2 does not support integer vectors
-static inline int distance2(const glm::ivec3& a, const glm::ivec3& b) {
-    return (b.x - a.x) * (b.x - a.x) +
-           (b.y - a.y) * (b.y - a.y) +
-           (b.z - a.z) * (b.z - a.z);
-}
-
 void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
     surroundMap.completeAt(chunkX, chunkZ);
 
@@ -414,7 +406,7 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
                     glm::ivec3 point {gx, y, gz};
                     glm::ivec3 closest = util::closest_point_on_segment(
                         a, b, point);
-                    if (distance2(closest, point) <= radius*radius) {
+                    if (util::distance2(closest, point) <= radius*radius) {
                         voxels[vox_index(x, y, z)] = {line.block, {}};
                     }
                 }

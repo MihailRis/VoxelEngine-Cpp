@@ -69,14 +69,28 @@ namespace util {
             rand();
         }
     };
-    
+
+    /// @return integer square of distance between two points
+    /// @note glm::distance2 does not support integer vectors
+    inline int distance2(const glm::ivec3& a, const glm::ivec3& b) {
+        return (b.x - a.x) * (b.x - a.x) +
+            (b.y - a.y) * (b.y - a.y) +
+            (b.z - a.z) * (b.z - a.z);
+    }
+
+    /// @return integer square of vector length
+    /// @note glm::length2 does not support integer vectors
+    inline int length2(const glm::ivec3& a) {
+        return a.x * a.x + a.y * a.y + a.z * a.z;
+    }
+
     /// @brief Find nearest point on segment to given
     /// @param a segment point A
     /// @param b segment point B
     /// @param point given point (may be anywhere)
     /// @return nearest point on the segment to given point 
     inline glm::vec3 closest_point_on_segment(
-        glm::vec3 a, glm::vec3 b, const glm::vec3& point
+        const glm::vec3& a, const glm::vec3& b, const glm::vec3& point
     ) {
         auto vec = b - a;
         float da = glm::distance2(point, a);
@@ -85,5 +99,23 @@ namespace util {
         float t = (((da - db) / len) * 0.5f + 0.5f);
         t = std::min(1.0f, std::max(0.0f, t));
         return a + vec * t;
+    }
+
+    /// @brief Find nearest point on segment to given
+    /// @param a segment point A
+    /// @param b segment point B
+    /// @param point given point (may be anywhere)
+    /// @note this overload is actually faster (comment out method to compare)
+    /// @return nearest point on the segment to given point 
+    inline glm::ivec3 closest_point_on_segment(
+        const glm::ivec3& a, const glm::ivec3& b, const glm::ivec3& point
+    ) {
+        auto vec = b - a;
+        float da = distance2(point, a);
+        float db = distance2(point, b);
+        float len = length2(vec);
+        float t = (((da - db) / len) * 0.5f + 0.5f);
+        t = std::min(1.0f, std::max(0.0f, t));
+        return a + glm::ivec3(glm::vec3(vec) * t);
     }
 }
