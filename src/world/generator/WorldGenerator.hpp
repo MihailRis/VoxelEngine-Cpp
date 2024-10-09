@@ -17,9 +17,10 @@ struct GeneratorDef;
 class Heightmap;
 struct Biome;
 class VoxelFragment;
+struct PrototypePlacements;
 
 enum class ChunkPrototypeLevel {
-    VOID=0, BIOMES, HEIGHTMAP, STRUCTURES
+    VOID=0, WIDE_STRUCTS, BIOMES, HEIGHTMAP, STRUCTURES
 };
 
 struct ChunkPrototype {
@@ -64,6 +65,8 @@ class WorldGenerator {
 
     ChunkPrototype& requirePrototype(int x, int z);
 
+    void generateStructuresWide(ChunkPrototype& prototype, int x, int z);
+
     void generateStructures(ChunkPrototype& prototype, int x, int z);
 
     void generateBiomes(ChunkPrototype& prototype, int x, int z);
@@ -99,6 +102,11 @@ class WorldGenerator {
         int z,
         const Biome** biomes
     );
+
+    void placeStructures(
+        const PrototypePlacements& placements,
+        ChunkPrototype& prototype,
+        int x, int z);
 public:
     WorldGenerator(
         const GeneratorDef& def,

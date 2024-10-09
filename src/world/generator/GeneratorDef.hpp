@@ -154,6 +154,13 @@ public:
         uint bpd
     ) = 0;
 
+    virtual PrototypePlacements placeStructuresWide(
+        const glm::ivec2& offset, 
+        const glm::ivec2& size, 
+        uint64_t seed,
+        uint chunkHeight
+    ) = 0;
+
     /// @brief Generate a list of structures placements. Structures may be
     /// placed to nearest chunks also (position of out area).
     /// @param offset position of the area

@@ -26,16 +26,26 @@ end
 function place_structures(x, z, w, d, seed, hmap, chunk_height)
     local placements = {}
     place_ores(placements, x, z, w, d, seed, hmap, chunk_height)
+    return placements
+end
 
+function place_structures_wide(x, z, w, d, seed, chunk_height)
+    local placements = {}
     if math.random() < 0.1 then -- generate caves
-        local sy = math.random() * (chunk_height / 2)
-        local ey = math.random() * (chunk_height / 2)
-        local sx = x + math.random() * 20 - 10
-        local ex = x + math.random() * 20 - 10
-        local sz = z + math.random() * 20 - 10
-        local ez = z + math.random() * 20 - 10
+        local sy = math.random() * (chunk_height / 6) + 80
+        local ey = math.max(1, sy - chunk_height / 4)
+        local my = (sy + ey) / 2 + math.random() * 24 - 12
+        local sx = x + math.random() * 60 - 30
+        local ex = x + math.random() * 60 - 30
+        local mx = (sx + ex) / 2 + math.random() * 32 - 16
+        local sz = z + math.random() * 60 - 30
+        local ez = z + math.random() * 60 - 30
+        local mz = (sz + ez) / 2 + math.random() * 32 - 16
+        local width = math.random()*3+2
         table.insert(placements, 
-            {":line", 0, {sx - 10, sy, sz - 10}, {ex + 10, ey, ez + 10}, math.random()*2+2})
+            {":line", 0, {sx, sy, sz}, {mx, my, mz}, width})
+        table.insert(placements, 
+            {":line", 0, {mx, my, mz}, {ex, ey, ez}, width})
     end
     return placements
 end

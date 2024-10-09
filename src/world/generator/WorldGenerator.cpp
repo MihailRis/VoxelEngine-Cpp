@@ -17,7 +17,7 @@
 static debug::Logger logger("world-generator");
 
 static inline constexpr uint MAX_PARAMETERS = 4;
-static inline constexpr uint MAX_CHUNK_PROTOTYPE_LEVELS = 5;
+static inline constexpr uint MAX_CHUNK_PROTOTYPE_LEVELS = 10;
 
 WorldGenerator::WorldGenerator(
     const GeneratorDef& def, const Content* content, uint64_t seed
@@ -41,13 +41,16 @@ WorldGenerator::WorldGenerator(
         }
         prototypes[{x, z}] = generatePrototype(x, z);
     });
-    surroundMap.setLevelCallback(2, [this](int const x, int const z) {
+    surroundMap.setLevelCallback(4, [this](int const x, int const z) {
+        generateStructuresWide(requirePrototype(x, z), x, z);
+    });
+    surroundMap.setLevelCallback(7, [this](int const x, int const z) {
         generateBiomes(requirePrototype(x, z), x, z);
     });
-    surroundMap.setLevelCallback(3, [this](int const x, int const z) {
+    surroundMap.setLevelCallback(8, [this](int const x, int const z) {
         generateHeightmap(requirePrototype(x, z), x, z);
     });
-    surroundMap.setLevelCallback(4, [this](int const x, int const z) {
+    surroundMap.setLevelCallback(9, [this](int const x, int const z) {
         generateStructures(requirePrototype(x, z), x, z);
     });
     for (int i = 0; i < def.structures.size(); i++) {
@@ -183,6 +186,41 @@ void WorldGenerator::placeLine(const LinePlacement& line) {
     }
 }
 
+void WorldGenerator::placeStructures(
+    const PrototypePlacements& placements, 
+    ChunkPrototype& prototype, 
+    int chunkX, 
+    int chunkZ
+) {
+    util::concat(prototype.structures, placements.structs);
+    for (const auto& placement : prototype.structures) {
+        const auto& offset = placement.position;
+        if (placement.structure < 0 || placement.structure >= def.structures.size()) {
+            logger.error() << "invalid structure index " << placement.structure;
+            continue;
+        }
+        placeStructure(
+            offset, placement.structure, placement.rotation, chunkX, chunkZ);
+    }
+    for (const auto& line : placements.lines) {
+        placeLine(line);
+    }
+}
+
+void WorldGenerator::generateStructuresWide(
+    ChunkPrototype& prototype, int chunkX, int chunkZ
+) {
+    if (prototype.level >= ChunkPrototypeLevel::WIDE_STRUCTS) {
+        return;
+    }
+    auto placements = def.script->placeStructuresWide(
+        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed, CHUNK_H
+    );
+    placeStructures(placements, prototype, chunkX, chunkZ);
+
+    prototype.level = ChunkPrototypeLevel::WIDE_STRUCTS;
+}
+
 void WorldGenerator::generateStructures(
     ChunkPrototype& prototype, int chunkX, int chunkZ
 ) {
@@ -196,20 +234,7 @@ void WorldGenerator::generateStructures(
         {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed,
         heightmap, CHUNK_H
     );
-    util::concat(prototype.structures, placements.structs);
-
-    for (const auto& placement : prototype.structures) {
-        const auto& offset = placement.position;
-        if (placement.structure < 0 || placement.structure >= def.structures.size()) {
-            logger.error() << "invalid structure index " << placement.structure;
-            continue;
-        }
-        placeStructure(
-            offset, placement.structure, placement.rotation, chunkX, chunkZ);
-    }
-    for (const auto& line : placements.lines) {
-        placeLine(line);
-    }
+    placeStructures(placements, prototype, chunkX, chunkZ);
 
     util::PseudoRandom structsRand;
     structsRand.setSeed(chunkX, chunkZ);

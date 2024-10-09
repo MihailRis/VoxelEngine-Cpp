@@ -135,6 +135,36 @@ public:
         placements.structs.emplace_back(structIndex, pos, rotation);
     }
 
+    PrototypePlacements placeStructuresWide(
+        const glm::ivec2& offset, 
+        const glm::ivec2& size, 
+        uint64_t seed,
+        uint chunkHeight
+    ) override {
+        PrototypePlacements placements {};
+        
+        stackguard _(L);
+        pushenv(L, *env);
+        if (getfield(L, "place_structures_wide")) {
+            pushivec_stack(L, offset);
+            pushivec_stack(L, size);
+            pushinteger(L, seed);
+            pushinteger(L, chunkHeight);
+            if (call_nothrow(L, 6, 1)) {
+                int len = objlen(L, -1);
+                for (int i = 1; i <= len; i++) {
+                    rawgeti(L, i);
+
+                    perform_placement(L, placements);
+
+                    pop(L);
+                }
+                pop(L);
+            }
+        }
+        return placements;
+    }
+
     PrototypePlacements placeStructures(
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed,
         const std::shared_ptr<Heightmap>& heightmap, uint chunkHeight
