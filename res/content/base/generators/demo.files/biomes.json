@@ -28,7 +28,7 @@
     },
     "desert": {
         "parameters": [
-            {"weight": 0.1, "value": 0},
+            {"weight": 0.3, "value": 0},
             {"weight": 0.1, "value": 0}
         ],
         "layers": [

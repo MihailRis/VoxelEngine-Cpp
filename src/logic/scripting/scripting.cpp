@@ -62,7 +62,7 @@ int scripting::load_script(
 
 void scripting::initialize(Engine* engine) {
     scripting::engine = engine;
-    lua::initialize();
+    lua::initialize(*engine->getPaths());
 
     load_script(fs::path("stdlib.lua"), true);
     load_script(fs::path("stdcmd.lua"), true);

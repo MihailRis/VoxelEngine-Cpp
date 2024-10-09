@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <iostream>
 
+#include "files/files.hpp"
+#include "files/engine_paths.hpp"
 #include "debug/Logger.hpp"
 #include "util/stringutil.hpp"
 #include "libs/api_lua.hpp"
@@ -104,11 +106,11 @@ void lua::init_state(State* L, StateType stateType) {
     newusertype<LuaVoxelStructure>(L);
 }
 
-void lua::initialize() {
+void lua::initialize(const EnginePaths& paths) {
     logger.info() << LUA_VERSION;
     logger.info() << LUAJIT_VERSION;
 
-    main_thread = create_state(StateType::BASE);
+    main_thread = create_state(paths, StateType::BASE);
 }
 
 void lua::finalize() {
@@ -131,11 +133,15 @@ State* lua::get_main_state() {
     return main_thread;
 }
 
-State* lua::create_state(StateType stateType) {
+State* lua::create_state(const EnginePaths& paths, StateType stateType) {
     auto L = luaL_newstate();
     if (L == nullptr) {
         throw luaerror("could not initialize Lua state");
     }
     init_state(L, stateType);
+    
+    auto resDir = paths.getResourcesFolder();
+    auto src = files::read_string(resDir / fs::u8path("scripts/stdmin.lua"));
+    lua::pop(L, lua::execute(L, 0, src, "<stdmin>"));
     return L;
 }

@@ -14,6 +14,7 @@
 #include "world/generator/GeneratorDef.hpp"
 #include "util/timeutil.hpp"
 #include "files/files.hpp"
+#include "engine.hpp"
 #include "debug/Logger.hpp"
 
 using namespace lua;
@@ -167,7 +168,7 @@ public:
 std::unique_ptr<GeneratorScript> scripting::load_generator(
     const GeneratorDef& def, const fs::path& file, const std::string& dirPath
 ) {
-    auto L = create_state(StateType::GENERATOR);
+    auto L = create_state(*engine->getPaths(), StateType::GENERATOR);
     auto env = create_environment(L);
     stackguard _(L);
 

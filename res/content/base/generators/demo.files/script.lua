@@ -1,13 +1,3 @@
--- Get entry-point and filename from `entry-point:filename` path 
--- // TODO: move to stdmin
-function parse_path(path)
-    local index = string.find(path, ':')
-    if index == nil then
-        error("invalid path syntax (':' missing)")
-    end
-    return string.sub(path, 1, index-1), string.sub(path, index+1, -1)
-end
-
 local _, dir = parse_path(__DIR__)
 ores = file.read_combined_list(dir.."/ores.json")
 
@@ -45,7 +35,7 @@ function place_structures(x, z, w, d, seed, hmap, chunk_height)
         local sz = z + math.random() * 20 - 10
         local ez = z + math.random() * 20 - 10
         table.insert(placements, 
-            {":line", 0, {sx - 10, sy, sz - 10}, {ex + 10, ey, ez + 10}, 3})
+            {":line", 0, {sx - 10, sy, sz - 10}, {ex + 10, ey, ez + 10}, math.random()*2+2})
     end
     return placements
 end
