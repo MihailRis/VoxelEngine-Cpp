@@ -31,17 +31,17 @@ end
 
 function place_structures_wide(x, z, w, d, seed, chunk_height)
     local placements = {}
-    if math.random() < 0.3 then -- generate caves
+    if math.random() < 0.05 then -- generate caves
         local sx = x + math.random() * 10 - 5
-        local sy = math.random() * (chunk_height / 6) + 40
+        local sy = math.random() * (chunk_height / 4) + 27
         local sz = z + math.random() * 10 - 5
 
         local dir = math.random() * math.pi * 2
         local dir_inertia = (math.random() - 0.5) * 2
-        local elevation = -sy / (chunk_height / 6)
-        local width = math.random()*3+2
+        local elevation = -3
+        local width = math.random() * 3 + 2
 
-        for i=1,10 do
+        for i=1,18 do
             local dx = math.sin(dir) * 10
             local dz = -math.cos(dir) * 10
 
@@ -84,7 +84,7 @@ function generate_heightmap(x, y, w, h, seed, s)
     rivermap:abs()
     rivermap:mul(2.0)
     rivermap:pow(0.15)
-    rivermap:max(0.3)
+    rivermap:max(0.5)
     map:mul(rivermap)
     return map
 end
