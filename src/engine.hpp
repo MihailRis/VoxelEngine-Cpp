@@ -130,6 +130,8 @@ public:
     /// @brief Get selected content packs
     std::vector<ContentPack>& getContentPacks();
 
+    std::vector<ContentPack> getAllContentPacks();
+
     std::vector<std::string>& getBasePacks();
 
     /// @brief Get current screen

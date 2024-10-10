@@ -16,11 +16,9 @@ using namespace scripting;
 
 static int l_pack_get_folder(lua::State* L) {
     std::string packName = lua::tostring(L, 1);
-    if (packName == "core") {
-        auto folder = engine->getPaths()->getResourcesFolder().u8string() + "/";
-        return lua::pushstring(L, folder);
-    }
-    for (auto& pack : engine->getContentPacks()) {
+    auto packs = engine->getAllContentPacks();
+
+    for (auto& pack : packs) {
         if (pack.id == packName) {
             return lua::pushstring(L, pack.folder.u8string() + "/");
         }

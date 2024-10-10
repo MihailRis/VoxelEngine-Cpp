@@ -21,12 +21,11 @@
 #include "world/LevelEvents.hpp"
 #include "Block.hpp"
 #include "Chunk.hpp"
-#include "WorldGenerator.hpp"
 #include "voxel.hpp"
 
 Chunks::Chunks(
-    uint32_t w,
-    uint32_t d,
+    int32_t w,
+    int32_t d,
     int32_t ox,
     int32_t oz,
     WorldFiles* wfile,
@@ -34,34 +33,31 @@ Chunks::Chunks(
 )
     : level(level),
       indices(level->content->getIndices()),
-      chunks(w * d),
-      chunksSecond(w * d),
-      w(w),
-      d(d),
-      ox(ox),
-      oz(oz),
+      areaMap(w, d),
       worldFiles(wfile) {
-    volume = static_cast<size_t>(w) * static_cast<size_t>(d);
-    chunksCount = 0;
+    areaMap.setCenter(ox-w/2, oz-d/2);
+    areaMap.setOutCallback([this](int, int, const auto& chunk) {
+        save(chunk.get());
+    });
 }
 
 voxel* Chunks::get(int32_t x, int32_t y, int32_t z) const {
-    x -= ox * CHUNK_W;
-    z -= oz * CHUNK_D;
-    int cx = floordiv(x, CHUNK_W);
-    int cy = floordiv(y, CHUNK_H);
-    int cz = floordiv(z, CHUNK_D);
-    if (cx < 0 || cy < 0 || cz < 0 || cx >= int(w) || cy >= 1 || cz >= int(d)) {
+    if (y < 0 || y >= CHUNK_H) {
         return nullptr;
     }
-    auto& chunk = chunks[cz * w + cx];  // not thread safe
+    int cx = floordiv(x, CHUNK_W);
+    int cz = floordiv(z, CHUNK_D);
+    auto ptr = areaMap.getIf(cx, cz);
+    if (ptr == nullptr) {
+        return nullptr;
+    }
+    Chunk* chunk = ptr->get();  // not thread safe
     if (chunk == nullptr) {
         return nullptr;
     }
     int lx = x - cx * CHUNK_W;
-    int ly = y - cy * CHUNK_H;
     int lz = z - cz * CHUNK_D;
-    return &chunk->voxels[(ly * CHUNK_D + lz) * CHUNK_W + lx];
+    return &chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx];
 }
 
 const AABB* Chunks::isObstacleAt(float x, float y, float z) {
@@ -88,8 +84,8 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z) {
             def.rotatable ? def.rt.hitboxes[v->state.rotation] : def.hitboxes;
         for (const auto& hitbox : boxes) {
             if (hitbox.contains(
-                    {x - ix - offset.x, y - iy - offset.y, z - iz - offset.z}
-                )) {
+                {x - ix - offset.x, y - iy - offset.y, z - iz - offset.z}
+            )) {
                 return &hitbox;
             }
         }
@@ -116,61 +112,62 @@ bool Chunks::isObstacleBlock(int32_t x, int32_t y, int32_t z) {
 }
 
 ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel) {
-    x -= ox * CHUNK_W;
-    z -= oz * CHUNK_D;
-    int cx = floordiv(x, CHUNK_W);
-    int cy = floordiv(y, CHUNK_H);
-    int cz = floordiv(z, CHUNK_D);
-    if (cx < 0 || cy < 0 || cz < 0 || cx >= int(w) || cy >= 1 || cz >= int(d)) {
+    if (y < 0 || y >= CHUNK_H) {
         return 0;
     }
-    const auto& chunk = chunks[(cy * d + cz) * w + cx];
+    int cx = floordiv(x, CHUNK_W);
+    int cz = floordiv(z, CHUNK_D);
+
+    auto ptr = areaMap.getIf(cx, cz);
+    if (ptr == nullptr) {
+        return 0;
+    }
+    Chunk* chunk = ptr->get();
     if (chunk == nullptr) {
         return 0;
     }
     int lx = x - cx * CHUNK_W;
-    int ly = y - cy * CHUNK_H;
     int lz = z - cz * CHUNK_D;
-    return chunk->lightmap.get(lx, ly, lz, channel);
+    return chunk->lightmap.get(lx, y, lz, channel);
 }
 
 light_t Chunks::getLight(int32_t x, int32_t y, int32_t z) {
-    x -= ox * CHUNK_W;
-    z -= oz * CHUNK_D;
-    int cx = floordiv(x, CHUNK_W);
-    int cy = floordiv(y, CHUNK_H);
-    int cz = floordiv(z, CHUNK_D);
-    if (cx < 0 || cy < 0 || cz < 0 || cx >= int(w) || cy >= 1 || cz >= int(d)) {
+    if (y < 0 || y >= CHUNK_H) {
         return 0;
     }
-    const auto& chunk = chunks[(cy * d + cz) * w + cx];
+    int cx = floordiv(x, CHUNK_W);
+    int cz = floordiv(z, CHUNK_D);
+
+    auto ptr = areaMap.getIf(cx, cz);
+    if (ptr == nullptr) {
+        return 0;
+    }
+    Chunk* chunk = ptr->get();
     if (chunk == nullptr) {
         return 0;
     }
     int lx = x - cx * CHUNK_W;
-    int ly = y - cy * CHUNK_H;
     int lz = z - cz * CHUNK_D;
-    return chunk->lightmap.get(lx, ly, lz);
+    return chunk->lightmap.get(lx, y, lz);
 }
 
 Chunk* Chunks::getChunkByVoxel(int32_t x, int32_t y, int32_t z) {
-    if (y < 0 || y >= CHUNK_H) return nullptr;
-    x -= ox * CHUNK_W;
-    z -= oz * CHUNK_D;
+    if (y < 0 || y >= CHUNK_H) {
+        return nullptr;
+    }
     int cx = floordiv(x, CHUNK_W);
     int cz = floordiv(z, CHUNK_D);
-    if (cx < 0 || cz < 0 || cx >= int(w) || cz >= int(d)) return nullptr;
-    return chunks[cz * w + cx].get();
+    if (auto ptr = areaMap.getIf(cx, cz)) {
+        return ptr->get();
+    }
+    return nullptr;
 }
 
 Chunk* Chunks::getChunk(int x, int z) {
-    x -= ox;
-    z -= oz;
-    if (x < 0 || z < 0 || x >= static_cast<int>(w) ||
-        z >= static_cast<int>(d)) {
-        return nullptr;
+    if (auto ptr = areaMap.getIf(x, z)) {
+        return ptr->get();
     }
-    return chunks[z * w + x].get();
+    return nullptr;
 }
 
 glm::ivec3 Chunks::seekOrigin(
@@ -355,17 +352,13 @@ void Chunks::set(
     if (y < 0 || y >= CHUNK_H) {
         return;
     }
-    int32_t gx = x;
-    int32_t gz = z;
-    x -= ox * CHUNK_W;
-    z -= oz * CHUNK_D;
     int cx = floordiv(x, CHUNK_W);
     int cz = floordiv(z, CHUNK_D);
-    if (cx < 0 || cz < 0 || cx >= static_cast<int>(w) ||
-        cz >= static_cast<int>(d)) {
+    auto ptr = areaMap.getIf(cx, cz);
+    if (ptr == nullptr) {
         return;
     }
-    Chunk* chunk = chunks[cz * w + cx].get();
+    Chunk* chunk = ptr->get();
     if (chunk == nullptr) {
         return;
     }
@@ -380,7 +373,7 @@ void Chunks::set(
         chunk->removeBlockInventory(lx, y, lz);
     }
     if (prevdef.rt.extended && !vox.state.segment) {
-        eraseSegments(prevdef, vox.state, gx, y, gz);
+        eraseSegments(prevdef, vox.state, x, y, z);
     }
     if (prevdef.dataStruct) {
         if (auto found = chunk->blocksMetadata.find(index)) {
@@ -396,7 +389,7 @@ void Chunks::set(
     vox.state = state;
     chunk->setModifiedAndUnsaved();
     if (!state.segment && newdef.rt.extended) {
-        repairSegments(newdef, state, gx, y, gz);
+        repairSegments(newdef, state, x, y, z);
     }
 
     if (y < chunk->bottom)
@@ -406,15 +399,18 @@ void Chunks::set(
     else if (id == 0)
         chunk->updateHeights();
 
-    if (lx == 0 && (chunk = getChunk(cx + ox - 1, cz + oz)))
+    if (lx == 0 && (chunk = getChunk(cx - 1, cz))) {
         chunk->flags.modified = true;
-    if (lz == 0 && (chunk = getChunk(cx + ox, cz + oz - 1)))
+    }
+    if (lz == 0 && (chunk = getChunk(cx, cz - 1))) {
         chunk->flags.modified = true;
-
-    if (lx == CHUNK_W - 1 && (chunk = getChunk(cx + ox + 1, cz + oz)))
+    }
+    if (lx == CHUNK_W - 1 && (chunk = getChunk(cx, cz))) {
         chunk->flags.modified = true;
-    if (lz == CHUNK_D - 1 && (chunk = getChunk(cx + ox, cz + oz + 1)))
+    }
+    if (lz == CHUNK_D - 1 && (chunk = getChunk(cx, cz + 1))) {
         chunk->flags.modified = true;
+    }
 }
 
 voxel* Chunks::rayCast(
@@ -435,9 +431,9 @@ voxel* Chunks::rayCast(
     float dz = dir.z;
 
     float t = 0.0f;
-    int ix = floor(px);
-    int iy = floor(py);
-    int iz = floor(pz);
+    int ix = std::floor(px);
+    int iy = std::floor(py);
+    int iz = std::floor(pz);
 
     int stepx = (dx > 0.0f) ? 1 : -1;
     int stepy = (dy > 0.0f) ? 1 : -1;
@@ -445,9 +441,9 @@ voxel* Chunks::rayCast(
 
     constexpr float infinity = std::numeric_limits<float>::infinity();
     constexpr float epsilon = 1e-6f;  // 0.000001
-    float txDelta = (fabs(dx) < epsilon) ? infinity : abs(1.0f / dx);
-    float tyDelta = (fabs(dy) < epsilon) ? infinity : abs(1.0f / dy);
-    float tzDelta = (fabs(dz) < epsilon) ? infinity : abs(1.0f / dz);
+    float txDelta = (std::fabs(dx) < epsilon) ? infinity : std::fabs(1.0f / dx);
+    float tyDelta = (std::fabs(dy) < epsilon) ? infinity : std::fabs(1.0f / dy);
+    float tzDelta = (std::fabs(dz) < epsilon) ? infinity : std::fabs(1.0f / dz);
 
     float xdist = (stepx > 0) ? (ix + 1 - px) : (px - ix);
     float ydist = (stepy > 0) ? (iy + 1 - py) : (py - iy);
@@ -578,9 +574,9 @@ glm::vec3 Chunks::rayCastToObstacle(
 
     constexpr float infinity = std::numeric_limits<float>::infinity();
     constexpr float epsilon = 1e-6f;  // 0.000001
-    float txDelta = (fabs(dx) < epsilon) ? infinity : abs(1.0f / dx);
-    float tyDelta = (fabs(dy) < epsilon) ? infinity : abs(1.0f / dy);
-    float tzDelta = (fabs(dz) < epsilon) ? infinity : abs(1.0f / dz);
+    float txDelta = (std::fabs(dx) < epsilon) ? infinity : std::fabs(1.0f / dx);
+    float tyDelta = (std::fabs(dy) < epsilon) ? infinity : std::fabs(1.0f / dy);
+    float tzDelta = (std::fabs(dz) < epsilon) ? infinity : std::fabs(1.0f / dz);
 
     float xdist = (stepx > 0) ? (ix + 1 - px) : (px - ix);
     float ydist = (stepy > 0) ? (iy + 1 - py) : (py - iy);
@@ -653,97 +649,19 @@ glm::vec3 Chunks::rayCastToObstacle(
 }
 
 void Chunks::setCenter(int32_t x, int32_t z) {
-    int cx = floordiv(x, CHUNK_W);
-    int cz = floordiv(z, CHUNK_D);
-    cx -= ox + w / 2;
-    cz -= oz + d / 2;
-    if (cx | cz) {
-        translate(cx, cz);
-    }
-}
-
-void Chunks::translate(int32_t dx, int32_t dz) {
-    for (uint i = 0; i < volume; i++) {
-        chunksSecond[i] = nullptr;
-    }
-    for (uint32_t z = 0; z < d; z++) {
-        for (uint32_t x = 0; x < w; x++) {
-            auto& chunk = chunks[z * w + x];
-            int nx = x - dx;
-            int nz = z - dz;
-            if (chunk == nullptr) continue;
-            if (nx < 0 || nz < 0 || nx >= static_cast<int>(w) ||
-                nz >= static_cast<int>(d)) {
-                level->events->trigger(EVT_CHUNK_HIDDEN, chunk.get());
-                save(chunk.get());
-                chunksCount--;
-                continue;
-            }
-            chunksSecond[nz * w + nx] = chunk;
-        }
-    }
-    std::swap(chunks, chunksSecond);
-
-    ox += dx;
-    oz += dz;
+    areaMap.setCenter(floordiv(x, CHUNK_W), floordiv(z, CHUNK_D));
 }
 
 void Chunks::resize(uint32_t newW, uint32_t newD) {
-    if (newW < w) {
-        int delta = w - newW;
-        translate(delta / 2, 0);
-        translate(-delta, 0);
-        translate(delta, 0);
-    }
-    if (newD < d) {
-        int delta = d - newD;
-        translate(0, delta / 2);
-        translate(0, -delta);
-        translate(0, delta);
-    }
-    const int newVolume = newW * newD;
-    std::vector<std::shared_ptr<Chunk>> newChunks(newVolume);
-    std::vector<std::shared_ptr<Chunk>> newChunksSecond(newVolume);
-    for (int z = 0; z < static_cast<int>(d) && z < static_cast<int>(newD);
-         z++) {
-        for (int x = 0; x < static_cast<int>(w) && x < static_cast<int>(newW);
-             x++) {
-            newChunks[z * newW + x] = chunks[z * w + x];
-        }
-    }
-    w = newW;
-    d = newD;
-    volume = newVolume;
-    chunks = std::move(newChunks);
-    chunksSecond = std::move(newChunksSecond);
-}
-
-void Chunks::_setOffset(int32_t x, int32_t z) {
-    ox = x;
-    oz = z;
+    areaMap.resize(newW, newD);
 }
 
 bool Chunks::putChunk(const std::shared_ptr<Chunk>& chunk) {
-    int x = chunk->x;
-    int z = chunk->z;
-    x -= ox;
-    z -= oz;
-    if (x < 0 || z < 0 || x >= static_cast<int>(w) ||
-        z >= static_cast<int>(d)) {
-        return false;
-    }
-    chunks[z * w + x] = chunk;
-    chunksCount++;
-    return true;
+    return areaMap.set(chunk->x, chunk->z, chunk);
 }
 
 void Chunks::saveAndClear() {
-    for (size_t i = 0; i < volume; i++) {
-        auto chunk = chunks[i].get();
-        chunks[i] = nullptr;
-        save(chunk);
-    }
-    chunksCount = 0;
+    areaMap.clear();
 }
 
 void Chunks::save(Chunk* chunk) {
@@ -770,7 +688,8 @@ void Chunks::save(Chunk* chunk) {
 }
 
 void Chunks::saveAll() {
-    for (size_t i = 0; i < volume; i++) {
+    const auto& chunks = areaMap.getBuffer();
+    for (size_t i = 0; i < areaMap.area(); i++) {
         if (auto& chunk = chunks[i]) {
             save(chunk.get());
         }

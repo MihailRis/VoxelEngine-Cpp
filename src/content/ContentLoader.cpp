@@ -51,13 +51,22 @@ static void detect_defs(
             if (name[0] == '_') {
                 continue;
             }
-            if (fs::is_regular_file(file) && file.extension() == ".json") {
+            if (fs::is_regular_file(file) && files::is_data_file(file)) {
                 detected.push_back(prefix.empty() ? name : prefix + ":" + name);
-            } else if (fs::is_directory(file)) {
+            } else if (fs::is_directory(file) && 
+                       file.extension() != fs::u8path(".files")) {
                 detect_defs(file, name, detected);
             }
         }
     }
+}
+
+std::vector<std::string> ContentLoader::scanContent(
+    const ContentPack& pack, ContentType type
+) {
+    std::vector<std::string> detected;
+    detect_defs(pack.folder / ContentPack::getFolderFor(type), pack.id, detected);
+    return detected;
 }
 
 bool ContentLoader::fixPackIndices(
@@ -95,14 +104,14 @@ bool ContentLoader::fixPackIndices(
 
 void ContentLoader::fixPackIndices() {
     auto folder = pack->folder;
-    auto indexFile = pack->getContentFile();
+    auto contentFile = pack->getContentFile();
     auto blocksFolder = folder / ContentPack::BLOCKS_FOLDER;
     auto itemsFolder = folder / ContentPack::ITEMS_FOLDER;
     auto entitiesFolder = folder / ContentPack::ENTITIES_FOLDER;
 
     dv::value root;
-    if (fs::is_regular_file(indexFile)) {
-        root = files::read_json(indexFile);
+    if (fs::is_regular_file(contentFile)) {
+        root = files::read_json(contentFile);
     } else {
         root = dv::object();
     }
@@ -114,7 +123,7 @@ void ContentLoader::fixPackIndices() {
 
     if (modified) {
         // rewrite modified json
-        files::write_json(indexFile, root);
+        files::write_json(contentFile, root);
     }
 }
 
@@ -277,6 +286,7 @@ void ContentLoader::loadBlock(
     root.at("hidden").get(def.hidden);
     root.at("draw-group").get(def.drawGroup);
     root.at("picking-item").get(def.pickingItem);
+    root.at("surface-replacement").get(def.surfaceReplacement);
     root.at("script-name").get(def.scriptName);
     root.at("ui-layout").get(def.uiLayout);
     root.at("inventory-size").get(def.inventorySize);
@@ -511,6 +521,18 @@ void ContentLoader::loadItem(
     }
 }
 
+static std::tuple<std::string, std::string, std::string> create_unit_id(
+    const std::string& packid, const std::string& name
+) {
+    size_t colon = name.find(':');
+    if (colon == std::string::npos) {
+        return {packid, packid + ":" + name, name};
+    }
+    auto otherPackid = name.substr(0, colon);
+    auto full = otherPackid + ":" + name;
+    return {otherPackid, full, otherPackid + "/" + name};
+}
+
 void ContentLoader::loadBlockMaterial(
     BlockMaterial& def, const fs::path& file
 ) {
@@ -520,23 +542,7 @@ void ContentLoader::loadBlockMaterial(
     root.at("break-sound").get(def.breakSound);
 }
 
-void ContentLoader::load() {
-    logger.info() << "loading pack [" << pack->id << "]";
-
-    fixPackIndices();
-
-    auto folder = pack->folder;
-
-    fs::path scriptFile = folder / fs::path("scripts/world.lua");
-    if (fs::is_regular_file(scriptFile)) {
-        scripting::load_world_script(
-            env, pack->id, scriptFile, runtime->worldfuncsset
-        );
-    }
-
-    if (!fs::is_regular_file(pack->getContentFile())) return;
-
-    auto root = files::read_json(pack->getContentFile());
+void ContentLoader::loadContent(const dv::value& root) {
     std::vector<std::pair<std::string, std::string>> pendingDefs;
     auto getJsonParent = [this](const std::string& prefix, const std::string& name) {
             auto configFile = pack->folder / fs::path(prefix + "/" + name + ".json");
@@ -693,39 +699,53 @@ void ContentLoader::load() {
             );
         }
     }
+}
 
-    fs::path materialsDir = folder / fs::u8path("block_materials");
-    if (fs::is_directory(materialsDir)) {
-        for (const auto& entry : fs::directory_iterator(materialsDir)) {
-            const fs::path& file = entry.path();
-            std::string name = pack->id + ":" + file.stem().u8string();
-            loadBlockMaterial(builder.createBlockMaterial(name), file);
-        }
-    }
-
-    fs::path skeletonsDir = folder / fs::u8path("skeletons");
-    if (fs::is_directory(skeletonsDir)) {
-        for (const auto& entry : fs::directory_iterator(skeletonsDir)) {
-            const fs::path& file = entry.path();
-            std::string name = pack->id + ":" + file.stem().u8string();
-            std::string text = files::read_string(file);
-            builder.add(
-                rigging::SkeletonConfig::parse(text, file.u8string(), name)
-            );
-        }
-    }
-
-    fs::path componentsDir = folder / fs::u8path("scripts/components");
-    if (fs::is_directory(componentsDir)) {
-        for (const auto& entry : fs::directory_iterator(componentsDir)) {
-            fs::path scriptfile = entry.path();
-            if (fs::is_regular_file(scriptfile)) {
-                auto name = pack->id + ":" + scriptfile.stem().u8string();
-                scripting::load_entity_component(name, scriptfile);
+static inline void foreach_file(
+    const fs::path& dir, std::function<void(const fs::path&)> handler
+) {
+    if (fs::is_directory(dir)) {
+        for (const auto& entry : fs::directory_iterator(dir)) {
+            const auto& path = entry.path();
+            if (fs::is_directory(path)) {
+                continue;
             }
+            handler(path);
         }
     }
+}
 
+void ContentLoader::load() {
+    logger.info() << "loading pack [" << pack->id << "]";
+
+    fixPackIndices();
+
+    auto folder = pack->folder;
+
+    // Load main world script
+    fs::path scriptFile = folder / fs::path("scripts/world.lua");
+    if (fs::is_regular_file(scriptFile)) {
+        scripting::load_world_script(
+            env, pack->id, scriptFile, runtime->worldfuncsset
+        );
+    }
+
+    // Load world generators
+    fs::path generatorsDir = folder / fs::u8path("generators");
+    foreach_file(generatorsDir, [this](const fs::path& file) {
+        std::string name = file.stem().u8string();
+        auto [packid, full, filename] =
+            create_unit_id(pack->id, file.stem().u8string());
+
+        auto& def = builder.generators.create(full);
+        try {
+            loadGenerator(def, full, name);
+        } catch (const std::runtime_error& err) {
+            throw std::runtime_error("generator '"+full+"': "+err.what());
+        }
+    });
+
+    // Load pack resources.json
     fs::path resourcesFile = folder / fs::u8path("resources.json");
     if (fs::exists(resourcesFile)) {
         auto resRoot = files::read_json(resourcesFile);
@@ -733,9 +753,47 @@ void ContentLoader::load() {
             if (auto resType = ResourceType_from(key)) {
                 loadResources(*resType, arr);
             } else {
+                // Ignore unknown resources
                 logger.warning() << "unknown resource type: " << key;
             }
         }
+    }
+
+    // Load block materials
+    fs::path materialsDir = folder / fs::u8path("block_materials");    
+    if (fs::is_directory(materialsDir)) {
+        for (const auto& entry : fs::directory_iterator(materialsDir)) {
+            const auto& file = entry.path();
+            auto [packid, full, filename] =
+                create_unit_id(pack->id, file.stem().u8string());
+            loadBlockMaterial(
+                builder.createBlockMaterial(full),
+                materialsDir / fs::u8path(filename + ".json")
+            );
+        }
+    }
+
+    // Load skeletons
+    fs::path skeletonsDir = folder / fs::u8path("skeletons");
+    foreach_file(skeletonsDir, [this](const fs::path& file) {
+        std::string name = pack->id + ":" + file.stem().u8string();
+        std::string text = files::read_string(file);
+        builder.add(
+            rigging::SkeletonConfig::parse(text, file.u8string(), name)
+        );
+    });
+
+    // Load entity components
+    fs::path componentsDir = folder / fs::u8path("scripts/components");
+    foreach_file(componentsDir, [this](const fs::path& file) {
+        auto name = pack->id + ":" + file.stem().u8string();
+        scripting::load_entity_component(name, file);
+    });
+
+    // Process content.json and load defined content units
+    auto contentFile = pack->getContentFile();
+    if (fs::exists(contentFile)) {
+        loadContent(files::read_json(contentFile));
     }
 }
 

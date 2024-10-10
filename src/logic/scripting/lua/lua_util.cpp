@@ -277,7 +277,7 @@ int lua::create_environment(State* L, int parent) {
     return id;
 }
 
-void lua::removeEnvironment(State* L, int id) {
+void lua::remove_environment(State* L, int id) {
     if (id == 0) {
         return;
     }

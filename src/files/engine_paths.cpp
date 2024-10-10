@@ -10,6 +10,9 @@
 #include <utility>
 
 #include "WorldFiles.hpp"
+#include "debug/Logger.hpp"
+
+static debug::Logger logger("engine-paths");
 
 static inline auto SCREENSHOTS_FOLDER = std::filesystem::u8path("screenshots");
 static inline auto CONTENT_FOLDER = std::filesystem::u8path("content");
@@ -153,15 +156,23 @@ void EnginePaths::setContentPacks(std::vector<ContentPack>* contentPacks) {
     this->contentPacks = contentPacks;
 }
 
+std::tuple<std::string, std::string> EnginePaths::parsePath(std::string_view path) {
+    size_t separator = path.find(':');
+    if (separator == std::string::npos) {
+        return {"", std::string(path)};
+    }
+    auto prefix = std::string(path.substr(0, separator));
+    auto filename = std::string(path.substr(separator + 1));
+    return {prefix, filename};
+}
+
 std::filesystem::path EnginePaths::resolve(
     const std::string& path, bool throwErr
 ) {
-    size_t separator = path.find(':');
-    if (separator == std::string::npos) {
+    auto [prefix, filename] = EnginePaths::parsePath(path);
+    if (prefix.empty()) {
         throw files_access_error("no entry point specified");
     }
-    std::string prefix = path.substr(0, separator);
-    std::string filename = path.substr(separator + 1);
     filename = toCanonic(fs::u8path(filename)).u8string();
 
     if (prefix == "res" || prefix == "core") {
@@ -242,6 +253,31 @@ std::vector<std::filesystem::path> ResPaths::listdir(
         }
     }
     return entries;
+}
+
+dv::value ResPaths::readCombinedList(const std::string& filename) {
+    dv::value list = dv::list();
+    for (const auto& root : roots) {
+        auto path = root.path / fs::u8path(filename);
+        if (!fs::exists(path)) {
+            continue;
+        }
+        try {
+            auto value = files::read_object(path);
+            if (!value.isList()) {
+                logger.warning() << "reading combined list " << root.name << ":"
+                    << filename << " is not a list (skipped)";
+                continue;
+            }
+            for (const auto& elem : value) {
+                list.add(elem);
+            }
+        } catch (const std::runtime_error& err) {
+            logger.warning() << "reading combined list " << root.name << ":" 
+                << filename << ": " << err.what();
+        }
+    }
+    return list;
 }
 
 const std::filesystem::path& ResPaths::getMainRoot() const {

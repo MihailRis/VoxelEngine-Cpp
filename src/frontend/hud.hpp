@@ -18,6 +18,7 @@ class LevelFrontend;
 class UiDocument;
 class DrawContext;
 class Viewport;
+class ImageData;
 
 namespace gui {
     class GUI;
@@ -107,6 +108,8 @@ class Hud : public util::ObjectsKeeper {
 
     /// @brief UI element will be dynamicly positioned near to inventory or in screen center
     std::shared_ptr<gui::UINode> secondUI = nullptr;
+
+    std::unique_ptr<ImageData> debugImgWorldGen;
     
     std::shared_ptr<gui::InventoryView> createContentAccess();
     std::shared_ptr<gui::InventoryView> createHotbar();
@@ -117,6 +120,7 @@ class Hud : public util::ObjectsKeeper {
     void cleanup();
 
     void showExchangeSlot();
+    void updateWorldGenDebugVisualization();
 public:
     Hud(Engine* engine, LevelFrontend* frontend, Player* player);
     ~Hud();
@@ -167,4 +171,7 @@ public:
     Player* getPlayer() const;
 
     std::shared_ptr<Inventory> getBlockInventory();
+
+    /// @brief Runtime updating debug visualization texture
+    inline static std::string DEBUG_WORLDGEN_IMAGE = "#debug.img.worldgen";
 };

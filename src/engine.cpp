@@ -30,13 +30,10 @@
 #include "logic/scripting/scripting.hpp"
 #include "util/listutil.hpp"
 #include "util/platform.hpp"
-#include "voxels/DefaultWorldGenerator.hpp"
-#include "voxels/FlatWorldGenerator.hpp"
 #include "window/Camera.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"
 #include "window/Window.hpp"
-#include "world/WorldGenerators.hpp"
 #include "settings.hpp"
 
 #include <iostream>
@@ -49,11 +46,6 @@
 static debug::Logger logger("engine");
 
 namespace fs = std::filesystem;
-
-static void add_world_generators() {
-    WorldGenerators::addGenerator<DefaultWorldGenerator>("core:default");
-    WorldGenerators::addGenerator<FlatWorldGenerator>("core:flat");
-}
 
 static void create_channel(Engine* engine, std::string name, NumberSetting& setting) {
     if (name != "master") {
@@ -114,7 +106,6 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     keepAlive(settings.ui.language.observe([=](auto lang) {
         setLanguage(lang);
     }, true));
-    add_world_generators();
     
     scripting::initialize(this);
     basePacks = files::read_list(resdir/fs::path("config/builtins.list"));
@@ -312,21 +303,28 @@ void Engine::loadContent() {
     names = manager.assembly(names);
     contentPacks = manager.getAll(names);
 
-    std::vector<PathsRoot> resRoots;
-    {
-        auto pack = ContentPack::createCore(paths);
-        resRoots.push_back({"core", pack.folder});
-        ContentLoader(&pack, contentBuilder).load();
-        load_configs(pack.folder);
-    }
+    auto corePack = ContentPack::createCore(paths);
+
+    // Setup filesystem entry points
+    std::vector<PathsRoot> resRoots {
+        {"core", corePack.folder}
+    };
     for (auto& pack : contentPacks) {
         resRoots.push_back({pack.id, pack.folder});
+    }
+    resPaths = std::make_unique<ResPaths>(resdir, resRoots);
+
+    // Load content
+    {
+        ContentLoader(&corePack, contentBuilder).load();
+        load_configs(corePack.folder);
+    }
+    for (auto& pack : contentPacks) {
         ContentLoader(&pack, contentBuilder).load();
         load_configs(pack.folder);
     } 
 
     content = contentBuilder.build();
-    resPaths = std::make_unique<ResPaths>(resdir, resRoots);
 
     langs::setup(resdir, langs::current->getId(), contentPacks);
     loadAssets();
@@ -405,6 +403,12 @@ Assets* Engine::getAssets() {
 
 const Content* Engine::getContent() const {
     return content.get();
+}
+
+std::vector<ContentPack> Engine::getAllContentPacks() {
+    auto packs = getContentPacks();
+    packs.insert(packs.begin(), ContentPack::createCore(paths));
+    return packs;
 }
 
 std::vector<ContentPack>& Engine::getContentPacks() {

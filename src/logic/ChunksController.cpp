@@ -15,10 +15,9 @@
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
 #include "voxels/ChunksStorage.hpp"
-#include "voxels/WorldGenerator.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
-#include "world/WorldGenerators.hpp"
+#include "world/generator/WorldGenerator.hpp"
 
 const uint MAX_WORK_PER_FRAME = 128;
 const uint MIN_SURROUNDING = 9;
@@ -28,14 +27,19 @@ ChunksController::ChunksController(Level* level, uint padding)
       chunks(level->chunks.get()),
       lighting(level->lighting.get()),
       padding(padding),
-      generator(WorldGenerators::createGenerator(
-          level->getWorld()->getGenerator(), level->content
-      )) {
-}
+      generator(std::make_unique<WorldGenerator>(
+          level->content->generators.require(level->getWorld()->getGenerator()),
+          level->content,
+          level->getWorld()->getSeed()
+      )) {}
 
 ChunksController::~ChunksController() = default;
 
-void ChunksController::update(int64_t maxDuration) {
+void ChunksController::update(
+    int64_t maxDuration, int loadDistance, int centerX, int centerY
+) {
+    generator->update(centerX, centerY, loadDistance);
+
     int64_t mcstotal = 0;
 
     for (uint i = 0; i < MAX_WORK_PER_FRAME; i++) {
@@ -52,16 +56,17 @@ void ChunksController::update(int64_t maxDuration) {
 }
 
 bool ChunksController::loadVisible() {
-    const int w = chunks->w;
-    const int d = chunks->d;
+    int sizeX = chunks->getWidth();
+    int sizeY = chunks->getHeight();
 
     int nearX = 0;
     int nearZ = 0;
-    int minDistance = ((w - padding * 2) / 2) * ((w - padding * 2) / 2);
-    for (uint z = padding; z < d - padding; z++) {
-        for (uint x = padding; x < w - padding; x++) {
-            int index = z * w + x;
-            auto& chunk = chunks->chunks[index];
+    bool assigned = false;
+    int minDistance = ((sizeX - padding * 2) / 2) * ((sizeY - padding * 2) / 2);
+    for (uint z = padding; z < sizeY - padding; z++) {
+        for (uint x = padding; x < sizeX - padding; x++) {
+            int index = z * sizeX + x;
+            auto& chunk = chunks->getChunks()[index];
             if (chunk != nullptr) {
                 if (chunk->flags.loaded && !chunk->flags.lighted) {
                     if (buildLights(chunk)) {
@@ -70,25 +75,25 @@ bool ChunksController::loadVisible() {
                 }
                 continue;
             }
-            int lx = x - w / 2;
-            int lz = z - d / 2;
+            int lx = x - sizeX / 2;
+            int lz = z - sizeY / 2;
             int distance = (lx * lx + lz * lz);
             if (distance < minDistance) {
                 minDistance = distance;
                 nearX = x;
                 nearZ = z;
+                assigned = true;
             }
         }
     }
 
-    const auto& chunk = chunks->chunks[nearZ * w + nearX];
-    if (chunk != nullptr) {
+    const auto& chunk = chunks->getChunks()[nearZ * sizeX + nearX];
+    if (chunk != nullptr || !assigned) {
         return false;
     }
-
-    const int ox = chunks->ox;
-    const int oz = chunks->oz;
-    createChunk(nearX + ox, nearZ + oz);
+    int offsetX = chunks->getOffsetX();
+    int offsetY = chunks->getOffsetY();
+    createChunk(nearX + offsetX, nearZ + offsetY);
     return true;
 }
 
@@ -117,7 +122,7 @@ void ChunksController::createChunk(int x, int z) {
     auto& chunkFlags = chunk->flags;
 
     if (!chunkFlags.loaded) {
-        generator->generate(chunk->voxels, x, z, level->getWorld()->getSeed());
+        generator->generate(chunk->voxels, x, z);
         chunkFlags.unsaved = true;
     }
     chunk->updateHeights();

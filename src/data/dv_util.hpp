@@ -5,8 +5,8 @@
 #include <glm/glm.hpp>
 
 namespace dv {
-    template <int n>
-    inline dv::value to_value(glm::vec<n, float> vec) {
+    template <int n, typename T>
+    inline dv::value to_value(glm::vec<n, T> vec) {
         auto list = dv::list();
         for (size_t i = 0; i < n; i++) {
             list.add(vec[i]);
@@ -14,8 +14,8 @@ namespace dv {
         return list;
     }
 
-    template <int n, int m>
-    inline dv::value to_value(glm::mat<n, m, float> mat) {
+    template <int n, int m, typename T>
+    inline dv::value to_value(glm::mat<n, m, T> mat) {
         auto list = dv::list();
         for (size_t i = 0; i < n; i++) {
             for (size_t j = 0; j < m; j++) {
@@ -32,14 +32,18 @@ namespace dv {
         }
     }
 
-    template <int n>
-    void get_vec(const dv::value& map, const std::string& key, glm::vec<n, float>& vec) {
+    template <int n, typename T>
+    void get_vec(const dv::value& map, const std::string& key, glm::vec<n, T>& vec) {
         if (!map.has(key)) {
             return;
         }
         auto& list = map[key];
         for (size_t i = 0; i < n; i++) {
-            vec[i] = list[i].asNumber();
+            if constexpr (std::is_floating_point<T>()) {
+                vec[i] = list[i].asNumber();
+            } else {
+                vec[i] = list[i].asInteger();
+            }
         }
     }
 

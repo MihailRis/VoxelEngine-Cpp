@@ -24,9 +24,29 @@ namespace lua {
         luaerror(const std::string& message);
     };
 
-    void log_error(const std::string& text);
-
     using State = lua_State;
     using Number = lua_Number;
     using Integer = lua_Integer;
+
+    /// @brief Automatically resets stack top element index to the initial state
+    /// (when stackguard was created). Prevents Lua stack leak on exception
+    /// occurred out of Lua execution time, when engine controls scripting.
+    ///
+    ///
+    /// stackguard allows to not place lua::pop(...) into 'catch' blocks.
+    class stackguard {
+        int top;
+        State* state;
+    public:
+        stackguard(State* state) : state(state) {
+            top = lua_gettop(state);
+        }
+
+        ~stackguard() {
+            lua_settop(state, top);
+        }
+    };
+
+    void log_error(const std::string& text);
+
 }

@@ -15,7 +15,7 @@ using inventories_map = std::unordered_map<int64_t, std::shared_ptr<Inventory>>;
 class Inventories {
     Level& level;
     inventories_map map;
-    PseudoRandom random;
+    util::PseudoRandom random;
 public:
     Inventories(Level& level);
     ~Inventories();

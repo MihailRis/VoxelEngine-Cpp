@@ -206,6 +206,13 @@ namespace lua {
     inline lua::Integer tointeger(lua::State* L, int idx) {
         return lua_tointeger(L, idx);
     }
+    inline uint64_t touinteger(lua::State* L, int idx) {
+        auto val = lua_tointeger(L, idx);
+        if (val < 0) {
+            throw std::runtime_error("negative value");
+        }
+        return static_cast<uint64_t>(val);
+    }
     inline lua::Number tonumber(lua::State* L, int idx) {
         return lua_tonumber(L, idx);
     }
@@ -241,10 +248,12 @@ namespace lua {
         return 1;
     }
 
-    template <class T, lua_CFunction func>
-    inline void newusertype(lua::State* L, const std::string& name) {
+    template <class T>
+    inline std::enable_if_t<std::is_base_of_v<Userdata, T>> 
+    newusertype(lua::State* L) {
+        const std::string& name = T::TYPENAME;
         usertypeNames[typeid(T)] = name;
-        func(L);
+        T::createMetatable(L);
 
         pushcfunction(L, userdata_destructor);
         setfield(L, "__gc");
@@ -396,15 +405,24 @@ namespace lua {
     }
 
     int pushvalue(lua::State*, const dv::value& value);
+
+    [[nodiscard]]
     dv::value tovalue(lua::State*, int idx);
 
     inline bool getfield(lua::State* L, const std::string& name, int idx = -1) {
         lua_getfield(L, idx, name.c_str());
-        if (isnil(L, -1)) {
+        if (isnil(L, idx)) {
             pop(L);
             return false;
         }
         return true;
+    }
+
+    inline int requirefield(lua::State* L, const std::string& name, int idx = -1) {
+        if (getfield(L, name, idx)) {
+            return 1;
+        }
+        throw std::runtime_error("object has no member '"+name+"'");
     }
 
     inline bool hasfield(lua::State* L, const std::string& name, int idx = -1) {
@@ -528,8 +546,12 @@ namespace lua {
         return 0;
     }
     int create_environment(lua::State*, int parent);
-    void removeEnvironment(lua::State*, int id);
+    void remove_environment(lua::State*, int id);
     void dump_stack(lua::State*);
+
+    inline void close(lua::State* L) {
+        lua_close(L);
+    }
 
     inline void addfunc(
         lua::State* L, const std::string& name, lua_CFunction func
@@ -546,19 +568,12 @@ namespace lua {
         setglobal(L, name);
     }
 
-    inline int requirefield(lua::State* L, const std::string& name, int idx = -1) {
-        if (getfield(L, name, idx)) {
-            return 1;
-        }
-        throw std::runtime_error("object has no member '"+name+"'");
-    }
-
     inline const char* require_string_field(
         lua::State* L, const std::string& name, int idx=-1
     ) {
         requirefield(L, name, idx);
         auto value = require_string(L, -1);
-        lua::pop(L);
+        pop(L);
         return value;
     }
 
@@ -567,7 +582,16 @@ namespace lua {
     ) {
         requirefield(L, name, idx);
         auto value = tointeger(L, -1);
-        lua::pop(L);
+        pop(L);
+        return value;
+    }
+
+    inline Number require_number_field(
+        lua::State* L, const std::string& name, int idx=-1
+    ) {
+        requirefield(L, name, idx);
+        auto value = tonumber(L, -1);
+        pop(L);
         return value;
     }
 
@@ -576,6 +600,45 @@ namespace lua {
     ) {
         if (getfield(L, name, idx)) {
             bool value = toboolean(L, -1);
+            pop(L);
+            return value;
+        }
+        return def;
+    }
+
+    inline Integer get_integer_field(
+        lua::State* L, const std::string& name, Integer def, int idx=-1
+    ) {
+        if (getfield(L, name, idx)) {
+            auto value = tointeger(L, -1);
+            pop(L);
+            return value;
+        }
+        return def;
+    }
+
+    inline Number get_number_field(
+        lua::State* L, const std::string& name, Number def, int idx=-1
+    ) {
+        if (getfield(L, name, idx)) {
+            auto value = tonumber(L, -1);
+            pop(L);
+            return value;
+        }
+        return def;
+    }
+
+    inline Integer get_integer_field(
+        lua::State* L, const std::string& name, 
+        Integer def, Integer min, Integer max, int idx=-1
+    ) {
+        if (getfield(L, name, idx)) {
+            auto value = tointeger(L, -1);
+            if (value < min || value > max) {
+                throw std::runtime_error(
+                    "value is out of range ["
+                    +std::to_string(min)+", "+std::to_string(max)+"]");
+            }
             pop(L);
             return value;
         }

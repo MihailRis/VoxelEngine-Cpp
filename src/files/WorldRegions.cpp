@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "debug/Logger.hpp"
+#include "coders/json.hpp"
 #include "coders/byte_utils.hpp"
 #include "coders/rle.hpp"
 #include "coders/binary_json.hpp"

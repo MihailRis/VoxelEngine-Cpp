@@ -77,7 +77,7 @@ static int l_mul(lua::State* L) {
 /// transformed copy of matrix mat4.<func>(matrix: float[16], vec: float[3],
 /// dst: float[16]) -> sets dst to transformed version of matrix
 template <glm::mat4 (*func)(const glm::mat4&, const glm::vec3&)>
-inline int l_transform_func(lua::State* L) {
+inline int l_binop_func(lua::State* L) {
     uint argc = lua::gettop(L);
     switch (argc) {
         case 1: {
@@ -272,9 +272,9 @@ static int l_tostring(lua::State* L) {
 const luaL_Reg mat4lib[] = {
     {"idt", lua::wrap<l_idt>},
     {"mul", lua::wrap<l_mul>},
-    {"scale", lua::wrap<l_transform_func<glm::scale>>},
+    {"scale", lua::wrap<l_binop_func<glm::scale>>},
     {"rotate", lua::wrap<l_rotate>},
-    {"translate", lua::wrap<l_transform_func<glm::translate>>},
+    {"translate", lua::wrap<l_binop_func<glm::translate>>},
     {"inverse", lua::wrap<l_inverse>},
     {"transpose", lua::wrap<l_transpose>},
     {"determinant", lua::wrap<l_determinant>},

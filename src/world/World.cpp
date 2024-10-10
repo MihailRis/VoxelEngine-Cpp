@@ -15,7 +15,8 @@
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
 #include "voxels/ChunksStorage.hpp"
-#include "WorldGenerators.hpp"
+#include "world/generator/WorldGenerator.hpp"
+#include "world/generator/GeneratorDef.hpp"
 #include "Level.hpp"
 
 static debug::Logger logger("world");
@@ -206,7 +207,7 @@ void WorldInfo::deserialize(const dv::value& root) {
     seed = root["seed"].asInteger(seed);
 
     if (generator.empty()) {
-        generator = WorldGenerators::getDefaultGeneratorID();
+        generator = WorldGenerator::DEFAULT;
     }
     if (root.has("version")) {
         auto& verobj = root["version"];

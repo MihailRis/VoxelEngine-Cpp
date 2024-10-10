@@ -65,7 +65,16 @@ namespace files {
     /// @brief Read JSON or BJSON file
     /// @param file *.json or *.bjson file
     dv::value read_json(const fs::path& file);
+    
     dv::value read_binary_json(const fs::path& file);
+    
+    /// @brief Read TOML file
+    /// @param file *.toml file
     dv::value read_toml(const fs::path& file);
+
     std::vector<std::string> read_list(const fs::path& file);
+
+    bool is_data_file(const fs::path& file);
+    bool is_data_interchange_format(const fs::path& ext);
+    dv::value read_object(const fs::path& file);
 }

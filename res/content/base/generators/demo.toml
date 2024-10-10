@@ -1,0 +1,4 @@
+# 1 - temperature
+# 2 - humidity
+biome_parameters = 2
+sea_level = 64

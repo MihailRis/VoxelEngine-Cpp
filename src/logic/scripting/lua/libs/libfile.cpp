@@ -158,7 +158,7 @@ static int l_file_write_bytes(lua::State* L) {
 
     fs::path path = resolve_path(lua::require_string(L, pathIndex));
 
-    if (auto bytearray = lua::touserdata<lua::Bytearray>(L, -1)) {
+    if (auto bytearray = lua::touserdata<lua::LuaBytearray>(L, -1)) {
         auto& bytes = bytearray->data();
         return lua::pushboolean(
             L, files::write_bytes(path, bytes.data(), bytes.size())
@@ -247,6 +247,14 @@ static int l_file_gzip_decompress(lua::State* L) {
     }
 }
 
+static int l_file_read_combined_list(lua::State* L) {
+    std::string path = lua::require_string(L, 1);
+    if (path.find(':') != std::string::npos) {
+        throw std::runtime_error("entry point must not be specified");
+    }
+    return lua::pushvalue(L, engine->getResPaths()->readCombinedList(path));
+}
+
 const luaL_Reg filelib[] = {
     {"exists", lua::wrap<l_file_exists>},
     {"find", lua::wrap<l_file_find>},
@@ -265,4 +273,5 @@ const luaL_Reg filelib[] = {
     {"write", lua::wrap<l_file_write>},
     {"gzip_compress", lua::wrap<l_file_gzip_compress>},
     {"gzip_decompress", lua::wrap<l_file_gzip_decompress>},
+    {"read_combined_list", lua::wrap<l_file_read_combined_list>},
     {NULL, NULL}};

@@ -37,9 +37,9 @@ Player::Player(
       position(position),
       inventory(std::move(inv)),
       eid(eid),
-      camera(level->getCamera("base:first-person")),
-      spCamera(level->getCamera("base:third-person-front")),
-      tpCamera(level->getCamera("base:third-person-back")),
+      camera(level->getCamera("core:first-person")),
+      spCamera(level->getCamera("core:third-person-front")),
+      tpCamera(level->getCamera("core:third-person-back")),
       currentCamera(camera) {
     camera->setFov(glm::radians(90.0f));
     spCamera->setFov(glm::radians(90.0f));

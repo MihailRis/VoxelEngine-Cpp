@@ -14,6 +14,7 @@ struct BlockMaterial;
 struct ItemDef;
 struct EntityDef;
 struct ContentPack;
+struct GeneratorDef;
 
 class ContentBuilder;
 class ContentPackRuntime;
@@ -35,6 +36,9 @@ class ContentLoader {
     void loadEntity(
         EntityDef& def, const std::string& full, const std::string& name
     );
+    void loadGenerator(
+        GeneratorDef& def, const std::string& full, const std::string& name
+    );
 
     static void loadCustomBlockModel(Block& def, const dv::value& primitives);
     static void loadBlockMaterial(BlockMaterial& def, const fs::path& file);
@@ -48,14 +52,22 @@ class ContentLoader {
         EntityDef& def, const std::string& name, const fs::path& file
     );
     void loadResources(ResourceType type, const dv::value& list);
+
+    void loadContent(const dv::value& map);
 public:
     ContentLoader(ContentPack* pack, ContentBuilder& builder);
 
-    bool fixPackIndices(
+    // Refresh pack content.json
+    static bool fixPackIndices(
         const fs::path& folder,
         dv::value& indicesRoot,
         const std::string& contentSection
     );
+
+    static std::vector<std::string> scanContent(
+        const ContentPack& pack, ContentType type
+    );
+
     void fixPackIndices();
     void load();
 };
