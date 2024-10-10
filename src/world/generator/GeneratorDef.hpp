@@ -204,6 +204,10 @@ struct GeneratorDef {
     /// @brief Heightmap blocks per dot
     uint heightsBPD = 4;
 
+    /// @brief Number of chunks must be generated before and after wide
+    /// structures placement triggered
+    uint wideStructsChunksRadius = 3;
+
     std::unordered_map<std::string, size_t> structuresIndices;
     std::vector<std::unique_ptr<VoxelStructure>> structures;
     std::vector<Biome> biomes;

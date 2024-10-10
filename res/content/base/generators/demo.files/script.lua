@@ -31,21 +31,35 @@ end
 
 function place_structures_wide(x, z, w, d, seed, chunk_height)
     local placements = {}
-    if math.random() < 0.1 then -- generate caves
-        local sy = math.random() * (chunk_height / 6) + 80
-        local ey = math.max(1, sy - chunk_height / 4)
-        local my = (sy + ey) / 2 + math.random() * 24 - 12
-        local sx = x + math.random() * 60 - 30
-        local ex = x + math.random() * 60 - 30
-        local mx = (sx + ex) / 2 + math.random() * 32 - 16
-        local sz = z + math.random() * 60 - 30
-        local ez = z + math.random() * 60 - 30
-        local mz = (sz + ez) / 2 + math.random() * 32 - 16
+    if math.random() < 0.3 then -- generate caves
+        local sx = x + math.random() * 10 - 5
+        local sy = math.random() * (chunk_height / 6) + 40
+        local sz = z + math.random() * 10 - 5
+
+        local dir = math.random() * math.pi * 2
+        local dir_inertia = (math.random() - 0.5) * 2
+        local elevation = -sy / (chunk_height / 6)
         local width = math.random()*3+2
-        table.insert(placements, 
-            {":line", 0, {sx, sy, sz}, {mx, my, mz}, width})
-        table.insert(placements, 
-            {":line", 0, {mx, my, mz}, {ex, ey, ez}, width})
+
+        for i=1,10 do
+            local dx = math.sin(dir) * 10
+            local dz = -math.cos(dir) * 10
+
+            local ex = sx + dx
+            local ey = sy + elevation
+            local ez = sz + dz
+
+            table.insert(placements, 
+                {":line", 0, {sx, sy, sz}, {ex, ey, ez}, width})
+
+            sx = ex
+            sy = ey
+            sz = ez
+            
+            dir_inertia = dir_inertia * 0.8 + (math.random() - 0.5) * math.pow(math.random(), 2) * 8
+            elevation = elevation * 0.9 + (math.random() - 0.4) * (1.0-math.pow(math.random(), 4)) * 8
+            dir = dir + dir_inertia
+        end
     end
     return placements
 end

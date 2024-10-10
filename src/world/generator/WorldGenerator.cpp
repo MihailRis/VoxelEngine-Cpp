@@ -17,16 +17,20 @@
 static debug::Logger logger("world-generator");
 
 static inline constexpr uint MAX_PARAMETERS = 4;
-static inline constexpr uint MAX_CHUNK_PROTOTYPE_LEVELS = 10;
+static inline constexpr uint BASIC_PROTOTYPE_LAYERS = 5;
 
 WorldGenerator::WorldGenerator(
     const GeneratorDef& def, const Content* content, uint64_t seed
 )
     : def(def), 
       content(content), 
-      seed(seed), 
-      surroundMap(0, MAX_CHUNK_PROTOTYPE_LEVELS) 
+      seed(seed),
+      surroundMap(0, BASIC_PROTOTYPE_LAYERS + def.wideStructsChunksRadius * 2)
 {
+    uint levels = BASIC_PROTOTYPE_LAYERS + def.wideStructsChunksRadius * 2;
+
+    surroundMap = SurroundMap(0, levels);
+    logger.info() << "total number of prototype levels is " << levels;
     surroundMap.setOutCallback([this](int const x, int const z, int8_t) {
         const auto& found = prototypes.find({x, z});
         if (found == prototypes.end()) {
@@ -41,16 +45,17 @@ WorldGenerator::WorldGenerator(
         }
         prototypes[{x, z}] = generatePrototype(x, z);
     });
-    surroundMap.setLevelCallback(4, [this](int const x, int const z) {
+    surroundMap.setLevelCallback(def.wideStructsChunksRadius + 1, 
+    [this](int const x, int const z) {
         generateStructuresWide(requirePrototype(x, z), x, z);
     });
-    surroundMap.setLevelCallback(7, [this](int const x, int const z) {
+    surroundMap.setLevelCallback(levels-3, [this](int const x, int const z) {
         generateBiomes(requirePrototype(x, z), x, z);
     });
-    surroundMap.setLevelCallback(8, [this](int const x, int const z) {
+    surroundMap.setLevelCallback(levels-2, [this](int const x, int const z) {
         generateHeightmap(requirePrototype(x, z), x, z);
     });
-    surroundMap.setLevelCallback(9, [this](int const x, int const z) {
+    surroundMap.setLevelCallback(levels-1, [this](int const x, int const z) {
         generateStructures(requirePrototype(x, z), x, z);
     });
     for (int i = 0; i < def.structures.size(); i++) {
@@ -180,8 +185,10 @@ void WorldGenerator::placeLine(const LinePlacement& line) {
     int czb = floordiv(aabb.b.z, CHUNK_D);
     for (int cz = cza; cz <= czb; cz++) {
         for (int cx = cxa; cx <= cxb; cx++) {
-            auto& otherPrototype = requirePrototype(cx, cz);
-            otherPrototype.lines.push_back(line);
+            const auto& found = prototypes.find({cx, cz});
+            if (found != prototypes.end()) {
+                found->second->lines.push_back(line);
+            }
         }
     }
 }
