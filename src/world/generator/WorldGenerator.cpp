@@ -17,7 +17,10 @@
 
 static debug::Logger logger("world-generator");
 
+/// @brief Max number of biome parameters
 static inline constexpr uint MAX_PARAMETERS = 4;
+
+/// @brief Initial + wide_structs + biomes + heightmaps + complete
 static inline constexpr uint BASIC_PROTOTYPE_LAYERS = 5;
 
 WorldGenerator::WorldGenerator(

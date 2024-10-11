@@ -149,6 +149,13 @@ public:
         uint bpd
     ) = 0;
 
+    /// @brief Generate a list of structures placements. Structures may be
+    /// placed to nearest N chunks also (position of out area), where N is 
+    /// wide-structs-chunks-radius
+    /// @param offset position of the area
+    /// @param size size of the area (blocks)
+    /// @param seed world seed
+    /// @param chunkHeight chunk height to use as heights multiplier
     virtual std::vector<Placement> placeStructuresWide(
         const glm::ivec2& offset, 
         const glm::ivec2& size, 
