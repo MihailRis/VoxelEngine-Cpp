@@ -52,6 +52,65 @@ class TomlReader : BasicParser {
         } while (true);
     }
 
+    dv::value parseValue() {
+        char c = peek();
+        if (is_digit(c)) {
+            return parseNumber(1);
+        } else if (c == '-' || c == '+') {
+            int sign = c == '-' ? -1 : 1;
+            pos++;
+            // parse numeric literal
+            auto value = parseNumber(sign);
+            if (hasNext() && peekNoJump() == '-') {
+                // parse timestamp // TODO: implement
+                throw error("timestamps support is not implemented yet");
+            }
+            return value;
+        } else if (is_identifier_start(c)) {
+            // parse keywords
+            std::string keyword = parseName();
+            if (keyword == "true" || keyword == "false") {
+                return keyword == "true";
+            } else if (keyword == "inf") {
+                return INFINITY;
+            } else if (keyword == "nan") {
+                return NAN;
+            }
+            throw error("unknown keyword " + util::quote(keyword));
+        } else if (c == '"' || c == '\'') {
+            pos++;
+            return parseString(c);
+        } else if (c == '[') {
+            // parse array
+            pos++;
+            dv::list_t values;
+            while (peek() != ']') {
+                values.push_back(parseValue());
+                if (peek() != ']') {
+                    expect(',');
+                }
+            }
+            pos++;
+            return dv::value(std::move(values));
+        } else if (c == '{') {
+            // parse inline table
+            pos++;
+            auto table = dv::object();
+            while (peek() != '}') {
+                auto key = parseName();
+                expect('=');
+                table[key] = parseValue();
+                if (peek() != '}') {
+                    expect(',');
+                }
+            }
+            pos++;
+            return table;
+        } else {
+            throw error("feature is not supported");
+        }
+    }
+
     void readSection(const std::string& section, dv::value& map) {
         while (hasNext()) {
             skipWhitespace();
@@ -68,35 +127,13 @@ class TomlReader : BasicParser {
             pos--;
             std::string name = parseName();
             expect('=');
-            c = peek();
-            if (is_digit(c)) {
-                map[name] = parseNumber(1);
-            } else if (c == '-' || c == '+') {
-                int sign = c == '-' ? -1 : 1;
-                pos++;
-                map[name] = parseNumber(sign);
-            } else if (is_identifier_start(c)) {
-                std::string identifier = parseName();
-                if (identifier == "true" || identifier == "false") {
-                    map[name] = identifier == "true";
-                } else if (identifier == "inf") {
-                    map[name] = INFINITY;
-                } else if (identifier == "nan") {
-                    map[name] = NAN;
-                }
-            } else if (c == '"' || c == '\'') {
-                pos++;
-                map[name] = parseString(c);
-            } else {
-                throw error("feature is not supported");
-            }
+            map[name] = parseValue();
             expectNewLine();
         }
     }
 public:
     TomlReader(std::string_view file, std::string_view source)
-        : BasicParser(file, source) {
-        root = dv::object();
+        : BasicParser(file, source), root(dv::object()) {
     }
 
     dv::value read() {
