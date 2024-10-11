@@ -221,14 +221,22 @@ std::string_view BasicParser::readUntilEOL() {
 std::string BasicParser::parseName() {
     char c = peek();
     if (!is_identifier_start(c)) {
-        if (c == '"') {
-            pos++;
-            return parseString(c);
-        }
         throw error("identifier expected");
     }
     int start = pos;
     while (hasNext() && is_identifier_part(source[pos])) {
+        pos++;
+    }
+    return std::string(source.substr(start, pos - start));
+}
+
+std::string BasicParser::parseXmlName() {
+    char c = peek();
+    if (!is_json_identifier_start(c)) {
+        throw error("identifier expected");
+    }
+    int start = pos;
+    while (hasNext() && is_json_identifier_part(source[pos])) {
         pos++;
     }
     return std::string(source.substr(start, pos - start));

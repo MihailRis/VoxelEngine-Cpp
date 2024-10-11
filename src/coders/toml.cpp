@@ -26,32 +26,6 @@ class TomlReader : BasicParser {
         }
     }
 
-    dv::value& getSection(const std::string& section) {
-        if (section.empty()) {
-            return root;
-        }
-        size_t offset = 0;
-        auto rootMap = &root;
-        do {
-            size_t index = section.find('.', offset);
-            if (index == std::string::npos) {
-                auto map = rootMap->at(section);
-                if (!map) {
-                    return rootMap->object(section);
-                }
-                return *map;
-            }
-            auto subsection = section.substr(offset, index);
-            auto map = rootMap->at(subsection);
-            if (!map) {
-                rootMap = &rootMap->object(subsection);
-            } else {
-                rootMap = &*map;
-            }
-            offset = index + 1;
-        } while (true);
-    }
-
     dv::value parseValue() {
         char c = peek();
         if (is_digit(c)) {
@@ -111,7 +85,30 @@ class TomlReader : BasicParser {
         }
     }
 
-    void readSection(const std::string& section, dv::value& map) {
+    dv::value& parseLValue(dv::value& root) {
+        dv::value* lvalue = &root;
+        while (hasNext()) {
+            char c = peek();
+            std::string name;
+            if (c == '\'' || c == '"') {
+                pos++;
+                name = parseString(c);
+            } else {
+                name = parseName();
+            }
+            if (lvalue->getType() == dv::value_type::none) {
+                *lvalue = dv::object();
+            }
+            lvalue = &(*lvalue)[name];
+            if (peek() != '.') {
+                break;
+            }
+            pos++;
+        }
+        return *lvalue;
+    }
+
+    void readSection(dv::value& map, dv::value& root) {
         while (hasNext()) {
             skipWhitespace();
             if (!hasNext()) {
@@ -119,15 +116,15 @@ class TomlReader : BasicParser {
             }
             char c = nextChar();
             if (c == '[') {
-                std::string name = parseName();
-                pos++;
-                readSection(name, getSection(name));
+                dv::value& section = parseLValue(root);
+                expect(']');
+                readSection(section, root);
                 return;
             }
             pos--;
-            std::string name = parseName();
+            dv::value& lvalue = parseLValue(map);
             expect('=');
-            map[name] = parseValue();
+            lvalue = parseValue();
             expectNewLine();
         }
     }
@@ -141,7 +138,7 @@ public:
         if (!hasNext()) {
             return std::move(root);
         }
-        readSection("", root);
+        readSection(root, root);
         return std::move(root);
     }
 };
@@ -150,6 +147,7 @@ void toml::parse(
     SettingsHandler& handler, std::string_view file, std::string_view source
 ) {
     auto map = parse(file, source);
+    
     for (const auto& [sectionName, sectionMap] : map.asObject()) {
         if (!sectionMap.isObject()) {
             continue;
