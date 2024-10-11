@@ -84,7 +84,7 @@ public:
         return maps;
     }
 
-    void perform_line(lua::State* L, PrototypePlacements& placements) {
+    void perform_line(lua::State* L, std::vector<Placement>& placements) {
         rawgeti(L, 2);
         blockid_t block = touinteger(L, -1);
         pop(L);
@@ -101,10 +101,17 @@ public:
         int radius = touinteger(L, -1);
         pop(L);
 
-        placements.lines.emplace_back(block, a, b, radius);
+        int priority = 0;
+        if (objlen(L, -1) >= 6) {
+            rawgeti(L, 6);
+            priority = tointeger(L, -1);
+            pop(L);
+        }
+
+        placements.emplace_back(priority, LinePlacement {block, a, b, radius});
     }
 
-    void perform_placement(lua::State* L, PrototypePlacements& placements) {
+    void perform_placement(lua::State* L, std::vector<Placement>& placements) {
         rawgeti(L, 1);
         int structIndex = 0;
         if (isstring(L, -1)) {
@@ -129,19 +136,28 @@ public:
         pop(L);
 
         rawgeti(L, 3);
-        int rotation = tointeger(L, -1) & 0b11;
+        uint8_t rotation = tointeger(L, -1) & 0b11;
         pop(L);
 
-        placements.structs.emplace_back(structIndex, pos, rotation);
+        int priority = 1;
+        if (objlen(L, -1) >= 4) {
+            rawgeti(L, 4);
+            priority = tointeger(L, -1);
+            pop(L);
+        }
+
+        placements.emplace_back(
+            priority, StructurePlacement {structIndex, pos, rotation}
+        );
     }
 
-    PrototypePlacements placeStructuresWide(
+    std::vector<Placement> placeStructuresWide(
         const glm::ivec2& offset, 
         const glm::ivec2& size, 
         uint64_t seed,
         uint chunkHeight
     ) override {
-        PrototypePlacements placements {};
+        std::vector<Placement> placements {};
         
         stackguard _(L);
         pushenv(L, *env);
@@ -165,11 +181,11 @@ public:
         return placements;
     }
 
-    PrototypePlacements placeStructures(
+    std::vector<Placement> placeStructures(
         const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed,
         const std::shared_ptr<Heightmap>& heightmap, uint chunkHeight
     ) override {
-        PrototypePlacements placements {};
+        std::vector<Placement> placements {};
         
         stackguard _(L);
         pushenv(L, *env);

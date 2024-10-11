@@ -17,7 +17,6 @@ struct GeneratorDef;
 class Heightmap;
 struct Biome;
 class VoxelFragment;
-struct PrototypePlacements;
 
 enum class ChunkPrototypeLevel {
     VOID=0, WIDE_STRUCTS, BIOMES, HEIGHTMAP, STRUCTURES
@@ -32,9 +31,7 @@ struct ChunkPrototype {
     /// @brief chunk heightmap
     std::shared_ptr<Heightmap> heightmap;
 
-    std::vector<StructurePlacement> structures;
-
-    std::vector<LinePlacement> lines;
+    std::vector<Placement> placements;
 };
 
 struct WorldGenDebugInfo {
@@ -69,22 +66,32 @@ class WorldGenerator {
 
     void generateStructures(ChunkPrototype& prototype, int x, int z);
 
+    void generatePlacements(
+        const ChunkPrototype& prototype, voxel* voxels, int x, int z
+    );
+
     void generateBiomes(ChunkPrototype& prototype, int x, int z);
 
     void generateHeightmap(ChunkPrototype& prototype, int x, int z);
 
     void placeStructure(
-        const glm::ivec3& offset, size_t structure, uint8_t rotation,
+        const StructurePlacement& placement, int priority, 
         int chunkX, int chunkZ
     );
 
-    void placeLine(const LinePlacement& line);
+    void placeLine(const LinePlacement& line, int priority);
 
-    void generateLines(
-        const ChunkPrototype& prototype, voxel* voxels, int x, int z
+    void generateLine(
+        const ChunkPrototype& prototype, 
+        const LinePlacement& placement,
+        voxel* voxels, 
+        int x, int z
     );
-    void generateStructures(
-        const ChunkPrototype& prototype, voxel* voxels, int x, int z
+    void generateStructure(
+        const ChunkPrototype& prototype, 
+        const StructurePlacement& placement,
+        voxel* voxels, 
+        int x, int z
     );
     void generatePlants(
         const ChunkPrototype& prototype,
@@ -104,7 +111,7 @@ class WorldGenerator {
     );
 
     void placeStructures(
-        const PrototypePlacements& placements,
+        const std::vector<Placement>& placements,
         ChunkPrototype& prototype,
         int x, int z);
 public:

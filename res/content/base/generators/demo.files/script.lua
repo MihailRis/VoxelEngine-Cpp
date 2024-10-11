@@ -17,7 +17,7 @@ local function place_ores(placements, x, z, w, d, seed, hmap, chunk_height)
             local sz = math.random() * d
             local sy = math.random() * (chunk_height * 0.5)
             if sy < hmap:at(sx, sz) * chunk_height - 6 then
-                table.insert(placements, {ore.struct, {sx, sy, sz}, math.random()*4})
+                table.insert(placements, {ore.struct, {sx, sy, sz}, math.random()*4, -1})
             end
         end
     end
@@ -33,7 +33,7 @@ function place_structures_wide(x, z, w, d, seed, chunk_height)
     local placements = {}
     if math.random() < 0.05 then -- generate caves
         local sx = x + math.random() * 10 - 5
-        local sy = math.random() * (chunk_height / 4) + 27
+        local sy = math.random() * (chunk_height / 4) + 10
         local sz = z + math.random() * 10 - 5
 
         local dir = math.random() * math.pi * 2
