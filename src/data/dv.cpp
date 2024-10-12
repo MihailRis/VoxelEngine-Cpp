@@ -157,5 +157,5 @@ namespace dv {
 #include "coders/json.hpp"
 
 std::ostream& operator<<(std::ostream& stream, const dv::value& value) {
-    return stream << json::stringify(value, true);
+    return stream << json::stringify(value, false);
 }
