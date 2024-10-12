@@ -108,6 +108,10 @@ bool BasicParser::hasNext() {
     return pos < source.length();
 }
 
+size_t BasicParser::remain() const {
+    return source.length() - pos;
+}
+
 bool BasicParser::isNext(const std::string& substring) {
     if (source.length() - pos < substring.length()) {
         return false;
@@ -357,36 +361,16 @@ std::string BasicParser::parseString(char quote, bool closeRequired) {
                 continue;
             }
             switch (c) {
-                case 'n':
-                    ss << '\n';
-                    break;
-                case 'r':
-                    ss << '\r';
-                    break;
-                case 'b':
-                    ss << '\b';
-                    break;
-                case 't':
-                    ss << '\t';
-                    break;
-                case 'f':
-                    ss << '\f';
-                    break;
-                case '\'':
-                    ss << '\\';
-                    break;
-                case '"':
-                    ss << '"';
-                    break;
-                case '\\':
-                    ss << '\\';
-                    break;
-                case '/':
-                    ss << '/';
-                    break;
-                case '\n':
-                    pos++;
-                    continue;
+                case 'n': ss << '\n'; break;
+                case 'r': ss << '\r'; break;
+                case 'b': ss << '\b'; break;
+                case 't': ss << '\t'; break;
+                case 'f': ss << '\f'; break;
+                case '\'': ss << '\\'; break;
+                case '"': ss << '"'; break;
+                case '\\': ss << '\\'; break;
+                case '/': ss << '/'; break;
+                case '\n': pos++; continue;
                 default:
                     throw error(
                         "'\\" + std::string({c}) + "' is an illegal escape"

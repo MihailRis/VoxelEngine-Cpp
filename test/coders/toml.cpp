@@ -7,32 +7,6 @@
 #include "util/Buffer.hpp"
 #include "coders/commons.hpp"
 
-// Example from toml.io
-inline std::string SRC_EXAMPLE =
-    "# This is a TOML document\n"
-    "\n"
-    "title = \"TOML Example\"\n"
-    "\n"
-    "[owner]\n"
-    "name = \"Tom Preston-Werner\"\n"
-//    "dob = 1979-05-27T07:32:00-08:00\n"
-    "\n"
-    "[database]\n"
-    "enabled = true\n"
-    "ports = [ 8000, 8001, 8002 ]\n"
-    "data = [ [\"delta\", \"phi\"], [3.14] ]\n"
-    "temp_targets = { cpu = 79.5, case = 72.0 }\n"
-    "\n"
-    "[servers]\n"
-    "\n"
-    "[servers.alpha]\n"
-    "ip = \"10.0.0.1\"\n"
-    "role = \"frontend\"\n"
-    "\n"
-    "[servers.beta]\n"
-    "ip = \"10.0.0.2\"\n"
-    "role = \"backend\"";
-
 TEST(TOML, EncodeDecode) {
     const std::string name = "TOML-encoder";
     const int bytesSize = 20;
@@ -75,8 +49,35 @@ TEST(TOML, EncodeDecode) {
     }
 }
 
+// Modified example from toml.io
+inline std::string SRC_EXAMPLE =
+    "# This is a TOML document\n"
+    "\n"
+    "title = \"TOML Example\"\n"
+    "\n"
+    "[owner]\n"
+    "name = \"Tom Preston-Werner\"\n"
+//    "dob = 1979-05-27T07:32:00-08:00\n"
+    "\n"
+    "[database]\n"
+    "enabled = true\n"
+    "ports = [ 8000, 8001, 8002 ]\n"
+    "data = [ [\"delta\", \"phi\"], [3.14] ]\n"
+    "temp_targets = { cpu = 79.5, case = 72.0 }\n"
+    "\n"
+    "[servers]\n"
+    "\n"
+    "[servers.alpha]\n"
+    "ip = \"10.0.0.1\"\n"
+    "role = \"frontend\"\n"
+    "\n"
+    "[servers.beta]\n"
+    "ip = \"10.0.0.2\"\n"
+    "role = \"\"\"backend\"\"\"";
+
 TEST(TOML, ExampleCode) {
     try {
+        std::cout << SRC_EXAMPLE << std::endl;
         auto object = toml::parse("<string>", SRC_EXAMPLE);
         std::cout << object << std::endl;
     } catch (const parsing_error& err) {

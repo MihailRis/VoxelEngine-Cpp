@@ -109,6 +109,7 @@ public:
     std::string parseName();
     std::string parseXmlName();
     bool hasNext();
+    size_t remain() const;
     char peek();
     char peekInLine();
     char peekNoJump();

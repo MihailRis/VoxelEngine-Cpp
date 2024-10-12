@@ -26,6 +26,51 @@ class TomlReader : BasicParser {
         }
     }
 
+    std::string parseMultilineString() {
+        pos += 2;
+        char next = peek();
+
+        std::stringstream ss;
+        while (hasNext()) {
+            char c = source[pos];
+            if (c == '"' && remain() >= 2 && 
+                source[pos+1] == '"' && 
+                source[pos+2] == '"') {
+                pos += 3;
+                return ss.str();
+            }
+            if (c == '\\') {
+                pos++;
+                c = nextChar();
+                if (c >= '0' && c <= '7') {
+                    pos--;
+                    ss << (char)parseSimpleInt(8);
+                    continue;
+                }
+                switch (c) {
+                    case 'n': ss << '\n'; break;
+                    case 'r': ss << '\r'; break;
+                    case 'b': ss << '\b'; break;
+                    case 't': ss << '\t'; break;
+                    case 'f': ss << '\f'; break;
+                    case '\'': ss << '\\'; break;
+                    case '"': ss << '"'; break;
+                    case '\\': ss << '\\'; break;
+                    case '/': ss << '/'; break;
+                    case '\n': pos++; continue;
+                    default:
+                        throw error(
+                            "'\\" + std::string({c}) + "' is an illegal escape"
+                        );
+                }
+                continue;
+            }
+            ss << c;
+            pos++;
+        }
+        throw error("unexpected end");
+    }
+
     dv::value parseValue() {
         char c = peek();
         if (is_digit(c)) {
@@ -53,6 +98,12 @@ class TomlReader : BasicParser {
             throw error("unknown keyword " + util::quote(keyword));
         } else if (c == '"' || c == '\'') {
             pos++;
+            if (remain() >= 2 && 
+                c  == '"' && 
+                source[pos] == '"' && 
+                source[pos+1] == '"') {
+                return parseMultilineString();
+            }
             return parseString(c);
         } else if (c == '[') {
             // parse array
@@ -125,7 +176,7 @@ class TomlReader : BasicParser {
             dv::value& lvalue = parseLValue(map);
             expect('=');
             lvalue = parseValue();
-            expectNewLine();
+            skipWhitespace();
         }
     }
 public:
