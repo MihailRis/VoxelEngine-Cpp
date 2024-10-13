@@ -322,11 +322,11 @@ void Engine::loadContent() {
 
     // Load content
     {
-        ContentLoader(&corePack, contentBuilder).load();
+        ContentLoader(&corePack, contentBuilder, *resPaths).load();
         load_configs(corePack.folder);
     }
     for (auto& pack : contentPacks) {
-        ContentLoader(&pack, contentBuilder).load();
+        ContentLoader(&pack, contentBuilder, *resPaths).load();
         load_configs(pack.folder);
     } 
 

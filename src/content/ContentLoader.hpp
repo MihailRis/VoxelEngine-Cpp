@@ -16,6 +16,7 @@ struct EntityDef;
 struct ContentPack;
 struct GeneratorDef;
 
+class ResPaths;
 class ContentBuilder;
 class ContentPackRuntime;
 struct ContentPackStats;
@@ -26,6 +27,7 @@ class ContentLoader {
     scriptenv env;
     ContentBuilder& builder;
     ContentPackStats* stats;
+    const ResPaths& paths;
 
     void loadBlock(
         Block& def, const std::string& full, const std::string& name
@@ -55,7 +57,11 @@ class ContentLoader {
 
     void loadContent(const dv::value& map);
 public:
-    ContentLoader(ContentPack* pack, ContentBuilder& builder);
+    ContentLoader(
+        ContentPack* pack,
+        ContentBuilder& builder,
+        const ResPaths& paths
+    );
 
     // Refresh pack content.json
     static bool fixPackIndices(

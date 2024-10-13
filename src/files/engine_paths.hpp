@@ -68,7 +68,9 @@ public:
     /// @brief Read all found list versions from all packs and combine into a
     /// single list. Invalid versions will be skipped with logging a warning
     /// @param file *.json file path relative to entry point 
-    dv::value readCombinedList(const std::string& file);
+    dv::value readCombinedList(const std::string& file) const;
+
+    dv::value readCombinedObject(const std::string& file) const;
 
     const std::filesystem::path& getMainRoot() const;
 

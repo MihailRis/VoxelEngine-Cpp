@@ -3,10 +3,12 @@
 #include "../ContentPack.hpp"
 
 #include "files/files.hpp"
+#include "files/engine_paths.hpp"
 #include "logic/scripting/scripting.hpp"
 #include "world/generator/GeneratorDef.hpp"
 #include "world/generator/VoxelFragment.hpp"
 #include "debug/Logger.hpp"
+#include "util/stringutil.hpp"
 
 static BlocksLayer load_layer(
     const dv::value& map, uint& lastLayersHeight, bool& hasResizeableLayer
@@ -167,11 +169,10 @@ static void load_structures(GeneratorDef& def, const fs::path& structuresFile) {
 }
 
 static inline const auto STRUCTURES_FILE = fs::u8path("structures.json");
-static inline const auto BIOMES_FILE = fs::u8path("biomes.json");
+static inline const auto BIOMES_FILE = fs::u8path("biomes.toml");
 static inline const auto GENERATORS_DIR = fs::u8path("generators");
 
-static void load_biomes(GeneratorDef& def, const fs::path& file) {
-    auto root = files::read_json(file);
+static void load_biomes(GeneratorDef& def, const dv::value& root) {
     for (const auto& [biomeName, biomeMap] : root.asObject()) {
         try {
             def.biomes.push_back(
@@ -205,14 +206,16 @@ void ContentLoader::loadGenerator(
     if (fs::exists(structuresFile)) {
         load_structures(def, structuresFile);
     }
-    auto biomesFiles = folder / BIOMES_FILE;
-    if (!fs::exists(biomesFiles)) {
+
+    auto biomesFile = GENERATORS_DIR / fs::u8path(name + ".files") / BIOMES_FILE;
+    auto biomesMap = paths.readCombinedObject(biomesFile.u8string());
+    if (biomesMap.empty()) {
         throw std::runtime_error(
-            BIOMES_FILE.u8string() +
-            ": file not found (at least one biome required)"
+            "generator " + util::quote(def.name) +
+            ": at least one biome required"
         );
     }
-    load_biomes(def, biomesFiles);
+    load_biomes(def, biomesMap);
     def.script = scripting::load_generator(
         def, scriptFile, pack->id+":generators/"+name+".files");
 }

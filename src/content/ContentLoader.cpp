@@ -28,8 +28,10 @@ using namespace data;
 
 static debug::Logger logger("content-loader");
 
-ContentLoader::ContentLoader(ContentPack* pack, ContentBuilder& builder)
-    : pack(pack), builder(builder) {
+ContentLoader::ContentLoader(
+    ContentPack* pack, ContentBuilder& builder, const ResPaths& paths
+)
+    : pack(pack), builder(builder), paths(paths) {
     auto runtime = std::make_unique<ContentPackRuntime>(
         *pack, scripting::create_pack_environment(*pack)
     );

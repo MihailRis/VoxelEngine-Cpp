@@ -251,6 +251,7 @@ void WorldGenerator::generateStructures(
     util::PseudoRandom structsRand;
     structsRand.setSeed(chunkX, chunkZ);
 
+    // Place structures defined in biome
     auto heights = heightmap->getValues();
     for (uint z = 0; z < CHUNK_D; z++) {
         for (uint x = 0; x < CHUNK_W; x++) {

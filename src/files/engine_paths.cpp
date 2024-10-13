@@ -255,7 +255,7 @@ std::vector<std::filesystem::path> ResPaths::listdir(
     return entries;
 }
 
-dv::value ResPaths::readCombinedList(const std::string& filename) {
+dv::value ResPaths::readCombinedList(const std::string& filename) const {
     dv::value list = dv::list();
     for (const auto& root : roots) {
         auto path = root.path / fs::u8path(filename);
@@ -278,6 +278,31 @@ dv::value ResPaths::readCombinedList(const std::string& filename) {
         }
     }
     return list;
+}
+
+dv::value ResPaths::readCombinedObject(const std::string& filename) const {
+    dv::value object = dv::object();
+    for (const auto& root : roots) {
+        auto path = root.path / fs::u8path(filename);
+        if (!fs::exists(path)) {
+            continue;
+        }
+        try {
+            auto value = files::read_object(path);
+            if (!value.isObject()) {
+                logger.warning()
+                    << "reading combined object " << root.name << ": "
+                    << filename << " is not an object (skipped)";
+            }
+            for (const auto& [key, element] : value.asObject())  {
+                object[key] = element;
+            }
+        } catch (const std::runtime_error& err) {
+            logger.warning() << "reading combined object " << root.name << ":"
+                             << filename << ": " << err.what();
+        }
+    }
+    return object;
 }
 
 const std::filesystem::path& ResPaths::getMainRoot() const {
