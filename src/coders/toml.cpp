@@ -26,6 +26,8 @@ class TomlReader : BasicParser {
         }
     }
 
+    // modified version of BaseParser.parseString
+    // todo: extract common part
     std::string parseMultilineString() {
         pos += 2;
         char next = peek();
@@ -57,7 +59,7 @@ class TomlReader : BasicParser {
                     case '"': ss << '"'; break;
                     case '\\': ss << '\\'; break;
                     case '/': ss << '/'; break;
-                    case '\n': pos++; continue;
+                    case '\n': continue;
                     default:
                         throw error(
                             "'\\" + std::string({c}) + "' is an illegal escape"

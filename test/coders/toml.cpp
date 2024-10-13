@@ -73,7 +73,8 @@ inline std::string SRC_EXAMPLE =
     "\n"
     "[servers.beta]\n"
     "ip = \"10.0.0.2\"\n"
-    "role = \"\"\"backend\"\"\"";
+    "role = \"\"\"back\\\n"
+    "end\"\"\"";
 
 TEST(TOML, ExampleCode) {
     try {

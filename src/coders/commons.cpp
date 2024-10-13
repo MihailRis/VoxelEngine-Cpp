@@ -370,7 +370,7 @@ std::string BasicParser::parseString(char quote, bool closeRequired) {
                 case '"': ss << '"'; break;
                 case '\\': ss << '\\'; break;
                 case '/': ss << '/'; break;
-                case '\n': pos++; continue;
+                case '\n': continue;
                 default:
                     throw error(
                         "'\\" + std::string({c}) + "' is an illegal escape"
