@@ -76,17 +76,26 @@ class TomlReader : BasicParser {
     dv::value parseValue() {
         char c = peek();
         if (is_digit(c)) {
-            return parseNumber(1);
+            int start = pos;
+            // parse numeric literal
+            auto value = parseNumber(1);
+            if (hasNext() && peekNoJump() == '-') {
+                while (hasNext()) {
+                    c = source[pos];
+                    if (!is_digit(c) && c != ':' && c != '.' && c != '-' &&
+                        c != 'T' && c != 'Z') {
+                        break;
+                    }
+                    pos++;
+                }
+                return std::string(source.substr(start, pos - start));
+            }
+            return value;
         } else if (c == '-' || c == '+') {
             int sign = c == '-' ? -1 : 1;
             pos++;
             // parse numeric literal
-            auto value = parseNumber(sign);
-            if (hasNext() && peekNoJump() == '-') {
-                // parse timestamp // TODO: implement
-                throw error("timestamps support is not implemented yet");
-            }
-            return value;
+            return parseNumber(sign);
         } else if (is_identifier_start(c)) {
             // parse keywords
             std::string keyword = parseName();
@@ -178,7 +187,7 @@ class TomlReader : BasicParser {
             dv::value& lvalue = parseLValue(map);
             expect('=');
             lvalue = parseValue();
-            skipWhitespace();
+            expectNewLine();
         }
     }
 public:

@@ -57,7 +57,7 @@ inline std::string SRC_EXAMPLE =
     "\n"
     "[owner]\n"
     "name = \"Tom Preston-Werner\"\n"
-//    "dob = 1979-05-27T07:32:00-08:00\n"
+    "dob = 1979-05-27T07:32:00-08:00\n"
     "\n"
     "[database]\n"
     "enabled = true\n"
