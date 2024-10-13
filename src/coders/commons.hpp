@@ -30,12 +30,20 @@ inline bool is_whitespace(int c) {
 }
 
 inline bool is_identifier_start(int c) {
-    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_' ||
-           c == '.';
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
 }
 
 inline bool is_identifier_part(int c) {
     return is_identifier_start(c) || is_digit(c) || c == '-';
+}
+
+inline bool is_json_identifier_start(int c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_' ||
+           c == '.';
+}
+
+inline bool is_json_identifier_part(int c) {
+    return is_json_identifier_start(c) || is_digit(c) || c == '-';
 }
 
 inline int hexchar2int(int c) {
@@ -99,7 +107,9 @@ public:
     std::string_view readUntil(char c);
     std::string_view readUntilEOL();
     std::string parseName();
+    std::string parseXmlName();
     bool hasNext();
+    size_t remain() const;
     char peek();
     char peekInLine();
     char peekNoJump();
