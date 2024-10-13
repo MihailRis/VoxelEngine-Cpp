@@ -62,8 +62,18 @@ static int l_get_generators(lua::State* L) {
     return 1;
 }
 
+/// @brief Get the default world generator
+/// @return The ID of the default world generator
+static int l_get_default_generator(lua::State* L) {
+    auto combined = engine->getResPaths()->readCombinedObject(
+        EnginePaths::CONFIG_DEFAULTS.u8string()
+    );
+    return lua::pushstring(L, combined["generator"].asString());
+}
+
 const luaL_Reg generationlib[] = {
     {"save_structure", lua::wrap<l_save_structure>},
     {"load_structure", lua::wrap<l_load_structure>},
     {"get_generators", lua::wrap<l_get_generators>},
+    {"get_default_generator", lua::wrap<l_get_default_generator>},
     {NULL, NULL}};

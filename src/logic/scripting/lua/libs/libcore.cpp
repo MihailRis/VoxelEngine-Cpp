@@ -173,12 +173,6 @@ static int l_quit(lua::State*) {
     return 0;
 }
 
-/// @brief Get the default world generator
-/// @return The ID of the default world generator
-static int l_get_default_generator(lua::State* L) {
-    return lua::pushstring(L, WorldGenerator::DEFAULT);
-}
-
 const luaL_Reg corelib[] = {
     {"new_world", lua::wrap<l_new_world>},
     {"open_world", lua::wrap<l_open_world>},
@@ -191,5 +185,4 @@ const luaL_Reg corelib[] = {
     {"str_setting", lua::wrap<l_str_setting>},
     {"get_setting_info", lua::wrap<l_get_setting_info>},
     {"quit", lua::wrap<l_quit>},
-    {"get_default_generator", lua::wrap<l_get_default_generator>},
     {NULL, NULL}};

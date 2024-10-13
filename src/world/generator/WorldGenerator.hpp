@@ -131,7 +131,4 @@ public:
     void generate(voxel* voxels, int x, int z);
 
     WorldGenDebugInfo createDebugInfo() const;
-
-    /// @brief Default generator name // TODO: move to config
-    inline static std::string DEFAULT = "core:default";
 };
