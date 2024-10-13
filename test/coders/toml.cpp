@@ -74,7 +74,14 @@ inline std::string SRC_EXAMPLE =
     "[servers.beta]\n"
     "ip = \"10.0.0.2\"\n"
     "role = \"\"\"back\\\n"
-    "end\"\"\"";
+    "end\"\"\"\n"
+    "\n"
+    "[[users]]\n"
+    "name = \"noname\"\n"
+    "\n"
+    "[[users]]\n"
+    "name = \"user1\"\n"
+    "suspended = true\n";
 
 TEST(TOML, ExampleCode) {
     try {

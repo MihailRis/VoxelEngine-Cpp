@@ -178,7 +178,29 @@ class TomlReader : BasicParser {
             }
             char c = nextChar();
             if (c == '[') {
+                if (hasNext() && peek() == '[') {
+                    pos++;
+                    // parse list of tables
+                    dv::value& list = parseLValue(root);
+                    if (list == nullptr) {
+                        list = dv::list();
+                    } else if (!list.isList()) {
+                        throw error("target is not an array");
+                    }
+                    expect(']');
+                    expect(']');
+                    dv::value section = dv::object();
+                    readSection(section, root);
+                    list.add(std::move(section));
+                    return;
+                }
+                // parse table
                 dv::value& section = parseLValue(root);
+                if (section == nullptr) {
+                    section = dv::object();
+                } else if (!section.isObject()) {
+                    throw error("target is not a table");
+                }
                 expect(']');
                 readSection(section, root);
                 return;
