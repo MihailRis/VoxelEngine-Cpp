@@ -11,6 +11,7 @@
 - [Библиотеки](#)
     - [block](scripting/builtins/libblock.md)
     - [entities](scripting/builtins/libentities.md)
+	- [events](scripting/builtins/libevents.md)
 	- [cameras](scripting/builtins/libcameras.md)
     - [mat4](scripting/builtins/libmat4.md)
     - [player](scripting/builtins/libplayer.md)

@@ -1,11 +1,11 @@
 -- kit of standard functions
 
 -- Check if given table is an array
-function is_array(x)
+function is_array(t)
     if #t > 0 then
         return true
     end
-    for k, v in pairs(x) do
+    for k, v in pairs(t) do
         return false
     end
     return true
@@ -108,35 +108,68 @@ end
 
 -- events
 events = {
-    handlers = {}
+    list = {}
 }
 
-function events.on(event, func)
-    -- why an array? length is always = 1
-    -- FIXME: temporary fixed
-    events.handlers[event] = {} -- events.handlers[event] or {}
-    table.insert(events.handlers[event], func)
+function events.on(id, name, fn)
+    if not id then error("event name missing") end
+    if not name then error("callback name missing") end
+
+    if not events.list[id] then events.list[id] = {} end
+
+    --[[
+        if there is a function in place of the name argument, 
+        then it is moved to the func argument and name will contain a name of the type: "function: 128xk3819".
+    ]]
+    if type(name) == "function" then
+        fn = name
+        name = tostring(name)
+    end
+
+    table.insert(events.list[id], {
+        name = name,
+        fn = fn
+    })
 end
 
-function events.remove_by_prefix(prefix)
-    for name, handlers in pairs(events.handlers) do
-        if name:sub(1, #prefix) == prefix then
-            events.handlers[name] = nil
+function events.remove(id, name)
+    if not id then error("event name missing") end
+    if not name then error("callback name missing") end
+
+    if not events.list[id] then return end
+
+    for k, v in pairs(events.list[id]) do
+        if v.name == name then
+            table.remove(events.list[id], k)
+            break
         end
     end
 end
 
-function pack.unload(prefix)
-    events.remove_by_prefix(prefix)
+function events.get_table(id)
+    if id then
+        return events.list[id] and table.copy(events.list[id]) or nil
+    end
+
+    return table.copy(events.list)
 end
 
-function events.emit(event, ...)
-    result = nil
-    if events.handlers[event] then
-        for _, func in ipairs(events.handlers[event]) do
-            result = result or func(...)
-        end
+function events.emit(id, ...)
+    if not id then error("event name missing") end
+    if not events.list[id] then return end
+
+    local result = nil
+
+    for i = 1, #events.list[id] do
+        local fn = events.list[id][i].fn
+
+        if not fn then goto skip end
+
+        local fnRes = fn(...)
+        result = fnRes or result
+        ::skip::
     end
+
     return result
 end
 
@@ -433,12 +466,29 @@ function meta:__index(key)
     end
 end
 
+function meta:__len()
+    return string.len(self)
+end
+
 function string.starts_with(str, start)
     return string.sub(str, 1, string.len(start)) == start
 end
 
 function string.ends_with(str, endStr)
     return endStr == "" or string.sub(str, -string.len(endStr)) == endStr
+end
+
+function string.unpack(...)
+    local t = {...}
+    t = type(t[1]) == "table" and t[1] or t
+
+    local str = ""
+
+    for k, v in pairs(t) do
+        str = str .. tostring(v)
+    end
+
+    return str
 end
 
 -- --------- Deprecated functions ------ --
