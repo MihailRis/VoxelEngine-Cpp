@@ -9,6 +9,7 @@
 #include "coders/imageio.hpp"
 #include "coders/json.hpp"
 #include "coders/toml.hpp"
+#include "coders/commons.hpp"
 #include "content/Content.hpp"
 #include "content/ContentBuilder.hpp"
 #include "content/ContentLoader.hpp"
@@ -116,7 +117,12 @@ void Engine::loadSettings() {
     if (fs::is_regular_file(settings_file)) {
         logger.info() << "loading settings";
         std::string text = files::read_string(settings_file);
-        toml::parse(settingsHandler, settings_file.string(), text);
+        try {
+            toml::parse(settingsHandler, settings_file.string(), text);
+        } catch (const parsing_error& err) {
+            logger.error() << err.errorLog();
+            throw;
+        }
     }
 }
 
