@@ -71,6 +71,8 @@ namespace util {
     double parse_double(const std::string& str);
     double parse_double(const std::string& str, size_t offset, size_t len);
 
+    std::string capitalized(const std::string& str);
+
     std::wstring lower_case(const std::wstring& str);
     std::wstring upper_case(const std::wstring& str);
     std::wstring capitalized(const std::wstring& str);

@@ -192,6 +192,9 @@ struct VoxelStructure {
 struct GeneratorDef {
     /// @brief Generator full name - packid:name
     std::string name;
+    /// @brief Generator display name
+    std::string caption;
+
     std::unique_ptr<GeneratorScript> script;
 
     /// @brief Sea level (top of seaLayers)

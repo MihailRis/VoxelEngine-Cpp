@@ -52,10 +52,10 @@ static int l_get_generators(lua::State* L) {
 
     int i = 1;
     for (const auto& pack : packs) {
-        auto names = ContentLoader::scanContent(pack, ContentType::GENERATOR);
-        for (const auto& name : names) {
-            lua::pushstring(L, name);
-            lua::rawseti(L, i);
+        auto pairs = ContentLoader::scanContent(pack, ContentType::GENERATOR);
+        for (const auto& [name, caption] : pairs) {
+            lua::pushstring(L, caption);
+            lua::setfield(L, name);
             i++;
         }
     }

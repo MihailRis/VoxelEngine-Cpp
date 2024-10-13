@@ -405,6 +405,13 @@ std::wstring util::capitalized(const std::wstring& str) {
            str.substr(1);
 }
 
+std::string util::capitalized(const std::string& str) {
+    if (str.empty()) return str;
+    static const std::locale loc("");
+    return std::string({static_cast<char>(std::toupper(str[0], loc))}) +
+           str.substr(1);
+}
+
 std::wstring util::pascal_case(const std::wstring& str) {
     if (str.empty()) return str;
     static const std::locale loc("");

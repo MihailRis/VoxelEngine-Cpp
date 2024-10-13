@@ -193,6 +193,7 @@ void ContentLoader::loadGenerator(
         return;
     }
     auto map = files::read_toml(generatorsDir / fs::u8path(name + ".toml"));
+    map.at("caption").get(def.caption);
     map.at("biome_parameters").get(def.biomeParameters);
     map.at("biome-bpd").get(def.biomesBPD);
     map.at("heights-bpd").get(def.heightsBPD);

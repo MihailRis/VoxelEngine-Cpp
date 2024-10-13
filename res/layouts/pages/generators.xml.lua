@@ -5,11 +5,11 @@ function on_open()
     table.sort(names)
 
     local panel = document.root
-    for _,k in ipairs(names) do
+    for k, caption in pairs(names) do
         panel:add(gui.template("generator", {
             callback=string.format("settings.generator=%q menu:back()", k),
             id=k,
-            name=settings.generator_name(k)
+            name=settings.generator_name(caption)
         }))
     end
     panel:add("<button onclick='menu:back()'>@Back</button>")

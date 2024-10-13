@@ -10,8 +10,9 @@ VoxelStructure::VoxelStructure(
     std::unique_ptr<VoxelFragment> structure
 ) : fragments({std::move(structure)}), meta(std::move(meta)) {}
 
-
-GeneratorDef::GeneratorDef(std::string name) : name(std::move(name)) {}
+GeneratorDef::GeneratorDef(std::string name)
+    : name(std::move(name)), caption(util::id_to_caption(name)) {
+}
 
 void GeneratorDef::prepare(const Content* content) {
     for (auto& biome : biomes) {

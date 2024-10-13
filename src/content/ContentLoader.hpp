@@ -70,7 +70,7 @@ public:
         const std::string& contentSection
     );
 
-    static std::vector<std::string> scanContent(
+    static std::vector<std::tuple<std::string, std::string>> scanContent(
         const ContentPack& pack, ContentType type
     );
 
