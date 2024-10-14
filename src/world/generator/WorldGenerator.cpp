@@ -162,9 +162,11 @@ void WorldGenerator::placeStructure(
     AABB aabb(position, position + size);
     for (int lcz = -1; lcz <= 1; lcz++) {
         for (int lcx = -1; lcx <= 1; lcx++) {
-            auto& otherPrototype = requirePrototype(
-                chunkX + lcx, chunkZ + lcz
-            );
+            const auto& found = prototypes.find({chunkX + lcx, chunkZ + lcz});
+            if (found == prototypes.end()) {
+                continue;
+            }
+            auto& otherPrototype = *found->second;
             auto chunkAABB = gen_chunk_aabb(chunkX + lcx, chunkZ + lcz);
             if (chunkAABB.intersect(aabb)) {
                 otherPrototype.placements.emplace_back(
