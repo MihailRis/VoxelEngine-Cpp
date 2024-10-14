@@ -18,6 +18,7 @@ static inline auto SCREENSHOTS_FOLDER = std::filesystem::u8path("screenshots");
 static inline auto CONTENT_FOLDER = std::filesystem::u8path("content");
 static inline auto WORLDS_FOLDER = std::filesystem::u8path("worlds");
 static inline auto CONFIG_FOLDER = std::filesystem::u8path("config");
+static inline auto EXPORT_FOLDER = std::filesystem::u8path("export");
 static inline auto CONTROLS_FILE = std::filesystem::u8path("controls.toml");
 static inline auto SETTINGS_FILE = std::filesystem::u8path("settings.toml");
 
@@ -50,6 +51,10 @@ void EnginePaths::prepare() {
     auto contentFolder = userFilesFolder / CONTENT_FOLDER;
     if (!fs::is_directory(contentFolder)) {
         fs::create_directories(contentFolder);
+    }
+    auto exportFolder = userFilesFolder / EXPORT_FOLDER;
+    if (!fs::is_directory(exportFolder)) {
+        fs::create_directories(exportFolder);
     }
 }
 
@@ -186,6 +191,9 @@ std::filesystem::path EnginePaths::resolve(
     }
     if (prefix == "world") {
         return currentWorldFolder / fs::u8path(filename);
+    }
+    if (prefix == "export") {
+        return userFilesFolder / EXPORT_FOLDER / fs::u8path(filename);
     }
 
     if (contentPacks) {

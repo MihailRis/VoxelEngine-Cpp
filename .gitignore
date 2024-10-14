@@ -6,6 +6,8 @@ Debug/voxel_engine
 /build
 /cmake-build-**
 /screenshots
+/export
+/config
 /out
 
 /misc

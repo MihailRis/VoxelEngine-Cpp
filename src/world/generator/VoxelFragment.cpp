@@ -11,10 +11,40 @@
 #include "world/Level.hpp"
 
 std::unique_ptr<VoxelFragment> VoxelFragment::create(
-    Level* level, const glm::ivec3& a, const glm::ivec3& b, bool entities
+    Level* level,
+    const glm::ivec3& a,
+    const glm::ivec3& b,
+    bool crop,
+    bool entities
 ) {
     auto start = glm::min(a, b);
     auto size = glm::abs(a - b);
+
+    if (crop) {
+        VoxelsVolume volume(size.x, size.y, size.z);
+        volume.setPosition(start.x, start.y, start.z);
+        level->chunksStorage->getVoxels(&volume);
+
+        auto end = start + size;
+
+        auto min = end;
+        auto max = start;
+        
+        for (int y = start.y; y < end.y; y++) {
+            for (int z = start.z; z < end.z; z++) {
+                for (int x = start.x; x < end.x; x++) {
+                    if (volume.pickBlockId(x, y, z)) {
+                        min = glm::min(min, {x, y, z});
+                        max = glm::max(max, {x+1, y+1, z+1});
+                    }
+                }
+            }
+        }
+        if (glm::min(min, max) == min) {
+            start = min;
+            size = max - min;
+        }
+    }
 
     VoxelsVolume volume(size.x, size.y, size.z);
     volume.setPosition(start.x, start.y, start.z);

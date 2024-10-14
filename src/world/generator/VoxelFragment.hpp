@@ -44,7 +44,12 @@ public:
     std::unique_ptr<VoxelFragment> rotated(const Content& content) const;
 
     static std::unique_ptr<VoxelFragment> create(
-        Level* level, const glm::ivec3& a, const glm::ivec3& b, bool entities);
+        Level* level,
+        const glm::ivec3& a,
+        const glm::ivec3& b,
+        bool crop,
+        bool entities
+    );
 
     const glm::ivec3& getSize() const {
         return size;

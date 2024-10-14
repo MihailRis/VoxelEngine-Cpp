@@ -151,8 +151,8 @@ console.add_command(
 )
 
 console.add_command(
-    "structure.save x:int y:int z:int w:int h:int d:int name:str='untitled'",
-    "Save structure",
+    "fragment.save x:int y:int z:int w:int h:int d:int name:str='untitled' crop:bool=false",
+    "Save fragment",
     function(args, kwargs)
         local x = args[1]
         local y = args[2]
@@ -163,6 +163,14 @@ console.add_command(
         local d = args[6]
 
         local name = args[7]
-        generation.save_structure({x, y, z}, {x+w, y+h, z+d}, name..'.vox', false)
+        local crop = args[8]
+        
+        local fragment = generation.create_fragment(
+            {x, y, z}, {x + w, y + h, z + d}, crop, false
+        )
+        local filename = 'export:'..name..'.vox'
+        generation.save_fragment(fragment, filename, crop)
+        console.log("fragment with size "..vec3.tostring(fragment.size)..
+                    " has been saved as "..file.resolve(filename))
     end
 )

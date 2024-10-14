@@ -71,15 +71,15 @@ namespace lua {
     };
     static_assert(!std::is_abstract<LuaHeightmap>());
 
-    class LuaVoxelStructure : public Userdata {
-        std::shared_ptr<VoxelFragment> structure;
+    class LuaVoxelFragment : public Userdata {
+        std::shared_ptr<VoxelFragment> fragment;
     public:
-        LuaVoxelStructure(std::shared_ptr<VoxelFragment> structure);
+        LuaVoxelFragment(std::shared_ptr<VoxelFragment> fragment);
 
-        virtual ~LuaVoxelStructure();
+        virtual ~LuaVoxelFragment();
 
-        std::shared_ptr<VoxelFragment> getStructure() const {
-            return structure;
+        std::shared_ptr<VoxelFragment> getFragment() const {
+            return fragment;
         }
 
         const std::string& getTypeName() const override {
@@ -87,7 +87,7 @@ namespace lua {
         }
 
         static int createMetatable(lua::State*);
-        inline static std::string TYPENAME = "VoxelStructure";
+        inline static std::string TYPENAME = "VoxelFragment";
     };
-    static_assert(!std::is_abstract<LuaVoxelStructure>());
+    static_assert(!std::is_abstract<LuaVoxelFragment>());
 }
