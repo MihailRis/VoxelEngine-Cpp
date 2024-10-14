@@ -12,6 +12,7 @@ class Mesh;
 class Texture;
 class Chunks;
 class Assets;
+struct EngineSettings;
 
 namespace model {
     struct Mesh;
@@ -32,6 +33,7 @@ class ModelBatch {
     Chunks* chunks;
     Texture* texture = nullptr;
     UVRegion region {0.0f, 0.0f, 1.0f, 1.0f};
+    const EngineSettings* settings;
 
     static inline glm::vec3 SUN_VECTOR {0.411934f, 0.863868f, -0.279161f};
 
@@ -65,7 +67,8 @@ class ModelBatch {
               const glm::mat4& matrix, 
               const glm::mat3& rotation, 
               glm::vec3 tint,
-              const texture_names_map* varTextures);
+              const texture_names_map* varTextures,
+              bool backlight);
     void setTexture(const std::string& name,
                     const texture_names_map* varTextures);
     void setTexture(Texture* texture);
@@ -80,7 +83,12 @@ class ModelBatch {
     };
     std::vector<DrawEntry> entries;
 public:
-    ModelBatch(size_t capacity, Assets* assets, Chunks* chunks);
+    ModelBatch(
+        size_t capacity,
+        Assets* assets,
+        Chunks* chunks,
+        const EngineSettings* settings
+    );
     ~ModelBatch();
 
     void draw(glm::mat4 matrix,
