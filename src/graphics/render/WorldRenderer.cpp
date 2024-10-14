@@ -55,7 +55,8 @@ WorldRenderer::WorldRenderer(
       frustumCulling(std::make_unique<Frustum>()),
       lineBatch(std::make_unique<LineBatch>()),
       modelBatch(std::make_unique<ModelBatch>(
-          20'000, engine->getAssets(), level->chunks.get()
+          20'000, engine->getAssets(), level->chunks.get(), 
+          &engine->getSettings()
       )) {
     renderer = std::make_unique<ChunksRenderer>(
         level, frontend->getContentGfxCache(), &engine->getSettings()
