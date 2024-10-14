@@ -14,6 +14,8 @@ class Inventory : public Serializable {
     int64_t id;
     std::vector<ItemStack> slots;
 public:
+    Inventory() = default;
+
     Inventory(int64_t id, size_t size);
 
     Inventory(const Inventory& orig);

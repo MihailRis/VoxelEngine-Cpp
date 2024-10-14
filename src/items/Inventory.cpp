@@ -91,17 +91,11 @@ void Inventory::convert(const ContentReport* report) {
     }
 }
 
-// TODO: remove
 void Inventory::convert(dv::value& data, const ContentReport* report) {
-    auto& slotsarr = data["slots"];
-    for (auto& item : data["slots"]) {
-        itemid_t id = item["id"].asInteger(ITEM_EMPTY);
-        itemid_t replacement = report->items.getId(id);
-        item["id"] = replacement;
-        if (replacement == 0 && item.has("count")) {
-            item.erase("count");
-        }
-    }
+    Inventory inventory;
+    inventory.deserialize(data);
+    inventory.convert(report);
+    data = inventory.serialize();
 }
 
 const size_t Inventory::npos = -1;
