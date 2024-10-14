@@ -16,7 +16,7 @@ static BlocksLayer load_layer(
     const auto& name = map["block"].asString();
     int height = map["height"].asInteger();
     bool belowSeaLevel = true;
-    map.at("below_sea_level").get(belowSeaLevel);
+    map.at("below-sea-level").get(belowSeaLevel);
 
     if (hasResizeableLayer) {
         lastLayersHeight += height;
@@ -75,11 +75,11 @@ static inline BiomeElementList load_biome_element_list(
 }
 
 static inline BiomeElementList load_plants(const dv::value& biomeMap) {
-    return load_biome_element_list(biomeMap, "plant_chance", "plants", "block");
+    return load_biome_element_list(biomeMap, "plant-chance", "plants", "block");
 }
 
 static inline BiomeElementList load_structures(const dv::value map) {
-    return load_biome_element_list(map, "structure_chance", "structures", "name");
+    return load_biome_element_list(map, "structure-chance", "structures", "name");
 }
 
 static debug::Logger logger("generator-loader");
@@ -105,7 +105,7 @@ static inline Biome load_biome(
 
     auto plants = load_plants(biomeMap);
     auto groundLayers = load_layers(biomeMap["layers"], "layers");
-    auto seaLayers = load_layers(biomeMap["sea_layers"], "sea_layers");
+    auto seaLayers = load_layers(biomeMap["sea-layers"], "sea-layers");
     
     BiomeElementList structures;
     if (biomeMap.has("structures")) {
@@ -194,10 +194,10 @@ void ContentLoader::loadGenerator(
     }
     auto map = files::read_toml(generatorsDir / fs::u8path(name + ".toml"));
     map.at("caption").get(def.caption);
-    map.at("biome_parameters").get(def.biomeParameters);
+    map.at("biome-parameters").get(def.biomeParameters);
     map.at("biome-bpd").get(def.biomesBPD);
     map.at("heights-bpd").get(def.heightsBPD);
-    map.at("sea_level").get(def.seaLevel);
+    map.at("sea-level").get(def.seaLevel);
     map.at("wide-structs-chunks-radius").get(def.wideStructsChunksRadius);
 
     auto folder = generatorsDir / fs::u8path(name + ".files");

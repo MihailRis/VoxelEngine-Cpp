@@ -3,6 +3,6 @@ parameters = []
 layers = [
     {height=-1, block="core:obstacle"}
 ]
-sea_layers = [
+sea-layers = [
     {height=-1, block="core:obstacle"}
 ]

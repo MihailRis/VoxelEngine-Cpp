@@ -4,20 +4,20 @@ parameters = [
     {weight=0.5, value=0.2}
 ]
 layers = [
-    {below_sea_level=false, height=1, block="base:grass_block"},
-    {below_sea_level=false, height=7, block="base:dirt"},
+    {below-sea-level=false, height=1, block="base:grass_block"},
+    {below-sea-level=false, height=7, block="base:dirt"},
     {height=-1, block="base:stone"},
     {height=1, block="base:bazalt"}
 ]
-sea_layers = [
+sea-layers = [
     {height=-1, block="base:water"}
 ]
-plant_chance = 0.4
+plant-chance = 0.4
 plants = [
     {weight=1, block="base:grass"},
     {weight=0.03, block="base:flower"}
 ]
-structure_chance = 0.032
+structure-chance = 0.032
 structures = [
     {name="tree0", weight=1},
     {name="tree1", weight=1},
@@ -36,7 +36,7 @@ layers = [
     {height=-1, block="base:stone"},
     {height=1, block="base:bazalt"}
 ]
-sea_layers = [
+sea-layers = [
     {height=-1, block="base:water"}
 ]
 
@@ -47,20 +47,20 @@ parameters = [
     {weight=0.6, value=0.5}
 ]
 layers = [
-    {below_sea_level=false, height=1, block="base:grass_block"},
-    {below_sea_level=false, height=5, block="base:dirt"},
+    {below-sea-level=false, height=1, block="base:grass_block"},
+    {below-sea-level=false, height=5, block="base:dirt"},
     {height=-1, block="base:stone"},
     {height=1, block="base:bazalt"}
 ]
-sea_layers = [
+sea-layers = [
     {height=-1, block="base:water"}
 ]
-plant_chance = 0.3
+plant-chance = 0.3
 plants = [
     {weight=1, block="base:grass"},
     {weight=0.03, block="base:flower"}
 ]
-structure_chance=0.0001
+structure-chance=0.0001
 structures = [
     {name="tree0", weight=1},
     {name="tree1", weight=1}
