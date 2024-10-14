@@ -8,7 +8,7 @@
 #include "data/dv.hpp"
 
 namespace cmd {
-    enum class ArgType { number, integer, enumvalue, selector, string };
+    enum class ArgType { number, integer, enumvalue, selector, boolean, string };
 
     inline std::string argtype_name(ArgType type) {
         switch (type) {
@@ -20,6 +20,8 @@ namespace cmd {
                 return "enumeration";
             case ArgType::selector:
                 return "selector";
+            case ArgType::boolean:
+                return "boolean";
             case ArgType::string:
                 return "string";
             default:

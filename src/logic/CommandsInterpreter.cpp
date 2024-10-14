@@ -39,6 +39,7 @@ class CommandParser : BasicParser {
         {"int", ArgType::integer},
         {"str", ArgType::string},
         {"sel", ArgType::selector},
+        {"bool", ArgType::boolean},
         {"enum", ArgType::enumvalue},
     };
 public:
@@ -250,6 +251,11 @@ public:
                 return selectorCheck(arg, value);
             case ArgType::integer:
                 return typeCheck(arg, dv::value_type::integer, value, "integer");
+            case ArgType::boolean:
+                if (!arg->optional) {
+                    throw typeError(arg->name, "boolean", value);
+                }
+                return value.isBoolean();
             case ArgType::string:
                 if (!value.isString()) {
                     return !arg->optional;
