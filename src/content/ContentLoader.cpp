@@ -790,6 +790,20 @@ void ContentLoader::load() {
         }
     }
 
+    // Load pack resources aliases
+    fs::path aliasesFile = folder / fs::u8path("resource-aliases.json");
+    if (fs::exists(aliasesFile)) {
+        auto resRoot = files::read_json(aliasesFile);
+        for (const auto& [key, arr] : resRoot.asObject()) {
+            if (auto resType = ResourceType_from(key)) {
+                loadResourceAliases(*resType, arr);
+            } else {
+                // Ignore unknown resources
+                logger.warning() << "unknown resource type: " << key;
+            }
+        }
+    }
+
     // Load block materials
     fs::path materialsDir = folder / fs::u8path("block_materials");    
     if (fs::is_directory(materialsDir)) {
@@ -832,6 +846,14 @@ void ContentLoader::loadResources(ResourceType type, const dv::value& list) {
     for (size_t i = 0; i < list.size(); i++) {
         builder.resourceIndices[static_cast<size_t>(type)].add(
             pack->id + ":" + list[i].asString(), nullptr
+        );
+    }
+}
+
+void ContentLoader::loadResourceAliases(ResourceType type, const dv::value& aliases) {
+    for (const auto& [alias, name] : aliases.asObject()) {
+        builder.resourceIndices[static_cast<size_t>(type)].addAlias(
+            name.asString(), alias
         );
     }
 }

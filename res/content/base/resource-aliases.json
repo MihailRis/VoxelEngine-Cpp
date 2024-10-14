@@ -1,0 +1,8 @@
+{
+    "camera": {
+        "base:first-person": "core:first-person",
+        "base:third-person-front": "core:third-person-front",
+        "base:third-person-back": "core:third-person-back",
+        "base:cinematic": "core:cinematic"
+    }
+}

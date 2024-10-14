@@ -54,6 +54,7 @@ class ContentLoader {
         EntityDef& def, const std::string& name, const fs::path& file
     );
     void loadResources(ResourceType type, const dv::value& list);
+    void loadResourceAliases(ResourceType type, const dv::value& aliases);
 
     void loadContent(const dv::value& map);
 public:
