@@ -36,9 +36,8 @@ static int l_create_fragment(lua::State* L) {
 
 static int l_load_fragment(lua::State* L) {
     auto paths = engine->getPaths();
-    auto [prefix, filename] = EnginePaths::parsePath(lua::require_string(L, 1));
-
-    auto path = paths->resolve(prefix+":generators/"+filename+".vox");
+    auto filename = lua::require_string(L, 1);
+    auto path = paths->resolve(filename);
     if (!std::filesystem::exists(path)) {
         throw std::runtime_error("file "+path.u8string()+" does not exist");
     }

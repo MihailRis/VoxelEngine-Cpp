@@ -13,6 +13,17 @@ LuaVoxelFragment::LuaVoxelFragment(std::shared_ptr<VoxelFragment> fragment)
 LuaVoxelFragment::~LuaVoxelFragment() {
 }
 
+static int l_crop(lua::State* L) {
+    if (auto fragment = touserdata<LuaVoxelFragment>(L, 1)) {
+        fragment->getFragment()->crop();
+    }
+    return 0;
+}
+
+static std::unordered_map<std::string, lua_CFunction> methods {
+    {"crop", lua::wrap<l_crop>},
+};
+
 static int l_meta_tostring(lua::State* L) {
     return pushstring(L, "VoxelFragment(0x" + util::tohex(
         reinterpret_cast<uint64_t>(topointer(L, 1)))+")");
@@ -27,11 +38,15 @@ static int l_meta_index(lua::State* L) {
         auto fieldname = tostring(L, 2);
         if (!std::strcmp(fieldname, "size")) {
             return pushivec(L, fragment->getFragment()->getSize());
+        } else {
+            auto found = methods.find(tostring(L, 2));
+            if (found != methods.end()) {
+                return pushcfunction(L, found->second);
+            }
         }
     }
     return 0;
 }
-
 
 int LuaVoxelFragment::createMetatable(lua::State* L) {
     createtable(L, 0, 2);

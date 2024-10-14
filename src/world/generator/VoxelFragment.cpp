@@ -9,6 +9,7 @@
 #include "voxels/ChunksStorage.hpp"
 #include "voxels/VoxelsVolume.hpp"
 #include "world/Level.hpp"
+#include "core_defs.hpp"
 
 std::unique_ptr<VoxelFragment> VoxelFragment::create(
     Level* level,
@@ -51,10 +52,10 @@ std::unique_ptr<VoxelFragment> VoxelFragment::create(
     level->chunksStorage->getVoxels(&volume);
 
     auto volVoxels = volume.getVoxels();
-    std::vector<voxel> voxels(size.x*size.y*size.z);
+    std::vector<voxel> voxels(size.x * size.y * size.z);
 
-    std::vector<std::string> blockNames;
-    std::unordered_map<blockid_t, blockid_t> blocksRegistered;
+    std::vector<std::string> blockNames {CORE_AIR};
+    std::unordered_map<blockid_t, blockid_t> blocksRegistered {{0, 0}};
     auto contentIndices = level->content->getIndices();
     for (size_t i = 0 ; i < voxels.size(); i++) {
         blockid_t id = volVoxels[i].id;
@@ -113,6 +114,49 @@ void VoxelFragment::deserialize(const dv::value& src) {
     }
 }
 
+void VoxelFragment::crop() {
+    glm::ivec3 min = size;
+    glm::ivec3 max = {};
+    
+    blockid_t air;
+    const auto& found = std::find(blockNames.begin(), blockNames.end(), CORE_AIR);
+    if (found == blockNames.end()) {
+        throw std::runtime_error(CORE_AIR+" is not found in fragment");
+    }
+    air = found - blockNames.begin();
+
+    for (int y = 0; y < size.y; y++) {
+        for (int z = 0; z < size.z; z++) {
+            for (int x = 0; x < size.x; x++) {
+                if (voxels[vox_index(x, y, z, size.x, size.z)].id != air) {
+                    min = glm::min(min, {x, y, z});
+                    max = glm::max(max, {x+1, y+1, z+1});
+                }
+            }
+        }
+    }
+    if (glm::min(min, max) == min) {
+        auto newSize = max - min;
+        std::vector<voxel> newVoxels(newSize.x * newSize.y * newSize.z);
+        for (int y = 0; y < newSize.y; y++) {
+            for (int z = 0; z < newSize.z; z++) {
+                for (int x = 0; x < newSize.x; x++) {
+                    newVoxels[vox_index(x, y, z, newSize.x, newSize.z)] =
+                        voxels[vox_index(
+                            x + min.x,
+                            y + min.y,
+                            z + min.z,
+                            size.x,
+                            size.z
+                        )];
+                }
+            }
+        }
+        voxels = std::move(newVoxels);
+        size = newSize;
+    }
+}
+
 void VoxelFragment::prepare(const Content& content) {
     auto volume = size.x*size.y*size.z;
     voxelsRuntime.resize(volume);
@@ -129,8 +173,8 @@ std::unique_ptr<VoxelFragment> VoxelFragment::rotated(const Content& content) co
     for (int y = 0; y < size.y; y++) {
         for (int z = 0; z < size.z; z++) {
             for (int x = 0; x < size.x; x++) {
-                auto& voxel = newVoxels[vox_index(x, y, z, size.x, size.z)];
-                voxel = voxels[vox_index(size.z-z-1, y, x, size.z, size.x)];
+                auto& voxel = newVoxels[vox_index(size.z-z-1, y, x, size.z, size.x)];
+                voxel = voxels[vox_index(x, y, z, size.x, size.z)];
                 // swap X and Z segment bits
                 voxel.state.segment = ((voxel.state.segment & 0b001) << 2)
                                     | (voxel.state.segment & 0b010)

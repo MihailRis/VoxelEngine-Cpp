@@ -35,6 +35,7 @@ public:
 
     dv::value serialize() const override;
     void deserialize(const dv::value& src) override;
+    void crop();
 
     /// @brief Build runtime voxel indices
     /// @param content world content

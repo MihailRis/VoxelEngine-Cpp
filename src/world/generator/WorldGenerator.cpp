@@ -272,9 +272,6 @@ void WorldGenerator::generateStructures(
             glm::ivec3 position {x, height, z};
             position.x -= structure.getSize().x / 2;
             position.z -= structure.getSize().z / 2;
-            prototype.placements.emplace_back(
-                1, StructurePlacement {structureId, position, rotation}
-            );
             placeStructure(
                 StructurePlacement {
                     structureId,
@@ -486,6 +483,7 @@ void WorldGenerator::generateStructure(
     auto& structVoxels = structure.getRuntimeVoxels();
     const auto& offset = placement.position;
     const auto& size = structure.getSize();
+
     for (int y = 0; y < size.y; y++) {
         int sy = y + offset.y;
         if (sy < 0 || sy >= CHUNK_H) {

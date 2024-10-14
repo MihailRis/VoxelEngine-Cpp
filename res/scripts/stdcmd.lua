@@ -174,3 +174,16 @@ console.add_command(
                     " has been saved as "..file.resolve(filename))
     end
 )
+
+console.add_command(
+    "fragment.crop filename:str",
+    "Crop fragment",
+    function(args, kwargs)
+        local filename = args[1]
+        local fragment = generation.load_fragment(filename)
+        fragment:crop()
+        generation.save_fragment(fragment, filename, crop)
+        console.log("fragment with size "..vec3.tostring(fragment.size)..
+                    " has been saved as "..file.resolve(filename))
+    end
+)

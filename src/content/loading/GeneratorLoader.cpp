@@ -145,6 +145,9 @@ static std::vector<std::unique_ptr<VoxelStructure>> load_structures(
         }
         auto fragment = std::make_unique<VoxelFragment>();
         fragment->deserialize(files::read_binary_json(structFile));
+        logger.info() << "fragment " << name << " has size [" << 
+            fragment->getSize().x << ", " << fragment->getSize().y << ", " <<
+            fragment->getSize().z << "]";
 
         structures.push_back(std::make_unique<VoxelStructure>(
             load_structure_meta(name, config),

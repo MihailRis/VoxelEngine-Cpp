@@ -108,10 +108,10 @@ void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
     int ecz = floordiv(z + d, CHUNK_D);
 
     int cw = ecx - scx + 1;
-    int ch = ecz - scz + 1;
+    int cd = ecz - scz + 1;
 
-    // cw*ch chunks will be scanned
-    for (int cz = scz; cz < scz + ch; cz++) {
+    // cw*cd chunks will be scanned
+    for (int cz = scz; cz < scz + cd; cz++) {
         for (int cx = scx; cx < scx + cw; cx++) {
             const auto& found = chunksMap.find(glm::ivec2(cx, cz));
             if (found == chunksMap.end()) {
