@@ -281,7 +281,13 @@ static int l_get_model(lua::State* L) {
 
 static int l_get_hitbox(lua::State* L) {
     if (auto def = require_block(L)) {
-        auto& hitbox = def->rt.hitboxes[lua::tointeger(L, 2)].at(0);
+        size_t rotation = lua::tointeger(L, 2);
+        if (def->rotatable) {
+            rotation %= def->rotations.MAX_COUNT;
+        } else {
+            rotation = 0;
+        }
+        auto& hitbox = def->rt.hitboxes[rotation].at(0);
         lua::createtable(L, 2, 0);
 
         lua::pushvec3(L, hitbox.min());
