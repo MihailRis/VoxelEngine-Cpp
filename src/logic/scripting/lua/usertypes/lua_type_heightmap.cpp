@@ -164,6 +164,48 @@ static int l_binop_func(lua::State* L) {
     return 0;
 }
 
+static int l_mixin(lua::State* L) {
+    if (auto heightmap = touserdata<LuaHeightmap>(L, 1)) {
+        uint w = heightmap->getWidth();
+        uint h = heightmap->getHeight();
+        auto heights = heightmap->getValues();
+
+        if (isnumber(L, 2)) {
+            float scalar = tonumber(L, 2);
+            if (isnumber(L, 3)) {
+                float t = tonumber(L, 3);
+                for (uint i = 0; i < w * h; i++) {
+                    heights[i] = heights[i] * (1.0f - t) + scalar * t;
+                }
+            } else {
+                auto tmap = touserdata<LuaHeightmap>(L, 3);
+                auto tmapvalues = tmap->getValues();
+                for (uint i = 0; i < w * h; i++) {
+                    float t = tmapvalues[i];
+                    heights[i] = heights[i] * (1.0f - t) + scalar * t;
+                }
+            }
+        } else {
+            auto map = touserdata<LuaHeightmap>(L, 2);
+            auto mapvalues = map->getValues();
+            if (isnumber(L, 3)) {
+                float t = tonumber(L, 3);
+                for (uint i = 0; i < w * h; i++) {
+                    heights[i] = heights[i] * (1.0f - t) + mapvalues[i] * t;
+                }
+            } else {
+                auto tmap = touserdata<LuaHeightmap>(L, 3);
+                auto tmapvalues = tmap->getValues();
+                for (uint i = 0; i < w * h; i++) {
+                    float t = tmapvalues[i];
+                    heights[i] = heights[i] * (1.0f - t) + mapvalues[i] * t;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
 template<template<class> class Op>
 static int l_unaryop_func(lua::State* L) {
     Op<float> op;
@@ -221,6 +263,7 @@ static std::unordered_map<std::string, lua_CFunction> methods {
     {"resize", lua::wrap<l_resize>},
     {"crop", lua::wrap<l_crop>},
     {"at", lua::wrap<l_at>},
+    {"mixin", lua::wrap<l_mixin>},
 };
 
 static int l_meta_meta_call(lua::State* L) {
