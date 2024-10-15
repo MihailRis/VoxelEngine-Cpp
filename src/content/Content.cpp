@@ -10,6 +10,8 @@
 #include "objects/EntityDef.hpp"
 #include "objects/rigging.hpp"
 #include "voxels/Block.hpp"
+#include "world/generator/VoxelFragment.hpp"
+#include "world/generator/GeneratorDef.hpp"
 #include "ContentPack.hpp"
 
 ContentIndices::ContentIndices(
@@ -28,6 +30,7 @@ Content::Content(
     ContentUnitDefs<Block> blocks,
     ContentUnitDefs<ItemDef> items,
     ContentUnitDefs<EntityDef> entities,
+    ContentUnitDefs<GeneratorDef> generators,
     UptrsMap<std::string, ContentPackRuntime> packs,
     UptrsMap<std::string, BlockMaterial> blockMaterials,
     UptrsMap<std::string, rigging::SkeletonConfig> skeletons,
@@ -40,6 +43,7 @@ Content::Content(
       blocks(std::move(blocks)),
       items(std::move(items)),
       entities(std::move(entities)),
+      generators(std::move(generators)),
       drawGroups(std::move(drawGroups)) {
     for (size_t i = 0; i < RESOURCE_TYPES_COUNT; i++) {
         this->resourceIndices[i] = std::move(resourceIndices[i]);

@@ -87,7 +87,7 @@ void Level::loadMatrix(int32_t x, int32_t z, uint32_t radius) {
         (settings.chunks.loadDistance.get() + settings.chunks.padding.get()) *
             2LL
     );
-    if (chunks->w != diameter) {
+    if (chunks->getWidth() != diameter) {
         chunks->resize(diameter, diameter);
     }
 }

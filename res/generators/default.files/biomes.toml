@@ -1,0 +1,8 @@
+[flat]
+parameters = []
+layers = [
+    {height=-1, block="core:obstacle"}
+]
+sea-layers = [
+    {height=-1, block="core:obstacle"}
+]

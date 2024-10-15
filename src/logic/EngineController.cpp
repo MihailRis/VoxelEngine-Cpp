@@ -124,7 +124,7 @@ static void show_content_missing(
     auto root = dv::object();
     auto& contentEntries = root.list("content");
     for (auto& entry : report->getMissingContent()) {
-        std::string contentName = contenttype_name(entry.type);
+        std::string contentName = ContentType_name(entry.type);
         auto& contentEntry = contentEntries.object();
         contentEntry["type"] = contentName;
         contentEntry["name"] = entry.name;

@@ -7,13 +7,6 @@
     "models": [
         "drop-item"
     ],
-    "shaders": [
-        "ui3d",
-        "entity",
-        "screen",
-        "background",
-        "skybox_gen"
-    ],
     "textures": [
         "misc/moon",
         "misc/sun",

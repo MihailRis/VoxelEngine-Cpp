@@ -242,7 +242,7 @@ dv::value Parser::parseValue() {
         } else if (literal == "nan") {
             return NAN;
         }
-        throw error("invalid literal ");
+        throw error("invalid keyword " + literal);
     }
     if (next == '{') {
         return parseObject();

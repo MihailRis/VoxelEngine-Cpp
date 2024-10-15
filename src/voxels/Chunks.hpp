@@ -9,6 +9,7 @@
 
 #include "typedefs.hpp"
 #include "voxel.hpp"
+#include "util/AreaMap2D.hpp"
 
 class VoxelRenderer;
 
@@ -33,19 +34,15 @@ class Chunks {
     void setRotationExtended(
         const Block& def, blockstate state, glm::ivec3 origin, uint8_t rotation
     );
+
+    util::AreaMap2D<std::shared_ptr<Chunk>, int32_t> areaMap;
 public:
-    std::vector<std::shared_ptr<Chunk>> chunks;
-    std::vector<std::shared_ptr<Chunk>> chunksSecond;
-    size_t volume;
-    size_t chunksCount;
     size_t visible = 0;
-    uint32_t w, d;
-    int32_t ox, oz;
     WorldFiles* worldFiles;
 
     Chunks(
-        uint32_t w,
-        uint32_t d,
+        int32_t w,
+        int32_t d,
         int32_t ox,
         int32_t oz,
         WorldFiles* worldFiles,
@@ -105,14 +102,38 @@ public:
     bool isReplaceableBlock(int32_t x, int32_t y, int32_t z);
     bool isObstacleBlock(int32_t x, int32_t y, int32_t z);
 
-    // does not move chunks inside
-    void _setOffset(int32_t x, int32_t z);
-
     void setCenter(int32_t x, int32_t z);
-    void translate(int32_t x, int32_t z);
     void resize(uint32_t newW, uint32_t newD);
 
     void saveAndClear();
     void save(Chunk* chunk);
     void saveAll();
+
+    const std::vector<std::shared_ptr<Chunk>>& getChunks() const {
+        return areaMap.getBuffer();
+    }
+
+    int getWidth() const {
+        return areaMap.getWidth();
+    }
+
+    int getHeight() const {
+        return areaMap.getHeight();
+    }
+
+    int getOffsetX() const {
+        return areaMap.getOffsetX();
+    }
+
+    int getOffsetY() const {
+        return areaMap.getOffsetY();
+    }
+
+    size_t getChunksCount() const {
+        return areaMap.count();
+    }
+
+    size_t getVolume() const {
+        return areaMap.area();
+    }
 };

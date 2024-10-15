@@ -4,7 +4,9 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <tuple>
 
+#include "data/dv.hpp"
 #include "content/ContentPack.hpp"
 
 
@@ -41,6 +43,10 @@ public:
 
     std::filesystem::path resolve(const std::string& path, bool throwErr = true);
 
+    static std::tuple<std::string, std::string> parsePath(std::string_view view);
+
+    static inline auto CONFIG_DEFAULTS =
+        std::filesystem::u8path("config/defaults.toml");
 private:
     std::filesystem::path userFilesFolder {"."};
     std::filesystem::path resourcesFolder {"res"};
@@ -61,6 +67,13 @@ public:
     std::string findRaw(const std::string& filename) const;
     std::vector<std::filesystem::path> listdir(const std::string& folder) const;
     std::vector<std::string> listdirRaw(const std::string& folder) const;
+
+    /// @brief Read all found list versions from all packs and combine into a
+    /// single list. Invalid versions will be skipped with logging a warning
+    /// @param file *.json file path relative to entry point 
+    dv::value readCombinedList(const std::string& file) const;
+
+    dv::value readCombinedObject(const std::string& file) const;
 
     const std::filesystem::path& getMainRoot() const;
 

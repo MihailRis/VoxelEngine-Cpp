@@ -19,12 +19,13 @@ class Block;
 struct BlockMaterial;
 struct ItemDef;
 struct EntityDef;
+struct GeneratorDef;
 
 namespace rigging {
     class SkeletonConfig;
 }
 
-constexpr const char* contenttype_name(ContentType type) {
+constexpr const char* ContentType_name(ContentType type) {
     switch (type) {
         case ContentType::NONE:
             return "none";
@@ -34,6 +35,8 @@ constexpr const char* contenttype_name(ContentType type) {
             return "item";
         case ContentType::ENTITY:
             return "entity";
+        case ContentType::GENERATOR:
+            return "generator";
         default:
             return "unknown";
     }
@@ -117,6 +120,10 @@ public:
         }
         return *found->second;
     }
+
+    const auto& getDefs() const {
+        return defs;
+    }
 };
 
 class ResourceIndices {
@@ -130,10 +137,19 @@ public:
 
     static constexpr size_t MISSING = SIZE_MAX;
 
-    void add(std::string name, dv::value map) {
+    void add(const std::string& name, dv::value map) {
         indices[name] = names.size();
         names.push_back(name);
         savedData->push_back(std::move(map));
+    }
+
+    void addAlias(const std::string& name, const std::string& alias) {
+        size_t index = indexOf(name);
+        if (index == MISSING) {
+            throw std::runtime_error(
+                "resource does not exists: "+name);
+        }
+        indices[alias] = index;
     }
 
     const std::string& getName(size_t index) const {
@@ -189,6 +205,7 @@ public:
     ContentUnitDefs<Block> blocks;
     ContentUnitDefs<ItemDef> items;
     ContentUnitDefs<EntityDef> entities;
+    ContentUnitDefs<GeneratorDef> generators;
     std::unique_ptr<DrawGroups> const drawGroups;
     ResourceIndicesSet resourceIndices {};
 
@@ -198,6 +215,7 @@ public:
         ContentUnitDefs<Block> blocks,
         ContentUnitDefs<ItemDef> items,
         ContentUnitDefs<EntityDef> entities,
+        ContentUnitDefs<GeneratorDef> generators,
         UptrsMap<std::string, ContentPackRuntime> packs,
         UptrsMap<std::string, BlockMaterial> blockMaterials,
         UptrsMap<std::string, rigging::SkeletonConfig> skeletons,

@@ -505,6 +505,9 @@ namespace dv {
         inline bool isNumber() const noexcept {
             return type == value_type::number;
         }
+        inline bool isBoolean() const noexcept {
+            return type == value_type::boolean;
+        }
     };
 
     inline bool is_numeric(const value& val) {

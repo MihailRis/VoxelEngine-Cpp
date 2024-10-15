@@ -14,7 +14,9 @@ struct BlockMaterial;
 struct ItemDef;
 struct EntityDef;
 struct ContentPack;
+struct GeneratorDef;
 
+class ResPaths;
 class ContentBuilder;
 class ContentPackRuntime;
 struct ContentPackStats;
@@ -25,6 +27,7 @@ class ContentLoader {
     scriptenv env;
     ContentBuilder& builder;
     ContentPackStats* stats;
+    const ResPaths& paths;
 
     void loadBlock(
         Block& def, const std::string& full, const std::string& name
@@ -34,6 +37,9 @@ class ContentLoader {
     );
     void loadEntity(
         EntityDef& def, const std::string& full, const std::string& name
+    );
+    void loadGenerator(
+        GeneratorDef& def, const std::string& full, const std::string& name
     );
 
     static void loadCustomBlockModel(Block& def, const dv::value& primitives);
@@ -48,14 +54,27 @@ class ContentLoader {
         EntityDef& def, const std::string& name, const fs::path& file
     );
     void loadResources(ResourceType type, const dv::value& list);
-public:
-    ContentLoader(ContentPack* pack, ContentBuilder& builder);
+    void loadResourceAliases(ResourceType type, const dv::value& aliases);
 
-    bool fixPackIndices(
+    void loadContent(const dv::value& map);
+public:
+    ContentLoader(
+        ContentPack* pack,
+        ContentBuilder& builder,
+        const ResPaths& paths
+    );
+
+    // Refresh pack content.json
+    static bool fixPackIndices(
         const fs::path& folder,
         dv::value& indicesRoot,
         const std::string& contentSection
     );
+
+    static std::vector<std::tuple<std::string, std::string>> scanContent(
+        const ContentPack& pack, ContentType type
+    );
+
     void fixPackIndices();
     void load();
 };

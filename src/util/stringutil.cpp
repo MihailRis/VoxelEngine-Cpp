@@ -312,11 +312,15 @@ std::string util::base64_encode(const ubyte* data, size_t size) {
     return ss.str();
 }
 
-std::string util::mangleid(uint64_t value) {
-    // todo: use base64
+std::string util::tohex(uint64_t value) {
     std::stringstream ss;
     ss << std::hex << value;
     return ss.str();
+}
+
+std::string util::mangleid(uint64_t value) {
+    // todo: use base64
+    return tohex(value);
 }
 
 util::Buffer<ubyte> util::base64_decode(const char* str, size_t size) {
@@ -398,6 +402,13 @@ std::wstring util::capitalized(const std::wstring& str) {
     if (str.empty()) return str;
     static const std::locale loc("");
     return std::wstring({static_cast<wchar_t>(std::toupper(str[0], loc))}) +
+           str.substr(1);
+}
+
+std::string util::capitalized(const std::string& str) {
+    if (str.empty()) return str;
+    static const std::locale loc("");
+    return std::string({static_cast<char>(std::toupper(str[0], loc))}) +
            str.substr(1);
 }
 

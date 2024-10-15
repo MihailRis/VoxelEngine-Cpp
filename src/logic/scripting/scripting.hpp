@@ -32,6 +32,8 @@ class BlocksController;
 class LevelController;
 class Entity;
 struct EntityDef;
+class GeneratorScript;
+struct GeneratorDef;
 
 namespace scripting {
     extern Engine* engine;
@@ -143,6 +145,12 @@ namespace scripting {
     );
 
     void load_entity_component(const std::string& name, const fs::path& file);
+
+    std::unique_ptr<GeneratorScript> load_generator(
+        const GeneratorDef& def,
+        const fs::path& file,
+        const std::string& dirPath
+    );
 
     /// @brief Load package-specific world script
     /// @param env environment

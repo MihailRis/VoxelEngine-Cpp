@@ -23,6 +23,8 @@ inline constexpr uint REGION_FORMAT_VERSION = 3;
 inline constexpr uint MAX_OPEN_REGION_FILES = 32;
 
 inline constexpr blockid_t BLOCK_AIR = 0;
+inline constexpr blockid_t BLOCK_OBSTACLE = 1;
+inline constexpr blockid_t BLOCK_STRUCT_AIR = 2;
 inline constexpr itemid_t ITEM_EMPTY = 0;
 inline constexpr entityid_t ENTITY_NONE = 0;
 

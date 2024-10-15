@@ -181,6 +181,9 @@ public:
     /// @brief Block script name in blocks/ without extension
     std::string scriptName = name.substr(name.find(':') + 1);
 
+    /// @brief Block will be used instead of this if generated on surface
+    std::string surfaceReplacement = name;
+
     /// @brief Default block layout will be used by hud.open_block(...)
     std::string uiLayout = name;
 
@@ -214,6 +217,8 @@ public:
 
         /// @brief picking item integer id
         itemid_t pickingItem = 0;
+
+        blockid_t surfaceReplacement = 0;
     } rt {};
 
     Block(const std::string& name);

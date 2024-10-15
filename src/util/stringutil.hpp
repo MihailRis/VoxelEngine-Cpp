@@ -60,6 +60,8 @@ namespace util {
     util::Buffer<ubyte> base64_decode(const char* str, size_t size);
     util::Buffer<ubyte> base64_decode(const std::string& str);
 
+    std::string tohex(uint64_t value);
+
     std::string mangleid(uint64_t value);
 
     int replaceAll(
@@ -68,6 +70,8 @@ namespace util {
 
     double parse_double(const std::string& str);
     double parse_double(const std::string& str, size_t offset, size_t len);
+
+    std::string capitalized(const std::string& str);
 
     std::wstring lower_case(const std::wstring& str);
     std::wstring upper_case(const std::wstring& str);

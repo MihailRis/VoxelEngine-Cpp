@@ -10,6 +10,7 @@
 #include "settings.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
+#include "maths/voxmaths.hpp"
 #include "scripting/scripting.hpp"
 
 static debug::Logger logger("level-control");
@@ -38,7 +39,10 @@ void LevelController::update(float delta, bool input, bool pause) {
         position.z,
         settings.chunks.loadDistance.get() + settings.chunks.padding.get() * 2
     );
-    chunks->update(settings.chunks.loadSpeed.get());
+    chunks->update(
+        settings.chunks.loadSpeed.get(), settings.chunks.loadDistance.get(),
+        floordiv(position.x, CHUNK_W), floordiv(position.z, CHUNK_D)
+    );
 
     if (!pause) {
         // update all objects that needed
@@ -89,6 +93,10 @@ Player* LevelController::getPlayer() {
 
 BlocksController* LevelController::getBlocksController() {
     return blocks.get();
+}
+
+ChunksController* LevelController::getChunksController() {
+    return chunks.get();
 }
 
 PlayerController* LevelController::getPlayerController() {

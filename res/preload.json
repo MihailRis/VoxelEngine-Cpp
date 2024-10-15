@@ -1,8 +1,13 @@
 {
     "shaders": [
         "ui",
+        "ui3d",
         "main",
-        "lines"
+        "lines",
+        "entity",
+        "screen",
+        "background",
+        "skybox_gen"
     ],
     "textures": [
         "gui/menubg",

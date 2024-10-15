@@ -149,3 +149,41 @@ console.add_command(
         end
     end
 )
+
+console.add_command(
+    "fragment.save x:int y:int z:int w:int h:int d:int name:str='untitled' crop:bool=false",
+    "Save fragment",
+    function(args, kwargs)
+        local x = args[1]
+        local y = args[2]
+        local z = args[3]
+
+        local w = args[4]
+        local h = args[5]
+        local d = args[6]
+
+        local name = args[7]
+        local crop = args[8]
+        
+        local fragment = generation.create_fragment(
+            {x, y, z}, {x + w, y + h, z + d}, crop, false
+        )
+        local filename = 'export:'..name..'.vox'
+        generation.save_fragment(fragment, filename, crop)
+        console.log("fragment with size "..vec3.tostring(fragment.size)..
+                    " has been saved as "..file.resolve(filename))
+    end
+)
+
+console.add_command(
+    "fragment.crop filename:str",
+    "Crop fragment",
+    function(args, kwargs)
+        local filename = args[1]
+        local fragment = generation.load_fragment(filename)
+        fragment:crop()
+        generation.save_fragment(fragment, filename, crop)
+        console.log("fragment with size "..vec3.tostring(fragment.size)..
+                    " has been saved as "..file.resolve(filename))
+    end
+)

@@ -10,12 +10,7 @@ function save_state()
 end
 
 function settings.generator_name(id)
-    local prefix, name = parse_path(id)
-    if prefix == "core" then
-        return gui.str(name, "world.generators")
-    else
-        return id
-    end
+    return gui.str(id, "world.generators"):gsub("^%l", string.upper)
 end
 
 function create_world()
@@ -34,12 +29,12 @@ function on_open()
         "%s [%s]", gui.str("Content", "menu"), #pack.get_installed()
     )
     if settings.generator == nil then
-        settings.generator = core.get_default_generator()
+        settings.generator = generation.get_default_generator()
     end
     document.generator_btn.text = string.format(
         "%s: %s", 
         gui.str("World generator", "world"), 
-        settings.generator_name(settings.generator)
+        settings.generator_name(generation.get_generators()[settings.generator])
     )
     document.name_box.text = settings.name or ''
     document.seed_box.text = settings.seed or ''

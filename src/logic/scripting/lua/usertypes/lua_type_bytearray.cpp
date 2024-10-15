@@ -1,31 +1,31 @@
-#include "lua_custom_types.hpp"
+#include "../lua_custom_types.hpp"
 
 #include <sstream>
 
-#include "lua_util.hpp"
+#include "../lua_util.hpp"
 
 using namespace lua;
 
-Bytearray::Bytearray(size_t capacity) : buffer(capacity) {
+LuaBytearray::LuaBytearray(size_t capacity) : buffer(capacity) {
     buffer.resize(capacity);
 }
 
-Bytearray::Bytearray(std::vector<ubyte> buffer) : buffer(std::move(buffer)) {
+LuaBytearray::LuaBytearray(std::vector<ubyte> buffer) : buffer(std::move(buffer)) {
 }
 
-Bytearray::~Bytearray() {
+LuaBytearray::~LuaBytearray() {
 }
 
-static int l_bytearray_append(lua::State* L) {
-    if (auto buffer = touserdata<Bytearray>(L, 1)) {
+static int l_append(lua::State* L) {
+    if (auto buffer = touserdata<LuaBytearray>(L, 1)) {
         auto value = tointeger(L, 2);
         buffer->data().push_back(static_cast<ubyte>(value));
     }
     return 0;
 }
 
-static int l_bytearray_insert(lua::State* L) {
-    auto buffer = touserdata<Bytearray>(L, 1);
+static int l_insert(lua::State* L) {
+    auto buffer = touserdata<LuaBytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
     }
@@ -39,8 +39,8 @@ static int l_bytearray_insert(lua::State* L) {
     return 0;
 }
 
-static int l_bytearray_remove(lua::State* L) {
-    auto buffer = touserdata<Bytearray>(L, 1);
+static int l_remove(lua::State* L) {
+    auto buffer = touserdata<LuaBytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
     }
@@ -53,13 +53,13 @@ static int l_bytearray_remove(lua::State* L) {
     return 0;
 }
 
-static std::unordered_map<std::string, lua_CFunction> bytearray_methods {
-    {"append", lua::wrap<l_bytearray_append>},
-    {"insert", lua::wrap<l_bytearray_insert>},
-    {"remove", lua::wrap<l_bytearray_remove>},
+static std::unordered_map<std::string, lua_CFunction> methods {
+    {"append", lua::wrap<l_append>},
+    {"insert", lua::wrap<l_insert>},
+    {"remove", lua::wrap<l_remove>},
 };
 
-static int l_bytearray_meta_meta_call(lua::State* L) {
+static int l_meta_meta_call(lua::State* L) {
     if (lua_istable(L, 2)) {
         size_t len = objlen(L, 2);
         std::vector<ubyte> buffer(len);
@@ -69,24 +69,24 @@ static int l_bytearray_meta_meta_call(lua::State* L) {
             buffer[i] = static_cast<ubyte>(tointeger(L, -1));
             pop(L);
         }
-        return newuserdata<Bytearray>(L, std::move(buffer));
+        return newuserdata<LuaBytearray>(L, std::move(buffer));
     }
     auto size = tointeger(L, 2);
     if (size < 0) {
         throw std::runtime_error("size can not be less than 0");
     }
-    return newuserdata<Bytearray>(L, static_cast<size_t>(size));
+    return newuserdata<LuaBytearray>(L, static_cast<size_t>(size));
 }
 
-static int l_bytearray_meta_index(lua::State* L) {
-    auto buffer = touserdata<Bytearray>(L, 1);
+static int l_meta_index(lua::State* L) {
+    auto buffer = touserdata<LuaBytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
     }
     auto& data = buffer->data();
     if (isstring(L, 2)) {
-        auto found = bytearray_methods.find(tostring(L, 2));
-        if (found != bytearray_methods.end()) {
+        auto found = methods.find(tostring(L, 2));
+        if (found != methods.end()) {
             return pushcfunction(L, found->second);
         }
     }
@@ -97,8 +97,8 @@ static int l_bytearray_meta_index(lua::State* L) {
     return pushinteger(L, data[index]);
 }
 
-static int l_bytearray_meta_newindex(lua::State* L) {
-    auto buffer = touserdata<Bytearray>(L, 1);
+static int l_meta_newindex(lua::State* L) {
+    auto buffer = touserdata<LuaBytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
     }
@@ -115,15 +115,15 @@ static int l_bytearray_meta_newindex(lua::State* L) {
     return 0;
 }
 
-static int l_bytearray_meta_len(lua::State* L) {
-    if (auto buffer = touserdata<Bytearray>(L, 1)) {
+static int l_meta_len(lua::State* L) {
+    if (auto buffer = touserdata<LuaBytearray>(L, 1)) {
         return pushinteger(L, buffer->data().size());
     }
     return 0;
 }
 
-static int l_bytearray_meta_tostring(lua::State* L) {
-    auto buffer = touserdata<Bytearray>(L, 1);
+static int l_meta_tostring(lua::State* L) {
+    auto buffer = touserdata<LuaBytearray>(L, 1);
     if (buffer == nullptr) {
         return 0;
     }
@@ -146,9 +146,9 @@ static int l_bytearray_meta_tostring(lua::State* L) {
     }
 }
 
-static int l_bytearray_meta_add(lua::State* L) {
-    auto bufferA = touserdata<Bytearray>(L, 1);
-    auto bufferB = touserdata<Bytearray>(L, 2);
+static int l_meta_add(lua::State* L) {
+    auto bufferA = touserdata<LuaBytearray>(L, 1);
+    auto bufferB = touserdata<LuaBytearray>(L, 2);
     if (bufferA == nullptr || bufferB == nullptr) {
         return 0;
     }
@@ -159,24 +159,24 @@ static int l_bytearray_meta_add(lua::State* L) {
     ab.reserve(dataA.size() + dataB.size());
     ab.insert(ab.end(), dataA.begin(), dataA.end());
     ab.insert(ab.end(), dataB.begin(), dataB.end());
-    return newuserdata<Bytearray>(L, std::move(ab));
+    return newuserdata<LuaBytearray>(L, std::move(ab));
 }
 
-int Bytearray::createMetatable(lua::State* L) {
+int LuaBytearray::createMetatable(lua::State* L) {
     createtable(L, 0, 6);
-    pushcfunction(L, lua::wrap<l_bytearray_meta_index>);
+    pushcfunction(L, lua::wrap<l_meta_index>);
     setfield(L, "__index");
-    pushcfunction(L, lua::wrap<l_bytearray_meta_newindex>);
+    pushcfunction(L, lua::wrap<l_meta_newindex>);
     setfield(L, "__newindex");
-    pushcfunction(L, lua::wrap<l_bytearray_meta_len>);
+    pushcfunction(L, lua::wrap<l_meta_len>);
     setfield(L, "__len");
-    pushcfunction(L, lua::wrap<l_bytearray_meta_tostring>);
+    pushcfunction(L, lua::wrap<l_meta_tostring>);
     setfield(L, "__tostring");
-    pushcfunction(L, lua::wrap<l_bytearray_meta_add>);
+    pushcfunction(L, lua::wrap<l_meta_add>);
     setfield(L, "__add");
 
     createtable(L, 0, 1);
-    pushcfunction(L, lua::wrap<l_bytearray_meta_meta_call>);
+    pushcfunction(L, lua::wrap<l_meta_meta_call>);
     setfield(L, "__call");
     setmetatable(L);
     return 1;

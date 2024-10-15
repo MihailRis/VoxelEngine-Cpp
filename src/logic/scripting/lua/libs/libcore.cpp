@@ -3,6 +3,7 @@
 
 #include "constants.hpp"
 #include "engine.hpp"
+#include "content/Content.hpp"
 #include "files/engine_paths.hpp"
 #include "files/settings_io.hpp"
 #include "frontend/menu.hpp"
@@ -11,8 +12,10 @@
 #include "logic/LevelController.hpp"
 #include "window/Events.hpp"
 #include "window/Window.hpp"
+#include "world/generator/WorldGenerator.hpp"
 #include "world/Level.hpp"
-#include "world/WorldGenerators.hpp"
+#include "util/listutil.hpp"
+
 #include "api_lua.hpp"
 
 using namespace scripting;
@@ -170,27 +173,6 @@ static int l_quit(lua::State*) {
     return 0;
 }
 
-/// @brief Get the default world generator
-/// @return The ID of the default world generator
-static int l_get_default_generator(lua::State* L) {
-    return lua::pushstring(L, WorldGenerators::getDefaultGeneratorID());
-}
-
-/// @brief Get a list of all world generators
-/// @return A table with the IDs of all world generators
-static int l_get_generators(lua::State* L) {
-    const auto& generators = WorldGenerators::getGeneratorsIDs();
-    lua::createtable(L, generators.size(), 0);
-
-    int i = 0;
-    for (auto& id : generators) {
-        lua::pushstring(L, id);
-        lua::rawseti(L, i + 1);
-        i++;
-    }
-    return 1;
-}
-
 const luaL_Reg corelib[] = {
     {"new_world", lua::wrap<l_new_world>},
     {"open_world", lua::wrap<l_open_world>},
@@ -203,6 +185,4 @@ const luaL_Reg corelib[] = {
     {"str_setting", lua::wrap<l_str_setting>},
     {"get_setting_info", lua::wrap<l_get_setting_info>},
     {"quit", lua::wrap<l_quit>},
-    {"get_default_generator", lua::wrap<l_get_default_generator>},
-    {"get_generators", lua::wrap<l_get_generators>},
     {NULL, NULL}};
