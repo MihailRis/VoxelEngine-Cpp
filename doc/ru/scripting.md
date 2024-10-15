@@ -12,6 +12,7 @@
     - [block](scripting/builtins/libblock.md)
     - [cameras](scripting/builtins/libcameras.md)
     - [entities](scripting/builtins/libentities.md)
+    - [gui](scripting/builtins/libgui.md)
     - [hud](scripting/builtins/libhud.md)
     - [inventory](scripting/builtins/libinventory.md)
     - [item](scripting/builtins/libitem.md)
@@ -19,6 +20,7 @@
     - [pack](scripting/builtins/libpack.md)
     - [player](scripting/builtins/libplayer.md)
     - [quat](scripting/builtins/libquat.md)
+    - [time](scripting/builtins/libtime.md)
     - [vec2, vec3, vec4](scripting/builtins/libvecn.md)
     - [world](scripting/builtins/libworld.md)
 - [Модуль core:bit_converter](scripting/modules/core_bit_converter.md)
@@ -40,56 +42,3 @@
 ```lua
 require "контентпак:имя_модуля" -- загружает lua модуль из папки modules (расширение не указывается)
 ```
-
-## Библиотека *gui*
-
-Библиотека содержит функции для доступа к свойствам UI элементов. Вместо gui следует использовать объектную обертку, предоставляющую доступ к свойствам через мета-методы __index, __newindex:
-
-```lua
-print(document.some_button.text) -- где 'some_button' - id элемета
-document.some_button.text = "новый текст"
-```
-
-В скрипте макета `layouts/файл_макета.xml` - `layouts/файл_макета.xml.lua` уже доступна переменная **document** содержащая объект класса Document
-
-```python
-gui.str(text: str, context: str) -> str
-```
-
-Возращает переведенный текст.
-
-```python
-gui.get_viewport() -> {int, int}
-```
-
-Возвращает размер главного контейнера (окна).
-
-```python
-gui.get_env(document: str) -> table
-```
-
-Возвращает окружение (таблица глобальных переменных) указанного документа.
-
-```python
-get_locales_info() -> таблица таблиц где
-   ключ - id локали в формате isolangcode_ISOCOUNTRYCODE
-   значение - таблица {
-       name: str # название локали на её языке
-   }
-```
-
-Возвращает информацию о всех загруженных локалях (res/texts/\*).
-
-## Библиотека time
-
-```python
-time.uptime() -> float
-```
-
-Возвращает время с момента запуска движка в секундах.
-
-```python
-time.delta() -> float
-```
-
-Возвращает дельту времени (время прошедшее с предыдущего кадра)
