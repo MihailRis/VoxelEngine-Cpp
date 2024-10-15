@@ -79,6 +79,12 @@ void ChunksRenderer::unload(const Chunk* chunk) {
     }
 }
 
+void ChunksRenderer::clear() {
+    meshes.clear();
+    inwork.clear();
+    threadPool.clearQueue();
+}
+
 std::shared_ptr<Mesh> ChunksRenderer::getOrRender(const std::shared_ptr<Chunk>& chunk, bool important) {
     auto found = meshes.find(glm::ivec2(chunk->x, chunk->z));
     if (found == meshes.end()) {

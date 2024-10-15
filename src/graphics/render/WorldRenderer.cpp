@@ -410,3 +410,7 @@ void WorldRenderer::drawBorders(
     }
     lineBatch->flush();
 }
+
+void WorldRenderer::clear() {
+    renderer->clear();
+}

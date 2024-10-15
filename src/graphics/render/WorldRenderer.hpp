@@ -96,4 +96,6 @@ public:
         float delta,
         bool pause
     );
+
+    void clear();
 };

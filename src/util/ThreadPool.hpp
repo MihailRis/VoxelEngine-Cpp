@@ -237,6 +237,11 @@ namespace util {
             jobsMutexCondition.notify_one();
         }
 
+        void clearQueue() {
+            std::lock_guard<std::mutex> lock(jobsMutex);
+            jobs = {};
+        }
+
         /// @brief If false: worker will be blocked until it's result performed
         void setStandaloneResults(bool flag) {
             standaloneResults = flag;

@@ -45,12 +45,14 @@ LevelScreen::LevelScreen(Engine* engine, std::unique_ptr<Level> level)
     
     keepAlive(settings.graphics.backlight.observe([=](bool) {
         controller->getLevel()->chunks->saveAndClear();
+        worldRenderer->clear();
     }));
     keepAlive(settings.camera.fov.observe([=](double value) {
         controller->getPlayer()->camera->setFov(glm::radians(value));
     }));
     keepAlive(Events::getBinding(BIND_CHUNKS_RELOAD).onactived.add([=](){
         controller->getLevel()->chunks->saveAndClear();
+        worldRenderer->clear();
     }));
 
     animator = std::make_unique<TextureAnimator>();

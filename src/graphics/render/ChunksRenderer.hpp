@@ -39,6 +39,7 @@ public:
 
     std::shared_ptr<Mesh> render(const std::shared_ptr<Chunk>& chunk, bool important);
     void unload(const Chunk* chunk);
+    void clear();
 
     std::shared_ptr<Mesh> getOrRender(const std::shared_ptr<Chunk>& chunk, bool important);
     std::shared_ptr<Mesh> get(Chunk* chunk);
