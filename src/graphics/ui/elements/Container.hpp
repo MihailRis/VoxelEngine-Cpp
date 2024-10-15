@@ -30,7 +30,7 @@ namespace gui {
         virtual void scrolled(int value) override;
         virtual void setScrollable(bool flag);
         void listenInterval(float interval, ontimeout callback, int repeat=-1);
-        virtual glm::vec2 contentOffset() override {return glm::vec2(0.0f, scroll);};
+        virtual glm::vec2 getContentOffset() override {return glm::vec2(0.0f, scroll);};
         virtual void setSize(glm::vec2 size) override;
         virtual void refresh() override;
 

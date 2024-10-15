@@ -292,6 +292,10 @@ static int p_set_interval(UINode* node, lua::State* L) {
     return 0;
 }
 
+static int p_get_content_offset(UINode* node, lua::State* L) {
+    return lua::pushvec(L, node->getContentOffset());
+}
+
 static int p_get_color(UINode* node, lua::State* L) {
     return lua::pushcolor(L, node->getColor());
 }
@@ -344,6 +348,7 @@ static int l_gui_getattr(lua::State* L) {
             {"color", p_get_color},
             {"hoverColor", p_get_hover_color},
             {"pressedColor", p_get_pressed_color},
+            {"contentOffset", p_get_content_offset},
             {"tooltip", p_get_tooltip},
             {"tooltipDelay", p_get_tooltip_delay},
             {"pos", p_get_pos},

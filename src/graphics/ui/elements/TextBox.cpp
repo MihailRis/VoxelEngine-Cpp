@@ -646,7 +646,7 @@ void TextBox::setCaret(size_t position) {
     caretLastMove = Window::time();
     int width = label->getSize().x;
     uint line = label->getLineByTextIndex(caret);
-    int offset = label->getLineYOffset(line) + contentOffset().y;
+    int offset = label->getLineYOffset(line) + getContentOffset().y;
     uint lineHeight = font->getLineHeight()*label->getLineInterval();
     scrollStep = lineHeight;
     if (offset < 0) {

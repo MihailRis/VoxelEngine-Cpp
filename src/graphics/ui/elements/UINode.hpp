@@ -209,7 +209,7 @@ namespace gui {
         virtual glm::vec4 calcColor() const;
 
         /// @brief Get inner content offset. Used for scroll
-        virtual glm::vec2 contentOffset() {return glm::vec2(0.0f);};
+        virtual glm::vec2 getContentOffset() {return glm::vec2(0.0f);};
         /// @brief Calculate screen position of the element
         virtual glm::vec2 calcPos() const;
         virtual void setPos(glm::vec2 pos);
