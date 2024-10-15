@@ -10,6 +10,7 @@
 - [Сущности и компоненты](scripting/ecs.md)
 - [Библиотеки](#)
     - [block](scripting/builtins/libblock.md)
+    - [item](scripting/builtins/libitem.md)
     - [entities](scripting/builtins/libentities.md)
 	- [cameras](scripting/builtins/libcameras.md)
     - [mat4](scripting/builtins/libmat4.md)
@@ -287,38 +288,6 @@ inventory.move(invA: int, slotA: int, invB: int, slotB: int)
 Перемещает предмет из slotA инвентаря invA в slotB инвентаря invB.
 invA и invB могут указывать на один инвентарь.
 slotB будет выбран автоматически, если не указывать явно.
-
-## Библиотека item
-
-```python
-item.name(itemid: int) -> str
-```
-
-Возвращает строковый id предмета по его числовому id (как block.name)
-
-```python
-item.index(name: str) -> int
-```
-
-Возвращает числовой id предмета по строковому id (как block_index)
-
-```python
-item.stack_size(itemid: int) -> int
-```
-
-Возвращает максимальный размер стопки для предмета.
-
-```python
-item.defs_count() -> int
-```
-
-Возвращает общее число доступных предметов (включая сгенерированные)
-
-```python
-item.icon(itemid: int) -> str
-```
-
-Возвращает имя иконки предмета для использования в свойстве 'src' элемента image
 
 ## Библиотека hud
 

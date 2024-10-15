@@ -10,7 +10,7 @@ block.index(name: str) -> int
 -- Returns the id of the block material.
 block.material(blockid: int) -> str
 
--- Returns the block name displayed in the UI.
+-- Returns the block display name.
 block.caption(blockid: int) -> str
 
 -- Returns integer ID by block position

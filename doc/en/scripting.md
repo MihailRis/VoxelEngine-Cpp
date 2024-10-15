@@ -10,6 +10,7 @@ Subsections:
 - [Entities and components](scripting/ecs.md)
 - [Libraries](#)
     - [block](scripting/builtins/libblock.md)
+    - [item](scripting/builtins/libitem.md)
     - [entities](scripting/builtins/libentities.md)
     - [cameras](scripting/builtins/libcameras.md)
     - [mat4](scripting/builtins/libmat4.md)
@@ -305,38 +306,6 @@ inventory.move(invA: int, slotA: int, invB: int, slotB: int)
 
 Move item from slotA of invA to slotB of invB. invA may be the same as invB.
 If slotB will be chosen automaticly if argument is not specified.
-
-## *item* library
-
-```python
-item.name(itemid: int) -> str
-```
-
-Returns item string ID (name) by index
-
-```python
-item.index(name: str) -> int
-```
-
-Returns item integer ID (index) by name
-
-```python
-item.stack_size(itemid: int) -> int
-```
-
-Returns max stack size for the item
-
-```python
-item.defs_count() -> int
-```
-
-Returns count of available item IDs.
-
-```python
-item.icon(itemid: int) -> str
-```
-
-Returns item icon name to use in 'src' property of an image element
 
 ## *hud* library
 
