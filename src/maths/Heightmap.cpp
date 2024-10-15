@@ -105,3 +105,9 @@ void Heightmap::crop(
     height = dstheight;
     buffer = std::move(dst);
 }
+
+void Heightmap::clamp() {
+    for (uint i = 0; i < width * height; i++) {
+        buffer[i] = std::min(1.0f, std::max(0.0f, buffer[i]));
+    }
+}

@@ -38,7 +38,11 @@ public:
     }
 
     std::shared_ptr<Heightmap> generateHeightmap(
-        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed, uint bpd
+        const glm::ivec2& offset,
+        const glm::ivec2& size,
+        uint64_t seed,
+        uint bpd,
+        const std::vector<std::shared_ptr<Heightmap>>& inputs
     ) override {
         pushenv(L, *env);
         if (getfield(L, "generate_heightmap")) {
@@ -46,7 +50,15 @@ public:
             pushivec_stack(L, size);
             pushinteger(L, seed);
             pushinteger(L, bpd);
-            if (call_nothrow(L, 6)) {
+            if (!inputs.empty()) {
+                size_t inputsNum = def.heightmapInputs.size();
+                createtable(L, inputsNum, 0);
+                for (size_t i = 0; i < inputsNum; i++) {
+                    newuserdata<LuaHeightmap>(L, inputs[i]);
+                    rawseti(L, i+1);
+                }
+            }
+            if (call_nothrow(L, 6 + (!inputs.empty()))) {
                 auto map = touserdata<LuaHeightmap>(L, -1)->getHeightmap();
                 pop(L, 2);
                 return map;

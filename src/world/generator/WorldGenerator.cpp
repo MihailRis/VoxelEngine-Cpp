@@ -300,6 +300,16 @@ void WorldGenerator::generateBiomes(
         seed,
         bpd
     );
+    for (auto index : def.heightmapInputs) {
+        // copy non-scaled maps
+        auto copy = std::make_shared<Heightmap>(*biomeParams[index]);
+        copy->resize(
+            floordiv(CHUNK_W, def.heightsBPD) + 1,
+            floordiv(CHUNK_D, def.heightsBPD) + 1,
+            InterpolationType::LINEAR
+        );
+        prototype.heightmapInputs.push_back(std::move(copy));
+    }
     for (const auto& map : biomeParams) {
         map->resize(
             CHUNK_W + bpd, CHUNK_D + bpd, InterpolationType::LINEAR
@@ -330,8 +340,10 @@ void WorldGenerator::generateHeightmap(
         {floordiv(chunkX * CHUNK_W, bpd), floordiv(chunkZ * CHUNK_D, bpd)},
         {floordiv(CHUNK_W, bpd)+1, floordiv(CHUNK_D, bpd)+1},
         seed,
-        bpd
+        bpd,
+        prototype.heightmapInputs
     );
+    prototype.heightmap->clamp();
     prototype.heightmap->resize(
         CHUNK_W + bpd, CHUNK_D + bpd, InterpolationType::LINEAR
     );
@@ -363,9 +375,9 @@ void WorldGenerator::generatePlants(
             const Biome* biome = biomes[z * CHUNK_W + x];
 
             int height = heights[z * CHUNK_W + x] * CHUNK_H;
-            height = std::max(0, height);
+            height = std::min(std::max(0, height), CHUNK_H-1);
             
-            if (height+1 > def.seaLevel) {
+            if (height+1 > def.seaLevel && height+1 < CHUNK_H) {
                 float rand = plantsRand.randFloat();
                 blockid_t plant = biome->plants.choose(rand);
                 if (plant) {

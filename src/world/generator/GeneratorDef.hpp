@@ -128,12 +128,14 @@ public:
     /// @param size size of the heightmap
     /// @param seed world seed
     /// @param bpd blocks per dot
+    /// @param inputs biome parameter maps passed to generate_heightmap
     /// @return generated heightmap (can't be nullptr)
     virtual std::shared_ptr<Heightmap> generateHeightmap(
         const glm::ivec2& offset,
         const glm::ivec2& size,
         uint64_t seed,
-        uint bpd
+        uint bpd,
+        const std::vector<std::shared_ptr<Heightmap>>& inputs
     ) = 0;
 
     /// @brief Generate a biomes parameters maps
@@ -207,11 +209,14 @@ struct GeneratorDef {
     uint biomesBPD = 8;
 
     /// @brief Heightmap blocks per dot
-    uint heightsBPD = 4;
+    uint heightsBPD = 8;
 
     /// @brief Number of chunks must be generated before and after wide
     /// structures placement triggered
     uint wideStructsChunksRadius = 3;
+
+    /// @brief Indices of biome parameter maps passed to generate_heightmap
+    std::vector<uint8_t> heightmapInputs;
 
     std::unordered_map<std::string, size_t> structuresIndices;
     std::vector<std::unique_ptr<VoxelStructure>> structures;

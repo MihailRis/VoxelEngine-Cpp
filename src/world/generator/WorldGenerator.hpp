@@ -32,6 +32,9 @@ struct ChunkPrototype {
     std::shared_ptr<Heightmap> heightmap;
 
     std::vector<Placement> placements;
+
+    /// @brief biome parameters maps saved until heightmaps generation
+    std::vector<std::shared_ptr<Heightmap>> heightmapInputs {};
 };
 
 struct WorldGenDebugInfo {

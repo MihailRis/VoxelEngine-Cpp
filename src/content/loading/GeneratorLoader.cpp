@@ -202,7 +202,20 @@ void ContentLoader::loadGenerator(
     map.at("heights-bpd").get(def.heightsBPD);
     map.at("sea-level").get(def.seaLevel);
     map.at("wide-structs-chunks-radius").get(def.wideStructsChunksRadius);
-
+    if (map.has("heightmap-inputs")) {
+        for (const auto& element : map["heightmap-inputs"]) {
+            int index = element.asInteger();
+            if (index <= 0 || index > def.biomeParameters) {
+                throw std::runtime_error(
+                    "invalid biome parameter index " + std::to_string(index));
+            }
+            def.heightmapInputs.push_back(index - 1);
+        }
+    }
+    if (!def.heightmapInputs.empty() && def.biomesBPD != def.heightsBPD) {
+        logger.warning() << "generator has heightmap-inputs but biomes-bpd "
+            "is not equal to heights-bpd, generator will work slower!";
+    }
     auto folder = generatorsDir / fs::u8path(name + ".files");
     auto scriptFile = folder / fs::u8path("script.lua");
 
