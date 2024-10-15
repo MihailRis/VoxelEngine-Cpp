@@ -133,7 +133,7 @@ static std::vector<std::unique_ptr<VoxelStructure>> load_structures(
     const fs::path& structuresFile
 ) {
     auto structuresDir = structuresFile.parent_path() / fs::path("fragments");
-    auto map = files::read_json(structuresFile);
+    auto map = files::read_object(structuresFile);
 
     std::vector<std::unique_ptr<VoxelStructure>> structures;
     for (auto& [name, config] : map.asObject()) {
@@ -171,7 +171,7 @@ static void load_structures(GeneratorDef& def, const fs::path& structuresFile) {
     }
 }
 
-static inline const auto STRUCTURES_FILE = fs::u8path("structures.json");
+static inline const auto STRUCTURES_FILE = fs::u8path("structures.toml");
 static inline const auto BIOMES_FILE = fs::u8path("biomes.toml");
 static inline const auto GENERATORS_DIR = fs::u8path("generators");
 
