@@ -12,10 +12,11 @@
     - [block](scripting/builtins/libblock.md)
     - [item](scripting/builtins/libitem.md)
     - [entities](scripting/builtins/libentities.md)
-	- [cameras](scripting/builtins/libcameras.md)
+    - [cameras](scripting/builtins/libcameras.md)
     - [mat4](scripting/builtins/libmat4.md)
+    - [pack](scripting/builtins/libpack.md)
     - [player](scripting/builtins/libplayer.md)
-	- [quat](scripting/builtins/libquat.md)
+    - [quat](scripting/builtins/libquat.md)
     - [vec2, vec3, vec4](scripting/builtins/libvecn.md)
 - [Модуль core:bit_converter](scripting/modules/core_bit_converter.md)
 - [Модуль core:data_buffer](scripting/modules/core_data_buffer.md)
@@ -37,97 +38,12 @@
 require "контентпак:имя_модуля" -- загружает lua модуль из папки modules (расширение не указывается)
 ```
 
-## Библиотека *pack*
-
-```python
-pack.is_installed(packid: str) -> bool
-```
-
-Проверяет наличие установленного пака в мире
-
-```lua
-pack.data_file(packid: str, filename: str) -> str
--- и
-pack.shared_file(packid: str, filename: str) -> str
-```
-
-Возвращает путь к файлу данных 
-и создает недостающие директории в пути.
-
-- Первый вариант возвращает: `world:data/packid/filename`
-- Второй вариант возвращает: `config:packid/filename`
-
-Примеры:
-```lua
-file.write(pack.data_file(PACK_ID, "example.txt"), text)
-```
-Для пака *containermod* запишет текст в файл `world:data/containermod/example.txt`.
-
-Используйте для хранения данных в мире.
-
-```lua
-file.write(pack.shared_file(PACK_ID, "example.txt"), text)
-```
-Для пака *containermod* запишет текст в файл `config:containermod/example.txt`
-
-Используйте для хранения данныхm общих для всех миров.
-
-```python
-pack.get_folder(packid: str) -> str
-```
-
-Возвращает путь к папке установленного контент-пака.
-
-```python
-pack.is_installed(packid: str) -> bool
-```
-
-Проверяет наличие контент-пака в мире
-
-```python
-pack.get_installed() -> массив строк
-```
-
-Возращает id всех установленных в мире контент-паков.
-
-```python
-pack.get_available() -> массив строк
-```
-
-Возвращает id всех доступных, но не установленных в мире контент-паков.
-
-```python
-pack.get_base_packs() -> массив строк
-```
-
-Возвращает id всех базовых паков (неудаляемых)
-
-```python
-pack.get_info(packid: str) -> {
-	id: str,
-	title: str,
-	creator: str,
-	description: str,
-	version: str,
-	icon: str,
-	dependencies: опциональный массив строк
-}
-```
-
-Возвращает информацию о паке (не обязательно установленном).
-- icon - название текстуры предпросмотра (загружается автоматически)
-- dependencies - строки в формате `{lvl}{id}`, где lvl:
-	- `!` - required
-	- `?` - optional
-	- `~` - weak
-	например `!teal`
-
 ## Библиотека *world*
 
 ```python
 world.get_list() -> массив таблиц {
-	name: str,
-	icon: str
+    name: str,
+    icon: str
 }
 ```
 
@@ -220,7 +136,7 @@ gui.get_env(document: str) -> table
 get_locales_info() -> таблица таблиц где
    ключ - id локали в формате isolangcode_ISOCOUNTRYCODE
    значение - таблица {
-	   name: str # название локали на её языке
+       name: str # название локали на её языке
    }
 ```
 
