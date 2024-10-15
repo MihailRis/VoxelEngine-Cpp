@@ -423,7 +423,7 @@ void PlayerController::processRightClick(const Block& def, const Block& target) 
 
     if (!input.shift && target.rt.funcsset.oninteract) {
         if (scripting::on_block_interact(
-                player.get(), target, selection.position
+                player.get(), target, selection.actualPosition
             )) {
             return;
         }

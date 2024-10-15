@@ -337,7 +337,9 @@ void Chunks::setRotation(int32_t x, int32_t y, int32_t z, uint8_t index) {
         return;
     }
     if (def.rt.extended) {
-        setRotationExtended(def, vox->state, {x, y, z}, index);
+        auto origin = seekOrigin({x, y, z}, def, vox->state);
+        vox = get(origin);
+        setRotationExtended(def, vox->state, origin, index);
     } else {
         vox->state.rotation = index;
         auto chunk = getChunkByVoxel(x, y, z);

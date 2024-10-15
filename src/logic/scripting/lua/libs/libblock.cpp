@@ -211,12 +211,18 @@ static int l_get_user_bits(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
+
     auto offset = lua::tointeger(L, 4) + VOXEL_USER_BITS_OFFSET;
     auto bits = lua::tointeger(L, 5);
 
     auto vox = level->chunks->get(x, y, z);
     if (vox == nullptr) {
         return lua::pushinteger(L, 0);
+    }
+    const auto& def = content->getIndices()->blocks.require(vox->id);
+    if (def.rt.extended) {
+        auto origin = level->chunks->seekOrigin({x, y, z}, def, vox->state);
+        vox = level->chunks->get(origin.x, origin.y, origin.z);
     }
     uint mask = ((1 << bits) - 1) << offset;
     uint data = (blockstate2int(vox->state) & mask) >> offset;
@@ -240,6 +246,11 @@ static int l_set_user_bits(lua::State* L) {
     auto vox = level->chunks->get(x, y, z);
     if (vox == nullptr) {
         return 0;
+    }
+    const auto& def = content->getIndices()->blocks.require(vox->id);
+    if (def.rt.extended) {
+        auto origin = level->chunks->seekOrigin({x, y, z}, def, vox->state);
+        vox = level->chunks->get(origin);
     }
     vox->state.userbits = (vox->state.userbits & (~mask)) | value;
     chunk->setModifiedAndUnsaved();
