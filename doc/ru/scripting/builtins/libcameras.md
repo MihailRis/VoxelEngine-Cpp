@@ -5,10 +5,12 @@
 ## Основные функции
 
 ```lua
-cameras.get(name: str) -> int
+cameras.get(name: str) -> table
+-- или
+cameras.get(index: int) -> table
 ```
 
-Возвращает камеру по имени.
+Возвращает камеру по имени или индексу.
 
 ## Методы камеры
 

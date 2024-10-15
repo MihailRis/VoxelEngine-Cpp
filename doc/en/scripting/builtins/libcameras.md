@@ -5,10 +5,12 @@ Cameras manipulation library.
 ## Main functions
 
 ```lua
-cameras.get(name: str) -> int
+cameras.get(name: str) -> table
+-- or
+cameras.get(index: int) -> table
 ```
 
-Returns a camera by name.
+Returns a camera by name or index.
 
 ## Camera methods
 
