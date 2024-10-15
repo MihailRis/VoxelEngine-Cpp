@@ -277,11 +277,11 @@ function require(path)
 end
 
 function __scripts_cleanup()
-    print("cleaning scripts cache")
+    debug.log("cleaning scripts cache")
     for k, v in pairs(__cached_scripts) do
         local packname, _ = parse_path(k)
         if packname ~= "core" then
-            print("unloaded "..k)
+            debug.log("unloaded "..k)
             __cached_scripts[k] = nil
             package.loaded[k] = nil
         end
