@@ -19,7 +19,7 @@
    * [heightmap:cellnoise(...)](#heightmapcellnoise)
    * [heightmap:resize(...)](#heightmapresize)
    * [heightmap:crop(...)](#heightmapcrop)
-- [heightmap:at(x, y)](#heightmapatx-y)
+   * [heightmap:at(x, y)](#heightmapatx-y)
 - [VoxelFragment (фрагмент)](#voxelfragment-фрагмент)
 - [Генерация карты высот](#генерация-карты-высот)
 - [Ручная расстановка структур](#ручная-расстановка-структур)
@@ -313,7 +313,7 @@ map:crop(x, y, ширина, высота)
 
 Обрезает карту высот до заданной области.
 
-## heightmap:at(x, y)
+### heightmap:at(x, y)
 
 ```lua
 map:at(x, y) --> number
