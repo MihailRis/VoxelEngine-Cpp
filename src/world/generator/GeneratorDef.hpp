@@ -123,17 +123,17 @@ class GeneratorScript {
 public:
     virtual ~GeneratorScript() = default;
 
+    virtual void initialize(uint64_t seed) = 0;
+
     /// @brief Generate a heightmap with values in range 0..1
     /// @param offset position of the heightmap in the world
     /// @param size size of the heightmap
-    /// @param seed world seed
     /// @param bpd blocks per dot
     /// @param inputs biome parameter maps passed to generate_heightmap
     /// @return generated heightmap (can't be nullptr)
     virtual std::shared_ptr<Heightmap> generateHeightmap(
         const glm::ivec2& offset,
         const glm::ivec2& size,
-        uint64_t seed,
         uint bpd,
         const std::vector<std::shared_ptr<Heightmap>>& inputs
     ) = 0;
@@ -141,13 +141,11 @@ public:
     /// @brief Generate a biomes parameters maps
     /// @param offset position of maps in the world
     /// @param size maps size
-    /// @param seed world seed
     /// @param bpd blocks per dot
     /// @return generated maps (can't be nullptr)
     virtual std::vector<std::shared_ptr<Heightmap>> generateParameterMaps(
         const glm::ivec2& offset,
         const glm::ivec2& size,
-        uint64_t seed,
         uint bpd
     ) = 0;
 
@@ -156,12 +154,10 @@ public:
     /// wide-structs-chunks-radius
     /// @param offset position of the area
     /// @param size size of the area (blocks)
-    /// @param seed world seed
     /// @param chunkHeight chunk height to use as heights multiplier
     virtual std::vector<Placement> placeStructuresWide(
-        const glm::ivec2& offset, 
-        const glm::ivec2& size, 
-        uint64_t seed,
+        const glm::ivec2& offset,
+        const glm::ivec2& size,
         uint chunkHeight
     ) = 0;
 
@@ -169,13 +165,15 @@ public:
     /// placed to nearest chunks also (position of out area).
     /// @param offset position of the area
     /// @param size size of the area (blocks)
-    /// @param seed world seed
     /// @param heightmap area heightmap
     /// @param chunkHeight chunk height to use as heights multiplier
     /// @return structure & line placements
     virtual std::vector<Placement> placeStructures(
-        const glm::ivec2& offset, const glm::ivec2& size, uint64_t seed,
-        const std::shared_ptr<Heightmap>& heightmap, uint chunkHeight) = 0;
+        const glm::ivec2& offset,
+        const glm::ivec2& size,
+        const std::shared_ptr<Heightmap>& heightmap,
+        uint chunkHeight
+    ) = 0;
 };
 
 /// @brief Structure voxel fragments and metadata

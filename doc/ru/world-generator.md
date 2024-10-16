@@ -3,6 +3,7 @@
 ## Содержание
 
 - [Основные понятия](#основные-понятия)
+- [Глобальные переменные](#глобальные-переменные)
 - [Файл конфигурации](#файл-конфигурации)
 - [Фрагменты](#фрагменты)
 - [Структуры](#структуры)
@@ -52,6 +53,14 @@
 - **heights-bpd** - количество блоков на точку карты высот. По-умолчанию: 4.
 - **wide-structs-chunks-radius** - масимальный радиус размещения 'широких' структур, измеряемый в чанках.
 
+## Глобальные переменные
+
+В скрипте генератора доступны следующие переменные:
+
+- `SEED` - зерно генерации мира
+- `__DIR__` - директория генератора (`пак:generators/имя_генератора.files/`)
+- `__FILE__` - файл скрипта (`пак:generators/имя_генератора.files/script.lua`)
+
 ## Фрагменты
 
 Фрагмент является сохраненной для дальнейшего использования, областью мира, как и чанк, ограниченную некоторой шириной, высотой и длиной. Фрагмент может содержать данные не только о блоках, попадающих в область, но и о инвентарях блоков области, а так же сущностях. В отличие от чанка, размер фрагмента произволен.
@@ -75,6 +84,7 @@
 ```
 
 На данный момент, имя структуры должно совпадать с именем использованного фрагмента.
+
 ## Биомы
 
 Биом определяет то, из каких блоков и какими слоями генерируется ландшафт, а так же набор растений, структур.
@@ -139,22 +149,22 @@ structures = [
 -- x, y - позиция начала карты (в точках)
 -- w, h - ширина и высота карты (в точках)
 -- bpd  - (blocks per dot) число блоков на точку (масштаб)
-function generate_biome_parameters(x, y, w, h, seed, bpd)
+function generate_biome_parameters(x, y, w, h, bpd)
     -- создание карт высот (Heightmap) для каждого параметра биомов
     -- ...
     return карты_через_запятую
 end
 
 -- пример
-function generate_biome_parameters(x, y, w, h, seed, s)
+function generate_biome_parameters(x, y, w, h, s)
     -- карта температур
     local tempmap = Heightmap(w, h)
-    tempmap.noiseSeed = seed + 5324
+    tempmap.noiseSeed = SEED + 5324
     tempmap:noise({x, y}, 0.04*s, 6)
     tempmap:pow(3)
     -- карта влажности
     local hummap = Heightmap(w, h)
-    hummap.noiseSeed = seed + 953
+    hummap.noiseSeed = SEED + 953
     hummap:noise({x, y}, 0.04*s, 6)
     hummap:pow(3)
     
@@ -356,7 +366,6 @@ generation.save_fragment(
 function generate_heightmap(
     x, y, -- смещение карты высот
     w, h, -- размер карты высот, ожидаемый движком
-    seed, -- зерно мира
     bpd,  -- число блоков на точку карты (blocks per dot) - масштаб
     [опционально] inputs -- массив входных карт параметров биомов
     -- (см. свойство heightmap-inputs генератора)
@@ -367,11 +376,11 @@ function generate_heightmap(
 к нужному диапазону:
 
 ```lua
-function generate_heightmap(x, y, w, h, seed, bpd)
+function generate_heightmap(x, y, w, h, bpd)
     -- создаем карту высот с заданным размером
     local map = Heightmap(w, h)
     -- настраиваем зерно шума
-    map.noiseSeed = seed
+    map.noiseSeed = SEED
     -- шум с масштабом 1/10 на 4 октавы с амплитудой 0.5
     map:noise({x, y}, 0.1*bpd, 4, 0.5)
     -- сдвигаем высоты к положительному диапазону
@@ -415,7 +424,6 @@ end
 function place_structures(
     x, z, -- позиция начала области в блоках
     w, d, -- размер области в блоках
-    seed, -- зерно мира
     heights, -- карта высот чанка
     chunk_height, -- высота чанка
 ) --> массив размещений структур
@@ -426,7 +434,7 @@ function place_structures(
 Пример:
 
 ```lua
-function place_structures(x, z, w, d, seed, hmap, chunk_height)
+function place_structures(x, z, w, d, hmap, chunk_height)
     local placements = {}
     local height = hmap:at(w/2, h/2) * chunk_height
 
@@ -449,7 +457,6 @@ end
 function place_structures_wide(
     x, z, -- позиция начала области в блоках
     w, d, -- размер области в блоках
-    seed, -- зерно мира
     chunk_height, -- высота чанка
 ) --> массив размещений структур / тоннелей
 ```
