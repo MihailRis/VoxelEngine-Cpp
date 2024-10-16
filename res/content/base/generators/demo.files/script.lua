@@ -2,13 +2,13 @@ local _, dir = parse_path(__DIR__)
 local ores = require "base:generation/ores"
 ores.load(dir)
 
-function place_structures(x, z, w, d, seed, hmap, chunk_height)
+function place_structures(x, z, w, d, hmap, chunk_height)
     local placements = {}
-    ores.place(placements, x, z, w, d, seed, hmap, chunk_height)
+    ores.place(placements, x, z, w, d, SEED, hmap, chunk_height)
     return placements
 end
 
-function place_structures_wide(x, z, w, d, seed, chunk_height)
+function place_structures_wide(x, z, w, d, chunk_height)
     local placements = {}
     if math.random() < 0.05 then -- generate caves
         local sx = x + math.random() * 10 - 5
@@ -43,22 +43,22 @@ function place_structures_wide(x, z, w, d, seed, chunk_height)
     return placements
 end
 
-function generate_heightmap(x, y, w, h, seed, s, inputs)
+function generate_heightmap(x, y, w, h, s, inputs)
     local umap = Heightmap(w, h)
     local vmap = Heightmap(w, h)
-    umap.noiseSeed = seed
-    vmap.noiseSeed = seed
+    umap.noiseSeed = SEED
+    vmap.noiseSeed = SEED
     vmap:noise({x+521, y+70}, 0.1*s, 3, 25.8)
     vmap:noise({x+95, y+246}, 0.15*s, 3, 25.8)
 
     local map = Heightmap(w, h)
-    map.noiseSeed = seed
+    map.noiseSeed = SEED
     map:noise({x, y}, 0.8*s, 4, 0.02)
     map:cellnoise({x, y}, 0.1*s, 3, 0.3, umap, vmap)
     map:add(0.7)
 
     local rivermap = Heightmap(w, h)
-    rivermap.noiseSeed = seed
+    rivermap.noiseSeed = SEED
     rivermap:noise({x+21, y+12}, 0.1*s, 4)
     rivermap:abs()
     rivermap:mul(2.0)
@@ -67,21 +67,21 @@ function generate_heightmap(x, y, w, h, seed, s, inputs)
     map:mul(rivermap)
 
     local desertmap = Heightmap(w, h)
-    desertmap.noiseSeed = seed
+    desertmap.noiseSeed = SEED
     desertmap:cellnoise({x+52, y+326}, 0.3*s, 2, 0.2)
     desertmap:add(0.4)
     map:mixin(desertmap, inputs[1])
     return map
 end
 
-function generate_biome_parameters(x, y, w, h, seed, s)
+function generate_biome_parameters(x, y, w, h, s)
     local tempmap = Heightmap(w, h)
-    tempmap.noiseSeed = seed + 5324
+    tempmap.noiseSeed = SEED + 5324
     tempmap:noise({x, y}, 0.04*s, 6)
     tempmap:mul(0.5)
     tempmap:add(0.5)
     local hummap = Heightmap(w, h)
-    hummap.noiseSeed = seed + 953
+    hummap.noiseSeed = SEED + 953
     hummap:noise({x, y}, 0.04*s, 6)
     tempmap:pow(3)
     hummap:pow(3)

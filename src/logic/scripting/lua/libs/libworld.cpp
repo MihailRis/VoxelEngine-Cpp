@@ -77,12 +77,12 @@ static int l_world_exists(lua::State* L) {
 
 static int l_world_is_day(lua::State* L) {
     auto daytime = level->getWorld()->getInfo().daytime;
-    return lua::pushboolean(L, daytime >= 0.2 && daytime <= 0.8);
+    return lua::pushboolean(L, daytime >= 0.333 && daytime <= 0.833);
 }
 
 static int l_world_is_night(lua::State* L) {
     auto daytime = level->getWorld()->getInfo().daytime;
-    return lua::pushboolean(L, daytime < 0.2 || daytime > 0.8);
+    return lua::pushboolean(L, daytime < 0.333 || daytime > 0.833);
 }
 
 const luaL_Reg worldlib[] = {

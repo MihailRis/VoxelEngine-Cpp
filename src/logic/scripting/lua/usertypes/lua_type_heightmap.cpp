@@ -256,6 +256,7 @@ static std::unordered_map<std::string, lua_CFunction> methods {
     {"cellnoise", lua::wrap<l_noise<FNL_NOISE_CELLULAR>>},
     {"pow", lua::wrap<l_binop_func<util::pow>>},
     {"add", lua::wrap<l_binop_func<std::plus>>},
+    {"sub", lua::wrap<l_binop_func<std::minus>>},
     {"mul", lua::wrap<l_binop_func<std::multiplies>>},
     {"min", lua::wrap<l_binop_func<util::min>>},
     {"max", lua::wrap<l_binop_func<util::max>>},

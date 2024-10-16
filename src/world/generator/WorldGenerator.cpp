@@ -31,6 +31,8 @@ WorldGenerator::WorldGenerator(
       seed(seed),
       surroundMap(0, BASIC_PROTOTYPE_LAYERS + def.wideStructsChunksRadius * 2)
 {
+    def.script->initialize(seed);
+
     uint levels = BASIC_PROTOTYPE_LAYERS + def.wideStructsChunksRadius * 2;
 
     surroundMap = SurroundMap(0, levels);
@@ -228,7 +230,7 @@ void WorldGenerator::generateStructuresWide(
         return;
     }
     auto placements = def.script->placeStructuresWide(
-        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed, CHUNK_H
+        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, CHUNK_H
     );
     placeStructures(placements, prototype, chunkX, chunkZ);
 
@@ -245,7 +247,7 @@ void WorldGenerator::generateStructures(
     const auto& heightmap = prototype.heightmap;
 
     auto placements = def.script->placeStructures(
-        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D}, seed,
+        {chunkX * CHUNK_W, chunkZ * CHUNK_D}, {CHUNK_W, CHUNK_D},
         heightmap, CHUNK_H
     );
     placeStructures(placements, prototype, chunkX, chunkZ);
@@ -297,7 +299,6 @@ void WorldGenerator::generateBiomes(
     auto biomeParams = def.script->generateParameterMaps(
         {floordiv(chunkX * CHUNK_W, bpd), floordiv(chunkZ * CHUNK_D, bpd)},
         {floordiv(CHUNK_W, bpd)+1, floordiv(CHUNK_D, bpd)+1},
-        seed,
         bpd
     );
     for (auto index : def.heightmapInputs) {
@@ -339,7 +340,6 @@ void WorldGenerator::generateHeightmap(
     prototype.heightmap = def.script->generateHeightmap(
         {floordiv(chunkX * CHUNK_W, bpd), floordiv(chunkZ * CHUNK_D, bpd)},
         {floordiv(CHUNK_W, bpd)+1, floordiv(CHUNK_D, bpd)+1},
-        seed,
         bpd,
         prototype.heightmapInputs
     );
