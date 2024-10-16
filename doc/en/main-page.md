@@ -17,4 +17,5 @@ Documentation for the in-development engine version 0.23.
 - [Resources (resources.json)](resources.md)
 - [Rigging](rigging.md)
 - [Scripting](scripting.md)
+- [World generator engine](world-generator.md)
 - [XML UI building](xml-ui-layouts.md)
