@@ -19,7 +19,7 @@
    * [heightmap:resize(...)](#heightmapresize)
    * [heightmap:crop(...)](#heightmapcrop)
 - [heightmap:at(x, y)](#heightmapatx-y)
-- [VoxelFragment (фрагмент)](#voxelfragment-)
+- [VoxelFragment (фрагмент)](#voxelfragment-фрагмент)
 - [Генерация карты высот](#генерация-карты-высот)
 - [Ручная расстановка структур](#ручная-расстановка-структур)
    * [Размещения структур/тоннелей](#размещения-структуртоннелей)
