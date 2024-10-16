@@ -1,16 +1,20 @@
 # Documentation
 
+Documentation for the in-development engine version 0.23.
+
+[Documentation for the last stable version (0.22.x)](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.22/doc/en/main-page.md)
+
 ## Sections
 
-- [Engine usage recommendations](engine-use-recommendations.md)
-- [Content-packs](content-packs.md)
-- [Block properties](block-properties.md)
-- [Item properties](item-properties.md)
-- [XML UI building](xml-ui-layouts.md)
 - [Assets preloading](assets-preload.md)
 - [Audio](audio.md)
-- [Scripting](scripting.md)
-- [Console](console.md)
 - [Block models](block-models.md)
-- [Rigging](rigging.md)
+- [Block properties](block-properties.md)
+- [Console](console.md)
+- [Content-packs](content-packs.md)
+- [Engine usage recommendations](engine-use-recommendations.md)
+- [Item properties](item-properties.md)
 - [Resources (resources.json)](resources.md)
+- [Rigging](rigging.md)
+- [Scripting](scripting.md)
+- [XML UI building](xml-ui-layouts.md)
