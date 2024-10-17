@@ -15,12 +15,14 @@
 
 // Libraries
 extern const luaL_Reg audiolib[];
+extern const luaL_Reg bjsonlib[];
 extern const luaL_Reg blocklib[];
 extern const luaL_Reg cameralib[];
 extern const luaL_Reg consolelib[];
 extern const luaL_Reg corelib[];
 extern const luaL_Reg entitylib[];
 extern const luaL_Reg filelib[];
+extern const luaL_Reg generationlib[];
 extern const luaL_Reg guilib[];
 extern const luaL_Reg hudlib[];
 extern const luaL_Reg inputlib[];
@@ -30,7 +32,6 @@ extern const luaL_Reg jsonlib[];
 extern const luaL_Reg mat4lib[];
 extern const luaL_Reg packlib[];
 extern const luaL_Reg playerlib[];
-extern const luaL_Reg generationlib[];
 extern const luaL_Reg quatlib[];  // quat.cpp
 extern const luaL_Reg timelib[];
 extern const luaL_Reg tomllib[];

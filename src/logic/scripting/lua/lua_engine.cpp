@@ -39,6 +39,7 @@ static void remove_lib_funcs(
 }
 
 static void create_libs(State* L, StateType stateType) {
+    openlib(L, "bjson", bjsonlib);
     openlib(L, "block", blocklib);
     openlib(L, "core", corelib);
     openlib(L, "file", filelib);
