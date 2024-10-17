@@ -1,6 +1,7 @@
 #include "VoxelFragment.hpp"
 
 #include <unordered_map>
+#include <algorithm>
 #include <cstring>
 
 #include "data/dv_util.hpp"

@@ -1,5 +1,7 @@
 #include "../ContentLoader.hpp"
 
+#include <algorithm>
+
 #include "../ContentPack.hpp"
 
 #include "files/files.hpp"
