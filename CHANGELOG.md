@@ -1,136 +1,85 @@
-# 0.22 - 2024.08.01
+# 0.23 - 2024.10.19
 
-[Documentation](https://github.com/MihailRis/VoxelEngine-Cpp/tree/release-0.22/doc/en/main-page.md) for 0.22
+[Documentation](https://github.com/MihailRis/VoxelEngine-Cpp/tree/release-0.23/doc/en/main-page.md) for 0.23
 
 Table of contents:
 
 - [Added](#added)
-    - [Libraries](#libraries)
     - [Functions](#functions)
 - [Changes](#changes)
 - [Fixes](#fixes)
 
 ## Added
 
-- entities, components
-    - base:drop - dropped item
-    - base:falling_block - falling block
-    - base:player - player
-- extended blocks
-- resources (resources.json)
+- world generation engine instead of hardcoded generator
+- world generators
+    - core:default
+    - base:demo
+- block fields (metadata)
+- resource aliases (resource-aliases.json)
     - cameras
 - libraries
-    - cameras - cameras
-    - entities - entities
-    - vec2, vec3, vec4 - vectors
-    - mat4 - 4x4 matrices
-    - quat - quaternions
-- skeletons (see doc/\*/rigging.md)
-- models (only .obj is supported)
-- block: base:door
-- use of textures from atlases (atlas_name:texture_name) in image, entity models
-- lists added to preload.json: atlas, model
-- shadeless and ambient-occlusion properties for blocks
-- setting: camera inertia
-- event on_hud_render
-- content pack menu
-- "Display" section in settings
-- framerate setting
-- new documentation sections:
-    - rigging
-    - resources
-    - entity-properties
-    - scripting/
-        - ecs
-        - events
-        - libcameras
-        - libentities
-        - libmat4
-        - libquat
-        - libvecn
-- new sounds
-- *change-on-release* and *sub-supplier* trackbar properties
-- window icon
+    - generation
+    - bjson
+- commands:
+	- fragment.save
+	- fragment.crop
+- blocks:
+	- core:obstacle
+	- core:struct_air
+	- base:coal_ore
+- settings:
+	- graphics.chunk-max-vertices
+	- graphics.chunk-max-renderers
+- block properties:
+	- surface-replacement
+	- fields
+- 'parent' property for blocks, items and entities
+- filesystem entry points:
+	- config
+	- export
+- lua usertypes:
+	- Heightmap
+	- VoxelFragment
+- raycast filter
+- (project) add unit tests framework (gtest)
+- (project) change project title to VoxelCore
 
 ### Functions
 
-- debug.log
-- debug.warning
-- debug.error
-- input.is_pressed
-- input.is_active
-- hud.is_paused
-- hud.is_inventory_open
-- player.get_spawnpoint
-- player.set_spawnpoint
-- player.get_selected_block
-- player.get_selected_entity
-- player.get_entity
-- player.get_camera
-- player.set_camera
-- block.place
-- block.destruct
-- block.get_picking_item
-- block.raycast
-- block.get_rotation_profile
-- block.get_textures
-- block.get_model
-- block.get_hitbox
-- block.is_extended
-- block.get_size
-- block.is_segment
-- block.seek_origin
-- block.compose_sate
-- block.decompose_state
-- math.clamp
-- math.rand
-- table.copy
-- table.count_pairs
-- table.random
-- string.pattern_safe
-- string.explode
-- string.split
-- string.formatted_time
-- string.replace
-- string.trim
-- string.trim_right
-- string.trim_left
-- string.starts_with
-- string.ends_with
-
-###  Commands
-
-- clear
-- player.respawn
-- entity.despawn
-- time.uptime
+- debug.print
+- pack.shared_file
+- block.get_field
+- block.set_field
+- item.caption
+- file.read_combined_list
+- cameras.get(int)
+- bjson.tobytes
+- bjson.frombytes
+- generation.create_fragment
+- generation.load_fragment
+- generation.save_fragment
+- generation.get_default_generator
+- generation.get_generators
+- uinode:getContentOffset
 
 ## Changes
 
-- content folder is now created automatically
-- content error messages are now more detailed
-- lua error messages now contain a call stack traceback
-- updated documentation structure
-- legacy functions (load_script, dofile) now generate warnings in the console with the call stack displayed
-- some sounds of footsteps, destruction/installation of blocks
-- removed v-sync checkbox (replaced with framerate setting)
-- added 'normal' argument to on_use_on_block
-- increased debug-panel width
+- upgrade world regions format
+- upgrade toml parser to 1.0.0 support
+- json.tostring now accepts any supported value
+- json.parse now accepts any supported value as root element
 
 ## Fixes
 
-- the randomness factor of the generation seed when creating a world
-- behavior of blocks with a pipe rotation profile in combination with the grounded property
-- behavior of the u_timer uniform variable when paused
-- torch material
-- Lua stack leaks
-- behavior of Lua functions in coroutines
-- support for wav sounds
-- [issue #239](https://github.com/MihailRis/VoxelEngine-Cpp/issues/239)
-- errors when rebooting the world
-- incorrect lighting of AABB blocks
-- camera height limitation
-- incorrect timing of the mouseRelease event
-- 'gravity' does not work on hud overlays
-- overlay 'on_close' not called on window close
-- delta time plotter is interactive
+- [fix: extended block always main segment passed to on_iteract](https://github.com/MihailRis/VoxelEngine-Cpp/commit/fbca439b2da5a236a122c29488dc8809044ae919)
+- [fix: backlight setting not applying on change](https://github.com/MihailRis/VoxelEngine-Cpp/commit/d59fac61bb5ae5949b49f10ac71c22b595dcdff7 "fix: backlight setting not applying on change")
+- [fix: backlight not applied to entities](https://github.com/MihailRis/VoxelEngine-Cpp/commit/45a1e1df82967141dfb6d4b9b298deb4dfbf44c0 "fix: backlight not applied to entities")
+- [fix: extended block always main segment passed to on_iteract](https://github.com/MihailRis/VoxelEngine-Cpp/commit/fbca439b2da5a236a122c29488dc8809044ae919 "fix: extended block always main segment passed to on_iteract")
+- [fix block.get_hitbox with non rotatable blocks](https://github.com/MihailRis/VoxelEngine-Cpp/commit/b9074ebe4788d0016a9fd7563b59816b6300c06d "fix block.get_hitbox with non rotatable blocks")
+- [fix: entity shading is incorrect when it is upper than max height](https://github.com/MihailRis/VoxelEngine-Cpp/commit/45a793d6475b4d5b7c59e9c18492aa45767e2236 "fix: entity shading is incorrect when it is upper than max height")
+- [fix: toggle fullscreen GLFW invalid enum error](https://github.com/MihailRis/VoxelEngine-Cpp/commit/85bea6f17dc7815569a28e70423b704c476ed410 "fix: toggle fullscreen GLFW invalid enum error")
+- [fix: flight can stop on noclip enabled](https://github.com/MihailRis/VoxelEngine-Cpp/commit/f63ab345eaaf7885cfd0298a99cea58a423741fb "fix: flight can stop on noclip enabled")
+- [fix: block model "x" preview](https://github.com/MihailRis/VoxelEngine-Cpp/pull/300)
+- [Batch3D::point() buffer overflow](https://github.com/MihailRis/VoxelEngine-Cpp/pull/302)
+- fix fatal animator error
