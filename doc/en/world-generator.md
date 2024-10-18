@@ -49,8 +49,8 @@ The main properties described in the configuration file:
 - **caption** - the generator display name. By default, it is generated from the id.
 - **biome-parameters** - the number of biome selection parameters (from 0 to 4). Default: 0.
 - **sea-level** - sea level (below this level, sea-layers will be generated instead of air). Default: 0.
-- **biomes-bpd** - number of blocks per point of the biome selection parameter map. Default: 8.
-- **heights-bpd** - number of blocks per point of the height map. Default: 8.
+- **biomes-bpd** - number of blocks per point of the biome selection parameter map. Default: 4.
+- **heights-bpd** - number of blocks per point of the height map. Default: 4.
 - **wide-structs-chunks-radius** - maximum radius for placing 'wide' structures, measured in chunks.
 
 ## Global variables

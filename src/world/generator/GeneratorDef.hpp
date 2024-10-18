@@ -204,10 +204,10 @@ struct GeneratorDef {
     uint biomeParameters = 0;
 
     /// @brief Biome parameter map blocks per dot
-    uint biomesBPD = 8;
+    uint biomesBPD = 4;
 
     /// @brief Heightmap blocks per dot
-    uint heightsBPD = 8;
+    uint heightsBPD = 4;
 
     /// @brief Number of chunks must be generated before and after wide
     /// structures placement triggered
