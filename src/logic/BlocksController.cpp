@@ -5,6 +5,7 @@
 #include "items/Inventory.hpp"
 #include "lighting/Lighting.hpp"
 #include "maths/fastmaths.hpp"
+#include "scripting/scripting.hpp"
 #include "util/timeutil.hpp"
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
@@ -12,7 +13,6 @@
 #include "voxels/voxel.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
-#include "scripting/scripting.hpp"
 
 BlocksController::BlocksController(Level* level, uint padding)
     : level(level),
@@ -111,7 +111,7 @@ void BlocksController::randomTick(
             int bx = random.rand() % CHUNK_W;
             int by = random.rand() % segheight + s * segheight;
             int bz = random.rand() % CHUNK_D;
-            const voxel& vox = chunk.voxels[(by * CHUNK_D + bz) * CHUNK_W + bx];
+            const voxel& vox = chunk.voxels[vox_index(bx, by, bz)];
             auto& block = indices->blocks.require(vox.id);
             if (block.rt.funcsset.randupdate) {
                 scripting::random_update_block(
@@ -153,7 +153,8 @@ int64_t BlocksController::createBlockInventory(int x, int y, int z) {
     auto inv = chunk->getBlockInventory(lx, y, lz);
     if (inv == nullptr) {
         auto indices = level->content->getIndices();
-        auto& def = indices->blocks.require(chunk->voxels[vox_index(lx, y, lz)].id);
+        auto& def =
+            indices->blocks.require(chunk->voxels[vox_index(lx, y, lz)].id);
         int invsize = def.inventorySize;
         if (invsize == 0) {
             return 0;

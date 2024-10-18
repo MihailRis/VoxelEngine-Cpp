@@ -31,7 +31,7 @@ class BlocksController {
     util::Clock blocksTickClock;
     util::Clock worldTickClock;
     uint padding;
-    FastRandom random;
+    FastRandom random {};
     std::vector<on_block_interaction> blockInteractionCallbacks;
 public:
     BlocksController(Level* level, uint padding);
