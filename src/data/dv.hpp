@@ -511,7 +511,7 @@ namespace dv {
     };
 
     inline bool is_numeric(const value& val) {
-        return val.isInteger() && val.isNumber();
+        return val.isInteger() || val.isNumber();
     }
 }
 
