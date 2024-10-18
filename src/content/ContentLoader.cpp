@@ -78,11 +78,15 @@ static void detect_defs_pairs(
                 continue;
             }
             if (fs::is_regular_file(file) && files::is_data_file(file)) {
-                auto map = files::read_object(file);
-                std::string id = prefix.empty() ? name : prefix + ":" + name;
-                std::string caption = util::id_to_caption(id);
-                map.at("caption").get(caption);
-                detected.emplace_back(id, name);
+                try {
+                    auto map = files::read_object(file);
+                    auto id = prefix.empty() ? name : prefix + ":" + name;
+                    auto caption = util::id_to_caption(id);
+                    map.at("caption").get(caption);
+                    detected.emplace_back(id, name);
+                } catch (const std::runtime_error& err) {
+                    logger.error() << err.what();
+                }
             } else if (fs::is_directory(file) && 
                        file.extension() != fs::u8path(".files")) {
                 detect_defs_pairs(file, name, detected);
