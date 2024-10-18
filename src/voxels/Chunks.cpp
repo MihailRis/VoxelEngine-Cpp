@@ -38,6 +38,7 @@ Chunks::Chunks(
     areaMap.setCenter(ox-w/2, oz-d/2);
     areaMap.setOutCallback([this](int, int, const auto& chunk) {
         save(chunk.get());
+        this->level->events->trigger(EVT_CHUNK_HIDDEN, chunk.get());
     });
 }
 
