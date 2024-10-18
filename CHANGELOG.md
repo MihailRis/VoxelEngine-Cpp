@@ -82,4 +82,5 @@ Table of contents:
 - [fix: flight can stop on noclip enabled](https://github.com/MihailRis/VoxelEngine-Cpp/commit/f63ab345eaaf7885cfd0298a99cea58a423741fb "fix: flight can stop on noclip enabled")
 - [fix: block model "x" preview](https://github.com/MihailRis/VoxelEngine-Cpp/pull/300)
 - [Batch3D::point() buffer overflow](https://github.com/MihailRis/VoxelEngine-Cpp/pull/302)
+- [fix player entity teleport using debug_panel](https://github.com/MihailRis/VoxelEngine-Cpp/commit/ba9417a7e4638a3b09568895e4af5b702da80c16)
 - fix fatal animator error
