@@ -1,32 +1,43 @@
 # Общее
-Yes=Joo
+Yes=Kyllä
 No=Ei
 Ok=Ok
 Cancel=Hylää
 Back=Takaisin
 Continue=Jatka
-Add=lisätä
+Add=Lisää
+Version=Versio
+Creator=Tekijä
+Dependencies=Riippuvuudet
+Description=Kuvaus
 Converting world...=Maailman muuttuminen on käynnissä...
+Unlimited=Rajoittamaton
 
 error.pack-not-found=Pakettia ei löytynyt!
-error.dependency-not-found=Käytetty riippuvuutta ei löytynyt
-pack.remove-confirm=Poistetaanko kaikki pakettien sisältö maailmasta (peruuttamattomasti)?
+error.dependency-not-found=Käytettyä riippuvuutta ei löytynyt
+pack.remove-confirm=Poistetaanko kaikki pakettien sisältö maailmasta (peruuttomattomasti)?
+
+# Подсказки
+graphics.gamma.tooltip=Valon kirkkauskäyrä
+graphics.backlight.tooltip=Taustavalo täydellisen pimeyden estämiseksi
 
 # Меню
 menu.Apply=Tallenna
 menu.Audio=Ääni
 menu.Back to Main Menu=Takaisin Valikkoon
-menu.Content Error=Virhe Sisällössä
+menu.Content Error=Sisältö Virhe
 menu.Content=Sisältö
 menu.Continue=Jatka
 menu.Controls=Ohjaus
+menu.Display=Näyttö
 menu.Graphics=Grafiikka
 menu.missing-content=Sisältö Puuttuu!
 menu.New World=Uusi Maailma
 menu.Page not found=Sivu ei löytynyt!
 menu.Quit=Poistu
-menu.Save and Quit to Menu=Tallenna ja Takaisin Valikkoon
+menu.Save and Quit to Menu=Tallenna ja Poistu Valikkoon
 menu.Settings=Asetukset
+menu.Contents Menu=Sisältöpakettien valikko
 
 world.Seed=Siemen
 world.Name=Nimi
@@ -34,20 +45,25 @@ world.World generator=Maailma Generaatori
 world.generators.default=Tavallinen
 world.generators.flat=Tasainen
 world.Create World=Luo Maailma
-world.convert-request=Indekseissä on muutoksia! Kääntää maailman?
+world.convert-request=Indekseissä on muutoksia! Käännetäänkö maailman?
+world.upgrade-request=Maailman muoto on vanhentunut! Kääntää maailman?
+world.convert-with-loss=Käännetään maailman menetyksien kanssa?
+world.convert-block-layouts=Estokentissä on muutoksia! Kääntää maailman?
 world.delete-confirm=Poistetaanko maailma pysyvästi?
 
 # Настройки
 settings.Ambient=Tausta
 settings.Backlight=Taustavalo
 settings.Camera Shaking=Tärisevä kamera
+settings.Camera Inertia=Kameran inertia
 settings.Fog Curve=Sumukäurä
 settings.FOV=Näkokenttä
 settings.Fullscreen=Koko näyttö
+settings.Framerate=Kuvataajuus
 settings.Gamma=Gamma
 settings.Language=Kieli
-settings.Load Distance=Latausetäisyys
-settings.Load Speed=Latausnopeus
+settings.Load Distance=Lataus Etäisyys
+settings.Load Speed=Lataus Nopeus
 settings.Master Volume=Yleinen äänen voimakkuus
 settings.Mouse Sensitivity=Hiiren herkkyys
 settings.Music=Musiikki
@@ -56,6 +72,7 @@ settings.UI Sounds=Käyttöliittymän äänet
 settings.V-Sync=Pystytahdistus
 
 # Управление
+chunks.reload=Lataa kimpaleet uudelleen
 devtools.console=Konsoli
 movement.forward=Eteenpäin
 movement.back=Taaksepäin
@@ -66,9 +83,10 @@ movement.sprint=Kiihtyvyys
 movement.crouch=Hiipiä
 movement.cheat=Huijata
 hud.inventory=Varasto
-player.pick=Valitse lohko
+player.pick=Valita lohko
 player.attack=Lyödä / Rikkoa
 player.build=Aseta lohko
 player.flight=Lento
+player.drop=Heittä kohde
 camera.zoom=Lähentäminen
 camera.mode=Vaihda kameratilaa
