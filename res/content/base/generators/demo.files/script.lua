@@ -69,9 +69,8 @@ function generate_heightmap(x, y, w, h, s, inputs)
     local desertmap = Heightmap(w, h)
     desertmap.noiseSeed = SEED
     desertmap:cellnoise({x+52, y+326}, 0.3*s, 2, 0.2)
-    desertmap:add(0.4)
+    desertmap:add(0.5)
     map:mixin(desertmap, inputs[1])
-    --map:add(0.1)
     return map
 end
 

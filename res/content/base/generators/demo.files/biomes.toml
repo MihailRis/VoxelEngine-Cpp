@@ -29,7 +29,7 @@ structures = [
 [desert]
 parameters = [
     {weight=1.0, value=1},
-    {weight=0.5, value=0}
+    {weight=0.8, value=0}
 ]
 layers = [
     {height=6, block="base:sand"},
