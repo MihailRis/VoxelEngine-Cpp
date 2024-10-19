@@ -35,8 +35,10 @@ function place_structures_wide(x, z, w, d, chunk_height)
             sy = ey
             sz = ez
             
-            dir_inertia = dir_inertia * 0.8 + (math.random() - 0.5) * math.pow(math.random(), 2) * 8
-            elevation = elevation * 0.9 + (math.random() - 0.4) * (1.0-math.pow(math.random(), 4)) * 8
+            dir_inertia = dir_inertia * 0.8 + 
+                (math.random() - 0.5) * math.pow(math.random(), 2) * 8
+            elevation = elevation * 0.9 + 
+                (math.random() - 0.4) * (1.0-math.pow(math.random(), 4)) * 8
             dir = dir + dir_inertia
         end
     end
