@@ -60,4 +60,5 @@ const luaL_Reg itemlib[] = {
     {"stack_size", lua::wrap<l_item_stack_size>},
     {"defs_count", lua::wrap<l_item_defs_count>},
     {"icon", lua::wrap<l_item_get_icon>},
+    {"caption", lua::wrap<l_item_caption>},
     {NULL, NULL}};
