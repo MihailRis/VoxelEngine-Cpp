@@ -560,10 +560,13 @@ void WorldGenerator::generateLine(
                     a, b, point
                 );
                 if (y > 0 &&
-                    util::distance2(closest, point) <= radius * radius &&
-                    line.block == BLOCK_AIR
+                    util::distance2(closest, point) <= radius * radius
                 ) {
                     auto& voxel = voxels[vox_index(x, y, z)];
+                    if (line.block != BLOCK_AIR) {
+                        voxel = {line.block, {}};
+                        continue;
+                    }
                     if (!indices.require(voxel.id).replaceable) {
                         voxel = {line.block, {}};
                     }
