@@ -4,6 +4,9 @@
               min='0.1' max='10' value='2' step='0.1'
               consumer='change_sensitivity'>
     </trackbar>
+    <panel id='search_panel' size='380,60' padding='2' interval='1' max-length='350' color='#0000004C'>
+        <textbox id='search_textbox' multiline='false' size='300,20' consumer='function(x) search_text=x refresh_search() end'></textbox>
+    </panel>
     <panel id='bindings_panel' size='380,204' padding='2' interval='1' max-length='350' color='#0000004C'>
         <!-- content is generated in script -->
     </panel>
