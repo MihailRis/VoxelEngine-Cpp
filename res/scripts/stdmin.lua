@@ -248,7 +248,7 @@ end
 --     Example `base:scripts/tests.lua`
 --
 -- nocache - ignore cached script, load anyway
-local function __load_script(path, nocache)
+function __load_script(path, nocache)
     local packname, filename = parse_path(path)
 
     -- __cached_scripts used in condition because cached result may be nil
