@@ -196,21 +196,25 @@ public:
         
         stackguard _(L);
         pushenv(L, *env);
-        if (getfield(L, "place_structures_wide")) {
-            pushivec_stack(L, offset);
-            pushivec_stack(L, size);
-            pushinteger(L, chunkHeight);
-            if (call_nothrow(L, 5, 1)) {
-                int len = objlen(L, -1);
-                for (int i = 1; i <= len; i++) {
-                    rawgeti(L, i);
+        try {
+            if (getfield(L, "place_structures_wide")) {
+                pushivec_stack(L, offset);
+                pushivec_stack(L, size);
+                pushinteger(L, chunkHeight);
+                if (call_nothrow(L, 5, 1)) {
+                    int len = objlen(L, -1);
+                    for (int i = 1; i <= len; i++) {
+                        rawgeti(L, i);
 
-                    perform_placement(L, placements);
+                        perform_placement(L, placements);
 
+                        pop(L);
+                    }
                     pop(L);
                 }
-                pop(L);
             }
+        } catch (const std::runtime_error& err) {
+            logger.error() << err.what();
         }
         return placements;
     }
