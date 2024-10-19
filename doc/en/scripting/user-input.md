@@ -61,6 +61,12 @@ input.get_bindings() -> strings array
 Returns all binding names.
 
 ```python
+input.get_binding_text(bindname: str) -> str
+```
+
+Returns text representation of button by binding name.
+
+```python
 input.is_pressed(code: str) -> bool
 ```
 
