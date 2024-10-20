@@ -159,7 +159,7 @@ namespace util {
                     auto i = y * sizeX + x;
                     auto value = firstBuffer[i];
                     firstBuffer[i] = {};
-                    if (outCallback) {
+                    if (outCallback && value != T {}) {
                         outCallback(x + offsetX, y + offsetY, value);
                     }
                 }
