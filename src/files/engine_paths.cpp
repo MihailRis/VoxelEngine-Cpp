@@ -56,6 +56,10 @@ void EnginePaths::prepare() {
     if (!fs::is_directory(exportFolder)) {
         fs::create_directories(exportFolder);
     }
+    auto configFolder = userFilesFolder / CONFIG_FOLDER;
+    if (!fs::is_directory(configFolder)) {
+        fs::create_directories(configFolder);
+    }
 }
 
 std::filesystem::path EnginePaths::getUserFilesFolder() const {
