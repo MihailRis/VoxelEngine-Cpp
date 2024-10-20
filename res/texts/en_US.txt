@@ -14,6 +14,7 @@ world.generators.flat=Flat
 # Tooltips
 graphics.gamma.tooltip=Lighting brightness curve
 graphics.backlight.tooltip=Backlight to prevent total darkness
+controls.key.tooltip=Search by attached button name
 
 # Bindings
 chunks.reload=Reload Chunks
