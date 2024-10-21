@@ -32,10 +32,10 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Debug -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
+          cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
           Remove-Item -Path CMakeFiles -Recurse -Force
-          cmake -DCMAKE_BUILD_TYPE=Debug -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
-          cmake --build . --config Debug
+          cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
+          cmake --build . --config RelWithDebInfo
       - name: Package for Windows
         run: |
           mkdir packaged
@@ -46,4 +46,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: Windows-Build
-          path: 'packaged/Debug/*'
+          path: 'packaged/RelWithDebInfo/*'
