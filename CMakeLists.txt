@@ -29,7 +29,7 @@ if(MSVC)
     else()
       target_compile_options(${PROJECT_NAME} PRIVATE /W4)
     endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /source-charset:UTF-8")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /source-charset:UTF-8 /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR")
 else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra
     # additional warnings
