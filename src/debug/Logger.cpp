@@ -1,5 +1,6 @@
 #include "Logger.hpp"
 
+#define _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
 #include <chrono>
 #include <ctime>
 #include <iomanip>
@@ -7,8 +8,6 @@
 #include <utility>
 
 using namespace debug;
-
-#define _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
 
 std::ofstream Logger::file;
 std::mutex Logger::mutex {};
