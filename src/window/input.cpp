@@ -111,13 +111,6 @@ mousecode input_util::mousecode_from(const std::string& name) {
 
 std::string input_util::to_string(keycode code) {
     int icode_repr = static_cast<int>(code);
-#ifdef _WIN32
-    char name[64];
-    int result =
-        GetKeyNameTextA(glfwGetKeyScancode(icode_repr) << 16, name, 64);
-    if (result == 0) return "Unknown";
-    return name;
-#else
     const char* name =
         glfwGetKeyName(icode_repr, glfwGetKeyScancode(icode_repr));
     if (name == nullptr) {
@@ -207,7 +200,6 @@ std::string input_util::to_string(keycode code) {
         }
     }
     return std::string(name);
-#endif  // _WIN32
 }
 
 std::string input_util::to_string(mousecode code) {
