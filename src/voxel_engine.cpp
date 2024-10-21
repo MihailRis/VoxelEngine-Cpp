@@ -12,7 +12,6 @@ static debug::Logger logger("main");
 
 int main(int argc, char** argv) {
     debug::Logger::init("latest.log");
-    logger.info() << "initialized";
 
     EnginePaths paths;
     if (!parse_cmdline(argc, argv, paths))
