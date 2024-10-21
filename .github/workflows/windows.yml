@@ -40,6 +40,7 @@ jobs:
         run: |
           mkdir packaged
           cp -r build/* packaged/
+          cp C:/Windows/System32/msvcp140.dll packaged/RelWithDebInfo/msvcp140.dll
         working-directory: ${{ github.workspace }}
       - name: Run tests
         run: ctest --output-on-failure --test-dir build
