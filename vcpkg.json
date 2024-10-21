@@ -7,7 +7,7 @@
       "glfw3",
       "glew",
       "glm",
-      "libspng",
+      "libpng",
       "zlib",
       "luajit",
       "libvorbis",
