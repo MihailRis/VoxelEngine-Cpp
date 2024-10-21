@@ -1,5 +1,6 @@
 #include "png.hpp"
 
+#include <png.h>
 #include <GL/glew.h>
 
 #include <iostream>
@@ -10,11 +11,6 @@
 #include "graphics/core/ImageData.hpp"
 
 static debug::Logger logger("png-coder");
-
-#define LIBPNG
-
-#ifdef LIBPNG
-#include <png.h>
 
 // returns 0 if all-right, 1 otherwise
 int _png_write(
@@ -192,142 +188,6 @@ std::unique_ptr<ImageData> _png_load(const char* file) {
     fclose(fp);
     return image;
 }
-
-#else
-#include <inttypes.h>
-#include <spng.h>
-#include <stdio.h>
-
-static const int SPNG_SUCCESS = 0;
-// returns spng result code
-int _png_write(
-    const char* filename, uint width, uint height, const ubyte* data, bool alpha
-) {
-    int fmt;
-    int ret = 0;
-    spng_ctx* ctx = nullptr;
-    spng_ihdr ihdr = {0};
-    uint pixsize = alpha ? 4 : 3;
-
-    ctx = spng_ctx_new(SPNG_CTX_ENCODER);
-    spng_set_option(ctx, SPNG_ENCODE_TO_BUFFER, 1);
-
-    ihdr.width = width;
-    ihdr.height = height;
-    ihdr.color_type =
-        alpha ? SPNG_COLOR_TYPE_TRUECOLOR_ALPHA : SPNG_COLOR_TYPE_TRUECOLOR;
-    ihdr.bit_depth = 8;
-
-    spng_set_ihdr(ctx, &ihdr);
-    fmt = SPNG_FMT_PNG;
-    ret = spng_encode_image(
-        ctx,
-        data,
-        (size_t)width * (size_t)height * pixsize,
-        fmt,
-        SPNG_ENCODE_FINALIZE
-    );
-    if (ret != SPNG_SUCCESS) {
-        logger.error() << "spng_encode_image() error: " << spng_strerror(ret);
-        spng_ctx_free(ctx);
-        return ret;
-    }
-
-    size_t png_size;
-    void* png_buf = spng_get_png_buffer(ctx, &png_size, &ret);
-
-    if (png_buf == nullptr) {
-        logger.error() << "spng_get_png_buffer() error: " << spng_strerror(ret);
-    } else {
-        files::write_bytes(filename, (const unsigned char*)png_buf, png_size);
-    }
-    spng_ctx_free(ctx);
-    return ret;
-}
-
-std::unique_ptr<ImageData> _png_load(const char* file) {
-    int r = 0;
-    FILE* png = nullptr;
-    spng_ctx* ctx = nullptr;
-
-    png = fopen(file, "rb");
-    if (png == nullptr) {
-        logger.error() << "could not to open file " << file;
-        return nullptr;
-    }
-
-    fseek(png, 0, SEEK_END);
-    long siz_pngbuf = ftell(png);
-    rewind(png);
-    if (siz_pngbuf < 1) {
-        fclose(png);
-        logger.error() << "could not to read file " << file;
-        return nullptr;
-    }
-    auto pngbuf = std::make_unique<char[]>(siz_pngbuf);
-    if (fread(pngbuf.get(), siz_pngbuf, 1, png) !=
-        1) {  // check of read elements count
-        fclose(png);
-        logger.error() << "fread() failed: " << file;
-        return nullptr;
-    }
-    fclose(png);  // <- finally closing file
-    ctx = spng_ctx_new(0);
-    if (ctx == nullptr) {
-        logger.error() << "spng_ctx_new() failed";
-        return nullptr;
-    }
-    r = spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
-    if (r != SPNG_SUCCESS) {
-        spng_ctx_free(ctx);
-        logger.error() << "spng_set_crc_action(): " << spng_strerror(r);
-        return nullptr;
-    }
-    r = spng_set_png_buffer(ctx, pngbuf.get(), siz_pngbuf);
-    if (r != SPNG_SUCCESS) {
-        spng_ctx_free(ctx);
-        logger.error() << "spng_set_png_buffer(): " << spng_strerror(r);
-        return nullptr;
-    }
-
-    spng_ihdr ihdr;
-    r = spng_get_ihdr(ctx, &ihdr);
-    if (r != SPNG_SUCCESS) {
-        spng_ctx_free(ctx);
-        logger.error() << "spng_get_ihdr(): " << spng_strerror(r);
-        return nullptr;
-    }
-
-    size_t out_size;
-    r = spng_decoded_image_size(ctx, SPNG_FMT_RGBA8, &out_size);
-    if (r != SPNG_SUCCESS) {
-        spng_ctx_free(ctx);
-        logger.error() << "spng_decoded_image_size(): " << spng_strerror(r);
-        return nullptr;
-    }
-    auto out = std::make_unique<ubyte[]>(out_size);
-    r = spng_decode_image(ctx, out.get(), out_size, SPNG_FMT_RGBA8, 0);
-    if (r != SPNG_SUCCESS) {
-        spng_ctx_free(ctx);
-        logger.error() << "spng_decode_image(): " << spng_strerror(r);
-        return nullptr;
-    }
-
-    auto flipped = std::make_unique<ubyte[]>(out_size);
-    for (size_t i = 0; i < ihdr.height; i += 1) {
-        size_t rowsize = ihdr.width * 4;
-        for (size_t j = 0; j < rowsize; j++) {
-            flipped[(ihdr.height - i - 1) * rowsize + j] = out[i * rowsize + j];
-        }
-    }
-
-    auto image = std::make_unique<ImageData>(
-        ImageFormat::rgba8888, ihdr.width, ihdr.height, std::move(flipped)
-    );
-    spng_ctx_free(ctx);
-    return image;
-}
-#endif
 
 std::unique_ptr<ImageData> png::load_image(const std::string& filename) {
     auto image = _png_load(filename.c_str());
