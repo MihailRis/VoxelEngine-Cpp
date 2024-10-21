@@ -10,6 +10,8 @@
 
 using namespace compression;
 
+inline constexpr float BUFFER_NOCROP_THRESOLD = 0.9;
+
 static util::BufferPool<ubyte> buffer_pools[] {
     {255},
     {UINT16_MAX},
@@ -31,15 +33,21 @@ static auto compress_rle(
     size_t& len,
     size_t(*encodefunc)(const ubyte*, size_t, ubyte*)
 ) {
-    auto buffer = get_buffer(srclen * 2);
+    size_t bufferSize = srclen * 2;
+    auto buffer = get_buffer(bufferSize);
     auto bytes = buffer.get();
     std::unique_ptr<ubyte[]> uptr;
     if (bytes == nullptr) {
-        uptr = std::make_unique<ubyte[]>(srclen * 2);
+        uptr = std::make_unique<ubyte[]>(bufferSize);
         bytes = uptr.get();
     }
     len = encodefunc(src, srclen, bytes);
     if (uptr) {
+        if (len < bufferSize * BUFFER_NOCROP_THRESOLD) {
+            auto cropped = std::make_unique<ubyte[]>(len);
+            std::memcpy(cropped.get(), uptr.get(), len);
+            return cropped;
+        }
         return uptr;
     }
     auto data = std::make_unique<ubyte[]>(len);
