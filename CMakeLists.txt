@@ -27,9 +27,10 @@ if(MSVC)
       set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
       target_compile_options(${PROJECT_NAME} PRIVATE /W4 /MT /O2)
     else()
-      target_compile_options(${PROJECT_NAME} PRIVATE /W4)
+      set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+      target_compile_options(${PROJECT_NAME} PRIVATE /W4 /MT)
     endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /source-charset:UTF-8")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /source-charset:UTF-8 /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR")
 else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra
     # additional warnings
