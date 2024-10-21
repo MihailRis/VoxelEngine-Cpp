@@ -1,6 +1,5 @@
 #pragma once
 
-#define _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
 #include <fstream>
 #include <mutex>
 #include <sstream>
