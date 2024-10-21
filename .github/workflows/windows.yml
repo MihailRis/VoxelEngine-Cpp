@@ -36,6 +36,9 @@ jobs:
           Remove-Item -Path CMakeFiles -Recurse -Force
           cmake -DCMAKE_BUILD_TYPE=Debug -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON -D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR=ON ..
           cmake --build . --config Debug
+      - name: Test run executable
+        run: |
+          build/Debug/VoxelEngine.exe
       - name: Package for Windows
         run: |
           mkdir packaged

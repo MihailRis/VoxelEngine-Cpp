@@ -6,12 +6,18 @@
 #include "util/command_line.hpp"
 #include "debug/Logger.hpp"
 
+#include <iostream>
 #include <stdexcept>
 
 static debug::Logger logger("main");
 
 int main(int argc, char** argv) {
+    std::cout << "main function called" << std::endl;
     debug::Logger::init("latest.log");
+    logger.info() << "initialized";
+
+    debug::Logger::flush();
+    return EXIT_SUCCESS; // TODO remove
 
     EnginePaths paths;
     if (!parse_cmdline(argc, argv, paths))
