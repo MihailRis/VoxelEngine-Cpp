@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <string>
+#include <set>
 
 #include "coders/gzip.hpp"
 #include "engine.hpp"
@@ -53,11 +54,15 @@ static int l_file_write(lua::State* L) {
     return 1;
 }
 
+static std::set<std::string> writeable_entry_points {
+    "world", "export", "config"
+};
+
 static int l_file_remove(lua::State* L) {
     std::string rawpath = lua::require_string(L, 1);
     fs::path path = resolve_path(rawpath);
     auto entryPoint = rawpath.substr(0, rawpath.find(':'));
-    if (entryPoint != "world") {
+    if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
         throw std::runtime_error("access denied");
     }
     return lua::pushboolean(L, fs::remove(path));
@@ -67,7 +72,7 @@ static int l_file_remove_tree(lua::State* L) {
     std::string rawpath = lua::require_string(L, 1);
     fs::path path = resolve_path(rawpath);
     auto entryPoint = rawpath.substr(0, rawpath.find(':'));
-    if (entryPoint != "world") {
+    if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
         throw std::runtime_error("access denied");
     }
     return lua::pushinteger(L, fs::remove_all(path));
