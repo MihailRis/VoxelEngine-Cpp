@@ -8,6 +8,8 @@
 
 using namespace debug;
 
+#define _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
+
 std::ofstream Logger::file;
 std::mutex Logger::mutex {};
 std::string Logger::utcOffset = "";
