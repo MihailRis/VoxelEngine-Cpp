@@ -1,6 +1,5 @@
 #include "Logger.hpp"
 
-#define _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
 #include <chrono>
 #include <ctime>
 #include <iomanip>
