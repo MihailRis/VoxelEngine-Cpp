@@ -11,9 +11,7 @@
 
 static debug::Logger logger("png-coder");
 
-#ifndef _WIN32
 #define LIBPNG
-#endif
 
 #ifdef LIBPNG
 #include <png.h>
