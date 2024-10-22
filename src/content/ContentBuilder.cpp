@@ -31,6 +31,11 @@ std::unique_ptr<Content> ContentBuilder::build() {
         def.rt.solid = def.model == BlockModel::block;
         def.rt.extended = def.size.x > 1 || def.size.y > 1 || def.size.z > 1;
 
+        const float EPSILON = 0.01f;
+        if (def.rt.extended && glm::i8vec3(def.hitboxes[0].size() + EPSILON) == def.size) {
+            def.rt.solid = true;
+        }
+
         if (def.rotatable) {
             for (uint i = 0; i < BlockRotProfile::MAX_COUNT; i++) {
                 def.rt.hitboxes[i].reserve(def.hitboxes.size());

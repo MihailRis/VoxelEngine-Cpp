@@ -37,6 +37,7 @@ public:
     BlocksController(Level* level, uint padding);
 
     void updateSides(int x, int y, int z);
+    void updateSides(int x, int y, int z, int w, int h, int d);
     void updateBlock(int x, int y, int z);
 
     void breakBlock(Player* player, const Block& def, int x, int y, int z);
