@@ -45,7 +45,7 @@ function on_open()
     refresh_sensitivity()
 
     document.search_panel:add(string.format(
-        "<checkbox size='20,20' id='search_key_checkbox' consumer='function(x) refresh_search() end' tooltip='%s'>%s</checkbox>", 
+        "<checkbox size='100,24' id='search_key_checkbox' consumer='function(x) refresh_search() end' tooltip='%s'>%s</checkbox>", 
         gui.str("controls.key.tooltip", "settings"), gui.str("Key", "settings")
     ))
 

@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "Panel.hpp"
+#include "Label.hpp"
 
 namespace gui {
     class CheckBox : public UINode {
@@ -33,6 +34,7 @@ namespace gui {
     class FullCheckBox : public Panel {
     protected:
         std::shared_ptr<CheckBox> checkbox;
+        std::shared_ptr<Label> label;
     public:
         FullCheckBox(const std::wstring& text, glm::vec2 size, bool checked=false);
 
@@ -55,6 +57,11 @@ namespace gui {
         virtual void setTooltip(const std::wstring& text) override {
             Panel::setTooltip(text);
             checkbox->setTooltip(text);
+        }
+
+        virtual void setSize(glm::vec2 new_size) override {
+            Panel::setSize(new_size);
+            checkbox->setSize(glm::vec2(size.y, size.y));
         }
     };
 }
