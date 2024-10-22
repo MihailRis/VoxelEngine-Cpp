@@ -33,14 +33,13 @@ jobs:
           mkdir build
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
-          Remove-Item -Path CMakeFiles -Recurse -Force
-          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
           cmake --build . --config Release
       - name: Package for Windows
         run: |
           mkdir packaged
           cp -r build/* packaged/
           cp C:/Windows/System32/msvcp140.dll packaged/Release/msvcp140.dll
+          mv packaged/Release/VoxelEngine.exe packaged/Release/VoxelCore.exe
         working-directory: ${{ github.workspace }}
       - name: Run tests
         run: ctest --output-on-failure --test-dir build
