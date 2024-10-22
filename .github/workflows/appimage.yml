@@ -36,9 +36,7 @@ jobs:
       - name: configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_APPDIR=1
       - name: build
-        run: |
-          cmake --build build -t install
-          mv build/VoxelEngine build/VoxelCore
+        run: cmake --build build -t install
       - name: Build AppImage
         uses: AppImageCrafters/build-appimage-action@fe2205a4d6056be47051f7b1b3811106e9814910
         env:
