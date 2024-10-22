@@ -1,10 +1,10 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=VoxelEngine
+Name=VoxelCore
 Comment=Minecraft-like game engine in C++ with OpenGL
 TryExec=VoxelEngine
 Exec=VoxelEngine
-Icon=VoxelEngine
+Icon=VoxelCore
 MimeType=image/x-foo;
 Categories=Game;
