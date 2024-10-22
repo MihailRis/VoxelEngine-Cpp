@@ -2,12 +2,12 @@ version: 1
 AppDir:
   path: AppDir
   app_info:
-    id: VoxelEngine
-    name: VoxelEngine
-    icon: VoxelEngine
+    id: VoxelCore
+    name: VoxelCore
+    icon: VoxelCore
     version: latest
-    exec: usr/bin/VoxelEngine
-    exec_args: --dir $HOME/.voxeng --res $APPDIR/usr/share/VoxelEngine/res $@
+    exec: usr/bin/VoxelCore
+    exec_args: --dir $HOME/.voxeng --res $APPDIR/usr/share/VoxelCore/res $@
   apt:
     arch: amd64
     sources:
