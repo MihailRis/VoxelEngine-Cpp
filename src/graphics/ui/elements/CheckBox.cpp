@@ -46,13 +46,13 @@ CheckBox* CheckBox::setChecked(bool flag) {
 
 FullCheckBox::FullCheckBox(const std::wstring& text, glm::vec2 size, bool checked)
     : Panel(size), 
-      checkbox(std::make_shared<CheckBox>(checked)){
+      checkbox(std::make_shared<CheckBox>(checked)),
+      label(std::make_shared<Label>(text)) {
     setColor(glm::vec4(0.0f));
     setOrientation(Orientation::horizontal);
 
     add(checkbox);
-
-    auto label = std::make_shared<Label>(text); 
+    
     label->setMargin(glm::vec4(5.f, 5.f, 0.f, 0.f));
     add(label);
 }
