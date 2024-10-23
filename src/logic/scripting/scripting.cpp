@@ -230,12 +230,14 @@ void scripting::random_update_block(const Block& block, int x, int y, int z) {
 void scripting::on_block_placed(
     Player* player, const Block& block, int x, int y, int z
 ) {
-    std::string name = block.name + ".placed";
-    lua::emit_event(lua::get_main_state(), name, [x, y, z, player](auto L) {
-        lua::pushivec_stack(L, glm::ivec3(x, y, z));
-        lua::pushinteger(L, player ? player->getId() : -1);
-        return 4;
-    });
+    if (block.rt.funcsset.onplaced) {
+        std::string name = block.name + ".placed";
+        lua::emit_event(lua::get_main_state(), name, [x, y, z, player](auto L) {
+            lua::pushivec_stack(L, glm::ivec3(x, y, z));
+            lua::pushinteger(L, player ? player->getId() : -1);
+            return 4;
+        });
+    }
     auto world_event_args = [&](lua::State* L) {
         lua::pushinteger(L, block.rt.id);
         lua::pushivec_stack(L, glm::ivec3(x, y, z));

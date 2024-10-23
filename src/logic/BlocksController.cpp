@@ -80,9 +80,7 @@ void BlocksController::placeBlock(
     );
     chunks->set(x, y, z, def.rt.id, state);
     lighting->onBlockSet(x, y, z, def.rt.id);
-    if (def.rt.funcsset.onplaced) {
-        scripting::on_block_placed(player, def, x, y, z);
-    }
+    scripting::on_block_placed(player, def, x, y, z);
     if (def.rt.extended) {
         updateSides(x, y, z , def.size.x, def.size.y, def.size.z);
     } else {
