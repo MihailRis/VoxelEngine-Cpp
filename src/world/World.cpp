@@ -114,7 +114,11 @@ std::unique_ptr<Level> World::load(
     if (!info.has_value()) {
         throw world_load_error("could not to find world.json");
     }
-    logger.info() << "world version: " << info->major << "." << info->minor;
+    logger.info() << "loading world " << info->name << " ("
+                  << worldFilesPtr->getFolder().u8string() << ")";
+    logger.info() << "world version: " << info->major << "." << info->minor
+                  << " seed: " << info->seed
+                  << " generator: " << info->generator;
 
     auto world = std::make_unique<World>(
         info.value(),
