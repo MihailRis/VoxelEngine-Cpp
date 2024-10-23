@@ -106,18 +106,34 @@ namespace lua {
 
     inline int pushquat(lua::State* L, glm::quat quat) {
         createtable(L, 4, 0);
-        for (size_t i = 0; i < 4; i++) {
-            pushnumber(L, quat[i]);
-            rawseti(L, i + 1);
-        }
+        
+        pushnumber(L, quat.w);
+        rawseti(L, 1);
+        
+        pushnumber(L, quat.x);
+        rawseti(L, 2);
+
+        pushnumber(L, quat.y);
+        rawseti(L, 3);
+
+        pushnumber(L, quat.z);
+        rawseti(L, 4);
         return 1;
     }
     inline int setquat(lua::State* L, int idx, glm::quat quat) {
         pushvalue(L, idx);
-        for (int i = 0; i < 4; i++) {
-            pushnumber(L, quat[i]);
-            rawseti(L, i + 1);
-        }
+
+        pushnumber(L, quat.w);
+        rawseti(L, 1);
+        
+        pushnumber(L, quat.x);
+        rawseti(L, 2);
+
+        pushnumber(L, quat.y);
+        rawseti(L, 3);
+
+        pushnumber(L, quat.z);
+        rawseti(L, 4);
         return 1;
     }
     inline int pushmat4(lua::State* L, glm::mat4 matrix) {
@@ -337,17 +353,18 @@ namespace lua {
             throw std::runtime_error("value must be an array of four numbers");
         }
         rawgeti(L, 1);
-        auto x = tonumber(L, -1);
-        pop(L);
-        rawgeti(L, 2);
-        auto y = tonumber(L, -1);
-        pop(L);
-        rawgeti(L, 3);
-        auto z = tonumber(L, -1);
-        pop(L);
-        rawgeti(L, 4);
         auto w = tonumber(L, -1);
         pop(L);
+        rawgeti(L, 2);
+        auto x = tonumber(L, -1);
+        pop(L);
+        rawgeti(L, 3);
+        auto y = tonumber(L, -1);
+        pop(L);
+        rawgeti(L, 4);
+        auto z = tonumber(L, -1);
+        pop(L);
+        
         pop(L);
         return glm::quat(x, y, z, w);
     }
