@@ -22,6 +22,14 @@ Content-pack folder must contain file **package.json** with following contents:
 }
 ```
 
+Dependency levels are indicated by prefixes in the name:
+- '!' - required dependency
+- '?' - optional dependency
+- '~' - weak dependency
+If prefix is not specified, '!' level will be used.
+
+Example: '~randutil' - weak dependency 'randutil'.
+
 Example:
 ```json
 {
