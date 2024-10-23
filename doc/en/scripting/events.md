@@ -90,6 +90,18 @@ function on_world_quit()
 
 Called on world close (after saving)
 
+```lua
+function on_block_placed(blockid, x, y, z, playerid)
+```
+
+Called on block placed by player
+
+```lua
+function on_block_broken(blockid, x, y, z, playerid)
+```
+
+Called on block broken by player
+
 ## Layout events
 
 Script *layouts/layout_name.xml.lua* events.
