@@ -4,11 +4,12 @@
 #include <iostream>
 #include <utility>
 
-#include "constants.hpp"
 #include "coders/json.hpp"
+#include "constants.hpp"
 #include "data/dv.hpp"
 #include "files/engine_paths.hpp"
 #include "files/files.hpp"
+
 
 namespace fs = std::filesystem;
 
@@ -78,13 +79,26 @@ ContentPack ContentPack::read(const fs::path& folder) {
     root.at("creator").get(pack.creator);
     root.at("description").get(pack.description);
     pack.folder = folder;
-    
+
     if (auto found = root.at("dependencies")) {
         const auto& dependencies = *found;
         for (const auto& elem : dependencies) {
-            pack.dependencies.push_back(
-                {DependencyLevel::required, elem.asString()}
-            );
+            std::string depName = elem.asString();
+            auto level = DependencyLevel::required;
+            switch (depName.at(0)) {
+                case '!':
+                    depName = depName.substr(1);
+                    break;
+                case '?':
+                    depName = depName.substr(1);
+                    level = DependencyLevel::optional;
+                    break;
+                case '~':
+                    depName = depName.substr(1);
+                    level = DependencyLevel::weak;
+                    break;
+            }
+            pack.dependencies.push_back({level, depName});
         }
     }
 
