@@ -131,6 +131,11 @@ static model::Mesh load_mesh(ByteReader& reader) {
         for (int i = 0; i < indices.size(); i++) {
             indices[i] = smallIndices[i];
         }
+    } else {
+        reader.get(
+            reinterpret_cast<char*>(indices.data()),
+            indices.size() * sizeof(uint16_t)
+        );
     }
     if (dataio::is_big_endian()) {
         for (int i = 0; i < indices.size(); i++) {
