@@ -43,8 +43,8 @@ using aloader_func = std::function<
 
 struct aloader_entry {
     AssetType tag;
-    const std::string filename;
-    const std::string alias;
+    std::string filename;
+    std::string alias;
     std::shared_ptr<AssetCfg> config;
 };
 

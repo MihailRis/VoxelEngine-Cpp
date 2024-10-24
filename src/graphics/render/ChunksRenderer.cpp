@@ -12,7 +12,7 @@
 
 static debug::Logger logger("chunks-render");
 
-class RendererWorker : public util::Worker<Chunk, RendererResult> {
+class RendererWorker : public util::Worker<std::shared_ptr<Chunk>, RendererResult> {
     Level* level;
     BlocksRenderer renderer;
 public:

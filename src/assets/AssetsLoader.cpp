@@ -272,15 +272,15 @@ public:
     LoaderWorker(AssetsLoader* loader) : loader(loader) {
     }
 
-    assetload::postfunc operator()(const std::shared_ptr<aloader_entry>& entry
+    assetload::postfunc operator()(const aloader_entry& entry
     ) override {
-        aloader_func loadfunc = loader->getLoader(entry->tag);
+        aloader_func loadfunc = loader->getLoader(entry.tag);
         return loadfunc(
             loader,
             loader->getPaths(),
-            entry->filename,
-            entry->alias,
-            entry->config
+            entry.filename,
+            entry.alias,
+            entry.config
         );
     }
 };
@@ -290,14 +290,13 @@ std::shared_ptr<Task> AssetsLoader::startTask(runnable onDone) {
         std::make_shared<util::ThreadPool<aloader_entry, assetload::postfunc>>(
             "assets-loader-pool",
             [=]() { return std::make_shared<LoaderWorker>(this); },
-            [=](assetload::postfunc& func) { func(assets); }
+            [=](const assetload::postfunc& func) { func(assets); }
         );
     pool->setOnComplete(std::move(onDone));
     while (!entries.empty()) {
-        const aloader_entry& entry = entries.front();
-        auto ptr = std::make_shared<aloader_entry>(entry);
-        pool->enqueueJob(ptr);
+        aloader_entry entry = std::move(entries.front());
         entries.pop();
+        pool->enqueueJob(std::move(entry));
     }
     return pool;
 }

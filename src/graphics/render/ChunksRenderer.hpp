@@ -30,7 +30,7 @@ class ChunksRenderer {
     std::unordered_map<glm::ivec2, std::shared_ptr<Mesh>> meshes;
     std::unordered_map<glm::ivec2, bool> inwork;
 
-    util::ThreadPool<Chunk, RendererResult> threadPool;
+    util::ThreadPool<std::shared_ptr<Chunk>, RendererResult> threadPool;
 public:
     ChunksRenderer(
         Level* level, 

@@ -17,7 +17,7 @@ namespace util {
 
     template <class J, class T>
     struct ThreadPoolResult {
-        std::shared_ptr<J> job;
+        J job;
         std::condition_variable& variable;
         int workerIndex;
         bool& locked;
@@ -29,13 +29,13 @@ namespace util {
     public:
         Worker() = default;
         virtual ~Worker() = default;
-        virtual R operator()(const std::shared_ptr<T>&) = 0;
+        virtual R operator()(const T&) = 0;
     };
 
     template <class T, class R>
     class ThreadPool : public Task {
         debug::Logger logger;
-        std::queue<std::shared_ptr<T>> jobs;
+        std::queue<T> jobs;
         std::queue<ThreadPoolResult<T, R>> results;
         std::mutex resultsMutex;
         std::vector<std::thread> threads;
@@ -43,7 +43,7 @@ namespace util {
         std::mutex jobsMutex;
         std::vector<std::unique_lock<std::mutex>> workersBlocked;
         consumer<R&> resultConsumer;
-        consumer<std::shared_ptr<T>&> onJobFailed = nullptr;
+        consumer<T&> onJobFailed = nullptr;
         runnable onComplete = nullptr;
         std::atomic<int> busyWorkers = 0;
         std::atomic<uint> jobsDone = 0;
@@ -57,7 +57,7 @@ namespace util {
             std::mutex mutex;
             bool locked = false;
             while (working) {
-                std::shared_ptr<T> job;
+                T job;
                 {
                     std::unique_lock<std::mutex> lock(jobsMutex);
                     jobsMutexCondition.wait(lock, [this] {
@@ -66,7 +66,7 @@ namespace util {
                     if (!working || failed) {
                         break;
                     }
-                    job = jobs.front();
+                    job = std::move(jobs.front());
                     jobs.pop();
 
                     busyWorkers++;
@@ -229,10 +229,10 @@ namespace util {
             }
         }
 
-        void enqueueJob(const std::shared_ptr<T>& job) {
+        void enqueueJob(T job) {
             {
                 std::lock_guard<std::mutex> lock(jobsMutex);
-                jobs.push(job);
+                jobs.push(std::move(job));
             }
             jobsMutexCondition.notify_one();
         }
