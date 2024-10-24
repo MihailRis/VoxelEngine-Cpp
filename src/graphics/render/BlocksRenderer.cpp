@@ -520,6 +520,13 @@ void BlocksRenderer::build(const Chunk* chunk, const ChunksStorage* chunks) {
     overflow = false;
     vertexOffset = 0;
     indexOffset = indexSize = 0;
+    if (voxelsBuffer->pickBlockId(
+        chunk->x * CHUNK_W, 0, chunk->z * CHUNK_D
+    ) == BLOCK_VOID) {
+        cancelled = true;
+        return;
+    }
+    cancelled = false;
     const voxel* voxels = chunk->voxels;
     render(voxels);
 }

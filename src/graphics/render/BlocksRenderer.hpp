@@ -33,6 +33,7 @@ class BlocksRenderer {
     size_t capacity;
     int voxelBufferPadding = 2;
     bool overflow = false;
+    bool cancelled = false;
     const Chunk* chunk = nullptr;
     std::unique_ptr<VoxelsVolume> voxelsBuffer;
 
@@ -149,4 +150,8 @@ public:
     std::shared_ptr<Mesh> render(const Chunk* chunk, const ChunksStorage* chunks);
     std::shared_ptr<Mesh> createMesh();
     VoxelsVolume* getVoxelsBuffer() const;
+
+    bool isCancelled() const {
+        return cancelled;
+    }
 };

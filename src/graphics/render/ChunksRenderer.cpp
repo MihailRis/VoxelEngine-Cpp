@@ -40,7 +40,9 @@ ChunksRenderer::ChunksRenderer(
         "chunks-render-pool",
         [=](){return std::make_shared<RendererWorker>(level, cache, settings);}, 
         [=](RendererResult& mesh){
-            meshes[mesh.key] = mesh.renderer->createMesh();
+            if (!mesh.renderer->isCancelled()) {
+                meshes[mesh.key] = mesh.renderer->createMesh();
+            }
             inwork.erase(mesh.key);
         }, settings->graphics.chunkMaxRenderers.get())
 {
