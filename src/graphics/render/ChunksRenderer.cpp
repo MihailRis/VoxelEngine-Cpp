@@ -45,11 +45,11 @@ ChunksRenderer::ChunksRenderer(
     threadPool(
         "chunks-render-pool",
         [=](){return std::make_shared<RendererWorker>(level, cache, settings);}, 
-        [=](RendererResult& mesh){
-            if (!mesh.cancelled) {
-                meshes[mesh.key] = std::make_shared<Mesh>(mesh.meshData);
+        [=](RendererResult& result){
+            if (!result.cancelled) {
+                meshes[result.key] = std::make_shared<Mesh>(result.meshData);
             }
-            inwork.erase(mesh.key);
+            inwork.erase(result.key);
         }, settings->graphics.chunkMaxRenderers.get())
 {
     threadPool.setStopOnFail(false);
