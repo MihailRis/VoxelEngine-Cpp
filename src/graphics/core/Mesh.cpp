@@ -15,6 +15,8 @@ inline size_t calc_vertex_size(const vattr* attrs) {
 Mesh::Mesh(const MeshData& data)
  : Mesh(data.vertices.data(), 
         data.vertices.size() / calc_vertex_size(data.attrs.data()),
+        data.indices.data(),
+        data.indices.size(),
         data.attrs.data()) {}
 
 Mesh::Mesh(const float* vertexBuffer, size_t vertices, const int* indexBuffer, size_t indices, const vattr* attrs) : 
