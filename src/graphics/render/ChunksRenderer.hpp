@@ -9,6 +9,7 @@
 #include "voxels/Block.hpp"
 #include "voxels/ChunksStorage.hpp"
 #include "util/ThreadPool.hpp"
+#include "graphics/core/MeshData.hpp"
 
 class Mesh;
 class Chunk;
@@ -19,7 +20,8 @@ struct EngineSettings;
 
 struct RendererResult {
     glm::ivec2 key;
-    BlocksRenderer* renderer;
+    bool cancelled;
+    MeshData meshData;
 };
 
 class ChunksRenderer {

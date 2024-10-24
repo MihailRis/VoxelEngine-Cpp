@@ -16,6 +16,8 @@ struct MeshData {
     util::Buffer<int> indices;
     util::Buffer<vattr> attrs;
 
+    MeshData() = default;
+
     /// @param vertices vertex data buffer
     /// @param indices nullable indices buffer
     /// @param attrs vertex attribute sizes (must be null-terminated) 
