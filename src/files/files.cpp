@@ -75,7 +75,11 @@ std::unique_ptr<ubyte[]> files::read_bytes(
     const fs::path& filename, size_t& length
 ) {
     std::ifstream input(filename, std::ios::binary);
-    if (!input.is_open()) return nullptr;
+    if (!input.is_open()) {
+        throw std::runtime_error(
+            "could not to load file '" + filename.string() + "'"
+        );
+    }
     input.seekg(0, std::ios_base::end);
     length = input.tellg();
     input.seekg(0, std::ios_base::beg);
@@ -102,12 +106,7 @@ std::vector<ubyte> files::read_bytes(const fs::path& filename) {
 
 std::string files::read_string(const fs::path& filename) {
     size_t size;
-    std::unique_ptr<ubyte[]> bytes(read_bytes(filename, size));
-    if (bytes == nullptr) {
-        throw std::runtime_error(
-            "could not to load file '" + filename.string() + "'"
-        );
-    }
+    auto bytes = read_bytes(filename, size);
     return std::string((const char*)bytes.get(), size);
 }
 
