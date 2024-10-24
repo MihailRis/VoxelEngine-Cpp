@@ -10,6 +10,7 @@
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/VoxelsVolume.hpp"
+#include "graphics/core/MeshData.hpp"
 
 class Content;
 class Mesh;
@@ -148,7 +149,7 @@ public:
 
     void build(const Chunk* chunk, const ChunksStorage* chunks);
     std::shared_ptr<Mesh> render(const Chunk* chunk, const ChunksStorage* chunks);
-    std::shared_ptr<Mesh> createMesh();
+    MeshData createMesh();
     VoxelsVolume* getVoxelsBuffer() const;
 
     bool isCancelled() const {

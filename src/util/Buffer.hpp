@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <cstring>
+#include <initializer_list>
 
 namespace util {
     /// @brief Template similar to std::unique_ptr stores a buffer with its size
@@ -11,6 +12,8 @@ namespace util {
         std::unique_ptr<T[]> ptr;
         size_t length;
     public:
+        Buffer() = default;
+
         Buffer(size_t length)
          : ptr(std::make_unique<T[]>(length)), length(length) {
         }
@@ -23,7 +26,23 @@ namespace util {
 
         Buffer(const T* src, size_t length)
          : ptr(std::make_unique<T[]>(length)), length(length) {
-            std::memcpy(ptr.get(), src, length);
+            std::memcpy(ptr.get(), src, length * sizeof(T));
+        }
+
+        Buffer(std::initializer_list<T> values)
+         : ptr(std::make_unique<T[]>(values.size())), 
+           length(values.size()) {
+            std::copy(values.begin(), values.end(), ptr.get());
+        }
+
+        Buffer(std::nullptr_t) noexcept : ptr(nullptr), length(0) {}
+
+        inline bool operator==(std::nullptr_t) const noexcept {
+            return ptr == nullptr;
+        }
+
+        inline bool operator!=(std::nullptr_t) const noexcept {
+            return ptr != nullptr;
         }
 
         T& operator[](long long index) {
