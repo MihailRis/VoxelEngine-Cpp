@@ -181,8 +181,7 @@ assetload::postfunc assetload::sound(
         if (!fs::exists(variantFile)) {
             break;
         }
-        baseSound->variants.emplace_back(audio::load_sound(variantFile, keepPCM)
-        );
+        baseSound->variants.emplace_back(audio::load_sound(variantFile, keepPCM));
     }
 
     auto sound = baseSound.release();
@@ -191,8 +190,13 @@ assetload::postfunc assetload::sound(
     };
 }
 
-assetload::postfunc assetload::
-    model(AssetsLoader* loader, const ResPaths* paths, const std::string& file, const std::string& name, const std::shared_ptr<AssetCfg>&) {
+assetload::postfunc assetload::model(
+    AssetsLoader* loader,
+    const ResPaths* paths,
+    const std::string& file,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>&
+) {
     auto path = paths->find(file + ".obj");
     auto text = files::read_string(path);
     try {

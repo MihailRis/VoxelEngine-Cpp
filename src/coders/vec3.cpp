@@ -107,7 +107,9 @@ static model::Mesh build_mesh(
     return model::Mesh {texture, std::move(vertices)};
 }
 
-static model::Mesh load_mesh(ByteReader& reader) {
+static model::Mesh load_mesh(
+    ByteReader& reader, const std::vector<Material>& materials
+) {
     int triangleCount = reader.getInt32();
     int materialId = reader.getInt16();
     int flags = reader.getInt16();
@@ -145,12 +147,13 @@ static model::Mesh load_mesh(ByteReader& reader) {
     return build_mesh(
         attributes,
         indices,
-        // encode material index to UTF-8 because materials are not loaded yet
-        util::wstr2str_utf8(std::wstring({static_cast<wchar_t>(materialId)}))
+        materials.at(materialId).name
     );
 }
 
-static Model load_model(ByteReader& reader) {
+static Model load_model(
+    ByteReader& reader, const std::vector<Material>& materials
+) {
     int nameLength = reader.getInt16();
     assert(nameLength >= 0);
     float x = reader.getFloat32();
@@ -161,7 +164,7 @@ static Model load_model(ByteReader& reader) {
     
     std::vector<model::Mesh> meshes;
     for (int i = 0; i < meshCount; i++) {
-        meshes.push_back(load_mesh(reader));
+        meshes.push_back(load_mesh(reader, materials));
     }
     util::Buffer<char> chars(nameLength);
     reader.get(chars.data(), nameLength);
@@ -194,27 +197,20 @@ File vec3::load(
     assert(reserved == 0);
     
     // Body
-    int modelCount = reader.getInt16();
     int materialCount = reader.getInt16();
-    assert(modelCount >= 0);
+    int modelCount = reader.getInt16();
     assert(materialCount >= 0);
+    assert(modelCount >= 0);
 
-    std::unordered_map<std::string, Model> models;
-    for (int i = 0; i < modelCount; i++) {
-        Model model = load_model(reader);
-        models[model.name] = std::move(model);
-    }
     std::vector<Material> materials;
     for (int i = 0; i < materialCount; i++) {
         materials.push_back(load_material(reader));
     }
-    
-    // Resolve textures
-    for (auto& [_, model] : models) {
-        for (auto& mesh : model.model.meshes) {
-            int materialId = util::str2wstr_utf8(mesh.texture).at(0);
-            mesh.texture = materials.at(materialId).name;
-        }
+
+    std::unordered_map<std::string, Model> models;
+    for (int i = 0; i < modelCount; i++) {
+        Model model = load_model(reader, materials);
+        models[model.name] = std::move(model);
     }
     return File {std::move(models), std::move(materials)};
 }

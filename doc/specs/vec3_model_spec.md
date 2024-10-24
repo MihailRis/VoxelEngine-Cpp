@@ -57,10 +57,10 @@ struct Header {
 sizeof(Header) == 12;
 
 struct Body {
-    uint16 model_count
     uint16 material_count
-    Model models[];
+    uint16 model_count
     Material materials[];
+    Model models[];
 };
 sizeof(Body) == 4; // + dynamic models array + dynamic materials array
 
