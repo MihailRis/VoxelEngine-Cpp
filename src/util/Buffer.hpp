@@ -12,6 +12,8 @@ namespace util {
         std::unique_ptr<T[]> ptr;
         size_t length;
     public:
+        Buffer() = default;
+
         Buffer(size_t length)
          : ptr(std::make_unique<T[]>(length)), length(length) {
         }
@@ -24,11 +26,14 @@ namespace util {
 
         Buffer(const T* src, size_t length)
          : ptr(std::make_unique<T[]>(length)), length(length) {
-            std::memcpy(ptr.get(), src, length);
+            std::memcpy(ptr.get(), src, length * sizeof(T));
         }
 
         Buffer(std::initializer_list<T> values)
-         : ptr(std::make_unique<T>(values)), length(values.size()) {}
+         : ptr(std::make_unique<T[]>(values.size())), 
+           length(values.size()) {
+            std::copy(values.begin(), values.end(), ptr.get());
+        }
 
         Buffer(std::nullptr_t) noexcept : ptr(nullptr), length(0) {}
 
