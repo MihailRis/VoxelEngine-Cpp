@@ -107,6 +107,14 @@ void ByteReader::checkMagic(const char* data, size_t size) {
     pos += size;
 }
 
+void ByteReader::get(char* dst, size_t size) {
+    if (pos + size > this->size) {
+        throw std::runtime_error("buffer underflow");
+    }
+    std::memcpy(dst, data+pos, size);
+    pos += size;
+}
+
 ubyte ByteReader::get() {
     if (pos == size) {
         throw std::runtime_error("buffer underflow");
