@@ -24,11 +24,11 @@ struct VertexAttribute {
 sizeof(VertexAttribute) == 6; // + dynamic data array
 
 struct Mesh {
-    uint32 triangles_count; // number of mesh triangles
+    uint32 triangle_count; // number of mesh triangles
     uint16 material_id;
     uint16 flags;
     uint16 attribute_count;
-    VertexAttributes attributes[];
+    VertexAttribute attributes[];
     uint8 indices[]; // if compressed, first 4 bytes of compressed data is compressed buffer size
 };
 sizeof(Mesh) == 10; // + dynamic attributes array + dynamic indices array
