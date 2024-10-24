@@ -11,6 +11,7 @@
 #include "voxels/Chunk.hpp"
 #include "voxels/VoxelsVolume.hpp"
 #include "graphics/core/MeshData.hpp"
+#include "maths/util.hpp"
 
 class Content;
 class Mesh;
@@ -41,6 +42,8 @@ class BlocksRenderer {
     const Block* const* blockDefsCache;
     const ContentGfxCache* const cache;
     const EngineSettings* settings;
+    
+    util::PseudoRandom randomizer;
 
     void vertex(const glm::vec3& coord, float u, float v, const glm::vec4& light);
     void index(int a, int b, int c, int d, int e, int f);

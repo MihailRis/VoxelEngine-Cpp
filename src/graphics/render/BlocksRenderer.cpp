@@ -227,7 +227,8 @@ void BlocksRenderer::blockXSprite(
         pickSoftLight({x + 1, y + 1, z}, {1, 0, 0}, {0, 1, 0}),
         pickSoftLight({x, y + 1, z}, {1, 0, 0}, {0, 1, 0})
     };
-    int rand = ((x * z + y) ^ (z * y - x)) * (z + y);
+    randomizer.setSeed((x * 52321) ^ (z * 389) ^ y);
+    short rand = randomizer.rand32();
 
     float xs = ((float)(char)rand / 512) * spread;
     float zs = ((float)(char)(rand >> 8) / 512) * spread;
