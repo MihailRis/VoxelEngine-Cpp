@@ -167,6 +167,14 @@ static int l_get_setting_info(lua::State* L) {
     throw std::runtime_error("unsupported setting type");
 }
 
+#include "util/platform.hpp"
+
+static int l_open_folder(lua::State* L) {
+    auto path = engine->getPaths()->resolve(lua::require_string(L, 1));
+    platform::open_folder(path);
+    return 0;
+}
+
 /// @brief Quit the game
 static int l_quit(lua::State*) {
     Window::setShouldClose(true);
@@ -184,5 +192,6 @@ const luaL_Reg corelib[] = {
     {"set_setting", lua::wrap<l_set_setting>},
     {"str_setting", lua::wrap<l_str_setting>},
     {"get_setting_info", lua::wrap<l_get_setting_info>},
+    {"open_folder", lua::wrap<l_open_folder>},
     {"quit", lua::wrap<l_quit>},
     {NULL, NULL}};
