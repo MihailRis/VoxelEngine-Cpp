@@ -110,7 +110,7 @@ std::string files::read_string(const fs::path& filename) {
     return std::string((const char*)bytes.get(), size);
 }
 
-bool files::write_string(const fs::path& filename, const std::string content) {
+bool files::write_string(const fs::path& filename, std::string_view content) {
     std::ofstream file(filename);
     if (!file) {
         return false;
