@@ -30,6 +30,10 @@ namespace vec3 {
     struct File {
         std::unordered_map<std::string, Model> models;
         std::vector<Material> materials;
+
+        File(File&&) = default;
+
+        File& operator=(File&&) = default;
     };
 
     File load(const std::string_view file, const util::Buffer<ubyte>& src);

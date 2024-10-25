@@ -103,6 +103,7 @@ static model::Mesh build_mesh(
         if (normals) {
             vertex.normal = normals[indices[i * attrsCount + normalsIndex]];
         }
+        vertices.push_back(std::move(vertex));
     }
     return model::Mesh {texture, std::move(vertices)};
 }
