@@ -35,6 +35,7 @@ extern const luaL_Reg playerlib[];
 extern const luaL_Reg quatlib[];  // quat.cpp
 extern const luaL_Reg timelib[];
 extern const luaL_Reg tomllib[];
+extern const luaL_Reg utf8lib[];
 extern const luaL_Reg vec2lib[];  // vecn.cpp
 extern const luaL_Reg vec3lib[];  // vecn.cpp
 extern const luaL_Reg vec4lib[];  // vecn.cpp
