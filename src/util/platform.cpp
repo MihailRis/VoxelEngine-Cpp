@@ -49,7 +49,6 @@ std::string platform::detect_locale() {
 }
 #endif
 
-
 void platform::open_folder(const std::filesystem::path& folder) {
     if (!std::filesystem::is_directory(folder)) {
         return;
