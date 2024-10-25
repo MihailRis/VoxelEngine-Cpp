@@ -57,7 +57,7 @@ void platform::open_folder(const std::filesystem::path& folder) {
 #ifdef __APPLE__
     auto cmd = "open "+util::quote(folder.u8string());
 #elif defined(_WIN32)
-    auto cmd = "explorer "+util::quote(folder.u8string());
+    auto cmd = "start explorer "+util::quote(folder.u8string());
 #else
     auto cmd = "xdg-open "+util::quote(folder.u8string());
 #endif
