@@ -41,18 +41,32 @@ static bool animation(
     Atlas* dstAtlas
 );
 
-assetload::postfunc assetload::
-    texture(AssetsLoader*, const ResPaths* paths, const std::string& filename, const std::string& name, const std::shared_ptr<AssetCfg>&) {
-    std::shared_ptr<ImageData> image(
-        imageio::read(paths->find(filename + ".png").u8string()).release()
-    );
-    return [name, image](auto assets) {
-        assets->store(Texture::from(image.get()), name);
-    };
+assetload::postfunc assetload::texture(
+    AssetsLoader*,
+    const ResPaths* paths,
+    const std::string& filename,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>&
+) {
+    auto actualFile = paths->find(filename + ".png").u8string();
+    try {
+        std::shared_ptr<ImageData> image(imageio::read(actualFile).release());
+        return [name, image, actualFile](auto assets) {
+            assets->store(Texture::from(image.get()), name);
+        };
+    } catch (const std::runtime_error& err) {
+        logger.error() << actualFile << ": " << err.what();
+        return [](auto) {};
+    }
 }
 
-assetload::postfunc assetload::
-    shader(AssetsLoader*, const ResPaths* paths, const std::string& filename, const std::string& name, const std::shared_ptr<AssetCfg>&) {
+assetload::postfunc assetload::shader(
+    AssetsLoader*,
+    const ResPaths* paths,
+    const std::string& filename,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>&
+) {
     fs::path vertexFile = paths->find(filename + ".glslv");
     fs::path fragmentFile = paths->find(filename + ".glslf");
 
