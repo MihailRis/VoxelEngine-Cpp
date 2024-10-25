@@ -31,7 +31,7 @@ file.write(pack.shared_file(PACK_ID, "example.txt"), text)
 ```
 Для пака *containermod* запишет текст в файл `config:containermod/example.txt`
 
-Используйте для хранения данныхm общих для всех миров.
+Используйте для хранения данных общих для всех миров.
 
 ```python
 pack.get_folder(packid: str) -> str
