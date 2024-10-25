@@ -228,7 +228,11 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
         for (auto& entry : content->getSkeletons()) {
             auto& skeleton = *entry.second;
             for (auto& bone : skeleton.getBones()) {
-                auto& model = bone->model.name;
+                std::string model = bone->model.name;
+                size_t pos = model.rfind('.');
+                if (pos != std::string::npos) {
+                    model = model.substr(0, pos);
+                }
                 if (!model.empty()) {
                     loader.add(
                         AssetType::MODEL, MODELS_FOLDER + "/" + model, model
