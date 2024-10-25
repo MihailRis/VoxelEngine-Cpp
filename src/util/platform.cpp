@@ -7,11 +7,10 @@
 #include <sstream>
 
 #include "typedefs.hpp"
+#include "stringutil.hpp"
 
 #ifdef _WIN32
 #include <Windows.h>
-
-#include "stringutil.hpp"
 
 void platform::configure_encoding() {
     // set utf-8 encoding to console output
@@ -35,7 +34,6 @@ std::string platform::detect_locale() {
         .replace(2, 1, "_")
         .substr(0, 5);
 }
-
 #else
 
 void platform::configure_encoding() {
@@ -49,5 +47,18 @@ std::string platform::detect_locale() {
 
     return preferredLocaleName.substr(0, 5);
 }
-
 #endif
+
+void platform::open_folder(const std::filesystem::path& folder) {
+    if (!std::filesystem::is_directory(folder)) {
+        return;
+    }
+#ifdef __APPLE__
+    auto cmd = "open "+util::quote(folder.u8string());
+#elif defined(_WIN32)
+    auto cmd = "start explorer "+util::quote(folder.u8string());
+#else
+    auto cmd = "xdg-open "+util::quote(folder.u8string());
+#endif
+    system(cmd.c_str());
+}
