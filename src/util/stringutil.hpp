@@ -44,6 +44,11 @@ namespace util {
     /// @param maxSize max encoded string length after crop
     /// @return cropped string size (less or equal to maxSize)
     size_t crop_utf8(std::string_view s, size_t maxSize);
+
+    /// @brief Measure utf8-encoded string length
+    /// @param s source encoded string
+    /// @return unicode string length (number of codepoints)
+    size_t length_utf8(std::string_view s);
     
     bool is_integer(const std::string& text);
     bool is_integer(const std::wstring& text);
