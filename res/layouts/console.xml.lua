@@ -27,7 +27,7 @@ function on_history_up()
 end
 
 function on_history_down()
-    if history_pointer == #history-1 then
+    if history_pointer >= #history-1 then
         return
     end
     history_pointer = history_pointer + 1
