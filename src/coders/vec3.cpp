@@ -177,6 +177,13 @@ static Model load_model(
     util::Buffer<char> chars(nameLength);
     reader.get(chars.data(), nameLength);
     std::string name(chars.data(), nameLength);
+    
+    glm::vec3 offset {x, y, z};
+    for (auto& mesh : meshes) {
+        for (auto& vertex : mesh.vertices) {
+            vertex.coord -= offset;
+        }
+    }
     return Model {std::move(name), model::Model {std::move(meshes)}, {x, y, z}};
 }
 
