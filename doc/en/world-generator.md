@@ -72,15 +72,13 @@ Fragments used by the generator must present in the directory:
 
 ## Structures
 
-A structure is a set of rules for inserting a fragment into the world by the generator. It currently has no properties, being created as empty objects in the `generators/generator_name.files/structures.json` file. Example:
-```lua
-{
-    "tree0": {},
-    "tree1": {},
-    "tree2": {},
-    "tower": {},
-    "coal_ore0": {}
-}
+A structure is a set of rules for inserting a fragment into the world by the generator. It currently has no properties, being created as empty objects in the `generators/generator_name.files/structures.toml` file. Example:
+```toml
+tree0 = {}
+tree1 = {}
+tree2 = {}
+tower = {}
+coal_ore0 = {}
 ```
 
 Currently, the name of the structure must match the name of the fragment used.
@@ -136,7 +134,7 @@ structures = [
     - block - plant block
 - structure-chance - probability of generating a small structure on a surface block.
 - structures - structures randomly placed on the surface.
-    - name - name of the structure declared in `structures.json`.
+    - name - name of the structure declared in `structures.toml`.
     - weight - weight directly affecting the chance of choosing a specific structure.
 
 ### Biome Parameters

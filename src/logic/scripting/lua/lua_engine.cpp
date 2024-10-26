@@ -51,6 +51,7 @@ static void create_libs(State* L, StateType stateType) {
     openlib(L, "quat", quatlib);
     openlib(L, "time", timelib);
     openlib(L, "toml", tomllib);
+    openlib(L, "utf8", utf8lib);
     openlib(L, "vec2", vec2lib);
     openlib(L, "vec3", vec3lib);
     openlib(L, "vec4", vec4lib);
