@@ -6,11 +6,11 @@
 #include "util/stringutil.hpp"
 
 static int l_encode(lua::State* L) {
-    std::string string = lua::require_string(L, 1);
+    std::string_view string = lua::require_string(L, 1);
     if (lua::toboolean(L, 2)) {
         lua::createtable(L, string.length(), 0);
         for (size_t i = 0; i < string.length(); i++) {
-            lua::pushinteger(L, string[i]);
+            lua::pushinteger(L, string[i] & 0xFF);
             lua::rawseti(L, i+1);
         }
     } else {
@@ -39,8 +39,24 @@ static int l_decode(lua::State* L) {
     return 1;
 }
 
+static int l_length(lua::State* L) {
+    auto string = lua::require_string(L, 1);
+    return lua::pushinteger(L, util::length_utf8(string));
+}
+
+static int l_codepoint(lua::State* L) {
+    std::string_view string = lua::require_string(L, 1);
+    if (string.empty()) {
+        return lua::pushinteger(L, 0);
+    }
+    uint size;
+    return lua::pushinteger(L, util::decode_utf8(size, string.data()));
+}
+
 const luaL_Reg utf8lib[] = {
     {"encode", lua::wrap<l_encode>},
     {"decode", lua::wrap<l_decode>},
+    {"length", lua::wrap<l_length>},
+    {"codepoint", lua::wrap<l_codepoint>},
     {NULL, NULL}
 };
