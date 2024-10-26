@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <array>
 
 #include "maths/UVRegion.hpp"
 #include "maths/aabb.hpp"
@@ -111,7 +112,7 @@ public:
     std::string caption;
 
     /// @brief Textures set applied to block sides
-    std::string textureFaces[6];  // -x,x, -y,y, -z,z
+    std::array<std::string, 6> textureFaces;  // -x,x, -y,y, -z,z
 
     std::vector<std::string> modelTextures = {};
     std::vector<BoxModel> modelBoxes = {};

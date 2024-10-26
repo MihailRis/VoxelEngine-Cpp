@@ -418,11 +418,11 @@ void ContentLoader::loadItem(
     std::string iconTypeStr = "";
     root.at("icon-type").get(iconTypeStr);
     if (iconTypeStr == "none") {
-        def.iconType = item_icon_type::none;
+        def.iconType = ItemIconType::NONE;
     } else if (iconTypeStr == "block") {
-        def.iconType = item_icon_type::block;
+        def.iconType = ItemIconType::BLOCK;
     } else if (iconTypeStr == "sprite") {
-        def.iconType = item_icon_type::sprite;
+        def.iconType = ItemIconType::SPRITE;
     } else if (iconTypeStr.length()) {
         logger.error() << name << ": unknown icon type" << iconTypeStr;
     }
@@ -532,7 +532,7 @@ void ContentLoader::loadBlock(
         auto& item = builder.items.create(full + BLOCK_ITEM_SUFFIX);
         item.generated = true;
         item.caption = def.caption;
-        item.iconType = item_icon_type::block;
+        item.iconType = ItemIconType::BLOCK;
         item.icon = full;
         item.placingBlock = full;
 

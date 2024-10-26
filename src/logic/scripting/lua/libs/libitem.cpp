@@ -36,11 +36,11 @@ static int l_item_defs_count(lua::State* L) {
 static int l_item_get_icon(lua::State* L) {
     if (auto def = get_item_def(L, 1)) {
         switch (def->iconType) {
-            case item_icon_type::none:
+            case ItemIconType::NONE:
                 return 0;
-            case item_icon_type::sprite:
+            case ItemIconType::SPRITE:
                 return lua::pushstring(L, def->icon);
-            case item_icon_type::block:
+            case ItemIconType::BLOCK:
                 return lua::pushstring(L, "block-previews:" + def->icon);
         }
     }

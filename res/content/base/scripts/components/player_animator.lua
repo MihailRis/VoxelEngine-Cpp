@@ -1,5 +1,3 @@
-local item_models = require "core:item_models"
-
 local tsf = entity.transform
 local body = entity.rigidbody
 local rig = entity.skeleton
@@ -9,12 +7,7 @@ local itemIndex = rig:index("item")
 
 local function refresh_model(id)
     itemid = id
-    if id == 0 then
-        rig:set_model(itemIndex, "")
-    else
-        local scale = item_models.setup(itemid, rig, itemIndex)
-        rig:set_matrix(itemIndex, mat4.scale(scale))
-    end 
+    rig:set_model(itemIndex, item.name(itemid)..".model")
 end
 
 function on_render()

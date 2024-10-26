@@ -25,7 +25,7 @@ void corecontent::setup(EnginePaths* paths, ContentBuilder* builder) {
     }
     {
         ItemDef& item = builder->items.create(CORE_EMPTY);
-        item.iconType = item_icon_type::none;
+        item.iconType = ItemIconType::NONE;
     }
 
     auto bindsFile = paths->getResourcesFolder()/fs::path("bindings.toml");
@@ -43,7 +43,7 @@ void corecontent::setup(EnginePaths* paths, ContentBuilder* builder) {
         block.hitboxes = {AABB()};
         block.breakable = false;
         ItemDef& item = builder->items.create(CORE_OBSTACLE+".item");
-        item.iconType = item_icon_type::block;
+        item.iconType = ItemIconType::BLOCK;
         item.icon = CORE_OBSTACLE;
         item.placingBlock = CORE_OBSTACLE;
         item.caption = block.caption;
@@ -59,7 +59,7 @@ void corecontent::setup(EnginePaths* paths, ContentBuilder* builder) {
         block.hitboxes = {AABB()};
         block.obstacle = false;
         ItemDef& item = builder->items.create(CORE_STRUCT_AIR+".item");
-        item.iconType = item_icon_type::block;
+        item.iconType = ItemIconType::BLOCK;
         item.icon = CORE_STRUCT_AIR;
         item.placingBlock = CORE_STRUCT_AIR;
         item.caption = block.caption;

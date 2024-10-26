@@ -12,10 +12,10 @@ struct item_funcs_set {
     bool on_block_break_by : 1;
 };
 
-enum class item_icon_type {
-    none,    // invisible (core:empty) must not be rendered
-    sprite,  // textured quad: icon is `atlas_name:texture_name`
-    block,   // block preview: icon is string block id
+enum class ItemIconType {
+    NONE,    // invisible (core:empty) must not be rendered
+    SPRITE,  // textured quad: icon is `atlas_name:texture_name`
+    BLOCK,   // block preview: icon is string block id
 };
 
 struct ItemDef {
@@ -29,7 +29,7 @@ struct ItemDef {
     bool generated = false;
     uint8_t emission[4] {0, 0, 0, 0};
 
-    item_icon_type iconType = item_icon_type::sprite;
+    ItemIconType iconType = ItemIconType::SPRITE;
     std::string icon = "blocks:notfound";
 
     std::string placingBlock = "core:air";
