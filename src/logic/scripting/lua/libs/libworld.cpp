@@ -1,4 +1,5 @@
 #include <cmath>
+#include <stdexcept>
 #include <filesystem>
 
 #include "assets/Assets.hpp"
@@ -12,7 +13,14 @@
 using namespace scripting;
 namespace fs = std::filesystem;
 
-static int l_world_get_list(lua::State* L) {
+static WorldInfo& require_world_info() {
+    if (level == nullptr) {
+        throw std::runtime_error("no world open");
+    }
+    return level->getWorld()->getInfo();
+}
+
+static int l_get_list(lua::State* L) {
     auto paths = engine->getPaths();
     auto worlds = paths->scanForWorlds();
 
@@ -41,59 +49,64 @@ static int l_world_get_list(lua::State* L) {
     return 1;
 }
 
-static int l_world_get_total_time(lua::State* L) {
-    return lua::pushnumber(L, level->getWorld()->getInfo().totalTime);
+static int l_get_total_time(lua::State* L) {
+    return lua::pushnumber(L, require_world_info().totalTime);
 }
 
-static int l_world_get_day_time(lua::State* L) {
-    return lua::pushnumber(L, level->getWorld()->getInfo().daytime);
+static int l_get_day_time(lua::State* L) {
+    return lua::pushnumber(L, require_world_info().daytime);
 }
 
-static int l_world_set_day_time(lua::State* L) {
+static int l_set_day_time(lua::State* L) {
     auto value = lua::tonumber(L, 1);
-    level->getWorld()->getInfo().daytime = std::fmod(value, 1.0);
+    require_world_info().daytime = std::fmod(value, 1.0);
     return 0;
 }
 
-static int l_world_set_day_time_speed(lua::State* L) {
+static int l_set_day_time_speed(lua::State* L) {
     auto value = lua::tonumber(L, 1);
-    level->getWorld()->getInfo().daytimeSpeed = std::abs(value);
+    require_world_info().daytimeSpeed = std::abs(value);
     return 0;
 }
 
-static int l_world_get_day_time_speed(lua::State* L) {
-    return lua::pushnumber(L, level->getWorld()->getInfo().daytimeSpeed);
+static int l_get_day_time_speed(lua::State* L) {
+    return lua::pushnumber(L, require_world_info().daytimeSpeed);
 }
 
-static int l_world_get_seed(lua::State* L) {
-    return lua::pushinteger(L, level->getWorld()->getSeed());
+static int l_get_seed(lua::State* L) {
+    return lua::pushinteger(L, require_world_info().seed);
 }
 
-static int l_world_exists(lua::State* L) {
+static int l_exists(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto worldsDir = engine->getPaths()->getWorldFolderByName(name);
     return lua::pushboolean(L, fs::is_directory(worldsDir));
 }
 
-static int l_world_is_day(lua::State* L) {
-    auto daytime = level->getWorld()->getInfo().daytime;
+static int l_is_day(lua::State* L) {
+    auto daytime = require_world_info().daytime;
     return lua::pushboolean(L, daytime >= 0.333 && daytime <= 0.833);
 }
 
-static int l_world_is_night(lua::State* L) {
-    auto daytime = level->getWorld()->getInfo().daytime;
+static int l_is_night(lua::State* L) {
+    auto daytime = require_world_info().daytime;
     return lua::pushboolean(L, daytime < 0.333 || daytime > 0.833);
 }
 
+static int l_get_generator(lua::State* L) {
+    return lua::pushstring(L, require_world_info().generator);
+}
+
 const luaL_Reg worldlib[] = {
-    {"get_list", lua::wrap<l_world_get_list>},
-    {"get_total_time", lua::wrap<l_world_get_total_time>},
-    {"get_day_time", lua::wrap<l_world_get_day_time>},
-    {"set_day_time", lua::wrap<l_world_set_day_time>},
-    {"set_day_time_speed", lua::wrap<l_world_set_day_time_speed>},
-    {"get_day_time_speed", lua::wrap<l_world_get_day_time_speed>},
-    {"get_seed", lua::wrap<l_world_get_seed>},
-    {"is_day", lua::wrap<l_world_is_day>},
-    {"is_night", lua::wrap<l_world_is_night>},
-    {"exists", lua::wrap<l_world_exists>},
+    {"get_list", lua::wrap<l_get_list>},
+    {"get_total_time", lua::wrap<l_get_total_time>},
+    {"get_day_time", lua::wrap<l_get_day_time>},
+    {"set_day_time", lua::wrap<l_set_day_time>},
+    {"set_day_time_speed", lua::wrap<l_set_day_time_speed>},
+    {"get_day_time_speed", lua::wrap<l_get_day_time_speed>},
+    {"get_seed", lua::wrap<l_get_seed>},
+    {"get_generator", lua::wrap<l_get_generator>},
+    {"is_day", lua::wrap<l_is_day>},
+    {"is_night", lua::wrap<l_is_night>},
+    {"exists", lua::wrap<l_exists>},
     {NULL, NULL}};

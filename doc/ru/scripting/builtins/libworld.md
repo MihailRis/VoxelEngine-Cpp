@@ -27,6 +27,9 @@ world.get_total_time() -> number
 -- Возвращает зерно мира.
 world.get_seed() -> int
 
+-- Возвращает имя генератора.
+world.get_generator() -> str
+
 -- Проверяет существование мира по имени.
 world.exists() -> bool
 
