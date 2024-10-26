@@ -102,6 +102,13 @@ static model::Mesh build_mesh(
         }
         if (normals) {
             vertex.normal = normals[indices[i * attrsCount + normalsIndex]];
+        } else if (coords) {
+            // Flat normal calculation
+            int idx = (i / 3) * 3;
+            auto a = coords[indices[idx * attrsCount + coordsIndex]];
+            auto b = coords[indices[(idx + 1) * attrsCount + coordsIndex]];
+            auto c = coords[indices[(idx + 2) * attrsCount + coordsIndex]];
+            vertex.normal = glm::normalize(glm::cross(b - a, c - a));
         }
         vertices.push_back(std::move(vertex));
     }
