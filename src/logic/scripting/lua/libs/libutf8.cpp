@@ -54,8 +54,8 @@ static int l_codepoint(lua::State* L) {
 }
 
 const luaL_Reg utf8lib[] = {
-    {"encode", lua::wrap<l_encode>},
-    {"decode", lua::wrap<l_decode>},
+    {"tobytes", lua::wrap<l_encode>},
+    {"tostring", lua::wrap<l_decode>},
     {"length", lua::wrap<l_length>},
     {"codepoint", lua::wrap<l_codepoint>},
     {NULL, NULL}
