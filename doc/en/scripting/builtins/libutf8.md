@@ -15,4 +15,7 @@ utf8.length(text: str) -> int
 
 -- Returns the code of the first character of the string
 utf8.codepoint(chars: str) -> int
+
+-- Returns a substring from position startchar to endchar inclusive
+utf8.sub(text: str, startchar: int, [optional] endchar: int) -> str
 ```

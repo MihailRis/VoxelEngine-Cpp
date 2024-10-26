@@ -53,10 +53,21 @@ static int l_codepoint(lua::State* L) {
     return lua::pushinteger(L, util::decode_utf8(size, string.data()));
 }
 
+static int l_sub(lua::State* L) {
+    auto string = util::str2u32str_utf8(lua::require_string(L, 1));
+    int start = std::max(0, static_cast<int>(lua::tointeger(L, 2) - 1));
+    int end = string.length();
+    if (lua::gettop(L) >= 3) {
+        end = std::max(0, static_cast<int>(lua::tointeger(L, 3) - 1));
+    }
+    return lua::pushstring(L, util::u32str2str_utf8(string.substr(start, end)));
+}
+
 const luaL_Reg utf8lib[] = {
     {"tobytes", lua::wrap<l_encode>},
     {"tostring", lua::wrap<l_decode>},
     {"length", lua::wrap<l_length>},
     {"codepoint", lua::wrap<l_codepoint>},
+    {"sub", lua::wrap<l_sub>},
     {NULL, NULL}
 };
