@@ -50,7 +50,73 @@ static inline float sample_at(
 
             return a00 + a10*tx + a01*ty + a11*tx*ty;
         }
-        // TODO: implement CUBIC (Bicubic) interpolation
+        case InterpolationType::CUBIC: {
+            float b1 =
+                ((tx - 1) * (tx - 2) * (tx + 1) * (ty - 1) * (ty - 2) * (ty + 1)) / 4;
+            float b2 =
+                (tx * (tx + 1) * (tx - 2) * (ty - 1) * (ty - 2) * (ty + 1)) / -4;
+            float b3 =
+                (tx * (tx + 1) * (tx - 2) * (ty - 1) * (ty - 2) * (ty + 1)) / -4;
+            float b4 =
+                (tx * (tx + 1) * (tx + 2) * ty * (ty + 1) * (ty - 2)) / 4;
+            float b5 =
+                (tx * (tx - 1) * (tx - 2) * (ty - 1) * (ty - 2) * (ty + 1)) / -12;
+            float b6 =
+                ((tx - 1) * (tx - 2) * (tx + 1) * ty * (ty - 1) * (ty - 2)) / -12;
+            float b7 =
+                (tx * (tx - 1) * (tx - 2) * ty * (ty + 1) * (ty - 2)) / 12;
+            float b8 =
+                (tx * (tx + 1) * (tx - 2) * ty * (ty - 1) * (ty - 2)) / 12;
+            float b9 =
+                (tx * (tx - 1) * (tx + 1) * (ty - 1) * (ty - 2) * (ty + 1)) / 12;
+            float b10 =
+                ((tx - 1) * (tx - 2) * (tx + 1) * ty * (ty - 1) * (ty + 1)) /12;
+            float b11 =
+                (tx * (tx - 1) * (tx - 2) * ty * (ty + 1) * (ty - 2)) / 36;
+            float b12 =
+                (tx * (tx - 1) * (tx + 1) * ty * (ty + 1) * (ty - 2)) / -12;
+            float b13 =
+                (tx * (tx + 1) * (tx - 2) * ty * (ty - 1) * (ty + 1)) / -12;
+            float b14 =
+                (tx * (tx - 1) * (tx + 1) * ty * (ty - 1) * (ty - 2)) / -36;
+            float b15 =
+                (tx * (tx - 1) * (tx - 2) * ty * (ty - 1) * (ty + 1)) / -36;
+            float b16 =
+                (tx * (tx - 1) * (tx + 1) * ty * (ty - 1) * (ty + 1)) / 36;
+
+
+            float a1 = b1 * val;
+            float a2 = b2 * sample_at(buffer, width, ix, iy + 1 < height ? iy + 1 : iy);
+            float a3 = b3 * sample_at(buffer, width, ix + 1 < width ? ix + 1 : ix, iy);
+            float a4 = b4 * sample_at(buffer, width,
+                ix + 1 < width ? ix + 1 : ix, iy + 1 < height ? iy + 1 : iy);
+            float a5 = b5 * sample_at(buffer, width, ix, iy > 1 ? iy - 1 : iy);
+            float a6 = b6 * sample_at(buffer, width, ix > 1 ? ix - 1 : ix, iy);
+            float a7 = b7 * sample_at(buffer, width,
+                ix + 1 < width ? ix + 1 : ix, iy > 1 ? iy - 1 : iy);
+            float a8 = b8 * sample_at(buffer, width,
+                ix > 1 ? ix - 1 : ix, iy + 1 < height ? iy + 1 : iy);
+            float a9 = b9 * sample_at(buffer, width,
+                ix, iy + 2 < height ? iy + 2 : iy);
+            float a10 = b10 * sample_at(buffer, width,
+                ix + 2 < width ? ix + 2 : ix, iy);
+            float a11 = b11 * sample_at( buffer, width,
+                ix > 1 ? ix - 1 : ix, iy > 1 ? iy - 1 : iy);
+            float a12 = b12 * sample_at(buffer, width,
+                ix + 1 < width ? ix + 1 : ix, iy + 2 < height ? iy + 2 : iy);
+            float a13 = b13 * sample_at(buffer, width,
+                ix + 2 < width ? ix + 2 : ix, iy + 1 < height ? iy + 1 : iy);
+            float a14 = b14 * sample_at(buffer, width,
+                ix > 1 ? ix - 1 : ix, iy + 2 < height ? iy + 2 : iy);
+            float a15 = b15 * sample_at(buffer, width,
+                ix + 2 < width ? ix + 2 : ix, iy > 1 ? iy - 1 : iy);
+            float a16 = b16 * sample_at(buffer, width,
+                ix + 2 < width ? ix + 2 : ix, iy + 2 < height ? iy + 2 : iy);
+
+            return a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 +
+                a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16;
+        }
+
         default:
             throw std::runtime_error("interpolation type is not implemented");
     }

@@ -18,4 +18,10 @@ utf8.codepoint(chars: str) -> int
 
 -- Returns a substring from position startchar to endchar inclusive
 utf8.sub(text: str, startchar: int, [optional] endchar: int) -> str
+
+-- Converts a string to uppercase
+utf8.upper(text: str) -> str
+
+-- Converts a string to lowercase
+utf8.lower(text: str) -> str
 ```
