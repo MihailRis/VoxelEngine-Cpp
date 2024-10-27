@@ -170,7 +170,9 @@ void TextBox::paste(const std::wstring& text) {
     input.erase(std::remove(input.begin(), input.end(), '\r'), input.end());
     refreshLabel();
     setCaret(caret + text.length());
-    validate();
+    if (validate()) {
+        onInput();
+    }
 }
 
 /// @brief Remove part of the text and move caret to start of the part
@@ -470,6 +472,12 @@ void TextBox::stepDefaultUp(bool shiftPressed, bool breakSelection) {
     }
 }
 
+void TextBox::onInput() {
+    if (subconsumer) {
+        subconsumer(input);
+    }
+}
+
 void TextBox::performEditingKeyboardEvents(keycode key) {
     bool shiftPressed = Events::pressed(keycode::LEFT_SHIFT);
     bool breakSelection = getSelectionLength() != 0 && !shiftPressed;
@@ -480,19 +488,23 @@ void TextBox::performEditingKeyboardEvents(keycode key) {
             }
             input = input.substr(0, caret-1) + input.substr(caret);
             setCaret(caret-1);
-            validate();
+            if (validate()) {
+                onInput();
+            }
         }
     } else if (key == keycode::DELETE) {
         if (!eraseSelected() && caret < input.length()) {
             input = input.substr(0, caret) + input.substr(caret + 1);
-            validate();
+            if (validate()) {
+                onInput();
+            }
         }
     } else if (key == keycode::ENTER) {
         if (multiline) {
             paste(L"\n");
         } else {
             defocus();
-            if (validate() && consumer) {
+            if (validate()) {
                 consumer(label->getText());
             }
         }
@@ -589,6 +601,10 @@ void TextBox::setTextSupplier(wstringsupplier supplier) {
 
 void TextBox::setTextConsumer(wstringconsumer consumer) {
     this->consumer = std::move(consumer);
+}
+
+void TextBox::setTextSubConsumer(wstringconsumer consumer) {
+    this->subconsumer = std::move(consumer);
 }
 
 void TextBox::setTextValidator(wstringchecker validator) {
