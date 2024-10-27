@@ -159,6 +159,9 @@ function string.trim_left(s, char)
     return string.match(s, "^" .. char .. "*(.+)$") or s
 end
 
+string.lower = utf8.lower
+string.upper = utf8.upper
+
 local meta = getmetatable("")
 
 function meta:__index(key)

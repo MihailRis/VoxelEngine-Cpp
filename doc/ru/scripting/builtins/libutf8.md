@@ -18,4 +18,10 @@ utf8.codepoint(chars: str) -> int
 
 -- Возвращает подстроку от позиции startchar до endchar включительно
 utf8.sub(text: str, startchar: int, [опционально] endchar: int) -> str
+
+-- Переводит строку в вверхний регистр
+utf8.upper(text: str) -> str
+
+-- Переводит строку в нижний регистр
+utf8.lower(text: str) -> str
 ```

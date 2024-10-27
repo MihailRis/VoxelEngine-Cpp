@@ -1,6 +1,7 @@
 #include "api_lua.hpp"
 
 #include <vector>
+#include <cwctype>
 
 #include "../lua_custom_types.hpp"
 #include "util/stringutil.hpp"
@@ -63,11 +64,29 @@ static int l_sub(lua::State* L) {
     return lua::pushstring(L, util::u32str2str_utf8(string.substr(start, end)));
 }
 
+static int l_upper(lua::State* L) {
+    auto string = util::str2u32str_utf8(lua::require_string(L, 1));
+    for (auto& c : string) {
+        c = std::towupper(c);
+    }
+    return lua::pushstring(L, util::u32str2str_utf8(string));
+}
+
+static int l_lower(lua::State* L) {
+    auto string = util::str2u32str_utf8(lua::require_string(L, 1));
+    for (auto& c : string) {
+        c = std::towlower(c);
+    }
+    return lua::pushstring(L, util::u32str2str_utf8(string));
+}
+
 const luaL_Reg utf8lib[] = {
     {"tobytes", lua::wrap<l_encode>},
     {"tostring", lua::wrap<l_decode>},
     {"length", lua::wrap<l_length>},
     {"codepoint", lua::wrap<l_codepoint>},
     {"sub", lua::wrap<l_sub>},
+    {"upper", lua::wrap<l_upper>},
+    {"lower", lua::wrap<l_lower>},
     {NULL, NULL}
 };
