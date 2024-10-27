@@ -91,7 +91,7 @@ public:
 
     entityid_t getSelectedEntity() const;
 
-    std::shared_ptr<Inventory> getInventory() const;
+    const std::shared_ptr<Inventory>& getInventory() const;
 
     glm::vec3 getPosition() const {
         return position;

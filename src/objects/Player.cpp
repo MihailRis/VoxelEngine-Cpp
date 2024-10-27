@@ -252,7 +252,7 @@ entityid_t Player::getSelectedEntity() const {
     return selectedEid;
 }
 
-std::shared_ptr<Inventory> Player::getInventory() const {
+const std::shared_ptr<Inventory>& Player::getInventory() const {
     return inventory;
 }
 

@@ -78,17 +78,17 @@ WorldRenderer::WorldRenderer(
 WorldRenderer::~WorldRenderer() = default;
 
 bool WorldRenderer::drawChunk(
-    size_t index, Camera* camera, Shader* shader, bool culling
+    size_t index, const Camera& camera, Shader* shader, bool culling
 ) {
     auto chunk = level->chunks->getChunks()[index];
     if (!chunk->flags.lighted) {
         return false;
     }
     float distance = glm::distance(
-        camera->position,
+        camera.position,
         glm::vec3(
             (chunk->x + 0.5f) * CHUNK_W,
-            camera->position.y,
+            camera.position.y,
             (chunk->z + 0.5f) * CHUNK_D
         )
     );
@@ -113,7 +113,9 @@ bool WorldRenderer::drawChunk(
     return true;
 }
 
-void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
+void WorldRenderer::drawChunks(
+    Chunks* chunks, const Camera& camera, Shader* shader
+) {
     auto assets = engine->getAssets();
     auto atlas = assets->get<Atlas>("blocks");
 
@@ -127,8 +129,8 @@ void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
         if (chunks->getChunks()[i] == nullptr) continue;
         indices.emplace_back(i);
     }
-    float px = camera->position.x / static_cast<float>(CHUNK_W) - 0.5f;
-    float pz = camera->position.z / static_cast<float>(CHUNK_D) - 0.5f;
+    float px = camera.position.x / static_cast<float>(CHUNK_W) - 0.5f;
+    float pz = camera.position.z / static_cast<float>(CHUNK_D) - 0.5f;
     std::sort(indices.begin(), indices.end(), [chunks, px, pz](auto i, auto j) {
         const auto& chunksBuffer = chunks->getChunks();
         const auto a = chunksBuffer[i].get();
@@ -141,7 +143,7 @@ void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
     });
     bool culling = engine->getSettings().graphics.frustumCulling.get();
     if (culling) {
-        frustumCulling->update(camera->getProjView());
+        frustumCulling->update(camera.getProjView());
     }
     chunks->visible = 0;
     for (size_t i = 0; i < indices.size(); i++) {
@@ -151,20 +153,20 @@ void WorldRenderer::drawChunks(Chunks* chunks, Camera* camera, Shader* shader) {
 
 void WorldRenderer::setupWorldShader(
     Shader* shader,
-    Camera* camera,
+    const Camera& camera,
     const EngineSettings& settings,
     float fogFactor
 ) {
     shader->use();
     shader->uniformMatrix("u_model", glm::mat4(1.0f));
-    shader->uniformMatrix("u_proj", camera->getProjection());
-    shader->uniformMatrix("u_view", camera->getView());
+    shader->uniformMatrix("u_proj", camera.getProjection());
+    shader->uniformMatrix("u_view", camera.getView());
     shader->uniform1f("u_timer", timer);
     shader->uniform1f("u_gamma", settings.graphics.gamma.get());
     shader->uniform1f("u_fogFactor", fogFactor);
     shader->uniform1f("u_fogCurve", settings.graphics.fogCurve.get());
     shader->uniform1f("u_dayTime", level->getWorld()->getInfo().daytime);
-    shader->uniform3f("u_cameraPos", camera->position);
+    shader->uniform3f("u_cameraPos", camera.position);
     shader->uniform1i("u_cubemap", 1);
 
     auto indices = level->content->getIndices();
@@ -186,7 +188,7 @@ void WorldRenderer::setupWorldShader(
 
 void WorldRenderer::renderLevel(
     const DrawContext&,
-    Camera* camera,
+    const Camera& camera,
     const EngineSettings& settings,
     float delta,
     bool pause
@@ -251,10 +253,10 @@ void WorldRenderer::renderBlockSelection() {
 }
 
 void WorldRenderer::renderLines(
-    Camera* camera, Shader* linesShader, const DrawContext& pctx
+    const Camera& camera, Shader* linesShader, const DrawContext& pctx
 ) {
     linesShader->use();
-    linesShader->uniformMatrix("u_projview", camera->getProjView());
+    linesShader->uniformMatrix("u_projview", camera.getProjView());
     if (player->selection.vox.id != BLOCK_VOID) {
         renderBlockSelection();
     }
@@ -268,7 +270,7 @@ void WorldRenderer::renderLines(
 }
 
 void WorldRenderer::renderDebugLines(
-    const DrawContext& pctx, Camera* camera, Shader* linesShader
+    const DrawContext& pctx, const Camera& camera, Shader* linesShader
 ) {
     DrawContext ctx = pctx.sub(lineBatch.get());
     const auto& viewport = ctx.getViewport();
@@ -280,7 +282,7 @@ void WorldRenderer::renderDebugLines(
     linesShader->use();
 
     if (showChunkBorders) {
-        linesShader->uniformMatrix("u_projview", camera->getProjView());
+        linesShader->uniformMatrix("u_projview", camera.getProjView());
         glm::vec3 coord = player->camera->position;
         if (coord.x < 0) coord.x--;
         if (coord.z < 0) coord.z--;
@@ -310,7 +312,7 @@ void WorldRenderer::renderDebugLines(
             -length,
             length
         ) * model *
-            glm::inverse(camera->rotation)
+            glm::inverse(camera.rotation)
     );
 
     ctx.setDepthTest(false);
@@ -327,9 +329,61 @@ void WorldRenderer::renderDebugLines(
     lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 1.f);
 }
 
+void WorldRenderer::renderHands(const Camera& camera, const Assets& assets) {
+    auto entityShader = assets.get<Shader>("entity");
+    auto indices = level->content->getIndices();
+
+    // get current chosen item
+    const auto& inventory = player->getInventory();
+    int slot = player->getChosenSlot();
+    const ItemStack& stack = inventory->getSlot(slot);
+    const auto& def = indices->items.require(stack.getItemId());
+
+    // prepare modified HUD camera
+    Camera hudcam = camera;
+    hudcam.far = 100.0f;
+    hudcam.setFov(1.2f);
+    hudcam.position = {};
+
+    // configure model matrix
+    const glm::vec3 itemOffset(0.08f, 0.035f, -0.1);
+
+    glm::mat4 matrix = glm::translate(glm::mat4(1.0f), itemOffset);
+    matrix = glm::scale(matrix, glm::vec3(0.1f));
+    matrix = camera.rotation * matrix *
+             glm::rotate(
+                 glm::mat4(1.0f), -glm::pi<float>() * 0.5f, glm::vec3(0, 1, 0)
+             );
+    auto offset = -(camera.position - player->getPosition());
+    float angle = glm::radians(player->cam.x - 90);
+    float cos = glm::cos(angle);
+    float sin = glm::sin(angle);
+
+    float newX = offset.x * cos - offset.z * sin;
+    float newZ = offset.x * sin + offset.z * cos;
+    matrix = matrix *
+             glm::translate(glm::mat4(1.0f), glm::vec3(newX, offset.y, newZ));
+
+    // render
+    texture_names_map map = {};
+    modelBatch->setLightsOffset(camera.position);
+    modelBatch->draw(
+        matrix,
+        glm::vec3(1.0f),
+        assets.get<model::Model>(def.name + ".model"),
+        &map
+    );
+    Window::clearDepth();
+    setupWorldShader(entityShader, hudcam, engine->getSettings(), 0.0f);
+    skybox->bind();
+    modelBatch->render();
+    modelBatch->setLightsOffset(glm::vec3());
+    skybox->unbind();
+}
+
 void WorldRenderer::draw(
     const DrawContext& pctx,
-    Camera* camera,
+    Camera& camera,
     bool hudVisible,
     bool pause,
     float delta,
@@ -338,7 +392,7 @@ void WorldRenderer::draw(
     timer += delta * !pause;
     auto world = level->getWorld();
     const Viewport& vp = pctx.getViewport();
-    camera->aspect = vp.getWidth() / static_cast<float>(vp.getHeight());
+    camera.aspect = vp.getWidth() / static_cast<float>(vp.getHeight());
 
     const auto& settings = engine->getSettings();
     const auto& worldInfo = world->getInfo();
@@ -356,7 +410,7 @@ void WorldRenderer::draw(
         Window::clearDepth();
 
         // Drawing background sky plane
-        skybox->draw(pctx, camera, assets, worldInfo.daytime, worldInfo.fog);
+        skybox->draw(pctx, &camera, assets, worldInfo.daytime, worldInfo.fog);
 
         // Actually world render with depth buffer on
         {
@@ -367,6 +421,7 @@ void WorldRenderer::draw(
             // Debug lines
             if (hudVisible) {
                 renderLines(camera, linesShader, ctx);
+                renderHands(camera, *assets);
             }
         }
 
