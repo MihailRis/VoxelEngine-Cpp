@@ -299,6 +299,7 @@ Changes the heightmap size.
 Available interpolation modes:
 - 'nearest' - no interpolation
 - 'linear' - bilinear interpolation
+- 'cubic' - bicubic interpolation
 
 ### heightmap:crop(...)
 
