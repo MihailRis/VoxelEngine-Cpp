@@ -8,6 +8,7 @@ local itemIndex = rig:index("item")
 local function refresh_model(id)
     itemid = id
     rig:set_model(itemIndex, item.name(itemid)..".model")
+    rig:set_matrix(itemIndex, mat4.rotate({0, 1, 0}, -80))
 end
 
 function on_render()
