@@ -5,16 +5,33 @@
 #include <stdexcept>
 #include <glm/glm.hpp>
 
-static inline float smootherstep(float x) {
-    return glm::smoothstep(std::floor(x), std::floor(x)+1, x);
-}
-
 static inline float sample_at(
     const float* buffer,
     uint width,
     uint x, uint y
 ) {
     return buffer[y*width+x];
+}
+
+static inline float sample_at(
+    const float* buffer,
+    uint width, uint height,
+    uint x, uint y
+) {
+    return buffer[(y >= height ? height-1 : y)*width+(x >= width ? width-1 : x)];
+}
+
+static inline float interpolate_cubic(float p[4], float x) {
+    return p[1] + 0.5 * x*(p[2] - p[0] + x*(2.0*p[0] - 5.0*p[1] + 4.0*p[2] - 
+           p[3] + x*(3.0*(p[1] - p[2]) + p[3] - p[0])));
+}
+
+static inline float interpolate_bicubic(float p[4][4], float x, float y) {
+    float q[4];
+    for (int i = 0; i < 4; i++) {
+        q[i] = interpolate_cubic(p[i], y);
+    }
+    return interpolate_cubic(q, x);
 }
 
 static inline float sample_at(
@@ -50,7 +67,17 @@ static inline float sample_at(
 
             return a00 + a10*tx + a01*ty + a11*tx*ty;
         }
-        // TODO: implement CUBIC (Bicubic) interpolation
+        case InterpolationType::CUBIC: {
+            float p[4][4];
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    p[i][j] = sample_at(
+                        buffer, width, height, ix + j - 1, iy + i - 1
+                    );
+                }
+            }
+            return interpolate_bicubic(p, ty, tx);
+        }
         default:
             throw std::runtime_error("interpolation type is not implemented");
     }
