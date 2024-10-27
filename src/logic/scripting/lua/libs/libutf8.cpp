@@ -1,6 +1,7 @@
 #include "api_lua.hpp"
 
 #include <vector>
+#include <wctype.h>
 
 #include "../lua_custom_types.hpp"
 #include "util/stringutil.hpp"
