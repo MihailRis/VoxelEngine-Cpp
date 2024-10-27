@@ -36,9 +36,7 @@ end
 function on_grounded(force)
     local matrix = mat4.idt()
     mat4.rotate(matrix, {0, 1, 0}, math.random()*360, matrix)
-    if model == "aabb" then
-        mat4.rotate(matrix, {1, 0, 0}, 90, matrix)
-    end
+    mat4.rotate(matrix, {1, 0, 0}, 90, matrix)
     mat4.scale(matrix, scale, matrix)
     rig:set_matrix(0, matrix)
     inair = false

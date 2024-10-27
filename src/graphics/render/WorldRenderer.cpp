@@ -348,12 +348,22 @@ void WorldRenderer::renderHands(const Camera& camera, const Assets& assets) {
     // configure model matrix
     const glm::vec3 itemOffset(0.08f, 0.035f, -0.1);
 
+    static glm::mat4 prevRotation(1.0f);
+
+    const float speed = 24.0f;
     glm::mat4 matrix = glm::translate(glm::mat4(1.0f), itemOffset);
     matrix = glm::scale(matrix, glm::vec3(0.1f));
-    matrix = camera.rotation * matrix *
+    glm::mat4 rotation = camera.rotation;
+    glm::quat rot0 = glm::quat_cast(prevRotation);
+    glm::quat rot1 = glm::quat_cast(rotation);
+    glm::quat finalRot =
+        glm::slerp(rot0, rot1, static_cast<float>(engine->getDelta() * speed));
+    rotation = glm::mat4_cast(finalRot);
+    matrix = rotation * matrix *
              glm::rotate(
                  glm::mat4(1.0f), -glm::pi<float>() * 0.5f, glm::vec3(0, 1, 0)
              );
+    prevRotation = rotation;
     auto offset = -(camera.position - player->getPosition());
     float angle = glm::radians(player->cam.x - 90);
     float cos = glm::cos(angle);
@@ -361,8 +371,8 @@ void WorldRenderer::renderHands(const Camera& camera, const Assets& assets) {
 
     float newX = offset.x * cos - offset.z * sin;
     float newZ = offset.x * sin + offset.z * cos;
-    matrix = matrix *
-             glm::translate(glm::mat4(1.0f), glm::vec3(newX, offset.y, newZ));
+    offset = glm::vec3(newX, offset.y, newZ);
+    matrix = matrix * glm::translate(glm::mat4(1.0f), offset);
 
     // render
     texture_names_map map = {};
