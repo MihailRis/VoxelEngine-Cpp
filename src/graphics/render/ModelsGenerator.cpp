@@ -53,10 +53,13 @@ model::Model ModelsGenerator::generate(
         }
         for (auto& mesh : model.meshes) {
             switch (blockDef.model) {
-                case BlockModel::aabb:
-                    mesh.scale(blockDef.hitboxes.at(0).size());
+                case BlockModel::aabb: {
+                    glm::vec3 size = blockDef.hitboxes.at(0).size();
+                    float m = glm::max(size.x, glm::max(size.y, size.z));
+                    m = glm::min(1.0f, m);
+                    mesh.scale(size / m);
                     break;
-                default:
+                } default:
                     break;
             }
             mesh.scale(glm::vec3(0.3f));
