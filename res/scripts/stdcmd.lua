@@ -187,3 +187,17 @@ console.add_command(
                     " has been saved as "..file.resolve(filename))
     end
 )
+
+console.add_command(
+    "fragment.place file:str x:num~pos.x y:num~pos.y z:num~pos.z rotation:int=0",
+    "Place fragment to the world",
+    function(args, kwargs)
+        local filename = args[1]
+        local x = args[2]
+        local y = args[3]
+        local z = args[4]
+        local rotation = args[5]
+        local fragment = generation.load_fragment(filename)
+        fragment:place({x, y, z}, rotation)
+    end
+)

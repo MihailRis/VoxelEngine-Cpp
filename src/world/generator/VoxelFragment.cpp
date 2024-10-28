@@ -6,6 +6,7 @@
 
 #include "data/dv_util.hpp"
 #include "content/Content.hpp"
+#include "voxels/Chunks.hpp"
 #include "voxels/Block.hpp"
 #include "voxels/ChunksStorage.hpp"
 #include "voxels/VoxelsVolume.hpp"
@@ -165,6 +166,29 @@ void VoxelFragment::prepare(const Content& content) {
         const auto& name = blockNames.at(voxels[i].id);
         voxelsRuntime[i].id = content.blocks.require(name).rt.id;
         voxelsRuntime[i].state = voxels[i].state;
+    }
+}
+
+void VoxelFragment::place(
+    Chunks& chunks, const glm::ivec3& offset, ubyte rotation
+) {
+    auto& structVoxels = getRuntimeVoxels();
+    for (int y = 0; y < size.y; y++) {
+        int sy = y + offset.y;
+        if (sy < 0 || sy >= CHUNK_H) {
+            continue;
+        }
+        for (int z = 0; z < size.z; z++) {
+            int sz = z + offset.z;
+            for (int x = 0; x < size.x; x++) {
+                int sx = x + offset.x;
+                const auto& structVoxel = 
+                    structVoxels[vox_index(x, y, z, size.x, size.z)];
+                if (structVoxel.id) {
+                    chunks.set(sx, sy, sz, structVoxel.id, structVoxel.state);
+                }
+            }
+        }
     }
 }
 
