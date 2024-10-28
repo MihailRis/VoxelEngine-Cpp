@@ -136,6 +136,7 @@ void Skybox::draw(
 }
 
 void Skybox::refresh(const DrawContext& pctx, float t, float mie, uint quality) {
+    float dayTime = t;
     DrawContext ctx = pctx.sub();
     ctx.setDepthMask(false);
     ctx.setDepthTest(false);
@@ -185,6 +186,7 @@ void Skybox::refresh(const DrawContext& pctx, float t, float mie, uint quality) 
     shader->uniform1f("u_mie", mie);
     shader->uniform1f("u_fog", mie - 1.0f);
     shader->uniform3f("u_lightDir", lightDir);
+    shader->uniform1f("u_dayTime", dayTime);
     for (uint face = 0; face < 6; face++) {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, cubemap->getId(), 0);
         shader->uniform3f("u_xaxis", xaxs[face]);
