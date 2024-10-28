@@ -11,7 +11,9 @@
 std::string util::escape(const std::string& s) {
     std::stringstream ss;
     ss << '"';
-    for (char c : s) {
+    size_t pos = 0;
+    while (pos < s.length()) {
+        char c = s[pos];
         switch (c) {
             case '\n':
                 ss << "\\n";
@@ -35,6 +37,13 @@ std::string util::escape(const std::string& s) {
                 ss << "\\\\";
                 break;
             default:
+                if (c & 0x80) {
+                    uint cpsize;
+                    int codepoint = decode_utf8(cpsize, s.data() + pos);
+                    pos += cpsize-1;
+                    ss << "\\u" << std::hex << codepoint;
+                    break;
+                }
                 if (c < ' ') {
                     ss << "\\" << std::oct << uint(ubyte(c));
                     break;
@@ -42,6 +51,7 @@ std::string util::escape(const std::string& s) {
                 ss << c;
                 break;
         }
+        pos++;
     }
     ss << '"';
     return ss.str();
