@@ -39,6 +39,7 @@ menu.Quit=Выход
 menu.Save and Quit to Menu=Сохранить и Выйти в Меню
 menu.Settings=Настройки
 menu.Contents Menu=Меню контентпаков
+menu.Open data folder=Открыть папку данных
 
 world.Seed=Зерно
 world.Name=Название
