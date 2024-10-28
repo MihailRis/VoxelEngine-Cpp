@@ -111,18 +111,22 @@ console.add_command(
     end
 )
 console.add_command(
-    "blocks.fill id:str x:num~pos.x y:num~pos.y z:num~pos.z w:int h:int d:int",
+    "blocks.fill id:str x1:int~pos.x y1:int~pos.y z1:int~pos.z "..
+                       "x2:int~pos.x y2:int~pos.y z2:int~pos.z",
     "Fill specified zone with blocks",
     function(args, kwargs)
-        local name, x, y, z, w, h, d = unpack(args)
+        local name, x1,y1,z1, x2,y2,z2 = unpack(args)
         local id = block.index(name)
-        for ly = 0, h - 1 do
-            for lz = 0, d - 1 do
-                for lx = 0, w - 1 do
-                    block.set(x + lx, y + ly, z + lz, id)
+        for y=y1,y2 do
+            for z=z1,z2 do
+                for x=x1,x2 do
+                    block.set(x, y, z, id)
                 end
             end
         end
+        local w = math.floor(math.abs(x2-x1+1) + 0.5)
+        local h = math.floor(math.abs(y2-y1+1) + 0.5)
+        local d = math.floor(math.abs(z2-z1+1) + 0.5)
         return tostring(w * h * d) .. " blocks set"
     end
 )
@@ -151,22 +155,24 @@ console.add_command(
 )
 
 console.add_command(
-    "fragment.save x:int y:int z:int w:int h:int d:int name:str='untitled' crop:bool=false",
+    "fragment.save x1:int~pos.x y1:int~pos.y z1:int~pos.z "..
+                  "x2:int~pos.x y2:int~pos.y z2:int~pos.z "..
+                  "name:str='untitled' crop:bool=false",
     "Save fragment",
     function(args, kwargs)
-        local x = args[1]
-        local y = args[2]
-        local z = args[3]
+        local x1 = args[1]
+        local y1 = args[2]
+        local z1 = args[3]
 
-        local w = args[4]
-        local h = args[5]
-        local d = args[6]
+        local x2 = args[4]
+        local y2 = args[5]
+        local z2 = args[6]
 
         local name = args[7]
         local crop = args[8]
         
         local fragment = generation.create_fragment(
-            {x, y, z}, {x + w, y + h, z + d}, crop, false
+            {x1, y1, z1}, {x2, y2, z2}, crop, false
         )
         local filename = 'export:'..name..'.vox'
         generation.save_fragment(fragment, filename, crop)

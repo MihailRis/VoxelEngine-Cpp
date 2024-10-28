@@ -21,7 +21,7 @@ std::unique_ptr<VoxelFragment> VoxelFragment::create(
     bool entities
 ) {
     auto start = glm::min(a, b);
-    auto size = glm::abs(a - b);
+    auto size = glm::abs(a - b) + 1;
 
     if (crop) {
         VoxelsVolume volume(size.x, size.y, size.z);
