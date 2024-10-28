@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <optional>
 
 #include "typedefs.hpp"
 #include "maths/Heightmap.hpp"
@@ -11,6 +12,8 @@ enum class InterpolationType {
     LINEAR,
     CUBIC,
 };
+
+std::optional<InterpolationType> InterpolationType_from(std::string_view str);
 
 class Heightmap {
     std::vector<float> buffer;

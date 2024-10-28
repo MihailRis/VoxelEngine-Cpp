@@ -202,6 +202,16 @@ void ContentLoader::loadGenerator(
     map.at("biome-parameters").get(def.biomeParameters);
     map.at("biome-bpd").get(def.biomesBPD);
     map.at("heights-bpd").get(def.heightsBPD);
+    std::string interpName;
+    map.at("heights-interpolation").get(interpName);
+    if (auto interp = InterpolationType_from(interpName)) {
+        def.heightsInterpolation = *interp;
+    }
+    map.at("biomes-interpolation").get(interpName);
+    if (auto interp = InterpolationType_from(interpName)) {
+        def.biomesInterpolation = *interp;
+    }
+
     map.at("sea-level").get(def.seaLevel);
     map.at("wide-structs-chunks-radius").get(def.wideStructsChunksRadius);
     if (map.has("heightmap-inputs")) {

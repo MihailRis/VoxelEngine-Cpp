@@ -299,6 +299,7 @@ Changes the heightmap size.
 Available interpolation modes:
 - 'nearest' - no interpolation
 - 'linear' - bilinear interpolation
+- 'cubic' - bicubic interpolation
 
 ### heightmap:crop(...)
 
@@ -350,7 +351,15 @@ generation.save_fragment(
 
 The fragment size is available as the `size` property.
 
-A fragment can be cropped to fit its contents (air is ignored) by calling the `fragment:crop()` method.
+### Methods
+
+```lua
+-- Crop a fragment to content
+fragment:crop()
+
+-- Set a fragment to the world at the specified position
+fragment:place(position: vec3, [optional] rotation:int=0)
+```
 
 ## Generating a height map
 
