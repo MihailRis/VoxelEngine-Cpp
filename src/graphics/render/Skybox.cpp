@@ -180,10 +180,11 @@ void Skybox::refresh(const DrawContext& pctx, float t, float mie, uint quality) 
     };
     t *= M_PI*2.0f;
     
+    lightDir = glm::normalize(glm::vec3(sin(t), -cos(t), 0.0f));
     shader->uniform1i("u_quality", quality);
     shader->uniform1f("u_mie", mie);
     shader->uniform1f("u_fog", mie - 1.0f);
-    shader->uniform3f("u_lightDir", glm::normalize(glm::vec3(sin(t), -cos(t), 0.0f)));
+    shader->uniform3f("u_lightDir", lightDir);
     for (uint face = 0; face < 6; face++) {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, cubemap->getId(), 0);
         shader->uniform3f("u_xaxis", xaxs[face]);

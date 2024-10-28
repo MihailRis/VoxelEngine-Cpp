@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <glm/glm.hpp>
 #include "typedefs.hpp"
 #include "maths/fastmaths.hpp"
 
@@ -27,6 +28,7 @@ class Skybox {
     Shader* shader;
     bool ready = false;
     FastRandom random;
+    glm::vec3 lightDir;
 
     std::unique_ptr<Mesh> mesh;
     std::unique_ptr<Batch3D> batch3d;
@@ -51,5 +53,9 @@ public:
     void unbind() const;
     bool isReady() const {
         return ready;
+    }
+
+    const glm::vec3 getLightDir() const {
+        return lightDir;
     }
 };
