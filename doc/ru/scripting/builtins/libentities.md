@@ -50,9 +50,6 @@ entities.get_all_in_box(pos: vec3, size: vec3) -> array<int>
 -- center - центр области
 -- radius - радиус области
 entities.get_all_in_radius(center: vec3, radius: number) -> array<int>
-
--- Возвращает массив флотов хитбокса из определения сущности
-entities.get_hitbox(uid: int)->array<int>
 ```
 
 ```lua
