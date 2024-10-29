@@ -34,6 +34,14 @@ static int l_def_name(lua::State* L) {
     }
     return 0;
 }
+
+static int l_def_hitbox(lua::State* L) {
+    if (auto def = require_entity_def(L)) {
+        return lua::pushvec(L, def->hitbox);
+    }
+    return 0;
+}
+
 static int l_defs_count(lua::State* L) {
     return lua::pushinteger(L, indices->entities.count());
 }
@@ -202,6 +210,7 @@ const luaL_Reg entitylib[] = {
     {"exists", lua::wrap<l_exists>},
     {"def_index", lua::wrap<l_def_index>},
     {"def_name", lua::wrap<l_def_name>},
+    {"def_hitbox", lua::wrap<l_def_hitbox>},
     {"get_def", lua::wrap<l_get_def>},
     {"defs_count", lua::wrap<l_defs_count>},
     {"spawn", lua::wrap<l_spawn>},

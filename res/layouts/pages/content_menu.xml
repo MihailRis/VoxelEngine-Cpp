@@ -3,6 +3,7 @@
         <!-- content is generated in script -->
     </panel>
     <button pos='15,430' size='440,40' onclick='menu:back()'>@Back</button>
+    <button pos='460,430' size='440,40' onclick='core.open_folder("user:content")'>@Open content folder</button>
 
     <panel id='content_info' pos='485,15' size='440,406' color='0' max-length='406' scrollable='true'>
         <label>@Creator</label>

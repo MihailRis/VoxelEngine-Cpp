@@ -99,4 +99,4 @@
 | save-skeleton-pose     | поза скелета сущности                                    | false        |
 | save-skeleton-textures | динамически назначенные текстуры                         | false        |
 | save-body-velocity     | скорость движения тела                                   | true         |
-| save-body-settings     | измененные настройки тела <br>(type, damping, crouching) | false        |
+| save-body-settings     | измененные настройки тела <br>(type, damping, crouching) | true         |
