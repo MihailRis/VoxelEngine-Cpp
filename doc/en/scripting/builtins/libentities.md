@@ -50,6 +50,11 @@ entities.get_all_in_box(pos: vec3, size: vec3) -> array<int>
 -- center - center of the area
 -- radius - radius of the area
 entities.get_all_in_radius(center: vec3, radius: number) -> array<int>
+
+
+-- Returns a float array representing hitbox size from entity definition
+entities.get_hitbox(uid: int)->array<int>
+
 ```
 
 ```lua
