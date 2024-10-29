@@ -15,6 +15,12 @@ world.get_day_time() -> number
 -- Устанавливает указанное игровое время.
 world.set_day_time(time: number)
 
+-- Возвращает текущее значение тумана.
+world.get_fog() -> number
+
+-- Устанавливает указанное значение тумана.
+world.set_fog(value: number)
+
 -- Устанавливает указанную скорость смены времени суток.
 world.set_day_time_speed(value: number)
 
