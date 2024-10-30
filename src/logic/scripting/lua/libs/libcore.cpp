@@ -154,6 +154,8 @@ static int l_get_setting_info(lua::State* L) {
         lua::setfield(L, "min");
         lua::pushnumber(L, number->getMax());
         lua::setfield(L, "max");
+        lua::pushnumber(L, number->getDefault());
+        lua::setfield(L, "def");
         return 1;
     }
     if (auto integer = dynamic_cast<IntegerSetting*>(setting)) {
@@ -161,6 +163,18 @@ static int l_get_setting_info(lua::State* L) {
         lua::setfield(L, "min");
         lua::pushinteger(L, integer->getMax());
         lua::setfield(L, "max");
+        lua::pushinteger(L, integer->getDefault());
+        lua::setfield(L, "def");
+        return 1;
+    }
+    if (auto boolean = dynamic_cast<FlagSetting*>(setting)) {
+        lua::pushboolean(L, boolean->getDefault());
+        lua::setfield(L, "def");
+        return 1;
+    }
+    if (auto string = dynamic_cast<StringSetting*>(setting)) {
+        lua::pushstring(L, string->getDefault());
+        lua::setfield(L, "def");
         return 1;
     }
     lua::pop(L);

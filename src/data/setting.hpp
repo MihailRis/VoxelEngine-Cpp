@@ -57,6 +57,10 @@ public:
         return value;
     }
 
+    const T& getDefault() const {
+        return initial;
+    }
+
     T& operator*() {
         return value;
     }
