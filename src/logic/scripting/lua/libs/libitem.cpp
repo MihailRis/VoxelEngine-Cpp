@@ -71,14 +71,10 @@ static int l_model_name(lua::State* L) {
 static int l_emission(lua::State* L) {
     if (auto def = get_item_def(L, 1)) {
         lua::createtable(L, 4, 0);
-        lua::pushinteger(L, def->emission[0]);
-        lua::rawseti(L, 1);
-        lua::pushinteger(L, def->emission[1]);
-        lua::rawseti(L, 2);
-        lua::pushinteger(L, def->emission[2]);
-        lua::rawseti(L, 3);
-        lua::pushinteger(L, def->emission[3]);
-        lua::rawseti(L, 4);
+        for (int i = 0; i < 4; ++i) {
+            lua::pushinteger(L, def->emission[i]);
+            lua::rawseti(L, i+1);
+        }
         return 1;
     }
     return 0;
