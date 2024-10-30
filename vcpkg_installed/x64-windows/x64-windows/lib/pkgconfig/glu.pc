@@ -1,0 +1,11 @@
+prefix=${pcfiledir}/../..
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: glu
+Description: Windows OpenGL Utility library
+Version: 10.0.22621
+Requires: opengl
+Libs: "-L${libdir}" -lglu32
+Cflags: "-I${includedir}"
+

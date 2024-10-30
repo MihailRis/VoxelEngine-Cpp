@@ -1,0 +1,132 @@
+{
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.2",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "documentNamespace": "https://spdx.org/spdxdocs/entt-x64-windows-3.13.2-751cbd08-d90a-48c0-a9e7-a9d94d462613",
+  "name": "entt:x64-windows@3.13.2 d39a6a29a5e7924f94840f4d691971878e3bef7c9dcc15d54d1d2526784feeef",
+  "creationInfo": {
+    "creators": [
+      "Tool: vcpkg-2024-10-18-e392d7347fe72dff56e7857f7571c22301237ae6"
+    ],
+    "created": "2024-10-27T14:43:57Z"
+  },
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "GENERATES",
+      "relatedSpdxElement": "SPDXRef-binary"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-0"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-1"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-2"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "GENERATED_FROM",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-0",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-1",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-2",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    }
+  ],
+  "packages": [
+    {
+      "name": "entt",
+      "SPDXID": "SPDXRef-port",
+      "versionInfo": "3.13.2",
+      "downloadLocation": "NOASSERTION",
+      "homepage": "https://github.com/skypjack/entt",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "description": "Gaming meets modern C++ - a fast and reliable entity-component system and much more",
+      "comment": "This is the port (recipe) consumed by vcpkg."
+    },
+    {
+      "name": "entt:x64-windows",
+      "SPDXID": "SPDXRef-binary",
+      "versionInfo": "d39a6a29a5e7924f94840f4d691971878e3bef7c9dcc15d54d1d2526784feeef",
+      "downloadLocation": "NONE",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "comment": "This is a binary package built by vcpkg."
+    },
+    {
+      "SPDXID": "SPDXRef-resource-1",
+      "name": "skypjack/entt",
+      "downloadLocation": "git+https://github.com/skypjack/entt@v3.13.2",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "e517b050a7a56b57ea2035322736dd20fa704e0a642d3c3e577caa771ddd126661981c6e15ae66ecaea97367f9e86748d6d26ff02579ab3ec6e48db25a2056e1"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "fileName": "./C:/VoxelEngine-Cpp/vcpkg/ports/entt/portfile.cmake",
+      "SPDXID": "SPDXRef-file-0",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "bf686dee107e66b22d677c8926a93e14a651fcc6e6a5d1dfbad0a56ec6400cb3"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./C:/VoxelEngine-Cpp/vcpkg/ports/entt/usage",
+      "SPDXID": "SPDXRef-file-1",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "90804b17c368af6cc4fef383d227739aed2cc5aaa9b7724a183b4a5e1d03bba9"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./C:/VoxelEngine-Cpp/vcpkg/ports/entt/vcpkg.json",
+      "SPDXID": "SPDXRef-file-2",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "dc1960b75e12ad2d441ad601ff97c20f6093a66a64048b6eb08180acaf80fdf9"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    }
+  ]
+}

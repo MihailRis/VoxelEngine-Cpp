@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="entt::basic_registry&lt;*&gt;">
+		<DisplayString>{{ pools={ pools.size() } }}</DisplayString>
+		<Expand>
+			<Item Name="[entities]">entities</Item>
+			<Synthetic Name="[pools]">
+				<DisplayString>{ pools.size() }</DisplayString>
+				<Expand>
+					<IndexListItems ExcludeView="simple">
+						<Size>pools.size()</Size>
+						<ValueNode>*pools.packed.first_base::value[$i].element.second</ValueNode>
+					</IndexListItems>
+					<IndexListItems IncludeView="simple">
+						<Size>pools.size()</Size>
+						<ValueNode>*pools.packed.first_base::value[$i].element.second,view(simple)</ValueNode>
+					</IndexListItems>
+				</Expand>
+			</Synthetic>
+			<Item Name="[groups]" ExcludeView="simple">groups.size()</Item>
+			<Synthetic Name="[vars]">
+				<DisplayString>{ vars.ctx.size() }</DisplayString>
+				<Expand>
+					<IndexListItems>
+						<Size>vars.ctx.size()</Size>
+						<ValueNode>vars.ctx.packed.first_base::value[$i].element.second</ValueNode>
+					</IndexListItems>
+				</Expand>
+			</Synthetic>
+		</Expand>
+	</Type>
+	<Type Name="entt::basic_sparse_set&lt;*&gt;">
+		<Intrinsic Name="cap" Expression="(traits_type::version_mask &lt;&lt; traits_type::length)"/>
+		<DisplayString>{{ size={ packed.size() }, type={ info->alias,na } }}</DisplayString>
+		<Expand>
+			<Item Name="[capacity]" ExcludeView="simple">packed.capacity()</Item>
+			<Item Name="[policy]">mode,en</Item>
+			<Item Name="[free_list]">head</Item>
+			<Synthetic Name="[sparse]">
+				<DisplayString>{ sparse.size() * traits_type::page_size }</DisplayString>
+				<Expand>
+					<ExpandedItem IncludeView="simple">sparse,view(simple)</ExpandedItem>
+					<CustomListItems ExcludeView="simple">
+						<Variable Name="pos" InitialValue="0"/>
+						<Variable Name="page" InitialValue="0"/>
+						<Variable Name="offset" InitialValue="0"/>
+						<Variable Name="last" InitialValue="sparse.size() * traits_type::page_size"/>
+						<Loop>
+							<Break Condition="pos == last"/>
+							<Exec>page = pos / traits_type::page_size</Exec>
+							<Exec>offset = pos &amp; (traits_type::page_size - 1)</Exec>
+							<If Condition="sparse[page] &amp;&amp; (*((traits_type::entity_type *)&amp;sparse[page][offset]) &lt; cap())">
+								<Item Name="[{ pos }]">*((traits_type::entity_type *)&amp;sparse[page][offset]) &amp; traits_type::entity_mask</Item>
+							</If>
+							<Exec>++pos</Exec>
+						</Loop>
+					</CustomListItems>
+				</Expand>
+			</Synthetic>
+			<Synthetic Name="[packed]">
+				<DisplayString>{ packed.size() }</DisplayString>
+				<Expand>
+					<ExpandedItem IncludeView="simple">packed,view(simple)</ExpandedItem>
+					<CustomListItems ExcludeView="simple">
+						<Variable Name="pos" InitialValue="0"/>
+						<Variable Name="last" InitialValue="packed.size()"/>
+						<Loop>
+							<Break Condition="pos == last"/>
+							<If Condition="*((traits_type::entity_type *)&amp;packed[pos]) &lt; cap()">
+								<Item Name="[{ pos }]">packed[pos]</Item>
+							</If>
+							<Exec>++pos</Exec>
+						</Loop>
+					</CustomListItems>
+				</Expand>
+			</Synthetic>
+		</Expand>
+	</Type>
+	<Type Name="entt::basic_storage&lt;*&gt;">
+		<Intrinsic Name="cap" Expression="(base_type::traits_type::version_mask &lt;&lt; base_type::traits_type::length)"/>
+		<DisplayString>{{ size={ base_type::packed.size() }, type={ base_type::info->alias,na } }}</DisplayString>
+		<Expand>
+			<Item Name="[capacity]" Optional="true" ExcludeView="simple">payload.capacity() * traits_type::page_size</Item>
+			<Item Name="[page size]" Optional="true" ExcludeView="simple">traits_type::page_size</Item>
+			<Item Name="[base]" ExcludeView="simple">(base_type*)this,nand</Item>
+			<Item Name="[base]" IncludeView="simple">(base_type*)this,view(simple)nand</Item>
+			<!-- having SFINAE-like techniques in natvis is priceless :) -->
+			<CustomListItems Condition="payload.size() != 0" Optional="true">
+				<Variable Name="pos" InitialValue="0" />
+				<Variable Name="last" InitialValue="base_type::packed.size()"/>
+				<Loop>
+					<Break Condition="pos == last"/>
+					<If Condition="*((base_type::traits_type::entity_type *)&amp;base_type::packed[pos]) &lt; cap()">
+						<Item Name="[{ pos }:{ base_type::packed[pos] }]">payload[pos / traits_type::page_size][pos &amp; (traits_type::page_size - 1)]</Item>
+					</If>
+					<Exec>++pos</Exec>
+				</Loop>
+			</CustomListItems>
+		</Expand>
+	</Type>
+	<Type Name="entt::basic_view&lt;*&gt;">
+		<DisplayString Condition="leading != nullptr">{{ size_hint={ leading->packed.size() } }}</DisplayString>
+		<DisplayString>{{ size_hint=0 }}</DisplayString>
+		<Expand>
+			<Item Name="[pools]" Optional="true">pools,na</Item>
+			<Item Name="[filter]" Optional="true">filter,na</Item>
+			<Item Name="[handle]" Condition="leading != nullptr">leading,na</Item>
+		</Expand>
+	</Type>
+	<Type Name="entt::basic_runtime_view&lt;*&gt;">
+		<DisplayString Condition="pools.size() != 0u">{{ size_hint={ pools[0]->packed.size() } }}</DisplayString>
+		<DisplayString>{{ size_hint=0 }}</DisplayString>
+		<Expand>
+			<Item Name="[pools]">pools,na</Item>
+			<Item Name="[filter]">filter,na</Item>
+		</Expand>
+	</Type>
+	<Type Name="entt::null_t">
+		<DisplayString>&lt;null&gt;</DisplayString>
+	</Type>
+	<Type Name="entt::tombstone_t">
+		<DisplayString>&lt;tombstone&gt;</DisplayString>
+	</Type>
+</AutoVisualizer>

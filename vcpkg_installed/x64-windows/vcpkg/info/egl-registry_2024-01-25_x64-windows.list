@@ -1,0 +1,15 @@
+x64-windows/
+x64-windows/include/
+x64-windows/include/EGL/
+x64-windows/include/EGL/egl.h
+x64-windows/include/EGL/eglext.h
+x64-windows/include/EGL/eglplatform.h
+x64-windows/include/KHR/
+x64-windows/include/KHR/khrplatform.h
+x64-windows/share/
+x64-windows/share/egl-registry/
+x64-windows/share/egl-registry/copyright
+x64-windows/share/egl-registry/vcpkg.spdx.json
+x64-windows/share/egl-registry/vcpkg_abi_info.txt
+x64-windows/share/opengl/
+x64-windows/share/opengl/egl.xml
