@@ -16,6 +16,7 @@
 #include "objects/rigging.hpp"
 #include "util/ThreadPool.hpp"
 #include "voxels/Block.hpp"
+#include "items/ItemDef.hpp"
 #include "Assets.hpp"
 #include "assetload_funcs.hpp"
 
@@ -238,6 +239,15 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
                         AssetType::MODEL, MODELS_FOLDER + "/" + model, model
                     );
                 }
+            }
+        }
+        for (const auto& [_, def] : content->items.getDefs()) {
+            if (def->modelName.find(':') == std::string::npos) {
+                loader.add(
+                    AssetType::MODEL,
+                    MODELS_FOLDER + "/" + def->modelName,
+                    def->modelName
+                );
             }
         }
     }

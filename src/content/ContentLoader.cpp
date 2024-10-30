@@ -429,6 +429,7 @@ void ContentLoader::loadItem(
     root.at("icon").get(def.icon);
     root.at("placing-block").get(def.placingBlock);
     root.at("script-name").get(def.scriptName);
+    root.at("model-name").get(def.modelName);
     root.at("stack-size").get(def.stackSize);
 
     // item light emission [r, g, b] where r,g,b in range [0..15]
