@@ -381,7 +381,7 @@ void WorldRenderer::renderHands(const Camera& camera, const Assets& assets) {
     modelBatch->draw(
         matrix,
         glm::vec3(1.0f),
-        assets.get<model::Model>(def.name + ".model"),
+        assets.get<model::Model>(def.modelName),
         &map
     );
     Window::clearDepth();
