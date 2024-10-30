@@ -61,6 +61,13 @@ static int l_get_placing_block(lua::State* L) {
     return 0;
 }
 
+static int l_get_model_name(lua::State* L) {
+    if (auto def = get_item_def(L, 1)) {
+        return lua::pushstring(L, def->modelName);
+    }
+    return 0;
+}
+
 const luaL_Reg itemlib[] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_name>},
@@ -69,4 +76,5 @@ const luaL_Reg itemlib[] = {
     {"icon", lua::wrap<l_get_icon>},
     {"caption", lua::wrap<l_caption>},
     {"get_placing_block", lua::wrap<l_get_placing_block>},
+    {"get_model_name", lua::wrap<l_get_model_name>},
     {NULL, NULL}};

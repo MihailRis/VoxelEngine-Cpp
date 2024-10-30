@@ -21,6 +21,9 @@ item.icon(itemid: int) -> str
 
 -- Возвращает числовой id блока, назначенного как 'placing-block' или 0
 item.get_placing_block(itemid: int) -> int
+
+-- Возвращает значение свойства `model-name`
+item.get_model_name(itemid: int) -> str
 ```
 
 
