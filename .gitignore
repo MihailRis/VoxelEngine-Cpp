@@ -48,3 +48,6 @@ appimage-build/
 /res/content/*
 !/res/content/base
 *.mtl
+
+# libs
+/libs/
