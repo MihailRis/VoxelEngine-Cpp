@@ -31,7 +31,7 @@ class ModelBatch {
 
     Assets* assets;
     Chunks* chunks;
-    Texture* texture = nullptr;
+    const Texture* texture = nullptr;
     UVRegion region {0.0f, 0.0f, 1.0f, 1.0f};
     const EngineSettings* settings;
     glm::vec3 lightsOffset {};
@@ -72,7 +72,7 @@ class ModelBatch {
               bool backlight);
     void setTexture(const std::string& name,
                     const texture_names_map* varTextures);
-    void setTexture(Texture* texture);
+    void setTexture(const Texture* texture);
     void flush();
 
     struct DrawEntry {

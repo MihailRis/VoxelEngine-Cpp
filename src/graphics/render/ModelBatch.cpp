@@ -1,5 +1,6 @@
 #include "ModelBatch.hpp"
 
+#include "assets/assets_util.hpp"
 #include "graphics/core/Mesh.hpp"
 #include "graphics/core/Model.hpp"
 #include "graphics/core/Atlas.hpp"
@@ -144,7 +145,7 @@ void ModelBatch::setLightsOffset(const glm::vec3& offset) {
 
 void ModelBatch::setTexture(const std::string& name,
                             const texture_names_map* varTextures) {
-    if (name.at(0) == '$') {
+    if (varTextures && name.at(0) == '$') {
         const auto& found = varTextures->find(name);
         if (found == varTextures->end()) {
             return setTexture(nullptr);
@@ -152,25 +153,13 @@ void ModelBatch::setTexture(const std::string& name,
             return setTexture(found->second, varTextures);
         }
     }
-    size_t sep = name.find(':');
-    if (sep == std::string::npos) {
-        setTexture(assets->get<Texture>(name));
-    } else {
-        auto atlas = assets->get<Atlas>(name.substr(0, sep));
-        if (atlas == nullptr) {
-            setTexture(nullptr);
-        } else {
-            setTexture(atlas->getTexture());
-            if (auto reg = atlas->getIf(name.substr(sep+1))) {
-                region = *reg;
-            } else {
-                setTexture("blocks:notfound", varTextures);
-            }
-        }
-    }
+
+    auto textureRegion = util::getTextureRegion(*assets, name, "blocks:notfound");
+    setTexture(textureRegion.texture);
+    region = textureRegion.region;
 }
 
-void ModelBatch::setTexture(Texture* texture) {
+void ModelBatch::setTexture(const Texture* texture) {
     if (texture == nullptr) {
         texture = blank.get();
     }

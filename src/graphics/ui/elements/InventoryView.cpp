@@ -1,6 +1,7 @@
 #include "InventoryView.hpp"
 
 #include "assets/Assets.hpp"
+#include "assets/assets_util.hpp"
 #include "content/Content.hpp"
 #include "frontend/LevelFrontend.hpp"
 #include "frontend/locale.hpp"
@@ -174,22 +175,13 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
             break;
         }
         case ItemIconType::SPRITE: {
-            size_t index = item.icon.find(':');
-            std::string name = item.icon.substr(index+1);
-            UVRegion region(0.0f, 0.0, 1.0f, 1.0f);
-            if (index == std::string::npos) {
-                batch->texture(assets->get<Texture>(name));
-            } else {
-                std::string atlasname = item.icon.substr(0, index);
-                auto atlas = assets->get<Atlas>(atlasname);
-                if (atlas && atlas->has(name)) {
-                    region = atlas->get(name);
-                    batch->texture(atlas->getTexture());
-                }
-            }
+            auto textureRegion =
+                util::getTextureRegion(*assets, item.icon, "blocks:notfound");
+            
+            batch->texture(textureRegion.texture);
             batch->rect(
                 pos.x, pos.y, slotSize, slotSize, 
-                0, 0, 0, region, false, true, tint);
+                0, 0, 0, textureRegion.region, false, true, tint);
             break;
         }
     }

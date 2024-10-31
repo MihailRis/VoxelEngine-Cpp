@@ -376,13 +376,12 @@ void WorldRenderer::renderHands(const Camera& camera, const Assets& assets) {
     matrix = matrix * glm::translate(glm::mat4(1.0f), offset);
 
     // render
-    texture_names_map map = {};
     modelBatch->setLightsOffset(camera.position);
     modelBatch->draw(
         matrix,
         glm::vec3(1.0f),
         assets.get<model::Model>(def.modelName),
-        &map
+        nullptr
     );
     Window::clearDepth();
     setupWorldShader(entityShader, hudcam, engine->getSettings(), 0.0f);
