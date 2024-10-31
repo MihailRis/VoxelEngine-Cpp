@@ -1,4 +1,7 @@
+#include <filesystem>
+
 #include "engine.hpp"
+#include "files/files.hpp"
 #include "frontend/hud.hpp"
 #include "frontend/screens/Screen.hpp"
 #include "graphics/ui/GUI.hpp"
@@ -109,6 +112,19 @@ static int l_is_pressed(lua::State* L) {
     }
 }
 
+static int l_reset_bindings(lua::State*) {
+    auto resFolder = engine->getPaths()->getResourcesFolder();
+    auto configFolder = resFolder/fs::path("config");
+    auto bindsFile = configFolder/fs::path("bindings.toml");
+    if (fs::is_regular_file(bindsFile)) {
+        Events::loadBindings(
+            bindsFile.u8string(), files::read_string(bindsFile), BindType::REBIND
+        );
+        return 0;
+    }
+    return 1;
+}
+
 const luaL_Reg inputlib[] = {
     {"keycode", lua::wrap<l_keycode>},
     {"mousecode", lua::wrap<l_mousecode>},
@@ -118,4 +134,5 @@ const luaL_Reg inputlib[] = {
     {"get_binding_text", lua::wrap<l_get_binding_text>},
     {"is_active", lua::wrap<l_is_active>},
     {"is_pressed", lua::wrap<l_is_pressed>},
+    {"reset_bindings", lua::wrap<l_reset_bindings>},
     {NULL, NULL}};

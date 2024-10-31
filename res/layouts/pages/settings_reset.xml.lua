@@ -40,6 +40,5 @@ function reset_graphics()
 end
 
 function reset_control()
-	print("not implemented")
-	--Wait for binding system update
+	input.reset_bindings()
 end
