@@ -25,7 +25,7 @@ end
 
 do -- setup visuals
     local matrix = mat4.idt()
-    rig:set_model(0, item.get_model_name(dropitem.id))
+    rig:set_model(0, item.model_name(dropitem.id))
     local bodysize = math.min(scale[1], scale[2], scale[3]) * DROP_SCALE
     body:set_size({scale[1] * DROP_SCALE, bodysize, scale[3] * DROP_SCALE})
     mat4.mul(matrix, rotation, matrix)

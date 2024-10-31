@@ -20,8 +20,8 @@ item.defs_count() -> int
 item.icon(itemid: int) -> str
 
 -- Returns the integer id 'placing-block' or 0
-item.get_placing_block(itemid: int) -> int
+item.placing_block(itemid: int) -> int
 
 -- Returns the value of the `model-name` property
-item.get_model_name(itemid: int) -> str
+item.model_name(itemid: int) -> str
 ```

@@ -20,10 +20,10 @@ item.defs_count() -> int
 item.icon(itemid: int) -> str
 
 -- Возвращает числовой id блока, назначенного как 'placing-block' или 0
-item.get_placing_block(itemid: int) -> int
+item.placing_block(itemid: int) -> int
 
 -- Возвращает значение свойства `model-name`
-item.get_model_name(itemid: int) -> str
+item.model_name(itemid: int) -> str
 ```
 
 
